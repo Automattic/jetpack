@@ -38,16 +38,18 @@ const props = {
 	openTab: jest.fn(),
 } as unknown as FirewallContext;
 
+const BLOCKED = {
+	outcome: 'blocked',
+	url: 'https://example.com/?jetpack_waf_test=93571da44ce07839f080f22ce422c11b',
+	status: 403,
+	statusText: '',
+	wafHeader: '403 - rule -2',
+	allowedHeader: null,
+};
+
 describe( 'FirewallOverviewCard', () => {
 	it( 'reports the test in a snackbar whose Learn more opens the steps', async () => {
-		( runFirewallTest as jest.Mock ).mockResolvedValue( {
-			outcome: 'blocked',
-			url: 'https://example.com/?jetpack_waf_test=93571da44ce07839f080f22ce422c11b',
-			status: 403,
-			statusText: '',
-			wafHeader: '403 - rule -2',
-			allowedHeader: null,
-		} );
+		( runFirewallTest as jest.Mock ).mockResolvedValue( BLOCKED );
 		( apiFetch as unknown as jest.Mock ).mockResolvedValue( {
 			blockedCount: 2,
 			recentBlocks: [ { id: 1, timestamp: '', ruleId: -2, reason: 'firewall test' } ],
@@ -75,10 +77,14 @@ describe( 'FirewallOverviewCard', () => {
 		render( <FirewallOverviewCard { ...props } /> );
 
 		expect(
-			screen.getByRole( 'checkbox', { name: /Block specific IP addresses\s*2/ } )
+			screen.getByRole( 'checkbox', {
+				name: /Block specific IP addresses\s*2 addresses on the list/,
+			} )
 		).toBeChecked();
 		expect(
-			screen.getByRole( 'checkbox', { name: /Always allow specific IP addresses\s*0/ } )
+			screen.getByRole( 'checkbox', {
+				name: /Always allow specific IP addresses\s*0 addresses on the list/,
+			} )
 		).not.toBeChecked();
 	} );
 
@@ -139,5 +145,60 @@ describe( 'FirewallOverviewCard', () => {
 		const dialog = await screen.findByRole( 'dialog', { name: 'How the firewall test works' } );
 		expect( dialog ).toHaveTextContent( 'X-JetpackWAF-Test-Allowed: ip allow list' );
 		expect( dialog ).toHaveTextContent( 'the firewall let the request through' );
+	} );
+
+	it( 'keeps the test’s result when the blocked requests can’t be refreshed', async () => {
+		( runFirewallTest as jest.Mock ).mockResolvedValue( BLOCKED );
+		( apiFetch as unknown as jest.Mock ).mockRejectedValue( { code: 'fetch_error' } );
+		render( <FirewallOverviewCard { ...props } /> );
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Test firewall' } ) );
+
+		const [ notice ] = select( noticesStore ).getNotices();
+		expect( notice.content ).toBe( 'The firewall blocked the test request. It’s working.' );
+		await act( async () => notice.actions[ 0 ].onClick() );
+		const dialog = await screen.findByRole( 'dialog', { name: 'How the firewall test works' } );
+		expect( dialog ).not.toHaveTextContent( /Logged the block|Nothing was logged/ );
+	} );
+
+	it.each( [
+		[
+			'a REST error’s own message',
+			{ code: 'firewall_test_unavailable', message: 'Update Jetpack to test the firewall.' },
+			'Update Jetpack to test the firewall.',
+		],
+		[
+			'a generic message for a failed connection',
+			{ code: 'fetch_error', message: 'Could not get a valid response from the server.' },
+			'The firewall test couldn’t run. Try again.',
+		],
+	] )( 'reports a test that couldn’t start with %s', async ( _name, error, expected ) => {
+		( runFirewallTest as jest.Mock ).mockRejectedValue( error );
+		render( <FirewallOverviewCard { ...props } /> );
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Test firewall' } ) );
+
+		expect( select( noticesStore ).getNotices()[ 0 ].content ).toBe( expected );
+	} );
+
+	it( 'takes its snackbar along when the tab changes, as Learn more opens this card’s dialog', async () => {
+		( runFirewallTest as jest.Mock ).mockResolvedValue( BLOCKED );
+		( apiFetch as unknown as jest.Mock ).mockResolvedValue( { blockedCount: 2, recentBlocks: [] } );
+		const { unmount } = render( <FirewallOverviewCard { ...props } /> );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Test firewall' } ) );
+
+		unmount();
+
+		expect( select( noticesStore ).getNotices() ).toHaveLength( 0 );
+	} );
+
+	it( 'renders the count for a WordPress locale that Intl rejects', () => {
+		document.documentElement.lang = 'pt-PT-ao90';
+		render(
+			<FirewallOverviewCard { ...props } state={ { ...props.state, blockedCount: 1234 } } />
+		);
+		document.documentElement.lang = '';
+
+		expect( screen.getByText( /^1.?234$/ ) ).toBeInTheDocument();
 	} );
 } );

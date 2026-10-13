@@ -45,16 +45,16 @@ function getResponseNote( result: TestResult ): string | undefined {
  *
  * @param props          - Component props.
  * @param props.result   - The test's result.
- * @param props.recorded - Whether a new "firewall test" block appeared in the log.
+ * @param props.recorded - Whether a new "firewall test" block appeared in the log; null when unknown.
  * @return The steps.
  */
-function TestSteps( { result, recorded }: { result: TestResult; recorded: boolean } ) {
+function TestSteps( { result, recorded }: { result: TestResult; recorded: boolean | null } ) {
 	const loggedNote = sprintf(
 		/* translators: %d is a firewall rule's ID. */
 		__( 'It’s in Recently blocked requests as rule %d.', 'jetpack-protect-pkg' ),
 		SELF_CHECK_RULE_ID
 	);
-	const steps = [
+	const steps: { title: string; detail?: string; code?: string }[] = [
 		{
 			title: __( 'Created a one-time test token', 'jetpack-protect-pkg' ),
 			detail: __(
@@ -77,13 +77,15 @@ function TestSteps( { result, recorded }: { result: TestResult; recorded: boolea
 				.join( '\n' ),
 			detail: getResponseNote( result ),
 		},
-		{
+	];
+	if ( recorded !== null ) {
+		steps.push( {
 			title: recorded
 				? __( 'Logged the block', 'jetpack-protect-pkg' )
 				: __( 'Nothing was logged', 'jetpack-protect-pkg' ),
 			detail: recorded ? loggedNote : undefined,
-		},
-	];
+		} );
+	}
 
 	return (
 		<ol className="jp-protect-firewall-test">
@@ -109,7 +111,7 @@ function TestSteps( { result, recorded }: { result: TestResult; recorded: boolea
  *
  * @param props              - Component props.
  * @param props.result       - The test's result.
- * @param props.recorded     - Whether a new "firewall test" block appeared in the log.
+ * @param props.recorded     - Whether a new "firewall test" block appeared in the log; null when unknown.
  * @param props.open         - Whether the dialog is open.
  * @param props.onOpenChange - Opens or closes the dialog.
  * @return The dialog.
@@ -121,7 +123,7 @@ export default function TestDetails( {
 	onOpenChange,
 }: {
 	result: TestResult;
-	recorded: boolean;
+	recorded: boolean | null;
 	open: boolean;
 	onOpenChange: ( open: boolean ) => void;
 } ) {

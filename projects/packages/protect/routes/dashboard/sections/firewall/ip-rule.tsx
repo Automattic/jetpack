@@ -1,6 +1,6 @@
 import { ToggleControl } from '@wordpress/components';
 import { useCallback, useState } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { Badge, Button, Dialog, Stack, Text, TextareaControl, VisuallyHidden } from '@wordpress/ui';
 import { appendIp, splitIps } from '../../components/settings/ip-list';
 import type { ProtectSettingsData } from '../../data/use-protect-settings';
@@ -45,12 +45,16 @@ export default function IpRule( {
 		typeof data.settings?.[ name ] === 'string' ? ( data.settings[ name ] as string ) : '';
 	const [ open, setOpen ] = useState( false );
 	const [ draft, setDraft ] = useState( saved );
+	// `data.error` is shared by every setting, so only show it for a save made from this dialog.
+	const [ saveFailed, setSaveFailed ] = useState( false );
+	const count = splitIps( saved ).length;
 
 	// Start each edit from the saved list. Only on opening: a failed save rolls `saved` back mid-edit.
 	const onOpenChange = useCallback(
 		( next: boolean ) => {
 			if ( next ) {
 				setDraft( saved );
+				setSaveFailed( false );
 			}
 			setOpen( next );
 		},
@@ -70,7 +74,9 @@ export default function IpRule( {
 		[ currentIp ]
 	);
 	const onSave = useCallback( async () => {
-		if ( await save( { [ name ]: draft } ) ) {
+		const isSaved = await save( { [ name ]: draft } );
+		setSaveFailed( ! isSaved );
+		if ( isSaved ) {
 			setOpen( false );
 		}
 	}, [ save, name, draft ] );
@@ -82,9 +88,20 @@ export default function IpRule( {
 				label={
 					<Stack direction="row" gap="sm" align="center">
 						{ label }
-						<Badge intent="informational">{ String( splitIps( saved ).length ) }</Badge>
+						<span aria-hidden="true">
+							<Badge intent="informational">{ String( count ) }</Badge>
+						</span>
 						<VisuallyHidden>
-							{ __( 'addresses on the list', 'jetpack-protect-pkg' ) }
+							{ sprintf(
+								/* translators: %d is how many IP addresses are on a list. */
+								_n(
+									'%d address on the list',
+									'%d addresses on the list',
+									count,
+									'jetpack-protect-pkg'
+								),
+								count
+							) }
 						</VisuallyHidden>
 					</Stack>
 				}
@@ -106,7 +123,7 @@ export default function IpRule( {
 					</Dialog.Header>
 					<Dialog.Content>
 						<Stack direction="column" gap="sm" align="start">
-							{ data.error && (
+							{ saveFailed && data.error && (
 								<Text variant="body-sm" className="jp-protect-ip-rule__error" role="alert">
 									{ data.error }
 								</Text>

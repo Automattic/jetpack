@@ -28,6 +28,12 @@ const find = ( list: [ RegExp, string ][], userAgent: string ) =>
  * @return The browser and system, or the product name for other clients.
  */
 export function summarizeUserAgent( userAgent: string ): string {
+	// Crawlers name themselves after "compatible;" and often claim a browser too.
+	const [ , crawler ] = userAgent.match( /\bcompatible;\s*([^\s/;)]+)\// ) ?? [];
+	if ( crawler ) {
+		return crawler;
+	}
+
 	const browser = find( BROWSERS, userAgent );
 	if ( browser ) {
 		const system = find( SYSTEMS, userAgent );

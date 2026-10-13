@@ -1,11 +1,11 @@
 /**
  * The entries of an IP list setting.
  *
- * @param list - The setting: addresses or ranges separated by commas, spaces or new lines.
+ * @param list - The setting: addresses or ranges separated the ways the firewall accepts.
  * @return The entries.
  */
 export const splitIps = ( list: unknown ): string[] =>
-	typeof list === 'string' ? list.split( /[\s,]+/ ).filter( Boolean ) : [];
+	typeof list === 'string' ? list.split( /[\s,;]+/ ).filter( Boolean ) : [];
 
 /**
  * An IP list with one more address on its own line.

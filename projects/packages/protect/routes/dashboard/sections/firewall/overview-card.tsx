@@ -1,6 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
 import { dispatch } from '@wordpress/data';
-import { useCallback, useMemo, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, caution, check, closeSmall, info, shield } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
@@ -9,7 +9,13 @@ import { CardRow, ProtectCard, Stat } from '../../components/card';
 import SettingToggle from '../../components/settings/setting-toggle';
 import TabLink from '../../components/tab-link';
 import isModuleActive from '../../data/is-module-active';
-import { CROSS_ORIGIN, FIREWALL_PATH, SELF_CHECK_RULE_ID, runFirewallTest } from './firewall-test';
+import {
+	CrossOriginError,
+	FIREWALL_PATH,
+	SELF_CHECK_RULE_ID,
+	TimeoutError,
+	runFirewallTest,
+} from './firewall-test';
 import IpRule from './ip-rule';
 import RecentBlocks from './recent-blocks';
 import TestDetails from './test-details';
@@ -36,7 +42,7 @@ type NoticeStatus = 'success' | 'info' | 'warning' | 'error';
 const snackbarIcon = ( icon: JSX.Element ) => <Icon icon={ icon } fill="currentColor" />;
 
 const OUTCOMES: Record<
-	TestOutcome | 'testing' | 'cross-origin' | 'error',
+	TestOutcome | 'testing' | 'cross-origin' | 'timed-out' | 'error',
 	{ status: NoticeStatus; message: () => string; icon?: JSX.Element }
 > = {
 	testing: {
@@ -48,6 +54,15 @@ const OUTCOMES: Record<
 		icon: snackbarIcon( check ),
 		message: () =>
 			__( 'The firewall blocked the test request. It’s working.', 'jetpack-protect-pkg' ),
+	},
+	'blocked-while-off': {
+		status: 'warning',
+		icon: snackbarIcon( caution ),
+		message: () =>
+			__(
+				'The firewall is off, but it still blocked the test request. Your server may still be loading it.',
+				'jetpack-protect-pkg'
+			),
 	},
 	silent: {
 		status: 'warning',
@@ -94,6 +109,15 @@ const OUTCOMES: Record<
 				'jetpack-protect-pkg'
 			),
 	},
+	'timed-out': {
+		status: 'error',
+		icon: snackbarIcon( closeSmall ),
+		message: () =>
+			__(
+				'The firewall test timed out, because your site took too long to respond. Try again.',
+				'jetpack-protect-pkg'
+			),
+	},
 	error: {
 		status: 'error',
 		icon: snackbarIcon( closeSmall ),
@@ -104,12 +128,17 @@ const OUTCOMES: Record<
 /**
  * Show the firewall test's progress or result as a snackbar.
  *
- * @param outcome   - Which message to show.
- * @param learnMore - Opens the test's steps; the result has it, progress doesn't.
+ * @param outcome           - Which message to show.
+ * @param options           - Optional extras.
+ * @param options.learnMore - Opens the test's steps; the result has it, progress doesn't.
+ * @param options.message   - Replaces the outcome's own message.
  */
-function notify( outcome: keyof typeof OUTCOMES, learnMore?: () => void ) {
+function notify(
+	outcome: keyof typeof OUTCOMES,
+	{ learnMore, message: custom }: { learnMore?: () => void; message?: string } = {}
+) {
 	const { status, message, icon } = OUTCOMES[ outcome ];
-	dispatch( noticesStore ).createNotice( status, message(), {
+	dispatch( noticesStore ).createNotice( status, custom || message(), {
 		type: 'snackbar',
 		id: NOTICE_ID,
 		// @ts-expect-error -- Typed as a string, but the snackbar renders any element.
@@ -122,8 +151,31 @@ function notify( outcome: keyof typeof OUTCOMES, learnMore?: () => void ) {
 	} );
 }
 
-const formatCount = ( count: number ) =>
-	new Intl.NumberFormat( document.documentElement.lang || undefined ).format( count );
+/**
+ * Report a test that couldn't run.
+ *
+ * @param error - What `runFirewallTest()` threw.
+ */
+function notifyFailure( error: unknown ) {
+	if ( error instanceof CrossOriginError ) {
+		notify( 'cross-origin' );
+	} else if ( error instanceof TimeoutError ) {
+		notify( 'timed-out' );
+	} else {
+		// A REST error says why; a failed connection only has api-fetch's generic text.
+		const { code, message } = ( error ?? {} ) as { code?: string; message?: string };
+		notify( 'error', { message: code && code !== 'fetch_error' ? message : undefined } );
+	}
+}
+
+const formatCount = ( count: number ) => {
+	try {
+		return new Intl.NumberFormat( document.documentElement.lang || undefined ).format( count );
+	} catch {
+		// WordPress prints locales Intl rejects, such as pt-PT-ao90.
+		return count.toLocaleString();
+	}
+};
 
 /**
  * The firewall's Overview card: blocked requests, and a test that shows the firewall working.
@@ -143,7 +195,7 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 	} );
 	const [ isTesting, setIsTesting ] = useState( false );
 	const [ result, setResult ] = useState< TestResult | null >( null );
-	const [ recorded, setRecorded ] = useState( false );
+	const [ recorded, setRecorded ] = useState< boolean | null >( null );
 	const [ detailsOpen, setDetailsOpen ] = useState( false );
 	const active = isModuleActive( settings.settings, 'waf', firewall.active );
 	// Settings load on the Settings tab; until then the IP lists come from page load.
@@ -152,27 +204,50 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 		[ settings, firewall.ipRules ]
 	);
 
+	// "Learn more" opens this card's dialog, so the snackbar can't outlive the card.
+	const isMounted = useRef( false );
+	useEffect( () => {
+		isMounted.current = true;
+		return () => {
+			isMounted.current = false;
+			dispatch( noticesStore ).removeNotice( NOTICE_ID );
+		};
+	}, [] );
+
 	const runTest = useCallback( async () => {
 		setIsTesting( true );
 		notify( 'testing' );
+		const lastId = blocks.recentBlocks[ 0 ]?.id ?? 0;
+		let testResult: TestResult;
 		try {
-			const lastId = blocks.recentBlocks[ 0 ]?.id ?? 0;
-			const testResult = await runFirewallTest( active );
+			testResult = await runFirewallTest( active );
+		} catch ( e ) {
+			notifyFailure( e );
+			setIsTesting( false );
+			return;
+		}
+
+		// The test has run by now, so a failed refresh mustn't replace its result with an error.
+		let isRecorded: boolean | null = null;
+		try {
 			const fresh = await apiFetch< {
 				blockedCount: number | null;
 				recentBlocks: BlockedRequest[];
 			} >( { path: `${ FIREWALL_PATH }/blocks` } );
 			setBlocks( fresh );
-			setResult( testResult );
-			setRecorded(
-				fresh.recentBlocks.some( block => block.id > lastId && block.ruleId === SELF_CHECK_RULE_ID )
+			isRecorded = fresh.recentBlocks.some(
+				block => block.id > lastId && block.ruleId === SELF_CHECK_RULE_ID
 			);
-			notify( testResult.outcome, () => setDetailsOpen( true ) );
-		} catch ( e ) {
-			notify( ( e as Error )?.message === CROSS_ORIGIN ? 'cross-origin' : 'error' );
-		} finally {
-			setIsTesting( false );
+		} catch {
+			// The counts stay as they were.
 		}
+		setResult( testResult );
+		setRecorded( isRecorded );
+		notify(
+			testResult.outcome,
+			isMounted.current ? { learnMore: () => setDetailsOpen( true ) } : {}
+		);
+		setIsTesting( false );
 	}, [ active, blocks.recentBlocks ] );
 
 	if ( ! firewall.available ) {

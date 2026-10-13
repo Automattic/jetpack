@@ -7,8 +7,17 @@ export const FIREWALL_PATH = '/jetpack/v4/protect-dashboard/firewall';
 /** Matches `Automattic\\Jetpack\\Waf\\Waf_Self_Check::RULE_ID`. */
 export const SELF_CHECK_RULE_ID = -2;
 
+/** The rule ID the firewall logs for its IP block list. */
+export const IP_BLOCK_LIST_RULE_ID = -1;
+
 /** Thrown by `runFirewallTest()` when the site's address is on another origin than the dashboard. */
-export const CROSS_ORIGIN = 'cross-origin';
+export class CrossOriginError extends Error {}
+
+/** Thrown by `runFirewallTest()` when the site takes longer than `TIMEOUT` to answer. */
+export class TimeoutError extends Error {}
+
+// Well inside the token's 60 seconds; a later answer would look like the firewall isn't running.
+const TIMEOUT = 15000;
 
 /** The header the firewall sends whenever it blocks. */
 export const BLOCKED_HEADER = 'X-JetpackWAF-Blocked';
@@ -16,7 +25,8 @@ export const BLOCKED_HEADER = 'X-JetpackWAF-Blocked';
 /** Matches `Automattic\\Jetpack\\Waf\\Waf_Self_Check::ALLOWED_HEADER`. */
 export const ALLOWED_HEADER = 'X-JetpackWAF-Test-Allowed';
 
-export type TestOutcome = 'blocked' | 'silent' | 'allowed' | 'not-blocked' | 'off';
+export type TestOutcome =
+	'blocked' | 'blocked-while-off' | 'silent' | 'allowed' | 'not-blocked' | 'off';
 
 export type TestResult = {
 	outcome: TestOutcome;
@@ -51,6 +61,10 @@ export function getTestOutcome(
 	if ( ! wafHeader ) {
 		return active ? 'not-blocked' : 'off';
 	}
+	// A standalone-mode bootstrap keeps answering after the firewall is turned off.
+	if ( ! active ) {
+		return 'blocked-while-off';
+	}
 	return status === 403 ? 'blocked' : 'silent';
 }
 
@@ -61,10 +75,10 @@ export function getTestOutcome(
  * @return The label.
  */
 export function getBlockLabel( block: Pick< BlockedRequest, 'ruleId' | 'reason' > ): string {
-	if ( block.reason === 'firewall test' ) {
+	if ( block.ruleId === SELF_CHECK_RULE_ID ) {
 		return __( 'Firewall test', 'jetpack-protect-pkg' );
 	}
-	if ( block.reason === 'ip block list' ) {
+	if ( block.ruleId === IP_BLOCK_LIST_RULE_ID ) {
 		return __( 'Blocked IP address', 'jetpack-protect-pkg' );
 	}
 	return (
@@ -79,26 +93,41 @@ export function getBlockLabel( block: Pick< BlockedRequest, 'ruleId' | 'reason' 
  *
  * @param  active - Whether the firewall is on.
  * @return What happened.
- * @throws {Error} With the message `CROSS_ORIGIN` when the site can't be requested from this page.
+ * @throws {CrossOriginError} When the site can't be requested from this page.
+ * @throws {TimeoutError}     When the site doesn't answer in time.
  */
 export async function runFirewallTest( active: boolean ): Promise< TestResult > {
-	const { url } = await apiFetch< { url: string } >( {
-		path: `${ FIREWALL_PATH }/test`,
-		method: 'POST',
-	} );
-	// Another origin's response headers can't be read, so the result would be a guess.
-	if ( new URL( url ).origin !== window.location.origin ) {
-		throw new Error( CROSS_ORIGIN );
+	const controller = new AbortController();
+	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- Cleared in `finally`, so it's used on every path.
+	const timer = setTimeout( () => controller.abort(), TIMEOUT );
+	try {
+		const { url } = await apiFetch< { url: string } >( {
+			path: `${ FIREWALL_PATH }/test`,
+			method: 'POST',
+			signal: controller.signal,
+		} );
+		// Another origin's response headers can't be read, so the result would be a guess.
+		if ( new URL( url ).origin !== window.location.origin ) {
+			throw new CrossOriginError();
+		}
+		const response = await fetch( url, {
+			credentials: 'omit',
+			cache: 'no-store',
+			signal: controller.signal,
+		} );
+		const wafHeader = response.headers.get( BLOCKED_HEADER );
+		const allowedHeader = response.headers.get( ALLOWED_HEADER );
+		return {
+			outcome: getTestOutcome( response.status, wafHeader, allowedHeader, active ),
+			url,
+			status: response.status,
+			statusText: response.statusText,
+			wafHeader,
+			allowedHeader,
+		};
+	} catch ( e ) {
+		throw controller.signal.aborted ? new TimeoutError() : e;
+	} finally {
+		clearTimeout( timer );
 	}
-	const response = await fetch( url, { credentials: 'omit', cache: 'no-store' } );
-	const wafHeader = response.headers.get( BLOCKED_HEADER );
-	const allowedHeader = response.headers.get( ALLOWED_HEADER );
-	return {
-		outcome: getTestOutcome( response.status, wafHeader, allowedHeader, active ),
-		url,
-		status: response.status,
-		statusText: response.statusText,
-		wafHeader,
-		allowedHeader,
-	};
 }

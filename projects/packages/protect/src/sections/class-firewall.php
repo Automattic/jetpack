@@ -30,6 +30,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Firewall implements Dashboard_Section {
 
 	/**
+	 * Headers a proxy names the visitor in. One that disagrees with the firewall's address means that address is the proxy's.
+	 */
+	const FORWARDING_HEADERS = array(
+		'HTTP_X_FORWARDED_FOR',
+		'HTTP_X_REAL_IP',
+		'HTTP_CF_CONNECTING_IP',
+		'HTTP_TRUE_CLIENT_IP',
+		'HTTP_CLIENT_IP',
+	);
+
+	/**
 	 * The key the section's state is printed under.
 	 *
 	 * @return string
@@ -127,18 +138,34 @@ class Firewall implements Dashboard_Section {
 	}
 
 	/**
-	 * The visitor's IP address as the firewall sees it, for "Add my IP address" on the always-allowed list.
+	 * The visitor's IP address as the firewall sees it, for "Add it to the list" on the always-allowed list.
 	 *
-	 * Behind a proxy, `X-Forwarded-For` can name the proxy for every visitor; allowing it would exempt all traffic.
+	 * Empty when it may be a proxy's: allowing that address would let every visitor behind the proxy past the rules.
 	 *
-	 * @return string Empty when the WAF package isn't loaded.
+	 * @return string
 	 */
-	private static function get_current_ip() {
+	public static function get_current_ip() {
 		if ( ! class_exists( Waf_Request::class ) ) {
 			return '';
 		}
 
-		return (string) ( new Waf_Request() )->get_real_user_ip_address();
+		$ip = (string) ( new Waf_Request() )->get_real_user_ip_address();
+		if ( ! filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) ) {
+			return '';
+		}
+
+		foreach ( self::FORWARDING_HEADERS as $header ) {
+			if ( empty( $_SERVER[ $header ] ) ) {
+				continue;
+			}
+
+			$forwarded = trim( explode( ',', wp_unslash( $_SERVER[ $header ] ) )[0] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Validated as an IP address below.
+			if ( ! filter_var( $forwarded, FILTER_VALIDATE_IP ) || inet_pton( $forwarded ) !== inet_pton( $ip ) ) {
+				return '';
+			}
+		}
+
+		return $ip;
 	}
 
 	/**

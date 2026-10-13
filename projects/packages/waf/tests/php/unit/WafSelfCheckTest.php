@@ -118,6 +118,22 @@ final class WafSelfCheckTest extends PHPUnit\Framework\TestCase {
 	}
 
 	/**
+	 * The dashboard tells "allowed" from "not running" by this header alone.
+	 */
+	public function testAllowListedRequestSaysWhyItWasLetThrough() {
+		require_once __DIR__ . '/functions-headers.php';
+		$_GET[ Waf_Self_Check::QUERY_PARAM ] = Waf_Self_Check::create_token();
+		Waf_Constants::define_entrypoint();
+		mkdir( JETPACK_WAF_DIR . '/rules' );
+		file_put_contents( JETPACK_WAF_DIR . '/rules/rules.php', "<?php\nrequire( '/x/rules/allow-ip.php' );\n" );
+		file_put_contents( JETPACK_WAF_DIR . '/rules/allow-ip.php', "<?php\nreturn true;\n" );
+
+		Waf_Self_Check::maybe_block( $this->createStub( Waf_Runtime::class ) );
+
+		$this->assertSame( array( 'X-JetpackWAF-Test-Allowed: ip allow list' ), $GLOBALS['jetpack_waf_test_headers'] );
+	}
+
+	/**
 	 * Data provider for testAllowListedRequestIsLetThrough.
 	 *
 	 * @return array

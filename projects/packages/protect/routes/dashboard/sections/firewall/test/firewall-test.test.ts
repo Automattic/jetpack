@@ -1,5 +1,11 @@
 import apiFetch from '@wordpress/api-fetch';
-import { CROSS_ORIGIN, getBlockLabel, getTestOutcome, runFirewallTest } from '../firewall-test';
+import {
+	CrossOriginError,
+	TimeoutError,
+	getBlockLabel,
+	getTestOutcome,
+	runFirewallTest,
+} from '../firewall-test';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
 
@@ -10,6 +16,13 @@ describe( 'getTestOutcome', () => {
 		[ 'a normal page means nothing blocked it', 200, null, true, 'not-blocked' ],
 		[ 'a 403 from the host is not the firewall', 403, null, true, 'not-blocked' ],
 		[ 'a normal page while the firewall is off is expected', 200, null, false, 'off' ],
+		[
+			'a block while the firewall is off is not "working"',
+			403,
+			'403 - rule -2',
+			false,
+			'blocked-while-off',
+		],
 	] )( '%s', ( _name, status, header, active, expected ) => {
 		expect( getTestOutcome( status, header, null, active ) ).toBe( expected );
 	} );
@@ -21,8 +34,8 @@ describe( 'getTestOutcome', () => {
 
 describe( 'getBlockLabel', () => {
 	it.each( [
-		[ 'the self-check', { ruleId: -2, reason: 'firewall test' }, 'Firewall test' ],
-		[ 'the IP block list', { ruleId: -1, reason: 'ip block list' }, 'Blocked IP address' ],
+		[ 'the self-check', { ruleId: -2, reason: 'reworded' }, 'Firewall test' ],
+		[ 'the IP block list', { ruleId: -1, reason: 'reworded' }, 'Blocked IP address' ],
 		[ 'a rule with a reason', { ruleId: 941100, reason: 'XSS attack' }, 'XSS attack' ],
 		[ 'a rule without a reason', { ruleId: 941100, reason: '' }, 'Rule 941100' ],
 	] )( '%s', ( _name, block, expected ) => {
@@ -38,7 +51,26 @@ describe( 'runFirewallTest', () => {
 		const fetchMock = jest.fn();
 		window.fetch = fetchMock;
 
-		await expect( runFirewallTest( true ) ).rejects.toThrow( CROSS_ORIGIN );
+		await expect( runFirewallTest( true ) ).rejects.toBeInstanceOf( CrossOriginError );
 		expect( fetchMock ).not.toHaveBeenCalled();
+	} );
+
+	it( 'gives up on a site that doesn’t answer', async () => {
+		jest.useFakeTimers();
+		( apiFetch as unknown as jest.Mock ).mockResolvedValue( {
+			url: `${ window.location.origin }/?jetpack_waf_test=abc`,
+		} );
+		window.fetch = jest.fn(
+			( _url, { signal } ) =>
+				new Promise( ( _resolve, reject ) =>
+					signal.addEventListener( 'abort', () => reject( new Error( 'aborted' ) ) )
+				)
+		) as unknown as typeof window.fetch;
+
+		const failure = runFirewallTest( true ).catch( e => e );
+		await jest.advanceTimersByTimeAsync( 15000 );
+
+		await expect( failure ).resolves.toBeInstanceOf( TimeoutError );
+		jest.useRealTimers();
 	} );
 } );
