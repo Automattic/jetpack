@@ -119,13 +119,7 @@ class Jetpack_Connector {
 			return;
 		}
 
-		// The built files are missing in a checkout that hasn't run the build, or mid-deploy.
-		$asset = static::get_module_asset( __DIR__ . '/' . static::MODULE_FILE );
-		if ( null === $asset ) {
-			// Without the card, core shows no Jetpack entry at all, so say why.
-			static::enqueue_missing_build_notice();
-			return;
-		}
+		$asset = static::get_module_asset( __DIR__ . '/' . static::MODULE_FILE ) ?? array();
 
 		$css_path = __DIR__ . '/css/connectors-card.css';
 		wp_enqueue_style(
@@ -163,27 +157,6 @@ class Jetpack_Connector {
 			'script_module_data_' . static::MODULE_ID,
 			array( static::class, 'get_connector_data' )
 		);
-	}
-
-	/**
-	 * Explain on the Connectors screen that one of the card's built files is missing.
-	 *
-	 * The screen hides legacy admin notices, so this posts a snackbar to the notices store it renders.
-	 *
-	 * @since $$next-version$$
-	 */
-	private static function enqueue_missing_build_notice() {
-		$message = __( 'Jetpack couldn’t load its Connectors card because a file is missing. Reinstall or update the plugin to restore it.', 'jetpack-connection' );
-
-		wp_register_script( 'jetpack-connector-card-missing', false, array( 'wp-data', 'wp-notices' ), false, true ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.NoExplicitVersion -- inline-only handle.
-		wp_add_inline_script(
-			'jetpack-connector-card-missing',
-			sprintf(
-				'wp.data.dispatch( "core/notices" ).createErrorNotice( %s, { type: "snackbar", explicitDismiss: true } );',
-				wp_json_encode( $message, JSON_HEX_TAG | JSON_UNESCAPED_SLASHES )
-			)
-		);
-		wp_enqueue_script( 'jetpack-connector-card-missing' );
 	}
 
 	/**
