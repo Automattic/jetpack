@@ -57,7 +57,10 @@ function WordAdsEarningsHistoryReport() {
 						actions: [ { label: __( 'Retry', 'jetpack-ads-pkg' ), onClick: refetch } ],
 					} }
 					empty={ {
-						description: __( 'No earnings history to show yet.', 'jetpack-ads-pkg' ),
+						description: __(
+							'No earnings yet. Once your ads have run for a full month, it will show up here.',
+							'jetpack-ads-pkg'
+						),
 					} }
 				>
 					<EarningsHistoryList rows={ rows } />

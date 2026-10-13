@@ -96,10 +96,9 @@ function LatestPostCard( { authorId }: { authorId: number } ) {
 				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 			} }
 			empty={ {
-				icon: postList,
 				description: authorId
 					? __( 'This author has not published a post yet.', 'jetpack-premium-analytics-pkg' )
-					: __( 'Publish a post to see its stats here.', 'jetpack-premium-analytics-pkg' ),
+					: __( 'Your latest post will show here.', 'jetpack-premium-analytics-pkg' ),
 			} }
 			renderLoading={ <PostHighlightCardSkeleton /> }
 		>

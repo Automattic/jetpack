@@ -197,8 +197,7 @@ export const Error: Story = {
 };
 
 /**
- * Resolved with no published posts: the widget shows its empty state (the
- * neutral post-list glyph and "Publish a post to see its stats here.").
+ * Resolved with no published posts: the widget shows its empty state.
  */
 export const Empty: Story = {
 	render: () => renderLatestPostOnPreset( 'last-365-days' ),
