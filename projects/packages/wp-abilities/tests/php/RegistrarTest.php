@@ -191,6 +191,21 @@ class RegistrarTest extends TestCase {
 	}
 
 	/**
+	 * Abilities whose category WordPress doesn't have are skipped instead of rejected.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_register_abilities_skips_abilities_whose_category_is_not_registered(): void {
+		Functions\when( 'wp_has_ability_category' )->justReturn( false );
+		Functions\expect( 'wp_register_ability' )->never();
+
+		TestFixtureRegistrar::register_abilities();
+	}
+
+	/**
 	 * Each ability is registered; specs without `category` get the subclass slug injected.
 	 */
 	public function test_register_abilities_registers_each_with_auto_injected_category(): void {
