@@ -26,6 +26,8 @@ type WidgetStateEmpty = {
 	// The host's icon prop, loose until the contract types icons.
 	icon?: any;
 	description?: string;
+	action?:
+		{ label: string; href: string; onClick?: never } | { label: string; onClick: () => void };
 };
 
 // What a widget kind knows about its request, in the data layer's terms. Every kind takes it.
@@ -92,6 +94,53 @@ export type DonutProps = {
 	variant?: 'ring' | 'half-ring';
 	// Whether the total of the segments shows; off for shares that add up to one. Defaults to on.
 	withTotal?: boolean;
+};
+
+// Funnels: steps as counts in, with the rate of the whole, the shares and the states handled.
+export declare const Funnel: ComponentType< FunnelProps >;
+export type FunnelStepInput = {
+	// Stable key of the step; the chart anchors its selection on it.
+	id: string;
+	label: string;
+	// Count for the selected period.
+	value: number;
+	// Count for the comparison period; undefined when the step has no match there.
+	previousValue?: number;
+};
+export type FunnelProps = {
+	// The steps in order: the first is the whole the others are shares of, and the rate of the whole is
+	// the last step over the first.
+	steps: readonly FunnelStepInput[];
+	status: WidgetStatus;
+	// Omit for the generic message with a Retry bound to `status.refetch`.
+	error?: WidgetStateError;
+	// Omit for the generic "no results for this time period" state.
+	empty?: WidgetStateEmpty;
+	// Format of the step counts, in the tooltip. Defaults to compact integers.
+	format?: DataFormat;
+};
+
+// Columns: a few categories compared across the periods as vertical bars, with the series per
+// period, the legend and the states handled.
+export declare const Columns: ComponentType< ColumnsProps >;
+export type ColumnInput = {
+	// Unique within the chart: the x-axis category.
+	label: string;
+	// Figure for the selected period.
+	value: number;
+	// Figure for the comparison period; undefined draws as 0 there.
+	previousValue?: number;
+};
+export type ColumnsProps = {
+	// The columns in order; each one draws once per period.
+	columns: readonly ColumnInput[];
+	status: WidgetStatus;
+	// Omit for the generic message with a Retry bound to `status.refetch`.
+	error?: WidgetStateError;
+	// Omit for the generic "no results for this time period" state.
+	empty?: WidgetStateEmpty;
+	// Format of the figures, on the y axis and in the tooltip. Defaults to compact integers.
+	format?: DataFormat;
 };
 
 // Widget attributes. The chart type is not one: a widget declares it as a `jpa/toggle-group` field.

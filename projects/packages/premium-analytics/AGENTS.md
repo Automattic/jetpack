@@ -710,7 +710,11 @@ component owns the states, the skeleton, the shares and deltas, and the detail-l
 segments and the hook's status; it owns the states, the total, the legend and the deltas
 (the WooCommerce Stats package's widgets render it; `components/donut/stories/` shows the shape).
 A half ring is the same kind with `variant="half-ring"`, as `widgets/devices` draws it; there is
-no separate semi-circle kind. Everything else renders its states through
+no separate semi-circle kind. A funnel widget renders `<Funnel>` with its steps in order, as
+counts, and the hook's status; it owns the rate of the whole, the shares, the tooltip and the
+states. A columns widget renders `<Columns>` with its columns, as figures of both periods, and
+the hook's status; it owns the series per period, the legend, the colors and the
+states. Everything else renders its states through
 `<WidgetState>` from `@jetpack-premium-analytics/widgets-toolkit`
 rather than hand-rolling `if ( isError )` / empty branches or a `WidgetLoadingOverlay`. Map the
 data/view hook's result to its four signals. For Stats API errors, pass the raw `error` to the
@@ -771,8 +775,9 @@ area. Notes:
 > Many Stats widgets predate this and still hand-roll loading/empty via `<WidgetLoadingOverlay>`,
 > `isLoading && data.length === 0`, and `LeaderboardChart`'s `emptyStateText`. They are being
 > migrated to `<WidgetState>` — follow the contract above, not those widgets. For a leaderboard,
-> `<Leaderboard>` is that wrapper, and `<Donut>` for a breakdown, as a ring or a half ring; the
-> other widget kinds get theirs as follow-ups.
+> `<Leaderboard>` is that wrapper, `<Donut>` for a breakdown, as a ring or a half ring,
+> `<Funnel>` for a funnel, and `<Columns>` for a few categories across the periods; the other
+> widget kinds get theirs as follow-ups.
 
 **Comparison data**
 

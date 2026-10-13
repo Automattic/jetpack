@@ -254,6 +254,53 @@ class Initializer_Test extends BaseTestCase {
 		);
 	}
 
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_offline_initialization_registers_features_before_the_user_resolves() {
+		$user = wp_insert_user(
+			array(
+				'user_login' => 'early-rest-admin',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		unset( $GLOBALS['current_user'], $GLOBALS['wp_actions']['set_current_user'] );
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
+		Initializer::init();
+		$this->assertSame( 0, did_action( 'set_current_user' ) );
+		$this->assertSame( 1, did_action( 'my_jetpack_init' ) );
+		wp_set_current_user( $user );
+		$server = rest_get_server();
+		$this->assertSame( 200, $server->dispatch( new \WP_REST_Request( 'GET', '/wpcom/v2/my-jetpack/site/features' ) )->get_status() );
+	}
+
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_offline_initialization_disables_the_add_license_screen() {
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'license-admin',
+					'user_pass'  => 'password',
+					'role'       => 'administrator',
+				)
+			)
+		);
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
+		Initializer::init();
+		$this->assertFalse( apply_filters( 'jetpack_my_jetpack_should_enable_add_license_screen', true ) );
+	}
+
 	public function test_offline_initialization_answers_link_callers_for_the_current_user() {
 		wp_set_current_user(
 			wp_insert_user(

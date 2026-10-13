@@ -302,7 +302,7 @@ class Main_Features_Rest_Test extends TestCase {
 					)
 				);
 				if ( ! $active ) {
-					$this->assertSame( 'Could not be switched on: unavailable in Offline mode.', $response->get_data()['failed'][0]['message'] );
+					$this->assertSame( 'Could not be switched on: unavailable in Offline Mode.', $response->get_data()['failed'][0]['message'] );
 				}
 			}
 			$this->assertSame( $active, ( new \Automattic\Jetpack\Modules() )->is_active( $module ) );

@@ -130,7 +130,7 @@ export default function BackupDetail( { item }: Props ) {
 						align="center"
 					>
 						<Icon icon={ cloud } size={ 24 } />
-						<Text variant="body-xl" render={ <h2 /> }>
+						<Text variant="body-xl" render={ <h2 /> } tabIndex={ -1 }>
 							{ item.title }
 						</Text>
 					</Stack>

@@ -113,6 +113,7 @@ class Initializer {
 		}
 
 		if ( self::is_offline_features_enabled() ) {
+			add_filter( 'jetpack_my_jetpack_should_enable_add_license_screen', '__return_false' );
 			Connection_Rest_Authentication::init();
 			add_filter( 'rest_request_before_callbacks', array( __CLASS__, 'use_local_module_options' ), 10, 3 );
 			add_filter( 'rest_request_after_callbacks', array( __CLASS__, 'restore_module_options' ), 10, 3 );
@@ -817,7 +818,6 @@ class Initializer {
 		if (
 			self::is_my_jetpack_admin_request()
 			&& self::is_offline_features_enabled()
-			// Honor an explicit host veto without enabling offline entry.
 			&& self::should_initialize()
 			&& REST_Main_Features::permissions_callback()
 		) {
@@ -1085,6 +1085,7 @@ class Initializer {
 
 		/**
 		 * Allows filtering whether My Jetpack should be initialized.
+		 * Once the current user is set, this cannot enable offline Features for a user without access.
 		 *
 		 * @since 0.5.0-alpha
 		 *
@@ -1092,8 +1093,8 @@ class Initializer {
 		 */
 		$should = apply_filters( 'jetpack_my_jetpack_should_initialize', $should );
 
-		// Standalone plugins can initialize before WordPress loads its pluggable user functions.
-		if ( self::is_offline_features_enabled() && function_exists( 'wp_get_current_user' ) && ! self::current_user_can_access_page() ) {
+		// Wait for the current user so user 0 cannot prevent Features REST routes for clients without cookies.
+		if ( self::is_offline_features_enabled() && function_exists( 'wp_get_current_user' ) && did_action( 'set_current_user' ) && ! self::current_user_can_access_page() ) {
 			return false;
 		}
 
