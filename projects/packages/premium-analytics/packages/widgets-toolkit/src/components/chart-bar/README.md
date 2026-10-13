@@ -1,5 +1,7 @@
 # BarChart
 
+Widgets render [`Columns`](../columns/) instead: it takes the columns and the request status, and draws this chart with its series per period, legend and states. `BarChart` is the chart alone, for the kind to compose.
+
 A **pure** vertical bar chart component for displaying categorical data. Built on top of `@automattic/charts` with support for negative values, making it ideal for monetary widgets showing refunds, returns, or discounts.
 
 ## Pure Component Design

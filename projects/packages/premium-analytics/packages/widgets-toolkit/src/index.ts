@@ -51,6 +51,8 @@ export {
 	Donut,
 	type DonutProps,
 	type DonutSegmentInput,
+	Funnel,
+	Columns,
 	type LegendLabels,
 	LeaderboardLabel,
 	type LeaderboardLabelProps,
@@ -103,6 +105,8 @@ export {
 	type PostTitleLinkProps,
 	PostDetailLink,
 	type PostDetailLinkProps,
+	AuthorDetailLink,
+	authorDetailLinkProps,
 	HighlightField,
 	HighlightGroup,
 	type HighlightFieldProps,
@@ -350,17 +354,7 @@ export {
 /**
  * Widget components
  */
-export {
-	BookingsRevenueByCustomerTypeWidget,
-	BookingConversionRateWidget,
-	ConversionRateWidget,
-	RevenueByCustomerTypeWidget,
-	SalesByCouponWidget,
-	TotalReturnsWidget,
-	VisitorsByLocationWidget,
-	SalesByDeviceWidget,
-	SessionsByDeviceWidget,
-} from './widgets';
+export { VisitorsByLocationWidget } from './widgets';
 
 /**
  * Types
