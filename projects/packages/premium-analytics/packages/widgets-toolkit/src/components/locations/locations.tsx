@@ -26,7 +26,7 @@ import {
 import styles from './locations.module.scss';
 import type { DataFormat, WidgetStatus } from '../../types';
 
-export type LocationsProps = {
+type LocationsProps = {
 	/**
 	 * The ranking, in display order: countries, or the regions of `country`. The map draws them
 	 * all, the list the first `maxRows`.

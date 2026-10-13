@@ -33,7 +33,7 @@ export type LocationRowInput = {
  */
 export type LocationsCountry = LocationsGeoFocusCountry;
 
-export type LocationsDataOptions = {
+type LocationsDataOptions = {
 	/**
 	 * The country the rows are regions of; omit for countries on the world map.
 	 */
@@ -44,7 +44,7 @@ export type LocationsDataOptions = {
 	hasComparison: boolean;
 };
 
-export type LocationsDataResult = {
+type LocationsDataResult = {
 	geoRows: LocationsGeoRow[];
 	geoMode: LocationsGeoMode;
 	focusCountry?: LocationsCountry;

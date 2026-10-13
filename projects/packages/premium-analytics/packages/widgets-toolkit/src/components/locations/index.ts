@@ -1,2 +1,2 @@
-export { Locations, type LocationsProps } from './locations';
-export type { LocationRowInput, LocationsCountry } from './build-locations-data';
+export { Locations } from './locations';
+export type { LocationRowInput } from './build-locations-data';

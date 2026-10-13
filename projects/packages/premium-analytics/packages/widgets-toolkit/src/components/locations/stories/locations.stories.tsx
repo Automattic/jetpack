@@ -7,7 +7,7 @@ import { location } from '@jetpack-premium-analytics/icons';
  */
 import { WidgetCard } from '../../../stories/widget-card';
 import { withWidgetRoot } from '../../../stories/with-widget-root';
-import { Locations, type LocationsProps } from '../locations';
+import { Locations } from '../locations';
 import type { LocationRowInput } from '../build-locations-data';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
 
@@ -55,7 +55,7 @@ const meta: Meta< typeof Locations > = {
 
 export default meta;
 
-type Story = StoryObj< LocationsProps >;
+type Story = StoryObj< typeof meta >;
 
 export const Default: Story = {};
 
