@@ -10,11 +10,10 @@ import {
 	type StatsAppPlanUsage,
 } from '@jetpack-premium-analytics/data';
 import { Notice } from '@jetpack-premium-analytics/externals';
-import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useEffect } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -30,8 +29,6 @@ const POSTPONE_SECONDS = 7 * 24 * 60 * 60;
 
 type PlanLimitStatus = {
 	isOver: boolean;
-	used: number;
-	limit: number;
 };
 
 // Once per page load, not per mount: every section tab mounts its own copy.
@@ -62,7 +59,7 @@ function getPlanLimitStatus( usage?: StatsAppPlanUsage ): PlanLimitStatus | null
 		return null;
 	}
 
-	return { isOver: used >= limit, used, limit };
+	return { isOver: used >= limit };
 }
 
 /**
@@ -119,36 +116,29 @@ function ConnectedNotice(): JSX.Element | null {
 
 	const upgradeHref = getPlanUpgradeUrl( 'jetpack-premium-analytics-plan-limit-notice' );
 
-	const usageSentence = sprintf(
-		/* translators: 1: views used in the current billing cycle, 2: the plan's views limit. */
-		__( '%1$s of %2$s billable views used this cycle.', 'jetpack-premium-analytics-pkg' ),
-		formatMetricValue( status.used, 'number', { decimals: 0 } ),
-		formatMetricValue( status.limit, 'number', { decimals: 0 } )
-	);
-
 	const { isOver } = status;
 	const title = isOver
-		? __( 'You have gone over your plan’s view limit', 'jetpack-premium-analytics-pkg' )
-		: __( 'You are approaching your plan’s view limit', 'jetpack-premium-analytics-pkg' );
-	const consequence = isOver
+		? __( 'You have reached your views limit', 'jetpack-premium-analytics-pkg' )
+		: __( 'You are nearing your monthly limit', 'jetpack-premium-analytics-pkg' );
+	const description = isOver
 		? __(
-				'Views past the limit are not being counted, so these totals are short until the cycle restarts.',
+				'Your access to the traffic dashboard may be disrupted in the future without an upgrade.',
 				'jetpack-premium-analytics-pkg'
 			)
 		: __(
-				'Views past the limit will not be counted until it restarts.',
+				'Your site is receiving more attention and is close to the monthly view limit provided by your current plan. Consider increasing your tier limit to avoid potential service disruptions.',
 				'jetpack-premium-analytics-pkg'
 			);
 
 	return (
 		<Notice.Root intent={ isOver ? 'warning' : 'info' } className={ styles.notice }>
 			<Notice.Title>{ title }</Notice.Title>
-			<Notice.Description>{ `${ usageSentence } ${ consequence }` }</Notice.Description>
+			<Notice.Description>{ description }</Notice.Description>
 
 			{ upgradeHref && (
 				<Notice.Actions>
 					<Notice.ActionLink href={ upgradeHref } onClick={ recordUpgradeClick }>
-						{ __( 'Upgrade plan', 'jetpack-premium-analytics-pkg' ) }
+						{ __( 'Upgrade now', 'jetpack-premium-analytics-pkg' ) }
 					</Notice.ActionLink>
 				</Notice.Actions>
 			) }

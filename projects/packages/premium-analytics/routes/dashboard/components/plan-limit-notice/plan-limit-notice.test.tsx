@@ -110,9 +110,8 @@ describe( 'PlanLimitNotice', () => {
 
 		const { container } = await renderNotice();
 
-		expect( container ).toHaveTextContent( 'You are approaching your plan’s view limit' );
-		expect( container ).toHaveTextContent( '9,000 of 10,000 billable views used this cycle.' );
-		expect( screen.getByRole( 'link', { name: 'Upgrade plan' } ) ).toHaveAttribute(
+		expect( container ).toHaveTextContent( 'You are nearing your monthly limit' );
+		expect( screen.getByRole( 'link', { name: 'Upgrade now' } ) ).toHaveAttribute(
 			'href',
 			expect.stringContaining(
 				'admin.php?page=stats#!/stats/purchase/123456789?from=jetpack-premium-analytics-plan-limit-notice'
@@ -141,7 +140,7 @@ describe( 'PlanLimitNotice', () => {
 
 		const { container } = await renderNotice();
 
-		expect( container ).toHaveTextContent( 'You have gone over your plan’s view limit' );
+		expect( container ).toHaveTextContent( 'You have reached your views limit' );
 		expect( screen.queryByRole( 'button', { name: 'Dismiss' } ) ).not.toBeInTheDocument();
 	} );
 
@@ -208,7 +207,7 @@ describe( 'PlanLimitNotice', () => {
 		await user.click( screen.getByRole( 'button', { name: 'Dismiss' } ) );
 		await act( () => jest.runAllTimersAsync() );
 
-		expect( container ).toHaveTextContent( 'You are approaching your plan’s view limit' );
+		expect( container ).toHaveTextContent( 'You are nearing your monthly limit' );
 		expect( notices.createErrorNotice ).toHaveBeenCalledWith(
 			'Couldn’t dismiss the notice. Please try again.',
 			{ type: 'snackbar' }
@@ -265,7 +264,7 @@ describe( 'PlanLimitNotice', () => {
 		const stopNavigation = ( event: Event ) => event.preventDefault();
 		document.addEventListener( 'click', stopNavigation );
 
-		await user.click( screen.getByRole( 'link', { name: 'Upgrade plan' } ) );
+		await user.click( screen.getByRole( 'link', { name: 'Upgrade now' } ) );
 
 		document.removeEventListener( 'click', stopNavigation );
 		expect( recordEvent ).toHaveBeenCalledWith(
