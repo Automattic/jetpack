@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Shortcodes, widgets: Use apply_shortcodes() instead of do_shortcode().

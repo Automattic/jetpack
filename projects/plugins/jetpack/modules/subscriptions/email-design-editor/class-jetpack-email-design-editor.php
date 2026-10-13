@@ -58,6 +58,40 @@ class Jetpack_Email_Design_Editor {
 		self::register_feature_flags();
 
 		add_action( 'admin_menu', array( __CLASS__, 'add_admin_page' ) );
+
+		// Priority 20, because `Newsletter\Settings::add_script_data()` replaces the whole
+		// `newsletter` key at the default priority on the page this link appears on.
+		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_script_data' ), 20 );
+	}
+
+	/**
+	 * Tell the admin where this screen is, or that there is none.
+	 *
+	 * The bare URL: each surface that links here adds its own `return` arg, because each one is
+	 * somewhere different to go back to. {@see self::exit_url()} reads and validates it.
+	 *
+	 * @param array $data The script data so far.
+	 * @return array The script data, with `newsletter.emailDesignUrl` null when there is no screen.
+	 */
+	public static function add_script_data( $data ) {
+		$url = self::get_url();
+
+		$data['newsletter']['emailDesignUrl'] = '' === $url ? null : $url;
+
+		return $data;
+	}
+
+	/**
+	 * The screen's own URL, or an empty string when this request has no such screen.
+	 *
+	 * Read back from the registration, not built from the slug, so a link cannot outlive the page:
+	 * `add_theme_page()` registers nothing without `edit_theme_options`, which `manage_options` --
+	 * all the Newsletter settings page asks for -- does not imply.
+	 *
+	 * @return string
+	 */
+	public static function get_url() {
+		return function_exists( 'menu_page_url' ) ? (string) menu_page_url( self::PAGE_SLUG, false ) : '';
 	}
 
 	/**
@@ -263,18 +297,45 @@ class Jetpack_Email_Design_Editor {
 	 * @return array
 	 */
 	private static function get_screen_data() {
+		$exit_url = self::exit_url();
+
 		return array(
 			'elementId'      => self::HANDLE,
 			'editorSettings' => self::get_iframe_asset_settings(),
 
-			// The editor assigns these to `window.location.href` from its header buttons.
-			// Both point at Appearance until the screen has a real entry point (NL-844).
+			// The editor assigns these to `window.location.href` from its header buttons. Both
+			// leave the editor, and there is one design rather than a list, so both go to the
+			// same place.
 			'urls'           => array(
-				'back'     => admin_url( 'themes.php' ),
-				'listings' => admin_url( 'themes.php' ),
+				'back'     => $exit_url,
+				'listings' => $exit_url,
 			),
 			'userEmail'      => wp_get_current_user()->user_email,
 		);
+	}
+
+	/**
+	 * Where the editor's header buttons leave to.
+	 *
+	 * The `return` arg, where the surface that linked here sent one, so the editor goes back the
+	 * way the reader came. Validated like core's Customizer validates its own
+	 * (`wp-admin/customize.php`), and narrowed to wp-admin so the button cannot be aimed off it.
+	 *
+	 * Without a usable one -- Appearance, a bookmark, a reload, or the previewer's new tab, which
+	 * sends none on purpose -- the dashboard, as the site editor does from the same menu
+	 * (`__experimentalDashboardLink`).
+	 *
+	 * @return string
+	 */
+	private static function exit_url() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read as a navigation target only, and validated below.
+		$return = isset( $_GET['return'] ) ? wp_validate_redirect( esc_url_raw( wp_unslash( $_GET['return'] ) ), '' ) : '';
+
+		if ( '' !== $return && 0 === strpos( $return, admin_url() ) ) {
+			return $return;
+		}
+
+		return admin_url( '/' );
 	}
 
 	/**

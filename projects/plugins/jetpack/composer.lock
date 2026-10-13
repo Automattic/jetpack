@@ -1324,7 +1324,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "6bf10704aa6241cf7d03a212d94e12ef109a15fc"
+                "reference": "3e05d73855c8198cfdbd90828092ffa03a65e901"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -1393,6 +1393,12 @@
                 ],
                 "test-php": [
                     "@composer phpunit"
+                ],
+                "test-js": [
+                    "pnpm run test"
+                ],
+                "test-js-coverage": [
+                    "pnpm run test-coverage"
                 ],
                 "test-php-coverage": [
                     "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
@@ -3230,10 +3236,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/protect",
-                "reference": "3a8c2090533df980dc334554ca364bc1ac471ca0"
+                "reference": "bfe0e82f7a2d9fac6019ec6ea1c07fe797fcf5ec"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
+                "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-protect-models": "@dev",
                 "automattic/jetpack-protect-status": "@dev",
                 "automattic/jetpack-status": "@dev",

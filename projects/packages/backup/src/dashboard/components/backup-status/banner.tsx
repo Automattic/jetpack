@@ -5,6 +5,12 @@ import { cloudUpload } from '@wordpress/icons';
 import { Link, Notice, Spinner, Stack, Text } from '@wordpress/ui';
 import { useSiteSuffix } from '../../hooks/use-connection';
 import ErrorReference from '../error-reference';
+import {
+	completedWithWarningsText,
+	failedRunText,
+	noGoodBackupsText,
+	willRetryText,
+} from './messages';
 import { ContactSupportLine } from './index';
 import './style.scss';
 import type { BackupsState } from '../../types/backup';
@@ -53,6 +59,9 @@ export default function BackupStatusBanner( { progress }: Props ) {
 	);
 }
 
+// The strips below carry no live region: `useRefreshActivityOnBackupComplete` announces the end
+// of a run this screen watched, and a page load stays quiet.
+
 /**
  * Strip shown when the site's backups are failing but the takeover panel
  * has stood down.
@@ -82,23 +91,13 @@ export function BackupTroubleBanner( {
 	state: BackupsState;
 	reference?: FailureReference | null;
 } ) {
-	// Written as two whole returns rather than one banner with ternaries
-	// inside it. Partly because they say different things — `will-retry`
-	// is not yet a problem the reader has to solve, since WPCOM retries on
-	// its own, while `no-good-backups` is the state where nothing arrives
-	// unless someone intervenes — and partly because a `__()` call chosen
-	// by a ternary is a msgid-extraction hazard: the minifier factors the
-	// shared call out of the conditional and leaves `__( cond ? a : b )`,
-	// which is no longer a string literal.
+	// Two whole returns, because they say different things: `will-retry` is not yet a problem
+	// the reader has to solve, since WPCOM retries on its own, while `no-good-backups` is the
+	// state where nothing arrives unless someone intervenes.
 	if ( state === 'will-retry' ) {
 		return (
-			<Stack className="jpb-backup-trouble-banner" direction="column" gap="xs" role="status">
-				<Text variant="body-sm">
-					{ __(
-						"Your latest backup didn't complete. We'll try again shortly.",
-						'jetpack-backup-pkg'
-					) }
-				</Text>
+			<Stack className="jpb-backup-trouble-banner" direction="column" gap="xs">
+				<Text variant="body-sm">{ willRetryText() }</Text>
 			</Stack>
 		);
 	}
@@ -108,13 +107,8 @@ export function BackupTroubleBanner( {
 	}
 
 	return (
-		<Stack className="jpb-backup-trouble-banner" direction="column" gap="xs" role="status">
-			<Text variant="body-sm">
-				{
-					/* translators: sentence form of the takeover panel's heading, which is the same words without the full stop. */
-					__( 'We are having trouble backing up your site.', 'jetpack-backup-pkg' )
-				}
-			</Text>
+		<Stack className="jpb-backup-trouble-banner" direction="column" gap="xs">
+			<Text variant="body-sm">{ noGoodBackupsText() }</Text>
 			<Text variant="body-sm">
 				<ContactSupportLine />
 			</Text>
@@ -133,24 +127,35 @@ export function BackupWarningsBanner() {
 	const siteSuffix = useSiteSuffix();
 
 	return (
-		<Stack className="jpb-backup-warnings-banner" direction="column" gap="xs" role="status">
+		<Stack className="jpb-backup-warnings-banner" direction="column" gap="xs">
 			<Text variant="body-sm">
-				{ createInterpolateElement(
-					__(
-						'Backup is completed with some files missing. See your <a>backup in the cloud</a> for more details.',
-						'jetpack-backup-pkg'
+				{ createInterpolateElement( completedWithWarningsText(), {
+					a: (
+						<Link
+							openInNewTab
+							// Omitted rather than passed as undefined — see `useSiteSuffix`.
+							href={ getRedirectUrl( 'jetpack-backup', siteSuffix ? { site: siteSuffix } : {} ) }
+						/>
 					),
-					{
-						a: (
-							<Link
-								openInNewTab
-								// Omitted rather than passed as undefined — see `useSiteSuffix`.
-								href={ getRedirectUrl( 'jetpack-backup', siteSuffix ? { site: siteSuffix } : {} ) }
-							/>
-						),
-					}
-				) }
+				} ) }
 			</Text>
+		</Stack>
+	);
+}
+
+/**
+ * Strip shown when a run this screen watched failed on a site that still has older restore points.
+ *
+ * Only after a watched run: on a page load those restore points mean the site is still backed up.
+ *
+ * @param props           - Component props.
+ * @param props.willRetry - Whether WordPress.com will retry the failed attempt.
+ * @return The rendered banner.
+ */
+export function BackupFailedRunBanner( { willRetry }: { willRetry: boolean } ) {
+	return (
+		<Stack className="jpb-backup-failed-run-banner" direction="column" gap="xs">
+			<Text variant="body-sm">{ willRetry ? willRetryText() : failedRunText() }</Text>
 		</Stack>
 	);
 }
