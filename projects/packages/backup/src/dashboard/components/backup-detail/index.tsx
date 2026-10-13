@@ -180,7 +180,8 @@ export default function BackupDetail( { item }: Props ) {
 							render={ <RouterLink to={ `/restore/${ item.rewindId }` } /> }
 						>
 							<LinkButton.Icon icon={ rotateLeft } />
-							{ __( 'Restore to this point', 'jetpack-backup-pkg' ) }
+							{ /* Same size and line height as the button; only the weight drops, to Download's. */ }
+							<Text variant="body-md">{ __( 'Restore to this point', 'jetpack-backup-pkg' ) }</Text>
 						</LinkButton>
 					</Stack>
 				</Stack>
