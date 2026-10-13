@@ -207,7 +207,8 @@ describe( 'TransferConnectionOwnership', () => {
 		await user.click( await screen.findByRole( 'option', { name: /Kazz/ } ) );
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
 
-		await expect( screen.findByText( '<b>Kazz</b>' ) ).resolves.toBeInTheDocument();
+		// Both the handover line and the support notice name the new owner.
+		await expect( screen.findAllByText( '<b>Kazz</b>' ) ).resolves.toHaveLength( 2 );
 		expect( screen.getByText( /will become the connection owner/ ) ).toBeInTheDocument();
 	} );
 

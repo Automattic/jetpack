@@ -54,8 +54,8 @@ const TransferConfirmStep = ( {
 				<AvatarBadge name={ candidate.displayName } isIncoming />
 				<Text>
 					{ createInterpolateElement(
-						/* translators: <name /> is replaced with the display name of the administrator taking over. */
-						__( '<name /> will become the connection owner.', 'jetpack-connection-js' ),
+						/* translators: <name/> is replaced with the display name of the administrator taking over. */
+						__( '<name/> will become the connection owner.', 'jetpack-connection-js' ),
 						{ name: <strong>{ candidate.displayName }</strong> }
 					) }
 				</Text>
@@ -105,15 +105,13 @@ const TransferConfirmStep = ( {
 			<Notice.Root intent="info">
 				<Notice.Description>
 					{ createInterpolateElement(
-						sprintf(
-							/* translators: %s: display name of the administrator taking over. */
-							__(
-								'%s also becomes the main point of contact for support about that data. <link>Learn about the connection owner</link>',
-								'jetpack-connection-js'
-							),
-							candidate.displayName
+						/* translators: <name/> is replaced with the display name of the administrator taking over. */
+						__(
+							'<name/> also becomes the main point of contact for support about that data. <link>Learn about the connection owner</link>',
+							'jetpack-connection-js'
 						),
 						{
+							name: <strong>{ candidate.displayName }</strong>,
 							link: <Link openInNewTab href={ getRedirectUrl( 'jetpack-support-primary-user' ) } />,
 						}
 					) }
