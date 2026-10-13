@@ -127,7 +127,7 @@ class Jetpack_AI_Settings {
 
 	/**
 	 * Whether apply_master_gates() should step aside; see
-	 * {@see self::get_master_forced_off_route()}.
+	 * {@see self::third_party_disables_ai()}.
 	 *
 	 * @var bool
 	 */
@@ -161,23 +161,23 @@ class Jetpack_AI_Settings {
 		add_filter( 'jetpack_ai_seo_enabled', array( __CLASS__, 'apply_master_gates' ) );
 
 		// Once per request, before the first reader of the active list: Jetpack::load_modules() at priority -2.
-		add_action( 'after_setup_theme', array( __CLASS__, 'hold_module_off_for_host' ), -3 );
+		add_action( 'after_setup_theme', array( __CLASS__, 'hold_module_off_when_ai_is_off' ), -3 );
 	}
 
 	/**
-	 * Report a host that disallows AI as the `ai` module forced off, the shape
-	 * My Jetpack and WP-CLI already explain as "disabled by your host or site administrator".
+	 * Report a host or a `jetpack_ai_enabled` callback that turns AI off as the `ai` module
+	 * forced off, the shape My Jetpack and WP-CLI already explain as "disabled by your host or site administrator".
 	 *
-	 * Registered only while the host says no: any callback on `jetpack_active_modules` makes
+	 * Registered only while something says no: any callback on `jetpack_active_modules` makes
 	 * Jetpack_Modules_Overrides cache its first read, hiding filters added later in the request.
 	 *
 	 * @return void
 	 */
-	public static function hold_module_off_for_host() {
+	public static function hold_module_off_when_ai_is_off() {
 		$callback = array( __CLASS__, 'drop_ai_module' );
 
-		// Read once per request: a `wp_supports_ai` callback must be registered before `after_setup_theme`.
-		if ( ! ( new Host() )->is_wpcom_simple() && ! self::host_allows_ai() ) {
+		// Read once per request: a `wp_supports_ai` or `jetpack_ai_enabled` callback must be registered before `after_setup_theme`.
+		if ( ! ( new Host() )->is_wpcom_simple() && ( ! self::host_allows_ai() || self::third_party_disables_ai() ) ) {
 			add_filter( 'jetpack_active_modules', $callback, 100 );
 			return;
 		}
@@ -187,7 +187,7 @@ class Jetpack_AI_Settings {
 
 	/**
 	 * Strip `ai` from the active list. The stored choice is untouched, so AI
-	 * returns as before once the host allows it again.
+	 * returns as before once nothing turns it off ahead of the module.
 	 *
 	 * @param array $modules Active module slugs.
 	 * @return array
@@ -271,7 +271,7 @@ class Jetpack_AI_Settings {
 	 * @return bool
 	 */
 	public static function apply_master_gates( $enabled ) {
-		// Stand aside while get_master_forced_off_route() asks the chain what
+		// Stand aside while third_party_disables_ai() asks the chain what
 		// everyone else says; our own verdict would drown theirs out.
 		if ( self::$probing_third_party ) {
 			return (bool) $enabled;
@@ -401,17 +401,7 @@ class Jetpack_AI_Settings {
 			return '';
 		}
 
-		// Ask the chain with our own gates stood down, so a deactivated module
-		// cannot mask a filter that would keep AI off however the module is set.
-		$third_party_off           = false;
-		self::$probing_third_party = true;
-		try {
-			$third_party_off = ! apply_filters( 'jetpack_ai_enabled', true );
-		} finally {
-			self::$probing_third_party = false;
-		}
-
-		if ( $third_party_off ) {
+		if ( self::third_party_disables_ai() ) {
 			return $host->is_vip_site()
 				? self::FORCED_OFF_ROUTE_FILTER_VIP
 				: self::FORCED_OFF_ROUTE_FILTER;
@@ -431,6 +421,23 @@ class Jetpack_AI_Settings {
 			&& 'inactive' === Jetpack_Modules_Overrides::instance()->get_module_override( self::AI_MODULE );
 
 		return $overridden ? self::FORCED_OFF_ROUTE_MODULES : '';
+	}
+
+	/**
+	 * Whether a `jetpack_ai_enabled` callback other than our own gates turns AI off.
+	 *
+	 * Asks the chain with our gates stood down, so the module this answer drives
+	 * (via {@see self::hold_module_off_when_ai_is_off()}) can neither mask nor feed it.
+	 *
+	 * @return bool
+	 */
+	private static function third_party_disables_ai() {
+		self::$probing_third_party = true;
+		try {
+			return ! apply_filters( 'jetpack_ai_enabled', true );
+		} finally {
+			self::$probing_third_party = false;
+		}
 	}
 
 	/**

@@ -137,8 +137,8 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 		$this->assertNotFalse( has_filter( 'jetpack_ai_sidebar_enabled', $callback ) );
 		$this->assertNotFalse( has_filter( 'jetpack_ai_seo_enabled', $callback ) );
 
-		// The host override must run before Jetpack::load_modules() reads the active list.
-		$hold = array( Jetpack_AI_Settings::class, 'hold_module_off_for_host' );
+		// The AI-off override must run before Jetpack::load_modules() reads the active list.
+		$hold = array( Jetpack_AI_Settings::class, 'hold_module_off_when_ai_is_off' );
 		$this->assertSame( -3, has_action( 'after_setup_theme', $hold ) );
 		$this->assertLessThan( has_action( 'after_setup_theme', array( 'Jetpack', 'load_modules' ) ), has_action( 'after_setup_theme', $hold ) );
 	}
@@ -331,16 +331,18 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Custom code can hold AI off through `jetpack_ai_enabled` alone, leaving the
-	 * module active.
+	 * A `jetpack_ai_enabled` kill switch forces the module off, and the route still names the filter.
 	 */
-	public function test_master_forced_off_when_a_filter_disables_ai_with_the_module_active() {
+	public function test_filter_off_forces_the_module_off_and_still_names_the_filter_route() {
 		Constants::set_constant( 'IS_WPCOM', false );
 		\Jetpack_Options::update_option( 'active_modules', array( 'ai' ) );
 		$this->force_ai_module_active();
 		add_filter( 'jetpack_ai_enabled', '__return_false' );
 
-		$this->assertTrue( Jetpack_AI_Settings::is_master_enabled(), 'Precondition: the module is still active.' );
+		Jetpack_AI_Settings::hold_module_off_when_ai_is_off();
+
+		$this->assertFalse( ( new Modules() )->is_active( 'ai' ) );
+		$this->assertSame( 'inactive', Jetpack_Modules_Overrides::instance()->get_module_override( 'ai', false ) );
 		$this->assertSame( 'filter', Jetpack_AI_Settings::get_master_forced_off_route() );
 	}
 
@@ -427,68 +429,95 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * A host that disallows AI reads as the module forced off, which My Jetpack already explains.
+	 * The two hooks that turn AI off ahead of the module.
+	 *
+	 * @return array
 	 */
-	public function test_host_off_forces_the_module_off() {
-		if ( ! function_exists( 'wp_supports_ai' ) ) {
+	public static function ai_off_hooks() {
+		return array(
+			'host'   => array( 'wp_supports_ai' ),
+			'filter' => array( 'jetpack_ai_enabled' ),
+		);
+	}
+
+	/**
+	 * Turn AI off through the given hook, skipping when core lacks it.
+	 *
+	 * @param string $hook `wp_supports_ai` or `jetpack_ai_enabled`.
+	 */
+	private function turn_ai_off_through( $hook ) {
+		if ( 'wp_supports_ai' === $hook && ! function_exists( 'wp_supports_ai' ) ) {
 			$this->markTestSkipped( 'wp_supports_ai() is not available in this WordPress version.' );
 		}
+		add_filter( $hook, '__return_false' );
+	}
+
+	/**
+	 * AI turned off ahead of the module reads as the module forced off, which My Jetpack already explains.
+	 *
+	 * @dataProvider ai_off_hooks
+	 * @param string $hook The hook that turns AI off.
+	 */
+	#[DataProvider( 'ai_off_hooks' )]
+	public function test_ai_off_forces_the_module_off( $hook ) {
 		Constants::set_constant( 'IS_WPCOM', false );
 		\Jetpack_Options::update_option( 'active_modules', array( 'ai' ) );
-		$this->assertTrue( ( new Modules() )->is_active( 'ai' ), 'Precondition: the module reads on while the host allows AI.' );
+		$this->assertTrue( ( new Modules() )->is_active( 'ai' ), 'Precondition: the module reads on while AI is allowed.' );
 
-		add_filter( 'wp_supports_ai', '__return_false' );
-		Jetpack_AI_Settings::hold_module_off_for_host();
+		$this->turn_ai_off_through( $hook );
+		Jetpack_AI_Settings::hold_module_off_when_ai_is_off();
 
 		$this->assertFalse( ( new Modules() )->is_active( 'ai' ) );
 		$this->assertSame( 'inactive', Jetpack_Modules_Overrides::instance()->get_module_override( 'ai', false ) );
 	}
 
 	/**
-	 * The override only filters the list, so AI returns as before once the host allows it again.
+	 * The override only filters the list, so AI returns as before once the hook lets it through again.
+	 *
+	 * @dataProvider ai_off_hooks
+	 * @param string $hook The hook that turns AI off.
 	 */
-	public function test_host_off_keeps_the_stored_module_choice() {
-		if ( ! function_exists( 'wp_supports_ai' ) ) {
-			$this->markTestSkipped( 'wp_supports_ai() is not available in this WordPress version.' );
-		}
+	#[DataProvider( 'ai_off_hooks' )]
+	public function test_ai_off_keeps_the_stored_module_choice( $hook ) {
 		Constants::set_constant( 'IS_WPCOM', false );
 		\Jetpack_Options::update_option( 'active_modules', array( 'ai' ) );
-		add_filter( 'wp_supports_ai', '__return_false' );
-		Jetpack_AI_Settings::hold_module_off_for_host();
+		$this->turn_ai_off_through( $hook );
+		Jetpack_AI_Settings::hold_module_off_when_ai_is_off();
 		( new Modules() )->is_active( 'ai' );
 
 		$this->assertContains( 'ai', \Jetpack_Options::get_option( 'active_modules' ) );
 
-		remove_filter( 'wp_supports_ai', '__return_false' );
-		Jetpack_AI_Settings::hold_module_off_for_host();
-		$this->assertTrue( ( new Modules() )->is_active( 'ai' ), 'AI returns once the host lifts the switch.' );
+		remove_filter( $hook, '__return_false' );
+		Jetpack_AI_Settings::hold_module_off_when_ai_is_off();
+		$this->assertTrue( ( new Modules() )->is_active( 'ai' ), 'AI returns once the hook lets it through.' );
 	}
 
 	/**
 	 * Any callback on `jetpack_active_modules` makes module override detection cache its
-	 * first read, so the host override must not be registered on a site whose host allows AI.
+	 * first read, so the override must not be registered while nothing turns AI off.
 	 */
-	public function test_host_override_not_registered_when_the_host_allows_ai() {
+	public function test_override_not_registered_when_ai_is_on() {
 		Constants::set_constant( 'IS_WPCOM', false );
 		\Jetpack_Options::update_option( 'active_modules', array( 'ai' ) );
 
-		Jetpack_AI_Settings::hold_module_off_for_host();
+		Jetpack_AI_Settings::hold_module_off_when_ai_is_off();
 
 		$this->assertFalse( has_filter( 'jetpack_active_modules', array( 'Jetpack_AI_Settings', 'drop_ai_module' ) ) );
 		$this->assertTrue( ( new Modules() )->is_active( 'ai' ) );
 	}
 
 	/**
-	 * Simple runs no modules, so the host override is never registered there.
+	 * Simple runs no modules, so the override is never registered there.
+	 *
+	 * @dataProvider ai_off_hooks
+	 * @param string $hook The hook that turns AI off.
 	 */
-	public function test_host_override_not_registered_on_simple() {
-		if ( ! function_exists( 'wp_supports_ai' ) ) {
-			$this->markTestSkipped( 'wp_supports_ai() is not available in this WordPress version.' );
-		}
+	#[DataProvider( 'ai_off_hooks' )]
+	public function test_override_not_registered_on_simple( $hook ) {
 		Constants::set_constant( 'IS_WPCOM', true );
-		add_filter( 'wp_supports_ai', '__return_false' );
+		$this->turn_ai_off_through( $hook );
 
-		Jetpack_AI_Settings::hold_module_off_for_host();
+		Jetpack_AI_Settings::hold_module_off_when_ai_is_off();
 
 		$this->assertFalse( has_filter( 'jetpack_active_modules', array( 'Jetpack_AI_Settings', 'drop_ai_module' ) ) );
 	}
