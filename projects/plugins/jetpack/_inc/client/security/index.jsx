@@ -103,15 +103,9 @@ export class Security extends Component {
 			<div>
 				<QuerySite />
 				<h1 className="screen-reader-text">{ __( 'Jetpack Security Settings', 'jetpack' ) }</h1>
-				<h2 className="jp-settings__section-title">
-					{ isSearchTerm
-						? __( 'Security', 'jetpack' )
-						: __(
-								'Your site is protected by Jetpack. You’ll be notified if anything needs attention.',
-								'jetpack',
-								/* dummy arg to avoid bad minification */ 0
-							) }
-				</h2>
+				{ isSearchTerm && (
+					<h2 className="jp-settings__section-title">{ __( 'Security', 'jetpack' ) }</h2>
+				) }
 				{ foundBackups && backupsContent }
 				{ foundMonitor && <Monitor { ...commonProps } /> }
 				{ foundAkismet && (

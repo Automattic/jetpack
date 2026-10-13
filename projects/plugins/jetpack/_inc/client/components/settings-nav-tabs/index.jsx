@@ -168,6 +168,7 @@ const SettingsNavTabs = props => {
 				className="jp-settings-nav__tabs-root"
 			>
 				<Tabs.List
+					variant="minimal"
 					className="jp-settings-nav__tabs"
 					aria-label={ __( 'Jetpack settings sections', 'jetpack' ) }
 				>
