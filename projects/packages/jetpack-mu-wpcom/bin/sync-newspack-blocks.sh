@@ -172,7 +172,7 @@ EOF
 rm "$TARGET/eslint.config.mjs"
 
 echo "Changing JS translation function call to avoid bad minification..."
-pnpm --package=jscodeshift dlx jscodeshift -s -t "$PKG_BASE/bin/sync-newspack-blocks-formatter.js" --extensions=js "$TARGET"
+pnpm --package=jscodeshift@17.4.0 dlx jscodeshift -t "$PKG_BASE/bin/sync-newspack-blocks-formatter.js" --extensions=js "$TARGET"
 
 # Add temporary PHPCS config file.
 PHPCSSTANDARDFILE="$TARGET/phpcs.tmp.xml"
