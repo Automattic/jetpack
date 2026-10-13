@@ -6,9 +6,7 @@ import type { SeoTab } from '../dashboard/dashboard-nav';
 export type SeoTracksScreen = 'overview' | 'settings' | 'content' | 'geo';
 
 /**
- * The reporting name for a dashboard tab. The GEO tab is still keyed `ai`
- * internally (route, store, directory), but reports as `geo` so the Tracks data
- * matches the user-facing name.
+ * The reporting name for a dashboard tab: the GEO tab is keyed `ai` internally.
  *
  * @param tab - The internal tab id.
  * @return The screen name to report.
@@ -35,15 +33,9 @@ type SeoScriptData = { seo?: { tracks?: SeoTracksContext } };
 type EventProps = Record< string, string | number | boolean >;
 
 /**
- * Fire a Tracks event for the SEO dashboard with the Data-team standard property
- * set. Reads the server-bootstrapped context (`blog_id`, `site_type`, `is_a11n`,
- * `is_test`, `product_version`) and adds the fixed `surface` plus the calling
- * `screen`, so every event carries the identifiers the distinct-site launch
- * metric joins on.
+ * Fire a Tracks event with the standard SEO props, including the `blog_id` join key.
  *
- * `blog_id` is that join key; if the context is somehow absent we still fire (a
- * recorded event beats a silent gap, and the Tracks pipeline backstops site/user
- * context). Event-specific `props` win over the standard set.
+ * Still fires without the server context: a partial event beats a silent gap.
  *
  * @param event  - The full event name, e.g. `jetpack_seo_setting_updated`.
  * @param screen - The dashboard screen the event came from.

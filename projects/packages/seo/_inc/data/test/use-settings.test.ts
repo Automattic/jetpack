@@ -2,6 +2,7 @@ import { jest } from '@jest/globals';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { makeSchemaSettings } from './fixtures/schema-settings-fixtures';
 import type { SettingsResponse } from '../settings-types';
+import type { SettingsForm } from '../use-settings';
 
 // True-ESM Jest (`--experimental-vm-modules`): register mocks with
 // `jest.unstable_mockModule`, then import the hook dynamically. `@wordpress/element`
@@ -11,6 +12,7 @@ const createInfoNotice = jest.fn();
 const createSuccessNotice = jest.fn();
 const createErrorNotice = jest.fn();
 const setSettings = jest.fn();
+const recordSeoEvent = jest.fn();
 
 const SEED: SettingsResponse = {
 	front_page_description: 'Old description.',
@@ -34,6 +36,7 @@ const SETTINGS_STORE = 'seo/settings';
 
 jest.unstable_mockModule( '@wordpress/api-fetch', () => ( { default: mockApiFetch } ) );
 jest.unstable_mockModule( '../settings-store', () => ( { settingsStore: SETTINGS_STORE } ) );
+jest.unstable_mockModule( '../record-seo-event', () => ( { recordSeoEvent } ) );
 jest.unstable_mockModule( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
 jest.unstable_mockModule( '@wordpress/data', () => ( {
 	select: ( store: string ) => ( store === SETTINGS_STORE ? { getSettings: () => SEED } : {} ),
@@ -357,5 +360,54 @@ describe( 'useSettingsForm', () => {
 		expect( result.current.local?.front_page_description ).toBe( 'Unsaved description.' );
 		expect( setSettings ).toHaveBeenCalledWith( { ...SEED, schema } );
 		expect( mockApiFetch ).not.toHaveBeenCalled();
+	} );
+
+	it.each< [ string, ( form: () => SettingsForm ) => void, Record< string, unknown > ] >( [
+		[
+			'a toggle, with its new value',
+			form => act( () => form().commit( { sitemap_active: true } ) ),
+			{ setting: 'sitemap', verification_service: 'none', setting_value: true },
+		],
+		[
+			'a text setting, without its content',
+			form => {
+				act( () => form().setField( { front_page_description: 'Secret.' } ) );
+				act( () => form().commitFields( [ 'front_page_description' ] ) );
+			},
+			{ setting: 'front_page_description', verification_service: 'none', setting_value: 'none' },
+		],
+		[
+			'a verification code, naming only the service that changed',
+			form => {
+				act( () => form().setVerification( 'bing', 'abc123' ) );
+				act( () => form().commitFields( [ 'verification' ] ) );
+			},
+			{ setting: 'site_verification', verification_service: 'bing', setting_value: 'set' },
+		],
+	] )( 'records one setting update for %s', async ( _label, save, props ) => {
+		const { result } = renderHook( () => useSettingsForm() );
+
+		save( () => result.current );
+
+		await waitFor( () => expect( recordSeoEvent ).toHaveBeenCalled() );
+		expect( recordSeoEvent.mock.calls ).toEqual( [
+			[ 'jetpack_seo_setting_updated', 'settings', props ],
+		] );
+	} );
+
+	it( 'records a failed setting update instead of a success when the save fails', async () => {
+		mockApiFetch.mockRejectedValueOnce( { message: 'Nope.' } );
+		const { result } = renderHook( () => useSettingsForm() );
+
+		act( () => result.current.commit( { canonical_active: true } ) );
+
+		await waitFor( () => expect( recordSeoEvent ).toHaveBeenCalled() );
+		expect( recordSeoEvent.mock.calls ).toEqual( [
+			[
+				'jetpack_seo_setting_update_failed',
+				'settings',
+				{ setting: 'canonical', verification_service: 'none', setting_value: true },
+			],
+		] );
 	} );
 } );

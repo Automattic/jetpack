@@ -26,8 +26,6 @@ import type { FC } from 'react';
  * @return The Advanced settings module.
  */
 const AdvancedCard: FC = () => {
-	// The toggle reports which screen it was operated from — this one only ever
-	// renders on Settings, unlike the enable card, which appears on every tab.
 	const { isToggling, setActive } = useSeoToolsToggle( 'settings' );
 
 	return (

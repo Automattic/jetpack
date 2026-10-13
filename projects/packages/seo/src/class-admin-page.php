@@ -115,22 +115,14 @@ class Admin_Page {
 	}
 
 	/**
-	 * Load the WordPress.com Tracks transport on the SEO admin page.
+	 * Load the Tracks transport, without which `recordSeoEvent()` only queues into `window._tkq`.
 	 *
-	 * `jetpack-analytics` (behind the client `recordSeoEvent()` wrapper) only queues
-	 * events into `window._tkq`. Without `jp-tracks` (`stats.wp.com/w.js`) loaded
-	 * nothing flushes that queue, so no event ever reaches Tracks and the queue just
-	 * grows for the life of the page. Mirrors the Newsletter and Search dashboards.
-	 *
-	 * Registered from {@see self::maybe_load_wp_build()}, which already ran the
-	 * SEO-admin-page check, so this only enqueues on our page. No-ops when the site
-	 * hasn't opted into tracking (see {@see self::can_use_analytics()}) — the client
-	 * wrapper keeps queueing into `_tkq`, but with no transport nothing is sent.
+	 * Skipped on Simple, where stats.php already prints w.js; a second copy re-sends the queue.
 	 *
 	 * @return void
 	 */
 	public static function enqueue_tracks_transport() {
-		if ( ! self::can_use_analytics() ) {
+		if ( ( new Host() )->is_wpcom_simple() || ! self::can_use_analytics() ) {
 			return;
 		}
 
@@ -138,23 +130,9 @@ class Admin_Page {
 	}
 
 	/**
-	 * Whether this site has opted into the analytics Tracks depends on.
+	 * Whether the site has opted into Tracks, as `Jetpack::initialize_tracking()` checks.
 	 *
-	 * Self-hosted Jetpack only sends Tracks once the site has agreed to the terms of
-	 * service or connected a user, and never in offline mode — the same gate the host
-	 * plugin applies in `Jetpack::initialize_tracking()`. The SEO dashboard is reachable
-	 * before any of that is true, so it has to run the check itself rather than assume
-	 * the host plugin already opened the door.
-	 *
-	 * The whole WordPress.com platform short-circuits — Simple *and* Atomic. Both are
-	 * covered by WordPress.com's own terms, and neither is a reliable read for
-	 * `should_enable_tracking()`: Simple has no Jetpack connection for it to inspect,
-	 * and on Atomic it turns on a per-user connection that an admin may not have. Since
-	 * paid Simple and Atomic sites *are* the population the launch metric counts, a
-	 * false negative there would silently undercount the thing this instrumentation
-	 * exists to measure. Self-hosted is the case the gate is actually for. Mirrors
-	 * `Contact_Form_Plugin::can_use_analytics()`, widened from `IS_WPCOM` to the
-	 * platform check.
+	 * WordPress.com's own terms cover Simple and Atomic, which `should_enable_tracking()` misreads.
 	 *
 	 * @return bool
 	 */
@@ -169,13 +147,9 @@ class Admin_Page {
 	}
 
 	/**
-	 * Standard Tracks context for the SEO dashboard, per the Data team's unified
-	 * properties standard. Bootstrapped onto the page so the client
-	 * `recordSeoEvent()` wrapper attaches the same identifiers to every event.
+	 * Identifiers the client attaches to every SEO Tracks event.
 	 *
-	 * `blog_id` is the required join key for the distinct-site launch metric; it
-	 * uses the WordPress.com-connected id where available so Simple, Atomic, and
-	 * self-hosted rows join to the same site.
+	 * `blog_id` is the WordPress.com id where there is one, so every host joins on the same key.
 	 *
 	 * @return array{blog_id:int, site_type:string, is_a11n:bool, is_test:bool, product_version:string}
 	 */
@@ -183,38 +157,21 @@ class Admin_Page {
 		$host = new Host();
 		if ( $host->is_wpcom_simple() ) {
 			$site_type = 'simple';
-		} elseif ( $host->is_atomic_platform() ) {
+		} elseif ( $host->is_woa_site() ) {
 			$site_type = 'atomic';
 		} else {
 			$site_type = 'jetpack';
 		}
 
-		// `Jetpack_Options` ships in the jetpack-connection package's classmap, which
-		// this package depends on transitively through jetpack-plans — so it's a real
-		// dependency, not a host-plugin class needing a guard. Falls back to the local
-		// blog id on a site that was never connected.
 		$blog_id = (int) \Jetpack_Options::get_option( 'id' );
 		if ( ! $blog_id ) {
 			$blog_id = get_current_blog_id();
 		}
 
-		// Whether the visitor is an Automattician. `is_automattician()` is defined on
-		// WordPress.com Simple only, so this reads false on Atomic and self-hosted even
-		// for an a8c user. Known limitation, not a complete signal: the Atomic analogue
-		// (`Status\Visitor::is_automattician_feature_flags_only()`) only detects proxied
-		// requests, so it would report a different thing under the same property name.
-		// Tracked with the rest of the Part 2 instrumentation on JETPACK-1728.
-		$is_a11n = false;
-		if ( function_exists( 'is_automattician' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredFunction -- is_automattician() lives on WordPress.com, guarded by function_exists.
-			$is_a11n = (bool) is_automattician();
-		}
+		// Defined on Simple only, so Automatticians read false on Atomic and self-hosted.
+		$is_a11n = function_exists( 'is_automattician' ) && (bool) is_automattician();
 
-		// Internal traffic to exclude from the metrics: WordPress.com staging sites,
-		// installs declaring a non-production environment, and local installs.
-		// `Status::is_staging_site()` covers the middle case but is deprecated since
-		// 3.3.0, and its suggested replacement (`in_safe_mode`) detects an Identity
-		// Crisis rather than a staging site.
+		// `Status::is_staging_site()` would cover this, but it is deprecated.
 		$is_test = (bool) get_option( 'wpcom_is_staging_site' )
 			|| 'production' !== wp_get_environment_type()
 			|| ( new Status() )->is_local_site();

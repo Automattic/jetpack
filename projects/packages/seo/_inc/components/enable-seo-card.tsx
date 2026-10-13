@@ -11,12 +11,8 @@ import type { FC } from 'react';
  * offers a one-click enable. Activating reloads the page so the rest of the SEO
  * surface comes online (see `useSeoToolsToggle`).
  *
- * Rendered both on the Overview and, via `SeoDisabledStage`, on every other
- * tab's module-off stage — hence the required `screen`, so the enable event
- * reports where it was actually clicked.
- *
  * @param props        - Component props.
- * @param props.screen - The screen this card is rendering on.
+ * @param props.screen - The screen this card renders on; it appears on every tab's module-off stage.
  * @return The enable-SEO-tools card.
  */
 const EnableSeoCard: FC< { screen: SeoTracksScreen } > = ( { screen } ) => {

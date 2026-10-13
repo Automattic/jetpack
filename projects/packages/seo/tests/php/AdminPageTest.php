@@ -238,9 +238,6 @@ class AdminPageTest extends TestCase {
 		$this->assertSame( Initializer::PACKAGE_VERSION, $context['product_version'] );
 	}
 
-	/**
-	 * Atomic needs both platform constants; one alone is not Atomic.
-	 */
 	public function test_get_tracks_context_reports_the_site_type_per_platform() {
 		$this->assertSame( 'jetpack', Admin_Page::get_tracks_context()['site_type'] );
 
@@ -251,13 +248,11 @@ class AdminPageTest extends TestCase {
 			\Automattic\Jetpack\Constants::clear_single_constant( 'IS_WPCOM' );
 		}
 
-		\Automattic\Jetpack\Constants::set_constant( 'ATOMIC_SITE_ID', 123 );
-		\Automattic\Jetpack\Constants::set_constant( 'ATOMIC_CLIENT_ID', 456 );
+		$this->simulate_wpcom_on_atomic();
 		try {
 			$this->assertSame( 'atomic', Admin_Page::get_tracks_context()['site_type'] );
 		} finally {
-			\Automattic\Jetpack\Constants::clear_single_constant( 'ATOMIC_SITE_ID' );
-			\Automattic\Jetpack\Constants::clear_single_constant( 'ATOMIC_CLIENT_ID' );
+			$this->reset_wpcom_on_atomic();
 		}
 	}
 
@@ -303,16 +298,34 @@ class AdminPageTest extends TestCase {
 	}
 
 	/**
-	 * Asserted against the un-consented baseline so the platform check does the work.
+	 * Simple already loads w.js from stats.php; a second copy would double-send every event.
 	 */
-	public function test_can_use_analytics_short_circuits_on_the_wordpress_com_platform() {
-		$this->assertFalse( Admin_Page::can_use_analytics() );
-
+	public function test_enqueue_tracks_transport_is_skipped_on_simple() {
 		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
 		try {
 			$this->assertTrue( Admin_Page::can_use_analytics() );
+
+			Admin_Page::enqueue_tracks_transport();
+
+			$this->assertFalse( wp_script_is( 'jp-tracks', 'enqueued' ) );
 		} finally {
 			\Automattic\Jetpack\Constants::clear_single_constant( 'IS_WPCOM' );
+		}
+	}
+
+	/**
+	 * Asserted against the un-consented baseline so the platform check does the work.
+	 */
+	public function test_enqueue_tracks_transport_loads_on_atomic_without_jetpack_consent() {
+		$this->assertFalse( Admin_Page::can_use_analytics() );
+
+		$this->simulate_wpcom_on_atomic();
+		try {
+			Admin_Page::enqueue_tracks_transport();
+
+			$this->assertTrue( wp_script_is( 'jp-tracks', 'enqueued' ) );
+		} finally {
+			$this->reset_wpcom_on_atomic();
 		}
 	}
 
@@ -338,6 +351,26 @@ class AdminPageTest extends TestCase {
 	private function enter_seo_admin_request() {
 		set_current_screen( 'jetpack_page_jetpack-seo' );
 		$_GET['page'] = Admin_Page::MENU_SLUG;
+	}
+
+	/**
+	 * WordPress.com on Atomic: the platform constants plus wpcomsh, which other Atomic hosts lack.
+	 */
+	private function simulate_wpcom_on_atomic() {
+		\Automattic\Jetpack\Constants::set_constant( 'ATOMIC_SITE_ID', 123 );
+		\Automattic\Jetpack\Constants::set_constant( 'ATOMIC_CLIENT_ID', 456 );
+		\Automattic\Jetpack\Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', true );
+		Status_Cache::clear();
+	}
+
+	/**
+	 * Undo {@see self::simulate_wpcom_on_atomic()}.
+	 */
+	private function reset_wpcom_on_atomic() {
+		\Automattic\Jetpack\Constants::clear_single_constant( 'ATOMIC_SITE_ID' );
+		\Automattic\Jetpack\Constants::clear_single_constant( 'ATOMIC_CLIENT_ID' );
+		\Automattic\Jetpack\Constants::clear_single_constant( 'WPCOMSH__PLUGIN_FILE' );
+		Status_Cache::clear();
 	}
 
 	/**

@@ -1,9 +1,6 @@
 <?php
 /**
- * Controllable stand-in for the WordPress.com visitor identity.
- *
- * Drives the `is_automattician()` stub in `wpcom-user-functions.php`, which is
- * what `Admin_Page::get_tracks_context()` reads for its `is_a11n` property.
+ * Controllable WordPress.com visitor identity, read by the `is_automattician()` stub.
  *
  * @package automattic/jetpack-seo
  */

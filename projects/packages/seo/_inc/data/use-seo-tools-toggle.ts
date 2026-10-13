@@ -31,9 +31,7 @@ interface SeoToolsToggle {
  * into (or out of) its full state. The reload is the success feedback — a
  * snackbar wouldn't survive it — so we only surface a notice on failure.
  *
- * @param screen - The screen the toggle was operated from. The enable card
- *               renders on every tab's module-off stage, not just Overview,
- *               so the caller has to say which one.
+ * @param screen - The screen the toggle was operated from, for Tracks.
  * @return The toggle controller.
  */
 export default function useSeoToolsToggle( screen: SeoTracksScreen ): SeoToolsToggle {

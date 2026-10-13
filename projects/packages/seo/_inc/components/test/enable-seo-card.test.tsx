@@ -37,8 +37,6 @@ describe( 'EnableSeoCard', () => {
 	} );
 
 	it( 'reports the screen it was rendered on, not always the Overview', () => {
-		// The card renders on every tab's module-off stage, so a hardcoded
-		// `overview` would misattribute enables from the other tabs.
 		render( <EnableSeoCard screen="geo" /> );
 
 		expect( useSeoToolsToggle ).toHaveBeenCalledWith( 'geo' );
