@@ -276,7 +276,7 @@ class Checkpoint {
 	/**
 	 * Whether the browser says the request came from this site: the Origin or Referer
 	 * origin against the home and site origins, or Sec-Fetch-Site alone when a proxy
-	 * stripped both. Nothing at all is allowed through; another site's name is not.
+	 * stripped both. Nothing at all is refused: every browser that runs the sign-in flow sends Origin.
 	 *
 	 * @return bool
 	 */
@@ -302,7 +302,7 @@ class Checkpoint {
 
 		$site = isset( $_SERVER['HTTP_SEC_FETCH_SITE'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_SEC_FETCH_SITE'] ) ) : '';
 
-		return '' === $site || in_array( $site, array( 'same-origin', 'none' ), true );
+		return in_array( $site, array( 'same-origin', 'none' ), true );
 	}
 
 	/**
