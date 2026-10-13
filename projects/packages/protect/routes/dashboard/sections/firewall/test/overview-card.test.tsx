@@ -107,4 +107,11 @@ describe( 'FirewallOverviewCard', () => {
 		);
 		expect( dialog ).toHaveTextContent( 'Already on this list' );
 	} );
+	it( 'turns the firewall on from the card while it is off', async () => {
+		render( <FirewallOverviewCard { ...props } state={ { ...props.state, active: false } } /> );
+
+		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Enable firewall' } ) );
+
+		expect( props.settings.save ).toHaveBeenCalledWith( { waf: true } );
+	} );
 } );

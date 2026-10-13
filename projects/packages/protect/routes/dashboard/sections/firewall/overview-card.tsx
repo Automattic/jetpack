@@ -1,4 +1,5 @@
 import apiFetch from '@wordpress/api-fetch';
+import { ToggleControl } from '@wordpress/components';
 import { dispatch } from '@wordpress/data';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -157,6 +158,9 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 		}
 	}, [ active, blocks.recentBlocks ] );
 
+	const { save } = settings;
+	const onEnable = useCallback( () => save( { waf: true } ), [ save ] );
+
 	if ( ! firewall.available ) {
 		return (
 			<ProtectCard
@@ -172,14 +176,6 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 			</ProtectCard>
 		);
 	}
-
-	const settingsLink = (
-		<TabLink tab="settings" onOpen={ openTab }>
-			{ active
-				? __( 'Configure Firewall', 'jetpack-protect-pkg' )
-				: __( 'Turn on in Settings', 'jetpack-protect-pkg' ) }
-		</TabLink>
-	);
 
 	return (
 		<ProtectCard
@@ -203,17 +199,27 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 					onOpenChange={ setDetailsOpen }
 				/>
 			) }
+			{ settings.error && (
+				<CardRow>
+					<Notice.Root intent="error">
+						<Notice.Description>{ settings.error }</Notice.Description>
+						<Notice.CloseIcon onClick={ settings.dismissError } />
+					</Notice.Root>
+				</CardRow>
+			) }
 			{ ! active && (
 				<CardRow>
-					<Stack direction="column" gap="md" align="start">
-						<Text variant="body-md">
-							{ __(
-								'Turn on the firewall to block malicious requests before they reach your site.',
-								'jetpack-protect-pkg'
-							) }
-						</Text>
-						{ settingsLink }
-					</Stack>
+					<ToggleControl
+						__nextHasNoMarginBottom
+						label={ __( 'Enable firewall', 'jetpack-protect-pkg' ) }
+						help={ __(
+							'Inspects every request against Jetpack’s firewall rules.',
+							'jetpack-protect-pkg'
+						) }
+						checked={ false }
+						disabled={ settings.isSaving( 'waf' ) }
+						onChange={ onEnable }
+					/>
 				</CardRow>
 			) }
 			{ active && (
@@ -223,19 +229,15 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 							label={ __( 'All-time blocked requests', 'jetpack-protect-pkg' ) }
 							value={ blocks.blockedCount === null ? '—' : formatCount( blocks.blockedCount ) }
 						/>
-						{ settingsLink }
+						<TabLink tab="settings" onOpen={ openTab }>
+							{ __( 'Configure Firewall', 'jetpack-protect-pkg' ) }
+						</TabLink>
 					</Stack>
 					<RecentBlocks blocks={ blocks.recentBlocks } />
 				</CardRow>
 			) }
 			{ active && (
 				<CardRow className="jp-protect-firewall-overview__columns">
-					{ settings.error && (
-						<Notice.Root intent="error" className="jp-protect-firewall-overview__error">
-							<Notice.Description>{ settings.error }</Notice.Description>
-							<Notice.CloseIcon onClick={ settings.dismissError } />
-						</Notice.Root>
-					) }
 					<IpRule
 						data={ ipData }
 						name="jetpack_waf_ip_block_list"
