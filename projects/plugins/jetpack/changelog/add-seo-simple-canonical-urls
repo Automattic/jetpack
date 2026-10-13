@@ -1,5 +1,5 @@
 Significance: patch
 Type: other
-Comment: Update a test for the SEO dashboard's canonical switch on WordPress.com Simple.
+Comment: Canonical URLs: Let the module load on WordPress.com Simple, where the SEO package loads it; no change for plugin sites. Update a related test.
 
 
