@@ -2,8 +2,8 @@ import { test, expect, setSiteState } from '../fixtures/dashboard';
 
 // 25 hours apart, so a range or label in the browser's zone always lands on another day.
 const PAIRS = [
-	{ site: 'Pacific/Kiritimati', offset: '+14:00', browser: 'Pacific/Pago_Pago' },
-	{ site: 'Pacific/Pago_Pago', offset: '-11:00', browser: 'Pacific/Kiritimati' },
+	{ site: 'Pacific/Kiritimati', browser: 'Pacific/Pago_Pago' },
+	{ site: 'Pacific/Pago_Pago', browser: 'Pacific/Kiritimati' },
 ];
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -22,15 +22,33 @@ function lastSevenSiteDays( now: Date, timeZone: string ): string[] {
 	);
 }
 
+/**
+ * The zone's UTC offset on a day, as the app writes it in date params.
+ *
+ * @param timeZone - The site's zone.
+ * @param day      - A YYYY-MM-DD day.
+ * @return An offset such as `+14:00`.
+ */
+function offsetOn( timeZone: string, day: string ): string {
+	const name = new Intl.DateTimeFormat( 'en-US', { timeZone, timeZoneName: 'longOffset' } )
+		.formatToParts( new Date( `${ day }T12:00:00Z` ) )
+		.find( part => part.type === 'timeZoneName' )?.value;
+	// UTC reads as a bare `GMT`.
+	return name?.slice( 3 ) || '+00:00';
+}
+
 // The app writes `p` encoded once more than `open()` does, and a raw `+` must stay a `+`.
 const routeParam = ( url: URL, name: string ) =>
 	decodeURIComponent( url.searchParams.get( 'p' ) ?? '' ).match(
 		new RegExp( `[?&]${ name }=([^&]*)` )
 	)?.[ 1 ];
 
-for ( const { site, offset, browser } of PAIRS ) {
+for ( const { site, browser } of PAIRS ) {
 	test.describe( `a ${ site } site viewed from ${ browser }`, () => {
 		test.use( { timezoneId: browser } );
+
+		const dayStart = ( day: string ) => `${ day }T00:00:00.000${ offsetOn( site, day ) }`;
+		const dayEnd = ( day: string ) => `${ day }T23:59:59.999${ offsetOn( site, day ) }`;
 
 		test.beforeEach( async ( { testUtils } ) => {
 			await setSiteState( testUtils, {
@@ -50,10 +68,9 @@ for ( const { site, offset, browser } of PAIRS ) {
 			// The site's midnight can pass while the page loads, so either range is right.
 			const url = new URL( dashboard.page.url() );
 			const from = routeParam( url, 'from' );
-			const days =
-				[ before, after ].find( range => from === `${ range[ 0 ] }T00:00:00.000${ offset }` ) ?? [];
+			const days = [ before, after ].find( range => from === dayStart( range[ 0 ] ) ) ?? [];
 			expect( days, `from=${ from }` ).toHaveLength( 7 );
-			expect( routeParam( url, 'to' ) ).toBe( `${ days[ 6 ] }T23:59:59.999${ offset }` );
+			expect( routeParam( url, 'to' ) ).toBe( dayEnd( days[ 6 ] ) );
 
 			// The helper serves each day's day of the month as its views.
 			const views = days.reduce( ( sum, day ) => sum + Number( day.slice( 8 ) ), 0 );
@@ -64,7 +81,7 @@ for ( const { site, offset, browser } of PAIRS ) {
 
 		test( 'labels the chart with site days', async ( { dashboard } ) => {
 			await dashboard.open(
-				`/?from=2026-08-01T00:00:00.000${ offset }&to=2026-08-07T23:59:59.999${ offset }&interval=day&date_type=created`
+				`/?from=${ dayStart( '2026-08-01' ) }&to=${ dayEnd( '2026-08-07' ) }&interval=day&date_type=created`
 			);
 
 			const ticks = dashboard.page.locator( 'svg text' ).filter( { hasText: /^(Jul|Aug) \d+$/ } );
