@@ -89,7 +89,7 @@ export const RetryableErrorState: Story = {
 };
 
 /**
- * Resolved with no rows: the widget shows the generic empty state.
+ * Resolved with no rows: the widget shows its empty state.
  */
 export const Empty: Story = {
 	render: renderMostCommentedAuthors,

@@ -62,6 +62,9 @@ function MostCommentedAuthorsInner() {
 				),
 				onRetry: refetch,
 			} ) }
+			empty={ {
+				description: __( 'You don’t have comments recorded yet.', 'jetpack-premium-analytics-pkg' ),
+			} }
 			footer={
 				<>
 					<ReportLink

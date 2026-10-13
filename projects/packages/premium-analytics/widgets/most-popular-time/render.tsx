@@ -92,7 +92,7 @@ function MostPopularTimeReport() {
 				}
 				empty={ {
 					description: __(
-						'Not enough data to determine your most popular time yet.',
+						'Your busiest day and hour will show here once visitors start arriving.',
 						'jetpack-premium-analytics-pkg'
 					),
 				} }

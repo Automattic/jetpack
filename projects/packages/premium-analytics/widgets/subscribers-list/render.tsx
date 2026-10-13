@@ -144,7 +144,7 @@ function SubscribersReport() {
 				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 			} }
 			empty={ {
-				description: __( 'No subscribers yet.', 'jetpack-premium-analytics-pkg' ),
+				description: __( 'You don’t have subscribers yet.', 'jetpack-premium-analytics-pkg' ),
 			} }
 		>
 			<SubscribersRoster items={ items } moreCount={ moreCount } />

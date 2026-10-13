@@ -79,7 +79,7 @@ function MostCommentedPostsInner() {
 					} ) }
 					empty={ {
 						description: __(
-							'None of your posts or pages have comments yet.',
+							'You don’t have comments recorded yet.',
 							'jetpack-premium-analytics-pkg'
 						),
 					} }

@@ -109,7 +109,7 @@ function MostPopularDayReport() {
 					} ) }
 					empty={ {
 						description: __(
-							'Not enough views yet to pick a most popular day.',
+							'Your best day for traffic will show here once visitors start arriving.',
 							'jetpack-premium-analytics-pkg'
 						),
 					} }

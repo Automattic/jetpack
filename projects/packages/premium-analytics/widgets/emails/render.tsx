@@ -264,10 +264,7 @@ function EmailsReport( { attributes }: EmailsReportProps ) {
 						],
 					} }
 					empty={ {
-						description: __(
-							'Your latest emails will appear here once you send a newsletter.',
-							'jetpack-premium-analytics-pkg'
-						),
+						description: __( 'You haven’t sent any emails yet.', 'jetpack-premium-analytics-pkg' ),
 					} }
 					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
