@@ -203,6 +203,7 @@ class Functions_Compat_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * @author robertbpugh
 	 * @since $$next-version$$
 	 */
 	public function test_jetpack_get_youtube_id_with_live_url() {

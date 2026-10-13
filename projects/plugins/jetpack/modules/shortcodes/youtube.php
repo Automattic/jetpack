@@ -548,7 +548,7 @@ function wpcom_youtube_embed_crazy_url( $matches, $attr, $url ) {
  * Get the regex for Youtube URLs.
  */
 function wpcom_youtube_get_regex() {
-	return '#https?://(?:www\.)?(?:youtube.com/(?:v/|playlist|watch[/\#?])|youtu\.be/).*#i';
+	return '#https?://(?:www\.)?(?:youtube.com/(?:v/|live/|playlist|watch[/\#?])|youtu\.be/).*#i';
 }
 
 /**
