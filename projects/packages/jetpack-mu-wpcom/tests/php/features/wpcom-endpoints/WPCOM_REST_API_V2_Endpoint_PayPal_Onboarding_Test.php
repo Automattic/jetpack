@@ -46,6 +46,13 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 	const SITE_ID = 1234;
 
 	/**
+	 * The filter that opens the production environment.
+	 *
+	 * @var string
+	 */
+	const PRODUCTION_FLAG_FILTER = 'jetpack_feature_flag_enabled_' . WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding::PRODUCTION_FLAG;
+
+	/**
 	 * Log entries recorded by spy_log().
 	 *
 	 * @var array<int, array>
@@ -81,6 +88,7 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 		Constants::clear_constants();
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'is_jetpack_authorized_for_site' );
+		remove_all_filters( self::PRODUCTION_FLAG_FILTER );
 		unset( $GLOBALS['wpcom_paypal_platform_test_token'] );
 		unset( $GLOBALS['wpcom_paypal_platform_test_suspended'] );
 		$GLOBALS['blog_id'] = $this->original_blog_id;
@@ -120,6 +128,13 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 		$request->set_param( 'return_url', 'https://example.com/wp-admin/admin.php?page=paypal-return' );
 
 		return $request;
+	}
+
+	/**
+	 * Open the production environment, which stays closed until the flag filter says otherwise.
+	 */
+	private function enable_production() {
+		add_filter( self::PRODUCTION_FLAG_FILTER, '__return_true' );
 	}
 
 	/**
@@ -387,6 +402,7 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 	 * Test that credentials configured for one environment do not satisfy the other.
 	 */
 	public function test_credentials_for_other_environment_are_rejected() {
+		$this->enable_production();
 		$this->set_platform_credentials( 'sandbox', 'sandbox_platform_id', 'sandbox_platform_secret' );
 
 		$result = $this->endpoint->generate_signup_link( $this->signup_link_request( 'production' ) );
@@ -394,6 +410,20 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 'platform_credentials_invalid', $result->get_error_code() );
 		$this->assertStringContainsString( 'production', $result->get_error_message() );
+	}
+
+	/**
+	 * Production is refused before credentials are even looked at, so provisioning
+	 * the live constants on WordPress.com cannot open it by accident.
+	 */
+	public function test_production_is_refused_until_the_flag_opens_it() {
+		$this->store_platform_credentials();
+
+		$result = $this->endpoint->generate_signup_link( $this->signup_link_request( 'production' ) );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'platform_production_not_enabled', $result->get_error_code() );
+		$this->assertSame( 403, $result->get_error_data()['status'] );
 	}
 
 	/**
@@ -1714,6 +1744,7 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 	 * for both environments.
 	 */
 	public function test_production_environment_uses_live_host() {
+		$this->enable_production();
 		$this->store_platform_credentials();
 		$requests = array();
 		$this->mock_http_routes(

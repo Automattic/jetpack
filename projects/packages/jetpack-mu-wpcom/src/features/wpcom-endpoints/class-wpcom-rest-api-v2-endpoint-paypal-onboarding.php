@@ -17,6 +17,7 @@
  */
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -111,6 +112,15 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 	 * @var int
 	 */
 	const TOKEN_EXPIRY_BUFFER = 300;
+
+	/**
+	 * Feature flag that opens the production environment; the sandbox is always open.
+	 *
+	 * Unregistered on WordPress.com, so only a `jetpack_feature_flag_enabled_*` filter flips it.
+	 *
+	 * @var string
+	 */
+	const PRODUCTION_FLAG = 'paypal-payments-platform-production';
 
 	/**
 	 * Names of the constants holding Automattic's PayPal platform credentials, by environment.
@@ -1018,6 +1028,14 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 	 * @return array|WP_Error Array with 'client_id', 'client_secret' and 'partner_merchant_id', or WP_Error.
 	 */
 	private function get_platform_credentials( $environment ) {
+		if ( 'production' === $environment && ! Feature_Flags::is_enabled( self::PRODUCTION_FLAG ) ) {
+			return new WP_Error(
+				'platform_production_not_enabled',
+				'PayPal production is not enabled on WordPress.com yet. Connect to the sandbox instead.',
+				array( 'status' => 403 )
+			);
+		}
+
 		$constants = self::PLATFORM_CREDENTIAL_CONSTANTS[ $environment ] ?? array();
 
 		$credentials = array();
