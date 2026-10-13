@@ -112,17 +112,13 @@ abstract class Registrar {
 	 * @return void
 	 */
 	private static function flag_late_init( string $action ) {
-		_doing_it_wrong(
-			esc_html( static::class . '::init' ),
-			esc_html(
-				sprintf(
-					/* translators: %s: name of a WordPress action, such as wp_abilities_api_init. */
-					__( 'Call init() before WordPress fires %s, for example on plugins_loaded. WordPress rejects registrations after it, so nothing was registered for it.', 'jetpack-wp-abilities' ),
-					$action
-				)
-			),
-			'$$next-version$$'
+		$message = sprintf(
+			/* translators: %s: name of a WordPress action, such as wp_abilities_api_init. */
+			__( 'Call init() before WordPress fires %s, for example on plugins_loaded. WordPress rejects registrations after it, so nothing was registered for it.', 'jetpack-wp-abilities' ),
+			$action
 		);
+		// One line, so the release tooling replaces the version token.
+		_doing_it_wrong( esc_html( static::class . '::init' ), esc_html( $message ), '$$next-version$$' );
 	}
 
 	/**

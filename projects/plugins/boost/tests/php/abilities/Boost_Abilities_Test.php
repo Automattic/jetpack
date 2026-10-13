@@ -307,38 +307,6 @@ class Boost_Abilities_Test extends BaseTestCase {
 		);
 	}
 
-	public function test_init_registers_directly_when_lifecycle_actions_already_fired(): void {
-		// Simulate a late-loading deployment: the lifecycle actions ran before our init().
-		do_action( Registrar::CATEGORIES_INIT_ACTION );
-		do_action( Registrar::ABILITIES_INIT_ACTION );
-
-		// Spy on the shared registration filter — Registrar calls it once per category and once per ability,
-		// so a non-zero call count proves register_category()/register_abilities() ran synchronously.
-		$invocations = array();
-		$spy         = function ( $enabled, $type, $slug ) use ( &$invocations ) {
-			$invocations[] = array( $type, $slug );
-			return $enabled;
-		};
-		add_filter( 'jetpack_wp_abilities_should_register', $spy, 10, 3 );
-
-		Boost_Abilities::init();
-
-		remove_filter( 'jetpack_wp_abilities_should_register', $spy, 10 );
-
-		// The synchronous branch must NOT add hooks for actions that already fired.
-		$this->assertFalse(
-			has_action( Registrar::CATEGORIES_INIT_ACTION, array( Boost_Abilities::class, 'register_category' ) ),
-			'Late-load path should call register_category() directly, not hook the already-fired action.'
-		);
-		$this->assertFalse(
-			has_action( Registrar::ABILITIES_INIT_ACTION, array( Boost_Abilities::class, 'register_abilities' ) )
-		);
-
-		$types = array_column( $invocations, 0 );
-		$this->assertContains( 'category', $types, 'register_category() must run synchronously when CATEGORIES_INIT_ACTION already fired.' );
-		$this->assertContains( 'ability', $types, 'register_abilities() must run synchronously when ABILITIES_INIT_ACTION already fired.' );
-	}
-
 	public function test_register_abilities_registers_every_slug(): void {
 		// `wp_register_ability_category` and `wp_register_ability` only run inside their
 		// respective lifecycle actions; firing them directly mirrors what core does.
