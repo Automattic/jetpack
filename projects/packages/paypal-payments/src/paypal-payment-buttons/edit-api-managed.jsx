@@ -171,10 +171,10 @@ const SHIPPING_MODES = [
 ];
 
 /**
- * What a screen reader hears for a select with an error under it.
+ * The select's screen reader description, with the error added.
  *
- * CustomSelectControl ties its "Currently selected" text to the trigger and an
- * `aria-describedby` of our own would replace it, so the error joins that text.
+ * CustomSelectControl swaps its "Currently selected" text for `describedBy`, so
+ * this puts that text back ahead of the error.
  *
  * @param {object}      option - The selected option.
  * @param {string|null} error  - The error under the select.
@@ -1384,7 +1384,7 @@ export default function ApiManagedEdit( {
 							disabled={ isBusy }
 						/>
 						{ /* CustomSelectControl passes `help` to the trigger as a DOM attribute, so
-						     the error and the hint get their own elements. */ }
+						     the error and the hint render below the select. */ }
 						{ validationErrors.taxType && (
 							<div className="jetpack-paypal-payment-buttons__field-error">
 								{ validationErrors.taxType }

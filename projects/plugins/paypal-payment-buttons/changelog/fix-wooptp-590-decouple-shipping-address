@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Collect the shipping address without a shipping fee, from its own "Shipping address" toggle. Tax or shipping from PayPal settings now shows an error until the address is on.
+Collect the shipping address without a shipping fee, from a new "Shipping address" toggle. Tax or shipping from PayPal settings now shows an error until the address is on.

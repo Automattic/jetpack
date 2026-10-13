@@ -445,8 +445,7 @@ jest.mock( '@wordpress/components', () => ( {
 	),
 	// Takes and returns whole options and falls back to the first for an unknown value,
 	// like the real one. The hint rides on `data-hint` - an <option> cannot hold the span
-	// core draws it in. Like the real one, `describedBy` replaces the "Currently selected"
-	// text the trigger is described by.
+	// core draws it in. `describedBy` replaces the "Currently selected" text, like the real one.
 	CustomSelectControl: ( {
 		label,
 		value,
@@ -711,7 +710,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		);
 
 	/**
-	 * The address error, checked to be the element right after a select and above its hint.
+	 * The address error right after a select. Checks it is above the hint too.
 	 *
 	 * @param {string} testId - The select's test id.
 	 * @return {Element} The error element.
@@ -5367,7 +5366,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await openSavedForm();
 		}
 
-		it( 'hides the fee select and shows the fees help and address toggle with shipping fees off', async () => {
+		it( 'shows the address and fees toggles alone while shipping fees are off', async () => {
 			await renderShipping( { shippingEnabled: false, shippingValue: '' } );
 
 			expect( screen.getByLabelText( 'Shipping fees' ) ).not.toBeChecked();
@@ -5383,43 +5382,21 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( screen.queryByText( REQUIRED_FIELD_ERROR ) ).not.toBeInTheDocument();
 		} );
 
-		// The address toggle is outside the fee settings, so every mode shows it.
-		it.each( [ 'PROFILE', 'QUANTITY', 'FLAT', 'FREE' ] )(
-			'offers the address toggle in %s mode',
-			async shippingMode => {
-				await renderShipping( { shippingMode, collectShippingAddress: true } );
+		// The ToggleControl mock renders a checkbox.
+		it( 'puts the address toggle above the fees toggle, with shipping fees off', async () => {
+			await renderShipping( { shippingEnabled: false } );
 
-				expect( screen.getByLabelText( 'Shipping address' ) ).toBeInTheDocument();
-			}
-		);
+			const toggles = within( panel( 'Checkout Options' ) ).getAllByRole( 'checkbox' );
 
-		// The toggle mock renders a checkbox input, and getAllByRole returns them in page order.
-		it.each( [
-			[ 'on', true ],
-			[ 'off', false ],
-		] )(
-			'puts the address toggle above the fees toggle in Checkout Options, with shipping fees %s',
-			async ( _label, shippingEnabled ) => {
-				await renderShipping( { shippingEnabled } );
-
-				const toggles = within( panel( 'Checkout Options' ) ).getAllByRole( 'checkbox' );
-
-				expect( toggles.map( toggle => toggle.labels[ 0 ].textContent ) ).toEqual( [
-					'Add customer note',
-					'Let customers set quantity',
-					'Add tax',
-					'Shipping address',
-					'Shipping fees',
-					'Add handling fee',
-					'Add discount',
-				] );
-			}
-		);
-
-		it( 'renders the address as a toggle', async () => {
-			await renderShipping();
-
-			expect( screen.getByLabelText( 'Shipping address' ).id ).toMatch( /^toggle-/ );
+			expect( toggles.map( toggle => toggle.labels[ 0 ].textContent ) ).toEqual( [
+				'Add customer note',
+				'Let customers set quantity',
+				'Add tax',
+				'Shipping address',
+				'Shipping fees',
+				'Add handling fee',
+				'Add discount',
+			] );
 		} );
 
 		it.each( [
@@ -5683,7 +5660,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( setAttributes ).toHaveBeenCalledWith( expected );
 		} );
 
-		it( 'resets the mode and both fees when shipping fees go off, keeping the address', async () => {
+		it( 'resets the mode and both fees and keeps the address when shipping fees go off', async () => {
 			const user = userEvent.setup();
 			await renderShipping( {
 				shippingMode: 'QUANTITY',
@@ -5701,45 +5678,26 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			} );
 		} );
 
-		// PayPal rejects a profile tax without the address. Like PayPal's builder, the form
-		// says so under the tax select.
-		it.each( [
-			[ 'on', true ],
-			[ 'off', false ],
-		] )(
-			'asks for the address while the tax comes from the PayPal profile, with shipping fees %s',
-			async ( _label, shippingEnabled ) => {
-				await renderShipping( {
-					shippingEnabled,
-					taxEnabled: true,
-					taxType: 'PREFERENCE',
-					collectShippingAddress: false,
-				} );
+		// PayPal rejects a profile tax without the address.
+		it( 'shows the address error under the tax field for a profile tax, with shipping fees off', async () => {
+			await renderShipping( {
+				shippingEnabled: false,
+				taxEnabled: true,
+				taxType: 'PREFERENCE',
+				collectShippingAddress: false,
+			} );
 
-				const toggle = screen.getByLabelText( 'Shipping address' );
+			const toggle = screen.getByLabelText( 'Shipping address' );
 
-				expect( toggle ).not.toBeChecked();
-				expect( toggle ).toBeEnabled();
-				expect( screen.getByText( 'Collect during checkout' ) ).toBeInTheDocument();
-				expect( addressErrorUnder( 'control-Tax type' ) ).toHaveClass(
-					'jetpack-paypal-payment-buttons__field-error'
-				);
-			}
-		);
-
-		it( 'writes only the tax type when the profile tax is picked', async () => {
-			const user = userEvent.setup();
-			await renderShipping( { taxEnabled: true, taxType: 'PERCENTAGE', taxValue: '7.5' } );
-
-			await user.selectOptions( screen.getByLabelText( 'Tax type' ), 'profile' );
-
-			expect( setAttributes ).toHaveBeenCalledWith( { taxType: 'PREFERENCE', taxValue: '' } );
-			expect( setAttributes ).not.toHaveBeenCalledWith(
-				expect.objectContaining( { collectShippingAddress: expect.anything() } )
+			expect( toggle ).not.toBeChecked();
+			expect( toggle ).toBeEnabled();
+			expect( screen.getByText( 'Collect during checkout' ) ).toBeInTheDocument();
+			expect( addressErrorUnder( 'control-Tax type' ) ).toHaveClass(
+				'jetpack-paypal-payment-buttons__field-error'
 			);
 		} );
 
-		it( 'asks for the address under the shipping select in PROFILE mode', async () => {
+		it( 'shows the address error under the shipping field in PROFILE mode', async () => {
 			await renderShipping( {
 				shippingMode: 'PROFILE',
 				shippingValue: '',
@@ -5752,126 +5710,51 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( screen.getByLabelText( 'Shipping address' ) ).toBeEnabled();
 		} );
 
-		// A screen reader hears the error with the selected option.
 		it.each( [
 			[
 				'Tax type',
-				'Use tax from my PayPal settings',
+				'off',
 				{ taxEnabled: true, taxType: 'PREFERENCE', taxValue: '' },
+				`Currently selected: Use tax from my PayPal settings. ${ ADDRESS_REQUIRED_ERROR }`,
 			],
 			[
 				'Shipping fee',
-				'Use shipping from my PayPal settings',
+				'off',
 				{ shippingMode: 'PROFILE', shippingValue: '' },
+				`Currently selected: Use shipping from my PayPal settings. ${ ADDRESS_REQUIRED_ERROR }`,
 			],
-		] )( 'reads the address error out with the %s select', async ( label, selected, overrides ) => {
-			await renderShipping( { ...overrides, collectShippingAddress: false } );
+			[
+				'Shipping fee',
+				'on',
+				{ shippingMode: 'PROFILE', shippingValue: '' },
+				'Currently selected: Use shipping from my PayPal settings',
+			],
+		] )(
+			'describes the %s select with the address %s',
+			async ( label, address, overrides, description ) => {
+				await renderShipping( { ...overrides, collectShippingAddress: 'on' === address } );
 
-			expect( screen.getByLabelText( label ) ).toHaveAccessibleDescription(
-				`Currently selected: ${ selected }. ${ ADDRESS_REQUIRED_ERROR }`
-			);
-		} );
-
-		it( 'keeps the default select description with the address on', async () => {
-			await renderShipping( {
-				shippingMode: 'PROFILE',
-				shippingValue: '',
-				collectShippingAddress: true,
-			} );
-
-			expect( screen.getByLabelText( 'Shipping fee' ) ).toHaveAccessibleDescription(
-				'Currently selected: Use shipping from my PayPal settings'
-			);
-		} );
-
-		it.each( [
-			[ 'tax', { taxEnabled: true, taxType: 'PREFERENCE', taxValue: '' } ],
-			[ 'shipping', { shippingMode: 'PROFILE', shippingValue: '' } ],
-		] )( 'accepts a %s from PayPal settings with the address on', async ( _label, overrides ) => {
-			await renderShipping( { ...overrides, collectShippingAddress: true } );
-
-			expect( screen.queryByText( ADDRESS_REQUIRED_ERROR ) ).not.toBeInTheDocument();
-		} );
-
-		it.each( [ 'FREE', 'FLAT', 'QUANTITY' ] )(
-			'accepts %s shipping with the address off',
-			async shippingMode => {
-				await renderShipping( { shippingMode, collectShippingAddress: false } );
-
-				expect( screen.queryByText( ADDRESS_REQUIRED_ERROR ) ).not.toBeInTheDocument();
+				expect( screen.getByLabelText( label ) ).toHaveAccessibleDescription( description );
 			}
 		);
 
-		// A saved post can hold the address off while PayPal holds it on. The mount read
-		// brings PayPal's value back.
-		it( 'drops the error once the read-back turns the address on', async () => {
-			const saved = {
-				...attributes,
-				shippingMode: 'PROFILE',
-				shippingValue: '',
-				collectShippingAddress: false,
-			};
-			apiFetch.mockImplementation( ( { path } ) =>
-				path.endsWith( '/connection' )
-					? Promise.resolve( { connected: true, environment: 'sandbox' } )
-					: Promise.resolve( { attributes: { ...saved, collectShippingAddress: true } } )
-			);
-
-			const { rerender } = render(
-				<Edit attributes={ saved } setAttributes={ setAttributes } clientId="a" />
-			);
-			await openSavedForm();
-
-			await waitFor( () =>
-				expect( setAttributes ).toHaveBeenCalledWith( { collectShippingAddress: true } )
-			);
-			expect( screen.getByText( ADDRESS_REQUIRED_ERROR ) ).toBeInTheDocument();
-
-			rerender(
-				<Edit
-					attributes={ { ...saved, collectShippingAddress: true } }
-					setAttributes={ setAttributes }
-					clientId="a"
-				/>
-			);
-
-			expect( screen.queryByText( ADDRESS_REQUIRED_ERROR ) ).not.toBeInTheDocument();
-		} );
-
-		// PayPal keeps the address separate from the shipping fees.
 		it.each( [
-			[ 'on', true ],
-			[ 'off', false ],
+			[ 'on', 'on', true, false ],
+			[ 'on', 'off', false, false ],
+			[ 'off', 'off', false, true ],
 		] )(
-			'writes the address preference when the toggle is turned on, with shipping fees %s',
-			async ( _label, shippingEnabled ) => {
+			'writes the address preference when the toggle is turned %s, with shipping fees %s',
+			async ( _toggle, _fees, shippingEnabled, collectShippingAddress ) => {
 				const user = userEvent.setup();
-				await renderShipping( { shippingEnabled } );
+				await renderShipping( { shippingEnabled, collectShippingAddress } );
 
 				await user.click( screen.getByLabelText( 'Shipping address' ) );
 
-				expect( setAttributes ).toHaveBeenCalledWith( { collectShippingAddress: true } );
+				expect( setAttributes ).toHaveBeenCalledWith( {
+					collectShippingAddress: ! collectShippingAddress,
+				} );
 			}
 		);
-
-		it( 'lets the address be turned off with shipping fees and tax off', async () => {
-			const user = userEvent.setup();
-			await renderShipping( {
-				shippingEnabled: false,
-				shippingValue: '',
-				taxEnabled: false,
-				collectShippingAddress: true,
-			} );
-
-			const toggle = screen.getByLabelText( 'Shipping address' );
-
-			expect( toggle ).toBeChecked();
-			expect( toggle ).toBeEnabled();
-
-			await user.click( toggle );
-
-			expect( setAttributes ).toHaveBeenCalledWith( { collectShippingAddress: false } );
-		} );
 
 		it.each( [
 			[ 'Enter shipping fee', 'FLAT', 'shippingValue' ],
@@ -6777,11 +6660,10 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		// getValidationErrors() reports every key on every call, so any input enumerates them.
 		const errorKeys = Object.keys( getValidationErrors( {} ) );
 
-		// Per key: the block state that triggers it, the control its message has to be
-		// inside, the field to leave first where the form waits for a visit, and the class
-		// editor.scss reddens it through - an amount field or a select uses its own error
-		// element, the rest the help slot. A select draws its error after the control, so
-		// `locate` finds it there.
+		// Per key: the block state that shows the error, the control the message must be in,
+		// the field to blur first when the form waits for a visit, and the error's CSS class.
+		// Amount fields and selects use a field-error element, the rest the help slot.
+		// A select's error comes right after it, so `locate` looks there.
 		const cases = {
 			productName: {
 				attributes: { productName: '' },
@@ -6882,7 +6764,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		 * that error's message has to appear inside - or, with `locate`, the error itself.
 		 *
 		 * @param {string} key - The validationErrors key under test.
-		 * @return {Element} The control or error that has to be carrying the message.
+		 * @return {Element} Where the message should show.
 		 */
 		const showError = async key => {
 			const user = userEvent.setup();

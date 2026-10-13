@@ -182,15 +182,13 @@ describe( 'isReadyForPayPal', () => {
 		).toBe( true );
 	} );
 
-	it( 'holds back PROFILE shipping with the address off', () => {
-		expect(
-			heldBackReason( {
-				...product,
-				shippingEnabled: true,
-				shippingMode: 'PROFILE',
-				collectShippingAddress: false,
-			} )
-		).toBe( ADDRESS_REQUIRED_ERROR );
+	it.each( [
+		[ 'PROFILE shipping', { shippingEnabled: true, shippingMode: 'PROFILE' } ],
+		[ 'a profile tax', { taxEnabled: true, taxType: 'PREFERENCE', taxValue: '' } ],
+	] )( 'does not send %s to PayPal with the address off', ( _label, overrides ) => {
+		expect( heldBackReason( { ...product, ...overrides, collectShippingAddress: false } ) ).toBe(
+			ADDRESS_REQUIRED_ERROR
+		);
 	} );
 
 	it( 'sends a shipping fee of zero', () => {
@@ -238,18 +236,6 @@ describe( 'isReadyForPayPal', () => {
 				collectShippingAddress: true,
 			} )
 		).toBe( true );
-	} );
-
-	it( 'holds back a profile tax with the address off', () => {
-		expect(
-			heldBackReason( {
-				...product,
-				taxEnabled: true,
-				taxType: 'PREFERENCE',
-				taxValue: '',
-				collectShippingAddress: false,
-			} )
-		).toBe( ADDRESS_REQUIRED_ERROR );
 	} );
 
 	it( 'lets a flat tax with an amount through', () => {

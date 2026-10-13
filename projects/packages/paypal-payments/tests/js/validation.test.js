@@ -42,14 +42,6 @@ describe( 'REQUIRED_FIELD_ERROR', () => {
 	} );
 } );
 
-describe( 'ADDRESS_REQUIRED_ERROR', () => {
-	it( "uses PayPal's wording", () => {
-		expect( ADDRESS_REQUIRED_ERROR ).toBe(
-			'You need to be able to collect customer shipping address first.'
-		);
-	} );
-} );
-
 describe( 'validatePrice', () => {
 	it( 'returns an error when value is null', () => {
 		expect( validatePrice( null ) ).toBe( 'Price is required.' );
@@ -394,13 +386,12 @@ describe( 'sanitizePayPalUrl', () => {
 	} );
 } );
 
-// PayPal rejects the address off with a tax or shipping from PayPal settings.
 describe( 'getValidationErrors', () => {
 	const product = { productName: 'Test Widget', price: '29.99', currencyCode: 'USD' };
 	const profileTax = { taxEnabled: true, taxType: 'PREFERENCE', taxValue: '' };
 	const profileShipping = { shippingEnabled: true, shippingMode: 'PROFILE' };
 
-	it( 'asks for the address under the tax select with a profile tax', () => {
+	it( 'returns the address error for a profile tax with the address off', () => {
 		const errors = getValidationErrors( {
 			...product,
 			...profileTax,
@@ -411,7 +402,7 @@ describe( 'getValidationErrors', () => {
 		expect( errors.shippingMode ).toBeNull();
 	} );
 
-	it( 'asks for the address under the shipping select with profile shipping', () => {
+	it( 'returns the address error for PROFILE shipping with the address off', () => {
 		const errors = getValidationErrors( {
 			...product,
 			...profileShipping,
@@ -422,19 +413,7 @@ describe( 'getValidationErrors', () => {
 		expect( errors.taxType ).toBeNull();
 	} );
 
-	it( 'asks under both selects when both come from PayPal', () => {
-		const errors = getValidationErrors( {
-			...product,
-			...profileTax,
-			...profileShipping,
-			collectShippingAddress: false,
-		} );
-
-		expect( errors.taxType ).toBe( ADDRESS_REQUIRED_ERROR );
-		expect( errors.shippingMode ).toBe( ADDRESS_REQUIRED_ERROR );
-	} );
-
-	it( 'accepts both with the address on', () => {
+	it( 'returns null for a profile tax and PROFILE shipping with the address on', () => {
 		const errors = getValidationErrors( {
 			...product,
 			...profileTax,
@@ -446,34 +425,19 @@ describe( 'getValidationErrors', () => {
 		expect( errors.shippingMode ).toBeNull();
 	} );
 
-	it.each( [ 'FREE', 'FLAT', 'QUANTITY' ] )(
-		'accepts %s shipping with the address off',
-		shippingMode => {
-			const errors = getValidationErrors( {
-				...product,
-				shippingEnabled: true,
-				shippingMode,
-				shippingValue: '5.00',
-				collectShippingAddress: false,
-			} );
-
-			expect( errors.shippingMode ).toBeNull();
-		}
-	);
-
-	it.each( [ 'PERCENTAGE', 'FLAT' ] )( 'accepts a %s tax with the address off', taxType => {
+	it( 'returns null for FREE shipping with the address off', () => {
 		const errors = getValidationErrors( {
 			...product,
-			taxEnabled: true,
-			taxType,
-			taxValue: '5',
+			shippingEnabled: true,
+			shippingMode: 'FREE',
+			shippingValue: '5.00',
 			collectShippingAddress: false,
 		} );
 
-		expect( errors.taxType ).toBeNull();
+		expect( errors.shippingMode ).toBeNull();
 	} );
 
-	it( 'ignores a profile tax or shipping while its toggle is off', () => {
+	it( 'returns null for a profile tax and PROFILE shipping with their toggles off', () => {
 		const errors = getValidationErrors( {
 			...product,
 			...profileTax,

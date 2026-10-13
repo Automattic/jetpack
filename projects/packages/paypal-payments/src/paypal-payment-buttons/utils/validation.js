@@ -48,8 +48,8 @@ export const REQUIRED_FIELD_ERROR = __(
 	'jetpack-paypal-payments'
 );
 
-// Shown under the tax or shipping select when it uses PayPal settings with the address
-// off, which PayPal rejects. The words are PayPal's own.
+// PayPal's link builder copy, word for word. PayPal rejects tax or shipping from PayPal
+// settings without the address.
 export const ADDRESS_REQUIRED_ERROR = __(
 	'You need to be able to collect customer shipping address first.',
 	'jetpack-paypal-payments'
@@ -495,7 +495,6 @@ export function getValidationErrors( {
 		// PREFERENCE takes its rate from the merchant's PayPal profile.
 		taxValue:
 			taxEnabled && 'PREFERENCE' !== taxType ? validateTax( taxType, taxValue, currency ) : null,
-		// A tax from PayPal settings needs the address.
 		taxType:
 			taxEnabled && 'PREFERENCE' === taxType && ! collectShippingAddress
 				? ADDRESS_REQUIRED_ERROR
@@ -514,7 +513,6 @@ export function getValidationErrors( {
 			shippingEnabled && 'QUANTITY' === shippingMode && '' !== ( shippingAdditionalValue ?? '' )
 				? validateMoney( shippingAdditionalValue, currency )
 				: null,
-		// So does shipping from PayPal settings.
 		shippingMode:
 			shippingEnabled && 'PROFILE' === shippingMode && ! collectShippingAddress
 				? ADDRESS_REQUIRED_ERROR

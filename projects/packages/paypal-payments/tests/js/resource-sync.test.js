@@ -472,7 +472,7 @@ describe( 'GATED_ATTRIBUTES', () => {
 		'productId',
 		'customerNotes',
 		'returnUrl',
-		// PayPal keeps the address separate from the shipping fees, so no gate owns it.
+		// The address toggle is separate from shipping fees, so no gate clears it.
 		'collectShippingAddress',
 		// Both come off the payment rather than a form field, so a gate would have
 		// nothing to open or close.
