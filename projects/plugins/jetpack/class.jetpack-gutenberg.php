@@ -902,7 +902,7 @@ class Jetpack_Gutenberg {
 		$ai_assistant_state = array(
 			'is-enabled'                  => Jetpack_AI_Settings::is_ai_enabled(),
 			'is-seo-enabled'              => Jetpack_AI_Settings::is_ai_seo_enabled(),
-			'is-seo-auto-enhance-enabled' => (bool) get_option( 'ai_seo_enhancer_enabled', false ),
+			'is-seo-auto-enhance-enabled' => apply_filters( 'ai_seo_enhancer_enabled', true ) && get_option( 'ai_seo_enhancer_enabled', false ),
 		);
 
 		$screen_base = null;

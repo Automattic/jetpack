@@ -53,7 +53,7 @@ const isSeoEnhancerAvailable =
 
 const canHaveAutoEnhance = canAutoEnhanceMetadata();
 
-// The toggle saves through a `jetpack/v4` route Simple lacks; Jetpack › SEO switches it there.
+// The editor can't save this setting on Simple; see the seo-enhancer store.
 const hideAutoEnhanceToggle = isSimpleSite();
 
 // The AI SEO feature covers manual and automatic generation alike (host and
