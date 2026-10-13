@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Connection;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Cache as StatusCache;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WpOrg\Requests\Utility\CaseInsensitiveDictionary;
 
 /**
@@ -62,11 +63,13 @@ class Registration_Failure_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function tear_down() {
 		remove_filter( 'pre_http_request', array( $this, 'intercept_http_request' ), 10 );
+		remove_filter( 'map_meta_cap', array( $this->manager, 'jetpack_connection_custom_caps' ), 1 );
 		delete_transient( 'jetpack_assumed_site_creation_date' );
 		Registration_Failure::clear();
 		remove_all_filters( 'jetpack_offline_mode' );
 		StatusCache::clear();
 		Constants::clear_constants();
+		wp_set_current_user( 0 );
 	}
 
 	/**
@@ -110,12 +113,13 @@ class Registration_Failure_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Test that an error which cannot resolve on its own stops further attempts.
+	 * Test that an error describing the site's environment is retried daily at most.
 	 */
-	public function test_terminal_error_blocks_subsequent_attempts() {
+	public function test_terminal_error_backs_off_for_a_day() {
 		$this->register_response = self::error_response( 'siteurl_private_ip', 'The site URL is a private IP address.', 400 );
 
-		$first = $this->manager->try_registration();
+		$before = time();
+		$first  = $this->manager->try_registration();
 
 		$this->assertInstanceOf( \WP_Error::class, $first );
 		$this->assertSame( 'siteurl_private_ip', $first->get_error_code() );
@@ -123,15 +127,16 @@ class Registration_Failure_Test extends \WorDBless\BaseTestCase {
 
 		$state = $this->recorded_failure();
 		$this->assertTrue( $state['terminal'] );
-		$this->assertNull( $state['next_retry_after'] );
 		$this->assertSame( 1, $state['attempts'] );
+		$this->assertGreaterThanOrEqual( $before + DAY_IN_SECONDS, $state['next_retry_after'] );
+		$this->assertLessThanOrEqual( time() + DAY_IN_SECONDS * 1.1, $state['next_retry_after'] );
 
 		$second = $this->manager->try_registration();
 
 		$this->assertInstanceOf( \WP_Error::class, $second );
 		$this->assertSame( 'siteurl_private_ip', $second->get_error_code() );
 		$this->assertSame( 'The site URL is a private IP address.', $second->get_error_message() );
-		$this->assertSame( 1, $this->register_request_count, 'A terminal failure must not be retried automatically.' );
+		$this->assertSame( 1, $this->register_request_count, 'A terminal failure must not be retried before its window elapses.' );
 
 		$data = $second->get_error_data();
 		$this->assertIsArray( $data );
@@ -172,26 +177,61 @@ class Registration_Failure_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Test that a 429 response defers the next attempt by at least the `Retry-After` window.
+	 * Test that a held-back attempt is counted as a suppression, not as an attempt.
 	 */
-	public function test_too_many_requests_honors_retry_after_header() {
+	public function test_suppressed_attempt_does_not_count_as_an_attempt() {
+		$this->register_response = self::error_response( 'connection_refused', 'Connection refused.', 400 );
+
+		$this->manager->try_registration();
+		$this->assertFalse( get_transient( Registration_Failure::SUPPRESSION_TRACKED_TRANSIENT ) );
+
+		$this->manager->try_registration();
+		$this->manager->try_registration();
+
+		$state = $this->recorded_failure();
+		$this->assertSame( 1, $state['attempts'] );
+		$this->assertNotFalse( get_transient( Registration_Failure::SUPPRESSION_TRACKED_TRANSIENT ), 'Suppressions are reported once per backoff window.' );
+	}
+
+	/**
+	 * Test that a 429 response defers the next attempt by at least the `Retry-After` window.
+	 *
+	 * @dataProvider retry_after_formats
+	 *
+	 * @param string $format Whether the header carries seconds or an HTTP date.
+	 */
+	#[DataProvider( 'retry_after_formats' )]
+	public function test_too_many_requests_honors_retry_after_header( $format ) {
+		$deadline = time() + 3600;
+		$header   = 'seconds' === $format ? '3600' : gmdate( 'D, d M Y H:i:s', $deadline ) . ' GMT';
+
 		$this->register_response = self::error_response(
 			'too_many_requests',
 			'Too many requests.',
 			429,
-			array( 'Retry-After' => '3600' )
+			array( 'Retry-After' => $header )
 		);
 
-		$before = time();
 		$this->manager->try_registration();
 
 		$state = $this->recorded_failure();
 
 		$this->assertSame( 429, $state['http_status'] );
 		$this->assertFalse( $state['terminal'] );
-		$this->assertGreaterThanOrEqual( $before + 3600, $state['next_retry_after'] );
-		// The window may be padded with jitter, but not stretched beyond it.
+		$this->assertGreaterThanOrEqual( $deadline, $state['next_retry_after'] );
 		$this->assertLessThanOrEqual( time() + 3600 + 360, $state['next_retry_after'] );
+	}
+
+	/**
+	 * Formats the `Retry-After` header may use.
+	 *
+	 * @return array[]
+	 */
+	public static function retry_after_formats() {
+		return array(
+			'seconds'   => array( 'seconds' ),
+			'HTTP date' => array( 'http-date' ),
+		);
 	}
 
 	/**
@@ -206,6 +246,21 @@ class Registration_Failure_Test extends \WorDBless\BaseTestCase {
 		$this->assertTrue( $this->manager->try_registration( true, true ) );
 
 		$this->assertNull( $this->manager->get_registration_failure() );
+	}
+
+	/**
+	 * Test that the failure can be forgotten explicitly.
+	 */
+	public function test_clear_registration_failure_allows_the_next_attempt() {
+		$this->register_response = self::error_response( 'siteurl_private_ip', 'The site URL is a private IP address.', 400 );
+		$this->manager->try_registration();
+		$this->assertIsArray( $this->manager->get_registration_failure() );
+
+		$this->manager->clear_registration_failure();
+
+		$this->assertNull( $this->manager->get_registration_failure() );
+		$this->manager->try_registration();
+		$this->assertSame( 2, $this->register_request_count );
 	}
 
 	/**
@@ -227,6 +282,21 @@ class Registration_Failure_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that a failure stored under another address is ignored without being deleted.
+	 */
+	public function test_failure_for_another_address_is_ignored() {
+		$this->register_response = self::error_response( 'siteurl_private_ip', 'The site URL is a private IP address.', 400 );
+		$this->manager->try_registration();
+
+		$state                = get_option( Registration_Failure::OPTION );
+		$state['fingerprint'] = 'stale';
+		update_option( Registration_Failure::OPTION, $state, false );
+
+		$this->assertNull( $this->manager->get_registration_failure() );
+		$this->assertSame( 'stale', get_option( Registration_Failure::OPTION )['fingerprint'], 'Reading the state must not write it.' );
+	}
+
+	/**
 	 * Test that an attempt a user asked for is never held back.
 	 */
 	public function test_forced_attempt_bypasses_the_gate() {
@@ -244,6 +314,70 @@ class Registration_Failure_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test the classification of error codes.
+	 */
+	public function test_is_terminal() {
+		$this->assertTrue( Registration_Failure::is_terminal( 'siteurl_private_ip' ) );
+		$this->assertTrue( Registration_Failure::is_terminal( 'secret_1_missing' ) );
+		$this->assertTrue( Registration_Failure::is_terminal( 'siteurl_malformed' ) );
+
+		$this->assertFalse( Registration_Failure::is_terminal( 'site_inaccessible' ) );
+		$this->assertFalse( Registration_Failure::is_terminal( 'wpcom_5??' ) );
+		$this->assertFalse( Registration_Failure::is_terminal( 'too_many_requests' ) );
+		$this->assertFalse( Registration_Failure::is_terminal( 'request_cancelled' ) );
+		$this->assertFalse( Registration_Failure::is_terminal( 'some_future_error' ) );
+	}
+
+	/**
+	 * Test that the hourly rate limit backs off for at least its window.
+	 */
+	public function test_rate_limit_backs_off_for_at_least_an_hour() {
+		$this->register_response = self::error_response( 'request_cancelled', 'Your site has been generating too many registration attempts.', 400 );
+
+		$before = time();
+		$this->manager->try_registration();
+
+		$state = $this->recorded_failure();
+
+		$this->assertFalse( $state['terminal'] );
+		$this->assertGreaterThanOrEqual( $before + HOUR_IN_SECONDS, $state['next_retry_after'] );
+		$this->assertLessThanOrEqual( time() + HOUR_IN_SECONDS + 360, $state['next_retry_after'] );
+	}
+
+	/**
+	 * Test that being rate limited does not replace a stored terminal failure.
+	 */
+	public function test_rate_limit_does_not_overwrite_a_terminal_failure() {
+		$this->register_response = self::error_response( 'siteurl_private_ip', 'The site URL is a private IP address.', 400 );
+		$this->manager->try_registration();
+
+		$this->register_response = self::error_response( 'request_cancelled', 'Your site has been generating too many registration attempts.', 400 );
+		$this->manager->register();
+
+		$state = $this->recorded_failure();
+		$this->assertSame( 'siteurl_private_ip', $state['error_code'] );
+		$this->assertTrue( $state['terminal'] );
+	}
+
+	/**
+	 * Test that the public connection status route withholds the failure from visitors.
+	 */
+	public function test_connection_status_shows_the_failure_only_to_users_who_can_connect() {
+		add_filter( 'map_meta_cap', array( $this->manager, 'jetpack_connection_custom_caps' ), 1, 4 );
+
+		$this->register_response = self::error_response( 'siteurl_private_ip', 'The site URL is a private IP address.', 400 );
+		$this->manager->try_registration();
+
+		wp_set_current_user( 0 );
+		$this->assertNull( REST_Connector::connection_status()->get_data()['registrationFailure'] );
+
+		wp_set_current_user( $this->administrator_id() );
+		$visible = REST_Connector::connection_status()->get_data()['registrationFailure'];
+		$this->assertSame( 'siteurl_private_ip', $visible['code'] );
+		$this->assertTrue( $visible['isPermanent'] );
+	}
+
+	/**
 	 * Get the recorded failure state, asserting that there is one.
 	 *
 	 * @return array
@@ -256,57 +390,19 @@ class Registration_Failure_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Test the classification of error codes.
-	 */
-	public function test_is_terminal() {
-		$this->assertTrue( Registration_Failure::is_terminal( 'siteurl_private_ip' ) );
-		$this->assertTrue( Registration_Failure::is_terminal( 'secret_1_missing' ) );
-		$this->assertTrue( Registration_Failure::is_terminal( 'siteurl_malformed' ) );
-
-		$this->assertFalse( Registration_Failure::is_terminal( 'site_inaccessible' ) );
-		$this->assertFalse( Registration_Failure::is_terminal( 'wpcom_5??' ) );
-		$this->assertFalse( Registration_Failure::is_terminal( 'too_many_requests' ) );
-		// The rate limit resets hourly and its counter is shared between sites on
-		// the same URL, so it must never block a site permanently.
-		$this->assertFalse( Registration_Failure::is_terminal( 'request_cancelled' ) );
-		// Codes the client does not know about could be temporary, so they are retried.
-		$this->assertFalse( Registration_Failure::is_terminal( 'some_future_error' ) );
-	}
-
-	/**
-	 * Test that the hourly rate limit backs off for at least its window, despite
-	 * the response carrying no Retry-After header.
-	 */
-	public function test_rate_limit_backs_off_for_at_least_an_hour() {
-		$this->register_response = self::error_response( 'request_cancelled', 'Your site has been generating too many registration attempts.', 400 );
-
-		$before = time();
-		$this->manager->try_registration();
-
-		$state = $this->recorded_failure();
-
-		$this->assertFalse( $state['terminal'] );
-		$this->assertGreaterThanOrEqual( $before + HOUR_IN_SECONDS, $state['next_retry_after'] );
-		// The window may be padded with jitter, but not stretched beyond it.
-		$this->assertLessThanOrEqual( time() + HOUR_IN_SECONDS + 360, $state['next_retry_after'] );
-	}
-
-	/**
-	 * Test that being rate limited does not replace a stored terminal failure.
+	 * Create an administrator and return their ID.
 	 *
-	 * The rate limit usually masks a reason WordPress.com has already returned, so
-	 * the stored reason should keep being shown.
+	 * @return int
 	 */
-	public function test_rate_limit_does_not_overwrite_a_terminal_failure() {
-		$this->register_response = self::error_response( 'siteurl_private_ip', 'The site URL is a private IP address.', 400 );
-		$this->manager->try_registration();
-
-		$this->register_response = self::error_response( 'request_cancelled', 'Your site has been generating too many registration attempts.', 400 );
-		$this->manager->register();
-
-		$state = $this->recorded_failure();
-		$this->assertSame( 'siteurl_private_ip', $state['error_code'] );
-		$this->assertTrue( $state['terminal'] );
+	private function administrator_id() {
+		return wp_insert_user(
+			array(
+				'user_login' => 'registration_admin',
+				'user_pass'  => 'password',
+				'user_email' => 'registration_admin@example.org',
+				'role'       => 'administrator',
+			)
+		);
 	}
 
 	/**

@@ -84,7 +84,7 @@ $manager->try_registration();
 
 #### Registration failures and automatic retries
 
-`try_registration()` remembers why the last attempt failed. Failures that cannot resolve on their own (for example, WordPress.com cannot reach the site because it is on a private address) are not retried automatically; other failures are retried on a backoff schedule. While a failure stands, `try_registration()` returns the remembered `WP_Error` — same code and message, with `'suppressed' => true` in its error data — without making a request. In offline mode it returns an `offline_mode` error without making a request.
+`try_registration()` remembers why the last attempt failed. Failures that describe the site's environment (for example, WordPress.com cannot reach the site because it is on a private address) are retried daily at most; other failures are retried on a backoff schedule. While a failure stands, `try_registration()` returns the remembered `WP_Error` — same code and message, with `'suppressed' => true` in its error data — without making a request. In offline mode it returns an `offline_mode` error without making a request.
 
 If your call is the direct result of a user action (a click on a Connect button), pass the `$force` flag so it is never held back:
 ```

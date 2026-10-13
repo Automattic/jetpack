@@ -1,4 +1,4 @@
 Significance: patch
-Type: other
+Type: enhancement
 
-Connection: Keep explicit connect actions exempt from the new registration retry backoff.
+Connection: Skip site registration in offline mode, and stop retrying it on every page load after an error that retrying cannot fix.

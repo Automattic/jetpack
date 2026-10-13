@@ -2563,10 +2563,10 @@ class Manager {
 	/**
 	 * Attempts Jetpack registration.
 	 *
-	 * Automatic attempts are held back while a previous failure still stands: some
-	 * registration errors describe the site's environment and cannot be resolved by
-	 * trying again, and the rest are retried on a backoff schedule. Pass `$force` for
-	 * attempts a user explicitly asked for - those are never held back.
+	 * Automatic attempts are held back while a previous failure still stands: errors
+	 * that describe the site's environment are retried daily at most, the rest on a
+	 * backoff schedule. Pass `$force` for attempts a user explicitly asked for - those
+	 * are never held back.
 	 *
 	 * @since $$next-version$$ Added the `$force` parameter, the offline mode check, and the retry backoff.
 	 *

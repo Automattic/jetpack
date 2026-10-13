@@ -241,8 +241,7 @@ class REST_Endpoints {
 		do_action( 'jetpack_idc_disconnect' );
 
 		$connection = new Connection_Manager();
-		// A user asked for this, so it is never held back by a previous failure.
-		$result = $connection->try_registration( true, true );
+		$result     = $connection->try_registration( true, true );
 
 		// early return if site registration fails.
 		if ( ! $result || is_wp_error( $result ) ) {

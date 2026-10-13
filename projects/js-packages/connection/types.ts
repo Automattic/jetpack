@@ -58,16 +58,20 @@ export type ConnectionScriptData = {
 			wpLocalConstant: boolean;
 		};
 		isPublic: boolean;
-		/** Why the last registration attempt failed; null when it did not. (The store's `registrationError` is a live register call's failure instead.) */
-		registrationFailure: {
+		/**
+		 * Why the last registration attempt failed; null when it did not. Only sent to users who can
+		 * connect the site, and absent when the PHP connection package is older than this type.
+		 * (The store's `registrationError` is a live register call's failure instead.)
+		 */
+		registrationFailure?: {
 			code: string;
 			message: string;
-			/** Whether retrying could ever succeed without the site's environment changing. */
+			/** Whether retrying can only succeed once the site's environment changes. */
 			isPermanent: boolean;
 			attempts: number;
 			lastAttemptAt: number;
-			/** Unix timestamp of the next automatic attempt; null when there will not be one. */
-			nextRetryAfter: number | null;
+			/** Unix timestamp of the next automatic attempt. */
+			nextRetryAfter: number;
 		} | null;
 	};
 	userConnectionData: {

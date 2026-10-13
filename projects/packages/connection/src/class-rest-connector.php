@@ -542,7 +542,11 @@ class REST_Connector {
 		$status     = new Status();
 		$connection = new Manager();
 
-		$registration_failure = $connection->get_registration_failure();
+		// The REST route is public, and the stored failure quotes server and transport
+		// errors verbatim, so only people who can connect the site get to see it.
+		$registration_failure = ( ! $rest_response || current_user_can( 'jetpack_connect' ) )
+			? $connection->get_registration_failure()
+			: null;
 
 		$connection_status = array(
 			'isActive'            => $connection->has_connected_owner(), // TODO deprecate this.
@@ -560,15 +564,13 @@ class REST_Connector {
 				'option'          => (bool) get_option( 'jetpack_offline_mode' ),
 			),
 			'isPublic'            => '1' == get_option( 'blog_public' ), // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
-			// Why the site could not be registered, so consumers can explain it rather than retry silently.
-			// Named apart from the JS connection store's `registrationError`, which is a live register call's failure.
 			'registrationFailure' => null === $registration_failure ? null : array(
 				'code'           => $registration_failure['error_code'],
 				'message'        => $registration_failure['error_message'],
 				'isPermanent'    => (bool) $registration_failure['terminal'],
 				'attempts'       => (int) $registration_failure['attempts'],
 				'lastAttemptAt'  => (int) $registration_failure['last_attempt_at'],
-				'nextRetryAfter' => null === $registration_failure['next_retry_after'] ? null : (int) $registration_failure['next_retry_after'],
+				'nextRetryAfter' => (int) $registration_failure['next_retry_after'],
 			),
 		);
 
@@ -906,7 +908,6 @@ class REST_Connector {
 			}
 		}
 
-		// A user asked for this, so it is never held back by a previous failure.
 		$result = $this->connection->try_registration( true, true );
 
 		if ( is_wp_error( $result ) ) {

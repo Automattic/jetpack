@@ -12,13 +12,9 @@ use WP_Error;
 
 /**
  * Remembers why the last registration attempt failed, and decides whether another
- * attempt is worth making.
+ * automatic attempt is worth making yet.
  *
- * Registration is triggered by unattended code paths (plugin update hooks, admin
- * page loads), so a site whose environment can never register - for example one
- * that WordPress.com cannot reach - would otherwise retry forever. This class
- * records the failure, blocks automatic retries of errors that cannot resolve on
- * their own, and backs off exponentially on the ones that can.
+ * Unattended callers would otherwise retry a site that can never register forever.
  *
  * @since $$next-version$$
  */
@@ -40,11 +36,10 @@ class Registration_Failure {
 	const MAX_BACKOFF = DAY_IN_SECONDS;
 
 	/**
-	 * Error codes that cannot be resolved by trying again.
+	 * Error codes that describe the site's environment rather than a passing condition.
 	 *
-	 * These describe the site's environment or a rejected request, so an automatic
-	 * retry would fail identically. They are cleared by an explicit user action, by
-	 * a successful registration, or by the site URL changing.
+	 * Retrying fails identically until the owner changes something (a firewall rule,
+	 * the site address), so these go straight to the longest backoff.
 	 */
 	const TERMINAL_ERROR_CODES = array(
 		'siteurl_private_ip',
@@ -106,10 +101,8 @@ class Registration_Failure {
 			return null;
 		}
 
-		// A site that moved to a different address deserves a fresh attempt: the
-		// previous failure was about the previous address.
+		// A failure recorded under a different site address no longer applies.
 		if ( ! isset( $state['fingerprint'] ) || self::fingerprint() !== $state['fingerprint'] ) {
-			self::clear();
 			return null;
 		}
 
@@ -133,9 +126,9 @@ class Registration_Failure {
 			return null;
 		}
 
-		$next_retry_after = $state['next_retry_after'] ?? null;
+		$next_retry_after = (int) ( $state['next_retry_after'] ?? 0 );
 
-		if ( null !== $next_retry_after && time() >= (int) $next_retry_after ) {
+		if ( time() >= $next_retry_after ) {
 			return null;
 		}
 
@@ -180,7 +173,7 @@ class Registration_Failure {
 			'http_status'      => $http_status,
 			'attempts'         => $attempts,
 			'last_attempt_at'  => time(),
-			'next_retry_after' => $is_terminal ? null : time() + self::backoff_delay( $attempts, $response, $http_status, $error_code ),
+			'next_retry_after' => time() + self::backoff_delay( $attempts, $is_terminal, $response, $http_status, $error_code ),
 			'terminal'         => $is_terminal,
 			'fingerprint'      => self::fingerprint(),
 		);
@@ -271,26 +264,27 @@ class Registration_Failure {
 	 * Work out how long to wait before the next automatic attempt.
 	 *
 	 * @param int                 $attempts    Number of consecutive failures, including this one.
+	 * @param bool                $is_terminal Whether the error describes the site's environment.
 	 * @param array|WP_Error|null $response    The raw HTTP response, when there was one.
 	 * @param int|null            $http_status The HTTP status code of the response.
 	 * @param string              $error_code  The error code of the failure.
 	 *
 	 * @return int Delay in seconds.
 	 */
-	private static function backoff_delay( $attempts, $response, $http_status, $error_code = '' ) {
-		$schedule = self::backoff_schedule();
-		$index    = min( max( $attempts, 1 ), count( $schedule ) ) - 1;
-		$delay    = $schedule[ $index ];
+	private static function backoff_delay( $attempts, $is_terminal, $response, $http_status, $error_code = '' ) {
+		if ( $is_terminal ) {
+			$delay = self::MAX_BACKOFF;
+		} else {
+			$schedule = self::backoff_schedule();
+			$delay    = $schedule[ min( max( $attempts, 1 ), count( $schedule ) ) - 1 ];
+		}
 
-		// When the server asks us to wait, that is a floor rather than a suggestion:
-		// it reports the window actually in effect, which can be far longer than the
-		// default one.
+		// Retry-After is a floor: the server knows the window actually in effect.
 		if ( 429 === $http_status ) {
 			$delay = max( $delay, self::retry_after_seconds( $response ) );
 		}
 
-		// The registration rate limit resets hourly, but the response is a plain 400
-		// with no Retry-After header, so the window has to be assumed.
+		// The rate-limited response carries no Retry-After header, so assume its window.
 		if ( self::RATE_LIMITED_ERROR_CODE === $error_code ) {
 			$delay = max( $delay, HOUR_IN_SECONDS );
 		}
