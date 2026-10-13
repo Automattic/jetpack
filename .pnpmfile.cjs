@@ -150,6 +150,13 @@ async function fixDeps( pkg ) {
 		pkg.dependencies[ 'js-yaml' ] = '^4.2.0';
 	}
 
+	// A one-off script (`projects/packages/jetpack-mu-wpcom/bin/sync-newspack-blocks.sh`) runs `jscodeshift`, which relies on
+	// outdated dependencies that fails our trust policy. Its subdependency `make-dir` only uses `semver.satisfies()`, which
+	// is unchanged in `semver` v7, so this is safe enough.
+	if ( pkg.name === 'make-dir' && pkg.dependencies?.semver === '^5.6.0' ) {
+		pkg.dependencies.semver = '^7.7.3';
+	}
+
 	// Glob decided to deprecate everything <12, even though tons of stuff still depends on older versions.
 	// On the plus side, the net change from v10 to v13 is deleting the CLI from the package.
 	if ( pkg.dependencies?.glob?.match( /^\^1[0-2](?:\.\d+)*$/ ) ) {
