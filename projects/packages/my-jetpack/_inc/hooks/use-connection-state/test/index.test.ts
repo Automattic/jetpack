@@ -27,6 +27,7 @@ type Site = {
 	userConnectionPluginActive?: boolean;
 	skipSafeMode?: boolean;
 	skipOfflineMode?: boolean;
+	connectorsUrl?: string | null;
 };
 
 const setSite = ( {
@@ -36,8 +37,10 @@ const setSite = ( {
 	connectionOwner = null,
 	isAdmin = true,
 	userConnectionPluginActive = false,
+	connectorsUrl = null,
 }: Site ) => {
 	window.myJetpackInitialState = {
+		header: { connectorsUrl },
 		products: {
 			items: {
 				search: { requires_user_connection: true, is_plugin_active: userConnectionPluginActive },
@@ -91,6 +94,7 @@ const siteTokenBroken: ConnectionErrorMap = {
 
 const siteOnly = { isRegistered: true, isUserConnected: false, hasConnectedOwner: false };
 const everything = { isRegistered: true, isUserConnected: true, hasConnectedOwner: true };
+const connectorsScreen = 'https://example.com/wp-admin/options-connectors.php';
 
 // Only the fields a row names, so a row can assert that a field is absent.
 const renderConnectionState = (
@@ -171,8 +175,13 @@ describe( 'useConnectionState', () => {
 			{ id: 'owner-missing', status: 'warning', action: undefined },
 		],
 		[
-			'Manage connection for an admin',
-			{ status: everything },
+			'the Connectors screen as Manage connection for an admin',
+			{ status: everything, connectorsUrl: connectorsScreen },
+			{ id: 'connected', manageConnection: { type: 'link', url: connectorsScreen } },
+		],
+		[
+			'the dialog as Manage connection for a connected non-admin',
+			{ status: everything, connectorsUrl: connectorsScreen, isAdmin: false },
 			{ id: 'connected', manageConnection: { type: 'dialog' } },
 		],
 		[
@@ -220,6 +229,9 @@ describe( 'getManageConnection', () => {
 		],
 		[ 'the connection dialog before WordPress 7.0', null, { type: 'dialog' } ],
 	] )( 'opens %s', ( _, connectorsUrl, expected ) => {
+		global.JetpackScriptData = {
+			user: { current_user: { capabilities: { manage_options: true } } },
+		} as typeof global.JetpackScriptData;
 		window.myJetpackInitialState = {
 			header: { connectorsUrl },
 		} as unknown as typeof window.myJetpackInitialState;

@@ -126,6 +126,7 @@ const setConnectionStore = ( {
 	userConnectionData = adminUserConnectionData,
 	connectionErrors = {},
 	connectionOwner = null,
+	isOfflineMode = false,
 } = {} ) => {
 	let storeSelect;
 	renderHook( () => useSelect( select => ( storeSelect = select( CONNECTION_STORE_ID ) ), [] ), {
@@ -141,6 +142,7 @@ const setConnectionStore = ( {
 		.mockReturnValue( userConnectionData );
 	jest.spyOn( storeSelect, 'getConnectionErrors' ).mockReset().mockReturnValue( connectionErrors );
 	jest.spyOn( storeSelect, 'getConnectionOwner' ).mockReset().mockReturnValue( connectionOwner );
+	jest.spyOn( storeSelect, 'getIsOfflineMode' ).mockReset().mockReturnValue( isOfflineMode );
 };
 beforeAll( () => {
 	global.JetpackScriptData = {
@@ -332,6 +334,24 @@ describe( 'ConnectionStatusCard', () => {
 		it( 'renders the correct user connection line item', () => {
 			setup();
 			expect( screen.getByText( /Connected as/ ) ).toBeInTheDocument();
+		} );
+
+		// Offline mode is the header's state; an offline Atomic site still loads the card.
+		it( 'keeps its copy in offline mode', () => {
+			setConnectionStore( {
+				isRegistered: true,
+				isUserConnected: true,
+				hasConnectedOwner: true,
+				isOfflineMode: true,
+			} );
+			render(
+				<Providers>
+					<ConnectionStatusCard { ...testProps } />
+				</Providers>
+			);
+
+			expect( screen.getByText( 'Site and account connected' ) ).toBeInTheDocument();
+			expect( screen.queryByText( 'Offline mode' ) ).not.toBeInTheDocument();
 		} );
 
 		// Matched as a direct child of the heading: the manage-connection button holds its own chevron.

@@ -44,14 +44,15 @@ type StoreSelector = (
 ) => Record< 'getConnectionStatus', () => Record< string, unknown > >;
 
 /**
- * What "Manage connection" does on this site.
+ * What "Manage connection" does on this site, for this viewer.
  *
- * @return The Connectors screen when WordPress has one, else the dialog.
+ * @return The Connectors screen when WordPress has one and the viewer can open it, else the dialog.
  */
 export function getManageConnection(): ManageConnection {
 	const url = getMyJetpackWindowInitialState()?.header?.connectorsUrl;
 
-	return url ? { type: 'link', url } : { type: 'dialog' };
+	// The Connectors screen needs manage_options, so anyone else gets the dialog.
+	return url && currentUserCan( 'manage_options' ) ? { type: 'link', url } : { type: 'dialog' };
 }
 
 /**
