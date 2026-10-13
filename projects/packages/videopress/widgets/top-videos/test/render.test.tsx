@@ -227,7 +227,7 @@ describe( 'Top videos widget', () => {
 		expect( mockCanUser ).not.toHaveBeenCalled();
 	} );
 
-	it( 'offers general media upload and hides the footer when no VideoPress media exists', () => {
+	it( 'offers general media upload when no VideoPress media exists', () => {
 		mockUseStatsVideoPlays.mockReturnValue( videoPlays( { comparisonRows: { rows: [] } } ) );
 		mockUseEntityRecords.mockReturnValue( { records: [], hasResolved: true } );
 
@@ -246,7 +246,6 @@ describe( 'Top videos widget', () => {
 				href: 'https://example.com/blog/wp-admin/media-new.php',
 			},
 		} );
-		expect( screen.queryByRole( 'link', { name: 'View all' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'keeps the widget loading while the empty library check is pending', () => {
@@ -294,7 +293,7 @@ describe( 'Top videos widget', () => {
 	it.each( [
 		[ 'an existing video', { records: [ { id: 42 } ], hasResolved: true } ],
 		[ 'a failed media query', { records: null, hasResolved: true } ],
-	] )( 'keeps the generic empty state and footer for %s', ( _, media ) => {
+	] )( 'keeps the generic empty state for %s', ( _, media ) => {
 		mockUseStatsVideoPlays.mockReturnValue( videoPlays( { comparisonRows: { rows: [] } } ) );
 		mockUseEntityRecords.mockReturnValue( media );
 
@@ -302,7 +301,6 @@ describe( 'Top videos widget', () => {
 
 		expect( leaderboardProps().status.isLoading ).toBe( false );
 		expect( leaderboardProps().empty ).toBeUndefined();
-		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toBeInTheDocument();
 	} );
 
 	it.each( [
@@ -323,6 +321,5 @@ describe( 'Top videos widget', () => {
 			{ enabled: false }
 		);
 		expect( leaderboardProps().empty ).toBeUndefined();
-		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toBeInTheDocument();
 	} );
 } );

@@ -148,16 +148,14 @@ function TopVideosReport() {
 					: undefined
 			}
 			footer={
-				hasNoVideos ? null : (
-					<>
-						<ReportLink report="videos" />
-						<ExporterCsvDownloadButton
-							report="videos"
-							status={ { isLoading: isInitialLoading, isFetching, isError: primary.isError } }
-							rowCount={ rows.length }
-						/>
-					</>
-				)
+				<>
+					<ReportLink report="videos" />
+					<ExporterCsvDownloadButton
+						report="videos"
+						status={ { isLoading: isInitialLoading, isFetching, isError: primary.isError } }
+						rowCount={ rows.length }
+					/>
+				</>
 			}
 		/>
 	);
