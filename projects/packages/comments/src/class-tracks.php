@@ -153,7 +153,19 @@ class Tracks {
 	 */
 	public function comment_posted( $comment_id, $approved, $commentdata = array() ) {
 		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Comment_Form::verify_nonce() checked it; its presence marks a comment this form sent.
-		if ( empty( $_POST[ Comment_Form::NONCE_NAME ] ) || ! empty( $_POST[ Comment_Form::THEME_FORM ] ) ) {
+		if ( empty( $_POST[ Comment_Form::NONCE_NAME ] ) ) {
+			return;
+		}
+
+		// A theme drew its own form, so the app never showed on this site.
+		if ( ! empty( $_POST[ Comment_Form::THEME_FORM ] ) ) {
+			self::record(
+				'jetpack_comments_theme_form_posted',
+				array(
+					'theme'     => get_stylesheet(),
+					'post_type' => (string) get_post_type( (int) ( $commentdata['comment_post_ID'] ?? 0 ) ),
+				)
+			);
 			return;
 		}
 
