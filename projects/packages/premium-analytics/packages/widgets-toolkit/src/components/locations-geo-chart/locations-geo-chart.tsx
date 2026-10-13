@@ -8,7 +8,7 @@ import { useCallback, useMemo, useState } from 'react';
  * Internal dependencies
  */
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
-import { formatChartName } from '../../helpers/format-chart-name';
+import { formatMapName } from '../../helpers/format-chart-name';
 import { buildLocationsGeoChart } from './build-geo-data';
 import type { LocationsGeoFocusCountry, LocationsGeoMode, LocationsGeoRow } from './build-geo-data';
 
@@ -37,7 +37,7 @@ export interface LocationsGeoChartProps {
 	resizeDebounceTime?: number;
 	/** What the figure is, as the tooltip names it. Defaults to Views. */
 	valueLabel?: string;
-	/** What the chart shows, such as the widget title; the chart is named "<title> chart". */
+	/** What the map shows, such as the widget title; the map is named "<title> map". */
 	chartTitle?: string;
 }
 
@@ -116,7 +116,7 @@ export function LocationsGeoChart( {
 	return (
 		<GeoChart
 			data={ data }
-			ariaLabel={ formatChartName( chartTitle ) }
+			ariaLabel={ formatMapName( chartTitle ) }
 			resizeDebounceTime={ resizeDebounceTime }
 			region={ region }
 			resolution={ resolution }

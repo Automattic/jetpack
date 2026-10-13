@@ -20,3 +20,21 @@ export function formatChartName( title?: string ): string | undefined {
 		title
 	);
 }
+
+/**
+ * Name a map after what it shows, so a screen reader can tell it from a chart of the same data.
+ *
+ * @param title - What the map shows, such as the widget title.
+ * @return The map's accessible name, or undefined to keep the map's default.
+ */
+export function formatMapName( title?: string ): string | undefined {
+	if ( ! title ) {
+		return undefined;
+	}
+
+	return sprintf(
+		/* translators: %s is what a map shows, e.g. "Top locations". */
+		__( '%s map', 'jetpack-premium-analytics-pkg' ),
+		title
+	);
+}

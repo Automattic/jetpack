@@ -288,6 +288,7 @@ export {
 	flagUrl,
 	formatLegendLabels,
 	formatChartName,
+	formatMapName,
 	formatDisplayLabel,
 	buildCsv,
 	buildCsvDateRangeFilename,

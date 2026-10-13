@@ -91,10 +91,10 @@ describe( 'LocationsGeoChart', () => {
 		expect( lastChartProps() ).toMatchObject( { domain: 'IN' } );
 	} );
 
-	it( 'names the chart from chartTitle', () => {
+	it( 'names the map from chartTitle', () => {
 		render( <LocationsGeoChart rows={ ROWS } mode="country" chartTitle="Top locations" /> );
 
-		expect( lastChartProps() ).toMatchObject( { ariaLabel: 'Top locations chart' } );
+		expect( lastChartProps() ).toMatchObject( { ariaLabel: 'Top locations map' } );
 	} );
 
 	// Drawing first would paint the default borders and then swap them.

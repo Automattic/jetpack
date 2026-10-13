@@ -10,7 +10,7 @@ import {
 	WidgetState,
 	buildLeaderboardRow,
 	flagUrl,
-	formatChartName,
+	formatMapName,
 	safeHttpUrl,
 	sharePercentage,
 	useWidgetRootContext,
@@ -197,7 +197,7 @@ export const EmailBreakdownLeaderboard = ( {
 					/>
 					{ renderMap && (
 						<div className={ styles.map } data-testid="email-breakdown-map">
-							<GeoChart data={ geoData } ariaLabel={ formatChartName( chartTitle ) } />
+							<GeoChart data={ geoData } ariaLabel={ formatMapName( chartTitle ) } />
 						</div>
 					) }
 				</div>
