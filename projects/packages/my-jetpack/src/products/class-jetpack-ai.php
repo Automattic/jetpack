@@ -557,7 +557,7 @@ class Jetpack_Ai extends Module_Product {
 	/**
 	 * Get the URL where the user manages the product.
 	 *
-	 * @return ?string
+	 * @return string
 	 */
 	public static function get_manage_url() {
 		if ( self::is_feature_ui_enabled() ) {
