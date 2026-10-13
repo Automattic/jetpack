@@ -518,6 +518,12 @@ class Comment_Form {
 			return;
 		}
 
+		// A forged post carries the other site's Origin, so this page's own is proof enough when
+		// the nonce outlived its day or the login it was made for.
+		if ( ! empty( $_SERVER['HTTP_ORIGIN'] ) && Checkpoint::is_same_site_request() ) {
+			return;
+		}
+
 		// A page cache can hand a logged-in reader a copy rendered for nobody, so
 		// the nonce they post is the anonymous one. wp_verify_nonce() reads the
 		// session token from the logged-in cookie, not the current user, so the
@@ -538,12 +544,6 @@ class Comment_Form {
 			if ( $valid ) {
 				return;
 			}
-		}
-
-		// A forged post carries the other site's Origin, so this page's own is proof enough when
-		// the nonce outlived its day or the login it was made for. Nothing to go on without one.
-		if ( ! empty( $_SERVER['HTTP_ORIGIN'] ) && Checkpoint::is_same_site_request() ) {
-			return;
 		}
 
 		wp_die(
