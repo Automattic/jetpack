@@ -120,6 +120,8 @@ export type FunnelProps = {
 	empty?: WidgetStateEmpty;
 	// Format of the step counts, in the tooltip. Defaults to compact integers.
 	format?: DataFormat;
+	// What the chart shows, such as the widget title; the chart is named "<title> chart".
+	chartTitle?: string;
 };
 
 // Columns: a few categories compared across the periods as vertical bars, with the series per

@@ -119,6 +119,7 @@ function TopVideosReport() {
 
 	return (
 		<Leaderboard
+			chartTitle={ __( 'Top videos', 'jetpack-videopress-pkg' ) }
 			rows={ rows }
 			status={ {
 				isLoading: isInitialLoading || isCheckingMedia,

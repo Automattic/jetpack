@@ -23,6 +23,8 @@ type ProductLeaderboardProps = {
 	/** The product types the leaderboard ranks. */
 	filter: FilterCondition;
 	errorText: string;
+	/** What the chart shows, such as the widget title; the chart is named "<title> chart". */
+	chartTitle: string;
 };
 
 /**
@@ -32,7 +34,7 @@ type ProductLeaderboardProps = {
  * @param {ProductLeaderboardProps} props - The component props.
  * @return {JSX.Element} The leaderboard, or the loading, error or empty state of its report.
  */
-export function ProductLeaderboard( { filter, errorText }: ProductLeaderboardProps ) {
+export function ProductLeaderboard( { filter, errorText, chartTitle }: ProductLeaderboardProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const params = useMemo(
 		() => ( { ...reportParams, filters: [ filter ] } ),
@@ -81,6 +83,7 @@ export function ProductLeaderboard( { filter, errorText }: ProductLeaderboardPro
 
 	return (
 		<Leaderboard
+			chartTitle={ chartTitle }
 			rows={ rows }
 			status={ {
 				isLoading,
