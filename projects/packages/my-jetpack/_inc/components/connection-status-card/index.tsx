@@ -5,7 +5,6 @@ import {
 	ManageConnectionDialog,
 	useConnectionErrorNotice,
 } from '@automattic/jetpack-connection';
-import { currentUserCan, isWoASite } from '@automattic/jetpack-script-data';
 import { Button } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -24,7 +23,7 @@ import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-
 import getProductSlugsThatRequireUserConnection from '../../data/utils/get-product-slugs-that-require-user-connection';
 import useAnalytics from '../../hooks/use-analytics';
 import useConnectionErrorTracking from '../../hooks/use-connection-error-tracking';
-import { useConnectionState } from '../../hooks/use-connection-state';
+import { canManageConnection, useConnectionState } from '../../hooks/use-connection-state';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import { assignLocation } from '../../hooks/use-notification-watcher/assignLocation';
 import { ConnectionOwnerInfo } from './connection-owner-info';
@@ -154,16 +153,13 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 		navigate: assignLocation,
 	} );
 
-	// Show the connection itself during Safe Mode.
-	const state = useConnectionState( { skipSafeMode: true } );
+	// Show the connection itself during Safe Mode and offline mode.
+	const state = useConnectionState( { skipSafeMode: true, skipOfflineMode: true } );
 
-	// Prevent opening dialog for WoA sites when user is connection owner
-	const isConnectionOwner = userConnectionData.currentUser?.isMaster;
-	const shouldPreventDialog = isWoASite() && isConnectionOwner;
-	const allowDisconnect =
-		( currentUserCan( 'manage_options' ) || isUserConnected ) &&
-		! shouldPreventDialog &&
-		! ( isWoASite() && ! isUserConnected );
+	const allowDisconnect = canManageConnection(
+		isUserConnected,
+		!! userConnectionData.currentUser?.isMaster
+	);
 
 	return (
 		<section className={ styles[ 'connection-status-card' ] }>

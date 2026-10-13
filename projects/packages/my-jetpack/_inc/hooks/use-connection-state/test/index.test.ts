@@ -26,6 +26,7 @@ type Site = {
 	// Whether a plugin is active whose product needs a user connection.
 	userConnectionPluginActive?: boolean;
 	skipSafeMode?: boolean;
+	skipOfflineMode?: boolean;
 };
 
 const setSite = ( {
@@ -92,9 +93,12 @@ const siteOnly = { isRegistered: true, isUserConnected: false, hasConnectedOwner
 const everything = { isRegistered: true, isUserConnected: true, hasConnectedOwner: true };
 
 // Only the fields a row names, so a row can assert that a field is absent.
-const renderConnectionState = ( fields: object, skipSafeMode?: boolean ) => {
-	const state = renderHook( () => useConnectionState( { skipSafeMode } ), { wrapper: Providers } )
-		.result.current;
+const renderConnectionState = (
+	fields: object,
+	options: { skipSafeMode?: boolean; skipOfflineMode?: boolean } = {}
+) => {
+	const state = renderHook( () => useConnectionState( options ), { wrapper: Providers } ).result
+		.current;
 
 	return Object.fromEntries( Object.keys( fields ).map( key => [ key, state[ key ] ] ) );
 };
@@ -110,6 +114,11 @@ describe( 'useConnectionState', () => {
 			'offline',
 			{ isOfflineMode: true },
 			{ id: 'offline', status: 'neutral', action: undefined, manageConnection: null },
+		],
+		[
+			'the connection itself while offline, for a caller that skips it',
+			{ status: everything, isOfflineMode: true, skipOfflineMode: true },
+			{ id: 'connected', status: 'success' },
 		],
 		[
 			'Safe Mode',
@@ -162,6 +171,16 @@ describe( 'useConnectionState', () => {
 			{ id: 'owner-missing', status: 'warning', action: undefined },
 		],
 		[
+			'Manage connection for an admin',
+			{ status: everything },
+			{ id: 'connected', manageConnection: { type: 'dialog' } },
+		],
+		[
+			'no Manage connection for a user who may not manage it',
+			{ status: siteOnly, isAdmin: false },
+			{ id: 'site-connected', manageConnection: null },
+		],
+		[
 			'account not connected while the owner is',
 			{ userConnectionPluginActive: true },
 			{ id: 'user-not-connected', status: 'warning', action: 'CONNECT_USER' },
@@ -169,7 +188,11 @@ describe( 'useConnectionState', () => {
 	] )( 'reports %s', ( _, site, expected ) => {
 		setSite( site );
 
-		expect( renderConnectionState( expected, site.skipSafeMode ) ).toEqual( expected );
+		const { skipSafeMode, skipOfflineMode } = site;
+
+		expect( renderConnectionState( expected, { skipSafeMode, skipOfflineMode } ) ).toEqual(
+			expected
+		);
 	} );
 
 	// The tint is the only sign of the error here, so it is the package's rating, not a flat 'error'.

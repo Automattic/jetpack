@@ -1,5 +1,5 @@
 import { CONNECTION_STORE_ID, useConnectionErrorNotice } from '@automattic/jetpack-connection';
-import { currentUserCan } from '@automattic/jetpack-script-data';
+import { currentUserCan, isWoASite } from '@automattic/jetpack-script-data';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
@@ -55,18 +55,39 @@ export function getManageConnection(): ManageConnection {
 }
 
 /**
+ * Whether the viewer may manage the connection: the rule the Overview card applies to its own Manage connection.
+ *
+ * @param isUserConnected   - Whether the viewer's account is connected.
+ * @param isConnectionOwner - Whether the viewer owns the connection.
+ * @return Whether to offer Manage connection.
+ */
+export function canManageConnection(
+	isUserConnected: boolean,
+	isConnectionOwner: boolean
+): boolean {
+	// On WoA, neither the connection owner nor a viewer without a connected account gets it.
+	if ( isWoASite() && ( isConnectionOwner || ! isUserConnected ) ) {
+		return false;
+	}
+
+	return currentUserCan( 'manage_options' ) || isUserConnected;
+}
+
+/**
  * The connection state of the site and the current user, shared by the Overview card and the header.
  *
  * Reads only what the page was rendered with and the connection store, so it sends no request.
  *
- * @param options              - Options.
- * @param options.skipSafeMode - Report the connection itself during Safe Mode instead of Safe Mode.
+ * @param options                 - Options.
+ * @param options.skipSafeMode    - Report the connection itself during Safe Mode instead of Safe Mode.
+ * @param options.skipOfflineMode - Report the connection itself in offline mode instead of offline mode.
  * @return The connection state
  */
 export function useConnectionState( {
 	skipSafeMode = false,
-}: { skipSafeMode?: boolean } = {} ): ConnectionState {
-	const { isRegistered, isUserConnected, hasConnectedOwner, isOfflineMode } =
+	skipOfflineMode = false,
+}: { skipSafeMode?: boolean; skipOfflineMode?: boolean } = {} ): ConnectionState {
+	const { isRegistered, isUserConnected, hasConnectedOwner, isOfflineMode, userConnectionData } =
 		useMyJetpackConnection();
 	const { isKnown, isSafeMode } = useSelect( select => {
 		const status = ( select as unknown as StoreSelector )(
@@ -90,7 +111,7 @@ export function useConnectionState( {
 		};
 	}
 
-	if ( isOfflineMode ) {
+	if ( isOfflineMode && ! skipOfflineMode ) {
 		return {
 			id: 'offline',
 			label: __( 'Offline mode', 'jetpack-my-jetpack' ),
@@ -103,7 +124,12 @@ export function useConnectionState( {
 		};
 	}
 
-	const manageConnection = getManageConnection();
+	const manageConnection = canManageConnection(
+		isUserConnected,
+		!! userConnectionData?.currentUser?.isMaster
+	)
+		? getManageConnection()
+		: null;
 
 	if ( isSafeMode && ! skipSafeMode ) {
 		return {
