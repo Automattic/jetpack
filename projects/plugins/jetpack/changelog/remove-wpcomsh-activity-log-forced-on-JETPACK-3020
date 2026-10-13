@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: Test bootstrap only: stop removing a wpcomsh module policy that no longer exists.
-
-
