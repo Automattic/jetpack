@@ -48,6 +48,7 @@ describe( 'UtmInsightsWidget', () => {
 		await user.click( screen.getByRole( 'button', { name: 'Build URL' } ) );
 		expect( screen.getByRole( 'dialog', { name: 'Build URL' } ) ).toBeInTheDocument();
 
+		await user.keyboard( '{Escape}' );
 		mockRows = [ { label: 'newsletter / email', value: 18 } ];
 		rerender( <UtmInsightsWidget attributes={ {} } /> );
 		expect( screen.queryByRole( 'button', { name: 'Build URL' } ) ).not.toBeInTheDocument();

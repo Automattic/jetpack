@@ -1,30 +1,17 @@
 /**
  * External dependencies
  */
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
 import { UtmUrlBuilderDialog } from '../utm-url-builder-dialog';
 
-const mockCreateSuccessNotice = jest.fn();
-// A spread of the real module reads its lazy exports too early, so only `useDispatch` is swapped.
-jest.mock( '@wordpress/data', () => {
-	const actual = jest.requireActual( '@wordpress/data' );
-	return new Proxy( actual, {
-		get: ( target, name ) =>
-			name === 'useDispatch'
-				? () => ( { createSuccessNotice: mockCreateSuccessNotice } )
-				: target[ name ],
-	} );
-} );
-
 const originalClipboard = Object.getOwnPropertyDescriptor( navigator, 'clipboard' );
 
 beforeEach( () => {
 	jest.useFakeTimers();
-	mockCreateSuccessNotice.mockClear();
 } );
 
 afterEach( () => {
@@ -36,7 +23,7 @@ afterEach( () => {
 	}
 } );
 
-it( 'copies encoded UTM values, keeps the destination query and fragment, and closes', async () => {
+it( 'copies encoded UTM values, keeps the destination query and fragment, and stays open', async () => {
 	const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 	const writeText = jest.fn().mockResolvedValue( undefined );
 	Object.defineProperty( navigator, 'clipboard', { configurable: true, value: { writeText } } );
@@ -58,11 +45,36 @@ it( 'copies encoded UTM values, keeps the destination query and fragment, and cl
 	expect( copied.searchParams.get( 'utm_source' ) ).toBe( 'newsletter' );
 	expect( copied.searchParams.get( 'utm_medium' ) ).toBe( 'email & social' );
 	expect( copied.hash ).toBe( '#intro' );
-	expect( mockCreateSuccessNotice ).toHaveBeenCalledWith(
-		'Copied URL to clipboard.',
-		expect.objectContaining( { type: 'snackbar' } )
+	await expect( screen.findByRole( 'button', { name: 'Copied!' } ) ).resolves.toBeInTheDocument();
+	expect( onClose ).not.toHaveBeenCalled();
+	expect( screen.getByRole( 'textbox', { name: 'UTM campaign' } ) ).toHaveValue( 'spring sale' );
+} );
+
+it.each( [
+	[
+		'the URL is edited',
+		( user: ReturnType< typeof userEvent.setup > ) =>
+			user.type( screen.getByRole( 'textbox', { name: 'UTM medium' } ), 'email' ),
+	],
+	[ 'four seconds pass', async () => act( () => jest.advanceTimersByTime( 4000 ) ) ],
+] )( 'stops confirming the copy once %s', async ( _reason, change ) => {
+	const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+	Object.defineProperty( navigator, 'clipboard', {
+		configurable: true,
+		value: { writeText: jest.fn().mockResolvedValue( undefined ) },
+	} );
+	render( <UtmUrlBuilderDialog onClose={ jest.fn() } /> );
+	await user.type(
+		screen.getByRole( 'textbox', { name: 'Destination URL' } ),
+		'https://example.com/'
 	);
-	expect( onClose ).toHaveBeenCalledTimes( 1 );
+	await user.type( screen.getByRole( 'textbox', { name: 'UTM source' } ), 'newsletter' );
+	await user.click( screen.getByRole( 'button', { name: 'Copy to clipboard' } ) );
+	await expect( screen.findByRole( 'button', { name: 'Copied!' } ) ).resolves.toBeInTheDocument();
+
+	await change( user );
+
+	expect( screen.getByRole( 'button', { name: 'Copy to clipboard' } ) ).toBeInTheDocument();
 } );
 
 it( 'does not offer a share URL for an invalid destination or no UTM parameters', async () => {

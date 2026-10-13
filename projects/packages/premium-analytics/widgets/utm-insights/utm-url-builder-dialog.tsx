@@ -9,15 +9,14 @@ import {
 	ValidatedInputControl,
 } from '@jetpack-premium-analytics/externals';
 import { useCopyToClipboard } from '@wordpress/compose';
-import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 /**
  * Internal dependencies
  */
 import styles from './utm-url-builder-dialog.module.scss';
 
-const COPY_NOTICE_ID = 'jetpack-premium-analytics-utm-url-copy';
+const COPIED_LABEL_DURATION = 4000;
 
 type UtmValues = {
 	destination: string;
@@ -73,7 +72,8 @@ export function UtmUrlBuilderDialog( { onClose }: { onClose: () => void } ) {
 		source: '',
 		medium: '',
 	} );
-	const { createSuccessNotice } = useDispatch( 'core/notices' );
+	const [ copiedUrl, setCopiedUrl ] = useState< string | null >( null );
+	const copiedTimeout = useRef< ReturnType< typeof setTimeout > >();
 	const destinationUrl = parseDestination( values.destination );
 	const isDestinationInvalid = values.destination.trim() !== '' && ! destinationUrl;
 	const destinationValidity = useMemo(
@@ -114,13 +114,13 @@ export function UtmUrlBuilderDialog( { onClose }: { onClose: () => void } ) {
 	);
 
 	const copyRef = useCopyToClipboard< HTMLButtonElement >( trackedUrl ?? '', () => {
-		// A snackbar renders under an open dialog, so the dialog closes first.
-		onClose();
-		createSuccessNotice( __( 'Copied URL to clipboard.', 'jetpack-premium-analytics-pkg' ), {
-			id: COPY_NOTICE_ID,
-			type: 'snackbar',
-		} );
+		setCopiedUrl( trackedUrl );
+		clearTimeout( copiedTimeout.current );
+		copiedTimeout.current = setTimeout( () => setCopiedUrl( null ), COPIED_LABEL_DURATION );
 	} );
+	useEffect( () => () => clearTimeout( copiedTimeout.current ), [] );
+	// Compared with the current URL, so an edit after a copy ends the confirmation.
+	const isCopied = copiedUrl !== null && copiedUrl === trackedUrl;
 
 	return (
 		<Dialog.Root open onOpenChange={ handleOpenChange }>
@@ -233,7 +233,9 @@ export function UtmUrlBuilderDialog( { onClose }: { onClose: () => void } ) {
 						size="compact"
 						disabled={ ! trackedUrl }
 					>
-						{ __( 'Copy to clipboard', 'jetpack-premium-analytics-pkg' ) }
+						{ isCopied
+							? __( 'Copied!', 'jetpack-premium-analytics-pkg' )
+							: __( 'Copy to clipboard', 'jetpack-premium-analytics-pkg' ) }
 					</Button>
 				</Dialog.Footer>
 			</Dialog.Popup>
