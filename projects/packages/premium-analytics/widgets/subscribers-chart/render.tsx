@@ -122,7 +122,10 @@ function SubscribersChartInner( { chartType }: SubscribersChartInnerProps ) {
 	return (
 		<div className={ styles.root }>
 			<WidgetState
-				isLoading={ state.isLoading || ( isChartEmpty && counts.isLoading ) }
+				// A failed attempt ends the wait: the retries would hold the skeleton for seconds.
+				isLoading={
+					state.isLoading || ( isChartEmpty && counts.isLoading && ! counts.failureCount )
+				}
 				isFetching={ state.isFetching }
 				// The query keeps prior data via `placeholderData`, so a transient
 				// refetch failure keeps the chart visible; only surface the error
