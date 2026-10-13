@@ -66,6 +66,7 @@ body.toplevel_page_jetpack-protect {
 	// A button that opens something in place, styled as the links beside it.
 	&__link-button {
 		padding: 0;
+		line-height: 1.4;
 		color: var(--wpds-color-foreground-interactive-brand);
 		font-size: 13px;
 		text-decoration: underline;

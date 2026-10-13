@@ -3,6 +3,9 @@ import { Dialog, Stack, Text } from '@wordpress/ui';
 import { SELF_CHECK_RULE_ID } from './firewall-test';
 import type { TestResult } from './firewall-test';
 
+// HTTP/2 responses carry no reason phrase.
+const REASON_PHRASES: Record< number, string > = { 200: 'OK', 403: 'Forbidden' };
+
 /**
  * The request's path and query, with the spent token shortened.
  *
@@ -66,7 +69,7 @@ function TestSteps( { result, recorded }: { result: TestResult; recorded: boolea
 		{
 			title: __( 'Got a response', 'jetpack-protect-pkg' ),
 			code: [
-				`${ result.status } ${ result.statusText }`.trim(),
+				`${ result.status } ${ result.statusText || REASON_PHRASES[ result.status ] || '' }`.trim(),
 				result.wafHeader && `X-JetpackWAF-Blocked: ${ result.wafHeader }`,
 				result.allowedHeader && `X-JetpackWAF-Test-Allowed: ${ result.allowedHeader }`,
 			]

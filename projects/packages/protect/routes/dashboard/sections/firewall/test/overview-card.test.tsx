@@ -66,6 +66,7 @@ describe( 'FirewallOverviewCard', () => {
 		await act( async () => notice.actions[ 0 ].onClick() );
 
 		const dialog = await screen.findByRole( 'dialog', { name: 'How the firewall test works' } );
+		expect( dialog ).toHaveTextContent( '403 Forbidden' );
 		expect( dialog ).toHaveTextContent( 'X-JetpackWAF-Blocked: 403 - rule -2' );
 		expect( dialog ).toHaveTextContent( 'Logged the block' );
 	} );

@@ -3,7 +3,7 @@ import { ToggleControl } from '@wordpress/components';
 import { dispatch } from '@wordpress/data';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, check, closeSmall, shield } from '@wordpress/icons';
+import { Icon, caution, check, closeSmall, info, shield } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { Button, Notice, Stack, Text } from '@wordpress/ui';
 import { CardRow, ProtectCard, Stat } from '../../components/card';
@@ -47,6 +47,7 @@ const OUTCOMES: Record<
 	},
 	silent: {
 		status: 'warning',
+		icon: snackbarIcon( caution ),
 		message: () =>
 			__(
 				'The firewall caught the test request but let it through, because it’s only logging requests.',
@@ -55,6 +56,7 @@ const OUTCOMES: Record<
 	},
 	allowed: {
 		status: 'info',
+		icon: snackbarIcon( info ),
 		message: () =>
 			__(
 				'The test request got through, because your IP address is on the always-allowed list.',
@@ -72,6 +74,7 @@ const OUTCOMES: Record<
 	},
 	off: {
 		status: 'info',
+		icon: snackbarIcon( info ),
 		message: () =>
 			__(
 				'The test request got through, because the firewall is off. Turn it on and test again to see it blocked.',
