@@ -22,9 +22,6 @@
 }
 
 .map {
-	display: flex;
-	align-items: center;
-	justify-content: center;
 	min-inline-size: 0;
 	block-size: 100%;
 	// Google redraws the SVG on a resize debounce; clip the stale one

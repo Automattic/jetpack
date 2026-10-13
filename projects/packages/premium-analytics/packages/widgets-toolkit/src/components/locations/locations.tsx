@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { Stack } from '@jetpack-premium-analytics/externals';
 import { useMemo, type JSX } from 'react';
 /**
  * Internal dependencies
@@ -113,14 +114,15 @@ export function Locations( {
 						dataFormat={ format }
 						className={ styles.list }
 					/>
-					<div className={ styles.map }>
+
+					<Stack justify="center" align="center" className={ styles.map }>
 						<LocationsGeoChart
 							rows={ data.geoRows }
 							mode={ data.geoMode }
 							focusCountry={ data.focusCountry }
 							resizeDebounceTime={ RESIZE_DEBOUNCE_MS }
 						/>
-					</div>
+					</Stack>
 				</div>
 			</WidgetState>
 		</div>
