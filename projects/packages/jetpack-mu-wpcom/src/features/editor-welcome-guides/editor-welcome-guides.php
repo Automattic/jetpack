@@ -2,22 +2,14 @@
 /**
  * Once-per-user editor welcome guides.
  *
- * WordPress keeps the welcome guide flags in the blog-prefixed `persisted_preferences`
- * user meta, so every guide returns on every new site. On WordPress.com a user has one
- * global record of dismissed guides instead. This feature merges that record into the
- * per-site preferences when they are read, and reports newly dismissed guides when they
- * are saved. The record itself is provided through two hooks:
- *
- * - `wpcom_editor_welcome_guides_dismissed` (filter): returns the user's dismissed
- *   guides as a map of `core/preferences` scope to guide keys.
- * - `wpcom_editor_welcome_guides_dismiss` (action): records newly dismissed guides.
+ * Core keeps the guide flags per site in the `persisted_preferences` user meta. On
+ * WordPress.com the dismissed guides live in one global record, exchanged through the
+ * `wpcom_editor_welcome_guides_dismissed` filter and `wpcom_editor_welcome_guides_dismiss` action.
  *
  * @package automattic/jetpack-mu-wpcom
  */
 
 declare( strict_types = 1 );
-
-require_once __DIR__ . '/../../utils.php';
 
 /**
  * Whether the feature is enabled for the current site.
