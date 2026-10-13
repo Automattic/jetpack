@@ -407,11 +407,18 @@ describe( 'FeatureModalActions', () => {
 } );
 
 describe( 'FeatureItem', () => {
-	it.each( [ 'Requires a connected WordPress.com account', 'Unavailable in Offline mode' ] )(
-		'shows the module limitation on a forced unavailable card and the host reason in details: %s',
-		unavailable_reason => {
+	it.each( [
+		[ 'active', 'Requires a connected WordPress.com account', 'Enabled' ],
+		[ 'active', 'Unavailable in Offline mode', 'Enabled' ],
+		[ 'inactive', 'Unavailable in Offline mode', 'Disabled' ],
+	] as const )(
+		'shows the module limitation before the host line in details for override %s: %s',
+		( override, unavailable_reason, hostLabel ) => {
 			const state = buildState(
-				{ kind: 'module', module: { ...forcedModule, available: false, unavailable_reason } },
+				{
+					kind: 'module',
+					module: { ...forcedModule, override, available: false, unavailable_reason },
+				},
 				{ status: 'active' }
 			);
 			const { rerender } = render( <FeatureItem state={ state } onOpen={ jest.fn() } /> );
@@ -420,7 +427,13 @@ describe( 'FeatureItem', () => {
 			expect( screen.queryByText( /by your host or site administrator/ ) ).not.toBeInTheDocument();
 			expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
 			rerender( <FeatureModalActions state={ state } /> );
-			expect( screen.getByText( 'Enabled by your host or site administrator' ) ).toBeVisible();
+			const moduleReason = screen.getByText( unavailable_reason );
+			const hostReason = screen.getByText( `${ hostLabel } by your host or site administrator` );
+			expect( moduleReason ).toBeVisible();
+			expect( hostReason ).toBeVisible();
+			expect( moduleReason.compareDocumentPosition( hostReason ) ).toBe(
+				Node.DOCUMENT_POSITION_FOLLOWING
+			);
 			expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
 		}
 	);

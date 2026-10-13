@@ -7,7 +7,7 @@ import clsx from 'clsx';
 import { useCallback } from 'react';
 import styles from './styles.module.scss';
 import type { FeatureFilter } from './use-feature-filter';
-import type { FocusEvent, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 type FilterPillProps = {
 	countPending?: boolean;
@@ -32,9 +32,6 @@ type FilterPillProps = {
  */
 function FilterPill( { value, label, count, countPending, isActive, onSelect }: FilterPillProps ) {
 	const onClick = useCallback( () => onSelect( value ), [ onSelect, value ] );
-	const onFocus = useCallback( ( event: FocusEvent< HTMLButtonElement > ) => {
-		event.currentTarget.scrollIntoView?.( { block: 'nearest', inline: 'nearest' } );
-	}, [] );
 
 	return (
 		<button
@@ -42,7 +39,6 @@ function FilterPill( { value, label, count, countPending, isActive, onSelect }: 
 			className={ clsx( styles.pill, isActive && styles[ 'pill--selected' ] ) }
 			aria-pressed={ isActive }
 			onClick={ onClick }
-			onFocus={ onFocus }
 		>
 			{ label }
 			<span className={ styles.pill__count }>
@@ -145,12 +141,12 @@ export function Toolbar( {
 
 	return (
 		<div className={ styles.toolbar }>
-			<Stack direction="row" align="center" gap="md" className={ styles[ 'toolbar-row' ] }>
+			<Stack direction="row" align="center" gap="md" wrap="wrap">
 				<Stack
 					direction="row"
 					align="center"
 					gap="sm"
-					wrap="nowrap"
+					wrap="wrap"
 					role="group"
 					aria-label={ __( 'Filter features', 'jetpack-my-jetpack' ) }
 					className={ styles.pills }
