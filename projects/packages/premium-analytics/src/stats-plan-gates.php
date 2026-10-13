@@ -31,6 +31,8 @@ const STATS_TIER_FREE         = 'free';
 const STATS_TIER_JETPACK_FREE = 'jetpack-free';
 const STATS_TIER_UNKNOWN      = 'unknown';
 
+const STATS_TIERS = array( STATS_TIER_COMMERCIAL, STATS_TIER_LEGACY_FREE, STATS_TIER_PAID, STATS_TIER_LEGACY_BASIC, STATS_TIER_FREE, STATS_TIER_JETPACK_FREE, STATS_TIER_UNKNOWN );
+
 /**
  * Jetpack products that support commercial use. PWYW and Free Stats do not.
  */
@@ -66,7 +68,16 @@ function get_stats_plan_tier() {
 	 *
 	 * @param string $tier One of the STATS_TIER_* values; `unknown` gates nothing.
 	 */
-	return (string) apply_filters( STATS_PLAN_TIER_FILTER, $tier );
+	$filtered = apply_filters( STATS_PLAN_TIER_FILTER, $tier );
+
+	// A misspelled tier would otherwise fall through to `unknown` and unlock every paid feature.
+	if ( ! in_array( $filtered, STATS_TIERS, true ) ) {
+		// One line: tools/replace-next-version-tag.sh only rewrites the token in a single-line call.
+		_doing_it_wrong( __FUNCTION__, esc_html( sprintf( /* translators: %s: Filter name. */ __( 'The %s filter must return one of the STATS_TIER_* values.', 'jetpack-premium-analytics-pkg' ), STATS_PLAN_TIER_FILTER ) ), 'jetpack-premium-analytics-$$next-version$$' );
+		return $tier;
+	}
+
+	return $filtered;
 }
 
 /**
@@ -128,28 +139,27 @@ function get_jetpack_stats_plan_tier() {
 function has_cached_jetpack_plan() {
 	$plan = get_option( Current_Plan::PLAN_OPTION );
 
-	return is_array( $plan ) && ! empty( $plan['features']['active'] );
+	return is_array( $plan ) && is_array( $plan['features']['active'] ?? null ) && $plan['features']['active'];
 }
 
 /**
- * Whether a self-hosted site owns a purchase that supports commercial use, from the cached plan options.
+ * Whether a self-hosted site owns a purchase that supports commercial use, once has_cached_jetpack_plan() holds.
  *
  * @since $$next-version$$
  *
  * @return bool
  */
 function has_jetpack_stats_commercial_purchase() {
-	$plan     = get_option( Current_Plan::PLAN_OPTION, array() );
-	$plan     = is_array( $plan ) ? $plan : array();
+	$plan     = get_option( Current_Plan::PLAN_OPTION );
 	$products = get_option( Current_Plan::SITE_PRODUCTS_OPTION, array() );
 	$products = is_array( $products ) ? $products : array();
 
-	$slugs = array_column( array_filter( $products, 'is_array' ), 'product_slug' );
+	$slugs = array_column( $products, 'product_slug' );
 	if ( isset( $plan['product_slug'] ) ) {
 		$slugs[] = $plan['product_slug'];
 	}
 
-	foreach ( array_filter( $slugs, 'is_string' ) as $slug ) {
+	foreach ( $slugs as $slug ) {
 		if ( in_array( $slug, JETPACK_STATS_COMMERCIAL_PRODUCTS, true ) ) {
 			return true;
 		}
@@ -160,9 +170,7 @@ function has_jetpack_stats_commercial_purchase() {
 		}
 	}
 
-	$active = $plan['features']['active'] ?? array();
-
-	return is_array( $active ) && in_array( 'stats-commercial', $active, true );
+	return in_array( 'stats-commercial', $plan['features']['active'], true );
 }
 
 /**
@@ -195,7 +203,7 @@ function get_locked_stats_features( $tier ) {
 		case STATS_TIER_FREE:
 			return array_merge(
 				STATS_COMMERCIAL_FEATURES,
-				array( 'top-posts', 'referrers', 'countries', 'clicks', 'file-downloads', 'insights', 'csv', 'intervals', 'recent-7-days' )
+				array( 'top-posts', 'referrers', 'countries', 'clicks', 'file-downloads', 'insights', 'csv', 'intervals', 'long-date-presets', 'recent-7-days' )
 			);
 		default:
 			return array();
@@ -203,7 +211,7 @@ function get_locked_stats_features( $tier ) {
 }
 
 /**
- * Where to buy a locked feature. Classic Stats' destinations until STATS-522 ships a new one.
+ * Where to buy a locked feature: classic Stats' purchase destinations (STATS-522 tracks a replacement).
  *
  * @since $$next-version$$
  *
@@ -330,7 +338,7 @@ const PURCHASE_PLAN_REFRESH_TRANSIENT = 'jetpack_premium_analytics_purchase_plan
 /**
  * Refreshes a self-hosted site's cached plan on the dashboard when it is empty or a checkout just returned.
  *
- * Script data is final once printed, so the gates can only change before it. Mirrors stats-admin's refresh (#52098).
+ * Script data is final once printed, so the gates can only change before it.
  *
  * @since $$next-version$$
  *

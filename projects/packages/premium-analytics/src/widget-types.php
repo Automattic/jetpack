@@ -355,7 +355,7 @@ function register_widget_types_from_manifest( array $widgets, array $args = arra
 				'textdomain'    => $widget['textdomain'] ?? null,
 				'i18n_manifest' => $widget['i18n_manifest'] ?? null,
 				'former_names'  => $widget['former_names'] ?? null,
-				'plan_feature'  => isset( $widget['plan_feature'] ) && is_string( $widget['plan_feature'] ) ? $widget['plan_feature'] : null,
+				'plan_feature'  => $widget['plan_feature'] ?? null,
 			)
 		);
 	}

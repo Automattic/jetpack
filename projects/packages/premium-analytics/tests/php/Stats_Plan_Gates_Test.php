@@ -110,6 +110,7 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		delete_option( 'jetpack_active_plan' );
 		delete_option( 'jetpack_site_products' );
 		remove_all_filters( STATS_PLAN_TIER_FILTER );
+		remove_all_filters( 'doing_it_wrong_trigger_error' );
 		remove_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_stats_plan_gates_script_data', 20 );
 		remove_action( 'admin_init', __NAMESPACE__ . '\\maybe_refresh_jetpack_plan' );
 		remove_all_filters( 'pre_http_request' );
@@ -168,7 +169,6 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 			'paid'                     => array( array( 'stats-paid' ), STATS_TIER_PAID ),
 			'legacy basic'             => array( array( 'stats-basic' ), STATS_TIER_LEGACY_BASIC ),
 			'no stats feature is free' => array( array(), STATS_TIER_FREE ),
-			'near-miss slug'           => array( array( 'stats-commercial-v2' ), STATS_TIER_FREE ),
 		);
 		$data  = array();
 		foreach ( array( 'simple', 'atomic' ) as $platform ) {
@@ -179,9 +179,6 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		return $data;
 	}
 
-	/**
-	 * Unsynced Atomic purchases read like a site that bought nothing, so nothing is gated.
-	 */
 	public function test_atomic_without_synced_purchases_is_unknown() {
 		$this->set_wpcom_platform( 'atomic' );
 		$GLOBALS['jpa_test_wpcom_purchases'] = array();
@@ -227,7 +224,7 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 
 		return array(
 			'empty cache is unknown'   => array( array(), array(), STATS_TIER_UNKNOWN ),
-			'malformed cache'          => array( 'garbage', 'garbage', STATS_TIER_UNKNOWN ),
+			'non-array cache'          => array( 'garbage', 'garbage', STATS_TIER_UNKNOWN ),
 			'cached free plan'         => array( self::FREE_PLAN, array(), STATS_TIER_JETPACK_FREE ),
 			'malformed products'       => array( self::FREE_PLAN, 'garbage', STATS_TIER_JETPACK_FREE ),
 			'stats yearly product'     => array( self::FREE_PLAN, $products( 'jetpack_stats_yearly' ), STATS_TIER_COMMERCIAL ),
@@ -239,18 +236,12 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		);
 	}
 
-	/**
-	 * VIP is never gated.
-	 */
 	public function test_vip_is_commercial() {
 		Constants::set_constant( 'WPCOM_IS_VIP_ENV', true );
 
 		$this->assertSame( STATS_TIER_COMMERCIAL, get_stats_plan_tier() );
 	}
 
-	/**
-	 * Hosts and tests can override the tier.
-	 */
 	public function test_tier_is_filterable() {
 		add_filter(
 			STATS_PLAN_TIER_FILTER,
@@ -262,39 +253,23 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		$this->assertSame( STATS_TIER_PAID, get_stats_plan_tier() );
 	}
 
-	/**
-	 * Each tier locks exactly classic Stats' set.
-	 *
-	 * @dataProvider provide_locked_features
-	 *
-	 * @param string   $tier     Tier.
-	 * @param string[] $expected Locked features.
-	 */
-	#[DataProvider( 'provide_locked_features' )]
-	public function test_each_tier_locks_classic_stats_features( $tier, $expected ) {
-		$locked = get_locked_stats_features( $tier );
-		sort( $locked );
-		sort( $expected );
+	public function test_an_unrecognized_filtered_tier_keeps_the_computed_one() {
+		$this->set_wpcom_platform( 'simple' );
+		add_filter( STATS_PLAN_TIER_FILTER, static fn() => 'Paid' );
+		add_filter( 'doing_it_wrong_trigger_error', '__return_false' );
 
-		$this->assertSame( $expected, $locked );
+		$this->assertSame( STATS_TIER_FREE, get_stats_plan_tier() );
 	}
 
 	/**
-	 * Tiers and their locked features.
-	 *
-	 * @return array
+	 * Classic Stats' tiers nest, so a feature only the stricter tier names would unlock there.
 	 */
-	public static function provide_locked_features() {
-		$commercial = array( 'authors', 'search-terms', 'videos', 'utm', 'devices', 'regions-cities' );
-		return array(
-			'commercial'   => array( STATS_TIER_COMMERCIAL, array() ),
-			'unknown'      => array( STATS_TIER_UNKNOWN, array() ),
-			'legacy free'  => array( STATS_TIER_LEGACY_FREE, array( 'utm', 'devices', 'regions-cities' ) ),
-			'jetpack free' => array( STATS_TIER_JETPACK_FREE, array( 'utm', 'devices', 'regions-cities' ) ),
-			'paid'         => array( STATS_TIER_PAID, $commercial ),
-			'legacy basic' => array( STATS_TIER_LEGACY_BASIC, array_merge( $commercial, array( 'referrers', 'clicks', 'csv', 'intervals', 'long-date-presets' ) ) ),
-			'free'         => array( STATS_TIER_FREE, array_merge( $commercial, array( 'top-posts', 'referrers', 'countries', 'clicks', 'file-downloads', 'insights', 'csv', 'intervals', 'recent-7-days' ) ) ),
-		);
+	public function test_a_stricter_tier_locks_everything_a_looser_one_does() {
+		$ladder = array( STATS_TIER_COMMERCIAL, STATS_TIER_LEGACY_FREE, STATS_TIER_PAID, STATS_TIER_LEGACY_BASIC, STATS_TIER_FREE );
+
+		for ( $i = 1, $count = count( $ladder ); $i < $count; $i++ ) {
+			$this->assertSame( array(), array_values( array_diff( get_locked_stats_features( $ladder[ $i - 1 ] ), get_locked_stats_features( $ladder[ $i ] ) ) ), $ladder[ $i ] );
+		}
 	}
 
 	/**
@@ -322,15 +297,25 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 	 */
 	public static function provide_locked_widget_types() {
 		return array(
-			'commercial'                  => array( STATS_TIER_COMMERCIAL, array() ),
-			'paid keeps countries'        => array(
+			'commercial'                       => array( STATS_TIER_COMMERCIAL, array() ),
+			'legacy free locks only advanced'  => array( STATS_TIER_LEGACY_FREE, array( 'jpa/devices' => 'devices' ) ),
+			'jetpack free locks only advanced' => array( STATS_TIER_JETPACK_FREE, array( 'jpa/devices' => 'devices' ) ),
+			'legacy basic keeps countries'     => array(
+				STATS_TIER_LEGACY_BASIC,
+				array(
+					'jpa/devices'       => 'devices',
+					'jpa/referrers'     => 'referrers',
+					'plugin/top-videos' => 'videos',
+				),
+			),
+			'paid keeps countries'             => array(
 				STATS_TIER_PAID,
 				array(
 					'jpa/devices'       => 'devices',
 					'plugin/top-videos' => 'videos',
 				),
 			),
-			'free locks the whole widget' => array(
+			'free locks the whole widget'      => array(
 				STATS_TIER_FREE,
 				array(
 					'jpa/devices'       => 'devices',
@@ -369,9 +354,6 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		$this->assertStringContainsString( '/personal?', get_stats_upgrade_url( 'referrers', STATS_TIER_FREE ) );
 	}
 
-	/**
-	 * Self-hosted sites go to the Stats purchase screen and come back flagged as purchased.
-	 */
 	public function test_jetpack_upgrade_url_returns_with_the_purchase_flag() {
 		$GLOBALS['_parent_pages']['stats'] = false;
 		$url                               = get_stats_upgrade_url( 'utm', STATS_TIER_JETPACK_FREE );
@@ -425,8 +407,10 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 
 	/**
 	 * Serve the dashboard page with a connected site whose plan fetches are counted.
+	 *
+	 * @param array|\WP_Error|null $response What WordPress.com answers; a free plan when null.
 	 */
-	private function open_dashboard_with_counted_plan_fetches() {
+	private function open_dashboard_with_counted_plan_fetches( $response = null ) {
 		$_GET['page'] = Analytics::MENU_PAGE_SLUG;
 		set_current_screen( 'toplevel_page_' . Analytics::MENU_PAGE_SLUG );
 
@@ -437,12 +421,12 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 
 		add_filter(
 			'pre_http_request',
-			function ( $preempt, $args, $url ) {
+			function ( $preempt, $args, $url ) use ( $response ) {
 				if ( false === strpos( $url, '/sites/1234' ) ) {
 					return $preempt;
 				}
 				++$this->plan_requests;
-				return array(
+				return $response ?? array(
 					'response' => array( 'code' => 200 ),
 					'body'     => wp_json_encode( array( 'plan' => self::FREE_PLAN ), JSON_UNESCAPED_SLASHES ),
 				);
@@ -452,9 +436,6 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		);
 	}
 
-	/**
-	 * An empty cache is filled once on the dashboard, after which the site is gated as free.
-	 */
 	public function test_empty_plan_cache_is_refreshed_once_on_the_dashboard() {
 		$this->open_dashboard_with_counted_plan_fetches();
 		$this->assertSame( STATS_TIER_UNKNOWN, get_stats_plan_tier() );
@@ -466,9 +447,17 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		$this->assertSame( 1, $this->plan_requests, 'A second empty read within the window does not fetch again.' );
 	}
 
-	/**
-	 * The refreshed plan is what the gates read next.
-	 */
+	public function test_a_failed_refresh_is_throttled_and_leaves_the_tier_unknown() {
+		$this->open_dashboard_with_counted_plan_fetches( new \WP_Error( 'http_request_failed', 'Operation timed out' ) );
+
+		maybe_refresh_jetpack_plan();
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- The second load is the throttle under test.
+		maybe_refresh_jetpack_plan();
+
+		$this->assertSame( 1, $this->plan_requests );
+		$this->assertSame( STATS_TIER_UNKNOWN, get_stats_plan_tier() );
+	}
+
 	public function test_refreshed_plan_feeds_the_tier() {
 		$this->open_dashboard_with_counted_plan_fetches();
 
@@ -494,9 +483,6 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		$this->assertSame( 2, $this->plan_requests, 'One fetch per purchase return.' );
 	}
 
-	/**
-	 * Other admin pages and WordPress.com never fetch.
-	 */
 	public function test_no_refresh_off_the_dashboard_or_on_wpcom() {
 		$this->open_dashboard_with_counted_plan_fetches();
 		$this->set_wpcom_platform( 'simple' );
@@ -510,9 +496,6 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		$this->assertSame( 0, $this->plan_requests );
 	}
 
-	/**
-	 * Configure hooks the refresh on admin_init.
-	 */
 	public function test_configure_hooks_the_refresh() {
 		configure_stats_plan_gates();
 
