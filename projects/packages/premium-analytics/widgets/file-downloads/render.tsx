@@ -34,6 +34,7 @@ import {
 /**
  * Internal dependencies
  */
+import { useNoViewsRecorded } from '../use-no-views-recorded';
 import styles from './style.module.css';
 import { type FileDownloadsAttributes } from './widget';
 /**
@@ -143,12 +144,15 @@ function FileDownloadsInner() {
 		[ comparisonRows ]
 	);
 	const withComparison = hasComparison;
+	const { noViewsRecorded, isChecking } = useNoViewsRecorded(
+		! isLoading && ! isError && rows.length === 0
+	);
 
 	return (
 		<>
 			<div className={ styles.content }>
 				<WidgetState
-					isLoading={ isLoading }
+					isLoading={ isLoading || isChecking }
 					isFetching={ isFetching }
 					// `placeholderData` keeps the prior period's rows on screen, so a
 					// transient refetch failure should not replace them with an error.
@@ -163,6 +167,16 @@ function FileDownloadsInner() {
 							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
 						],
 					} }
+					empty={
+						noViewsRecorded
+							? {
+									description: __(
+										'You don’t have downloads recorded yet.',
+										'jetpack-premium-analytics-pkg'
+									),
+								}
+							: undefined
+					}
 					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
 					<FileDownloadsLeaderboard rows={ rows } withComparison={ withComparison } />

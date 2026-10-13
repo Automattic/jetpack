@@ -20,6 +20,7 @@ import {
 	ExporterCsvDownloadButton,
 	authorsCsvExporter,
 	type LeaderboardChartData,
+	type WidgetStateEmpty,
 	type LegendLabels,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -29,6 +30,7 @@ import { useEffect, useMemo } from 'react';
  * Internal dependencies
  */
 import { buildTopAuthorsData, type AuthorLeaderboardRow } from './build-top-authors-data';
+import { useNoViewsRecorded } from '../use-no-views-recorded';
 import styles from './style.module.css';
 import type { AuthorsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -47,6 +49,7 @@ export type AuthorsLeaderboardProps = {
 	refetch?: () => void;
 	withComparison?: boolean;
 	legendLabels?: LegendLabels;
+	empty?: WidgetStateEmpty;
 };
 
 /**
@@ -62,6 +65,7 @@ export function AuthorsLeaderboard( {
 	refetch,
 	withComparison = false,
 	legendLabels,
+	empty,
 }: AuthorsLeaderboardProps ) {
 	// Store only the id and resolve the row fresh, so a refetch that drops the
 	// author falls back to the top view instead of pinning a stale snapshot.
@@ -171,7 +175,7 @@ export function AuthorsLeaderboard( {
 									'jetpack-premium-analytics-pkg'
 								),
 							}
-						: undefined
+						: empty
 				}
 				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 			>
@@ -210,13 +214,17 @@ function AuthorsReport() {
 		[ comparisonRows ]
 	);
 
+	const { noViewsRecorded, isChecking } = useNoViewsRecorded(
+		! isInitialLoading && ! isError && rows.length === 0
+	);
+
 	const legendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
 
 	return (
 		<>
 			<AuthorsLeaderboard
 				rows={ rows }
-				isLoading={ isInitialLoading }
+				isLoading={ isInitialLoading || isChecking }
 				isFetching={ isFetching }
 				// `placeholderData` keeps the prior period's rows on screen while `isError`
 				// flips true, so a transient refetch failure should not replace them.
@@ -224,6 +232,16 @@ function AuthorsReport() {
 				refetch={ refetch }
 				withComparison={ hasComparison }
 				legendLabels={ legendLabels }
+				empty={
+					noViewsRecorded
+						? {
+								description: __(
+									'You don’t have authors recorded yet.',
+									'jetpack-premium-analytics-pkg'
+								),
+							}
+						: undefined
+				}
 			/>
 			<WidgetFooter>
 				<ReportLink report="authors" />

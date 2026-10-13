@@ -34,6 +34,7 @@ import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { useNoViewsRecorded } from '../use-no-views-recorded';
 import styles from './style.module.css';
 import { type ClicksAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -228,6 +229,10 @@ function ClicksInner() {
 		}
 	}, [ selectedClickLabel, isDrillDown, isLoading, isFetching, isError, clearSelectedClick ] );
 
+	const { noViewsRecorded, isChecking } = useNoViewsRecorded(
+		! isLoading && ! isError && rows.length === 0
+	);
+
 	const handleDrillDown = useCallback(
 		( row: ClickRow ) => {
 			selectClick( row.label );
@@ -248,7 +253,7 @@ function ClicksInner() {
 			<div className={ styles.content }>
 				{ backLink }
 				<WidgetState
-					isLoading={ isLoading }
+					isLoading={ isLoading || isChecking }
 					isFetching={ isFetching }
 					// `placeholderData` keeps the prior period's rows on screen while `isError`
 					// flips true, so a transient refetch failure should not replace them.
@@ -263,6 +268,16 @@ function ClicksInner() {
 							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
 						],
 					} }
+					empty={
+						noViewsRecorded
+							? {
+									description: __(
+										'You don’t have clicked links recorded yet.',
+										'jetpack-premium-analytics-pkg'
+									),
+								}
+							: undefined
+					}
 					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
 					<ClicksLeaderboard

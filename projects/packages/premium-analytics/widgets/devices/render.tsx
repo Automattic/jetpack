@@ -15,6 +15,7 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
+import { useNoViewsRecorded } from '../use-no-views-recorded';
 import useDeviceViews from './use-device-views';
 import { type DevicesAttributes } from './widget';
 /**
@@ -52,11 +53,20 @@ function DevicesInner() {
 			} ) ),
 		[ data ]
 	);
+	const { noViewsRecorded, isChecking } = useNoViewsRecorded(
+		! isLoading && ! isError && segments.every( segment => ! segment.value )
+	);
 
 	return (
 		<Donut
 			segments={ segments }
-			status={ { isLoading, isFetching, isError, hasComparison, refetch } }
+			status={ {
+				isLoading: isLoading || isChecking,
+				isFetching,
+				isError,
+				hasComparison,
+				refetch,
+			} }
 			error={ describeError( error, {
 				retryDescription: __(
 					"We couldn't load device data. Please try again in a moment.",
@@ -64,6 +74,16 @@ function DevicesInner() {
 				),
 				onRetry: refetch,
 			} ) }
+			empty={
+				noViewsRecorded
+					? {
+							description: __(
+								'You don’t have devices recorded yet.',
+								'jetpack-premium-analytics-pkg'
+							),
+						}
+					: undefined
+			}
 			format={ PERCENTAGE_DATA_FORMAT }
 			variant="half-ring"
 			withTotal={ false }

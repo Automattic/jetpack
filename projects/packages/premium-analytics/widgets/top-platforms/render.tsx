@@ -23,6 +23,7 @@ import {
 /**
  * Internal dependencies
  */
+import { useNoViewsRecorded } from '../use-no-views-recorded';
 import styles from './style.module.css';
 import usePlatformViews from './use-platform-views';
 import { type TopPlatformsAttributes } from './widget';
@@ -56,6 +57,10 @@ function TopPlatformsInner( { platformDimension }: TopPlatformsInnerProps ) {
 		}
 	);
 
+	const { noViewsRecorded, isChecking } = useNoViewsRecorded(
+		! isLoading && ! isError && data.length === 0
+	);
+
 	const maxViews = getCombinedPeriodMax(
 		data.map( item => item.views ),
 		hasComparison ? data.map( item => item.previousViews ) : []
@@ -87,7 +92,7 @@ function TopPlatformsInner( { platformDimension }: TopPlatformsInnerProps ) {
 	return (
 		<div className={ styles.content }>
 			<WidgetState
-				isLoading={ isLoading }
+				isLoading={ isLoading || isChecking }
 				isFetching={ isFetching }
 				isError={ isError }
 				isEmpty={ data.length === 0 }
@@ -98,6 +103,16 @@ function TopPlatformsInner( { platformDimension }: TopPlatformsInnerProps ) {
 					),
 					onRetry: refetch,
 				} ) }
+				empty={
+					noViewsRecorded
+						? {
+								description: __(
+									'You don’t have platforms recorded yet.',
+									'jetpack-premium-analytics-pkg'
+								),
+							}
+						: undefined
+				}
 				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 			>
 				<LeaderboardChart

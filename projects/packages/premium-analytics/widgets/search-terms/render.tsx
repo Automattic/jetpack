@@ -18,6 +18,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { useNoViewsRecorded } from '../use-no-views-recorded';
 import useSearchTermViews from './use-search-term-views';
 import { type SearchTermsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -47,11 +48,20 @@ function SearchTermsInner() {
 			} ) ),
 		[ data ]
 	);
+	const { noViewsRecorded, isChecking } = useNoViewsRecorded(
+		! isLoading && ! isError && rows.length === 0
+	);
 
 	return (
 		<Leaderboard
 			rows={ rows }
-			status={ { isLoading, isFetching, isError, hasComparison, refetch } }
+			status={ {
+				isLoading: isLoading || isChecking,
+				isFetching,
+				isError,
+				hasComparison,
+				refetch,
+			} }
 			error={ describeError( error, {
 				retryDescription: __(
 					"We couldn't load search terms. Please try again in a moment.",
@@ -59,6 +69,16 @@ function SearchTermsInner() {
 				),
 				onRetry: refetch,
 			} ) }
+			empty={
+				noViewsRecorded
+					? {
+							description: __(
+								'You don’t have search terms recorded yet.',
+								'jetpack-premium-analytics-pkg'
+							),
+						}
+					: undefined
+			}
 			footer={
 				<>
 					<ReportLink report="search-terms" />
