@@ -54,14 +54,16 @@ if ( ! class_exists( 'Brute_Force_Protection_Math_Authenticate' ) ) {
 		 * @return bool Returns true if the math is correct. Exits if not.
 		 */
 		public static function math_authenticate() {
-			// A form Protect approved before math was required may finish, once.
-			if ( ( new Brute_Force_Protection_Login_Attempt_Token( Brute_Force_Protection::instance() ) )->consume() ) {
+			$brute_force_protection = Brute_Force_Protection::instance();
+
+			// A form loaded before the Protect API stopped answering may finish once, but a soft-blocked IP still solves math.
+			if ( 'blocked' !== $brute_force_protection->get_cached_status()
+				&& ( new Brute_Force_Protection_Login_Attempt_Token( $brute_force_protection ) )->consume() ) {
 				return true;
 			}
 
 			if ( isset( $_COOKIE['jpp_math_pass'] ) ) {
-				$brute_force_protection = Brute_Force_Protection::instance();
-				$transient              = $brute_force_protection->get_transient( 'jpp_math_pass_' . sanitize_key( $_COOKIE['jpp_math_pass'] ) );
+				$transient = $brute_force_protection->get_transient( 'jpp_math_pass_' . sanitize_key( $_COOKIE['jpp_math_pass'] ) );
 
 				if ( ! $transient || $transient < 1 ) {
 					self::generate_math_page();

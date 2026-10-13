@@ -273,6 +273,20 @@ class BruteForceProtectionLoginAttemptTokenTest extends WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Verify that a token does not skip math for an IP the Protect API soft-blocked.
+	 */
+	public function test_token_does_not_skip_math_for_a_soft_blocked_ip() {
+		$this->emulate_insert_ignore();
+		add_filter( 'wp_die_handler', array( $this, 'throw_on_wp_die' ) );
+		$protection = Brute_Force_Protection::instance();
+		$_POST[ Brute_Force_Protection_Login_Attempt_Token::FIELD_NAME ] = $this->render_token_for_protection( $protection );
+		$protection->set_transient( $protection->get_transient_name(), array( 'status' => 'blocked' ), 600 );
+
+		$this->expectException( Exception::class );
+		Brute_Force_Protection_Math_Authenticate::math_authenticate();
+	}
+
+	/**
 	 * Verify that a database-style string transient still invokes the math fallback.
 	 */
 	public function test_string_math_transient_still_requires_math_without_approved_token() {
