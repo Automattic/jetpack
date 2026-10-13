@@ -40,22 +40,20 @@ function CustomerTypeRevenueWidget( { filter }: CustomerTypeRevenueWidgetProps )
 	const summary = primary.data?.summary;
 	const previous = comparison.data?.summary;
 
+	// The categories are fixed, so the skeleton knows its two columns before the data arrives.
 	const columns = useMemo< ColumnInput[] >(
-		() =>
-			summary
-				? [
-						{
-							label: __( 'Returning', 'jetpack-premium-analytics-pkg' ),
-							value: summary.returning_customer_sales,
-							previousValue: previous?.returning_customer_sales,
-						},
-						{
-							label: __( 'New', 'jetpack-premium-analytics-pkg' ),
-							value: summary.new_customer_sales,
-							previousValue: previous?.new_customer_sales,
-						},
-					]
-				: [],
+		() => [
+			{
+				label: __( 'Returning', 'jetpack-premium-analytics-pkg' ),
+				value: summary?.returning_customer_sales ?? 0,
+				previousValue: previous?.returning_customer_sales,
+			},
+			{
+				label: __( 'New', 'jetpack-premium-analytics-pkg' ),
+				value: summary?.new_customer_sales ?? 0,
+				previousValue: previous?.new_customer_sales,
+			},
+		],
 		[ summary, previous ]
 	);
 
