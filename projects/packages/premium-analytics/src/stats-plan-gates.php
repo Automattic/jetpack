@@ -270,6 +270,7 @@ function get_stats_plan_gates() {
  */
 function configure_stats_plan_gates() {
 	add_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_stats_plan_gates_script_data', 20 );
+	add_action( 'admin_init', __NAMESPACE__ . '\\maybe_refresh_plan_after_purchase' );
 }
 
 /**
@@ -295,4 +296,31 @@ function inject_stats_plan_gates_script_data( array $data ): array {
 	);
 
 	return $data;
+}
+
+/**
+ * Refreshes a self-hosted site's cached plan when checkout sends the reader back, so the purchase unlocks at once.
+ *
+ * @since $$next-version$$
+ *
+ * @return void
+ */
+function maybe_refresh_plan_after_purchase() {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only trigger: it only re-reads the site's own plan.
+	if ( empty( $_GET['jpa_purchased'] ) || ( new Host() )->is_wpcom_platform() ) {
+		return;
+	}
+
+	$current_plan = 'Automattic\\Jetpack\\Current_Plan';
+	if ( ! class_exists( $current_plan ) || ! method_exists( $current_plan, 'refresh_from_wpcom' ) ) {
+		return;
+	}
+
+	// One remote fetch a minute, however often the flagged URL is reloaded.
+	if ( get_transient( 'jetpack_premium_analytics_plan_refreshed' ) ) {
+		return;
+	}
+	set_transient( 'jetpack_premium_analytics_plan_refreshed', 1, MINUTE_IN_SECONDS );
+
+	call_user_func( array( $current_plan, 'refresh_from_wpcom' ) );
 }

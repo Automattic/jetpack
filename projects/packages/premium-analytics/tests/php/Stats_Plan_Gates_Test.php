@@ -24,6 +24,7 @@ require_once __DIR__ . '/../../src/stats-plan-gates.php';
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_stats_plan_gates
  * @covers ::Automattic\Jetpack\PremiumAnalytics\configure_stats_plan_gates
  * @covers ::Automattic\Jetpack\PremiumAnalytics\inject_stats_plan_gates_script_data
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\maybe_refresh_plan_after_purchase
  */
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_stats_plan_tier' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_wpcom_stats_plan_tier' )]
@@ -33,6 +34,7 @@ require_once __DIR__ . '/../../src/stats-plan-gates.php';
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_stats_plan_gates' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\configure_stats_plan_gates' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\inject_stats_plan_gates_script_data' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\maybe_refresh_plan_after_purchase' )]
 class Stats_Plan_Gates_Test extends BaseTestCase {
 
 	/**
@@ -57,6 +59,9 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		delete_option( 'jetpack_site_products' );
 		remove_all_filters( STATS_PLAN_TIER_FILTER );
 		remove_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_stats_plan_gates_script_data', 20 );
+		remove_action( 'admin_init', __NAMESPACE__ . '\\maybe_refresh_plan_after_purchase' );
+		unset( $_GET['jpa_purchased'] );
+		delete_transient( 'jetpack_premium_analytics_plan_refreshed' );
 		parent::tear_down();
 	}
 
@@ -296,5 +301,42 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		configure_stats_plan_gates();
 
 		$this->assertSame( 20, has_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_stats_plan_gates_script_data' ) );
+	}
+
+	/**
+	 * Coming back from checkout refreshes a self-hosted plan once, not on every load.
+	 */
+	public function test_purchase_return_refreshes_the_jetpack_plan_once() {
+		\Automattic\Jetpack\Current_Plan::$refresh_count = 0;
+		$_GET['jpa_purchased']                           = '1';
+
+		maybe_refresh_plan_after_purchase();
+		maybe_refresh_plan_after_purchase();
+
+		$this->assertSame( 1, \Automattic\Jetpack\Current_Plan::$refresh_count );
+	}
+
+	/**
+	 * Without the flag, or on WordPress.com, nothing is fetched.
+	 */
+	public function test_no_refresh_without_the_flag_or_on_wpcom() {
+		\Automattic\Jetpack\Current_Plan::$refresh_count = 0;
+
+		maybe_refresh_plan_after_purchase();
+
+		$_GET['jpa_purchased'] = '1';
+		$this->set_wpcom_platform( 'simple' );
+		maybe_refresh_plan_after_purchase();
+
+		$this->assertSame( 0, \Automattic\Jetpack\Current_Plan::$refresh_count );
+	}
+
+	/**
+	 * Configure hooks the refresh on admin_init.
+	 */
+	public function test_configure_hooks_the_refresh() {
+		configure_stats_plan_gates();
+
+		$this->assertNotFalse( has_action( 'admin_init', __NAMESPACE__ . '\\maybe_refresh_plan_after_purchase' ) );
 	}
 }
