@@ -94,8 +94,8 @@ class AI_Launchpad_Difm_Offer {
 		return esc_url_raw(
 			add_query_arg(
 				array(
-					'difm-offer' => 'open',
-					'source'     => 'site-setup',
+					'difmOffer' => 'open',
+					'source'    => 'site-setup',
 				),
 				wpcom_get_calypso_origin() . '/sites/' . wpcom_get_site_slug()
 			)

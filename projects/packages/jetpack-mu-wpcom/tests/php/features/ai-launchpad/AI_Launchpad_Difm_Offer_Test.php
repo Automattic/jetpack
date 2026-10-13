@@ -146,7 +146,7 @@ class AI_Launchpad_Difm_Offer_Test extends \WorDBless\BaseTestCase {
 		$offer = AI_Launchpad_Difm_Offer::get_offer( self::NOW );
 
 		$this->assertSame(
-			'https://wordpress.com/sites/alpinenotes.wordpress.com?difm-offer=open&source=site-setup',
+			'https://wordpress.com/sites/alpinenotes.wordpress.com?difmOffer=open&source=site-setup',
 			$offer['cta_url']
 		);
 	}
@@ -178,8 +178,8 @@ class AI_Launchpad_Difm_Offer_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function provide_calypso_origins() {
 		return array(
-			'allowed origin'    => array( 'https://wpcalypso.wordpress.com', 'https://wpcalypso.wordpress.com/sites/alpinenotes.wordpress.com?difm-offer=open&source=site-setup' ),
-			'disallowed origin' => array( 'https://evil.example', 'https://wordpress.com/sites/alpinenotes.wordpress.com?difm-offer=open&source=site-setup' ),
+			'allowed origin'    => array( 'https://wpcalypso.wordpress.com', 'https://wpcalypso.wordpress.com/sites/alpinenotes.wordpress.com?difmOffer=open&source=site-setup' ),
+			'disallowed origin' => array( 'https://evil.example', 'https://wordpress.com/sites/alpinenotes.wordpress.com?difmOffer=open&source=site-setup' ),
 		);
 	}
 
