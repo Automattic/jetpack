@@ -388,6 +388,8 @@ class Jetpack_RelatedPosts_Test extends WP_UnitTestCase {
 
 		$this->assertStringContainsString( '<input type="hidden" name="jetpack_relatedposts[enabled]" value="1"', $html );
 		$this->assertStringNotContainsString( 'Hide related content after posts', $html );
+
+		remove_filter( 'jetpack_relatedposts_filter_allow_feature_toggle', '__return_false' );
 	}
 
 	/**
