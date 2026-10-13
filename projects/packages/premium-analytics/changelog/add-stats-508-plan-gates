@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Detect which paid Stats features the site's plan lacks, ahead of showing them as locked.
