@@ -1391,7 +1391,7 @@ describe( 'useRestore — a status poll that fails mid-restore', () => {
 		const result = await startAndReadOnce();
 
 		pollFails = true;
-		while ( failedCalls < 1 ) {
+		for ( let i = 0; i < 10 && failedCalls < 1; i++ ) {
 			await advance( POLL_INTERVAL_MS );
 		}
 
@@ -1403,7 +1403,7 @@ describe( 'useRestore — a status poll that fails mid-restore', () => {
 		const result = await startAndReadOnce();
 
 		pollFails = true;
-		while ( ! ( 'reconnecting' in result.current.state ) ) {
+		for ( let i = 0; i < 10 && ! ( 'reconnecting' in result.current.state ); i++ ) {
 			await advance( POLL_INTERVAL_MS );
 		}
 		// The note arrives on the third consecutive failure, not before.
