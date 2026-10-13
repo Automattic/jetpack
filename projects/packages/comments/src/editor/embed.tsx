@@ -43,6 +43,13 @@ const hostOf = ( url: string ) => {
 	}
 };
 
+// The pointer meets the overlay; this keeps Tab off the card's link too, which would leave the form mid-comment.
+const unfocusLinks = ( node: HTMLDivElement | null ) => {
+	node?.querySelectorAll( 'a' ).forEach( link => {
+		link.tabIndex = -1;
+	} );
+};
+
 const toParagraph = ( url: string ) =>
 	createBlock( 'core/paragraph', { content: renderToString( <a href={ url }>{ url }</a> ) } );
 
@@ -185,7 +192,9 @@ const Edit = ( { attributes: { url }, setAttributes, isSelected, onReplace }: Em
 				<div className="wp-block-embed__wrapper">
 					{ preview.card ? (
 						// The route builds the card from escaped text alone, as the comment will show it.
-						<RawHTML>{ preview.html }</RawHTML>
+						<div ref={ unfocusLinks }>
+							<RawHTML>{ preview.html }</RawHTML>
+						</div>
 					) : (
 						// Same-origin, as core previews embeds, for the Referer YouTube wants. The route sanitizes the provider's HTML, so the frame holds markup alone.
 						<SandBox

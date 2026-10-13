@@ -179,29 +179,37 @@ class Embeds extends WP_REST_Controller {
 	 */
 	private static function data( $url, $fetch = true ) {
 		$cache_key = 'jetpack_comments_embed_' . md5( $url );
-		$data      = get_transient( $cache_key );
+		$cached    = get_transient( $cache_key );
+		$lookup    = self::lookup_url( $url );
+		$args      = array_merge( wp_embed_defaults( $lookup ), array( 'discover' => false ) );
 
-		if ( false !== $data || ! $fetch ) {
-			return $data;
+		// Fresh for a day, as core's proxy keeps its lookups, so a popular link costs one provider request.
+		/** This filter is documented in wp-includes/class-wp-oembed-controller.php */
+		$ttl   = (int) apply_filters( 'rest_oembed_ttl', DAY_IN_SECONDS, $lookup, $args );
+		$fresh = '' === $cached || ( is_object( $cached ) && (int) ( $cached->jetpack_comments_fetched ?? 0 ) > time() - $ttl );
+
+		if ( $fresh || ! $fetch ) {
+			return $cached;
 		}
 
-		$lookup = self::lookup_url( $url );
 		$oembed = _wp_oembed_get_object();
-		$args   = array_merge( wp_embed_defaults( $lookup ), array( 'discover' => false ) );
 		$data   = $oembed->get_data( $lookup, $args );
 
-		// Kept an hour too, so a dead link costs one provider request rather than one per page view.
-		if ( ! is_object( $data ) ) {
+		if ( is_object( $data ) ) {
+			/** This filter is documented in wp-includes/class-wp-oembed.php */
+			$data->html = apply_filters( 'oembed_result', $oembed->data2html( $data, $lookup ), $lookup, $args );
+		} elseif ( is_object( $cached ) && '' !== self::sanitize_html( $cached->html ?? '' ) ) {
+			// A player outlives a failed refresh, as in core's embed cache. A card does not: its post may be gone.
+			$data = $cached;
+		} else {
+			// Kept an hour, so a dead link costs one provider request rather than one per page view.
 			set_transient( $cache_key, '', HOUR_IN_SECONDS );
 			return '';
 		}
 
-		/** This filter is documented in wp-includes/class-wp-oembed.php */
-		$data->html = apply_filters( 'oembed_result', $oembed->data2html( $data, $lookup ), $lookup, $args );
-
-		// A day, as core's proxy keeps its lookups, so a popular link costs one provider request.
-		/** This filter is documented in wp-includes/class-wp-oembed-controller.php */
-		set_transient( $cache_key, $data, apply_filters( 'rest_oembed_ttl', DAY_IN_SECONDS, $lookup, $args ) );
+		// Kept past fresh, so a player is still there to fall back on when the next refresh fails.
+		$data->jetpack_comments_fetched = time();
+		set_transient( $cache_key, $data, $ttl + WEEK_IN_SECONDS );
 
 		return $data;
 	}
@@ -215,7 +223,7 @@ class Embeds extends WP_REST_Controller {
 	 */
 	private static function respond( $data, $url ) {
 		// The editor would hand each entry to SandBox as a script of its own.
-		unset( $data->scripts );
+		unset( $data->scripts, $data->jetpack_comments_fetched );
 		$player     = self::sanitize_html( $data->html ?? '' );
 		$data->card = '' === $player;
 		$data->html = $data->card ? self::card( $data, $url ) : $player;
@@ -305,6 +313,12 @@ class Embeds extends WP_REST_Controller {
 		// Reddit's fallback has no paragraph, only the title.
 		if ( '' === trim( $text ) && isset( $data->title ) && is_string( $data->title ) ) {
 			$text = $data->title;
+		}
+
+		// A comment's card, not the whole post: X allows posts of 25,000 characters.
+		$text = trim( $text );
+		if ( mb_strlen( $text ) > 500 ) {
+			$text = rtrim( mb_substr( $text, 0, 500 ) ) . '…';
 		}
 
 		$paragraphs = '';
