@@ -1,0 +1,73 @@
+{
+	"name": "@automattic/jetpack-knowledge",
+	"version": "0.1.0-alpha",
+	"private": true,
+	"description": "Knowledge runtime and Guidelines screen polyfill.",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/knowledge/#readme",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/packages/knowledge"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"type": "module",
+	"scripts": {
+		"build": "pnpm run clean && wp-build && stamp-textdomains && provide-boot-asset-file",
+		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build && strip-unminified-prod",
+		"clean": "rm -rf build/",
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest --config tests/jest.config.js --runInBand",
+		"typecheck": "tsgo --noEmit",
+		"watch": "wp-build --watch"
+	},
+	"browserslist": [
+		"extends @wordpress/browserslist-config"
+	],
+	"dependencies": {
+		"@jetpack-knowledge/init": "link:packages/init",
+		"@wordpress/admin-ui": "2.10.0",
+		"@wordpress/base-styles": "13.1.0",
+		"@wordpress/blob": "4.55.0",
+		"@wordpress/block-library": "11.0.0",
+		"@wordpress/blocks": "16.0.0",
+		"@wordpress/components": "40.1.0",
+		"@wordpress/core-data": "8.0.0",
+		"@wordpress/data": "10.55.0",
+		"@wordpress/dataviews": "19.0.0",
+		"@wordpress/element": "8.7.0",
+		"@wordpress/i18n": "6.28.0",
+		"@wordpress/icons": "16.0.0",
+		"@wordpress/notices": "5.55.0",
+		"@wordpress/ui": "0.22.0"
+	},
+	"devDependencies": {
+		"@automattic/jetpack-wp-build-polyfills": "workspace:*",
+		"@babel/core": "7.29.7",
+		"@jest/globals": "30.5.1",
+		"@types/react": "18.3.31",
+		"@types/react-dom": "18.3.7",
+		"@typescript/native-preview": "7.0.0-dev.20260707.2",
+		"@wordpress/browserslist-config": "6.55.0",
+		"@wordpress/build": "0.23.0",
+		"jest": "30.5.1"
+	},
+	"optionalDependencies": {
+		"react": "18.3.1",
+		"react-dom": "18.3.1"
+	},
+	"wpPlugin": {
+		"name": "jetpack_knowledge",
+		"scriptGlobal": "jetpackKnowledge",
+		"packageNamespace": "jetpack-knowledge",
+		"handlePrefix": "jetpack-knowledge",
+		"pages": [
+			{
+				"id": "guidelines",
+				"capability": "manage_options",
+				"init": [
+					"@jetpack-knowledge/init"
+				]
+			}
+		]
+	}
+}

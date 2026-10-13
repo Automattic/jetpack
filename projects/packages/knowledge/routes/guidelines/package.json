@@ -1,0 +1,27 @@
+{
+	"name": "@automattic/jetpack-knowledge-route",
+	"version": "1.0.0",
+	"private": true,
+	"route": {
+		"path": "/",
+		"page": [
+			"guidelines"
+		]
+	},
+	"dependencies": {
+		"@wordpress/admin-ui": "2.10.0",
+		"@wordpress/base-styles": "13.1.0",
+		"@wordpress/blob": "4.55.0",
+		"@wordpress/block-library": "11.0.0",
+		"@wordpress/blocks": "16.0.0",
+		"@wordpress/components": "40.1.0",
+		"@wordpress/core-data": "8.0.0",
+		"@wordpress/data": "10.55.0",
+		"@wordpress/dataviews": "19.0.0",
+		"@wordpress/element": "8.7.0",
+		"@wordpress/i18n": "6.28.0",
+		"@wordpress/icons": "16.0.0",
+		"@wordpress/notices": "5.55.0",
+		"@wordpress/ui": "0.22.0"
+	}
+}
