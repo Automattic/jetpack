@@ -281,13 +281,18 @@ describe( 'GeoChart', () => {
 	} );
 
 	describe( 'Chart Events', () => {
-		test( 'does not pass chart events when onError is omitted', () => {
+		test( "hides Google's own SVG label from screen readers once the map is ready", () => {
 			renderWithTheme();
 
-			const chartEvents = screen.getByTestId( 'chart-events' );
-			const events = JSON.parse( chartEvents.textContent || '[]' );
+			const svg = document.createElementNS( 'http://www.w3.org/2000/svg', 'svg' );
+			screen.getByTestId( 'google-chart-mock' ).appendChild( svg );
 
-			expect( events ).toEqual( [] );
+			const chartProps = ChartMock.mock.calls[ ChartMock.mock.calls.length - 1 ]?.[ 0 ];
+			chartProps.chartEvents
+				.find( ( event: { eventName: string } ) => event.eventName === 'ready' )
+				.callback( {} );
+
+			expect( svg ).toHaveAttribute( 'aria-hidden', 'true' );
 		} );
 
 		test( 'calls onError when Google Charts emits an error', () => {
