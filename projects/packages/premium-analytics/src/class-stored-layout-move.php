@@ -60,7 +60,7 @@ class Stored_Layout_Move {
 		$preferences = get_user_meta( $user_id, $meta_key, true );
 		$moved       = is_array( $preferences ) ? self::move( $preferences ) : $preferences;
 		if ( $moved !== $preferences ) {
-			$moved['_modified'] = gmdate( 'Y-m-d\TH:i:s\Z' );
+			$moved['_modified'] = self::modified_after( $preferences['_modified'] ?? null );
 			update_user_meta( $user_id, $meta_key, $moved );
 		}
 		add_filter( 'get_user_metadata', array( __CLASS__, 'filter_user_meta' ), 99, 3 );
@@ -87,6 +87,13 @@ class Stored_Layout_Move {
 				continue;
 			}
 
+			// Without the destination's default there is nowhere to move the widget to, so the
+			// old tab keeps it, and the trigger, for a later read.
+			$instance = self::default_instance( $to, $type );
+			if ( ! $instance ) {
+				continue;
+			}
+
 			$layouts[ $from ] = array_values(
 				array_filter(
 					$layouts[ $from ],
@@ -96,8 +103,7 @@ class Stored_Layout_Move {
 				)
 			);
 
-			$instance = self::default_instance( $to, $type );
-			if ( is_array( $layouts[ $to ] ?? null ) && $instance && ! self::layout_has( $layouts[ $to ], $type ) ) {
+			if ( is_array( $layouts[ $to ] ?? null ) && ! self::layout_has( $layouts[ $to ], $type ) ) {
 				$layouts[ $to ][] = $instance;
 			}
 		}
@@ -105,6 +111,23 @@ class Stored_Layout_Move {
 		$preferences[ Enablement_Setting::PREFERENCES_SCOPE ][ self::LAYOUTS_KEY ] = $layouts;
 
 		return $preferences;
+	}
+
+	/**
+	 * A `_modified` stamp the client's persistence layer takes over its localStorage copy: it
+	 * keeps whichever is newer, and a browser clock ahead of the server would otherwise win.
+	 *
+	 * @param mixed $previous The stamp the preferences carried, if any.
+	 * @return string
+	 */
+	private static function modified_after( $previous ) {
+		$now      = time();
+		$previous = is_string( $previous ) ? strtotime( $previous ) : false;
+		if ( $previous !== false && $previous >= $now ) {
+			$now = $previous + 1;
+		}
+
+		return gmdate( 'Y-m-d\TH:i:s\Z', $now );
 	}
 
 	/**

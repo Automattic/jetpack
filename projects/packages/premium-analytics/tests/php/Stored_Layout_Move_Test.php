@@ -179,6 +179,54 @@ class Stored_Layout_Move_Test extends BaseTestCase {
 		$this->assertSame( array( 'jpa/tags', 'jpa/referrers' ), array_column( $layouts['traffic'], 'type' ) );
 	}
 
+	/**
+	 * Without the destination's default there is nowhere to put the widget, so the old tab
+	 * keeps it, and with it the trigger for a later read.
+	 */
+	public function test_keeps_the_widget_on_insights_while_the_traffic_default_lacks_it() {
+		$without_tags = function ( $layout ) {
+			return array_values(
+				array_filter(
+					$layout,
+					function ( $widget ) {
+						return 'jpa/tags' !== $widget['type'];
+					}
+				)
+			);
+		};
+		add_filter( DASHBOARD_DEFAULT_LAYOUT_FILTER, $without_tags );
+		$stored = $this->store_layouts(
+			array(
+				'insights' => array( self::stored( 'jpa/tags' ) ),
+				'traffic'  => array( self::stored( 'jpa/referrers' ) ),
+			)
+		);
+
+		$read = get_user_meta( $this->user_id, $this->meta_key, true );
+		remove_filter( DASHBOARD_DEFAULT_LAYOUT_FILTER, $without_tags );
+
+		$this->assertSame( $stored, $read );
+	}
+
+	/**
+	 * The client keeps whichever of its localStorage copy and the server's is newer, so a
+	 * browser clock ahead of the server must not outrank the move.
+	 */
+	public function test_stamps_the_move_after_a_modified_from_the_future() {
+		$future = gmdate( 'Y-m-d\TH:i:s\Z', time() + 600 );
+		$this->store_layouts( array( 'insights' => array( self::stored( 'jpa/tags' ) ) ) );
+		remove_filter( 'get_user_metadata', array( Stored_Layout_Move::class, 'filter_user_meta' ), 99 );
+		$preferences              = get_user_meta( $this->user_id, $this->meta_key, true );
+		$preferences['_modified'] = $future;
+		update_user_meta( $this->user_id, $this->meta_key, $preferences );
+		add_filter( 'get_user_metadata', array( Stored_Layout_Move::class, 'filter_user_meta' ), 99, 3 );
+
+		$moved = get_user_meta( $this->user_id, $this->meta_key, true );
+
+		$this->assertSame( array(), $moved[ Enablement_Setting::PREFERENCES_SCOPE ][ Stored_Layout_Move::LAYOUTS_KEY ]['insights'] );
+		$this->assertGreaterThan( strtotime( $future ), strtotime( $moved['_modified'] ) );
+	}
+
 	public function test_ignores_other_meta_and_a_reader_with_no_preferences() {
 		update_user_meta( $this->user_id, 'unrelated', 'kept' );
 
