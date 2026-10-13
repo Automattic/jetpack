@@ -16,10 +16,13 @@ import SubscribersChartWidget from '../render';
 import type { ReactNode } from 'react';
 
 const mockUseStatsSubscribersReport = jest.fn();
+const mockUseStatsSubscribersCounts = jest.fn();
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
 	useStatsSubscribersReport: ( params: unknown ) => mockUseStatsSubscribersReport( params ),
+	useStatsSubscribersCounts: ( params: unknown, options: unknown ) =>
+		mockUseStatsSubscribersCounts( params, options ),
 } ) );
 
 // The chart itself is visx SVG rendering, outside this widget's concern. Keep
@@ -71,6 +74,8 @@ function reportWith( data: Record< string, unknown >[] ) {
 describe( 'SubscribersChartWidget', () => {
 	beforeEach( () => {
 		mockUseStatsSubscribersReport.mockReset();
+		mockUseStatsSubscribersCounts.mockReset();
+		mockUseStatsSubscribersCounts.mockReturnValue( { data: undefined, isLoading: false } );
 	} );
 
 	// Passes under UTC either way; the `test-tz` pass west of UTC is what can fail it.
@@ -122,6 +127,71 @@ describe( 'SubscribersChartWidget', () => {
 			screen.findByText( 'We couldn’t find results for this time period.' )
 		).resolves.toBeInTheDocument();
 		expect( screen.getByTestId( 'metric-tabs-chart' ) ).toBeInTheDocument();
+	} );
+
+	describe( 'empty chart', () => {
+		const NO_SUBSCRIBERS =
+			'You don’t have subscribers yet. Newsletter can help you turn readers into an audience.';
+		const NO_RESULTS = 'We couldn’t find results for this time period.';
+		const emptyRange = [
+			{ date_start: '2026-07-04T00:00:00', subscribers: 0, subscribers_paid: 0 },
+		];
+
+		it.each( [
+			[ 'the site has no subscribers at all', { total_subscribers: 0 }, NO_SUBSCRIBERS ],
+			[ 'the site has subscribers outside the range', { total_subscribers: 12 }, NO_RESULTS ],
+			[ 'the subscriber total could not be read', undefined, NO_RESULTS ],
+		] )( 'describes an empty chart when %s', async ( _case, data, message ) => {
+			mockUseStatsSubscribersReport.mockReturnValue( reportWith( emptyRange ) );
+			mockUseStatsSubscribersCounts.mockReturnValue( { data, isLoading: false } );
+
+			render(
+				<SubscribersChartWidget attributes={ { reportParams: getDefaultQueryParams( false ) } } />
+			);
+
+			await expect( screen.findByText( message ) ).resolves.toBeInTheDocument();
+		} );
+
+		it( 'links an empty chart to the Newsletter guide in a new tab', async () => {
+			mockUseStatsSubscribersReport.mockReturnValue( reportWith( emptyRange ) );
+
+			render(
+				<SubscribersChartWidget attributes={ { reportParams: getDefaultQueryParams( false ) } } />
+			);
+
+			const link = await screen.findByRole( 'link', { name: /Learn more/ } );
+			expect( link ).toHaveAttribute( 'href', 'https://jetpack.com/support/newsletter/' );
+			expect( link ).toHaveAttribute( 'target', '_blank' );
+		} );
+
+		it( 'waits for the subscriber total before describing an empty chart', () => {
+			mockUseStatsSubscribersReport.mockReturnValue( reportWith( emptyRange ) );
+			mockUseStatsSubscribersCounts.mockReturnValue( { data: undefined, isLoading: true } );
+
+			render(
+				<SubscribersChartWidget attributes={ { reportParams: getDefaultQueryParams( false ) } } />
+			);
+
+			expect( mockUseStatsSubscribersCounts ).toHaveBeenLastCalledWith( undefined, {
+				enabled: true,
+			} );
+			expect( screen.queryByText( NO_RESULTS ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'leaves the subscriber total unread while the chart has subscribers', async () => {
+			mockUseStatsSubscribersReport.mockReturnValue(
+				reportWith( [ { date_start: '2026-07-04T00:00:00', subscribers: 5, subscribers_paid: 0 } ] )
+			);
+
+			render(
+				<SubscribersChartWidget attributes={ { reportParams: getDefaultQueryParams( false ) } } />
+			);
+
+			await expect( screen.findByTestId( 'metric-tabs-chart' ) ).resolves.toBeInTheDocument();
+			expect( mockUseStatsSubscribersCounts ).toHaveBeenLastCalledWith( undefined, {
+				enabled: false,
+			} );
+		} );
 	} );
 
 	it.each( [

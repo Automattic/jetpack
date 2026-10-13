@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import { ReportScopeProvider, chartInterval } from '@jetpack-premium-analytics/data';
+import {
+	ReportScopeProvider,
+	chartInterval,
+	useStatsSubscribersCounts,
+} from '@jetpack-premium-analytics/data';
 import {
 	ChartEmptyState,
 	MetricTabsChart,
@@ -106,13 +110,19 @@ function SubscribersChartInner( { chartType }: SubscribersChartInnerProps ) {
 	const period: SubscribersPeriod = chartInterval( reportParams, SUBSCRIBERS_GRAIN.periods );
 
 	const state = useSubscribersChart( reportParams, period );
+	// Paid subscribers are a subset, so no subscriber in the range empties every tab.
+	const isChartEmpty =
+		! state.isLoading && ! state.isError && state.current.every( point => ! point.subscribers );
+	const counts = useStatsSubscribersCounts( undefined, { enabled: isChartEmpty } );
+	// An unread total says nothing about the site, so only a known zero changes the copy.
+	const hasNoSubscribers = counts.data?.total_subscribers === 0;
 	const metricTabs = useMemo( () => buildMetrics( state ), [ state ] );
 	const groupLabel = __( 'Subscriber metric', 'jetpack-premium-analytics-pkg' );
 
 	return (
 		<div className={ styles.root }>
 			<WidgetState
-				isLoading={ state.isLoading }
+				isLoading={ state.isLoading || ( isChartEmpty && counts.isLoading ) }
 				isFetching={ state.isFetching }
 				// The query keeps prior data via `placeholderData`, so a transient
 				// refetch failure keeps the chart visible; only surface the error
@@ -135,7 +145,23 @@ function SubscribersChartInner( { chartType }: SubscribersChartInnerProps ) {
 					chartType={ chartType }
 					groupLabel={ groupLabel }
 					baseline="padded"
-					empty={ <ChartEmptyState /> }
+					empty={
+						<ChartEmptyState
+							text={
+								hasNoSubscribers
+									? __(
+											'You don’t have subscribers yet. Newsletter can help you turn readers into an audience.',
+											'jetpack-premium-analytics-pkg'
+										)
+									: undefined
+							}
+							action={ {
+								label: __( 'Learn more', 'jetpack-premium-analytics-pkg' ),
+								href: 'https://jetpack.com/support/newsletter/',
+								openInNewTab: true,
+							} }
+						/>
+					}
 				/>
 			</WidgetState>
 		</div>
