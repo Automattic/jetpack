@@ -6,17 +6,6 @@
 	min-block-size: 0;
 }
 
-.toggle {
-
-	/* The host's content box scrolls and would clip the control's focus
-	ring. */
-	padding-block-start: var(--wpds-dimension-padding-xs);
-	padding-inline-end: var(--wpds-dimension-padding-xs);
-	align-self: start;
-	inline-size: 280px;
-	max-inline-size: 100%;
-}
-
 .locations {
 	flex: 1;
 	min-block-size: 0;

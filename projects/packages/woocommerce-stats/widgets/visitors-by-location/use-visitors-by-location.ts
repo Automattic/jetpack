@@ -2,13 +2,12 @@
  * External dependencies
  */
 import { useMemo } from 'react';
-import { useReportVisitorsByLocation } from '../../src/reports';
-import type { LocationRowInput, ReportParams } from '@automattic/jetpack-premium-analytics-sdk';
 /**
  * Internal dependencies
  */
-
-export type Region = 'US' | 'world';
+import { useReportVisitorsByLocation } from '../../src/reports';
+import type { Region } from './widget';
+import type { LocationRowInput, ReportParams } from '@automattic/jetpack-premium-analytics-sdk';
 
 type LocationItem = {
 	region?: string | null;
@@ -46,12 +45,15 @@ export function useVisitorsByLocation( reportParams: ReportParams, region: Regio
 		countryCode: 'US',
 		limit: 100,
 	} );
+
 	const worldReport = useReportVisitorsByLocation( reportParams, {
 		enabled: region === 'world',
 		groupBy: 'country',
 		limit: 15,
 	} );
+
 	const report = region === 'US' ? usReport : worldReport;
+
 	const {
 		primary,
 		comparison,
@@ -68,6 +70,7 @@ export function useVisitorsByLocation( reportParams: ReportParams, region: Regio
 		const previous = new Map(
 			toEntries( comparison.data?.data ?? [], region ).map( entry => [ entry.id, entry.value ] )
 		);
+
 		return toEntries( primary.data?.data ?? [], region ).map( entry => ( {
 			...entry,
 			previousValue: previous.get( entry.id ),
