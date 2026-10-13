@@ -11,13 +11,14 @@ import {
 } from '@jetpack-premium-analytics/data';
 import { Notice } from '@jetpack-premium-analytics/externals';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
-import { statsUpgradeUrl, useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
+import { useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useDispatch } from '@wordpress/data';
-import { useCallback, useEffect, useMemo } from '@wordpress/element';
+import { useCallback, useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { getPlanUpgradeUrl } from '../stats-settings/plan-usage';
 import styles from './plan-limit-notice.module.scss';
 import type { JSX } from 'react';
 
@@ -43,19 +44,12 @@ export function resetPlanLimitNoticeForTesting() {
 	viewedThisLoad.clear();
 }
 
-type PlanLimitNoticeProps = {
-	/**
-	 * Whether the surface the notice belongs to is ready; nothing shows until then.
-	 */
-	enabled: boolean;
-};
-
 /**
  * Where this cycle's views stand against the plan's limit. A missing or zero
  * limit means there is nothing to meter against.
  *
  * @param usage - The plan usage report.
- * @return The status, or `null` while the site is clear of the limit.
+ * @return The status once usage reaches 90% of the limit, otherwise `null`.
  */
 function getPlanLimitStatus( usage?: StatsAppPlanUsage ): PlanLimitStatus | null {
 	const limit = usage?.views_limit;
@@ -74,24 +68,26 @@ function getPlanLimitStatus( usage?: StatsAppPlanUsage ): PlanLimitStatus | null
 /**
  * Reads the plan usage and renders the notice when the site nears or passes its limit.
  *
- * @param {PlanLimitNoticeProps} props - Component props.
  * @return The notice, or nothing.
  */
-function ConnectedNotice( { enabled }: PlanLimitNoticeProps ): JSX.Element | null {
+function ConnectedNotice(): JSX.Element | null {
 	// Stats shows this notice on Jetpack-connected sites only, and VIP sites are exempt from the limit.
-	const isEligible = enabled && ! isSimpleSite() && getScriptData()?.site?.host !== 'vip';
+	const isEligible = ! isSimpleSite() && getScriptData()?.site?.host !== 'vip';
 
 	const { data: usage } = useStatsAppPlanUsage( { enabled: isEligible } );
-	const status = useMemo(
-		() => ( isEligible ? getPlanLimitStatus( usage ) : null ),
-		[ isEligible, usage ]
-	);
+	const status = isEligible ? getPlanLimitStatus( usage ) : null;
 
 	// Only the near-limit notice can be put off; past the limit it stays for the cycle.
 	const isNear = !! status && ! status.isOver;
 	const { data: notices } = useStatsAppNotices( undefined, { enabled: isNear } );
-	const { mutate: updateNotice } = useStatsAppNoticeMutation();
 	const { createErrorNotice } = useDispatch( 'core/notices' );
+	const { mutate: updateNotice } = useStatsAppNoticeMutation( {
+		onError: () =>
+			createErrorNotice(
+				__( 'Couldn’t dismiss the notice. Please try again.', 'jetpack-premium-analytics-pkg' ),
+				{ type: 'snackbar' }
+			),
+	} );
 	const trackEvent = useTrackEvent();
 
 	const isHeld = isNear && ( ! notices || notices.tier_upgrade === false );
@@ -107,18 +103,9 @@ function ConnectedNotice( { enabled }: PlanLimitNoticeProps ): JSX.Element | nul
 	}, [ status, isHeld, statusName, trackEvent ] );
 
 	const postpone = useCallback( () => {
-		updateNotice(
-			{ id: 'tier_upgrade', status: 'postponed', postponed_for: POSTPONE_SECONDS },
-			{
-				onError: () =>
-					createErrorNotice(
-						__( 'Couldn’t dismiss the notice. Please try again.', 'jetpack-premium-analytics-pkg' ),
-						{ type: 'snackbar' }
-					),
-			}
-		);
+		updateNotice( { id: 'tier_upgrade', status: 'postponed', postponed_for: POSTPONE_SECONDS } );
 		trackEvent( 'jetpack_premium_analytics_plan_limit_notice_dismiss' );
-	}, [ updateNotice, createErrorNotice, trackEvent ] );
+	}, [ updateNotice, trackEvent ] );
 
 	const recordUpgradeClick = useCallback( () => {
 		trackEvent( 'jetpack_premium_analytics_plan_limit_notice_upgrade_click', {
@@ -130,7 +117,7 @@ function ConnectedNotice( { enabled }: PlanLimitNoticeProps ): JSX.Element | nul
 		return null;
 	}
 
-	const upgradeHref = statsUpgradeUrl( 'jetpack-premium-analytics-plan-limit-notice' );
+	const upgradeHref = getPlanUpgradeUrl( 'jetpack-premium-analytics-plan-limit-notice' );
 
 	const usageSentence = sprintf(
 		/* translators: 1: views used in the current billing cycle, 2: the plan's views limit. */
@@ -181,13 +168,12 @@ function ConnectedNotice( { enabled }: PlanLimitNoticeProps ): JSX.Element | nul
  * this billing cycle, and offers the upgrade. Brings its own query provider,
  * since the dashboard stage has none.
  *
- * @param {PlanLimitNoticeProps} props - Component props.
  * @return The notice, or nothing.
  */
-export function PlanLimitNotice( { enabled }: PlanLimitNoticeProps ): JSX.Element {
+export function PlanLimitNotice(): JSX.Element {
 	return (
 		<AnalyticsQueryClientProvider>
-			<ConnectedNotice enabled={ enabled } />
+			<ConnectedNotice />
 		</AnalyticsQueryClientProvider>
 	);
 }

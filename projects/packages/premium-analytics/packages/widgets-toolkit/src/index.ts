@@ -283,7 +283,6 @@ export type { ReportParamsFieldAttributes } from './fields';
 export {
 	calculateDelta,
 	flagUrl,
-	statsUpgradeUrl,
 	BOOKINGS_FILTER,
 	formatLegendLabels,
 	formatDisplayLabel,

@@ -436,7 +436,7 @@ function Dashboard(): JSX.Element {
 
 										{ activeSection === section.slug ? (
 											<div className={ styles.body }>
-												<PlanLimitNotice enabled={ ! editMode } />
+												{ ! editMode && <PlanLimitNotice /> }
 
 												{ /* Behind the onboarding journey: it introduces the tabs
 												     the banner asks about. */ }

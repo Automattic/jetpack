@@ -76,7 +76,7 @@ function setHost( host: string ) {
 async function renderNotice() {
 	const view = render(
 		<RegistryProvider value={ notices.registry }>
-			<PlanLimitNotice enabled />
+			<PlanLimitNotice />
 		</RegistryProvider>
 	);
 	// The notices request waits on the usage reply, so settle both rounds.
@@ -186,7 +186,7 @@ describe( 'PlanLimitNotice', () => {
 		unmount();
 		const view = render(
 			<RegistryProvider value={ notices.registry }>
-				<PlanLimitNotice enabled />
+				<PlanLimitNotice />
 			</RegistryProvider>
 		);
 
@@ -209,6 +209,30 @@ describe( 'PlanLimitNotice', () => {
 		await act( () => jest.runAllTimersAsync() );
 
 		expect( container ).toHaveTextContent( 'You are approaching your plan’s view limit' );
+		expect( notices.createErrorNotice ).toHaveBeenCalledWith(
+			'Couldn’t dismiss the notice. Please try again.',
+			{ type: 'snackbar' }
+		);
+	} );
+
+	it( 'reports a failed dismissal after the reader has left the section', async () => {
+		let failDismissal = () => {};
+		mockEndpoints(
+			{ views_count: 9120, views_limit: 10000 },
+			{},
+			() =>
+				new Promise(
+					( _resolve, reject ) => ( failDismissal = () => reject( new Error( 'offline' ) ) )
+				)
+		);
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		const { unmount } = await renderNotice();
+		await user.click( screen.getByRole( 'button', { name: 'Dismiss' } ) );
+		unmount();
+
+		failDismissal();
+		await act( () => jest.runAllTimersAsync() );
+
 		expect( notices.createErrorNotice ).toHaveBeenCalledWith(
 			'Couldn’t dismiss the notice. Please try again.',
 			{ type: 'snackbar' }

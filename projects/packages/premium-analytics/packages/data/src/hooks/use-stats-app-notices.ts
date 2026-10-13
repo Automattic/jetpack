@@ -30,9 +30,11 @@ const NOTICES_QUERY_KEY = [ 'stats-app', 'notices' ];
  * Saves a notice's visibility. The change lands in the cache before the request
  * does, so every mounted copy of the notice hides at once; a failure restores it.
  *
+ * @param options         - Mutation options.
+ * @param options.onError - Runs after a failed save, even when the caller has since unmounted.
  * @return The mutation.
  */
-export function useStatsAppNoticeMutation() {
+export function useStatsAppNoticeMutation( { onError }: { onError?: () => void } = {} ) {
 	const queryClient = useQueryClient();
 
 	return useMutation( {
@@ -51,6 +53,7 @@ export function useStatsAppNoticeMutation() {
 			context?.previous.forEach( ( [ queryKey, notices ] ) =>
 				queryClient.setQueryData( queryKey, notices )
 			);
+			onError?.();
 		},
 		onSettled: () => {
 			queryClient.invalidateQueries( { queryKey: NOTICES_QUERY_KEY } );

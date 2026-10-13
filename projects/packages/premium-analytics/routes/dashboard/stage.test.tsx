@@ -376,8 +376,7 @@ jest.mock( './components', () => ( {
 		enabled ? <div data-testid="feedback-banner" /> : null,
 	OnboardingTour: () => <div data-testid="onboarding-tour" />,
 	onboardingTourSteps: () => [],
-	PlanLimitNotice: ( { enabled }: { enabled: boolean } ) =>
-		enabled ? <div data-testid="plan-limit-notice" /> : null,
+	PlanLimitNotice: () => <div data-testid="plan-limit-notice" />,
 	// A marker, not the real notice, which reads a query cache these tests do not
 	// stand up. Covered here: where the stage puts it.
 	RefreshFailureNotice: () => <div data-testid="refresh-failure-notice" />,
