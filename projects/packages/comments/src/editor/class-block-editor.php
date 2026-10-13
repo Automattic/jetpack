@@ -394,11 +394,12 @@ class Block_Editor {
 	 */
 	public static function labels() {
 		return array(
-			'blockTools' => __( 'Block tools', 'jetpack-comments' ),
-			'addBlock'   => __( 'Add block', 'jetpack-comments' ),
-			'embedUrl'   => Embeds::is_enabled() ? Checkpoint_Endpoint::route_url( Embeds::ROUTE ) : '',
-			'images'     => Images::is_enabled(),
-			'imageError' => __( 'This image could not be loaded. Check its URL and try again.', 'jetpack-comments' ),
+			'blockTools'   => __( 'Block tools', 'jetpack-comments' ),
+			'addBlock'     => __( 'Add block', 'jetpack-comments' ),
+			'embedUrl'     => Embeds::is_enabled() ? Checkpoint_Endpoint::route_url( Embeds::ROUTE ) : '',
+			'images'       => Images::is_enabled(),
+			'imagePreview' => Images::previews(),
+			'imageError'   => __( 'This image could not be loaded. Check its URL and try again.', 'jetpack-comments' ),
 		);
 	}
 

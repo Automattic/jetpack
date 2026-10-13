@@ -164,6 +164,16 @@ class Images {
 	}
 
 	/**
+	 * Whether the CDN serves images on this site at all, so the editor previews only what readers will
+	 * see. Offline mode, for one, hands every URL back unchanged.
+	 *
+	 * @return bool
+	 */
+	public static function previews() {
+		return '' !== self::src( 'https://example.com/image.png' );
+	}
+
+	/**
 	 * Where readers load the image from: the CDN, or the WordPress.com file host it already sits on.
 	 *
 	 * @param string $url The image's URL.

@@ -20,7 +20,7 @@ const NAME = 'core/image';
 
 let labels: EditorLabels;
 
-// Off on the edit-comment screen, where loading the image would tell its host who moderates.
+// Off on the edit-comment screen, where loading the image would tell its host who moderates, and where the CDN serves no images.
 let previewImages = true;
 
 // The image icon from @wordpress/icons, a large package for one icon.
@@ -200,7 +200,7 @@ const Edit = ( { attributes: { url, alt }, setAttributes, isSelected }: ImageEdi
  */
 export const registerImageBlock = ( editorLabels: EditorLabels, preview = true ) => {
 	labels = editorLabels;
-	previewImages = preview;
+	previewImages = preview && labels.imagePreview;
 
 	if ( ! labels.images || getBlockType( NAME ) ) {
 		return;
