@@ -127,6 +127,7 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 				Analytics_Dashboard::SALES_BY_DEVICE_TYPE,
 				Analytics_Dashboard::TOTAL_RETURNS_TYPE,
 				Analytics_Dashboard::SALES_BY_COUPON_TYPE,
+				Analytics_Dashboard::VISITORS_BY_LOCATION_TYPE,
 			),
 			array_column( $section->get_default_layout(), 'type' )
 		);
