@@ -330,7 +330,8 @@ function wpcom_marketplace_card_button( array $card, $back_url = '' ) {
 	/**
 	 * Filters where a Marketplace card's Purchase button leads.
 	 *
-	 * Simple sites send it through Calypso when checkout alone cannot complete the purchase.
+	 * Simple sites add the plan the purchase needs, or send it through Calypso when the purchase
+	 * cannot go ahead.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -347,6 +348,17 @@ function wpcom_marketplace_card_button( array $card, $back_url = '' ) {
 			/* translators: %s: Plugin name. */
 			esc_attr( sprintf( __( 'Get started with %s', 'jetpack-mu-wpcom' ), $name ) ),
 			esc_html__( 'Get started', 'jetpack-mu-wpcom' )
+		);
+	}
+
+	// A site whose plan does not include it buys one in the same checkout, through the filter above.
+	if ( function_exists( 'wpcom_site_has_feature' ) && ! wpcom_site_has_feature( 'install-purchased-plugins' ) ) {
+		return sprintf(
+			'<a class="button button-compact wpcom-marketplace-card__upgrade" href="%s" data-wpcom-marketplace-track="purchase" aria-label="%s">%s</a>',
+			esc_url( $checkout ),
+			/* translators: %s: Plugin name. */
+			esc_attr( sprintf( __( 'Upgrade your plan and purchase %s', 'jetpack-mu-wpcom' ), $name ) ),
+			esc_html__( 'Upgrade and purchase', 'jetpack-mu-wpcom' )
 		);
 	}
 

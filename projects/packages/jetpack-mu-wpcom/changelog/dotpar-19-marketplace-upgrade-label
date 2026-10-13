@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Plugins: Show "Upgrade and purchase" on Marketplace plugins when the site's plan does not include purchased plugins.
