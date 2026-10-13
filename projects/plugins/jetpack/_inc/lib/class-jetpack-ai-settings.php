@@ -159,6 +159,40 @@ class Jetpack_AI_Settings {
 		add_filter( 'jetpack_search_ai_answers_enabled', array( __CLASS__, 'apply_master_gates' ) );
 		add_filter( 'jetpack_ai_sidebar_enabled', array( __CLASS__, 'apply_master_gates' ) );
 		add_filter( 'jetpack_ai_seo_enabled', array( __CLASS__, 'apply_master_gates' ) );
+
+		// Once per request, just before Jetpack::load_modules() at priority -2, so the module never loads either.
+		add_action( 'after_setup_theme', array( __CLASS__, 'hold_module_off_for_host' ), -3 );
+	}
+
+	/**
+	 * Report a host that disallows AI as the `ai` module forced off, the shape
+	 * My Jetpack and WP-CLI already explain as "disabled by your host or site administrator".
+	 *
+	 * Registered only while the host says no: any callback on `jetpack_active_modules` makes
+	 * Jetpack_Modules_Overrides cache its first read, hiding filters added later in the request.
+	 *
+	 * @return void
+	 */
+	public static function hold_module_off_for_host() {
+		$callback = array( __CLASS__, 'drop_ai_module' );
+
+		if ( ! ( new Host() )->is_wpcom_simple() && ! self::host_allows_ai() ) {
+			add_filter( 'jetpack_active_modules', $callback, 100 );
+			return;
+		}
+
+		remove_filter( 'jetpack_active_modules', $callback, 100 );
+	}
+
+	/**
+	 * Strip `ai` from the active list. The stored choice is untouched, so AI
+	 * returns as before once the host allows it again.
+	 *
+	 * @param array $modules Active module slugs.
+	 * @return array
+	 */
+	public static function drop_ai_module( $modules ) {
+		return array_values( array_diff( (array) $modules, array( self::AI_MODULE ) ) );
 	}
 
 	/**

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Jetpack AI: show the Jetpack AI feature as disabled by the host on My Jetpack when a host has turned AI off.

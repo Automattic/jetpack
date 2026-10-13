@@ -101,6 +101,7 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 		}
 		remove_filter( 'jetpack_ai_writing_assistant_enabled', '__return_false' );
 		remove_filter( 'wp_supports_ai', '__return_false' );
+		remove_filter( 'jetpack_active_modules', array( 'Jetpack_AI_Settings', 'drop_ai_module' ), 100 );
 		remove_filter( 'jetpack_ai_enabled', '__return_false' );
 		remove_filter( 'jetpack_ai_enabled', '__return_true', PHP_INT_MAX );
 		remove_filter( 'jetpack_ai_enabled', '__return_true', 11 );
@@ -418,6 +419,68 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 		$this->force_ai_module_active();
 
 		$this->assertSame( '', Jetpack_AI_Settings::get_master_forced_off_route() );
+	}
+
+	/**
+	 * A host that disallows AI reads as the module forced off, which My Jetpack already explains.
+	 */
+	public function test_host_off_forces_the_module_off() {
+		if ( ! function_exists( 'wp_supports_ai' ) ) {
+			$this->markTestSkipped( 'wp_supports_ai() is not available in this WordPress version.' );
+		}
+		Constants::set_constant( 'IS_WPCOM', false );
+		\Jetpack_Options::update_option( 'active_modules', array( 'ai' ) );
+		$this->assertTrue( ( new Modules() )->is_active( 'ai' ), 'Precondition: the module reads on while the host allows AI.' );
+
+		add_filter( 'wp_supports_ai', '__return_false' );
+		Jetpack_AI_Settings::hold_module_off_for_host();
+
+		$this->assertFalse( ( new Modules() )->is_active( 'ai' ) );
+		$this->assertSame( 'inactive', Jetpack_Modules_Overrides::instance()->get_module_override( 'ai', false ) );
+	}
+
+	public function test_host_off_keeps_the_stored_module_choice() {
+		if ( ! function_exists( 'wp_supports_ai' ) ) {
+			$this->markTestSkipped( 'wp_supports_ai() is not available in this WordPress version.' );
+		}
+		Constants::set_constant( 'IS_WPCOM', false );
+		\Jetpack_Options::update_option( 'active_modules', array( 'ai' ) );
+		add_filter( 'wp_supports_ai', '__return_false' );
+		Jetpack_AI_Settings::hold_module_off_for_host();
+		( new Modules() )->is_active( 'ai' );
+
+		$this->assertContains( 'ai', \Jetpack_Options::get_option( 'active_modules' ) );
+
+		remove_filter( 'wp_supports_ai', '__return_false' );
+		Jetpack_AI_Settings::hold_module_off_for_host();
+		$this->assertTrue( ( new Modules() )->is_active( 'ai' ), 'AI returns once the host lifts the switch.' );
+	}
+
+	/**
+	 * Any callback on `jetpack_active_modules` makes module override detection cache its
+	 * first read, so the host override must not be registered on a site whose host allows AI.
+	 */
+	public function test_host_override_not_registered_when_the_host_allows_ai() {
+		Constants::set_constant( 'IS_WPCOM', false );
+		\Jetpack_Options::update_option( 'active_modules', array( 'ai' ) );
+
+		Jetpack_AI_Settings::hold_module_off_for_host();
+
+		$this->assertFalse( has_filter( 'jetpack_active_modules', array( 'Jetpack_AI_Settings', 'drop_ai_module' ) ) );
+		$this->assertTrue( ( new Modules() )->is_active( 'ai' ) );
+		$this->assertFalse( Jetpack_Modules_Overrides::instance()->get_module_override( 'ai', false ) );
+	}
+
+	public function test_host_override_not_registered_on_simple() {
+		if ( ! function_exists( 'wp_supports_ai' ) ) {
+			$this->markTestSkipped( 'wp_supports_ai() is not available in this WordPress version.' );
+		}
+		Constants::set_constant( 'IS_WPCOM', true );
+		add_filter( 'wp_supports_ai', '__return_false' );
+
+		Jetpack_AI_Settings::hold_module_off_for_host();
+
+		$this->assertFalse( has_filter( 'jetpack_active_modules', array( 'Jetpack_AI_Settings', 'drop_ai_module' ) ) );
 	}
 
 	/**
