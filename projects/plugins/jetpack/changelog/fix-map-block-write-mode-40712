@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix: Prevent Map block from being resizable in Write mode (contentOnly mode)
