@@ -80,6 +80,7 @@ function VisitorsByLocation() {
 			</div>
 			<div className={ styles.locations }>
 				<Locations
+					valueLabel={ __( 'Store visitors', 'jetpack-woocommerce-stats-pkg' ) }
 					rows={ rows }
 					status={ {
 						isLoading,
