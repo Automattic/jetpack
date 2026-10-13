@@ -68,6 +68,12 @@ export { Donut, type DonutProps, type DonutSegmentInput } from './donut';
 export { Funnel, type FunnelProps, type FunnelStepInput } from './funnel';
 export { Columns, type ColumnsProps, type ColumnInput } from './columns';
 export {
+	Locations,
+	type LocationsProps,
+	type LocationRowInput,
+	type LocationsCountry,
+} from './locations';
+export {
 	BarChart,
 	BarChartSkeleton,
 	type BarChartProps,
