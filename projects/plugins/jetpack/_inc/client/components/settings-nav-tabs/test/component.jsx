@@ -37,7 +37,17 @@ const buildInitialState = () => ( {
 } );
 
 describe( 'SettingsNavTabs', () => {
-	it( 'has no Security tab on a site with every security module', () => {
+	afterEach( () => {
+		delete window.JetpackScriptData;
+	} );
+
+	// Atomic keeps the tab for the first release: the Protect page stays off there.
+	it.each( [
+		[ 'has no Security tab on a self-hosted site', undefined, false ],
+		[ 'keeps the Security tab on an Atomic site', 'woa', true ],
+	] )( '%s with every security module', ( _name, host, hasSecurityTab ) => {
+		window.JetpackScriptData = { site: { host } };
+
 		render(
 			<MemoryRouter initialEntries={ [ '/traffic' ] }>
 				<SettingsNavTabs />
@@ -46,6 +56,8 @@ describe( 'SettingsNavTabs', () => {
 		);
 
 		expect( screen.getByRole( 'tab', { name: 'Traffic' } ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'tab', { name: 'Security' } ) ).not.toBeInTheDocument();
+		expect( screen.queryAllByRole( 'tab', { name: 'Security' } ) ).toHaveLength(
+			hasSecurityTab ? 1 : 0
+		);
 	} );
 } );

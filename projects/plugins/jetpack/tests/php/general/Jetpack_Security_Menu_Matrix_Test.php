@@ -4,12 +4,15 @@
  */
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Redirect;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
- * With the Protect page turned on, every kind of site has one security entry in the Jetpack menu: Protect.
+ * With the Protect page turned on, a self-hosted site has one security entry in the Jetpack menu: Protect.
+ * Atomic keeps the entry it has today.
  *
  * Each row runs in its own process: the module loader includes a module file once, and the
  * standalone Protect plugin is detected by a class that cannot be undefined afterwards.
@@ -46,6 +49,7 @@ class Jetpack_Security_Menu_Matrix_Test extends WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		Jetpack_Options::delete_option( array( 'master_user', 'id', 'blog_token', 'user_tokens' ) );
+		Constants::clear_constants();
 		parent::tear_down();
 	}
 
@@ -64,7 +68,7 @@ class Jetpack_Security_Menu_Matrix_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The Jetpack menu has one security entry, Protect.
+	 * The Jetpack menu has one security entry: Protect, or on Atomic the Scan history link it already had.
 	 *
 	 * @dataProvider provide_sites
 	 *
@@ -74,20 +78,32 @@ class Jetpack_Security_Menu_Matrix_Test extends WP_UnitTestCase {
 	 */
 	#[DataProvider( 'provide_sites' )]
 	public function test_jetpack_menu_has_one_security_entry( $has_scan, $has_protect_plugin, $is_atomic ) {
-		if ( $is_atomic ) {
-			$this->markTestSkipped( 'Waiting on the WordPress.com answer for what Atomic shows.' );
-		}
-
 		$this->set_scan_entitlement( $has_scan );
+
+		if ( $is_atomic ) {
+			$this->make_site_atomic();
+		}
 
 		if ( $has_protect_plugin ) {
 			$this->activate_standalone_protect_plugin();
 		}
 
-		$this->assertSame(
-			array( array( 'Protect', 'jetpack-protect' ) ),
-			$this->security_entries( $this->render_jetpack_menu() )
-		);
+		// The first release changes nothing on Atomic, where the Protect page stays off.
+		$expected = $is_atomic
+			? array( array( 'Scan ↗', esc_url( Redirect::get_url( 'cloud-scan-history-wp-menu' ) ) ) )
+			: array( array( 'Protect', 'jetpack-protect' ) );
+
+		$this->assertSame( $expected, $this->security_entries( $this->render_jetpack_menu() ) );
+	}
+
+	/**
+	 * Makes the site a WordPress.com Atomic one that uses wp-admin, the way Host::is_woa_site() detects it.
+	 */
+	private function make_site_atomic() {
+		Constants::set_constant( 'ATOMIC_SITE_ID', 1 );
+		Constants::set_constant( 'ATOMIC_CLIENT_ID', 1 );
+		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', true );
+		update_option( 'wpcom_admin_interface', 'wp-admin' );
 	}
 
 	/**
