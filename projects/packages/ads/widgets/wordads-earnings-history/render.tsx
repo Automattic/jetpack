@@ -58,7 +58,7 @@ function WordAdsEarningsHistoryReport() {
 					} }
 					empty={ {
 						description: __(
-							'No earnings yet. Once your ads have run for a full month, it will show up here.',
+							'No earnings yet. Once your ads have run for a full month, they will show up here.',
 							'jetpack-ads-pkg'
 						),
 					} }
