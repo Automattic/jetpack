@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+Comment: The modernized dashboard, behind a feature flag, now keeps its file tree when a background refresh fails, and its selection checkbox shows a partial selection and names its action.
+

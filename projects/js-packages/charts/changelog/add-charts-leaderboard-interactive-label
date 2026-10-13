@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Leaderboard chart: Let a clickable row hold a link in its label with the new `hasInteractiveLabel` entry option.

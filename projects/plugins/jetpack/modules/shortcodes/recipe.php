@@ -297,7 +297,7 @@ class Jetpack_Recipes {
 		}
 
 		// Print content between codes.
-		$html .= '<div class="jetpack-recipe-content">' . do_shortcode( $content ) . '</div>';
+		$html .= '<div class="jetpack-recipe-content">' . apply_shortcodes( $content ) . '</div>';
 
 		// Close it up.
 		$html .= '</div>';
@@ -528,10 +528,10 @@ class Jetpack_Recipes {
 				$empty_p_pattern = '/(<p>)*\s*<\/p>/mi';
 				$html            = preg_replace( $empty_p_pattern, '', $html );
 			} else {
-				$html .= do_shortcode( $content );
+				$html .= apply_shortcodes( $content );
 			}
 		} else {
-			$html .= do_shortcode( $content );
+			$html .= apply_shortcodes( $content );
 		}
 
 		// Return our formatted content.

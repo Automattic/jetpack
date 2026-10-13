@@ -1,6 +1,6 @@
 # DonutChart
 
-Widgets render [`Donut`](../donut/) instead: it takes the segments and the request status, and draws this chart with its total, legend, deltas and states. `DonutChart` is the chart alone, for the kind to compose.
+Widgets render [`Donut`](../donut/) instead: it takes the segments and the request status, and draws this chart, or `SemiCircleChart` as its `half-ring` variant, with its total, legend, deltas and states. `DonutChart` is the chart alone, for the kind to compose.
 
 A responsive donut (pie) chart component that automatically adapts to its container size.
 
@@ -48,6 +48,7 @@ const styles = [ { color: '#3858E9' }, { color: '#66BDFF' }, { color: '#A77EFF' 
 | `dataFormat`      | `DataFormat`     | `{ type: 'number' }` | Format configuration for the metric display                        |
 | `legendData`      | `LegendItem[]`   | -                    | Legend items with labels and comparison values                     |
 | `showLegend`      | `boolean`        | `true`               | Whether to show the legend below the chart                         |
+| `showMetric`      | `boolean`        | `true`               | Whether to show the center metric value                            |
 | `thickness`       | `number`         | `0.3`                | Arc thickness as ratio (0-1)                                       |
 
 ## Data Validation

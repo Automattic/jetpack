@@ -76,6 +76,8 @@ class Settings_App_Test extends BaseTestCase {
 
 		remove_all_filters( Settings_App::FILTER );
 		remove_all_filters( 'jetpack_admin_js_script_data' );
+		remove_all_filters( 'jetpack_is_private_site' );
+		\Automattic\Jetpack\Status\Cache::clear();
 		remove_all_filters( 'jetpack_disable_twitter_cards' );
 		remove_all_actions( 'admin_enqueue_scripts' );
 		remove_all_actions( 'admin_init' );
@@ -282,6 +284,16 @@ class Settings_App_Test extends BaseTestCase {
 		$json = wp_json_encode( Settings_App::add_script_data( array() )['sharing_likes']['settings'], JSON_UNESCAPED_SLASHES );
 
 		$this->assertSame( '{}', $json );
+	}
+
+	/**
+	 * The services list notes the restriction on private sites, as the PHP screen does.
+	 */
+	public function test_script_data_says_whether_the_site_is_private(): void {
+		add_filter( 'jetpack_is_private_site', '__return_true' );
+		\Automattic\Jetpack\Status\Cache::clear();
+
+		$this->assertTrue( Settings_App::add_script_data( array() )['sharing_likes']['private_site'] );
 	}
 
 	/**

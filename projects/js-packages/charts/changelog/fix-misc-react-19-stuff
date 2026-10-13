@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Fix typing for React 19: `FC<>` now wants to allow for returning async, which the places we use `renderLabel` and `renderLabelPopover` can't actually handle. So declare their types without the `FC<>` helper.
+
+

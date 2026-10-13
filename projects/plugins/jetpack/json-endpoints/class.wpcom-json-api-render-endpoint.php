@@ -154,7 +154,7 @@ abstract class WPCOM_JSON_API_Render_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 * @param string $shortcode - the shortcode.
 	 */
 	public function do_shortcode( $shortcode ) {
-		return do_shortcode( $shortcode );
+		return apply_shortcodes( $shortcode );
 	}
 
 	/**
