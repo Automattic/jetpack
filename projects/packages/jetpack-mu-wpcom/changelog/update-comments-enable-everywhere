@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Comments: Stop opting into Jetpack Comments, which is now on by default.

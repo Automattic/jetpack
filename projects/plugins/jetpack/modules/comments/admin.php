@@ -120,25 +120,22 @@ class Jetpack_Comments_Settings {
 			array( $this, 'comment_form_greeting_sanitize' )
 		);
 
-		/**
-		 * Color Scheme
-		 */
-		add_settings_field(
-			'jetpack_comment_form_color_scheme',
-			__( 'Color Scheme', 'jetpack' ),
-			array( $this, 'comment_form_color_scheme_setting' ),
-			'discussion',
-			'jetpack_comment_form'
-		);
-
-		register_setting(
-			'discussion',
-			'jetpack_comment_form_color_scheme',
-			array( $this, 'comment_form_color_scheme_sanitize' )
-		);
-
-		// The rebuilt comment form is what offers blocks; the package may lag this file on a staged deploy.
+		// The rebuilt comment form offers blocks and has no color scheme; the package may lag this file on a staged deploy.
 		if ( ! class_exists( Block_Editor::class ) || ! Comments::is_enabled() ) {
+			add_settings_field(
+				'jetpack_comment_form_color_scheme',
+				__( 'Color Scheme', 'jetpack' ),
+				array( $this, 'comment_form_color_scheme_setting' ),
+				'discussion',
+				'jetpack_comment_form'
+			);
+
+			register_setting(
+				'discussion',
+				'jetpack_comment_form_color_scheme',
+				array( $this, 'comment_form_color_scheme_sanitize' )
+			);
+
 			return;
 		}
 

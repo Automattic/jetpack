@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Comments;
 
+use Automattic\Jetpack\Status\Host;
+
 /**
  * Package entry point.
  */
@@ -25,19 +27,20 @@ class Comments {
 	 * @return bool
 	 */
 	public static function is_enabled() {
-		// Blog 522232 is jetpack.wordpress.com. It serves the Verbum iframe to Atomic and self-hosted sites, so no filter can turn this on there.
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && 522232 === get_current_blog_id() ) {
-			return false;
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			// Blog 522232 is jetpack.wordpress.com, which serves the Verbum iframe to sites on older Jetpack versions.
+			if ( 522232 === get_current_blog_id() ) {
+				return false;
+			}
+
+			// Host::is_p2_site() only recognizes WP for Teams sites once this is loaded.
+			if ( ! function_exists( '\WPForTeams\is_wpforteams_site' ) && file_exists( WP_CONTENT_DIR . '/lib/wpforteams/functions.php' ) ) {
+				require_once WP_CONTENT_DIR . '/lib/wpforteams/functions.php';
+			}
 		}
 
-		/**
-		 * Load Jetpack Comments in place of the site's existing comment experience.
-		 *
-		 * @since 0.1.0
-		 *
-		 * @param bool $enabled Whether to load Jetpack Comments. Default false.
-		 */
-		return (bool) apply_filters( 'jetpack_comments_new_hotness', false );
+		// P2 keeps its own comment experience.
+		return ! ( new Host() )->is_p2_site();
 	}
 
 	/**
