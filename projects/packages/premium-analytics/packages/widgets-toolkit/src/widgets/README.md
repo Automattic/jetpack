@@ -20,6 +20,7 @@ Dashboard widget components for Jetpack Premium Analytics.
 | `ComparativeLineChart` | Line        | Time series with comparison periods |
 | `MetricWithComparison` | Metric      | Single value with delta indicator   |
 | `LeaderboardChart`     | Leaderboard | Top N items with bars and labels    |
+| `Columns`              | Bars        | A few categories across the periods |
 
 ## Common Utilities
 
