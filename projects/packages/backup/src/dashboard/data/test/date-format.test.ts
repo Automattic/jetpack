@@ -1,27 +1,29 @@
-import { resetLocaleData, setLocaleData } from '@wordpress/i18n';
+import { getSettings, setSettings } from '@wordpress/date';
 import { formatDate, formatDateTime, formatTime } from '../date-format';
 
+const original = getSettings();
+
 afterEach( () => {
-	resetLocaleData();
+	setSettings( original );
 } );
 
 describe( 'date formats', () => {
-	it( 'renders English in the compact US form', () => {
-		expect( formatDateTime( '2026-08-12T17:20:00Z' ) ).toBe( 'Aug 12, 2026, 5:20 PM' );
-	} );
+	it.each( [
+		[
+			'core defaults',
+			{ date: 'F j, Y', time: 'g:i a', datetime: 'F j, Y g:i a' },
+			[ 'August 12, 2026 5:20 pm', 'August 12, 2026', '5:20 pm' ],
+		],
+		[
+			'a 24-hour site, so it never sees am or pm',
+			{ date: 'j M Y', time: 'H:i', datetime: 'j M Y H:i' },
+			[ '12 Aug 2026 17:20', '12 Aug 2026', '17:20' ],
+		],
+	] )( 'follows the site settings: %s', ( _name, formats, [ dateTime, day, time ] ) => {
+		setSettings( { ...original, formats: { ...original.formats, ...formats } } );
 
-	it( 'follows the translated format, so a 24-hour locale never sees AM or PM', () => {
-		setLocaleData(
-			{
-				'M j, Y, g:i A': [ 'j M Y, H:i' ],
-				'M j, Y': [ 'j M Y' ],
-				'g:i A': [ 'H:i' ],
-			},
-			'jetpack-backup-pkg'
-		);
-
-		expect( formatDateTime( '2026-08-12T17:20:00Z' ) ).toBe( '12 Aug 2026, 17:20' );
-		expect( formatDate( '2026-08-12T17:20:00Z' ) ).toBe( '12 Aug 2026' );
-		expect( formatTime( '2026-08-12T17:20:00Z' ) ).toBe( '17:20' );
+		expect( formatDateTime( '2026-08-12T17:20:00Z' ) ).toBe( dateTime );
+		expect( formatDate( '2026-08-12T17:20:00Z' ) ).toBe( day );
+		expect( formatTime( '2026-08-12T17:20:00Z' ) ).toBe( time );
 	} );
 } );

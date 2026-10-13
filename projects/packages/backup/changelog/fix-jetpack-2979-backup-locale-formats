@@ -1,5 +1,4 @@
 Significance: patch
 Type: fixed
-Comment: Use the site locale for dates, times and sizes in the modernized dashboard, which is behind a feature flag.
-
+Comment: Follow the site's date and time settings, and the locale for file sizes, in the modernized dashboard, which is behind a feature flag.
 

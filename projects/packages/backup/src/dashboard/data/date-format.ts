@@ -1,52 +1,42 @@
-import { dateI18n } from '@wordpress/date';
-import { __, _x } from '@wordpress/i18n';
+import { dateI18n, getSettings } from '@wordpress/date';
+import { _x } from '@wordpress/i18n';
 
 type DateInput = Parameters< typeof dateI18n >[ 1 ];
 
-// Translatable like WordPress core's own formats, so English stays compact and locales can change it.
+// Core fills `formats` from Settings > General and translates its defaults.
 
 /**
- * A date and time in the dashboard's compact format.
+ * A date and time in the site's own formats.
  *
  * @param value    - The instant to format.
  * @param timezone - A UTC offset such as `-0300`; omitted, the site's own timezone.
  * @return The formatted date and time.
  */
 export function formatDateTime( value: DateInput, timezone?: string ): string {
-	return dateI18n(
-		// translators: Date and time format, see https://www.php.net/manual/datetime.format.php
-		__( 'M j, Y, g:i A', 'jetpack-backup-pkg' ),
-		value,
-		timezone
-	);
+	return dateI18n( getSettings().formats.datetime, value, timezone );
 }
 
 /**
- * A date in the dashboard's compact format.
+ * A date in the site's own format.
  *
  * @param value - The instant to format.
  * @return The formatted date.
  */
 export function formatDate( value: DateInput ): string {
-	return dateI18n(
-		// translators: Date format, see https://www.php.net/manual/datetime.format.php
-		__( 'M j, Y', 'jetpack-backup-pkg' ),
-		value
-	);
+	return dateI18n( getSettings().formats.date, value );
 }
 
 /**
- * The time-of-day format string.
+ * The site's time-of-day format string.
  *
  * @return The format, in PHP date syntax.
  */
 export function getTimeFormat(): string {
-	// translators: Time format, see https://www.php.net/manual/datetime.format.php
-	return __( 'g:i A', 'jetpack-backup-pkg' );
+	return getSettings().formats.time;
 }
 
 /**
- * A time of day in the dashboard's compact format.
+ * A time of day in the site's own format.
  *
  * @param value    - The instant to format.
  * @param timezone - A UTC offset such as `-0300`; omitted, the site's own timezone.
@@ -57,7 +47,7 @@ export function formatTime( value: DateInput, timezone?: string ): string {
 }
 
 /**
- * A short month and day.
+ * A short month and day. The site settings have no such format, so it is translatable.
  *
  * @param value - The instant to format.
  * @return The formatted month and day.
