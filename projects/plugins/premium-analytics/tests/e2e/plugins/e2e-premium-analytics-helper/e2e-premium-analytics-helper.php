@@ -33,7 +33,7 @@ add_filter( 'jetpack_offline_mode', '__return_false', 99 );
 add_filter( 'pre_http_request', 'e2e_pa_intercept_wpcom', 10, 3 );
 
 /**
- * Answers the Stats requests the Premium Analytics proxy makes and blocks every other WordPress.com request.
+ * Answers the WordPress.com requests the Premium Analytics proxy makes and blocks every other one.
  *
  * @param false|array|WP_Error $preempt Earlier short-circuit, if any.
  * @param array                $args    Request arguments.
@@ -46,17 +46,14 @@ function e2e_pa_intercept_wpcom( $preempt, $args, $url ) {
 		return $preempt;
 	}
 
-	// The tokens are fake and the site ID may be a real blog's, so nothing reaches WordPress.com.
-	$prefix = '/rest/v1.1/sites/' . E2E_PA_SITE_ID . '/stats/';
-	$path   = (string) wp_parse_url( $url, PHP_URL_PATH );
-	if ( 'public-api.wordpress.com' !== $host || 0 !== strpos( $path, $prefix ) ) {
-		return new WP_Error( 'e2e_blocked', 'The E2E helper blocks WordPress.com requests it has no fixture for.' );
-	}
-
 	$query = array();
 	wp_parse_str( (string) wp_parse_url( $url, PHP_URL_QUERY ), $query );
-	$route = substr( $path, strlen( $prefix ) );
-	$body  = 'visits' === $route ? e2e_pa_visits( $query ) : new stdClass();
+	$body = 'public-api.wordpress.com' === $host ? e2e_pa_fixture( (string) wp_parse_url( $url, PHP_URL_PATH ), $query ) : null;
+
+	// The tokens are fake and the site ID may be a real blog's, so nothing reaches WordPress.com.
+	if ( null === $body ) {
+		return new WP_Error( 'e2e_blocked', 'The E2E helper blocks WordPress.com requests it has no fixture for.' );
+	}
 
 	return array(
 		'headers'  => array( 'content-type' => 'application/json' ),
@@ -67,6 +64,40 @@ function e2e_pa_intercept_wpcom( $preempt, $args, $url ) {
 		),
 		'cookies'  => array(),
 		'filename' => null,
+	);
+}
+
+/**
+ * Finds the fixture for one WordPress.com API path. A new endpoint is one row here and one builder below.
+ *
+ * @param string $path  Request path.
+ * @param array  $query Query args of the request.
+ * @return array|object|null The reply body, or null when the path has no fixture.
+ */
+function e2e_pa_fixture( $path, $query ) {
+	$stats    = '/rest/v1.1/sites/' . E2E_PA_SITE_ID . '/stats/';
+	$fixtures = array(
+		$stats . 'visits' => 'e2e_pa_visits',
+		'/wpcom/v2/sites/' . E2E_PA_SITE_ID . '/jetpack-stats/usage' => 'e2e_pa_plan_usage',
+	);
+
+	if ( isset( $fixtures[ $path ] ) ) {
+		return call_user_func( $fixtures[ $path ], $query );
+	}
+
+	// Every other Stats report answers empty.
+	return 0 === strpos( $path, $stats ) ? new stdClass() : null;
+}
+
+/**
+ * Builds the usage of a plan with no views limit, so the plan limit notice stays away.
+ *
+ * @return array
+ */
+function e2e_pa_plan_usage() {
+	return array(
+		'current_usage' => array( 'views_count' => 0 ),
+		'views_limit'   => null,
 	);
 }
 
