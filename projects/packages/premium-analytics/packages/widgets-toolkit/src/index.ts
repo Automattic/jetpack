@@ -287,6 +287,7 @@ export {
 	calculateDelta,
 	flagUrl,
 	formatLegendLabels,
+	formatChartName,
 	formatDisplayLabel,
 	buildCsv,
 	buildCsvDateRangeFilename,

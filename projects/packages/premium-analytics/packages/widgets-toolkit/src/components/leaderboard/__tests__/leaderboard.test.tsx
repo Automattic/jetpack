@@ -69,6 +69,12 @@ describe( 'Leaderboard', () => {
 		expect( screen.getByText( '3.8K' ) ).toBeInTheDocument();
 	} );
 
+	it( 'names the chart from chartTitle', () => {
+		renderLeaderboard( <Leaderboard rows={ ROWS } status={ READY } chartTitle="Top pages" /> );
+
+		expect( screen.getByRole( 'list', { name: 'Top pages chart' } ) ).toBeInTheDocument();
+	} );
+
 	it( 'links detail rows with the dashboard window unless a row declares its own', () => {
 		renderLeaderboard(
 			<Leaderboard

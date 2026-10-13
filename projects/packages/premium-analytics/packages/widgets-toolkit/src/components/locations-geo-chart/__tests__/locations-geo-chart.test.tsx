@@ -91,6 +91,12 @@ describe( 'LocationsGeoChart', () => {
 		expect( lastChartProps() ).toMatchObject( { domain: 'IN' } );
 	} );
 
+	it( 'names the chart from chartTitle', () => {
+		render( <LocationsGeoChart rows={ ROWS } mode="country" chartTitle="Top locations" /> );
+
+		expect( lastChartProps() ).toMatchObject( { ariaLabel: 'Top locations chart' } );
+	} );
+
 	// Drawing first would paint the default borders and then swap them.
 	it( "holds the map back until the viewer's country is known", () => {
 		useViewerCountryMock.mockReturnValue( {

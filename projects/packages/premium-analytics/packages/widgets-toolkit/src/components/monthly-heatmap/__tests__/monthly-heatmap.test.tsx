@@ -38,6 +38,12 @@ describe( 'MonthlyHeatmap', () => {
 		globalThis.ResizeObserver = originalResizeObserver;
 	} );
 
+	it( 'names the chart from chartTitle', () => {
+		render( <MonthlyHeatmap rows={ ROWS } { ...LABELS } chartTitle="Views over years" /> );
+
+		expect( screen.getByRole( 'grid', { name: 'Views over years chart' } ) ).toBeInTheDocument();
+	} );
+
 	it( 'lays the years out newest first under the month names and a Totals column', () => {
 		render( <MonthlyHeatmap rows={ ROWS } { ...LABELS } /> );
 

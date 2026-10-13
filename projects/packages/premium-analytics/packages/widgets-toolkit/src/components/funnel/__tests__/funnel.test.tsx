@@ -47,6 +47,12 @@ describe( 'Funnel', () => {
 		expect( screen.getByText( /17%/ ) ).toBeInTheDocument();
 	} );
 
+	it( 'names the chart from chartTitle', () => {
+		renderFunnel( <Funnel steps={ STEPS } status={ READY } chartTitle="Conversion rate" /> );
+
+		expect( screen.getByRole( 'group', { name: 'Conversion rate chart' } ) ).toBeInTheDocument();
+	} );
+
 	it( 'renders the empty state when the first step is empty', () => {
 		renderFunnel(
 			<Funnel
