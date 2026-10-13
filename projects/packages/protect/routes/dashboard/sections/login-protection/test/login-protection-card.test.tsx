@@ -21,6 +21,7 @@ const renderCard = (
 					accountProtection: on,
 					sso: on,
 					blockedCount: '1,234',
+					ssoUsable: true,
 					...state,
 				} as LoginProtectionState
 			}
@@ -37,6 +38,7 @@ describe( 'LoginProtectionCard', () => {
 		[ 'brute force protection is off', { bruteForce: off }, null, '2 of 3 on', false ],
 		[ 'a method was turned off since page load', {}, { protect: false }, '2 of 3 on', false ],
 		[ 'a method was turned on since page load', { sso: off }, { sso: true }, '3 of 3 on', true ],
+		[ 'WordPress.com login is set but can’t run', { ssoUsable: false }, null, '2 of 2 on', true ],
 		[
 			'an unavailable method is still set',
 			{ sso: unavailable },
@@ -49,6 +51,19 @@ describe( 'LoginProtectionCard', () => {
 
 		expect( screen.getByText( badge ) ).toBeInTheDocument();
 		expect( screen.queryByText( '1,234' ) !== null ).toBe( hasCount );
+	} );
+
+	it.each( [
+		[ 'on', { sso: on }, { On: 1, Off: 2, Unavailable: 0 } ],
+		[ 'off', { sso: off }, { On: 0, Off: 3, Unavailable: 0 } ],
+		[ 'unavailable', { sso: unavailable }, { On: 0, Off: 2, Unavailable: 1 } ],
+		[ 'on but unable to run', { sso: on, ssoUsable: false }, { On: 0, Off: 2, Unavailable: 1 } ],
+	] )( 'badges a method that is %s', ( _name, state, badges ) => {
+		renderCard( { bruteForce: off, accountProtection: off, ...state } );
+
+		Object.entries( badges ).forEach( ( [ text, count ] ) =>
+			expect( screen.queryAllByText( text ) ).toHaveLength( count )
+		);
 	} );
 
 	it( 'renders nothing when PHP registered no section', () => {

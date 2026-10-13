@@ -85,7 +85,8 @@ export default function LoginProtectionCard( {
 	} );
 	const bruteForce = live( 'protect', login.bruteForce );
 	const accountProtection = live( 'account-protection', login.accountProtection );
-	const sso = live( 'sso', login.sso );
+	// The module can stay active after the owner disconnects, but WordPress.com login doesn't run then.
+	const sso = live( 'sso', { ...login.sso, available: login.sso.available && login.ssoUsable } );
 
 	const methods = [ bruteForce, accountProtection, sso ];
 	const on = methods.filter( method => method.available && method.active ).length;

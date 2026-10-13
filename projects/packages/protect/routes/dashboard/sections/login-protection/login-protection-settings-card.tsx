@@ -59,6 +59,31 @@ function SsoOptionToggle( {
 }
 
 /**
+ * What the WordPress.com login toggle says under it: what it does, or why it can't be changed.
+ *
+ * @param login - This section's state from PHP.
+ * @return The help text.
+ */
+function getSsoHelp( login: LoginProtectionState | undefined ): string {
+	if ( login && ! login.sso.available ) {
+		return __( 'WordPress.com login isn’t available on this site.', 'jetpack-protect-pkg' );
+	}
+	if ( login?.isOffline ) {
+		return __( 'WordPress.com login isn’t available in offline mode.', 'jetpack-protect-pkg' );
+	}
+	if ( ! login?.ssoUsable ) {
+		return __(
+			'Needs the site owner’s WordPress.com account to be connected.',
+			'jetpack-protect-pkg'
+		);
+	}
+	return __(
+		'If you have several sites with this on, you can log in to all of them with the same credentials.',
+		'jetpack-protect-pkg'
+	);
+}
+
+/**
  * The Login protection settings: brute force protection, account protection and WordPress.com login.
  *
  * @param props          - The dashboard context.
@@ -110,7 +135,8 @@ export default function LoginProtectionSettingsCard( {
 							'jetpack-protect-pkg'
 						) }
 					/>
-					{ Boolean( settings.jetpack_waf_ip_allow_list_enabled ) && (
+					{ /* Hidden, not unmounted, so unsaved addresses survive the toggle going off or a failed save. */ }
+					<div hidden={ ! settings.jetpack_waf_ip_allow_list_enabled }>
 						<IpListField
 							data={ data }
 							name="jetpack_waf_ip_allow_list"
@@ -118,7 +144,7 @@ export default function LoginProtectionSettingsCard( {
 							description={ __( 'One address or range per line.', 'jetpack-protect-pkg' ) }
 							currentIp={ login?.currentIp }
 						/>
-					) }
+					</div>
 				</Stack>
 			</CardRow>
 			<CardRow>
@@ -149,17 +175,7 @@ export default function LoginProtectionSettingsCard( {
 							'Allow users to log in with their WordPress.com account',
 							'jetpack-protect-pkg'
 						) }
-						help={
-							ssoUsable
-								? __(
-										'If you have several sites with this on, you can log in to all of them with the same credentials.',
-										'jetpack-protect-pkg'
-									)
-								: __(
-										'Needs the site owner’s WordPress.com account to be connected.',
-										'jetpack-protect-pkg'
-									)
-						}
+						help={ getSsoHelp( login ) }
 						checked={ ssoOn }
 						// Mirrors Jetpack Settings, which locks the toggle without a connected owner.
 						disabled={ ! login?.sso.available || ! ssoUsable || data.isSaving( 'sso' ) }

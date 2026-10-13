@@ -7,8 +7,12 @@
 
 namespace Automattic\Jetpack\Protect;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Protect\Sections\Login_Protection;
+use Automattic\Jetpack\Status\Cache as Status_Cache;
+use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 /**
@@ -26,6 +30,11 @@ class Login_Protection_Section_Test extends BaseTestCase {
 		delete_option( 'jetpack_sso_require_two_step' );
 		remove_all_filters( 'jetpack_sso_require_two_step' );
 		remove_all_filters( 'jetpack_sso_match_by_email' );
+		remove_all_filters( 'jetpack_offline_mode' );
+		Jetpack_Options::delete_option( array( 'master_user', 'user_tokens' ) );
+		// Both answers are memoized for the request.
+		Status_Cache::clear();
+		( new Connection_Manager() )->reset_connection_status();
 		parent::tear_down();
 	}
 
@@ -39,10 +48,46 @@ class Login_Protection_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that WordPress.com login can't be turned on without a connected owner.
+	 * Test that WordPress.com login needs a connected owner and a site that isn't in offline mode.
+	 *
+	 * @dataProvider provide_sso_conditions
+	 *
+	 * @param bool $has_owner  Whether the site has a connected owner.
+	 * @param bool $is_offline Whether the site is in offline mode.
+	 * @param bool $usable     Whether WordPress.com login can be turned on.
 	 */
-	public function test_sso_is_not_usable_without_a_connected_owner() {
-		$this->assertFalse( ( new Login_Protection() )->get_state()['ssoUsable'] );
+	#[DataProvider( 'provide_sso_conditions' )]
+	public function test_sso_is_usable_with_a_connected_owner_and_not_offline( $has_owner, $is_offline, $usable ) {
+		if ( $has_owner ) {
+			$user_id = wp_insert_user(
+				array(
+					'user_login' => 'owner',
+					'user_pass'  => 'password',
+					'role'       => 'administrator',
+				)
+			);
+			Jetpack_Options::update_option( 'master_user', $user_id );
+			Jetpack_Options::update_option( 'user_tokens', array( $user_id => "token.secret.$user_id" ) );
+		}
+		add_filter( 'jetpack_offline_mode', $is_offline ? '__return_true' : '__return_false' );
+
+		$state = ( new Login_Protection() )->get_state();
+
+		$this->assertSame( $usable, $state['ssoUsable'] );
+		$this->assertSame( $is_offline, $state['isOffline'] );
+	}
+
+	/**
+	 * Data provider for the conditions WordPress.com login depends on.
+	 *
+	 * @return array<string,array{bool,bool,bool}> [ $has_owner, $is_offline, $usable ]
+	 */
+	public static function provide_sso_conditions() {
+		return array(
+			'connected owner'          => array( true, false, true ),
+			'no connected owner'       => array( false, false, false ),
+			'connected owner, offline' => array( true, true, false ),
+		);
 	}
 
 	/**

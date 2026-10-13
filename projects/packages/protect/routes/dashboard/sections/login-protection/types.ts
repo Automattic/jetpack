@@ -15,6 +15,8 @@ export type LoginProtectionState = {
 	blockedCount: string;
 	/** Whether WordPress.com login can be turned on: it needs a connected owner and no offline mode. */
 	ssoUsable: boolean;
+	/** Whether the site is in offline mode, one of the two reasons WordPress.com login can't be used. */
+	isOffline: boolean;
 	/** Settings a filter or constant forces, so they can't be changed here. */
 	ssoLocks: SsoOptions;
 	/** The values SSO actually applies, after filters and constants. */
