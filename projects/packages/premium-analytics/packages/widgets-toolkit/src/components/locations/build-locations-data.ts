@@ -42,6 +42,10 @@ type LocationsDataOptions = {
 	 * Whether the comparison period is on.
 	 */
 	hasComparison: boolean;
+	/**
+	 * Rows the list shows: a previous figure past them does not turn the comparison on.
+	 */
+	maxRows: number;
 };
 
 type LocationsDataResult = {
@@ -53,7 +57,7 @@ type LocationsDataResult = {
 	 */
 	rows: LeaderboardRowInput[];
 	/**
-	 * Whether the comparison period is on and at least one row carries a previous figure.
+	 * Whether the comparison period is on and at least one visible row carries a previous figure.
 	 */
 	comparing: boolean;
 };
@@ -63,14 +67,14 @@ type LocationsDataResult = {
  * map, or the regions of one country, each row carrying the matching flag.
  *
  * @param rows    - The ranking, in display order.
- * @param options - The country the rows belong to, if any, and the comparison flag.
+ * @param options - The country the rows belong to, if any, the comparison flag and the visible row count.
  * @return The map rows, the leaderboard rows and the comparison flag.
  */
 export function buildLocationsData(
 	rows: readonly LocationRowInput[],
 	options: LocationsDataOptions
 ): LocationsDataResult {
-	const { country, hasComparison } = options;
+	const { country, hasComparison, maxRows } = options;
 
 	return {
 		geoRows: rows.map( row => ( {
@@ -92,6 +96,7 @@ export function buildLocationsData(
 				country: country ? country.name : row.label,
 			},
 		} ) ),
-		comparing: hasComparison && rows.some( row => row.previousValue !== undefined ),
+		comparing:
+			hasComparison && rows.slice( 0, maxRows ).some( row => row.previousValue !== undefined ),
 	};
 }

@@ -12,6 +12,7 @@ describe( 'buildLocationsData', () => {
 	it( 'places countries on the world map, each row under its own flag', () => {
 		const { geoRows, geoMode, focusCountry, rows, comparing } = buildLocationsData( COUNTRIES, {
 			hasComparison: true,
+			maxRows: 10,
 		} );
 
 		expect( geoMode ).toBe( 'country' );
@@ -27,7 +28,7 @@ describe( 'buildLocationsData', () => {
 	it( 'places regions inside their country, every row under that flag', () => {
 		const { geoRows, geoMode, focusCountry, rows } = buildLocationsData(
 			[ { id: 'California', label: 'California', value: 500 } ],
-			{ country: { code: 'US', name: 'United States' }, hasComparison: false }
+			{ country: { code: 'US', name: 'United States' }, hasComparison: false, maxRows: 10 }
 		);
 
 		expect( geoMode ).toBe( 'region' );
@@ -39,6 +40,23 @@ describe( 'buildLocationsData', () => {
 	it( 'compares only while some row carries a previous figure', () => {
 		const rows = COUNTRIES.map( ( { id, label, value } ) => ( { id, label, value } ) );
 
-		expect( buildLocationsData( rows, { hasComparison: true } ).comparing ).toBe( false );
+		expect( buildLocationsData( rows, { hasComparison: true, maxRows: 10 } ).comparing ).toBe(
+			false
+		);
+	} );
+
+	it( 'ignores a previous figure past the visible rows', () => {
+		const rows = [
+			{ id: 'us', label: 'United States', value: 1200 },
+			{ id: 'ca', label: 'Canada', value: 300 },
+			{ id: 'jp', label: 'Japan', value: 2, previousValue: 1 },
+		];
+
+		expect( buildLocationsData( rows, { hasComparison: true, maxRows: 2 } ).comparing ).toBe(
+			false
+		);
+		expect( buildLocationsData( rows, { hasComparison: true, maxRows: 3 } ).comparing ).toBe(
+			true
+		);
 	} );
 } );

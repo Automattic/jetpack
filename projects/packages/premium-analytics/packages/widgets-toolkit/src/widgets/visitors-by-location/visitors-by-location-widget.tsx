@@ -85,6 +85,7 @@ export function VisitorsByLocationWidget() {
 						description: __( 'No location data in this period.', 'jetpack-premium-analytics-pkg' ),
 					} }
 					country={ region === 'US' ? UNITED_STATES : undefined }
+					valueLabel={ __( 'Store visitors', 'jetpack-premium-analytics-pkg' ) }
 				/>
 			</div>
 		</div>

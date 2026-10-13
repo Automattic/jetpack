@@ -14,8 +14,13 @@ import type { ReactNode } from 'react';
 
 // The map is Google's; the kind's job is what it hands it.
 jest.mock( '../../locations-geo-chart', () => ( {
-	LocationsGeoChart: ( { mode, rows }: LocationsGeoChartProps ) => (
-		<div data-testid="geo-chart" data-mode={ mode } data-rows={ rows.length } />
+	LocationsGeoChart: ( { mode, rows, valueLabel }: LocationsGeoChartProps ) => (
+		<div
+			data-testid="geo-chart"
+			data-mode={ mode }
+			data-rows={ rows.length }
+			data-value-label={ valueLabel }
+		/>
 	),
 } ) );
 
@@ -34,18 +39,22 @@ const renderLocations = ( ui: ReactNode ) => render( ui, { wrapper: Providers } 
 
 describe( 'Locations', () => {
 	it( 'lists the rows and hands the map the same places, as countries or as regions', () => {
-		const { rerender } = renderLocations( <Locations rows={ ROWS } status={ READY } /> );
+		const { rerender } = renderLocations(
+			<Locations rows={ ROWS } status={ READY } valueLabel="Views" />
+		);
 
 		expect( screen.getByText( 'United States' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Canada' ) ).toBeInTheDocument();
 		expect( screen.getByTestId( 'geo-chart' ) ).toHaveAttribute( 'data-mode', 'country' );
 		expect( screen.getByTestId( 'geo-chart' ) ).toHaveAttribute( 'data-rows', '2' );
+		expect( screen.getByTestId( 'geo-chart' ) ).toHaveAttribute( 'data-value-label', 'Views' );
 
 		rerender(
 			<Locations
 				rows={ [ { id: 'California', label: 'California', value: 500 } ] }
 				status={ READY }
 				country={ { code: 'US', name: 'United States' } }
+				valueLabel="Views"
 			/>
 		);
 
@@ -53,11 +62,15 @@ describe( 'Locations', () => {
 	} );
 
 	it( 'shows the deltas only while the comparison period is on', () => {
-		const { rerender } = renderLocations( <Locations rows={ ROWS } status={ READY } /> );
+		const { rerender } = renderLocations(
+			<Locations rows={ ROWS } status={ READY } valueLabel="Views" />
+		);
 
 		expect( screen.queryByText( /20%/ ) ).not.toBeInTheDocument();
 
-		rerender( <Locations rows={ ROWS } status={ { ...READY, hasComparison: true } } /> );
+		rerender(
+			<Locations rows={ ROWS } status={ { ...READY, hasComparison: true } } valueLabel="Views" />
+		);
 
 		expect( screen.getByText( /20%/ ) ).toBeInTheDocument();
 	} );
@@ -67,6 +80,7 @@ describe( 'Locations', () => {
 			<Locations
 				rows={ [] }
 				status={ READY }
+				valueLabel="Views"
 				empty={ { description: 'No location data in this period.' } }
 			/>
 		);
@@ -77,7 +91,11 @@ describe( 'Locations', () => {
 	it( 'offers a Retry bound to refetch when the widget passes no error of its own', async () => {
 		const refetch = jest.fn();
 		renderLocations(
-			<Locations rows={ [] } status={ { isLoading: false, isError: true, refetch } } />
+			<Locations
+				rows={ [] }
+				status={ { isLoading: false, isError: true, refetch } }
+				valueLabel="Views"
+			/>
 		);
 
 		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( "We couldn't load this data." );

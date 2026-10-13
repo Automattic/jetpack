@@ -50,6 +50,7 @@ const meta: Meta< typeof Locations > = {
 	args: {
 		rows: COUNTRIES,
 		status: READY,
+		valueLabel: 'Views',
 	},
 };
 

@@ -50,6 +50,10 @@ type LocationsProps = {
 	 */
 	format?: DataFormat;
 	/**
+	 * What the figure is, as the map tooltip names it: "Views", "Store visitors".
+	 */
+	valueLabel: string;
+	/**
 	 * The country the rows are regions of. Omit for countries on the world map.
 	 */
 	country?: LocationsCountry;
@@ -78,6 +82,7 @@ export function Locations( {
 	error,
 	empty,
 	format = DEFAULT_FORMAT,
+	valueLabel,
 	country,
 	maxRows = WIDGET_ROW_LIMIT,
 }: LocationsProps ): JSX.Element {
@@ -85,8 +90,8 @@ export function Locations( {
 	const hasComparison = !! status.hasComparison;
 
 	const data = useMemo(
-		() => buildLocationsData( rows, { country, hasComparison } ),
-		[ rows, country, hasComparison ]
+		() => buildLocationsData( rows, { country, hasComparison, maxRows } ),
+		[ rows, country, hasComparison, maxRows ]
 	);
 	const listData = useMemo(
 		() => buildLeaderboardChartData( data.rows, { hasComparison: data.comparing, maxRows } ),
@@ -120,6 +125,7 @@ export function Locations( {
 							rows={ data.geoRows }
 							mode={ data.geoMode }
 							focusCountry={ data.focusCountry }
+							valueLabel={ valueLabel }
 							resizeDebounceTime={ RESIZE_DEBOUNCE_MS }
 						/>
 					</Stack>
