@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -47,10 +48,10 @@ function get_stats_plan_tier() {
 
 	if ( $host->is_wpcom_platform() ) {
 		$tier = get_wpcom_stats_plan_tier( $host->is_woa_site() );
-	} elseif ( $host->is_vip_site() || has_jetpack_stats_commercial_purchase() ) {
+	} elseif ( $host->is_vip_site() ) {
 		$tier = STATS_TIER_COMMERCIAL;
 	} else {
-		$tier = STATS_TIER_JETPACK_FREE;
+		$tier = get_jetpack_stats_plan_tier();
 	}
 
 	/**
@@ -98,6 +99,34 @@ function get_wpcom_stats_plan_tier( $is_atomic ) {
 }
 
 /**
+ * The tier of a self-hosted site, from its cached plan.
+ *
+ * @since $$next-version$$
+ *
+ * @return string One of the STATS_TIER_* values.
+ */
+function get_jetpack_stats_plan_tier() {
+	if ( ! has_cached_jetpack_plan() ) {
+		return STATS_TIER_UNKNOWN;
+	}
+
+	return has_jetpack_stats_commercial_purchase() ? STATS_TIER_COMMERCIAL : STATS_TIER_JETPACK_FREE;
+}
+
+/**
+ * Whether the plan cache holds a plan. An empty one cannot tell a paid site from a free one (STATS-475).
+ *
+ * @since $$next-version$$
+ *
+ * @return bool
+ */
+function has_cached_jetpack_plan() {
+	$plan = get_option( Current_Plan::PLAN_OPTION );
+
+	return is_array( $plan ) && ! empty( $plan['features']['active'] );
+}
+
+/**
  * Whether a self-hosted site owns a purchase that supports commercial use, from the cached plan options.
  *
  * @since $$next-version$$
@@ -105,9 +134,9 @@ function get_wpcom_stats_plan_tier( $is_atomic ) {
  * @return bool
  */
 function has_jetpack_stats_commercial_purchase() {
-	$plan     = get_option( 'jetpack_active_plan', array() );
+	$plan     = get_option( Current_Plan::PLAN_OPTION, array() );
 	$plan     = is_array( $plan ) ? $plan : array();
-	$products = get_option( 'jetpack_site_products', array() );
+	$products = get_option( Current_Plan::SITE_PRODUCTS_OPTION, array() );
 	$products = is_array( $products ) ? $products : array();
 
 	$slugs = array_column( array_filter( $products, 'is_array' ), 'product_slug' );
@@ -204,12 +233,18 @@ function get_locked_stats_features( $tier ) {
  *
  * @param string $feature Feature key.
  * @param string $tier    One of the STATS_TIER_* values.
- * @return string
+ * @return string The URL, or an empty string when there is nowhere to buy it.
  */
 function get_stats_upgrade_url( $feature, $tier ) {
 	$return_path = 'admin.php?page=' . Analytics::MENU_PAGE_SLUG . '&jpa_purchased=1';
 
 	if ( STATS_TIER_JETPACK_FREE === $tier ) {
+		// The purchase flow lives in classic Stats; without its page there is nowhere to send the reader.
+		$stats_page = function_exists( 'menu_page_url' ) ? menu_page_url( 'stats', false ) : '';
+		if ( ! $stats_page ) {
+			return '';
+		}
+
 		$query = http_build_query(
 			array(
 				'from'         => 'jetpack-premium-analytics',
@@ -221,7 +256,7 @@ function get_stats_upgrade_url( $feature, $tier ) {
 			PHP_QUERY_RFC3986
 		);
 
-		return admin_url( 'admin.php?page=stats#!/stats/purchase/' . (int) \Jetpack_Options::get_option( 'id' ) . '?' . $query );
+		return $stats_page . '#!/stats/purchase/' . (int) \Jetpack_Options::get_option( 'id' ) . '?' . $query;
 	}
 
 	$plan      = in_array( $feature, STATS_COMMERCIAL_FEATURES, true ) ? 'premium' : 'personal';
@@ -250,7 +285,7 @@ function get_stats_plan_gates() {
 		}
 	}
 
-	if ( isset( $locked_features['countries'], $locked_features['regions-cities'] ) ) {
+	if ( isset( $locked_features['countries'] ) && isset( $locked_features['regions-cities'] ) ) {
 		$locked_widget_types['jpa/locations'] = 'countries';
 	}
 
@@ -270,7 +305,7 @@ function get_stats_plan_gates() {
  */
 function configure_stats_plan_gates() {
 	add_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_stats_plan_gates_script_data', 20 );
-	add_action( 'admin_init', __NAMESPACE__ . '\\maybe_refresh_plan_after_purchase' );
+	add_action( 'admin_init', __NAMESPACE__ . '\\maybe_refresh_jetpack_plan' );
 }
 
 /**
@@ -299,28 +334,44 @@ function inject_stats_plan_gates_script_data( array $data ): array {
 }
 
 /**
- * Refreshes a self-hosted site's cached plan when checkout sends the reader back, so the purchase unlocks at once.
+ * Transient throttling the refresh of an empty plan cache.
+ */
+const EMPTY_PLAN_REFRESH_TRANSIENT = 'jetpack_premium_analytics_empty_plan_refresh';
+
+/**
+ * Transient throttling the refresh after a purchase.
+ */
+const PURCHASE_PLAN_REFRESH_TRANSIENT = 'jetpack_premium_analytics_purchase_plan_refresh';
+
+/**
+ * Refreshes a self-hosted site's cached plan on the dashboard when it is empty or a checkout just returned.
+ *
+ * Script data is final once printed, so the gates can only change before it. Mirrors stats-admin's refresh (#52098).
  *
  * @since $$next-version$$
  *
  * @return void
  */
-function maybe_refresh_plan_after_purchase() {
+function maybe_refresh_jetpack_plan() {
+	if ( ! Analytics::is_dashboard_request() || ( new Host() )->is_wpcom_platform() ) {
+		return;
+	}
+
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only trigger: it only re-reads the site's own plan.
-	if ( empty( $_GET['jpa_purchased'] ) || ( new Host() )->is_wpcom_platform() ) {
+	if ( ! empty( $_GET['jpa_purchased'] ) ) {
+		$transient = PURCHASE_PLAN_REFRESH_TRANSIENT;
+		$ttl       = MINUTE_IN_SECONDS;
+	} elseif ( ! has_cached_jetpack_plan() ) {
+		$transient = EMPTY_PLAN_REFRESH_TRANSIENT;
+		$ttl       = 15 * MINUTE_IN_SECONDS;
+	} else {
 		return;
 	}
 
-	$current_plan = 'Automattic\\Jetpack\\Current_Plan';
-	if ( ! class_exists( $current_plan ) || ! method_exists( $current_plan, 'refresh_from_wpcom' ) ) {
+	if ( get_transient( $transient ) ) {
 		return;
 	}
+	set_transient( $transient, 1, $ttl );
 
-	// One remote fetch a minute, however often the flagged URL is reloaded.
-	if ( get_transient( 'jetpack_premium_analytics_plan_refreshed' ) ) {
-		return;
-	}
-	set_transient( 'jetpack_premium_analytics_plan_refreshed', 1, MINUTE_IN_SECONDS );
-
-	call_user_func( array( $current_plan, 'refresh_from_wpcom' ) );
+	Current_Plan::refresh_from_wpcom( array( 'timeout' => 5 ) );
 }

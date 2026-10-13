@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Cache;
 use PHPUnit\Framework\Attributes\CoversFunction;
@@ -14,28 +15,48 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 require_once __DIR__ . '/../../src/stats-plan-gates.php';
+require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
 /**
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_stats_plan_tier
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_wpcom_stats_plan_tier
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\get_jetpack_stats_plan_tier
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\has_cached_jetpack_plan
  * @covers ::Automattic\Jetpack\PremiumAnalytics\has_jetpack_stats_commercial_purchase
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_locked_stats_features
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_stats_upgrade_url
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_stats_plan_gates
  * @covers ::Automattic\Jetpack\PremiumAnalytics\configure_stats_plan_gates
  * @covers ::Automattic\Jetpack\PremiumAnalytics\inject_stats_plan_gates_script_data
- * @covers ::Automattic\Jetpack\PremiumAnalytics\maybe_refresh_plan_after_purchase
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\maybe_refresh_jetpack_plan
  */
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_stats_plan_tier' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_wpcom_stats_plan_tier' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_jetpack_stats_plan_tier' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\has_cached_jetpack_plan' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\has_jetpack_stats_commercial_purchase' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_locked_stats_features' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_stats_upgrade_url' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_stats_plan_gates' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\configure_stats_plan_gates' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\inject_stats_plan_gates_script_data' )]
-#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\maybe_refresh_plan_after_purchase' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\maybe_refresh_jetpack_plan' )]
 class Stats_Plan_Gates_Test extends BaseTestCase {
+
+	/**
+	 * A cached plan for a site without a Stats purchase.
+	 */
+	const FREE_PLAN = array(
+		'product_slug' => 'jetpack_free',
+		'features'     => array( 'active' => array( 'akismet' ) ),
+	);
+
+	/**
+	 * Plan refreshes sent to WordPress.com during the test.
+	 *
+	 * @var int
+	 */
+	private $plan_requests = 0;
 
 	/**
 	 * Host detection memoizes into the status cache, which outlives the constants.
@@ -59,9 +80,12 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		delete_option( 'jetpack_site_products' );
 		remove_all_filters( STATS_PLAN_TIER_FILTER );
 		remove_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_stats_plan_gates_script_data', 20 );
-		remove_action( 'admin_init', __NAMESPACE__ . '\\maybe_refresh_plan_after_purchase' );
-		unset( $_GET['jpa_purchased'] );
-		delete_transient( 'jetpack_premium_analytics_plan_refreshed' );
+		remove_action( 'admin_init', __NAMESPACE__ . '\\maybe_refresh_jetpack_plan' );
+		remove_all_filters( 'pre_http_request' );
+		unset( $_GET['jpa_purchased'], $_GET['page'], $GLOBALS['current_screen'], $GLOBALS['_parent_pages']['stats'] );
+		delete_transient( EMPTY_PLAN_REFRESH_TRANSIENT );
+		delete_transient( PURCHASE_PLAN_REFRESH_TRANSIENT );
+		\Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
 		parent::tear_down();
 	}
 
@@ -163,15 +187,20 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 	 * @return array
 	 */
 	public static function provide_jetpack_purchases() {
+		$products = static fn( $slug ) => array( array( 'product_slug' => $slug ) );
+		$plan     = static fn( $slug ) => array_merge( self::FREE_PLAN, array( 'product_slug' => $slug ) );
+
 		return array(
-			'nothing'                  => array( array(), array(), STATS_TIER_JETPACK_FREE ),
-			'stats yearly product'     => array( array(), array( array( 'product_slug' => 'jetpack_stats_yearly' ) ), STATS_TIER_COMMERCIAL ),
-			'stats PWYW is not'        => array( array(), array( array( 'product_slug' => 'jetpack_stats_pwyw_yearly' ) ), STATS_TIER_JETPACK_FREE ),
-			'complete plan'            => array( array( 'product_slug' => 'jetpack_complete_monthly' ), array(), STATS_TIER_COMMERCIAL ),
-			'growth plan'              => array( array( 'product_slug' => 'jetpack_growth_yearly' ), array(), STATS_TIER_COMMERCIAL ),
-			'security plan is not'     => array( array( 'product_slug' => 'jetpack_security_t1_yearly' ), array(), STATS_TIER_JETPACK_FREE ),
+			'empty cache is unknown'   => array( array(), array(), STATS_TIER_UNKNOWN ),
+			'malformed cache'          => array( 'garbage', 'garbage', STATS_TIER_UNKNOWN ),
+			'cached free plan'         => array( self::FREE_PLAN, array(), STATS_TIER_JETPACK_FREE ),
+			'malformed products'       => array( self::FREE_PLAN, 'garbage', STATS_TIER_JETPACK_FREE ),
+			'stats yearly product'     => array( self::FREE_PLAN, $products( 'jetpack_stats_yearly' ), STATS_TIER_COMMERCIAL ),
+			'stats PWYW is not'        => array( self::FREE_PLAN, $products( 'jetpack_stats_pwyw_yearly' ), STATS_TIER_JETPACK_FREE ),
+			'complete plan'            => array( $plan( 'jetpack_complete_monthly' ), array(), STATS_TIER_COMMERCIAL ),
+			'growth plan'              => array( $plan( 'jetpack_growth_yearly' ), array(), STATS_TIER_COMMERCIAL ),
+			'security plan is not'     => array( $plan( 'jetpack_security_t1_yearly' ), array(), STATS_TIER_JETPACK_FREE ),
 			'stats-commercial feature' => array( array( 'features' => array( 'active' => array( 'stats-commercial' ) ) ), array(), STATS_TIER_COMMERCIAL ),
-			'malformed options'        => array( 'garbage', 'garbage', STATS_TIER_JETPACK_FREE ),
 		);
 	}
 
@@ -275,10 +304,20 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 	 * Self-hosted sites go to the Stats purchase screen and come back flagged as purchased.
 	 */
 	public function test_jetpack_upgrade_url_returns_with_the_purchase_flag() {
-		$url = get_stats_upgrade_url( 'utm', STATS_TIER_JETPACK_FREE );
+		$GLOBALS['_parent_pages']['stats'] = false;
+		$url                               = get_stats_upgrade_url( 'utm', STATS_TIER_JETPACK_FREE );
 
 		$this->assertStringContainsString( 'page=stats#!/stats/purchase/', $url );
 		$this->assertStringContainsString( rawurlencode( 'jpa_purchased=1' ), $url );
+	}
+
+	/**
+	 * Without the classic Stats page the feature stays locked, with nowhere to send the reader.
+	 */
+	public function test_jetpack_upgrade_url_is_empty_without_the_stats_page() {
+		update_option( 'jetpack_active_plan', self::FREE_PLAN );
+
+		$this->assertSame( '', get_stats_plan_gates()['locked_features']['utm'] );
 	}
 
 	/**
@@ -291,7 +330,7 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 
 		$this->assertTrue( $data['premium_analytics']['has_videopress'] );
 		$this->assertSame( STATS_TIER_COMMERCIAL, $data['premium_analytics']['plan_gates']['tier'] );
-		$this->assertSame( '{}', wp_json_encode( $data['premium_analytics']['plan_gates']['locked_features'] ) );
+		$this->assertSame( '{}', wp_json_encode( $data['premium_analytics']['plan_gates']['locked_features'], JSON_UNESCAPED_SLASHES ) );
 	}
 
 	/**
@@ -304,31 +343,90 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Coming back from checkout refreshes a self-hosted plan once, not on every load.
+	 * Serve the dashboard page with a connected site whose plan fetches are counted.
 	 */
-	public function test_purchase_return_refreshes_the_jetpack_plan_once() {
-		\Automattic\Jetpack\Current_Plan::$refresh_count = 0;
-		$_GET['jpa_purchased']                           = '1';
+	private function open_dashboard_with_counted_plan_fetches() {
+		$_GET['page'] = Analytics::MENU_PAGE_SLUG;
+		set_current_screen( 'toplevel_page_' . Analytics::MENU_PAGE_SLUG );
 
-		maybe_refresh_plan_after_purchase();
-		maybe_refresh_plan_after_purchase();
+		\Jetpack_Options::update_option( 'id', 1234 );
+		\Jetpack_Options::update_option( 'blog_token', 'blog_token.secret' );
+		( new Connection_Manager() )->reset_connection_status();
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
 
-		$this->assertSame( 1, \Automattic\Jetpack\Current_Plan::$refresh_count );
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) {
+				if ( false === strpos( $url, '/sites/1234' ) ) {
+					return $preempt;
+				}
+				++$this->plan_requests;
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => wp_json_encode( array( 'plan' => self::FREE_PLAN ), JSON_UNESCAPED_SLASHES ),
+				);
+			},
+			10,
+			3
+		);
 	}
 
 	/**
-	 * Without the flag, or on WordPress.com, nothing is fetched.
+	 * An empty cache is filled once on the dashboard, after which the site is gated as free.
 	 */
-	public function test_no_refresh_without_the_flag_or_on_wpcom() {
-		\Automattic\Jetpack\Current_Plan::$refresh_count = 0;
+	public function test_empty_plan_cache_is_refreshed_once_on_the_dashboard() {
+		$this->open_dashboard_with_counted_plan_fetches();
+		$this->assertSame( STATS_TIER_UNKNOWN, get_stats_plan_tier() );
 
-		maybe_refresh_plan_after_purchase();
+		maybe_refresh_jetpack_plan();
+		delete_option( 'jetpack_active_plan' );
+		maybe_refresh_jetpack_plan();
+
+		$this->assertSame( 1, $this->plan_requests, 'A second empty read within the window does not fetch again.' );
+	}
+
+	/**
+	 * The refreshed plan is what the gates read next.
+	 */
+	public function test_refreshed_plan_feeds_the_tier() {
+		$this->open_dashboard_with_counted_plan_fetches();
+
+		maybe_refresh_jetpack_plan();
+
+		$this->assertSame( STATS_TIER_JETPACK_FREE, get_stats_plan_tier() );
+	}
+
+	/**
+	 * Coming back from checkout refreshes again, even right after the empty-cache refresh.
+	 */
+	public function test_purchase_return_refreshes_after_an_empty_cache_refresh() {
+		$this->open_dashboard_with_counted_plan_fetches();
+		maybe_refresh_jetpack_plan();
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- The second load is the throttle under test.
+		maybe_refresh_jetpack_plan();
+		$this->assertSame( 1, $this->plan_requests, 'A cached plan is left alone.' );
 
 		$_GET['jpa_purchased'] = '1';
-		$this->set_wpcom_platform( 'simple' );
-		maybe_refresh_plan_after_purchase();
+		maybe_refresh_jetpack_plan();
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- The second load is the throttle under test.
+		maybe_refresh_jetpack_plan();
+		$this->assertSame( 2, $this->plan_requests, 'One fetch per purchase return.' );
+	}
 
-		$this->assertSame( 0, \Automattic\Jetpack\Current_Plan::$refresh_count );
+	/**
+	 * Other admin pages and WordPress.com never fetch.
+	 */
+	public function test_no_refresh_off_the_dashboard_or_on_wpcom() {
+		$this->open_dashboard_with_counted_plan_fetches();
+		$this->set_wpcom_platform( 'simple' );
+		maybe_refresh_jetpack_plan();
+
+		Constants::clear_single_constant( 'IS_WPCOM' );
+		Cache::clear();
+		$_GET['page'] = 'jetpack';
+		maybe_refresh_jetpack_plan();
+
+		$this->assertSame( 0, $this->plan_requests );
 	}
 
 	/**
@@ -337,6 +435,6 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 	public function test_configure_hooks_the_refresh() {
 		configure_stats_plan_gates();
 
-		$this->assertNotFalse( has_action( 'admin_init', __NAMESPACE__ . '\\maybe_refresh_plan_after_purchase' ) );
+		$this->assertNotFalse( has_action( 'admin_init', __NAMESPACE__ . '\\maybe_refresh_jetpack_plan' ) );
 	}
 }
