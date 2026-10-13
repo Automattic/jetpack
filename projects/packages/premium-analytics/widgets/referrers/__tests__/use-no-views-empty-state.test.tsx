@@ -15,7 +15,7 @@ import LocationsWidget from '../../locations/render';
 import SearchTermsWidget from '../../search-terms/render';
 import { queryClientWrapper } from '../../test-utils';
 import TopPlatformsWidget from '../../top-platforms/render';
-import { useNoViewsRecorded } from '../../use-no-views-recorded';
+import { useNoViewsEmptyState } from '../../use-no-views-empty-state';
 import ReferrersWidget from '../render';
 import type { ComponentType } from 'react';
 
@@ -28,14 +28,16 @@ const mockApiFetch = jest.mocked( apiFetch );
 const GENERIC_TEXT = 'We couldn’t find results for this time period.';
 const SITE_SUMMARY_PATH = /\/stats(\?|$)/;
 const SITE_SUMMARY_KEY = [ 'stats', 'site' ];
+const NONE_RECORDED = { description: 'None recorded.' };
+const EMPTY_LIST = { isLoading: false, isError: false, isEmpty: true };
 const reportParams = getDefaultQueryParams( false, 'last-7-days' );
 
-type SiteSummary = { stats: { views: number } } | Error;
+type SiteSummary = { stats: { views: number } } | Error | Promise< never >;
 
 /**
  * Answer every list request with no rows and the site summary with the given response.
  *
- * @param siteSummary - The `/stats` response, or the error it rejects with.
+ * @param siteSummary - The `/stats` response, the error it rejects with, or a promise that leaves it unanswered.
  */
 function mockEmptyLists( siteSummary: SiteSummary ) {
 	mockApiFetch.mockImplementation( ( { path = '' } ) => {
@@ -91,23 +93,43 @@ it( 'keeps the period text when the site has views outside the selected range', 
 	expect( screen.queryByText( 'You don’t have referrers recorded yet.' ) ).not.toBeInTheDocument();
 } );
 
+it( 'shows neither text while the all-time views request has no answer', async () => {
+	mockEmptyLists( new Promise< never >( () => {} ) );
+
+	render( <ReferrersWidget attributes={ { reportParams } } /> );
+
+	await waitFor( () =>
+		expect( mockApiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( { path: expect.stringMatching( SITE_SUMMARY_PATH ) } )
+		)
+	);
+	expect( screen.queryByText( GENERIC_TEXT ) ).not.toBeInTheDocument();
+	expect( screen.queryByText( 'You don’t have referrers recorded yet.' ) ).not.toBeInTheDocument();
+} );
+
 it( 'stops saying nothing is recorded when a refresh fails after a cached zero', async () => {
 	mockEmptyLists( { stats: { views: 0 } } );
-	const { result } = renderHook( () => useNoViewsRecorded( true ), {
+	const { result } = renderHook( () => useNoViewsEmptyState( EMPTY_LIST, 'None recorded.' ), {
 		wrapper: queryClientWrapper,
 	} );
-	await waitFor( () => expect( result.current.noViewsRecorded ).toBe( true ) );
+	await waitFor( () => expect( result.current.empty ).toEqual( NONE_RECORDED ) );
 
 	mockEmptyLists( Object.assign( new Error( 'Forbidden' ), { data: { status: 403 } } ) );
 	await act( () => queryClient.refetchQueries( { queryKey: SITE_SUMMARY_KEY } ) );
 
-	await waitFor( () => expect( result.current.noViewsRecorded ).toBe( false ) );
+	await waitFor( () => expect( result.current.empty ).toBeUndefined() );
 } );
 
-it( 'does not request all-time views while the widget still has no answer of its own', () => {
+it.each( [
+	[ 'is still loading', { ...EMPTY_LIST, isLoading: true } ],
+	[ 'failed', { ...EMPTY_LIST, isError: true } ],
+	[ 'has rows', { ...EMPTY_LIST, isEmpty: false } ],
+] )( 'does not request all-time views when the list %s', ( _case, status ) => {
 	mockEmptyLists( { stats: { views: 0 } } );
 
-	renderHook( () => useNoViewsRecorded( false ), { wrapper: queryClientWrapper } );
+	renderHook( () => useNoViewsEmptyState( status, 'None recorded.' ), {
+		wrapper: queryClientWrapper,
+	} );
 
 	expect( mockApiFetch ).not.toHaveBeenCalled();
 } );
@@ -115,14 +137,16 @@ it( 'does not request all-time views while the widget still has no answer of its
 it( 'shares one all-time views request between empty widgets', async () => {
 	mockEmptyLists( { stats: { views: 0 } } );
 
-	const { result: first } = renderHook( () => useNoViewsRecorded( true ), {
-		wrapper: queryClientWrapper,
-	} );
-	const { result: second } = renderHook( () => useNoViewsRecorded( true ), {
-		wrapper: queryClientWrapper,
-	} );
+	const { result: first } = renderHook(
+		() => useNoViewsEmptyState( EMPTY_LIST, 'None recorded.' ),
+		{ wrapper: queryClientWrapper }
+	);
+	const { result: second } = renderHook(
+		() => useNoViewsEmptyState( EMPTY_LIST, 'None recorded.' ),
+		{ wrapper: queryClientWrapper }
+	);
 
-	await waitFor( () => expect( first.current.noViewsRecorded ).toBe( true ) );
-	await waitFor( () => expect( second.current.noViewsRecorded ).toBe( true ) );
+	await waitFor( () => expect( first.current.empty ).toEqual( NONE_RECORDED ) );
+	await waitFor( () => expect( second.current.empty ).toEqual( NONE_RECORDED ) );
 	expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
 } );

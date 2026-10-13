@@ -18,7 +18,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { useNoViewsRecorded } from '../use-no-views-recorded';
+import { useNoViewsEmptyState } from '../use-no-views-empty-state';
 import useSearchTermViews from './use-search-term-views';
 import { type SearchTermsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -48,15 +48,16 @@ function SearchTermsInner() {
 			} ) ),
 		[ data ]
 	);
-	const { noViewsRecorded, isChecking } = useNoViewsRecorded(
-		! isLoading && ! isError && rows.length === 0
+	const emptyState = useNoViewsEmptyState(
+		{ isLoading, isError, isEmpty: rows.length === 0 },
+		__( 'You don’t have search terms recorded yet.', 'jetpack-premium-analytics-pkg' )
 	);
 
 	return (
 		<Leaderboard
 			rows={ rows }
 			status={ {
-				isLoading: isLoading || isChecking,
+				isLoading: emptyState.isLoading,
 				isFetching,
 				isError,
 				hasComparison,
@@ -69,16 +70,7 @@ function SearchTermsInner() {
 				),
 				onRetry: refetch,
 			} ) }
-			empty={
-				noViewsRecorded
-					? {
-							description: __(
-								'You don’t have search terms recorded yet.',
-								'jetpack-premium-analytics-pkg'
-							),
-						}
-					: undefined
-			}
+			empty={ emptyState.empty }
 			footer={
 				<>
 					<ReportLink report="search-terms" />

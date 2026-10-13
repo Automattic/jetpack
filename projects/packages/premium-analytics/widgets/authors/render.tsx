@@ -30,7 +30,7 @@ import { useEffect, useMemo } from 'react';
  * Internal dependencies
  */
 import { buildTopAuthorsData, type AuthorLeaderboardRow } from './build-top-authors-data';
-import { useNoViewsRecorded } from '../use-no-views-recorded';
+import { useNoViewsEmptyState } from '../use-no-views-empty-state';
 import styles from './style.module.css';
 import type { AuthorsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -214,8 +214,9 @@ function AuthorsReport() {
 		[ comparisonRows ]
 	);
 
-	const { noViewsRecorded, isChecking } = useNoViewsRecorded(
-		! isInitialLoading && ! isError && rows.length === 0
+	const emptyState = useNoViewsEmptyState(
+		{ isLoading: isInitialLoading, isError, isEmpty: rows.length === 0 },
+		__( 'You don’t have authors recorded yet.', 'jetpack-premium-analytics-pkg' )
 	);
 
 	const legendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
@@ -224,7 +225,7 @@ function AuthorsReport() {
 		<>
 			<AuthorsLeaderboard
 				rows={ rows }
-				isLoading={ isInitialLoading || isChecking }
+				isLoading={ emptyState.isLoading }
 				isFetching={ isFetching }
 				// `placeholderData` keeps the prior period's rows on screen while `isError`
 				// flips true, so a transient refetch failure should not replace them.
@@ -232,16 +233,7 @@ function AuthorsReport() {
 				refetch={ refetch }
 				withComparison={ hasComparison }
 				legendLabels={ legendLabels }
-				empty={
-					noViewsRecorded
-						? {
-								description: __(
-									'You don’t have authors recorded yet.',
-									'jetpack-premium-analytics-pkg'
-								),
-							}
-						: undefined
-				}
+				empty={ emptyState.empty }
 			/>
 			<WidgetFooter>
 				<ReportLink report="authors" />

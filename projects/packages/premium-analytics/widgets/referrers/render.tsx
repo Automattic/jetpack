@@ -33,7 +33,7 @@ import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { useNoViewsRecorded } from '../use-no-views-recorded';
+import { useNoViewsEmptyState } from '../use-no-views-empty-state';
 import styles from './style.module.css';
 import type { ReferrersAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -235,8 +235,9 @@ function ReferrersInner() {
 	// subtree without comparison matches doesn't render placeholder deltas.
 	const withComparison = currentRow ? !! currentRow.childrenHaveComparison : hasComparison;
 
-	const { noViewsRecorded, isChecking } = useNoViewsRecorded(
-		! isLoading && ! isError && rows.length === 0
+	const emptyState = useNoViewsEmptyState(
+		{ isLoading, isError, isEmpty: rows.length === 0 },
+		__( 'You don’t have referrers recorded yet.', 'jetpack-premium-analytics-pkg' )
 	);
 
 	const drillInto = useCallback(
@@ -277,7 +278,7 @@ function ReferrersInner() {
 					<WidgetBackLink label={ backLabel } ariaLabel={ backAriaLabel } onClick={ goBack } />
 				) }
 				<WidgetState
-					isLoading={ isLoading || isChecking }
+					isLoading={ emptyState.isLoading }
 					isFetching={ isFetching }
 					// `placeholderData` keeps the prior period's rows on screen while `isError`
 					// flips true, so a transient refetch failure should not replace them.
@@ -292,16 +293,7 @@ function ReferrersInner() {
 							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
 						],
 					} }
-					empty={
-						noViewsRecorded
-							? {
-									description: __(
-										'You don’t have referrers recorded yet.',
-										'jetpack-premium-analytics-pkg'
-									),
-								}
-							: undefined
-					}
+					empty={ emptyState.empty }
 					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
 					<ReferrersLeaderboard

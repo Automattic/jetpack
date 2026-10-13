@@ -15,7 +15,7 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import { useNoViewsRecorded } from '../use-no-views-recorded';
+import { useNoViewsEmptyState } from '../use-no-views-empty-state';
 import useDeviceViews from './use-device-views';
 import { type DevicesAttributes } from './widget';
 /**
@@ -53,15 +53,16 @@ function DevicesInner() {
 			} ) ),
 		[ data ]
 	);
-	const { noViewsRecorded, isChecking } = useNoViewsRecorded(
-		! isLoading && ! isError && segments.every( segment => ! segment.value )
+	const emptyState = useNoViewsEmptyState(
+		{ isLoading, isError, isEmpty: segments.every( segment => ! segment.value ) },
+		__( 'You don’t have devices recorded yet.', 'jetpack-premium-analytics-pkg' )
 	);
 
 	return (
 		<Donut
 			segments={ segments }
 			status={ {
-				isLoading: isLoading || isChecking,
+				isLoading: emptyState.isLoading,
 				isFetching,
 				isError,
 				hasComparison,
@@ -74,16 +75,7 @@ function DevicesInner() {
 				),
 				onRetry: refetch,
 			} ) }
-			empty={
-				noViewsRecorded
-					? {
-							description: __(
-								'You don’t have devices recorded yet.',
-								'jetpack-premium-analytics-pkg'
-							),
-						}
-					: undefined
-			}
+			empty={ emptyState.empty }
 			format={ PERCENTAGE_DATA_FORMAT }
 			variant="half-ring"
 			withTotal={ false }

@@ -23,7 +23,7 @@ import {
 /**
  * Internal dependencies
  */
-import { useNoViewsRecorded } from '../use-no-views-recorded';
+import { useNoViewsEmptyState } from '../use-no-views-empty-state';
 import styles from './style.module.css';
 import usePlatformViews from './use-platform-views';
 import { type TopPlatformsAttributes } from './widget';
@@ -57,8 +57,9 @@ function TopPlatformsInner( { platformDimension }: TopPlatformsInnerProps ) {
 		}
 	);
 
-	const { noViewsRecorded, isChecking } = useNoViewsRecorded(
-		! isLoading && ! isError && data.length === 0
+	const emptyState = useNoViewsEmptyState(
+		{ isLoading, isError, isEmpty: data.length === 0 },
+		__( 'You don’t have platforms recorded yet.', 'jetpack-premium-analytics-pkg' )
 	);
 
 	const maxViews = getCombinedPeriodMax(
@@ -92,7 +93,7 @@ function TopPlatformsInner( { platformDimension }: TopPlatformsInnerProps ) {
 	return (
 		<div className={ styles.content }>
 			<WidgetState
-				isLoading={ isLoading || isChecking }
+				isLoading={ emptyState.isLoading }
 				isFetching={ isFetching }
 				isError={ isError }
 				isEmpty={ data.length === 0 }
@@ -103,16 +104,7 @@ function TopPlatformsInner( { platformDimension }: TopPlatformsInnerProps ) {
 					),
 					onRetry: refetch,
 				} ) }
-				empty={
-					noViewsRecorded
-						? {
-								description: __(
-									'You don’t have platforms recorded yet.',
-									'jetpack-premium-analytics-pkg'
-								),
-							}
-						: undefined
-				}
+				empty={ emptyState.empty }
 				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 			>
 				<LeaderboardChart
