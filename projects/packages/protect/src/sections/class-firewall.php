@@ -23,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * The firewall's on/off state, blocked request counts and a request it always blocks, to test it.
+ * The firewall's on/off state, blocked requests, IP lists and a one-time request to test it with.
  *
  * @since $$next-version$$
  */
@@ -184,7 +184,9 @@ class Firewall implements Dashboard_Section {
 			return $blocks;
 		}
 
-		return self::add_request_details( $blocks, self::read_request_log() );
+		$oldest = end( $blocks )['timestamp'];
+
+		return self::add_request_details( $blocks, self::read_request_log( $oldest ) );
 	}
 
 	/**
@@ -210,22 +212,35 @@ class Firewall implements Dashboard_Section {
 				continue;
 			}
 			if ( ! empty( $entry['request_uri'] ) && is_string( $entry['request_uri'] ) ) {
-				$block['uri'] = substr( $entry['request_uri'], 0, 2048 );
+				$block['uri'] = self::truncate( $entry['request_uri'], 2048 );
 			}
 			if ( ! empty( $entry['user_agent'] ) && is_string( $entry['user_agent'] ) ) {
-				$block['userAgent'] = substr( $entry['user_agent'], 0, 512 );
+				$block['userAgent'] = self::truncate( $entry['user_agent'], 512 );
 			}
 		}
+		unset( $block );
 
 		return $blocks;
 	}
 
 	/**
-	 * The newest entries of the firewall's request log, oldest first.
+	 * A string cut to a byte length, without splitting a multibyte character.
 	 *
+	 * @param string $value  The string.
+	 * @param int    $length The most bytes to keep.
+	 * @return string
+	 */
+	private static function truncate( $value, $length ) {
+		return function_exists( 'mb_strcut' ) ? mb_strcut( $value, 0, $length, 'UTF-8' ) : substr( $value, 0, $length );
+	}
+
+	/**
+	 * The firewall's request log entries since a block, oldest first.
+	 *
+	 * @param string $since The oldest block's timestamp, as `get_recent_blocks()` formats it.
 	 * @return array
 	 */
-	private static function read_request_log() {
+	private static function read_request_log( $since ) {
 		if ( ! class_exists( Waf_Constants::class ) ) {
 			return array();
 		}
@@ -253,14 +268,20 @@ class Firewall implements Dashboard_Section {
 			array_shift( $lines ); // Starts mid-entry.
 		}
 
+		// The log's timestamps are `Y-m-d H:i:s`, which sort as text.
+		$since   = str_replace( array( 'T', 'Z' ), array( ' ', '' ), $since );
 		$entries = array();
-		foreach ( $lines as $line ) {
+		foreach ( array_reverse( $lines ) as $line ) {
 			$entry = json_decode( $line, true );
-			if ( is_array( $entry ) ) {
-				$entries[] = $entry;
+			if ( ! is_array( $entry ) ) {
+				continue;
 			}
+			if ( is_string( $entry['timestamp'] ?? null ) && $entry['timestamp'] < $since ) {
+				break;
+			}
+			$entries[] = $entry;
 		}
 
-		return $entries;
+		return array_reverse( $entries );
 	}
 }

@@ -7,6 +7,9 @@ export const FIREWALL_PATH = '/jetpack/v4/protect-dashboard/firewall';
 /** Matches `Automattic\\Jetpack\\Waf\\Waf_Self_Check::RULE_ID`. */
 export const SELF_CHECK_RULE_ID = -2;
 
+/** Thrown by `runFirewallTest()` when the site's address is on another origin than the dashboard. */
+export const CROSS_ORIGIN = 'cross-origin';
+
 /** The header the firewall sends whenever it blocks. */
 export const BLOCKED_HEADER = 'X-JetpackWAF-Blocked';
 
@@ -74,14 +77,19 @@ export function getBlockLabel( block: Pick< BlockedRequest, 'ruleId' | 'reason' 
 /**
  * Request the one-time URL the firewall always blocks, the way a logged-out visitor would.
  *
- * @param active - Whether the firewall is on.
+ * @param  active - Whether the firewall is on.
  * @return What happened.
+ * @throws {Error} With the message `CROSS_ORIGIN` when the site can't be requested from this page.
  */
 export async function runFirewallTest( active: boolean ): Promise< TestResult > {
 	const { url } = await apiFetch< { url: string } >( {
 		path: `${ FIREWALL_PATH }/test`,
 		method: 'POST',
 	} );
+	// Another origin's response headers can't be read, so the result would be a guess.
+	if ( new URL( url ).origin !== window.location.origin ) {
+		throw new Error( CROSS_ORIGIN );
+	}
 	const response = await fetch( url, { credentials: 'omit', cache: 'no-store' } );
 	const wafHeader = response.headers.get( BLOCKED_HEADER );
 	const allowedHeader = response.headers.get( ALLOWED_HEADER );

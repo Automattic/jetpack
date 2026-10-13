@@ -418,8 +418,13 @@ class Waf_Blocklog_Manager {
 
 		// Inside WordPress, so connecting would load wp-config.php a second time.
 		if ( isset( $wpdb ) ) {
+			// The table doesn't exist until the firewall is first turned on.
+			$suppress = $wpdb->suppress_errors();
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- A custom table.
-			return intval( $wpdb->get_var( "SELECT log_id FROM {$wpdb->prefix}jetpack_waf_blocklog ORDER BY log_id DESC LIMIT 1" ) );
+			$last_id = $wpdb->get_var( "SELECT log_id FROM {$wpdb->prefix}jetpack_waf_blocklog ORDER BY log_id DESC LIMIT 1" );
+			$wpdb->suppress_errors( $suppress );
+
+			return intval( $last_id );
 		}
 
 		$conn = self::connect_to_wordpress_db();

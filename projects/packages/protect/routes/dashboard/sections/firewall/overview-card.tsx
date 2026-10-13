@@ -9,7 +9,7 @@ import { CardRow, ProtectCard, Stat } from '../../components/card';
 import SettingToggle from '../../components/settings/setting-toggle';
 import TabLink from '../../components/tab-link';
 import isModuleActive from '../../data/is-module-active';
-import { FIREWALL_PATH, SELF_CHECK_RULE_ID, runFirewallTest } from './firewall-test';
+import { CROSS_ORIGIN, FIREWALL_PATH, SELF_CHECK_RULE_ID, runFirewallTest } from './firewall-test';
 import IpRule from './ip-rule';
 import RecentBlocks from './recent-blocks';
 import TestDetails from './test-details';
@@ -36,7 +36,7 @@ type NoticeStatus = 'success' | 'info' | 'warning' | 'error';
 const snackbarIcon = ( icon: JSX.Element ) => <Icon icon={ icon } fill="currentColor" />;
 
 const OUTCOMES: Record<
-	TestOutcome | 'testing' | 'error',
+	TestOutcome | 'testing' | 'cross-origin' | 'error',
 	{ status: NoticeStatus; message: () => string; icon?: JSX.Element }
 > = {
 	testing: {
@@ -82,6 +82,15 @@ const OUTCOMES: Record<
 		message: () =>
 			__(
 				'The test request got through, because the firewall is off. Turn it on and test again to see it blocked.',
+				'jetpack-protect-pkg'
+			),
+	},
+	'cross-origin': {
+		status: 'error',
+		icon: snackbarIcon( closeSmall ),
+		message: () =>
+			__(
+				'The firewall can’t be tested from here, because your site and this dashboard are on different addresses.',
 				'jetpack-protect-pkg'
 			),
 	},
@@ -159,8 +168,8 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 				fresh.recentBlocks.some( block => block.id > lastId && block.ruleId === SELF_CHECK_RULE_ID )
 			);
 			notify( testResult.outcome, () => setDetailsOpen( true ) );
-		} catch {
-			notify( 'error' );
+		} catch ( e ) {
+			notify( ( e as Error )?.message === CROSS_ORIGIN ? 'cross-origin' : 'error' );
 		} finally {
 			setIsTesting( false );
 		}

@@ -1,4 +1,7 @@
-import { getBlockLabel, getTestOutcome } from '../firewall-test';
+import apiFetch from '@wordpress/api-fetch';
+import { CROSS_ORIGIN, getBlockLabel, getTestOutcome, runFirewallTest } from '../firewall-test';
+
+jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
 
 describe( 'getTestOutcome', () => {
 	it.each( [
@@ -24,5 +27,18 @@ describe( 'getBlockLabel', () => {
 		[ 'a rule without a reason', { ruleId: 941100, reason: '' }, 'Rule 941100' ],
 	] )( '%s', ( _name, block, expected ) => {
 		expect( getBlockLabel( block ) ).toBe( expected );
+	} );
+} );
+
+describe( 'runFirewallTest', () => {
+	it( 'refuses a site on another origin, whose response headers can’t be read', async () => {
+		( apiFetch as unknown as jest.Mock ).mockResolvedValue( {
+			url: 'https://elsewhere.example/?jetpack_waf_test=abc',
+		} );
+		const fetchMock = jest.fn();
+		window.fetch = fetchMock;
+
+		await expect( runFirewallTest( true ) ).rejects.toThrow( CROSS_ORIGIN );
+		expect( fetchMock ).not.toHaveBeenCalled();
 	} );
 } );

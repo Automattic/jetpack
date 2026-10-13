@@ -1,7 +1,7 @@
 import { ToggleControl } from '@wordpress/components';
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import { useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Badge, Button, Dialog, Stack, Text, TextareaControl } from '@wordpress/ui';
+import { Badge, Button, Dialog, Stack, Text, TextareaControl, VisuallyHidden } from '@wordpress/ui';
 import { appendIp, splitIps } from '../../components/settings/ip-list';
 import type { ProtectSettingsData } from '../../data/use-protect-settings';
 import type { ChangeEvent } from 'react';
@@ -46,12 +46,16 @@ export default function IpRule( {
 	const [ open, setOpen ] = useState( false );
 	const [ draft, setDraft ] = useState( saved );
 
-	// Start each edit from the saved list, dropping what a cancelled edit left behind.
-	useEffect( () => {
-		if ( open ) {
-			setDraft( saved );
-		}
-	}, [ open, saved ] );
+	// Start each edit from the saved list. Only on opening: a failed save rolls `saved` back mid-edit.
+	const onOpenChange = useCallback(
+		( next: boolean ) => {
+			if ( next ) {
+				setDraft( saved );
+			}
+			setOpen( next );
+		},
+		[ saved ]
+	);
 
 	const onToggle = useCallback(
 		( value: boolean ) => save( { [ enabledName ]: value } ),
@@ -79,6 +83,9 @@ export default function IpRule( {
 					<Stack direction="row" gap="sm" align="center">
 						{ label }
 						<Badge intent="informational">{ String( splitIps( saved ).length ) }</Badge>
+						<VisuallyHidden>
+							{ __( 'addresses on the list', 'jetpack-protect-pkg' ) }
+						</VisuallyHidden>
 					</Stack>
 				}
 				help={ description }
@@ -86,7 +93,7 @@ export default function IpRule( {
 				disabled={ isSaving( enabledName ) }
 				onChange={ onToggle }
 			/>
-			<Dialog.Root open={ open } onOpenChange={ setOpen }>
+			<Dialog.Root open={ open } onOpenChange={ onOpenChange }>
 				<Dialog.Trigger
 					render={ <Button variant="unstyled" className="jp-protect-card__link-button" /> }
 				>

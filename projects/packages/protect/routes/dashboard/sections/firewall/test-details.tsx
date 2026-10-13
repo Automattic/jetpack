@@ -33,7 +33,7 @@ function getResponseNote( result: TestResult ): string | undefined {
 	}
 	if ( ! result.wafHeader ) {
 		return __(
-			'No firewall header, so the firewall didn’t act on the request.',
+			'No firewall header, so the firewall didn’t act on the request. A page cache in front of your site can also answer before the firewall sees it.',
 			'jetpack-protect-pkg'
 		);
 	}
