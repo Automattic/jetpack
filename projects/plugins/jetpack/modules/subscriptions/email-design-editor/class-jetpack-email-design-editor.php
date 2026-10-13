@@ -145,8 +145,8 @@ class Jetpack_Email_Design_Editor {
 	 * Whether the screen should exist on this site.
 	 *
 	 * On Atomic the `email-design-editor` sticker decides, through the filter above; on Simple
-	 * wpcom's mu-plugin turns the flag on alongside the same sticker. Self-hosted has no
-	 * sticker to read, so there the flag itself is the gate.
+	 * wpcom's mu-plugin turns the flag on alongside it. A self-hosted site cannot read its own
+	 * blog's stickers, so the flag is the gate there -- the sticker still gates the bootstrap.
 	 *
 	 * @return bool
 	 */

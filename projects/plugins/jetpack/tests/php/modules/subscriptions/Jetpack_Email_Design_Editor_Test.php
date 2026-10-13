@@ -337,7 +337,7 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Simple and self-hosted have no sticker to read, so the flag itself stays the gate there.
+	 * Neither Simple nor self-hosted reaches the Atomic reader, so the flag stays the gate there.
 	 */
 	public function test_the_flag_stays_the_gate_where_no_sticker_can_be_read() {
 		if ( function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
