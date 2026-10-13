@@ -66,6 +66,7 @@ export {
 } from './leaderboard';
 export { Donut, type DonutProps, type DonutSegmentInput } from './donut';
 export { Funnel, type FunnelProps, type FunnelStepInput } from './funnel';
+export { Columns, type ColumnsProps, type ColumnInput } from './columns';
 export {
 	BarChart,
 	BarChartSkeleton,
