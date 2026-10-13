@@ -2,6 +2,7 @@
  * External dependencies
  */
 import {
+	DASHBOARD_PREFERENCES_SCOPE,
 	PERIOD_CHANGE_ATTENTION_MS,
 	queryClient,
 	useRaisePeriodChange,
@@ -11,6 +12,8 @@ import { createTZDateFromParts, endOfDayTZ } from '@jetpack-premium-analytics/da
 import { useDashboardOriginSearch } from '@jetpack-premium-analytics/widgets-toolkit';
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { dispatch, select } from '@wordpress/data';
+import { store as preferencesStore } from '@wordpress/preferences';
 import { useCallback } from 'react';
 /**
  * Internal dependencies
@@ -40,11 +43,22 @@ let mockAppliedRange: Partial< typeof JULY_2026 > = { from: undefined, to: undef
 let mockMountedSectionSlugs: string[] | null = null;
 let mockSyncState: { data?: SyncStatus; error: Error | null; isComplete: boolean };
 let mockIsSyncFinished: boolean;
+let mockSyncOptions: { enabled?: boolean; autoStart?: boolean } | undefined;
+let mockIsAdmin: boolean;
+let mockCanSendFeedback: boolean;
 const mockResetLayout = jest.fn();
+let mockDateFiltersPanelProps: { onChange: ( ...args: unknown[] ) => void; onApply: () => void };
 const mockTriggerSync = jest.fn( () => Promise.resolve() );
 
 jest.mock( '@jetpack-premium-analytics/site-sync', () => ( {
-	useSyncStatus: () => ( { ...mockSyncState, triggerSync: mockTriggerSync } ),
+	useSyncStatus: ( options: typeof mockSyncOptions ) => {
+		mockSyncOptions = options;
+		return { ...mockSyncState, triggerSync: mockTriggerSync };
+	},
+} ) );
+
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	currentUserCan: () => mockIsAdmin,
 } ) );
 
 jest.mock( '../site-readiness', () => ( {
@@ -53,7 +67,6 @@ jest.mock( '../site-readiness', () => ( {
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
-	GlobalErrorProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/externals', () => {
@@ -84,12 +97,21 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
-	DateFiltersPanel: ( props: { attentionId?: number } ) => (
-		<>
-			<MockHeaderScopeProbe />
-			<MockAttentionProbe { ...props } />
-		</>
-	),
+	DateFiltersPanel: (
+		props: typeof mockDateFiltersPanelProps & {
+			attentionId?: number;
+			withIntervalControl?: boolean;
+		}
+	) => {
+		mockDateFiltersPanelProps = props;
+		return (
+			<>
+				<MockHeaderScopeProbe />
+				<MockAttentionProbe { ...props } />
+				{ props.withIntervalControl && <span>header interval</span> }
+			</>
+		);
+	},
 	PeriodChangeStatus: jest.requireActual( '../../packages/ui/src/period-change-status' )
 		.PeriodChangeStatus,
 	DateIntervalDropdown: () => <span>interval control</span>,
@@ -141,6 +163,7 @@ jest.mock( '@wordpress/route', () => ( {
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	...jest.requireActual( '../../packages/widgets-toolkit/src/hooks/use-dashboard-origin-search' ),
 	useTrackCustomize: () => mockTrackCustomize,
+	canSendFeedback: () => mockCanSendFeedback,
 	PageOptionsMenu: ( { onCustomize }: { onCustomize?: () => void } ) => (
 		<div data-testid="page-options-menu">
 			{ onCustomize && (
@@ -168,12 +191,13 @@ jest.mock( '@wordpress/admin-ui', () => ( {
 } ) );
 
 jest.mock( '@wordpress/components', () => ( {
+	...jest.requireActual( '@wordpress/components' ),
 	Spinner: () => null,
 } ) );
 
 jest.mock( '@wordpress/core-data', () => ( { store: {} } ) );
 
-jest.mock( '@wordpress/data', () => ( { useSelect: () => [] } ) );
+jest.mock( '../use-widget-modules', () => ( { useWidgetModules: () => [] } ) );
 
 /**
  * Reads the scope the dashboard declares, from where the header's date controls
@@ -370,12 +394,17 @@ jest.mock( './hooks', () => ( {
 	useDashboardSectionLayout: () => [ [], jest.fn(), mockResetLayout ],
 	useDashboardSections: jest.fn(),
 	useOnboarding: jest.fn(),
+	useRememberAppliedPreset: jest.requireActual( './hooks/use-remember-applied-preset' )
+		.useRememberAppliedPreset,
 	useSectionDateFilter: jest.fn(),
 } ) );
 
 beforeEach( () => {
 	mockSyncState = { data: undefined, error: null, isComplete: false };
 	mockIsSyncFinished = false;
+	mockSyncOptions = undefined;
+	mockIsAdmin = true;
+	mockCanSendFeedback = true;
 	mockMountedSectionSlugs = null;
 	mockTriggerSync.mockImplementation( () => Promise.resolve() );
 	useOnboardingMock.mockReturnValue( closedOnboarding );
@@ -653,6 +682,14 @@ describe( 'Dashboard feedback banner', () => {
 		);
 	} );
 
+	it( 'is not offered to a reader who cannot send feedback', () => {
+		mockCanSendFeedback = false;
+
+		render( <Dashboard /> );
+
+		expect( screen.queryByTestId( 'feedback-banner' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'holds off on a section the copy does not speak for', () => {
 		useDashboardSectionsMock.mockReturnValue( {
 			sections: [
@@ -815,6 +852,15 @@ describe( 'Dashboard sync notice', () => {
 		expect( screen.getByText( 'notice 40% syncing' ) ).toBeInTheDocument();
 	} );
 
+	it( 'neither polls nor starts the sync for a reader who cannot run it', () => {
+		mockSection( { requires_sync: true } );
+		mockIsAdmin = false;
+
+		render( <Dashboard /> );
+
+		expect( mockSyncOptions?.enabled ).toBe( false );
+	} );
+
 	it( 'leaves a section that does not depend on the sync unannotated', () => {
 		mockSection();
 
@@ -880,12 +926,43 @@ describe( 'Dashboard header date control', () => {
 		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
 	} );
 
+	afterEach( () => {
+		dispatch( preferencesStore ).set( DASHBOARD_PREFERENCES_SCOPE, 'datePreset', undefined );
+	} );
+
 	it( 'renders the control by default', () => {
 		mockSection( { date_filter: DATE_FILTER_RANGE } );
 
 		render( <Dashboard /> );
 
 		expect( screen.getByText( 'header offers comparison' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'header interval' ) ).toBeInTheDocument();
+	} );
+
+	it( 'keeps the range but drops the interval for a section whose charts own it', () => {
+		mockSection( {
+			date_filter: DATE_FILTER_RANGE,
+			date_filter_options: { with_date_comparison: true, with_header_interval_control: false },
+		} );
+
+		render( <Dashboard /> );
+
+		expect( screen.getByText( 'header offers comparison' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'header interval' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'remembers a preset applied from the header', () => {
+		mockSection( { date_filter: DATE_FILTER_RANGE } );
+
+		render( <Dashboard /> );
+		act( () => {
+			mockDateFiltersPanelProps.onChange( JULY_2026, 'last-30-days' );
+			mockDateFiltersPanelProps.onApply();
+		} );
+
+		expect( select( preferencesStore ).get( DASHBOARD_PREFERENCES_SCOPE, 'datePreset' ) ).toBe(
+			'last-30-days'
+		);
 	} );
 
 	it( 'renders no control for a section that hands it to its widgets', () => {

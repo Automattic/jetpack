@@ -370,7 +370,9 @@ describe( 'A selection the activity log has not answered for', () => {
 
 		render( <OverviewStage /> );
 
-		await expect( screen.findByText( LOAD_FAILED ) ).resolves.toBeInTheDocument();
+		await expect(
+			screen.findByText( LOAD_FAILED, { ignore: '.a11y-speak-region' } )
+		).resolves.toBeInTheDocument();
 		expect( screen.queryByText( NOT_FOUND ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: CLEAR } ) ).not.toBeInTheDocument();
 	} );

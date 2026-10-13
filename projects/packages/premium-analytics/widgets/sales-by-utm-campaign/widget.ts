@@ -1,9 +1,4 @@
 /**
- * WordPress dependencies
- */
-import { chartBar } from '@wordpress/icons';
-
-/**
  * No user-configurable attributes; report params still reach the widget through
  * WidgetRoot (dashboard date range, or `attributes.reportParams` from a host).
  */
@@ -18,6 +13,4 @@ export type SalesByUtmCampaignAttributes = Record< never, never >;
  * control registry so analytics dashboards can hide the field while other
  * dashboards can opt in.
  */
-export default {
-	icon: chartBar,
-};
+export default {};

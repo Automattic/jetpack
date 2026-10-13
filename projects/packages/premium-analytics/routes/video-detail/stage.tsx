@@ -1,11 +1,7 @@
 /**
  * External dependencies
  */
-import {
-	AnalyticsQueryClientProvider,
-	GlobalErrorProvider,
-	ReportScopeProvider,
-} from '@jetpack-premium-analytics/data';
+import { AnalyticsQueryClientProvider, ReportScopeProvider } from '@jetpack-premium-analytics/data';
 import {
 	pickReportNavigationParams,
 	useReportDateFilters,
@@ -235,15 +231,13 @@ function VideoDetail(): JSX.Element {
 export function stage(): JSX.Element {
 	return (
 		<AnalyticsQueryClientProvider>
-			<GlobalErrorProvider>
-				{ /*
-				 * The page names no compared period, so nothing below may fetch or draw
-				 * one, even when a hand-edited URL carries comparison params.
-				 */ }
-				<ReportScopeProvider offersComparison={ false }>
-					<VideoDetail />
-				</ReportScopeProvider>
-			</GlobalErrorProvider>
+			{ /*
+			 * The page names no compared period, so nothing below may fetch or draw
+			 * one, even when a hand-edited URL carries comparison params.
+			 */ }
+			<ReportScopeProvider offersComparison={ false }>
+				<VideoDetail />
+			</ReportScopeProvider>
 		</AnalyticsQueryClientProvider>
 	);
 }

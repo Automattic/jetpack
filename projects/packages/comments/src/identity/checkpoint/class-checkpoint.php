@@ -23,9 +23,9 @@ class Checkpoint {
 	// Sent when the form rendered as signed in on the passport. Without it the passport is
 	// left alone, so a log-out that never reached the server still posts as the guest shown.
 	const PASSPORT_FIELD = 'jetpack_comment_identity_passport';
-	// Comment meta: the commenter's provider and avatar.
-	const META_PROVIDER = 'jetpack_comment_identity_provider';
-	const META_AVATAR   = 'jetpack_comment_identity_avatar';
+	// Comment meta: the commenter's id and avatar.
+	const META_ID     = 'jetpack_comment_identity_id';
+	const META_AVATAR = 'jetpack_comment_identity_avatar';
 
 	/**
 	 * Singleton instance.
@@ -65,7 +65,6 @@ class Checkpoint {
 	 * Hook in around core's comment handling.
 	 */
 	private function __construct() {
-		// After Comment_Form::verify_nonce() at 10, so an unsigned post never reaches the exchange.
 		add_action( 'pre_comment_on_post', array( $this, 'admit' ), 20 );
 		add_filter( 'preprocess_comment', array( $this, 'attribute' ), 0 );
 		add_action( 'comment_post', array( $this, 'record' ) );
@@ -124,12 +123,11 @@ class Checkpoint {
 
 		$params = array(
 			'blog_id'   => self::blog_id(),
-			// The only provider, and part of what WordPress.com verifies.
-			'provider'  => 'wordpress',
 			'challenge' => $challenge,
 			'origin'    => $origin,
-			// WordPress.com rejects an expiry past ten minutes out; a minute is left for clock skew.
-			'expires'   => time() + 9 * MINUTE_IN_SECONDS,
+			// Outlasts a slow WordPress.com login or password reset. WordPress.com rejects
+			// an expiry past an hour out, so ten minutes are left for clock skew.
+			'expires'   => time() + 50 * MINUTE_IN_SECONDS,
 		);
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -172,9 +170,13 @@ class Checkpoint {
 	 * Redeem a code with WordPress.com.
 	 *
 	 * @param string $code The code the popup handed back.
-	 * @return array|WP_Error site_commenter_id, provider, name, email, avatar, expires_at.
+	 * @return array|WP_Error site_commenter_id, name, email, avatar.
 	 */
 	public static function exchange( $code ) {
+		// The client stops verifying certificates for good on a host whose first request failed to.
+		// An identity must never arrive over a connection anyone on the path could have answered.
+		add_filter( 'jetpack_client_verify_ssl_certs', '__return_true', 999 );
+
 		$response = Client::wpcom_json_api_request_as_blog(
 			sprintf( '/sites/%d/comments/identity/exchange', self::blog_id() ),
 			'2',
@@ -186,6 +188,8 @@ class Checkpoint {
 			(string) wp_json_encode( array( 'code' => (string) $code ), JSON_UNESCAPED_SLASHES ),
 			'wpcom'
 		);
+
+		remove_filter( 'jetpack_client_verify_ssl_certs', '__return_true', 999 );
 
 		$known = array( 'invalid_code', 'blog_mismatch', 'code_used', 'code_expired', 'rate_limited', 'server_error' );
 
@@ -199,14 +203,12 @@ class Checkpoint {
 		$status = (int) wp_remote_retrieve_response_code( $response );
 		$body   = json_decode( wp_remote_retrieve_body( $response ), true );
 
-		if ( 200 === $status && is_array( $body ) && ! empty( $body['site_commenter_id'] ) && ! empty( $body['provider'] ) ) {
+		if ( 200 === $status && is_array( $body ) && ! empty( $body['site_commenter_id'] ) ) {
 			return array(
 				'site_commenter_id' => sanitize_text_field( (string) $body['site_commenter_id'] ),
-				'provider'          => sanitize_key( (string) $body['provider'] ),
 				'name'              => sanitize_text_field( (string) ( $body['name'] ?? '' ) ),
 				'email'             => sanitize_email( (string) ( $body['email'] ?? '' ) ),
 				'avatar'            => esc_url_raw( (string) ( $body['avatar'] ?? '' ) ),
-				'expires_at'        => (int) ( $body['expires_at'] ?? 0 ),
 			);
 		}
 
@@ -233,12 +235,18 @@ class Checkpoint {
 			return;
 		}
 
-		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Comment_Form::verify_nonce() ran at priority 10.
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- A logged-out reader posts no nonce; is_same_site_request() guards the code.
 		$code        = isset( $_POST[ self::CODE_FIELD ] ) ? sanitize_text_field( wp_unslash( $_POST[ self::CODE_FIELD ] ) ) : '';
 		$on_passport = ! empty( $_POST[ self::PASSPORT_FIELD ] );
 		// phpcs:enable WordPress.Security.NonceVerification.Missing
 
 		if ( '' !== $code ) {
+			// A form another site auto-submits can spend a code too, and the passport it
+			// earns lands in whichever browser sent it. Only this site's own pages may post one.
+			if ( ! self::is_same_site_request() ) {
+				self::refuse( new WP_Error( 'invalid_code', '', array( 'status' => 403 ) ) );
+			}
+
 			$identity = self::exchange( $code );
 
 			if ( is_wp_error( $identity ) ) {
@@ -266,6 +274,40 @@ class Checkpoint {
 	}
 
 	/**
+	 * Whether the browser says the request came from this site: the Origin or Referer
+	 * host against the home and site hosts, or Sec-Fetch-Site alone when a proxy
+	 * stripped both. Nothing at all is allowed through; another site's name is not.
+	 *
+	 * @return bool
+	 */
+	public static function is_same_site_request() {
+		$hosts = array();
+
+		// Both: a page on the home host posts to wp-comments-post.php on the site host.
+		foreach ( array( home_url(), site_url() ) as $url ) {
+			$host = wp_parse_url( $url, PHP_URL_HOST );
+
+			if ( is_string( $host ) ) {
+				$hosts[] = strtolower( $host );
+			}
+		}
+
+		foreach ( array( 'HTTP_ORIGIN', 'HTTP_REFERER' ) as $header ) {
+			if ( empty( $_SERVER[ $header ] ) ) {
+				continue;
+			}
+
+			$host = wp_parse_url( sanitize_text_field( wp_unslash( $_SERVER[ $header ] ) ), PHP_URL_HOST );
+
+			return is_string( $host ) && in_array( strtolower( $host ), $hosts, true );
+		}
+
+		$site = isset( $_SERVER['HTTP_SEC_FETCH_SITE'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_SEC_FETCH_SITE'] ) ) : '';
+
+		return '' === $site || in_array( $site, array( 'same-origin', 'none' ), true );
+	}
+
+	/**
 	 * Turn the comment away. Does not return.
 	 *
 	 * @param WP_Error $error From exchange().
@@ -274,6 +316,8 @@ class Checkpoint {
 	private static function refuse( WP_Error $error ) {
 		$data   = (array) $error->get_error_data();
 		$status = (int) ( $data['status'] ?? 500 );
+
+		Tracks::record_refusal( $error->get_error_code() );
 
 		switch ( $error->get_error_code() ) {
 			case 'code_expired':
@@ -342,8 +386,7 @@ class Checkpoint {
 			return;
 		}
 
-		add_comment_meta( $comment_id, 'jetpack_comment_identity_id', $this->identity['site_commenter_id'], true );
-		add_comment_meta( $comment_id, self::META_PROVIDER, $this->identity['provider'], true );
+		add_comment_meta( $comment_id, self::META_ID, $this->identity['site_commenter_id'], true );
 
 		if ( '' !== $this->identity['avatar'] ) {
 			add_comment_meta( $comment_id, self::META_AVATAR, $this->identity['avatar'], true );

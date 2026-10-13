@@ -1,4 +1,0 @@
-Significance: minor
-Type: removed
-
-Remove the legacy VideoPress dashboard. The Jetpack > VideoPress menu now shows only when the modernized dashboard is available.

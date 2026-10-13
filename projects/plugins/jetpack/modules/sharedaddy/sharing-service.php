@@ -400,12 +400,14 @@ class Sharing_Service {
 			$options = array();
 		}
 
+		$placement_saved = isset( $options['global']['show'] );
+
 		// Defaults.
 		$options['global'] = array(
 			'button_style'  => 'icon-text',
 			'sharing_label' => $this->default_sharing_label,
 			'open_links'    => 'same',
-			'show'          => ! isset( $options['global'] ) ? array( 'post', 'page' ) : array(),
+			'show'          => $placement_saved ? array() : array( 'post', 'page' ),
 			'custom'        => $options['global']['custom'] ?? array(),
 		);
 
@@ -460,10 +462,13 @@ class Sharing_Service {
 				}
 			}
 
-			$data['show'] = array_intersect( $data['show'], $shows );
-			if ( $data['show'] ) {
-				$options['global']['show'] = $data['show'];
-			}
+			$options['global']['show'] = array_intersect( $data['show'], $shows );
+			$placement_saved           = true;
+		}
+
+		// Store no placement until one is chosen, so Likes keeps its own default; get_global_options() falls back to posts and pages.
+		if ( ! $placement_saved && array( 'post', 'page' ) === ( $options['global']['show'] ?? null ) ) {
+			unset( $options['global']['show'] );
 		}
 
 		update_option( 'sharing-options', $options );
@@ -1013,7 +1018,7 @@ function sharing_display( $text = '', $echo = false ) {
 	$display_options = null;
 
 	if ( is_array( $options ) ) {
-		$display_options = $options['global']['show'];
+		$display_options = $options['global']['show'] ?? array( 'post', 'page' );
 	}
 
 	if ( is_front_page() && ( is_array( $display_options ) && ! in_array( 'index', $display_options, true ) ) ) {

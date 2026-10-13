@@ -1,6 +1,4 @@
 export { AnalyticsQueryClientProvider, queryClient } from './providers/query-client-provider';
-export { GlobalErrorProvider, useGlobalError } from './providers/global-error-context';
-export { globalErrorManager, type GlobalErrorType } from './providers/global-error-manager';
 export { ReportScopeProvider, useReportScope, type ReportScope } from './providers/report-scope';
 export {
 	PERIOD_CHANGE_ATTENTION_MS,
@@ -92,7 +90,6 @@ export type { ProductType } from './types/product-type';
 export { ORDER_ATTRIBUTION_VIEWS } from './api/report-order-attribution-summary-fetch';
 export {
 	getAllowedIntervalsForPreset,
-	getDateFormatFromInterval,
 	getDefaultIntervalForPeriod,
 	resolveIntervalForPresetChange,
 	resolveIntervalForRange,
@@ -100,20 +97,19 @@ export {
 export type { IntervalType } from './utils/interval';
 export { chartInterval, defaultPeriodForInterval, drawableIntervals } from './utils/periods';
 export {
+	DASHBOARD_PREFERENCES_SCOPE,
 	getDefaultPreset,
 	getDefaultQueryParams,
 	getDefaultReportParams,
-	getStoreInfo,
-	type StoreInfo,
+	rememberPreset,
+	withDefaultComparison,
 } from './defaults';
-export { downloadReport, exportReport, fetchStatsProxy, getStatsProxyPath } from './api';
+export { downloadReport, fetchStatsProxy } from './api';
 export { disableDashboard } from './api';
 export { submitStatsUserFeedback, type StatsFeedbackRating, type StatsUserFeedback } from './api';
 export type {
 	DownloadReportParams,
 	DownloadReportResponse,
-	ExportReportParams,
-	ExportReportResponse,
 	StatsProxyFetchParams,
 	StatsProxyMethod,
 	StatsProxyParams,

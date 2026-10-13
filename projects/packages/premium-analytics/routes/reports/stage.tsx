@@ -1,11 +1,7 @@
 /**
  * External dependencies
  */
-import {
-	AnalyticsQueryClientProvider,
-	GlobalErrorProvider,
-	ReportScopeProvider,
-} from '@jetpack-premium-analytics/data';
+import { AnalyticsQueryClientProvider, ReportScopeProvider } from '@jetpack-premium-analytics/data';
 import { Stack } from '@jetpack-premium-analytics/externals';
 import { ChartsProvider } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Spinner } from '@wordpress/components';
@@ -77,15 +73,13 @@ function ReportDispatcher(): JSX.Element {
 function ReportProviders( { children }: { children: ReactNode } ): JSX.Element {
 	return (
 		<AnalyticsQueryClientProvider>
-			<GlobalErrorProvider>
-				<ChartsProvider>
-					{ /*
-					 * A report names no compared period, so nothing below may fetch or
-					 * draw one. The params stay on the URL for the dashboard.
-					 */ }
-					<ReportScopeProvider offersComparison={ false }>{ children }</ReportScopeProvider>
-				</ChartsProvider>
-			</GlobalErrorProvider>
+			<ChartsProvider>
+				{ /*
+				 * A report names no compared period, so nothing below may fetch or
+				 * draw one. The params stay on the URL for the dashboard.
+				 */ }
+				<ReportScopeProvider offersComparison={ false }>{ children }</ReportScopeProvider>
+			</ChartsProvider>
 		</AnalyticsQueryClientProvider>
 	);
 }

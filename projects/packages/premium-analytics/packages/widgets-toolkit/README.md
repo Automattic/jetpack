@@ -331,33 +331,6 @@ const styledSeries = applyThemeStylesToSeries( series, chartTheme );
 
 ---
 
-### formatOrderMetric
-
-Creates a formatter function for a specific order metric.
-
-**Signature:**
-
-```tsx
-function formatOrderMetric(
-	metricKey: MetricKey,
-	options?: FormatMetricValueOptions
-): ( value: number ) => string;
-```
-
-**Example:**
-
-```tsx
-import { formatOrderMetric } from '@jetpack-premium-analytics/widgets-toolkit';
-
-const formatter = formatOrderMetric( 'total_sales' );
-formatter( 1234.56 ); // Returns: "$1,234.56"
-
-const visitorFormatter = formatOrderMetric( 'visitors' );
-visitorFormatter( 15000 ); // Returns: "15K"
-```
-
----
-
 ## Types
 
 ### DataFormat

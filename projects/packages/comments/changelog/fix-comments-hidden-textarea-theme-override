@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Hide the plain textarea once the editor mounts, even in themes that style it by ID.

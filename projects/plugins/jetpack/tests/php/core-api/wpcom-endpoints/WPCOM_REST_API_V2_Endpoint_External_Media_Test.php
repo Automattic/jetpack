@@ -453,7 +453,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media_Test extends Jetpack_REST_TestCa
 		$this->assertStringNotContainsString( '..', $path );
 		$this->assertStringNotContainsString( '/', $base );
 		$this->assertStringNotContainsString( '\\', $base );
-		$this->assertStringNotContainsString( 'rce', $base );
+		$this->assertStringNotContainsString( 'muahaha', $base );
 
 		if ( file_exists( $path ) ) {
 			unlink( $path );
@@ -468,12 +468,12 @@ class WPCOM_REST_API_V2_Endpoint_External_Media_Test extends Jetpack_REST_TestCa
 	 */
 	public static function provide_traversal_names() {
 		return array(
-			'unix traversal into uploads' => array( '../var/www/html/wordpress/wp-content/uploads/rce.php' ),
-			'relative parent prefix'      => array( '../../rce.php' ),
-			'windows separators'          => array( '..\\..\\rce.php' ),
+			'unix traversal into uploads' => array( '../var/www/html/wordpress/wp-content/uploads/muahaha.php' ),
+			'relative parent prefix'      => array( '../../muahaha.php' ),
+			'windows separators'          => array( '..\\..\\muahaha.php' ),
 			'pure traversal'              => array( '../..' ),
 			'null name'                   => array( null ),
-			'array name'                  => array( array( '../../rce.php' ) ),
+			'array name'                  => array( array( '../../muahaha.php' ) ),
 		);
 	}
 

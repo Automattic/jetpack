@@ -174,12 +174,12 @@ if inputs are invalid
 A reference starting on the 1st of a month instead keeps its calendar dates for
 `previous-month` / `previous-year`, so its duration can differ: Year to date on
 1 March 2028 (61 days) compares against 1 January to 1 March 2027 (60 days).
-For whole-month references, `previous-period` steps back by the month count
-(July against June, a calendar year against the previous calendar year), and
-`previous-month` / `previous-year` stay aligned to calendar month boundaries.
-Whole months are read from the range itself, so a rolling window that happens
-to land on one (April 1-30 from "Last 30 days") compares against all 31 days of
-March.
+For whole-month references, from the 1st to a month end, `previous-period`
+steps back by the month count (July against June, a calendar year against the
+previous calendar year), and `previous-month` / `previous-year` stay aligned to
+calendar month boundaries. A month starting mid-month (September 8 to October
+7) keeps its day count, and so does a "Last N days" preset passed as
+`primaryPresetId`: April 1-30 from "Last 30 days" compares against March 2-31.
 
 A to-date preset (`last-12-months` runs to the end of today) is measured on
 the window it covers once its running month closes, so `previous-period` steps

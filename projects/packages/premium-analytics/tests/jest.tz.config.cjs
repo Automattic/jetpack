@@ -5,7 +5,6 @@ const config = require( './jest.config.cjs' );
 // Each suite here runs twice more, so list one only if a test in it fails outside UTC
 // when the machine zone leaks in (e.g. `Date.UTC` → `new Date`) and fails nowhere under UTC.
 const TZ_SUITES = [
-	'packages/data/src/processing/__tests__/bucket-stamps.test.ts',
 	'packages/data/src/processing/stats/__tests__/chart-buckets.test.ts',
 	'packages/data/src/processing/stats/__tests__/time-series.test.ts',
 	'packages/data/src/utils/__tests__/interval.test.ts',

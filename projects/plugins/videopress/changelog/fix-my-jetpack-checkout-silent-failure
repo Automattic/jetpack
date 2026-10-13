@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Show an error and stop the Get VideoPress button from staying busy when checkout cannot start.

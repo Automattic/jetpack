@@ -3,7 +3,6 @@
  */
 import {
 	getDefaultQueryParams,
-	GlobalErrorProvider,
 	queryClient,
 	type ReportParams,
 } from '@jetpack-premium-analytics/data';
@@ -68,14 +67,12 @@ const renderWidget = (
 	reportParams: Partial< ReportParams > = getDefaultQueryParams( false, 'last-7-days' )
 ) =>
 	render(
-		<GlobalErrorProvider>
-			<AnnualHighlightsWidget
-				attributes={ {
-					...( year ? { year } : {} ),
-					reportParams: reportParams as ReportParams,
-				} }
-			/>
-		</GlobalErrorProvider>
+		<AnnualHighlightsWidget
+			attributes={ {
+				...( year ? { year } : {} ),
+				reportParams: reportParams as ReportParams,
+			} }
+		/>
 	);
 
 const yearRow = ( year: number ) => ( {

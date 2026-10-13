@@ -23,6 +23,9 @@ const defaultElementStyles = ( { data }: ElementStylesParams ): ElementStyles =>
 	barStyles: data?.options?.type === 'comparison' ? { widthFactor: 1.5, opacity: 0.5 } : {},
 } );
 
+/** The sparkline margin the charts context's theme hands out. */
+export const mockSparklineMargin = { top: 2, right: 2, bottom: 2, left: 2 };
+
 let elementStyles = defaultElementStyles;
 let hiddenSeries = new Set< string >();
 let chartHeight: number | undefined;
@@ -111,6 +114,7 @@ export const mockChartExternals = () => ( {
 	useGlobalChartsContext: () => ( {
 		getElementStyles: ( params: ElementStylesParams ) => elementStyles( params ),
 		getHiddenSeries: () => new Set( hiddenSeries ),
+		theme: { sparkline: { margin: mockSparklineMargin } },
 	} ),
 } );
 

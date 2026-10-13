@@ -153,7 +153,7 @@ describe( 'BackupStatusPanel', () => {
 	it( 'gives a site with no backups the first-backup copy', () => {
 		render( <BackupStatusPanel state="no-backups" progress={ 0 } /> );
 
-		expect( screen.getByText( 'Your first cloud backup will be ready soon' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Generating backup…' ) ).toBeInTheDocument();
 		expect(
 			screen.getByText(
 				'The first backup usually takes a few minutes, so it will become available soon.'
@@ -161,14 +161,14 @@ describe( 'BackupStatusPanel', () => {
 		).toBeInTheDocument();
 	} );
 
-	it( 'shows a percentage only while a backup is actually running', () => {
+	it( 'reports a value only while a backup is actually running', () => {
 		const { rerender } = render( <BackupStatusPanel state="in-progress" progress={ 42 } /> );
-		expect( screen.getByText( '42%' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'progressbar' ) ).toHaveValue( 42 );
 
 		// A retryable failure reports the percentage the attempt died at,
 		// which would read as a stalled backup rather than a pending retry.
 		rerender( <BackupStatusPanel state="will-retry" progress={ 42 } /> );
-		expect( screen.queryByText( '42%' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
 	} );
 
 	// The heading promises a backup is coming, so a panel with no sign of
@@ -190,18 +190,17 @@ describe( 'BackupStatusPanel', () => {
 	// backup starts.
 	it( 'takes a value once the first backup starts', () => {
 		const { rerender } = render( <BackupStatusPanel state="no-backups" progress={ 0 } /> );
-		expect( screen.queryByText( '19%' ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'progressbar' ) ).not.toHaveAttribute( 'value' );
 
 		rerender( <BackupStatusPanel state="in-progress" progress={ 19 } /> );
 
-		expect( screen.getByRole( 'progressbar' ) ).toBeInTheDocument();
-		expect( screen.getByText( '19%' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'progressbar' ) ).toHaveValue( 19 );
 	} );
 
 	it( 'offers a way to reach support when no attempt produced a restore point', () => {
 		render( <BackupStatusPanel state="no-good-backups" progress={ 0 } /> );
 
-		expect( screen.getByText( "We're having trouble backing up your site" ) ).toBeInTheDocument();
+		expect( screen.getByText( 'We are having trouble backing up your site' ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: /Get in touch with us/ } ) ).toBeInTheDocument();
 	} );
 
@@ -257,8 +256,23 @@ describe( 'BackupStatusBanner', () => {
 	it( 'reports the running backup without hiding anything', () => {
 		render( <BackupStatusBanner progress={ 36 } /> );
 
-		expect( screen.getByText( 'Your backup will be ready soon' ) ).toBeInTheDocument();
-		expect( screen.getByText( '36%' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Generating backup… (36% progress)' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'a backup that was just requested', () => {
+	it( 'shows the starting state before WPCOM reports a percentage', () => {
+		const { unmount } = render( <BackupStatusBanner /> );
+		expect( screen.getByText( 'Generating backup…' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'presentation' ) ).toHaveClass( 'jpb-backup-status-banner__spinner' );
+		expect( screen.queryByText( /% progress/ ) ).not.toBeInTheDocument();
+		unmount();
+
+		// Over a failing site too: the request replaces the trouble panel.
+		render( <BackupStatusPanel state="no-good-backups" progress={ 0 } isStarting /> );
+		expect( screen.getByText( 'Generating backup…' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: /Get in touch/ } ) ).not.toBeInTheDocument();
 	} );
 } );
 
@@ -312,10 +326,14 @@ describe( 'BackupNowButton', () => {
 
 		renderWithClient( <BackupNowButton /> );
 
-		const button = await screen.findByRole( 'button', { name: 'Backup in progress' } );
 		// `focusableWhenDisabled` keeps it in the tab order and marks it
 		// aria-disabled rather than using the native attribute.
-		expect( button ).toHaveAttribute( 'aria-disabled', 'true' );
+		await waitFor( () =>
+			expect( screen.getByRole( 'button', { name: 'Back up now' } ) ).toHaveAttribute(
+				'aria-disabled',
+				'true'
+			)
+		);
 	} );
 
 	it( 'refuses to queue a backup when WPCOM has stopped them', async () => {
@@ -398,9 +416,12 @@ describe( 'BackupNowButton', () => {
 			await client.invalidateQueries( { queryKey: [ 'backup', 'backups' ] } );
 		} );
 
-		await expect(
-			screen.findByRole( 'button', { name: 'Backup in progress' } )
-		).resolves.toBeInTheDocument();
+		await waitFor( () =>
+			expect( screen.getByRole( 'button', { name: 'Back up now' } ) ).toHaveAttribute(
+				'aria-disabled',
+				'true'
+			)
+		);
 	} );
 
 	// The legacy button has no rejection handler and discards the body,

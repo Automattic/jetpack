@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Carousel: Remove the hidden "Loading Comments..." text from pages when the carousel comments area is turned off.

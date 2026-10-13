@@ -215,7 +215,7 @@ describe( 'useRestore — terminal states', () => {
 		expect( result.current.state ).toMatchObject( { message: 'Restore aborted.' } );
 	} );
 
-	it( 'never shows the machine error code to the reader', async () => {
+	it( 'quotes the machine error code in the reference, never as the message', async () => {
 		respondWith( {
 			status: statusPayload( { status: 'failed', message: '', error_code: 'checksum_mismatch' } ),
 		} );
@@ -225,7 +225,11 @@ describe( 'useRestore — terminal states', () => {
 		submitAll( result );
 
 		await waitFor( () => expect( result.current.state.phase ).toBe( 'error' ) );
-		expect( JSON.stringify( result.current.state ) ).not.toContain( 'checksum_mismatch' );
+		expect( result.current.state ).toEqual( {
+			phase: 'error',
+			message: 'Restore failed.',
+			reference: { code: 'checksum_mismatch', id: { kind: 'restore', value: 912682 } },
+		} );
 	} );
 
 	it( 'reports progress while running', async () => {
@@ -353,7 +357,7 @@ describe( 'useRestore — failing safe', () => {
 		mockedApiFetch.mockRejectedValue( {
 			code: 'restore_initiate_failed',
 			message: 'Could not start the backup restore.',
-			data: { status: 500 },
+			data: { status: 500, wpcom: { code: 'authorization_required' } },
 		} );
 		const { wrapper } = makeWrapper();
 
@@ -361,6 +365,10 @@ describe( 'useRestore — failing safe', () => {
 		submitAll( result );
 
 		await waitFor( () => expect( result.current.state.phase ).toBe( 'error' ) );
+		// No restore exists to name, so the reference names the backup.
+		expect( result.current.state ).toMatchObject( {
+			reference: { code: 'authorization_required', id: { kind: 'backup', value: REWIND_ID } },
+		} );
 
 		act( () => result.current.reset() );
 		expect( result.current.state.phase ).toBe( 'idle' );
@@ -1028,30 +1036,34 @@ describe( 'useRestore — a submission we never got an answer to', () => {
 	// finished leaves no live row — and reporting that as "didn't start"
 	// asserts the site is untouched next to a Try again button.
 	it.each( [
-		[ 'finished', 'success' ],
-		[ 'fail', 'error' ],
-	] )( 'reports a %s restore it recovers rather than denying it ran', async ( row, phase ) => {
-		respondWith( {
-			initiateError: TIMEOUT,
-			restores: [
-				{
-					restore_id: 912682,
-					rewind_id: REWIND_ID,
-					when: '2026-08-20T10:00:00+00:00',
-					status: row,
-				},
-			],
-		} );
-		const { wrapper } = makeWrapper();
+		[ 'finished', 'success', {} ],
+		[ 'fail', 'error', { reference: { code: null, id: { kind: 'restore', value: 912682 } } } ],
+	] )(
+		'reports a %s restore it recovers rather than denying it ran',
+		async ( row, phase, extra ) => {
+			respondWith( {
+				initiateError: TIMEOUT,
+				restores: [
+					{
+						restore_id: 912682,
+						rewind_id: REWIND_ID,
+						when: '2026-08-20T10:00:00+00:00',
+						status: row,
+					},
+				],
+			} );
+			const { wrapper } = makeWrapper();
 
-		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
-		submitAll( result );
+			const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
+			submitAll( result );
 
-		await settleAt( result, phase );
-		expect( result.current.state ).not.toMatchObject( {
-			message: "Your restore didn't start, so nothing on your site has changed.",
-		} );
-	} );
+			await settleAt( result, phase );
+			expect( result.current.state ).not.toMatchObject( {
+				message: "Your restore didn't start, so nothing on your site has changed.",
+			} );
+			expect( result.current.state ).toMatchObject( extra );
+		}
+	);
 
 	it( 'adopts the restore when it turns out to have started', async () => {
 		respondWith( {

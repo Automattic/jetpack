@@ -7,7 +7,11 @@ import { category, tag } from '@wordpress/icons';
  * Internal dependencies
  */
 import { LeaderboardLabel } from '../leaderboard-label';
-import { buildLeaderboardRow, resolveLeaderboardRowAction } from '../leaderboard-row';
+import {
+	buildLeaderboardRow,
+	resolveLeaderboardRowAction,
+	type LeaderboardRowAction,
+} from '../leaderboard-row';
 import type { ReactElement } from 'react';
 
 jest.mock( '@wordpress/route', () => {
@@ -16,6 +20,15 @@ jest.mock( '@wordpress/route', () => {
 	);
 
 	return mockWordPressRoute;
+} );
+
+// Identity class names, so the chrome a look selects can be read off the row. The interop
+// reads `__esModule` first, and a string there would make it take `.default` as the module.
+jest.mock( '../../../../../../tests/style-stub.cjs', () => {
+	return new Proxy(
+		{},
+		{ get: ( _, name ) => ( name === '__esModule' ? false : String( name ) ) }
+	);
 } );
 
 function glyphPath( root: Element | null | undefined ) {
@@ -45,6 +58,53 @@ describe( 'LeaderboardLabel', () => {
 		expect( screen.getByAltText( 'Flag of France' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'swaps a thumbnail that fails to load for the placeholder', () => {
+		render(
+			<LeaderboardLabel
+				label="Private"
+				media={ { kind: 'thumbnail', url: 'https://example.com/private.jpg', alt: '' } }
+			/>
+		);
+
+		const image = screen.getByRole( 'presentation' );
+		fireEvent.error( image );
+
+		expect( image ).toHaveAttribute( 'src', expect.stringMatching( /^data:image\/svg\+xml/ ) );
+	} );
+
+	it( 'draws the fallback icon when a thumbnail has no image', () => {
+		render(
+			<LeaderboardLabel
+				label="No poster"
+				media={ { kind: 'thumbnail', alt: '', fallbackIcon: category } }
+			/>
+		);
+
+		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
+		expect( glyphPath( screen.getByTestId( 'leaderboard-thumbnail-placeholder' ) ) ).toBe(
+			iconPath( category )
+		);
+	} );
+
+	it( 'swaps a failed thumbnail for its fallback icon', () => {
+		render(
+			<LeaderboardLabel
+				label="Private"
+				media={ {
+					kind: 'thumbnail',
+					url: 'https://example.com/private.jpg',
+					alt: '',
+					fallbackIcon: category,
+				} }
+			/>
+		);
+
+		fireEvent.error( screen.getByRole( 'presentation' ) );
+
+		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
+		expect( screen.getByTestId( 'leaderboard-thumbnail-placeholder' ) ).toBeInTheDocument();
 	} );
 
 	it( 'supports a first-class no-media label', () => {
@@ -115,6 +175,36 @@ describe( 'buildLeaderboardRow', () => {
 		expect( row ).not.toHaveProperty( 'onClick' );
 	} );
 
+	it.each( [
+		[ 'a static row', { kind: 'static' } ],
+		[ 'a link row', { kind: 'link', href: 'https://example.com/' } ],
+		[ 'a post link row', { kind: 'postLink', href: 'https://example.com/pricing/', search: {} } ],
+	] as const )( 'drops the list chrome from %s of the bars look', ( _, action ) => {
+		render(
+			buildLeaderboardRow( {
+				label: 'Pricing',
+				media: { kind: 'none' },
+				action: action as LeaderboardRowAction,
+				variant: 'bars',
+			} ).label
+		);
+
+		expect( screen.getByTitle( 'Pricing' ) ).toHaveClass( 'bars' );
+	} );
+
+	it( 'keeps the list chrome by default', () => {
+		render(
+			buildLeaderboardRow( {
+				label: 'Pricing',
+				media: { kind: 'none' },
+				action: { kind: 'static' },
+			} ).label
+		);
+
+		expect( screen.getByTitle( 'Pricing' ) ).toHaveClass( 'row' );
+		expect( screen.getByTitle( 'Pricing' ) ).not.toHaveClass( 'bars' );
+	} );
+
 	it( 'keeps a post link out of the chart button props', () => {
 		const row = buildLeaderboardRow( {
 			label: 'Pricing',
@@ -129,6 +219,37 @@ describe( 'buildLeaderboardRow', () => {
 			'https://example.com/pricing/'
 		);
 		expect( row ).not.toHaveProperty( 'onClick' );
+	} );
+
+	it( 'puts a video row thumbnail inside its detail link', () => {
+		const row = buildLeaderboardRow( {
+			label: 'Launch',
+			media: {
+				kind: 'thumbnail',
+				url: 'https://example.com/p.jpg',
+				alt: '',
+			},
+			action: { kind: 'videoLink', id: 12, search: {} },
+		} );
+
+		render( row.label );
+
+		expect( screen.getByRole( 'link', { name: 'Launch' } ) ).toContainElement(
+			screen.getByRole( 'presentation' )
+		);
+	} );
+
+	it( 'keeps post rows as a bare post title link, even with a thumbnail', () => {
+		const row = buildLeaderboardRow( {
+			label: 'Hello',
+			media: { kind: 'thumbnail', url: 'https://example.com/hello.jpg', alt: '' },
+			action: { kind: 'postLink', id: 5, search: {} },
+		} );
+
+		render( row.label );
+
+		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Hello' } ) ).toHaveAttribute( 'href', '/post/5' );
 	} );
 
 	it( 'returns chart button props for a drill-down without nesting an action', () => {

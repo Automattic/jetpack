@@ -689,8 +689,9 @@ Return only a JSON object matching this schema. Do not include prose, code fence
   "tasks": [ { "id": "...", "subtitle": "..." }, ... 6 total ],
   "first_post_draft": { "title": "...", "subtitle": "...", "paragraphs": [ "...", "..." ] },
   "about_page_draft": { "title": "...", "paragraphs": [ "...", "..." ] },
-  "page_intros": { "add_contact_page": "...", "add_events_page": "...", "add_video_page": "...", "add_gallery_page": "..." }
+  "page_intros": { "add_contact_page": "..." }
 }
 
-Leave "page_intros" out altogether unless STEP 5 applies.`;
+Leave "page_intros" out altogether unless STEP 5 applies, and when it does, include only the keys for the page tasks you chose.
+Never write null or an empty string for any field. When an optional field does not apply, leave its key out instead.`;
 }

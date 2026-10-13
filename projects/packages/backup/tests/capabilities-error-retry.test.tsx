@@ -32,11 +32,8 @@ import QueryClientProvider from '../src/dashboard/providers/query-client-provide
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 
-const UPSTREAM_REASON = "Could not read this site's plan details.";
-// Matched as a pattern, not an exact string: `Notice` renders a
-// visually-hidden "Error notice" label inside the same content element,
-// so no single node's text equals the message on its own.
-const REASON_SHOWN = /Could not read this site's plan details/;
+// The screen's title marks "the error screen is up".
+const ERROR_SCREEN = /We couldn't load your backup details/;
 
 /**
  * A promise whose settlement the test controls, so a retry can be held
@@ -79,7 +76,7 @@ function answerWith( outcomes: Array< () => Promise< unknown > > ) {
 const unreadable = () =>
 	Promise.reject( {
 		code: 'capabilities_unreadable',
-		message: UPSTREAM_REASON,
+		message: "Could not read this site's plan details.",
 		data: { status: 500 },
 	} );
 
@@ -127,12 +124,12 @@ describe( 'Gates — retrying a failed capabilities read', () => {
 		answerWith( [ unreadable, () => pending.promise ] );
 
 		const view = within( renderGate() );
-		await expect( view.findByText( REASON_SHOWN ) ).resolves.toBeInTheDocument();
+		await expect( view.findByText( ERROR_SCREEN ) ).resolves.toBeInTheDocument();
 
 		await user.click( view.getByRole( 'button', { name: /Try again/ } ) );
 
 		// The whole point: the page did not blank.
-		expect( view.getByText( REASON_SHOWN ) ).toBeInTheDocument();
+		expect( view.getByText( ERROR_SCREEN ) ).toBeInTheDocument();
 		expect( view.queryByText( 'dashboard body' ) ).not.toBeInTheDocument();
 
 		pending.resolve( { hasBackupPlan: true, hasScan: false } );
@@ -147,7 +144,7 @@ describe( 'Gates — retrying a failed capabilities read', () => {
 		answerWith( [ unreadable, () => pending.promise ] );
 
 		const view = within( renderGate() );
-		await expect( view.findByText( REASON_SHOWN ) ).resolves.toBeInTheDocument();
+		await expect( view.findByText( ERROR_SCREEN ) ).resolves.toBeInTheDocument();
 
 		const button = view.getByRole( 'button', { name: /Try again/ } );
 		await user.click( button );
@@ -175,7 +172,7 @@ describe( 'Gates — retrying a failed capabilities read', () => {
 
 		const view = within( renderGate() );
 
-		expect( view.queryByText( REASON_SHOWN ) ).not.toBeInTheDocument();
+		expect( view.queryByText( ERROR_SCREEN ) ).not.toBeInTheDocument();
 		expect( view.queryByText( 'dashboard body' ) ).not.toBeInTheDocument();
 
 		pending.resolve( { hasBackupPlan: true, hasScan: false } );

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add the client that reads the WooCommerce analytics reports, for the widgets of the package.

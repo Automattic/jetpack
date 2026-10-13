@@ -1,6 +1,5 @@
 import {
 	AnalyticsQueryClientProvider,
-	GlobalErrorProvider,
 	PeriodChangeSignalProvider,
 	postSurface,
 	ReportScopeProvider,
@@ -18,7 +17,7 @@ import {
 import {
 	DetailPageActions,
 	DetailPageBreadcrumbs,
-	DetailPageEmptyState,
+	PageEmptyState,
 	DetailPageLayout,
 	PageNotice,
 	DetailPageSection,
@@ -204,7 +203,7 @@ function PostDetail(): JSX.Element {
 	);
 
 	return (
-		<GlobalErrorProvider>
+		<>
 			<PeriodChangeStatus
 				attentionId={ attentionId }
 				appliedPresetId={ dateFilters.appliedPresetId }
@@ -273,7 +272,7 @@ function PostDetail(): JSX.Element {
 								returnToTopKey={ attentionId }
 							>
 								{ showNotSent ? (
-									<DetailPageEmptyState
+									<PageEmptyState
 										title={ __(
 											'This post hasn’t been sent as a newsletter',
 											'jetpack-premium-analytics-pkg'
@@ -307,7 +306,7 @@ function PostDetail(): JSX.Element {
 					</WidgetDashboard>
 				</WidgetDashboard.Policy>
 			</ReportScopeProvider>
-		</GlobalErrorProvider>
+		</>
 	);
 }
 

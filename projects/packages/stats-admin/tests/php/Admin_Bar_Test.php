@@ -37,6 +37,11 @@ class Admin_Bar_Test extends Stats_TestCase {
 		remove_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
 		remove_filter( 'show_admin_bar', '__return_true' );
 		remove_all_actions( 'admin_bar_menu' );
+		remove_all_actions( 'admin_bar_init' );
+		wp_styles()->add_data( 'admin-bar', 'after', array() );
+		remove_all_actions( 'wp_before_admin_bar_render' );
+		remove_all_actions( 'admin_init' );
+		remove_filter( 'pre_option_db_version', array( Admin_Bar::class, 'ignore_db_version' ) );
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'jetpack_stats_url' );
 		unset( $_GET['page'], $_GET['chart'], $_GET['noheader'], $_GET['proxy'], $_GET['height'] );
@@ -123,6 +128,12 @@ class Admin_Bar_Test extends Stats_TestCase {
 		$this->assertStringContainsString( 'page=stats', $node->title, 'The chart image is still served by Stats.' );
 	}
 
+	public function test_chart_gives_a_text_label_to_clients_that_cannot_show_its_image() {
+		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+
+		$this->assertSame( 'Stats', $this->render_chart_node()->meta['menu_title'] );
+	}
+
 	public function test_chart_hidden_when_admin_bar_setting_is_off() {
 		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
 		Stats_Options::set_option( 'admin_bar', false );
@@ -132,6 +143,16 @@ class Admin_Bar_Test extends Stats_TestCase {
 
 	public function test_chart_hidden_from_user_who_cannot_view_stats() {
 		$this->assertNull( $this->render_chart_node() );
+	}
+
+	public function test_chart_styles_added_to_admin_bar_stylesheet_for_user_who_can_view_stats() {
+		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+
+		$this->assertStringContainsString( '#wp-admin-bar-stats', $this->admin_bar_inline_styles() );
+	}
+
+	public function test_chart_styles_not_added_for_user_who_cannot_view_stats() {
+		$this->assertStringNotContainsString( '#wp-admin-bar-stats', $this->admin_bar_inline_styles() );
 	}
 
 	public function test_chart_request_carries_what_wpcom_needs_to_accept_the_blog_token() {
@@ -289,17 +310,26 @@ class Admin_Bar_Test extends Stats_TestCase {
 	}
 
 	/**
-	 * Run the head hook, then build the admin bar, and return the chart node.
+	 * Initialise the admin bar and return the inline styles attached to its stylesheet.
+	 *
+	 * @return string
+	 */
+	private function admin_bar_inline_styles() {
+		Admin_Bar::init();
+		do_action( 'admin_bar_init' );
+
+		return implode( "\n", (array) wp_styles()->get_data( 'admin-bar', 'after' ) );
+	}
+
+	/**
+	 * Build the admin bar without a page head, as the admin-bar REST endpoint does, and return the chart node.
 	 *
 	 * @return object|null
 	 */
 	private function render_chart_node() {
-		add_filter( 'show_admin_bar', '__return_true' );
 		$admin_bar = $this->make_admin_bar();
 
-		ob_start();
-		Admin_Bar::maybe_add_chart();
-		ob_end_clean();
+		Admin_Bar::init();
 		do_action( 'admin_bar_menu', $admin_bar );
 
 		return $admin_bar->get_node( 'stats' );

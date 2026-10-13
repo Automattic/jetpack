@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Check the facade's useReport against the types the SDK contract declares.
+
+

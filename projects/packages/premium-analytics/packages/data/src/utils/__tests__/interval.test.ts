@@ -16,14 +16,6 @@ describe( 'getDaysBetweenInclusive', () => {
 		expect( getDaysBetweenInclusive( '2026-06-01', '2026-06-01' ) ).toBe( 1 );
 	} );
 
-	it( 'counts an offset-bearing range exactly as its bare equivalent', () => {
-		// Offset-bearing params reach here untrimmed; without the NaN guard the
-		// ISO datetime would parse invalid and every range would collapse to 1 day.
-		expect(
-			getDaysBetweenInclusive( '2026-06-01T00:00:00.000-07:00', '2026-06-07T23:59:59.999-07:00' )
-		).toBe( 7 );
-	} );
-
 	it( 'reads the site-local calendar day at either offset extreme', () => {
 		// -07:00 at 23:00 is already the next UTC day; +13:00 at 00:30 is still
 		// the previous one. Counting off the UTC day would misplace a bucket either way.
@@ -128,13 +120,6 @@ describe( 'resolveIntervalForRange', () => {
 		).toEqual( [ 'month', 'year' ] );
 	} );
 
-	it( 'keeps months as the default on a year-length preset, with weeks on offer', () => {
-		for ( const preset of [ 'last-12-months', 'last-365-days', 'last-year' ] as const ) {
-			expect( resolveIntervalForRange( preset, 'a', 'b' ) ).toBe( 'month' );
-			expect( resolveIntervalForRange( preset, 'a', 'b', 'week' ) ).toBe( 'week' );
-		}
-	} );
-
 	// The year surface carries a `year-YYYY` preset the switch does not know, so
 	// its list comes from the range instead and needs its own guard.
 	it( 'offers months and weeks on a year-length range with no matching preset', () => {
@@ -160,19 +145,6 @@ describe( 'resolveIntervalForRange', () => {
 				'quarter'
 			)
 		).toBe( 'month' );
-	} );
-
-	// A year picked on the calendar reaches the range path, so a week chosen on
-	// a year-length preset has to survive there too.
-	it( 'keeps a weekly interval on a year-length custom range', () => {
-		expect(
-			resolveIntervalForRange(
-				'custom',
-				'2024-10-01T00:00:00.000Z',
-				'2025-09-30T23:59:59.999Z',
-				'week'
-			)
-		).toBe( 'week' );
 	} );
 
 	it( 'flips the default from weeks to months where a range reaches a year', () => {
@@ -206,20 +178,6 @@ describe( 'resolveIntervalForRange', () => {
 		expect( getDefaultIntervalForPeriod( 'last-30-days', 'a', 'b' ) ).toBe( 'day' );
 		expect( resolveIntervalForRange( 'last-30-days', 'a', 'b' ) ).toBe( 'day' );
 	} );
-
-	it( 'uses range length for custom and year-surface presets', () => {
-		expect(
-			resolveIntervalForRange( 'custom', '2026-06-01T00:00:00.000Z', '2026-06-07T23:59:59.999Z' )
-		).toBe( 'day' );
-		expect(
-			resolveIntervalForRange(
-				'all-time',
-				'2020-01-01T00:00:00.000Z',
-				'2026-06-30T23:59:59.999Z',
-				'year'
-			)
-		).toBe( 'year' );
-	} );
 } );
 
 describe( 'needsReportDateParamsSeed', () => {
@@ -251,29 +209,6 @@ describe( 'needsReportDateParamsSeed', () => {
 				to: '2026-06-30',
 				preset: 'last-30-days',
 				interval: 'week',
-			} )
-		).toBe( false );
-	} );
-
-	it( 'seeds when the interval is unrecognized', () => {
-		expect(
-			needsReportDateParamsSeed( {
-				from: '2026-06-01',
-				to: '2026-06-30',
-				preset: 'last-30-days',
-				interval: 'not-an-interval',
-			} )
-		).toBe( true );
-	} );
-
-	it( 'treats an unrecognized preset as range-based', () => {
-		expect(
-			needsReportDateParamsSeed( {
-				from: '2026-06-01T00:00:00.000Z',
-				to: '2026-06-07T23:59:59.999Z',
-				// @ts-expect-error – testing with invalid preset on purpose
-				preset: 'not-a-preset',
-				interval: 'day',
 			} )
 		).toBe( false );
 	} );

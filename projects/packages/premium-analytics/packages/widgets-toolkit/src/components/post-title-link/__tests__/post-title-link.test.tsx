@@ -72,3 +72,20 @@ describe( 'PostTitleLink', () => {
 		);
 	} );
 } );
+
+describe( 'VideoTitleLink', () => {
+	it.each( [
+		[ 'detail link', { id: 12 } ],
+		[ 'external link', { link: 'https://example.com/launch/' } ],
+		[ 'plain wrapper', {} ],
+	] )( 'renders custom content in place of the label inside the %s', ( _branch, props ) => {
+		render(
+			<VideoTitleLink label="Launch" title="Launch" { ...props }>
+				<span>custom</span>
+			</VideoTitleLink>
+		);
+
+		expect( screen.getByTitle( 'Launch' ) ).toContainElement( screen.getByText( 'custom' ) );
+		expect( screen.queryByText( 'Launch' ) ).not.toBeInTheDocument();
+	} );
+} );

@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Tests: Keep the WebSite schema empty-language test working on WordPress 7.2, which ignores an empty locale.
+
+

@@ -1,6 +1,8 @@
-import { Button, Card, Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { Icon, error as errorIcon } from '@wordpress/icons';
+import { Button, Card, Text } from '@wordpress/ui';
+import { errorCode } from '../../data/api/_helpers';
+import ErrorReference from '../error-reference';
 
 type Props = {
 	error: Error;
@@ -26,49 +28,33 @@ type Props = {
  */
 export default function CapabilitiesErrorScreen( { error, onRetry, isRetrying = false }: Props ) {
 	return (
-		<Card className="jpb-gates__card">
-			<Stack direction="column" gap="md" align="center">
-				<Text variant="heading-md" render={ <h2 /> }>
+		<div className="jpb-gates__stage">
+			<Card.Root className="jpb-gates__card">
+				<span className="jpb-gates__badge jpb-gates__badge--warning" aria-hidden="true">
+					<Icon icon={ errorIcon } />
+				</span>
+				<Text variant="body-xl" className="jpb-gates__title" render={ <h2 /> }>
 					{ __( "We couldn't load your backup details", 'jetpack-backup-pkg' ) }
 				</Text>
-				<Notice status="error" isDismissible={ false }>
-					{ error.message }
-				</Notice>
-				{ /*
-				 * Not "this is usually temporary". This screen also covers
-				 * `capabilities_unreadable`, which is upstream shape drift —
-				 * no amount of retrying clears it, so the copy has to leave
-				 * the reader somewhere to go when the button doesn't help.
-				 */ }
+				{ /* Not "this is usually temporary": retrying does not clear every cause. */ }
 				<Text>
 					{ __(
-						'Your backups are unaffected. Try again, and contact support if this keeps happening.',
+						"We couldn't check this site's Backup plan. Your backups are unaffected. Try again, or contact support if this keeps happening.",
 						'jetpack-backup-pkg'
 					) }
 				</Text>
-				{ /*
-				 * Busy rather than merely clickable: the screen holds its
-				 * error across a retry, so without this the DOM is
-				 * byte-identical before and after the click and a retry
-				 * that fails again reads as a dead button.
-				 *
-				 * `accessibleWhenDisabled` keeps that from costing keyboard
-				 * users the page. `Button` sets the *native* `disabled`
-				 * attribute unless it is passed, and a browser blurs the
-				 * element it has just disabled — focus would land on
-				 * `<body>`, and this card is the entire dashboard body, so
-				 * there is nothing adjacent to land on.
-				 */ }
-				<Button
-					variant="primary"
-					onClick={ onRetry }
-					isBusy={ isRetrying }
-					disabled={ isRetrying }
-					accessibleWhenDisabled
-				>
-					{ __( 'Try again', 'jetpack-backup-pkg' ) }
-				</Button>
-			</Stack>
-		</Card>
+				<ErrorReference code={ errorCode( error ) } id={ null } />
+				<div className="jpb-gates__actions">
+					{ /*
+					 * `loading` keeps the button focusable: a natively disabled
+					 * button would drop focus to `<body>`, and this card is the
+					 * whole dashboard body.
+					 */ }
+					<Button variant="solid" tone="brand" onClick={ onRetry } loading={ isRetrying }>
+						{ __( 'Try again', 'jetpack-backup-pkg' ) }
+					</Button>
+				</div>
+			</Card.Root>
+		</div>
 	);
 }

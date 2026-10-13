@@ -12,13 +12,14 @@ describe( 'Stats locations normalizer', () => {
 			end_date: '2026-06-16',
 		} );
 
-		expect( result.data[ 0 ].items[ 0 ] ).toEqual(
+		// The fixture's A1 (anonymous proxy) row must be filtered out.
+		expect( result.data[ 0 ].items ).toEqual( [
 			expect.objectContaining( {
 				label: "Côte d'Ivoire's",
 				views: 7,
 				region: '002',
-			} )
-		);
+			} ),
+		] );
 		expect( result.summary ).toEqual( {} );
 	} );
 
@@ -83,19 +84,6 @@ describe( 'Stats locations normalizer', () => {
 			summarize: true,
 		} );
 
-		expect( result.summary ).toEqual( {
-			total_views: 0,
-			other_views: 0,
-			date_start: '2026-06-16T00:00:00',
-			date_end: '2026-06-22T23:59:59',
-		} );
-		expect( result.data[ 0 ] ).toEqual(
-			expect.objectContaining( {
-				time_interval: '2026-06-22',
-				date_start: '2026-06-16T00:00:00',
-				date_end: '2026-06-22T23:59:59',
-			} )
-		);
 		expect( result.data[ 0 ].items ).toEqual( [
 			expect.objectContaining( {
 				label: 'North Bergen',

@@ -1,5 +1,6 @@
 {
 	"name": "jpa/authors",
+	"icon": "jpa/post-author",
 	"title": "Popular authors",
 	"description": "Top authors by views, with their most viewed posts.",
 	"help": {

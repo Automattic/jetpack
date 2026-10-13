@@ -321,8 +321,9 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->assertSame( Dashboard_Section::DATE_FILTER_RANGE, $section->date_filter );
 		$this->assertSame(
 			array(
-				'with_date_comparison'     => false,
-				'with_header_date_control' => false,
+				'with_date_comparison'         => false,
+				'with_header_date_control'     => false,
+				'with_header_interval_control' => true,
 			),
 			$section->to_array()['date_filter_options']
 		);
@@ -341,8 +342,9 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		$this->assertSame(
 			array(
-				'with_date_comparison'     => true,
-				'with_header_date_control' => false,
+				'with_date_comparison'         => true,
+				'with_header_date_control'     => false,
+				'with_header_interval_control' => true,
 			),
 			$section->to_array()['date_filter_options']
 		);
@@ -405,20 +407,27 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$section = new Dashboard_Section(
 			'example_dashboard',
 			'example/insights',
-			array( 'date_filter_options' => array( 'with_date_comparison' => false ) )
+			array(
+				'date_filter_options' => array(
+					'with_date_comparison'         => false,
+					'with_header_interval_control' => false,
+				),
+			)
 		);
 
 		$this->assertSame(
 			array(
-				'with_date_comparison'     => false,
-				'with_header_date_control' => true,
+				'with_date_comparison'         => false,
+				'with_header_date_control'     => true,
+				'with_header_interval_control' => false,
 			),
 			$section->date_filter_options
 		);
 		$this->assertSame(
 			array(
-				'with_date_comparison'     => false,
-				'with_header_date_control' => true,
+				'with_date_comparison'         => false,
+				'with_header_date_control'     => true,
+				'with_header_interval_control' => false,
 			),
 			$section->to_array()['date_filter_options']
 		);
@@ -441,8 +450,9 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		$this->assertSame(
 			array(
-				'with_date_comparison'     => true,
-				'with_header_date_control' => true,
+				'with_date_comparison'         => true,
+				'with_header_date_control'     => true,
+				'with_header_interval_control' => true,
 			),
 			$section->date_filter_options
 		);
@@ -456,8 +466,9 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		$this->assertSame(
 			array(
-				'with_date_comparison'     => true,
-				'with_header_date_control' => true,
+				'with_date_comparison'         => true,
+				'with_header_date_control'     => true,
+				'with_header_interval_control' => true,
 			),
 			$section->to_array()['date_filter_options']
 		);
@@ -474,16 +485,19 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->assertSame(
 			array(
 				'traffic'     => array(
-					'with_date_comparison'     => true,
-					'with_header_date_control' => true,
+					'with_date_comparison'         => true,
+					'with_header_date_control'     => true,
+					'with_header_interval_control' => false,
 				),
 				'insights'    => array(
-					'with_date_comparison'     => false,
-					'with_header_date_control' => false,
+					'with_date_comparison'         => false,
+					'with_header_date_control'     => false,
+					'with_header_interval_control' => true,
 				),
 				'subscribers' => array(
-					'with_date_comparison'     => false,
-					'with_header_date_control' => false,
+					'with_date_comparison'         => false,
+					'with_header_date_control'     => false,
+					'with_header_interval_control' => true,
 				),
 			),
 			array_column(
@@ -580,7 +594,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		);
 		$this->assertSame( 'range', $schema['properties']['date_filter']['default'] );
 		$this->assertSame(
-			array( 'with_date_comparison', 'with_header_date_control' ),
+			array( 'with_date_comparison', 'with_header_date_control', 'with_header_interval_control' ),
 			array_keys( $schema['properties']['date_filter_options']['properties'] )
 		);
 		$this->assertTrue(
@@ -588,6 +602,9 @@ class Dashboard_Section_Test extends BaseTestCase {
 		);
 		$this->assertTrue(
 			$schema['properties']['date_filter_options']['properties']['with_header_date_control']['default']
+		);
+		$this->assertTrue(
+			$schema['properties']['date_filter_options']['properties']['with_header_interval_control']['default']
 		);
 	}
 
@@ -652,6 +669,8 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 * Non-array section arguments are ignored and defaults are retained.
 	 */
 	public function test_section_ignores_non_array_args() {
+		// A section without a rule of its own is a Stats reader's.
+		$this->set_admin_user();
 		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Intentionally passing a non-array to exercise the defensive is_array() guard.
 		$section = new Dashboard_Section( 'example_dashboard', 'example/traffic', 'not-an-array' );
 
@@ -814,8 +833,9 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'order'               => 10,
 					'date_filter'         => 'range',
 					'date_filter_options' => array(
-						'with_date_comparison'     => true,
-						'with_header_date_control' => true,
+						'with_date_comparison'         => true,
+						'with_header_date_control'     => true,
+						'with_header_interval_control' => true,
 					),
 					'requires_sync'       => false,
 					'default_layout'      => array(),
@@ -843,6 +863,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 * Available sections are ordered and unavailable sections are omitted.
 	 */
 	public function test_registry_returns_available_sections_sorted_by_order() {
+		$this->set_admin_user();
 		$registry = new Dashboard_Section_Registry();
 
 		$registry->register(
@@ -886,6 +907,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 * Sections sharing an order are tie-broken alphabetically by ID.
 	 */
 	public function test_registry_tie_breaks_equal_order_sections_by_id() {
+		$this->set_admin_user();
 		$registry = new Dashboard_Section_Registry();
 
 		$registry->register( 'tie_dashboard', 'example/beta', array( 'order' => 10 ) );
@@ -922,6 +944,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 * Built-in Premium Analytics sections are registered in the expected order.
 	 */
 	public function test_registers_built_in_dashboard_sections() {
+		$this->set_admin_user();
 		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
 
 		register_default_dashboard_sections();
@@ -936,8 +959,9 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'order'               => 10,
 					'date_filter'         => 'range',
 					'date_filter_options' => array(
-						'with_date_comparison'     => true,
-						'with_header_date_control' => true,
+						'with_date_comparison'         => true,
+						'with_header_date_control'     => true,
+						'with_header_interval_control' => false,
 					),
 					'requires_sync'       => false,
 				),
@@ -949,8 +973,9 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'order'               => 20,
 					'date_filter'         => 'year',
 					'date_filter_options' => array(
-						'with_date_comparison'     => false,
-						'with_header_date_control' => false,
+						'with_date_comparison'         => false,
+						'with_header_date_control'     => false,
+						'with_header_interval_control' => true,
 					),
 					'requires_sync'       => false,
 				),
@@ -962,8 +987,9 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'order'               => 30,
 					'date_filter'         => 'range',
 					'date_filter_options' => array(
-						'with_date_comparison'     => false,
-						'with_header_date_control' => false,
+						'with_date_comparison'         => false,
+						'with_header_date_control'     => false,
+						'with_header_interval_control' => true,
 					),
 					'requires_sync'       => false,
 				),
@@ -1027,6 +1053,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 * A site without a local module system keeps the tab.
 	 */
 	public function test_registers_subscribers_dashboard_section_without_a_module_system() {
+		$this->set_admin_user();
 		register_default_dashboard_sections();
 
 		$subscribers = get_registered_dashboard_section( DASHBOARD_NAME, 'analytics/subscribers' );
@@ -1045,6 +1072,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_omits_subscribers_dashboard_section_when_module_is_inactive() {
+		$this->set_admin_user();
 		$this->fake_jetpack_plugin();
 
 		register_default_dashboard_sections();
@@ -1069,6 +1097,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_registers_subscribers_dashboard_section_when_module_is_active() {
+		$this->set_admin_user();
 		$this->fake_jetpack_plugin();
 		$this->activate_module( 'subscriptions' );
 
@@ -1090,6 +1119,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_wpcom_simple_offers_subscribers_dashboard_section_without_the_module() {
+		$this->set_admin_user();
 		$this->fake_jetpack_plugin();
 		if ( ! defined( 'IS_WPCOM' ) ) {
 			define( 'IS_WPCOM', true );
@@ -1196,7 +1226,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		remove_action( Dashboard_Section_Registry::REGISTER_ACTION, __NAMESPACE__ . '\\register_default_dashboard_sections' );
 
 		$this->assertNull( get_available_dashboard_section_slugs() );
-		$this->assertSame( array(), inject_dashboard_sections_script_data( array() ) );
+		$this->assertArrayNotHasKey( 'sections', inject_dashboard_sections_script_data( array() )['premium_analytics'] );
 	}
 
 	/**
@@ -1226,10 +1256,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		);
 
 		$this->assertSame( array(), get_available_dashboard_section_slugs() );
-		$this->assertSame(
-			array( 'sections' => array() ),
-			inject_dashboard_sections_script_data( array() )['premium_analytics']
-		);
+		$this->assertSame( array(), inject_dashboard_sections_script_data( array() )['premium_analytics']['sections'] );
 	}
 
 	/**
@@ -1281,6 +1308,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->assertSame(
 			array(
 				'has_videopress' => true,
+				'can_view_stats' => true,
 				'sections'       => array( 'traffic', 'insights', 'subscribers' ),
 			),
 			$data['premium_analytics']
@@ -1325,6 +1353,26 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A shop manager's dashboard holds no Stats tab: every widget on one would answer 403.
+	 */
+	public function test_store_only_reader_gets_no_stats_section() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'jpa_dashboard_sections_shop_manager',
+				'user_pass'  => 'password',
+				'role'       => 'subscriber',
+			)
+		);
+		// WorDBless has no shop_manager role, so grant the capability the role would carry.
+		( new \WP_User( $user_id ) )->add_cap( 'view_woocommerce_reports' );
+		wp_set_current_user( $user_id );
+
+		register_default_dashboard_sections();
+
+		$this->assertSame( array(), $this->available_section_ids() );
+	}
+
+	/**
 	 * A user with neither capability gets nothing.
 	 */
 	public function test_sections_route_refuses_a_plain_editor() {
@@ -1354,6 +1402,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 * registrant that reads the registry from inside the callback.
 	 */
 	public function test_registration_action_fires_once_with_the_registry() {
+		$this->set_admin_user();
 		$calls = array();
 
 		$this->on_registry_hydration(
@@ -1504,8 +1553,9 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'order'               => 10,
 					'date_filter'         => 'range',
 					'date_filter_options' => array(
-						'with_date_comparison'     => true,
-						'with_header_date_control' => true,
+						'with_date_comparison'         => true,
+						'with_header_date_control'     => true,
+						'with_header_interval_control' => true,
 					),
 					'requires_sync'       => false,
 					'default_layout'      => array(),
@@ -1518,8 +1568,9 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'order'               => 20,
 					'date_filter'         => 'range',
 					'date_filter_options' => array(
-						'with_date_comparison'     => true,
-						'with_header_date_control' => true,
+						'with_date_comparison'         => true,
+						'with_header_date_control'     => true,
+						'with_header_interval_control' => true,
 					),
 					'requires_sync'       => false,
 					'default_layout'      => array(),
@@ -1565,8 +1616,9 @@ class Dashboard_Section_Test extends BaseTestCase {
 					'order'               => 10,
 					'date_filter'         => 'range',
 					'date_filter_options' => array(
-						'with_date_comparison'     => true,
-						'with_header_date_control' => true,
+						'with_date_comparison'         => true,
+						'with_header_date_control'     => true,
+						'with_header_interval_control' => true,
 					),
 					'requires_sync'       => false,
 					'default_layout'      => array(

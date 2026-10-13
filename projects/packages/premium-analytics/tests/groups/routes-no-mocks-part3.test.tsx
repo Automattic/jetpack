@@ -1,5 +1,7 @@
 // See README.md before adding a suite to this group.
 
+import '../../routes/author-detail/config/layout.test';
+import '../../routes/author-detail/config/widget-variants.test';
 import '../../routes/dashboard/components/onboarding-tour/onboarding-tour.test';
 import '../../routes/dashboard/components/onboarding-tour/steps.test';
 import '../../routes/dashboard/hooks/use-dashboard-grid-settings/use-dashboard-grid-settings.test';

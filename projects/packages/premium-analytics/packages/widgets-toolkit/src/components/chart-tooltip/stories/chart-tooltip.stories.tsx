@@ -1,6 +1,5 @@
 import { TooltipBox } from '@jetpack-premium-analytics/externals';
 import { formatDate } from '@jetpack-premium-analytics/formatters';
-import { formatTooltipPointLabel } from '../../../helpers';
 import { withChartTheme } from '../../../stories/with-chart-theme';
 import { ChartTooltip, type TooltipStyle } from '../chart-tooltip';
 import type { Meta, StoryObj } from '@storybook/react';
@@ -402,51 +401,6 @@ export const CustomStyles: Story = {
 		docs: {
 			description: {
 				story: 'Tooltip with custom green and orange colors instead of the default blue.',
-			},
-		},
-	},
-};
-
-/**
- * MissingReading: an inline row for a bucket with no reading, beside a real zero.
- */
-export const MissingReading: Story = {
-	render: () => (
-		<TooltipBox>
-			<ChartTooltip
-				tooltipData={ {
-					datumByKey: {
-						Subscribers: {
-							datum: { date: new Date( '2026-03-01' ), value: null },
-							index: 0,
-							key: 'Subscribers',
-						},
-						'Subscribers · previous period': {
-							datum: {
-								date: new Date( '2026-03-01' ),
-								realDate: new Date( '2025-03-01' ),
-								value: 0,
-							},
-							index: 1,
-							key: 'Subscribers · previous period',
-						},
-					},
-				} }
-				dataFormat={ { type: 'number' } }
-				seriesStyles={ LINE_SERIES_STYLES }
-				indicatorType="line"
-				layout="inline"
-				getLabel={ ( datum: LineDatum, _index: number, key: string, value: string | null ) =>
-					formatTooltipPointLabel( value, key, formatDate( datum.realDate ?? datum.date ) )
-				}
-			/>
-		</TooltipBox>
-	),
-	parameters: {
-		docs: {
-			description: {
-				story:
-					'The inline layout the comparative charts use. A bucket with no reading reads "No data" rather than a zero, and a real zero still reads 0.',
 			},
 		},
 	},

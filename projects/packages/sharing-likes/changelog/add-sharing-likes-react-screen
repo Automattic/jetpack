@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a React version of the Settings > Sharing screen, available behind the `rsm_jetpack_ui_modernization_sharing_likes` filter.
