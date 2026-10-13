@@ -20,7 +20,7 @@ add_action( 'init', function() {
 
 ### Conditionally loading licensing UI behind a feature flag
 
-To disable the licensing UI at `/wp-admin/admin.php?page=my-jetpack#/add-license`, add a filter on `jetpack_my_jetpack_should_enable_add_license_screen` and return false: `add_filter( 'jetpack_my_jetpack_should_enable_add_license_screen', '__return_false' );`
+To disable the licensing UI at `/wp-admin/admin.php?page=my-jetpack#/add-license`, add a filter on `jetpack_my_jetpack_should_enable_add_license_screen` and return false: `add_filter( 'jetpack_my_jetpack_should_enable_add_license_screen', '__return_false' );` My Jetpack applies this filter automatically when initializing the offline Features entry described below.
 
 ### Managing features in offline mode
 
