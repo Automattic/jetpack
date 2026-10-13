@@ -133,13 +133,14 @@ Inline decision table:
 |---|---|---|
 | Public read | `return true;` | rare; site-wide catalog |
 | Authenticated read | `is_user_logged_in()` | "my drafts" |
-| Admin view | `current_user_can( 'jetpack_admin_page' )` | list modules |
+| Read whose REST route uses the Jetpack admin page cap | `current_user_can( 'jetpack_admin_page' )` | list modules |
 | Admin write | `current_user_can( 'jetpack_manage_modules' ) && current_user_can( 'jetpack_activate_modules' )` | toggle module |
 | Per-object write | `current_user_can( 'edit_post', $id )` | update a specific response |
 | Core fallback | `current_user_can( 'manage_options' )` | only when no Jetpack-specific cap fits |
 
 Rules:
 
+- Use the capability the matching REST route or settings screen checks, never a looser one. `jetpack_admin_page` maps to `edit_posts` (so Contributors pass) and exists only inside the Jetpack plugin: never use it for a write, or for data its route keeps admin-only.
 - Prefer narrow Jetpack-specific caps over `manage_options`.
 - Differentiate read (`can_view_*`) from write (`can_manage_*`). Never reuse a view check to gate a write.
 - `permission_callback` returns `bool` or `WP_Error`. Never throws.
