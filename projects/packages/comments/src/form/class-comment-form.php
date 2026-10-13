@@ -41,20 +41,6 @@ class Comment_Form {
 	private $defaults = array();
 
 	/**
-	 * Whether this request drew the app.
-	 *
-	 * @var bool
-	 */
-	private $rendered = false;
-
-	/**
-	 * What a theme-built form passed in place of the form arguments, when this request met one.
-	 *
-	 * @var string
-	 */
-	private $theme_form = '';
-
-	/**
 	 * Register the form's hooks. Safe to call more than once.
 	 *
 	 * @return Comment_Form
@@ -80,7 +66,6 @@ class Comment_Form {
 		add_filter( 'comment_reply_link', array( $this, 'comment_reply_link' ), 10, 4 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'register_assets' ) );
 		add_action( 'pre_comment_on_post', array( $this, 'verify_nonce' ) );
-		add_action( 'wp_footer', array( $this, 'log_missing_form' ) );
 	}
 
 	/**
@@ -127,8 +112,7 @@ class Comment_Form {
 
 		$link = sprintf(
 			'<a class="comment-reply-link" href="%s"%s onclick="return addComment.moveForm( \'%s-%d\', \'%d\', \'%s\', \'%d\' )">%s</a>',
-			// Followed when moveForm() never runs or finds no form, as on a theme that builds its own.
-			esc_url( wp_login_url( add_query_arg( 'replytocom', $comment->comment_ID, get_permalink( $post ) ) . '#' . $args['respond_id'] ) ),
+			esc_url( add_query_arg( 'replytocom', $comment->comment_ID . '#' . $respond_id ) ),
 			$args['show_reply_to_text'] ? '' : ' aria-label="' . esc_attr( $reply_to ) . '"',
 			esc_attr( $args['add_below'] ),
 			$comment->comment_ID,
@@ -218,12 +202,18 @@ class Comment_Form {
 
 		// A theme that builds its own form (Thesis) never runs comment_form(), so leave its form alone.
 		if ( ! is_array( $args ) || ! $this->defaults ) {
-			$this->theme_form = gettype( $args );
-
-			// The marker keeps Tracks from counting what this form never drew.
+			// The marker keeps Tracks from counting the comment, and is where the script finds the form to
+			// add the nonce to, as enqueue_assets() does for the app. Again on DOMContentLoaded, for an optimizer.
 			return $submit_field
-				. wp_nonce_field( self::NONCE_ACTION, self::NONCE_NAME, false, false )
-				. '<input type="hidden" name="' . self::THEME_FORM . '" value="1" />';
+				. '<input type="hidden" name="' . self::THEME_FORM . '" value="1" />'
+				. wp_get_inline_script_tag(
+					sprintf(
+						'(function(){function n(){Array.prototype.forEach.call(document.querySelectorAll(\'[name="%1$s"]\'),function(m){var f=m.form,i;if(f&&!f.querySelector(\'[name="%2$s"]\')){i=document.createElement("input");i.type="hidden";i.name="%2$s";i.value=%3$s;f.appendChild(i);}});}n();document.addEventListener("DOMContentLoaded",n);})();',
+						self::THEME_FORM,
+						self::NONCE_NAME,
+						wp_json_encode( wp_create_nonce( self::NONCE_ACTION ), JSON_HEX_TAG | JSON_HEX_AMP )
+					)
+				);
 		}
 
 		// The subscribe checkboxes the host drew: Jetpack's in this field, WordPress.com's from its own
@@ -275,11 +265,6 @@ class Comment_Form {
 			return;
 		}
 
-		if ( ! $this->defaults ) {
-			$this->theme_form = 'must_log_in';
-			return;
-		}
-
 		$args = $this->defaults;
 
 		$this->enqueue_assets( $args );
@@ -298,8 +283,6 @@ class Comment_Form {
 	 * @return string
 	 */
 	private function markup( $args = array() ) {
-		$this->rendered = true;
-
 		$post_id   = self::post_id();
 		$permalink = get_permalink( $post_id );
 		$button    = sprintf(
@@ -380,56 +363,6 @@ class Comment_Form {
 			. '</div>'
 			. $noscript
 			. get_comment_id_fields( $post_id );
-	}
-
-	/**
-	 * Report a post whose open comments this request never drew the app for, once a week, where the site allows usage events.
-	 *
-	 * @return void
-	 */
-	public function log_missing_form() {
-		$post_id = get_queried_object_id();
-
-		// Single posts only: plenty of themes leave comments off pages on purpose.
-		if ( $this->rendered || ! is_single() || ! comments_open( $post_id ) || post_password_required( $post_id ) || ! self::enabled_for_post_type( $post_id ) ) {
-			return;
-		}
-
-		if ( ! Tracks::is_enabled() || get_transient( 'jetpack_comments_form_missing' ) ) {
-			return;
-		}
-
-		set_transient( 'jetpack_comments_form_missing', 1, WEEK_IN_SECONDS );
-
-		// The shape src/shared/log-error.ts sends, so these rows sit beside the app's own.
-		$error = array(
-			'feature'    => 'jetpack_comments',
-			'message'    => 'Comment form not shown',
-			'url'        => (string) get_permalink( $post_id ),
-			'blog_id'    => Checkpoint::blog_id(),
-			'properties' => array(
-				'platform' => Tracks::platform(),
-				'version'  => Comments::PACKAGE_VERSION,
-				'stage'    => 'form_missing',
-				'reason'   => '' === $this->theme_form ? 'not_rendered' : 'theme_form',
-				'args'     => $this->theme_form,
-				'theme'    => get_stylesheet(),
-			),
-		);
-
-		// After the page's output, as Jetpack_Mu_Wpcom::log2logstash() does on Atomic.
-		add_action(
-			'shutdown',
-			static function () use ( $error ) {
-				wp_remote_post(
-					'https://public-api.wordpress.com/rest/v1.1/js-error',
-					array(
-						'body'    => array( 'error' => (string) wp_json_encode( $error, JSON_UNESCAPED_SLASHES ) ),
-						'timeout' => 3,
-					)
-				);
-			}
-		);
 	}
 
 	/**
