@@ -1862,7 +1862,7 @@ class Contact_Form_Plugin {
 		// In future version we will be able to skip this step.
 		$form = Contact_Form::$forms[ $hash ] ?? null;
 
-		// No form may mean user is using do_shortcode, grab the form using the stored post meta
+		// No form may mean user is using apply_shortcodes, grab the form using the stored post meta
 		if ( ! $form && is_numeric( $id ) && $hash ) {
 
 			// Get shortcode from post meta
@@ -1883,7 +1883,7 @@ class Contact_Form_Plugin {
 				}
 
 				$shortcode = '[contact-form' . $parameters . ']' . $shortcode . '[/contact-form]';
-				do_shortcode( $shortcode );
+				apply_shortcodes( $shortcode );
 
 				// Recreate form
 				$form = Contact_Form::$last;
@@ -2277,7 +2277,7 @@ class Contact_Form_Plugin {
 		self::$using_contact_form_field = true;
 		$this->add_shortcode();
 
-		$text = do_shortcode( $text );
+		$text = apply_shortcodes( $text );
 
 		self::$using_contact_form_field = false;
 		$GLOBALS['shortcode_tags']      = $old; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited

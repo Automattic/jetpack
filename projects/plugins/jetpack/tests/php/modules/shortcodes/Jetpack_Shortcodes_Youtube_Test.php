@@ -53,7 +53,7 @@ class Jetpack_Shortcodes_Youtube_Test extends WP_UnitTestCase {
 	public function test_shortcodes_youtube() {
 		$content = '[youtube]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertNotEquals( $content, $shortcode_content );
 	}
@@ -67,7 +67,7 @@ class Jetpack_Shortcodes_Youtube_Test extends WP_UnitTestCase {
 		$url        = 'http://www.youtube.com/watch?v=' . $youtube_id;
 		$content    = '[youtube=' . $url . ']';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringContainsString( $youtube_id, $shortcode_content );
 	}
