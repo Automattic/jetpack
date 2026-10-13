@@ -297,6 +297,8 @@ class Comment_Form {
 			'subscriptions' => $args['subscriptions'] ?? array(),
 		);
 
+		$noscript = '';
+
 		// Core's own fields and submit, for a page whose settings another release rendered or whose script never ran.
 		if ( get_option( 'comment_registration' ) && ! is_user_logged_in() ) {
 			$plain = '<p class="must-log-in">' . sprintf(
@@ -310,6 +312,11 @@ class Comment_Form {
 				. '<textarea id="comment" name="comment" rows="4" required></textarea></p>';
 
 			if ( ! is_user_logged_in() ) {
+				// Without script a guest has no nonce to post, so they get a note in place of fields that cannot send.
+				$noscript = '<noscript><style>.jetpack-comments{display:none!important}</style><p>'
+					. esc_html__( 'Turn on JavaScript to leave a comment.', 'jetpack-comments' )
+					. '</p></noscript>';
+
 				$commenter = wp_get_current_commenter();
 				$fields    = array(
 					'author' => array( __( 'Name', 'jetpack-comments' ), 'text', $commenter['comment_author'], $required ),
@@ -337,8 +344,8 @@ class Comment_Form {
 			. ' data-jetpack-comments="' . esc_attr( (string) wp_json_encode( $settings, JSON_UNESCAPED_SLASHES | JSON_HEX_AMP ) ) . '">'
 			. $plain
 			. '</div>'
-			. get_comment_id_fields( $post_id )
-			. wp_nonce_field( self::NONCE_ACTION, self::NONCE_NAME, false, false );
+			. $noscript
+			. get_comment_id_fields( $post_id );
 	}
 
 	/**
@@ -485,9 +492,19 @@ class Comment_Form {
 				Identity::settings()
 			);
 
+			// The nonce is added by script, so a bot posting the form's fields has none. Inline and ES5, so
+			// a reader whose bundle never runs gets it too, and the plain form once the page has loaded.
+			// Added again on DOMContentLoaded, for an optimizer that moves this script above the form.
+			$fallback = sprintf(
+				'(function(){function n(){Array.prototype.forEach.call(document.forms,function(f){var i;if(f.querySelector(".jetpack-comments")&&!f.querySelector(\'[name="%1$s"]\')){i=document.createElement("input");i.type="hidden";i.name="%1$s";i.value=%2$s;f.appendChild(i);}});}n();document.addEventListener("DOMContentLoaded",n);})();'
+				. 'window.addEventListener("load",function(){Array.prototype.forEach.call(document.querySelectorAll(".jetpack-comments"),function(e){if(!/\\bis-(mounted|plain)\\b/.test(e.className)){e.className+=" is-plain";}});});',
+				self::NONCE_NAME,
+				wp_json_encode( wp_create_nonce( self::NONCE_ACTION ), JSON_HEX_TAG | JSON_HEX_AMP )
+			);
+
 			wp_add_inline_script(
 				self::HANDLE,
-				'window.JetpackComments = ' . wp_json_encode( $settings, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
+				'window.JetpackComments = ' . wp_json_encode( $settings, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';' . $fallback,
 				'before'
 			);
 			$this->settings_printed = true;
@@ -498,21 +515,25 @@ class Comment_Form {
 	}
 
 	/**
-	 * Require a logged-in reader's comment to arrive with a nonce made for them, or from this site's own origin.
+	 * Require a comment to arrive with the nonce the script adds to the form, or a logged-in reader's from this site's own origin.
 	 *
-	 * A logged-out reader's would be the same string for everybody, which a page cache
-	 * serves past its expiry, so their comments go through core's checks alone, as core's form does.
+	 * A logged-out reader's is the same string for everybody, which a page cache serves
+	 * past its expiry, so for them it only has to be there: a bot posting the form's fields has none.
 	 *
 	 * @param int $comment_post_id The post being commented on.
 	 * @return void
 	 */
 	public function verify_nonce( $comment_post_id = 0 ) {
-		if ( ! self::enabled_for_post_type( $comment_post_id ) || ! is_user_logged_in() ) {
+		if ( ! self::enabled_for_post_type( $comment_post_id ) ) {
 			return;
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- this is the nonce check.
 		$nonce = isset( $_POST[ self::NONCE_NAME ] ) ? sanitize_text_field( wp_unslash( $_POST[ self::NONCE_NAME ] ) ) : '';
+
+		if ( ! is_user_logged_in() && '' !== $nonce ) {
+			return;
+		}
 
 		if ( wp_verify_nonce( $nonce, self::NONCE_ACTION ) ) {
 			return;

@@ -180,6 +180,9 @@ function _manually_load_muplugin() {
 	require_once JETPACK_WPCOMSH_INSTALL_DIR . '/wpcomsh.php';
 	\Automattic\Jetpack\Jetpack_Mu_Wpcom::init();
 
+	// Module-state tests assume self-hosted defaults, which this policy overrides.
+	remove_filter( 'jetpack_feature_policy', 'wpcomsh_force_activity_log_module' );
+
 	defined( 'WPCOMSH_PREMIUM_THEMES_PATH' ) || define( 'WPCOMSH_PREMIUM_THEMES_PATH', sys_get_temp_dir() . '/premium' );
 	if ( ! is_dir( WPCOMSH_PREMIUM_THEMES_PATH ) ) {
 		mkdir( WPCOMSH_PREMIUM_THEMES_PATH, 0777 );
