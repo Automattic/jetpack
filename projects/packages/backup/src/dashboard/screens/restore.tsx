@@ -266,6 +266,11 @@ export default function RestoreScreen() {
 								{ state.message && (
 									<EmptyState.Description>{ state.message }</EmptyState.Description>
 								) }
+								{ state.reconnecting && (
+									<EmptyState.Description>
+										{ __( 'Reconnecting…', 'jetpack-backup-pkg' ) }
+									</EmptyState.Description>
+								) }
 							</EmptyState.Root>
 						) }
 						{ /*
