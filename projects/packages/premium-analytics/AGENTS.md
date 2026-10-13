@@ -714,7 +714,8 @@ no separate semi-circle kind. A funnel widget renders `<Funnel>` with its steps 
 counts, and the hook's status; it owns the rate of the whole, the shares, the tooltip and the
 states. A columns widget renders `<Columns>` with its columns, as figures of both periods, and
 the hook's status; it owns the series per period, the legend, the colors and the
-states. Everything else renders its states through
+states. A locations widget renders `<Locations>` with its ranking and the hook's status;
+it owns the list with flags, the map and the states. Everything else renders its states through
 `<WidgetState>` from `@jetpack-premium-analytics/widgets-toolkit`
 rather than hand-rolling `if ( isError )` / empty branches or a `WidgetLoadingOverlay`. Map the
 data/view hook's result to its four signals. For Stats API errors, pass the raw `error` to the
@@ -776,8 +777,8 @@ area. Notes:
 > `isLoading && data.length === 0`, and `LeaderboardChart`'s `emptyStateText`. They are being
 > migrated to `<WidgetState>` — follow the contract above, not those widgets. For a leaderboard,
 > `<Leaderboard>` is that wrapper, `<Donut>` for a breakdown, as a ring or a half ring,
-> `<Funnel>` for a funnel, and `<Columns>` for a few categories across the periods; the other
-> widget kinds get theirs as follow-ups.
+> `<Funnel>` for a funnel, `<Columns>` for a few categories across the periods, and
+> `<Locations>` for places on a map; the other widget kinds get theirs as follow-ups.
 
 **Comparison data**
 

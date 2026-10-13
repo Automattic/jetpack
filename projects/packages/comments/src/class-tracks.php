@@ -134,7 +134,7 @@ class Tracks {
 	 * Record a comment the form turned away, where a browser on this site sent it. Anything else is a bot,
 	 * and would cost an outbound request to record.
 	 *
-	 * @param string $reason `nonce`, or the error code the sign-in was refused with.
+	 * @param string $reason The error code the sign-in was refused with.
 	 * @return void
 	 */
 	public static function record_refusal( $reason ) {

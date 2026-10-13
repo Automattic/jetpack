@@ -3,7 +3,7 @@
  * Class WPCom_Themes_Mapper.
  * Responsible for mapping theme objects between WPCom and WPOrg formats.
  *
- * @package wpcom-themes
+ * @package automattic/jetpack-mu-wpcom
  */
 
 /**
@@ -46,7 +46,14 @@ class WPCom_Themes_Mapper {
 		$theme                 = new stdClass();
 		$theme->name           = $wpcom_theme->name;
 		$theme->slug           = $wpcom_theme->id;
-		$theme->preview_url    = $wpcom_theme->demo_uri . '?demo=true&iframe=true&theme_preview=true';
+		$theme->preview_url    = add_query_arg(
+			array(
+				'demo'          => 'true',
+				'iframe'        => 'true',
+				'theme_preview' => 'true',
+			),
+			$wpcom_theme->demo_uri
+		);
 		$theme->author         = array( 'display_name' => $wpcom_theme->author );
 		$theme->screenshot_url = $wpcom_theme->screenshot;
 		$theme->homepage       = "https://wordpress.com/theme/$wpcom_theme->id";

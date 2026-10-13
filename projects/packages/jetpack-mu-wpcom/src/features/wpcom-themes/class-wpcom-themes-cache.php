@@ -3,7 +3,7 @@
  * Class WPCom_Themes_Cache.
  * Caches WPCom themes.
  *
- * @package wpcom-themes
+ * @package automattic/jetpack-mu-wpcom
  */
 
 /**
@@ -29,8 +29,15 @@ class WPCom_Themes_Cache {
 	public function run_cached( string $cache_key, callable $lambda, int $ttl = DAY_IN_SECONDS ) {
 		$data = wp_cache_get( $cache_key, self::CACHE_GROUP );
 
-		if ( false === $data || defined( 'IGNORE_CACHED_WPCOM_THEMES' ) ) {
-			$data = $lambda();
+		if ( false !== $data && ! defined( 'IGNORE_CACHED_WPCOM_THEMES' ) ) {
+			return $data;
+		}
+
+		$data = $lambda();
+
+		// Null means the read failed rather than came back empty, and a failure is not cached: a
+		// moment's trouble reaching WordPress.com would otherwise empty the theme lists for a day.
+		if ( null !== $data ) {
 			wp_cache_set( $cache_key, $data, self::CACHE_GROUP, $ttl );
 		}
 

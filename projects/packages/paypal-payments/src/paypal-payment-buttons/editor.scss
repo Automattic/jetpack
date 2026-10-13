@@ -582,35 +582,6 @@
 	}
 }
 
-// Image upload field in the create/edit form.
-.jetpack-paypal-payment-buttons__image-field {
-	margin-bottom: 16px;
-}
-
-.jetpack-paypal-payment-buttons__image-preview {
-
-	img {
-		display: block;
-		max-width: 100%;
-		max-height: 200px;
-		width: auto;
-		height: auto;
-		border-radius: 4px;
-		border: 1px solid #e0e0e0;
-		margin-bottom: 8px;
-	}
-}
-
-.jetpack-paypal-payment-buttons__image-actions {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-}
-
-.jetpack-paypal-payment-buttons__upload-button {
-	margin-bottom: 4px;
-}
-
 // ---------------------------------------------------------------
 // PayPal Button Preview Component
 // ---------------------------------------------------------------
