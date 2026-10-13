@@ -106,6 +106,10 @@ class Jetpack_Shortcodes_Youtube_Test extends WP_UnitTestCase {
 				'https://youtube.com/shorts/VIDEO_ID',
 				'VIDEO_ID',
 			),
+			'live_url'     => array(
+				'https://www.youtube.com/live/VIDEO_ID',
+				'VIDEO_ID',
+			),
 		);
 	}
 

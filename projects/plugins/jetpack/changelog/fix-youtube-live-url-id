@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Shortcodes: Recognize YouTube live links (youtube.com/live/...) so their videos embed and show a thumbnail.
