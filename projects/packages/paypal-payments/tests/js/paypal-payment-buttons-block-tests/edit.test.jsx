@@ -650,6 +650,7 @@ jest.mock( '../../../src/paypal-payment-buttons/components/paypal-button-preview
 				data-product-name={ props.productName }
 				data-format={ props.format }
 				data-sdk-url={ props.resource?.sdk_url }
+				data-disabled={ props.isDisabled }
 			>
 				Preview: { props.productName } - { props.price } { props.currencyCode }
 			</div>
@@ -7868,6 +7869,10 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 				await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
 				expect( screen.queryByTestId( 'inspector-controls-styles' ) ).not.toBeInTheDocument();
+				expect( screen.getByTestId( 'paypal-button-preview' ) ).toHaveAttribute(
+					'data-disabled',
+					'true'
+				);
 
 				rerender(
 					<Edit
@@ -7883,6 +7888,10 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 				const styles = await screen.findByTestId( 'inspector-controls-styles' );
 				expect( within( styles ).getByLabelText( 'URL' ) ).toHaveValue( link );
+				expect( screen.getByTestId( 'paypal-button-preview' ) ).toHaveAttribute(
+					'data-disabled',
+					'false'
+				);
 			} );
 
 			// A saved button still works while disconnected, so it stays stylable.

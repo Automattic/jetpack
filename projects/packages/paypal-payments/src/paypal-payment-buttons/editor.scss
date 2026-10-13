@@ -630,6 +630,19 @@
 	cursor: default;
 }
 
+// Gray until the block has a link. Repeated on hover, focus and active to
+// override the theme's button colors.
+.jetpack-paypal-button-preview__checkout-button.is-disabled {
+
+	&,
+	&:hover,
+	&:focus,
+	&:active {
+		background: #edf0f2;
+		color: rgba(0, 0, 0, 0.6);
+	}
+}
+
 // ---------------------------------------------------------------
 // Legacy Block Indicator
 // ---------------------------------------------------------------
