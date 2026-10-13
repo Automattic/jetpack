@@ -354,14 +354,7 @@ export {
 /**
  * Widget components
  */
-export {
-	BookingsRevenueByCustomerTypeWidget,
-	RevenueByCustomerTypeWidget,
-	SalesByCouponWidget,
-	TotalReturnsWidget,
-	VisitorsByLocationWidget,
-	SalesByDeviceWidget,
-} from './widgets';
+export { VisitorsByLocationWidget } from './widgets';
 
 /**
  * Types
