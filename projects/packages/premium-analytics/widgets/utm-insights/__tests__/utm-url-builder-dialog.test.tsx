@@ -117,6 +117,18 @@ it( 'drops a UTM value the destination carries when its field is left empty', as
 	expect( shared.searchParams.has( 'utm_medium' ) ).toBe( false );
 } );
 
+it( 'asks for the destination when only UTM parameters are filled', async () => {
+	const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+	render( <UtmUrlBuilderDialog onClose={ jest.fn() } /> );
+
+	await user.type( screen.getByRole( 'textbox', { name: 'UTM source' } ), 'newsletter' );
+
+	expect( screen.getByText( 'Enter a destination URL to see the URL' ) ).toBeInTheDocument();
+	expect(
+		screen.queryByText( 'Fill out campaign parameters to see the URL' )
+	).not.toBeInTheDocument();
+} );
+
 it( 'asks for a protocol once the destination without one loses focus', async () => {
 	const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 	render( <UtmUrlBuilderDialog onClose={ jest.fn() } /> );

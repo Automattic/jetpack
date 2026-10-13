@@ -22,7 +22,7 @@
 		padding: var(--wpds-dimension-gap-sm);
 		border-radius: var(--wpds-border-radius-sm);
 		background: var(--wpds-color-background-surface-neutral-weak);
-		word-break: break-all;
+		overflow-wrap: anywhere;
 	}
 }
 

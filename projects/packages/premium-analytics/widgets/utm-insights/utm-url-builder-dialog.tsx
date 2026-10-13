@@ -90,6 +90,9 @@ export function UtmUrlBuilderDialog( { onClose }: { onClose: () => void } ) {
 		[ isDestinationInvalid ]
 	);
 	const trackedUrl = buildTrackedUrl( destinationUrl, values );
+	const hasParameters = [ values.campaign, values.source, values.medium ].some( value =>
+		value.trim()
+	);
 
 	const setField = useCallback( ( field: keyof UtmValues, value: string ) => {
 		setValues( current => ( { ...current, [ field ]: value } ) );
@@ -169,10 +172,15 @@ export function UtmUrlBuilderDialog( { onClose }: { onClose: () => void } ) {
 								</Text>
 								<div className={ styles.resultValue }>
 									{ trackedUrl ??
-										__(
-											'Fill out campaign parameters to see the URL',
-											'jetpack-premium-analytics-pkg'
-										) }
+										( hasParameters
+											? __(
+													'Enter a destination URL to see the URL',
+													'jetpack-premium-analytics-pkg'
+												)
+											: __(
+													'Fill out campaign parameters to see the URL',
+													'jetpack-premium-analytics-pkg'
+												) ) }
 								</div>
 							</div>
 						</div>
