@@ -131,7 +131,7 @@ const CHARTS: [ string, string, string, ( ariaLabel?: string ) => ReactElement ]
 	],
 	[
 		'geo',
-		'img',
+		'group',
 		'Geo chart',
 		ariaLabel => (
 			<GeoChartUnresponsive data={ geoData } width={ 800 } height={ 400 } ariaLabel={ ariaLabel } />

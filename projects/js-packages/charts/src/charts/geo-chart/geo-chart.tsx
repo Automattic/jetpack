@@ -309,7 +309,7 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 	return (
 		<Center
 			ref={ containerRef }
-			role="img"
+			role="group"
 			aria-label={ ariaLabel ?? __( 'Geo chart', 'jetpack-charts' ) }
 			className={ clsx( 'geo-chart', styles.container, className ) }
 			data-testid="geo-chart"
