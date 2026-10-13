@@ -6,6 +6,7 @@ import {
 	getComparisonOptions,
 	isPrimaryPreset,
 	parseSiteDateTime,
+	toComparisonPresetId,
 } from '@jetpack-premium-analytics/datetime';
 import { isSameDay } from 'date-fns';
 /**
@@ -30,13 +31,14 @@ export function getComparisonPeriodLabel( reportParams: ReportParams ): string |
 		return undefined;
 	}
 
-	const option = compare_preset
+	const presetId = toComparisonPresetId( compare_preset );
+	const option = presetId
 		? findComparisonOption(
 				getComparisonOptions(
 					{ from: parseSiteDateTime( from ), to: parseSiteDateTime( to ) },
 					{ primaryPresetId: isPrimaryPreset( preset ) ? preset : undefined }
 				),
-				compare_preset
+				presetId
 			)
 		: undefined;
 

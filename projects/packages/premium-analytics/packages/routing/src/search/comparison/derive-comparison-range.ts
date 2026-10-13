@@ -6,26 +6,14 @@ import {
 	dateToISOStringWithLocalTZ,
 	findComparisonOption,
 	getComparisonOptions,
-	isComparisonPresetId,
 	isPrimaryPreset,
 	localTZDate,
 	reportingTimeZone,
+	toComparisonPresetId,
 	type ComparisonPresetId,
 } from '@jetpack-premium-analytics/datetime';
 
 type ReportParams = NonNullable< Parameters< typeof normalizeReportParams >[ 0 ] >;
-
-/**
- * Normalize URL/UI comparison preset IDs to canonical ComparisonPresetId.
- * Accepts variants with hyphen or underscore for robustness.
- *
- * @param value - Raw preset ID from URL or UI (e.g., 'previous_period' or 'previous-period')
- * @return Canonical ComparisonPresetId or undefined if invalid
- */
-const toComparisonPresetId = ( value?: string ): ComparisonPresetId | undefined => {
-	const normalized = value?.replace( /_/g, '-' );
-	return isComparisonPresetId( normalized ) ? normalized : undefined;
-};
 
 /**
  * Resolve the comparison params for the main range, in the site timezone: the

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -12,8 +12,8 @@ import type { SeriesData } from '@jetpack-premium-analytics/externals';
 type LegendShape = Parameters< typeof useLockedPrimaryLegendItems >[ 2 ];
 
 /**
- * A comparative chart's legend: each metric, then each metric's previous period
- * named after the comparison the reader picked.
+ * A comparative chart's legend: each metric, then each metric's previous period,
+ * named by `comparisonLabel`.
  *
  * @param series          - The series the chart draws.
  * @param interactive     - Whether the reader can show and hide metrics from the legend.
@@ -34,7 +34,7 @@ export function useComparativeLegend(
 			comparisonSeriesItems: ( metric: string ) =>
 				sprintf(
 					/* translators: 1: metric name, e.g. "Views"; 2: comparison period, e.g. "Prev. 30 days". */
-					__( '%1$s (%2$s)', 'jetpack-premium-analytics-pkg' ),
+					_x( '%1$s (%2$s)', 'metric with its comparison period', 'jetpack-premium-analytics-pkg' ),
 					metric,
 					comparisonLabel
 				),

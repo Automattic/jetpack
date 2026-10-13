@@ -189,7 +189,7 @@ function formatPreviousSpan( span: PreviousSpan ): string {
 				_n( 'Previous %d year', 'Previous %d years', count, 'jetpack-premium-analytics-pkg' ),
 				count
 			);
-		default:
+		case 'day':
 			return count === 1
 				? __( 'Previous day', 'jetpack-premium-analytics-pkg' )
 				: sprintf(
@@ -197,6 +197,10 @@ function formatPreviousSpan( span: PreviousSpan ): string {
 						_n( 'Previous %d day', 'Previous %d days', count, 'jetpack-premium-analytics-pkg' ),
 						count
 					);
+		default: {
+			const unhandled: never = unit;
+			return unhandled;
+		}
 	}
 }
 
@@ -250,7 +254,7 @@ function abbreviatePreviousSpan( span: PreviousSpan ): string {
 				),
 				count
 			);
-		default:
+		case 'day':
 			return count === 1
 				? _x( 'Prev. day', 'comparison legend label', 'jetpack-premium-analytics-pkg' )
 				: sprintf(
@@ -264,6 +268,10 @@ function abbreviatePreviousSpan( span: PreviousSpan ): string {
 						),
 						count
 					);
+		default: {
+			const unhandled: never = unit;
+			return unhandled;
+		}
 	}
 }
 
@@ -333,7 +341,8 @@ function getLegendLabel(
 	primaryPresetId?: PrimaryPresetId
 ): string {
 	if ( id === COMPARISON_PREVIOUS_WEEK ) {
-		return SHORT_LABELS[ COMPARISON_PREVIOUS_WEEK ]();
+		/* translators: abbreviation for "Same period from last week". Repeated after each metric in a chart legend, so keep it as short as the language allows. */
+		return _x( 'Prev. week', 'comparison legend label', 'jetpack-premium-analytics-pkg' );
 	}
 
 	if ( id === COMPARISON_PREVIOUS_MONTH ) {
@@ -345,6 +354,7 @@ function getLegendLabel(
 	}
 
 	if ( id === COMPARISON_PREVIOUS_YEAR_MATCH_DAY_OF_WEEK ) {
+		/* translators: abbreviation for "Same period last year (match day of week)"; "weekday" says it starts on the same weekday. Repeated after each metric in a chart legend, so keep it as short as the language allows. */
 		return _x( 'Prev. year, weekday', 'comparison legend label', 'jetpack-premium-analytics-pkg' );
 	}
 
@@ -365,15 +375,13 @@ function getLegendLabel(
  *
  * @param options - Options from `getComparisonOptions`.
  * @param id      - The comparison preset.
- * @return The option, or undefined when the range does not offer it.
+ * @return The option, or undefined when no option in `options` has that id or alias.
  */
 export function findComparisonOption(
 	options: readonly ComparisonOption[],
-	id: string
+	id: ComparisonPresetId
 ): ComparisonOption | undefined {
-	return options.find(
-		option => option.id === id || ( option.aliases as readonly string[] ).includes( id )
-	);
+	return options.find( option => option.id === id || option.aliases.includes( id ) );
 }
 
 /**

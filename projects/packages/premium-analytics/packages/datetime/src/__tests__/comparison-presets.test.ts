@@ -441,9 +441,19 @@ describe( 'comparison options', () => {
 			[ 'Prev. day', 'Prev. week', 'Jul', '2025', 'Prev. year, weekday' ],
 		],
 		[
+			'a single day on the 1st',
+			daysRange( [ 2026, 8, 1 ], [ 2026, 8, 1 ] ),
+			[ 'Prev. day', 'Prev. week', 'Aug', '2025', 'Prev. year, weekday' ],
+		],
+		[
 			'eight days',
 			daysRange( [ 2026, 7, 23 ], [ 2026, 7, 30 ] ),
 			[ 'Prev. 8 days', 'Prev. 8 days, weekday', 'Jul', '2025', 'Prev. year, weekday' ],
+		],
+		[
+			'a single hour',
+			{ from: siteDate( 2026, 7, 31, 14 ), to: siteDate( 2026, 7, 31, 14, 59, 59, 999 ) },
+			[ 'Prev. hour', 'Prev. week', 'Jul', '2025', 'Prev. year, weekday' ],
 		],
 		[
 			'a rolling 24 hours',

@@ -509,12 +509,12 @@ describe( 'MetricTabsChart', () => {
 	} );
 
 	it.each( [
-		[ 'bar chart', mockBarSpy, [ VIEWS, VISITORS ], 'bar', undefined ],
-		[ 'narrow dropdown layout', mockLineSpy, [ VIEWS, VISITORS ], undefined, 100 ],
-		[ 'single metric', mockLineSpy, [ VIEWS ], undefined, undefined ],
+		[ 'bar chart', mockBarSpy, [ VIEWS, VISITORS ], 'bar', undefined, [ 0, 2 ] ],
+		[ 'narrow dropdown layout', mockLineSpy, [ VIEWS, VISITORS ], undefined, 100, [ 1, 0 ] ],
+		[ 'single metric', mockLineSpy, [ VIEWS ], undefined, undefined, [ 0, 0 ] ],
 	] as const )(
 		"hands the widget's comparison name to the %s",
-		( _layout, spy, metrics, chartType, width ) => {
+		( _layout, spy, metrics, chartType, width, [ selects, tabs ] ) => {
 			setMockChartWidth( width );
 			render(
 				<WidgetRootContext.Provider
@@ -528,6 +528,10 @@ describe( 'MetricTabsChart', () => {
 				</WidgetRootContext.Provider>
 			);
 
+			expect( [
+				screen.queryAllByRole( 'combobox' ).length,
+				screen.queryAllByRole( 'tab' ).length,
+			] ).toEqual( [ selects, tabs ] );
 			expect( recordedPropsFor( spy, 'Views' ).comparisonLabel ).toBe( '2025' );
 		}
 	);

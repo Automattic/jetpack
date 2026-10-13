@@ -217,8 +217,15 @@ inverted
 #### `findComparisonOption( options, id )`
 
 The option a comparison preset selects from `getComparisonOptions`, matching
-either its `id` or one of its `aliases`. Returns `undefined` when the range
-does not offer that preset.
+either its `id` or one of its `aliases`.
+
+**Parameters:**
+
+- `options`: `ComparisonOption[]` - Options from `getComparisonOptions`
+- `id`: `ComparisonPresetId` - The comparison preset
+
+**Returns:** `ComparisonOption | undefined` - `undefined` when no option in
+`options` has that id or alias
 
 ### Range Measurement
 
