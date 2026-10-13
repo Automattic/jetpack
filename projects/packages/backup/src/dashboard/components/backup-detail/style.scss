@@ -39,8 +39,9 @@
 		max-inline-size: 100%;
 	}
 
+	// Card drops the top padding after a header; the separator needs it back.
 	&__body {
-		padding-block-start: var(--wp-ui-card-padding, 24px);
+		padding-block-start: var(--wpds-dimension-padding-2xl);
 	}
 
 	&__by {
