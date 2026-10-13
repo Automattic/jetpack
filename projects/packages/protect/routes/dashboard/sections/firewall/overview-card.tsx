@@ -23,7 +23,6 @@ const UNAVAILABLE: FirewallState = {
 	recentBlocks: [],
 	hasScan: false,
 	currentIp: '',
-	sharesData: false,
 	ipRules: {},
 };
 
@@ -128,7 +127,6 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 	const [ recorded, setRecorded ] = useState( false );
 	const [ detailsOpen, setDetailsOpen ] = useState( false );
 	const active = isModuleActive( settings.settings, 'waf', firewall.active );
-	const sharesData = Boolean( settings.settings?.jetpack_waf_share_data ?? firewall.sharesData );
 	// Settings load on the Settings tab; until then the IP lists come from page load.
 	const ipData = useMemo(
 		() => ( { ...settings, settings: { ...firewall.ipRules, ...settings.settings } } ),
@@ -187,7 +185,10 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 		<ProtectCard
 			icon={ shield }
 			title={ title }
-			info={ __( 'Block malicious requests before they reach your site.', 'jetpack-protect-pkg' ) }
+			description={ __(
+				'Blocks malicious requests before they reach your site.',
+				'jetpack-protect-pkg'
+			) }
 			actions={
 				<Button variant="outline" size="compact" onClick={ runTest } loading={ isTesting }>
 					{ __( 'Test firewall', 'jetpack-protect-pkg' ) }
@@ -224,7 +225,7 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 						/>
 						{ settingsLink }
 					</Stack>
-					<RecentBlocks blocks={ blocks.recentBlocks } canViewAll={ sharesData } />
+					<RecentBlocks blocks={ blocks.recentBlocks } />
 				</CardRow>
 			) }
 			{ active && (

@@ -11,7 +11,7 @@ const block = {
 };
 
 const openDialog = async ( blocks: BlockedRequest[] ) => {
-	render( <RecentBlocks blocks={ blocks } canViewAll /> );
+	render( <RecentBlocks blocks={ blocks } /> );
 	await userEvent.click( screen.getByRole( 'button', { name: 'View blocked requests' } ) );
 	return screen.findByRole( 'dialog', { name: 'Recently blocked requests' } );
 };
@@ -45,12 +45,10 @@ describe( 'RecentBlocks', () => {
 		expect( dialog ).toHaveTextContent( 'Firefox · macOS' );
 	} );
 
-	it.each( [
-		[ 'before anything is blocked', [], true ],
-		[ 'while the firewall keeps no request log', [ block ], false ],
-	] )( 'has nothing to open %s', ( _, blocks: BlockedRequest[], canViewAll: boolean ) => {
-		render( <RecentBlocks blocks={ blocks } canViewAll={ canViewAll } /> );
+	it( 'has nothing to open before anything is blocked', () => {
+		render( <RecentBlocks blocks={ [] } /> );
 
+		expect( screen.getByText( 'None yet' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
 	} );
 } );

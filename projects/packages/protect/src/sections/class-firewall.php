@@ -49,10 +49,9 @@ class Firewall implements Dashboard_Section {
 			Dashboard::get_module_state( 'waf' ),
 			self::get_blocks(),
 			array(
-				'hasScan'    => Dashboard::has_scan_plan(),
-				'currentIp'  => self::get_current_ip(),
-				'sharesData' => self::shares_data(),
-				'ipRules'    => self::get_ip_rules(),
+				'hasScan'   => Dashboard::has_scan_plan(),
+				'currentIp' => self::get_current_ip(),
+				'ipRules'   => self::get_ip_rules(),
 			)
 		);
 	}

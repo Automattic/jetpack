@@ -21,8 +21,6 @@ export type FirewallState = {
 	recentBlocks: BlockedRequest[];
 	hasScan: boolean;
 	currentIp: string;
-	/** Whether the firewall keeps its request log ("Share basic data"). */
-	sharesData: boolean;
 	/** The IP lists and their on/off state as of page load, keyed like Jetpack settings. */
 	ipRules: ProtectSettings;
 };

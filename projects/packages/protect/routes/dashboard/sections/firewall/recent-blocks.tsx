@@ -1,4 +1,5 @@
 import { dateI18n, humanTimeDiff } from '@wordpress/date';
+import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Badge, Button, Dialog, Stack } from '@wordpress/ui';
 import { Stat } from '../../components/card';
@@ -18,19 +19,19 @@ const formatTime = ( block: BlockedRequest ) => (
 /**
  * When the firewall last blocked a request, and a dialog listing its recent blocks.
  *
- * @param props            - Component props.
- * @param props.blocks     - The blocked requests, newest first.
- * @param props.canViewAll - Whether the firewall keeps its request log, which the dialog needs.
+ * @param props        - Component props.
+ * @param props.blocks - The blocked requests, newest first.
  * @return The figure and dialog.
  */
-export default function RecentBlocks( {
-	blocks,
-	canViewAll,
-}: {
-	blocks: BlockedRequest[];
-	canViewAll: boolean;
-} ) {
+export default function RecentBlocks( { blocks }: { blocks: BlockedRequest[] } ) {
 	const [ latest ] = blocks;
+	const [ , setTick ] = useState( 0 );
+
+	// "A few seconds ago" goes stale; re-render so it keeps up.
+	useEffect( () => {
+		const timer = setInterval( () => setTick( tick => tick + 1 ), 30000 );
+		return () => clearInterval( timer );
+	}, [] );
 	const hasDetails = blocks.some( block => block.uri || block.userAgent );
 
 	return (
@@ -50,7 +51,7 @@ export default function RecentBlocks( {
 					)
 				}
 			/>
-			{ latest && canViewAll && (
+			{ latest && (
 				<Dialog.Root>
 					<Dialog.Trigger
 						render={ <Button variant="unstyled" className="jp-protect-card__link-button" /> }

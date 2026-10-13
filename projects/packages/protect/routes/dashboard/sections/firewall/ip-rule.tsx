@@ -125,14 +125,29 @@ export default function IpRule( {
 								onChange={ onChange }
 								rows={ 8 }
 							/>
-							{ currentIp && ! splitIps( draft ).includes( currentIp ) && (
-								<Button variant="minimal" size="compact" onClick={ onAddIp }>
-									{ sprintf(
-										/* translators: %s is an IP address. */
-										__( 'Add my IP address (%s)', 'jetpack-protect-pkg' ),
-										currentIp
+							{ currentIp && (
+								<Stack direction="row" gap="sm" align="center" wrap="wrap">
+									<Text variant="body-sm">
+										{ sprintf(
+											/* translators: %s is an IP address. */
+											__( 'Your IP address: %s', 'jetpack-protect-pkg' ),
+											currentIp
+										) }
+									</Text>
+									{ splitIps( draft ).includes( currentIp ) ? (
+										<Text variant="body-sm" className="jp-protect-card__muted">
+											{ __( 'Already on this list', 'jetpack-protect-pkg' ) }
+										</Text>
+									) : (
+										<Button
+											variant="unstyled"
+											className="jp-protect-card__link-button"
+											onClick={ onAddIp }
+										>
+											{ __( 'Add it to the list', 'jetpack-protect-pkg' ) }
+										</Button>
 									) }
-								</Button>
+								</Stack>
 							) }
 						</Stack>
 					</Dialog.Content>

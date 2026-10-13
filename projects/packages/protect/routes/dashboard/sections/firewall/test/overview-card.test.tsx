@@ -21,8 +21,7 @@ const props = {
 		blockedCount: 1,
 		recentBlocks: [],
 		hasScan: false,
-		currentIp: '',
-		sharesData: false,
+		currentIp: '192.0.2.44',
 		ipRules: {
 			jetpack_waf_ip_block_list: '203.0.113.7\n203.0.113.8',
 			jetpack_waf_ip_block_list_enabled: true,
@@ -95,5 +94,17 @@ describe( 'FirewallOverviewCard', () => {
 		expect( props.settings.save ).toHaveBeenCalledWith( {
 			jetpack_waf_ip_block_list: '198.51.100.1',
 		} );
+	} );
+	it( 'offers the visitor’s own address in the allow list dialog', async () => {
+		render( <FirewallOverviewCard { ...props } /> );
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Edit allow list' } ) );
+		const dialog = await screen.findByRole( 'dialog', { name: 'Always allowed IP addresses' } );
+		await userEvent.click( within( dialog ).getByRole( 'button', { name: 'Add it to the list' } ) );
+
+		expect( within( dialog ).getByRole( 'textbox', { name: 'IP addresses' } ) ).toHaveValue(
+			'192.0.2.44'
+		);
+		expect( dialog ).toHaveTextContent( 'Already on this list' );
 	} );
 } );
