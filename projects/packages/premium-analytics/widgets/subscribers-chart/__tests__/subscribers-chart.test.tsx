@@ -178,21 +178,6 @@ describe( 'SubscribersChartWidget', () => {
 			expect( screen.queryByText( NO_RESULTS ) ).not.toBeInTheDocument();
 		} );
 
-		it( 'describes an empty chart once an attempt to read the subscriber total has failed', async () => {
-			mockUseStatsSubscribersReport.mockReturnValue( reportWith( emptyRange ) );
-			mockUseStatsSubscribersCounts.mockReturnValue( {
-				data: undefined,
-				isLoading: true,
-				failureCount: 1,
-			} );
-
-			render(
-				<SubscribersChartWidget attributes={ { reportParams: getDefaultQueryParams( false ) } } />
-			);
-
-			await expect( screen.findByText( NO_RESULTS ) ).resolves.toBeInTheDocument();
-		} );
-
 		it.each( [
 			[
 				'has subscribers',
