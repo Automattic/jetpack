@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { FeatureAction } from '../feature-action';
 import { FeatureItem } from '../feature-item';
 import { FeatureModalActions } from '../feature-modal-actions';
+import { resolveFeatureState } from '../feature-state';
 import type { MyJetpackModule } from '../../../../types';
 import type { FeatureState } from '../feature-state';
 
@@ -408,19 +409,31 @@ describe( 'FeatureModalActions', () => {
 
 describe( 'FeatureItem', () => {
 	it.each( [
-		[ 'active', 'Requires a connected WordPress.com account', 'Enabled' ],
-		[ 'active', 'Unavailable in Offline mode', 'Enabled' ],
-		[ 'inactive', 'Unavailable in Offline mode', 'Disabled' ],
+		[ 'active', 'Requires a connected WordPress.com account', 'Enabled', false ],
+		[ 'active', 'Unavailable in Offline mode', 'Enabled', false ],
+		[ 'active', 'Unavailable in Offline mode', 'Enabled', true ],
+		[ 'inactive', 'Unavailable in Offline mode', 'Disabled', false ],
+		[ 'inactive', 'Unavailable in Offline mode', 'Disabled', true ],
 	] as const )(
-		'shows the module limitation before the host line in details for override %s: %s',
-		( override, unavailable_reason, hostLabel ) => {
-			const state = buildState(
+		'shows the module limitation before the host line in details for override %s: %s (%s, gated: %s)',
+		( override, unavailable_reason, hostLabel, gated ) => {
+			let state = buildState(
 				{
 					kind: 'module',
 					module: { ...forcedModule, override, available: false, unavailable_reason },
 				},
 				{ status: 'active' }
 			);
+			if ( gated ) {
+				state = resolveFeatureState(
+					{ ...state.feature, product: 'jetpack-ai', module: '', plugin: '' },
+					'active',
+					undefined,
+					{ ai: { ...forcedModule, module: 'ai', override, available: false, unavailable_reason } },
+					{}
+				);
+				expect( state.control.kind ).toBe( 'none' );
+			}
 			const { rerender } = render( <FeatureItem state={ state } onOpen={ jest.fn() } /> );
 			expect( screen.getByText( 'Unavailable' ) ).toBeVisible();
 			expect( screen.getByText( unavailable_reason ) ).toBeVisible();
