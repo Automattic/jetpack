@@ -89,8 +89,7 @@ export const RetryableErrorState: Story = {
 };
 
 /**
- * Resolved with no rows: the widget shows its empty state (the neutral comment
- * author glyph and "No one has commented on your site yet.").
+ * Resolved with no rows: the widget shows the generic empty state.
  */
 export const Empty: Story = {
 	render: renderMostCommentedAuthors,

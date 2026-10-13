@@ -3,7 +3,6 @@
  */
 import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { toAuthorId } from '@jetpack-premium-analytics/data';
-import { search } from '@jetpack-premium-analytics/icons';
 import { createReportOriginSearch } from '@jetpack-premium-analytics/routing';
 import {
 	PostHighlightCard,
@@ -129,7 +128,6 @@ function PopularPostCard( { authorId }: { authorId: number } ) {
 				authorId
 					? undefined
 					: {
-							icon: noPublishedPosts ? search : trendingUp,
 							description: noPublishedPosts
 								? __(
 										"Your most-read post will show here once you've published one.",

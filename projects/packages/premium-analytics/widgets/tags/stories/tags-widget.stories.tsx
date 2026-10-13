@@ -89,7 +89,7 @@ export const Error: Story = {
 };
 
 /**
- * Resolved with no rows: the widget shows its empty state (the neutral tag glyph
+ * Resolved with no rows: the widget shows its empty state (the generic magnifier
  * and "Learn about your most visited tags & categories to track engaging topics.").
  */
 export const Empty: Story = {

@@ -20,7 +20,6 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { commentContent } from '@wordpress/icons';
 import { Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
@@ -79,7 +78,6 @@ function MostCommentedPostsInner() {
 						onRetry: refetch,
 					} ) }
 					empty={ {
-						icon: commentContent,
 						description: __(
 							'None of your posts or pages have comments yet.',
 							'jetpack-premium-analytics-pkg'
