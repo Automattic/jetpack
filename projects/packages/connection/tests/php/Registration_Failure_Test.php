@@ -185,8 +185,11 @@ class Registration_Failure_Test extends \WorDBless\BaseTestCase {
 		$this->manager->try_registration();
 		$this->assertFalse( get_transient( Registration_Failure::SUPPRESSION_TRACKED_TRANSIENT ) );
 
-		$this->manager->try_registration();
-		$this->manager->try_registration();
+		$first_held  = $this->manager->try_registration();
+		$second_held = $this->manager->try_registration();
+
+		$this->assertTrue( $first_held->get_error_data()['suppressed'] );
+		$this->assertTrue( $second_held->get_error_data()['suppressed'] );
 
 		$state = $this->recorded_failure();
 		$this->assertSame( 1, $state['attempts'] );
