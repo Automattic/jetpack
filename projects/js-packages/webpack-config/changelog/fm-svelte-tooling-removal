@@ -1,0 +1,3 @@
+Significance: patch
+Type: removed
+Comment: Remove the obsolete Svelte file pattern from build tooling.

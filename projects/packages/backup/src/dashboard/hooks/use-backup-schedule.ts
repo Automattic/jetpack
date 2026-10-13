@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { dateI18n } from '@wordpress/date';
 import { fetchBackupSchedule, type RawBackupSchedule } from '../data/api/backup-schedule';
+import { formatShortDate, formatTime, getTimeFormat } from '../data/date-format';
 import { keys } from '../data/query-client';
 import { useCanQueryWpcom } from './use-connection';
 
@@ -99,16 +100,15 @@ function nextWindowStart( scheduledHourUtc: number, now: Date ): Date {
  */
 function windowLabel( start: Date, timezone?: string ): string {
 	const lastMinute = new Date( start.getTime() + WINDOW_LAST_MINUTE_MS );
-	// The start drops its AM/PM only when the end's covers both halves.
+	const timeFormat = getTimeFormat();
+	// The start drops a trailing AM/PM only when the end's covers both halves.
 	const startFormat =
-		dateI18n( 'A', start, timezone ) === dateI18n( 'A', lastMinute, timezone ) ? 'g:i' : 'g:i A';
+		dateI18n( 'A', start, timezone ) === dateI18n( 'A', lastMinute, timezone )
+			? timeFormat.replace( /\s*[aA]\s*$/, '' )
+			: timeFormat;
 
 	// Assembled here rather than as a msgid: neither half is translatable prose.
-	return `${ dateI18n( startFormat, start, timezone ) }-${ dateI18n(
-		'g:i A',
-		lastMinute,
-		timezone
-	) }`;
+	return `${ dateI18n( startFormat, start, timezone ) }-${ formatTime( lastMinute, timezone ) }`;
 }
 
 /**
@@ -174,7 +174,7 @@ export function useNextBackupSchedule(): Result {
 	return {
 		isLoading: query.isLoading,
 		hasSchedule: true,
-		nextBackupDate: dateI18n( 'M j', start, undefined ),
+		nextBackupDate: formatShortDate( start ),
 		timeRange: windowLabel( start ),
 		scheduledHour,
 		scheduledBy: query.data?.scheduled_by || null,

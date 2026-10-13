@@ -1,0 +1,4 @@
+Significance: patch
+Type: deprecated
+
+Deprecate the `jetpack_connection_ownership_transferable` filter, which can no longer stop the protected owner from transferring ownership.

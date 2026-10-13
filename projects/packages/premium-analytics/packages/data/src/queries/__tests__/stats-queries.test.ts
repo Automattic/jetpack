@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { QueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { getSettings, setSettings } from '@wordpress/date';
 /**
@@ -14,7 +15,7 @@ import {
 	statsAppReferrersUnmarkSpamMutation,
 } from '../stats-app-referrers-spam-query';
 import { statsArchivesQuery } from '../stats-archives-query';
-import { statsAuthorQuery } from '../stats-author-query';
+import { statsAuthorAllTimeOrApproximateQuery, statsAuthorQuery } from '../stats-author-query';
 import { statsClicksQuery } from '../stats-clicks-query';
 import { statsCountryViewsQuery } from '../stats-country-views-query';
 import { statsDevicesQuery } from '../stats-devices-query';
@@ -190,6 +191,51 @@ describe( 'Stats query factories', () => {
 			'author',
 			'UTC',
 		] );
+	} );
+
+	describe( 'statsAuthorAllTimeOrApproximateQuery', () => {
+		const ALL_TIME = /stats\/author\/7\?period=month&num=-1/;
+		const APPROXIMATE = /stats\/author\/7\?period=day&num=1&approximate=true/;
+
+		function run( reply: ( path: string ) => unknown ) {
+			mockApiFetch.mockImplementation( ( { path }: { path?: string } ) => {
+				const result = reply( path ?? '' );
+				return result instanceof Error || ( result as { error?: string } )?.error
+					? Promise.reject( result )
+					: Promise.resolve( result );
+			} );
+			return new QueryClient().fetchQuery( statsAuthorAllTimeOrApproximateQuery( 7 ) );
+		}
+
+		it( 'reads the all-time report when the author is within the post limit', async () => {
+			await expect(
+				run( () => ( { start_date: '2021-03-02', data: [] } ) )
+			).resolves.toMatchObject( { isApproximate: false, report: { startDate: '2021-03-02' } } );
+			expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
+		} );
+
+		it( 'falls back to the approximate report past the post limit', async () => {
+			await expect(
+				run( path =>
+					ALL_TIME.test( path )
+						? { error: 'too_many_posts', status: 400 }
+						: { first_content_date: '2023-07-04 10:00:00', data: [] }
+				)
+			).resolves.toMatchObject( {
+				isApproximate: true,
+				report: { firstContentDate: '2023-07-04 10:00:00' },
+			} );
+			expect(
+				mockApiFetch.mock.calls.map( ( [ { path } ] ) => APPROXIMATE.test( path ?? '' ) )
+			).toEqual( [ false, true ] );
+		} );
+
+		it( 'fails on any other all-time error without asking for the approximate report', async () => {
+			await expect(
+				run( () => ( { error: 'unknown_author', status: 404 } ) )
+			).rejects.toMatchObject( { error: 'unknown_author' } );
+			expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
+		} );
 	} );
 
 	it( 'disables post stats queries until a positive post ID is available', () => {

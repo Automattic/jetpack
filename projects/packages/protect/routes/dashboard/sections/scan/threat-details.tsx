@@ -3,6 +3,7 @@ import { dateI18n } from '@wordpress/date';
 import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Badge, Button, Link, LinkButton, Stack, Text } from '@wordpress/ui';
+import useOpenThreat from '../use-open-threat';
 import { DeleteSoftwareButton } from './delete-software';
 import { getSoftwareActionLabels, getThreatLabel } from './labels';
 import { fixThreat, ignoreThreat, unignoreThreat, useThreatAction } from './threat-actions';
@@ -27,6 +28,33 @@ function SeverityBadge( { severity = 0 }: { severity?: number } ) {
 		label = __( 'High severity', 'jetpack-protect-pkg' );
 	}
 	return <Badge intent={ intent }>{ label }</Badge>;
+}
+
+/**
+ * Whether the plugin or theme the threat is in is in use, as a badge.
+ *
+ * @param props        - Component props.
+ * @param props.threat - The threat.
+ * @return The badge, or null when the threat isn't in an installed plugin or theme.
+ */
+function StateBadge( { threat }: { threat: ScanThreat } ) {
+	const { type, state } = threat.extension ?? {};
+	if ( ! state ) {
+		return null;
+	}
+	const isTheme = type === 'themes';
+	const labels = {
+		parent: __( 'Parent of active theme', 'jetpack-protect-pkg' ),
+		active: isTheme
+			? __( 'Active theme', 'jetpack-protect-pkg' )
+			: __( 'Active plugin', 'jetpack-protect-pkg' ),
+		inactive: isTheme
+			? __( 'Inactive theme', 'jetpack-protect-pkg' )
+			: __( 'Inactive plugin', 'jetpack-protect-pkg' ),
+	};
+	return (
+		<Badge intent={ state === 'inactive' ? 'draft' : 'informational' }>{ labels[ state ] }</Badge>
+	);
 }
 
 /**
@@ -91,9 +119,10 @@ function Section( { title, children }: { title: string; children: ReactNode } ) 
 function ThreatFooter( { threat }: { threat: ScanThreat } ) {
 	const { busy } = useThreatAction( threat.id );
 	const isIgnored = threat.status === 'ignored';
-	const onIgnore = useCallback( () => ignoreThreat( threat ), [ threat ] );
-	const onUnignore = useCallback( () => unignoreThreat( threat ), [ threat ] );
-	const onFix = useCallback( () => fixThreat( threat ), [ threat ] );
+	const open = useOpenThreat();
+	const onIgnore = useCallback( () => ignoreThreat( threat, open ), [ threat, open ] );
+	const onUnignore = useCallback( () => unignoreThreat( threat, open ), [ threat, open ] );
+	const onFix = useCallback( () => fixThreat( threat, open ), [ threat, open ] );
 
 	return (
 		<div className="jp-protect-threat-details__footer">
@@ -224,6 +253,7 @@ export default function ThreatDetails( {
 				</Text>
 				<Stack direction="row" gap="xs" wrap="wrap">
 					<SeverityBadge severity={ threat.severity } />
+					{ threat.status !== 'fixed' && <StateBadge threat={ threat } /> }
 					{ threat.status === 'ignored' && (
 						<Badge intent="informational">{ __( 'Ignored', 'jetpack-protect-pkg' ) }</Badge>
 					) }
