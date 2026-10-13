@@ -41,6 +41,20 @@ class Comment_Form {
 	private $defaults = array();
 
 	/**
+	 * Whether this request drew the app.
+	 *
+	 * @var bool
+	 */
+	private $rendered = false;
+
+	/**
+	 * What a theme-built form passed in place of the form arguments, when this request met one.
+	 *
+	 * @var string
+	 */
+	private $theme_form = '';
+
+	/**
 	 * Register the form's hooks. Safe to call more than once.
 	 *
 	 * @return Comment_Form
@@ -66,6 +80,7 @@ class Comment_Form {
 		add_filter( 'comment_reply_link', array( $this, 'comment_reply_link' ), 10, 4 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'register_assets' ) );
 		add_action( 'pre_comment_on_post', array( $this, 'verify_nonce' ) );
+		add_action( 'wp_footer', array( $this, 'log_missing_form' ) );
 	}
 
 	/**
@@ -203,7 +218,7 @@ class Comment_Form {
 
 		// A theme that builds its own form (Thesis) never runs comment_form(), so leave its form alone.
 		if ( ! is_array( $args ) || ! $this->defaults ) {
-			self::log_theme_form( $args );
+			$this->theme_form = gettype( $args );
 
 			// The marker keeps Tracks from counting what this form never drew.
 			return $submit_field
@@ -256,7 +271,12 @@ class Comment_Form {
 	 * @return void
 	 */
 	public function render_must_log_in() {
-		if ( ! self::enabled_for_post_type() || ! $this->defaults ) {
+		if ( ! self::enabled_for_post_type() ) {
+			return;
+		}
+
+		if ( ! $this->defaults ) {
+			$this->theme_form = 'must_log_in';
 			return;
 		}
 
@@ -278,6 +298,8 @@ class Comment_Form {
 	 * @return string
 	 */
 	private function markup( $args = array() ) {
+		$this->rendered = true;
+
 		$post_id   = self::post_id();
 		$permalink = get_permalink( $post_id );
 		$button    = sprintf(
@@ -354,30 +376,37 @@ class Comment_Form {
 	}
 
 	/**
-	 * Report a theme-built form to logstash once a day, where the site allows usage events.
+	 * Report a post whose open comments this request never drew the app for, once a week, where the site allows usage events.
 	 *
-	 * @param mixed $args What the theme passed where core passes the form arguments.
 	 * @return void
 	 */
-	private static function log_theme_form( $args ) {
-		if ( ! Tracks::is_enabled() || get_transient( self::THEME_FORM ) ) {
+	public function log_missing_form() {
+		$post_id = get_queried_object_id();
+
+		// Single posts only: plenty of themes leave comments off pages on purpose.
+		if ( $this->rendered || ! is_single() || ! comments_open( $post_id ) || post_password_required( $post_id ) || ! self::enabled_for_post_type( $post_id ) ) {
 			return;
 		}
 
-		set_transient( self::THEME_FORM, 1, DAY_IN_SECONDS );
+		if ( ! Tracks::is_enabled() || get_transient( 'jetpack_comments_form_missing' ) ) {
+			return;
+		}
+
+		set_transient( 'jetpack_comments_form_missing', 1, WEEK_IN_SECONDS );
 
 		// The shape src/shared/log-error.ts sends, so these rows sit beside the app's own.
 		$error = array(
 			'feature'    => 'jetpack_comments',
-			'message'    => 'Theme-built comment form',
-			'url'        => (string) get_permalink( self::post_id() ),
+			'message'    => 'Comment form not shown',
+			'url'        => (string) get_permalink( $post_id ),
 			'blog_id'    => Checkpoint::blog_id(),
 			'properties' => array(
 				'platform' => Tracks::platform(),
 				'version'  => Comments::PACKAGE_VERSION,
-				'stage'    => 'theme_form',
+				'stage'    => 'form_missing',
+				'reason'   => '' === $this->theme_form ? 'not_rendered' : 'theme_form',
+				'args'     => $this->theme_form,
 				'theme'    => get_stylesheet(),
-				'args'     => gettype( $args ),
 			),
 		);
 
