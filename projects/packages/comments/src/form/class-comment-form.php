@@ -498,7 +498,7 @@ class Comment_Form {
 	}
 
 	/**
-	 * Require a logged-in reader's comment to arrive with a nonce this site issued, or from this site's own page.
+	 * Require a logged-in reader's comment to arrive with a nonce made for them, or from this site's own origin.
 	 *
 	 * A logged-out reader's would be the same string for everybody, which a page cache
 	 * serves past its expiry, so their comments go through core's checks alone, as core's form does.
@@ -518,30 +518,16 @@ class Comment_Form {
 			return;
 		}
 
-		// A forged post carries the other site's Origin, so this page's own is proof enough when
-		// the nonce outlived its day or the login it was made for.
-		if ( ! empty( $_SERVER['HTTP_ORIGIN'] ) && Checkpoint::is_same_site_request() ) {
-			return;
-		}
+		// A forged post carries the other site's Origin, so this site's own covers a nonce that outlived
+		// its day or its login. Scheme and port count too: http:// is another origin.
+		$origin = isset( $_SERVER['HTTP_ORIGIN'] ) ? strtolower( sanitize_text_field( wp_unslash( $_SERVER['HTTP_ORIGIN'] ) ) ) : '';
 
-		// A page cache can hand a logged-in reader a copy rendered for nobody, so
-		// the nonce they post is the anonymous one. wp_verify_nonce() reads the
-		// session token from the logged-in cookie, not the current user, so the
-		// cookie has to go too for the hash to match what a visitor was served.
-		if ( defined( 'LOGGED_IN_COOKIE' ) && isset( $_COOKIE[ LOGGED_IN_COOKIE ] ) ) {
-			$user_id = get_current_user_id();
-			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- Stashed and put back untouched.
-			$cookie = $_COOKIE[ LOGGED_IN_COOKIE ];
+		foreach ( array( home_url(), site_url() ) as $url ) {
+			$scheme = wp_parse_url( $url, PHP_URL_SCHEME );
+			$host   = wp_parse_url( $url, PHP_URL_HOST );
+			$port   = wp_parse_url( $url, PHP_URL_PORT );
 
-			unset( $_COOKIE[ LOGGED_IN_COOKIE ] );
-			wp_set_current_user( 0 );
-
-			$valid = (bool) wp_verify_nonce( $nonce, self::NONCE_ACTION );
-
-			$_COOKIE[ LOGGED_IN_COOKIE ] = $cookie;
-			wp_set_current_user( $user_id );
-
-			if ( $valid ) {
+			if ( $scheme && $host && strtolower( $scheme . '://' . $host . ( $port ? ':' . $port : '' ) ) === $origin ) {
 				return;
 			}
 		}
