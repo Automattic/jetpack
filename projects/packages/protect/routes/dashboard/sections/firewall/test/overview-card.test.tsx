@@ -46,6 +46,7 @@ describe( 'FirewallOverviewCard', () => {
 			status: 403,
 			statusText: '',
 			wafHeader: '403 - rule -2',
+			allowedHeader: null,
 		} );
 		( apiFetch as unknown as jest.Mock ).mockResolvedValue( {
 			blockedCount: 2,
@@ -113,5 +114,29 @@ describe( 'FirewallOverviewCard', () => {
 		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Enable firewall' } ) );
 
 		expect( props.settings.save ).toHaveBeenCalledWith( { waf: true } );
+	} );
+	it( 'explains a test the IP allow list let through', async () => {
+		( runFirewallTest as jest.Mock ).mockResolvedValue( {
+			outcome: 'allowed',
+			url: 'https://example.com/?jetpack_waf_test=93571da44ce07839f080f22ce422c11b',
+			status: 200,
+			statusText: '',
+			wafHeader: null,
+			allowedHeader: 'ip allow list',
+		} );
+		( apiFetch as unknown as jest.Mock ).mockResolvedValue( { blockedCount: 1, recentBlocks: [] } );
+		render( <FirewallOverviewCard { ...props } /> );
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Test firewall' } ) );
+
+		const notice = select( noticesStore )
+			.getNotices()
+			.find( ( { content } ) => content.includes( 'always-allowed list' ) );
+		expect( notice ).toMatchObject( { status: 'info', explicitDismiss: true } );
+		await act( async () => notice.actions[ 0 ].onClick() );
+
+		const dialog = await screen.findByRole( 'dialog', { name: 'How the firewall test works' } );
+		expect( dialog ).toHaveTextContent( 'X-JetpackWAF-Test-Allowed: ip allow list' );
+		expect( dialog ).toHaveTextContent( 'the firewall let the request through' );
 	} );
 } );

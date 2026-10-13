@@ -7,7 +7,10 @@ export const FIREWALL_PATH = '/jetpack/v4/protect-dashboard/firewall';
 /** Matches `Automattic\\Jetpack\\Waf\\Waf_Self_Check::RULE_ID`. */
 export const SELF_CHECK_RULE_ID = -2;
 
-export type TestOutcome = 'blocked' | 'silent' | 'not-blocked' | 'off';
+/** Matches `Automattic\\Jetpack\\Waf\\Waf_Self_Check::ALLOWED_HEADER`. */
+const ALLOWED_HEADER = 'X-JetpackWAF-Test-Allowed';
+
+export type TestOutcome = 'blocked' | 'silent' | 'allowed' | 'not-blocked' | 'off';
 
 export type TestResult = {
 	outcome: TestOutcome;
@@ -17,21 +20,28 @@ export type TestResult = {
 	statusText: string;
 	/** The `X-JetpackWAF-Blocked` header, which the firewall sends whenever it blocks. */
 	wafHeader: string | null;
+	/** The header the firewall sends when it lets the test through for the IP allow list. */
+	allowedHeader: string | null;
 };
 
 /**
  * What the test request's response says about the firewall.
  *
- * @param status    - The response status.
- * @param wafHeader - The `X-JetpackWAF-Blocked` header.
- * @param active    - Whether the firewall is on.
+ * @param status        - The response status.
+ * @param wafHeader     - The `X-JetpackWAF-Blocked` header.
+ * @param allowedHeader - The header sent when the IP allow list let the test through.
+ * @param active        - Whether the firewall is on.
  * @return The outcome; a 403 without the header came from something else, such as the host.
  */
 export function getTestOutcome(
 	status: number,
 	wafHeader: string | null,
+	allowedHeader: string | null,
 	active: boolean
 ): TestOutcome {
+	if ( allowedHeader ) {
+		return 'allowed';
+	}
 	if ( ! wafHeader ) {
 		return active ? 'not-blocked' : 'off';
 	}
@@ -71,11 +81,13 @@ export async function runFirewallTest( active: boolean ): Promise< TestResult > 
 	} );
 	const response = await fetch( url, { credentials: 'omit', cache: 'no-store' } );
 	const wafHeader = response.headers.get( 'X-JetpackWAF-Blocked' );
+	const allowedHeader = response.headers.get( ALLOWED_HEADER );
 	return {
-		outcome: getTestOutcome( response.status, wafHeader, active ),
+		outcome: getTestOutcome( response.status, wafHeader, allowedHeader, active ),
 		url,
 		status: response.status,
 		statusText: response.statusText,
 		wafHeader,
+		allowedHeader,
 	};
 }

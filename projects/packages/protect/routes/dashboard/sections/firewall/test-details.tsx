@@ -16,6 +16,28 @@ function getShortRequest( url: string ): string {
 }
 
 /**
+ * Why the response looks the way it does, when the firewall didn't block it.
+ *
+ * @param result - The test's result.
+ * @return The note, or undefined for a block.
+ */
+function getResponseNote( result: TestResult ): string | undefined {
+	if ( result.allowedHeader ) {
+		return __(
+			'Your IP address is on the always-allowed list, so the firewall let the request through. Requests from other addresses are still checked.',
+			'jetpack-protect-pkg'
+		);
+	}
+	if ( ! result.wafHeader ) {
+		return __(
+			'No firewall header, so the firewall didn’t act on the request.',
+			'jetpack-protect-pkg'
+		);
+	}
+	return undefined;
+}
+
+/**
  * The steps the firewall test took, so its result can be checked rather than trusted.
  *
  * @param props          - Component props.
@@ -46,15 +68,11 @@ function TestSteps( { result, recorded }: { result: TestResult; recorded: boolea
 			code: [
 				`${ result.status } ${ result.statusText }`.trim(),
 				result.wafHeader && `X-JetpackWAF-Blocked: ${ result.wafHeader }`,
+				result.allowedHeader && `X-JetpackWAF-Test-Allowed: ${ result.allowedHeader }`,
 			]
 				.filter( Boolean )
 				.join( '\n' ),
-			detail: result.wafHeader
-				? undefined
-				: __(
-						'No firewall header, so the firewall didn’t act on the request.',
-						'jetpack-protect-pkg'
-					),
+			detail: getResponseNote( result ),
 		},
 		{
 			title: recorded

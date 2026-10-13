@@ -5,8 +5,10 @@
  * @package automattic/jetpack-waf
  */
 
+use Automattic\Jetpack\Waf\Waf_Constants;
 use Automattic\Jetpack\Waf\Waf_Runtime;
 use Automattic\Jetpack\Waf\Waf_Self_Check;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
@@ -33,8 +35,11 @@ final class WafSelfCheckTest extends PHPUnit\Framework\TestCase {
 	 * Remove the token file and directories.
 	 */
 	protected function tearDown(): void {
-		foreach ( glob( WP_CONTENT_DIR . '/jetpack-waf/*' ) as $file ) {
+		foreach ( glob( WP_CONTENT_DIR . '/jetpack-waf/rules/*' ) as $file ) {
 			unlink( $file );
+		}
+		foreach ( glob( WP_CONTENT_DIR . '/jetpack-waf/*' ) as $file ) {
+			is_dir( $file ) ? rmdir( $file ) : unlink( $file );
 		}
 		foreach ( glob( WP_CONTENT_DIR . '/*' ) as $dir ) {
 			rmdir( $dir );
@@ -86,5 +91,44 @@ final class WafSelfCheckTest extends PHPUnit\Framework\TestCase {
 		$waf->expects( $this->never() )->method( 'block' );
 
 		Waf_Self_Check::maybe_block( $waf );
+	}
+
+	/**
+	 * The firewall's rules stop at the allow list, so a test from an allowed address isn't blocked either.
+	 *
+	 * @dataProvider provideAllowListStates
+	 *
+	 * @param string $entrypoint  The rules entrypoint's contents.
+	 * @param bool   $ip_matches  Whether the request's IP is on the list.
+	 * @param bool   $should_block Whether the test request is blocked.
+	 */
+	#[DataProvider( 'provideAllowListStates' )]
+	public function testAllowListedRequestIsLetThrough( $entrypoint, $ip_matches, $should_block ) {
+		$_GET[ Waf_Self_Check::QUERY_PARAM ] = Waf_Self_Check::create_token();
+		Waf_Constants::define_entrypoint();
+		mkdir( JETPACK_WAF_DIR . '/rules' );
+		file_put_contents( JETPACK_WAF_DIR . '/rules/rules.php', $entrypoint );
+		file_put_contents( JETPACK_WAF_DIR . '/rules/allow-ip.php', "<?php\nreturn \$waf->is_ip_in_array( array( '203.0.113.7' ) );\n" );
+
+		$waf = $this->createMock( Waf_Runtime::class );
+		$waf->method( 'is_ip_in_array' )->willReturn( $ip_matches );
+		$waf->expects( $should_block ? $this->once() : $this->never() )->method( 'block' );
+
+		Waf_Self_Check::maybe_block( $waf );
+	}
+
+	/**
+	 * Data provider for testAllowListedRequestIsLetThrough.
+	 *
+	 * @return array
+	 */
+	public static function provideAllowListStates() {
+		$with_allow_list = "<?php\nif ( file_exists( '/x/rules/allow-ip.php' ) ) { if ( require( '/x/rules/allow-ip.php' ) ) { return; } }\n";
+
+		return array(
+			'allowed address'       => array( $with_allow_list, true, false ),
+			'other address'         => array( $with_allow_list, false, true ),
+			'allow list turned off' => array( "<?php\n", true, true ),
+		);
 	}
 }

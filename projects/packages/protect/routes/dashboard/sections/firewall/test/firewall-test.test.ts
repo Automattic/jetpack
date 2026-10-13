@@ -8,7 +8,11 @@ describe( 'getTestOutcome', () => {
 		[ 'a 403 from the host is not the firewall', 403, null, true, 'not-blocked' ],
 		[ 'a normal page while the firewall is off is expected', 200, null, false, 'off' ],
 	] )( '%s', ( _name, status, header, active, expected ) => {
-		expect( getTestOutcome( status, header, active ) ).toBe( expected );
+		expect( getTestOutcome( status, header, null, active ) ).toBe( expected );
+	} );
+
+	it( 'a page let through for the IP allow list says so', () => {
+		expect( getTestOutcome( 200, null, 'ip allow list', true ) ).toBe( 'allowed' );
 	} );
 } );
 

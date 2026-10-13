@@ -1,6 +1,6 @@
 <?php
 /**
- * A request the firewall always blocks, so site owners can see it working.
+ * A request the firewall blocks on sight, so site owners can see it working.
  *
  * @package automattic/jetpack-waf
  */
@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\Waf;
 
 /**
- * Blocks a request carrying a one-time token, whatever rules are enabled.
+ * Blocks a request carrying a one-time token, whatever rules are enabled, unless the IP allow list lets it through.
  *
  * The token lives in a file, not an option, because in standalone mode the firewall runs before WordPress.
  *
@@ -21,6 +21,11 @@ class Waf_Self_Check {
 	const REASON      = 'firewall test';
 	const TOKEN_TTL   = 60;
 	const TOKEN_FILE  = '/self-check-token';
+
+	/**
+	 * Sent instead of blocking when the request's IP address is on the allow list.
+	 */
+	const ALLOWED_HEADER = 'X-JetpackWAF-Test-Allowed';
 
 	/**
 	 * Create a token that the next request carrying it gets blocked for, replacing any earlier one.
@@ -87,7 +92,7 @@ class Waf_Self_Check {
 	}
 
 	/**
-	 * Block the request when it carries a valid token.
+	 * Block the request when it carries a valid token, unless the IP allow list lets it through.
 	 *
 	 * @param Waf_Runtime $waf The firewall runtime.
 	 * @return void
@@ -98,7 +103,40 @@ class Waf_Self_Check {
 			return;
 		}
 
+		if ( self::is_ip_allowed( $waf ) ) {
+			if ( ! headers_sent() ) {
+				header( self::ALLOWED_HEADER . ': ip allow list' );
+			}
+			return;
+		}
+
 		$waf->block( 'block', (string) self::RULE_ID, self::REASON );
+	}
+
+	/**
+	 * Whether the firewall's rules would stop at the IP allow list for this request.
+	 *
+	 * @param Waf_Runtime $waf The firewall runtime, which the allow list file reads the request's IP from.
+	 * @return bool
+	 */
+	private static function is_ip_allowed( $waf ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- The allow list file reads it.
+		$dir = self::get_dir();
+		if ( ! $dir || ! defined( 'JETPACK_WAF_ENTRYPOINT' ) ) {
+			return false;
+		}
+
+		$allow_list = $dir . Waf_Rules_Manager::IP_ALLOW_RULES_FILE;
+		$entrypoint = $dir . '/' . JETPACK_WAF_ENTRYPOINT;
+		if ( ! is_file( $allow_list ) || ! is_file( $entrypoint ) ) {
+			return false;
+		}
+
+		// The generated rules only require the allow list while it's turned on.
+		if ( false === strpos( (string) file_get_contents( $entrypoint ), basename( $allow_list ) ) ) {
+			return false;
+		}
+
+		return (bool) require $allow_list;
 	}
 
 	/**

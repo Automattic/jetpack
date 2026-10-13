@@ -53,6 +53,14 @@ const OUTCOMES: Record<
 				'jetpack-protect-pkg'
 			),
 	},
+	allowed: {
+		status: 'info',
+		message: () =>
+			__(
+				'The test request got through, because your IP address is on the always-allowed list.',
+				'jetpack-protect-pkg'
+			),
+	},
 	'not-blocked': {
 		status: 'error',
 		icon: snackbarIcon( closeSmall ),
