@@ -15,11 +15,17 @@
 	}
 }
 
-// The link's own box, so the icon, the label and the new-tab
-// indicator sit on one centre line rather than a text baseline
-// the icon is too tall for.
+// Inline, not flex: `@wordpress/ui` keeps its new-tab indicator an
+// inline-block so the link underline stays off it, and a flex item
+// blockifies it back under the underline.
 .jetpack-newsletter-preview-modal__design-link {
-	display: inline-flex;
-	align-items: center;
-	gap: 4px;
+
+	svg {
+		vertical-align: middle;
+	}
+
+	.jetpack-newsletter-preview-modal__design-link-label {
+		margin-inline-start: 4px;
+		vertical-align: middle;
+	}
 }

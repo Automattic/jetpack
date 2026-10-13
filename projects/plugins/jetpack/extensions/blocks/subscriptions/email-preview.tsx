@@ -459,7 +459,9 @@ const EmailDesignLink = ( { postId }: { postId: number } ) => {
 			title={ isBelowLarge ? label : undefined }
 		>
 			<Icon icon={ styles } size={ 24 } />
-			{ ! isBelowLarge && label }
+			{ ! isBelowLarge && (
+				<span className="jetpack-newsletter-preview-modal__design-link-label">{ label }</span>
+			) }
 		</Link>
 	);
 };
