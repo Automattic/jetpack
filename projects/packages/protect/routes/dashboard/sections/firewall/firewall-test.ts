@@ -7,8 +7,11 @@ export const FIREWALL_PATH = '/jetpack/v4/protect-dashboard/firewall';
 /** Matches `Automattic\\Jetpack\\Waf\\Waf_Self_Check::RULE_ID`. */
 export const SELF_CHECK_RULE_ID = -2;
 
+/** The header the firewall sends whenever it blocks. */
+export const BLOCKED_HEADER = 'X-JetpackWAF-Blocked';
+
 /** Matches `Automattic\\Jetpack\\Waf\\Waf_Self_Check::ALLOWED_HEADER`. */
-const ALLOWED_HEADER = 'X-JetpackWAF-Test-Allowed';
+export const ALLOWED_HEADER = 'X-JetpackWAF-Test-Allowed';
 
 export type TestOutcome = 'blocked' | 'silent' | 'allowed' | 'not-blocked' | 'off';
 
@@ -80,7 +83,7 @@ export async function runFirewallTest( active: boolean ): Promise< TestResult > 
 		method: 'POST',
 	} );
 	const response = await fetch( url, { credentials: 'omit', cache: 'no-store' } );
-	const wafHeader = response.headers.get( 'X-JetpackWAF-Blocked' );
+	const wafHeader = response.headers.get( BLOCKED_HEADER );
 	const allowedHeader = response.headers.get( ALLOWED_HEADER );
 	return {
 		outcome: getTestOutcome( response.status, wafHeader, allowedHeader, active ),

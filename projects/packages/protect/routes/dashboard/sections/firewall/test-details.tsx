@@ -1,6 +1,6 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { Dialog, Stack, Text } from '@wordpress/ui';
-import { SELF_CHECK_RULE_ID } from './firewall-test';
+import { ALLOWED_HEADER, BLOCKED_HEADER, SELF_CHECK_RULE_ID } from './firewall-test';
 import type { TestResult } from './firewall-test';
 
 // HTTP/2 responses carry no reason phrase.
@@ -70,8 +70,8 @@ function TestSteps( { result, recorded }: { result: TestResult; recorded: boolea
 			title: __( 'Got a response', 'jetpack-protect-pkg' ),
 			code: [
 				`${ result.status } ${ result.statusText || REASON_PHRASES[ result.status ] || '' }`.trim(),
-				result.wafHeader && `X-JetpackWAF-Blocked: ${ result.wafHeader }`,
-				result.allowedHeader && `X-JetpackWAF-Test-Allowed: ${ result.allowedHeader }`,
+				result.wafHeader && `${ BLOCKED_HEADER }: ${ result.wafHeader }`,
+				result.allowedHeader && `${ ALLOWED_HEADER }: ${ result.allowedHeader }`,
 			]
 				.filter( Boolean )
 				.join( '\n' ),
@@ -88,7 +88,7 @@ function TestSteps( { result, recorded }: { result: TestResult; recorded: boolea
 	return (
 		<ol className="jp-protect-firewall-test">
 			{ steps.map( step => (
-				<li key={ step.title } className="jp-protect-firewall-test__step">
+				<li key={ step.title }>
 					<Stack direction="column" gap="xs">
 						<Text variant="body-md">{ step.title }</Text>
 						{ step.code && <pre className="jp-protect-firewall-test__code">{ step.code }</pre> }

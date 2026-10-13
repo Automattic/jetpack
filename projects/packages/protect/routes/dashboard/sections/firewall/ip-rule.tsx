@@ -2,6 +2,7 @@ import { ToggleControl } from '@wordpress/components';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Badge, Button, Dialog, Stack, Text, TextareaControl } from '@wordpress/ui';
+import { appendIp, splitIps } from '../../components/settings/ip-list';
 import type { ProtectSettingsData } from '../../data/use-protect-settings';
 import type { ChangeEvent } from 'react';
 
@@ -15,9 +16,6 @@ type Props = {
 	dialogTitle: string;
 	currentIp?: string;
 };
-
-const splitIps = ( list: unknown ) =>
-	typeof list === 'string' ? list.split( /[\s,]+/ ).filter( Boolean ) : [];
 
 /**
  * One of the firewall's IP lists: its on/off toggle, how many addresses it holds and a dialog to edit them.
@@ -64,10 +62,7 @@ export default function IpRule( {
 		[]
 	);
 	const onAddIp = useCallback(
-		() =>
-			setDraft( current =>
-				current.trim() ? `${ current.trim() }\n${ currentIp }` : `${ currentIp }`
-			),
+		() => setDraft( current => appendIp( current, currentIp ?? '' ) ),
 		[ currentIp ]
 	);
 	const onSave = useCallback( async () => {

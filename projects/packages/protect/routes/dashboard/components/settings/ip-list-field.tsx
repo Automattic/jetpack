@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Button, Stack, TextareaControl } from '@wordpress/ui';
+import { appendIp, splitIps } from './ip-list';
 import type { ProtectSettingsData } from '../../data/use-protect-settings';
 import type { ChangeEvent } from 'react';
 
@@ -51,14 +52,11 @@ export default function IpListField( { data, name, label, currentIp }: Props ) {
 		return save( { [ name ]: draft } );
 	}, [ save, name, draft ] );
 	const onAddIp = useCallback(
-		() =>
-			setDraft( current =>
-				current.trim() ? `${ current.trim() }\n${ currentIp }` : `${ currentIp }`
-			),
+		() => setDraft( current => appendIp( current, currentIp ?? '' ) ),
 		[ currentIp ]
 	);
 
-	const hasIp = !! currentIp && draft.split( /[\s,]+/ ).includes( currentIp );
+	const hasIp = !! currentIp && splitIps( draft ).includes( currentIp );
 
 	return (
 		<Stack direction="column" gap="sm">

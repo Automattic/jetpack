@@ -1,5 +1,4 @@
 import apiFetch from '@wordpress/api-fetch';
-import { ToggleControl } from '@wordpress/components';
 import { dispatch } from '@wordpress/data';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -7,6 +6,7 @@ import { Icon, caution, check, closeSmall, info, shield } from '@wordpress/icons
 import { store as noticesStore } from '@wordpress/notices';
 import { Button, Notice, Stack, Text } from '@wordpress/ui';
 import { CardRow, ProtectCard, Stat } from '../../components/card';
+import SettingToggle from '../../components/settings/setting-toggle';
 import TabLink from '../../components/tab-link';
 import isModuleActive from '../../data/is-module-active';
 import { FIREWALL_PATH, SELF_CHECK_RULE_ID, runFirewallTest } from './firewall-test';
@@ -36,9 +36,13 @@ type NoticeStatus = 'success' | 'info' | 'warning' | 'error';
 const snackbarIcon = ( icon: JSX.Element ) => <Icon icon={ icon } fill="currentColor" />;
 
 const OUTCOMES: Record<
-	TestOutcome | 'error',
+	TestOutcome | 'testing' | 'error',
 	{ status: NoticeStatus; message: () => string; icon?: JSX.Element }
 > = {
+	testing: {
+		status: 'info',
+		message: () => __( 'Testing the firewall…', 'jetpack-protect-pkg' ),
+	},
 	blocked: {
 		status: 'success',
 		icon: snackbarIcon( check ),
@@ -91,18 +95,12 @@ const OUTCOMES: Record<
 /**
  * Show the firewall test's progress or result as a snackbar.
  *
- * @param status    - The notice's kind.
- * @param content   - The message.
+ * @param outcome   - Which message to show.
  * @param learnMore - Opens the test's steps; the result has it, progress doesn't.
- * @param icon      - A check when the firewall blocked the test, an X when it failed.
  */
-function notify(
-	status: NoticeStatus,
-	content: string,
-	learnMore?: () => void,
-	icon?: JSX.Element
-) {
-	dispatch( noticesStore ).createNotice( status, content, {
+function notify( outcome: keyof typeof OUTCOMES, learnMore?: () => void ) {
+	const { status, message, icon } = OUTCOMES[ outcome ];
+	dispatch( noticesStore ).createNotice( status, message(), {
 		type: 'snackbar',
 		id: NOTICE_ID,
 		// @ts-expect-error -- Typed as a string, but the snackbar renders any element.
@@ -132,7 +130,7 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 	const title = __( 'Firewall', 'jetpack-protect-pkg' );
 	const [ blocks, setBlocks ] = useState( {
 		blockedCount: firewall.blockedCount,
-		recentBlocks: firewall.recentBlocks ?? [],
+		recentBlocks: firewall.recentBlocks,
 	} );
 	const [ isTesting, setIsTesting ] = useState( false );
 	const [ result, setResult ] = useState< TestResult | null >( null );
@@ -147,7 +145,7 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 
 	const runTest = useCallback( async () => {
 		setIsTesting( true );
-		notify( 'info', __( 'Testing the firewall…', 'jetpack-protect-pkg' ) );
+		notify( 'testing' );
 		try {
 			const lastId = blocks.recentBlocks[ 0 ]?.id ?? 0;
 			const testResult = await runFirewallTest( active );
@@ -160,17 +158,13 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 			setRecorded(
 				fresh.recentBlocks.some( block => block.id > lastId && block.ruleId === SELF_CHECK_RULE_ID )
 			);
-			const { status, message, icon } = OUTCOMES[ testResult.outcome ];
-			notify( status, message(), () => setDetailsOpen( true ), icon );
+			notify( testResult.outcome, () => setDetailsOpen( true ) );
 		} catch {
-			notify( OUTCOMES.error.status, OUTCOMES.error.message(), undefined, OUTCOMES.error.icon );
+			notify( 'error' );
 		} finally {
 			setIsTesting( false );
 		}
 	}, [ active, blocks.recentBlocks ] );
-
-	const { save } = settings;
-	const onEnable = useCallback( () => save( { waf: true } ), [ save ] );
 
 	if ( ! firewall.available ) {
 		return (
@@ -220,16 +214,14 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 			) }
 			{ ! active && (
 				<CardRow>
-					<ToggleControl
-						__nextHasNoMarginBottom
+					<SettingToggle
+						data={ settings }
+						name="waf"
 						label={ __( 'Enable firewall', 'jetpack-protect-pkg' ) }
 						help={ __(
 							'Inspects every request against Jetpack’s firewall rules.',
 							'jetpack-protect-pkg'
 						) }
-						checked={ false }
-						disabled={ settings.isSaving( 'waf' ) }
-						onChange={ onEnable }
 					/>
 				</CardRow>
 			) }

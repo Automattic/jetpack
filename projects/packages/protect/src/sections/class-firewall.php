@@ -133,7 +133,7 @@ class Firewall implements Dashboard_Section {
 	 *
 	 * @return string Empty when the WAF package isn't loaded.
 	 */
-	public static function get_current_ip() {
+	private static function get_current_ip() {
 		if ( ! class_exists( Waf_Request::class ) ) {
 			return '';
 		}
@@ -146,7 +146,7 @@ class Firewall implements Dashboard_Section {
 	 *
 	 * @return array<string, string|bool> Empty when the WAF package isn't loaded.
 	 */
-	public static function get_ip_rules() {
+	private static function get_ip_rules() {
 		if ( ! class_exists( Waf_Rules_Manager::class ) ) {
 			return array();
 		}
@@ -164,7 +164,7 @@ class Firewall implements Dashboard_Section {
 	 *
 	 * @return bool
 	 */
-	public static function shares_data() {
+	private static function shares_data() {
 		return class_exists( Waf_Runner::class ) && (bool) get_option( Waf_Runner::SHARE_DATA_OPTION_NAME );
 	}
 
@@ -173,14 +173,18 @@ class Firewall implements Dashboard_Section {
 	 *
 	 * @return array
 	 */
-	public static function get_recent_blocks() {
+	private static function get_recent_blocks() {
 		if ( ! method_exists( Waf_Blocklog_Manager::class, 'get_recent_blocks' ) ) {
 			return array();
 		}
 
 		$blocks = Waf_Blocklog_Manager::get_recent_blocks( 10 );
 
-		return self::shares_data() ? self::add_request_details( $blocks, self::read_request_log() ) : $blocks;
+		if ( ! $blocks || ! self::shares_data() ) {
+			return $blocks;
+		}
+
+		return self::add_request_details( $blocks, self::read_request_log() );
 	}
 
 	/**
@@ -227,7 +231,7 @@ class Firewall implements Dashboard_Section {
 		}
 		Waf_Constants::define_waf_directory();
 
-		$path = JETPACK_WAF_DIR . '/waf-blocklog';
+		$path = Waf_Blocklog_Manager::get_blocklog_file_path();
 		$size = is_readable( $path ) ? filesize( $path ) : 0;
 		if ( ! $size ) {
 			return array();

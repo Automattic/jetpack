@@ -28,10 +28,14 @@ export default function RecentBlocks( { blocks }: { blocks: BlockedRequest[] } )
 	const [ , setTick ] = useState( 0 );
 
 	// "A few seconds ago" goes stale; re-render so it keeps up.
+	const hasLatest = !! latest;
 	useEffect( () => {
+		if ( ! hasLatest ) {
+			return;
+		}
 		const timer = setInterval( () => setTick( tick => tick + 1 ), 30000 );
 		return () => clearInterval( timer );
-	}, [] );
+	}, [ hasLatest ] );
 	const hasDetails = blocks.some( block => block.uri || block.userAgent );
 
 	return (
