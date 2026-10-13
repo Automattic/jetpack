@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+Comment: Fix the first-backup progress fill position in the modernized dashboard, which is behind a feature flag.
+
