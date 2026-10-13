@@ -198,7 +198,7 @@ class Embeds extends WP_REST_Controller {
 		if ( is_object( $data ) ) {
 			/** This filter is documented in wp-includes/class-wp-oembed.php */
 			$data->html = apply_filters( 'oembed_result', $oembed->data2html( $data, $lookup ), $lookup, $args );
-		} elseif ( is_object( $cached ) && '' !== self::sanitize_html( $cached->html ?? '' ) ) {
+		} elseif ( is_object( $cached ) && '' !== self::player( $cached ) ) {
 			// A player outlives a failed refresh, as in core's embed cache. A card does not: its post may be gone.
 			$data = $cached;
 		} else {
@@ -224,7 +224,7 @@ class Embeds extends WP_REST_Controller {
 	private static function respond( $data, $url ) {
 		// The editor would hand each entry to SandBox as a script of its own.
 		unset( $data->scripts, $data->jetpack_comments_fetched );
-		$player     = self::sanitize_html( $data->html ?? '' );
+		$player     = self::player( $data );
 		$data->card = '' === $player;
 		$data->html = $data->card ? self::card( $data, $url ) : $player;
 
@@ -237,6 +237,27 @@ class Embeds extends WP_REST_Controller {
 		$response->header( 'Cache-Control', 'public, max-age=' . HOUR_IN_SECONDS );
 
 		return $response;
+	}
+
+	/**
+	 * The player for the oEmbed data, or '' when it has none.
+	 *
+	 * @param object $data The oEmbed data.
+	 * @return string
+	 */
+	private static function player( $data ) {
+		$video = isset( $data->embed_product_id ) && is_scalar( $data->embed_product_id ) ? (string) $data->embed_product_id : '';
+
+		// TikTok's oEmbed sends its script, but it also documents a player that needs none.
+		if ( 'TikTok' === ( $data->provider_name ?? '' ) && ctype_digit( $video ) ) {
+			$author = isset( $data->author_name ) && is_string( $data->author_name ) && '' !== $data->author_name ? $data->author_name : 'TikTok';
+			/* translators: %s: The video's author. */
+			$title = sprintf( __( 'TikTok video by %s', 'jetpack-comments' ), $author );
+
+			return '<iframe src="https://www.tiktok.com/player/v1/' . $video . '" width="325" height="578" title="' . esc_attr( $title ) . '" allow="fullscreen" allowfullscreen></iframe>';
+		}
+
+		return self::sanitize_html( $data->html ?? '' );
 	}
 
 	/**
@@ -415,7 +436,7 @@ class Embeds extends WP_REST_Controller {
 			$data           = $render ? self::data( $url ) : false;
 
 			if ( is_object( $data ) ) {
-				$content = self::sanitize_html( $data->html ?? '' );
+				$content = self::player( $data );
 				$content = '' === $content ? self::card( $data, $url ) : $content;
 			}
 
