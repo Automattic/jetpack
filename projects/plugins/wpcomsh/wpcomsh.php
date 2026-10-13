@@ -131,7 +131,6 @@ require_once __DIR__ . '/vendor/automattic/text-media-widget-styles/text-media-w
 require_once __DIR__ . '/endpoints/rest-api.php';
 
 // Load feature plugins.
-require_once __DIR__ . '/feature-plugins/activity-log.php';
 require_once __DIR__ . '/feature-plugins/activitypub.php';
 require_once __DIR__ . '/feature-plugins/additional-css.php';
 require_once __DIR__ . '/feature-plugins/ai-launchpad.php';
