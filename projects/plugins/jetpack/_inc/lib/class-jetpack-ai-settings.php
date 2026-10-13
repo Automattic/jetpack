@@ -168,11 +168,10 @@ class Jetpack_AI_Settings {
 	}
 
 	/**
-	 * Report a host or a `jetpack_ai_enabled` callback that turns AI off as the `ai` module
-	 * forced off, the shape My Jetpack and WP-CLI already explain as "disabled by your host or site administrator".
+	 * Report a host or a `jetpack_ai_enabled` callback that turns AI off as the `ai` module forced off.
 	 *
-	 * Registered only while something says no: any callback on `jetpack_active_modules` makes
-	 * Jetpack_Modules_Overrides cache its first read, hiding filters added later in the request.
+	 * Registered only while something says no: Jetpack_Modules_Overrides caches its first read of
+	 * `jetpack_active_modules`, so an always-on callback would hide every override added later.
 	 *
 	 * @return void
 	 */

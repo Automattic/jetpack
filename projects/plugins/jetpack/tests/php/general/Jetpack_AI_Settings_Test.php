@@ -137,9 +137,8 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 		$this->assertNotFalse( has_filter( 'jetpack_ai_sidebar_enabled', $callback ) );
 		$this->assertNotFalse( has_filter( 'jetpack_ai_seo_enabled', $callback ) );
 
-		// The AI-off override must run before Jetpack::load_modules() reads the active list.
 		$hold = array( Jetpack_AI_Settings::class, 'hold_module_off_when_ai_is_off' );
-		$this->assertSame( -3, has_action( 'after_setup_theme', $hold ) );
+		$this->assertNotFalse( has_action( 'after_setup_theme', $hold ) );
 		$this->assertLessThan( has_action( 'after_setup_theme', array( 'Jetpack', 'load_modules' ) ), has_action( 'after_setup_theme', $hold ) );
 	}
 
@@ -357,15 +356,16 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 
 	/**
 	 * VIP documents this filter as its own off switch, so a VIP site reads the module forced off and is sent to VIP's page.
+	 * A later default-priority callback that re-adds `ai` still loses to the override.
 	 */
 	public function test_vip_filter_forces_the_module_off_and_names_the_vip_route() {
 		Constants::set_constant( 'IS_WPCOM', false );
 		Constants::set_constant( 'WPCOM_IS_VIP_ENV', true );
 		\Jetpack_Options::update_option( 'active_modules', array( 'ai' ) );
-		$this->force_ai_module_active();
 		add_filter( 'jetpack_ai_enabled', '__return_false' );
 
 		Jetpack_AI_Settings::hold_module_off_when_ai_is_off();
+		$this->force_ai_module_active();
 
 		$this->assertFalse( ( new Modules() )->is_active( 'ai' ) );
 		$this->assertSame( 'filter-vip', Jetpack_AI_Settings::get_master_forced_off_route() );
@@ -492,8 +492,7 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Any callback on `jetpack_active_modules` makes module override detection cache its
-	 * first read, so the override must not be registered while nothing turns AI off.
+	 * The override is never left registered while nothing turns AI off.
 	 */
 	public function test_override_not_registered_when_ai_is_on() {
 		Constants::set_constant( 'IS_WPCOM', false );

@@ -587,9 +587,9 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * A jetpack_ai_enabled kill switch forces the master module off, which takes Image Studio down even in Big Sky.
+	 * Same as test_master_option_off_disables_image_studio_in_big_sky(), through the filter route.
 	 */
-	public function test_ai_enabled_filter_off_takes_image_studio_down_in_big_sky() {
+	public function test_ai_enabled_filter_off_disables_image_studio_in_big_sky() {
 		$this->enable_big_sky();
 		$this->assertTrue( ImageStudio\is_image_studio_environment_available() );
 		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
