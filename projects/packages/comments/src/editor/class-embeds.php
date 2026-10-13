@@ -305,16 +305,18 @@ class Embeds extends WP_REST_Controller {
 	}
 
 	/**
-	 * A post a provider draws with its own script, as a card of our own markup: its text, its author,
-	 * and a link to the URL. Only text comes from the provider, so its markup never reaches the page.
+	 * A post a provider draws with its own script, as a card of our own markup: the brand's icon, its author,
+	 * date, and text, and a link to the URL. Only text comes from the provider, so its markup never reaches the page.
 	 *
 	 * @param object $data The oEmbed data.
 	 * @param string $url  The trusted URL the card links to.
 	 * @return string The card, or '' when the provider sent no text.
 	 */
 	public static function card( $data, $url ) {
-		$text = '';
-		$html = new \WP_HTML_Tag_Processor( is_string( $data->html ?? null ) ? $data->html : '' );
+		$text  = '';
+		$after = '';
+		$last  = '';
+		$html  = new \WP_HTML_Tag_Processor( is_string( $data->html ?? null ) ? $data->html : '' );
 
 		// The post's text is the first paragraph of the provider's no-script fallback.
 		if ( $html->next_tag( 'p' ) ) {
@@ -326,6 +328,20 @@ class Embeds extends WP_REST_Controller {
 				} elseif ( 'BR' === $tag ) {
 					$text .= "\n";
 				} elseif ( 'P' === $tag && $html->is_tag_closer() ) {
+					break;
+				}
+			}
+
+			// Then the attribution, whose last link is the post's date.
+			while ( $html->next_token() ) {
+				$tag = $html->get_tag();
+
+				if ( '#text' === $html->get_token_type() ) {
+					$after .= $html->get_modifiable_text();
+					$last  .= $html->get_modifiable_text();
+				} elseif ( 'A' === $tag && ! $html->is_tag_closer() ) {
+					$last = '';
+				} elseif ( 'BLOCKQUOTE' === $tag ) {
 					break;
 				}
 			}
@@ -358,14 +374,54 @@ class Embeds extends WP_REST_Controller {
 		/* translators: %s: Where the post is from, e.g. X or Bluesky. */
 		$footer = '<a href="' . esc_url( $url ) . '" rel="nofollow ugc">' . esc_html( sprintf( __( 'View on %s', 'jetpack-comments' ), $provider ) ) . '</a>';
 
-		if ( isset( $data->author_name ) && is_string( $data->author_name ) && '' !== $data->author_name ) {
-			$footer = esc_html( $data->author_name ) . ' &middot; ' . $footer;
+		// Core's social link icons, in each brand's color but X's black, which a dark theme would lose.
+		$brands = array(
+			'x'              => array( 'x', 'currentColor' ),
+			'bluesky social' => array( 'bluesky', '#1185fe' ),
+			'reddit'         => array( 'reddit', '#ff4500' ),
+		);
+		$brand  = $brands[ strtolower( $provider ) ] ?? array( '', '' );
+		$icon   = '';
+		$header = array();
+
+		if ( '' !== $brand[0] && function_exists( 'block_core_social_link_get_icon' ) ) {
+			$svg = new \WP_HTML_Tag_Processor( block_core_social_link_get_icon( $brand[0] ) );
+			if ( $svg->next_tag( 'svg' ) ) {
+				$svg->set_attribute( 'style', "fill:{$brand[1]};width:1.25em;height:1.25em;vertical-align:-0.25em" );
+				$icon = $svg->get_updated_html() . ' ';
+			}
 		}
 
+		$author = isset( $data->author_name ) && is_string( $data->author_name ) ? $data->author_name : '';
+		if ( '' !== $author ) {
+			// Bluesky's name carries the handle; X's is only in its attribution.
+			if ( ! str_contains( $author, '(@' ) && preg_match( '/\(@\w+\)/', $after, $handle ) ) {
+				$author .= ' ' . $handle[0];
+			}
+
+			$profile  = isset( $data->author_url ) && is_string( $data->author_url ) ? esc_url( $data->author_url, array( 'https' ) ) : '';
+			$header[] = $profile ? '<a href="' . $profile . '" rel="nofollow ugc">' . esc_html( $author ) . '</a>' : esc_html( $author );
+		}
+
+		if ( 'reddit' === $brand[0] && preg_match( '#/r/(\w+)/#', $url, $community ) ) {
+			$header[] = esc_html( 'r/' . $community[1] );
+		}
+
+		// X writes the day out in English, Bluesky the moment in UTC.
+		$last = trim( $last );
+		$time = preg_match( '/^(?:[A-Z][a-z]+ \d{1,2}, \d{4}|\d{4}-\d\d-\d\dT[\d:.]+Z)$/', $last ) ? strtotime( $last ) : false;
+		if ( $time ) {
+			$header[] = '<time datetime="' . gmdate( 'Y-m-d', $time ) . '">' . esc_html( wp_date( get_option( 'date_format' ), $time, new \DateTimeZone( 'UTC' ) ) ) . '</time>';
+		}
+
+		$header = $icon . implode( ' &middot; ', $header );
+		$small  = 'font-size:0.875em;';
+
 		// Inline, as the players' sizing is, so the card holds its shape where the form's stylesheet is not loaded.
-		return '<blockquote class="jetpack-comments__embed-card" cite="' . esc_url( $url ) . '" style="margin:0;padding:1em;border:1px solid;border-radius:8px;font-style:normal">'
+		return '<blockquote class="jetpack-comments__embed-card" cite="' . esc_url( $url ) . '" style="margin:0;padding:1em;border:1px solid;' . ( $brand[1] ? "border-inline-start:4px solid {$brand[1]};" : '' ) . 'border-radius:8px;font-style:normal">'
+			. ( '' !== $header ? '<p style="margin-block-start:0;' . $small . '">' . $header . '</p>' : '' )
 			. $paragraphs
-			. '<p style="margin-block-end:0;font-size:0.875em">' . $footer . '</p></blockquote>';
+			. '<p style="margin-block-end:0;' . $small . '">' . $footer . '</p></blockquote>';
 	}
 
 	/**
