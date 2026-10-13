@@ -74,6 +74,38 @@
 	min-block-size: 18px;
 }
 
+/*
+ * Room for the price and its saving on one line. Core keeps 180px for
+ * ratings, but this row only shares its line with "Last Updated", which
+ * needs at most 190px.
+ */
+.plugin-card .plugin-card-bottom .wpcom-marketplace-card__headline {
+	max-inline-size: max(180px, 100% - 190px);
+}
+
+.plugin-card .plugin-card-bottom .wpcom-marketplace-card__headline + .column-updated {
+	inline-size: min(190px, 100% - 180px);
+}
+
+/*
+ * "Upgrade and purchase" is wider than the 120px core keeps beside each card's
+ * name for its buttons, so it wraps onto two lines, centred, at the widths
+ * where core puts them there.
+ */
+@media (min-width: 1101px), (min-width: 481px) and (max-width: 781px) {
+
+	.plugin-card .plugin-action-buttons .button.wpcom-marketplace-card__upgrade {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		block-size: auto;
+		padding-block: 4px;
+		line-height: 1.4;
+		text-align: center;
+		white-space: normal;
+	}
+}
+
 /* Core's "required" heading, hidden until the card script swaps in ours. */
 .plugin-card:has(.wpcom-marketplace-strip[data-requires-label]) .plugin-dependencies-explainer-text {
 	visibility: hidden;

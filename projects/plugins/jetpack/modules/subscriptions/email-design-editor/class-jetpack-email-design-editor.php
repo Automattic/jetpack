@@ -6,7 +6,6 @@
  */
 
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
-use Automattic\Jetpack\Newsletter\Urls as Newsletter_Urls;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -66,7 +65,10 @@ class Jetpack_Email_Design_Editor {
 	}
 
 	/**
-	 * Tell the Newsletter settings page where this screen is, or that there is none.
+	 * Tell the admin where this screen is, or that there is none.
+	 *
+	 * The bare URL: each surface that links here adds its own `return` arg, because each one is
+	 * somewhere different to go back to. {@see self::exit_url()} reads and validates it.
 	 *
 	 * @param array $data The script data so far.
 	 * @return array The script data, with `newsletter.emailDesignUrl` null when there is no screen.
@@ -74,12 +76,7 @@ class Jetpack_Email_Design_Editor {
 	public static function add_script_data( $data ) {
 		$url = self::get_url();
 
-		// The `return` arg is what sends the editor's back button here rather than to the
-		// dashboard; {@see self::exit_url()} is where it is read and validated. Encoded first
-		// because `add_query_arg()` does not: the settings URL's own `&` would end the value.
-		$data['newsletter']['emailDesignUrl'] = '' === $url
-			? null
-			: add_query_arg( 'return', rawurlencode( Newsletter_Urls::get_newsletter_settings_url() ), $url );
+		$data['newsletter']['emailDesignUrl'] = '' === $url ? null : $url;
 
 		return $data;
 	}
@@ -320,12 +317,13 @@ class Jetpack_Email_Design_Editor {
 	/**
 	 * Where the editor's header buttons leave to.
 	 *
-	 * The `return` arg the Newsletter settings link carries, so the editor goes back to whichever
-	 * of its two entry points was used. Validated like core's Customizer validates its own
+	 * The `return` arg, where the surface that linked here sent one, so the editor goes back the
+	 * way the reader came. Validated like core's Customizer validates its own
 	 * (`wp-admin/customize.php`), and narrowed to wp-admin so the button cannot be aimed off it.
 	 *
-	 * Without a usable one -- entered from Appearance, a bookmark, a reload -- the dashboard, as
-	 * the site editor does from the same menu (`__experimentalDashboardLink`).
+	 * Without a usable one -- Appearance, a bookmark, a reload, or the previewer's new tab, which
+	 * sends none on purpose -- the dashboard, as the site editor does from the same menu
+	 * (`__experimentalDashboardLink`).
 	 *
 	 * @return string
 	 */

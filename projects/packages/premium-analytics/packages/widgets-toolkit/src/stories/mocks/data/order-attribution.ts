@@ -1,7 +1,5 @@
 /**
  * Mock data for order attribution endpoint
- * Used by: SalesByDeviceWidget
- *
  * API format: /jetpack-premium-analytics/v1/proxy/v2/analytics/reports/order-attribution/:view/summary
  * Values are strings (the sanitizer converts them to numbers)
  */

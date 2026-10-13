@@ -6,25 +6,38 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import {
-	buildVisitorsByLocationData,
-	type Region,
-	type LocationDataEntry,
-} from '../../helpers/build-visitors-by-location-data';
+import type { LocationRowInput } from '../../components/locations';
 
-export type { Region };
+export type Region = 'US' | 'world';
 
-type LocationRawData = {
-	primary: LocationDataEntry[];
-	comparison: LocationDataEntry[];
+type LocationItem = {
+	region?: string | null;
+	country_code: string;
+	label: string;
+	visitors: number;
 };
 
+const toEntries = ( items: readonly LocationItem[], region: Region ) =>
+	region === 'US'
+		? items
+				.filter( item => Boolean( item.region ) )
+				.map( item => ( {
+					id: item.region as string,
+					label: item.region as string,
+					value: item.visitors,
+				} ) )
+		: items.map( item => ( {
+				id: item.country_code.toLowerCase(),
+				label: item.label,
+				value: item.visitors,
+			} ) );
+
 /**
- * Hook to fetch and build visitors by location chart data.
+ * The visitors by location report of the region as location rows: US states, or countries.
  *
- * @param reportParams - Report parameters from widget context
- * @param region       - The region to get data for ('US' or 'world')
- * @return Geo chart data and leaderboard data for the selected region
+ * @param reportParams - The report params from the widget root.
+ * @param region       - Which ranking to read.
+ * @return The rows and the request status.
  */
 export function useVisitorsByLocation( reportParams: ReportParams, region: Region ) {
 	const usReport = useReportVisitorsByLocation( reportParams, {
@@ -33,73 +46,24 @@ export function useVisitorsByLocation( reportParams: ReportParams, region: Regio
 		countryCode: 'US',
 		limit: 100,
 	} );
-
 	const worldReport = useReportVisitorsByLocation( reportParams, {
 		enabled: region === 'world',
 		groupBy: 'country',
 		limit: 15,
 	} );
+	const report = region === 'US' ? usReport : worldReport;
+	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError, refetch } =
+		report;
 
-	const activeReport = region === 'US' ? usReport : worldReport;
-	const comparisonEnabled = activeReport.hasComparison;
+	const rows = useMemo< LocationRowInput[] >( () => {
+		const previous = new Map(
+			toEntries( comparison.data?.data ?? [], region ).map( entry => [ entry.id, entry.value ] )
+		);
+		return toEntries( primary.data?.data ?? [], region ).map( entry => ( {
+			...entry,
+			previousValue: previous.get( entry.id ),
+		} ) );
+	}, [ primary.data, comparison.data, region ] );
 
-	const rawData: LocationRawData = useMemo( () => {
-		const primaryItems = activeReport.primary.data?.data ?? [];
-		const comparisonItems = activeReport.comparison.data?.data ?? [];
-
-		if ( region === 'US' ) {
-			const mapUsRegions = ( items: typeof primaryItems ) =>
-				items
-					.filter( item => Boolean( item.region ) )
-					.map( item => ( {
-						id: item.region as string,
-						label: item.region as string,
-						value: item.visitors,
-					} ) );
-
-			return {
-				primary: mapUsRegions( primaryItems ),
-				comparison: mapUsRegions( comparisonItems ),
-			};
-		}
-
-		return {
-			primary: primaryItems.map( item => ( {
-				id: item.country_code.toLowerCase(),
-				label: item.label,
-				value: item.visitors,
-			} ) ),
-			comparison: comparisonItems.map( item => ( {
-				id: item.country_code.toLowerCase(),
-				label: item.label,
-				value: item.visitors,
-			} ) ),
-		};
-	}, [ region, activeReport.primary.data, activeReport.comparison.data ] );
-
-	const { geoData, leaderboardData, hasRowComparison } = useMemo(
-		() =>
-			buildVisitorsByLocationData( {
-				primaryData: rawData.primary,
-				comparisonData: comparisonEnabled ? rawData.comparison : undefined,
-				region,
-			} ),
-		[ rawData.primary, rawData.comparison, region, comparisonEnabled ]
-	);
-
-	const { isLoading, isFetching, hasData, isError, error, refetch } = activeReport;
-
-	return {
-		geoData,
-		leaderboardData,
-		// Combine date-range state with row overlap here so consumers get a single
-		// comparison flag, as the Stats hooks do.
-		hasComparison: comparisonEnabled && hasRowComparison,
-		isLoading,
-		isFetching,
-		hasData,
-		isError,
-		error,
-		refetch,
-	};
+	return { rows, hasComparison, isLoading, isFetching, hasData, isError, refetch };
 }

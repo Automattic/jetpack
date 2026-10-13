@@ -11,8 +11,10 @@ import CardTitleIcon from '../../components/card-title-icon';
 import StatusIndicator from '../../components/status-indicator';
 import UpsellBanner from '../../components/upsell-banner';
 import { isGated } from '../../data/is-gated';
+import isVerificationSwitchable from '../../data/is-verification-switchable';
 import AdvancedCard from './advanced-card';
 import AuthorProfileCard from './author-profile-card';
+import PlatformSitemapNotice from './platform-sitemap-notice';
 import SchemaCard from './schema-card';
 import SocialPreviewsCard from './social-previews-card';
 import styles from './style.module.scss';
@@ -48,6 +50,10 @@ const indexingPrivateHelp = __(
 	'jetpack-seo'
 );
 const sitemapViewLabel = __( 'View sitemap', 'jetpack-seo' );
+const platformManagedHelp = __(
+	'This setting is managed by your hosting platform and cannot be changed here.',
+	'jetpack-seo'
+);
 // Figures are what search *displays*, not a limit we enforce — the field is
 // deliberately uncapped. Google measures a pixel width (920px desktop / 680px
 // mobile), which works out around 155 and 120 characters.
@@ -131,14 +137,17 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 
 	// A sitemap only works when search engines are allowed, so its effective
 	// state (and the toggle below) is gated on `search_engines_visible`.
-	const sitemapEffectivelyOn = local.search_engines_visible && local.sitemap_active;
+	const simpleSite = isSimpleSite();
+	const sitemapEffectivelyOn = ! simpleSite && local.search_engines_visible && local.sitemap_active;
+	const sitemapIndexingHelp = local.search_engines_visible ? sitemapHelp : sitemapBlockedHelp;
+	// Simple's module state cannot establish whether its platform sitemap is published.
 	const visibilityEnabledCount =
-		( local.search_engines_visible ? 1 : 0 ) + ( sitemapEffectivelyOn ? 1 : 0 );
+		( local.search_engines_visible ? 1 : 0 ) +
+		( ( simpleSite && local.search_engines_visible ) || sitemapEffectivelyOn ? 1 : 0 );
 
 	// Module completion states for the card headers. Each module defines
 	// "complete" for itself (see JETPACK-2051); the indicator is presentational.
-	// Visibility counts its two toggles, the sitemap by its *effective* state
-	// since it can't run while indexing is blocked.
+	// Simple counts only indexing; other hosts also count the effective sitemap state.
 	let visibilityStatus: SettingStatus = 'not-started';
 	if ( visibilityEnabledCount === 2 ) {
 		visibilityStatus = 'complete';
@@ -226,9 +235,11 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 							<Card.Title>
 								<CardTitleIcon icon={ seen } title={ __( 'Site visibility', 'jetpack-seo' ) } />
 							</Card.Title>
-							<CollapsibleCard.HeaderDescription>
-								<StatusIndicator status={ visibilityStatus } />
-							</CollapsibleCard.HeaderDescription>
+							{ ! local.site_is_private && (
+								<CollapsibleCard.HeaderDescription>
+									<StatusIndicator status={ visibilityStatus } />
+								</CollapsibleCard.HeaderDescription>
+							) }
 						</Stack>
 					</CollapsibleCard.Header>
 					<CollapsibleCard.Content>
@@ -246,15 +257,24 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 							<Stack direction="column" gap="xs">
 								<ToggleControl
 									label={ __( 'Generate an XML sitemap', 'jetpack-seo' ) }
-									help={ local.search_engines_visible ? sitemapHelp : sitemapBlockedHelp }
-									// Reflect the effective state: a sitemap can't be generated while
-									// indexing is blocked, so show it off (the stored preference is kept
-									// and restored when indexing is re-enabled).
+									help={
+										simpleSite || ! local.sitemap_switchable
+											? platformManagedHelp
+											: sitemapIndexingHelp
+									}
+									// Simple's disabled switch is not a sitemap publication-status indicator.
+									// Other hosts display off while indexing is blocked, preserving the preference.
 									checked={ sitemapEffectivelyOn }
 									onChange={ next => commit( { sitemap_active: next } ) }
-									disabled={ isSaving || ! local.search_engines_visible }
+									disabled={
+										simpleSite ||
+										isSaving ||
+										! local.search_engines_visible ||
+										! local.sitemap_switchable
+									}
 									__nextHasNoMarginBottom
 								/>
+								{ simpleSite && <PlatformSitemapNotice /> }
 								{ sitemapEffectivelyOn && local.sitemap_url && (
 									<Link
 										className={ styles.sitemapLink }
@@ -275,7 +295,14 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 				<VerificationCard
 					value={ local.verification }
 					active={ local.verification_tools_active }
-					onToggle={ next => commit( { verification_tools_active: next } ) }
+					// Hidden where that module isn't present: it reads as active there no
+					// matter what, so the toggle would be refused and snap back. The codes
+					// themselves still save.
+					onToggle={
+						isVerificationSwitchable()
+							? next => commit( { verification_tools_active: next } )
+							: undefined
+					}
 					onChange={ setVerification }
 					onCommit={ () => commitFields( [ 'verification' ] ) }
 					disabled={ isSaving }
@@ -298,31 +325,37 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 						<AuthorProfileCard />
 					</div>
 
-					<CollapsibleCard.Root defaultOpen={ false }>
-						<CollapsibleCard.Header render={ <h2 /> }>
-							<Stack direction="row" justify="space-between" align="center" gap="sm">
-								<Card.Title>
-									<CardTitleIcon icon={ link } title={ __( 'Canonical URLs', 'jetpack-seo' ) } />
-								</Card.Title>
-								<CollapsibleCard.HeaderDescription>
-									<StatusIndicator status={ canonicalStatus } />
-								</CollapsibleCard.HeaderDescription>
-							</Stack>
-						</CollapsibleCard.Header>
-						<CollapsibleCard.Content>
-							<ToggleControl
-								label={ __( 'Add canonical URLs to archive pages', 'jetpack-seo' ) }
-								help={ __(
-									"Points search engines to one preferred URL for archive pages, so duplicates aren't indexed separately.",
-									'jetpack-seo'
-								) }
-								checked={ local.canonical_active }
-								onChange={ next => commit( { canonical_active: next } ) }
-								disabled={ isSaving }
-								__nextHasNoMarginBottom
-							/>
-						</CollapsibleCard.Content>
-					</CollapsibleCard.Root>
+					{ ! simpleSite && (
+						<CollapsibleCard.Root defaultOpen={ false }>
+							<CollapsibleCard.Header render={ <h2 /> }>
+								<Stack direction="row" justify="space-between" align="center" gap="sm">
+									<Card.Title>
+										<CardTitleIcon icon={ link } title={ __( 'Canonical URLs', 'jetpack-seo' ) } />
+									</Card.Title>
+									<CollapsibleCard.HeaderDescription>
+										<StatusIndicator status={ canonicalStatus } />
+									</CollapsibleCard.HeaderDescription>
+								</Stack>
+							</CollapsibleCard.Header>
+							<CollapsibleCard.Content>
+								<ToggleControl
+									label={ __( 'Add canonical URLs to archive pages', 'jetpack-seo' ) }
+									help={
+										! local.canonical_switchable
+											? platformManagedHelp
+											: __(
+													"Points search engines to one preferred URL for archive pages, so duplicates aren't indexed separately.",
+													'jetpack-seo'
+												)
+									}
+									checked={ local.canonical_active }
+									onChange={ next => commit( { canonical_active: next } ) }
+									disabled={ isSaving || ! local.canonical_switchable }
+									__nextHasNoMarginBottom
+								/>
+							</CollapsibleCard.Content>
+						</CollapsibleCard.Root>
+					) }
 
 					<TitleStructureField
 						formats={ local.title_formats }

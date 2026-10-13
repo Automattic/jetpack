@@ -359,6 +359,17 @@ class REST_Connector {
 			)
 		);
 
+		// Users who could take over the connection, for the owner change above.
+		register_rest_route(
+			'jetpack/v4',
+			'/connection/owner/candidates',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( static::class, 'get_connection_owner_candidates' ),
+				'permission_callback' => array( static::class, 'get_connection_owner_candidates_permission_check' ),
+			)
+		);
+
 		// Confirm the current user as the protected owner. Not the connection-owner change above.
 		register_rest_route(
 			'jetpack/v4',
@@ -1107,6 +1118,64 @@ class REST_Connector {
 		}
 
 		return new WP_Error( 'invalid_user_permission_set_connection_owner', self::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * Users this connection's ownership could be handed to.
+	 *
+	 * Filtered by what `Manager::update_connection_owner()` requires of a new owner, so the
+	 * list cannot offer someone the change would then refuse.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public static function get_connection_owner_candidates() {
+		$connection = new Manager();
+		$owner_id   = (int) $connection->get_connection_owner_id();
+		$admin_cap  = ( new Roles() )->translate_role_to_cap( 'administrator' );
+		$candidates = array();
+
+		if ( ! $admin_cap ) {
+			return rest_ensure_response( $candidates );
+		}
+
+		foreach ( $connection->get_connected_users( $admin_cap ) as $user ) {
+			if ( (int) $user->ID === $owner_id ) {
+				continue;
+			}
+
+			$candidates[] = array(
+				'id'          => (int) $user->ID,
+				'login'       => $user->user_login,
+				'displayName' => $user->display_name,
+				'email'       => $user->user_email,
+			);
+		}
+
+		return rest_ensure_response( $candidates );
+	}
+
+	/**
+	 * Whether the current user may list the users ownership could be handed to.
+	 *
+	 * Same capability as changing the owner: seeing the candidates and acting on them go
+	 * together, and the list carries logins and email addresses.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return true|WP_Error
+	 */
+	public static function get_connection_owner_candidates_permission_check() {
+		if ( current_user_can( 'jetpack_disconnect' ) ) {
+			return true;
+		}
+
+		return new WP_Error(
+			'invalid_user_permission_list_connection_owner_candidates',
+			self::get_user_permissions_error_msg(),
+			array( 'status' => rest_authorization_required_code() )
+		);
 	}
 
 	/**

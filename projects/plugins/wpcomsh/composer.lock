@@ -894,7 +894,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "c42317b099a1cb683a3274426034891b31c49e81"
+                "reference": "5e4721924c67bb30f92d641134127b55d4ecbb5d"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -963,6 +963,12 @@
                 ],
                 "test-php": [
                     "@composer phpunit"
+                ],
+                "test-js": [
+                    "pnpm run test"
+                ],
+                "test-js-coverage": [
+                    "pnpm run test-coverage"
                 ],
                 "test-php-coverage": [
                     "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
