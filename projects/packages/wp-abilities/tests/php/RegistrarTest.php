@@ -12,6 +12,7 @@ use Brain\Monkey\Actions;
 use Brain\Monkey\Filters;
 use Brain\Monkey\Functions;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
@@ -90,66 +91,42 @@ class RegistrarTest extends TestCase {
 	}
 
 	/**
-	 * Categories-init already fired: register category directly, still hook abilities.
+	 * Lifecycle actions that fired before init().
+	 *
+	 * @return array<string, array{0: string[]}>
 	 */
-	public function test_init_registers_category_directly_when_categories_action_already_fired(): void {
-		$this->enable_abilities();
-
-		Functions\when( 'did_action' )->alias(
-			static function ( $action ) {
-				return Registrar::CATEGORIES_INIT_ACTION === $action ? 1 : 0;
-			}
+	public static function provide_actions_fired_before_init(): array {
+		return array(
+			'categories'               => array( array( Registrar::CATEGORIES_INIT_ACTION ) ),
+			'abilities'                => array( array( Registrar::ABILITIES_INIT_ACTION ) ),
+			'categories and abilities' => array( array( Registrar::CATEGORIES_INIT_ACTION, Registrar::ABILITIES_INIT_ACTION ) ),
 		);
-
-		Functions\expect( 'wp_register_ability_category' )
-			->once()
-			->with(
-				'fixture/slug',
-				array(
-					'label'       => 'Fixture',
-					'description' => 'A fixture category.',
-				)
-			);
-
-		Actions\expectAdded( Registrar::CATEGORIES_INIT_ACTION )->never();
-		Actions\expectAdded( Registrar::ABILITIES_INIT_ACTION )->once();
-
-		TestFixtureRegistrar::init();
 	}
 
 	/**
-	 * Abilities-init already fired: register abilities directly, still hook category.
+	 * Init() flags each lifecycle action it missed, registers nothing for it, and still hooks the rest.
+	 *
+	 * @dataProvider provide_actions_fired_before_init
+	 *
+	 * @param string[] $fired Lifecycle actions that already fired.
 	 */
-	public function test_init_registers_abilities_directly_when_abilities_action_already_fired(): void {
+	#[DataProvider( 'provide_actions_fired_before_init' )]
+	public function test_init_flags_each_action_it_missed_instead_of_registering( array $fired ): void {
 		$this->enable_abilities();
-
+		Functions\stubTranslationFunctions();
+		Functions\stubEscapeFunctions();
 		Functions\when( 'did_action' )->alias(
-			static function ( $action ) {
-				return Registrar::ABILITIES_INIT_ACTION === $action ? 1 : 0;
+			static function ( $action ) use ( $fired ) {
+				return in_array( $action, $fired, true ) ? 1 : 0;
 			}
 		);
 
-		Functions\expect( 'wp_register_ability' )->times( 2 );
-
-		Actions\expectAdded( Registrar::CATEGORIES_INIT_ACTION )->once();
-		Actions\expectAdded( Registrar::ABILITIES_INIT_ACTION )->never();
-
-		TestFixtureRegistrar::init();
-	}
-
-	/**
-	 * Both actions already fired: everything runs directly, nothing is hooked.
-	 */
-	public function test_init_registers_both_directly_when_both_actions_already_fired(): void {
-		$this->enable_abilities();
-
-		Functions\when( 'did_action' )->justReturn( 1 );
-
-		Functions\expect( 'wp_register_ability_category' )->once();
-		Functions\expect( 'wp_register_ability' )->times( 2 );
-
-		Actions\expectAdded( Registrar::CATEGORIES_INIT_ACTION )->never();
-		Actions\expectAdded( Registrar::ABILITIES_INIT_ACTION )->never();
+		Functions\expect( '_doing_it_wrong' )->times( count( $fired ) );
+		Functions\expect( 'wp_register_ability_category' )->never();
+		Functions\expect( 'wp_register_ability' )->never();
+		foreach ( array( Registrar::CATEGORIES_INIT_ACTION, Registrar::ABILITIES_INIT_ACTION ) as $action ) {
+			Actions\expectAdded( $action )->times( in_array( $action, $fired, true ) ? 0 : 1 );
+		}
 
 		TestFixtureRegistrar::init();
 	}

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Registrar: Flag an init() call that runs after the Abilities API init actions with _doing_it_wrong(), instead of trying to register abilities WordPress then rejects.

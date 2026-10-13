@@ -70,9 +70,9 @@ abstract class Registrar {
 	 * for every site the moment the package loads.
 	 *
 	 * When the filter returns `true`, each of the two Abilities API lifecycle
-	 * actions either gets a registration callback hooked, or — if the action
-	 * has already fired — dispatches immediately so late-loading plugins
-	 * still register on time.
+	 * actions gets a registration callback hooked. An action that has already
+	 * fired is flagged with `_doing_it_wrong()` instead, because WordPress
+	 * rejects registrations made outside it.
 	 *
 	 * @return void
 	 */
@@ -93,16 +93,36 @@ abstract class Registrar {
 		}
 
 		if ( did_action( self::CATEGORIES_INIT_ACTION ) ) {
-			static::register_category();
+			self::flag_late_init( self::CATEGORIES_INIT_ACTION );
 		} else {
 			add_action( self::CATEGORIES_INIT_ACTION, array( static::class, 'register_category' ) );
 		}
 
 		if ( did_action( self::ABILITIES_INIT_ACTION ) ) {
-			static::register_abilities();
+			self::flag_late_init( self::ABILITIES_INIT_ACTION );
 		} else {
 			add_action( self::ABILITIES_INIT_ACTION, array( static::class, 'register_abilities' ) );
 		}
+	}
+
+	/**
+	 * Flag an `init()` that runs after a lifecycle action, so the missing registrations aren't silent.
+	 *
+	 * @param string $action The lifecycle action that already fired.
+	 * @return void
+	 */
+	private static function flag_late_init( string $action ) {
+		_doing_it_wrong(
+			esc_html( static::class . '::init' ),
+			esc_html(
+				sprintf(
+					/* translators: %s: name of a WordPress action, such as wp_abilities_api_init. */
+					__( 'Call init() before WordPress fires %s, for example on plugins_loaded. WordPress rejects registrations after it, so nothing was registered for it.', 'jetpack-wp-abilities' ),
+					$action
+				)
+			),
+			'$$next-version$$'
+		);
 	}
 
 	/**
