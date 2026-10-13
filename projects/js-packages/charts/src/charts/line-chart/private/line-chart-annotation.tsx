@@ -269,7 +269,7 @@ const LineChartAnnotation: FC< LineChartAnnotationProps > = ( {
 					}px)`,
 					width: labelWidth,
 					height: labelHeight,
-			  }
+				}
 			: undefined;
 	};
 

@@ -13,6 +13,8 @@ import {
 	WidgetState,
 	describeError,
 	sharePercentage,
+	ExporterCsvDownloadButton,
+	commentsPostsCsvExporter,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -48,7 +50,14 @@ function MostCommentedPostsInner() {
 
 		return rows.map( row => ( {
 			id: row.id,
-			label: <LeaderboardPostLabel id={ row.postId } label={ row.label } link={ row.link } />,
+			label: (
+				<LeaderboardPostLabel
+					id={ row.postId }
+					label={ row.label }
+					link={ row.link }
+					origin={ { report: 'comments', section: 'posts' } }
+				/>
+			),
 			currentValue: row.value,
 			currentShare: sharePercentage( row.value, maxValue ),
 		} ) );
@@ -91,6 +100,11 @@ function MostCommentedPostsInner() {
 					report="comments"
 					section="posts"
 					ariaLabel={ __( 'See the commented posts report', 'jetpack-premium-analytics-pkg' ) }
+				/>
+				<ExporterCsvDownloadButton
+					exporter={ commentsPostsCsvExporter }
+					status={ { isLoading, isFetching, isError } }
+					rowCount={ rows.length }
 				/>
 			</WidgetFooter>
 		</Stack>

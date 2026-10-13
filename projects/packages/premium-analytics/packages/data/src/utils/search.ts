@@ -17,7 +17,7 @@ import { ORDER_ATTRIBUTION_VIEWS } from '../api/report-order-attribution-summary
 import { getDefaultQueryParams } from '../defaults';
 import { resolveIntervalForRange, type IntervalType } from './interval';
 import { computeDateRangeFromPreset } from './preset-date-range';
-import { toPostId } from './to-post-id';
+import { toAuthorId, toPostId } from './to-post-id';
 import type { DateType } from './types';
 import type { FilterCondition } from '../types/filter-condition';
 
@@ -53,8 +53,9 @@ export type ReportParams = {
 	view?: OrderAttributionView; // For order attribution reports
 	filters?: FilterCondition[];
 	section?: string;
-	date_type?: DateType; // For filtering by different date fields (created, paid, completed)
+	date_type?: DateType; // Unset by default, so the server applies the merchant's WooCommerce date type.
 	post_id?: string | number; // Scopes a report to a single post/page (detail page). String from the URL; numeric at the query layer.
+	author_id?: string | number; // Scopes a report to a single author (author detail page). Same string/number split as `post_id`.
 };
 
 type PartialComparisonFields = Partial<
@@ -125,6 +126,7 @@ export function normalizeReportParams(
 	const interval = resolveIntervalForRange( preset, from, to, search?.interval );
 
 	const postId = toPostId( search?.post_id );
+	const authorId = toAuthorId( search?.author_id );
 
 	const normalized: ReportParams = {
 		from,
@@ -132,14 +134,15 @@ export function normalizeReportParams(
 		interval,
 		preset,
 		...( typeof search?.period === 'string' ? { period: search.period } : {} ),
-		date_type: search?.date_type ?? 'created',
-		// Preserve the post_id scope so detail-page widgets stay bound to their
-		// post; drop an invalid one so a hand-edited deep link can't reach Stats.
+		// Preserve the post_id / author_id scope so detail-page widgets stay bound
+		// to their resource; drop an invalid one so a hand-edited deep link can't
+		// reach Stats.
 		...( postId > 0 ? { post_id: postId } : {} ),
+		...( authorId > 0 ? { author_id: authorId } : {} ),
 	};
 
-	// Comparison only ever comes from the URL. A fresh load carries none: the
-	// dashboard compares nothing until the user picks a comparison.
+	// Comparison only ever comes from the URL; a fresh load gets its default
+	// from the routes' `seedSiteDateParams`.
 	if ( search && hasComparisonEnabled( search ) ) {
 		normalized.compare_from = search.compare_from;
 		normalized.compare_to = search.compare_to;

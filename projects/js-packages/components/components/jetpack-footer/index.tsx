@@ -1,4 +1,4 @@
-import { isWpcomPlatformSite, getAdminUrl } from '@automattic/jetpack-script-data';
+import { isWpcomPlatformSite, getAdminUrl, getScriptData } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { Stack, Text, Link } from '@wordpress/ui';
 import clsx from 'clsx';
@@ -27,11 +27,15 @@ declare global {
 const JetpackFooter: FC< JetpackFooterProps > = ( { className, menu, ...otherProps } ) => {
 	let items: JetpackFooterMenuItem[] = [];
 
-	if ( ! isWpcomPlatformSite() && ! window?.JetpackNetworkAdminData ) {
+	if (
+		getScriptData()?.myJetpack?.isAvailable === true &&
+		! isWpcomPlatformSite() &&
+		! window?.JetpackNetworkAdminData
+	) {
 		items = [
 			{
-				label: __( 'Products', 'jetpack-components' ),
-				href: getAdminUrl( 'admin.php?page=my-jetpack#/products' ),
+				label: __( 'Features', 'jetpack-components' ),
+				href: getAdminUrl( 'admin.php?page=my-jetpack#/features' ),
 			},
 			{
 				label: __( 'Help', 'jetpack-components' ),

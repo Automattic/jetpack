@@ -15,9 +15,8 @@ await jest.unstable_mockModule( '@wordpress/route', () => ( {
 	useNavigate: () => mockNavigate,
 } ) );
 
-const { default: useResponsePageNavigation } = await import(
-	'../../../../routes/response/use-navigation.ts'
-);
+const { default: useResponsePageNavigation } =
+	await import( '../../../../routes/response/use-navigation.ts' );
 const { DEFAULT_PINNED_VIEW } = await import( '../../../../routes/response/pinned-view.ts' );
 
 const records = ( ...ids ) => ids.map( id => ( { id, status: 'publish' } ) );

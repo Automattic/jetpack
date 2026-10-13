@@ -7,17 +7,22 @@ import { recordBoostEvent } from '../../../app/assets/src/js/lib/utils/analytics
 import { castToString } from '../../../app/assets/src/js/lib/utils/cast-to-string';
 import { requestDataSync, type ScoreRefreshState } from './use-modules-state';
 
-export type SpeedScoresSet = Awaited< ReturnType< typeof requestSpeedScores > >;
+export type SpeedScoresSet = NonNullable< Awaited< ReturnType< typeof requestSpeedScores > > >;
 export type SpeedScoreState = {
 	status: 'loading' | 'loaded' | 'error' | 'offline';
 	error?: Error;
 	hasScores: boolean;
+	isRunning: boolean;
 	scores: SpeedScoresSet;
 };
 
 const cornerstonePagesSchema = z.object( { predefined_pages: z.array( z.string() ) } );
 
-export function useSpeedScores( refreshState?: ScoreRefreshState ) {
+export function useSpeedScores(
+	refreshState?: ScoreRefreshState,
+	enabled = true,
+	onUserRunComplete?: () => void
+) {
 	const { online } = Jetpack_Boost.site;
 	const initial = cornerstonePagesSchema.safeParse(
 		window.jetpack_boost_ds?.cornerstone_pages_properties?.value
@@ -27,40 +32,76 @@ export function useSpeedScores( refreshState?: ScoreRefreshState ) {
 		queryFn: async () =>
 			cornerstonePagesSchema.parse( await requestDataSync( 'cornerstone_pages_properties' ) ),
 		initialData: initial.success ? initial.data : undefined,
-		enabled: online,
+		enabled: online && enabled,
 	} );
 	const url = properties?.predefined_pages[ 0 ] || Jetpack_Boost.site.url;
 	const [ state, setState ] = useState< SpeedScoreState >( {
 		status: online ? 'loading' : 'offline',
 		hasScores: false,
+		isRunning: false,
 		scores: { current: { mobile: 0, desktop: 0 }, noBoost: null, isStale: false },
 	} );
 	const requestId = useRef( 0 );
-	const lastConfig = useRef< string >();
+	const acceptedUserRun = useRef< string >( undefined );
+	const requestController = useRef< AbortController >( undefined );
+	const lastConfig = useRef< string >( undefined );
 	const cancelPending = useCallback( () => {
 		++requestId.current;
+		requestController.current?.abort();
 	}, [] );
 	const refresh = useCallback(
-		async ( regenerate = false ) => {
-			if ( ! online ) {
+		async ( regenerate = false, { userStarted = false } = {} ) => {
+			if ( ! online || ! enabled ) {
 				return;
 			}
-			const id = ++requestId.current;
-			setState( previous => ( { ...previous, status: 'loading', error: undefined } ) );
+			if ( regenerate || acceptedUserRun.current !== url ) {
+				acceptedUserRun.current = undefined;
+			}
+			cancelPending();
+			const id = requestId.current;
+			const controller = new AbortController();
+			requestController.current = controller;
+			setState( previous => ( {
+				...previous,
+				status: 'loading',
+				isRunning:
+					regenerate ||
+					acceptedUserRun.current === url ||
+					( previous.status === 'loading' && previous.isRunning ),
+				error: undefined,
+			} ) );
 			try {
 				const scores = await requestSpeedScores(
 					regenerate,
 					wpApiSettings.root,
 					url,
-					wpApiSettings.nonce
+					wpApiSettings.nonce,
+					{
+						signal: controller.signal,
+						// A run started elsewhere (another tab, before a subpage visit) is still a run.
+						onPending: () => {
+							if ( id === requestId.current ) {
+								if ( regenerate && userStarted ) {
+									acceptedUserRun.current = url;
+								}
+								setState( previous => ( { ...previous, isRunning: true } ) );
+							}
+						},
+					}
 				);
-				if ( id === requestId.current ) {
-					setState( { status: 'loaded', hasScores: true, scores } );
+				if ( id === requestId.current && scores ) {
+					const completedUserRun = ( regenerate && userStarted ) || acceptedUserRun.current === url;
+					acceptedUserRun.current = undefined;
+					setState( { status: 'loaded', hasScores: true, isRunning: false, scores } );
+					if ( completedUserRun ) {
+						onUserRunComplete?.();
+					}
 				}
 			} catch ( cause ) {
 				if ( id !== requestId.current ) {
 					return;
 				}
+				acceptedUserRun.current = undefined;
 				const error = standardizeError(
 					cause ?? {},
 					__( 'Error requesting speed scores', 'jetpack-boost' )
@@ -68,20 +109,27 @@ export function useSpeedScores( refreshState?: ScoreRefreshState ) {
 				recordBoostEvent( 'speed_score_request_error', {
 					error_message: castToString( error.message ),
 				} );
-				setState( previous => ( { ...previous, status: 'error', error } ) );
+				setState( previous => ( { ...previous, status: 'error', isRunning: false, error } ) );
 			}
 		},
-		[ online, url ]
+		[ online, url, enabled, cancelPending, onUserRunComplete ]
 	);
 
 	useEffect( () => {
-		if ( online ) {
+		if ( online && enabled ) {
 			refresh();
-		} else {
-			setState( previous => ( { ...previous, status: 'offline', error: undefined } ) );
+		} else if ( online && ! enabled ) {
+			setState( previous => ( previous.isRunning ? { ...previous, isRunning: false } : previous ) );
+		} else if ( ! online ) {
+			setState( previous => ( {
+				...previous,
+				status: 'offline',
+				isRunning: false,
+				error: undefined,
+			} ) );
 		}
 		return cancelPending;
-	}, [ online, refresh, cancelPending ] );
+	}, [ online, enabled, refresh, cancelPending ] );
 
 	const config = refreshState?.config;
 	const isPending = refreshState?.isPending;
@@ -92,7 +140,7 @@ export function useSpeedScores( refreshState?: ScoreRefreshState ) {
 		if ( lastConfig.current === undefined ) {
 			lastConfig.current = config;
 		}
-		if ( ! online || isPending || config === lastConfig.current ) {
+		if ( ! enabled || ! online || isPending || config === lastConfig.current ) {
 			return;
 		}
 		const timer = window.setTimeout( () => {
@@ -100,7 +148,7 @@ export function useSpeedScores( refreshState?: ScoreRefreshState ) {
 			refresh( true );
 		}, 2000 );
 		return () => window.clearTimeout( timer );
-	}, [ config, isPending, online, refresh ] );
+	}, [ config, isPending, online, enabled, refresh ] );
 
 	return [ state, refresh ] as const;
 }

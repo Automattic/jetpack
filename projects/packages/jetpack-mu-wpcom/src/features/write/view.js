@@ -20,6 +20,16 @@ import {
 	libraryThumbUrl,
 } from 'wpcom-write/image-format';
 import {
+	createEmptyQuote,
+	insertLeadingParagraph,
+	isCaretAtQuoteStart,
+	isCaretAtStartOfFirstLine,
+	keepSelectionAcross,
+	liftFirstQuoteLine,
+	unwrapQuote,
+	wrapLooseQuoteContent,
+} from 'wpcom-write/quote-editing';
+import {
 	parsePostId,
 	escapeAttr,
 	rgbToHex,
@@ -55,6 +65,16 @@ const ANON_DRAFT_STORAGE_KEY = 'wpcom-write-anon-draft';
 
 // Marks the one-off "you're using Write" note as already shown in this browser.
 const EDITOR_NOTE_STORAGE_KEY = 'wpcom-write-editor-note-seen';
+
+// Marks this browser as having left Write for the Block editor. Written to a
+// cookie, the only store write.php can read, and to localStorage, the only one
+// that survives Safari's seven-day cap on script-set cookies (ITP 2.1).
+// Also read by projects/packages/newsletter/src/writing-prompt/prompt-panel.jsx,
+// from a package that does not depend on this one: the name is all they share.
+const BLOCK_EDITOR_PREFERRED_KEY = 'wpcom-write-block-editor-preferred';
+
+// Chromium and Firefox clamp cookie lifetime to 400 days; more is a no-op.
+const BLOCK_EDITOR_PREFERRED_MAX_AGE = 400 * 24 * 60 * 60;
 
 /**
  * Whether the editor is running on a logged-out page that opts into the
@@ -272,6 +292,30 @@ function markEditorNoteSeen() {
 		window.localStorage.setItem( EDITOR_NOTE_STORAGE_KEY, '1' );
 	} catch {
 		// No-op: worst case the note shows again on the next visit.
+	}
+}
+
+/**
+ * Record that this browser chose the Block editor over Write.
+ *
+ * `Secure` is conditional, the JS counterpart of the `is_ssl()` our setcookie()
+ * calls pass: unconditional, it would drop the cookie on an http:// sandbox.
+ */
+function markBlockEditorPreferred() {
+	try {
+		window.localStorage.setItem( BLOCK_EDITOR_PREFERRED_KEY, '1' );
+	} catch {
+		// No-op: the cookie below is the fallback, where it is available.
+	}
+	try {
+		document.cookie =
+			BLOCK_EDITOR_PREFERRED_KEY +
+			'=1; path=/; max-age=' +
+			BLOCK_EDITOR_PREFERRED_MAX_AGE +
+			'; SameSite=Lax' +
+			( window.location.protocol === 'https:' ? '; Secure' : '' );
+	} catch {
+		// No-op: worst case the prompt widget keeps offering Write.
 	}
 }
 
@@ -1545,7 +1589,7 @@ function convertToBlocks( html ) {
 			// comment attributes (see serializeAttributes in @wordpress/blocks).
 			const jsonAttr = Object.keys( attrs ).length
 				? ' ' +
-				  JSON.stringify( attrs )
+					JSON.stringify( attrs )
 						.replaceAll( '\\\\', '\\u005c' )
 						.replaceAll( '--', '\\u002d\\u002d' )
 						.replaceAll( '<', '\\u003c' )
@@ -2462,8 +2506,13 @@ function insertNewBlock( tag ) {
 	const content = getContent();
 	if ( ! content ) return;
 
-	const newEl = document.createElement( tag );
-	newEl.innerHTML = '<br>';
+	let newEl;
+	if ( tag === 'blockquote' ) {
+		newEl = createEmptyQuote( document );
+	} else {
+		newEl = document.createElement( tag );
+		newEl.innerHTML = '<br>';
+	}
 
 	// Find the block containing the slash command by scanning direct children.
 	// Include headings and blockquotes so slash commands work inside them.
@@ -2486,7 +2535,7 @@ function insertNewBlock( tag ) {
 	}
 
 	// Place cursor inside the new element.
-	placeCursorAt( newEl );
+	placeCursorAt( newEl.querySelector( 'p' ) || newEl );
 
 	clearSlashActive();
 	state.showSlashMenu = false;
@@ -2565,11 +2614,10 @@ function applyMarkdownListShortcut( paragraph, listTag ) {
  * @param {HTMLElement} paragraph - The paragraph to convert.
  */
 function applyMarkdownQuoteShortcut( paragraph ) {
-	const blockquote = document.createElement( 'blockquote' );
-	blockquote.innerHTML = '<br>';
+	const blockquote = createEmptyQuote( document );
 	paragraph.after( blockquote );
 	paragraph.remove();
-	placeCursorAt( blockquote );
+	placeCursorAt( blockquote.firstChild );
 	state.formatQuote = true;
 }
 
@@ -3611,8 +3659,13 @@ const { state } = store( 'wpcom-write', {
 				const content = getContent();
 				if ( content ) {
 					content.focus();
-					// Ensure the cursor starts inside a paragraph.
-					if ( ! content.querySelector( 'p' ) ) {
+					// Give a post that opens with a quote or heading a line to write above it.
+					const leading = insertLeadingParagraph( content );
+					if ( leading ) {
+						placeCursorAt( leading );
+						pushToUndoHistory();
+					} else if ( ! content.querySelector( 'p' ) ) {
+						// Ensure the cursor starts inside a paragraph.
 						document.execCommand( 'formatBlock', false, 'p' );
 					}
 				}
@@ -4023,34 +4076,22 @@ const { state } = store( 'wpcom-write', {
 				}
 			}
 
-			// Backspace in an empty blockquote: convert it back to a paragraph.
-			// Must run before the first-block Backspace guard below, otherwise the
-			// guard swallows Backspace when the quote is the editor's first block
-			// (e.g. just after the `>` markdown shortcut on a fresh post), leaving
-			// the user with no way to remove the quote.
+			// Backspace at the start of a quote's first line: move that line out,
+			// above the quote, as the block editor does. Writers use this to add text
+			// above a quote that opens the post (e.g. a writing prompt), so it must
+			// run before the first-block Backspace guard below.
 			if ( event.key === 'Backspace' ) {
 				const sel = window.getSelection();
-				if ( sel.rangeCount && sel.isCollapsed && ! getActiveCite() ) {
-					const bq = getActiveBlockquote();
-					if ( bq ) {
-						// Ignore the <cite> placeholder when checking for empty body.
-						const probe = bq.cloneNode( true );
-						const probeCite = probe.querySelector( 'cite' );
-						if ( probeCite ) {
-							probeCite.remove();
-						}
-						if ( probe.textContent.trim() === '' ) {
-							event.preventDefault();
-							flushUndoDebounce();
-							const p = document.createElement( 'p' );
-							p.innerHTML = '<br>';
-							bq.after( p );
-							bq.remove();
-							placeCursorAt( p );
-							state.formatQuote = false;
-							pushToUndoHistory();
-							return;
-						}
+				const bq = sel.rangeCount ? getActiveBlockquote() : null;
+				if ( bq && isCaretAtQuoteStart( bq, sel.getRangeAt( 0 ) ) ) {
+					flushUndoDebounce();
+					const line = liftFirstQuoteLine( bq );
+					if ( line ) {
+						event.preventDefault();
+						placeCursorAt( line );
+						state.formatQuote = false;
+						pushToUndoHistory();
+						return;
 					}
 				}
 			}
@@ -4071,14 +4112,13 @@ const { state } = store( 'wpcom-write', {
 						while ( block && block.parentNode !== content ) {
 							block = block.parentNode;
 						}
-						if ( block && block === content.firstElementChild ) {
-							const beforeRange = document.createRange();
-							beforeRange.setStart( block, 0 );
-							beforeRange.setEnd( range.startContainer, range.startOffset );
-							if ( beforeRange.toString() === '' ) {
-								event.preventDefault();
-								return;
-							}
+						if (
+							block &&
+							block === content.firstElementChild &&
+							isCaretAtStartOfFirstLine( block, range )
+						) {
+							event.preventDefault();
+							return;
 						}
 					}
 				}
@@ -4655,20 +4695,36 @@ const { state } = store( 'wpcom-write', {
 		// --- Block formatting ---
 
 		formatQuote() {
+			flushUndoDebounce();
 			if ( state.formatQuote ) {
 				if ( ! exitListAndApplyBlock( 'p' ) ) {
-					document.execCommand( 'formatBlock', false, 'p' );
+					const bq = getActiveBlockquote();
+					if ( bq ) {
+						keepSelectionAcross( window.getSelection(), () => unwrapQuote( bq ) );
+					} else {
+						document.execCommand( 'formatBlock', false, 'p' );
+					}
 				}
 				state.formatQuote = false;
 			} else {
 				if ( ! exitListAndApplyBlock( 'blockquote' ) ) {
 					document.execCommand( 'formatBlock', false, 'blockquote' );
 				}
+				const bq = getActiveBlockquote();
+				if ( bq ) {
+					keepSelectionAcross( window.getSelection(), () => {
+						wrapLooseQuoteContent( bq );
+						return bq.querySelector( 'p' ) || bq;
+					} );
+				}
 				state.formatQuote = true;
 				state.formatHeading = false;
 			}
 			state.formatUList = false;
 			state.formatOList = false;
+			// unwrapQuote fires no input event, and formatBlock's is still debounced.
+			flushUndoDebounce();
+			pushToUndoHistory();
 		},
 
 		// --- Link ---
@@ -6105,11 +6161,17 @@ const { state } = store( 'wpcom-write', {
 		 * always has. Anything already on screen — including a seeded prompt the
 		 * visitor has not touched — goes through the save, so the block editor
 		 * opens on the same words rather than on a fresh post.
+		 *
+		 * Taking either of those two ways out stops prompt answers coming back
+		 * here: the widget stops offering Write, and write.php diverts a prompt
+		 * answer that arrives anyway. The kebab's openInBlockEditor() is exempt
+		 * — a per-post escape hatch, not a choice of editor.
 		 */
 		switchToBlockEditor() {
 			if ( isAnon() ) {
 				return;
 			}
+			markBlockEditorPreferred();
 			state.showHelp = false;
 			if ( ! state.editPostId && ! hasWritableContent() ) {
 				allowLeave = true;

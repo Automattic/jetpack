@@ -2,7 +2,7 @@ import { Icon, Skeleton, Stack } from '@jetpack-premium-analytics/externals';
 import { useReducedMotion } from '@wordpress/compose';
 import { pages, people, trendingUp } from '@wordpress/icons';
 import clsx from 'clsx';
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type JSX } from 'react';
 import { ChartArtwork } from './chart-artwork';
 import {
 	WIDGET_GRID_CANVAS,

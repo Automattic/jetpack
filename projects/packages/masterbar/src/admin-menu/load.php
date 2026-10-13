@@ -28,7 +28,9 @@ function should_customize_nav( $admin_menu_class ) {
 		return false;
 	}
 
-	$is_api_request = defined( 'REST_REQUEST' ) && REST_REQUEST || isset( $_SERVER['REQUEST_URI'] ) && str_starts_with( filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ) ), '/?rest_route=%2Fwpcom%2Fv2%2Fadmin-menu' );
+	$rest_route     = wp_unslash( $_GET['rest_route'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+	$is_api_request = defined( 'REST_REQUEST' ) && REST_REQUEST
+		|| str_starts_with( wp_unslash( $_SERVER['REQUEST_URI'] ), '/?rest_route=%2Fwpcom%2Fv2%2Fadmin-menu' ) && is_string( $rest_route ) && str_starts_with( $rest_route, '/wpcom/v2/admin-menu' ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
 	// No nav customizations on WP Admin of Atomic sites when SSO is disabled.
 	if ( is_a( $admin_menu_class, Atomic_Admin_Menu::class, true ) && ! $is_api_request && ! ( new Modules() )->is_active( 'sso' ) ) {
@@ -53,6 +55,16 @@ function get_admin_menu_class() {
 		$is_support_session       = defined( 'WPCOM_SUPPORT_SESSION' ) && WPCOM_SUPPORT_SESSION;
 		if ( $is_difm_lite_in_progress && ! $is_support_session ) {
 			require_once __DIR__ . '/class-domain-only-admin-menu.php';
+
+			// While the content form is still open the customer needs to read
+			// their own Posts, Media and Pages to fill it in. The sticker is
+			// absent for builds that predate it and whenever wpcom has not set
+			// it, so the fallback is the existing full lockout.
+			if ( wpcomsh_is_site_sticker_active( 'difm-lite-awaiting-content' ) ) {
+				require_once __DIR__ . '/class-difm-lite-admin-menu.php';
+				return DIFM_Lite_Admin_Menu::class;
+			}
+
 			return Domain_Only_Admin_Menu::class;
 		}
 
@@ -78,6 +90,15 @@ function get_admin_menu_class() {
 		$is_support_session       = defined( 'WPCOM_SUPPORT_SESSION' ) && WPCOM_SUPPORT_SESSION;
 		if ( $is_difm_lite_in_progress && ! $is_support_session ) {
 			require_once __DIR__ . '/class-domain-only-admin-menu.php';
+
+			// See the Atomic branch above: pre-submit the customer keeps access
+			// to their own content, and an absent sticker falls back to the
+			// existing full lockout.
+			if ( has_blog_sticker( 'difm-lite-awaiting-content' ) ) {
+				require_once __DIR__ . '/class-difm-lite-admin-menu.php';
+				return DIFM_Lite_Admin_Menu::class;
+			}
+
 			return Domain_Only_Admin_Menu::class;
 		}
 

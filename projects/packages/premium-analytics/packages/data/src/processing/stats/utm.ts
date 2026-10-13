@@ -89,7 +89,7 @@ function normalizeUtmTopPost(
 		? [
 				{ type: 'link', data: href },
 				{ type: 'url-builder', data: { url: href, ...utmData } },
-		  ]
+			]
 		: [];
 
 	return {

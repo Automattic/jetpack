@@ -1,6 +1,6 @@
-import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { LinkButton } from '@wordpress/ui';
+import { inertValue } from '@wordpress/react-inert-value';
+import { Link, LinkButton, Stack, Text } from '@wordpress/ui';
 import type { ReactNode } from 'react';
 
 interface Props {
@@ -41,7 +41,7 @@ export function SitePreview( { siteUrl, siteTitle, siteEditUrl }: Props ) {
 			className="ai-launchpad-tailored-list__preview-iframe"
 			title={ siteTitle || domain }
 			src={ `${ siteUrl }/?hide_banners=true&preview_overlay=true&preview=true` }
-			inert="true"
+			inert={ inertValue( true ) }
 			tabIndex={ -1 }
 		/>
 	);
@@ -65,12 +65,16 @@ export function SitePreview( { siteUrl, siteTitle, siteEditUrl }: Props ) {
 	}
 
 	return (
-		<aside className="ai-launchpad-tailored-list__preview">
+		<Stack direction="column" gap="md" render={ <aside /> }>
 			{ frame }
-			<p className="ai-launchpad-tailored-list__preview-title">{ siteTitle || domain }</p>
-			<ExternalLink className="ai-launchpad-tailored-list__preview-link" href={ siteUrl }>
-				{ domain }
-			</ExternalLink>
-		</aside>
+			<Stack direction="column" gap="xs">
+				<Text variant="heading-lg" render={ <p /> }>
+					{ siteTitle || domain }
+				</Text>
+				<Link className="ai-launchpad-tailored-list__preview-link" href={ siteUrl } openInNewTab>
+					{ domain }
+				</Link>
+			</Stack>
+		</Stack>
 	);
 }

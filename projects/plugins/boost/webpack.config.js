@@ -1,7 +1,6 @@
 const webpack = require( 'webpack' );
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
-const CopyPlugin = require( 'copy-webpack-plugin' );
 
 const imageGuideCopyPatterns = [
 	{
@@ -12,7 +11,7 @@ const imageGuideCopyPatterns = [
 		// Emit as `.min.css` so the concatenation serving path treats it as already
 		// minified and skips re-minification (consistent with guide.min.js). The file is
 		// already minified at build time, so re-minifying it is redundant.
-		to: 'guide.min.css',
+		filename: 'guide.min.css',
 	},
 ];
 
@@ -83,13 +82,7 @@ module.exports = [
 					filename: 'jetpack-boost.css',
 				},
 				DependencyExtractionPlugin: {
-					requestMap: {
-						// Bundle @wordpress/theme and @wordpress/private-apis inline —
-						// they're transitive deps of @wordpress/ui but aren't registered
-						// as script handles in WP core, so externalizing them breaks enqueue.
-						'@wordpress/theme': { external: false },
-						'@wordpress/private-apis': { external: false },
-					},
+					bundleWpUiDeps: true,
 				},
 			} ),
 			new webpack.ProvidePlugin( {
@@ -151,11 +144,10 @@ module.exports = [
 		devtool: jetpackWebpackConfig.devtool,
 		output: {
 			path: path.resolve( './app/modules/image-guide/dist' ),
-			// Ship as `.min.js` so Boost's own concatenation serving path treats it as
-			// already-minified and skips re-minification. The MatthiasMullie PHP minifier
-			// is ES5-era and silently corrupts the Svelte/ES6 template literals in this
-			// bundle; webpack/Terser has already minified it at build time.
+			clean: true,
+			// The .min.js name bypasses Boost's ES5-era PHP minifier, which corrupts modern syntax.
 			filename: 'guide.min.js',
+			copy: imageGuideCopyPatterns,
 		},
 		optimization: {
 			...jetpackWebpackConfig.optimization,
@@ -168,10 +160,7 @@ module.exports = [
 			},
 		},
 		node: false,
-		plugins: [
-			...jetpackWebpackConfig.StandardPlugins(),
-			new CopyPlugin( { patterns: imageGuideCopyPatterns } ),
-		],
+		plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
 		module: {
 			strictExportPresence: true,
 			rules: [

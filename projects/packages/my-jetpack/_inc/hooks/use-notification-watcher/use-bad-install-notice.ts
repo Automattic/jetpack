@@ -15,7 +15,7 @@ const useBadInstallNotice: NoticeHookType = ( redBubbleAlerts, isLoading ) => {
 			? []
 			: ( Object.keys( redBubbleAlerts ).filter( key =>
 					key.endsWith( '-bad-installation' )
-			  ) as Array< `${ string }-bad-installation` > );
+				) as Array< `${ string }-bad-installation` > );
 
 		if ( badInstallAlerts.length === 0 ) {
 			return;

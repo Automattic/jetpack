@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { calendar } from '@jetpack-premium-analytics/icons';
 import {
 	describeError,
 	MetricSparklineSkeleton,
@@ -55,13 +54,9 @@ function PopularDaysReport() {
 									'jetpack-premium-analytics-pkg'
 								),
 								onRetry: refetch,
-						  } )
+							} )
 						: null
 				}
-				empty={ {
-					icon: calendar,
-					description: __( 'No views in this period.', 'jetpack-premium-analytics-pkg' ),
-				} }
 				renderLoading={ <MetricSparklineSkeleton withHeadlineCount /> }
 			>
 				<PeakDistribution

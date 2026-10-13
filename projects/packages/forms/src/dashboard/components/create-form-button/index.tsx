@@ -11,6 +11,7 @@ import { plus } from '@wordpress/icons';
  */
 import useCreateForm from '../../hooks/use-create-form.ts';
 import { CreateFormModal } from '../form-name-modal/create-form-modal';
+import type { JSX } from 'react';
 
 type CreateFormButtonProps = {
 	label?: string;

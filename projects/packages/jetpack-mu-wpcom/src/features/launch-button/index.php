@@ -59,6 +59,25 @@ function wpcom_should_show_launch_button(): bool {
 }
 
 /**
+ * The URL of the screen the launch button was rendered on.
+ *
+ * Sent as `back_to`, so the launch flow's Back button returns to that screen. Calypso only honours it
+ * when its host is the launched site's own.
+ *
+ * @return string
+ */
+function wpcom_get_launch_button_back_to(): string {
+	$host        = isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '';
+	$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '/';
+
+	if ( '' === $host ) {
+		return admin_url();
+	}
+
+	return set_url_scheme( 'http://' . $host . $request_uri, 'https' );
+}
+
+/**
  * Adds a "launch site" button to the admin bar.
  *
  * @param WP_Admin_Bar $admin_bar The WordPress admin bar.
@@ -80,7 +99,7 @@ function wpcom_add_launch_button_to_admin_bar( WP_Admin_Bar $admin_bar ) {
 	$blog_domain = wp_parse_url( home_url(), PHP_URL_HOST );
 	$admin_bar->add_menu(
 		array(
-			'id'     => 'menu-id',
+			'id'     => 'launch-site',
 			'parent' => null,
 			'group'  => null,
 			'title'  => '<span class="ab-icon">' . $icon . '</span><span class="ab-label">' . __( 'Launch site', 'jetpack-mu-wpcom' ) . '</span>',
@@ -88,6 +107,7 @@ function wpcom_add_launch_button_to_admin_bar( WP_Admin_Bar $admin_bar ) {
 				array(
 					'siteSlug' => $blog_domain,
 					'ref'      => 'wp-admin',
+					'back_to'  => rawurlencode( wpcom_get_launch_button_back_to() ),
 				),
 				'https://wordpress.com/start/launch-site'
 			),

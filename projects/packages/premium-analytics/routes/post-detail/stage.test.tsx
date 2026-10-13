@@ -1,12 +1,20 @@
-import { useReportScope } from '@jetpack-premium-analytics/data';
+import { PERIOD_CHANGE_ATTENTION_MS, useReportScope } from '@jetpack-premium-analytics/data';
+import {
+	PRESET_ALL_TIME,
+	computePrimaryRange,
+	createTZDateFromParts,
+} from '@jetpack-premium-analytics/datetime';
 import { useStoredDetailLayout } from '@jetpack-premium-analytics/widgets-toolkit';
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { useCallback } from 'react';
+import { getNoticeAnnouncement, getNoticeText } from '../../tests/js/notice-test-utils';
 import { usePostDetailTabs, usePostSummary } from './hooks';
 import { stage } from './stage';
 import type { ReactNode } from 'react';
 
 let mockSearch: Record< string, unknown > = {};
+let mockDateFilterOverrides: Record< string, unknown > = {};
 
 // The dashboard props the stage handed to the (mocked) WidgetDashboard.
 let mockDashboardProps: {
@@ -22,7 +30,6 @@ let mockCanPerform: ( ( request: Record< string, unknown > ) => boolean ) | unde
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
 	AnalyticsQueryClientProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
-	GlobalErrorProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/routing', () => ( {
@@ -31,17 +38,28 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/routing' ),
 	useDashboardLink: () => '/?from=2026-06-01&to=2026-06-16',
 	useReportDateFilters: () => ( {
-		appliedRange: { from: new Date( 2026, 5, 1 ), to: new Date( 2026, 5, 16 ) },
+		appliedRange: {
+			from: new Date( Date.UTC( 2026, 5, 1 ) ),
+			to: new Date( Date.UTC( 2026, 5, 16 ) ),
+		},
 		replaceRange: () => {},
 		timeZone: 'UTC',
 		interval: 'day',
 		intervalOptions: [ 'day', 'week' ],
+		...mockDateFilterOverrides,
 	} ),
 } ) );
 
 // Avoid loading DataViews while keeping the real breadcrumbs for these assertions.
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
-	DateFiltersPanel: () => <div>Date filters</div>,
+	DateFiltersPanel: ( props: { attentionId?: number } ) => (
+		<div>
+			Date filters
+			<MockAttentionProbe { ...props } />
+		</div>
+	),
+	PeriodChangeStatus: jest.requireActual( '../../packages/ui/src/period-change-status' )
+		.PeriodChangeStatus,
 	SectionHeader: jest.requireActual( '../../packages/ui/src/section-header' ).SectionHeader,
 	SectionTabs: () => <div role="tablist" />,
 	StatsBreadcrumbs: jest.requireActual( '../../packages/ui/src/stats-breadcrumbs' )
@@ -53,6 +71,9 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 		value && /^https?:\/\//.test( value ) ? value : undefined,
 } ) );
 
+// The core-data selector the stage's `useSelect` callback reaches.
+const mockGetEntityRecords = jest.fn( () => [] );
+
 jest.mock( '@wordpress/core-data', () => ( { store: {} } ) );
 
 // Proxies `@wordpress/data` lazily: `requireActual` at import time would
@@ -61,7 +82,10 @@ jest.mock(
 	'@wordpress/data',
 	() =>
 		new Proxy(
-			{ useSelect: () => [] },
+			{
+				useSelect: ( selector: ( select: unknown ) => unknown ) =>
+					selector( () => ( { getEntityRecords: mockGetEntityRecords } ) ),
+			},
 			{
 				get: ( overrides, prop ) =>
 					prop in overrides
@@ -71,16 +95,35 @@ jest.mock(
 		)
 );
 
+// The range the routing mock above applies, as the card would set it.
+const JUNE_2026 = {
+	from: createTZDateFromParts( [ 2026, 5, 1 ], 'UTC' ),
+	to: createTZDateFromParts( [ 2026, 5, 16 ], 'UTC' ),
+};
+
 /**
  * Reads the scope from where the page's widgets render.
  *
  * @return The declared scope, as text.
  */
 function MockScopeProbe() {
-	const { offersComparison } = useReportScope();
+	const { offersComparison, openPeriod } = useReportScope();
+	const openJune = useCallback( () => openPeriod?.( JUNE_2026 ), [ openPeriod ] );
 
-	return <div>{ offersComparison ? 'Post widgets' : 'Post widgets without comparison' }</div>;
+	return (
+		<div>
+			{ offersComparison ? 'Post widgets' : 'Post widgets without comparison' }
+			<button type="button" onClick={ openJune }>
+				Open June from a card
+			</button>
+		</div>
+	);
 }
+
+// Stands in for the period trigger: shows the id it was handed.
+const MockAttentionProbe = ( { attentionId }: { attentionId?: number } ) => (
+	<span data-testid="attention">{ attentionId ?? 'no attention' }</span>
+);
 
 jest.mock( '@wordpress/widget-dashboard', () => {
 	const WidgetDashboard = ( {
@@ -160,6 +203,7 @@ jest.mock( '@wordpress/admin-ui', () => ( {
 } ) );
 
 jest.mock( '@wordpress/route', () => ( {
+	useNavigate: () => jest.fn(),
 	useParams: () => ( { postId: '41' } ),
 	useSearch: () => mockSearch,
 } ) );
@@ -169,13 +213,15 @@ jest.mock( '@wordpress/route', () => ( {
 
 jest.mock( './components', () => ( {
 	postHeaderSlots: ( {
+		summary,
 		variant,
 		performanceRange,
 	}: {
+		summary: { isLoading?: boolean };
 		variant?: string;
 		performanceRange?: { from?: Date; to?: Date };
 	} ) => ( {
-		title: 'Post summary',
+		title: summary.isLoading ? 'Loading summary' : 'Post summary',
 		subTitle: (
 			<>
 				<span data-testid="header-variant">{ variant }</span>
@@ -188,6 +234,9 @@ jest.mock( './components', () => ( {
 } ) );
 
 let mockActiveTab = 'traffic';
+let mockEmailNotSent = false;
+let mockEmailSendPending = false;
+let mockFixedLayout: unknown[] = [];
 
 // The pinned email scope the stage hands to the tabs hook and the header.
 const mockEmailScope = {
@@ -222,7 +271,9 @@ jest.mock( './hooks', () => ( {
 		],
 		activeTab: mockActiveTab,
 		setActiveTab: jest.fn(),
-		layout: [],
+		layout: mockFixedLayout,
+		isEmailNotSent: mockEmailNotSent,
+		isEmailSendPending: mockEmailSendPending,
 	} ) ),
 } ) );
 
@@ -263,6 +314,8 @@ describe( 'post detail stage', () => {
 		jest.clearAllMocks();
 		mockSearch = { from: '2026-06-01', to: '2026-06-16', post_id: '41' };
 		mockActiveTab = 'traffic';
+		mockEmailNotSent = false;
+		mockEmailSendPending = false;
 	} );
 
 	it( 'shows the date filter on the traffic tab', () => {
@@ -288,7 +341,104 @@ describe( 'post detail stage', () => {
 			'2026-06-22T00:00:00.000Z'
 		);
 		// The tabs hook receives the pinned params for the email tabs' widgets.
-		expect( mockUsePostDetailTabs ).toHaveBeenCalledWith( 41, mockEmailScope.reportParams, false );
+		expect( mockUsePostDetailTabs ).toHaveBeenCalledWith(
+			41,
+			mockEmailScope.reportParams,
+			false,
+			'post'
+		);
+	} );
+
+	it( 'replaces an email tab’s header and widgets with the not-sent state for a post never sent', () => {
+		mockActiveTab = 'email-opens';
+		mockEmailNotSent = true;
+		mockSummary();
+
+		render( stage() );
+
+		// The email header would claim a send date the post never had.
+		expect( screen.queryByText( 'Post summary' ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'This post hasn’t been sent as a newsletter' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: /Learn more/ } ) ).toHaveAttribute(
+			'href',
+			'https://jetpack.com/support/newsletter/'
+		);
+	} );
+
+	it( 'keeps the email header a skeleton while the send check is pending', () => {
+		mockActiveTab = 'email-opens';
+		mockEmailSendPending = true;
+		mockSummary();
+
+		render( stage() );
+
+		expect( screen.getByText( 'Loading summary' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Post summary' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'draws the Post traffic header while the send check is pending', () => {
+		mockEmailSendPending = true;
+		mockSummary();
+
+		render( stage() );
+
+		expect( screen.getByText( 'Post summary' ) ).toBeInTheDocument();
+	} );
+
+	it( 'keeps the Post traffic tab’s header for a post never sent', () => {
+		mockEmailNotSent = true;
+		mockSummary();
+
+		render( stage() );
+
+		expect( screen.getByText( 'Post summary' ) ).toBeInTheDocument();
+		expect(
+			screen.queryByText( 'This post hasn’t been sent as a newsletter' )
+		).not.toBeInTheDocument();
+	} );
+
+	describe( 'once a card sets the period', () => {
+		beforeEach( () => jest.useFakeTimers() );
+		afterEach( () => jest.useRealTimers() );
+
+		it( 'draws attention to a period a card set, and lets it go once shown', async () => {
+			const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+			mockSummary();
+
+			render( stage() );
+			expect( screen.getByRole( 'status' ) ).toBeEmptyDOMElement();
+
+			await user.click( screen.getByRole( 'button', { name: 'Open June from a card' } ) );
+
+			expect( screen.getByTestId( 'attention' ) ).toHaveTextContent( /^\d+$/ );
+			await expect( screen.findByRole( 'status' ) ).resolves.toHaveTextContent(
+				/Date range updated to/
+			);
+
+			act( () => {
+				jest.advanceTimersByTime( PERIOD_CHANGE_ATTENTION_MS );
+			} );
+			expect( screen.getByTestId( 'attention' ) ).toHaveTextContent( 'no attention' );
+			expect( screen.getByRole( 'status' ) ).toBeEmptyDOMElement();
+		} );
+	} );
+
+	it( 'returns to the top and parks focus on the heading when a card sets the period', async () => {
+		// jsdom has no Element.scrollTo; the layout's scroll area is what must move.
+		const scrollTo = jest.fn();
+		HTMLElement.prototype.scrollTo = scrollTo;
+		const user = userEvent.setup();
+		mockSummary();
+
+		render( stage() );
+		expect( scrollTo ).not.toHaveBeenCalled();
+
+		await user.click( screen.getByRole( 'button', { name: 'Open June from a card' } ) );
+
+		expect( scrollTo ).toHaveBeenCalledTimes( 1 );
+		expect( scrollTo ).toHaveBeenCalledWith( expect.objectContaining( { top: 0 } ) );
+		expect( screen.getByRole( 'heading', { level: 2 } ) ).toHaveFocus();
+		Reflect.deleteProperty( HTMLElement.prototype, 'scrollTo' );
 	} );
 
 	it( 'reports the traffic tab over the applied URL range', () => {
@@ -298,7 +448,7 @@ describe( 'post detail stage', () => {
 
 		expect( screen.getByTestId( 'header-variant' ) ).toHaveTextContent( 'post' );
 		expect( screen.getByTestId( 'performance-from' ) ).toHaveTextContent(
-			new Date( 2026, 5, 1 ).toISOString()
+			'2026-06-01T00:00:00.000Z'
 		);
 	} );
 
@@ -317,7 +467,8 @@ describe( 'post detail stage', () => {
 		expect( mockDashboardProps.editMode ).toBe( true );
 		expect( screen.getByText( 'Customizing' ) ).toBeInTheDocument();
 		expect( screen.getByTestId( 'dashboard-actions' ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: 'Page options' } ) ).not.toBeInTheDocument();
+		// The menu stays, so feedback and the opt-out remain a click away.
+		expect( screen.getByRole( 'button', { name: 'Page options' } ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: /^View post/ } ) ).not.toBeInTheDocument();
 
 		// Cancel or Done report back through onEditChange.
@@ -363,13 +514,39 @@ describe( 'post detail stage', () => {
 		expect( mockCanPerform?.( { operation: 'remove' } ) ).toBe( false );
 		// The page options menu is the way in, not the dashboard's own button.
 		expect( mockCanPerform?.( { operation: 'customize' } ) ).toBe( false );
-		// Reset joins Cancel and Done while customizing, and is absent otherwise.
+		// Reset to default is ours too, so the dashboard never gets its own.
 		expect( mockCanPerform?.( { operation: 'reset' } ) ).toBe( false );
 
 		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
 		await user.click( await screen.findByRole( 'menuitem', { name: 'Customize' } ) );
 
-		expect( mockCanPerform?.( { operation: 'reset' } ) ).toBe( true );
+		expect( mockCanPerform?.( { operation: 'reset' } ) ).toBe( false );
+	} );
+
+	it( 'resets the layout from the page options menu and leaves customize mode', async () => {
+		const user = userEvent.setup();
+		const resetLayout = jest.fn();
+		mockUseTabLayout.mockReturnValue( {
+			layout: [ { uuid: 'card', type: 'jpa/card' } ],
+			setLayout: () => {},
+			resetLayout,
+			hasCustomLayout: false,
+		} );
+		mockSummary();
+
+		render( stage() );
+
+		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		await user.click( await screen.findByRole( 'menuitem', { name: 'Customize' } ) );
+		expect( mockDashboardProps.editMode ).toBe( true );
+
+		await user.click( screen.getByRole( 'button', { name: 'Reset to default' } ) );
+		const dialog = await screen.findByRole( 'alertdialog' );
+		await user.click( within( dialog ).getByRole( 'button', { name: 'Reset' } ) );
+
+		expect( resetLayout ).toHaveBeenCalledTimes( 1 );
+		expect( mockDashboardProps.editMode ).toBe( false );
+		expect( screen.getByRole( 'link', { name: /^View post/ } ) ).toBeInTheDocument();
 	} );
 
 	it( 'ignores the dashboard\u2019s empty-layout edit request while a tab has no layout', () => {
@@ -504,4 +681,76 @@ describe( 'post detail stage', () => {
 			expect( breadcrumbs.queryByRole( 'heading', { level: 1 } ) ).not.toBeInTheDocument();
 		}
 	);
+} );
+
+describe( 'post detail stage on the provisional all-time window', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		mockSearch = { post_id: '41' };
+		mockActiveTab = 'traffic';
+		mockFixedLayout = [ { uuid: 'card', type: 'jpa/card' } ];
+		mockDateFilterOverrides = {
+			appliedPresetId: PRESET_ALL_TIME,
+			appliedRange: computePrimaryRange( PRESET_ALL_TIME, 'UTC' ),
+		};
+	} );
+
+	afterEach( () => {
+		mockFixedLayout = [];
+		mockDateFilterOverrides = {};
+	} );
+
+	it( 'holds the range tab until all time anchors on the publish day', () => {
+		mockSummary( { isLoading: true, publishedDate: undefined } );
+
+		render( stage() );
+
+		expect( mockUseTabLayout ).toHaveBeenLastCalledWith( expect.anything(), 'traffic', [] );
+	} );
+
+	it( 'keeps an email tab composed, since it reports over the send window', () => {
+		mockActiveTab = 'email-opens';
+		mockSummary( { isLoading: true, publishedDate: undefined } );
+
+		render( stage() );
+
+		expect( mockUseTabLayout ).toHaveBeenLastCalledWith(
+			expect.anything(),
+			'email-opens',
+			mockFixedLayout
+		);
+	} );
+
+	it( 'offers Retry in place of the widgets when the publish day cannot load', async () => {
+		const refetch = jest.fn();
+		mockSummary( { isError: true, publishedDate: undefined, refetch } );
+
+		render( stage() );
+
+		expect( screen.queryByText( 'Post widgets without comparison' ) ).not.toBeInTheDocument();
+		expect(
+			getNoticeAnnouncement(
+				"We couldn't load this post. Please try again in a moment.",
+				'assertive'
+			)
+		).toBeInTheDocument();
+		await userEvent.click( screen.getByRole( 'button', { name: 'Retry' } ) );
+		expect( refetch ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'offers no Retry when the publish day is denied', () => {
+		mockSummary( {
+			isError: true,
+			error: { code: 'rest_forbidden', status: 403 },
+			publishedDate: undefined,
+		} );
+
+		render( stage() );
+
+		expect( getNoticeText( "You don't have access to this data." ) ).toBeInTheDocument();
+		expect(
+			getNoticeAnnouncement( "You don't have access to this data.", 'assertive' )
+		).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
+	} );
 } );

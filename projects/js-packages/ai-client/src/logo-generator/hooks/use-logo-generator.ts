@@ -286,7 +286,7 @@ User request:${ prompt }`;
 										style,
 									},
 								},
-						  ]
+							]
 						: [],
 					feature: 'jetpack-ai-logo-generator',
 					response_format: 'b64_json',

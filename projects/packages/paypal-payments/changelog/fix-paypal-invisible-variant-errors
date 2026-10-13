@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Show product option validation errors under the field that caused them, instead of only disabling the save button.

@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: File browser design pass and per-file download in the modernized dashboard, which is behind a feature flag.
+
+

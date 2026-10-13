@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\IP;
  */
 class Utils {
 
-	const PACKAGE_VERSION = '0.6.0';
+	const PACKAGE_VERSION = '0.7.0';
 
 	/**
 	 * Get the current user's IP address.
@@ -216,6 +216,128 @@ class Utils {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Checks whether a URL is a safe destination for a server-side request.
+	 *
+	 * The URL must pass wp_http_validate_url(), which rejects IPv6-literal hosts, and every
+	 * address its host resolves to must pass ip_is_public(). A host that resolves to none fails.
+	 * Not covered: redirect hops (check each one), DNS rebinding, or AAAA records without ext-dns.
+	 *
+	 * @since 0.7.0
+	 *
+	 * @param string $url URL to check.
+	 * @return bool True when the URL is safe to request, false otherwise.
+	 */
+	public static function url_is_public( $url ) {
+		if ( ! is_string( $url ) || '' === $url ) {
+			return false;
+		}
+
+		$validated_url = wp_http_validate_url( $url );
+		if ( ! $validated_url ) {
+			return false;
+		}
+
+		$host = wp_parse_url( $validated_url, PHP_URL_HOST );
+		if ( ! is_string( $host ) || '' === $host ) {
+			return false;
+		}
+
+		$ips = self::resolve_host_ips( $host );
+
+		// Fail closed: an unresolvable host is not assumed safe.
+		if ( empty( $ips ) ) {
+			return false;
+		}
+
+		foreach ( $ips as $ip ) {
+			if ( ! self::ip_is_public( $ip ) ) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Resolves a host to the distinct IPv4 and IPv6 addresses a request to it could reach.
+	 *
+	 * IP literals are returned as-is. An empty list means the host is malformed or resolved
+	 * to nothing, and callers must treat it as unsafe.
+	 *
+	 * @since 0.7.0
+	 *
+	 * @param string $host Host name or IP literal (IPv6 literals may be bracketed).
+	 * @return string[] List of IP addresses.
+	 */
+	public static function resolve_host_ips( $host ) {
+		if ( ! is_string( $host ) || '' === $host ) {
+			return array();
+		}
+
+		// Unwrap one bracket pair only, so "]8.8.8.8[" can't become a clean address.
+		if ( preg_match( '/^\[(.*)\]$/', $host, $matches ) ) {
+			$host = $matches[1];
+		}
+
+		// Decode so "169%2e254%2e169%2e254" can't slip past the checks below.
+		$host = rawurldecode( $host );
+
+		// Strip an IPv6 zone id ("fe80::1%eth0"); a '%' on any other host is malformed.
+		if ( false !== strpos( $host, '%' ) ) {
+			if ( false === strpos( $host, ':' ) ) {
+				return array();
+			}
+			$host = preg_replace( '/%.*$/', '', $host );
+		}
+
+		/*
+		 * Reject control bytes (gethostbynamel() throws on a NUL), stray brackets, and
+		 * raw non-ASCII, which the request layer would punycode into a different host.
+		 */
+		if ( '' === $host || preg_match( '/[\x00-\x20\x7f-\xff\[\]]/', $host ) ) {
+			return array();
+		}
+
+		if ( filter_var( $host, FILTER_VALIDATE_IP ) ) {
+			return array( $host );
+		}
+
+		$ips = array();
+
+		if ( function_exists( 'gethostbynamel' ) ) {
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- gethostbynamel() warns on an unresolvable host.
+			$ipv4 = @gethostbynamel( $host );
+			if ( is_array( $ipv4 ) ) {
+				$ips = $ipv4;
+			}
+		}
+
+		// gethostbynamel() only resolves IPv4; check AAAA records too. dns_get_record()
+		// can be disabled on some hosts and may warn on lookup failure.
+		if ( function_exists( 'dns_get_record' ) ) {
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- dns_get_record may fail on some systems.
+			$aaaa = @dns_get_record( $host, DNS_AAAA );
+			if ( is_array( $aaaa ) ) {
+				foreach ( $aaaa as $record ) {
+					if ( ! empty( $record['ipv6'] ) ) {
+						$ips[] = $record['ipv6'];
+					}
+				}
+			}
+		}
+
+		// Drop anything a resolver returned that is not an IP address.
+		$ips = array_filter(
+			$ips,
+			function ( $ip ) {
+				return is_string( $ip ) && false !== filter_var( $ip, FILTER_VALIDATE_IP );
+			}
+		);
+
+		return array_values( array_unique( $ips ) );
 	}
 
 	/**

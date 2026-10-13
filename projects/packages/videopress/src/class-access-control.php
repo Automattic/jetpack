@@ -136,22 +136,30 @@ class Access_Control {
 	 * @return array
 	 */
 	private function build_restriction_details( $guid, $embedded_post_id, $selected_plan_id ) {
-		$post_to_check = get_post( $embedded_post_id );
+		// A missing post ID does not fall back to the global post, as get_post( 0 ) would.
+		$post_to_check = $embedded_post_id > 0 ? get_post( $embedded_post_id ) : null;
 
-		if ( empty( $post_to_check ) ) {
+		// Only a published embedding post can authorize playback.
+		if ( ! $post_to_check instanceof WP_Post || 'publish' !== $post_to_check->post_status ) {
 			$restriction_details = $this->default_video_restriction_details( false );
 			return $this->filter_video_restriction_details( $restriction_details, $guid, $embedded_post_id, $selected_plan_id );
 		}
 
 		$default_auth        = $this->get_default_user_capability_for_post( $post_to_check );
 		$restriction_details = $this->default_video_restriction_details( $default_auth );
+		// Logged-out visitors never have read_post, so a public post admits them on its status alone.
+		// Neither check knows about post passwords, which the page enforces for everyone.
+		$post_admits_visitor = ( $default_auth || is_post_publicly_viewable( $post_to_check ) )
+			&& ! post_password_required( $post_to_check );
 
 		if ( $this->jetpack_memberships_available() ) {
 			$post_access_level = \Jetpack_Memberships::get_post_access_level( $embedded_post_id );
 			if ( 'everybody' !== $post_access_level ) {
-				$memberships_can_view_post         = \Jetpack_Memberships::user_can_view_post( $embedded_post_id );
+				$memberships_can_view_post         = is_callable( array( '\Jetpack_Memberships', 'user_has_subscription_access' ) )
+					&& \Jetpack_Memberships::user_has_subscription_access( $embedded_post_id );
 				$restriction_details               = $this->get_subscriber_only_restriction_details( $default_auth );
 				$restriction_details['can_access'] = $memberships_can_view_post;
+				$post_admits_visitor               = $post_admits_visitor && $memberships_can_view_post;
 			}
 		}
 
@@ -159,7 +167,8 @@ class Access_Control {
 			$restriction_details,
 			$guid,
 			$embedded_post_id,
-			$selected_plan_id
+			$selected_plan_id,
+			$post_admits_visitor
 		);
 	}
 
@@ -169,23 +178,27 @@ class Access_Control {
 	 * @param array  $restriction_details the restriction details array.
 	 * @param string $guid the video guid.
 	 * @param int    $embedded_post_id the post id.
-	 * @param int    $selected_plan_id the selected plan id if applicable.
+	 * @param int    $selected_plan_id the plan id sent with the request. Only passed on to the filter below.
+	 * @param bool   $post_admits_visitor Whether the embedding post itself, and any paywall on it, lets the visitor in.
 	 *
 	 * @return array
 	 */
-	private function check_block_level_access( $restriction_details, $guid, $embedded_post_id, $selected_plan_id ) {
-		if ( $this->jetpack_subscriptions_available() && $selected_plan_id > 0 ) {
-			$restriction_details = $this->get_subscriber_only_restriction_details( $restriction_details['can_access'] );
-			$paywall             = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
+	private function check_block_level_access( $restriction_details, $guid, $embedded_post_id, $selected_plan_id, $post_admits_visitor ) {
+		// Plans come from the stored block; null means no Paid Content block wraps the guid.
+		$required_plan_ids = $this->get_required_plan_ids_for_guid( $embedded_post_id, $guid );
 
-			// Only paid subscribers should be granted access to the premium content.
-			$access_level = '';
-			if ( class_exists( Abstract_Token_Subscription_Service::class ) ) {
-				$access_level = Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS;
+		if ( $this->jetpack_subscriptions_available() && null !== $required_plan_ids ) {
+			$prior_can_access    = $restriction_details['can_access'];
+			$restriction_details = $this->get_subscriber_only_restriction_details( $prior_can_access );
+
+			if ( empty( $required_plan_ids ) ) {
+				$restriction_details['can_access'] = false;
+			} else {
+				$can_view = $this->block_gate_grants_access( $required_plan_ids, $embedded_post_id );
+
+				// A block grant also requires the post-level decision.
+				$restriction_details['can_access'] = $post_admits_visitor && $can_view;
 			}
-
-			$can_view                          = $paywall->visitor_can_view_content( array( $selected_plan_id ), $access_level );
-			$restriction_details['can_access'] = $can_view || current_user_can( 'edit_post', $embedded_post_id ); // Editors can always view the content.
 		}
 
 		return $this->filter_video_restriction_details(
@@ -194,6 +207,48 @@ class Access_Control {
 			$embedded_post_id,
 			$selected_plan_id
 		);
+	}
+
+	/**
+	 * Ask the premium-content block's own gate whether the visitor may view content behind these plans.
+	 *
+	 * Sharing the gate keeps playback and the page in agreement, including on tier upgrades.
+	 *
+	 * @param int[] $required_plan_ids Plan ids derived from the block wrapping the guid.
+	 * @param int   $embedded_post_id  The post the block lives in; there is no loop post to fall back on here.
+	 *
+	 * @return bool
+	 */
+	private function block_gate_grants_access( $required_plan_ids, $embedded_post_id ) {
+		// The gate normally loads with the Paid Content block, which a site can have switched off.
+		if (
+			! function_exists( '\Automattic\Jetpack\Extensions\Premium_Content\visitor_has_subscription_access_to_plan_ids' )
+			&& defined( 'JETPACK__PLUGIN_DIR' )
+		) {
+			$access_check_path = JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/access-check.php';
+			if ( file_exists( $access_check_path ) ) {
+				require_once $access_check_path;
+			}
+		}
+
+		if ( function_exists( '\Automattic\Jetpack\Extensions\Premium_Content\visitor_has_subscription_access_to_plan_ids' ) ) {
+			return (bool) \Automattic\Jetpack\Extensions\Premium_Content\visitor_has_subscription_access_to_plan_ids( $required_plan_ids, $embedded_post_id );
+		}
+
+		// A newer standalone VideoPress can run beside an older Jetpack that lacks the shared gate.
+		// Exact plan matching is stricter than the gate for tiers, never more permissive.
+		$paywall = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
+
+		// Only paid subscribers should be granted access to the premium content.
+		$access_level = '';
+		if ( class_exists( Abstract_Token_Subscription_Service::class ) ) {
+			$access_level = Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS;
+		}
+
+		// Deny when the service has no entitlement-only check.
+		return is_callable( array( $paywall, 'visitor_has_subscription_access' ) )
+			// @phan-suppress-next-line PhanUndeclaredMethod -- Optional method is checked above to support older services.
+			&& $paywall->visitor_has_subscription_access( $required_plan_ids, $access_level, $embedded_post_id );
 	}
 
 	/**
@@ -439,6 +494,104 @@ class Access_Control {
 		}
 
 		return $guids;
+	}
+
+	/**
+	 * Read the plan ids gating a video guid from the Paid Content block that wraps it in the stored post.
+	 *
+	 * Playback is authorized outside any render, so the post's blocks are re-parsed here.
+	 *
+	 * @param int    $embedded_post_id The post the video is embedded in.
+	 * @param string $guid             The video guid.
+	 *
+	 * @return int[]|null Plan ids that gate the guid, an empty array when it is wrapped in a premium-content
+	 *                    block that configures no plan, or null when it is not wrapped in one at all.
+	 */
+	private function get_required_plan_ids_for_guid( $embedded_post_id, $guid ) {
+		$embedded_post_id = (int) $embedded_post_id;
+		if ( ! $embedded_post_id ) {
+			return null;
+		}
+
+		$post = get_post( $embedded_post_id );
+		if ( ! $post || false === strpos( (string) $post->post_content, 'wp:premium-content/container' ) ) {
+			return null;
+		}
+
+		return $this->find_gating_plan_ids( parse_blocks( $post->post_content ), $guid );
+	}
+
+	/**
+	 * Recursively locate the premium-content/container block that wraps the given guid and return its plan ids.
+	 *
+	 * @param array  $blocks Parsed blocks (parse_blocks() output or an innerBlocks array).
+	 * @param string $guid   The video guid to match.
+	 *
+	 * @return int[]|null Plan ids of the wrapping premium-content block (possibly an empty array when it
+	 *                    configures none), or null when no premium-content block wraps the guid.
+	 */
+	private function find_gating_plan_ids( $blocks, $guid ) {
+		foreach ( $blocks as $block ) {
+			if ( empty( $block['blockName'] ) ) {
+				continue;
+			}
+
+			// Descend first so the innermost container, the one directly gating the video, wins.
+			if ( ! empty( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ) {
+				$found = $this->find_gating_plan_ids( $block['innerBlocks'], $guid );
+				if ( null !== $found ) {
+					return $found;
+				}
+			}
+
+			if (
+				is_string( $block['blockName'] ) && 'premium-content/container' === $block['blockName']
+				&& $this->container_gates_guid( $block, $guid )
+			) {
+				return $this->extract_plan_ids( $block['attrs'] ?? array() );
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Determine whether a premium-content/container block wraps the given guid.
+	 *
+	 * Uses the same scan as the per-post GUID cache, so every embed form it recognises counts.
+	 *
+	 * @param array  $block A parsed premium-content/container block.
+	 * @param string $guid  The video guid to match.
+	 *
+	 * @return bool
+	 */
+	private function container_gates_guid( $block, $guid ) {
+		$visited_refs = array();
+
+		return in_array( $guid, self::collect_guids_from_content( serialize_blocks( array( $block ) ), $visited_refs ), true );
+	}
+
+	/**
+	 * Normalise a premium-content/container block's plan attributes into a list of plan ids.
+	 *
+	 * Mirrors the precedence used when rendering the block: the current `selectedPlanIds` array
+	 * wins, falling back to the legacy single `selectedPlanId`.
+	 *
+	 * @param array $attrs The block attributes.
+	 *
+	 * @return int[] Plan ids, with zero/empty values removed.
+	 */
+	private function extract_plan_ids( $attrs ) {
+		if ( isset( $attrs['selectedPlanIds'] ) && is_array( $attrs['selectedPlanIds'] ) ) {
+			return array_values( array_filter( array_map( 'intval', $attrs['selectedPlanIds'] ) ) );
+		}
+
+		if ( isset( $attrs['selectedPlanId'] ) ) {
+			$plan_id = (int) $attrs['selectedPlanId'];
+			return $plan_id ? array( $plan_id ) : array();
+		}
+
+		return array();
 	}
 
 	/**

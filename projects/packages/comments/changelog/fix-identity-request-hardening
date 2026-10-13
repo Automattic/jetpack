@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Identity: refuse a sign-in code posted from another site, take log-out by POST only, verify TLS on the exchange, and count email checks across sites.

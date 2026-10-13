@@ -1,0 +1,5 @@
+Significance: patch
+Type: removed
+Comment: React 19 wants `transformOrigin`, while 18 needs `transform-origin`. It turns out there are no transforms anymore needing an origin in the first place, so just remove it.
+
+

@@ -59,10 +59,7 @@ export const usePerformanceHistoryPanelQuery = () => {
 };
 
 type AlertIds =
-	| 'performance_history_fresh_start'
-	| 'score_increase'
-	| 'score_decrease'
-	| 'legacy_minify_notice';
+	'performance_history_fresh_start' | 'score_increase' | 'score_decrease' | 'legacy_minify_notice';
 
 const dismissedAlertsSchema = z.record( z.string().min( 1 ), z.boolean() );
 

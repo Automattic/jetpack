@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Prevent self-deletion when dev version is the only one installed.

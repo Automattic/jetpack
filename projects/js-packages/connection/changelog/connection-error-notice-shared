@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Connection errors: Derive the notice title, the grouped messages, their scope lines and any Site Health link in the package, so every consumer renders the same detail.

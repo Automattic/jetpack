@@ -7,9 +7,8 @@ jest.unstable_mockModule( '@actions/core', () => ( {
 } ) );
 
 const { getInput } = await import( '@actions/core' );
-const { default: hasManySupportReferences } = await import(
-	'../src/utils/parse-content/has-many-support-references.ts'
-);
+const { default: hasManySupportReferences } =
+	await import( '../src/utils/parse-content/has-many-support-references.ts' );
 
 /**
  * Create a mock issue comment with a given login and body.

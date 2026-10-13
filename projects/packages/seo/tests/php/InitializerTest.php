@@ -79,15 +79,9 @@ class InitializerTest extends TestCase {
 	}
 
 	/**
-	 * The cross-plugin contract other plugins consume stays on Initializer: the
-	 * option names are pinned as literals (the Jetpack plugin's migrations write
-	 * them), and the visibility reads are real methods (My Jetpack probes
-	 * `is_optin_available` with `method_exists` on this class) delegating to
-	 * Surface_Visibility.
+	 * The surface visibility contract remains available on Initializer.
 	 */
 	public function test_cross_plugin_contract_is_kept_on_initializer() {
-		$this->assertSame( 'jetpack_seo_sitemap_enabled', Initializer::SITEMAP_ENABLED_OPTION );
-		$this->assertSame( 'jetpack_seo_canonical_urls_enabled', Initializer::CANONICAL_ENABLED_OPTION );
 		$this->assertSame( 'jetpack_seo_surface_visible', Initializer::VISIBILITY_OPTION );
 
 		$this->assertTrue( method_exists( Initializer::class, 'is_available' ) );
@@ -145,8 +139,16 @@ class InitializerTest extends TestCase {
 			$this->assertNotFalse(
 				has_action( 'admin_menu', array( Admin_Page::class, 'maybe_load_wp_build' ) )
 			);
-			$this->assertNotFalse(
+			// Settings register on `rest_api_init`, after every chance a conflicting SEO
+			// plugin has to filter `jetpack_disable_seo_tools` and change which option the
+			// front page description belongs in, and before core builds the settings route
+			// from the registry at priority 99.
+			$this->assertSame(
+				5,
 				has_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ) )
+			);
+			$this->assertNotFalse(
+				has_action( 'rest_api_init', array( Dashboard_Data::class, 'register_module_routes' ) )
 			);
 
 			// The coverage cache is invalidated from writes that happen anywhere — the block

@@ -45,13 +45,15 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 		 * is never registered.
 		 */
 		if ( ( new Status() )->is_offline_mode() ) {
+			$position = defined( Admin_Menu::class . '::POSITION_FIRST_FALLBACK' ) ? Admin_Menu::POSITION_FIRST_FALLBACK : -5;
+
 			return Admin_Menu::add_menu(
 				__( 'Jetpack Settings', 'jetpack' ),
 				__( 'Modules', 'jetpack' ),
 				'jetpack_manage_modules',
 				'jetpack_modules',
 				array( $this, 'render' ),
-				-5
+				$position
 			);
 		}
 
@@ -113,6 +115,8 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 		echo $noscript_notice; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		?>
 
+		<!-- Core relocates other plugins' notices to just after this marker. -->
+		<div class="wrap"><div class="wp-header-end"></div></div>
 		<div class="jetpack-module-list">
 			<?php if ( $is_offline_mode ) : ?>
 				<div class="wrap">

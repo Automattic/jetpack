@@ -1,14 +1,13 @@
-.error-description {
-	// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
-	line-height: 1.5rem;
-	color: var(--primary-black);
+@use "$css/main/mixins";
 
-	a {
-		color: inherit !important;
+.error-description {
+
+	li {
+
+		@include mixins.word-wrap();
 	}
 
 	.raw-error {
-		color: var(--primary-black);
 		margin-top: 8px;
 		margin-bottom: 24px;
 
@@ -26,6 +25,21 @@
 		white-space: pre-wrap;
 		color: #0f0f0f;
 		border-radius: 6px;
+	}
+
+	// TODO(BOOST-702): remove with the legacy dashboard.
+	:global(.jb-dashboard) & {
+		// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
+		line-height: 1.5rem;
+		color: var(--primary-black);
+
+		a {
+			color: inherit !important;
+		}
+
+		.raw-error {
+			color: var(--primary-black);
+		}
 	}
 }
 

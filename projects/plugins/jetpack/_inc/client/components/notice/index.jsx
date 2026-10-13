@@ -21,7 +21,6 @@ export default class SimpleNotice extends Component {
 		// we should validate the allowed statuses
 		status: PropTypes.string,
 		showDismiss: PropTypes.bool,
-		isCompact: PropTypes.bool,
 		duration: PropTypes.number,
 		text: PropTypes.oneOfType( [
 			PropTypes.oneOfType( [ PropTypes.string, PropTypes.node ] ),
@@ -71,17 +70,8 @@ export default class SimpleNotice extends Component {
 	};
 
 	render() {
-		const {
-			children,
-			className,
-			isCompact,
-			onDismissClick,
-			showDismiss = ! isCompact, // by default, show on normal notices, don't show on compact ones
-			text,
-			title,
-			dismissText,
-			display,
-		} = this.props;
+		const { children, className, onDismissClick, showDismiss, text, title, dismissText, display } =
+			this.props;
 
 		// `text` marks the caller as using the two-slot form, where children are the
 		// actions. Without it, children are the body.

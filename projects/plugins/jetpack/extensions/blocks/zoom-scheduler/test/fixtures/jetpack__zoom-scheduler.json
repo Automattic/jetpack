@@ -1,0 +1,12 @@
+[
+	{
+		"clientId": "_clientId_0",
+		"name": "jetpack/zoom-scheduler",
+		"isValid": true,
+		"attributes": {
+			"url": "https://scheduler.zoom.us/test-user/discovery-call"
+		},
+		"innerBlocks": [],
+		"originalContent": "<a href=\"https://scheduler.zoom.us/test-user/discovery-call\" class=\"wp-block-jetpack-zoom-scheduler\">https://scheduler.zoom.us/test-user/discovery-call</a>"
+	}
+]

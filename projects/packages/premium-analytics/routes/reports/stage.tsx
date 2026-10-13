@@ -1,17 +1,9 @@
 /**
  * External dependencies
  */
-import {
-	AnalyticsQueryClientProvider,
-	GlobalErrorProvider,
-	ReportScopeProvider,
-} from '@jetpack-premium-analytics/data';
+import { AnalyticsQueryClientProvider, ReportScopeProvider } from '@jetpack-premium-analytics/data';
 import { Stack } from '@jetpack-premium-analytics/externals';
-import {
-	GlobalChartsProvider,
-	siteChartFormatting,
-	useChartTheme,
-} from '@jetpack-premium-analytics/widgets-toolkit';
+import { ChartsProvider } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Spinner } from '@wordpress/components';
 import { lazy, Suspense, useMemo } from '@wordpress/element';
 import { useParams } from '@wordpress/route';
@@ -21,7 +13,7 @@ import { useParams } from '@wordpress/route';
 import { route } from './package.json';
 import { getReportDefinition } from './registry';
 import styles from './stage.module.scss';
-import type { ReactNode } from 'react';
+import type { JSX, ReactNode } from 'react';
 
 const ROUTE_FROM = route.path;
 
@@ -79,19 +71,15 @@ function ReportDispatcher(): JSX.Element {
  * @return {JSX.Element} The wrapped report page.
  */
 function ReportProviders( { children }: { children: ReactNode } ): JSX.Element {
-	const chartTheme = useChartTheme();
-
 	return (
 		<AnalyticsQueryClientProvider>
-			<GlobalErrorProvider>
-				<GlobalChartsProvider theme={ chartTheme } { ...siteChartFormatting() }>
-					{ /*
-					 * A report names no compared period, so nothing below may fetch or
-					 * draw one. The params stay on the URL for the dashboard.
-					 */ }
-					<ReportScopeProvider offersComparison={ false }>{ children }</ReportScopeProvider>
-				</GlobalChartsProvider>
-			</GlobalErrorProvider>
+			<ChartsProvider>
+				{ /*
+				 * A report names no compared period, so nothing below may fetch or
+				 * draw one. The params stay on the URL for the dashboard.
+				 */ }
+				<ReportScopeProvider offersComparison={ false }>{ children }</ReportScopeProvider>
+			</ChartsProvider>
 		</AnalyticsQueryClientProvider>
 	);
 }

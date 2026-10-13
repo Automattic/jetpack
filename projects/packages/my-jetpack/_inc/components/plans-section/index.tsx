@@ -5,7 +5,7 @@ import { __, _n, _x, sprintf } from '@wordpress/i18n';
 import { Link, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback } from 'react';
-import { PRODUCT_STATUSES } from '../../constants';
+import { MyJetpackRoutes, PRODUCT_STATUSES } from '../../constants';
 import { QUERY_PURCHASES_KEY, REST_API_SITE_PURCHASES_ENDPOINT } from '../../data/constants';
 import useProduct from '../../data/products/use-product';
 import useSimpleQuery from '../../data/use-simple-query';
@@ -176,6 +176,17 @@ const PlanSectionHeader: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 	);
 };
 
+/**
+ * Whether the Features tab would have anything under its Included in plan filter.
+ *
+ * @return Whether the catalog contains an included feature.
+ */
+function hasIncludedFeatures(): boolean {
+	const features = getMyJetpackWindowInitialState( 'mainFeatures' )?.features;
+
+	return Array.isArray( features ) ? features.some( feature => feature.included ) : false;
+}
+
 const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPurchases } ) => {
 	const { recordEvent } = useAnalytics();
 	const { isUserConnected } = useMyJetpackConnection();
@@ -228,6 +239,10 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 
 	const { loadAddLicenseScreen = '' } = getMyJetpackWindowInitialState();
 
+	// A purchase is not the same thing as a covered feature: a domain or a free plan counts
+	// as one, and the list the link promises would then be empty.
+	const showIncludedFeatures = hasIncludedFeatures();
+
 	return (
 		<ul className={ styles[ 'actions-list' ] }>
 			{ numberOfPurchases > 0 && (
@@ -237,11 +252,11 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 					</Link>
 				</li>
 			) }
-			{ numberOfPurchases > 0 && (
+			{ showIncludedFeatures && (
 				<li className={ styles[ 'actions-list-item' ] }>
 					<Link
 						onClick={ viewIncludedFeaturesClickHandler }
-						href={ getMyJetpackUrl( '#/products?filter=included' ) }
+						href={ getMyJetpackUrl( `#${ MyJetpackRoutes.Features }?filter=included` ) }
 					>
 						{ __( 'View included features', 'jetpack-my-jetpack' ) }
 					</Link>
@@ -295,7 +310,7 @@ const PlansSection: FC = () => {
 						) )
 					) : (
 						<section className={ styles[ 'plan-container' ] }>
-							{ /* TODO: Convert this to link when the Products tab filtering is ready */ }
+							{ /* TODO: Convert this to link when the Features tab filtering is ready */ }
 							<h4>
 								{ __( 'Jetpack Essentials', 'jetpack-my-jetpack' ) }
 								<svg

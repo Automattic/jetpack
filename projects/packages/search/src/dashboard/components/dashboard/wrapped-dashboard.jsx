@@ -11,7 +11,7 @@ import { STORE_ID } from 'store';
 /**
  * Return appropriate components.
  *
- * @return {import('react').Component} WrappedDashboard component.
+ * @return {import('react').ReactElement} WrappedDashboard component.
  */
 export default function WrappedDashboard() {
 	const { isFullyConnected } = useConnection();

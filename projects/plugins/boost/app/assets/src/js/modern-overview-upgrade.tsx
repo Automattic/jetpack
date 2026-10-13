@@ -1,18 +1,15 @@
-import { Button } from '@automattic/jetpack-components';
 import { queryClient } from '@automattic/jetpack-react-data-sync-client';
 import { createRoot } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import { observeLegacyModulesState } from '../../../../_inc/overview/lib/modules-state-bridge';
+import {
+	observeLegacyModulesState,
+	observeLegacyOnboarding,
+} from '../../../../_inc/overview/lib/modules-state-bridge';
 import { OVERVIEW_UPGRADE_EVENT } from '../../../../_inc/overview/lib/upgrade-bridge';
-import InterstitialModalCTA from './features/upgrade-cta/interstitial-modal-cta';
-import { recordBoostEvent } from './lib/utils/analytics';
+import ModernUpgradeLink from './features/upgrade-cta/modern-upgrade-link';
 import type { UpgradeSlotRequest } from '../../../../_inc/overview/lib/upgrade-bridge';
 
 observeLegacyModulesState( queryClient );
-
-function handleUpgrade() {
-	recordBoostEvent( 'performance_history_upgrade_cta_click', {} );
-}
+observeLegacyOnboarding( queryClient );
 
 window.addEventListener( OVERVIEW_UPGRADE_EVENT, ( event: Event ) => {
 	const request = ( event as CustomEvent< UpgradeSlotRequest > ).detail;
@@ -30,11 +27,12 @@ window.addEventListener( OVERVIEW_UPGRADE_EVENT, ( event: Event ) => {
 		}
 		root = createRoot( request.container );
 		root.render(
-			<InterstitialModalCTA
-				identifier="historical-performance"
-				customModalTrigger={
-					<Button onClick={ handleUpgrade }>{ __( 'Upgrade now', 'jetpack-boost' ) }</Button>
-				}
+			<ModernUpgradeLink
+				eventName="performance_history_upgrade_cta_click"
+				eventProperties={ {
+					identifier: 'historical-performance',
+					destination: 'interstitial',
+				} }
 			/>
 		);
 	} );

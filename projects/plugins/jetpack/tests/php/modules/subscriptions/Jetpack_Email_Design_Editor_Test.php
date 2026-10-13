@@ -46,7 +46,8 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 	private $wrote_asset = false;
 
 	/**
-	 * A snapshot of the admin menu globals, which add_theme_page() appends to.
+	 * A snapshot of the admin menu globals, which add_theme_page() appends to. `_parent_pages`
+	 * belongs here too: `menu_page_url()` reads it, so without it one test's page is another's.
 	 *
 	 * @var array
 	 */
@@ -73,7 +74,7 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 		parent::set_up();
 
 		$this->asset_path    = JETPACK__PLUGIN_DIR . '_inc/build/email-design-editor.asset.php';
-		$this->menu_snapshot = array( $GLOBALS['menu'] ?? array(), $GLOBALS['submenu'] ?? array() );
+		$this->menu_snapshot = array( $GLOBALS['menu'] ?? array(), $GLOBALS['submenu'] ?? array(), $GLOBALS['_parent_pages'] ?? array() );
 
 		// A development environment may force the flag on for the whole site, which would make
 		// the tests below assert the environment's answer rather than the registered default.
@@ -118,8 +119,8 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 		}
 		$this->registered_blocks = array();
 
-		list( $GLOBALS['menu'], $GLOBALS['submenu'] )         = $this->menu_snapshot;
-		list( $GLOBALS['wp_scripts'], $GLOBALS['wp_styles'] ) = $this->asset_registries;
+		list( $GLOBALS['menu'], $GLOBALS['submenu'], $GLOBALS['_parent_pages'] ) = $this->menu_snapshot;
+		list( $GLOBALS['wp_scripts'], $GLOBALS['wp_styles'] )                    = $this->asset_registries;
 
 		$this->wrote_asset       = false;
 		$this->asset_backup      = null;
@@ -276,9 +277,101 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 		$user = wp_get_current_user();
 		$data = $this->call_private( 'get_screen_data' );
 
-		$this->assertSame( admin_url( 'themes.php' ), $data['urls']['back'] );
-		$this->assertSame( admin_url( 'themes.php' ), $data['urls']['listings'] );
+		$this->assertSame( admin_url( '/' ), $data['urls']['back'] );
+		$this->assertSame( admin_url( '/' ), $data['urls']['listings'] );
 		$this->assertSame( $user->user_email, $data['userEmail'] );
+	}
+
+	/**
+	 * The screen has two entry points, so the button goes back to the one that was used.
+	 */
+	public function test_the_editor_returns_to_the_page_that_sent_the_reader() {
+		$settings       = \Automattic\Jetpack\Newsletter\Urls::get_newsletter_settings_url();
+		$_GET['return'] = $settings;
+
+		$data = $this->call_private( 'get_screen_data' );
+
+		$this->assertSame( $settings, $data['urls']['back'] );
+		$this->assertSame( $settings, $data['urls']['listings'] );
+	}
+
+	/**
+	 * A `return` nobody can be sent to safely leaves the dashboard, never a half-applied redirect.
+	 *
+	 * @param string $return What the query arg carries.
+	 *
+	 * @dataProvider provide_unusable_returns
+	 */
+	#[PHPUnit\Framework\Attributes\DataProvider( 'provide_unusable_returns' )]
+	public function test_an_unusable_return_falls_back_to_the_dashboard( $return ) {
+		$_GET['return'] = $return;
+
+		$data = $this->call_private( 'get_screen_data' );
+
+		$this->assertSame( admin_url( '/' ), $data['urls']['back'] );
+	}
+
+	/**
+	 * @return array[]
+	 */
+	public static function provide_unusable_returns() {
+		return array(
+			'another host'         => array( 'https://example.net/wp-admin/' ),
+			'this site, not admin' => array( home_url( '/some-post/' ) ),
+			'empty'                => array( '' ),
+		);
+	}
+
+	/**
+	 * The Newsletter settings page renders its link from this value alone, so a site without the
+	 * screen has to be told so rather than left to link at a page that will refuse it.
+	 */
+	public function test_the_script_data_withholds_the_link_while_the_flag_is_off() {
+		Jetpack_Email_Design_Editor::add_admin_page();
+
+		$data = Jetpack_Email_Design_Editor::add_script_data( array() );
+
+		$this->assertNull( $data['newsletter']['emailDesignUrl'] );
+	}
+
+	public function test_the_script_data_names_the_screen_once_it_is_registered() {
+		add_filter( 'jetpack_feature_flag_enabled_' . Jetpack_Email_Design_Editor::FEATURE_FLAG, '__return_true' );
+		Jetpack_Email_Design_Editor::add_admin_page();
+
+		$data = Jetpack_Email_Design_Editor::add_script_data( array() );
+
+		// Parsed rather than rebuilt from the same calls the implementation makes: an expectation
+		// that composes the URL the same way cannot fail on how the URL is composed.
+		parse_str( (string) wp_parse_url( $data['newsletter']['emailDesignUrl'], PHP_URL_QUERY ), $args );
+
+		$this->assertSame( Jetpack_Email_Design_Editor::PAGE_SLUG, $args['page'] );
+		$this->assertSame(
+			\Automattic\Jetpack\Newsletter\Urls::get_newsletter_settings_url(),
+			$args['return'],
+			'The whole settings URL has to survive as one query arg.'
+		);
+		$this->assertSame( array( 'page', 'return' ), array_keys( $args ), 'No part of it may leak out as its own arg.' );
+	}
+
+	/**
+	 * The Newsletter settings page asks only for `manage_options`, so its reader can be someone
+	 * `add_theme_page()` registers nothing for -- and a link to an unregistered page is a `wp_die()`.
+	 */
+	public function test_the_script_data_withholds_the_link_without_edit_theme_options() {
+		add_filter( 'jetpack_feature_flag_enabled_' . Jetpack_Email_Design_Editor::FEATURE_FLAG, '__return_true' );
+		add_filter(
+			'user_has_cap',
+			function ( $allcaps ) {
+				unset( $allcaps['edit_theme_options'] );
+				return $allcaps;
+			}
+		);
+
+		Jetpack_Email_Design_Editor::add_admin_page();
+		$data = Jetpack_Email_Design_Editor::add_script_data( array() );
+
+		$this->assertTrue( current_user_can( 'manage_options' ) );
+		$this->assertNull( $data['newsletter']['emailDesignUrl'] );
 	}
 
 	public function test_the_allowed_iframe_handles_start_from_the_editor_stylesheets() {
@@ -366,6 +459,31 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 		foreach ( $tags as $tag ) {
 			$this->assertStringContainsString( 'wp-block-library-css', $tag );
 		}
+	}
+
+	/**
+	 * Core buffers `wp_print_footer_scripts()` to collect the canvas assets, so the dialog is
+	 * captured and injected into the canvas — where its own stylesheet is stripped, leaving it
+	 * permanently visible over the email. NL-957.
+	 */
+	public function test_the_resolved_assets_leave_the_auth_check_dialog_out_of_the_canvas() {
+		add_action( 'wp_print_footer_scripts', 'wp_auth_check_html', 5 );
+
+		$assets   = $this->call_private( 'get_resolved_assets', array( array( 'wp-block-library-css' ) ) );
+		$restored = has_action( 'wp_print_footer_scripts', 'wp_auth_check_html' );
+
+		remove_action( 'wp_print_footer_scripts', 'wp_auth_check_html', 5 );
+
+		$this->assertStringNotContainsString( 'wp-auth-check', $assets['scripts'] );
+		$this->assertSame( 5, $restored, 'The dialog was dropped from the page it belongs on.' );
+	}
+
+	public function test_the_resolved_assets_do_not_add_a_dialog_the_screen_never_had() {
+		remove_action( 'wp_print_footer_scripts', 'wp_auth_check_html', 5 );
+
+		$this->call_private( 'get_resolved_assets', array( array() ) );
+
+		$this->assertFalse( has_action( 'wp_print_footer_scripts', 'wp_auth_check_html' ) );
 	}
 
 	public function test_the_iframe_settings_name_the_handles_they_were_filtered_against() {

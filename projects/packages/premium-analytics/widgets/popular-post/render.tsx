@@ -1,6 +1,10 @@
 /**
  * External dependencies
  */
+import { getAdminUrl } from '@automattic/jetpack-script-data';
+import { toAuthorId } from '@jetpack-premium-analytics/data';
+import { search } from '@jetpack-premium-analytics/icons';
+import { createReportOriginSearch } from '@jetpack-premium-analytics/routing';
 import {
 	PostHighlightCard,
 	type PostHighlightCardMetric,
@@ -9,6 +13,8 @@ import {
 	WidgetRoot,
 	WidgetState,
 	describeError,
+	useDashboardOriginSearch,
+	useWidgetRootContext,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { trendingUp } from '@wordpress/icons';
@@ -16,26 +22,64 @@ import { trendingUp } from '@wordpress/icons';
  * Internal dependencies
  */
 import { usePopularPost } from './use-popular-post';
+import { useNoPublishedPosts } from '../use-no-published-posts';
 import type { PopularPostAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
-// The card reports on its own pinned window and reads nothing from the host's
-// `reportParams`, but the host still injects them and `WidgetRoot` still takes
-// them, so the render type keeps composing the field.
+// The host's `reportParams` only matter to an author-scoped instance; the
+// dashboard card reports on its own pinned window.
 type PopularPostRenderAttributes = PopularPostAttributes & Partial< ReportParamsFieldAttributes >;
 type PopularPostWidgetProps = WidgetRenderProps< PopularPostRenderAttributes >;
 
 /**
- * The last 12 months pick which post is shown; all three tiles are all-time
- * totals from the Stats post endpoint, so they share one window.
+ * The last 12 months pick which post is shown, or the page's range when
+ * author-scoped; all three tiles are all-time totals from the Stats post
+ * endpoint, so they share one window.
  *
  * The tiles carry no caveat saying so, which is deliberate: the old Stats card
  * this replaces put the same lifetime totals under the same period-naming
  * heading with nothing on the tiles either, and the widget header's help note
  * spells the aggregation out. Adding one is a design decision, not a defect fix.
  */
-function PopularPostReport() {
-	const { post, range, isLoading, isFetching, isError, error, refetch } = usePopularPost();
+function PopularPostReport( { authorScoped }: { authorScoped: boolean } ) {
+	const { reportParams } = useWidgetRootContext();
+	// Gated on the instance attribute, not the URL alone, so a stray `author_id`
+	// on the dashboard cannot narrow the site-wide card.
+	const authorId = authorScoped ? toAuthorId( reportParams.author_id ) : 0;
+
+	// An author-scoped instance rendered off its page must not fall back to the
+	// site-wide pick under the author-scoped title.
+	if ( authorScoped && ! authorId ) {
+		return (
+			<WidgetState
+				isLoading={ false }
+				isError={ false }
+				isEmpty
+				empty={ {
+					icon: trendingUp,
+					description: __(
+						'Open an author to see their most viewed post here.',
+						'jetpack-premium-analytics-pkg'
+					),
+				} }
+			>
+				{ null }
+			</WidgetState>
+		);
+	}
+
+	return <PopularPostCard authorId={ authorId } />;
+}
+
+function PopularPostCard( { authorId }: { authorId: number } ) {
+	const { reportParams } = useWidgetRootContext();
+	const dashboardOrigin = useDashboardOriginSearch();
+	const { post, range, isLoading, isFetching, isError, error, refetch } = usePopularPost(
+		authorId ? { authorId, reportParams } : undefined
+	);
+	const { noPublishedPosts, isChecking } = useNoPublishedPosts(
+		! authorId && ! isLoading && ! isError && ! post
+	);
 
 	const metrics: PostHighlightCardMetric[] = post
 		? [
@@ -54,12 +98,22 @@ function PopularPostReport() {
 					label: __( 'Comments', 'jetpack-premium-analytics-pkg' ),
 					value: post.commentCount,
 				},
-		  ]
+			]
 		: [];
+
+	// Ranked over this card's window, not the host's.
+	const detailSearch = {
+		...range,
+		...dashboardOrigin,
+		...createReportOriginSearch(
+			authorId ? 'authors' : 'posts',
+			authorId ? undefined : 'posts-pages'
+		),
+	};
 
 	return (
 		<WidgetState
-			isLoading={ isLoading }
+			isLoading={ isLoading || isChecking }
 			isFetching={ isFetching }
 			isError={ isError }
 			isEmpty={ ! post }
@@ -70,27 +124,34 @@ function PopularPostReport() {
 				),
 				onRetry: refetch,
 			} ) }
-			empty={ {
-				icon: trendingUp,
-				description: __( 'No post views in the last 12 months.', 'jetpack-premium-analytics-pkg' ),
-			} }
+			// The site-wide card ranks over a pinned window, not the selected period, so the generic "this time period" copy would point at the wrong range.
+			empty={
+				authorId
+					? undefined
+					: {
+							icon: noPublishedPosts ? search : trendingUp,
+							description: noPublishedPosts
+								? __(
+										"Your most-read post will show here once you've published one.",
+										'jetpack-premium-analytics-pkg'
+									)
+								: __( 'No post views in the last 12 months.', 'jetpack-premium-analytics-pkg' ),
+							action: noPublishedPosts
+								? {
+										label: __( 'Create post', 'jetpack-premium-analytics-pkg' ),
+										href: getAdminUrl( 'post-new.php' ),
+									}
+								: undefined,
+						}
+			}
 			renderLoading={ <PostHighlightCardSkeleton /> }
 		>
-			{ /* The detail page opens on the window the card ranked over, so the post's own
-			     page measures the period the card's title names. The dashboard's range is
-			     deliberately not carried through: the Insights filter picks a calendar year,
-			     which would scope the detail page to a period this card never reported on.
-
-			     Hence not `useWidgetNavigationSearch()`, which exists to carry the host's
-			     window: a widget cannot hand it one of its own. The breadcrumb back does
-			     not restore the year the reader left, but it never did — it carries no
-			     section either, so it lands on the first one whatever window travels. */ }
 			{ post && (
 				<PostHighlightCard
 					title={ post.title }
 					url={ post.url }
 					postId={ post.id }
-					detailSearch={ range }
+					detailSearch={ detailSearch }
 					date={ post.date }
 					imageUrl={ post.imageUrl }
 					imageAlt={ post.imageAlt }
@@ -104,7 +165,7 @@ function PopularPostReport() {
 export default function PopularPost( { attributes = {} }: PopularPostWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<PopularPostReport />
+			<PopularPostReport authorScoped={ attributes.authorScoped === true } />
 		</WidgetRoot>
 	);
 }

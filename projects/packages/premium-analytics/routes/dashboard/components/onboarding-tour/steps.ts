@@ -11,22 +11,29 @@ export type OnboardingTourAnchors = {
 	/** The section header's date controls. */
 	dateControls: Element | null;
 
-	/** The Customize button among the dashboard actions. */
-	customize: Element | null;
-
-	/** The page options menu trigger beside it: feedback and the way back to classic Stats. */
+	/** The page options menu trigger: Customize, feedback and the way back to classic Stats. */
 	optionsMenu: Element | null;
+};
+
+export type OnboardingTourOptions = {
+	/** Whether the reader may send feedback, which the last step introduces. */
+	withFeedback: boolean;
 };
 
 /**
  * The four steps of the tour, in order, over the elements the dashboard
- * stage hands in. The last two sit side by side in the page header.
+ * stage hands in. The last two share the page options menu.
  *
- * @param anchors - The elements each step highlights, or null while unmounted.
+ * @param anchors              - The elements each step highlights, or null while unmounted.
+ * @param options              - Tour options.
+ * @param options.withFeedback - Whether to include the feedback step.
  * @return The tour steps.
  */
-export function onboardingTourSteps( anchors: OnboardingTourAnchors ): OnboardingTourStep[] {
-	return [
+export function onboardingTourSteps(
+	anchors: OnboardingTourAnchors,
+	{ withFeedback }: OnboardingTourOptions = { withFeedback: true }
+): OnboardingTourStep[] {
+	const steps: OnboardingTourStep[] = [
 		{
 			anchor: anchors.firstWidget,
 			title: __( 'Everything is a widget', 'jetpack-premium-analytics-pkg' ),
@@ -40,20 +47,28 @@ export function onboardingTourSteps( anchors: OnboardingTourAnchors ): Onboardin
 			anchor: anchors.dateControls,
 			title: __( 'A better date picker', 'jetpack-premium-analytics-pkg' ),
 			description: __(
-				"Compare any period with the one before it, and change the chart interval to suit the range you're looking at.",
+				'Pick any period and compare it with the one before it.',
 				'jetpack-premium-analytics-pkg'
 			),
 			side: 'bottom',
 		},
 		{
-			anchor: anchors.customize,
+			anchor: anchors.optionsMenu,
 			title: __( 'Rearrange it your way', 'jetpack-premium-analytics-pkg' ),
 			description: __(
-				'Select Customize to move and resize widgets. Your layout is saved to your profile.',
+				'Select Customize in this menu to move and resize widgets. Your layout is saved to your profile.',
 				'jetpack-premium-analytics-pkg'
 			),
 			side: 'bottom',
 		},
+	];
+
+	if ( ! withFeedback ) {
+		return steps;
+	}
+
+	return [
+		...steps,
 		{
 			anchor: anchors.optionsMenu,
 			title: __( 'One last thing', 'jetpack-premium-analytics-pkg' ),

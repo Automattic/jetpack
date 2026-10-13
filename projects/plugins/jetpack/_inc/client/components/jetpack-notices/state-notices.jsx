@@ -300,7 +300,7 @@ class JetpackStateNotices extends Component {
 	};
 
 	render() {
-		return this.state.showNotice ? this.renderContent() ?? null : null;
+		return this.state.showNotice ? ( this.renderContent() ?? null ) : null;
 	}
 }
 

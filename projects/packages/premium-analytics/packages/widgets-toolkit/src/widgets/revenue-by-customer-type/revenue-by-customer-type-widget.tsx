@@ -5,55 +5,69 @@ import { useReportCustomers, type FilterCondition } from '@jetpack-premium-analy
 import { customer } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
-import { BarChart, BarChartSkeleton, WidgetState } from '../../components';
 /**
  * Internal dependencies
  */
+import { Columns, type ColumnInput } from '../../components/columns';
 import { useWidgetRootContext } from '../../components/widget-root';
-import { buildRevenueByCustomerTypeData, isEmptyChartData, BOOKINGS_FILTER } from '../../helpers';
-import { useBarStyles } from '../common';
+import { BOOKINGS_FILTER } from '../../helpers';
+
+const CURRENCY_FORMAT = { type: 'currency' as const, options: { useMultipliers: true } };
 
 type CustomerTypeRevenueWidgetProps = {
 	/**
 	 * Optional product type filter to apply when fetching customer data.
 	 * If not provided, will show data for all product types.
 	 *
-	 * @see PHYSICAL_PRODUCTS_FILTER for physical goods (simple, variable, variation)
 	 * @see BOOKINGS_FILTER for booking products (booking, bookable-event, bookable-service)
 	 */
 	filter?: FilterCondition;
 };
 
 /**
- * Displays a bar chart comparing revenue from new customers vs returning customers.
- * Optionally supports filtering by product type.
+ * Revenue from returning customers against new ones, one column each per period.
  *
  * Must be used within a WidgetRoot which provides reportParams via context.
  */
 function CustomerTypeRevenueWidget( { filter }: CustomerTypeRevenueWidgetProps ) {
 	const { reportParams } = useWidgetRootContext();
 
-	const { primary, comparison, isLoading, isFetching, hasData, isError, refetch } =
+	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError, refetch } =
 		useReportCustomers( {
 			...reportParams,
 			filters: filter ? [ filter ] : undefined,
 		} );
+	const summary = primary.data?.summary;
+	const previous = comparison.data?.summary;
 
-	const { chartData } = useMemo(
-		() => buildRevenueByCustomerTypeData( primary.data, comparison.data, reportParams ),
-		[ primary.data, comparison.data, reportParams ]
+	// The categories are fixed, so the skeleton knows its two columns before the data arrives.
+	const columns = useMemo< ColumnInput[] >(
+		() => [
+			{
+				label: __( 'Returning', 'jetpack-premium-analytics-pkg' ),
+				value: summary?.returning_customer_sales ?? 0,
+				previousValue: previous?.returning_customer_sales,
+			},
+			{
+				label: __( 'New', 'jetpack-premium-analytics-pkg' ),
+				value: summary?.new_customer_sales ?? 0,
+				previousValue: previous?.new_customer_sales,
+			},
+		],
+		[ summary, previous ]
 	);
 
-	const barStyles = useBarStyles( chartData );
-
 	return (
-		<WidgetState
-			isLoading={ isLoading }
-			isFetching={ isFetching }
-			// The report queries keep placeholders from the previous period across
-			// range changes, so only surface the error when nothing is left to show.
-			isError={ isError && ! hasData }
-			isEmpty={ isEmptyChartData( chartData ) }
+		<Columns
+			columns={ columns }
+			status={ {
+				isLoading,
+				isFetching,
+				// The report queries keep the previous range's data on screen, so an error only shows without it.
+				isError: isError && ! hasData,
+				hasComparison,
+				refetch,
+			} }
 			error={ {
 				description: __(
 					"We couldn't load customer revenue data. Please try again in a moment.",
@@ -65,17 +79,8 @@ function CustomerTypeRevenueWidget( { filter }: CustomerTypeRevenueWidgetProps )
 				icon: customer,
 				description: __( 'No customer revenue in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
-			renderLoading={ <BarChartSkeleton columns={ 2 } /> }
-		>
-			<BarChart
-				chartData={ chartData }
-				styles={ barStyles }
-				dataFormat={ {
-					type: 'currency',
-					options: { useMultipliers: true },
-				} }
-			/>
-		</WidgetState>
+			format={ CURRENCY_FORMAT }
+		/>
 	);
 }
 

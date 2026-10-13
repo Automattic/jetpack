@@ -7,6 +7,7 @@ import {
 	startOfDayTZ,
 	toLocalTZ,
 	type DateRange,
+	type IntervalType,
 } from '@jetpack-premium-analytics/datetime';
 /**
  * Internal dependencies
@@ -23,7 +24,10 @@ export type PeriodBounds = {
 };
 
 /** The bucket cut to the life, or `null` when none of it is inside. */
-function clampToLife( bucket: DateRange | null, { lifeStartsAt, timeZone }: PeriodBounds ) {
+function clampToLife(
+	bucket: DateRange | null,
+	{ lifeStartsAt, timeZone }: PeriodBounds
+): Required< DateRange > | null {
 	if ( ! bucket?.from || ! bucket.to ) {
 		return null;
 	}
@@ -42,7 +46,7 @@ function clampToLife( bucket: DateRange | null, { lifeStartsAt, timeZone }: Peri
  * @param bounds - The life and the clock.
  * @return The range to apply, or `null`.
  */
-export function monthRange( key: MonthKey, bounds: PeriodBounds ): DateRange | null {
+export function monthRange( key: MonthKey, bounds: PeriodBounds ): Required< DateRange > | null {
 	const { timeZone, now } = bounds;
 	// The bucket the traffic chart opens on a click, cut at the site's clock.
 	const bucket = drillDateRange(
@@ -61,7 +65,7 @@ export function monthRange( key: MonthKey, bounds: PeriodBounds ): DateRange | n
  * @param bounds - The life and the clock.
  * @return The range to apply, or `null`.
  */
-export function yearRange( year: number, bounds: PeriodBounds ): DateRange | null {
+export function yearRange( year: number, bounds: PeriodBounds ): Required< DateRange > | null {
 	const { timeZone, now } = bounds;
 	const bucket = drillDateRange(
 		createTZDateFromParts( [ year, 0, 1 ], timeZone ),
@@ -70,4 +74,39 @@ export function yearRange( year: number, bounds: PeriodBounds ): DateRange | nul
 	);
 
 	return clampToLife( bucket, bounds );
+}
+
+/**
+ * The chart bucket holding `date`, cut to the window the chart draws. `null` for
+ * an hourly bucket, the finest reading there is, or one outside the window.
+ *
+ * @param date     - A date inside the bucket.
+ * @param interval - The bucket size the chart drew.
+ * @param window   - The range the chart draws.
+ * @param bounds   - The site zone the bucket is cut in, and the clock capping it.
+ * @return The range to apply, or `null`.
+ */
+export function bucketRange(
+	date: Date,
+	interval: IntervalType,
+	window: DateRange,
+	bounds: Omit< PeriodBounds, 'lifeStartsAt' >
+): Required< DateRange > | null {
+	const { timeZone, now } = bounds;
+	// Re-anchored to the site zone: `drillDateRange` closes a bucket on the clock of the date it gets.
+	const bucket = drillDateRange(
+		toLocalTZ( date, timeZone ),
+		interval,
+		toLocalTZ( now, timeZone )
+	);
+
+	if ( ! bucket?.from || ! bucket.to ) {
+		return null;
+	}
+
+	// An edge bucket is usually partial; opening it whole would widen the report past the window.
+	const from = window.from && bucket.from < window.from ? window.from : bucket.from;
+	const to = window.to && bucket.to > window.to ? window.to : bucket.to;
+
+	return from.getTime() < to.getTime() ? { from, to } : null;
 }

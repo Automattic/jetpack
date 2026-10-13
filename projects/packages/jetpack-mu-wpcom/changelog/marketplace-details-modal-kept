@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Plugins: Reopen a Marketplace plugin's details straight away instead of reloading them every time.

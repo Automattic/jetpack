@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { pickReportDateParams } from '@jetpack-premium-analytics/routing';
+import { toAuthorId } from '@jetpack-premium-analytics/data';
 import {
 	PostHighlightCard,
 	type PostHighlightCardMetric,
@@ -9,9 +9,9 @@ import {
 	type ReportParamsFieldAttributes,
 	WidgetRoot,
 	WidgetState,
+	useWidgetNavigationSearch,
 	useWidgetRootContext,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { postList } from '@wordpress/icons';
 /**
@@ -27,13 +27,44 @@ type LatestPostRenderAttributes = LatestPostAttributes & Partial< ReportParamsFi
 type LatestPostWidgetProps = WidgetRenderProps< LatestPostRenderAttributes >;
 
 /**
- * Every tile is a lifetime total, so no tile carries an aggregation note.
+ * Every tile is a lifetime total, so no tile carries an aggregation note. An
+ * author-scoped instance narrows the pick to the URL's author.
  */
-function LatestPostReport() {
-	const { post, isLoading, isFetching, isError, refetch } = useLatestPost();
+function LatestPostReport( { authorScoped }: { authorScoped: boolean } ) {
 	const { reportParams } = useWidgetRootContext();
-	// The detail page opens on the dashboard's current window.
-	const detailSearch = useMemo( () => pickReportDateParams( reportParams ), [ reportParams ] );
+	// Gated on the instance attribute, not the URL alone, so a stray `author_id`
+	// on the dashboard cannot narrow the site-wide card.
+	const authorId = authorScoped ? toAuthorId( reportParams.author_id ) : 0;
+
+	// An author-scoped instance rendered off its page must not fall back to the
+	// site-wide pick under the author-scoped title.
+	if ( authorScoped && ! authorId ) {
+		return (
+			<WidgetState
+				isLoading={ false }
+				isError={ false }
+				isEmpty
+				empty={ {
+					icon: postList,
+					description: __(
+						'Open an author to see their latest post here.',
+						'jetpack-premium-analytics-pkg'
+					),
+				} }
+			>
+				{ null }
+			</WidgetState>
+		);
+	}
+
+	return <LatestPostCard authorId={ authorId } />;
+}
+
+function LatestPostCard( { authorId }: { authorId: number } ) {
+	const { post, isLoading, isFetching, isError, refetch } = useLatestPost( authorId );
+	const detailSearch = useWidgetNavigationSearch( {
+		origin: authorId ? { report: 'authors' } : { report: 'posts', section: 'posts-pages' },
+	} );
 
 	const metrics: PostHighlightCardMetric[] = post
 		? [
@@ -48,7 +79,7 @@ function LatestPostReport() {
 					label: __( 'Comments', 'jetpack-premium-analytics-pkg' ),
 					value: post.commentCount,
 				},
-		  ]
+			]
 		: [];
 
 	return (
@@ -66,7 +97,9 @@ function LatestPostReport() {
 			} }
 			empty={ {
 				icon: postList,
-				description: __( 'Publish a post to see its stats here.', 'jetpack-premium-analytics-pkg' ),
+				description: authorId
+					? __( 'This author has not published a post yet.', 'jetpack-premium-analytics-pkg' )
+					: __( 'Publish a post to see its stats here.', 'jetpack-premium-analytics-pkg' ),
 			} }
 			renderLoading={ <PostHighlightCardSkeleton /> }
 		>
@@ -88,13 +121,13 @@ function LatestPostReport() {
 
 /**
  * WidgetRoot provides the analytics query client and chart theme the inner card
- * relies on. This widget has no own attributes and ignores the dashboard date
- * range, but host attributes are still passed through for the widget contract.
+ * relies on. The widget ignores the dashboard date range; host attributes still
+ * pass through for the widget contract.
  */
 export default function LatestPost( { attributes = {} }: LatestPostWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<LatestPostReport />
+			<LatestPostReport authorScoped={ attributes.authorScoped === true } />
 		</WidgetRoot>
 	);
 }

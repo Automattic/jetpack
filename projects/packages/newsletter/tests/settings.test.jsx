@@ -41,17 +41,13 @@ jest.mock( '@wordpress/components', () => ( {
 
 jest.mock( '@wordpress/notices', () => ( {
 	store: {},
+	SnackbarNotices: () => null,
 } ) );
 
 jest.mock( '@automattic/jetpack-components', () => ( {
 	AdminPage: ( { children } ) => <div data-testid="admin-page">{ children }</div>,
 	Col: ( { children } ) => <div>{ children }</div>,
 	Container: ( { children } ) => <div>{ children }</div>,
-	GlobalNotices: () => null,
-	useGlobalNotices: () => ( {
-		createSuccessNotice: jest.fn(),
-		createErrorNotice: jest.fn(),
-	} ),
 } ) );
 
 // Capture the parent's wired props for `SubscribeModalSection` so the
@@ -78,6 +74,7 @@ jest.mock( '../src/settings/sections', () => ( {
 		emailContentProps.current = props;
 		return <div data-testid="email-content-section" />;
 	},
+	EmailDesignSection: () => <div data-testid="email-design-section" />,
 	EmailDefaultsSection: props => {
 		emailDefaultsProps.current = props;
 		return <div data-testid="email-defaults-section" />;

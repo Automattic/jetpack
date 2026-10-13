@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Export;
 use Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller;
@@ -23,7 +24,7 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
  */
 class Analytics {
 
-	const PACKAGE_VERSION = '0.6.1';
+	const PACKAGE_VERSION = '0.11.0';
 
 	/**
 	 * Whether the class has been initialized.
@@ -194,8 +195,8 @@ class Analytics {
 
 		self::register_script_data();
 
-		// The posts and pages list tables link their views column here.
-		Post_List_Link::register();
+		// Stats links elsewhere (post list table, admin bar, action bar) open this dashboard.
+		Stats_Links::register();
 	}
 
 	/**
@@ -227,6 +228,8 @@ class Analytics {
 	 * Runs on nearly every admin page load, so the payload stays to two strings,
 	 * a bool, and one capability check.
 	 *
+	 * `can_view` is Stats access: every link other surfaces build from it opens a Stats view.
+	 *
 	 * @param array $data The script data.
 	 * @return array The script data with the analytics key added.
 	 */
@@ -234,7 +237,7 @@ class Analytics {
 		$data['analytics'] = array(
 			'enabled'   => true,
 			'page_slug' => self::MENU_PAGE_SLUG,
-			'can_view'  => current_user_can( Capabilities::VIEW_ANALYTICS ),
+			'can_view'  => Capabilities::current_user_can_view_stats(),
 			'timezone'  => self::site_timezone(),
 		);
 
@@ -284,21 +287,21 @@ class Analytics {
 
 		Sync_Status_Tracker::configure();
 
-		// TEMPORARY (WOOA7S-1550): register the interim woocommerce_analytics sync module so
-		// Sync_Status_Tracker has a full sync to observe. Remove when the shared sync-modules package lands.
+		// Opts in to the shared woocommerce_analytics sync module so Sync_Status_Tracker has a full sync to observe.
 		Sync_Configuration::register();
 	}
 
 	/**
-	 * Register the site-served REST API: the WPCOM data proxy and notices.
+	 * Register the site-served REST API: the WPCOM data proxy, notices and the Stats settings.
 	 *
-	 * Both self-gate on their own rest_api_init hooks.
+	 * Each self-gates on its own rest_api_init hook.
 	 *
 	 * @return void
 	 */
 	private static function register_local_api() {
 		Api_Proxy_Controller::register();
 		Notices_Controller::register();
+		Stats_Settings::configure();
 	}
 
 	/**
@@ -329,16 +332,22 @@ class Analytics {
 			require_once __DIR__ . '/widget-modules.php';
 		}
 
-		// Default layout's first-load preference injection.
-		if ( ! function_exists( __NAMESPACE__ . '\\register_dashboard_default_layout_route' ) ) {
+		// Default layout primitives and the bundled defaults' seed.
+		if ( ! function_exists( __NAMESPACE__ . '\\get_dashboard_default_widget_instance' ) ) {
 			require_once __DIR__ . '/dashboard-layout.php';
 		}
 
-		// Dashboard sections and their default layout seeding.
+		// Dashboard section API, then the package's own sections registered through it.
 		if ( ! function_exists( __NAMESPACE__ . '\\register_dashboard_section' ) ) {
 			require_once __DIR__ . '/dashboard-sections.php';
 		}
-		configure_dashboard_preview_scope();
+		if ( ! function_exists( __NAMESPACE__ . '\\register_default_dashboard_sections' ) ) {
+			require_once __DIR__ . '/default-dashboard-sections.php';
+		}
+		// An older copy of the package may have loaded dashboard-sections.php under the previous name.
+		if ( function_exists( __NAMESPACE__ . '\\configure_dashboard_sections_script_data' ) ) {
+			configure_dashboard_sections_script_data();
+		}
 
 		// Default-on CSV export settings and server-side disable filter.
 		if ( ! function_exists( __NAMESPACE__ . '\\configure_csv_exports' ) ) {
@@ -380,6 +389,7 @@ class Analytics {
 		$build_entry = self::$build_entry ?? __DIR__ . '/../build/build.php';
 		if ( file_exists( $build_entry ) ) {
 			require_once $build_entry;
+			require_once __DIR__ . '/sdk-module.php';
 		}
 	}
 
@@ -484,6 +494,9 @@ class Analytics {
 	 * Uses wp-build's `-wp-admin` variant so Core applies the menu capability check. Reports the
 	 * page and widget artifacts independently since the build loader includes each conditionally.
 	 *
+	 * Queued through Admin_Menu rather than registered here, so the entry is reachable by the
+	 * `jetpack_admin_menu_visibility` filter.
+	 *
 	 * @return void
 	 */
 	public static function register_admin_menu() {
@@ -518,15 +531,17 @@ class Analytics {
 
 		$menu_title = self::menu_title();
 
-		add_menu_page(
-			esc_html( $menu_title ),
-			esc_html( $menu_title ),
-			Capabilities::VIEW_ANALYTICS,
-			self::MENU_PAGE_SLUG,
-			$render_callback,
-			'dashicons-chart-bar',
-			2
-		);
+		$menu_title = esc_html( $menu_title );
+
+		// An older admin-ui, loaded first by another plugin, may predate add_top_level_menu().
+		if ( ! method_exists( Admin_Menu::class, 'add_top_level_menu' ) ) {
+			add_menu_page( $menu_title, $menu_title, Capabilities::VIEW_ANALYTICS, self::MENU_PAGE_SLUG, $render_callback, 'dashicons-chart-bar', 2 );
+			return;
+		}
+
+		// A fixed key rather than the slug, which carries a build-specific suffix. No gate:
+		// the dashboard has no My Jetpack product class and no module to name.
+		Admin_Menu::add_top_level_menu( $menu_title, $menu_title, Capabilities::VIEW_ANALYTICS, self::MENU_PAGE_SLUG, $render_callback, 'dashicons-chart-bar', 2, array( 'key' => 'jetpack-premium-analytics' ) );
 	}
 
 	/**

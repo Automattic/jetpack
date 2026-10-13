@@ -9,6 +9,7 @@ declare( strict_types = 1 );
 
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices;
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use PHPUnit\Framework\Attributes\CoversClass;
 
@@ -42,6 +43,7 @@ class Expiry_Notice_Dismiss_Test extends \WorDBless\BaseTestCase {
 		foreach ( array( Expiry_Notice_Dismiss::META_BANNER, Expiry_Notice_Dismiss::META_MODAL, Expiry_Notice_Dismiss::META_MODAL_GRACE ) as $base ) {
 			unregister_meta_key( 'user', Expiry_Notice_Dismiss::meta_key( $base ) );
 		}
+		Constants::clear_constants();
 		parent::tear_down();
 	}
 
@@ -54,6 +56,19 @@ class Expiry_Notice_Dismiss_Test extends \WorDBless\BaseTestCase {
 
 	private function dismiss( string $base, int $when ): void {
 		update_user_meta( $this->user_id, Expiry_Notice_Dismiss::meta_key( $base ), $when );
+	}
+
+	public function test_dismiss_stamps_now_for_each_of_this_sites_keys_only(): void {
+		foreach ( array( Expiry_Notice_Dismiss::META_BANNER, Expiry_Notice_Dismiss::META_MODAL, Expiry_Notice_Dismiss::META_MODAL_GRACE ) as $base ) {
+			$key = Expiry_Notice_Dismiss::meta_key( $base );
+			$this->assertTrue( Expiry_Notice_Dismiss::dismiss( $this->user_id, $key ) );
+			$this->assertEqualsWithDelta( time(), (int) get_user_meta( $this->user_id, $key, true ), 2 );
+		}
+
+		$this->assertFalse( Expiry_Notice_Dismiss::dismiss( $this->user_id, 'wp_999_' . Expiry_Notice_Dismiss::META_BANNER ) );
+		$this->assertFalse( Expiry_Notice_Dismiss::dismiss( $this->user_id, 'description' ) );
+		$this->assertSame( '', get_user_meta( $this->user_id, 'description', true ) );
+		$this->assertFalse( Expiry_Notice_Dismiss::dismiss( 0, Expiry_Notice_Dismiss::banner_meta_key() ) );
 	}
 
 	public function test_a_dismissal_holds_for_its_own_term_and_not_the_next(): void {
@@ -70,14 +85,23 @@ class Expiry_Notice_Dismiss_Test extends \WorDBless\BaseTestCase {
 		$this->assertTrue( Expiry_Notice_Dismiss::should_show_banner( $state, $this->user_id ) );
 	}
 
-	public function test_only_the_post_grace_banner_is_dismissible(): void {
+	public function test_the_banner_is_dismissible_after_expiry_except_on_atomic_before_the_revert(): void {
 		$this->dismiss( Expiry_Notice_Dismiss::META_BANNER, time() );
-		foreach ( array( Expiry_Data::STATE_APPROACHING, Expiry_Data::STATE_EXPIRED_GRACE ) as $stage ) {
+		$cases = array(
+			// [ stage, is Atomic, dismissible ].
+			array( Expiry_Data::STATE_APPROACHING, false, false ),
+			array( Expiry_Data::STATE_APPROACHING, true, false ),
+			array( Expiry_Data::STATE_EXPIRED_GRACE, true, false ),
+			array( Expiry_Data::STATE_EXPIRED_GRACE, false, true ),
+			array( Expiry_Data::STATE_EXPIRED, false, true ),
+		);
+		foreach ( $cases as list( $stage, $is_atomic, $dismissible ) ) {
+			Constants::set_constant( 'IS_ATOMIC', $is_atomic );
 			$state = $this->state( $stage, time() - DAY_IN_SECONDS );
-			$this->assertFalse( Expiry_Notice_Dismiss::is_dismissible( $state ) );
-			$this->assertTrue( Expiry_Notice_Dismiss::should_show_banner( $state, $this->user_id ), "a stored dismissal must not silence {$stage}" );
+			$where = $stage . ( $is_atomic ? ' on Atomic' : ' on Simple' );
+			$this->assertSame( $dismissible, Expiry_Notice_Dismiss::is_dismissible( $state ), "wrong dismissibility for {$where}" );
+			$this->assertSame( ! $dismissible, Expiry_Notice_Dismiss::should_show_banner( $state, $this->user_id ), "wrong stored dismissal for {$where}" );
 		}
-		$this->assertTrue( Expiry_Notice_Dismiss::is_dismissible( $this->state( Expiry_Data::STATE_EXPIRED, time() - 40 * DAY_IN_SECONDS ) ) );
 	}
 
 	public function test_the_modal_only_speaks_to_a_lapsed_site_and_dismisses_to_its_own_key(): void {
@@ -121,6 +145,17 @@ class Expiry_Notice_Dismiss_Test extends \WorDBless\BaseTestCase {
 		// Inside the TTL, but recorded against a term that has since renewed and lapsed again.
 		$this->dismiss( Expiry_Notice_Dismiss::META_MODAL_GRACE, time() - HOUR_IN_SECONDS );
 		$this->assertTrue( Expiry_Notice_Dismiss::should_show_modal( $this->state( Expiry_Data::STATE_EXPIRED_GRACE, time() - 60 ), $this->user_id ) );
+	}
+
+	public function test_a_post_grace_dismissal_is_measured_against_the_revert(): void {
+		$reverted_at = time() - ( 10 * DAY_IN_SECONDS );
+		$state       = $this->state( Expiry_Data::STATE_EXPIRED, $reverted_at );
+
+		$this->dismiss( Expiry_Notice_Dismiss::META_BANNER, $reverted_at - DAY_IN_SECONDS );
+		$this->assertTrue( Expiry_Notice_Dismiss::should_show_banner( $state, $this->user_id ), 'a dismissal from before the revert belongs to a previous term' );
+
+		$this->dismiss( Expiry_Notice_Dismiss::META_BANNER, $reverted_at + DAY_IN_SECONDS );
+		$this->assertFalse( Expiry_Notice_Dismiss::should_show_banner( $state, $this->user_id ) );
 	}
 
 	public function test_a_dismissal_belongs_to_one_site(): void {

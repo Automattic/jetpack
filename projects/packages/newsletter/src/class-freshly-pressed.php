@@ -57,7 +57,7 @@ class Freshly_Pressed {
 	/**
 	 * Get the posts currently featured on Freshly Pressed.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.15.0
 	 *
 	 * @return array[] {
 	 *     @type string $title     The post title, as returned by the API.
@@ -94,7 +94,7 @@ class Freshly_Pressed {
 	 * real query every time and the caller's transient is what keeps it off the
 	 * dashboard's critical path.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.15.0
 	 *
 	 * @return array[]|null The posts, or null if the wpcom plugin isn't available.
 	 */
@@ -145,7 +145,7 @@ class Freshly_Pressed {
 	/**
 	 * Fetch the featured posts from the WordPress.com public API.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.15.0
 	 *
 	 * @return array[]|null The posts, or null if the request failed.
 	 */
@@ -188,7 +188,7 @@ class Freshly_Pressed {
 	/**
 	 * Shape one post the way the widget expects it.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.15.0
 	 *
 	 * @param int    $blog_id The ID of the site the post belongs to.
 	 * @param int    $post_id The ID of the post.

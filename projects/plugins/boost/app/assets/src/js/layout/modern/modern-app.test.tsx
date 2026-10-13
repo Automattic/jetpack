@@ -5,11 +5,13 @@ import {
 	LOCATION_CHANGE_EVENT,
 	SETTINGS_SLOT_ID,
 	SUBPAGE_SLOT_ID,
+	SPEED_TEST_COMPLETE_EVENT,
 } from '../../../../../../_inc/runtime-contract';
 import ModernApp from './modern-app';
 
 const mockRecordBoostEvent = jest.fn();
 let mockShouldGetStarted = false;
+let mockRedirectSubpage = false;
 
 jest.mock( '$lib/utils/analytics', () => ( {
 	...jest.requireActual( '$lib/utils/analytics' ),
@@ -28,14 +30,33 @@ jest.mock( '$features/critical-css/critical-css-context/critical-css-context-pro
 	__esModule: true,
 	default: ( { children }: { children: React.ReactNode } ) => children,
 } ) );
-jest.mock( './modern-settings', () => ( {
-	__esModule: true,
-	default: ( { hidden }: { hidden?: boolean } ) => <div data-testid="settings" hidden={ hidden } />,
-} ) );
-jest.mock( './modern-subpage', () => ( {
-	__esModule: true,
-	default: ( { subpage }: { subpage: string } ) => <div data-testid="subpage">{ subpage }</div>,
-} ) );
+jest.mock( './modern-settings', () => {
+	const NoticeManager = jest.requireActual( '$features/notice/manager' ).default;
+	return {
+		__esModule: true,
+		default: ( { hidden, active = true }: { hidden?: boolean; active?: boolean } ) => (
+			<div data-testid="settings" data-active={ String( active ) } hidden={ hidden }>
+				<NoticeManager />
+			</div>
+		),
+	};
+} );
+jest.mock( './modern-subpage', () => {
+	const { navigateTo, settingsUrl } =
+		jest.requireActual< typeof import( '$lib/modern/routes' ) >( '$lib/modern/routes' );
+	const { useEffect } = jest.requireActual< typeof import( 'react' ) >( 'react' );
+	return {
+		__esModule: true,
+		default: function MockSubpage( { subpage }: { subpage: string } ) {
+			useEffect( () => {
+				if ( mockRedirectSubpage ) {
+					navigateTo( settingsUrl() );
+				}
+			}, [] );
+			return <div data-testid="subpage">{ subpage }</div>;
+		},
+	};
+} );
 
 const BASE_URL = 'http://localhost/wp-admin/admin.php?page=jetpack-boost';
 
@@ -60,19 +81,52 @@ const renderApp = () => {
 
 	return {
 		slots,
-		...render( <ModernApp subpageSlot={ slots.subpage } />, { container: slots.settings } ),
+		...render( <ModernApp subpageSlot={ slots.subpage } />, {
+			container: slots.settings,
+			reactStrictMode: true,
+		} ),
 	};
 };
 
 describe( 'ModernApp', () => {
 	beforeEach( () => {
 		mockShouldGetStarted = false;
+		mockRedirectSubpage = false;
 		mockRecordBoostEvent.mockClear();
 		window.history.replaceState( null, '', BASE_URL );
 	} );
 
 	afterEach( () => {
 		document.body.innerHTML = '';
+	} );
+
+	it( 'delivers one completion snackbar across roots and cleans up its StrictMode listener', () => {
+		const addListener = jest.spyOn( window, 'addEventListener' );
+		const removeListener = jest.spyOn( window, 'removeEventListener' );
+		try {
+			const { slots, unmount } = renderApp();
+			act( () => window.dispatchEvent( new Event( SPEED_TEST_COMPLETE_EVENT ) ) );
+			expect( within( slots.settings ).getAllByText( 'Speed test complete.' ) ).toHaveLength( 1 );
+			unmount();
+			const registered = addListener.mock.calls.filter(
+				( [ event ] ) => event === SPEED_TEST_COMPLETE_EVENT
+			);
+			const removed = removeListener.mock.calls.filter(
+				( [ event ] ) => event === SPEED_TEST_COMPLETE_EVENT
+			);
+			expect( registered ).toHaveLength( 2 );
+			expect( removed ).toEqual( registered );
+			act( () => window.dispatchEvent( new Event( SPEED_TEST_COMPLETE_EVENT ) ) );
+			const { slots: remountedSlots } = renderApp();
+			expect( within( remountedSlots.settings ).queryByText( 'Speed test complete.' ) ).toBeNull();
+			act( () => window.dispatchEvent( new Event( SPEED_TEST_COMPLETE_EVENT ) ) );
+			expect(
+				within( remountedSlots.settings ).getAllByText( 'Speed test complete.' )
+			).toHaveLength( 1 );
+		} finally {
+			addListener.mockRestore();
+			removeListener.mockRestore();
+		}
 	} );
 
 	it( 'renders Settings in the slot it mounts into, leaving the sub-page slot empty', () => {
@@ -92,6 +146,16 @@ describe( 'ModernApp', () => {
 		expect( within( slots.settings ).getByTestId( 'settings' ) ).toBe( settingsNode );
 	} );
 
+	it( 'deactivates Settings exposure on a subpage and reactivates it on return', () => {
+		const { slots } = renderApp();
+		const settings = within( slots.settings ).getByTestId( 'settings' );
+		expect( settings.dataset.active ).toBe( 'true' );
+		goTo( '#/cache-debug-log' );
+		expect( settings.dataset.active ).toBe( 'false' );
+		goTo( SETTINGS_ARG );
+		expect( settings.dataset.active ).toBe( 'true' );
+	} );
+
 	it( 'renders one sub-page at a time', () => {
 		const { slots } = renderApp();
 
@@ -109,33 +173,31 @@ describe( 'ModernApp', () => {
 
 		expect( mockRecordBoostEvent.mock.calls.map( ( [ name ] ) => name ) ).toEqual( [
 			'page_view_overview',
-			'page_view_settings',
 			'page_view_cache_debug_log',
 		] );
 	} );
 
-	it( 'records Settings on a cold load of the chassis Settings route', () => {
+	it( 'records Overview on a cold load of the former Settings route', () => {
 		window.history.replaceState( null, '', `${ BASE_URL }${ SETTINGS_ARG }` );
 
 		renderApp();
 
 		expect( mockRecordBoostEvent.mock.calls.map( ( [ name ] ) => name ) ).toEqual( [
-			'page_view_settings',
+			'page_view_overview',
 		] );
 	} );
 
-	it( 'records Settings when the chassis switches tab', () => {
+	it( 'does not record another page view when the scroll destination changes', () => {
 		renderApp();
 
 		goTo( SETTINGS_ARG );
 
 		expect( mockRecordBoostEvent.mock.calls.map( ( [ name ] ) => name ) ).toEqual( [
 			'page_view_overview',
-			'page_view_settings',
 		] );
 	} );
 
-	it( 'records Settings again on the way back from a sub-page', () => {
+	it( 'records Overview again on the way back from a sub-page', () => {
 		renderApp();
 
 		goTo( '#/cache-debug-log' );
@@ -144,7 +206,7 @@ describe( 'ModernApp', () => {
 		expect( mockRecordBoostEvent.mock.calls.map( ( [ name ] ) => name ) ).toEqual( [
 			'page_view_overview',
 			'page_view_cache_debug_log',
-			'page_view_settings',
+			'page_view_overview',
 		] );
 	} );
 
@@ -156,23 +218,37 @@ describe( 'ModernApp', () => {
 		expect( mockRecordBoostEvent ).toHaveBeenCalledTimes( 2 );
 	} );
 
-	it( 'promotes a tab carried in the hash and records it once as Settings', () => {
+	it( 'promotes a tab carried in the hash without recording a second page view', () => {
 		renderApp();
 		goTo( '#/?tab=settings' );
 
 		expect( window.location.hash ).toBe( '' );
 		expect( window.location.search ).toContain( 'p=%2F%3Ftab%3Dsettings' );
-		expect( mockRecordBoostEvent ).toHaveBeenLastCalledWith( 'page_view_settings', { path: '/' } );
+		expect( mockRecordBoostEvent ).toHaveBeenCalledTimes( 1 );
+		expect( mockRecordBoostEvent ).toHaveBeenLastCalledWith( 'page_view_overview', { path: '/' } );
 	} );
 
-	it( 'redirects an onboarding user off a guarded route without recording it', () => {
-		mockShouldGetStarted = true;
-		const { slots } = renderApp();
+	it.each( [ '', SETTINGS_ARG, '#/cache-debug-log', '#/critical-css-advanced' ] )(
+		'redirects %s without recording the hidden route',
+		suffix => {
+			window.history.replaceState( null, '', `${ BASE_URL }${ suffix }` );
+			mockShouldGetStarted = true;
+			const { slots } = renderApp();
 
-		expect( window.location.hash ).toBe( '#/getting-started' );
-		expect( within( slots.subpage ).getByText( 'getting-started' ) ).toBeTruthy();
+			expect( window.location.hash ).toBe( '#/getting-started' );
+			expect( within( slots.subpage ).getByText( 'getting-started' ) ).toBeTruthy();
+			expect( mockRecordBoostEvent.mock.calls.map( ( [ name ] ) => name ) ).toEqual( [
+				'page_view_getting_started',
+			] );
+		}
+	);
+
+	it( 'does not record a sub-page that redirects before it becomes visible', () => {
+		mockRedirectSubpage = true;
+		window.history.replaceState( null, '', `${ BASE_URL }#/critical-css-advanced` );
+		renderApp();
 		expect( mockRecordBoostEvent.mock.calls.map( ( [ name ] ) => name ) ).toEqual( [
-			'page_view_getting_started',
+			'page_view_overview',
 		] );
 	} );
 

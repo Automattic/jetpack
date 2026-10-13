@@ -80,7 +80,7 @@ export function reportOrderAttributionSummaryQuery(
 								view: params.view,
 								filters: params.filters,
 								date_type: params.date_type,
-						  } )
+							} )
 						: Promise.resolve( undefined ),
 				] );
 

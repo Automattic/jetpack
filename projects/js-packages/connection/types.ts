@@ -93,4 +93,19 @@ export type ConnectionScriptData = {
 	isOwnershipTransferable: boolean;
 	/** Owner identity; null when unresolvable or when the viewer lacks the jetpack_connect capability. */
 	connectionOwner: ConnectionOwner | null;
+	/**
+	 * Whether the site has a protected owner WordPress.com confirms. Null when the viewer lacks
+	 * the jetpack_connect capability, because deciding it can cost a WordPress.com lookup and the
+	 * answer is not theirs to see — null is "cannot say", not "no".
+	 */
+	hasProtectedOwner: boolean | null;
+	/** Whether a consumer requires a protected owner at this moment. Null as above. */
+	requiresProtectedOwner: boolean | null;
+	/** Whether the package renders its own protected owner UI. Null as above. */
+	useDefaultProtectedOwnerUi: boolean | null;
+	/**
+	 * Absolute URL of the package's committed images, with a trailing slash. Optional because
+	 * only the admin script data carries it, not `JP_CONNECTION_INITIAL_STATE`.
+	 */
+	assetsUrl?: string;
 };

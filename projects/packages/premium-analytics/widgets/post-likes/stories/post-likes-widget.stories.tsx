@@ -158,8 +158,7 @@ export const Empty: Story = {
 };
 
 interface PostLikesDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		PostLikesStoryControls {}
+	extends WidgetDashboardWithWidgetControls, PostLikesStoryControls {}
 
 /**
  * Mounts the real `WidgetDashboard` with this single widget so it renders

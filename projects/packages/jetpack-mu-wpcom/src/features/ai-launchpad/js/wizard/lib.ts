@@ -18,6 +18,7 @@ export interface WizardState {
 	siteName: string;
 	intent: string;
 	locale: string;
+	uiLocale: string;
 }
 
 /**
@@ -43,23 +44,6 @@ export function isLastStep( step: WizardStep ): boolean {
 }
 
 /**
- * The partial wizard input shared with the prewarm hook while the user types.
- * Mirrors the REST PUT body so the prewarmed call and the persisted payload
- * agree.
- *
- * @param state - The collected wizard state.
- * @return The partial wizard input.
- */
-export function toPrewarmInput( state: WizardState ): Partial< WizardInput > {
-	return {
-		goal: state.goal ?? undefined,
-		site_name: state.siteName,
-		description: state.intent,
-		locale: state.locale,
-	};
-}
-
-/**
  * The body sent to `PUT /wpcom/v2/ai-launchpad/wizard` on Finish. The REST
  * endpoint requires a non-null goal, so callers gate this behind a selected
  * goal.
@@ -74,6 +58,7 @@ export function buildWizardPayload( goal: GoalSlug, state: WizardState ): Wizard
 		site_name: state.siteName,
 		description: state.intent,
 		locale: state.locale,
+		ui_locale: state.uiLocale,
 	};
 }
 

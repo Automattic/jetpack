@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Show an error in the block when a return URL is over PayPal's 1024-character limit.

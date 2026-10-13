@@ -119,6 +119,8 @@ export type VideoBlockAttributes = VideoBlockColorAttributesProps & {
 	className?: string;
 
 	isExample?: boolean;
+	// Render the video of the page being viewed ( channel video pages ).
+	useQueriedVideo?: boolean;
 };
 
 export type VideoBlockEditProps = {
@@ -159,6 +161,8 @@ export type VideoControlProps = {
 
 export type PosterPanelProps = VideoControlProps & {
 	isGeneratingPoster?: boolean;
+	posterError?: string | null;
+	onRetryPoster?: () => void;
 	videoBelongToSite?: boolean;
 };
 

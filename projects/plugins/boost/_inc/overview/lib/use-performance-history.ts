@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
 import { performanceHistoryDataSchema } from '../../../app/assets/src/js/features/performance-history/lib/hooks';
+import { bucketHistoryDays, getHistoryWindow, type HistoryWindow } from './history-days';
 import { isSiteOnline, requestDataSync } from './use-modules-state';
 
 export type PerformanceHistory = z.infer< typeof performanceHistoryDataSchema >;
@@ -13,12 +14,63 @@ export function parsePerformanceHistory( value: unknown ): PerformanceHistory {
 
 export const performanceHistoryQueryKey = [ 'performance_history' ] as const;
 
-export function usePerformanceHistory( enabled = true ) {
+const historyStaleTime = 12 * 60 * 60 * 1000;
+
+function historyQuery( { startDate, endDate }: HistoryWindow ) {
+	return {
+		queryKey: [ ...performanceHistoryQueryKey, startDate, endDate ],
+		queryFn: async () =>
+			parsePerformanceHistory(
+				await requestDataSync( 'performance_history', {
+					startDate,
+					endDate,
+					periods: [],
+					annotations: [],
+					surfaceErrors: true,
+				} )
+			),
+		staleTime: historyStaleTime,
+	};
+}
+
+export function usePerformanceHistory( enabled = true, window = getHistoryWindow( 0 ) ) {
+	return useQuery( { ...historyQuery( window ), enabled: enabled && isSiteOnline() } );
+}
+
+/**
+ * Check older windows in one server request without populating page caches.
+ *
+ * @param enabled - Whether to request history.
+ * @param windows - Older windows, nearest first.
+ * @return Query whose data is false only when every window is empty.
+ */
+export function useHasOlderHistory( enabled: boolean, windows: HistoryWindow[] ) {
 	return useQuery( {
-		queryKey: performanceHistoryQueryKey,
-		queryFn: async () => parsePerformanceHistory( await requestDataSync( 'performance_history' ) ),
+		queryKey: [ ...performanceHistoryQueryKey, 'older', windows ],
+		queryFn: async () => {
+			if ( ! windows.length ) {
+				return false;
+			}
+			const range = {
+				startDate: Math.min( ...windows.map( window => window.startDate ) ),
+				endDate: Math.max( ...windows.map( window => window.endDate ) ),
+			};
+			const data = parsePerformanceHistory(
+				await requestDataSync( 'performance_history', {
+					...range,
+					periods: [],
+					annotations: [],
+					surfaceErrors: true,
+					checkOlderWindows: true,
+					olderWindows: windows,
+				} )
+			);
+			return windows.some( window =>
+				bucketHistoryDays( data?.periods ?? [], window ).some( day => day.period )
+			);
+		},
 		enabled: enabled && isSiteOnline(),
-		staleTime: 12 * 60 * 60 * 1000,
+		staleTime: historyStaleTime,
 	} );
 }
 

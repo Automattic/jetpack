@@ -6,8 +6,8 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import type { SearchTermRow } from './aggregate';
 import type { Field } from '@jetpack-premium-analytics/externals';
+import type { SearchTermRow } from '@jetpack-premium-analytics/widgets-toolkit';
 
 const VIEWS_DATA_FORMAT = {
 	type: 'number',

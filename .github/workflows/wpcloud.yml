@@ -13,6 +13,10 @@ permissions:
   # actions/checkout, actions/upload-artifact, actions/download-artifact
   contents: read
 
+env:
+  # Trade some archive size for much faster compression.
+  XZ_OPT: -3 -T0
+
 jobs:
   build:
     name: Install the Monorepo and build wpcomsh
@@ -27,12 +31,12 @@ jobs:
       # But it doesn't have to be checked out.
       - name: Deepen to merge base
         if: github.event_name == 'pull_request'
-        uses: ./.github/actions/deepen-to-merge-base
+        uses: $/.github/actions/deepen-to-merge-base
         with:
           checkout: false
 
       - name: Setup tools
-        uses: ./.github/actions/tool-setup
+        uses: $/.github/actions/tool-setup
         with:
           # Match PHP version on WP Cloud so the right vendor packages get installed.
           php: 8.3
@@ -62,7 +66,7 @@ jobs:
           cp -a projects/plugins/wpcomsh/tests /tmp/wpcomsh
           # The test on WP Cloud won't use `phpunit-select-config`, so select config manually.
           cp -aL projects/plugins/wpcomsh/phpunit.12.xml.dist /tmp/wpcomsh/phpunit.xml.dist
-          tar -cvvf wpcomsh.tar.xz -C /tmp/ wpcomsh
+          tar --xz -cvvf wpcomsh.tar.xz -C /tmp/ wpcomsh
           echo "::endgroup::"
 
       - name: Store artifact
@@ -70,8 +74,6 @@ jobs:
         with:
           path: wpcomsh.tar.xz
           retention-days: 1
-          # Already compressed.
-          compression-level: 0
           archive: false
 
   deploy:
@@ -87,7 +89,7 @@ jobs:
 
       - name: Extract wpcomsh build
         run: |
-          tar -xvvf wpcomsh.tar.xz wpcomsh
+          tar --xz -xvvf wpcomsh.tar.xz wpcomsh
 
       - name: Configure Github to be able to SSH to the WP Cloud site
         env:

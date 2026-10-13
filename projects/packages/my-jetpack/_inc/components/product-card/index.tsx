@@ -6,6 +6,7 @@ import { useAllProducts } from '../../data/products/use-all-products';
 import useProductsByOwnership from '../../data/products/use-products-by-ownership';
 import useAnalytics from '../../hooks/use-analytics';
 import useConnectSite from '../../hooks/use-connect-site';
+import useForcedOffReason from '../../hooks/use-forced-off-reason';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import ActionButton from '../action-button';
 import SecondaryButton from '../action-button/secondary-button';
@@ -75,6 +76,7 @@ const ProductCard: FC< ProductCardProps > = props => {
 		data: { ownedProducts },
 	} = useProductsByOwnership();
 	const isOwned = ownedProducts?.includes( slug );
+	const isForcedOff = !! useForcedOffReason( slug, status ).reason;
 
 	const isError =
 		status === PRODUCT_STATUSES.EXPIRED || status === PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR;
@@ -224,7 +226,7 @@ const ProductCard: FC< ProductCardProps > = props => {
 						suppressNeedsAttention={ slug === 'protect' }
 					/>
 					{ admin && (
-						<div className={ styles.buttons }>
+						<div className={ clsx( styles.buttons, isForcedOff && styles[ 'is-forced-off' ] ) }>
 							{ secondaryAction && secondaryAction?.positionFirst && (
 								<SecondaryButton { ...secondaryAction } />
 							) }

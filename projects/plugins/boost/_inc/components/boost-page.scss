@@ -1,4 +1,5 @@
 @use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+@use "../../app/assets/src/css/main/mixins";
 
 body:has(.jetpack-boost-page) {
 
@@ -12,6 +13,16 @@ body:has(.jetpack-boost-page) {
 
 	.jetpack-boost-page__content {
 		padding: var(--wpds-dimension-padding-2xl);
+	}
+
+	.jetpack-boost-page__notices {
+
+		@include mixins.content-column;
+
+		// On the card, so a dismissed (hidden) card leaves no gap.
+		.jitm-card {
+			margin: 0 0 var(--wpds-dimension-gap-xl);
+		}
 	}
 
 	// Hide the admin-ui page header while a full-page subpage is visible.

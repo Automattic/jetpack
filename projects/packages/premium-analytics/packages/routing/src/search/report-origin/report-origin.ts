@@ -1,4 +1,4 @@
-import { pickReportDateParams } from '../report-params';
+import { pickReportNavigationParams } from '../report-params';
 
 export type ReportOrigin = {
 	report: string;
@@ -68,7 +68,7 @@ export function createDetailLinkSearch( {
 	extraParams?: Record< string, string >;
 } ): DetailLinkSearchUpdater {
 	return current => ( {
-		...pickReportDateParams( current ),
+		...pickReportNavigationParams( current ),
 		...createReportOriginSearch( report, originSection ),
 		...( extraParams ?? {} ),
 	} );

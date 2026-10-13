@@ -4,7 +4,7 @@
  * Plugin Name: Jetpack Stats
  * Plugin URI: https://jetpack.com/stats/
  * Description: Simple, yet powerful stats to grow your site.
- * Version: 0.1.0-alpha
+ * Version: 1.0.0
  * Author: Automattic - Jetpack Stats team
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later
@@ -28,7 +28,7 @@ define( 'JETPACK_STATS_PLUGIN__DIR', plugin_dir_path( __FILE__ ) );
 define( 'JETPACK_STATS_PLUGIN__FILE', __FILE__ );
 define( 'JETPACK_STATS_PLUGIN__FILE_RELATIVE_PATH', plugin_basename( __FILE__ ) );
 define( 'JETPACK_STATS_PLUGIN__SLUG', 'jetpack-stats' );
-define( 'JETPACK_STATS_PLUGIN__VERSION', '0.1.0-alpha' );
+define( 'JETPACK_STATS_PLUGIN__VERSION', '1.0.0' );
 
 $jetpack_stats_autoload_packages_path = JETPACK_STATS_PLUGIN__DIR . 'vendor/autoload_packages.php';
 if ( ! is_readable( $jetpack_stats_autoload_packages_path ) ) {
@@ -59,7 +59,7 @@ if ( ! is_readable( $jetpack_stats_autoload_packages_path ) ) {
 	/**
 	 * Outputs an admin notice for folks running Jetpack Stats without having run composer install.
 	 *
-	 * @since $$next-version$$
+	 * @since 1.0.0
 	 */
 	function jetpack_stats_admin_missing_files() {
 		if ( get_current_screen()->id !== 'plugins' ) {

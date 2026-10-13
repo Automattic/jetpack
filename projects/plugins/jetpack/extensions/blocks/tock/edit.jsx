@@ -118,6 +118,21 @@ const UrlDropdown = ( { tockUrl, setEditedUrl, setUrl, cancel } ) => {
 	);
 };
 
+/**
+ * Encode a value as a JavaScript literal for interpolation into `<script>` markup.
+ *
+ * Mirrors how render.php emits the same value, escaping what `JSON_HEX_TAG` and
+ * `JSON_HEX_AMP` cover.
+ *
+ * @param {string} value - The value to encode.
+ * @return {string} The encoded literal, quotes included.
+ */
+const encodeForScript = value =>
+	JSON.stringify( value )
+		.replace( /</g, '\\u003C' )
+		.replace( />/g, '\\u003E' )
+		.replace( /&/g, '\\u0026' );
+
 const TockPreview = ( { url, popoverAnchor } ) => {
 	const html = `
 		<div id="Tock_widget_container" data-tock-display-mode="Button" data-tock-color-mode="Blue" data-tock-locale="en-us" data-tock-timezone="America/New_York" style="display:inline-block;"></div>
@@ -126,7 +141,7 @@ const TockPreview = ( { url, popoverAnchor } ) => {
 			!function(t,o){if(!t.tock){var e=t.tock=function(){e.callMethod?
 			  e.callMethod.apply(e,arguments):e.queue.push(arguments)};t._tock||(t._tock=e),
 			  e.push=e,e.loaded=!0,e.version='1.0',e.queue=[];}}(window,document);
-			tock('init', '${ url }');
+			tock('init', ${ encodeForScript( url ) });
 		</script>
 	`;
 

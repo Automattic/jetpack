@@ -63,10 +63,13 @@ Jetpack_Application_Password_Extras::init();
 // Simple this bootstrap never runs. The class self-initializes when loaded.
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-settings.php';
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-feature-flags.php';
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-settings-feature-flags.php';
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-protect-dashboard-feature-flags.php';
 
-require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-recommendations.php';
-
-\Automattic\Jetpack\Newsletter\Settings::register_feature_flags();
+// Another plugin may have loaded an older version of this class, so only call the method if it exists.
+if ( method_exists( \Automattic\Jetpack\Newsletter\Settings::class, 'register_feature_flags' ) ) {
+	\Automattic\Jetpack\Newsletter\Settings::register_feature_flags();
+}
 
 if ( is_admin() ) {
 	require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
@@ -78,6 +81,14 @@ if ( is_admin() ) {
 	\Automattic\Jetpack\Newsletter\Writing_Prompt_Widget::init();
 
 	\Automattic\Jetpack\Plugin\Jetpack_Script_Data::configure();
+}
+
+// Another plugin's autoloader can serve a jetpack-sharing-likes release from before the Initializer.
+if ( class_exists( \Automattic\Jetpack\Sharing_Likes\Initializer::class ) ) {
+	\Automattic\Jetpack\Sharing_Likes\Initializer::init();
+} elseif ( is_admin() ) {
+	\Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::init();
+	\Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler::init();
 }
 
 // Play nice with https://wp-cli.org/.
@@ -92,10 +103,7 @@ if ( is_admin() ) {
 }
 
 add_action( 'updating_jetpack_version', array( 'Jetpack', 'activate_subscriptions_module_for_existing_sites' ), 10, 2 );
-// Seed + keep in sync the durable Jetpack SEO module-state options while the legacy
-// Sitemaps / Canonical URLs modules still exist. Removed in the deferred post-convergence
-// follow-up that absorbs those modules into Jetpack SEO.
-Jetpack::register_seo_module_migration_hooks();
+add_action( 'updating_jetpack_version', array( 'Jetpack', 'cleanup_seo_module_state_options' ) );
 add_action( 'updating_jetpack_version', array( 'Jetpack', 'seed_seo_visibility_cohort' ), 10, 2 );
 add_filter( 'is_jetpack_site', '__return_true' );
 

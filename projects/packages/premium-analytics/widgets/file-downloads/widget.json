@@ -1,5 +1,6 @@
 {
 	"name": "jpa/file-downloads",
+	"icon": "jpa/download",
 	"title": "Top downloaded",
 	"description": "Most downloaded files on your site.",
 	"help": {

@@ -37,6 +37,7 @@ interface Window {
 		adminUrl: string;
 		jetpack?: {
 			can_send_test_email_to_others: boolean;
+			subscribe_placements?: Record< string, boolean > | null;
 		};
 		siteLocale: string;
 		'ai-assistant': {

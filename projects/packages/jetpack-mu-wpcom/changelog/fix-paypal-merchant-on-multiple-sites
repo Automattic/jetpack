@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+PayPal platform endpoint: Authorize a blog by the tracking ID it onboarded the seller with, so a seller connecting a second site no longer breaks the first.

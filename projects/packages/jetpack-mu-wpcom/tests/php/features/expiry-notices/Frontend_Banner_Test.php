@@ -53,11 +53,11 @@ class Frontend_Banner_Test extends \WorDBless\BaseTestCase {
 			8   => null,
 			7   => false,
 			0   => false,
-			-1  => false,
-			-29 => false,
+			-1  => true,
+			-29 => true,
 			-30 => true,
 			-59 => true,
-			-60 => null,
+			-60 => true,
 		);
 		foreach ( $cases as $days => $is_dismissible ) {
 			$this->set_purchase( $days );
@@ -65,14 +65,20 @@ class Frontend_Banner_Test extends \WorDBless\BaseTestCase {
 			$this->assertSame( null !== $is_dismissible, wpcom_expiry_notices_frontend_banner_is_due(), "wrong is_due at {$days} days" );
 			$this->assertSame( $is_dismissible, $data['is_dismissible'] ?? null, "wrong banner at {$days} days" );
 		}
+
+		$this->set_reverted( 15 );
+		$this->assertTrue( wpcom_expiry_notices_frontend_banner_is_due() );
+		$this->assertNotNull( wpcom_expiry_notices_frontend_banner_data() );
+
+		$this->set_reverted( 30 );
+		$this->assertFalse( wpcom_expiry_notices_frontend_banner_is_due() );
 	}
 
 	public function test_each_stage_renders_one_run_of_text_with_its_actions(): void {
 		$cases = array(
 			// days => [ text prefix, CTA, dismiss ].
-			5   => array( 'Your plan expires in 5 days. ', true, false ),
-			-5  => array( 'Your plan has expired. Your site will move', true, false ),
-			-45 => array( 'Your plan has expired. Your site has been moved', true, true ),
+			5  => array( 'Your plan expires in 5 days. ', true, false ),
+			-5 => array( 'Your plan has expired. Your site will move', true, true ),
 		);
 		foreach ( $cases as $days => list( $prefix, $has_cta, $has_dismiss ) ) {
 			$this->set_purchase( $days );
@@ -85,6 +91,14 @@ class Frontend_Banner_Test extends \WorDBless\BaseTestCase {
 			$this->assertSame( $has_dismiss, str_contains( $html, 'wpcom-expiry-frontend-banner__dismiss' ), "wrong dismiss at {$days} days" );
 			$this->assertSame( $has_dismiss, str_contains( $html, 'wpcom-expiry-frontend-banner--dismissible' ), "wrong modifier at {$days} days" );
 		}
+
+		$this->set_reverted( 15 );
+		$html = $this->render();
+		$this->assertStringContainsString( 'id="wpcom-expiry-frontend-banner"', $html );
+		$this->assertStringContainsString( 'Your plan has expired. Your site has been moved', $html );
+		$this->assertStringContainsString( 'additional storage', $html );
+		$this->assertStringNotContainsString( '<strong>', $html );
+		$this->assertStringNotContainsString( '/checkout/', $html );
 
 		$this->set_purchase( 45 );
 		$this->assertSame( '', $this->render() );
@@ -107,7 +121,7 @@ class Frontend_Banner_Test extends \WorDBless\BaseTestCase {
 	}
 
 	public function test_a_wp_admin_dismissal_hides_the_front_end_banner(): void {
-		$this->set_purchase( -45 );
+		$this->set_reverted( 15 );
 		update_user_meta( $this->admin_id, Expiry_Notice_Dismiss::banner_meta_key(), time() - DAY_IN_SECONDS );
 		$this->assertNull( wpcom_expiry_notices_frontend_banner_data() );
 	}
@@ -134,7 +148,6 @@ class Frontend_Banner_Test extends \WorDBless\BaseTestCase {
 		$this->set_purchase( -45 );
 		$html = $this->render();
 		$this->assertStringNotContainsString( 'wpcom-expiry-frontend-banner__cta', $html );
-		$this->assertStringContainsString( 'wpcom-expiry-frontend-banner__dismiss', $html );
 	}
 
 	public function test_the_script_carries_the_track_props(): void {
@@ -146,11 +159,15 @@ class Frontend_Banner_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( '"is_plan_owner":"true"', $inline );
 		$this->assertStringContainsString( '"state":"approaching_expiry"', $inline );
 		$this->assertStringContainsString( '"surface":"frontend"', $inline );
+		$this->assertStringContainsString( 'window.wpcomExpiryDismiss = {', $inline );
+		$this->assertStringContainsString( 'admin-ajax.php', $inline );
+		$this->assertStringContainsString( '"nonce":"', $inline );
 	}
 
 	public function test_body_class_follows_the_banner(): void {
 		$this->set_purchase( 5 );
 		$this->assertContains( 'has-wpcom-expiry-banner', wpcom_expiry_notices_frontend_banner_body_class( array() ) );
+		$this->assertSame( 'foo', wpcom_expiry_notices_frontend_banner_body_class( 'foo' ) );
 
 		$this->set_purchase( 45 );
 		$this->assertNotContains( 'has-wpcom-expiry-banner', wpcom_expiry_notices_frontend_banner_body_class( array() ) );
@@ -191,5 +208,10 @@ class Frontend_Banner_Test extends \WorDBless\BaseTestCase {
 
 		$this->set_purchase( 45 );
 		$this->assertSame( $others, wpcom_expiry_notices_claim_wpcom_banner_slot( $others ) );
+	}
+
+	public function test_passes_through_banners_another_callback_turned_off(): void {
+		$this->set_purchase( 5 );
+		$this->assertFalse( wpcom_expiry_notices_claim_wpcom_banner_slot( false ) );
 	}
 }

@@ -1,6 +1,7 @@
 import Gravatar from '@automattic/jetpack-components/gravatar';
 import { Stack, Text } from '@wordpress/ui';
 import type { Subscriber } from '../../data/types';
+import type { JSX } from 'react';
 
 type Props = {
 	subscriber: Subscriber;

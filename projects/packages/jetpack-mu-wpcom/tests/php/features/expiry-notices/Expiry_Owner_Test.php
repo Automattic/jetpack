@@ -14,6 +14,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use PHPUnit\Framework\Attributes\CoversClass;
 
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/expiry-notices/class-expiry-data.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/expiry-notices/class-expiry-owner.php';
 
 /**
@@ -155,6 +156,18 @@ class Expiry_Owner_Test extends \WorDBless\BaseTestCase {
 			$this->assertGreaterThan( 0, $expires_in );
 			$this->assertLessThanOrEqual( Expiry_Wpcom::FAILURE_TTL, $expires_in );
 		}
+	}
+
+	public function test_a_state_without_a_plan_treats_every_admin_as_owner(): void {
+		update_user_meta( $this->admin_id, 'wpcom_user_id', '777' );
+
+		$state = array(
+			'state'           => Expiry_Data::STATE_EXPIRED,
+			'product_slug'    => '',
+			'subscription_id' => '',
+		);
+		$this->assertNull( Expiry_Owner::owner_id( $state ) );
+		$this->assertTrue( Expiry_Owner::current_user_is_owner( $state ) );
 	}
 
 	public function test_on_atomic_the_owner_comes_from_wordpress_com_and_is_remembered(): void {

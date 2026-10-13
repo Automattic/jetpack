@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Plugins: Show which plugins a Marketplace plugin needs on its card, noting they will be installed with it.

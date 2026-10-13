@@ -2,18 +2,9 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { envelope } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
-/**
- * Internal dependencies
- */
-import { SelectField } from '@jetpack-premium-analytics/fields';
-
-/**
- * Which rate the leaderboard displays. Rows stay in newest-first order
- * regardless; this only changes the value shown and the overlay bar width.
- */
+/** Which count and rate each row shows. Rows stay in newest-first order either way. */
 export type EmailMetric = 'opens' | 'clicks';
 
 /**
@@ -31,20 +22,18 @@ export type EmailsAttributes = {
  * comparison period.
  */
 export default {
-	icon: envelope,
 	attributes: [
 		{
 			id: 'metric',
 			label: __( 'View by', 'jetpack-premium-analytics-pkg' ),
-			type: 'text',
-			Edit: SelectField,
+			type: 'jpa/select',
 			elements: [
 				{
-					label: __( 'By open rate', 'jetpack-premium-analytics-pkg' ),
+					label: __( 'Opened', 'jetpack-premium-analytics-pkg' ),
 					value: 'opens',
 				},
 				{
-					label: __( 'By click rate', 'jetpack-premium-analytics-pkg' ),
+					label: __( 'Clicked', 'jetpack-premium-analytics-pkg' ),
 					value: 'clicks',
 				},
 			],

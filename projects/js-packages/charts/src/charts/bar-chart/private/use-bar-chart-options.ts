@@ -7,7 +7,7 @@ import { getBucketResolution } from '../../../utils/bucket-info';
 import { createDateFormatter } from '../../../utils/date-formatting';
 import { getBandTickValues, getFormatter } from '../../private/time-axis';
 import { TruncatedXTickComponent, TruncatedYTickComponent } from './truncated-tick-component';
-import type { EnhancedDataPoint } from '../../../hooks/use-zero-value-display';
+import { getBarValue, getValueScaleDomain } from './value-domain';
 import type {
 	DataPointDate,
 	BaseChartProps,
@@ -207,6 +207,7 @@ export function useBarChartOptions(
 		const linearScale = {
 			type: 'linear' as const,
 			nice: true,
+			// XYChart defaults `zero` to true, which would stretch a caller's domain to 0.
 			zero: false,
 		};
 
@@ -223,12 +224,6 @@ export function useBarChartOptions(
 
 		const bandDomain = timeTickFormatter ? getBandDomain( data, isSeriesRendered ) : null;
 
-		const valueAccessor = ( d: DataPointDate | EnhancedDataPoint ) => {
-			// Use visualValue for bar rendering if available (for zero values), otherwise use value
-			const enhancedPoint = d as EnhancedDataPoint;
-			return enhancedPoint?.visualValue !== undefined ? enhancedPoint.visualValue : d?.value;
-		};
-
 		return {
 			timeAxis: bandDomain &&
 				timeTickFormatter && {
@@ -240,7 +235,7 @@ export function useBarChartOptions(
 				yTickFormat: valueFormatter,
 				tooltipLabelFormatter: tooltipDatumFormatter,
 				xAccessor: bucketAccessor,
-				yAccessor: valueAccessor,
+				yAccessor: getBarValue,
 				gridVisibility: 'x',
 				xScale: bandScale,
 				yScale: linearScale,
@@ -249,7 +244,7 @@ export function useBarChartOptions(
 				xTickFormat: valueFormatter,
 				yTickFormat: labelFormatter,
 				tooltipLabelFormatter: tooltipDatumFormatter,
-				xAccessor: valueAccessor,
+				xAccessor: getBarValue,
 				yAccessor: bucketAccessor,
 				gridVisibility: 'y',
 				xScale: linearScale,
@@ -271,36 +266,14 @@ export function useBarChartOptions(
 			yScale: baseYScale,
 		} = defaultOptions[ orientationKey ];
 
-		// When comparison series are present, visx only sees primary BarSeries and computes
-		// a too-narrow domain. Compute an explicit domain spanning all series so comparison
-		// shadows aren't clipped. Skip when the user has already provided an explicit domain.
-		let valueScaleDomainOverride: { domain?: [ number, number ] } = {};
+		const valueScaleOptions = horizontal ? stableOptions.xScale : stableOptions.yScale;
 		const hasComparisonSeries = data.some( s => s.options?.type === 'comparison' );
-		if ( hasComparisonSeries ) {
-			const valueAxisIsY = ! horizontal;
-			const userDomain = valueAxisIsY ? stableOptions.yScale?.domain : stableOptions.xScale?.domain;
-			if ( ! userDomain ) {
-				const allValues: number[] = [];
-				data.forEach( series => {
-					series.data.forEach( d => {
-						const enhanced = d as { visualValue?: number };
-						const v =
-							enhanced.visualValue !== undefined ? enhanced.visualValue : ( d.value as number );
-						if ( typeof v === 'number' && Number.isFinite( v ) ) {
-							allValues.push( v );
-						}
-					} );
-				} );
-				if ( allValues.length > 0 ) {
-					// Keep zero in the domain so bar length stays proportional to value — a
-					// non-zero baseline would exaggerate differences between periods. Math.max
-					// keeps zero on the far side too, so charts with negative values still span 0.
-					valueScaleDomainOverride = {
-						domain: [ Math.min( 0, ...allValues ), Math.max( 0, ...allValues ) ],
-					};
-				}
-			}
-		}
+		// Comparison shadows share the primary bars' scale, so they force zero even when the caller opted out.
+		const includeZero = hasComparisonSeries || valueScaleOptions?.zero !== false;
+		const domain = valueScaleOptions?.domain
+			? null
+			: getValueScaleDomain( data, includeZero, isSeriesRendered );
+		const valueScaleDomainOverride: { domain?: [ number, number ] } = domain ? { domain } : {};
 
 		const xScale = {
 			...baseXScale,
@@ -330,7 +303,7 @@ export function useBarChartOptions(
 						timeAxis.domain,
 						timeAxis.tickFormatter,
 						dateAxisOptions.numTicks ?? DEFAULT_NUM_TICKS
-				  )
+					)
 				: null;
 		const dateAxisTickValues = bandTickValues ? { tickValues: bandTickValues } : {};
 
@@ -367,5 +340,5 @@ export function useBarChartOptions(
 				labelFormatter: dateAxisTickFormat || defaultTooltipLabelFormatter,
 			},
 		};
-	}, [ defaultOptions, axisConfig, stableOptions, horizontal, data ] );
+	}, [ defaultOptions, axisConfig, stableOptions, horizontal, data, isSeriesRendered ] );
 }

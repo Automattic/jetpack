@@ -2,7 +2,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import { SCENARIOS, SANITY_RANGES } from './scenarios.js';
+import { DASHBOARD_DELTA_METRICS, SCENARIOS, SANITY_RANGES } from './scenarios.js';
 
 /**
  * Exit code for a LOCAL data-integrity failure: a metric failed a sanity check, a
@@ -437,6 +437,40 @@ async function hashAlreadyPosted( hash, branch, config ) {
 	}
 }
 
+/** Compute signed Dashboard overhead from the same results file as the absolutes. */
+function dashboardDeltas( measurements ) {
+	const pair = [ measurements.jetpackConnected, measurements[ 'jetpackConnected-noJetpack' ] ];
+	const metrics = {};
+	let validationFailed = false;
+	for ( const { field, codevitalsKey, type } of DASHBOARD_DELTA_METRICS ) {
+		// A field below buildSummary's sample floor skips only that field's delta.
+		if ( pair.some( m => ! m || m.error || ! Number.isFinite( m.summary?.[ field ]?.median ) ) ) {
+			console.warn(
+				`Warning: skipping Dashboard delta "${ codevitalsKey }": missing or failed side, or "${ field }" below its sample floor.`
+			);
+			continue;
+		}
+		const values = pair.map( m => m.summary[ field ].median );
+		const check = values
+			.map( ( value, side ) =>
+				checkSanityRange(
+					type === 'decodedBytesKB' && side === 1 ? 'dashboardDecodedBytesKB' : type,
+					value
+				)
+			)
+			.find( result => ! result.ok );
+		if ( check ) {
+			console.error(
+				`✗ Sanity check failed for an input to "${ codevitalsKey }": ${ check.reason }. Skipping this delta.`
+			);
+			validationFailed = true;
+			continue;
+		}
+		metrics[ codevitalsKey ] = values[ 0 ] - values[ 1 ];
+	}
+	return { metrics, validationFailed };
+}
+
 /** Post metrics to CodeVitals. */
 async function postToCodeVitals( resultsPath, config ) {
 	// Everything from here until the live POST is local data-integrity work: a missing
@@ -458,8 +492,9 @@ async function postToCodeVitals( resultsPath, config ) {
 	}
 
 	// Extract and sanity-check metrics from results
-	const metrics = {};
-	let validationFailed = false;
+	const deltas = dashboardDeltas( results.measurements );
+	const metrics = deltas.metrics;
+	let validationFailed = deltas.validationFailed;
 
 	// Process only scenarios marked for CodeVitals posting
 	for ( const scenario of SCENARIOS ) {
@@ -495,7 +530,7 @@ async function postToCodeVitals( resultsPath, config ) {
 				measurement
 					? `Warning: ${ scenario.name } measurement failed (${
 							measurement.error ? `error: ${ measurement.error }` : 'no summary'
-					  }; optional scenario — its keys skip this build)`
+						}; optional scenario — its keys skip this build)`
 					: `Warning: ${ scenario.name } not in this results file (not part of the run set; its keys skip this build)`
 			);
 			continue;
@@ -834,6 +869,7 @@ if ( isDirectInvocation( import.meta.filename, process.argv[ 1 ] ) ) {
 
 export {
 	postToCodeVitals,
+	dashboardDeltas,
 	checkSanityRange,
 	extractScenarioMetrics,
 	exitCodeForError,

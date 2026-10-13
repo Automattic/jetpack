@@ -3,19 +3,30 @@ jest.mock( '@wordpress/compose', () => ( {
 	useMediaQuery: jest.fn( () => false ),
 } ) );
 
+// Loading the barrels' unused libraries (core-data, charts, dataviews) costs more than every test here.
+jest.mock( '@jetpack-premium-analytics/data', () =>
+	jest.requireActual( '../../../../data/src/providers/period-change-signal' )
+);
+jest.mock( '@automattic/charts', () => ( {} ) );
+jest.mock( '@wordpress/dataviews', () => ( {} ) );
+
 import { TZDate } from '@date-fns/tz';
-import { render, screen, within } from '@testing-library/react';
+import { configure, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useMediaQuery } from '@wordpress/compose';
 import { DatePeriodDropdown } from '../date-period-dropdown';
+
+configure( { reactStrictMode: true } );
 
 const JULY_2026 = {
 	from: new TZDate( 2026, 6, 1, 0, 0, 0, 0, 'UTC' ),
 	to: new TZDate( 2026, 6, 31, 23, 59, 59, 999, 'UTC' ),
 };
 
-function renderDropdown( overrides: Partial< Parameters< typeof DatePeriodDropdown >[ 0 ] > = {} ) {
-	const props = {
+type DropdownProps = Parameters< typeof DatePeriodDropdown >[ 0 ];
+
+function baseProps() {
+	return {
 		appliedPresetId: 'last-30-days' as const,
 		appliedRange: JULY_2026,
 		range: JULY_2026,
@@ -25,12 +36,19 @@ function renderDropdown( overrides: Partial< Parameters< typeof DatePeriodDropdo
 		onApply: jest.fn(),
 		onCancel: jest.fn(),
 		canApply: false,
-		...overrides,
 	};
+}
+
+function renderDropdown( overrides: Partial< DropdownProps > = {} ) {
+	const props = { ...baseProps(), ...overrides };
 
 	render( <DatePeriodDropdown { ...props } /> );
 
 	return props;
+}
+
+function renderDropdownView( overrides: Partial< DropdownProps > = {} ) {
+	return render( <DatePeriodDropdown { ...baseProps() } { ...overrides } /> );
 }
 
 const openMenu = async ( user: ReturnType< typeof userEvent.setup >, name: string ) =>
@@ -96,6 +114,54 @@ describe( 'DatePeriodDropdown', () => {
 		expect( screen.getByRole( 'menuitemradio', { name: 'Today' } ) ).not.toBeChecked();
 	} );
 
+	describe( 'opening focus', () => {
+		beforeEach( () => jest.useFakeTimers() );
+		afterEach( () => jest.useRealTimers() );
+
+		it( 'opens on the applied period rather than the first', async () => {
+			const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+			renderDropdown();
+			await openMenu( user, 'Last 30 days' );
+
+			await waitFor( () =>
+				expect( screen.getByRole( 'menuitemradio', { name: 'Last 30 days' } ) ).toHaveFocus()
+			);
+		} );
+
+		it( 'opens on the first period when the applied one is not offered', async () => {
+			const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+			renderDropdown( { appliedPresetId: 'last-90-days' } );
+			await openMenu( user, 'Last 90 days' );
+
+			await waitFor( () =>
+				expect( screen.getByRole( 'menuitemradio', { name: 'Today' } ) ).toHaveFocus()
+			);
+		} );
+
+		it( 'focuses the menu surface rather than an option on a touch open', async () => {
+			const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+			renderDropdown();
+
+			await user.pointer( {
+				keys: '[TouchA]',
+				target: screen.getByRole( 'button', { name: 'Last 30 days' } ),
+			} );
+
+			await waitFor( () => expect( screen.getByRole( 'dialog' ) ).toHaveFocus() );
+		} );
+
+		it( 'opens on Custom range when the applied period is custom', async () => {
+			const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+			renderDropdown( { appliedPresetId: 'custom' } );
+
+			await openMenu( user, 'July 2026' );
+
+			await waitFor( () =>
+				expect( screen.getByRole( 'menuitemradio', { name: 'Custom range' } ) ).toHaveFocus()
+			);
+		} );
+	} );
+
 	it( 'applies a period on click, with no Apply step', async () => {
 		const user = userEvent.setup();
 		const { onSelect } = renderDropdown();
@@ -123,15 +189,29 @@ describe( 'DatePeriodDropdown', () => {
 		] );
 	} );
 
-	it( 'spells the exact dates out in the trigger tooltip', async () => {
-		const user = userEvent.setup();
+	it( 'describes the trigger with its exact dates', () => {
 		renderDropdown();
 
-		await user.hover( screen.getByRole( 'button', { name: 'Last 30 days' } ) );
+		expect( screen.getByRole( 'button', { name: 'Last 30 days' } ) ).toHaveAccessibleDescription(
+			/July 1.+31, 2026/
+		);
+	} );
 
-		await expect(
-			screen.findByRole( 'tooltip', undefined, { timeout: 3000 } )
-		).resolves.toHaveTextContent( /July 1.+31, 2026/ );
+	describe( 'tooltip', () => {
+		beforeEach( () => jest.useFakeTimers() );
+		afterEach( () => jest.useRealTimers() );
+
+		it( 'spells the exact dates out in the trigger tooltip', async () => {
+			const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+			renderDropdown();
+
+			await user.hover( screen.getByRole( 'button', { name: 'Last 30 days' } ) );
+
+			// Skip the always-mounted description mirror; only the popup proves the hover.
+			await expect(
+				screen.findByText( /July 1.+31, 2026/, { ignore: '[data-visually-hidden]' } )
+			).resolves.toBeVisible();
+		} );
 	} );
 
 	it( 'greys the trigger out while disabled and keeps the menu shut', async () => {
@@ -286,5 +366,57 @@ describe( 'DatePeriodDropdown surface options', () => {
 
 		await user.click( screen.getByRole( 'button', { name: 'Last 30 days' } ) );
 		expect( onOpenChange ).toHaveBeenLastCalledWith( false );
+	} );
+} );
+
+describe( 'DatePeriodDropdown attention', () => {
+	// eslint-disable-next-line testing-library/no-node-access -- the fill is aria-hidden by design, so the DOM is the only place to reach it.
+	const overlay = () => document.querySelector( '.date-period-dropdown__attention' );
+
+	it( 'draws nothing without an attention id', () => {
+		renderDropdown();
+
+		expect( overlay() ).toBeNull();
+	} );
+
+	it( 'draws the attention over the trigger while the id is set', () => {
+		const view = renderDropdownView( { attentionId: 1 } );
+
+		expect( screen.getByRole( 'button', { name: 'Last 30 days' } ) ).toContainElement(
+			overlay() as HTMLElement
+		);
+
+		view.rerender( <DatePeriodDropdown { ...baseProps() } /> );
+		expect( overlay() ).toBeNull();
+	} );
+
+	it( 'keeps the class its fill is isolated on when a surface adds one', () => {
+		renderDropdown( { attentionId: 1, triggerProps: { className: 'surface-trigger' } } );
+
+		expect( screen.getByRole( 'button', { name: 'Last 30 days' } ) ).toHaveClass(
+			'date-period-dropdown__toggle',
+			'surface-trigger'
+		);
+	} );
+
+	it( 'restarts for a new id by drawing a fresh fill', () => {
+		const view = renderDropdownView( { attentionId: 1 } );
+		const first = overlay();
+
+		view.rerender( <DatePeriodDropdown { ...baseProps() } attentionId={ 2 } /> );
+
+		expect( overlay() ).not.toBeNull();
+		expect( overlay() ).not.toBe( first );
+	} );
+
+	it( 'keeps an open menu open when the attention changes', async () => {
+		const user = userEvent.setup();
+		const props = baseProps();
+		const view = render( <DatePeriodDropdown { ...props } /> );
+		await openMenu( user, 'Last 30 days' );
+
+		view.rerender( <DatePeriodDropdown { ...props } attentionId={ 1 } /> );
+
+		expect( screen.getByRole( 'menu', { name: 'Period' } ) ).toBeInTheDocument();
 	} );
 } );

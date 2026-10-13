@@ -9,10 +9,14 @@ export {
 	REPORT_DATE_PARAM_KEYS,
 	omitComparisonReportParams,
 	pickReportDateParams,
+	pickReportNavigationParams,
+	pickReportOriginWindowParams,
+	toReportOriginWindowParams,
 	hasPrimaryDateDraft,
 	buildDashboardLink,
 	buildReportLink,
 } from './search/report-params';
+export { DASHBOARD_ORIGIN_PARAM, pickDashboardOriginParams } from './search/dashboard-origin';
 export {
 	REPORT_ORIGIN_PARAM_KEYS,
 	createReportOriginSearch,
@@ -28,6 +32,9 @@ export {
 	useReportDateFilters,
 	useSectionTab,
 	useDashboardLink,
+	useOpenSectionRange,
+	usePeriodHost,
+	type OpenSectionRange,
 	type ReportDateFilters,
 } from './hooks';
 export {

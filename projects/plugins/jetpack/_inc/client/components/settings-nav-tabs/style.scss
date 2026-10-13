@@ -8,7 +8,7 @@ $spacing-base: var(--spacing-base, 8px);
 // own CSS already zeroes (admin-static.scss, _main.scss) — so it only shifts
 // everything into the sidebar. Double class beats the CSS module rule.
 .jp-settings-admin-page.jp-settings-admin-page {
-	margin-left: 0;
+	margin-inline-start: 0;
 
 	// Override AdminPage's --jp-white background with the
 	// admin-ui token equivalent (#fcfcfc) and fill the viewport

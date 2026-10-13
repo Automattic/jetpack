@@ -4,10 +4,13 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { loadI18nCatalogs } from '@automattic/jetpack-wp-build-polyfills/src/js/load-i18n-catalogs';
 import { ensureDashboardEntities } from '@jetpack-premium-analytics/data';
+import { registerFieldTypes } from '@jetpack-premium-analytics/fields';
+import { resolveWidgetIcon } from '@jetpack-premium-analytics/icons';
 import apiFetch from '@wordpress/api-fetch';
 import { store as bootStore } from '@wordpress/boot';
 import { dispatch } from '@wordpress/data';
 import { chartBar } from '@wordpress/icons';
+import { registerIconResolver } from '@wordpress/widget-primitives';
 
 // apiFetch middleware registers onto a shared, process-wide chain. Guard so
 // repeated init() calls (re-mount, HMR, a future second boot) don't stack
@@ -47,6 +50,12 @@ export async function init(): Promise< void > {
 	const catalogs = loadI18nCatalogs( 'jetpack-premium-analytics-pkg', import.meta.url );
 
 	setupApiFetch();
+
+	// Before any widget type resolves:
+	// - attributes name these types,
+	// - records name their icons.
+	registerFieldTypes();
+	registerIconResolver( resolveWidgetIcon );
 
 	// boot 0.19 types its store against @wordpress/data 10.52 while the repo
 	// pins 10.51, so `dispatch( bootStore )` collapses to `never` until the

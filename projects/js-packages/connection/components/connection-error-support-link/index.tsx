@@ -14,13 +14,26 @@ import type { ReactElement } from 'react';
  * destination have to be the same everywhere. Kept here rather than in each
  * notice so the two cannot drift, and so translators see one string.
  *
+ * @param {object}     props         - Component props.
+ * @param {() => void} props.onClick - Optional click handler, e.g. for tracking.
  * @return {ReactElement} The support line.
  */
-export default function ConnectionErrorSupportLink(): ReactElement {
+export default function ConnectionErrorSupportLink( {
+	onClick,
+}: {
+	onClick?: () => void;
+} = {} ): ReactElement {
 	return createInterpolateElement(
 		__( 'Still having trouble? <link>Contact Jetpack Support</link>.', 'jetpack-connection-js' ),
 		{
-			link: <Link openInNewTab href={ getRedirectUrl( 'jetpack-support' ) } children={ null } />,
+			link: (
+				<Link
+					openInNewTab
+					href={ getRedirectUrl( 'jetpack-support' ) }
+					onClick={ onClick }
+					children={ null }
+				/>
+			),
 		}
 	);
 }

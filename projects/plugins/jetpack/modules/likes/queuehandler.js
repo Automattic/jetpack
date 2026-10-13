@@ -504,7 +504,7 @@ var jetpackLikesWidgetObserver =
 				// jetpackIsScrolledIntoView() wants the widget fully inside the band, so ask to be
 				// told when it gets there - crossing into partial overlap alone would not load it.
 				threshold: [ 0, 1 ],
-		  } )
+			} )
 		: null;
 
 // Observing an element twice is a no-op, so every queue pass can call this to pick up widgets

@@ -4,18 +4,18 @@
 
 ## How it resolves
 
-`src/styles/chart-scope.scss` declares the whole catalog once, on the `GlobalChartsProvider` wrapper, via `:where(.a8c-charts-scope)`. `:where()` keeps the rule at zero specificity, so a consumer rule targeting that same element wins without `!important`. It is declared on the wrapper rather than `:root` because `@wordpress/theme`'s `ThemeProvider` emits its generated `--wpds-*` ramp as inline styles on its own wrapper div — a `:root` declaration would miss a `ThemeProvider` entirely.
+`src/styles/chart-scope.scss` declares the whole catalog once, on the `GlobalChartsProvider` wrapper, via `:where(.a8c-charts-scope, .a8c-charts-tooltip-scope)`. `:where()` keeps the rule at zero specificity, so a consumer rule targeting that same element wins without `!important`. It is declared on the wrapper rather than `:root` because `@wordpress/theme`'s `ThemeProvider` emits its generated `--wpds-*` ramp as inline styles on its own wrapper div — a `:root` declaration would miss a `ThemeProvider` entirely.
 
 Chart roots deliberately do *not* carry the `a8c-charts-scope` class. Custom properties inherit down the tree, and an element only shadows an inherited value by re-declaring it, so a chart root that re-declared the catalog would beat an override set between it and the provider — closing off the one place consumers are meant to set overrides. This inheritance rule drives every precedence question below.
 
-Tooltips render inside the chart, so they carry the class only when no provider is above them, the same as `TrendIndicator`, `BaseTooltip` and `BaseLegend` (`useStandaloneScopeClass()`).
+The tooltip box, `TooltipBox`, is the exception, and on purpose. Like the `@wordpress/ui` Tooltip popup, it renders inside its own `ThemeProvider`, seeded with `--a8c-charts-color-tooltip-surface`, and carries its own `a8c-charts-tooltip-scope` class, so it re-declares the catalog under that dark theme. Every role read inside the box resolves for the dark surface, whatever theme the chart is in, and neither an override set on the chart nor a rule on `.a8c-charts-scope` reaches the box. To override a role inside every tooltip, target `.a8c-charts-tooltip-scope`. An `unstyled` box gets neither the theme nor the class.
 
-Inside a provider a tooltip therefore inherits the provider's inline `theme` var and any consumer rule scoped to the provider wrapper, the same as the chart it belongs to.
+`TrendIndicator` and `BaseLegend` carry the class only when no provider is above them (`useStandaloneScopeClass()`), so inside a provider they inherit its overrides like the chart they belong to.
 
-Each catalog entry maps to a WPDS token. Source writes the mapping bare; the LightningCSS plugin in `tsdown.config.ts` injects the WPDS spec value as a fallback into `dist/`:
+Catalog entries normally map to WPDS tokens. Source writes these mappings bare; the LightningCSS plugin in `tsdown.config.ts` injects the WPDS spec value as a fallback into `dist/`:
 
 ```scss
-:where(.a8c-charts-scope) {
+:where(.a8c-charts-scope, .a8c-charts-tooltip-scope) {
 	--a8c-charts-color-grid: var(--wpds-color-stroke-surface-neutral);
 }
 ```
@@ -28,7 +28,7 @@ Highest first:
 
 1. The role set on any element between the chart and the provider — the closest declaration wins. A role set on the chart's *own* element reaches only what CSS paints; see "The SVG bridge".
 2. The role set by a consumer rule targeting the provider wrapper. It beats the catalog default because `:where()` is zero-specificity.
-3. The catalog default on the provider wrapper, resolving the mapped `--wpds-*` token.
+3. The catalog default on the provider wrapper, including the [forced-colors defaults](#one-pair-of-roles-per-axis) when active.
 4. The WPDS spec-value fallback, when no `--wpds-*` token is set either (SSR, jsdom, or WPDS not loaded). This is not a rare corner: WordPress itself defines no `--wpds-*` typography tokens, so in wp-admin the fallback is what renders. It is injected at build time by `@wordpress/theme`'s LightningCSS plugin.
 
 Configure catalog colors through CSS; the `theme` prop carries no colors. For local LineChart tooltip overrides, see [Below-Axis Tooltips](./?path=/docs/js-packages-charts-library-charts-line-chart--docs#below-axis-tooltips).
@@ -41,12 +41,12 @@ Some roles are deliberately narrower than the obvious name, so that moving one t
 
 | Narrow role | Broad role | What the broad one also reaches |
 |---|---|---|
-| `--a8c-charts-color-label-axis` | `--a8c-charts-color-label` | legend labels, `.heatmap-chart__cell-value`, funnel labels, the line-chart tooltip |
+| `--a8c-charts-color-label-axis` | `--a8c-charts-color-label` | legend labels, `.heatmap-chart__cell-value`, funnel labels, pie labels on light slices |
 | `--a8c-charts-color-background` | — | — |
 
-`--a8c-charts-color-label-axis` *derives* from `--a8c-charts-color-label`, so setting the broad role moves every label at once and setting the narrow one moves only the SVG axis labels.
+Outside forced-colors mode, `--a8c-charts-color-label-axis` derives from `--a8c-charts-color-label`, so setting the broad role moves every label at once and setting the narrow one moves only the SVG axis labels. See [One pair of roles per axis](#one-pair-of-roles-per-axis) for forced-colors defaults.
 
-`--a8c-charts-color-surface` — the annotation label, `.x-zoom__reset`, tooltips — is a **sibling** of `--a8c-charts-color-background`, not a child. The chart's own background and the surfaces floating over it are set apart from each other often enough that one has to be able to move without the other. The consequence: no single role repaints both.
+`--a8c-charts-color-surface` (the annotation label, `.x-zoom__reset`) is a **sibling** of `--a8c-charts-color-background`, not a child. The chart's own background and the surfaces floating over it are set apart from each other often enough that one has to be able to move without the other. The consequence: no single role repaints both.
 
 ### The SVG bridge
 
@@ -56,15 +56,15 @@ That is what makes the role read **at the painted element** rather than snapshot
 
 There is no stylesheet and no class involved. In particular the axes need neither: visx takes a separate style object per axis, so each one is handed its own roles and nothing has to distinguish them after the fact.
 
-What else crosses in JS is what something reads as a *value*: the series palette, which visx turns into its `colorScale`, and the background, which the default glyph, the area-chart band, the line-chart gradient stops, the heatmap's contrast math and `GeoChart` each consume as a concrete string.
+What else crosses in JS is what something reads as a *value*: the series palette, which visx turns into its `colorScale`; the background, which the default glyph, the area-chart band, the line-chart gradient stops, the heatmap's fill scale and contrast math (with `track`, the empty-cell color), and `GeoChart` each consume as a concrete string; and, for the pie chart and the heatmap, `label` and `label-inverse` against the resolved fill, to pick which one contrasts more (or black or white, when neither reaches AA) before painting the label.
 
 **The tooltip used to be the one painted exception, because visx painted it outside the scope.** `@visx/tooltip` appends each portal container straight to `document.body`, where the catalog is not declared, so a chain handed to one reached only its own hardcoded fallback — never the role, never a consumer's override. Charts no longer take that route: the box renders into the chart's own wrapper and the crosshairs and glyphs are drawn into the chart SVG, both inside the scope, so a chain handed to either resolves there natively.
 
-Two colors are still resolved before visx sees them. `htmlLabel.color`, in `useXYChartTheme`, for a reason the move does not touch: visx builds the tooltip's shadow as `` `0 1px 2px ${color}55` ``, and a `var()` chain cannot take a suffix — token streams do not merge across a substitution boundary, so the whole declaration is invalid and the tooltip renders flat. The crosshair stroke, in `AccessibleTooltip`, only still matters where a consumer supplies a `ChartScopeContext` element that is not one of the chart's own ancestors; in the ordinary tree the CSS path now reaches it.
+One tooltip color is still resolved before visx sees it: the crosshair stroke, in `XYChartTooltip`, which only still matters where a consumer supplies a `ChartScopeContext` element that is not one of the chart's own ancestors; in the ordinary tree the CSS path now reaches it.
 
-Being resolved in JS, both then carry the bridge's limitations rather than the CSS path's: they read at the scope element, so a role declared on the chart's own class moves the gridlines but leaves the crosshair at the catalog value, and neither repaints on a theme change until something re-renders.
+Being resolved in JS, it then carries the bridge's limitations rather than the CSS path's: it reads at the scope element, so a role declared on the chart's own class moves the gridlines but leaves the crosshair at the catalog value, and it does not repaint on a theme change until something re-renders.
 
-Where a value is *consumed* says nothing about where it is *set*. These are set the same way as every other color — `--a8c-charts-color-background`, `--a8c-charts-color-series-*` — and resolved through `getComputedStyle` against the chart's own scope element, never `document.documentElement`, so both delivery paths obey the same cascade. Each pointer carries a terminal literal (`var(--a8c-charts-color-background, #fff)`) as the last resort for SSR and jsdom, where `getComputedStyle` resolves nothing.
+Where a value is *consumed* says nothing about where it is *set*. These are set the same way as every other catalog color — `--a8c-charts-color-background`, `--a8c-charts-color-series-*` — and resolved through `getComputedStyle` against the chart's own scope element, never `document.documentElement`, so both delivery paths obey the same cascade. Each pointer carries a terminal literal (`var(--a8c-charts-color-background, #fff)`) as the last resort for SSR and jsdom, where `getComputedStyle` resolves nothing.
 
 The scope element is the wrapper a chart is rendered into, which sits **above** the element the chart's own `className` lands on, so a role declared on that inner element is invisible to the JS bridge. `.line-chart { --a8c-charts-color-background: red }` therefore does not reach the glyph strokes, while `.line-chart { --a8c-charts-color-grid: red }` does reach the gridlines — the CSS-painted roles read at the painted element, so any ancestor of it will do. Scope a rule for a JS-resolved role to a wrapper around the chart rather than to the chart itself. CHARTS-255 tracks closing the remainder.
 
@@ -72,7 +72,7 @@ The scope element is the wrapper a chart is rendered into, which sits **above** 
 
 ## Tier 1 — semantic catalog (shared, themeable roles)
 
-> These tables are checked against `src/styles/chart-scope.scss` by `src/styles/test/chart-scope.test.ts`. Update the stylesheet and the table together.
+> These tables describe the base defaults outside forced-colors mode and are checked against `src/styles/chart-scope.scss` by `src/styles/test/chart-scope.test.ts`. Update the stylesheet and the table together.
 
 | Role | Maps to | Fallback |
 |---|---|---|
@@ -95,9 +95,11 @@ The scope element is the wrapper a chart is rendered into, which sits **above** 
 | `--a8c-charts-color-surface` | `--wpds-color-background-surface-neutral-strong` | `#fff` |
 | `--a8c-charts-color-surface-secondary` | `--wpds-color-background-surface-neutral-weak` | `#f4f4f4` |
 | `--a8c-charts-color-track` | `--wpds-color-background-track-neutral-weak` | `#f0f0f0` |
-| `--a8c-charts-color-tooltip-surface` | _(none — translucent dark surface, no WPDS fit)_ | `rgb(0 0 0 / 85%)` |
+| `--a8c-charts-color-tooltip-surface` | _(none: WPDS has no inverted surface token yet)_ | `#1e1e1e` |
 
 The x axis and tick roles share grid's WPDS token but stay distinct roles, so the three can be themed independently.
+
+`--a8c-charts-color-tooltip-surface` is the color the tooltip theme is generated from, as `@wordpress/ui` seeds its Tooltip popup with `#1e1e1e`. Set it on the provider wrapper to retheme every tooltip, light or dark: the box surface, its text, every catalog role and every `--wpds-*` token inside follow. It must be an opaque sRGB color; anything else falls back to `#1e1e1e`. To recolor one chart's tooltip, repoint `--a8c-charts-color-surface` and `--a8c-charts-color-label` in that chart's `tooltipStyle`. That moves only those two roles: content that reads a `--wpds-*` token keeps the dark theme's value.
 
 ### One pair of roles per axis
 
@@ -113,6 +115,8 @@ Each axis names itself: `--a8c-charts-color-axis-x` / `-tick-x` paint the x axis
 **There is deliberately no broad `--a8c-charts-color-axis` covering both.** It would have to mean one of two things, and neither is true: that setting it moves both axes — which cannot hold while the y side defaults to unpainted — or that it moves only x, which is a name that misleads exactly once per consumer, and silently. The tick *labels* are a different matter and do share a role (`--a8c-charts-color-label-axis`), because both axes label identically.
 
 Gridlines also stay on one role, `--a8c-charts-color-grid`: visx paints rows and columns from a single style object, so the grid is genuinely one thing rather than two.
+
+Under `forced-colors: active`, the axis label role uses `CanvasText`, and the grid, x-axis line, and x-axis tick roles use `GrayText`. The y-axis line and ticks remain hidden by default.
 
 The terminal `none` in each chain is explicit rather than load-bearing: `stroke` already starts at `none`, so an undeclared role paints nothing either way.
 
@@ -143,6 +147,7 @@ The palette is resolved per provider, so one `ColorCache` and one group-to-color
 | `--a8c-charts-motion-duration-entrance` | `--wpds-motion-duration-xl` | `400ms` |
 | `--a8c-charts-motion-easing-entrance` | `--wpds-motion-easing-expressive` | `cubic-bezier(0.25, 0, 0, 1)` |
 | `--a8c-charts-border-radius-bar` | `--wpds-border-radius-md` | `4px` |
+| `--a8c-charts-border-radius-bar-chart` | _(none — square bars by default)_ | `0` |
 | `--a8c-charts-border-radius-cell` | `--wpds-border-radius-sm` | `2px` |
 | `--a8c-charts-border-radius-leaderboard-bar` | _(none — pill shape, no WPDS radius fits)_ | `9999px` |
 | `--a8c-charts-dimension-leaderboard-row-gap` | `--wpds-dimension-gap-md` | `12px` |
@@ -151,6 +156,8 @@ The palette is resolved per provider, so one `ColorCache` and one group-to-color
 | `--a8c-charts-elevation-sm` | _(none — `--wpds-elevation-*` removed in theme 1.0.0)_ | `0 1px 2px 0 #0000000d, 0 2px 3px 0 #0000000a, 0 6px 6px 0 #00000008, 0 8px 8px 0 #00000005` |
 
 The motion pair carries the one-shot reveal a data mark plays on first paint, across all six charts that animate in. It deliberately does **not** cover interaction motion: hover and transition timings read `--wpds-motion-*` directly, as interface chrome rather than a chart role.
+
+`--a8c-charts-border-radius-bar` rounds the conversion funnel's bars. `--a8c-charts-border-radius-bar-chart` rounds the bars of the bar chart and bar list chart; set it to a radius such as `var(--wpds-border-radius-sm)` to opt in. Bar charts apply it as the CSS `rx` property, so it rounds all four corners of a bar. It resolves in CSS at the bar, so an override set anywhere inside the provider tree applies, the chart's own class included; see [Precedence](#precedence) for overrides above the provider.
 
 The elevation fallbacks hold the values their removed `--wpds-elevation-*` tokens used to resolve to, until a replacement exists.
 

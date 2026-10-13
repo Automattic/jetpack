@@ -53,12 +53,7 @@ export type LegendShape< Data, Output > =
 	| ComponentClass< LegendShapeRenderProps< Data, Output > >;
 
 export type GoogleDataTableColumnType =
-	| 'string'
-	| 'number'
-	| 'boolean'
-	| 'date'
-	| 'datetime'
-	| 'timeofday';
+	'string' | 'number' | 'boolean' | 'date' | 'datetime' | 'timeofday';
 
 export enum GoogleDataTableColumnRoleType {
 	annotation = 'annotation',
@@ -98,13 +93,7 @@ export type GoogleDataTableCell =
 export type GoogleDataTableRow = GoogleDataTableCell[];
 
 export type ChartType =
-	| 'area'
-	| 'bar'
-	| 'conversion-funnel'
-	| 'leaderboard'
-	| 'line'
-	| 'pie'
-	| 'pie-semi-circle';
+	'area' | 'bar' | 'conversion-funnel' | 'leaderboard' | 'line' | 'pie' | 'pie-semi-circle';
 
 export type OrientationType = ValueOf< typeof Orientation >;
 
@@ -145,6 +134,8 @@ export type ThemeAnnotationStyles = {
 export type DataPoint = {
 	label: string;
 	value: number;
+	/** Per-point fill override for BarChart; other built-in charts ignore it. */
+	color?: string;
 };
 
 /**
@@ -196,9 +187,11 @@ export type DataPointDate = {
 	dateString?: string;
 	value: number | null;
 	label?: string;
+	/** Per-point fill override for BarChart; other built-in charts ignore it. */
+	color?: string;
 };
 
-export type LeaderboardEntry = {
+type LeaderboardEntryFields = {
 	/**
 	 * Unique internal key (e.g., 'key-direct')
 	 */
@@ -252,7 +245,8 @@ export type LeaderboardEntry = {
 	 * For links or other interactive affordances (external-link icons, info
 	 * tooltips), put them in the `label` render prop instead of using onClick —
 	 * a row is either a button (onClick) or carries interactive label content,
-	 * never both, since interactive elements cannot be nested in HTML.
+	 * never both, since interactive elements cannot be nested in HTML. The
+	 * exception is a row that sets `hasInteractiveLabel`.
 	 */
 	onClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
 
@@ -267,6 +261,21 @@ export type LeaderboardEntry = {
 	 */
 	ariaLabel?: string;
 };
+
+export type LeaderboardEntry = LeaderboardEntryFields &
+	(
+		| { hasInteractiveLabel?: false }
+		| {
+				/**
+				 * Set when the `label` holds its own link or button. The row's button
+				 * then sits behind the row instead of around it, so both stay operable.
+				 * Requires `onClick`, and `ariaLabel` since the button wraps no text.
+				 */
+				hasInteractiveLabel: true;
+				onClick: ( event: MouseEvent< HTMLButtonElement > ) => void;
+				ariaLabel: string;
+		  }
+	);
 
 export type GradientStop = {
 	offset: string;
@@ -385,9 +394,15 @@ export type ChartTheme = {
 	 *
 	 * `fontFamily: 'inherit'` is load-bearing here — it overrides the font stack
 	 * `buildChartTheme` injects inline on SVG `<text>`.
+	 *
+	 * Give `fontSize` in pixels (`12` or `'12px'`). Margins and pie labels cannot measure `rem`, `em`, `%` or `var()`, so they use the default size and labels can clip (CHARTS-303). An invalid size is dropped.
 	 */
 	svgLabelSmall?: Omit< TextProps, 'fill' >;
-	/** Styles for large SVG text (eg. axis titles), passed through to the XYChart theme. */
+	/**
+	 * Styles for large SVG text (eg. axis titles), passed through to the XYChart theme.
+	 *
+	 * Give `fontSize` in pixels, as for `svgLabelSmall`.
+	 */
 	svgLabelBig?: TextProps;
 	annotationStyles?: ThemeAnnotationStyles;
 	/** LeaderboardChart specific settings */
@@ -424,6 +439,8 @@ export type ChartTheme = {
 		compactCellGap?: number;
 		/** Fixed square cell size in px for compact mode */
 		compactCellSize?: number;
+		/** Gap in px between adjacent column groups; in compact mode the minimum, as the gaps share leftover width */
+		groupGap?: number;
 	};
 };
 
@@ -643,6 +660,9 @@ export type ChartLegendConfig< T = DataPoint | DataPointDate | LeaderboardEntry 
 	shapeStyles?: LegendShapeStyles;
 };
 
+/** Names a comparison series' legend item after the label of the series it is compared with. */
+export type ComparisonItemLabel = ( seriesLabel: string ) => string;
+
 /**
  * Legend config for charts built from `SeriesData` (line, bar, area). Adds `collapseGroups` on top
  * of the shared config. It is intentionally absent from the base `ChartLegendConfig` so point-based
@@ -657,6 +677,17 @@ export type SeriesChartLegendConfig = ChartLegendConfig< SeriesData[] > & {
 	 * uncollapsed one toggles only its own.
 	 */
 	collapseGroups?: boolean;
+	/**
+	 * Append a static, non-interactive item explaining the comparison overlay whenever a series
+	 * has `options.type === 'comparison'`. Skipped when that series already has its own item.
+	 * Pass a string to replace the default label.
+	 */
+	comparisonItem?: boolean | string;
+	/**
+	 * Append one static item per comparison series instead, named by calling this with the label
+	 * of the series it is compared with, and left out while that series is hidden.
+	 */
+	comparisonSeriesItems?: ComparisonItemLabel;
 };
 
 /**

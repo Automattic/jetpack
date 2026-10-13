@@ -160,7 +160,7 @@ function chooseSecondary( primary, prefered, el, target, w, h ) {
 				primary,
 				primary + ' ' + adjacent[ primary ],
 				primary + ' ' + opposite[ adjacent[ primary ] ],
-		  ];
+			];
 
 	let bestPos;
 	let best = 0;

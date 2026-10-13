@@ -10,13 +10,7 @@
  * restore point, so those rows are merged in from `GET /jetpack/v4/restores`.
  */
 export type ActivityKind =
-	| 'backup'
-	| 'restore'
-	| 'post'
-	| 'upload'
-	| 'plugin-update'
-	| 'theme-update'
-	| 'other';
+	'backup' | 'restore' | 'post' | 'upload' | 'plugin-update' | 'theme-update' | 'other';
 
 export type ActivityActor = {
 	type: 'Application' | 'Person';
@@ -35,6 +29,9 @@ export type BackupActivityItem = ActivityItemBase & {
 	kind: 'backup';
 	rewindId: string;
 	stats: string;
+	isRewindable: boolean;
+	/** When the backup started: the key to its size record. Null when WordPress.com sent none. */
+	backupPeriod: number | null;
 };
 
 export type NonBackupActivityItem = ActivityItemBase & {

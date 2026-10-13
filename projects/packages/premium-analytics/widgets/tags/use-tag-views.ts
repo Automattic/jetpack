@@ -6,7 +6,11 @@ import { useMemo } from '@wordpress/element';
  * Internal dependencies
  */
 import { useStatsTags } from '@jetpack-premium-analytics/data';
-import type { StatsNormalizedReport, StatsTagsItem } from '@jetpack-premium-analytics/data';
+import type {
+	ReportParams,
+	StatsNormalizedReport,
+	StatsTagsItem,
+} from '@jetpack-premium-analytics/data';
 
 /**
  * A single tag or category grouped under a parent row. Grouped rows have no
@@ -67,6 +71,10 @@ export interface TagView {
 
 interface UseTagViewsArgs {
 	/**
+	 * The dashboard window the rows are ranked over.
+	 */
+	reportParams: ReportParams;
+	/**
 	 * Rows to request and display.
 	 */
 	max: number;
@@ -85,11 +93,13 @@ interface TagViewsState {
  * via the shared Stats data layer.
  *
  * Delegates to `useStatsTags`, then maps the normalized rows onto the leaderboard
- * shape and trims to `max`. Single period, no comparison: `stats/tags` takes no
- * date parameters, so the dashboard's date filter never reaches this widget.
+ * shape and trims to `max`. Single period: `stats/tags` reports no comparison.
  */
-export default function useTagViews( { max }: UseTagViewsArgs ): TagViewsState {
-	const { data, isLoading, isFetching, isError, refetch } = useStatsTags( { max } );
+export default function useTagViews( { reportParams, max }: UseTagViewsArgs ): TagViewsState {
+	const { data, isLoading, isFetching, isError, refetch } = useStatsTags( {
+		...reportParams,
+		max,
+	} );
 
 	// Memoize on the query's stable `data` reference so the row array keeps a
 	// stable identity across unrelated re-renders; otherwise every render hands a
@@ -106,14 +116,12 @@ export default function useTagViews( { max }: UseTagViewsArgs ): TagViewsState {
 				// keys on its archive URL, a grouped row on its combined label (which
 				// the drill-down already treats as the row's unique id).
 				const parentId = item.link ?? item.labelText;
-				const children = ( item.children ?? [] ).map(
-					( child ): TagChildView => ( {
-						id: child.link ?? `${ parentId }-${ child.label }`,
-						label: child.label,
-						labelIcon: child.labelIcon,
-						link: child.link,
-					} )
-				);
+				const children = ( item.children ?? [] ).map( ( child ): TagChildView => ( {
+					id: child.link ?? `${ parentId }-${ child.label }`,
+					label: child.label,
+					labelIcon: child.labelIcon,
+					link: child.link,
+				} ) );
 
 				return {
 					id: parentId,

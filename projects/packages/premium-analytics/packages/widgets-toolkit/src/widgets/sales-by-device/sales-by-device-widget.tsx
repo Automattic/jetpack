@@ -5,13 +5,13 @@ import { useReportOrderAttribution, type FilterCondition } from '@jetpack-premiu
 import { device } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
-import { BarChart, BarChartSkeleton, WidgetState } from '../../components';
 /**
  * Internal dependencies
  */
+import { Columns, type ColumnInput } from '../../components/columns';
 import { useWidgetRootContext } from '../../components/widget-root';
-import { buildSalesByDeviceData, isEmptyChartData } from '../../helpers';
-import { useBarStyles } from '../common';
+
+const CURRENCY_FORMAT = { type: 'currency' as const, options: { useMultipliers: true } };
 
 type SalesByDeviceWidgetProps = {
 	/**
@@ -28,7 +28,7 @@ type SalesByDeviceWidgetProps = {
 };
 
 /**
- * Bar chart of sales by device type (Desktop, Mobile, Tablet).
+ * Sales by device type (Desktop, Mobile, Tablet), one column each per period.
  *
  * Must render within a WidgetRoot, which provides reportParams via context.
  */
@@ -51,21 +51,28 @@ export function SalesByDeviceWidget( {
 	const { primary, hasComparison, isLoading, isFetching, hasData, isError, refetch } =
 		useReportOrderAttribution( paramsWithView );
 
-	const { chartData } = useMemo(
-		() => buildSalesByDeviceData( primary.data, hasComparison, reportParams ),
-		[ primary.data, hasComparison, reportParams ]
+	// The attribution report carries both periods in one response.
+	const columns = useMemo< ColumnInput[] >(
+		() =>
+			( primary.data?.data ?? [] ).map( item => ( {
+				label: item.item || __( 'Unassigned', 'jetpack-premium-analytics-pkg' ),
+				value: item.current_period?.value ?? 0,
+				previousValue: item.previous_period?.value,
+			} ) ),
+		[ primary.data ]
 	);
 
-	const barStyles = useBarStyles( chartData );
-
 	return (
-		<WidgetState
-			isLoading={ isLoading }
-			isFetching={ isFetching }
-			// The report queries keep placeholders from the previous period across
-			// range changes, so only surface the error when nothing is left to show.
-			isError={ isError && ! hasData }
-			isEmpty={ isEmptyChartData( chartData ) }
+		<Columns
+			columns={ columns }
+			status={ {
+				isLoading,
+				isFetching,
+				// The report queries keep the previous range's data on screen, so an error only shows without it.
+				isError: isError && ! hasData,
+				hasComparison,
+				refetch,
+			} }
 			error={ {
 				description:
 					errorText ??
@@ -80,16 +87,7 @@ export function SalesByDeviceWidget( {
 				description:
 					emptyStateText ?? __( 'No sales data in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
-			renderLoading={ <BarChartSkeleton /> }
-		>
-			<BarChart
-				chartData={ chartData }
-				styles={ barStyles }
-				dataFormat={ {
-					type: 'currency',
-					options: { useMultipliers: true },
-				} }
-			/>
-		</WidgetState>
+			format={ CURRENCY_FORMAT }
+		/>
 	);
 }

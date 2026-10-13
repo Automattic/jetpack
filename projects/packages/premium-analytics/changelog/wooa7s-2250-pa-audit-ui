@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Fix a select field test race and put the slow ui tests on fake timers.
+

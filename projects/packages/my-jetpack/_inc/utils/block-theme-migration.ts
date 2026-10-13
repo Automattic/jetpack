@@ -52,7 +52,7 @@ export function getBlockThemeMigration( module: MyJetpackModule ): BlockThemeMig
 						'Add the Sharing Buttons block to your theme’s template.',
 						'Sharing block migration instruction',
 						'jetpack-my-jetpack'
-				  ),
+					),
 			switchLabel: __( 'Switch to Sharing Buttons block', 'jetpack-my-jetpack' ),
 			switchingAnnouncement: __( 'Deactivating legacy sharing…', 'jetpack-my-jetpack' ),
 		};
@@ -67,7 +67,7 @@ export function getBlockThemeMigration( module: MyJetpackModule ): BlockThemeMig
 						'Add the Like block to your theme’s template.',
 						'Like block migration instruction',
 						'jetpack-my-jetpack'
-				  ),
+					),
 			switchLabel: __( 'Switch to the Like block', 'jetpack-my-jetpack' ),
 			switchingAnnouncement: __( 'Deactivating legacy Like buttons…', 'jetpack-my-jetpack' ),
 		};

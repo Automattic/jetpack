@@ -58,12 +58,12 @@ const createSpeedScoreSRText = (
 						// translators: %d: score increase (e.g. '10')
 						__( 'Your website’s overall speed score increased by %d.', 'jetpack-my-jetpack' ),
 						boostScoreIncrease
-				  )
+					)
 				: sprintf(
 						// translators: %d: score increase (e.g. '10')
 						__( 'Your website’s overall speed score decreased by %d.', 'jetpack-my-jetpack' ),
 						boostScoreIncrease
-				  )
+					)
 		);
 	}
 

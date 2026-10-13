@@ -62,12 +62,14 @@ export default function MediaSectionV2( {
 
 	// Use props if in controlled mode, otherwise fall back to store values
 	const attachedMedia = useMemo(
-		() => ( isControlled ? attachedMediaProp ?? [] : storeAttachedMedia ),
+		() => ( isControlled ? ( attachedMediaProp ?? [] ) : storeAttachedMedia ),
 		[ isControlled, attachedMediaProp, storeAttachedMedia ]
 	);
 	const imageGeneratorSettings = useMemo(
 		() =>
-			isControlled ? imageGeneratorSettingsProp ?? { enabled: false } : storeImageGeneratorSettings,
+			isControlled
+				? ( imageGeneratorSettingsProp ?? { enabled: false } )
+				: storeImageGeneratorSettings,
 		[ isControlled, imageGeneratorSettingsProp, storeImageGeneratorSettings ]
 	);
 	// In controlled mode, use the prop value directly (even if undefined)

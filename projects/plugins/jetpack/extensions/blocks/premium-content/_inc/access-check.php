@@ -252,6 +252,64 @@ function current_visitor_can_access( $attributes, $block ) {
 		return false;
 	}
 
+	$can_view = visitor_can_access_plan_ids( $selected_plan_ids );
+
+	if ( $can_view ) {
+		/**
+		 * Fires when a visitor can view protected content on a site.
+		 *
+		 * @since 9.4.0
+		 */
+		do_action( 'jetpack_earn_remove_cache_headers' );
+	}
+
+	return $can_view;
+}
+
+/**
+ * Check plan access for rendering, including the subscription service's editorial exception.
+ *
+ * Playback callers must use visitor_has_subscription_access_to_plan_ids() to exclude editorial access.
+ *
+ * @since $$next-version$$
+ *
+ * @param array    $selected_plan_ids Plan ids the content is gated behind.
+ * @param int|null $post_id           Post the gated content belongs to. Defaults to the loop post, so
+ *                                    callers outside the loop must pass it.
+ *
+ * @return bool Whether the visitor can view the content.
+ */
+function visitor_can_access_plan_ids( $selected_plan_ids, $post_id = null ) {
+	return check_subscription_plan_access( $selected_plan_ids, $post_id, false );
+}
+
+/**
+ * Check the required plans without granting access for editing the embedding post.
+ *
+ * @since $$next-version$$
+ *
+ * @param array    $selected_plan_ids Required plan IDs from the stored content.
+ * @param int|null $post_id           Post to check, or the loop post when omitted.
+ * @return bool Whether the visitor has the required subscription entitlement.
+ */
+function visitor_has_subscription_access_to_plan_ids( $selected_plan_ids, $post_id = null ) {
+	return check_subscription_plan_access( $selected_plan_ids, $post_id, true );
+}
+
+/**
+ * Evaluate subscription plans for rendering or strict playback authorization.
+ *
+ * @since $$next-version$$
+ *
+ * @param array    $selected_plan_ids   Required subscription plan IDs.
+ * @param int|null $post_id             Post to check.
+ * @param bool     $require_entitlement Whether editorial access must be excluded.
+ * @return bool Whether access is granted.
+ */
+function check_subscription_plan_access( $selected_plan_ids, $post_id, $require_entitlement ) {
+	// Callers outside the block render can get here first; this also defines the constants the paywall reads.
+	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
+
 	$can_view     = false;
 	$paywall      = subscription_service();
 	$access_level = Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS; // Only paid subscribers should be granted access to the premium content
@@ -311,17 +369,15 @@ function current_visitor_can_access( $attributes, $block ) {
 
 	$non_tier_ids = array_diff( $selected_plan_ids, $tier_ids );
 	if ( ! $can_view ) {
-		// For selected plans that are not tiers, we want to check if the user has any of the selected plans.
-		$can_view = $paywall->visitor_can_view_content( $non_tier_ids, $access_level );
-	}
-
-	if ( $can_view ) {
-		/**
-		 * Fires when a visitor can view protected content on a site.
-		 *
-		 * @since 9.4.0
-		 */
-		do_action( 'jetpack_earn_remove_cache_headers' );
+		if ( $require_entitlement ) {
+			// Older or external services without the entitlement check deny.
+			$can_view = is_callable( array( $paywall, 'visitor_has_subscription_access' ) )
+				&& $paywall->visitor_has_subscription_access( $non_tier_ids, $access_level, $post_id );
+		} else {
+			// For selected plans that are not tiers, we want to check if the user has any of the selected plans.
+			// @phan-suppress-next-line PhanParamTooMany -- Concrete services accept the optional $post_id; interface omits it on purpose.
+			$can_view = $paywall->visitor_can_view_content( $non_tier_ids, $access_level, $post_id );
+		}
 	}
 
 	return $can_view;

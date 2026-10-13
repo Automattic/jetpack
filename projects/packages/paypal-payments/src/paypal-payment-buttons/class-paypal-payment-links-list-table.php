@@ -122,17 +122,7 @@ class PayPal_Payment_Links_List_Table extends \WP_List_Table {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only pagination parameter.
 		$page_token = isset( $_GET['page_token'] ) ? sanitize_text_field( wp_unslash( $_GET['page_token'] ) ) : '';
 
-		// Cache list API responses for 60 seconds to reduce redundant API calls.
-		$cache_key = 'paypal_list_cache_' . md5( $page_token );
-		$result    = get_transient( $cache_key );
-
-		if ( false === $result ) {
-			$result = PayPal_API_Client::list_resources( self::PER_PAGE, $page_token );
-
-			if ( ! is_wp_error( $result ) ) {
-				set_transient( $cache_key, $result, 60 );
-			}
-		}
+		$result = PayPal_API_Client::list_resources_cached( self::PER_PAGE, $page_token );
 
 		if ( is_wp_error( $result ) ) {
 			$this->api_error = $result;
@@ -245,15 +235,9 @@ class PayPal_Payment_Links_List_Table extends \WP_List_Table {
 	 * @return string Column HTML.
 	 */
 	public function column_price( $item ) {
-		if ( ! isset( $item['line_items'][0]['unit_amount'] ) ) {
-			return '—';
-		}
+		$price = PayPal_Payment_Buttons::resource_price( $item );
 
-		$amount   = $item['line_items'][0]['unit_amount'];
-		$value    = $amount['value'] ?? '0.00';
-		$currency = $amount['currency_code'] ?? 'USD';
-
-		return esc_html( PayPal_Payment_Buttons::format_price( $value, $currency ) );
+		return '' === $price ? '—' : esc_html( $price );
 	}
 
 	/**

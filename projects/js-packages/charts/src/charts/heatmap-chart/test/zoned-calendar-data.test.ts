@@ -4,7 +4,7 @@
 
 // Chatham runs ahead of UTC. A worker behind it renders a UTC-midnight proxy on
 // its own day, so it cannot tell the grid's UTC arithmetic from local arithmetic.
-import { buildCalendarHeatmapData } from '../private/build-calendar-data';
+import { buildCalendarHeatmapData } from '../build-calendar-data';
 import type { DataPointDate } from '../../../types';
 
 const labelsCarryingValues = ( data: ReturnType< typeof buildCalendarHeatmapData >[ 'data' ] ) =>

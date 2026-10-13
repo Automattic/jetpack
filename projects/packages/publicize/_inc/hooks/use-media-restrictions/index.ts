@@ -175,7 +175,7 @@ export const getValidationError = (
 				mediaData.width,
 				mediaData.height,
 				restrictions.video
-		  )
+			)
 		: getImageValidationError( sizeInMb, mediaData.width, mediaData.height, restrictions.image );
 };
 

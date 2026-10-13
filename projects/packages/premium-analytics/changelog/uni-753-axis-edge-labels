@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Stop the first and last dates on a chart's horizontal axis from being cut off.

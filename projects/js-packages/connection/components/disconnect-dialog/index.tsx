@@ -64,11 +64,17 @@ interface DisconnectDialogProps {
 	connectedUser?: DisconnectDialogUser;
 	/** ID of the currently connected site. */
 	connectedSiteId?: number;
+	/** Whether any user on the site has a WordPress.com connection. Only used when the context is "plugins". */
+	hasConnectedUser?: boolean;
+	/** Whether the current user has a WordPress.com connection. Only used when the context is "plugins". */
+	isCurrentUserConnected?: boolean;
 	/** Whether or not the dialog modal should be open. */
 	isOpen?: boolean;
 	/** Callback function for when the modal closes. */
 	onClose: () => void;
 }
+
+const SURVEY_SUBMIT_TIMEOUT_MS = 5000;
 
 interface SurveyResponse {
 	success: boolean;
@@ -93,6 +99,8 @@ const DisconnectDialog = ( {
 	context = 'jetpack-dashboard',
 	connectedUser = {}, // Pass empty object to avoid undefined errors.
 	connectedSiteId,
+	hasConnectedUser = true,
+	isCurrentUserConnected = false,
 	isOpen,
 	onClose,
 }: DisconnectDialogProps ) => {
@@ -130,6 +138,10 @@ const DisconnectDialog = ( {
 		}
 	}, [ connectedUser, connectedUser.ID, connectedUser.login ] );
 
+	// On the plugins page the server says up front, so a click before the user data loads still counts.
+	const isUserConnected =
+		!! connectedUser.ID || ( context === 'plugins' && isCurrentUserConnected );
+
 	/**
 	 * Run when the disconnect dialog is opened
 	 */
@@ -148,7 +160,13 @@ const DisconnectDialog = ( {
 			return;
 		}
 
-		if ( ! isDisconnected ) {
+		// On the plugins page the survey comes before deactivation, so check it before `isDisconnected`.
+		if ( isProvidingFeedback && ! isFeedbackProvided ) {
+			jetpackAnalytics.tracks.recordEvent(
+				'jetpack_disconnect_dialog_step',
+				Object.assign( {}, { step: 'survey' }, defaultTracksArgs )
+			);
+		} else if ( ! isDisconnected ) {
 			jetpackAnalytics.tracks.recordEvent(
 				'jetpack_disconnect_dialog_step',
 				Object.assign( {}, { step: 'disconnect' }, defaultTracksArgs )
@@ -157,11 +175,6 @@ const DisconnectDialog = ( {
 			jetpackAnalytics.tracks.recordEvent(
 				'jetpack_disconnect_dialog_step',
 				Object.assign( {}, { step: 'disconnect_confirm' }, defaultTracksArgs )
-			);
-		} else if ( isProvidingFeedback && ! isFeedbackProvided ) {
-			jetpackAnalytics.tracks.recordEvent(
-				'jetpack_disconnect_dialog_step',
-				Object.assign( {}, { step: 'survey' }, defaultTracksArgs )
 			);
 		} else if ( isFeedbackProvided ) {
 			jetpackAnalytics.tracks.recordEvent(
@@ -205,47 +218,46 @@ const DisconnectDialog = ( {
 	}, [ setIsDisconnecting, setIsDisconnected, setDisconnectError, onError ] );
 
 	/**
-	 * Submit the optional survey following disconnection.
+	 * Send a survey response and record the outcome in Tracks.
+	 * Resolves either way: if the submission fails, there's nothing the user can do to fix it.
 	 *
 	 * @param {SurveyData}       surveyData       - The survey response payload.
 	 * @param {TracksSurveyData} tracksSurveyData - Additional analytics data for the survey.
+	 * @return {Promise<void>} Settles once the response is recorded or has failed.
 	 */
-	const _submitSurvey = useCallback(
+	const sendSurvey = useCallback(
 		( surveyData: SurveyData, tracksSurveyData: TracksSurveyData ) => {
-			// Send survey response to wpcom
-			const base = 'https://public-api.wordpress.com';
-			const path = '/wpcom/v2/marketing/feedback-survey';
-			const method = 'POST';
+			let request: Promise< SurveyResponse >;
 
-			setIsSubmittingFeedback( true );
+			if ( context === 'plugins' && isUserConnected ) {
+				// The site is still connected, so go through the authenticated proxy as the current user.
+				request = restApi.submitSurvey( {
+					site_id: surveyData.site_id,
+					survey_id: surveyData.survey_id,
+					survey_responses: surveyData.survey_responses,
+				} );
+			} else {
+				// We cannot use `@wordpress/api-fetch` here since it unconditionally sends
+				// the `X-WP-Nonce` header, which is disallowed by WordPress.com.
+				request = fetch( 'https://public-api.wordpress.com/wpcom/v2/marketing/feedback-survey', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						Accept: 'application/json',
+					},
+					body: JSON.stringify( surveyData ),
+				} ).then( result => result.json() as Promise< SurveyResponse > );
+			}
 
-			// We cannot use `@wordpress/api-fetch` here since it unconditionally sends
-			// the `X-WP-Nonce` header, which is disallowed by WordPress.com.
-			// If the submission receives an error, there's not really anything the user is able to do to fix it.
-			// In these cases, just go ahead and show the last survey step.
-			fetch( base + path, {
-				method: method,
-				headers: {
-					'Content-Type': 'application/json',
-					Accept: 'application/json',
-				},
-				body: JSON.stringify( surveyData ),
-			} )
-				.then( result => result.json() as Promise< SurveyResponse > )
+			return request
 				.then( jsonResponse => {
-					// response received
-					if ( true === jsonResponse.success ) {
-						// Send a tracks event for survey submission.
-						jetpackAnalytics.tracks.recordEvent(
-							'jetpack_disconnect_survey_submit',
-							tracksSurveyData
-						);
-
-						setIsFeedbackProvided( true );
-						setIsSubmittingFeedback( false );
-					} else {
-						throw new Error( 'Survey endpoint returned error code ' + jsonResponse.code );
+					if ( true !== jsonResponse?.success ) {
+						throw new Error( 'Survey endpoint returned error code ' + jsonResponse?.code );
 					}
+					jetpackAnalytics.tracks.recordEvent(
+						'jetpack_disconnect_survey_submit',
+						tracksSurveyData
+					);
 				} )
 				.catch( ( error: unknown ) => {
 					jetpackAnalytics.tracks.recordEvent(
@@ -256,13 +268,61 @@ const DisconnectDialog = ( {
 							tracksSurveyData
 						)
 					);
-
-					setIsFeedbackProvided( true );
-					setIsSubmittingFeedback( false );
 				} );
 		},
-		[ setIsSubmittingFeedback, setIsFeedbackProvided ]
+		[ context, isUserConnected ]
 	);
+
+	/**
+	 * Submit the optional survey, then show the thank-you step or, on the plugins page, deactivate.
+	 *
+	 * @param {SurveyData}       surveyData       - The survey response payload.
+	 * @param {TracksSurveyData} tracksSurveyData - Additional analytics data for the survey.
+	 */
+	const _submitSurvey = useCallback(
+		( surveyData: SurveyData, tracksSurveyData: TracksSurveyData ) => {
+			setIsSubmittingFeedback( true );
+
+			if ( context === 'plugins' ) {
+				// Don't let a slow response hold up deactivation.
+				let timer: ReturnType< typeof setTimeout >;
+				const timeout = new Promise< void >( resolve => {
+					timer = setTimeout( resolve, SURVEY_SUBMIT_TIMEOUT_MS );
+				} );
+				Promise.race( [ sendSurvey( surveyData, tracksSurveyData ), timeout ] ).then( () => {
+					clearTimeout( timer );
+					pluginScreenDisconnectCallback?.();
+				} );
+				return;
+			}
+
+			sendSurvey( surveyData, tracksSurveyData ).then( () => {
+				setIsFeedbackProvided( true );
+				setIsSubmittingFeedback( false );
+			} );
+		},
+		[
+			context,
+			sendSurvey,
+			pluginScreenDisconnectCallback,
+			setIsSubmittingFeedback,
+			setIsFeedbackProvided,
+		]
+	);
+
+	/**
+	 * Do we have the necessary data to be able to submit a survey?
+	 * Need the site ID, plus either a connected current user or, on the plugins page, a site no user ever connected.
+	 */
+	const canProvideFeedback = useCallback( () => {
+		if ( ! connectedSiteId ) {
+			return false;
+		}
+		if ( isUserConnected ) {
+			return true;
+		}
+		return context === 'plugins' && ! hasConnectedUser;
+	}, [ isUserConnected, connectedSiteId, context, hasConnectedUser ] );
 
 	/**
 	 * Disconnect - Triggered upon clicking the 'Disconnect' button.
@@ -272,6 +332,13 @@ const DisconnectDialog = ( {
 			e && e.preventDefault();
 
 			setDisconnectError( false );
+
+			// On the plugins page, ask for feedback before deactivating, if the answer can be recorded.
+			if ( context === 'plugins' && canProvideFeedback() ) {
+				setIsProvidingFeedback( true );
+				return;
+			}
+
 			setIsDisconnecting( true );
 
 			// Detect the plugin context, where the plugin needs to be deactivated.
@@ -288,21 +355,20 @@ const DisconnectDialog = ( {
 			// Default to making the disconnect API call here.
 			_disconnect();
 		},
-		[ setDisconnectError, setIsDisconnecting, pluginScreenDisconnectCallback, context, _disconnect ]
+		[
+			setDisconnectError,
+			setIsDisconnecting,
+			pluginScreenDisconnectCallback,
+			context,
+			canProvideFeedback,
+			_disconnect,
+		]
 	);
 
 	const trackModalClick = useCallback(
 		( target: string ) => jetpackAnalytics.tracks.recordEvent( target, defaultTracksArgs ),
 		[ defaultTracksArgs ]
 	);
-
-	/**
-	 * Do we have the necessary data to be able to submit a survey?
-	 * Need to have the ID of the connected user and the ID of the connected site.
-	 */
-	const canProvideFeedback = useCallback( () => {
-		return !! ( connectedUser.ID && connectedSiteId );
-	}, [ connectedUser, connectedSiteId ] );
 
 	/**
 	 * Submit Survey - triggered by clicking on the "Submit Feedback" button.
@@ -315,14 +381,18 @@ const DisconnectDialog = ( {
 			// We do not have the information needed to record the response.
 			// return early and move to the last step in the flow anyway.
 			if ( ! canProvideFeedback() ) {
-				setIsFeedbackProvided( true );
+				if ( context === 'plugins' ) {
+					pluginScreenDisconnectCallback?.();
+				} else {
+					setIsFeedbackProvided( true );
+				}
 				return;
 			}
 
 			// Format the survey data for submission.
 			const surveyData = {
 				site_id: connectedSiteId,
-				user_id: connectedUser.ID,
+				...( connectedUser.ID ? { user_id: connectedUser.ID } : {} ),
 				survey_id: 'jetpack-plugin-disconnect',
 				survey_responses: {
 					'why-cancel': {
@@ -343,6 +413,8 @@ const DisconnectDialog = ( {
 			_submitSurvey,
 			setIsFeedbackProvided,
 			canProvideFeedback,
+			context,
+			pluginScreenDisconnectCallback,
 			connectedSiteId,
 			connectedUser,
 			defaultTracksArgs,
@@ -367,6 +439,20 @@ const DisconnectDialog = ( {
 	);
 
 	/**
+	 * Skip the survey on the plugins page and deactivate, unless an answer is already on its way.
+	 */
+	const skipSurveyAndDeactivate = useCallback(
+		( e?: MouseEvent< HTMLElement > ) => {
+			e && e.preventDefault();
+			if ( isSubmittingFeedback ) {
+				return;
+			}
+			pluginScreenDisconnectCallback?.( e );
+		},
+		[ isSubmittingFeedback, pluginScreenDisconnectCallback ]
+	);
+
+	/**
 	 * Update the local state to show the survey step.
 	 */
 	const handleProvideFeedback = useCallback(
@@ -383,6 +469,18 @@ const DisconnectDialog = ( {
 	 * @return { import('react').ReactNode } - component for current step
 	 */
 	const getCurrentStep = () => {
+		if ( context === 'plugins' && isProvidingFeedback ) {
+			return (
+				<StepSurvey
+					isSubmittingFeedback={ isSubmittingFeedback }
+					onFeedBackProvided={ handleSubmitSurvey }
+					onExit={ skipSurveyAndDeactivate }
+					isBeforeDeactivation
+					showConnectionOption={ ! hasConnectedUser }
+				/>
+			);
+		}
+
 		if ( ! isDisconnected ) {
 			// Disconnection screen.
 			return (

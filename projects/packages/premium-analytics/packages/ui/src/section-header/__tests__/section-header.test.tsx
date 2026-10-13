@@ -69,6 +69,22 @@ describe( 'SectionHeader', () => {
 		expect( ref.mock.calls[ 0 ][ 0 ] ).toContainElement( screen.getByRole( 'heading' ) );
 	} );
 
+	it( 'hands titleRef a heading that can take focus, outside the tab order', () => {
+		const ref = jest.fn();
+
+		render( <SectionHeader titleRef={ ref } title="Traffic" /> );
+
+		const heading = screen.getByRole( 'heading' );
+		expect( ref ).toHaveBeenCalledWith( heading );
+		expect( heading ).toHaveAttribute( 'tabindex', '-1' );
+	} );
+
+	it( 'keeps the heading out of the focus order without titleRef', () => {
+		render( <SectionHeader title="Traffic" /> );
+
+		expect( screen.getByRole( 'heading' ) ).not.toHaveAttribute( 'tabindex' );
+	} );
+
 	// The marker publishes the scroll timeline the band condenses on; it has to
 	// precede the band as its sibling, where the surface's timeline scope sees it.
 	it( 'precedes a pinned header with its hidden pin marker', () => {

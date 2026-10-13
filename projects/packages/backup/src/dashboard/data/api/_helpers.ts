@@ -314,6 +314,27 @@ function failureMessage( bridgeMessage: string, reason: UpstreamReason ): string
 	return bridgeMessage;
 }
 
+/** `apiCall()`'s code for a rejection that carried none. */
+const NO_CODE = 'unknown';
+
+/**
+ * The code to quote to support: WordPress.com's own when the bridge forwarded
+ * one, else the code naming the operation that failed.
+ *
+ * @param error - Anything a fetcher rejected with.
+ * @return The code, or null when the failure carries none.
+ */
+export function errorCode( error: unknown ): string | null {
+	if ( ! ( error instanceof ApiError ) ) {
+		return null;
+	}
+	const upstream = upstreamReason( error.data ).code;
+	if ( upstream ) {
+		return upstream;
+	}
+	return error.code && error.code !== NO_CODE ? error.code : null;
+}
+
 /**
  * Thin wrapper around `@wordpress/api-fetch` that re-throws every failure
  * as an `ApiError`, so one place decides what a failed request says.
@@ -334,7 +355,7 @@ export async function apiCall< T >( options: APIFetchOptions< true > ): Promise<
 		const fallback = __( 'Request failed', 'jetpack-backup-pkg' );
 		const bridgeMessage = typeof err.message === 'string' ? err.message : fallback;
 		throw new ApiError(
-			typeof err.code === 'string' ? err.code : 'unknown',
+			typeof err.code === 'string' ? err.code : NO_CODE,
 			failureMessage( bridgeMessage, upstreamReason( err.data ) ),
 			err.data
 		);

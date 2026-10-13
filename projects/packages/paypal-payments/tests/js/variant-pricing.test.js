@@ -9,6 +9,7 @@
  */
 
 import {
+	getLowestVariantPrice,
 	getPrimaryDimension,
 	hasVariantPricing,
 	isVariantPricingOn,
@@ -51,6 +52,57 @@ describe( 'getPrimaryDimension', () => {
 	it( 'returns null when nothing is primary', () => {
 		expect( getPrimaryDimension( { dimensions: [ { name: 'Color' } ] } ) ).toBeNull();
 		expect( getPrimaryDimension( undefined ) ).toBeNull();
+	} );
+} );
+
+// The preview's "From" price, and the price a flat discount is measured against.
+describe( 'getLowestVariantPrice', () => {
+	it( 'returns the cheapest priced option', () => {
+		expect( getLowestVariantPrice( variantsWithPrices( [ '20.00', '10.00', '15.00' ] ) ) ).toBe(
+			'10.00'
+		);
+	} );
+
+	it( 'compares prices as numbers', () => {
+		expect( getLowestVariantPrice( variantsWithPrices( [ '9.00', '10.00' ] ) ) ).toBe( '9.00' );
+		expect( getLowestVariantPrice( variantsWithPrices( [ '100.00', '20.00' ] ) ) ).toBe( '20.00' );
+	} );
+
+	it( 'skips options with no price', () => {
+		expect( getLowestVariantPrice( variantsWithPrices( [ '', '12.00', '   ' ] ) ) ).toBe( '12.00' );
+	} );
+
+	it( 'skips a price that is text', () => {
+		expect( getLowestVariantPrice( variantsWithPrices( [ 'abc', '12.00' ] ) ) ).toBe( '12.00' );
+	} );
+
+	it.each( [
+		[ 'nothing is priced', variantsWithPrices( [ '', '' ] ) ],
+		[ 'there are no options', variantsWithPrices( [] ) ],
+		[ 'no group is primary', { dimensions: [ { name: 'Size', primary: false, options: [] } ] } ],
+		[ 'there are no dimensions', {} ],
+		[ 'variants are null', null ],
+	] )( 'returns null when %s', ( _label, variants ) => {
+		expect( getLowestVariantPrice( variants ) ).toBeNull();
+	} );
+
+	it( 'ignores a cheaper option outside the primary group', () => {
+		const variants = {
+			dimensions: [
+				{
+					name: 'Color',
+					primary: false,
+					options: [ { label: 'Red', unit_amount: { currency_code: 'USD', value: '1.00' } } ],
+				},
+				{
+					name: 'Size',
+					primary: true,
+					options: [ { label: 'S', unit_amount: { currency_code: 'USD', value: '10.00' } } ],
+				},
+			],
+		};
+
+		expect( getLowestVariantPrice( variants ) ).toBe( '10.00' );
 	} );
 } );
 

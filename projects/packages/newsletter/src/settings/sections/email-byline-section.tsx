@@ -12,6 +12,7 @@ import { BylinePreview } from '../components/byline-preview';
 import { Toggle } from '../components/toggle';
 import { getNewsletterScriptData } from '../script-data';
 import type { NewsletterSettings } from '../types';
+import type { JSX } from 'react';
 
 interface EmailBylineSectionProps {
 	data: NewsletterSettings;
@@ -47,7 +48,7 @@ export function EmailBylineSection( {
 							url="https://gravatar.com/profile/avatars"
 							linkText={ __( 'Update your Gravatar', 'jetpack-newsletter' ) }
 						/>
-				  )
+					)
 				: Toggle,
 			description: __(
 				'We use Gravatar, a service that associates an avatar image with your primary email address.',

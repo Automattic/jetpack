@@ -5,10 +5,13 @@
  * @package
  */
 
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { Button, Notice, TextControl, ToggleControl } from '@wordpress/components';
+import { useCallback, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import PayPalIcon from '../icon';
 import { ONBOARDING_SANDBOX } from '../utils/paypal-partner-sdk';
-import { wizardLogo } from './wizard-logo';
+import { isSandboxAllowed } from '../utils/sandbox-flag';
 
 const labelConnect = __( 'Connect', 'jetpack-paypal-payments' );
 const labelConnecting = __( 'Connecting\u2026', 'jetpack-paypal-payments' );
@@ -18,7 +21,129 @@ const labelHideSecret = __( 'Hide client secret', 'jetpack-paypal-payments' );
 const labelShowSecret = __( 'Show client secret', 'jetpack-paypal-payments' );
 
 /**
- * The guided PayPal connection wizard, shown when the site has no connection.
+ * The onboarding overlay PayPal's SDK runs in. Rendered on the canvas, not in
+ * the sidebar: the sidebar unmounts with the block's selection, and the frame
+ * has to outlive that.
+ *
+ * @param {object}   props                        - Component props.
+ * @param {string}   props.signupUrl              - Partner Referrals action URL, empty until fetched.
+ * @param {boolean}  props.isOverlayOpen          - Whether the onboarding overlay is up.
+ * @param {boolean}  props.isCompletingOnboarding - Whether onboarding is being finished.
+ * @param {Function} props.setFrameNode           - Ref callback for the onboarding frame.
+ * @param {Function} props.cancelOnboarding       - Close the onboarding overlay.
+ * @return {Element|null} The frame, or null before the referral link is fetched.
+ */
+export function OnboardingFrame( {
+	signupUrl,
+	isOverlayOpen,
+	isCompletingOnboarding,
+	setFrameNode,
+	cancelOnboarding,
+} ) {
+	const closeRef = useRef( null );
+	const frameRef = useRef( null );
+	const attachFrame = useCallback(
+		node => {
+			frameRef.current = node;
+			setFrameNode( node );
+		},
+		[ setFrameNode ]
+	);
+
+	// Once the seller is done there is nothing left to close: the overlay comes
+	// down on its own, and a Close shown meanwhile would cancel a finished signup.
+	const showClose = isOverlayOpen && ! isCompletingOnboarding;
+
+	/**
+	 * Keep keyboard focus on the overlay while it is up.
+	 *
+	 * Focus lands on Close when the overlay opens and goes back where it came
+	 * from when it closes. In between, focus that reaches anything else is
+	 * sent back to Close, which is what keeps Tab from wandering behind
+	 * PayPal's window. Two documents, as with Escape: the frame is on the
+	 * canvas, the Connect button is in the sidebar.
+	 */
+	useEffect( () => {
+		const frame = frameRef.current;
+		if ( ! isOverlayOpen || ! frame ) {
+			return;
+		}
+
+		const canvasDocument = frame.ownerDocument;
+		const topDocument = canvasDocument.defaultView?.parent?.document ?? canvasDocument;
+		// From the top document, focus inside the canvas iframe reads as the iframe itself.
+		const topActive = topDocument.activeElement;
+		const origin =
+			topActive?.tagName === 'IFRAME' && canvasDocument !== topDocument
+				? canvasDocument.activeElement
+				: topActive;
+
+		closeRef.current?.focus();
+
+		const keepFocus = event => {
+			const target = event.target;
+			if ( target === closeRef.current || target === frame ) {
+				return;
+			}
+			closeRef.current?.focus();
+		};
+
+		const targets = new Set( [ canvasDocument, topDocument ] );
+		targets.forEach( target => target.addEventListener( 'focusin', keepFocus ) );
+
+		return () => {
+			targets.forEach( target => target.removeEventListener( 'focusin', keepFocus ) );
+			if ( origin?.isConnected && origin !== origin.ownerDocument.body ) {
+				origin.focus();
+			}
+		};
+	}, [ isOverlayOpen ] );
+
+	/*
+	 * No src: the frame keeps its initial document, which the connection hook
+	 * writes the link and SDK into. Pointing src at about:blank navigates over
+	 * that write and leaves the frame empty.
+	 */
+	if ( ! signupUrl ) {
+		return null;
+	}
+
+	return (
+		<div
+			role={ isOverlayOpen ? 'dialog' : undefined }
+			aria-modal={ isOverlayOpen ? 'true' : undefined }
+			aria-label={
+				isOverlayOpen ? __( 'PayPal onboarding', 'jetpack-paypal-payments' ) : undefined
+			}
+		>
+			{ /* Only while there is something to close: the frame is mounted
+			     hidden long before anyone clicks Connect. */ }
+			{ showClose && (
+				<Button
+					ref={ closeRef }
+					className="jetpack-paypal-onboarding-frame__close"
+					variant="secondary"
+					aria-label={ __( 'Close PayPal onboarding', 'jetpack-paypal-payments' ) }
+					onClick={ cancelOnboarding }
+				>
+					{ __( 'Close', 'jetpack-paypal-payments' ) }
+				</Button>
+			) }
+			<iframe
+				ref={ attachFrame }
+				title={ __( 'PayPal onboarding', 'jetpack-paypal-payments' ) }
+				sandbox={ ONBOARDING_SANDBOX }
+				className={
+					'jetpack-paypal-onboarding-frame' +
+					( isOverlayOpen ? ' jetpack-paypal-onboarding-frame--active' : '' )
+				}
+			/>
+		</div>
+	);
+}
+
+/**
+ * The guided PayPal connection wizard, shown in the block sidebar while the site has no connection.
  *
  * @param {object}   props                           - Component props.
  * @param {Function} props.setIsConnected            - Setter for the connection state.
@@ -28,9 +153,7 @@ const labelShowSecret = __( 'Show client secret', 'jetpack-paypal-payments' );
  * @param {Function} props.setShowReconnect          - Setter for the reconnect request.
  * @param {string}   props.signupUrl                 - Partner Referrals action URL, empty until fetched.
  * @param {Function} props.setOnboardingRequested    - Setter for the onboarding request.
- * @param {boolean}  props.isOverlayOpen             - Whether the onboarding overlay is up.
  * @param {boolean}  props.isOpeningPayPal           - Whether PayPal is being opened.
- * @param {Function} props.setFrameNode              - Ref callback for the onboarding frame.
  * @param {string}   props.clientId                  - The PayPal Client ID field value.
  * @param {string}   props.clientSecret              - The PayPal Client Secret field value.
  * @param {string}   props.connectError              - Connection error message, or null.
@@ -48,8 +171,8 @@ const labelShowSecret = __( 'Show client secret', 'jetpack-paypal-payments' );
  * @param {Function} props.handleClientSecretChange  - Change handler for the Client Secret field.
  * @param {string}   props.clientIdWarning           - Client ID format warning, or null.
  * @param {Function} props.handleConnect             - Submit the manual credentials.
+ * @param {Function} props.recordWizardStarted       - Record the merchant's first click in the wizard.
  * @param {Function} props.fetchSignupLink           - Fetch the Partner Referrals link.
- * @param {Function} props.cancelOnboarding          - Close the onboarding overlay.
  * @return {Element} The connection wizard.
  */
 export default function ConnectionWizard( {
@@ -60,9 +183,7 @@ export default function ConnectionWizard( {
 	setShowReconnect,
 	signupUrl,
 	setOnboardingRequested,
-	isOverlayOpen,
 	isOpeningPayPal,
-	setFrameNode,
 	clientId,
 	clientSecret,
 	connectError,
@@ -80,11 +201,11 @@ export default function ConnectionWizard( {
 	handleClientSecretChange,
 	clientIdWarning,
 	handleConnect,
+	recordWizardStarted,
 	fetchSignupLink,
-	cancelOnboarding,
 } ) {
-	// Pre-compute "Connect with PayPal" button label to avoid nested ternary.
-	const labelConnectWithPayPal = __( 'Connect with PayPal', 'jetpack-paypal-payments' );
+	// Pre-compute the "Connect PayPal" button label to avoid nested ternary.
+	const labelConnectWithPayPal = __( 'Connect PayPal', 'jetpack-paypal-payments' );
 	const labelCompletingSetup = __( 'Completing setup\u2026', 'jetpack-paypal-payments' );
 	let connectWithPayPalLabel = labelConnectWithPayPal;
 	if ( isOpeningPayPal ) {
@@ -98,95 +219,68 @@ export default function ConnectionWizard( {
 	const visibleStep =
 		wizardStep === 'welcome' && ! partnerReferralsAvailable ? 'dashboard' : wizardStep;
 
-	/*
-	 * No src: the frame keeps its initial document, which the effect above writes
-	 * the link and SDK into. Pointing src at about:blank navigates over that
-	 * write and leaves the frame empty.
-	 */
-	const onboardingFrame = signupUrl ? (
-		<>
-			{ /* Only while the overlay is up: the frame is mounted hidden long
-			     before anyone clicks Connect, and a close button in the tab
-			     order then has nothing to close. */ }
-			{ isOverlayOpen && (
-				<Button
-					className="jetpack-paypal-onboarding-frame__close"
-					variant="secondary"
-					aria-label={ __( 'Close PayPal onboarding', 'jetpack-paypal-payments' ) }
-					onClick={ cancelOnboarding }
-				>
-					{ __( 'Close', 'jetpack-paypal-payments' ) }
-				</Button>
-			) }
-			<iframe
-				ref={ setFrameNode }
-				title={ __( 'PayPal onboarding', 'jetpack-paypal-payments' ) }
-				sandbox={ ONBOARDING_SANDBOX }
-				className={
-					'jetpack-paypal-onboarding-frame' +
-					( isOverlayOpen ? ' jetpack-paypal-onboarding-frame--active' : '' )
-				}
-			/>
-		</>
-	) : null;
+	// Flag off, the wizard connects to production only: no toggle on the welcome
+	// step, no sandbox link under the credentials. The way back out of a sandbox
+	// a merchant was already in stays.
+	const sandboxAllowed = isSandboxAllowed();
 
 	return (
-		<>
-			<div className="jetpack-paypal-payment-buttons__connect">
-				{ /* Reconnecting from a block that still holds a button — let the
-				     merchant back out to its preview without connecting. */ }
-				{ showReconnect && (
-					<div className="jetpack-paypal-payment-buttons__reconnect-header">
-						<Button variant="tertiary" onClick={ () => setShowReconnect( false ) }>
-							{ __( 'Cancel', 'jetpack-paypal-payments' ) }
-						</Button>
-					</div>
-				) }
+		<div className="jetpack-paypal-payment-buttons__connect">
+			{ /* Reconnecting from a block that still holds a button — let the
+			     merchant back out to its preview without connecting. */ }
+			{ showReconnect && (
+				<div className="jetpack-paypal-payment-buttons__reconnect-header">
+					<Button variant="tertiary" onClick={ () => setShowReconnect( false ) }>
+						{ __( 'Cancel', 'jetpack-paypal-payments' ) }
+					</Button>
+				</div>
+			) }
 
-				{ /* Step indicator */ }
-				{ visibleStep !== 'welcome' && visibleStep !== 'success' && (
-					<div
-						className="jetpack-paypal-wizard__step-indicator"
-						role="list"
-						aria-label={ __( 'Setup progress', 'jetpack-paypal-payments' ) }
+			{ /* Step indicator */ }
+			{ visibleStep !== 'welcome' && visibleStep !== 'success' && (
+				<div
+					className="jetpack-paypal-wizard__step-indicator"
+					role="list"
+					aria-label={ __( 'Setup progress', 'jetpack-paypal-payments' ) }
+				>
+					<span
+						role="listitem"
+						aria-current={ visibleStep === 'dashboard' ? 'step' : undefined }
+						className={ `jetpack-paypal-wizard__step ${
+							visibleStep === 'dashboard' || visibleStep === 'credentials' ? 'is-active' : ''
+						}` }
 					>
-						<span
-							role="listitem"
-							aria-current={ visibleStep === 'dashboard' ? 'step' : undefined }
-							className={ `jetpack-paypal-wizard__step ${
-								visibleStep === 'dashboard' || visibleStep === 'credentials' ? 'is-active' : ''
-							}` }
-						>
-							{ '1' }
-						</span>
-						<span className="jetpack-paypal-wizard__step-line" aria-hidden="true" />
-						<span
-							role="listitem"
-							aria-current={ visibleStep === 'credentials' ? 'step' : undefined }
-							className={ `jetpack-paypal-wizard__step ${
-								visibleStep === 'credentials' ? 'is-active' : ''
-							}` }
-						>
-							{ '2' }
-						</span>
-						<span className="jetpack-paypal-wizard__step-line" aria-hidden="true" />
-						<span role="listitem" className="jetpack-paypal-wizard__step">
-							{ '3' }
-						</span>
-					</div>
-				) }
+						{ '1' }
+					</span>
+					<span className="jetpack-paypal-wizard__step-line" aria-hidden="true" />
+					<span
+						role="listitem"
+						aria-current={ visibleStep === 'credentials' ? 'step' : undefined }
+						className={ `jetpack-paypal-wizard__step ${
+							visibleStep === 'credentials' ? 'is-active' : ''
+						}` }
+					>
+						{ '2' }
+					</span>
+					<span className="jetpack-paypal-wizard__step-line" aria-hidden="true" />
+					<span role="listitem" className="jetpack-paypal-wizard__step">
+						{ '3' }
+					</span>
+				</div>
+			) }
 
-				{ /* Step 1: Welcome — Partner Referrals primary, manual credentials secondary */ }
-				{ visibleStep === 'welcome' && (
-					<div className="jetpack-paypal-wizard__welcome">
-						{ wizardLogo }
-						<h3>{ __( 'Connect PayPal', 'jetpack-paypal-payments' ) }</h3>
-						<p>
-							{ __(
-								'Accept payments with PayPal by connecting your PayPal account.',
-								'jetpack-paypal-payments'
-							) }
-						</p>
+			{ /* Step 1: Welcome — Partner Referrals primary, manual credentials secondary */ }
+			{ visibleStep === 'welcome' && (
+				<div className="jetpack-paypal-wizard__welcome">
+					<h3>{ __( 'Connect your PayPal account', 'jetpack-paypal-payments' ) }</h3>
+					<div className="jetpack-paypal-wizard__logo">{ PayPalIcon }</div>
+					<p>
+						{ __(
+							'Create a link or button directly in the editor - no code required.',
+							'jetpack-paypal-payments'
+						) }
+					</p>
+					{ sandboxAllowed && (
 						<div className="jetpack-paypal-wizard__env-toggle">
 							<ToggleControl
 								label={ __( 'Use sandbox (testing)', 'jetpack-paypal-payments' ) }
@@ -194,185 +288,211 @@ export default function ConnectionWizard( {
 								onChange={ checked => setEnvironment( checked ? 'sandbox' : 'production' ) }
 							/>
 						</div>
-						<div className="jetpack-paypal-wizard__actions">
-							<Button
-								variant="primary"
-								onClick={ () => {
-									// A frame built after the click misses that click's user
-									// activation, so PayPal's window.open inside it is
-									// popup-blocked. Fetch the referral and stop; that
-									// builds the frame for the next click to activate.
-									if ( ! signupUrl ) {
-										fetchSignupLink();
-										return;
-									}
+					) }
+					<div className="jetpack-paypal-wizard__actions">
+						<Button
+							variant="primary"
+							onClick={ () => {
+								recordWizardStarted();
 
-									setOnboardingRequested( true );
-								} }
-								isBusy={ isOpeningPayPal || isCompletingOnboarding }
-								disabled={ isOpeningPayPal || isCompletingOnboarding }
-							>
-								{ connectWithPayPalLabel }
-							</Button>
-						</div>
-						{ connectError && ! connectErrorDismissed && (
-							<Notice
-								status="error"
-								isDismissible
-								onDismiss={ () => setConnectErrorDismissed( true ) }
-							>
-								{ connectError }
-							</Notice>
-						) }
-						<p className="jetpack-paypal-wizard__hint">
-							<Button variant="link" onClick={ () => setWizardStep( 'dashboard' ) }>
-								{ __( 'Or enter your API credentials manually', 'jetpack-paypal-payments' ) }
-							</Button>
-						</p>
+								// A frame built after the click misses that click's user
+								// activation, so PayPal's window.open inside it is
+								// popup-blocked. Fetch the referral and stop; that
+								// builds the frame for the next click to activate.
+								if ( ! signupUrl ) {
+									fetchSignupLink();
+									return;
+								}
+
+								jetpackAnalytics.tracks.recordEvent( 'jetpack_paypal_connection_attempted', {
+									environment,
+									method: 'partner_referrals',
+								} );
+								// A notice from the last attempt belongs to that attempt.
+								setConnectError( null );
+								setOnboardingRequested( true );
+							} }
+							isBusy={ isOpeningPayPal || isCompletingOnboarding }
+							disabled={ isOpeningPayPal || isCompletingOnboarding }
+							// Closing the overlay puts focus back here while the next referral is fetched.
+							accessibleWhenDisabled
+						>
+							{ connectWithPayPalLabel }
+						</Button>
 					</div>
-				) }
+					{ connectError && ! connectErrorDismissed && (
+						<Notice
+							status="error"
+							isDismissible
+							onDismiss={ () => setConnectErrorDismissed( true ) }
+						>
+							{ connectError }
+						</Notice>
+					) }
+					<p className="jetpack-paypal-wizard__hint">
+						<Button
+							variant="link"
+							onClick={ () => {
+								recordWizardStarted();
+								setWizardStep( 'dashboard' );
+							} }
+						>
+							{ __( 'Or enter your API credentials manually', 'jetpack-paypal-payments' ) }
+						</Button>
+					</p>
+				</div>
+			) }
 
-				{ /* Step 2: Open PayPal Dashboard */ }
-				{ visibleStep === 'dashboard' && (
-					<div className="jetpack-paypal-wizard__dashboard">
-						<h3>{ __( 'Step 1 of 3: Get Your API Credentials', 'jetpack-paypal-payments' ) }</h3>
-						<ol className="jetpack-paypal-wizard__instructions">
-							<li>
-								{ __(
-									'Open the PayPal Developer Dashboard (opens in a new tab)',
-									'jetpack-paypal-payments'
-								) }
-							</li>
-							<li>
-								{ __( 'Log in with your PayPal Business account', 'jetpack-paypal-payments' ) }
-							</li>
-							<li>{ __( 'Go to Apps & Credentials', 'jetpack-paypal-payments' ) }</li>
-							<li>
-								{ __(
-									'Copy the Client ID and Client Secret from your app',
-									'jetpack-paypal-payments'
-								) }
-							</li>
-						</ol>
-						<div className="jetpack-paypal-wizard__actions">
-							<Button
-								variant="primary"
-								href={ `https://developer.paypal.com/dashboard/applications/${
-									environment === 'sandbox' ? 'sandbox' : 'live'
-								}` }
-								target="_blank"
-								rel="noopener noreferrer"
-							>
-								{ __( 'Open PayPal Dashboard ↗', 'jetpack-paypal-payments' ) }
-							</Button>
-						</div>
-						<p className="jetpack-paypal-wizard__hint">
+			{ /* Step 2: Open PayPal Dashboard */ }
+			{ visibleStep === 'dashboard' && (
+				<div className="jetpack-paypal-wizard__dashboard">
+					<h3>{ __( 'Step 1 of 3: Get Your API Credentials', 'jetpack-paypal-payments' ) }</h3>
+					<ol className="jetpack-paypal-wizard__instructions">
+						<li>
 							{ __(
-								'Once you have your Client ID and Secret, come back here and continue.',
+								'Open the PayPal Developer Dashboard (opens in a new tab)',
 								'jetpack-paypal-payments'
 							) }
-						</p>
-						<div className="jetpack-paypal-wizard__actions">
-							<Button variant="primary" onClick={ () => setWizardStep( 'credentials' ) }>
-								{ __( 'I have my credentials — Next', 'jetpack-paypal-payments' ) }
-							</Button>
-						</div>
-						{ partnerReferralsAvailable && (
-							<div className="jetpack-paypal-wizard__nav">
-								<Button variant="link" onClick={ () => setWizardStep( 'welcome' ) }>
-									{ __( '← Back', 'jetpack-paypal-payments' ) }
-								</Button>
-							</div>
-						) }
-					</div>
-				) }
-
-				{ /* Step 3: Enter Credentials */ }
-				{ visibleStep === 'credentials' && (
-					<div className="jetpack-paypal-wizard__credentials">
-						<h3>{ __( 'Step 2 of 3: Enter Credentials', 'jetpack-paypal-payments' ) }</h3>
-						<p className="jetpack-paypal-wizard__subtitle">
+						</li>
+						<li>{ __( 'Log in with your PayPal Business account', 'jetpack-paypal-payments' ) }</li>
+						<li>{ __( 'Go to Apps & Credentials', 'jetpack-paypal-payments' ) }</li>
+						<li>
 							{ __(
-								'Enter the API credentials from your PayPal account:',
+								'Copy the Client ID and Client Secret from your app',
 								'jetpack-paypal-payments'
 							) }
-						</p>
-
-						{ connectError && (
-							<Notice status="error" isDismissible onDismiss={ () => setConnectError( null ) }>
-								{ connectError }
-							</Notice>
+						</li>
+					</ol>
+					<div className="jetpack-paypal-wizard__actions">
+						<Button
+							variant="primary"
+							href={ `https://developer.paypal.com/dashboard/applications/${
+								environment === 'sandbox' ? 'sandbox' : 'live'
+							}` }
+							target="_blank"
+							rel="noopener noreferrer"
+							onClick={ recordWizardStarted }
+						>
+							{ __( 'Open PayPal Dashboard ↗', 'jetpack-paypal-payments' ) }
+						</Button>
+					</div>
+					<p className="jetpack-paypal-wizard__hint">
+						{ __(
+							'Once you have your Client ID and Secret, come back here and continue.',
+							'jetpack-paypal-payments'
 						) }
-
-						{ environment === 'sandbox' && (
-							<Notice status="warning" isDismissible={ false }>
-								{ __(
-									'Sandbox mode — buttons will use test credentials.',
-									'jetpack-paypal-payments'
-								) }
-							</Notice>
-						) }
-
-						<TextControl
-							label={ __( 'Client ID', 'jetpack-paypal-payments' ) }
-							value={ clientId }
-							onChange={ handleClientIdChange }
-							help={
-								clientIdWarning
-									? undefined
-									: __( 'Found under your app name in the dashboard.', 'jetpack-paypal-payments' )
-							}
-							className={
-								clientIdWarning ? 'jetpack-paypal-payment-buttons__has-warning' : undefined
-							}
-							autoComplete="off"
-						/>
-						{ clientIdWarning && (
-							<p className="jetpack-paypal-payment-buttons__field-warning">{ clientIdWarning }</p>
-						) }
-
-						<div className="jetpack-paypal-wizard__secret-field">
-							<TextControl
-								label={ __( 'Client Secret', 'jetpack-paypal-payments' ) }
-								value={ clientSecret }
-								onChange={ handleClientSecretChange }
-								type={ showSecretField ? 'text' : 'password' }
-								help={ __(
-									'Click "Show" in PayPal to reveal it, then copy.',
-									'jetpack-paypal-payments'
-								) }
-								autoComplete="off"
-							/>
-							<Button
-								variant="tertiary"
-								className="jetpack-paypal-wizard__toggle-secret"
-								onClick={ () => setShowSecretField( ! showSecretField ) }
-								aria-label={ showSecretField ? labelHideSecret : labelShowSecret }
-							>
-								{ showSecretField ? labelHide : labelShow }
-							</Button>
-						</div>
-
-						<div className="jetpack-paypal-wizard__actions">
-							<Button
-								variant="primary"
-								onClick={ handleConnect }
-								isBusy={ isConnecting }
-								disabled={ isConnecting || ! clientId || ! clientSecret }
-							>
-								{ isConnecting ? labelConnecting : labelConnect }
-							</Button>
-						</div>
+					</p>
+					<div className="jetpack-paypal-wizard__actions">
+						<Button
+							variant="primary"
+							onClick={ () => {
+								recordWizardStarted();
+								jetpackAnalytics.tracks.recordEvent( 'jetpack_paypal_wizard_credentials_reached', {
+									environment,
+								} );
+								setWizardStep( 'credentials' );
+							} }
+						>
+							{ __( 'I have my credentials — Next', 'jetpack-paypal-payments' ) }
+						</Button>
+					</div>
+					{ partnerReferralsAvailable && (
 						<div className="jetpack-paypal-wizard__nav">
-							<Button
-								variant="link"
-								onClick={ () => setWizardStep( 'dashboard' ) }
-								disabled={ isConnecting }
-							>
+							<Button variant="link" onClick={ () => setWizardStep( 'welcome' ) }>
 								{ __( '← Back', 'jetpack-paypal-payments' ) }
 							</Button>
 						</div>
+					) }
+				</div>
+			) }
 
+			{ /* Step 3: Enter Credentials */ }
+			{ visibleStep === 'credentials' && (
+				<div className="jetpack-paypal-wizard__credentials">
+					<h3>{ __( 'Step 2 of 3: Enter Credentials', 'jetpack-paypal-payments' ) }</h3>
+					<p className="jetpack-paypal-wizard__subtitle">
+						{ __(
+							'Enter the API credentials from your PayPal account:',
+							'jetpack-paypal-payments'
+						) }
+					</p>
+
+					{ connectError && (
+						<Notice status="error" isDismissible onDismiss={ () => setConnectError( null ) }>
+							{ connectError }
+						</Notice>
+					) }
+
+					{ environment === 'sandbox' && (
+						<Notice status="warning" isDismissible={ false }>
+							{ __(
+								'Sandbox mode — buttons will use test credentials.',
+								'jetpack-paypal-payments'
+							) }
+						</Notice>
+					) }
+
+					<TextControl
+						label={ __( 'Client ID', 'jetpack-paypal-payments' ) }
+						value={ clientId }
+						onChange={ handleClientIdChange }
+						help={
+							clientIdWarning
+								? undefined
+								: __( 'Found under your app name in the dashboard.', 'jetpack-paypal-payments' )
+						}
+						className={
+							clientIdWarning ? 'jetpack-paypal-payment-buttons__has-warning' : undefined
+						}
+						autoComplete="off"
+					/>
+					{ clientIdWarning && (
+						<p className="jetpack-paypal-payment-buttons__field-warning">{ clientIdWarning }</p>
+					) }
+
+					<div className="jetpack-paypal-wizard__secret-field">
+						<TextControl
+							label={ __( 'Client Secret', 'jetpack-paypal-payments' ) }
+							value={ clientSecret }
+							onChange={ handleClientSecretChange }
+							type={ showSecretField ? 'text' : 'password' }
+							help={ __(
+								'Click "Show" in PayPal to reveal it, then copy.',
+								'jetpack-paypal-payments'
+							) }
+							autoComplete="off"
+						/>
+						<Button
+							variant="tertiary"
+							className="jetpack-paypal-wizard__toggle-secret"
+							onClick={ () => setShowSecretField( ! showSecretField ) }
+							aria-label={ showSecretField ? labelHideSecret : labelShowSecret }
+						>
+							{ showSecretField ? labelHide : labelShow }
+						</Button>
+					</div>
+
+					<div className="jetpack-paypal-wizard__actions">
+						<Button
+							variant="primary"
+							onClick={ handleConnect }
+							isBusy={ isConnecting }
+							disabled={ isConnecting || ! clientId || ! clientSecret }
+						>
+							{ isConnecting ? labelConnecting : labelConnect }
+						</Button>
+					</div>
+					<div className="jetpack-paypal-wizard__nav">
+						<Button
+							variant="link"
+							onClick={ () => setWizardStep( 'dashboard' ) }
+							disabled={ isConnecting }
+						>
+							{ __( '← Back', 'jetpack-paypal-payments' ) }
+						</Button>
+					</div>
+
+					{ ( sandboxAllowed || environment === 'sandbox' ) && (
 						<p className="jetpack-paypal-wizard__env-toggle">
 							{ environment === 'production' ? (
 								<Button variant="link" onClick={ () => setEnvironment( 'sandbox' ) }>
@@ -393,29 +513,28 @@ export default function ConnectionWizard( {
 								</>
 							) }
 						</p>
-					</div>
-				) }
+					) }
+				</div>
+			) }
 
-				{ /* Step 4: Success */ }
-				{ visibleStep === 'success' && (
-					<div className="jetpack-paypal-wizard__success">
-						<div className="jetpack-paypal-wizard__success-icon" aria-hidden="true">
-							<span>&#10003;</span>
-						</div>
-						<h3>{ __( 'PayPal account connected!', 'jetpack-paypal-payments' ) }</h3>
-						<p>
-							{ __(
-								"You're ready to create payment buttons and links. Fill in your product details and we'll create both an embeddable PayPal button and a shareable payment link.",
-								'jetpack-paypal-payments'
-							) }
-						</p>
-						<Button variant="primary" onClick={ () => setIsConnected( true ) }>
-							{ __( 'Create Your First Button', 'jetpack-paypal-payments' ) }
-						</Button>
+			{ /* Step 4: Success */ }
+			{ visibleStep === 'success' && (
+				<div className="jetpack-paypal-wizard__success">
+					<div className="jetpack-paypal-wizard__success-icon" aria-hidden="true">
+						<span>&#10003;</span>
 					</div>
-				) }
-			</div>
-			{ onboardingFrame }
-		</>
+					<h3>{ __( 'PayPal account connected!', 'jetpack-paypal-payments' ) }</h3>
+					<p>
+						{ __(
+							"You're ready to create payment buttons and links. Fill in your product details and we'll create both an embeddable PayPal button and a shareable payment link.",
+							'jetpack-paypal-payments'
+						) }
+					</p>
+					<Button variant="primary" onClick={ () => setIsConnected( true ) }>
+						{ __( 'Create Your First Button', 'jetpack-paypal-payments' ) }
+					</Button>
+				</div>
+			) }
+		</div>
 	);
 }

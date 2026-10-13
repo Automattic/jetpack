@@ -2,7 +2,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Link, Text } from '@wordpress/ui';
-import Gridicon from 'gridicons';
+import gridiconsModule from 'gridicons';
 import PropTypes from 'prop-types';
 import { PRODUCT_STATUSES } from '../../../constants';
 import {
@@ -19,6 +19,10 @@ import ProductCard from '../../connected-product-card';
 import { InfoTooltip } from '../../info-tooltip';
 import LoadingBlock from '../../loading-block';
 import styles from './style.module.scss';
+
+// gridicons is CJS-only: esbuild applies Node's ESM interop and hands over the whole
+// module.exports, while webpack unwraps the Babel `__esModule` default for us.
+const Gridicon = gridiconsModule.default ?? gridiconsModule;
 
 const productSlug = PRODUCT_SLUGS.BACKUP;
 
@@ -96,6 +100,9 @@ const BackupCard = props => {
 
 	const isError = status === PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR && lastBackupFailed;
 
+	// The module only switches the dashboard, so a plan holder's backups keep running with it off.
+	const isModuleOff = status === PRODUCT_STATUSES.MODULE_DISABLED;
+
 	// Build support URL with pre-filled subject and site URL
 	const supportUrl = getRedirectUrl( 'jetpack-backup-support-reactivate', {
 		site: siteUrl,
@@ -108,7 +115,7 @@ const BackupCard = props => {
 		<ProductCard
 			{ ...props }
 			slug={ productSlug }
-			Description={ ( isError || isDeactivated ) && noDescription }
+			Description={ ( isError || isDeactivated || isModuleOff ) && noDescription }
 			admin={ isDeactivated ? false : props.admin }
 		>
 			{ isBackupFailedReasonLoading && <LoadingBlock height="75px" width="100%" /> }
@@ -124,6 +131,18 @@ const BackupCard = props => {
 								{
 									a: <Link openInNewTab href={ supportUrl } />,
 								}
+							) }
+						</Text>
+					</div>
+				</div>
+			) }
+			{ isModuleOff && (
+				<div className={ styles.backupErrorContainer }>
+					<div className={ styles.contentContainer }>
+						<Text variant="body-sm">
+							{ __(
+								'Your backups are still running. Activate Backup to browse and restore them from your WordPress dashboard.',
+								'jetpack-my-jetpack'
 							) }
 						</Text>
 					</div>

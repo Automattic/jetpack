@@ -9,6 +9,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import styles from './section-sync-notice.module.scss';
 
 type SectionSyncNoticeProps = {
+	canRunSync?: boolean;
 	percentage: number;
 	hasError: boolean;
 	onRetry: () => void;
@@ -22,6 +23,7 @@ type SectionSyncNoticeProps = {
  * numbers are incomplete rather than that a sync is merely running.
  *
  * @param props            - Component props.
+ * @param props.canRunSync - Whether the reader may run the sync; nobody tracks it for anyone else.
  * @param props.percentage - Sync progress, 0–100.
  * @param props.hasError   - Whether the sync failed or stalled.
  * @param props.onRetry    - Starts the sync again.
@@ -29,6 +31,7 @@ type SectionSyncNoticeProps = {
  * @return The notice.
  */
 export function SectionSyncNotice( {
+	canRunSync = true,
 	percentage,
 	hasError,
 	onRetry,
@@ -42,6 +45,19 @@ export function SectionSyncNotice( {
 		'Something went wrong while syncing your store data, so the numbers below are incomplete.',
 		'jetpack-premium-analytics-pkg'
 	);
+	if ( ! canRunSync ) {
+		const pendingMessage = __(
+			"Your store data hasn't finished syncing, so the numbers below are incomplete. It finishes once a site administrator opens this page.",
+			'jetpack-premium-analytics-pkg'
+		);
+
+		return (
+			<Notice.Root intent="info" spokenMessage={ pendingMessage } className={ styles.notice }>
+				<Notice.Description>{ pendingMessage }</Notice.Description>
+			</Notice.Root>
+		);
+	}
+
 	// A retry clears the error before it settles, so reading `hasError` alone would
 	// drop the failure layout mid-click and flip the announcement back and forth.
 	const showError = hasError || isRetrying;

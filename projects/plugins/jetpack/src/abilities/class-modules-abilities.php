@@ -12,6 +12,10 @@ namespace Automattic\Jetpack\Plugin\Abilities;
 use Automattic\Jetpack\WP_Abilities\Registrar;
 use Jetpack;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Registers Jetpack module management abilities with the WordPress Abilities API.
  *

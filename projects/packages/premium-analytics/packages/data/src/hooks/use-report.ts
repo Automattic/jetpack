@@ -48,10 +48,10 @@ export function useReport<
 					to: params.compare_to,
 				},
 				'comparison'
-		  )
+			)
 		: {
 				queryKey: options?.disabledComparisonKey ?? [ 'reports', '__comparison__', 'disabled' ],
-		  };
+			};
 
 	const primaryEnabled = queryEnabled && ( primaryQueryOptions.enabled ?? true );
 	const comparisonQueryEnabled =
@@ -74,15 +74,12 @@ export function useReport<
 	const isLoading = isAwaitingData( primary ) || isAwaitingData( comparison );
 	const isFetching = primary.isFetching || comparison.isFetching;
 
-	// Only the conversion funnel adds `steps`, so all three shapes are checked.
 	// `as any` escapes `TData`, unconstrainable without breaking callers.
 	const hasData =
 		Boolean( ( primary.data as any )?.summary ) ||
 		Boolean( ( primary.data as any )?.data?.length ) ||
-		Boolean( ( primary.data as any )?.steps?.length ) ||
 		Boolean( ( comparison.data as any )?.summary ) ||
-		Boolean( ( comparison.data as any )?.data?.length ) ||
-		Boolean( ( comparison.data as any )?.steps?.length );
+		Boolean( ( comparison.data as any )?.data?.length );
 
 	// React Query's `refetch()` deliberately ignores `enabled`, so the gate is
 	// re-applied here to leave a switched-off query alone.

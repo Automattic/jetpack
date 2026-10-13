@@ -31,6 +31,59 @@ class The_Neverending_Home_Page_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A post type the request asks for is only merged into the query when it is
+	 * viewable on the front end.
+	 *
+	 * @dataProvider get_injected_post_type_data
+	 *
+	 * @param mixed $requested_post_type The $_REQUEST['query_args']['post_type'] value.
+	 * @param mixed $expected            The post_type the query should end up running with.
+	 */
+	#[DataProvider( 'get_injected_post_type_data' )]
+	public function test_inject_query_args_post_type( $requested_post_type, $expected ) {
+		register_post_type(
+			'jptest_private',
+			array(
+				'public'             => false,
+				'publicly_queryable' => false,
+			)
+		);
+		register_post_type(
+			'jptest_public',
+			array(
+				'public'             => true,
+				'publicly_queryable' => true,
+			)
+		);
+
+		$_REQUEST['query_args'] = array( 'post_type' => $requested_post_type );
+
+		$query_args = $this->infinite_scroll->inject_query_args( array( 'post_type' => 'post' ) );
+
+		$this->assertSame( $expected, $query_args['post_type'] );
+
+		unset( $_REQUEST['query_args'] );
+		unregister_post_type( 'jptest_private' );
+		unregister_post_type( 'jptest_public' );
+	}
+
+	/**
+	 * Gets the test data for test_inject_query_args_post_type().
+	 *
+	 * @return array The test data.
+	 */
+	public static function get_injected_post_type_data() {
+		return array(
+			'builtin public post type'       => array( 'page', 'page' ),
+			'registered public post type'    => array( 'jptest_public', 'jptest_public' ),
+			'any'                            => array( 'any', 'any' ),
+			'non-viewable post type'         => array( 'jptest_private', 'post' ),
+			'unregistered post type'         => array( 'no_such_type', 'post' ),
+			'array with a non-viewable type' => array( array( 'jptest_public', 'jptest_private' ), 'post' ),
+		);
+	}
+
+	/**
 	 * Test posts_per_page method when $_REQUEST['query_args']['posts_per_page'] is set.
 	 *
 	 * @dataProvider get_posts_per_page_in_request_data

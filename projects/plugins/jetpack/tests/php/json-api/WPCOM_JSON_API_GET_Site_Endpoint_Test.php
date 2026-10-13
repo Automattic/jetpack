@@ -9,6 +9,7 @@
 
 use Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 
 require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
@@ -46,6 +47,10 @@ class WPCOM_JSON_API_GET_Site_Endpoint_Test extends WP_UnitTestCase {
 	 * Clean up after each test.
 	 */
 	public function tear_down() {
+		delete_option( 'jetpack_test_legacy_gating_blog_ids' );
+		delete_option( 'wpcom_ai_launchpad_no_guidance' );
+		delete_option( 'wpcom_ai_launchpad_enabled' );
+		delete_option( 'wpcom_ai_launchpad_dismissed' );
 		$this->tear_down_rest_parity();
 		parent::tear_down();
 		WPCOM_JSON_API::init()->query         = array();
@@ -122,6 +127,157 @@ class WPCOM_JSON_API_GET_Site_Endpoint_Test extends WP_UnitTestCase {
 				"`difm_lite_site_options` must be omitted ($transport) when the SAL getter returns null."
 			);
 		}
+	}
+
+	/**
+	 * `is_legacy_gating_site` has to be emitted as a boolean when asked for by name.
+	 *
+	 * Clients read it to decide whether a plan change could move the site off the pre-2026 feature
+	 * gating, and skip that check entirely when it is false -- so a missing key or a non-boolean would
+	 * silently change behaviour for every site rather than erroring.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_is_legacy_gating_site_is_rendered_when_requested() {
+		list( $xmlrpc, $rest ) = $this->assert_rest_parity(
+			$this->get_endpoint(),
+			array(
+				'fields'  => 'ID,options',
+				'options' => 'is_legacy_gating_site',
+			)
+		);
+
+		foreach ( array(
+			'xmlrpc' => $xmlrpc,
+			'rest'   => $rest,
+		) as $transport => $body ) {
+			$this->assertArrayHasKey( 'options', $body, "get-site ($transport) did not render `options`." );
+			$options = (array) $body['options'];
+
+			$this->assertArrayHasKey(
+				'is_legacy_gating_site',
+				$options,
+				"`is_legacy_gating_site` must be emitted ($transport) when requested by name."
+			);
+			$this->assertIsBool(
+				$options['is_legacy_gating_site'],
+				"`is_legacy_gating_site` must be a boolean ($transport), not a truthy value."
+			);
+		}
+	}
+
+	/**
+	 * The rendered value has to be the predicate's verdict for the rendered site, not just any
+	 * boolean: clients skip the plan-change check entirely when it is false.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_is_legacy_gating_site_renders_the_predicate_verdict() {
+		global $blog_id;
+
+		if ( '1' === getenv( 'JETPACK_TEST_WPCOMSH' ) ) {
+			$this->markTestSkipped( 'The real WPCOM_Features is loaded here, so the predicate is not controllable.' );
+		}
+
+		// The bootstrap mock reads this option; see tests/php/lib/class-wpcom-features.php.
+		update_option( 'jetpack_test_legacy_gating_blog_ids', array( (int) $blog_id ) );
+
+		list( $xmlrpc, $rest ) = $this->assert_rest_parity(
+			$this->get_endpoint(),
+			array(
+				'fields'  => 'ID,options',
+				'options' => 'is_legacy_gating_site',
+			)
+		);
+
+		foreach ( array(
+			'xmlrpc' => $xmlrpc,
+			'rest'   => $rest,
+		) as $transport => $body ) {
+			$options = (array) $body['options'];
+
+			$this->assertTrue(
+				$options['is_legacy_gating_site'],
+				"`is_legacy_gating_site` must render the predicate's verdict ($transport)."
+			);
+		}
+	}
+
+	/**
+	 * Calypso gates My Home and the site overview on this flag, so it must render as the option's boolean.
+	 *
+	 * @dataProvider provide_ai_launchpad_no_guidance_states
+	 * @group json-api
+	 *
+	 * @param bool $set Whether the option is set on the site.
+	 */
+	#[DataProvider( 'provide_ai_launchpad_no_guidance_states' )]
+	#[Group( 'json-api' )]
+	public function test_ai_launchpad_no_guidance_renders_the_option( $set ) {
+		if ( $set ) {
+			update_option( 'wpcom_ai_launchpad_no_guidance', 1 );
+		}
+
+		list( $xmlrpc, $rest ) = $this->assert_rest_parity(
+			$this->get_endpoint(),
+			array(
+				'fields'  => 'ID,options',
+				'options' => 'wpcom_ai_launchpad_no_guidance',
+			)
+		);
+
+		foreach ( array(
+			'xmlrpc' => $xmlrpc,
+			'rest'   => $rest,
+		) as $transport => $body ) {
+			$options = (array) $body['options'];
+
+			$this->assertArrayHasKey( 'wpcom_ai_launchpad_no_guidance', $options, "Missing from the options ($transport)." );
+			$this->assertSame( $set, $options['wpcom_ai_launchpad_no_guidance'], "Wrong value ($transport)." );
+		}
+	}
+
+	/**
+	 * A skipped AI Launchpad is no-guidance and no longer enabled, matching the wp-admin surfaces.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_skipped_ai_launchpad_renders_as_no_guidance() {
+		update_option( 'wpcom_ai_launchpad_enabled', 1 );
+		update_option( 'wpcom_ai_launchpad_dismissed', 1 );
+
+		list( $xmlrpc, $rest ) = $this->assert_rest_parity(
+			$this->get_endpoint(),
+			array(
+				'fields'  => 'ID,options',
+				'options' => 'wpcom_ai_launchpad_enabled,wpcom_ai_launchpad_no_guidance',
+			)
+		);
+
+		foreach ( array(
+			'xmlrpc' => $xmlrpc,
+			'rest'   => $rest,
+		) as $transport => $body ) {
+			$options = (array) $body['options'];
+
+			$this->assertTrue( $options['wpcom_ai_launchpad_no_guidance'], "Skipped must be no-guidance ($transport)." );
+			$this->assertFalse( $options['wpcom_ai_launchpad_enabled'], "Skipped must not be enabled ($transport)." );
+		}
+	}
+
+	/**
+	 * Data provider for test_ai_launchpad_no_guidance_renders_the_option.
+	 *
+	 * @return array
+	 */
+	public static function provide_ai_launchpad_no_guidance_states() {
+		return array(
+			'set'   => array( true ),
+			'unset' => array( false ),
+		);
 	}
 
 	/**

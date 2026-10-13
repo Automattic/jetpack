@@ -48,7 +48,7 @@ class Dashboard_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		$this->reset_wp_build_polyfills();
-		unset( $_GET['page'], $_GET['p'] );
+		unset( $_GET['page'], $_GET['p'], $_COOKIE[ Dashboard::LAST_TAB_COOKIE ] );
 
 		// Tests that call set_current_screen() would otherwise leave it set for whatever
 		// runs next, which decides is_admin() and is_jetpack_forms_admin_page().
@@ -478,5 +478,73 @@ class Dashboard_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'notice-error', $output );
 		$this->assertStringContainsString( 'missing the files it needs', $output );
 		$this->assertStringNotContainsString( 'jp-forms-dashboard', $output );
+	}
+
+	/**
+	 * Sets the central form management feature flag for the current test.
+	 *
+	 * @param bool $enabled Whether the flag should be on.
+	 */
+	private function set_central_form_management( $enabled ) {
+		add_filter(
+			'jetpack_block_editor_feature_flags',
+			function ( $flags ) use ( $enabled ) {
+				$flags['central-form-management'] = $enabled;
+				return $flags;
+			}
+		);
+	}
+
+	/**
+	 * Test the dashboard opens on Forms when the browser remembers nothing.
+	 */
+	public function test_get_default_tab_without_a_cookie_opens_forms() {
+		$this->set_central_form_management( true );
+
+		$this->assertSame( 'forms', Dashboard::get_default_tab() );
+	}
+
+	/**
+	 * Test a remembered Responses tab reopens the responses inbox.
+	 */
+	public function test_get_default_tab_honours_a_remembered_responses_tab() {
+		$this->set_central_form_management( true );
+		$_COOKIE[ Dashboard::LAST_TAB_COOKIE ] = 'responses';
+
+		$this->assertSame( 'responses', Dashboard::get_default_tab() );
+		$this->assertStringContainsString(
+			rawurlencode( '/responses/inbox' ),
+			Dashboard::get_forms_admin_url( Dashboard::get_default_tab() )
+		);
+	}
+
+	/**
+	 * Test a remembered Forms tab reopens the forms list.
+	 */
+	public function test_get_default_tab_honours_a_remembered_forms_tab() {
+		$this->set_central_form_management( true );
+		$_COOKIE[ Dashboard::LAST_TAB_COOKIE ] = 'forms';
+
+		$this->assertSame( 'forms', Dashboard::get_default_tab() );
+	}
+
+	/**
+	 * Test an unrecognised cookie value falls back to the usual default.
+	 */
+	public function test_get_default_tab_ignores_an_unrecognised_cookie() {
+		$this->set_central_form_management( true );
+		$_COOKIE[ Dashboard::LAST_TAB_COOKIE ] = 'not-a-tab';
+
+		$this->assertSame( 'forms', Dashboard::get_default_tab() );
+	}
+
+	/**
+	 * Test a stale Forms cookie cannot strand the user on a tab that is not rendered.
+	 */
+	public function test_get_default_tab_ignores_a_forms_cookie_without_central_form_management() {
+		$this->set_central_form_management( false );
+		$_COOKIE[ Dashboard::LAST_TAB_COOKIE ] = 'forms';
+
+		$this->assertSame( 'inbox', Dashboard::get_default_tab() );
 	}
 }

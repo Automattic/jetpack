@@ -135,8 +135,7 @@ export const NoVideoScope: Story = {
 };
 
 interface VideoDetailViewsPerformanceDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		VideoDetailViewsPerformanceStoryControls {}
+	extends WidgetDashboardWithWidgetControls, VideoDetailViewsPerformanceStoryControls {}
 
 /**
  * Mounts the real `WidgetDashboard` so the widget renders exactly as it does in

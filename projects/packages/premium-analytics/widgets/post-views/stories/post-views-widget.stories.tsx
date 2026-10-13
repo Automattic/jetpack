@@ -126,8 +126,7 @@ export const NoPostScope: Story = {
 };
 
 interface PostViewsDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		PostViewsStoryControls {}
+	extends WidgetDashboardWithWidgetControls, PostViewsStoryControls {}
 
 /**
  * Mounts the real `WidgetDashboard` with this single widget. Comparison params

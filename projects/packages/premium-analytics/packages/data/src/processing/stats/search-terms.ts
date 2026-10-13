@@ -59,7 +59,7 @@ export function sanitizeStatsSearchTermsResponse(
 						coerceStatsArray< StatsRecord >( bucket.search_terms ).map( normalizeStatsSearchTerm )
 					),
 					encrypted_search_terms: bucket.encrypted_search_terms,
-			  } ) ),
+				} ) ),
 	};
 }
 

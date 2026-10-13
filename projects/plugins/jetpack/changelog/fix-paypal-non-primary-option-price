@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-PayPal Payment Buttons: take the displayed price from the option group PayPal is actually pricing.

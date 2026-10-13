@@ -2,7 +2,6 @@ const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
 const { glob } = require( 'glob' );
-const webpack = require( 'webpack' );
 const StaticSiteGeneratorPlugin = require( './static-site-generator-webpack-plugin' );
 
 const sharedWebpackConfig = {
@@ -178,7 +177,7 @@ module.exports = [
 			// Some of the package's strings ship with the textdomain left as a
 			// `__i18n_text_domain__` placeholder. Unreplaced it is a free variable, so those
 			// strings throw a ReferenceError when their component renders.
-			new webpack.DefinePlugin( {
+			new jetpackWebpackConfig.webpack.DefinePlugin( {
 				__i18n_text_domain__: JSON.stringify( 'jetpack' ),
 			} ),
 			...jetpackWebpackConfig.DependencyExtractionPlugin( {
@@ -231,46 +230,7 @@ module.exports = [
 		plugins: [
 			...sharedWebpackConfig.plugins,
 			...jetpackWebpackConfig.DependencyExtractionPlugin( {
-				// Match the AI admin build: @wordpress/ui (pulled in via the licensing
-				// activation screen) drags in @wordpress/theme and @wordpress/private-apis.
-				// They are not registered as WP script handles on the main Jetpack admin
-				// path (WP < 7.0 has no core wp-theme, and this page does not load the
-				// wp-build-polyfills shim), so bundle them instead of externalizing to
-				// avoid the whole dashboard script failing to enqueue.
-				requestMap: {
-					'@wordpress/theme': { external: false },
-					'@wordpress/private-apis': { external: false },
-				},
-			} ),
-		],
-		externals: {
-			...sharedWebpackConfig.externals,
-			jetpackConfig: JSON.stringify( {
-				consumer_slug: 'jetpack',
-			} ),
-		},
-	},
-	// Build AI admin page JS.
-	{
-		...sharedWebpackConfig,
-		entry: {
-			'jetpack-ai-admin': path.join( __dirname, '../_inc/client', 'ai-admin.jsx' ),
-		},
-		optimization: {
-			...sharedWebpackConfig.optimization,
-			// The Scheduled tasks tab is the only lazy import; keep it in one named chunk.
-			splitChunks: false,
-		},
-		plugins: [
-			...sharedWebpackConfig.plugins,
-			...jetpackWebpackConfig.DependencyExtractionPlugin( {
-				// @wordpress/ui pulls in @wordpress/theme, which is not a reliable WP script
-				// handle in all contexts, so bundle it instead of externalizing it. Keep
-				// @wordpress/private-apis external so bundled DataViews can unlock private APIs
-				// exposed by external WordPress packages such as @wordpress/components.
-				requestMap: {
-					'@wordpress/theme': { external: false },
-				},
+				bundleWpUiDeps: true,
 			} ),
 		],
 		externals: {

@@ -16,6 +16,7 @@
  *                   block axis; 20/24 title and metric values.
  *   narrow (either) no featured image — it would eat most of a small
  *                   cell; type follows the tall/short rule above.
+ *   tall (either)   the text column also gets 8px of padding.
  *
  * Rules are written short-first, so the compact treatment is the base and
  * the roomier one is additive: a cell too small for any query to match
@@ -125,7 +126,6 @@
 .metricLabel {
 	overflow: hidden;
 	color: var(--wpds-color-foreground-content-neutral);
-	font-weight: var(--wpds-typography-font-weight-emphasis);
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
@@ -138,12 +138,14 @@
 	line-height: var(--wpds-typography-line-height-md);
 }
 
-/* Featured image. Hidden by default: only the wide modes below show it. */
+/* Featured image. Hidden by default: only the wide modes below show it.
+ * The grey ground shows behind a still-loading or a broken image. */
 .media {
 	display: none;
 	flex-shrink: 0;
 	overflow: hidden;
 	border-radius: var(--wpds-border-radius-lg);
+	background: var(--wpds-color-background-surface-neutral-weak);
 }
 
 .image {
@@ -153,8 +155,13 @@
 	object-fit: cover;
 }
 
-/* Tall cells: the roomier type scale. */
+/* Tall cells: the roomier type scale, and the text column gets breathing
+ * room. Short cells keep the padding at 0 so the height sums below hold. */
 @container post-highlight (min-height: 300px) {
+
+	.content {
+		padding: var(--wpds-dimension-padding-sm);
+	}
 
 	.header .title {
 		font-size: var(--wpds-typography-font-size-2xl);

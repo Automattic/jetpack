@@ -13,7 +13,8 @@ use Jetpack_IXR_Client;
 use Jetpack_Options;
 
 /**
- * A series of utilities to interact with a Keyring instance.
+ * Starts Keyring connection requests and removes Publicize connections, both
+ * through public-api.
  */
 class Keyring_Helper {
 	/**
@@ -22,13 +23,6 @@ class Keyring_Helper {
 	 * @var Keyring_Helper
 	 */
 	private static $instance = null;
-
-	/**
-	 * Whether the `sharing` page is registered.
-	 *
-	 * @var bool
-	 */
-	private static $is_sharing_page_registered = false;
 
 	/**
 	 * Initialize instance.
@@ -41,25 +35,11 @@ class Keyring_Helper {
 		return self::$instance;
 	}
 
+	/**
+	 * Services whose connection request starts from the site. Jetpack Social's
+	 * networks start theirs from WordPress.com instead.
+	 */
 	const SERVICES = array(
-		'facebook'                 => array(
-			'for' => 'publicize',
-		),
-		'twitter'                  => array(
-			'for' => 'publicize',
-		),
-		'linkedin'                 => array(
-			'for' => 'publicize',
-		),
-		'tumblr'                   => array(
-			'for' => 'publicize',
-		),
-		'path'                     => array(
-			'for' => 'publicize',
-		),
-		'google_plus'              => array(
-			'for' => 'publicize',
-		),
 		'google_site_verification' => array(
 			'for' => 'other',
 		),
@@ -104,7 +84,7 @@ class Keyring_Helper {
 	}
 
 	/**
-	 * Build a connection URL (sharing settings page with unique query args to create a connection).
+	 * Build a connection URL (admin URL with unique query args to create a connection).
 	 *
 	 * @param string $service_name Service name.
 	 * @param string $for          Feature name.
@@ -124,7 +104,7 @@ class Keyring_Helper {
 	}
 
 	/**
-	 * Build a URL to refresh a connection (sharing settings page with unique query args to refresh a connection).
+	 * Build a URL to refresh a connection (admin URL with unique query args to refresh a connection).
 	 * Similar to connect_url, but with a refresh parameter.
 	 *
 	 * @param string $service_name Service name.
@@ -146,7 +126,7 @@ class Keyring_Helper {
 	}
 
 	/**
-	 * Build a URL to delete a connection (sharing settings page with unique query args to delete a connection).
+	 * Build a URL to delete a connection (admin URL with unique query args to delete a connection).
 	 *
 	 * @param string $service_name Service name.
 	 * @param string $id           Connection ID.
@@ -166,7 +146,7 @@ class Keyring_Helper {
 	}
 
 	/**
-	 * Build contents handling Keyring connection management into Sharing settings screen.
+	 * Handle a Keyring connection request or deletion started from connect_url(), refresh_url() or disconnect_url().
 	 */
 	public static function intercept_request() {
 		if ( ! empty( $_GET['publicize_action'] ) && isset( $_GET['action'] ) ) {
@@ -227,37 +207,19 @@ class Keyring_Helper {
 						urlencode_deep(
 							$custom_inputs +
 							array(
-								'action'       => 'request',
-								'redirect_uri' => add_query_arg( array( 'action' => 'done' ), menu_page_url( 'sharing', false ) ),
-								'for'          => $for,
-								// required flag that says this connection is intended for publicize.
-								'siteurl'      => site_url(),
-								'state'        => $user->ID,
-								'blog_id'      => $wpcom_blog_id,
-								'secret_1'     => $verification['secret_1'],
-								'secret_2'     => $verification['secret_2'],
-								'eol'          => $verification['exp'],
+								'action'   => 'request',
+								'for'      => $for,
+								'siteurl'  => site_url(),
+								'state'    => $user->ID,
+								'blog_id'  => $wpcom_blog_id,
+								'secret_1' => $verification['secret_1'],
+								'secret_2' => $verification['secret_2'],
+								'eol'      => $verification['exp'],
 							)
 						)
 					);
 					wp_redirect( $redirect ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- The API URL is an external URL and is filterable.
 					exit( 0 );
-
-				case 'completed':
-					/*
-					 * We do not use a nonce here,
-					 * since we're populating a local cache of
-					 * the Publicize connections that were created and stored on WordPress.com.
-					 */
-					$xml = new Jetpack_IXR_Client();
-					$xml->query( 'jetpack.fetchPublicizeConnections' );
-
-					if ( ! $xml->isError() ) {
-						$response = $xml->getResponse();
-						Jetpack_Options::update_option( 'publicize_connections', $response );
-					}
-
-					break;
 
 				case 'delete':
 					$id = isset( $_GET['id'] ) ? filter_var( wp_unslash( $_GET['id'] ) ) : null;

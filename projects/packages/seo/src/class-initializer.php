@@ -28,7 +28,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.9.3';
+	const PACKAGE_VERSION = '0.9.9';
 
 	/**
 	 * WordPress.com site feature that enables the Jetpack SEO surface.
@@ -60,20 +60,6 @@ class Initializer {
 	const SCRIPT_DATA_KEY = 'seo';
 
 	/**
-	 * Option recording whether sitemap generation is enabled.
-	 *
-	 * Read in place of the standalone `sitemaps` module's active state. Module-active
-	 * state is filtered against the modules present on disk, so once that module is
-	 * removed it would read as inactive even for sites that had it on. A one-time
-	 * migration in the Jetpack plugin seeds this option from the site's existing module
-	 * state and keeps it in sync while the legacy module still exists. See
-	 * `Jetpack::migrate_sitemaps_module_to_seo_option()`.
-	 *
-	 * @var string
-	 */
-	const SITEMAP_ENABLED_OPTION = 'jetpack_seo_sitemap_enabled';
-
-	/**
 	 * Option recording that the user has deliberately turned the site's sitemap OFF,
 	 * so WordPress core's own sitemap should be suppressed too ("off" means no sitemap
 	 * at all, not a fallback to `/wp-sitemap.xml`).
@@ -88,20 +74,6 @@ class Initializer {
 	 * @var string
 	 */
 	const SUPPRESS_WP_SITEMAP_OPTION = 'jetpack_seo_suppress_wp_sitemap';
-
-	/**
-	 * Option recording whether canonical URLs are enabled.
-	 *
-	 * Read in place of the standalone `canonical-urls` module's active state. Module-active
-	 * state is filtered against the modules present on disk, so once that module is
-	 * removed it would read as inactive even for sites that had it on. A one-time
-	 * migration in the Jetpack plugin seeds this option from the site's existing module
-	 * state and keeps it in sync while the legacy module still exists. See
-	 * `Jetpack::migrate_canonical_urls_module_to_seo_option()`.
-	 *
-	 * @var string
-	 */
-	const CANONICAL_ENABLED_OPTION = 'jetpack_seo_canonical_urls_enabled';
 
 	/**
 	 * Option recording whether the Jetpack SEO surface is discoverable on this site.
@@ -213,10 +185,10 @@ class Initializer {
 
 		// The settings surface only comes online once SEO tools are active — there's
 		// nothing to configure while the module is off, so we don't register its REST
-		// endpoints until then. Expose the core `blog_public` option to the REST settings
-		// endpoint so the Settings tab can save search-engine visibility via
-		// `/wp/v2/settings` (the Jetpack settings endpoint only accepts Jetpack options).
-		// Writes are still capability-gated by the core settings controller.
+		// endpoints until then. Everything the dashboard saves is exposed to WordPress
+		// core's `/wp/v2/settings` endpoint, which exists on every platform the package
+		// runs on and capability-gates writes itself; module activation, the one thing
+		// `register_setting()` can't express, has its own package-owned route.
 		if ( self::is_seo_tools_module_active() ) {
 			// Front-end JSON-LD schema output and author profile schema fields.
 			// Intentionally NOT gated: every site keeps emitting its structured data —
@@ -241,7 +213,13 @@ class Initializer {
 				Ai_Crawlers::init();
 			}
 
-			add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ) );
+			// On `rest_api_init` rather than here: which option the front page description
+			// is stored in depends on `jetpack_disable_seo_tools`, which a conflicting SEO
+			// plugin can add from anywhere up to the end of `init`. Priority 5 is after all
+			// of those and before core builds the settings route at 99.
+			add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ), 5 );
+			// Package-owned route for the three settings whose write switches a Jetpack module.
+			add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_module_routes' ) );
 			// Package-owned route for the site-level Schema settings (see the controller).
 			add_action( 'rest_api_init', array( Schema_Settings_Controller::class, 'register_routes' ) );
 		}
@@ -267,8 +245,9 @@ class Initializer {
 			return true;
 		}
 
+		// Only active features are needed for this check.
 		$features = ( new Host() )->is_wpcom_simple()
-			? Current_Plan::get_simple_site_specific_features()
+			? Current_Plan::get_simple_site_specific_features( false )
 			: Current_Plan::get()['features'];
 
 		return in_array( self::FEATURE_SLUG, $features['active'] ?? array(), true );

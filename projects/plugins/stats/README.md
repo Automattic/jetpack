@@ -26,11 +26,3 @@ jp phan plugins/stats
 ```
 
 The plugin has no front-end build. The dashboard React app is served from the WordPress.com CDN by the `jetpack-stats-admin` package.
-
-## Release
-
-The plugin is mirrored to GitHub only. `composer.json` sets `mirror-repo` to `Automattic/jetpack-stats-plugin`, so a trunk build pushes there, and `beta-plugin-slug` to `jetpack-stats`, so builds reach the Jetpack Beta Tester.
-
-`autotagger` and `autorelease` are on, so a trunk build tags the mirror repo and attaches a zip to the GitHub release. Neither fires while the changelog holds a prerelease version such as `0.1.0-alpha`.
-
-WordPress.org publishing stays off. There is no `wp-svn-autopublish` and no `wp-plugin-slug`, because the plugin is not in the directory yet. Publishing there is tracked separately in STATS-343 Phase 6, and it is what turns `beta-plugin-slug` into `wp-plugin-slug`.

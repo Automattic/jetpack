@@ -66,9 +66,22 @@ class Jetpack_JITM_Test extends TestCase {
 	 * It requires the runInSeparateProcess tag so that the class isn't already autoloaded.
 	 *
 	 * @runInSeparateProcess
+	 * @dataProvider data_has_wpcom_endpoint
+	 *
+	 * @param bool $is_wpcom_simple Whether this is a WordPress.com Simple site.
+	 * @param bool $jetpack_active  Whether the Jetpack plugin is active.
+	 * @param bool $expected        Expected has_wpcom_endpoint value.
 	 */
 	#[RunInSeparateProcess]
-	public function test_prepare_jitms_enqueues_assets() {
+	#[DataProvider( 'data_has_wpcom_endpoint' )]
+	public function test_prepare_jitms_enqueues_assets( $is_wpcom_simple, $jetpack_active, $expected ) {
+		if ( $is_wpcom_simple ) {
+			Constants::set_constant( 'IS_WPCOM', true );
+		}
+		if ( $jetpack_active ) {
+			\Mockery::mock( 'alias:Jetpack' );
+		}
+
 		$mock_assets = \Mockery::mock( 'alias:Automattic\Jetpack\Assets' );
 
 		// Assume we're on a Jetpack page.
@@ -95,11 +108,28 @@ class Jetpack_JITM_Test extends TestCase {
 		Functions\expect( 'wp_localize_script' )->once()->with(
 			'jetpack-jitm',
 			'jitm_config',
-			\Mockery::type( 'array' )
+			\Mockery::on(
+				static function ( $config ) use ( $expected ) {
+					return $expected === $config['has_wpcom_endpoint'];
+				}
+			)
 		);
 
 		// Do the action that we asserted was added.
 		$jitm->jitm_enqueue_files();
+	}
+
+	/**
+	 * Data provider for test_prepare_jitms_enqueues_assets.
+	 *
+	 * @return array
+	 */
+	public static function data_has_wpcom_endpoint() {
+		return array(
+			'standalone plugin only' => array( false, false, false ),
+			'Jetpack plugin active'  => array( false, true, true ),
+			'WordPress.com Simple'   => array( true, false, true ),
+		);
 	}
 
 	/**
