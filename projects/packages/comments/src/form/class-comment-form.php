@@ -519,8 +519,8 @@ class Comment_Form {
 		}
 
 		// A forged post carries the other site's Origin, so this site's own covers a nonce that outlived
-		// its day or its login.
-		if ( ! empty( $_SERVER['HTTP_ORIGIN'] ) && Checkpoint::is_same_site_request() ) {
+		// its day or its login. Logged in only: a bot can send any Origin it likes.
+		if ( is_user_logged_in() && ! empty( $_SERVER['HTTP_ORIGIN'] ) && Checkpoint::is_same_site_request() ) {
 			return;
 		}
 
