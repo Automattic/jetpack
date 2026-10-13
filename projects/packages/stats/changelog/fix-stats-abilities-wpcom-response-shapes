@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Abilities: Fix the numbers the Stats abilities return for 7- and 30-day views, followers, multi-period top content and weekly, monthly or yearly post views.
+Abilities: Fix the views, visitors, streak, followers, top content and post views the Stats abilities report, reject dates that do not exist, and return get-followers' `publicize` as an object.

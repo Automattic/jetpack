@@ -57,10 +57,10 @@ class Stats_Abilities extends Registrar {
 	 *
 	 * Each entry describes how to project a WPCOM `days -> <date> -> <list>`
 	 * (or `summary -> <list>`) array of rows into the uniform
-	 * `{ rank, label, value, href? }` shape. A field given as a list of keys
-	 * takes the first key that is present on the row.
-	 * `countries` (needs `country-info` join) and `tags` (flat `tags` array,
-	 * no `days` envelope) are special-cased in the callback.
+	 * `{ rank, label, value, href?, id? }` shape. A field given as a list of keys
+	 * reads the first of them that is set and not ''.
+	 * `countries` (needs `country-info` join) and `tags` (rows that group
+	 * several terms, no `days` envelope) are special-cased in the callback.
 	 */
 	const TOP_CONTENT_MAP = array(
 		'posts'        => array(
@@ -68,6 +68,7 @@ class Stats_Abilities extends Registrar {
 			'label' => 'title',
 			'value' => 'views',
 			'href'  => 'href',
+			'id'    => 'id',
 		),
 		'referrers'    => array(
 			// WPCOM `stats/referrers` keys per-day data under `groups`, not `referrers` —
@@ -152,7 +153,7 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get site stats overview', 'jetpack-stats-pkg' ),
 			'description'         => __(
-				'Return a single zero-argument snapshot answering "how is my site doing right now?" — today\'s views/visitors, views over the last 7 and 30 days, the current posting streak, today\'s top post, and today\'s top referrer. Shape: { date, views_today, visitors_today, views_week, views_month, streak: { current_length, longest_length, longest_start, longest_end }, top_post: { id, title, views }, top_referrer: { name, views }, partial: bool, errors?: [string] }. `views_week` and `views_month` are rolling totals for the last 7 and 30 days, today included (not calendar weeks or months). `top_post` is today\'s most-viewed post or page (the home page / archives row is skipped, so `id` is always a real post ID); `top_post` and `top_referrer` are null when there is none today. Composes the WPCOM stats/summary, stats/visits, stats/streak, stats/top-posts, and stats/referrers endpoints — if any sub-call fails, `partial` is true and `errors` lists the failed sub-calls (`summary`, `visits`, `streak`, `top_posts`, `referrers`); when `partial` is true, count fields owned by the failed sub-call(s) are placeholder zeros rather than confirmed counts (cross-reference `errors` before treating a `0` as authoritative). If every sub-call fails, returns `jetpack_stats_data_unavailable`. Precondition: the site must be connected to WordPress.com. Results cached for ~5 minutes by WPCOM_Stats — safe to poll.',
+				'Return a single zero-argument snapshot answering "how is my site doing right now?" — today\'s views/visitors, views over the last 7 and 30 days, the current posting streak, today\'s top post, and today\'s top referrer. Shape: { date, views_today, visitors_today, views_week, views_month, streak: { current_length, longest_length, longest_start, longest_end }, top_post: { id, title, views }, top_referrer: { name, views }, partial: bool, errors?: [string] }. `views_week` and `views_month` are rolling totals for the last 7 and 30 days, today included (not calendar weeks or months). `top_post` is today\'s most-viewed post or page (the home page / archives row is skipped, so `id` is always a real post ID); `top_post` and `top_referrer` are null when there is none today. Composes the WPCOM stats/visits, stats/streak, stats/top-posts, and stats/referrers endpoints — if any sub-call fails, `partial` is true and `errors` lists the failed sub-calls: `visits` (every views and visitors field), `streak`, `top_posts` (`top_post`), and `referrers` (`top_referrer`). Fields fed by a failed sub-call are placeholders (0, empty, or null) rather than confirmed values, so cross-reference `errors` before treating a 0 or null as authoritative. If every sub-call fails, returns `jetpack_stats_data_unavailable`. Precondition: the site must be connected to WordPress.com. Results cached for ~5 minutes by WPCOM_Stats — safe to poll.',
 				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
@@ -200,7 +201,7 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get top stats content', 'jetpack-stats-pkg' ),
 			'description'         => __(
-				'Return the top items for a chosen content type — posts, referrers, search terms, outbound clicks, tags/categories, authors, countries, downloads, or video plays — in one filtered call. Replaces nine atomic WPCOM endpoints with a single ability. Uniform shape: { type, period, date, num, max, items: [ { rank, label, value, href? } ] } — agents MUST NOT see a different shape per type. `label` is human-readable (post title, referrer host, search term, country name, etc.). `value` is the view/hit count for that item. `href` is present only when the item has a canonical URL. With `num` above 1, items are totals across the `num` periods ending with the one containing `date` (e.g. period=day, num=7 is the last seven days). `tags` ignores `period`, `date` and `num`. Precondition: site must be connected to WordPress.com.',
+				'Return the top items for a chosen content type — posts, referrers, search terms, outbound clicks, tags/categories, authors, countries, downloads, or video plays — in one filtered call. Replaces nine atomic WPCOM endpoints with a single ability. Uniform shape: { type, period, date, num, max, items: [ { rank, label, value, href?, id? } ] } — agents MUST NOT see a different shape per type. `label` is human-readable (post title, referrer host, search term, country name, etc.); a tags item names every tag and category it groups, and countries WordPress.com cannot place share one item. `value` is the view/hit count for that item. `href` is present only when the item has a canonical URL. `id` is the post ID on posts items other than the home page / archives row — pass it to jetpack-stats/get-post-views. With `num` above 1, items are totals across the `num` periods ending with the one containing `date` (e.g. period=day, num=7 is the last seven days). `tags` ignores `period`, `date` and `num`. Precondition: site must be connected to WordPress.com.',
 				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
@@ -275,7 +276,7 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get views for a post', 'jetpack-stats-pkg' ),
 			'description'         => __(
-				'Return views history for a single post: total views, timeseries of per-period views, and the period metadata. Shape: { post_id, total_views, period, num, date, series: [ { date, views } ] }. `total_views` is the post\'s all-time view count. `series` always has `num` rows, oldest first, ending with the period that contains `date`; each row\'s `date` is the first day of its period (weeks start on Monday) and periods with no views are 0. Returns `jetpack_stats_post_not_found` when no post has that ID. Accepts post_id as integer or numeric string (the literal "0" is rejected only because WordPress has no post 0 — any positive numeric value is legal). Precondition: site must be connected to WordPress.com. Related: call jetpack-stats/get-top-content with type=posts first to discover which posts to drill into.',
+				'Return views history for a single post: total views, timeseries of per-period views, and the period metadata. Shape: { post_id, total_views, period, num, date, series: [ { date, views } ] }. `total_views` is the post\'s all-time view count. `series` always has `num` rows, oldest first, ending with the period that contains `date`; each row\'s `date` is the first day of its period (weeks start on Monday) and periods with no views are 0. Returns `jetpack_stats_post_not_found` when no post has that ID. Accepts post_id as integer or numeric string (the literal "0" is rejected only because WordPress has no post 0 — any positive numeric value is legal). Precondition: site must be connected to WordPress.com. Related: call jetpack-stats/get-top-content with type=posts first and pass an item\'s `id` as `post_id`.',
 				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
@@ -413,7 +414,7 @@ class Stats_Abilities extends Registrar {
 		return array(
 			'label'               => __( 'Get follower counts', 'jetpack-stats-pkg' ),
 			'description'         => __(
-				'Return a breakdown of follower counts across email, WordPress.com, comment, and publicize (per-service) — answers "how is my audience growing?" in one call. Shape: { total, email, wpcom, comment, publicize: { <service>: count }, partial: bool, errors?: [string] }. `email` and `wpcom` are the site\'s email subscribers and WordPress.com followers; `publicize` is an object, empty when no social connection reports followers. Composes three WPCOM endpoints — if any sub-call fails, `partial` is true and `errors` lists the failed sub-calls; when `partial` is true, source counts owned by the failed sub-call(s) are placeholder zeros rather than confirmed zero counts (cross-reference `errors` before treating a `0` as authoritative). Precondition: site must be connected to WordPress.com.',
+				'Return a breakdown of follower counts across email, WordPress.com, comment, and publicize (per-service) — answers "how is my audience growing?" in one call. Shape: { total, email, wpcom, comment, publicize: { <service>: count }, partial: bool, errors?: [string] }. `email` and `wpcom` are the site\'s email subscribers and WordPress.com followers; `comment` counts people following the comments on every post (following one post\'s comments is not counted); `publicize` is an object, empty when no social connection reports followers. Composes three WPCOM endpoints — if any sub-call fails, `partial` is true and `errors` lists the failed sub-calls: `followers` (`email` and `wpcom`), `comment_followers`, and `publicize_followers`. Counts fed by a failed sub-call are placeholders (0, or an empty `publicize`) rather than confirmed values, so cross-reference `errors` before treating them as authoritative. Precondition: site must be connected to WordPress.com.',
 				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
@@ -616,26 +617,27 @@ class Stats_Abilities extends Registrar {
 	public static function get_site_overview( $input = null ) {
 		unset( $input );
 		$stats = self::get_wpcom_stats();
-		$today = self::sanitize_date( null );
+		$today = self::today();
 		$day   = array(
 			'period' => 'day',
 			'date'   => $today,
 		);
 
+		// A few rows, so a post can be found below the home page / archives row.
+		$post_rows = 10;
+
 		$composed = self::compose_subcalls(
 			array(
-				'summary'   => $stats->get_stats_summary(),
 				'visits'    => $stats->get_visits(
 					array(
 						'unit'        => 'day',
 						'quantity'    => 30,
 						'date'        => $today,
-						'stat_fields' => 'views',
+						'stat_fields' => 'views,visitors',
 					)
 				),
 				'streak'    => $stats->get_streak(),
-				// A few rows, so a post can be found below the home page / archives row.
-				'top_posts' => $stats->get_top_posts( $day + array( 'max' => 10 ) ),
+				'top_posts' => $stats->get_top_posts( $day + array( 'max' => $post_rows ) ),
 				'referrers' => $stats->get_referrers( $day + array( 'max' => 1 ) ),
 			),
 			__( 'Stats data could not be fetched from WordPress.com. Confirm the site is connected and try again.', 'jetpack-stats-pkg' )
@@ -646,32 +648,27 @@ class Stats_Abilities extends Registrar {
 		$values = $composed['values'];
 		$errors = $composed['errors'];
 
-		$daily_views = array_column( self::normalize_visits_series( $values['visits'], array( 'views' ) ), 'views' );
-		$top_post    = self::first_row(
-			$values['top_posts'],
-			'postviews',
-			static function ( array $row ): bool {
-				return isset( $row['id'] ) && (int) $row['id'] > 0;
-			}
-		);
-		$top_ref     = self::first_row( $values['referrers'], 'groups' );
+		// The series ends today, so its last row is today and its last 7 rows are the last 7 days.
+		$days     = self::normalize_visits_series( $values['visits'], array( 'views', 'visitors' ) );
+		$last_day = end( $days );
+		$top_post = self::first_post( self::normalize_top_content_items( 'posts', $values['top_posts'], $post_rows ) );
+		$top_ref  = self::normalize_top_content_items( 'referrers', $values['referrers'], 1 )[0] ?? null;
 
 		$out = array(
-			'date'           => self::first_string( array( $values['summary'], array( 'date' => $today ) ), 'date' ),
-			'views_today'    => self::as_int( $values['summary'], 'views' ),
-			'visitors_today' => self::as_int( $values['summary'], 'visitors' ),
-			// The series ends today, so its last 7 rows are the last 7 days.
-			'views_week'     => (int) array_sum( array_slice( $daily_views, -7 ) ),
-			'views_month'    => (int) array_sum( $daily_views ),
+			'date'           => $today,
+			'views_today'    => $last_day ? $last_day['views'] : 0,
+			'visitors_today' => $last_day ? $last_day['visitors'] : 0,
+			'views_week'     => (int) array_sum( array_column( array_slice( $days, -7 ), 'views' ) ),
+			'views_month'    => (int) array_sum( array_column( $days, 'views' ) ),
 			'streak'         => self::extract_streak_summary( $values['streak'] ),
 			'top_post'       => null === $top_post ? null : array(
-				'id'    => self::as_int( $top_post, 'id' ),
-				'title' => isset( $top_post['title'] ) ? (string) $top_post['title'] : '',
-				'views' => self::as_int( $top_post, 'views' ),
+				'id'    => $top_post['id'],
+				'title' => $top_post['label'],
+				'views' => $top_post['value'],
 			),
 			'top_referrer'   => null === $top_ref ? null : array(
-				'name'  => isset( $top_ref['name'] ) ? (string) $top_ref['name'] : '',
-				'views' => self::as_int( $top_ref, 'total' ),
+				'name'  => $top_ref['label'],
+				'views' => $top_ref['value'],
 			),
 			'partial'        => ! empty( $errors ),
 		);
@@ -705,9 +702,12 @@ class Stats_Abilities extends Registrar {
 
 		$type   = $input['type'];
 		$period = self::pick_period( $input['period'] ?? null );
-		$date   = self::sanitize_date( $input['date'] ?? null );
+		$date   = self::resolve_date( $input['date'] ?? null );
 		$num    = self::clamp_int( $input['num'] ?? 1, 1, 90, 1 );
 		$max    = self::clamp_int( $input['max'] ?? 20, 1, 100, 20 );
+		if ( is_wp_error( $date ) ) {
+			return $date;
+		}
 
 		$args = array(
 			'period' => $period,
@@ -758,7 +758,10 @@ class Stats_Abilities extends Registrar {
 		$post_id = (int) $input['post_id'];
 		$period  = self::pick_period( $input['period'] ?? null );
 		$num     = self::clamp_int( $input['num'] ?? 30, 1, 90, 30 );
-		$date    = self::sanitize_date( $input['date'] ?? null );
+		$date    = self::resolve_date( $input['date'] ?? null );
+		if ( is_wp_error( $date ) ) {
+			return $date;
+		}
 
 		// WPCOM answers an unknown post with the same generic failure as an outage.
 		if ( ! get_post( $post_id ) ) {
@@ -797,7 +800,10 @@ class Stats_Abilities extends Registrar {
 
 		$unit     = self::pick_period( $input['unit'] ?? null );
 		$quantity = self::clamp_int( $input['quantity'] ?? 30, 1, 90, 30 );
-		$date     = self::sanitize_date( $input['date'] ?? null );
+		$date     = self::resolve_date( $input['date'] ?? null );
+		if ( is_wp_error( $date ) ) {
+			return $date;
+		}
 
 		// Pass user input FIRST to array_intersect so caller-supplied field order is preserved.
 		$fields = isset( $input['fields'] ) && is_array( $input['fields'] )
@@ -863,7 +869,7 @@ class Stats_Abilities extends Registrar {
 		// The counts are totals on the response; `subscribers` is only a page of rows.
 		$email   = self::as_int( $followers, 'total_email' );
 		$wpcom   = self::as_int( $followers, 'total_wpcom' );
-		$comment = self::as_int( $comment_followers, 'total' );
+		$comment = self::all_posts_comment_followers( $comment_followers );
 
 		$publicize_by_service = array();
 		if ( isset( $publicize['services'] ) && is_array( $publicize['services'] ) ) {
@@ -923,23 +929,24 @@ class Stats_Abilities extends Registrar {
 	/**
 	 * Compose multiple WPCOM sub-call results into a partial-tolerant envelope.
 	 *
-	 * Each named result is either an array (kept as-is) or a WP_Error
-	 * (replaced with `[]` and its key recorded under `errors`). Returns
-	 * `jetpack_stats_data_unavailable` if every sub-call failed.
+	 * An array result is kept as-is. Anything else — a WP_Error, or the decoded
+	 * body of a response that was not a JSON object — is replaced with `[]` and
+	 * its key recorded under `errors`. Returns `jetpack_stats_data_unavailable`
+	 * if every sub-call failed.
 	 *
-	 * @param array  $named_results       Map of error-tag => array|WP_Error.
+	 * @param array  $named_results       Map of error-tag => sub-call result.
 	 * @param string $all_failed_message  Message for the all-failed WP_Error.
-	 * @return array{values: array, errors: array}|WP_Error
+	 * @return array{values: array<string, array>, errors: string[]}|WP_Error
 	 */
 	private static function compose_subcalls( array $named_results, string $all_failed_message ) {
 		$values = array();
 		$errors = array();
 		foreach ( $named_results as $tag => $result ) {
-			if ( is_wp_error( $result ) ) {
+			if ( is_array( $result ) ) {
+				$values[ $tag ] = $result;
+			} else {
 				$errors[]       = (string) $tag;
 				$values[ $tag ] = array();
-			} else {
-				$values[ $tag ] = $result;
 			}
 		}
 
@@ -951,22 +958,6 @@ class Stats_Abilities extends Registrar {
 			'values' => $values,
 			'errors' => $errors,
 		);
-	}
-
-	/**
-	 * Return the first non-empty string at `$key` across the given source arrays.
-	 *
-	 * @param array[] $sources Ordered list of arrays to probe.
-	 * @param string  $key     Key to read from each array.
-	 * @return string
-	 */
-	private static function first_string( array $sources, string $key ): string {
-		foreach ( $sources as $source ) {
-			if ( isset( $source[ $key ] ) && '' !== $source[ $key ] ) {
-				return (string) $source[ $key ];
-			}
-		}
-		return '';
 	}
 
 	/**
@@ -1001,7 +992,7 @@ class Stats_Abilities extends Registrar {
 	 *
 	 * @param WPCOM_Stats $stats Client.
 	 * @param string      $type  Content type enum.
-	 * @param array       $args  Pre-built `{ period, date, num, max }` args — ignored for `tags` which takes only `max`.
+	 * @param array       $args  Pre-built `{ period, date, max, num?, summarize? }` args — `tags` takes only `max`.
 	 * @return array|WP_Error
 	 */
 	private static function fetch_top_content_raw( WPCOM_Stats $stats, string $type, array $args ) {
@@ -1033,44 +1024,25 @@ class Stats_Abilities extends Registrar {
 	/**
 	 * Normalize a WPCOM top-content response into the uniform item shape.
 	 *
-	 * Most `type` values follow the `days -> <first-day> -> <list-key>` shape
-	 * and project through `TOP_CONTENT_MAP`. `tags` (flat `tags` array, no
-	 * `days` envelope) and `countries` (needs `country-info` code-to-name
-	 * join) are special-cased.
+	 * Most `type` values follow the `days -> <date> -> <list-key>` shape (or
+	 * `summary -> <list-key>` when summarized) and project through
+	 * `TOP_CONTENT_MAP`. `tags` and `countries` are special-cased.
 	 *
 	 * @param string $type       Content type enum.
 	 * @param array  $raw        Raw WPCOM response.
 	 * @param int    $max        Result cap.
 	 * @param bool   $summarized Whether the request asked WPCOM to `summarize`.
-	 * @return array List of { rank, label, value, href? } items.
+	 * @return array List of { rank, label, value, href?, id? } items.
 	 */
 	private static function normalize_top_content_items( string $type, array $raw, int $max, bool $summarized = false ): array {
 		if ( 'tags' === $type ) {
-			$rows = array();
-			$tags = isset( $raw['tags'] ) && is_array( $raw['tags'] ) ? $raw['tags'] : array();
-			foreach ( $tags as $tag ) {
-				$rows[] = array(
-					'label' => isset( $tag['tag'] ) ? (string) $tag['tag'] : '',
-					'value' => isset( $tag['views'] ) ? (int) $tag['views'] : 0,
-				);
-			}
-			return self::rank_and_cap( $rows, $max );
+			return self::rank_and_cap( self::tag_rows( $raw ), $max );
 		}
 
 		$day_data = self::first_period_block( $raw, $summarized );
 
 		if ( 'countries' === $type ) {
-			$rows         = array();
-			$list         = isset( $day_data['views'] ) && is_array( $day_data['views'] ) ? $day_data['views'] : array();
-			$country_info = isset( $raw['country-info'] ) && is_array( $raw['country-info'] ) ? $raw['country-info'] : array();
-			foreach ( $list as $v ) {
-				$code   = isset( $v['country_code'] ) ? (string) $v['country_code'] : '';
-				$rows[] = array(
-					'label' => (string) ( $country_info[ $code ]['country_full'] ?? $code ),
-					'value' => isset( $v['views'] ) ? (int) $v['views'] : 0,
-				);
-			}
-			return self::rank_and_cap( $rows, $max );
+			return self::rank_and_cap( self::country_rows( $day_data, self::rows_at( $raw, 'country-info' ) ), $max );
 		}
 
 		$map = self::TOP_CONTENT_MAP[ $type ] ?? null;
@@ -1079,22 +1051,72 @@ class Stats_Abilities extends Registrar {
 		}
 
 		$rows = array();
-		$list = isset( $day_data[ $map['list'] ] ) && is_array( $day_data[ $map['list'] ] ) ? $day_data[ $map['list'] ] : array();
-		foreach ( $list as $row ) {
-			if ( ! is_array( $row ) ) {
-				continue;
-			}
-			$entry = array(
-				'label' => (string) self::pick_field( $row, $map['label'] ),
-				'value' => (int) self::pick_field( $row, $map['value'] ),
+		foreach ( self::rows_at( $day_data, $map['list'] ) as $row ) {
+			$rows[] = array(
+				'label' => self::pick_field( $row, $map['label'] ),
+				'value' => self::pick_field( $row, $map['value'] ),
+				'href'  => isset( $map['href'] ) ? self::pick_field( $row, $map['href'] ) : null,
+				'id'    => isset( $map['id'] ) ? self::pick_field( $row, $map['id'] ) : null,
 			);
-			$href  = isset( $map['href'] ) ? self::pick_field( $row, $map['href'] ) : null;
-			if ( null !== $href ) {
-				$entry['href'] = (string) $href;
-			}
-			$rows[] = $entry;
 		}
 		return self::rank_and_cap( $rows, $max );
+	}
+
+	/**
+	 * Project `stats/tags` rows, which carry no `days` envelope, into label/value rows.
+	 *
+	 * Each row groups one or more tags and categories under a shared view count, so
+	 * its label names them all; only a single-term row has one URL to link to.
+	 *
+	 * @param array $raw Raw WPCOM response: `{ tags: [ { tags: [ { type, name, link } ], views } ] }`.
+	 * @return array
+	 */
+	private static function tag_rows( array $raw ): array {
+		$rows = array();
+		foreach ( self::rows_at( $raw, 'tags' ) as $row ) {
+			$terms  = self::rows_at( $row, 'tags' );
+			$rows[] = array(
+				'label' => implode( ', ', array_column( $terms, 'name' ) ),
+				'value' => $row['views'] ?? 0,
+				'href'  => 1 === count( $terms ) ? ( array_column( $terms, 'link' )[0] ?? null ) : null,
+			);
+		}
+		return $rows;
+	}
+
+	/**
+	 * Project a `stats/country-views` period block into label/value rows named by `country-info`.
+	 *
+	 * Codes WordPress.com cannot name (AP and the legacy UK get `country_full: false`, and `-` marks
+	 * a failed lookup) share one "Unknown" row; the A1, A2 and ZZ pseudo-codes name no place and are dropped.
+	 *
+	 * @param array $day_data     Period block holding the `views` rows.
+	 * @param array $country_info Map of country code => `{ country_full }`.
+	 * @return array
+	 */
+	private static function country_rows( array $day_data, array $country_info ): array {
+		$unknown = __( 'Unknown', 'jetpack-stats-pkg' );
+		$views   = array();
+		foreach ( self::rows_at( $day_data, 'views' ) as $row ) {
+			$code = (string) ( $row['country_code'] ?? '' );
+			if ( in_array( $code, array( 'A1', 'A2', 'ZZ' ), true ) ) {
+				continue;
+			}
+			$name            = $country_info[ $code ]['country_full'] ?? null;
+			$label           = is_string( $name ) && '' !== $name ? $name : $unknown;
+			$views[ $label ] = ( $views[ $label ] ?? 0 ) + (int) ( $row['views'] ?? 0 );
+		}
+		// Folding rows into "Unknown" can lift it above rows WordPress.com ranked higher.
+		arsort( $views );
+
+		$rows = array();
+		foreach ( $views as $label => $value ) {
+			$rows[] = array(
+				'label' => (string) $label,
+				'value' => $value,
+			);
+		}
+		return $rows;
 	}
 
 	/**
@@ -1121,21 +1143,30 @@ class Stats_Abilities extends Registrar {
 	}
 
 	/**
-	 * Return the first row of a list in a WPCOM list response, or null when there is none.
+	 * Return the first posts item that is a post or page, skipping the home page / archives row.
 	 *
-	 * @param array         $raw      Raw WPCOM response.
-	 * @param string        $list_key Key of the list inside the period block (e.g. `postviews`).
-	 * @param callable|null $accept   Optional test a row must pass.
+	 * @param array $items Items from normalize_top_content_items().
 	 * @return array|null
 	 */
-	private static function first_row( array $raw, string $list_key, ?callable $accept = null ): ?array {
-		$list = self::first_period_block( $raw )[ $list_key ] ?? null;
-		foreach ( is_array( $list ) ? $list : array() as $row ) {
-			if ( is_array( $row ) && ( null === $accept || $accept( $row ) ) ) {
-				return $row;
+	private static function first_post( array $items ): ?array {
+		foreach ( $items as $item ) {
+			if ( isset( $item['id'] ) ) {
+				return $item;
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Return the rows of the list (or the entries of the map) at `$key`, skipping any that are not arrays.
+	 *
+	 * @param array  $arr Array holding the list.
+	 * @param string $key Key of the list.
+	 * @return array[]
+	 */
+	private static function rows_at( array $arr, string $key ): array {
+		$list = $arr[ $key ] ?? null;
+		return is_array( $list ) ? array_filter( $list, 'is_array' ) : array();
 	}
 
 	/**
@@ -1155,43 +1186,65 @@ class Stats_Abilities extends Registrar {
 	}
 
 	/**
-	 * Rank, cap, and strip null href fields.
+	 * Cap rows and turn them into ranked items, dropping empty `href`s and non-positive `id`s.
 	 *
-	 * @param array $rows Unranked rows.
+	 * @param array $rows Rows of `{ label, value, href?, id? }`.
 	 * @param int   $max  Result cap.
-	 * @return array Ranked + capped rows with `rank` injected.
+	 * @return array Items of `{ rank, label, value, href?, id? }`.
 	 */
 	private static function rank_and_cap( array $rows, int $max ): array {
-		$rows = array_slice( $rows, 0, $max );
-		$out  = array();
-		foreach ( $rows as $i => $row ) {
-			$entry = array(
+		$items = array();
+		foreach ( array_slice( $rows, 0, $max ) as $i => $row ) {
+			$item = array(
 				'rank'  => $i + 1,
-				'label' => isset( $row['label'] ) ? (string) $row['label'] : '',
-				'value' => isset( $row['value'] ) ? (int) $row['value'] : 0,
+				// WordPress.com sends titles and names HTML-encoded.
+				'label' => html_entity_decode( (string) ( $row['label'] ?? '' ), ENT_QUOTES | ENT_HTML5, 'UTF-8' ),
+				'value' => (int) ( $row['value'] ?? 0 ),
 			);
 			if ( isset( $row['href'] ) && '' !== $row['href'] ) {
-				$entry['href'] = $row['href'];
+				$item['href'] = (string) $row['href'];
 			}
-			$out[] = $entry;
+			$id = (int) ( $row['id'] ?? 0 );
+			if ( $id > 0 ) {
+				$item['id'] = $id;
+			}
+			$items[] = $item;
 		}
-		return $out;
+		return $items;
 	}
 
 	/**
 	 * Extract a compact streak summary from the WPCOM streak response.
 	 *
-	 * @param array $streak Raw WPCOM streak response.
+	 * @param array $streak Raw WPCOM streak response: `{ streak: { long: { start, end, length }, current: { … } } }`.
 	 * @return array Compact `{ current_length, longest_length, longest_start, longest_end }`.
 	 */
 	private static function extract_streak_summary( array $streak ): array {
-		$data = isset( $streak['streak'] ) && is_array( $streak['streak'] ) ? $streak['streak'] : array();
+		$runs = $streak['streak'] ?? array();
 		return array(
-			'current_length' => isset( $data['currentStreakLength'] ) ? (int) $data['currentStreakLength'] : 0,
-			'longest_length' => isset( $data['longestStreakLength'] ) ? (int) $data['longestStreakLength'] : 0,
-			'longest_start'  => isset( $data['longestStreakStart'] ) ? (string) $data['longestStreakStart'] : '',
-			'longest_end'    => isset( $data['longestStreakEnd'] ) ? (string) $data['longestStreakEnd'] : '',
+			'current_length' => (int) ( $runs['current']['length'] ?? 0 ),
+			'longest_length' => (int) ( $runs['long']['length'] ?? 0 ),
+			'longest_start'  => (string) ( $runs['long']['start'] ?? '' ),
+			'longest_end'    => (string) ( $runs['long']['end'] ?? '' ),
 		);
+	}
+
+	/**
+	 * Count the people following the comments on every post.
+	 *
+	 * WordPress.com lists them as an "All Posts" row with id 0. Each other row counts one post's
+	 * followers, so summing rows counts people twice, and `total` counts rows rather than people.
+	 *
+	 * @param array $raw Raw WPCOM comment-followers response.
+	 * @return int
+	 */
+	private static function all_posts_comment_followers( array $raw ): int {
+		foreach ( self::rows_at( $raw, 'posts' ) as $row ) {
+			if ( isset( $row['id'] ) && 0 === (int) $row['id'] ) {
+				return self::as_int( $row, 'followers' );
+			}
+		}
+		return 0;
 	}
 
 	/**
@@ -1238,7 +1291,7 @@ class Stats_Abilities extends Registrar {
 	 * @param string $period One of self::PERIODS.
 	 * @param int    $num    Number of periods to return.
 	 * @param string $date   YYYY-MM-DD inside the last period.
-	 * @return array Rows of `{ date, views }`, oldest first, keyed by each period's first day.
+	 * @return array Rows of `{ date, views }`, oldest first, each dated by its period's first day.
 	 */
 	private static function bucket_daily_views( array $daily, string $period, int $num, string $date ): array {
 		$start = self::period_start( $date, $period );
@@ -1337,16 +1390,33 @@ class Stats_Abilities extends Registrar {
 	}
 
 	/**
-	 * Normalize a candidate date string. Returns the site's today on bad input, since WPCOM Stats days are site-local.
+	 * Resolve the `date` input, defaulting to today when it is absent.
 	 *
 	 * @param mixed $raw Raw input value.
-	 * @return string YYYY-MM-DD.
+	 * @return string|WP_Error YYYY-MM-DD, or jetpack_stats_invalid_date when it is not a real day.
 	 */
-	private static function sanitize_date( $raw ): string {
-		if ( is_string( $raw ) && 1 === preg_match( '/^(\d{4})-(\d{2})-(\d{2})$/', $raw, $m ) && checkdate( (int) $m[2], (int) $m[3], (int) $m[1] ) ) {
+	private static function resolve_date( $raw ) {
+		if ( null === $raw || '' === $raw ) {
+			return self::today();
+		}
+		if ( is_string( $raw ) && 1 === preg_match( '/^(\d{4})-(\d{2})-(\d{2})\z/', $raw, $m ) && checkdate( (int) $m[2], (int) $m[3], (int) $m[1] ) ) {
 			return $raw;
 		}
-		return wp_date( 'Y-m-d' );
+		return new WP_Error(
+			self::ERROR_PREFIX . 'invalid_date',
+			__( 'The `date` must be a real day in YYYY-MM-DD format, such as 2026-04-23.', 'jetpack-stats-pkg' )
+		);
+	}
+
+	/**
+	 * Return today in the site's timezone, which is how WordPress.com Stats splits days.
+	 *
+	 * Not wp_date(): plugins filter its output into other calendars.
+	 *
+	 * @return string YYYY-MM-DD.
+	 */
+	private static function today(): string {
+		return current_time( 'Y-m-d' );
 	}
 
 	/**
