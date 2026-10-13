@@ -43,6 +43,21 @@ class Jetpack_Monitor {
 		add_action( 'jetpack_activate_module_monitor', array( $this, 'activate_module' ) );
 		add_action( 'jetpack_unlinked_user', array( $this, 'delete_notifications_copy' ) );
 		add_action( 'deleted_user', array( $this, 'delete_notifications_copy' ) );
+		add_action( 'jetpack_site_before_disconnected', array( $this, 'delete_all_notifications_copies' ) );
+	}
+
+	/**
+	 * Forgets every linked user's saved notification choice, while a site disconnect can still say who was linked.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public function delete_all_notifications_copies() {
+		$user_tokens = Jetpack_Options::get_option( 'user_tokens' );
+		foreach ( array_keys( is_array( $user_tokens ) ? $user_tokens : array() ) as $user_id ) {
+			$this->delete_notifications_copy( $user_id );
+		}
 	}
 
 	/**

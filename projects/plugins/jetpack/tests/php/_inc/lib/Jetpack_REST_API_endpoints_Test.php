@@ -6,6 +6,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Status\Cache as StatusCache;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -1134,6 +1135,30 @@ class Jetpack_REST_API_endpoints_Test extends WP_UnitTestCase {
 			'unlinked' => array( 'jetpack_unlinked_user' ),
 			'deleted'  => array( 'deleted_user' ),
 		);
+	}
+
+	/**
+	 * Disconnecting the site forgets the saved Monitor email choice of every linked user.
+	 */
+	public function test_monitor_notifications_copies_are_forgotten_on_site_disconnect() {
+		require_once JETPACK__PLUGIN_DIR . 'modules/monitor.php';
+		new Jetpack_Monitor();
+		$first  = $this->create_and_get_user( 'administrator' );
+		$second = $this->create_and_get_user( 'administrator' );
+		Jetpack_Options::update_option(
+			'user_tokens',
+			array(
+				$first->ID  => "honey.badger.$first->ID",
+				$second->ID => "honey.badger.$second->ID",
+			)
+		);
+		update_option( 'monitor_receive_notifications' . $first->ID, 1 );
+		update_option( 'monitor_receive_notifications' . $second->ID, 0 );
+
+		( new Connection_Manager( 'jetpack' ) )->disconnect_site( false );
+
+		$this->assertFalse( get_option( 'monitor_receive_notifications' . $first->ID ) );
+		$this->assertFalse( get_option( 'monitor_receive_notifications' . $second->ID ) );
 	}
 
 	/**
