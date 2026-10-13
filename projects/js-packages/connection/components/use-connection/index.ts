@@ -2,7 +2,7 @@ import restApi from '@automattic/jetpack-api';
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useEffect } from 'react';
-import { STORE_ID } from '../../state/store.jsx';
+import { initConnectionStore } from '../../state/store.jsx';
 import type {
 	ConnectionOwner,
 	RegistrationError,
@@ -10,9 +10,12 @@ import type {
 	UseConnectionProps,
 	UseConnectionReturn,
 } from './types.ts';
+import type { StoreDescriptor } from '@wordpress/data';
 import type { SyntheticEvent } from 'react';
 
-type StoreSelector = ( storeId: string ) => Record< string, ( ...args: unknown[] ) => unknown >;
+type StoreSelector = (
+	store: StoreDescriptor | string
+) => Record< string, ( ...args: unknown[] ) => unknown >;
 
 /**
  * Shared empty-value fallback for an absent `userConnectionData` slice.
@@ -70,12 +73,17 @@ export default function useConnection( {
 	skipUserConnection,
 	skipPricingPage,
 }: UseConnectionProps = {} ): UseConnectionReturn {
-	const { registerSite, connectUser, refreshConnectedPlugins } = useDispatch( STORE_ID );
+	// Register the connection store lazily and use the returned descriptor so
+	// the store can't be selected/dispatched without being initialized first.
+	// Idempotent across consumers.
+	const connectionStore = initConnectionStore();
+
+	const { registerSite, connectUser, refreshConnectedPlugins } = useDispatch( connectionStore );
 
 	const registrationError = useSelect(
 		( select: StoreSelector ) =>
-			select( STORE_ID ).getRegistrationError() as RegistrationError | false,
-		[]
+			select( connectionStore ).getRegistrationError() as RegistrationError | false,
+		[ connectionStore ]
 	);
 	const {
 		siteIsRegistering,
@@ -88,30 +96,38 @@ export default function useConnection( {
 		isUserConnected,
 		hasConnectedOwner,
 		isOfflineMode,
-	} = useSelect( ( select: StoreSelector ) => {
-		const connectionStatus = select( STORE_ID ).getConnectionStatus() as Record< string, unknown >;
-		// Optional-call the selector: downstream consumers that register a partial
-		// connection-store mock may not define it.
-		const owner = select( STORE_ID ).getConnectionOwner?.();
-		return {
-			siteIsRegistering: select( STORE_ID ).getSiteIsRegistering() as boolean,
-			userIsConnecting: select( STORE_ID ).getUserIsConnecting() as boolean,
-			// The assertion sits on the selector call — the one untyped step — so the
-			// fallback stays a real `UserConnectionData` rather than an empty object
-			// asserted into one.
-			userConnectionData:
-				( select( STORE_ID ).getUserConnectionData() as UserConnectionData | undefined ) ||
-				EMPTY_USER_CONNECTION_DATA,
-			connectedPlugins: select( STORE_ID ).getConnectedPlugins() as
-				Record< string, unknown > | unknown[],
-			connectionOwner: isConnectionOwner( owner ) ? owner : null,
-			connectionErrors: select( STORE_ID ).getConnectionErrors() as Array< string | object >,
-			isOfflineMode: select( STORE_ID ).getIsOfflineMode() as boolean,
-			isRegistered: ( connectionStatus.isRegistered ?? false ) as boolean,
-			isUserConnected: ( connectionStatus.isUserConnected ?? false ) as boolean,
-			hasConnectedOwner: ( connectionStatus.hasConnectedOwner ?? false ) as boolean,
-		};
-	}, [] );
+	} = useSelect(
+		( select: StoreSelector ) => {
+			const connectionStatus = select( connectionStore ).getConnectionStatus() as Record<
+				string,
+				unknown
+			>;
+			// Optional-call the selector: downstream consumers that register a partial
+			// connection-store mock may not define it.
+			const owner = select( connectionStore ).getConnectionOwner?.();
+			return {
+				siteIsRegistering: select( connectionStore ).getSiteIsRegistering() as boolean,
+				userIsConnecting: select( connectionStore ).getUserIsConnecting() as boolean,
+				// The assertion sits on the selector call — the one untyped step — so the
+				// fallback stays a real `UserConnectionData` rather than an empty object
+				// asserted into one.
+				userConnectionData:
+					( select( connectionStore ).getUserConnectionData() as UserConnectionData | undefined ) ||
+					EMPTY_USER_CONNECTION_DATA,
+				connectedPlugins: select( connectionStore ).getConnectedPlugins() as
+					Record< string, unknown > | unknown[],
+				connectionOwner: isConnectionOwner( owner ) ? owner : null,
+				connectionErrors: select( connectionStore ).getConnectionErrors() as Array<
+					string | object
+				>,
+				isOfflineMode: select( connectionStore ).getIsOfflineMode() as boolean,
+				isRegistered: ( connectionStatus.isRegistered ?? false ) as boolean,
+				isUserConnected: ( connectionStatus.isUserConnected ?? false ) as boolean,
+				hasConnectedOwner: ( connectionStatus.hasConnectedOwner ?? false ) as boolean,
+			};
+		},
+		[ connectionStore ]
+	);
 
 	/**
 	 * User register process handler.
