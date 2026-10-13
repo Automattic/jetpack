@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Test bootstrap only: ignore a wpcomsh module policy in the wpcomsh test run.
+
+

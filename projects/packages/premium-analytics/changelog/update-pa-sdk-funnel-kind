@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Dashboard: expose the Funnel widget kind through the SDK; the widget contract is 1.9.0.

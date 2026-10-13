@@ -1,11 +1,13 @@
 import { CheckboxControl } from '@wordpress/components';
+import { useMergeRefs } from '@wordpress/compose';
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from '@wordpress/element';
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { __, _n, isRTL, sprintf } from '@wordpress/i18n';
 // The upstream names don't describe what they draw: `file` is a folder
 // glyph, `page` is a document one, and there is no `folder` export.
 // `tests/file-browser-icons.test.tsx` holds these aliases in place.
 import {
 	Icon,
+	chevronLeft,
 	chevronRight,
 	chevronDown,
 	file as folderIcon,
@@ -349,7 +351,17 @@ export default function FileBrowser( {
 	onSelectionIdsChange,
 }: Props ) {
 	const [ openFile, setOpenFile ] = useState< FileNodeFile | null >( null );
-	const [ panelRef, isNarrow ] = useNarrowElement( TWO_COLUMN_MIN );
+	const [ narrowRef, isNarrow ] = useNarrowElement( TWO_COLUMN_MIN );
+	const panelRef = useRef< HTMLDivElement >( null );
+	// Spread on the root in both branches, so it is one element that outlives the error notice and can take its focus.
+	const rootProps = {
+		className: 'jpb-file-browser',
+		ref: useMergeRefs( [ narrowRef, panelRef ] ),
+		'data-rewind-id': rewindId,
+		tabIndex: -1,
+		role: 'group',
+		'aria-label': __( 'Files in this backup', 'jetpack-backup-pkg' ),
+	};
 	const {
 		children: rootsData,
 		isLoading: rootsLoading,
@@ -493,20 +505,21 @@ export default function FileBrowser( {
 	// replace the whole browser. A failed background refresh still has its rows and keeps the tree.
 	if ( rootsError && ! rootsData ) {
 		return (
-			<div className="jpb-file-browser" ref={ panelRef } data-rewind-id={ rewindId }>
+			<div { ...rootProps }>
 				<QueryError
 					title={ __( "We couldn't load this backup's files.", 'jetpack-backup-pkg' ) }
 					error={ rootsError }
 					referenceId={ { kind: 'backup', value: rewindId } }
 					onRetry={ refetchRoots }
 					isRetrying={ rootsFetching }
+					returnFocusTo={ panelRef }
 				/>
 			</div>
 		);
 	}
 
 	return (
-		<div className="jpb-file-browser" ref={ panelRef } data-rewind-id={ rewindId }>
+		<div { ...rootProps }>
 			<div className={ layoutClassName } style={ layoutStyle }>
 				<div className="jpb-file-browser__main">
 					<Stack direction="row" align="center" gap="sm" className="jpb-file-browser__selection">
@@ -575,6 +588,9 @@ type NodeRowProps = {
 	onOpenFile: ( file: FileNodeFile, opener: HTMLButtonElement ) => void;
 	onRegisterChildren: ( path: string, children: FileNode[] ) => void;
 };
+
+// The closed-folder chevron points toward the inline end, so it flips in RTL.
+const closedChevron = () => ( isRTL() ? chevronLeft : chevronRight );
 
 /**
  * Recursive row inside the file-browser tree. Folders own their own expand state; while a folder is open, `useFileTree` keeps its children resolved (re-collapsing and re-opening re-issues the fetch).
@@ -719,7 +735,7 @@ function NodeRow( {
 						) }
 						onClick={ handleToggleOpen }
 					>
-						<Icon icon={ open ? chevronDown : chevronRight } size={ 16 } />
+						<Icon icon={ open ? chevronDown : closedChevron() } size={ 16 } />
 						<Icon icon={ folderIcon } size={ 18 } />
 						<span dir="ltr">{ node.name }</span>
 					</button>

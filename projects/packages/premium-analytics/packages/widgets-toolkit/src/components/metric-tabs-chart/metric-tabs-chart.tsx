@@ -6,20 +6,28 @@ import {
 	Tabs,
 	Text,
 	VisuallyHidden,
+	mixHexColors,
+	useGlobalChartsContext,
 	type TickResolution,
 } from '@jetpack-premium-analytics/externals';
 import { useResizeObserver } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useId, useMemo, useRef, useState } from 'react';
 /**
  * Internal dependencies
  */
-import { formatComparisonSeriesLabel, isEmptyChartData, type ChartBaseline } from '../../helpers';
+import {
+	formatComparisonSeriesLabel,
+	getComparisonPeriodLabel,
+	isEmptyChartData,
+	type ChartBaseline,
+} from '../../helpers';
 import { useSeriesStyles } from '../../hooks';
 import { ComparativeBarChart } from '../chart-comparative-bar';
 import { ComparativeLineChart } from '../chart-comparative-line';
 import { MetricWithComparison } from '../metric-with-comparison';
+import { WidgetRootContext } from '../widget-root/context';
 import styles from './metric-tabs-chart.module.scss';
 import type { CountLabel, DataFormat } from '../../types';
 import type {
@@ -39,6 +47,9 @@ const MIN_TAB_WIDTH = 120;
  * click. Above it the gesture is a drag and must not drill the dashboard.
  */
 const CLICK_DRAG_TOLERANCE_PX = 6;
+
+/** How far a counterpart's color moves from the accent toward black; interim until UNI-847 settles the shades. */
+const DARK_SHADE_BLEND = 0.5;
 
 /** The pointer-event payload both comparative charts report. */
 type ChartPointerParams = Parameters<
@@ -174,14 +185,22 @@ export interface MetricTabsChartProps {
  *
  * @param metric    - The metric to draw.
  * @param chartType - How the metric is drawn.
+ * @param stroke    - The color of both periods.
  * @return The chart series.
  */
 function buildSeries(
 	metric: MetricTab,
-	chartType: MetricTabsChartType
+	chartType: MetricTabsChartType,
+	stroke: string
 ): ComparativeLineChartSeries[] {
 	const series: ComparativeLineChartSeries[] = [
-		{ label: metric.label, group: metric.key, data: metric.current, countLabel: metric.countLabel },
+		{
+			label: metric.label,
+			group: metric.key,
+			data: metric.current,
+			countLabel: metric.countLabel,
+			options: { stroke },
+		},
 	];
 
 	if ( metric.previous?.length ) {
@@ -191,9 +210,10 @@ function buildSeries(
 			data: metric.previous,
 			options:
 				chartType === 'bar'
-					? { type: 'comparison' }
+					? { type: 'comparison', stroke }
 					: {
 							type: 'comparison',
+							stroke,
 							gradient: {
 								from: 'transparent',
 								to: 'transparent',
@@ -225,6 +245,7 @@ function MetricChart( {
 	tickResolution,
 	onDatumClick,
 	baseline,
+	comparisonLabel,
 	empty,
 }: {
 	metric: MetricTab;
@@ -237,6 +258,7 @@ function MetricChart( {
 	chartId: string;
 	tickResolution?: TickResolution;
 	onDatumClick?: ( date: Date ) => void;
+	comparisonLabel?: string;
 	empty?: ReactNode;
 } ) {
 	// Every other metric's current period, each in its own format. A counterpart
@@ -263,19 +285,26 @@ function MetricChart( {
 		return tooltipMetrics === 'all' || all.length ? all : undefined;
 	}, [ otherMetricExtras, metric.tooltipExtras, tooltipMetrics ] );
 
+	// The first palette color is the admin accent.
+	const { getElementStyles } = useGlobalChartsContext();
+	const shades = useMemo( () => {
+		const accent = getElementStyles( { index: 0 } ).color;
+		return { accent, dark: mixHexColors( accent, '#000000', DARK_SHADE_BLEND ) };
+	}, [ getElementStyles ] );
+
 	const { series, defaultHiddenSeries } = useMemo( () => {
-		const active = buildSeries( metric, chartType );
+		const active = buildSeries( metric, chartType, shades.accent );
 
 		if ( ! counterpart ) {
 			return { series: active, defaultHiddenSeries: undefined };
 		}
 
-		const paired = buildSeries( counterpart, chartType );
+		const paired = buildSeries( counterpart, chartType, shades.dark );
 		return {
 			series: [ ...active, ...paired ],
 			defaultHiddenSeries: metric.counterpartHidden ? paired.map( item => item.label ) : undefined,
 		};
-	}, [ metric, counterpart, chartType ] );
+	}, [ metric, counterpart, chartType, shades ] );
 
 	const pointerDownRef = useRef< { x: number; y: number } | null >( null );
 
@@ -368,6 +397,7 @@ function MetricChart( {
 			dataFormat={ resolvedDataFormat }
 			defaultHiddenSeries={ defaultHiddenSeries }
 			legendInteractive={ legendInteractive }
+			comparisonLabel={ comparisonLabel }
 			tickResolution={ tickResolution }
 			tooltipExtras={ tooltipExtras }
 			compactWhenShort
@@ -381,6 +411,7 @@ function MetricChart( {
 			dataFormat={ resolvedDataFormat }
 			defaultHiddenSeries={ defaultHiddenSeries }
 			legendInteractive={ legendInteractive }
+			comparisonLabel={ comparisonLabel }
 			tickResolution={ tickResolution }
 			tooltipExtras={ tooltipExtras }
 			baseline={ baseline }
@@ -469,6 +500,11 @@ export function MetricTabsChart( {
 	empty,
 }: MetricTabsChartProps ) {
 	const [ selectedKey, setSelectedKey ] = useState( defaultMetricKey ?? metrics[ 0 ]?.key );
+	const reportParams = useContext( WidgetRootContext )?.reportParams;
+	const comparisonLabel = useMemo(
+		() => reportParams && getComparisonPeriodLabel( reportParams ),
+		[ reportParams ]
+	);
 
 	// The chart seeds its hidden series once per chart ID, so a stable ID would leave
 	// the chart showing the previous selection's hidden set.
@@ -563,6 +599,7 @@ export function MetricTabsChart( {
 						chartId={ chartIdFor( activeMetric ) }
 						tickResolution={ tickResolution }
 						onDatumClick={ onDatumClick }
+						comparisonLabel={ comparisonLabel }
 						empty={ empty }
 					/>
 				</div>
@@ -636,6 +673,7 @@ export function MetricTabsChart( {
 							chartId={ chartIdFor( activeMetric ) }
 							tickResolution={ tickResolution }
 							onDatumClick={ onDatumClick }
+							comparisonLabel={ comparisonLabel }
 							empty={ empty }
 						/>
 					) }
@@ -685,6 +723,7 @@ export function MetricTabsChart( {
 						chartId={ chartIdFor( metric ) }
 						tickResolution={ tickResolution }
 						onDatumClick={ onDatumClick }
+						comparisonLabel={ comparisonLabel }
 						empty={ empty }
 					/>
 				</Tabs.Panel>

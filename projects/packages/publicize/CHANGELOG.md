@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.88.3] - 2026-10-12
+### Changed
+- Update dependencies.
+
 ## [0.88.2] - 2026-10-05
 ### Changed
 - Update package dependencies. [#52999]
@@ -1698,6 +1702,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.88.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.2...v0.88.3
 [0.88.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.1...v0.88.2
 [0.88.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.0...v0.88.1
 [0.88.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.87.1...v0.88.0

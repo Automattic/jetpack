@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Keep a WordPress.com sign-in when a reader goes back and posts a comment again.
