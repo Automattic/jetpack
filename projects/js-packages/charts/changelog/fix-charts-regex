@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Reject invalid values like `12.px` when resolving theme font sizes.

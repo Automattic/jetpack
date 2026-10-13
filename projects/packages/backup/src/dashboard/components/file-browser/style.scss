@@ -3,6 +3,11 @@
 	flex-direction: column;
 	gap: 8px;
 
+	// Focused only by script, when a retry clears the error; see `.jpb-overview`.
+	&:focus {
+		outline: none;
+	}
+
 	&__selection {
 		padding: 8px 0;
 		border-bottom: 1px solid #dcdcde;
