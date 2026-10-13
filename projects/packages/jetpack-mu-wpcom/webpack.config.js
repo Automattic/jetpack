@@ -4,6 +4,11 @@ const verbumConfig = require( './verbum.webpack.config.js' );
 const CodeMirrorLanguageDataPlugin = require( './webpack-plugins/codemirror-language-data-plugin.js' );
 const moduleConfig = require( './webpack.config.modules.js' );
 
+const syncedNewspackBlocksDir = path.join(
+	__dirname,
+	'src/features/newspack-blocks/synced-newspack-blocks/'
+);
+
 module.exports = async () => {
 	return [
 		...verbumConfig,
@@ -122,7 +127,7 @@ module.exports = async () => {
 				rules: [
 					// Transpile JavaScript.
 					jetpackWebpackConfig.TranspileRule( {
-						exclude: /node_modules\//,
+						exclude: [ /node_modules\//, syncedNewspackBlocksDir ],
 					} ),
 
 					// Transpile @automattic/* in node_modules too.
@@ -130,9 +135,10 @@ module.exports = async () => {
 						includeNodeModules: [ '@automattic/' ],
 					} ),
 
-					// newspack-icons ships untranspiled JSX in `.js` files, which our shared
+					// newspack-icons and synced newspack-blocks have JSX in `.js` files, which our shared
 					// preset only applies `@babel/preset-react` to for `.jsx`/`.tsx`.
 					jetpackWebpackConfig.TranspileRule( {
+						include: syncedNewspackBlocksDir,
 						includeNodeModules: [ 'newspack-icons/' ],
 						babelOpts: {
 							configFile: false,
