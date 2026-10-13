@@ -68,8 +68,8 @@ export interface UseOwnershipTransferArgs {
 	apiRoot: string;
 	/** API nonce. */
 	apiNonce: string;
-	/** Called as soon as WordPress.com accepts the new owner. */
-	onTransferred?: ( newOwnerId: number ) => void;
+	/** Called as soon as WordPress.com accepts the new owner, with the candidate it accepted. */
+	onTransferred?: ( newOwnerId: number, newOwner: ConnectionOwnerCandidate ) => void;
 }
 
 export type { ConnectionOwnerCandidate };
@@ -175,7 +175,7 @@ export default function useOwnershipTransfer( {
 
 				setIsTransferring( false );
 				setStep( 'done' );
-				onTransferred?.( id );
+				onTransferred?.( id, selectedCandidate );
 			} )
 			.catch( ( err: unknown ) => {
 				if ( ! isMounted.current ) {

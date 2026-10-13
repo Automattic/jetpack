@@ -18,6 +18,8 @@
  * @see Jetpack_Connector::enqueue_script_module()
  */
 
+// Resolves to the shared jetpack-connection script, which the card's asset file now lists.
+import { TransferConnectionOwnership } from '@automattic/jetpack-connection';
 // Namespace import: a missing named export would fail the whole module before the fallbacks run.
 // eslint-disable-next-line import/no-unresolved -- resolved via WP import map at runtime.
 import * as connectors from '@wordpress/connectors';
@@ -26,7 +28,8 @@ const registerConnector =
 	connectors.__experimentalRegisterConnector || connectors.registerConnector;
 const ConnectorItem = connectors.__experimentalConnectorItem || connectors.ConnectorItem;
 
-const { createElement, createInterpolateElement, useState, useEffect, useRef } = window.wp.element;
+const { createElement, createInterpolateElement, Fragment, useState, useEffect, useRef } =
+	window.wp.element;
 const { __, _x, sprintf } = window.wp.i18n;
 const { Button, Modal, Notice, Tooltip } = window.wp.components;
 const HStack = window.wp.components.__experimentalHStack || window.wp.components.HStack;
@@ -42,8 +45,8 @@ const initialIsRegistered = Boolean( data.isRegistered );
 const apiRoot = data.apiRoot || '';
 const apiNonce = data.apiNonce || '';
 const redirectUri = data.redirectUri || '';
-const currentUser = data.currentUser || null;
-const connectionOwner = data.connectionOwner || null;
+const initialCurrentUser = data.currentUser || null;
+const initialConnectionOwner = data.connectionOwner || null;
 const connectedUsersUrl = data.connectedUsersUrl || '';
 const connectedPlugins = data.connectedPlugins || [];
 const siteDetails = data.siteDetails || null;
@@ -590,15 +593,16 @@ function protectedOwnerIsEstablished() {
  * Only the confirmed owner, and only once ownership is settled: every pending state already
  * offers its own slot, and releasing from one of those would unlock a lock nobody holds yet.
  *
+ * @param {object|null} viewer - Current user data, including isOwner.
  * @return {boolean} True when the release row should be shown.
  */
-function canReleaseProtectedOwner() {
+function canReleaseProtectedOwner( viewer ) {
 	// Holding the connection too, which is the gate the release endpoint applies: a settled site
 	// has the anchored owner there, and a shared binding alone would earn a 403.
 	return (
 		protectedOwnerIsEstablished() &&
 		Boolean( protectedOwner?.viewerIsConfirmedOwner ) &&
-		Boolean( currentUser?.isOwner )
+		Boolean( viewer?.isOwner )
 	);
 }
 
@@ -807,13 +811,14 @@ function ProtectedOwnerSection() {
  * @param {Function} props.onConnect       - Callback to start the authorization flow.
  * @param {boolean}  props.isConnecting    - Whether a connection attempt is in progress.
  * @param {boolean}  props.isDisconnecting - Whether a disconnect is in progress (disables button).
+ * @param {object}   props.owner           - Connection owner data, or null when there is none.
  * @return {object} React element.
  */
-function ConnectPrompt( { onConnect, isConnecting, isDisconnecting } ) {
+function ConnectPrompt( { onConnect, isConnecting, isDisconnecting, owner } ) {
 	// When a connection owner is already linked, the viewing admin is
 	// connecting as a secondary user — the site-registration framing no
 	// longer applies, so use shorter copy focused on the user benefit.
-	const promptText = connectionOwner
+	const promptText = owner
 		? __(
 				'Connect your user account to unlock more features and sign in via WordPress.com (SSO).',
 				'jetpack-connection'
@@ -895,6 +900,62 @@ function ConfirmationModal( { title, message, onConfirm, onCancel } ) {
 				)
 			)
 		)
+	);
+}
+
+/**
+ * Transfer-ownership link for the owner's own account row, and the modal it opens.
+ *
+ * The shared component carries the choose → confirm → done flow and its own actions, so the
+ * card supplies only the modal, its heading and the way out.
+ *
+ * @param {object}   props               - Component props.
+ * @param {boolean}  props.isBusy        - Whether another account action is in progress.
+ * @param {Function} props.onTransferred - Called with the candidate that now owns the connection.
+ * @return {object} React element.
+ */
+function TransferOwnershipAction( { isBusy = false, onTransferred } ) {
+	const [ isOpen, setIsOpen ] = useState( false );
+	const [ isTransferring, setIsTransferring ] = useState( false );
+
+	const close = () => {
+		setIsOpen( false );
+		setIsTransferring( false );
+	};
+
+	return createElement(
+		Fragment,
+		null,
+		createElement(
+			Button,
+			{
+				variant: 'link',
+				className: 'jetpack-connector__inline-action',
+				disabled: isBusy || isOfflineMode,
+				onClick: () => setIsOpen( true ),
+			},
+			__( 'Transfer ownership', 'jetpack-connection' )
+		),
+		isOpen
+			? createElement(
+					Modal,
+					{
+						title: __( 'Transfer connection ownership', 'jetpack-connection' ),
+						onRequestClose: close,
+						size: 'small',
+						// A transfer cannot be undone halfway, so every way out is held shut while it runs.
+						isDismissible: ! isTransferring,
+						shouldCloseOnClickOutside: ! isTransferring,
+						shouldCloseOnEsc: ! isTransferring,
+					},
+					createElement( TransferConnectionOwnership, {
+						apiRoot,
+						apiNonce,
+						onBusyChange: setIsTransferring,
+						onTransferred: ( newOwnerId, newOwner ) => onTransferred( newOwner ),
+					} )
+				)
+			: null
 	);
 }
 
@@ -1414,12 +1475,21 @@ function IDCPanel() {
 /**
  * Expanded content shown when the user clicks "Details".
  *
- * @param {object}   props              - Component props.
- * @param {boolean}  props.isConnecting - Whether a user connection is in progress.
- * @param {Function} props.onConnect    - Callback to start user authorization flow.
+ * @param {object}      props                - Component props.
+ * @param {boolean}     props.isConnecting   - Whether a user connection is in progress.
+ * @param {Function}    props.onConnect      - Callback to start user authorization flow.
+ * @param {object|null} props.viewer         - Current user data, including isOwner.
+ * @param {object|null} props.owner          - Connection owner data.
+ * @param {Function}    props.onOwnerChanged - Called with the candidate that now owns the connection.
  * @return {object} React element.
  */
-function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
+function ExpandedDetails( {
+	isConnecting = false,
+	onConnect = null,
+	viewer = null,
+	owner = null,
+	onOwnerChanged,
+} ) {
 	const [ isDisconnecting, setIsDisconnecting ] = useState( false );
 	const [ isUnlinking, setIsUnlinking ] = useState( false );
 	const [ showDetailsModal, setShowDetailsModal ] = useState( false );
@@ -1472,7 +1542,7 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 
 		try {
 			const body = { linked: false, force: true };
-			if ( currentUser?.isOwner ) {
+			if ( viewer?.isOwner ) {
 				body[ 'disconnect-all-users' ] = true;
 			}
 
@@ -1495,7 +1565,7 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 	const handleUnlinkUser = () => {
 		confirmTriggerRef.current = disconnectAccountRef.current;
 		const message =
-			currentUser?.isOwner && currentUser?.hasOtherConnectedUsers
+			viewer?.isOwner && viewer?.hasOtherConnectedUsers
 				? __(
 						'Your site will remain connected for essential services like likes and stats, but all user accounts will be disconnected.',
 						'jetpack-connection'
@@ -1521,58 +1591,73 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 		isOfflineMode ? createElement( OfflineNotice ) : null,
 
 		// Current user info + unlink action (only when the viewing admin is linked).
-		currentUser
+		viewer
 			? createElement( UserSection, {
-					title: connectedAccountTitle( currentUser ),
-					user: currentUser,
+					title: connectedAccountTitle( viewer ),
+					user: viewer,
 					// This row stands in for the connection-owner row when the viewer is the
 					// owner, so it carries the shield the other row would have shown.
-					showShield: Boolean( currentUser.isOwner ) && protectedOwnerIsEstablished(),
+					showShield: Boolean( viewer.isOwner ) && protectedOwnerIsEstablished(),
 					actionSlot:
-						isManagedPlatformSite && currentUser.isOwner
+						isManagedPlatformSite && viewer.isOwner
 							? null
 							: createElement(
-									Button,
-									{
-										ref: disconnectAccountRef,
-										variant: 'link',
-										isDestructive: true,
-										disabled: isUnlinking || isDisconnecting || isOfflineMode,
-										onClick: handleUnlinkUser,
-										className: 'jetpack-connector__inline-action',
-									},
-									isUnlinking
-										? __( 'Disconnecting…', 'jetpack-connection' )
-										: __(
-												'Disconnect account',
-												'jetpack-connection',
-												/* dummy arg to avoid bad minification */ 0
-											)
+									// Each link carries its own inline-action margin, which already
+									// right-aligns on desktop and resets on narrow screens.
+									VStack,
+									{ spacing: 1 },
+									// Offered above the destructive action, so handing the connection
+									// over reads as the alternative to leaving it.
+									viewer.isOwner
+										? createElement( TransferOwnershipAction, {
+												isBusy: isUnlinking || isDisconnecting,
+												onTransferred: onOwnerChanged,
+											} )
+										: null,
+									createElement(
+										Button,
+										{
+											ref: disconnectAccountRef,
+											variant: 'link',
+											isDestructive: true,
+											disabled: isUnlinking || isDisconnecting || isOfflineMode,
+											onClick: handleUnlinkUser,
+											className: 'jetpack-connector__inline-action',
+										},
+										isUnlinking
+											? __( 'Disconnecting…', 'jetpack-connection' )
+											: __(
+													'Disconnect account',
+													'jetpack-connection',
+													/* dummy arg to avoid bad minification */ 0
+												)
+									)
 								),
 				} )
 			: null,
 
 		// Release link, directly under the confirmed owner's own account row.
-		canReleaseProtectedOwner()
+		canReleaseProtectedOwner( viewer )
 			? createElement( ReleaseOwnershipSection, { isBusy: isUnlinking || isDisconnecting } )
 			: null,
 
 		// Connect prompt (only when the viewing admin is NOT linked).
-		! currentUser && onConnect
+		! viewer && onConnect
 			? createElement( ConnectPrompt, {
 					onConnect,
 					isConnecting,
 					isDisconnecting,
+					owner,
 				} )
 			: null,
 
 		// Unconfirmed owner row for a viewer who is not the master. It replaces the
 		// connection-owner row while a protected owner is pending, so the same account is
 		// not labeled twice.
-		protectedOwnerIsPending() && connectionOwner && ! currentUser?.isOwner
+		protectedOwnerIsPending() && owner && ! viewer?.isOwner
 			? createElement( UserSection, {
 					title: __( 'Connection owner — unconfirmed', 'jetpack-connection' ),
-					user: connectionOwner,
+					user: owner,
 					subtitle: false,
 				} )
 			: null,
@@ -1580,10 +1665,10 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 		protectedOwnerSlotKind() ? createElement( ProtectedOwnerSection ) : null,
 
 		// Connection owner, once a protected owner is established or was never requested.
-		connectionOwner && ! currentUser?.isOwner && ! protectedOwnerIsPending()
+		owner && ! viewer?.isOwner && ! protectedOwnerIsPending()
 			? createElement( UserSection, {
 					title: __( 'Connection owner', 'jetpack-connection' ),
-					user: connectionOwner,
+					user: owner,
 					subtitle: false,
 					showShield: protectedOwnerIsEstablished(),
 				} )
@@ -1700,6 +1785,16 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 	const isSiteRegistered = initialIsRegistered;
 	const [ isConnecting, setIsConnecting ] = useState( false );
 	const [ connectError, setConnectError ] = useState( data.authError || null );
+	const [ viewer, setViewer ] = useState( initialCurrentUser );
+	const [ owner, setOwner ] = useState( initialConnectionOwner );
+
+	// A transfer changes which rows and actions belong to the viewer, so patch both from the
+	// candidate WordPress.com accepted rather than reloading. The avatar is the one field the
+	// candidate list does not carry; it returns on the next page load.
+	const handleOwnerChanged = newOwner => {
+		setOwner( { ...newOwner, localLogin: newOwner.login } );
+		setViewer( previous => ( previous ? { ...previous, isOwner: false } : previous ) );
+	};
 
 	// Reset "Connecting…" state when the page is restored from bfcache
 	// (e.g. user hits Back after being redirected to the auth page).
@@ -1776,7 +1871,7 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 		);
 
 		if ( isExpanded ) {
-			const needsUserConnection = ! currentUser;
+			const needsUserConnection = ! viewer;
 			expandedContent = createElement(
 				'div',
 				{ className: 'jetpack-connector__expanded' },
@@ -1787,6 +1882,9 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 					: createElement( ExpandedDetails, {
 							isConnecting: needsUserConnection ? isConnecting : false,
 							onConnect: needsUserConnection ? handleConnect : null,
+							viewer,
+							owner,
+							onOwnerChanged: handleOwnerChanged,
 						} )
 			);
 		}

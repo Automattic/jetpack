@@ -140,7 +140,15 @@ describe( 'TransferConnectionOwnership', () => {
 		await user.click( screen.getByRole( 'button', { name: 'Transfer ownership' } ) );
 
 		await waitFor( () => expect( mockSetConnectionOwner ).toHaveBeenCalledWith( 7 ) );
-		await waitFor( () => expect( onTransferred ).toHaveBeenCalledWith( 7 ) );
+		// The candidate rides along so a host can patch its own state without asking again.
+		await waitFor( () =>
+			expect( onTransferred ).toHaveBeenCalledWith( 7, {
+				id: 7,
+				login: 'kazz',
+				displayName: 'Kazz',
+				email: 'kazz@example.com',
+			} )
+		);
 
 		// findAllBy: Notice also announces itself into the a11y-speak live region.
 		await expect( screen.findAllByText( /is now the connection owner/ ) ).resolves.not.toHaveLength(

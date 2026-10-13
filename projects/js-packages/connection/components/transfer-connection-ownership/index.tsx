@@ -13,6 +13,7 @@ import OwnerCandidateList from './candidate-list';
 import TransferConfirmStep from './confirm-step';
 import TransferDoneStep from './done-step';
 import useOwnershipTransfer from './use-ownership-transfer';
+import type { ConnectionOwnerCandidate } from './use-ownership-transfer';
 
 export type { ConnectionOwnerCandidate } from './use-ownership-transfer';
 
@@ -23,8 +24,8 @@ export interface TransferConnectionOwnershipProps {
 	apiRoot: string;
 	/** API nonce. */
 	apiNonce: string;
-	/** Called as soon as WordPress.com accepts the new owner. */
-	onTransferred?: ( newOwnerId: number ) => void;
+	/** Called as soon as WordPress.com accepts the new owner, with the candidate it accepted. */
+	onTransferred?: ( newOwnerId: number, newOwner: ConnectionOwnerCandidate ) => void;
 	/** Called while a transfer is in flight, so a host can hold its own exits shut. */
 	onBusyChange?: ( isBusy: boolean ) => void;
 }
@@ -56,6 +57,8 @@ const TransferConnectionOwnership = ( {
 		error,
 	} = useOwnershipTransfer( { apiRoot, apiNonce, onTransferred } );
 
+	// Null only while the request is in flight: a failure resolves to an empty list.
+	const isLoading = null === candidates;
 	const hasCandidates = !! candidates?.length;
 
 	useEffect( () => {
@@ -116,7 +119,10 @@ const TransferConnectionOwnership = ( {
 				error={ error }
 			/>
 
-			{ hasCandidates && (
+			{ /* Shown while loading too, so the action does not arrive after the select and
+			     shift the dialog. There is nothing to continue to once the list is known
+			     to be empty, so that case still hides it. */ }
+			{ ( isLoading || hasCandidates ) && (
 				<Stack direction="row" align="center" justify="flex-end" gap="sm">
 					<Button variant="solid" onClick={ confirm } disabled={ ! selectedId }>
 						{ __( 'Continue', 'jetpack-connection-js' ) }

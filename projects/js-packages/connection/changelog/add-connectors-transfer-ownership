@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Transfer connection ownership: pass the new owner to the onTransferred callback, so a host can update its own state without a second request.
