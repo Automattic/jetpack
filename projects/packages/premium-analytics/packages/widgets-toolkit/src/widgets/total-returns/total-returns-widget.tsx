@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useReportOrders } from '@jetpack-premium-analytics/data';
+import { useReportOrders, type ReportDataMap } from '@jetpack-premium-analytics/data';
 import { paymentReturn } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
@@ -13,10 +13,10 @@ import { useWidgetRootContext } from '../../components/widget-root';
 
 const CURRENCY_FORMAT = { type: 'currency' as const, options: { useMultipliers: true } };
 
-type OrdersSummary = { total_sales?: number; refunds?: number };
+type OrdersSummary = Pick< ReportDataMap[ 'orders' ][ 'summary' ], 'total_sales' | 'refunds' >;
 
 const salesNetOfRefunds = ( summary: OrdersSummary ) =>
-	Math.max( 0, ( summary.total_sales ?? 0 ) - ( summary.refunds ?? 0 ) );
+	Math.max( 0, summary.total_sales - summary.refunds );
 
 /**
  * Refunds beside the sales net of them, one column each per period. A period pair without a
@@ -33,19 +33,20 @@ export function TotalReturnsWidget() {
 	const previous = comparison.data?.summary;
 
 	const columns = useMemo< ColumnInput[] >( () => {
-		if ( ! summary || ( ! summary.refunds && ! previous?.refunds ) ) {
+		if ( summary && ! summary.refunds && ! previous?.refunds ) {
 			return [];
 		}
 
+		// The categories are fixed, so the skeleton knows its two columns before the data arrives.
 		return [
 			{
 				label: __( 'Total sales', 'jetpack-premium-analytics-pkg' ),
-				value: salesNetOfRefunds( summary ),
+				value: summary ? salesNetOfRefunds( summary ) : 0,
 				previousValue: previous ? salesNetOfRefunds( previous ) : undefined,
 			},
 			{
 				label: __( 'Refunds', 'jetpack-premium-analytics-pkg' ),
-				value: summary.refunds ?? 0,
+				value: summary?.refunds ?? 0,
 				previousValue: previous?.refunds,
 			},
 		];
