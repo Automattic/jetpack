@@ -22,7 +22,7 @@ Built as a [`@wordpress/build`](https://www.npmjs.com/package/@wordpress/build) 
 
 Option-backed settings save through `/wp/v2/settings`. Clearing a front-page description also removes superseded legacy text, including when the modern option is already empty or absent. Invalid non-empty verification input preserves the saved code; an empty string deliberately clears it.
 
-Sitemap, canonical URL, and verification switches use `/jetpack/v4/seo/modules` and read live module state. No duplicate sitemap or canonical options are written. On platforms without those modules, including WordPress.com Simple, sitemap and canonical controls are read-only and verification codes remain editable. Platform-owned sitemap and canonical behavior is unchanged.
+Sitemap, canonical URL, and verification switches use `/jetpack/v4/seo/modules` and read live module state. No duplicate sitemap or canonical options are written. On platforms without those modules, sitemap and canonical controls are read-only and verification codes remain editable. WordPress.com Simple is the exception for canonical URLs: it has no modules, so the same route saves its switch to the `jetpack_canonical_urls_enabled` option (off when missing), and `Canonical_Urls` prints the archive canonical tag with the Jetpack plugin's resolver. Simple's platform sitemap is unchanged.
 
 On private and coming-soon Atomic sites, module writes temporarily bypass wpcomsh's output-suppression filter. The original filter is restored after the switch, so a saved preference never publishes the site or enables private sitemap output.
 

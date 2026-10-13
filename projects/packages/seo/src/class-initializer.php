@@ -198,6 +198,7 @@ class Initializer {
 			// self-hosted — is a separate follow-up, tracked in the schema project.)
 			Schema_Builder::init();
 			Author_Schema_Node::init();
+			Canonical_Urls::init();
 
 			// GEO-tab front-end services. These are paid surfaces on WordPress.com: a
 			// plan-gated site has the GEO tab hidden from its dashboard, so it must not
