@@ -14,3 +14,12 @@
 		flex-shrink: 0;
 	}
 }
+
+// The link's own box, so the icon, the label and the new-tab
+// indicator sit on one centre line rather than a text baseline
+// the icon is too tall for.
+.jetpack-newsletter-preview-modal__design-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+}

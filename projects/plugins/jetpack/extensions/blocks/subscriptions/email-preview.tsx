@@ -447,25 +447,19 @@ const EmailDesignLink = ( { postId }: { postId: number } ) => {
 
 	const label = __( 'Edit email design', 'jetpack' );
 
-	// Below `large` the header is already shedding: the device selector drops its desktop option
-	// there. A text label on top of that clips the modal title, so this becomes its icon.
-	if ( isBelowLarge ) {
-		return (
-			<Link
-				openInNewTab
-				href={ emailDesignUrl }
-				onClick={ handleClick }
-				aria-label={ label }
-				title={ label }
-			>
-				<Icon icon={ styles } />
-			</Link>
-		);
-	}
-
+	// The icon carries at every size so it becomes familiar; below `large` it carries alone,
+	// because a label there clips the modal title on a site that also shows the audience toggle.
 	return (
-		<Link openInNewTab href={ emailDesignUrl } onClick={ handleClick }>
-			{ label }
+		<Link
+			openInNewTab
+			href={ emailDesignUrl }
+			onClick={ handleClick }
+			className="jetpack-newsletter-preview-modal__design-link"
+			aria-label={ isBelowLarge ? label : undefined }
+			title={ isBelowLarge ? label : undefined }
+		>
+			<Icon icon={ styles } size={ 24 } />
+			{ ! isBelowLarge && label }
 		</Link>
 	);
 };
@@ -484,7 +478,7 @@ const PreviewControls = ( {
 	const isSmall = useViewportMatch( 'small', '<' );
 
 	return (
-		<HStack alignment="center" spacing={ isSmall ? 1 : 6 }>
+		<HStack alignment="center" spacing={ isSmall ? 2 : 6 }>
 			<PreviewDeviceSelector
 				selectedDevice={ selectedDevice }
 				setSelectedDevice={ setSelectedDevice }

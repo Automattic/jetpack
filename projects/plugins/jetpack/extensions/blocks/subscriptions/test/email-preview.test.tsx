@@ -44,13 +44,14 @@ jest.mock( '@automattic/jetpack-shared-extension-utils', () => {
 
 // `@wordpress/ui` isn't resolvable in the jest environment; render a plain anchor.
 jest.mock( '@wordpress/ui', () => ( {
-	Link: ( { children, href, openInNewTab, onClick, 'aria-label': ariaLabel } ) => (
+	Link: ( { children, href, openInNewTab, onClick, 'aria-label': ariaLabel, className } ) => (
 		<a
 			href={ href }
 			target={ openInNewTab ? '_blank' : undefined }
 			rel={ openInNewTab ? 'noreferrer' : undefined }
 			onClick={ onClick }
 			aria-label={ ariaLabel }
+			className={ className }
 		>
 			{ children }
 		</a>
@@ -514,6 +515,16 @@ describe( 'Newsletter preview: email design link', () => {
 		await waitFor( () => expect( apiFetch ).toHaveBeenCalled() );
 
 		expect( link ).toHaveAttribute( 'href', DESIGN_URL );
-		expect( link ).toHaveTextContent( '' );
+		expect( link ).not.toHaveTextContent( 'Edit email design' );
+	} );
+
+	it( 'keeps the label beside the icon where there is room', async () => {
+		mockEmailDesignUrl = DESIGN_URL;
+
+		render( <NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } /> );
+		const link = await screen.findByRole( 'link', { name: 'Edit email design' } );
+		await waitFor( () => expect( apiFetch ).toHaveBeenCalled() );
+
+		expect( link ).toHaveTextContent( 'Edit email design' );
 	} );
 } );
