@@ -13,15 +13,21 @@ import {
 import { useResizeObserver } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useId, useMemo, useRef, useState } from 'react';
 /**
  * Internal dependencies
  */
-import { formatComparisonSeriesLabel, isEmptyChartData, type ChartBaseline } from '../../helpers';
+import {
+	formatComparisonSeriesLabel,
+	getComparisonPeriodLabel,
+	isEmptyChartData,
+	type ChartBaseline,
+} from '../../helpers';
 import { useSeriesStyles } from '../../hooks';
 import { ComparativeBarChart } from '../chart-comparative-bar';
 import { ComparativeLineChart } from '../chart-comparative-line';
 import { MetricWithComparison } from '../metric-with-comparison';
+import { WidgetRootContext } from '../widget-root/context';
 import styles from './metric-tabs-chart.module.scss';
 import type { CountLabel, DataFormat } from '../../types';
 import type {
@@ -239,6 +245,7 @@ function MetricChart( {
 	tickResolution,
 	onDatumClick,
 	baseline,
+	comparisonLabel,
 	empty,
 }: {
 	metric: MetricTab;
@@ -251,6 +258,7 @@ function MetricChart( {
 	chartId: string;
 	tickResolution?: TickResolution;
 	onDatumClick?: ( date: Date ) => void;
+	comparisonLabel?: string;
 	empty?: ReactNode;
 } ) {
 	// Every other metric's current period, each in its own format. A counterpart
@@ -389,6 +397,7 @@ function MetricChart( {
 			dataFormat={ resolvedDataFormat }
 			defaultHiddenSeries={ defaultHiddenSeries }
 			legendInteractive={ legendInteractive }
+			comparisonLabel={ comparisonLabel }
 			tickResolution={ tickResolution }
 			tooltipExtras={ tooltipExtras }
 			compactWhenShort
@@ -402,6 +411,7 @@ function MetricChart( {
 			dataFormat={ resolvedDataFormat }
 			defaultHiddenSeries={ defaultHiddenSeries }
 			legendInteractive={ legendInteractive }
+			comparisonLabel={ comparisonLabel }
 			tickResolution={ tickResolution }
 			tooltipExtras={ tooltipExtras }
 			baseline={ baseline }
@@ -490,6 +500,11 @@ export function MetricTabsChart( {
 	empty,
 }: MetricTabsChartProps ) {
 	const [ selectedKey, setSelectedKey ] = useState( defaultMetricKey ?? metrics[ 0 ]?.key );
+	const reportParams = useContext( WidgetRootContext )?.reportParams;
+	const comparisonLabel = useMemo(
+		() => reportParams && getComparisonPeriodLabel( reportParams ),
+		[ reportParams ]
+	);
 
 	// The chart seeds its hidden series once per chart ID, so a stable ID would leave
 	// the chart showing the previous selection's hidden set.
@@ -584,6 +599,7 @@ export function MetricTabsChart( {
 						chartId={ chartIdFor( activeMetric ) }
 						tickResolution={ tickResolution }
 						onDatumClick={ onDatumClick }
+						comparisonLabel={ comparisonLabel }
 						empty={ empty }
 					/>
 				</div>
@@ -657,6 +673,7 @@ export function MetricTabsChart( {
 							chartId={ chartIdFor( activeMetric ) }
 							tickResolution={ tickResolution }
 							onDatumClick={ onDatumClick }
+							comparisonLabel={ comparisonLabel }
 							empty={ empty }
 						/>
 					) }
@@ -706,6 +723,7 @@ export function MetricTabsChart( {
 						chartId={ chartIdFor( metric ) }
 						tickResolution={ tickResolution }
 						onDatumClick={ onDatumClick }
+						comparisonLabel={ comparisonLabel }
 						empty={ empty }
 					/>
 				</Tabs.Panel>

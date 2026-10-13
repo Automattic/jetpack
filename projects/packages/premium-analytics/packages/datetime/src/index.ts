@@ -1,6 +1,7 @@
 export {
 	getComparisonRangeFromPreset,
 	isComparisonPresetId,
+	toComparisonPresetId,
 	type DateRange,
 	type ComparisonPresetId,
 } from './get-comparison-range';
@@ -102,6 +103,7 @@ export {
 	type QuickSurfaceOptions,
 
 	// Comparison presets
+	findComparisonOption,
 	getComparisonOptions,
 	type ComparisonOption,
 } from './presets';
