@@ -308,10 +308,8 @@ module.exports = [
 			// registers and versions connectors-card.js only.
 			asyncChunks: false,
 		},
-		// Not sharedConfig.externals: with module output an unprefixed external is read as a module specifier.
-		externals: {
-			jetpackConfig: `var ${ JSON.stringify( { consumer_slug: 'connection_package' } ) }`,
-		},
+		// Not sharedConfig.externals: every import goes through connectorsCardExternal().
+		externals: {},
 		plugins: [
 			...jetpackWebpackConfig.StandardPlugins( {
 				DependencyExtractionPlugin: false,
