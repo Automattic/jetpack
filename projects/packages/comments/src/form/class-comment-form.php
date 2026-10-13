@@ -480,18 +480,21 @@ class Comment_Form {
 					'manageSubscriptionsUrl' => $manage,
 					'tracks'                 => Tracks::is_enabled() ? array( 'platform' => Tracks::platform() ) : null,
 					'strings'                => $strings,
-					// Added to the form by the script, so a bot posting the form's fields has none.
-					'nonce'                  => array(
-						'name'  => self::NONCE_NAME,
-						'value' => wp_create_nonce( self::NONCE_ACTION ),
-					),
 				),
 				Identity::settings()
 			);
 
+			// Added to the form by script, so a bot posting the form's fields has none. Inline, and ES5,
+			// so a reader whose bundle fails to load or parse still posts it.
+			$add_nonce = sprintf(
+				'Array.prototype.forEach.call(document.forms,function(f){var i;if(f.querySelector(".jetpack-comments")&&!f.querySelector(\'[name="%1$s"]\')){i=document.createElement("input");i.type="hidden";i.name="%1$s";i.value=%2$s;f.appendChild(i);}});',
+				self::NONCE_NAME,
+				wp_json_encode( wp_create_nonce( self::NONCE_ACTION ), JSON_HEX_TAG | JSON_HEX_AMP )
+			);
+
 			wp_add_inline_script(
 				self::HANDLE,
-				'window.JetpackComments = ' . wp_json_encode( $settings, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
+				'window.JetpackComments = ' . wp_json_encode( $settings, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';' . $add_nonce,
 				'before'
 			);
 			$this->settings_printed = true;
