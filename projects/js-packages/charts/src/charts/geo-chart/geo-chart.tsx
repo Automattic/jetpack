@@ -291,12 +291,23 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 		]
 	);
 
-	const chartEvents = useMemo< ReactGoogleChartEvent[] | undefined >( () => {
+	const chartEvents = useMemo< ReactGoogleChartEvent[] >( () => {
+		const readyEvent: ReactGoogleChartEvent = {
+			eventName: 'ready',
+			// Google hardcodes aria-label="A chart." on its SVG, which repeats the chart's own name.
+			callback: () => {
+				containerRef.current
+					?.querySelectorAll( 'svg' )
+					.forEach( svg => svg.setAttribute( 'aria-hidden', 'true' ) );
+			},
+		};
+
 		if ( ! onError ) {
-			return undefined;
+			return [ readyEvent ];
 		}
 
 		return [
+			readyEvent,
 			{
 				eventName: 'error',
 				callback: ( { eventArgs } ) => {
