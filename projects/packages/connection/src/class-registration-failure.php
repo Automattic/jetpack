@@ -46,6 +46,16 @@ class Registration_Failure {
 		'home_private_ip',
 		'site_inaccessible_403',
 		'site_requires_authorization',
+		// Request parameters the server validates; the `verify_*` codes are a separate, transient family.
+		'siteurl_missing',
+		'siteurl_malformed',
+		'secret_1_missing',
+		'secret_1_malformed',
+		'secret_2_missing',
+		'secret_2_malformed',
+		'site_name_malformed',
+		'timezone_string_malformed',
+		'gmt_offset_malformed',
 	);
 
 	/**
@@ -56,11 +66,6 @@ class Registration_Failure {
 	 * very first attempt.
 	 */
 	const RATE_LIMITED_ERROR_CODE = 'request_cancelled';
-
-	/**
-	 * Error code suffixes marking a malformed request, which is also not retryable.
-	 */
-	const TERMINAL_ERROR_SUFFIXES = array( '_missing', '_malformed' );
 
 	/**
 	 * Delay before each successive automatic attempt, in seconds.
@@ -77,16 +82,6 @@ class Registration_Failure {
 			2 * HOUR_IN_SECONDS,
 			self::MAX_BACKOFF,
 		);
-	}
-
-	/**
-	 * Register the hooks that discard the state when the site's address changes.
-	 *
-	 * @return void
-	 */
-	public static function init_hooks() {
-		add_action( 'update_option_siteurl', array( __CLASS__, 'clear' ) );
-		add_action( 'update_option_home', array( __CLASS__, 'clear' ) );
 	}
 
 	/**
@@ -137,7 +132,7 @@ class Registration_Failure {
 			$state['error_message'] ?? '',
 			array(
 				'suppressed'       => true,
-				'status'           => $state['http_status'] ?? null,
+				'status'           => empty( $state['http_status'] ) ? 400 : (int) $state['http_status'],
 				'next_retry_after' => $next_retry_after,
 			)
 		);
@@ -156,20 +151,23 @@ class Registration_Failure {
 		$previous = self::get();
 		$attempts = null === $previous ? 1 : (int) $previous['attempts'] + 1;
 
-		$error_code  = (string) $error->get_error_code();
-		$http_status = self::extract_http_status( $error, $response );
-		$is_terminal = self::is_terminal( $error_code );
+		$error_code    = (string) $error->get_error_code();
+		$error_message = (string) $error->get_error_message();
+		$http_status   = self::extract_http_status( $error, $response );
+		$is_terminal   = self::is_terminal( $error_code );
 
 		// A rate-limited response usually masks a reason WordPress.com has already
-		// returned; when that reason is terminal, keep showing it rather than
-		// replacing it with "too many attempts".
+		// returned; keep showing a terminal one, but still push the next attempt out.
 		if ( self::RATE_LIMITED_ERROR_CODE === $error_code && null !== $previous && ! empty( $previous['terminal'] ) ) {
-			return;
+			$error_code    = $previous['error_code'];
+			$error_message = $previous['error_message'] ?? '';
+			$http_status   = $previous['http_status'] ?? null;
+			$is_terminal   = true;
 		}
 
 		$state = array(
 			'error_code'       => $error_code,
-			'error_message'    => (string) $error->get_error_message(),
+			'error_message'    => $error_message,
 			'http_status'      => $http_status,
 			'attempts'         => $attempts,
 			'last_attempt_at'  => time(),
@@ -247,17 +245,7 @@ class Registration_Failure {
 	 * @return bool
 	 */
 	public static function is_terminal( $error_code ) {
-		if ( in_array( $error_code, self::TERMINAL_ERROR_CODES, true ) ) {
-			return true;
-		}
-
-		foreach ( self::TERMINAL_ERROR_SUFFIXES as $suffix ) {
-			if ( substr( $error_code, -strlen( $suffix ) ) === $suffix ) {
-				return true;
-			}
-		}
-
-		return false;
+		return in_array( $error_code, self::TERMINAL_ERROR_CODES, true );
 	}
 
 	/**
@@ -354,10 +342,13 @@ class Registration_Failure {
 	/**
 	 * Fingerprint of the site addresses the stored failure refers to.
 	 *
+	 * Uses the same values the registration request sends, so a filtered or
+	 * constant-defined address counts as a move too.
+	 *
 	 * @return string
 	 */
 	private static function fingerprint() {
-		return md5( (string) get_option( 'siteurl' ) . '|' . (string) get_option( 'home' ) );
+		return md5( Urls::site_url() . '|' . Urls::home_url() );
 	}
 
 	/**

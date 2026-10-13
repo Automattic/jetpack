@@ -66,6 +66,8 @@ class Registration_Failure_Test extends \WorDBless\BaseTestCase {
 		remove_filter( 'map_meta_cap', array( $this->manager, 'jetpack_connection_custom_caps' ), 1 );
 		delete_transient( 'jetpack_assumed_site_creation_date' );
 		Registration_Failure::clear();
+		\Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
+		$this->manager->reset_connection_status();
 		remove_all_filters( 'jetpack_offline_mode' );
 		StatusCache::clear();
 		Constants::clear_constants();
@@ -269,14 +271,13 @@ class Registration_Failure_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Test that moving the site to a different address gives it a fresh chance.
 	 */
-	public function test_changing_siteurl_clears_state() {
-		Registration_Failure::init_hooks();
-
+	public function test_changing_siteurl_allows_a_fresh_attempt() {
 		$this->register_response = self::error_response( 'siteurl_private_ip', 'The site URL is a private IP address.', 400 );
 		$this->manager->try_registration();
 		$this->assertIsArray( $this->manager->get_registration_failure() );
 
-		update_option( 'siteurl', 'https://reachable.example.com' );
+		// The constant path, which no option hook would ever see.
+		Constants::set_constant( 'WP_SITEURL', 'https://reachable.example.com' );
 
 		$this->assertNull( $this->manager->get_registration_failure() );
 
@@ -325,6 +326,9 @@ class Registration_Failure_Test extends \WorDBless\BaseTestCase {
 		$this->assertTrue( Registration_Failure::is_terminal( 'siteurl_malformed' ) );
 
 		$this->assertFalse( Registration_Failure::is_terminal( 'site_inaccessible' ) );
+		// The verify step's codes are passed through by the server but describe expired or overwritten secrets.
+		$this->assertFalse( Registration_Failure::is_terminal( 'verify_secrets_missing' ) );
+		$this->assertFalse( Registration_Failure::is_terminal( 'verify_secret_1_missing' ) );
 		$this->assertFalse( Registration_Failure::is_terminal( 'wpcom_5??' ) );
 		$this->assertFalse( Registration_Failure::is_terminal( 'too_many_requests' ) );
 		$this->assertFalse( Registration_Failure::is_terminal( 'request_cancelled' ) );
@@ -353,13 +357,22 @@ class Registration_Failure_Test extends \WorDBless\BaseTestCase {
 	public function test_rate_limit_does_not_overwrite_a_terminal_failure() {
 		$this->register_response = self::error_response( 'siteurl_private_ip', 'The site URL is a private IP address.', 400 );
 		$this->manager->try_registration();
+		self::expire_backoff();
 
 		$this->register_response = self::error_response( 'request_cancelled', 'Your site has been generating too many registration attempts.', 400 );
-		$this->manager->register();
+
+		$before = time();
+		$this->manager->try_registration( true, true );
 
 		$state = $this->recorded_failure();
 		$this->assertSame( 'siteurl_private_ip', $state['error_code'] );
+		$this->assertSame( 'The site URL is a private IP address.', $state['error_message'] );
 		$this->assertTrue( $state['terminal'] );
+		$this->assertSame( 2, $state['attempts'] );
+		$this->assertGreaterThanOrEqual( $before + HOUR_IN_SECONDS, $state['next_retry_after'], 'The next attempt must still be pushed out.' );
+
+		$this->manager->try_registration();
+		$this->assertSame( 2, $this->register_request_count, 'An expired window must not stay open after a rate-limited attempt.' );
 	}
 
 	/**
@@ -373,11 +386,33 @@ class Registration_Failure_Test extends \WorDBless\BaseTestCase {
 
 		wp_set_current_user( 0 );
 		$this->assertNull( REST_Connector::connection_status()->get_data()['registrationFailure'] );
+		$this->assertNull( REST_Connector::connection_status( false )['registrationFailure'], 'The initial state reaches the block editor too.' );
 
 		wp_set_current_user( $this->administrator_id() );
 		$visible = REST_Connector::connection_status()->get_data()['registrationFailure'];
 		$this->assertSame( 'siteurl_private_ip', $visible['code'] );
 		$this->assertTrue( $visible['isPermanent'] );
+		$this->assertSame( $visible, REST_Connector::connection_status( false )['registrationFailure'] );
+	}
+
+	/**
+	 * Test that a site connected by other means no longer reports the old failure.
+	 */
+	public function test_connected_site_reports_no_failure() {
+		$this->register_response = self::error_response( 'siteurl_private_ip', 'The site URL is a private IP address.', 400 );
+		$this->manager->try_registration();
+		$this->assertIsArray( $this->manager->get_registration_failure() );
+
+		\Jetpack_Options::update_options(
+			array(
+				'id'         => 12345,
+				'blog_token' => 'restored.token',
+			)
+		);
+		$this->manager->reset_connection_status();
+
+		$this->assertTrue( $this->manager->is_connected() );
+		$this->assertNull( $this->manager->get_registration_failure() );
 	}
 
 	/**

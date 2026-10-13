@@ -210,8 +210,6 @@ class Manager {
 
 		$manager->add_connection_status_invalidation_hooks();
 
-		Registration_Failure::init_hooks();
-
 		// Set up package version hook.
 		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package_Version::send_package_version_to_tracker' );
 
@@ -2358,7 +2356,7 @@ class Manager {
 			Registration_Failure::record(
 				$result,
 				$this->last_register_response,
-				$this->get_plugin() ? $this->get_plugin()->get_slug() : null
+				$this->get_plugin_slug()
 			);
 		} else {
 			Registration_Failure::clear();
@@ -2443,7 +2441,7 @@ class Manager {
 					'jetpack_version'          => Constants::get_constant( 'JETPACK__VERSION' ),
 					'ABSPATH'                  => Constants::get_constant( 'ABSPATH' ),
 					'current_user_email'       => wp_get_current_user()->user_email,
-					'connect_plugin'           => $this->get_plugin() ? $this->get_plugin()->get_slug() : null,
+					'connect_plugin'           => $this->get_plugin_slug(),
 					'package_versions'         => $package_versions,
 					'active_connected_plugins' => $active_plugins_using_connection,
 				),
@@ -2576,14 +2574,11 @@ class Manager {
 	 * @return bool|WP_Error
 	 */
 	public function try_registration( $tos_agree = true, $force = false ) {
-		if ( $force ) {
-			Registration_Failure::clear();
-		}
-
 		if ( ( new Status() )->is_offline_mode() ) {
 			return new WP_Error(
 				'offline_mode',
-				__( 'Site is in offline mode; WordPress.com registration is not attempted.', 'jetpack-connection' )
+				__( 'Site is in offline mode; WordPress.com registration is not attempted.', 'jetpack-connection' ),
+				array( 'status' => 400 )
 			);
 		}
 
@@ -2593,7 +2588,7 @@ class Manager {
 			if ( $blocking_error ) {
 				Registration_Failure::record_suppressed_attempt(
 					$blocking_error,
-					$this->get_plugin() ? $this->get_plugin()->get_slug() : null
+					$this->get_plugin_slug()
 				);
 
 				return $blocking_error;
@@ -2618,8 +2613,8 @@ class Manager {
 
 		$tracking_data = array();
 
-		if ( null !== $this->get_plugin() ) {
-			$tracking_data['plugin_slug'] = $this->get_plugin()->get_slug();
+		if ( null !== $this->get_plugin_slug() ) {
+			$tracking_data['plugin_slug'] = $this->get_plugin_slug();
 		}
 
 		$tracking = new Tracking();
@@ -2648,9 +2643,13 @@ class Manager {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return array|null Failure details, or null if the last attempt did not fail.
+	 * @return array|null Failure details, or null if the last attempt did not fail or the site is connected.
 	 */
 	public function get_registration_failure() {
+		if ( $this->is_connected() ) {
+			return null;
+		}
+
 		return Registration_Failure::get();
 	}
 
@@ -2667,6 +2666,15 @@ class Manager {
 	 */
 	public function clear_registration_failure() {
 		Registration_Failure::clear();
+	}
+
+	/**
+	 * Get the slug of the plugin this connection is for, if any.
+	 *
+	 * @return string|null
+	 */
+	private function get_plugin_slug() {
+		return $this->get_plugin() ? $this->get_plugin()->get_slug() : null;
 	}
 
 	/**

@@ -542,11 +542,10 @@ class REST_Connector {
 		$status     = new Status();
 		$connection = new Manager();
 
-		// The REST route is public, and the stored failure quotes server and transport
-		// errors verbatim, so only people who can connect the site get to see it.
-		$registration_failure = ( ! $rest_response || current_user_can( 'jetpack_connect' ) )
-			? $connection->get_registration_failure()
-			: null;
+		// The REST route is public and the initial state reaches the block editor, while the
+		// stored failure quotes server and transport errors verbatim: only people who can
+		// connect the site get to see it.
+		$registration_failure = current_user_can( 'jetpack_connect' ) ? $connection->get_registration_failure() : null;
 
 		$connection_status = array(
 			'isActive'            => $connection->has_connected_owner(), // TODO deprecate this.
