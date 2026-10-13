@@ -3,7 +3,7 @@
  * Class WPCom_Themes_Api.
  * Retrieves themes from the WordPress.com themes API.
  *
- * @package wpcom-themes
+ * @package automattic/jetpack-mu-wpcom
  */
 
 /**
@@ -51,8 +51,13 @@ class WPCom_Themes_Api {
 
 		return $this->cache->run_cached(
 			$cache_key,
-			fn() => $this->handle_request( $url )->themes ?? array()
-		);
+			function () use ( $url ) {
+				$body = $this->handle_request( $url );
+
+				// Null, not an empty array: run_cached() stores anything else.
+				return isset( $body->themes ) && is_array( $body->themes ) ? $body->themes : null;
+			}
+		) ?? array();
 	}
 
 	/**
