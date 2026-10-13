@@ -708,6 +708,7 @@ class Jetpack {
 
 		add_filter( 'profile_update', array( 'Jetpack', 'user_meta_cleanup' ) );
 
+		add_filter( 'jetpack_active_modules', array( __CLASS__, 'keep_backup_module_active' ) );
 		add_filter( 'jetpack_get_default_modules', array( $this, 'filter_default_modules' ) );
 		add_filter( 'jetpack_get_default_modules', array( $this, 'handle_deprecated_modules' ), 99 );
 
@@ -837,6 +838,27 @@ class Jetpack {
 				do_action( 'jetpack_feature_import_enabled' );
 			}
 		}
+	}
+
+	/**
+	 * Keep the backup module on, since backups run on WordPress.com whatever it says.
+	 *
+	 * A host can still force it off through `jetpack_feature_policy`, which runs last.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $active Active module slugs.
+	 * @return array
+	 */
+	public static function keep_backup_module_active( $active ) {
+		// The Backup package does not support multisite, so the module stays as the site left it.
+		if ( ! is_array( $active ) || is_multisite() ) {
+			return $active;
+		}
+
+		$active[] = 'backup';
+
+		return $active;
 	}
 
 	/**

@@ -441,9 +441,9 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Switching the backup module off takes the dashboard and its REST routes away.
+	 * The dashboard stays on with the backup module switched off in the saved option.
 	 */
-	public function test_backup_dashboard_follows_the_backup_module() {
+	public function test_backup_dashboard_ignores_a_saved_off_module() {
 		$this->set_up_backup_test();
 		$this->connect_owner();
 		$this->force_unfire_action( 'jetpack_backup_initialized' );
@@ -451,7 +451,7 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 
 		Jetpack::configure_backup_package();
 
-		$this->assertSame( 0, did_action( 'jetpack_backup_initialized' ) );
+		$this->assertSame( 1, did_action( 'jetpack_backup_initialized' ) );
 	}
 
 	/**

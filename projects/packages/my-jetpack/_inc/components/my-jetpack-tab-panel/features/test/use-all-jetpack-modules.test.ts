@@ -60,6 +60,14 @@ describe( 'withoutPluginForcedOverrides', () => {
 		expect( result.videopress.override ).toBe( 'active' );
 	} );
 
+	it( 'keeps the override Jetpack itself puts on Backup, whatever its plugin does', () => {
+		const modules = { backup: mod( 'backup', 'active' ) };
+
+		const result = withoutPluginForcedOverrides( modules, { backup: product( 'backup', true ) } );
+
+		expect( result.backup.override ).toBe( 'active' );
+	} );
+
 	it( 'keeps a forced-off override, which no plugin of its own could cause', () => {
 		const modules = { videopress: mod( 'videopress', 'inactive' ) };
 

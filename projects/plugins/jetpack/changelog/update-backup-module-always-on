@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Backup: Keep the Backup menu and dashboard on for connected sites, since backups run whether or not the module is switched on.

@@ -4,6 +4,9 @@ import { MyJetpackModule } from '../../../types';
 
 export const JETPACK_MODULES_NOT_FOR_MULTISITE = [ 'backup', 'waf', 'wordads' ];
 
+// Jetpack forces these on itself (see `Jetpack::keep_backup_module_active()`), not a host.
+export const JETPACK_ALWAYS_ON_MODULES = [ 'backup' ];
+
 /**
  * Why a feature forced on or off by the host has no switch.
  *
@@ -25,6 +28,10 @@ export function getOverrideReason( override: 'active' | 'inactive' ) {
  */
 export function getModuleStatus( $module: MyJetpackModule ) {
 	// A toggle for a module forced through `jetpack_active_modules` would only flip back.
+	if ( $module.override === 'active' && JETPACK_ALWAYS_ON_MODULES.includes( $module.module ) ) {
+		return { isAvailable: false, reason: __( 'Always on', 'jetpack-my-jetpack' ) };
+	}
+
 	if ( $module.override === 'active' || $module.override === 'inactive' ) {
 		return { isAvailable: false, reason: getOverrideReason( $module.override ) };
 	}
