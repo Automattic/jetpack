@@ -126,12 +126,15 @@ class Registration_Failure {
 			return null;
 		}
 
+		// A failure can arrive on a 200 response, which REST would send as a success.
+		$http_status = (int) ( $state['http_status'] ?? 0 );
+
 		return new WP_Error(
 			$state['error_code'],
 			$state['error_message'] ?? '',
 			array(
 				'suppressed'       => true,
-				'status'           => empty( $state['http_status'] ) ? 400 : (int) $state['http_status'],
+				'status'           => $http_status >= 400 ? $http_status : 400,
 				'next_retry_after' => $next_retry_after,
 			)
 		);
@@ -148,7 +151,14 @@ class Registration_Failure {
 	 */
 	public static function record( WP_Error $error, $response = null, $plugin_slug = null ) {
 		$previous = self::get();
-		$attempts = null === $previous ? 1 : (int) $previous['attempts'] + 1;
+		$attempts = 1;
+
+		if ( null !== $previous ) {
+			// A failure inside an open window overlapped, or was forced past, the attempt
+			// that opened it, so it is not another step up the schedule.
+			$window_open = time() < (int) ( $previous['next_retry_after'] ?? 0 );
+			$attempts    = (int) $previous['attempts'] + ( $window_open ? 0 : 1 );
+		}
 
 		$error_code    = (string) $error->get_error_code();
 		$error_message = (string) $error->get_error_message();

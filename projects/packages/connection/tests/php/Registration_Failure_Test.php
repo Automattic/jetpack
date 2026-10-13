@@ -202,6 +202,35 @@ class Registration_Failure_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test that failures landing inside an open window do not climb the schedule.
+	 */
+	public function test_overlapping_failures_do_not_escalate_the_backoff() {
+		$this->register_response = self::error_response( 'connection_refused', 'Connection refused.', 400 );
+
+		$this->manager->try_registration();
+		// Attempts already in flight when the first failure was stored.
+		$this->manager->register();
+		$this->manager->register();
+
+		$this->assertSame( 3, $this->register_request_count );
+		$this->assertSame( 1, $this->recorded_failure()['attempts'] );
+	}
+
+	/**
+	 * Test that a failure from a 200 response is held back with an error status.
+	 */
+	public function test_held_back_error_never_carries_a_success_status() {
+		$this->register_response         = self::success_response();
+		$this->register_response['body'] = wp_json_encode( array( 'jetpack_id' => '12345' ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+
+		$this->manager->try_registration();
+		$held = $this->manager->try_registration();
+
+		$this->assertSame( 'jetpack_secret', $held->get_error_code() );
+		$this->assertSame( 400, $held->get_error_data()['status'] );
+	}
+
+	/**
 	 * Test that a 429 response defers the next attempt by at least the `Retry-After` window.
 	 *
 	 * @dataProvider retry_after_formats
@@ -394,7 +423,7 @@ class Registration_Failure_Test extends \WorDBless\BaseTestCase {
 		wp_set_current_user( $this->administrator_id() );
 		$visible = REST_Connector::connection_status()->get_data()['registrationFailure'];
 		$this->assertSame( 'siteurl_private_ip', $visible['code'] );
-		$this->assertTrue( $visible['isPermanent'] );
+		$this->assertTrue( $visible['needsSiteChange'] );
 		$this->assertSame( $visible, REST_Connector::connection_status( false )['registrationFailure'] );
 	}
 

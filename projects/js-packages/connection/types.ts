@@ -67,7 +67,7 @@ export type ConnectionScriptData = {
 			code: string;
 			message: string;
 			/** Whether retrying can only succeed once the site's environment changes. */
-			isPermanent: boolean;
+			needsSiteChange: boolean;
 			attempts: number;
 			lastAttemptAt: number;
 			/** Unix timestamp of the next automatic attempt. */

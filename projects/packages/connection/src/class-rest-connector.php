@@ -564,12 +564,12 @@ class REST_Connector {
 			),
 			'isPublic'            => '1' == get_option( 'blog_public' ), // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 			'registrationFailure' => null === $registration_failure ? null : array(
-				'code'           => $registration_failure['error_code'],
-				'message'        => $registration_failure['error_message'],
-				'isPermanent'    => (bool) $registration_failure['terminal'],
-				'attempts'       => (int) $registration_failure['attempts'],
-				'lastAttemptAt'  => (int) $registration_failure['last_attempt_at'],
-				'nextRetryAfter' => (int) $registration_failure['next_retry_after'],
+				'code'            => $registration_failure['error_code'],
+				'message'         => $registration_failure['error_message'],
+				'needsSiteChange' => (bool) $registration_failure['terminal'],
+				'attempts'        => (int) $registration_failure['attempts'],
+				'lastAttemptAt'   => (int) $registration_failure['last_attempt_at'],
+				'nextRetryAfter'  => (int) $registration_failure['next_retry_after'],
 			),
 		);
 
