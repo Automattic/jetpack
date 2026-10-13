@@ -388,7 +388,7 @@ class Block_Editor {
 	}
 
 	/**
-	 * What the editor needs from PHP: its own accessible names, and the embed route.
+	 * What the editor needs from PHP: its own strings, the embed route, and whether it offers images.
 	 *
 	 * @return array
 	 */

@@ -43,12 +43,18 @@ const icon = (
 	</svg>
 );
 
+// Hosts the CDN skips, from Image_CDN_Core::banned_domains().
+const skipped =
+	/^(?:chart\.googleapis\.com|chart\.apis\.google\.com|graph\.facebook\.com|(?:commons|upload)\.wikimedia\.org|m\.media-amazon\.com|covers\.openlibrary\.org)$|\.(?:fbcdn\.net|paypalobjects\.com|dropbox\.com|cdninstagram\.com|wikipedia\.org)$/;
+
 // The image as readers will get it, through the CDN, or null where the server shows a link instead:
-// not http or https, or not an extension the CDN serves. The CDN also loads http and HEIC images a page cannot.
+// not http or https, not an extension the CDN serves, or a host it skips. The CDN also loads http and HEIC images a page cannot.
 const viaCdn = ( url: string ) => {
 	try {
-		const { protocol, host, pathname } = new URL( url );
-		return /^https?:$/.test( protocol ) && /\.(?:gif|jpe?g|png|webp|heic)$/i.test( pathname )
+		const { protocol, host, hostname, pathname } = new URL( url );
+		return /^https?:$/.test( protocol ) &&
+			/\.(?:gif|jpe?g|png|webp|heic)$/i.test( pathname ) &&
+			! skipped.test( hostname )
 			? `https://i0.wp.com/${ host }${ pathname }?w=1400${ protocol === 'https:' ? '&ssl=1' : '' }`
 			: null;
 	} catch {
@@ -136,7 +142,7 @@ const Edit = ( { attributes: { url, alt }, setAttributes, isSelected }: ImageEdi
 					label={ i18n._x( 'Image', 'block title', 'default' ) }
 				>
 					{ failed && (
-						<p id={ errorId } className="components-placeholder__error">
+						<p id={ errorId } className="components-placeholder__error" role="alert">
 							{ labels.imageError }
 						</p>
 					) }
