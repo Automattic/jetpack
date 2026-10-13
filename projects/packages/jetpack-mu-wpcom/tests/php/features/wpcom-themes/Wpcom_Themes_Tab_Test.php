@@ -214,7 +214,6 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 			$this->assertObjectHasProperty( $field, $theme );
 		}
 		$this->assertArrayHasKey( 'display_name', $theme->author );
-		// The shared mapper also reports install state and tier, which the tab's own mapping did not.
 		$this->assertObjectHasProperty( 'installed', $theme );
 		$this->assertSame( 'partner', $theme->theme_tier );
 	}

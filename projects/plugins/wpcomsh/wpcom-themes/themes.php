@@ -13,8 +13,7 @@
 function wpcomsh_get_wpcom_themes_service_instance(): WPCom_Themes_Service {
 	static $instance;
 	if ( ! $instance ) {
-		// Atomic-only dependencies. The api, cache and mapper come from jetpack-mu-wpcom,
-		// which both this plugin and WordPress.com Simple load, and are autoloaded.
+		// Load dependencies.
 		require_once __DIR__ . '/includes/class-wpcom-themes-merger.php';
 		require_once __DIR__ . '/includes/class-wpcom-themes-service.php';
 

@@ -43,11 +43,9 @@ class WPCom_Themes_Mapper {
 		$wp_theme      = wp_get_theme( $wpcom_theme->id );
 		$current_theme = wp_get_theme();
 
-		$theme       = new stdClass();
-		$theme->name = $wpcom_theme->name;
-		$theme->slug = $wpcom_theme->id;
-		// add_query_arg rather than concatenation: a demo_uri that already carries a query string
-		// would otherwise end up with two question marks.
+		$theme                 = new stdClass();
+		$theme->name           = $wpcom_theme->name;
+		$theme->slug           = $wpcom_theme->id;
 		$theme->preview_url    = add_query_arg(
 			array(
 				'demo'          => 'true',
