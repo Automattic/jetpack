@@ -108,9 +108,8 @@ class Registration_Failure {
 	 * Get the error to return instead of attempting registration again, if the
 	 * previous failure still stands.
 	 *
-	 * The code and message are copied from the original failure so that callers
-	 * handling specific error codes keep working; the `suppressed` data flag tells
-	 * apart a remembered failure from a fresh one.
+	 * It carries the original code and message so callers handling specific codes
+	 * keep working; the `suppressed` data flag tells it apart from a fresh failure.
 	 *
 	 * @return WP_Error|null Null when an attempt should be made.
 	 */
@@ -158,6 +157,8 @@ class Registration_Failure {
 
 		// A rate-limited response usually masks a reason WordPress.com has already
 		// returned; keep showing a terminal one, but still push the next attempt out.
+		// A transient one is left to be replaced: by then it is stale, and "too many
+		// attempts" is the accurate message for the user who caused the limit.
 		if ( self::RATE_LIMITED_ERROR_CODE === $error_code && null !== $previous && ! empty( $previous['terminal'] ) ) {
 			$error_code    = $previous['error_code'];
 			$error_message = $previous['error_message'] ?? '';

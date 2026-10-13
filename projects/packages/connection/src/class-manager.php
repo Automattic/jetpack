@@ -2344,6 +2344,9 @@ class Manager {
 	 * remain public because the call to action comes from the current site, not from
 	 * WordPress.com.
 	 *
+	 * Always attempts: the retry gate and the offline mode check live in
+	 * `try_registration()`, so unattended callers must go through that instead.
+	 *
 	 * @param string $api_endpoint (optional) an API endpoint to use, defaults to 'register'.
 	 * @return true|WP_Error The error object.
 	 */
@@ -2561,10 +2564,11 @@ class Manager {
 	/**
 	 * Attempts Jetpack registration.
 	 *
-	 * Automatic attempts are held back while a previous failure still stands: errors
-	 * that describe the site's environment are retried daily at most, the rest on a
-	 * backoff schedule. Pass `$force` for attempts a user explicitly asked for - those
-	 * are never held back.
+	 * Automatic attempts are skipped in offline mode and held back while a previous
+	 * failure still stands. Pass `$force` for attempts a user or partner explicitly
+	 * asked for - those are never held back.
+	 *
+	 * @see Registration_Failure
 	 *
 	 * @since $$next-version$$ Added the `$force` parameter, the offline mode check, and the retry backoff.
 	 *
@@ -2574,15 +2578,15 @@ class Manager {
 	 * @return bool|WP_Error
 	 */
 	public function try_registration( $tos_agree = true, $force = false ) {
-		if ( ( new Status() )->is_offline_mode() ) {
-			return new WP_Error(
-				'offline_mode',
-				__( 'Site is in offline mode; WordPress.com registration is not attempted.', 'jetpack-connection' ),
-				array( 'status' => 400 )
-			);
-		}
-
 		if ( ! $force ) {
+			if ( ( new Status() )->is_offline_mode() ) {
+				return new WP_Error(
+					'offline_mode',
+					__( 'Site is in offline mode; WordPress.com registration is not attempted.', 'jetpack-connection' ),
+					array( 'status' => 400 )
+				);
+			}
+
 			$blocking_error = Registration_Failure::get_blocking_error();
 
 			if ( $blocking_error ) {

@@ -112,6 +112,9 @@ class Registration_Failure_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( 'offline_mode', $result->get_error_code() );
 		$this->assertSame( 0, $this->register_request_count );
 		$this->assertNull( $this->manager->get_registration_failure() );
+
+		$this->assertTrue( $this->manager->try_registration( true, true ) );
+		$this->assertSame( 1, $this->register_request_count, 'An explicit request is attempted even in offline mode.' );
 	}
 
 	/**
