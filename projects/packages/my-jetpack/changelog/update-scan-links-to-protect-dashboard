@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Scan: Open the Protect page in WP Admin instead of Jetpack Cloud when the site has one.

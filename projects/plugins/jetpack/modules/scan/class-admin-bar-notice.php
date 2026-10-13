@@ -122,7 +122,7 @@ class Admin_Bar_Notice {
 		$script_data = array(
 			'nonce'              => wp_create_nonce( 'wp_rest' ),
 			'scan_endpoint'      => get_rest_url( null, 'jetpack/v4/scan' ),
-			'scan_dashboard_url' => Redirect::get_url( 'calypso-scanner' ),
+			'scan_dashboard_url' => $this->get_scan_url(),
 			/* translators: %s is the alert icon */
 			'singular'           => sprintf( esc_html__( '%s Threat found', 'jetpack' ), $this->get_icon() ),
 			/* translators: %s is the alert icon */
@@ -175,11 +175,13 @@ class Admin_Bar_Notice {
 		);
 
 		if ( $has_threats ) {
-			$node['href']           = esc_url( Redirect::get_url( 'calypso-scanner' ) );
-			$node['meta']['target'] = '_blank';
-			$node['meta']['rel']    = 'noopener noreferrer';
-			$node['meta']['class']  = 'error';
-			$node['title']          = sprintf(
+			$node['href']          = esc_url( $this->get_scan_url() );
+			$node['meta']['class'] = 'error';
+			if ( ! $this->has_protect_dashboard() ) {
+				$node['meta']['target'] = '_blank';
+				$node['meta']['rel']    = 'noopener noreferrer';
+			}
+			$node['title'] = sprintf(
 				esc_html(
 				/* translators: %s is the alert icon */
 					_n( '%s Threat found', '%s Threats found', $this->get_threat_count(), 'jetpack' )
@@ -189,6 +191,26 @@ class Admin_Bar_Notice {
 		}
 
 		$wp_admin_bar->add_node( $node );
+	}
+
+	/**
+	 * Whether the Protect dashboard, which lists the threats inside wp-admin, is loaded.
+	 *
+	 * @return bool
+	 */
+	private function has_protect_dashboard() {
+		return (bool) did_action( 'jetpack_protect_dashboard_initialized' );
+	}
+
+	/**
+	 * Where the threats are listed: the Protect dashboard when it is loaded, Jetpack Cloud otherwise.
+	 *
+	 * @return string
+	 */
+	private function get_scan_url() {
+		return $this->has_protect_dashboard()
+			? admin_url( 'admin.php?page=jetpack-protect' )
+			: Redirect::get_url( 'calypso-scanner' );
 	}
 
 	/**

@@ -202,6 +202,11 @@ class Scan extends Module_Product {
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
+		// The Protect page, from the standalone plugin or the Protect package's dashboard, lists Scan's threats.
+		if ( Protect::is_standalone_plugin_active() || did_action( 'jetpack_protect_dashboard_initialized' ) ) {
+			return admin_url( 'admin.php?page=jetpack-protect' );
+		}
+
 		return Redirect::get_url( 'my-jetpack-manage-scan' );
 	}
 

@@ -75,7 +75,11 @@ export default function ProtectProductPage() {
 		navigateToUpgrade();
 	}, [ recordEvent, navigateToUpgrade ] );
 
-	const cloudScanUrl = getRedirectUrl( 'my-jetpack-manage-scan' );
+	// The manage URL is the Protect page when one is registered, Jetpack Cloud otherwise.
+	const hasProtectPage = !! detail?.manageUrl?.includes( 'page=jetpack-protect' );
+	const scanResultsUrl = hasProtectPage
+		? detail.manageUrl
+		: getRedirectUrl( 'my-jetpack-manage-scan' );
 	const scanVsProtectUrl = getRedirectUrl( 'jetpack-protect-support', {
 		anchor: 'jetpack-protect-jetpack-scan-and-wpscan-understand-the-difference',
 	} );
@@ -118,8 +122,10 @@ export default function ProtectProductPage() {
 								</Button>
 							) }
 							{ hasPaidPlan && (
-								<Button variant="primary" href={ cloudScanUrl }>
-									{ __( 'View scan results on Jetpack Cloud', 'jetpack-my-jetpack' ) }
+								<Button variant="primary" href={ scanResultsUrl }>
+									{ hasProtectPage
+										? __( 'View scan results', 'jetpack-my-jetpack' )
+										: __( 'View scan results on Jetpack Cloud', 'jetpack-my-jetpack' ) }
 								</Button>
 							) }
 						</div>
