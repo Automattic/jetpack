@@ -14,9 +14,22 @@ jest.mock( '@automattic/jetpack-connection', () => ( {
 	useConnection: () => ( { isUserConnected: mockIsUserConnected } ),
 } ) );
 
-// Treat the site as self-hosted so the connection gate applies.
+// Treat the site as self-hosted so the connection gate applies. `getScriptData` answers the
+// email design screen's URL; `mockEmailDesignUrl` is what each test varies.
+let mockEmailDesignUrl: string | null = null;
+
+// `useViewportMatch( 'large', '<' )` — true in the band where the header sheds labels.
+let mockIsBelowLarge = false;
+
+jest.mock( '@wordpress/compose', () => ( {
+	...jest.requireActual( '@wordpress/compose' ),
+	useViewportMatch: ( breakpoint: string, operator?: string ) =>
+		breakpoint === 'large' && operator === '<' ? mockIsBelowLarge : false,
+} ) );
+
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	isSimpleSite: () => false,
+	getScriptData: () => ( { newsletter: { emailDesignUrl: mockEmailDesignUrl } } ),
 } ) );
 
 jest.mock( '@automattic/jetpack-shared-extension-utils', () => {
@@ -31,7 +44,20 @@ jest.mock( '@automattic/jetpack-shared-extension-utils', () => {
 
 // `@wordpress/ui` isn't resolvable in the jest environment; render a plain anchor.
 jest.mock( '@wordpress/ui', () => ( {
-	Link: ( { children, href } ) => <a href={ href }>{ children }</a>,
+	// Renders its children, so the accessible name still includes the hidden label.
+	VisuallyHidden: ( { children } ) => <span data-testid="visually-hidden">{ children }</span>,
+	Link: ( { children, href, openInNewTab, onClick, 'aria-label': ariaLabel, className } ) => (
+		<a
+			href={ href }
+			target={ openInNewTab ? '_blank' : undefined }
+			rel={ openInNewTab ? 'noreferrer' : undefined }
+			onClick={ onClick }
+			aria-label={ ariaLabel }
+			className={ className }
+		>
+			{ children }
+		</a>
+	),
 } ) );
 
 // `@wordpress/editor` registers rich-text formats at import time against the real data registry.
@@ -435,5 +461,66 @@ describe( 'Test email recipient', () => {
 		render( <NewsletterTestEmailModal isOpen onClose={ jest.fn() } /> );
 
 		expect( screen.getByRole( 'textbox' ) ).toBeDisabled();
+	} );
+} );
+
+describe( 'Newsletter preview: email design link', () => {
+	const DESIGN_URL = 'https://example.com/wp-admin/themes.php?page=jetpack-email-design';
+
+	beforeEach( () => {
+		jest.clearAllMocks();
+		mockIsUserConnected = true;
+		mockEmailDesignUrl = null;
+		mockIsBelowLarge = false;
+		jest.mocked( useSelect ).mockImplementation( () => 123 );
+		jest.mocked( useDispatch ).mockReturnValue( {
+			__unstableSaveForPreview: jest.fn().mockResolvedValue( undefined ),
+		} );
+		( select as jest.Mock ).mockReturnValue( { isEditedPostDirty: () => false } );
+		jest.mocked( apiFetch ).mockResolvedValue( { html: '<p>Preview</p>' } );
+	} );
+
+	it( 'offers no link on a site with no email design screen', async () => {
+		render( <NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } /> );
+		await waitFor( () => expect( apiFetch ).toHaveBeenCalled() );
+
+		expect( screen.queryByRole( 'link', { name: 'Edit email design' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'links to the design screen in a new tab, sending no return URL', async () => {
+		mockEmailDesignUrl = DESIGN_URL;
+
+		render( <NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } /> );
+		const link = await screen.findByRole( 'link', { name: 'Edit email design' } );
+		await waitFor( () => expect( apiFetch ).toHaveBeenCalled() );
+
+		expect( link ).toHaveAttribute( 'href', DESIGN_URL );
+		expect( link ).toHaveAttribute( 'target', '_blank' );
+	} );
+
+	it( 'drops to an icon where the header runs out of room', async () => {
+		mockEmailDesignUrl = DESIGN_URL;
+		mockIsBelowLarge = true;
+
+		render( <NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } /> );
+		const link = await screen.findByRole( 'link', { name: 'Edit email design' } );
+		await waitFor( () => expect( apiFetch ).toHaveBeenCalled() );
+
+		expect( link ).toHaveAttribute( 'href', DESIGN_URL );
+		// The label is still the link's name, it is just not on screen beside the icon.
+		expect( screen.getByTestId( 'visually-hidden' ) ).toHaveTextContent( 'Edit email design' );
+		// An `aria-label` would override the contents and discard `Link`'s own new-tab notice.
+		expect( link ).not.toHaveAttribute( 'aria-label' );
+	} );
+
+	it( 'keeps the label beside the icon where there is room', async () => {
+		mockEmailDesignUrl = DESIGN_URL;
+
+		render( <NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } /> );
+		const link = await screen.findByRole( 'link', { name: 'Edit email design' } );
+		await waitFor( () => expect( apiFetch ).toHaveBeenCalled() );
+
+		expect( link ).toHaveTextContent( 'Edit email design' );
+		expect( screen.queryByTestId( 'visually-hidden' ) ).not.toBeInTheDocument();
 	} );
 } );

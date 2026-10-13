@@ -58,6 +58,10 @@ function pre_render_checks() {
  * @return bool Whether the user can edit.
  */
 function current_user_can_edit() {
+	if ( is_rendering_for_activitypub() ) {
+		return false;
+	}
+
 	$user = wp_get_current_user();
 
 	return 0 !== $user->ID && current_user_can( 'edit_post', get_the_ID() );
@@ -225,6 +229,11 @@ function prewarm_premium_content_session_cookie() {
  * @return bool Whether the use can view the content.
  */
 function current_visitor_can_access( $attributes, $block ) {
+	// The ActivityPub copy is public, so a subscriber token on the request must not unlock it.
+	if ( is_rendering_for_activitypub() ) {
+		return false;
+	}
+
 	/**
 	 * If the current WordPress install has as signed in user
 	 * they can see the content.

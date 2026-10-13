@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Internal: the email design link builds its own return URL now that a second surface links to the screen.
+
+
