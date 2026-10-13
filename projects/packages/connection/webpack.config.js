@@ -18,47 +18,68 @@ const AS_MODULE = new Set( [
 	'@wordpress/widget-primitives',
 ] );
 
-// Shared scripts the wrapper's requestMap externalizes but connectorsCardExternal() doesn't; bundling one loads a second copy.
-const UNMAPPED_SHARED_SCRIPTS = new Set( [
-	'@automattic/jetpack-script-data',
-	'@automattic/jetpack-shared-stores',
-] );
+// Jetpack packages shipped as shared scripts; bundling one loads a second copy, and shared-stores would register its stores twice.
+const SHARED_SCRIPTS = {
+	'@automattic/jetpack-connection': {
+		external: 'var JetpackConnection',
+		handle: 'jetpack-connection',
+	},
+	'@automattic/jetpack-script-data': {
+		external: 'var JetpackScriptDataModule',
+		handle: 'jetpack-script-data',
+	},
+	'@automattic/jetpack-shared-stores': {
+		external: 'var JetpackSharedStores',
+		handle: 'jetpack-shared-stores',
+	},
+};
+
+// Package imports the Connectors card may bundle; any other unmapped package fails the build.
+const BUNDLE_ALLOWLIST = [];
 
 /**
  * External for a request from the Connectors card, with the classic script handle it needs.
  *
- * Mirrors the jetpack-connection entry of the wrapper's `requestMap`, which this entry can't use without DependencyExtractionPlugin.
+ * Shared scripts mirror the wrapper's `defaultRequestMap`, which isn't exported and is only used by DependencyExtractionPlugin.
  *
  * @see projects/js-packages/webpack-config/src/webpack.js
  * @see https://github.com/WordPress/gutenberg/blob/485f42ae8a1c58ceea18371a507fd4acfa86fbd8/packages/dependency-extraction-webpack-plugin/lib/util.js#L86-L109
  *
  * @param {string} request - Module request.
  * @return {{external: string, handle?: string}|undefined} External with its type prefix, or undefined to bundle the request.
+ * @throws {Error} For a package import that is neither mapped nor in BUNDLE_ALLOWLIST.
  */
 const connectorsCardExternal = request => {
 	// module-import: webpack picks `module` for a static import and `import` for an import() call.
 	if ( AS_MODULE.has( request ) ) {
 		return { external: `module-import ${ request }` };
 	}
-	// Resolves to the shared jetpack-connection script, so js-packages/connection imports add nothing here.
-	if ( request === '@automattic/jetpack-connection' ) {
-		return { external: 'var JetpackConnection', handle: 'jetpack-connection' };
+	if ( Object.hasOwn( SHARED_SCRIPTS, request ) ) {
+		return SHARED_SCRIPTS[ request ];
 	}
-	// A subpath would be bundled instead, since only the package root maps to the shared script.
-	if ( request.startsWith( '@automattic/jetpack-connection/' ) ) {
+	// Only the package root maps to the shared script.
+	const sharedPackage = Object.keys( SHARED_SCRIPTS ).find( pkg =>
+		request.startsWith( `${ pkg }/` )
+	);
+	if ( sharedPackage ) {
 		throw new Error(
-			`Import ${ request } from '@automattic/jetpack-connection' instead, so it comes from the shared jetpack-connection script.`
+			`Import ${ request } from '${ sharedPackage }' instead, so it comes from the shared ${ SHARED_SCRIPTS[ sharedPackage ].handle } script.`
 		);
 	}
-	if ( UNMAPPED_SHARED_SCRIPTS.has( request ) ) {
-		throw new Error(
-			`Map ${ request } to its shared script in connectorsCardExternal() before the Connectors card imports it.`
-		);
-	}
-	// defaultRequestToExternal() returns undefined for packages meant to be bundled.
+	// defaultRequestToExternal() returns undefined both for unknown packages and for ones DEWP bundles on purpose.
 	const global = defaultRequestToExternal( request );
 	if ( ! global ) {
-		return undefined;
+		// The card's own files; Babel helpers arrive as absolute paths too (absoluteRuntime).
+		if (
+			request.startsWith( '.' ) ||
+			path.isAbsolute( request ) ||
+			BUNDLE_ALLOWLIST.some( prefix => request.startsWith( prefix ) )
+		) {
+			return undefined;
+		}
+		throw new Error(
+			`The Connectors card would bundle ${ request }. Map it in connectorsCardExternal(), import it from '@automattic/jetpack-connection', or add it to BUNDLE_ALLOWLIST.`
+		);
 	}
 	return {
 		external: `var ${ [].concat( global ).join( '.' ) }`,
