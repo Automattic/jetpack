@@ -11,6 +11,7 @@ patchedDependencies:
   react-autosize-textarea: 5c09e1dee59caaaba3871f9d722f93e56b41169db486b059597e8f8c788aa464
 
 importers:
+
   .:
     devDependencies:
       husky:
@@ -18660,6 +18661,7 @@ ignoredOptionalDependencies:
   - sass-embedded-unknown-all
 
 snapshots:
+
   '@-xun/debug@2.0.2':
     dependencies:
       '@types/debug': 4.1.13
@@ -23986,6 +23988,7 @@ snapshots:
       - stylelint
       - supports-color
       - vite
+
   '@wordpress/block-library@11.2.0(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@arraypress/waveform-player': 1.29.1

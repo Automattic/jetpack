@@ -2244,7 +2244,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/knowledge",
-                "reference": "4d186cb8ace49fdbea1dbb512a94f8123b1a4efa"
+                "reference": "79bce64cf5607b5ff9bc214c1b1e7f4d0f3ef381"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -2261,6 +2261,8 @@
             },
             "type": "jetpack-library",
             "extra": {
+                "autotagger": false,
+                "mirror-repo": "Automattic/jetpack-knowledge",
                 "branch-alias": {
                     "dev-trunk": "0.1.x-dev"
                 },

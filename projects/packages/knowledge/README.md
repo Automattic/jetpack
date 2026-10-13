@@ -27,3 +27,5 @@ Integration changes are limited to provider selection, PHP class namespacing and
 WordPress.com Simple uses the partial loader in `wp-content/mu-plugins/0-wpcom-jetpack-loader.php` and must initialize the package through that platform bootstrap. Removing `gutenberg_wpcom_enable_guidelines_experiment()` from the option filter in `wp-content/mu-plugins/wpcom-gutenberg-load.php` is a dependent rollout change after this package has been deployed and verified; preserve stored explicit experiment opt-ins.
 
 Licensed under GPL-2.0-or-later.
+
+The package mirror is `Automattic/jetpack-knowledge`. Automatic release tagging is disabled until its release credentials are configured.

@@ -42,8 +42,9 @@ class Settings {
 		}
 
 		require_once $build;
-		if ( function_exists( 'jetpack_knowledge_register_script_modules' ) ) {
-			jetpack_knowledge_register_script_modules();
+		$register_modules = 'jetpack_knowledge_register_script_modules';
+		if ( is_callable( $register_modules ) ) {
+			$register_modules();
 		}
 	}
 
@@ -69,8 +70,9 @@ class Settings {
 	 * @return void
 	 */
 	public static function render() {
-		if ( function_exists( 'jetpack_knowledge_guidelines_wp_admin_render_page' ) ) {
-			jetpack_knowledge_guidelines_wp_admin_render_page();
+		$render_page = 'jetpack_knowledge_guidelines_wp_admin_render_page';
+		if ( is_callable( $render_page ) ) {
+			$render_page();
 		}
 	}
 
