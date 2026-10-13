@@ -1,10 +1,11 @@
 import { ProgressBar, VisuallyHidden } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { useCallback, useState } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, isRTL, sprintf } from '@wordpress/i18n';
 import {
 	Icon,
 	arrowLeft,
+	arrowRight,
 	backup as backupIcon,
 	caution,
 	cloudDownload,
@@ -103,7 +104,7 @@ export default function RestoreScreen() {
 		<DashboardLayout>
 			<div className="jpb-restore">
 				<Link to="/" className="jpb-restore__back">
-					<Icon icon={ arrowLeft } size={ 18 } />
+					<Icon icon={ isRTL() ? arrowRight : arrowLeft } size={ 18 } />
 					{ __( 'Back to overview', 'jetpack-backup-pkg' ) }
 				</Link>
 				<Card.Root className="jpb-restore__card">
