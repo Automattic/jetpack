@@ -81,12 +81,14 @@ class Stored_Layout_Move_Test extends BaseTestCase {
 	/**
 	 * The layouts a read of the preferences hands back.
 	 *
-	 * @return array|null
+	 * @return array
 	 */
 	private function read_layouts() {
 		$preferences = get_user_meta( $this->user_id, $this->meta_key, true );
+		$layouts     = $preferences[ Enablement_Setting::PREFERENCES_SCOPE ][ Stored_Layout_Move::LAYOUTS_KEY ] ?? null;
+		$this->assertIsArray( $layouts );
 
-		return $preferences[ Enablement_Setting::PREFERENCES_SCOPE ][ Stored_Layout_Move::LAYOUTS_KEY ] ?? null;
+		return $layouts;
 	}
 
 	/**
