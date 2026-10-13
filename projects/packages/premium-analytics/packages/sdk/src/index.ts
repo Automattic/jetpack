@@ -5,9 +5,11 @@
  */
 export {
 	ChartEmptyState,
+	Columns,
 	Donut,
 	EarningsHistoryList,
 	ExporterCsvDownloadButton,
+	Funnel,
 	Leaderboard,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,

@@ -1,0 +1,4 @@
+Significance: minor
+Type: removed
+
+Remove the Store performance widget, now built by the WooCommerce Stats package.

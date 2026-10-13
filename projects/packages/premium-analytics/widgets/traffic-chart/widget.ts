@@ -3,7 +3,6 @@
  */
 import { __, _n } from '@wordpress/i18n';
 import type { StatsPeriod } from '@jetpack-premium-analytics/data';
-import { trendingUp } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
@@ -129,7 +128,6 @@ const chartTypeAttribute = {
  * chart's own tab selection, not an attribute.
  */
 export default {
-	icon: trendingUp,
 	attributes: [
 		chartIntervalAttribute,
 		chartTypeAttribute,

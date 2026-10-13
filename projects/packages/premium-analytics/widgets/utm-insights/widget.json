@@ -1,5 +1,6 @@
 {
 	"name": "jpa/utm-insights",
+	"icon": "jpa/megaphone",
 	"title": "Top UTM",
 	"description": "Traffic breakdown by UTM parameters — source, medium, campaign, and combinations.",
 	"help": {

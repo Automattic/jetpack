@@ -1,8 +1,6 @@
 /**
  * Mock data for Coupons endpoint
  *
- * Used by: SalesByCouponWidget
- *
  * Response structure matches:
  * - summary: CouponsDataSummary
  * - data: CouponsDataItem[]

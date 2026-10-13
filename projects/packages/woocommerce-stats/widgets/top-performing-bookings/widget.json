@@ -1,5 +1,6 @@
 {
 	"name": "woocommerce-analytics/top-performing-bookings",
+	"icon": "jpa/chart-bar",
 	"title": "Top performing bookings",
 	"description": "Shows the top booking products by net revenue over the selected time period.",
 	"help": {

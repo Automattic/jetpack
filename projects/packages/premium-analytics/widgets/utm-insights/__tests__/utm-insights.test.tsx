@@ -40,6 +40,20 @@ afterEach( () => {
 } );
 
 describe( 'UtmInsightsWidget', () => {
+	it( 'offers Build URL for an empty selection and keeps View all available', async () => {
+		const user = userEvent.setup();
+		const { rerender } = render( <UtmInsightsWidget attributes={ {} } /> );
+
+		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toBeInTheDocument();
+		await user.click( screen.getByRole( 'button', { name: 'Build URL' } ) );
+		expect( screen.getByRole( 'dialog', { name: 'Build URL' } ) ).toBeInTheDocument();
+
+		await user.keyboard( '{Escape}' );
+		mockRows = [ { label: 'newsletter / email', value: 18 } ];
+		rerender( <UtmInsightsWidget attributes={ {} } /> );
+		expect( screen.queryByRole( 'button', { name: 'Build URL' } ) ).not.toBeInTheDocument();
+	} );
+
 	it.each( [
 		[ 'source-medium', {} ],
 		[ 'campaign-source-medium', { utmDimension: 'utm_campaign,utm_source,utm_medium' } ],

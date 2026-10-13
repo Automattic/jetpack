@@ -10,7 +10,7 @@ import {
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { chartBar, megaphone } from '@wordpress/icons';
+import { chartBar } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -41,7 +41,6 @@ const CHART_TYPES = [
 ];
 
 export default {
-	icon: megaphone,
 	attributes: [
 		reportParamsAttributeField< WordAdsChartTabsAttributes >( {
 			grain: WORDADS_GRAIN,

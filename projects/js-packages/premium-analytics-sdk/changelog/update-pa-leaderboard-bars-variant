@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Leaderboard: add the bars variant, which lays the label above the bar and draws both periods as bars under a period legend.

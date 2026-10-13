@@ -32,7 +32,7 @@ import { registerEmbedBlock } from './embed';
 import { history } from './history';
 import { BlockToolbar } from './toolbar';
 import type { BoundaryProps, EditorProps, WritingAreaProps } from './types';
-import type { KeyboardEvent } from 'react';
+import type { KeyboardEvent, MouseEvent } from 'react';
 
 import './style.scss';
 
@@ -66,8 +66,8 @@ class Boundary extends Component< BoundaryProps, { failed: boolean } > {
 		return { failed: true };
 	}
 
-	componentDidCatch() {
-		this.props.onError();
+	componentDidCatch( error: unknown ) {
+		this.props.onError( error );
 	}
 
 	render() {
@@ -144,19 +144,29 @@ const Editor = ( {
 		return { past: [], present: { blocks, markup: serialize( blocks ) }, future: [], editedAt: 0 };
 	} );
 	const { blocks, markup } = present;
+	const isEmpty = blocks.every(
+		( { name, attributes } ) =>
+			name === 'core/paragraph' && ! String( attributes.content ?? '' ).trim()
+	);
 
 	// Here, not in the handlers below, so an undo reaches the form too.
 	useEffect( () => {
 		// Empty paragraphs serialize to markup, which is not a comment.
-		onChange(
-			blocks.every(
-				( { name, attributes } ) =>
-					name === 'core/paragraph' && ! String( attributes.content ?? '' ).trim()
-			)
-				? ''
-				: markup
-		);
-	}, [ blocks, markup, onChange ] );
+		onChange( isEmpty ? '' : markup );
+	}, [ isEmpty, markup, onChange ] );
+
+	// An empty box is one line to type on, so a click anywhere in it lands there.
+	// Not mousedown: rich text is uneditable from pointerdown to pointerup on a click outside it.
+	const onClick = useCallback(
+		( event: MouseEvent< HTMLDivElement > ) => {
+			if ( isEmpty && ! ( event.target as Element ).closest( '[data-block]' ) ) {
+				[ ...event.currentTarget.querySelectorAll< HTMLElement >( '[contenteditable="true"]' ) ]
+					.at( -1 )
+					?.focus();
+			}
+		},
+		[ isEmpty ]
+	);
 
 	const onEdit = useCallback(
 		( next: Block[] ) => dispatch( { type: 'edit', blocks: next, at: Date.now() } ),
@@ -193,7 +203,7 @@ const Editor = ( {
 					</div>
 					{ /* In the page, not an iframe, so the blocks wear the theme's type. */ }
 					<BlockTools>
-						<WritingFlow className="editor-styles-wrapper">
+						<WritingFlow className="editor-styles-wrapper" onClick={ onClick }>
 							<ObserveTyping>
 								<BlockList />
 							</ObserveTyping>
