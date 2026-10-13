@@ -178,9 +178,13 @@ function deriveState( input: DeriveInput ): RestoreState {
 	// that as an error offers a retry, which upstream refuses as a bare
 	// failure rather than as anything the reader can act on.
 	//
-	// Unless the last reading showed the restore alive: then a failed poll
-	// is temporary, and the silence deadline decides when to give up.
-	if ( restoreId !== null && statusError && ( lostTrack || ! isSignOfLife( data?.status ) ) ) {
+	// Unless the last reading showed the restore alive, or there is no reading
+	// yet: then a failed poll is temporary, and the silence deadline decides.
+	if (
+		restoreId !== null &&
+		statusError &&
+		( lostTrack || ( data !== undefined && ! isSignOfLife( data.status ) ) )
+	) {
 		return {
 			phase: 'lost-track',
 			detail: statusError.message || null,

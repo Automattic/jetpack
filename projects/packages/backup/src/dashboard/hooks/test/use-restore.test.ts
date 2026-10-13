@@ -318,28 +318,6 @@ describe( 'useRestore — failing safe', () => {
 		expect( result.current.state.phase ).not.toBe( 'success' );
 	} );
 
-	// Losing the connection is not the same as the restore failing: it
-	// was accepted and is very likely still running. Reporting it as an
-	// error would offer a retry, and the retry starts a second concurrent
-	// restore — so it reports what is true, that we can no longer watch.
-	it( 'surfaces a mid-poll network failure rather than sitting at the last percent', async () => {
-		mockedApiFetch.mockImplementation( ( options: { method?: string } ) => {
-			if ( options?.method === 'POST' ) {
-				return Promise.resolve( { id: 912682, rewind_id: REWIND_ID } );
-			}
-			return Promise.reject( new Error( 'Could not reach WordPress.com.' ) );
-		} );
-		const { wrapper } = makeWrapper();
-
-		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
-		submitAll( result );
-
-		await waitFor( () => expect( result.current.state.phase ).toBe( 'lost-track' ) );
-		// The transport's own text is kept, beneath the message rather
-		// than replacing it.
-		expect( result.current.state ).toMatchObject( { detail: 'Could not reach WordPress.com.' } );
-	} );
-
 	// The property the phase exists for, asserted on the state machine as
 	// well as on the screen: `error` is reserved for "nothing is running".
 	it( 'reserves the error phase for restores that definitely are not running', async () => {
@@ -1425,5 +1403,67 @@ describe( 'useRestore — a status poll that fails mid-restore', () => {
 
 		await advance( 2000 + POLL_INTERVAL_MS );
 		expect( result.current.state.phase ).toBe( 'lost-track' );
+	} );
+} );
+
+describe( 'useRestore — a restore whose status polls fail from the start', () => {
+	let failures: number;
+	let secondPollRuns: boolean;
+
+	beforeEach( () => {
+		jest.useFakeTimers();
+		failures = 0;
+		mockedApiFetch.mockImplementation( ( options: { path?: string; method?: string } ) => {
+			if ( options?.method === 'POST' ) {
+				return Promise.resolve( { id: 912682, rewind_id: REWIND_ID } );
+			}
+			if ( ( options?.path ?? '' ).includes( '/restores' ) ) {
+				return Promise.resolve( [] );
+			}
+			failures++;
+			if ( secondPollRuns && failures > 1 ) {
+				return Promise.resolve( statusPayload( { progress: 40 } ) );
+			}
+			return Promise.reject( new Error( 'Could not reach WordPress.com.' ) );
+		} );
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
+	it( 'does not give up on one failed first poll', async () => {
+		secondPollRuns = true;
+		const { wrapper } = makeWrapper();
+		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
+		submitAll( result );
+
+		const phases = new Set< string >();
+		// Small steps, so the screen is sampled between the failed poll and the next one.
+		for ( let i = 0; i < 40 && result.current.state.phase !== 'progress'; i++ ) {
+			await act( async () => {
+				await jest.advanceTimersByTimeAsync( 250 );
+			} );
+			phases.add( result.current.state.phase );
+		}
+
+		expect( result.current.state.phase ).toBe( 'progress' );
+		expect( phases ).not.toContain( 'lost-track' );
+	} );
+
+	it( 'waits for the silence deadline when no poll ever succeeds', async () => {
+		secondPollRuns = false;
+		const { wrapper } = makeWrapper();
+		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
+		submitAll( result );
+
+		await advance( 5 * 60_000 - 2000 );
+		expect( result.current.state.phase ).toBe( 'queued' );
+
+		await advance( 4000 + POLL_INTERVAL_MS );
+		expect( result.current.state ).toMatchObject( {
+			phase: 'lost-track',
+			detail: 'Could not reach WordPress.com.',
+		} );
 	} );
 } );
