@@ -72,7 +72,10 @@ class Stored_Layout_Move_Test extends BaseTestCase {
 			'_modified'                           => '2026-01-01T00:00:00Z',
 		);
 		remove_filter( 'get_user_metadata', array( Stored_Layout_Move::class, 'filter_user_meta' ), 99 );
-		update_user_meta( $this->user_id, $this->meta_key, $preferences );
+		// WorDBless unslashes an inserted row a second time, so the row exists before the real
+		// seed goes in as an update, slashed as the meta API expects.
+		update_user_meta( $this->user_id, $this->meta_key, array() );
+		update_user_meta( $this->user_id, $this->meta_key, wp_slash( $preferences ) );
 		add_filter( 'get_user_metadata', array( Stored_Layout_Move::class, 'filter_user_meta' ), 99, 3 );
 
 		return $preferences;
@@ -114,7 +117,11 @@ class Stored_Layout_Move_Test extends BaseTestCase {
 				'insights' => array( self::stored( 'jpa/all-time-stats' ), self::stored( 'jpa/tags' ) ),
 				'traffic'  => array( self::stored( 'jpa/referrers' ) ),
 			),
-			array( 'onboardingCompletedAt' => '2026-01-01' )
+			array(
+				'onboardingCompletedAt' => '2026-01-01',
+				// The meta API unslashes on write, so a value with a backslash proves the write-back slashes.
+				'rememberedPreset'      => 'ACME\\Blue',
+			)
 		);
 
 		$layouts = $this->read_layouts();
@@ -136,6 +143,7 @@ class Stored_Layout_Move_Test extends BaseTestCase {
 		$persisted = get_user_meta( $this->user_id, $this->meta_key, true );
 		$this->assertSame( $layouts, $persisted[ Enablement_Setting::PREFERENCES_SCOPE ][ Stored_Layout_Move::LAYOUTS_KEY ] );
 		$this->assertSame( '2026-01-01', $persisted[ Enablement_Setting::PREFERENCES_SCOPE ]['onboardingCompletedAt'] );
+		$this->assertSame( 'ACME\\Blue', $persisted[ Enablement_Setting::PREFERENCES_SCOPE ]['rememberedPreset'] );
 		$this->assertNotSame( '2026-01-01T00:00:00Z', $persisted['_modified'] );
 	}
 
@@ -218,7 +226,7 @@ class Stored_Layout_Move_Test extends BaseTestCase {
 		remove_filter( 'get_user_metadata', array( Stored_Layout_Move::class, 'filter_user_meta' ), 99 );
 		$preferences              = get_user_meta( $this->user_id, $this->meta_key, true );
 		$preferences['_modified'] = $future;
-		update_user_meta( $this->user_id, $this->meta_key, $preferences );
+		update_user_meta( $this->user_id, $this->meta_key, wp_slash( $preferences ) );
 		add_filter( 'get_user_metadata', array( Stored_Layout_Move::class, 'filter_user_meta' ), 99, 3 );
 
 		$moved = get_user_meta( $this->user_id, $this->meta_key, true );

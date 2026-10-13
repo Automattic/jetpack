@@ -61,7 +61,8 @@ class Stored_Layout_Move {
 		$moved       = is_array( $preferences ) ? self::move( $preferences ) : $preferences;
 		if ( $moved !== $preferences ) {
 			$moved['_modified'] = self::modified_after( $preferences['_modified'] ?? null );
-			update_user_meta( $user_id, $meta_key, $moved );
+			// The meta API unslashes what it is handed; this came from the database, already unslashed.
+			update_user_meta( $user_id, $meta_key, wp_slash( $moved ) );
 		}
 		add_filter( 'get_user_metadata', array( __CLASS__, 'filter_user_meta' ), 99, 3 );
 
