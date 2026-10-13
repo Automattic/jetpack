@@ -321,31 +321,12 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 	// --- Route registration ---
 
 	/**
-	 * Test that the endpoint is wired up under the platform path.
-	 *
-	 * Deliberately does not call rest_get_server(): building the whole route table
-	 * costs tens of megabytes, and this suite already peaks near its memory limit.
-	 * Reading the controller's own namespace and base proves the same thing --
-	 * that this endpoint answers wpcom/v2/paypal/platform/signup-link, and so does
-	 * not collide with the editor-facing wpcom/v2/paypal/onboarding/signup-link
-	 * that the paypal-payments package registers on these same hosts.
+	 * No feature flag gates the platform routes: the calling site's own flag already
+	 * decides whether it makes the request, and a flat route runs on public-api's
+	 * blog, where a per-site override could never reach it.
 	 */
-	/**
-	 * The flag is unregistered here, so this also covers the unregistered-default path:
-	 * only a `jetpack_feature_flag_enabled_*` filter can turn the route on.
-	 */
-	public function test_no_route_is_registered_while_the_flag_is_off() {
+	public function test_the_platform_routes_are_registered_without_a_flag() {
 		$routes = $this->build_routes();
-
-		$this->assertArrayNotHasKey( '/wpcom/v2/paypal/platform/signup-link', $routes );
-	}
-
-	public function test_the_route_is_registered_once_the_flag_is_on() {
-		add_filter( 'jetpack_feature_flag_enabled_paypal-payments-api-managed-buttons', '__return_true' );
-
-		$routes = $this->build_routes();
-
-		remove_all_filters( 'jetpack_feature_flag_enabled_paypal-payments-api-managed-buttons' );
 
 		$this->assertArrayHasKey( '/wpcom/v2/paypal/platform/signup-link', $routes );
 	}
@@ -362,6 +343,14 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 		return $routes;
 	}
 
+	/**
+	 * Test that the endpoint is wired up under the platform path.
+	 *
+	 * Reads the controller's own namespace and base rather than the route table:
+	 * this proves the endpoint answers wpcom/v2/paypal/platform/signup-link, and so
+	 * does not collide with the editor-facing wpcom/v2/paypal/onboarding/signup-link
+	 * that the paypal-payments package registers on these same hosts.
+	 */
 	public function test_endpoint_is_registered_under_the_platform_path() {
 		$this->assertNotFalse(
 			has_action( 'rest_api_init', array( $this->endpoint, 'register_routes' ) ),

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+PayPal Payment Buttons: Enable the wpcom/v2/paypal/platform endpoints on WordPress.com.
