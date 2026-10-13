@@ -1,117 +1,76 @@
 /**
  * External dependencies
  */
-import { GeoChart } from '@jetpack-premium-analytics/externals';
 import { location } from '@jetpack-premium-analytics/icons';
 import {
 	__experimentalToggleGroupControl as ToggleGroupControl,
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { useMemo, useState } from 'react';
-import { WidgetState } from '../../components';
-import { buildLeaderboardRow, LeaderboardChart } from '../../components/chart-leaderboard';
+import { useState } from 'react';
 /**
  * Internal dependencies
  */
+import { Locations } from '../../components/locations';
 import { useWidgetRootContext } from '../../components/widget-root';
-import { RESIZE_DEBOUNCE_MS } from '../../constants';
-import { flagUrl } from '../../helpers';
 import { useVisitorsByLocation, type Region } from './use-visitors-by-location';
 import styles from './visitors-by-location-widget.module.scss';
+
+const UNITED_STATES = { code: 'US', name: __( 'United States', 'jetpack-premium-analytics-pkg' ) };
 
 function isRegion( value: unknown ): value is Region {
 	return value === 'US' || value === 'world';
 }
 
+/**
+ * Store visitors by location: US states or countries, as the toggle says, listed beside the map.
+ *
+ * Must render within a WidgetRoot, which provides reportParams via context.
+ */
 export function VisitorsByLocationWidget() {
 	const { reportParams } = useWidgetRootContext();
 	const [ region, setRegion ] = useState< Region >( 'US' );
 
-	const {
-		geoData,
-		leaderboardData,
-		isLoading,
-		isFetching,
-		hasData,
-		hasComparison,
-		isError,
-		refetch,
-	} = useVisitorsByLocation( reportParams, region );
-
-	const leaderboardDataWithImages = useMemo(
-		() =>
-			leaderboardData.map( item => {
-				const imageUrl = flagUrl( region === 'US' ? 'us' : item.id );
-				const labelText = typeof item.label === 'string' ? item.label : '';
-
-				return {
-					...item,
-					...buildLeaderboardRow( {
-						label: labelText,
-						media: {
-							kind: 'flag',
-							url: imageUrl ?? undefined,
-							country:
-								region === 'US'
-									? __( 'United States', 'jetpack-premium-analytics-pkg' )
-									: labelText,
-						},
-						action: { kind: 'static' },
-					} ),
-				};
-			} ),
-		[ leaderboardData, region ]
-	);
-
-	const geoChartProps =
-		region === 'US'
-			? ( {
-					region,
-					resolution: 'provinces',
-				} as const )
-			: {};
-
-	const geoChart = (
-		<GeoChart data={ geoData } resizeDebounceTime={ RESIZE_DEBOUNCE_MS } { ...geoChartProps } />
-	);
+	const { rows, hasComparison, isLoading, isFetching, hasData, isError, refetch } =
+		useVisitorsByLocation( reportParams, region );
 
 	return (
 		<div className={ styles.root }>
-			<div className={ styles.container }>
-				{ /* The region toggle drives the query, so it stays available in
-				     every state (a sibling of WidgetState, per the widget contract). */ }
-				<div className={ styles.toggleControl }>
-					<ToggleGroupControl
-						__next40pxDefaultSize
-						isBlock
-						hideLabelFromVision
-						label={ __( 'Location', 'jetpack-premium-analytics-pkg' ) }
-						onChange={ value => {
-							if ( isRegion( value ) ) {
-								setRegion( value );
-							}
-						} }
-						value={ region }
-					>
-						<ToggleGroupControlOption
-							value="US"
-							label={ __( 'United States', 'jetpack-premium-analytics-pkg' ) }
-						/>
-						<ToggleGroupControlOption
-							value="world"
-							label={ __( 'Worldwide', 'jetpack-premium-analytics-pkg' ) }
-						/>
-					</ToggleGroupControl>
-				</div>
-
-				<WidgetState
-					isLoading={ isLoading }
-					isFetching={ isFetching }
-					// The report queries keep placeholders from the previous period across
-					// range changes, so only surface the error when nothing is left to show.
-					isError={ isError && ! hasData }
-					isEmpty={ leaderboardData.length === 0 }
+			{ /* The toggle drives the query, so it stays a sibling of the kind's states. */ }
+			<div className={ styles.toggle }>
+				<ToggleGroupControl
+					__next40pxDefaultSize
+					isBlock
+					hideLabelFromVision
+					label={ __( 'Location', 'jetpack-premium-analytics-pkg' ) }
+					onChange={ value => {
+						if ( isRegion( value ) ) {
+							setRegion( value );
+						}
+					} }
+					value={ region }
+				>
+					<ToggleGroupControlOption
+						value="US"
+						label={ __( 'United States', 'jetpack-premium-analytics-pkg' ) }
+					/>
+					<ToggleGroupControlOption
+						value="world"
+						label={ __( 'Worldwide', 'jetpack-premium-analytics-pkg' ) }
+					/>
+				</ToggleGroupControl>
+			</div>
+			<div className={ styles.locations }>
+				<Locations
+					rows={ rows }
+					status={ {
+						isLoading,
+						isFetching,
+						// The report queries keep the previous range's data on screen, so an error only shows without it.
+						isError: isError && ! hasData,
+						hasComparison,
+						refetch,
+					} }
 					error={ {
 						description: __(
 							"We couldn't load location data. Please try again in a moment.",
@@ -125,21 +84,8 @@ export function VisitorsByLocationWidget() {
 						icon: location,
 						description: __( 'No location data in this period.', 'jetpack-premium-analytics-pkg' ),
 					} }
-				>
-					<LeaderboardChart
-						data={ leaderboardDataWithImages }
-						withOverlayLabel={ true }
-						withComparison={ hasComparison }
-						showLegend={ false }
-						dataFormat={ {
-							type: 'number',
-							options: { useMultipliers: true, decimals: 0 },
-						} }
-						className={ styles.leaderboardChart }
-					/>
-
-					<div className={ styles.geoChart }>{ geoChart }</div>
-				</WidgetState>
+					country={ region === 'US' ? UNITED_STATES : undefined }
+				/>
 			</div>
 		</div>
 	);
