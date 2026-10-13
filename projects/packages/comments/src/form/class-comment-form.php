@@ -17,6 +17,7 @@ class Comment_Form {
 	const HANDLE       = 'jetpack-comments';
 	const NONCE_ACTION = 'jetpack_comments_form';
 	const NONCE_NAME   = 'jetpack_comments_form_nonce';
+	const THEME_FORM   = 'jetpack_comments_theme_form';
 
 	/**
 	 * Singleton instance.
@@ -112,7 +113,7 @@ class Comment_Form {
 		$link = sprintf(
 			'<a class="comment-reply-link" href="%s"%s onclick="return addComment.moveForm( \'%s-%d\', \'%d\', \'%s\', \'%d\' )">%s</a>',
 			// Followed when moveForm() never runs or finds no form, as on a theme that builds its own.
-			esc_url( wp_login_url( get_permalink( $post ) ) ),
+			esc_url( wp_login_url( add_query_arg( 'replytocom', $comment->comment_ID, get_permalink( $post ) ) . '#' . $args['respond_id'] ) ),
 			$args['show_reply_to_text'] ? '' : ' aria-label="' . esc_attr( $reply_to ) . '"',
 			esc_attr( $args['add_below'] ),
 			$comment->comment_ID,
@@ -202,7 +203,10 @@ class Comment_Form {
 
 		// A theme that builds its own form (Thesis) never runs comment_form(), so leave its form alone.
 		if ( ! is_array( $args ) || ! $this->defaults ) {
-			return $submit_field . wp_nonce_field( self::NONCE_ACTION, self::NONCE_NAME, false, false );
+			// The marker keeps Tracks from counting what this form never drew.
+			return $submit_field
+				. wp_nonce_field( self::NONCE_ACTION, self::NONCE_NAME, false, false )
+				. '<input type="hidden" name="' . self::THEME_FORM . '" value="1" />';
 		}
 
 		// The subscribe checkboxes the host drew: Jetpack's in this field, WordPress.com's from its own

@@ -153,7 +153,7 @@ class Tracks {
 	 */
 	public function comment_posted( $comment_id, $approved, $commentdata = array() ) {
 		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Comment_Form::verify_nonce() checked it; its presence marks a comment this form sent.
-		if ( empty( $_POST[ Comment_Form::NONCE_NAME ] ) ) {
+		if ( empty( $_POST[ Comment_Form::NONCE_NAME ] ) || ! empty( $_POST[ Comment_Form::THEME_FORM ] ) ) {
 			return;
 		}
 
