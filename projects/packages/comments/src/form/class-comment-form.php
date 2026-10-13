@@ -486,8 +486,9 @@ class Comment_Form {
 
 			// The nonce is added by script, so a bot posting the form's fields has none. Inline and ES5, so
 			// a reader whose bundle never runs gets it too, and the plain form once the page has loaded.
+			// Added again on DOMContentLoaded, for an optimizer that moves this script above the form.
 			$fallback = sprintf(
-				'Array.prototype.forEach.call(document.forms,function(f){var i;if(f.querySelector(".jetpack-comments")&&!f.querySelector(\'[name="%1$s"]\')){i=document.createElement("input");i.type="hidden";i.name="%1$s";i.value=%2$s;f.appendChild(i);}});'
+				'(function(){function n(){Array.prototype.forEach.call(document.forms,function(f){var i;if(f.querySelector(".jetpack-comments")&&!f.querySelector(\'[name="%1$s"]\')){i=document.createElement("input");i.type="hidden";i.name="%1$s";i.value=%2$s;f.appendChild(i);}});}n();document.addEventListener("DOMContentLoaded",n);})();'
 				. 'window.addEventListener("load",function(){Array.prototype.forEach.call(document.querySelectorAll(".jetpack-comments"),function(e){if(!/\\bis-(mounted|plain)\\b/.test(e.className)){e.className+=" is-plain";}});});',
 				self::NONCE_NAME,
 				wp_json_encode( wp_create_nonce( self::NONCE_ACTION ), JSON_HEX_TAG | JSON_HEX_AMP )
