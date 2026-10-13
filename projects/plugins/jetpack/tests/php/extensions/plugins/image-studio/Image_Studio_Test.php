@@ -591,6 +591,9 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 */
 	public function test_ai_enabled_filter_off_takes_image_studio_down_in_big_sky() {
 		$this->enable_big_sky();
+		$this->assertTrue( ImageStudio\is_image_studio_environment_available() );
+		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
+
 		add_filter( 'jetpack_ai_enabled', '__return_false' );
 
 		\Jetpack_AI_Settings::hold_module_off_when_ai_is_off();

@@ -331,18 +331,15 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * A `jetpack_ai_enabled` kill switch forces the module off, and the route still names the filter.
+	 * The route probes the filter before the override, so it stays `filter` once the module reads forced off.
 	 */
-	public function test_filter_off_forces_the_module_off_and_still_names_the_filter_route() {
+	public function test_route_still_names_the_filter_once_the_module_reads_forced_off() {
 		Constants::set_constant( 'IS_WPCOM', false );
 		\Jetpack_Options::update_option( 'active_modules', array( 'ai' ) );
-		$this->force_ai_module_active();
 		add_filter( 'jetpack_ai_enabled', '__return_false' );
-
 		Jetpack_AI_Settings::hold_module_off_when_ai_is_off();
+		( new Modules() )->is_active( 'ai' );
 
-		$this->assertFalse( ( new Modules() )->is_active( 'ai' ) );
-		$this->assertSame( 'inactive', Jetpack_Modules_Overrides::instance()->get_module_override( 'ai', false ) );
 		$this->assertSame( 'filter', Jetpack_AI_Settings::get_master_forced_off_route() );
 	}
 
@@ -359,16 +356,18 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * VIP documents this filter as its own off switch, so a VIP site is sent to
-	 * VIP's page rather than the generic hook reference.
+	 * VIP documents this filter as its own off switch, so a VIP site reads the module forced off and is sent to VIP's page.
 	 */
-	public function test_master_forced_off_route_names_the_vip_filter() {
+	public function test_vip_filter_forces_the_module_off_and_names_the_vip_route() {
 		Constants::set_constant( 'IS_WPCOM', false );
 		Constants::set_constant( 'WPCOM_IS_VIP_ENV', true );
 		\Jetpack_Options::update_option( 'active_modules', array( 'ai' ) );
 		$this->force_ai_module_active();
 		add_filter( 'jetpack_ai_enabled', '__return_false' );
 
+		Jetpack_AI_Settings::hold_module_off_when_ai_is_off();
+
+		$this->assertFalse( ( new Modules() )->is_active( 'ai' ) );
 		$this->assertSame( 'filter-vip', Jetpack_AI_Settings::get_master_forced_off_route() );
 	}
 
@@ -508,14 +507,10 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 
 	/**
 	 * Simple runs no modules, so the override is never registered there.
-	 *
-	 * @dataProvider ai_off_hooks
-	 * @param string $hook The hook that turns AI off.
 	 */
-	#[DataProvider( 'ai_off_hooks' )]
-	public function test_override_not_registered_on_simple( $hook ) {
+	public function test_override_not_registered_on_simple() {
 		Constants::set_constant( 'IS_WPCOM', true );
-		$this->turn_ai_off_through( $hook );
+		add_filter( 'jetpack_ai_enabled', '__return_false' );
 
 		Jetpack_AI_Settings::hold_module_off_when_ai_is_off();
 

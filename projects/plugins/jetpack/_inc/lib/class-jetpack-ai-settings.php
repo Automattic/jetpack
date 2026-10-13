@@ -17,6 +17,9 @@
  * Gate 4 options are registered here and consulted at each feature's registration
  * or enqueue point — a disabled feature must stop loading, not just hide.
  *
+ * A host or a `jetpack_ai_enabled` callback that turns AI off also drops the `ai`
+ * module from the active list, so module readers agree with the filter.
+ *
  * @package automattic/jetpack
  */
 
