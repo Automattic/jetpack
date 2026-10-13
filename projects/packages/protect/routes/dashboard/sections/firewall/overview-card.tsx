@@ -1,14 +1,15 @@
 import apiFetch from '@wordpress/api-fetch';
 import { dispatch } from '@wordpress/data';
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, check, closeSmall, shield } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
-import { Button, Text } from '@wordpress/ui';
+import { Button, Notice, Stack, Text } from '@wordpress/ui';
 import { CardRow, ProtectCard, Stat } from '../../components/card';
 import TabLink from '../../components/tab-link';
 import isModuleActive from '../../data/is-module-active';
 import { FIREWALL_PATH, SELF_CHECK_RULE_ID, runFirewallTest } from './firewall-test';
+import IpRule from './ip-rule';
 import RecentBlocks from './recent-blocks';
 import TestDetails from './test-details';
 import type { TestOutcome, TestResult } from './firewall-test';
@@ -23,6 +24,7 @@ const UNAVAILABLE: FirewallState = {
 	hasScan: false,
 	currentIp: '',
 	sharesData: false,
+	ipRules: {},
 };
 
 // One id for the test's snackbars, so the result replaces "Testing the firewall…".
@@ -127,6 +129,11 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 	const [ detailsOpen, setDetailsOpen ] = useState( false );
 	const active = isModuleActive( settings.settings, 'waf', firewall.active );
 	const sharesData = Boolean( settings.settings?.jetpack_waf_share_data ?? firewall.sharesData );
+	// Settings load on the Settings tab; until then the IP lists come from page load.
+	const ipData = useMemo(
+		() => ( { ...settings, settings: { ...firewall.ipRules, ...settings.settings } } ),
+		[ settings, firewall.ipRules ]
+	);
 
 	const runTest = useCallback( async () => {
 		setIsTesting( true );
@@ -168,31 +175,25 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 		);
 	}
 
+	const settingsLink = (
+		<TabLink tab="settings" onOpen={ openTab }>
+			{ active
+				? __( 'Configure Firewall', 'jetpack-protect-pkg' )
+				: __( 'Turn on in Settings', 'jetpack-protect-pkg' ) }
+		</TabLink>
+	);
+
 	return (
 		<ProtectCard
 			icon={ shield }
 			title={ title }
+			info={ __( 'Block malicious requests before they reach your site.', 'jetpack-protect-pkg' ) }
 			actions={
 				<Button variant="outline" size="compact" onClick={ runTest } loading={ isTesting }>
 					{ __( 'Test firewall', 'jetpack-protect-pkg' ) }
 				</Button>
 			}
 		>
-			<CardRow>
-				{ active ? (
-					<Stat
-						label={ __( 'All-time blocked requests', 'jetpack-protect-pkg' ) }
-						value={ blocks.blockedCount === null ? '—' : formatCount( blocks.blockedCount ) }
-					/>
-				) : (
-					<Text variant="body-md">
-						{ __(
-							'Turn on the firewall to block malicious requests before they reach your site.',
-							'jetpack-protect-pkg'
-						) }
-					</Text>
-				) }
-			</CardRow>
 			{ result && (
 				<TestDetails
 					result={ result }
@@ -201,18 +202,64 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 					onOpenChange={ setDetailsOpen }
 				/>
 			) }
-			{ active && (
+			{ ! active && (
 				<CardRow>
+					<Stack direction="column" gap="md" align="start">
+						<Text variant="body-md">
+							{ __(
+								'Turn on the firewall to block malicious requests before they reach your site.',
+								'jetpack-protect-pkg'
+							) }
+						</Text>
+						{ settingsLink }
+					</Stack>
+				</CardRow>
+			) }
+			{ active && (
+				<CardRow className="jp-protect-firewall-overview__columns">
+					<Stack direction="column" gap="md" align="start">
+						<Stat
+							label={ __( 'All-time blocked requests', 'jetpack-protect-pkg' ) }
+							value={ blocks.blockedCount === null ? '—' : formatCount( blocks.blockedCount ) }
+						/>
+						{ settingsLink }
+					</Stack>
 					<RecentBlocks blocks={ blocks.recentBlocks } canViewAll={ sharesData } />
 				</CardRow>
 			) }
-			<CardRow>
-				<TabLink tab="settings" onOpen={ openTab }>
-					{ active
-						? __( 'Configure Firewall', 'jetpack-protect-pkg' )
-						: __( 'Turn on in Settings', 'jetpack-protect-pkg' ) }
-				</TabLink>
-			</CardRow>
+			{ active && (
+				<CardRow className="jp-protect-firewall-overview__columns">
+					{ settings.error && (
+						<Notice.Root intent="error" className="jp-protect-firewall-overview__error">
+							<Notice.Description>{ settings.error }</Notice.Description>
+							<Notice.CloseIcon onClick={ settings.dismissError } />
+						</Notice.Root>
+					) }
+					<IpRule
+						data={ ipData }
+						name="jetpack_waf_ip_block_list"
+						label={ __( 'Block specific IP addresses', 'jetpack-protect-pkg' ) }
+						description={ __(
+							'Stop specific visitors from accessing your site by their IP address.',
+							'jetpack-protect-pkg'
+						) }
+						editLabel={ __( 'Edit block list', 'jetpack-protect-pkg' ) }
+						dialogTitle={ __( 'Blocked IP addresses', 'jetpack-protect-pkg' ) }
+					/>
+					<IpRule
+						data={ ipData }
+						name="jetpack_waf_ip_allow_list"
+						label={ __( 'Always allow specific IP addresses', 'jetpack-protect-pkg' ) }
+						description={ __(
+							'IP addresses added to this list are always allowed to access your site.',
+							'jetpack-protect-pkg'
+						) }
+						editLabel={ __( 'Edit allow list', 'jetpack-protect-pkg' ) }
+						dialogTitle={ __( 'Always allowed IP addresses', 'jetpack-protect-pkg' ) }
+						currentIp={ firewall.currentIp }
+					/>
+				</CardRow>
+			) }
 		</ProtectCard>
 	);
 }

@@ -1,4 +1,5 @@
-import { Badge, Card, Icon, Stack, Text } from '@wordpress/ui';
+import { info as infoIcon } from '@wordpress/icons';
+import { Badge, Card, Icon, IconButton, Stack, Text } from '@wordpress/ui';
 import type { ComponentProps, ReactElement, ReactNode } from 'react';
 
 export type CardStatus = { label: string; intent: ComponentProps< typeof Badge >[ 'intent' ] };
@@ -7,6 +8,7 @@ type CardProps = {
 	icon: ReactElement;
 	title: string;
 	description?: string;
+	info?: string;
 	status?: CardStatus;
 	actions?: ReactNode;
 	children: ReactNode;
@@ -19,12 +21,21 @@ type CardProps = {
  * @param props.icon        - The feature's icon.
  * @param props.title       - The feature's name.
  * @param props.description - Optional line under the title.
+ * @param props.info        - Optional explanation, shown as a tooltip on an info icon by the title.
  * @param props.status      - Optional status badge.
  * @param props.actions     - Optional controls beside the badge.
  * @param props.children    - The card's rows.
  * @return The card.
  */
-export function ProtectCard( { icon, title, description, status, actions, children }: CardProps ) {
+export function ProtectCard( {
+	icon,
+	title,
+	description,
+	info,
+	status,
+	actions,
+	children,
+}: CardProps ) {
 	return (
 		<Card.Root render={ <section /> } className="jp-protect-card" aria-label={ title }>
 			<Card.Header
@@ -33,7 +44,20 @@ export function ProtectCard( { icon, title, description, status, actions, childr
 				<Stack direction="row" gap="sm" align={ description ? 'start' : 'center' }>
 					<Icon icon={ icon } size={ 24 } />
 					<Stack direction="column" gap="xs">
-						<Card.Title render={ <h2 className="jp-protect-card__title" /> }>{ title }</Card.Title>
+						<Stack direction="row" gap="xs" align="center">
+							<Card.Title render={ <h2 className="jp-protect-card__title" /> }>
+								{ title }
+							</Card.Title>
+							{ info && (
+								<IconButton
+									icon={ infoIcon }
+									label={ info }
+									variant="minimal"
+									tone="neutral"
+									size="small"
+								/>
+							) }
+						</Stack>
 						{ description && (
 							<Text variant="body-sm" className="jp-protect-card__muted">
 								{ description }

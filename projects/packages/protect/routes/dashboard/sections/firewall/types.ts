@@ -1,3 +1,4 @@
+import type { ProtectSettings } from '../../data/use-protect-settings';
 import type { DashboardContext } from '../types';
 
 export type BlockedRequest = {
@@ -22,6 +23,8 @@ export type FirewallState = {
 	currentIp: string;
 	/** Whether the firewall keeps its request log ("Share basic data"). */
 	sharesData: boolean;
+	/** The IP lists and their on/off state as of page load, keyed like Jetpack settings. */
+	ipRules: ProtectSettings;
 };
 
 /** Undefined when PHP registered no Firewall section. */

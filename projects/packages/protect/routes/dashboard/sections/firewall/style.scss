@@ -110,3 +110,29 @@
 		overflow-wrap: anywhere;
 	}
 }
+
+.jp-protect-firewall-overview__columns {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 24px;
+
+	@media (max-width: 600px) {
+		grid-template-columns: 1fr;
+	}
+}
+
+.jp-protect-firewall-overview__error {
+	grid-column: 1 / -1;
+}
+
+.jp-protect-ip-rule__field {
+	inline-size: 100%;
+
+	textarea {
+		font-family: monospace;
+	}
+}
+
+.jp-protect-ip-rule__error {
+	color: var(--wpds-color-foreground-content-error);
+}

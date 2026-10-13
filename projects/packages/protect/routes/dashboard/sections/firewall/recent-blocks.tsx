@@ -1,6 +1,7 @@
-import { dateI18n } from '@wordpress/date';
-import { __, sprintf } from '@wordpress/i18n';
-import { Badge, Button, Dialog, Stack, Text } from '@wordpress/ui';
+import { dateI18n, humanTimeDiff } from '@wordpress/date';
+import { __ } from '@wordpress/i18n';
+import { Badge, Button, Dialog, Stack } from '@wordpress/ui';
+import { Stat } from '../../components/card';
 import { SELF_CHECK_RULE_ID, getBlockLabel } from './firewall-test';
 import { summarizeUserAgent } from './user-agent';
 import type { BlockedRequest } from './types';
@@ -15,12 +16,12 @@ const formatTime = ( block: BlockedRequest ) => (
 );
 
 /**
- * The firewall's recent blocked requests: the latest on the card, all of them in a dialog.
+ * When the firewall last blocked a request, and a dialog listing its recent blocks.
  *
  * @param props            - Component props.
  * @param props.blocks     - The blocked requests, newest first.
  * @param props.canViewAll - Whether the firewall keeps its request log, which the dialog needs.
- * @return The summary and dialog.
+ * @return The figure and dialog.
  */
 export default function RecentBlocks( {
 	blocks,
@@ -29,39 +30,38 @@ export default function RecentBlocks( {
 	blocks: BlockedRequest[];
 	canViewAll: boolean;
 } ) {
-	const title = __( 'Recently blocked requests', 'jetpack-protect-pkg' );
 	const [ latest ] = blocks;
 	const hasDetails = blocks.some( block => block.uri || block.userAgent );
 
 	return (
-		<Stack direction="row" gap="md" justify="space-between" align="center" wrap="wrap">
-			<Stack direction="column" gap="xs">
-				<Text variant="heading-sm" render={ <h3 /> }>
-					{ title }
-				</Text>
-				<Text variant="body-sm" className="jp-protect-card__muted">
-					{ latest ? (
-						<>
-							{ sprintf(
-								/* translators: %s is why a request was blocked, such as "Blocked IP address". */
-								__( 'Latest: %s,', 'jetpack-protect-pkg' ),
-								getBlockLabel( latest )
-							) }{ ' ' }
-							{ formatTime( latest ) }
-						</>
+		<Stack direction="column" gap="md" align="start">
+			<Stat
+				label={ __( 'Latest blocked request', 'jetpack-protect-pkg' ) }
+				value={
+					latest ? (
+						<time
+							dateTime={ latest.timestamp }
+							title={ dateI18n( 'M j, Y g:i A', latest.timestamp, undefined ) }
+						>
+							{ humanTimeDiff( latest.timestamp ) }
+						</time>
 					) : (
-						__( 'No blocked requests yet.', 'jetpack-protect-pkg' )
-					) }
-				</Text>
-			</Stack>
+						__( 'None yet', 'jetpack-protect-pkg' )
+					)
+				}
+			/>
 			{ latest && canViewAll && (
 				<Dialog.Root>
-					<Dialog.Trigger render={ <Button variant="outline" size="compact" /> }>
+					<Dialog.Trigger
+						render={ <Button variant="unstyled" className="jp-protect-card__link-button" /> }
+					>
 						{ __( 'View blocked requests', 'jetpack-protect-pkg' ) }
 					</Dialog.Trigger>
 					<Dialog.Popup size="large">
 						<Dialog.Header>
-							<Dialog.Title>{ title }</Dialog.Title>
+							<Dialog.Title>
+								{ __( 'Recently blocked requests', 'jetpack-protect-pkg' ) }
+							</Dialog.Title>
 							<Dialog.CloseIcon />
 						</Dialog.Header>
 						<Dialog.Content>

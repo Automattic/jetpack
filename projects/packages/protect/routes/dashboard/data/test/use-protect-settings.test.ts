@@ -121,11 +121,11 @@ describe( 'useProtectSettings', () => {
 		mockApiFetch.mockImplementation( () => posts.shift() );
 		const { result } = renderHook( () => useProtectSettings() );
 
-		let firstSave: Promise< void >;
+		let firstSave: Promise< boolean >;
 		act( () => {
 			firstSave = result.current.save( { list: 'a' } );
 		} );
-		let secondSave: Promise< void >;
+		let secondSave: Promise< boolean >;
 		act( () => {
 			secondSave = result.current.save( { list: 'b' } );
 		} );

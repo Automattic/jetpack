@@ -26,8 +26,8 @@ export type ProtectSettingsData = {
 	isSaving: ( key: string ) => boolean;
 	/** Fetches the settings once; later calls do nothing unless the fetch failed. */
 	load: () => void;
-	/** Saves to `path` (default `/jetpack/v4/settings`) and merges the patch into `settings`. */
-	save: ( patch: ProtectSettings, path?: string ) => Promise< void >;
+	/** Saves to `path` (default `/jetpack/v4/settings`) and merges the patch into `settings`; resolves to whether it saved. */
+	save: ( patch: ProtectSettings, path?: string ) => Promise< boolean >;
 	/** Re-reads the given keys, for settings the server changes as a side effect of another save. */
 	refresh: ( keys: string[] ) => Promise< void >;
 };
@@ -93,6 +93,7 @@ export default function useProtectSettings(): ProtectSettingsData {
 			setSettings( { ...before, ...patch } );
 			setSaving( current => [ ...current, ...keys ] );
 			setError( null );
+			let saved = true;
 
 			try {
 				await apiFetch( { path, method: 'POST', data: patch } );
@@ -119,6 +120,7 @@ export default function useProtectSettings(): ProtectSettingsData {
 					( e as { message?: string } )?.message ||
 						__( 'Your change couldn’t be saved. Try again.', 'jetpack-protect-pkg' )
 				);
+				saved = false;
 			} finally {
 				// One entry per save in flight, so an overlapping save of the same key keeps it busy.
 				setSaving( current => {
@@ -127,6 +129,7 @@ export default function useProtectSettings(): ProtectSettingsData {
 					return next;
 				} );
 			}
+			return saved;
 		},
 		[ setSettings ]
 	);

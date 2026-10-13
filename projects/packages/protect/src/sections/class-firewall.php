@@ -12,6 +12,7 @@ use Automattic\Jetpack\Protect\Dashboard_Section;
 use Automattic\Jetpack\Waf\Waf_Blocklog_Manager;
 use Automattic\Jetpack\Waf\Waf_Constants;
 use Automattic\Jetpack\Waf\Waf_Request;
+use Automattic\Jetpack\Waf\Waf_Rules_Manager;
 use Automattic\Jetpack\Waf\Waf_Runner;
 use Automattic\Jetpack\Waf\Waf_Self_Check;
 use WP_Error;
@@ -51,6 +52,7 @@ class Firewall implements Dashboard_Section {
 				'hasScan'    => Dashboard::has_scan_plan(),
 				'currentIp'  => self::get_current_ip(),
 				'sharesData' => self::shares_data(),
+				'ipRules'    => self::get_ip_rules(),
 			)
 		);
 	}
@@ -138,6 +140,24 @@ class Firewall implements Dashboard_Section {
 		}
 
 		return (string) ( new Waf_Request() )->get_real_user_ip_address();
+	}
+
+	/**
+	 * The firewall's IP lists, keyed like the Jetpack settings that hold them.
+	 *
+	 * @return array<string, string|bool> Empty when the WAF package isn't loaded.
+	 */
+	public static function get_ip_rules() {
+		if ( ! class_exists( Waf_Rules_Manager::class ) ) {
+			return array();
+		}
+
+		return array(
+			Waf_Rules_Manager::IP_BLOCK_LIST_OPTION_NAME => (string) get_option( Waf_Rules_Manager::IP_BLOCK_LIST_OPTION_NAME, '' ),
+			Waf_Rules_Manager::IP_BLOCK_LIST_ENABLED_OPTION_NAME => (bool) Waf_Rules_Manager::ip_block_list_enabled(),
+			Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME => (string) get_option( Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME, '' ),
+			Waf_Rules_Manager::IP_ALLOW_LIST_ENABLED_OPTION_NAME => (bool) Waf_Rules_Manager::ip_allow_list_enabled(),
+		);
 	}
 
 	/**

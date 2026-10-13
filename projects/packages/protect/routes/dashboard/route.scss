@@ -63,6 +63,20 @@ body.toplevel_page_jetpack-protect {
 		min-block-size: var(--wpds-dimension-size-md);
 	}
 
+	// A button that opens something in place, styled as the links beside it.
+	&__link-button {
+		padding: 0;
+		color: var(--wpds-color-foreground-interactive-brand);
+		font-size: 13px;
+		text-decoration: underline;
+		text-underline-offset: 0.2em;
+		cursor: pointer;
+
+		&:hover {
+			color: var(--wpds-color-foreground-interactive-brand-active);
+		}
+	}
+
 	&__subheading {
 		margin: 0;
 		font-weight: 500;
