@@ -47,7 +47,7 @@ import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-modul
 import { toWidgetTypeBaseNames, withWidgetTypeAliases } from '../widget-type-aliases';
 import { authorHeaderSlots } from './components';
 import { AUTHOR_DETAIL_LAYOUT, AUTHOR_DETAIL_WIDGET_TYPE_ALIASES } from './config';
-import { useAuthorAllTimeStart, useAuthorSummary } from './hooks';
+import { authorDisplayName, useAuthorAllTimeStart, useAuthorSummary } from './hooks';
 import { route } from './package.json';
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
 import type { JSX } from 'react';
@@ -159,9 +159,7 @@ function AuthorDetail(): JSX.Element {
 
 	// The trail is Stats / All authors / <name> regardless of which report the reader
 	// arrived from. Only a resolved author is named: a failed refetch keeps the stale name.
-	const authorName = canRenderWidgets
-		? summary.name?.trim() || __( 'Unnamed author', 'jetpack-premium-analytics-pkg' )
-		: undefined;
+	const authorName = canRenderWidgets ? authorDisplayName( summary ) : undefined;
 	const breadcrumbs = useMemo(
 		() => [
 			{

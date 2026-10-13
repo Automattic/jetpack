@@ -166,6 +166,7 @@ jest.mock( '@wordpress/route', () => {
 } );
 
 jest.mock( './hooks', () => ( {
+	authorDisplayName: jest.requireActual( './hooks/use-author-summary' ).authorDisplayName,
 	useAuthorSummary: jest.fn(),
 	useAuthorAllTimeStart: jest.fn(),
 } ) );
