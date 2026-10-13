@@ -31,9 +31,9 @@ function mockQueries(
 	posts: Record< string, unknown > = {}
 ) {
 	mockUseAuthorStats.mockReturnValue( {
-		isOverPostLimit: false,
-		source: {
-			data: {
+		data: {
+			isApproximate: false,
+			report: {
 				author: {
 					id: 7,
 					name: 'Priya Patel',
@@ -41,13 +41,13 @@ function mockQueries(
 				},
 				firstContentDate: '2023-07-04 10:00:00',
 			},
-			isPlaceholderData: false,
-			isLoading: false,
-			isError: false,
-			error: null,
-			refetch,
-			...stats,
 		},
+		isPlaceholderData: false,
+		isLoading: false,
+		isError: false,
+		error: null,
+		refetch,
+		...stats,
 	} );
 	mockUseStatsQuery.mockReturnValue( {
 		data: { postCount: 4 },
@@ -144,7 +144,12 @@ describe( 'useAuthorSummary', () => {
 		[ null, undefined ],
 	] )( 'passes only an http(s) avatar through (%p)', ( avatarUrl, expected ) => {
 		mockQueries(
-			{ data: { author: { id: 7, name: 'P', avatarUrl }, firstContentDate: null } },
+			{
+				data: {
+					isApproximate: false,
+					report: { author: { id: 7, name: 'P', avatarUrl }, firstContentDate: null },
+				},
+			},
 			{ data: { postCount: 0 } }
 		);
 

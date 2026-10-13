@@ -62,11 +62,11 @@ function sizeAvatarUrl( url: string ): string {
  * @return The resolved author summary.
  */
 export function useAuthorSummary( authorId: number ): AuthorSummary {
-	const { source } = useAuthorStats( authorId );
+	const source = useAuthorStats( authorId );
 	const { isLoading, error, refetch } = source;
 	const posts = useStatsQuery< AuthorPostsRecord >( authorPostsQuery( authorId ) );
 	// Another author's identity, held as placeholder data, must not name this page.
-	const stats = source.isPlaceholderData ? undefined : source.data;
+	const stats = source.isPlaceholderData ? undefined : source.data?.report;
 	const author = stats?.author;
 	const isNotFound = getApiErrorCode( error ) === 'unknown_author';
 	// A background refetch that fails keeps the identity it already has.

@@ -26,7 +26,7 @@ export type AuthorAllTimeStart = {
  * @return The start and its request state.
  */
 export function useAuthorAllTimeStart( authorId: number ): AuthorAllTimeStart {
-	const { source, isOverPostLimit } = useAuthorStats( authorId );
+	const source = useAuthorStats( authorId );
 	const { refetch } = source;
 
 	const retry = useCallback( () => {
@@ -35,10 +35,11 @@ export function useAuthorAllTimeStart( authorId: number ): AuthorAllTimeStart {
 
 	let allTimeStart: string | undefined;
 	// Another author's dates must not anchor this page while it loads.
-	if ( ! source.isPlaceholderData ) {
-		allTimeStart = isOverPostLimit
-			? toGmtInstant( source.data?.firstContentDate )
-			: ( source.data?.startDate ?? undefined );
+	if ( ! source.isPlaceholderData && source.data ) {
+		const { report, isApproximate } = source.data;
+		allTimeStart = isApproximate
+			? toGmtInstant( report.firstContentDate )
+			: ( report.startDate ?? undefined );
 	}
 
 	return {

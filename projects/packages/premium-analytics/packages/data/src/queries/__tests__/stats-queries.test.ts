@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { QueryClient, QueryObserver } from '@tanstack/react-query';
+import { QueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { getSettings, setSettings } from '@wordpress/date';
 /**
@@ -15,7 +15,7 @@ import {
 	statsAppReferrersUnmarkSpamMutation,
 } from '../stats-app-referrers-spam-query';
 import { statsArchivesQuery } from '../stats-archives-query';
-import { statsAuthorQuery } from '../stats-author-query';
+import { statsAuthorAllTimeOrApproximateQuery, statsAuthorQuery } from '../stats-author-query';
 import { statsClicksQuery } from '../stats-clicks-query';
 import { statsCountryViewsQuery } from '../stats-country-views-query';
 import { statsDevicesQuery } from '../stats-devices-query';
@@ -179,7 +179,7 @@ describe( 'Stats query factories', () => {
 	] as const )( 'builds author stats query keys over %s', ( _name, params, apiParams ) => {
 		const query = statsAuthorQuery( 7, params );
 
-		expect( query.enabled ).toEqual( expect.any( Function ) );
+		expect( query.enabled ).toBe( true );
 		expect( query.queryKey ).toEqual( [
 			'stats',
 			'author',
@@ -193,26 +193,50 @@ describe( 'Stats query factories', () => {
 		] );
 	} );
 
-	it.each( [
-		[ 'too_many_posts', 400, false ],
-		[ 'internal_server_error', 503, true ],
-	] )(
-		'asks again on its own after a failure only if it can heal (%s)',
-		async ( code, status, refetches ) => {
-			const client = new QueryClient();
-			const options = { ...statsAuthorQuery( 7, { period: 'month', num: -1 } ), retry: false };
-			mockApiFetch.mockRejectedValue( { error: code, status } );
-			await client.fetchQuery( options ).catch( () => undefined );
+	describe( 'statsAuthorAllTimeOrApproximateQuery', () => {
+		const ALL_TIME = /stats\/author\/7\?period=month&num=-1/;
+		const APPROXIMATE = /stats\/author\/7\?period=day&num=1&approximate=true/;
 
-			// A mounting card, then a page-wide refresh.
-			const unsubscribe = new QueryObserver( client, options ).subscribe( () => undefined );
-			await client.refetchQueries().catch( () => undefined );
-
-			expect( mockApiFetch.mock.calls.length > 1 ).toBe( refetches );
-			unsubscribe();
-			client.clear();
+		function run( reply: ( path: string ) => unknown ) {
+			mockApiFetch.mockImplementation( ( { path }: { path?: string } ) => {
+				const result = reply( path ?? '' );
+				return result instanceof Error || ( result as { error?: string } )?.error
+					? Promise.reject( result )
+					: Promise.resolve( result );
+			} );
+			return new QueryClient().fetchQuery( statsAuthorAllTimeOrApproximateQuery( 7 ) );
 		}
-	);
+
+		it( 'reads the all-time report when the author is within the post limit', async () => {
+			await expect(
+				run( () => ( { start_date: '2021-03-02', data: [] } ) )
+			).resolves.toMatchObject( { isApproximate: false, report: { startDate: '2021-03-02' } } );
+			expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
+		} );
+
+		it( 'falls back to the approximate report past the post limit', async () => {
+			await expect(
+				run( path =>
+					ALL_TIME.test( path )
+						? { error: 'too_many_posts', status: 400 }
+						: { first_content_date: '2023-07-04 10:00:00', data: [] }
+				)
+			).resolves.toMatchObject( {
+				isApproximate: true,
+				report: { firstContentDate: '2023-07-04 10:00:00' },
+			} );
+			expect(
+				mockApiFetch.mock.calls.map( ( [ { path } ] ) => APPROXIMATE.test( path ?? '' ) )
+			).toEqual( [ false, true ] );
+		} );
+
+		it( 'fails on any other all-time error without asking for the approximate report', async () => {
+			await expect(
+				run( () => ( { error: 'unknown_author', status: 404 } ) )
+			).rejects.toMatchObject( { error: 'unknown_author' } );
+			expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
+		} );
+	} );
 
 	it( 'disables post stats queries until a positive post ID is available', () => {
 		expect( statsPostQuery( { postId: -1 } ).enabled ).toBe( false );
