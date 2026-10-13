@@ -563,7 +563,6 @@ class Jetpack_Connector_Test extends TestCase {
 		$this->assertSame( 'test-card-version', $module['version'] );
 		$this->assertSame( array( '@wordpress/connectors' ), array_column( $module['dependencies'], 'id' ) );
 		$this->assertTrue( wp_script_is( 'test-card-global', 'enqueued' ) );
-		$this->assertFalse( wp_script_is( 'jetpack-connector-card-missing', 'enqueued' ) );
 	}
 
 	/**
@@ -609,7 +608,7 @@ class Jetpack_Connector_Test extends TestCase {
 	}
 
 	/**
-	 * Test that a missing build skips the card with an error snackbar, instead of fataling on the asset file.
+	 * Test that a missing build skips the card, instead of fataling on the asset file.
 	 *
 	 * @param array|null $asset   Asset data, or null for no asset file.
 	 * @param bool       $with_js Whether the module's JS file exists.
@@ -627,9 +626,6 @@ class Jetpack_Connector_Test extends TestCase {
 
 		$this->assertNull( wp_script_modules()->get_registered( Jetpack_Connector::MODULE_ID ) );
 		$this->assertFalse( wp_style_is( 'jetpack-connector-card', 'enqueued' ) );
-
-		$this->assertTrue( wp_script_is( 'jetpack-connector-card-missing', 'enqueued' ) );
-		$this->assertStringContainsString( 'because a file is missing', implode( '', wp_scripts()->get_data( 'jetpack-connector-card-missing', 'after' ) ) );
 	}
 
 	/**

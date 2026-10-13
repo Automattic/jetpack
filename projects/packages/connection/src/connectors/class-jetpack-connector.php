@@ -103,7 +103,7 @@ class Jetpack_Connector {
 	/**
 	 * Enqueue the connectors card script module on the Settings > Connectors page.
 	 *
-	 * Skips the card when its built files are missing, and shows an error snackbar instead.
+	 * Skips the card when its built files are missing.
 	 *
 	 * @since 8.2.0
 	 * @since $$next-version$$ Loads the webpack build from dist/, with its dependencies and version from the asset file.
@@ -119,7 +119,11 @@ class Jetpack_Connector {
 			return;
 		}
 
-		$asset = static::get_module_asset( __DIR__ . '/' . static::MODULE_FILE ) ?? array();
+		// The built files are missing in a checkout that hasn't run the build, or mid-deploy.
+		$asset = static::get_module_asset( __DIR__ . '/' . static::MODULE_FILE );
+		if ( null === $asset ) {
+			return;
+		}
 
 		$css_path = __DIR__ . '/css/connectors-card.css';
 		wp_enqueue_style(
