@@ -1335,10 +1335,11 @@ class Manager {
 		/**
 		 * Filters whether the Jetpack connection ownership can be transferred.
 		 *
-		 * Return `false` to lock ownership so it can never be taken over.
+		 * Return `false` to lock ownership on a site without a protected owner anchor. The
+		 * anchored owner may still transfer ownership despite this deprecated filter.
 		 *
 		 * @since 8.8.0
-		 * @deprecated $$next-version$$ The protected owner anchor is the only ownership lock.
+		 * @deprecated $$next-version$$ The protected owner anchor is the only supported ownership lock.
 		 *
 		 * @param bool $transferable Whether ownership can be transferred. Default true.
 		 */
