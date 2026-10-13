@@ -54,8 +54,10 @@ describe( 'TransferConnectionOwnership', () => {
 	};
 
 	const chooseKazz = async ( user: ReturnType< typeof userEvent.setup > ) => {
-		await user.click( await screen.findByRole( 'combobox', { name: /New connection owner/ } ) );
-		await user.click( await screen.findByRole( 'option', { name: /Kazz/ } ) );
+		await user.selectOptions(
+			await screen.findByRole( 'combobox', { name: /New connection owner/ } ),
+			'7'
+		);
 	};
 
 	beforeEach( () => {
@@ -203,8 +205,7 @@ describe( 'TransferConnectionOwnership', () => {
 		const user = userEvent.setup();
 		render( <TransferConnectionOwnership { ...props } /> );
 
-		await user.click( await screen.findByRole( 'combobox', { name: /New connection owner/ } ) );
-		await user.click( await screen.findByRole( 'option', { name: /Kazz/ } ) );
+		await chooseKazz( user );
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
 
 		// Both the handover line and the support notice name the new owner.

@@ -143,8 +143,10 @@ describe( 'ManageConnectionDialog', () => {
 			await user.click(
 				screen.getByRole( 'link', { name: /Transfer ownership to another admin/ } )
 			);
-			await user.click( await screen.findByRole( 'combobox', { name: /New connection owner/ } ) );
-			await user.click( await screen.findByRole( 'option', { name: /Kazz/ } ) );
+			await user.selectOptions(
+				await screen.findByRole( 'combobox', { name: /New connection owner/ } ),
+				'7'
+			);
 			await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
 			await user.click( screen.getByRole( 'button', { name: 'Transfer ownership' } ) );
 
@@ -168,8 +170,10 @@ describe( 'ManageConnectionDialog', () => {
 			await user.click(
 				screen.getByRole( 'link', { name: /Transfer ownership to another admin/ } )
 			);
-			await user.click( await screen.findByRole( 'combobox', { name: /New connection owner/ } ) );
-			await user.click( await screen.findByRole( 'option', { name: /Kazz/ } ) );
+			await user.selectOptions(
+				await screen.findByRole( 'combobox', { name: /New connection owner/ } ),
+				'7'
+			);
 			await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
 			await user.click( screen.getByRole( 'button', { name: 'Transfer ownership' } ) );
 
@@ -192,8 +196,10 @@ describe( 'ManageConnectionDialog', () => {
 			await user.click(
 				screen.getByRole( 'link', { name: /Transfer ownership to another admin/ } )
 			);
-			await user.click( await screen.findByRole( 'combobox', { name: /New connection owner/ } ) );
-			await user.click( await screen.findByRole( 'option', { name: /Kazz/ } ) );
+			await user.selectOptions(
+				await screen.findByRole( 'combobox', { name: /New connection owner/ } ),
+				'7'
+			);
 			await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
 
 			// The step's Back moves a step; the dialog's exit closes the dialog.

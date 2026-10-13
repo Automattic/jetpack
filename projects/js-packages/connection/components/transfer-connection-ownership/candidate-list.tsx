@@ -2,21 +2,19 @@
  * External dependencies
  */
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { SelectControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Link, Notice, SelectControl, Stack, Text } from '@wordpress/ui';
+// SelectControl comes from @wordpress/components, not @wordpress/ui: the latter is
+// bundled rather than loaded from WordPress, and its select drags in Base UI and
+// Floating UI — roughly 220KB on every page that loads this script.
+import { Link, Notice, Stack, Text } from '@wordpress/ui';
 import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
  */
 import './style.scss';
 import type { ConnectionOwnerCandidate } from './use-ownership-transfer';
-
-/** Shape `SelectControl` takes for each option; `@wordpress/ui` does not export the type. */
-interface SelectItem {
-	label: string;
-	value: string | null;
-}
 
 export interface OwnerCandidateListProps {
 	/** The administrators ownership could be handed to, or null while loading. */
@@ -41,7 +39,7 @@ const OwnerCandidateList = ( {
 	onSelect,
 	error,
 }: OwnerCandidateListProps ) => {
-	const items: SelectItem[] = useMemo(
+	const options = useMemo(
 		() =>
 			( candidates ?? [] ).map( candidate => ( {
 				label: candidate.email
@@ -53,9 +51,9 @@ const OwnerCandidateList = ( {
 	);
 
 	const handleChange = useCallback(
-		( item: SelectItem | null ) => {
-			if ( item?.value ) {
-				onSelect( Number( item.value ) );
+		( value: string ) => {
+			if ( value ) {
+				onSelect( Number( value ) );
 			}
 		},
 		[ onSelect ]
@@ -121,17 +119,13 @@ const OwnerCandidateList = ( {
 			</Text>
 
 			<SelectControl
+				__next40pxDefaultSize
+				__nextHasNoMarginBottom
 				label={ __( 'New connection owner', 'jetpack-connection-js' ) }
-				placeholder={ placeholder }
-				items={ items }
-				value={
-					null === selectedId
-						? null
-						: ( items.find( item => item.value === String( selectedId ) ) ?? null )
-				}
-				onValueChange={ handleChange }
+				value={ null === selectedId ? '' : String( selectedId ) }
+				options={ [ { label: placeholder, value: '' }, ...options ] }
+				onChange={ handleChange }
 				disabled={ isLoading }
-				popupWidth="anchor"
 			/>
 
 			<Text render={ <p /> } className="jp-connection__transfer-ownership__hint">

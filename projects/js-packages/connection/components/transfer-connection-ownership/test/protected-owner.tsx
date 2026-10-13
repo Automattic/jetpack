@@ -33,8 +33,10 @@ describe( 'TransferConnectionOwnership on a protected-owner site', () => {
 		const user = userEvent.setup();
 		render( <TransferConnectionOwnership { ...props } /> );
 
-		await user.click( await screen.findByRole( 'combobox', { name: /New connection owner/ } ) );
-		await user.click( await screen.findByRole( 'option', { name: /Kazz/ } ) );
+		await user.selectOptions(
+			await screen.findByRole( 'combobox', { name: /New connection owner/ } ),
+			'7'
+		);
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
 
 		await expect(
