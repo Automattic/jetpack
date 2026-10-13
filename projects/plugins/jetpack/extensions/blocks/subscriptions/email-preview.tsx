@@ -38,7 +38,7 @@ import {
 	cautionFilled as warning,
 	styles,
 } from '@wordpress/icons';
-import { Link } from '@wordpress/ui';
+import { Link, VisuallyHidden } from '@wordpress/ui';
 import './email-preview.scss';
 import { accessOptions } from '../../shared/memberships/constants';
 import { useAccessLevel } from '../../shared/memberships/edit';
@@ -455,11 +455,14 @@ const EmailDesignLink = ( { postId }: { postId: number } ) => {
 			href={ emailDesignUrl }
 			onClick={ handleClick }
 			className="jetpack-newsletter-preview-modal__design-link"
-			aria-label={ isBelowLarge ? label : undefined }
 			title={ isBelowLarge ? label : undefined }
 		>
 			<Icon icon={ styles } size={ 24 } />
-			{ ! isBelowLarge && (
+			{ /* Hidden rather than an `aria-label`, which would override the contents and take
+			     `Link`'s own "(opens in a new tab)" notice out of the accessible name with it. */ }
+			{ isBelowLarge ? (
+				<VisuallyHidden>{ label }</VisuallyHidden>
+			) : (
 				<span className="jetpack-newsletter-preview-modal__design-link-label">{ label }</span>
 			) }
 		</Link>

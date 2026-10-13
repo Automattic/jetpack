@@ -44,6 +44,8 @@ jest.mock( '@automattic/jetpack-shared-extension-utils', () => {
 
 // `@wordpress/ui` isn't resolvable in the jest environment; render a plain anchor.
 jest.mock( '@wordpress/ui', () => ( {
+	// Renders its children, so the accessible name still includes the hidden label.
+	VisuallyHidden: ( { children } ) => <span data-testid="visually-hidden">{ children }</span>,
 	Link: ( { children, href, openInNewTab, onClick, 'aria-label': ariaLabel, className } ) => (
 		<a
 			href={ href }
@@ -485,11 +487,6 @@ describe( 'Newsletter preview: email design link', () => {
 		expect( screen.queryByRole( 'link', { name: 'Edit email design' } ) ).not.toBeInTheDocument();
 	} );
 
-	/**
-	 * A `return` here would point the design editor's Back button at `post.php` in the new tab,
-	 * opening a second editor on a post already open in this one, with no lock warning between
-	 * them. The link carries the bare URL so Back goes to the dashboard instead.
-	 */
 	it( 'links to the design screen in a new tab, sending no return URL', async () => {
 		mockEmailDesignUrl = DESIGN_URL;
 
@@ -501,11 +498,6 @@ describe( 'Newsletter preview: email design link', () => {
 		expect( link ).toHaveAttribute( 'target', '_blank' );
 	} );
 
-	/**
-	 * A text label here pushed the modal title out of the header on a site that also shows the
-	 * paid-audience toggle, so below `large` the link becomes its icon — the band where the
-	 * device selector is already shedding its desktop option.
-	 */
 	it( 'drops to an icon where the header runs out of room', async () => {
 		mockEmailDesignUrl = DESIGN_URL;
 		mockIsBelowLarge = true;
@@ -515,7 +507,10 @@ describe( 'Newsletter preview: email design link', () => {
 		await waitFor( () => expect( apiFetch ).toHaveBeenCalled() );
 
 		expect( link ).toHaveAttribute( 'href', DESIGN_URL );
-		expect( link ).not.toHaveTextContent( 'Edit email design' );
+		// The label is still the link's name, it is just not on screen beside the icon.
+		expect( screen.getByTestId( 'visually-hidden' ) ).toHaveTextContent( 'Edit email design' );
+		// An `aria-label` would override the contents and discard `Link`'s own new-tab notice.
+		expect( link ).not.toHaveAttribute( 'aria-label' );
 	} );
 
 	it( 'keeps the label beside the icon where there is room', async () => {
@@ -526,5 +521,6 @@ describe( 'Newsletter preview: email design link', () => {
 		await waitFor( () => expect( apiFetch ).toHaveBeenCalled() );
 
 		expect( link ).toHaveTextContent( 'Edit email design' );
+		expect( screen.queryByTestId( 'visually-hidden' ) ).not.toBeInTheDocument();
 	} );
 } );
