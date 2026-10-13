@@ -145,6 +145,8 @@ export type ColumnsProps = {
 	empty?: WidgetStateEmpty;
 	// Format of the figures, on the y axis and in the tooltip. Defaults to compact integers.
 	format?: DataFormat;
+	// What the chart shows, such as the widget title; the chart is named "<title> chart".
+	chartTitle?: string;
 };
 
 // Locations: a ranking of places in, the list with flags beside the map that draws them, the
@@ -176,6 +178,8 @@ export type LocationsProps = {
 	country?: { code: string; name: string };
 	// Rows the list shows. Defaults to the widget row limit.
 	maxRows?: number;
+	// What the widget shows, such as its title; the list is named "<title> chart" and the map "<title> map".
+	chartTitle?: string;
 };
 
 // Widget attributes. The chart type is not one: a widget declares it as a `jpa/toggle-group` field.
