@@ -176,6 +176,7 @@ export function AuthorsLeaderboard( {
 				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 			>
 				<LeaderboardChart
+					chartTitle={ __( 'Popular authors', 'jetpack-premium-analytics-pkg' ) }
 					data={ chartData }
 					withComparison={ withComparison }
 					withOverlayLabel

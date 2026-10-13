@@ -50,6 +50,7 @@ function SearchTermsInner() {
 
 	return (
 		<Leaderboard
+			chartTitle={ __( 'Top searched terms', 'jetpack-premium-analytics-pkg' ) }
 			rows={ rows }
 			status={ { isLoading, isFetching, isError, hasComparison, refetch } }
 			error={ describeError( error, {

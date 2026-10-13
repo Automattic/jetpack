@@ -180,6 +180,7 @@ export function ClicksLeaderboard( {
 }: ClicksLeaderboardProps ) {
 	return (
 		<LeaderboardChart
+			chartTitle={ __( 'Top links clicked', 'jetpack-premium-analytics-pkg' ) }
 			data={ buildLeaderboardData( rows, withComparison, onDrillDown ) }
 			withComparison={ withComparison }
 			withOverlayLabel

@@ -53,6 +53,7 @@ function MostCommentedAuthorsInner() {
 
 	return (
 		<Leaderboard
+			chartTitle={ __( 'All-time most commented authors', 'jetpack-premium-analytics-pkg' ) }
 			rows={ leaderboardRows }
 			status={ { isLoading, isFetching, isError, refetch } }
 			error={ describeError( error, {
