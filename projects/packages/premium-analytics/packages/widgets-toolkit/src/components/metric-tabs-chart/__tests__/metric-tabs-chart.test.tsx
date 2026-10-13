@@ -2,11 +2,12 @@
  * External dependencies
  */
 import { fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { _n } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { resetMockCharts } from '../../../../../../tests/js/chart-test-utils';
+import { resetMockCharts, setMockElementStyles } from '../../../../../../tests/js/chart-test-utils';
 import * as comparativeBarChart from '../../chart-comparative-bar/comparative-bar-chart';
 import * as comparativeLineChart from '../../chart-comparative-line/comparative-line-chart';
 import { MetricTabsChart } from '../metric-tabs-chart';
@@ -479,6 +480,33 @@ describe( 'MetricTabsChart', () => {
 		// Each metric gets its own visibility bucket in the charts provider.
 		expect( after.chartId ).not.toBe( before.chartId );
 	} );
+
+	it.each( [
+		[ 'line', mockLineSpy ],
+		[ 'bar', mockBarSpy ],
+	] as const )(
+		'draws the selected metric in the accent and its counterpart in a dark shade, previous periods included (%s)',
+		async ( chartType, spy ) => {
+			const accent = '#3858E9';
+			const darkShade = '#1c2c75';
+			setMockElementStyles( ( { index } ) => ( { color: index === 0 ? accent : '#5AA61B' } ) );
+			const user = userEvent.setup();
+			render(
+				<MetricTabsChart
+					metrics={ [ VIEWS, VISITORS ] }
+					dataFormat={ DATA_FORMAT }
+					chartType={ chartType }
+				/>
+			);
+			const strokes = ( label: string ) =>
+				recordedPropsFor( spy, label ).series.map( series => series.options?.stroke );
+			const expected = [ accent, accent, darkShade, darkShade ];
+
+			expect( strokes( 'Views' ) ).toEqual( expected );
+			await user.click( screen.getByRole( 'tab', { name: /Visitors/ } ) );
+			expect( strokes( 'Visitors' ) ).toEqual( expected );
+		}
+	);
 
 	// The Traffic summary pairs Views with Visitors, but the hourly grain serves Views
 	// alone, so drawing the pair there offers the legend a flat zero line.
