@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Render blocks as plain text in the comment notification emails WordPress sends, instead of showing their raw markup.

@@ -1,6 +1,5 @@
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
-const CopyWebpackPlugin = require( 'copy-webpack-plugin' );
 
 const socialWebpackConfig = {
 	mode: jetpackWebpackConfig.mode,
@@ -8,6 +7,21 @@ const socialWebpackConfig = {
 	output: {
 		...jetpackWebpackConfig.output,
 		path: path.resolve( './build' ),
+		// Service-walkthrough illustrations referenced by
+		// `_inc/components/services/utils.tsx` via runtime URLs (so the
+		// chassis esbuild pipeline, which doesn't configure a binary
+		// loader, can consume them too). Copy them verbatim into the
+		// shared `build/assets/` directory; both bundlers resolve via
+		// `JetpackScriptData.social.assets_url + 'assets/<file>'`.
+		copy: [
+			{
+				from: path.resolve( __dirname, '_inc/assets' ),
+				to: 'assets',
+				globOptions: {
+					ignore: [ '**/*.ts' ],
+				},
+			},
+		],
 	},
 	optimization: {
 		...jetpackWebpackConfig.optimization,
@@ -16,26 +30,7 @@ const socialWebpackConfig = {
 		...jetpackWebpackConfig.resolve,
 	},
 	node: false,
-	plugins: [
-		...jetpackWebpackConfig.StandardPlugins(),
-		// Service-walkthrough illustrations referenced by
-		// `_inc/components/services/utils.tsx` via runtime URLs (so the
-		// chassis esbuild pipeline, which doesn't configure a binary
-		// loader, can consume them too). Copy them verbatim into the
-		// shared `build/assets/` directory; both bundlers resolve via
-		// `JetpackScriptData.social.assets_url + 'assets/<file>'`.
-		new CopyWebpackPlugin( {
-			patterns: [
-				{
-					from: path.resolve( __dirname, '_inc/assets' ),
-					to: 'assets',
-					globOptions: {
-						ignore: [ '**/*.ts' ],
-					},
-				},
-			],
-		} ),
-	],
+	plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
 	module: {
 		strictExportPresence: true,
 		rules: [
