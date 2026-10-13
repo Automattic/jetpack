@@ -163,7 +163,6 @@ describe( 'ManageConnectionDialog', () => {
 		} );
 
 		it( 'tells the store who owns the connection now', async () => {
-			const onTransferred = jest.fn();
 			const user = userEvent.setup();
 			render( <ManageConnectionDialog { ...testProps } /> );
 
@@ -178,7 +177,6 @@ describe( 'ManageConnectionDialog', () => {
 			await user.click( screen.getByRole( 'button', { name: 'Transfer ownership' } ) );
 
 			await waitFor( () => expect( mockSetConnectionOwner ).toHaveBeenCalledWith( 7 ) );
-			expect( onTransferred ).not.toHaveBeenCalled();
 
 			// The task is finished, so the exit closes the dialog rather than going back.
 			expect( screen.queryByRole( 'button', { name: 'Back' } ) ).not.toBeInTheDocument();
