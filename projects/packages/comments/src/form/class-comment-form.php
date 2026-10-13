@@ -297,6 +297,8 @@ class Comment_Form {
 			'subscriptions' => $args['subscriptions'] ?? array(),
 		);
 
+		$noscript = '';
+
 		// Core's own fields and submit, for a page whose settings another release rendered or whose script never ran.
 		if ( get_option( 'comment_registration' ) && ! is_user_logged_in() ) {
 			$plain = '<p class="must-log-in">' . sprintf(
@@ -310,6 +312,11 @@ class Comment_Form {
 				. '<textarea id="comment" name="comment" rows="4" required></textarea></p>';
 
 			if ( ! is_user_logged_in() ) {
+				// Without script a guest has no nonce to post, so they get a note in place of fields that cannot send.
+				$noscript = '<noscript><style>.jetpack-comments{display:none!important}</style><p>'
+					. esc_html__( 'Turn on JavaScript to leave a comment.', 'jetpack-comments' )
+					. '</p></noscript>';
+
 				$commenter = wp_get_current_commenter();
 				$fields    = array(
 					'author' => array( __( 'Name', 'jetpack-comments' ), 'text', $commenter['comment_author'], $required ),
@@ -337,6 +344,7 @@ class Comment_Form {
 			. ' data-jetpack-comments="' . esc_attr( (string) wp_json_encode( $settings, JSON_UNESCAPED_SLASHES | JSON_HEX_AMP ) ) . '">'
 			. $plain
 			. '</div>'
+			. $noscript
 			. get_comment_id_fields( $post_id );
 	}
 
