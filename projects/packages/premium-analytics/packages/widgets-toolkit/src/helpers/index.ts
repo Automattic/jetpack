@@ -6,6 +6,7 @@ export {
 	type ColorableItem,
 } from './segment-styles';
 export { formatLegendLabels } from './format-legend-labels';
+export { getComparisonPeriodLabel } from './get-comparison-period-label';
 export { calculateDelta } from './calculate-delta';
 export {
 	buildVisitorsByLocationData,

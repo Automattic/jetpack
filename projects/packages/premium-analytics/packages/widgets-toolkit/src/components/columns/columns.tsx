@@ -22,7 +22,8 @@ import type { DataFormat, WidgetStatus } from '../../types';
 
 export type ColumnsProps = {
 	/**
-	 * The columns, in display order. Each one draws once per period.
+	 * The columns, in display order. Each one draws once per period, and the skeleton draws one
+	 * per column: a widget whose categories are fixed can hand them in before the data arrives.
 	 */
 	columns: readonly ColumnInput[];
 	/**
@@ -82,10 +83,10 @@ export function Columns( {
 			isLoading={ isLoading }
 			isFetching={ isFetching }
 			isError={ !! isError }
-			isEmpty={ columns.length === 0 || isEmptyChartData( chartData ) }
+			isEmpty={ isEmptyChartData( chartData ) }
 			error={ errorState }
 			empty={ empty }
-			renderLoading={ <BarChartSkeleton /> }
+			renderLoading={ <BarChartSkeleton columns={ columns.length } /> }
 		>
 			<BarChart chartData={ chartData } styles={ barStyles } dataFormat={ format } />
 		</WidgetState>

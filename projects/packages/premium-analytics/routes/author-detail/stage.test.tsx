@@ -166,6 +166,7 @@ jest.mock( '@wordpress/route', () => {
 } );
 
 jest.mock( './hooks', () => ( {
+	authorDisplayName: jest.requireActual( './hooks/use-author-summary' ).authorDisplayName,
 	useAuthorSummary: jest.fn(),
 	useAuthorAllTimeStart: jest.fn(),
 } ) );
@@ -234,7 +235,7 @@ describe( 'author detail stage', () => {
 		return screen.getByRole( 'heading', { level: 2, name } );
 	}
 
-	it( 'renders the fixed Stats / All authors / Author trail with date-preserving links', () => {
+	it( 'renders the Stats / All authors / name trail with date-preserving links', () => {
 		mockSummary();
 
 		render( stage() );
@@ -243,7 +244,7 @@ describe( 'author detail stage', () => {
 		expect( breadcrumbs.getAllByRole( 'listitem' ).map( crumb => crumb.textContent ) ).toEqual( [
 			'Stats',
 			'All authors',
-			'Author',
+			'Priya Patel',
 		] );
 		expect( breadcrumbs.getByRole( 'link', { name: 'Stats' } ) ).toHaveAttribute(
 			'href',
@@ -253,7 +254,9 @@ describe( 'author detail stage', () => {
 			'href',
 			'/reports/authors?from=2026-06-01&to=2026-06-16'
 		);
-		expect( breadcrumbs.getByRole( 'heading', { level: 1, name: 'Author' } ) ).toBeInTheDocument();
+		expect(
+			breadcrumbs.getByRole( 'heading', { level: 1, name: 'Priya Patel' } )
+		).toBeInTheDocument();
 	} );
 
 	it( 'shows the author identity in the header and renders the widgets', () => {
@@ -316,14 +319,15 @@ describe( 'author detail stage', () => {
 
 	it( 'offers Retry when the summary fails, keeping the trail and date controls', async () => {
 		const user = userEvent.setup();
-		mockSummary( { isError: true, name: undefined } );
+		// A failed refetch keeps the cached name, which must not reach the trail.
+		mockSummary( { isError: true } );
 
 		render( stage() );
 
 		expect( getSummaryHeading( 'Author unavailable' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Date filters' ) ).toBeInTheDocument();
 		const breadcrumbs = within( screen.getByRole( 'navigation', { name: 'Breadcrumbs' } ) );
-		expect( breadcrumbs.getAllByRole( 'listitem' ) ).toHaveLength( 3 );
+		expect( breadcrumbs.getByRole( 'heading', { level: 1, name: 'Author' } ) ).toBeInTheDocument();
 
 		expect( screen.queryByText( 'Author widgets' ) ).not.toBeInTheDocument();
 		expect(

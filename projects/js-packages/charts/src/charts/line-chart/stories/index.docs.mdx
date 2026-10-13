@@ -230,6 +230,8 @@ Pair several metrics side by side, each with its own comparison overlay. With `l
 
 <Canvas of={ LineChartStories.ComparisonMulti } />
 
+To name each metric's comparison instead, pass `legend.comparisonSeriesItems` a function. Every comparison series then gets its own static item, labeled by calling the function with its metric's label (for example `` label => `${ label } (Prev. period)` ``), and the item is left out while its metric is hidden.
+
 ### Theme Integration
 
 Comparison styling can be set in your theme configuration:
