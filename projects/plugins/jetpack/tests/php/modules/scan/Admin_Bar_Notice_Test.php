@@ -52,6 +52,9 @@ class Admin_Bar_Notice_Test extends WP_UnitTestCase {
 	 */
 	#[DataProvider( 'provide_dashboard_states' )]
 	public function test_threats_link_opens_the_protect_dashboard_in_place_or_jetpack_cloud_in_a_new_tab( $has_dashboard ) {
+		if ( has_filter( 'transient_jetpack_scan_state', 'wpcomsh_hide_scan_threats_from_transients' ) ) {
+			$this->markTestSkipped( 'wpcomsh hides Scan threats on Atomic, so the notice never shows.' );
+		}
 		if ( $has_dashboard ) {
 			do_action( 'jetpack_protect_dashboard_initialized' );
 		}
