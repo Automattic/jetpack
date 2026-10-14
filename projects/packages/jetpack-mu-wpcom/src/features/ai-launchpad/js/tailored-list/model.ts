@@ -53,6 +53,8 @@ export interface LaunchpadData {
 	wizard?: { goal?: string } | null;
 	// The account language of the admin reading the page, which the AI writes task subtitles in.
 	user_language?: string;
+	// Whether the server has latched the list as done.
+	list_completed?: boolean;
 }
 
 /** How a task's "Get started" CTA behaves when clicked. */

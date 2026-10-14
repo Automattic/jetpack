@@ -61,10 +61,23 @@ class AI_Launchpad {
 			return;
 		}
 
+		add_action( 'admin_page_access_denied', array( __CLASS__, 'redirect_to_dashboard' ) );
+
 		self::load_wp_build();
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_jwt_initial_state' ), 20 );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_tracks' ), 20 );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_script_translations' ), 20 );
+	}
+
+	/**
+	 * Sends a Site Setup visit the page can't serve (done, dismissed, ineligible, not an admin) to the Dashboard
+	 * instead of core's "not allowed" screen, e.g. a refresh right after the last task or an old bookmark.
+	 *
+	 * @return never
+	 */
+	public static function redirect_to_dashboard() {
+		wp_safe_redirect( admin_url( 'index.php' ) );
+		exit;
 	}
 
 	/**
