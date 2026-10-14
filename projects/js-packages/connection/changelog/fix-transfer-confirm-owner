@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Transfer ownership: name the outgoing owner from the connection, not whoever is viewing.
