@@ -87,7 +87,7 @@ class Jetpack_Shortcodes_Slideshow_Test extends WP_UnitTestCase {
 	public function test_shortcodes_slideshow() {
 		$content = '[slideshow]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertNotEquals( $content, $shortcode_content );
 	}
@@ -95,7 +95,7 @@ class Jetpack_Shortcodes_Slideshow_Test extends WP_UnitTestCase {
 	public function test_shortcodes_slideshow_no_js() {
 		$content = '[gallery type="slideshow" ids="' . $this->ids . '"]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertSame( 0, strpos( $shortcode_content, '<p class="jetpack-slideshow-noscript robots-nocontent">This slideshow requires JavaScript.</p>' ) );
 	}
@@ -103,7 +103,7 @@ class Jetpack_Shortcodes_Slideshow_Test extends WP_UnitTestCase {
 	public function test_shortcodes_slideshow_html() {
 		$content = '[gallery type="slideshow" ids="' . $this->ids . '"]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertEquals( ! false, strpos( $shortcode_content, 'class="jetpack-slideshow-window jetpack-slideshow' ) );
 	}
@@ -111,7 +111,7 @@ class Jetpack_Shortcodes_Slideshow_Test extends WP_UnitTestCase {
 	public function test_shortcodes_slideshow_autostart_off() {
 		$content = '[gallery type="slideshow" ids="' . $this->ids . '" autostart="false"]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertEquals( ! false, strpos( $shortcode_content, 'data-autostart="false"' ) );
 	}
@@ -119,7 +119,7 @@ class Jetpack_Shortcodes_Slideshow_Test extends WP_UnitTestCase {
 	public function test_shortcodes_slideshow_autostart_on() {
 		$content = '[gallery type="slideshow" ids="' . $this->ids . '" autostart="true"]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertEquals( ! false, strpos( $shortcode_content, 'data-autostart="true"' ) );
 	}
@@ -132,7 +132,7 @@ class Jetpack_Shortcodes_Slideshow_Test extends WP_UnitTestCase {
 	public function test_shortcodes_slideshow_no_valid_id() {
 		$content = sprintf( '[gallery type="slideshow" size="thumbnail" ids="%d"]', PHP_INT_MAX );
 
-		$this->assertEmpty( do_shortcode( $content ) );
+		$this->assertEmpty( apply_shortcodes( $content ) );
 	}
 
 	/**
@@ -178,6 +178,6 @@ class Jetpack_Shortcodes_Slideshow_Test extends WP_UnitTestCase {
 
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
 
-		$this->assertStringContainsString( $expected, do_shortcode( $shortcode ) );
+		$this->assertStringContainsString( $expected, apply_shortcodes( $shortcode ) );
 	}
 }

@@ -4,11 +4,13 @@ The WooCommerce section of the Premium Analytics dashboard. This package registe
 
 It also serves the reports the section's widgets will read. `GET /jetpack/v4/woocommerce-stats/proxy/v2/analytics/reports/<report>` forwards to the same path under the connected site on WordPress.com, for users who can view store reports, and caches a successful answer for five minutes.
 
+It hands the dashboard the store currency too: `premium_analytics.store_currency` in `JetpackScriptData` carries the code and symbol, so store money prints in it rather than US dollars.
+
 The widgets read those reports with the client in `src/reports/`: one hook per report, built on `useReport` from the dashboard SDK, so every query runs in the dashboard's query client.
 
-The widget types live in `widgets/`. wp-build builds them, and the package registers them from the build manifest when the dashboard's widget contract is 1.4 or newer. They draw with the kinds the dashboard SDK exports, so the charts are the dashboard's own. The time series family is here: net, total and gross sales, orders, average order value, average items per order, bookings and visitors over time.
+The widget types live in `widgets/`. wp-build builds them, and the package registers them from the build manifest when the dashboard's widget contract is 1.11 or newer. They draw with the kinds the dashboard SDK exports, so the charts are the dashboard's own. The time series family is here: net, total and gross sales, orders, average order value, average items per order, bookings and visitors over time. So are the breakdowns: new vs returning customer, payment status, orders fulfillment, coupon usage over time, bookings by status and sessions by device; the leaderboards: top performing products and bookings, and sales by UTM source, channel and campaign; Store performance, every store metric as a tab over one chart; the conversion funnel, for every product and for bookings; the columns: revenue by customer type, sales by device, total returns and sales by coupon, with the bookings variants of the first two; and visitors by location, US states or countries listed beside a map.
 
-The package decides nothing about who gets the section. The plugin that bundles it, Jetpack or the standalone Premium Analytics plugin, calls `Analytics_Dashboard::init()`. Availability stays on the section itself: WooCommerce active, the store-reports capability, and the store-section flag.
+The plugin that bundles it, Jetpack or the standalone Premium Analytics plugin, calls `Analytics_Dashboard::init()`. The package gates the section and its widget types itself: WooCommerce active, the store-reports capability, the Bookings extension for the bookings widgets, and the dashboard's store-section flag on a site that opted in on its own.
 
 ## Using this package in your WordPress plugin
 

@@ -911,6 +911,7 @@ class Initializer {
 		$show_number    = $enabled( 'showPositionNumber', false );
 		$show_runtime   = $enabled( 'showTotalRuntime' );
 		$muted          = $enabled( 'muteByDefault', false );
+		$current_guid   = Channel::is_enabled() ? Channel::queried_guid() : '';
 
 		$classes = array( 'videopress-playlist', 'is-layout-' . $layout );
 		if ( $enabled( 'darkPlayer', false ) ) {
@@ -1011,18 +1012,25 @@ class Initializer {
 				);
 				$entry_close = '</button>';
 			} else {
-				// No player to load the video into: the entry opens its VideoPress page instead.
+				// No player to load the video into: the entry opens the video's page instead.
+				/**
+				 * Filters where a playlist entry opens when the block has no player.
+				 *
+				 * @since 0.55.0
+				 *
+				 * @param string $url  The video's page on videopress.com.
+				 * @param string $guid The video GUID.
+				 */
+				$entry_url  = apply_filters( 'videopress_playlist_entry_url', 'https://videopress.com/v/' . $entry['guid'], $entry['guid'] );
+				$on_site    = Channel::is_site_url( $entry_url );
+				$is_current = '' !== $current_guid && $entry['guid'] === $current_guid;
 				$entry_open = sprintf(
-					'<a class="videopress-playlist__select" href="%1$s" target="_blank" rel="noopener noreferrer" data-guid="%2$s" data-title="%3$s" data-position="%4$s" data-details="%5$s">',
-					/**
-					 * Filters where a playlist entry opens when the block has no player.
-					 *
-					 * @since 0.55.0
-					 *
-					 * @param string $url  The video's page on videopress.com.
-					 * @param string $guid The video GUID.
-					 */
-					esc_url( apply_filters( 'videopress_playlist_entry_url', 'https://videopress.com/v/' . $entry['guid'], $entry['guid'] ) ),
+					'<a class="videopress-playlist__select%1$s" href="%2$s"%3$s%4$s data-guid="%5$s" data-title="%6$s" data-position="%7$s" data-details="%8$s">',
+					$is_current ? ' is-current' : '',
+					esc_url( $entry_url ),
+					// Channel pages stay in the tab; videopress.com opens a new one.
+					$on_site ? '' : ' target="_blank" rel="noopener noreferrer"',
+					$is_current ? ' aria-current="true"' : '',
 					esc_attr( $entry['guid'] ),
 					esc_attr( $title ),
 					esc_attr( $position ),
@@ -1032,7 +1040,7 @@ class Initializer {
 			}
 
 			$items .= sprintf(
-				'<li class="videopress-playlist__entry">%1$s' .
+				'<li class="videopress-playlist__entry%10$s">%1$s' .
 					'%2$s<span class="videopress-playlist__entry-thumb"><span class="videopress-playlist__entry-flag">%3$s</span>%4$s%5$s</span>' .
 					'<span class="videopress-playlist__entry-body"><span class="videopress-playlist__entry-title">%6$s</span><span class="videopress-playlist__entry-meta">%7$s%8$s</span></span>' .
 					'%9$s</li>',
@@ -1044,7 +1052,8 @@ class Initializer {
 				esc_html( $title ),
 				$resolution_markup,
 				$duration_markup,
-				$entry_close
+				$entry_close,
+				! $has_player && '' !== $current_guid && $entry['guid'] === $current_guid ? ' is-current' : ''
 			);
 		}
 

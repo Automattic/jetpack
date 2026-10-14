@@ -29,7 +29,7 @@ class Jetpack_Shortcodes_Archives_Test extends WP_UnitTestCase {
 	public function test_shortcodes_archives() {
 		$content = '[archives]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertNotEquals( $content, $shortcode_content );
 	}

@@ -28,10 +28,14 @@ export type ConnectionErrorStanding = {
 /**
  * Hook to determine the connection state of the site and user.
  *
- * @param {ConnectionErrorStanding} error - What the connection package reported, read by the card so the two agree on one rating.
+ * @param {ConnectionErrorStanding} error                      - What the connection package reported, read by the card so the two agree on one rating.
+ * @param {boolean}                 shouldAskForUserConnection - Whether to ask for a user connection.
  * @return The connection state
  */
-export function useConnectionState( error: ConnectionErrorStanding ): ConnectionState {
+export function useConnectionState(
+	error: ConnectionErrorStanding,
+	shouldAskForUserConnection: boolean
+): ConnectionState {
 	const { isRegistered, isUserConnected, hasConnectedOwner } = useMyJetpackConnection();
 
 	if ( ! isRegistered ) {
@@ -57,17 +61,26 @@ export function useConnectionState( error: ConnectionErrorStanding ): Connection
 
 	// We are here, which means the site is connected.
 
-	if ( isUserConnected ) {
-		if ( error.hasConnectionError ) {
-			return {
-				label: error.errorTitle,
-				status: error.severity ?? 'error',
-				isDiagnosis: true,
-			};
-		}
+	// Show a live error as the diagnosis unless the card is asking for a user connection.
+	if ( error.hasConnectionError && ( isUserConnected || ! shouldAskForUserConnection ) ) {
+		return {
+			label: error.errorTitle,
+			status: error.severity ?? 'error',
+			isDiagnosis: true,
+		};
+	}
 
+	if ( isUserConnected ) {
 		return {
 			label: __( 'Site and account connected', 'jetpack-my-jetpack' ),
+			description: __( 'Everything looks good.', 'jetpack-my-jetpack' ),
+			status: 'success',
+		};
+	}
+
+	if ( ! shouldAskForUserConnection ) {
+		return {
+			label: __( 'Site connected', 'jetpack-my-jetpack' ),
 			description: __( 'Everything looks good.', 'jetpack-my-jetpack' ),
 			status: 'success',
 		};

@@ -1,0 +1,12 @@
+{
+	"name": "woocommerce-analytics/store-conversion-rate-bookings",
+	"icon": "jpa/chart-bar",
+	"title": "Store conversion rate - Bookings",
+	"description": "Store conversion rate for booking products over the selected time period.",
+	"help": {
+		"content": "Track your booking conversion funnel from sessions to completed bookings over the selected time period."
+	},
+	"category": "bookings",
+	"presentation": "framed",
+	"textdomain": "jetpack-woocommerce-stats-pkg"
+}

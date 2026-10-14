@@ -190,6 +190,43 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$this->assertStringNotContainsString( 'force_refresh', $this->requests[3]['url'] );
 	}
 
+	/**
+	 * @dataProvider data_date_types
+	 *
+	 * @param string|null $option    Stored `woocommerce_date_type`, null when unset.
+	 * @param array       $params    Query params of the request.
+	 * @param string      $forwarded Date type sent to WordPress.com.
+	 */
+	#[DataProvider( 'data_date_types' )]
+	public function test_forwards_the_store_date_type_unless_the_request_names_one( $option, array $params, $forwarded ) {
+		if ( null !== $option ) {
+			update_option( 'woocommerce_date_type', $option );
+		}
+
+		$this->get_report( 'orders/by-date', $params );
+
+		wp_parse_str( (string) wp_parse_url( $this->requests[0]['url'], PHP_URL_QUERY ), $query );
+		$this->assertSame( $forwarded, $query['date_type'] );
+	}
+
+	public static function data_date_types(): array {
+		return array(
+			'unset option'          => array( null, array(), 'paid' ),
+			'date created'          => array( 'date_created', array(), 'created' ),
+			'date completed'        => array( 'date_completed', array(), 'completed' ),
+			'unknown option'        => array( 'date_modified', array(), 'paid' ),
+			'the request names one' => array( 'date_created', array( 'date_type' => 'paid' ), 'paid' ),
+		);
+	}
+
+	public function test_a_date_type_change_misses_the_cache() {
+		$this->get_report();
+		update_option( 'woocommerce_date_type', 'date_created' );
+		$this->get_report();
+
+		$this->assertCount( 2, $this->requests );
+	}
+
 	public function test_passes_an_upstream_error_through_without_caching_it() {
 		$this->upstream = $this->upstream_response( 400, '{"code":"invalid_interval","message":"Bad interval."}' );
 

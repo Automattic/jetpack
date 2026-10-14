@@ -13,15 +13,12 @@ import {
 /**
  * Internal dependencies
  */
-import { ORDER_ATTRIBUTION_VIEWS } from '../api/report-order-attribution-summary-fetch';
 import { getDefaultQueryParams } from '../defaults';
 import { resolveIntervalForRange, type IntervalType } from './interval';
 import { computeDateRangeFromPreset } from './preset-date-range';
 import { toAuthorId, toPostId } from './to-post-id';
 import type { DateType } from './types';
-import type { FilterCondition } from '../types/filter-condition';
 
-export type { FilterCondition };
 export type { IntervalType };
 
 /**
@@ -32,8 +29,6 @@ export type PresetType = SelectablePresetId;
 
 /** The computable presets a report URL can carry. */
 export type ReportPresetId = ComputablePresetId;
-
-type OrderAttributionView = ( typeof ORDER_ATTRIBUTION_VIEWS )[ number ];
 
 /*
  * ReportParams are the expected params present in the client URL.
@@ -50,10 +45,8 @@ export type ReportParams = {
 	compare_to?: string;
 	compare_preset?: ComparisonPresetId;
 	comp?: '1';
-	view?: OrderAttributionView; // For order attribution reports
-	filters?: FilterCondition[];
 	section?: string;
-	date_type?: DateType; // For filtering by different date fields (created, paid, completed)
+	date_type?: DateType; // Unset by default, so the server applies the merchant's WooCommerce date type.
 	post_id?: string | number; // Scopes a report to a single post/page (detail page). String from the URL; numeric at the query layer.
 	author_id?: string | number; // Scopes a report to a single author (author detail page). Same string/number split as `post_id`.
 };
@@ -134,7 +127,6 @@ export function normalizeReportParams(
 		interval,
 		preset,
 		...( typeof search?.period === 'string' ? { period: search.period } : {} ),
-		date_type: search?.date_type ?? 'created',
 		// Preserve the post_id / author_id scope so detail-page widgets stay bound
 		// to their resource; drop an invalid one so a hand-edited deep link can't
 		// reach Stats.

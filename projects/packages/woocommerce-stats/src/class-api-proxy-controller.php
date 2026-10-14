@@ -18,6 +18,7 @@ use WP_REST_Server;
 /**
  * Serves `/jetpack/v4/woocommerce-stats/proxy/v2/analytics/reports/<report>`: a read of the same
  * path under the connected site on WordPress.com, signed with the blog token and cached briefly.
+ * Reports follow the store's WooCommerce Analytics date type unless the request names one.
  *
  * For now it carries its own forward. The route has the shape of the proxy controller the
  * connection package is getting, so this class can shrink to a registration on it.
@@ -104,8 +105,7 @@ class Api_Proxy_Controller {
 	 * @return bool
 	 */
 	public function check_permission() {
-		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- WooCommerce registers this capability.
-		return current_user_can( 'manage_options' ) || current_user_can( 'view_woocommerce_reports' );
+		return Analytics_Dashboard::current_user_can_view_store_reports();
 	}
 
 	/**
@@ -199,7 +199,10 @@ class Api_Proxy_Controller {
 	}
 
 	/**
-	 * The query params to forward: all but WordPress routing and the proxy's own.
+	 * The query params to forward: all but WordPress routing and the proxy's own, with the store's
+	 * date type when the caller names none.
+	 *
+	 * WordPress.com would fall back to the synced option, but only once Jetpack Sync delivers a change.
 	 *
 	 * @param WP_REST_Request $request Request object.
 	 * @return array
@@ -208,7 +211,27 @@ class Api_Proxy_Controller {
 		$params = $request->get_query_params();
 		unset( $params['rest_route'], $params['_locale'], $params['endpoint'], $params['force_refresh'] );
 
+		if ( ! isset( $params['date_type'] ) ) {
+			$params['date_type'] = $this->get_store_date_type();
+		}
+
 		return $params;
+	}
+
+	/**
+	 * The report API's name for the `woocommerce_date_type` option, defaulting to `paid` as WooCommerce does.
+	 *
+	 * @return string One of `created`, `paid`, or `completed`.
+	 */
+	private function get_store_date_type() {
+		$date_types = array(
+			'date_created'   => 'created',
+			'date_paid'      => 'paid',
+			'date_completed' => 'completed',
+		);
+		$option     = get_option( 'woocommerce_date_type' );
+
+		return is_string( $option ) && isset( $date_types[ $option ] ) ? $date_types[ $option ] : 'paid';
 	}
 
 	/**

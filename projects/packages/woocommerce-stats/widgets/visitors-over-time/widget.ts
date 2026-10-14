@@ -1,14 +1,35 @@
 /**
  * External dependencies
  */
-import { seen } from '@wordpress/icons';
+import { __ } from '@wordpress/i18n';
+import { chartBar } from '@wordpress/icons';
+/**
+ * Internal dependencies
+ */
+import { chartLine } from '../../src/icons/chart-line';
+import type { ChartDisplayChartType } from '@automattic/jetpack-premium-analytics-sdk';
+import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
- * No configurable attributes; the empty record allows host-provided fields, such as the report
- * params.
+ * @property chartType - How the series is drawn. Defaults to `line`.
  */
-export type VisitorsOverTimeAttributes = Record< never, never >;
+export type VisitorsOverTimeAttributes = {
+	chartType?: ChartDisplayChartType;
+};
+
+const CHART_TYPES = [
+	{ value: 'line', label: __( 'Line chart', 'jetpack-woocommerce-stats-pkg' ), icon: chartLine },
+	{ value: 'bar', label: __( 'Bar chart', 'jetpack-woocommerce-stats-pkg' ), icon: chartBar },
+];
 
 export default {
-	icon: seen,
+	attributes: [
+		{
+			id: 'chartType',
+			label: __( 'Chart type', 'jetpack-woocommerce-stats-pkg' ),
+			type: 'jpa/toggle-group',
+			elements: CHART_TYPES,
+			relevance: 'high',
+		},
+	] as WidgetAttributeField< VisitorsOverTimeAttributes >[],
 };

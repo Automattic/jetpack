@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { STATS_CHART_BUCKET_PERIODS, toAuthorId } from '@jetpack-premium-analytics/data';
-import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	ChartEmptyState,
 	MetricTabsChart,
@@ -123,7 +122,6 @@ function AuthorPerformanceInner( { chartType }: AuthorPerformanceInnerProps ) {
 					onRetry: refetch,
 				} ) }
 				empty={ {
-					icon: reports,
 					description: __(
 						'Open an author to see their stats here.',
 						'jetpack-premium-analytics-pkg'

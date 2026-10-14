@@ -60,6 +60,22 @@ abstract class Blocked_Login_Page {
 	const HTTP_STATUS_CODE_TOO_MANY_REQUESTS = 429;
 
 	/**
+	 * How long after registration a reset key still counts as the registration email's key.
+	 *
+	 * @var int
+	 */
+	const REGISTRATION_KEY_WINDOW_IN_SECONDS = 300;
+
+	/**
+	 * Whether to point users who never set a password at their registration email instead of sending a recovery email.
+	 *
+	 * Only useful when the set-password link isn't blocked for this visitor.
+	 *
+	 * @var bool
+	 */
+	protected $check_unfinished_registrations = true;
+
+	/**
 	 * Singleton implementation
 	 *
 	 * @param string $ip_address - the IP address.
@@ -328,13 +344,46 @@ abstract class Blocked_Login_Page {
 		$sent               = $this->send_recovery_email();
 		$show_recovery_form = true;
 		if ( is_wp_error( $sent ) ) {
-			if ( 'email_already_sent' === $sent->get_error_code() ) {
+			if ( in_array( $sent->get_error_code(), array( 'email_already_sent', 'password_not_set' ), true ) ) {
 				$show_recovery_form = false;
 			}
 			$this->protect_die( $sent, null, true, $show_recovery_form );
 		} else {
 			$this->render_recovery_success();
 		}
+	}
+
+	/**
+	 * Whether the user registered but hasn't used their still-valid set-password link yet.
+	 *
+	 * The nag can outlive a working password (e.g. the install admin), so only a key issued at registration counts.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param WP_User $user The user.
+	 *
+	 * @return bool
+	 */
+	public function user_has_unfinished_registration( $user ) {
+		if ( ! $this->check_unfinished_registrations || ! get_user_meta( $user->ID, 'default_password_nag', true ) ) {
+			return false;
+		}
+
+		$key_parts = explode( ':', (string) $user->user_activation_key, 2 );
+		if ( 2 !== count( $key_parts ) || ! ctype_digit( $key_parts[0] ) ) {
+			return false;
+		}
+
+		$key_issued_at = (int) $key_parts[0];
+		$registered_at = strtotime( $user->user_registered . ' UTC' );
+		if ( false === $registered_at || abs( $key_issued_at - $registered_at ) > self::REGISTRATION_KEY_WINDOW_IN_SECONDS ) {
+			return false;
+		}
+
+		/** This filter is documented in wp-includes/user.php */
+		$expiration = apply_filters( 'password_reset_expiration', DAY_IN_SECONDS );
+
+		return time() - $key_issued_at < $expiration;
 	}
 
 	/**
@@ -350,6 +399,12 @@ abstract class Blocked_Login_Page {
 		if ( ! $user ) {
 			return new WP_Error( 'invalid_user', __( "Oops, we couldn't find a user with that email. Please try again!", 'jetpack-waf' ) );
 		}
+
+		// A user who never set a password can't log in, so a recovery email wouldn't help them.
+		if ( $this->user_has_unfinished_registration( $user ) ) {
+			return new WP_Error( 'password_not_set', __( "This account doesn't have a password yet. Use the link in your registration email to set one, then try logging in again.", 'jetpack-waf' ) );
+		}
+
 		$this->email_address = $email;
 		$path                = sprintf( '/sites/%d/protect/recovery/request', Jetpack_Options::get_option( 'id' ) );
 

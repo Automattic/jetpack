@@ -1,5 +1,6 @@
 {
 	"name": "jpa/subscribers-chart",
+	"icon": "jpa/people",
 	"title": "Subscriber summary",
 	"description": "Track subscriber growth over the selected period.",
 	"help": {

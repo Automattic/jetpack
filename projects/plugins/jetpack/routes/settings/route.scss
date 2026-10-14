@@ -1,4 +1,4 @@
-// The stylesheet the webpack page loads as style.min.css.
+// Also built as style.min.css for the PHP-rendered pages.
 @use "../../_inc/client/scss/style";
 
 body.jetpack_page_jetpack-settings:not(.network-admin) {

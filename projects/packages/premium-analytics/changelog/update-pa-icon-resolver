@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Dashboard: Resolve the icon a widget.json names, under the `jpa` collection; the widget contract is 1.6.0.
