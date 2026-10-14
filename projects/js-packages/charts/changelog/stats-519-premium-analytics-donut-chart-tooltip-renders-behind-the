@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Pie Chart, Pie Semi-Circle Chart: Paint the tooltip above content passed as children, such as a center total.

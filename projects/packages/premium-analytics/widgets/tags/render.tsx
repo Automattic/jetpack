@@ -23,7 +23,6 @@ import {
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { tag as tagIllustration } from '@jetpack-premium-analytics/icons';
 import { useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Stack } from '@jetpack-premium-analytics/externals';
@@ -150,7 +149,6 @@ function TagsInner() {
 						],
 					} }
 					empty={ {
-						icon: tagIllustration,
 						description: __(
 							'Learn about your most visited tags & categories to track engaging topics.',
 							'jetpack-premium-analytics-pkg'

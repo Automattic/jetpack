@@ -17,6 +17,7 @@ class Comment_Form {
 	const HANDLE       = 'jetpack-comments';
 	const NONCE_ACTION = 'jetpack_comments_form';
 	const NONCE_NAME   = 'jetpack_comments_form_nonce';
+	const THEME_FORM   = 'jetpack_comments_theme_form';
 
 	/**
 	 * Singleton instance.
@@ -190,13 +191,29 @@ class Comment_Form {
 	/**
 	 * Replace the submit field with the app.
 	 *
-	 * @param string $submit_field The submit field markup this replaces.
-	 * @param array  $args         Comment form arguments, after the theme's own.
+	 * @param string      $submit_field The submit field markup this replaces.
+	 * @param array|mixed $args         Comment form arguments, after the theme's own. Anything from a theme-built form.
 	 * @return string
 	 */
 	public function render( $submit_field, $args = array() ) {
 		if ( ! self::enabled_for_post_type() ) {
 			return $submit_field;
+		}
+
+		// A theme that builds its own form (Thesis) never runs comment_form(), so leave its form alone.
+		if ( ! is_array( $args ) || ! $this->defaults ) {
+			// The marker gives the comment its own Tracks event, and is where the script finds the form to
+			// add the nonce to, as enqueue_assets() does for the app. Again on DOMContentLoaded, for an optimizer.
+			return $submit_field
+				. '<input type="hidden" name="' . self::THEME_FORM . '" value="1" />'
+				. wp_get_inline_script_tag(
+					sprintf(
+						'(function(){function n(){Array.prototype.forEach.call(document.querySelectorAll(\'[name="%1$s"]\'),function(m){var f=m.form,i;if(f&&!f.querySelector(\'[name="%2$s"]\')){i=document.createElement("input");i.type="hidden";i.name="%2$s";i.value=%3$s;f.appendChild(i);}});}n();document.addEventListener("DOMContentLoaded",n);})();',
+						self::THEME_FORM,
+						self::NONCE_NAME,
+						wp_json_encode( wp_create_nonce( self::NONCE_ACTION ), JSON_HEX_TAG | JSON_HEX_AMP )
+					)
+				);
 		}
 
 		// The subscribe checkboxes the host drew: Jetpack's in this field, WordPress.com's from its own

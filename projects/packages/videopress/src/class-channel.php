@@ -175,6 +175,17 @@ class Channel {
 	}
 
 	/**
+	 * Whether a URL points at this site rather than, say, videopress.com.
+	 *
+	 * @param string $url The URL.
+	 * @return bool
+	 */
+	public static function is_site_url( $url ) {
+		$host = wp_parse_url( (string) $url, PHP_URL_HOST );
+		return is_string( $host ) && strtolower( $host ) === strtolower( (string) wp_parse_url( home_url(), PHP_URL_HOST ) );
+	}
+
+	/**
 	 * Public query vars: `v` selects the video, `videopress_video` marks the page.
 	 *
 	 * @param string[] $vars Query vars.
@@ -301,5 +312,27 @@ class Channel {
 			$parsed_block['attrs']['poster'] = (string) $details->poster;
 		}
 		return $parsed_block;
+	}
+
+	/**
+	 * Whether this request is a channel video page.
+	 *
+	 * @return bool
+	 */
+	public static function is_video_page() {
+		return (bool) get_query_var( self::QUERY_VAR );
+	}
+
+	/**
+	 * The GUID of the video page's video, or an empty string.
+	 *
+	 * @return string
+	 */
+	public static function queried_guid() {
+		if ( ! self::is_video_page() ) {
+			return '';
+		}
+		$post = self::current_video();
+		return $post instanceof WP_Post ? self::guid( $post ) : '';
 	}
 }
