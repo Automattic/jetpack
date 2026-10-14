@@ -23,7 +23,7 @@ import {
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { usedCategoryQuery, useStatsQuery } from '@jetpack-premium-analytics/data';
+import { useNoUsedCategory } from '@jetpack-premium-analytics/data';
 import { useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Stack } from '@jetpack-premium-analytics/externals';
@@ -84,8 +84,7 @@ function TagsInner() {
 	} = useWidgetDrillDown< string >();
 
 	const isEmptyList = ! isLoading && ! isError && data.length === 0;
-	const usedCategory = useStatsQuery( usedCategoryQuery(), { enabled: isEmptyList } );
-	const hasNoUsedCategory = isEmptyList && ! usedCategory.isError && usedCategory.data === false;
+	const { noUsedCategory, isChecking } = useNoUsedCategory( isEmptyList );
 
 	const selectedGroup = useMemo(
 		() => ( selectedLabel ? ( data.find( row => row.label === selectedLabel ) ?? null ) : null ),
@@ -140,7 +139,7 @@ function TagsInner() {
 					/>
 				) }
 				<WidgetState
-					isLoading={ isLoading || ( isEmptyList && usedCategory.isLoading ) }
+					isLoading={ isLoading || isChecking }
 					isFetching={ isFetching }
 					isError={ isError }
 					isEmpty={ data.length === 0 }
@@ -154,7 +153,7 @@ function TagsInner() {
 						],
 					} }
 					empty={
-						hasNoUsedCategory
+						noUsedCategory
 							? {
 									description: __(
 										'You don’t have tags or categories recorded yet.',

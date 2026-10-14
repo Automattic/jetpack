@@ -16,6 +16,24 @@ jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
+type UseEntityRecords = (
+	kind: string,
+	name: string,
+	query: object,
+	options: { enabled: boolean }
+) => { records: unknown[] | null; hasResolved: boolean };
+
+const mockUseEntityRecords = jest.fn<
+	ReturnType< UseEntityRecords >,
+	Parameters< UseEntityRecords >
+>( () => ( { records: [], hasResolved: false } ) );
+
+jest.mock( '@wordpress/core-data', () => ( {
+	...jest.requireActual( '@wordpress/core-data' ),
+	useEntityRecords: ( ...args: Parameters< typeof mockUseEntityRecords > ) =>
+		mockUseEntityRecords( ...args ),
+} ) );
+
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
 // `type: 'category'` is the only value the sanitizer turns into the `folder`
@@ -242,26 +260,22 @@ describe( 'TagsWidget empty state', () => {
 	const GENERIC_TEXT = 'We couldn’t find results for this time period.';
 
 	/**
-	 * Answer the tags report with no rows and the categories request with the given response.
+	 * Answer the tags report with no rows and the categories lookup with the given records.
 	 *
-	 * @param categories - The `/wp/v2/categories` response, or the error it rejects with.
+	 * @param records - The categories core-data resolved, or `null` for a failed request.
 	 */
-	function mockEmptyTags( categories: unknown[] | Error ) {
-		mockApiFetch.mockImplementation( ( { path = '' }: { path?: string } ) => {
-			if ( ! path.startsWith( '/wp/v2/categories' ) ) {
-				return Promise.resolve( { ...TAGS_RESPONSE, tags: [] } );
-			}
-
-			return categories instanceof Error
-				? Promise.reject( categories )
-				: Promise.resolve( categories );
-		} );
+	function mockEmptyTags( records: unknown[] | null ) {
+		mockApiFetch.mockResolvedValue( { ...TAGS_RESPONSE, tags: [] } );
+		mockUseEntityRecords.mockImplementation( ( _kind, _name, _query, { enabled } ) =>
+			enabled ? { records, hasResolved: true } : { records: [], hasResolved: false }
+		);
 	}
 
 	beforeEach( () => {
 		jest.useFakeTimers();
 		queryClient.clear();
 		mockApiFetch.mockReset();
+		mockUseEntityRecords.mockReset();
 	} );
 
 	afterEach( () => {
@@ -275,16 +289,20 @@ describe( 'TagsWidget empty state', () => {
 
 		await expect( screen.findByText( NONE_RECORDED ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( GENERIC_TEXT ) ).not.toBeInTheDocument();
+		// Without `view`, core-data asks in the edit context and a user who cannot manage categories gets a 403.
+		expect( mockUseEntityRecords ).toHaveBeenCalledWith(
+			'taxonomy',
+			'category',
+			expect.objectContaining( { hide_empty: true, context: 'view' } ),
+			{ enabled: true }
+		);
 	} );
 
 	it.each( [
 		[ 'a category holds a published post', [ { id: 1 } ] ],
-		[
-			'the categories request fails',
-			Object.assign( new Error( 'Forbidden' ), { data: { status: 403 } } ),
-		],
-	] )( 'keeps the period text when %s', async ( _case, categories ) => {
-		mockEmptyTags( categories );
+		[ 'the categories request fails', null ],
+	] )( 'keeps the period text when %s', async ( _case, records ) => {
+		mockEmptyTags( records );
 
 		render( <TagsWidget attributes={ { reportParams: getDefaultQueryParams() } } /> );
 
@@ -294,12 +312,16 @@ describe( 'TagsWidget empty state', () => {
 
 	it( 'does not ask for categories when the list has rows', async () => {
 		mockApiFetch.mockResolvedValue( TAGS_RESPONSE );
+		mockUseEntityRecords.mockReturnValue( { records: [], hasResolved: false } );
 
 		render( <TagsWidget attributes={ { reportParams: getDefaultQueryParams() } } /> );
 
 		await expect( screen.findByText( 'Recipes' ) ).resolves.toBeInTheDocument();
-		expect( mockApiFetch ).not.toHaveBeenCalledWith(
-			expect.objectContaining( { path: expect.stringContaining( '/wp/v2/categories' ) } )
+		expect( mockUseEntityRecords ).not.toHaveBeenCalledWith(
+			expect.anything(),
+			expect.anything(),
+			expect.anything(),
+			{ enabled: true }
 		);
 	} );
 } );

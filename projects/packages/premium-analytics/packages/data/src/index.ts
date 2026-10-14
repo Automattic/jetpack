@@ -12,7 +12,6 @@ export { ensureDashboardEntities } from './entities/dashboard-entities';
 export { latestPostQuery, postContentQuery, postsContentQuery } from './queries/latest-post-query';
 export type { LatestPost, LatestPostResponse } from './processing/latest-post';
 export { authorPostsQuery } from './queries/author-posts-query';
-export { usedCategoryQuery } from './queries/used-category-query';
 export type { AuthorPostsRecord } from './processing/author';
 export { statsInsightsQuery } from './queries/stats-insights-query';
 export {
