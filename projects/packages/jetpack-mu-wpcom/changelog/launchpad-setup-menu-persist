@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+AI Launchpad: Celebrate finishing Site Setup before sending people to the Dashboard, and remove its menu as soon as the site is launched or the last task is done elsewhere.
