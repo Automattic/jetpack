@@ -64,12 +64,13 @@ class Firewall_Section_Test extends BaseTestCase {
 			),
 			'a proxy on the same private network'        => array( array( 'REMOTE_ADDR' => '10.0.0.5' ), '' ),
 			'a proxy on the same machine'                => array( array( 'REMOTE_ADDR' => '127.0.0.1' ), '' ),
+			// Not 2001:db8::/32, which PHP before 8.3 rejects as reserved.
 			'the same IPv6 address written longer'       => array(
 				array(
-					'REMOTE_ADDR'          => '2001:db8::7',
-					'HTTP_X_FORWARDED_FOR' => '2001:0db8:0000:0000:0000:0000:0000:0007',
+					'REMOTE_ADDR'          => '2606:4700:4700::1111',
+					'HTTP_X_FORWARDED_FOR' => '2606:4700:4700:0000:0000:0000:0000:1111',
 				),
-				'2001:db8::7',
+				'2606:4700:4700::1111',
 			),
 			'a forwarding header that isn\'t an address' => array(
 				array(
