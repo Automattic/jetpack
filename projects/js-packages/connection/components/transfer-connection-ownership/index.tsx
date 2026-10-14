@@ -12,10 +12,9 @@ import { STORE_ID } from '../../state/store';
 import OwnerCandidateList from './candidate-list';
 import TransferConfirmStep from './confirm-step';
 import TransferDoneStep from './done-step';
-import useOwnershipTransfer from './use-ownership-transfer';
-import type { ConnectionOwnerCandidate } from './use-ownership-transfer';
+import useOwnershipTransfer, { type ConnectionOwnerCandidate } from './use-ownership-transfer';
 
-export type { ConnectionOwnerCandidate } from './use-ownership-transfer';
+export type { ConnectionOwnerCandidate };
 
 type StoreSelector = ( storeId: string ) => Record< string, ( ...args: unknown[] ) => unknown >;
 
