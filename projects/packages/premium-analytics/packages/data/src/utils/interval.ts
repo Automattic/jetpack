@@ -51,6 +51,12 @@ function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] 
 		Math.abs( differenceInHours( localTZDate( to ), localTZDate( from ) ) / 24 )
 	);
 
+	// An unreadable range has no length to pick a bucket from; days read as a
+	// plain series, where hours would flatten it into one point.
+	if ( Number.isNaN( daysDiff ) ) {
+		return [ 'day' ];
+	}
+
 	// No bucket between month and year: Stats has no quarterly one.
 	if ( daysDiff >= 1095 ) {
 		return [ 'month', 'year' ];

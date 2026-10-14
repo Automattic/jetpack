@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [9.10.0] - 2026-10-12
+### Added
+- Add a Connected view to the Users page, and a link to it from the Connectors card. [#53150]
+
+### Changed
+- SSO: When a site requires two-step authentication and the WordPress.com account doesn't have it, name the logged-in account and make setting up two-step authentication the main action on the login screen. [#52403]
+
 ## [9.9.1] - 2026-10-06
 ### Security
 - Limit the data returned by the site data endpoint. [#53240]
@@ -2139,6 +2146,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[9.10.0]: https://github.com/Automattic/jetpack-connection/compare/v9.9.1...v9.10.0
 [9.9.1]: https://github.com/Automattic/jetpack-connection/compare/v9.9.0...v9.9.1
 [9.9.0]: https://github.com/Automattic/jetpack-connection/compare/v9.8.1...v9.9.0
 [9.8.1]: https://github.com/Automattic/jetpack-connection/compare/v9.8.0...v9.8.1

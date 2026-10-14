@@ -247,6 +247,18 @@ class Monitor_Test extends BaseTestCase {
 		$this->assertCount( $requests, $this->requests );
 	}
 
+	public function test_get_uptime_asks_wpcom_again_on_a_retry_despite_a_cached_failure() {
+		$this->uptime_response = self::json_response( array(), 500 );
+		$monitor               = new Monitor();
+		$monitor->get_uptime();
+		$this->uptime_response = self::json_response( array( '2026-10-01' => array( 'status' => 'up' ) ) );
+		$request               = new \WP_REST_Request( 'GET', '/jetpack/v4/protect-dashboard/uptime' );
+		$request->set_param( 'retry', true );
+
+		$this->assertInstanceOf( WP_Error::class, $monitor->get_uptime() );
+		$this->assertCount( 1, $monitor->get_uptime( $request )['days'] );
+	}
+
 	public function test_get_uptime_refuses_a_disconnected_user_even_with_a_warm_cache() {
 		$monitor = new Monitor();
 		$monitor->get_uptime();
