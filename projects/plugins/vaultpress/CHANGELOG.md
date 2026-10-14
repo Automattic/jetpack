@@ -6,14 +6,9 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
 - Remove unneeded development and documentation files from the published plugin. [#49014]
-- Sidebar: register the VaultPress menu item through Jetpack's admin menu API so it sorts with the other Jetpack pages. [#52003]
-- Tested up to WordPress 7.0. [#48114]
-- Tested up to WordPress 7.1. [#51370]
-- Update package dependencies. [#48064]
-- Update package dependencies. [#48683]
-- Update package dependencies. [#49448]
-- Update package dependencies. [#50436]
-- Update package dependencies. [#52028]
+- Sidebar: Register the VaultPress menu item through Jetpack's admin menu API so it sorts with the other Jetpack pages. [#52003]
+- Tested up to WordPress 7.1. [#48114] [#51370]
+- Update package dependencies. [#48064] [#48683] [#49448] [#50436] [#52028]
 
 ### Removed
 - Updated PHP version requirements to PHP 7.4 or newer. [#51515]
