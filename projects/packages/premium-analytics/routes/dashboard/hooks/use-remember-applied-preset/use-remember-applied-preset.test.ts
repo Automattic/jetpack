@@ -75,33 +75,11 @@ describe( 'useRememberAppliedPreset', () => {
 	it.each( [
 		[ 'No comparison', undefined, undefined, 'none' ],
 		[ 'a comparison preset', RANGE, 'previous-year', 'previous-year' ],
-	] as const )( 'remembers %s applied at once', ( _label, range, presetId, expected ) => {
+	] as const )( 'remembers %s', ( _label, range, presetId, expected ) => {
 		const { result } = renderHook( () => useRememberAppliedPreset() );
 
-		act( () => result.current.onComparisonChange( range, presetId, false ) );
+		act( () => result.current.onComparisonChange( range, presetId ) );
 
 		expect( remembered( 'comparison' ) ).toBe( expected );
-	} );
-
-	it( 'remembers a comparison picked over a staged range only once the range applies', () => {
-		const { result } = renderHook( () => useRememberAppliedPreset() );
-
-		act( () => result.current.onComparisonChange( undefined, undefined, true ) );
-		expect( remembered( 'comparison' ) ).toBeUndefined();
-
-		act( () => result.current.onApply() );
-		expect( remembered( 'comparison' ) ).toBe( 'none' );
-	} );
-
-	it( 'forgets a comparison picked over a staged range the reader cancels', () => {
-		const { result } = renderHook( () => useRememberAppliedPreset() );
-
-		act( () => {
-			result.current.onComparisonChange( undefined, undefined, true );
-			result.current.onCancel();
-			result.current.onApply();
-		} );
-
-		expect( remembered( 'comparison' ) ).toBeUndefined();
 	} );
 } );

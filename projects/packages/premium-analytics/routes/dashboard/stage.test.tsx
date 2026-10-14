@@ -98,9 +98,7 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 		onChange: jest.fn(),
 		onComparisonChange: jest.fn(),
 		onApply: jest.fn(),
-		onCancel: jest.fn(),
 		onIntervalChange: jest.fn(),
-		canApply: false,
 	} ),
 } ) );
 

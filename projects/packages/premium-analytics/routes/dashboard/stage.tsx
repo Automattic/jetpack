@@ -260,8 +260,6 @@ function Dashboard(): JSX.Element {
 		onChange: changeDateRange,
 		onComparisonChange: changeComparison,
 		onApply: applyDateRange,
-		onCancel: cancelDateRange,
-		canApply: hasDateDraft,
 	} = dateFilters;
 	const { trackedOnChange, trackedOnApply } = useTrackedDateRangeApply(
 		{
@@ -277,7 +275,6 @@ function Dashboard(): JSX.Element {
 		onChange: rememberOnChange,
 		onComparisonChange: rememberOnComparisonChange,
 		onApply: rememberOnApply,
-		onCancel: rememberOnCancel,
 	} = useRememberAppliedPreset();
 	const onDateChange = useCallback< typeof changeDateRange >(
 		( ...args ) => {
@@ -295,14 +292,10 @@ function Dashboard(): JSX.Element {
 	const onComparisonChange = useCallback< typeof changeComparison >(
 		( range, presetId ) => {
 			changeComparison( range, presetId );
-			rememberOnComparisonChange( range, presetId, hasDateDraft );
+			rememberOnComparisonChange( range, presetId );
 		},
-		[ changeComparison, rememberOnComparisonChange, hasDateDraft ]
+		[ changeComparison, rememberOnComparisonChange ]
 	);
-	const onDateCancel = useCallback( () => {
-		cancelDateRange();
-		rememberOnCancel();
-	}, [ cancelDateRange, rememberOnCancel ] );
 
 	/*
 	 * The year surface applies on click — no Apply step of its own — so stage and
@@ -382,7 +375,6 @@ function Dashboard(): JSX.Element {
 					onChange={ onDateChange }
 					onComparisonChange={ onComparisonChange }
 					onApply={ onDateApply }
-					onCancel={ onDateCancel }
 					withIntervalControl={ showHeaderIntervalControl }
 					attentionId={ attentionId }
 				/>

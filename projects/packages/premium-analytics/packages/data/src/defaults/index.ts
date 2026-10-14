@@ -9,5 +9,4 @@ export {
 	NO_COMPARISON,
 	rememberComparison,
 	rememberPreset,
-	type RememberedComparison,
 } from './remembered-preset';
