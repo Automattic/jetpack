@@ -3,9 +3,12 @@
  *
  * The fractional second is matched at any length: capping it here would drop
  * `.123456` through to `Date`, which reads it in the browser's zone.
+ *
+ * A space may stand in for the offset's `+`: a querystring parser reads an
+ * unencoded `+` as a space, and nothing else can sit between a time and its offset.
  */
 const SITE_TIMESTAMP =
-	/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d+))?)?(Z|[+-]\d{2}:?\d{2})?)?$/;
+	/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d+))?)?(Z|[+\- ]\d{2}:?\d{2})?)?$/;
 
 /** The hours and minutes of a numeric offset. */
 const OFFSET_PARTS = /^[+-](\d{2}):?(\d{2})$/;
@@ -14,7 +17,7 @@ const OFFSET_PARTS = /^[+-](\d{2}):?(\d{2})$/;
 export type TimestampParts = [ number, number, number, number, number, number, number ];
 
 export type SiteTimestamp = {
-	/** The value with surrounding whitespace removed. */
+	/** The value with surrounding whitespace removed and the offset's `+` restored. */
 	value: string;
 	/** The wall-clock parts it names. */
 	parts: TimestampParts;
@@ -73,7 +76,10 @@ export function readSiteTimestamp( value: string ): SiteTimestamp | null {
 		return null;
 	}
 
-	const [ , year, month, day, hours, minutes, seconds, milliseconds, offset ] = match;
+	const [ , year, month, day, hours, minutes, seconds, milliseconds, rawOffset ] = match;
+	// Restore the `+` a querystring decoded away, in the offset and the value callers hand to `Date`.
+	const offset = rawOffset?.startsWith( ' ' ) ? `+${ rawOffset.slice( 1 ) }` : rawOffset;
+	const normalized = offset === rawOffset ? trimmed : trimmed.slice( 0, -offset.length ) + offset;
 	const parts: TimestampParts = [
 		Number( year ),
 		Number( month ) - 1,
@@ -90,5 +96,5 @@ export function readSiteTimestamp( value: string ): SiteTimestamp | null {
 		isRealOffset( offset ) &&
 		isRealCalendarDate( parts[ 0 ], parts[ 1 ], parts[ 2 ] );
 
-	return { value: trimmed, parts, offset, isValid };
+	return { value: normalized, parts, offset, isValid };
 }

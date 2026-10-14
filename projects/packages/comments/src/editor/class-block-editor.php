@@ -52,6 +52,7 @@ class Block_Editor {
 		add_filter( 'wp_kses_allowed_html', array( $this, 'allowed_html' ), 10, 2 );
 		// Ahead of wpautop at 30.
 		add_filter( 'comment_text', array( __CLASS__, 'render' ), 5, 2 );
+		add_filter( 'render_block_core/image', array( Images::class, 'render_core' ), 10, 2 );
 		// Core writes the stored content into its comment emails; WordPress.com has its own templates.
 		add_filter( 'comment_notification_text', array( __CLASS__, 'render_in_email' ), 10, 2 );
 		add_filter( 'comment_moderation_text', array( __CLASS__, 'render_in_email' ), 10, 2 );
@@ -89,7 +90,7 @@ class Block_Editor {
 			}
 
 			// Core translates block titles in PHP, so they are in its .mo, not the script files.
-			foreach ( array( 'Paragraph', 'List', 'List Item', 'Quote', 'Code', 'Embed' ) as $title ) {
+			foreach ( array( 'Paragraph', 'List', 'List Item', 'Quote', 'Code', 'Embed', 'Image' ) as $title ) {
 				// phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText, WordPress.WP.I18n.TextDomainMismatch -- Core's own strings.
 				$messages[ "block title\u{0004}$title" ] = array( _x( $title, 'block title', 'default' ) );
 			}
@@ -141,10 +142,8 @@ class Block_Editor {
 	 * @return string
 	 */
 	public function forget_blocks( $content ) {
-		if ( $this->has_blocks && has_block( 'core/embed', $content ) ) {
-			// Core's own kses pass over block attributes wrote & as &amp; in each embed's URL.
-			// Put it back, or the editor's save no longer matches the markup when the comment is edited.
-			$content = wp_slash( serialize_blocks( self::restore_urls( parse_blocks( wp_unslash( $content ) ) ) ) );
+		if ( $this->has_blocks && ( has_block( 'core/embed', $content ) || has_block( 'core/image', $content ) ) ) {
+			$content = wp_slash( serialize_blocks( self::restore( parse_blocks( wp_unslash( $content ) ) ) ) );
 		}
 
 		$this->has_blocks = false;
@@ -153,22 +152,28 @@ class Block_Editor {
 	}
 
 	/**
-	 * The embed URLs as they were before kses, at every depth.
+	 * Undo kses at every depth: the embed and image URLs as they were.
 	 *
 	 * @param array $blocks Parsed blocks.
+	 * @param int   $images Images kept so far.
 	 * @return array
 	 */
-	private static function restore_urls( array $blocks ) {
-		foreach ( $blocks as &$block ) {
+	private static function restore( array $blocks, &$images = 0 ) {
+		foreach ( $blocks as $i => $block ) {
+			// Core's kses pass over block attributes wrote & as &amp; in each embed's URL. Put it back,
+			// or the editor's save no longer matches the markup when the comment is edited.
 			if ( 'core/embed' === $block['blockName'] && isset( $block['attrs']['url'] ) && is_string( $block['attrs']['url'] ) ) {
-				$block['attrs']['url'] = html_entity_decode( $block['attrs']['url'], ENT_QUOTES );
+				$blocks[ $i ]['attrs']['url'] = html_entity_decode( $block['attrs']['url'], ENT_QUOTES );
+			}
+
+			if ( 'core/image' === $block['blockName'] ) {
+				$blocks[ $i ] = Images::block( $block, null, $images ) ?? $block;
 			}
 
 			if ( $block['innerBlocks'] ) {
-				$block['innerBlocks'] = self::restore_urls( $block['innerBlocks'] );
+				$blocks[ $i ]['innerBlocks'] = self::restore( $block['innerBlocks'], $images );
 			}
 		}
-		unset( $block );
 
 		return $blocks;
 	}
@@ -204,7 +209,7 @@ class Block_Editor {
 					'start'    => true,
 					'reversed' => true,
 				),
-				'figure'     => array( 'class' => array( 'values' => array( 'wp-block-embed' ) ) ),
+				'figure'     => array( 'class' => array( 'values' => array( 'wp-block-embed', 'wp-block-image' ) ) ),
 				'div'        => array( 'class' => array( 'values' => array( 'wp-block-embed__wrapper' ) ) ),
 			)
 		);
@@ -222,7 +227,7 @@ class Block_Editor {
 			return $content;
 		}
 
-		// Only an approved comment on the front end draws a provider's embed; the rest show its link.
+		// Only an approved comment on the front end draws an embed or image; the rest show the link.
 		$embed = $comment instanceof \WP_Comment && '1' === (string) $comment->comment_approved && ! is_admin();
 
 		// With their attributes cleared, what is left of the delimiters is this shape alone.
@@ -265,6 +270,11 @@ class Block_Editor {
 		foreach ( $blocks as $block ) {
 			if ( 'core/list' === $block['blockName'] ) {
 				$parts[] = self::list_to_text( $block, $depth );
+				continue;
+			}
+
+			if ( 'core/image' === $block['blockName'] ) {
+				$parts[] = $block['attrs']['url'];
 				continue;
 			}
 
@@ -378,7 +388,7 @@ class Block_Editor {
 	}
 
 	/**
-	 * What the editor needs from PHP: its own accessible names, and the embed route.
+	 * What the editor needs from PHP: its own strings, the embed route, and whether it offers images.
 	 *
 	 * @return array
 	 */
@@ -387,6 +397,8 @@ class Block_Editor {
 			'blockTools' => __( 'Block tools', 'jetpack-comments' ),
 			'addBlock'   => __( 'Add block', 'jetpack-comments' ),
 			'embedUrl'   => Embeds::is_enabled() ? Checkpoint_Endpoint::route_url( Embeds::ROUTE ) : '',
+			'images'     => Images::is_enabled(),
+			'imageError' => __( 'This image could not be loaded. Check its URL and try again.', 'jetpack-comments' ),
 		);
 	}
 
@@ -394,27 +406,20 @@ class Block_Editor {
 	 * The allowed blocks, at every depth.
 	 *
 	 * @param array     $blocks Parsed blocks.
-	 * @param bool|null $render Null while saving; at render, whether embeds may draw.
+	 * @param bool|null $render Null while saving; at render, whether embeds and images may draw.
+	 * @param int       $images Images kept so far.
 	 * @return array
 	 */
-	private static function allowed( array $blocks, $render = null ) {
+	private static function allowed( array $blocks, $render = null, &$images = 0 ) {
 		$kept = array();
 
 		foreach ( $blocks as $block ) {
-			// Verbum's editor also offered images, and captions on both; this one keeps their links and text.
+			// Verbum's editor also offered captions on both; this one keeps their text.
 			if ( 'core/image' === $block['blockName'] || 'core/embed' === $block['blockName'] ) {
-				$embed = 'core/embed' === $block['blockName'] ? Embeds::block( $block, $render ) : null;
+				$media = 'core/embed' === $block['blockName'] ? Embeds::block( $block, $render ) : Images::block( $block, $render, $images );
 
-				if ( $embed ) {
-					$kept[] = $embed;
-				} elseif ( 'core/image' === $block['blockName'] ) {
-					$tags = new \WP_HTML_Tag_Processor( $block['innerHTML'] );
-					$src  = $tags->next_tag( 'img' ) ? $tags->get_attribute( 'src' ) : null;
-					$link = is_string( $src ) ? esc_url_raw( $src, array( 'http', 'https' ) ) : '';
-
-					if ( $link ) {
-						$kept[] = self::paragraph( '<a href="' . esc_url( $link ) . '" rel="nofollow ugc">' . esc_html( $link ) . '</a>' );
-					}
+				if ( $media ) {
+					$kept[] = $media;
 				}
 
 				if ( preg_match( '#<figcaption[^>]*>(.*?)</figcaption>#s', $block['innerHTML'], $caption ) && '' !== trim( $caption[1] ) ) {
@@ -454,7 +459,7 @@ class Block_Editor {
 				}
 
 				// An image or embed in a quote can come back as more than one block.
-				foreach ( self::allowed( array( array_shift( $inner ) ), $render ) as $child ) {
+				foreach ( self::allowed( array( array_shift( $inner ) ), $render, $images ) as $child ) {
 					$block['innerBlocks'][]  = $child;
 					$block['innerContent'][] = null;
 				}
