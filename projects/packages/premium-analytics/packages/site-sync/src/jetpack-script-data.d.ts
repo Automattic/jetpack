@@ -27,6 +27,12 @@ declare module '@automattic/jetpack-script-data' {
 				roles: Array< { slug: string; name: string; count: number | null } >;
 				features_url: string | null;
 			};
+			// The Stats features the site's plan lacks, each with its upgrade URL (empty when there is nowhere to buy it), and the widget types they lock. Dashboard only.
+			plan_gates?: {
+				tier: string;
+				locked_features: Record< string, string >;
+				locked_widget_types: Record< string, string >;
+			};
 		};
 		newsletter?: {
 			// The Newsletter page's Subscribers tab; null when this user cannot open it.

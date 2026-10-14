@@ -29,6 +29,12 @@ export { sharePercentage } from './share-percentage';
 export { getCombinedPeriodMax } from './get-combined-period-max';
 export { getVideoPosterUrl } from './video-poster-url';
 export { describeError } from './describe-error';
+export {
+	getLockedWidgetFeature,
+	getStatsUpgradeUrl,
+	isStatsFeatureLocked,
+	type StatsFeatureKey,
+} from './plan-gates';
 export { summaryCount } from './summary-count';
 export { toDay } from './to-day';
 export { defaultPeriodForInterval } from '@jetpack-premium-analytics/data';
