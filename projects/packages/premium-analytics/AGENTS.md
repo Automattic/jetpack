@@ -738,9 +738,9 @@ area. Notes:
 - Omit `empty` for a period with no data: `<WidgetState>` then draws `ChartEmptyState`'s generic
   state, the `search` magnifier and "We couldn’t find results for this time period.". Pass
   `empty` only for a case that copy does not describe, such as a scope prompt ("Open a post to
-  see…") or a fixed window. Its `icon` is then the widget's own neutral glyph from
-  `@jetpack-premium-analytics/icons`, or none when omitted. Don't use a caution glyph: empty is
-  not an error.
+  see…") or a fixed window. Its `icon` defaults to the same magnifier; pass one only when the
+  widget needs its own neutral glyph from `@jetpack-premium-analytics/icons`. Don't use a
+  caution glyph: empty is not an error.
 - Keep interactive body chrome (dropdown, view selector, drill-down back link) as a **sibling**
   of `<WidgetState>`, not inside it, so it stays available in every state.
 - `<WidgetState>` covers only a widget's own data state; the host still owns the crash error
