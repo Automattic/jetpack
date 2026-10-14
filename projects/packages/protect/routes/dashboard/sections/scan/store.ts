@@ -38,6 +38,13 @@ const scanStore = createStore(
 );
 
 /**
+ * The latest report, for code outside React.
+ *
+ * @return The report, or undefined when PHP registered no Scan section.
+ */
+export const getScan = () => scanStore.get();
+
+/**
  * Update the latest report, which the stage's card and the inspector both read.
  *
  * @param update - Derives the next report from the current one.

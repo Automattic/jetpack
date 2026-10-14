@@ -24,5 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 require_once __DIR__ . '/post-by-email/class-jetpack-post-by-email.php';
 
 add_action( 'jetpack_modules_loaded', array( 'Jetpack_Post_By_Email', 'init' ) );
+add_action( 'jetpack_unlinked_user', array( 'Jetpack_Post_By_Email', 'delete_address_copy' ) );
+add_action( 'deleted_user', array( 'Jetpack_Post_By_Email', 'delete_address_copy' ) );
 
 Jetpack::enable_module_configurable( __FILE__ );

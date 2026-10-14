@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Gutenberg: Sync the list of React 19 incompatible plugins with the Gutenberg plugin.

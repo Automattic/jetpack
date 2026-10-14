@@ -23,6 +23,8 @@ export type ProtectSettingsData = {
 	load: () => void;
 	/** Saves to `path` (default `/jetpack/v4/settings`) and merges the patch into `settings`. */
 	save: ( patch: ProtectSettings, path?: string ) => Promise< void >;
+	/** Re-reads the given keys, for settings the server changes as a side effect of another save. */
+	refresh: ( keys: string[] ) => Promise< void >;
 };
 
 /**
@@ -120,11 +122,24 @@ export default function useProtectSettings(): ProtectSettingsData {
 		[ setSettings ]
 	);
 
+	const refresh = useCallback(
+		async ( keys: string[] ) => {
+			try {
+				const latest = await apiFetch< ProtectSettings >( { path: '/jetpack/v4/settings' } );
+				const fresh = keys.filter( key => key in latest ).map( key => [ key, latest[ key ] ] );
+				setSettings( { ...settingsRef.current, ...Object.fromEntries( fresh ) } );
+			} catch {
+				// Keep what we have; the next full load corrects it.
+			}
+		},
+		[ setSettings ]
+	);
+
 	const isSaving = useCallback( ( key: string ) => saving.includes( key ), [ saving ] );
 	const dismissError = useCallback( () => setError( null ), [] );
 
 	return useMemo(
-		() => ( { settings, isLoaded, waf, error, dismissError, isSaving, load, save } ),
-		[ settings, isLoaded, waf, error, dismissError, isSaving, load, save ]
+		() => ( { settings, isLoaded, waf, error, dismissError, isSaving, load, save, refresh } ),
+		[ settings, isLoaded, waf, error, dismissError, isSaving, load, save, refresh ]
 	);
 }

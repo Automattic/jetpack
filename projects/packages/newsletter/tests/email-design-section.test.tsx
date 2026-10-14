@@ -72,15 +72,19 @@ describe( 'EmailDesignSection', () => {
 		expect( container ).toBeEmptyDOMElement();
 	} );
 
-	it( 'links to the email design screen the site reported', () => {
+	it( 'links to the email design screen the site reported, returning here afterwards', () => {
 		mockEmailDesignUrl( DESIGN_URL );
 
 		render( <EmailDesignSection isNewsletterEnabled /> );
 
-		expect( screen.getByRole( 'link', { name: 'Edit email design' } ) ).toHaveAttribute(
-			'href',
-			DESIGN_URL
+		const href = new URL(
+			screen.getByRole( 'link', { name: 'Edit email design' } ).getAttribute( 'href' )
 		);
+
+		expect( href.href.startsWith( DESIGN_URL ) ).toBe( true );
+		expect( href.searchParams.get( 'return' ) ).toBe( window.location.href );
+		// Nothing else may ride along: the design screen reads `page`, and `return` is ours.
+		expect( [ ...href.searchParams.keys() ] ).toEqual( [ 'page', 'return' ] );
 	} );
 
 	it( 'offers a disabled button rather than a live link while the newsletter is off', () => {

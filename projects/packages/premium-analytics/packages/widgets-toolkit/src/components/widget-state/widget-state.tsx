@@ -24,7 +24,7 @@ export interface WidgetStateError {
 
 /** A widget's own empty state, for a case the generic "no results for this time period" state does not describe, such as a scope prompt or a fixed window. */
 export interface WidgetStateEmpty {
-	/** No icon when omitted: the generic magnifier belongs to the generic copy. */
+	/** Defaults to the generic magnifier when omitted. */
 	icon?: ComponentProps< typeof Icon >[ 'icon' ];
 	/** Defaults to the generic "We couldn’t find results for this time period." when omitted. */
 	description?: string;
@@ -153,11 +153,7 @@ export function WidgetState( {
 		body = <div className={ styles.loading }>{ skeleton }</div>;
 	} else if ( isEmpty ) {
 		body = (
-			<ChartEmptyState
-				icon={ empty ? ( empty.icon ?? null ) : undefined }
-				text={ empty?.description }
-				action={ empty?.action }
-			/>
+			<ChartEmptyState icon={ empty?.icon } text={ empty?.description } action={ empty?.action } />
 		);
 	} else {
 		body = <div className={ styles.content }>{ children }</div>;

@@ -44,7 +44,7 @@ describe( 'LatestPostWidget', () => {
 		);
 
 		await expect(
-			screen.findByText( 'Publish a post to see its stats here.' )
+			screen.findByText( 'Your latest post will show here.' )
 		).resolves.toBeInTheDocument();
 		expect( mockApiFetch.mock.calls[ 0 ][ 0 ].path ).not.toContain( 'author=' );
 	} );

@@ -967,6 +967,128 @@ class REST_Endpoints_Test extends TestCase {
 		$this->assertEquals( self::$secondary_user_id, Jetpack_Options::get_option( 'master_user' ), 'Connection owner should be updated.' );
 	}
 
+	/* ── connection/owner/candidates ───────────────────────────── */
+
+	/**
+	 * Dispatch the candidates endpoint and return its data.
+	 *
+	 * @return array
+	 */
+	private function get_owner_candidates() {
+		$response = $this->server->dispatch( new WP_REST_Request( 'GET', '/jetpack/v4/connection/owner/candidates' ) );
+
+		$this->assertSame( 200, $response->get_status() );
+
+		return $response->get_data();
+	}
+
+	/**
+	 * Connected administrators other than the current owner can take the connection over.
+	 */
+	public function test_owner_candidates_lists_connected_admins_except_the_owner() {
+		Jetpack_Options::update_option( 'id', self::BLOG_ID );
+		Jetpack_Options::update_option( 'blog_token', 'blogkey.private' );
+		Jetpack_Options::update_option( 'master_user', self::$user_id );
+		Jetpack_Options::update_option(
+			'user_tokens',
+			array(
+				self::$user_id           => 'ownerkey.private.' . self::$user_id,
+				self::$secondary_user_id => 'secondkey.private.' . self::$secondary_user_id,
+			)
+		);
+
+		$candidates = $this->get_owner_candidates();
+
+		$this->assertCount( 1, $candidates, 'The current owner is not a candidate for their own role.' );
+		$this->assertSame( self::$secondary_user_id, $candidates[0]['id'] );
+		$this->assertArrayHasKey( 'login', $candidates[0] );
+		$this->assertArrayHasKey( 'displayName', $candidates[0] );
+		$this->assertArrayHasKey( 'email', $candidates[0] );
+	}
+
+	/**
+	 * A connected editor cannot be handed the connection, so it is not offered.
+	 *
+	 * Matches update_connection_owner(), which refuses a new owner who is not an administrator.
+	 */
+	public function test_owner_candidates_skips_connected_non_admins() {
+		Jetpack_Options::update_option( 'id', self::BLOG_ID );
+		Jetpack_Options::update_option( 'blog_token', 'blogkey.private' );
+		Jetpack_Options::update_option( 'master_user', self::$user_id );
+		Jetpack_Options::update_option(
+			'user_tokens',
+			array(
+				self::$user_id           => 'ownerkey.private.' . self::$user_id,
+				self::$non_admin_user_id => 'editorkey.private.' . self::$non_admin_user_id,
+			)
+		);
+
+		$this->assertSame( array(), $this->get_owner_candidates() );
+	}
+
+	/**
+	 * An administrator who has not linked an account cannot be handed the connection either.
+	 */
+	public function test_owner_candidates_skips_admins_without_a_token() {
+		Jetpack_Options::update_option( 'id', self::BLOG_ID );
+		Jetpack_Options::update_option( 'blog_token', 'blogkey.private' );
+		Jetpack_Options::update_option( 'master_user', self::$user_id );
+		Jetpack_Options::update_option(
+			'user_tokens',
+			array( self::$user_id => 'ownerkey.private.' . self::$user_id )
+		);
+
+		$this->assertSame( array(), $this->get_owner_candidates() );
+	}
+
+	/**
+	 * A logged-out request must not reach the list at all.
+	 */
+	public function test_owner_candidates_rejects_a_logged_out_request() {
+		wp_set_current_user( 0 );
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'GET', '/jetpack/v4/connection/owner/candidates' ) );
+
+		$this->assertSame( 401, $response->get_status() );
+		$this->assertSame( 'invalid_user_permission_list_connection_owner_candidates', $response->get_data()['code'] );
+	}
+
+	/**
+	 * Any administrator may read the list, not only the current owner.
+	 *
+	 * They are the ones offered the transfer once ownership moves to them.
+	 */
+	public function test_owner_candidates_allows_an_admin_who_is_not_the_owner() {
+		$secondary = get_user_by( 'id', self::$secondary_user_id );
+		$secondary->add_cap( 'jetpack_disconnect' );
+		wp_set_current_user( self::$secondary_user_id );
+
+		\Jetpack_Options::update_option(
+			'user_tokens',
+			array(
+				self::$user_id           => 'ownerkey.private.' . self::$user_id,
+				self::$secondary_user_id => 'secondkey.private.' . self::$secondary_user_id,
+			)
+		);
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'GET', '/jetpack/v4/connection/owner/candidates' ) );
+
+		$this->assertSame( 200, $response->get_status() );
+		$secondary->remove_cap( 'jetpack_disconnect' );
+	}
+
+	/**
+	 * The list carries logins and email addresses, so it needs the same capability as the change.
+	 */
+	public function test_owner_candidates_requires_the_disconnect_capability() {
+		wp_set_current_user( self::$non_admin_user_id );
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'GET', '/jetpack/v4/connection/owner/candidates' ) );
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'invalid_user_permission_list_connection_owner_candidates', $response->get_data()['code'] );
+	}
+
 	/**
 	 * A connected administrator who is not the connection owner may confirm a protected owner.
 	 */
