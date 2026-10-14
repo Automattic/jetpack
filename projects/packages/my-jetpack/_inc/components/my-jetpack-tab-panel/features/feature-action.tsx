@@ -5,7 +5,8 @@ import { Button, LinkButton } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { ModuleToggle } from '../../module-toggle';
 import { getSwitchLabel } from '../utils';
-import { getForcedReason } from './feature-state';
+import { UpgradeButton } from './feature-paid';
+import { hasNoSwitch } from './feature-state';
 import { useFeaturesTracking } from './features-tracking-context';
 import styles from './styles.module.scss';
 import { useFeaturePlugin } from './use-main-features';
@@ -151,9 +152,9 @@ export function FeatureAction( { state, describedby, origin = 'card' }: FeatureA
 
 	switch ( control.kind ) {
 		case 'module': {
-			// FeatureItem shows why, under the description: this slot does not shrink.
-			if ( getForcedReason( state ) ) {
-				return null;
+			// A plan-driven module without its plan has a sale to offer instead of a switch.
+			if ( hasNoSwitch( state ) ) {
+				return state.status === 'active' ? null : <UpgradeButton state={ state } />;
 			}
 
 			return (

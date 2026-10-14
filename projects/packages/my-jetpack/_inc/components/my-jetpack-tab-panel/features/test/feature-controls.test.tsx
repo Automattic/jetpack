@@ -218,6 +218,26 @@ describe( 'FeatureAction', () => {
 		expect( container ).toBeEmptyDOMElement();
 	} );
 
+	it( 'offers Upgrade in place of a switch for Backup without its plan, and nothing with it', () => {
+		const backup = { module: 'backup', available: true, activated: true, override: 'active' };
+		const feature = buildFeature( {
+			slug: 'backup',
+			upgrade: { path: '/add-backup', name: 'Jetpack VaultPress Backup' },
+		} );
+		const control = { kind: 'module', module: backup } as FeatureState[ 'control' ];
+
+		const { rerender } = render( <FeatureAction state={ buildState( control, { feature } ) } /> );
+
+		expect(
+			screen.getByRole( 'link', { name: 'Upgrade to Jetpack VaultPress Backup' } )
+		).toBeVisible();
+		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+
+		rerender( <FeatureAction state={ buildState( control, { feature, status: 'active' } ) } /> );
+
+		expect( countControls() + screen.queryAllByRole( 'link' ).length ).toBe( 0 );
+	} );
+
 	it( 'renders nothing when this site cannot switch the feature', () => {
 		const { container } = render( <FeatureAction state={ buildState( { kind: 'none' } ) } /> );
 

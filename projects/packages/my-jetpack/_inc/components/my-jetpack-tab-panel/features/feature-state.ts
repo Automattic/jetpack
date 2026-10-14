@@ -8,7 +8,7 @@ import {
 	useRequestedSwitches,
 } from '../../../data/requested-switch-state';
 import { getProductModules } from './mappings';
-import { getModuleStatus, getOverrideReason } from './module-availability';
+import { getModuleStatus, getOverrideReason, isPlanDriven } from './module-availability';
 import { useAllJetpackModules } from './use-all-jetpack-modules';
 import type { ProductCamelCase } from '../../../data/types';
 import type { JetpackModuleSlug, MyJetpackModule } from '../../../types';
@@ -45,7 +45,8 @@ export type FeatureState = {
 	// True while this feature's own switch has a request out.
 	isSwitching?: boolean;
 	// Whether the feature is switched on here, which is not whether a plan covers it:
-	// the wp-admin sidebar asks the same question, and the two have to agree.
+	// the wp-admin sidebar asks the same question, and the two have to agree. A plan-driven
+	// module is the exception: its menu item stays, and this says whether the plan runs it.
 	status: 'active' | 'inactive';
 	control: FeatureControl;
 	// The product behind the feature, for the modal's copy.
@@ -62,6 +63,11 @@ export type FeatureState = {
 export function getForcedReason( state: FeatureState ): string | null {
 	const { control } = state;
 
+	// Off is a sale to make, which Upgrade offers, so only on gets a reason.
+	if ( control.kind === 'module' && isPlanDriven( control.module ) ) {
+		return state.status === 'active' ? __( 'Included in your plan', 'jetpack-my-jetpack' ) : null;
+	}
+
 	if ( control.kind === 'module' ) {
 		const status = getModuleStatus( control.module );
 
@@ -75,6 +81,19 @@ export function getForcedReason( state: FeatureState ): string | null {
 	}
 
 	return null;
+}
+
+/**
+ * Whether the feature has no switch here: getForcedReason() gives one, or its plan decides it.
+ *
+ * @param state - The feature's live state.
+ * @return True when no switch should be offered.
+ */
+export function hasNoSwitch( state: FeatureState ): boolean {
+	return (
+		!! getForcedReason( state ) ||
+		( state.control.kind === 'module' && isPlanDriven( state.control.module ) )
+	);
 }
 
 /**
@@ -166,6 +185,20 @@ export function resolveFeatureState(
 		// feature Jetpack is already running.
 		if ( modulesLoading ) {
 			return { feature, product, pending: true, status: 'inactive', control: { kind: 'none' } };
+		}
+
+		if ( $module && isPlanDriven( $module ) ) {
+			return {
+				feature,
+				product,
+				// Until the product arrives there is no plan to read.
+				pending: ! product,
+				status:
+					product?.hasPaidPlanForProduct && RUNNING_ON_PLAN_STATUSES.includes( product.status )
+						? 'active'
+						: 'inactive',
+				control: { kind: 'module', module: $module },
+			};
 		}
 
 		// A host's override decides the module whatever the plan, so it explains itself

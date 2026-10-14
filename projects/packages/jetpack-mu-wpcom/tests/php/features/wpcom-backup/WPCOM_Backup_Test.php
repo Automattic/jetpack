@@ -8,6 +8,7 @@
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Backup;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-backup/wpcom-backup.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-admin-menu/wpcom-admin-menu.php';
@@ -55,6 +56,46 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_jetpack_dashboard_is_held_back_without_the_plan() {
 		$this->assertFalse( WPCOM_Backup::filter_jetpack_backup_dashboard( true ) );
+	}
+
+	/**
+	 * My Jetpack's Backup upgrade on WoA goes to the WordPress.com plans, and nothing else's does.
+	 *
+	 * @dataProvider provide_my_jetpack_upgrades
+	 *
+	 * @param string $slug      The feature slug.
+	 * @param bool   $included  Whether the site already pays for it.
+	 * @param bool   $to_wpcom  Whether the upgrade should go to the WordPress.com plans.
+	 */
+	#[DataProvider( 'provide_my_jetpack_upgrades' )]
+	public function test_my_jetpack_backup_upgrade_goes_to_wpcom_plans( $slug, $included, $to_wpcom ) {
+		$jetpack = array(
+			'path' => '/add-backup',
+			'name' => 'Jetpack VaultPress Backup',
+		);
+
+		$upgrade = WPCOM_Backup::filter_my_jetpack_feature_upgrade( $jetpack, $slug, $included );
+
+		if ( ! $to_wpcom ) {
+			$this->assertSame( $jetpack, $upgrade );
+			return;
+		}
+
+		$this->assertStringStartsWith( 'https://wordpress.com/plans/', $upgrade['url'] );
+		$this->assertStringContainsString( 'plan=business-bundle', $upgrade['url'] );
+	}
+
+	/**
+	 * Data provider for test_my_jetpack_backup_upgrade_goes_to_wpcom_plans.
+	 *
+	 * @return array
+	 */
+	public static function provide_my_jetpack_upgrades() {
+		return array(
+			'backup, no plan'  => array( 'backup', false, true ),
+			'backup, has plan' => array( 'backup', true, false ),
+			'another feature'  => array( 'boost', false, false ),
+		);
 	}
 
 	/**

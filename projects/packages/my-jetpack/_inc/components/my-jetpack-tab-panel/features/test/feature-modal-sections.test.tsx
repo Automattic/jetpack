@@ -180,6 +180,28 @@ describe( 'FeaturePaid', () => {
 		).toHaveAttribute( 'href', '#/add-akismet?return_feature=anti-spam' );
 	} );
 
+	it( 'sends the upgrade to a host\u2019s own plans, leaving out the Jetpack ones', () => {
+		const url = 'https://wordpress.com/plans/example.com?plan=business-bundle';
+		const state = {
+			...installedPlugin,
+			feature: {
+				...installedPlugin.feature,
+				upgrade: { path: '', name: 'WordPress.com Business', url },
+			},
+		} as FeatureState;
+		render(
+			<>
+				<FeaturePaid state={ state } />
+				<UpgradeButton state={ state } />
+			</>
+		);
+
+		expect(
+			screen.getByRole( 'link', { name: 'Upgrade to WordPress.com Business' } )
+		).toHaveAttribute( 'href', url );
+		expect( screen.queryByText( /Included in/ ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'drops the upgrade when the catalog has nothing to sell this site', () => {
 		const state = {
 			...installedPlugin,

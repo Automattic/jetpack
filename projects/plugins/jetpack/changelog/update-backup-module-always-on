@@ -1,4 +1,4 @@
 Significance: patch
 Type: enhancement
 
-Backup: Keep the Backup menu and dashboard on for connected sites, since backups run whether or not the module is switched on.
+Backup: Keep the Backup menu on for connected sites, and show in My Jetpack whether the site's plan runs backups, offering an upgrade when it does not.

@@ -530,6 +530,45 @@ class Main_Features {
 	}
 
 	/**
+	 * Lets a host send a feature's Upgrade button to its own plans instead of Jetpack's.
+	 *
+	 * @param array  $upgrade  The Jetpack route, from get_upgrade().
+	 * @param string $slug     The feature slug.
+	 * @param bool   $included Whether the site already pays for the feature.
+	 * @return array{path: string, name: string, url?: string}
+	 */
+	private static function filter_upgrade( array $upgrade, $slug, $included ) {
+		/**
+		 * Filters where a My Jetpack feature's Upgrade button goes.
+		 *
+		 * Set `url` to an absolute address to replace the My Jetpack route, which also drops the
+		 * Jetpack plans the feature's details would otherwise link to.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array  $upgrade  `path` (a My Jetpack route) and `name` (the product sold), both empty when nothing is.
+		 * @param string $slug     The feature slug.
+		 * @param bool   $included Whether the site already pays for the feature.
+		 */
+		$filtered = apply_filters( 'jetpack_my_jetpack_feature_upgrade', $upgrade, $slug, $included );
+
+		if ( ! is_array( $filtered ) ) {
+			return $upgrade;
+		}
+
+		$result = array(
+			'path' => (string) ( $filtered['path'] ?? '' ),
+			'name' => (string) ( $filtered['name'] ?? '' ),
+		);
+
+		if ( ! empty( $filtered['url'] ) ) {
+			$result['url'] = esc_url_raw( (string) $filtered['url'] );
+		}
+
+		return $result;
+	}
+
+	/**
 	 * Where the modal's Upgrade button goes: the feature's own product page, else the cheapest bundle that includes it.
 	 *
 	 * @param array       $definition    A single entry from the feature catalog.
@@ -977,7 +1016,7 @@ class Main_Features {
 				'free_highlights'  => $definition['free_highlights'] ?? array(),
 				'paid_highlights'  => $definition['paid_highlights'] ?? array(),
 				'pricing_notes'    => $definition['pricing_notes'] ?? array(),
-				'upgrade'          => $local ? null : self::get_upgrade( $definition, $product_class, $included ),
+				'upgrade'          => $local ? null : self::filter_upgrade( self::get_upgrade( $definition, $product_class, $included ), $slug, $included ),
 				'included'         => $included,
 				// Both notes tell the site what to buy next, which a site that pays already has.
 				'setup_note'       => $included ? '' : ( $definition['setup_note'] ?? '' ),

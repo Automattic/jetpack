@@ -27,13 +27,16 @@ describe( 'getModuleStatus', () => {
 		expect( getModuleStatus( buildModule() ) ).toEqual( { isAvailable: true } );
 	} );
 
-	it.each( [
-		[ 'activity-log', 'Enabled by your host or site administrator' ],
-		[ 'backup', 'Always on' ],
-	] )( 'takes the control away from %s forced on', ( module, reason ) => {
-		expect( getModuleStatus( buildModule( { module, override: 'active' } ) ) ).toEqual( {
+	it( 'takes the control away from a module forced on', () => {
+		expect( getModuleStatus( buildModule( { override: 'active' } ) ) ).toEqual( {
 			isAvailable: false,
-			reason,
+			reason: 'Enabled by your host or site administrator',
+		} );
+	} );
+
+	it( 'leaves the reason for Backup to its plan, not a host', () => {
+		expect( getModuleStatus( buildModule( { module: 'backup', override: 'active' } ) ) ).toEqual( {
+			isAvailable: false,
 		} );
 	} );
 

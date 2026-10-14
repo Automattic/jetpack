@@ -1,5 +1,5 @@
 import { PRODUCT_STATUSES } from '../../../../constants';
-import { getForcedReason, resolveFeatureState } from '../feature-state';
+import { getForcedReason, hasNoSwitch, resolveFeatureState } from '../feature-state';
 import { PRODUCT_MODULES } from '../mappings';
 import type { ProductCamelCase } from '../../../../data/types';
 import type { MyJetpackModule } from '../../../../types';
@@ -243,6 +243,44 @@ describe( 'resolveFeatureState, for a module the plan does not cover', () => {
 			kind: 'install-plugin',
 			plugin: 'jetpack-search',
 		} );
+	} );
+} );
+
+describe( 'resolveFeatureState, for a module Jetpack keeps on for its plan to run', () => {
+	const backup = buildFeature( {
+		slug: 'backup',
+		in_jetpack: true,
+		product: 'backup',
+		plugin: 'jetpack-backup',
+	} );
+	const modules = {
+		backup: buildModule( { module: 'backup', activated: true, override: 'active' } ),
+	};
+
+	it.each( [
+		[ PRODUCT_STATUSES.ACTIVE, true, 'active', 'Included in your plan' ],
+		[ PRODUCT_STATUSES.EXPIRING_SOON, true, 'active', 'Included in your plan' ],
+		[ PRODUCT_STATUSES.EXPIRED, true, 'inactive', null ],
+		[ PRODUCT_STATUSES.NEEDS_PLAN, false, 'inactive', null ],
+	] )(
+		'reads its state from the plan and offers no switch: %s',
+		( productStatus, hasPaidPlanForProduct, status, reason ) => {
+			const state = resolveFeatureState(
+				backup,
+				'active',
+				{ status: productStatus, hasPaidPlanForProduct } as ProductCamelCase,
+				modules,
+				{}
+			);
+
+			expect( state.status ).toBe( status );
+			expect( getForcedReason( state ) ).toBe( reason );
+			expect( hasNoSwitch( state ) ).toBe( true );
+		}
+	);
+
+	it( 'waits for the product before saying whether the plan runs it', () => {
+		expect( resolveFeatureState( backup, 'active', undefined, modules, {} ).pending ).toBe( true );
 	} );
 } );
 

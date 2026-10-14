@@ -134,6 +134,7 @@ class Jetpack_Mu_Wpcom {
 		// At mu-plugin scope, because the Jetpack plugin resolves this filter at the earliest plugins_loaded priority.
 		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
 			add_filter( 'jetpack_backup_dashboard_enabled', array( \Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Backup::class, 'filter_jetpack_backup_dashboard' ) );
+			add_filter( 'jetpack_my_jetpack_feature_upgrade', array( \Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Backup::class, 'filter_my_jetpack_feature_upgrade' ), 10, 3 );
 		}
 
 		// These features run only on atomic sites.

@@ -75,18 +75,24 @@ function isForcedOff( state: FeatureState ): boolean {
 }
 
 /**
- * The pricing route that sells a feature, or empty when there is nothing to sell.
+ * Where Upgrade sells a feature: a host's own plans, else a My Jetpack route; empty when nothing is sold.
  *
  * @param state - Live state for the feature.
- * @return The My Jetpack route.
+ * @return The address, or an empty string.
  */
-function getUpgradePath( state: FeatureState ): string {
+function getUpgradeHref( state: FeatureState ): string {
+	const { feature } = state;
+
 	if ( isForcedOff( state ) ) {
 		return '';
 	}
 
+	if ( feature.upgrade?.url ) {
+		return feature.upgrade.url;
+	}
+
 	// Empty when the site already pays for the feature; the catalog decides that, not the client.
-	return state.feature.upgrade?.path ?? '';
+	return feature.upgrade?.path ? getFeaturePricingHref( feature.upgrade.path, feature.slug ) : '';
 }
 
 type UpgradeButtonProps = {
@@ -103,23 +109,24 @@ type UpgradeButtonProps = {
 export function UpgradeButton( { state }: UpgradeButtonProps ) {
 	const { feature } = state;
 	const { recordEvent } = useAnalytics();
-	const upgradePath = getUpgradePath( state );
+	const upgradeHref = getUpgradeHref( state );
+	const target = feature.upgrade?.url || feature.upgrade?.path || '';
 	const onUpgrade = useCallback(
 		() =>
 			recordEvent( 'jetpack_myjetpack_features_upgrade_click', {
 				feature: feature.slug,
-				target: upgradePath,
+				target,
 			} ),
-		[ feature.slug, recordEvent, upgradePath ]
+		[ feature.slug, recordEvent, target ]
 	);
 
-	if ( ! upgradePath ) {
+	if ( ! upgradeHref ) {
 		return null;
 	}
 
 	return (
 		<LinkButton
-			href={ getFeaturePricingHref( upgradePath, feature.slug ) }
+			href={ upgradeHref }
 			onClick={ onUpgrade }
 			variant="outline"
 			size="compact"
@@ -151,7 +158,8 @@ export function FeaturePaid( { state }: FeaturePaidProps ) {
 	const { feature } = state;
 	const plans = feature.plans ?? [];
 	const highlights = feature.paid_highlights ?? [];
-	const showPlans = ! isForcedOff( state ) && plans.length > 0;
+	// A host's own upgrade sells its plans, not the Jetpack ones listed here.
+	const showPlans = ! isForcedOff( state ) && ! feature.upgrade?.url && plans.length > 0;
 
 	if ( ! highlights.length && ! showPlans ) {
 		return null;

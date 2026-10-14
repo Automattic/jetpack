@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import { useAllProducts } from '../../../data/products/use-all-products';
 import { MyJetpackModule, JetpackModuleSlug } from '../../../types';
 import { getProductModules } from './mappings';
-import { JETPACK_ALWAYS_ON_MODULES } from './module-availability';
+import { PLAN_DRIVEN_MODULES } from './module-availability';
 import { useMainFeatures } from './use-main-features';
 import type { ProductCamelCase } from '../../../data/types';
 
@@ -38,7 +38,7 @@ export function withoutPluginForcedOverrides(
 		if (
 			$module?.override === 'active' &&
 			product?.standalonePluginInfo?.isStandaloneActive &&
-			! JETPACK_ALWAYS_ON_MODULES.includes( moduleSlug )
+			! PLAN_DRIVEN_MODULES.includes( moduleSlug )
 		) {
 			normalized = normalized === modules ? { ...modules } : normalized;
 			normalized[ moduleSlug ] = { ...$module, override: false };

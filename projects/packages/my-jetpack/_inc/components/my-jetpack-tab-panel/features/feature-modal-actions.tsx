@@ -5,7 +5,7 @@ import { useModuleActivation } from '../../module-toggle';
 import { getSwitchLabel } from '../utils';
 import { InstallButton, JetpackButton } from './feature-action';
 import { UpgradeButton } from './feature-paid';
-import { getForcedReason } from './feature-state';
+import { getForcedReason, hasNoSwitch } from './feature-state';
 import { useFeaturesTracking } from './features-tracking-context';
 import { useFeaturePlugin } from './use-main-features';
 import type { FeatureState } from './feature-state';
@@ -133,6 +133,7 @@ export function FeatureModalActions( { state }: FeatureModalActionsProps ) {
 	const isActive = state.status === 'active';
 	const pluginName = feature.plugin_name || feature.name;
 	const forcedReason = getForcedReason( state );
+	const noSwitch = hasNoSwitch( state );
 	const tracking = useFeaturesTracking();
 
 	// Leaves for the feature's own screen, so the event has to be away before it does.
@@ -156,7 +157,7 @@ export function FeatureModalActions( { state }: FeatureModalActionsProps ) {
 
 			{ forcedReason ? <Badge intent="medium">{ forcedReason }</Badge> : null }
 
-			{ control.kind === 'module' && ! forcedReason ? (
+			{ control.kind === 'module' && ! noSwitch ? (
 				<ModuleSwitch state={ state } module={ control.module } name={ feature.name } />
 			) : null }
 
