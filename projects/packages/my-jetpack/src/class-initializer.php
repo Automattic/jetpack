@@ -383,8 +383,9 @@ class Initializer {
 			$connection_done,
 			self::is_onboarding_available() && current_user_can( 'jetpack_connect' ),
 			$wizard_enabled,
-			// Only the wizard records a settled run, so only it may act on one.
-			$wizard_enabled && self::is_onboarding_settled()
+			// Only the wizard records a settled run, and only a registered site may act on one:
+			// My Jetpack requires the site connection that accepting the terms creates.
+			$wizard_enabled && $connection->is_connected() && self::is_onboarding_settled()
 		);
 
 		if ( null === $redirect_args ) {
@@ -1276,11 +1277,7 @@ class Initializer {
 		( new REST_Jetpack_AI_JWT() )->register_rest_route();
 		new REST_Recommendations_Evaluation();
 
-		// There is nothing to settle where the wizard never renders.
-		if ( self::is_onboarding_wizard_enabled() ) {
-			( new REST_Onboarding() )->register_rest_routes();
-		}
-
+		( new REST_Onboarding() )->register_rest_routes();
 		( new REST_Main_Features() )->register_rest_routes();
 
 		Products::register_product_endpoints();

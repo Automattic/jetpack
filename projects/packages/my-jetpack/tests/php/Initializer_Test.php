@@ -864,19 +864,22 @@ class Initializer_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The route that settles setup only exists where the wizard does.
+	 * The route that settles setup answers only where the wizard runs.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_the_settle_route_is_registered_only_with_the_wizard() {
-		$this->assertArrayNotHasKey( '/my-jetpack/v1/site/onboarding/settled', $this->capture_rest_routes() );
+	public function test_the_settle_route_answers_only_with_the_wizard() {
+		$this->log_in_as_admin();
+
+		$this->assertArrayHasKey( '/my-jetpack/v1/site/onboarding/settled', $this->capture_rest_routes() );
+		$this->assertFalse( REST_Onboarding::permissions_callback() );
 
 		$this->enable_wizard_flag();
 
-		$this->assertArrayHasKey( '/my-jetpack/v1/site/onboarding/settled', $this->capture_rest_routes() );
+		$this->assertTrue( REST_Onboarding::permissions_callback() );
 	}
 
 	/**
@@ -1086,6 +1089,49 @@ class Initializer_Test extends BaseTestCase {
 
 		$this->assertNotNull( $location, 'Expected a redirect back into setup.' );
 		$this->assertStringContainsString( 'step=onboarding', $location );
+	}
+
+	/**
+	 * Data provider for a skip recorded before and after the site connection.
+	 *
+	 * @return array
+	 */
+	public static function provide_skip_connection_cases() {
+		return array(
+			'not connected: back into setup' => array( false, true ),
+			'site-only: stays on My Jetpack' => array( true, false ),
+		);
+	}
+
+	/**
+	 * A skip opens My Jetpack only once the terms are accepted and the site is connected.
+	 *
+	 * @dataProvider provide_skip_connection_cases
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 *
+	 * @param bool $site_connected  Whether the site is registered.
+	 * @param bool $expect_redirect Whether the user is sent back into setup.
+	 */
+	#[DataProvider( 'provide_skip_connection_cases' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_a_skip_needs_the_site_connection( $site_connected, $expect_redirect ) {
+		$user_id = $this->log_in_as_admin();
+		$this->enable_wizard_flag();
+		if ( $site_connected ) {
+			$this->connect_site_only();
+		}
+		update_user_option( $user_id, Initializer::ONBOARDING_DISMISSED_USER_OPTION, true );
+
+		$location = $this->capture_onboarding_redirect();
+
+		if ( $expect_redirect ) {
+			$this->assertNotNull( $location, 'Expected a redirect back into setup.' );
+			$this->assertStringContainsString( 'step=onboarding', $location );
+		} else {
+			$this->assertNull( $location );
+		}
 	}
 
 	/**

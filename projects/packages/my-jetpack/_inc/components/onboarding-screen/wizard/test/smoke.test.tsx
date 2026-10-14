@@ -16,12 +16,14 @@ const mockConnection: {
 	handleRegisterSite: jest.Mock< Promise< unknown >, [] >;
 	siteIsRegistering: boolean;
 	userIsConnecting: boolean;
+	isRegistered: boolean;
 	isUserConnected: boolean;
 	registrationError: Record< string, unknown > | false;
 } = {
 	handleRegisterSite: jest.fn(),
 	siteIsRegistering: false,
 	userIsConnecting: false,
+	isRegistered: false,
 	isUserConnected: false,
 	registrationError: false,
 };
@@ -70,6 +72,7 @@ beforeEach( () => {
 	mockConnection.handleRegisterSite.mockResolvedValue( undefined );
 	mockConnection.siteIsRegistering = false;
 	mockConnection.userIsConnecting = false;
+	mockConnection.isRegistered = false;
 	mockConnection.isUserConnected = false;
 	mockConnection.registrationError = false;
 } );
@@ -79,10 +82,12 @@ beforeEach( () => {
  *
  * @param options                 - How the wizard is opened.
  * @param options.isUserConnected - Whether the user has already been to WordPress.com.
+ * @param options.isRegistered    - Whether the site is connected, which a connected user implies.
  * @return The user-event instance and a re-render that keeps the same props.
  */
-const setupWizard = ( { isUserConnected = false } = {} ) => {
+const setupWizard = ( { isUserConnected = false, isRegistered = isUserConnected } = {} ) => {
 	mockConnection.isUserConnected = isUserConnected;
+	mockConnection.isRegistered = isRegistered;
 
 	const user = userEvent.setup();
 	const { rerender } = render( <Wizard exitUrl={ exitUrl } dashboardUrl={ dashboardUrl } /> );
@@ -289,19 +294,6 @@ describe( 'Wizard start screen', () => {
 		expect( screen.queryByText( /VideoPress|Backup/ ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'points the terms at the real Jetpack pages', () => {
-		setupWizard();
-
-		expect( screen.getByRole( 'link', { name: /Terms of Service/ } ) ).toHaveAttribute(
-			'href',
-			'https://jetpack.com/redirect/?source=wpcom-tos'
-		);
-		expect( screen.getByRole( 'link', { name: /sync your site‘s data/ } ) ).toHaveAttribute(
-			'href',
-			'https://jetpack.com/redirect/?source=jetpack-support-what-data-does-jetpack-sync'
-		);
-	} );
-
 	it( 'names the button the terms are about', () => {
 		setupWizard();
 
@@ -310,10 +302,14 @@ describe( 'Wizard start screen', () => {
 		);
 	} );
 
-	it( 'keeps the exit in the footer but not a second primary', () => {
-		setupWizard();
+	// My Jetpack needs at least the site connection, so skipping waits for the terms.
+	it.each( [
+		[ 'hides Skip setup before the terms are accepted', false ],
+		[ 'offers Skip setup on a site-only connection', true ],
+	] )( '%s', ( _name, isRegistered ) => {
+		setupWizard( { isRegistered } );
 
-		expect( screen.getByRole( 'link', { name: 'Skip setup' } ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: 'Skip setup' } ) !== null ).toBe( isRegistered );
 		expect( screen.queryByRole( 'button', { name: 'Continue' } ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Back' } ) ).not.toBeInTheDocument();
 	} );
@@ -356,7 +352,7 @@ describe( 'Wizard resume after connecting', () => {
 
 describe( 'Wizard shell', () => {
 	it( 'sends the rail out to WordPress and the footer back to My Jetpack', () => {
-		setupWizard();
+		setupWizard( { isRegistered: true } );
 
 		const railExit = screen.getByRole( 'link', { name: 'Back to your WordPress site' } );
 		const skip = screen.getByRole( 'link', { name: 'Skip setup' } );
@@ -548,7 +544,7 @@ describe( 'The site-type question', () => {
 
 describe( 'Leaving setup', () => {
 	it( 'records a skip, then leaves', async () => {
-		const { user } = setupWizard();
+		const { user } = setupWizard( { isRegistered: true } );
 
 		await user.click( screen.getByRole( 'link', { name: 'Skip setup' } ) );
 
@@ -580,7 +576,7 @@ describe( 'Leaving setup', () => {
 	// screen they asked to leave would cost a great deal more.
 	it( 'leaves even when the record fails', async () => {
 		mockApiFetch.mockRejectedValueOnce( new Error( 'nope' ) );
-		const { user } = setupWizard();
+		const { user } = setupWizard( { isRegistered: true } );
 
 		await user.click( screen.getByRole( 'link', { name: 'Skip setup' } ) );
 

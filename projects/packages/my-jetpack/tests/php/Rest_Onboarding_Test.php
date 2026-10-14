@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Jetpack_Options;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
@@ -101,11 +102,48 @@ class Rest_Onboarding_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Data provider for each way of leaving setup.
+	 *
+	 * @return array
+	 */
+	public static function provide_outcomes() {
+		return array(
+			'skipped'   => array( 'skipped' ),
+			'completed' => array( 'completed' ),
+		);
+	}
+
+	/**
+	 * Nothing settles setup before the terms are accepted and the site is connected.
+	 *
+	 * @dataProvider provide_outcomes
+	 *
+	 * @param string $outcome How the user left setup.
+	 */
+	#[DataProvider( 'provide_outcomes' )]
+	public function test_nothing_is_settled_before_the_site_is_connected( $outcome ) {
+		$user_id = $this->log_in_as_admin();
+
+		$result = REST_Onboarding::settle( $this->settle_request( $outcome ) );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 409, $result->get_error_data()['status'] );
+		$this->assertFalse( (bool) get_user_option( Initializer::ONBOARDING_DISMISSED_USER_OPTION, $user_id ) );
+		$this->assertFalse( get_option( Initializer::ONBOARDING_COMPLETED_OPTION, false ) );
+	}
+
+	/**
 	 * `wp_usermeta` is network-wide, so an unprefixed key would silence setup on every
 	 * site in a network the moment someone skipped it on one of them.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_the_skip_record_is_scoped_to_this_site() {
 		$user_id = $this->log_in_as_admin();
+		$this->connect_site_only();
 
 		REST_Onboarding::settle( $this->settle_request( 'skipped' ) );
 

@@ -49,7 +49,8 @@ class REST_Onboarding {
 	 * @return bool
 	 */
 	public static function permissions_callback() {
-		return current_user_can( 'jetpack_connect' );
+		// Checked here rather than at registration, so it runs only when the route is hit.
+		return Initializer::is_onboarding_wizard_enabled() && current_user_can( 'jetpack_connect' );
 	}
 
 	/**
@@ -61,15 +62,25 @@ class REST_Onboarding {
 	 * for everyone else on a site nobody has set up.
 	 *
 	 * @param \WP_REST_Request $request The request.
-	 * @return \WP_REST_Response
+	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public static function settle( $request ) {
-		$outcome = $request->get_param( 'outcome' );
+		$outcome    = $request->get_param( 'outcome' );
+		$connection = new Connection_Manager();
 
-		// A saved run can resume on a site that has since lost its connection, so a finish
-		// without a connected owner is downgraded rather than refused: the user did leave
-		// the screen, and erroring would lose that and interrupt them again.
-		if ( 'completed' === $outcome && ! ( new Connection_Manager() )->has_connected_owner() ) {
+		// Accepting the terms registers the site, and My Jetpack requires at least that much.
+		if ( ! $connection->is_connected() ) {
+			return new \WP_Error(
+				'site_not_connected',
+				__( 'Connect this site before leaving setup.', 'jetpack-my-jetpack' ),
+				array( 'status' => 409 )
+			);
+		}
+
+		// A saved run can resume on a site that has since lost its owner, so a finish
+		// without one is downgraded rather than refused: the user did leave the screen,
+		// and erroring would lose that and interrupt them again.
+		if ( 'completed' === $outcome && ! $connection->has_connected_owner() ) {
 			$outcome = 'skipped';
 		}
 

@@ -95,7 +95,7 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 
 	// Connecting leaves wp-admin for WordPress.com and comes back to a fresh page,
 	// so the opening step is read off the connection rather than remembered.
-	const { isUserConnected } = useConnection();
+	const { isRegistered, isUserConnected } = useConnection();
 	/*
 	 * The floor, not just the opening step: a connected user must not reach a screen
 	 * whose only button would register the site a second time.
@@ -280,14 +280,17 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 								gap="md"
 								wrap="wrap"
 							>
-								<LinkButton
-									variant="minimal"
-									tone="neutral"
-									href={ exitUrl }
-									onClick={ handleExit( 'skipped' ) }
-								>
-									{ __( 'Skip setup', 'jetpack-my-jetpack' ) }
-								</LinkButton>
+								{ /* My Jetpack needs the site connection accepting the terms creates. */ }
+								{ isRegistered && (
+									<LinkButton
+										variant="minimal"
+										tone="neutral"
+										href={ exitUrl }
+										onClick={ handleExit( 'skipped' ) }
+									>
+										{ __( 'Skip setup', 'jetpack-my-jetpack' ) }
+									</LinkButton>
+								) }
 
 								{ /* The start screen carries its own primary, so the footer keeps only the exit. */ }
 								{ ! isStart && (
