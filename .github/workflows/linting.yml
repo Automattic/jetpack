@@ -701,7 +701,7 @@ jobs:
           exit $EXIT
 
   phan:
-    name: Static analysis
+    name: Static analysis (current)
     runs-on: ubuntu-latest
     needs: changed_files
     if: github.event_name == 'push' || needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc_phan == 'true'
@@ -773,7 +773,7 @@ jobs:
           exit 1
 
   phan_old_stubs:
-    name: Static analysis (previous WP and old Woo)
+    name: Static analysis (old)
     runs-on: ubuntu-latest
     needs: changed_files
     if: github.event_name == 'push' || needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc_phan == 'true'
