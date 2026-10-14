@@ -49,9 +49,10 @@ export const BlockToolbar = ( { labels }: { labels: EditorLabels } ) => {
 	}
 
 	// Gutenberg's inserter is stubbed out, so "+" offers the same blocks, after the selected one.
-	const inserts = names.map( name =>
-		menuItem( name, () => insertBlock( createBlock( name ), index + 1 ) )
-	);
+	// Embed registers only where the site allows embeds.
+	const inserts = [ ...names, 'core/embed' ]
+		.filter( name => getBlockType( name ) )
+		.map( name => menuItem( name, () => insertBlock( createBlock( name ), index + 1 ) ) );
 
 	// Gutenberg's own switcher is not exported, so the comment offers its four blocks.
 	const type = getBlockType( root.name )!;
