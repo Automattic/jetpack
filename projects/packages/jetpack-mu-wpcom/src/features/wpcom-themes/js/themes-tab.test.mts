@@ -76,9 +76,9 @@ it( "offers the plan a theme needs in place of core's install button", () => {
 	card.querySelector = selector => ( selector === '.theme-screenshot' ? screenshot : install );
 
 	const theme = {
-		name: 'Course',
-		upgrade_url: 'https://wordpress.com/checkout/example.org/business-bundle',
-		upgrade_plan: 'Business plan',
+		name: 'Example',
+		upgrade_url: 'https://wordpress.com/checkout/example.org/example-bundle',
+		upgrade_plan: 'Example plan',
 	};
 	const Theme = { prototype: { render: () => 'rendered' } };
 	const config = {
@@ -104,9 +104,9 @@ it( "offers the plan a theme needs in place of core's install button", () => {
 	assert.equal( upgrade.textContent, 'Upgrade' );
 	assert.equal( upgrade.href, theme.upgrade_url );
 	assert.equal( upgrade.className, 'button button-primary button-compact' );
-	assert.equal( screenshot.children[ 0 ].textContent, 'Business plan' );
+	assert.equal( screenshot.children[ 0 ].textContent, 'Example plan' );
 	// Core names the theme in its own button labels, and a grid of cards needs that.
-	assert.equal( upgrade.attributes[ 'aria-label' ], 'Upgrade for Course' );
+	assert.equal( upgrade.attributes[ 'aria-label' ], 'Upgrade for Example' );
 } );
 
 it( 'names the plan beside the author in the theme preview', () => {
@@ -118,9 +118,9 @@ it( 'names the plan beside the author in the theme preview', () => {
 	overlay.querySelector = selector => ( selector === '.theme-by' ? author : install );
 
 	const theme = {
-		name: 'Course',
-		upgrade_url: 'https://wordpress.com/checkout/example.org/business-bundle',
-		upgrade_plan: 'Business plan',
+		name: 'Example',
+		upgrade_url: 'https://wordpress.com/checkout/example.org/example-bundle',
+		upgrade_plan: 'Example plan',
 	};
 	const Preview = { prototype: { render: () => 'rendered' } };
 	const config = {
@@ -144,7 +144,7 @@ it( 'names the plan beside the author in the theme preview', () => {
 	Preview.prototype.render.call( { el: overlay, model: { toJSON: () => theme } } );
 
 	const [ badge ] = author.children;
-	assert.equal( badge.textContent, 'Business plan' );
+	assert.equal( badge.textContent, 'Example plan' );
 	assert.equal( badge.className, 'wpcom-themes-tab__plan' );
 	assert.equal( install.children[ 0 ].className, 'button button-primary' );
 } );

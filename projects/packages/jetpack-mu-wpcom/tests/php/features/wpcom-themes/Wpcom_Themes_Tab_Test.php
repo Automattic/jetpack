@@ -405,12 +405,12 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 	 * Both are query values rather than paths, so both are encoded.
 	 */
 	public function test_checkout_returns_to_the_theme_it_was_bought_for() {
-		$url = wpcom_themes_tab_checkout_url( 'business-bundle', 'course' );
+		$url = wpcom_themes_tab_checkout_url( 'example-bundle', 'example' );
 
-		$this->assertStringContainsString( 'https://wordpress.com/checkout/example.org/business-bundle', $url );
+		$this->assertStringContainsString( 'https://wordpress.com/checkout/example.org/example-bundle', $url );
 		$this->assertStringContainsString( 'checkoutBackUrl=' . rawurlencode( wpcom_themes_tab_url() ), $url );
 		$this->assertStringContainsString(
-			'redirect_to=' . rawurlencode( admin_url( 'theme-install.php?theme=course' ) ),
+			'redirect_to=' . rawurlencode( admin_url( 'theme-install.php?theme=example' ) ),
 			$url
 		);
 	}
