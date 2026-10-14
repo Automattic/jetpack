@@ -97,18 +97,19 @@ export function BandTooltip( {
 				const datum = entry.data[ index ];
 				const bandStart = Number( scale( accessor( datum ) ) );
 				const position = horizontal ? point.y : point.x;
-				let distance: number;
-				if ( groupScale ) {
+				let distance = Infinity;
+				if ( overlap ) {
+					const inInner =
+						Math.abs( position - ( bandStart + bandwidth / 2 ) ) <=
+						( bandwidth * OVERLAP_INNER_WIDTH_RATIO ) / 2;
+					const keyUnderPointer = inInner ? overlap.innerKey : overlap.outerKey;
+					// Both keys still report, so the tooltip's datumByKey holds both readings.
+					distance = key === keyUnderPointer ? 0 : 1;
+				} else if ( groupScale ) {
 					const start = bandStart + Number( groupScale( key ) );
 					const end = start + groupScale.step();
 					distance =
 						position >= start && position <= end ? 0 : Math.abs( position - ( start + end ) / 2 );
-				} else {
-					// Both keys still report, so the tooltip's datumByKey holds both readings.
-					const inInner =
-						Math.abs( position - ( bandStart + bandwidth / 2 ) ) <=
-						( bandwidth * OVERLAP_INNER_WIDTH_RATIO ) / 2;
-					distance = inInner === ( key === overlap?.innerKey ) ? 0 : 1;
 				}
 				selections.push( {
 					event: params.event,

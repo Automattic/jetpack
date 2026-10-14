@@ -97,6 +97,25 @@ describe( 'BarChart overlap layout', () => {
 		);
 	} );
 
+	it( 'outlines the inner bar when the outer series comes second in the data', async () => {
+		const user = userEvent.setup();
+		renderWithTheme( { data: [ visitors, views ], layout: 'overlap', withTooltips: true } );
+		expect( screen.getByTestId( 'bar-chart-overlap-outer-0' ) ).toHaveAttribute(
+			'data-series-index',
+			'1'
+		);
+
+		await user.tab();
+		await user.keyboard( '{ArrowRight}' ); // visitors[0], drawn after every outer bar
+
+		expect( screen.getByTestId( 'bar-chart-keyboard-highlight' ) ).toHaveTextContent(
+			/\.bar-chart__overlap-bar\[data-series-index="0"\]\[data-point-index="0"\]/
+		);
+		const inner = screen.getByTestId( 'bar-chart-overlap-inner-0' );
+		expect( inner ).toHaveAttribute( 'data-series-index', '0' );
+		expect( inner ).toHaveAttribute( 'data-point-index', '0' );
+	} );
+
 	describe( 'pointer', () => {
 		stubScreenTransform();
 
