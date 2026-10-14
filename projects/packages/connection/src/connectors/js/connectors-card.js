@@ -916,10 +916,18 @@ function ConfirmationModal( { title, message, onConfirm, onCancel } ) {
 function TransferOwnershipAction( { isBusy = false, onTransferred } ) {
 	const [ isOpen, setIsOpen ] = useState( false );
 	const [ isTransferring, setIsTransferring ] = useState( false );
+	const newOwnerRef = useRef( null );
 
+	// Reporting the new owner unmounts this action, so hold it until the dialog is done with it.
 	const close = () => {
 		setIsOpen( false );
 		setIsTransferring( false );
+
+		if ( newOwnerRef.current ) {
+			const newOwner = newOwnerRef.current;
+			newOwnerRef.current = null;
+			onTransferred( newOwner );
+		}
 	};
 
 	return createElement(
@@ -951,7 +959,9 @@ function TransferOwnershipAction( { isBusy = false, onTransferred } ) {
 						apiRoot,
 						apiNonce,
 						onBusyChange: setIsTransferring,
-						onTransferred: ( newOwnerId, newOwner ) => onTransferred( newOwner ),
+						onTransferred: ( newOwnerId, newOwner ) => {
+							newOwnerRef.current = newOwner;
+						},
 					} )
 				)
 			: null
