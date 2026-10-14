@@ -274,7 +274,7 @@ class Monitor_Test extends BaseTestCase {
 	 *
 	 * @param array|WP_Error $uptime_response WordPress.com's answer for the uptime history.
 	 * @param int            $requests        Requests made by two calls: 1 when the failure is cached for everyone.
-	 * @param array          $error_data      The error data the 502 should carry, telling a timeout from a 401 from a 500.
+	 * @param array          $error_data      The error data both 502s should carry, telling a timeout from a 401 from a 500.
 	 */
 	#[DataProvider( 'provide_unusable_histories' )]
 	public function test_get_uptime_is_a_502_when_the_history_is_unusable_and_caches_only_shared_failures( $uptime_response, $requests, $error_data ) {
@@ -288,6 +288,7 @@ class Monitor_Test extends BaseTestCase {
 		$this->assertSame( 'uptime_unavailable', $first->get_error_code() );
 		$this->assertSame( $error_data, $first->get_error_data() );
 		$this->assertInstanceOf( WP_Error::class, $second );
+		$this->assertSame( $error_data, $second->get_error_data() );
 		$this->assertCount( $requests, $this->requests );
 	}
 

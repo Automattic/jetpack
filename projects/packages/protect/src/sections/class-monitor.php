@@ -34,7 +34,7 @@ class Monitor implements Dashboard_Section {
 	const UPTIME_DAYS = 40;
 
 	/**
-	 * Transient caching the uptime history.
+	 * Transient caching the uptime history, or why fetching it failed.
 	 *
 	 * @var string
 	 */
@@ -105,11 +105,11 @@ class Monitor implements Dashboard_Section {
 		}
 
 		$cached = get_transient( self::UPTIME_TRANSIENT );
+		if ( isset( $cached['failed'] ) ) {
+			return $this->unavailable_error( $cached['failed'] );
+		}
 		if ( is_array( $cached ) ) {
 			return $cached;
-		}
-		if ( 'failed' === $cached ) {
-			return $this->unavailable_error();
 		}
 
 		// It has no 40-day period, so ask for 90 and keep the newest days.
@@ -118,7 +118,11 @@ class Monitor implements Dashboard_Section {
 		if ( ! $days ) {
 			// A 401 or 403 is about this user's token, so it must not hide the history from other admins.
 			if ( ! in_array( $history['code'], array( 401, 403 ), true ) ) {
-				set_transient( self::UPTIME_TRANSIENT, 'failed', MINUTE_IN_SECONDS );
+				$failed = array(
+					'code'  => $history['code'],
+					'error' => $history['error'],
+				);
+				set_transient( self::UPTIME_TRANSIENT, array( 'failed' => $failed ), MINUTE_IN_SECONDS );
 			}
 			return $this->unavailable_error( $history );
 		}
@@ -216,14 +220,14 @@ class Monitor implements Dashboard_Section {
 	/**
 	 * The error returned when WordPress.com can't be reached, carrying the upstream detail for debugging.
 	 *
-	 * @param array $request The failing request from `request()`; empty for a cached failure with no detail to hand.
+	 * @param array $request The failing request's `code` and `error`, as returned by `request()`.
 	 * @return WP_Error
 	 */
-	private function unavailable_error( $request = array() ) {
-		$data = array( 'status' => 502 );
-		if ( isset( $request['code'] ) ) {
-			$data['upstreamStatus'] = $request['code'];
-		}
+	private function unavailable_error( $request ) {
+		$data = array(
+			'status'         => 502,
+			'upstreamStatus' => $request['code'],
+		);
 		if ( ! empty( $request['error'] ) ) {
 			$data['upstreamError'] = $request['error'];
 		}
