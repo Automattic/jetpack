@@ -84,7 +84,10 @@ for ( const { site, browser } of PAIRS ) {
 				`/?from=${ dayStart( '2026-08-01' ) }&to=${ dayEnd( '2026-08-07' ) }&interval=day&date_type=created`
 			);
 
-			const ticks = dashboard.page.locator( 'svg text' ).filter( { hasText: /^(Jul|Aug) \d+$/ } );
+			const ticks = dashboard.page
+				.getByRole( 'tabpanel', { name: /^Views/ } )
+				.locator( 'svg text' )
+				.filter( { hasText: /^(Jul|Aug) \d+$/ } );
 			await expect( ticks.first() ).toHaveText( 'Aug 1' );
 			await expect( ticks.last() ).toHaveText( 'Aug 7' );
 		} );
