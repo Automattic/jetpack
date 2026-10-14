@@ -1,20 +1,9 @@
 <?php
 /**
- * Gutenberg experiment helper stand-in.
+ * Gutenberg screen callback stand-ins.
  *
  * @package automattic/jetpack-knowledge
  */
-
-/**
- * Read the test's explicit experiment setting.
- *
- * @param string $name Experiment name.
- * @return bool Whether enabled.
- */
-function gutenberg_is_experiment_enabled( $name ) {
-	$experiments = get_option( 'gutenberg-experiments', array() );
-	return ! empty( $experiments[ $name ] );
-}
 
 /**
  * Stand in for Gutenberg's generated page enqueue callback.

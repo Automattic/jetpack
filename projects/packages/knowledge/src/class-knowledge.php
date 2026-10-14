@@ -67,9 +67,7 @@ class Knowledge {
 	 * @return bool Whether a native provider is available.
 	 */
 	private static function has_provider() {
-		return post_type_exists( 'wp_knowledge' )
-			|| class_exists( 'Gutenberg_Knowledge_Post_Type', false )
-			|| ( function_exists( 'gutenberg_is_experiment_enabled' ) && gutenberg_is_experiment_enabled( 'gutenberg-guidelines' ) );
+		return post_type_exists( 'wp_knowledge' ) || function_exists( 'wp_knowledge_types' );
 	}
 
 	/**

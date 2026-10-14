@@ -4,7 +4,7 @@ Provides the WordPress Knowledge runtime when Gutenberg's Guidelines experiment 
 
 Add `automattic/jetpack-knowledge` to your plugin's Composer dependencies and call `Automattic\Jetpack\Knowledge::init()` during plugin loading. Use the Jetpack Autoloader when several plugins may bundle the package.
 
-The package waits until plugin loading has completed before choosing a provider. An enabled Gutenberg Guidelines experiment owns the runtime; otherwise this package supplies the fallback. An already-registered `wp_knowledge` post type or loaded Gutenberg Knowledge implementation also takes precedence. Repeated initialization is safe. Gutenberg's screen callbacks are left unchanged.
+The package waits until plugin loading has completed before choosing a provider. An enabled Gutenberg Guidelines experiment owns the runtime; otherwise this package supplies the fallback. An already-registered `wp_knowledge` post type or an existing `wp_knowledge_types()` function also takes precedence, including a native provider that registers its post type later on `init`. Repeated initialization is safe. Gutenberg's screen callbacks are left unchanged.
 
 ## Data contract
 

@@ -28,5 +28,4 @@ try {
 }
 require_once ABSPATH . 'wp-admin/includes/schema.php';
 populate_roles();
-require_once __DIR__ . '/../../src/knowledge.php';
 require_once __DIR__ . '/KnowledgeTestCase.php';

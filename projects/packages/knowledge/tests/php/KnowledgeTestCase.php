@@ -18,6 +18,7 @@ abstract class KnowledgeTestCase extends TestCase {
 	 */
 	protected function setUp(): void {
 		parent::setUp();
+		require_once __DIR__ . '/../../src/knowledge.php';
 		wp_set_current_user( 0 );
 		Knowledge_Post_Type::register();
 		$GLOBALS['wp_rest_server'] = new WP_REST_Server();

@@ -35,19 +35,19 @@ class KnowledgeProviderTest extends TestCase {
 		$this->assertCount( 1, array_filter( $route, 'is_array' ) );
 	}
 
-	public function test_enabled_experiment_owns_the_runtime() {
+	public function test_native_api_owns_the_runtime_before_registering_the_post_type() {
 		require __DIR__ . '/fixtures/gutenberg-experiment.php';
-		update_option( 'gutenberg-experiments', array( 'gutenberg-guidelines' => true ) );
+		require __DIR__ . '/fixtures/knowledge-provider.php';
 		Knowledge::init();
 		Knowledge::bootstrap();
 		$this->assertFalse( post_type_exists( 'wp_knowledge' ) );
+		$this->assertArrayNotHasKey( '/wp/v2/knowledge/guideline-scopes', rest_get_server()->get_routes() );
 		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', 'gutenberg_guidelines_wp_admin_enqueue_scripts' ) );
 		$this->assertFalse( has_action( 'init', array( Knowledge_Post_Type::class, 'register' ) ) );
 	}
 
 	public function test_disabled_experiment_uses_fallback() {
 		require __DIR__ . '/fixtures/gutenberg-experiment.php';
-		update_option( 'gutenberg-experiments', array( 'gutenberg-guidelines' => false ) );
 		Knowledge::init();
 		$this->assertTrue( post_type_exists( 'wp_knowledge' ) );
 		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', 'gutenberg_guidelines_wp_admin_enqueue_scripts' ) );
