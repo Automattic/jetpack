@@ -6,8 +6,15 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import type { IconType } from './types';
 import type { EditorLabels } from '../shared/types';
 
-// The blocks a comment offers; images only where the site allows them.
-const names = [ 'core/paragraph', 'core/list', 'core/quote', 'core/code', 'core/image' ];
+// The blocks a comment offers; embeds and images only where the site allows them.
+const names = [
+	'core/paragraph',
+	'core/list',
+	'core/quote',
+	'core/code',
+	'core/embed',
+	'core/image',
+];
 
 // The "+" from @wordpress/icons, a large package for one icon.
 const plus = (
