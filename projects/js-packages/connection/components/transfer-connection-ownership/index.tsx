@@ -124,9 +124,6 @@ const TransferConnectionOwnership = ( {
 				error={ error }
 			/>
 
-			{ /* Shown while loading too, so the action does not arrive after the select and
-			     shift the dialog. There is nothing to continue to once the list is known
-			     to be empty, so that case still hides it. */ }
 			{ ( isLoading || hasCandidates ) && (
 				<Stack direction="row" align="center" justify="flex-end" gap="sm">
 					<Button variant="solid" onClick={ confirm } disabled={ ! selectedId }>

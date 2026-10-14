@@ -18,7 +18,6 @@
  * @see Jetpack_Connector::enqueue_script_module()
  */
 
-// Resolves to the shared jetpack-connection script, which the card's asset file now lists.
 import { TransferConnectionOwnership } from '@automattic/jetpack-connection';
 // Namespace import: a missing named export would fail the whole module before the fallbacks run.
 // eslint-disable-next-line import/no-unresolved -- resolved via WP import map at runtime.
@@ -1602,12 +1601,9 @@ function ExpandedDetails( {
 						isManagedPlatformSite && viewer.isOwner
 							? null
 							: createElement(
-									// Each link carries its own inline-action margin, which already
-									// right-aligns on desktop and resets on narrow screens.
+									// The links right-align themselves; an alignment prop here would fight the mobile reset.
 									VStack,
 									{ spacing: 1 },
-									// Offered above the destructive action, so handing the connection
-									// over reads as the alternative to leaving it.
 									viewer.isOwner
 										? createElement( TransferOwnershipAction, {
 												isBusy: isUnlinking || isDisconnecting,
@@ -1788,9 +1784,6 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 	const [ viewer, setViewer ] = useState( initialCurrentUser );
 	const [ owner, setOwner ] = useState( initialConnectionOwner );
 
-	// A transfer changes which rows and actions belong to the viewer, so patch both from the
-	// candidate WordPress.com accepted rather than reloading. The avatar is the one field the
-	// candidate list does not carry; it returns on the next page load.
 	const handleOwnerChanged = newOwner => {
 		setOwner( { ...newOwner, localLogin: newOwner.login } );
 		setViewer( previous => ( previous ? { ...previous, isOwner: false } : previous ) );

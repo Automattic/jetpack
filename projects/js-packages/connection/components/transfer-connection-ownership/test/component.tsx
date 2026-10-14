@@ -161,7 +161,6 @@ describe( 'TransferConnectionOwnership', () => {
 		await user.click( screen.getByRole( 'button', { name: 'Transfer ownership' } ) );
 
 		await waitFor( () => expect( mockSetConnectionOwner ).toHaveBeenCalledWith( 7 ) );
-		// The candidate rides along so a host can patch its own state without asking again.
 		await waitFor( () =>
 			expect( onTransferred ).toHaveBeenCalledWith( 7, {
 				id: 7,
