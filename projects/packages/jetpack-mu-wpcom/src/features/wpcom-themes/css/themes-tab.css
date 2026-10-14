@@ -16,13 +16,24 @@
 
 /* Core's cards position their own children, so the screenshot is
    already a containing block. */
-.wpcom-themes-tab__plan--on-screenshot {
+.theme-browser .theme .wpcom-themes-tab__plan--on-screenshot {
 	position: absolute;
 	inset-block-start: 8px;
 	inset-inline-end: 8px;
 	z-index: 1;
+	opacity: 0;
+	transition: opacity 0.1s ease-in-out;
+}
+
+/* Revealed with the card's own Details & Preview overlay, whose
+   rule this mirrors. */
+.theme-browser.rendered .theme:hover .wpcom-themes-tab__plan--on-screenshot,
+.theme-browser.rendered .theme.focus .wpcom-themes-tab__plan--on-screenshot {
+	opacity: 1;
 }
 
 .install-theme-info .wpcom-themes-tab__plan {
+	display: block;
+	width: fit-content;
 	margin-block-start: 8px;
 }
