@@ -1,11 +1,8 @@
 import { DataContext, LineSeries } from '@visx/xychart';
 import { useContext } from 'react';
 import { CATALOG_POINTERS } from '../../../providers/chart-context/private/catalog-pointers';
-import {
-	COMPARISON_LINE_CASING,
-	COMPARISON_MARKER_HALO,
-	COMPARISON_MARKER_SIZE,
-} from './overlap-constants';
+import { ComparisonMarkerShape } from './comparison-marker';
+import { COMPARISON_LINE_CASING, COMPARISON_LINE_WIDTH } from './overlap-constants';
 import type { BandScale } from './band-scale';
 import type { DataPointDate, SeriesData } from '../../../types';
 import type { BarOverlapStyles } from '../types';
@@ -35,13 +32,6 @@ const ComparisonMarkers: FC< {
 	}
 
 	const halfBand = bandScale.bandwidth() / 2;
-	const paint = {
-		fill: comparison.stroke,
-		stroke: CATALOG_POINTERS.background,
-		strokeWidth: COMPARISON_MARKER_HALO * 2,
-		// Stroke first, so the fill covers the halo's inner half.
-		paintOrder: 'stroke',
-	};
 
 	return (
 		<>
@@ -51,25 +41,14 @@ const ComparisonMarkers: FC< {
 				if ( ! Number.isFinite( cx ) || ! Number.isFinite( cy ) ) {
 					return null;
 				}
-				const testId = `bar-chart-comparison-marker-${ comparison.label }-${ index }`;
-				return comparison.marker === 'square' ? (
-					<rect
+				return (
+					<ComparisonMarkerShape
 						key={ index }
-						data-testid={ testId }
-						x={ cx - COMPARISON_MARKER_SIZE }
-						y={ cy - COMPARISON_MARKER_SIZE }
-						width={ COMPARISON_MARKER_SIZE * 2 }
-						height={ COMPARISON_MARKER_SIZE * 2 }
-						{ ...paint }
-					/>
-				) : (
-					<circle
-						key={ index }
-						data-testid={ testId }
+						data-testid={ `bar-chart-comparison-marker-${ comparison.label }-${ index }` }
+						marker={ comparison.marker }
 						cx={ cx }
 						cy={ cy }
-						r={ COMPARISON_MARKER_SIZE }
-						{ ...paint }
+						fill={ comparison.stroke }
 					/>
 				);
 			} ) }
@@ -84,8 +63,8 @@ type Props = {
 };
 
 const getLineWidth = ( paint: LinePaint ) => {
-	const width = Number( paint.strokeWidth ?? 2 );
-	return Number.isFinite( width ) ? width : 2;
+	const width = Number( paint.strokeWidth ?? COMPARISON_LINE_WIDTH );
+	return Number.isFinite( width ) ? width : COMPARISON_LINE_WIDTH;
 };
 
 // The overlap layout's previous periods: dashed lines with a marker on every reading.

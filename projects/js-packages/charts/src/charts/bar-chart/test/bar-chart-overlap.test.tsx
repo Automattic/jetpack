@@ -1,4 +1,4 @@
-import { render, renderHook, screen } from '@testing-library/react';
+import { render, renderHook, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider } from '../../../providers';
 import { firePointer, stubScreenTransform } from '../../../test-utils/pointer';
@@ -131,6 +131,30 @@ describe( 'BarChart overlap layout', () => {
 		const firstMarker = screen.getByTestId( 'bar-chart-comparison-marker-Views prev-0' );
 		expect( lastLine.compareDocumentPosition( firstMarker ) ).toBe(
 			Node.DOCUMENT_POSITION_FOLLOWING
+		);
+	} );
+
+	it( 'draws each previous period in the legend as its line and marker', () => {
+		renderWithTheme( {
+			data: [ views, visitors, viewsPrev, visitorsPrev ],
+			layout: 'overlap',
+			showLegend: true,
+			legend: {
+				collapseGroups: true,
+				comparisonSeriesItems: ( metric: string ) => `${ metric } (Previous period)`,
+			},
+		} );
+
+		const [ , , viewsPrevItem, visitorsPrevItem ] = screen.getAllByTestId( 'legend-item' );
+		expect( within( viewsPrevItem ).getByTestId( 'comparison-line-glyph-line' ) ).toHaveAttribute(
+			'stroke-dasharray',
+			'4 4'
+		);
+		expect( within( viewsPrevItem ).getByTestId( 'comparison-line-glyph-marker' ).tagName ).toBe(
+			'rect'
+		);
+		expect( within( visitorsPrevItem ).getByTestId( 'comparison-line-glyph-marker' ).tagName ).toBe(
+			'circle'
 		);
 	} );
 

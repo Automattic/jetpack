@@ -30,6 +30,7 @@ import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
 import { hasOnlyWholeNumbers, WholeNumberTicks } from '../private/whole-number-ticks';
 import { withResponsive } from '../private/with-responsive';
 import plotStyles from '../private/xy-plot/xy-plot.module.scss';
+import { applyBarOverlapLegend } from './apply-bar-overlap-legend';
 import styles from './bar-chart.module.scss';
 import {
 	useBarChartOptions,
@@ -172,7 +173,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		} ),
 		[ legendCollapseGroups, legendComparisonItem, legendComparisonSeriesItems ]
 	);
-	const legendItems = useChartLegendItems( dataSorted, legendOptions );
+	const seriesLegendItems = useChartLegendItems( dataSorted, legendOptions );
 
 	const { getElementStyles } = useGlobalChartsContext();
 	const overlap = useBarOverlapStyles( dataWithVisibleZeros, {
@@ -181,6 +182,10 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		isVisible: isSeriesVisible,
 	} );
 	const isOverlap = overlap !== null;
+	const legendItems = useMemo(
+		() => applyBarOverlapLegend( seriesLegendItems, overlap ),
+		[ seriesLegendItems, overlap ]
+	);
 
 	// A hidden series is unmounted, so it is not on the band scale either — the
 	// axis has to choose its tick values from what is left. Visibility is owned by

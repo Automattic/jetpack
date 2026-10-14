@@ -1,6 +1,13 @@
 // Charts
 export { AreaChart, AreaChartUnresponsive } from './charts/area-chart';
-export { BarChart, BarChartUnresponsive, useBarOverlapStyles } from './charts/bar-chart';
+export {
+	BarChart,
+	BarChartUnresponsive,
+	useBarOverlapStyles,
+	applyBarOverlapLegend,
+	ComparisonLineGlyph,
+	ComparisonLineSwatch,
+} from './charts/bar-chart';
 export { BarListChart, BarListChartUnresponsive } from './charts/bar-list-chart';
 export { ConversionFunnelChart } from './charts/conversion-funnel-chart';
 export { GeoChart, GeoChartUnresponsive } from './charts/geo-chart';
@@ -115,6 +122,7 @@ export type {
 	BarLayout,
 	BarOverlapOptions,
 	BarOverlapStyles,
+	ComparisonLineSwatchProps,
 	ComparisonMarker,
 } from './charts/bar-chart';
 export type {
