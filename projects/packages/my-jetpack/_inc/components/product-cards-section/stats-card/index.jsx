@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
-import { PRODUCT_SLUGS } from '../../data/constants';
-import ProductCard from '../connected-product-card';
+import { PRODUCT_SLUGS } from '../../../data/constants';
+import ProductCard from '../../connected-product-card';
 
 const StatsCard = props => {
 	// Compact Stats card, shown in the grid as a fallback when the large "Views in the last 7 days"

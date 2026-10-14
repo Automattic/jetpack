@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add Overview cards for Stats, Boost and Protect, shown only when the `jetpack_my_jetpack_overview_v1` filter returns true.

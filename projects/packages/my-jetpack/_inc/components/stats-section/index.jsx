@@ -12,7 +12,7 @@ import StatsCards from './cards';
 /**
  * Options for the stats visits hook
  */
-const VISITS_OPTIONS = {
+export const VISITS_OPTIONS = {
 	period: 'day',
 	quantity: 14,
 	date: new Date( Date.now() + new Date().getTimezoneOffset() * 60000 ), // now in UTC to match Stats
@@ -24,7 +24,7 @@ const VISITS_OPTIONS = {
  * @param {object} visitsData - Raw visits data from API with fields and data arrays
  * @return {object} Object containing counts, previousCounts, and chartData for last 7 days
  */
-const processStatsData = visitsData => {
+export const processStatsData = visitsData => {
 	if (
 		! visitsData ||
 		! visitsData.fields ||
