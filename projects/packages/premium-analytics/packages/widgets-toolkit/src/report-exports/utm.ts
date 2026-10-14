@@ -13,6 +13,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { getReportWindowParams } from './query-params';
 import type { ReportCsvExporter } from './types';
 
 /** The UTM report's tabs, one per endpoint dimension. */
@@ -77,6 +78,7 @@ export function getUtmReportQueryParams(
 		summarize: 0,
 		query_top_posts: true,
 		utmParam: UTM_DIMENSIONS[ section ].utmParam,
+		...getReportWindowParams( reportParams ),
 	} as StatsUtmParams;
 }
 

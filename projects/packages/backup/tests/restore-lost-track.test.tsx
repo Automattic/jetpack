@@ -37,7 +37,7 @@ jest.mock( '@wordpress/route', () => ( {
 } ) );
 
 // Imports must come after the jest.mock factories above.
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { stage as RestoreStage } from '../routes/restore/stage';
 import { queryClient } from '../src/dashboard/data/query-client';
@@ -100,17 +100,40 @@ async function findMessage() {
  * Start a restore with the default six-of-six checklist.
  */
 async function startRestore() {
-	await userEvent.click( await screen.findByRole( 'button', { name: /Confirm restore/ } ) );
+	const fake = 'clock' in setTimeout;
+	const user = userEvent.setup( fake ? { advanceTimers: jest.advanceTimersByTime } : {} );
+	await user.click( await screen.findByRole( 'button', { name: /Confirm restore/ } ) );
+}
+
+/**
+ * Let every poll fail past the silence deadline, then wait for the message.
+ * A failed first poll is temporary, so only the deadline gives up.
+ */
+async function findMessageAfterDeadline() {
+	for ( let elapsed = 0; elapsed <= 6 * 60_000; elapsed += 5000 ) {
+		await act( async () => {
+			await jest.advanceTimersByTimeAsync( 5000 );
+		} );
+	}
+	await findMessage();
 }
 
 describe( 'a restore that has gone out of sight', () => {
+	beforeEach( () => {
+		jest.useFakeTimers();
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
 	it( 'offers a way out, not a way to start another one', async () => {
 		arrange( () => Promise.reject( new Error( 'Could not reach WordPress.com.' ) ) );
 		render( <RestoreStage /> );
 
 		await startRestore();
 
-		await findMessage();
+		await findMessageAfterDeadline();
 
 		// The whole point. Either control would start a second restore:
 		// "Try again" resets to an armed Confirm, and Confirm submits.
@@ -134,7 +157,7 @@ describe( 'a restore that has gone out of sight', () => {
 
 		await startRestore();
 
-		await findMessage();
+		await findMessageAfterDeadline();
 		expect( screen.getByText( 'Could not reach WordPress.com.' ) ).toBeInTheDocument();
 	} );
 
@@ -145,7 +168,7 @@ describe( 'a restore that has gone out of sight', () => {
 		render( <RestoreStage /> );
 
 		await startRestore();
-		await findMessage();
+		await findMessageAfterDeadline();
 
 		// The notice plus its @wordpress/a11y live-region copy; tell them apart by `aria-live`.
 		const lives = () =>

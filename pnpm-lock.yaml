@@ -2469,6 +2469,12 @@ importers:
       '@wordpress/browserslist-config':
         specifier: 6.57.0
         version: 6.57.0
+      '@wordpress/dependency-extraction-webpack-plugin':
+        specifier: 6.57.0
+        version: 6.57.0(webpack@5.111.1)
+      c8:
+        specifier: ^11.0.0
+        version: 11.0.0
       glob:
         specifier: 13.0.6
         version: 13.0.6
@@ -3960,6 +3966,9 @@ importers:
       '@automattic/number-formatters':
         specifier: workspace:*
         version: link:../../js-packages/number-formatters
+      '@jetpack-podcast/init':
+        specifier: link:packages/init
+        version: link:packages/init
       '@wordpress/api-fetch':
         specifier: 7.57.0
         version: 7.57.0

@@ -15,8 +15,8 @@ use WP_REST_Response;
 use WP_REST_Server;
 
 /**
- * The embed block in a comment: a URL from a provider core trusts, previewed through an open
- * route and drawn through core's embed cache, without the provider's script. Discovery is off at
+ * The embed block in a comment: a URL from a provider core trusts, previewed through an open route and
+ * drawn from the same cached lookup, as a player or a card, never with the provider's script. Discovery is off at
  * every step, so the only requests that leave go to a provider's own endpoint, never to an
  * address a commenter typed.
  *
@@ -127,14 +127,29 @@ class Embeds extends WP_REST_Controller {
 			return new WP_Error( 'oembed_invalid_url', get_status_header_desc( 404 ), array( 'status' => 404 ) );
 		}
 
-		// A day, as core's proxy keeps its lookups, so a popular link costs one provider request.
-		$cache_key = 'jetpack_comments_embed_' . md5( $url );
-		$data      = get_transient( $cache_key );
+		$data = self::data( $url, false );
 
-		if ( is_object( $data ) ) {
-			return self::respond( $data );
+		if ( false === $data ) {
+			if ( self::rate_limited() ) {
+				return new WP_Error( 'rate_limited', __( 'Too many requests. Please wait a moment and try again.', 'jetpack-comments' ), array( 'status' => 429 ) );
+			}
+
+			$data = self::data( $url );
 		}
 
+		if ( ! is_object( $data ) ) {
+			return new WP_Error( 'oembed_invalid_url', get_status_header_desc( 404 ), array( 'status' => 404 ) );
+		}
+
+		return self::respond( $data, $url );
+	}
+
+	/**
+	 * Whether this visitor has asked for too many previews that were not already cached.
+	 *
+	 * @return bool
+	 */
+	private static function rate_limited() {
 		// Each lookup is a request to a provider on the visitor's behalf. Thirty in ten minutes covers
 		// a reader trying links, not a script. The object cache counts atomically; a site without a
 		// persistent one, or one that cannot be reached, falls back to a transient, which a parallel burst can slip past.
@@ -152,39 +167,68 @@ class Embeds extends WP_REST_Controller {
 			set_transient( 'jetpack_comments_' . $key, $count, 10 * MINUTE_IN_SECONDS );
 		}
 
-		if ( $count > 30 ) {
-			return new WP_Error( 'rate_limited', __( 'Too many requests. Please wait a moment and try again.', 'jetpack-comments' ), array( 'status' => 429 ) );
+		return $count > 30;
+	}
+
+	/**
+	 * The provider's oEmbed data for a trusted URL, shared by the preview and the comment.
+	 *
+	 * @param string $url   A URL from trusted_url().
+	 * @param bool   $fetch Whether to ask the provider when nothing is cached.
+	 * @return object|string|false The data, '' when the provider had none, or false when not cached and not fetched.
+	 */
+	private static function data( $url, $fetch = true ) {
+		$cache_key = 'jetpack_comments_embed_' . md5( $url );
+		$cached    = get_transient( $cache_key );
+		$lookup    = self::lookup_url( $url );
+		$args      = array_merge( wp_embed_defaults( $lookup ), array( 'discover' => false ) );
+
+		// Fresh for a day, as core's proxy keeps its lookups, so a popular link costs one provider request.
+		/** This filter is documented in wp-includes/class-wp-oembed-controller.php */
+		$ttl   = (int) apply_filters( 'rest_oembed_ttl', DAY_IN_SECONDS, $lookup, $args );
+		$fresh = '' === $cached || ( is_object( $cached ) && (int) ( $cached->jetpack_comments_fetched ?? 0 ) > time() - $ttl );
+
+		if ( $fresh || ! $fetch ) {
+			return $cached;
 		}
 
 		$oembed = _wp_oembed_get_object();
-		$args   = array_merge( wp_embed_defaults( $url ), array( 'discover' => false ) );
-		$data   = $oembed->get_data( $url, $args );
+		$data   = $oembed->get_data( $lookup, $args );
 
-		if ( ! is_object( $data ) ) {
-			return new WP_Error( 'oembed_invalid_url', get_status_header_desc( 404 ), array( 'status' => 404 ) );
+		if ( is_object( $data ) ) {
+			/** This filter is documented in wp-includes/class-wp-oembed.php */
+			$data->html = apply_filters( 'oembed_result', $oembed->data2html( $data, $lookup ), $lookup, $args );
+		} elseif ( is_object( $cached ) && '' !== self::player( $cached ) ) {
+			// A player outlives a failed refresh, as in core's embed cache. A card does not: its post may be gone.
+			$data = $cached;
+		} else {
+			// Kept an hour, so a dead link costs one provider request rather than one per page view.
+			set_transient( $cache_key, '', HOUR_IN_SECONDS );
+			return '';
 		}
 
-		/** This filter is documented in wp-includes/class-wp-oembed.php */
-		$data->html = apply_filters( 'oembed_result', $oembed->data2html( $data, $url ), $url, $args );
+		// Kept past fresh, so a player is still there to fall back on when the next refresh fails.
+		$data->jetpack_comments_fetched = time();
+		set_transient( $cache_key, $data, $ttl + WEEK_IN_SECONDS );
 
-		/** This filter is documented in wp-includes/class-wp-oembed-controller.php */
-		set_transient( $cache_key, $data, apply_filters( 'rest_oembed_ttl', DAY_IN_SECONDS, $url, $args ) );
-
-		return self::respond( $data );
+		return $data;
 	}
 
 	/**
 	 * The oEmbed data as a response the browser and any cache between may keep: it is the same for every visitor.
 	 *
 	 * @param object $data The oEmbed data.
+	 * @param string $url  The URL it was fetched for.
 	 * @return WP_REST_Response|WP_Error
 	 */
-	private static function respond( $data ) {
+	private static function respond( $data, $url ) {
 		// The editor would hand each entry to SandBox as a script of its own.
-		unset( $data->scripts );
-		$data->html = self::sanitize_html( $data->html ?? '' );
+		unset( $data->scripts, $data->jetpack_comments_fetched );
+		$player     = self::player( $data );
+		$data->card = '' === $player;
+		$data->html = $data->card ? self::card( $data, $url ) : $player;
 
-		// No player or photo to show, so the comment will hold the link. Say so now.
+		// Nothing to show, so the comment will hold the link. Say so now.
 		if ( '' === $data->html ) {
 			return new WP_Error( 'oembed_invalid_url', get_status_header_desc( 404 ), array( 'status' => 404 ) );
 		}
@@ -193,6 +237,27 @@ class Embeds extends WP_REST_Controller {
 		$response->header( 'Cache-Control', 'public, max-age=' . HOUR_IN_SECONDS );
 
 		return $response;
+	}
+
+	/**
+	 * The player for the oEmbed data, or '' when it has none.
+	 *
+	 * @param object $data The oEmbed data.
+	 * @return string
+	 */
+	private static function player( $data ) {
+		$video = isset( $data->embed_product_id ) && is_scalar( $data->embed_product_id ) ? (string) $data->embed_product_id : '';
+
+		// TikTok's oEmbed sends its script, but it also documents a player that needs none.
+		if ( 'TikTok' === ( $data->provider_name ?? '' ) && ctype_digit( $video ) ) {
+			$author = isset( $data->author_name ) && is_string( $data->author_name ) && '' !== $data->author_name ? $data->author_name : 'TikTok';
+			/* translators: %s: The video's author. */
+			$title = sprintf( __( 'TikTok video by %s', 'jetpack-comments' ), $author );
+
+			return '<iframe src="https://www.tiktok.com/player/v1/' . $video . '" width="325" height="578" title="' . esc_attr( $title ) . '" allow="fullscreen" allowfullscreen></iframe>';
+		}
+
+		return self::sanitize_html( $data->html ?? '' );
 	}
 
 	/**
@@ -240,6 +305,136 @@ class Embeds extends WP_REST_Controller {
 	}
 
 	/**
+	 * A post a provider draws with its own script, as a card of our own markup: the brand's icon, its author,
+	 * date, and text, and a link to the URL. Only text comes from the provider, so its markup never reaches the page.
+	 *
+	 * @param object $data The oEmbed data.
+	 * @param string $url  The trusted URL the card links to.
+	 * @return string The card, or '' when the provider sent no text.
+	 */
+	public static function card( $data, $url ) {
+		$text  = '';
+		$after = '';
+		$last  = '';
+		$html  = new \WP_HTML_Tag_Processor( is_string( $data->html ?? null ) ? $data->html : '' );
+
+		// The post's text is the first paragraph of the provider's no-script fallback.
+		if ( $html->next_tag( 'p' ) ) {
+			while ( $html->next_token() ) {
+				$tag = $html->get_tag();
+
+				if ( '#text' === $html->get_token_type() ) {
+					$text .= $html->get_modifiable_text();
+				} elseif ( 'BR' === $tag ) {
+					$text .= "\n";
+				} elseif ( 'P' === $tag && $html->is_tag_closer() ) {
+					break;
+				}
+			}
+
+			// Then the attribution, whose last link is the post's date.
+			while ( $html->next_token() ) {
+				$tag = $html->get_tag();
+
+				if ( '#text' === $html->get_token_type() ) {
+					$after .= $html->get_modifiable_text();
+					$last  .= $html->get_modifiable_text();
+				} elseif ( 'A' === $tag && ! $html->is_tag_closer() ) {
+					$last = '';
+				} elseif ( 'BLOCKQUOTE' === $tag ) {
+					break;
+				}
+			}
+		}
+
+		// Reddit's fallback has no paragraph, only the title.
+		if ( '' === trim( $text ) && isset( $data->title ) && is_string( $data->title ) ) {
+			$text = $data->title;
+		}
+
+		// A comment's card, not the whole post: X allows posts of 25,000 characters.
+		$text = trim( $text );
+		if ( mb_strlen( $text ) > 500 ) {
+			$text = rtrim( mb_substr( $text, 0, 500 ) ) . '…';
+		}
+
+		$paragraphs = '';
+		foreach ( preg_split( '/\n\s*\n/', trim( $text ) ) as $paragraph ) {
+			if ( '' !== trim( $paragraph ) ) {
+				// No raw newlines, which wpautop would turn into paragraphs of its own.
+				$paragraphs .= '<p>' . str_replace( "\n", '<br>', esc_html( trim( $paragraph ) ) ) . '</p>';
+			}
+		}
+
+		if ( '' === $paragraphs ) {
+			return '';
+		}
+
+		$provider = isset( $data->provider_name ) && is_string( $data->provider_name ) && '' !== $data->provider_name ? $data->provider_name : (string) wp_parse_url( $url, PHP_URL_HOST );
+		/* translators: %s: Where the post is from, e.g. X or Bluesky. */
+		$footer = '<a href="' . esc_url( $url ) . '" rel="nofollow ugc">' . esc_html( sprintf( __( 'View on %s', 'jetpack-comments' ), $provider ) ) . '</a>';
+
+		// Core's social link icons, in each brand's color but X's black, which a dark theme would lose.
+		$brands = array(
+			'x'              => array( 'x', 'currentColor' ),
+			'bluesky social' => array( 'bluesky', '#1185fe' ),
+			'reddit'         => array( 'reddit', '#ff4500' ),
+		);
+		$brand  = $brands[ strtolower( $provider ) ] ?? array( '', '' );
+		$icon   = '';
+		$header = array();
+
+		if ( '' !== $brand[0] && function_exists( 'block_core_social_link_get_icon' ) ) {
+			$svg = new \WP_HTML_Tag_Processor( block_core_social_link_get_icon( $brand[0] ) );
+			if ( $svg->next_tag( 'svg' ) ) {
+				$svg->set_attribute( 'style', "fill:{$brand[1]};width:1.25em;height:1.25em;vertical-align:-0.25em" );
+				$icon = $svg->get_updated_html() . ' ';
+			}
+		}
+
+		$author = isset( $data->author_name ) && is_string( $data->author_name ) ? $data->author_name : '';
+		if ( '' !== $author ) {
+			// Bluesky's name carries the handle; X's is only in its attribution.
+			if ( ! str_contains( $author, '(@' ) && preg_match( '/\(@\w+\)/', $after, $handle ) ) {
+				$author .= ' ' . $handle[0];
+			}
+
+			$profile  = isset( $data->author_url ) && is_string( $data->author_url ) ? esc_url( $data->author_url, array( 'https' ) ) : '';
+			$header[] = $profile ? '<a href="' . $profile . '" rel="nofollow ugc">' . esc_html( $author ) . '</a>' : esc_html( $author );
+		}
+
+		if ( 'reddit' === $brand[0] && preg_match( '#/r/(\w+)/#', $url, $community ) ) {
+			$header[] = esc_html( 'r/' . $community[1] );
+		}
+
+		// X writes the day out in English, Bluesky the moment in UTC.
+		$last = trim( $last );
+		$time = preg_match( '/^(?:[A-Z][a-z]+ \d{1,2}, \d{4}|\d{4}-\d\d-\d\dT[\d:.]+Z)$/', $last ) ? strtotime( $last ) : false;
+		if ( $time ) {
+			$header[] = '<time datetime="' . gmdate( 'Y-m-d', $time ) . '">' . esc_html( wp_date( get_option( 'date_format' ), $time, new \DateTimeZone( 'UTC' ) ) ) . '</time>';
+		}
+
+		$header = $icon . implode( ' &middot; ', $header );
+		$small  = 'font-size:0.875em;';
+
+		// Inline, as the players' sizing is, so the card holds its shape where the form's stylesheet is not loaded.
+		return '<blockquote class="jetpack-comments__embed-card" cite="' . esc_url( $url ) . '" style="margin:0;padding:1em;border:1px solid;' . ( $brand[1] ? "border-inline-start:4px solid {$brand[1]};" : '' ) . 'border-radius:8px;font-style:normal">'
+			. ( '' !== $header ? '<p style="margin-block-start:0;' . $small . '">' . $header . '</p>' : '' )
+			. $paragraphs
+			. '<p style="margin-block-end:0;' . $small . '">' . $footer . '</p></blockquote>';
+	}
+
+	/**
+	 * The URL to ask the provider about. Core's list predates X's rename, and X's endpoint answers for both hosts.
+	 *
+	 * @param string $url A URL.
+	 * @return string
+	 */
+	private static function lookup_url( $url ) {
+		return (string) preg_replace( '#^(https?://)(?:www\.)?x\.com/#i', '$1twitter.com/', $url );
+	}
+
+	/**
 	 * The URL as the site may embed it: http or https, under 2 KB, and from a provider core trusts.
 	 *
 	 * @param mixed $url What the commenter gave.
@@ -259,7 +454,7 @@ class Embeds extends WP_REST_Controller {
 
 		$url = esc_url_raw( $url, array( 'http', 'https' ) );
 
-		if ( '' === $url || false === _wp_oembed_get_object()->get_provider( $url, array( 'discover' => false ) ) ) {
+		if ( '' === $url || false === _wp_oembed_get_object()->get_provider( self::lookup_url( $url ), array( 'discover' => false ) ) ) {
 			return false;
 		}
 
@@ -291,24 +486,17 @@ class Embeds extends WP_REST_Controller {
 			$block['attrs'] = array( 'url' => $url );
 			$content        = esc_html( $url );
 		} else {
-			global $wp_embed;
-
-			// Through core's embed cache, which the site's posts share; the delimiters are stripped after.
+			// The preview's own lookup, so the comment shows what the commenter saw; the delimiters are stripped after.
 			$block['attrs'] = array();
-			$content        = false;
+			$content        = '';
+			$data           = $render ? self::data( $url ) : false;
 
-			if ( $render && $wp_embed instanceof \WP_Embed ) {
-				$on_fail                        = $wp_embed->return_false_on_fail;
-				$wp_embed->return_false_on_fail = true;
-				add_filter( 'embed_oembed_discover', '__return_false', 999 );
-
-				$content = self::sanitize_html( $wp_embed->shortcode( array(), $url ) );
-
-				remove_filter( 'embed_oembed_discover', '__return_false', 999 );
-				$wp_embed->return_false_on_fail = $on_fail;
+			if ( is_object( $data ) ) {
+				$content = self::player( $data );
+				$content = '' === $content ? self::card( $data, $url ) : $content;
 			}
 
-			if ( ! is_string( $content ) || '' === $content || $content === $url ) {
+			if ( '' === $content ) {
 				$content = '<a href="' . esc_url( $url ) . '" rel="nofollow ugc">' . esc_html( $url ) . '</a>';
 			} else {
 				wp_enqueue_style( 'wp-block-embed' );

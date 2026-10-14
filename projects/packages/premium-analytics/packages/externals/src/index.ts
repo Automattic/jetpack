@@ -79,6 +79,7 @@ export {
 	Icon,
 	IconButton,
 	Input,
+	InputControl,
 	Link,
 	Menu,
 	Notice,
@@ -93,6 +94,7 @@ export {
 	Text,
 	TextareaControl,
 	Tooltip,
+	ValidatedInputControl,
 	VisuallyHidden,
 } from '@wordpress/ui';
 

@@ -1,12 +1,24 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook } from '@testing-library/react';
+import apiFetch from '@wordpress/api-fetch';
+import { createElement } from 'react';
+import { getForcedReason, useFeatureStates } from '../feature-state';
 import { useAllJetpackModules, withoutPluginForcedOverrides } from '../use-all-jetpack-modules';
 import { useMainFeatures } from '../use-main-features';
 import type { ProductCamelCase } from '../../../../data/types';
 import type { MyJetpackModule } from '../../../../types';
+import type { ReactNode } from 'react';
 
 const mockModules: { current: Record< string, MyJetpackModule > } = { current: {} };
 const mockProducts: { current: Record< string, ProductCamelCase > } = { current: {} };
 const mockGetJetpackModules = jest.fn( () => mockModules.current );
+const mockOfflineSeed: { current?: OfflineFeaturesSeed } = {};
+
+jest.mock( '@wordpress/api-fetch' );
+jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	getScriptData: () => ( { myJetpack: { offlineFeatures: mockOfflineSeed.current } } ),
+} ) );
 
 jest.mock( '@automattic/jetpack-shared-stores', () => ( { store: 'modules-store' } ) );
 
@@ -119,4 +131,101 @@ describe( 'useAllJetpackModules', () => {
 			expect( result.current ).toEqual( { modules: {}, isLoading: false } );
 		}
 	);
+
+	it( 'keeps the offline plugin switch current after activation and deactivation', () => {
+		window.myJetpackInitialState = {
+			isOfflineFeatures: true,
+			myJetpackFlags: {},
+		} as typeof window.myJetpackInitialState;
+		const feature = {
+			slug: 'videopress',
+			product: 'videopress',
+			plugin: 'jetpack-videopress',
+			plugin_status: 'inactive',
+			in_jetpack: true,
+		} as MainFeature;
+		const state: MainFeaturesState = { jetpack: 'active', features: [ feature ] };
+		mockProducts.current = {};
+		mockModules.current = {
+			videopress: { ...mod( 'videopress', false ), available: false, activated: false },
+		};
+		mockOfflineSeed.current = {
+			mainFeatures: {
+				jetpack: state.jetpack,
+				features: state.features.map( item => ( { ...item, upgrade: null } ) ),
+			},
+			plugins: {},
+		};
+		jest.mocked( useMainFeatures ).mockReturnValue( { ...state, isPlaceholderData: false } );
+		const { result, rerender } = renderHook( current => useFeatureStates( current ), {
+			initialProps: state,
+		} );
+
+		expect( result.current.states[ 0 ].status ).toBe( 'inactive' );
+		expect( result.current.states[ 0 ].control.kind ).toBe( 'plugin' );
+
+		mockModules.current = {
+			videopress: { ...mod( 'videopress', 'active' ), available: false },
+		};
+		const activated: MainFeaturesState = {
+			...state,
+			features: [ { ...feature, plugin_status: 'active' } ],
+		};
+		jest.mocked( useMainFeatures ).mockReturnValue( { ...activated, isPlaceholderData: false } );
+		rerender( activated );
+
+		expect( result.current.states[ 0 ].status ).toBe( 'active' );
+		expect( result.current.states[ 0 ].control.kind ).toBe( 'plugin' );
+		expect( getForcedReason( result.current.states[ 0 ] ) ).toBeNull();
+
+		mockModules.current = {
+			videopress: { ...mod( 'videopress', false ), available: false, activated: false },
+		};
+		jest.mocked( useMainFeatures ).mockReturnValue( { ...state, isPlaceholderData: false } );
+		rerender( state );
+
+		expect( result.current.states[ 0 ].status ).toBe( 'inactive' );
+		expect( result.current.states[ 0 ].control.kind ).toBe( 'plugin' );
+		expect( getForcedReason( result.current.states[ 0 ] ) ).toBeNull();
+	} );
+} );
+
+describe( 'the shared module request gate', () => {
+	it.each( [
+		[ 'offline seed with Jetpack inactive', true, 'inactive', 0 ],
+		[ 'online Jetpack inactive', false, 'inactive', 0 ],
+		[ 'online Jetpack active', false, 'active', 1 ],
+	] as const )( 'requests modules only when active: %s', ( _case, offline, jetpack, requests ) => {
+		const state: MainFeaturesState = { jetpack, features: [] };
+		mockOfflineSeed.current = {
+			mainFeatures: {
+				jetpack: state.jetpack,
+				features: state.features.map( item => ( { ...item, upgrade: null } ) ),
+			},
+			plugins: {},
+		};
+		window.myJetpackInitialState = {
+			isOfflineFeatures: offline,
+			mainFeatures: offline ? { jetpack: 'active', features: [] } : state,
+		} as typeof window.myJetpackInitialState;
+		jest
+			.mocked( useMainFeatures )
+			.mockImplementation( jest.requireActual( '../use-main-features' ).useMainFeatures );
+		jest.mocked( apiFetch ).mockImplementation( () => new Promise( () => {} ) );
+		mockGetJetpackModules.mockClear();
+		mockModules.current = {};
+		mockProducts.current = {};
+		const client = new QueryClient( {
+			defaultOptions: { queries: { retry: false, gcTime: Infinity } },
+		} );
+		const { result, unmount } = renderHook( () => useAllJetpackModules(), {
+			wrapper: ( { children }: { children: ReactNode } ) =>
+				createElement( QueryClientProvider, { client }, children ),
+		} );
+
+		expect( mockGetJetpackModules ).toHaveBeenCalledTimes( requests );
+		expect( result.current.isLoading ).toBe( false );
+		unmount();
+		client.clear();
+	} );
 } );

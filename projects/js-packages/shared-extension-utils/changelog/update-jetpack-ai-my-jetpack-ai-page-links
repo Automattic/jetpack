@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add getJetpackAiManageUrl(), the URL where Jetpack AI is managed on the site.
