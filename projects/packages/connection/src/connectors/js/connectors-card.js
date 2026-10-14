@@ -348,9 +348,17 @@ function StatusBadge( { label, modifier = 'connected' } ) {
  * @param {string|false|null} props.subtitle   - Override for the default login/email line. Pass false to hide entirely.
  * @param {object|null}       props.actionSlot - Optional element rendered at the end of the user row.
  * @param {boolean}           props.showShield - Whether to show the protected-owner shield beside the title.
+ * @param {object|null}       props.po         - Protected-owner card state.
  * @return {object|null} React element or null.
  */
-function UserSection( { title, user, subtitle = null, actionSlot = null, showShield = false } ) {
+function UserSection( {
+	title,
+	user,
+	subtitle = null,
+	actionSlot = null,
+	showShield = false,
+	po = null,
+} ) {
 	if ( ! user ) {
 		return null;
 	}
@@ -361,7 +369,7 @@ function UserSection( { title, user, subtitle = null, actionSlot = null, showShi
 	return createElement(
 		VStack,
 		{ spacing: 3, className: 'jetpack-connector__section' },
-		createElement( SectionHeading, { title, showShield } ),
+		createElement( SectionHeading, { title, showShield, po } ),
 		createElement(
 			HStack,
 			null,
@@ -450,12 +458,13 @@ function ConnectedPluginsSection() {
 /**
  * Uppercase section label, with an optional protected-owner shield.
  *
- * @param {object}  props            - Component props.
- * @param {string}  props.title      - Section heading.
- * @param {boolean} props.showShield - Whether to show the protected-owner shield.
+ * @param {object}      props            - Component props.
+ * @param {string}      props.title      - Section heading.
+ * @param {boolean}     props.showShield - Whether to show the protected-owner shield.
+ * @param {object|null} props.po         - Protected-owner card state.
  * @return {object} React element.
  */
-function SectionHeading( { title, showShield = false } ) {
+function SectionHeading( { title, showShield = false, po = null } ) {
 	const label = createElement(
 		Text,
 		{
@@ -475,7 +484,7 @@ function SectionHeading( { title, showShield = false } ) {
 		HStack,
 		{ spacing: 1, expanded: false, alignment: 'center', justify: 'flex-start' },
 		label,
-		createElement( ProtectedOwnerShield )
+		createElement( ProtectedOwnerShield, { po } )
 	);
 }
 
@@ -484,10 +493,14 @@ function SectionHeading( { title, showShield = false } ) {
  *
  * Nothing is locked until an anchor exists, so a requested owner gets its own wording.
  *
+ * @param {object}      props    - Component props.
+ * @param {object|null} props.po - Protected-owner card state.
  * @return {object} React element.
  */
-function ProtectedOwnerShield() {
-	const notice = __( 'Ownership is locked to the confirmed owner.', 'jetpack-connection' );
+function ProtectedOwnerShield( { po } ) {
+	const notice = protectedOwnerState( po )?.anchored
+		? __( 'Ownership is locked to the confirmed owner.', 'jetpack-connection' )
+		: __( 'Ownership will be locked once an owner is confirmed.', 'jetpack-connection' );
 	const icon = createElement( 'span', {
 		className: 'dashicons dashicons-shield jetpack-connector__protected-owner-shield',
 		role: 'img',
@@ -787,7 +800,7 @@ function ProtectedOwnerSection( { po } ) {
 	return createElement(
 		VStack,
 		{ spacing: 3, className: 'jetpack-connector__section' },
-		createElement( SectionHeading, { title, showShield: true } ),
+		createElement( SectionHeading, { title, showShield: true, po } ),
 		body,
 		confirmError
 			? createElement( ErrorNotice, {
@@ -1584,6 +1597,7 @@ function ExpandedDetails( {
 					// This row stands in for the connection-owner row when the viewer is the
 					// owner, so it carries the shield the other row would have shown.
 					showShield: Boolean( viewer.isOwner ) && protectedOwnerIsEstablished( po ),
+					po,
 					actionSlot:
 						isManagedPlatformSite && viewer.isOwner
 							? null
@@ -1661,6 +1675,7 @@ function ExpandedDetails( {
 					user: owner,
 					subtitle: false,
 					showShield: protectedOwnerIsEstablished( po ),
+					po,
 				} )
 			: null,
 
