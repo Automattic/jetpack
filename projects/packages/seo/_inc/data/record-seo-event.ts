@@ -35,18 +35,22 @@ type EventProps = Record< string, string | number | boolean >;
 /**
  * Fire a Tracks event with the standard SEO props, including the `blog_id` join key.
  *
- * Still fires without the server context: a partial event beats a silent gap.
+ * The server omits the context when the site hasn't opted into tracking, and then nothing is recorded.
  *
  * @param event  - The full event name, e.g. `jetpack_seo_setting_updated`.
  * @param screen - The dashboard screen the event came from.
  * @param props  - Event-specific properties. Use `none` (not null) for N/A values.
+ * @return Whether the event was recorded.
  */
 export function recordSeoEvent(
 	event: string,
 	screen: SeoTracksScreen,
 	props: EventProps = {}
-): void {
+): boolean {
 	const context = ( getScriptData() as SeoScriptData | undefined )?.seo?.tracks;
+	if ( ! context ) {
+		return false;
+	}
 
 	jetpackAnalytics.tracks.recordEvent( event, {
 		surface: 'wp_admin',
@@ -54,4 +58,21 @@ export function recordSeoEvent(
 		...context,
 		...props,
 	} );
+	return true;
+}
+
+/**
+ * Fire `jetpack_seo_screen_viewed` once per page load.
+ *
+ * Each route is a separate bundle with its own copy of this module, so the guard lives on `window`.
+ *
+ * @param screen - The landing screen.
+ */
+export function recordScreenViewOnce( screen: SeoTracksScreen ): void {
+	const page = window as Window & { jetpackSeoScreenViewed?: boolean };
+	if ( page.jetpackSeoScreenViewed ) {
+		return;
+	}
+	page.jetpackSeoScreenViewed = true;
+	recordSeoEvent( 'jetpack_seo_screen_viewed', screen );
 }

@@ -2,15 +2,11 @@ import { AdminPage, ThemeProvider } from '@automattic/jetpack-components';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { recordSeoEvent, screenForTab } from '../data/record-seo-event';
+import { recordScreenViewOnce, screenForTab } from '../data/record-seo-event';
 import DashboardNav from './dashboard-nav';
 import '../admin-page-layout.scss';
 import type { SeoTab } from './dashboard-nav';
 import type { ReactNode } from 'react';
-
-// The shell re-renders on every route switch, so a module-level guard keeps the
-// screen-view to one event per page load, tagged with the landing screen.
-let screenViewRecorded = false;
 
 interface Props {
 	/** The tab for the currently rendered route (drives the active nav state). */
@@ -45,13 +41,7 @@ interface Props {
  * @return The SEO dashboard page chrome.
  */
 const DashboardPage = ( { active, showFooter = true, flush = false, children }: Props ) => {
-	useEffect( () => {
-		if ( screenViewRecorded ) {
-			return;
-		}
-		screenViewRecorded = true;
-		recordSeoEvent( 'jetpack_seo_screen_viewed', screenForTab( active ) );
-	}, [ active ] );
+	useEffect( () => recordScreenViewOnce( screenForTab( active ) ), [ active ] );
 
 	return (
 		<ThemeProvider>

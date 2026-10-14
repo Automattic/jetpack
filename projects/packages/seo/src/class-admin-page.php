@@ -149,7 +149,7 @@ class Admin_Page {
 	/**
 	 * Identifiers the client attaches to every SEO Tracks event.
 	 *
-	 * `blog_id` is the WordPress.com id where there is one, so every host joins on the same key.
+	 * `blog_id` is the WordPress.com id, or 0 before connecting, so a local id never collides with one.
 	 *
 	 * @return array{blog_id:int, site_type:string, is_a11n:bool, is_test:bool, product_version:string}
 	 */
@@ -163,10 +163,7 @@ class Admin_Page {
 			$site_type = 'jetpack';
 		}
 
-		$blog_id = (int) \Jetpack_Options::get_option( 'id' );
-		if ( ! $blog_id ) {
-			$blog_id = get_current_blog_id();
-		}
+		$blog_id = (int) $host->get_wpcom_site_id();
 
 		// Defined on Simple only, so Automatticians read false on Atomic and self-hosted.
 		$is_a11n = function_exists( 'is_automattician' ) && (bool) is_automattician();
@@ -343,9 +340,10 @@ class Admin_Page {
 			'upsell_url' => $is_gated ? Initializer::get_upsell_url() : '',
 		);
 
-		// Standard Tracks identifiers, attached to every SEO event by the client
-		// `recordSeoEvent()` wrapper (see `_inc/data/record-seo-event.ts`).
-		$data[ Initializer::SCRIPT_DATA_KEY ]['tracks'] = self::get_tracks_context();
+		// Without it the client records nothing, so another script's Tracks transport can't send our events.
+		if ( self::can_use_analytics() ) {
+			$data[ Initializer::SCRIPT_DATA_KEY ]['tracks'] = self::get_tracks_context();
+		}
 
 		return $data;
 	}

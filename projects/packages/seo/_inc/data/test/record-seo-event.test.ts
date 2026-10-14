@@ -12,7 +12,15 @@ jest.unstable_mockModule( '@automattic/jetpack-script-data', () => ( {
 	getScriptData,
 } ) );
 
-const { recordSeoEvent } = await import( '../record-seo-event' );
+const { recordSeoEvent, recordScreenViewOnce } = await import( '../record-seo-event' );
+
+const CONTEXT = {
+	blog_id: 42,
+	site_type: 'atomic',
+	is_a11n: false,
+	is_test: false,
+	product_version: '0.4.0',
+};
 
 describe( 'recordSeoEvent', () => {
 	beforeEach( () => {
@@ -20,17 +28,7 @@ describe( 'recordSeoEvent', () => {
 	} );
 
 	it( 'merges the server context, fixed surface, screen, and event props', () => {
-		getScriptData.mockReturnValue( {
-			seo: {
-				tracks: {
-					blog_id: 42,
-					site_type: 'atomic',
-					is_a11n: false,
-					is_test: false,
-					product_version: '0.4.0',
-				},
-			},
-		} );
+		getScriptData.mockReturnValue( { seo: { tracks: CONTEXT } } );
 
 		recordSeoEvent( 'jetpack_seo_llms_txt_enabled', 'geo', { enabled: true } );
 
@@ -46,14 +44,25 @@ describe( 'recordSeoEvent', () => {
 		} );
 	} );
 
-	it( 'still fires (surface + screen only) when the tracks context is absent', () => {
-		getScriptData.mockReturnValue( undefined );
+	it( 'records nothing when the server sent no context, as on sites without tracking consent', () => {
+		getScriptData.mockReturnValue( { seo: {} } );
 
-		recordSeoEvent( 'jetpack_seo_screen_viewed', 'overview' );
+		expect( recordSeoEvent( 'jetpack_seo_screen_viewed', 'overview' ) ).toBe( false );
+		expect( recordEvent ).not.toHaveBeenCalled();
+	} );
 
-		expect( recordEvent ).toHaveBeenCalledWith( 'jetpack_seo_screen_viewed', {
-			surface: 'wp_admin',
-			screen: 'overview',
-		} );
+	it( 'records one screen view per page load, even from separately bundled copies', async () => {
+		getScriptData.mockReturnValue( { seo: { tracks: CONTEXT } } );
+		jest.resetModules();
+		const otherBundle = await import( '../record-seo-event' );
+
+		recordScreenViewOnce( 'overview' );
+		otherBundle.recordScreenViewOnce( 'settings' );
+
+		expect( recordEvent ).toHaveBeenCalledTimes( 1 );
+		expect( recordEvent ).toHaveBeenCalledWith(
+			'jetpack_seo_screen_viewed',
+			expect.objectContaining( { screen: 'overview' } )
+		);
 	} );
 } );

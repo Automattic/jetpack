@@ -256,6 +256,33 @@ class AdminPageTest extends TestCase {
 		}
 	}
 
+	/**
+	 * A local id would collide with the WordPress.com site that has the same id.
+	 */
+	public function test_get_tracks_context_reports_no_blog_id_before_connecting() {
+		$this->assertSame( 0, Admin_Page::get_tracks_context()['blog_id'] );
+
+		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
+		try {
+			$this->assertSame( get_current_blog_id(), Admin_Page::get_tracks_context()['blog_id'] );
+		} finally {
+			\Automattic\Jetpack\Constants::clear_single_constant( 'IS_WPCOM' );
+		}
+	}
+
+	public function test_tracks_context_is_only_sent_once_the_site_allows_tracking() {
+		$data = Admin_Page::inject_script_data( array() );
+		$this->assertArrayNotHasKey( 'tracks', $data[ Initializer::SCRIPT_DATA_KEY ] );
+
+		$this->agree_to_terms_of_service();
+		try {
+			$data = Admin_Page::inject_script_data( array() );
+			$this->assertArrayHasKey( 'tracks', $data[ Initializer::SCRIPT_DATA_KEY ] );
+		} finally {
+			$this->revoke_terms_of_service();
+		}
+	}
+
 	public function test_get_tracks_context_reads_the_automattician_flag() {
 		$this->assertFalse( Admin_Page::get_tracks_context()['is_a11n'] );
 
@@ -297,9 +324,6 @@ class AdminPageTest extends TestCase {
 		$this->assertFalse( wp_script_is( 'jp-tracks', 'enqueued' ) );
 	}
 
-	/**
-	 * Simple already loads w.js from stats.php; a second copy would double-send every event.
-	 */
 	public function test_enqueue_tracks_transport_is_skipped_on_simple() {
 		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
 		try {
