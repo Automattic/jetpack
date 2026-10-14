@@ -1,8 +1,6 @@
-// Centered fixed-width column. 660px is the established Jetpack settings-page
-// width (see Newsletter's settings/style.scss: "MSD and future JP settings
-// pages are 660px wide"); there is no design token for it.
+// Centered fixed-width column, the width shared by Jetpack settings screens.
 .root {
-	max-inline-size: 660px;
+	max-inline-size: 970px;
 	margin-inline: auto;
 }
 

@@ -1,11 +1,11 @@
 // GEO tab layout. A single, centered fixed-width column matching the Settings
-// tab's treatment — 660px is the established Jetpack settings-page width (see
-// settings/style.scss). The cards stack with a consistent gap.
+// tab's 970px treatment (see settings/style.module.scss). The cards stack
+// with a consistent gap.
 .jetpack-seo-geo {
 	display: flex;
 	flex-direction: column;
 	gap: var(--wpds-dimension-gap-lg);
-	max-inline-size: 660px;
+	max-inline-size: 970px;
 	margin-inline: auto;
 }
 
