@@ -151,8 +151,7 @@ async function fixDeps( pkg ) {
 	}
 
 	// A one-off script (`projects/packages/jetpack-mu-wpcom/bin/sync-newspack-blocks.sh`) runs `jscodeshift`, which relies on
-	// outdated dependencies that fails our trust policy. Its subdependency `make-dir` only uses `semver.satisfies()`, which
-	// is unchanged in `semver` v7, so this is safe enough.
+	// outdated dependencies that fails our trust policy. Specifically, `jscodeshift` → `@babel/register` → really old `make-dir` v2 (to still support node <10.12) → `semver` v5.
 	if ( pkg.name === 'make-dir' && pkg.dependencies?.semver === '^5.6.0' ) {
 		pkg.dependencies.semver = '^7.7.3';
 	}
