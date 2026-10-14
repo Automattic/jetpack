@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { getScriptData } from '@automattic/jetpack-script-data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Link, Notice, Stack, Text } from '@wordpress/ui';
@@ -16,6 +15,8 @@ import type { ConnectionOwnerCandidate } from './use-ownership-transfer';
 export interface TransferConfirmStepProps {
 	/** The administrator about to become the owner. */
 	candidate: ConnectionOwnerCandidate;
+	/** The administrator handing ownership over. */
+	currentOwner?: { displayName?: string } | null;
 	/** Whether the current owner is also this connection's protected owner. */
 	isProtectedOwner?: boolean;
 	/** A failed transfer's message, if any. */
@@ -30,10 +31,11 @@ export interface TransferConfirmStepProps {
  */
 const TransferConfirmStep = ( {
 	candidate,
+	currentOwner,
 	isProtectedOwner,
 	error,
 }: TransferConfirmStepProps ) => {
-	const currentOwnerName = getScriptData()?.user?.current_user?.display_name ?? '';
+	const currentOwnerName = currentOwner?.displayName ?? '';
 
 	return (
 		<Stack direction="column" gap="lg" className="jp-connection__transfer-ownership">

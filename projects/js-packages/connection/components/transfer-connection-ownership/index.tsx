@@ -68,6 +68,11 @@ const TransferConnectionOwnership = ( {
 		( select: StoreSelector ) => !! select( STORE_ID ).getHasProtectedOwner(),
 		[]
 	);
+	const currentOwner = useSelect(
+		( select: StoreSelector ) =>
+			select( STORE_ID ).getConnectionOwner() as { displayName?: string } | null,
+		[]
+	);
 
 	if ( 'done' === step && selectedCandidate ) {
 		return (
@@ -88,6 +93,7 @@ const TransferConnectionOwnership = ( {
 			<Stack direction="column" gap="lg" className="jp-connection__transfer-ownership-form">
 				<TransferConfirmStep
 					candidate={ selectedCandidate }
+					currentOwner={ currentOwner }
 					isProtectedOwner={ isProtectedOwner }
 					error={ error }
 				/>
