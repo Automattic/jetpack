@@ -15,6 +15,7 @@ import { linksTo } from '../../../utils/admin-menu-sync';
 import { getProductModules, PRODUCT_MODULES } from './mappings';
 import {
 	getFeatureUnavailableReason,
+	getModuleAvailability,
 	getModuleStatus,
 	getOverrideReason,
 } from './module-availability';
@@ -229,7 +230,7 @@ export function resolveFeatureState(
 		feature.plugin_override !== 'inactive' &&
 		( ! accountModule ||
 			( accountModule.override !== 'inactive' &&
-				! getModuleStatus( { ...accountModule, override: false } ).isMultisiteBlocked ) );
+				! getModuleAvailability( accountModule ).isMultisiteBlocked ) );
 	if (
 		needsAccount &&
 		connectionCanHelp &&
@@ -246,7 +247,7 @@ export function resolveFeatureState(
 			product,
 			status: 'inactive',
 			control: { kind: 'none', override: gatedModule.override || undefined },
-			unavailableReason: getModuleStatus( { ...gatedModule, override: false } ).reason,
+			unavailableReason: getModuleAvailability( gatedModule ).reason,
 		};
 	}
 
@@ -279,8 +280,7 @@ export function resolveFeatureState(
 		// disagreed with the sidebar would be wrong on any Jetpack site running the module.
 		const moduleStatus = $module && getModuleStatus( $module );
 		const moduleIsOn = Boolean( moduleStatus?.isAvailable && $module?.activated );
-		const moduleUnavailableReason =
-			$module && getModuleStatus( { ...$module, override: false } ).reason;
+		const moduleUnavailableReason = $module && getModuleAvailability( $module ).reason;
 
 		if ( feature.plugin_status === 'not-installed' ) {
 			// A plan runs Backup and Scan in the cloud with no plugin. Shim until JETPACK-2620,

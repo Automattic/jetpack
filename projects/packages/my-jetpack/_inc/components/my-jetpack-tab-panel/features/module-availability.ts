@@ -55,6 +55,16 @@ export function getModuleStatus( $module: MyJetpackModule ) {
 }
 
 /**
+ * A host override controls the switch but cannot remove the module's restrictions.
+ *
+ * @param $module - The module to check.
+ * @return The module's availability, reason and multisite restriction without a host override.
+ */
+export function getModuleAvailability( $module: MyJetpackModule ) {
+	return getModuleStatus( { ...$module, override: false } );
+}
+
+/**
  * The feature's availability restriction, including a required account connection.
  *
  * @param state - The feature's live state.
@@ -66,7 +76,7 @@ export function getFeatureUnavailableReason( state: FeatureState ): string | und
 		return state.unavailableReason;
 	}
 	if ( state.control.kind === 'module' ) {
-		return getModuleStatus( { ...state.control.module, override: false } ).reason;
+		return getModuleAvailability( state.control.module ).reason;
 	}
 	if ( state.feature.plugin && state.feature.plugin_status !== 'not-installed' ) {
 		return undefined;

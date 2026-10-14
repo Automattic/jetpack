@@ -8,7 +8,7 @@ import useAnalytics from '../../../hooks/use-analytics';
 import { getFeaturePricingHref } from '../utils';
 import { FeatureHighlights } from './feature-highlights';
 import { useFeaturesTracking } from './features-tracking-context';
-import { getModuleStatus } from './module-availability';
+import { getModuleAvailability } from './module-availability';
 import styles from './styles.module.scss';
 import type { FeatureState } from './feature-state';
 
@@ -75,7 +75,7 @@ function isPurchaseBlocked( state: FeatureState ): boolean {
 	return (
 		( state.control.kind === 'module' &&
 			( state.control.module.override === 'inactive' ||
-				getModuleStatus( { ...state.control.module, override: false } ).isMultisiteBlocked ) ) ||
+				getModuleAvailability( state.control.module ).isMultisiteBlocked ) ) ||
 		( ( state.control.kind === 'plugin' || state.control.kind === 'none' ) &&
 			state.control.override === 'inactive' )
 	);
