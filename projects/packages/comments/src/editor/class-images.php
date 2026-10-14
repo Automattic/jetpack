@@ -31,8 +31,8 @@ class Images {
 
 	/**
 	 * The image block as this package writes it: the URL and alt text in its attributes, and the URL
-	 * as the figure's text. Past the comment's limit, or where images are off, it is a paragraph
-	 * holding the link. At render, the figure draws an https image, or the link where it may not.
+	 * as the figure's text. An http image, one past the comment's limit, or any where images are off or
+	 * the comment may not draw them is a paragraph holding the link. At render, the figure draws the image.
 	 *
 	 * @param array     $block  Parsed image block.
 	 * @param bool|null $render Null while saving; at render, whether the comment may show the image.
@@ -56,8 +56,9 @@ class Images {
 
 		$link = Block_Editor::paragraph( '<a href="' . esc_url( $url ) . '" rel="nofollow ugc">' . esc_html( $url ) . '</a>' );
 
-		// Four images a comment at most. The rest stay links.
-		if ( ! self::is_enabled() || ++$count > 4 ) {
+		// An http image would be mixed content on the https page. Checked before the count, which only
+		// images that draw use up: four a comment at most.
+		if ( ! self::is_enabled() || false === $render || 'https' !== wp_parse_url( $url, PHP_URL_SCHEME ) || ++$count > 4 ) {
 			return $link;
 		}
 
@@ -70,11 +71,6 @@ class Images {
 			);
 			$html           = '<figure class="wp-block-image">' . esc_html( $url ) . '</figure>';
 		} else {
-			// An http image would be mixed content on the https page.
-			if ( ! $render || 'https' !== wp_parse_url( $url, PHP_URL_SCHEME ) ) {
-				return $link;
-			}
-
 			wp_enqueue_style( 'wp-block-image' );
 
 			$img = new \WP_HTML_Tag_Processor( '<img>' );
