@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add `aiManageUrl` to the My Jetpack script data type.

@@ -248,7 +248,7 @@ describe( 'WidgetState', () => {
 		expect( svgPathOf( container ) ).toBe( iconPathOf( <>{ search }</> ) );
 	} );
 
-	it( 'renders no icon, not the generic magnifier, for a widget’s own copy that names none', () => {
+	it( 'keeps the generic magnifier, not a bare message, for a widget’s own copy that names no icon', () => {
 		const { container } = render(
 			<WidgetState
 				isLoading={ false }
@@ -260,7 +260,7 @@ describe( 'WidgetState', () => {
 			</WidgetState>
 		);
 		expect( screen.getByText( 'Open an author to see their top posts here.' ) ).toBeInTheDocument();
-		expect( svgPathOf( container ) ).toBeNull();
+		expect( svgPathOf( container ) ).toBe( iconPathOf( <>{ search }</> ) );
 	} );
 
 	it( 'renders the icon a widget names for its own copy instead of the generic magnifier', () => {

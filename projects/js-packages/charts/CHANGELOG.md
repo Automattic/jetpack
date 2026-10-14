@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.9.0] - 2026-10-12
+### Added
+- Heatmap chart: Add a fitCells option that grows compact cells to fill the chart, wrapping column groups onto more rows when that makes the cells larger, and draw column group labels at 13px in the body text color. [#53341]
+- Leaderboard chart: Let a clickable row hold a link in its label with the new `hasInteractiveLabel` entry option. [#53307]
+- Line, Area and Bar charts: Add an `ariaLabel` prop to name each chart for screen readers. [#53202]
+
+### Changed
+- Heatmap chart: Start the legend with a swatch in the empty-cell color. [#53338]
+- Line, Area and Bar charts: Change the chart container's role from `grid` to `application`, so it is valid for screen readers, and drop the inner svg's `aria-label="XYChart"`. Update any selector that targets `[role="grid"]` or `[aria-label="XYChart"]`. [#53202]
+
+### Fixed
+- Pie and semi-circle charts: Let keyboard users move through segments with the arrow keys, and give the chart an accessible name with a new `ariaLabel` prop. [#53274]
+
 ## [4.8.0] - 2026-10-07
 ### Added
 - Add `TooltipBox`, the chart tooltip box, and `XYChartTooltip`, the new name for `AccessibleTooltip`. [#53075]
@@ -1161,6 +1174,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[4.9.0]: https://github.com/Automattic/charts/compare/v4.8.0...v4.9.0
 [4.8.0]: https://github.com/Automattic/charts/compare/v4.7.0...v4.8.0
 [4.7.0]: https://github.com/Automattic/charts/compare/v4.6.0...v4.7.0
 [4.6.0]: https://github.com/Automattic/charts/compare/v4.5.0...v4.6.0

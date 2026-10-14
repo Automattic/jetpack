@@ -19,6 +19,12 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	// Set once; cleared only by an explicit reset (re-tailor, dismiss, reset).
 	const OPTION_COMPLETED = 'wpcom_ai_launchpad_completed';
 
+	/**
+	 * Options whose writes can finish a task outside Site Setup: every listener records completion in the statuses
+	 * option, and the launch task reads `launch-status` live.
+	 */
+	const COMPLETION_TRIGGER_OPTIONS = array( 'launchpad_checklist_tasks_statuses', 'launch-status' );
+
 	const MIN_VALID_TASKS = 4;
 
 	/**
@@ -27,6 +33,13 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	 */
 	const MAX_VALIDATION_ERRORS       = 4;
 	const MAX_VALIDATION_ERROR_LENGTH = 400;
+
+	/**
+	 * Blogs with a completion pass queued for shutdown, as blog id => true.
+	 *
+	 * @var array<int, true>
+	 */
+	private $pending_completion_blog_ids = array();
 
 	// `woo_launch_site`, `link_in_bio_launched`, and `videopress_launched` stay valid launch tasks so a stray AI
 	// emission passes PUT validation rather than failing the whole list into the deterministic fallback. It is
@@ -208,6 +221,49 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		$this->rest_base = 'ai-launchpad';
 
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
+
+		foreach ( self::COMPLETION_TRIGGER_OPTIONS as $option ) {
+			add_action( "add_option_{$option}", array( $this, 'schedule_completion_pass' ) );
+			add_action( "update_option_{$option}", array( $this, 'schedule_completion_pass' ) );
+		}
+	}
+
+	/**
+	 * Queues a completion pass for shutdown, so finishing the last task outside Site Setup (a launch, the editor)
+	 * hides the menu on the next page load. Deferred so it sees the request's final state, not a write mid-way.
+	 *
+	 * @return void
+	 */
+	public function schedule_completion_pass() {
+		// Some tasks judge completion by the current user, so cron or a visitor must not decide the owner's list.
+		if (
+			! current_user_can( 'manage_options' )
+			|| get_option( self::OPTION_COMPLETED )
+			|| ! get_option( self::OPTION_AI_OUTPUT )
+			|| true !== $this->check_eligibility()
+		) {
+			return;
+		}
+
+		$this->pending_completion_blog_ids[ get_current_blog_id() ] = true;
+		add_action( 'shutdown', array( $this, 'run_scheduled_completion_passes' ) );
+	}
+
+	/**
+	 * Runs the queued completion passes, each in the blog that queued it: on WordPress.com Simple the write can
+	 * happen inside a switch_to_blog() that is restored by shutdown.
+	 *
+	 * @return void
+	 */
+	public function run_scheduled_completion_passes() {
+		foreach ( array_keys( $this->pending_completion_blog_ids ) as $blog_id ) {
+			$switched = is_multisite() && get_current_blog_id() !== $blog_id && switch_to_blog( $blog_id );
+			$this->maybe_mark_completed();
+			if ( $switched ) {
+				restore_current_blog();
+			}
+		}
+		$this->pending_completion_blog_ids = array();
 	}
 
 	/**
@@ -491,7 +547,8 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		}
 
 		// Testing aid: ?all_tasks=1 renders the whole catalog, independent of the persisted tailored output.
-		if ( $request instanceof WP_REST_Request && $request->get_param( 'all_tasks' ) ) {
+		$all_tasks = $request instanceof WP_REST_Request && $request->get_param( 'all_tasks' );
+		if ( $all_tasks ) {
 			$tasks = $this->apply_skipped_tasks( $this->build_all_catalog_tasks() );
 		} else {
 			$tasks = $this->get_current_tasks();
@@ -508,12 +565,20 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 
 		$this->maybe_mark_completed();
 
+		// The client shows the wizard when there is no AI output and ?all_tasks=1 is off (decideInitialView()
+		// in js/lib/orchestration.ts). The banner never renders there, so skip the offer and its ExPlat
+		// assignment: a user who sees only the wizard must not count as exposed. The list reads this endpoint
+		// again once the wizard finishes, and that read carries the offer.
+		$shows_wizard = ! is_array( $ai_output ) && ! $all_tasks;
+
 		return array(
 			'wizard'             => is_array( $wizard ) ? $wizard : null,
 			'ai_output'          => is_array( $ai_output ) ? $ai_output : null,
 			'tasks'              => $tasks,
 			'checklist_statuses' => $checklist_statuses,
 			'dismissed'          => (bool) get_option( self::OPTION_DISMISSED, false ),
+			// Lets the page celebrate a list finished elsewhere, which this read latches.
+			'list_completed'     => (bool) get_option( self::OPTION_COMPLETED ),
 			'is_eligible'        => true,
 			// The language this request is translated into, which is the reader's own. Task subtitles
 			// follow it, since they are read here and never published.
@@ -529,6 +594,8 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 				'language'    => wpcom_ai_launchpad_site_locale(),
 				'copy'        => wpcom_ai_launchpad_site_copy(),
 			),
+			// The free DIFM offer banner under the task list, or null when it must not show.
+			'difm_offer'         => $shows_wizard ? null : AI_Launchpad_Difm_Offer::get_offer(),
 		);
 	}
 
@@ -671,7 +738,8 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	/**
 	 * Runs the completion pass: reports newly-completed tasks to Tracks, then latches OPTION_COMPLETED (and records
 	 * the all-tasks-completed event) the first time the list is fully done. Called on every path that can finish a
-	 * task (read, skip, complete-on-click); the already-set check skips the rebuild once latched.
+	 * task (read, skip, complete-on-click, a COMPLETION_TRIGGER_OPTIONS write); the already-set check skips the
+	 * rebuild once latched.
 	 *
 	 * @return void
 	 */
@@ -686,6 +754,8 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		}
 
 		$tasks = $this->get_current_tasks();
+		// After the rebuild, whose own status writes queue a pass too: this one covers them all.
+		unset( $this->pending_completion_blog_ids[ get_current_blog_id() ] );
 		// An empty list is not "complete" — the wizard still needs to run.
 		if ( empty( $tasks ) ) {
 			return;
@@ -1033,8 +1103,9 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		$this->maybe_mark_completed();
 
 		return array(
-			'completed' => true,
-			'task_id'   => $task_id,
+			'completed'      => true,
+			'task_id'        => $task_id,
+			'list_completed' => (bool) get_option( self::OPTION_COMPLETED ),
 		);
 	}
 
@@ -1071,8 +1142,9 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		$this->maybe_mark_completed();
 
 		return array(
-			'skipped' => true,
-			'task_id' => $task_id,
+			'skipped'        => true,
+			'task_id'        => $task_id,
+			'list_completed' => (bool) get_option( self::OPTION_COMPLETED ),
 		);
 	}
 

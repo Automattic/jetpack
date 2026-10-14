@@ -129,6 +129,13 @@ class Manager {
 	private static $connection_invalidators_added = false;
 
 	/**
+	 * The raw HTTP response of the registration request currently being processed.
+	 *
+	 * @var array|WP_Error|null
+	 */
+	private $last_register_response = null;
+
+	/**
 	 * Initialize the object.
 	 * Make sure to call the "Configure" first.
 	 *
@@ -2337,10 +2344,41 @@ class Manager {
 	 * remain public because the call to action comes from the current site, not from
 	 * WordPress.com.
 	 *
+	 * Always attempts: the retry gate and the offline mode check live in
+	 * `try_registration()`, so unattended callers must go through that instead.
+	 *
 	 * @param string $api_endpoint (optional) an API endpoint to use, defaults to 'register'.
 	 * @return true|WP_Error The error object.
 	 */
 	public function register( $api_endpoint = 'register' ) {
+		$this->last_register_response = null;
+
+		$result = $this->do_register( $api_endpoint );
+
+		if ( is_wp_error( $result ) ) {
+			Registration_Failure::record(
+				$result,
+				$this->last_register_response,
+				$this->get_plugin_slug()
+			);
+		} else {
+			Registration_Failure::clear();
+		}
+
+		$this->last_register_response = null;
+
+		return $result;
+	}
+
+	/**
+	 * Perform the registration request and store the resulting connection data.
+	 *
+	 * @see Manager::register()
+	 *
+	 * @param string $api_endpoint An API endpoint to use.
+	 * @return true|WP_Error The error object.
+	 */
+	private function do_register( $api_endpoint ) {
 		// Clean-up leftover tokens just in-case.
 		// This fixes an edge case that was preventing users to register when the blog token was missing but
 		// there were still leftover user tokens present.
@@ -2406,7 +2444,7 @@ class Manager {
 					'jetpack_version'          => Constants::get_constant( 'JETPACK__VERSION' ),
 					'ABSPATH'                  => Constants::get_constant( 'ABSPATH' ),
 					'current_user_email'       => wp_get_current_user()->user_email,
-					'connect_plugin'           => $this->get_plugin() ? $this->get_plugin()->get_slug() : null,
+					'connect_plugin'           => $this->get_plugin_slug(),
 					'package_versions'         => $package_versions,
 					'active_connected_plugins' => $active_plugins_using_connection,
 				),
@@ -2431,6 +2469,10 @@ class Manager {
 			$args,
 			true
 		);
+
+		// Kept so that ::register() can read response headers such as `Retry-After`
+		// when recording the failure.
+		$this->last_register_response = $response;
 
 		// Make sure the response is valid and does not contain any Jetpack errors.
 		$registration_details = $this->validate_remote_register_response( $response );
@@ -2522,11 +2564,41 @@ class Manager {
 	/**
 	 * Attempts Jetpack registration.
 	 *
+	 * Automatic attempts are skipped in offline mode and held back while a previous
+	 * failure still stands. Pass `$force` for attempts a user or partner explicitly
+	 * asked for - those are never held back.
+	 *
+	 * @see Registration_Failure
+	 *
+	 * @since $$next-version$$ Added the `$force` parameter, the offline mode check, and the retry backoff.
+	 *
 	 * @param bool $tos_agree Whether the user agreed to TOS.
+	 * @param bool $force     Whether this attempt was explicitly requested by a user.
 	 *
 	 * @return bool|WP_Error
 	 */
-	public function try_registration( $tos_agree = true ) {
+	public function try_registration( $tos_agree = true, $force = false ) {
+		if ( ! $force ) {
+			if ( ( new Status() )->is_offline_mode() ) {
+				return new WP_Error(
+					'offline_mode',
+					__( 'Site is in offline mode; WordPress.com registration is not attempted.', 'jetpack-connection' ),
+					array( 'status' => 400 )
+				);
+			}
+
+			$suppressed_error = Registration_Failure::get_suppressed_error();
+
+			if ( $suppressed_error ) {
+				Registration_Failure::record_suppressed_attempt(
+					$suppressed_error,
+					$this->get_plugin_slug()
+				);
+
+				return $suppressed_error;
+			}
+		}
+
 		if ( $tos_agree ) {
 			$terms_of_service = new Terms_Of_Service();
 			$terms_of_service->agree();
@@ -2545,8 +2617,8 @@ class Manager {
 
 		$tracking_data = array();
 
-		if ( null !== $this->get_plugin() ) {
-			$tracking_data['plugin_slug'] = $this->get_plugin()->get_slug();
+		if ( null !== $this->get_plugin_slug() ) {
+			$tracking_data['plugin_slug'] = $this->get_plugin_slug();
 		}
 
 		$tracking = new Tracking();
@@ -2564,6 +2636,49 @@ class Manager {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Get the reason the last registration attempt failed, if it still stands.
+	 *
+	 * Lets consuming plugins tell the user why the site is not connected - for
+	 * example that WordPress.com cannot reach a site on a private address - instead
+	 * of leaving the connection silently unavailable.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array|null Failure details, or null if the last attempt did not fail or the site is connected.
+	 */
+	public function get_registration_failure() {
+		if ( $this->is_connected() ) {
+			return null;
+		}
+
+		return Registration_Failure::get();
+	}
+
+	/**
+	 * Forget the last registration failure, so the next automatic attempt is not
+	 * held back by it.
+	 *
+	 * For consumers that trigger registration through code that cannot pass the
+	 * `$force` flag to `try_registration()`.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public function clear_registration_failure() {
+		Registration_Failure::clear();
+	}
+
+	/**
+	 * Get the slug of the plugin this connection is for, if any.
+	 *
+	 * @return string|null
+	 */
+	private function get_plugin_slug() {
+		return $this->get_plugin() ? $this->get_plugin()->get_slug() : null;
 	}
 
 	/**
@@ -3424,6 +3539,9 @@ class Manager {
 
 		// Remove tracked package versions, since they depend on the Jetpack Connection.
 		delete_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION );
+
+		// A failure recorded before the site got connected some other way (a migration, a restore) no longer applies.
+		Registration_Failure::clear();
 
 		$jetpack_unique_connection = \Jetpack_Options::get_option( 'unique_connection' );
 		if ( $jetpack_unique_connection ) {

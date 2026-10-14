@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.9.1] - 2026-10-12
+### Changed
+- Features: Offer the Protect switch through Jetpack when the Protect Dashboard feature flag is on. [#53182]
+- Overview: Stop asking to connect a WordPress.com account when nothing in use needs one. [#53242]
+
+### Fixed
+- Connection card: Ask for a user connection as soon as a plugin that needs one is switched on, without a reload. [#53356]
+- Connection card: Stop asking for a user connection as soon as the plugin that needed one is switched off, without a reload. [#53367]
+- Features: Stop requesting the Jetpack module list when the Jetpack plugin is not active. [#53249]
+- Products: Stop reporting an error when switching VideoPress off while the Jetpack plugin is inactive. [#53371]
+- Report a bundle the site has no plan for as needing a plan, rather than as switched off or needing a user connection. [#53287]
+
 ## [6.9.0] - 2026-10-07
 ### Changed
 - Features tab: List VaultPress Backup among the plans that include Activity Log history, and simplify the Search paid-plan wording. VideoPress plan comparison: Show the ad-free, customizable player as included in the free plan. [#53181]
@@ -3037,6 +3049,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[6.9.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.9.0...6.9.1
 [6.9.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.8.0...6.9.0
 [6.8.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.7.1...6.8.0
 [6.7.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.7.0...6.7.1

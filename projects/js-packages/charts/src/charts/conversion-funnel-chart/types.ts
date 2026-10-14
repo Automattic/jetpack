@@ -59,7 +59,7 @@ export interface TooltipRenderProps {
  */
 export interface ConversionFunnelChartProps extends Pick<
 	BaseChartProps,
-	'className' | 'chartId' | 'animation'
+	'className' | 'chartId' | 'animation' | 'ariaLabel'
 > {
 	/** Main conversion rate to highlight */
 	mainRate: number;

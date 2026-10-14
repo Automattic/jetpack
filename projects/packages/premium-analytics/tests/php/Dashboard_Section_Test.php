@@ -93,7 +93,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		remove_all_filters( 'doing_it_wrong_trigger_error' );
 		remove_all_actions( 'doing_it_wrong_run' );
-		remove_all_filters( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER );
 		remove_all_filters( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER );
 		remove_all_filters( 'jetpack_feature_flag_enabled_' . DASHBOARD_STORE_SECTION_FLAG );
 		remove_all_filters( 'jetpack_admin_js_script_data' );
@@ -158,7 +157,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 */
 	private function enable_every_section() {
 		$this->set_admin_user();
-		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
 	}
 
 	/**
@@ -957,7 +955,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 */
 	public function test_registers_built_in_dashboard_sections() {
 		$this->set_admin_user();
-		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
 
 		register_default_dashboard_sections();
 
@@ -1024,7 +1021,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 * The WooCommerce section registers from the WooCommerce stats package, not from here.
 	 */
 	public function test_does_not_register_the_woocommerce_section() {
-		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
 		$this->set_admin_user();
 
 		register_default_dashboard_sections();
