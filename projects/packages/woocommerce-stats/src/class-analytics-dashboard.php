@@ -116,10 +116,10 @@ class Analytics_Dashboard {
 	const STORE_PERFORMANCE_BOOKINGS_MODULE = '@jetpack-woocommerce-stats/store-performance-bookings';
 
 	/**
-	 * Filter on the boot dependencies of the dashboard page: its menu slug, `Analytics::MENU_PAGE_SLUG`,
-	 * under wp-build's `_boot_dependencies` suffix.
+	 * Action the dashboard page fires as it enqueues its scripts: its menu slug,
+	 * `Analytics::MENU_PAGE_SLUG`, under wp-build's `_init` suffix.
 	 */
-	const DASHBOARD_BOOT_DEPENDENCIES_FILTER = 'jetpack-premium-analytics-wp-admin_boot_dependencies';
+	const DASHBOARD_PAGE_INIT_ACTION = 'jetpack-premium-analytics-wp-admin_init';
 
 	/**
 	 * Hook both registrants on the dashboard's registry actions, the Bookings metric on the dashboard
@@ -133,7 +133,7 @@ class Analytics_Dashboard {
 	public static function init() {
 		add_action( self::REGISTER_SECTIONS_ACTION, array( __CLASS__, 'register_section' ), 20 );
 		add_action( self::REGISTER_WIDGET_TYPES_ACTION, array( __CLASS__, 'register_widget_types' ), 20 );
-		add_filter( self::DASHBOARD_BOOT_DEPENDENCIES_FILTER, array( __CLASS__, 'add_store_performance_bookings_to_boot_dependencies' ), 20 );
+		add_action( self::DASHBOARD_PAGE_INIT_ACTION, array( __CLASS__, 'enqueue_store_performance_bookings' ) );
 
 		add_action( 'rest_api_init', array( Api_Proxy_Controller::class, 'init' ) );
 		add_filter( 'jetpack_stats_transient_cleanup_prefixes', array( Api_Proxy_Controller::class, 'register_transient_cleanup_prefix' ) );
@@ -205,29 +205,24 @@ class Analytics_Dashboard {
 	/**
 	 * Load the Bookings metric with the dashboard on a store running the Bookings extension.
 	 *
-	 * A static dependency of the page's boot module, so the metric is on offer before the dashboard
-	 * renders. The build's own registrant hooks `wp_default_scripts`, already fired on this page hook.
+	 * Enqueued as a module of its own: the page's boot runs only the init modules its build names,
+	 * and a boot dependency is preloaded, not run. The build's own registrant hooks
+	 * `wp_default_scripts`, already fired on this page hook, so it runs here.
 	 *
-	 * @param array $boot_dependencies The boot dependencies of the dashboard page.
-	 * @return array
+	 * @return void
 	 */
-	public static function add_store_performance_bookings_to_boot_dependencies( $boot_dependencies ) {
-		if ( ! is_array( $boot_dependencies ) || ! self::is_bookings_plugin_active() || ! self::supports_widget_contract() || ! self::is_woocommerce_available() || ! self::current_user_can_view_store_reports() ) {
-			return $boot_dependencies;
+	public static function enqueue_store_performance_bookings() {
+		if ( ! self::is_bookings_plugin_active() || ! self::supports_widget_contract() || ! self::is_woocommerce_available() || ! self::current_user_can_view_store_reports() ) {
+			return;
 		}
 
 		self::load_build();
 		if ( ! function_exists( 'jetpack_woocommerce_stats_register_script_modules' ) ) {
-			return $boot_dependencies;
+			return;
 		}
 		jetpack_woocommerce_stats_register_script_modules();
 
-		$boot_dependencies[] = array(
-			'import' => 'static',
-			'id'     => self::STORE_PERFORMANCE_BOOKINGS_MODULE,
-		);
-
-		return $boot_dependencies;
+		wp_enqueue_script_module( self::STORE_PERFORMANCE_BOOKINGS_MODULE );
 	}
 
 	/**

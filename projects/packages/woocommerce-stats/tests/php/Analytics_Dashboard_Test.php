@@ -41,8 +41,10 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		remove_action( 'rest_api_init', array( Api_Proxy_Controller::class, 'init' ) );
 		remove_filter( 'jetpack_stats_transient_cleanup_prefixes', array( Api_Proxy_Controller::class, 'register_transient_cleanup_prefix' ) );
 		remove_filter( 'jetpack_admin_js_script_data', array( Store_Currency::class, 'add_script_data' ), 20 );
-		remove_filter( Analytics_Dashboard::DASHBOARD_BOOT_DEPENDENCIES_FILTER, array( Analytics_Dashboard::class, 'add_store_performance_bookings_to_boot_dependencies' ), 20 );
+		remove_action( Analytics_Dashboard::DASHBOARD_PAGE_INIT_ACTION, array( Analytics_Dashboard::class, 'enqueue_store_performance_bookings' ) );
 		delete_option( 'active_plugins' );
+		wp_dequeue_script_module( Analytics_Dashboard::STORE_PERFORMANCE_BOOKINGS_MODULE );
+		wp_deregister_script_module( Analytics_Dashboard::STORE_PERFORMANCE_BOOKINGS_MODULE );
 
 		foreach ( array( Dashboard_Section_Registry::class, Widget_Type_Registry::class ) as $class ) {
 			$instance = new \ReflectionProperty( $class, 'instance' );
@@ -150,14 +152,10 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 	 */
 	public function test_leaves_the_bookings_metric_off_the_dashboard_without_the_extension() {
 		$this->enable_store();
-		$boot_dependencies = array(
-			array(
-				'import' => 'static',
-				'id'     => '@jetpack-premium-analytics/init',
-			),
-		);
 
-		$this->assertSame( $boot_dependencies, Analytics_Dashboard::add_store_performance_bookings_to_boot_dependencies( $boot_dependencies ) );
+		Analytics_Dashboard::enqueue_store_performance_bookings();
+
+		$this->assertNotContains( Analytics_Dashboard::STORE_PERFORMANCE_BOOKINGS_MODULE, wp_script_modules()->get_queue() );
 	}
 
 	/**
@@ -167,18 +165,10 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		$this->enable_store();
 		$this->activate_bookings();
 
-		$boot_dependencies = Analytics_Dashboard::add_store_performance_bookings_to_boot_dependencies( array() );
+		Analytics_Dashboard::enqueue_store_performance_bookings();
 
-		$this->assertSame(
-			array(
-				array(
-					'import' => 'static',
-					'id'     => Analytics_Dashboard::STORE_PERFORMANCE_BOOKINGS_MODULE,
-				),
-			),
-			$boot_dependencies
-		);
 		$this->assertNotNull( wp_script_modules()->get_registered( Analytics_Dashboard::STORE_PERFORMANCE_BOOKINGS_MODULE ) );
+		$this->assertContains( Analytics_Dashboard::STORE_PERFORMANCE_BOOKINGS_MODULE, wp_script_modules()->get_queue() );
 	}
 
 	/**
@@ -188,7 +178,9 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		add_filter( Analytics_Dashboard::WOOCOMMERCE_AVAILABLE_FILTER, '__return_true' );
 		$this->activate_bookings();
 
-		$this->assertSame( array(), Analytics_Dashboard::add_store_performance_bookings_to_boot_dependencies( array() ) );
+		Analytics_Dashboard::enqueue_store_performance_bookings();
+
+		$this->assertNotContains( Analytics_Dashboard::STORE_PERFORMANCE_BOOKINGS_MODULE, wp_script_modules()->get_queue() );
 	}
 
 	/**
