@@ -13,6 +13,38 @@ use PHPUnit\Framework\Attributes\Group;
  */
 #[Group( 'knowledge' )]
 class KnowledgeTypesTest extends KnowledgeTestCase {
+	public function test_concurrent_type_creation_preserves_the_saved_posts_type() {
+		$existing = term_exists( 'note', 'wp_knowledge_type' );
+		if ( $existing ) {
+			wp_delete_term( (int) $existing['term_id'], 'wp_knowledge_type' );
+		}
+
+		$winner_id = null;
+		$race      = static function ( $term, $taxonomy ) use ( &$race, &$winner_id ) {
+			if ( 'wp_knowledge_type' !== $taxonomy || 'note' !== $term ) {
+				return $term;
+			}
+			remove_filter( 'pre_insert_term', $race );
+			$winner    = wp_insert_term( 'note', 'wp_knowledge_type' );
+			$winner_id = (int) $winner['term_id'];
+			return new WP_Error( 'term_exists', 'Concurrent insert', $winner_id );
+		};
+		add_filter( 'pre_insert_term', $race, 10, 2 );
+
+		try {
+			$post_id = wp_insert_post(
+				array(
+					'post_type'   => 'wp_knowledge',
+					'post_status' => 'private',
+					'post_title'  => 'Concurrent note',
+				)
+			);
+			$this->assertGreaterThan( 0, $winner_id );
+			$this->assertSame( array( $winner_id ), wp_get_object_terms( $post_id, 'wp_knowledge_type', array( 'fields' => 'ids' ) ) );
+		} finally {
+			remove_filter( 'pre_insert_term', $race );
+		}
+	}
 
 	/**
 	 * The function should expose the built-in knowledge types keyed by slug,

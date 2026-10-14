@@ -22,7 +22,7 @@ Build with `jp build packages/knowledge --deps`. Run `jp test php packages/knowl
 
 Ported from [WordPress/Gutenberg](https://github.com/WordPress/gutenberg/tree/5f2660c2dff39621b8eb7a0d7484796bc37cc665): `lib/experimental/knowledge`, `routes/guidelines`, and the `isContentBlock` predicate in `packages/blocks/src/api/utils.ts`.
 
-Integration changes cover provider selection, PHP class namespacing and translation domains, package asset registration, and replacing the private block predicate import with the same predicate using the public block registry. Logical CSS properties preserve RTL alignment, and the scope schema description reflects the existing hyphenated identifiers. The upstream screen source and its behavior remain the reference for future updates.
+Integration changes cover provider selection, PHP class namespacing and translation domains, package asset registration, and replacing the private block predicate import with the same predicate using the public block registry. Logical CSS properties preserve RTL alignment, and the scope schema description reflects the existing hyphenated identifiers. Term creation recovers the winning term ID when concurrent inserts race. The upstream screen source and its behavior remain the reference for future updates.
 
 WordPress.com Simple uses the partial loader in `wp-content/mu-plugins/0-wpcom-jetpack-loader.php` and must initialize the package through that platform bootstrap. Removing `gutenberg_wpcom_enable_guidelines_experiment()` from the option filter in `wp-content/mu-plugins/wpcom-gutenberg-load.php` is a dependent rollout change after this package has been deployed and verified; preserve stored explicit experiment opt-ins.
 

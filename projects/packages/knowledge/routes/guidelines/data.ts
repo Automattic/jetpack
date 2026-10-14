@@ -107,6 +107,7 @@ export function useGuidelineData(): GuidelineData {
 			// rows with the same slug are placeholders the page ignores; a save
 			// reclaims them (see saveGuidelineRow) rather than showing them.
 			status: [ 'publish' ],
+			// api-fetch's fetch-all middleware converts -1 into paginated 100-item REST requests.
 			per_page: -1,
 		} ),
 		[ slugs ]

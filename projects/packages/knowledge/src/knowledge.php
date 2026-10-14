@@ -152,7 +152,9 @@ if ( ! function_exists( 'wp_knowledge_get_or_create_type_term' ) ) {
 		}
 
 		if ( is_wp_error( $term ) ) {
-			return null;
+			// Another request may have created the term after our existence check.
+			$term_id = (int) $term->get_error_data( 'term_exists' );
+			return 'term_exists' === $term->get_error_code() && $term_id > 0 ? $term_id : null;
 		}
 
 		return (int) $term['term_id'];
