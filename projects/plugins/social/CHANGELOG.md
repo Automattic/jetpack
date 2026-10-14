@@ -35,10 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Social: the block editor sidebar now uses the same connection management UI as the Social admin page. [#50731]
 - Surface a visible error when fetching the keyring result fails during a connection, instead of failing silently. [#50822]
 - Tested up to WordPress 7.1. [#51370]
-- Update package dependencies. [#50436]
-- Update package dependencies. [#50510]
-- Update package dependencies. [#51399]
-- Update package dependencies. [#52028]
+- Update package dependencies. [#50436] [#50510] [#51399] [#52028]
 - Use core snackbar notice placement. [#52193]
 
 ### Removed
