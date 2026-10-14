@@ -3,7 +3,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, _n, _x, sprintf } from '@wordpress/i18n';
-import { LinkButton, Notice, Stack } from '@wordpress/ui';
+import { ButtonLink, Notice, Stack } from '@wordpress/ui';
 import { createAboutPage } from '../lib/about-page.ts';
 import { fireConfetti } from '../lib/confetti.ts';
 import { createContactPage } from '../lib/contact-page.ts';
@@ -491,9 +491,9 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 				{ /* The div keeps the button as wide as its label instead of stretching with the column. */ }
 				{ allDone && (
 					<div>
-						<LinkButton variant="solid" href={ DASHBOARD_URL }>
+						<ButtonLink variant="solid" href={ DASHBOARD_URL }>
 							{ __( 'Go to Dashboard now', 'jetpack-mu-wpcom' ) }
-						</LinkButton>
+						</ButtonLink>
 					</div>
 				) }
 			</Stack>
