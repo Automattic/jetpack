@@ -236,3 +236,70 @@ describe( 'TagsWidget CSV export', () => {
 		expect( lines ).toHaveLength( 13 );
 	} );
 } );
+
+describe( 'TagsWidget empty state', () => {
+	const NONE_RECORDED = 'You don’t have tags or categories recorded yet.';
+	const GENERIC_TEXT = 'We couldn’t find results for this time period.';
+
+	/**
+	 * Answer the tags report with no rows and the categories request with the given response.
+	 *
+	 * @param categories - The `/wp/v2/categories` response, or the error it rejects with.
+	 */
+	function mockEmptyTags( categories: unknown[] | Error ) {
+		mockApiFetch.mockImplementation( ( { path = '' }: { path?: string } ) => {
+			if ( ! path.startsWith( '/wp/v2/categories' ) ) {
+				return Promise.resolve( { ...TAGS_RESPONSE, tags: [] } );
+			}
+
+			return categories instanceof Error
+				? Promise.reject( categories )
+				: Promise.resolve( categories );
+		} );
+	}
+
+	beforeEach( () => {
+		jest.useFakeTimers();
+		queryClient.clear();
+		mockApiFetch.mockReset();
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
+	it( 'says nothing is recorded yet when no category holds a published post', async () => {
+		mockEmptyTags( [] );
+
+		render( <TagsWidget attributes={ { reportParams: getDefaultQueryParams() } } /> );
+
+		await expect( screen.findByText( NONE_RECORDED ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( GENERIC_TEXT ) ).not.toBeInTheDocument();
+	} );
+
+	it.each( [
+		[ 'a category holds a published post', [ { id: 1 } ] ],
+		[
+			'the categories request fails',
+			Object.assign( new Error( 'Forbidden' ), { data: { status: 403 } } ),
+		],
+	] )( 'keeps the period text when %s', async ( _case, categories ) => {
+		mockEmptyTags( categories );
+
+		render( <TagsWidget attributes={ { reportParams: getDefaultQueryParams() } } /> );
+
+		await expect( screen.findByText( GENERIC_TEXT ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( NONE_RECORDED ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'does not ask for categories when the list has rows', async () => {
+		mockApiFetch.mockResolvedValue( TAGS_RESPONSE );
+
+		render( <TagsWidget attributes={ { reportParams: getDefaultQueryParams() } } /> );
+
+		await expect( screen.findByText( 'Recipes' ) ).resolves.toBeInTheDocument();
+		expect( mockApiFetch ).not.toHaveBeenCalledWith(
+			expect.objectContaining( { path: expect.stringContaining( '/wp/v2/categories' ) } )
+		);
+	} );
+} );

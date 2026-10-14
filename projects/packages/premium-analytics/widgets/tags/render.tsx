@@ -23,6 +23,7 @@ import {
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { usedCategoryQuery, useStatsQuery } from '@jetpack-premium-analytics/data';
 import { useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Stack } from '@jetpack-premium-analytics/externals';
@@ -82,6 +83,10 @@ function TagsInner() {
 		resetDrillDown: clearSelection,
 	} = useWidgetDrillDown< string >();
 
+	const isEmptyList = ! isLoading && ! isError && data.length === 0;
+	const usedCategory = useStatsQuery( usedCategoryQuery(), { enabled: isEmptyList } );
+	const hasNoUsedCategory = isEmptyList && ! usedCategory.isError && usedCategory.data === false;
+
 	const selectedGroup = useMemo(
 		() => ( selectedLabel ? ( data.find( row => row.label === selectedLabel ) ?? null ) : null ),
 		[ data, selectedLabel ]
@@ -135,7 +140,7 @@ function TagsInner() {
 					/>
 				) }
 				<WidgetState
-					isLoading={ isLoading }
+					isLoading={ isLoading || ( isEmptyList && usedCategory.isLoading ) }
 					isFetching={ isFetching }
 					isError={ isError }
 					isEmpty={ data.length === 0 }
@@ -148,12 +153,16 @@ function TagsInner() {
 							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
 						],
 					} }
-					empty={ {
-						description: __(
-							'Learn about your most visited tags & categories to track engaging topics.',
-							'jetpack-premium-analytics-pkg'
-						),
-					} }
+					empty={
+						hasNoUsedCategory
+							? {
+									description: __(
+										'You don’t have tags or categories recorded yet.',
+										'jetpack-premium-analytics-pkg'
+									),
+								}
+							: undefined
+					}
 					// The drilled-in view is a plain link list, not a leaderboard, so it
 					// keeps the default shape.
 					renderLoading={
