@@ -172,7 +172,7 @@ export const getConnectScreenErrorMessage = (
 		case 'home_private_ip':
 		case 'siteurl_private_ip_dev':
 			return __(
-				'Your site host is on a private network. Sites can connect to WordPress.com only on public sites.',
+				'Your site is on a private network, so WordPress.com can’t reach it. Jetpack can only connect sites that are publicly accessible.',
 				'jetpack-connection-js'
 			);
 		case 'connection_disabled':
@@ -227,7 +227,7 @@ export const getConnectScreenErrorMessage = (
 		case 'state_malformed':
 		case 'registration_state_invalid':
 			return __(
-				'The connection attempt expired or was interrupted. Please try again.',
+				'The connection attempt expired or was interrupted, for example by another connection attempt at the same time. Please try again.',
 				'jetpack-connection-js'
 			);
 		case 'insert_blog':

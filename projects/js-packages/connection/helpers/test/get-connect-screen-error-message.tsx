@@ -9,7 +9,7 @@ import {
 describe( 'getConnectScreenErrorMessage', () => {
 	it( 'maps private network error codes to a message', () => {
 		expect( getConnectScreenErrorMessage( 'siteurl_private_ip' ) ).toBe(
-			'Your site host is on a private network. Sites can connect to WordPress.com only on public sites.'
+			'Your site is on a private network, so WordPress.com can’t reach it. Jetpack can only connect sites that are publicly accessible.'
 		);
 	} );
 
@@ -91,10 +91,10 @@ describe( 'getConnectScreenErrorMessage', () => {
 			'blocking or replacing XML-RPC'
 		);
 		expect( getConnectScreenErrorMessage( 'verify_secrets_mismatch' ) ).toBe(
-			'The connection attempt expired or was interrupted. Please try again.'
+			'The connection attempt expired or was interrupted, for example by another connection attempt at the same time. Please try again.'
 		);
 		expect( getConnectScreenErrorMessage( 'registration_state_invalid' ) ).toBe(
-			'The connection attempt expired or was interrupted. Please try again.'
+			'The connection attempt expired or was interrupted, for example by another connection attempt at the same time. Please try again.'
 		);
 	} );
 
