@@ -290,10 +290,10 @@ EXPECTED;
 		$this->assertEquals( self::$deactivated_modules, array() );
 
 		remove_filter( 'jetpack_active_modules', array( __CLASS__, 'e2e_test_filter' ) );
-		add_filter( 'jetpack_active_modules', array( Jetpack::class, 'keep_backup_module_active' ) );
 
 		// With the module override filter removed, verify that monitor module appears in get_active_modules().
 		$active_modules = Jetpack::get_active_modules();
+		add_filter( 'jetpack_active_modules', array( Jetpack::class, 'keep_backup_module_active' ) );
 		$this->assertEquals( $active_modules, array( 'monitor', 'stats' ) );
 	}
 
