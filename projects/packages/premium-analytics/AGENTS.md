@@ -7,7 +7,7 @@ Guidance for AI coding agents working in this package.
 Jetpack Premium Analytics is the unified analytics dashboard for Jetpack-connected sites — a React SPA in wp-admin. It consolidates two older surfaces:
 
 - **Jetpack Stats** — the Odyssey dashboard; backend from the `stats-admin` package, frontend built from `apps/odyssey-stats` in Calypso. Covers traffic, posts, subscribers, email stats, WordAds, and more.
-- **Woo Analytics** — store reports (orders, products, customers, coupons, order attribution), from the private repo at https://github.com/woocommerce/woocommerce-analytics.
+- **Woo Analytics** — store reports (orders, products, customers, coupons, order attribution), from the private repo at https://github.com/woocommerce/woocommerce-analytics. The WooCommerce tab, its widgets and their report client live in `projects/packages/woocommerce-stats`.
 
 - Composer package: `automattic/jetpack-premium-analytics`
 - PHP namespace: `Automattic\Jetpack\PremiumAnalytics`
@@ -296,11 +296,6 @@ lazy-loaded by the dashboard at runtime.
 > `packages/widgets-toolkit/` is an interim layer while the dashboard is in development and is
 > expected to shrink over time (much of it folding into `@automattic/charts`), so treat its
 > module paths as provisional rather than a long-term API.
-
-> **Legacy note.** Widgets currently under `packages/widgets-toolkit/src/widgets/*` (e.g.
-> `sales-by-coupon`, `sales-by-device`) predate this layout and are scheduled to be migrated.
-> Do not use them as templates for new work — follow the structure and story template below
-> instead.
 
 These rules apply to registered dashboard widgets: folders with `package.json`,
 `widget.json`, `widget.ts`, and `render.tsx` that the dashboard can lazy-load.

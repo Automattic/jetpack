@@ -7,7 +7,7 @@ import { useLayoutEffect, useRef } from 'react';
 /**
  * Internal dependencies
  */
-// Avoid pulling the `widgets/common` graph in through the hooks barrel.
+// Imported directly: the hooks barrel pulls the charts context in.
 import { useDelayedLoading } from '../../hooks/use-delayed-loading';
 import { ChartEmptyState } from '../chart-empty-state';
 import { GenericSkeleton } from '../widget-skeleton';
