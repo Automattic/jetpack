@@ -6,6 +6,7 @@ import useProduct from '../../../data/products/use-product';
 import useProductsByOwnership from '../../../data/products/use-products-by-ownership';
 import useConnectSite from '../../../hooks/use-connect-site';
 import ActionButton from '../../action-button';
+import cardStyles from '../../card/style.module.scss';
 import ConnectedProductCard from '../../connected-product-card';
 import { getProductCardTitleId } from '../../product-card';
 import { getStatusLabel } from '../../product-card/status';
@@ -146,8 +147,10 @@ const OverviewCard: FC< OverviewCardProps > = ( {
 	return (
 		<ConnectedProductCard admin={ admin } slug={ slug } variant="slim" isDataLoading={ isLoading }>
 			<div className={ styles.card }>
-				<div id={ titleId }>
-					<Text variant="title-medium">{ detail?.name || slug }</Text>
+				<div className={ cardStyles.title }>
+					<div className={ cardStyles.name } id={ titleId }>
+						<Text variant="title-medium">{ detail?.name || slug }</Text>
+					</div>
 				</div>
 				<UIText variant="body-sm" className={ styles.label }>
 					{ label }
