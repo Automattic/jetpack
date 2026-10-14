@@ -57,6 +57,8 @@ const httpsUrl = ( url: string ) => {
 const isImageFile = ( url: string ) =>
 	/\.(?:avif|gif|jpe?g|png|webp)$/i.test( httpsUrl( url )?.pathname ?? '' );
 
+const imgSchema = { attributes: [ 'src', 'alt' ] };
+
 const toParagraph = ( url: string ) =>
 	createBlock( 'core/paragraph', { content: renderToString( <a href={ url }>{ url }</a> ) } );
 
@@ -219,6 +221,32 @@ export const registerImageBlock = ( editorLabels: EditorLabels, preview = true )
 					isMatch: ( node: Node ) =>
 						node.nodeName === 'P' && isImageFile( node.textContent?.trim() ?? '' ),
 					transform: ( node: Node ) => createBlock( NAME, { url: node.textContent!.trim() } ),
+				},
+				{
+					// An image dropped or pasted from another page, which raw handling wraps in a figure.
+					type: 'raw',
+					schema: {
+						figure: {
+							require: [ 'img' ],
+							children: {
+								img: imgSchema,
+								a: { attributes: [ 'href' ], children: { img: imgSchema } },
+							},
+						},
+					},
+					isMatch: ( node: Node ) =>
+						node.nodeName === 'FIGURE' &&
+						/^https?:/i.test(
+							( node as Element ).querySelector( 'img' )?.getAttribute( 'src' ) ?? ''
+						),
+					// An http image would only reach readers as a link, so it starts as one.
+					transform: ( node: Node ) => {
+						const img = ( node as Element ).querySelector( 'img' )!;
+						const url = img.getAttribute( 'src' )!;
+						return httpsUrl( url )
+							? createBlock( NAME, { url, alt: img.alt.trim() } )
+							: toParagraph( url );
+					},
 				},
 			],
 			to: [
