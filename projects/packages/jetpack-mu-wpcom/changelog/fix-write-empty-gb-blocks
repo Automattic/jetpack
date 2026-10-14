@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Write: strip lone br placeholders in convertToBlocks to fix empty heading and blockquote block markup
