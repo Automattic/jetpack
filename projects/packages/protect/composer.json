@@ -7,6 +7,7 @@
 		"php": ">=7.4",
 		"automattic/jetpack-admin-ui": "@dev",
 		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-ip": "@dev",
 		"automattic/jetpack-protect-models": "@dev",
 		"automattic/jetpack-protect-status": "@dev",
 		"automattic/jetpack-status": "@dev",
