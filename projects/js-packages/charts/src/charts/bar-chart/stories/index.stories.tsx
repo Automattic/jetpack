@@ -901,6 +901,139 @@ export const ComparisonMulti: Story = {
 	},
 };
 
+const overlapAccent = '#3858e9';
+
+export const OverlapComparison: Story = {
+	args: {
+		...Default.args,
+		layout: 'overlap',
+		showLegend: true,
+		withTooltips: true,
+		legendCollapseGroups: false,
+		data: [
+			{
+				label: 'Views',
+				group: 'views',
+				options: { stroke: overlapAccent },
+				data: [
+					{ label: 'Mon', value: 620 },
+					{ label: 'Tue', value: 810 },
+					{ label: 'Wed', value: 540 },
+					{ label: 'Thu', value: 980 },
+					{ label: 'Fri', value: 760 },
+					{ label: 'Sat', value: 430 },
+					{ label: 'Sun', value: 520 },
+					{ label: 'Mon 2', value: 890 },
+					{ label: 'Tue 2', value: 1040 },
+					{ label: 'Wed 2', value: 700 },
+				],
+			},
+			{
+				label: 'Visitors',
+				group: 'visitors',
+				options: { stroke: overlapAccent },
+				data: [
+					{ label: 'Mon', value: 310 },
+					{ label: 'Tue', value: 420 },
+					{ label: 'Wed', value: 260 },
+					{ label: 'Thu', value: 540 },
+					{ label: 'Fri', value: 380 },
+					{ label: 'Sat', value: 220 },
+					{ label: 'Sun', value: 300 },
+					{ label: 'Mon 2', value: 470 },
+					{ label: 'Tue 2', value: 560 },
+					{ label: 'Wed 2', value: 350 },
+				],
+			},
+			{
+				label: 'Views — previous',
+				group: 'views',
+				options: { type: 'comparison' as const },
+				data: [
+					{ label: 'Mon', value: 540 },
+					{ label: 'Tue', value: 700 },
+					{ label: 'Wed', value: 640 },
+					{ label: 'Thu', value: 820 },
+					{ label: 'Fri', value: 900 },
+					{ label: 'Sat', value: 500 },
+					{ label: 'Sun', value: 460 },
+					{ label: 'Mon 2', value: 760 },
+					{ label: 'Tue 2', value: 880 },
+					{ label: 'Wed 2', value: 810 },
+				],
+			},
+			{
+				label: 'Visitors — previous',
+				group: 'visitors',
+				options: { type: 'comparison' as const },
+				data: [
+					{ label: 'Mon', value: 350 },
+					{ label: 'Tue', value: 330 },
+					{ label: 'Wed', value: 300 },
+					{ label: 'Thu', value: 420 },
+					{ label: 'Fri', value: 470 },
+					{ label: 'Sat', value: 260 },
+					{ label: 'Sun', value: 250 },
+					{ label: 'Mon 2', value: 400 },
+					{ label: 'Tue 2', value: 480 },
+					{ label: 'Wed 2', value: 420 },
+				],
+			},
+		],
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'`layout="overlap"` nests two series: the larger one is a wide tinted bar with an outline, the smaller one a centered bar in front. Each comparison series, paired by `group`, is drawn as a line with a marker per reading (square for the outer series, circle for the inner one) instead of a shadow bar.',
+			},
+		},
+	},
+};
+
+export const OverlapBarRadius: Story = {
+	args: { ...OverlapComparison.args },
+	decorators: [
+		StoryComponent => (
+			<div
+				data-testid="overlap-bar-radius"
+				style={
+					{
+						'--a8c-charts-border-radius-bar-chart': 'var(--wpds-border-radius-sm)',
+					} as React.CSSProperties
+				}
+			>
+				<StoryComponent />
+			</div>
+		),
+	],
+	play: async ( { canvasElement } ) => {
+		const canvas = within( canvasElement );
+		const panel = canvas.getByTestId( 'overlap-bar-radius' );
+		const rect = await waitFor( () => {
+			const found = panel.querySelector< SVGRectElement >( '.bar-chart__overlap-bar' );
+			if ( ! found ) {
+				throw new Error( 'No overlap bar rendered yet.' );
+			}
+			return found;
+		} );
+		const radius = getComputedStyle( rect )
+			.getPropertyValue( '--a8c-charts-border-radius-bar-chart' )
+			.trim();
+
+		await expect( radius ).not.toBe( '0px' );
+		await expect( getComputedStyle( rect ).rx ).toBe( radius );
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'The `--a8c-charts-border-radius-bar-chart` catalog role rounds the overlap bars as well.',
+			},
+		},
+	},
+};
+
 export const PaintedYAxis: Story = {
 	args: {
 		containerWidth: '900px',

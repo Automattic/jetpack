@@ -19,6 +19,7 @@ Main chart component with responsive behavior by default.
 | `height` | `number` | `400` | Chart height in pixels |
 | `aspectRatio` | `number` | - | Height-to-width ratio (e.g. `0.4`) for responsive charts; the chart is contained within its parent on both axes. Used when `width`/`height` are omitted. |
 | `orientation` | `'vertical' \| 'horizontal'` | `'vertical'` | Bar orientation |
+| `layout` | `'grouped' \| 'overlap'` | `'grouped'` | `overlap` nests exactly two visible primary series in a vertical chart: the larger is the wide outer bar, the smaller a centered bar at half width, and comparisons are drawn as lines. Any other case renders `grouped`. See [Overlap Layout](./?path=/docs/js-packages-charts-library-charts-bar-chart--docs#overlap-layout). |
 | `withTooltips` | `boolean` | `false` | Enable interactive tooltips |
 | `withBandHighlight` | `boolean` | `false` | Highlight the active band across the plot; requires tooltips. Uses the `--a8c-charts-color-surface-secondary` catalog role. |
 | `onBandHighlightChange` | `(selection: BandHighlightSelection \| null) => void` | - | Receive datum, series `key`, rendered point `index`, and `x`, `y`, `width`, `height` in SVG coordinates; requires tooltips, but not the built-in highlight. Emits initial selection on mount and null on dismissal or unmount. |
@@ -105,6 +106,55 @@ Comparison shadow bars are styled via the chart theme at `barChart.barStyles.com
 >
 	<BarChart data={ data } />
 </GlobalChartsProvider>
+```
+
+## Overlap Layout
+
+### Catalog role
+
+| Role | Default | Description |
+| ---- | ------- | ----------- |
+| `--a8c-charts-color-comparison-line` | `--wpds-color-foreground-content-neutral` | Stroke of the comparison lines in the overlap layout. A comparison series' `options.stroke` takes precedence. |
+
+### Helpers
+
+| Export | Description |
+| ------ | ----------- |
+| `useBarOverlapStyles( data, options )` | Returns the resolved `BarOverlapStyles`, or `null` when the chart stays grouped. `options` is `BarOverlapOptions`. |
+| `applyBarOverlapLegend( items, styles )` | Restyles legend items for the overlap layout; returns `items` unchanged when `styles` is `null`. |
+| `ComparisonLineSwatch` | Standalone SVG swatch of a comparison line, for tooltips and custom legends. |
+| `ComparisonLineGlyph` | The same line and marker, drawn into an existing SVG. |
+
+```typescript
+type BarLayout = 'grouped' | 'overlap';
+type ComparisonMarker = 'square' | 'circle';
+
+type BarOverlapOptions = {
+	layout?: BarLayout;
+	horizontal?: boolean;
+	/** Whether the series with this label is shown; defaults to every series. */
+	isVisible?: ( label: string ) => boolean;
+};
+
+type BarOverlapStyles = {
+	outer: { label: string; fill: string; outline: string };
+	inner: { label: string; fill: string };
+	comparisons: Array< {
+		label: string;
+		primaryLabel: string;
+		stroke: string;
+		lineStyles: LineStyles;
+		marker: ComparisonMarker;
+	} >;
+};
+
+type ComparisonLineSwatchProps = {
+	stroke: string;
+	lineStyles?: LineStyles;
+	marker: ComparisonMarker;
+	width?: number;
+	height?: number;
+};
 ```
 
 ## DataPointDate Type

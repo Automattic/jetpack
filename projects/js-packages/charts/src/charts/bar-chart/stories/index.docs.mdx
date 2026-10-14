@@ -207,6 +207,47 @@ It composes with grouped bars: pair each primary series with its own `type: 'com
 - With pattern fills enabled (`withPatterns`), the comparison shadow reuses its primary bar's pattern at the same reduced opacity, so the pair reads as one series.
 - Styling comes from the theme at `barChart.barStyles.comparison`. `widthFactor` (default `1.5`) controls how much wider the comparison bar is than the primary — the primary is narrowed to `1 / widthFactor` of the slot — and `opacity` (default `0.5`) sets the shadow translucency.
 
+### Overlap Layout
+
+Set `layout="overlap"` to nest two series instead of placing them side by side. The larger series (by total) is the wide outer bar, filled with a tint of its color and outlined in its full color. The smaller series is a bar at half the band width, centered in front in its own color. Each comparison series is drawn as a line over the bars, with a marker on every reading: a square for the outer series' comparison, a circle for the inner series' comparison.
+
+<Canvas of={ BarChartStories.OverlapComparison } />
+
+<Source
+	language="jsx"
+	code={ `<BarChart
+		layout="overlap"
+		data={[
+			{ label: 'Views', group: 'views', data: views },
+			{ label: 'Visitors', group: 'visitors', data: visitors },
+			{
+				label: 'Views — previous',
+				group: 'views',
+				options: { type: 'comparison' },
+				data: previousViews,
+			},
+			{
+				label: 'Visitors — previous',
+				group: 'visitors',
+				options: { type: 'comparison' },
+				data: previousVisitors,
+			},
+		]}
+		showLegend={ true }
+	/>` }
+/>
+
+**Notes:**
+
+- The layout applies only to vertical charts with exactly two visible primary series. With any other count, a horizontal orientation, or a hidden series that leaves one, the chart falls back to `grouped` bars with comparison shadows.
+- It also falls back when the colors cannot be separated: the outer series color must reach 3:1 contrast with the chart background, and the inner bar must reach 3:1 against the outer tint. Colors are checked at render time, so the bars and the lines stay distinguishable (WCAG 1.4.11).
+- A comparison series joins a primary only through a defined `group` that matches. Unlike grouped bars, the single-primary shortcut of omitting `group` does not apply, so an ungrouped comparison is not paired with a primary.
+- Comparison lines use the `--a8c-charts-color-comparison-line` catalog role (neutral by default) and the theme's comparison line style. Set `options.stroke` on a comparison series to override its color.
+- Hovering shows the tooltip for the inner bar at the center of the band and for the outer bar elsewhere. Keyboard highlighting follows the same split.
+- The default legend styles the outer series with its tint and outline, and each comparison with a line glyph. This also works with `legend.collapseGroups` and `legend.comparisonSeriesItems`. The single `legend.comparisonItem` keeps a plain swatch.
+- For custom legends or tooltips, use `useBarOverlapStyles`, `applyBarOverlapLegend`, and `ComparisonLineSwatch`. See the [API reference](./?path=/docs/js-packages-charts-library-charts-bar-chart-api-reference--docs).
+- Bar corners follow `--a8c-charts-border-radius-bar-chart`, like grouped bars.
+
 ## Visual Features
 
 ### Pattern Fills
