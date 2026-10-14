@@ -458,12 +458,18 @@ class Protect extends Hybrid_Product {
 	}
 
 	/**
-	 * Get the product info, with whether the Protect page exists.
+	 * Get the product info, with whether the Protect page exists and where Scan's results are listed.
 	 *
 	 * @return array
 	 */
 	public static function get_info() {
-		return array_merge( parent::get_info(), array( 'has_protect_page' => static::has_protect_page() ) );
+		return array_merge(
+			parent::get_info(),
+			array(
+				'has_protect_page' => static::has_protect_page(),
+				'scan_results_url' => Scan::get_manage_url(),
+			)
+		);
 	}
 
 	/**

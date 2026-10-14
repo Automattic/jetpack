@@ -610,6 +610,7 @@ interface Window {
 					feature_identifying_paid_plan: string;
 					has_paid_plan_for_product: boolean;
 					has_protect_page?: boolean;
+					scan_results_url?: string;
 					is_bundle: boolean;
 					is_feature: boolean;
 					is_plugin_active: boolean;

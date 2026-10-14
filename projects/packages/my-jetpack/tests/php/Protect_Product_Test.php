@@ -50,6 +50,8 @@ class Protect_Product_Test extends TestCase {
 
 		$this->assertFalse( Protect::is_standalone_plugin_active() );
 		$this->assertSame( $loaded, admin_url( 'admin.php?page=jetpack-protect' ) === Protect::get_manage_url() );
-		$this->assertSame( $loaded, Protect::get_info()['has_protect_page'] );
+		$info = Protect::get_info();
+		$this->assertSame( $loaded, $info['has_protect_page'] );
+		$this->assertSame( $loaded, admin_url( 'admin.php?page=jetpack-protect' ) === $info['scan_results_url'] );
 	}
 }

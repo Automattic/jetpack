@@ -76,9 +76,7 @@ export default function ProtectProductPage() {
 	}, [ recordEvent, navigateToUpgrade ] );
 
 	const hasProtectPage = !! detail?.hasProtectPage;
-	const scanResultsUrl = hasProtectPage
-		? detail.manageUrl
-		: getRedirectUrl( 'my-jetpack-manage-scan' );
+	const scanResultsUrl = detail?.scanResultsUrl || getRedirectUrl( 'my-jetpack-manage-scan' );
 	const scanVsProtectUrl = getRedirectUrl( 'jetpack-protect-support', {
 		anchor: 'jetpack-protect-jetpack-scan-and-wpscan-understand-the-difference',
 	} );
