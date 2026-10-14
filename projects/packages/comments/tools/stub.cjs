@@ -1,3 +1,7 @@
+// Strict, so Stub has no own `arguments` or `caller`; older V8 makes those read-only and the proxy throws on them.
+// eslint-disable-next-line strict
+'use strict';
+
 /**
  * Stands in for every export of the modules webpack.config.js stubs: a component that renders nothing.
  *

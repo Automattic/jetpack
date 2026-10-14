@@ -69,6 +69,7 @@ export function UtmLeaderboard( { view }: UtmLeaderboardProps ) {
 				onRetry: refetch,
 			} ) }
 			maxRows={ UTM_ROW_LIMIT }
+			variant="bars"
 			format={ CURRENCY_FORMAT }
 		/>
 	);

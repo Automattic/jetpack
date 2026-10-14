@@ -125,14 +125,42 @@ class Channel {
 		if ( ! is_string( $guid ) || ! preg_match( '/^[a-zA-Z0-9]{8}$/', $guid ) ) {
 			return 0;
 		}
-		$id = function_exists( 'videopress_get_post_id_by_guid' ) ? videopress_get_post_id_by_guid( $guid ) : false;
-		if ( ! is_int( $id ) && function_exists( 'video_get_info_by_guid' ) ) {
+
+		/*
+		 * WordPress.com's videopress_get_post_id_by_guid() returns the post ID of
+		 * whichever blog owns the GUID, so every candidate must prove it is this
+		 * blog's attachment for that GUID before it is used.
+		 */
+		$candidates = array();
+		if ( function_exists( 'videopress_get_post_id_by_guid' ) ) {
+			$candidates[] = videopress_get_post_id_by_guid( $guid );
+		}
+		if ( function_exists( 'video_get_info_by_guid' ) ) {
 			$info = video_get_info_by_guid( $guid );
-			if ( is_object( $info ) && ! empty( $info->post_id ) && (int) $info->blog_id === get_current_blog_id() ) {
-				$id = (int) $info->post_id;
+			if ( is_object( $info ) && ! empty( $info->post_id ) && isset( $info->blog_id ) && (int) $info->blog_id === get_current_blog_id() ) {
+				$candidates[] = $info->post_id;
 			}
 		}
-		return is_int( $id ) && $id > 0 ? $id : 0;
+
+		foreach ( $candidates as $candidate ) {
+			$id = is_numeric( $candidate ) ? (int) $candidate : 0;
+			if ( $id > 0 && self::is_attachment_for( $id, $guid ) ) {
+				return $id;
+			}
+		}
+		return 0;
+	}
+
+	/**
+	 * Whether a post ID is this blog's VideoPress attachment for a GUID.
+	 *
+	 * @param int    $id   Post ID.
+	 * @param string $guid The GUID.
+	 * @return bool
+	 */
+	private static function is_attachment_for( $id, $guid ) {
+		$post = get_post( $id );
+		return $post instanceof WP_Post && 'attachment' === $post->post_type && self::guid( $post ) === $guid;
 	}
 
 	/**
@@ -144,6 +172,17 @@ class Channel {
 	public static function video_url( $attachment ) {
 		$guid = self::guid( $attachment );
 		return '' === $guid ? '' : add_query_arg( 'v', $guid, user_trailingslashit( home_url( '/' . self::ENDPOINT ) ) );
+	}
+
+	/**
+	 * Whether a URL points at this site rather than, say, videopress.com.
+	 *
+	 * @param string $url The URL.
+	 * @return bool
+	 */
+	public static function is_site_url( $url ) {
+		$host = wp_parse_url( (string) $url, PHP_URL_HOST );
+		return is_string( $host ) && strtolower( $host ) === strtolower( (string) wp_parse_url( home_url(), PHP_URL_HOST ) );
 	}
 
 	/**
@@ -273,5 +312,27 @@ class Channel {
 			$parsed_block['attrs']['poster'] = (string) $details->poster;
 		}
 		return $parsed_block;
+	}
+
+	/**
+	 * Whether this request is a channel video page.
+	 *
+	 * @return bool
+	 */
+	public static function is_video_page() {
+		return (bool) get_query_var( self::QUERY_VAR );
+	}
+
+	/**
+	 * The GUID of the video page's video, or an empty string.
+	 *
+	 * @return string
+	 */
+	public static function queried_guid() {
+		if ( ! self::is_video_page() ) {
+			return '';
+		}
+		$post = self::current_video();
+		return $post instanceof WP_Post ? self::guid( $post ) : '';
 	}
 }

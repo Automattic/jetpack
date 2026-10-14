@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/el
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
 import { useMembershipsProducts } from '../data/use-memberships-products';
+import { useSendBounceConfirmationMutation } from '../data/use-send-bounce-confirmation-mutation';
 import { useSubscriberRemoveMutation } from '../data/use-subscriber-remove-mutation';
 import { useSubscribers } from '../data/use-subscribers';
 import { canCompSubscriber } from '../lib/comp-eligibility';
@@ -93,6 +94,7 @@ export default function SubscribersDataViews( {
 
 	const { data, isLoading, isPlaceholderData, error } = useSubscribers( queryParams );
 	const removeMutation = useSubscriberRemoveMutation();
+	const { mutate: sendBounceConfirmation } = useSendBounceConfirmationMutation();
 
 	// Fetch the site's paid products once for the whole table (not per row) so the "Comp a
 	// subscription" action can be hidden when there's nothing to comp onto — otherwise it opens a
@@ -275,6 +277,21 @@ export default function SubscribersDataViews( {
 				},
 			},
 			{
+				id: 'send-bounce-confirmation',
+				label: __( 'Send confirmation email', 'jetpack-newsletter' ),
+				isEligible: ( subscriber: Subscriber ) =>
+					subscriber.subscription_status_reason === 'bounced' &&
+					!! subscriber.bounce_retry?.can_retry &&
+					!! subscriber.email_address,
+				callback: ( items: Subscriber[] ) => {
+					const target = items[ 0 ];
+					if ( ! target?.email_address ) {
+						return;
+					}
+					sendBounceConfirmation( target.email_address );
+				},
+			},
+			{
 				id: 'remove',
 				label: __( 'Remove subscriber', 'jetpack-newsletter' ),
 				supportsBulk: true,
@@ -283,7 +300,7 @@ export default function SubscribersDataViews( {
 				},
 			},
 		],
-		[ onViewSubscriber, canShowCompAction ]
+		[ onViewSubscriber, canShowCompAction, sendBounceConfirmation ]
 	);
 
 	const handleConfirmRemoval = useCallback( async () => {

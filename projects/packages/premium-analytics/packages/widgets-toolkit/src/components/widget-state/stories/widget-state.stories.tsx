@@ -1,4 +1,3 @@
-import { postAuthor } from '@wordpress/icons';
 import { withChartTheme } from '../../../stories/with-chart-theme';
 import { BarChart } from '../../chart-bar';
 import { WidgetState } from '../widget-state';
@@ -151,14 +150,27 @@ export const Empty: Story = {
 
 /**
  * A widget's own empty state, for a case the generic copy does not describe
- * (here a scope prompt). It renders the icon it names, or none.
+ * (here a scope prompt). It keeps the generic magnifier unless it names an icon.
  */
 export const EmptyCustom: Story = {
 	args: {
 		isLoading: false,
 		isError: false,
 		isEmpty: true,
-		empty: { icon: postAuthor, description: 'Open an author to see their top posts here.' },
+		empty: { description: 'Open an author to see their top posts here.' },
+		children: <MockChart />,
+	},
+};
+
+export const EmptyWithAction: Story = {
+	args: {
+		isLoading: false,
+		isError: false,
+		isEmpty: true,
+		empty: {
+			description: 'You haven’t published any posts yet.',
+			action: { label: 'Create post', href: '/wp-admin/post-new.php' },
+		},
 		children: <MockChart />,
 	},
 };

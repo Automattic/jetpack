@@ -5,14 +5,15 @@
  * @package automattic/jetpack
  */
 
+use PHPUnit\Framework\Attributes\DataProvider;
+
 require_once JETPACK__PLUGIN_DIR . 'modules/seo-tools/class-jetpack-seo-posts.php';
 require_once JETPACK__PLUGIN_DIR . 'modules/seo-tools/class-jetpack-seo-titles.php';
 require_once JETPACK__PLUGIN_DIR . 'modules/seo-tools/class-jetpack-seo-utils.php';
 require_once JETPACK__PLUGIN_DIR . 'modules/seo-tools/class-jetpack-seo.php';
 
 /**
- * Tests for Jetpack_SEO::set_custom_og_tags() — specifically that per-post custom
- * SEO descriptions are only applied on singular views.
+ * Tests that Jetpack_SEO applies per-post SEO settings only on singular views.
  */
 class Jetpack_SEO_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
@@ -107,5 +108,55 @@ class Jetpack_SEO_Test extends WP_UnitTestCase {
 		$tags = $this->seo->set_custom_og_tags( array() );
 
 		$this->assertSame( 'Static front page description.', $tags['og:description'] ?? '', 'og:description should use the static front page\'s custom description when front-page meta is blank.' );
+	}
+
+	/**
+	 * A post's noindex setting applies to that post's own page, not to archives listing it.
+	 *
+	 * @dataProvider provide_noindex_views
+	 *
+	 * @param string $view           Which page to load: 'single', 'home', 'category', or 'front'.
+	 * @param bool   $expect_noindex Whether the page should get a robots noindex tag.
+	 */
+	#[DataProvider( 'provide_noindex_views' )]
+	public function test_noindex_only_applies_to_the_post_being_viewed( $view, $expect_noindex ) {
+		$cat_id  = self::factory()->category->create();
+		$post_id = self::factory()->post->create( array( 'post_category' => array( $cat_id ) ) );
+		update_post_meta( $post_id, Jetpack_SEO_Posts::NOINDEX_META_KEY, true );
+
+		if ( 'front' === $view ) {
+			$page_id = self::factory()->post->create( array( 'post_type' => 'page' ) );
+			update_post_meta( $page_id, Jetpack_SEO_Posts::NOINDEX_META_KEY, true );
+			update_option( 'show_on_front', 'page' );
+			update_option( 'page_on_front', $page_id );
+		}
+
+		$urls = array(
+			'single'   => get_permalink( $post_id ),
+			'home'     => home_url( '/' ),
+			'category' => get_category_link( $cat_id ),
+			'front'    => home_url( '/' ),
+		);
+		$this->go_to( $urls[ $view ] );
+
+		ob_start();
+		$this->seo->meta_tags();
+		$output = ob_get_clean();
+
+		$this->assertSame( $expect_noindex, str_contains( $output, '<meta name="robots" content="noindex" />' ), $output );
+	}
+
+	/**
+	 * Data provider for test_noindex_only_applies_to_the_post_being_viewed.
+	 *
+	 * @return array
+	 */
+	public static function provide_noindex_views() {
+		return array(
+			'single post'           => array( 'single', true ),
+			'static front page'     => array( 'front', true ),
+			'latest-posts homepage' => array( 'home', false ),
+			'category archive'      => array( 'category', false ),
+		);
 	}
 }

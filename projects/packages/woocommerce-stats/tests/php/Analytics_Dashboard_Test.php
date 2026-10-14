@@ -100,29 +100,34 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		$this->assertNotNull( $section );
 		$this->assertSame( 'woocommerce', $section->slug );
 		$this->assertSame( 'WooCommerce', $section->label );
-		$this->assertSame( 40, $section->order );
+		$this->assertSame( 5, $section->order );
 		$this->assertTrue( $section->requires_sync );
 		$this->assertTrue( $section->is_available() );
 		$this->assertSame(
 			array(
+				Analytics_Dashboard::STORE_PERFORMANCE_TYPE,
+				Analytics_Dashboard::VISITORS_BY_LOCATION_TYPE,
 				Analytics_Dashboard::NET_SALES_OVER_TIME_TYPE,
 				Analytics_Dashboard::TOTAL_SALES_OVER_TIME_TYPE,
 				Analytics_Dashboard::GROSS_SALES_OVER_TIME_TYPE,
 				Analytics_Dashboard::ORDERS_OVER_TIME_TYPE,
 				Analytics_Dashboard::AVERAGE_ORDER_VALUE_TYPE,
 				Analytics_Dashboard::AVERAGE_ITEMS_PER_ORDER_TYPE,
-				Analytics_Dashboard::BOOKINGS_OVER_TIME_TYPE,
 				Analytics_Dashboard::VISITORS_OVER_TIME_TYPE,
+				Analytics_Dashboard::CONVERSION_RATE_TYPE,
 				Analytics_Dashboard::NEW_VS_RETURNING_CUSTOMER_TYPE,
 				Analytics_Dashboard::PAYMENT_STATUS_TYPE,
 				Analytics_Dashboard::ORDERS_FULFILLMENT_TYPE,
 				Analytics_Dashboard::COUPON_USAGE_OVER_TIME_TYPE,
-				Analytics_Dashboard::BOOKINGS_BY_STATUS_TYPE,
+				Analytics_Dashboard::SESSIONS_BY_DEVICE_TYPE,
 				Analytics_Dashboard::TOP_PERFORMING_PRODUCTS_TYPE,
-				Analytics_Dashboard::TOP_PERFORMING_BOOKINGS_TYPE,
 				Analytics_Dashboard::SALES_BY_UTM_SOURCE_TYPE,
 				Analytics_Dashboard::SALES_BY_UTM_CHANNEL_TYPE,
 				Analytics_Dashboard::SALES_BY_UTM_CAMPAIGN_TYPE,
+				Analytics_Dashboard::REVENUE_BY_CUSTOMER_TYPE_TYPE,
+				Analytics_Dashboard::SALES_BY_DEVICE_TYPE,
+				Analytics_Dashboard::TOTAL_RETURNS_TYPE,
+				Analytics_Dashboard::SALES_BY_COUPON_TYPE,
 			),
 			array_column( $section->get_default_layout(), 'type' )
 		);
@@ -222,6 +227,21 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		$this->assertSame( 'jetpack-woocommerce-stats/widgets/net-sales-over-time/render', $net_sales->render_module );
 		$this->assertSame( Analytics_Dashboard::TEXTDOMAIN, $net_sales->textdomain );
 		$this->assertStringContainsString( 'build/i18n-manifest.json?ver=' . Analytics_Dashboard::PACKAGE_VERSION, $net_sales->i18n_manifest );
+	}
+
+	/**
+	 * The bookings widgets are built but stay out of the registry, so neither a layout nor the inserter reaches them.
+	 */
+	public function test_holds_the_bookings_widget_types_back() {
+		$registry = new Widget_Type_Registry();
+
+		Analytics_Dashboard::register_widget_types( $registry );
+
+		$registered = array_keys( $registry->get_all_registered() );
+		$this->assertContains( Analytics_Dashboard::VISITORS_OVER_TIME_TYPE, $registered );
+		foreach ( array( Analytics_Dashboard::BOOKINGS_OVER_TIME_TYPE, Analytics_Dashboard::BOOKINGS_BY_STATUS_TYPE, Analytics_Dashboard::TOP_PERFORMING_BOOKINGS_TYPE ) as $type ) {
+			$this->assertNotContains( $type, $registered );
+		}
 	}
 
 	/**

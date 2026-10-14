@@ -1,4 +1,5 @@
 import { useTooltip } from '@visx/tooltip';
+import { __ } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { type FC, useRef, useMemo, useEffect, useState, useCallback, useContext } from 'react';
@@ -30,6 +31,7 @@ import type { FunnelStep, ConversionFunnelChartProps } from './types';
  * @param props.loading          - Whether the chart is in loading state
  * @param props.animation        - Whether to show chart animation on initial render or not
  * @param props.className        - Additional CSS class name
+ * @param props.ariaLabel        - Accessible name for the chart group
  * @param props.height           - Height of the chart container. Falls back to style.height if set, otherwise defaults to "100%".
  * @param props.style            - Custom styling
  * @param props.renderStepLabel  - Custom render function for step labels
@@ -46,6 +48,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 	loading = false,
 	animation,
 	className,
+	ariaLabel,
 	chartId: providedChartId,
 	height,
 	style,
@@ -311,6 +314,8 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 			direction="column"
 			gap="xl"
 			data-testid="conversion-funnel-chart"
+			role="group"
+			aria-label={ ariaLabel ?? __( 'Conversion funnel chart', 'jetpack-charts' ) }
 			ref={ setChartRef }
 			className={ clsx(
 				'conversion-funnel-chart',

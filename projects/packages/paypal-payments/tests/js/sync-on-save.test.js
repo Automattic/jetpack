@@ -22,7 +22,10 @@ import {
 	recordPaymentRead,
 	syncBlocksBeforeSave,
 } from '../../src/paypal-payment-buttons/utils/sync-on-save';
-import { REQUIRED_FIELD_ERROR } from '../../src/paypal-payment-buttons/utils/validation';
+import {
+	ADDRESS_REQUIRED_ERROR,
+	REQUIRED_FIELD_ERROR,
+} from '../../src/paypal-payment-buttons/utils/validation';
 const apiFetch = require( '@wordpress/api-fetch' );
 
 const product = {
@@ -163,10 +166,29 @@ describe( 'isReadyForPayPal', () => {
 		).toBe( false );
 	} );
 
-	it.each( [ 'PROFILE', 'FREE' ] )( 'sends %s shipping with no fee', shippingMode => {
+	// PROFILE needs the address on.
+	it.each( [
+		[ 'PROFILE', true ],
+		[ 'FREE', false ],
+	] )( 'sends %s shipping with no fee', ( shippingMode, collectShippingAddress ) => {
 		expect(
-			isReadyForPayPal( { ...product, shippingEnabled: true, shippingMode, shippingValue: '' } )
+			isReadyForPayPal( {
+				...product,
+				shippingEnabled: true,
+				shippingMode,
+				shippingValue: '',
+				collectShippingAddress,
+			} )
 		).toBe( true );
+	} );
+
+	it.each( [
+		[ 'PROFILE shipping', { shippingEnabled: true, shippingMode: 'PROFILE' } ],
+		[ 'a profile tax', { taxEnabled: true, taxType: 'PREFERENCE', taxValue: '' } ],
+	] )( 'does not send %s to PayPal with the address off', ( _label, overrides ) => {
+		expect( heldBackReason( { ...product, ...overrides, collectShippingAddress: false } ) ).toBe(
+			ADDRESS_REQUIRED_ERROR
+		);
 	} );
 
 	it( 'sends a shipping fee of zero', () => {
@@ -206,7 +228,13 @@ describe( 'isReadyForPayPal', () => {
 	// PREFERENCE takes its rate from the merchant's PayPal profile.
 	it( 'lets a profile tax through with no value', () => {
 		expect(
-			isReadyForPayPal( { ...product, taxEnabled: true, taxType: 'PREFERENCE', taxValue: '' } )
+			isReadyForPayPal( {
+				...product,
+				taxEnabled: true,
+				taxType: 'PREFERENCE',
+				taxValue: '',
+				collectShippingAddress: true,
+			} )
 		).toBe( true );
 	} );
 

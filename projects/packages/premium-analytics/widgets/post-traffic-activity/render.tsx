@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { toPostId } from '@jetpack-premium-analytics/data';
-import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	CALENDAR_HEATMAP_CELL_GAP,
 	CALENDAR_HEATMAP_HEADER_HEIGHT,
@@ -170,7 +169,6 @@ function PostTrafficActivityInner() {
 					// A post with no traffic renders the all-blank grid (the sparse
 					// treatment), so the empty state only covers the missing scope.
 					empty={ {
-						icon: reports,
 						description: __(
 							'Open a post or page report to see its traffic activity here.',
 							'jetpack-premium-analytics-pkg'

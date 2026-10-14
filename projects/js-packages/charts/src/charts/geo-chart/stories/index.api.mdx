@@ -21,6 +21,7 @@ Main component for rendering geographical data on an interactive world map using
 | `displayMode` | `GeoDisplayMode` | `'regions'` | `'regions'` shades each area the rows name; `'markers'` draws a circle per row, placed by name or by `[ latitude, longitude ]` in the first two columns |
 | `domain` | `string` | - | ISO 3166-1 alpha-2 code of the country whose viewpoint sets the disputed borders (e.g., `'IN'`). Google's default borders apply when omitted |
 | `onError` | `(error: GeoChartError) => void` | - | Callback fired when Google Charts emits a chart error, including draw errors Google renders into the chart container (e.g. a missing map file) |
+| `ariaLabel` | `string` | `'Geo chart'` | Accessible name. See [Accessible names](./?path=/docs/js-packages-charts-library-introduction--docs#accessible-names). |
 | `className` | `string` | - | Additional CSS class name for the chart container |
 | `chartId` | `string` | - | Custom chart identifier for accessibility |
 | `renderPlaceholder` | `() => React.ReactNode` | - | Optional render function for custom loading placeholder. Called while Google Charts is loading |
@@ -29,7 +30,7 @@ Main component for rendering geographical data on an interactive world map using
 
 ```typescript
 interface GeoChartProps
-  extends Pick<BaseChartProps, 'className' | 'chartId' | 'width' | 'height'> {
+  extends Pick<BaseChartProps, 'className' | 'chartId' | 'width' | 'height' | 'ariaLabel'> {
   data: GeoData;
   region?: GeoRegion;
   resolution?: GeoResolution;

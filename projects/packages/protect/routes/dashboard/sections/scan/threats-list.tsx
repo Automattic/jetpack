@@ -3,6 +3,8 @@ import { DataViews, filterSortAndPaginate, type Field, type View } from '@wordpr
 import { dateI18n } from '@wordpress/date';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import useArrowKeyNavigation from '../../components/use-arrow-key-navigation';
+import useOpenThreat from '../use-open-threat';
 import { getThreatLabel } from './labels';
 import { THREAT_PARAM, useSearchParam } from './store';
 import ThreatMedia from './threat-media';
@@ -33,7 +35,7 @@ function formatDetected( date: string ): string {
 type RowProps = { item: ScanThreat; onOpen: ( item: ScanThreat ) => void };
 
 /**
- * The threat column: the icon and title, as one button that opens the details.
+ * The threat column: the icon, the kind of threat and what it's in on a second line, as one button that opens the details.
  *
  * @param props        - Component props.
  * @param props.item   - The threat.
@@ -46,9 +48,9 @@ function ThreatCell( { item, onOpen }: RowProps ) {
 	return (
 		<button type="button" className="jp-protect-threats__title" onClick={ onClick }>
 			<ThreatMedia threat={ item } size={ 32 } />
-			<span>
-				{ kind && <strong>{ kind }: </strong> }
-				{ subject }
+			<span className="jp-protect-threats__label">
+				{ kind ? <strong>{ kind }</strong> : subject }
+				{ kind && <span className="jp-protect-card__muted">{ subject }</span> }
 			</span>
 		</button>
 	);
@@ -155,9 +157,9 @@ type ThreatsListProps = {
 export default function ThreatsList( { threats, empty, canAct }: ThreatsListProps ) {
 	const [ view, setView ] = useState< View >( () => createThreatView( 'severity' ) );
 
-	const [ selected, setThreat ] = useSearchParam( THREAT_PARAM );
+	const [ selected ] = useSearchParam( THREAT_PARAM );
 	const selection = useMemo( () => ( selected ? [ selected ] : [] ), [ selected ] );
-	const open = useCallback( ( item: ScanThreat ) => setThreat( item.id ), [ setThreat ] );
+	const open = useOpenThreat();
 	const getItemId = useCallback( ( item: ScanThreat ) => String( item.id ), [] );
 
 	const fields = useMemo(
@@ -175,6 +177,7 @@ export default function ThreatsList( { threats, empty, canAct }: ThreatsListProp
 		() => filterSortAndPaginate( threats, view, fields ),
 		[ threats, view, fields ]
 	);
+	useArrowKeyNavigation( data, selected, getItemId, open );
 
 	return (
 		<div className="jp-protect-threats">

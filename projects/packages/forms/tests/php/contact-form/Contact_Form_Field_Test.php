@@ -1485,7 +1485,7 @@ class Contact_Form_Field_Test extends BaseTestCase {
 			null
 		);
 
-		$html = do_shortcode( '[contact-form]' . $field_shortcode . '[/contact-form]' );
+		$html = apply_shortcodes( '[contact-form]' . $field_shortcode . '[/contact-form]' );
 
 		$this->assertStringContainsString(
 			'class="contact-form__field-help">' . esc_html( $help_text ) . '</span>',
