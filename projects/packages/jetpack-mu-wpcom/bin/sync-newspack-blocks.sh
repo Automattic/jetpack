@@ -197,7 +197,7 @@ cat > "$PHPCSSTANDARDFILE" <<EOF
 EOF
 echo "Changing PHP textdomain to match jetpack-mu-wpcom..."
 # phpcbf exits 1 when it fixed everything.
-"$BASE"/vendor/bin/phpcbf --standard="$PHPCSSTANDARDFILE" "$TARGET" || [ $? -eq 1 ]
+"$BASE"/vendor/bin/phpcbf --standard="$PHPCSSTANDARDFILE" "$TARGET" || [[ $? -eq 1 ]]
 rm "$PHPCSSTANDARDFILE"
 
 # Add textdomain to block.json
