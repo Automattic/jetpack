@@ -3,7 +3,6 @@
  */
 import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { toAuthorId } from '@jetpack-premium-analytics/data';
-import { search } from '@jetpack-premium-analytics/icons';
 import { createReportOriginSearch } from '@jetpack-premium-analytics/routing';
 import {
 	PostHighlightCard,
@@ -17,7 +16,6 @@ import {
 	useWidgetRootContext,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { trendingUp } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -56,7 +54,6 @@ function PopularPostReport( { authorScoped }: { authorScoped: boolean } ) {
 				isError={ false }
 				isEmpty
 				empty={ {
-					icon: trendingUp,
 					description: __(
 						'Open an author to see their most viewed post here.',
 						'jetpack-premium-analytics-pkg'
@@ -129,7 +126,6 @@ function PopularPostCard( { authorId }: { authorId: number } ) {
 				authorId
 					? undefined
 					: {
-							icon: noPublishedPosts ? search : trendingUp,
 							description: noPublishedPosts
 								? __(
 										"Your most-read post will show here once you've published one.",

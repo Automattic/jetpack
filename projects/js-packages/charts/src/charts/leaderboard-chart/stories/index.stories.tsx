@@ -483,21 +483,21 @@ export const InteractiveMixed: Story = {
 	play: async ( { canvasElement } ) => {
 		const grid = canvasElement.querySelector( '[class*="leaderboardChart__content"] > *' );
 
-		// Every entry uses the same row wrapper; only the plain drill-down rows are buttons.
-		const rows = grid.querySelectorAll( ':scope > [class*="row"]' );
+		// Every entry is a list item; only the plain drill-down ones are a button directly.
+		const rows = grid.querySelectorAll( ':scope > [role="listitem"]' );
 		expect( rows ).toHaveLength( sampleData.length );
 
 		// The story must actually mix both row types for the rest to mean anything.
-		const interactiveRows = grid.querySelectorAll( ':scope > button[class*="row"]' ).length;
+		const interactiveRows = grid.querySelectorAll( ':scope > [role="listitem"] > button' ).length;
 		expect( interactiveRows ).toBeGreaterThan( 0 );
 		expect( interactiveRows ).toBeLessThan( sampleData.length );
 
-		// Both wrapper types must have the same height.
+		// Interactive and static list items must have the same height.
 		const heights = new Set( [ ...rows ].map( row => row.getBoundingClientRect().height ) );
 		expect( heights.size ).toBe( 1 );
 
-		// Column edges are read off the cells themselves — the button wrapper spans
-		// the full row even when its padding insets the cells inside it.
+		// Column edges are read off the cells themselves, since the row padding
+		// insets them from the list item edge.
 		const edge = ( selector: string, side: 'left' | 'right' ) =>
 			new Set(
 				[ ...grid.querySelectorAll( selector ) ].map( cell => cell.getBoundingClientRect()[ side ] )
@@ -883,7 +883,9 @@ export const FitRowsInteractive: Story = {
 	play: async ( { canvasElement } ) => {
 		await document.fonts.ready;
 
-		const rows = [ ...canvasElement.querySelectorAll< HTMLElement >( '[data-row-index]' ) ];
+		const rows = [
+			...canvasElement.querySelectorAll< HTMLElement >( '[data-row-index] > button' ),
+		];
 		const isHidden = ( row: HTMLElement ) => getComputedStyle( row ).visibility === 'hidden';
 
 		// The focus walk only means something if the height actually forces a cut.

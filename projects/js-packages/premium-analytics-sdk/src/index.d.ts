@@ -143,6 +143,37 @@ export type ColumnsProps = {
 	format?: DataFormat;
 };
 
+// Locations: a ranking of places in, the list with flags beside the map that draws them, the
+// shares, deltas and states handled.
+export declare const Locations: ComponentType< LocationsProps >;
+export type LocationRowInput = {
+	// ISO country code on the world map; the region's name inside a country.
+	id: string;
+	label: string;
+	// Figure for the selected period.
+	value: number;
+	// Figure for the comparison period; undefined when the location has no match there.
+	previousValue?: number;
+};
+export type LocationsProps = {
+	// The ranking in order: countries, or the regions of `country`. The map draws them all, the
+	// list the first `maxRows`.
+	rows: readonly LocationRowInput[];
+	status: WidgetStatus;
+	// Omit for the generic message with a Retry bound to `status.refetch`.
+	error?: WidgetStateError;
+	// Omit for the generic "no results for this time period" state.
+	empty?: WidgetStateEmpty;
+	// Defaults to compact integers.
+	format?: DataFormat;
+	// What the figure is, as the map tooltip names it.
+	valueLabel: string;
+	// The country the rows are regions of; omit for countries on the world map.
+	country?: { code: string; name: string };
+	// Rows the list shows. Defaults to the widget row limit.
+	maxRows?: number;
+};
+
 // Widget attributes. The chart type is not one: a widget declares it as a `jpa/toggle-group` field.
 export declare function reportParamsAttributeField< Attributes = any >( options?: any ): any;
 export declare function defaultReportParamsForGrain( ...args: any[] ): any;

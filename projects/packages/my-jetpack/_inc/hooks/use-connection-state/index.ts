@@ -176,8 +176,8 @@ export function useConnectionState( {
 		getMyJetpackWindowInitialState( 'products' )?.items ?? {}
 	).some( product => product?.requires_user_connection && product.is_plugin_active );
 
-	// Show a live error as the diagnosis unless the state asks for a user connection.
-	if ( errorNotice.hasConnectionError && ( isUserConnected || ! shouldAskForUserConnection ) ) {
+	// The Connection package decides whether there is an error to show; when it says so, that is the diagnosis.
+	if ( errorNotice.hasConnectionError ) {
 		return {
 			id: 'error',
 			label: errorNotice.errorTitle,
@@ -208,10 +208,6 @@ export function useConnectionState( {
 		};
 	}
 
-	// Connecting the account stays the prompt; a live error only tints the line, at
-	// the package's severity.
-	const status = errorNotice.hasConnectionError ? ( errorNotice.severity ?? 'error' ) : 'warning';
-
 	if ( ! hasConnectedOwner ) {
 		// Only an admin can take the empty owner slot.
 		if ( ! currentUserCan( 'manage_options' ) ) {
@@ -222,7 +218,7 @@ export function useConnectionState( {
 					'A site admin will need to connect their account before you can connect yours.',
 					'jetpack-my-jetpack'
 				),
-				status,
+				status: 'warning',
 				manageConnection,
 			};
 		}
@@ -232,7 +228,7 @@ export function useConnectionState( {
 			label: __( 'Site connected', 'jetpack-my-jetpack' ),
 			description: __( 'Connect your account to unlock all the features.', 'jetpack-my-jetpack' ),
 			action: 'CONNECT_USER',
-			status,
+			status: 'warning',
 			manageConnection,
 		};
 	}
@@ -242,7 +238,7 @@ export function useConnectionState( {
 		label: __( 'Site connected', 'jetpack-my-jetpack' ),
 		description: __( 'Connect your account to unlock all the features.', 'jetpack-my-jetpack' ),
 		action: 'CONNECT_USER',
-		status,
+		status: 'warning',
 		manageConnection,
 	};
 }

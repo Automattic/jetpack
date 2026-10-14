@@ -41,7 +41,6 @@ function BookingsOverTime( { chartType }: { chartType?: ChartDisplayChartType } 
 			label={ __( 'Bookings', 'jetpack-woocommerce-stats-pkg' ) }
 			countLabel={ countLabel }
 			dataFormat={ { type: 'number' } }
-			emptyText={ __( 'No bookings in this period.', 'jetpack-woocommerce-stats-pkg' ) }
 			errorText={ __(
 				"We couldn't load bookings. Please try again in a moment.",
 				'jetpack-woocommerce-stats-pkg'

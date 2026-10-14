@@ -204,16 +204,15 @@ describe( 'useConnectionState', () => {
 		);
 	} );
 
-	// The tint is the only sign of the error here, so it is the package's rating, not a flat 'error'.
 	it.each( [
 		[ 'warning', 'only the owner can repair', ownerTokenBroken, owner ],
 		[ 'error', 'breaks the whole site', siteTokenBroken, null ],
 	] )(
-		'tints the account prompt %s when the error %s',
+		'shows a %s diagnosis rather than the account prompt when the error %s',
 		( status, _, connectionErrors, connectionOwner ) => {
 			setSite( { connectionErrors, connectionOwner, userConnectionPluginActive: true } );
 
-			const expected = { id: 'user-not-connected', status };
+			const expected = { id: 'error', status, isDiagnosis: true };
 
 			expect( renderConnectionState( expected ) ).toEqual( expected );
 		}

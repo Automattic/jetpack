@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add `Locations`, the kind that lists a ranking of places beside the map that draws them.

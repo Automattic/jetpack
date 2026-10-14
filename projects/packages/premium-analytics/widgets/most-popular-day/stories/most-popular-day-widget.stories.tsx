@@ -118,8 +118,7 @@ export const ErrorRetryable: Story = {
 };
 
 /**
- * Resolved without a usable `views_best_day`: the widget shows its empty state
- * (the neutral calendar glyph and the "not enough views" message).
+ * Resolved without a usable `views_best_day`: the widget shows its empty state.
  */
 export const Empty: Story = {
 	render: renderMostPopularDay,

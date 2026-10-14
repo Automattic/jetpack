@@ -37,7 +37,7 @@ class WordAds_Ccpa_Do_Not_Sell_Link_Widget extends WP_Widget {
 	 */
 	public function widget( $args, $instance ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo do_shortcode( '[privacy-do-not-sell-link]' );
+		echo apply_shortcodes( '[privacy-do-not-sell-link]' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- https://github.com/WordPress/WordPress-Coding-Standards/pull/2782.
 		echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 }

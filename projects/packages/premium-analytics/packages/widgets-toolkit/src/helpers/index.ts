@@ -1,4 +1,3 @@
-export { BOOKINGS_FILTER } from './product-type-filters';
 export {
 	resolveSegmentStyles,
 	applyStylesToItems,
@@ -8,12 +7,6 @@ export {
 export { formatLegendLabels } from './format-legend-labels';
 export { getComparisonPeriodLabel } from './get-comparison-period-label';
 export { calculateDelta } from './calculate-delta';
-export {
-	buildVisitorsByLocationData,
-	type VisitorsByLocationData,
-	type LocationDataEntry,
-	type Region,
-} from './build-visitors-by-location-data';
 export { flagUrl } from './flag-url';
 export { isEmptyChartData, isEmptyPieChartData, getEmptyChartDomain } from './chart-empty-state';
 export {
