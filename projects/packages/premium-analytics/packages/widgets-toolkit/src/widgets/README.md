@@ -6,10 +6,6 @@ Dashboard widget components for Jetpack Premium Analytics.
 
 | Widget                         | Chart Component                                 | Description                                       |
 | ------------------------------ | ----------------------------------------------- | ------------------------------------------------- |
-| `RevenueByCustomerTypeWidget`  | `Columns`                                       | Revenue breakdown by customer type                |
-| `SalesByCouponWidget`          | `Columns`                                       | Coupon sales for all product types                |
-| `SalesByDeviceWidget`          | `Columns`                                       | Sales breakdown by device type                    |
-| `TotalReturnsWidget`           | `Columns`                                       | Returns/refunds for all product types             |
 
 ## Chart Components
 

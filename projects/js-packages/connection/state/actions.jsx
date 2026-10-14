@@ -16,6 +16,23 @@ const SET_CONNECTED_PLUGINS = 'SET_CONNECTED_PLUGINS';
 const REFRESH_CONNECTED_PLUGINS = 'REFRESH_CONNECTED_PLUGINS';
 const SET_CONNECTION_ERRORS = 'SET_CONNECTION_ERRORS';
 const SET_IS_OFFLINE_MODE = 'SET_IS_OFFLINE_MODE';
+const SET_CONNECTION_OWNER = 'SET_CONNECTION_OWNER';
+
+/**
+ * Record that ownership of the connection has moved.
+ *
+ * Patched from the transfer rather than refetched: nothing else in the user connection
+ * data turns on ownership — the permissions it reports are plain capability checks — so
+ * a request would only confirm what the caller already knows.
+ *
+ * @param {object} owner             - The new owner.
+ * @param {number} owner.id          - Their local user ID.
+ * @param {string} owner.displayName - Their display name.
+ * @return {object} The action.
+ */
+const setConnectionOwner = owner => {
+	return { type: SET_CONNECTION_OWNER, owner };
+};
 
 const setConnectionStatus = connectionStatus => {
 	return { type: SET_CONNECTION_STATUS, connectionStatus };
@@ -137,6 +154,7 @@ const refreshConnectedPlugins =
 	};
 
 const actions = {
+	setConnectionOwner,
 	setConnectionStatus,
 	setConnectionStatusIsFetching,
 	fetchConnectionStatus,
@@ -173,5 +191,6 @@ export {
 	REFRESH_CONNECTED_PLUGINS,
 	SET_CONNECTION_ERRORS,
 	SET_IS_OFFLINE_MODE,
+	SET_CONNECTION_OWNER,
 	actions as default,
 };

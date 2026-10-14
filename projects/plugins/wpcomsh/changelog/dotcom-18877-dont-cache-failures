@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Themes: retry after a failed read of the WordPress.com theme list, rather than leaving the Add Themes tabs without WordPress.com themes for a day.

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Skip WordPress.com registration in offline mode, and hold back automatic retries after a failed attempt: daily for errors that describe the site's environment, on a backoff schedule otherwise, and never before a Retry-After window has elapsed.

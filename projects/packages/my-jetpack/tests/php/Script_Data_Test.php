@@ -278,4 +278,25 @@ class Script_Data_Test extends BaseTestCase {
 
 		remove_filter( 'jetpack_my_jetpack_should_initialize', '__return_false' );
 	}
+
+	public function test_prints_where_jetpack_ai_is_managed_to_administrators_only() {
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'ai-admin',
+					'user_pass'  => 'password',
+					'role'       => 'administrator',
+				)
+			)
+		);
+
+		$this->assertSame(
+			Products\Jetpack_Ai::get_manage_url(),
+			Initializer::add_admin_script_data( array() )['myJetpack']['aiManageUrl']
+		);
+
+		wp_set_current_user( 0 );
+
+		$this->assertArrayNotHasKey( 'aiManageUrl', Initializer::add_admin_script_data( array() )['myJetpack'] );
+	}
 }

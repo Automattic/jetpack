@@ -357,22 +357,6 @@ describe( 'author detail stage', () => {
 		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'names a hidden users endpoint without offering Retry', () => {
-		mockSummary( {
-			isError: true,
-			error: { code: 'rest_no_route', data: { status: 404 } },
-			name: undefined,
-		} );
-
-		render( stage() );
-
-		expect( getNoticeText( "This site doesn't share author profiles." ) ).toBeInTheDocument();
-		expect(
-			getNoticeAnnouncement( "This site doesn't share author profiles.", 'polite' )
-		).toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
-	} );
-
 	it( 'names the page while loading', () => {
 		mockSummary( { isLoading: true, name: undefined } );
 

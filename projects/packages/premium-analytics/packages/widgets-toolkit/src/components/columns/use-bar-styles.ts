@@ -3,11 +3,10 @@
  */
 import { useGlobalChartsContext, type SeriesData } from '@jetpack-premium-analytics/externals';
 import { useMemo } from 'react';
-import type { BarChartStyle } from '../chart-bar/bar-chart';
-
 /**
  * Internal dependencies
  */
+import type { BarChartStyle } from '../chart-bar/bar-chart';
 
 /**
  * Maps each series to the color the theme provider resolves for it.

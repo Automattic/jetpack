@@ -800,7 +800,7 @@ class Initializer {
 	}
 
 	/**
-	 * Add My Jetpack availability and image base URL to admin script data.
+	 * Add My Jetpack's availability, image base URL and link targets to admin script data.
 	 *
 	 * Printed on every admin page by Script_Data, so the connection screen can resolve its
 	 * illustrations and Jetpack footers know whether to link to My Jetpack.
@@ -814,6 +814,11 @@ class Initializer {
 		$data['myJetpack']['isAvailable']     = self::is_admin_page_available();
 		$data['myJetpack']['assetsUrl']       = self::get_assets_url();
 		$data['myJetpack']['productsSection'] = self::get_products_section();
+
+		// Only administrators can open the pages this points at, so spare everyone else the lookup.
+		if ( current_user_can( 'manage_options' ) ) {
+			$data['myJetpack']['aiManageUrl'] = esc_url_raw( Products\Jetpack_Ai::get_manage_url() );
+		}
 
 		if (
 			self::is_my_jetpack_admin_request()

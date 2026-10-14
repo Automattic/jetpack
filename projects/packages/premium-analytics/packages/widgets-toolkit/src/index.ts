@@ -52,6 +52,7 @@ export {
 	type DonutProps,
 	type DonutSegmentInput,
 	Funnel,
+	Locations,
 	Columns,
 	type LegendLabels,
 	LeaderboardLabel,
@@ -228,6 +229,7 @@ export {
 	getArchiveGroupLabel,
 	getArchiveTypeLabel,
 	getAuthorName,
+	getAuthorPostsQueryParams,
 	getAuthorsReportQueryParams,
 	getLocationColumnLabel,
 	getLocationsReportQueryParams,
@@ -350,18 +352,6 @@ export {
 	useTrackedDateRangeApply,
 	useWidgetDrillDown,
 } from './hooks';
-
-/**
- * Widget components
- */
-export {
-	BookingsRevenueByCustomerTypeWidget,
-	RevenueByCustomerTypeWidget,
-	SalesByCouponWidget,
-	TotalReturnsWidget,
-	VisitorsByLocationWidget,
-	SalesByDeviceWidget,
-} from './widgets';
 
 /**
  * Types

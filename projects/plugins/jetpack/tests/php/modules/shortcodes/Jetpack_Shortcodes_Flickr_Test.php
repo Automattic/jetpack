@@ -75,7 +75,7 @@ class Jetpack_Shortcodes_Flickr_Test extends WP_UnitTestCase {
 	public function test_shortcodes_flickr() {
 		$content = '[flickr]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertNotEquals( $content, $shortcode_content );
 	}
@@ -89,7 +89,7 @@ class Jetpack_Shortcodes_Flickr_Test extends WP_UnitTestCase {
 
 		$content = '[flickr photo="' . $photo_link . '"]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringContainsString( $photo_link, $shortcode_content );
 	}
@@ -104,7 +104,7 @@ class Jetpack_Shortcodes_Flickr_Test extends WP_UnitTestCase {
 
 		$content = '[flickr video="' . $video_link . '"]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringContainsString( $video_link, $shortcode_content );
 	}
@@ -117,7 +117,7 @@ class Jetpack_Shortcodes_Flickr_Test extends WP_UnitTestCase {
 		$video_id = '49931239842';
 		$content  = '[flickr video="' . $video_id . '"]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringContainsString( $video_id, $shortcode_content );
 	}
@@ -132,7 +132,7 @@ class Jetpack_Shortcodes_Flickr_Test extends WP_UnitTestCase {
 		$height   = 300;
 		$content  = "[flickr video='$video_id' w=$width h=$height ]";
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringContainsString( $video_id, $shortcode_content );
 		$this->assertStringContainsString( "width: $width", $shortcode_content );
