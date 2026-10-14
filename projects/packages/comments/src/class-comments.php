@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack\Comments;
 
-use Automattic\Jetpack\Status\Host;
-
 /**
  * Package entry point.
  */
@@ -27,20 +25,8 @@ class Comments {
 	 * @return bool
 	 */
 	public static function is_enabled() {
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			// Blog 522232 is jetpack.wordpress.com, which serves the Verbum iframe to sites on older Jetpack versions.
-			if ( 522232 === get_current_blog_id() ) {
-				return false;
-			}
-
-			// Host::is_p2_site() only recognizes WP for Teams sites once this is loaded.
-			if ( ! function_exists( '\WPForTeams\is_wpforteams_site' ) && file_exists( WP_CONTENT_DIR . '/lib/wpforteams/functions.php' ) ) {
-				require_once WP_CONTENT_DIR . '/lib/wpforteams/functions.php';
-			}
-		}
-
-		// P2 keeps its own comment experience.
-		return ! ( new Host() )->is_p2_site();
+		// Blog 522232 is jetpack.wordpress.com, which serves the Verbum iframe to sites on older Jetpack versions.
+		return ! ( defined( 'IS_WPCOM' ) && IS_WPCOM && 522232 === get_current_blog_id() );
 	}
 
 	/**
