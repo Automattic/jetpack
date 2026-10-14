@@ -136,7 +136,6 @@ export default function GoalsStep( { value, onChange, titleRef }: Props ) {
 									{ option.description }
 								</Text>
 							</Stack>
-							<span className="ai-launchpad-wizard__card-indicator" aria-hidden="true" />
 						</label>
 					);
 				} ) }

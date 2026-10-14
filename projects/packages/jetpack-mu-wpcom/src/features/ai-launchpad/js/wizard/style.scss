@@ -58,8 +58,9 @@
 		border-color var(--wpds-motion-duration-sm) var(--wpds-motion-easing-subtle),
 		box-shadow var(--wpds-motion-duration-sm) var(--wpds-motion-easing-subtle);
 
+	// Neutral, so hover never reads as the brand-blue selection.
 	&:hover {
-		border-color: var(--wpds-color-stroke-interactive-brand);
+		border-color: var(--wpds-color-stroke-interactive-neutral-active);
 	}
 
 	&:has(:focus-visible) {
@@ -70,27 +71,10 @@
 	&.is-selected {
 		border-color: var(--wpds-color-stroke-interactive-brand);
 		box-shadow: 0 0 0 var(--wpds-border-width-xs) var(--wpds-color-stroke-interactive-brand);
-	}
 
-	// Focus and selection share the brand blue; the radio disc marks selection.
-	&.is-selected .ai-launchpad-wizard__card-indicator {
-		border-color: transparent;
-		background-color: var(--wpds-color-background-interactive-brand-strong);
-
-		&::after {
-			content: "";
-			position: absolute;
-			inset: 0;
-			margin: auto;
-			inline-size: 50%;
-			block-size: 50%;
-			border-radius: 50%;
-			background-color: var(--wpds-color-foreground-interactive-brand-strong);
-
-			// Forced colors drop backgrounds, so draw the disc as a border.
-			@media (forced-colors: active) {
-				border: 4px solid CanvasText;
-			}
+		// Forced colors drop the box-shadow, so thicken the border instead.
+		@media (forced-colors: active) {
+			border: var(--wpds-border-width-focus) solid Highlight;
 		}
 	}
 
@@ -101,7 +85,6 @@
 }
 
 .ai-launchpad-wizard__card-text {
-	flex-grow: 1;
 	min-width: 0;
 }
 
@@ -116,25 +99,6 @@
 	clip-path: inset(50%);
 	border: 0;
 	white-space: nowrap;
-}
-
-// Mirrors the WPDS Radio primitive, unusable without a RadioGroup export.
-.ai-launchpad-wizard__card-indicator {
-	position: relative;
-	flex-shrink: 0;
-	inline-size: 16px;
-	block-size: 16px;
-	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-interactive-neutral);
-	border-radius: 50%;
-	background-color: var(--wpds-color-background-interactive-neutral-weak);
-
-	.ai-launchpad-wizard__card:not(.is-selected):hover & {
-		border-color: var(--wpds-color-stroke-interactive-neutral-active);
-	}
-
-	@media (forced-colors: active) {
-		border-color: CanvasText;
-	}
 }
 
 .ai-launchpad-wizard__card-description {
