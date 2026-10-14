@@ -709,7 +709,8 @@ class Jetpack {
 
 		add_filter( 'profile_update', array( 'Jetpack', 'user_meta_cleanup' ) );
 
-		add_filter( 'jetpack_active_modules', array( __CLASS__, 'keep_backup_module_active' ) );
+		// Sites upgrading from before the module existed never had a purchase to switch it on.
+		add_action( 'updating_jetpack_version', array( __CLASS__, 'activate_backup_module_for_plan' ) );
 		add_filter( 'jetpack_get_default_modules', array( $this, 'filter_default_modules' ) );
 		add_filter( 'jetpack_get_default_modules', array( $this, 'handle_deprecated_modules' ), 99 );
 
@@ -842,24 +843,40 @@ class Jetpack {
 	}
 
 	/**
-	 * Keep the backup module on, since backups run on WordPress.com whatever it says.
+	 * Switch the backup module on when the site's plan includes Backup.
 	 *
-	 * A host can still force it off through `jetpack_feature_policy`, which runs last.
+	 * WordPress.com does this after a purchase; this covers connecting, upgrading, and opening the
+	 * Backup page with the module off. Nothing switches it off, since backups run on the plan.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param array $active Active module slugs.
-	 * @return array
+	 * @return bool Whether the module is on afterwards.
 	 */
-	public static function keep_backup_module_active( $active ) {
-		// The Backup package does not support multisite, so the module stays as the site left it.
-		if ( ! is_array( $active ) || is_multisite() ) {
-			return $active;
+	public static function activate_backup_module_for_plan() {
+		$backup = 'Automattic\\Jetpack\\My_Jetpack\\Products\\Backup';
+
+		// Another plugin may have loaded an older My Jetpack without it. Without an owner there
+		// is no plan to look up.
+		if (
+			is_multisite()
+			|| ! method_exists( $backup, 'activate_module_for_plan' )
+			|| ! self::is_connection_ready()
+			|| ! self::connection()->has_connected_owner()
+		) {
+			return self::is_module_active( 'backup' );
 		}
 
-		$active[] = 'backup';
+		return $backup::activate_module_for_plan();
+	}
 
-		return $active;
+	/**
+	 * Whether this request opens the Backup page.
+	 *
+	 * @return bool
+	 */
+	private static function is_backup_page_request() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only routing check; no form data is processed.
+		return is_admin() && 'admin.php' === ( $GLOBALS['pagenow'] ?? '' ) && isset( $_GET['page'] ) && 'jetpack-backup' === sanitize_text_field( wp_unslash( $_GET['page'] ) );
 	}
 
 	/**
@@ -876,7 +893,8 @@ class Jetpack {
 			return;
 		}
 
-		if ( ! self::is_module_active( 'backup' ) ) {
+		// A link after a purchase may open the page before the module is on; the plan decides then.
+		if ( ! self::is_module_active( 'backup' ) && ! ( self::is_backup_page_request() && self::activate_backup_module_for_plan() ) ) {
 			return;
 		}
 
@@ -6367,6 +6385,9 @@ endif;
 			self::activate_default_modules( false, false, $other_modules, $redirect_on_activation_error, $send_state_messages, null, true );
 			Jetpack_Options::update_option( 'active_modules_initialized', true );
 		}
+
+		// A plan bought before connecting had no site to switch Backup on for.
+		self::activate_backup_module_for_plan();
 
 		// Since this is a fresh connection, be sure to clear out IDC options.
 		Identity_Crisis::clear_all_idc_options();

@@ -46,7 +46,7 @@ export type FeatureState = {
 	isSwitching?: boolean;
 	// Whether the feature is switched on here, which is not whether a plan covers it:
 	// the wp-admin sidebar asks the same question, and the two have to agree. A plan-driven
-	// module is the exception: its menu item stays, and this says whether the plan runs it.
+	// module is the exception: this says whether the plan runs it, and its menu can outlast the plan.
 	status: 'active' | 'inactive';
 	control: FeatureControl;
 	// The product behind the feature, for the modal's copy.
@@ -63,13 +63,13 @@ export type FeatureState = {
 export function getForcedReason( state: FeatureState ): string | null {
 	const { control } = state;
 
-	// Off is a sale to make, which Upgrade offers, so only on gets a reason.
-	if ( control.kind === 'module' && isPlanDriven( control.module ) ) {
-		return state.status === 'active' ? __( 'Included in your plan', 'jetpack-my-jetpack' ) : null;
-	}
-
 	if ( control.kind === 'module' ) {
 		const status = getModuleStatus( control.module );
+
+		// Off is a sale to make, which Upgrade offers, so only a running one gets a reason.
+		if ( ! status.reason && isPlanDriven( control.module ) ) {
+			return state.status === 'active' ? __( 'Included in your plan', 'jetpack-my-jetpack' ) : null;
+		}
 
 		if ( control.module.override || ! status.isAvailable ) {
 			return status.reason ?? null;

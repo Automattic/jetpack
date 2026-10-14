@@ -1,10 +1,7 @@
 import { store as modulesStore } from '@automattic/jetpack-shared-stores';
 import { useSelect } from '@wordpress/data';
 import { getProductModules } from '../../components/my-jetpack-tab-panel/features/mappings';
-import {
-	getOverrideReason,
-	PLAN_DRIVEN_MODULES,
-} from '../../components/my-jetpack-tab-panel/features/module-availability';
+import { getOverrideReason } from '../../components/my-jetpack-tab-panel/features/module-availability';
 import { PRODUCT_STATUSES } from '../../constants';
 import { isJetpackPluginActive } from '../../utils/is-jetpack-plugin-active';
 import type { MyJetpackModule } from '../../types';
@@ -29,11 +26,7 @@ export default function useForcedOffReason(
 	status: string
 ): { reason: string | null; isPending: boolean } {
 	const moduleSlug = getProductModules()[ slug ] || slug;
-	// A purchase is what turns these on, so their card keeps its offer.
-	const applies =
-		!! moduleSlug &&
-		! PLAN_DRIVEN_MODULES.includes( moduleSlug ) &&
-		OFFER_STATUSES.includes( status );
+	const applies = !! moduleSlug && OFFER_STATUSES.includes( status );
 
 	const { override, isPending } = useSelect(
 		select => {

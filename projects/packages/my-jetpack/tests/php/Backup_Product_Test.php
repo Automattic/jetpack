@@ -6,6 +6,7 @@ use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\My_Jetpack\Products\Backup;
 use Automattic\Jetpack\Redirect;
 use Jetpack_Options;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
@@ -156,32 +157,59 @@ class Backup_Product_Test extends TestCase {
 	}
 
 	/**
-	 * A plan holder who switched the module off is offered the module, not a purchase.
+	 * Reading Backup's status asks for its module when the plan includes it, and only then.
+	 *
+	 * @dataProvider provide_purchases
+	 *
+	 * @param array $purchases The site's purchases.
+	 * @param bool  $on        Whether the module should be asked for.
 	 */
-	public function test_get_status_reports_module_disabled_with_a_plan() {
+	#[DataProvider( 'provide_purchases' )]
+	public function test_get_status_asks_for_the_module_with_a_plan( $purchases, $on ) {
 		( new Tokens() )->update_blog_token( 'test.test.1' );
 		( new Tokens() )->update_user_token( self::$user_id, 'test.test.' . self::$user_id, true );
 		Jetpack_Options::update_option( 'id', 123 );
 		activate_plugins( 'jetpack/jetpack.php' );
 		deactivate_plugins( Backup::get_installed_plugin_filename() );
 		Jetpack_Options::update_option( 'active_modules', array() );
-		set_transient(
-			Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY,
-			array(
-				(object) array(
-					'product_slug'  => 'jetpack_backup_t0_monthly',
-					'expiry_status' => 'active',
-					'expiry_date'   => gmdate( 'Y-m-d H:i:s', strtotime( '+1 year' ) ),
-				),
-			),
-			HOUR_IN_SECONDS
-		);
+		set_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY, $purchases, HOUR_IN_SECONDS );
 		set_transient( Backup::BACKUP_STATUS_TRANSIENT_KEY, 'no_errors', HOUR_IN_SECONDS );
 
-		$this->assertSame( Products::STATUS_MODULE_DISABLED, Backup::get_status() );
+		// The test environment's Jetpack stub fails the activation itself, so watch for the request.
+		$asked = array();
+		$watch = static function ( $module ) use ( &$asked ) {
+			$asked[] = $module;
+		};
+		add_action( 'jetpack_pre_activate_module', $watch );
+
+		Backup::get_status();
+		remove_action( 'jetpack_pre_activate_module', $watch );
+
+		$this->assertSame( $on, in_array( 'backup', $asked, true ) );
 
 		delete_transient( Backup::BACKUP_STATUS_TRANSIENT_KEY );
 		delete_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY );
+	}
+
+	/**
+	 * Data provider for test_get_status_asks_for_the_module_with_a_plan.
+	 *
+	 * @return array
+	 */
+	public static function provide_purchases() {
+		return array(
+			'backup plan' => array(
+				array(
+					(object) array(
+						'product_slug'  => 'jetpack_backup_t0_monthly',
+						'expiry_status' => 'active',
+						'expiry_date'   => gmdate( 'Y-m-d H:i:s', strtotime( '+1 year' ) ),
+					),
+				),
+				true,
+			),
+			'no plan'     => array( array(), false ),
+		);
 	}
 
 	/**

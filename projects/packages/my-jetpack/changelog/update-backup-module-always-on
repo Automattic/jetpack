@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Features: Show Backup as on only when the site's plan includes it, with no switch, and offer an upgrade on its card otherwise.
+Backup: Switch the backup module on when the site's plan includes Backup, and show Backup's state from the plan with no switch, offering an upgrade on its card otherwise.

@@ -6,11 +6,12 @@
  * First Introduced: 16.3-a.8
  * Requires Connection: Yes
  * Requires User Connection: Yes
- * Auto Activate: Yes
+ * Auto Activate: No
  * Feature: Security
  * Additional Search Queries: backup, backups, restore, vaultpress, rewind, cloud backup, off-site backup
  *
- * Always on (see Jetpack::keep_backup_module_active()); Jetpack::configure_backup_package() initializes the dashboard.
+ * WordPress.com switches it on after a Backup purchase, and Jetpack does when it finds a plan with it off.
+ * Jetpack::configure_backup_package() initializes the dashboard while it is on.
  *
  * @package automattic/jetpack
  */

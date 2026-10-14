@@ -441,40 +441,37 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The dashboard stays on with the backup module switched off in the saved option.
+	 * Switching the backup module off takes the dashboard and its REST routes away.
 	 */
-	public function test_backup_dashboard_ignores_a_saved_off_module() {
+	public function test_backup_dashboard_follows_the_backup_module() {
 		$this->set_up_backup_test();
-		// Registered by Jetpack at load, but another test's tear_down may have cleared it.
-		add_filter( 'jetpack_active_modules', array( Jetpack::class, 'keep_backup_module_active' ) );
 		$this->connect_owner();
 		$this->force_unfire_action( 'jetpack_backup_initialized' );
 		Jetpack_Options::update_option( 'active_modules', array() );
 
 		Jetpack::configure_backup_package();
 
-		$this->assertSame( 1, did_action( 'jetpack_backup_initialized' ) );
+		$this->assertSame( 0, did_action( 'jetpack_backup_initialized' ) );
 	}
 
 	/**
-	 * The module stays on for existing sites and needs the same connection the dashboard does.
+	 * The module needs the same connection the dashboard does.
 	 */
 	public function test_backup_module_headers() {
 		$info = jetpack_get_module_info( 'backup' );
 		$this->assertIsArray( $info );
-		$this->assertSame( 'Yes', $info['auto_activate'] );
 		$this->assertSame( 'Yes', $info['requires_connection'] );
 		$this->assertSame( 'Yes', $info['requires_user_connection'] );
 	}
 
 	/**
-	 * 16.3-a.7 shipped the dashboard without the module, so upgrading from it must switch the module on.
+	 * The plan switches the module on, so neither connecting nor upgrading turns it on as a default.
 	 */
-	public function test_backup_module_auto_activates_on_upgrade_from_the_release_without_it() {
+	public function test_backup_module_is_not_a_default_module() {
 		$info = jetpack_get_module_info( 'backup' );
 		$this->assertIsArray( $info );
-		$this->assertSame( 1, version_compare( $info['introduced'], '16.3-a.7' ) );
-		$this->assertContains( 'backup', Jetpack::get_default_modules( '16.3-a.7', $info['introduced'] ) );
+		$this->assertNotContains( 'backup', Jetpack::get_default_modules( '16.3-a.7', $info['introduced'] ) );
+		$this->assertNotContains( 'backup', Jetpack::get_default_modules() );
 	}
 
 	/**

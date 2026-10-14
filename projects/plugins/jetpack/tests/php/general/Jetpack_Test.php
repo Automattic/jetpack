@@ -269,8 +269,6 @@ EXPECTED;
 
 	public function test_active_modules_filter_restores_state() {
 		self::reset_tracking_of_module_activation();
-		// Jetpack's own filter keeps Backup on, which this filter's expected lists leave out.
-		remove_filter( 'jetpack_active_modules', array( Jetpack::class, 'keep_backup_module_active' ) );
 
 		add_action( 'jetpack_activate_module', array( __CLASS__, 'track_activated_modules' ) );
 		add_action( 'jetpack_deactivate_module', array( __CLASS__, 'track_deactivated_modules' ) );
@@ -293,7 +291,6 @@ EXPECTED;
 
 		// With the module override filter removed, verify that monitor module appears in get_active_modules().
 		$active_modules = Jetpack::get_active_modules();
-		add_filter( 'jetpack_active_modules', array( Jetpack::class, 'keep_backup_module_active' ) );
 		$this->assertEquals( $active_modules, array( 'monitor', 'stats' ) );
 	}
 

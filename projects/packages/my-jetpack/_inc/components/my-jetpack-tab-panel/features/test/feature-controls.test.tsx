@@ -219,7 +219,7 @@ describe( 'FeatureAction', () => {
 	} );
 
 	it( 'offers Upgrade in place of a switch for Backup without its plan, and nothing with it', () => {
-		const backup = { module: 'backup', available: true, activated: true, override: 'active' };
+		const backup = { module: 'backup', available: true, activated: true };
 		const feature = buildFeature( {
 			slug: 'backup',
 			upgrade: { path: '/add-backup', name: 'Jetpack VaultPress Backup' },

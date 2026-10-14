@@ -5,7 +5,6 @@ import { useAllProducts } from '../../../data/products/use-all-products';
 import { isOfflineFeatures } from '../../../data/utils/offline-features';
 import { MyJetpackModule, JetpackModuleSlug } from '../../../types';
 import { getProductModules } from './mappings';
-import { PLAN_DRIVEN_MODULES } from './module-availability';
 import { useMainFeatures } from './use-main-features';
 
 const NO_MODULES: Record< string, MyJetpackModule > = {};
@@ -35,11 +34,7 @@ export function withoutPluginForcedOverrides(
 		const moduleSlug = productModules[ slug ] || slug;
 		const $module = modules[ moduleSlug ];
 
-		if (
-			$module?.override === 'active' &&
-			product?.standalonePluginInfo?.isStandaloneActive &&
-			! PLAN_DRIVEN_MODULES.includes( moduleSlug )
-		) {
+		if ( $module?.override === 'active' && product?.standalonePluginInfo?.isStandaloneActive ) {
 			normalized = normalized === modules ? { ...modules } : normalized;
 			normalized[ moduleSlug ] = { ...$module, override: false };
 		}

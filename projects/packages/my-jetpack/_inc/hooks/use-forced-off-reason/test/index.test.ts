@@ -68,12 +68,12 @@ describe( 'useForcedOffReason', () => {
 		}
 	);
 
-	it( 'leaves Backup alone, since a purchase is what turns it on', () => {
+	it( 'reads the backup module for Backup, not vaultpress', () => {
 		const { result } = renderHook( () =>
-			useForcedOffReason( 'backup', PRODUCT_STATUSES.NEEDS_PLAN )
+			useForcedOffReason( 'backup', PRODUCT_STATUSES.MODULE_DISABLED )
 		);
 
-		expect( result.current ).toEqual( { reason: null, isPending: false } );
+		expect( result.current ).toEqual( { reason: REASON, isPending: false } );
 	} );
 
 	it.each( [

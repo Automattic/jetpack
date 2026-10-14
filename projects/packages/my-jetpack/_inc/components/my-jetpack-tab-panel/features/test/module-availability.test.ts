@@ -34,10 +34,13 @@ describe( 'getModuleStatus', () => {
 		} );
 	} );
 
-	it( 'leaves the reason for Backup to its plan, not a host', () => {
-		expect( getModuleStatus( buildModule( { module: 'backup', override: 'active' } ) ) ).toEqual( {
+	it( 'offers no switch for Backup, whose plan decides it, unless a host forced it off', () => {
+		expect( getModuleStatus( buildModule( { module: 'backup' } ) ) ).toEqual( {
 			isAvailable: false,
 		} );
+		expect(
+			getModuleStatus( buildModule( { module: 'backup', activated: false, override: 'inactive' } ) )
+		).toEqual( { isAvailable: false, reason: 'Disabled by your host or site administrator' } );
 	} );
 
 	it( 'takes the control away from a module forced off', () => {

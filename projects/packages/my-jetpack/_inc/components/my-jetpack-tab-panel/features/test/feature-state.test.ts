@@ -246,7 +246,7 @@ describe( 'resolveFeatureState, for a module the plan does not cover', () => {
 	} );
 } );
 
-describe( 'resolveFeatureState, for a module Jetpack keeps on for its plan to run', () => {
+describe( 'resolveFeatureState, for a module its plan switches on', () => {
 	const backup = buildFeature( {
 		slug: 'backup',
 		in_jetpack: true,
@@ -254,7 +254,7 @@ describe( 'resolveFeatureState, for a module Jetpack keeps on for its plan to ru
 		plugin: 'jetpack-backup',
 	} );
 	const modules = {
-		backup: buildModule( { module: 'backup', activated: true, override: 'active' } ),
+		backup: buildModule( { module: 'backup', activated: true } ),
 	};
 
 	it.each( [

@@ -1,4 +1,4 @@
 Significance: patch
 Type: enhancement
 
-Backup: Keep the Backup menu on for connected sites, and show in My Jetpack whether the site's plan runs backups, offering an upgrade when it does not.
+Backup: Show the Backup menu once the site's plan includes Backup, and show in My Jetpack whether the plan runs backups, offering an upgrade when it does not.

@@ -4,18 +4,17 @@ import { MyJetpackModule } from '../../../types';
 
 export const JETPACK_MODULES_NOT_FOR_MULTISITE = [ 'backup', 'waf', 'wordads' ];
 
-// Jetpack forces these on itself (see `Jetpack::keep_backup_module_active()`), so the plan, not
-// the module, says whether they run.
+// The plan, not a switch, decides these: Jetpack turns the module on when the plan includes it.
 export const PLAN_DRIVEN_MODULES = [ 'backup' ];
 
 /**
- * Whether Jetpack, rather than a host, forced a module on, leaving its plan to say whether it runs.
+ * Whether a module follows the site's plan, unless a host forced it off.
  *
  * @param {MyJetpackModule} $module - The module to check.
  * @return True when the plan decides the module.
  */
 export function isPlanDriven( $module: MyJetpackModule ): boolean {
-	return !! $module.override && PLAN_DRIVEN_MODULES.includes( $module.module );
+	return $module.override !== 'inactive' && PLAN_DRIVEN_MODULES.includes( $module.module );
 }
 
 /**
@@ -39,10 +38,6 @@ export function getOverrideReason( override: 'active' | 'inactive' ) {
  */
 export function getModuleStatus( $module: MyJetpackModule ) {
 	// A toggle for a module forced through `jetpack_active_modules` would only flip back.
-	if ( isPlanDriven( $module ) ) {
-		return { isAvailable: false };
-	}
-
 	if ( $module.override === 'active' || $module.override === 'inactive' ) {
 		return { isAvailable: false, reason: getOverrideReason( $module.override ) };
 	}
@@ -57,6 +52,10 @@ export function getModuleStatus( $module: MyJetpackModule ) {
 				reason: __( 'Not available on multisite', 'jetpack-my-jetpack' ),
 			};
 		}
+	}
+
+	if ( isPlanDriven( $module ) ) {
+		return { isAvailable: false };
 	}
 
 	return { isAvailable: true };
