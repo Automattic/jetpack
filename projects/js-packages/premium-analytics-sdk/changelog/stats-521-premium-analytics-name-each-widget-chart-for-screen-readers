@@ -1,4 +1,4 @@
 Significance: patch
 Type: added
 
-Declare the optional chart title of a Donut, which names its chart for screen readers.
+Declare the optional chart title of the Columns, Donut, Funnel and Locations components, which names their charts for screen readers.
