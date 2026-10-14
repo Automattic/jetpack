@@ -5,19 +5,20 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
-use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Data;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Notice_Dismiss;
 
 /**
  * What the banner renders from, or null if it shouldn't show.
  *
- * Not on block-editor screens: core hides admin notices there, the editor
- * notice carries the message, and the script would still count an impression.
+ * Not on block-editor screens or My Jetpack: both hide admin notices and carry
+ * the message in their own, and the script would still count an impression.
  *
  * @return array<string,mixed>|null
  */
 function wpcom_expiry_notices_admin_banner_data(): ?array {
-	return wpcom_expiry_notices_is_block_editor_screen() ? null : wpcom_expiry_notices_banner_data();
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only picks which surface renders.
+	$is_my_jetpack = isset( $_GET['page'] ) && 'my-jetpack' === $_GET['page'];
+	return wpcom_expiry_notices_is_block_editor_screen() || $is_my_jetpack ? null : wpcom_expiry_notices_banner_data();
 }
 
 /**
@@ -53,7 +54,6 @@ function wpcom_expiry_notices_render_admin_banner() {
 	$urls           = $data['urls'];
 	$is_dismissible = $data['is_dismissible'];
 	$notice_class   = $data['is_early_warning'] ? 'notice-warning' : 'notice-error';
-	$is_grace       = Expiry_Data::STATE_EXPIRED_GRACE === $state['state'];
 	?>
 	<div id="wpcom-expiry-banner" class="notice <?php echo esc_attr( $notice_class ); ?>" data-wpcom-expiry-banner>
 		<p><strong><?php echo esc_html( wpcom_expiry_notices_banner_heading( $state ) ); ?></strong></p>
@@ -62,7 +62,7 @@ function wpcom_expiry_notices_render_admin_banner() {
 			<p class="wpcom-expiry-banner__actions">
 				<?php if ( null !== $urls ) : ?>
 					<?php wpcom_expiry_notices_render_cta_link( $urls['primary'], 'primary', 'button button-primary' ); ?>
-					<?php if ( $is_grace ) : ?>
+					<?php if ( null !== $urls['secondary'] ) : ?>
 						<?php wpcom_expiry_notices_render_cta_link( $urls['secondary'], 'secondary', 'button' ); ?>
 					<?php endif; ?>
 				<?php endif; ?>

@@ -369,4 +369,18 @@ class Expiry_Notices_Test extends \WorDBless\BaseTestCase {
 			wpcom_expiry_notices_banner_sentence( $this->message_state( array( 'days_remaining' => 5 ) ), true )
 		);
 	}
+
+	public function test_my_jetpack_loses_its_expiry_alerts_for_the_plan_only(): void {
+		$this->set_purchase( 5 );
+		$alerts = array(
+			'business-bundle--plan_expiring_soon'    => array(),
+			'business-bundle--plan_expired'          => array(),
+			'jetpack_backup_t1_yearly--plan_expired' => array(),
+			'missing-connection'                     => array(),
+		);
+		$this->assertSame(
+			array( 'jetpack_backup_t1_yearly--plan_expired', 'missing-connection' ),
+			array_keys( wpcom_expiry_notices_drop_my_jetpack_plan_alerts( $alerts ) )
+		);
+	}
 }

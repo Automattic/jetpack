@@ -1,4 +1,6 @@
+@forward "layout";
 @use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "layout" as *;
 
 .tab-panel {
 
@@ -19,11 +21,8 @@
 
 .tab-content-wrapper {
 	padding-block-start: 2.5rem;
-	padding-inline: 3rem;
 
-	@media (max-width: gb.$break-medium ) {
-		padding-inline: 1.5rem;
-	}
+	@include content-inset;
 
 	h2 {
 
@@ -35,11 +34,6 @@
 
 .full-width-separator {
 	border-top: 1px solid var(--jp-gray);
-}
-
-@mixin full-width-container {
-	max-width: var(--max-container-width);
-	margin: 0 auto;
 }
 
 // The content surface TabPanel renders inside its

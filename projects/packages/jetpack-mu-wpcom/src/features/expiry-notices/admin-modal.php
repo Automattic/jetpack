@@ -31,7 +31,7 @@ function wpcom_expiry_notices_admin_modal_data(): ?array {
 	}
 
 	$is_grace = Expiry_Data::STATE_EXPIRED_GRACE === $state['state'];
-	$urls     = Expiry_Data::get_cta_urls( $state, wpcom_expiry_notices_current_url() );
+	$urls     = wpcom_expiry_notices_banner_urls( $state, wpcom_expiry_notices_current_url() );
 
 	return array(
 		'state'       => $state,
@@ -42,9 +42,8 @@ function wpcom_expiry_notices_admin_modal_data(): ?array {
 			: __( 'Your site has been moved to the Free plan and set to private. Contact support to get help restoring it.', 'jetpack-mu-wpcom' ),
 		'listIntro'   => $is_grace ? '' : __( 'Here’s what changed:', 'jetpack-mu-wpcom' ),
 		'items'       => wpcom_expiry_notices_modal_items( $is_grace ),
-		'primary'     => $is_grace ? $urls['primary'] : wpcom_expiry_notices_support_cta( $state ),
-		// Nothing to compare against once the site is already on Free.
-		'secondary'   => $is_grace ? $urls['secondary'] : null,
+		'primary'     => $urls['primary'],
+		'secondary'   => $urls['secondary'],
 		'imageUrl'    => plugins_url( 'images/plan-expired.svg', __FILE__ ),
 	);
 }

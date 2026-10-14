@@ -56,6 +56,13 @@ class Initializer {
 	const DATA_SCRIPT_HANDLE = 'my_jetpack_main_app';
 
 	/**
+	 * The `@wordpress/hooks` filter plugins add notices through, with `addFilter( name, namespace, notices => [ ...notices, notice ] )`.
+	 *
+	 * @since $$next-version$$
+	 */
+	const NOTICES_JS_FILTER = 'myJetpack.notices';
+
+	/**
 	 * Handle for the webpack bundle that renders the onboarding takeover.
 	 */
 	const ONBOARDING_SCRIPT_HANDLE = 'my_jetpack_onboarding';

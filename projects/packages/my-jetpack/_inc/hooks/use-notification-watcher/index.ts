@@ -3,6 +3,7 @@ import useBackupNeedsAttentionNotice from './use-backup-needs-attention-notice';
 import useBadInstallNotice from './use-bad-install-notice';
 import useConnectionErrorsNotice from './use-connection-errors-notice';
 import useExpiringPlansNotice from './use-expiring-plans-notice';
+import useFilteredNotices from './use-filtered-notices';
 import usePaidPlanNeedsPluginInstallActivationNotice from './use-paid-plan-needs-plugin-install-activation-notice';
 import useProtectThreatsDetectedNotice from './use-protect-threats-detected-notice';
 import useSiteConnectionNotice from './use-site-connection-notice';
@@ -13,6 +14,7 @@ const useNotificationWatcher = () => {
 	usePaidPlanNeedsPluginInstallActivationNotice( redBubbleAlerts, isLoading );
 	useProtectThreatsDetectedNotice( redBubbleAlerts, isLoading );
 	useExpiringPlansNotice( redBubbleAlerts, isLoading );
+	useFilteredNotices( isLoading );
 	useBackupNeedsAttentionNotice( redBubbleAlerts, isLoading );
 	useConnectionErrorsNotice();
 	useSiteConnectionNotice( redBubbleAlerts, isLoading );

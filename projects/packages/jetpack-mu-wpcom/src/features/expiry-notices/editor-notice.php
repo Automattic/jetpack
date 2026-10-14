@@ -8,7 +8,6 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
-use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Data;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Notice_Dismiss;
 
 /**
@@ -36,7 +35,7 @@ function wpcom_expiry_notices_editor_notice_data(): ?array {
 		'metaKey'       => Expiry_Notice_Dismiss::banner_meta_key(),
 		'content'       => wpcom_expiry_notices_banner_sentence( $state, $data['is_owner'] ),
 		'primary'       => null === $urls ? null : $urls['primary'],
-		'secondary'     => null !== $urls && Expiry_Data::STATE_EXPIRED_GRACE === $state['state'] ? $urls['secondary'] : null,
+		'secondary'     => null === $urls ? null : $urls['secondary'],
 		'isDismissible' => $data['is_dismissible'],
 		'surface'       => $surface,
 		'trackProps'    => wpcom_expiry_notices_track_props( $state, $data['is_owner'], $surface ),

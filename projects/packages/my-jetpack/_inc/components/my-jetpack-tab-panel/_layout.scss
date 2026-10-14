@@ -1,0 +1,14 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+
+@mixin full-width-container {
+	max-width: var(--max-container-width);
+	margin: 0 auto;
+}
+
+@mixin content-inset {
+	padding-inline: 3rem;
+
+	@media (max-width: gb.$break-medium ) {
+		padding-inline: 1.5rem;
+	}
+}

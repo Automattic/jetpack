@@ -372,16 +372,20 @@ function wpcom_expiry_notices_render_cta_link( array $cta, string $cta_id, strin
 }
 
 /**
- * CTA URLs for a banner surface: support once the site is reverted.
+ * CTAs for a notice: support once the site is reverted, and other plans only in
+ * grace, since there is nothing to compare once the site is on Free.
  *
  * @param array<string,mixed> $state       Expiry state.
  * @param string              $redirect_to Where checkout sends the user back to.
- * @return array<string,array>
+ * @return array{primary:array,secondary:array|null}
  */
 function wpcom_expiry_notices_banner_urls( array $state, string $redirect_to ): array {
 	$urls = Expiry_Data::get_cta_urls( $state, $redirect_to );
 	if ( Expiry_Data::STATE_EXPIRED === ( $state['state'] ?? '' ) ) {
 		$urls['primary'] = wpcom_expiry_notices_support_cta( $state );
+	}
+	if ( Expiry_Data::STATE_EXPIRED_GRACE !== ( $state['state'] ?? '' ) ) {
+		$urls['secondary'] = null;
 	}
 	return $urls;
 }
@@ -548,11 +552,41 @@ function wpcom_expiry_notices_maybe_load_surfaces() {
 		require_once __DIR__ . '/admin-banner.php';
 		require_once __DIR__ . '/admin-modal.php';
 		require_once __DIR__ . '/editor-notice.php';
+		require_once __DIR__ . '/my-jetpack-notice.php';
 	} else {
 		require_once __DIR__ . '/frontend-banner.php';
 	}
 }
 add_action( 'init', 'wpcom_expiry_notices_maybe_load_surfaces' ); // @codeCoverageIgnore
+
+/**
+ * The JS filter My Jetpack takes notices from, or null when the loaded My Jetpack
+ * predates it and must keep its own expiry notice.
+ */
+function wpcom_expiry_notices_my_jetpack_notices_filter(): ?string {
+	$constant = 'Automattic\\Jetpack\\My_Jetpack\\Initializer::NOTICES_JS_FILTER';
+	return defined( $constant ) ? constant( $constant ) : null;
+}
+
+/**
+ * Drop My Jetpack's own expiry alerts for the plan these notices cover instead:
+ * on their schedule, with their CTAs.
+ *
+ * @param array $alerts My Jetpack's red bubble alerts, keyed `{product_slug}--{alert}`.
+ * @return array
+ */
+function wpcom_expiry_notices_drop_my_jetpack_plan_alerts( $alerts ) {
+	if ( ! is_array( $alerts ) || ! wpcom_expiry_notices_is_enabled_for_site() || null === wpcom_expiry_notices_my_jetpack_notices_filter() ) {
+		return $alerts;
+	}
+	$plan = Expiry_Data::pick_primary_plan_purchase( wpcom_expiry_get_purchases() );
+	if ( isset( $plan->product_slug ) ) {
+		unset( $alerts[ "{$plan->product_slug}--plan_expiring_soon" ], $alerts[ "{$plan->product_slug}--plan_expired" ] );
+	}
+	return $alerts;
+}
+// After My Jetpack adds its alerts at the default priority.
+add_filter( 'my_jetpack_red_bubble_notification_slugs', 'wpcom_expiry_notices_drop_my_jetpack_plan_alerts', 20 ); // @codeCoverageIgnore
 
 /**
  * Whether the front-end banner will render on this request.

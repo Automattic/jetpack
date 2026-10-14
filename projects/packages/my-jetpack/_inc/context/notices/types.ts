@@ -24,6 +24,7 @@ export type NoticeOptions = {
 	priority: number;
 	hideCloseButton?: boolean;
 	onClose?: () => void;
+	onView?: () => void;
 	isRedBubble?: boolean;
 	tracksArgs?: Record< string, unknown >;
 };

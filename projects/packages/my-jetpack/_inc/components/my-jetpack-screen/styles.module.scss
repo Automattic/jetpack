@@ -1,4 +1,5 @@
 @use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "../my-jetpack-tab-panel/layout" as tab-panel;
 
 .my-jetpack-screen {
 
@@ -30,6 +31,16 @@
 	margin-bottom: 0;
 }
 
+// Laid out like the tab content, so notices line up with the cards below.
+.notices {
+	box-sizing: border-box;
+	inline-size: 100%;
+	padding-block: 1.5rem;
+
+	@include tab-panel.full-width-container;
+	@include tab-panel.content-inset;
+}
+
 .notice {
 
 	> div {
@@ -59,8 +70,14 @@
 }
 
 
+.title {
+	font-size: var(--font-body);
+	line-height: 1.5;
+}
+
 .message {
 	margin-inline-end: var(--spacing-base); // 8px
+	font-size: var(--font-body);
 	flex-grow: 1;
 	display: flex;
 

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Notices: Line notices up with the content below, enlarge their headings, and let plugins add one through the `myJetpack.notices` filter.
