@@ -132,6 +132,25 @@ describe( 'TransferConnectionOwnership', () => {
 		expect( mockSetConnectionOwner ).not.toHaveBeenCalled();
 	} );
 
+	it( 'keeps focus on a control when the step changes', async () => {
+		const user = userEvent.setup();
+		const { container } = render( <TransferConnectionOwnership { ...props } /> );
+		const focused = () => container.ownerDocument.activeElement?.tagName;
+		await chooseKazz( user );
+
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+		await expect(
+			screen.findByRole( 'button', { name: 'Transfer ownership' } )
+		).resolves.toBeInTheDocument();
+		expect( focused() ).toBe( 'BUTTON' );
+
+		await user.click( screen.getByRole( 'button', { name: 'Back' } ) );
+		await expect(
+			screen.findByRole( 'button', { name: 'Continue' } )
+		).resolves.toBeInTheDocument();
+		expect( focused() ).toBe( 'BUTTON' );
+	} );
+
 	it( 'reports the transfer as soon as it lands', async () => {
 		const onTransferred = jest.fn();
 		const user = userEvent.setup();
