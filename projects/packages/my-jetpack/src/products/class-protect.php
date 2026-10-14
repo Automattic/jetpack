@@ -118,13 +118,6 @@ class Protect extends Hybrid_Product {
 	public static $category = 'security';
 
 	/**
-	 * Defines whether or not to show a product interstitial as tiered pricing or not
-	 *
-	 * @var bool
-	 */
-	public static $is_tiered_pricing = true;
-
-	/**
 	 * Whether this product requires a user connection
 	 *
 	 * @var string
@@ -243,9 +236,13 @@ class Protect extends Hybrid_Product {
 	/**
 	 * Get the internationalized comparison of free vs upgraded features
 	 *
+	 * @deprecated $$next-version$$
+	 *
 	 * @return array[] Protect features comparison
 	 */
 	public static function get_features_by_tier() {
+		_deprecated_function( __METHOD__, 'jetpack-my-jetpack-$$next-version$$' );
+
 		return array(
 			array(
 				'name'  => __( 'Scan for threats and vulnerabilities', 'jetpack-my-jetpack' ),
