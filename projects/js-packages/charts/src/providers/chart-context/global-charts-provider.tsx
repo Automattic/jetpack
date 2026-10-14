@@ -379,6 +379,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 			isSeriesVisible,
 			getHiddenSeries,
 			isColorPaletteResolved,
+			chartBackground: colorCache.background,
 		} ),
 		[
 			charts,
@@ -396,6 +397,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 			isSeriesVisible,
 			getHiddenSeries,
 			isColorPaletteResolved,
+			colorCache.background,
 		]
 	);
 

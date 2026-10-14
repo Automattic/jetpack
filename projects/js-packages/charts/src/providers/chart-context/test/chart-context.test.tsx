@@ -62,6 +62,23 @@ describe( 'ChartContext', () => {
 			expect( contextValue.charts ).toBeInstanceOf( Map );
 		} );
 
+		it( 'exposes the resolved chart background', () => {
+			let background: string | undefined;
+
+			const Probe = () => {
+				background = useGlobalChartsContext().chartBackground;
+				return null;
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<Probe />
+				</GlobalChartsProvider>
+			);
+
+			expect( background ).toBe( '#ffffff' );
+		} );
+
 		it( 'exposes isColorPaletteResolved as true after render', () => {
 			let contextValue: GlobalChartsContextValue;
 

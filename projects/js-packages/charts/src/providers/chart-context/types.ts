@@ -52,4 +52,6 @@ export interface GlobalChartsContextValue {
 	isSeriesVisible: ( chartId: string, seriesLabel: string ) => boolean;
 	getHiddenSeries: ( chartId: string ) => Set< string >;
 	isColorPaletteResolved: boolean;
+	/** The chart background as an opaque hex, for color math that needs a real value. */
+	chartBackground: string;
 }
