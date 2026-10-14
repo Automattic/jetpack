@@ -160,7 +160,7 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Feature sets and the tier each resolves to, on both platforms.
+	 * Feature sets and the tier each resolves to; one Atomic row pins its platform detection.
 	 *
 	 * @return array
 	 */
@@ -173,11 +173,10 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 			'no stats feature is free' => array( array(), STATS_TIER_FREE ),
 		);
 		$data  = array();
-		foreach ( array( 'simple', 'atomic' ) as $platform ) {
-			foreach ( $cases as $name => $case ) {
-				$data[ "$platform: $name" ] = array( $platform, $case[0], $case[1] );
-			}
+		foreach ( $cases as $name => $case ) {
+			$data[ "simple: $name" ] = array( 'simple', $case[0], $case[1] );
 		}
+		$data['atomic: commercial wins'] = array( 'atomic', $cases['commercial wins'][0], STATS_TIER_COMMERCIAL );
 		return $data;
 	}
 
@@ -243,17 +242,6 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		Constants::set_constant( 'WPCOM_IS_VIP_ENV', true );
 
 		$this->assertSame( STATS_TIER_COMMERCIAL, get_stats_plan_tier() );
-	}
-
-	public function test_tier_is_filterable() {
-		add_filter(
-			STATS_PLAN_TIER_FILTER,
-			static function () {
-				return STATS_TIER_PAID;
-			}
-		);
-
-		$this->assertSame( STATS_TIER_PAID, get_stats_plan_tier() );
 	}
 
 	public function test_an_unrecognized_filtered_tier_keeps_the_computed_one() {

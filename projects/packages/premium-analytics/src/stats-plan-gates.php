@@ -1,6 +1,6 @@
 <?php
 /**
- * Which paid Stats features the site's plan lacks, following classic Stats' gates (STATS-508).
+ * Which paid Stats features the site's plan lacks, following classic Stats' gates.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -181,7 +181,7 @@ function has_jetpack_stats_commercial_purchase() {
 const STATS_COMMERCIAL_FEATURES = array( 'authors', 'search-terms', 'videos', 'utm', 'devices', 'regions-cities' );
 
 /**
- * The features gated on legacy-free sites and on self-hosted sites without a commercial purchase (STATS-348).
+ * The features gated on legacy-free sites and on self-hosted sites without a commercial purchase.
  */
 const STATS_ADVANCED_FEATURES = array( 'utm', 'devices', 'regions-cities' );
 
@@ -213,7 +213,7 @@ function get_locked_stats_features( $tier ) {
 }
 
 /**
- * Where to buy a locked feature: classic Stats' purchase destinations (STATS-522 tracks a replacement).
+ * Where to buy a locked feature: classic Stats' purchase destinations.
  *
  * @since $$next-version$$
  *

@@ -362,7 +362,7 @@ class Analytics {
 		}
 		configure_videopress_availability();
 
-		// The plan's locked Stats features, for the client's locked states (STATS-508).
+		// The plan's locked Stats features, for the client's locked states.
 		if ( ! function_exists( __NAMESPACE__ . '\\configure_stats_plan_gates' ) ) {
 			require_once __DIR__ . '/stats-plan-gates.php';
 		}
