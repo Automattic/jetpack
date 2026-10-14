@@ -962,18 +962,32 @@ class Initializer {
 				'mainFeatures' => Main_Features::get_state( true ),
 				'plugins'      => Plugins_Installer::get_plugins(),
 			);
-			global $_registered_pages;
-			$data['myJetpack']['offlineFeatures']['mainFeatures']['available_admin_pages'] = array_values(
-				array_unique(
-					array_map(
-						static fn( $hook ) => substr( $hook, strpos( $hook, '_page_' ) + 6 ),
-						array_filter( array_keys( $_registered_pages ?? array() ), static fn( $hook ) => false !== strpos( $hook, '_page_' ) && false === strpos( $hook, '?' ) )
-					)
-				)
-			);
+			$data['myJetpack']['offlineFeatures']['mainFeatures']['available_admin_pages'] = self::get_registered_admin_page_slugs();
 		}
 
 		return $data;
+	}
+
+	/**
+	 * Get the slugs of registered admin pages.
+	 *
+	 * Skip hooks containing `?`: they are `edit.php?post_type=...` style pages, not page slugs.
+	 *
+	 * @return string[]
+	 */
+	private static function get_registered_admin_page_slugs() {
+		global $_registered_pages;
+
+		$hooks = array_filter(
+			array_keys( $_registered_pages ?? array() ),
+			static fn( $hook ) => false !== strpos( $hook, '_page_' ) && false === strpos( $hook, '?' )
+		);
+
+		return array_values(
+			array_unique(
+				array_map( static fn( $hook ) => substr( $hook, strpos( $hook, '_page_' ) + 6 ), $hooks )
+			)
+		);
 	}
 
 	/**
