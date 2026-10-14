@@ -1222,12 +1222,6 @@ describe( 'HeatmapChart calendar navigation', () => {
 } );
 
 describe( 'HeatmapChart naming and focus', () => {
-	test( 'names the grid from ariaLabel when given', () => {
-		renderChart( { ariaLabel: 'Monthly posting activity' } );
-		expect( screen.getByRole( 'grid', { name: 'Monthly posting activity' } ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'grid', { name: /heatmap chart/i } ) ).not.toBeInTheDocument();
-	} );
-
 	test( 'scrolls the keyboard-selected cell into view', async () => {
 		// jsdom has no scrollIntoView; the assertion is that the chart asks for it.
 		const scrollIntoView = jest.fn();

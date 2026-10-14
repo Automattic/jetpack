@@ -6,6 +6,10 @@
  * the same way.
  */
 ( function () {
+	// Checkout takes any tab with an opener for a popup, whose Back only messages it instead of
+	// leaving. A tab opened by another page, like the sites dashboard's WP Admin action, has one.
+	window.opener = null;
+
 	/**
 	 * Swaps in every strip still waiting in a template, and tags its card.
 	 */

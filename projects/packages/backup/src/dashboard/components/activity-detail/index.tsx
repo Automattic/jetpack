@@ -1,7 +1,7 @@
-import { dateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Card, Stack, Text } from '@wordpress/ui';
+import { formatDateTime } from '../../data/date-format';
 import './style.scss';
 import type { NonBackupActivityItem } from '../../types/activity';
 
@@ -27,7 +27,7 @@ export default function ActivityDetail( { item }: Props ) {
 						{ item.title }
 					</Text>
 					<Text variant="body-sm" className="jpb-text-muted jpb-activity-detail__by">
-						<span>{ dateI18n( 'M j, Y, g:i A', item.publishedAt, undefined ) }</span>
+						<span>{ formatDateTime( item.publishedAt ) }</span>
 						<span>
 							{ createInterpolateElement(
 								sprintf(

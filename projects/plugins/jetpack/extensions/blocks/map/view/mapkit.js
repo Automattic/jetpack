@@ -73,7 +73,10 @@ class MapkitBlock {
 	}
 
 	initMap() {
-		const center = new this.mapkit.Coordinate( this.center.lat, this.center.lng );
+		const center = new this.mapkit.Coordinate(
+			this.center.lat ?? this.center.latitude,
+			this.center.lng ?? this.center.longitude
+		);
 		const mapType = ( () => {
 			switch ( this.mapStyle ) {
 				case 'satellite':
@@ -103,7 +106,10 @@ class MapkitBlock {
 	}
 
 	setZoom() {
-		this.map.cameraDistance = convertZoomLevelToCameraDistance( this.zoom, this.center.lat );
+		this.map.cameraDistance = convertZoomLevelToCameraDistance(
+			this.zoom,
+			this.center.lat ?? this.center.latitude
+		);
 	}
 
 	addPoints() {

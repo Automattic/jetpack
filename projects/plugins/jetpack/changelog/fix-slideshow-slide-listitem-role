@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Slideshow block: Keep slides exposed as list items to screen readers, fixing an accessibility audit error.

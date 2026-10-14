@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Flip directional icons in right-to-left languages in the modernized dashboard, which is behind a feature flag.
+
+

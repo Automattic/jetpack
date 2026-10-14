@@ -147,6 +147,12 @@
 // needs no runtime cascade and never lands on the DOM as an unprefixed var.
 $focus-ring-width: var(--wpds-border-width-focus);
 
+.rowItem {
+	display: grid;
+	grid-column: 1 / -1;
+	grid-template-columns: subgrid;
+}
+
 .row {
 	display: grid;
 	grid-column: 1 / -1;

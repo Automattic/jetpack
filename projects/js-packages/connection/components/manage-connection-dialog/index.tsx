@@ -3,12 +3,11 @@
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-import { getScriptData, isWoASite } from '@automattic/jetpack-script-data';
+import { isWoASite } from '@automattic/jetpack-script-data';
 import { Modal } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Button, Text } from '@wordpress/ui';
-import { useCallback, useState, useMemo } from 'react';
+import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import useRestApiInit from '../../hooks/use-rest-api-init';
 /**
  * Internal dependencies
@@ -18,6 +17,7 @@ import DisconnectDialog from '../disconnect-dialog';
 import OwnerDisconnectDialog from '../owner-disconnect-dialog';
 import SharedHelpFooter from '../shared/help-footer';
 import ManageConnectionActionCard from '../shared/manage-connection-action-card';
+import TransferConnectionOwnership from '../transfer-connection-ownership';
 import type { MouseEvent } from 'react';
 import './style.scss';
 
@@ -38,6 +38,9 @@ interface ManageConnectionUser {
 		};
 	};
 }
+
+/** Which view the dialog is showing. */
+type TransferView = 'choosing' | 'transferred';
 
 interface ManageConnectionDialogProps {
 	/** The modal title. */
@@ -87,6 +90,9 @@ const ManageConnectionDialog = ( {
 	const [ isDisconnectingUser, setIsDisconnectingUser ] = useState( false );
 	const [ unlinkError, setUnlinkError ] = useState( '' );
 	const [ isOwnerDisconnectDialogOpen, setIsOwnerDisconnectDialogOpen ] = useState( false );
+	const [ transferView, setTransferView ] = useState< TransferView | null >( null );
+	const [ isTransferring, setIsTransferring ] = useState( false );
+	const headingRef = useRef< HTMLHeadingElement >( null );
 
 	/**
 	 * Initialize the REST API.
@@ -191,8 +197,8 @@ const ManageConnectionDialog = ( {
 	);
 
 	const isControlsDisabled = useMemo( () => {
-		return isDisconnectingUser;
-	}, [ isDisconnectingUser ] );
+		return isDisconnectingUser || isTransferring;
+	}, [ isDisconnectingUser, isTransferring ] );
 
 	// This is silly, but it's an optimizer workaround
 	const disconnectingText = __( 'Disconnecting…', 'jetpack-connection-js' );
@@ -201,45 +207,98 @@ const ManageConnectionDialog = ( {
 		setIsOwnerDisconnectDialogOpen( false );
 	}, [ setIsOwnerDisconnectDialogOpen ] );
 
+	const openTransferDialog = useCallback( ( e?: MouseEvent< HTMLElement > ) => {
+		e && e.preventDefault();
+		setTransferView( 'choosing' );
+	}, [] );
+
+	// Transferring is the way out of the owner-disconnect warning, so hand the user to
+	// that flow rather than running a second copy of it inside the warning.
+	const openTransferFromOwnerDialog = useCallback( () => {
+		setIsOwnerDisconnectDialogOpen( false );
+		setTransferView( 'choosing' );
+	}, [] );
+
+	const recordNewOwner = useCallback( () => {
+		setTransferView( 'transferred' );
+	}, [] );
+
+	// Closing from anywhere starts the next open on the action list, so a finished
+	// transfer cannot come back as the first thing the user sees.
+	useEffect( () => {
+		if ( ! isOpen ) {
+			setTransferView( null );
+			setIsTransferring( false );
+		}
+	}, [ isOpen ] );
+
+	// Swapping the view removes whatever was focused, which otherwise drops focus to the
+	// body and leaves a keyboard or screen reader user outside the dialog they are in.
+	useEffect( () => {
+		if ( isOpen ) {
+			headingRef.current?.focus();
+		}
+	}, [ isOpen, transferView ] );
+
+	// The dialog's own exit, which always closes it. It cannot read "Back": the step
+	// has its own Back, and this does something else. Statements rather than a ternary
+	// — the minifier folds two `__()` calls into one with a non-literal argument.
+	let footerDismissLabel: string = __( 'Cancel', 'jetpack-connection-js' );
+	if ( 'transferred' === transferView ) {
+		footerDismissLabel = __( 'Close', 'jetpack-connection-js' );
+	}
+
+	const heading = transferView
+		? __( 'Transfer connection ownership', 'jetpack-connection-js' )
+		: title;
+
 	return (
 		<>
 			{ isOpen && (
 				<>
 					<Modal
 						title=""
-						contentLabel={ title }
+						contentLabel={ heading }
 						aria={ {
 							labelledby: 'jp-connection__manage-dialog__heading',
 						} }
 						onRequestClose={ onClose }
-						shouldCloseOnClickOutside={ false }
-						shouldCloseOnEsc={ false }
+						shouldCloseOnClickOutside={ 'transferred' === transferView }
+						shouldCloseOnEsc={ 'transferred' === transferView }
 						isDismissible={ false }
 						className={ 'jp-connection__manage-dialog' }
 					>
 						<div className="jp-connection__manage-dialog__content">
-							<h1 id="jp-connection__manage-dialog__heading">{ title }</h1>
+							<h1 id="jp-connection__manage-dialog__heading" ref={ headingRef } tabIndex={ -1 }>
+								{ heading }
+							</h1>
 							<Text className="jp-connection__manage-dialog__large-text">
 								{ __(
 									'At least one user must be connected for your Jetpack products to work properly.',
 									'jetpack-connection-js'
 								) }
 							</Text>
-							{ isCurrentUserAdmin &&
+							{ transferView && (
+								<TransferConnectionOwnership
+									apiRoot={ apiRoot }
+									apiNonce={ apiNonce }
+									onTransferred={ recordNewOwner }
+									onBusyChange={ setIsTransferring }
+								/>
+							) }
+							{ ! transferView &&
+								isCurrentUserAdmin &&
 								connectedUser.currentUser?.isConnected &&
 								connectedUser.currentUser?.isMaster && (
 									<ManageConnectionActionCard
 										title={ __( 'Transfer ownership to another admin', 'jetpack-connection-js' ) }
-										link={ getRedirectUrl( 'calypso-settings-manage-connection', {
-											site: getScriptData()?.site?.suffix,
-										} ) }
-										isExternal={ true }
+										onClick={ openTransferDialog }
 										key="transfer"
 										action="transfer"
 										disabled={ isControlsDisabled }
 									/>
 								) }
-							{ connectedUser.currentUser?.isConnected && (
+							{ ! transferView && connectedUser.currentUser?.isConnected && (
 								<>
 									{ '' !== unlinkError && <ConnectionErrorNotice message={ unlinkError } /> }
 									<ManageConnectionActionCard
@@ -255,7 +314,7 @@ const ManageConnectionDialog = ( {
 									/>
 								</>
 							) }
-							{ isCurrentUserAdmin && ! isWoASite() && (
+							{ ! transferView && isCurrentUserAdmin && ! isWoASite() && (
 								<ManageConnectionActionCard
 									title={ __( 'Disconnect Jetpack', 'jetpack-connection-js' ) }
 									onClick={ openDisconnectDialog }
@@ -265,7 +324,11 @@ const ManageConnectionDialog = ( {
 								/>
 							) }
 						</div>
-						<HelpFooter onClose={ onClose } disabled={ isControlsDisabled } />
+						<HelpFooter
+							onClose={ onClose }
+							disabled={ isControlsDisabled }
+							dismissLabel={ footerDismissLabel }
+						/>
 
 						<DisconnectDialog
 							apiRoot={ apiRoot }
@@ -286,6 +349,7 @@ const ManageConnectionDialog = ( {
 							apiNonce={ apiNonce }
 							onDisconnected={ onDisconnected }
 							onUnlinked={ onUnlinked }
+							onTransferOwnership={ openTransferFromOwnerDialog }
 						/>
 					</Modal>
 				</>
@@ -299,9 +363,11 @@ interface HelpFooterProps {
 	onClose: () => void;
 	/** Whether the cancel button is disabled. */
 	disabled?: boolean;
+	/** Label for the dismiss button, which depends on where it takes the user. */
+	dismissLabel: string;
 }
 
-const HelpFooter = ( { onClose, disabled }: HelpFooterProps ) => {
+const HelpFooter = ( { onClose, disabled, dismissLabel }: HelpFooterProps ) => {
 	return (
 		<div className="jp-row jp-connection__manage-dialog__actions">
 			<div className="jp-connection__manage-dialog__text-wrap lg-col-span-9 md-col-span-7 sm-col-span-3">
@@ -315,7 +381,7 @@ const HelpFooter = ( { onClose, disabled }: HelpFooterProps ) => {
 					className="jp-connection__manage-dialog__btn-dismiss"
 					disabled={ disabled }
 				>
-					{ __( 'Cancel', 'jetpack-connection-js' ) }
+					{ dismissLabel }
 				</Button>
 			</div>
 		</div>
