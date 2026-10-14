@@ -164,6 +164,9 @@ class REST_Controller extends WP_REST_Controller {
 			);
 		}
 
+		// A leftover public key would revive if OpenSSL availability changed.
+		delete_option( Reprint_Exporter::PUBLIC_KEY_OPTION );
+
 		Reprint_Exporter::record_event( 'secret_rotated', array( 'user_id' => get_current_user_id() ) );
 
 		return new WP_REST_Response(
@@ -209,6 +212,8 @@ class REST_Controller extends WP_REST_Controller {
 				array( 'status' => 500 )
 			);
 		}
+
+		delete_option( Reprint_Exporter::SECRET_OPTION );
 
 		$key_id = Utils::public_key_fingerprint( $public_key );
 

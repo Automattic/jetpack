@@ -964,6 +964,41 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Provisioning one scheme deletes the other, so it cannot revive if OpenSSL availability changes.
+	 *
+	 * @dataProvider provide_provisioning_routes
+	 *
+	 * @param bool   $key_auth Whether the host requires key auth.
+	 * @param string $route    'install' or 'rotate'.
+	 * @param string $cleared  The option the route must delete.
+	 */
+	#[DataProvider( 'provide_provisioning_routes' )]
+	public function test_provisioning_clears_the_other_scheme( $key_auth, $route, $cleared ) {
+		Reprint_Exporter::store_secret( 'a-secret' );
+		Reprint_Exporter::store_public_key( 'MIIBkey' );
+		Utils::override_key_auth_required_for_tests( $key_auth );
+
+		$response = 'install' === $route
+			? ( new REST_Controller() )->install_public_key( $this->install_request( self::keypair()[1] ) )
+			: ( new REST_Controller() )->rotate_secret();
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertFalse( get_option( $cleared ) );
+	}
+
+	/**
+	 * Host mode, route, the option it must clear.
+	 *
+	 * @return array<string, array{bool, string, string}>
+	 */
+	public static function provide_provisioning_routes() {
+		return array(
+			'install clears the secret' => array( true, 'install', Reprint_Exporter::SECRET_OPTION ),
+			'rotate clears the key'     => array( false, 'rotate', Reprint_Exporter::PUBLIC_KEY_OPTION ),
+		);
+	}
+
+	/**
 	 * Installing reports the key id and never the key itself.
 	 */
 	public function test_install_public_key_reports_an_event_without_the_key() {
