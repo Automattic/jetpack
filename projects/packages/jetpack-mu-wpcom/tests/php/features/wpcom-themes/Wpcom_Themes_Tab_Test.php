@@ -400,12 +400,18 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Checkout comes back to the tab when it is abandoned, which needs the URL encoded as a value.
+	 * Checkout returns to the theme once bought, and back to the tab when it is abandoned.
+	 *
+	 * Both are query values rather than paths, so both are encoded.
 	 */
-	public function test_checkout_returns_to_the_tab() {
-		$url = wpcom_themes_tab_checkout_url( 'personal-bundle' );
+	public function test_checkout_returns_to_the_theme_it_was_bought_for() {
+		$url = wpcom_themes_tab_checkout_url( 'business-bundle', 'course' );
 
-		$this->assertStringContainsString( 'https://wordpress.com/checkout/example.org/personal-bundle', $url );
+		$this->assertStringContainsString( 'https://wordpress.com/checkout/example.org/business-bundle', $url );
 		$this->assertStringContainsString( 'checkoutBackUrl=' . rawurlencode( wpcom_themes_tab_url() ), $url );
+		$this->assertStringContainsString(
+			'redirect_to=' . rawurlencode( admin_url( 'theme-install.php?theme=course' ) ),
+			$url
+		);
 	}
 }

@@ -134,20 +134,30 @@ function wpcom_themes_tab_url() {
 }
 
 /**
- * Where to buy a plan, coming back here if checkout is abandoned.
+ * Where to buy the plan a theme needs.
+ *
+ * Checkout returns to the theme itself, where the plan now allows an install, and back out to
+ * the tab if it is abandoned instead.
  *
  * @param string $plan Plan slug.
+ * @param string $slug Theme slug.
  * @return string
  */
-function wpcom_themes_tab_checkout_url( string $plan ) {
+function wpcom_themes_tab_checkout_url( string $plan, string $slug ) {
 	$url = sprintf(
 		'https://wordpress.com/checkout/%s/%s',
 		rawurlencode( (string) wp_parse_url( home_url(), PHP_URL_HOST ) ),
 		rawurlencode( $plan )
 	);
 
-	// Checkout honours a back URL on the site's own host, and add_query_arg() does not encode values.
-	return add_query_arg( 'checkoutBackUrl', rawurlencode( wpcom_themes_tab_url() ), $url );
+	// Checkout honours these on the site's own host, and add_query_arg() does not encode values.
+	return add_query_arg(
+		array(
+			'checkoutBackUrl' => rawurlencode( wpcom_themes_tab_url() ),
+			'redirect_to'     => rawurlencode( admin_url( 'theme-install.php?theme=' . rawurlencode( $slug ) ) ),
+		),
+		$url
+	);
 }
 
 /**
@@ -168,7 +178,7 @@ function wpcom_themes_tab_add_upgrade( $theme ) {
 	}
 
 	$theme->upgrade_plan = WPCom_Themes_Tiers::plan_name_for( $tier );
-	$theme->upgrade_url  = wpcom_themes_tab_checkout_url( $plan );
+	$theme->upgrade_url  = wpcom_themes_tab_checkout_url( $plan, (string) ( $theme->slug ?? '' ) );
 
 	return $theme;
 }
