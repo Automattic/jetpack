@@ -1,4 +1,13 @@
 const path = require( 'path' );
+const wpPolyfillModules = require( './babel/wp-polyfill-modules.json' ).modules;
+
+// A dependency on wp-polyfill only helps if it contains the polyfill, so leave out the rest.
+// `esnext.*` names are the same features, in core-js versions that still treat them as proposals.
+const notInWpPolyfill = new RegExp(
+	`^(?!(?:${ wpPolyfillModules
+		.map( name => name.replace( /\./g, '\\.' ).replace( /^es\\\./, '(?:es|esnext)\\.' ) )
+		.join( '|' ) })$)`
+);
 
 const isProduction = process.env.NODE_ENV === 'production';
 const isDevelopment = ! isProduction;
@@ -27,17 +36,7 @@ module.exports = ( api, opts = {} ) => {
 					method: 'usage-global',
 					version: require( 'core-js/package.json' ).version,
 					absoluteImports: importDir,
-					exclude: opts.autoWpPolyfill?.exclude ?? [
-						// Ignore excessively strict polyfilling of `Array.prototype.push` to work
-						// around an obscure bug involving non-writable arrays.
-						// See https://issues.chromium.org/issues/42202623 for the details of the
-						// bug that leads to the polyfilling, and which we are choosing to ignore.
-						'es.array.push',
-
-						// This is an IE-only feature which we don't use, and don't want to polyfill.
-						// @see https://github.com/WordPress/gutenberg/pull/49234
-						'web.immediate',
-					],
+					exclude: [ ...( opts.autoWpPolyfill?.exclude ?? [] ), notInWpPolyfill ],
 				},
 			],
 			[
