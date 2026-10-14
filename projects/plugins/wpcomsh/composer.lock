@@ -667,13 +667,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/comments",
-                "reference": "d2ad265d35300ce1f21341705931ac7477f55735"
+                "reference": "6d0a06d152cdc0ee1da61b72e2fad73ae08a1ddb"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-image-cdn": "@dev",
                 "automattic/jetpack-ip": "@dev",
+                "automattic/jetpack-status": "@dev",
                 "php": ">=7.4"
             },
             "suggest": {
@@ -893,7 +894,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "c42317b099a1cb683a3274426034891b31c49e81"
+                "reference": "5e4721924c67bb30f92d641134127b55d4ecbb5d"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -962,6 +963,12 @@
                 ],
                 "test-php": [
                     "@composer phpunit"
+                ],
+                "test-js": [
+                    "pnpm run test"
+                ],
+                "test-js-coverage": [
+                    "pnpm run test-coverage"
                 ],
                 "test-php-coverage": [
                     "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""

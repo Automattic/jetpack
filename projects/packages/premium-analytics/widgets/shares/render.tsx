@@ -12,7 +12,6 @@ import {
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { megaphone } from '@jetpack-premium-analytics/icons';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Stack } from '@jetpack-premium-analytics/externals';
@@ -69,7 +68,6 @@ function SharesInner() {
 						],
 					} }
 					empty={ {
-						icon: megaphone,
 						description: __(
 							'Learn where your content has been shared the most.',
 							'jetpack-premium-analytics-pkg'

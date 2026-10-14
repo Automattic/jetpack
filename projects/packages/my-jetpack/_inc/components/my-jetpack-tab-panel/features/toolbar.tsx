@@ -165,8 +165,6 @@ export function Toolbar( {
 					) ) }
 				</Stack>
 
-				{ /* Below the breakpoint the pills above are hidden and this takes over: seven
-				     of them stack one per row on a phone, which is most of the screen. */ }
 				<div className={ styles[ 'filter-select' ] }>
 					<SelectControl
 						__nextHasNoMarginBottom

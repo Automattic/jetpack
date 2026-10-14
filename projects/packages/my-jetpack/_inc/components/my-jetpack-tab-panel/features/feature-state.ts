@@ -39,7 +39,7 @@ export type FeatureControl =
 	| { kind: 'plugin'; plugin: string; override?: 'active' | 'inactive' }
 	| { kind: 'install-plugin'; plugin: string; runsWithoutPlugin?: true; blocked?: InstallBlock }
 	| { kind: 'install-jetpack'; installed: boolean; blocked?: InstallBlock }
-	| { kind: 'none' };
+	| { kind: 'none'; override?: 'active' | 'inactive' };
 
 // Why the current user can't make an install the card would otherwise offer.
 export type InstallBlock = Exclude< MainFeatureInstallAccess, 'allowed' >;
@@ -121,7 +121,7 @@ export function getForcedReason( state: FeatureState ): string | null {
 		}
 	}
 
-	if ( control.kind === 'plugin' && control.override ) {
+	if ( ( control.kind === 'plugin' || control.kind === 'none' ) && control.override ) {
 		return getOverrideReason( control.override );
 	}
 
@@ -171,10 +171,6 @@ export function getInstallBlockReason( state: FeatureState ): string | null {
 /**
  * The Jetpack module behind a feature, if any.
  *
- * A product's module is rarely named after it (Social runs 'publicize'). Resolved through
- * `getProductModules()`, which also keeps the pre-release gate on Jetpack AI: with the
- * flag off that map drops AI, so no module resolves.
- *
  * @param feature        - The feature, from the map-backed catalog.
  * @param productModules - Product slug to module slug, where the two differ.
  * @return The module slug, or an empty string.
@@ -222,8 +218,8 @@ export function resolveFeatureState(
 			feature,
 			product,
 			status: 'inactive',
-			control: { kind: 'none' },
-			unavailableReason: getModuleStatus( gatedModule ).reason,
+			control: { kind: 'none', override: gatedModule.override || undefined },
+			unavailableReason: getModuleStatus( { ...gatedModule, override: false } ).reason,
 		};
 	}
 
@@ -260,7 +256,8 @@ export function resolveFeatureState(
 		// disagreed with the sidebar would be wrong on any Jetpack site running the module.
 		const moduleStatus = $module && getModuleStatus( $module );
 		const moduleIsOn = Boolean( moduleStatus?.isAvailable && $module?.activated );
-		const moduleUnavailableReason = moduleStatus?.reason;
+		const moduleUnavailableReason =
+			$module && getModuleStatus( { ...$module, override: false } ).reason;
 
 		if ( feature.plugin_status === 'not-installed' ) {
 			// A plan runs Backup and Scan in the cloud with no plugin. Shim until JETPACK-2620,

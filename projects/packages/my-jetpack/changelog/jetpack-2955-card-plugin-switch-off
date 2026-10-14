@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Connection card: Stop asking for a user connection as soon as the plugin that needed one is switched off, without a reload.

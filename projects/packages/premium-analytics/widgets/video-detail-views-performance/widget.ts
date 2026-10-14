@@ -1,14 +1,14 @@
 /**
  * WordPress dependencies
  */
-import { seen } from '@wordpress/icons';
+import { __ } from '@wordpress/i18n';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
  * Internal dependencies
  */
 import {
-	chartTypeAttributeField,
+	CHART_TYPE_ELEMENTS,
 	type ChartDisplayChartType,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 
@@ -32,9 +32,14 @@ export type VideoDetailViewsPerformanceAttributes = {
  * bucketed client-side at the page's chart interval.
  */
 export default {
-	icon: seen,
 	attributes: [
-		chartTypeAttributeField(),
+		{
+			id: 'chartType',
+			label: __( 'Chart type', 'jetpack-premium-analytics-pkg' ),
+			type: 'jpa/toggle-group',
+			elements: CHART_TYPE_ELEMENTS,
+			relevance: 'high',
+		},
 	] as WidgetAttributeField< VideoDetailViewsPerformanceAttributes >[],
 	example: {
 		attributes: {

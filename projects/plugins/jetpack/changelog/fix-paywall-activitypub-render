@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Newsletter: Always use the logged-out version of a post when the ActivityPub plugin shares it to the Fediverse.

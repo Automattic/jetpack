@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Keep WordAds revenue and CPM in USD now that the Premium Analytics formatter defaults to the store currency.
+

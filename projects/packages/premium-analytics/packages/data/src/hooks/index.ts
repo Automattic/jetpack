@@ -7,7 +7,6 @@ export { useReportCustomers } from './use-report-customers';
 export { useReportCustomersByDate } from './use-report-customers-by-date';
 export { useReportConversionRate } from './use-report-conversion-rate';
 export { useReportProducts } from './use-report-products';
-export { useProductImages } from './use-product-images';
 export {
 	usePostThumbnail,
 	usePostThumbnails,
@@ -79,6 +78,7 @@ export {
 	type StatsAppPurchasesResponse,
 } from './use-stats-app-purchases';
 export { useStatsArchives, type StatsArchivesResponse } from './use-stats-archives';
+export { useStatsSettings, type StatsSettings } from './use-stats-settings';
 export {
 	useStatsCommentFollowers,
 	useStatsCommentFollowersAllPages,
@@ -187,7 +187,11 @@ export {
 	type StatsEmailSummaryParams,
 	type StatsEmailSummarySortField,
 } from './use-stats-email-summary';
-export { useStatsAuthor, useStatsAuthorAllTime } from './use-stats-author';
+export {
+	useStatsAuthor,
+	useStatsAuthorAllTime,
+	useStatsAuthorAllTimeOrApproximate,
+} from './use-stats-author';
 export {
 	useStatsSingleVideo,
 	type StatsSingleVideoDataPoint,

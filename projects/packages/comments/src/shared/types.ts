@@ -17,6 +17,9 @@ export type Passport = {
 	avatar: string;
 };
 
+export type CheckpointResult =
+	( Passport & { code: string } ) | { error: string } | { cancelled: true };
+
 /**
  * Who is commenting. A popup sign-in's `code` is set until the comment posts and
  * the passport takes over; a guest's details are in `details`.
@@ -107,6 +110,8 @@ export type Strings = {
 export type Settings = {
 	/** The package version that rendered the page, checked against the bundle's before it takes over. */
 	version: string;
+	/** The build directory, which webpack loads the lazy chunks from. */
+	assetsUrl: string;
 	styleUrl: string;
 	isLoggedIn: boolean;
 	requireNameEmail: boolean;
@@ -122,6 +127,8 @@ export type Settings = {
 	site: { name: string; iconUrl: string };
 	/** Empty where the host offers no subscriptions. */
 	manageSubscriptionsUrl: string;
+	/** Null where usage events are off. */
+	tracks: { platform: string } | null;
 	strings: Strings;
 	commenter: Details;
 	/** Empty `editProfileUrl` for a user who may not edit their own profile. */
@@ -138,5 +145,9 @@ declare global {
 		jetpackCommentsEditorLocale?: LocaleData;
 		/** The editor's strings on the edit-comment screen, translated in PHP. */
 		jetpackCommentsEditorLabels?: EditorLabels;
+		/** The comment on the edit-comment screen, as the editor writes it. */
+		jetpackCommentsEditorContent?: string;
+		/** The Tracks queue, which w.js drains. */
+		_tkq?: unknown[];
 	}
 }

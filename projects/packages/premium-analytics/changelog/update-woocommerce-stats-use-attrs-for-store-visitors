@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fields: Keep text labels of the toggle group on one line.

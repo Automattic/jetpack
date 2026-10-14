@@ -1056,7 +1056,7 @@ class Contact_Form_Block {
 			$background_styles['backgroundPosition'] = '50% 50%';
 		}
 
-		// A step's styles are still ahead of the do_shortcode() pass in Contact_Form::parse(),
+		// A step's styles are still ahead of the apply_shortcodes() pass in Contact_Form::parse(),
 		// so percent-encode the brackets that would otherwise make this URL look like a
 		// shortcode: unencoded they are stripped out of the attribute, taking the background
 		// with them, and the shortcode's side effects run.

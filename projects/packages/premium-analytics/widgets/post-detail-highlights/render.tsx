@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { toPostId } from '@jetpack-premium-analytics/data';
-import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	MetricTileGrid,
 	MetricTileGridSkeleton,
@@ -104,7 +103,6 @@ function PostDetailHighlightsInner() {
 					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 				} }
 				empty={ {
-					icon: reports,
 					description: __(
 						'Open a post or page report to see its highlights here.',
 						'jetpack-premium-analytics-pkg'

@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.5.38
+ * Stubs automatically generated from PHPUnit 12.5.39
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -13309,7 +13309,7 @@ final readonly class MethodName
 final class Parameters implements \PHPUnit\Framework\MockObject\Rule\ParametersRule
 {
     /**
-     * @param array<mixed> $parameters
+     * @param array<int|string, mixed> $parameters
      * @throws \PHPUnit\Framework\Exception
      */
     public function __construct(array $parameters)
@@ -25729,6 +25729,20 @@ namespace PHPUnit\Util\PHP;
  */
 final class PhpProcessException extends \RuntimeException implements \PHPUnit\Util\Exception
 {
+}
+/**
+ * @no-named-arguments
+ * @internal
+ */
+final class ExtensionSettings
+{
+    /**
+     * @param \Closure(): list<string> $parameters
+     * @return list<non-empty-string>
+     */
+    public static function forChildProcess(\Closure $parameters): array
+    {
+    }
 }
 /**
  * @immutable
