@@ -1,4 +1,5 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
+import { getLockedWidgetFeature } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from 'react';
 import type { CanPerformDashboardOperation } from '@wordpress/widget-dashboard';
 
@@ -37,7 +38,12 @@ export function useDashboardPolicy( {
 				case 'reset':
 					return false;
 				case 'insert':
-					return canCompose && insertableWidgetTypes.has( request.widgetType.name );
+					// Locked types stay out of the inserter, but keep `edit`: the frame hides header controls without it.
+					return (
+						canCompose &&
+						insertableWidgetTypes.has( request.widgetType.name ) &&
+						! getLockedWidgetFeature( request.widgetType.name )
+					);
 				case 'remove':
 					return canCompose;
 				default:
