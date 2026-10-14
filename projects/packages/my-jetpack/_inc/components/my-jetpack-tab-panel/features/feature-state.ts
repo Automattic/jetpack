@@ -65,7 +65,7 @@ export type FeatureState = {
 };
 
 /**
- * Keep offline Open links within registered admin pages.
+ * The Open link, or empty when the feature is unavailable or its offline page isn't registered.
  *
  * @param state - The feature state.
  * @return A management URL, or an empty string.
@@ -218,6 +218,7 @@ export function resolveFeatureState(
 	const $module =
 		moduleSlug && jetpack === 'active' ? modules?.[ moduleSlug as JetpackModuleSlug ] : undefined;
 
+	// The AI gate hides the switch, not the reason the module cannot run.
 	const ungatedSlug = PRODUCT_MODULES[ feature.product as keyof typeof PRODUCT_MODULES ];
 	const gatedModule =
 		jetpack === 'active' && ungatedSlug && ! productModules[ feature.product ]
@@ -251,6 +252,8 @@ export function resolveFeatureState(
 
 	if ( feature.in_jetpack && jetpack === 'active' ) {
 		const moduleStatus = $module && getModuleStatus( $module );
+		// A host's override decides the module whatever the plan, so it explains itself
+		// rather than falling through to the standalone plugin.
 		if (
 			$module &&
 			( moduleStatus?.isAvailable ||

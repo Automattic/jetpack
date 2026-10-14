@@ -104,6 +104,7 @@ type ToolbarProps = {
 	bulk?: ReactNode;
 };
 
+// These are counted from live state; the rest come from the catalog.
 const LIVE_COUNTS: FeatureFilter[] = [ 'available', 'active', 'inactive' ];
 
 /**
