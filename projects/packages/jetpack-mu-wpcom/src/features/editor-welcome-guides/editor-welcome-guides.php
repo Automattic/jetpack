@@ -29,12 +29,13 @@ function wpcom_editor_welcome_guides_meta_key(): string {
 }
 
 /**
- * Turns the user's globally dismissed guides off in the site's editor preferences on read.
+ * When the editor preferences are read, marks the guides the user already dismissed
+ * on another site as dismissed on this one too.
  *
- * @param mixed  $value    Short-circuit value, null to continue.
+ * @param mixed  $value    Value another filter already supplied, or null.
  * @param int    $user_id  User ID.
- * @param string $meta_key Meta key.
- * @return mixed
+ * @param string $meta_key Meta key being read.
+ * @return mixed The adjusted preferences wrapped in an array, or `$value` unchanged.
  */
 function wpcom_editor_welcome_guides_filter_preferences( $value, $user_id, $meta_key ) {
 	static $is_reading = false;
