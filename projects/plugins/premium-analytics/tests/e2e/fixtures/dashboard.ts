@@ -21,6 +21,13 @@ const OWN_URL_PARTS = [
 ];
 const isOwn = ( text: string ) => OWN_URL_PARTS.some( part => text.includes( part ) );
 
+// The app writes `p` encoded once more than `open()` does.
+export const route = ( url: URL ) => decodeURIComponent( url.searchParams.get( 'p' ) ?? '' );
+
+// Not URLSearchParams: a raw `+` in an offset must stay a `+`.
+export const routeParam = ( url: URL, name: string ) =>
+	route( url ).match( new RegExp( `[?&]${ name }=([^&]*)` ) )?.[ 1 ];
+
 /**
  * Puts the site in one dashboard state from scratch, so no spec depends on the one before it.
  *
@@ -102,6 +109,16 @@ export class Dashboard {
 		return this.page.getByRole( 'tab', { name, exact: true } );
 	}
 
+	periodControl(): Locator {
+		// The section's panel comes before the chart's metric panels.
+		return this.page.getByRole( 'tabpanel' ).first().locator( '[aria-haspopup="dialog"]' ).first();
+	}
+
+	async clickInWidget( target: Locator ) {
+		// eslint-disable-next-line playwright/no-force-option -- Each widget sits in the grid's aria-disabled sortable button, so Playwright reads its contents as disabled.
+		await target.click( { force: true } );
+	}
+
 	async expectTabHidden( name: string ) {
 		// A hidden tab can't be told apart from one that hasn't rendered yet, so wait for Traffic first.
 		await expect( this.tab( 'Traffic' ) ).toBeVisible();
@@ -111,7 +128,7 @@ export class Dashboard {
 
 export const test = base.extend< { dashboard: Dashboard } >( {
 	dashboard: async ( { page }, use ) => {
-		await page.route( /pixel\.wp\.com/, route => route.abort() );
+		await page.route( /pixel\.wp\.com/, pixel => pixel.abort() );
 		const dashboard = new Dashboard( page );
 		await use( dashboard );
 		expect( dashboard.errors, 'Dashboard errors' ).toEqual( [] );

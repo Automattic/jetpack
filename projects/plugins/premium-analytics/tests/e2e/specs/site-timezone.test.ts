@@ -1,4 +1,4 @@
-import { test, expect, setSiteState } from '../fixtures/dashboard';
+import { test, expect, setSiteState, routeParam } from '../fixtures/dashboard';
 
 // 25 hours apart, so a range or label in the browser's zone always lands on another day.
 const PAIRS = [
@@ -36,12 +36,6 @@ function offsetOn( timeZone: string, day: string ): string {
 	// UTC reads as a bare `GMT`.
 	return name?.slice( 3 ) || '+00:00';
 }
-
-// The app writes `p` encoded once more than `open()` does, and a raw `+` must stay a `+`.
-const routeParam = ( url: URL, name: string ) =>
-	decodeURIComponent( url.searchParams.get( 'p' ) ?? '' ).match(
-		new RegExp( `[?&]${ name }=([^&]*)` )
-	)?.[ 1 ];
 
 for ( const { site, browser } of PAIRS ) {
 	test.describe( `a ${ site } site viewed from ${ browser }`, () => {
