@@ -1,12 +1,10 @@
 {
 	"name": "automattic/jetpack-knowledge",
-	"description": "Knowledge runtime and Guidelines screen polyfill.",
+	"description": "Knowledge runtime polyfill.",
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"php": ">=7.4",
-		"automattic/jetpack-assets": "@dev",
-		"automattic/jetpack-wp-build-polyfills": "@dev"
+		"php": ">=7.4"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
@@ -19,8 +17,6 @@
 		]
 	},
 	"scripts": {
-		"build-development": "pnpm run build",
-		"build-production": "pnpm run build-production",
 		"phpunit": [
 			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],
@@ -29,9 +25,7 @@
 		],
 		"test-php-coverage": [
 			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
-		],
-		"test-js": "pnpm run test",
-		"typecheck": "pnpm run typecheck"
+		]
 	},
 	"repositories": [
 		{

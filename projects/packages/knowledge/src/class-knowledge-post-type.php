@@ -71,9 +71,7 @@ class Knowledge_Post_Type {
 					'view_items'               => __( 'View Guidelines', 'jetpack-knowledge' ),
 				),
 				'public'                => false,
-				// Knowledge rows have no native post-type screens; management
-				// flows through the Settings → Guidelines page (see
-				// load.php) and the REST API.
+				// Knowledge rows are managed through the REST API without post-type screens.
 				'show_ui'               => false,
 				'show_in_rest'          => true,
 				'rest_base'             => 'knowledge',

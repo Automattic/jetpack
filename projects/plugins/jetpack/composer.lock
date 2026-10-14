@@ -2244,11 +2244,9 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/knowledge",
-                "reference": "79bce64cf5607b5ff9bc214c1b1e7f4d0f3ef381"
+                "reference": "10ea6536577cc6c2b3f019226dff9f9f458fe6ea"
             },
             "require": {
-                "automattic/jetpack-assets": "@dev",
-                "automattic/jetpack-wp-build-polyfills": "@dev",
                 "php": ">=7.4"
             },
             "require-dev": {
@@ -2277,12 +2275,6 @@
                 ]
             },
             "scripts": {
-                "build-development": [
-                    "pnpm run build"
-                ],
-                "build-production": [
-                    "pnpm run build-production"
-                ],
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
@@ -2291,18 +2283,12 @@
                 ],
                 "test-php-coverage": [
                     "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
-                ],
-                "test-js": [
-                    "pnpm run test"
-                ],
-                "typecheck": [
-                    "pnpm run typecheck"
                 ]
             },
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Knowledge runtime and Guidelines screen polyfill.",
+            "description": "Knowledge runtime polyfill.",
             "transport-options": {
                 "relative": true
             }

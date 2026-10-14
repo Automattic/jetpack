@@ -9,7 +9,6 @@ namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Knowledge\Knowledge_Post_Type;
 use Automattic\Jetpack\Knowledge\Knowledge_Scopes_REST_Controller;
-use Automattic\Jetpack\Knowledge\Settings;
 
 /**
  * Provides Knowledge when Gutenberg's experiment is unavailable.
@@ -56,7 +55,6 @@ class Knowledge {
 
 		add_action( 'init', array( Knowledge_Post_Type::class, 'register' ) );
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ), 0 );
-		Settings::init();
 
 		if ( did_action( 'init' ) || doing_action( 'rest_api_init' ) ) {
 			Knowledge_Post_Type::register();
