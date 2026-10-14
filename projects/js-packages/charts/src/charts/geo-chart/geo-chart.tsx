@@ -92,6 +92,40 @@ function involvesGeoChartErrorElement( node: Node ): boolean {
 	);
 }
 
+const isTooltipColumn = ( column: unknown ): boolean =>
+	typeof column === 'object' && column !== null && 'role' in column && column.role === 'tooltip';
+
+// Google renders a column or cell as markup when its `p.html` is truthy, even the string 'false'.
+const hasHtmlFlag = ( columnOrCell: unknown ): boolean =>
+	typeof columnOrCell === 'object' &&
+	columnOrCell !== null &&
+	'p' in columnOrCell &&
+	typeof columnOrCell.p === 'object' &&
+	columnOrCell.p !== null &&
+	'html' in columnOrCell.p &&
+	!! columnOrCell.p.html;
+
+const sanitizeIfString = ( value: unknown ) =>
+	typeof value === 'string' ? sanitizeHtml( value ) : value;
+
+/**
+ * Sanitizes a tooltip cell Google will render as markup, whether a string or a `{ v, f, p }` object.
+ *
+ * @param cell - The tooltip cell.
+ * @return The cell with its markup sanitized.
+ */
+function sanitizeTooltipCell( cell: unknown ): unknown {
+	if ( typeof cell !== 'object' || cell === null ) {
+		return sanitizeIfString( cell );
+	}
+
+	return {
+		...cell,
+		...( 'v' in cell && { v: sanitizeIfString( cell.v ) } ),
+		...( 'f' in cell && { f: sanitizeIfString( cell.f ) } ),
+	};
+}
+
 /**
  * Normalizes the raw Google Charts error event into the GeoChart error shape.
  *
@@ -225,41 +259,24 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 		normalizeColorToHex( CATALOG_POINTERS.surfaceSecondary, scopeElement, resolveCssVariable ) ||
 		DEFAULT_FEATURE_FILL_COLOR;
 
-	// Identify HTML tooltip column indices and sanitize their content to prevent XSS.
 	const sanitizedData = useMemo( () => {
 		if ( data.length === 0 ) {
 			return data;
 		}
 
-		const htmlTooltipIndices: number[] = [];
-		for ( let i = 0; i < data[ 0 ].length; i++ ) {
-			const col = data[ 0 ][ i ];
-			if (
-				typeof col === 'object' &&
-				col !== null &&
-				'role' in col &&
-				col.role === 'tooltip' &&
-				'p' in col &&
-				typeof col.p === 'object' &&
-				col.p !== null &&
-				'html' in col.p &&
-				// Google renders any truthy `html` as markup, even the string 'false'.
-				col.p.html
-			) {
-				htmlTooltipIndices.push( i );
-			}
-		}
+		const tooltipColumns = data[ 0 ].flatMap( ( column, index ) =>
+			isTooltipColumn( column ) ? [ { index, isHtml: hasHtmlFlag( column ) } ] : []
+		);
 
-		if ( htmlTooltipIndices.length === 0 ) {
+		if ( tooltipColumns.length === 0 ) {
 			return data;
 		}
 
-		// Sanitize HTML content in tooltip columns for data rows (skip header row)
 		const sanitizedRows = data.slice( 1 ).map( row => {
 			const newRow = [ ...row ];
-			for ( const colIndex of htmlTooltipIndices ) {
-				if ( typeof newRow[ colIndex ] === 'string' ) {
-					newRow[ colIndex ] = sanitizeHtml( newRow[ colIndex ] as string );
+			for ( const { index, isHtml } of tooltipColumns ) {
+				if ( isHtml || hasHtmlFlag( newRow[ index ] ) ) {
+					newRow[ index ] = sanitizeTooltipCell( newRow[ index ] ) as ( typeof newRow )[ number ];
 				}
 			}
 			return newRow;

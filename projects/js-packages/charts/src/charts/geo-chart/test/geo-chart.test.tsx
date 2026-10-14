@@ -117,6 +117,37 @@ describe( 'GeoChart', () => {
 			}
 		);
 
+		const unsafe = '<b>US</b><img src=x onerror="alert(1)">';
+		const htmlColumn = { type: 'string', role: 'tooltip', p: { html: true } };
+		const textColumn = { type: 'string', role: 'tooltip' };
+
+		test.each( [
+			[
+				'a cell flagged HTML in a text column',
+				textColumn,
+				{ v: unsafe, p: { html: true } },
+				{ v: '<b>US</b>', p: { html: true } },
+			],
+			[
+				'an object cell in an HTML column',
+				htmlColumn,
+				{ v: unsafe, f: unsafe },
+				{ v: '<b>US</b>', f: '<b>US</b>' },
+			],
+			[ 'a plain cell in a text column, which Google escapes', textColumn, unsafe, unsafe ],
+		] )( 'sanitizes tooltip markup in %s', ( _, column, cell, expected ) => {
+			renderWithTheme( {
+				data: [
+					[ 'Country', 'Value', column ],
+					[ 'US', 100, cell ],
+				],
+			} );
+
+			const data = JSON.parse( screen.getByTestId( 'chart-data' ).textContent || '[]' );
+
+			expect( data[ 1 ][ 2 ] ).toEqual( expected );
+		} );
+
 		test( 'handles header-only data with HTML tooltip column and no data rows', () => {
 			const testData: [ ( string | object )[] ] = [
 				[ 'Country', 'Value', { type: 'string', role: 'tooltip', p: { html: true } } ],
