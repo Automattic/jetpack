@@ -8,14 +8,12 @@
 namespace Automattic\Jetpack\WooCommerceStats;
 
 use Automattic\Jetpack\PremiumAnalytics\Dashboard_Section_Registry;
-use Automattic\Jetpack\PremiumAnalytics\Enablement_Setting;
 use Automattic\Jetpack\PremiumAnalytics\Widget_Type_Registry;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 use function Automattic\Jetpack\PremiumAnalytics\get_registered_dashboard_section;
 use function Automattic\Jetpack\PremiumAnalytics\register_dashboard_section;
 use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_NAME;
-use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_STORE_SECTION_FLAG;
 
 require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/class-capabilities.php';
 require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/class-enablement-setting.php';
@@ -174,21 +172,6 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		Analytics_Dashboard::init();
 
 		$this->assertFalse( get_registered_dashboard_section( DASHBOARD_NAME, Analytics_Dashboard::SECTION_ID )->is_available() );
-	}
-
-	/**
-	 * The site opt-in hides the section until the store flag is on.
-	 */
-	public function test_section_follows_the_store_flag_on_the_site_opt_in() {
-		$this->enable_store();
-		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
-		Analytics_Dashboard::init();
-
-		$this->assertFalse( get_registered_dashboard_section( DASHBOARD_NAME, Analytics_Dashboard::SECTION_ID )->is_available() );
-
-		add_filter( 'jetpack_feature_flag_enabled_' . DASHBOARD_STORE_SECTION_FLAG, '__return_true' );
-
-		$this->assertTrue( get_registered_dashboard_section( DASHBOARD_NAME, Analytics_Dashboard::SECTION_ID )->is_available() );
 	}
 
 	/**
