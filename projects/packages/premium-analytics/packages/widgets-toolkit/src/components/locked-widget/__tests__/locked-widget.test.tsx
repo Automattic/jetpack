@@ -23,6 +23,8 @@ jest.mock(
 const recordEvent = jest.mocked( jetpackAnalytics.tracks.recordEvent );
 
 const UPGRADE_URL = 'https://example.com/upgrade';
+const SUPPORT_URL = 'https://jetpack.com/support/jetpack-stats/traffic-dashboard/#devices-stats';
+const DESCRIPTION = 'See which <link>devices, browsers and OS</link> your visitors are using.';
 
 describe( 'locked states', () => {
 	beforeEach( () => {
@@ -31,7 +33,14 @@ describe( 'locked states', () => {
 			premium_analytics: {
 				plan_gates: {
 					tier: 'paid',
-					locked_features: { utm: UPGRADE_URL, devices: '', 'plugin-feature': UPGRADE_URL },
+					locked_features: {
+						devices: {
+							description: DESCRIPTION,
+							support_url: SUPPORT_URL,
+							upgrade_url: UPGRADE_URL,
+						},
+						utm: { description: DESCRIPTION, support_url: SUPPORT_URL, upgrade_url: '' },
+					},
 					locked_widget_types: {},
 				},
 			},
@@ -39,14 +48,14 @@ describe( 'locked states', () => {
 	} );
 
 	it.each( [
-		[ 'widget', <LockedWidget key="widget" feature="utm" /> ],
-		[ 'page', <LockedPage key="page" feature="utm" /> ],
+		[ 'widget', <LockedWidget key="widget" feature="devices" /> ],
+		[ 'page', <LockedPage key="page" feature="devices" /> ],
 	] )( 'shows the %s copy with its support link and the upgrade button', ( _, element ) => {
 		render( element );
 
-		expect( screen.getByRole( 'link', { name: /campaign performance data/ } ) ).toHaveAttribute(
+		expect( screen.getByRole( 'link', { name: /devices, browsers and OS/ } ) ).toHaveAttribute(
 			'href',
-			'https://jetpack.com/support/jetpack-stats/traffic-dashboard/#harnessing-utm-stats-for-precision-tracking'
+			SUPPORT_URL
 		);
 		expect( screen.getByRole( 'link', { name: 'Upgrade' } ) ).toHaveAttribute(
 			'href',
@@ -54,28 +63,21 @@ describe( 'locked states', () => {
 		);
 	} );
 
-	it( 'falls back to the generic copy for a feature without its own', () => {
-		render( <LockedWidget feature="plugin-feature" /> );
-
-		expect( screen.getByText( 'Upgrade your plan to unlock Jetpack Stats.' ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'link', { name: 'Upgrade' } ) ).toBeInTheDocument();
-	} );
-
 	it( 'drops the button when there is nowhere to buy', () => {
-		render( <LockedWidget feature="devices" /> );
+		render( <LockedWidget feature="utm" /> );
 
 		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'records which feature the upgrade was for', async () => {
-		render( <LockedWidget feature="utm" /> );
+		render( <LockedWidget feature="devices" /> );
 		// jsdom cannot follow the link.
 		document.addEventListener( 'click', event => event.preventDefault(), { once: true } );
 
 		await userEvent.click( screen.getByRole( 'link', { name: 'Upgrade' } ) );
 
 		expect( recordEvent ).toHaveBeenCalledWith( 'jetpack_premium_analytics_plan_upgrade_click', {
-			feature: 'utm',
+			feature: 'devices',
 			source: 'locked_widget',
 		} );
 	} );

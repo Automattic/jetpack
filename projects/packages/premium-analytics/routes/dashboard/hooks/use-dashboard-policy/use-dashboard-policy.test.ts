@@ -79,7 +79,7 @@ describe( 'useDashboardPolicy', () => {
 					dashboard_composition_enabled: true,
 					plan_gates: {
 						tier: 'paid',
-						locked_features: { devices: '' },
+						locked_features: { devices: { description: '', support_url: '', upgrade_url: '' } },
 						locked_widget_types: { [ widgetType.name ]: 'devices' },
 					},
 				},

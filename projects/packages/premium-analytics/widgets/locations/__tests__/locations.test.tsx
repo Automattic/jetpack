@@ -442,7 +442,14 @@ describe( 'LocationsWidget', () => {
 						initial_full_sync_finished: 1,
 						plan_gates: {
 							tier: 'paid',
-							locked_features: { 'regions-cities': 'https://example.com/upgrade' },
+							locked_features: {
+								'regions-cities': {
+									description:
+										'Access to <link>region and city stats</link> for more accurate analysis.',
+									support_url: 'https://jetpack.com/support/',
+									upgrade_url: 'https://example.com/upgrade',
+								},
+							},
 							locked_widget_types: {},
 						},
 					},

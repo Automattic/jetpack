@@ -1,8 +1,9 @@
 /**
  * External dependencies
  */
-import { getStatsUpgradeUrl } from '@jetpack-premium-analytics/data';
+import { getLockedFeature } from '@jetpack-premium-analytics/data';
 import { EmptyState, Icon, LinkButton } from '@jetpack-premium-analytics/externals';
+import { createInterpolateElement, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { lock } from '@wordpress/icons';
 import clsx from 'clsx';
@@ -10,7 +11,7 @@ import clsx from 'clsx';
  * Internal dependencies
  */
 import { useTrackEvent } from '../../hooks/use-track-event';
-import { getLockedFeatureCopy } from './feature-copy';
+import { ExternalLink } from '../external-link';
 import styles from './locked-widget.module.scss';
 
 type LockedStateProps = {
@@ -20,7 +21,7 @@ type LockedStateProps = {
 };
 
 /**
- * The lock, the feature's sentence and the upgrade button.
+ * The lock, the server's sentence for the feature and the upgrade button.
  *
  * @param props           - Component props.
  * @param props.feature   - The locked feature.
@@ -30,16 +31,28 @@ type LockedStateProps = {
  */
 function LockedState( { feature, source, className }: LockedStateProps ) {
 	const trackEvent = useTrackEvent();
-	const upgradeUrl = feature ? getStatsUpgradeUrl( feature ) : undefined;
+	const locked = feature ? getLockedFeature( feature ) : undefined;
 
 	return (
 		<EmptyState.Root className={ clsx( styles.root, className ) }>
 			<Icon size={ 40 } className={ styles.icon } icon={ lock } />
-			<EmptyState.Description>{ getLockedFeatureCopy( feature ) }</EmptyState.Description>
-			{ upgradeUrl && (
+			{ locked?.description && (
+				<EmptyState.Description>
+					{ createInterpolateElement( locked.description, {
+						link: locked.support_url ? (
+							<ExternalLink href={ locked.support_url } variant="default">
+								{ null }
+							</ExternalLink>
+						) : (
+							<Fragment />
+						),
+					} ) }
+				</EmptyState.Description>
+			) }
+			{ locked?.upgrade_url && (
 				<EmptyState.Actions>
 					<LinkButton
-						href={ upgradeUrl }
+						href={ locked.upgrade_url }
 						onClick={ () =>
 							trackEvent( 'jetpack_premium_analytics_plan_upgrade_click', { feature, source } )
 						}

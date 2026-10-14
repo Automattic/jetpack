@@ -30,9 +30,10 @@ export { getCombinedPeriodMax } from './get-combined-period-max';
 export { getVideoPosterUrl } from './video-poster-url';
 export { describeError } from './describe-error';
 export {
+	getLockedFeature,
 	getLockedWidgetFeature,
-	getStatsUpgradeUrl,
 	isStatsFeatureLocked,
+	type LockedFeature,
 	type StatsFeatureKey,
 } from '@jetpack-premium-analytics/data';
 export { summaryCount } from './summary-count';

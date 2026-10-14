@@ -25,13 +25,23 @@ export type StatsFeatureKey =
 	| 'recent-7-days';
 
 /**
+ * A locked feature as the server publishes it: `description` wraps in `<link>` the words `support_url` explains,
+ * and `upgrade_url` is empty when there is nowhere to buy it.
+ */
+export type LockedFeature = {
+	description: string;
+	support_url: string;
+	upgrade_url: string;
+};
+
+/**
  * Look a key up in a server map without reaching inherited names like `constructor`.
  *
  * @param map - The map.
  * @param key - The key.
  * @return The value, or undefined.
  */
-function readOwn( map: Record< string, string > | undefined, key: string ): string | undefined {
+function readOwn< T >( map: Record< string, T > | undefined, key: string ): T | undefined {
 	return map && Object.hasOwn( map, key ) ? map[ key ] : undefined;
 }
 
@@ -49,15 +59,13 @@ export function isStatsFeatureLocked( feature: StatsFeatureKey ): boolean {
 }
 
 /**
- * Where to buy a locked feature. Takes any key, since another plugin's widget may declare its own.
+ * What a locked feature says and where to buy it. Takes any key, since another plugin's widget may declare its own.
  *
  * @param feature - The feature.
- * @return The upgrade URL, or undefined when the feature is open or there is nowhere to buy it.
+ * @return The locked feature, or undefined when it is open.
  */
-export function getStatsUpgradeUrl( feature: string ): string | undefined {
-	return (
-		readOwn( getScriptData()?.premium_analytics?.plan_gates?.locked_features, feature ) || undefined
-	);
+export function getLockedFeature( feature: string ): LockedFeature | undefined {
+	return readOwn( getScriptData()?.premium_analytics?.plan_gates?.locked_features, feature );
 }
 
 /**

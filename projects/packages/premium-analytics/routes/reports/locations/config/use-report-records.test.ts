@@ -99,7 +99,9 @@ describe( 'useLocationsReportRecords', () => {
 				initial_full_sync_finished: 1,
 				plan_gates: {
 					tier: 'paid',
-					locked_features: { 'regions-cities': '' },
+					locked_features: {
+						'regions-cities': { description: '', support_url: '', upgrade_url: '' },
+					},
 					locked_widget_types: {},
 				},
 			},
