@@ -705,7 +705,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: changed_files
     if: github.event_name == 'push' || needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc_phan == 'true'
-    timeout-minutes: 15 # todo: update this with a more accurate time
+    timeout-minutes: 15 # 2026-10-14: Around 6 minutes.
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Setup tools
@@ -777,7 +777,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: changed_files
     if: github.event_name == 'push' || needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc_phan == 'true'
-    timeout-minutes: 15 # todo: update this with a more accurate time
+    timeout-minutes: 15 # 2026-10-14: Around 6 minutes.
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Setup tools
