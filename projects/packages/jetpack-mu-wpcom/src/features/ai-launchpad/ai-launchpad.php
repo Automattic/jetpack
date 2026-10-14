@@ -17,6 +17,7 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 
 // helpers.php defines the shared option reader the listeners depend on, so it loads first.
 require_once __DIR__ . '/helpers.php';
+require_once __DIR__ . '/../../common/wp-build-script-translations.php';
 require_once __DIR__ . '/../../common/launchpad-no-guidance.php';
 require_once __DIR__ . '/eligibility.php';
 require_once __DIR__ . '/class-ai-launchpad-memberships.php';
@@ -211,7 +212,7 @@ class AI_Launchpad {
 
 		// The same URL the generated route registrations use, so core resolves the same catalog names.
 		$build_constants = require $constants;
-		$translations    = wpcom_ai_launchpad_script_translations( $build_dir . '/i18n-manifest.json', $build_constants['build_url'] );
+		$translations    = wpcom_wp_build_script_translations( $build_dir . '/i18n-manifest.json', $build_constants['build_url'], 'site-setup' );
 
 		if ( null !== $translations ) {
 			wp_add_inline_script( $handle, $translations, 'before' );
