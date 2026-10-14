@@ -17,7 +17,7 @@ const OFFSET_PARTS = /^[+-](\d{2}):?(\d{2})$/;
 export type TimestampParts = [ number, number, number, number, number, number, number ];
 
 export type SiteTimestamp = {
-	/** The value with surrounding whitespace removed. */
+	/** The value with surrounding whitespace removed and the offset's `+` restored. */
 	value: string;
 	/** The wall-clock parts it names. */
 	parts: TimestampParts;

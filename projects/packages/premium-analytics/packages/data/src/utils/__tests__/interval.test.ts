@@ -87,18 +87,14 @@ describe( 'resolveIntervalForRange', () => {
 		expect( resolveIntervalForRange( 'custom', from, to, 'day' ) ).toBe( 'day' );
 	} );
 
-	// A week is where they stop: seven days of hourly bars is a wall.
-	// A deep link with an unencoded `+` reaches the router as a space; the week must
-	// still read as days, not collapse into hours as an unreadable range once did.
-	it( 'reads a week whose offsets lost their plus to the querystring as days', () => {
-		expect(
-			resolveIntervalForRange(
-				undefined,
-				'2026-08-01T00:00:00.000 00:00',
-				'2026-08-07T23:59:59.999 00:00',
-				'day'
-			)
-		).toBe( 'day' );
+	// A deep link with an unencoded `+` reaches the router as a space. Two days
+	// still offer hours, which an unreadable range would not, so the offset must be read.
+	it( 'reads a range whose offsets lost their plus to the querystring', () => {
+		const from = '2026-08-01T00:00:00.000 00:00';
+		const to = '2026-08-02T23:59:59.999 00:00';
+
+		expect( getAllowedIntervalsForPreset( undefined, from, to ) ).toEqual( [ 'day', 'hour' ] );
+		expect( resolveIntervalForRange( undefined, from, to, 'hour' ) ).toBe( 'hour' );
 	} );
 
 	it( 'defaults an unreadable range to days rather than hours', () => {
