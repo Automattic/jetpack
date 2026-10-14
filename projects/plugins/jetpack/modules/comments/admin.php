@@ -120,25 +120,25 @@ class Jetpack_Comments_Settings {
 			array( $this, 'comment_form_greeting_sanitize' )
 		);
 
-		/**
-		 * Color Scheme
-		 */
-		add_settings_field(
-			'jetpack_comment_form_color_scheme',
-			__( 'Color Scheme', 'jetpack' ),
-			array( $this, 'comment_form_color_scheme_setting' ),
-			'discussion',
-			'jetpack_comment_form'
-		);
-
-		register_setting(
-			'discussion',
-			'jetpack_comment_form_color_scheme',
-			array( $this, 'comment_form_color_scheme_sanitize' )
-		);
-
 		// The rebuilt comment form is what offers blocks; the package may lag this file on a staged deploy.
 		if ( ! class_exists( Block_Editor::class ) || ! Comments::is_enabled() ) {
+			/**
+			 * Color Scheme, which the rebuilt form ignores for the theme's own colors.
+			 */
+			add_settings_field(
+				'jetpack_comment_form_color_scheme',
+				__( 'Color Scheme', 'jetpack' ),
+				array( $this, 'comment_form_color_scheme_setting' ),
+				'discussion',
+				'jetpack_comment_form'
+			);
+
+			register_setting(
+				'discussion',
+				'jetpack_comment_form_color_scheme',
+				array( $this, 'comment_form_color_scheme_sanitize' )
+			);
+
 			return;
 		}
 
@@ -189,7 +189,15 @@ class Jetpack_Comments_Settings {
 	public function comment_form_settings_section() {
 		?>
 
-		<p id="jetpack-comments-settings"><?php esc_html_e( 'Adjust your Comments form with a clever greeting and color-scheme.', 'jetpack' ); ?></p>
+		<p id="jetpack-comments-settings">
+			<?php
+			if ( class_exists( Block_Editor::class ) && Comments::is_enabled() ) {
+				esc_html_e( 'Adjust your Comments form with a clever greeting.', 'jetpack' );
+			} else {
+				esc_html_e( 'Adjust your Comments form with a clever greeting and color-scheme.', 'jetpack' );
+			}
+			?>
+		</p>
 
 		<?php
 	}
