@@ -111,3 +111,31 @@ test( 'Back from a period picked after a drill-down returns to the drilled day',
 	await dashboard.page.goBack();
 	await expectWeek( dashboard, week );
 } );
+
+test( 'a Views over years month opens Traffic on it, and Back returns to Insights', async ( {
+	dashboard,
+} ) => {
+	const insightsTab = dashboard.page.getByRole( 'tab', { name: 'Insights' } );
+	await dashboard.open();
+	await insightsTab.click();
+	const march = dashboard.page.getByRole( 'gridcell', { name: 'Mar 2026: 496' } );
+	await expect( march ).toBeVisible();
+	const insights = route( new URL( dashboard.page.url() ) );
+
+	await dashboard.clickInWidget( march );
+	await expect( dashboard.page.getByRole( 'tab', { name: 'Traffic' } ) ).toHaveAttribute(
+		'aria-selected',
+		'true'
+	);
+	await expect( dashboard.page ).toHaveURL(
+		url =>
+			routeParam( url, 'from' ) === '2026-03-01T00:00:00.000+00:00' &&
+			routeParam( url, 'to' ) === '2026-03-31T23:59:59.999+00:00'
+	);
+	await expect( dashboard.periodControl() ).toHaveAccessibleDescription( 'March 1 – 31, 2026' );
+	await expect( viewsTab( dashboard, 496 ) ).toBeVisible();
+
+	await dashboard.page.goBack();
+	await expect( insightsTab ).toHaveAttribute( 'aria-selected', 'true' );
+	await expect.poll( () => route( new URL( dashboard.page.url() ) ) ).toBe( insights );
+} );
