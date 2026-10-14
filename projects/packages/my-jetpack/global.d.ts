@@ -760,4 +760,8 @@ interface Window {
 	jetpackMenuBadges?: {
 		setCount: ( menuSlug: string, count: number ) => void;
 	};
+	/** Alerts another menu item already counts, so the async My Jetpack badge skips them. */
+	myJetpackNotificationBubble?: {
+		excludedAlerts: string[];
+	};
 }

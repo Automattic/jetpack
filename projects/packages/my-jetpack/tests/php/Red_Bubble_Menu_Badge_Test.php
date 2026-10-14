@@ -8,6 +8,7 @@ use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Menu_Badges\Notification_Counts;
 use Automattic\Jetpack\My_Jetpack\Products\Protect;
 use Jetpack_Options;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -273,6 +274,41 @@ class Red_Bubble_Menu_Badge_Test extends TestCase {
 			has_action( 'admin_enqueue_scripts', array( Initializer::class, 'enqueue_red_bubble_script' ) ),
 			'The async warmer script should be enqueued on a cold cache.'
 		);
+	}
+
+	/**
+	 * Whether the Protect dashboard loaded, and the alerts the async badge must skip.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_async_exclusions() {
+		return array(
+			'Protect dashboard loaded'     => array( true, '["protect_has_threats"]' ),
+			'Protect dashboard not loaded' => array( false, '[]' ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_async_exclusions
+	 *
+	 * @param bool   $loaded   Whether the Protect dashboard loaded.
+	 * @param string $excluded JSON list of the alerts the async badge must skip.
+	 */
+	#[DataProvider( 'provide_async_exclusions' )]
+	public function test_async_badge_skips_the_alerts_the_server_skips( $loaded, $excluded ) {
+		if ( $loaded ) {
+			do_action( 'jetpack_protect_dashboard_initialized' );
+		}
+
+		try {
+			Initializer::enqueue_red_bubble_script();
+		} finally {
+			unset( $GLOBALS['wp_actions']['jetpack_protect_dashboard_initialized'] );
+		}
+
+		$data = (string) wp_scripts()->get_data( 'my-jetpack-notification-bubble', 'data' );
+		wp_deregister_script( 'my-jetpack-notification-bubble' );
+		$this->assertStringContainsString( '"excludedAlerts":' . $excluded, $data );
 	}
 
 	/**
