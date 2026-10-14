@@ -277,6 +277,8 @@ class Jetpack_Sync_Functions_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function test_sync_always_sync_changes_to_modules_right_away() {
+		// Jetpack's own filter keeps Backup on, which would sync alongside the modules set here.
+		remove_filter( 'jetpack_active_modules', array( Jetpack::class, 'keep_backup_module_active' ) );
 		Jetpack::update_active_modules( array( 'stats' ) );
 
 		$this->sender->do_sync();
@@ -290,6 +292,7 @@ class Jetpack_Sync_Functions_Test extends Jetpack_Sync_TestBase {
 		$this->sender->do_sync();
 
 		$synced_value = $this->server_replica_storage->get_callable( 'active_modules' );
+		add_filter( 'jetpack_active_modules', array( Jetpack::class, 'keep_backup_module_active' ) );
 		$this->assertEquals( array( 'json-api' ), $synced_value );
 	}
 

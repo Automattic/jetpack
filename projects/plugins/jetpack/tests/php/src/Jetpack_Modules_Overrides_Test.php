@@ -29,6 +29,8 @@ class Jetpack_Modules_Overrides_Test extends WP_UnitTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
+		// These tests start from a site nothing overrides, which Jetpack's own Backup filter is not.
+		remove_filter( 'jetpack_active_modules', array( Jetpack::class, 'keep_backup_module_active' ) );
 		$this->instance = Jetpack_Modules_Overrides::instance();
 	}
 
@@ -41,6 +43,7 @@ class Jetpack_Modules_Overrides_Test extends WP_UnitTestCase {
 		remove_all_filters( 'jetpack_feature_policy' );
 		\Automattic\Jetpack\Feature_Policy::reset();
 		$this->instance->clear_cache();
+		add_filter( 'jetpack_active_modules', array( Jetpack::class, 'keep_backup_module_active' ) );
 		parent::tear_down();
 	}
 

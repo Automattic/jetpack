@@ -445,6 +445,8 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 	 */
 	public function test_backup_dashboard_ignores_a_saved_off_module() {
 		$this->set_up_backup_test();
+		// Registered by Jetpack at load, but another test's tear_down may have cleared it.
+		add_filter( 'jetpack_active_modules', array( Jetpack::class, 'keep_backup_module_active' ) );
 		$this->connect_owner();
 		$this->force_unfire_action( 'jetpack_backup_initialized' );
 		Jetpack_Options::update_option( 'active_modules', array() );
