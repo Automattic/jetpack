@@ -111,6 +111,9 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_rest_api_endpoints' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_newspack_blocks' ) );
 
+		// Jetpack builds cut before Jetpack Comments went on by default only load it when this returns true. Remove once Atomic is past them.
+		add_filter( 'jetpack_comments_new_hotness', '__return_true' );
+
 		// These features run only on simple sites.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_simple_jetpack_ai' ) );
