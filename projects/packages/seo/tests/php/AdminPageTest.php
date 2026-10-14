@@ -26,6 +26,7 @@ class AdminPageTest extends TestCase {
 		remove_action( 'admin_enqueue_scripts', array( Admin_Page::class, 'restore_screen_id_after_wp_build' ) );
 		remove_action( 'admin_enqueue_scripts', array( Admin_Page::class, 'enqueue_tracks_transport' ) );
 		remove_filter( 'jetpack_admin_js_script_data', array( Admin_Page::class, 'inject_script_data' ) );
+		remove_filter( 'jetpack_admin_js_script_data', array( Admin_Page::class, 'inject_tracks_context' ) );
 		wp_dequeue_script( 'jp-tracks' );
 		wp_deregister_script( 'jp-tracks' );
 		remove_filter( 'jetpack_display_jitms_on_screen', array( Admin_Page::class, 'hide_jitms_on_wp_build_dashboard' ) );
@@ -270,14 +271,21 @@ class AdminPageTest extends TestCase {
 		}
 	}
 
-	public function test_tracks_context_is_only_sent_once_the_site_allows_tracking() {
-		$data = Admin_Page::inject_script_data( array() );
+	public function test_tracks_context_and_transport_are_only_added_once_the_site_allows_tracking() {
+		$transport = array( Admin_Page::class, 'enqueue_tracks_transport' );
+		$this->enter_seo_admin_request();
+
+		Admin_Page::maybe_load_wp_build();
+		$data = apply_filters( 'jetpack_admin_js_script_data', array() );
 		$this->assertArrayNotHasKey( 'tracks', $data[ Initializer::SCRIPT_DATA_KEY ] );
+		$this->assertFalse( has_action( 'admin_enqueue_scripts', $transport ) );
 
 		$this->agree_to_terms_of_service();
 		try {
-			$data = Admin_Page::inject_script_data( array() );
+			Admin_Page::maybe_load_wp_build();
+			$data = apply_filters( 'jetpack_admin_js_script_data', array() );
 			$this->assertArrayHasKey( 'tracks', $data[ Initializer::SCRIPT_DATA_KEY ] );
+			$this->assertNotFalse( has_action( 'admin_enqueue_scripts', $transport ) );
 		} finally {
 			$this->revoke_terms_of_service();
 		}
@@ -314,23 +322,10 @@ class AdminPageTest extends TestCase {
 		}
 	}
 
-	public function test_enqueue_tracks_transport_enqueues_the_tracks_script_once_consented() {
-		$this->agree_to_terms_of_service();
-
-		try {
-			Admin_Page::enqueue_tracks_transport();
-			$this->assertTrue( wp_script_is( 'jp-tracks', 'enqueued' ) );
-		} finally {
-			$this->revoke_terms_of_service();
-		}
-	}
-
-	public function test_enqueue_tracks_transport_is_skipped_without_consent() {
-		$this->assertFalse( Admin_Page::can_use_analytics() );
-
+	public function test_enqueue_tracks_transport_enqueues_the_tracks_script() {
 		Admin_Page::enqueue_tracks_transport();
 
-		$this->assertFalse( wp_script_is( 'jp-tracks', 'enqueued' ) );
+		$this->assertTrue( wp_script_is( 'jp-tracks', 'enqueued' ) );
 	}
 
 	public function test_enqueue_tracks_transport_is_skipped_on_simple() {
@@ -346,17 +341,12 @@ class AdminPageTest extends TestCase {
 		}
 	}
 
-	/**
-	 * Asserted against the un-consented baseline so the platform check does the work.
-	 */
-	public function test_enqueue_tracks_transport_loads_on_atomic_without_jetpack_consent() {
+	public function test_can_use_analytics_on_atomic_without_jetpack_consent() {
 		$this->assertFalse( Admin_Page::can_use_analytics() );
 
 		$this->simulate_wpcom_on_atomic();
 		try {
-			Admin_Page::enqueue_tracks_transport();
-
-			$this->assertTrue( wp_script_is( 'jp-tracks', 'enqueued' ) );
+			$this->assertTrue( Admin_Page::can_use_analytics() );
 		} finally {
 			$this->reset_wpcom_on_atomic();
 		}
@@ -368,14 +358,19 @@ class AdminPageTest extends TestCase {
 	public function test_maybe_load_wp_build_registers_the_tracks_transport_on_the_seo_page_only() {
 		$hook = array( Admin_Page::class, 'enqueue_tracks_transport' );
 
-		set_current_screen( 'dashboard' );
-		$_GET['page'] = 'jetpack';
-		Admin_Page::maybe_load_wp_build();
-		$this->assertFalse( has_action( 'admin_enqueue_scripts', $hook ) );
+		$this->agree_to_terms_of_service();
+		try {
+			set_current_screen( 'dashboard' );
+			$_GET['page'] = 'jetpack';
+			Admin_Page::maybe_load_wp_build();
+			$this->assertFalse( has_action( 'admin_enqueue_scripts', $hook ) );
 
-		$this->enter_seo_admin_request();
-		Admin_Page::maybe_load_wp_build();
-		$this->assertNotFalse( has_action( 'admin_enqueue_scripts', $hook ) );
+			$this->enter_seo_admin_request();
+			Admin_Page::maybe_load_wp_build();
+			$this->assertNotFalse( has_action( 'admin_enqueue_scripts', $hook ) );
+		} finally {
+			$this->revoke_terms_of_service();
+		}
 	}
 
 	/**

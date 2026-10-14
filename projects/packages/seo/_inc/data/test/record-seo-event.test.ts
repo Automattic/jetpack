@@ -26,6 +26,7 @@ const CONTEXT = {
 describe( 'recordSeoEvent', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
+		delete ( window as Window & { jetpackSeoUserIdentified?: boolean } ).jetpackSeoUserIdentified;
 	} );
 
 	it( 'merges the server context, fixed surface, screen, and event props', () => {
@@ -68,16 +69,27 @@ describe( 'recordSeoEvent', () => {
 		);
 	} );
 
-	it( 'identifies the connected WordPress.com user once, before the first event', async () => {
+	it( 'never throws, so a broken transport cannot fail the save that called it', () => {
+		getScriptData.mockReturnValue( { seo: { tracks: CONTEXT } } );
+		recordEvent.mockImplementationOnce( () => {
+			throw new Error( 'Transport failed.' );
+		} );
+
+		expect( () => recordSeoEvent( 'jetpack_seo_llms_txt_enabled', 'geo' ) ).not.toThrow();
+	} );
+
+	it( 'identifies the connected WordPress.com user once per page load, across bundles', async () => {
 		getScriptData.mockReturnValue( {
 			seo: { tracks: CONTEXT },
 			connection: { userConnectionData: { currentUser: { wpcomUser: { ID: 7, login: 'alice' } } } },
 		} );
 		jest.resetModules();
 		const fresh = await import( '../record-seo-event' );
+		jest.resetModules();
+		const otherBundle = await import( '../record-seo-event' );
 
 		fresh.recordSeoEvent( 'jetpack_seo_llms_txt_enabled', 'geo', { enabled: true } );
-		fresh.recordSeoEvent( 'jetpack_seo_llms_txt_enabled', 'geo', { enabled: false } );
+		otherBundle.recordSeoEvent( 'jetpack_seo_llms_txt_enabled', 'geo', { enabled: false } );
 
 		expect( initialize ).toHaveBeenCalledTimes( 1 );
 		expect( initialize ).toHaveBeenCalledWith( 7, 'alice' );

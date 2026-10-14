@@ -34,7 +34,8 @@ type SeoScriptData = {
 	};
 };
 
-let userIdentified = false;
+// Each route is a separate bundle with its own copy of this module, so once-per-page guards live on `window`.
+type SeoWindow = Window & { jetpackSeoScreenViewed?: boolean; jetpackSeoUserIdentified?: boolean };
 
 /** Values Tracks accepts as properties. Use the string `none` for N/A — never null/undefined. */
 type EventProps = Record< string, string | number | boolean >;
@@ -53,36 +54,39 @@ export function recordSeoEvent(
 	screen: SeoTracksScreen,
 	props: EventProps = {}
 ): void {
-	const data = getScriptData() as SeoScriptData | undefined;
-	const context = data?.seo?.tracks;
-	if ( ! context ) {
-		return;
-	}
+	try {
+		const data = getScriptData() as SeoScriptData | undefined;
+		const context = data?.seo?.tracks;
+		if ( ! context ) {
+			return;
+		}
 
-	// Simple identifies the user in stats.php; elsewhere only the connected account can.
-	const user = data?.connection?.userConnectionData?.currentUser?.wpcomUser;
-	if ( ! userIdentified && user?.ID && user.login ) {
-		jetpackAnalytics.initialize( user.ID, user.login );
-		userIdentified = true;
-	}
+		// Simple identifies the user in stats.php; elsewhere only the connected account can.
+		const page = window as SeoWindow;
+		const user = data?.connection?.userConnectionData?.currentUser?.wpcomUser;
+		if ( ! page.jetpackSeoUserIdentified && user?.ID && user.login ) {
+			jetpackAnalytics.initialize( user.ID, user.login );
+			page.jetpackSeoUserIdentified = true;
+		}
 
-	jetpackAnalytics.tracks.recordEvent( event, {
-		surface: 'wp_admin',
-		screen,
-		...context,
-		...props,
-	} );
+		jetpackAnalytics.tracks.recordEvent( event, {
+			surface: 'wp_admin',
+			screen,
+			...context,
+			...props,
+		} );
+	} catch {
+		// Callers record from their save paths: a broken transport must not fail the save.
+	}
 }
 
 /**
  * Fire `jetpack_seo_screen_viewed` once per page load.
  *
- * Each route is a separate bundle with its own copy of this module, so the guard lives on `window`.
- *
  * @param screen - The landing screen.
  */
 export function recordScreenViewOnce( screen: SeoTracksScreen ): void {
-	const page = window as Window & { jetpackSeoScreenViewed?: boolean };
+	const page = window as SeoWindow;
 	if ( page.jetpackSeoScreenViewed ) {
 		return;
 	}

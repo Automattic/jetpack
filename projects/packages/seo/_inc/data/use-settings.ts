@@ -22,56 +22,56 @@ type SettingChange = {
 	setting_value: string | boolean;
 };
 
+// The Tracks name of each setting a save can send, keyed by its form field.
+const TRACKED_SETTINGS = {
+	front_page_description: 'front_page_description',
+	title_formats: 'title_formats',
+	search_engines_visible: 'search_engines_visible',
+	sitemap_active: 'sitemap',
+	canonical_active: 'canonical',
+	verification_tools_active: 'verification_tools',
+	verification: 'site_verification',
+} as const;
+
+type TrackedField = keyof typeof TRACKED_SETTINGS;
+
+/** A setting a save sends, and whether the module route carries it. */
+type SentSetting = { field: TrackedField; viaModules: boolean; props: SettingChange };
+
 /**
- * One Tracks payload per setting this save actually sends, so co-firing can't
- * inflate the distinct-site metric. Text settings report `none`, never their content.
+ * One Tracks payload per setting this save sends, so co-firing can't inflate the
+ * distinct-site metric. Text settings report `none`, never their content.
  *
  * @param baseline - The last-saved values.
  * @param values   - The values being saved.
- * @param sent     - The merged core and module payloads.
- * @return One entry per changed setting.
+ * @return One entry per sent setting.
  */
-function settingChanges(
-	baseline: SettingsResponse,
-	values: SettingsResponse,
-	sent: Record< string, unknown >
-): SettingChange[] {
-	const change = (
-		setting: string,
-		value: string | boolean,
-		service = 'none'
-	): SettingChange => ( { setting, verification_service: service, setting_value: value } );
-	const changes: SettingChange[] = [];
+function sentSettings( baseline: SettingsResponse, values: SettingsResponse ): SentSetting[] {
+	return ( Object.keys( TRACKED_SETTINGS ) as TrackedField[] ).flatMap( field => {
+		// A payload built from this field alone tells whether, and where, build-payload sends it.
+		const alone = { ...baseline, [ field ]: values[ field ] };
+		const viaModules = Object.keys( buildModulesPayload( baseline, alone ) ).length > 0;
+		if ( ! viaModules && Object.keys( buildCorePayload( baseline, alone ) ).length === 0 ) {
+			return [];
+		}
 
-	if ( 'advanced_seo_front_page_description' in sent ) {
-		changes.push( change( 'front_page_description', 'none' ) );
-	}
-	if ( 'advanced_seo_title_formats' in sent ) {
-		changes.push( change( 'title_formats', 'none' ) );
-	}
-	if ( 'blog_public' in sent ) {
-		changes.push( change( 'search_engines_visible', values.search_engines_visible ) );
-	}
-	if ( 'sitemap_active' in sent ) {
-		changes.push( change( 'sitemap', values.sitemap_active ) );
-	}
-	if ( 'canonical_active' in sent ) {
-		changes.push( change( 'canonical', values.canonical_active ) );
-	}
-	if ( 'verification_tools_active' in sent ) {
-		changes.push( change( 'verification_tools', values.verification_tools_active ) );
-	}
-	if ( 'verification_services_codes' in sent ) {
-		VERIFICATION_KEYS.filter(
-			key => baseline.verification[ key ] !== values.verification[ key ]
-		).forEach( key =>
-			changes.push(
-				change( 'site_verification', values.verification[ key ] ? 'set' : 'cleared', key )
-			)
-		);
-	}
-
-	return changes;
+		const sent = ( value: string | boolean, service = 'none' ): SentSetting => ( {
+			field,
+			viaModules,
+			props: {
+				setting: TRACKED_SETTINGS[ field ],
+				verification_service: service,
+				setting_value: value,
+			},
+		} );
+		if ( field === 'verification' ) {
+			return VERIFICATION_KEYS.filter(
+				key => baseline.verification[ key ] !== values.verification[ key ]
+			).map( key => sent( values.verification[ key ] ? 'set' : 'cleared', key ) );
+		}
+		const value = values[ field ];
+		return [ sent( typeof value === 'boolean' ? value : 'none' ) ];
+	} );
 }
 
 // The package's own settings read, re-fetched after every save so the form shows
@@ -242,8 +242,11 @@ export function useSettingsForm(): SettingsForm {
 			const touched = ( Object.keys( values ) as Array< keyof SettingsResponse > ).filter(
 				field => JSON.stringify( values[ field ] ) !== JSON.stringify( baseline[ field ] )
 			);
-			const sent = { ...corePayload, ...modulesPayload };
-			const requested = settingChanges( baseline, values, sent );
+			const settings = sentSettings( baseline, values );
+			// What landed: core's settings write is all-or-nothing, and the module route
+			// lists what it applied, even when it fails partway.
+			let coreSaved = false;
+			let modulesApplied: string[] = [];
 
 			setIsSaving( true );
 			createInfoNotice( __( 'Updating settings…', 'jetpack-seo' ), {
@@ -262,12 +265,18 @@ export function useSettingsForm(): SettingsForm {
 						? apiFetch( { path: CORE_SETTINGS_PATH, method: 'POST', data: corePayload } )
 						: undefined
 				)
-				.then( () =>
-					Object.keys( modulesPayload ).length > 0
-						? apiFetch( { path: SEO_MODULES_PATH, method: 'POST', data: modulesPayload } )
-						: undefined
-				)
 				.then( () => {
+					coreSaved = true;
+					return Object.keys( modulesPayload ).length > 0
+						? apiFetch< Record< string, boolean > >( {
+								path: SEO_MODULES_PATH,
+								method: 'POST',
+								data: modulesPayload,
+							} )
+						: undefined;
+				} )
+				.then( applied => {
+					modulesApplied = Object.keys( applied ?? {} );
 					// Adopt what we asked for; `adoptServerState()` below then corrects it
 					// wherever the server reports something else. Skipped on failure, where
 					// only the server knows what landed.
@@ -278,29 +287,30 @@ export function useSettingsForm(): SettingsForm {
 						type: 'snackbar',
 					} );
 				} )
-				.catch( ( error: { message?: string } ) => {
+				.catch( ( error: { message?: string; data?: { applied?: Record< string, boolean > } } ) => {
+					modulesApplied = Object.keys( error?.data?.applied ?? {} );
 					createErrorNotice(
 						error?.message ?? __( 'Could not save settings. Please try again.', 'jetpack-seo' ),
 						{ id: SAVE_NOTICE_ID, type: 'snackbar' }
 					);
 				} )
+				// Recorded before the re-read, which can take seconds, so leaving the page
+				// straight after a save doesn't lose the event.
+				.then( () =>
+					settings.forEach( ( { field, viaModules, props } ) =>
+						recordSeoEvent(
+							( viaModules ? modulesApplied.includes( field ) : coreSaved )
+								? 'jetpack_seo_setting_updated'
+								: 'jetpack_seo_setting_update_failed',
+							'settings',
+							props
+						)
+					)
+				)
 				// Either way — including a save that failed with its first request already
 				// committed — the form is reconciled with the server before the controls
 				// unlock, so `isSaving` also serializes this against the next save.
 				.then( () => adoptServerState( touched, savedTitlePage ) )
-				.then( () => {
-					// Judged against the server's reconciled view: a refused or unsent change reports as failed.
-					const saved = settingChanges( baseline, baselineRef.current ?? baseline, sent );
-					requested.forEach( change =>
-						recordSeoEvent(
-							saved.some( s => JSON.stringify( s ) === JSON.stringify( change ) )
-								? 'jetpack_seo_setting_updated'
-								: 'jetpack_seo_setting_update_failed',
-							'settings',
-							change
-						)
-					);
-				} )
 				.finally( () => setIsSaving( false ) );
 		},
 		[ createInfoNotice, createSuccessNotice, createErrorNotice, setSettings, adoptServerState ]

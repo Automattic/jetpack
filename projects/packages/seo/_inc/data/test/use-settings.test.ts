@@ -365,7 +365,10 @@ describe( 'useSettingsForm', () => {
 	it.each< [ string, ( form: () => SettingsForm ) => void, Record< string, unknown > ] >( [
 		[
 			'a toggle, with its new value',
-			form => act( () => form().commit( { sitemap_active: true } ) ),
+			form => {
+				mockApiFetch.mockResolvedValueOnce( { sitemap_active: true } );
+				act( () => form().commit( { sitemap_active: true } ) );
+			},
 			{ setting: 'sitemap', verification_service: 'none', setting_value: true },
 		],
 		[
@@ -395,25 +398,70 @@ describe( 'useSettingsForm', () => {
 		] );
 	} );
 
-	it.each( [
-		[ 'the save request fails', () => mockApiFetch.mockRejectedValueOnce( { message: 'Nope.' } ) ],
+	const CANONICAL_ON = { setting: 'canonical', verification_service: 'none', setting_value: true };
+	const DESCRIPTION = {
+		setting: 'front_page_description',
+		verification_service: 'none',
+		setting_value: 'none',
+	};
+
+	it.each< [ string, Partial< SettingsResponse >, () => void, Record< string, unknown > ] >( [
 		[
-			'the server keeps the old value',
-			() => mockApiFetch.mockResolvedValueOnce( {} ).mockResolvedValueOnce( SEED ),
+			'a toggle save fails',
+			{ canonical_active: true },
+			() => mockApiFetch.mockRejectedValueOnce( { message: 'Nope.' } ),
+			CANONICAL_ON,
 		],
-	] )( 'records a failed setting update when %s', async ( _label, respond ) => {
+		[
+			'the module route does not apply a toggle',
+			{ canonical_active: true },
+			() => mockApiFetch.mockResolvedValueOnce( {} ),
+			CANONICAL_ON,
+		],
+		[
+			'a text setting save fails',
+			{ front_page_description: 'New description.' },
+			() => mockApiFetch.mockRejectedValueOnce( { message: 'Nope.' } ),
+			DESCRIPTION,
+		],
+	] )( 'records a failed setting update when %s', async ( _label, patch, respond, props ) => {
 		respond();
 		const { result } = renderHook( () => useSettingsForm() );
 
-		act( () => result.current.commit( { canonical_active: true } ) );
+		act( () => result.current.commit( patch ) );
 
 		await waitFor( () => expect( recordSeoEvent ).toHaveBeenCalled() );
 		expect( recordSeoEvent.mock.calls ).toEqual( [
+			[ 'jetpack_seo_setting_update_failed', 'settings', props ],
+		] );
+	} );
+
+	it( 'records a partial save per setting, before the re-read', async () => {
+		const { result } = renderHook( () => useSettingsForm() );
+
+		// Settings write lands, module write fails, and so does the re-read.
+		mockApiFetch.mockResolvedValueOnce( {} );
+		mockApiFetch.mockRejectedValueOnce( { message: 'Nope.', data: { applied: {} } } );
+		mockApiFetch.mockRejectedValueOnce( { message: 'Offline.' } );
+
+		act( () =>
+			result.current.commit( {
+				front_page_description: 'New description.',
+				verification_tools_active: false,
+			} )
+		);
+
+		await waitFor( () => expect( result.current.isSaving ).toBe( false ) );
+		expect( recordSeoEvent.mock.calls ).toEqual( [
+			[ 'jetpack_seo_setting_updated', 'settings', DESCRIPTION ],
 			[
 				'jetpack_seo_setting_update_failed',
 				'settings',
-				{ setting: 'canonical', verification_service: 'none', setting_value: true },
+				{ setting: 'verification_tools', verification_service: 'none', setting_value: false },
 			],
 		] );
+		expect( recordSeoEvent.mock.invocationCallOrder[ 0 ] ).toBeLessThan(
+			mockApiFetch.mock.invocationCallOrder[ 2 ]
+		);
 	} );
 } );

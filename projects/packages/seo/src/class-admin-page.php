@@ -111,8 +111,13 @@ class Admin_Page {
 		}
 
 		self::load_wp_build_with_screen_alias();
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_tracks_transport' ) );
 		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'inject_script_data' ) );
+
+		// Without the context the client records nothing, so another script's Tracks transport can't send our events.
+		if ( self::can_use_analytics() ) {
+			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_tracks_transport' ) );
+			add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'inject_tracks_context' ) );
+		}
 	}
 
 	/**
@@ -123,7 +128,7 @@ class Admin_Page {
 	 * @return void
 	 */
 	public static function enqueue_tracks_transport() {
-		if ( ( new Host() )->is_wpcom_simple() || ! self::can_use_analytics() ) {
+		if ( ( new Host() )->is_wpcom_simple() ) {
 			return;
 		}
 
@@ -342,10 +347,21 @@ class Admin_Page {
 			'upsell_url' => $is_gated ? Initializer::get_upsell_url() : '',
 		);
 
-		// Without it the client records nothing, so another script's Tracks transport can't send our events.
-		if ( self::can_use_analytics() ) {
-			$data[ Initializer::SCRIPT_DATA_KEY ]['tracks'] = self::get_tracks_context();
+		return $data;
+	}
+
+	/**
+	 * Add the Tracks context to the SEO script data.
+	 *
+	 * @param array $data Script data being injected onto the page.
+	 * @return array
+	 */
+	public static function inject_tracks_context( $data ) {
+		if ( ! is_array( $data ) ) {
+			$data = array();
 		}
+
+		$data[ Initializer::SCRIPT_DATA_KEY ]['tracks'] = self::get_tracks_context();
 
 		return $data;
 	}
