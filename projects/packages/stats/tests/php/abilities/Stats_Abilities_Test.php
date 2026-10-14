@@ -274,12 +274,6 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 	}
 
 	public function test_init_hooks_lifecycle_actions_when_gate_is_true(): void {
-		// Only valid before the Abilities API lifecycle actions fire: any registry access elsewhere
-		// in the run fires them, after which init() can only flag them as missed.
-		if ( did_action( 'wp_abilities_api_init' ) || did_action( 'wp_abilities_api_categories_init' ) ) {
-			$this->markTestSkipped( 'Abilities API lifecycle already fired in this test run.' );
-		}
-
 		Stats_Abilities::init();
 
 		$this->assertNotFalse(

@@ -60,7 +60,7 @@ class RegistrarTest extends TestCase {
 			->with( false )
 			->andReturn( false );
 
-		Functions\expect( 'did_action' )->never();
+		Functions\expect( 'doing_action' )->never();
 		Actions\expectAdded( Registrar::CATEGORIES_INIT_ACTION )->never();
 		Actions\expectAdded( Registrar::ABILITIES_INIT_ACTION )->never();
 		Functions\expect( 'wp_register_ability_category' )->never();
@@ -74,8 +74,6 @@ class RegistrarTest extends TestCase {
 	 */
 	public function test_init_adds_hooks_when_neither_action_fired(): void {
 		$this->enable_abilities();
-
-		Functions\when( 'did_action' )->justReturn( 0 );
 
 		Actions\expectAdded( Registrar::CATEGORIES_INIT_ACTION )
 			->once()
@@ -91,41 +89,48 @@ class RegistrarTest extends TestCase {
 	}
 
 	/**
-	 * Lifecycle actions that fired before init().
+	 * Where init() runs: the lifecycle action running at the time, if any, and the ones that fired.
 	 *
-	 * @return array<string, array{0: string[]}>
+	 * @return array<string, array{0: ?string, 1: string[]}>
 	 */
-	public static function provide_actions_fired_before_init(): array {
+	public static function provide_where_init_runs(): array {
+		$both = array( Registrar::CATEGORIES_INIT_ACTION, Registrar::ABILITIES_INIT_ACTION );
+
 		return array(
-			'categories'               => array( array( Registrar::CATEGORIES_INIT_ACTION ) ),
-			'abilities'                => array( array( Registrar::ABILITIES_INIT_ACTION ) ),
-			'categories and abilities' => array( array( Registrar::CATEGORIES_INIT_ACTION, Registrar::ABILITIES_INIT_ACTION ) ),
+			'after the actions'            => array( null, $both ),
+			'inside the categories action' => array( Registrar::CATEGORIES_INIT_ACTION, array( Registrar::CATEGORIES_INIT_ACTION ) ),
+			'inside the abilities action'  => array( Registrar::ABILITIES_INIT_ACTION, $both ),
 		);
 	}
 
 	/**
-	 * Init() flags each lifecycle action it missed, registers nothing for it, and still hooks the rest.
+	 * Init() registers right away only inside a running action, hooks the rest, and never flags a late call.
 	 *
-	 * @dataProvider provide_actions_fired_before_init
+	 * @dataProvider provide_where_init_runs
 	 *
-	 * @param string[] $fired Lifecycle actions that already fired.
+	 * @param string|null $running The lifecycle action running when init() is called, if any.
+	 * @param string[]    $fired   Lifecycle actions that fired, including the running one.
 	 */
-	#[DataProvider( 'provide_actions_fired_before_init' )]
-	public function test_init_flags_each_action_it_missed_instead_of_registering( array $fired ): void {
+	#[DataProvider( 'provide_where_init_runs' )]
+	public function test_init_registers_only_inside_a_running_action( ?string $running, array $fired ): void {
 		$this->enable_abilities();
-		Functions\stubTranslationFunctions();
-		Functions\stubEscapeFunctions();
+		// Stubbed although init() doesn't read it, so a return of the old did_action() path fails this test.
 		Functions\when( 'did_action' )->alias(
 			static function ( $action ) use ( $fired ) {
 				return in_array( $action, $fired, true ) ? 1 : 0;
 			}
 		);
+		Functions\when( 'doing_action' )->alias(
+			static function ( $action ) use ( $running ) {
+				return $action === $running;
+			}
+		);
 
-		Functions\expect( '_doing_it_wrong' )->times( count( $fired ) );
-		Functions\expect( 'wp_register_ability_category' )->never();
-		Functions\expect( 'wp_register_ability' )->never();
+		Functions\expect( '_doing_it_wrong' )->never();
+		Functions\expect( 'wp_register_ability_category' )->times( Registrar::CATEGORIES_INIT_ACTION === $running ? 1 : 0 );
+		Functions\expect( 'wp_register_ability' )->times( Registrar::ABILITIES_INIT_ACTION === $running ? count( TestFixtureRegistrar::get_abilities() ) : 0 );
 		foreach ( array( Registrar::CATEGORIES_INIT_ACTION, Registrar::ABILITIES_INIT_ACTION ) as $action ) {
-			Actions\expectAdded( $action )->times( in_array( $action, $fired, true ) ? 0 : 1 );
+			Actions\expectAdded( $action )->times( $action === $running ? 0 : 1 );
 		}
 
 		TestFixtureRegistrar::init();
@@ -254,8 +259,6 @@ class RegistrarTest extends TestCase {
 	 */
 	public function test_init_is_safe_to_call_repeatedly(): void {
 		$this->enable_abilities();
-
-		Functions\when( 'did_action' )->justReturn( 0 );
 
 		Actions\expectAdded( Registrar::CATEGORIES_INIT_ACTION )->twice();
 		Actions\expectAdded( Registrar::ABILITIES_INIT_ACTION )->twice();
