@@ -22,6 +22,7 @@ import { sanitizeHtml } from '../../utils/sanitize-html';
 import { Center } from '../private/center';
 import { withResponsive } from '../private/with-responsive';
 import styles from './geo-chart.module.scss';
+import { useTooltipPosition } from './private/use-tooltip-position';
 import type { GeoChartError, GeoChartProps } from './types';
 
 const DEFAULT_FEATURE_FILL_COLOR = '#ffffff';
@@ -198,6 +199,8 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 
 		return () => observer.disconnect();
 	}, [ onError ] );
+
+	useTooltipPosition( containerRef );
 
 	const handleLoad = useCallback( () => setIsLoaded( true ), [] );
 
