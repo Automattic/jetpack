@@ -93,6 +93,30 @@ describe( 'useLocationsReportRecords', () => {
 		} );
 	} );
 
+	it( 'does not request regions or cities while the plan locks them', () => {
+		window.JetpackScriptData = {
+			premium_analytics: {
+				initial_full_sync_finished: 1,
+				plan_gates: {
+					tier: 'paid',
+					locked_features: { 'regions-cities': '' },
+					locked_widget_types: {},
+				},
+			},
+		} as unknown as typeof window.JetpackScriptData;
+
+		try {
+			renderHook( () => useLocationsReportRecords( 'regions', params ) );
+		} finally {
+			delete window.JetpackScriptData;
+		}
+
+		expect( mockUseStatsLocations ).toHaveBeenCalledWith(
+			expect.objectContaining( { geoMode: 'region' } ),
+			{ enabled: false }
+		);
+	} );
+
 	it( 'scopes the active tab to the selected country', () => {
 		renderHook( () => useLocationsReportRecords( 'regions', params, 'IN' ) );
 

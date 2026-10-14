@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { ReportScopeProvider, useReportScope } from '@jetpack-premium-analytics/data';
+import { isStatsFeatureLocked } from '@jetpack-premium-analytics/widgets-toolkit';
 import { render, renderHook, screen } from '@testing-library/react';
 /**
  * Internal dependencies
@@ -23,6 +24,11 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	ChartsProvider: ( { children }: { children: ReactNode } ) => (
 		<div data-testid="charts-provider">{ children }</div>
 	),
+	isStatsFeatureLocked: jest.fn( () => false ),
+} ) );
+
+jest.mock( './locked-report-page', () => ( {
+	LockedReportPage: ( { feature }: { feature: string } ) => <span>{ `locked: ${ feature }` }</span>,
 } ) );
 
 jest.mock( '@wordpress/components', () => ( {
@@ -54,13 +60,36 @@ function MockScopeProbe() {
 	return <span>{ offersComparison ? 'offers comparison' : 'no comparison' }</span>;
 }
 
+const mockLoad = jest.fn( () => Promise.resolve( { default: MockScopeProbe } ) );
+const mockGetReportDefinition = jest.fn(
+	() => ( { load: mockLoad } ) as Record< string, unknown >
+);
+
 jest.mock( './registry', () => ( {
-	getReportDefinition: () => ( {
-		load: () => Promise.resolve( { default: MockScopeProbe } ),
-	} ),
+	getReportDefinition: () => mockGetReportDefinition(),
 } ) );
 
 describe( 'Report stage report scope', () => {
+	afterEach( () => {
+		jest.mocked( isStatsFeatureLocked ).mockReturnValue( false );
+		mockGetReportDefinition.mockReturnValue( { load: mockLoad } );
+		mockLoad.mockClear();
+	} );
+
+	it( 'shows the locked page instead of loading a report the plan lacks', async () => {
+		jest.mocked( isStatsFeatureLocked ).mockReturnValue( true );
+		mockGetReportDefinition.mockReturnValue( {
+			load: mockLoad,
+			feature: 'utm',
+			getLabel: () => 'UTM',
+		} );
+
+		render( <ReportStage /> );
+
+		await expect( screen.findByText( 'locked: utm' ) ).resolves.toBeInTheDocument();
+		expect( mockLoad ).not.toHaveBeenCalled();
+	} );
+
 	it( 'renders the report inside the charts provider, with no comparison', async () => {
 		render( <ReportStage /> );
 

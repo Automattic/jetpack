@@ -3,6 +3,7 @@
  */
 import {
 	ensureCoreSettingsReady,
+	isStatsFeatureLocked,
 	needsReportDateParamsSeed,
 } from '@jetpack-premium-analytics/data';
 import {
@@ -55,6 +56,14 @@ export const route = {
 		// scope rather than declaring a tab of its own.
 		if ( ! getReportDefinition( 'videos' ) ) {
 			throw redirect( { to: '/' } );
+		}
+
+		// The locked report explains what the plan lacks; this page would only fail.
+		if ( isStatsFeatureLocked( 'videos' ) ) {
+			throw redirect( {
+				to: '/reports/$report',
+				params: { report: 'videos' } as unknown as never,
+			} );
 		}
 
 		const videoId = params?.videoId;

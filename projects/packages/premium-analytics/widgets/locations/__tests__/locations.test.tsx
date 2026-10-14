@@ -446,7 +446,7 @@ describe( 'LocationsWidget', () => {
 							locked_widget_types: {},
 						},
 					},
-				} as typeof window.JetpackScriptData;
+				} as unknown as typeof window.JetpackScriptData;
 			} );
 
 			afterEach( () => {

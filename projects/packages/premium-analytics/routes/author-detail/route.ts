@@ -3,6 +3,7 @@
  */
 import {
 	ensureCoreSettingsReady,
+	isStatsFeatureLocked,
 	needsReportDateParamsSeed,
 	normalizeReportParams,
 } from '@jetpack-premium-analytics/data';
@@ -46,6 +47,14 @@ export const route = {
 		// of scope rather than declaring a tab of its own.
 		if ( ! getReportDefinition( 'authors' ) ) {
 			throw redirect( { to: '/' } );
+		}
+
+		// The locked report explains what the plan lacks; this page would only fail.
+		if ( isStatsFeatureLocked( 'authors' ) ) {
+			throw redirect( {
+				to: '/reports/$report',
+				params: { report: 'authors' } as unknown as never,
+			} );
 		}
 
 		// A malformed path param would render site-wide stats under an author

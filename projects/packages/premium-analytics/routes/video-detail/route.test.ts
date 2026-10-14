@@ -1,4 +1,8 @@
-import { needsReportDateParamsSeed, normalizeReportParams } from '@jetpack-premium-analytics/data';
+import {
+	isStatsFeatureLocked,
+	needsReportDateParamsSeed,
+	normalizeReportParams,
+} from '@jetpack-premium-analytics/data';
 import {
 	isDashboardSectionAvailable,
 	isPremiumAnalyticsInitialSyncFinished,
@@ -9,6 +13,7 @@ import { route } from './route';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	isStatsFeatureLocked: jest.fn( () => false ),
 	ensureCoreSettingsReady: jest.fn( () => Promise.resolve() ),
 	computeDateRangeFromPreset: jest.fn( () => ( {
 		from: '2021-01-01T00:00:00',
@@ -86,6 +91,15 @@ describe( 'video detail route.beforeLoad', () => {
 
 		await expect( beforeLoad( { videoId: '42' }, settledSearch ) ).rejects.toMatchObject( {
 			to: '/',
+		} );
+	} );
+
+	it( 'sends a plan-locked video to the locked Videos report', async () => {
+		jest.mocked( isStatsFeatureLocked ).mockImplementationOnce( key => key === 'videos' );
+
+		await expect( beforeLoad( { videoId: '42' }, settledSearch ) ).rejects.toMatchObject( {
+			to: '/reports/$report',
+			params: { report: 'videos' },
 		} );
 	} );
 

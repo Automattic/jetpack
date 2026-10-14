@@ -1,8 +1,13 @@
-import { needsReportDateParamsSeed, normalizeReportParams } from '@jetpack-premium-analytics/data';
+import {
+	isStatsFeatureLocked,
+	needsReportDateParamsSeed,
+	normalizeReportParams,
+} from '@jetpack-premium-analytics/data';
 import { isDashboardSectionAvailable, isPremiumAnalyticsSiteConnected } from '../site-readiness';
 import { route } from './route';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	isStatsFeatureLocked: jest.fn( () => false ),
 	ensureCoreSettingsReady: jest.fn( () => Promise.resolve() ),
 	needsReportDateParamsSeed: jest.fn( () => false ),
 	// Mirrors the real normalizer's relevant behavior: carries incoming params
@@ -62,6 +67,15 @@ describe( 'author detail route.beforeLoad', () => {
 
 		await expect( beforeLoad( { authorId: '7' }, settledSearch ) ).rejects.toMatchObject( {
 			to: '/',
+		} );
+	} );
+
+	it( 'sends a plan-locked author to the locked Authors report', async () => {
+		jest.mocked( isStatsFeatureLocked ).mockImplementationOnce( key => key === 'authors' );
+
+		await expect( beforeLoad( { authorId: '7' }, settledSearch ) ).rejects.toMatchObject( {
+			to: '/reports/$report',
+			params: { report: 'authors' },
 		} );
 	} );
 
