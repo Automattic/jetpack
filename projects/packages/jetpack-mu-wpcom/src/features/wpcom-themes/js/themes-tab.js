@@ -39,6 +39,10 @@
 			: 'button button-primary';
 		upgrade.href = theme.upgrade_url;
 		upgrade.textContent = config.upgrade;
+		// Core labels its own buttons per theme, which a grid of them needs.
+		if ( config.upgradeLabel ) {
+			upgrade.setAttribute( 'aria-label', config.upgradeLabel.replace( '%s', theme.name ) );
+		}
 		button.replaceWith( upgrade );
 	};
 
@@ -88,7 +92,10 @@
 		const render = view.prototype.render;
 		view.prototype.render = function () {
 			const result = render.apply( this, arguments );
-			decorate( this.el, this.model.toJSON() );
+			// A throw here would take the whole grid with it, so a view without a model is left alone.
+			if ( this.model ) {
+				decorate( this.el, this.model.toJSON() );
+			}
 			return result;
 		};
 	};

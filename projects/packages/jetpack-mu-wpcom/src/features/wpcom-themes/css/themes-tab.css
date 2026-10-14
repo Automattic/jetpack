@@ -37,3 +37,13 @@
 	width: fit-content;
 	margin-block-start: 8px;
 }
+
+/* Core drops the hover overlay below this width rather than
+   revealing it, and a plan nobody can see is worse than a busy
+   card. */
+@media only screen and ( max-width: 782px ) {
+
+	.theme-browser .theme .wpcom-themes-tab__plan--on-screenshot {
+		opacity: 1;
+	}
+}

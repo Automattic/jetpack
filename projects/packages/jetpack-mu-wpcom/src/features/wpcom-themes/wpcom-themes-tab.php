@@ -77,9 +77,11 @@ function wpcom_themes_tab_enqueue_script() {
 		'wpcom-themes-tab',
 		'wpcomThemesTab',
 		array(
-			'sort'    => WPCOM_THEMES_TAB,
-			'label'   => _x( 'Marketplace', 'Theme Installer', 'jetpack-mu-wpcom' ),
-			'upgrade' => __( 'Upgrade', 'jetpack-mu-wpcom' ),
+			'sort'         => WPCOM_THEMES_TAB,
+			'label'        => _x( 'Marketplace', 'Theme Installer', 'jetpack-mu-wpcom' ),
+			'upgrade'      => __( 'Upgrade', 'jetpack-mu-wpcom' ),
+			/* translators: %s: Theme name. */
+			'upgradeLabel' => __( 'Upgrade for %s', 'jetpack-mu-wpcom' ),
 		)
 	);
 	wp_enqueue_style(

@@ -16,6 +16,8 @@ type FakeNode = {
 	replaceWith: ( replacement: FakeNode ) => void;
 	insertAdjacentElement: ( position: string, element: FakeNode ) => void;
 	querySelector: ( selector: string ) => FakeNode | null;
+	setAttribute: ( name: string, value: string ) => void;
+	attributes: Record< string, string >;
 };
 
 /**
@@ -35,6 +37,8 @@ function node( tagName?: string ): FakeNode {
 		replaceWith: replacement => void el.children.push( replacement ),
 		insertAdjacentElement: ( _position, element ) => void el.children.push( element ),
 		querySelector: () => null,
+		attributes: {},
+		setAttribute: ( name, value ) => void ( el.attributes[ name ] = value ),
 	};
 	return el;
 }
@@ -72,11 +76,17 @@ it( "offers the plan a theme needs in place of core's install button", () => {
 	card.querySelector = selector => ( selector === '.theme-screenshot' ? screenshot : install );
 
 	const theme = {
+		name: 'Course',
 		upgrade_url: 'https://wordpress.com/checkout/example.org/business-bundle',
 		upgrade_plan: 'Business plan',
 	};
 	const Theme = { prototype: { render: () => 'rendered' } };
-	const config = { sort: 'wpcom', label: 'Marketplace', upgrade: 'Upgrade' };
+	const config = {
+		sort: 'wpcom',
+		label: 'Marketplace',
+		upgrade: 'Upgrade',
+		upgradeLabel: 'Upgrade for %s',
+	};
 	const context = {
 		document: { querySelector: () => null, createElement: node },
 		window: { wpcomThemesTab: config, wp: { themes: { view: { Theme } } } },
@@ -95,6 +105,8 @@ it( "offers the plan a theme needs in place of core's install button", () => {
 	assert.equal( upgrade.href, theme.upgrade_url );
 	assert.equal( upgrade.className, 'button button-primary button-compact' );
 	assert.equal( screenshot.children[ 0 ].textContent, 'Business plan' );
+	// Core names the theme in its own button labels, and a grid of cards needs that.
+	assert.equal( upgrade.attributes[ 'aria-label' ], 'Upgrade for Course' );
 } );
 
 it( 'leaves a theme the plan includes to core', () => {
@@ -106,7 +118,12 @@ it( 'leaves a theme the plan includes to core', () => {
 	};
 
 	const Theme = { prototype: { render: () => undefined } };
-	const config = { sort: 'wpcom', label: 'Marketplace', upgrade: 'Upgrade' };
+	const config = {
+		sort: 'wpcom',
+		label: 'Marketplace',
+		upgrade: 'Upgrade',
+		upgradeLabel: 'Upgrade for %s',
+	};
 	const context = {
 		document: { querySelector: () => null, createElement: node },
 		window: { wpcomThemesTab: config, wp: { themes: { view: { Theme } } } },
