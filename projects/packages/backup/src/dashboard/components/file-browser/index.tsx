@@ -1,12 +1,13 @@
 import { CheckboxControl } from '@wordpress/components';
 import { useMergeRefs } from '@wordpress/compose';
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from '@wordpress/element';
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { __, _n, isRTL, sprintf } from '@wordpress/i18n';
 // The upstream names don't describe what they draw: `file` is a folder
 // glyph, `page` is a document one, and there is no `folder` export.
 // `tests/file-browser-icons.test.tsx` holds these aliases in place.
 import {
 	Icon,
+	chevronLeft,
 	chevronRight,
 	chevronDown,
 	file as folderIcon,
@@ -588,6 +589,9 @@ type NodeRowProps = {
 	onRegisterChildren: ( path: string, children: FileNode[] ) => void;
 };
 
+// The closed-folder chevron points toward the inline end, so it flips in RTL.
+const closedChevron = () => ( isRTL() ? chevronLeft : chevronRight );
+
 /**
  * Recursive row inside the file-browser tree. Folders own their own expand state; while a folder is open, `useFileTree` keeps its children resolved (re-collapsing and re-opening re-issues the fetch).
  *
@@ -731,7 +735,7 @@ function NodeRow( {
 						) }
 						onClick={ handleToggleOpen }
 					>
-						<Icon icon={ open ? chevronDown : chevronRight } size={ 16 } />
+						<Icon icon={ open ? chevronDown : closedChevron() } size={ 16 } />
 						<Icon icon={ folderIcon } size={ 18 } />
 						<span dir="ltr">{ node.name }</span>
 					</button>

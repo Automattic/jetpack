@@ -858,6 +858,13 @@ class Jetpack_Memberships {
 			$post_id = 0;
 		}
 
+		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
+
+		// Answered before the cache: it is keyed by user, and the same request still renders for that user afterwards.
+		if ( \Automattic\Jetpack\Extensions\Premium_Content\is_rendering_for_activitypub() ) {
+			return Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY === self::get_post_access_level( $post_id );
+		}
+
 		$cache_key = sprintf( '%d_%d_%d', $user_id, $post_id, (int) $allow_editor_access );
 		if ( isset( self::$user_can_view_post_cache[ $cache_key ] ) ) {
 			return self::$user_can_view_post_cache[ $cache_key ];
@@ -875,7 +882,6 @@ class Jetpack_Memberships {
 			return true;
 		}
 
-		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 		$paywall = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
 
 		$all_newsletters_plan_ids = self::get_all_newsletter_plan_ids();

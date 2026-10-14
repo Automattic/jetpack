@@ -109,8 +109,8 @@ export const Error: Story = {
 };
 
 /**
- * Resolved without peak day/hour data: the widget shows its empty state, under
- * the widget's own `scheduled` glyph rather than the error state's icon.
+ * Resolved without peak day/hour data: the widget shows its empty state, not
+ * the error state.
  */
 export const Empty: Story = {
 	render: renderMostPopularTime,

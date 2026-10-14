@@ -224,17 +224,18 @@ export function DonutChart( {
 						/>
 					) }
 					showLabels={ false }
-				/>
-				{ showMetric && (
-					<MetricWithComparison
-						className={ styles.metricContainer }
-						value={ value }
-						dataFormat={ dataFormat }
-						previousValue={ hasComparison ? comparisonValue : null }
-						direction="column"
-						align="center"
-					/>
-				) }
+				>
+					{ showMetric && (
+						<MetricWithComparison
+							className={ styles.metricContainer }
+							value={ value }
+							dataFormat={ dataFormat }
+							previousValue={ hasComparison ? comparisonValue : null }
+							direction="column"
+							align="center"
+						/>
+					) }
+				</PieChart>
 			</Stack>
 
 			{ hasLegend && styledLegendData && (

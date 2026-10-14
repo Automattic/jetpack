@@ -1768,9 +1768,10 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 			update_option( 'wpcom_ai_launchpad_completed', true, true );
 		}
 
-		$this->call_api( Requests::GET );
+		$response = $this->call_api( Requests::GET );
 
 		$this->assertSame( $expected, (bool) get_option( 'wpcom_ai_launchpad_completed' ) );
+		$this->assertSame( $expected, $response->get_data()['list_completed'] );
 	}
 
 	/**
@@ -1797,9 +1798,67 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$this->seed_ai_output_with_tasks( array_merge( $non_launch, array( 'site_launched' ) ) );
 		update_option( 'wpcom_ai_launchpad_skipped_tasks', $non_launch, false );
 
-		$this->call_api( 'POST', '/skip-task', array( 'task_id' => 'site_launched' ) );
+		$response = $this->call_api( 'POST', '/skip-task', array( 'task_id' => 'site_launched' ) );
 
 		$this->assertTrue( (bool) get_option( 'wpcom_ai_launchpad_completed' ) );
+		$this->assertTrue( $response->get_data()['list_completed'] );
+	}
+
+	/**
+	 * Finishing the last task outside Site Setup sets the flag at shutdown, so the menu hides without a read — but
+	 * only when an admin of an eligible site made the write.
+	 *
+	 * @param string $remaining The only task not skipped.
+	 * @param string $option    The option the finishing write lands in.
+	 * @param mixed  $value     The value written.
+	 * @param bool   $by_admin  Whether an admin makes the write.
+	 * @param bool   $eligible  Whether the site is eligible.
+	 * @param bool   $expected  Whether the flag ends up set.
+	 * @dataProvider provide_completion_trigger_writes
+	 */
+	#[DataProvider( 'provide_completion_trigger_writes' )]
+	public function test_finishing_write_sets_completed_flag_at_shutdown( $remaining, $option, $value, $by_admin, $eligible, $expected ) {
+		// Before the AI output exists, so it queues nothing, and the launch is an update like on a real site.
+		update_option( 'launch-status', 'unlaunched' );
+		$ids = array( 'first_post_published', 'design_edited', 'site_title', 'setup_general', 'site_theme_selected', 'site_launched' );
+		$this->seed_ai_output_with_tasks( $ids );
+		update_option( 'wpcom_ai_launchpad_skipped_tasks', array_values( array_diff( $ids, array( $remaining ) ) ), false );
+		if ( ! $by_admin ) {
+			wp_set_current_user( $this->subscriber_id );
+		}
+		\Brain\Monkey\Functions\when( 'wpcom_ai_launchpad_is_eligible' )->justReturn( $eligible );
+
+		update_option( $option, $value );
+		$this->run_queued_completion_passes();
+		$this->assertSame( $expected, (bool) get_option( 'wpcom_ai_launchpad_completed' ) );
+	}
+
+	/**
+	 * Runs the completion passes queued on `shutdown`, without core's own shutdown callbacks (which close buffers).
+	 */
+	private function run_queued_completion_passes() {
+		foreach ( $GLOBALS['wp_filter']['shutdown']->callbacks as $callbacks ) {
+			foreach ( $callbacks as $callback ) {
+				$owner = is_array( $callback['function'] ) ? $callback['function'][0] : null;
+				if ( $owner instanceof AI_Launchpad_REST ) {
+					$owner->run_scheduled_completion_passes();
+				}
+			}
+		}
+	}
+
+	/**
+	 * Finishing writes for test_finishing_write_sets_completed_flag_at_shutdown.
+	 *
+	 * @return array
+	 */
+	public static function provide_completion_trigger_writes() {
+		return array(
+			'site launch'             => array( 'site_launched', 'launch-status', 'launched', true, true, true ),
+			'listener status'         => array( 'first_post_published', 'launchpad_checklist_tasks_statuses', array( 'first_post_published' => true ), true, true, true ),
+			'write by a non-admin'    => array( 'site_launched', 'launch-status', 'launched', false, true, false ),
+			'site no longer eligible' => array( 'site_launched', 'launch-status', 'launched', true, false, false ),
+		);
 	}
 
 	/**
