@@ -68,15 +68,25 @@ describe( 'Donut', () => {
 		expect( screen.getByText( /27%/ ) ).toBeInTheDocument();
 	} );
 
-	it( 'names the chart from chartTitle', () => {
-		renderDonut( <Donut segments={ SEGMENTS } status={ READY } chartTitle="Payment status" /> );
+	it.each( [ 'ring', 'half-ring' ] as const )(
+		'names the chart from chartTitle as a %s',
+		variant => {
+			renderDonut(
+				<Donut
+					segments={ SEGMENTS }
+					status={ READY }
+					variant={ variant }
+					chartTitle="Payment status"
+				/>
+			);
 
-		// jsdom measures no size, so the chart stays `visibility: hidden` and has no computed name.
-		expect( screen.getByRole( 'application', { hidden: true } ) ).toHaveAttribute(
-			'aria-label',
-			'Payment status chart'
-		);
-	} );
+			// jsdom measures no size, so the chart stays `visibility: hidden` and has no computed name.
+			expect( screen.getByRole( 'application', { hidden: true } ) ).toHaveAttribute(
+				'aria-label',
+				'Payment status chart'
+			);
+		}
+	);
 
 	it( 'renders the loading shape while nothing answers the params', () => {
 		renderDonut( <Donut segments={ [] } status={ { isLoading: true } } /> );
