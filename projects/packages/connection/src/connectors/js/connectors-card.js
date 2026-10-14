@@ -24,7 +24,11 @@ import { ConnectionErrorView, useConnectionErrorNotice } from '@automattic/jetpa
 // Namespace import: a missing named export would fail the whole module before the fallbacks run.
 // eslint-disable-next-line import/no-unresolved -- resolved via WP import map at runtime.
 import * as connectors from '@wordpress/connectors';
-import { getAccountSections, getConnectPromptKind, hasOwnerError } from './account-sections.mjs';
+import {
+	getAccountSections,
+	getConnectPromptKind,
+	offersOwnerReconnect,
+} from './account-sections.mjs';
 
 const registerConnector =
 	connectors.__experimentalRegisterConnector || connectors.registerConnector;
@@ -1561,7 +1565,7 @@ function ExpandedDetails( {
 		currentUser,
 		connectionOwner,
 		canConnect: Boolean( onConnect ),
-		isOwnerErrorShown: isErrorBannerShown && hasOwnerError( connectionErrorNotice ),
+		isOwnerReconnectOffered: isErrorBannerShown && offersOwnerReconnect( connectionErrorNotice ),
 		isProtectedOwnerPending: protectedOwnerIsPending(),
 	} );
 
@@ -1639,7 +1643,10 @@ function ExpandedDetails( {
 					title: __( 'Connection owner', 'jetpack-connection' ),
 					user: connectionOwner,
 					subtitle: false,
-					showShield: protectedOwnerIsEstablished(),
+					// An anchored owner whose token broke is still the confirmed owner.
+					showShield:
+						protectedOwnerIsEstablished() ||
+						( isOwnerConnectionBroken && Boolean( protectedOwnerState()?.anchored ) ),
 				} )
 			: null,
 

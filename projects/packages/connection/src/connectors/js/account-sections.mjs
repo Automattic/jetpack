@@ -7,13 +7,19 @@
  */
 
 /**
- * Whether a connection error notice describes the connection owner's account.
+ * Whether a connection error notice offers to reconnect the connection owner's account.
+ *
+ * An owner error with action `none` is informational: ownership is locked for this viewer.
  *
  * @param {object|null} notice - A useConnectionErrorNotice() result.
- * @return {boolean} True when one of the displayed errors is the owner's.
+ * @return {boolean} True when a displayed owner error carries a CTA.
  */
-export function hasOwnerError( notice ) {
-	return Boolean( notice?.displayableErrors?.some( error => error.audience === 'owner' ) );
+export function offersOwnerReconnect( notice ) {
+	return Boolean(
+		notice?.displayableErrors?.some(
+			error => error.audience === 'owner' && error.error_data?.action !== 'none'
+		)
+	);
 }
 
 /**
@@ -38,7 +44,7 @@ export function getConnectPromptKind( connectionOwner ) {
  * @param {object|null} state.currentUser             - The viewer's linked account, or null.
  * @param {object|null} state.connectionOwner         - The connection owner, or null.
  * @param {boolean}     state.canConnect              - Whether the card offers a connect action.
- * @param {boolean}     state.isOwnerErrorShown       - Whether the error banner shows an owner error.
+ * @param {boolean}     state.isOwnerReconnectOffered - Whether the error banner offers to reconnect the owner.
  * @param {boolean}     state.isProtectedOwnerPending - Whether a protected owner is unconfirmed.
  * @return {{connectPrompt: boolean, unconfirmedOwnerRow: boolean, ownerRow: boolean}} Sections to render.
  */
@@ -46,7 +52,7 @@ export function getAccountSections( {
 	currentUser,
 	connectionOwner,
 	canConnect,
-	isOwnerErrorShown,
+	isOwnerReconnectOffered,
 	isProtectedOwnerPending,
 } ) {
 	const isOwnerConnectionBroken = Boolean( connectionOwner?.isConnectionBroken );
@@ -54,11 +60,14 @@ export function getAccountSections( {
 	const showsOwnerRow =
 		Boolean( connectionOwner ) && ! currentUser?.isOwner && ! connectionOwner.isCurrentUser;
 
+	// A broken owner is still the owner of record, so pending protected-owner state can't unconfirm them.
+	const isOwnerUnconfirmed = isProtectedOwnerPending && ! isOwnerConnectionBroken;
+
 	return {
 		// The owner banner already says who must reconnect and offers the CTA.
 		connectPrompt:
-			! currentUser && canConnect && ! ( isOwnerConnectionBroken && isOwnerErrorShown ),
-		unconfirmedOwnerRow: showsOwnerRow && isProtectedOwnerPending,
-		ownerRow: showsOwnerRow && ! isProtectedOwnerPending,
+			! currentUser && canConnect && ! ( isOwnerConnectionBroken && isOwnerReconnectOffered ),
+		unconfirmedOwnerRow: showsOwnerRow && isOwnerUnconfirmed,
+		ownerRow: showsOwnerRow && ! isOwnerUnconfirmed,
 	};
 }

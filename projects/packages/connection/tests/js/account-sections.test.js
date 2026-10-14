@@ -1,10 +1,10 @@
 const assert = require( 'node:assert/strict' );
 const { before, describe, it } = require( 'node:test' );
 
-let getAccountSections, getConnectPromptKind, hasOwnerError;
+let getAccountSections, getConnectPromptKind, offersOwnerReconnect;
 
 before( async () => {
-	( { getAccountSections, getConnectPromptKind, hasOwnerError } =
+	( { getAccountSections, getConnectPromptKind, offersOwnerReconnect } =
 		await import( '../../src/connectors/js/account-sections.mjs' ) );
 } );
 
@@ -20,12 +20,12 @@ describe( 'getAccountSections', () => {
 	for ( const [ name, state, expected ] of [
 		[
 			'broken owner with the owner banner: banner only',
-			{ connectionOwner: brokenOwnerViewing, isOwnerErrorShown: true },
+			{ connectionOwner: brokenOwnerViewing, isOwnerReconnectOffered: true },
 			none,
 		],
 		[
 			'broken owner without the owner banner: prompt, no row for themselves',
-			{ connectionOwner: brokenOwnerViewing, isOwnerErrorShown: false },
+			{ connectionOwner: brokenOwnerViewing, isOwnerReconnectOffered: false },
 			{ ...none, connectPrompt: true },
 		],
 		[
@@ -35,17 +35,22 @@ describe( 'getAccountSections', () => {
 		],
 		[
 			'unlinked admin with the owner banner: owner row, no takeover prompt',
-			{ connectionOwner: brokenOwner, isOwnerErrorShown: true },
+			{ connectionOwner: brokenOwner, isOwnerReconnectOffered: true },
 			{ ...none, ownerRow: true },
 		],
 		[
-			'unlinked admin without the owner banner: takeover prompt and owner row',
-			{ connectionOwner: brokenOwner, isOwnerErrorShown: false },
+			'unlinked admin offered no owner reconnect (no banner, or ownership locked): takeover prompt and owner row',
+			{ connectionOwner: brokenOwner, isOwnerReconnectOffered: false },
+			{ ...none, connectPrompt: true, ownerRow: true },
+		],
+		[
+			'admin beside a broken owner while a protected owner is pending: owner row, not unconfirmed',
+			{ connectionOwner: brokenOwner, isProtectedOwnerPending: true },
 			{ ...none, connectPrompt: true, ownerRow: true },
 		],
 		[
 			'linked admin beside a broken owner: owner row only',
-			{ currentUser: secondAdmin, connectionOwner: brokenOwner, isOwnerErrorShown: true },
+			{ currentUser: secondAdmin, connectionOwner: brokenOwner, isOwnerReconnectOffered: true },
 			{ ...none, ownerRow: true },
 		],
 		[
@@ -79,7 +84,7 @@ describe( 'getAccountSections', () => {
 				getAccountSections( {
 					currentUser: null,
 					canConnect: true,
-					isOwnerErrorShown: false,
+					isOwnerReconnectOffered: false,
 					isProtectedOwnerPending: false,
 					...state,
 				} ),
@@ -102,10 +107,19 @@ describe( 'getConnectPromptKind', () => {
 	}
 } );
 
-describe( 'hasOwnerError', () => {
-	it( 'is true only when a displayed error is the owner’s', () => {
-		assert.equal( hasOwnerError( { displayableErrors: [ { audience: 'owner' } ] } ), true );
-		assert.equal( hasOwnerError( { displayableErrors: [ { audience: 'site' } ] } ), false );
-		assert.equal( hasOwnerError( null ), false );
-	} );
+describe( 'offersOwnerReconnect', () => {
+	for ( const [ name, notice, expected ] of [
+		[ 'an owner error with a CTA', { displayableErrors: [ { audience: 'owner' } ] }, true ],
+		[
+			'a locked owner error (action none)',
+			{ displayableErrors: [ { audience: 'owner', error_data: { action: 'none' } } ] },
+			false,
+		],
+		[ 'a site error', { displayableErrors: [ { audience: 'site' } ] }, false ],
+		[ 'no notice', null, false ],
+	] ) {
+		it( `is ${ expected } for ${ name }`, () => {
+			assert.equal( offersOwnerReconnect( notice ), expected );
+		} );
+	}
 } );
