@@ -74,7 +74,8 @@ function ConnectedNotice(): JSX.Element | null {
 	const { data: usage } = useStatsAppPlanUsage( { enabled: isEligible } );
 	const status = isEligible ? getPlanLimitStatus( usage ) : null;
 
-	// Only the near-limit notice can be put off; past the limit it stays for the cycle.
+	// Only the near-limit notice can be put off; past the limit it stays for the cycle, even while
+	// Stats has `tier_upgrade` postponed.
 	const isNear = !! status && ! status.isOver;
 	const { data: notices } = useStatsAppNotices( undefined, { enabled: isNear } );
 	const { createErrorNotice } = useDispatch( 'core/notices' );
