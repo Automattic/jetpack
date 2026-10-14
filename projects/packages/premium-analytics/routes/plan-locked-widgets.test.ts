@@ -1,0 +1,57 @@
+/**
+ * External dependencies
+ */
+import { getLockedWidgetFeature } from '@jetpack-premium-analytics/widgets-toolkit';
+/**
+ * Internal dependencies
+ */
+import {
+	LOCKED_RENDER_MODULE_PREFIX,
+	resolvePlanLockedWidgetModule,
+	withPlanLockedRenderModules,
+} from './plan-locked-widgets';
+import type { WidgetType } from '@wordpress/widget-primitives';
+
+jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
+	getLockedWidgetFeature: jest.fn(),
+	LockedWidget: () => null,
+} ) );
+
+const type = ( name: string ) =>
+	( { name, title: name, renderModule: `${ name }/render` } ) as unknown as WidgetType;
+
+describe( 'plan-locked widgets', () => {
+	beforeEach( () => {
+		jest
+			.mocked( getLockedWidgetFeature )
+			.mockImplementation( name => ( name === 'jpa/utm-insights' ? 'utm' : undefined ) );
+	} );
+
+	it( 'keeps a locked type registered but points it at the locked module', () => {
+		const [ locked, open ] = withPlanLockedRenderModules( [
+			type( 'jpa/utm-insights' ),
+			type( 'jpa/referrers' ),
+		] );
+
+		expect( locked ).toMatchObject( {
+			name: 'jpa/utm-insights',
+			title: 'jpa/utm-insights',
+			renderModule: `${ LOCKED_RENDER_MODULE_PREFIX }jpa/utm-insights`,
+		} );
+		expect( open.renderModule ).toBe( 'jpa/referrers/render' );
+	} );
+
+	it( 'returns the same array when nothing is locked, so memoized consumers keep their identity', () => {
+		jest.mocked( getLockedWidgetFeature ).mockReturnValue( undefined );
+		const types = [ type( 'jpa/referrers' ) ];
+
+		expect( withPlanLockedRenderModules( types ) ).toBe( types );
+	} );
+
+	it( 'resolves only locked ids, without importing anything', () => {
+		expect(
+			resolvePlanLockedWidgetModule( `${ LOCKED_RENDER_MODULE_PREFIX }jpa/utm-insights` )?.default
+		).toEqual( expect.any( Function ) );
+		expect( resolvePlanLockedWidgetModule( 'jpa/referrers/render' ) ).toBeUndefined();
+	} );
+} );
