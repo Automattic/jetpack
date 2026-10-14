@@ -1370,7 +1370,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 	/**
 	 * Store shortcode content for recall later
-	 *  - used to receate shortcode when user uses do_shortcode
+	 *  - used to recreate shortcode when user uses apply_shortcodes
 	 *
 	 * @deprecated 5.0.0
 	 */
@@ -2569,8 +2569,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 			return implode( ', ', array_map( array( __CLASS__, 'escape_and_sanitize_field_value' ), $value ) );
 		}
 
-		$value = str_replace( array( '[', ']' ), array( '&#91;', '&#93;' ), $value );
-		return nl2br( wp_kses( $value, array() ) );
+		$value = wp_kses( $value, array() );
+		return nl2br( str_replace( array( '[', ']' ), array( '&#91;', '&#93;' ), $value ) );
 	}
 
 	/**

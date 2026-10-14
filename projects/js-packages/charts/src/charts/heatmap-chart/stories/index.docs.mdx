@@ -76,7 +76,7 @@ The simplest heatmap requires `data` — an array of `HeatmapColumn` objects, ea
 - **`maxCellWidth`** / **`maxCellHeight`**: cap how large cells may grow in non-compact mode
 - **`minCellWidth`** / **`minCellHeight`** (default: `0`): keep cells from shrinking below a readable size and let the grid overflow instead
 - **`columnGroups`**: consecutive runs of columns sharing a label beneath the grid, one group gap apart. See [Column Groups](#column-groups).
-- **`ariaLabel`**: accessible name of the grid. Defaults to "Heatmap chart".
+- **`ariaLabel`**: accessible name of the grid. See [Accessible names](./?path=/docs/js-packages-charts-library-introduction--docs#accessible-names).
 - **`primaryColor`**: color the scale is built from; see [Theming](#theming). Defaults to the first series palette color, `--a8c-charts-color-series-1`
 - **`width`** / **`height`**: explicit dimensions in pixels. When omitted the chart fills its parent.
 - **`aspectRatio`**: Height-to-width ratio (e.g. `0.4`) for responsive charts; the chart is contained within its parent on both axes. When omitted, fills the parent container's height
@@ -269,7 +269,13 @@ Use `useMonthCalendarHeatmapData` to draw a day-keyed map as one calendar per mo
 
 The two layouts take different inputs on purpose. The contribution layout buckets a series of instants into days, so it takes `timeZone` and an optional `gridSpan` that only widens the grid. This layout is for data that already arrives per day, such as posts per day, so it takes the day map directly and a `range` that decides what is drawn. There is no `timeZone` option: bucket instants into days before building the map. The grid is always Gregorian; `locale` changes the month and day text only.
 
-In a wide tile the months spread out evenly; as the tile narrows the gaps shrink to the theme's `groupGap`, and narrower still the grid overflows, so place it in an `overflow-x: auto` container. The keyboard selection scrolls into view.
+Without `fitCells`, in a wide tile the months spread out evenly; as the tile narrows the gaps shrink to the theme's `groupGap`, and narrower still the grid overflows, so place it in an `overflow-x: auto` container. The keyboard selection scrolls into view.
+
+### Fitting the cells to the box
+
+Add `fitCells` to a compact chart to grow its cells with its box instead of keeping `compactCellSize`. The months wrap onto as many rows as give the largest cells, for example, two rows of six months or four rows of three, depending on the box dimensions. All rows share one scale, and keyboard navigation and the accessibility tree still follow the data, not the rows. When no row count reaches `compactCellSize`, the chart draws one row at that size and overflows as before, so put it in an `overflow-x: auto` container.
+
+<Canvas of={ HeatmapStories.MonthCalendarFitCells } />
 
 ## Fixed Dimensions
 
@@ -289,7 +295,7 @@ Pass `width` and `height` to bypass the responsive wrapper and render at an exac
 
 ## Composition API — Legend
 
-Add a legend by placing `<HeatmapChart.Legend />` as a child. The legend renders a gradient scale from the lightest to the fullest shade, labelled with the value range.
+Add a legend by placing `<HeatmapChart.Legend />` as a child. Between its Less and More labels, the legend shows a swatch in the empty-cell color, then the scale from the lightest to the fullest shade. With negative values a zero is a filled step, so the empty-cell swatch is left out.
 
 <Canvas of={ HeatmapStories.WithCompositionLegend } />
 
@@ -390,7 +396,7 @@ For more details on responsive behavior, see the [Responsive Design section](./?
 
 The heatmap chart is designed for full keyboard and screen reader access:
 
-- The grid container is a `<div role="grid">` named by `ariaLabel`, or a localised "Heatmap chart" by default; name it after what it shows ("Monthly posting activity"), not the chart type. Each visual row is a `role="row"` and each cell a `role="gridcell"`.
+- The grid container is a `<div role="grid">` named by `ariaLabel` (see [Accessible names](./?path=/docs/js-packages-charts-library-introduction--docs#accessible-names)). Each visual row is a `role="row"` and each cell a `role="gridcell"`.
 - Each cell has an `aria-label` containing the cell name and value (or "No data"). An `aria-label` is used rather than a native `title` so no duplicate browser tooltip appears. Axis labels are decorative (`aria-hidden`) because the cell label already carries that text.
 - **Keyboard navigation**: Tab focuses the chart; arrow keys navigate between cells; the focused cell receives a visible highlight ring, and (when `withTooltips` is set) its tooltip. Escape clears the selection. With `keyboardNavigation="calendar"` each column group is a page: Left/Right step one cell in reading order, Up/Down one row into the neighboring group past the edge, and Page Up/Down one group, so every measured day is reachable however the range meets a month boundary.
 - The keyboard selection is scrolled into view (`block: 'nearest', inline: 'nearest'`), so a grid inside a scroll container keeps its selected cell visible. A consumer that pins labels with `position: sticky` should give the scroll container a matching `scroll-padding`, or the cell lands under them.

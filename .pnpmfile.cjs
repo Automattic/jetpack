@@ -122,12 +122,6 @@ async function fixDeps( pkg ) {
 		}
 	}
 
-	// Outdated dependency.
-	// https://github.com/egoist/rollup-plugin-postcss/issues/469
-	if ( pkg.name === 'rollup-plugin-postcss' && pkg.dependencies.cssnano === '^5.0.1' ) {
-		pkg.dependencies.cssnano = '^5.0.1 || ^6 || ^7';
-	}
-
 	// Apparently this package tried to switch from a dep to a peer dep, but screwed it up.
 	// https://github.com/ajv-validator/ajv-formats/issues/80
 	if ( pkg.name === 'ajv-formats' && pkg.dependencies?.ajv && pkg.peerDependencies?.ajv ) {
@@ -154,6 +148,12 @@ async function fixDeps( pkg ) {
 		pkg.dependencies?.[ 'js-yaml' ] === '^3.13.1'
 	) {
 		pkg.dependencies[ 'js-yaml' ] = '^4.2.0';
+	}
+
+	// A one-off script (`projects/packages/jetpack-mu-wpcom/bin/sync-newspack-blocks.sh`) runs `jscodeshift`, which relies on
+	// outdated dependencies that fails our trust policy. Specifically, `jscodeshift` → `@babel/register` → really old `make-dir` v2 (to still support node <10.12) → `semver` v5.
+	if ( pkg.name === 'make-dir' && pkg.dependencies?.semver === '^5.6.0' ) {
+		pkg.dependencies.semver = '^7.7.3';
 	}
 
 	// Glob decided to deprecate everything <12, even though tons of stuff still depends on older versions.

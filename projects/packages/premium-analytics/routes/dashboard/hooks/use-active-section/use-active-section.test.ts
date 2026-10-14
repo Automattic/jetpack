@@ -69,6 +69,14 @@ describe( 'useActiveSection', () => {
 		expect( mockCommit ).toHaveBeenCalledWith( { replace: true } );
 	} );
 
+	it( 'keeps a ?section= the stage renders itself instead of rewriting it', () => {
+		mockSearch.section = 'settings';
+		const { result } = renderHook( () => useActiveSection( SECTIONS, [ 'settings' ] ) );
+
+		expect( result.current[ 0 ] ).toBe( 'settings' );
+		expect( mockStage ).not.toHaveBeenCalled();
+	} );
+
 	it( 'waits for the sections before judging ?section=', () => {
 		mockSearch.section = 'insights';
 

@@ -1,5 +1,6 @@
 {
 	"name": "jpa/latest-post",
+	"icon": "jpa/post",
 	"title": "Latest post",
 	"description": "Your most recently published post with its views, likes, and comments.",
 	"help": {

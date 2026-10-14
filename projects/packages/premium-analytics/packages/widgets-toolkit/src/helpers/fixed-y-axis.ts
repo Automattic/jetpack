@@ -106,18 +106,20 @@ export function getPinnedYTicks( domain: [ number, number ] ): number[] {
  * A y-axis label format: compact, unless compact labels would repeat across `ticks`,
  * as 4,190 and 4,195 both read 4.2K.
  *
- * @param metricType - The data format type (currency, number, percentage).
- * @param ticks      - The ticks the axis draws, when the chart pins them.
+ * @param metricType   - The data format type (currency, number, percentage).
+ * @param ticks        - The ticks the axis draws, when the chart pins them.
+ * @param currencyCode - Currency for a `currency` axis; defaults to the store currency.
  * @return The tick formatter.
  */
 export function getYTickFormat(
 	metricType: Parameters< typeof formatMetricValue >[ 1 ],
-	ticks?: number[]
+	ticks?: number[],
+	currencyCode?: string
 ) {
 	const compact = ( value: number ) =>
-		formatMetricValue( value, metricType, { useMultipliers: true } );
+		formatMetricValue( value, metricType, { useMultipliers: true, currencyCode } );
 	if ( ! ticks || new Set( ticks.map( compact ) ).size === ticks.length ) {
 		return compact;
 	}
-	return ( value: number ) => formatMetricValue( value, metricType );
+	return ( value: number ) => formatMetricValue( value, metricType, { currencyCode } );
 }

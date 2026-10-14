@@ -52,6 +52,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 	(
 		{
 			data,
+			ariaLabel,
 			chartId: providedChartId,
 			width,
 			height,
@@ -261,8 +262,9 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 				glyphSize: 0,
 				collapseGroups: legend.collapseGroups ?? false,
 				comparisonItem: legend.comparisonItem ?? false,
+				comparisonSeriesItems: legend.comparisonSeriesItems,
 			} ),
-			[ legend.collapseGroups, legend.comparisonItem ]
+			[ legend.collapseGroups, legend.comparisonItem, legend.comparisonSeriesItems ]
 		);
 		const legendItems = useChartLegendItems( dataSorted, legendOptions, legendShape );
 
@@ -421,10 +423,11 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 						const chartHeight = contentHeight > 0 ? contentHeight : height;
 
 						return (
+							// eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- the application role hands arrow keys to the chart's point navigation.
 							<div
 								ref={ chartRef }
-								role="grid"
-								aria-label={ __( 'Area chart', 'jetpack-charts' ) }
+								role="application"
+								aria-label={ ariaLabel ?? __( 'Area chart', 'jetpack-charts' ) }
 								tabIndex={ 0 }
 								onKeyDown={ onChartKeyDown }
 								onFocus={ onChartFocus }
@@ -434,6 +437,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 									<div className={ plotStyles[ 'xy-plot' ] }>
 										{ zoomable && zoom.domain && <ZoomResetButton onClick={ zoom.reset } /> }
 										<XYChart
+											accessibilityLabel=""
 											theme={ theme }
 											width={ width }
 											height={ chartHeight }

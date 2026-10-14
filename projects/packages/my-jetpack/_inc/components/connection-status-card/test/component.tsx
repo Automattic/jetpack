@@ -20,6 +20,23 @@ jest.mock( '@automattic/jetpack-connection', () => {
 	};
 } );
 
+// Answered from the page's products, so the card never waits on the request.
+jest.mock( '../../../data/products/use-all-products', () => {
+	const { prepareProductData } = jest.requireActual( '../../../data/utils/prepare-product-data' );
+
+	return {
+		useAllProducts: () => ( {
+			data: Object.fromEntries(
+				Object.entries( globalThis.myJetpackInitialState.products.items ).map(
+					( [ slug, product ] ) => [ slug, prepareProductData( product ) ]
+				)
+			),
+			isLoading: false,
+			isError: false,
+		} ),
+	};
+} );
+
 const mockRecordEvent = jest.fn();
 jest.mock( '../../../hooks/use-analytics', () => ( {
 	__esModule: true,
@@ -109,6 +126,7 @@ const setConnectionStore = ( {
 	userConnectionData = adminUserConnectionData,
 	connectionErrors = {},
 	connectionOwner = null,
+	isOfflineMode = false,
 } = {} ) => {
 	let storeSelect;
 	renderHook( () => useSelect( select => ( storeSelect = select( CONNECTION_STORE_ID ) ), [] ), {
@@ -124,6 +142,7 @@ const setConnectionStore = ( {
 		.mockReturnValue( userConnectionData );
 	jest.spyOn( storeSelect, 'getConnectionErrors' ).mockReset().mockReturnValue( connectionErrors );
 	jest.spyOn( storeSelect, 'getConnectionOwner' ).mockReset().mockReturnValue( connectionOwner );
+	jest.spyOn( storeSelect, 'getIsOfflineMode' ).mockReset().mockReturnValue( isOfflineMode );
 };
 beforeAll( () => {
 	global.JetpackScriptData = {
@@ -143,6 +162,14 @@ beforeEach( () => {
 	setConnectionStore();
 	global.JetpackScriptData.user.current_user.capabilities = {};
 } );
+
+// The account prompt only shows while something switched on needs an account.
+const needAnAccount = () => {
+	Object.assign( window.myJetpackInitialState.products.items[ 'anti-spam' ], {
+		requires_user_connection: true,
+		is_plugin_active: true,
+	} );
+};
 
 const asAdmin = () => {
 	global.JetpackScriptData.user.current_user.capabilities = { manage_options: true };
@@ -169,38 +196,16 @@ describe( 'ConnectionStatusCard', () => {
 			asAdmin();
 			setup();
 			expect( screen.getByText( 'Site not connected' ) ).toBeInTheDocument();
-			expect(
-				screen.getByText( 'To use Jetpack, connect this site and your account to WordPress.com.' )
-			).toBeInTheDocument();
-		} );
-
-		it( 'links to the connect screen rather than registering in place', () => {
-			asAdmin();
-			setup();
-			expect(
-				screen.getByRole( 'link', { name: 'Connect your site and account' } )
-			).toHaveAttribute( 'href', '#/connection?skip_pricing=true' );
-		} );
-
-		it( 'states the standing as text, with no disconnect to offer', () => {
-			asAdmin();
-			setup();
-			expect( screen.getByText( 'Site not connected' ) ).toBeInTheDocument();
-			expect(
-				screen.queryByRole( 'button', { name: /Site not connected/ } )
-			).not.toBeInTheDocument();
+			expect( screen.getByText( 'Connect your site with one click.' ) ).toBeInTheDocument();
 		} );
 
 		it( 'points a user who cannot connect at an admin instead', () => {
 			setup();
 			expect( screen.getByText( 'Site not connected' ) ).toBeInTheDocument();
 			expect(
-				screen.getByText( 'A site admin will need to connect this site to WordPress.com.' )
+				screen.getByText( 'A site admin will need to connect this site to Jetpack.' )
 			).toBeInTheDocument();
-			// And offers them no route to a screen that would turn them away.
-			expect(
-				screen.queryByRole( 'link', { name: 'Connect your site and account' } )
-			).not.toBeInTheDocument();
+			expect( screen.queryByText( 'Connect your site with one click.' ) ).not.toBeInTheDocument();
 		} );
 	} );
 
@@ -219,16 +224,15 @@ describe( 'ConnectionStatusCard', () => {
 		it( 'renders the correct copy for the site connection line item', () => {
 			asAdmin();
 			setup();
-			expect(
-				screen.getByText( 'To use Jetpack, connect this site and your account to WordPress.com.' )
-			).toBeInTheDocument();
+			expect( screen.getByText( 'Connect your site with one click.' ) ).toBeInTheDocument();
 		} );
 	} );
 
 	describe( 'When the user has not connected their WordPress.com account and there are no broken modules', () => {
 		describe( 'There are no products that require user connection', () => {
 			const setup = () => {
-				setConnectionStore( { isRegistered: true } );
+				asAdmin();
+				setConnectionStore( { isRegistered: true, hasConnectedOwner: true } );
 				return render(
 					<Providers>
 						<ConnectionStatusCard { ...testProps } />
@@ -236,9 +240,12 @@ describe( 'ConnectionStatusCard', () => {
 				);
 			};
 
-			it( 'renders the correct site connection line item', () => {
+			it( 'reads as healthy, with no account prompt', () => {
 				setup();
 				expect( screen.getByText( 'Site connected' ) ).toBeInTheDocument();
+				expect(
+					screen.queryByRole( 'button', { name: 'Connect my account' } )
+				).not.toBeInTheDocument();
 			} );
 		} );
 
@@ -257,6 +264,28 @@ describe( 'ConnectionStatusCard', () => {
 				setup();
 				expect( screen.getByText( 'Site connected' ) ).toBeInTheDocument();
 			} );
+
+			it.each( [ 'active', 'can_upgrade' ] )(
+				'keeps asking while its plugin is on, as %s, whatever the plan',
+				status => {
+					asAdmin();
+					setConnectionStore( { isRegistered: true, hasConnectedOwner: true } );
+					Object.assign( window.myJetpackInitialState.products.items[ 'anti-spam' ], {
+						requires_user_connection: true,
+						is_plugin_active: true,
+						status,
+					} );
+					render(
+						<Providers>
+							<ConnectionStatusCard { ...testProps } />
+						</Providers>
+					);
+
+					expect(
+						screen.getByRole( 'button', { name: 'Connect my account' } )
+					).toBeInTheDocument();
+				}
+			);
 
 			it( 'renders the correct user connection line item', () => {
 				setup();
@@ -305,6 +334,24 @@ describe( 'ConnectionStatusCard', () => {
 		it( 'renders the correct user connection line item', () => {
 			setup();
 			expect( screen.getByText( /Connected as/ ) ).toBeInTheDocument();
+		} );
+
+		// Offline mode is the header's state; an offline Atomic site still loads the card.
+		it( 'keeps its copy in offline mode', () => {
+			setConnectionStore( {
+				isRegistered: true,
+				isUserConnected: true,
+				hasConnectedOwner: true,
+				isOfflineMode: true,
+			} );
+			render(
+				<Providers>
+					<ConnectionStatusCard { ...testProps } />
+				</Providers>
+			);
+
+			expect( screen.getByText( 'Site and account connected' ) ).toBeInTheDocument();
+			expect( screen.queryByText( 'Offline mode' ) ).not.toBeInTheDocument();
 		} );
 
 		// Matched as a direct child of the heading: the manage-connection button holds its own chevron.
@@ -507,8 +554,9 @@ describe( 'ConnectionStatusCard', () => {
 			global.JetpackScriptData.user.current_user.capabilities = {};
 		} );
 
-		it( 'keeps the connect prompt rather than replacing it with the fault', () => {
+		it( 'shows the Connection package’s diagnosis rather than the connect prompt', () => {
 			global.JetpackScriptData.user.current_user.capabilities.manage_options = true;
+			needAnAccount();
 			setConnectionStore( {
 				isRegistered: true,
 				isUserConnected: false,
@@ -530,12 +578,13 @@ describe( 'ConnectionStatusCard', () => {
 				</Providers>
 			);
 
-			expect( screen.getByText( 'Site connected' ) ).toBeInTheDocument();
+			expect( screen.getByText( /Jetpack Connection error/ ) ).toBeInTheDocument();
 			expect(
-				screen.getByText( 'Some Jetpack features need your WordPress.com account.' )
+				screen.getByText( 'Your site is not connected to WordPress.com.' )
 			).toBeInTheDocument();
-			expect( screen.getByRole( 'button', { name: 'Connect my account' } ) ).toBeInTheDocument();
-			expect( screen.queryByText( /Jetpack Connection error/ ) ).not.toBeInTheDocument();
+			expect(
+				screen.queryByRole( 'button', { name: 'Connect my account' } )
+			).not.toBeInTheDocument();
 		} );
 	} );
 
@@ -575,12 +624,10 @@ describe( 'ConnectionStatusCard', () => {
 			global.JetpackScriptData.site.host = 'standard';
 		} );
 
-		it( 'states the standing as text, since WoA owners cannot manage the connection', () => {
+		it( 'disables the manage connection button for WoA connection owners', () => {
 			setup();
-			expect( screen.getByText( 'Site and account connected' ) ).toBeInTheDocument();
-			expect(
-				screen.queryByRole( 'button', { name: /Site and account connected/ } )
-			).not.toBeInTheDocument();
+			const button = screen.getByRole( 'button', { name: /Site and account connected/ } );
+			expect( button ).toBeDisabled();
 		} );
 	} );
 
@@ -647,6 +694,7 @@ describe( 'ConnectionStatusCard', () => {
 
 	describe( 'When a non-admin is not connected, but there is a connection owner', () => {
 		const setup = () => {
+			needAnAccount();
 			setConnectionStore( {
 				isRegistered: true,
 				isUserConnected: false,
@@ -668,7 +716,7 @@ describe( 'ConnectionStatusCard', () => {
 		it( 'renders prompt for this user to connect', () => {
 			setup();
 			expect(
-				screen.getByText( 'Some Jetpack features need your WordPress.com account.' )
+				screen.getByText( 'Connect your account to unlock all the features.' )
 			).toBeInTheDocument();
 			expect( screen.getByRole( 'button', { name: 'Connect my account' } ) ).toBeInTheDocument();
 		} );
@@ -676,6 +724,7 @@ describe( 'ConnectionStatusCard', () => {
 
 	describe( 'When a non-admin is not connected, and there is no connection owner', () => {
 		const setup = () => {
+			needAnAccount();
 			setConnectionStore( {
 				isRegistered: true,
 				isUserConnected: false,
@@ -701,6 +750,7 @@ describe( 'ConnectionStatusCard', () => {
 
 	describe( 'When an admin is not connected but site is registered', () => {
 		const setup = () => {
+			needAnAccount();
 			global.JetpackScriptData.user.current_user.capabilities = { manage_options: true };
 
 			setConnectionStore( {
@@ -729,7 +779,7 @@ describe( 'ConnectionStatusCard', () => {
 		it( 'still shows the connect account prompt', () => {
 			setup();
 			expect(
-				screen.getByText( 'Some Jetpack features need your WordPress.com account.' )
+				screen.getByText( 'Connect your account to unlock all the features.' )
 			).toBeInTheDocument();
 			expect( screen.getByRole( 'button', { name: 'Connect my account' } ) ).toBeInTheDocument();
 		} );
@@ -752,10 +802,10 @@ describe( 'ConnectionStatusCard', () => {
 			);
 		};
 
-		it( 'states the standing as text, since non-admins cannot manage the connection', () => {
+		it( 'disables the manage connection button for non-admins', () => {
 			setup();
-			expect( screen.getByText( 'Site connected' ) ).toBeInTheDocument();
-			expect( screen.queryByRole( 'button', { name: /Site connected/ } ) ).not.toBeInTheDocument();
+			const button = screen.getByRole( 'button', { name: /Site connected/ } );
+			expect( button ).toBeDisabled();
 		} );
 	} );
 
@@ -783,10 +833,10 @@ describe( 'ConnectionStatusCard', () => {
 			global.JetpackScriptData.user.current_user.capabilities = {};
 		} );
 
-		it( 'states the standing as text, since WoA sites cannot be disconnected', () => {
+		it( 'disables the manage connection button since WoA sites cannot be disconnected', () => {
 			setup();
-			expect( screen.getByText( 'Site connected' ) ).toBeInTheDocument();
-			expect( screen.queryByRole( 'button', { name: /Site connected/ } ) ).not.toBeInTheDocument();
+			const button = screen.getByRole( 'button', { name: /Site connected/ } );
+			expect( button ).toBeDisabled();
 		} );
 	} );
 } );

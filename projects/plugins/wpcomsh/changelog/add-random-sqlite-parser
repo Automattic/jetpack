@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Playground import: Detect and import backups that store the SQLite database in a randomized `.ht.<hash>` folder.

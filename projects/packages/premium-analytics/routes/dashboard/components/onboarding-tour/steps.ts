@@ -15,15 +15,25 @@ export type OnboardingTourAnchors = {
 	optionsMenu: Element | null;
 };
 
+export type OnboardingTourOptions = {
+	/** Whether the reader may send feedback, which the last step introduces. */
+	withFeedback: boolean;
+};
+
 /**
  * The four steps of the tour, in order, over the elements the dashboard
  * stage hands in. The last two share the page options menu.
  *
- * @param anchors - The elements each step highlights, or null while unmounted.
+ * @param anchors              - The elements each step highlights, or null while unmounted.
+ * @param options              - Tour options.
+ * @param options.withFeedback - Whether to include the feedback step.
  * @return The tour steps.
  */
-export function onboardingTourSteps( anchors: OnboardingTourAnchors ): OnboardingTourStep[] {
-	return [
+export function onboardingTourSteps(
+	anchors: OnboardingTourAnchors,
+	{ withFeedback }: OnboardingTourOptions = { withFeedback: true }
+): OnboardingTourStep[] {
+	const steps: OnboardingTourStep[] = [
 		{
 			anchor: anchors.firstWidget,
 			title: __( 'Everything is a widget', 'jetpack-premium-analytics-pkg' ),
@@ -51,6 +61,14 @@ export function onboardingTourSteps( anchors: OnboardingTourAnchors ): Onboardin
 			),
 			side: 'bottom',
 		},
+	];
+
+	if ( ! withFeedback ) {
+		return steps;
+	}
+
+	return [
+		...steps,
 		{
 			anchor: anchors.optionsMenu,
 			title: __( 'One last thing', 'jetpack-premium-analytics-pkg' ),

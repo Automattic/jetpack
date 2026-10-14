@@ -505,7 +505,7 @@ class Contact_Form_Test extends BaseTestCase {
 		// Test value with brackets (should be escaped)
 		$bracket_value = 'This is a [test] with brackets';
 		$result        = Contact_Form::escape_and_sanitize_field_value( $bracket_value );
-		$this->assertEquals( 'This is a &#091;test&#093; with brackets', $result );
+		$this->assertEquals( 'This is a &#91;test&#93; with brackets', $result );
 
 		// Test value with HTML (should be stripped)
 		$html_value = 'This has <strong>HTML</strong> tags';
@@ -1312,7 +1312,7 @@ class Contact_Form_Test extends BaseTestCase {
 	 * the whole feature could be removed from the markup and they would all still pass.
 	 */
 	public function test_rendered_form_carries_form_fill_duration_markup() {
-		$html = do_shortcode( "[contact-form][contact-field label='Name' type='name' required='1'/][/contact-form]" );
+		$html = apply_shortcodes( "[contact-form][contact-field label='Name' type='name' required='1'/][/contact-form]" );
 
 		// Asserted as a pair: an unanchored `value=''` would also match the Name field, which
 		// renders an empty value of its own, so it would pass even if the duration input
@@ -1336,7 +1336,7 @@ class Contact_Form_Test extends BaseTestCase {
 	 */
 	public function test_parse_contact_field_keeps_string_unchanged_when_no_escaping_necesssary() {
 		$shortcode = '[contact-field label="Name" type="name" required="1"/][contact-field label="Email" type="email" required="1"/][contact-field label="asdasd" type="text"/][contact-field id="1" required derp herp asd lkj]adsasd[/contact-field]';
-		$html      = do_shortcode( $shortcode );
+		$html      = apply_shortcodes( $shortcode );
 
 		$this->assertEquals( $shortcode, $html );
 	}
@@ -1346,7 +1346,7 @@ class Contact_Form_Test extends BaseTestCase {
 	 */
 	public function test_make_sure_that_we_add_default_label_when_non_is_present() {
 		$shortcode = "[contact-field type='name' required='1' /]";
-		$html      = do_shortcode( $shortcode );
+		$html      = apply_shortcodes( $shortcode );
 		$this->assertEquals( '[contact-field type="name" required="1" label="Name"/]', $html );
 	}
 
@@ -1355,7 +1355,7 @@ class Contact_Form_Test extends BaseTestCase {
 	 */
 	public function test_make_sure_that_we_remove_empty_options_from_form_field() {
 		$shortcode = "[contact-field type='select' required='1' options='fun,,run' label='fun times' values='go,,have some fun'/]";
-		$html      = do_shortcode( $shortcode );
+		$html      = apply_shortcodes( $shortcode );
 		$this->assertEquals( '[contact-field type="select" required="1" options="fun,run" label="fun times" values="go,have some fun"/]', $html );
 	}
 
@@ -1364,7 +1364,7 @@ class Contact_Form_Test extends BaseTestCase {
 	 */
 	public function test_array_values_with_commas_and_brackets() {
 		$shortcode = "[contact-field type='radio' options='\"foo\",bar&#044; baz,&#091;b&#092;rackets&#093;' label='fun &#093;&#091; times'/]";
-		$html      = do_shortcode( $shortcode );
+		$html      = apply_shortcodes( $shortcode );
 		$this->assertEquals( '[contact-field type="radio" options="&quot;foo&quot;,bar&#044; baz,&#091;b&#092;rackets&#093;" label="fun &#093;&#091; times"/]', $html );
 	}
 
@@ -2319,7 +2319,7 @@ class Contact_Form_Test extends BaseTestCase {
 	public function test_parse_contact_field_escapes_things_inside_a_value_and_attribute_and_the_content() {
 
 		$shortcode = "[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type=''email'' req'uired='1'/][contact-field label='asdasd' type='text'/][contact-field id='1' required 'derp' herp asd lkj]adsasd[/contact-field]";
-		$html      = do_shortcode( $shortcode );
+		$html      = apply_shortcodes( $shortcode );
 
 		/*
 		 * The expected string has some quotes escaped, since we want to make
@@ -2334,7 +2334,7 @@ class Contact_Form_Test extends BaseTestCase {
 	public function test_parse_contact_field_trims_content() {
 
 		$shortcode = '[contact-field id="1" required]     adsasd        [/contact-field]';
-		$html      = do_shortcode( $shortcode );
+		$html      = apply_shortcodes( $shortcode );
 
 		/*
 		 * The expected string has some quotes escaped, since we want to make

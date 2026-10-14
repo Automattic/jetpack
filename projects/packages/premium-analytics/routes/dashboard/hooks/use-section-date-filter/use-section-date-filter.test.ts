@@ -130,7 +130,7 @@ describe( 'useSectionDateFilter', () => {
 		renderHook( () => useSectionDateFilter( section( 'range' ), filters ) );
 
 		expect( replaceRange ).toHaveBeenCalledTimes( 1 );
-		expect( replaceRange.mock.calls[ 0 ][ 1 ] ).toBe( 'last-30-days' );
+		expect( replaceRange.mock.calls[ 0 ][ 1 ] ).toBe( 'last-7-days' );
 	} );
 
 	it( 'waits for the sections to resolve before reconciling', () => {
@@ -159,7 +159,7 @@ describe( 'useSectionDateFilter', () => {
 		rerender( { dateFilter: DATE_FILTER_RANGE } );
 
 		expect( replaceRange ).toHaveBeenCalledTimes( 1 );
-		expect( replaceRange.mock.calls[ 0 ][ 1 ] ).toBe( 'last-30-days' );
+		expect( replaceRange.mock.calls[ 0 ][ 1 ] ).toBe( 'last-7-days' );
 
 		// The preset the reconciliation staged is one this surface can show, so
 		// a further render must not stage another.

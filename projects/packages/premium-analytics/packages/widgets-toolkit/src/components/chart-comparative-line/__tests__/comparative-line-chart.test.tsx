@@ -9,6 +9,7 @@ import { getSettings, setSettings } from '@wordpress/date';
 import {
 	mockLineChartLegendSpy,
 	mockLineChartSpy,
+	mockSparklineMargin,
 	resetMockCharts,
 	setMockChartHeight,
 	setMockHiddenSeries,
@@ -100,11 +101,16 @@ const COMPARISON_POINT = {
 type RecordedLineProps = {
 	chartId?: string;
 	defaultHiddenSeries?: readonly string[];
-	legend: { collapseGroups: boolean; comparisonItem: boolean; interactive: boolean };
+	legend: {
+		collapseGroups: boolean;
+		comparisonSeriesItems: ( metric: string ) => string;
+		interactive: boolean;
+	};
 	margin?: Record< string, number >;
 	options?: {
 		yScale?: { domain?: [ number, number ]; zero?: boolean };
 		axis: {
+			x: { display?: boolean };
 			y: {
 				display?: boolean;
 				tickValues?: number[];
@@ -174,22 +180,25 @@ describe( 'ComparativeLineChart', () => {
 
 	// `useChartMargin` sizes the gutters itself; overriding them here clipped the edge dates.
 	it.each( [
-		[ 'by default', DATA_FORMAT, false ],
-		[ 'on a pinned domain', { type: 'percentage' as const, options: { decimals: 0 } }, false ],
-		[ 'on a sparkline, which hides the y axis', DATA_FORMAT, true ],
-	] )( 'never overrides the gutters the chart measured %s', ( _case, dataFormat, isSparkline ) => {
-		setMockChartHeight( isSparkline ? 80 : Infinity );
-
-		render(
-			<ComparativeLineChart
-				series={ SERIES }
-				dataFormat={ dataFormat }
-				compactWhenShort={ isSparkline }
-			/>
-		);
+		[ 'by default', DATA_FORMAT ],
+		[ 'on a pinned domain', { type: 'percentage' as const, options: { decimals: 0 } } ],
+	] )( 'keeps both axes and the gutters the chart measured %s', ( _case, dataFormat ) => {
+		render( <ComparativeLineChart series={ SERIES } dataFormat={ dataFormat } compactWhenShort /> );
 
 		expect( recordedProps().margin ).toBeUndefined();
-		expect( recordedProps().options.axis.y.display ).toBe( isSparkline ? false : undefined );
+		expect( recordedProps().options.axis.x.display ).toBeUndefined();
+		expect( recordedProps().options.axis.y.display ).toBeUndefined();
+	} );
+
+	it( 'draws a short tile as a sparkline the pointer can reach edge to edge', () => {
+		setMockChartHeight( 80 );
+		render(
+			<ComparativeLineChart series={ SERIES } dataFormat={ DATA_FORMAT } compactWhenShort />
+		);
+
+		expect( recordedProps().options.axis.x.display ).toBe( false );
+		expect( recordedProps().options.axis.y.display ).toBe( false );
+		expect( recordedProps().margin ).toBe( mockSparklineMargin );
 	} );
 
 	describe( 'value axis baseline', () => {
@@ -306,7 +315,7 @@ describe( 'ComparativeLineChart', () => {
 		expect( recordedProps() ).toMatchObject( {
 			chartId: 'traffic',
 			defaultHiddenSeries: [ 'Visitors', 'Visitors · previous period' ],
-			legend: { collapseGroups: true, comparisonItem: true, interactive: true },
+			legend: { collapseGroups: true, interactive: true },
 		} );
 		expect( mockLineChartLegendSpy ).toHaveBeenLastCalledWith(
 			expect.objectContaining( {
@@ -319,14 +328,17 @@ describe( 'ComparativeLineChart', () => {
 		);
 	} );
 
-	it( 'collapses a metric into one legend item and asks for the comparison item', () => {
-		render( <ComparativeLineChart series={ SERIES_WITH_COMPARISON } dataFormat={ DATA_FORMAT } /> );
+	it( "names each metric's comparison item after the comparison", () => {
+		render(
+			<ComparativeLineChart
+				series={ SERIES_WITH_COMPARISON }
+				dataFormat={ DATA_FORMAT }
+				comparisonLabel="2025"
+			/>
+		);
 
-		expect( recordedProps().legend ).toEqual( {
-			collapseGroups: true,
-			comparisonItem: true,
-			interactive: false,
-		} );
+		expect( recordedProps().legend ).toMatchObject( { collapseGroups: true, interactive: false } );
+		expect( recordedProps().legend.comparisonSeriesItems( 'Views' ) ).toBe( 'Views (2025)' );
 	} );
 
 	it( "heads the tooltip with the point's date in the site's timezone", () => {

@@ -1119,7 +1119,7 @@ const MOCK_DEVICES_PLATFORM_COMPARISON = {
 };
 
 // Heuristic: a `date` more than 1 day old is the comparison request — works for
-// the default last-30-days preset but would misclassify a `today` preset (fine here).
+// the default last-7-days preset but would misclassify a `today` preset (fine here).
 function isComparisonRequest( path: string ): boolean {
 	const queryString = path.split( '?' )[ 1 ];
 	const requestDate = queryString ? new URLSearchParams( queryString ).get( 'date' ) : null;
