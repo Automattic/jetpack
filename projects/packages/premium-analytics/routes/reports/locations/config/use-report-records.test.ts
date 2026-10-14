@@ -93,7 +93,10 @@ describe( 'useLocationsReportRecords', () => {
 		} );
 	} );
 
-	it( 'does not request regions or cities while the plan locks them', () => {
+	it.each( [
+		[ 'regions', 'region' ],
+		[ 'cities', 'city' ],
+	] as const )( 'does not request %s while the plan locks them', ( tab, geoMode ) => {
 		window.JetpackScriptData = {
 			premium_analytics: {
 				initial_full_sync_finished: 1,
@@ -108,15 +111,14 @@ describe( 'useLocationsReportRecords', () => {
 		} as unknown as typeof window.JetpackScriptData;
 
 		try {
-			renderHook( () => useLocationsReportRecords( 'regions', params ) );
+			renderHook( () => useLocationsReportRecords( tab, params ) );
 		} finally {
 			delete window.JetpackScriptData;
 		}
 
-		expect( mockUseStatsLocations ).toHaveBeenCalledWith(
-			expect.objectContaining( { geoMode: 'region' } ),
-			{ enabled: false }
-		);
+		expect( mockUseStatsLocations ).toHaveBeenCalledWith( expect.objectContaining( { geoMode } ), {
+			enabled: false,
+		} );
 	} );
 
 	it( 'scopes the active tab to the selected country', () => {

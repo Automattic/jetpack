@@ -103,7 +103,7 @@ const WidgetCard = ( { title, children }: { title: string; children: ReactNode }
 );
 
 /**
- * The UTM widget locked, to compare with the design.
+ * The UTM widget locked, in a dashboard tile.
  */
 export const Default: Story = {
 	args: { feature: 'utm' },
