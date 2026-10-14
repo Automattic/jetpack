@@ -6,7 +6,6 @@
  */
 
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
-use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
 /**
  * The tab's `data-sort` value, which core's theme.js sends to themes_api() as `browse`.
@@ -70,7 +69,8 @@ function wpcom_themes_tab_enqueue_script() {
 		'wpcom-themes-tab',
 		plugins_url( 'js/themes-tab.js', __FILE__ ),
 		array( 'theme' ),
-		Jetpack_Mu_Wpcom::PACKAGE_VERSION,
+		// The package version does not change between builds of it, and these are served for a year.
+		(string) filemtime( __DIR__ . '/js/themes-tab.js' ),
 		array( 'in_footer' => true )
 	);
 	wp_localize_script(
@@ -86,7 +86,7 @@ function wpcom_themes_tab_enqueue_script() {
 		'wpcom-themes-tab',
 		plugins_url( 'css/themes-tab.css', __FILE__ ),
 		array(),
-		Jetpack_Mu_Wpcom::PACKAGE_VERSION
+		(string) filemtime( __DIR__ . '/css/themes-tab.css' )
 	);
 }
 add_action( 'load-theme-install.php', 'wpcom_themes_tab_enqueue_script' );
