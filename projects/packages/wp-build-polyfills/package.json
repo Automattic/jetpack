@@ -41,7 +41,7 @@
 		"@wordpress/react-inert-value": "^1.0.0",
 		"@wordpress/rich-text": "7.57.0",
 		"@wordpress/route": "^0.23.0",
-		"@wordpress/theme": "^2.0.0",
+		"@wordpress/theme": "^2.3.0",
 		"@wordpress/ui": "^0.24.0",
 		"@wordpress/widget-primitives": "0.9.0",
 		"browserslist": "^4.24.0",
