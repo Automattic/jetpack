@@ -974,9 +974,26 @@ class Initializer {
 			// caches its report and wants a `force_refresh` hint the dashboard does not.
 			'premiumAnalyticsEnabled'  => Products\Stats::is_premium_analytics_enabled(),
 			'showAiModuleToggle'       => Products\Jetpack_Ai::is_feature_ui_enabled(),
+			'overviewV1'               => self::is_overview_v1_enabled(),
 		);
 
 		return $flags;
+	}
+
+	/**
+	 * Whether the Overview v1 cards replace today's product cards.
+	 *
+	 * @since $$next-version$$
+	 * @return bool
+	 */
+	public static function is_overview_v1_enabled() {
+		/**
+		 * Show the Overview v1 cards on My Jetpack while they are being built.
+		 *
+		 * @since $$next-version$$
+		 * @param bool $enabled Whether to show Overview v1. Default false.
+		 */
+		return (bool) apply_filters( 'jetpack_my_jetpack_overview_v1', false );
 	}
 
 	/**
@@ -1059,6 +1076,10 @@ class Initializer {
 		Historically_Active_Modules::register_rest_endpoints();
 		Jetpack_Manage::register_rest_endpoints();
 		Red_Bubble_Notifications::register_rest_endpoints();
+
+		if ( self::is_overview_v1_enabled() ) {
+			REST_Blog_Posts::register_rest_endpoints();
+		}
 
 		register_rest_route(
 			'my-jetpack/v1',

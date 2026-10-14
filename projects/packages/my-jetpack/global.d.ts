@@ -561,6 +561,8 @@ interface Window {
 		loadAddLicenseScreen: string;
 		myJetpackCheckoutUri: string;
 		myJetpackFlags: {
+			overviewV1: boolean;
+			premiumAnalyticsEnabled: boolean;
 			showAiModuleToggle: boolean;
 			showFullJetpackStatsCard: boolean;
 			videoPressStats: boolean;
