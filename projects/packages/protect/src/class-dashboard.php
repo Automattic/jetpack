@@ -55,6 +55,13 @@ class Dashboard {
 	const RENDER_FUNCTION = 'jetpack_protect_jetpack_protect_dashboard_wp_admin_render_page';
 
 	/**
+	 * Transient set while the menu skips the threat count after a failed status fetch.
+	 *
+	 * @var string
+	 */
+	const THREAT_COUNT_BACKOFF_TRANSIENT = 'jetpack_protect_dashboard_threat_count_backoff';
+
+	/**
 	 * Extra Admin_Menu item options, such as the module that owns the item.
 	 *
 	 * @var array
@@ -372,7 +379,14 @@ class Dashboard {
 	 * @return void
 	 */
 	private static function register_threat_count() {
-		if ( ! self::can_manage() ) {
+		if ( ! self::can_manage() || get_transient( self::THREAT_COUNT_BACKOFF_TRANSIENT ) ) {
+			return;
+		}
+
+		$status = Status::get_status();
+		if ( ! empty( $status->error ) ) {
+			// A failed fetch is not cached, so without this every admin load would wait on wpcom again.
+			set_transient( self::THREAT_COUNT_BACKOFF_TRANSIENT, 1, 5 * MINUTE_IN_SECONDS );
 			return;
 		}
 
@@ -382,7 +396,7 @@ class Dashboard {
 			self::MENU_SLUG,
 			array(
 				'menu_slug' => self::MENU_SLUG,
-				'count'     => Status::get_total_threats(),
+				'count'     => count( $status->threats ),
 				'type'      => 'count',
 			)
 		);

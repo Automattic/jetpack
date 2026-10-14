@@ -9,6 +9,8 @@ namespace Automattic\Jetpack\Protect;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Menu_Badges\Notification_Counts;
+use Automattic\Jetpack\Protect_Models\Status_Model;
+use Automattic\Jetpack\Protect_Status\Status;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -37,6 +39,10 @@ class Dashboard_Test extends BaseTestCase {
 	public function tear_down() {
 		Admin_Menu::reset();
 		self::reset_sections();
+		Notification_Counts::reset();
+		Status::$status = null;
+		delete_transient( Dashboard::THREAT_COUNT_BACKOFF_TRANSIENT );
+		wp_set_current_user( 0 );
 		unset( $_GET['page'] );
 		remove_all_actions( 'admin_menu' );
 		remove_all_actions( 'rest_api_init' );
@@ -157,26 +163,29 @@ class Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Roles, and whether they see the threat count.
+	 * Who is looking, how the status fetch went, and the count expected on the Protect item.
 	 *
 	 * @return array[]
 	 */
-	public static function provide_threat_count_roles() {
+	public static function provide_threat_count_cases() {
 		return array(
-			'administrator' => array( 'administrator', true ),
-			'editor'        => array( 'editor', false ),
+			'administrator'                 => array( 'administrator', false, false, 2 ),
+			'editor'                        => array( 'editor', false, false, null ),
+			'failed fetch'                  => array( 'administrator', true, false, null ),
+			'backing off from a past error' => array( 'administrator', false, true, null ),
 		);
 	}
 
 	/**
-	 * @dataProvider provide_threat_count_roles
+	 * @dataProvider provide_threat_count_cases
 	 *
-	 * @param string $role     Role of the current user.
-	 * @param bool   $expected Whether a count is registered on the Protect item.
+	 * @param string   $role       Role of the current user.
+	 * @param bool     $fetch_fails Whether the status comes back as an error.
+	 * @param bool     $backing_off Whether an earlier failure is still being backed off from.
+	 * @param int|null $expected    The registered count, or null for none.
 	 */
-	#[DataProvider( 'provide_threat_count_roles' )]
-	public function test_add_menu_counts_threats_on_the_protect_item_for_managers( $role, $expected ) {
-		Notification_Counts::reset();
+	#[DataProvider( 'provide_threat_count_cases' )]
+	public function test_add_menu_counts_threats_on_the_protect_item( $role, $fetch_fails, $backing_off, $expected ) {
 		wp_set_current_user(
 			wp_insert_user(
 				array(
@@ -186,17 +195,16 @@ class Dashboard_Test extends BaseTestCase {
 				)
 			)
 		);
+		Status::$status = new Status_Model( $fetch_fails ? array( 'error' => true ) : array( 'threats' => array( 'a', 'b' ) ) );
+		if ( $backing_off ) {
+			set_transient( Dashboard::THREAT_COUNT_BACKOFF_TRANSIENT, 1 );
+		}
 
 		Dashboard::add_menu();
 
 		$entries = Notification_Counts::all();
-		Notification_Counts::reset();
-		wp_set_current_user( 0 );
-		$this->assertSame( $expected, isset( $entries[ Dashboard::MENU_SLUG ] ) );
-		if ( $expected ) {
-			$this->assertSame( Dashboard::MENU_SLUG, $entries[ Dashboard::MENU_SLUG ]['menu_slug'] );
-			$this->assertSame( 'count', $entries[ Dashboard::MENU_SLUG ]['type'] );
-		}
+		$this->assertSame( $expected, $entries[ Dashboard::MENU_SLUG ]['count'] ?? null );
+		$this->assertSame( $fetch_fails || $backing_off, (bool) get_transient( Dashboard::THREAT_COUNT_BACKOFF_TRANSIENT ) );
 	}
 
 	/**
