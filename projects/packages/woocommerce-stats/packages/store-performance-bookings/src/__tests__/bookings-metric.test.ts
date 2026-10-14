@@ -9,21 +9,13 @@ import { removeFilter } from '@wordpress/hooks';
 import { BOOKINGS_FILTER } from '../../../../src/reports';
 import { STORE_PERFORMANCE_METRICS_FILTER } from '../../../../src/store-performance/metric';
 import { getStorePerformanceMetrics } from '../../../../widgets/store-performance/metrics';
-import { addBookingsMetric, bookingsMetric, registerBookingsMetric } from '../bookings-metric';
+import { bookingsMetric, registerBookingsMetric } from '../bookings-metric';
 import type { StorePerformanceMetric } from '../../../../src/store-performance/metric';
 
 jest.mock( '@automattic/jetpack-premium-analytics-sdk', () => ( { useReport: jest.fn() } ) );
 
 const mockUseReport = useReport as jest.Mock;
 
-const metric = ( id: string ): StorePerformanceMetric => ( {
-	id,
-	label: id,
-	description: id,
-	field: id,
-	dataFormat: { type: 'number' },
-	useReport: () => ( {} ) as never,
-} );
 const ids = ( metrics: StorePerformanceMetric[] ) => metrics.map( item => item.id );
 
 afterEach( () => {
@@ -32,25 +24,6 @@ afterEach( () => {
 		STORE_PERFORMANCE_METRICS_FILTER,
 		'jetpack-woocommerce-stats/store-performance-bookings'
 	);
-} );
-
-describe( 'addBookingsMetric', () => {
-	it( 'puts Bookings after Orders', () => {
-		const metrics = addBookingsMetric( [
-			metric( 'net-sales' ),
-			metric( 'orders' ),
-			metric( 'visitors' ),
-		] );
-
-		expect( ids( metrics ) ).toEqual( [ 'net-sales', 'orders', 'bookings', 'visitors' ] );
-	} );
-
-	it( 'puts Bookings last without Orders', () => {
-		expect( ids( addBookingsMetric( [ metric( 'visitors' ) ] ) ) ).toEqual( [
-			'visitors',
-			'bookings',
-		] );
-	} );
 } );
 
 describe( 'bookingsMetric', () => {

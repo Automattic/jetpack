@@ -26,13 +26,15 @@ function useBookingsReport( params: ReportParams ): StorePerformanceReport {
 }
 
 /**
- * The Bookings metric, built when asked so its strings read the catalog loaded by then.
+ * The Bookings metric, placed after Orders, built when asked so its strings read the catalog
+ * loaded by then.
  *
  * @return {StorePerformanceMetric} The metric.
  */
 export function bookingsMetric(): StorePerformanceMetric {
 	return {
 		id: 'bookings',
+		order: 25,
 		label: __( 'Bookings', 'jetpack-woocommerce-stats-pkg' ),
 		description: __(
 			'See a breakdown of when bookings are placed to identify peak selling periods.',
@@ -48,19 +50,13 @@ export function bookingsMetric(): StorePerformanceMetric {
 }
 
 /**
- * Add the Bookings metric after Orders, or last when Orders is gone.
+ * Add the Bookings metric to the list on offer; the widget places it by its order.
  *
  * @param {StorePerformanceMetric[]} metrics - The metrics on offer so far.
  * @return {StorePerformanceMetric[]} The metrics with Bookings.
  */
-export function addBookingsMetric( metrics: StorePerformanceMetric[] ): StorePerformanceMetric[] {
-	if ( ! Array.isArray( metrics ) ) {
-		return metrics;
-	}
-	const orders = metrics.findIndex( metric => metric.id === 'orders' );
-	const at = orders === -1 ? metrics.length : orders + 1;
-
-	return [ ...metrics.slice( 0, at ), bookingsMetric(), ...metrics.slice( at ) ];
+function addBookingsMetric( metrics: StorePerformanceMetric[] ): StorePerformanceMetric[] {
+	return Array.isArray( metrics ) ? [ ...metrics, bookingsMetric() ] : metrics;
 }
 
 /**
