@@ -1328,7 +1328,7 @@ class Manager {
 	 *
 	 * @since 8.8.0
 	 * @since 9.3.0 A locked protected owner anchor makes ownership non-transferable.
-	 * @since $$next-version$$ The `jetpack_connection_ownership_transferable` filter is deprecated.
+	 * @since 9.11.0 The `jetpack_connection_ownership_transferable` filter is deprecated.
 	 *
 	 * @return bool True if ownership can be transferred, false if it is locked.
 	 */
@@ -1346,11 +1346,11 @@ class Manager {
 		 * anchored owner may still transfer ownership despite this deprecated filter.
 		 *
 		 * @since 8.8.0
-		 * @deprecated $$next-version$$ The protected owner anchor is the only supported ownership lock.
+		 * @deprecated 9.11.0 The protected owner anchor is the only supported ownership lock.
 		 *
 		 * @param bool $transferable Whether ownership can be transferred. Default true.
 		 */
-		return (bool) apply_filters_deprecated( 'jetpack_connection_ownership_transferable', array( true ), 'package-$$next-version$$', '', __( 'The protected owner anchor is the only ownership lock.', 'jetpack-connection' ) );
+		return (bool) apply_filters_deprecated( 'jetpack_connection_ownership_transferable', array( true ), 'package-9.11.0', '', __( 'The protected owner anchor is the only ownership lock.', 'jetpack-connection' ) );
 	}
 
 	/**
@@ -2192,7 +2192,7 @@ class Manager {
 	 * switch `po_signed` only when the signing token belongs to the owner of record.
 	 *
 	 * @since 9.9.0
-	 * @since $$next-version$$ No longer refused by the deprecated `jetpack_connection_ownership_transferable` filter.
+	 * @since 9.11.0 No longer refused by the deprecated `jetpack_connection_ownership_transferable` filter.
 	 *
 	 * @return bool
 	 */
@@ -2570,7 +2570,7 @@ class Manager {
 	 *
 	 * @see Registration_Failure
 	 *
-	 * @since $$next-version$$ Added the `$force` parameter, the offline mode check, and the retry backoff.
+	 * @since 9.11.0 Added the `$force` parameter, the offline mode check, and the retry backoff.
 	 *
 	 * @param bool $tos_agree Whether the user agreed to TOS.
 	 * @param bool $force     Whether this attempt was explicitly requested by a user.
@@ -2645,7 +2645,7 @@ class Manager {
 	 * example that WordPress.com cannot reach a site on a private address - instead
 	 * of leaving the connection silently unavailable.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.11.0
 	 *
 	 * @return array|null Failure details, or null if the last attempt did not fail or the site is connected.
 	 */
@@ -2664,7 +2664,7 @@ class Manager {
 	 * For consumers that trigger registration through code that cannot pass the
 	 * `$force` flag to `try_registration()`.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.11.0
 	 *
 	 * @return void
 	 */
