@@ -974,9 +974,26 @@ class Initializer {
 			// caches its report and wants a `force_refresh` hint the dashboard does not.
 			'premiumAnalyticsEnabled'  => Products\Stats::is_premium_analytics_enabled(),
 			'showAiModuleToggle'       => Products\Jetpack_Ai::is_feature_ui_enabled(),
+			'overviewV1'               => self::is_overview_v1_enabled(),
 		);
 
 		return $flags;
+	}
+
+	/**
+	 * Whether My Jetpack shows Overview v1.
+	 *
+	 * @since $$next-version$$
+	 * @return bool
+	 */
+	public static function is_overview_v1_enabled() {
+		/**
+		 * Filters whether My Jetpack shows Overview v1.
+		 *
+		 * @since $$next-version$$
+		 * @param bool $enabled Whether to show Overview v1. Default false.
+		 */
+		return (bool) apply_filters( 'jetpack_my_jetpack_overview_v1', false );
 	}
 
 	/**

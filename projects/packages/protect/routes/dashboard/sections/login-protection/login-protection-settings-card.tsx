@@ -107,7 +107,10 @@ export default function LoginProtectionSettingsCard( {
 		( value: boolean ) => ( value ? save( { sso: true } ) : setConfirmingSsoOff( true ) ),
 		[ save ]
 	);
-	const disableSso = useCallback( () => save( { sso: false } ), [ save ] );
+	// `save()` resolves to whether it worked; the dialog only needs to know it's done, then closes.
+	const disableSso = useCallback( async () => {
+		await save( { sso: false } );
+	}, [ save ] );
 
 	return (
 		<ProtectCard icon={ lock } title={ __( 'Login protection', 'jetpack-protect-pkg' ) }>

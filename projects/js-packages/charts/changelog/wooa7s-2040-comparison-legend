@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Legend: Add a comparisonSeriesItems option that adds one static item per comparison series, named after its metric and hidden along with it.
