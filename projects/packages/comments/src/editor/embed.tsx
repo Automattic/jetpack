@@ -214,6 +214,7 @@ export const registerEmbedBlock = ( editorLabels: EditorLabels, preview = true )
 	}
 
 	registerBlockType< EmbedAttributes >( NAME, {
+		apiVersion: 3,
 		title: _x( 'Embed', 'block title', 'default' ),
 		category: 'embed',
 		icon: embedContentIcon,

@@ -200,6 +200,7 @@ export const registerImageBlock = ( editorLabels: EditorLabels, preview = true )
 	}
 
 	registerBlockType< ImageAttributes >( NAME, {
+		apiVersion: 3,
 		title: i18n._x( 'Image', 'block title', 'default' ),
 		category: 'media',
 		icon,
