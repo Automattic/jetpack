@@ -6,6 +6,7 @@
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status\Cache;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
@@ -104,6 +105,8 @@ class Jetpack_Security_Menu_Matrix_Test extends WP_UnitTestCase {
 		Constants::set_constant( 'ATOMIC_CLIENT_ID', 1 );
 		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', true );
 		update_option( 'wpcom_admin_interface', 'wp-admin' );
+		// Host caches is_woa_site(), and the plugin bootstrap already asked it.
+		Cache::clear();
 	}
 
 	/**
