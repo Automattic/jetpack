@@ -23,8 +23,8 @@ export interface TransferConnectionOwnershipProps {
 	apiRoot: string;
 	/** API nonce. */
 	apiNonce: string;
-	/** Called as soon as WordPress.com accepts the new owner, with the candidate it accepted. */
-	onTransferred?: ( newOwnerId: number, newOwner: ConnectionOwnerCandidate ) => void;
+	/** Called as soon as WordPress.com accepts the new owner. */
+	onTransferred?: ( newOwnerId: number ) => void;
 	/** Called while a transfer is in flight, so a host can hold its own exits shut. */
 	onBusyChange?: ( isBusy: boolean ) => void;
 }

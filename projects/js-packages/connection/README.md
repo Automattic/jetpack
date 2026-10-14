@@ -184,7 +184,7 @@ On success it updates the package store with the new owner, so surfaces reading 
 ### Properties
 - *apiRoot* - string (required), API root URL.
 - *apiNonce* - string (required), API Nonce.
-- *onTransferred* - callback, called with the new owner's local user ID and the candidate WordPress.com accepted, once the change goes through. Only needed for logic beyond the store update, such as analytics, closing the surrounding surface, or patching a copy of the owner the host renders itself.
+- *onTransferred* - callback, called with the new owner's local user ID once WordPress.com has accepted the change. Only needed for logic beyond the store update, such as analytics or closing the surrounding surface.
 - *onBusyChange* - callback, called with whether a transfer is in flight, so a host can hold its own exits shut while it runs.
 
 ### Important Notes
