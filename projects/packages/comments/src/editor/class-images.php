@@ -30,9 +30,9 @@ class Images {
 	}
 
 	/**
-	 * The image block as this package writes it: the URL and alt text in its attributes, and the URL
-	 * as the figure's text. An http image, one past the comment's limit, or any where images are off or
-	 * the comment may not draw them is a paragraph holding the link. At render, the figure draws the image.
+	 * The image block as this package writes it: the URL in its attributes, and as the figure's text.
+	 * An http image, one past the comment's limit, or any where images are off or the comment may not
+	 * draw them is a paragraph holding the link. At render, the figure draws the image.
 	 *
 	 * @param array     $block  Parsed image block.
 	 * @param bool|null $render Null while saving; at render, whether the comment may show the image.
@@ -40,11 +40,9 @@ class Images {
 	 * @return array|null The block to keep, if any.
 	 */
 	public static function block( array $block, $render, &$count ) {
-		// This editor keeps the URL and alt text in the attributes; Verbum's kept them on an img.
+		// This editor keeps the URL in the attributes; Verbum's kept it on an img.
 		$tags = new \WP_HTML_Tag_Processor( $block['innerHTML'] );
-		$img  = $tags->next_tag( 'img' );
-		$url  = $block['attrs']['url'] ?? ( $img ? $tags->get_attribute( 'src' ) : null );
-		$alt  = $block['attrs']['alt'] ?? ( $img ? $tags->get_attribute( 'alt' ) : null );
+		$url  = $block['attrs']['url'] ?? ( $tags->next_tag( 'img' ) ? $tags->get_attribute( 'src' ) : null );
 
 		// kses writes & as &amp; in the block's attributes.
 		$url = is_string( $url ) ? trim( html_entity_decode( $url, ENT_QUOTES ) ) : '';
@@ -62,13 +60,8 @@ class Images {
 			return $link;
 		}
 
-		$alt = is_string( $alt ) ? trim( wp_strip_all_tags( html_entity_decode( $alt, ENT_QUOTES ) ) ) : '';
-
 		if ( null === $render ) {
-			$block['attrs'] = '' === $alt ? array( 'url' => $url ) : array(
-				'url' => $url,
-				'alt' => $alt,
-			);
+			$block['attrs'] = array( 'url' => $url );
 			$html           = '<figure class="wp-block-image">' . esc_html( $url ) . '</figure>';
 		} else {
 			wp_enqueue_style( 'wp-block-image' );
@@ -76,7 +69,6 @@ class Images {
 			$img = new \WP_HTML_Tag_Processor( '<img>' );
 			$img->next_tag();
 			$img->set_attribute( 'src', $url );
-			$img->set_attribute( 'alt', $alt );
 			$img->set_attribute( 'loading', 'lazy' );
 			$img->set_attribute( 'decoding', 'async' );
 			$img->set_attribute( 'referrerpolicy', 'no-referrer' );

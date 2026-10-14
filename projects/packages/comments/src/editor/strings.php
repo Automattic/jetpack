@@ -50,7 +50,6 @@ return array(
 	// Images.
 	'URL',
 	'Paste or type URL',
-	'Alternative text',
 	'Apply',
 	'Edit image',
 	// Links.

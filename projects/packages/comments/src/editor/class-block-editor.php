@@ -152,7 +152,7 @@ class Block_Editor {
 	}
 
 	/**
-	 * Undo kses at every depth: the embed and image URLs, and image alt text, as they were.
+	 * Undo kses at every depth: the embed and image URLs as they were.
 	 *
 	 * @param array $blocks Parsed blocks.
 	 * @param int   $images Images kept so far.

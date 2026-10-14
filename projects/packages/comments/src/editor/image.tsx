@@ -53,13 +53,13 @@ const httpsUrl = ( url: string ) => {
 	}
 };
 
-const imgSchema = { attributes: [ 'src', 'alt' ] };
+const imgSchema = { attributes: [ 'src' ] };
 
 const toParagraph = ( url: string ) =>
 	createBlock( 'core/paragraph', { content: renderToString( <a href={ url }>{ url }</a> ) } );
 
-const Edit = ( { attributes: { url, alt }, setAttributes, isSelected }: ImageEditProps ) => {
-	const [ draft, setDraft ] = useState( { url: url ?? '', alt: alt ?? '' } );
+const Edit = ( { attributes: { url }, setAttributes, isSelected }: ImageEditProps ) => {
+	const [ draft, setDraft ] = useState( url ?? '' );
 	const [ editing, setEditing ] = useState( ! url );
 	const [ failed, setFailed ] = useState( false );
 	const urlInput = useRef< HTMLInputElement >( null );
@@ -85,19 +85,13 @@ const Edit = ( { attributes: { url, alt }, setAttributes, isSelected }: ImageEdi
 	}, [ url ] );
 
 	const onUrl = useCallback(
-		( event: ChangeEvent< HTMLInputElement > ) =>
-			setDraft( value => ( { ...value, url: event.target.value } ) ),
-		[]
-	);
-	const onAlt = useCallback(
-		( event: ChangeEvent< HTMLInputElement > ) =>
-			setDraft( value => ( { ...value, alt: event.target.value } ) ),
+		( event: ChangeEvent< HTMLInputElement > ) => setDraft( event.target.value ),
 		[]
 	);
 	const onSubmit = useCallback(
 		( event: FormEvent ) => {
 			event.preventDefault();
-			const next = draft.url.trim();
+			const next = draft.trim();
 			if ( ! next ) {
 				return;
 			}
@@ -110,15 +104,15 @@ const Edit = ( { attributes: { url, alt }, setAttributes, isSelected }: ImageEdi
 			refocus.current = true;
 			setEditing( false );
 			setFailed( false );
-			setAttributes( { url: next, alt: draft.alt.trim() } );
+			setAttributes( { url: next } );
 		},
 		[ draft, setAttributes ]
 	);
 	const onEdit = useCallback( () => {
 		refocus.current = true;
-		setDraft( { url: url ?? '', alt: alt ?? '' } );
+		setDraft( url ?? '' );
 		setEditing( true );
-	}, [ url, alt ] );
+	}, [ url ] );
 	// Not an image the browser can draw. Cleared so it is never posted; the form keeps it to correct.
 	const onError = useCallback( () => {
 		refocus.current = isSelected;
@@ -147,15 +141,8 @@ const Edit = ( { attributes: { url, alt }, setAttributes, isSelected }: ImageEdi
 							aria-describedby={ failed ? errorId : undefined }
 							aria-invalid={ failed || undefined }
 							placeholder={ i18n.__( 'Paste or type URL', 'default' ) }
-							value={ draft.url }
+							value={ draft }
 							onChange={ onUrl }
-						/>
-						<input
-							type="text"
-							aria-label={ i18n.__( 'Alternative text', 'default' ) }
-							placeholder={ i18n.__( 'Alternative text', 'default' ) }
-							value={ draft.alt }
-							onChange={ onAlt }
 						/>
 						<Button __next40pxDefaultSize variant="primary" type="submit">
 							{ i18n.__( 'Apply', 'default' ) }
@@ -175,7 +162,7 @@ const Edit = ( { attributes: { url, alt }, setAttributes, isSelected }: ImageEdi
 			</BlockControls>
 			<figure { ...blockProps }>
 				{ previewImages ? (
-					<img src={ url } alt={ alt } referrerPolicy="no-referrer" onError={ onError } />
+					<img src={ url } alt="" referrerPolicy="no-referrer" onError={ onError } />
 				) : (
 					url
 				) }
@@ -204,7 +191,7 @@ export const registerImageBlock = ( editorLabels: EditorLabels, preview = true )
 		title: i18n._x( 'Image', 'block title', 'default' ),
 		category: 'media',
 		icon,
-		attributes: { url: { type: 'string' }, alt: { type: 'string', default: '' } },
+		attributes: { url: { type: 'string' } },
 		edit: Edit,
 		// The URL as text, never an img: see Images in class-images.php.
 		save: ( { attributes: { url } } ) =>
@@ -243,9 +230,7 @@ export const registerImageBlock = ( editorLabels: EditorLabels, preview = true )
 					transform: ( node: Node ) => {
 						const img = ( node as Element ).querySelector( 'img' )!;
 						const url = img.getAttribute( 'src' )!;
-						return httpsUrl( url )
-							? createBlock( NAME, { url, alt: img.alt.trim() } )
-							: toParagraph( url );
+						return httpsUrl( url ) ? createBlock( NAME, { url } ) : toParagraph( url );
 					},
 				},
 			],

@@ -35,7 +35,7 @@ export type EmbedEditProps = BlockEditProps< EmbedAttributes > & {
 	onReplace: ( blocks: Block | Block[] ) => void;
 };
 
-export type ImageAttributes = { url?: string; alt?: string };
+export type ImageAttributes = { url?: string };
 
 export type ImageEditProps = BlockEditProps< ImageAttributes >;
 
