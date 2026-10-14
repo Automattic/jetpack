@@ -229,12 +229,9 @@ class Block_Editor {
 
 		// Only an approved comment on the front end draws an embed or image; the rest show the link.
 		$embed = $comment instanceof \WP_Comment && '1' === (string) $comment->comment_approved && ! is_admin();
-		// Images also need a commenter who signed in, so a guest can't plant a tracking image.
-		$signed_in = $embed && ( (int) $comment->user_id > 0 || '' !== (string) get_comment_meta( (int) $comment->comment_ID, Checkpoint::META_ID, true ) );
-		$images    = 0;
 
 		// With their attributes cleared, what is left of the delimiters is this shape alone.
-		return (string) preg_replace( '#<!-- /?wp:[a-z0-9/-]+ /?-->#', '', serialize_blocks( self::allowed( parse_blocks( $content ), $embed, $images, $signed_in ) ) );
+		return (string) preg_replace( '#<!-- /?wp:[a-z0-9/-]+ /?-->#', '', serialize_blocks( self::allowed( parse_blocks( $content ), $embed ) ) );
 	}
 
 	/**
@@ -410,17 +407,16 @@ class Block_Editor {
 	 *
 	 * @param array     $blocks Parsed blocks.
 	 * @param bool|null $render Null while saving; at render, whether embeds and images may draw.
-	 * @param int       $images    Images kept so far.
-	 * @param bool      $signed_in At render, whether the commenter signed in, which images also need.
+	 * @param int       $images Images kept so far.
 	 * @return array
 	 */
-	private static function allowed( array $blocks, $render = null, &$images = 0, $signed_in = false ) {
+	private static function allowed( array $blocks, $render = null, &$images = 0 ) {
 		$kept = array();
 
 		foreach ( $blocks as $block ) {
 			// Verbum's editor also offered captions on both; this one keeps their text.
 			if ( 'core/image' === $block['blockName'] || 'core/embed' === $block['blockName'] ) {
-				$media = 'core/embed' === $block['blockName'] ? Embeds::block( $block, $render ) : Images::block( $block, null === $render ? null : $render && $signed_in, $images );
+				$media = 'core/embed' === $block['blockName'] ? Embeds::block( $block, $render ) : Images::block( $block, $render, $images );
 
 				if ( $media ) {
 					$kept[] = $media;
@@ -463,7 +459,7 @@ class Block_Editor {
 				}
 
 				// An image or embed in a quote can come back as more than one block.
-				foreach ( self::allowed( array( array_shift( $inner ) ), $render, $images, $signed_in ) as $child ) {
+				foreach ( self::allowed( array( array_shift( $inner ) ), $render, $images ) as $child ) {
 					$block['innerBlocks'][]  = $child;
 					$block['innerContent'][] = null;
 				}
