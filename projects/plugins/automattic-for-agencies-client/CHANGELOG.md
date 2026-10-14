@@ -12,14 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - General: Update minimum WordPress version to 7.0. [#51370]
 - Tested up to WordPress 7.1. [#51370]
-- Update package dependencies. [#51303]
-- Update package dependencies. [#51399]
-- Update package dependencies. [#51701]
-- Update package dependencies. [#51802]
-- Update package dependencies. [#52028]
-- Update package dependencies. [#52187]
-- Update package dependencies. [#52297]
-- Update package dependencies. [#52999]
+- Update package dependencies. [#51303] [#51399] [#51701] [#51802] [#52028] [#52187] [#52297] [#52999]
 
 ### Removed
 - Updated PHP version requirements to PHP 7.4 or newer. [#51515]
