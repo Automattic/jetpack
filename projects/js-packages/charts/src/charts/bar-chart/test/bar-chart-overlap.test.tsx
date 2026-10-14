@@ -15,8 +15,15 @@ const makePoints = ( values: Array< number | null > ) =>
 		value,
 	} ) );
 
-const views = { label: 'Views', group: 'views', data: makePoints( [ 300, 200, 250 ] ) };
-const visitors = { label: 'Visitors', group: 'visitors', data: makePoints( [ 120, 90, 100 ] ) };
+// One accent for both, as Premium Analytics passes, so overlap does not hang on palette order.
+const options = { stroke: '#3858e9' };
+const views = { label: 'Views', group: 'views', options, data: makePoints( [ 300, 200, 250 ] ) };
+const visitors = {
+	label: 'Visitors',
+	group: 'visitors',
+	options,
+	data: makePoints( [ 120, 90, 100 ] ),
+};
 
 const renderWithTheme = ( props = {} ) =>
 	render(
@@ -25,13 +32,13 @@ const renderWithTheme = ( props = {} ) =>
 		</GlobalChartsProvider>
 	);
 
-// Visitors goes first: the default blue as the outer bar cannot keep 3:1 against green.
 describe( 'BarChart overlap layout', () => {
 	it( 'draws the larger series wide and the smaller one centered in front', () => {
-		renderWithTheme( { data: [ visitors, views ], layout: 'overlap' } );
+		renderWithTheme( { data: [ views, visitors ], layout: 'overlap' } );
 
 		const outer = screen.getByTestId( 'bar-chart-overlap-outer-0' );
 		const inner = screen.getByTestId( 'bar-chart-overlap-inner-0' );
+		expect( outer ).toHaveAttribute( 'data-series-index', '0' );
 		const outerX = Number( outer.getAttribute( 'x' ) );
 		const outerWidth = Number( outer.getAttribute( 'width' ) );
 
@@ -45,25 +52,22 @@ describe( 'BarChart overlap layout', () => {
 			'three primaries',
 			{
 				data: [
-					visitors,
 					views,
-					{ label: 'Likes', group: 'likes', data: makePoints( [ 9, 8, 7 ] ) },
+					visitors,
+					{ label: 'Likes', group: 'likes', options, data: makePoints( [ 9, 8, 7 ] ) },
 				],
 			},
 		],
-		[ 'horizontal', { data: [ visitors, views ], orientation: 'horizontal' } ],
-		[ 'one primary hidden', { data: [ visitors, views ], defaultHiddenSeries: [ 'Visitors' ] } ],
+		[ 'one primary hidden', { data: [ views, visitors ], defaultHiddenSeries: [ 'Visitors' ] } ],
 	] )( 'falls back to grouped bars with %s', ( _, props ) => {
 		renderWithTheme( { ...props, layout: 'overlap' } );
 		expect( screen.queryByTestId( 'bar-chart-overlap-outer-0' ) ).not.toBeInTheDocument();
 	} );
 
-	// The chart row above passes either way: overlap bars draw nothing without a band x scale.
+	// Checked on the hook: a horizontal chart would pass anyway, as overlap bars need a band x scale.
 	it( 'keeps horizontal bars grouped', () => {
-		// Ungrouped series take colors by index; grouped ones by first request, which is the outer.
-		const series = [ visitors, views ].map( ( { label, data } ) => ( { label, data } ) );
 		const { result } = renderHook(
-			() => useBarOverlapStyles( series, { layout: 'overlap', horizontal: true } ),
+			() => useBarOverlapStyles( [ views, visitors ], { layout: 'overlap', horizontal: true } ),
 			{ wrapper: GlobalChartsProvider }
 		);
 		expect( result.current ).toBeNull();
@@ -71,7 +75,7 @@ describe( 'BarChart overlap layout', () => {
 
 	it( 'skips a missing reading instead of drawing NaN geometry', () => {
 		const gappy = { ...visitors, data: makePoints( [ 120, null, 100 ] ) };
-		renderWithTheme( { data: [ gappy, views ], layout: 'overlap' } );
+		renderWithTheme( { data: [ views, gappy ], layout: 'overlap' } );
 		expect( screen.queryByTestId( 'bar-chart-overlap-inner-1' ) ).not.toBeInTheDocument();
 		expect( screen.getByTestId( 'bar-chart-overlap-inner-2' ) ).not.toHaveAttribute(
 			'height',
