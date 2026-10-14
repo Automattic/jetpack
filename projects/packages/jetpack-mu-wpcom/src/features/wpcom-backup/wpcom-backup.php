@@ -100,12 +100,12 @@ class WPCOM_Backup extends WPCOM_WP_Build_Page {
 	/**
 	 * Whether Backup opens in wp-admin rather than Calypso.
 	 *
-	 * Defaults on for Automatticians only.
+	 * Defaults on, like the Backup package's dashboard.
 	 *
 	 * @return bool
 	 */
 	public static function is_modernized() {
-		return (bool) apply_filters( self::MODERNIZATION_FILTER, Wpcom_Feature_Flags::is_a11n() );
+		return (bool) apply_filters( self::MODERNIZATION_FILTER, true );
 	}
 
 	/**
