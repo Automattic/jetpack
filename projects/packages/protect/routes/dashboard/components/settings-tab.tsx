@@ -32,7 +32,7 @@ export default function SettingsTab( props: Omit< DashboardContext, 'state' > ) 
 	}
 
 	return (
-		<div className="jp-protect-dashboard__cards">
+		<div className="jp-protect-dashboard__cards jp-protect-dashboard__cards--settings">
 			{ error && (
 				<Notice.Root intent="error">
 					<Notice.Description>{ error }</Notice.Description>
