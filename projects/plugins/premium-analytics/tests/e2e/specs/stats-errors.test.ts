@@ -52,8 +52,8 @@ test( 'a failed Stats request recovers through Retry once WordPress.com does', a
 
 test( 'an expired nonce renews without the reader noticing', async ( { dashboard, testUtils } ) => {
 	await testUtils.executeWpCommand( 'option update e2e_pa_nonce_life 10' );
-	// Each request fails on the stale nonce before the page renews it.
-	dashboard.allowErrors( /^403 .*\/proxy\// );
+	// Requests fail on the stale nonce, during boot too on a slow machine, before the page renews it.
+	dashboard.allowErrors( /^403 .* rest_cookie_invalid_nonce$/ );
 	await dashboard.open();
 	await expect( dashboard.page.getByRole( 'tab', { name: /^Views \d/ } ) ).toBeVisible();
 

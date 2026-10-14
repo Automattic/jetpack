@@ -111,6 +111,8 @@ export class Dashboard {
 
 	private readonly allowed: RegExp[] = [];
 
+	private readonly pending: Promise< void >[] = [];
+
 	constructor( readonly page: Page ) {
 		page.on( 'pageerror', error => {
 			// A script that fails to parse or import has no stack; a failed import names its URL in the message.
@@ -127,10 +129,21 @@ export class Dashboard {
 			}
 			const contentType = response.headers()[ 'content-type' ] ?? '';
 			if ( response.status() >= 400 ) {
-				const entry = `${ response.status() } ${ url }`;
-				if ( ! this.allowed.some( pattern => pattern.test( entry ) ) ) {
-					this.errors.push( entry );
-				}
+				// The body's error code tells a refusal a spec expects from a real failure.
+				this.pending.push(
+					response
+						.json()
+						.then(
+							body => body?.code ?? body?.error ?? '',
+							() => ''
+						)
+						.then( code => {
+							const entry = `${ response.status() } ${ url } ${ code }`.trim();
+							if ( ! this.allowed.some( pattern => pattern.test( entry ) ) ) {
+								this.errors.push( entry );
+							}
+						} )
+				);
 			} else if ( type === 'script' && contentType.includes( 'text/html' ) ) {
 				// A module script served as HTML is refused without a page error.
 				this.errors.push( `${ contentType } ${ url }` );
@@ -146,6 +159,10 @@ export class Dashboard {
 
 	allowErrors( pattern: RegExp ) {
 		this.allowed.push( pattern );
+	}
+
+	async settled() {
+		await Promise.all( this.pending );
 	}
 
 	tab( name: string ): Locator {
@@ -179,6 +196,7 @@ export const test = base.extend< { dashboard: Dashboard } >( {
 		await page.route( /pixel\.wp\.com/, pixel => pixel.abort() );
 		const dashboard = new Dashboard( page );
 		await use( dashboard );
+		await dashboard.settled();
 		expect( dashboard.errors, 'Dashboard errors' ).toEqual( [] );
 	},
 } );
