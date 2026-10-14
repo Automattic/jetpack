@@ -134,7 +134,7 @@ class Knowledge_Scopes_REST_Controller extends WP_REST_Controller {
 			'type'       => 'object',
 			'properties' => array(
 				'slug'        => array(
-					'description' => __( 'An alphanumeric identifier for the scope.', 'jetpack-knowledge' ),
+					'description' => __( 'A unique identifier for the scope.', 'jetpack-knowledge' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit', 'embed' ),
 					'readonly'    => true,
