@@ -6,7 +6,7 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import type { SegmentStyle } from '../../helpers';
+import type { SegmentStyle } from '../helpers';
 
 type ChartSegment = {
 	label: string;
