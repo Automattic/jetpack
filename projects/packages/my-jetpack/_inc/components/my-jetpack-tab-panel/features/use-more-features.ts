@@ -62,7 +62,7 @@ export function getModuleFeatureState(
 	if (
 		needsAccount &&
 		$module.requires_user_connection &&
-		! $module.override &&
+		$module.override !== 'inactive' &&
 		! getModuleStatus( $module ).isMultisiteBlocked
 	) {
 		return getAccountNeededState( state.feature, undefined, $module );

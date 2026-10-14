@@ -225,9 +225,10 @@ export function resolveFeatureState(
 			: undefined;
 	const accountModule = $module || gatedModule;
 	const connectionCanHelp =
-		! feature.plugin_override &&
+		feature.plugin_override !== 'inactive' &&
 		( ! accountModule ||
-			( ! accountModule.override && ! getModuleStatus( accountModule ).isMultisiteBlocked ) );
+			( accountModule.override !== 'inactive' &&
+				! getModuleStatus( accountModule ).isMultisiteBlocked ) );
 	if (
 		needsAccount &&
 		connectionCanHelp &&

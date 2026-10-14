@@ -500,6 +500,51 @@ describe( 'account-dependent features', () => {
 		expect( state.status ).toBe( 'inactive' );
 		expect( isFeatureAvailable( state ) ).toBe( false );
 	} );
+
+	it.each( [
+		[ 'plugin forced off', 'publicize', 'social', 'inactive', false, false, 'plugin' ],
+		[ 'plugin forced on', 'publicize', 'social', 'active', false, false, 'connect-account' ],
+		[ 'module forced on', 'publicize', 'social', '', 'active', false, 'connect-account' ],
+		[ 'multisite', 'backup', 'backup', '', false, true, 'module' ],
+	] as const )(
+		'handles account connection with %s',
+		( _name, module, product, plugin_override, override, is_multisite, kind ) => {
+			const previousData = window.JetpackScriptData;
+			window.JetpackScriptData = {
+				...previousData,
+				site: { ...previousData?.site, is_multisite },
+			};
+			try {
+				const accountModule = buildModule( {
+					module,
+					requires_user_connection: true,
+					override,
+				} );
+				const state = resolveFeatureState(
+					buildFeature( {
+						module,
+						product,
+						in_jetpack: ! plugin_override,
+						plugin: `jetpack-${ product }`,
+						plugin_status: plugin_override === 'inactive' ? 'inactive' : 'active',
+						plugin_override,
+					} ),
+					'active',
+					undefined,
+					{ [ module ]: accountModule },
+					PRODUCT_MODULES,
+					false,
+					true
+				);
+				expect( state.control.kind ).toBe( kind );
+				expect( getModuleFeatureState( accountModule, {}, true ).control.kind ).toBe(
+					plugin_override ? 'connect-account' : kind
+				);
+			} finally {
+				window.JetpackScriptData = previousData;
+			}
+		}
+	);
 } );
 
 it.each( [ [ 'publicize', 'social' ] ] )(
