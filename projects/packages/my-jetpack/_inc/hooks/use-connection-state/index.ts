@@ -171,11 +171,6 @@ export function useConnectionState( {
 		};
 	}
 
-	// Ask for a user connection when a product that needs one has its plugin active.
-	const shouldAskForUserConnection = Object.values(
-		getMyJetpackWindowInitialState( 'products' )?.items ?? {}
-	).some( product => product?.requires_user_connection && product.is_plugin_active );
-
 	// The Connection package decides whether there is an error to show; when it says so, that is the diagnosis.
 	if ( errorNotice.hasConnectionError ) {
 		return {
@@ -197,6 +192,11 @@ export function useConnectionState( {
 			manageConnection,
 		};
 	}
+
+	// Ask for a user connection when a product that needs one has its plugin active.
+	const shouldAskForUserConnection = Object.values(
+		getMyJetpackWindowInitialState( 'products' )?.items ?? {}
+	).some( product => product?.requires_user_connection && product.is_plugin_active );
 
 	if ( ! shouldAskForUserConnection ) {
 		return {
