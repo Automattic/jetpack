@@ -46,21 +46,44 @@ function e2e_pa_intercept_wpcom( $preempt, $args, $url ) {
 		return $preempt;
 	}
 
+	$path  = (string) wp_parse_url( $url, PHP_URL_PATH );
+	$fault = get_option( 'e2e_pa_stats_fault' );
+	if ( 'public-api.wordpress.com' === $host && is_array( $fault ) && false !== strpos( $path, '/stats/' . $fault['route'] ) ) {
+		return e2e_pa_reply(
+			(int) $fault['status'],
+			array(
+				'error'   => $fault['error'],
+				'message' => $fault['message'],
+			)
+		);
+	}
+
 	$query = array();
 	wp_parse_str( (string) wp_parse_url( $url, PHP_URL_QUERY ), $query );
-	$body = 'public-api.wordpress.com' === $host ? e2e_pa_fixture( (string) wp_parse_url( $url, PHP_URL_PATH ), $query ) : null;
+	$body = 'public-api.wordpress.com' === $host ? e2e_pa_fixture( $path, $query ) : null;
 
 	// The tokens are fake and the site ID may be a real blog's, so nothing reaches WordPress.com.
 	if ( null === $body ) {
 		return new WP_Error( 'e2e_blocked', 'The E2E helper blocks WordPress.com requests it has no fixture for.' );
 	}
 
+	return e2e_pa_reply( 200, $body );
+}
+
+/**
+ * Builds a WordPress.com JSON reply. A spec sets `e2e_pa_stats_fault` to make one Stats route fail with WordPress.com's error envelope.
+ *
+ * @param int          $code HTTP status.
+ * @param array|object $body Reply body.
+ * @return array
+ */
+function e2e_pa_reply( $code, $body ) {
 	return array(
 		'headers'  => array( 'content-type' => 'application/json' ),
 		'body'     => wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
 		'response' => array(
-			'code'    => 200,
-			'message' => 'OK',
+			'code'    => $code,
+			'message' => get_status_header_desc( $code ),
 		),
 		'cookies'  => array(),
 		'filename' => null,

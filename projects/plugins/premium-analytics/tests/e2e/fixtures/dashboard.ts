@@ -9,6 +9,13 @@ export type SiteState = {
 	timezone?: string;
 };
 
+export type StatsFault = {
+	route: string;
+	status: number;
+	error: string;
+	message: string;
+};
+
 // The welcome dialog marks everything behind it inert, so specs start with onboarding done.
 const ONBOARDED_PREFERENCES =
 	'{"jetpack-premium-analytics/dashboard":{"onboardingCompletedAt":"2026-01-01T00:00:00.000Z"},"_modified":"2026-01-01T00:00:00.000Z"}';
@@ -41,6 +48,10 @@ export async function setSiteState( testUtils: TestUtils, state: SiteState ) {
 		'timezone_string',
 		state.timezone ?? 'UTC',
 	] );
+	await testUtils.executeWpCommand( [
+		'eval',
+		"delete_option( 'e2e_pa_stats_fault' ); delete_option( 'e2e_pa_nonce_life' );",
+	] );
 	await testUtils.executeWpCommand(
 		`option update jetpack_premium_analytics_enabled ${ state.enabled ? 1 : 0 }`
 	);
@@ -72,8 +83,33 @@ export async function setSiteState( testUtils: TestUtils, state: SiteState ) {
 	}
 }
 
+/**
+ * Makes WordPress.com answer one Stats route with its error envelope, or answer normally again.
+ *
+ * @param testUtils - e2e-commons test utilities.
+ * @param fault     - The route, status and envelope, or null to clear it.
+ */
+export async function setStatsFault( testUtils: TestUtils, fault: StatsFault | null ) {
+	if ( ! fault ) {
+		// Transients stay: a failure the proxy wrongly cached must still show.
+		await testUtils.executeWpCommand( [ 'eval', "delete_option( 'e2e_pa_stats_fault' );" ] );
+		return;
+	}
+	await testUtils.executeWpCommand( [
+		'option',
+		'update',
+		'e2e_pa_stats_fault',
+		JSON.stringify( fault ),
+		'--format=json',
+	] );
+	// The proxy would answer from a cached success.
+	await testUtils.executeWpCommand( 'transient delete --all' );
+}
+
 export class Dashboard {
 	readonly errors: string[] = [];
+
+	private readonly allowed: RegExp[] = [];
 
 	constructor( readonly page: Page ) {
 		page.on( 'pageerror', error => {
@@ -91,7 +127,10 @@ export class Dashboard {
 			}
 			const contentType = response.headers()[ 'content-type' ] ?? '';
 			if ( response.status() >= 400 ) {
-				this.errors.push( `${ response.status() } ${ url }` );
+				const entry = `${ response.status() } ${ url }`;
+				if ( ! this.allowed.some( pattern => pattern.test( entry ) ) ) {
+					this.errors.push( entry );
+				}
 			} else if ( type === 'script' && contentType.includes( 'text/html' ) ) {
 				// A module script served as HTML is refused without a page error.
 				this.errors.push( `${ contentType } ${ url }` );
@@ -103,6 +142,10 @@ export class Dashboard {
 		await this.page.goto(
 			`./wp-admin/admin.php?page=jetpack-premium-analytics-wp-admin&p=${ encodeURIComponent( path ) }`
 		);
+	}
+
+	allowErrors( pattern: RegExp ) {
+		this.allowed.push( pattern );
 	}
 
 	tab( name: string ): Locator {
