@@ -31,8 +31,12 @@ function OnboardingView(): JSX.Element {
 			)
 		: __( 'Welcome', 'jetpack-newsletter' );
 	const introTitle = isWpcomPlatformSite()
-		? __( 'Jetpack Newsletter on WordPress.com', 'jetpack-newsletter' )
-		: __( 'Jetpack Newsletter', 'jetpack-newsletter' );
+		? sprintf(
+				/* translators: %s: Product name, "Jetpack Newsletter". Do not translate. */
+				__( '%s on WordPress.com', 'jetpack-newsletter' ),
+				'Jetpack Newsletter'
+			)
+		: 'Jetpack Newsletter';
 
 	return (
 		<Stack className="jetpack-newsletter-overview" gap="2xl" direction="column" align="flex-start">

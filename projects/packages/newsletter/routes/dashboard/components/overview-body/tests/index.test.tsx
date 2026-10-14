@@ -56,6 +56,7 @@ beforeEach( () => {
 	mockRecordEvent.mockReset();
 	mockApiFetch.mockReset();
 	mockIsWpcomPlatformSite.mockReset();
+	mockIsWpcomPlatformSite.mockReturnValue( false );
 	mockApiFetch.mockReturnValue( new Promise( () => {} ) );
 	window.localStorage.clear();
 	mockGetScriptData.mockReturnValue( {
@@ -68,7 +69,7 @@ beforeEach( () => {
 } );
 
 describe( 'OverviewBody', () => {
-	it( 'greets the current user and renders the introductory content', () => {
+	it( 'greets the current user and titles the intro card "Jetpack Newsletter" on self-hosted sites', () => {
 		renderOverview();
 
 		expect(
