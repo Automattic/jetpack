@@ -25,15 +25,15 @@ import {
 } from '@automattic/jetpack-wp-build-polyfills/src/js/load-i18n-catalogs';
 import { useEffect, useMemo, useState } from '@wordpress/element';
 import { useWidgetTypes } from '@wordpress/widget-primitives';
+/**
+ * Internal dependencies
+ */
 import { resolvePlanLockedWidgetModule, withPlanLockedRenderModules } from './plan-locked-widgets';
 import type {
 	ResolveWidgetModule,
 	WidgetModuleRecord,
 	WidgetType,
 } from '@wordpress/widget-primitives';
-/**
- * Internal dependencies
- */
 
 /**
  * The module shape `ResolveWidgetModule` must yield. Not exported by
