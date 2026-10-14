@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+AI Launchpad: Remove the Site Setup menu once the site is launched or the final task is completed elsewhere, without reopening Site Setup first.
