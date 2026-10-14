@@ -82,11 +82,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 	public static $current_form;
 
 	/**
-	 * Attributes of [contact-form] shortcodes nested in the form being built; null when no form is being built.
+	 * Whether a form's content is being parsed right now, used to detect a nested [contact-form].
 	 *
-	 * @var array|null
+	 * @var bool
 	 */
-	private static $nested_form_attributes;
+	private static $is_building_form = false;
 
 	/**
 	 * All found forms, indexed by hash.
@@ -566,8 +566,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'formTitle'              => $attributes['formTitle'] ?? '',
 		);
 
-		$explicit_attributes = $attributes;
-		$attributes          = shortcode_atts( $this->defaults, $attributes, 'contact-form' );
+		$nested_attributes = $this->get_nested_form_attributes( $content, $attributes );
+		$attributes        = array_merge( shortcode_atts( $this->defaults, $attributes, 'contact-form' ), $nested_attributes );
 
 		// Transform boolean saveResponses to string for backend compatibility
 		if ( isset( $attributes['saveResponses'] ) && is_bool( $attributes['saveResponses'] ) ) {
@@ -582,9 +582,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 		// We only enable the contact-field shortcode temporarily while processing the contact-form shortcode.
 		Contact_Form_Plugin::$using_contact_form_field = true;
 
-		self::$nested_form_attributes = array();
+		self::$is_building_form = true;
 		parent::__construct( $attributes, $content );
-		$this->merge_nested_form_attributes( $explicit_attributes );
+		self::$is_building_form = false;
 
 		// There were no fields in the contact form. The form was probably just [contact-form /]. Build a default form.
 		if ( empty( $this->fields ) ) {
@@ -612,22 +612,34 @@ class Contact_Form extends Contact_Form_Shortcode {
 	}
 
 	/**
-	 * Fills in attributes from nested [contact-form] shortcodes that this form did not set itself.
+	 * Attributes from [contact-form] shortcodes nested in this form's content that the form did not set itself.
 	 *
-	 * @param array $explicit_attributes Attributes this form was given, before defaults were applied.
+	 * Resolved before fields are built, since fields read form attributes such as `subject` as they render.
+	 *
+	 * @param string|array|null $content             The form's inner content.
+	 * @param array             $explicit_attributes Attributes this form was given, before defaults were applied.
+	 * @return array
 	 */
-	private function merge_nested_form_attributes( $explicit_attributes ) {
-		$nested_attributes            = self::$nested_form_attributes;
-		self::$nested_form_attributes = null;
+	private function get_nested_form_attributes( $content, $explicit_attributes ) {
+		if ( ! is_string( $content ) || ! preg_match_all( '/' . get_shortcode_regex( array( 'contact-form' ) ) . '/s', $content, $matches, PREG_SET_ORDER ) ) {
+			return array();
+		}
+
+		$nested_attributes = array();
+		foreach ( $matches as $match ) {
+			$attributes = shortcode_parse_atts( $match[3] );
+			// Skip escaped [[contact-form]], which renders as literal text.
+			if ( ( '[' !== $match[1] || ']' !== $match[6] ) && is_array( $attributes ) ) {
+				$nested_attributes += $attributes;
+			}
+		}
 
 		$internal_attributes = array_flip( array( 'id', 'ref', 'widget', 'block_template', 'block_template_part' ) );
-		$nested_attributes   = array_diff_key(
+		return array_diff_key(
 			array_intersect_key( $nested_attributes, $this->defaults ),
 			$explicit_attributes,
 			$internal_attributes
 		);
-
-		$this->attributes = array_merge( $this->attributes, $this->unesc_attr( $nested_attributes ) );
 	}
 
 	/**
@@ -1495,8 +1507,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		// A form nested in another form's content would reset the outer form's state; merge its fields into the outer form instead.
-		if ( null !== self::$nested_form_attributes ) {
-			self::$nested_form_attributes += is_array( $attributes ) ? $attributes : array();
+		if ( self::$is_building_form ) {
 			return $content === null ? '' : apply_shortcodes( $content );
 		}
 

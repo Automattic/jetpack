@@ -4313,6 +4313,16 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Fields are built after a nested form's attributes are merged, so a subject field defaults to the inherited subject.
+	 */
+	public function test_nested_contact_form_shortcode_attributes_reach_fields() {
+		$html = apply_shortcodes( "[contact-form][contact-form subject='Inner subject'][contact-field label='Subject' type='subject'/][/contact-form][/contact-form]" );
+
+		$this->assertSame( 'Inner subject', Contact_Form::$last->get_attribute( 'subject' ) );
+		$this->assertStringContainsString( "value='Inner subject'", $html );
+	}
+
+	/**
 	 * Data provider for test_nested_contact_form_shortcode_merges_into_outer_form.
 	 *
 	 * @return array
