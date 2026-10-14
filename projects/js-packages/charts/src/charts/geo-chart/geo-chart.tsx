@@ -243,7 +243,8 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 				typeof col.p === 'object' &&
 				col.p !== null &&
 				'html' in col.p &&
-				col.p.html === true
+				// Google renders any truthy `html` as markup, even the string 'false'.
+				col.p.html
 			) {
 				htmlTooltipIndices.push( i );
 			}

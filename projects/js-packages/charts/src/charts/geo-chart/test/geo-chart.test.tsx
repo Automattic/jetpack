@@ -98,21 +98,24 @@ describe( 'GeoChart', () => {
 			expect( data ).toEqual( testData );
 		} );
 
-		test( 'sanitizes HTML tooltip content to prevent XSS', () => {
-			const testData: [ ( string | object )[], ...[ string, number, string ][] ] = [
-				[ 'Country', 'Value', { type: 'string', role: 'tooltip', p: { html: true } } ],
-				[ 'US', 100, '<b>United States</b><script>alert("xss")</script>' ],
-				[ 'CA', 50, '<b>Canada</b><img src=x onerror="alert(1)">' ],
-			];
-			renderWithTheme( { data: testData } );
+		test.each( [ true, 'true', 1, 'false' ] )(
+			'sanitizes HTML tooltip content when p.html is %p',
+			html => {
+				const testData: [ ( string | object )[], ...[ string, number, string ][] ] = [
+					[ 'Country', 'Value', { type: 'string', role: 'tooltip', p: { html } } ],
+					[ 'US', 100, '<b>United States</b><script>alert("xss")</script>' ],
+					[ 'CA', 50, '<b>Canada</b><img src=x onerror="alert(1)">' ],
+				];
+				renderWithTheme( { data: testData } );
 
-			const chartData = screen.getByTestId( 'chart-data' );
-			const data = JSON.parse( chartData.textContent || '[]' );
+				const chartData = screen.getByTestId( 'chart-data' );
+				const data = JSON.parse( chartData.textContent || '[]' );
 
-			// Script tags and img (not in allowlist) should be stripped
-			expect( data[ 1 ][ 2 ] ).toBe( '<b>United States</b>' );
-			expect( data[ 2 ][ 2 ] ).toBe( '<b>Canada</b>' );
-		} );
+				// Script tags and img (not in allowlist) should be stripped
+				expect( data[ 1 ][ 2 ] ).toBe( '<b>United States</b>' );
+				expect( data[ 2 ][ 2 ] ).toBe( '<b>Canada</b>' );
+			}
+		);
 
 		test( 'handles header-only data with HTML tooltip column and no data rows', () => {
 			const testData: [ ( string | object )[] ] = [
