@@ -83,45 +83,59 @@ type Props = {
 	xAccessor: XAccessor;
 };
 
+const getLineWidth = ( paint: LinePaint ) => {
+	const width = Number( paint.strokeWidth ?? 2 );
+	return Number.isFinite( width ) ? width : 2;
+};
+
 // The overlap layout's previous periods: dashed lines with a marker on every reading.
-export const ComparisonLines: FC< Props > = ( { comparisons, data, xAccessor } ) => (
-	<g className="bar-chart__comparison-lines" pointerEvents="none" aria-hidden="true">
-		{ comparisons.map( comparison => {
-			const series = data.find( item => item.label === comparison.label );
-			if ( ! series ) {
-				return null;
-			}
-			const points = series.data as DataPointDate[];
-			const paint: LinePaint = comparison.lineStyles;
-			const lineWidth = Number( paint.strokeWidth ?? 2 );
-			return (
-				<g key={ comparison.label }>
-					{ COMPARISON_LINE_CASING > 0 && (
+export const ComparisonLines: FC< Props > = ( { comparisons, data, xAccessor } ) => {
+	const drawn = comparisons.flatMap( comparison => {
+		const series = data.find( item => item.label === comparison.label );
+		return series ? [ { comparison, points: series.data as DataPointDate[] } ] : [];
+	} );
+
+	return (
+		<g className="bar-chart__comparison-lines" pointerEvents="none" aria-hidden="true">
+			{ drawn.map( ( { comparison, points } ) => {
+				const paint: LinePaint = comparison.lineStyles;
+				return (
+					<g key={ comparison.label }>
+						{ COMPARISON_LINE_CASING > 0 && (
+							<LineSeries
+								dataKey={ `${ comparison.label }::casing` }
+								data={ points }
+								xAccessor={ xAccessor }
+								yAccessor={ getReading }
+								enableEvents={ false }
+								stroke={ CATALOG_POINTERS.background }
+								strokeWidth={ getLineWidth( paint ) + COMPARISON_LINE_CASING * 2 }
+								data-testid={ `bar-chart-comparison-casing-${ comparison.label }` }
+							/>
+						) }
 						<LineSeries
-							dataKey={ `${ comparison.label }::casing` }
+							dataKey={ comparison.label }
 							data={ points }
 							xAccessor={ xAccessor }
 							yAccessor={ getReading }
 							enableEvents={ false }
-							stroke={ CATALOG_POINTERS.background }
-							strokeWidth={ lineWidth + COMPARISON_LINE_CASING * 2 }
-							data-testid={ `bar-chart-comparison-casing-${ comparison.label }` }
+							{ ...paint }
+							// After the theme style, so the line matches its markers.
+							stroke={ comparison.stroke }
+							data-testid={ `bar-chart-comparison-line-${ comparison.label }` }
 						/>
-					) }
-					<LineSeries
-						dataKey={ comparison.label }
-						data={ points }
-						xAccessor={ xAccessor }
-						yAccessor={ getReading }
-						enableEvents={ false }
-						{ ...paint }
-						// After the theme style, so the line matches its markers.
-						stroke={ comparison.stroke }
-						data-testid={ `bar-chart-comparison-line-${ comparison.label }` }
-					/>
-					<ComparisonMarkers comparison={ comparison } points={ points } xAccessor={ xAccessor } />
-				</g>
-			);
-		} ) }
-	</g>
-);
+					</g>
+				);
+			} ) }
+			{ /* After every line, so no marker sits under the other comparison's line. */ }
+			{ drawn.map( ( { comparison, points } ) => (
+				<ComparisonMarkers
+					key={ comparison.label }
+					comparison={ comparison }
+					points={ points }
+					xAccessor={ xAccessor }
+				/>
+			) ) }
+		</g>
+	);
+};

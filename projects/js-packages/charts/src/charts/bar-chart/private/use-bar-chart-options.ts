@@ -110,7 +110,7 @@ const getBandDomain = (
 
 	for ( const series of data ) {
 		// A hidden series is unmounted and a grouped comparison registers nothing. An overlap
-		// comparison line does register, but on its primary's buckets, so it adds no key.
+		// comparison line does register; it adds no key only while its dates match its primary's.
 		if ( series.options?.type === 'comparison' || ! isSeriesRendered( series ) ) {
 			continue;
 		}

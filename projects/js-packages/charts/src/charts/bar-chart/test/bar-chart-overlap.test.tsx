@@ -98,7 +98,7 @@ describe( 'BarChart overlap layout', () => {
 		);
 	} );
 
-	it( 'draws previous periods as neutral cased lines with a marker per reading', () => {
+	it( 'draws previous periods as neutral dashed lines with a marker per reading', () => {
 		renderWithTheme( {
 			data: [ views, visitors, viewsPrev, visitorsPrev ],
 			layout: 'overlap',
@@ -124,6 +124,16 @@ describe( 'BarChart overlap layout', () => {
 		expect( screen.queryByTestId( 'bar-chart-comparison-bars' ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'draws every comparison line before any marker', () => {
+		renderWithTheme( { data: [ views, visitors, viewsPrev, visitorsPrev ], layout: 'overlap' } );
+
+		const lastLine = screen.getByTestId( 'bar-chart-comparison-line-Visitors prev' );
+		const firstMarker = screen.getByTestId( 'bar-chart-comparison-marker-Views prev-0' );
+		expect( lastLine.compareDocumentPosition( firstMarker ) ).toBe(
+			Node.DOCUMENT_POSITION_FOLLOWING
+		);
+	} );
+
 	it( 'plots a zero reading at zero, not at the zero-value stub', () => {
 		renderWithTheme( {
 			data: [ views, visitors, viewsPrev, visitorsPrev ],
@@ -135,6 +145,9 @@ describe( 'BarChart overlap layout', () => {
 		const baseline = Number( outer.getAttribute( 'y' ) ) + Number( outer.getAttribute( 'height' ) );
 		const marker = screen.getByTestId( 'bar-chart-comparison-marker-Views prev-1' );
 		expect( Number( marker.getAttribute( 'y' ) ) + COMPARISON_MARKER_SIZE ).toBeCloseTo( baseline );
+		expect( Number( marker.getAttribute( 'x' ) ) + COMPARISON_MARKER_SIZE ).toBeCloseTo(
+			Number( outer.getAttribute( 'x' ) ) + Number( outer.getAttribute( 'width' ) ) / 2
+		);
 	} );
 
 	it( 'outlines the narrow inner bar when the keyboard lands on it', async () => {
