@@ -88,7 +88,7 @@
 
 	&:focus-visible {
 		outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
-		outline-offset: 2px;
+		outline-offset: var(--wpds-border-width-focus);
 	}
 }
 
