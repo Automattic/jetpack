@@ -43,6 +43,8 @@ export const PRODUCT_MODULES: {
 /**
  * The product-to-module map to build cards from.
  *
+ * Remove the AI pre-release gate when its settings page goes public.
+ *
  * @return The map, without the AI entry while the control is gated.
  */
 export function getProductModules() {
