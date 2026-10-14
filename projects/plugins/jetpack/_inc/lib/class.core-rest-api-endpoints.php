@@ -3572,7 +3572,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 */
 	public static function get_remote_value( $module, $option ) {
 
-		if ( in_array( $module, array( 'post-by-email' ), true ) ) {
+		// These are per-user values on WordPress.com, so each user gets their own local copy.
+		if ( in_array( $module, array( 'monitor', 'post-by-email' ), true ) ) {
 			$option .= get_current_user_id();
 		}
 
@@ -3597,6 +3598,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 					return false;
 				}
 				$value = Jetpack_Monitor::user_receives_notifications( false );
+				// Not saved: the user may not be connected yet, and would be stuck with this answer.
+				if ( is_wp_error( $value ) ) {
+					return false;
+				}
+				// update_option() won't create an option whose value is `false`.
+				$value = (int) (bool) $value;
 				break;
 
 			case 'post-by-email':
@@ -3609,11 +3616,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 					$value = 'NULL'; // sentinel value so it actually gets set.
 				}
 				break;
-		}
-
-		// Normalize value to boolean.
-		if ( is_wp_error( $value ) || $value === null ) {
-			$value = false;
 		}
 
 		// Save option to use it next time.

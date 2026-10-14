@@ -114,6 +114,7 @@ class Initializer {
 		}
 
 		if ( self::is_offline_features_enabled() ) {
+			add_filter( 'jetpack_my_jetpack_should_enable_add_license_screen', '__return_false' );
 			Connection_Rest_Authentication::init();
 			add_filter( 'rest_request_before_callbacks', array( __CLASS__, 'use_local_module_options' ), 10, 3 );
 			add_filter( 'rest_request_after_callbacks', array( __CLASS__, 'restore_module_options' ), 10, 3 );
@@ -927,7 +928,7 @@ class Initializer {
 	}
 
 	/**
-	 * Add My Jetpack availability and image base URL to admin script data.
+	 * Add My Jetpack's availability, image base URL and link targets to admin script data.
 	 *
 	 * Printed on every admin page by Script_Data, so the connection screen can resolve its
 	 * illustrations and Jetpack footers know whether to link to My Jetpack.
@@ -946,16 +947,29 @@ class Initializer {
 			$data['myJetpack']['modulesManagementUrl'] = self::get_modules_management_url();
 		}
 
+		// Only administrators can open the pages this points at, so spare everyone else the lookup.
+		if ( current_user_can( 'manage_options' ) ) {
+			$data['myJetpack']['aiManageUrl'] = esc_url_raw( Products\Jetpack_Ai::get_manage_url() );
+		}
+
 		if (
 			self::is_my_jetpack_admin_request()
 			&& self::is_offline_features_enabled()
-			// Honor an explicit host veto without enabling offline entry.
 			&& self::should_initialize()
 			&& REST_Main_Features::permissions_callback()
 		) {
 			$data['myJetpack']['offlineFeatures'] = array(
 				'mainFeatures' => Main_Features::get_state( true ),
 				'plugins'      => Plugins_Installer::get_plugins(),
+			);
+			global $_registered_pages;
+			$data['myJetpack']['offlineFeatures']['mainFeatures']['available_admin_pages'] = array_values(
+				array_unique(
+					array_map(
+						static fn( $hook ) => substr( $hook, strpos( $hook, '_page_' ) + 6 ),
+						array_filter( array_keys( $_registered_pages ?? array() ), static fn( $hook ) => false !== strpos( $hook, '_page_' ) && false === strpos( $hook, '?' ) )
+					)
+				)
 			);
 		}
 
@@ -1217,6 +1231,7 @@ class Initializer {
 
 		/**
 		 * Allows filtering whether My Jetpack should be initialized.
+		 * Outside REST requests, once the user is set, this cannot enable offline Features for a user without access.
 		 *
 		 * @since 0.5.0-alpha
 		 *
@@ -1224,8 +1239,8 @@ class Initializer {
 		 */
 		$should = apply_filters( 'jetpack_my_jetpack_should_initialize', $should );
 
-		// Standalone plugins can initialize before WordPress loads its pluggable user functions.
-		if ( self::is_offline_features_enabled() && function_exists( 'wp_get_current_user' ) && ! self::current_user_can_access_page() ) {
+		// REST authenticates after route registration; its permission callbacks check access.
+		if ( self::is_offline_features_enabled() && ! Jetpack_Constants::is_true( 'REST_REQUEST' ) && function_exists( 'wp_get_current_user' ) && did_action( 'set_current_user' ) && ! self::current_user_can_access_page() ) {
 			return false;
 		}
 

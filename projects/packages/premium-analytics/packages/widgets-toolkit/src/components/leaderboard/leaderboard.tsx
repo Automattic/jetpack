@@ -8,12 +8,14 @@ import { useCallback, useEffect, useMemo, type JSX, type ReactNode } from 'react
  * Internal dependencies
  */
 import { WIDGET_ROW_LIMIT } from '../../constants/rows';
+import { formatLegendLabels } from '../../helpers/format-legend-labels';
 import { useWidgetDrillDown } from '../../hooks/use-widget-drill-down';
 import { useWidgetNavigationSearch } from '../../hooks/use-widget-navigation-search';
 import { LeaderboardChart, type LegendLabels } from '../chart-leaderboard/leaderboard-chart';
 import { LeaderboardSkeleton } from '../chart-leaderboard/leaderboard-skeleton';
 import { WidgetBackLink } from '../widget-back-link';
 import { WidgetFooter } from '../widget-footer';
+import { useWidgetRootContext } from '../widget-root';
 import {
 	WidgetState,
 	resolveWidgetStateError,
@@ -27,6 +29,7 @@ import {
 import { resolveDrillDownTrail } from './drill-down-trail';
 import styles from './leaderboard.module.scss';
 import type { DataFormat, WidgetStatus } from '../../types';
+import type { LeaderboardVariant } from '../chart-leaderboard/leaderboard-variant';
 
 /**
  * The request status, as every widget kind takes it.
@@ -79,7 +82,14 @@ export type LeaderboardProps = {
 	 */
 	format?: DataFormat;
 	/**
-	 * Labels of the period legend under the chart. No legend when omitted.
+	 * How the rows draw: `list` lays the label on its bar and shows the comparison as a delta;
+	 * `bars` lays the label above the bar, draws the previous period as a second bar when
+	 * comparing, and names the periods in a legend. Defaults to `list`.
+	 */
+	variant?: LeaderboardVariant;
+	/**
+	 * Labels of the period legend of the `bars` variant. Derived from the report params when
+	 * omitted.
 	 */
 	legend?: LegendLabels;
 	/**
@@ -118,11 +128,13 @@ export function Leaderboard( {
 	empty,
 	maxRows = WIDGET_ROW_LIMIT,
 	format = DEFAULT_FORMAT,
+	variant = 'list',
 	legend,
 	drillDown,
 	navigation,
 	footer,
 }: LeaderboardProps ): JSX.Element {
+	const { reportParams } = useWidgetRootContext();
 	const detailSearch = useWidgetNavigationSearch( navigation );
 	const refetch = status.refetch;
 	const { isLoading, isFetching, isError } = status;
@@ -176,8 +188,14 @@ export function Leaderboard( {
 				drillDown: drillDown
 					? { onSelect: select, rowAriaLabel: drillDown.rowAriaLabel }
 					: undefined,
+				variant,
 			} ),
-		[ activeRows, hasComparison, parent, maxRows, detailSearch, drillDown, select ]
+		[ activeRows, hasComparison, parent, maxRows, detailSearch, drillDown, select, variant ]
+	);
+
+	const legendLabels = useMemo(
+		() => ( variant === 'bars' ? ( legend ?? formatLegendLabels( reportParams ) ) : undefined ),
+		[ variant, legend, reportParams ]
 	);
 
 	const errorState = useMemo( () => resolveWidgetStateError( error, refetch ), [ error, refetch ] );
@@ -212,14 +230,14 @@ export function Leaderboard( {
 					isEmpty={ data.length === 0 }
 					error={ errorState }
 					empty={ empty }
-					renderLoading={ <LeaderboardSkeleton rows={ maxRows } /> }
+					renderLoading={ <LeaderboardSkeleton rows={ maxRows } variant={ variant } /> }
 				>
 					<LeaderboardChart
 						data={ data }
 						withComparison={ hasComparison }
-						withOverlayLabel
-						showLegend={ !! legend }
-						legendLabels={ legend }
+						withOverlayLabel={ variant === 'list' }
+						showLegend={ !! legendLabels }
+						legendLabels={ legendLabels }
 						dataFormat={ format }
 					/>
 				</WidgetState>

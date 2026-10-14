@@ -38,7 +38,7 @@ jest.mock( '@wordpress/route', () => ( {
 // Imports must come after the jest.mock factories above.
 import { render, renderHook, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { queryClient } from '../src/dashboard/data/query-client';
+import { keys, queryClient } from '../src/dashboard/data/query-client';
 import { resetAnalyticsForTesting, useAnalytics } from '../src/dashboard/hooks/use-analytics';
 import QueryClientProvider from '../src/dashboard/providers/query-client-provider';
 
@@ -293,6 +293,28 @@ describe( 'Back up now', () => {
 	} );
 } );
 
+describe( 'Back up now after a remount', () => {
+	it( 'stays disabled while a requested backup is still pending', async () => {
+		mockEndpointsForButton();
+		queryClient.setQueryData( keys.enqueueRequested(), {
+			clickedAt: Date.now(),
+			baselineReady: true,
+			baselineId: '1',
+		} );
+		const BackupNowButton = ( await import( '../src/dashboard/components/backup-now-button' ) )
+			.default;
+
+		render(
+			<QueryClientProvider>
+				<BackupNowButton />
+			</QueryClientProvider>
+		);
+
+		const button = await screen.findByRole( 'button', { name: /backup enqueued/i } );
+		expect( button ).toHaveAttribute( 'aria-disabled', 'true' );
+	} );
+} );
+
 describe( 'Modify schedule', () => {
 	/**
 	 * Render the next-backup line inside the dashboard's query client.
@@ -357,7 +379,7 @@ describe( 'Modify schedule', () => {
 		await userEvent.click( await modifyButton() );
 		await userEvent.click( await screen.findByRole( 'combobox', { name: 'Backup window' } ) );
 		// Jest runs in America/Sao_Paulo and the site settings default to UTC, so 3 AM is hour 3.
-		await userEvent.click( await screen.findByRole( 'option', { name: '3:00-3:59 AM' } ) );
+		await userEvent.click( await screen.findByRole( 'option', { name: '3:00-3:59 am' } ) );
 		await userEvent.click( screen.getByRole( 'button', { name: 'Save' } ) );
 	}
 

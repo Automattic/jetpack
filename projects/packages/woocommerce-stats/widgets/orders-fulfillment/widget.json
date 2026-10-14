@@ -1,5 +1,6 @@
 {
 	"name": "woocommerce-analytics/orders-fulfillment",
+	"icon": "jpa/chart-bar",
 	"title": "Orders fulfillment",
 	"description": "Shows the breakdown of fulfilled vs unfulfilled order counts over the selected time period.",
 	"help": {

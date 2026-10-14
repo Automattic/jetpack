@@ -77,41 +77,49 @@ const section = ( $module = sharing, requested: Record< string, boolean > = {} )
 const renderSection = ( ...args: Parameters< typeof section > ) => render( section( ...args ) );
 
 describe( 'MoreFeatures', () => {
-	it( 'shows an unavailable reason without switches, selection or settings, and filters the row out', () => {
-		setSiteEditor( { isBlockTheme: false } );
-		const unavailable = getModuleFeatureState(
-			{
-				...sharing,
-				module: 'woocommerce-analytics',
-				name: 'WooCommerce Analytics',
-				available: false,
-				activated: true,
-				unavailable_reason: 'Requires WooCommerce 3+ plugin',
-				configure_url: 'https://example.com/settings',
-			},
-			{}
-		);
-		const groups = [ { label: 'Analytics', states: [ unavailable ] } ];
-		expect( filterMoreFeatures( groups, 'active', '' ) ).toEqual( [] );
-		expect( unavailable.status ).toBe( 'inactive' );
-		const tree = ( filter: 'all' | 'available' ) => (
-			<MoreFeatures
-				groups={ filterMoreFeatures( groups, filter, '' ) }
-				selection={ selection }
-				jetpack="active"
-			/>
-		);
-		const { rerender } = render( tree( 'all' ) );
-		expect( screen.getByText( 'Requires WooCommerce 3+ plugin' ) ).toBeVisible();
-		expect( screen.getByText( 'Unavailable' ) ).toBeVisible();
-		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
-		rerender( tree( 'available' ) );
-		expect( screen.queryByText( 'WooCommerce Analytics' ) ).not.toBeInTheDocument();
-		rerender( tree( 'all' ) );
-		expect( screen.getByText( 'Requires WooCommerce 3+ plugin' ) ).toBeVisible();
-	} );
+	it.each( [
+		[ false, 'Requires WooCommerce 3+ plugin' ],
+		[ 'active', 'Requires a connected WordPress.com account' ],
+		[ 'active', 'Unavailable in Offline mode' ],
+	] as const )(
+		'shows an unavailable row with override %s and reason %s, and filters it out',
+		( override, unavailable_reason ) => {
+			setSiteEditor( { isBlockTheme: false } );
+			const unavailable = getModuleFeatureState(
+				{
+					...sharing,
+					module: 'woocommerce-analytics',
+					name: 'WooCommerce Analytics',
+					available: false,
+					activated: true,
+					unavailable_reason,
+					override,
+					configure_url: 'https://example.com/settings',
+				},
+				{}
+			);
+			const groups = [ { label: 'Analytics', states: [ unavailable ] } ];
+			expect( filterMoreFeatures( groups, 'active', '' ) ).toEqual( [] );
+			expect( unavailable.status ).toBe( 'inactive' );
+			const tree = ( filter: 'all' | 'available' ) => (
+				<MoreFeatures
+					groups={ filterMoreFeatures( groups, filter, '' ) }
+					selection={ selection }
+					jetpack="active"
+				/>
+			);
+			const { rerender } = render( tree( 'all' ) );
+			expect( screen.getByText( unavailable_reason ) ).toBeVisible();
+			expect( screen.getByText( 'Unavailable' ) ).toBeVisible();
+			expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
+			rerender( tree( 'available' ) );
+			expect( screen.queryByText( 'WooCommerce Analytics' ) ).not.toBeInTheDocument();
+			rerender( tree( 'all' ) );
+			expect( screen.getByText( unavailable_reason ) ).toBeVisible();
+		}
+	);
 
 	it.each( [ 'waf', 'backup' ] as const )(
 		'explains the multisite-blocked %s and leaves it out of Available',
@@ -156,7 +164,7 @@ describe( 'MoreFeatures', () => {
 	);
 
 	it.each( [ false, 'active' ] as const )(
-		'never badges an installed plugin unavailable with module override %s',
+		'keeps the plugin route unless the host forces its unavailable module (override: %s)',
 		override => {
 			setSiteEditor( { isBlockTheme: false } );
 			const state = resolveFeatureState(
@@ -183,11 +191,8 @@ describe( 'MoreFeatures', () => {
 				},
 				{}
 			);
-			const groups = filterMoreFeatures(
-				[ { label: 'Video', states: [ state ] } ],
-				'available',
-				''
-			);
+			const groups = [ { label: 'Video', states: [ state ] } ];
+			expect( filterMoreFeatures( groups, 'available', '' ) ).toHaveLength( override ? 0 : 1 );
 			render(
 				<QueryClientProvider client={ new QueryClient() }>
 					<MoreFeatures groups={ groups } selection={ selection } jetpack="active" isList />
@@ -197,8 +202,9 @@ describe( 'MoreFeatures', () => {
 				! override
 			);
 			expect( screen.queryByText( /by your host or site administrator/ ) ).not.toBeInTheDocument();
-			expect( screen.getByText( 'Inactive' ) ).toBeVisible();
-			expect( screen.queryByText( 'Unavailable' ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( 'Inactive' ) !== null ).toBe( ! override );
+			expect( screen.queryByText( 'Unavailable' ) !== null ).toBe( !! override );
+			expect( screen.queryByText( 'Unavailable in Offline mode' ) !== null ).toBe( !! override );
 			expect( screen.queryByRole( 'checkbox', { name: 'Activate VideoPress' } ) !== null ).toBe(
 				! override
 			);

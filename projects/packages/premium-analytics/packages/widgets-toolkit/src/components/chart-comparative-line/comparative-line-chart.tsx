@@ -25,7 +25,7 @@ import {
 	getYTickFormat,
 	formatBucketTooltipDate,
 } from '../../helpers';
-import { useLockedPrimaryLegendItems } from '../../hooks/use-locked-primary-legend-items';
+import { useComparativeLegend } from '../../hooks/use-comparative-legend';
 import { DatedTooltip, buildDatedTooltipModel } from '../chart-tooltip';
 import styles from './comparative-line-chart.module.scss';
 import { alignSeriesDates } from './utils';
@@ -128,6 +128,12 @@ export type ComparativeLineChartProps = {
 	legendInteractive?: boolean;
 
 	/**
+	 * Names the comparison in each metric's previous-period legend item, e.g.
+	 * "Prev. 30 days". Defaults to "Previous period".
+	 */
+	comparisonLabel?: string;
+
+	/**
 	 * Series the tooltip reads out but the chart does not draw; see
 	 * `TooltipExtraSeries` for what listing one changes about the rows.
 	 */
@@ -165,6 +171,7 @@ export function ComparativeLineChart( {
 	compactWhenShort = false,
 	defaultHiddenSeries,
 	legendInteractive = false,
+	comparisonLabel,
 	tooltipExtras,
 	baseline = 'zero',
 	onPointerDown,
@@ -189,13 +196,6 @@ export function ComparativeLineChart( {
 	const resolvedStyles = useMemo< SeriesStyle[] >(
 		() => resolveSeriesStyles( stylesProp, series ),
 		[ stylesProp, series ]
-	);
-
-	// A metric's two periods collapse into one item; a single static Comparison period
-	// item explains the dashed overlay instead.
-	const legendConfig = useMemo(
-		() => ( { collapseGroups: true, comparisonItem: true, interactive: legendInteractive } ),
-		[ legendInteractive ]
 	);
 
 	const formatTooltipBucket = useCallback(
@@ -229,7 +229,12 @@ export function ComparativeLineChart( {
 		return applyStylesToSeries( alignedSeries, resolvedStyles );
 	}, [ stylesProp, alignedSeries, resolvedStyles ] );
 
-	const legendItems = useLockedPrimaryLegendItems( styledSeries, legendConfig, 'line' );
+	const { config: legendConfig, items: legendItems } = useComparativeLegend(
+		styledSeries,
+		legendInteractive,
+		comparisonLabel,
+		'line'
+	);
 
 	const isEmptyData = useMemo( () => isEmptyChartData( styledSeries ), [ styledSeries ] );
 	// An all-zero selected metric must not hide the extras that do have data.
@@ -255,9 +260,10 @@ export function ComparativeLineChart( {
 		() => ( pinnedYAxis ? getPinnedYTicks( pinnedYAxis.domain ) : undefined ),
 		[ pinnedYAxis ]
 	);
+	const currencyCode = dataFormat.options?.currencyCode;
 	const yTickFormat = useMemo(
-		() => getYTickFormat( dataFormat.type, yTicks ),
-		[ dataFormat.type, yTicks ]
+		() => getYTickFormat( dataFormat.type, yTicks, currencyCode ),
+		[ dataFormat.type, yTicks, currencyCode ]
 	);
 
 	const xTickFormat = useCallback(

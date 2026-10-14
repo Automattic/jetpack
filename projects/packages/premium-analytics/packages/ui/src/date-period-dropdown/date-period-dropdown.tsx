@@ -6,6 +6,7 @@ import {
 	computePrimaryRange,
 	getMenuSurfacePresetGroups,
 	getPresetLabel,
+	PRESET_ALL_TIME,
 	PRESET_CUSTOM,
 	type DateRange,
 	type PrimaryPresetId,
@@ -55,8 +56,8 @@ type DatePeriodDropdownProps = {
 	appliedPresetId?: PrimaryPresetId;
 
 	/**
-	 * The applied range. Names the period on the trigger where no preset does,
-	 * and its exact dates are the trigger's tooltip either way.
+	 * The applied range, used for the trigger label and date tooltip.
+	 * Server-defined All time ranges omit the tooltip.
 	 */
 	appliedRange: DateRange;
 
@@ -71,6 +72,12 @@ type DatePeriodDropdownProps = {
 	 * the surface offers all time.
 	 */
 	allTimeStart?: Date;
+
+	/**
+	 * Whether WPCOM picks where all time starts, which leaves the applied range's start a
+	 * placeholder that the tooltip must not show.
+	 */
+	allTimeStartsOnServer?: boolean;
 
 	/**
 	 * IANA timezone string (e.g., 'America/New_York').
@@ -144,6 +151,7 @@ export function DatePeriodDropdown( {
 	appliedRange,
 	presetIds,
 	allTimeStart,
+	allTimeStartsOnServer = false,
 	timeZone,
 	onSelect,
 	range,
@@ -233,7 +241,11 @@ export function DatePeriodDropdown( {
 			onOpenChange={ handleOpenChange }
 			// The label names the period, so the dates live here: the design
 			// keeps them off the control's face.
-			tooltip={ formatDateRange( appliedRange ) }
+			tooltip={
+				appliedPresetId === PRESET_ALL_TIME && allTimeStartsOnServer
+					? undefined
+					: formatDateRange( appliedRange )
+			}
 			trigger={
 				<Button
 					{ ...DATE_CONTROL_TRIGGER_DEFAULTS }

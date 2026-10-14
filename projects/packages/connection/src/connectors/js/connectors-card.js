@@ -2,9 +2,10 @@
  * Script module that registers a Jetpack connector card on the
  * WP core Settings > Connectors page (WP 7.0+).
  *
- * Loaded via wp_enqueue_script_module() with `@wordpress/connectors`
- * as a static dependency. Uses classic-script globals for element,
- * i18n, and components which are always loaded on admin pages.
+ * Built by webpack into dist/connectors/ and loaded via
+ * wp_enqueue_script_module() with `@wordpress/connectors` as a static
+ * dependency. Uses classic-script globals for element, i18n, and
+ * components which are always loaded on admin pages.
  *
  * Name, description, and logo are provided by the PHP registration
  * in register_connector() and merged automatically by the store.
@@ -17,8 +18,10 @@
  * @see Jetpack_Connector::enqueue_script_module()
  */
 
+// Namespace import: a missing named export would fail the whole module before the fallbacks run.
 // eslint-disable-next-line import/no-unresolved -- resolved via WP import map at runtime.
-const connectors = await import( '@wordpress/connectors' );
+import * as connectors from '@wordpress/connectors';
+
 const registerConnector =
 	connectors.__experimentalRegisterConnector || connectors.registerConnector;
 const ConnectorItem = connectors.__experimentalConnectorItem || connectors.ConnectorItem;
@@ -41,6 +44,7 @@ const apiNonce = data.apiNonce || '';
 const redirectUri = data.redirectUri || '';
 const currentUser = data.currentUser || null;
 const connectionOwner = data.connectionOwner || null;
+const connectedUsersUrl = data.connectedUsersUrl || '';
 const connectedPlugins = data.connectedPlugins || [];
 const siteDetails = data.siteDetails || null;
 const isWoaSite = Boolean( data.isWoaSite );
@@ -816,7 +820,8 @@ function ConnectPrompt( { onConnect, isConnecting, isDisconnecting } ) {
 			)
 		: __(
 				'Your site is registered with WordPress.com. Connect your user account to unlock full functionality.',
-				'jetpack-connection'
+				'jetpack-connection',
+				/* dummy arg to avoid bad minification */ 0
 			);
 
 	return createElement(
@@ -839,7 +844,7 @@ function ConnectPrompt( { onConnect, isConnecting, isDisconnecting } ) {
 			},
 			isConnecting
 				? __( 'Connecting…', 'jetpack-connection' )
-				: __( 'Connect account', 'jetpack-connection' )
+				: __( 'Connect account', 'jetpack-connection', /* dummy arg to avoid bad minification */ 0 )
 		)
 	);
 }
@@ -934,7 +939,11 @@ function SiteDetailsModal( { onClose } ) {
 						__( 'WordPress.com login (SSO)', 'jetpack-connection' ),
 						ssoStatus
 							? __( 'Enabled', 'jetpack-connection' )
-							: __( 'Not enabled', 'jetpack-connection' )
+							: __(
+									'Not enabled',
+									'jetpack-connection',
+									/* dummy arg to avoid bad minification */ 0
+								)
 					)
 				: [] )
 		)
@@ -1160,7 +1169,8 @@ function IDCPanel() {
 		: // translators: %s: "site" or "store".
 			__(
 				'This %s is registered with WordPress.com at <wpcom />, but now loads at <current />. Features that sync with WordPress.com are paused in Safe Mode until you resolve this.',
-				'jetpack-connection'
+				'jetpack-connection',
+				/* dummy arg to avoid bad minification */ 0
 			);
 
 	const intro = createInterpolateElement( sprintf( introText, subjectNoun ), {
@@ -1354,7 +1364,11 @@ function IDCPanel() {
 							},
 							busyAction === 'safe-mode'
 								? __( 'Saving…', 'jetpack-connection' )
-								: __( 'Not sure? Stay in Safe Mode', 'jetpack-connection' )
+								: __(
+										'Not sure? Stay in Safe Mode',
+										'jetpack-connection',
+										/* dummy arg to avoid bad minification */ 0
+									)
 						),
 						createElement(
 							Text,
@@ -1488,7 +1502,8 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 					)
 				: __(
 						'Are you sure you want to disconnect your WordPress.com account?',
-						'jetpack-connection'
+						'jetpack-connection',
+						/* dummy arg to avoid bad minification */ 0
 					);
 
 		setPendingConfirm( {
@@ -1528,7 +1543,11 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 									},
 									isUnlinking
 										? __( 'Disconnecting…', 'jetpack-connection' )
-										: __( 'Disconnect account', 'jetpack-connection' )
+										: __(
+												'Disconnect account',
+												'jetpack-connection',
+												/* dummy arg to avoid bad minification */ 0
+											)
 								),
 				} )
 			: null,
@@ -1579,26 +1598,43 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 				} )
 			: null,
 
-		// Footer: connection details link + disconnect site button.
+		// Footer: connection details and connected users links + disconnect site button.
 		createElement( 'hr', { className: 'jetpack-connector__divider' } ),
 		createElement(
 			HStack,
-			{ spacing: 3, alignment: 'center' },
-			siteDetails
-				? createElement(
-						Button,
-						{
-							ref: detailsLinkRef,
-							variant: 'link',
-							onClick: e => {
-								e.currentTarget.blur();
-								setShowDetailsModal( true );
+			{ spacing: 3, alignment: 'center', wrap: true },
+			// Grouped so the links stay together on one side, leaving the HStack's
+			// space-between to separate them from the destructive action.
+			createElement(
+				HStack,
+				{ spacing: 4, expanded: false, alignment: 'center', justify: 'flex-start' },
+				siteDetails
+					? createElement(
+							Button,
+							{
+								ref: detailsLinkRef,
+								variant: 'link',
+								onClick: e => {
+									e.currentTarget.blur();
+									setShowDetailsModal( true );
+								},
+								className: 'jetpack-connector__details-link',
 							},
-							className: 'jetpack-connector__details-link',
-						},
-						__( 'Connection details', 'jetpack-connection' )
-					)
-				: null,
+							__( 'Connection details', 'jetpack-connection' )
+						)
+					: null,
+				connectedUsersUrl
+					? createElement(
+							Button,
+							{
+								variant: 'link',
+								href: connectedUsersUrl,
+								className: 'jetpack-connector__connected-users-link',
+							},
+							__( 'Connected users', 'jetpack-connection' )
+						)
+					: null
+			),
 			isManagedPlatformSite
 				? null
 				: createElement(
@@ -1726,7 +1762,7 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 		};
 		let toggleLabel = isExpanded
 			? __( 'Close', 'jetpack-connection' )
-			: __( 'Details', 'jetpack-connection' );
+			: __( 'Details', 'jetpack-connection', /* dummy arg to avoid bad minification */ 0 );
 		if ( isInSafeMode && ! isExpanded ) {
 			toggleProps.variant = 'primary';
 			toggleLabel = __( 'Resolve', 'jetpack-connection' );
@@ -1767,7 +1803,7 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 			},
 			isConnecting
 				? __( 'Connecting…', 'jetpack-connection' )
-				: __( 'Connect', 'jetpack-connection' )
+				: __( 'Connect', 'jetpack-connection', /* dummy arg to avoid bad minification */ 0 )
 		);
 	}
 

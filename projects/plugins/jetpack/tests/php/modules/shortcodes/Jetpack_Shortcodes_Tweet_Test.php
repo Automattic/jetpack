@@ -86,14 +86,14 @@ BODY;
 	}
 
 	/**
-	 * Verify that calling do_shortcode with the shortcode doesn't return the same content.
+	 * Verify that calling apply_shortcodes with the shortcode doesn't return the same content.
 	 *
 	 * @since 4.5.0
 	 */
 	public function test_shortcodes_tweet() {
 		$content = '[tweet]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertNotEquals( $content, $shortcode_content );
 		$this->assertEquals( '<!-- Invalid tweet id -->', $shortcode_content );
@@ -107,7 +107,7 @@ BODY;
 	public function test_shortcodes_tweet_card() {
 		$content = '[tweet https://twitter.com/jetpack/status/759034293385502721]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringContainsString( '<blockquote class="twitter-tweet"', $shortcode_content );
 		// Not testing here for actual URL because wp_oembed_get might return a shortened Twitter URL with t.co domain
@@ -121,7 +121,7 @@ BODY;
 	public function test_shortcodes_tweet_card_parameters() {
 		$content = '[tweet https://twitter.com/jetpack/status/759034293385502721 align=right lang=es]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringContainsString( 'align="right"', $shortcode_content );
 		$this->assertStringContainsString( 'data-lang="es"', $shortcode_content );
@@ -135,7 +135,7 @@ BODY;
 	public function test_shortcodes_tweet_id_only() {
 		$content = '[tweet 759034293385502721]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringContainsString( '<blockquote class="twitter-tweet"', $shortcode_content );
 		// Not testing here for actual URL because wp_oembed_get might return a shortened Twitter URL with t.co domain
@@ -149,7 +149,7 @@ BODY;
 	public function test_shortcode_tweet_partner_id() {
 		$content = '[tweet 759034293385502721]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringContainsString( 'data-partner="jetpack"', $shortcode_content );
 	}
@@ -164,7 +164,7 @@ BODY;
 	public function test_shortcodes_tweet_card_via_oembed_http_request() {
 		$content = '[tweet https://twitter.com/jetpack/status/759034293385502721]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringContainsString( '<blockquote class="twitter-tweet"', $shortcode_content );
 		// Not testing here for actual URL because wp_oembed_get might return a shortened Twitter URL with t.co domain
@@ -225,7 +225,7 @@ BODY;
 		}
 
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
-		$this->assertEquals( $expected, do_shortcode( $shortcode_content ) );
+		$this->assertEquals( $expected, apply_shortcodes( $shortcode_content ) );
 	}
 
 	/**
@@ -241,6 +241,6 @@ BODY;
 	// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- PHPUnit 12.2 requires methods with data providers to have an exact param count match
 	public function test_shortcodes_tweet_non_amp( $shortcode_content, $expected ) {
 		add_filter( 'jetpack_is_amp_request', '__return_false' );
-		$this->assertStringNotContainsString( 'amp-twitter', do_shortcode( $shortcode_content ) );
+		$this->assertStringNotContainsString( 'amp-twitter', apply_shortcodes( $shortcode_content ) );
 	}
 }

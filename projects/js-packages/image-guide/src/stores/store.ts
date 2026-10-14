@@ -22,15 +22,12 @@ type State = {
 	guideState: GuideState;
 	images: Record< string, ImageFacts >;
 	imageChange: { id?: string; revision: number };
-	// Same-object writes must still notify the retained controller facade.
-	revisions: Record< string, Partial< Record< keyof ImageFacts, number > > >;
 };
 const stored = localStorage.getItem( LS_KEY ) as GuideState;
 const initialState: State = {
 	guideState: stored && labels[ stored ] ? stored : 'active',
 	images: {},
 	imageChange: { revision: 0 },
-	revisions: {},
 };
 const actions = {
 	setGuideState: ( value: GuideState ) => ( { type: 'SET_GUIDE_STATE' as const, value } ),
@@ -58,14 +55,9 @@ export const store = createReduxStore( 'jetpack/image-guide', {
 					imageChange: { id: action.id, revision: state.imageChange.revision + 1 },
 				};
 			case 'UPDATE_IMAGE': {
-				const revisions = { ...state.revisions[ action.id ] };
-				for ( const key of Object.keys( action.facts ) as ( keyof ImageFacts )[] ) {
-					revisions[ key ] = ( revisions[ key ] || 0 ) + 1;
-				}
 				return {
 					...state,
 					imageChange: { id: action.id, revision: state.imageChange.revision + 1 },
-					revisions: { ...state.revisions, [ action.id ]: revisions },
 					images: {
 						...state.images,
 						[ action.id ]: { ...state.images[ action.id ], ...action.facts },
@@ -82,16 +74,10 @@ export const store = createReduxStore( 'jetpack/image-guide', {
 		getGuideLabel: ( state: State ) => labels[ state.guideState ],
 		getImageFacts: ( state: State, id: string ) => state.images[ id ],
 		getImageChange: ( state: State ) => state.imageChange,
-		getImageRevision: ( state: State, id: string, key: keyof ImageFacts ) =>
-			state.revisions[ id ]?.[ key ] || 0,
 		getExpectedSize: createSelector(
 			( state: State, id: string ) =>
 				MeasurableImage.prototype.getExpectedSize( state.images[ id ].sizeOnPage ),
-			( state: State, id: string ) => [
-				state.images[ id ].sizeOnPage,
-				state.revisions[ id ]?.sizeOnPage,
-				window.devicePixelRatio,
-			]
+			( state: State, id: string ) => [ state.images[ id ].sizeOnPage, window.devicePixelRatio ]
 		),
 		getOversizedRatio: createSelector(
 			( state: State, id: string ) => {
@@ -99,8 +85,8 @@ export const store = createReduxStore( 'jetpack/image-guide', {
 				return MeasurableImage.prototype.getOversizedRatio( fileSize, sizeOnPage );
 			},
 			( state: State, id: string ) => [
-				state.images[ id ],
-				state.revisions[ id ],
+				state.images[ id ].fileSize,
+				state.images[ id ].sizeOnPage,
 				window.devicePixelRatio,
 			]
 		),
@@ -110,8 +96,9 @@ export const store = createReduxStore( 'jetpack/image-guide', {
 				return MeasurableImage.prototype.getPotentialSavings( fileSize, fileWeight, sizeOnPage );
 			},
 			( state: State, id: string ) => [
-				state.images[ id ],
-				state.revisions[ id ],
+				state.images[ id ].fileSize,
+				state.images[ id ].fileWeight,
+				state.images[ id ].sizeOnPage,
 				window.devicePixelRatio,
 			]
 		),
@@ -124,7 +111,6 @@ export const selectors: {
 	getGuideLabel: () => string;
 	getImageFacts: ( id: string ) => ImageFacts;
 	getImageChange: () => State[ 'imageChange' ];
-	getImageRevision: ( id: string, key: keyof ImageFacts ) => number;
 	getExpectedSize: ( id: string ) => Dimensions;
 	getOversizedRatio: ( id: string ) => number;
 	getPotentialSavings: ( id: string ) => number | null;

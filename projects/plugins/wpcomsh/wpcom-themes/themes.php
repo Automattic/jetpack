@@ -14,11 +14,8 @@ function wpcomsh_get_wpcom_themes_service_instance(): WPCom_Themes_Service {
 	static $instance;
 	if ( ! $instance ) {
 		// Load dependencies.
-		require_once __DIR__ . '/includes/class-wpcom-themes-mapper.php';
 		require_once __DIR__ . '/includes/class-wpcom-themes-merger.php';
-		require_once __DIR__ . '/includes/class-wpcom-themes-cache.php';
 		require_once __DIR__ . '/includes/class-wpcom-themes-service.php';
-		require_once __DIR__ . '/includes/class-wpcom-themes-api.php';
 
 		// Resolve and Inject dependencies.
 		$mapper               = new WPCom_Themes_Mapper();
@@ -41,14 +38,54 @@ function wpcomsh_get_wpcom_themes_service_instance(): WPCom_Themes_Service {
  * @return mixed|stdClass
  */
 function wpcomsh_remove_dot_org_themes_based_on_plan( $res ) {
-	if ( ! wpcom_site_has_feature( WPCOM_Features::COMMUNITY_THEMES ) ) {
-		$res->info['results'] = 0;
-		$res->themes          = array();
+	if ( wpcom_site_has_feature( WPCOM_Features::COMMUNITY_THEMES ) ) {
+		return $res;
+	}
+
+	return wpcomsh_keep_only_wpcom_themes( $res );
+}
+add_filter( 'themes_api_result', 'wpcomsh_remove_dot_org_themes_based_on_plan', 0, 1 );
+
+/**
+ * Drops the themes that came from WordPress.org out of a themes API result.
+ *
+ * @param mixed $res The result object.
+ *
+ * @return mixed|stdClass
+ */
+function wpcomsh_keep_only_wpcom_themes( $res ) {
+	// A single theme's details, rather than a list to filter.
+	if ( ! isset( $res->themes ) || ! is_array( $res->themes ) ) {
+		return $res;
+	}
+
+	$ours = array_values(
+		array_filter(
+			$res->themes,
+			function ( $theme ) {
+				return ! empty( $theme->is_wpcom_theme );
+			}
+		)
+	);
+
+	// Our own themes are already the ones this site may install, and the total counts every page
+	// rather than this one, so a result made of them is left as it is.
+	if ( count( $ours ) === count( $res->themes ) ) {
+		return $res;
+	}
+
+	/*
+	 * The rest came from WordPress.org, which this plan excludes. Clearing the total as well lets
+	 * the filters that run next set it from their own list, which is what they expect.
+	 */
+	$res->themes = $ours;
+
+	if ( isset( $res->info['results'] ) ) {
+		$res->info['results'] = count( $ours );
 	}
 
 	return $res;
 }
-add_filter( 'themes_api_result', 'wpcomsh_remove_dot_org_themes_based_on_plan', 0, 1 );
 
 /**
  * Process the themes API result and add the recommended WPCom themes to the Popular tab.

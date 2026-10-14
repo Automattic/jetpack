@@ -1,6 +1,7 @@
 import { PRODUCT_STATUSES } from '../../../../constants';
 import { getFeatureManageUrl, getForcedReason, resolveFeatureState } from '../feature-state';
 import { PRODUCT_MODULES } from '../mappings';
+import { getFeatureUnavailableReason } from '../module-availability';
 import type { ProductCamelCase } from '../../../../data/types';
 import type { MyJetpackModule } from '../../../../types';
 
@@ -179,18 +180,27 @@ describe( 'resolveFeatureState, for a product the module map has dropped', () =>
 		);
 	} );
 
-	it( 'explains an unavailable AI module without bypassing its control gate', () => {
-		const modules = {
-			ai: buildModule( {
-				module: 'ai',
-				available: false,
-				unavailable_reason: 'Unavailable in Offline mode',
-			} ),
-		};
-		const state = resolveFeatureState( ai, 'active', undefined, modules, gated );
-		expect( state.control.kind ).toBe( 'none' );
-		expect( getForcedReason( state ) ).toBe( 'Unavailable in Offline mode' );
-	} );
+	it.each( [
+		[ false, 'Unavailable in Offline mode' ],
+		[ 'active', 'Enabled by your host or site administrator' ],
+		[ 'inactive', 'Disabled by your host or site administrator' ],
+	] as const )(
+		'explains an unavailable gated AI module with override %s',
+		( override, reason ) => {
+			const modules = {
+				ai: buildModule( {
+					module: 'ai',
+					available: false,
+					unavailable_reason: 'Unavailable in Offline mode',
+					override,
+				} ),
+			};
+			const state = resolveFeatureState( ai, 'active', undefined, modules, gated );
+			expect( state.control.kind ).toBe( 'none' );
+			expect( getFeatureUnavailableReason( state ) ).toBe( 'Unavailable in Offline mode' );
+			expect( getForcedReason( state ) ).toBe( reason );
+		}
+	);
 
 	it( 'still reports the product as running, so the card does not call it Inactive', () => {
 		const product = { status: PRODUCT_STATUSES.ACTIVE } as ProductCamelCase;
@@ -225,6 +235,34 @@ describe( 'resolveFeatureState, for a feature its own plugin switches', () => {
 	} );
 
 	const runningModule = { protect: buildModule( { module: 'protect' } ) };
+
+	it.each( [
+		[ 'active', 'not-installed', 'install-plugin' ],
+		[ 'inactive', 'not-installed', 'install-plugin' ],
+		[ 'active', 'inactive', 'plugin' ],
+		[ 'inactive', 'inactive', 'plugin' ],
+	] as const )(
+		'keeps the module limitation separate for override %s and plugin %s',
+		( override, plugin_status, kind ) => {
+			const state = resolveFeatureState(
+				{ ...protect, module: 'protect-dashboard', plugin_status },
+				'active',
+				undefined,
+				{
+					'protect-dashboard': buildModule( {
+						module: 'protect-dashboard',
+						override,
+						available: false,
+						unavailable_reason: 'Unavailable in Offline mode',
+					} ),
+				},
+				{}
+			);
+			expect( state.control.kind ).toBe( kind );
+			expect( state.moduleUnavailableReason ).toBe( 'Unavailable in Offline mode' );
+			expect( getForcedReason( state ) ).toBeNull();
+		}
+	);
 
 	it( 'reads the module for status while still offering to install the plugin', () => {
 		const state = resolveFeatureState( protect, 'active', undefined, runningModule, {} );

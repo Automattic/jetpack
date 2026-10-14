@@ -152,7 +152,6 @@ export function FeatureAction( { state, describedby, origin = 'card' }: FeatureA
 
 	switch ( control.kind ) {
 		case 'module': {
-			// FeatureItem shows why, under the description: this slot does not shrink.
 			if ( getForcedReason( state ) ) {
 				return null;
 			}

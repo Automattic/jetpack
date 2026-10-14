@@ -19,7 +19,7 @@ const meta: Meta< typeof ChartEmptyState > = {
 		icon: {
 			control: false,
 			description:
-				'Icon to display in the empty state. Defaults to the search magnifier from @jetpack-premium-analytics/icons. Can be overridden with custom icons, or `null` for none.',
+				'Icon to display in the empty state. Defaults to the search magnifier from @jetpack-premium-analytics/icons. Can be overridden with custom icons.',
 		},
 		text: {
 			control: 'text',

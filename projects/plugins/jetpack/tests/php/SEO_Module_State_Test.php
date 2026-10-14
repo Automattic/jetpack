@@ -82,7 +82,8 @@ class SEO_Module_State_Test extends WP_UnitTestCase {
 		add_filter( 'jetpack_active_modules', '__return_empty_array' );
 
 		$this->assertTrue( Dashboard_Data::get_settings_data()['sitemap_active'] );
-		$this->assertTrue( Dashboard_Data::get_settings_data()['canonical_active'] );
+		// Simple's canonical switch is its own option, off until an admin saves it.
+		$this->assertFalse( Dashboard_Data::get_settings_data()['canonical_active'] );
 		$this->assertTrue( Dashboard_Data::get_overview_data()['site_visibility']['sitemap_active'] );
 	}
 

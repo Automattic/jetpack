@@ -34,6 +34,8 @@ export interface LocationsGeoChartProps {
 	focusCountry?: LocationsGeoFocusCountry;
 	/** Debounce for the chart's own resize observer, in milliseconds. */
 	resizeDebounceTime?: number;
+	/** What the figure is, as the tooltip names it. Defaults to Views. */
+	valueLabel?: string;
 }
 
 /**
@@ -50,6 +52,7 @@ export function LocationsGeoChart( {
 	mode,
 	focusCountry,
 	resizeDebounceTime = RESIZE_DEBOUNCE_MS,
+	valueLabel,
 }: LocationsGeoChartProps ) {
 	const [ unsupportedProvinceMapCountries, setUnsupportedProvinceMapCountries ] = useState<
 		Set< string >
@@ -61,8 +64,8 @@ export function LocationsGeoChart( {
 		? ! unsupportedProvinceMapCountries.has( focusCountryCode )
 		: true;
 	const { data, region, resolution, displayMode } = useMemo(
-		() => buildLocationsGeoChart( { rows, mode, focusCountry, provinceMapSupported } ),
-		[ focusCountry, mode, provinceMapSupported, rows ]
+		() => buildLocationsGeoChart( { rows, mode, focusCountry, provinceMapSupported, valueLabel } ),
+		[ focusCountry, mode, provinceMapSupported, rows, valueLabel ]
 	);
 	const useProvinceMap = resolution === 'provinces';
 

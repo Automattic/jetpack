@@ -48,7 +48,10 @@ class Script_Data_Test extends BaseTestCase {
 			$this->assertSame( $site, $data['site'] );
 			$this->assertTrue( Initializer::should_initialize() );
 			$this->assertNotEmpty( $data['myJetpack']['offlineFeatures']['mainFeatures']['features'] );
-			$this->assertSame( Main_Features::get_state( true ), $data['myJetpack']['offlineFeatures']['mainFeatures'] );
+			$state = $data['myJetpack']['offlineFeatures']['mainFeatures'];
+			$this->assertArrayHasKey( 'available_admin_pages', $state );
+			unset( $state['available_admin_pages'] );
+			$this->assertSame( Main_Features::get_state( true ), $state );
 			foreach ( $data['myJetpack']['offlineFeatures']['mainFeatures']['features'] as $feature ) {
 				$this->assertNull( $feature['upgrade'] );
 			}
@@ -274,5 +277,26 @@ class Script_Data_Test extends BaseTestCase {
 		);
 
 		remove_filter( 'jetpack_my_jetpack_should_initialize', '__return_false' );
+	}
+
+	public function test_prints_where_jetpack_ai_is_managed_to_administrators_only() {
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'ai-admin',
+					'user_pass'  => 'password',
+					'role'       => 'administrator',
+				)
+			)
+		);
+
+		$this->assertSame(
+			Products\Jetpack_Ai::get_manage_url(),
+			Initializer::add_admin_script_data( array() )['myJetpack']['aiManageUrl']
+		);
+
+		wp_set_current_user( 0 );
+
+		$this->assertArrayNotHasKey( 'aiManageUrl', Initializer::add_admin_script_data( array() )['myJetpack'] );
 	}
 }

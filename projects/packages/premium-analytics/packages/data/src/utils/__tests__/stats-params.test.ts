@@ -81,6 +81,20 @@ describe( 'getPeriodsBetweenInclusive', () => {
 } );
 
 describe( 'reportParamsToStatsQueryParams', () => {
+	it.each( [
+		[ -1, {} ],
+		[ 1, { start_date: '2020-01-01', days: 7 } ],
+	] )( 'handles an explicit start date with num=%s', ( num, window ) => {
+		expect(
+			reportParamsToStatsQueryParams( {
+				num,
+				start_date: '2020-01-01',
+				from: '2020-01-03',
+				to: '2020-01-07',
+			} )
+		).toEqual( { num, period: 'day', end_date: '2020-01-07', ...window } );
+	} );
+
 	it( 'passes the offset-bearing date through untrimmed, still counting days correctly', () => {
 		expect(
 			reportParamsToStatsQueryParams( {

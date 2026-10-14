@@ -29,6 +29,21 @@ class Users_Connection_Admin {
 	const STYLE_HANDLE = 'jetpack-connection-users-column';
 
 	/**
+	 * Query argument that filters the users list to connected users.
+	 *
+	 * @var string
+	 */
+	const VIEW_QUERY_ARG = 'jetpack_connection';
+
+	/**
+	 * Value of VIEW_QUERY_ARG that selects the connected view. Doubles as the view's
+	 * key, which WP_List_Table::views() renders as the list item's class.
+	 *
+	 * @var string
+	 */
+	const VIEW_CONNECTED = 'connected';
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -47,6 +62,230 @@ class Users_Connection_Admin {
 		add_filter( 'manage_users_columns', array( $this, 'add_connection_column' ) );
 		add_filter( 'manage_users_custom_column', array( $this, 'render_connection_column' ), 9, 3 ); // Priority 9 to run before SSO
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+		// Static callbacks: a request runs several instances of this class, and WP keys
+		// callbacks by object hash, so instance callbacks here would stack up and print the
+		// hidden field once each. The column callbacks above stack harmlessly.
+		add_filter( 'views_users', array( self::class, 'add_connected_view' ) );
+		add_filter( 'users_list_table_query_args', array( self::class, 'filter_query_to_connected_users' ) );
+		add_action( 'restrict_manage_users', array( self::class, 'keep_connected_view_on_submit' ) );
+	}
+
+	/**
+	 * Carry the connected view through the list table's form submissions.
+	 *
+	 * The search box and bulk actions submit a GET form that only replays the parameters
+	 * it carries, so without this, searching from the connected view silently searches
+	 * every user while the view still looks active. Core preserves `role` the same way.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $which Which tablenav is being rendered, 'top' or 'bottom'.
+	 */
+	public static function keep_connected_view_on_submit( $which ) {
+		// Both tablenavs sit in the same form, so only one copy of the field is needed.
+		if ( 'top' !== $which || ! self::is_connected_view() ) {
+			return;
+		}
+
+		printf(
+			'<input type="hidden" name="%1$s" value="%2$s" />',
+			esc_attr( self::VIEW_QUERY_ARG ),
+			esc_attr( self::VIEW_CONNECTED )
+		);
+	}
+
+	/**
+	 * Whether the users list is currently filtered to connected users.
+	 *
+	 * Only the per-site Users screen offers the view. Network admin shares the same
+	 * list-table hooks but never shows the link, so honouring the argument there would
+	 * narrow those lists silently, by this site's tokens, with no way to clear it.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_connected_view() {
+		if ( is_network_admin() ) {
+			return false;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only list filter, compared against a fixed value.
+		$view = isset( $_GET[ self::VIEW_QUERY_ARG ] ) ? sanitize_key( wp_unslash( $_GET[ self::VIEW_QUERY_ARG ] ) ) : '';
+
+		return self::VIEW_CONNECTED === $view;
+	}
+
+	/**
+	 * URL of the users list filtered to connected users.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string
+	 */
+	public static function get_connected_view_url() {
+		return add_query_arg( self::VIEW_QUERY_ARG, self::VIEW_CONNECTED, admin_url( 'users.php' ) );
+	}
+
+	/**
+	 * Local user IDs holding a valid WordPress.com user token.
+	 *
+	 * There is no meta to query: the tokens live in the `user_tokens` grouped option,
+	 * keyed by local user ID. Read it once rather than calling `is_user_connected()` per
+	 * key — that re-reads the option, and on managed hosts external storage serves it
+	 * with an uncached query. An ID here need not resolve to a user; see the count.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return int[]
+	 */
+	public static function get_connected_user_ids() {
+		$tokens_api = ( new Manager() )->get_tokens();
+
+		// A locked site has no usable tokens, which is what the column reports too.
+		if ( $tokens_api->is_locked() ) {
+			return array();
+		}
+
+		$tokens = $tokens_api->get_user_tokens();
+
+		if ( ! is_array( $tokens ) ) {
+			return array();
+		}
+
+		$ids = array();
+
+		foreach ( $tokens as $id => $token ) {
+			// PHP leaves a non-canonical key like "01" a string, and get_access_token() looks
+			// the token up by the integer ID, so normalising here would claim a user it cannot find.
+			if ( ! is_int( $id ) || $id <= 0 ) {
+				continue;
+			}
+
+			$chunks = is_string( $token ) ? explode( '.', $token ) : array();
+
+			// Mirrors Tokens::get_access_token(): three parts, and the token names its own user.
+			if ( ! empty( $chunks[1] ) && ! empty( $chunks[2] ) && (string) $id === $chunks[2] ) {
+				$ids[] = $id;
+			}
+		}
+
+		return $ids;
+	}
+
+	/**
+	 * Narrow the users list table query to connected users when the view is active.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $args Query arguments for the list table's WP_User_Query.
+	 * @return array
+	 */
+	public static function filter_query_to_connected_users( $args ) {
+		if ( ! self::is_connected_view() ) {
+			return $args;
+		}
+
+		$connected = self::get_connected_user_ids();
+
+		// A pre-existing `include` means something else already narrowed the list, so both
+		// constraints are kept rather than overwriting theirs. Tested with isset(), not
+		// empty(): core sets an empty `include` for `role=none` when every user has a role,
+		// and that already means "nobody" — reading it as "unset" would list everyone.
+		if ( isset( $args['include'] ) ) {
+			$existing  = wp_parse_id_list( $args['include'] );
+			$connected = $existing ? array_intersect( $existing, $connected ) : array();
+		}
+
+		// WP_User_Query only honours `exclude` when `include` is empty, so setting `include`
+		// below would silently un-exclude whoever another filter had removed.
+		if ( ! empty( $args['exclude'] ) ) {
+			$connected = array_diff( $connected, wp_parse_id_list( $args['exclude'] ) );
+		}
+
+		// An empty `include` is ignored by WP_User_Query, which would list every user. No
+		// user has ID 0, so it is the way to express "match nothing".
+		$args['include'] = empty( $connected ) ? array( 0 ) : array_values( $connected );
+
+		return $args;
+	}
+
+	/**
+	 * Add a "Connected" view to the users list table.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string[] $views View links keyed by view name.
+	 * @return string[]
+	 */
+	public static function add_connected_view( $views ) {
+		$count = self::count_connected_users();
+
+		if ( ! $count ) {
+			return $views;
+		}
+
+		$is_current = self::is_connected_view();
+
+		// Core marks "All" as current whenever no role is selected, which stays true here.
+		// Matches WP_List_Table::get_views_links(); a core change makes this a no-op and
+		// two links look active, so it fails cosmetically rather than breaking the view.
+		if ( $is_current && isset( $views['all'] ) ) {
+			$views['all'] = str_replace( ' class="current" aria-current="page"', '', $views['all'] );
+		}
+
+		// Count inside the translated string, as core's own views do, so the word order and
+		// plural form are the translator's to choose.
+		$label = sprintf(
+			/* translators: %s: number of users with a linked WordPress.com account. */
+			_n(
+				'Connected to WordPress.com <span class="count">(%s)</span>',
+				'Connected to WordPress.com <span class="count">(%s)</span>',
+				$count,
+				'jetpack-connection'
+			),
+			esc_html( number_format_i18n( $count ) )
+		);
+
+		$views[ self::VIEW_CONNECTED ] = sprintf(
+			'<a href="%1$s"%2$s>%3$s</a>',
+			esc_url( self::get_connected_view_url() ),
+			$is_current ? ' class="current" aria-current="page"' : '',
+			$label
+		);
+
+		return $views;
+	}
+
+	/**
+	 * Number of connected users the list will actually show.
+	 *
+	 * Queried, not counted off the option: a token can outlive its user, and the query
+	 * drops those IDs and scopes to the current site. Ordered by ID so it does not
+	 * filesort on `user_login`, the default, which a count never needs.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return int
+	 */
+	private static function count_connected_users() {
+		$ids = self::get_connected_user_ids();
+
+		if ( ! $ids ) {
+			return 0;
+		}
+
+		$query = new \WP_User_Query(
+			array(
+				'include'     => $ids,
+				'fields'      => 'ID',
+				'number'      => -1,
+				'orderby'     => 'ID',
+				'count_total' => false,
+			)
+		);
+
+		return count( $query->get_results() );
 	}
 
 	/**
