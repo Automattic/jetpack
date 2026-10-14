@@ -9,20 +9,23 @@ type Props = {
 	data: ProtectSettingsData;
 	name: string;
 	label: string;
+	/** Shown under the field; without one the label is hidden, for a toggle above that names the list. */
+	description?: string;
 	currentIp?: string;
 };
 
 /**
  * An editable list of IP addresses, saved with its own button.
  *
- * @param props           - Component props.
- * @param props.data      - The settings and their save function.
- * @param props.name      - The setting holding the list.
- * @param props.label     - The field's label, read by screen readers; the toggle above shows it.
- * @param props.currentIp - When set, offers to add the visitor's own address.
+ * @param props             - Component props.
+ * @param props.data        - The settings and their save function.
+ * @param props.name        - The setting holding the list.
+ * @param props.label       - The field's label.
+ * @param props.description - What the list does; defaults to the format hint.
+ * @param props.currentIp   - When set, offers to add the visitor's own address.
  * @return The field.
  */
-export default function IpListField( { data, name, label, currentIp }: Props ) {
+export default function IpListField( { data, name, label, description, currentIp }: Props ) {
 	const saved =
 		typeof data.settings?.[ name ] === 'string' ? ( data.settings[ name ] as string ) : '';
 	const [ draft, setDraft ] = useState( saved );
@@ -62,11 +65,14 @@ export default function IpListField( { data, name, label, currentIp }: Props ) {
 		<Stack direction="column" gap="sm">
 			<TextareaControl
 				label={ label }
-				hideLabelFromVision
-				description={ __(
-					'Separate addresses or ranges with commas, spaces or new lines.',
-					'jetpack-protect-pkg'
-				) }
+				hideLabelFromVision={ ! description }
+				description={
+					description ??
+					__(
+						'Separate addresses or ranges with commas, spaces or new lines.',
+						'jetpack-protect-pkg'
+					)
+				}
 				value={ draft }
 				onChange={ onChange }
 				rows={ 4 }
