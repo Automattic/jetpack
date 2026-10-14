@@ -5,6 +5,7 @@ import {
 	PRESET_ALL_TIME,
 	isSelectablePreset,
 	isYearPresetId,
+	readSiteTimestamp,
 	type SelectablePresetId,
 	type ComparisonPresetId,
 	type ComputablePresetId,
@@ -84,6 +85,19 @@ type ReportDateWindowSearch = Pick<
 	'from' | 'to' | 'interval' | 'preset'
 >;
 
+/**
+ * A URL timestamp as the reader meant it: an unencoded `+` in a pasted link reaches the
+ * router as a space, and the request params must not carry that space on to WPCOM.
+ *
+ * @param value - The raw search value.
+ * @return The value with its offset restored, or as given when it is not a timestamp.
+ */
+function canonicalTimestamp< T extends string | undefined >( value: T ): T {
+	return typeof value === 'string'
+		? ( ( readSiteTimestamp( value )?.value ?? value ) as T )
+		: value;
+}
+
 /** Returns normalized report params, falling back to the defaults for anything absent. */
 export function normalizeReportParams(
 	search?: NormalizeReportParamsArgType,
@@ -120,8 +134,8 @@ export function normalizeReportParams(
 		}
 	}
 
-	const from = presetRange?.from ?? search?.from ?? defaults.from;
-	const to = presetRange?.to ?? search?.to ?? defaults.to;
+	const from = presetRange?.from ?? canonicalTimestamp( search?.from ) ?? defaults.from;
+	const to = presetRange?.to ?? canonicalTimestamp( search?.to ) ?? defaults.to;
 
 	const interval = resolveIntervalForRange( preset, from, to, search?.interval );
 
@@ -144,8 +158,8 @@ export function normalizeReportParams(
 	// Comparison only ever comes from the URL; a fresh load gets its default
 	// from the routes' `seedSiteDateParams`.
 	if ( search && hasComparisonEnabled( search ) ) {
-		normalized.compare_from = search.compare_from;
-		normalized.compare_to = search.compare_to;
+		normalized.compare_from = canonicalTimestamp( search.compare_from );
+		normalized.compare_to = canonicalTimestamp( search.compare_to );
 		normalized.compare_preset = search.compare_preset;
 		normalized.comp = '1';
 	}
@@ -158,6 +172,14 @@ export function normalizeReportParams(
  */
 export function needsReportDateParamsSeed( search?: ReportDateWindowSearch ): boolean {
 	if ( ! search?.from || ! search?.to || ! search?.interval ) {
+		return true;
+	}
+
+	// A pasted link's decoded offset is rewritten into the URL as the reader meant it.
+	if (
+		canonicalTimestamp( search.from ) !== search.from ||
+		canonicalTimestamp( search.to ) !== search.to
+	) {
 		return true;
 	}
 

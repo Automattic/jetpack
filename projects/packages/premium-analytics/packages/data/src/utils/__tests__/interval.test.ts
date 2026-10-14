@@ -211,6 +211,23 @@ describe( 'needsReportDateParamsSeed', () => {
 		).toBe( true );
 	} );
 
+	it( 'seeds when a date lost the plus of its offset to the querystring', () => {
+		expect(
+			needsReportDateParamsSeed( {
+				from: '2026-06-01T00:00:00.000 00:00',
+				to: '2026-06-07T23:59:59.999+00:00',
+				interval: 'day',
+			} )
+		).toBe( true );
+		expect(
+			needsReportDateParamsSeed( {
+				from: '2026-06-01T00:00:00.000+00:00',
+				to: '2026-06-07T23:59:59.999+00:00',
+				interval: 'day',
+			} )
+		).toBe( false );
+	} );
+
 	it( 'seeds when the interval is not allowed for the preset', () => {
 		expect(
 			needsReportDateParamsSeed( {
