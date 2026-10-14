@@ -50,7 +50,10 @@ function ConnectScreenAction( {
 				{ buttonLabel }
 			</Button>
 			{ ( displayButtonError || isOfflineMode ) && (
-				<div className="jp-connection__connect-screen__error">
+				<div
+					className="jp-connection__connect-screen__error"
+					role={ displayButtonError ? 'alert' : undefined }
+				>
 					<p>
 						{ getConnectScreenErrorMessage( errorCode, isOfflineMode ) ||
 							__( 'An error occurred. Please try again.', 'jetpack-connection-js' ) }

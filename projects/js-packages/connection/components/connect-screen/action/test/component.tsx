@@ -32,4 +32,23 @@ describe( 'ConnectScreenAction', () => {
 		expect( screen.getByText( /Your site couldn’t reach WordPress\.com/ ) ).toBeInTheDocument();
 		expect( screen.getByText( 'cURL error 6: Could not resolve host.' ) ).toBeInTheDocument();
 	} );
+
+	it( 'announces a registration error as an alert', () => {
+		render(
+			<ConnectScreenAction
+				buttonLabel="Set up Jetpack"
+				displayButtonError
+				errorCode="register_http_request_failed"
+			/>
+		);
+		expect( screen.getByRole( 'alert' ) ).toHaveTextContent(
+			/Your site couldn’t reach WordPress\.com/
+		);
+	} );
+
+	it( 'does not announce the offline mode notice shown on load', () => {
+		render( <ConnectScreenAction buttonLabel="Set up Jetpack" isOfflineMode /> );
+		expect( screen.getByText( /Offline Mode/ ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'alert' ) ).not.toBeInTheDocument();
+	} );
 } );

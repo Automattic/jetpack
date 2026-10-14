@@ -59,7 +59,7 @@ function ConnectButton( {
 						{ connectLabel }
 					</Button>
 					{ registrationError && (
-						<p className="jp-action-button__error">
+						<p className="jp-action-button__error" role="alert">
 							{ getRegistrationErrorSummary( registrationError ) ||
 								__( 'An error occurred. Please try again.', 'jetpack-connection-js' ) }
 						</p>
