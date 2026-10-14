@@ -168,6 +168,7 @@ describe( 'useDownload', () => {
 describe( 'useDownload — a status poll that fails', () => {
 	let pollFails = false;
 	let pollStatus: number | null = null;
+	let pollDone = false;
 	let failedCalls = 0;
 	const running = {
 		id: 4321,
@@ -182,6 +183,7 @@ describe( 'useDownload — a status poll that fails', () => {
 		jest.useFakeTimers();
 		pollFails = false;
 		pollStatus = null;
+		pollDone = false;
 		failedCalls = 0;
 		mockedApiFetch.mockImplementation( ( options: { method?: string } ) => {
 			if ( options?.method === 'POST' ) {
@@ -199,7 +201,11 @@ describe( 'useDownload — a status poll that fails', () => {
 				failedCalls++;
 				return Promise.reject( new Error( 'Offline.' ) );
 			}
-			return Promise.resolve( running );
+			return Promise.resolve(
+				pollDone
+					? { ...running, status: 'finished', url: 'https://example.com/a.zip', valid_until: 'x' }
+					: running
+			);
 		} );
 	} );
 
@@ -369,16 +375,38 @@ describe( 'useDownload — a status poll that fails', () => {
 		expect( mockedApiFetch.mock.calls.length ).toBeGreaterThan( before );
 	} );
 
-	it( 'does not slow down for failed polls', async () => {
-		await startAndReadOnce();
-
+	it( 'backs off when the polls never succeed', async () => {
 		pollFails = true;
-		await advance( 150_000 );
-		pollFails = false;
+		const { wrapper } = makeWrapper();
+		const { result } = renderHook( () => useDownload( REWIND_ID ), { wrapper } );
+		act( () => result.current.submit( DEFAULT_RESTORE_ITEMS ) );
+		await advance( 30 );
+		await advance( 600_000 );
 
-		const polls = await pollsDuring( 15_000 );
+		await expect( pollsDuring( 30_000 ) ).resolves.toBe( 2 );
+	} );
 
-		expect( polls ).toBe( 10 );
+	it.each( [
+		[ 'finished', 'done' ],
+		[ 'refused with a 4xx', 404 ],
+	] )( 'does not read the status on refocus once the download is %s', async ( _label, outcome ) => {
+		const { wrapper } = makeWrapper();
+		const { result } = renderHook( () => useDownload( REWIND_ID ), { wrapper } );
+		act( () => result.current.submit( DEFAULT_RESTORE_ITEMS ) );
+		await advance( 30 );
+		if ( outcome === 'done' ) {
+			pollDone = true;
+		} else {
+			pollStatus = 404;
+		}
+		await advance( 3000 );
+		expect( [ 'success', 'error' ] ).toContain( result.current.state.phase );
+
+		const before = mockedApiFetch.mock.calls.length;
+		act( () => focusManager.setFocused( false ) );
+		await act( async () => focusManager.setFocused( true ) );
+
+		expect( mockedApiFetch.mock.calls ).toHaveLength( before );
 	} );
 
 	it( 'treats a 502 as temporary', async () => {
