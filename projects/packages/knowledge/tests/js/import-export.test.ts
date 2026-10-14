@@ -91,13 +91,25 @@ test( 'imports into existing row IDs and ignores invalid block names', async () 
 	);
 } );
 
-test( 'rejects invalid files before changing any records', async () => {
-	await expect(
-		importGuidelines( { text: async () => '{}' } as File, scopes, {}, blocks, query )
-	).rejects.toThrow();
-	expect( saveGuidelineRow ).not.toHaveBeenCalled();
-	expect( deleteGuidelineRow ).not.toHaveBeenCalled();
-} );
+test.each( [ '{}', '[]', '{"guideline_categories":[]}' ] )(
+	'rejects invalid file %s before changing any records',
+	async json => {
+		await expect(
+			importGuidelines(
+				{ text: async () => json } as File,
+				scopes,
+				{
+					'guideline-copy': { id: 1, content: 'Keep copy.' },
+					'guideline-block-core_paragraph': { id: 2, content: 'Keep block.' },
+				},
+				blocks,
+				query
+			)
+		).rejects.toThrow();
+		expect( saveGuidelineRow ).not.toHaveBeenCalled();
+		expect( deleteGuidelineRow ).not.toHaveBeenCalled();
+	}
+);
 
 test( 'clears only current guideline rows omitted by an import', async () => {
 	await importGuidelines(

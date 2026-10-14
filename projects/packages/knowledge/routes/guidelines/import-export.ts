@@ -18,9 +18,11 @@ function isValidImport( data: unknown ): data is GuidelineImportData {
 	return (
 		!! data &&
 		typeof data === 'object' &&
+		! Array.isArray( data ) &&
 		'guideline_categories' in data &&
 		typeof ( data as Record< string, unknown > ).guideline_categories === 'object' &&
-		( data as Record< string, unknown > ).guideline_categories !== null
+		( data as Record< string, unknown > ).guideline_categories !== null &&
+		! Array.isArray( ( data as Record< string, unknown > ).guideline_categories )
 	);
 }
 
