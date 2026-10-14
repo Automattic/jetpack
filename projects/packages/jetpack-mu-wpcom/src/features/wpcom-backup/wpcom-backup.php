@@ -24,6 +24,11 @@ class WPCOM_Backup extends WPCOM_WP_Build_Page {
 	const MENU_SLUG = 'jetpack-backup';
 
 	/**
+	 * Filter that switches Backup to wp-admin, shared with the Backup package's dashboard.
+	 */
+	const MODERNIZATION_FILTER = 'rsm_jetpack_ui_modernization_backup';
+
+	/**
 	 * Page name for wp-build, as declared in routes/wpcom-backup/package.json.
 	 */
 	const WP_BUILD_PAGE = 'wpcom-backup';
@@ -90,6 +95,17 @@ class WPCOM_Backup extends WPCOM_WP_Build_Page {
 		}
 
 		return ! self::has_backup_feature();
+	}
+
+	/**
+	 * Whether Backup opens in wp-admin rather than Calypso.
+	 *
+	 * Defaults on for Automatticians only.
+	 *
+	 * @return bool
+	 */
+	public static function is_modernized() {
+		return (bool) apply_filters( self::MODERNIZATION_FILTER, Wpcom_Feature_Flags::is_a11n() );
 	}
 
 	/**
