@@ -317,7 +317,8 @@ class WPCOM_Backup extends WPCOM_WP_Build_Page {
 								'new'     => (string) $warning['domain_names']['new'],
 							)
 							: null,
-						'support_url'  => isset( $warning['support_url'] ) ? (string) $warning['support_url'] : '',
+						// Rendered as a link, so only a web URL gets through.
+						'support_url'  => isset( $warning['support_url'] ) ? esc_url_raw( (string) $warning['support_url'], array( 'http', 'https' ) ) : '',
 					);
 				}
 			}

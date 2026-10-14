@@ -75,6 +75,13 @@ abstract class WPCOM_WP_Build_Page {
 	private static $displaced_screen_id = array();
 
 	/**
+	 * The hook suffix add_submenu_page() returned, which is the page's screen ID, keyed by class.
+	 *
+	 * @var string[]
+	 */
+	private static $screen_id = array();
+
+	/**
 	 * The page title.
 	 *
 	 * @return string
@@ -222,7 +229,7 @@ abstract class WPCOM_WP_Build_Page {
 			? static::get_render_callback()
 			: '__return_empty_string';
 
-		add_submenu_page(
+		$hook = add_submenu_page(
 			static::PARENT_SLUG,
 			static::get_page_title(),
 			static::get_menu_title(),
@@ -230,6 +237,10 @@ abstract class WPCOM_WP_Build_Page {
 			static::MENU_SLUG,
 			$callback
 		);
+
+		if ( $hook ) {
+			self::$screen_id[ static::class ] = $hook;
+		}
 	}
 
 	/**
@@ -242,12 +253,21 @@ abstract class WPCOM_WP_Build_Page {
 	}
 
 	/**
+	 * The page's screen ID, or null when it did not register on this request.
+	 *
+	 * @return string|null
+	 */
+	public static function get_screen_id() {
+		return self::$screen_id[ static::class ] ?? null;
+	}
+
+	/**
 	 * Reset the registration state. Test seam; production sets this once per request.
 	 *
 	 * @return void
 	 */
 	public static function reset() {
-		unset( self::$owns_page[ static::class ], self::$displaced_screen_id[ static::class ] );
+		unset( self::$owns_page[ static::class ], self::$displaced_screen_id[ static::class ], self::$screen_id[ static::class ] );
 	}
 
 	/**
@@ -338,11 +358,12 @@ abstract class WPCOM_WP_Build_Page {
 
 		if ( '' !== static::INITIAL_STATE_VAR ) {
 			// Inline JSON rather than wp_localize_script(), which stringifies top-level scalars.
-			wp_add_inline_script(
-				$handle,
-				'window.' . static::INITIAL_STATE_VAR . ' = ' . wp_json_encode( static::get_initial_state(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_SLASHES ) . ';',
-				'before'
-			);
+			$state = wp_json_encode( static::get_initial_state(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_SLASHES );
+
+			// Every `before` script shares one tag, so a bare `= ;` would also break the translations.
+			if ( false !== $state ) {
+				wp_add_inline_script( $handle, 'window.' . static::INITIAL_STATE_VAR . ' = ' . $state . ';', 'before' );
+			}
 		}
 
 		if ( static::ENQUEUE_TRACKS ) {

@@ -76,7 +76,8 @@ class WPCOM_WP_Build_Page_Test extends \WorDBless\BaseTestCase {
 			$_GET['page']
 		);
 		remove_all_actions( 'admin_menu', Test_WP_Build_Page::REGISTER_PRIORITY );
-		Test_WP_Build_Page::$build_dir = null;
+		Test_WP_Build_Page::$build_dir     = null;
+		Test_WP_Build_Page::$initial_state = array( 'enabled' => true );
 		Test_WP_Build_Page::reset();
 		WPCOM_Backup::reset();
 
@@ -187,6 +188,7 @@ class WPCOM_WP_Build_Page_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertTrue( Test_WP_Build_Page::owns_page() );
 		$this->assertSame( self::SCREEN_ID, get_plugin_page_hook( Test_WP_Build_Page::MENU_SLUG, 'admin.php' ) );
+		$this->assertSame( self::SCREEN_ID, Test_WP_Build_Page::get_screen_id() );
 	}
 
 	public function test_page_steps_aside_when_another_plugin_owns_the_slug() {
@@ -198,6 +200,7 @@ class WPCOM_WP_Build_Page_Test extends \WorDBless\BaseTestCase {
 		Test_WP_Build_Page::register_page();
 
 		$this->assertFalse( Test_WP_Build_Page::owns_page() );
+		$this->assertNull( Test_WP_Build_Page::get_screen_id() );
 		$this->assertCount( 1, array_keys( array_column( $submenu['jetpack'], 2 ), Test_WP_Build_Page::MENU_SLUG, true ) );
 	}
 
@@ -259,6 +262,18 @@ class WPCOM_WP_Build_Page_Test extends \WorDBless\BaseTestCase {
 		Test_WP_Build_Page::register_page();
 
 		$this->assertSame( array( 'enabled' => true ), $this->printed_initial_state() );
+	}
+
+	public function test_initial_state_that_will_not_encode_is_left_out() {
+		$this->set_up_admin_menu();
+		$this->set_up_page_request();
+		Test_WP_Build_Page::register_page();
+		Test_WP_Build_Page::$initial_state = array( 'ratio' => INF );
+
+		$this->printed_initial_state();
+
+		$before = (array) wp_scripts()->get_data( Test_WP_Build_Page::WP_BUILD_PAGE . '-wp-admin-prerequisites', 'before' );
+		$this->assertStringNotContainsString( Test_WP_Build_Page::INITIAL_STATE_VAR, implode( "\n", array_filter( $before, 'is_string' ) ) );
 	}
 
 	public function test_initial_state_is_withheld_from_users_who_cannot_manage_options() {

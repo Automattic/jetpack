@@ -27,6 +27,13 @@ class Test_WP_Build_Page extends WPCOM_WP_Build_Page {
 	public static $build_dir = null;
 
 	/**
+	 * The initial state the page hands over.
+	 *
+	 * @var array
+	 */
+	public static $initial_state = array( 'enabled' => true );
+
+	/**
 	 * The build directory.
 	 *
 	 * @return string
@@ -59,6 +66,6 @@ class Test_WP_Build_Page extends WPCOM_WP_Build_Page {
 	 * @return array
 	 */
 	public static function get_initial_state() {
-		return array( 'enabled' => true );
+		return self::$initial_state;
 	}
 }

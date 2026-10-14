@@ -8,6 +8,7 @@
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Backup;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-backup/wpcom-backup.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-admin-menu/wpcom-admin-menu.php';
@@ -304,6 +305,43 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 		);
 
 		$this->assertSame( array(), WPCOM_Backup::get_transfer_warnings( $eligibility ) );
+	}
+
+	/**
+	 * The page renders support_url as a link.
+	 *
+	 * @dataProvider provide_support_urls
+	 *
+	 * @param string $support_url As the API returned it.
+	 * @param string $expected    As the page receives it.
+	 */
+	#[DataProvider( 'provide_support_urls' )]
+	public function test_transfer_warnings_pass_only_web_support_urls( $support_url, $expected ) {
+		$eligibility = array(
+			'warnings' => array(
+				'subdomain' => array(
+					array(
+						'id'          => 'wordpress_subdomain',
+						'support_url' => $support_url,
+					),
+				),
+			),
+		);
+
+		$this->assertSame( $expected, WPCOM_Backup::get_transfer_warnings( $eligibility )[0]['support_url'] );
+	}
+
+	/**
+	 * Data provider for test_transfer_warnings_pass_only_web_support_urls.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_support_urls() {
+		return array(
+			'https'      => array( 'https://wordpress.com/support/changing-site-address/', 'https://wordpress.com/support/changing-site-address/' ),
+			'javascript' => array( 'javascript:alert(1)', '' ),
+			'data'       => array( 'data:text/html,<script>alert(1)</script>', '' ),
+		);
 	}
 
 	/**
