@@ -3,6 +3,7 @@
  */
 import {
 	buildMetricTab,
+	ChartEmptyState,
 	MetricTabsChart,
 	WidgetState,
 	type ChartDisplayChartType,
@@ -87,7 +88,12 @@ export function ReportMetricChart( {
 					],
 				} }
 			>
-				<MetricTabsChart metrics={ metrics } dataFormat={ dataFormat } chartType={ chartType } />
+				<MetricTabsChart
+					metrics={ metrics }
+					dataFormat={ dataFormat }
+					chartType={ chartType }
+					empty={ <ChartEmptyState /> }
+				/>
 			</WidgetState>
 		</div>
 	);
