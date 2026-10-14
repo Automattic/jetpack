@@ -109,6 +109,46 @@ it( "offers the plan a theme needs in place of core's install button", () => {
 	assert.equal( upgrade.attributes[ 'aria-label' ], 'Upgrade for Course' );
 } );
 
+it( 'names the plan beside the author in the theme preview', () => {
+	const install = node( 'a' );
+	install.className = 'button button-primary theme-install';
+	const author = node( 'h5' );
+	author.className = 'theme-by';
+	const overlay = node( 'div' );
+	overlay.querySelector = selector => ( selector === '.theme-by' ? author : install );
+
+	const theme = {
+		name: 'Course',
+		upgrade_url: 'https://wordpress.com/checkout/example.org/business-bundle',
+		upgrade_plan: 'Business plan',
+	};
+	const Preview = { prototype: { render: () => 'rendered' } };
+	const config = {
+		sort: 'wpcom',
+		label: 'Marketplace',
+		upgrade: 'Upgrade',
+		upgradeLabel: 'Upgrade for %s',
+	};
+	const context = {
+		document: { querySelector: () => null, createElement: node },
+		window: {
+			wpcomThemesTab: config,
+			wp: { themes: { view: { Theme: { prototype: { render: () => undefined } }, Preview } } },
+		},
+		wpcomThemesTab: config,
+	};
+	const file = new URL( './themes-tab.js', import.meta.url ).pathname;
+	vm.createContext( context );
+	new vm.Script( readFileSync( file, 'utf8' ), { filename: file } ).runInContext( context );
+
+	Preview.prototype.render.call( { el: overlay, model: { toJSON: () => theme } } );
+
+	const [ badge ] = author.children;
+	assert.equal( badge.textContent, 'Business plan' );
+	assert.equal( badge.className, 'wpcom-themes-tab__plan' );
+	assert.equal( install.children[ 0 ].className, 'button button-primary' );
+} );
+
 it( 'leaves a theme the plan includes to core', () => {
 	const card = node( 'div' );
 	let asked = false;
