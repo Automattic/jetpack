@@ -14,6 +14,7 @@ namespace Automattic\Jetpack\SEO;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Terms_Of_Service;
@@ -165,8 +166,9 @@ class Admin_Page {
 
 		$blog_id = (int) $host->get_wpcom_site_id();
 
-		// Defined on Simple only, so Automatticians read false on Atomic and self-hosted.
-		$is_a11n = function_exists( 'is_automattician' ) && (bool) is_automattician();
+		// `is_automattician()` exists on Simple only; on Atomic, the a8c proxy is what identifies us.
+		$is_a11n = ( function_exists( 'is_automattician' ) && (bool) is_automattician() )
+			|| Constants::is_true( 'AT_PROXIED_REQUEST' );
 
 		// `Status::is_staging_site()` would cover this, but it is deprecated.
 		$is_test = (bool) get_option( 'wpcom_is_staging_site' )

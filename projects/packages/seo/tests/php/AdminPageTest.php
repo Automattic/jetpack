@@ -294,6 +294,15 @@ class AdminPageTest extends TestCase {
 		}
 	}
 
+	public function test_get_tracks_context_flags_a_proxied_request_as_automattician() {
+		\Automattic\Jetpack\Constants::set_constant( 'AT_PROXIED_REQUEST', true );
+		try {
+			$this->assertTrue( Admin_Page::get_tracks_context()['is_a11n'] );
+		} finally {
+			\Automattic\Jetpack\Constants::clear_single_constant( 'AT_PROXIED_REQUEST' );
+		}
+	}
+
 	public function test_get_tracks_context_flags_a_wpcom_staging_site_as_test() {
 		$this->assertFalse( Admin_Page::get_tracks_context()['is_test'] );
 
