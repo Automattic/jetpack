@@ -18,6 +18,7 @@ export default function BoostBreadcrumbs( { subpage }: Props ) {
 		<>
 			<VisuallyHidden render={ <h1 /> }>{ title }</VisuallyHidden>
 			<Breadcrumb.Root
+				key={ title }
 				className="jetpack-boost-breadcrumbs"
 				aria-label={ __( 'Breadcrumbs', 'jetpack-boost' ) }
 			>

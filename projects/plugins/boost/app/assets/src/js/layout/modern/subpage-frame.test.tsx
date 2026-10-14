@@ -1,6 +1,6 @@
 /* eslint-disable testing-library/no-container, testing-library/no-node-access */
 import 'jetpack-js-tools/jest/setup-jest-dom';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import SubpageFrame from './subpage-frame';
 import BoostPage from '../../../../../../_inc/components/boost-page';
 import type { MouseEvent, ReactNode } from 'react';
@@ -41,6 +41,53 @@ describe( 'SubpageFrame', () => {
 		expect( header.querySelector( 'svg' ) ).toBeInTheDocument();
 		expect( header.nextElementSibling ).toHaveTextContent( 'content' );
 		expect( container.querySelector( '.jb-dashboard' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'updates the current breadcrumb after dismissing overflow and changing subpages', async () => {
+		// JSDOM needs geometry to exercise the real breadcrumb's responsive overflow.
+		const geometry = jest
+			.spyOn( HTMLElement.prototype, 'getBoundingClientRect' )
+			.mockImplementation( function ( this: HTMLElement ) {
+				return {
+					width: this.tagName === 'OL' ? 320 : 100,
+					height: 20,
+					top: 0,
+					left: 0,
+					right: 100,
+					bottom: 20,
+					x: 0,
+					y: 0,
+					toJSON: () => ( {} ),
+				};
+			} );
+		const originalResizeObserver = global.ResizeObserver;
+		global.ResizeObserver = class {
+			observe() {}
+			unobserve() {}
+			disconnect() {}
+		};
+		try {
+			const { rerender } = render( <SubpageFrame title="Cache debug log">Cache</SubpageFrame> );
+			const trigger = screen.getByRole( 'button', { name: /hidden breadcrumb/ } );
+			act( () => trigger.focus() );
+			// eslint-disable-next-line testing-library/prefer-user-event -- This project does not provide user-event.
+			fireEvent.click( trigger );
+			const menuItem = await screen.findByRole( 'menuitem', { name: 'Jetpack' } );
+			// eslint-disable-next-line testing-library/prefer-user-event -- This project does not provide user-event.
+			fireEvent.keyDown( menuItem, { key: 'Escape', code: 'Escape' } );
+			await waitFor( () => expect( trigger ).toHaveFocus() );
+			expect( screen.queryByRole( 'menu' ) ).not.toBeInTheDocument();
+			rerender( <SubpageFrame title="Critical CSS recommendations">Critical CSS</SubpageFrame> );
+			expect( screen.getByRole( 'heading', { level: 1 } ) ).toHaveTextContent(
+				'Critical CSS recommendations'
+			);
+			expect(
+				screen.getByText( 'Critical CSS recommendations', { selector: '[aria-current="page"]' } )
+			).toBeInTheDocument();
+		} finally {
+			geometry.mockRestore();
+			global.ResizeObserver = originalResizeObserver;
+		}
 	} );
 
 	it.each( [
