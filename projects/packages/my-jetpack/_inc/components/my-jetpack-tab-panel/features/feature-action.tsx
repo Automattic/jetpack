@@ -249,11 +249,11 @@ export function ConnectAccountButton( {
 			onClick={ onClick }
 			aria-label={ sprintf(
 				/* translators: %s is the feature name. */
-				__( 'Connect your account for %s', 'jetpack-my-jetpack' ),
+				__( 'Connect account for %s', 'jetpack-my-jetpack' ),
 				state.feature.name
 			) }
 		>
-			{ __( 'Connect your account', 'jetpack-my-jetpack' ) }
+			{ __( 'Connect account', 'jetpack-my-jetpack' ) }
 		</LinkButton>
 	);
 }

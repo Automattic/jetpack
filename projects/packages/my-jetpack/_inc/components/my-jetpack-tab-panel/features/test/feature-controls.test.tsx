@@ -567,9 +567,10 @@ describe( 'account connection controls', () => {
 			redirect_url: expect.stringContaining( '#/features' ),
 		} );
 		expect( screen.getByText( state.unavailableReason ) ).toBeInTheDocument();
-		expect(
-			screen.getByRole( 'link', { name: 'Connect your account for Boost' } )
-		).toHaveAttribute( 'href', '/wp-admin/admin.php?connect_url_redirect=1&skip_pricing=true' );
+		expect( screen.getByRole( 'link', { name: 'Connect account for Boost' } ) ).toHaveAttribute(
+			'href',
+			'/wp-admin/admin.php?connect_url_redirect=1&skip_pricing=true'
+		);
 		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Install' } ) ).not.toBeInTheDocument();
 	} );
@@ -583,9 +584,10 @@ describe( 'account connection controls', () => {
 		);
 		expect( screen.getByText( state.unavailableReason ) ).toBeInTheDocument();
 		expect( screen.getAllByRole( 'link' ) ).toHaveLength( 1 );
-		expect(
-			screen.getByRole( 'link', { name: 'Connect your account for Boost' } )
-		).toHaveAttribute( 'href', '/wp-admin/admin.php?connect_url_redirect=1&skip_pricing=true' );
+		expect( screen.getByRole( 'link', { name: 'Connect account for Boost' } ) ).toHaveAttribute(
+			'href',
+			'/wp-admin/admin.php?connect_url_redirect=1&skip_pricing=true'
+		);
 		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
 	} );
 } );

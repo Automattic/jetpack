@@ -343,7 +343,7 @@ describe( 'Feature action tracking', () => {
 					<FeatureAction state={ state } origin={ origin } />
 				)
 			);
-			const link = screen.getByRole( 'link', { name: 'Connect your account for Boost' } );
+			const link = screen.getByRole( 'link', { name: 'Connect account for Boost' } );
 			link.addEventListener( 'click', event => event.preventDefault() );
 			await userEvent.click( link );
 			expect( recordEvent ).toHaveBeenCalledTimes( 1 );
