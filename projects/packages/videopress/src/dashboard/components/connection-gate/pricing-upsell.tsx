@@ -44,10 +44,12 @@ export default function PricingUpsell() {
 	// eslint-disable-next-line @wordpress/no-unused-vars-before-return
 	const [ isConnecting, setIsConnecting ] = useState( false );
 
-	const { handleRegisterSite, userIsConnecting, registrationError } = useConnection( {
-		from: 'jetpack-videopress',
-		redirectUri: redirectUrl,
-	} );
+	const { handleRegisterSite, userIsConnecting, registrationError, isOfflineMode } = useConnection(
+		{
+			from: 'jetpack-videopress',
+			redirectUri: redirectUrl,
+		}
+	);
 
 	const { run, hasCheckoutStarted, checkoutError } = useVideoPressCheckout( {
 		productSlug: pricing?.yearly?.slug ?? '',
@@ -131,7 +133,7 @@ export default function PricingUpsell() {
 							</Button>
 							{ registrationError && (
 								<Text className="vp-connection-gate__error" role="alert">
-									{ getRegistrationErrorSummary( registrationError ) ||
+									{ getRegistrationErrorSummary( registrationError, isOfflineMode ) ||
 										__( 'An error occurred. Please try again.', 'jetpack-videopress-pkg' ) }
 								</Text>
 							) }

@@ -42,6 +42,7 @@ function ConnectButton( {
 		siteIsRegistering,
 		userIsConnecting,
 		registrationError,
+		isOfflineMode,
 	} = useConnection( {
 		registrationNonce,
 		redirectUri,
@@ -60,7 +61,7 @@ function ConnectButton( {
 					</Button>
 					{ registrationError && (
 						<p className="jp-action-button__error" role="alert">
-							{ getRegistrationErrorSummary( registrationError ) ||
+							{ getRegistrationErrorSummary( registrationError, isOfflineMode ) ||
 								__( 'An error occurred. Please try again.', 'jetpack-connection-js' ) }
 						</p>
 					) }

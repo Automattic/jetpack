@@ -17,12 +17,17 @@ import './style.scss';
  * @return The connection gate.
  */
 export default function ConnectionGate(): JSX.Element {
-	const { handleRegisterSite, siteIsRegistering, userIsConnecting, registrationError } =
-		useConnection( {
-			from: 'jetpack-social',
-			// MUST stay relative — an absolute URL doubles server-side and 404s.
-			redirectUri: 'admin.php?page=jetpack-social',
-		} );
+	const {
+		handleRegisterSite,
+		siteIsRegistering,
+		userIsConnecting,
+		registrationError,
+		isOfflineMode,
+	} = useConnection( {
+		from: 'jetpack-social',
+		// MUST stay relative — an absolute URL doubles server-side and 404s.
+		redirectUri: 'admin.php?page=jetpack-social',
+	} );
 
 	const isLoading = siteIsRegistering || userIsConnecting;
 
@@ -51,7 +56,7 @@ export default function ConnectionGate(): JSX.Element {
 					</p>
 					{ registrationError && (
 						<p className="jetpack-social-gate__error" role="alert">
-							{ getRegistrationErrorSummary( registrationError ) ||
+							{ getRegistrationErrorSummary( registrationError, isOfflineMode ) ||
 								__( 'An error occurred. Please try again.', 'jetpack-publicize-pkg' ) }
 						</p>
 					) }

@@ -23,7 +23,7 @@ import styles from './styles.module.scss';
 const ConnectedPricingTable = () => {
 	const { recordEvent } = useAnalyticsTracks();
 	const { upgradePlan, isLoading: isPlanLoading } = usePlan();
-	const { handleRegisterSite, registrationError } = useConnection( {
+	const { handleRegisterSite, registrationError, isOfflineMode } = useConnection( {
 		from: 'protect',
 		skipUserConnection: true,
 		redirectUri: 'admin.php?page=jetpack-protect',
@@ -156,7 +156,7 @@ const ConnectedPricingTable = () => {
 						</Button>
 						{ registrationError && (
 							<Text variant="body-small" className={ styles.error } role="alert">
-								{ getRegistrationErrorSummary( registrationError ) ||
+								{ getRegistrationErrorSummary( registrationError, isOfflineMode ) ||
 									__( 'An error occurred. Please try again.', 'jetpack-protect' ) }
 							</Text>
 						) }

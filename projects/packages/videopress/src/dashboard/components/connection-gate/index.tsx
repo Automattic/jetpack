@@ -37,6 +37,7 @@ export default function ConnectionGate( { children }: { children: ReactNode } ) 
 		userIsConnecting,
 		handleRegisterSite,
 		registrationError,
+		isOfflineMode,
 	} = useConnection( {
 		from: 'jetpack-videopress',
 		redirectUri: VIDEOPRESS_ADMIN_PAGE,
@@ -74,7 +75,7 @@ export default function ConnectionGate( { children }: { children: ReactNode } ) 
 			isConnecting={ siteIsRegistering || userIsConnecting }
 			errorMessage={
 				registrationError
-					? getRegistrationErrorSummary( registrationError ) ||
+					? getRegistrationErrorSummary( registrationError, isOfflineMode ) ||
 						__( 'An error occurred. Please try again.', 'jetpack-videopress-pkg' )
 					: undefined
 			}

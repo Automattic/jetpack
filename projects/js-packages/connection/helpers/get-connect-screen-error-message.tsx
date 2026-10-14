@@ -78,12 +78,14 @@ export const getRegistrationErrorDescription = (
  * For surfaces with room for a single line. Callers add their own generic fallback.
  *
  * @param {RegistrationError|false} registrationError - The `registrationError` from `useConnection()`.
+ * @param {boolean}                 isOfflineMode     - Whether the site is in offline mode, from `useConnection()`.
  * @return {import('react').ReactNode} The message, or undefined if there isn't one.
  */
 export const getRegistrationErrorSummary = (
-	registrationError?: RegistrationError | false
+	registrationError?: RegistrationError | false,
+	isOfflineMode?: boolean
 ): ReactNode =>
-	getConnectScreenErrorMessage( getRegistrationErrorCode( registrationError ) ) ||
+	getConnectScreenErrorMessage( getRegistrationErrorCode( registrationError ), isOfflineMode ) ||
 	getRegistrationErrorDescription( registrationError );
 
 const offlineModeMessage = () =>
@@ -156,6 +158,11 @@ export const getConnectScreenErrorMessage = (
 	errorCode?: string,
 	isOfflineMode?: boolean
 ): ReactNode => {
+	// Offline mode takes away the connect capability, so this error means offline mode, not a missing role.
+	if ( isOfflineMode && errorCode === 'invalid_user_permission_jetpack_connect' ) {
+		return offlineModeMessage();
+	}
+
 	const siteHttpStatus = errorCode?.match( /^site_inaccessible_(\d{3})$/ );
 	if ( siteHttpStatus ) {
 		return siteHttpErrorMessage( Number( siteHttpStatus[ 1 ] ) );

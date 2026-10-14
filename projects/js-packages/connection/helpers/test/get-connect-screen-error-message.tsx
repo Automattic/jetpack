@@ -40,6 +40,16 @@ describe( 'getConnectScreenErrorMessage', () => {
 		);
 	} );
 
+	it( 'treats the missing connect capability as offline mode when the site is offline', () => {
+		// Offline mode takes away jetpack_connect, so an administrator gets this permission error.
+		expect(
+			getConnectScreenErrorMessage( 'invalid_user_permission_jetpack_connect', true )
+		).toEqual( getConnectScreenErrorMessage( undefined, true ) );
+		expect( getConnectScreenErrorMessage( 'invalid_user_permission_jetpack_connect' ) ).toContain(
+			'Only site administrators'
+		);
+	} );
+
 	it( 'maps an invalid Jetpack ID response to a message', () => {
 		expect( getConnectScreenErrorMessage( 'jetpack_id' ) ).toBe(
 			'WordPress.com returned an unexpected response when registering your site. Please try again in a minute.'
@@ -213,5 +223,19 @@ describe( 'getRegistrationErrorSummary', () => {
 				response: { code: 'cannot_save_secrets', message: 'Server text.' },
 			} )
 		).toBe( 'Server text.' );
+	} );
+
+	it( 'shows the offline mode message for the permission error on an offline site', () => {
+		const permissionError = {
+			response: {
+				code: 'invalid_user_permission_jetpack_connect',
+				message: 'You do not have the correct user permissions to perform this action.',
+			},
+		};
+		render( <>{ getRegistrationErrorSummary( permissionError, true ) }</> );
+		expect( screen.getByRole( 'link', { name: 'Offline Mode' } ) ).toBeInTheDocument();
+		expect( getRegistrationErrorSummary( permissionError ) ).toContain(
+			'Only site administrators'
+		);
 	} );
 } );
