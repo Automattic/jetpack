@@ -12,24 +12,15 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@automattic/jetpack-premium-analytics-sdk';
 import { __ } from '@wordpress/i18n';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 /**
  * Internal dependencies
  */
-import {
-	BOOKINGS_FILTER,
-	useReportConversionRate,
-	useReportCustomersByDate,
-	useReportOrders,
-	useReportVisitors,
-} from '../../src/reports';
-import {
-	DEFAULT_STORE_PERFORMANCE_METRICS,
-	STORE_PERFORMANCE_METRICS,
-	type StorePerformanceMetricId,
-} from './metrics';
 import styles from './store-performance.module.css';
+import { useStorePerformanceMetrics } from './use-store-performance-metrics';
 import type { StorePerformanceAttributes } from './widget';
+import type { ReportParams } from '../../src/reports';
+import type { StorePerformanceMetric } from '../../src/store-performance/metric';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 /** Chart format for the metrics that set none. */
@@ -41,76 +32,148 @@ const DEFAULT_DATA_FORMAT = {
 type StorePerformanceRenderAttributes = StorePerformanceAttributes &
 	Partial< ReportParamsFieldAttributes >;
 
+/** What the chart reads of a metric's report. */
+type MetricReportState = {
+	primary: unknown;
+	comparison: unknown;
+	hasComparison: boolean;
+	timezone: string;
+	isLoading: boolean;
+	isFetching: boolean;
+	isError: boolean;
+	hasData: boolean;
+	refetch: () => Promise< unknown >;
+};
+
+type MetricReportProps = {
+	metric: StorePerformanceMetric;
+	params: ReportParams;
+	onChange: ( id: string, state: MetricReportState | null ) => void;
+};
+
+/**
+ * Runs one metric's report hook. The metrics are a list a plugin can add to, and hooks cannot run
+ * in a loop, so each metric gets a child; the report reaches the chart by its fields, since the
+ * hook returns a new object on every render.
+ *
+ * @param {MetricReportProps} props - The metric, the report params and where to report.
+ * @return {null} Nothing: the chart is the parent's.
+ */
+function MetricReport( { metric, params, onChange }: MetricReportProps ) {
+	const { useReport } = metric;
+	const report = useReport( params );
+	const { hasComparison, timezone, isLoading, isFetching, isError, hasData, refetch } = report;
+	const primary = report.primary.data;
+	const comparison = report.comparison.data;
+
+	const state = useMemo< MetricReportState >(
+		() => ( {
+			primary,
+			comparison,
+			hasComparison,
+			timezone,
+			isLoading,
+			isFetching,
+			isError,
+			hasData,
+			refetch,
+		} ),
+		[
+			primary,
+			comparison,
+			hasComparison,
+			timezone,
+			isLoading,
+			isFetching,
+			isError,
+			hasData,
+			refetch,
+		]
+	);
+
+	useEffect( () => {
+		onChange( metric.id, state );
+	}, [ metric.id, onChange, state ] );
+
+	useEffect( () => () => onChange( metric.id, null ), [ metric.id, onChange ] );
+
+	return null;
+}
+
 type StorePerformanceProps = {
-	/** The metrics shown, by id. */
-	metricIds: StorePerformanceMetricId[];
+	/** The metrics shown, by id. Absent, every metric on offer. */
+	metricIds?: string[];
 };
 
 /**
  * The selected store metrics as tabs over a comparison line chart, read under the widget root
- * for its report params. Only the reports those metrics read are requested.
+ * for its report params. Only the reports of the shown metrics are requested.
  *
  * @param {StorePerformanceProps} props - The component props.
  * @return {JSX.Element} The chart, or the loading or error state of its reports.
  */
 function StorePerformance( { metricIds }: StorePerformanceProps ) {
 	const { reportParams } = useWidgetRootContext();
-	const bookingsParams = useMemo(
-		() => ( { ...reportParams, filters: [ BOOKINGS_FILTER ] } ),
-		[ reportParams ]
-	);
+	const offered = useStorePerformanceMetrics();
 
-	// Resolved against the list, so the tab order holds whatever order the ids were picked in.
-	const visibleMetrics = useMemo( () => {
+	// Resolved against the list on offer, so the tab order holds whatever order the ids were picked in.
+	const metrics = useMemo( () => {
+		if ( ! metricIds ) {
+			return offered;
+		}
 		const selected = new Set( metricIds );
-		return STORE_PERFORMANCE_METRICS.filter( metric => selected.has( metric.id ) );
-	}, [ metricIds ] );
-	const sources = useMemo(
-		() => new Set( visibleMetrics.map( metric => metric.source ) ),
-		[ visibleMetrics ]
-	);
+		return offered.filter( metric => selected.has( metric.id ) );
+	}, [ metricIds, offered ] );
 
-	const orders = useReportOrders( reportParams, { enabled: sources.has( 'orders' ) } );
-	const bookings = useReportOrders( bookingsParams, { enabled: sources.has( 'bookings' ) } );
-	const visitors = useReportVisitors( reportParams, { enabled: sources.has( 'visitors' ) } );
-	const conversion = useReportConversionRate( reportParams, {
-		enabled: sources.has( 'conversion' ),
-	} );
-	const customers = useReportCustomersByDate( reportParams, {
-		enabled: sources.has( 'customers' ),
-	} );
+	const [ reports, setReports ] = useState< Record< string, MetricReportState > >( {} );
+	const onReportChange = useCallback( ( id: string, state: MetricReportState | null ) => {
+		setReports( previous => {
+			if ( state === null ) {
+				if ( ! ( id in previous ) ) {
+					return previous;
+				}
+				const next = { ...previous };
+				delete next[ id ];
+				return next;
+			}
+			return previous[ id ] === state ? previous : { ...previous, [ id ]: state };
+		} );
+	}, [] );
 
-	const reports = useMemo(
-		() => ( { orders, bookings, visitors, conversion, customers } ),
-		[ orders, bookings, visitors, conversion, customers ]
-	);
-	// The reports the shown metrics read: a switched-off report has no state to show.
 	const reportList = useMemo(
-		() => Array.from( sources, source => reports[ source ] ),
-		[ reports, sources ]
+		() =>
+			metrics
+				.map( metric => reports[ metric.id ] )
+				.filter( ( report ): report is MetricReportState => report !== undefined ),
+		[ metrics, reports ]
 	);
 
-	const metrics = useMemo(
+	const tabs = useMemo(
 		() =>
-			visibleMetrics.map( metric => {
-				const report = reports[ metric.source ];
+			metrics.flatMap( metric => {
+				const report = reports[ metric.id ];
+				if ( ! report ) {
+					return [];
+				}
 
-				return {
-					...buildMetricTab( {
-						primary: report.primary.data,
-						comparison: report.comparison.data,
-						hasComparison: report.hasComparison,
-						field: metric.field,
-						label: metric.label,
-						dataFormat: metric.dataFormat,
-						countLabel: metric.countLabel,
-						zone: report.timezone,
-					} ),
-					key: metric.id,
-					description: metric.description,
-				};
+				return [
+					{
+						...buildMetricTab( {
+							primary: report.primary,
+							comparison: report.comparison,
+							hasComparison: report.hasComparison,
+							field: metric.field,
+							label: metric.label,
+							dataFormat: metric.dataFormat,
+							countLabel: metric.countLabel,
+							zone: report.timezone,
+						} ),
+						key: metric.id,
+						description: metric.description,
+					},
+				];
 			} ),
-		[ reports, visibleMetrics ]
+		[ metrics, reports ]
 	);
 
 	// A failed report shows its error beside the others' charts only once it has nothing to show.
@@ -122,7 +185,7 @@ function StorePerformance( { metricIds }: StorePerformanceProps ) {
 	);
 
 	// Not a data state: every metric was switched off in the widget settings.
-	if ( visibleMetrics.length === 0 ) {
+	if ( metrics.length === 0 ) {
 		return (
 			<div className={ styles.root }>
 				<ChartEmptyState
@@ -134,8 +197,18 @@ function StorePerformance( { metricIds }: StorePerformanceProps ) {
 
 	return (
 		<div className={ styles.root }>
+			{ metrics.map( metric => (
+				<MetricReport
+					key={ metric.id }
+					metric={ metric }
+					params={ reportParams }
+					onChange={ onReportChange }
+				/>
+			) ) }
 			<WidgetState
-				isLoading={ reportList.some( report => report.isLoading ) }
+				isLoading={
+					reportList.length < metrics.length || reportList.some( report => report.isLoading )
+				}
 				isFetching={ reportList.some( report => report.isFetching ) }
 				isError={ isError }
 				error={ {
@@ -148,7 +221,7 @@ function StorePerformance( { metricIds }: StorePerformanceProps ) {
 				renderLoading={ <MetricTabsChartSkeleton /> }
 			>
 				<MetricTabsChart
-					metrics={ metrics }
+					metrics={ tabs }
 					dataFormat={ DEFAULT_DATA_FORMAT }
 					groupLabel={ __( 'Store metric', 'jetpack-woocommerce-stats-pkg' ) }
 					empty={ <ChartEmptyState /> }
@@ -159,7 +232,7 @@ function StorePerformance( { metricIds }: StorePerformanceProps ) {
 }
 
 /**
- * The Store performance widget. A missing `metrics` attribute shows every metric but Bookings.
+ * The Store performance widget. A missing `metrics` attribute shows every metric on offer.
  *
  * @param {WidgetRenderProps< StorePerformanceRenderAttributes >} props - The props the host passes.
  * @return {JSX.Element} The widget.
@@ -169,7 +242,7 @@ export default function StorePerformanceRender( {
 }: WidgetRenderProps< StorePerformanceRenderAttributes > ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<StorePerformance metricIds={ attributes.metrics ?? DEFAULT_STORE_PERFORMANCE_METRICS } />
+			<StorePerformance metricIds={ attributes.metrics } />
 		</WidgetRoot>
 	);
 }

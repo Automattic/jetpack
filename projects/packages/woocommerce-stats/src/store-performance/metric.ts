@@ -1,0 +1,24 @@
+import type { ReportParams } from '../reports';
+import type { DataFormat, ReportResult } from '@automattic/jetpack-premium-analytics-sdk';
+
+/**
+ * Filter on the metrics Store performance offers. A plugin returns the list with its metric in;
+ * the widget reads the list when it renders and when its Metrics field opens.
+ */
+export const STORE_PERFORMANCE_METRICS_FILTER = 'jetpack.woocommerceStats.storePerformance.metrics';
+
+/** What a metric's report hook returns, as the widget reads it. */
+export type StorePerformanceReport = ReportResult< unknown >;
+
+export type StorePerformanceMetric = {
+	/** Keys the tab and names the metric in the widget's `metrics` attribute. */
+	id: string;
+	label: string;
+	description: string;
+	/** The field read from the report's summary and from each of its rows. */
+	field: string;
+	dataFormat: DataFormat;
+	countLabel?: ( count: number ) => string;
+	/** A React hook: the report the metric reads, under the dashboard's report params. */
+	useReport: ( params: ReportParams ) => StorePerformanceReport;
+};

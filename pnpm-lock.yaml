@@ -5532,6 +5532,9 @@ importers:
       '@wordpress/date':
         specifier: 5.55.0
         version: 5.55.0
+      '@wordpress/hooks':
+        specifier: 4.55.0
+        version: 4.55.0
       '@wordpress/i18n':
         specifier: 6.28.0
         version: 6.28.0
@@ -5560,6 +5563,12 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
+      '@testing-library/dom':
+        specifier: 10.4.2
+        version: 10.4.2
+      '@testing-library/react':
+        specifier: 16.3.3
+        version: 16.3.3(@testing-library/dom@10.4.2)(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@types/jest':
         specifier: 30.0.0
         version: 30.0.0

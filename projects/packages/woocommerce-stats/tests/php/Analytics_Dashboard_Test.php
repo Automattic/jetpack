@@ -144,21 +144,6 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The default Store performance leaves the Bookings metric to the Bookings extension.
-	 */
-	public function test_the_default_store_performance_lists_bookings_only_with_the_extension() {
-		$instance = Analytics_Dashboard::get_default_layout()[0];
-
-		$this->assertSame( Analytics_Dashboard::STORE_PERFORMANCE_TYPE, $instance['type'] );
-		$this->assertArrayNotHasKey( 'attributes', $instance );
-		$this->assertSame( array(), Analytics_Dashboard::get_default_store_performance_attributes( false ) );
-		$this->assertSame(
-			array( 'metrics' => array( 'net-sales', 'orders', 'bookings', 'visitors', 'conversion-rate', 'customers' ) ),
-			Analytics_Dashboard::get_default_store_performance_attributes( true )
-		);
-	}
-
-	/**
 	 * Without WooCommerce the section stays registered and unavailable.
 	 */
 	public function test_section_stays_unavailable_without_woocommerce() {

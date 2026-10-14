@@ -1,4 +1,4 @@
 Significance: patch
 Type: enhancement
 
-Premium Analytics: Let Store performance pick its metrics in the widget header, and start without the Bookings metric on stores not running WooCommerce Bookings.
+Premium Analytics: Let Store performance pick its metrics in the widget header.

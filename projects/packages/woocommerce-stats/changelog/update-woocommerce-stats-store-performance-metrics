@@ -1,4 +1,4 @@
 Significance: minor
-Type: changed
+Type: added
 
-Store performance: Pick the metrics shown through a widget attribute; the Bookings metric starts off unless the Bookings extension is active.
+Store performance: Pick the metrics shown through a widget attribute, and let a plugin add metrics through the `jetpack.woocommerceStats.storePerformance.metrics` filter.
