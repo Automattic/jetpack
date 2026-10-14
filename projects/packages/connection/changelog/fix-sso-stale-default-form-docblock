@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: SSO: Fix stale query parameter name in a docblock.
+
+
