@@ -23,6 +23,7 @@ return make_phan_config(
 			'tests/php/stubs/wp-build-render-page\.php',
 			// Redeclares Admin_Menu without the resolver, which would shadow the real class everywhere.
 			'tests/php/stubs/older-admin-ui/',
+			'tests/php/stubs/class-jetpack-gutenberg\.php',
 		),
 		'parse_file_list'    => array(
 			// Reference files to handle code checking for stuff from Jetpack-the-plugin or other in-monorepo plugins.
