@@ -184,7 +184,7 @@ class Settings {
 	/**
 	 * Save whether the WordPress.com Reader shows post views for this site.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.23.0
 	 *
 	 * @param bool $enabled Whether the Reader shows post views.
 	 * @return true|WP_Error True once stored, or an error when the site kept another value.
