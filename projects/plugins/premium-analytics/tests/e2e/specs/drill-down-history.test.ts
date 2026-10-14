@@ -16,10 +16,6 @@ const fullDay = new Intl.DateTimeFormat( 'en-US', {
 	timeZone: 'UTC',
 } );
 
-// The helper serves each day's day of the month as its views; the comparison may follow.
-const viewsTab = ( dashboard: Dashboard, total: number ) =>
-	dashboard.page.getByRole( 'tab', { name: new RegExp( `^Views ${ total }( |$)` ) } );
-
 /**
  * Opens the default week and drills into its third day.
  *
@@ -36,7 +32,7 @@ async function openDay( dashboard: Dashboard ) {
 		route: route( url ),
 		views: days.reduce( ( sum, day ) => sum + day.getUTCDate(), 0 ),
 	};
-	await expect( viewsTab( dashboard, week.views ) ).toBeVisible();
+	await expect( dashboard.viewsTab( week.views ) ).toBeVisible();
 
 	await dashboard.clickInWidget(
 		dashboard.page
@@ -61,7 +57,7 @@ async function expectDay( dashboard: Dashboard, day: Date ) {
 			routeParam( url, 'to' ) === `${ iso }T23:59:59.999+00:00`
 	);
 	await expect( dashboard.periodControl() ).toHaveAccessibleDescription( fullDay.format( day ) );
-	await expect( viewsTab( dashboard, day.getUTCDate() ) ).toBeVisible();
+	await expect( dashboard.viewsTab( day.getUTCDate() ) ).toBeVisible();
 }
 
 /**
@@ -75,7 +71,7 @@ async function expectDay( dashboard: Dashboard, day: Date ) {
 async function expectWeek( dashboard: Dashboard, week: { route: string; views: number } ) {
 	await expect.poll( () => route( new URL( dashboard.page.url() ) ) ).toBe( week.route );
 	await expect( dashboard.periodControl() ).toHaveText( 'Last 7 days' );
-	await expect( viewsTab( dashboard, week.views ) ).toBeVisible();
+	await expect( dashboard.viewsTab( week.views ) ).toBeVisible();
 }
 
 test.beforeEach( async ( { testUtils } ) => {
@@ -115,7 +111,7 @@ test( 'Back from a period picked after a drill-down returns to the drilled day',
 test( 'a Views over years month opens Traffic on it, and Back returns to Insights', async ( {
 	dashboard,
 } ) => {
-	const insightsTab = dashboard.page.getByRole( 'tab', { name: 'Insights' } );
+	const insightsTab = dashboard.tab( 'Insights' );
 	await dashboard.open();
 	await insightsTab.click();
 	const march = dashboard.page.getByRole( 'gridcell', { name: 'Mar 2026: 496' } );
@@ -123,17 +119,14 @@ test( 'a Views over years month opens Traffic on it, and Back returns to Insight
 	const insights = route( new URL( dashboard.page.url() ) );
 
 	await dashboard.clickInWidget( march );
-	await expect( dashboard.page.getByRole( 'tab', { name: 'Traffic' } ) ).toHaveAttribute(
-		'aria-selected',
-		'true'
-	);
+	await expect( dashboard.tab( 'Traffic' ) ).toHaveAttribute( 'aria-selected', 'true' );
 	await expect( dashboard.page ).toHaveURL(
 		url =>
 			routeParam( url, 'from' ) === '2026-03-01T00:00:00.000+00:00' &&
 			routeParam( url, 'to' ) === '2026-03-31T23:59:59.999+00:00'
 	);
 	await expect( dashboard.periodControl() ).toHaveAccessibleDescription( 'March 1 – 31, 2026' );
-	await expect( viewsTab( dashboard, 496 ) ).toBeVisible();
+	await expect( dashboard.viewsTab( 496 ) ).toBeVisible();
 
 	await dashboard.page.goBack();
 	await expect( insightsTab ).toHaveAttribute( 'aria-selected', 'true' );

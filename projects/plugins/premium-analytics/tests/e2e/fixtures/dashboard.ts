@@ -110,8 +110,13 @@ export class Dashboard {
 	}
 
 	periodControl(): Locator {
-		// The section's panel comes before the chart's metric panels.
-		return this.page.getByRole( 'tabpanel' ).first().locator( '[aria-haspopup="dialog"]' ).first();
+		// Its name is the period itself, so only its class tells it from the comparison and interval controls.
+		return this.page.locator( '.date-period-dropdown__toggle' );
+	}
+
+	viewsTab( total: number ): Locator {
+		// The comparison may follow the total, as in "Views 10 +11%".
+		return this.page.getByRole( 'tab', { name: new RegExp( `^Views ${ total }( |$)` ) } );
 	}
 
 	async clickInWidget( target: Locator ) {

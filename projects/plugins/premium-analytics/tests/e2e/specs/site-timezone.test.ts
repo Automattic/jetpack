@@ -66,11 +66,8 @@ for ( const { site, browser } of PAIRS ) {
 			expect( days, `from=${ from }` ).toHaveLength( 7 );
 			expect( routeParam( url, 'to' ) ).toBe( dayEnd( days[ 6 ] ) );
 
-			// The helper serves each day's day of the month as its views.
 			const views = days.reduce( ( sum, day ) => sum + Number( day.slice( 8 ) ), 0 );
-			await expect(
-				dashboard.page.getByRole( 'tab', { name: new RegExp( `^Views ${ views }( |$)` ) } )
-			).toBeVisible();
+			await expect( dashboard.viewsTab( views ) ).toBeVisible();
 		} );
 
 		test( 'labels the chart with site days', async ( { dashboard } ) => {
