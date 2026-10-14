@@ -58,8 +58,8 @@ export function getModuleStatus( $module: MyJetpackModule ) {
  * The feature's availability restriction, including a required account connection.
  *
  * @param state - The feature's live state.
- * @return The unavailable reason, including a required account connection, or undefined when a
- * plugin provides a route.
+ * @return The unavailable reason, including a required account connection, or undefined when an
+ * installed plugin or an available module provides a route.
  */
 export function getFeatureUnavailableReason( state: FeatureState ): string | undefined {
 	if ( state.control.kind === 'connect-account' ) {
