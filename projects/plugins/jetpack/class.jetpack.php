@@ -16,6 +16,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Connection\Secrets;
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Connection\Webhooks\Authorize_Redirect;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\CookieState;
@@ -4159,14 +4160,18 @@ p {
 	 *
 	 * @since 16.2
 	 *
+	 * @see Automattic\Jetpack\Connection\Utils::get_registration_error_description()
+	 *
 	 * @param string $error_code The WP_Error code.
 	 * @param string $message    The WP_Error message.
 	 * @return string The description, empty when the message is not user-facing copy.
 	 */
 	public static function get_registration_error_description( $error_code, $message ) {
-		// Manager::validate_remote_register_response() does not always put user-facing copy in the
-		// message slot: wpcom_5??, wpcom_408 and wpcom_bad_response store the HTTP status there,
-		// and jetpack_id stores the raw response body, which can also overflow the state cookie.
+		if ( method_exists( Connection_Utils::class, 'get_registration_error_description' ) ) {
+			return Connection_Utils::get_registration_error_description( $error_code, $message );
+		}
+
+		// Fallback for connection packages that predate it. A raw body would also overflow the state cookie.
 		if ( 'jetpack_id' === $error_code || is_numeric( $message ) ) {
 			return '';
 		}
@@ -4208,7 +4213,7 @@ p {
 					if ( $from ) {
 						static::connection()->add_register_request_param( 'from', (string) $from );
 					}
-					$registered = static::connection()->try_registration();
+					$registered = static::connection()->try_registration( true, true );
 					if ( is_wp_error( $registered ) ) {
 						$error = $registered->get_error_code();
 						self::state( 'error', $error );

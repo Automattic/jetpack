@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Widgets: Show the search icon in every empty state, including the detail pages and the widgets that had none, and reword the empty text of several widgets.

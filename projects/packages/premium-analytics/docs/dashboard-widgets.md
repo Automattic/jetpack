@@ -211,7 +211,7 @@ Two filters, both problem-agnostic, plus a policy on default layouts.
 
 `jetpack_premium_analytics_registrable_widget_types` runs over the manifest candidates in `register_widget_types()`. A dropped candidate never registers: gone from the REST list, the import map and every registry reader. For hard availability.
 
-The package's own policy hooks it, in `src/widget-availability.php`: developer-only widgets off production, the store and bookings categories without WooCommerce or Bookings, the store report categories without `view_woocommerce_reports`, and the Stats report categories without `view_stats`.
+The package's own policy hooks it, in `src/widget-availability.php`: developer-only widgets off production, and the Stats report categories without `view_stats`. The WooCommerce Stats package gates its own types on WooCommerce, the Bookings extension and `view_woocommerce_reports` before it registers them.
 
 A plugin's manifest goes through the same filter when it registers through `register_widget_types_from_manifest()`. A type registered one by one with `register_widget_type()` does not. Either way, a plugin decides in its callback whether to register at all, as the section owners do.
 
