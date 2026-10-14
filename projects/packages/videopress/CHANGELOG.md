@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.57.0] - 2026-10-12
+### Added
+- Add trim and cut editing to the video block toolbar and clarify the editor tool icons. [#53100]
+
 ## [0.56.0] - 2026-10-07
 ### Security
 - Playback: Strengthen authorization for private videos. [#53240]
@@ -2333,6 +2337,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.57.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.56.0...v0.57.0
 [0.56.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.55.0...v0.56.0
 [0.55.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.54.0...v0.55.0
 [0.54.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.53.0...v0.54.0
