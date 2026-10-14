@@ -1752,7 +1752,9 @@ function ExpandedDetails( {
 			? createElement( TransferOwnershipModal, {
 					onClose: () => {
 						setIsTransferOpen( false );
-						focusWhenReady( transferOwnershipRef.current );
+						// A completed transfer takes the trigger with it, so fall back to the row's
+						// remaining action rather than dropping focus to the body.
+						focusWhenReady( transferOwnershipRef.current || disconnectAccountRef.current );
 					},
 					onTransferred: onOwnerChanged,
 				} )

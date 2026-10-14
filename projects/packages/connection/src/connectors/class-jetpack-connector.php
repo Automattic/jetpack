@@ -385,10 +385,8 @@ class Jetpack_Connector {
 	/**
 	 * Get the connection owner details for the script module.
 	 *
-	 * Local fields only. Someone else's WordPress.com identity is not what an administrator
-	 * recognises them by on this site, and it is what My Jetpack and the ownership-transfer
-	 * candidate list already show. Resolving it would also cost a signed WordPress.com request
-	 * for a second user on every Connectors screen load.
+	 * Local fields only: another administrator is named as this site knows them, and resolving
+	 * their WordPress.com identity would cost a signed request on every Connectors screen load.
 	 *
 	 * @param Manager $manager Connection manager instance.
 	 * @return array|null Owner data or null if unavailable.
