@@ -17,14 +17,12 @@ require_once __DIR__ . '/../../src/dashboard-policy.php';
 /**
  * @covers ::Automattic\Jetpack\PremiumAnalytics\register_dashboard_feature_flags
  * @covers ::Automattic\Jetpack\PremiumAnalytics\is_dashboard_composition_enabled
- * @covers ::Automattic\Jetpack\PremiumAnalytics\is_dashboard_store_section_enabled
  * @covers ::Automattic\Jetpack\PremiumAnalytics\is_dashboard_unlocked_for_a11n
  * @covers ::Automattic\Jetpack\PremiumAnalytics\configure_dashboard_policy
  * @covers ::Automattic\Jetpack\PremiumAnalytics\inject_dashboard_policy_script_data
  */
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\register_dashboard_feature_flags' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\is_dashboard_composition_enabled' )]
-#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\is_dashboard_store_section_enabled' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\is_dashboard_unlocked_for_a11n' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\configure_dashboard_policy' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\inject_dashboard_policy_script_data' )]
@@ -36,7 +34,6 @@ class Dashboard_Policy_Test extends TestCase {
 	#[After]
 	public function tear_down() {
 		remove_filter( 'jetpack_feature_flag_enabled_' . DASHBOARD_COMPOSITION_FLAG, '__return_false' );
-		remove_filter( 'jetpack_feature_flag_enabled_' . DASHBOARD_STORE_SECTION_FLAG, '__return_true' );
 		remove_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_dashboard_policy_script_data', 20 );
 		Feature_Flags::reset();
 	}
@@ -101,27 +98,8 @@ class Dashboard_Policy_Test extends TestCase {
 		);
 	}
 
-	public function test_store_section_flag_registers_off_by_default() {
-		register_dashboard_feature_flags();
-
-		$flags = Feature_Flags::all();
-
-		$this->assertMatchesRegularExpression( '/^[a-z0-9][a-z0-9_-]*$/', DASHBOARD_STORE_SECTION_FLAG );
-		$this->assertArrayHasKey( DASHBOARD_STORE_SECTION_FLAG, $flags );
-		$this->assertFalse( $flags[ DASHBOARD_STORE_SECTION_FLAG ]['default'] );
-		$this->assertSame( 'jetpack-premium-analytics', $flags[ DASHBOARD_STORE_SECTION_FLAG ]['owner'] );
-		$this->assertFalse( is_dashboard_store_section_enabled() );
-	}
-
 	public function test_older_copies_find_the_a11n_unlock_switched_off() {
 		// @phan-suppress-next-line PhanDeprecatedFunction -- Covers the stub older copies call.
 		$this->assertFalse( is_dashboard_unlocked_for_a11n() );
-	}
-
-	public function test_store_section_flag_can_be_switched_on() {
-		register_dashboard_feature_flags();
-		add_filter( 'jetpack_feature_flag_enabled_' . DASHBOARD_STORE_SECTION_FLAG, '__return_true' );
-
-		$this->assertTrue( is_dashboard_store_section_enabled() );
 	}
 }
