@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Connection error notice: Add a ConnectionErrorView component that renders the notice from an existing useConnectionErrorNotice() result.

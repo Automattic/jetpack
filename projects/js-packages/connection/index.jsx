@@ -27,7 +27,7 @@ export { default as ConnectionErrorDetails } from './components/connection-error
 export * from './components/connection-error-details/types.ts';
 export { default as ConnectionErrorNotice } from './components/connection-error-notice';
 export { default as ConnectionErrorSupportLink } from './components/connection-error-support-link';
-export { ConnectionError } from './hooks/use-connection-error-notice';
+export { ConnectionError, ConnectionErrorView } from './hooks/use-connection-error-notice';
 export { default as DisconnectDialog } from './components/disconnect-dialog';
 export { default as DisconnectCard } from './components/disconnect-card';
 export { default as useConnection } from './components/use-connection';

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Connection error notice: Add the missing gap between the spinner and the text while reconnecting from the Connectors screen.
