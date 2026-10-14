@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-AI Launchpad: Remove the Site Setup menu once the site is launched or the final task is completed elsewhere, and send later visits to Site Setup to the Dashboard.
+AI Launchpad: Celebrate finishing Site Setup before sending people to the Dashboard, and remove its menu as soon as the site is launched or the last task is done elsewhere.

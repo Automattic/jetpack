@@ -1768,9 +1768,10 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 			update_option( 'wpcom_ai_launchpad_completed', true, true );
 		}
 
-		$this->call_api( Requests::GET );
+		$response = $this->call_api( Requests::GET );
 
 		$this->assertSame( $expected, (bool) get_option( 'wpcom_ai_launchpad_completed' ) );
+		$this->assertSame( $expected, $response->get_data()['list_completed'] );
 	}
 
 	/**
@@ -1797,9 +1798,10 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$this->seed_ai_output_with_tasks( array_merge( $non_launch, array( 'site_launched' ) ) );
 		update_option( 'wpcom_ai_launchpad_skipped_tasks', $non_launch, false );
 
-		$this->call_api( 'POST', '/skip-task', array( 'task_id' => 'site_launched' ) );
+		$response = $this->call_api( 'POST', '/skip-task', array( 'task_id' => 'site_launched' ) );
 
 		$this->assertTrue( (bool) get_option( 'wpcom_ai_launchpad_completed' ) );
+		$this->assertTrue( $response->get_data()['list_completed'] );
 	}
 
 	/**

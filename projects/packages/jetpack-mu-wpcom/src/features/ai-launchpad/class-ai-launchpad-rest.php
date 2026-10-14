@@ -570,6 +570,8 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			'tasks'              => $tasks,
 			'checklist_statuses' => $checklist_statuses,
 			'dismissed'          => (bool) get_option( self::OPTION_DISMISSED, false ),
+			// Lets the page celebrate a list finished elsewhere, which this read latches.
+			'list_completed'     => (bool) get_option( self::OPTION_COMPLETED ),
 			'is_eligible'        => true,
 			// The language this request is translated into, which is the reader's own. Task subtitles
 			// follow it, since they are read here and never published.
@@ -1092,8 +1094,9 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		$this->maybe_mark_completed();
 
 		return array(
-			'completed' => true,
-			'task_id'   => $task_id,
+			'completed'      => true,
+			'task_id'        => $task_id,
+			'list_completed' => (bool) get_option( self::OPTION_COMPLETED ),
 		);
 	}
 
@@ -1130,8 +1133,9 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		$this->maybe_mark_completed();
 
 		return array(
-			'skipped' => true,
-			'task_id' => $task_id,
+			'skipped'        => true,
+			'task_id'        => $task_id,
+			'list_completed' => (bool) get_option( self::OPTION_COMPLETED ),
 		);
 	}
 
