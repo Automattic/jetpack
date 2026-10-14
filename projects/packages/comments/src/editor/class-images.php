@@ -35,6 +35,17 @@ class Images {
 	}
 
 	/**
+	 * Whether the comment's author signed in: a site account, or the identity the comment form's
+	 * sign-in recorded.
+	 *
+	 * @param \WP_Comment $comment The comment.
+	 * @return bool
+	 */
+	public static function signed_in( \WP_Comment $comment ) {
+		return (int) $comment->user_id > 0 || '' !== (string) get_comment_meta( (int) $comment->comment_ID, Checkpoint::META_ID, true );
+	}
+
+	/**
 	 * The image block as this package writes it: the URL and alt text in its attributes, and the URL
 	 * as the figure's text. Past the comment's limit, or where images are off, it is a paragraph
 	 * holding the link. At render, the figure draws an https image, or the link where it may not.
