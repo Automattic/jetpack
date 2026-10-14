@@ -3,6 +3,7 @@ node_modules/
 .cache/
 build/
 dist/
+build-module/
 composer.lock
 
 # wp-build generated entry files
