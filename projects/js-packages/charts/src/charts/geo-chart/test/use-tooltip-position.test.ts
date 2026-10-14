@@ -1,5 +1,4 @@
 import { renderHook, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { useTooltipPosition } from '../private/use-tooltip-position';
 
 const renderChart = () => {
@@ -20,7 +19,7 @@ const renderChart = () => {
 
 	renderHook( () => useTooltipPosition( { current: container } ) );
 
-	return { container, tooltip };
+	return { chart, tooltip };
 };
 
 describe( 'useTooltipPosition', () => {
@@ -30,11 +29,14 @@ describe( 'useTooltipPosition', () => {
 		[ 'beside the cursor', 200, 100, '110px', '60px' ],
 		[ 'flipped left near the right edge', 480, 100, '290px', '60px' ],
 	] )( 'moves the tooltip Google places %s', async ( _, clientX, clientY, left, top ) => {
-		const { container, tooltip } = renderChart();
+		const { chart, tooltip } = renderChart();
+		chart.addEventListener( 'mousemove', () => {
+			tooltip.style.left = '0px';
+			tooltip.style.top = '0px';
+		} );
 
-		await userEvent.pointer( { target: container, coords: { clientX, clientY } } );
-		tooltip.style.left = '0px';
-		tooltip.style.top = '0px';
+		// A bare mouse event, as Chrome sends when the map moves under a resting cursor.
+		chart.dispatchEvent( new MouseEvent( 'mousemove', { bubbles: true, clientX, clientY } ) );
 
 		await waitFor( () => expect( tooltip ).toHaveStyle( { left, top } ) );
 	} );

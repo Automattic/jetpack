@@ -65,7 +65,7 @@ export function useTooltipPosition( containerRef: RefObject< HTMLElement > ) {
 			ownStyles.set( tooltip, tooltip.style.cssText );
 		};
 
-		const onPointerMove = ( event: PointerEvent ) => {
+		const trackPointer = ( event: MouseEvent ) => {
 			pointer = { x: event.clientX, y: event.clientY };
 		};
 
@@ -87,7 +87,9 @@ export function useTooltipPosition( containerRef: RefObject< HTMLElement > ) {
 			}
 		} );
 
-		container.addEventListener( 'pointermove', onPointerMove );
+		// Google's own mouse events, captured so the pointer is current before Google writes the tooltip. Chrome sends mouse events, but no pointer events, when the map moves under a resting cursor.
+		container.addEventListener( 'mouseover', trackPointer, true );
+		container.addEventListener( 'mousemove', trackPointer, true );
 		observer.observe( container, {
 			childList: true,
 			subtree: true,
@@ -96,7 +98,8 @@ export function useTooltipPosition( containerRef: RefObject< HTMLElement > ) {
 		} );
 
 		return () => {
-			container.removeEventListener( 'pointermove', onPointerMove );
+			container.removeEventListener( 'mouseover', trackPointer, true );
+			container.removeEventListener( 'mousemove', trackPointer, true );
 			observer.disconnect();
 		};
 	}, [ containerRef ] );
