@@ -16,7 +16,7 @@ export interface TransferConfirmStepProps {
 	/** The administrator about to become the owner. */
 	candidate: ConnectionOwnerCandidate;
 	/** The administrator handing ownership over. */
-	currentOwner?: { displayName?: string } | null;
+	currentOwner?: { displayName?: string; avatar?: string } | null;
 	/** Whether the current owner is also this connection's protected owner. */
 	isProtectedOwner?: boolean;
 	/** A failed transfer's message, if any. */
@@ -47,13 +47,13 @@ const TransferConfirmStep = ( {
 			>
 				{ currentOwnerName && (
 					<>
-						<AvatarBadge name={ currentOwnerName } />
+						<AvatarBadge avatar={ currentOwner?.avatar } />
 						<span className="jp-connection__transfer-ownership__arrow" aria-hidden="true">
 							&rarr;
 						</span>
 					</>
 				) }
-				<AvatarBadge name={ candidate.displayName } isIncoming />
+				<AvatarBadge avatar={ candidate.avatar } isIncoming />
 				<Text>
 					{ createInterpolateElement(
 						/* translators: <name/> is replaced with the display name of the administrator taking over. */

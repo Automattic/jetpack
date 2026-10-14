@@ -35,12 +35,14 @@ describe( 'TransferConnectionOwnership', () => {
 			login: 'kazz',
 			displayName: 'Kazz',
 			email: 'kazz@example.com',
+			avatar: 'https://example.com/kazz.png',
 		},
 		{
 			id: 9,
 			login: 'alexm',
 			displayName: 'Alex Moreno',
 			email: 'alex@example.com',
+			avatar: 'https://example.com/alex.png',
 		},
 	];
 
@@ -147,6 +149,7 @@ describe( 'TransferConnectionOwnership', () => {
 				login: 'kazz',
 				displayName: 'Kazz',
 				email: 'kazz@example.com',
+				avatar: 'https://example.com/kazz.png',
 			} )
 		);
 
@@ -208,7 +211,13 @@ describe( 'TransferConnectionOwnership', () => {
 	// into that string rather than passed as a child could break the parse.
 	it( 'renders a display name containing markup literally', async () => {
 		mockFetchCandidates.mockResolvedValue( [
-			{ id: 7, login: 'kazz', displayName: '<b>Kazz</b>', email: 'kazz@example.com' },
+			{
+				id: 7,
+				login: 'kazz',
+				displayName: '<b>Kazz</b>',
+				email: 'kazz@example.com',
+				avatar: 'https://example.com/kazz.png',
+			},
 		] );
 		const user = userEvent.setup();
 		render( <TransferConnectionOwnership { ...props } /> );
