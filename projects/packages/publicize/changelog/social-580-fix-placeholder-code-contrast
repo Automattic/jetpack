@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix low-contrast {title} and {url} placeholder chips in the message help text.
