@@ -27,6 +27,7 @@ const COUNT_FORMAT: DataFormat = { type: 'number', options: { useMultipliers: tr
 export const STORE_PERFORMANCE_METRICS: StorePerformanceMetric[] = [
 	{
 		id: 'net-sales',
+		order: 10,
 		label: __( 'Net sales', 'jetpack-woocommerce-stats-pkg' ),
 		description: __(
 			'Monitor your total revenue — after any discounts, returns, or adjustments — over a set period of time.',
@@ -38,6 +39,7 @@ export const STORE_PERFORMANCE_METRICS: StorePerformanceMetric[] = [
 	},
 	{
 		id: 'orders',
+		order: 20,
 		label: __( 'Orders', 'jetpack-woocommerce-stats-pkg' ),
 		description: __(
 			'See a breakdown of when orders are placed to identify peak selling periods.',
@@ -52,6 +54,7 @@ export const STORE_PERFORMANCE_METRICS: StorePerformanceMetric[] = [
 	},
 	{
 		id: 'visitors',
+		order: 30,
 		label: __( 'Store visitors', 'jetpack-woocommerce-stats-pkg' ),
 		description: __(
 			'Store visitors recorded through WooCommerce sessions. Jetpack Stats measures visitors separately, so totals may differ.',
@@ -66,6 +69,7 @@ export const STORE_PERFORMANCE_METRICS: StorePerformanceMetric[] = [
 	},
 	{
 		id: 'conversion-rate',
+		order: 40,
 		label: __( 'Store conversion rate', 'jetpack-woocommerce-stats-pkg' ),
 		description: __(
 			"Track your store's conversion funnel from sessions to completed orders.",
@@ -77,6 +81,7 @@ export const STORE_PERFORMANCE_METRICS: StorePerformanceMetric[] = [
 	},
 	{
 		id: 'customers',
+		order: 50,
 		label: __( 'Customers', 'jetpack-woocommerce-stats-pkg' ),
 		description: __(
 			'Track the total number of customers (new and returning) who placed orders during the selected time period.',
@@ -106,6 +111,7 @@ function isStorePerformanceMetric( candidate: unknown ): candidate is StorePerfo
 	return (
 		typeof metric.id === 'string' &&
 		metric.id !== '' &&
+		( metric.order === undefined || typeof metric.order === 'number' ) &&
 		typeof metric.label === 'string' &&
 		typeof metric.description === 'string' &&
 		typeof metric.field === 'string' &&
@@ -117,8 +123,18 @@ function isStorePerformanceMetric( candidate: unknown ): candidate is StorePerfo
 }
 
 /**
- * The metrics on offer: the widget's own, through the filter. An entry that is not a metric, or
- * repeats an id, is dropped; a filter that returns no list leaves the widget's own.
+ * A metric's place; one with none goes after every placed one, in registration order.
+ *
+ * @param {StorePerformanceMetric} metric - The metric.
+ * @return {number} Its order.
+ */
+function tabOrder( metric: StorePerformanceMetric ): number {
+	return metric.order ?? Number.MAX_SAFE_INTEGER;
+}
+
+/**
+ * The metrics on offer: the widget's own, through the filter, by `order`. An entry that is not a
+ * metric, or repeats an id, is dropped; a filter that returns no list leaves the widget's own.
  *
  * @return {StorePerformanceMetric[]} The metrics, in tab order.
  */
@@ -132,11 +148,13 @@ export function getStorePerformanceMetrics(): StorePerformanceMetric[] {
 	}
 
 	const seen = new Set< string >();
-	return filtered.filter( ( metric ): metric is StorePerformanceMetric => {
-		if ( ! isStorePerformanceMetric( metric ) || seen.has( metric.id ) ) {
-			return false;
-		}
-		seen.add( metric.id );
-		return true;
-	} );
+	return filtered
+		.filter( ( metric ): metric is StorePerformanceMetric => {
+			if ( ! isStorePerformanceMetric( metric ) || seen.has( metric.id ) ) {
+				return false;
+			}
+			seen.add( metric.id );
+			return true;
+		} )
+		.sort( ( a, b ) => tabOrder( a ) - tabOrder( b ) );
 }

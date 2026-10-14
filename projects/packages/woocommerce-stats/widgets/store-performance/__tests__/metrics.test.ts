@@ -35,14 +35,30 @@ describe( 'getStorePerformanceMetrics', () => {
 		expect( ids( getStorePerformanceMetrics() ) ).toEqual( OWN_IDS );
 	} );
 
-	it( 'offers what the filter returns, in its order', () => {
+	it( 'places a metric by its order, and one with none after the placed ones', () => {
 		addFilter(
 			STORE_PERFORMANCE_METRICS_FILTER,
 			NAMESPACE,
-			( metrics: StorePerformanceMetric[] ) => [ EXTRA, ...metrics ]
+			( metrics: StorePerformanceMetric[] ) => [
+				{ ...EXTRA, id: 'later' },
+				...metrics,
+				{ ...EXTRA, id: 'after-orders', order: 25 },
+				{ ...EXTRA, id: 'also-after-orders', order: 25 },
+				{ ...EXTRA, id: 'first', order: 1 },
+			]
 		);
 
-		expect( ids( getStorePerformanceMetrics() ) ).toEqual( [ 'extra', ...OWN_IDS ] );
+		expect( ids( getStorePerformanceMetrics() ) ).toEqual( [
+			'first',
+			'net-sales',
+			'orders',
+			'after-orders',
+			'also-after-orders',
+			'visitors',
+			'conversion-rate',
+			'customers',
+			'later',
+		] );
 	} );
 
 	it( 'drops an entry that is not a metric or repeats an id', () => {
@@ -53,6 +69,7 @@ describe( 'getStorePerformanceMetrics', () => {
 				...metrics,
 				{ id: 'broken' },
 				{ ...EXTRA, id: 'orders' },
+				{ ...EXTRA, id: 'misplaced', order: 'first' as unknown as number },
 			]
 		);
 
