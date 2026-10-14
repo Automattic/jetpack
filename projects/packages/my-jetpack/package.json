@@ -20,7 +20,8 @@
 		"*.scss"
 	],
 	"exports": {
-		"./components/*": "./_inc/components/*"
+		"./components/*": "./_inc/components/*",
+		"./header-data": "./_inc/header-data.ts"
 	},
 	"scripts": {
 		"build": "pnpm run clean && concurrently 'pnpm:build-client' 'pnpm:build:wp-build' && pnpm run build:stamp-textdomains && pnpm run build:boot-asset && pnpm run build:copy-images",
