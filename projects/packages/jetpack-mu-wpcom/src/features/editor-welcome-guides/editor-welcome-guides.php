@@ -1,10 +1,7 @@
 <?php
 /**
- * Once-per-user editor welcome guides.
- *
- * Core keeps the guide flags per site in the `persisted_preferences` user meta. On
- * WordPress.com the dismissed guides live in one global record, exchanged through the
- * `wpcom_editor_welcome_guides_dismissed` filter and `wpcom_editor_welcome_guides_dismiss` action.
+ * Once-per-user editor welcome guides: merges the guides WordPress.com records as dismissed
+ * for the user into each site's editor preferences, and reports newly dismissed ones back.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -21,7 +18,7 @@ function wpcom_editor_welcome_guides_is_enabled(): bool {
 }
 
 /**
- * The user meta key core stores the editor preferences of the current site under.
+ * The current site's editor preferences meta key.
  *
  * @return string
  */
@@ -32,10 +29,9 @@ function wpcom_editor_welcome_guides_meta_key(): string {
 }
 
 /**
- * `get_user_metadata` filter: turns the user's globally dismissed guides off in the
- * per-site editor preferences.
+ * Turns the user's globally dismissed guides off in the site's editor preferences on read.
  *
- * @param mixed  $value    The value `get_metadata()` should return, or null to continue.
+ * @param mixed  $value    Short-circuit value, null to continue.
  * @param int    $user_id  User ID.
  * @param string $meta_key Meta key.
  * @return mixed
@@ -48,9 +44,9 @@ function wpcom_editor_welcome_guides_filter_preferences( $value, $user_id, $meta
 	}
 
 	/**
-	 * Filters the guides the user has dismissed on any of their sites.
+	 * Filters the guides the user has dismissed on any site.
 	 *
-	 * @param array $dismissed Map of `core/preferences` scope to a list of guide keys.
+	 * @param array $dismissed Map of preferences scope to guide keys.
 	 * @param int   $user_id   User ID.
 	 */
 	$dismissed = apply_filters( 'wpcom_editor_welcome_guides_dismissed', array(), (int) $user_id );
@@ -87,13 +83,12 @@ function wpcom_editor_welcome_guides_filter_preferences( $value, $user_id, $meta
 add_filter( 'get_user_metadata', 'wpcom_editor_welcome_guides_filter_preferences', 1, 3 );
 
 /**
- * `added_user_meta` and `updated_user_meta` action: reports the guides that are turned
- * off in the editor preferences just saved for the current site.
+ * Reports the guides turned off in the editor preferences just saved.
  *
  * @param int    $meta_id  Meta ID.
  * @param int    $user_id  User ID.
  * @param string $meta_key Meta key.
- * @param mixed  $value    The meta value just saved.
+ * @param mixed  $value    Meta value.
  * @return void
  */
 function wpcom_editor_welcome_guides_record_preferences( $meta_id, $user_id, $meta_key, $value ) {
@@ -119,10 +114,10 @@ function wpcom_editor_welcome_guides_record_preferences( $meta_id, $user_id, $me
 	}
 
 	/**
-	 * Fires when the user has turned welcome guides off in the editor preferences.
+	 * Fires when the user has turned welcome guides off.
 	 *
 	 * @param int   $user_id   User ID.
-	 * @param array $dismissed Map of `core/preferences` scope to a list of guide keys.
+	 * @param array $dismissed Map of preferences scope to guide keys.
 	 */
 	do_action( 'wpcom_editor_welcome_guides_dismiss', (int) $user_id, $dismissed );
 }

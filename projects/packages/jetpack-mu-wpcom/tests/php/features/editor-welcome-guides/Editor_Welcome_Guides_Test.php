@@ -1,7 +1,5 @@
 <?php
 /**
- * Once-per-user editor welcome guides test file.
- *
  * @package automattic/jetpack-mu-wpcom
  */
 
@@ -13,8 +11,6 @@ require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/edito
 use PHPUnit\Framework\Attributes\CoversFunction;
 
 /**
- * Tests for the once-per-user editor welcome guides.
- *
  * @covers ::wpcom_editor_welcome_guides_filter_preferences
  * @covers ::wpcom_editor_welcome_guides_record_preferences
  */
@@ -23,21 +19,19 @@ use PHPUnit\Framework\Attributes\CoversFunction;
 class Editor_Welcome_Guides_Test extends \WorDBless\BaseTestCase {
 
 	/**
-	 * Test user ID.
-	 *
 	 * @var int
 	 */
 	private $user_id;
 
 	/**
-	 * What the `wpcom_editor_welcome_guides_dismissed` filter returns in the test.
+	 * What the `wpcom_editor_welcome_guides_dismissed` filter returns.
 	 *
 	 * @var array
 	 */
 	private $dismissed = array();
 
 	/**
-	 * Arguments of every `wpcom_editor_welcome_guides_dismiss` call in the test.
+	 * Arguments of every `wpcom_editor_welcome_guides_dismiss` call.
 	 *
 	 * @var array
 	 */
@@ -75,18 +69,12 @@ class Editor_Welcome_Guides_Test extends \WorDBless\BaseTestCase {
 		return $this->dismissed;
 	}
 
-	/**
-	 * @param int   $user_id   User ID.
-	 * @param array $dismissed Map of scope to guide keys.
-	 */
 	public function record_dismiss( $user_id, $dismissed ) {
 		$this->recorded[] = array( $user_id, $dismissed );
 	}
 
 	/**
 	 * Writes the preferences without the write hook noticing.
-	 *
-	 * @param array $preferences The preferences to store.
 	 */
 	private function store_preferences( array $preferences ) {
 		remove_action( 'wpcom_editor_welcome_guides_dismiss', array( $this, 'record_dismiss' ), 10 );
@@ -95,11 +83,8 @@ class Editor_Welcome_Guides_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Reads the preferences meta the way core's `get_metadata_raw()` does: the filter's
-	 * value wins, otherwise the stored one. WorDBless's own `get_user_metadata` callback
-	 * discards earlier filter results, so `get_user_meta()` cannot observe the feature here.
-	 *
-	 * @return mixed
+	 * Reads the preferences the way core's `get_metadata_raw()` does. WorDBless's own
+	 * `get_user_metadata` callback discards earlier filter results, so `get_user_meta()` cannot.
 	 */
 	private function read_preferences() {
 		$meta_key = wpcom_editor_welcome_guides_meta_key();
