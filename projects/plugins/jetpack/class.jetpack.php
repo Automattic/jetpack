@@ -843,10 +843,7 @@ class Jetpack {
 	}
 
 	/**
-	 * Switch the backup module on when the site's plan includes Backup.
-	 *
-	 * WordPress.com does this after a purchase; this covers connecting, upgrading, and opening the
-	 * Backup page with the module off. Nothing switches it off, since backups run on the plan.
+	 * Switch the backup module on when the site's plan includes Backup; see Backup::activate_module_for_plan().
 	 *
 	 * @since $$next-version$$
 	 *
@@ -858,8 +855,7 @@ class Jetpack {
 		// Another plugin may have loaded an older My Jetpack without it. Without an owner there
 		// is no plan to look up.
 		if (
-			is_multisite()
-			|| ! method_exists( $backup, 'activate_module_for_plan' )
+			! method_exists( $backup, 'activate_module_for_plan' )
 			|| ! self::is_connection_ready()
 			|| ! self::connection()->has_connected_owner()
 		) {
@@ -870,13 +866,16 @@ class Jetpack {
 	}
 
 	/**
-	 * Whether this request opens the Backup page.
+	 * Whether an admin is opening the Backup page.
 	 *
 	 * @return bool
 	 */
 	private static function is_backup_page_request() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only routing check; no form data is processed.
-		return is_admin() && 'admin.php' === ( $GLOBALS['pagenow'] ?? '' ) && isset( $_GET['page'] ) && 'jetpack-backup' === sanitize_text_field( wp_unslash( $_GET['page'] ) );
+		$is_backup_page = is_admin() && 'admin.php' === ( $GLOBALS['pagenow'] ?? '' ) && isset( $_GET['page'] ) && 'jetpack-backup' === sanitize_text_field( wp_unslash( $_GET['page'] ) );
+
+		// This runs before admin.php checks the login, and the plan lookup calls WordPress.com.
+		return $is_backup_page && current_user_can( 'manage_options' );
 	}
 
 	/**

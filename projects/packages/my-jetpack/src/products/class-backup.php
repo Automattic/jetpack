@@ -487,8 +487,8 @@ class Backup extends Hybrid_Product {
 	/**
 	 * Switch the backup module on when the site's plan includes Backup.
 	 *
-	 * WordPress.com switches it on after a purchase; this catches a site that missed that, such as one
-	 * that bought before connecting. Nothing switches it off, since backups run on the plan regardless.
+	 * WordPress.com switches it on after a purchase; Jetpack calls this to catch a site that missed
+	 * that, such as one that bought before connecting. Nothing switches it off: backups run on the plan.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -499,7 +499,8 @@ class Backup extends Hybrid_Product {
 			return true;
 		}
 
-		if ( ! static::is_jetpack_plugin_active() || ! static::has_any_plan_for_product() ) {
+		// The Backup package does not support multisite.
+		if ( is_multisite() || ! static::is_jetpack_plugin_active() || ! static::has_any_plan_for_product() ) {
 			return false;
 		}
 
@@ -512,8 +513,6 @@ class Backup extends Hybrid_Product {
 	 * @return string
 	 */
 	public static function get_status() {
-		static::activate_module_for_plan();
-
 		// Get the default status from parent.
 		$status = parent::get_status();
 

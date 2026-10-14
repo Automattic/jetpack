@@ -66,9 +66,15 @@ export function getForcedReason( state: FeatureState ): string | null {
 	if ( control.kind === 'module' ) {
 		const status = getModuleStatus( control.module );
 
-		// Off is a sale to make, which Upgrade offers, so only a running one gets a reason.
+		// Off without the plan is a sale, which Upgrade offers; off with it has no Upgrade, so it says why.
 		if ( ! status.reason && isPlanDriven( control.module ) ) {
-			return state.status === 'active' ? __( 'Included in your plan', 'jetpack-my-jetpack' ) : null;
+			if ( state.status === 'active' ) {
+				return __( 'Included in your plan', 'jetpack-my-jetpack' );
+			}
+
+			return state.feature.included
+				? __( 'Included in your plan, but not running', 'jetpack-my-jetpack' )
+				: null;
 		}
 
 		if ( control.module.override || ! status.isAvailable ) {

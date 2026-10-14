@@ -76,24 +76,27 @@ function isForcedOff( state: FeatureState ): boolean {
 }
 
 /**
- * Where Upgrade sells a feature: a host's own plans, else a My Jetpack route; empty when nothing is sold.
+ * Where Upgrade sells a feature: a host's own plans, else a My Jetpack route; null when nothing is sold.
  *
  * @param state - Live state for the feature.
- * @return The address, or an empty string.
+ * @return The address, and what to track for it.
  */
-function getUpgradeHref( state: FeatureState ): string {
+function getUpgradeLink( state: FeatureState ): { href: string; target: string } | null {
 	const { feature } = state;
 
 	if ( isForcedOff( state ) ) {
-		return '';
+		return null;
 	}
 
+	// Tracked as `host`: a host's URL can carry the site's address.
 	if ( feature.upgrade?.url ) {
-		return feature.upgrade.url;
+		return { href: feature.upgrade.url, target: 'host' };
 	}
 
 	// Empty when the site already pays for the feature; the catalog decides that, not the client.
-	return feature.upgrade?.path ? getFeaturePricingHref( feature.upgrade.path, feature.slug ) : '';
+	const path = feature.upgrade?.path;
+
+	return path ? { href: getFeaturePricingHref( path, feature.slug ), target: path } : null;
 }
 
 type UpgradeButtonProps = {
@@ -124,8 +127,8 @@ export function UpgradeButton( props: UpgradeButtonProps ) {
 function TrackedUpgradeButton( { state }: UpgradeButtonProps ) {
 	const { feature } = state;
 	const { recordEvent } = useAnalytics();
-	const upgradeHref = getUpgradeHref( state );
-	const target = feature.upgrade?.url || feature.upgrade?.path || '';
+	const link = getUpgradeLink( state );
+	const target = link?.target;
 	const onUpgrade = useCallback(
 		() =>
 			recordEvent( 'jetpack_myjetpack_features_upgrade_click', {
@@ -135,13 +138,13 @@ function TrackedUpgradeButton( { state }: UpgradeButtonProps ) {
 		[ feature.slug, recordEvent, target ]
 	);
 
-	if ( ! upgradeHref ) {
+	if ( ! link ) {
 		return null;
 	}
 
 	return (
 		<LinkButton
-			href={ upgradeHref }
+			href={ link.href }
 			onClick={ onUpgrade }
 			variant="outline"
 			size="compact"

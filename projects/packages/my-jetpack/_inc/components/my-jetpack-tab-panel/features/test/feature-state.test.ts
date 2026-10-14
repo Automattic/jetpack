@@ -279,6 +279,19 @@ describe( 'resolveFeatureState, for a module its plan switches on', () => {
 		}
 	);
 
+	it( 'explains a plan that is paid for but not running, which has no Upgrade to offer', () => {
+		const state = resolveFeatureState(
+			{ ...backup, included: true },
+			'active',
+			{ status: PRODUCT_STATUSES.INACTIVE, hasPaidPlanForProduct: true } as ProductCamelCase,
+			modules,
+			{}
+		);
+
+		expect( state.status ).toBe( 'inactive' );
+		expect( getForcedReason( state ) ).toBe( 'Included in your plan, but not running' );
+	} );
+
 	it( 'waits for the product before saying whether the plan runs it', () => {
 		expect( resolveFeatureState( backup, 'active', undefined, modules, {} ).pending ).toBe( true );
 	} );

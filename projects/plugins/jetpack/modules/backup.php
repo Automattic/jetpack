@@ -10,7 +10,7 @@
  * Feature: Security
  * Additional Search Queries: backup, backups, restore, vaultpress, rewind, cloud backup, off-site backup
  *
- * WordPress.com switches it on after a Backup purchase, and Jetpack does when it finds a plan with it off.
+ * The site's plan switches it on (see Backup::activate_module_for_plan()), and
  * Jetpack::configure_backup_package() initializes the dashboard while it is on.
  *
  * @package automattic/jetpack

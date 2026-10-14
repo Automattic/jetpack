@@ -318,6 +318,11 @@ class Initializer {
 			add_filter( 'admin_body_class', array( __CLASS__, 'add_onboarding_admin_body_class' ) );
 		}
 
+		// Before the page reads Backup's state, so it reads the module this switched on.
+		if ( $connection->is_connected() && current_user_can( 'manage_options' ) ) {
+			Products\Backup::activate_module_for_plan();
+		}
+
 		self::$site_info = self::get_site_info();
 		add_filter( 'identity_crisis_container_id', array( static::class, 'get_idc_container_id' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );

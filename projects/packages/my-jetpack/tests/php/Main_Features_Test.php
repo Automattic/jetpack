@@ -553,6 +553,40 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
+	 * A host's upgrade URL reaches only a site that has something to buy.
+	 *
+	 * @dataProvider provide_host_upgrade_owners
+	 *
+	 * @param string[] $owned    The products the site pays for.
+	 * @param bool     $has_url  Whether the host's URL should survive.
+	 */
+	#[DataProvider( 'provide_host_upgrade_owners' )]
+	public function test_host_upgrade_url_only_without_the_plan( $owned, $has_url ) {
+		$this->own( $owned );
+		$send_to_host = static function ( $upgrade ) {
+			return array_merge( $upgrade, array( 'url' => 'https://example.com/plans' ) );
+		};
+		add_filter( 'jetpack_my_jetpack_feature_upgrade', $send_to_host );
+
+		$upgrades = array_column( Main_Features::get_features(), 'upgrade', 'slug' );
+		remove_filter( 'jetpack_my_jetpack_feature_upgrade', $send_to_host );
+
+		$this->assertSame( $has_url, isset( $upgrades['backup']['url'] ) );
+	}
+
+	/**
+	 * Data provider for test_host_upgrade_url_only_without_the_plan.
+	 *
+	 * @return array
+	 */
+	public static function provide_host_upgrade_owners() {
+		return array(
+			'no plan'       => array( array(), true ),
+			'owns Complete' => array( array( 'jetpack_complete' ), false ),
+		);
+	}
+
+	/**
 	 * Owning a smaller bundle covers only the features that bundle lists.
 	 */
 	public function test_no_upgrade_for_features_a_smaller_bundle_covers() {

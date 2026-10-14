@@ -157,7 +157,7 @@ class Backup_Product_Test extends TestCase {
 	}
 
 	/**
-	 * Reading Backup's status asks for its module when the plan includes it, and only then.
+	 * The module is asked for when the plan includes it, and only then.
 	 *
 	 * @dataProvider provide_purchases
 	 *
@@ -165,7 +165,7 @@ class Backup_Product_Test extends TestCase {
 	 * @param bool  $on        Whether the module should be asked for.
 	 */
 	#[DataProvider( 'provide_purchases' )]
-	public function test_get_status_asks_for_the_module_with_a_plan( $purchases, $on ) {
+	public function test_activate_module_for_plan_asks_only_with_a_plan( $purchases, $on ) {
 		( new Tokens() )->update_blog_token( 'test.test.1' );
 		( new Tokens() )->update_user_token( self::$user_id, 'test.test.' . self::$user_id, true );
 		Jetpack_Options::update_option( 'id', 123 );
@@ -173,7 +173,6 @@ class Backup_Product_Test extends TestCase {
 		deactivate_plugins( Backup::get_installed_plugin_filename() );
 		Jetpack_Options::update_option( 'active_modules', array() );
 		set_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY, $purchases, HOUR_IN_SECONDS );
-		set_transient( Backup::BACKUP_STATUS_TRANSIENT_KEY, 'no_errors', HOUR_IN_SECONDS );
 
 		// The test environment's Jetpack stub fails the activation itself, so watch for the request.
 		$asked = array();
@@ -182,17 +181,16 @@ class Backup_Product_Test extends TestCase {
 		};
 		add_action( 'jetpack_pre_activate_module', $watch );
 
-		Backup::get_status();
+		Backup::activate_module_for_plan();
 		remove_action( 'jetpack_pre_activate_module', $watch );
 
 		$this->assertSame( $on, in_array( 'backup', $asked, true ) );
 
-		delete_transient( Backup::BACKUP_STATUS_TRANSIENT_KEY );
 		delete_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY );
 	}
 
 	/**
-	 * Data provider for test_get_status_asks_for_the_module_with_a_plan.
+	 * Data provider for test_activate_module_for_plan_asks_only_with_a_plan.
 	 *
 	 * @return array
 	 */

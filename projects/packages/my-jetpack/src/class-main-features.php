@@ -555,7 +555,7 @@ class Main_Features {
 		 * Filters where a My Jetpack feature's Upgrade button goes.
 		 *
 		 * Set `url` to an absolute address to replace the My Jetpack route, which also drops the
-		 * Jetpack plans the feature's details would otherwise link to.
+		 * Jetpack plans the feature's details would otherwise link to. Ignored when `$included`.
 		 *
 		 * @since $$next-version$$
 		 *
@@ -574,7 +574,8 @@ class Main_Features {
 			'name' => (string) ( $filtered['name'] ?? '' ),
 		);
 
-		if ( ! empty( $filtered['url'] ) ) {
+		// A site that already pays has nothing to buy, wherever a host would send it.
+		if ( ! $included && ! empty( $filtered['url'] ) ) {
 			$result['url'] = esc_url_raw( (string) $filtered['url'] );
 		}
 

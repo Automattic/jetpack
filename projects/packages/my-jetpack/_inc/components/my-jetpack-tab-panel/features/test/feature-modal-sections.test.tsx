@@ -180,7 +180,7 @@ describe( 'FeaturePaid', () => {
 		).toHaveAttribute( 'href', '#/add-akismet?return_feature=anti-spam' );
 	} );
 
-	it( 'sends the upgrade to a host\u2019s own plans, leaving out the Jetpack ones', () => {
+	it( 'sends the upgrade to a host\u2019s own plans, leaving out the Jetpack ones and the address', async () => {
 		const url = 'https://wordpress.com/plans/example.com?plan=business-bundle';
 		const state = {
 			...installedPlugin,
@@ -196,10 +196,18 @@ describe( 'FeaturePaid', () => {
 			</>
 		);
 
-		expect(
-			screen.getByRole( 'link', { name: 'Upgrade to WordPress.com Business' } )
-		).toHaveAttribute( 'href', url );
+		const upgrade = screen.getByRole( 'link', { name: 'Upgrade to WordPress.com Business' } );
+		expect( upgrade ).toHaveAttribute( 'href', url );
 		expect( screen.queryByText( /Included in/ ) ).not.toBeInTheDocument();
+
+		// jsdom cannot navigate to another document.
+		upgrade.addEventListener( 'click', event => event.preventDefault() );
+		await userEvent.click( upgrade );
+
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_myjetpack_features_upgrade_click', {
+			feature: 'anti-spam',
+			target: 'host',
+		} );
 	} );
 
 	it( 'drops the upgrade when the catalog has nothing to sell this site', () => {
