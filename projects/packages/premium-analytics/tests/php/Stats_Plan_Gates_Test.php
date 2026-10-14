@@ -27,6 +27,7 @@ require_once ABSPATH . 'wp-admin/includes/plugin.php';
  * @covers ::Automattic\Jetpack\PremiumAnalytics\has_cached_jetpack_plan
  * @covers ::Automattic\Jetpack\PremiumAnalytics\has_jetpack_stats_commercial_purchase
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_locked_stats_features
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\get_stats_feature_copy
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_stats_upgrade_url
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_stats_plan_gates
  * @covers ::Automattic\Jetpack\PremiumAnalytics\configure_stats_plan_gates
@@ -39,6 +40,7 @@ require_once ABSPATH . 'wp-admin/includes/plugin.php';
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\has_cached_jetpack_plan' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\has_jetpack_stats_commercial_purchase' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_locked_stats_features' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_stats_feature_copy' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_stats_upgrade_url' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_stats_plan_gates' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\configure_stats_plan_gates' )]
@@ -392,7 +394,37 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 	public function test_jetpack_upgrade_url_is_empty_without_the_stats_page() {
 		update_option( 'jetpack_active_plan', self::FREE_PLAN );
 
-		$this->assertSame( '', get_stats_plan_gates()['locked_features']['utm'] );
+		$this->assertSame( '', get_stats_plan_gates()['locked_features']['utm']['upgrade_url'] );
+	}
+
+	/**
+	 * Each locked feature carries its own sentence and support page; one without its own gets the generic sentence.
+	 *
+	 * @dataProvider provide_locked_feature_copy
+	 *
+	 * @param string $feature     Locked feature.
+	 * @param string $description Expected sentence.
+	 * @param string $support_url Expected support page.
+	 */
+	#[DataProvider( 'provide_locked_feature_copy' )]
+	public function test_locked_features_carry_their_copy( $feature, $description, $support_url ) {
+		add_filter( STATS_PLAN_TIER_FILTER, static fn() => STATS_TIER_FREE );
+		$locked = get_stats_plan_gates()['locked_features'][ $feature ];
+
+		$this->assertSame( $description, $locked['description'] );
+		$this->assertSame( $support_url, $locked['support_url'] );
+	}
+
+	/**
+	 * Locked features and their copy.
+	 *
+	 * @return array
+	 */
+	public static function provide_locked_feature_copy() {
+		return array(
+			'own copy'     => array( 'utm', 'Generate UTM parameters and track your <link>campaign performance data</link>.', 'https://jetpack.com/support/jetpack-stats/traffic-dashboard/#harnessing-utm-stats-for-precision-tracking' ),
+			'generic copy' => array( 'insights', 'Upgrade your plan to unlock Jetpack Stats.', '' ),
+		);
 	}
 
 	/**

@@ -213,6 +213,81 @@ function get_locked_stats_features( $tier ) {
 }
 
 /**
+ * What a locked feature says, worded as classic Stats' upsell; `<link>` wraps the words its support page explains.
+ *
+ * @since $$next-version$$
+ *
+ * @param string $feature Feature key.
+ * @return array{description:string, support_url:string} The copy, generic for a feature without its own.
+ */
+function get_stats_feature_copy( $feature ) {
+	$traffic_support = 'https://jetpack.com/support/jetpack-stats/traffic-dashboard/';
+
+	switch ( $feature ) {
+		case 'top-posts':
+			return array(
+				'description' => __( 'Discover your <link>post and pages</link> traffic in detail and learn what content resonates the most.', 'jetpack-premium-analytics-pkg' ),
+				'support_url' => $traffic_support . '#analyzing-popular-posts-and-pages',
+			);
+		case 'referrers':
+			return array(
+				'description' => __( 'Find out where your <link>visitors come from</link> to optimize your content strategy.', 'jetpack-premium-analytics-pkg' ),
+				'support_url' => $traffic_support . '#referrers',
+			);
+		case 'countries':
+			return array(
+				'description' => __( 'Discover where your <link>visitors are located</link> and identify where your traffic is coming from.', 'jetpack-premium-analytics-pkg' ),
+				'support_url' => $traffic_support . '#countries',
+			);
+		case 'regions-cities':
+			return array(
+				'description' => __( 'Access to <link>region and city stats</link> for more accurate analysis.', 'jetpack-premium-analytics-pkg' ),
+				'support_url' => $traffic_support . '#countries',
+			);
+		case 'clicks':
+			return array(
+				'description' => __( 'Learn what <link>external links</link> your visitors click on your site to reveal their areas of interest.', 'jetpack-premium-analytics-pkg' ),
+				'support_url' => $traffic_support . '#clicks',
+			);
+		case 'file-downloads':
+			return array(
+				'description' => __( 'Discover the most <link>downloaded files</link> by your visitors.', 'jetpack-premium-analytics-pkg' ),
+				'support_url' => 'https://wordpress.com/support/stats/understand-your-sites-traffic/#file-downloads',
+			);
+		case 'authors':
+			return array(
+				'description' => __( 'Identify your audience’s <link>favorite writers</link> and perspectives.', 'jetpack-premium-analytics-pkg' ),
+				'support_url' => $traffic_support . '#authors',
+			);
+		case 'search-terms':
+			return array(
+				'description' => __( 'Discover the <link>terms and phrases</link> your visitors use to find your site.', 'jetpack-premium-analytics-pkg' ),
+				'support_url' => $traffic_support . '#search-terms',
+			);
+		case 'videos':
+			return array(
+				'description' => __( 'Discover your <link>most popular videos</link> and find out how they performed.', 'jetpack-premium-analytics-pkg' ),
+				'support_url' => 'https://jetpack.com/support/jetpack-videopress/add-video-block-editor/video-stats/',
+			);
+		case 'utm':
+			return array(
+				'description' => __( 'Generate UTM parameters and track your <link>campaign performance data</link>.', 'jetpack-premium-analytics-pkg' ),
+				'support_url' => $traffic_support . '#harnessing-utm-stats-for-precision-tracking',
+			);
+		case 'devices':
+			return array(
+				'description' => __( 'See which <link>devices, browsers and OS</link> your visitors are using.', 'jetpack-premium-analytics-pkg' ),
+				'support_url' => $traffic_support . '#devices-stats',
+			);
+		default:
+			return array(
+				'description' => __( 'Upgrade your plan to unlock Jetpack Stats.', 'jetpack-premium-analytics-pkg' ),
+				'support_url' => '',
+			);
+	}
+}
+
+/**
  * Where to buy a locked feature: classic Stats' purchase destinations.
  *
  * @since $$next-version$$
@@ -252,11 +327,11 @@ function get_stats_upgrade_url( $feature, $tier ) {
 }
 
 /**
- * The gates the client applies: each locked feature's upgrade URL, and the feature of each widget type it locks.
+ * The gates the client applies: each locked feature's copy and upgrade URL, and the feature of each widget type it locks.
  *
  * @since $$next-version$$
  *
- * @return array{tier:string, locked_features:array<string,string>, locked_widget_types:array<string,string>}
+ * @return array{tier:string, locked_features:array<string,array{description:string, support_url:string, upgrade_url:string}>, locked_widget_types:array<string,string>}
  */
 function get_stats_plan_gates() {
 	$tier     = get_stats_plan_tier();
@@ -264,7 +339,7 @@ function get_stats_plan_gates() {
 
 	$locked_features = array();
 	foreach ( $features as $feature ) {
-		$locked_features[ $feature ] = get_stats_upgrade_url( $feature, $tier );
+		$locked_features[ $feature ] = get_stats_feature_copy( $feature ) + array( 'upgrade_url' => get_stats_upgrade_url( $feature, $tier ) );
 	}
 
 	$locked_widget_types = array();
