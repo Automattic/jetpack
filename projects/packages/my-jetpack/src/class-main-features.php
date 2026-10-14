@@ -939,15 +939,13 @@ class Main_Features {
 	 * @return array{jetpack: string, features: array, module_groups: array, plugin_installs: string, hidden_modules: string[]} The state.
 	 */
 	public static function get_state( $local = false ) {
-		$state = array(
+		return array(
 			'jetpack'         => self::get_plugin_status( Product::JETPACK_PLUGIN_SLUG ),
 			'features'        => self::get_features( $local ),
 			'module_groups'   => self::get_module_groups(),
 			'plugin_installs' => self::get_install_access(),
 			'hidden_modules'  => self::get_hidden_modules(),
 		);
-
-		return $state;
 	}
 
 	/**
