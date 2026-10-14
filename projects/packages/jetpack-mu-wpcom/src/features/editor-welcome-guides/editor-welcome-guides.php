@@ -50,7 +50,7 @@ function wpcom_editor_welcome_guides_filter_preferences( $value, $user_id, $meta
 	 * @param array $dismissed Map of preferences scope to guide keys.
 	 * @param int   $user_id   User ID.
 	 */
-	$dismissed = apply_filters( 'wpcom_editor_welcome_guides_dismissed', array(), (int) $user_id );
+	$dismissed = apply_filters( 'wpcom_editor_welcome_guides_dismissed', array(), $user_id );
 	if ( empty( $dismissed ) || ! is_array( $dismissed ) ) {
 		return $value;
 	}
@@ -66,7 +66,7 @@ function wpcom_editor_welcome_guides_filter_preferences( $value, $user_id, $meta
 	$changed = false;
 	foreach ( $dismissed as $scope => $guides ) {
 		foreach ( (array) $guides as $guide ) {
-			if ( ! isset( $preferences[ $scope ][ $guide ] ) || false !== $preferences[ $scope ][ $guide ] ) {
+			if ( false !== ( $preferences[ $scope ][ $guide ] ?? null ) ) {
 				$preferences[ $scope ][ $guide ] = false;
 				$changed                         = true;
 			}
@@ -120,7 +120,7 @@ function wpcom_editor_welcome_guides_record_preferences( $meta_id, $user_id, $me
 	 * @param int   $user_id   User ID.
 	 * @param array $dismissed Map of preferences scope to guide keys.
 	 */
-	do_action( 'wpcom_editor_welcome_guides_dismiss', (int) $user_id, $dismissed );
+	do_action( 'wpcom_editor_welcome_guides_dismiss', $user_id, $dismissed );
 }
 add_action( 'added_user_meta', 'wpcom_editor_welcome_guides_record_preferences', 10, 4 );
 add_action( 'updated_user_meta', 'wpcom_editor_welcome_guides_record_preferences', 10, 4 );

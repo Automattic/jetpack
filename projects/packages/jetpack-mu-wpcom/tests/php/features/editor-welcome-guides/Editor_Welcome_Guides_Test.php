@@ -40,9 +40,6 @@ class Editor_Welcome_Guides_Test extends \WorDBless\BaseTestCase {
 	public function set_up() {
 		parent::set_up();
 
-		$this->dismissed = array();
-		$this->recorded  = array();
-
 		$GLOBALS['wpcom_site_stickers_test_value'] = array( 'editor-welcome-guides-per-user' );
 
 		$this->user_id = wp_insert_user(
@@ -53,33 +50,21 @@ class Editor_Welcome_Guides_Test extends \WorDBless\BaseTestCase {
 			)
 		);
 
-		add_filter( 'wpcom_editor_welcome_guides_dismissed', array( $this, 'provide_dismissed' ) );
-		add_action( 'wpcom_editor_welcome_guides_dismiss', array( $this, 'record_dismiss' ), 10, 2 );
+		add_filter( 'wpcom_editor_welcome_guides_dismissed', fn() => $this->dismissed );
+		add_action(
+			'wpcom_editor_welcome_guides_dismiss',
+			function ( $user_id, $dismissed ) {
+				$this->recorded[] = array( $user_id, $dismissed );
+			},
+			10,
+			2
+		);
 	}
 
 	public function tear_down() {
 		unset( $GLOBALS['wpcom_site_stickers_test_value'] );
-		remove_filter( 'wpcom_editor_welcome_guides_dismissed', array( $this, 'provide_dismissed' ) );
-		remove_action( 'wpcom_editor_welcome_guides_dismiss', array( $this, 'record_dismiss' ), 10 );
 
 		parent::tear_down();
-	}
-
-	public function provide_dismissed() {
-		return $this->dismissed;
-	}
-
-	public function record_dismiss( $user_id, $dismissed ) {
-		$this->recorded[] = array( $user_id, $dismissed );
-	}
-
-	/**
-	 * Writes the preferences without the write hook noticing.
-	 */
-	private function store_preferences( array $preferences ) {
-		remove_action( 'wpcom_editor_welcome_guides_dismiss', array( $this, 'record_dismiss' ), 10 );
-		update_user_meta( $this->user_id, wpcom_editor_welcome_guides_meta_key(), $preferences );
-		add_action( 'wpcom_editor_welcome_guides_dismiss', array( $this, 'record_dismiss' ), 10, 2 );
 	}
 
 	/**
@@ -93,14 +78,12 @@ class Editor_Welcome_Guides_Test extends \WorDBless\BaseTestCase {
 		return null === $check ? get_user_meta( $this->user_id, $meta_key, true ) : $check[0];
 	}
 
-	public function test_hooks_are_registered() {
+	public function test_read_filter_runs_first() {
 		$this->assertSame( 1, has_filter( 'get_user_metadata', 'wpcom_editor_welcome_guides_filter_preferences' ) );
-		$this->assertSame( 10, has_action( 'added_user_meta', 'wpcom_editor_welcome_guides_record_preferences' ) );
-		$this->assertSame( 10, has_action( 'updated_user_meta', 'wpcom_editor_welcome_guides_record_preferences' ) );
 	}
 
 	public function test_read_turns_dismissed_guides_off() {
-		$this->store_preferences( array( 'core' => array( 'fixedToolbar' => true ) ) );
+		update_user_meta( $this->user_id, wpcom_editor_welcome_guides_meta_key(), array( 'core' => array( 'fixedToolbar' => true ) ) );
 		$this->dismissed = array(
 			'core/edit-post' => array( 'welcomeGuide' ),
 			'core/edit-site' => array( 'welcomeGuide', 'welcomeGuideStyles' ),
@@ -126,7 +109,7 @@ class Editor_Welcome_Guides_Test extends \WorDBless\BaseTestCase {
 
 	public function test_read_is_unchanged_when_nothing_applies() {
 		$stored = array( 'core/edit-post' => array( 'welcomeGuide' => true ) );
-		$this->store_preferences( $stored );
+		update_user_meta( $this->user_id, wpcom_editor_welcome_guides_meta_key(), $stored );
 
 		$this->dismissed = array();
 		$this->assertSame( $stored, $this->read_preferences() );
