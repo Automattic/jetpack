@@ -362,8 +362,10 @@ The options and corresponding components are:
 
 - `autoWpPolyfill`: Set false to disable use of [babel-plugin-polyfill-corejs3](https://www.npmjs.com/package/babel-plugin-polyfill-corejs3) to produce magic `/* wp:polyfill */` comments that [@wordpress/dependency-extraction-webpack-plugin](https://www.npmjs.com/package/@wordpress/dependency-extraction-webpack-plugin) will use to add a dep on `wp-polyfill`.
 
+  We only add `wp-polyfill` for features that are polyfilled in at least one supported WordPress release, since there's no point including the script if it doesn't actually polyfill the feature we need. That list lives in `src/babel/wp-polyfill-modules.json`; run `pnpm run update-wp-polyfill-modules` to regenerate it from the releases at or above `MIN_WP_VERSION` in `.github/versions.sh`.
+
   Options include:
-  - `exclude`: Core-js polyfills to ignore. Defaults to exclude 'es.array.push' and 'web.immediate'.
+  - `exclude`: Core-js polyfills that `wp-polyfill` contains but that shouldn't add the dependency, e.g. `[ 'web.dom-exception.stack' ]`.
 - `presetEnv`: Corresponds to [@babel/preset-env](https://www.npmjs.com/package/@babel/preset-env).
 
   Note the following options that are different from `@babel/preset-env`'s defaults:
