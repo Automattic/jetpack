@@ -4,7 +4,7 @@
 import {
 	resolveIntervalForPresetChange,
 	resolveIntervalForRange,
-	type ReportQueryParams,
+	type ReportParams,
 } from '@jetpack-premium-analytics/data';
 import {
 	type ComparisonPresetId,
@@ -21,7 +21,7 @@ import { encodeRangeToSearchParams } from '../../search/date-range';
  * The report search params the date filters read and stage.
  */
 export type ReportQuerySearchParams = Partial<
-	ReportQueryParams & {
+	Omit< ReportParams, 'preset' > & {
 		preset?: PrimaryPresetId;
 		compare_preset?: ComparisonPresetId;
 		comp?: '1';

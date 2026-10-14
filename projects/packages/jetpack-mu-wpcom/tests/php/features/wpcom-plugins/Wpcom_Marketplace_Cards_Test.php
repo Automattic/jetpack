@@ -83,7 +83,8 @@ class Wpcom_Marketplace_Cards_Test extends \WorDBless\BaseTestCase {
 		remove_all_filters( 'plugins_api_result' );
 		remove_all_filters( 'plugin_install_action_links' );
 		remove_all_filters( 'plugin_install_description' );
-		unset( $_REQUEST['s'] );
+		remove_action( 'admin_enqueue_scripts', 'wpcom_marketplace_card_assets' );
+		unset( $_REQUEST['s'], $_GET['paged'] );
 
 		parent::tear_down();
 	}
@@ -115,7 +116,9 @@ class Wpcom_Marketplace_Cards_Test extends \WorDBless\BaseTestCase {
 
 		$screen = WP_Screen::get( 'plugin-install' );
 
+		add_filter( self::FLAG_FILTER, '__return_false' );
 		wpcom_marketplace_cards_start( $screen );
+		remove_filter( self::FLAG_FILTER, '__return_false' );
 		$this->assertFalse( has_filter( 'plugins_api_result', 'wpcom_marketplace_splice_search_results' ), 'Flag off.' );
 
 		add_filter( self::FLAG_FILTER, '__return_true' );
@@ -126,6 +129,21 @@ class Wpcom_Marketplace_Cards_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( 10, has_filter( 'plugins_api_result', 'wpcom_marketplace_splice_search_results' ) );
 		$this->assertSame( 10, has_filter( 'plugin_install_action_links', 'wpcom_marketplace_card_action_links' ) );
 		$this->assertSame( 10, has_filter( 'plugin_install_description', 'wpcom_marketplace_card_description_markup' ) );
+	}
+
+	/**
+	 * Later pages get no cards, but still the script that keeps checkout's Back working.
+	 */
+	public function test_later_pages_get_the_script_but_no_cards() {
+		require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+
+		add_filter( self::FLAG_FILTER, '__return_true' );
+		$_GET['paged'] = '2';
+		wpcom_marketplace_cards_start( WP_Screen::get( 'plugin-install' ) );
+
+		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', 'wpcom_marketplace_card_assets' ) );
+		$this->assertFalse( has_filter( 'plugin_install_action_links', 'wpcom_marketplace_card_action_links' ) );
 	}
 
 	/**

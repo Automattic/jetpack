@@ -1370,7 +1370,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 	/**
 	 * Store shortcode content for recall later
-	 *  - used to receate shortcode when user uses do_shortcode
+	 *  - used to recreate shortcode when user uses apply_shortcodes
 	 *
 	 * @deprecated 5.0.0
 	 */

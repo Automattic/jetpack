@@ -25,7 +25,6 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
 import { useEffect, useMemo } from 'react';
-import { postAuthor } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -167,7 +166,6 @@ export function AuthorsLeaderboard( {
 				empty={
 					isDrilled
 						? {
-								icon: postAuthor,
 								description: __(
 									'This author has no posts with views for the selected period.',
 									'jetpack-premium-analytics-pkg'

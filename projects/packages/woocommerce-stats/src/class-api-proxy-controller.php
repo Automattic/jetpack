@@ -105,8 +105,7 @@ class Api_Proxy_Controller {
 	 * @return bool
 	 */
 	public function check_permission() {
-		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- WooCommerce registers this capability.
-		return current_user_can( 'manage_options' ) || current_user_can( 'view_woocommerce_reports' );
+		return Analytics_Dashboard::current_user_can_view_store_reports();
 	}
 
 	/**

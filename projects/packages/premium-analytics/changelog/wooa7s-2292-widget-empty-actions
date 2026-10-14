@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Add an optional action slot to shared widget empty states for later widget changes. No user-facing change.
+

@@ -1,10 +1,11 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
-import { __, _n, sprintf } from '@wordpress/i18n';
-import { Notice, Stack } from '@wordpress/ui';
+import { __, _n, _x, sprintf } from '@wordpress/i18n';
+import { LinkButton, Notice, Stack } from '@wordpress/ui';
 import { DifmOfferBanner, type DifmOffer } from '../difm-offer/difm-offer-banner.tsx';
 import { createAboutPage } from '../lib/about-page.ts';
+import { fireConfetti } from '../lib/confetti.ts';
 import { createContactPage } from '../lib/contact-page.ts';
 import { createEventsPage } from '../lib/events-page.ts';
 import { createFirstPostDraft } from '../lib/first-post.ts';
@@ -47,6 +48,8 @@ import './style.scss';
 function navigate( url: string ): void {
 	window.location.href = url;
 }
+
+const DASHBOARD_URL = 'index.php';
 
 interface Props {
 	// In-flight tailor promise on the wizard→list path. The list waits for it to
@@ -127,6 +130,8 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 	const [ difmOffer, setDifmOffer ] = useState< DifmOffer | null >(
 		() => initialData?.difm_offer ?? null
 	);
+	// Set once the server latches the list as done (here or elsewhere): celebrate, then hand off to the Dashboard.
+	const [ allDone, setAllDone ] = useState( false );
 
 	// One viewed event per screen shown; the launchpad screen includes its
 	// loading skeleton. The host seeds the context before mounting this view.
@@ -138,6 +143,7 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 		// Returning users: render from the data the host already fetched.
 		if ( initialData ) {
 			setTasks( initialData.tasks );
+			setAllDone( !! initialData.list_completed );
 			setOutput( initialData.ai_output?.payload ?? null );
 			setDifmOffer( initialData.difm_offer ?? null );
 			if ( initialData.site ) {
@@ -192,6 +198,7 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 			}
 			setOutput( nextOutput );
 			setTasks( nextTasks );
+			setAllDone( !! data?.list_completed );
 
 			// The wizard→list handoff: the user has completed the wizard and landed on
 			// their tasklist. Seed the context synchronously (from exactly what will
@@ -208,6 +215,15 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 			cancelled = true;
 		};
 	}, [ pendingTailor, initialData, savedOnRetry ] );
+
+	useEffect( () => {
+		if ( ! allDone ) {
+			return;
+		}
+		fireConfetti();
+		const timer = setTimeout( () => navigate( DASHBOARD_URL ), 3000 );
+		return () => clearTimeout( timer );
+	}, [ allDone ] );
 
 	// Keep the shared Tracks context in step with what is actually rendered, on
 	// both the wizard→list path (fresh tailor) and the returning-user path.
@@ -263,10 +279,11 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 
 		return (
 			<Layout
-				progressLabel={
-					/* translators: status line shown when the generated checklist could not be saved. */
-					__( 'Your checklist is not saved yet', 'jetpack-mu-wpcom' )
-				}
+				progressLabel={ _x(
+					'Your checklist is not saved yet',
+					'Status line when the generated checklist could not be saved',
+					'jetpack-mu-wpcom'
+				) }
 				goal={ effectiveGoal }
 				siteUrl={ siteUrl }
 				siteTitle={ siteTitle }
@@ -310,10 +327,11 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 	if ( ! tasks ) {
 		return (
 			<Layout
-				progressLabel={
-					/* translators: shown while the checklist is being generated. A status, not an instruction to the user. */
-					__( 'Tailoring your checklist…', 'jetpack-mu-wpcom' )
-				}
+				progressLabel={ _x(
+					'Tailoring your checklist…',
+					'Status shown while the checklist is being generated, not an instruction',
+					'jetpack-mu-wpcom'
+				) }
 				goal={ effectiveGoal }
 				siteUrl={ siteUrl }
 				siteTitle={ siteTitle }
@@ -379,7 +397,7 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 		setBusy( { id: task.id, action: 'primary' } );
 		try {
 			trackTaskCtaClicked( { task_id: task.id } );
-			await apiFetch( {
+			const response = await apiFetch< { list_completed: boolean } >( {
 				path: '/wpcom/v2/ai-launchpad/complete-task',
 				method: 'POST',
 				data: { task_id: task.id },
@@ -393,6 +411,7 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 				t.id === task.id || skippedIds.has( t.id ) ? { ...t, completed: true } : t
 			);
 			setOpenId( nextIncompleteId( afterComplete, task.id ) );
+			setAllDone( response.list_completed );
 		} catch {
 			// Leave the task incomplete on failure.
 		} finally {
@@ -406,11 +425,11 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 	const handleSkip = async ( task: EnrichedTask ) => {
 		setBusy( { id: task.id, action: 'skip' } );
 		trackTaskSkipped( { task_id: task.id } );
-		await apiFetch( {
+		const response = await apiFetch< { list_completed: boolean } >( {
 			path: '/wpcom/v2/ai-launchpad/skip-task',
 			method: 'POST',
 			data: { task_id: task.id },
-		} ).catch( () => {} );
+		} ).catch( () => null );
 		setBusy( null );
 		const nextSkipped = new Set( skippedIds ).add( task.id );
 		setSkippedIds( nextSkipped );
@@ -418,11 +437,25 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 			nextSkipped.has( t.id ) ? { ...t, completed: true } : t
 		);
 		setOpenId( nextIncompleteId( afterSkip, task.id ) );
+		setAllDone( !! response?.list_completed );
 	};
 
 	return (
 		<Layout
-			progressLabel={ progressLabel }
+			heading={
+				allDone
+					? _x(
+							"You're all set!",
+							'Site Setup heading once every task is done',
+							'jetpack-mu-wpcom'
+						)
+					: undefined
+			}
+			progressLabel={
+				allDone
+					? __( 'Your setup is complete. Taking you to your Dashboard…', 'jetpack-mu-wpcom' )
+					: progressLabel
+			}
 			goal={ effectiveGoal }
 			siteUrl={ siteUrl }
 			siteTitle={ siteTitle }
@@ -458,7 +491,15 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 						/>
 					) ) }
 				</Stack>
-				{ difmOffer && (
+				{ /* The div keeps the button as wide as its label instead of stretching with the column. */ }
+				{ allDone && (
+					<div>
+						<LinkButton variant="solid" href={ DASHBOARD_URL }>
+							{ __( 'Go to Dashboard now', 'jetpack-mu-wpcom' ) }
+						</LinkButton>
+					</div>
+				) }
+				{ difmOffer && ! allDone && (
 					<DifmOfferBanner offer={ difmOffer } onDismiss={ () => setDifmOffer( null ) } />
 				) }
 			</Stack>

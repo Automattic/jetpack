@@ -61,8 +61,8 @@ export function useConnectionState(
 
 	// We are here, which means the site is connected.
 
-	// Show a live error as the diagnosis unless the card is asking for a user connection.
-	if ( error.hasConnectionError && ( isUserConnected || ! shouldAskForUserConnection ) ) {
+	// The Connection package decides whether there is an error to show; when it says so, that is the diagnosis.
+	if ( error.hasConnectionError ) {
 		return {
 			label: error.errorTitle,
 			status: error.severity ?? 'error',
@@ -86,10 +86,6 @@ export function useConnectionState(
 		};
 	}
 
-	// Connecting the account stays the prompt; a live error only tints the line, at
-	// the package's severity.
-	const status = error.hasConnectionError ? ( error.severity ?? 'error' ) : 'warning';
-
 	// If the user is not an admin, they can't connect their account unless an admin has connected their account.
 	if ( ! currentUserCan( 'manage_options' ) && ! hasConnectedOwner ) {
 		return {
@@ -98,7 +94,7 @@ export function useConnectionState(
 				'A site admin will need to connect their account before you can connect yours.',
 				'jetpack-my-jetpack'
 			),
-			status,
+			status: 'warning',
 		};
 	}
 
@@ -106,6 +102,6 @@ export function useConnectionState(
 		label: __( 'Site connected', 'jetpack-my-jetpack' ),
 		description: __( 'Connect your account to unlock all the features.', 'jetpack-my-jetpack' ),
 		action: 'CONNECT_USER',
-		status,
+		status: 'warning',
 	};
 }

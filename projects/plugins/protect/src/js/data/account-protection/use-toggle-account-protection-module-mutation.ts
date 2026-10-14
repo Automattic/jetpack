@@ -10,13 +10,17 @@ import { AccountProtectionStatus } from '../../types/account-protection';
  *
  * @return {UseMutationResult} useMutation result.
  */
-export default function useToggleAccountProtectionMutation(): UseMutationResult {
+export default function useToggleAccountProtectionMutation(): UseMutationResult<
+	unknown,
+	Error,
+	boolean
+> {
 	const queryClient = useQueryClient();
 	const { showSavingNotice, showSuccessNotice, showErrorNotice } = useNotices();
 
 	return useMutation( {
 		mutationFn: API.toggleAccountProtection,
-		onMutate: () => {
+		onMutate: enabled => {
 			showSavingNotice();
 
 			// Get the current cached data
@@ -28,7 +32,7 @@ export default function useToggleAccountProtectionMutation(): UseMutationResult 
 			if ( previousData ) {
 				queryClient.setQueryData< AccountProtectionStatus >( [ QUERY_ACCOUNT_PROTECTION_KEY ], {
 					...previousData,
-					isEnabled: ! previousData.isEnabled,
+					isEnabled: enabled,
 				} );
 			}
 
