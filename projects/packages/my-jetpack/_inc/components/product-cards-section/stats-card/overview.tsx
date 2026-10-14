@@ -25,7 +25,10 @@ const StatsOverviewCard: ProductCardComponent = ( { admin } ) => {
 		isSiteConnected && isActive,
 		VISITS_OPTIONS as Parameters< typeof useStatsVisits >[ 2 ]
 	);
-	const views = useMemo( () => processStatsData( data ).counts.views, [ data ] );
+	const views = useMemo(
+		() => ( processStatsData( data ) as { counts: { views?: number } } ).counts.views,
+		[ data ]
+	);
 
 	const onDetailedStatsClick = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_stats_card_seedetailedstats_click', {
