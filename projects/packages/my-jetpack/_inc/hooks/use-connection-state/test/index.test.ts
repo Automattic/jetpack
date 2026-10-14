@@ -103,22 +103,21 @@ const renderConnectionState = ( shouldAskForUserConnection = true ) =>
 		{ wrapper: Providers }
 	);
 
-// The tint is the only sign of the error here, so it is the package's rating, not a flat 'error'.
-describe( 'useConnectionState — status while the account is still to be connected', () => {
-	it( 'softens a break only the owner can repair to a warning', () => {
+describe( 'useConnectionState — a live error while the account is still to be connected', () => {
+	it( 'shows a break only the owner can repair as a warning diagnosis', () => {
 		setConnectionStore( { connectionErrors: ownerTokenBroken, connectionOwner: owner } );
 
 		const { result } = renderConnectionState();
 
-		expect( result.current.status ).toBe( 'warning' );
+		expect( result.current ).toMatchObject( { isDiagnosis: true, status: 'warning' } );
 	} );
 
-	it( 'keeps a site-wide break an error', () => {
+	it( 'shows a site-wide break as an error diagnosis', () => {
 		setConnectionStore( { connectionErrors: siteTokenBroken } );
 
 		const { result } = renderConnectionState();
 
-		expect( result.current.status ).toBe( 'error' );
+		expect( result.current ).toMatchObject( { isDiagnosis: true, status: 'error' } );
 	} );
 } );
 
