@@ -37,25 +37,30 @@ class Admin_Bar_Notice_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Store a Protect report listing one WordPress core vulnerability, already expired.
+	 * Store a Protect report listing WordPress core vulnerabilities.
+	 *
+	 * @param int $vulnerabilities How many vulnerabilities the report lists.
+	 * @param int $expires_in      Seconds until the report expires; negative when it already has.
 	 */
-	private function store_protect_report() {
+	private function store_protect_report( $vulnerabilities = 1, $expires_in = -1 ) {
 		update_option(
 			Protect_Status::OPTION_NAME,
 			(object) array(
 				'last_checked' => '2026-10-14 00:00:00',
 				'core'         => (object) array(
 					'version'         => $GLOBALS['wp_version'],
-					'vulnerabilities' => array(
+					'vulnerabilities' => array_fill(
+						0,
+						$vulnerabilities,
 						(object) array(
 							'id'    => 'core-1',
 							'title' => 'A core vulnerability',
-						),
+						)
 					),
 				),
 			)
 		);
-		update_option( Protect_Status::OPTION_TIMESTAMP_NAME, time() - 1 );
+		update_option( Protect_Status::OPTION_TIMESTAMP_NAME, time() + $expires_in );
 	}
 
 	/**
@@ -115,5 +120,38 @@ class Admin_Bar_Notice_Test extends WP_UnitTestCase {
 		$this->assertTrue( wp_script_is( Admin_Bar_Notice::SCRIPT_NAME, 'enqueued' ) );
 		$data = (string) wp_scripts()->get_data( Admin_Bar_Notice::SCRIPT_NAME, 'data' );
 		$this->assertSame( $has_dashboard, str_contains( $data, '"count_event":"' . Threat_Count::EVENT . '"' ) );
+	}
+
+	/**
+	 * Seconds until a zero-threat report expires, and whether a hidden node waits for the refresh.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_zero_counts() {
+		return array(
+			'expired, refresh pending' => array( -1, true ),
+			'fresh'                    => array( 60, false ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_zero_counts
+	 *
+	 * @param int  $expires_in Seconds until the report expires.
+	 * @param bool $expected   Whether the hidden node is added.
+	 */
+	#[DataProvider( 'provide_zero_counts' )]
+	public function test_zero_count_keeps_a_hidden_node_only_while_a_refresh_is_pending( $expires_in, $expected ) {
+		do_action( 'jetpack_protect_dashboard_initialized' );
+		$this->store_protect_report( 0, $expires_in );
+		$admin_bar = new WP_Admin_Bar();
+
+		( new Admin_Bar_Notice() )->add_threats_to_toolbar( $admin_bar );
+
+		$node = $admin_bar->get_node( 'jetpack-scan-notice' );
+		$this->assertSame( $expected, null !== $node );
+		if ( $expected ) {
+			$this->assertSame( 'error is-hidden', $node->meta['class'] );
+		}
 	}
 }

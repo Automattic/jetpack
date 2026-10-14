@@ -20,8 +20,7 @@ use WP_Admin_Bar;
  * @package Automattic\Jetpack\Scan
  */
 class Admin_Bar_Notice {
-	const SCRIPT_NAME    = 'jetpack-scan-show-notice';
-	const SCRIPT_VERSION = '1';
+	const SCRIPT_NAME = 'jetpack-scan-show-notice';
 
 	/**
 	 * The singleton instance of this class.
@@ -131,7 +130,6 @@ class Admin_Bar_Notice {
 				'strategy'     => 'defer',
 				'nonmin_path'  => 'modules/scan/admin-bar-notice.js',
 				'dependencies' => array( 'admin-bar' ),
-				'version'      => self::SCRIPT_VERSION,
 				'enqueue'      => true,
 			)
 		);
@@ -272,7 +270,11 @@ class Admin_Bar_Notice {
 	public function has_threats() {
 		if ( $this->uses_protect_count() ) {
 			$count = $this->get_protect_count();
-			return null === $count ? null : $count > 0;
+			// An expired zero is unknown, so the notice keeps a hidden node the refresh can reveal.
+			if ( null === $count || ( 0 === $count && Threat_Count::needs_refresh() ) ) {
+				return null;
+			}
+			return $count > 0;
 		}
 
 		$scan_state = get_transient( 'jetpack_scan_state' );
