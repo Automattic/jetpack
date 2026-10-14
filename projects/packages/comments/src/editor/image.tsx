@@ -53,10 +53,6 @@ const httpsUrl = ( url: string ) => {
 	}
 };
 
-// A URL pasted on its own line becomes an image when it names an image file, and an embed otherwise.
-const isImageFile = ( url: string ) =>
-	/\.(?:avif|gif|jpe?g|png|webp)$/i.test( httpsUrl( url )?.pathname ?? '' );
-
 const imgSchema = { attributes: [ 'src', 'alt' ] };
 
 const toParagraph = ( url: string ) =>
@@ -216,10 +212,13 @@ export const registerImageBlock = ( editorLabels: EditorLabels, preview = true )
 			from: [
 				{
 					type: 'raw',
-					// Ahead of the embed block's, which takes any URL on its own line.
+					// Ahead of the embed block's, which takes any URL on its own line; this one only an image file's.
 					priority: 9,
 					isMatch: ( node: Node ) =>
-						node.nodeName === 'P' && isImageFile( node.textContent?.trim() ?? '' ),
+						node.nodeName === 'P' &&
+						/\.(?:avif|gif|jpe?g|png|webp)$/i.test(
+							httpsUrl( node.textContent?.trim() ?? '' )?.pathname ?? ''
+						),
 					transform: ( node: Node ) => createBlock( NAME, { url: node.textContent!.trim() } ),
 				},
 				{

@@ -230,7 +230,7 @@ class Block_Editor {
 		// Only an approved comment on the front end draws an embed or image; the rest show the link.
 		$embed = $comment instanceof \WP_Comment && '1' === (string) $comment->comment_approved && ! is_admin();
 		// Images also need a commenter who signed in, so a guest can't plant a tracking image.
-		$signed_in = $embed && Images::signed_in( $comment );
+		$signed_in = $embed && ( (int) $comment->user_id > 0 || '' !== (string) get_comment_meta( (int) $comment->comment_ID, Checkpoint::META_ID, true ) );
 		$images    = 0;
 
 		// With their attributes cleared, what is left of the delimiters is this shape alone.

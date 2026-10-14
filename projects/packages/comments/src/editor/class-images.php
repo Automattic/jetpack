@@ -14,11 +14,6 @@ namespace Automattic\Jetpack\Comments;
 class Images {
 
 	/**
-	 * The most images one comment draws. The rest stay links.
-	 */
-	const PER_COMMENT = 4;
-
-	/**
 	 * Whether the editor offers the image block, and comments draw the ones they hold.
 	 *
 	 * @return bool
@@ -35,17 +30,6 @@ class Images {
 	}
 
 	/**
-	 * Whether the comment's author signed in: a site account, or the identity the comment form's
-	 * sign-in recorded.
-	 *
-	 * @param \WP_Comment $comment The comment.
-	 * @return bool
-	 */
-	public static function signed_in( \WP_Comment $comment ) {
-		return (int) $comment->user_id > 0 || '' !== (string) get_comment_meta( (int) $comment->comment_ID, Checkpoint::META_ID, true );
-	}
-
-	/**
 	 * The image block as this package writes it: the URL and alt text in its attributes, and the URL
 	 * as the figure's text. Past the comment's limit, or where images are off, it is a paragraph
 	 * holding the link. At render, the figure draws an https image, or the link where it may not.
@@ -56,7 +40,15 @@ class Images {
 	 * @return array|null The block to keep, if any.
 	 */
 	public static function block( array $block, $render, &$count ) {
-		$url = self::url( $block );
+		// This editor keeps the URL and alt text in the attributes; Verbum's kept them on an img.
+		$tags = new \WP_HTML_Tag_Processor( $block['innerHTML'] );
+		$img  = $tags->next_tag( 'img' );
+		$url  = $block['attrs']['url'] ?? ( $img ? $tags->get_attribute( 'src' ) : null );
+		$alt  = $block['attrs']['alt'] ?? ( $img ? $tags->get_attribute( 'alt' ) : null );
+
+		// kses writes & as &amp; in the block's attributes.
+		$url = is_string( $url ) ? trim( html_entity_decode( $url, ENT_QUOTES ) ) : '';
+		$url = strlen( $url ) > 2048 ? '' : esc_url_raw( $url, array( 'http', 'https' ) );
 
 		if ( ! $url ) {
 			return null;
@@ -64,11 +56,12 @@ class Images {
 
 		$link = Block_Editor::paragraph( '<a href="' . esc_url( $url ) . '" rel="nofollow ugc">' . esc_html( $url ) . '</a>' );
 
-		if ( ! self::is_enabled() || ++$count > self::PER_COMMENT ) {
+		// Four images a comment at most. The rest stay links.
+		if ( ! self::is_enabled() || ++$count > 4 ) {
 			return $link;
 		}
 
-		$alt = self::alt( $block );
+		$alt = is_string( $alt ) ? trim( wp_strip_all_tags( html_entity_decode( $alt, ENT_QUOTES ) ) ) : '';
 
 		if ( null === $render ) {
 			$block['attrs'] = '' === $alt ? array( 'url' => $url ) : array(
@@ -121,47 +114,5 @@ class Images {
 		$link  = self::block( $block, false, $count );
 
 		return $link ? $link['innerHTML'] : $content;
-	}
-
-	/**
-	 * The image's URL: http or https and under 2 KB, from this package's attribute or from the src
-	 * Verbum's editor saved.
-	 *
-	 * @param array $block Parsed image block.
-	 * @return string Empty when there is none.
-	 */
-	private static function url( array $block ) {
-		$url = isset( $block['attrs']['url'] ) && is_string( $block['attrs']['url'] ) ? $block['attrs']['url'] : null;
-
-		if ( null === $url ) {
-			$tags = new \WP_HTML_Tag_Processor( $block['innerHTML'] );
-			$url  = $tags->next_tag( 'img' ) ? $tags->get_attribute( 'src' ) : null;
-		}
-
-		if ( ! is_string( $url ) ) {
-			return '';
-		}
-
-		// kses writes & as &amp; in the block's attributes.
-		$url = trim( html_entity_decode( $url, ENT_QUOTES ) );
-
-		return strlen( $url ) > 2048 ? '' : esc_url_raw( $url, array( 'http', 'https' ) );
-	}
-
-	/**
-	 * The image's alt text, from this package's attribute or from the img Verbum's editor saved.
-	 *
-	 * @param array $block Parsed image block.
-	 * @return string
-	 */
-	private static function alt( array $block ) {
-		$alt = isset( $block['attrs']['alt'] ) && is_string( $block['attrs']['alt'] ) ? $block['attrs']['alt'] : null;
-
-		if ( null === $alt ) {
-			$tags = new \WP_HTML_Tag_Processor( $block['innerHTML'] );
-			$alt  = $tags->next_tag( 'img' ) ? $tags->get_attribute( 'alt' ) : null;
-		}
-
-		return is_string( $alt ) ? trim( wp_strip_all_tags( html_entity_decode( $alt, ENT_QUOTES ) ) ) : '';
 	}
 }
