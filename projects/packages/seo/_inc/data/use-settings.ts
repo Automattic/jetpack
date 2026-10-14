@@ -3,7 +3,7 @@ import { select, useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
-import { buildCorePayload, buildModulesPayload } from './build-payload';
+import { buildCorePayload, buildModulesPayload, readCoreResponse } from './build-payload';
 import { recordSeoEvent } from './record-seo-event';
 import { settingsStore } from './settings-store';
 import { VERIFICATION_KEYS } from './verification-services';
@@ -243,10 +243,25 @@ export function useSettingsForm(): SettingsForm {
 				field => JSON.stringify( values[ field ] ) !== JSON.stringify( baseline[ field ] )
 			);
 			const settings = sentSettings( baseline, values );
-			// What landed: core's settings write is all-or-nothing, and the module route
-			// lists what it applied, even when it fails partway.
+			// What landed: core's settings write reports what it stored, and the module
+			// route lists what it applied, even when it fails partway.
 			let coreSaved = false;
+			let coreStored: Partial< SettingsResponse > = {};
 			let modulesApplied: string[] = [];
+			// Core answers 200 even when a sanitizer kept the old value, so a setting
+			// counts only once its stored value moved off the baseline.
+			const storedInCore = ( { field, props }: SentSetting ): boolean => {
+				if ( ! coreSaved ) {
+					return false;
+				}
+				if ( ! ( field in coreStored ) ) {
+					return true;
+				}
+				const key = props.verification_service as VerificationKey;
+				return field === 'verification'
+					? coreStored.verification?.[ key ] !== baseline.verification[ key ]
+					: JSON.stringify( coreStored[ field ] ) !== JSON.stringify( baseline[ field ] );
+			};
 
 			setIsSaving( true );
 			createInfoNotice( __( 'Updating settings…', 'jetpack-seo' ), {
@@ -265,8 +280,9 @@ export function useSettingsForm(): SettingsForm {
 						? apiFetch( { path: CORE_SETTINGS_PATH, method: 'POST', data: corePayload } )
 						: undefined
 				)
-				.then( () => {
+				.then( response => {
 					coreSaved = true;
+					coreStored = readCoreResponse( response );
 					return Object.keys( modulesPayload ).length > 0
 						? apiFetch< Record< string, boolean > >( {
 								path: SEO_MODULES_PATH,
@@ -297,13 +313,17 @@ export function useSettingsForm(): SettingsForm {
 				// Recorded before the re-read, which can take seconds, so leaving the page
 				// straight after a save doesn't lose the event.
 				.then( () =>
-					settings.forEach( ( { field, viaModules, props } ) =>
+					settings.forEach( setting =>
 						recordSeoEvent(
-							( viaModules ? modulesApplied.includes( field ) : coreSaved )
+							(
+								setting.viaModules
+									? modulesApplied.includes( setting.field )
+									: storedInCore( setting )
+							)
 								? 'jetpack_seo_setting_updated'
 								: 'jetpack_seo_setting_update_failed',
 							'settings',
-							props
+							setting.props
 						)
 					)
 				)

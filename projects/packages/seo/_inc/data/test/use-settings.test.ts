@@ -382,7 +382,13 @@ describe( 'useSettingsForm', () => {
 		[
 			'a verification code, naming only the service that changed',
 			form => {
-				act( () => form().setVerification( 'bing', 'abc123' ) );
+				// The server stores the bare code from a pasted meta tag.
+				mockApiFetch.mockResolvedValueOnce( {
+					verification_services_codes: { ...SEED.verification, bing: 'abc123' },
+				} );
+				act( () =>
+					form().setVerification( 'bing', '<meta name="msvalidate.01" content="abc123" />' )
+				);
 				act( () => form().commitFields( [ 'verification' ] ) );
 			},
 			{ setting: 'site_verification', verification_service: 'bing', setting_value: 'set' },
@@ -423,6 +429,13 @@ describe( 'useSettingsForm', () => {
 			{ front_page_description: 'New description.' },
 			() => mockApiFetch.mockRejectedValueOnce( { message: 'Nope.' } ),
 			DESCRIPTION,
+		],
+		[
+			'the server keeps the old verification code',
+			{ verification: { ...SEED.verification, bing: 'not a code' } },
+			() =>
+				mockApiFetch.mockResolvedValueOnce( { verification_services_codes: SEED.verification } ),
+			{ setting: 'site_verification', verification_service: 'bing', setting_value: 'set' },
 		],
 	] )( 'records a failed setting update when %s', async ( _label, patch, respond, props ) => {
 		respond();
