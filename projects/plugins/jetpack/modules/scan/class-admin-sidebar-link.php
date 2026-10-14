@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Scan;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\My_Jetpack\Products\Protect;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Core_Json_Api_Endpoints;
@@ -171,6 +172,9 @@ class Admin_Sidebar_Link {
 	 * @return boolean
 	 */
 	private function has_protect_page() {
+		if ( method_exists( Protect::class, 'has_protect_page' ) ) {
+			return Protect::has_protect_page();
+		}
 		return class_exists( 'Jetpack_Protect' ) || did_action( 'jetpack_protect_dashboard_initialized' );
 	}
 

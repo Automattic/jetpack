@@ -1387,8 +1387,7 @@ class Initializer {
 			// plugin (class-jetpack-protect.php::admin_page_init()) or the Protect package's dashboard.
 			// Without either, nobody else registers this count, so we must not skip it here
 			// or the alert silently disappears from the menu total.
-			$has_protect_page = Products\Protect::is_standalone_plugin_active() || did_action( 'jetpack_protect_dashboard_initialized' );
-			if ( 'protect_has_threats' === $slug && $has_protect_page ) {
+			if ( 'protect_has_threats' === $slug && Products\Protect::has_protect_page() ) {
 				continue;
 			}
 			// The missing-connection slug and a connection error describe the same broken

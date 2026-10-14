@@ -447,13 +447,32 @@ class Protect extends Hybrid_Product {
 	}
 
 	/**
+	 * Whether wp-admin has a Protect page, from the standalone plugin or the Protect package's dashboard.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function has_protect_page() {
+		return static::is_standalone_plugin_active() || (bool) did_action( 'jetpack_protect_dashboard_initialized' );
+	}
+
+	/**
+	 * Get the product info, with whether the Protect page exists.
+	 *
+	 * @return array
+	 */
+	public static function get_info() {
+		return array_merge( parent::get_info(), array( 'has_protect_page' => static::has_protect_page() ) );
+	}
+
+	/**
 	 * Get the URL where the user manages the product
 	 *
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
-		// The Protect package's dashboard, loaded by the Jetpack plugin's module, serves the same page as the standalone plugin.
-		if ( static::is_standalone_plugin_active() || did_action( 'jetpack_protect_dashboard_initialized' ) ) {
+		if ( static::has_protect_page() ) {
 			// Protect admin dashboard.
 			return admin_url( 'admin.php?page=jetpack-protect' );
 		}

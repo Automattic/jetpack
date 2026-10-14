@@ -199,6 +199,7 @@ class Admin_Bar_Notice {
 	 * @return bool
 	 */
 	private function has_protect_dashboard() {
+		// The standalone Protect plugin needs no check: with it active, this notice is never shown.
 		return (bool) did_action( 'jetpack_protect_dashboard_initialized' );
 	}
 

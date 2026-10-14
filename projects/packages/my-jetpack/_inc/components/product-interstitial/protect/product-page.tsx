@@ -75,8 +75,7 @@ export default function ProtectProductPage() {
 		navigateToUpgrade();
 	}, [ recordEvent, navigateToUpgrade ] );
 
-	// The manage URL is the Protect page when one is registered, Jetpack Cloud otherwise.
-	const hasProtectPage = !! detail?.manageUrl?.includes( 'page=jetpack-protect' );
+	const hasProtectPage = !! detail?.hasProtectPage;
 	const scanResultsUrl = hasProtectPage
 		? detail.manageUrl
 		: getRedirectUrl( 'my-jetpack-manage-scan' );
