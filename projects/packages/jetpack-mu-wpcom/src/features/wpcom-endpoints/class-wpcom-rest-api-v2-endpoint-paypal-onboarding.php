@@ -12,7 +12,7 @@
  * routes via Client::wpcom_json_api_request_as_blog().
  *
  * @package automattic/jetpack-mu-wpcom
- * @since $$next-version$$
+ * @since 6.11.0
  * @see https://developer.paypal.com/docs/multiparty/seller-onboarding/build-onboarding/
  */
 
@@ -27,7 +27,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * PayPal platform: Partner Referrals signup links, merchant lookups, and
  * Payment Links & Buttons calls made on a referred seller's behalf.
  *
- * @since $$next-version$$
+ * @since 6.11.0
  */
 class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 
