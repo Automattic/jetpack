@@ -22,6 +22,7 @@ export const CATALOG_POINTERS = {
 	axisY: 'var(--a8c-charts-color-axis-y, none)',
 	tickY: 'var(--a8c-charts-color-tick-y, none)',
 	annotation: 'var(--a8c-charts-color-annotation, #1e1e1e)',
+	comparisonLine: 'var(--a8c-charts-color-comparison-line, #1e1e1e)',
 	surface: 'var(--a8c-charts-color-surface, #fff)',
 	surfaceSecondary: 'var(--a8c-charts-color-surface-secondary, #f4f4f4)',
 	track: 'var(--a8c-charts-color-track, #f0f0f0)',

@@ -88,6 +88,7 @@ The scope element is the wrapper a chart is rendered into, which sits **above** 
 | `--a8c-charts-color-label-background` | _(none — transparent by default, no WPDS fit)_ | `transparent` |
 | `--a8c-charts-color-label-axis` | _(derives from `--a8c-charts-color-label`)_ | — |
 | `--a8c-charts-color-annotation` | `--wpds-color-foreground-content-neutral` | `#1e1e1e` |
+| `--a8c-charts-color-comparison-line` | `--wpds-color-foreground-content-neutral` | `#1e1e1e` |
 | `--a8c-charts-color-trend-up` | `--wpds-color-foreground-content-success-weak` | `#008030` |
 | `--a8c-charts-color-trend-down` | `--wpds-color-foreground-content-error-weak` | `#cc1818` |
 | `--a8c-charts-color-trend-neutral` | `--wpds-color-foreground-content-neutral-weak` | `#707070` |
