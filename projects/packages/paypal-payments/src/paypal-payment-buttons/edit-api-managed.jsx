@@ -1692,6 +1692,7 @@ export default function ApiManagedEdit( {
 					attributes={ attributes }
 					resource={ resource }
 					isSelected={ isSelected }
+					isDisabled={ ! hasButton }
 				/>
 			) }
 
