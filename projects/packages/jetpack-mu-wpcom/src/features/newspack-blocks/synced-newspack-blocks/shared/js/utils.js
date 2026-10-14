@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 /**
  * WordPress dependencies
  */
@@ -17,7 +18,11 @@ export const formatSponsorLogos = sponsorInfo => (
 		{ sponsorInfo.map( sponsor => (
 			<Fragment key={ sponsor.id }>
 				{ sponsor.src && (
-					<a href={ sponsor.sponsor_url }>
+					// A live sponsor URL would navigate the editor-canvas iframe away from
+					// the post being edited; the sponsor slot replaces the byline when
+					// newspack_sponsors_show_author is off, so it needs the same inert
+					// href="#" the other editor anchors use.
+					<a href="#">
 						<img src={ sponsor.src } width={ sponsor.img_width } height={ sponsor.img_height } alt={ sponsor.sponsor_name } />
 					</a>
 				) }
@@ -33,7 +38,8 @@ export const formatSponsorByline = sponsorInfo => (
 			return [
 				...accumulator,
 				<span className="author" key={ sponsor.id }>
-					<a href={ sponsor.author_link }>{ sponsor.sponsor_name }</a>
+					{ /* author_link is never populated in the editor payload; href="#" makes the inertness explicit. */ }
+					<a href="#">{ sponsor.sponsor_name }</a>
 				</span>,
 				index < sponsorInfo.length - 2 && ', ',
 				sponsorInfo.length > 1 && index === sponsorInfo.length - 2 && _x( 'and', 'post author', 'jetpack-mu-wpcom' ),

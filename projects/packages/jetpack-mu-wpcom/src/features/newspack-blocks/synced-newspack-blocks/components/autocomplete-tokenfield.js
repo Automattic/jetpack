@@ -45,15 +45,29 @@ class AutocompleteTokenField extends Component {
 		if ( this.isFetchingInfoOnLoad() ) {
 			const { tokens, fetchSavedInfo } = this.props;
 
-			fetchSavedInfo( tokens ).then( results => {
-				const { validValues } = this.state;
+			fetchSavedInfo( tokens )
+				.then( results => {
+					const { validValues } = this.state;
 
-				results.forEach( suggestion => {
-					validValues[ suggestion.value ] = suggestion.label;
+					results.forEach( suggestion => {
+						validValues[ suggestion.value ] = suggestion.label;
+					} );
+
+					this.setState( { validValues, loading: false } );
+				} )
+				.catch( error => {
+					// eslint-disable-next-line no-console
+					console.error( 'Newspack Blocks: could not load the titles for the saved selection.', error );
+					// Without labels the field would render no tokens, and the next
+					// selection would then write back a list missing every saved ID.
+					const { validValues } = this.state;
+
+					tokens.forEach( token => {
+						validValues[ token ] = String( token );
+					} );
+
+					this.setState( { validValues, loading: false } );
 				} );
-
-				this.setState( { validValues, loading: false } );
-			} );
 		}
 	}
 

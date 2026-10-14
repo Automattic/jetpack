@@ -22,6 +22,7 @@ import { decodeEntities } from '@wordpress/html-entities';
  * Internal dependencies.
  */
 import AutocompleteTokenField from './autocomplete-tokenfield';
+import SpecificPostsControl from './specific-posts-control';
 
 const getCategoryTitle = category => decodeEntities( category.name ) || __( '(no title)', 'jetpack-mu-wpcom' );
 
@@ -50,19 +51,42 @@ class QueryControls extends Component {
 	fetchSavedPosts = postIDs => {
 		const { postType } = this.props;
 		const restUrl = window.newspack_blocks_data.posts_rest_url;
+		// An empty `include` is dropped server-side, which would answer with the
+		// most recent post rather than nothing.
+		if ( ! postIDs.length ) {
+			return Promise.resolve( [] );
+		}
 		return apiFetch( {
 			url: addQueryArgs( restUrl, {
 				// These params use the block query parameters (see Newspack_Blocks::build_articles_query).
-				postsToShow: 100,
+				postsToShow: postIDs.length,
 				include: postIDs.join( ',' ),
 				_fields: 'id,title',
 				postType,
 			} ),
 		} ).then( function ( posts ) {
-			return posts.map( post => ( {
+			const allPosts = posts.map( post => ( {
 				value: post.id,
 				label: decodeEntities( post.title.rendered ) || __( '(no title)', 'jetpack-mu-wpcom' ),
 			} ) );
+			// An ID the endpoint did not return still needs an entry, or the token
+			// field drops it from the block on the next edit. The ID goes in the
+			// label because labels are matched back to IDs, and a shared label
+			// would collapse two items onto one.
+			postIDs.forEach( postID => {
+				const id = parseInt( postID );
+				if ( ! allPosts.find( post => post.value === id ) ) {
+					allPosts.push( {
+						value: id,
+						label: sprintf(
+							/* translators: %d: numeric ID of content that could not be found. */
+							__( 'Unavailable content (%d)', 'jetpack-mu-wpcom' ),
+							id
+						),
+					} );
+				}
+			} );
+			return allPosts;
 		} );
 	};
 
@@ -311,13 +335,11 @@ class QueryControls extends Component {
 					</ToggleGroupControl>
 				) }
                 { specificMode ? (
-					<AutocompleteTokenField
-						tokens={ specificPosts || [] }
+					<SpecificPostsControl
+						postIds={ specificPosts || [] }
 						onChange={ onSpecificPostsChange }
 						fetchSuggestions={ this.fetchPostSuggestions }
 						fetchSavedInfo={ this.fetchSavedPosts }
-						label={ __( 'Content', 'jetpack-mu-wpcom' ) }
-						help={ __( 'Begin typing any word in a title. Click on an autocomplete result to select it.', 'jetpack-mu-wpcom' ) }
 					/>
 				) : (
 					<>

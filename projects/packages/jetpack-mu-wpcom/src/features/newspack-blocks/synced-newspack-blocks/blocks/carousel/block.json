@@ -72,6 +72,10 @@
 			"type": "boolean",
 			"default": false
 		},
+		"showTagLabels": {
+			"type": "boolean",
+			"default": true
+		},
 		"showTitle": {
 			"type": "boolean",
 			"default": true

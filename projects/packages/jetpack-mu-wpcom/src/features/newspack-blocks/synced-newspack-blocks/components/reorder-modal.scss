@@ -1,0 +1,87 @@
+@use "~@wordpress/base-styles/colors" as wp-colors;
+@use "~@wordpress/base-styles/mixins" as wp-mixins;
+@use "~@wordpress/base-styles/variables" as wp-vars;
+
+.newspack-blocks-reorder-modal {
+	&__body {
+		display: flex;
+		flex-direction: column;
+		min-height: calc(#{wp-vars.$grid-unit} * 23);
+	}
+
+	&__loading {
+		align-items: center;
+		display: flex;
+		flex: 1;
+		justify-content: center;
+	}
+
+	&__notice {
+		margin: 0 0 wp-vars.$grid-unit-10;
+	}
+
+	&__list {
+		display: flex;
+		flex-direction: column;
+		gap: wp-vars.$grid-unit-10;
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	&__item {
+		--newspack-blocks-reorder-divider: #{wp-colors.$gray-100};
+		--wp-ui-card-padding: #{wp-vars.$grid-unit-15};
+
+		align-items: stretch;
+		cursor: grab;
+		flex-direction: row;
+		margin: 0;
+
+		&:focus-within,
+		&:hover {
+			--newspack-blocks-reorder-divider: #{wp-colors.$gray-300};
+
+			border-color: wp-colors.$gray-300;
+		}
+
+		&.is-dragging {
+			cursor: grabbing;
+			opacity: 0.5;
+		}
+	}
+
+	&__grip {
+		align-items: center;
+		color: wp-colors.$gray-700;
+		display: flex;
+		padding-left: wp-vars.$grid-unit-05;
+	}
+
+	&__move {
+		align-items: center;
+		border-right: 1px solid var(--newspack-blocks-reorder-divider);
+		display: flex;
+		flex-direction: column;
+		padding: wp-vars.$grid-unit-05;
+	}
+
+	&__title {
+		@include wp-mixins.heading-large();
+
+		align-self: center;
+		flex: 1;
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	&__footer {
+		display: flex;
+		gap: wp-vars.$grid-unit-10;
+		justify-content: flex-end;
+		margin-top: auto;
+		padding-top: wp-vars.$grid-unit-30;
+	}
+}

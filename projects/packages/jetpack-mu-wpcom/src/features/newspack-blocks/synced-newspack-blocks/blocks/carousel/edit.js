@@ -148,6 +148,7 @@ class Edit extends Component {
 			postsToShow,
 			postType,
 			showCategory,
+			showTagLabels,
 			showDate,
 			showAuthor,
 			showAvatar,
@@ -339,6 +340,11 @@ class Edit extends Component {
 							onChange={ () => setAttributes( { showCategory: ! showCategory } ) }
 						/>
 						<ToggleControl
+							label={ __( 'Show tag labels', 'jetpack-mu-wpcom' ) }
+							checked={ showTagLabels }
+							onChange={ () => setAttributes( { showTagLabels: ! showTagLabels } ) }
+						/>
+						<ToggleControl
 							label={ __( 'Show author', 'jetpack-mu-wpcom' ) }
 							checked={ showAuthor }
 							onChange={ () => setAttributes( { showAuthor: ! showAuthor } ) }
@@ -392,6 +398,7 @@ class Edit extends Component {
 										</figure>
 										{ ( post.newspack_post_sponsors ||
 											showCategory ||
+											( showTagLabels && post.newspack_tag_labels ) ||
 											showTitle ||
 											showAuthor ||
 											showDate ||
@@ -407,6 +414,21 @@ class Edit extends Component {
 															( ! post.newspack_post_sponsors || post.newspack_sponsors_show_categories ) && (
 																<RawHTML>{ decodeEntities( post.newspack_category_info ) }</RawHTML>
 															) }
+													</div>
+												) }
+												{ showTagLabels && post.newspack_tag_labels && (
+													<div className="tag-labels">
+														{ post.newspack_tag_labels.map( ( newspack_tag_label, index ) => {
+															return newspack_tag_label.link ? (
+																<a key={ index } href="#" className="tag-label flag">
+																	{ newspack_tag_label.flag }
+																</a>
+															) : (
+																<span key={ index } className="tag-label flag">
+																	{ newspack_tag_label.flag }
+																</span>
+															);
+														} ) }
 													</div>
 												) }
 												{ showTitle && (
