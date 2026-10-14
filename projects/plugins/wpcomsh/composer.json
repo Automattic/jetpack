@@ -10,17 +10,17 @@
 		"automattic/text-media-widget-styles": "^2.0",
 		"automattic/wc-calypso-bridge": "^2.11.10",
 		"wordpress/classic-editor-plugin": "1.6.7",
-		"automattic/jetpack-autoloader": "@dev",
-		"automattic/jetpack-composer-plugin": "@dev",
-		"automattic/jetpack-config": "@dev",
-		"automattic/jetpack-post-list": "@dev",
-		"automattic/jetpack-mu-wpcom": "@dev",
+		"automattic/jetpack-autoloader": "^6.0.1",
+		"automattic/jetpack-composer-plugin": "^5.0.0",
+		"automattic/jetpack-config": "^4.0.0",
+		"automattic/jetpack-post-list": "^0.10.6",
+		"automattic/jetpack-mu-wpcom": "^6.11.0",
 		"tubalmartin/cssmin": "^4.1",
-		"automattic/jetpack-explat": "@dev"
+		"automattic/jetpack-explat": "^0.6.3"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
-		"automattic/phpunit-select-config": "@dev"
+		"automattic/phpunit-select-config": "^1.0.11"
 	},
 	"autoload": {
 		"classmap": [
@@ -56,20 +56,6 @@
 		"test-php-coverage": "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
 	},
 	"repositories": [
-		{
-			"type": "path",
-			"url": "../../packages/*",
-			"options": {
-				"monorepo": true,
-				"versions": {
-					"automattic/block-delimiter": "dev-trunk",
-					"automattic/jetpack-assets": "dev-trunk",
-					"automattic/jetpack-connection": "dev-trunk",
-					"automattic/jetpack-constants": "dev-trunk",
-					"automattic/jetpack-device-detection": "dev-trunk"
-				}
-			}
-		},
 		{
 			"name": "automattic/custom-fonts",
 			"type": "vcs",
