@@ -1,5 +1,5 @@
 {
-	"name": "jpa/visitors-by-location",
+	"name": "woocommerce-analytics/visitors-by-location",
 	"icon": "jpa/map-marker",
 	"title": "Store visitors by location",
 	"description": "See where your store visitors are located geographically.",
@@ -7,5 +7,6 @@
 		"content": "See where your store visitors are located geographically."
 	},
 	"category": "visitors",
-	"presentation": "framed"
+	"presentation": "framed",
+	"textdomain": "jetpack-woocommerce-stats-pkg"
 }

@@ -7,8 +7,9 @@
 }
 
 .toggle {
-	// The host's content box scrolls, which would clip the control's
-	// outward focus ring.
+
+	/* The host's content box scrolls and would clip the control's focus
+	ring. */
 	padding-block-start: var(--wpds-dimension-padding-xs);
 	padding-inline-end: var(--wpds-dimension-padding-xs);
 	align-self: start;

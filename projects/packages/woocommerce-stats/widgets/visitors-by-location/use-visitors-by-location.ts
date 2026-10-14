@@ -1,12 +1,12 @@
 /**
  * External dependencies
  */
-import { type ReportParams, useReportVisitorsByLocation } from '@jetpack-premium-analytics/data';
 import { useMemo } from 'react';
+import { useReportVisitorsByLocation } from '../../src/reports';
+import type { LocationRowInput, ReportParams } from '@automattic/jetpack-premium-analytics-sdk';
 /**
  * Internal dependencies
  */
-import type { LocationRowInput } from '../../components/locations';
 
 export type Region = 'US' | 'world';
 
@@ -35,9 +35,9 @@ const toEntries = ( items: readonly LocationItem[], region: Region ) =>
 /**
  * The visitors by location report of the region as location rows: US states, or countries.
  *
- * @param reportParams - The report params from the widget root.
- * @param region       - Which ranking to read.
- * @return The rows and the request status.
+ * @param {ReportParams} reportParams - The report params from the widget root.
+ * @param {Region}       region       - Which ranking to read.
+ * @return {object} The rows and the request status.
  */
 export function useVisitorsByLocation( reportParams: ReportParams, region: Region ) {
 	const usReport = useReportVisitorsByLocation( reportParams, {
@@ -52,8 +52,17 @@ export function useVisitorsByLocation( reportParams: ReportParams, region: Regio
 		limit: 15,
 	} );
 	const report = region === 'US' ? usReport : worldReport;
-	const { primary, comparison, hasComparison, isLoading, isFetching, hasData, isError, refetch } =
-		report;
+	const {
+		primary,
+		comparison,
+		hasComparison,
+		isLoading,
+		isFetching,
+		hasData,
+		isError,
+		error,
+		refetch,
+	} = report;
 
 	const rows = useMemo< LocationRowInput[] >( () => {
 		const previous = new Map(
@@ -65,5 +74,5 @@ export function useVisitorsByLocation( reportParams: ReportParams, region: Regio
 		} ) );
 	}, [ primary.data, comparison.data, region ] );
 
-	return { rows, hasComparison, isLoading, isFetching, hasData, isError, refetch };
+	return { rows, hasComparison, isLoading, isFetching, hasData, isError, error, refetch };
 }
