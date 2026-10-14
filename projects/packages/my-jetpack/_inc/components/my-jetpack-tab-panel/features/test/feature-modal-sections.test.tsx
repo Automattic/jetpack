@@ -141,6 +141,38 @@ describe( 'FeatureDelivery', () => {
 } );
 
 describe( 'FeaturePaid', () => {
+	it( 'offers no Upgrade or plan links for unavailable gated AI forced off', () => {
+		const state = resolveFeatureState(
+			{
+				...feature,
+				slug: 'jetpack-ai',
+				product: 'jetpack-ai',
+				upgrade: { path: '/add-ai', name: 'Jetpack AI' },
+			},
+			'active',
+			undefined,
+			{
+				ai: {
+					module: 'ai',
+					available: false,
+					unavailable_reason: 'Requires a connected WordPress.com account',
+					override: 'inactive',
+				} as never,
+			},
+			{}
+		);
+		expect( state.control.kind ).toBe( 'none' );
+		render(
+			<>
+				<FeaturePaid state={ state } />
+				<UpgradeButton state={ state } />
+			</>
+		);
+
+		expect( screen.queryByRole( 'link', { name: /Upgrade/ } ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /Included in/ ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'keeps Upgrade and plans when an unavailable module has no standalone plugin', () => {
 		const state = moduleState( false, 'inactive' );
 		if ( state.control.kind === 'module' ) {
@@ -370,44 +402,47 @@ describe( 'FeatureModal Free column', () => {
 		expect( screen.queryByRole( 'button', { name: /Activate/ } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'offers no Install, Upgrade or plan links for multisite-blocked Backup', () => {
-		const previous = window.JetpackScriptData;
-		window.JetpackScriptData = { site: { is_multisite: true } } as typeof previous;
-		try {
-			const state = resolveFeatureState(
-				{
-					...feature,
-					slug: 'backup',
-					name: 'VaultPress Backup',
-					module: 'backup',
-					plugin: 'jetpack-backup',
-					plugin_status: 'not-installed',
-					upgrade: { path: '/add-backup', name: 'VaultPress Backup' },
-				},
-				'active',
-				undefined,
-				{ backup: { module: 'backup', available: true, activated: false } as never },
-				{}
-			);
-			render(
-				<QueryClientProvider client={ new QueryClient() }>
-					<FeatureModal
-						state={ state }
-						position={ 1 }
-						total={ 1 }
-						onStep={ jest.fn() }
-						onClose={ jest.fn() }
-					/>
-				</QueryClientProvider>
-			);
-			expect( screen.getByText( 'Not available on multisite' ) ).toBeVisible();
-			expect( screen.queryByRole( 'button', { name: 'Install' } ) ).not.toBeInTheDocument();
-			expect( screen.queryByRole( 'link', { name: /Upgrade/ } ) ).not.toBeInTheDocument();
-			expect( screen.queryByText( /Included in/ ) ).not.toBeInTheDocument();
-		} finally {
-			window.JetpackScriptData = previous;
+	it.each( [ false, 'active' ] as const )(
+		'offers no Install, Upgrade or plan links for multisite-blocked Backup with override %s',
+		override => {
+			const previous = window.JetpackScriptData;
+			window.JetpackScriptData = { site: { is_multisite: true } } as typeof previous;
+			try {
+				const state = resolveFeatureState(
+					{
+						...feature,
+						slug: 'backup',
+						name: 'VaultPress Backup',
+						module: 'backup',
+						plugin: 'jetpack-backup',
+						plugin_status: 'not-installed',
+						upgrade: { path: '/add-backup', name: 'VaultPress Backup' },
+					},
+					'active',
+					undefined,
+					{ backup: { module: 'backup', available: true, activated: false, override } as never },
+					{}
+				);
+				render(
+					<QueryClientProvider client={ new QueryClient() }>
+						<FeatureModal
+							state={ state }
+							position={ 1 }
+							total={ 1 }
+							onStep={ jest.fn() }
+							onClose={ jest.fn() }
+						/>
+					</QueryClientProvider>
+				);
+				expect( screen.getByText( 'Not available on multisite' ) ).toBeVisible();
+				expect( screen.queryByRole( 'button', { name: 'Install' } ) ).not.toBeInTheDocument();
+				expect( screen.queryByRole( 'link', { name: /Upgrade/ } ) ).not.toBeInTheDocument();
+				expect( screen.queryByText( /Included in/ ) ).not.toBeInTheDocument();
+			} finally {
+				window.JetpackScriptData = previous;
+			}
 		}
-	} );
+	);
 
 	it( 'shows the Free column when the feature has free highlights', () => {
 		renderModal( modalState( [ 'Unlimited forms' ] ) );

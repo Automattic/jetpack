@@ -162,7 +162,7 @@ export function FeatureItem( {
 					{ migration?.notice ?? feature.description }
 				</Text>
 
-				{ ( unavailable || state.moduleUnavailableReason ) && reason && (
+				{ reason && (
 					<Text variant="body-sm" className={ styles[ 'install-notice' ] }>
 						{ reason }
 					</Text>
