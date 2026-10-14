@@ -21,6 +21,7 @@
 	],
 	"exports": {
 		"./components/*": "./_inc/components/*",
+		"./header-controls": "./_inc/components/header-controls/index.tsx",
 		"./header-data": "./_inc/header-data.ts"
 	},
 	"scripts": {

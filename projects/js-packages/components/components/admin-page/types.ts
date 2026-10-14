@@ -40,6 +40,12 @@ export type AdminPageProps = {
 	actions?: ReactNode;
 
 	/**
+	 * Jetpack-wide controls, such as the connection control, shown before the page's own `actions`.
+	 * Only rendered in the unified header.
+	 */
+	globalControls?: ReactNode;
+
+	/**
 	 * Breadcrumb navigation displayed next to the title in the unified header.
 	 */
 	breadcrumbs?: ReactNode;

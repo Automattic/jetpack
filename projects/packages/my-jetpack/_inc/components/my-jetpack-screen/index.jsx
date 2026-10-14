@@ -25,6 +25,7 @@ import useNotificationWatcher from '../../hooks/use-notification-watcher';
 import { useQueryParameter } from '../../hooks/use-query-parameter';
 import { useReplayPendingNotice } from '../../utils/pending-notice';
 import EvaluationRecommendations from '../evaluation-recommendations';
+import { getHeaderControls } from '../header-controls';
 import IDCModal from '../idc-modal';
 import { MyJetpackTabPanel } from '../my-jetpack-tab-panel';
 import { resolveMyJetpackSection } from '../my-jetpack-tab-panel/utils';
@@ -183,6 +184,7 @@ export default function MyJetpackScreen() {
 			apiRoot={ apiRoot }
 			apiNonce={ apiNonce }
 			title="Jetpack"
+			globalControls={ getHeaderControls() }
 			optionalMenuItems={ optionalMenuItems }
 			className={ styles[ 'my-jetpack-screen' ] }
 			showBottomBorder={ false }

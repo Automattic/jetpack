@@ -1,4 +1,5 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
+import { getHeaderControls } from '@automattic/jetpack-my-jetpack/header-controls';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import './boost-page.scss';
@@ -18,6 +19,7 @@ export default function BoostPage( { isSubpage, children, subpage, actions }: Pr
 			title="Boost"
 			subTitle={ __( 'Improve your site speed and performance.', 'jetpack-boost' ) }
 			actions={ actions }
+			globalControls={ getHeaderControls() }
 			apiRoot={ wpApiSettings.root }
 			apiNonce={ wpApiSettings.nonce }
 			showFooter={ ! isSubpage }
