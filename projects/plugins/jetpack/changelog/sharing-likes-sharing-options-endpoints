@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Sharing: Keep backslashes in the sharing label when changing sharing settings from WordPress.com or the Jetpack dashboard.

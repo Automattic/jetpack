@@ -350,7 +350,7 @@ describe( 'buildRequestData shipping', () => {
 		).toEqual( [ { type: 'FLAT', value: '0', additional_unit_value: '0' } ] );
 	} );
 
-	// The shipping toggle clears the attribute, so the builder sends it as it stands.
+	// The address is separate from shipping fees at PayPal, so it's sent with shipping off too.
 	it( 'sends the address preference whether or not shipping is on', () => {
 		expect( ship( { collectShippingAddress: true } ).collect_shipping_address ).toBe( true );
 		expect(

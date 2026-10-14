@@ -8,11 +8,11 @@ import {
 	type DataFormat,
 	type LeaderboardRowInput,
 } from '@automattic/jetpack-premium-analytics-sdk';
-import { useMemo, type ComponentProps } from 'react';
+import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import { useReportProducts, type FilterCondition } from '../reports';
+import { useProductImages, useReportProducts, type FilterCondition } from '../reports';
 
 /** How many products the report asks for, and how many rows the leaderboard shows. */
 const TOP_PRODUCTS_LIMIT = 5;
@@ -22,9 +22,6 @@ const CURRENCY_FORMAT: DataFormat = { type: 'currency', options: { useMultiplier
 type ProductLeaderboardProps = {
 	/** The product types the leaderboard ranks. */
 	filter: FilterCondition;
-	/** The icon of the empty state. */
-	emptyIcon: ComponentProps< typeof Leaderboard >[ 'empty' ][ 'icon' ];
-	emptyText: string;
 	errorText: string;
 };
 
@@ -35,12 +32,7 @@ type ProductLeaderboardProps = {
  * @param {ProductLeaderboardProps} props - The component props.
  * @return {JSX.Element} The leaderboard, or the loading, error or empty state of its report.
  */
-export function ProductLeaderboard( {
-	filter,
-	emptyIcon,
-	emptyText,
-	errorText,
-}: ProductLeaderboardProps ) {
+export function ProductLeaderboard( { filter, errorText }: ProductLeaderboardProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const params = useMemo(
 		() => ( { ...reportParams, filters: [ filter ] } ),
@@ -57,12 +49,18 @@ export function ProductLeaderboard( {
 		error,
 		refetch,
 	} = useReportProducts( params, TOP_PRODUCTS_LIMIT );
+	// The thumbnails follow the rows: the report paints as it answers, the images fill in behind.
+	const productIds = useMemo(
+		() => ( primary.data?.data ?? [] ).map( item => item.product_id ),
+		[ primary.data ]
+	);
+	const images = useProductImages( productIds, params );
 
 	const rows = useMemo< LeaderboardRowInput[] >( () => {
 		const previous = new Map(
 			( comparison.data?.data ?? [] ).map( item => [ item.product_id, item.product_net_revenue ] )
 		);
-		const images = primary.data?.images ?? {};
+		const imageById = images.primary.data ?? {};
 
 		return ( primary.data?.data ?? [] ).map( ( product, index ) => ( {
 			id: String( product.product_id || index ),
@@ -72,11 +70,11 @@ export function ProductLeaderboard( {
 			previousValue: previous.get( product.product_id ),
 			media: {
 				kind: 'thumbnail',
-				url: images[ product.product_id ]?.url || undefined,
-				alt: images[ product.product_id ]?.alt || product.product_name,
+				url: imageById[ product.product_id ]?.url || undefined,
+				alt: imageById[ product.product_id ]?.alt || product.product_name,
 			},
 		} ) );
-	}, [ primary.data, comparison.data ] );
+	}, [ primary.data, comparison.data, images.primary.data ] );
 
 	// The range may compare while no shown product carries over: no column then.
 	const hasVisibleComparison = hasComparison && rows.some( row => row.previousValue !== undefined );
@@ -86,14 +84,13 @@ export function ProductLeaderboard( {
 			rows={ rows }
 			status={ {
 				isLoading,
-				isFetching,
+				isFetching: isFetching || images.isFetching,
 				// The queries keep the previous range's data on screen, so an error only shows without it.
 				isError: isError && ! hasData,
 				hasComparison: hasVisibleComparison,
 				refetch,
 			} }
 			error={ describeError( error, { retryDescription: errorText, onRetry: refetch } ) }
-			empty={ { icon: emptyIcon, description: emptyText } }
 			maxRows={ TOP_PRODUCTS_LIMIT }
 			format={ CURRENCY_FORMAT }
 		/>

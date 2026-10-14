@@ -191,7 +191,7 @@ BODY;
 		$instagram_url = 'https://www.instagram.com/p/BnMO9vRleEx/';
 		$content       = '[instagram url="' . $instagram_url . '"]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringContainsString(
 			'<blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="' . $instagram_url,
@@ -268,7 +268,7 @@ BODY;
 		$instagram_url = 'https://www.instagram.com/p/BnMO9vRleEx/';
 		$content       = '[instagram url="' . $instagram_url . '"]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringContainsString(
 			'<blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="' . $instagram_url,
@@ -342,7 +342,7 @@ BODY;
 
 		$GLOBALS['content_width'] = self::CONTENT_WIDTH;
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
-		$this->assertEquals( $expected, do_shortcode( $shortcode_content ) );
+		$this->assertEquals( $expected, apply_shortcodes( $shortcode_content ) );
 	}
 
 	/**
@@ -358,7 +358,7 @@ BODY;
 	// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- PHPUnit 12.2 requires methods with data providers to have an exact param count match
 	public function test_shortcodes_instagram_non_amp( $shortcode_content, $expected ) {
 		add_filter( 'jetpack_is_amp_request', '__return_false' );
-		$this->assertStringNotContainsString( 'amp-instagram', do_shortcode( $shortcode_content ) );
+		$this->assertStringNotContainsString( 'amp-instagram', apply_shortcodes( $shortcode_content ) );
 	}
 
 	/**

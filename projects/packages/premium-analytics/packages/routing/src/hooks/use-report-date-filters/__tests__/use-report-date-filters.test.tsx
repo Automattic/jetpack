@@ -89,12 +89,23 @@ describe( 'useReportDateFilters', () => {
 
 	it( 'drops an unparseable URL date instead of an invalid picker Date', () => {
 		const { result } = renderDateFilters( {
-			from: '2026-07-01T00:00:00.000 02:00',
+			from: '2026-07-01T00:00:00.000+99:00',
 			to: '2026-07-30T23:59:59.999+00:00',
 		} );
 
 		expect( result.current.range.from ).toBeUndefined();
 		expect( result.current.range.to?.getTime() ).toBe( Date.parse( '2026-07-30T23:59:59.999Z' ) );
+	} );
+
+	// An unencoded `+` in a pasted link reaches the router as a space.
+	it( 'reads a URL date whose offset lost its plus to the querystring', () => {
+		const { result } = renderDateFilters( {
+			from: '2026-07-01T00:00:00.000 02:00',
+			to: '2026-07-30T23:59:59.999 02:00',
+		} );
+
+		expect( result.current.range.from?.getTime() ).toBe( Date.parse( '2026-06-30T22:00:00.000Z' ) );
+		expect( result.current.range.to?.getTime() ).toBe( Date.parse( '2026-07-30T21:59:59.999Z' ) );
 	} );
 
 	it( 'stages a primary edit and only commits it on Apply', () => {

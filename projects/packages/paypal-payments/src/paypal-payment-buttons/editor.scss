@@ -395,13 +395,12 @@
 	@extend %field-error-row;
 }
 
-// An amount field can show a hint too, so its error gets a span of its own
-// below the hint.
-.jetpack-paypal-payment-buttons__has-error .jetpack-paypal-payment-buttons__field-error {
+// The error goes below the field.
+.jetpack-paypal-payment-buttons__field-error {
 
 	@extend %field-error-row;
 
-	// Only when a hint sits above it.
+	// Only when a hint or a select is above it.
 	&:not(:first-child) {
 		margin-top: 8px;
 	}
@@ -629,6 +628,19 @@
 // it gets the default cursor. Two classes, so this outranks style.scss.
 .jetpack-paypal-button-preview__checkout-button.jetpack-paypal-button__checkout-link {
 	cursor: default;
+}
+
+// Gray until the block has a link. Repeated on hover, focus and active to
+// override the theme's button colors.
+.jetpack-paypal-button-preview__checkout-button.is-disabled {
+
+	&,
+	&:hover,
+	&:focus,
+	&:active {
+		background: #edf0f2;
+		color: rgba(0, 0, 0, 0.6);
+	}
 }
 
 // ---------------------------------------------------------------

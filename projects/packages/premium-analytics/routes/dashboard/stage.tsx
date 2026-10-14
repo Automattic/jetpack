@@ -38,6 +38,7 @@ import {
 	FeedbackBanner,
 	OnboardingTour,
 	onboardingTourSteps,
+	PlanLimitNotice,
 	RefreshFailureNotice,
 	SectionSyncNotice,
 	StatsSettingsPanel,
@@ -435,6 +436,8 @@ function Dashboard(): JSX.Element {
 
 										{ activeSection === section.slug ? (
 											<div className={ styles.body }>
+												{ ! editMode && <PlanLimitNotice /> }
+
 												{ /* Behind the onboarding journey: it introduces the tabs
 												     the banner asks about. */ }
 												<FeedbackBanner
