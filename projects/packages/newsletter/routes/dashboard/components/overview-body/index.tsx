@@ -1,5 +1,5 @@
 import { JetpackIcon } from '@automattic/jetpack-components';
-import { getScriptData } from '@automattic/jetpack-script-data';
+import { getScriptData, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -30,6 +30,9 @@ function OnboardingView(): JSX.Element {
 				displayName
 			)
 		: __( 'Welcome', 'jetpack-newsletter' );
+	const introTitle = isWpcomPlatformSite()
+		? __( 'Jetpack Newsletter on WordPress.com', 'jetpack-newsletter' )
+		: __( 'Jetpack Newsletter', 'jetpack-newsletter' );
 
 	return (
 		<Stack className="jetpack-newsletter-overview" gap="2xl" direction="column" align="flex-start">
@@ -55,7 +58,7 @@ function OnboardingView(): JSX.Element {
 								/>
 								<JetpackIcon className="jetpack-newsletter-overview__jetpack-icon" size={ 22 } />
 							</span>
-							{ __( 'Newsletters on WordPress.com', 'jetpack-newsletter' ) }
+							{ introTitle }
 						</Stack>
 					</Card.Title>
 				</Stack>
