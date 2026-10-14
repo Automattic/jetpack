@@ -435,6 +435,46 @@ describe( 'LocationsWidget', () => {
 			] );
 		} );
 
+		describe( 'on a plan without regions and cities', () => {
+			beforeEach( () => {
+				window.JetpackScriptData = {
+					premium_analytics: {
+						initial_full_sync_finished: 1,
+						plan_gates: {
+							tier: 'paid',
+							locked_features: { 'regions-cities': 'https://example.com/upgrade' },
+							locked_widget_types: {},
+						},
+					},
+				} as typeof window.JetpackScriptData;
+			} );
+
+			afterEach( () => {
+				delete window.JetpackScriptData;
+			} );
+
+			it.each( [ 'region', 'city' ] as const )(
+				'locks %s mode without requesting it',
+				geoGranularity => {
+					render( <LocationsWidget attributes={ { geoGranularity } } /> );
+
+					expect(
+						screen.getByRole( 'link', { name: /region and city stats/ } )
+					).toBeInTheDocument();
+					expect( mockUseLocationViews ).not.toHaveBeenCalled();
+				}
+			);
+
+			it( 'keeps countries but offers no drill-down into them', () => {
+				render( <LocationsWidget attributes={ {} } /> );
+
+				expect( screen.getByText( 'United States' ) ).toBeInTheDocument();
+				expect(
+					screen.queryByRole( 'button', { name: 'View regions in United States' } )
+				).not.toBeInTheDocument();
+			} );
+		} );
+
 		it( 'offers no drill-down in Cities mode', () => {
 			render( <LocationsWidget attributes={ { geoGranularity: 'city' } } /> );
 
