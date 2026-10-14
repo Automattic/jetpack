@@ -43,7 +43,7 @@ function VisitorsByLocation( { region }: VisitorsByLocationProps ): JSX.Element 
 		useVisitorsByLocation( reportParams, region );
 
 	return (
-		<Stack className={ styles.root } direction="column" gap="md">
+		<Stack className={ styles.root } direction="column">
 			<div className={ styles.locations }>
 				<Locations
 					valueLabel={ __( 'Store visitors', 'jetpack-woocommerce-stats-pkg' ) }
