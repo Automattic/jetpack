@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, _n, _x, sprintf } from '@wordpress/i18n';
 import { ButtonLink, Notice, Stack } from '@wordpress/ui';
+import { DifmOfferBanner, type DifmOffer } from '../difm-offer/difm-offer-banner.tsx';
 import { createAboutPage } from '../lib/about-page.ts';
 import { fireConfetti } from '../lib/confetti.ts';
 import { createContactPage } from '../lib/contact-page.ts';
@@ -126,6 +127,10 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 	const [ savedOnRetry, setSavedOnRetry ] = useState( false );
 	const [ retrying, setRetrying ] = useState( false );
 	const [ retryFailed, setRetryFailed ] = useState( false );
+	// The free DIFM offer under the task list; null when the server withholds it or the user dismisses it.
+	const [ difmOffer, setDifmOffer ] = useState< DifmOffer | null >(
+		() => initialData?.difm_offer ?? null
+	);
 	// Set once the server latches the list as done (here or elsewhere): celebrate, then hand off to the Dashboard.
 	const [ allDone, setAllDone ] = useState( false );
 
@@ -141,6 +146,7 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 			setTasks( initialData.tasks );
 			setAllDone( !! initialData.list_completed );
 			setOutput( initialData.ai_output?.payload ?? null );
+			setDifmOffer( initialData.difm_offer ?? null );
 			if ( initialData.site ) {
 				setSiteUrl( initialData.site.url ?? null );
 				setSiteTitle( initialData.site.title ?? null );
@@ -179,6 +185,7 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 				setSiteTitle( data.site.title != null ? decodeEntities( data.site.title ) : null );
 				setSiteEditUrl( data.site.edit_url ?? null );
 			}
+			setDifmOffer( data?.difm_offer ?? null );
 
 			let nextOutput: TailoredOutput | null = null;
 			let nextTasks: EnrichedTask[] = [];
@@ -495,6 +502,9 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 							{ __( 'Go to Dashboard now', 'jetpack-mu-wpcom' ) }
 						</ButtonLink>
 					</div>
+				) }
+				{ difmOffer && ! allDone && (
+					<DifmOfferBanner offer={ difmOffer } onDismiss={ () => setDifmOffer( null ) } />
 				) }
 			</Stack>
 		</Layout>

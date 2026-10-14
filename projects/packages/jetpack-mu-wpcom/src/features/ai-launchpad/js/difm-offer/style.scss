@@ -1,0 +1,69 @@
+// The "Copy Variations Banner" card from the Launchpad Figma frame: a
+// neutral surface with a thumbnail, the copy, and the call to action below
+// the copy.
+.ai-launchpad-difm-offer {
+	position: relative;
+	display: flex;
+	align-items: flex-start;
+	gap: 16px;
+	// The end padding keeps the text clear of the dismiss button:
+	// 8px offset, 24px button, 8px gap.
+	padding-block: 16px;
+	padding-inline: 24px 40px;
+	border-radius: 8px;
+	background: var(--wpds-color-background-surface-neutral-weak);
+
+	&__image {
+		flex-shrink: 0;
+		width: 80px;
+		height: 56px;
+		border-radius: 4px;
+		// The illustration is 260x192. Cover crops it to the thumbnail
+		// without distortion.
+		object-fit: cover;
+	}
+
+	&__body {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		min-width: 0;
+	}
+
+	// Explicit typography: wp-admin styles bare h2 and p elements.
+	&__title {
+		margin: 0;
+		padding: 0;
+		color: #1e1e1e;
+		font-size: 13px;
+		font-weight: 500;
+		line-height: 20px;
+	}
+
+	&__description {
+		margin: 0;
+		padding-block-start: 4px;
+		color: #646970;
+		font-size: 12px;
+		line-height: 16px;
+	}
+
+	// The CTA renders as a link; wp-admin's unlayered `a { color }` would win
+	// over its layered foreground color, so re-assert it with an unlayered rule.
+	&__cta {
+		margin-block-start: 12px;
+
+		&,
+		&:hover,
+		&:focus,
+		&:active {
+			color: var(--wp-ui-button-foreground-color, #1e1e1e);
+		}
+	}
+
+	&__dismiss {
+		position: absolute;
+		inset-block-start: 8px;
+		inset-inline-end: 8px;
+	}
+}

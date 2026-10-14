@@ -547,7 +547,8 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		}
 
 		// Testing aid: ?all_tasks=1 renders the whole catalog, independent of the persisted tailored output.
-		if ( $request instanceof WP_REST_Request && $request->get_param( 'all_tasks' ) ) {
+		$all_tasks = $request instanceof WP_REST_Request && $request->get_param( 'all_tasks' );
+		if ( $all_tasks ) {
 			$tasks = $this->apply_skipped_tasks( $this->build_all_catalog_tasks() );
 		} else {
 			$tasks = $this->get_current_tasks();
@@ -563,6 +564,12 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		}
 
 		$this->maybe_mark_completed();
+
+		// The client shows the wizard when there is no AI output and ?all_tasks=1 is off (decideInitialView()
+		// in js/lib/orchestration.ts). The banner never renders there, so skip the offer and its ExPlat
+		// assignment: a user who sees only the wizard must not count as exposed. The list reads this endpoint
+		// again once the wizard finishes, and that read carries the offer.
+		$shows_wizard = ! is_array( $ai_output ) && ! $all_tasks;
 
 		return array(
 			'wizard'             => is_array( $wizard ) ? $wizard : null,
@@ -587,6 +594,8 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 				'language'    => wpcom_ai_launchpad_site_locale(),
 				'copy'        => wpcom_ai_launchpad_site_copy(),
 			),
+			// The free DIFM offer banner under the task list, or null when it must not show.
+			'difm_offer'         => $shows_wizard ? null : AI_Launchpad_Difm_Offer::get_offer(),
 		);
 	}
 
