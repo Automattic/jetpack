@@ -2,7 +2,12 @@ import { test as base, expect } from '@automattic/_jetpack-e2e-commons/fixtures/
 import type { TestUtils } from '@automattic/_jetpack-e2e-commons/utils/index';
 import type { Locator, Page } from '@playwright/test';
 
-export type SiteState = { enabled: boolean; subscriptions: boolean; wordads: boolean };
+export type SiteState = {
+	enabled: boolean;
+	subscriptions: boolean;
+	wordads: boolean;
+	timezone?: string;
+};
 
 // The welcome dialog marks everything behind it inert, so specs start with onboarding done.
 const ONBOARDED_PREFERENCES =
@@ -20,9 +25,15 @@ const isOwn = ( text: string ) => OWN_URL_PARTS.some( part => text.includes( par
  * Puts the site in one dashboard state from scratch, so no spec depends on the one before it.
  *
  * @param testUtils - e2e-commons test utilities.
- * @param state     - Opt-in option and the modules that gate sections.
+ * @param state     - Opt-in option, the modules that gate sections, and the site timezone (UTC by default).
  */
 export async function setSiteState( testUtils: TestUtils, state: SiteState ) {
+	await testUtils.executeWpCommand( [
+		'option',
+		'update',
+		'timezone_string',
+		state.timezone ?? 'UTC',
+	] );
 	await testUtils.executeWpCommand(
 		`option update jetpack_premium_analytics_enabled ${ state.enabled ? 1 : 0 }`
 	);
