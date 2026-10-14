@@ -228,7 +228,7 @@ export function resolveFeatureState(
 		feature.plugin_override !== 'inactive' &&
 		( ! accountModule ||
 			( accountModule.override !== 'inactive' &&
-				! getModuleStatus( accountModule ).isMultisiteBlocked ) );
+				! getModuleStatus( { ...accountModule, override: false } ).isMultisiteBlocked ) );
 	if (
 		needsAccount &&
 		connectionCanHelp &&

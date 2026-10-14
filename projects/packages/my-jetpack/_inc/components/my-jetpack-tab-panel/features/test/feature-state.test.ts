@@ -506,6 +506,7 @@ describe( 'account-dependent features', () => {
 		[ 'plugin forced on', 'publicize', 'social', 'active', false, false, 'connect-account' ],
 		[ 'module forced on', 'publicize', 'social', '', 'active', false, 'connect-account' ],
 		[ 'multisite', 'backup', 'backup', '', false, true, 'module' ],
+		[ 'module forced on, multisite', 'backup', 'backup', '', 'active', true, 'module' ],
 	] as const )(
 		'handles account connection with %s',
 		( _name, module, product, plugin_override, override, is_multisite, kind ) => {
