@@ -13,9 +13,8 @@ namespace Automattic\Jetpack\WP_Abilities;
 /**
  * Abstract base class that owns the boilerplate every Jetpack abilities
  * registrar needs: hooking into the Abilities API lifecycle actions (or
- * calling the registration methods directly when those actions have already
- * fired), and guarding the Abilities API function calls so the class is safe
- * to load on WP < 6.9.
+ * registering right away when `init()` runs inside one of them), and guarding
+ * the Abilities API function calls so the class is safe to load on WP < 6.9.
  *
  * Consumers extend this class and override `get_category_slug()`,
  * `get_category_definition()`, and `get_abilities()`.
@@ -69,10 +68,11 @@ abstract class Registrar {
 	 * feature flag — so abilities roll out gradually rather than flipping on
 	 * for every site the moment the package loads.
 	 *
-	 * When the filter returns `true`, each of the two Abilities API lifecycle
-	 * actions gets a registration callback hooked. An action that has already
-	 * fired is flagged with `_doing_it_wrong()` instead, because WordPress
-	 * rejects registrations made outside it.
+	 * When the filter returns `true`, each registration method runs inside its
+	 * lifecycle action: right away if `init()` is called while that action
+	 * runs, otherwise from a hook. WordPress rejects registrations outside
+	 * those actions, so a call after they fired, such as from a module
+	 * switched on mid-request, registers nothing until the next request.
 	 *
 	 * @return void
 	 */
@@ -92,41 +92,26 @@ abstract class Registrar {
 			return;
 		}
 
-		if ( did_action( self::CATEGORIES_INIT_ACTION ) ) {
-			self::flag_late_init( self::CATEGORIES_INIT_ACTION );
+		if ( doing_action( self::CATEGORIES_INIT_ACTION ) ) {
+			static::register_category();
 		} else {
 			add_action( self::CATEGORIES_INIT_ACTION, array( static::class, 'register_category' ) );
 		}
 
-		if ( did_action( self::ABILITIES_INIT_ACTION ) ) {
-			self::flag_late_init( self::ABILITIES_INIT_ACTION );
+		if ( doing_action( self::ABILITIES_INIT_ACTION ) ) {
+			static::register_abilities();
 		} else {
 			add_action( self::ABILITIES_INIT_ACTION, array( static::class, 'register_abilities' ) );
 		}
 	}
 
 	/**
-	 * Flag an `init()` that runs after a lifecycle action, so the missing registrations aren't silent.
-	 *
-	 * @param string $action The lifecycle action that already fired.
-	 * @return void
-	 */
-	private static function flag_late_init( string $action ) {
-		$message = sprintf(
-			/* translators: %s: name of a WordPress action, such as wp_abilities_api_init. */
-			__( 'Call init() before WordPress fires %s, for example on plugins_loaded. WordPress rejects registrations after it, so nothing was registered for it.', 'jetpack-wp-abilities' ),
-			$action
-		);
-		// One line, so the release tooling replaces the version token.
-		_doing_it_wrong( esc_html( static::class . '::init' ), esc_html( $message ), '$$next-version$$' );
-	}
-
-	/**
 	 * Register the category with the WordPress Abilities API.
 	 *
-	 * Safe to call directly or as a hook callback. Passes the category slug
-	 * through the `jetpack_wp_abilities_should_register` filter so consumers
-	 * can gate registration per-site, per-user, or per-feature-flag.
+	 * `init()` runs it during `wp_abilities_api_categories_init`, the only
+	 * time WordPress accepts a category. Passes the category slug through
+	 * the `jetpack_wp_abilities_should_register` filter so consumers can gate
+	 * registration per-site, per-user, or per-feature-flag.
 	 *
 	 * @return void
 	 */
@@ -146,10 +131,11 @@ abstract class Registrar {
 	/**
 	 * Register every ability returned by `get_abilities()`.
 	 *
-	 * Safe to call directly or as a hook callback. Each ability slug is
-	 * passed through the `jetpack_wp_abilities_should_register` filter
-	 * individually, so consumers can enable a subset of abilities on a
-	 * subset of sites or users.
+	 * `init()` runs it during `wp_abilities_api_init`, the only time
+	 * WordPress accepts an ability. Each ability slug is passed through the
+	 * `jetpack_wp_abilities_should_register` filter individually, so
+	 * consumers can enable a subset of abilities on a subset of sites or
+	 * users.
 	 *
 	 * @return void
 	 */
