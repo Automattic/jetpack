@@ -24,14 +24,14 @@
  *
  * Served the retired gating, and has no callers left.
  *
- * @deprecated $$next-version$$ The gating it served is retired.
+ * @deprecated 6.11.0 The gating it served is retired.
  *
  * @param string $sticker The sticker name to check.
  * @param int    $blog_id The blog ID to check.
  * @return bool
  */
 function wpcom_forms_has_blog_sticker( $sticker, $blog_id ) {
-	_deprecated_function( __FUNCTION__, 'jetpack-mu-wpcom-$$next-version$$' );
+	_deprecated_function( __FUNCTION__, 'jetpack-mu-wpcom-6.11.0' );
 
 	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC && function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
 		return (bool) wpcomsh_is_site_sticker_active( $sticker );
@@ -45,13 +45,13 @@ function wpcom_forms_has_blog_sticker( $sticker, $blog_id ) {
 /**
  * Check if Central Forms Management is enabled for a given blog.
  *
- * @deprecated $$next-version$$ Central Forms Management is enabled for every site.
+ * @deprecated 6.11.0 Central Forms Management is enabled for every site.
  *
  * @param int|null $blog_id Blog ID. Unused.
  * @return bool Always true.
  */
 function wpcom_is_central_forms_management_enabled( $blog_id = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Signature kept for existing callers.
-	_deprecated_function( __FUNCTION__, 'jetpack-mu-wpcom-$$next-version$$' );
+	_deprecated_function( __FUNCTION__, 'jetpack-mu-wpcom-6.11.0' );
 
 	return true;
 }
@@ -59,10 +59,10 @@ function wpcom_is_central_forms_management_enabled( $blog_id = null ) { // phpcs
 /**
  * No-op kept so existing callers do not fatal.
  *
- * @deprecated $$next-version$$ Nothing disables Central Forms Management any more.
+ * @deprecated 6.11.0 Nothing disables Central Forms Management any more.
  */
 function wpcom_maybe_disable_central_forms_management() {
-	_deprecated_function( __FUNCTION__, 'jetpack-mu-wpcom-$$next-version$$' );
+	_deprecated_function( __FUNCTION__, 'jetpack-mu-wpcom-6.11.0' );
 }
 
 /**
@@ -72,13 +72,13 @@ function wpcom_maybe_disable_central_forms_management() {
  * hooked: the Forms package already defaults the flag to true, so filtering here only
  * ever restated the default.
  *
- * @deprecated $$next-version$$ The Forms package supplies the default.
+ * @deprecated 6.11.0 The Forms package supplies the default.
  *
  * @param array $flags Existing feature flags.
  * @return array Flags, unchanged.
  */
 function wpcom_contact_form_set_editor_feature_flags( $flags ) {
-	_deprecated_function( __FUNCTION__, 'jetpack-mu-wpcom-$$next-version$$' );
+	_deprecated_function( __FUNCTION__, 'jetpack-mu-wpcom-6.11.0' );
 
 	return $flags;
 }
