@@ -2,6 +2,7 @@ export { useBarChartOptions } from './use-bar-chart-options';
 export { TruncatedXTickComponent, TruncatedYTickComponent } from './truncated-tick-component';
 export { default as ClassifiedBarSeries } from './classified-bar-series';
 export { ComparisonBars } from './comparison-bars';
+export { ComparisonLines } from './comparison-lines';
 export { OverlapBarSeries } from './overlap-bar-series';
 export type { ComparisonSeriesEntry } from './comparison-bars';
 export {

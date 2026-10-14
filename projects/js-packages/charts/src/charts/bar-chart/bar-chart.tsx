@@ -37,6 +37,7 @@ import {
 	BandTooltip,
 	ClassifiedBarSeries,
 	ComparisonBars,
+	ComparisonLines,
 	DEFAULT_COMPARISON_WIDTH_FACTOR,
 	COMPARISON_INNER_GAP,
 	MAX_GROUP_PADDING,
@@ -818,6 +819,13 @@ const BarChartInternal: FC< BarChartProps > = ( {
 													) ) }
 												</BarGroup>
 											) ) }
+										{ overlap && (
+											<ComparisonLines
+												comparisons={ overlap.comparisons }
+												data={ dataSorted }
+												xAccessor={ chartOptions.accessors.xAccessor }
+											/>
+										) }
 										{ /* Do not reorder: for one key the last showTooltip wins, so this must run after the primary series. */ }
 										{ ( withTooltips || onPointerDown || onPointerUp ) && (
 											<BandTooltip

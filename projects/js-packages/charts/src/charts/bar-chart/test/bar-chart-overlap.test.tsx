@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider } from '../../../providers';
 import { firePointer, stubScreenTransform } from '../../../test-utils/pointer';
 import BarChart from '../bar-chart';
+import { COMPARISON_MARKER_SIZE } from '../private/overlap-constants';
 import { useBarOverlapStyles } from '../use-bar-overlap-styles';
 
 // Mock useElementSize to return non-zero dimensions in jsdom so charts render
@@ -25,6 +26,18 @@ const visitors = {
 	group: 'visitors',
 	options,
 	data: makePoints( [ 120, 90, 100 ] ),
+};
+const viewsPrev = {
+	label: 'Views prev',
+	group: 'views',
+	options: { type: 'comparison' as const },
+	data: makePoints( [ 280, 0, 260 ] ),
+};
+const visitorsPrev = {
+	label: 'Visitors prev',
+	group: 'visitors',
+	options: { type: 'comparison' as const },
+	data: makePoints( [ 110, null, 95 ] ),
 };
 
 const renderWithTheme = ( props = {} ) =>
@@ -83,6 +96,45 @@ describe( 'BarChart overlap layout', () => {
 			'height',
 			'NaN'
 		);
+	} );
+
+	it( 'draws previous periods as neutral cased lines with a marker per reading', () => {
+		renderWithTheme( {
+			data: [ views, visitors, viewsPrev, visitorsPrev ],
+			layout: 'overlap',
+			showZeroValues: true,
+		} );
+
+		const line = screen.getByTestId( 'bar-chart-comparison-line-Views prev' );
+		expect( line ).toHaveAttribute( 'stroke', 'var(--a8c-charts-color-comparison-line, #1e1e1e)' );
+		expect( line ).toHaveAttribute( 'stroke-dasharray', '4 4' );
+		// Casing is off by default (COMPARISON_LINE_CASING = 0).
+		expect(
+			screen.queryByTestId( 'bar-chart-comparison-casing-Views prev' )
+		).not.toBeInTheDocument();
+		expect( screen.getByTestId( 'bar-chart-comparison-marker-Views prev-0' ).tagName ).toBe(
+			'rect'
+		);
+		expect( screen.getByTestId( 'bar-chart-comparison-marker-Visitors prev-0' ).tagName ).toBe(
+			'circle'
+		);
+		expect(
+			screen.queryByTestId( 'bar-chart-comparison-marker-Visitors prev-1' )
+		).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'bar-chart-comparison-bars' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'plots a zero reading at zero, not at the zero-value stub', () => {
+		renderWithTheme( {
+			data: [ views, visitors, viewsPrev, visitorsPrev ],
+			layout: 'overlap',
+			showZeroValues: true,
+		} );
+		// views[1] is 200, so its outer bar runs from y to the baseline.
+		const outer = screen.getByTestId( 'bar-chart-overlap-outer-1' );
+		const baseline = Number( outer.getAttribute( 'y' ) ) + Number( outer.getAttribute( 'height' ) );
+		const marker = screen.getByTestId( 'bar-chart-comparison-marker-Views prev-1' );
+		expect( Number( marker.getAttribute( 'y' ) ) + COMPARISON_MARKER_SIZE ).toBeCloseTo( baseline );
 	} );
 
 	it( 'outlines the narrow inner bar when the keyboard lands on it', async () => {
