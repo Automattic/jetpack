@@ -981,14 +981,14 @@ class Initializer {
 	}
 
 	/**
-	 * Whether the Overview v1 cards replace today's product cards.
+	 * Whether My Jetpack shows Overview v1.
 	 *
 	 * @since $$next-version$$
 	 * @return bool
 	 */
 	public static function is_overview_v1_enabled() {
 		/**
-		 * Show the Overview v1 cards on My Jetpack while they are being built.
+		 * Filters whether My Jetpack shows Overview v1.
 		 *
 		 * @since $$next-version$$
 		 * @param bool $enabled Whether to show Overview v1. Default false.
