@@ -8,7 +8,7 @@ import {
 	type DataFormat,
 	type LeaderboardRowInput,
 } from '@automattic/jetpack-premium-analytics-sdk';
-import { useMemo, type ComponentProps } from 'react';
+import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
@@ -22,9 +22,6 @@ const CURRENCY_FORMAT: DataFormat = { type: 'currency', options: { useMultiplier
 type ProductLeaderboardProps = {
 	/** The product types the leaderboard ranks. */
 	filter: FilterCondition;
-	/** The icon of the empty state. */
-	emptyIcon: ComponentProps< typeof Leaderboard >[ 'empty' ][ 'icon' ];
-	emptyText: string;
 	errorText: string;
 };
 
@@ -35,12 +32,7 @@ type ProductLeaderboardProps = {
  * @param {ProductLeaderboardProps} props - The component props.
  * @return {JSX.Element} The leaderboard, or the loading, error or empty state of its report.
  */
-export function ProductLeaderboard( {
-	filter,
-	emptyIcon,
-	emptyText,
-	errorText,
-}: ProductLeaderboardProps ) {
+export function ProductLeaderboard( { filter, errorText }: ProductLeaderboardProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const params = useMemo(
 		() => ( { ...reportParams, filters: [ filter ] } ),
@@ -93,7 +85,6 @@ export function ProductLeaderboard( {
 				refetch,
 			} }
 			error={ describeError( error, { retryDescription: errorText, onRetry: refetch } ) }
-			empty={ { icon: emptyIcon, description: emptyText } }
 			maxRows={ TOP_PRODUCTS_LIMIT }
 			format={ CURRENCY_FORMAT }
 		/>
