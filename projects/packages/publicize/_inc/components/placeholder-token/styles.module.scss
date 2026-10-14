@@ -1,0 +1,7 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+
+// Set both colors so a global `code` rule can't leave the token unreadable.
+.placeholder-token {
+	background-color: gb.$gray-100;
+	color: gb.$gray-900;
+}

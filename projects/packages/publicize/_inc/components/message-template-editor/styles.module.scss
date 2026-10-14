@@ -5,9 +5,4 @@
 	textarea:disabled {
 		background-color: gb.$gray-100;
 	}
-
-	:global(.components-base-control__help) code {
-		background: gb.$gray-100;
-		color: gb.$gray-900;
-	}
 }
