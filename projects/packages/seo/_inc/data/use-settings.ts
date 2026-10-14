@@ -3,8 +3,10 @@ import { select, useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
-import { buildCorePayload, buildModulesPayload } from './build-payload';
+import { buildCorePayload, buildModulesPayload, readCoreResponse } from './build-payload';
+import { recordSeoEvent } from './record-seo-event';
 import { settingsStore } from './settings-store';
+import { VERIFICATION_KEYS } from './verification-services';
 import type { SchemaSettings } from './schema-settings-types';
 import type { SettingsResponse, VerificationKey } from './settings-types';
 
@@ -12,6 +14,65 @@ import type { SettingsResponse, VerificationKey } from './settings-types';
 // in place by "Settings saved." (or an error) — mirrors the Jetpack → Settings
 // page's two-stage toast.
 const SAVE_NOTICE_ID = 'jetpack-seo-settings-save';
+
+/** Tracks props for one changed setting; `none` stands in for N/A. */
+type SettingChange = {
+	setting: string;
+	verification_service: string;
+	setting_value: string | boolean;
+};
+
+// The Tracks name of each setting a save can send, keyed by its form field.
+const TRACKED_SETTINGS = {
+	front_page_description: 'front_page_description',
+	title_formats: 'title_formats',
+	search_engines_visible: 'search_engines_visible',
+	sitemap_active: 'sitemap',
+	canonical_active: 'canonical',
+	verification_tools_active: 'verification_tools',
+	verification: 'site_verification',
+} as const;
+
+type TrackedField = keyof typeof TRACKED_SETTINGS;
+
+/** A setting a save sends, and whether the module route carries it. */
+type SentSetting = { field: TrackedField; viaModules: boolean; props: SettingChange };
+
+/**
+ * One Tracks payload per setting this save sends, so co-firing can't inflate the
+ * distinct-site metric. Text settings report `none`, never their content.
+ *
+ * @param baseline - The last-saved values.
+ * @param values   - The values being saved.
+ * @return One entry per sent setting.
+ */
+function sentSettings( baseline: SettingsResponse, values: SettingsResponse ): SentSetting[] {
+	return ( Object.keys( TRACKED_SETTINGS ) as TrackedField[] ).flatMap( field => {
+		// A payload built from this field alone tells whether, and where, build-payload sends it.
+		const alone = { ...baseline, [ field ]: values[ field ] };
+		const viaModules = Object.keys( buildModulesPayload( baseline, alone ) ).length > 0;
+		if ( ! viaModules && Object.keys( buildCorePayload( baseline, alone ) ).length === 0 ) {
+			return [];
+		}
+
+		const sent = ( value: string | boolean, service = 'none' ): SentSetting => ( {
+			field,
+			viaModules,
+			props: {
+				setting: TRACKED_SETTINGS[ field ],
+				verification_service: service,
+				setting_value: value,
+			},
+		} );
+		if ( field === 'verification' ) {
+			return VERIFICATION_KEYS.filter(
+				key => baseline.verification[ key ] !== values.verification[ key ]
+			).map( key => sent( values.verification[ key ] ? 'set' : 'cleared', key ) );
+		}
+		const value = values[ field ];
+		return [ sent( typeof value === 'boolean' ? value : 'none' ) ];
+	} );
+}
 
 // The package's own settings read, re-fetched after every save so the form shows
 // what the server actually stored — including a value it refused and the
@@ -181,6 +242,26 @@ export function useSettingsForm(): SettingsForm {
 			const touched = ( Object.keys( values ) as Array< keyof SettingsResponse > ).filter(
 				field => JSON.stringify( values[ field ] ) !== JSON.stringify( baseline[ field ] )
 			);
+			const settings = sentSettings( baseline, values );
+			// What landed: core's settings write reports what it stored, and the module
+			// route lists what it applied, even when it fails partway.
+			let coreSaved = false;
+			let coreStored: Partial< SettingsResponse > = {};
+			let modulesApplied: string[] = [];
+			// Core answers 200 even when a sanitizer kept the old value, so a setting
+			// counts only once its stored value moved off the baseline.
+			const storedInCore = ( { field, props }: SentSetting ): boolean => {
+				if ( ! coreSaved ) {
+					return false;
+				}
+				if ( ! ( field in coreStored ) ) {
+					return true;
+				}
+				const key = props.verification_service as VerificationKey;
+				return field === 'verification'
+					? coreStored.verification?.[ key ] !== baseline.verification[ key ]
+					: JSON.stringify( coreStored[ field ] ) !== JSON.stringify( baseline[ field ] );
+			};
 
 			setIsSaving( true );
 			createInfoNotice( __( 'Updating settings…', 'jetpack-seo' ), {
@@ -199,12 +280,19 @@ export function useSettingsForm(): SettingsForm {
 						? apiFetch( { path: CORE_SETTINGS_PATH, method: 'POST', data: corePayload } )
 						: undefined
 				)
-				.then( () =>
-					Object.keys( modulesPayload ).length > 0
-						? apiFetch( { path: SEO_MODULES_PATH, method: 'POST', data: modulesPayload } )
-						: undefined
-				)
-				.then( () => {
+				.then( response => {
+					coreSaved = true;
+					coreStored = readCoreResponse( response );
+					return Object.keys( modulesPayload ).length > 0
+						? apiFetch< Record< string, boolean > >( {
+								path: SEO_MODULES_PATH,
+								method: 'POST',
+								data: modulesPayload,
+							} )
+						: undefined;
+				} )
+				.then( applied => {
+					modulesApplied = Object.keys( applied ?? {} );
 					// Adopt what we asked for; `adoptServerState()` below then corrects it
 					// wherever the server reports something else. Skipped on failure, where
 					// only the server knows what landed.
@@ -215,12 +303,30 @@ export function useSettingsForm(): SettingsForm {
 						type: 'snackbar',
 					} );
 				} )
-				.catch( ( error: { message?: string } ) => {
+				.catch( ( error: { message?: string; data?: { applied?: Record< string, boolean > } } ) => {
+					modulesApplied = Object.keys( error?.data?.applied ?? {} );
 					createErrorNotice(
 						error?.message ?? __( 'Could not save settings. Please try again.', 'jetpack-seo' ),
 						{ id: SAVE_NOTICE_ID, type: 'snackbar' }
 					);
 				} )
+				// Recorded before the re-read, which can take seconds, so leaving the page
+				// straight after a save doesn't lose the event.
+				.then( () =>
+					settings.forEach( setting =>
+						recordSeoEvent(
+							(
+								setting.viaModules
+									? modulesApplied.includes( setting.field )
+									: storedInCore( setting )
+							)
+								? 'jetpack_seo_setting_updated'
+								: 'jetpack_seo_setting_update_failed',
+							'settings',
+							setting.props
+						)
+					)
+				)
 				// Either way — including a save that failed with its first request already
 				// committed — the form is reconciled with the server before the controls
 				// unlock, so `isSaving` also serializes this against the next save.
