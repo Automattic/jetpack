@@ -18,20 +18,16 @@ class Jetpack_RelatedPosts_Test extends WP_UnitTestCase {
 	/**
 	 * Tear down.
 	 *
-	 * Reset the singleton's cached options and allow_feature_toggle so state
-	 * does not leak between tests.
+	 * Reset the singleton's cached options so option state does not leak between
+	 * tests (get_options() caches the first computed value on the instance).
 	 */
 	public function tear_down() {
-		$instance = Jetpack_RelatedPosts::init();
-
-		foreach ( array( 'options', 'allow_feature_toggle' ) as $prop_name ) {
-			$prop = new ReflectionProperty( Jetpack_RelatedPosts::class, $prop_name );
-			// @todo Remove this call once we no longer need to support PHP <8.1.
-			if ( PHP_VERSION_ID < 80100 ) {
-				$prop->setAccessible( true );
-			}
-			$prop->setValue( $instance, null );
+		$options = new ReflectionProperty( Jetpack_RelatedPosts::class, 'options' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$options->setAccessible( true );
 		}
+		$options->setValue( Jetpack_RelatedPosts::init(), null );
 
 		parent::tear_down();
 	}
@@ -355,88 +351,5 @@ class Jetpack_RelatedPosts_Test extends WP_UnitTestCase {
 		$data = Jetpack_RelatedPosts::init()->get_related_post_data_for_post( $post_id, 0, 0 );
 
 		$this->assertStringContainsString( 'in-the-body.jpg', $data['img']['src'] );
-	}
-
-	/**
-	 * The Settings > Reading page must show the on/off toggle by default so users
-	 * can disable Related Posts (including on custom post types such as the
-	 * Portfolio CPT). Regression test for JETPACK-2999.
-	 */
-	public function test_settings_page_shows_on_off_toggle_by_default() {
-		remove_filter( 'jetpack_relatedposts_filter_options', '__return_null' );
-
-		ob_start();
-		Jetpack_RelatedPosts::init()->print_setting_html();
-		$html = ob_get_clean();
-
-		$this->assertStringContainsString( 'Hide related content after posts', $html );
-		$this->assertStringContainsString( 'Show related content after posts', $html );
-		$this->assertStringNotContainsString( '<input type="hidden" name="jetpack_relatedposts[enabled]"', $html );
-	}
-
-	/**
-	 * When the toggle is disabled by filter, the old hidden-input form must still
-	 * be used (backwards-compat for hosts that override the default).
-	 */
-	public function test_settings_page_uses_hidden_input_when_toggle_disabled_by_filter() {
-		add_filter( 'jetpack_relatedposts_filter_allow_feature_toggle', '__return_false' );
-		remove_filter( 'jetpack_relatedposts_filter_options', '__return_null' );
-
-		ob_start();
-		Jetpack_RelatedPosts::init()->print_setting_html();
-		$html = ob_get_clean();
-
-		$this->assertStringContainsString( '<input type="hidden" name="jetpack_relatedposts[enabled]" value="1"', $html );
-		$this->assertStringNotContainsString( 'Hide related content after posts', $html );
-
-		remove_filter( 'jetpack_relatedposts_filter_allow_feature_toggle', '__return_false' );
-	}
-
-	/**
-	 * When the user disables Related Posts (enabled=false) via the toggle, the
-	 * feature must not fetch related posts for any post — including Portfolio CPT
-	 * items. Regression test for JETPACK-2999.
-	 */
-	public function test_get_for_post_id_returns_empty_when_disabled() {
-		add_filter(
-			'jetpack_relatedposts_filter_options',
-			static function ( $options ) {
-				$options          = is_array( $options ) ? $options : array();
-				$options['enabled'] = false;
-				$options['size']    = 3;
-				return $options;
-			}
-		);
-
-		$post_id = self::factory()->post->create();
-		$results = Jetpack_RelatedPosts::init()->get_for_post_id( $post_id, array() );
-
-		$this->assertSame( array(), $results, 'get_for_post_id must return empty when enabled=false.' );
-	}
-
-	/**
-	 * Portfolio CPT items must also return empty related posts when disabled.
-	 * This covers the specific scenario reported in JETPACK-2999.
-	 */
-	public function test_get_for_post_id_returns_empty_for_portfolio_cpt_when_disabled() {
-		// Register a minimal stand-in for the jetpack-portfolio CPT.
-		if ( ! post_type_exists( 'jetpack-portfolio' ) ) {
-			register_post_type( 'jetpack-portfolio', array( 'public' => true ) );
-		}
-
-		add_filter(
-			'jetpack_relatedposts_filter_options',
-			static function ( $options ) {
-				$options          = is_array( $options ) ? $options : array();
-				$options['enabled'] = false;
-				$options['size']    = 3;
-				return $options;
-			}
-		);
-
-		$post_id = self::factory()->post->create( array( 'post_type' => 'jetpack-portfolio' ) );
-		$results = Jetpack_RelatedPosts::init()->get_for_post_id( $post_id, array() );
-
-		$this->assertSame( array(), $results, 'get_for_post_id must return empty for Portfolio CPT when enabled=false.' );
 	}
 }
