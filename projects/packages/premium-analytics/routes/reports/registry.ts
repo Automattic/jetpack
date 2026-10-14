@@ -15,7 +15,7 @@ import { resolveSection as resolveLocationsSection } from './locations/config/ta
 import { resolveTabId } from './posts/config/tabs';
 import { resolveSection as resolveUtmSection } from './utm/config/tabs';
 import type { DashboardSectionSlug } from '../site-readiness';
-import type { StatsFeatureKey } from '@jetpack-premium-analytics/widgets-toolkit';
+import type { StatsFeatureKey } from '@jetpack-premium-analytics/data';
 import type { ComponentType } from 'react';
 
 /**

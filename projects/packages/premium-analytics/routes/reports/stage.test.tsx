@@ -1,8 +1,11 @@
 /**
  * External dependencies
  */
-import { ReportScopeProvider, useReportScope } from '@jetpack-premium-analytics/data';
-import { isStatsFeatureLocked } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	isStatsFeatureLocked,
+	ReportScopeProvider,
+	useReportScope,
+} from '@jetpack-premium-analytics/data';
 import { render, renderHook, screen } from '@testing-library/react';
 /**
  * Internal dependencies
@@ -14,6 +17,7 @@ import type { ReactNode } from 'react';
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
 	AnalyticsQueryClientProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
+	isStatsFeatureLocked: jest.fn( () => false ),
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/externals', () => ( {
@@ -24,7 +28,6 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	ChartsProvider: ( { children }: { children: ReactNode } ) => (
 		<div data-testid="charts-provider">{ children }</div>
 	),
-	isStatsFeatureLocked: jest.fn( () => false ),
 } ) );
 
 jest.mock( './locked-report-page', () => ( {

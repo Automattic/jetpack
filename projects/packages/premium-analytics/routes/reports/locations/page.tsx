@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { usePrefetchViewerCountry } from '@jetpack-premium-analytics/data';
+import { isStatsFeatureLocked, usePrefetchViewerCountry } from '@jetpack-premium-analytics/data';
 import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
@@ -13,7 +13,6 @@ import {
 	ReportPageShell,
 	ReportPageTabs,
 	ReportRecordsTable,
-	isStatsFeatureLocked,
 	LockedPage,
 	locationsCsvExporter,
 	supportsLocationsCountryFilter,

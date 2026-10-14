@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { getLockedWidgetFeature } from '@jetpack-premium-analytics/widgets-toolkit';
+import { getLockedWidgetFeature } from '@jetpack-premium-analytics/data';
 /**
  * Internal dependencies
  */
@@ -11,9 +11,13 @@ import {
 	withPlanLockedRenderModules,
 } from './plan-locked-widgets';
 import type { WidgetType } from '@wordpress/widget-primitives';
+import type { ReactElement } from 'react';
+
+jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	getLockedWidgetFeature: jest.fn(),
+} ) );
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
-	getLockedWidgetFeature: jest.fn(),
 	LockedWidget: () => null,
 } ) );
 
@@ -64,10 +68,12 @@ describe( 'plan-locked widgets', () => {
 		expect( withPlanLockedRenderModules( types ) ).toBe( types );
 	} );
 
-	it( 'resolves only locked ids, without importing anything', () => {
-		expect(
-			resolvePlanLockedWidgetModule( `${ LOCKED_RENDER_MODULE_PREFIX }jpa/utm-insights` )?.default
-		).toEqual( expect.any( Function ) );
+	it( 'resolves only locked ids, to the locked widget for their feature', () => {
+		const locked = resolvePlanLockedWidgetModule(
+			`${ LOCKED_RENDER_MODULE_PREFIX }jpa/utm-insights`
+		)?.default as () => ReactElement;
+
+		expect( locked().props ).toEqual( { feature: 'utm' } );
 		expect( resolvePlanLockedWidgetModule( 'jpa/referrers/render' ) ).toBeUndefined();
 	} );
 } );

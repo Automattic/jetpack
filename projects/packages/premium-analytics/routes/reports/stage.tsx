@@ -1,9 +1,13 @@
 /**
  * External dependencies
  */
-import { AnalyticsQueryClientProvider, ReportScopeProvider } from '@jetpack-premium-analytics/data';
+import {
+	AnalyticsQueryClientProvider,
+	isStatsFeatureLocked,
+	ReportScopeProvider,
+} from '@jetpack-premium-analytics/data';
 import { Stack } from '@jetpack-premium-analytics/externals';
-import { ChartsProvider, isStatsFeatureLocked } from '@jetpack-premium-analytics/widgets-toolkit';
+import { ChartsProvider } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Spinner } from '@wordpress/components';
 import { lazy, Suspense, useMemo } from '@wordpress/element';
 import { useParams } from '@wordpress/route';

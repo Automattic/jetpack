@@ -3,7 +3,6 @@
  */
 import {
 	ensureCoreSettingsReady,
-	isStatsFeatureLocked,
 	needsReportDateParamsSeed,
 } from '@jetpack-premium-analytics/data';
 import {
@@ -15,6 +14,7 @@ import { redirect } from '@wordpress/route';
  * Internal dependencies
  */
 import { seedDetailDateParams } from '../detail-date-seed';
+import { redirectIfReportLocked } from '../reports/redirect-if-locked';
 import { getReportDefinition } from '../reports/registry';
 import { isPremiumAnalyticsSiteConnected, isVideoPressAvailable } from '../site-readiness';
 
@@ -58,13 +58,7 @@ export const route = {
 			throw redirect( { to: '/' } );
 		}
 
-		// The locked report explains what the plan lacks; this page would only fail.
-		if ( isStatsFeatureLocked( 'videos' ) ) {
-			throw redirect( {
-				to: '/reports/$report',
-				params: { report: 'videos' } as unknown as never,
-			} );
-		}
+		redirectIfReportLocked( 'videos' );
 
 		const videoId = params?.videoId;
 		if ( ! isValidVideoId( videoId ) ) {

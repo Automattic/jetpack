@@ -59,12 +59,12 @@ export function isStatsFeatureLocked( feature: StatsFeatureKey ): boolean {
 }
 
 /**
- * What a locked feature says and where to buy it. Takes any key, since another plugin's widget may declare its own.
+ * What a locked feature says and where to buy it.
  *
  * @param feature - The feature.
  * @return The locked feature, or undefined when it is open.
  */
-export function getLockedFeature( feature: string ): LockedFeature | undefined {
+export function getLockedFeature( feature: StatsFeatureKey ): LockedFeature | undefined {
 	return readOwn( getScriptData()?.premium_analytics?.plan_gates?.locked_features, feature );
 }
 
@@ -74,6 +74,10 @@ export function getLockedFeature( feature: string ): LockedFeature | undefined {
  * @param widgetType - The widget type name.
  * @return The feature, or undefined when the type is open.
  */
-export function getLockedWidgetFeature( widgetType: string ): string | undefined {
-	return readOwn( getScriptData()?.premium_analytics?.plan_gates?.locked_widget_types, widgetType );
+export function getLockedWidgetFeature( widgetType: string ): StatsFeatureKey | undefined {
+	// The server lists a type only under a feature it locks, so the value is always one of its keys.
+	return readOwn(
+		getScriptData()?.premium_analytics?.plan_gates?.locked_widget_types,
+		widgetType
+	) as StatsFeatureKey | undefined;
 }

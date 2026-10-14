@@ -1,5 +1,5 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
-import { getLockedWidgetFeature } from '@jetpack-premium-analytics/widgets-toolkit';
+import { getLockedWidgetFeature } from '@jetpack-premium-analytics/data';
 import { useMemo } from 'react';
 import type { CanPerformDashboardOperation } from '@wordpress/widget-dashboard';
 

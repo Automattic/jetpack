@@ -1,11 +1,14 @@
 /**
  * External dependencies
  */
-import { useStatsLocations, type ReportParams } from '@jetpack-premium-analytics/data';
+import {
+	isStatsFeatureLocked,
+	useStatsLocations,
+	type ReportParams,
+} from '@jetpack-premium-analytics/data';
 import {
 	buildLocationRows,
 	getLocationsReportQueryParams,
-	isStatsFeatureLocked,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 /**

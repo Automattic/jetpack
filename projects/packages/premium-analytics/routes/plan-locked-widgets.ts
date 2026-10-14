@@ -2,7 +2,8 @@
  * External dependencies
  */
 import { createElement } from '@wordpress/element';
-import { getLockedWidgetFeature, LockedWidget } from '@jetpack-premium-analytics/widgets-toolkit';
+import { getLockedWidgetFeature } from '@jetpack-premium-analytics/data';
+import { LockedWidget } from '@jetpack-premium-analytics/widgets-toolkit';
 import type { ResolveWidgetModule, WidgetType } from '@wordpress/widget-primitives';
 
 type WidgetModule = Awaited< ReturnType< ResolveWidgetModule > >;
@@ -49,6 +50,9 @@ export function resolvePlanLockedWidgetModule( moduleId: string ): WidgetModule 
 	}
 
 	const feature = getLockedWidgetFeature( moduleId.slice( LOCKED_RENDER_MODULE_PREFIX.length ) );
+	if ( ! feature ) {
+		return undefined;
+	}
 
 	return { default: () => createElement( LockedWidget, { feature } ) } as WidgetModule;
 }

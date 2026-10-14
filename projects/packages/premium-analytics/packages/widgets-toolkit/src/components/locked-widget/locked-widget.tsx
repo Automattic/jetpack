@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { getLockedFeature } from '@jetpack-premium-analytics/data';
+import { getLockedFeature, type StatsFeatureKey } from '@jetpack-premium-analytics/data';
 import { EmptyState, Icon, LinkButton } from '@jetpack-premium-analytics/externals';
 import { createInterpolateElement, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -15,7 +15,7 @@ import { ExternalLink } from '../external-link';
 import styles from './locked-widget.module.scss';
 
 type LockedStateProps = {
-	feature?: string;
+	feature: StatsFeatureKey;
 	source: 'locked_widget' | 'locked_page';
 	className?: string;
 };
@@ -31,7 +31,7 @@ type LockedStateProps = {
  */
 function LockedState( { feature, source, className }: LockedStateProps ) {
 	const trackEvent = useTrackEvent();
-	const locked = feature ? getLockedFeature( feature ) : undefined;
+	const locked = getLockedFeature( feature );
 
 	return (
 		<EmptyState.Root className={ clsx( styles.root, className ) }>
@@ -72,7 +72,7 @@ function LockedState( { feature, source, className }: LockedStateProps ) {
  * @param props.feature - The locked feature.
  * @return The locked body.
  */
-export function LockedWidget( { feature }: { feature?: string } ) {
+export function LockedWidget( { feature }: { feature: StatsFeatureKey } ) {
 	return <LockedState feature={ feature } source="locked_widget" />;
 }
 
@@ -83,6 +83,6 @@ export function LockedWidget( { feature }: { feature?: string } ) {
  * @param props.feature - The locked feature.
  * @return The locked page.
  */
-export function LockedPage( { feature }: { feature: string } ) {
+export function LockedPage( { feature }: { feature: StatsFeatureKey } ) {
 	return <LockedState feature={ feature } source="locked_page" className={ styles.page } />;
 }

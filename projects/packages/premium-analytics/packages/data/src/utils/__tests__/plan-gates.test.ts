@@ -21,7 +21,7 @@ const gates = {
 			upgrade_url: 'https://wordpress.com/checkout/example.com/premium',
 		},
 	},
-	locked_widget_types: { 'jpa/utm-insights': 'utm', 'plugin/top-videos': 'plugin-feature' },
+	locked_widget_types: { 'jpa/utm-insights': 'utm', 'videopress/top-videos': 'videos' },
 };
 
 describe( 'plan gates', () => {
@@ -35,7 +35,7 @@ describe( 'plan gates', () => {
 		expect( getLockedFeature( 'utm' ) ).toBe( gates.locked_features.utm );
 		expect( getLockedFeature( 'referrers' ) ).toBeUndefined();
 		expect( getLockedWidgetFeature( 'jpa/utm-insights' ) ).toBe( 'utm' );
-		expect( getLockedWidgetFeature( 'plugin/top-videos' ) ).toBe( 'plugin-feature' );
+		expect( getLockedWidgetFeature( 'videopress/top-videos' ) ).toBe( 'videos' );
 		expect( getLockedWidgetFeature( 'jpa/referrers' ) ).toBeUndefined();
 	} );
 
@@ -51,6 +51,5 @@ describe( 'plan gates', () => {
 
 	it( 'does not read inherited names as locked', () => {
 		expect( getLockedWidgetFeature( 'constructor' ) ).toBeUndefined();
-		expect( getLockedFeature( 'toString' ) ).toBeUndefined();
 	} );
 } );

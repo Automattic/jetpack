@@ -7,13 +7,14 @@ import {
 	ReportPageLayout,
 	ReportPageShell,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import type { StatsFeatureKey } from '@jetpack-premium-analytics/data';
 import type { JSX } from 'react';
 
 type LockedReportPageProps = {
 	/** The report's name, for its crumb and heading. */
 	label: string;
 	/** The locked feature. */
-	feature: string;
+	feature: StatsFeatureKey;
 };
 
 /**

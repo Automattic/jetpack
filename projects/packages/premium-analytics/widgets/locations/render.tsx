@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { usePrefetchViewerCountry } from '@jetpack-premium-analytics/data';
+import { isStatsFeatureLocked, usePrefetchViewerCountry } from '@jetpack-premium-analytics/data';
 import {
 	ExporterCsvDownloadButton,
 	LeaderboardChart,
@@ -19,7 +19,6 @@ import {
 	flagUrl,
 	getCombinedPeriodMax,
 	getLocationsReportSection,
-	isStatsFeatureLocked,
 	locationsCsvExporter,
 	sharePercentage,
 	useWidgetDrillDown,

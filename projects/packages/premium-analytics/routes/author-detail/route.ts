@@ -3,7 +3,6 @@
  */
 import {
 	ensureCoreSettingsReady,
-	isStatsFeatureLocked,
 	needsReportDateParamsSeed,
 	normalizeReportParams,
 } from '@jetpack-premium-analytics/data';
@@ -12,6 +11,7 @@ import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
+import { redirectIfReportLocked } from '../reports/redirect-if-locked';
 import { getReportDefinition } from '../reports/registry';
 import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
 
@@ -49,13 +49,7 @@ export const route = {
 			throw redirect( { to: '/' } );
 		}
 
-		// The locked report explains what the plan lacks; this page would only fail.
-		if ( isStatsFeatureLocked( 'authors' ) ) {
-			throw redirect( {
-				to: '/reports/$report',
-				params: { report: 'authors' } as unknown as never,
-			} );
-		}
+		redirectIfReportLocked( 'authors' );
 
 		// A malformed path param would render site-wide stats under an author
 		// header; this also closes the `?author_id=` spoof.

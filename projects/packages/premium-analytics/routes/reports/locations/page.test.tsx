@@ -1,14 +1,13 @@
 /**
  * External dependencies
  */
-import { usePrefetchViewerCountry } from '@jetpack-premium-analytics/data';
+import { isStatsFeatureLocked, usePrefetchViewerCountry } from '@jetpack-premium-analytics/data';
 import { useSectionTab } from '@jetpack-premium-analytics/routing';
 import {
 	ExporterCsvAction,
 	ReportLocationsMap,
 	ReportPageTabs,
 	ReportRecordsTable,
-	isStatsFeatureLocked,
 	locationsCsvExporter,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { act, render, screen } from '@testing-library/react';
@@ -34,6 +33,7 @@ jest.mock( './config', () => {
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	isStatsFeatureLocked: jest.fn( () => false ),
 	usePrefetchViewerCountry: jest.fn(),
 } ) );
 
@@ -52,7 +52,6 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	ExporterCsvAction: jest.fn( () => null ),
-	isStatsFeatureLocked: jest.fn( () => false ),
 	LockedPage: ( { feature }: { feature: string } ) => <div>{ `locked: ${ feature }` }</div>,
 	LOCATIONS_GEO_MODES: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' )
 		.LOCATIONS_GEO_MODES,

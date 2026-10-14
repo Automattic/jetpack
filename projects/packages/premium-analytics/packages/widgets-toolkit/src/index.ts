@@ -332,11 +332,6 @@ export {
 	yearRange,
 	type PeriodBounds,
 	type FitWeekColumnsInput,
-	getLockedFeature,
-	getLockedWidgetFeature,
-	isStatsFeatureLocked,
-	type LockedFeature,
-	type StatsFeatureKey,
 } from './helpers';
 
 /**
