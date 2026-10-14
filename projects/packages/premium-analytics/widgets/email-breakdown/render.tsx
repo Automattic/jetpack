@@ -10,6 +10,7 @@ import {
 	WidgetState,
 	buildLeaderboardRow,
 	flagUrl,
+	formatMapName,
 	safeHttpUrl,
 	sharePercentage,
 	useWidgetRootContext,
@@ -144,6 +145,7 @@ export const EmailBreakdownLeaderboard = ( {
 	hasEmail = true,
 	onRetry,
 }: EmailBreakdownLeaderboardProps ) => {
+	const chartTitle = __( 'Email breakdown', 'jetpack-premium-analytics-pkg' );
 	const data = useMemo( () => buildLeaderboardData( rows, view ), [ rows, view ] );
 	const geoData = useMemo( () => buildEmailGeoData( mapRows, metric ), [ mapRows, metric ] );
 
@@ -191,10 +193,11 @@ export const EmailBreakdownLeaderboard = ( {
 						withOverlayLabel
 						showLegend={ false }
 						dataFormat={ DATA_FORMAT }
+						chartTitle={ chartTitle }
 					/>
 					{ renderMap && (
 						<div className={ styles.map } data-testid="email-breakdown-map">
-							<GeoChart data={ geoData } />
+							<GeoChart data={ geoData } ariaLabel={ formatMapName( chartTitle ) } />
 						</div>
 					) }
 				</div>

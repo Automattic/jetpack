@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Dashboard: Accept a chart title on the Columns, Donut, Funnel, Leaderboard, Locations and MetricTabsChart widget components through the SDK; the widget contract is 1.12.0.

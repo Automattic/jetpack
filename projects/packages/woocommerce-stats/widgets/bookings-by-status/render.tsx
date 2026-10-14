@@ -91,6 +91,7 @@ function BookingsByStatus() {
 	return (
 		<Donut
 			segments={ segments }
+			chartTitle={ __( 'Bookings by status', 'jetpack-woocommerce-stats-pkg' ) }
 			status={ {
 				isLoading,
 				isFetching,

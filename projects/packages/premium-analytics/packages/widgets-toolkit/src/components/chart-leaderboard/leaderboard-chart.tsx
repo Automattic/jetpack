@@ -15,6 +15,7 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
+import { formatChartName } from '../../helpers/format-chart-name';
 import { AbbreviatedValue } from '../abbreviated-value';
 import { ChartEmptyState } from '../chart-empty-state';
 import styles from './leaderboard-chart.module.scss';
@@ -64,6 +65,9 @@ export type LeaderboardChartProps = {
 	 * @default true
 	 */
 	fitRows?: boolean;
+
+	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
+	chartTitle?: string;
 };
 
 /**
@@ -86,6 +90,7 @@ export function LeaderboardChart( {
 	emptyStateText,
 	style,
 	fitRows = true,
+	chartTitle,
 }: LeaderboardChartProps ) {
 	const { getElementStyles } = useGlobalChartsContext();
 
@@ -119,6 +124,7 @@ export function LeaderboardChart( {
 		>
 			<BaseLeaderboardChart
 				data={ data }
+				ariaLabel={ formatChartName( chartTitle ) }
 				loading={ loading }
 				withComparison={ withComparison }
 				valueFormatter={ valueFormatter }
