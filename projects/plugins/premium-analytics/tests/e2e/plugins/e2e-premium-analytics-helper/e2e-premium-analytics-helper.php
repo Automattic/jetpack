@@ -31,6 +31,18 @@ function e2e_pa_fake_connection() {
 add_filter( 'jetpack_offline_mode', '__return_false', 99 );
 
 add_filter( 'pre_http_request', 'e2e_pa_intercept_wpcom', 10, 3 );
+add_filter( 'nonce_life', 'e2e_pa_nonce_life' );
+
+/**
+ * Shortens nonces while a spec sets `e2e_pa_nonce_life`, so the dashboard's expires mid-session.
+ *
+ * @param int $life Nonce lifetime in seconds.
+ * @return int
+ */
+function e2e_pa_nonce_life( $life ) {
+	$seconds = (int) get_option( 'e2e_pa_nonce_life' );
+	return $seconds > 0 ? $seconds : $life;
+}
 
 /**
  * Answers the WordPress.com requests the Premium Analytics proxy makes and blocks every other one.
