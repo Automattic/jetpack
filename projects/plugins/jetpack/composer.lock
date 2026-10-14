@@ -3236,7 +3236,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/protect",
-                "reference": "e77538b1f6a9c17f87c62e22e0542f0d1d3e17d6"
+                "reference": "3051d8cff87922d4674ee8964dc08b6c5d627582"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -3251,6 +3251,7 @@
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
+                "automattic/jetpack-waf": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "yoast/phpunit-polyfills": "^4.0.0"
             },
