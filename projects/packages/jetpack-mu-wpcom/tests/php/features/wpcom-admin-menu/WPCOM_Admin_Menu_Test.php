@@ -77,6 +77,7 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 		Status_Cache::clear();
 		remove_all_filters( 'rsm_jetpack_ui_modernization_newsletter' );
 		remove_all_filters( 'rsm_jetpack_ui_modernization_backup' );
+		unset( $GLOBALS['wpcom_site_stickers_test_value'] );
 		delete_option( 'wpcom_admin_interface' );
 		delete_option( 'wpcom_ai_launchpad_no_guidance' );
 		delete_option( 'wpcom_ai_launchpad_enabled' );
@@ -399,17 +400,20 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	 *
 	 * @dataProvider provide_backup_entry_cases
 	 *
-	 * @param bool   $flag_off        Whether the filter turns the flag off, rather than leaving the default.
+	 * @param string $setup           'default', 'filter off', or 'legacy sticker'.
 	 * @param bool   $page_registered Whether something registered the `jetpack-backup` page.
 	 * @param string $expected        The visible entry: 'calypso' or 'wp-admin'.
 	 */
 	#[DataProvider( 'provide_backup_entry_cases' )]
-	public function test_jetpack_submenu_shows_one_backup_entry( $flag_off, $page_registered, $expected ) {
+	public function test_jetpack_submenu_shows_one_backup_entry( $setup, $page_registered, $expected ) {
 		global $submenu;
 
 		\Jetpack_Options::update_option( 'id', 200 );
-		if ( $flag_off ) {
+		if ( 'filter off' === $setup ) {
 			add_filter( 'rsm_jetpack_ui_modernization_backup', '__return_false' );
+		}
+		if ( 'legacy sticker' === $setup ) {
+			$GLOBALS['wpcom_site_stickers_test_value'] = array( 'use-backup-legacy-dashboard' );
 		}
 		if ( $page_registered ) {
 			$submenu['jetpack'][] = array( 'Backup', 'manage_options', 'jetpack-backup', 'Jetpack VaultPress Backup' );
@@ -432,15 +436,16 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Flag value, page registration and the entry that should show.
+	 * What switches the flag, page registration and the entry that should show.
 	 *
 	 * @return array[]
 	 */
 	public static function provide_backup_entry_cases() {
 		return array(
-			'default, page registered'         => array( false, true, 'wp-admin' ),
-			'off, page registered'             => array( true, true, 'calypso' ),
-			'default, nothing serves the slug' => array( false, false, 'calypso' ),
+			'default, page registered'         => array( 'default', true, 'wp-admin' ),
+			'filter off, page registered'      => array( 'filter off', true, 'calypso' ),
+			'legacy sticker, page registered'  => array( 'legacy sticker', true, 'calypso' ),
+			'default, nothing serves the slug' => array( 'default', false, 'calypso' ),
 		);
 	}
 

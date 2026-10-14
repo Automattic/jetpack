@@ -29,6 +29,11 @@ class WPCOM_Backup extends WPCOM_WP_Build_Page {
 	const MODERNIZATION_FILTER = 'rsm_jetpack_ui_modernization_backup';
 
 	/**
+	 * Blog sticker that puts a site back on the legacy Backup experience, shared with the Backup package.
+	 */
+	const LEGACY_DASHBOARD_STICKER = 'use-backup-legacy-dashboard';
+
+	/**
 	 * Page name for wp-build, as declared in routes/wpcom-backup/package.json.
 	 */
 	const WP_BUILD_PAGE = 'wpcom-backup';
@@ -100,12 +105,14 @@ class WPCOM_Backup extends WPCOM_WP_Build_Page {
 	/**
 	 * Whether Backup opens in wp-admin rather than Calypso.
 	 *
-	 * Defaults on, like the Backup package's dashboard.
+	 * Defaults on unless the site has the legacy dashboard sticker, like the Backup package's dashboard.
 	 *
 	 * @return bool
 	 */
 	public static function is_modernized() {
-		return (bool) apply_filters( self::MODERNIZATION_FILTER, true );
+		$has_legacy_sticker = wpcom_has_blog_sticker( self::LEGACY_DASHBOARD_STICKER, get_wpcom_blog_id() );
+
+		return (bool) apply_filters( self::MODERNIZATION_FILTER, ! $has_legacy_sticker );
 	}
 
 	/**
