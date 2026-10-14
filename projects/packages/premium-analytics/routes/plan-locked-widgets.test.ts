@@ -41,6 +41,22 @@ describe( 'plan-locked widgets', () => {
 		expect( open.renderModule ).toBe( 'jpa/referrers/render' );
 	} );
 
+	it( 'drops the controls of a locked type that fetch their options, and keeps the static ones', () => {
+		const getElements = jest.fn();
+		const [ locked ] = withPlanLockedRenderModules( [
+			{
+				...type( 'jpa/utm-insights' ),
+				attributes: [
+					{ id: 'utmDimension', elements: [ { value: 'a', label: 'A' } ] },
+					{ id: 'year', getElements },
+				],
+			} as unknown as WidgetType,
+		] );
+
+		expect( locked.attributes?.map( attribute => attribute.id ) ).toEqual( [ 'utmDimension' ] );
+		expect( getElements ).not.toHaveBeenCalled();
+	} );
+
 	it( 'returns the same array when nothing is locked, so memoized consumers keep their identity', () => {
 		jest.mocked( getLockedWidgetFeature ).mockReturnValue( undefined );
 		const types = [ type( 'jpa/referrers' ) ];

@@ -27,7 +27,12 @@ export function withPlanLockedRenderModules( types: WidgetType[] ): WidgetType[]
 
 	return types.map( type =>
 		getLockedWidgetFeature( type.name )
-			? { ...type, renderModule: LOCKED_RENDER_MODULE_PREFIX + type.name }
+			? {
+					...type,
+					renderModule: LOCKED_RENDER_MODULE_PREFIX + type.name,
+					// A control that fetches its options, like Year in review's years, would request locked data.
+					attributes: type.attributes?.filter( attribute => ! attribute.getElements ),
+				}
 			: type
 	);
 }
