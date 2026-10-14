@@ -6,24 +6,25 @@ import { __, _n } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { BOOKINGS_FILTER, useReportOrders, type ReportParams } from '../../../src/reports';
-import {
-	STORE_PERFORMANCE_METRICS_FILTER,
-	type StorePerformanceMetric,
-	type StorePerformanceReport,
-} from '../../../src/store-performance/metric';
+import { useBookingsReport, type ReportParams } from './use-bookings-report';
+import type { DataFormat, ReportResult } from '@automattic/jetpack-premium-analytics-sdk';
+
+/** The filter Store performance reads its metrics from. */
+export const STORE_PERFORMANCE_METRICS_FILTER = 'jetpack.woocommerceStats.storePerformance.metrics';
+
+/** A metric as Store performance takes it; the widget's own run 10 to 50 by `order`. */
+export type StorePerformanceMetric = {
+	id: string;
+	order?: number;
+	label: string;
+	description: string;
+	field: string;
+	dataFormat: DataFormat;
+	countLabel?: ( count: number ) => string;
+	useReport: ( params: ReportParams ) => ReportResult< unknown >;
+};
 
 const FILTER_NAMESPACE = 'jetpack-woocommerce-stats/store-performance-bookings';
-
-/**
- * The orders report of the booking products, under the dashboard's report params.
- *
- * @param {ReportParams} params - The report params.
- * @return {StorePerformanceReport} The report.
- */
-function useBookingsReport( params: ReportParams ): StorePerformanceReport {
-	return useReportOrders( { ...params, filters: [ BOOKINGS_FILTER ] } );
-}
 
 /**
  * The Bookings metric, placed after Orders, built when asked so its strings read the catalog
