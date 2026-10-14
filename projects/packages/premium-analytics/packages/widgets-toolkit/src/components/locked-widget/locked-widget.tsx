@@ -1,14 +1,14 @@
 /**
  * External dependencies
  */
-import { ButtonLink, EmptyState, Icon } from '@jetpack-premium-analytics/externals';
+import { getStatsUpgradeUrl } from '@jetpack-premium-analytics/data';
+import { EmptyState, Icon, LinkButton } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
 import { lock } from '@wordpress/icons';
 import clsx from 'clsx';
 /**
  * Internal dependencies
  */
-import { getStatsUpgradeUrl } from '../../helpers/plan-gates';
 import { useTrackEvent } from '../../hooks/use-track-event';
 import { getLockedFeatureCopy } from './feature-copy';
 import styles from './locked-widget.module.scss';
@@ -38,14 +38,14 @@ function LockedState( { feature, source, className }: LockedStateProps ) {
 			<EmptyState.Description>{ getLockedFeatureCopy( feature ) }</EmptyState.Description>
 			{ upgradeUrl && (
 				<EmptyState.Actions>
-					<ButtonLink
+					<LinkButton
 						href={ upgradeUrl }
 						onClick={ () =>
 							trackEvent( 'jetpack_premium_analytics_plan_upgrade_click', { feature, source } )
 						}
 					>
 						{ __( 'Upgrade', 'jetpack-premium-analytics-pkg' ) }
-					</ButtonLink>
+					</LinkButton>
 				</EmptyState.Actions>
 			) }
 		</EmptyState.Root>

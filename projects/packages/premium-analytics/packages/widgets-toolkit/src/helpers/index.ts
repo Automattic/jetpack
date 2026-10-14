@@ -34,7 +34,7 @@ export {
 	getStatsUpgradeUrl,
 	isStatsFeatureLocked,
 	type StatsFeatureKey,
-} from './plan-gates';
+} from '@jetpack-premium-analytics/data';
 export { summaryCount } from './summary-count';
 export { toDay } from './to-day';
 export { defaultPeriodForInterval } from '@jetpack-premium-analytics/data';
