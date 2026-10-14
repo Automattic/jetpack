@@ -63,7 +63,7 @@ class Waf_Self_Check {
 	/**
 	 * Whether the token is the current, unexpired one. A matching token can't be used again.
 	 *
-	 * @param string $token The token from the request.
+	 * @param mixed $token The token from the request, which can be an array.
 	 * @return bool
 	 */
 	public static function consume_token( $token ) {
@@ -77,8 +77,12 @@ class Waf_Self_Check {
 			return false;
 		}
 
+		// Unreadable can mean `create_token()` is mid-write, so only an expired token is deleted.
 		$stored = json_decode( (string) file_get_contents( $path ), true );
-		if ( ! is_array( $stored ) || ! isset( $stored['hash'] ) || ! isset( $stored['expires'] ) || $stored['expires'] < time() ) {
+		if ( ! is_array( $stored ) || ! isset( $stored['hash'] ) || ! isset( $stored['expires'] ) ) {
+			return false;
+		}
+		if ( $stored['expires'] < time() ) {
 			unlink( $path );
 			return false;
 		}

@@ -68,6 +68,29 @@ final class WafSelfCheckTest extends PHPUnit\Framework\TestCase {
 		$this->assertFalse( Waf_Self_Check::consume_token( $token ) );
 	}
 
+	public function testNewTokenReplacesTheOld() {
+		$old = Waf_Self_Check::create_token();
+		$new = Waf_Self_Check::create_token();
+
+		$this->assertFalse( Waf_Self_Check::consume_token( $old ) );
+		$this->assertTrue( Waf_Self_Check::consume_token( $new ) );
+	}
+
+	public function testTokenThatIsNotAStringIsRejectedWithoutSpendingTheRealOne() {
+		$token = Waf_Self_Check::create_token();
+
+		$this->assertFalse( Waf_Self_Check::consume_token( array( $token ) ) );
+		$this->assertTrue( Waf_Self_Check::consume_token( $token ) );
+	}
+
+	public function testTokenFileStillBeingWrittenIsLeftInPlace() {
+		Waf_Self_Check::create_token();
+		file_put_contents( JETPACK_WAF_DIR . Waf_Self_Check::TOKEN_FILE, '{"hash":"ab' );
+
+		$this->assertFalse( Waf_Self_Check::consume_token( 'anything' ) );
+		$this->assertFileExists( JETPACK_WAF_DIR . Waf_Self_Check::TOKEN_FILE );
+	}
+
 	public function testTokenIsRejectedWhenNoneWasCreated() {
 		$this->assertFalse( Waf_Self_Check::consume_token( 'anything' ) );
 	}

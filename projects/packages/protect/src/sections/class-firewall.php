@@ -171,11 +171,11 @@ class Firewall implements Dashboard_Section {
 	/**
 	 * The firewall's IP lists, keyed like the Jetpack settings that hold them.
 	 *
-	 * @return array<string, string|bool> Empty when the WAF package isn't loaded.
+	 * @return array<string, string|bool>|object An empty object when the WAF package isn't loaded, so it's `{}` in JSON.
 	 */
 	private static function get_ip_rules() {
 		if ( ! class_exists( Waf_Rules_Manager::class ) ) {
-			return array();
+			return (object) array();
 		}
 
 		return array(

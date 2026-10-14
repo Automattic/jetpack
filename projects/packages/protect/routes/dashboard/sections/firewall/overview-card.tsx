@@ -6,7 +6,6 @@ import { Icon, caution, check, closeSmall, info, shield } from '@wordpress/icons
 import { store as noticesStore } from '@wordpress/notices';
 import { Button, Notice, Stack, Text } from '@wordpress/ui';
 import { CardRow, ProtectCard, Stat } from '../../components/card';
-import SettingToggle from '../../components/settings/setting-toggle';
 import TabLink from '../../components/tab-link';
 import isModuleActive from '../../data/is-module-active';
 import {
@@ -16,11 +15,13 @@ import {
 	TimeoutError,
 	runFirewallTest,
 } from './firewall-test';
+import FirewallToggle from './firewall-toggle';
 import IpRule from './ip-rule';
 import RecentBlocks from './recent-blocks';
+import { IP_ALLOW_LIST, IP_BLOCK_LIST } from './settings-keys';
 import TestDetails from './test-details';
 import type { TestOutcome, TestResult } from './firewall-test';
-import type { BlockedRequest, FirewallContext, FirewallState } from './types';
+import type { FirewallBlocks, FirewallContext, FirewallState } from './types';
 import './style.scss';
 
 const UNAVAILABLE: FirewallState = {
@@ -189,7 +190,7 @@ const formatCount = ( count: number ) => {
 export default function FirewallOverviewCard( { state, settings, openTab }: FirewallContext ) {
 	const firewall = state ?? UNAVAILABLE;
 	const title = __( 'Firewall', 'jetpack-protect-pkg' );
-	const [ blocks, setBlocks ] = useState( {
+	const [ blocks, setBlocks ] = useState< FirewallBlocks >( {
 		blockedCount: firewall.blockedCount,
 		recentBlocks: firewall.recentBlocks,
 	} );
@@ -204,7 +205,7 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 		[ settings, firewall.ipRules ]
 	);
 
-	// "Learn more" opens this card's dialog, so the snackbar can't outlive the card.
+	// "Learn more" opens this card's dialog, so the snackbar can't outlive the card, nor can a test it started.
 	const isMounted = useRef( false );
 	useEffect( () => {
 		isMounted.current = true;
@@ -222,18 +223,17 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 		try {
 			testResult = await runFirewallTest( active );
 		} catch ( e ) {
-			notifyFailure( e );
-			setIsTesting( false );
+			if ( isMounted.current ) {
+				notifyFailure( e );
+				setIsTesting( false );
+			}
 			return;
 		}
 
 		// The test has run by now, so a failed refresh mustn't replace its result with an error.
 		let isRecorded: boolean | null = null;
 		try {
-			const fresh = await apiFetch< {
-				blockedCount: number | null;
-				recentBlocks: BlockedRequest[];
-			} >( { path: `${ FIREWALL_PATH }/blocks` } );
+			const fresh = await apiFetch< FirewallBlocks >( { path: `${ FIREWALL_PATH }/blocks` } );
 			setBlocks( fresh );
 			isRecorded = fresh.recentBlocks.some(
 				block => block.id > lastId && block.ruleId === SELF_CHECK_RULE_ID
@@ -241,12 +241,12 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 		} catch {
 			// The counts stay as they were.
 		}
+		if ( ! isMounted.current ) {
+			return;
+		}
 		setResult( testResult );
 		setRecorded( isRecorded );
-		notify(
-			testResult.outcome,
-			isMounted.current ? { learnMore: () => setDetailsOpen( true ) } : {}
-		);
+		notify( testResult.outcome, { learnMore: () => setDetailsOpen( true ) } );
 		setIsTesting( false );
 	}, [ active, blocks.recentBlocks ] );
 
@@ -298,15 +298,7 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 			) }
 			{ ! active && (
 				<CardRow>
-					<SettingToggle
-						data={ settings }
-						name="waf"
-						label={ __( 'Enable firewall', 'jetpack-protect-pkg' ) }
-						help={ __(
-							'Inspects every request against Jetpack’s firewall rules.',
-							'jetpack-protect-pkg'
-						) }
-					/>
+					<FirewallToggle data={ settings } />
 				</CardRow>
 			) }
 			{ active && (
@@ -327,7 +319,7 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 				<CardRow className="jp-protect-firewall-overview__columns">
 					<IpRule
 						data={ ipData }
-						name="jetpack_waf_ip_block_list"
+						name={ IP_BLOCK_LIST }
 						label={ __( 'Block specific IP addresses', 'jetpack-protect-pkg' ) }
 						description={ __(
 							'Stop specific visitors from accessing your site by their IP address.',
@@ -338,7 +330,7 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 					/>
 					<IpRule
 						data={ ipData }
-						name="jetpack_waf_ip_allow_list"
+						name={ IP_ALLOW_LIST }
 						label={ __( 'Always allow specific IP addresses', 'jetpack-protect-pkg' ) }
 						description={ __(
 							'IP addresses added to this list are always allowed to access your site.',

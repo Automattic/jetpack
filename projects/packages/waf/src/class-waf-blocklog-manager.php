@@ -309,6 +309,8 @@ class Waf_Blocklog_Manager {
 	/**
 	 * Read an option the firewall writes with its own connection, which leaves the object cache stale.
 	 *
+	 * That connection uses the network's base prefix, so on a multisite subsite these aren't the site's own options.
+	 *
 	 * @param string $name    The option name.
 	 * @param mixed  $default The value when the option doesn't exist.
 	 * @return mixed
@@ -321,7 +323,7 @@ class Waf_Blocklog_Manager {
 		}
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- The cache is what's stale.
-		$value = $wpdb->get_var( $wpdb->prepare( "SELECT option_value FROM {$wpdb->options} WHERE option_name = %s", $name ) );
+		$value = $wpdb->get_var( $wpdb->prepare( "SELECT option_value FROM {$wpdb->base_prefix}options WHERE option_name = %s", $name ) );
 
 		return null === $value ? $default : maybe_unserialize( $value );
 	}
@@ -384,7 +386,7 @@ class Waf_Blocklog_Manager {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- A custom table, read on demand.
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT log_id, timestamp, rule_id, reason FROM {$wpdb->prefix}jetpack_waf_blocklog ORDER BY log_id DESC LIMIT %d",
+				"SELECT log_id, timestamp, rule_id, reason FROM {$wpdb->base_prefix}jetpack_waf_blocklog ORDER BY log_id DESC LIMIT %d",
 				$limit
 			),
 			ARRAY_A
@@ -421,7 +423,7 @@ class Waf_Blocklog_Manager {
 			// The table doesn't exist until the firewall is first turned on.
 			$suppress = $wpdb->suppress_errors();
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- A custom table.
-			$last_id = $wpdb->get_var( "SELECT log_id FROM {$wpdb->prefix}jetpack_waf_blocklog ORDER BY log_id DESC LIMIT 1" );
+			$last_id = $wpdb->get_var( "SELECT log_id FROM {$wpdb->base_prefix}jetpack_waf_blocklog ORDER BY log_id DESC LIMIT 1" );
 			$wpdb->suppress_errors( $suppress );
 
 			return intval( $last_id );

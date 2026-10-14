@@ -77,7 +77,7 @@ final class WafBlocklogManagerTest extends PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * The firewall writes the counts around the object cache, so reads must skip a stale cached option.
+	 * The firewall writes the counts around the object cache, and with the base prefix, so reads must match both.
 	 *
 	 * @runInSeparateProcess
 	 */
@@ -101,19 +101,25 @@ final class WafBlocklogManagerTest extends PHPUnit\Framework\TestCase {
 				);
 			}
 
+			/** @var string A multisite subsite's tables. */
+			public $prefix = 'wp_2_';
+
 			/** @var string */
-			public $options = 'wp_options';
+			public $options = 'wp_2_options';
+
+			/** @var string */
+			public $base_prefix = 'wp_';
 
 			/**
 			 * @param string $query Query.
 			 * @param mixed  ...$args Arguments.
 			 */
 			public function prepare( $query, ...$args ) {
-				return $args[0];
+				return false === strpos( $query, 'FROM wp_options ' ) ? null : $args[0];
 			}
 
 			/**
-			 * @param string $option_name The prepared option name.
+			 * @param string|null $option_name The prepared option name, or null for another table.
 			 */
 			public function get_var( $option_name ) {
 				return $this->rows[ $option_name ] ?? null;

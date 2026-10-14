@@ -1,6 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
 import { __, sprintf } from '@wordpress/i18n';
-import type { BlockedRequest } from './types';
+import type { BlockedRequest, FirewallTestResponse } from './types';
 
 export const FIREWALL_PATH = '/jetpack/v4/protect-dashboard/firewall';
 
@@ -101,7 +101,7 @@ export async function runFirewallTest( active: boolean ): Promise< TestResult > 
 	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- Cleared in `finally`, so it's used on every path.
 	const timer = setTimeout( () => controller.abort(), TIMEOUT );
 	try {
-		const { url } = await apiFetch< { url: string } >( {
+		const { url } = await apiFetch< FirewallTestResponse >( {
 			path: `${ FIREWALL_PATH }/test`,
 			method: 'POST',
 			signal: controller.signal,

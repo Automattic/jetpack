@@ -192,6 +192,21 @@ describe( 'FirewallOverviewCard', () => {
 		expect( select( noticesStore ).getNotices() ).toHaveLength( 0 );
 	} );
 
+	it( 'drops a test that finishes after the card is gone', async () => {
+		let finish: ( value: unknown ) => void = () => {};
+		( runFirewallTest as jest.Mock ).mockReturnValue(
+			new Promise( resolve => ( finish = resolve ) )
+		);
+		( apiFetch as unknown as jest.Mock ).mockResolvedValue( { blockedCount: 2, recentBlocks: [] } );
+		const { unmount } = render( <FirewallOverviewCard { ...props } /> );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Test firewall' } ) );
+
+		unmount();
+		await act( async () => finish( BLOCKED ) );
+
+		expect( select( noticesStore ).getNotices() ).toHaveLength( 0 );
+	} );
+
 	it( 'renders the count for a WordPress locale that Intl rejects', () => {
 		document.documentElement.lang = 'pt-PT-ao90';
 		render(

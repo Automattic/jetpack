@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Button, Stack, TextareaControl } from '@wordpress/ui';
-import { appendIp, splitIps } from './ip-list';
+import { appendIp, getIpList, splitIps } from './ip-list';
 import type { ProtectSettingsData } from '../../data/use-protect-settings';
 import type { ChangeEvent } from 'react';
 
@@ -26,8 +26,7 @@ type Props = {
  * @return The field.
  */
 export default function IpListField( { data, name, label, description, currentIp }: Props ) {
-	const saved =
-		typeof data.settings?.[ name ] === 'string' ? ( data.settings[ name ] as string ) : '';
+	const saved = getIpList( data.settings, name );
 	const [ draft, setDraft ] = useState( saved );
 
 	const lastSaved = useRef( saved );

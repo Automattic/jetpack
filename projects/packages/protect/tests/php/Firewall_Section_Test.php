@@ -8,6 +8,9 @@
 namespace Automattic\Jetpack\Protect;
 
 use Automattic\Jetpack\Protect\Sections\Firewall;
+use Automattic\Jetpack\Waf\Waf_Blocklog_Manager;
+use Automattic\Jetpack\Waf\Waf_Constants;
+use Automattic\Jetpack\Waf\Waf_Runner;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
@@ -44,23 +47,45 @@ class Firewall_Section_Test extends BaseTestCase {
 	 */
 	public static function provide_addresses() {
 		return array(
-			'a direct visitor'                    => array( array( 'REMOTE_ADDR' => '203.0.113.7' ), '203.0.113.7' ),
-			'a proxy that rewrote the address'    => array(
+			'a direct visitor'                           => array( array( 'REMOTE_ADDR' => '203.0.113.7' ), '203.0.113.7' ),
+			'a proxy that rewrote the address'           => array(
 				array(
 					'REMOTE_ADDR'          => '203.0.113.7',
 					'HTTP_X_FORWARDED_FOR' => '203.0.113.7, 198.51.100.2',
 				),
 				'203.0.113.7',
 			),
-			'a proxy that forwards someone else'  => array(
+			'a proxy that forwards someone else'         => array(
 				array(
 					'REMOTE_ADDR'          => '198.51.100.2',
 					'HTTP_X_FORWARDED_FOR' => '203.0.113.7',
 				),
 				'',
 			),
-			'a proxy on the same private network' => array( array( 'REMOTE_ADDR' => '10.0.0.5' ), '' ),
-			'a proxy on the same machine'         => array( array( 'REMOTE_ADDR' => '127.0.0.1' ), '' ),
+			'a proxy on the same private network'        => array( array( 'REMOTE_ADDR' => '10.0.0.5' ), '' ),
+			'a proxy on the same machine'                => array( array( 'REMOTE_ADDR' => '127.0.0.1' ), '' ),
+			'the same IPv6 address written longer'       => array(
+				array(
+					'REMOTE_ADDR'          => '2001:db8::7',
+					'HTTP_X_FORWARDED_FOR' => '2001:0db8:0000:0000:0000:0000:0000:0007',
+				),
+				'2001:db8::7',
+			),
+			'a forwarding header that isn\'t an address' => array(
+				array(
+					'REMOTE_ADDR'    => '203.0.113.7',
+					'HTTP_X_REAL_IP' => 'unknown',
+				),
+				'',
+			),
+			'one of several headers disagreeing'         => array(
+				array(
+					'REMOTE_ADDR'           => '203.0.113.7',
+					'HTTP_X_FORWARDED_FOR'  => '203.0.113.7',
+					'HTTP_CF_CONNECTING_IP' => '198.51.100.9',
+				),
+				'',
+			),
 		);
 	}
 
@@ -104,5 +129,64 @@ class Firewall_Section_Test extends BaseTestCase {
 		$this->assertSame( '/?first', $result[1]['uri'] );
 		$this->assertSame( 'curl/8.14.1', $result[1]['userAgent'] );
 		$this->assertSame( $blocks[2], $result[2] );
+	}
+
+	/**
+	 * The request log holds visitors' URLs and user agents, which only "Share basic data" opts in to showing.
+	 *
+	 * @dataProvider provide_share_data
+	 *
+	 * @param bool $shares_data Whether "Share basic data" is on.
+	 */
+	#[DataProvider( 'provide_share_data' )]
+	public function test_blocks_carry_request_details_only_when_sharing_is_on( $shares_data ) {
+		update_option( Waf_Runner::SHARE_DATA_OPTION_NAME, $shares_data );
+		Waf_Constants::define_waf_directory();
+		$log = Waf_Blocklog_Manager::get_blocklog_file_path();
+		if ( ! is_dir( dirname( $log ) ) ) {
+			mkdir( dirname( $log ), 0755, true );
+		}
+		$entry = array(
+			'timestamp'   => '2026-10-09 16:54:03',
+			'rule_id'     => -2,
+			'request_uri' => '/?probe',
+			'user_agent'  => 'curl/8.14.1',
+		);
+		file_put_contents( $log, wp_json_encode( $entry, JSON_UNESCAPED_SLASHES ) . "\n" );
+		$blocklog = static function ( $rows, $query ) {
+			if ( false === strpos( $query, 'jetpack_waf_blocklog ORDER BY log_id DESC LIMIT 10' ) ) {
+				return $rows;
+			}
+			return array(
+				(object) array(
+					'log_id'    => '1',
+					'timestamp' => '2026-10-09 16:54:03',
+					'rule_id'   => '-2',
+					'reason'    => 'firewall test',
+				),
+			);
+		};
+		add_filter( 'wordbless_wpdb_query_results', $blocklog, 10, 2 );
+
+		$blocks = Firewall::get_blocks()['recentBlocks'];
+
+		remove_filter( 'wordbless_wpdb_query_results', $blocklog, 10 );
+		unlink( $log );
+		delete_option( Waf_Runner::SHARE_DATA_OPTION_NAME );
+		$this->assertCount( 1, $blocks );
+		$this->assertSame( $shares_data, isset( $blocks[0]['uri'] ), 'uri' );
+		$this->assertSame( $shares_data, isset( $blocks[0]['userAgent'] ), 'userAgent' );
+	}
+
+	/**
+	 * Data provider for test_blocks_carry_request_details_only_when_sharing_is_on.
+	 *
+	 * @return array
+	 */
+	public static function provide_share_data() {
+		return array(
+			'sharing off' => array( false ),
+			'sharing on'  => array( true ),
+		);
 	}
 }

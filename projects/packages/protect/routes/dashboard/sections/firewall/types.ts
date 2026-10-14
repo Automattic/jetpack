@@ -25,5 +25,11 @@ export type FirewallState = {
 	ipRules: ProtectSettings;
 };
 
+/** What `/firewall/blocks` returns, and the card keeps up to date after a test. */
+export type FirewallBlocks = Pick< FirewallState, 'blockedCount' | 'recentBlocks' >;
+
+/** What `/firewall/test` returns: the one-time URL the firewall blocks. */
+export type FirewallTestResponse = { url: string };
+
 /** Undefined when PHP registered no Firewall section. */
 export type FirewallContext = DashboardContext< FirewallState | undefined >;

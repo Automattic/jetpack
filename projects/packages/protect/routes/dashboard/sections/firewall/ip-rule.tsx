@@ -2,13 +2,14 @@ import { ToggleControl } from '@wordpress/components';
 import { useCallback, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Badge, Button, Dialog, Stack, Text, TextareaControl, VisuallyHidden } from '@wordpress/ui';
-import { appendIp, splitIps } from '../../components/settings/ip-list';
+import { appendIp, getIpList, splitIps } from '../../components/settings/ip-list';
+import { enabledKey } from './settings-keys';
 import type { ProtectSettingsData } from '../../data/use-protect-settings';
 import type { ChangeEvent } from 'react';
 
 type Props = {
 	data: ProtectSettingsData;
-	/** The setting holding the list; its on/off setting is `${ name }_enabled`. */
+	/** The setting holding the list; `enabledKey( name )` turns it on or off. */
 	name: string;
 	label: string;
 	description: string;
@@ -40,9 +41,8 @@ export default function IpRule( {
 	currentIp,
 }: Props ) {
 	const { save, isSaving } = data;
-	const enabledName = `${ name }_enabled`;
-	const saved =
-		typeof data.settings?.[ name ] === 'string' ? ( data.settings[ name ] as string ) : '';
+	const enabledName = enabledKey( name );
+	const saved = getIpList( data.settings, name );
 	const [ open, setOpen ] = useState( false );
 	const [ draft, setDraft ] = useState( saved );
 	// `data.error` is shared by every setting, so only show it for a save made from this dialog.

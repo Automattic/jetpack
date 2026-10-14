@@ -6,6 +6,8 @@ import { Stack, Text } from '@wordpress/ui';
 import { CardRow, ProtectCard } from '../../components/card';
 import IpListField from '../../components/settings/ip-list-field';
 import SettingToggle from '../../components/settings/setting-toggle';
+import FirewallToggle from './firewall-toggle';
+import { IP_ALLOW_LIST, IP_BLOCK_LIST, enabledKey } from './settings-keys';
 import type { FirewallContext } from './types';
 
 const AUTOMATIC_RULES = 'jetpack_waf_automatic_rules';
@@ -84,15 +86,7 @@ export default function FirewallSettingsCard( { state, settings: data }: Firewal
 				</Text>
 			</div>
 			<CardRow>
-				<SettingToggle
-					data={ data }
-					name="waf"
-					label={ __( 'Enable firewall', 'jetpack-protect-pkg' ) }
-					help={ __(
-						'Inspects every request against Jetpack’s firewall rules.',
-						'jetpack-protect-pkg'
-					) }
-				/>
+				<FirewallToggle data={ data } />
 			</CardRow>
 			<CardRow>
 				<ToggleControl
@@ -116,7 +110,7 @@ export default function FirewallSettingsCard( { state, settings: data }: Firewal
 				<Stack direction="column" gap="md">
 					<SettingToggle
 						data={ data }
-						name="jetpack_waf_ip_block_list_enabled"
+						name={ enabledKey( IP_BLOCK_LIST ) }
 						label={ __( 'Block these IP addresses', 'jetpack-protect-pkg' ) }
 						help={ __(
 							'Requests from these addresses never reach your site.',
@@ -124,10 +118,10 @@ export default function FirewallSettingsCard( { state, settings: data }: Firewal
 						) }
 						disabled={ ! wafOn }
 					/>
-					{ wafOn && Boolean( settings?.jetpack_waf_ip_block_list_enabled ) && (
+					{ wafOn && Boolean( settings?.[ enabledKey( IP_BLOCK_LIST ) ] ) && (
 						<IpListField
 							data={ data }
-							name="jetpack_waf_ip_block_list"
+							name={ IP_BLOCK_LIST }
 							label={ __( 'Blocked IP addresses', 'jetpack-protect-pkg' ) }
 						/>
 					) }
@@ -137,7 +131,7 @@ export default function FirewallSettingsCard( { state, settings: data }: Firewal
 				<Stack direction="column" gap="md">
 					<SettingToggle
 						data={ data }
-						name="jetpack_waf_ip_allow_list_enabled"
+						name={ enabledKey( IP_ALLOW_LIST ) }
 						label={ __( 'Always allowed IP addresses', 'jetpack-protect-pkg' ) }
 						help={ __(
 							'Prevent Jetpack’s security features from blocking specific IP addresses.',
@@ -145,10 +139,10 @@ export default function FirewallSettingsCard( { state, settings: data }: Firewal
 						) }
 						disabled={ ! wafOn }
 					/>
-					{ wafOn && Boolean( settings?.jetpack_waf_ip_allow_list_enabled ) && (
+					{ wafOn && Boolean( settings?.[ enabledKey( IP_ALLOW_LIST ) ] ) && (
 						<IpListField
 							data={ data }
-							name="jetpack_waf_ip_allow_list"
+							name={ IP_ALLOW_LIST }
 							label={ __( 'Always allowed IP addresses', 'jetpack-protect-pkg' ) }
 							currentIp={ state?.currentIp }
 						/>
