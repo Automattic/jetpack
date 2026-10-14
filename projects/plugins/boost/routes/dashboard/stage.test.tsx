@@ -25,10 +25,11 @@ beforeEach( () => {
 				if ( target.contains( screen.queryByText( 'Performance Overview' ) ) ) {
 					resizeCallback = callback;
 					resizeObserver = observer;
+					observer.disconnect = mockDisconnect;
 				}
 			} ),
 			unobserve: jest.fn(),
-			disconnect: mockDisconnect,
+			disconnect: jest.fn(),
 		};
 		return observer;
 	} );
@@ -113,7 +114,10 @@ const getSubpageMount = () => document.getElementById( 'jb-subpage-mount' );
 
 beforeEach( () => {
 	window.history.replaceState( null, '', '/?page=jetpack-boost' );
-	Object.assign( window, { wpApiSettings: { root: '/wp-json/', nonce: 'test-nonce' } } );
+	Object.assign( window, {
+		wpApiSettings: { root: '/wp-json/', nonce: 'test-nonce' },
+		Jetpack_Boost: { site: { myJetpack: true } },
+	} );
 	mockNavigate.mockReset();
 	setGettingStarted( false );
 } );
@@ -135,6 +139,20 @@ const setGettingStarted = ( value: boolean ) => {
 };
 
 describe( 'Boost dashboard stage', () => {
+	it.each( [
+		[ 'Overview', '' ],
+		[ 'Settings', SETTINGS_ARG ],
+	] )( 'keeps the Boost title on %s when My Jetpack is unavailable', ( _page, query ) => {
+		Object.assign( window, { Jetpack_Boost: { site: { myJetpack: false } } } );
+		window.history.replaceState( null, '', `/?page=jetpack-boost${ query }` );
+		render( <Stage /> );
+
+		expect( screen.getByRole( 'heading', { level: 1 } ) ).toHaveTextContent( 'Boost' );
+		expect( screen.getAllByRole( 'heading', { level: 1, hidden: true } ) ).toHaveLength( 1 );
+		expect( screen.queryByRole( 'navigation', { name: 'Breadcrumbs' } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: 'Jetpack' } ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'links the Jetpack ancestor to My Jetpack', () => {
 		render( <Stage /> );
 		expect( screen.getByRole( 'link', { name: 'Jetpack' } ) ).toHaveAttribute(
