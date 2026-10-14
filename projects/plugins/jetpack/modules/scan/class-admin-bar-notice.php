@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Scan;
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Protect\Threat_Count;
 use Automattic\Jetpack\Redirect;
 use WP_Admin_Bar;
 
@@ -28,6 +29,20 @@ class Admin_Bar_Notice {
 	 * @var Admin_Bar_Notice
 	 */
 	protected static $instance;
+
+	/**
+	 * The Protect dashboard's stored count, once read.
+	 *
+	 * @var int|null
+	 */
+	private $protect_count;
+
+	/**
+	 * Whether the Protect dashboard's count has been read in this request.
+	 *
+	 * @var bool
+	 */
+	private $protect_count_read = false;
 
 	/**
 	 * Get the singleton instance of the class.
@@ -101,11 +116,12 @@ class Admin_Bar_Notice {
 	public function enqueue_toolbar_script() {
 		$this->add_inline_styles();
 
-		if ( $this->has_threats() !== null ) {
+		// The Protect dashboard's own script refreshes its count; otherwise this one fetches it when nothing is cached.
+		$needs_refresh = $this->uses_protect_count() ? Threat_Count::needs_refresh() : null === $this->has_threats();
+		if ( ! $needs_refresh ) {
 			return;
 		}
 
-		// We don't know about threats in the cache lets load the JS that fetches the info and updates the admin bar.
 		Assets::register_script(
 			self::SCRIPT_NAME,
 			'_inc/build/scan/admin-bar-notice.min.js',
@@ -128,6 +144,9 @@ class Admin_Bar_Notice {
 			/* translators: %s is the alert icon */
 			'multiple'           => sprintf( esc_html__( '%s Threats found', 'jetpack' ), $this->get_icon() ),
 		);
+		if ( $this->uses_protect_count() ) {
+			$script_data['count_event'] = Threat_Count::EVENT;
+		}
 		wp_localize_script( self::SCRIPT_NAME, 'Jetpack_Scan', $script_data );
 	}
 
@@ -204,6 +223,28 @@ class Admin_Bar_Notice {
 	}
 
 	/**
+	 * Whether the count comes from the Protect dashboard, so the admin bar and the Protect menu item agree.
+	 *
+	 * @return bool
+	 */
+	private function uses_protect_count() {
+		return $this->has_protect_dashboard() && method_exists( Threat_Count::class, 'get_cached' );
+	}
+
+	/**
+	 * The Protect dashboard's stored count, read once per request.
+	 *
+	 * @return int|null Null when no status has been stored yet.
+	 */
+	private function get_protect_count() {
+		if ( ! $this->protect_count_read ) {
+			$this->protect_count      = Threat_Count::get_cached();
+			$this->protect_count_read = true;
+		}
+		return $this->protect_count;
+	}
+
+	/**
 	 * Where the threats are listed: the Protect dashboard when it is loaded, Jetpack Cloud otherwise.
 	 *
 	 * @return string
@@ -229,6 +270,11 @@ class Admin_Bar_Notice {
 	 * * @return boolean or null
 	 */
 	public function has_threats() {
+		if ( $this->uses_protect_count() ) {
+			$count = $this->get_protect_count();
+			return null === $count ? null : $count > 0;
+		}
+
 		$scan_state = get_transient( 'jetpack_scan_state' );
 		if ( empty( $scan_state ) ) {
 			return null;
@@ -245,6 +291,10 @@ class Admin_Bar_Notice {
 	public function get_threat_count() {
 		if ( ! $this->has_threats() ) {
 			return 0;
+		}
+
+		if ( $this->uses_protect_count() ) {
+			return (int) $this->get_protect_count();
 		}
 
 		$scan_state = get_transient( 'jetpack_scan_state' );

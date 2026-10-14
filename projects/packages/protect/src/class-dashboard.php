@@ -8,11 +8,8 @@
 namespace Automattic\Jetpack\Protect;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
-use Automattic\Jetpack\Menu_Badges\Menu_Badges;
-use Automattic\Jetpack\Menu_Badges\Notification_Counts;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Protect_Status\Plan;
-use Automattic\Jetpack\Protect_Status\Status;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id;
 
@@ -55,13 +52,6 @@ class Dashboard {
 	const RENDER_FUNCTION = 'jetpack_protect_jetpack_protect_dashboard_wp_admin_render_page';
 
 	/**
-	 * Transient set while the menu skips the threat count after a failed status fetch.
-	 *
-	 * @var string
-	 */
-	const THREAT_COUNT_BACKOFF_TRANSIENT = 'jetpack_protect_dashboard_threat_count_backoff';
-
-	/**
 	 * Extra Admin_Menu item options, such as the module that owns the item.
 	 *
 	 * @var array
@@ -95,6 +85,7 @@ class Dashboard {
 		// Before Admin_Menu registers its items at 1000, and after the Protect plugin adds its own on `_admin_menu`.
 		add_action( 'admin_menu', array( __CLASS__, 'add_menu' ), 999 );
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
+		Threat_Count::init();
 
 		self::load_sections( __DIR__ . '/sections' );
 
@@ -370,36 +361,7 @@ class Dashboard {
 			array_merge( array( 'key' => self::MENU_SLUG ), self::$menu_options )
 		);
 
-		self::register_threat_count();
-	}
-
-	/**
-	 * Show the number of threats next to the "Protect" item, for users who can open the page.
-	 *
-	 * @return void
-	 */
-	private static function register_threat_count() {
-		if ( ! self::can_manage() || get_transient( self::THREAT_COUNT_BACKOFF_TRANSIENT ) ) {
-			return;
-		}
-
-		$status = Status::get_status();
-		if ( ! empty( $status->error ) ) {
-			// A failed fetch is not cached, so without this every admin load would wait on wpcom again.
-			set_transient( self::THREAT_COUNT_BACKOFF_TRANSIENT, 1, 5 * MINUTE_IN_SECONDS );
-			return;
-		}
-
-		Menu_Badges::init();
-		// The same ID as the Jetpack Protect plugin's entry, so the threats are not counted twice.
-		Notification_Counts::register(
-			self::MENU_SLUG,
-			array(
-				'menu_slug' => self::MENU_SLUG,
-				'count'     => count( $status->threats ),
-				'type'      => 'count',
-			)
-		);
+		Threat_Count::register_menu_badge();
 	}
 
 	/**
