@@ -21,6 +21,50 @@ class WPCom_Themes_Tiers {
 	const FREE = 'free';
 
 	/**
+	 * The plan each tier needs, by tier slug.
+	 *
+	 * Must stay consistent with Calypso's THEME_TIERS.minimumUpsellPlan, which answers this for the
+	 * theme showcase. A tier that is not listed needs no plan.
+	 */
+	const MINIMUM_PLAN = array(
+		'personal'    => 'personal-bundle',
+		'premium'     => 'personal-bundle',
+		'partner'     => 'personal-bundle',
+		'woocommerce' => 'value_bundle',
+		'sensei'      => 'business-bundle',
+		'community'   => 'business-bundle',
+	);
+
+	/**
+	 * The plan a tier needs.
+	 *
+	 * @param string $tier Tier slug.
+	 * @return string Plan slug, empty for a tier that needs none.
+	 */
+	public static function plan_for( string $tier ): string {
+		return self::MINIMUM_PLAN[ $tier ] ?? '';
+	}
+
+	/**
+	 * What to call the plan a tier needs, for a card that offers the upgrade.
+	 *
+	 * @param string $tier Tier slug.
+	 * @return string Plan name, empty for a tier that needs none.
+	 */
+	public static function plan_name_for( string $tier ): string {
+		switch ( self::plan_for( $tier ) ) {
+			case 'personal-bundle':
+				return __( 'Personal plan', 'jetpack-mu-wpcom' );
+			case 'value_bundle':
+				return __( 'Premium plan', 'jetpack-mu-wpcom' );
+			case 'business-bundle':
+				return __( 'Business plan', 'jetpack-mu-wpcom' );
+			default:
+				return '';
+		}
+	}
+
+	/**
 	 * The tier of a theme as WordPress.com returns it.
 	 *
 	 * @param stdClass $theme A theme from the WordPress.com themes API.

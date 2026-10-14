@@ -1,0 +1,28 @@
+/**
+ * The plan a theme needs, on the cards that offer an upgrade
+ * instead of an install.
+ */
+
+.wpcom-themes-tab__plan {
+	display: inline-block;
+	padding: 4px 8px;
+	border-radius: 2px;
+	background: #1e1e1e;
+	color: #fff;
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 1.4;
+}
+
+/* Core's cards position their own children, so the screenshot is
+   already a containing block. */
+.wpcom-themes-tab__plan--on-screenshot {
+	position: absolute;
+	inset-block-start: 8px;
+	inset-inline-end: 8px;
+	z-index: 1;
+}
+
+.install-theme-info .wpcom-themes-tab__plan {
+	margin-block-start: 8px;
+}

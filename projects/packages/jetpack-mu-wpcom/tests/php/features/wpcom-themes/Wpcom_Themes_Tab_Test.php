@@ -398,4 +398,14 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertFalse( wpcom_themes_tab_enabled() );
 	}
+
+	/**
+	 * Checkout comes back to the tab when it is abandoned, which needs the URL encoded as a value.
+	 */
+	public function test_checkout_returns_to_the_tab() {
+		$url = wpcom_themes_tab_checkout_url( 'personal-bundle' );
+
+		$this->assertStringContainsString( 'https://wordpress.com/checkout/example.org/personal-bundle', $url );
+		$this->assertStringContainsString( 'checkoutBackUrl=' . rawurlencode( wpcom_themes_tab_url() ), $url );
+	}
 }

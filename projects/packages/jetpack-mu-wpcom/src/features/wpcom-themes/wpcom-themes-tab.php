@@ -65,10 +65,11 @@ function wpcom_themes_tab_enqueue_script() {
 		return;
 	}
 
+	// Core's theme.js owns the views this decorates, and routes on DOM ready rather than on load.
 	wp_enqueue_script(
 		'wpcom-themes-tab',
 		plugins_url( 'js/themes-tab.js', __FILE__ ),
-		array(),
+		array( 'theme' ),
 		Jetpack_Mu_Wpcom::PACKAGE_VERSION,
 		array( 'in_footer' => true )
 	);
@@ -76,9 +77,16 @@ function wpcom_themes_tab_enqueue_script() {
 		'wpcom-themes-tab',
 		'wpcomThemesTab',
 		array(
-			'sort'  => WPCOM_THEMES_TAB,
-			'label' => _x( 'Marketplace', 'Theme Installer', 'jetpack-mu-wpcom' ),
+			'sort'    => WPCOM_THEMES_TAB,
+			'label'   => _x( 'Marketplace', 'Theme Installer', 'jetpack-mu-wpcom' ),
+			'upgrade' => __( 'Upgrade', 'jetpack-mu-wpcom' ),
 		)
+	);
+	wp_enqueue_style(
+		'wpcom-themes-tab',
+		plugins_url( 'css/themes-tab.css', __FILE__ ),
+		array(),
+		Jetpack_Mu_Wpcom::PACKAGE_VERSION
 	);
 }
 add_action( 'load-theme-install.php', 'wpcom_themes_tab_enqueue_script' );
@@ -112,10 +120,59 @@ function wpcom_themes_tab_redirect_to_default_view() {
 		return;
 	}
 
-	wp_safe_redirect( admin_url( 'theme-install.php?browse=' . WPCOM_THEMES_TAB ) );
+	wp_safe_redirect( wpcom_themes_tab_url() );
 	exit;
 }
 add_action( 'load-theme-install.php', 'wpcom_themes_tab_redirect_to_default_view' );
+/**
+ * This tab's own URL.
+ *
+ * @return string
+ */
+function wpcom_themes_tab_url() {
+	return admin_url( 'theme-install.php?browse=' . WPCOM_THEMES_TAB );
+}
+
+/**
+ * Where to buy a plan, coming back here if checkout is abandoned.
+ *
+ * @param string $plan Plan slug.
+ * @return string
+ */
+function wpcom_themes_tab_checkout_url( string $plan ) {
+	$url = sprintf(
+		'https://wordpress.com/checkout/%s/%s',
+		rawurlencode( (string) wp_parse_url( home_url(), PHP_URL_HOST ) ),
+		rawurlencode( $plan )
+	);
+
+	// Checkout honours a back URL on the site's own host, and add_query_arg() does not encode values.
+	return add_query_arg( 'checkoutBackUrl', rawurlencode( wpcom_themes_tab_url() ), $url );
+}
+
+/**
+ * Says which plan a theme needs, for the cards that offer it rather than an install.
+ *
+ * Core's grid offers Install for whatever it is given, so a theme the plan excludes has to carry
+ * the upgrade that belongs in its place.
+ *
+ * @param stdClass $theme A theme in the themes API shape.
+ * @return stdClass The theme, carrying the plan it needs when the site lacks it.
+ */
+function wpcom_themes_tab_add_upgrade( $theme ) {
+	$tier = isset( $theme->theme_tier ) ? (string) $theme->theme_tier : '';
+	$plan = WPCom_Themes_Tiers::plan_for( $tier );
+
+	if ( '' === $plan || WPCom_Themes_Tiers::site_can_use( $tier ) ) {
+		return $theme;
+	}
+
+	$theme->upgrade_plan = WPCom_Themes_Tiers::plan_name_for( $tier );
+	$theme->upgrade_url  = wpcom_themes_tab_checkout_url( $plan );
+
+	return $theme;
+}
+
 /**
  * The shared WordPress.com themes reader, which wpcomsh also uses for core's own tabs.
  *
@@ -186,7 +243,7 @@ function wpcom_themes_tab_serve_themes_api( $result, $action, $args ) {
 				'pages'   => 1,
 				'results' => 1,
 			),
-			'themes' => array( wpcom_themes_tab_mapper()->map_wpcom_to_wporg( $theme ) ),
+			'themes' => array( wpcom_themes_tab_add_upgrade( wpcom_themes_tab_mapper()->map_wpcom_to_wporg( $theme ) ) ),
 		);
 	}
 
@@ -208,7 +265,7 @@ function wpcom_themes_tab_serve_themes_api( $result, $action, $args ) {
 			'pages'   => (int) ceil( count( $themes ) / WPCOM_THEMES_TAB_PER_PAGE ),
 			'results' => count( $themes ),
 		),
-		'themes' => array_values( array_map( array( $mapper, 'map_wpcom_to_wporg' ), $shown ) ),
+		'themes' => array_values( array_map( 'wpcom_themes_tab_add_upgrade', array_map( array( $mapper, 'map_wpcom_to_wporg' ), $shown ) ) ),
 	);
 }
 add_filter( 'themes_api', 'wpcom_themes_tab_serve_themes_api', 10, 3 );
