@@ -208,7 +208,7 @@ describe( 'useConnectionState', () => {
 		[ 'warning', 'only the owner can repair', ownerTokenBroken, owner ],
 		[ 'error', 'breaks the whole site', siteTokenBroken, null ],
 	] )(
-		'shows a %s diagnosis rather than the account prompt when the error %s',
+		'shows the %s diagnosis rather than the account prompt when the error %s',
 		( status, _, connectionErrors, connectionOwner ) => {
 			setSite( { connectionErrors, connectionOwner, userConnectionPluginActive: true } );
 
