@@ -26,6 +26,15 @@ const leaderboardInWidgetRoot = ( rows: AuthorLeaderboardRow[] ) => (
 	</WidgetRoot>
 );
 
+const authorRow = ( posts: AuthorLeaderboardRow[ 'posts' ] ): AuthorLeaderboardRow => ( {
+	id: '101',
+	label: 'Jane Cooper',
+	avatarUrl: null,
+	currentValue: 20,
+	currentShare: 1,
+	posts,
+} );
+
 describe( 'AuthorsWidget', () => {
 	beforeEach( () => {
 		queryClient.clear();
@@ -121,6 +130,25 @@ describe( 'AuthorsWidget', () => {
 
 		expect(
 			screen.getByText( 'We couldn’t find results for this time period.' )
+		).toBeInTheDocument();
+	} );
+
+	it( 'names the missing post views, not "no results", when a drilled-in author loses its posts on refetch', async () => {
+		const user = userEvent.setup();
+		const post = {
+			id: '123',
+			title: 'Quarterly update',
+			link: 'https://example.com/quarterly-update/',
+			currentValue: 20,
+			currentShare: 1,
+		};
+		const { rerender } = render( leaderboardInWidgetRoot( [ authorRow( [ post ] ) ] ) );
+
+		await user.click( screen.getByRole( 'button', { name: 'View posts by Jane Cooper' } ) );
+		rerender( leaderboardInWidgetRoot( [ authorRow( [] ) ] ) );
+
+		expect(
+			screen.getByText( 'This author has no posts with views for the selected period.' )
 		).toBeInTheDocument();
 	} );
 } );

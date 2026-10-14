@@ -79,7 +79,7 @@ function PostCommentsInner() {
 									'Open a post or page report to see its comments here.',
 									'jetpack-premium-analytics-pkg'
 								)
-							: __( 'You don’t have comments recorded yet.', 'jetpack-premium-analytics-pkg' ),
+							: __( 'This post has no comments yet.', 'jetpack-premium-analytics-pkg' ),
 				} }
 			>
 				<SubscriberList

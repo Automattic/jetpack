@@ -68,7 +68,7 @@ describe( 'PostCommentsWidget', () => {
 		renderWidget( 779 );
 
 		await expect(
-			screen.findByText( 'You don’t have comments recorded yet.' )
+			screen.findByText( 'This post has no comments yet.' )
 		).resolves.toBeInTheDocument();
 		expect( mockApiFetch ).toHaveBeenCalledWith(
 			expect.objectContaining( {
