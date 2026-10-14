@@ -134,29 +134,37 @@ describe( 'BarChart overlap layout', () => {
 		);
 	} );
 
-	it( 'draws each previous period in the legend as its line and marker', () => {
-		renderWithTheme( {
-			data: [ views, visitors, viewsPrev, visitorsPrev ],
-			layout: 'overlap',
-			showLegend: true,
-			legend: {
+	it.each( [
+		[ 'a legend item per series', {} ],
+		[
+			'collapsed groups',
+			{
 				collapseGroups: true,
 				comparisonSeriesItems: ( metric: string ) => `${ metric } (Previous period)`,
 			},
-		} );
+		],
+	] )(
+		'draws each previous period in the legend as its line and marker, with %s',
+		( _, legend ) => {
+			renderWithTheme( {
+				data: [ views, visitors, viewsPrev, visitorsPrev ],
+				layout: 'overlap',
+				showLegend: true,
+				legend,
+			} );
 
-		const [ , , viewsPrevItem, visitorsPrevItem ] = screen.getAllByTestId( 'legend-item' );
-		expect( within( viewsPrevItem ).getByTestId( 'comparison-line-glyph-line' ) ).toHaveAttribute(
-			'stroke-dasharray',
-			'4 4'
-		);
-		expect( within( viewsPrevItem ).getByTestId( 'comparison-line-glyph-marker' ).tagName ).toBe(
-			'rect'
-		);
-		expect( within( visitorsPrevItem ).getByTestId( 'comparison-line-glyph-marker' ).tagName ).toBe(
-			'circle'
-		);
-	} );
+			const [ , , viewsPrevItem, visitorsPrevItem ] = screen.getAllByTestId( 'legend-item' );
+			const line = within( viewsPrevItem ).getByTestId( 'comparison-line-glyph-line' );
+			expect( line ).toHaveAttribute( 'stroke-dasharray', '4 4' );
+			expect( line ).toHaveAttribute( 'stroke-linecap', 'square' );
+			expect( within( viewsPrevItem ).getByTestId( 'comparison-line-glyph-marker' ).tagName ).toBe(
+				'rect'
+			);
+			expect(
+				within( visitorsPrevItem ).getByTestId( 'comparison-line-glyph-marker' ).tagName
+			).toBe( 'circle' );
+		}
+	);
 
 	it( 'plots a zero reading at zero, not at the zero-value stub', () => {
 		renderWithTheme( {

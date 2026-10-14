@@ -1,17 +1,16 @@
 import { DataContext, LineSeries } from '@visx/xychart';
 import { useContext } from 'react';
 import { CATALOG_POINTERS } from '../../../providers/chart-context/private/catalog-pointers';
+import { getComparisonLineWidth } from './comparison-line-paint';
 import { ComparisonMarkerShape } from './comparison-marker';
-import { COMPARISON_LINE_CASING, COMPARISON_LINE_WIDTH } from './overlap-constants';
+import { COMPARISON_LINE_CASING } from './overlap-constants';
 import type { BandScale } from './band-scale';
 import type { DataPointDate, SeriesData } from '../../../types';
 import type { BarOverlapStyles } from '../types';
-import type { LineStyles } from '@visx/xychart';
-import type { DOMAttributes, FC } from 'react';
+import type { LinePaint } from './comparison-line-paint';
+import type { FC } from 'react';
 
 type Comparison = BarOverlapStyles[ 'comparisons' ][ number ];
-// LineSeries types its handlers as visx callbacks and positions the path itself.
-type LinePaint = Omit< LineStyles, keyof DOMAttributes< SVGLineElement > | 'x' | 'y' >;
 type XAccessor = ( datum: DataPointDate ) => unknown;
 
 // The raw reading, not the zero-value stub, so a zero sits on the baseline and a gap stays a gap.
@@ -62,11 +61,6 @@ type Props = {
 	xAccessor: XAccessor;
 };
 
-const getLineWidth = ( paint: LinePaint ) => {
-	const width = Number( paint.strokeWidth ?? COMPARISON_LINE_WIDTH );
-	return Number.isFinite( width ) ? width : COMPARISON_LINE_WIDTH;
-};
-
 // The overlap layout's previous periods: dashed lines with a marker on every reading.
 export const ComparisonLines: FC< Props > = ( { comparisons, data, xAccessor } ) => {
 	const drawn = comparisons.flatMap( comparison => {
@@ -88,7 +82,7 @@ export const ComparisonLines: FC< Props > = ( { comparisons, data, xAccessor } )
 								yAccessor={ getReading }
 								enableEvents={ false }
 								stroke={ CATALOG_POINTERS.background }
-								strokeWidth={ getLineWidth( paint ) + COMPARISON_LINE_CASING * 2 }
+								strokeWidth={ getComparisonLineWidth( paint ) + COMPARISON_LINE_CASING * 2 }
 								data-testid={ `bar-chart-comparison-casing-${ comparison.label }` }
 							/>
 						) }

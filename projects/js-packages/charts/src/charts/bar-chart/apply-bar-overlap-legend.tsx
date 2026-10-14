@@ -33,7 +33,11 @@ export function applyBarOverlapLegend(
 			};
 		}
 
-		const comparison = styles.comparisons.find( entry => entry.label === item.describesSeries );
+		// Without `describesSeries` the item is the comparison series' own, as in an ungrouped legend.
+		const seriesLabel =
+			item.describesSeries ??
+			( item.seriesLabels?.length === 1 ? item.seriesLabels[ 0 ] : undefined );
+		const comparison = styles.comparisons.find( entry => entry.label === seriesLabel );
 
 		return comparison
 			? {
@@ -42,7 +46,7 @@ export function applyBarOverlapLegend(
 					renderGlyph: ( { size } ) => (
 						<ComparisonLineGlyph
 							stroke={ comparison.stroke }
-							dash={ comparison.lineStyles.strokeDasharray }
+							lineStyles={ comparison.lineStyles }
 							marker={ comparison.marker }
 							width={ size * 2 }
 							height={ size * 2 }
