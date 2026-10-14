@@ -243,8 +243,8 @@ Set `layout="overlap"` to nest two series instead of placing them side by side. 
 - It also falls back when the colors cannot be separated: the outer series color must reach 3:1 contrast with the chart background, and the inner bar must reach 3:1 against the outer tint. Colors are checked at render time, so the bars and the lines stay distinguishable (WCAG 1.4.11).
 - A comparison series joins a primary only through a defined `group` that matches. Unlike grouped bars, the single-primary shortcut of omitting `group` does not apply, so an ungrouped comparison is not paired with a primary.
 - Comparison lines use the `--a8c-charts-color-comparison-line` catalog role (neutral by default) and the theme's comparison line style. Set `options.stroke` on a comparison series to override its color.
-- Hovering shows the tooltip for the inner bar at the center of the band and for the outer bar elsewhere. Keyboard highlighting follows the same split.
-- The default legend styles the outer series with its tint and outline, and each comparison with a line glyph. This also works with `legend.collapseGroups` and `legend.comparisonSeriesItems`. The single `legend.comparisonItem` keeps a plain swatch.
+- Hovering shows the tooltip for the inner bar at the center of the band and for the outer bar elsewhere. Keyboard navigation steps through the outer and inner bar of each category and highlights the focused one.
+- The default legend styles the outer series with its tint and outline, and each comparison with a line glyph. This also works with `legend.collapseGroups` and `legend.comparisonSeriesItems`. Pair overlap with per-series comparison items rather than the single `legend.comparisonItem`, which stands for both lines and so keeps a plain swatch.
 - For custom legends or tooltips, use `useBarOverlapStyles`, `applyBarOverlapLegend`, and `ComparisonLineSwatch`. See the [API reference](./?path=/docs/js-packages-charts-library-charts-bar-chart-api-reference--docs).
 - Bar corners follow `--a8c-charts-border-radius-bar-chart`, like grouped bars.
 
