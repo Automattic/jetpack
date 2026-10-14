@@ -98,7 +98,7 @@ export function groupMoreFeatures(
 
 	// One pass over the name-sorted modules, so every group reads A to Z.
 	for ( const $module of Object.values( modules ).sort( compareModulesByName ) ) {
-		// The Modules screen hides the same legacy VaultPress stub.
+		// The Modules screen hides these legacy features too.
 		if (
 			$module.module === 'vaultpress' ||
 			$module.module === 'custom-content-types' ||
