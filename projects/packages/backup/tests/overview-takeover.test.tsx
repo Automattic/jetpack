@@ -299,4 +299,18 @@ describe( 'Backup-state read failure', () => {
 			} )
 		).toBeInTheDocument();
 	} );
+
+	it( 'is heard together with a failed activity log, not cut off by it', async () => {
+		mockEndpoints( { backups: null, activityFails: true } );
+
+		render( <OverviewStage /> );
+
+		// Both at once, in either order: each alone was in the region at some point on trunk.
+		await expect(
+			screen.findByText(
+				/(?=.*We couldn't check your site's backup status\.)(?=.*We couldn't load your site's activity\.)/,
+				{ selector: '#a11y-speak-assertive' }
+			)
+		).resolves.toBeInTheDocument();
+	} );
 } );

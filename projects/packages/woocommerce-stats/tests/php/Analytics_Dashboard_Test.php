@@ -106,6 +106,7 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		$this->assertSame(
 			array(
 				Analytics_Dashboard::STORE_PERFORMANCE_TYPE,
+				Analytics_Dashboard::VISITORS_BY_LOCATION_TYPE,
 				Analytics_Dashboard::NET_SALES_OVER_TIME_TYPE,
 				Analytics_Dashboard::TOTAL_SALES_OVER_TIME_TYPE,
 				Analytics_Dashboard::GROSS_SALES_OVER_TIME_TYPE,
@@ -113,6 +114,7 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 				Analytics_Dashboard::AVERAGE_ORDER_VALUE_TYPE,
 				Analytics_Dashboard::AVERAGE_ITEMS_PER_ORDER_TYPE,
 				Analytics_Dashboard::VISITORS_OVER_TIME_TYPE,
+				Analytics_Dashboard::CONVERSION_RATE_TYPE,
 				Analytics_Dashboard::NEW_VS_RETURNING_CUSTOMER_TYPE,
 				Analytics_Dashboard::PAYMENT_STATUS_TYPE,
 				Analytics_Dashboard::ORDERS_FULFILLMENT_TYPE,
@@ -122,6 +124,10 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 				Analytics_Dashboard::SALES_BY_UTM_SOURCE_TYPE,
 				Analytics_Dashboard::SALES_BY_UTM_CHANNEL_TYPE,
 				Analytics_Dashboard::SALES_BY_UTM_CAMPAIGN_TYPE,
+				Analytics_Dashboard::REVENUE_BY_CUSTOMER_TYPE_TYPE,
+				Analytics_Dashboard::SALES_BY_DEVICE_TYPE,
+				Analytics_Dashboard::TOTAL_RETURNS_TYPE,
+				Analytics_Dashboard::SALES_BY_COUPON_TYPE,
 			),
 			array_column( $section->get_default_layout(), 'type' )
 		);

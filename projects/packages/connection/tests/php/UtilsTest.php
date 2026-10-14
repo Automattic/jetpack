@@ -123,4 +123,39 @@ class UtilsTest extends TestCase {
 		$this->assertFalse( $user );
 		$this->assertSame( $before, Utils::get_wpcom_user_id( 1 ) );
 	}
+
+	/**
+	 * Tests the Utils::get_registration_error_description() method.
+	 *
+	 * @dataProvider registration_error_description_data_provider
+	 *
+	 * @param string     $error_code The error code.
+	 * @param string|int $message    The error message.
+	 * @param string     $expected   The expected description.
+	 */
+	#[DataProvider( 'registration_error_description_data_provider' )]
+	public function test_get_registration_error_description( $error_code, $message, $expected ) {
+		$this->assertSame( $expected, Utils::get_registration_error_description( $error_code, $message ) );
+	}
+
+	/**
+	 * Data provider for test_get_registration_error_description.
+	 *
+	 * @return array
+	 */
+	public static function registration_error_description_data_provider() {
+		$site_inaccessible = 'The Jetpack server was unable to communicate with your site https://shop.example.com [IXR Error: transport error - HTTP status code was not 200 (403)].  Ask your web host if they allow connections from WordPress.com. If you need further assistance, contact Jetpack Support: http://jetpack.com/support/';
+		$words             = str_repeat( 'word ', 78 );
+
+		return array(
+			'a status code is not copy'                  => array( 'wpcom_5??', '503', '' ),
+			'a status code as an int'                    => array( 'wpcom_408', 408, '' ),
+			'the jetpack_id response body'               => array( 'jetpack_id', 'Error Details: Jetpack ID is empty. Do not publicly post this error message! {"body":"..."}', '' ),
+			'an empty message stays empty'               => array( 'missing_secrets', '', '' ),
+			'the site_inaccessible text is kept whole'   => array( 'site_inaccessible_403', $site_inaccessible, $site_inaccessible ),
+			'a cut drops a link instead of breaking it'  => array( 'some_code', $words . 'https://example.com/a-link-that-would-be-cut', rtrim( $words ) ),
+			'a message without spaces is cut at the cap' => array( 'some_code', str_repeat( 'a', 500 ), str_repeat( 'a', 400 ) ),
+			'a multibyte message is cut by character'    => array( 'some_code', str_repeat( 'é', 500 ), str_repeat( 'é', 400 ) ),
+		);
+	}
 }

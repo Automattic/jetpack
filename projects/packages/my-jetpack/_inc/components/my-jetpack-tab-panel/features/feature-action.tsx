@@ -156,7 +156,6 @@ export function FeatureAction( { state, describedby, origin = 'card' }: FeatureA
 		case 'connect-account':
 			return <ConnectAccountButton state={ state } origin={ origin } />;
 		case 'module': {
-			// FeatureItem shows why, under the description: this slot does not shrink.
 			if ( getForcedReason( state ) ) {
 				return null;
 			}

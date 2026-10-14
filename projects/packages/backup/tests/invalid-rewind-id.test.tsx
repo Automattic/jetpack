@@ -17,6 +17,12 @@
 
 const mockApiFetch = jest.fn();
 const mockParams = jest.fn< { rewindId: string }, [] >();
+let mockIsRtl = false;
+
+jest.mock( '@wordpress/i18n', () => ( {
+	...jest.requireActual( '@wordpress/i18n' ),
+	isRTL: () => mockIsRtl,
+} ) );
 
 jest.mock( '@wordpress/api-fetch', () => ( {
 	__esModule: true,
@@ -32,6 +38,7 @@ jest.mock( '@wordpress/route', () => ( {
 
 // Imports must come after the jest.mock factories above.
 import { render, screen } from '@testing-library/react';
+import { Icon, arrowLeft, arrowRight } from '@wordpress/icons';
 import { queryClient } from '../src/dashboard/data/query-client';
 import QueryClientProvider from '../src/dashboard/providers/query-client-provider';
 import DownloadScreen from '../src/dashboard/screens/download';
@@ -45,6 +52,7 @@ const CAPABILITIES = { hasBackupPlan: true, hasScan: false };
 const VALID_ID = '1786644531.123';
 
 beforeEach( () => {
+	mockIsRtl = false;
 	queryClient.clear();
 	queryClient.setDefaultOptions( { queries: { retry: false } } );
 
@@ -106,6 +114,16 @@ describe( 'rewindIdToIso', () => {
 		expect( rewindIdToIso( '1786644531.123' ) ).toBe( new Date( 1786644531000 ).toISOString() );
 	} );
 } );
+
+/**
+ * Path data of the first <svg> under `root`, which identifies the drawn glyph.
+ *
+ * @param root - Element to scan.
+ * @return The `d` attribute, if any.
+ */
+function shapeOf( root: Element ): string | null | undefined {
+	return root.querySelectorAll( 'svg' )[ 0 ]?.querySelectorAll( 'path' )[ 0 ]?.getAttribute( 'd' );
+}
 
 describe.each( [
 	{
@@ -177,4 +195,33 @@ describe.each( [
 		).resolves.toBeInTheDocument();
 		expect( screen.queryByText( notFound ) ).not.toBeInTheDocument();
 	} );
+
+	it.each( [
+		[ 'LTR', false, arrowLeft, arrowRight, 'a valid rewind id', VALID_ID ],
+		[ 'LTR', false, arrowLeft, arrowRight, 'an invalid rewind id', 'not-a-real-id' ],
+		[ 'RTL', true, arrowRight, arrowLeft, 'a valid rewind id', VALID_ID ],
+		[ 'RTL', true, arrowRight, arrowLeft, 'an invalid rewind id', 'not-a-real-id' ],
+	] )(
+		'points the back arrow toward the inline start in %s for %s',
+		async ( _dir, rtl, expected, other, _label, rewindId ) => {
+			const arrow = ( icon: typeof arrowLeft ) => {
+				const { container, unmount } = render( <Icon icon={ icon } /> );
+				const shape = shapeOf( container );
+				unmount();
+				return shape;
+			};
+			mockIsRtl = rtl;
+			mockParams.mockReturnValue( { rewindId } );
+
+			render(
+				<QueryClientProvider>
+					<Screen />
+				</QueryClientProvider>
+			);
+
+			const back = await screen.findByText( 'Back to overview' );
+			expect( shapeOf( back ) ).toBe( arrow( expected ) );
+			expect( shapeOf( back ) ).not.toBe( arrow( other ) );
+		}
+	);
 } );

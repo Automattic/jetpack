@@ -117,7 +117,7 @@ describe( 'MostPopularDayWidget', () => {
 		render( <MostPopularDayWidget attributes={ {} } /> );
 
 		await expect(
-			screen.findByText( 'Not enough views yet to pick a most popular day.' )
+			screen.findByText( 'Your best day for traffic will show here once visitors start arriving.' )
 		).resolves.toBeInTheDocument();
 		expect( screen.queryByText( 'October 17' ) ).not.toBeInTheDocument();
 	} );

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Record the plain comment form when a reader reaches for it, not on every page view.

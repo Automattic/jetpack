@@ -59,9 +59,12 @@ pnpm run build / watch        # frontend build (one-off / on change)
 jetpack build --deps packages/premium-analytics
 ```
 
-`pnpm run build` bundles only this package: monorepo dependencies (charts,
-wp-build-polyfills, assets) must already be built. `jetpack build --deps` builds
-them first — use it after merging trunk or when charts exports look stale.
+`pnpm run build` bundles only this package; monorepo dependencies (charts,
+wp-build-polyfills, assets) must already be built. `jetpack build --deps` builds them
+too, but slowly: run it once per checkout or worktree, and again after merging trunk or
+when charts exports look stale. After an edit, `pnpm run build` is enough and takes
+seconds. `pnpm run watch` is faster but skips the text-domain stamp, so strings stay
+English until the next `pnpm run build`.
 
 ### Storybook serves the built artifact of some internal packages
 
@@ -94,8 +97,6 @@ registry hydrates on its first read, from the page boot dependencies or from RES
 action once; `src/widget-types.php` registers the package's own build manifest the same way. A type
 that changes its name declares `former_names`, so layouts saved under the old one keep rendering it.
 `docs/dashboard-widgets.md` walks through the path.
-
-Depends on `jetpack-connection`, `jetpack-stats`, `jetpack-sync`, `jetpack-config`.
 
 ### Timing-dependent JS tests use fake timers
 
@@ -194,16 +195,9 @@ Every route's `beforeLoad` that checks connection state, and every sync check, m
 `isPremiumAnalyticsSiteConnected()` / `isPremiumAnalyticsInitialSyncFinished()` from
 `routes/site-readiness.ts` — never read `getScriptData()?.connection?.connectionStatus?.isRegistered`
 or `getScriptData()?.premium_analytics?.initial_full_sync_finished` directly. Simple has no Jetpack
-connection, so a direct read silently evaluates to "not connected" there.
-
-That's more than one broken route: it's a redirect loop. `/connect` already goes through the
-shared helper and treats Simple as connected, so if a route added later skips the helpers, Simple
-hits that route, gets redirected to `/connect`, and `/connect` — seeing Simple as already
-connected — immediately redirects back to `/`. From the user's side this looks like "the page just
-bounces to the dashboard," with nothing in the console pointing at the cause. This shipped once
-(Automattic/jetpack#50266): the `/reports/$report` route was left reading script data directly
-when the other four routes were migrated to the shared helpers, so it fell out of sync with
-`/connect`'s guard and the two routes bounced traffic between each other on Simple.
+connection, so a direct read silently evaluates to "not connected" there, and the route then
+bounces between `/connect` and `/` with nothing in the console (Automattic/jetpack#50266). For a
+new guarded route, copy an existing `isPremiumAnalyticsSiteConnected` call in `routes/`.
 
 ### Initial analytics sync must not block rendering
 
@@ -216,29 +210,14 @@ independent of the active section. Do not start it when no available section req
 `isPremiumAnalyticsInitialSyncFinished()` for readiness checks so WordPress.com Simple remains
 supported.
 
-Adding a new route with a connection guard: grep `routes/` for
-`isPremiumAnalyticsSiteConnected` first and copy that shape — don't re-derive the check from
-script data.
-
-### Why the dashboard support routes moved from `jetpack/v4` to `wpcom/v2`
-
-The dashboard support routes (widget modules, sections) used to live under
-`jetpack/v4` — the self-hosted Jetpack plugin's own namespace. WPCOM's REST centralization doesn't
-recognize or expose that namespace for Simple sites, which run no Jetpack plugin at all, so those
-routes were unreachable from public-api. `wpcom/v2` is a namespace WPCOM's centralization already
-treats as site-specific by default for plain function-callback routes: registering under it is
-enough for WPCOM to rewrite and expose the route as `/wpcom/v2/sites/<blog_id>/...` through
-public-api, with no separate dotcom-side registration and no `wpcom_rest_api_v2_load_plugin()`
-class shim required. That's why the rename happened (Automattic/jetpack#50266), and it's why
-`Dashboard_Support_Routes::register()` exists as a standalone entry point WPCOM can call.
-
 ### Choosing a REST namespace for new endpoints
 
-**Any future Premium Analytics REST endpoint that needs to work on both connected Jetpack sites
-and WPCOM Simple must register under `wpcom/v2`** (via `DASHBOARD_REST_NAMESPACE` in
-`src/rest-namespace.php`), not `jetpack/v4` or a plugin-specific namespace — those only reach
-connected sites. An endpoint that's intentionally connected-site-only (e.g. the local data proxy,
-notices) can stay under `jetpack-premium-analytics/v1`, since Simple never calls it.
+**Any Premium Analytics REST endpoint that must work on both connected Jetpack sites and WPCOM
+Simple registers under `wpcom/v2`** (via `DASHBOARD_REST_NAMESPACE` in `src/rest-namespace.php`).
+WPCOM exposes that namespace for Simple sites with no dotcom-side registration; `jetpack/v4` and
+plugin-specific namespaces only reach connected sites. An endpoint that's intentionally
+connected-site-only (e.g. the local data proxy, notices) can stay under
+`jetpack-premium-analytics/v1`, since Simple never calls it.
 
 **WPCOM's public-api process calls `Dashboard_Support_Routes::register()` directly**
 (`src/class-dashboard-support-routes.php`) to register the dashboard's REST support routes
@@ -430,9 +409,6 @@ not be merged.
 4. **Title**: `Packages/Premium Analytics/Widgets/<WidgetName>` (note: no "Widgets Toolkit"
    in the path — that path is reserved for the legacy widgets).
 5. **Tags**: Include `tags: [ 'autodocs' ]` so the widget shows up in auto-generated docs.
-6. **Storybook registration**: Add `projects/packages/premium-analytics/widgets` to
-   `projects/js-packages/storybook/storybook/projects.js` if it isn't there already. New
-   per-widget folders are picked up automatically once that root is registered.
 
 ### Story template
 
@@ -664,9 +640,6 @@ give it a story for each; both mocks are 403s, so neither waits out the query's 
   bundles the entire charting stack into that widget's render bundle; add a re-export to the
   toolkit's "Charts passthrough" section instead. The toolkit in turn takes charts from
   `@jetpack-premium-analytics/externals`, so a passthrough export costs nothing.
-- Porting a Stats widget and forgetting to add its endpoint to `routeStatsReport()` in
-  `register-report-mocks.ts` — stories will render an error state instead of mock data because
-  the middleware only intercepts Woo analytics paths by default.
 
 ### Stats widgets
 
@@ -710,7 +683,12 @@ component owns the states, the skeleton, the shares and deltas, and the detail-l
 segments and the hook's status; it owns the states, the total, the legend and the deltas
 (the WooCommerce Stats package's widgets render it; `components/donut/stories/` shows the shape).
 A half ring is the same kind with `variant="half-ring"`, as `widgets/devices` draws it; there is
-no separate semi-circle kind. Everything else renders its states through
+no separate semi-circle kind. A funnel widget renders `<Funnel>` with its steps in order, as
+counts, and the hook's status; it owns the rate of the whole, the shares, the tooltip and the
+states. A columns widget renders `<Columns>` with its columns, as figures of both periods, and
+the hook's status; it owns the series per period, the legend, the colors and the
+states. A locations widget renders `<Locations>` with its ranking and the hook's status;
+it owns the list with flags, the map and the states. Everything else renders its states through
 `<WidgetState>` from `@jetpack-premium-analytics/widgets-toolkit`
 rather than hand-rolling `if ( isError )` / empty branches or a `WidgetLoadingOverlay`. Map the
 data/view hook's result to its four signals. For Stats API errors, pass the raw `error` to the
@@ -760,19 +738,13 @@ area. Notes:
 - Omit `empty` for a period with no data: `<WidgetState>` then draws `ChartEmptyState`'s generic
   state, the `search` magnifier and "We couldn’t find results for this time period.". Pass
   `empty` only for a case that copy does not describe, such as a scope prompt ("Open a post to
-  see…") or a fixed window. Its `icon` is then the widget's own neutral glyph from
-  `@jetpack-premium-analytics/icons`, or none when omitted. Don't use a caution glyph: empty is
-  not an error.
+  see…") or a fixed window. Its `icon` defaults to the same magnifier; pass one only when the
+  widget needs its own neutral glyph from `@jetpack-premium-analytics/icons`. Don't use a
+  caution glyph: empty is not an error.
 - Keep interactive body chrome (dropdown, view selector, drill-down back link) as a **sibling**
   of `<WidgetState>`, not inside it, so it stays available in every state.
 - `<WidgetState>` covers only a widget's own data state; the host still owns the crash error
   boundary and the module-load `<Suspense>`.
-
-> Many Stats widgets predate this and still hand-roll loading/empty via `<WidgetLoadingOverlay>`,
-> `isLoading && data.length === 0`, and `LeaderboardChart`'s `emptyStateText`. They are being
-> migrated to `<WidgetState>` — follow the contract above, not those widgets. For a leaderboard,
-> `<Leaderboard>` is that wrapper, and `<Donut>` for a breakdown, as a ring or a half ring; the
-> other widget kinds get theirs as follow-ups.
 
 **Comparison data**
 
@@ -837,14 +809,6 @@ controls such as dropdowns should stay in normal flex flow with the back link; w
 narrow widget widths, order the dropdown above the back link so the back link can sit directly
 above the leaderboard or chart content.
 
-**Storybook mocks for Stats endpoints**
-
-`registerReportMocks()` covers Woo analytics paths (`/proxy/v2/analytics/reports/*`) out of
-the box. Stats proxy paths (`/proxy/v1.1/stats/*`) are NOT covered by default. For each new
-Stats endpoint, add fixture data under `packages/widgets-toolkit/src/stories/mocks/data/` and
-wire a handler in `routeStatsReport()` inside `register-report-mocks.ts`. See
-`data/search-terms.ts` for a reference implementation.
-
 **Visual conventions**
 
 - Widget title: use the framed widget host header via the widget definition/title/icon. Do not
@@ -869,6 +833,3 @@ wire a handler in `routeStatsReport()` inside `register-report-mocks.ts`. See
   member list. A hand-written copy drifts from the shared row box. `video-detail-embeds` is the
   one exception, a plain list rather than a leaderboard, and matches the shared row's 36px height
   and `padding-inline` by hand — not the rest of `.row`.
-- Loading / error / empty state: render through `<WidgetState>` (see "Loading / error / empty
-  state" above), not `LeaderboardChart`'s `emptyStateText` or a hand-rolled `data.length === 0`
-  branch. Empty uses a neutral glyph distinct from the error icon.

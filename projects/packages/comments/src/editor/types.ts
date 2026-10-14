@@ -26,7 +26,11 @@ export type IconType = ComponentProps< typeof DropdownMenu >[ 'icon' ];
 export type EmbedAttributes = { url?: string };
 
 /** What the preview route answers: core's proxy shape, less the scripts it never fills. */
-export type EmbedPreview = { html?: string };
+export type EmbedPreview = {
+	html?: string;
+	/** The html is the package's own card, not a provider's player. */
+	card?: boolean;
+};
 
 /** What a lookup settled on: data, a URL the site will not embed, or a failure worth retrying. */
 export type EmbedLookup = EmbedPreview | 'unsupported' | null;

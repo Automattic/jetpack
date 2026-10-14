@@ -43,6 +43,7 @@ second current-period series keeps its own dates.
 | `chartId`          | `string`                      | No       | Identity the charts provider keys visibility on; generated when omitted. Change it whenever `defaultHiddenSeries` should be applied again |
 | `defaultHiddenSeries` | `readonly string[]`        | No       | Labels of series hidden until revealed from the legend. Applied once per `chartId`, so only useful with `legendInteractive` |
 | `legendInteractive` | `boolean`                    | No       | Let the reader click legend items to show and hide series; the first item stays locked. Defaults to `false` |
+| `comparisonLabel`   | `string`                     | No       | Names the comparison in each metric's previous-period legend item, e.g. "Prev. 30 days". Defaults to "Previous period" |
 
 ## Date alignment and tooltips
 

@@ -75,8 +75,9 @@ function isPurchaseBlocked( state: FeatureState ): boolean {
 	return (
 		( state.control.kind === 'module' &&
 			( state.control.module.override === 'inactive' ||
-				getModuleStatus( state.control.module ).isMultisiteBlocked ) ) ||
-		( state.control.kind === 'plugin' && state.control.override === 'inactive' )
+				getModuleStatus( { ...state.control.module, override: false } ).isMultisiteBlocked ) ) ||
+		( ( state.control.kind === 'plugin' || state.control.kind === 'none' ) &&
+			state.control.override === 'inactive' )
 	);
 }
 

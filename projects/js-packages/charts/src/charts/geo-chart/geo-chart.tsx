@@ -126,6 +126,7 @@ function normalizeGeoChartError( eventArgs: unknown ): GeoChartError {
  *
  * @param props                   - The props for the GeoChart component
  * @param props.data              - Data in Google Charts format (array of arrays with headers)
+ * @param props.ariaLabel         - Accessible name of the chart
  * @param props.width             - Width of the chart in pixels
  * @param props.height            - Height of the chart in pixels
  * @param props.region            - Region to display ('world', 'US', or ISO 3166-1 alpha-2 code)
@@ -140,6 +141,7 @@ function normalizeGeoChartError( eventArgs: unknown ): GeoChartError {
 const GeoChartInternal: FC< GeoChartProps > = ( {
 	className,
 	data,
+	ariaLabel,
 	width,
 	height,
 	region = 'world',
@@ -289,12 +291,23 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 		]
 	);
 
-	const chartEvents = useMemo< ReactGoogleChartEvent[] | undefined >( () => {
+	const chartEvents = useMemo< ReactGoogleChartEvent[] >( () => {
+		const readyEvent: ReactGoogleChartEvent = {
+			eventName: 'ready',
+			// Google hardcodes aria-label="A chart." on its SVG, which repeats the chart's own name.
+			callback: () => {
+				containerRef.current
+					?.querySelectorAll( 'svg' )
+					.forEach( svg => svg.setAttribute( 'aria-hidden', 'true' ) );
+			},
+		};
+
 		if ( ! onError ) {
-			return undefined;
+			return [ readyEvent ];
 		}
 
 		return [
+			readyEvent,
 			{
 				eventName: 'error',
 				callback: ( { eventArgs } ) => {
@@ -307,6 +320,8 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 	return (
 		<Center
 			ref={ containerRef }
+			role="group"
+			aria-label={ ariaLabel ?? __( 'Geo chart', 'jetpack-charts' ) }
 			className={ clsx( 'geo-chart', styles.container, className ) }
 			data-testid="geo-chart"
 			style={ { width, height } }
