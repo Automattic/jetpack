@@ -29,7 +29,7 @@ const ProtectOverviewCard: ProductCardComponent = ( { admin } ) => {
 		},
 	} );
 
-	// Same conditions under which the Protect card's value section shows a count rather than "Off".
+	// Show a count only while Protect is running on a connected site; otherwise it is off.
 	let label: string;
 	let count: number | undefined;
 	if ( hasPaidPlanForProduct ) {
