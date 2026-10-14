@@ -28,12 +28,15 @@ export const getRegistrationErrorCode = (
 	return typeof registrationError.name === 'string' ? registrationError.name : undefined;
 };
 
+// Long enough for WordPress.com's site_inaccessible_* text, site URL included; matches the PHP helper.
+const DESCRIPTION_MAX_LENGTH = 400;
+
 /**
  * The site's own explanation of a registration error, safe to show under the mapped message.
  *
- * Applies the same rules as `Jetpack::get_registration_error_description()`: drops messages that are
- * only an HTTP status and `jetpack_id` (which carries the raw response body), and caps the length.
- * It also strips markup, which the PHP version leaves to the caller.
+ * Applies the same rules as the connection package's `Utils::get_registration_error_description()`:
+ * drops messages that are only an HTTP status and `jetpack_id` (which carries the raw response body),
+ * and caps the length at a word boundary. It also strips markup, which the PHP version leaves to the caller.
  *
  * @param {RegistrationError|false} registrationError - The `registrationError` from `useConnection()`.
  * @return {string|undefined} The description, or undefined when there's nothing worth showing.
@@ -60,7 +63,13 @@ export const getRegistrationErrorDescription = (
 		.replace( /\s+/g, ' ' )
 		.trim();
 	// Cut by code point so an emoji is never split in half.
-	return text ? Array.from( text ).slice( 0, 250 ).join( '' ) : undefined;
+	const chars = Array.from( text );
+	if ( chars.length <= DESCRIPTION_MAX_LENGTH ) {
+		return text || undefined;
+	}
+	// Cut at a word boundary, so a trailing link is dropped rather than broken.
+	const cut = chars.slice( 0, DESCRIPTION_MAX_LENGTH ).join( '' );
+	return cut.replace( /\s+\S*$/u, '' ) || cut;
 };
 
 /**
@@ -120,7 +129,7 @@ const siteHttpErrorMessage = ( status: number ): string => {
 	return sprintf(
 		/* translators: %d is an HTTP status code, e.g. 403. */
 		__(
-			'Something blocked WordPress.com from verifying your site (HTTP %d). This is usually a firewall, CDN or security plugin. Ask your hosting provider to allow connections from WordPress.com.',
+			'Something blocked WordPress.com from verifying your site (HTTP %d). Try again in a minute. If it keeps happening, a firewall, CDN or security plugin is usually the cause: ask your hosting provider to allow connections from WordPress.com.',
 			'jetpack-connection-js'
 		),
 		status

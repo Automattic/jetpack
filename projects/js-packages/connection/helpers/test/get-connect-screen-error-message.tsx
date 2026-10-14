@@ -51,6 +51,10 @@ describe( 'getConnectScreenErrorMessage', () => {
 			'Something blocked WordPress.com'
 		);
 		expect( getConnectScreenErrorMessage( 'site_inaccessible_403' ) ).toContain( '(HTTP 403)' );
+		// A one-off failure can surface as a 403 from the XML-RPC fallback, so retrying comes first.
+		expect( getConnectScreenErrorMessage( 'site_inaccessible_403' ) ).toContain(
+			'Try again in a minute.'
+		);
 		expect( getConnectScreenErrorMessage( 'site_inaccessible_520' ) ).toContain(
 			'Something blocked WordPress.com'
 		);
@@ -159,17 +163,27 @@ describe( 'getRegistrationErrorDescription', () => {
 				},
 			} )
 		).toBe( 'There has been a critical error.' );
-		const long = getRegistrationErrorDescription( { response: { message: 'x'.repeat( 400 ) } } );
-		expect( long ).toHaveLength( 250 );
+		const long = getRegistrationErrorDescription( { response: { message: 'x'.repeat( 500 ) } } );
+		expect( long ).toHaveLength( 400 );
+	} );
+
+	it( 'keeps a message at the limit whole, and cuts a longer one at a word boundary', () => {
+		const atLimit = 'a'.repeat( 400 );
+		expect( getRegistrationErrorDescription( { response: { message: atLimit } } ) ).toBe( atLimit );
+		expect(
+			getRegistrationErrorDescription( {
+				response: { message: 'a'.repeat( 395 ) + ' https://jetpack.com/support/' },
+			} )
+		).toBe( 'a'.repeat( 395 ) );
 	} );
 
 	it( 'never splits an emoji when capping the length', () => {
 		const atLimit = getRegistrationErrorDescription( {
-			response: { message: 'x'.repeat( 249 ) + '😀😀' },
+			response: { message: 'x'.repeat( 399 ) + '😀😀' },
 		} );
-		expect( atLimit ).toBe( 'x'.repeat( 249 ) + '😀' );
+		expect( atLimit ).toBe( 'x'.repeat( 399 ) + '😀' );
 
-		// The 1,000-character pre-cut lands between the emoji's two halves, inside the 250 returned.
+		// The 1,000-character pre-cut lands between the emoji's two halves, inside the 400 returned.
 		const atPreCut = getRegistrationErrorDescription( {
 			response: { message: '<' + 'a'.repeat( 748 ) + '>' + 'x'.repeat( 249 ) + '😀' },
 		} );
@@ -180,7 +194,7 @@ describe( 'getRegistrationErrorDescription', () => {
 		const description = getRegistrationErrorDescription( {
 			response: { message: '<'.repeat( 50000 ) },
 		} );
-		expect( description?.length ?? 0 ).toBeLessThanOrEqual( 250 );
+		expect( description?.length ?? 0 ).toBeLessThanOrEqual( 400 );
 	} );
 } );
 
