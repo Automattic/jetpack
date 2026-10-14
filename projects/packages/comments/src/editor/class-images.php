@@ -7,12 +7,9 @@
 
 namespace Automattic\Jetpack\Comments;
 
-use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
-
 /**
- * The image block in a comment: a URL a commenter gave, never an upload. Readers only ever load it
- * through the image CDN or WordPress.com's own file hosts, so the commenter's server never sees who
- * reads the comment. The stored comment holds the URL as text, so nothing that prints it raw loads it.
+ * The image block in a comment: a URL a commenter gave, never an upload. The stored comment holds the
+ * URL as text, so nothing that prints it raw loads it.
  */
 class Images {
 
@@ -20,11 +17,6 @@ class Images {
 	 * The most images one comment draws. The rest stay links.
 	 */
 	const PER_COMMENT = 4;
-
-	/**
-	 * The width the CDN serves, enough for a comment column on a high-density screen. It does not upscale.
-	 */
-	const WIDTH = 1400;
 
 	/**
 	 * Whether the editor offers the image block, and comments draw the ones they hold.
@@ -45,7 +37,7 @@ class Images {
 	/**
 	 * The image block as this package writes it: the URL and alt text in its attributes, and the URL
 	 * as the figure's text. Past the comment's limit, or where images are off, it is a paragraph
-	 * holding the link. At render, the figure draws the image through the CDN, or the link where it may not.
+	 * holding the link. At render, the figure draws an https image, or the link where it may not.
 	 *
 	 * @param array     $block  Parsed image block.
 	 * @param bool|null $render Null while saving; at render, whether the comment may show the image.
@@ -74,9 +66,8 @@ class Images {
 			);
 			$html           = '<figure class="wp-block-image">' . esc_html( $url ) . '</figure>';
 		} else {
-			$src = $render ? self::src( $url ) : '';
-
-			if ( ! $src ) {
+			// An http image would be mixed content on the https page.
+			if ( ! $render || 'https' !== wp_parse_url( $url, PHP_URL_SCHEME ) ) {
 				return $link;
 			}
 
@@ -84,7 +75,7 @@ class Images {
 
 			$img = new \WP_HTML_Tag_Processor( '<img>' );
 			$img->next_tag();
-			$img->set_attribute( 'src', $src );
+			$img->set_attribute( 'src', $url );
 			$img->set_attribute( 'alt', $alt );
 			$img->set_attribute( 'loading', 'lazy' );
 			$img->set_attribute( 'decoding', 'async' );
@@ -161,39 +152,5 @@ class Images {
 		}
 
 		return is_string( $alt ) ? trim( wp_strip_all_tags( html_entity_decode( $alt, ENT_QUOTES ) ) ) : '';
-	}
-
-	/**
-	 * Whether the CDN serves images on this site at all, so the editor previews only what readers will
-	 * see. Offline mode, for one, hands every URL back unchanged.
-	 *
-	 * @return bool
-	 */
-	public static function previews() {
-		return '' !== self::src( 'https://example.com/image.png' );
-	}
-
-	/**
-	 * Where readers load the image from: the CDN, or the WordPress.com file host it already sits on.
-	 *
-	 * @param string $url The image's URL.
-	 * @return string Empty where it would load from anywhere else.
-	 */
-	private static function src( $url ) {
-		$src = Image_CDN_Core::cdn_url( $url, array( 'w' => self::WIDTH ), 'https' );
-
-		// The CDN hands back other URLs unchanged, which would load from the commenter's server.
-		if ( ! is_string( $src ) || '' === $src || $src === $url ) {
-			return '';
-		}
-
-		// Checked before is_cdn_url(), which takes a URL with no host for one.
-		$host = wp_parse_url( $src, PHP_URL_HOST );
-
-		if ( ! is_string( $host ) ) {
-			return '';
-		}
-
-		return Image_CDN_Core::is_cdn_url( $src ) || str_ends_with( $host, '.files.wordpress.com' ) ? $src : '';
 	}
 }

@@ -20,7 +20,7 @@ const NAME = 'core/image';
 
 let labels: EditorLabels;
 
-// Off on the edit-comment screen, where loading the image would tell its host who moderates, and where the CDN serves no images.
+// Off on the edit-comment screen, where loading the image would tell its host who moderates.
 let previewImages = true;
 
 // The image icon from @wordpress/icons, a large package for one icon.
@@ -43,24 +43,19 @@ const icon = (
 	</svg>
 );
 
-// Hosts the CDN skips, from Image_CDN_Core::banned_domains().
-const skipped =
-	/^(?:chart\.googleapis\.com|chart\.apis\.google\.com|graph\.facebook\.com|(?:commons|upload)\.wikimedia\.org|m\.media-amazon\.com|covers\.openlibrary\.org)$|\.(?:fbcdn\.net|paypalobjects\.com|dropbox\.com|cdninstagram\.com|wikipedia\.org)$/;
-
-// The image as readers will get it, through the CDN, or null where the server shows a link instead:
-// not http or https, not an extension the CDN serves, or a host it skips. The CDN also loads http and HEIC images a page cannot.
-const viaCdn = ( url: string ) => {
+// Readers load the image straight from its URL. The server shows an http one as a link, since it would be mixed content.
+const httpsUrl = ( url: string ) => {
 	try {
-		const { protocol, host, hostname, pathname } = new URL( url );
-		return /^https?:$/.test( protocol ) &&
-			/\.(?:gif|jpe?g|png|webp|heic)$/i.test( pathname ) &&
-			! skipped.test( hostname )
-			? `https://i0.wp.com/${ host }${ pathname }?w=1400${ protocol === 'https:' ? '&ssl=1' : '' }`
-			: null;
+		const parsed = new URL( url );
+		return parsed.protocol === 'https:' ? parsed : null;
 	} catch {
 		return null;
 	}
 };
+
+// A URL pasted on its own line becomes an image when it names an image file, and an embed otherwise.
+const isImageFile = ( url: string ) =>
+	/\.(?:avif|gif|jpe?g|png|webp)$/i.test( httpsUrl( url )?.pathname ?? '' );
 
 const toParagraph = ( url: string ) =>
 	createBlock( 'core/paragraph', { content: renderToString( <a href={ url }>{ url }</a> ) } );
@@ -108,8 +103,8 @@ const Edit = ( { attributes: { url, alt }, setAttributes, isSelected }: ImageEdi
 			if ( ! next ) {
 				return;
 			}
-			// A data: URL, say, would preview here and then vanish from the posted comment.
-			if ( ! viaCdn( next ) ) {
+			// An http or data: URL would preview here, then reach readers as a link or not at all.
+			if ( ! httpsUrl( next ) ) {
 				setFailed( true );
 				urlInput.current?.focus();
 				return;
@@ -182,7 +177,7 @@ const Edit = ( { attributes: { url, alt }, setAttributes, isSelected }: ImageEdi
 			</BlockControls>
 			<figure { ...blockProps }>
 				{ previewImages ? (
-					<img src={ viaCdn( url ) ?? '' } alt={ alt } onError={ onError } />
+					<img src={ url } alt={ alt } referrerPolicy="no-referrer" onError={ onError } />
 				) : (
 					url
 				) }
@@ -200,7 +195,7 @@ const Edit = ( { attributes: { url, alt }, setAttributes, isSelected }: ImageEdi
  */
 export const registerImageBlock = ( editorLabels: EditorLabels, preview = true ) => {
 	labels = editorLabels;
-	previewImages = preview && labels.imagePreview;
+	previewImages = preview;
 
 	if ( ! labels.images || getBlockType( NAME ) ) {
 		return;
@@ -222,7 +217,7 @@ export const registerImageBlock = ( editorLabels: EditorLabels, preview = true )
 					// Ahead of the embed block's, which takes any URL on its own line.
 					priority: 9,
 					isMatch: ( node: Node ) =>
-						node.nodeName === 'P' && !! viaCdn( node.textContent?.trim() ?? '' ),
+						node.nodeName === 'P' && isImageFile( node.textContent?.trim() ?? '' ),
 					transform: ( node: Node ) => createBlock( NAME, { url: node.textContent!.trim() } ),
 				},
 			],

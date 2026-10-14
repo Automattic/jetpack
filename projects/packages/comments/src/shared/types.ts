@@ -54,8 +54,6 @@ export type EditorLabels = {
 	addBlock: string;
 	embedUrl: string;
 	images: boolean;
-	/** Whether the image CDN serves images here; off, the image block shows its URL. */
-	imagePreview: boolean;
 	imageError: string;
 };
 
