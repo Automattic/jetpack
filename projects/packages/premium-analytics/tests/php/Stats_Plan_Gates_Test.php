@@ -253,14 +253,38 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Classic Stats' tiers nest, so a feature only the stricter tier names would unlock there.
+	 * Each tier locks exactly classic Stats' set; features without a widget, like regions or the 7-day limit, have no other test.
+	 *
+	 * @dataProvider provide_locked_features
+	 *
+	 * @param string   $tier     Tier.
+	 * @param string[] $expected Locked features.
 	 */
-	public function test_a_stricter_tier_locks_everything_a_looser_one_does() {
-		$ladder = array( STATS_TIER_COMMERCIAL, STATS_TIER_LEGACY_FREE, STATS_TIER_PAID, STATS_TIER_LEGACY_BASIC, STATS_TIER_FREE );
+	#[DataProvider( 'provide_locked_features' )]
+	public function test_each_tier_locks_classic_stats_features( $tier, $expected ) {
+		$locked = get_locked_stats_features( $tier );
+		sort( $locked );
+		sort( $expected );
 
-		for ( $i = 1, $count = count( $ladder ); $i < $count; $i++ ) {
-			$this->assertSame( array(), array_values( array_diff( get_locked_stats_features( $ladder[ $i - 1 ] ), get_locked_stats_features( $ladder[ $i ] ) ) ), $ladder[ $i ] );
-		}
+		$this->assertSame( $expected, $locked );
+	}
+
+	/**
+	 * Tiers and their locked features.
+	 *
+	 * @return array
+	 */
+	public static function provide_locked_features() {
+		$commercial = array( 'authors', 'search-terms', 'videos', 'utm', 'devices', 'regions-cities' );
+		return array(
+			'commercial'   => array( STATS_TIER_COMMERCIAL, array() ),
+			'unknown'      => array( STATS_TIER_UNKNOWN, array() ),
+			'legacy free'  => array( STATS_TIER_LEGACY_FREE, array( 'utm', 'devices', 'regions-cities' ) ),
+			'jetpack free' => array( STATS_TIER_JETPACK_FREE, array( 'utm', 'devices', 'regions-cities' ) ),
+			'paid'         => array( STATS_TIER_PAID, $commercial ),
+			'legacy basic' => array( STATS_TIER_LEGACY_BASIC, array_merge( $commercial, array( 'referrers', 'clicks', 'csv', 'intervals', 'long-date-presets' ) ) ),
+			'free'         => array( STATS_TIER_FREE, array_merge( $commercial, array( 'top-posts', 'referrers', 'countries', 'clicks', 'file-downloads', 'insights', 'csv', 'intervals', 'long-date-presets', 'recent-7-days' ) ) ),
+		);
 	}
 
 	/**
