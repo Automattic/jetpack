@@ -27,7 +27,14 @@ interface SeoTracksContext {
 	product_version: string;
 }
 
-type SeoScriptData = { seo?: { tracks?: SeoTracksContext } };
+type SeoScriptData = {
+	seo?: { tracks?: SeoTracksContext };
+	connection?: {
+		userConnectionData?: { currentUser?: { wpcomUser?: { ID?: number; login?: string } } };
+	};
+};
+
+let userIdentified = false;
 
 /** Values Tracks accepts as properties. Use the string `none` for N/A — never null/undefined. */
 type EventProps = Record< string, string | number | boolean >;
@@ -40,16 +47,23 @@ type EventProps = Record< string, string | number | boolean >;
  * @param event  - The full event name, e.g. `jetpack_seo_setting_updated`.
  * @param screen - The dashboard screen the event came from.
  * @param props  - Event-specific properties. Use `none` (not null) for N/A values.
- * @return Whether the event was recorded.
  */
 export function recordSeoEvent(
 	event: string,
 	screen: SeoTracksScreen,
 	props: EventProps = {}
-): boolean {
-	const context = ( getScriptData() as SeoScriptData | undefined )?.seo?.tracks;
+): void {
+	const data = getScriptData() as SeoScriptData | undefined;
+	const context = data?.seo?.tracks;
 	if ( ! context ) {
-		return false;
+		return;
+	}
+
+	// Simple identifies the user in stats.php; elsewhere only the connected account can.
+	const user = data?.connection?.userConnectionData?.currentUser?.wpcomUser;
+	if ( ! userIdentified && user?.ID && user.login ) {
+		jetpackAnalytics.initialize( user.ID, user.login );
+		userIdentified = true;
 	}
 
 	jetpackAnalytics.tracks.recordEvent( event, {
@@ -58,7 +72,6 @@ export function recordSeoEvent(
 		...context,
 		...props,
 	} );
-	return true;
 }
 
 /**

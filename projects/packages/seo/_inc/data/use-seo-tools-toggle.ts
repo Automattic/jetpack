@@ -47,10 +47,11 @@ export default function useSeoToolsToggle( screen: SeoTracksScreen ): SeoToolsTo
 					method: 'POST',
 					data: { active },
 				} );
-				if ( recordSeoEvent( 'jetpack_seo_tools_toggled', screen, { enabled: active } ) ) {
-					// Let the Tracks pixel send before the reload tears down the page.
-					await new Promise( resolve => setTimeout( resolve, 300 ) );
-				}
+				// `use_beacon` makes w.js send with a keepalive fetch, which outlives the reload.
+				recordSeoEvent( 'jetpack_seo_tools_toggled', screen, {
+					enabled: active,
+					use_beacon: true,
+				} );
 				// Reload so the server re-registers (or tears down) the SEO surface.
 				window.location.reload();
 			} catch {

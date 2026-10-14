@@ -395,8 +395,14 @@ describe( 'useSettingsForm', () => {
 		] );
 	} );
 
-	it( 'records a failed setting update instead of a success when the save fails', async () => {
-		mockApiFetch.mockRejectedValueOnce( { message: 'Nope.' } );
+	it.each( [
+		[ 'the save request fails', () => mockApiFetch.mockRejectedValueOnce( { message: 'Nope.' } ) ],
+		[
+			'the server keeps the old value',
+			() => mockApiFetch.mockResolvedValueOnce( {} ).mockResolvedValueOnce( SEED ),
+		],
+	] )( 'records a failed setting update when %s', async ( _label, respond ) => {
+		respond();
 		const { result } = renderHook( () => useSettingsForm() );
 
 		act( () => result.current.commit( { canonical_active: true } ) );

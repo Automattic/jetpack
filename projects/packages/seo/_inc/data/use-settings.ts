@@ -242,7 +242,8 @@ export function useSettingsForm(): SettingsForm {
 			const touched = ( Object.keys( values ) as Array< keyof SettingsResponse > ).filter(
 				field => JSON.stringify( values[ field ] ) !== JSON.stringify( baseline[ field ] )
 			);
-			const changes = settingChanges( baseline, values, { ...corePayload, ...modulesPayload } );
+			const sent = { ...corePayload, ...modulesPayload };
+			const requested = settingChanges( baseline, values, sent );
 
 			setIsSaving( true );
 			createInfoNotice( __( 'Updating settings…', 'jetpack-seo' ), {
@@ -272,19 +273,12 @@ export function useSettingsForm(): SettingsForm {
 					// only the server knows what landed.
 					baselineRef.current = values;
 					setSettings( values );
-					changes.forEach( change =>
-						recordSeoEvent( 'jetpack_seo_setting_updated', 'settings', change )
-					);
 					createSuccessNotice( __( 'Settings saved.', 'jetpack-seo' ), {
 						id: SAVE_NOTICE_ID,
 						type: 'snackbar',
 					} );
 				} )
 				.catch( ( error: { message?: string } ) => {
-					// So REST errors don't read as usage dips.
-					changes.forEach( change =>
-						recordSeoEvent( 'jetpack_seo_setting_update_failed', 'settings', change )
-					);
 					createErrorNotice(
 						error?.message ?? __( 'Could not save settings. Please try again.', 'jetpack-seo' ),
 						{ id: SAVE_NOTICE_ID, type: 'snackbar' }
@@ -294,6 +288,19 @@ export function useSettingsForm(): SettingsForm {
 				// committed — the form is reconciled with the server before the controls
 				// unlock, so `isSaving` also serializes this against the next save.
 				.then( () => adoptServerState( touched, savedTitlePage ) )
+				.then( () => {
+					// Judged against the server's reconciled view: a refused or unsent change reports as failed.
+					const saved = settingChanges( baseline, baselineRef.current ?? baseline, sent );
+					requested.forEach( change =>
+						recordSeoEvent(
+							saved.some( s => JSON.stringify( s ) === JSON.stringify( change ) )
+								? 'jetpack_seo_setting_updated'
+								: 'jetpack_seo_setting_update_failed',
+							'settings',
+							change
+						)
+					);
+				} )
 				.finally( () => setIsSaving( false ) );
 		},
 		[ createInfoNotice, createSuccessNotice, createErrorNotice, setSettings, adoptServerState ]
