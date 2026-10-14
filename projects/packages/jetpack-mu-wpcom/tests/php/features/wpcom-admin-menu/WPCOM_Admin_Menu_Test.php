@@ -410,17 +410,17 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	 *
 	 * @dataProvider provide_backup_entry_cases
 	 *
-	 * @param bool   $flag_on         Whether the filter turns the flag on, rather than leaving the default.
+	 * @param bool   $flag_off        Whether the filter turns the flag off, rather than leaving the default.
 	 * @param bool   $page_registered Whether something registered the `jetpack-backup` page.
 	 * @param string $expected        The visible entry: 'calypso' or 'wp-admin'.
 	 */
 	#[DataProvider( 'provide_backup_entry_cases' )]
-	public function test_jetpack_submenu_shows_one_backup_entry( $flag_on, $page_registered, $expected ) {
+	public function test_jetpack_submenu_shows_one_backup_entry( $flag_off, $page_registered, $expected ) {
 		global $submenu;
 
 		\Jetpack_Options::update_option( 'id', 200 );
-		if ( $flag_on ) {
-			add_filter( 'rsm_jetpack_ui_modernization_backup', '__return_true' );
+		if ( $flag_off ) {
+			add_filter( 'rsm_jetpack_ui_modernization_backup', '__return_false' );
 		}
 		if ( $page_registered ) {
 			$submenu['jetpack'][] = array( 'Backup', 'manage_options', 'jetpack-backup', 'Jetpack VaultPress Backup' );
@@ -449,9 +449,9 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function provide_backup_entry_cases() {
 		return array(
-			'default, page registered'    => array( false, true, 'calypso' ),
-			'on, page registered'         => array( true, true, 'wp-admin' ),
-			'on, nothing serves the slug' => array( true, false, 'calypso' ),
+			'default, page registered'         => array( false, true, 'wp-admin' ),
+			'off, page registered'             => array( true, true, 'calypso' ),
+			'default, nothing serves the slug' => array( false, false, 'calypso' ),
 		);
 	}
 
