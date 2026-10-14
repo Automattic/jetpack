@@ -233,6 +233,17 @@ class Utils {
 			return '';
 		}
 
-		return mb_substr( (string) $message, 0, 250 );
+		$message = (string) $message;
+
+		// Long enough for WordPress.com's site_inaccessible_* text, site URL included.
+		if ( mb_strlen( $message ) <= 400 ) {
+			return $message;
+		}
+
+		// Cut at a word boundary, so a trailing link is dropped rather than broken.
+		$description = mb_substr( $message, 0, 400 );
+		$trimmed     = preg_replace( '/\s+\S*$/u', '', $description );
+
+		return empty( $trimmed ) ? $description : $trimmed;
 	}
 }

@@ -17,8 +17,10 @@ use WpOrg\Requests\Utility\CaseInsensitiveDictionary;
  * Registration failure state and retry backoff testing.
  *
  * @covers \Automattic\Jetpack\Connection\Registration_Failure
+ * @covers \Automattic\Jetpack\Connection\Manager
  */
 #[CoversClass( Registration_Failure::class )]
+#[CoversClass( Manager::class )]
 class Registration_Failure_Test extends \WorDBless\BaseTestCase {
 
 	/**
@@ -180,6 +182,24 @@ class Registration_Failure_Test extends \WorDBless\BaseTestCase {
 			$second_state['next_retry_after'] - $second_state['last_attempt_at'],
 			'Each successive failure should wait longer than the last.'
 		);
+	}
+
+	/**
+	 * Test that a transport failure, which has no HTTP response, backs off and is held back with an error status.
+	 */
+	public function test_transport_failure_is_held_back_with_an_error_status() {
+		$this->register_response = new \WP_Error( 'http_request_failed', 'cURL error 28: Operation timed out.' );
+
+		$this->manager->try_registration();
+
+		$state = $this->recorded_failure();
+		$this->assertSame( 'register_http_request_failed', $state['error_code'] );
+		$this->assertNull( $state['http_status'] );
+		$this->assertFalse( $state['terminal'] );
+
+		$held = $this->manager->try_registration();
+		$this->assertSame( 1, $this->register_request_count );
+		$this->assertSame( 400, $held->get_error_data()['status'] );
 	}
 
 	/**
