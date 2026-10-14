@@ -10,10 +10,11 @@ type StagedRange = Parameters< ReportDateFilters[ 'onChange' ] >;
 type ComparisonChange = Parameters< ReportDateFilters[ 'onComparisonChange' ] >;
 
 /**
- * Remembers the named preset and the comparison the reader applies in the header; custom and year ranges are not kept.
- * Call each callback beside the date filters' own: a quick preset stages and applies in one tick.
+ * Remembers the named preset and comparison the reader applies in the header.
+ * Custom and year ranges are not kept. Call each callback beside the date filters' own:
+ * a quick preset stages and applies in one tick.
  *
- * @return `onChange` to note the staged preset, `onApply` to remember it, and `onComparisonChange` to remember a comparison.
+ * @return `onChange` and `onApply` for the preset, and `onComparisonChange` for the comparison.
  */
 export function useRememberAppliedPreset() {
 	const stagedPresetId = useRef< StagedRange[ 1 ] >( undefined );
@@ -31,7 +32,7 @@ export function useRememberAppliedPreset() {
 		}
 	}, [] );
 
-	// The comparison menu sits outside the range popover, whose close discards any draft, so a pick applies at once.
+	// Remembered at once: the menu sits outside the range popover, whose close discards any draft.
 	const onComparisonChange = useCallback( ( ...[ range, presetId ]: ComparisonChange ) => {
 		const comparison = range ? presetId : NO_COMPARISON;
 
