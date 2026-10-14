@@ -43,8 +43,11 @@ import {
 	COMPARISON_TICK_GAP_FACTOR,
 	BASE_BAND_PADDING_INNER,
 	countRenderedBars,
+	getBarValue,
 	isBarRendered,
+	OverlapBarSeries,
 } from './private';
+import { useBarOverlapStyles } from './use-bar-overlap-styles';
 import type { ComparisonSeriesEntry } from './private';
 import type { BarChartProps } from './types';
 import type { DataPointDate, SeriesData, Optional } from '../../types';
@@ -117,6 +120,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	barClassName,
 	options = {},
 	orientation = 'vertical',
+	layout = 'grouped',
 	withPatterns = false,
 	showZeroValues = false,
 	withBandHighlight = false,
@@ -170,6 +174,12 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const legendItems = useChartLegendItems( dataSorted, legendOptions );
 
 	const { getElementStyles } = useGlobalChartsContext();
+	const overlap = useBarOverlapStyles( dataWithVisibleZeros, {
+		layout,
+		horizontal,
+		isVisible: isSeriesVisible,
+	} );
+	const isOverlap = overlap !== null;
 
 	// A hidden series is unmounted, so it is not on the band scale either — the
 	// axis has to choose its tick values from what is left. Visibility is owned by
@@ -329,14 +339,14 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	// Comparison widthFactor (how much wider the shadow is than the primary) drives both the
 	// shadow width (in ComparisonBars) and the primary narrowing.
 	const comparisonWidthFactor = useMemo( () => {
-		if ( comparisonEntries.length === 0 ) return undefined;
+		if ( isOverlap || comparisonEntries.length === 0 ) return undefined;
 		return (
 			getElementStyles( {
 				data: comparisonEntries[ 0 ].series,
 				index: comparisonEntries[ 0 ].index,
 			} ).barStyles?.widthFactor ?? DEFAULT_COMPARISON_WIDTH_FACTOR
 		);
-	}, [ comparisonEntries, getElementStyles ] );
+	}, [ comparisonEntries, getElementStyles, isOverlap ] );
 
 	// Narrow the primary bars by widening the visx group padding — a real geometry change, so
 	// pattern fills and borders are not distorted (unlike a CSS transform/scale). The padding is
@@ -357,7 +367,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	// In comparison mode, tighten the gap between ticks by reducing the category band's inner
 	// padding (the value axis is left untouched). COMPARISON_TICK_GAP_FACTOR is the multiplier.
 	const { xScale, yScale } = useMemo( () => {
-		if ( comparisonEntries.length === 0 ) {
+		if ( isOverlap || comparisonEntries.length === 0 ) {
 			return { xScale: chartOptions.xScale, yScale: chartOptions.yScale };
 		}
 		const tighten = < T extends object >( scale: T ): T =>
@@ -370,7 +380,13 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		return horizontal
 			? { xScale: chartOptions.xScale, yScale: tighten( chartOptions.yScale ) }
 			: { xScale: tighten( chartOptions.xScale ), yScale: chartOptions.yScale };
-	}, [ comparisonEntries.length, chartOptions.xScale, chartOptions.yScale, horizontal ] );
+	}, [
+		comparisonEntries.length,
+		chartOptions.xScale,
+		chartOptions.yScale,
+		horizontal,
+		isOverlap,
+	] );
 
 	const getBarBackground = useCallback(
 		( index: number ) => ( datum: DataPointDate ) =>
@@ -379,6 +395,15 @@ const BarChartInternal: FC< BarChartProps > = ( {
 				: ( datum.color ?? getElementStyles( { data: dataSorted[ index ], index } ).color ),
 		[ withPatterns, getElementStyles, dataSorted, chartId ]
 	);
+
+	// Patterns keep the series' own pattern; otherwise the outer bar takes its tint.
+	const overlapOuterFill = useMemo( () => {
+		if ( ! overlap || withPatterns ) {
+			return undefined;
+		}
+		const { fill } = overlap.outer;
+		return () => fill;
+	}, [ overlap, withPatterns ] );
 
 	// Comparison shadow fill: when patterns are on, reuse the paired primary's pattern so the
 	// shadow reads as the same series; otherwise use the comparison series' resolved color.
@@ -559,6 +584,32 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const gridVisibility = gridVisibilityProp ?? chartOptions.gridVisibility;
 	const highlightedBarStyle = createKeyboardHighlightStyle();
 
+	const overlapBars = overlap && (
+		<g className="visx-bar-group">
+			{ [ overlap.outer, overlap.inner ].map( ( { label }, ordinal ) => {
+				const seriesIndex = primaryKeys.indexOf( label );
+				const entry = primaryEntries[ seriesIndex ];
+				if ( ! entry ) {
+					return null;
+				}
+				const isOuter = ordinal === 0;
+				return (
+					<OverlapBarSeries
+						key={ label }
+						series={ entry.series }
+						seriesIndex={ seriesIndex }
+						part={ isOuter ? 'outer' : 'inner' }
+						fill={ ( isOuter && overlapOuterFill ) || getBarBackground( entry.index ) }
+						outline={ isOuter ? overlap.outer.outline : undefined }
+						xAccessor={ chartOptions.accessors.xAccessor }
+						yAccessor={ getBarValue }
+						barClassName={ barClassName }
+					/>
+				);
+			} ) }
+		</g>
+	);
+
 	const legendPosition = legend.position ?? 'bottom';
 	const legendElement = showLegend && (
 		<Legend
@@ -712,7 +763,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 										) : null }
 
 										<ComparisonBars
-											comparisonEntries={ comparisonEntries }
+											comparisonEntries={ isOverlap ? [] : comparisonEntries }
 											primaryKeys={ primaryKeys }
 											groupPadding={ groupPadding }
 											horizontal={ horizontal }
@@ -726,36 +777,37 @@ const BarChartInternal: FC< BarChartProps > = ( {
 											resolveFill={ resolveComparisonFill }
 										/>
 
-										{ barClassName ? (
-											<g className="visx-bar-group">
-												{ primaryEntries.map( ( { series: seriesData, index } ) => (
-													<ClassifiedBarSeries
-														key={ seriesData.label }
-														dataKey={ seriesData.label }
-														data={ seriesData.data as DataPointDate[] }
-														xAccessor={ chartOptions.accessors.xAccessor }
-														yAccessor={ chartOptions.accessors.yAccessor }
-														colorAccessor={ getBarBackground( index ) }
-														barClassName={ barClassName }
-														primaryKeys={ primaryKeys }
-														groupPadding={ groupPadding }
-													/>
-												) ) }
-											</g>
-										) : (
-											<BarGroup padding={ groupPadding }>
-												{ primaryEntries.map( ( { series: seriesData, index } ) => (
-													<BarSeries
-														key={ seriesData?.label }
-														dataKey={ seriesData?.label }
-														data={ seriesData.data as DataPointDate[] }
-														yAccessor={ chartOptions.accessors.yAccessor }
-														xAccessor={ chartOptions.accessors.xAccessor }
-														colorAccessor={ getBarBackground( index ) }
-													/>
-												) ) }
-											</BarGroup>
-										) }
+										{ overlapBars ??
+											( barClassName ? (
+												<g className="visx-bar-group">
+													{ primaryEntries.map( ( { series: seriesData, index } ) => (
+														<ClassifiedBarSeries
+															key={ seriesData.label }
+															dataKey={ seriesData.label }
+															data={ seriesData.data as DataPointDate[] }
+															xAccessor={ chartOptions.accessors.xAccessor }
+															yAccessor={ chartOptions.accessors.yAccessor }
+															colorAccessor={ getBarBackground( index ) }
+															barClassName={ barClassName }
+															primaryKeys={ primaryKeys }
+															groupPadding={ groupPadding }
+														/>
+													) ) }
+												</g>
+											) : (
+												<BarGroup padding={ groupPadding }>
+													{ primaryEntries.map( ( { series: seriesData, index } ) => (
+														<BarSeries
+															key={ seriesData?.label }
+															dataKey={ seriesData?.label }
+															data={ seriesData.data as DataPointDate[] }
+															yAccessor={ chartOptions.accessors.yAccessor }
+															xAccessor={ chartOptions.accessors.xAccessor }
+															colorAccessor={ getBarBackground( index ) }
+														/>
+													) ) }
+												</BarGroup>
+											) ) }
 										{ /* Do not reorder: for one key the last showTooltip wins, so this must run after the primary series. */ }
 										{ ( withTooltips || onPointerDown || onPointerUp ) && (
 											<BandTooltip
