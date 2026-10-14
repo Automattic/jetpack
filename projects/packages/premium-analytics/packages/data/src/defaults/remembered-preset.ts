@@ -9,7 +9,9 @@ import {
 	PRESET_MONTH_TO_DATE,
 	PRESET_TODAY,
 	PRESET_YEAR_TO_DATE,
+	isComparisonPresetId,
 	isSelectablePreset,
+	type ComparisonPresetId,
 } from '@jetpack-premium-analytics/datetime';
 import { dispatch, select } from '@wordpress/data';
 import type { PresetType } from '../utils/search';
@@ -18,6 +20,13 @@ import type { PresetType } from '../utils/search';
 export const DASHBOARD_PREFERENCES_SCOPE = 'jetpack-premium-analytics/dashboard';
 
 const DATE_PRESET_KEY = 'datePreset';
+
+const COMPARISON_KEY = 'comparison';
+
+/** The remembered choice for a reader who picked "No comparison". */
+export const NO_COMPARISON = 'none';
+
+export type RememberedComparison = ComparisonPresetId | typeof NO_COMPARISON;
 
 // By name: importing `@wordpress/preferences` would pull its UI into every consumer of this package.
 const PREFERENCES_STORE = 'core/preferences';
@@ -61,6 +70,33 @@ export function rememberPreset( preset: PresetType ): void {
 		DASHBOARD_PREFERENCES_SCOPE,
 		DATE_PRESET_KEY,
 		preset
+	);
+}
+
+/**
+ * The comparison the reader last applied in the dashboard header.
+ */
+export function getRememberedComparison(): RememberedComparison | undefined {
+	const preferences = select( PREFERENCES_STORE ) as unknown as PreferencesSelectors | undefined;
+	const value = preferences?.get( DASHBOARD_PREFERENCES_SCOPE, COMPARISON_KEY );
+
+	return value === NO_COMPARISON || isComparisonPresetId( value ) ? value : undefined;
+}
+
+/**
+ * Remember a comparison the reader applied, so the next visit without dates opens on it.
+ *
+ * @param comparison - The applied comparison preset, or `NO_COMPARISON`.
+ */
+export function rememberComparison( comparison: RememberedComparison ): void {
+	if ( getRememberedComparison() === comparison ) {
+		return;
+	}
+
+	( dispatch( PREFERENCES_STORE ) as PreferencesActions | undefined )?.set(
+		DASHBOARD_PREFERENCES_SCOPE,
+		COMPARISON_KEY,
+		comparison
 	);
 }
 

@@ -256,7 +256,13 @@ function Dashboard(): JSX.Element {
 		showsPeriodControl
 	);
 
-	const { onChange: changeDateRange, onApply: applyDateRange } = dateFilters;
+	const {
+		onChange: changeDateRange,
+		onComparisonChange: changeComparison,
+		onApply: applyDateRange,
+		onCancel: cancelDateRange,
+		canApply: hasDateDraft,
+	} = dateFilters;
 	const { trackedOnChange, trackedOnApply } = useTrackedDateRangeApply(
 		{
 			presetId: dateFilters.presetId,
@@ -267,7 +273,12 @@ function Dashboard(): JSX.Element {
 		},
 		{ surface: 'dashboard', section: widgetSection, offersComparison: showComparison }
 	);
-	const { onChange: rememberOnChange, onApply: rememberOnApply } = useRememberAppliedPreset();
+	const {
+		onChange: rememberOnChange,
+		onComparisonChange: rememberOnComparisonChange,
+		onApply: rememberOnApply,
+		onCancel: rememberOnCancel,
+	} = useRememberAppliedPreset();
 	const onDateChange = useCallback< typeof changeDateRange >(
 		( ...args ) => {
 			changeDateRange( ...args );
@@ -281,6 +292,17 @@ function Dashboard(): JSX.Element {
 		trackedOnApply();
 		rememberOnApply();
 	}, [ applyDateRange, trackedOnApply, rememberOnApply ] );
+	const onComparisonChange = useCallback< typeof changeComparison >(
+		( range, presetId ) => {
+			changeComparison( range, presetId );
+			rememberOnComparisonChange( range, presetId, hasDateDraft );
+		},
+		[ changeComparison, rememberOnComparisonChange, hasDateDraft ]
+	);
+	const onDateCancel = useCallback( () => {
+		cancelDateRange();
+		rememberOnCancel();
+	}, [ cancelDateRange, rememberOnCancel ] );
 
 	/*
 	 * The year surface applies on click — no Apply step of its own — so stage and
@@ -358,7 +380,9 @@ function Dashboard(): JSX.Element {
 				<DateFiltersPanel
 					{ ...dateFilters }
 					onChange={ onDateChange }
+					onComparisonChange={ onComparisonChange }
 					onApply={ onDateApply }
+					onCancel={ onDateCancel }
 					withIntervalControl={ showHeaderIntervalControl }
 					attentionId={ attentionId }
 				/>

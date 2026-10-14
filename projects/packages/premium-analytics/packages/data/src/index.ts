@@ -96,7 +96,10 @@ export {
 	getDefaultPreset,
 	getDefaultQueryParams,
 	getDefaultReportParams,
+	NO_COMPARISON,
+	rememberComparison,
 	rememberPreset,
+	type RememberedComparison,
 	withDefaultComparison,
 } from './defaults';
 export { downloadReport, fetchStatsProxy } from './api';
