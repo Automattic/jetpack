@@ -50,7 +50,7 @@ describe( 'Funnel', () => {
 	it( 'names the chart from chartTitle', () => {
 		renderFunnel( <Funnel steps={ STEPS } status={ READY } chartTitle="Conversion rate" /> );
 
-		expect( screen.getByRole( 'group', { name: 'Conversion rate chart' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'group', { name: 'Chart: Conversion rate' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'renders the empty state when the first step is empty', () => {

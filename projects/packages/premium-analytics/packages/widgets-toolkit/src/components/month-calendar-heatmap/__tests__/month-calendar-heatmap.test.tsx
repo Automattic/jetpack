@@ -25,7 +25,7 @@ describe( 'MonthCalendarHeatmap', () => {
 		render( <MonthCalendarHeatmap valueByDay={ VALUE_BY_DAY } range={ RANGE } { ...LABELS } /> );
 
 		expect(
-			screen.getByRole( 'grid', { name: 'Monthly posting activity chart' } )
+			screen.getByRole( 'grid', { name: 'Chart: Monthly posting activity' } )
 		).toBeInTheDocument();
 		expect( screen.getByText( 'Fewer posts' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'More posts' ) ).toBeInTheDocument();
@@ -55,7 +55,7 @@ describe( 'MonthCalendarHeatmap', () => {
 	it( 'steps the arrow keys day by day across a month boundary', async () => {
 		const user = userEvent.setup();
 		render( <MonthCalendarHeatmap valueByDay={ VALUE_BY_DAY } range={ RANGE } { ...LABELS } /> );
-		const grid = screen.getByRole( 'grid', { name: 'Monthly posting activity chart' } );
+		const grid = screen.getByRole( 'grid', { name: 'Chart: Monthly posting activity' } );
 		const selectedName = () =>
 			within( grid )
 				.getAllByRole( 'gridcell' )

@@ -60,7 +60,7 @@ export type ComparativeBarChartProps = {
 
 	className?: string;
 
-	/** What the chart shows, such as the widget title; the chart is named "<title> chart". */
+	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
 	chartTitle?: string;
 
 	/** Format for chart values: y-axis ticks and tooltips. */

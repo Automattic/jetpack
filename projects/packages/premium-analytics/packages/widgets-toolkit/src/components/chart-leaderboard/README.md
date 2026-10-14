@@ -259,7 +259,7 @@ inline padding.
 | `emptyStateIcon`   | `ReactNode`            | The `search` magnifier                                         | Icon to display in default empty state                             |
 | `emptyStateText`   | `string`               | `'We couldn’t find results for this time period.'`             | Text for default empty state                                       |
 | `fitRows`          | `boolean`              | `true`                                                         | Show only the rows that fit the widget height instead of scrolling |
-| `chartTitle`       | `string`               | -                                                              | What the chart shows; the chart is named "<title> chart"           |
+| `chartTitle`       | `string`               | -                                                              | What the chart shows; the chart is named "Chart: <title>"          |
 
 ### LeaderboardChartData Type
 

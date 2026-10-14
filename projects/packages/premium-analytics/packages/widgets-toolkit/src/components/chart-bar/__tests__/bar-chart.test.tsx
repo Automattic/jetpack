@@ -23,7 +23,7 @@ describe( 'BarChart', () => {
 	} );
 
 	it.each( [
-		[ 'Sales by device', 'Sales by device chart' ],
+		[ 'Sales by device', 'Chart: Sales by device' ],
 		[ undefined, undefined ],
 	] )( 'names the chart from chartTitle %s', ( chartTitle, ariaLabel ) => {
 		render(

@@ -23,7 +23,7 @@ type ProductLeaderboardProps = {
 	/** The product types the leaderboard ranks. */
 	filter: FilterCondition;
 	errorText: string;
-	/** What the chart shows, such as the widget title; the chart is named "<title> chart". */
+	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
 	chartTitle: string;
 };
 

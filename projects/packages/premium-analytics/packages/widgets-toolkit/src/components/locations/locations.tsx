@@ -61,7 +61,7 @@ type LocationsProps = {
 	 * Rows the list shows, and the skeleton's height. Defaults to the widget row limit.
 	 */
 	maxRows?: number;
-	/** What the widget shows, such as its title; the list is named "<title> chart" and the map "<title> map". */
+	/** What the widget shows, such as its title; the list is named "Chart: <title>" and the map "Map: <title>". */
 	chartTitle?: string;
 };
 

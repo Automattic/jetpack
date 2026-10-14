@@ -19,7 +19,7 @@ jest.mock( '@jetpack-premium-analytics/externals', () => ( {
 
 describe( 'SemiCircleChart', () => {
 	it.each( [
-		[ 'Devices', 'Devices chart' ],
+		[ 'Devices', 'Chart: Devices' ],
 		[ undefined, undefined ],
 	] )( 'names the chart from chartTitle %s', ( chartTitle, ariaLabel ) => {
 		render(

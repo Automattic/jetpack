@@ -67,7 +67,7 @@ describe( 'Locations', () => {
 			<Locations rows={ ROWS } status={ READY } valueLabel="Views" chartTitle="Locations" />
 		);
 
-		expect( screen.getByRole( 'list', { name: 'Locations chart' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'list', { name: 'Chart: Locations' } ) ).toBeInTheDocument();
 		expect( screen.getByTestId( 'geo-chart' ) ).toHaveAttribute( 'data-chart-title', 'Locations' );
 	} );
 

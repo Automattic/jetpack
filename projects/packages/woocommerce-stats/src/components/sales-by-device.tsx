@@ -20,7 +20,7 @@ const CURRENCY_FORMAT: DataFormat = { type: 'currency', options: { useMultiplier
 type SalesByDeviceProps = {
 	/** The product types the sales count; every type when omitted. */
 	filters?: FilterCondition[];
-	/** The widget title; the chart is named "<title> chart". */
+	/** The widget title; the chart is named "Chart: <title>". */
 	chartTitle: string;
 };
 

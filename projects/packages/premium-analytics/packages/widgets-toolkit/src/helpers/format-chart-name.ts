@@ -16,7 +16,7 @@ export function formatChartName( title?: string ): string | undefined {
 
 	return sprintf(
 		/* translators: %s is what a chart shows, e.g. "Sales by device". */
-		__( '%s chart', 'jetpack-premium-analytics-pkg' ),
+		__( 'Chart: %s', 'jetpack-premium-analytics-pkg' ),
 		title
 	);
 }
@@ -34,7 +34,7 @@ export function formatMapName( title?: string ): string | undefined {
 
 	return sprintf(
 		/* translators: %s is what a map shows, e.g. "Top locations". */
-		__( '%s map', 'jetpack-premium-analytics-pkg' ),
+		__( 'Map: %s', 'jetpack-premium-analytics-pkg' ),
 		title
 	);
 }

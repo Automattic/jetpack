@@ -83,7 +83,7 @@ describe( 'Donut', () => {
 			// jsdom measures no size, so the chart stays `visibility: hidden` and has no computed name.
 			expect( screen.getByRole( 'application', { hidden: true } ) ).toHaveAttribute(
 				'aria-label',
-				'Payment status chart'
+				'Chart: Payment status'
 			);
 		}
 	);

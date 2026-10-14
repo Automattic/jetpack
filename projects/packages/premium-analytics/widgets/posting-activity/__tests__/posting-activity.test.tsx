@@ -96,7 +96,7 @@ describe( 'PostingActivityWidget', () => {
 		renderWidget();
 
 		expect(
-			screen.getByRole( 'grid', { name: 'Monthly posting activity chart' } )
+			screen.getByRole( 'grid', { name: 'Chart: Monthly posting activity' } )
 		).toBeInTheDocument();
 		const months = screen.getAllByTestId( 'heatmap-group-label' ).map( el => el.textContent );
 		expect( months ).toHaveLength( 12 );
@@ -126,7 +126,7 @@ describe( 'PostingActivityWidget', () => {
 		renderWidget();
 
 		expect(
-			screen.getByRole( 'grid', { name: 'Monthly posting activity chart' } )
+			screen.getByRole( 'grid', { name: 'Chart: Monthly posting activity' } )
 		).toBeInTheDocument();
 		expect(
 			screen.getByRole( 'gridcell', { name: 'Fri, Oct 3, 2025: No data' } )
@@ -140,7 +140,7 @@ describe( 'PostingActivityWidget', () => {
 		renderWidget();
 
 		expect(
-			screen.getByRole( 'grid', { name: 'Monthly posting activity chart' } )
+			screen.getByRole( 'grid', { name: 'Chart: Monthly posting activity' } )
 		).toBeInTheDocument();
 	} );
 

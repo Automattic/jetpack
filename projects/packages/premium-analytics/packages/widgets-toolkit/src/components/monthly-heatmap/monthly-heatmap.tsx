@@ -48,7 +48,7 @@ export type MonthlyHeatmapProps = {
 	moreLabel: string;
 	/** Called on click, or Enter and Space on the keyboard-selected cell. */
 	onSelect?: ( target: MonthlyHeatmapTarget ) => void;
-	/** What the chart shows, such as the widget title; the chart is named "<title> chart". */
+	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
 	chartTitle?: string;
 };
 

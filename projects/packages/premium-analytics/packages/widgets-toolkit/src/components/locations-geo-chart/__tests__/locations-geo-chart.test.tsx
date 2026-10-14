@@ -94,7 +94,7 @@ describe( 'LocationsGeoChart', () => {
 	it( 'names the map from chartTitle', () => {
 		render( <LocationsGeoChart rows={ ROWS } mode="country" chartTitle="Top locations" /> );
 
-		expect( lastChartProps() ).toMatchObject( { ariaLabel: 'Top locations map' } );
+		expect( lastChartProps() ).toMatchObject( { ariaLabel: 'Map: Top locations' } );
 	} );
 
 	// Drawing first would paint the default borders and then swap them.

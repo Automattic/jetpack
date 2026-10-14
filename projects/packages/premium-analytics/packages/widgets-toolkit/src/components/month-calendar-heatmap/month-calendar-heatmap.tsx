@@ -26,7 +26,7 @@ export type MonthCalendarHeatmapProps = {
 	 * days outside the range are faded filler with no tooltip.
 	 */
 	range: MonthCalendarHeatmapRange;
-	/** What the chart shows, such as the widget title; the chart is named "<title> chart". */
+	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
 	chartTitle: string;
 	/** Renders a non-null value in the tooltip, already pluralized. */
 	formatValue: ( value: number ) => string;

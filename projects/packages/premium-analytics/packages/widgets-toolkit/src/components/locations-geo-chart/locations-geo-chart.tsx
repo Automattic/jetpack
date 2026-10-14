@@ -37,7 +37,7 @@ export interface LocationsGeoChartProps {
 	resizeDebounceTime?: number;
 	/** What the figure is, as the tooltip names it. Defaults to Views. */
 	valueLabel?: string;
-	/** What the map shows, such as the widget title; the map is named "<title> map". */
+	/** What the map shows, such as the widget title; the map is named "Map: <title>". */
 	chartTitle?: string;
 }
 

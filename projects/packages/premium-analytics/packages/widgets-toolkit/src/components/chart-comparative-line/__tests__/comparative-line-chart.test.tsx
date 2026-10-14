@@ -188,7 +188,7 @@ describe( 'ComparativeLineChart', () => {
 		);
 
 		expect( mockLineChartSpy ).toHaveBeenLastCalledWith(
-			expect.objectContaining( { ariaLabel: 'Traffic summary chart' } )
+			expect.objectContaining( { ariaLabel: 'Chart: Traffic summary' } )
 		);
 	} );
 

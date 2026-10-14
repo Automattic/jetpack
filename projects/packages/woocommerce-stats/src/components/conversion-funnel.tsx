@@ -66,7 +66,7 @@ function buildConversionSteps(
 type ConversionFunnelProps = {
 	/** The product types the funnel counts; every type when omitted. */
 	filters?: FilterCondition[];
-	/** What the chart shows, such as the widget title; the chart is named "<title> chart". */
+	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
 	chartTitle: string;
 };
 

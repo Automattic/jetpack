@@ -105,7 +105,7 @@ export type LeaderboardProps = {
 	 * Rendered in the widget footer, typically a `ReportLink`.
 	 */
 	footer?: ReactNode;
-	/** What the chart shows, such as the widget title; the chart is named "<title> chart". */
+	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
 	chartTitle?: string;
 };
 

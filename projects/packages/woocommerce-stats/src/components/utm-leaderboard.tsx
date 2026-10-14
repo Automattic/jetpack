@@ -23,7 +23,7 @@ const CURRENCY_FORMAT: DataFormat = { type: 'currency', options: { useMultiplier
 type UtmLeaderboardProps = {
 	/** The order attribution dimension the sales split by. */
 	view: OrderAttributionView;
-	/** What the chart shows, such as the widget title; the chart is named "<title> chart". */
+	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
 	chartTitle: string;
 };
 
