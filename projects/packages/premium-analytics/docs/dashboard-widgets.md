@@ -160,7 +160,7 @@ A rename keeps the attributes as they are. One that changes them needs a migrati
 
 A widget that shows nothing but a paid Stats feature declares that feature in `plan_feature`: in the `$args['plan_features']` map of `register_widget_types_from_manifest()`, or in the arguments of `register_widget_type()`. wp-build drops unknown `widget.json` keys, so the manifest cannot carry it. `register()` refuses one that is not a string. The package declares its own in `WIDGET_TYPE_PLAN_FEATURES`; a widget every plan includes declares none.
 
-`stats-plan-gates.php` owns the features and which plan locks each. On the dashboard it publishes `premium_analytics.plan_gates.locked_widget_types`, the available types whose feature the site's plan lacks, mapped to that feature. Declaring a plan feature needs `WIDGET_API_VERSION` 1.12.0; an older registry ignores it, and the widget stays open.
+`stats-plan-gates.php` owns the features and which plan locks each. On the dashboard it publishes `premium_analytics.plan_gates`: `locked_features` maps each feature the site's plan lacks to its upgrade URL, empty when there is nowhere to buy it, and `locked_widget_types` maps each available type whose feature is locked to that feature. The `jetpack_premium_analytics_stats_plan_tier` filter overrides the tier both come from. Declaring a plan feature needs `WIDGET_API_VERSION` 1.12.0; an older registry ignores it, and the widget stays open.
 
 ### Script modules
 

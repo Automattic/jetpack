@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -66,7 +67,8 @@ function get_stats_plan_tier() {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param string $tier One of the STATS_TIER_* values; `unknown` gates nothing.
+	 * @param string $tier One of `commercial`, `legacy-free`, `paid`, `legacy-basic`, `free`, `jetpack-free` or
+	 *                     `unknown`, which locks nothing. Any other value is ignored.
 	 */
 	$filtered = apply_filters( STATS_PLAN_TIER_FILTER, $tier );
 
@@ -143,7 +145,7 @@ function has_cached_jetpack_plan() {
 }
 
 /**
- * Whether a self-hosted site owns a purchase that supports commercial use, once has_cached_jetpack_plan() holds.
+ * Whether a self-hosted site's cached plan or products support commercial use.
  *
  * @since $$next-version$$
  *
@@ -170,7 +172,7 @@ function has_jetpack_stats_commercial_purchase() {
 		}
 	}
 
-	return in_array( 'stats-commercial', $plan['features']['active'], true );
+	return in_array( 'stats-commercial', $plan['features']['active'] ?? array(), true );
 }
 
 /**
@@ -223,9 +225,9 @@ function get_stats_upgrade_url( $feature, $tier ) {
 	$return_path = 'admin.php?page=' . Analytics::MENU_PAGE_SLUG . '&jpa_purchased=1';
 
 	if ( STATS_TIER_JETPACK_FREE === $tier ) {
-		// The purchase flow lives in classic Stats; without its page there is nowhere to send the reader.
+		// The purchase flow lives in Odyssey Stats; with it off, `page=stats` shows only an opt-in notice.
 		$stats_page = function_exists( 'menu_page_url' ) ? menu_page_url( 'stats', false ) : '';
-		if ( ! $stats_page ) {
+		if ( ! $stats_page || ! Stats_Options::get_option( 'enable_odyssey_stats' ) ) {
 			return '';
 		}
 

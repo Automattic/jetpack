@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Status\Cache;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -118,6 +119,7 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		delete_transient( EMPTY_PLAN_REFRESH_TRANSIENT );
 		delete_transient( PURCHASE_PLAN_REFRESH_TRANSIENT );
 		\Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
+		Stats_Options::set_option( 'enable_odyssey_stats', true );
 		remove_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_fixture_widget_manifest' ) );
 		remove_action( Widget_Type_Registry::REGISTER_ACTION, array( $this, 'register_plugin_widget_type' ), 20 );
 		unset( $GLOBALS['jpa_test_widget_manifest'] );
@@ -225,6 +227,7 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		return array(
 			'empty cache is unknown'   => array( array(), array(), STATS_TIER_UNKNOWN ),
 			'non-array cache'          => array( 'garbage', 'garbage', STATS_TIER_UNKNOWN ),
+			'no active features'       => array( array_merge( self::FREE_PLAN, array( 'features' => array( 'active' => array() ) ) ), array(), STATS_TIER_UNKNOWN ),
 			'cached free plan'         => array( self::FREE_PLAN, array(), STATS_TIER_JETPACK_FREE ),
 			'malformed products'       => array( self::FREE_PLAN, 'garbage', STATS_TIER_JETPACK_FREE ),
 			'stats yearly product'     => array( self::FREE_PLAN, $products( 'jetpack_stats_yearly' ), STATS_TIER_COMMERCIAL ),
@@ -356,10 +359,19 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 
 	public function test_jetpack_upgrade_url_returns_with_the_purchase_flag() {
 		$GLOBALS['_parent_pages']['stats'] = false;
-		$url                               = get_stats_upgrade_url( 'utm', STATS_TIER_JETPACK_FREE );
+		\Jetpack_Options::update_option( 'id', 1234 );
+		$url = get_stats_upgrade_url( 'utm', STATS_TIER_JETPACK_FREE );
 
-		$this->assertStringContainsString( 'page=stats#!/stats/purchase/', $url );
+		$this->assertStringContainsString( 'page=stats#!/stats/purchase/1234?', $url );
+		$this->assertStringContainsString( 'productType=commercial', $url );
 		$this->assertStringContainsString( rawurlencode( 'jpa_purchased=1' ), $url );
+	}
+
+	public function test_jetpack_upgrade_url_is_empty_with_odyssey_stats_off() {
+		$GLOBALS['_parent_pages']['stats'] = false;
+		Stats_Options::set_option( 'enable_odyssey_stats', false );
+
+		$this->assertSame( '', get_stats_upgrade_url( 'utm', STATS_TIER_JETPACK_FREE ) );
 	}
 
 	/**
