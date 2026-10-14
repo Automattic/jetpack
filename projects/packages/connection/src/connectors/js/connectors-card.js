@@ -27,8 +27,7 @@ const registerConnector =
 	connectors.__experimentalRegisterConnector || connectors.registerConnector;
 const ConnectorItem = connectors.__experimentalConnectorItem || connectors.ConnectorItem;
 
-const { createElement, createInterpolateElement, Fragment, useState, useEffect, useRef } =
-	window.wp.element;
+const { createElement, createInterpolateElement, useState, useEffect, useRef } = window.wp.element;
 const { __, _x, sprintf } = window.wp.i18n;
 const { Button, Modal, Notice, Tooltip } = window.wp.components;
 const HStack = window.wp.components.__experimentalHStack || window.wp.components.HStack;
@@ -903,68 +902,36 @@ function ConfirmationModal( { title, message, onConfirm, onCancel } ) {
 }
 
 /**
- * Transfer-ownership link for the owner's own account row, and the modal it opens.
+ * Modal hosting the ownership transfer flow.
  *
  * The shared component carries the choose → confirm → done flow and its own actions, so the
  * card supplies only the modal, its heading and the way out.
  *
  * @param {object}   props               - Component props.
- * @param {boolean}  props.isBusy        - Whether another account action is in progress.
+ * @param {Function} props.onClose       - Called when the modal is dismissed.
  * @param {Function} props.onTransferred - Called with the candidate that now owns the connection.
  * @return {object} React element.
  */
-function TransferOwnershipAction( { isBusy = false, onTransferred } ) {
-	const [ isOpen, setIsOpen ] = useState( false );
+function TransferOwnershipModal( { onClose, onTransferred } ) {
 	const [ isTransferring, setIsTransferring ] = useState( false );
-	const newOwnerRef = useRef( null );
-
-	// Reporting the new owner unmounts this action, so hold it until the dialog is done with it.
-	const close = () => {
-		setIsOpen( false );
-		setIsTransferring( false );
-
-		if ( newOwnerRef.current ) {
-			const newOwner = newOwnerRef.current;
-			newOwnerRef.current = null;
-			onTransferred( newOwner );
-		}
-	};
 
 	return createElement(
-		Fragment,
-		null,
-		createElement(
-			Button,
-			{
-				variant: 'link',
-				className: 'jetpack-connector__inline-action',
-				disabled: isBusy || isOfflineMode,
-				onClick: () => setIsOpen( true ),
-			},
-			__( 'Transfer ownership', 'jetpack-connection' )
-		),
-		isOpen
-			? createElement(
-					Modal,
-					{
-						title: __( 'Transfer connection ownership', 'jetpack-connection' ),
-						onRequestClose: close,
-						size: 'small',
-						// A transfer cannot be undone halfway, so every way out is held shut while it runs.
-						isDismissible: ! isTransferring,
-						shouldCloseOnClickOutside: ! isTransferring,
-						shouldCloseOnEsc: ! isTransferring,
-					},
-					createElement( TransferConnectionOwnership, {
-						apiRoot,
-						apiNonce,
-						onBusyChange: setIsTransferring,
-						onTransferred: ( newOwnerId, newOwner ) => {
-							newOwnerRef.current = newOwner;
-						},
-					} )
-				)
-			: null
+		Modal,
+		{
+			title: __( 'Transfer connection ownership', 'jetpack-connection' ),
+			onRequestClose: onClose,
+			size: 'small',
+			// A transfer cannot be undone halfway, so every way out is held shut while it runs.
+			isDismissible: ! isTransferring,
+			shouldCloseOnClickOutside: ! isTransferring,
+			shouldCloseOnEsc: ! isTransferring,
+		},
+		createElement( TransferConnectionOwnership, {
+			apiRoot,
+			apiNonce,
+			onBusyChange: setIsTransferring,
+			onTransferred: ( newOwnerId, newOwner ) => onTransferred( newOwner ),
+		} )
 	);
 }
 
@@ -1502,9 +1469,11 @@ function ExpandedDetails( {
 	const [ isDisconnecting, setIsDisconnecting ] = useState( false );
 	const [ isUnlinking, setIsUnlinking ] = useState( false );
 	const [ showDetailsModal, setShowDetailsModal ] = useState( false );
+	const [ isTransferOpen, setIsTransferOpen ] = useState( false );
 	const [ pendingConfirm, setPendingConfirm ] = useState( null );
 	const [ actionError, setActionError ] = useState( null );
 	const detailsLinkRef = useRef( null );
+	const transferOwnershipRef = useRef( null );
 	const confirmTriggerRef = useRef( null );
 	const disconnectSiteRef = useRef( null );
 	const disconnectAccountRef = useRef( null );
@@ -1615,10 +1584,17 @@ function ExpandedDetails( {
 									VStack,
 									{ spacing: 1 },
 									viewer.isOwner
-										? createElement( TransferOwnershipAction, {
-												isBusy: isUnlinking || isDisconnecting,
-												onTransferred: onOwnerChanged,
-											} )
+										? createElement(
+												Button,
+												{
+													ref: transferOwnershipRef,
+													variant: 'link',
+													className: 'jetpack-connector__inline-action',
+													disabled: isUnlinking || isDisconnecting || isOfflineMode,
+													onClick: () => setIsTransferOpen( true ),
+												},
+												__( 'Transfer ownership', 'jetpack-connection' )
+											)
 										: null,
 									createElement(
 										Button,
@@ -1762,6 +1738,15 @@ function ExpandedDetails( {
 						setPendingConfirm( null );
 						focusWhenReady( confirmTriggerRef.current );
 					},
+				} )
+			: null,
+		isTransferOpen
+			? createElement( TransferOwnershipModal, {
+					onClose: () => {
+						setIsTransferOpen( false );
+						focusWhenReady( transferOwnershipRef.current );
+					},
+					onTransferred: onOwnerChanged,
 				} )
 			: null
 	);
