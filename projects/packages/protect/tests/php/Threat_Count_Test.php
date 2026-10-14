@@ -180,6 +180,25 @@ class Threat_Count_Test extends BaseTestCase {
 		$this->assertSame( $expected, wp_script_is( Threat_Count::SCRIPT_HANDLE, 'enqueued' ) );
 	}
 
+	public function test_a_status_that_cannot_be_read_hides_the_count_instead_of_failing() {
+		$this->sign_in( 'administrator' );
+		$this->store_report( 60 );
+		add_filter(
+			'all_plugins',
+			/** @return never */
+			function () {
+				throw new \RuntimeException( 'Malformed status' );
+			}
+		);
+
+		Threat_Count::register_menu_badge();
+		$response = Threat_Count::get_fresh_count();
+
+		$this->assertSame( 0, Notification_Counts::all()[ Dashboard::MENU_SLUG ]['count'] );
+		$this->assertInstanceOf( \WP_Error::class, $response );
+		$this->assertSame( 1, get_transient( Threat_Count::BACKOFF_TRANSIENT ) );
+	}
+
 	public function test_get_fresh_count_returns_the_count() {
 		Status::$status = new Status_Model( array( 'threats' => array( 'a', 'b' ) ) );
 

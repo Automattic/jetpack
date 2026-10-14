@@ -41,6 +41,16 @@ class Main_Features_Test extends TestCase {
 		}
 	}
 
+	public function test_local_catalog_links_protect_to_its_page_once_the_dashboard_loads() {
+		do_action( 'jetpack_protect_dashboard_initialized' );
+		try {
+			$features = array_column( Main_Features::get_state( true )['features'], null, 'slug' );
+			$this->assertSame( admin_url( 'admin.php?page=jetpack-protect' ), $features['protect-dashboard']['manage_url'] );
+		} finally {
+			unset( $GLOBALS['wp_actions']['jetpack_protect_dashboard_initialized'] );
+		}
+	}
+
 	/**
 	 * Every entry carries the fields a feature card needs.
 	 */

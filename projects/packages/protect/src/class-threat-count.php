@@ -66,7 +66,12 @@ class Threat_Count {
 	 * @return int|null Null when no status has been stored yet.
 	 */
 	public static function get_cached() {
-		$status = Status::get_cached_status();
+		try {
+			$status = Status::get_cached_status();
+		} catch ( \Throwable $e ) {
+			// This runs on every admin page, so a malformed stored status must not take them all down.
+			return null;
+		}
 		return null === $status ? null : count( $status->threats );
 	}
 
@@ -157,7 +162,11 @@ class Threat_Count {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public static function get_fresh_count() {
-		$status = Status::get_status();
+		try {
+			$status = Status::get_status();
+		} catch ( \Throwable $e ) {
+			$status = (object) array( 'error' => true );
+		}
 		if ( ! empty( $status->error ) ) {
 			// A failed fetch is not stored, so without this every page load would ask WordPress.com again.
 			set_transient( self::BACKOFF_TRANSIENT, 1, 5 * MINUTE_IN_SECONDS );
