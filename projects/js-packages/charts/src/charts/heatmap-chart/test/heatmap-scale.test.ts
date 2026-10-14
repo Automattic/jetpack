@@ -4,6 +4,7 @@ import {
 	getHeatmapScale,
 	HEATMAP_HIGH_CONTRAST,
 	HEATMAP_LOW_CONTRAST,
+	HEATMAP_STEP_CONTRAST,
 } from '../private/heatmap-scale';
 
 // The wp-admin scheme colors, then the pre-7.0 ones.
@@ -25,7 +26,7 @@ describe.each( [
 	[ 'dark', '#242424', '#272727' ],
 ] )( 'getHeatmapScale on a %s background', ( _mode, background, emptyCell ) => {
 	it.each( PRIMARIES )(
-		'keeps the lowest step of %s at 2:1 against the background and empty cell, no further',
+		'keeps the lowest step of %s at 2.5:1 against the background and empty cell, no further',
 		primary => {
 			const { low } = getHeatmapScale( primary, background, emptyCell );
 			const contrasts = [ contrastRatio( low, background ), contrastRatio( low, emptyCell ) ];
@@ -60,24 +61,27 @@ describe( 'getHeatmapScale', () => {
 		( primary, background, emptyCell ) => {
 			const { low, high } = getHeatmapScale( primary, background, emptyCell );
 
-			expect( contrastRatio( low, high ) ).toBeGreaterThanOrEqual( HEATMAP_LOW_CONTRAST );
+			expect( contrastRatio( low, high ) ).toBeGreaterThanOrEqual( HEATMAP_STEP_CONTRAST );
 			for ( let step = 0; step <= 20; step++ ) {
 				expect(
 					contrastRatio( mixHexColors( low, high, step / 20 ), background )
-				).toBeGreaterThanOrEqual( HEATMAP_LOW_CONTRAST );
+				).toBeGreaterThanOrEqual( HEATMAP_STEP_CONTRAST );
 			}
 		}
 	);
 
 	it.each( [
-		[ 'no step clears it', '#ffffff', '#555555' ],
-		[ 'clearing it would pass the high end', '#ffffff', '#767676' ],
-		[ 'clearing it would pass the high end', '#1e1e1e', '#6b6b6b' ],
+		[ '#ffffff', '#cccccc' ],
+		[ '#ffffff', '#959595' ],
+		[ '#1e1e1e', '#6b6b6b' ],
 	] )(
-		'measures against the background alone when %s (%s, %s)',
-		( _case, background, emptyCell ) => {
-			expect( getHeatmapScale( '#3858e9', background, emptyCell ) ).toEqual(
-				getHeatmapScale( '#3858e9', background )
+		'moves the low end on %s farther from a %s empty cell than the background alone would',
+		( background, emptyCell ) => {
+			const { low } = getHeatmapScale( '#3858e9', background, emptyCell );
+			const backgroundOnly = getHeatmapScale( '#3858e9', background ).low;
+
+			expect( contrastRatio( low, emptyCell ) ).toBeGreaterThan(
+				contrastRatio( backgroundOnly, emptyCell )
 			);
 		}
 	);
@@ -91,7 +95,7 @@ describe( 'getHeatmapScale', () => {
 		( background, emptyCell ) => {
 			const { low, high } = getHeatmapScale( '#3858e9', background, emptyCell );
 
-			expect( contrastRatio( low, high ) ).toBeGreaterThanOrEqual( HEATMAP_LOW_CONTRAST );
+			expect( contrastRatio( low, high ) ).toBeGreaterThanOrEqual( HEATMAP_STEP_CONTRAST );
 			expect( contrastRatio( low, background ) ).toBeLessThan( contrastRatio( high, background ) );
 		}
 	);

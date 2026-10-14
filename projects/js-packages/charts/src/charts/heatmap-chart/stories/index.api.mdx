@@ -8,8 +8,8 @@ import { Meta } from '@storybook/addon-docs/blocks';
 
 Main component for rendering a two-dimensional heatmap. Cells are laid out with CSS Grid
 and shaded on a scale derived from the primary color and the chart background, so its
-lowest step keeps 2:1 contrast against that background and the highest step, and against the
-empty cells unless their color sits too close to the highest step.
+lowest step reaches 2.5:1 contrast against that background and the empty cells, and never
+less than 2:1 against the background or the highest step.
 
 **Props:**
 

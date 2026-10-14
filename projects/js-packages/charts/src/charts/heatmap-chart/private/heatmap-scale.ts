@@ -1,8 +1,11 @@
 import { contrastRatio } from '../../../providers/chart-context/private/perceptual-color';
 import { mixHexColors, relativeLuminance } from '../../../utils/color-utils';
 
-/** Contrast the lowest step keeps against the background and the highest step. */
-export const HEATMAP_LOW_CONTRAST = 2;
+/** Contrast the lowest step aims for against the background and the empty cell. */
+export const HEATMAP_LOW_CONTRAST = 2.5;
+
+/** Contrast every step keeps against the background, and the lowest against the highest. */
+export const HEATMAP_STEP_CONTRAST = 2;
 
 /** Contrast the highest step aims for against the background, so the steps stay apart. */
 export const HEATMAP_HIGH_CONTRAST = 6;
@@ -19,8 +22,8 @@ const ramp = ( from: string, to: string ) =>
 	Array.from( { length: STEPS + 1 }, ( _, step ) => mixHexColors( from, to, step / STEPS ) );
 
 /**
- * The two ends of the heatmap fill scale: 2:1 against the background, the high end and, where it
- * can, the empty cell at the low end, toward 6:1 against the background at the high end.
+ * The two ends of the heatmap fill scale: toward 2.5:1 against the background and the empty cell at
+ * the low end, never under 2:1 against the background or the high end, and toward 6:1 at the high end.
  *
  * @param primary    - The resolved primary color, as six-digit hex.
  * @param background - The resolved chart background, as six-digit hex.
@@ -60,14 +63,17 @@ export const getHeatmapScale = (
 		.filter(
 			color =>
 				onExtremeSide( color ) &&
-				contrastRatio( color, background ) >= HEATMAP_LOW_CONTRAST &&
-				contrastRatio( color, high ) >= HEATMAP_LOW_CONTRAST
+				contrastRatio( color, background ) >= HEATMAP_STEP_CONTRAST &&
+				contrastRatio( color, high ) >= HEATMAP_STEP_CONTRAST
 		);
-	// An empty-cell color the low end cannot clear without nearing the high end gives way.
+	const surroundings = emptyCell ? [ background, emptyCell ] : [ background ];
+	const weakest = ( color: string ) =>
+		Math.min( ...surroundings.map( other => contrastRatio( color, other ) ) );
+	// Short of 2.5:1 the low end settles for 2:1, then for the step farthest from its nearest neighbor.
 	const low =
-		( emptyCell &&
-			spread.find( color => contrastRatio( color, emptyCell ) >= HEATMAP_LOW_CONTRAST ) ) ||
-		spread[ 0 ];
+		spread.find( color => weakest( color ) >= HEATMAP_LOW_CONTRAST ) ??
+		spread.find( color => weakest( color ) >= HEATMAP_STEP_CONTRAST ) ??
+		spread.reduce( ( best, color ) => ( weakest( color ) > weakest( best ) ? color : best ) );
 
 	return { low, high };
 };
