@@ -12,12 +12,16 @@ use WorDBless\BaseTestCase;
 require_once __DIR__ . '/../../src/dashboard-layout.php';
 require_once __DIR__ . '/../../src/dashboard-sections.php';
 require_once __DIR__ . '/../../src/default-dashboard-sections.php';
+require_once __DIR__ . '/../../src/widget-modules.php';
+require_once __DIR__ . '/../../src/widget-types.php';
+require_once __DIR__ . '/traits/trait-widget-manifest-fixture.php';
 
 /**
  * @covers \Automattic\Jetpack\PremiumAnalytics\Stored_Layout_Move
  */
 #[\PHPUnit\Framework\Attributes\CoversClass( Stored_Layout_Move::class )]
 class Stored_Layout_Move_Test extends BaseTestCase {
+	use Widget_Manifest_Fixture_Trait;
 
 	/**
 	 * The reader whose preferences are read.
@@ -46,6 +50,11 @@ class Stored_Layout_Move_Test extends BaseTestCase {
 			)
 		);
 
+		// No build manifest here: the widget registry holds only what a test registers.
+		add_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_absent_widget_manifest' ) );
+		$GLOBALS['jpa_test_widget_manifest'] = array();
+		$this->reset_widget_registry();
+
 		register_default_dashboard_sections();
 
 		Stored_Layout_Move::register();
@@ -53,22 +62,29 @@ class Stored_Layout_Move_Test extends BaseTestCase {
 
 	public function tear_down() {
 		remove_filter( 'get_user_metadata', array( Stored_Layout_Move::class, 'filter_user_meta' ), 99 );
+		$this->reset_widget_registry();
+		remove_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_absent_widget_manifest' ) );
+		unset( $GLOBALS['jpa_test_widget_manifest'] );
 		parent::tear_down();
 	}
 
+	private function reset_widget_registry() {
+		$instance = new \ReflectionProperty( Widget_Type_Registry::class, 'instance' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$instance->setAccessible( true );
+		}
+		$instance->setValue( null, null );
+	}
+
 	/**
-	 * Store the reader's section layouts, and whatever else rides in the same meta.
+	 * Store the reader's dashboard preferences, and whatever else rides in the same meta.
 	 *
-	 * @param array $layouts Section slug => widget instances.
-	 * @param array $extra   Other preference keys in the dashboard scope.
+	 * @param array $scope The dashboard scope: section layouts, applied moves, and the rest.
 	 * @return array The stored preferences.
 	 */
-	private function store_layouts( array $layouts, array $extra = array() ) {
+	private function store_preferences( array $scope ) {
 		$preferences = array(
-			Enablement_Setting::PREFERENCES_SCOPE => array_merge(
-				$extra,
-				array( Stored_Layout_Move::LAYOUTS_KEY => $layouts )
-			),
+			Enablement_Setting::PREFERENCES_SCOPE => $scope,
 			'_modified'                           => '2026-01-01T00:00:00Z',
 		);
 		remove_filter( 'get_user_metadata', array( Stored_Layout_Move::class, 'filter_user_meta' ), 99 );
@@ -82,16 +98,42 @@ class Stored_Layout_Move_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The layouts a read of the preferences hands back.
+	 * Store the reader's section layouts.
+	 *
+	 * @param array $layouts Section slug => widget instances.
+	 * @param array $extra   Other preference keys in the dashboard scope.
+	 * @return array The stored preferences.
+	 */
+	private function store_layouts( array $layouts, array $extra = array() ) {
+		return $this->store_preferences(
+			array_merge( $extra, array( Stored_Layout_Move::LAYOUTS_KEY => $layouts ) )
+		);
+	}
+
+	/**
+	 * The dashboard scope a read of the preferences hands back.
 	 *
 	 * @return array
 	 */
-	private function read_layouts() {
+	private function read_scope() {
 		$preferences = get_user_meta( $this->user_id, $this->meta_key, true );
-		$layouts     = $preferences[ Enablement_Setting::PREFERENCES_SCOPE ][ Stored_Layout_Move::LAYOUTS_KEY ] ?? null;
-		$this->assertIsArray( $layouts );
+		$scope       = $preferences[ Enablement_Setting::PREFERENCES_SCOPE ] ?? null;
+		$this->assertIsArray( $scope );
 
-		return $layouts;
+		return $scope;
+	}
+
+	/**
+	 * The layouts a read of the preferences hands back, the move asserted as recorded.
+	 *
+	 * @return array
+	 */
+	private function read_moved_layouts() {
+		$scope = $this->read_scope();
+		$this->assertSame( array( Stored_Layout_Move::MOVE_ID ), $scope[ Stored_Layout_Move::MOVES_KEY ] ?? null );
+		$this->assertIsArray( $scope[ Stored_Layout_Move::LAYOUTS_KEY ] ?? null );
+
+		return $scope[ Stored_Layout_Move::LAYOUTS_KEY ];
 	}
 
 	/**
@@ -124,7 +166,7 @@ class Stored_Layout_Move_Test extends BaseTestCase {
 			)
 		);
 
-		$layouts = $this->read_layouts();
+		$layouts = $this->read_moved_layouts();
 
 		$this->assertSame( array( 'jpa/all-time-stats' ), array_column( $layouts['insights'], 'type' ) );
 		$this->assertSame( array( 'jpa/referrers', 'jpa/tags' ), array_column( $layouts['traffic'], 'type' ) );
@@ -141,9 +183,11 @@ class Stored_Layout_Move_Test extends BaseTestCase {
 
 		remove_filter( 'get_user_metadata', array( Stored_Layout_Move::class, 'filter_user_meta' ), 99 );
 		$persisted = get_user_meta( $this->user_id, $this->meta_key, true );
-		$this->assertSame( $layouts, $persisted[ Enablement_Setting::PREFERENCES_SCOPE ][ Stored_Layout_Move::LAYOUTS_KEY ] );
-		$this->assertSame( '2026-01-01', $persisted[ Enablement_Setting::PREFERENCES_SCOPE ]['onboardingCompletedAt'] );
-		$this->assertSame( 'ACME\\Blue', $persisted[ Enablement_Setting::PREFERENCES_SCOPE ]['rememberedPreset'] );
+		$scope     = $persisted[ Enablement_Setting::PREFERENCES_SCOPE ];
+		$this->assertSame( $layouts, $scope[ Stored_Layout_Move::LAYOUTS_KEY ] );
+		$this->assertSame( array( Stored_Layout_Move::MOVE_ID ), $scope[ Stored_Layout_Move::MOVES_KEY ] );
+		$this->assertSame( '2026-01-01', $scope['onboardingCompletedAt'] );
+		$this->assertSame( 'ACME\\Blue', $scope['rememberedPreset'] );
 		$this->assertNotSame( '2026-01-01T00:00:00Z', $persisted['_modified'] );
 	}
 
@@ -152,22 +196,36 @@ class Stored_Layout_Move_Test extends BaseTestCase {
 			array( 'insights' => array( self::stored( 'jpa/tags' ) ) )
 		);
 
-		$layouts = $this->read_layouts();
+		$layouts = $this->read_moved_layouts();
 
 		$this->assertSame( array(), $layouts['insights'] );
 		$this->assertArrayNotHasKey( 'traffic', $layouts );
 	}
 
 	/**
-	 * The widget still on Insights is the only trigger, so a reader who removed it from Traffic
-	 * after the move keeps it removed.
+	 * A reader who customized only Traffic before the move had the widget on neither tab.
 	 */
-	public function test_leaves_layouts_without_the_widget_on_its_old_tab_alone() {
+	public function test_adds_tags_to_a_customized_traffic_when_insights_is_the_default() {
+		$this->store_layouts(
+			array( 'traffic' => array( self::stored( 'jpa/referrers' ) ) )
+		);
+
+		$layouts = $this->read_moved_layouts();
+
+		$this->assertArrayNotHasKey( 'insights', $layouts );
+		$this->assertSame( array( 'jpa/referrers', 'jpa/tags' ), array_column( $layouts['traffic'], 'type' ) );
+	}
+
+	/**
+	 * The record is what keeps a widget the reader removed from Traffic after the move removed.
+	 */
+	public function test_leaves_a_reader_who_already_had_the_move_alone() {
 		$stored = $this->store_layouts(
 			array(
 				'insights' => array( self::stored( 'jpa/all-time-stats' ) ),
 				'traffic'  => array( self::stored( 'jpa/referrers' ) ),
-			)
+			),
+			array( Stored_Layout_Move::MOVES_KEY => array( Stored_Layout_Move::MOVE_ID ) )
 		);
 
 		$this->assertSame( $stored, get_user_meta( $this->user_id, $this->meta_key, true ) );
@@ -181,15 +239,15 @@ class Stored_Layout_Move_Test extends BaseTestCase {
 			)
 		);
 
-		$layouts = $this->read_layouts();
+		$layouts = $this->read_moved_layouts();
 
 		$this->assertSame( array(), $layouts['insights'] );
 		$this->assertSame( array( 'jpa/tags', 'jpa/referrers' ), array_column( $layouts['traffic'], 'type' ) );
 	}
 
 	/**
-	 * Without the destination's default there is nowhere to put the widget, so the old tab
-	 * keeps it, and with it the trigger for a later read.
+	 * Without the destination's default there is nowhere to put the widget, so nothing is
+	 * touched or recorded, and a later read tries again.
 	 */
 	public function test_keeps_the_widget_on_insights_while_the_traffic_default_lacks_it() {
 		$without_tags = function ( $layout ) {
@@ -233,6 +291,15 @@ class Stored_Layout_Move_Test extends BaseTestCase {
 
 		$this->assertSame( array(), $moved[ Enablement_Setting::PREFERENCES_SCOPE ][ Stored_Layout_Move::LAYOUTS_KEY ]['insights'] );
 		$this->assertGreaterThan( strtotime( $future ), strtotime( $moved['_modified'] ) );
+	}
+
+	/**
+	 * A reader on the default layouts has nothing to move, and gets no record written either.
+	 */
+	public function test_leaves_preferences_without_stored_layouts_alone() {
+		$stored = $this->store_preferences( array( 'onboardingCompletedAt' => '2026-01-01' ) );
+
+		$this->assertSame( $stored, get_user_meta( $this->user_id, $this->meta_key, true ) );
 	}
 
 	public function test_ignores_other_meta_and_a_reader_with_no_preferences() {
