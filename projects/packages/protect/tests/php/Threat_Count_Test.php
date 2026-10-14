@@ -31,6 +31,7 @@ class Threat_Count_Test extends BaseTestCase {
 		delete_transient( Threat_Count::BACKOFF_TRANSIENT );
 		wp_dequeue_script( Threat_Count::SCRIPT_HANDLE );
 		wp_deregister_script( Threat_Count::SCRIPT_HANDLE );
+		wp_deregister_script( 'jetpack-menu-badges' );
 		wp_set_current_user( 0 );
 		parent::tear_down();
 	}
@@ -178,6 +179,11 @@ class Threat_Count_Test extends BaseTestCase {
 		Threat_Count::maybe_enqueue_refresh();
 
 		$this->assertSame( $expected, wp_script_is( Threat_Count::SCRIPT_HANDLE, 'enqueued' ) );
+		if ( $expected ) {
+			// Otherwise a response arriving before the badge script loads leaves the menu badge stale.
+			$this->assertContains( 'jetpack-menu-badges', wp_scripts()->registered[ Threat_Count::SCRIPT_HANDLE ]->deps );
+			$this->assertTrue( wp_script_is( 'jetpack-menu-badges', 'registered' ) );
+		}
 	}
 
 	public function test_a_status_that_cannot_be_read_hides_the_count_instead_of_failing() {

@@ -118,12 +118,18 @@ class Threat_Count {
 			return;
 		}
 
+		$dependencies = array( 'wp-api-fetch' );
+		if ( is_admin() ) {
+			// The menu badge script only loads in wp-admin; elsewhere only the admin bar is updated.
+			Menu_Badges::enqueue_client();
+			$dependencies[] = 'jetpack-menu-badges';
+		}
 		Assets::register_script(
 			self::SCRIPT_HANDLE,
 			'js/threat-count.js',
 			__FILE__,
 			array(
-				'dependencies' => array( 'wp-api-fetch' ),
+				'dependencies' => $dependencies,
 				'in_footer'    => true,
 				'enqueue'      => true,
 			)
