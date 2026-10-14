@@ -23,7 +23,11 @@ import {
 	useReportOrders,
 	useReportVisitors,
 } from '../../src/reports';
-import { STORE_PERFORMANCE_METRICS } from './metrics';
+import {
+	DEFAULT_STORE_PERFORMANCE_METRICS,
+	STORE_PERFORMANCE_METRICS,
+	type StorePerformanceMetricId,
+} from './metrics';
 import styles from './store-performance.module.css';
 import type { StorePerformanceAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -37,34 +41,58 @@ const DEFAULT_DATA_FORMAT = {
 type StorePerformanceRenderAttributes = StorePerformanceAttributes &
 	Partial< ReportParamsFieldAttributes >;
 
+type StorePerformanceProps = {
+	/** The metrics shown, by id. */
+	metricIds: StorePerformanceMetricId[];
+};
+
 /**
- * Every store metric as a selectable tab over a comparison line chart, read under the widget
- * root for its report params.
+ * The selected store metrics as tabs over a comparison line chart, read under the widget root
+ * for its report params. Only the reports those metrics read are requested.
  *
+ * @param {StorePerformanceProps} props - The component props.
  * @return {JSX.Element} The chart, or the loading or error state of its reports.
  */
-function StorePerformance() {
+function StorePerformance( { metricIds }: StorePerformanceProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const bookingsParams = useMemo(
 		() => ( { ...reportParams, filters: [ BOOKINGS_FILTER ] } ),
 		[ reportParams ]
 	);
 
-	const orders = useReportOrders( reportParams );
-	const bookings = useReportOrders( bookingsParams );
-	const visitors = useReportVisitors( reportParams );
-	const conversion = useReportConversionRate( reportParams );
-	const customers = useReportCustomersByDate( reportParams );
+	// Resolved against the list, so the tab order holds whatever order the ids were picked in.
+	const visibleMetrics = useMemo( () => {
+		const selected = new Set( metricIds );
+		return STORE_PERFORMANCE_METRICS.filter( metric => selected.has( metric.id ) );
+	}, [ metricIds ] );
+	const sources = useMemo(
+		() => new Set( visibleMetrics.map( metric => metric.source ) ),
+		[ visibleMetrics ]
+	);
+
+	const orders = useReportOrders( reportParams, { enabled: sources.has( 'orders' ) } );
+	const bookings = useReportOrders( bookingsParams, { enabled: sources.has( 'bookings' ) } );
+	const visitors = useReportVisitors( reportParams, { enabled: sources.has( 'visitors' ) } );
+	const conversion = useReportConversionRate( reportParams, {
+		enabled: sources.has( 'conversion' ),
+	} );
+	const customers = useReportCustomersByDate( reportParams, {
+		enabled: sources.has( 'customers' ),
+	} );
 
 	const reports = useMemo(
 		() => ( { orders, bookings, visitors, conversion, customers } ),
 		[ orders, bookings, visitors, conversion, customers ]
 	);
-	const reportList = useMemo( () => Object.values( reports ), [ reports ] );
+	// The reports the shown metrics read: a switched-off report has no state to show.
+	const reportList = useMemo(
+		() => Array.from( sources, source => reports[ source ] ),
+		[ reports, sources ]
+	);
 
 	const metrics = useMemo(
 		() =>
-			STORE_PERFORMANCE_METRICS.map( metric => {
+			visibleMetrics.map( metric => {
 				const report = reports[ metric.source ];
 
 				return {
@@ -82,7 +110,7 @@ function StorePerformance() {
 					description: metric.description,
 				};
 			} ),
-		[ reports ]
+		[ reports, visibleMetrics ]
 	);
 
 	// A failed report shows its error beside the others' charts only once it has nothing to show.
@@ -92,6 +120,17 @@ function StorePerformance() {
 		() => Promise.all( reportList.map( report => report.refetch() ) ),
 		[ reportList ]
 	);
+
+	// Not a data state: every metric was switched off in the widget settings.
+	if ( visibleMetrics.length === 0 ) {
+		return (
+			<div className={ styles.root }>
+				<ChartEmptyState
+					text={ __( 'Select at least one metric to display.', 'jetpack-woocommerce-stats-pkg' ) }
+				/>
+			</div>
+		);
+	}
 
 	return (
 		<div className={ styles.root }>
@@ -120,7 +159,7 @@ function StorePerformance() {
 }
 
 /**
- * The Store performance widget.
+ * The Store performance widget. A missing `metrics` attribute shows every metric but Bookings.
  *
  * @param {WidgetRenderProps< StorePerformanceRenderAttributes >} props - The props the host passes.
  * @return {JSX.Element} The widget.
@@ -130,7 +169,7 @@ export default function StorePerformanceRender( {
 }: WidgetRenderProps< StorePerformanceRenderAttributes > ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<StorePerformance />
+			<StorePerformance metricIds={ attributes.metrics ?? DEFAULT_STORE_PERFORMANCE_METRICS } />
 		</WidgetRoot>
 	);
 }

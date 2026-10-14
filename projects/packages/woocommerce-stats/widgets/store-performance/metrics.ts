@@ -11,9 +11,13 @@ import type { DataFormat } from '@automattic/jetpack-premium-analytics-sdk';
 export type StorePerformanceSource =
 	'orders' | 'bookings' | 'visitors' | 'conversion' | 'customers';
 
+/** Keys a metric's tab and names it in the `metrics` attribute. */
+export type StorePerformanceMetricId =
+	'net-sales' | 'orders' | 'bookings' | 'visitors' | 'conversion-rate' | 'customers';
+
 export type StorePerformanceMetric = {
-	/** Keys the tab: orders and bookings read the same field of two reports. */
-	id: 'net-sales' | 'orders' | 'bookings' | 'visitors' | 'conversion-rate' | 'customers';
+	/** Orders and bookings read the same field of two reports. */
+	id: StorePerformanceMetricId;
 	label: string;
 	description: string;
 	source: StorePerformanceSource;
@@ -108,3 +112,10 @@ export const STORE_PERFORMANCE_METRICS: StorePerformanceMetric[] = [
 			_n( '%s Customer', '%s Customers', count, 'jetpack-woocommerce-stats-pkg' ),
 	},
 ];
+
+/**
+ * The metrics a new instance shows. Bookings stays out: the package's default layout names it on a
+ * store running the Bookings extension, and the Metrics field offers it on every store.
+ */
+export const DEFAULT_STORE_PERFORMANCE_METRICS: StorePerformanceMetricId[] =
+	STORE_PERFORMANCE_METRICS.filter( metric => metric.id !== 'bookings' ).map( metric => metric.id );

@@ -110,6 +110,12 @@ class Analytics_Dashboard {
 	const BOOKINGS_WIDGET_CATEGORIES = array( 'bookings' );
 
 	/**
+	 * The metrics Store performance starts with on a store running the Bookings extension: the
+	 * widget's own default, which leaves Bookings out, plus Bookings.
+	 */
+	const STORE_PERFORMANCE_METRICS_WITH_BOOKINGS = array( 'net-sales', 'orders', 'bookings', 'visitors', 'conversion-rate', 'customers' );
+
+	/**
 	 * Hook both registrants on the dashboard's registry actions, the reports proxy on REST
 	 * requests, and the store currency on the script data.
 	 *
@@ -162,7 +168,7 @@ class Analytics_Dashboard {
 	 */
 	public static function get_default_layout() {
 		return array(
-			get_dashboard_default_widget_instance( 'default-store-performance-widget-instance', self::STORE_PERFORMANCE_TYPE, 0, 'full', 2 ),
+			get_dashboard_default_widget_instance( 'default-store-performance-widget-instance', self::STORE_PERFORMANCE_TYPE, 0, 'full', 2, self::get_default_store_performance_attributes( self::is_bookings_plugin_active() ) ),
 			get_dashboard_default_widget_instance( 'default-visitors-by-location-widget-instance', self::VISITORS_BY_LOCATION_TYPE, 10, 2, 2 ),
 			get_dashboard_default_widget_instance( 'default-net-sales-over-time-widget-instance', self::NET_SALES_OVER_TIME_TYPE, 20, 1, 2 ),
 			get_dashboard_default_widget_instance( 'default-total-sales-over-time-widget-instance', self::TOTAL_SALES_OVER_TIME_TYPE, 30, 1, 2 ),
@@ -187,6 +193,19 @@ class Analytics_Dashboard {
 			get_dashboard_default_widget_instance( 'default-sales-by-coupon-widget-instance', self::SALES_BY_COUPON_TYPE, 220, 1, 2 ),
 
 		);
+	}
+
+	/**
+	 * The attributes of the default Store performance instance.
+	 *
+	 * Without the Bookings extension the instance carries none, and the widget shows its own
+	 * default, every metric but Bookings. With it, Bookings joins.
+	 *
+	 * @param bool $bookings_available Whether the WooCommerce Bookings extension is active.
+	 * @return array
+	 */
+	public static function get_default_store_performance_attributes( $bookings_available ) {
+		return $bookings_available ? array( 'metrics' => self::STORE_PERFORMANCE_METRICS_WITH_BOOKINGS ) : array();
 	}
 
 	/**
