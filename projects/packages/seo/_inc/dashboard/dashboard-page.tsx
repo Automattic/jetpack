@@ -1,6 +1,8 @@
 import { AdminPage, ThemeProvider } from '@automattic/jetpack-components';
+import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
+import { recordScreenViewOnce, screenForTab } from '../data/record-seo-event';
 import DashboardNav from './dashboard-nav';
 import '../admin-page-layout.scss';
 import type { SeoTab } from './dashboard-nav';
@@ -38,27 +40,31 @@ interface Props {
  * @param props.children   - The route's screen content.
  * @return The SEO dashboard page chrome.
  */
-const DashboardPage = ( { active, showFooter = true, flush = false, children }: Props ) => (
-	<ThemeProvider>
-		<AdminPage
-			title="SEO"
-			subTitle={ __(
-				'Make your site discoverable in search and social, and control AI access.',
-				'jetpack-seo'
-			) }
-			showFooter={ showFooter }
-		>
-			<DashboardNav active={ active }>
-				<div
-					className={ clsx( 'jetpack-seo-page-content', {
-						'jetpack-seo-page-content--flush': flush,
-					} ) }
-				>
-					{ children }
-				</div>
-			</DashboardNav>
-		</AdminPage>
-	</ThemeProvider>
-);
+const DashboardPage = ( { active, showFooter = true, flush = false, children }: Props ) => {
+	useEffect( () => recordScreenViewOnce( screenForTab( active ) ), [ active ] );
+
+	return (
+		<ThemeProvider>
+			<AdminPage
+				title="SEO"
+				subTitle={ __(
+					'Make your site discoverable in search and social, and control AI access.',
+					'jetpack-seo'
+				) }
+				showFooter={ showFooter }
+			>
+				<DashboardNav active={ active }>
+					<div
+						className={ clsx( 'jetpack-seo-page-content', {
+							'jetpack-seo-page-content--flush': flush,
+						} ) }
+					>
+						{ children }
+					</div>
+				</DashboardNav>
+			</AdminPage>
+		</ThemeProvider>
+	);
+};
 
 export default DashboardPage;

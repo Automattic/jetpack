@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Remove unnecessary `return`/`exit`/`die` after `wp_send_json*` functions that never return (and are now declared as such in WP 7.1).
-
-
