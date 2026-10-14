@@ -514,6 +514,12 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		[ chartId ]
 	);
 
+	const overlapKeys = useMemo(
+		() =>
+			overlap ? { outerKey: overlap.outer.label, innerKey: overlap.inner.label } : undefined,
+		[ overlap ]
+	);
+
 	const createKeyboardHighlightStyle = useCallback( () => {
 		if ( selectedIndex === undefined ) return '';
 
@@ -533,25 +539,29 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			return '';
 		}
 
-		// The single .visx-bar-group holds series after series, and only the points visx drew a bar for.
-		const domBarIndex =
-			primaryEntries
-				.slice( 0, seriesIndex )
-				.reduce( ( count, { series } ) => count + countRenderedBars( series.data ), 0 ) +
-			countRenderedBars( seriesData.data.slice( 0, dataPointIndex ) );
-
 		// Use a CSS class selector instead of ID since useId() generates invalid CSS ID characters
-		const generatedStyles = `
-			.bar-chart[data-chart-id="bar-chart-${ chartId }"] .visx-bar-group .visx-bar:nth-child(${
-				domBarIndex + 1
-			}) {
+		const chartSelector = `.bar-chart[data-chart-id="bar-chart-${ chartId }"]`;
+		let barSelector: string;
+		if ( isOverlap ) {
+			// Overlap paints outer before inner, so DOM order does not follow primaryEntries.
+			barSelector = `.bar-chart__overlap-bar[data-series-index="${ seriesIndex }"][data-point-index="${ dataPointIndex }"]`;
+		} else {
+			// The single .visx-bar-group holds series after series, and only the points visx drew a bar for.
+			const domBarIndex =
+				primaryEntries
+					.slice( 0, seriesIndex )
+					.reduce( ( count, { series } ) => count + countRenderedBars( series.data ), 0 ) +
+				countRenderedBars( seriesData.data.slice( 0, dataPointIndex ) );
+			barSelector = `.visx-bar-group .visx-bar:nth-child(${ domBarIndex + 1 })`;
+		}
+
+		return `
+			${ chartSelector } ${ barSelector } {
 				stroke: #005fcc;
 				stroke-width: 2px;
 			}
 		`;
-
-		return generatedStyles;
-	}, [ selectedIndex, primaryEntries, chartId ] );
+	}, [ selectedIndex, primaryEntries, chartId, isOverlap ] );
 
 	// Validate data first
 	const error = validateData( dataSorted );
@@ -813,6 +823,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 											<BandTooltip
 												keys={ primaryKeys }
 												groupPadding={ groupPadding }
+												overlap={ overlapKeys }
 												withTooltips={ withTooltips }
 												onPointerDown={ onPointerDown }
 												onPointerUp={ onPointerUp }

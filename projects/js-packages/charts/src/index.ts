@@ -113,6 +113,7 @@ export type {
 	BarChartProps,
 	BandHighlightSelection,
 	BarLayout,
+	BarOverlapOptions,
 	BarOverlapStyles,
 	ComparisonMarker,
 } from './charts/bar-chart';

@@ -1,5 +1,6 @@
 export { default as BarChart, BarChartUnresponsive } from './bar-chart';
 export { useBarOverlapStyles } from './use-bar-overlap-styles';
+export type { BarOverlapOptions } from './use-bar-overlap-styles';
 export type {
 	BarChartProps,
 	BandHighlightSelection,

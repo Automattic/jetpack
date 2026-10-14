@@ -1,16 +1,9 @@
-import {
-	render,
-	renderHook,
-	screen,
-	within,
-	act,
-	waitFor,
-	fireEvent,
-} from '@testing-library/react';
+import { render, renderHook, screen, within, act, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider } from '../../../providers';
 import { useGlobalChartsContext } from '../../../providers/chart-context/hooks/use-global-charts-context';
 import { steadyTrafficData } from '../../../stories/sample-data';
+import { firePointer, stubScreenTransform } from '../../../test-utils/pointer';
 import BarChart, { BarChartUnresponsive } from '../bar-chart';
 import { useBarChartOptions } from '../private';
 import type { GlobalChartsContextValue } from '../../../providers/chart-context/types';
@@ -125,22 +118,7 @@ describe( 'BarChart', () => {
 	} );
 
 	describe( 'pointer selection and focus return', () => {
-		const screenTransform = Object.getOwnPropertyDescriptor( SVGElement.prototype, 'getScreenCTM' );
-		beforeAll( () => {
-			// jsdom lacks the SVG transform used by visx to convert pointer coordinates.
-			Object.defineProperty( SVGElement.prototype, 'getScreenCTM', {
-				configurable: true,
-				value: () => null,
-			} );
-		} );
-
-		afterAll( () => {
-			if ( screenTransform ) {
-				Object.defineProperty( SVGElement.prototype, 'getScreenCTM', screenTransform );
-			} else {
-				Reflect.deleteProperty( SVGElement.prototype, 'getScreenCTM' );
-			}
-		} );
+		stubScreenTransform();
 
 		const barGeometry = () => {
 			const bars = getBarRects();
@@ -149,16 +127,8 @@ describe( 'BarChart', () => {
 			);
 		};
 
-		const pointer = ( type: string, clientX: number, clientY: number ) => {
-			// visx owns the pointer capture rect and does not expose an attribute prop for it.
-			const chart = screen.getByRole( 'application' );
-			// eslint-disable-next-line testing-library/no-node-access
-			const target = chart.querySelector( 'svg > rect[fill="transparent"]' );
-			fireEvent( target, new MouseEvent( type, { bubbles: true, clientX, clientY } ) );
-		};
-
 		const hover = ( clientX: number, clientY: number ) =>
-			pointer( 'pointermove', clientX, clientY );
+			firePointer( 'pointermove', clientX, clientY );
 
 		test( 'Escape returns focus to the chart without reopening either tooltip', async () => {
 			jest.useFakeTimers();
@@ -231,7 +201,7 @@ describe( 'BarChart', () => {
 			await expect(
 				screen.findByTestId( 'bar-chart-band-highlight' )
 			).resolves.toBeInTheDocument();
-			pointer( 'pointerout', x + width / 2, 150 );
+			firePointer( 'pointerout', x + width / 2, 150 );
 			await waitFor( () => expect( onBandHighlightChange ).toHaveBeenLastCalledWith( null ) );
 			expect( screen.queryByTestId( 'bar-chart-band-highlight' ) ).not.toBeInTheDocument();
 		} );
@@ -264,7 +234,7 @@ describe( 'BarChart', () => {
 					Number( highlight.getAttribute( 'x' ) ) +
 					Number( highlight.getAttribute( 'width' ) ) * 0.85;
 				hover( otherSlot, 150 );
-				pointer( 'pointerup', otherSlot, 150 );
+				firePointer( 'pointerup', otherSlot, 150 );
 				for ( const callback of [ onBandHighlightChange, onPointerUp ] ) {
 					expect( callback ).not.toHaveBeenCalledWith(
 						expect.objectContaining( { key: 'Other' } )
@@ -288,8 +258,8 @@ describe( 'BarChart', () => {
 			const clientX = ( x0 + width / 2 + x1 + width / 2 ) / 2 - 2;
 			hover( clientX, 150 );
 			await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveTextContent( 'Jan 1' );
-			pointer( 'pointerdown', clientX, 150 );
-			pointer( 'pointerup', clientX, 150 );
+			firePointer( 'pointerdown', clientX, 150 );
+			firePointer( 'pointerup', clientX, 150 );
 			for ( const callback of [ onPointerDown, onPointerUp ] ) {
 				expect( callback ).toHaveBeenCalledTimes( 1 );
 				expect( callback ).toHaveBeenLastCalledWith(

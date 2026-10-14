@@ -1,5 +1,7 @@
 import { render, renderHook, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider } from '../../../providers';
+import { firePointer, stubScreenTransform } from '../../../test-utils/pointer';
 import BarChart from '../bar-chart';
 import { useBarOverlapStyles } from '../use-bar-overlap-styles';
 
@@ -81,5 +83,37 @@ describe( 'BarChart overlap layout', () => {
 			'height',
 			'NaN'
 		);
+	} );
+
+	it( 'outlines the narrow inner bar when the keyboard lands on it', async () => {
+		const user = userEvent.setup();
+		renderWithTheme( { data: [ views, visitors ], layout: 'overlap', withTooltips: true } );
+
+		await user.tab();
+		await user.keyboard( '{ArrowRight}{ArrowRight}' ); // views[0] → visitors[0]
+
+		expect( screen.getByTestId( 'bar-chart-keyboard-highlight' ) ).toHaveTextContent(
+			/\.bar-chart__overlap-bar\[data-series-index="1"\]\[data-point-index="0"\]/
+		);
+	} );
+
+	describe( 'pointer', () => {
+		stubScreenTransform();
+
+		it.each( [
+			[ 'the band center', 0.5, 'Visitors' ],
+			[ 'the left of the inner bar', 0.3, 'Visitors' ],
+			[ 'the left band edge', 0.05, 'Views' ],
+			[ 'the right band edge', 0.95, 'Views' ],
+		] )( 'reads %s as the right series', async ( _, at, expected ) => {
+			renderWithTheme( { data: [ views, visitors ], layout: 'overlap', withTooltips: true } );
+			const outer = screen.getByTestId( 'bar-chart-overlap-outer-0' );
+			const bandStart = Number( outer.getAttribute( 'x' ) );
+			const bandwidth = Number( outer.getAttribute( 'width' ) );
+
+			firePointer( 'pointermove', bandStart + bandwidth * at, 150 );
+
+			await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveTextContent( expected );
+		} );
 	} );
 } );

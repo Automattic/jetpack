@@ -1,6 +1,7 @@
 import { DataContext, TooltipContext, useEventEmitter } from '@visx/xychart';
 import { useCallback, useContext, useMemo } from 'react';
 import { createGroupScale } from './band-scale';
+import { OVERLAP_INNER_WIDTH_RATIO } from './overlap-constants';
 import type { BandScale } from './band-scale';
 import type { BarChartProps } from '../types';
 
@@ -42,6 +43,7 @@ export function nearestBandIndex< Datum >(
  * @param root0               - Registered series selection.
  * @param root0.keys          - Visible series keys.
  * @param root0.groupPadding  - Padding between grouped bars.
+ * @param root0.overlap       - The overlap layout's series, which share the whole band.
  * @param root0.withTooltips  - Whether pointer events update the tooltip.
  * @param root0.onPointerDown - Receives the corrected pointer-down datum.
  * @param root0.onPointerUp   - Receives the corrected pointer-up datum.
@@ -51,6 +53,7 @@ export function nearestBandIndex< Datum >(
 export function BandTooltip( {
 	keys,
 	groupPadding,
+	overlap,
 	withTooltips,
 	onPointerDown,
 	onPointerUp,
@@ -58,6 +61,7 @@ export function BandTooltip( {
 }: {
 	keys: string[];
 	groupPadding: number;
+	overlap?: { outerKey: string; innerKey: string };
 	onPointerMove?: ( selection: PointerSelection ) => void;
 } & Pick< BarChartProps, 'withTooltips' | 'onPointerDown' | 'onPointerUp' > ) {
 	const { xScale, yScale, dataRegistry, horizontal } = useContext( DataContext );
@@ -65,8 +69,8 @@ export function BandTooltip( {
 	const scale = ( horizontal ? yScale : xScale ) as BandScale | undefined;
 	const bandwidth = scale?.bandwidth?.() ?? 0;
 	const groupScale = useMemo(
-		() => createGroupScale( keys, bandwidth, groupPadding ),
-		[ keys, bandwidth, groupPadding ]
+		() => ( overlap ? undefined : createGroupScale( keys, bandwidth, groupPadding ) ),
+		[ overlap, keys, bandwidth, groupPadding ]
 	);
 	const getSelections = useCallback(
 		( params: Parameters< PointerHandler >[ 0 ] ) => {
@@ -91,11 +95,21 @@ export function BandTooltip( {
 					continue;
 				}
 				const datum = entry.data[ index ];
-				const start = Number( scale( accessor( datum ) ) ) + Number( groupScale( key ) );
-				const end = start + groupScale.step();
+				const bandStart = Number( scale( accessor( datum ) ) );
 				const position = horizontal ? point.y : point.x;
-				const distance =
-					position >= start && position <= end ? 0 : Math.abs( position - ( start + end ) / 2 );
+				let distance: number;
+				if ( groupScale ) {
+					const start = bandStart + Number( groupScale( key ) );
+					const end = start + groupScale.step();
+					distance =
+						position >= start && position <= end ? 0 : Math.abs( position - ( start + end ) / 2 );
+				} else {
+					// Both keys still report, so the tooltip's datumByKey holds both readings.
+					const inInner =
+						Math.abs( position - ( bandStart + bandwidth / 2 ) ) <=
+						( bandwidth * OVERLAP_INNER_WIDTH_RATIO ) / 2;
+					distance = inInner === ( key === overlap?.innerKey ) ? 0 : 1;
+				}
 				selections.push( {
 					event: params.event,
 					key,
@@ -108,7 +122,7 @@ export function BandTooltip( {
 			}
 			return selections;
 		},
-		[ scale, dataRegistry, horizontal, keys, groupScale ]
+		[ scale, dataRegistry, horizontal, keys, groupScale, bandwidth, overlap ]
 	);
 	const handlePointer = useCallback< PointerHandler >(
 		params => {
