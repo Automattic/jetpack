@@ -8,12 +8,12 @@
 		"issues": "https://github.com/Automattic/jetpack/issues"
 	},
 	"require": {
-		"automattic/jetpack-logo": "@dev",
-		"automattic/jetpack-autoloader": "@dev"
+		"automattic/jetpack-logo": "^4.0.1",
+		"automattic/jetpack-autoloader": "^6.0.1"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
-		"automattic/phpunit-select-config": "@dev"
+		"automattic/phpunit-select-config": "^1.0.11"
 	},
 	"scripts": {
 		"phpunit": [
@@ -22,15 +22,7 @@
 		"test-php": "@composer phpunit",
 		"test-php-coverage": "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
 	},
-	"repositories": [
-		{
-			"type": "path",
-			"url": "../../packages/*",
-			"options": {
-				"monorepo": true
-			}
-		}
-	],
+	"repositories": [],
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"config": {

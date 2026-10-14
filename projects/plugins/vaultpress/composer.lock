@@ -4,60 +4,55 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c41de81e12334e084d497e6cf265d8ce",
+    "content-hash": "6ad1b8192b955442565117d96c71d5c7",
     "packages": [
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "dev-trunk",
+            "version": "v6.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Automattic/jetpack-autoloader.git",
+                "reference": "a399be1b3e6eb198abbb5bea481161d7a6c09b1e"
+            },
             "dist": {
-                "type": "path",
-                "url": "../../packages/autoloader",
-                "reference": "40ae1e0e7cf7d78711f44d83e437ed23607e4d34"
+                "type": "zip",
+                "url": "https://api.github.com/repos/Automattic/jetpack-autoloader/zipball/a399be1b3e6eb198abbb5bea481161d7a6c09b1e",
+                "reference": "a399be1b3e6eb198abbb5bea481161d7a6c09b1e",
+                "shasum": ""
             },
             "require": {
                 "composer-plugin-api": "^2.2",
                 "php": ">=7.4"
             },
             "require-dev": {
-                "automattic/phpunit-select-config": "@dev",
+                "automattic/phpunit-select-config": "^1.0.11",
                 "composer/composer": "^2.2",
                 "yoast/phpunit-polyfills": "^4.0.0"
             },
             "type": "composer-plugin",
             "extra": {
-                "autotagger": true,
                 "class": "Automattic\\Jetpack\\Autoloader\\CustomAutoloaderPlugin",
+                "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-autoloader",
+                "branch-alias": {
+                    "dev-trunk": "6.0.x-dev"
+                },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-autoloader/compare/v${old}...v${new}"
                 },
                 "version-constants": {
                     "::VERSION": "src/AutoloadGenerator.php"
-                },
-                "branch-alias": {
-                    "dev-trunk": "6.0.x-dev"
                 }
             },
             "autoload": {
-                "classmap": [
-                    "src/AutoloadGenerator.php"
-                ],
                 "psr-4": {
                     "Automattic\\Jetpack\\Autoloader\\": "src"
-                }
-            },
-            "scripts": {
-                "phpunit": [
-                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
-                ],
-                "test-php": [
-                    "@composer phpunit"
-                ],
-                "test-php-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"./tests/php/tmp/coverage-report.php\"",
-                    "php ./tests/php/bin/test-coverage.php \"$COVERAGE_DIR/php.cov\""
+                },
+                "classmap": [
+                    "src/AutoloadGenerator.php"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-2.0-or-later"
             ],
@@ -70,23 +65,30 @@
                 "plugin",
                 "wordpress"
             ],
-            "transport-options": {
-                "relative": true
-            }
+            "support": {
+                "source": "https://github.com/Automattic/jetpack-autoloader/tree/v6.0.1"
+            },
+            "time": "2026-09-23T19:25:11+00:00"
         },
         {
             "name": "automattic/jetpack-logo",
-            "version": "dev-trunk",
+            "version": "v4.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Automattic/jetpack-logo.git",
+                "reference": "02f844281df4230b2af18cee18f20b03087c25e3"
+            },
             "dist": {
-                "type": "path",
-                "url": "../../packages/logo",
-                "reference": "fb0c8e4d82cfdd03a1c8798527f9c6f2220c2512"
+                "type": "zip",
+                "url": "https://api.github.com/repos/Automattic/jetpack-logo/zipball/02f844281df4230b2af18cee18f20b03087c25e3",
+                "reference": "02f844281df4230b2af18cee18f20b03087c25e3",
+                "shasum": ""
             },
             "require": {
                 "php": ">=7.4"
             },
             "require-dev": {
-                "automattic/phpunit-select-config": "@dev",
+                "automattic/phpunit-select-config": "^1.0.11",
                 "yoast/phpunit-polyfills": "^4.0.0"
             },
             "suggest": {
@@ -96,11 +98,11 @@
             "extra": {
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-logo",
-                "changelogger": {
-                    "link-template": "https://github.com/Automattic/jetpack-logo/compare/v${old}...v${new}"
-                },
                 "branch-alias": {
                     "dev-trunk": "4.0.x-dev"
+                },
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-logo/compare/v${old}...v${new}"
                 }
             },
             "autoload": {
@@ -108,34 +110,31 @@
                     "src/"
                 ]
             },
-            "scripts": {
-                "phpunit": [
-                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
-                ],
-                "test-php": [
-                    "@composer phpunit"
-                ],
-                "test-php-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-2.0-or-later"
             ],
             "description": "A logo for Jetpack",
-            "transport-options": {
-                "relative": true
-            }
+            "support": {
+                "source": "https://github.com/Automattic/jetpack-logo/tree/v4.0.1"
+            },
+            "time": "2026-09-14T10:55:10+00:00"
         }
     ],
     "packages-dev": [
         {
             "name": "automattic/phpunit-select-config",
-            "version": "dev-trunk",
+            "version": "v1.0.11",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Automattic/phpunit-select-config.git",
+                "reference": "cc928c1bb58f65b77b899478fe3bc9ede49f9113"
+            },
             "dist": {
-                "type": "path",
-                "url": "../../packages/phpunit-select-config",
-                "reference": "f34d251d44e96b67a97272b464b69fc9ffb7de76"
+                "type": "zip",
+                "url": "https://api.github.com/repos/Automattic/phpunit-select-config/zipball/cc928c1bb58f65b77b899478fe3bc9ede49f9113",
+                "reference": "cc928c1bb58f65b77b899478fe3bc9ede49f9113",
+                "shasum": ""
             },
             "require": {
                 "composer-runtime-api": "^2.2.2",
@@ -152,31 +151,15 @@
             "type": "library",
             "extra": {
                 "autotagger": true,
+                "mirror-repo": "Automattic/phpunit-select-config",
                 "branch-alias": {
                     "dev-trunk": "1.0.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/phpunit-select-config/compare/v${old}...v${new}"
-                },
-                "mirror-repo": "Automattic/phpunit-select-config"
+                }
             },
-            "scripts": {
-                "phpunit": [
-                    "./vendor/bin/phpunit-select-config phpunit.#.xml.dist --colors=always"
-                ],
-                "test-php": [
-                    "@composer phpunit"
-                ],
-                "test-php-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
-                ],
-                "post-install-cmd": [
-                    "rm -f vendor/bin/phpunit-select-config && ln -s ../../bin/local-phpunit-select-config vendor/bin/phpunit-select-config"
-                ],
-                "post-update-cmd": [
-                    "rm -f vendor/bin/phpunit-select-config && ln -s ../../bin/local-phpunit-select-config vendor/bin/phpunit-select-config"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-2.0-or-later"
             ],
@@ -186,9 +169,10 @@
                 "dev",
                 "phpunit"
             ],
-            "transport-options": {
-                "relative": true
-            }
+            "support": {
+                "source": "https://github.com/Automattic/phpunit-select-config/tree/v1.0.11"
+            },
+            "time": "2026-09-01T15:47:55+00:00"
         },
         {
             "name": "myclabs/deep-copy",
@@ -1949,11 +1933,7 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "automattic/jetpack-autoloader": 20,
-        "automattic/jetpack-logo": 20,
-        "automattic/phpunit-select-config": 20
-    },
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {},
