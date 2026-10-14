@@ -32,7 +32,7 @@ const OverviewBlogPosts: FC = () => {
 	return (
 		<Card.Root>
 			<Card.Header>
-				<Card.Title render={ <h2 /> }>
+				<Card.Title render={ <h3 /> }>
 					{ __( 'From the Jetpack blog', 'jetpack-my-jetpack' ) }
 				</Card.Title>
 			</Card.Header>
