@@ -108,7 +108,7 @@ final class Dashboard_Section {
 	 *
 	 * @since 0.3.0
 	 * @since 0.5.0 Added `with_header_date_control`.
-	 * @since $$next-version$$ Added `with_header_interval_control`.
+	 * @since 0.12.0 Added `with_header_interval_control`.
 	 * @var array
 	 */
 	public $date_filter_options = array(
