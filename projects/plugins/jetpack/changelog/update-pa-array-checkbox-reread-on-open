@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Premium Analytics: List options registered after a widget mounted when its header menu opens again.
