@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-MhyuVnWQ7SuOdHMIDyDpqHNZxjMYlVkqsvsDfSRDUGg=
+pnpmfileChecksum: sha256-zyrshe68VIlLsGcBuDASn6dl4w00+41pWKEqMrqNZBQ=
 
 patchedDependencies:
   '@wordpress/build': 151ae1c0c3786b862724512e48d8cfcb4b34faf4cac98e352a450abd4741e022
@@ -11671,7 +11671,7 @@ packages:
     engines: {node: '>=18.12.0'}
     peerDependencies:
       '@vitest/eslint-plugin': '>=1.6.27'
-      '@wordpress/theme': '*'
+      '@wordpress/theme': '>=2.2.0'
       eslint: ^9.0.0 || ^10.0.0
       eslint-config-prettier: '>=10.0.0'
       eslint-plugin-import: '>=2.32.0'
@@ -17396,12 +17396,6 @@ packages:
   snake-case@3.0.4:
     resolution: {integrity: sha512-LAOh4z89bGQvl9pFfNF8V146i7o7/CqFPbqzYgP+yYzDIDeS9HaNFtXABamRW+AQzEVODcvE79ljJ+8a9YSdMg==}
 
-  social-logos@3.4.0:
-    resolution: {integrity: sha512-dwzrc4pmbZ6nWf9G9xI9Ox/DKvFpFmhrKokeK7axC8XqkftmhY8/3kVJAhAmvnstVlcliBju62t1q1NT4asOlA==}
-    peerDependencies:
-      react: ^18.0.0 || ^19.0.0
-      react-dom: ^18.0.0 || ^19.0.0
-
   socket.io-client@4.8.3:
     resolution: {integrity: sha512-uP0bpjWrjQmUt5DTHq9RuoCBdFJF10cdX9X+a368j/Ft0wmaVgxlrjvK3kjvgCODOMMOz9lcaRzxmso0bTWZ/g==}
     engines: {node: '>=10.0.0'}
@@ -17796,10 +17790,6 @@ packages:
     resolution: {integrity: sha512-bWnjSNscmuI+GJze6ZupnHP8G/cTcsJF+bXCeQknk2SHQsgbNJnLrqiH9jZ2W4STPVXH2mDKKRX3iwPhc9Cn/Q==}
     engines: {node: '>=10'}
     hasBin: true
-
-  test-exclude@7.0.2:
-    resolution: {integrity: sha512-u9E6A+ZDYdp7a4WnarkXPZOx8Ilz46+kby6p1yZ8zsGTz9gYa6FIS7lj2oezzNKmtdyyJNNmmXDppga5GB7kSw==}
-    engines: {node: '>=18'}
 
   test-exclude@8.0.0:
     resolution: {integrity: sha512-ZOffsNrXYggvU1mDGHk54I96r26P8SyMjO5slMKSc7+IWmtB/MQKnEC2fP51imB3/pT6YK5cT5E8f+Dd9KdyOQ==}
@@ -18846,7 +18836,7 @@ snapshots:
       clsx: 2.1.1
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-      social-logos: 3.4.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      social-logos: link:projects/js-packages/social-logos
       tslib: 2.8.1
       wpcom-proxy-request: 7.1.0
     transitivePeerDependencies:
@@ -22695,8 +22685,8 @@ snapshots:
 
   '@typescript-eslint/project-service@8.71.0(typescript@6.0.3)':
     dependencies:
-      '@typescript-eslint/tsconfig-utils': 8.71.0(typescript@6.0.3)
-      '@typescript-eslint/types': 8.71.0
+      '@typescript-eslint/tsconfig-utils': 8.71.2(typescript@6.0.3)
+      '@typescript-eslint/types': 8.71.2
       debug: 4.4.3
       typescript: 6.0.3
     transitivePeerDependencies:
@@ -31225,7 +31215,7 @@ snapshots:
       '@istanbuljs/load-nyc-config': 1.1.0
       '@istanbuljs/schema': 0.1.6
       istanbul-lib-instrument: 6.0.3
-      test-exclude: 7.0.2
+      test-exclude: 8.0.0
     transitivePeerDependencies:
       - supports-color
 
@@ -36675,12 +36665,6 @@ snapshots:
       dot-case: 3.0.4
       tslib: 2.8.1
 
-  social-logos@3.4.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
-    dependencies:
-      prop-types: 15.8.1
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-
   socket.io-client@4.8.3:
     dependencies:
       '@socket.io/component-emitter': 3.1.2
@@ -37186,12 +37170,6 @@ snapshots:
       acorn: 8.19.0
       commander: 2.20.3
       source-map-support: 0.5.21
-
-  test-exclude@7.0.2:
-    dependencies:
-      '@istanbuljs/schema': 0.1.6
-      glob: 13.0.6
-      minimatch: 10.2.6
 
   test-exclude@8.0.0:
     dependencies:
