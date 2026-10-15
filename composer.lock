@@ -13,7 +13,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/ignorefile",
-                "reference": "80c8aca302ccad668780ccdcfe70b2c4e9e87602"
+                "reference": "85af72693768d765fa688ff3f14b3f86ebac74a6"
             },
             "require": {
                 "php": ">=7.4"
@@ -30,7 +30,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "3.0.x-dev"
+                    "dev-trunk": "4.0.x-dev"
                 }
             },
             "autoload": {
@@ -195,7 +195,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/phpcs-filter",
-                "reference": "b10f1cdda0250ae656a157600552aea62b9751a3"
+                "reference": "d62eea28b8209ac4fe5811e2e9f54002d86b5bf9"
             },
             "require": {
                 "automattic/ignorefile": "@dev",
@@ -209,7 +209,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-trunk": "4.0.x-dev"
+                    "dev-trunk": "5.0.x-dev"
                 }
             },
             "autoload": {
