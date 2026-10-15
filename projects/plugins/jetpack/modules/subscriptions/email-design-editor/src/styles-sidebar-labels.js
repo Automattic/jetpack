@@ -56,7 +56,7 @@ function stylesSidebarLabels() {
 			[
 				'Manage the fonts and typography used on text.',
 				_x(
-					'The default for the whole email: post body, byline and footer. Headings and buttons inherit anything you don’t set for them.',
+					'The default for your post body. The byline and footer follow its color only.',
 					'email design styles',
 					'jetpack'
 				),
@@ -73,7 +73,7 @@ function stylesSidebarLabels() {
 			[
 				'Manage the fonts and typography used on headings.',
 				_x(
-					'H1 styles your post title, H2 your site title and post headings, and H3–H6 the headings inside your post. The site title follows H2’s font only, not its size. All headings applies wherever you haven’t styled a level individually.',
+					'H1 styles your post title, H2 your site title and post headings, and H3–H6 the headings inside your post. The site title follows H2’s font and color only, not its size. All headings applies wherever you haven’t styled a level individually.',
 					'email design styles',
 					'jetpack'
 				),
@@ -81,7 +81,7 @@ function stylesSidebarLabels() {
 			[
 				'Manage the fonts and typography used on buttons.',
 				_x(
-					'Buttons in your post. The Comment and Like buttons follow the font here, but nothing else. A button that sets its own style in the post keeps it.',
+					'Buttons in your post. The Comment and Like buttons follow the colors and font here, but nothing else. A button that sets its own style in the post keeps it.',
 					'email design styles',
 					'jetpack'
 				),

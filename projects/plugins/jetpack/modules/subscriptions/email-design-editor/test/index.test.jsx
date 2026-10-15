@@ -2142,6 +2142,18 @@ describe( 'Email design editor entry point', () => {
 			).toContain( 'Links inside your post' );
 		} );
 
+		it( 'says that the byline and footer take only the default colour', () => {
+			const described = relabelStylesSidebar(
+				'Manage the fonts and typography used on text.',
+				'Manage the fonts and typography used on text.'
+			);
+
+			// Of this screen's four controls only colour reaches the byline and footer; their
+			// fonts are pinned in wpcom's stylesheet until NL-813. NL-1052.
+			expect( described ).toContain( 'The byline and footer follow its color only' );
+			expect( described ).not.toContain( 'the whole email' );
+		} );
+
 		it( 'says which heading level moves the post title and which the site title', () => {
 			const described = relabelStylesSidebar(
 				'Manage the fonts and typography used on headings.',
@@ -2150,9 +2162,9 @@ describe( 'Email design editor entry point', () => {
 
 			expect( described ).toContain( 'H1 styles your post title' );
 
-			// The site title takes H2's font and not its size, so a creator who changes the size
-			// and watches nothing move is the complaint this screen already collected.
-			expect( described ).toContain( 'font only, not its size' );
+			// The site title takes H2's font and colour and not its size, so a creator who changes
+			// the size and watches nothing move is the complaint this screen already collected.
+			expect( described ).toContain( 'font and color only, not its size' );
 		} );
 
 		it( 'leaves a string we have no better name for as the package translated it', () => {
