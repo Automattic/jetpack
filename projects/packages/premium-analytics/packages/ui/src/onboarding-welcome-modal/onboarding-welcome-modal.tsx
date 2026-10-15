@@ -1,7 +1,8 @@
 import { Button, Dialog, Stack } from '@jetpack-premium-analytics/externals';
-import { __ } from '@wordpress/i18n';
+import { speak } from '@wordpress/a11y';
+import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { WidgetGridAnimation } from '../widget-grid-animation';
 import styles from './onboarding-welcome-modal.module.scss';
 import { StoreIllustration } from './store-illustration';
@@ -102,7 +103,7 @@ export function OnboardingWelcomeModal( {
 	onStart,
 	onDismiss,
 }: OnboardingWelcomeModalProps ) {
-	const slides = slidesFor( variant );
+	const slides = useMemo( () => slidesFor( variant ), [ variant ] );
 	const [ index, setIndex ] = useState( 0 );
 	const slide = slides[ Math.min( index, slides.length - 1 ) ];
 	const isLast = index >= slides.length - 1;
@@ -113,7 +114,28 @@ export function OnboardingWelcomeModal( {
 		}
 	}, [ open ] );
 
-	const showNext = useCallback( () => setIndex( current => current + 1 ), [] );
+	const position = sprintf(
+		/* translators: 1: current slide number, 2: total slides. */
+		__( 'Slide %1$d of %2$d', 'jetpack-premium-analytics-pkg' ),
+		index + 1,
+		slides.length
+	);
+
+	// Focus stays on the footer button as the slide changes, so the new slide is read out.
+	const showNext = useCallback( () => {
+		const next = index + 1;
+		setIndex( next );
+		speak(
+			sprintf(
+				/* translators: 1: current slide number, 2: total slides, 3: slide title. */
+				__( 'Slide %1$d of %2$d: %3$s', 'jetpack-premium-analytics-pkg' ),
+				next + 1,
+				slides.length,
+				slides[ next ]?.title ?? ''
+			),
+			'polite'
+		);
+	}, [ index, slides ] );
 
 	// The tour button closes through its own handler, so any close reaching
 	// here came from the chrome.
@@ -138,7 +160,7 @@ export function OnboardingWelcomeModal( {
 					<div className={ styles.stage }>{ slide.illustration }</div>
 					<Stack direction="column" gap="md">
 						{ slides.length > 1 && (
-							<div className={ styles.dots } aria-hidden="true">
+							<div className={ styles.dots } role="img" aria-label={ position }>
 								{ slides.map( ( _, dot ) => (
 									<span
 										key={ dot }

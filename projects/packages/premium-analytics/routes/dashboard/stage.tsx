@@ -68,6 +68,7 @@ import {
 } from './hooks';
 import './overlay-focus-ring.scss';
 import styles from './stage.module.scss';
+import type { OnboardingTourStep } from './components/onboarding-tour';
 import type { OnboardingFlow } from './hooks/use-onboarding';
 import type { DateRange, YearSurfacePresetId } from '@jetpack-premium-analytics/datetime';
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
@@ -209,6 +210,13 @@ function Dashboard(): JSX.Element {
 		onboardingTourSteps( tourAnchors, { withFeedback: canSendFeedback(), flow } ).filter(
 			step => step.anchor
 		);
+	// Built every render rather than memoized: the anchors are looked up fresh, since the
+	// first widget mounts after its frame.
+	const tourStepsByFlow: Record< OnboardingFlow, OnboardingTourStep[] > = {
+		stats: tourStepsFor( 'stats' ),
+		store: tourStepsFor( 'store' ),
+		'stats-and-store': tourStepsFor( 'stats-and-store' ),
+	};
 
 	const defaultSection = resolveSectionId( undefined, sections );
 
@@ -218,12 +226,12 @@ function Dashboard(): JSX.Element {
 		enabled: hasResolvedSections && ! editMode && activeSection === defaultSection,
 		hasStoreSection: hasStoreSection( sections ),
 		stepCounts: {
-			stats: tourStepsFor( 'stats' ).length,
-			store: tourStepsFor( 'store' ).length,
-			'stats-and-store': tourStepsFor( 'stats-and-store' ).length,
+			stats: tourStepsByFlow.stats.length,
+			store: tourStepsByFlow.store.length,
+			'stats-and-store': tourStepsByFlow[ 'stats-and-store' ].length,
 		},
 	} );
-	const tourSteps = tourStepsFor( onboarding.flow );
+	const tourSteps = tourStepsByFlow[ onboarding.flow ];
 
 	// Only the widgets this section renders need metadata at boot; the full registry
 	// waits for edit mode. `null` until sections resolve, since the layout is empty until then.

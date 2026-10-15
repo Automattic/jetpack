@@ -2,6 +2,15 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { OnboardingWelcomeModal } from '../onboarding-welcome-modal';
 
+/**
+ * What `speak()` handed a screen reader, from `@wordpress/a11y`'s polite live region.
+ *
+ * @return The announcement.
+ */
+function announcement() {
+	return ( document.querySelector( '#a11y-speak-polite' )?.textContent ?? '' ).trim();
+}
+
 function renderModal( open = true ) {
 	const onStart = jest.fn();
 	const onDismiss = jest.fn();
@@ -97,5 +106,23 @@ describe( 'OnboardingWelcomeModal', () => {
 		expect( onStart ).not.toHaveBeenCalled();
 		await userEvent.click( screen.getByRole( 'button', { name: 'Take a quick tour' } ) );
 		expect( onStart ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'tells a screen reader which slide it is on and reads out the next one', async () => {
+		render(
+			<OnboardingWelcomeModal
+				open
+				variant="stats-and-store"
+				onStart={ jest.fn() }
+				onDismiss={ jest.fn() }
+			/>
+		);
+
+		expect( screen.getByRole( 'img', { name: 'Slide 1 of 2' } ) ).toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Next' } ) );
+
+		expect( screen.getByRole( 'img', { name: 'Slide 2 of 2' } ) ).toBeInTheDocument();
+		expect( announcement() ).toBe( 'Slide 2 of 2: Your store analytics integrated' );
 	} );
 } );
