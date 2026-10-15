@@ -8281,7 +8281,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			// The button puts Width Settings between Color and Typography; QR does
 			// not, so one shared Color+Typography component cannot draw both.
-			it( 'orders the button panels Color, Styles, Width, Typography, Border', async () => {
+			it( 'orders the button panels Color, Styles, Width, Typography, Border, then PayPal Connection', async () => {
 				render(
 					<Edit
 						attributes={ { ...qrAttributes, format: 'BUTTON' } }
