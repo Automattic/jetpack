@@ -75,10 +75,11 @@ function e2e_pa_intercept_wpcom( $preempt, $args, $url ) {
  * @return array|object|null The reply body, or null when the path has no fixture.
  */
 function e2e_pa_fixture( $path, $query ) {
-	$stats = '/rest/v1.1/sites/' . E2E_PA_SITE_ID . '/stats/';
+	// No trailing slash: Insights also reads the Stats root.
+	$stats = '/rest/v1.1/sites/' . E2E_PA_SITE_ID . '/stats';
 
 	switch ( $path ) {
-		case $stats . 'visits':
+		case $stats . '/visits':
 			return e2e_pa_visits( $query );
 		case '/wpcom/v2/sites/' . E2E_PA_SITE_ID . '/jetpack-stats/usage':
 			return e2e_pa_plan_usage();

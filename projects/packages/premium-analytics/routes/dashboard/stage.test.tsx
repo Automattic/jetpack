@@ -47,7 +47,12 @@ let mockSyncOptions: { enabled?: boolean; autoStart?: boolean } | undefined;
 let mockIsAdmin: boolean;
 let mockCanSendFeedback: boolean;
 const mockResetLayout = jest.fn();
-let mockDateFiltersPanelProps: { onChange: ( ...args: unknown[] ) => void; onApply: () => void };
+const mockChangeComparison = jest.fn();
+let mockDateFiltersPanelProps: {
+	onChange: ( ...args: unknown[] ) => void;
+	onComparisonChange: ( ...args: unknown[] ) => void;
+	onApply: () => void;
+};
 const mockTriggerSync = jest.fn( () => Promise.resolve() );
 
 jest.mock( '@jetpack-premium-analytics/site-sync', () => ( {
@@ -92,6 +97,7 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 		timeZone: 'UTC',
 		intervalOptions: [],
 		onChange: jest.fn(),
+		onComparisonChange: mockChangeComparison,
 		onApply: jest.fn(),
 		onIntervalChange: jest.fn(),
 	} ),
@@ -970,6 +976,7 @@ describe( 'Dashboard header date control', () => {
 
 	afterEach( () => {
 		dispatch( preferencesStore ).set( DASHBOARD_PREFERENCES_SCOPE, 'datePreset', undefined );
+		dispatch( preferencesStore ).set( DASHBOARD_PREFERENCES_SCOPE, 'comparison', undefined );
 	} );
 
 	it( 'renders the control by default', () => {
@@ -1004,6 +1011,20 @@ describe( 'Dashboard header date control', () => {
 
 		expect( select( preferencesStore ).get( DASHBOARD_PREFERENCES_SCOPE, 'datePreset' ) ).toBe(
 			'last-30-days'
+		);
+	} );
+
+	it( 'applies and remembers No comparison picked from the header', () => {
+		mockSection( { date_filter: DATE_FILTER_RANGE } );
+
+		render( <Dashboard /> );
+		act( () => {
+			mockDateFiltersPanelProps.onComparisonChange( undefined, undefined );
+		} );
+
+		expect( mockChangeComparison ).toHaveBeenCalledWith( undefined, undefined );
+		expect( select( preferencesStore ).get( DASHBOARD_PREFERENCES_SCOPE, 'comparison' ) ).toBe(
+			'none'
 		);
 	} );
 
