@@ -221,39 +221,46 @@ describe( 'FeaturesContent', () => {
 			{ label: 'Other', states: [ tagged, moduleState( 'stats-unrelated', false ) ] },
 		];
 		const original = window.location.href;
-		window.history.replaceState( {}, '', '?modules_fallback=1&s=old&module_tag=old' );
-		renderAt( '/features?search=stats&module_tag=Jetpack%20Stats' );
-		expect( screen.getAllByText( 'grid card' ) ).toHaveLength( 2 );
-		expect( screen.getByRole( 'button', { name: /^All/ } ) ).toHaveTextContent( 'All2' );
-		expect( screen.getByText( 'stats-extra' ) ).toBeInTheDocument();
-		expect( screen.queryByText( 'stats-unrelated' ) ).not.toBeInTheDocument();
-		await userEvent.click( screen.getByRole( 'button', { name: 'Clear tag' } ) );
-		expect( screen.getByRole( 'searchbox', { name: 'Search features' } ) ).toHaveFocus();
-		expect( screen.getByTestId( 'route' ) ).toHaveTextContent( '?search=stats' );
-		expect( screen.getAllByText( 'grid card' ) ).toHaveLength( 4 );
-		expect( screen.getByText( 'stats-unrelated' ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'link', { name: 'Classic Modules list' } ) ).toHaveAttribute(
-			'href',
-			expect.stringContaining( '&s=stats' )
-		);
-		expect(
-			screen.getByRole( 'link', { name: 'Classic Modules list' } ).getAttribute( 'href' )
-		).not.toContain( 'module_tag' );
-		await userEvent.type( screen.getByRole( 'searchbox', { name: 'Search features' } ), ' new' );
-		expect( screen.getByRole( 'link', { name: 'Classic Modules list' } ) ).toHaveAttribute(
-			'href',
-			expect.stringContaining( 's=stats+new' )
-		);
-		window.history.replaceState( {}, '', original );
+		try {
+			window.history.replaceState( {}, '', '?modules_fallback=1&s=old&module_tag=old' );
+			renderAt( '/features?search=stats&module_tag=Jetpack%20Stats' );
+			expect( screen.getAllByText( 'grid card' ) ).toHaveLength( 2 );
+			expect( screen.getByRole( 'button', { name: /^All/ } ) ).toHaveTextContent( 'All2' );
+			expect( screen.getByText( 'stats-extra' ) ).toBeInTheDocument();
+			expect( screen.queryByText( 'stats-unrelated' ) ).not.toBeInTheDocument();
+			await userEvent.click( screen.getByRole( 'button', { name: 'Clear tag' } ) );
+			expect( screen.getByRole( 'searchbox', { name: 'Search features' } ) ).toHaveFocus();
+			expect( screen.getByTestId( 'route' ) ).toHaveTextContent( '?search=stats' );
+			expect( screen.getAllByText( 'grid card' ) ).toHaveLength( 4 );
+			expect( screen.getByText( 'stats-unrelated' ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'link', { name: 'Classic Modules list' } ) ).toHaveAttribute(
+				'href',
+				expect.stringContaining( '&s=stats' )
+			);
+			expect(
+				screen.getByRole( 'link', { name: 'Classic Modules list' } ).getAttribute( 'href' )
+			).not.toContain( 'module_tag' );
+			await userEvent.type( screen.getByRole( 'searchbox', { name: 'Search features' } ), ' new' );
+			expect( screen.getByRole( 'link', { name: 'Classic Modules list' } ) ).toHaveAttribute(
+				'href',
+				expect.stringContaining( 's=stats+new' )
+			);
+		} finally {
+			window.history.replaceState( {}, '', original );
+		}
 	} );
 
-	it.each( [ 'search=related', 'module_tag=Social' ] )(
-		'waits for modules before reporting an empty migrated view: %s',
-		params => {
+	it.each( [
+		[ 'search=related', false ],
+		[ 'module_tag=Social', false ],
+		[ 'module_tag=Social', true ],
+	] )(
+		'waits for modules before reporting an empty migrated view: %s (failed: %s)',
+		( params, failed ) => {
 			const original = window.location.href;
 			try {
 				window.history.replaceState( {}, '', '?modules_fallback=1&s=related' );
-				mockStates = [];
+				mockStates = failed ? [ { ...activeStats, pending: true } ] : [];
 				mockModulesLoaded = false;
 				const view = renderAt( `/features?${ params }` );
 				expect( screen.queryByRole( 'heading' ) ).not.toBeInTheDocument();
@@ -275,6 +282,12 @@ describe( 'FeaturesContent', () => {
 			}
 		}
 	);
+
+	it( 'does not describe the whole site as inactive when a tag has no active matches', () => {
+		renderAt( '/features?filter=active&module_tag=Social' );
+		expect( screen.getByRole( 'heading', { name: 'No features found.' } ) ).toBeVisible();
+		expect( screen.queryByRole( 'button', { name: 'Explore all' } ) ).not.toBeInTheDocument();
+	} );
 
 	it( 'restores the available filter and search from the route after a remount', async () => {
 		const view = renderAt( '/features?view=list' );

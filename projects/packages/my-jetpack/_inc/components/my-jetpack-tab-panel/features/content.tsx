@@ -144,18 +144,20 @@ function FeaturesTabContent() {
 				// asked for, and dropping the card out of the list mid-request takes away the
 				// control and the place any error notice refers to.
 				states.filter( state => matchesFilter( state, filter ) || state.isSwitching )
-			).filter( state => matchesModuleTag( state, moduleTag, modules ) ),
-		[ filter, results, states, moduleTag, modules ]
+			).filter( state => matchesModuleTag( state, moduleTag, modules, modulesLoaded ) ),
+		[ filter, results, states, moduleTag, modules, modulesLoaded ]
 	);
 	const visibleMore = useMemo(
 		() =>
 			filterMoreFeatures( moreFeatures, filter, search, legacySearch )
 				.map( group => ( {
 					...group,
-					states: group.states.filter( state => matchesModuleTag( state, moduleTag, modules ) ),
+					states: group.states.filter( state =>
+						matchesModuleTag( state, moduleTag, modules, modulesLoaded )
+					),
 				} ) )
 				.filter( group => group.states.length > 0 ),
-		[ moreFeatures, filter, search, moduleTag, modules, legacySearch ]
+		[ moreFeatures, filter, search, moduleTag, modules, modulesLoaded, legacySearch ]
 	);
 	// Flattened once: the bulk bar selects over both lists, and the counts read both.
 	const visibleMoreStates = useMemo(
@@ -174,14 +176,15 @@ function FeaturesTabContent() {
 	const countable = useMemo(
 		() =>
 			[ ...states, ...moreFeatures.flatMap( group => group.states ) ].filter( state =>
-				matchesModuleTag( state, moduleTag, modules )
+				matchesModuleTag( state, moduleTag, modules, modulesLoaded )
 			),
-		[ states, moreFeatures, moduleTag, modules ]
+		[ states, moreFeatures, moduleTag, modules, modulesLoaded ]
 	);
 
 	// Read once, so the pills hold steady until the visitor leaves the tab.
 	const [ ownedView ] = useState( () => filter === 'included' );
 	const filters = useMemo( () => getFeatureFilters( filter, ownedView ), [ filter, ownedView ] );
+	// Pill counts ignore the search so choosing a filter shows the total it promises.
 	const counts = useMemo(
 		() =>
 			Object.fromEntries(
@@ -361,10 +364,8 @@ function FeaturesTabContent() {
 	);
 	const openIndex = stepOrder.findIndex( feature => feature.slug === openSlug );
 
-	// Hold back "no matches" until module data arrives: before then every feature reads as
-	// inactive and unavailable, so Active and Available can wrongly come up empty. A search ignores the filter.
-	// Tags and searches from classic Modules links also wait for module data to avoid briefly showing "No features found."
-	// Available stops waiting once the module request ends, so a failed request still ends in a message.
+	// Wait before showing empty status, tag, or migrated search results while module data can still arrive.
+	// Available and migrated views stop waiting even when the module request fails.
 	const onModules =
 		filter === 'active' ||
 		filter === 'inactive' ||
@@ -428,7 +429,7 @@ function FeaturesTabContent() {
 			{ shownCount === 0 && ! settling && (
 				<FeaturesEmptyState
 					search={ search }
-					filter={ filter }
+					filter={ moduleTag ? 'all' : filter }
 					hasCatalog={ mainFeatures.features.length > 0 }
 					onFilterChange={ onFilterChange }
 				/>

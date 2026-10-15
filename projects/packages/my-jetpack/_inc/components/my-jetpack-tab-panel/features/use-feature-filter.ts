@@ -88,18 +88,23 @@ export function matchesFilter( state: FeatureState, filter: FeatureFilter ): boo
 /**
  * Whether a row has the module tag from a classic Modules screen link, such as "Jetpack Stats".
  *
- * @param state   - The feature or module row.
- * @param tag     - The tag name; empty matches every row.
- * @param modules - Module data keyed by slug, used to find a product card's module.
- * @return True when the row's module has the tag, and while the row is still loading, so it does not vanish before its data arrives.
+ * @param state         - The feature or module row.
+ * @param tag           - The tag name; empty matches every row.
+ * @param modules       - Module data keyed by slug, used to find a product card's module.
+ * @param modulesLoaded - Whether the module request has finished, including a failure.
+ * @return True when the row's module has the tag, or while its data can still arrive.
  */
 export function matchesModuleTag(
 	state: FeatureState,
 	tag: string,
-	modules: Record< string, MyJetpackModule >
+	modules: Record< string, MyJetpackModule >,
+	modulesLoaded: boolean
 ): boolean {
-	if ( ! tag || state.pending ) {
+	if ( ! tag ) {
 		return true;
+	}
+	if ( state.pending ) {
+		return ! modulesLoaded;
 	}
 	const module =
 		state.control.kind === 'module'
