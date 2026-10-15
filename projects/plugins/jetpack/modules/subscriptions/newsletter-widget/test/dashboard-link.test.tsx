@@ -1,24 +1,15 @@
-import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { Link } from '@wordpress/ui';
 import { DashboardLink } from '../src/components/dashboard-link';
 import { TRACKS_EVENT_NAME_PREFIX } from '../src/constants';
 
 jest.mock( '@wordpress/ui', () => ( {
-	Link: ( { href, children, openInNewTab, onClick } ) => (
-		<a
-			href={ href }
-			target={ openInNewTab ? '_blank' : undefined }
-			onClick={ onClick }
-			rel="noreferrer"
-		>
+	Link: jest.fn( ( { href, children, onClick } ) => (
+		<a href={ href } onClick={ onClick }>
 			{ children }
 		</a>
-	),
-} ) );
-
-jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
-	useAnalytics: jest.fn(),
+	) ),
 } ) );
 
 describe( 'DashboardLink', () => {
@@ -26,17 +17,16 @@ describe( 'DashboardLink', () => {
 	const testText = 'Click me';
 	const testEventName = 'test_click';
 	const mockRecordEvent = jest.fn();
+	const tracks = { recordEvent: mockRecordEvent };
 
 	beforeEach( () => {
-		( useAnalytics as jest.Mock ).mockReturnValue( {
-			tracks: { recordEvent: mockRecordEvent },
-		} );
 		mockRecordEvent.mockClear();
+		jest.mocked( Link ).mockClear();
 	} );
 
 	it( 'renders as a regular anchor tag for links that stay within the platform', () => {
 		render(
-			<DashboardLink internal href={ testHref } eventName={ testEventName }>
+			<DashboardLink internal href={ testHref } eventName={ testEventName } tracks={ tracks }>
 				{ testText }
 			</DashboardLink>
 		);
@@ -45,22 +35,34 @@ describe( 'DashboardLink', () => {
 		expect( link.tagName ).toBe( 'A' );
 		expect( link ).toHaveAttribute( 'href', testHref );
 		expect( link ).not.toHaveAttribute( 'target' );
+		expect( Link ).not.toHaveBeenCalled();
 	} );
 
-	it( 'renders external links so they open in a new tab', () => {
+	it( 'passes openInNewTab for external links', () => {
 		render(
-			<DashboardLink internal={ false } href={ testHref } eventName={ testEventName }>
+			<DashboardLink
+				internal={ false }
+				href={ testHref }
+				eventName={ testEventName }
+				tracks={ tracks }
+			>
 				{ testText }
 			</DashboardLink>
 		);
 
-		const link = screen.getByRole( 'link', { name: testText } );
-		expect( link ).toHaveAttribute( 'href', testHref );
-		expect( link ).toHaveAttribute( 'target', '_blank' );
+		expect( jest.mocked( Link ).mock.calls[ 0 ][ 0 ] ).toEqual(
+			expect.objectContaining( {
+				href: testHref,
+				openInNewTab: true,
+				children: testText,
+			} )
+		);
 	} );
 
 	it( 'renders without text content', () => {
-		render( <DashboardLink internal href={ testHref } eventName={ testEventName } /> );
+		render(
+			<DashboardLink internal href={ testHref } eventName={ testEventName } tracks={ tracks } />
+		);
 
 		expect( screen.getByRole( 'link' ) ).toHaveAttribute( 'href', testHref );
 		expect( screen.getByRole( 'link' ) ).not.toHaveTextContent( /\S/ );
@@ -69,7 +71,7 @@ describe( 'DashboardLink', () => {
 	it( 'records the click event and not a view', async () => {
 		const user = userEvent.setup();
 		render(
-			<DashboardLink internal href={ testHref } eventName={ testEventName }>
+			<DashboardLink internal href={ testHref } eventName={ testEventName } tracks={ tracks }>
 				{ testText }
 			</DashboardLink>
 		);

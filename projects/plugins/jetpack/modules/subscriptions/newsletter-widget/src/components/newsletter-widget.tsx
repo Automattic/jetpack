@@ -87,6 +87,7 @@ export const NewsletterWidget = ( {
 											internal
 											href={ subscriberStatsUrl }
 											eventName="all_subscribers_click"
+											tracks={ tracks }
 										>
 											{ subscribersText }
 										</DashboardLink>
@@ -107,6 +108,7 @@ export const NewsletterWidget = ( {
 											internal
 											href={ subscriberStatsUrl }
 											eventName="paid_subscribers_click"
+											tracks={ tracks }
 										>
 											{ paidSubscribersText }
 										</DashboardLink>
@@ -142,6 +144,7 @@ export const NewsletterWidget = ( {
 											: 'https://jetpack.com/support/newsletter'
 									}
 									eventName="learn_more_click"
+									tracks={ tracks }
 								/>
 							),
 						}
@@ -160,7 +163,12 @@ export const NewsletterWidget = ( {
 						</li>
 						{ isStatsModuleActive && subscriberStatsUrl && (
 							<li>
-								<DashboardLink internal href={ subscriberStatsUrl } eventName="view_stats_click">
+								<DashboardLink
+									internal
+									href={ subscriberStatsUrl }
+									eventName="view_stats_click"
+									tracks={ tracks }
+								>
 									{ __( 'View subscriber stats', 'jetpack' ) }
 								</DashboardLink>
 							</li>
@@ -175,6 +183,7 @@ export const NewsletterWidget = ( {
 									}
 								) }
 								eventName="import_subscribers_click"
+								tracks={ tracks }
 							>
 								{ __( 'Import subscribers', 'jetpack' ) }
 							</DashboardLink>
@@ -186,6 +195,7 @@ export const NewsletterWidget = ( {
 									buildJPRedirectSource( `subscribers/${ site }`, isWpcomSite )
 								) }
 								eventName="manage_subscribers_click"
+								tracks={ tracks }
 							>
 								{ __( 'Manage subscribers', 'jetpack' ) }
 							</DashboardLink>
@@ -200,6 +210,7 @@ export const NewsletterWidget = ( {
 									)
 								) }
 								eventName="monetize_click"
+								tracks={ tracks }
 							>
 								{ __( 'Monetize', 'jetpack' ) }
 							</DashboardLink>
@@ -210,6 +221,7 @@ export const NewsletterWidget = ( {
 									internal
 									href={ newsletterSettingsUrl }
 									eventName="newsletter_settings_click"
+									tracks={ tracks }
 								>
 									{ __( 'Newsletter settings', 'jetpack' ) }
 								</DashboardLink>
