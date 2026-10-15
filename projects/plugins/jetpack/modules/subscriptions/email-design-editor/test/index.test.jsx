@@ -2163,9 +2163,9 @@ describe( 'Email design editor entry point', () => {
 
 			expect( described ).toContain( 'H1 styles your post title' );
 
-			// The site title takes H2's font and colour and not its size, so a creator who changes
-			// the size and watches nothing move is the complaint this screen already collected.
-			expect( described ).toContain( 'font and color only, not its size' );
+			// The site title takes H2's font and not its size, so a creator who changes the size
+			// and watches nothing move is the complaint this screen already collected.
+			expect( described ).toContain( 'font only, not its size' );
 		} );
 
 		it( 'leaves a string we have no better name for as the package translated it', () => {
