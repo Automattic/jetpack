@@ -40,6 +40,66 @@ class Channel_Test extends BaseTestCase {
 		remove_filter( 'videopress_channel_enabled', '__return_true' );
 		$_GET = array();
 		unset( $GLOBALS['post'] );
+		delete_option( 'videopress_playlist_index' );
+	}
+
+	/**
+	 * Index two playlists held by published posts, the second updated last.
+	 *
+	 * @return array{mc: int, road: int} Source post IDs.
+	 */
+	private function index_playlists() {
+		$mc   = wp_insert_post(
+			array(
+				'post_title'        => 'Molten Core',
+				'post_status'       => 'publish',
+				'post_modified_gmt' => '2026-01-01 00:00:00',
+			)
+		);
+		$road = wp_insert_post(
+			array(
+				'post_type'         => 'page',
+				'post_title'        => 'Road',
+				'post_status'       => 'publish',
+				'post_modified_gmt' => '2026-02-01 00:00:00',
+			)
+		);
+		update_option(
+			'videopress_playlist_index',
+			array(
+				'mc'   => array(
+					'title'       => 'Molten Core progression',
+					'description' => 'Attunement to Ragnaros.',
+					'videos'      => array(
+						array(
+							'guid'       => 'abcDEF12',
+							'durationMs' => 1000,
+						),
+						array( 'guid' => 'ghiJKL34' ),
+					),
+					'post_id'     => $mc,
+				),
+				'road' => array(
+					'title'       => 'The road to 60',
+					'description' => '',
+					'videos'      => array( array( 'guid' => 'ghiJKL34' ) ),
+					'post_id'     => $road,
+				),
+			)
+		);
+		// wp_insert_post() stamps the modified date itself.
+		foreach ( array(
+			$mc   => '2026-01-01 00:00:00',
+			$road => '2026-02-01 00:00:00',
+		) as $id => $date ) {
+			$post                    = get_post( $id );
+			$post->post_modified_gmt = $date;
+			wp_cache_replace( $id, $post, 'posts' );
+		}
+		return array(
+			'mc'   => $mc,
+			'road' => $road,
+		);
 	}
 
 	/**
@@ -234,5 +294,97 @@ class Channel_Test extends BaseTestCase {
 			)
 		);
 		$this->assertSame( '', $none['attrs']['guid'] );
+	}
+
+	/**
+	 * A playlist block with a `source` shows an indexed playlist ( the most
+	 * recently updated by default ).
+	 */
+	public function test_playlist_source_block() {
+		$this->index_playlists();
+		$block = function ( $attrs ) {
+			return Channel::playlist_source_block(
+				array(
+					'blockName' => 'videopress/playlist',
+					'attrs'     => $attrs,
+				)
+			)['attrs'];
+		};
+
+		$own = array(
+			'videos' => array( array( 'guid' => 'zzzzzzzz' ) ),
+		);
+		$this->assertSame( $own, $block( $own ) );
+
+		$latest = $block( array( 'source' => 'index' ) );
+		$this->assertSame( 'The road to 60', $latest['playlistTitle'] );
+
+		$picked = $block(
+			array(
+				'source'           => 'index',
+				'sourcePlaylistId' => 'mc',
+			)
+		);
+		$this->assertSame( array( 'abcDEF12', 'ghiJKL34' ), array_column( $picked['videos'], 'guid' ) );
+		$this->assertSame( 'Attunement to Ragnaros.', $picked['playlistDescription'] );
+
+		// A playlist that is gone shows nothing; other blocks are left alone.
+		$missing = $block(
+			array(
+				'source'           => 'index',
+				'sourcePlaylistId' => 'nope',
+				'videos'           => array( array( 'guid' => 'zzzzzzzz' ) ),
+			)
+		);
+		$this->assertSame( array(), $missing['videos'] );
+		$paragraph = array(
+			'blockName' => 'core/paragraph',
+			'attrs'     => array( 'source' => 'index' ),
+		);
+		$this->assertSame( $paragraph, Channel::playlist_source_block( $paragraph ) );
+	}
+
+	/**
+	 * Playlist records: only published playlists are listed, and lookups of
+	 * unknown keys or sources come back empty.
+	 */
+	public function test_playlist_records() {
+		$posts = $this->index_playlists();
+		$draft = wp_insert_post(
+			array(
+				'post_title'  => 'Draft',
+				'post_status' => 'draft',
+			)
+		);
+
+		$index           = get_option( 'videopress_playlist_index' );
+		$index['draft']  = array(
+			'title'   => 'Not yet',
+			'post_id' => $draft,
+		);
+		$index['broken'] = 'nope';
+		update_option( 'videopress_playlist_index', $index );
+
+		$this->assertSame( array( 'road', 'mc' ), array_column( Channel::playlists(), 'key' ) );
+		$this->assertSame(
+			array(
+				'key'         => 'draft',
+				'title'       => 'Not yet',
+				'description' => '',
+				'videos'      => array(),
+				'post_id'     => $draft,
+			),
+			Channel::playlist_record( 'draft' )
+		);
+		$mc = Channel::playlist_record( 'mc' );
+		$this->assertNotNull( $mc );
+		$this->assertSame( $posts['mc'], $mc['post_id'] );
+		$this->assertNull( Channel::playlist_record( '' ) );
+		$this->assertNull( Channel::playlist_record( 'broken' ) );
+		$this->assertNull( Channel::source_playlist( 'own', 'mc' ) );
+		$this->assertNull( Channel::source_playlist( 'index', 'nope' ) );
+
+		delete_option( 'videopress_playlist_index' );
+		$this->assertNull( Channel::source_playlist( 'index' ) );
 	}
 }

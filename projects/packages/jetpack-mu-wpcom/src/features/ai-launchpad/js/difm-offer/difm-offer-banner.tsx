@@ -2,7 +2,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useMemo, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
-import { IconButton, LinkButton } from '@wordpress/ui';
+import { IconButton, ButtonLink } from '@wordpress/ui';
 import { createEngagementTracker, selectionLength } from './engagement.ts';
 import {
 	CLICK_EVENT,
@@ -141,7 +141,7 @@ export function DifmOfferBanner( { offer, onDismiss }: Props ) {
 						'jetpack-mu-wpcom'
 					) }
 				</p>
-				<LinkButton
+				<ButtonLink
 					className="ai-launchpad-difm-offer__cta"
 					variant="outline"
 					tone="neutral"
@@ -154,7 +154,7 @@ export function DifmOfferBanner( { offer, onDismiss }: Props ) {
 					}
 				>
 					{ __( 'See the offer', 'jetpack-mu-wpcom' ) }
-				</LinkButton>
+				</ButtonLink>
 			</div>
 			<IconButton
 				className="ai-launchpad-difm-offer__dismiss"

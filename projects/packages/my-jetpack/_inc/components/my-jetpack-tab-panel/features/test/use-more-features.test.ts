@@ -22,6 +22,7 @@ const modules = Object.fromEntries(
 		mod( 'zeta' ),
 		mod( 'alpha' ),
 		mod( 'waf', { available: false } ),
+		mod( 'vaultpress', { available: false } ),
 		// Deprecated: left out by the hidden set, as the hook passes it.
 		mod( 'google-fonts' ),
 	].map( $module => [ $module.module, $module ] )
@@ -53,10 +54,10 @@ describe( 'groupMoreFeatures', () => {
 		new Set( [ 'google-fonts' ] )
 	);
 
-	it( 'sorts groups and their modules by name with Other last, drops empty groups and leaves out covered, unavailable and hidden modules', () => {
+	it( 'sorts groups and their modules by name with Other last, drops empty groups and leaves out covered, hidden and legacy modules', () => {
 		expect( slugsOf( grouped ) ).toEqual( [
 			[ 'Analytics', [ 'zeta' ] ],
-			[ 'Security', [ 'monitor', 'sso' ] ],
+			[ 'Security', [ 'monitor', 'sso', 'waf' ] ],
 			[ 'Other', [ 'alpha' ] ],
 		] );
 	} );
@@ -95,7 +96,7 @@ describe( 'groupMoreFeatures', () => {
 			);
 
 		expect( filtered( 'active' ) ).toEqual( [ 'sso' ] );
-		expect( filtered( 'inactive' ) ).toEqual( [ 'zeta', 'monitor', 'alpha' ] );
+		expect( filtered( 'inactive' ) ).toEqual( [ 'zeta', 'monitor', 'waf', 'alpha' ] );
 		expect( filtered( 'security' ) ).toEqual( [] );
 		expect( filtered( 'essential' ) ).toEqual( [] );
 	} );

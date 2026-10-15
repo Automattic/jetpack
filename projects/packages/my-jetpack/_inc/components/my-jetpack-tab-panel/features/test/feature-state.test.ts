@@ -1,6 +1,12 @@
 import { PRODUCT_STATUSES } from '../../../../constants';
-import { getForcedReason, hasNoSwitch, resolveFeatureState } from '../feature-state';
+import {
+	getFeatureManageUrl,
+	getForcedReason,
+	hasNoSwitch,
+	resolveFeatureState,
+} from '../feature-state';
 import { PRODUCT_MODULES } from '../mappings';
+import { getFeatureUnavailableReason } from '../module-availability';
 import type { ProductCamelCase } from '../../../../data/types';
 import type { MyJetpackModule } from '../../../../types';
 
@@ -84,12 +90,42 @@ describe( 'resolveFeatureState', () => {
 			} );
 		} );
 
-		it( 'offers nothing when Jetpack ships the feature but its module is unavailable', () => {
+		it( 'keeps a network-activated plugin forced on while explaining its unavailable module', () => {
+			const feature = buildFeature( {
+				in_jetpack: true,
+				module: 'videopress',
+				plugin: 'jetpack-videopress',
+				plugin_status: 'active',
+				plugin_override: 'active',
+			} );
+			const state = resolve( feature, 'active', {
+				videopress: buildModule( {
+					module: 'videopress',
+					available: false,
+					unavailable_reason: 'Unavailable in Offline mode',
+				} ),
+			} );
+			expect( state.status ).toBe( 'active' );
+			expect( state.control ).toEqual( {
+				kind: 'plugin',
+				plugin: 'jetpack-videopress',
+				override: 'active',
+			} );
+			expect( state.moduleUnavailableReason ).toBe( 'Unavailable in Offline mode' );
+			expect( getForcedReason( state ) ).toBe( 'Enabled by your host or site administrator' );
+		} );
+
+		it( 'retains an unavailable module and its reason without a switch', () => {
 			const state = resolve( buildFeature( { in_jetpack: true, module: 'stats' } ), 'active', {
-				stats: buildModule( { available: false } ),
+				stats: buildModule( {
+					available: false,
+					unavailable_reason: 'Unavailable in Offline mode',
+				} ),
 			} );
 
-			expect( state.control.kind ).toBe( 'none' );
+			expect( state.control.kind ).toBe( 'module' );
+			expect( getForcedReason( state ) ).toBe( 'Unavailable in Offline mode' );
+			expect( state.status ).toBe( 'inactive' );
 		} );
 	} );
 
@@ -149,6 +185,28 @@ describe( 'resolveFeatureState, for a product the module map has dropped', () =>
 		);
 	} );
 
+	it.each( [
+		[ false, 'Unavailable in Offline mode' ],
+		[ 'active', 'Enabled by your host or site administrator' ],
+		[ 'inactive', 'Disabled by your host or site administrator' ],
+	] as const )(
+		'explains an unavailable gated AI module with override %s',
+		( override, reason ) => {
+			const modules = {
+				ai: buildModule( {
+					module: 'ai',
+					available: false,
+					unavailable_reason: 'Unavailable in Offline mode',
+					override,
+				} ),
+			};
+			const state = resolveFeatureState( ai, 'active', undefined, modules, gated );
+			expect( state.control.kind ).toBe( 'none' );
+			expect( getFeatureUnavailableReason( state ) ).toBe( 'Unavailable in Offline mode' );
+			expect( getForcedReason( state ) ).toBe( reason );
+		}
+	);
+
 	it( 'still reports the product as running, so the card does not call it Inactive', () => {
 		const product = { status: PRODUCT_STATUSES.ACTIVE } as ProductCamelCase;
 
@@ -182,6 +240,34 @@ describe( 'resolveFeatureState, for a feature its own plugin switches', () => {
 	} );
 
 	const runningModule = { protect: buildModule( { module: 'protect' } ) };
+
+	it.each( [
+		[ 'active', 'not-installed', 'install-plugin' ],
+		[ 'inactive', 'not-installed', 'install-plugin' ],
+		[ 'active', 'inactive', 'plugin' ],
+		[ 'inactive', 'inactive', 'plugin' ],
+	] as const )(
+		'keeps the module limitation separate for override %s and plugin %s',
+		( override, plugin_status, kind ) => {
+			const state = resolveFeatureState(
+				{ ...protect, module: 'protect-dashboard', plugin_status },
+				'active',
+				undefined,
+				{
+					'protect-dashboard': buildModule( {
+						module: 'protect-dashboard',
+						override,
+						available: false,
+						unavailable_reason: 'Unavailable in Offline mode',
+					} ),
+				},
+				{}
+			);
+			expect( state.control.kind ).toBe( kind );
+			expect( state.moduleUnavailableReason ).toBe( 'Unavailable in Offline mode' );
+			expect( getForcedReason( state ) ).toBeNull();
+		}
+	);
 
 	it( 'reads the module for status while still offering to install the plugin', () => {
 		const state = resolveFeatureState( protect, 'active', undefined, runningModule, {} );
@@ -223,10 +309,14 @@ describe( 'resolveFeatureState, for a module the plan does not cover', () => {
 		} ),
 	};
 
-	it.each( [ 'not-installed', 'inactive' ] as const )(
+	it.each( [ 'not-installed', 'inactive', 'active' ] as const )(
 		'explains a host override instead of offering a %s plugin',
 		plugin_status => {
-			const state = resolve( { ...search, plugin_status }, 'active', forcedOff );
+			const state = resolve(
+				{ ...search, plugin_status, plugin_override: plugin_status === 'active' ? 'active' : '' },
+				'active',
+				forcedOff
+			);
 
 			expect( state.control ).toEqual( { kind: 'module', module: forcedOff.search } );
 			expect( state.status ).toBe( 'inactive' );
@@ -239,10 +329,10 @@ describe( 'resolveFeatureState, for a module the plan does not cover', () => {
 			search: buildModule( { module: 'search', available: false, activated: false } ),
 		};
 
-		expect( resolve( search, 'active', unforced ).control ).toEqual( {
-			kind: 'install-plugin',
-			plugin: 'jetpack-search',
-		} );
+		const state = resolve( search, 'active', unforced );
+		expect( state.control ).toEqual( { kind: 'install-plugin', plugin: 'jetpack-search' } );
+		expect( state.moduleUnavailableReason ).toBe( 'Unavailable' );
+		expect( getForcedReason( state ) ).toBeNull();
 	} );
 } );
 
@@ -300,13 +390,22 @@ describe( 'resolveFeatureState, for a module its plan switches on', () => {
 describe( 'resolveFeatureState, for a feature a plan runs without its plugin', () => {
 	const backup = buildFeature( {
 		slug: 'backup',
+		in_jetpack: true,
+		module: 'backup',
+		manage_url: '/backup',
 		plugin: 'jetpack-backup',
 		plugin_status: 'not-installed',
 		product: 'backup',
 	} );
 
 	const withProduct = ( product: ProductCamelCase ) =>
-		resolveFeatureState( backup, 'active', product, {}, {} );
+		resolveFeatureState(
+			backup,
+			'active',
+			product,
+			{ backup: buildModule( { module: 'backup', available: false } ) },
+			{}
+		);
 
 	it( 'is active and opens in place of Install when a paid plan runs it', () => {
 		const state = withProduct( {
@@ -315,6 +414,7 @@ describe( 'resolveFeatureState, for a feature a plan runs without its plugin', (
 		} as ProductCamelCase );
 
 		expect( state.status ).toBe( 'active' );
+		expect( getFeatureManageUrl( state ) ).toBe( '/backup' );
 		expect( state.control ).toEqual( {
 			kind: 'install-plugin',
 			plugin: 'jetpack-backup',
@@ -366,4 +466,40 @@ describe( 'resolveFeatureState, for a feature a plan runs without its plugin', (
 		expect( state.status ).toBe( 'inactive' );
 		expect( state.control ).toEqual( { kind: 'install-plugin', plugin: 'jetpack-backup' } );
 	} );
+} );
+
+it( 'keeps offline management links only for pages registered on this site', () => {
+	const previousInitial = window.myJetpackInitialState;
+	const previousData = window.JetpackScriptData;
+	const registeredPages = [ 'jetpack-forms' ];
+	const menu = document.createElement( 'ul' );
+	menu.id = 'adminmenu';
+	document.body.appendChild( menu );
+	window.myJetpackInitialState = { isOfflineFeatures: true } as typeof previousInitial;
+	window.JetpackScriptData = {
+		myJetpack: {
+			offlineFeatures: { mainFeatures: { available_admin_pages: registeredPages } },
+		},
+	} as unknown as typeof previousData;
+	try {
+		const state = resolve(
+			buildFeature( {
+				plugin: 'jetpack-stats',
+				plugin_status: 'active',
+				manage_url: 'https://example.com/wp-admin/admin.php?page=stats',
+			} ),
+			'active'
+		);
+		expect( getFeatureManageUrl( state ) ).toBe( '' );
+		state.feature.manage_url = 'https://example.com/wp-admin/admin.php?page=jetpack-forms';
+		expect( getFeatureManageUrl( state ) ).toBe( state.feature.manage_url );
+		registeredPages.length = 0;
+		menu.innerHTML = `<li><a href="${ state.feature.manage_url }">Forms</a></li>`;
+		state.feature.manage_url += '#/responses';
+		expect( getFeatureManageUrl( state ) ).toBe( state.feature.manage_url );
+	} finally {
+		menu.remove();
+		window.myJetpackInitialState = previousInitial;
+		window.JetpackScriptData = previousData;
+	}
 } );

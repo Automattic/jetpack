@@ -104,9 +104,8 @@ type ToolbarProps = {
 	bulk?: ReactNode;
 };
 
-// Only these two are counted from live state; the rest come from the catalog and are
-// right from the first paint.
-const LIVE_COUNTS: FeatureFilter[] = [ 'active', 'inactive' ];
+// These are counted from live state; the rest come from the catalog.
+const LIVE_COUNTS: FeatureFilter[] = [ 'available', 'active', 'inactive' ];
 
 /**
  * The filter pills and the search box above the grid.
@@ -167,8 +166,6 @@ export function Toolbar( {
 					) ) }
 				</Stack>
 
-				{ /* Below the breakpoint the pills above are hidden and this takes over: six
-				     of them stack one per row on a phone, which is most of the screen. */ }
 				<div className={ styles[ 'filter-select' ] }>
 					<SelectControl
 						__nextHasNoMarginBottom
@@ -205,7 +202,7 @@ export function Toolbar( {
 					value={ search }
 					onChange={ onSearchChange }
 					aria-label={ __( 'Search features', 'jetpack-my-jetpack' ) }
-					placeholder={ __( 'Search features', 'jetpack-my-jetpack' ) }
+					placeholder={ __( 'Search', 'jetpack-my-jetpack' ) }
 					className={ styles.search }
 				/>
 

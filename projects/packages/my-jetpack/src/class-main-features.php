@@ -52,7 +52,7 @@ class Main_Features {
 	/**
 	 * Whether module metadata proves it can run without either connection.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.10.0
 	 * @param string $slug Module slug.
 	 * @return bool
 	 */
@@ -958,15 +958,27 @@ class Main_Features {
 	 * headings for Jetpack's other modules, and whether the current user may install plugins.
 	 *
 	 * @param bool $local Use the local feature contract documented in get_features().
-	 * @return array{jetpack: string, features: array, module_groups: array, plugin_installs: string} The state.
+	 * @return array{jetpack: string, features: array, module_groups: array, plugin_installs: string, hidden_modules: string[]} The state.
 	 */
 	public static function get_state( $local = false ) {
-		return array(
+		$hidden = Feature_Visibility::get_hidden();
+		foreach ( self::get_feature_definitions() as $slug => $definition ) {
+			$names = array_filter( array( $slug, $definition['product'] ?? '', $definition['module'] ?? '' ) );
+			if ( array_intersect( $names, $hidden ) ) {
+				$product_class = isset( $definition['product'] ) ? Products::get_product_class( $definition['product'] ) : null;
+				$hidden[]      = $definition['module'] ?? ( $product_class ? $product_class::$module_name : '' );
+			}
+		}
+
+		$state = array(
 			'jetpack'         => self::get_plugin_status( Product::JETPACK_PLUGIN_SLUG ),
 			'features'        => self::get_features( $local ),
 			'module_groups'   => self::get_module_groups(),
 			'plugin_installs' => self::get_install_access(),
+			'hidden_modules'  => array_values( array_unique( array_filter( $hidden ) ) ),
 		);
+
+		return $state;
 	}
 
 	/**

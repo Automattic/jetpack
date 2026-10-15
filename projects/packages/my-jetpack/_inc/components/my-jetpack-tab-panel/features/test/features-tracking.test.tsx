@@ -84,6 +84,7 @@ jest.mock( '../feature-state', () => ( {
 	// Nothing here is forced by a host, which is what leaves the switches on show.
 	getForcedReason: () => null,
 	hasNoSwitch: () => false,
+	getFeatureManageUrl: ( state: FeatureState ) => state.feature.manage_url || '',
 } ) );
 
 // The card's own click target is covered elsewhere; here the handler is held onto.
