@@ -11,17 +11,17 @@ import { GEO_PATH, OVERVIEW_PATH } from '../../_inc/data/get-preloaded';
 import { isGated } from '../../_inc/data/is-gated';
 import isSeoToolsActive from '../../_inc/data/is-seo-tools-active';
 import { settingsStore } from '../../_inc/data/settings-store';
-import { useAiForm } from '../../_inc/data/use-ai';
 import useEnsureTabData from '../../_inc/data/use-ensure-tab-data';
+import { useGeoForm } from '../../_inc/data/use-geo';
 import GeoScreen from '../../_inc/screens/geo';
-import type { AiState } from '../../_inc/data/ai-types';
+import type { GeoState } from '../../_inc/data/geo-types';
 
 // The GEO form controller is owned here (the route stage); it's only used on this
 // route and saves through `/wp/v2/settings`, so it needn't persist across
 // route changes. Split out so it mounts only once the data is ready — its
 // one-time seed reads the store, which the gate below has populated by then.
 const GeoReady = () => {
-	const form = useAiForm();
+	const form = useGeoForm();
 	const overview = getOverview();
 	const settings = useSelect( select => select( settingsStore ).getSettings(), [] );
 	const navigate = useNavigate();
@@ -64,7 +64,7 @@ const Stage = () => {
 		{
 			path: GEO_PATH,
 			seed: body => {
-				const geo = body as AiState;
+				const geo = body as GeoState;
 				setEnhancer( geo.enhancer );
 				setLlmsTxt( geo.llmsTxt );
 				setCrawlers( geo.crawlers );

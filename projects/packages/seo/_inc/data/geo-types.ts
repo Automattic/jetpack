@@ -1,5 +1,5 @@
-// Shape of the AI tab's initial state, bootstrapped onto
-// `window.JetpackScriptData.seo.ai` (see `Dashboard_Data::get_ai_data()`).
+// Shape of the GEO tab's initial state, preloaded from `/jetpack/v4/seo/geo`
+// (see `Dashboard_Data::get_geo_data()`).
 // Each toggle writes its option through core's `/wp/v2/settings` endpoint:
 // the Enhancer via `ai_seo_enhancer_enabled` and llms.txt via
 // `jetpack_seo_llms_txt_enabled`.
@@ -16,7 +16,7 @@ export interface AiCrawler {
 	type: 'answer' | 'training';
 }
 
-export interface AiState {
+export interface GeoState {
 	enhancer: {
 		/** Whether the plan + feature filter make the SEO Enhancer available. */
 		available: boolean;

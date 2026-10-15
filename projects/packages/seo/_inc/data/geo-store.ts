@@ -1,6 +1,6 @@
 import { createReduxStore, register } from '@wordpress/data';
 import { GEO_PATH, getPreloaded } from './get-preloaded';
-import type { AiState } from './ai-types';
+import type { GeoState } from './geo-types';
 
 /**
  * A tiny `@wordpress/data` store holding the latest-saved GEO tab state.
@@ -9,14 +9,14 @@ import type { AiState } from './ai-types';
  * setting and saving was lost on the next visit (the form re-seeded from the
  * never-updated bootstrap) until a reload. This store keeps the current snapshot
  * of each GEO slice — seeded from the bootstrap, replaced on each successful save
- * — so `useAiForm` re-seeds from the freshest values across routes.
+ * — so `useGeoForm` re-seeds from the freshest values across routes.
  */
 
 const STORE_NAME = 'jetpack-seo/geo';
 
-type Enhancer = AiState[ 'enhancer' ];
-type LlmsTxt = AiState[ 'llmsTxt' ];
-type Crawlers = AiState[ 'crawlers' ];
+type Enhancer = GeoState[ 'enhancer' ];
+type LlmsTxt = GeoState[ 'llmsTxt' ];
+type Crawlers = GeoState[ 'crawlers' ];
 
 interface State {
 	enhancer: Enhancer | null;
@@ -29,7 +29,7 @@ type Action =
 	| { type: 'SET_LLMS_TXT'; llmsTxt: LlmsTxt }
 	| { type: 'SET_CRAWLERS'; crawlers: Crawlers };
 
-const preloaded = getPreloaded< AiState >( GEO_PATH );
+const preloaded = getPreloaded< GeoState >( GEO_PATH );
 
 const DEFAULT_STATE: State = {
 	enhancer: preloaded?.enhancer ?? null,

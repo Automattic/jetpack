@@ -2,8 +2,8 @@ import '@testing-library/jest-dom';
 import { jest } from '@jest/globals';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import GeoScreen from '../index';
-import type { AiState } from '../../../data/ai-types';
-import type { AiForm } from '../../../data/use-ai';
+import type { GeoState } from '../../../data/geo-types';
+import type { GeoForm } from '../../../data/use-geo';
 
 /**
  * Build a GEO-tab form whose llms.txt slice has the given serving state. The tab
@@ -13,7 +13,7 @@ import type { AiForm } from '../../../data/use-ai';
  * @param canServe - Whether WordPress can serve /llms.txt on this site.
  * @return A form controller for GeoScreen with the enhancer hidden.
  */
-const formWith = ( canServe: boolean ): AiForm => ( {
+const formWith = ( canServe: boolean ): GeoForm => ( {
 	enhancer: { available: false, enabled: false, aiSeoEnabled: true },
 	llmsTxt: { enabled: true, url: 'https://example.com/llms.txt', canServe },
 	crawlers: null,
@@ -33,7 +33,7 @@ const formWith = ( canServe: boolean ): AiForm => ( {
 const crawlerForm = (
 	flags: Partial<
 		Pick<
-			NonNullable< AiState[ 'crawlers' ] >,
+			NonNullable< GeoState[ 'crawlers' ] >,
 			| 'staticRobotsTxt'
 			| 'dataSharingOptOut'
 			| 'pathBasedMultisite'
@@ -41,7 +41,7 @@ const crawlerForm = (
 			| 'overrides'
 		>
 	> = {}
-): AiForm => ( {
+): GeoForm => ( {
 	...formWith( true ),
 	llmsTxt: null,
 	crawlers: {
@@ -245,7 +245,7 @@ describe( 'GeoScreen (GEO tab) — crawler policy state', () => {
  *
  * @return A form controller with crawlers, llms.txt and the enhancer all present.
  */
-const allModulesForm = (): AiForm => ( {
+const allModulesForm = (): GeoForm => ( {
 	...crawlerForm(),
 	enhancer: { available: true, enabled: false, aiSeoEnabled: true },
 	llmsTxt: { enabled: true, url: 'https://example.com/llms.txt', canServe: true },

@@ -1,6 +1,6 @@
 import { GEO_PATH, OVERVIEW_PATH, SETTINGS_PATH } from '../../get-preloaded';
 import { makeSchemaSettings } from './schema-settings-fixtures';
-import type { AiState } from '../../ai-types';
+import type { GeoState } from '../../geo-types';
 import type { ContentCoverage } from '../../overview-types';
 import type { SettingsResponse } from '../../settings-types';
 
@@ -41,7 +41,7 @@ export const SEEDED_SETTINGS: SettingsResponse = {
 	schema: SEEDED_SCHEMA,
 };
 
-export const SEEDED_GEO: AiState = {
+export const SEEDED_GEO: GeoState = {
 	enhancer: { available: true, enabled: false, aiSeoEnabled: true },
 	llmsTxt: { enabled: false, url: 'https://example.com/llms.txt', canServe: true },
 	crawlers: {

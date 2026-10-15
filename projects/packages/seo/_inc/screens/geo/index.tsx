@@ -5,12 +5,12 @@ import { commentContent, details, key, page } from '@wordpress/icons';
 import { Badge, Card, CollapsibleCard, Link, Notice, Stack } from '@wordpress/ui';
 import CardTitleIcon from '../../components/card-title-icon';
 import './style.scss';
-import type { AiCrawler } from '../../data/ai-types';
-import type { AiForm } from '../../data/use-ai';
+import type { AiCrawler } from '../../data/geo-types';
+import type { GeoForm } from '../../data/use-geo';
 import type { ComponentProps, FC, ReactNode } from 'react';
 
 interface Props {
-	form: AiForm;
+	form: GeoForm;
 	searchEnginesVisible: boolean;
 	onManageVisibility: () => void;
 }
@@ -276,7 +276,7 @@ const CrawlerSection: FC< CrawlerSectionProps > = ( {
  * it survives tab switches); this component is the presentation.
  *
  * @param props                      - Component props.
- * @param props.form                 - The GEO form controller from `useAiForm`.
+ * @param props.form                 - The GEO form controller from `useGeoForm`.
  * @param props.searchEnginesVisible - Whether the site allows search-engine indexing.
  * @param props.onManageVisibility   - Opens the Settings visibility controls.
  * @return The GEO tab content.

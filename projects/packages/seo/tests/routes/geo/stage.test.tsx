@@ -55,8 +55,8 @@ jest.unstable_mockModule( '../../../_inc/data/is-seo-tools-active', () => ( {
 jest.unstable_mockModule( '../../../_inc/data/settings-store', () => ( {
 	settingsStore: 'settings',
 } ) );
-jest.unstable_mockModule( '../../../_inc/data/use-ai', () => ( {
-	useAiForm: jest.fn(),
+jest.unstable_mockModule( '../../../_inc/data/use-geo', () => ( {
+	useGeoForm: jest.fn(),
 } ) );
 jest.unstable_mockModule( '../../../_inc/data/use-ensure-tab-data', () => ( {
 	default: useEnsureTabData,

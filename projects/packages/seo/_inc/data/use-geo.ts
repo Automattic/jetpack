@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { geoStore } from './geo-store';
 import { recordSeoEvent } from './record-seo-event';
-import type { AiCrawler, AiState } from './ai-types';
+import type { AiCrawler, GeoState } from './geo-types';
 
 // Single snackbar id reused across a save so "Updating settings…" is replaced
 // in place by "Settings saved." (or an error) — matches the Settings tab.
@@ -16,10 +16,10 @@ const SAVE_NOTICE_ID = 'jetpack-seo-geo-save';
 // exists on every platform the dashboard runs on.
 const CORE_SETTINGS_PATH = '/wp/v2/settings';
 
-export interface AiForm {
-	enhancer: AiState[ 'enhancer' ] | null;
-	llmsTxt: AiState[ 'llmsTxt' ] | null;
-	crawlers: AiState[ 'crawlers' ] | null;
+export interface GeoForm {
+	enhancer: GeoState[ 'enhancer' ] | null;
+	llmsTxt: GeoState[ 'llmsTxt' ] | null;
+	crawlers: GeoState[ 'crawlers' ] | null;
 	isSaving: boolean;
 	/** Toggle the AI SEO Enhancer and save immediately. */
 	setEnhancerEnabled: ( next: boolean ) => void;
@@ -44,15 +44,15 @@ export interface AiForm {
  *
  * @return The GEO form controller.
  */
-export function useAiForm(): AiForm {
+export function useGeoForm(): GeoForm {
 	// Seed from the store (latest-saved snapshot), not the one-time bootstrap.
 	const initialEnhancer = useMemo( () => select( geoStore ).getEnhancer(), [] );
 	const initialLlmsTxt = useMemo( () => select( geoStore ).getLlmsTxt(), [] );
 	const initialCrawlers = useMemo( () => select( geoStore ).getCrawlers(), [] );
 
-	const [ enhancer, setEnhancer ] = useState< AiState[ 'enhancer' ] | null >( initialEnhancer );
-	const [ llmsTxt, setLlmsTxt ] = useState< AiState[ 'llmsTxt' ] | null >( initialLlmsTxt );
-	const [ crawlers, setCrawlers ] = useState< AiState[ 'crawlers' ] | null >( initialCrawlers );
+	const [ enhancer, setEnhancer ] = useState< GeoState[ 'enhancer' ] | null >( initialEnhancer );
+	const [ llmsTxt, setLlmsTxt ] = useState< GeoState[ 'llmsTxt' ] | null >( initialLlmsTxt );
+	const [ crawlers, setCrawlers ] = useState< GeoState[ 'crawlers' ] | null >( initialCrawlers );
 	const [ isSaving, setIsSaving ] = useState( false );
 
 	const { createInfoNotice, createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );

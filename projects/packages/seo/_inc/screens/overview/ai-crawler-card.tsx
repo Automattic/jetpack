@@ -4,11 +4,11 @@ import { Button, Card, Stack, Text } from '@wordpress/ui';
 import CardHeaderIcon from './card-header-icon';
 import StatusDot from './status-dot';
 import styles from './style.module.scss';
-import type { AiCrawler, AiState } from '../../data/ai-types';
+import type { AiCrawler, GeoState } from '../../data/geo-types';
 import type { FC } from 'react';
 
 interface Props {
-	data: NonNullable< AiState[ 'crawlers' ] >;
+	data: NonNullable< GeoState[ 'crawlers' ] >;
 	/**
 	 * Whether search engines may index the site (`blog_public`). Overlaid from the
 	 * Settings store by the Overview so a visibility toggle reflects here without a
@@ -16,7 +16,7 @@ interface Props {
 	 */
 	searchEnginesVisible: boolean;
 	/** The llms.txt slice from the same `geoStore` the GEO tab uses. */
-	llmsTxt: AiState[ 'llmsTxt' ] | null;
+	llmsTxt: GeoState[ 'llmsTxt' ] | null;
 	onManage: () => void;
 }
 

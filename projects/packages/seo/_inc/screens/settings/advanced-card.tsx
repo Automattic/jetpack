@@ -113,7 +113,7 @@ const AdvancedCard: FC = () => {
 								{ __( 'Jetpack stops adding structured data to your pages.', 'jetpack-seo' ) }
 							</Text>
 							{ /* Only where those services run. `Initializer::init()` registers
-							     `Llms_Txt` and `Ai_Crawlers` behind `! is_gated()`, and the AI tab
+							     `Llms_Txt` and `Ai_Crawlers` behind `! is_gated()`, and the GEO tab
 							     is hidden from gated sites — so this would promise a gated site
 							     that something stops which it never had. Reachable because the
 							     card is hidden on Simple but not on Atomic, and an Atomic site on
