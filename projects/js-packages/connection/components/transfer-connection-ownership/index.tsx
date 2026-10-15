@@ -9,6 +9,7 @@ import { useEffect } from 'react';
  * Internal dependencies
  */
 import { STORE_ID } from '../../state/store';
+import { isConnectionOwner } from '../../types';
 import OwnerCandidateList from './candidate-list';
 import TransferConfirmStep from './confirm-step';
 import TransferDoneStep from './done-step';
@@ -68,11 +69,10 @@ const TransferConnectionOwnership = ( {
 		( select: StoreSelector ) => !! select( STORE_ID ).getHasProtectedOwner(),
 		[]
 	);
-	const currentOwner = useSelect(
-		( select: StoreSelector ) =>
-			select( STORE_ID ).getConnectionOwner() as { displayName?: string } | null,
-		[]
-	);
+	const currentOwner = useSelect( ( select: StoreSelector ) => {
+		const owner = select( STORE_ID ).getConnectionOwner();
+		return isConnectionOwner( owner ) ? owner : null;
+	}, [] );
 
 	if ( 'done' === step && selectedCandidate ) {
 		return (
