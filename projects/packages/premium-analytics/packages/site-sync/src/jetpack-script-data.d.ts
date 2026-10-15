@@ -27,6 +27,8 @@ declare module '@automattic/jetpack-script-data' {
 				roles: Array< { slug: string; name: string; count: number | null } >;
 				features_url: string | null;
 			};
+			// The Stats purchase this page load returned from checkout with; absent on every other load.
+			purchase_success?: { type: 'paid' | 'free'; is_commercial?: boolean };
 		};
 		newsletter?: {
 			// The Newsletter page's Subscribers tab; null when this user cannot open it.
