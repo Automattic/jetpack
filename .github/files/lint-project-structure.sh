@@ -754,7 +754,7 @@ FILE=projects/js-packages/webpack-config/src/babel/wp-polyfill-modules.json
 GENERATED_FOR="$(jq -r '.minWordPressVersion' "$FILE")"
 if [[ "$GENERATED_FOR" != "$MIN_WP_VERSION" ]]; then
 	EXIT=1
-	LINE=$(grep -n -m 1 '"minWordPressVersion"' "$FILE" | cut -d: -f1)
+	LINE=$(jq --stream 'if length == 1 then .[0][:-1] else .[0] end | if . == ["minWordPressVersion"] then input_line_number else empty end' "$FILE")
 	echo "::error file=$FILE,line=$LINE::Generated for WordPress $GENERATED_FOR and up, but MIN_WP_VERSION in .github/versions.sh is $MIN_WP_VERSION. Run \`pnpm run update-wp-polyfill-modules\` in projects/js-packages/webpack-config to regenerate it."
 fi
 
