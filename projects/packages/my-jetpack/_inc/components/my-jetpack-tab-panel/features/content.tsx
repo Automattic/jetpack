@@ -364,8 +364,9 @@ function FeaturesTabContent() {
 	);
 	const openIndex = stepOrder.findIndex( feature => feature.slug === openSlug );
 
-	// Wait before showing empty status, tag, or migrated search results while module data can still arrive.
-	// Available and migrated views stop waiting even when the module request fails.
+	// Wait before showing empty status, tag, or migrated search results: every feature reads as
+	// inactive and unavailable until module data arrives. Available and migrated views stop waiting
+	// even when the module request fails.
 	const onModules =
 		filter === 'active' ||
 		filter === 'inactive' ||
