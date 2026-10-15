@@ -8,6 +8,7 @@
  */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Earn;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Newsletter\Settings as Newsletter_Settings;
 use Automattic\Jetpack\Podcast\Admin_Page as Podcast_Admin_Page;
@@ -389,15 +390,17 @@ function wpcom_add_jetpack_submenu() {
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 	);
 
-	// Jetpack > Monetize.
-	add_submenu_page(
-		'jetpack',
-		esc_attr__( 'Monetize', 'jetpack-mu-wpcom' ),
-		__( 'Monetize', 'jetpack-mu-wpcom' ),
-		'manage_options',
-		'https://wordpress.com/earn/' . $domain,
-		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-	);
+	// Jetpack > Monetize, unless the wp-admin page already serves it.
+	if ( ! ( class_exists( WPCOM_Earn::class ) && WPCOM_Earn::owns_page() ) ) {
+		add_submenu_page(
+			'jetpack',
+			esc_attr__( 'Monetize', 'jetpack-mu-wpcom' ),
+			__( 'Monetize', 'jetpack-mu-wpcom' ),
+			'manage_options',
+			'https://wordpress.com/earn/' . $domain,
+			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+		);
+	}
 
 	// Jetpack > Subscribers. Always hide the auto-added Calypso redirect link.
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'jetpack-menu-jetpack-manage-subscribers', array( 'site' => $blog_id ) ) ) );

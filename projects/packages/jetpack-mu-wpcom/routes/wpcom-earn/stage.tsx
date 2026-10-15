@@ -1,0 +1,12 @@
+import { EarnPage } from '../../src/features/wpcom-earn/js/page.tsx';
+import { Placeholder } from '../../src/features/wpcom-earn/js/placeholder.tsx';
+
+const Stage = () => {
+	return (
+		<EarnPage active="home">
+			<Placeholder section="home" />
+		</EarnPage>
+	);
+};
+
+export { Stage as stage };
