@@ -37,7 +37,7 @@ export default function ChaptersHelpModal( { isOpen, onClose }: Props ): ReactEl
 			<Dialog.Popup size="medium">
 				<Dialog.Header>
 					<Dialog.Title>{ __( 'Chapters in VideoPress', 'jetpack-videopress-pkg' ) }</Dialog.Title>
-					<Dialog.CloseIcon label={ __( 'Close', 'jetpack-videopress-pkg' ) } />
+					<Dialog.CloseIconButton label={ __( 'Close', 'jetpack-videopress-pkg' ) } />
 				</Dialog.Header>
 				<Dialog.Content className="vp-chapters-help">
 					<Stack direction="column" gap="lg">

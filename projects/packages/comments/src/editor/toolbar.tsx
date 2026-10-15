@@ -6,8 +6,15 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import type { IconType } from './types';
 import type { EditorLabels } from '../shared/types';
 
-// The blocks a comment offers.
-const names = [ 'core/paragraph', 'core/list', 'core/quote', 'core/code' ];
+// The blocks a comment offers; embeds and images only where the site allows them.
+const names = [
+	'core/paragraph',
+	'core/list',
+	'core/quote',
+	'core/code',
+	'core/embed',
+	'core/image',
+];
 
 // The "+" from @wordpress/icons, a large package for one icon.
 const plus = (
@@ -48,14 +55,16 @@ export const BlockToolbar = ( { labels }: { labels: EditorLabels } ) => {
 		return null;
 	}
 
+	const offered = names.filter( name => getBlockType( name ) );
+
 	// Gutenberg's inserter is stubbed out, so "+" offers the same blocks, after the selected one.
-	const inserts = names.map( name =>
+	const inserts = offered.map( name =>
 		menuItem( name, () => insertBlock( createBlock( name ), index + 1 ) )
 	);
 
-	// Gutenberg's own switcher is not exported, so the comment offers its four blocks.
+	// Gutenberg's own switcher is not exported, so the comment offers its own blocks.
 	const type = getBlockType( root.name )!;
-	const switches = names.flatMap( name => {
+	const switches = offered.flatMap( name => {
 		const blocks = name === root.name ? null : switchToBlockType( root, name );
 
 		return blocks ? [ menuItem( name, () => replaceBlocks( root.clientId, blocks ) ) ] : [];

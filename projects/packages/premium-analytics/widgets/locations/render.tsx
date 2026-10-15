@@ -34,6 +34,7 @@ import { Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
+import { useNoViewsEmptyState } from '../use-no-views-empty-state';
 import styles from './style.module.css';
 import useHeldLevel from './use-held-level';
 import useLocationViews, { type GeoMode, type LocationView } from './use-location-views';
@@ -101,6 +102,10 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 
 	const { isLoading, isFetching, isError, refetch } = views;
 	const { data, hasComparison, isHeld } = useHeldLevel( { ...views, drillDepth, reportParams } );
+	const emptyState = useNoViewsEmptyState(
+		{ isLoading: isLoading && ! isHeld, isError, isEmpty: data.length === 0 },
+		__( 'You don’t have locations recorded yet.', 'jetpack-premium-analytics-pkg' )
+	);
 
 	const csvExporter = useMemo(
 		() => locationsCsvExporter( getLocationsReportSection( geoMode ), scope ),
@@ -239,7 +244,7 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 				{ bodyHeader }
 				<div className={ styles.stateArea }>
 					<WidgetState
-						isLoading={ isLoading && ! isHeld }
+						isLoading={ emptyState.isLoading }
 						isFetching={ isFetching }
 						isError={ isError }
 						isEmpty={ data.length === 0 }
@@ -252,6 +257,7 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 								{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
 							],
 						} }
+						empty={ emptyState.empty }
 					>
 						<div className={ styles.chartArea }>
 							<Disabled isDisabled={ isHeld } className={ styles.leaderboardPanel }>

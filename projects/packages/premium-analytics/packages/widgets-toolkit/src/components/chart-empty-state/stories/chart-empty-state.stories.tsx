@@ -134,3 +134,15 @@ export const ContainerSizes: Story = {
 		</div>
 	),
 };
+
+/**
+ * A sparkline-high chart area, as a one-row metric chart leaves: the message
+ * sheds its icon and block padding so it fits on one line without scrolling.
+ */
+export const ShortChartArea: Story = {
+	render: () => (
+		<div style={ { width: '600px', height: '26px', outline: '1px dashed currentColor' } }>
+			<ChartEmptyState />
+		</div>
+	),
+};

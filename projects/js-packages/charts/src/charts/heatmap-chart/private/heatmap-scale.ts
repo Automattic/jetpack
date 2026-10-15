@@ -1,9 +1,14 @@
-import { MIN_BACKGROUND_CONTRAST } from '../../../providers/chart-context/private/palette-generator';
 import { contrastRatio } from '../../../providers/chart-context/private/perceptual-color';
 import { mixHexColors, relativeLuminance } from '../../../utils/color-utils';
 
+/** Contrast the lowest step aims for against the background and the empty cell. */
+export const HEATMAP_LOW_CONTRAST = 2.5;
+
+/** Contrast every step keeps against the background, and the lowest against the highest. */
+export const HEATMAP_STEP_CONTRAST = 2;
+
 /** Contrast the highest step aims for against the background, so the steps stay apart. */
-export const HEATMAP_HIGH_CONTRAST = 9;
+export const HEATMAP_HIGH_CONTRAST = 6;
 
 const STEPS = 200;
 
@@ -12,20 +17,13 @@ export type HeatmapScale = {
 	high: string;
 };
 
-// Measured on the rounded hex the browser paints, so an endpoint never lands under its threshold.
-const firstMeeting = ( from: string, to: string, meets: ( color: string ) => boolean ) => {
-	for ( let step = 0; step <= STEPS; step++ ) {
-		const color = mixHexColors( from, to, step / STEPS );
-		if ( meets( color ) ) {
-			return color;
-		}
-	}
-	return null;
-};
+// Mixed to the rounded hex the browser paints, so an endpoint never lands under its threshold.
+const ramp = ( from: string, to: string ) =>
+	Array.from( { length: STEPS + 1 }, ( _, step ) => mixHexColors( from, to, step / STEPS ) );
 
 /**
- * The two ends of the heatmap fill scale: 3:1 against the background and the empty cell at the
- * low end, toward 9:1 against the background at the high end.
+ * The two ends of the heatmap fill scale: toward 2.5:1 against the background and the empty cell at
+ * the low end, never under 2:1 against the background or the high end, and toward 6:1 at the high end.
  *
  * @param primary    - The resolved primary color, as six-digit hex.
  * @param background - The resolved chart background, as six-digit hex.
@@ -37,38 +35,45 @@ export const getHeatmapScale = (
 	background: string,
 	emptyCell?: string | null
 ): HeatmapScale => {
-	const primaryStandsOut = contrastRatio( primary, background ) >= MIN_BACKGROUND_CONTRAST;
-	// The scale deepens to black or white on the primary's own side of the background, so it never
-	// crosses it. A primary too close to the background takes whichever contrasts more.
-	const towardWhite = primaryStandsOut
-		? relativeLuminance( primary ) > relativeLuminance( background )
-		: contrastRatio( '#ffffff', background ) > contrastRatio( '#000000', background );
-	const extreme = towardWhite ? '#ffffff' : '#000000';
+	const backgroundLuminance = relativeLuminance( background );
+	const ownSide = relativeLuminance( primary ) > backgroundLuminance ? '#ffffff' : '#000000';
+	const otherSide = ownSide === '#ffffff' ? '#000000' : '#ffffff';
+	// The scale deepens on the primary's own side of the background, unless only the other side
+	// reaches the high end or contrasts more; it never crosses the background either way.
+	const extreme =
+		contrastRatio( ownSide, background ) >= HEATMAP_HIGH_CONTRAST ||
+		contrastRatio( ownSide, background ) >= contrastRatio( otherSide, background )
+			? ownSide
+			: otherSide;
+	const onExtremeSide = ( color: string ) =>
+		extreme === '#ffffff'
+			? relativeLuminance( color ) > backgroundLuminance
+			: relativeLuminance( color ) < backgroundLuminance;
 
-	const lowAgainst = ( references: string[] ) => {
-		const meets = ( color: string ) =>
-			references.every( reference => contrastRatio( color, reference ) >= MIN_BACKGROUND_CONTRAST );
-		return (
-			( primaryStandsOut ? firstMeeting( background, primary, meets ) : null ) ??
-			firstMeeting( primary, extreme, meets )
-		);
-	};
-	// Only `high` can miss: black or white tops out near 4.58:1 on a mid-tone background.
+	const deepening = ramp( primary, extreme );
+	// Only `high` can miss its target: black or white tops out near 4.58:1 on a mid-tone background.
 	const high =
-		firstMeeting(
-			primary,
-			extreme,
-			color => contrastRatio( color, background ) >= HEATMAP_HIGH_CONTRAST
-		) ?? extreme;
+		deepening.find( color => contrastRatio( color, background ) >= HEATMAP_HIGH_CONTRAST ) ??
+		extreme;
 
-	// The lowest step sits beside empty cells, so it stands apart from them too, unless an
-	// empty-cell color far from the background would push it past the high end.
-	const againstEmptyCell = emptyCell ? lowAgainst( [ background, emptyCell ] ) : null;
+	const path = [ ...ramp( background, primary ), ...deepening ];
+	// Never empty: `high` sits at least 4.58:1 out.
+	const spread = path
+		.slice( 0, path.indexOf( high ) + 1 )
+		.filter(
+			color =>
+				onExtremeSide( color ) &&
+				contrastRatio( color, background ) >= HEATMAP_STEP_CONTRAST &&
+				contrastRatio( color, high ) >= HEATMAP_STEP_CONTRAST
+		);
+	const surroundings = emptyCell ? [ background, emptyCell ] : [ background ];
+	const weakest = ( color: string ) =>
+		Math.min( ...surroundings.map( other => contrastRatio( color, other ) ) );
+	// Short of 2.5:1 the low end settles for 2:1, then for the step farthest from its nearest neighbor.
 	const low =
-		againstEmptyCell &&
-		contrastRatio( againstEmptyCell, background ) <= contrastRatio( high, background )
-			? againstEmptyCell
-			: lowAgainst( [ background ] );
+		spread.find( color => weakest( color ) >= HEATMAP_LOW_CONTRAST ) ??
+		spread.find( color => weakest( color ) >= HEATMAP_STEP_CONTRAST ) ??
+		spread.reduce( ( best, color ) => ( weakest( color ) > weakest( best ) ? color : best ) );
 
-	return { low: low ?? extreme, high };
+	return { low, high };
 };
