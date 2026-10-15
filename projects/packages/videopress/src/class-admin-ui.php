@@ -535,6 +535,11 @@ class Admin_UI {
 	 */
 	public static function attachment_details_template() {
 		?>
+		<style>
+			.attachment-details.videopress-attachment-details ~ .compat-item .compat-field-videopress_conversion_error {
+				display: none;
+			}
+		</style>
 		<script type="text/html" id="tmpl-videopress_iframe_vnext">
 			<iframe class="videopress-iframe" style="display: block; max-width: 100%; max-height: 180px;" width="{{ data.width }}" height="{{ data.height }}" src="https://videopress.com/embed/{{ data.guid }}?{{ data.urlargs }}" frameborder='0' allowfullscreen></iframe>
 		</script>
@@ -558,6 +563,7 @@ class Admin_UI {
 						DetailsTemplate.prototype.initialize = function() {
 							if ( 'video' === this.model.attributes.type && 'videopress' === this.model.attributes.subtype ) {
 								this.template = wp.template( 'attachment-details-videopress' );
+								this.$el.addClass( 'videopress-attachment-details' );
 								this.listenTo( this.model, 'change:videopress_status', this.render );
 							} else {
 								this.template = wp.template( 'attachment-details' );

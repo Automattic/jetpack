@@ -92,7 +92,7 @@ export default function PreviewPlayer( { video }: Props ): ReactElement | null {
 
 	if ( conversionFailed ) {
 		return (
-			<p role="status">
+			<p className="vp-video-details__conversion-failed" role="status">
 				{ __(
 					'Conversion failed. Delete this video and upload it again.',
 					'jetpack-videopress-pkg'
