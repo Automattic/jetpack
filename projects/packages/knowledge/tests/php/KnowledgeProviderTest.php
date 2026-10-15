@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Knowledge;
 use Automattic\Jetpack\Knowledge\Knowledge_Post_Type;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\TestCase;
@@ -44,6 +45,68 @@ class KnowledgeProviderTest extends TestCase {
 		$this->assertArrayNotHasKey( '/wp/v2/knowledge/guideline-scopes', rest_get_server()->get_routes() );
 		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', 'gutenberg_guidelines_wp_admin_enqueue_scripts' ) );
 		$this->assertFalse( has_action( 'init', array( Knowledge_Post_Type::class, 'register' ) ) );
+	}
+
+	/**
+	 * @dataProvider gutenberg_load_orders
+	 * @param bool $gutenberg_first Whether Gutenberg loads before Jetpack.
+	 * @param bool $early_rest Whether REST initializes before Gutenberg loads.
+	 */
+	#[DataProvider( 'gutenberg_load_orders' )]
+	public function test_enabled_gutenberg_experiment_registers_without_collisions( $gutenberg_first, $early_rest ) {
+		$GLOBALS['wp_actions']['plugins_loaded'] = 0;
+		$GLOBALS['wp_actions']['init']           = 0;
+		remove_all_actions( 'plugins_loaded' );
+		remove_all_actions( 'init' );
+		update_option( 'gutenberg-experiments', array( 'gutenberg-guidelines' => true ) );
+		$public_functions = array( 'wp_knowledge_types', 'wp_guideline_scopes', 'wp_guideline_max_length' );
+
+		if ( ! $gutenberg_first ) {
+			Knowledge::init();
+			if ( $early_rest ) {
+				$GLOBALS['wp_rest_server'] = null;
+				rest_get_server();
+			}
+			foreach ( $public_functions as $function ) {
+				$this->assertFalse( function_exists( $function ) );
+			}
+		}
+
+		$experiments = get_option( 'gutenberg-experiments' );
+		if ( ! empty( $experiments['gutenberg-guidelines'] ) ) {
+			require __DIR__ . '/fixtures/gutenberg-knowledge/index.php';
+		}
+		if ( $gutenberg_first ) {
+			Knowledge::init();
+		}
+
+		do_action( 'plugins_loaded' );
+		do_action( 'init' );
+		$GLOBALS['wp_rest_server'] = new WP_REST_Server();
+		do_action( 'rest_api_init', $GLOBALS['wp_rest_server'] );
+
+		$this->assertSame( 'Gutenberg_Knowledge_REST_Controller', get_post_type_object( 'wp_knowledge' )->rest_controller_class );
+		foreach ( $public_functions as $function ) {
+			$this->assertSame( __DIR__ . '/fixtures/gutenberg-knowledge/knowledge.php', ( new ReflectionFunction( $function ) )->getFileName() );
+		}
+		$this->assertTrue( taxonomy_exists( 'wp_knowledge_type' ) );
+		$route     = rest_get_server()->get_routes()['/wp/v2/knowledge/guideline-scopes'];
+		$endpoints = array_values( array_filter( $route, 'is_array' ) );
+		$this->assertCount( 1, $endpoints );
+		$this->assertSame( 'Gutenberg_Guideline_Scopes_REST_Controller', get_class( $endpoints[0]['callback'][0] ) );
+		$this->assertFalse( has_action( 'init', array( Knowledge_Post_Type::class, 'register' ) ) );
+		$this->assertFalse( has_action( 'rest_api_init', array( Knowledge::class, 'register_rest_routes' ) ) );
+	}
+
+	/**
+	 * @return array Plugin loading scenarios.
+	 */
+	public static function gutenberg_load_orders() {
+		return array(
+			'gutenberg first'               => array( true, false ),
+			'jetpack first'                 => array( false, false ),
+			'jetpack first with early REST' => array( false, true ),
+		);
 	}
 
 	public function test_disabled_experiment_uses_fallback() {

@@ -14,7 +14,7 @@ The upstream `wp_knowledge_types`, `wp_guideline_scopes`, and `wp_guideline_max_
 
 ## Validation
 
-Run `jp test php packages/knowledge` and `jp phan packages/knowledge`. The PHP suite uses the shared SQLite WordPress test environment and requires the PHP PDO SQLite extension. There is no JavaScript build or test step.
+Run `jp test php packages/knowledge` and `jp phan packages/knowledge`. The PHP suite uses the shared SQLite WordPress test environment and requires the PHP PDO SQLite extension. Provider integration tests include the actual pinned Gutenberg Knowledge experiment backend, covering both plugin orders and early REST initialization. There is no JavaScript build or test step.
 
 ## Upstream provenance
 
