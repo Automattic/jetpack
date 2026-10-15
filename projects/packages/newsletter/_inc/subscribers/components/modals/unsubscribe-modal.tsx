@@ -4,6 +4,7 @@ import { AlertDialog } from '@wordpress/ui';
 import { getSubscriberLabel } from '../../lib/subscriber-helpers';
 import { recordTracksEvent } from '../../lib/tracks';
 import type { Subscriber } from '../../data/types';
+import type { JSX } from 'react';
 
 type Props = {
 	subscribers: Subscriber[];

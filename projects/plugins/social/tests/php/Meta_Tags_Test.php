@@ -202,9 +202,9 @@ class Meta_Tags_Test extends BaseTestCase {
 
 		$processed_description = $this->meta_tags->get_description( $description );
 
-		$this->assertEquals(
-			$cleaned_description,
-			$processed_description
+		$this->assertSame(
+			WP_HTML_Processor::normalize( $cleaned_description ),
+			WP_HTML_Processor::normalize( $processed_description )
 		);
 	}
 

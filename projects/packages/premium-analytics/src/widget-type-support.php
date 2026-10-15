@@ -19,19 +19,12 @@ if ( ! function_exists( __NAMESPACE__ . '\\is_videopress_available' ) ) {
 }
 
 /**
- * Widget types that only have data on a site running VideoPress.
+ * Widget types that only have data on a site running VideoPress. The Top videos widget is not
+ * listed: the VideoPress package registers it, and decides where.
  */
 const VIDEOPRESS_WIDGET_TYPES = array(
-	'jpa/videopress',
 	'jpa/video-detail-views-performance',
 	'jpa/video-detail-embeds',
-);
-
-/**
- * Widget types that surface plan usage and upgrade prompts.
- */
-const PLAN_USAGE_WIDGET_TYPES = array(
-	'jpa/plan-usage',
 );
 
 /**
@@ -63,13 +56,9 @@ function get_widget_support_context() {
  * @return string[] Unsupported widget type names.
  */
 function get_unsupported_widget_types( $context ) {
-	// Usage and upgrade UX stays out of Stats v2 on every site until the paid plan is
-	// settled (STATS-459); it returns through the configurations drawer (WOOA7S-2037).
-	$unsupported = PLAN_USAGE_WIDGET_TYPES;
-
 	// Temporary: the period widgets are held back on every site until product decides
 	// whether they return or go (WOOA7S-2020). Their code stays.
-	$unsupported = array_merge( $unsupported, PERIOD_WIDGET_TYPES );
+	$unsupported = PERIOD_WIDGET_TYPES;
 
 	// File download tracking is served only on WPCOM Simple. Calypso applies
 	// the same boundary, which excludes self-hosted Jetpack and Atomic sites.

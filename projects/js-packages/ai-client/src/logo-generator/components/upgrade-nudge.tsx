@@ -47,7 +47,7 @@ export const UpgradeNudge = () => {
 				<Button
 					href={ checkoutUrl }
 					target="_blank"
-					className="is-primary"
+					variant="primary"
 					onClick={ handleUpgradeClick }
 				>
 					<span>{ buttonText }</span>

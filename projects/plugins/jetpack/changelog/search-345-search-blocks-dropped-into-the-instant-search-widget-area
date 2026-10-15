@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Search: Stop offering Search blocks in the Overlay search sidebar's widget inserter, and flag any already there, because they cannot load in that sidebar.

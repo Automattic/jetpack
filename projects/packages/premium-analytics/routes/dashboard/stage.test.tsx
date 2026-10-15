@@ -2,6 +2,7 @@
  * External dependencies
  */
 import {
+	DASHBOARD_PREFERENCES_SCOPE,
 	PERIOD_CHANGE_ATTENTION_MS,
 	queryClient,
 	useRaisePeriodChange,
@@ -11,6 +12,8 @@ import { createTZDateFromParts, endOfDayTZ } from '@jetpack-premium-analytics/da
 import { useDashboardOriginSearch } from '@jetpack-premium-analytics/widgets-toolkit';
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { dispatch, select } from '@wordpress/data';
+import { store as preferencesStore } from '@wordpress/preferences';
 import { useCallback } from 'react';
 /**
  * Internal dependencies
@@ -18,6 +21,7 @@ import { useCallback } from 'react';
 import { DATE_FILTER_RANGE, DATE_FILTER_YEAR } from './config';
 import {
 	useActiveSection,
+	useDashboardPolicy,
 	useDashboardSections,
 	useOnboarding,
 	useSectionDateFilter,
@@ -39,11 +43,28 @@ let mockAppliedRange: Partial< typeof JULY_2026 > = { from: undefined, to: undef
 let mockMountedSectionSlugs: string[] | null = null;
 let mockSyncState: { data?: SyncStatus; error: Error | null; isComplete: boolean };
 let mockIsSyncFinished: boolean;
+let mockSyncOptions: { enabled?: boolean; autoStart?: boolean } | undefined;
+let mockIsAdmin: boolean;
+let mockCanSendFeedback: boolean;
 const mockResetLayout = jest.fn();
+const mockChangeComparison = jest.fn();
+let mockDateFiltersPanelProps: {
+	onChange: ( ...args: unknown[] ) => void;
+	onComparisonChange: ( ...args: unknown[] ) => void;
+	onApply: () => void;
+};
 const mockTriggerSync = jest.fn( () => Promise.resolve() );
 
 jest.mock( '@jetpack-premium-analytics/site-sync', () => ( {
-	useSyncStatus: () => ( { ...mockSyncState, triggerSync: mockTriggerSync } ),
+	useSyncStatus: ( options: typeof mockSyncOptions ) => {
+		mockSyncOptions = options;
+		return { ...mockSyncState, triggerSync: mockTriggerSync };
+	},
+} ) );
+
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	...jest.requireActual( '@automattic/jetpack-script-data' ),
+	currentUserCan: () => mockIsAdmin,
 } ) );
 
 jest.mock( '../site-readiness', () => ( {
@@ -52,7 +73,6 @@ jest.mock( '../site-readiness', () => ( {
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
-	GlobalErrorProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/externals', () => {
@@ -77,18 +97,28 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 		timeZone: 'UTC',
 		intervalOptions: [],
 		onChange: jest.fn(),
+		onComparisonChange: mockChangeComparison,
 		onApply: jest.fn(),
 		onIntervalChange: jest.fn(),
 	} ),
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
-	DateFiltersPanel: ( props: { attentionId?: number } ) => (
-		<>
-			<MockHeaderScopeProbe />
-			<MockAttentionProbe { ...props } />
-		</>
-	),
+	DateFiltersPanel: (
+		props: typeof mockDateFiltersPanelProps & {
+			attentionId?: number;
+			withIntervalControl?: boolean;
+		}
+	) => {
+		mockDateFiltersPanelProps = props;
+		return (
+			<>
+				<MockHeaderScopeProbe />
+				<MockAttentionProbe { ...props } />
+				{ props.withIntervalControl && <span>header interval</span> }
+			</>
+		);
+	},
 	PeriodChangeStatus: jest.requireActual( '../../packages/ui/src/period-change-status' )
 		.PeriodChangeStatus,
 	DateIntervalDropdown: () => <span>interval control</span>,
@@ -133,12 +163,14 @@ const mockTrackCustomize = {
 
 jest.mock( '@wordpress/route', () => ( {
 	...jest.requireActual( '@wordpress/route' ),
+	useNavigate: () => jest.fn(),
 	useSearch: () => ( {} ),
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	...jest.requireActual( '../../packages/widgets-toolkit/src/hooks/use-dashboard-origin-search' ),
 	useTrackCustomize: () => mockTrackCustomize,
+	canSendFeedback: () => mockCanSendFeedback,
 	PageOptionsMenu: ( { onCustomize }: { onCustomize?: () => void } ) => (
 		<div data-testid="page-options-menu">
 			{ onCustomize && (
@@ -166,12 +198,13 @@ jest.mock( '@wordpress/admin-ui', () => ( {
 } ) );
 
 jest.mock( '@wordpress/components', () => ( {
+	...jest.requireActual( '@wordpress/components' ),
 	Spinner: () => null,
 } ) );
 
 jest.mock( '@wordpress/core-data', () => ( { store: {} } ) );
 
-jest.mock( '@wordpress/data', () => ( { useSelect: () => [] } ) );
+jest.mock( '../use-widget-modules', () => ( { useWidgetModules: () => [] } ) );
 
 /**
  * Reads the scope the dashboard declares, from where the header's date controls
@@ -204,18 +237,22 @@ function MockOriginProbe() {
  * @return The declared scope, as text.
  */
 function MockScopeProbe() {
-	const { offersComparison } = useReportScope();
+	const { offersComparison, openPeriod } = useReportScope();
 	const raisePeriodChange = useRaisePeriodChange();
 	const openJuly = useCallback(
 		() => raisePeriodChange( 'traffic', JULY_2026 ),
 		[ raisePeriodChange ]
 	);
+	const setJuly = useCallback( () => openPeriod?.( JULY_2026 ), [ openPeriod ] );
 
 	return (
 		<>
 			<span>{ offersComparison ? 'offers comparison' : 'no comparison' }</span>
 			<button type="button" onClick={ openJuly }>
 				Open July from a widget
+			</button>
+			<button type="button" onClick={ setJuly }>
+				Set July from a chart on this section
 			</button>
 		</>
 	);
@@ -301,19 +338,55 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 		</>
 	);
 	WidgetDashboard.Commands = () => null;
-	WidgetDashboard.Policy = ( { children }: { children: ReactNode } ) => <>{ children }</>;
+	WidgetDashboard.Policy = ( {
+		canPerform,
+		children,
+	}: {
+		canPerform: ( request: { operation: string } ) => boolean;
+		children: ReactNode;
+	} ) => (
+		<div
+			data-testid="dashboard-policy"
+			data-can-customize={ String( canPerform( { operation: 'customize' } ) ) }
+		>
+			{ children }
+		</div>
+	);
 
 	return { WidgetDashboard };
 } );
 
 jest.mock( './components', () => ( {
-	DashboardSections: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
+	DashboardSections: ( {
+		children,
+		withSettingsTab,
+		isSettingsTabDisabled,
+	}: {
+		children: ReactNode;
+		withSettingsTab?: boolean;
+		isSettingsTabDisabled?: boolean;
+	} ) => (
+		<div
+			data-testid="dashboard-sections"
+			data-settings-tab={
+				withSettingsTab ? ( isSettingsTabDisabled && 'disabled' ) || 'enabled' : 'none'
+			}
+		>
+			{ children }
+		</div>
+	),
+	StatsSettingsPanel: () => null,
 	// A marker, not the real banner, which owns its own preference. Covered
 	// here: which section the stage offers it on, and when.
 	FeedbackBanner: ( { enabled }: { enabled: boolean } ) =>
 		enabled ? <div data-testid="feedback-banner" /> : null,
 	OnboardingTour: () => <div data-testid="onboarding-tour" />,
 	onboardingTourSteps: () => [],
+	PlanLimitNotice: () => <div data-testid="plan-limit-notice" />,
+	hasPurchaseSuccess: jest.requireActual(
+		'./components/purchase-success-notice/purchase-success-notice'
+	).hasPurchaseSuccess,
+	PurchaseSuccessNotice: () => <div data-testid="purchase-success-notice" />,
 	// A marker, not the real notice, which reads a query cache these tests do not
 	// stand up. Covered here: where the stage puts it.
 	RefreshFailureNotice: () => <div data-testid="refresh-failure-notice" />,
@@ -344,19 +417,38 @@ jest.mock( '../widget-module-i18n', () => ( {
 	useWidgetTypesWithI18n: () => [ [], false ],
 } ) );
 
+jest.mock( './config', () => {
+	const actual = jest.requireActual( './config' );
+
+	return {
+		...actual,
+		// Most section fixtures here carry no default layout.
+		getInsertableWidgetTypeNames: ( sections: Array< Record< string, unknown > > ) =>
+			actual.getInsertableWidgetTypeNames(
+				sections.map( section => ( { default_layout: [], ...section } ) )
+			),
+	};
+} );
+
 jest.mock( './hooks', () => ( {
 	useActiveSection: jest.fn(),
 	useDashboardGridSettings: () => [ {} ],
-	useDashboardPolicy: () => () => true,
+	useDashboardPolicy: jest.fn( () => () => true ),
 	useDashboardSectionLayout: () => [ [], jest.fn(), mockResetLayout ],
 	useDashboardSections: jest.fn(),
 	useOnboarding: jest.fn(),
+	useRememberAppliedPreset: jest.requireActual( './hooks/use-remember-applied-preset' )
+		.useRememberAppliedPreset,
 	useSectionDateFilter: jest.fn(),
 } ) );
 
 beforeEach( () => {
 	mockSyncState = { data: undefined, error: null, isComplete: false };
 	mockIsSyncFinished = false;
+	mockSyncOptions = undefined;
+	mockIsAdmin = true;
+	mockCanSendFeedback = true;
+	delete window.JetpackScriptData;
 	mockMountedSectionSlugs = null;
 	mockTriggerSync.mockImplementation( () => Promise.resolve() );
 	useOnboardingMock.mockReturnValue( closedOnboarding );
@@ -365,6 +457,7 @@ beforeEach( () => {
 const useDashboardSectionsMock = jest.mocked( useDashboardSections );
 const useSectionDateFilterMock = jest.mocked( useSectionDateFilter );
 const useActiveSectionMock = jest.mocked( useActiveSection );
+const useDashboardPolicyMock = jest.mocked( useDashboardPolicy );
 const useOnboardingMock = jest.mocked( useOnboarding );
 
 const closedOnboarding = {
@@ -548,6 +641,22 @@ describe( 'Dashboard period change signal', () => {
 		jest.useRealTimers();
 	} );
 
+	it( 'draws attention to a period a widget set on the section it sits in', async () => {
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		mockActiveSectionSlug = 'traffic';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
+		const user = userEvent.setup();
+		const { rerender } = render( <Dashboard /> );
+
+		await user.click(
+			screen.getByRole( 'button', { name: 'Set July from a chart on this section' } )
+		);
+		mockAppliedRange = JULY_2026;
+		rerender( <Dashboard /> );
+
+		expect( screen.getByTestId( 'attention' ) ).toHaveTextContent( /^\d+$/ );
+	} );
+
 	it( 'lets a signal go when the reader lands on another section instead', async () => {
 		const user = userEvent.setup();
 		const { rerender } = render( <Dashboard /> );
@@ -617,6 +726,14 @@ describe( 'Dashboard feedback banner', () => {
 		);
 	} );
 
+	it( 'is not offered to a reader who cannot send feedback', () => {
+		mockCanSendFeedback = false;
+
+		render( <Dashboard /> );
+
+		expect( screen.queryByTestId( 'feedback-banner' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'holds off on a section the copy does not speak for', () => {
 		useDashboardSectionsMock.mockReturnValue( {
 			sections: [
@@ -649,6 +766,26 @@ describe( 'Dashboard feedback banner', () => {
 		await userEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
 
 		expect( screen.queryByTestId( 'feedback-banner' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'puts the plan limit notice away while the reader arranges the layout', async () => {
+		render( <Dashboard /> );
+		expect( screen.getByTestId( 'plan-limit-notice' ) ).toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
+
+		expect( screen.queryByTestId( 'plan-limit-notice' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'thanks a reader back from checkout in place of the plan limit notice', () => {
+		window.JetpackScriptData = {
+			premium_analytics: { purchase_success: { type: 'paid' } },
+		} as typeof window.JetpackScriptData;
+
+		render( <Dashboard /> );
+
+		expect( screen.getByTestId( 'purchase-success-notice' ) ).toBeInTheDocument();
+		expect( screen.queryByTestId( 'plan-limit-notice' ) ).not.toBeInTheDocument();
 	} );
 } );
 
@@ -779,6 +916,15 @@ describe( 'Dashboard sync notice', () => {
 		expect( screen.getByText( 'notice 40% syncing' ) ).toBeInTheDocument();
 	} );
 
+	it( 'neither polls nor starts the sync for a reader who cannot run it', () => {
+		mockSection( { requires_sync: true } );
+		mockIsAdmin = false;
+
+		render( <Dashboard /> );
+
+		expect( mockSyncOptions?.enabled ).toBe( false );
+	} );
+
 	it( 'leaves a section that does not depend on the sync unannotated', () => {
 		mockSection();
 
@@ -844,12 +990,58 @@ describe( 'Dashboard header date control', () => {
 		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
 	} );
 
+	afterEach( () => {
+		dispatch( preferencesStore ).set( DASHBOARD_PREFERENCES_SCOPE, 'datePreset', undefined );
+		dispatch( preferencesStore ).set( DASHBOARD_PREFERENCES_SCOPE, 'comparison', undefined );
+	} );
+
 	it( 'renders the control by default', () => {
 		mockSection( { date_filter: DATE_FILTER_RANGE } );
 
 		render( <Dashboard /> );
 
 		expect( screen.getByText( 'header offers comparison' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'header interval' ) ).toBeInTheDocument();
+	} );
+
+	it( 'keeps the range but drops the interval for a section whose charts own it', () => {
+		mockSection( {
+			date_filter: DATE_FILTER_RANGE,
+			date_filter_options: { with_date_comparison: true, with_header_interval_control: false },
+		} );
+
+		render( <Dashboard /> );
+
+		expect( screen.getByText( 'header offers comparison' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'header interval' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'remembers a preset applied from the header', () => {
+		mockSection( { date_filter: DATE_FILTER_RANGE } );
+
+		render( <Dashboard /> );
+		act( () => {
+			mockDateFiltersPanelProps.onChange( JULY_2026, 'last-30-days' );
+			mockDateFiltersPanelProps.onApply();
+		} );
+
+		expect( select( preferencesStore ).get( DASHBOARD_PREFERENCES_SCOPE, 'datePreset' ) ).toBe(
+			'last-30-days'
+		);
+	} );
+
+	it( 'applies and remembers No comparison picked from the header', () => {
+		mockSection( { date_filter: DATE_FILTER_RANGE } );
+
+		render( <Dashboard /> );
+		act( () => {
+			mockDateFiltersPanelProps.onComparisonChange( undefined, undefined );
+		} );
+
+		expect( mockChangeComparison ).toHaveBeenCalledWith( undefined, undefined );
+		expect( select( preferencesStore ).get( DASHBOARD_PREFERENCES_SCOPE, 'comparison' ) ).toBe(
+			'none'
+		);
 	} );
 
 	it( 'renders no control for a section that hands it to its widgets', () => {
@@ -941,6 +1133,59 @@ describe( 'Dashboard header date control', () => {
 	} );
 } );
 
+describe( 'Dashboard inserter', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		mockActiveSectionSlug = 'traffic';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
+		useDashboardSectionsMock.mockReturnValue( {
+			sections: [
+				{
+					slug: 'traffic',
+					label: 'Traffic',
+					date_filter: DATE_FILTER_RANGE,
+					default_layout: [ { uuid: 'default-traffic-chart', type: 'jpa/traffic-chart' } ],
+				},
+				{
+					slug: 'insights',
+					label: 'Insights',
+					date_filter: DATE_FILTER_YEAR,
+					default_layout: [ { uuid: 'default-latest-post', type: 'jpa/latest-post' } ],
+				},
+			],
+			hasResolved: true,
+		} as unknown as ReturnType< typeof useDashboardSections > );
+	} );
+
+	it( 'offers the widget types the active section places by default', () => {
+		const { rerender } = render( <Dashboard /> );
+
+		expect( useDashboardPolicyMock ).toHaveBeenLastCalledWith( {
+			insertableWidgetTypes: new Set( [ 'jpa/traffic-chart' ] ),
+		} );
+
+		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );
+		mockActiveSectionSlug = 'insights';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_YEAR );
+		rerender( <Dashboard /> );
+
+		expect( useDashboardPolicyMock ).toHaveBeenLastCalledWith( {
+			insertableWidgetTypes: new Set( [ 'jpa/latest-post' ] ),
+		} );
+	} );
+
+	it( 'hands the policy the same set while the active section stays', () => {
+		const { rerender } = render( <Dashboard /> );
+		const [ first ] = useDashboardPolicyMock.mock.lastCall ?? [];
+
+		rerender( <Dashboard /> );
+		const [ second ] = useDashboardPolicyMock.mock.lastCall ?? [];
+
+		expect( second?.insertableWidgetTypes ).toBe( first?.insertableWidgetTypes );
+	} );
+} );
+
 describe( 'Dashboard customizing', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
@@ -1012,5 +1257,46 @@ describe( 'Dashboard customizing', () => {
 		await userEvent.click( screen.getByRole( 'button', { name: action } ) );
 
 		expect( screen.getByText( 'header offers comparison' ) ).toBeInTheDocument();
+	} );
+} );
+
+describe( 'Dashboard Settings tab', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		mockSection( { slug: 'traffic', date_filter: DATE_FILTER_RANGE } );
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		mockActiveSectionSlug = 'traffic';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
+		window.JetpackScriptData = {
+			premium_analytics: { stats_settings: { roles: [], features_url: null } },
+		} as typeof window.JetpackScriptData;
+	} );
+
+	afterEach( () => {
+		delete window.JetpackScriptData;
+	} );
+
+	it( 'keeps the Settings tab in view but out of reach while the reader arranges the layout', async () => {
+		render( <Dashboard /> );
+		const sectionsBar = screen.getByTestId( 'dashboard-sections' );
+		expect( sectionsBar ).toHaveAttribute( 'data-settings-tab', 'enabled' );
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
+
+		expect( sectionsBar ).toHaveAttribute( 'data-settings-tab', 'disabled' );
+		// Without the slug, an edit mode entered on the Settings tab resolves to a widget section.
+		expect( useActiveSectionMock ).toHaveBeenLastCalledWith( expect.anything(), [] );
+	} );
+
+	it( 'does not open Customize over an empty first section behind the Settings tab', () => {
+		useActiveSectionMock.mockReturnValue( [ 'settings', jest.fn() ] );
+		mockActiveSectionSlug = 'settings';
+
+		render( <Dashboard /> );
+
+		expect( screen.getByTestId( 'dashboard-policy' ) ).toHaveAttribute(
+			'data-can-customize',
+			'false'
+		);
 	} );
 } );

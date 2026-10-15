@@ -1,5 +1,6 @@
 {
 	"name": "jpa/video-detail-views-performance",
+	"icon": "jpa/seen",
 	"title": "Video performance",
 	"description": "Views, impressions, hours watched, and retention rate for the video being viewed over the selected period.",
 	"help": {

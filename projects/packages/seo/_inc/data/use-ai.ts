@@ -4,11 +4,17 @@ import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { aiStore } from './ai-store';
+import { recordSeoEvent } from './record-seo-event';
 import type { AiCrawler, AiState } from './ai-types';
 
 // Single snackbar id reused across a save so "Updating settings…" is replaced
 // in place by "Settings saved." (or an error) — matches the Settings tab.
 const SAVE_NOTICE_ID = 'jetpack-seo-ai-save';
+
+// WordPress core's settings endpoint. Every AI toggle is an option registered
+// with `show_in_rest` server-side, so it round-trips through core REST — which
+// exists on every platform the dashboard runs on.
+const CORE_SETTINGS_PATH = '/wp/v2/settings';
 
 export interface AiForm {
 	enhancer: AiState[ 'enhancer' ] | null;
@@ -27,10 +33,9 @@ export interface AiForm {
 
 /**
  * Owns the AI tab's form state: seeds from the page bootstrap and auto-saves each
- * toggle through `/jetpack/v4/settings` (the same endpoint the legacy Traffic
- * page used). There's no Save button — toggles save on change, surfacing the
- * shared "Updating settings…"→"Settings saved." snackbar. On failure the local
- * value reverts.
+ * toggle through WordPress core's `/wp/v2/settings`. There's no Save button —
+ * toggles save on change, surfacing the shared "Updating settings…"→"Settings
+ * saved." snackbar. On failure the local value reverts.
  *
  * The AI tab is its own route, so this controller remounts on every tab switch.
  * Each slice is seeded from (and written back to) [ai-store] rather than the
@@ -67,7 +72,7 @@ export function useAiForm(): AiForm {
 				type: 'snackbar',
 				isDismissible: false,
 			} );
-			apiFetch( { path: '/jetpack/v4/settings', method: 'POST', data } )
+			apiFetch( { path: CORE_SETTINGS_PATH, method: 'POST', data } )
 				.then( () => {
 					onSuccess();
 					createSuccessNotice( __( 'Settings saved.', 'jetpack-seo' ), {
@@ -112,6 +117,7 @@ export function useAiForm(): AiForm {
 					if ( initialLlmsTxt ) {
 						persistLlmsTxt( { ...initialLlmsTxt, enabled: next } );
 					}
+					recordSeoEvent( 'jetpack_seo_llms_txt_enabled', 'geo', { enabled: next } );
 				},
 				() => setLlmsTxt( prev => ( prev ? { ...prev, enabled: ! next } : prev ) )
 			);
@@ -142,7 +148,10 @@ export function useAiForm(): AiForm {
 			setCrawlers( nextCrawlers );
 			runSave(
 				{ jetpack_seo_ai_crawler_overrides: nextOverrides },
-				() => persistCrawlers( nextCrawlers ),
+				() => {
+					persistCrawlers( nextCrawlers );
+					recordSeoEvent( 'jetpack_seo_bot_toggle_changed', 'geo', { bot: slug, blocked } );
+				},
 				() => setCrawlers( prevCrawlers )
 			);
 		},
@@ -174,7 +183,13 @@ export function useAiForm(): AiForm {
 			setCrawlers( nextCrawlers );
 			runSave(
 				{ jetpack_seo_ai_crawler_overrides: nextOverrides },
-				() => persistCrawlers( nextCrawlers ),
+				() => {
+					persistCrawlers( nextCrawlers );
+					recordSeoEvent( 'jetpack_seo_bot_toggle_changed', 'geo', {
+						bot: `group:${ type }`,
+						blocked,
+					} );
+				},
 				() => setCrawlers( prevCrawlers )
 			);
 		},

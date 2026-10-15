@@ -1,0 +1,179 @@
+{
+	"description": "Which colors WPCOM_Email_Text_Color::parse() reads and to what, which it refuses (a caller leaves those alone), and WCAG contrast reference ratios to two decimals. The design editor's port is tested against the same cases. Change both copies together.",
+	"parse": [
+		{
+			"label": "short hex",
+			"color": "#abc",
+			"rgb": [ 170, 187, 204 ]
+		},
+		{
+			"label": "uppercase hex, padded",
+			"color": " #ABCDEF ",
+			"rgb": [ 171, 205, 239 ]
+		},
+		{
+			"label": "short hex, opaque alpha",
+			"color": "#abcf",
+			"rgb": [ 170, 187, 204 ]
+		},
+		{
+			"label": "long hex, opaque alpha",
+			"color": "#aabbccff",
+			"rgb": [ 170, 187, 204 ]
+		},
+		{
+			"label": "rgb, commas",
+			"color": "rgb(255, 0, 0)",
+			"rgb": [ 255, 0, 0 ]
+		},
+		{
+			"label": "rgb, spaces",
+			"color": "rgb(255 0 0)",
+			"rgb": [ 255, 0, 0 ]
+		},
+		{
+			"label": "rgb, percentages",
+			"color": "rgb(100%, 50%, 0%)",
+			"rgb": [ 255, 128, 0 ]
+		},
+		{
+			"label": "rgba, opaque",
+			"color": "rgba(0, 0, 0, 1)",
+			"rgb": [ 0, 0, 0 ]
+		},
+		{
+			"label": "rgb, opaque slash alpha",
+			"color": "rgb(0 0 0 / 100%)",
+			"rgb": [ 0, 0, 0 ]
+		},
+		{
+			"label": "hsl, commas",
+			"color": "hsl(0, 100%, 50%)",
+			"rgb": [ 255, 0, 0 ]
+		},
+		{
+			"label": "hsl, spaces, degrees",
+			"color": "hsl(120deg 100% 25%)",
+			"rgb": [ 0, 128, 0 ]
+		},
+		{
+			"label": "hsl, hue past a full turn",
+			"color": "hsl(480, 100%, 25%)",
+			"rgb": [ 0, 128, 0 ]
+		}
+	],
+	"refuse": [
+		{
+			"label": "translucent long hex",
+			"color": "#ffffff80"
+		},
+		{
+			"label": "translucent short hex",
+			"color": "#fff8"
+		},
+		{
+			"label": "translucent rgba",
+			"color": "rgba(0, 0, 0, 0.5)"
+		},
+		{
+			"label": "translucent slash",
+			"color": "rgb(0 0 0 / 50%)"
+		},
+		{
+			"label": "named color",
+			"color": "red"
+		},
+		{
+			"label": "transparent",
+			"color": "transparent"
+		},
+		{
+			"label": "currentcolor",
+			"color": "currentcolor"
+		},
+		{
+			"label": "preset variable",
+			"color": "var(--wp--preset--color--base)"
+		},
+		{
+			"label": "preset shorthand",
+			"color": "var:preset|color|base"
+		},
+		{
+			"label": "gradient",
+			"color": "linear-gradient(#fff, #000)"
+		},
+		{
+			"label": "two channels",
+			"color": "rgb(0, 0)"
+		},
+		{
+			"label": "alpha without a slash",
+			"color": "rgb(255 255 255 1)"
+		},
+		{
+			"label": "slash in comma syntax",
+			"color": "rgb(0,0,0/1)"
+		},
+		{
+			"label": "mixed separators",
+			"color": "rgb(0, 0 0)"
+		},
+		{
+			"label": "two slashes",
+			"color": "rgb(0 0 0 / 1 / 1)"
+		},
+		{
+			"label": "hsl without percentage",
+			"color": "hsl(0, 100, 50)"
+		},
+		{
+			"label": "five hex digits",
+			"color": "#abcde"
+		},
+		{
+			"label": "empty",
+			"color": ""
+		},
+		{
+			"label": "null",
+			"color": null
+		},
+		{
+			"label": "number",
+			"color": 0
+		}
+	],
+	"contrast": [
+		{
+			"label": "black on white",
+			"first": "#000000",
+			"second": "#ffffff",
+			"ratio": 21.0
+		},
+		{
+			"label": "white on white",
+			"first": "#ffffff",
+			"second": "#ffffff",
+			"ratio": 1.0
+		},
+		{
+			"label": "lightest passing AA",
+			"first": "#767676",
+			"second": "#ffffff",
+			"ratio": 4.54
+		},
+		{
+			"label": "darkest failing AA",
+			"first": "#777777",
+			"second": "#ffffff",
+			"ratio": 4.48
+		},
+		{
+			"label": "wpcom blue on black",
+			"first": "#113af5",
+			"second": "#000000",
+			"ratio": 2.95
+		}
+	]
+}

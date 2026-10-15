@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Blocks: Replace the Calendly and Eventbrite style thumbnails with labelled options that show the selected style, move the Calendly customization link into the Styles panel, and match the height of the Calendly URL field and Embed button.

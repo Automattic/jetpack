@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.5.36
+ * Stubs automatically generated from PHPUnit 12.5.39
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -10657,14 +10657,14 @@ final readonly class RequiresFunction
 final readonly class RequiresMethod
 {
     /**
-     * @param class-string     $className
+     * @param non-empty-string $className
      * @param non-empty-string $methodName
      */
     public function __construct(string $className, string $methodName)
     {
     }
     /**
-     * @return class-string
+     * @return non-empty-string
      */
     public function className(): string
     {
@@ -13309,7 +13309,7 @@ final readonly class MethodName
 final class Parameters implements \PHPUnit\Framework\MockObject\Rule\ParametersRule
 {
     /**
-     * @param array<mixed> $parameters
+     * @param array<int|string, mixed> $parameters
      * @throws \PHPUnit\Framework\Exception
      */
     public function __construct(array $parameters)
@@ -15901,14 +15901,14 @@ abstract readonly class Metadata
     {
     }
     /**
-     * @param class-string     $className
+     * @param non-empty-string $className
      * @param non-empty-string $methodName
      */
     public static function requiresMethodOnClass(string $className, string $methodName): \PHPUnit\Metadata\RequiresMethod
     {
     }
     /**
-     * @param class-string     $className
+     * @param non-empty-string $className
      * @param non-empty-string $methodName
      */
     public static function requiresMethodOnMethod(string $className, string $methodName): \PHPUnit\Metadata\RequiresMethod
@@ -16762,7 +16762,7 @@ final readonly class RequiresMethod extends \PHPUnit\Metadata\Metadata
     {
     }
     /**
-     * @return class-string
+     * @return non-empty-string
      */
     public function className(): string
     {
@@ -25731,6 +25731,20 @@ final class PhpProcessException extends \RuntimeException implements \PHPUnit\Ut
 {
 }
 /**
+ * @no-named-arguments
+ * @internal
+ */
+final class ExtensionSettings
+{
+    /**
+     * @param \Closure(): list<string> $parameters
+     * @return list<non-empty-string>
+     */
+    public static function forChildProcess(\Closure $parameters): array
+    {
+    }
+}
+/**
  * @immutable
  * @no-named-arguments
  * @internal
@@ -26909,7 +26923,7 @@ final class Directory extends \SebastianBergmann\CodeCoverage\Node\AbstractNode 
     {
     }
     /**
-     * @return \RecursiveIteratorIterator<Iterator<AbstractNode>>
+     * @return \RecursiveIteratorIterator<Iterator>&\Traversable<int, AbstractNode>
      */
     public function getIterator(): \RecursiveIteratorIterator
     {

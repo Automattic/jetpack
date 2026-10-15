@@ -1,0 +1,210 @@
+{
+	"description": "What text and each element need to be readable on a background: WPCOM_Email_Style_Manager::readable_text() and readable_element() on the renderer (`button` is readable_text() applied to button text against the button's own background), and the design editor's port when a creator picks a background or clears a color. `readable` null means the color is kept; a null text `color` means there is none. `elements` is the list both manage. Change both copies together.",
+	"minimumContrast": 4.5,
+	"elements": [ "link", "heading", "h1", "h2", "h3", "h4", "h5", "h6" ],
+	"cases": [
+		{
+			"element": "link",
+			"color": "#1e5bd8",
+			"background": "#002b36",
+			"readable": "#5e8be9",
+			"underline": false
+		},
+		{
+			"element": "link",
+			"color": "#444444",
+			"background": "#002b36",
+			"readable": "#8f8f8f",
+			"underline": true
+		},
+		{
+			"element": "link",
+			"color": "#333",
+			"background": "#002b36",
+			"readable": "#8f8f8f",
+			"underline": true
+		},
+		{
+			"element": "link",
+			"color": "#0073aa",
+			"background": "#ffffff",
+			"readable": null,
+			"underline": false
+		},
+		{
+			"element": "link",
+			"color": "#9ec5fe",
+			"background": "#ffffff",
+			"readable": "#0d6efd",
+			"underline": false
+		},
+		{
+			"element": "link",
+			"color": "#c0ffee",
+			"background": "#ffffff",
+			"readable": "#008561",
+			"underline": false
+		},
+		{
+			"element": "link",
+			"color": "currentColor",
+			"background": "#002b36",
+			"readable": null,
+			"underline": false
+		},
+		{
+			"element": "link",
+			"color": "var(--wp--preset--color--accent)",
+			"background": "#002b36",
+			"readable": null,
+			"underline": false
+		},
+		{
+			"element": "link",
+			"color": "#1e5bd8",
+			"background": "rgba(0, 43, 54, 0.5)",
+			"readable": null,
+			"underline": false
+		},
+		{
+			"element": "link",
+			"color": null,
+			"background": "#002b36",
+			"readable": null,
+			"underline": false
+		},
+		{
+			"element": "heading",
+			"color": "#3a0ca3",
+			"background": "#002b36",
+			"readable": "#a07af5",
+			"underline": false
+		},
+		{
+			"element": "heading",
+			"color": "#222222",
+			"background": "#002b36",
+			"readable": "#8f8f8f",
+			"underline": false
+		},
+		{
+			"element": "heading",
+			"color": "#fdf6e3",
+			"background": "#002b36",
+			"readable": null,
+			"underline": false
+		},
+		{
+			"element": "h1",
+			"color": "#ff0000",
+			"background": "#002b36",
+			"readable": "#ff4d4d",
+			"underline": false
+		},
+		{
+			"element": "h2",
+			"color": "#222222",
+			"background": "#002b36",
+			"readable": "#8f8f8f",
+			"underline": false
+		},
+		{
+			"element": "h3",
+			"color": "#f5efe0",
+			"background": "#ffffff",
+			"readable": "#8f732e",
+			"underline": false
+		},
+		{
+			"element": "h6",
+			"color": "#777777",
+			"background": "#ffffff",
+			"readable": "#757575",
+			"underline": false
+		}
+	],
+	"text": [
+		{
+			"color": "#1e1e1e",
+			"background": "#002b36",
+			"readable": "#e5faff"
+		},
+		{
+			"color": "#fdf6e3",
+			"background": "#002b36",
+			"readable": null
+		},
+		{
+			"color": null,
+			"background": "#002b36",
+			"readable": "#e5faff"
+		},
+		{
+			"color": null,
+			"background": "#ffffff",
+			"readable": "#262626"
+		},
+		{
+			"color": "#f2f2f2",
+			"background": "#ffffff",
+			"readable": "#262626"
+		},
+		{
+			"color": "var(--wp--preset--color--contrast)",
+			"background": "#002b36",
+			"readable": null
+		},
+		{
+			"color": "currentColor",
+			"background": "#002b36",
+			"readable": null
+		},
+		{
+			"color": "",
+			"background": "#002b36",
+			"readable": null
+		},
+		{
+			"color": "#1e1e1e",
+			"background": "var(--wp--preset--color--base)",
+			"readable": null
+		},
+		{
+			"color": null,
+			"background": "var(--wp--preset--color--base)",
+			"readable": null
+		}
+	],
+	"button": [
+		{
+			"color": "#ffffff",
+			"background": "#dcdcdc",
+			"readable": "#262626"
+		},
+		{
+			"color": "#101517",
+			"background": "#113af5",
+			"readable": "#e7ebfe"
+		},
+		{
+			"color": "#ffffff",
+			"background": "#113af5",
+			"readable": null
+		},
+		{
+			"color": null,
+			"background": "#dcdcdc",
+			"readable": "#262626"
+		},
+		{
+			"color": "var(--wp--preset--color--contrast)",
+			"background": "#dcdcdc",
+			"readable": null
+		},
+		{
+			"color": "#ffffff",
+			"background": "var(--wp--preset--color--accent)",
+			"readable": null
+		}
+	]
+}

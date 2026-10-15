@@ -26,6 +26,7 @@ import { useSetPrivacy } from '../../src/dashboard/hooks/use-set-privacy';
 import { useUpload } from '../../src/dashboard/hooks/use-upload';
 import { useUploadFromLibrary } from '../../src/dashboard/hooks/use-upload-from-library';
 import { useUploadIntake } from '../../src/dashboard/hooks/use-upload-intake';
+import { uploadToLibraryItem } from '../../src/dashboard/utils/upload-to-library-item';
 import { createPromoteLocal } from './promote-local';
 import { classifyUploadFailure } from './upload-failure';
 import './style.scss';
@@ -166,7 +167,15 @@ const StageInner = () => {
 	// video" file picker, and (via the same hook) the welcome modal's CTA.
 	// Enforces the free-tier cap up front so no path can sneak past the limit
 	// the picker button guards.
-	const handleFilesSelected = useUploadIntake();
+	const onUploadsStarted = useCallback(
+		( ids: string[] ) => {
+			if ( ids.length === 1 ) {
+				openVideoDetails( ids[ 0 ] );
+			}
+		},
+		[ openVideoDetails ]
+	);
+	const handleFilesSelected = useUploadIntake( onUploadsStarted );
 
 	const onFilePicked = useCallback(
 		( event: ChangeEvent< HTMLInputElement > ) => {
@@ -354,48 +363,36 @@ const StageInner = () => {
 		const listedIds = new Set( items.map( item => item.id ) );
 		const inFlight: LibraryItem[] = uploadQueue
 			// A finished upload keeps its row until the listing has the attachment.
-			.filter( u => ! ( u.mediaId && listedIds.has( u.mediaId ) ) )
-			.map( u => ( {
-				id: u.id,
-				guid: '',
-				type: 'local' as const,
-				title: u.file.name.replace( /\.[^.]+$/, '' ),
-				filename: u.file.name,
-				thumbnailUrl: null,
-				durationSeconds: 0,
-				uploadDate: new Date().toISOString(),
-				privacy: 'site-default' as LibraryItemPrivacy,
-				isPrivate: false,
-				fileSizeBytes: u.file.size,
-				upload: {
-					status: u.status === 'failed' ? ( 'failed' as const ) : ( 'uploading' as const ),
-					progress: Math.round( u.progress * 100 ),
-					failureReason:
-						u.status === 'failed' ? classifyUploadFailure( u, hasConnectionError ) : undefined,
-				},
-				description: '',
-				rating: 'G' as LibraryItem[ 'rating' ],
-				displayEmbed: false,
-				allowDownloads: false,
-				shortcode: '',
-				isProcessing: false,
-				orientation: null,
-				tracks: [],
-			} ) );
+			.filter(
+				u =>
+					! ( u.mediaId && listedIds.has( u.mediaId ) && ! u.detailsError && ! u.isSavingDetails )
+			)
+			.map( u => {
+				const item = uploadToLibraryItem( u );
+				if ( u.status === 'failed' ) {
+					item.upload.failureReason = classifyUploadFailure( u, hasConnectionError );
+				}
+				return item;
+			} );
 		// Overlay an in-flight state on items currently being promoted from
 		// local-storage to VideoPress or being deleted, so the title-cell
 		// pill and the thumbnail overlay reflect the operation without
 		// needing a parallel signal at every render site.
-		const overlaid = items.map( item => {
-			const promoting = promotingProgress.get( item.id );
-			if ( promoting !== undefined ) {
-				return { ...item, upload: { status: 'promoting' as const, progress: promoting } };
-			}
-			if ( deletingIds.has( item.id ) ) {
-				return { ...item, upload: { status: 'deleting' as const, progress: 0 } };
-			}
-			return item;
-		} );
+		const retainedIds = new Set(
+			uploadQueue.filter( u => u.detailsError || u.isSavingDetails ).map( u => u.mediaId )
+		);
+		const overlaid = items
+			.filter( item => ! retainedIds.has( item.id ) )
+			.map( item => {
+				const promoting = promotingProgress.get( item.id );
+				if ( promoting !== undefined ) {
+					return { ...item, upload: { status: 'promoting' as const, progress: promoting } };
+				}
+				if ( deletingIds.has( item.id ) ) {
+					return { ...item, upload: { status: 'deleting' as const, progress: 0 } };
+				}
+				return item;
+			} );
 		return [ ...inFlight, ...overlaid ];
 	}, [ uploadQueue, items, promotingProgress, deletingIds, hasConnectionError ] );
 
@@ -494,6 +491,7 @@ const StageInner = () => {
 					<>
 						<input
 							ref={ filePickerRef }
+							aria-label={ __( 'Choose videos', 'jetpack-videopress-pkg' ) }
 							type="file"
 							accept="video/*"
 							// The capped free tier can only ever host `limit` videos, so

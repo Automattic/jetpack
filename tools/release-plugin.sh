@@ -20,7 +20,6 @@ RELEASE_STEPS=(
 	'do_trunk_and_prelease_branch_prep' 
 	'do_changelogs'
 	'do_readme'
-	'do_commit_changelog_and_readme'
 	'do_push_and_build'
 	'do_packagist_check'
 	'do_create_release_branches'
@@ -194,9 +193,16 @@ function do_changelogs {
 		tools/changelogger-release.sh "${ARGS[@]}"
 	done
 
+	git add --all
+	git commit -m "Aggregate raw changelogs and bump versions"
+
 	# When it completes, wait for user to edit anything they want, then push key to continue.
 	read -r -s -p $'Edit and save all the changelog entries you want in a separate terminal or in your text editor of choice.\nCheck for consistency between the different entries, and keep in mind that your plugin changelog will be used in the plugin readme file.\n\nOnce you are happy with your work, press enter to continue the release process.'
 	echo ""
+
+	if ! git diff --quiet; then
+		git commit -am "Edit changelogs"
+	fi
 }
 
 function do_readme {
@@ -218,19 +224,15 @@ function do_readme {
 		esac
 		pnpm jetpack release "$PLUGIN" readme "${ARGS[@]}"
 	done
-}
-
-function do_commit_changelog_and_readme {
-	verify_prerelease_branch
-	yellow "Committing changes."
-	git add --all
-	git commit -am "Changelog and readme.txt edits."
 
 	# If we're releasing Jetpack and it's a beta, amend the readme.txt
 	if [[ -v PROJECTS["plugins/jetpack"] && "${PROJECTS[plugins/jetpack]}" == *-beta ]]; then
 		yellow "Releasing a beta for Jetpack, amending the readme.txt"
 		pnpm jetpack changelog squash plugins/jetpack readme
-		git commit -am "Amend readme.txt"
+	fi
+
+	if ! git diff --quiet; then
+		git commit -am "Update readme.txt"
 	fi
 }
 

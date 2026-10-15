@@ -31,7 +31,7 @@ function register_dashboard_feature_flags() {
 	Feature_Flags::register(
 		DASHBOARD_COMPOSITION_FLAG,
 		array(
-			'default'     => false,
+			'default'     => true,
 			'description' => 'Offer adding, removing and resetting widgets on the analytics dashboard, on top of moving and resizing them.',
 			'owner'       => 'jetpack-premium-analytics',
 		)
@@ -69,7 +69,7 @@ function is_dashboard_store_section_enabled() {
  * No-op kept for older copies of the package, whose dashboard-sections.php calls it after
  * skipping its include of this file.
  *
- * @deprecated $$next-version$$ The preview scope it opened is gone.
+ * @deprecated 0.10.0 The preview scope it opened is gone.
  *
  * @return bool
  */

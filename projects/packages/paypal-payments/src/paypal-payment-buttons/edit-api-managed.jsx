@@ -9,17 +9,10 @@
  * @since 0.8.0
  */
 
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch'; // eslint-disable-line import/no-unresolved
+import { BlockControls, InspectorControls, URLInput, useBlockProps } from '@wordpress/block-editor';
 import {
-	BlockControls,
-	InspectorControls,
-	MediaUpload,
-	MediaUploadCheck,
-	URLInput,
-	useBlockProps,
-} from '@wordpress/block-editor';
-import {
-	BaseControl,
 	Button,
 	CheckboxControl,
 	CustomSelectControl,
@@ -101,7 +94,7 @@ import {
 // payment method selection (PayPal, cards, wallets, etc.).
 
 // What the form edits: the payment's attributes the merchant sets, and the block's
-// image, which is sent with them.
+// image, which stays on the site.
 const FORM_FIELDS = [
 	...RESOURCE_ATTRIBUTES.filter( key => ! PAYPAL_SET_ATTRIBUTES.includes( key ) ),
 	'imageUrl',
@@ -177,20 +170,54 @@ const SHIPPING_MODES = [
 	{ key: 'FREE', name: __( 'Free shipping', 'jetpack-paypal-payments' ) },
 ];
 
-// The address checkbox swaps its help when a profile tax makes it mandatory.
-const helpAddress = __(
-	'Requires customer to add shipping address during checkout',
-	'jetpack-paypal-payments'
-);
-const helpAddressWithProfileTax = __(
-	'Required while the tax comes from your PayPal settings.',
-	'jetpack-paypal-payments'
-);
+/**
+ * The select's screen reader description, with the error added.
+ *
+ * CustomSelectControl swaps its "Currently selected" text for `describedBy`, so
+ * this puts that text back ahead of the error.
+ *
+ * @param {object}      option - The selected option.
+ * @param {string|null} error  - The error under the select.
+ * @return {string|undefined} The description, or undefined for the default one.
+ */
+function describeSelect( option, error ) {
+	return error
+		? sprintf(
+				/* translators: 1: the selected option, 2: what is wrong with it */
+				__( 'Currently selected: %1$s. %2$s', 'jetpack-paypal-payments' ),
+				option.name,
+				error
+			)
+		: undefined;
+}
 
 // Own const per branch, same i18n reason as the tax placeholders above: the first
 // amount field's label changes with the mode.
 const labelShippingFirstItem = __( 'Shipping fee for first item', 'jetpack-paypal-payments' );
 const labelShippingFee = __( 'Enter shipping fee', 'jetpack-paypal-payments' );
+
+// The PayPal addresses check_merchant_status() puts in the notices. Captured, so split() keeps them.
+const PAYPAL_URL_PATTERN = /(https:\/\/www\.(?:sandbox\.)?paypal\.com[\w/]*)/;
+
+/**
+ * Link the PayPal addresses in an account status notice, which the server sends
+ * translated with the addresses already in it.
+ *
+ * @param {string} text - The notice.
+ * @return {Array} The text, with each address as a link.
+ */
+function linkPayPalUrls( text ) {
+	// split() puts the captured addresses at the odd indexes.
+	return text.split( PAYPAL_URL_PATTERN ).map( ( part, index ) =>
+		index % 2 ? (
+			<Link key={ index } openInNewTab href={ part }>
+				{ part }
+			</Link>
+		) : (
+			part
+		)
+	);
+}
 
 /**
  * API-managed PayPal Payment Buttons edit component.
@@ -223,7 +250,6 @@ export default function ApiManagedEdit( {
 		productDescription,
 		productId,
 		imageUrl,
-		imageId,
 		returnUrl,
 		variantsEnabled,
 		variants,
@@ -258,6 +284,9 @@ export default function ApiManagedEdit( {
 
 	const blockProps = useBlockProps();
 
+	// Identifies this bundle's Tracks events with the connected user.
+	useAnalytics();
+
 	const {
 		isConnected,
 		setIsConnected,
@@ -266,6 +295,7 @@ export default function ApiManagedEdit( {
 		connectionLoading,
 		partnerAttributionId,
 		accountEmail,
+		merchantNotices,
 		showReconnect,
 		setShowReconnect,
 		signupUrl,
@@ -290,6 +320,7 @@ export default function ApiManagedEdit( {
 		handleClientSecretChange,
 		clientIdWarning,
 		handleConnect,
+		recordWizardStarted,
 		fetchSignupLink,
 		cancelOnboarding,
 	} = usePayPalConnection();
@@ -360,15 +391,14 @@ export default function ApiManagedEdit( {
 	);
 
 	const taxHasValue = ( taxType || 'PERCENTAGE' ) !== 'PREFERENCE';
+	const taxTypeOption = taxHasValue ? TAX_TYPE_SPECIFIC : TAX_TYPE_PROFILE;
 	const taxIsPercentage = ( taxType || 'PERCENTAGE' ) === 'PERCENTAGE';
-
-	// PayPal rejects a payment that takes its tax from the profile and collects no
-	// address, so the checkbox is locked on for as long as that tax type is picked.
-	const addressIsRequired = !! taxEnabled && ! taxHasValue;
 
 	const discountIsPercentage = ( discountType || 'FLAT' ) === 'PERCENTAGE';
 
 	const activeShippingMode = shippingMode || 'FLAT';
+	const shippingModeOption =
+		SHIPPING_MODES.find( option => option.key === activeShippingMode ) ?? SHIPPING_MODES[ 0 ];
 	const shippingHasFee = SHIPPING_MODES_WITH_FEE.includes( activeShippingMode );
 
 	const comparisonPrice = getComparisonPrice( variantPricingOn, variants, price );
@@ -433,6 +463,7 @@ export default function ApiManagedEdit( {
 		resource,
 		isBusy,
 		linkDeleted,
+		readError,
 		paymentChanged,
 		dismissPaymentChanged,
 		handleDeleteButton,
@@ -851,6 +882,7 @@ export default function ApiManagedEdit( {
 				<OnboardingFrame
 					signupUrl={ signupUrl }
 					isOverlayOpen={ isOverlayOpen }
+					isCompletingOnboarding={ isCompletingOnboarding }
 					setFrameNode={ setFrameNode }
 					cancelOnboarding={ cancelOnboarding }
 				/>
@@ -881,6 +913,7 @@ export default function ApiManagedEdit( {
 						handleClientSecretChange={ handleClientSecretChange }
 						clientIdWarning={ clientIdWarning }
 						handleConnect={ handleConnect }
+						recordWizardStarted={ recordWizardStarted }
 						fetchSignupLink={ fetchSignupLink }
 					/>
 				</InspectorControls>
@@ -976,6 +1009,14 @@ export default function ApiManagedEdit( {
 			) }
 		</Notice>
 	) : null;
+
+	// PayPal requires the seller to see these, so every block shows them.
+	const merchantStatusNotice =
+		isConnected && merchantNotices.length ? (
+			<Notice status="warning" isDismissible={ false }>
+				{ linkPayPalUrls( merchantNotices.join( ' ' ) ) }
+			</Notice>
+		) : null;
 
 	// A payment link can be shared by blocks on any post, so warn whenever there is one.
 	const sharedResourceNotice = hasButton ? (
@@ -1154,66 +1195,6 @@ export default function ApiManagedEdit( {
 							: undefined
 					}
 				/>
-
-				<div className="jetpack-paypal-payment-buttons__image-field">
-					<BaseControl.VisualLabel>
-						{ __( 'Product Image (optional)', 'jetpack-paypal-payments' ) }
-					</BaseControl.VisualLabel>
-					{ imageUrl ? (
-						<div className="jetpack-paypal-payment-buttons__image-preview">
-							<img src={ imageUrl } alt={ productName || '' } />
-							{ ! /^https:\/\//i.test( imageUrl ) && (
-								<Notice status="warning" isDismissible={ false }>
-									{ __(
-										'PayPal only shows images served from a public HTTPS address, so this one will not appear at checkout.',
-										'jetpack-paypal-payments'
-									) }
-								</Notice>
-							) }
-							<div className="jetpack-paypal-payment-buttons__image-actions">
-								<MediaUploadCheck>
-									<MediaUpload
-										onSelect={ media =>
-											setAttributes( { imageUrl: media.url, imageId: media.id } )
-										}
-										allowedTypes={ [ 'image' ] }
-										value={ imageId }
-										render={ ( { open } ) => (
-											<Button variant="secondary" onClick={ open } size="small">
-												{ __( 'Replace', 'jetpack-paypal-payments' ) }
-											</Button>
-										) }
-									/>
-								</MediaUploadCheck>
-								<Button
-									variant="link"
-									isDestructive
-									onClick={ () => setAttributes( { imageUrl: undefined, imageId: undefined } ) }
-									size="small"
-								>
-									{ __( 'Remove', 'jetpack-paypal-payments' ) }
-								</Button>
-							</div>
-						</div>
-					) : (
-						<MediaUploadCheck>
-							<MediaUpload
-								onSelect={ media => setAttributes( { imageUrl: media.url, imageId: media.id } ) }
-								allowedTypes={ [ 'image' ] }
-								value={ imageId }
-								render={ ( { open } ) => (
-									<Button
-										variant="secondary"
-										onClick={ open }
-										className="jetpack-paypal-payment-buttons__upload-button"
-									>
-										{ __( 'Upload Image', 'jetpack-paypal-payments' ) }
-									</Button>
-								) }
-							/>
-						</MediaUploadCheck>
-					) }
-				</div>
 			</PanelBody>
 			{ /* A closed panel renders no children, so open it when an option needs
 			     fixing - otherwise the error is invisible on a saved button. */ }
@@ -1388,25 +1369,27 @@ export default function ApiManagedEdit( {
 								{ 'jetpack-paypal-payment-buttons__has-hint': ! taxHasValue }
 							) }
 							label={ __( 'Tax type', 'jetpack-paypal-payments' ) }
-							value={ taxHasValue ? TAX_TYPE_SPECIFIC : TAX_TYPE_PROFILE }
+							value={ taxTypeOption }
+							describedBy={ describeSelect( taxTypeOption, validationErrors.taxType ) }
 							options={ TAX_TYPES }
 							// PayPal reads a profile tax back with an empty value, so a leftover rate
 							// would show up as a change on the next mount.
 							onChange={ ( { selectedItem } ) =>
 								setAttributes(
 									'profile' === selectedItem.key
-										? {
-												taxType: 'PREFERENCE',
-												...resetToDefaults( 'taxValue' ),
-												collectShippingAddress: true,
-											}
+										? { taxType: 'PREFERENCE', ...resetToDefaults( 'taxValue' ) }
 										: { taxType: 'PERCENTAGE' }
 								)
 							}
 							disabled={ isBusy }
 						/>
 						{ /* CustomSelectControl passes `help` to the trigger as a DOM attribute, so
-						     the hint gets its own paragraph. */ }
+						     the error and the hint render below the select. */ }
+						{ validationErrors.taxType && (
+							<div className="jetpack-paypal-payment-buttons__field-error">
+								{ validationErrors.taxType }
+							</div>
+						) }
 						{ ! taxHasValue && (
 							<p className="jetpack-paypal-payment-buttons__field-hint">{ taxProfileHint }</p>
 						) }
@@ -1445,10 +1428,19 @@ export default function ApiManagedEdit( {
 					</>
 				) }
 
-				{ /* Shipping */ }
+				{ /* Shipping address */ }
 				<ToggleControl
-					label={ __( 'Add shipping', 'jetpack-paypal-payments' ) }
-					help={ __( 'Set shipping fees and get address', 'jetpack-paypal-payments' ) }
+					label={ __( 'Shipping address', 'jetpack-paypal-payments' ) }
+					help={ __( 'Collect during checkout', 'jetpack-paypal-payments' ) }
+					checked={ !! collectShippingAddress }
+					onChange={ value => setAttributes( { collectShippingAddress: value } ) }
+					disabled={ isBusy }
+				/>
+
+				{ /* Shipping fees */ }
+				<ToggleControl
+					label={ __( 'Shipping fees', 'jetpack-paypal-payments' ) }
+					help={ __( 'Set the shipping fee, including free shipping', 'jetpack-paypal-payments' ) }
 					checked={ shippingEnabled }
 					onChange={ value =>
 						setAttributes( value ? { shippingEnabled: true } : turnGateOff( 'shippingEnabled' ) )
@@ -1466,10 +1458,8 @@ export default function ApiManagedEdit( {
 								}
 							) }
 							label={ __( 'Shipping fee', 'jetpack-paypal-payments' ) }
-							value={
-								SHIPPING_MODES.find( option => option.key === activeShippingMode ) ??
-								SHIPPING_MODES[ 0 ]
-							}
+							value={ shippingModeOption }
+							describedBy={ describeSelect( shippingModeOption, validationErrors.shippingMode ) }
 							options={ SHIPPING_MODES }
 							// Clear the fees the new mode hides. A leftover fee comes back blank from the
 							// next read-back, which shows up as PayPal changing the button.
@@ -1486,6 +1476,11 @@ export default function ApiManagedEdit( {
 							}
 							disabled={ isBusy }
 						/>
+						{ validationErrors.shippingMode && (
+							<div className="jetpack-paypal-payment-buttons__field-error">
+								{ validationErrors.shippingMode }
+							</div>
+						) }
 						{ 'PROFILE' === activeShippingMode && (
 							<p className="jetpack-paypal-payment-buttons__field-hint">{ shippingProfileHint }</p>
 						) }
@@ -1517,13 +1512,6 @@ export default function ApiManagedEdit( {
 								disabled={ isBusy }
 							/>
 						) }
-						<CheckboxControl
-							label={ __( 'Collect shipping address', 'jetpack-paypal-payments' ) }
-							help={ addressIsRequired ? helpAddressWithProfileTax : helpAddress }
-							checked={ addressIsRequired || !! collectShippingAddress }
-							onChange={ value => setAttributes( { collectShippingAddress: value } ) }
-							disabled={ isBusy || addressIsRequired }
-						/>
 					</>
 				) }
 
@@ -1651,15 +1639,29 @@ export default function ApiManagedEdit( {
 			{ accountHeader }
 			{ formatControls }
 
-			{ /* The inspector only mounts when the block is selected, so notices about a
-			     broken block go on the canvas. */ }
+			{ /* The inspector only mounts when the block is selected, so these notices go
+			     on the canvas. */ }
 			{ disconnectedNotice }
+			{ merchantStatusNotice }
 
 			{ linkDeleted && (
 				<Notice status="warning" isDismissible={ false }>
 					{ __(
 						'This payment link was deleted from PayPal, so the published button shows nothing. Updating the post creates a new link with a new URL and QR code. Remove the block instead if you no longer sell this.',
 						'jetpack-paypal-payments'
+					) }
+				</Notice>
+			) }
+
+			{ readError && (
+				<Notice status="error" isDismissible={ false }>
+					{ sprintf(
+						/* translators: %s: the error message from PayPal. */
+						__(
+							'This payment link could not be loaded from PayPal: %s Changes to it will not be saved until it loads. Reload the post to try again.',
+							'jetpack-paypal-payments'
+						),
+						readError
 					) }
 				</Notice>
 			) }
@@ -1690,6 +1692,7 @@ export default function ApiManagedEdit( {
 					attributes={ attributes }
 					resource={ resource }
 					isSelected={ isSelected }
+					isDisabled={ ! hasButton }
 				/>
 			) }
 

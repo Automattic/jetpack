@@ -73,13 +73,14 @@ function mockEntities( records: Record< EntityKey, unknown > ) {
  *
  * @param post      - The raw post row, or `undefined` for a query with no data.
  * @param isLoading - Whether the query is still resolving.
- * @param isError   - Whether the query failed.
  */
-function mockStatsPost( post?: Record< string, unknown >, isLoading = false, isError = false ) {
+function mockStatsPost( post?: Record< string, unknown >, isLoading = false ) {
 	mockUseStatsPost.mockReturnValue( {
 		data: post ? { post } : undefined,
 		isLoading,
-		isError,
+		isPending: isLoading,
+		isPaused: false,
+		isError: false,
 	} as unknown as ReturnType< typeof useStatsPost > );
 }
 
@@ -118,6 +119,8 @@ describe( 'usePostSummary', () => {
 			url: 'https://example.com/hello-world/',
 			isLoading: false,
 			isError: false,
+			error: null,
+			refetch: expect.any( Function ),
 		} );
 		expect( mockUsePostThumbnail ).toHaveBeenCalledWith( POST_ID, 'post' );
 		expect( mockGetEntityRecord ).toHaveBeenCalledWith( 'postType', 'post', POST_ID, {
@@ -179,6 +182,55 @@ describe( 'usePostSummary', () => {
 		expect( result.current.url ).toBeUndefined();
 		expect( result.current.imageUrl ).toBeUndefined();
 		expect( result.current.isLoading ).toBe( true );
+	} );
+
+	it( 'reports a first load paused offline or in a hidden tab as loading', () => {
+		mockUseStatsPost.mockReturnValue( {
+			data: undefined,
+			isLoading: false,
+			isPending: true,
+			isPaused: true,
+			isError: false,
+		} as unknown as ReturnType< typeof useStatsPost > );
+		mockEntities( {} );
+
+		const { result } = renderHook( () => usePostSummary( POST_ID ) );
+
+		expect( result.current.isLoading ).toBe( true );
+	} );
+
+	it( 'keeps a loaded post when a background refetch fails', () => {
+		mockUseStatsPost.mockReturnValue( {
+			data: { post: { post_title: 'Hello', post_type: 'post' } },
+			isLoading: false,
+			isPending: false,
+			isPaused: false,
+			isError: true,
+			error: { status: 500 },
+		} as unknown as ReturnType< typeof useStatsPost > );
+		mockEntities( {} );
+
+		const { result } = renderHook( () => usePostSummary( POST_ID ) );
+
+		expect( result.current ).toMatchObject( { title: 'Hello', isError: false, error: null } );
+	} );
+
+	it( 'reports a failed load with no post as an error, with the request error', () => {
+		const error = { code: 'rest_forbidden', status: 403 };
+		mockUseStatsPost.mockReturnValue( {
+			data: undefined,
+			isLoading: false,
+			isPending: false,
+			isPaused: false,
+			isError: true,
+			error,
+		} as unknown as ReturnType< typeof useStatsPost > );
+		mockEntities( {} );
+
+		const { result } = renderHook( () => usePostSummary( POST_ID ) );
+
+		expect( result.current.isError ).toBe( true );
+		expect( result.current.error ).toBe( error );
 	} );
 
 	it( 'skips the entity lookups for an invalid post ID', () => {

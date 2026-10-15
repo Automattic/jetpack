@@ -9,3 +9,4 @@ import '../../packages/data/src/processing/stats/__tests__/devices.test';
 import '../../packages/data/src/processing/stats/__tests__/drilldown-rows.test';
 import '../../packages/data/src/processing/stats/__tests__/email-breakdown.test';
 import '../../packages/data/src/processing/stats/__tests__/email-summary.test';
+import '../../packages/data/src/hooks/__tests__/use-refresh-failure.test';

@@ -262,7 +262,8 @@ export const relativeLuminance = ( hex: string ): number => {
  * Whether light text reads better than dark text on the given background, using the W3C
  * luminance threshold (0.179) that maximizes contrast against black vs white.
  *
- * @param backgroundHex - Hex background color
+ * @deprecated Assumes black and white text, so it ignores label role overrides and cannot guarantee AA; charts no longer use it, and it will be removed in a future major version.
+ * @param      backgroundHex - Hex background color
  * @return true if light text should be used; false (dark text) for malformed colors
  */
 export const prefersLightText = ( backgroundHex: string ): boolean => {

@@ -1,12 +1,12 @@
 import { Group } from '@visx/group';
-import { Pie } from '@visx/shape';
-import { useTooltip } from '@visx/tooltip';
+import { arc, pie } from '@visx/shape';
 import { color as d3Color } from '@visx/vendor/d3-color';
+import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { useCallback, useContext, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import isEqual from 'fast-deep-equal';
+import { useContext, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
-import { BaseTooltip } from '../../components/tooltip';
-import { BoundedTooltip } from '../../components/tooltip/private/bounded-tooltip';
+import { LabelValueContent } from '../../components/tooltip/private/label-value-content';
 import {
 	useDataWithPercentages,
 	useLegendVisibilityData,
@@ -21,20 +21,19 @@ import {
 	GlobalChartsContext,
 } from '../../providers';
 import { CATALOG_POINTERS } from '../../providers/chart-context/private/catalog-pointers';
-import { contrastRatio } from '../../providers/chart-context/private/perceptual-color';
-import { useStandaloneScopeClass } from '../../providers/chart-scope';
-import {
-	attachSubComponents,
-	createCssVariableResolver,
-	isValidHexColor,
-	normalizeColorToHex,
-	resolveFontSize,
-} from '../../utils';
+import { attachSubComponents, createCssVariableResolver, resolveFontSize } from '../../utils';
 import { getStringWidth } from '../../visx/text';
 import { Center } from '../private/center';
 import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
 import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
+import { pickLabelTextColor, resolveLabelRoles } from '../private/label-text-color';
+import {
+	orderArcsForNavigation,
+	PieSelectionOutput,
+	SelectedSegmentRing,
+	usePieKeyboardNavigation,
+} from '../private/pie-keyboard-navigation';
 import { RadialWipeAnimation } from '../private/radial-wipe-animation/';
 import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
 import { withResponsive, ResponsiveConfig } from '../private/with-responsive';
@@ -47,7 +46,12 @@ import type {
 	Optional,
 } from '../../types';
 import type { ChartComponentWithComposition } from '../private/chart-composition';
-import type { SVGProps, MouseEvent, ReactNode, FC } from 'react';
+import type { LabelRoles, LabelTextColor } from '../private/label-text-color';
+import type { PieProvidedProps } from '@visx/shape';
+import type { JSX, ReactNode, FC } from 'react';
+
+type PieDatum = DataPointPercentageCalculated & { index: number };
+type PieArcDatum = PieProvidedProps< PieDatum >[ 'arcs' ][ number ];
 
 /**
  * Parameters passed to the renderTooltip function for pie charts.
@@ -61,13 +65,13 @@ export type PieChartRenderTooltipParams = {
 
 /**
  * Default tooltip renderer for pie charts.
- * Renders a BaseTooltip with the hovered segment's data.
+ * Renders the default `label: value` tooltip content for the hovered segment.
  *
  * @param {PieChartRenderTooltipParams} params - The tooltip parameters containing the hovered data point
  * @return {ReactNode} The rendered tooltip content
  */
 const renderDefaultPieTooltip = ( { tooltipData }: PieChartRenderTooltipParams ): ReactNode => {
-	return <BaseTooltip data={ tooltipData } top={ 0 } left={ 0 } renderContainer={ false } />;
+	return <LabelValueContent data={ tooltipData } />;
 };
 
 export interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
@@ -131,7 +135,7 @@ export interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
 
 	/**
 	 * Custom render function for tooltip content.
-	 * When provided, replaces the default BaseTooltip with custom content.
+	 * When provided, replaces the default `label: value` tooltip with custom content.
 	 */
 	renderTooltip?: ( params: PieChartRenderTooltipParams ) => ReactNode;
 }
@@ -170,48 +174,12 @@ const validateData = ( data: DataPointPercentage[] ) => {
 	return { isValid: true, message: '' };
 };
 
-/**
- * The label pointers, resolved at the pie chart's own root element so JS and CSS agree on what paints.
- */
-interface ResolvedLabelPointers {
-	/** True while a label plate is set; the label text then always uses the inverse role. */
-	hasPlate: boolean;
-	labelHex: string;
-	labelInverseHex: string;
-	/** True when the inverse role is see-through, so only the `label` role can be seen on a fill. */
-	isInverseSeeThrough: boolean;
-}
-
-/**
- * Whether a pie slice's label should use the dark `label` role instead of the default `label-inverse` role.
- *
- * A label plate always wins: the text sits on the plate, not the slice fill, so it never flips.
- * Otherwise the role that contrasts more with the resolved slice fill wins. `null` pointers (not
- * yet resolved, or labels off) keep the default inverse role.
- *
- * @param fill     - The slice's resolved fill color.
- * @param pointers - The label pointers, resolved at the chart's own root element.
- * @return Whether the label needs dark text.
- */
-const labelNeedsDarkText = ( fill: string, pointers: ResolvedLabelPointers | null ): boolean => {
-	if ( ! pointers || pointers.hasPlate ) {
-		return false;
-	}
-
-	const fillHex = normalizeColorToHex( fill );
-	if ( ! isValidHexColor( fillHex ) || ! isValidHexColor( pointers.labelHex ) ) {
-		return false;
-	}
-	if ( pointers.isInverseSeeThrough ) {
-		return true;
-	}
-	if ( ! isValidHexColor( pointers.labelInverseHex ) ) {
-		return false;
-	}
-
-	return (
-		contrastRatio( fillHex, pointers.labelHex ) > contrastRatio( fillHex, pointers.labelInverseHex )
-	);
+// `label-inverse` is the stylesheet's default, so it needs no modifier.
+const LABEL_TEXT_MODIFIER: Record< LabelTextColor, string | undefined > = {
+	label: styles[ 'pie-chart__label-text--on-light' ],
+	'label-inverse': undefined,
+	black: styles[ 'pie-chart__label-text--black' ],
+	white: styles[ 'pie-chart__label-text--white' ],
 };
 
 /**
@@ -241,6 +209,7 @@ const PieChartInternal = ( {
 	tooltipOffsetX = 0,
 	tooltipOffsetY = -15,
 	renderTooltip = renderDefaultPieTooltip,
+	ariaLabel,
 	gap = 'md',
 }: PieChartProps ) => {
 	const legendInteractive = legend.interactive ?? false;
@@ -248,24 +217,12 @@ const PieChartInternal = ( {
 
 	const providerTheme = useGlobalChartsTheme();
 	const chartId = useChartId( providedChartId );
-	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
-		useTooltip< DataPointPercentageCalculated >();
-	const standaloneScopeClass = useStandaloneScopeClass();
-
-	// The tooltip renders inside this element, so pointer coordinates are taken relative to it.
-	const containerRef = useRef< HTMLDivElement >( null );
 
 	// The element the chart's own `className` lands on, so an override set there reaches this
 	// decision the same way it reaches CSS.
 	const rootRef = useRef< HTMLDivElement >( null );
-	const [ labelPointers, setLabelPointers ] = useState< ResolvedLabelPointers | null >( null );
-
-	const onMouseLeave = useCallback( () => {
-		if ( ! withTooltips ) {
-			return;
-		}
-		hideTooltip();
-	}, [ withTooltips, hideTooltip ] );
+	// Null until read, and while a label plate is set: text on the plate keeps the inverse role.
+	const [ labelRoles, setLabelRoles ] = useState< LabelRoles | null >( null );
 
 	const { getElementStyles, isSeriesVisible, isColorPaletteResolved } = useGlobalChartsContext();
 	const { isValid, message } = validateData( data );
@@ -279,28 +236,11 @@ const PieChartInternal = ( {
 
 		const resolve = createCssVariableResolver( rootRef.current );
 		const rawLabelBackground = resolve( CATALOG_POINTERS.labelBackground );
-		// Hex drops alpha, so a see-through label role would win the comparison and paint nothing.
-		const rawLabel = resolve( CATALOG_POINTERS.label );
-		const isLabelOpaque = rawLabel ? d3Color( rawLabel )?.opacity === 1 : false;
-		const rawLabelInverse = resolve( CATALOG_POINTERS.labelInverse );
-		const labelInverseColor = rawLabelInverse ? d3Color( rawLabelInverse ) : null;
 		// A plate value d3 cannot parse (CSS Color 4 syntax, say) is still one CSS paints, so it counts.
 		const plateColor = rawLabelBackground ? d3Color( rawLabelBackground ) : null;
-		const next: ResolvedLabelPointers = {
-			hasPlate: rawLabelBackground ? ! plateColor || plateColor.opacity > 0 : false,
-			labelHex: isLabelOpaque ? normalizeColorToHex( CATALOG_POINTERS.label, null, resolve ) : '',
-			labelInverseHex: normalizeColorToHex( CATALOG_POINTERS.labelInverse, null, resolve ),
-			isInverseSeeThrough: labelInverseColor ? labelInverseColor.opacity < 1 : false,
-		};
-		setLabelPointers( previous =>
-			previous &&
-			previous.hasPlate === next.hasPlate &&
-			previous.labelHex === next.labelHex &&
-			previous.labelInverseHex === next.labelInverseHex &&
-			previous.isInverseSeeThrough === next.isInverseSeeThrough
-				? previous
-				: next
-		);
+		const hasPlate = rawLabelBackground ? ! plateColor || plateColor.opacity > 0 : false;
+		const next = hasPlate ? null : resolveLabelRoles( resolve );
+		setLabelRoles( previous => ( isEqual( previous, next ) ? previous : next ) );
 	}, [ showLabels, className, isColorPaletteResolved, isValid ] );
 
 	// Calculate percentages from values (single source of truth)
@@ -348,14 +288,7 @@ const PieChartInternal = ( {
 	} );
 
 	const prefersReducedMotion = usePrefersReducedMotion();
-
-	if ( ! isValid ) {
-		return (
-			<div className={ clsx( 'pie-chart', styles[ 'pie-chart' ], className ) }>
-				<div className={ styles[ 'error-message' ] }>{ message }</div>
-			</div>
-		);
-	}
+	const wipeMask = animation && ! prefersReducedMotion ? `url(#radial-wipe-${ chartId })` : null;
 
 	// Calculate the angle between each (use original data length for consistent spacing)
 	const padAngle = gapScale * ( ( 2 * Math.PI ) / data.length );
@@ -376,6 +309,32 @@ const PieChartInternal = ( {
 			return getElementStyles( { data: d, index: d.index } ).color;
 		},
 	};
+
+	const arcs = pie< PieDatum >( { value: accessors.value, padAngle } )( dataWithIndex );
+	const navigationArcs = orderArcsForNavigation( arcs );
+
+	const {
+		chartRef,
+		svgRef,
+		selectedArc,
+		getSegmentHandlers,
+		getKeyboardTooltipAnchor,
+		selectionOutputProps,
+		chartProps,
+	} = usePieKeyboardNavigation( {
+		navigationArcs,
+		withTooltips,
+		tooltipOffsetX,
+		tooltipOffsetY,
+	} );
+
+	if ( ! isValid ) {
+		return (
+			<div className={ clsx( 'pie-chart', styles[ 'pie-chart' ], className ) }>
+				<div className={ styles[ 'error-message' ] }>{ message }</div>
+			</div>
+		);
+	}
 
 	const legendElement = showLegend && (
 		<Legend
@@ -439,9 +398,72 @@ const PieChartInternal = ( {
 						? Math.min( cornerScale * outerRadius, maxCornerRadius )
 						: 0;
 
+					const path = arc< PieArcDatum >( { innerRadius, outerRadius, cornerRadius } );
+
+					const svgLabelSmall = providerTheme.svgLabelSmall;
+					const fontSize = resolveFontSize( svgLabelSmall?.fontSize ) ?? 12;
+
+					const renderLabel = ( arcDatum: PieArcDatum, index: number ) => {
+						if ( arcDatum.endAngle - arcDatum.startAngle < 0.25 ) {
+							return null;
+						}
+
+						const [ centroidX, centroidY ] = path.centroid( arcDatum );
+						const estimatedTextWidth = getStringWidth( arcDatum.data.label, {
+							fontSize,
+							fontFamily: svgLabelSmall?.fontFamily,
+							fontWeight: svgLabelSmall?.fontWeight,
+						} );
+						const labelPadding = 6;
+						const backgroundWidth = estimatedTextWidth + labelPadding * 2;
+						const backgroundHeight = fontSize + labelPadding * 2;
+
+						return (
+							<g key={ `label-${ index }` }>
+								<rect
+									className={ styles[ 'pie-chart__label-plate' ] }
+									x={ centroidX - backgroundWidth / 2 }
+									y={ centroidY - backgroundHeight / 2 }
+									width={ backgroundWidth }
+									height={ backgroundHeight }
+									rx={ 4 }
+									ry={ 4 }
+									pointerEvents="none"
+								/>
+								<text
+									className={ clsx(
+										styles[ 'pie-chart__label-text' ],
+										LABEL_TEXT_MODIFIER[
+											pickLabelTextColor(
+												accessors.fill( arcDatum.data ),
+												labelRoles,
+												'label-inverse'
+											)
+										]
+									) }
+									data-testid="pie-label"
+									x={ centroidX }
+									y={ centroidY }
+									dy=".33em"
+									fontSize={ fontSize }
+									textAnchor="middle"
+									pointerEvents="none"
+								>
+									{ arcDatum.data.label }
+								</text>
+							</g>
+						);
+					};
+
 					return (
-						<Center ref={ containerRef } className={ styles[ 'pie-chart__plot' ] }>
+						<Center
+							ref={ chartRef }
+							className={ styles[ 'pie-chart__plot' ] }
+							{ ...chartProps }
+							aria-label={ ariaLabel ?? __( 'Pie chart', 'jetpack-charts' ) }
+						>
 							<svg
+								ref={ svgRef }
 								viewBox={ `0 0 ${ width } ${ height }` }
 								preserveAspectRatio="xMidYMid meet"
 								width={ width }
@@ -455,123 +477,52 @@ const PieChartInternal = ( {
 									/>
 								</defs>
 
-								<Group
-									top={ centerY }
-									left={ centerX }
-									mask={
-										animation && ! prefersReducedMotion ? `url(#radial-wipe-${ chartId })` : null
-									}
-								>
+								<Group top={ centerY } left={ centerX } mask={ wipeMask }>
 									{ allSegmentsHidden ? (
 										<SvgEmptyState x={ 0 } y={ 0 } width={ width } height={ height }>
 											{ getAllHiddenMessage( legendInteractive, 'segments' ) }
 										</SvgEmptyState>
 									) : (
-										<Pie< DataPointPercentageCalculated & { index: number } >
-											data={ dataWithIndex }
-											pieValue={ accessors.value }
-											outerRadius={ outerRadius }
-											innerRadius={ innerRadius }
-											padAngle={ padAngle }
-											cornerRadius={ cornerRadius }
-										>
-											{ pie => {
-												return pie.arcs.map( ( arc, index ) => {
-													const [ centroidX, centroidY ] = pie.path.centroid( arc );
-													const hasSpaceForLabel = arc.endAngle - arc.startAngle >= 0.25;
-													const handleMouseMove = ( event: MouseEvent< SVGElement > ) => {
-														if ( ! withTooltips ) {
-															return;
-														}
-
-														const bounds = containerRef.current?.getBoundingClientRect();
-														if ( ! bounds ) {
-															return;
-														}
-
-														showTooltip( {
-															tooltipData: arc.data,
-															tooltipLeft: event.clientX - bounds.left + tooltipOffsetX,
-															tooltipTop: event.clientY - bounds.top + tooltipOffsetY,
-														} );
-													};
-
-													const fill = accessors.fill( arc.data );
-													const pathProps: SVGProps< SVGPathElement > & {
-														'data-testid'?: string;
-													} = {
-														d: pie.path( arc ) || '',
-														fill,
-														'data-testid': 'pie-segment',
-													};
-
-													const groupProps: SVGProps< SVGGElement > = {};
-													if ( withTooltips ) {
-														groupProps.onMouseMove = handleMouseMove;
-														groupProps.onMouseLeave = onMouseLeave;
-													}
-
-													const svgLabelSmall = providerTheme.svgLabelSmall;
-													const fontSize = resolveFontSize( svgLabelSmall?.fontSize ) ?? 12;
-													const estimatedTextWidth = getStringWidth( arc.data.label, {
-														fontSize,
-														fontFamily: svgLabelSmall?.fontFamily,
-														fontWeight: svgLabelSmall?.fontWeight,
-													} );
-													const labelPadding = 6;
-													const backgroundWidth = estimatedTextWidth + labelPadding * 2;
-													const backgroundHeight = fontSize + labelPadding * 2;
-
-													return (
-														<g key={ `arc-${ index }` } { ...groupProps }>
-															<path { ...pathProps } />
-															{ showLabels && hasSpaceForLabel && (
-																<g>
-																	<rect
-																		className={ styles[ 'pie-chart__label-plate' ] }
-																		x={ centroidX - backgroundWidth / 2 }
-																		y={ centroidY - backgroundHeight / 2 }
-																		width={ backgroundWidth }
-																		height={ backgroundHeight }
-																		rx={ 4 }
-																		ry={ 4 }
-																		pointerEvents="none"
-																	/>
-																	<text
-																		className={ clsx( styles[ 'pie-chart__label-text' ], {
-																			[ styles[ 'pie-chart__label-text--on-light' ] ]:
-																				labelNeedsDarkText( fill, labelPointers ),
-																		} ) }
-																		data-testid="pie-label"
-																		x={ centroidX }
-																		y={ centroidY }
-																		dy=".33em"
-																		fontSize={ fontSize }
-																		textAnchor="middle"
-																		pointerEvents="none"
-																	>
-																		{ arc.data.label }
-																	</text>
-																</g>
-															) }
-														</g>
-													);
-												} );
-											} }
-										</Pie>
+										arcs.map( ( arcDatum, index ) => (
+											<g
+												key={ `arc-${ index }` }
+												{ ...getSegmentHandlers(
+													arcDatum.data,
+													navigationArcs.indexOf( arcDatum )
+												) }
+											>
+												<path
+													d={ path( arcDatum ) || '' }
+													fill={ accessors.fill( arcDatum.data ) }
+													data-testid="pie-segment"
+												/>
+											</g>
+										) )
 									) }
-
-									{ /* Render SVG children (like Group, Text) inside the SVG */ }
-									{ ! allSegmentsHidden && svgChildren }
 								</Group>
+								{ /* Unmasked so the entry wipe cannot hide the focus indicator. */ }
+								{ selectedArc && (
+									<Group top={ centerY } left={ centerX }>
+										<SelectedSegmentRing chartId={ chartId } d={ path( selectedArc ) || '' } />
+									</Group>
+								) }
+								{ ! allSegmentsHidden && (
+									<Group top={ centerY } left={ centerX } mask={ wipeMask }>
+										{ showLabels && arcs.map( renderLabel ) }
+
+										{ /* Render SVG children (like Group, Text) inside the SVG */ }
+										{ svgChildren }
+									</Group>
+								) }
 							</svg>
-							{ withTooltips && tooltipOpen && tooltipData && (
-								<BoundedTooltip top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
-									<div className={ standaloneScopeClass } role="tooltip">
-										{ renderTooltip( { tooltipData } ) }
-									</div>
-								</BoundedTooltip>
-							) }
+							<PieSelectionOutput
+								{ ...selectionOutputProps }
+								keyboardTooltipAnchor={
+									selectedArc &&
+									getKeyboardTooltipAnchor( centerX, centerY, path.centroid( selectedArc ) )
+								}
+								renderTooltip={ renderTooltip }
+							/>
 						</Center>
 					);
 				} }

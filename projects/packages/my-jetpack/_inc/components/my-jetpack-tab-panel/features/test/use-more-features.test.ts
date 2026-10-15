@@ -22,6 +22,7 @@ const modules = Object.fromEntries(
 		mod( 'zeta' ),
 		mod( 'alpha' ),
 		mod( 'waf', { available: false } ),
+		mod( 'vaultpress', { available: false } ),
 		// Deprecated: left out by the hidden set, as the hook passes it.
 		mod( 'google-fonts' ),
 	].map( $module => [ $module.module, $module ] )
@@ -53,10 +54,10 @@ describe( 'groupMoreFeatures', () => {
 		new Set( [ 'google-fonts' ] )
 	);
 
-	it( 'sorts groups and their modules by name with Other last, drops empty groups and leaves out covered, unavailable and hidden modules', () => {
+	it( 'sorts groups and their modules by name with Other last, drops empty groups and leaves out covered, hidden and legacy modules', () => {
 		expect( slugsOf( grouped ) ).toEqual( [
 			[ 'Analytics', [ 'zeta' ] ],
-			[ 'Security', [ 'monitor', 'sso' ] ],
+			[ 'Security', [ 'monitor', 'sso', 'waf' ] ],
 			[ 'Other', [ 'alpha' ] ],
 		] );
 	} );
@@ -95,7 +96,7 @@ describe( 'groupMoreFeatures', () => {
 			);
 
 		expect( filtered( 'active' ) ).toEqual( [ 'sso' ] );
-		expect( filtered( 'inactive' ) ).toEqual( [ 'zeta', 'monitor', 'alpha' ] );
+		expect( filtered( 'inactive' ) ).toEqual( [ 'zeta', 'monitor', 'waf', 'alpha' ] );
 		expect( filtered( 'security' ) ).toEqual( [] );
 		expect( filtered( 'essential' ) ).toEqual( [] );
 	} );
@@ -111,10 +112,37 @@ describe( 'groupMoreFeatures', () => {
 		).toContain( 'monitor' );
 	} );
 
-	it( 'searches regardless of the filter', () => {
+	it( 'searches regardless of the filter, returning one unlabelled group', () => {
 		const found = filterMoreFeatures( grouped, 'active', 'monitor' );
 
-		expect( slugsOf( found ) ).toEqual( [ [ 'Security', [ 'monitor' ] ] ] );
+		expect( slugsOf( found ) ).toEqual( [ [ '', [ 'monitor' ] ] ] );
+	} );
+
+	it( 'ranks results across groups rather than within each one', () => {
+		// 'zeta' is an exact name match in Analytics; Security's 'sso' only matches its
+		// description, so group order must not float it above the better match.
+		const ranked = filterMoreFeatures(
+			groupMoreFeatures(
+				features,
+				[
+					{ label: 'Security', modules: [ 'sso' ] },
+					{ label: 'Analytics', modules: [ 'zeta' ] },
+				],
+				{ ...modules, sso: mod( 'sso', { description: 'zeta' } ) },
+				{ social: 'publicize' },
+				{},
+				new Set()
+			),
+			'all',
+			'zeta'
+		);
+
+		expect( ranked ).toHaveLength( 1 );
+		expect( ranked[ 0 ].states.map( state => state.feature.slug ) ).toEqual( [ 'zeta', 'sso' ] );
+	} );
+
+	it( 'drops the search results entirely when nothing matches', () => {
+		expect( filterMoreFeatures( grouped, 'all', 'nothingmatchesthis' ) ).toEqual( [] );
 	} );
 } );
 

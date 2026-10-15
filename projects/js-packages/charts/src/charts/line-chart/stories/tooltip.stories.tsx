@@ -169,10 +169,6 @@ BelowAxis.args = {
 	...tooltipStoryArgs,
 	height: 220,
 	tooltipPlacement: 'below-axis',
-	tooltipStyle: {
-		background: 'var(--a8c-charts-color-tooltip-surface)',
-		color: 'var(--a8c-charts-color-label-inverse)',
-	},
 	renderTooltip: renderWideTooltip( 120 ),
 	withTooltipCrosshairs: {
 		showVertical: true,
@@ -200,16 +196,4 @@ BelowAxisDefaultRenderer.parameters = {
 				'See [Below-Axis Tooltips](?path=/docs/js-packages-charts-library-charts-line-chart--docs#below-axis-tooltips) for default renderer styling.',
 		},
 	},
-};
-
-export const BelowAxisBackgroundOnly: StoryObj< typeof LineChart > = Template.bind( {} );
-BelowAxisBackgroundOnly.args = {
-	...BelowAxisDefaultRenderer.args,
-	tooltipStyle: { background: '#fff' },
-};
-
-export const BelowAxisColorOnly: StoryObj< typeof LineChart > = Template.bind( {} );
-BelowAxisColorOnly.args = {
-	...BelowAxisDefaultRenderer.args,
-	tooltipStyle: { color: 'var(--a8c-charts-color-label-inverse)' },
 };

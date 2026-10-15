@@ -9,7 +9,12 @@ import { useUpload } from './use-upload';
 export function useUploadUnloadGuard(): void {
 	const { uploadQueue } = useUpload();
 	const hasInFlightUpload = uploadQueue.some(
-		item => item.status === 'pending' || item.status === 'uploading'
+		item =>
+			item.status === 'pending' ||
+			item.status === 'uploading' ||
+			item.isSavingDetails ||
+			item.detailsError ||
+			( item.status === 'failed' && !! item.details )
 	);
 
 	useEffect( () => {

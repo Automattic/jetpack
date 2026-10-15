@@ -63,6 +63,12 @@ jetpack watch packages/videopress
 
 If you plan on using this package in your WordPress plugin, we would recommend that you use [Jetpack Autoloader](https://packagist.org/packages/automattic/jetpack-autoloader) as your autoloader. This will allow for maximum interoperability with other plugins that use this package as well.
 
+## Premium Analytics dashboard
+
+The package owns the Top videos widget of the Premium Analytics dashboard: `widgets/top-videos/`, built here with wp-build against the dashboard's SDK (`@automattic/jetpack-premium-analytics-sdk`) and registered as `videopress/top-videos` when the dashboard's widget registry hydrates. The registrant also seeds the widget into the Traffic section's default layout.
+
+The package decides nothing about who gets the widget. `Initializer` calls `Analytics_Dashboard::init()` where VideoPress is active outside the WordPress.com platform; `jetpack-mu-wpcom` calls the registrants on Simple and Atomic where the plan includes VideoPress. Both are inert on a site without the dashboard.
+
 ## Security
 
 Need to report a security vulnerability? Go to [https://automattic.com/security/](https://automattic.com/security/) or directly to our security bug bounty site [https://hackerone.com/automattic](https://hackerone.com/automattic).

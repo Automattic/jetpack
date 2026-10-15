@@ -25,6 +25,10 @@ const TRANSACTIONS_URL = {
 	production: 'https://www.paypal.com/unifiedtransactions/',
 };
 
+// PayPal's help article on issuing refunds. The block does not refund through the API,
+// so PayPal's certification asks that sellers be pointed at how to do it themselves.
+const REFUND_HELP_URL = 'https://www.paypal.com/us/cshelp/article/how-do-i-issue-a-refund-help101';
+
 /**
  * The PayPal account header: the block's name and the account menu.
  *
@@ -82,6 +86,16 @@ export default function PayPalAccountHeader( { isSelected, environment, accountE
 								onClick={ onClose }
 							>
 								{ __( 'View transactions', 'jetpack-paypal-payments' ) }
+							</MenuItem>
+							<MenuItem
+								icon={ external }
+								iconPosition="left"
+								href={ REFUND_HELP_URL }
+								target="_blank"
+								rel="noopener noreferrer"
+								onClick={ onClose }
+							>
+								{ __( 'How to issue a refund', 'jetpack-paypal-payments' ) }
 							</MenuItem>
 						</MenuGroup>
 						{ /* A second group, so MenuGroup draws the divider the design has here. */ }

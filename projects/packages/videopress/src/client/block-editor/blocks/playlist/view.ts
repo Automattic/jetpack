@@ -25,7 +25,7 @@ type PlayerEventMessage = {
  */
 export function hydratePlaylistMetadata( root: HTMLElement ): Promise< void[] > {
 	const entries = Array.from(
-		root.querySelectorAll< HTMLButtonElement >( '.videopress-playlist__select' )
+		root.querySelectorAll< HTMLElement >( '.videopress-playlist__select' )
 	);
 
 	return Promise.all(
@@ -94,17 +94,18 @@ export function hydratePlaylistMetadata( root: HTMLElement ): Promise< void[] > 
  * Clicking an entry loads its video into the player; when "Autoplay next"
  * is on, a `videopress_ended` message from the player advances to the
  * following entry. Titles and posters are hydrated from live video data;
- * the numeric meta lines and counters are server-rendered.
+ * the numeric meta lines and counters are server-rendered. A block without
+ * a player renders its entries as plain links and only gets the hydration;
+ * one whose player is hidden until needed reveals it on the first click.
  *
  * @param root - The block wrapper element.
  */
 export function initPlaylistBlock( root: HTMLElement ) {
-	const player = root.querySelector< HTMLIFrameElement >( '.videopress-playlist__iframe' );
 	const entries = Array.from(
-		root.querySelectorAll< HTMLButtonElement >( '.videopress-playlist__select' )
+		root.querySelectorAll< HTMLElement >( '.videopress-playlist__select' )
 	);
 
-	if ( ! player || ! entries.length ) {
+	if ( ! entries.length ) {
 		return;
 	}
 
@@ -138,7 +139,13 @@ export function initPlaylistBlock( root: HTMLElement ) {
 	// posters can change entry heights, so refresh the scroll hint after.
 	hydratePlaylistMetadata( root ).then( updateScrollHint );
 
+	const player = root.querySelector< HTMLIFrameElement >( '.videopress-playlist__iframe' );
+	if ( ! player ) {
+		return;
+	}
+
 	const listProgress = root.querySelector( '.videopress-playlist__list-progress' );
+	const stage = root.querySelector< HTMLElement >( '.videopress-playlist__stage' );
 
 	let currentIndex = Math.max(
 		0,
@@ -152,6 +159,10 @@ export function initPlaylistBlock( root: HTMLElement ) {
 		}
 
 		currentIndex = index;
+		if ( stage?.hidden ) {
+			stage.hidden = false;
+			root.classList.remove( 'hide-player' );
+		}
 		player.src = autoplay
 			? entry.dataset.embedUrl
 			: entry.dataset.embedUrl.replace( 'autoPlay=1', 'autoPlay=0' );

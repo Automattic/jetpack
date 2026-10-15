@@ -62,8 +62,9 @@ TEST_SITE=fixture NODE_CONFIG='{"testSites":{"fixture":{"url":"http://boost.test
 ## Modern Settings tooltip clipping regression
 
 `specs/base/modern-settings-tooltip-clip.test.ts` bundles the modern Settings layout, shared
-`@wordpress/ui` collapsible cards and the Critical CSS premium tooltip, so the card's
-`overflow: clip` is the real one. It needs no WordPress. It uses the runner's Chromium and
+`@wordpress/ui` collapsible cards and a fixture tooltip containing the modern upgrade
+notice, so the card's `overflow: clip` is the real one. The legacy case uses the Critical CSS
+premium tooltip. It needs no WordPress. It uses the runner's Chromium and
 checks that the popover is whole and on screen at
 1440, 782 and 390 in both directions, that the legacy dashboard keeps its inline popover and its
 70vw mobile width, and that focus and Escape still work. Run it with the command above,
@@ -143,10 +144,9 @@ test.afterAll(async ({ boostUtils }) => {
 The modern dashboard is the default. The `e2e-dashboard-modernization` plugin is
 mounted in the Docker E2E environment to switch dashboards. Use
 `boostUtils.setDashboardModernization( false )` to force the legacy dashboard, or
-pass `true` to force the modern one. `resetEnvironment()` pins the legacy
-dashboard, because the feature specs still target it. Call
+pass `true` to force the modern one. Call
 `boostUtils.resetDashboardModernization()` to deactivate the fixture, remove its
-option, and return to the modern default.
+option, and return to the modern default; `resetEnvironment()` does this too.
 
 To see the legacy dashboard locally, run these commands from the monorepo root
 after starting your E2E environment:

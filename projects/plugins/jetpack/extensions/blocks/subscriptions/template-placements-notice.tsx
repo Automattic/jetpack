@@ -6,6 +6,7 @@ import { store as editorStore } from '@wordpress/editor';
 import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
+import type { JSX } from 'react';
 
 interface Placement {
 	label: string;
@@ -24,6 +25,10 @@ const getSettingsPlacements = (): Placement[] => [
 	{
 		option: 'jetpack_subscribe_floating_button_enabled',
 		label: __( 'Floating button on bottom corner', 'jetpack' ),
+	},
+	{
+		option: 'wpcom_action_bar',
+		label: __( 'Action Bar on bottom corner', 'jetpack' ),
 	},
 ];
 
@@ -51,15 +56,15 @@ addFilter(
 );
 
 /**
- * Lists the Newsletter placements enabled on the site while a template is being edited.
+ * Lists the Newsletter placements enabled on the site while a template is shown in the editor.
  *
  * @return {JSX.Element|null} The notice element, or null if no placements are enabled.
  */
-function TemplatePlacementsNotice() {
-	const isTemplate = useSelect(
-		select => select( editorStore ).getCurrentPostType() === 'wp_template',
-		[]
-	);
+function TemplatePlacementsNotice(): JSX.Element | null {
+	const isTemplate = useSelect( select => {
+		const { getCurrentPostType, getRenderingMode } = select( editorStore );
+		return getCurrentPostType() === 'wp_template' || getRenderingMode() !== 'post-only';
+	}, [] );
 	const settings = window?.Jetpack_Editor_Initial_State?.jetpack?.subscribe_placements;
 
 	if ( ! isTemplate || ! settings ) {

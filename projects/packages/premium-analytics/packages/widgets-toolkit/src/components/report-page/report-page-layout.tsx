@@ -1,8 +1,10 @@
 /**
  * External dependencies
  */
+import { MENU_SURFACE_PRESETS_WITH_ALL_TIME } from '@jetpack-premium-analytics/datetime';
 import { DateFiltersPanel, SectionHeader } from '@jetpack-premium-analytics/ui';
 import clsx from 'clsx';
+import { createContext, useContext } from 'react';
 /**
  * Internal dependencies
  */
@@ -10,11 +12,32 @@ import styles from './report-page-layout.module.scss';
 import type { ReportDateFilters } from '@jetpack-premium-analytics/routing';
 import type { ReactNode } from 'react';
 
+const ReportHasPeriodContext = createContext( false );
+
+const ALL_TIME_MENU = {
+	presetIds: MENU_SURFACE_PRESETS_WITH_ALL_TIME,
+	allTimeStartsOnServer: true,
+} as const;
+
+/**
+ * Whether the report around the caller has a date window, so copy can speak of "this time period" only where one exists.
+ *
+ * @return True only inside a `ReportPageLayout` with date filters.
+ */
+export function useReportHasPeriod(): boolean {
+	return useContext( ReportHasPeriodContext );
+}
+
 export interface ReportPageLayoutProps {
-	/** Heading for the section on screen: `Posts & Pages report`. */
+	/** Heading for the section on screen: `Posts & Pages`. */
 	title: string;
 	/** Date-filter controller, from `useReportDateFilters`. Omit on a report with no date window. */
 	dateFilters?: ReportDateFilters;
+	/**
+	 * Offer All time. Only for a report whose query adds `getReportWindowParams()` and whose
+	 * endpoint reads `num: -1` as the whole history: `stats/video-plays` reads it as one day.
+	 */
+	withAllTime?: boolean;
 	/** Internal tab bar for pages with multiple views (e.g. Posts & Pages / Archives). */
 	tabs?: ReactNode;
 	/** The stacked report sections (chart, records table, …). */
@@ -30,14 +53,24 @@ export interface ReportPageLayoutProps {
  * @param {ReportPageLayoutProps} props - The component props.
  * @return The report page scaffold.
  */
-export function ReportPageLayout( { title, dateFilters, tabs, children }: ReportPageLayoutProps ) {
+export function ReportPageLayout( {
+	title,
+	dateFilters,
+	withAllTime = false,
+	tabs,
+	children,
+}: ReportPageLayoutProps ) {
 	return (
 		<div className={ styles.root }>
 			{ tabs }
 			<SectionHeader title={ title } pinned>
-				{ dateFilters ? <DateFiltersPanel { ...dateFilters } /> : null }
+				{ dateFilters ? (
+					<DateFiltersPanel { ...dateFilters } { ...( withAllTime ? ALL_TIME_MENU : {} ) } />
+				) : null }
 			</SectionHeader>
-			<div className={ styles.sections }>{ children }</div>
+			<ReportHasPeriodContext.Provider value={ !! dateFilters }>
+				<div className={ styles.sections }>{ children }</div>
+			</ReportHasPeriodContext.Provider>
 		</div>
 	);
 }

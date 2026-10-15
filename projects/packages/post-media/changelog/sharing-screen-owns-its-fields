@@ -1,4 +1,0 @@
-Significance: minor
-Type: deprecated
-
-Twitter Cards: deprecate the Twitter Site Tag settings field methods, which no longer render or save anything now that Settings > Sharing owns that setting.

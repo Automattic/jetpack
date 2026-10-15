@@ -76,8 +76,121 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 		Status_Cache::clear();
 		remove_all_filters( 'rsm_jetpack_ui_modernization_newsletter' );
 		delete_option( 'wpcom_admin_interface' );
+		delete_option( 'wpcom_ai_launchpad_no_guidance' );
+		delete_option( 'wpcom_ai_launchpad_enabled' );
+		delete_option( 'wpcom_ai_launchpad_dismissed' );
 
 		parent::tear_down();
+	}
+
+	/**
+	 * The My Home menu URL, or null when the item isn't registered.
+	 *
+	 * @return string|null
+	 */
+	private function get_my_home_menu_slug() {
+		global $menu;
+
+		foreach ( $menu as $item ) {
+			if ( isset( $item[2] ) && str_starts_with( $item[2], 'https://wordpress.com/home/' ) ) {
+				return $item[2];
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * My Home is registered by default.
+	 *
+	 * Runs in a separate process: elsewhere in the suite, Brain Monkey mocks
+	 * `wpcom_ai_launchpad_is_eligible()`, which `wpcom_add_my_home_menu()` also calls for real.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_my_home_menu_is_added_by_default() {
+		wpcom_add_my_home_menu();
+		$this->assertSame( 'https://wordpress.com/home/' . self::$domain, $this->get_my_home_menu_slug() );
+	}
+
+	/**
+	 * No-guidance sites get no My Home menu at all.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_my_home_menu_is_hidden_for_no_guidance_sites() {
+		update_option( 'wpcom_ai_launchpad_no_guidance', 1 );
+		wpcom_add_my_home_menu();
+		$this->assertNull( $this->get_my_home_menu_slug() );
+	}
+
+	/**
+	 * Skipping the AI Launchpad wizard also counts as no-guidance: no My Home menu.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_my_home_menu_is_hidden_after_skipping_the_ai_launchpad() {
+		update_option( 'wpcom_ai_launchpad_enabled', 1 );
+		update_option( 'wpcom_ai_launchpad_dismissed', 1 );
+		wpcom_add_my_home_menu();
+		$this->assertNull( $this->get_my_home_menu_slug() );
+	}
+
+	/**
+	 * AI Launchpad sites get no My Home menu, including for users who can't open Site Setup.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_my_home_menu_is_hidden_on_ai_launchpad_sites_for_every_user() {
+		update_option( 'wpcom_ai_launchpad_enabled', 1 );
+		wpcom_add_my_home_menu();
+		$this->assertNull( $this->get_my_home_menu_slug() );
+
+		wp_set_current_user( $this->create_editor() );
+		wpcom_add_my_home_menu();
+		$this->assertNull( $this->get_my_home_menu_slug() );
+	}
+
+	/**
+	 * Legacy launchpad sites keep My Home for non-administrators too.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_my_home_menu_is_added_for_editors_on_legacy_sites() {
+		wp_set_current_user( $this->create_editor() );
+		wpcom_add_my_home_menu();
+		$this->assertSame( 'https://wordpress.com/home/' . self::$domain, $this->get_my_home_menu_slug() );
+	}
+
+	/**
+	 * Creates an editor, who can't open Site Setup.
+	 *
+	 * @return int The user ID.
+	 */
+	private function create_editor() {
+		return wp_insert_user(
+			array(
+				'user_login' => 'editor_user',
+				'user_pass'  => 'pass',
+				'user_email' => 'editor@example.com',
+				'role'       => 'editor',
+			)
+		);
 	}
 
 	/**

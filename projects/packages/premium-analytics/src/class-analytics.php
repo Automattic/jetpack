@@ -24,7 +24,7 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
  */
 class Analytics {
 
-	const PACKAGE_VERSION = '0.8.0';
+	const PACKAGE_VERSION = '0.12.0';
 
 	/**
 	 * Whether the class has been initialized.
@@ -195,8 +195,8 @@ class Analytics {
 
 		self::register_script_data();
 
-		// The posts and pages list tables link their views column here.
-		Post_List_Link::register();
+		// Stats links elsewhere (post list table, admin bar, action bar) open this dashboard.
+		Stats_Links::register();
 	}
 
 	/**
@@ -228,6 +228,8 @@ class Analytics {
 	 * Runs on nearly every admin page load, so the payload stays to two strings,
 	 * a bool, and one capability check.
 	 *
+	 * `can_view` is Stats access: every link other surfaces build from it opens a Stats view.
+	 *
 	 * @param array $data The script data.
 	 * @return array The script data with the analytics key added.
 	 */
@@ -235,7 +237,7 @@ class Analytics {
 		$data['analytics'] = array(
 			'enabled'   => true,
 			'page_slug' => self::MENU_PAGE_SLUG,
-			'can_view'  => current_user_can( Capabilities::VIEW_ANALYTICS ),
+			'can_view'  => Capabilities::current_user_can_view_stats(),
 			'timezone'  => self::site_timezone(),
 		);
 
@@ -290,15 +292,16 @@ class Analytics {
 	}
 
 	/**
-	 * Register the site-served REST API: the WPCOM data proxy and notices.
+	 * Register the site-served REST API: the WPCOM data proxy, notices and the Stats settings.
 	 *
-	 * Both self-gate on their own rest_api_init hooks.
+	 * Each self-gates on its own rest_api_init hook.
 	 *
 	 * @return void
 	 */
 	private static function register_local_api() {
 		Api_Proxy_Controller::register();
 		Notices_Controller::register();
+		Stats_Settings::configure();
 	}
 
 	/**
@@ -359,9 +362,24 @@ class Analytics {
 		}
 		configure_videopress_availability();
 
+		// The plan's locked Stats features, for the client's locked states.
+		if ( ! function_exists( __NAMESPACE__ . '\\configure_stats_plan_gates' ) ) {
+			require_once __DIR__ . '/stats-plan-gates.php';
+		}
+		configure_stats_plan_gates();
+
+		// The purchase a Stats checkout returned with, for the thank-you notice.
+		if ( ! function_exists( __NAMESPACE__ . '\\configure_purchase_success' ) ) {
+			require_once __DIR__ . '/purchase-success.php';
+		}
+		configure_purchase_success();
+
 		// The composition flag's answer, read by the dashboard policy; the file is
 		// already loaded by boot_shared_services().
 		configure_dashboard_policy();
+
+		// Temporary: carries a default layout move into layouts readers customized before it.
+		Stored_Layout_Move::register();
 	}
 
 	/**

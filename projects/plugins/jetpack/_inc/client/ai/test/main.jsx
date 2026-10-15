@@ -116,8 +116,8 @@ function mockApiFetch( { featureGet = enabledSettings(), mcpGet = {}, featurePos
 	} );
 }
 
-// The design-system Notice mirrors its text into a hidden wp.a11y.speak live
-// region, so a bare text query matches twice. Ignore that region.
+// The page notice mirrors its text into a hidden wp.a11y.speak live region,
+// so a bare text query matches twice. Ignore that region.
 const IGNORE_A11Y = { ignore: 'script, style, .a11y-speak-region' };
 
 // An MCP payload for a connected site with MCP enabled: account tools make
@@ -335,6 +335,17 @@ describe( 'AI admin page (main.jsx)', () => {
 		);
 	} );
 
+	test( 'renders the shared JITM slot', async () => {
+		mockApiFetch();
+
+		render( <App /> );
+
+		await expect(
+			screen.findByRole( 'checkbox', { name: /Writing Assistant/ } )
+		).resolves.toBeInTheDocument();
+		expect( screen.getByTestId( 'jp-jitm-slot' ) ).toBeInTheDocument();
+	} );
+
 	describe( 'master-off notice', () => {
 		const MASTER_OFF_TITLE = 'Jetpack AI is turned off for this site.';
 		const masterOffSettings = () => ( { ...enabledSettings(), master_enabled: false } );
@@ -356,11 +367,13 @@ describe( 'AI admin page (main.jsx)', () => {
 			).resolves.toBeInTheDocument();
 			expect( screen.getByRole( 'link', { name: 'Manage in My Jetpack' } ) ).toHaveAttribute(
 				'href',
-				'admin.php?page=my-jetpack#/products'
+				'admin.php?page=my-jetpack#/features'
 			);
 			// One page-level notice — AiFeatures must not render a second copy.
 			expect( screen.getAllByText( MASTER_OFF_TITLE, IGNORE_A11Y ) ).toHaveLength( 1 );
-			expect( screen.getByRole( 'checkbox', { name: /Writing Assistant/ } ) ).toBeDisabled();
+			await expect(
+				screen.findByRole( 'checkbox', { name: /Writing Assistant/ } )
+			).resolves.toBeDisabled();
 		} );
 
 		test( 'a host without My Jetpack is sent to the modules page instead', async () => {
@@ -779,7 +792,10 @@ describe( 'AI admin page (main.jsx)', () => {
 			'href',
 			'admin.php?page=my-jetpack#/connection'
 		);
-		expect( screen.getByRole( 'checkbox', { name: /Writing Assistant/ } ) ).toBeDisabled();
+		// The notice needs no fetch; the switches do, so wait for them.
+		await expect(
+			screen.findByRole( 'checkbox', { name: /Writing Assistant/ } )
+		).resolves.toBeDisabled();
 	} );
 
 	test( 'save-confirmation: a successful AI-settings save shows a success snackbar', async () => {
@@ -1301,6 +1317,34 @@ describe( 'AI admin page (main.jsx)', () => {
 		const row = await screen.findByRole( 'link', { name: /Activity log/ } );
 		expect( row ).toHaveAttribute( 'href', 'https://example.com/activity' );
 		expect( screen.getAllByRole( 'link', { name: /Activity log/ } ) ).toHaveLength( 1 );
+	} );
+
+	test( 'activity log row: promises AI agent actions when the page data says the link is filtered', async () => {
+		window.jetpackAiSettings = {
+			blogId: 1,
+			activityLogUrl: 'https://example.com/activity',
+			activityLogFiltered: true,
+		};
+		window.location.hash = '';
+		mockApiFetch( { mcpGet: connectedMcpGet() } );
+
+		render( <App /> );
+
+		await expect(
+			screen.findByText( 'Review recent actions taken by AI agents on your site.' )
+		).resolves.toBeInTheDocument();
+	} );
+
+	test( 'activity log row: describes all actions when the page data has no filtered flag', async () => {
+		window.jetpackAiSettings = { blogId: 1, activityLogUrl: 'https://example.com/activity' };
+		window.location.hash = '';
+		mockApiFetch( { mcpGet: connectedMcpGet() } );
+
+		render( <App /> );
+
+		await expect(
+			screen.findByText( 'Review recent actions on your site.' )
+		).resolves.toBeInTheDocument();
 	} );
 
 	test( 'activity log row: absent from the MCP hub without an activityLogUrl', async () => {

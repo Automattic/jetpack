@@ -5,15 +5,14 @@ import { useSectionTab } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportCsvAction,
-	ReportErrorState,
 	ReportPageLayout,
+	ReportErrorState,
 	ReportPageShell,
 	ReportPageTabs,
 	ReportRecordsTable,
 	getEarningsStatus,
 	getWordAdsHistoryFields,
 	useReportCsvExport,
-	useReportRetry,
 	type CsvColumn,
 	type EarningsHistoryRow,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -26,10 +25,11 @@ import { route } from '../package.json';
 import { REPORTS } from '../registry';
 import {
 	getEarningsReportTabs,
-	getTabTitle,
+	getTabLabel,
 	resolveSection,
 	useEarningsReportRecords,
 } from './config';
+import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;
 
@@ -123,7 +123,6 @@ function EarningsReport(): JSX.Element {
 		status: records,
 		sort: sortEarningsCsvRows,
 	} );
-	const retry = useReportRetry( records.refetch );
 
 	const { getLabel } = REPORTS.earnings;
 
@@ -139,29 +138,31 @@ function EarningsReport(): JSX.Element {
 		>
 			{ /* No date filters: the `wordads/earnings` endpoint is all-time, and the Ads tab has no global date controls. */ }
 			<ReportPageLayout
-				title={ getTabTitle( tab ) }
+				title={ getTabLabel( tab ) }
 				tabs={
 					tabs.length > 1 ? (
 						<ReportPageTabs tabs={ tabs } value={ tab } onChange={ setActiveTab } />
 					) : undefined
 				}
 			>
-				{ records.isError ? (
-					<ReportErrorState
-						title={ __( 'Unable to load earnings', 'jetpack-premium-analytics-pkg' ) }
-						onRetry={ retry }
-					/>
-				) : (
+				<ReportErrorState
+					status={ records }
+					retryDescription={ __(
+						"We couldn't load earnings. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					) }
+				>
 					<ReportRecordsTable< EarningsHistoryRow >
 						key={ tab }
 						data={ records.rows }
 						fields={ fields }
 						getItemId={ getEarningsRowId }
 						isLoading={ records.isLoading }
+						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search earnings history', 'jetpack-premium-analytics-pkg' ) }
 					/>
-				) }
+				</ReportErrorState>
 			</ReportPageLayout>
 		</ReportPageShell>
 	);

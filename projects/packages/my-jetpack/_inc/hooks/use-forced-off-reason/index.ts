@@ -1,7 +1,7 @@
 import { store as modulesStore } from '@automattic/jetpack-shared-stores';
 import { useSelect } from '@wordpress/data';
-import { getOverrideReason } from '../../components/modules-list/utils';
-import { getProductModules } from '../../components/my-jetpack-tab-panel/products/mappings';
+import { getProductModules } from '../../components/my-jetpack-tab-panel/features/mappings';
+import { getOverrideReason } from '../../components/my-jetpack-tab-panel/features/module-availability';
 import { PRODUCT_STATUSES } from '../../constants';
 import { isJetpackPluginActive } from '../../utils/is-jetpack-plugin-active';
 import type { MyJetpackModule } from '../../types';
@@ -25,8 +25,7 @@ export default function useForcedOffReason(
 	slug: JetpackModule,
 	status: string
 ): { reason: string | null; isPending: boolean } {
-	// The Products tab maps Backup to vaultpress, but Backup's status never depends on a module.
-	const moduleSlug = slug === 'backup' ? null : getProductModules()[ slug ] || slug;
+	const moduleSlug = getProductModules()[ slug ] || slug;
 	const applies = !! moduleSlug && OFFER_STATUSES.includes( status );
 
 	const { override, isPending } = useSelect(

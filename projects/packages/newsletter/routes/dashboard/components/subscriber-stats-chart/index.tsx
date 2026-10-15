@@ -1,21 +1,24 @@
 import { LineChart, type SeriesData } from '@automattic/charts';
 import '@automattic/charts/style.css';
 import { getScriptData } from '@automattic/jetpack-script-data';
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { useViewportMatch } from '@wordpress/compose';
 import { dateI18n } from '@wordpress/date';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { info } from '@wordpress/icons';
+import { arrowLeft, arrowRight, info } from '@wordpress/icons';
 import { Button, Icon, Stack, Text, Tooltip } from '@wordpress/ui';
 import { addQueryArgs } from '@wordpress/url';
+import clsx from 'clsx';
 import { formatMetric, formatRate } from '../../../../_inc/subscribers/lib/format-metric';
 import RecentPosts, { type RecentPost } from '../recent-posts';
 import { recordStatsEvent, useStatsStateView } from '../stats-tracks';
+import type { JSX, MouseEvent } from 'react';
 import './style.scss';
 
 type SubscribersStatsResponse = {
+	unit?: string;
 	fields?: string[];
 	data?: Array< Array< string | number | null > >;
 };
@@ -33,32 +36,120 @@ type RecentPostsResponse = {
 	createPostUrl: string;
 };
 
+/**
+ * Bucket counts copied from the Stats subscribers chart: each choice sets both
+ * the unit and how many of those units the x-axis covers.
+ */
+const CHART_UNITS = {
+	day: 30,
+	week: 12,
+	month: 6,
+	year: 3,
+} as const;
+
+type ChartUnit = keyof typeof CHART_UNITS;
+
 type SubscriberStats = {
 	chartData: SeriesData[];
-	totalSubscribers: number;
-	paidSubscribers: number;
+	totalSubscribers: number | null;
+	paidSubscribers: number | null;
+	unit: ChartUnit;
 	openRate?: number;
 	clickRate?: number;
 };
 
 type SubscriberPoint = {
 	dateString: string;
-	subscribers: number;
-	paidSubscribers: number;
+	subscribers: number | null;
+	paidSubscribers: number | null;
 };
 
-const DAYS_TO_SHOW = 30;
 const STATS_STALE_TIME_MS = 5 * 60 * 1000;
 
 /**
- * Normalize a numeric API value.
+ * A missing subscriber total is a gap in the series, not zero.
  *
  * @param value - API value.
- * @return A finite number.
+ * @return The count, or null when the period has none.
  */
-function toNumber( value: string | number | null | undefined ): number {
+function toCount( value: string | number | null | undefined ): number | null {
+	if ( value === null || value === undefined ) {
+		return null;
+	}
+
 	const number = Number( value );
-	return Number.isFinite( number ) ? number : 0;
+	return Number.isFinite( number ) ? number : null;
+}
+
+/**
+ * Use the unit the response was bucketed with. The toggle can move before that
+ * response arrives, and a week label parsed as another unit is not a date.
+ *
+ * @param unit     - `unit` field on the subscribers response.
+ * @param fallback - Interval selected in the chart control.
+ * @return Chart interval.
+ */
+function chartUnit( unit: string | undefined, fallback: ChartUnit ): ChartUnit {
+	if ( unit === 'day' || unit === 'week' || unit === 'month' || unit === 'year' ) {
+		return unit;
+	}
+
+	return fallback;
+}
+
+/**
+ * Move the chart end date by one full window.
+ *
+ * Weeks step by seven days per bucket. Months and years end on the last day of that period.
+ *
+ * @param isoDate   - Current end date, `yyyy-MM-dd`.
+ * @param unit      - Selected chart unit.
+ * @param direction - `-1` for the previous window, `1` for the next.
+ * @return Shifted `yyyy-MM-dd` date.
+ */
+function shiftChartDate( isoDate: string, unit: ChartUnit, direction: -1 | 1 ): string {
+	const [ year, month, day ] = isoDate.split( '-' ).map( Number );
+	const steps = CHART_UNITS[ unit ] * direction;
+	const startDay = unit === 'month' || unit === 'year' ? 1 : day;
+	const next = new Date( year, month - 1, startDay );
+
+	if ( unit === 'month' ) {
+		next.setMonth( next.getMonth() + steps );
+		next.setMonth( next.getMonth() + 1, 0 );
+	} else if ( unit === 'year' ) {
+		next.setFullYear( next.getFullYear() + steps );
+		next.setMonth( 11, 31 );
+	} else if ( unit === 'week' ) {
+		next.setDate( next.getDate() + steps * 7 );
+	} else {
+		next.setDate( next.getDate() + steps );
+	}
+
+	const shiftedMonth = String( next.getMonth() + 1 ).padStart( 2, '0' );
+	const shiftedDay = String( next.getDate() ).padStart( 2, '0' );
+	return `${ next.getFullYear() }-${ shiftedMonth }-${ shiftedDay }`;
+}
+
+/**
+ * Keep a shifted end date from passing today.
+ *
+ * @param shifted - Candidate end date, `yyyy-MM-dd`.
+ * @param today   - Site calendar day, `yyyy-MM-dd`.
+ * @return End date to request.
+ */
+function clampChartEndDate( shifted: string, today: string ): string {
+	return shifted < today ? shifted : today;
+}
+
+/**
+ * UTC calendar day.
+ *
+ * The live subscriber total is used only when the requested day is gmdate( 'Y-m-d' ).
+ *
+ * @return `yyyy-MM-dd` in UTC.
+ */
+function utcToday(): string {
+	return new Date().toISOString().slice( 0, 10 );
 }
 
 /**
@@ -93,18 +184,44 @@ function toEmailRates(
 }
 
 /**
+ * Turn a Stats period label into a date the chart can parse.
+ *
+ * Week labels are `YWmWd` (`2026W09W21`). Year labels are the four-digit year.
+ *
+ * @param period - Period label from the subscribers response.
+ * @param unit   - Selected chart unit.
+ * @return A `yyyy-MM-dd` date string.
+ */
+function toChartDate( period: string, unit: ChartUnit ): string {
+	if ( unit === 'week' ) {
+		return period.replaceAll( 'W', '-' );
+	}
+
+	if ( unit === 'year' && /^\d{4}$/.test( period ) ) {
+		return `${ period }-01-01`;
+	}
+
+	return period;
+}
+
+/**
  * Convert the positional subscriber response into chart data.
  *
- * @param response - Subscriber Stats response.
+ * @param response     - Subscriber Stats response.
+ * @param fallbackUnit - Interval selected in the chart control.
  * @return Subscriber totals and series.
  */
-function toSubscriberStats( response: SubscribersStatsResponse ): SubscriberStats {
+function toSubscriberStats(
+	response: SubscribersStatsResponse,
+	fallbackUnit: ChartUnit
+): SubscriberStats {
+	const unit = chartUnit( response.unit, fallbackUnit );
 	const periodIndex = response.fields?.indexOf( 'period' ) ?? -1;
 	const subscribersIndex = response.fields?.indexOf( 'subscribers' ) ?? -1;
 	const paidSubscribersIndex = response.fields?.indexOf( 'subscribers_paid' ) ?? -1;
 
 	if ( periodIndex < 0 || subscribersIndex < 0 || ! Array.isArray( response.data ) ) {
-		return { chartData: [], totalSubscribers: 0, paidSubscribers: 0 };
+		return { chartData: [], totalSubscribers: 0, paidSubscribers: 0, unit };
 	}
 
 	const points = response.data
@@ -115,20 +232,21 @@ function toSubscriberStats( response: SubscribersStatsResponse ): SubscriberStat
 			}
 
 			return {
-				dateString: period,
-				subscribers: toNumber( row[ subscribersIndex ] ),
-				paidSubscribers: paidSubscribersIndex >= 0 ? toNumber( row[ paidSubscribersIndex ] ) : 0,
+				dateString: toChartDate( period, unit ),
+				subscribers: toCount( row[ subscribersIndex ] ),
+				paidSubscribers: paidSubscribersIndex >= 0 ? toCount( row[ paidSubscribersIndex ] ) : 0,
 			};
 		} )
 		.filter( ( point ): point is SubscriberPoint => point !== null )
 		.reverse();
 
 	if ( points.length === 0 ) {
-		return { chartData: [], totalSubscribers: 0, paidSubscribers: 0 };
+		return { chartData: [], totalSubscribers: 0, paidSubscribers: 0, unit };
 	}
 
 	const latest = points[ points.length - 1 ];
 	return {
+		unit,
 		totalSubscribers: latest.subscribers,
 		paidSubscribers: latest.paidSubscribers,
 		chartData: [
@@ -168,6 +286,108 @@ function getGreeting(): string {
 		: __( 'Welcome', 'jetpack-newsletter' );
 }
 
+const CHART_UNIT_OPTIONS: Array< { value: ChartUnit; label: string } > = [
+	{ value: 'day', label: __( 'Days', 'jetpack-newsletter' ) },
+	{ value: 'week', label: __( 'Weeks', 'jetpack-newsletter' ) },
+	{ value: 'month', label: __( 'Months', 'jetpack-newsletter' ) },
+	{ value: 'year', label: __( 'Years', 'jetpack-newsletter' ) },
+];
+
+/**
+ * Days, Weeks, Months, and Years control for the subscribers chart.
+ *
+ * @param props          - Control props.
+ * @param props.unit     - Selected unit.
+ * @param props.onChange - Called with the next unit.
+ * @return Segmented unit control.
+ */
+function ChartUnitControl( {
+	unit,
+	onChange,
+}: {
+	unit: ChartUnit;
+	onChange: ( unit: ChartUnit ) => void;
+} ): JSX.Element {
+	const handleChange = useCallback(
+		( event: MouseEvent< HTMLButtonElement > ) => {
+			const value = event.currentTarget.value;
+			if ( value !== 'day' && value !== 'week' && value !== 'month' && value !== 'year' ) {
+				return;
+			}
+
+			if ( value === unit ) {
+				return;
+			}
+
+			recordStatsEvent( 'jetpack_newsletter_stats_interval_click', { interval: value } );
+			onChange( value );
+		},
+		[ onChange, unit ]
+	);
+
+	return (
+		<div
+			className="jetpack-newsletter-stats__chart-unit"
+			role="group"
+			aria-label={ __( 'Chart interval', 'jetpack-newsletter' ) }
+		>
+			{ CHART_UNIT_OPTIONS.map( option => (
+				<button
+					key={ option.value }
+					className="jetpack-newsletter-stats__interval"
+					type="button"
+					aria-pressed={ unit === option.value }
+					value={ option.value }
+					onClick={ handleChange }
+				>
+					{ option.label }
+				</button>
+			) ) }
+		</div>
+	);
+}
+
+/**
+ * Arrows that page the chart end date by one window.
+ *
+ * @param props             - Control props.
+ * @param props.disableNext - Whether the next window would pass today.
+ * @param props.onPrevious  - Move one window earlier.
+ * @param props.onNext      - Move one window later.
+ * @return Previous and next controls.
+ */
+function ChartRangeArrows( {
+	disableNext,
+	onPrevious,
+	onNext,
+}: {
+	disableNext: boolean;
+	onPrevious: () => void;
+	onNext: () => void;
+} ): JSX.Element {
+	return (
+		<div className="jetpack-newsletter-stats__chart-arrows">
+			<button
+				className="jetpack-newsletter-stats__chart-arrow"
+				type="button"
+				aria-label={ __( 'Previous period', 'jetpack-newsletter' ) }
+				onClick={ onPrevious }
+			>
+				<Icon icon={ arrowLeft } size={ 24 } />
+			</button>
+			<button
+				className="jetpack-newsletter-stats__chart-arrow"
+				type="button"
+				aria-label={ __( 'Next period', 'jetpack-newsletter' ) }
+				onClick={ onNext }
+				disabled={ disableNext }
+			>
+				<Icon icon={ arrowRight } size={ 24 } />
+			</button>
+		</div>
+	);
+}
+
 /**
  * Paid-subscribers metric info control.
  *
@@ -203,16 +423,31 @@ export default function SubscriberStatsChart(): JSX.Element {
 	const isMobile = useViewportMatch( 'small', '<' );
 	const metricDirection = isMobile ? 'row' : 'column';
 	const metricJustify = isMobile ? 'space-between' : undefined;
-	const date = dateI18n( 'Y-m-d' );
+	const today = dateI18n( 'Y-m-d' );
+	const [ unit, setUnit ] = useState< ChartUnit >( 'day' );
+	const [ endDate, setEndDate ] = useState( today );
 	const subscribersPath = addQueryArgs( '/wpcom/v2/newsletter/stats/subscribers', {
-		unit: 'day',
-		quantity: DAYS_TO_SHOW,
-		date,
+		unit,
+		quantity: CHART_UNITS[ unit ],
+		date: endDate,
 		stat_fields: 'subscribers,subscribers_paid',
 	} );
 	const subscribersQuery = useQuery< SubscribersStatsResponse >( {
 		queryKey: [ 'newsletter-stats', 'subscribers', subscribersPath ],
 		queryFn: () => apiFetch( { path: subscribersPath } ),
+		placeholderData: keepPreviousData,
+		staleTime: STATS_STALE_TIME_MS,
+	} );
+	// The headline is the live count, so the chart window cannot change it.
+	const currentTotalsPath = addQueryArgs( '/wpcom/v2/newsletter/stats/subscribers', {
+		unit: 'day',
+		quantity: 1,
+		date: utcToday(),
+		stat_fields: 'subscribers,subscribers_paid',
+	} );
+	const currentTotalsQuery = useQuery< SubscribersStatsResponse >( {
+		queryKey: [ 'newsletter-stats', 'subscribers', 'current', currentTotalsPath ],
+		queryFn: () => apiFetch( { path: currentTotalsPath } ),
 		staleTime: STATS_STALE_TIME_MS,
 	} );
 	const recentPostsQuery = useQuery< RecentPostsResponse >( {
@@ -220,13 +455,42 @@ export default function SubscriberStatsChart(): JSX.Element {
 		queryFn: () => apiFetch( { path: '/wpcom/v2/newsletter/stats/recent-posts' } ),
 		staleTime: STATS_STALE_TIME_MS,
 	} );
-	const subscriberStats = subscribersQuery.data ? toSubscriberStats( subscribersQuery.data ) : null;
+	const subscriberStats = subscribersQuery.data
+		? toSubscriberStats( subscribersQuery.data, unit )
+		: null;
+	const currentTotals = currentTotalsQuery.data
+		? toSubscriberStats( currentTotalsQuery.data, 'day' )
+		: null;
+	const showPreviousChart = subscribersQuery.isPlaceholderData;
+	const moveChartDate = useCallback(
+		( direction: -1 | 1 ) => {
+			setEndDate( current =>
+				clampChartEndDate( shiftChartDate( current, unit, direction ), today )
+			);
+			recordStatsEvent( 'jetpack_newsletter_stats_period_click', {
+				direction: direction === -1 ? 'previous' : 'next',
+				interval: unit,
+			} );
+		},
+		[ today, unit ]
+	);
+	const changeChartUnit = useCallback(
+		( nextUnit: ChartUnit ) => {
+			setUnit( nextUnit );
+			setEndDate( today );
+		},
+		[ today ]
+	);
+	const showPreviousPeriod = useCallback( () => moveChartDate( -1 ), [ moveChartDate ] );
+	const showNextPeriod = useCallback( () => moveChartDate( 1 ), [ moveChartDate ] );
 	const emailRates = toEmailRates( recentPostsQuery.data?.emailTotals );
 	const { refetch: refetchSubscribers } = subscribersQuery;
+	const { refetch: refetchCurrentTotals } = currentTotalsQuery;
 	const retrySubscribers = useCallback( () => {
 		recordStatsEvent( 'jetpack_newsletter_stats_retry_click', { area: 'subscribers' } );
 		refetchSubscribers();
-	}, [ refetchSubscribers ] );
+		refetchCurrentTotals();
+	}, [ refetchCurrentTotals, refetchSubscribers ] );
 	let subscribersState: 'empty' | 'error' | null = null;
 	if ( subscribersQuery.isError ) {
 		subscribersState = 'error';
@@ -275,7 +539,13 @@ export default function SubscriberStatsChart(): JSX.Element {
 		);
 	} else {
 		chartContent = (
-			<div className="jetpack-newsletter-stats__chart">
+			<div
+				className={ clsx( 'jetpack-newsletter-stats__chart', {
+					'is-loading': showPreviousChart,
+				} ) }
+				aria-busy={ showPreviousChart }
+				data-testid="subscriber-chart-panel"
+			>
 				<LineChart
 					data={ subscriberStats.chartData }
 					height={ 420 }
@@ -288,7 +558,7 @@ export default function SubscriberStatsChart(): JSX.Element {
 						yScale: { type: 'linear', zero: true },
 						axis: {
 							y: { orientation: 'right' },
-							x: { tickResolution: 'day' },
+							x: { tickResolution: subscriberStats.unit },
 						},
 					} }
 				/>
@@ -325,7 +595,7 @@ export default function SubscriberStatsChart(): JSX.Element {
 						{ __( 'Total subscribers', 'jetpack-newsletter' ) }
 					</Stack>
 					<strong className="jetpack-newsletter-stats__metric-value">
-						{ formatMetric( subscriberStats?.totalSubscribers ) }
+						{ formatMetric( currentTotals?.totalSubscribers ) }
 					</strong>
 				</Stack>
 				<Stack
@@ -383,7 +653,7 @@ export default function SubscriberStatsChart(): JSX.Element {
 						<PaidSubscribersInfo />
 					</Stack>
 					<strong className="jetpack-newsletter-stats__metric-value">
-						{ formatMetric( subscriberStats?.paidSubscribers ) }
+						{ formatMetric( currentTotals?.paidSubscribers ) }
 					</strong>
 				</Stack>
 			</Stack>
@@ -394,9 +664,26 @@ export default function SubscriberStatsChart(): JSX.Element {
 				className="jetpack-newsletter-stats__chart-card"
 				render={ <section /> }
 			>
-				<Text render={ <h3 /> } variant="heading-lg">
-					{ __( 'Subscribers', 'jetpack-newsletter' ) }
-				</Text>
+				<Stack
+					className="jetpack-newsletter-stats__chart-heading"
+					direction="row"
+					justify="space-between"
+					align="center"
+					gap="md"
+					wrap="wrap"
+				>
+					<Text render={ <h3 /> } variant="heading-lg">
+						{ __( 'Subscribers', 'jetpack-newsletter' ) }
+					</Text>
+					<div className="jetpack-newsletter-stats__chart-controls">
+						<ChartRangeArrows
+							disableNext={ endDate >= today }
+							onPrevious={ showPreviousPeriod }
+							onNext={ showNextPeriod }
+						/>
+						<ChartUnitControl unit={ unit } onChange={ changeChartUnit } />
+					</div>
+				</Stack>
 				{ chartContent }
 			</Stack>
 

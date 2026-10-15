@@ -73,8 +73,16 @@ export default function AllPlaylistsEdit( {
 	attributes,
 	setAttributes,
 }: BlockEditProps< AllPlaylistsAttributes > ) {
-	const { layout, columns, perPage, orderBy, showDescription, showVideoCount, pagination } =
-		attributes;
+	const {
+		layout,
+		columns,
+		perPage,
+		orderBy,
+		showDescription,
+		showVideoCount,
+		pagination,
+		showUpdated,
+	} = attributes;
 	const { status, html, summary } = useRenderedPreview( attributes );
 
 	const styleVars = blockStyleVars( attributes );
@@ -170,6 +178,7 @@ export default function AllPlaylistsEdit( {
 						{ value: 'newest', label: __( 'Newest first', 'jetpack-videopress-pkg' ) },
 						{ value: 'oldest', label: __( 'Oldest first', 'jetpack-videopress-pkg' ) },
 						{ value: 'title', label: __( 'Title A–Z', 'jetpack-videopress-pkg' ) },
+						{ value: 'updated', label: __( 'Recently updated', 'jetpack-videopress-pkg' ) },
 					] }
 					onChange={ ( value: string ) => setAttributes( { orderBy: value as AllPlaylistsOrder } ) }
 				/>
@@ -187,6 +196,12 @@ export default function AllPlaylistsEdit( {
 					label={ __( 'Video count', 'jetpack-videopress-pkg' ) }
 					checked={ showVideoCount }
 					onChange={ ( value: boolean ) => setAttributes( { showVideoCount: value } ) }
+				/>
+				<ToggleControl
+					__nextHasNoMarginBottom
+					label={ __( 'Last update and length', 'jetpack-videopress-pkg' ) }
+					checked={ !! showUpdated }
+					onChange={ ( value: boolean ) => setAttributes( { showUpdated: value } ) }
 				/>
 			</PanelBody>
 

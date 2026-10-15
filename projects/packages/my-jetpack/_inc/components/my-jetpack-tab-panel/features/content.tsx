@@ -1,6 +1,7 @@
 import { _n, sprintf } from '@wordpress/i18n';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
+import { isOfflineFeatures } from '../../../data/utils/offline-features';
 import { BulkBar } from './bulk-bar';
 import { FeaturesEmptyState } from './empty-state';
 import { FeatureItem } from './feature-item';
@@ -54,13 +55,17 @@ function useFeaturesParams(): {
 /**
  * The Features content component.
  *
- * Wraps the tab in its tracking, which needs the grid's state to report what a click was
- * made against — so the state is read here and the content below reads it again.
+ * Online tracking needs the grid's state here to report what a click was made against;
+ * offline content omits the tracking provider.
  *
  * @return The rendered component.
  */
 export function FeaturesContent() {
 	const { filter, search, view } = useFeaturesParams();
+
+	if ( isOfflineFeatures() ) {
+		return <FeaturesTabContent />;
+	}
 
 	return (
 		<FeaturesTrackingProvider filter={ filter } search={ search } view={ view }>
@@ -105,8 +110,8 @@ function FeaturesTabContent() {
 		[ searchParams, setSearchParams ]
 	);
 
-	// Searching replaces the grid outright, the way it does on the Products tab, so a
-	// term in play takes the filter's place rather than narrowing alongside it.
+	// Searching replaces the grid outright, so a term in play takes the filter's place
+	// rather than narrowing alongside it.
 	const results = useFeatureSearch( states, search );
 	const visible = useMemo(
 		() =>
@@ -140,17 +145,20 @@ function FeaturesTabContent() {
 		[ states, moreFeatures ]
 	);
 
+	// Read once, so the pills hold steady until the visitor leaves the tab.
+	const [ ownedView ] = useState( () => filter === 'included' );
+	const filters = useMemo( () => getFeatureFilters( filter, ownedView ), [ filter, ownedView ] );
 	// Counted against every feature, not the visible ones, so a pill says how many it
 	// would show rather than how many survived the filter already in play.
 	const counts = useMemo(
 		() =>
 			Object.fromEntries(
-				getFeatureFilters( filter ).map( ( { value } ) => [
+				filters.map( ( { value } ) => [
 					value,
 					countable.filter( state => matchesFilter( state, value ) ).length,
 				] )
 			) as Record< FeatureFilter, number >,
-		[ countable, filter ]
+		[ countable, filters ]
 	);
 
 	const open = states.find( item => item.feature.slug === openSlug );
@@ -281,40 +289,20 @@ function FeaturesTabContent() {
 		[ sendSearch, updateParams ]
 	);
 
-	// How many the tab would show, counted here rather than read from `counts`, which
-	// only holds the filters offered as pills — a plan badge can pick one that is not.
-	const countFor = useCallback(
-		( next: FeatureFilter ) => countable.filter( state => matchesFilter( state, next ) ).length,
-		[ countable ]
-	);
-
 	const onFilterChange = useCallback(
 		// Clears the search: a term in play replaces the grid outright, so a pill picked
 		// while searching would otherwise light up and change nothing.
 		( next: FeatureFilter ) => {
-			// The pills stay clickable while active, and picking the one already in play
-			// changes nothing to report.
-			if ( next !== filter ) {
-				tracking?.trackFilterChange( next, countFor( next ) );
+			// Picking the pill already in play changes nothing to report, unless a search is
+			// running: no pill reads as selected then, so the click does narrow the grid.
+			if ( next !== filter || search ) {
+				tracking?.trackFilterChange( next, counts[ next ] ?? 0 );
 			}
 
 			forgetPendingSearch();
 			updateParams( { filter: next === 'all' ? null : next, search: null } );
 		},
-		[ countFor, filter, forgetPendingSearch, tracking, updateParams ]
-	);
-
-	// A plan badge answers "what else is in this?", so it filters and steps out of the modal.
-	const onFilterByPlan = useCallback(
-		( plan: FeatureFilter ) => {
-			if ( plan !== filter ) {
-				tracking?.trackFilterChange( plan, countFor( plan ) );
-			}
-
-			forgetPendingSearch();
-			updateParams( { filter: plan, feature: null, search: null } );
-		},
-		[ countFor, filter, forgetPendingSearch, tracking, updateParams ]
+		[ counts, filter, forgetPendingSearch, search, tracking, updateParams ]
 	);
 
 	const onViewChange = useCallback(
@@ -346,12 +334,13 @@ function FeaturesTabContent() {
 
 	return (
 		<section className={ styles.content }>
-			<FeaturesBanner />
+			{ ! isOfflineFeatures() && <FeaturesBanner /> }
 
 			<Toolbar
 				view={ view }
 				onViewChange={ onViewChange }
 				filter={ filter }
+				filters={ filters }
 				onFilterChange={ onFilterChange }
 				counts={ counts }
 				countsPending={ isLoading }
@@ -397,6 +386,7 @@ function FeaturesTabContent() {
 				jetpack={ mainFeatures.jetpack }
 				isList={ view === 'list' }
 				isNarrowed={ filter !== 'all' || Boolean( search ) }
+				isSearching={ Boolean( search ) }
 			/>
 
 			{ open && (
@@ -408,7 +398,6 @@ function FeaturesTabContent() {
 					total={ stepOrder.length }
 					onStep={ stepFeature }
 					onClose={ closeFeature }
-					onFilterByPlan={ onFilterByPlan }
 				/>
 			) }
 		</section>

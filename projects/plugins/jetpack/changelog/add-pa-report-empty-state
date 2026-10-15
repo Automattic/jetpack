@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-Premium Analytics: Replace the records table with a "No data found" state when the selected period has no rows.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Keep the numbers inside traffic heatmap cells readable on mid-tone colors.

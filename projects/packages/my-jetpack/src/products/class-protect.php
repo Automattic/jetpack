@@ -111,18 +111,27 @@ class Protect extends Hybrid_Product {
 	public static $plugin_slug = 'jetpack-protect';
 
 	/**
+	 * Activate local product steps without scheduling connected modules offline.
+	 *
+	 * @since 6.10.0
+	 * @param bool|WP_Error $current_result The plugin activation result.
+	 * @param bool          $local          Whether to keep activation local.
+	 * @return bool|WP_Error
+	 */
+	public static function do_product_specific_activation( $current_result, $local = false ) {
+		if ( $local ) {
+			// Protect's deferred admin hook would activate connected modules on the next request.
+			delete_option( static::$plugin_slug . '_activated' );
+		}
+		return parent::do_product_specific_activation( $current_result, $local );
+	}
+
+	/**
 	 * The category of the product
 	 *
 	 * @var string
 	 */
 	public static $category = 'security';
-
-	/**
-	 * Defines whether or not to show a product interstitial as tiered pricing or not
-	 *
-	 * @var bool
-	 */
-	public static $is_tiered_pricing = true;
 
 	/**
 	 * Whether this product requires a user connection
@@ -243,9 +252,13 @@ class Protect extends Hybrid_Product {
 	/**
 	 * Get the internationalized comparison of free vs upgraded features
 	 *
+	 * @deprecated 6.10.0
+	 *
 	 * @return array[] Protect features comparison
 	 */
 	public static function get_features_by_tier() {
+		_deprecated_function( __METHOD__, 'jetpack-my-jetpack-6.10.0' );
+
 		return array(
 			array(
 				'name'  => __( 'Scan for threats and vulnerabilities', 'jetpack-my-jetpack' ),
@@ -439,7 +452,8 @@ class Protect extends Hybrid_Product {
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
-		if ( static::is_standalone_plugin_active() ) {
+		// The Protect package's dashboard, loaded by the Jetpack plugin's module, serves the same page as the standalone plugin.
+		if ( static::is_standalone_plugin_active() || did_action( 'jetpack_protect_dashboard_initialized' ) ) {
 			// Protect admin dashboard.
 			return admin_url( 'admin.php?page=jetpack-protect' );
 		}

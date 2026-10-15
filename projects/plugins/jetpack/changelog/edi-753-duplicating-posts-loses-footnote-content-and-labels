@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Copy Post: Fix footnotes containing links being lost when duplicating a post.

@@ -5,6 +5,7 @@ import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { external } from '@wordpress/icons';
 import { Card, Link, Stack } from '@wordpress/ui';
+import type { JSX } from 'react';
 
 const GUIDES = [
 	{

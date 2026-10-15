@@ -89,8 +89,7 @@ export const RetryableErrorState: Story = {
 };
 
 /**
- * Resolved with no rows: the widget shows its empty state (the neutral comment
- * content glyph and "None of your posts or pages have comments yet.").
+ * Resolved with no rows: the widget shows its empty state.
  */
 export const Empty: Story = {
 	render: renderMostCommentedPosts,

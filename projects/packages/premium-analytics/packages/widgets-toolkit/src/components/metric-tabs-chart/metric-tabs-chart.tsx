@@ -6,21 +6,28 @@ import {
 	Tabs,
 	Text,
 	VisuallyHidden,
+	mixHexColors,
+	useGlobalChartsContext,
 	type TickResolution,
 } from '@jetpack-premium-analytics/externals';
-import { formatDate, type DateFormatName } from '@jetpack-premium-analytics/formatters';
 import { useResizeObserver } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useId, useMemo, useRef, useState } from 'react';
 /**
  * Internal dependencies
  */
-import { formatComparisonSeriesLabel, isEmptyChartData, type ChartBaseline } from '../../helpers';
+import {
+	formatComparisonSeriesLabel,
+	getComparisonPeriodLabel,
+	isEmptyChartData,
+	type ChartBaseline,
+} from '../../helpers';
 import { useSeriesStyles } from '../../hooks';
 import { ComparativeBarChart } from '../chart-comparative-bar';
 import { ComparativeLineChart } from '../chart-comparative-line';
 import { MetricWithComparison } from '../metric-with-comparison';
+import { WidgetRootContext } from '../widget-root/context';
 import styles from './metric-tabs-chart.module.scss';
 import type { CountLabel, DataFormat } from '../../types';
 import type {
@@ -41,6 +48,9 @@ const MIN_TAB_WIDTH = 120;
  */
 const CLICK_DRAG_TOLERANCE_PX = 6;
 
+/** How far a counterpart's color moves from the accent toward black; interim until UNI-847 settles the shades. */
+const DARK_SHADE_BLEND = 0.5;
+
 /** The pointer-event payload both comparative charts report. */
 type ChartPointerParams = Parameters<
 	NonNullable< ComponentProps< typeof ComparativeLineChart >[ 'onPointerUp' ] >
@@ -53,8 +63,12 @@ type ChartActivateParams = Parameters<
 
 export interface MetricTabDatum {
 	date: Date;
+	/** The last instant of the bucket, for a tooltip that names a week's days. */
+	endDate?: Date;
 	/** Null for a bucket with no reading, which the chart draws as a gap. */
 	value: number | null;
+	/** Read out by the tooltip in place of the missing reading, e.g. why it is missing. */
+	note?: string;
 }
 
 /**
@@ -78,6 +92,13 @@ export interface MetricTab {
 	countLabel?: CountLabel;
 	/** Optional explanatory text, surfaced as the card's tooltip. */
 	description?: string;
+	/**
+	 * Rows the chart's tooltip reads out at the hovered date while this metric is
+	 * drawn, after the other metrics `tooltipMetrics` lists: derived figures such
+	 * as views per visitor, or the posts published that day. They never keep an
+	 * otherwise empty chart up.
+	 */
+	tooltipExtras?: TooltipExtraSeries[];
 	/**
 	 * Key of the metric to draw beside this one, visible from the start unless
 	 * `counterpartHidden` is set. A key naming no metric in the list, the metric
@@ -164,14 +185,22 @@ export interface MetricTabsChartProps {
  *
  * @param metric    - The metric to draw.
  * @param chartType - How the metric is drawn.
+ * @param stroke    - The color of both periods.
  * @return The chart series.
  */
 function buildSeries(
 	metric: MetricTab,
-	chartType: MetricTabsChartType
+	chartType: MetricTabsChartType,
+	stroke: string
 ): ComparativeLineChartSeries[] {
 	const series: ComparativeLineChartSeries[] = [
-		{ label: metric.label, group: metric.key, data: metric.current, countLabel: metric.countLabel },
+		{
+			label: metric.label,
+			group: metric.key,
+			data: metric.current,
+			countLabel: metric.countLabel,
+			options: { stroke },
+		},
 	];
 
 	if ( metric.previous?.length ) {
@@ -181,9 +210,10 @@ function buildSeries(
 			data: metric.previous,
 			options:
 				chartType === 'bar'
-					? { type: 'comparison' }
+					? { type: 'comparison', stroke }
 					: {
 							type: 'comparison',
+							stroke,
 							gradient: {
 								from: 'transparent',
 								to: 'transparent',
@@ -215,6 +245,7 @@ function MetricChart( {
 	tickResolution,
 	onDatumClick,
 	baseline,
+	comparisonLabel,
 	empty,
 }: {
 	metric: MetricTab;
@@ -227,44 +258,53 @@ function MetricChart( {
 	chartId: string;
 	tickResolution?: TickResolution;
 	onDatumClick?: ( date: Date ) => void;
+	comparisonLabel?: string;
 	empty?: ReactNode;
 } ) {
 	// Every other metric's current period, each in its own format. A counterpart
 	// is included too: the chart lists a drawn series once, so revealing it from
 	// the legend does not duplicate its row, and hiding it again lists it as a
 	// supplementary row instead. Memoised so the chart's tooltip memos hold.
+	const otherMetricExtras = useMemo(
+		(): TooltipExtraSeries[] =>
+			tooltipMetrics === 'all'
+				? metrics
+						.filter( candidate => candidate.key !== metric.key && hasSeries( candidate ) )
+						.map( candidate => ( {
+							label: candidate.label,
+							data: candidate.current,
+							dataFormat: candidate.dataFormat ?? dataFormat,
+							countLabel: candidate.countLabel,
+						} ) )
+				: [],
+		[ metrics, metric.key, tooltipMetrics, dataFormat ]
+	);
 	const tooltipExtras = useMemo( (): TooltipExtraSeries[] | undefined => {
-		if ( tooltipMetrics !== 'all' ) {
-			return undefined;
-		}
+		const all = [ ...otherMetricExtras, ...( metric.tooltipExtras ?? [] ) ];
 
-		return metrics
-			.filter( candidate => candidate.key !== metric.key && hasSeries( candidate ) )
-			.map( candidate => ( {
-				label: candidate.label,
-				data: candidate.current,
-				dataFormat: candidate.dataFormat ?? dataFormat,
-				countLabel: candidate.countLabel,
-			} ) );
-	}, [ metrics, metric.key, tooltipMetrics, dataFormat ] );
+		return tooltipMetrics === 'all' || all.length ? all : undefined;
+	}, [ otherMetricExtras, metric.tooltipExtras, tooltipMetrics ] );
+
+	// The first palette color is the admin accent.
+	const { getElementStyles } = useGlobalChartsContext();
+	const shades = useMemo( () => {
+		const accent = getElementStyles( { index: 0 } ).color;
+		return { accent, dark: mixHexColors( accent, '#000000', DARK_SHADE_BLEND ) };
+	}, [ getElementStyles ] );
 
 	const { series, defaultHiddenSeries } = useMemo( () => {
-		const active = buildSeries( metric, chartType );
+		const active = buildSeries( metric, chartType, shades.accent );
 
 		if ( ! counterpart ) {
 			return { series: active, defaultHiddenSeries: undefined };
 		}
 
-		const paired = buildSeries( counterpart, chartType );
+		const paired = buildSeries( counterpart, chartType, shades.dark );
 		return {
 			series: [ ...active, ...paired ],
 			defaultHiddenSeries: metric.counterpartHidden ? paired.map( item => item.label ) : undefined,
 		};
-	}, [ metric, counterpart, chartType ] );
-	const formatTooltipDate = useCallback(
-		( date: Date, format: DateFormatName ) => formatDate( date, format ),
-		[]
-	);
+	}, [ metric, counterpart, chartType, shades ] );
 
 	const pointerDownRef = useRef< { x: number; y: number } | null >( null );
 
@@ -340,11 +380,12 @@ function MetricChart( {
 		);
 	}
 
-	// The other metrics' hover readout keeps the graph up while any of them has data.
+	// The other metrics' hover readout keeps the graph up while any of them has
+	// data; the metric's own extras do not, being read beside its data, not data.
 	if (
 		empty &&
 		isEmptyChartData( [ { data: metric.current }, { data: metric.previous ?? [] } ] ) &&
-		isEmptyChartData( tooltipExtras ?? [] )
+		isEmptyChartData( otherMetricExtras )
 	) {
 		return <>{ empty }</>;
 	}
@@ -356,8 +397,8 @@ function MetricChart( {
 			dataFormat={ resolvedDataFormat }
 			defaultHiddenSeries={ defaultHiddenSeries }
 			legendInteractive={ legendInteractive }
+			comparisonLabel={ comparisonLabel }
 			tickResolution={ tickResolution }
-			formatTooltipDate={ formatTooltipDate }
 			tooltipExtras={ tooltipExtras }
 			compactWhenShort
 			{ ...drillHandlers }
@@ -370,8 +411,8 @@ function MetricChart( {
 			dataFormat={ resolvedDataFormat }
 			defaultHiddenSeries={ defaultHiddenSeries }
 			legendInteractive={ legendInteractive }
+			comparisonLabel={ comparisonLabel }
 			tickResolution={ tickResolution }
-			formatTooltipDate={ formatTooltipDate }
 			tooltipExtras={ tooltipExtras }
 			baseline={ baseline }
 			compactWhenShort
@@ -459,6 +500,11 @@ export function MetricTabsChart( {
 	empty,
 }: MetricTabsChartProps ) {
 	const [ selectedKey, setSelectedKey ] = useState( defaultMetricKey ?? metrics[ 0 ]?.key );
+	const reportParams = useContext( WidgetRootContext )?.reportParams;
+	const comparisonLabel = useMemo(
+		() => reportParams && getComparisonPeriodLabel( reportParams ),
+		[ reportParams ]
+	);
 
 	// The chart seeds its hidden series once per chart ID, so a stable ID would leave
 	// the chart showing the previous selection's hidden set.
@@ -490,7 +536,7 @@ export function MetricTabsChart( {
 	// oscillates the width around grid snap boundaries fast enough to freeze the page.
 	const [ width, setWidth ] = useState< number >();
 	const hasMeasuredRef = useRef( false );
-	const flipTimerRef = useRef< ReturnType< typeof setTimeout > >();
+	const flipTimerRef = useRef< ReturnType< typeof setTimeout > >( undefined );
 	const measureRef = useResizeObserver< HTMLDivElement >( entries => {
 		const rect = entries[ 0 ]?.contentRect;
 		if ( ! rect ) {
@@ -553,6 +599,7 @@ export function MetricTabsChart( {
 						chartId={ chartIdFor( activeMetric ) }
 						tickResolution={ tickResolution }
 						onDatumClick={ onDatumClick }
+						comparisonLabel={ comparisonLabel }
 						empty={ empty }
 					/>
 				</div>
@@ -626,6 +673,7 @@ export function MetricTabsChart( {
 							chartId={ chartIdFor( activeMetric ) }
 							tickResolution={ tickResolution }
 							onDatumClick={ onDatumClick }
+							comparisonLabel={ comparisonLabel }
 							empty={ empty }
 						/>
 					) }
@@ -675,6 +723,7 @@ export function MetricTabsChart( {
 						chartId={ chartIdFor( metric ) }
 						tickResolution={ tickResolution }
 						onDatumClick={ onDatumClick }
+						comparisonLabel={ comparisonLabel }
 						empty={ empty }
 					/>
 				</Tabs.Panel>

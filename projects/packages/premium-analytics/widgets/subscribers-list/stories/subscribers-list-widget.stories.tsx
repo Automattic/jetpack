@@ -95,8 +95,7 @@ export const Error: Story = {
 };
 
 /**
- * Resolved with no rows: the widget shows its empty state (the neutral customer
- * glyph and "No subscribers yet.").
+ * Resolved with no rows: the widget shows its empty state.
  */
 export const Empty: Story = {
 	render: () => <SubscribersListRender attributes={ {} } />,

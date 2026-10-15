@@ -13,7 +13,7 @@
  * MCP hub as the landing view and no tab bar.
  */
 
-import { AdminPage } from '@automattic/jetpack-components';
+import { AdminPage, JitmSlot } from '@automattic/jetpack-components';
 import { useConnectionErrorNotice } from '@automattic/jetpack-connection';
 import { useDispatch } from '@wordpress/data';
 import { Suspense, lazy, useCallback, useEffect, useRef, useState } from '@wordpress/element';
@@ -186,6 +186,7 @@ export default function App() {
 	const {
 		blogId,
 		activityLogUrl,
+		activityLogFiltered = false,
 		apiRoot,
 		apiNonce,
 		upgradeUrl,
@@ -196,7 +197,7 @@ export default function App() {
 		masterEnabled = true,
 		masterForcedOff = '',
 		userConnectionUrl = 'admin.php?page=my-jetpack#/connection',
-		manageUrl = 'admin.php?page=my-jetpack#/products',
+		manageUrl = 'admin.php?page=my-jetpack#/features',
 		hasMyJetpack = true,
 		canConnectSite = true,
 		isOfflineMode = false,
@@ -434,6 +435,8 @@ export default function App() {
 					</Tabs.Root>
 				</div>
 			) }
+			{ /* Outside the padded content div, so it takes the page gutter via `inset`. */ }
+			<JitmSlot inset />
 			<div
 				className={ `jetpack-ai-admin__content${
 					view === 'scheduled-tasks' ? ' jetpack-ai-admin__content--scheduled-tasks' : ''
@@ -482,6 +485,7 @@ export default function App() {
 										mcpAbilities={ mcpAbilities }
 										blogId={ blogId }
 										activityLogUrl={ activityLogUrl }
+										activityLogFiltered={ activityLogFiltered }
 										savingToolIds={ savingToolIds }
 										onNavigate={ handleMcpNavigate }
 										onUpdate={ handleUpdate }
@@ -516,11 +520,11 @@ export default function App() {
 				{ view === 'overview' && (
 					<AiOverview
 						activityLogUrl={ activityLogUrl }
+						activityLogFiltered={ activityLogFiltered }
 						upgradeUrl={ upgradeUrl }
 						planName={ planName }
 						canLoadUsage={ canLoadUsage }
-						// Same preconditions the MCP hub applies to its copy of the
-						// row: the copy promises AI-agent actions, which need MCP.
+						// Same preconditions the MCP hub applies to its copy of the row.
 						showActivityLog={
 							!! blogId && hasMcpAccess && getSiteLevelEnabled( mcpAbilities ?? {}, blogId )
 						}

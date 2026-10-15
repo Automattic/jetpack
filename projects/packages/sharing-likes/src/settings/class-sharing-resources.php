@@ -67,6 +67,15 @@ final class Sharing_Resources {
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified by the caller.
-		update_option( self::OPTION, isset( $_POST[ self::FIELD ] ) ? 1 : 0 );
+		self::update( isset( $_POST[ self::FIELD ] ) );
+	}
+
+	/**
+	 * Store whether sharedaddy should skip its own CSS and JS.
+	 *
+	 * @param bool $disabled Whether the resources are disabled.
+	 */
+	public static function update( bool $disabled ): void {
+		update_option( self::OPTION, $disabled ? 1 : 0 );
 	}
 }

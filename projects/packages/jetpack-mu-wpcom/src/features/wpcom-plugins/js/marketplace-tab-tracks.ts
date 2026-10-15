@@ -40,10 +40,10 @@ export function clickEvent(
  * @param track - Records one Tracks event.
  */
 export function trackMarketplaceTab( doc: Document, track: Track ) {
-	const grid = doc.querySelector< HTMLElement >( '.wpcom-marketplace-grid' );
+	const grid = doc.querySelector< HTMLElement >( '#the-list' );
 
 	track( VIEW_EVENT, {
-		plugin_count: grid?.querySelectorAll( '.wpcom-marketplace-card' ).length ?? 0,
+		plugin_count: grid?.querySelectorAll( '.plugin-card' ).length ?? 0,
 	} );
 
 	// On the grid, not the document: plugin-install.js stops a Details click at .wrap.

@@ -18,9 +18,16 @@ jest.mock( '@wordpress/data', () => {
 	} );
 } );
 
-const mockEditorState = ( postType: string, placements?: Record< string, boolean > ) => {
+const mockEditorState = (
+	postType: string,
+	placements?: Record< string, boolean >,
+	renderingMode = 'post-only'
+) => {
 	( useSelect as jest.Mock ).mockImplementation( callback =>
-		callback( () => ( { getCurrentPostType: () => postType } ) )
+		callback( () => ( {
+			getCurrentPostType: () => postType,
+			getRenderingMode: () => renderingMode,
+		} ) )
 	);
 	Object.assign( window, {
 		Jetpack_Editor_Initial_State: { jetpack: { subscribe_placements: placements } },
@@ -43,6 +50,14 @@ describe( 'TemplatePlacementsNotice', () => {
 		renderBlock( 'core/template-part', { slug: 'footer' } );
 
 		expect( screen.getByText( 'Block content' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Added by Newsletter settings' ) ).toBeInTheDocument();
+	} );
+
+	it( 'lists enabled placements when a post is shown inside its template', () => {
+		mockEditorState( 'post', { sm_enabled: true }, 'template-locked' );
+
+		renderBlock( 'core/template-part', { slug: 'footer' } );
+
 		expect( screen.getByText( 'Added by Newsletter settings' ) ).toBeInTheDocument();
 	} );
 

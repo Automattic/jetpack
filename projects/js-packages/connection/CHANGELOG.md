@@ -2,10 +2,42 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [2.12.1] - 2026-10-15
+### Changed
+- Update package dependencies. [#53004]
+
+## [2.12.0] - 2026-10-14
+### Added
+- Add a component for transferring connection ownership, and offer it from the manage connection dialog instead of linking out to WordPress.com. The connection owner can now be updated in the store, so surfaces reflect a transfer without a page reload. [#53359]
+- Add the registration failure reason to the connection status type. [#51177]
+
+## [2.11.1] - 2026-10-12
+### Changed
+- Update dependencies.
+
+## [2.11.0] - 2026-10-06
+### Fixed
+- Checkout workflow: Stop the busy state and return a checkoutError when site registration or the product lookup fails, and show an error on the Required Plan connect screen. [#53069]
+
+## [2.10.0] - 2026-10-05
+### Added
+- Add a confirmation dialog an administrator uses to become the protected owner. [#52980]
+- Add a dialog for the confirmed owner to release protected ownership of a site. [#53028]
+
+### Deprecated
+- Deprecate `runConnectionHealthCheck`, which is now a no-op. [#52977]
+
+### Removed
+- Remove the `includeHealthErrors` option from `useConnectionErrorNotice` and `ConnectionError`, along with the connection health-check store state and selector. [#52977]
+
+## [2.9.0] - 2026-09-29
+### Added
+- Add protected owner selectors and types to the connection store. [#52861]
+
 ## [2.8.0] - 2026-09-28
 ### Added
-- Disconnect dialog: On the plugins page, offer the survey before deactivating, including on sites where no user has connected. [#52828]
-- Export getUserConnectionUrl from a subpath that bundlers without SCSS support can import. [#52810]
+- Disconnect dialog: Ask for optional feedback when deactivating Jetpack from the Plugins page. [#52828]
+- Export `getUserConnectionUrl` from a subpath that bundlers without SCSS support can import. [#52810]
 
 ### Changed
 - Use logical CSS properties so layouts mirror in right-to-left languages. [#52749]
@@ -1522,6 +1554,12 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[2.12.1]: https://github.com/Automattic/jetpack-connection-js/compare/v2.12.0...v2.12.1
+[2.12.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.11.1...v2.12.0
+[2.11.1]: https://github.com/Automattic/jetpack-connection-js/compare/v2.11.0...v2.11.1
+[2.11.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.10.0...v2.11.0
+[2.10.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.9.0...v2.10.0
+[2.9.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.8.0...v2.9.0
 [2.8.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.7.0...v2.8.0
 [2.7.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.6.0...v2.7.0
 [2.6.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.5.3...v2.6.0

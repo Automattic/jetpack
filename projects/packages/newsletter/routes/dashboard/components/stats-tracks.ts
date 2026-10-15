@@ -17,6 +17,8 @@ export function recordStatsEvent(
 		| 'jetpack_newsletter_stats_view_all_click'
 		| 'jetpack_newsletter_stats_create_post_click'
 		| 'jetpack_newsletter_stats_retry_click'
+		| 'jetpack_newsletter_stats_interval_click'
+		| 'jetpack_newsletter_stats_period_click'
 		| 'jetpack_newsletter_stats_state_view',
 	props: Record< string, string | number > = {}
 ): void {

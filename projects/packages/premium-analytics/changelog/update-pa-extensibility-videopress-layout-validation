@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Dashboard: Drop the instances of unregistered widget types from a section's default layout.

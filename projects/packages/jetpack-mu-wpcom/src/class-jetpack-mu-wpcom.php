@@ -14,7 +14,7 @@ define( 'WPCOM_ADMIN_BAR_UNIFICATION', true );
  * Jetpack_Mu_Wpcom main class.
  */
 class Jetpack_Mu_Wpcom {
-	const PACKAGE_VERSION = '6.10.1';
+	const PACKAGE_VERSION = '6.11.0';
 	const PKG_DIR         = __DIR__ . '/../';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
@@ -48,6 +48,11 @@ class Jetpack_Mu_Wpcom {
 		'meetinghub/meetinghub.php'                      => null,
 		'mail-mint/mail-mint.php'                        => null,
 		'wp-letsencrypt-ssl-pro/wp-letsencrypt.php'      => null,
+		'astra-pro-sites/astra-pro-sites.php'            => null,
+		'echo-rewards/echo-rewards.php'                  => null,
+		'forminator/forminator.php'                      => null,
+		'iron-security/iron-security.php'                => null,
+		'stackable-ultimate-gutenberg-blocks/plugin.php' => null,
 	);
 
 	/**
@@ -107,7 +112,7 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_newspack_blocks' ) );
 
 		// At mu-plugin scope, because Comments::is_enabled() is resolved at plugins_loaded on both hosts.
-		add_filter( 'jetpack_comments_new_hotness', array( __CLASS__, 'enable_jetpack_comments_for_sticker' ) );
+		add_filter( 'jetpack_comments_new_hotness', '__return_true' );
 
 		// These features run only on simple sites.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -120,14 +125,28 @@ class Jetpack_Mu_Wpcom {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_random_redirect' ) );
 		}
 
+		// The Backup page serves both platforms: it offers the transfer on Simple
+		// and the plan upgrade on WoA, and steps aside once backups are live.
+		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Constants::is_true( 'IS_ATOMIC' ) ) {
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_backup' ) );
+		}
+
+		// At mu-plugin scope, because the Jetpack plugin resolves this filter at the earliest plugins_loaded priority.
+		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
+			add_filter( 'jetpack_backup_dashboard_enabled', array( \Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Backup::class, 'filter_jetpack_backup_dashboard' ) );
+		}
+
 		// These features run only on atomic sites.
 		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_custom_css' ) );
 			add_action( 'init', array( __CLASS__, 'schedule_translation_updates' ) );
 		}
 
-		// Premium Analytics offers the Ads tab wherever the plan includes WordAds, on Simple and Atomic.
+		// Premium Analytics offers the Ads tab on Simple and Atomic sites whose plan includes WordAds and that have it on.
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_premium_analytics_wordads_section' ) );
+
+		// Premium Analytics seeds the Top videos widget wherever the plan includes VideoPress, on Simple and Atomic.
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_premium_analytics_videopress_widgets' ) );
 
 		// Unified navigation fix for changes in WordPress 6.2.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'unbind_focusout_on_wp_admin_bar_menu_toggle' ) );
@@ -181,7 +200,7 @@ class Jetpack_Mu_Wpcom {
 		/**
 		 * Filters whether WordPress.com Simple should register the Jetpack AI Hub.
 		 *
-		 * @since $$next-version$$
+		 * @since 6.11.0
 		 *
 		 * @param bool $load Whether to load the AI Hub integration.
 		 */
@@ -400,6 +419,9 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-unified-admin-page-view/wpcom-unified-admin-page-view.php';
 		require_once __DIR__ . '/features/wpcom-widgets/wpcom-widgets.php';
 		require_once __DIR__ . '/features/wpcom-wpadmin-page-view/wpcom-wpadmin-page-view.php';
+		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
+			require_once __DIR__ . '/features/wpme-oembed/wpme-oembed.php';
+		}
 
 		require_once __DIR__ . '/features/write/write.php';
 
@@ -483,11 +505,13 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-options-general/options-general.php';
 		require_once __DIR__ . '/features/wpcom-plugins/wpcom-plugins.php';
 		require_once __DIR__ . '/features/wpcom-plugins/wpcom-marketplace-tab.php';
+		require_once __DIR__ . '/features/wpcom-plugins/wpcom-marketplace-cards.php';
 		require_once __DIR__ . '/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php';
 		require_once __DIR__ . '/features/wpcom-profile-settings/profile-settings-notices.php';
 		require_once __DIR__ . '/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-theme-tracking.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
+		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes-tab.php';
 		require_once __DIR__ . '/features/wpcom-user-edit/wpcom-user-edit.php';
 		require_once __DIR__ . '/features/wpcom-videopress/wpcom-videopress.php';
 
@@ -518,6 +542,7 @@ class Jetpack_Mu_Wpcom {
 
 		if ( class_exists( 'Automattic\Jetpack\Agents_Manager\Agents_Manager' ) ) {
 			\Automattic\Jetpack\Agents_Manager\Agents_Manager::init();
+			require_once __DIR__ . '/features/wpcom-agents-manager/wpcom-agents-manager.php';
 		}
 	}
 
@@ -845,25 +870,9 @@ class Jetpack_Mu_Wpcom {
 		if ( class_exists( '\Automattic\Jetpack\Comments\Checkpoint_Endpoint' ) ) {
 			\Automattic\Jetpack\Comments\Checkpoint_Endpoint::init();
 		}
-	}
-
-	/**
-	 * Turn on the rebuilt Jetpack Comments form for a Simple or Atomic site
-	 * carrying the rollout sticker.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param bool $enabled Whether it is already on.
-	 * @return bool
-	 */
-	public static function enable_jetpack_comments_for_sticker( $enabled ) {
-		if ( $enabled ) {
-			return true;
+		if ( class_exists( '\Automattic\Jetpack\Comments\Embeds' ) ) {
+			\Automattic\Jetpack\Comments\Embeds::init();
 		}
-
-		$blog_id = (int) get_wpcom_blog_id();
-
-		return $blog_id > 0 && wpcom_has_blog_sticker( 'comment-new-hotness', $blog_id );
 	}
 
 	/**
@@ -883,6 +892,15 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
+	 * Load the Backup page on WordPress.com Simple and WoA sites.
+	 *
+	 * The file hooks its own `init`, where the plan lookup it gates on is ready.
+	 */
+	public static function load_wpcom_backup() {
+		require_once __DIR__ . '/features/wpcom-backup/wpcom-backup.php';
+	}
+
+	/**
 	 * Load Odyssey Stats in Simple sites.
 	 */
 	public static function load_wpcom_simple_odyssey_stats() {
@@ -890,15 +908,26 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
-	 * Register the Ads tab of the Premium Analytics dashboard by plan feature.
+	 * Register the Ads tab of the Premium Analytics dashboard where the plan includes WordAds and it is on.
 	 *
 	 * Hooks the dashboard's registry action, which only fires once the package boots, so this
 	 * is inert on a site without the dashboard.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.11.0
 	 */
 	public static function load_premium_analytics_wordads_section() {
 		require_once __DIR__ . '/features/premium-analytics/wordads-section.php';
+	}
+
+	/**
+	 * Register the Top videos widget of the Premium Analytics dashboard by plan feature.
+	 *
+	 * Same seam as the Ads tab: inert on a site without the dashboard.
+	 *
+	 * @since 6.11.0
+	 */
+	public static function load_premium_analytics_videopress_widgets() {
+		require_once __DIR__ . '/features/premium-analytics/videopress-widgets.php';
 	}
 
 	/**
@@ -1003,7 +1032,7 @@ class Jetpack_Mu_Wpcom {
 	 * The `wc-disable-block-editor-unified-assets` blog sticker force-disables the feature,
 	 * while the `wc-block-editor-unified-assets` sticker opts the site in.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.11.0
 	 *
 	 * @param mixed $enabled The current feature option value.
 	 * @return mixed Original option value, `yes` when enabled, or `no` when force-disabled.

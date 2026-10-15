@@ -17,13 +17,14 @@ import {
 	WidgetRoot,
 	WidgetState,
 	useWidgetNavigationSearch,
+	ExporterCsvDownloadButton,
+	emailsCsvExporter,
 	type DataFormat,
 	type MetricListItem,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { envelope } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -263,11 +264,7 @@ function EmailsReport( { attributes }: EmailsReportProps ) {
 						],
 					} }
 					empty={ {
-						icon: envelope,
-						description: __(
-							'Your latest emails will appear here once you send a newsletter.',
-							'jetpack-premium-analytics-pkg'
-						),
+						description: __( 'You haven’t sent any emails yet.', 'jetpack-premium-analytics-pkg' ),
 					} }
 					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
@@ -276,6 +273,11 @@ function EmailsReport( { attributes }: EmailsReportProps ) {
 			</div>
 			<WidgetFooter>
 				<ReportLink report="emails" />
+				<ExporterCsvDownloadButton
+					exporter={ emailsCsvExporter }
+					status={ { isLoading, isFetching, isError: rows.length === 0 && isError } }
+					rowCount={ rows.length }
+				/>
 			</WidgetFooter>
 		</div>
 	);

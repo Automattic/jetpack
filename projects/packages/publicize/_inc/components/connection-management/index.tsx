@@ -1,6 +1,7 @@
 import { Disabled } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { inertValue } from '@wordpress/react-inert-value';
 import { Button } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useUserCanShareConnection } from '../../hooks/use-user-can-share-connection';
@@ -50,14 +51,8 @@ const ConnectionManagement = ( {
 	return (
 		<div
 			className={ clsx( listStyles.wrapper, className ) }
-			// TODO(react-19): React 18 strips boolean `inert` and warns; the
-			// string form below is the only one that renders in React 18.
-			// When Gutenberg bumps to React 19, switch this to
-			// `inert={ disabled || undefined }` and remove the
-			// `@ts-expect-error` (which `inert` will satisfy once it lands in
-			// the stable `@types/react` HTMLAttributes interface).
-			// @ts-expect-error inert property is not yet in react types
-			inert={ disabled ? 'true' : undefined }
+			// @ts-expect-error inert property is not in the React 18 types
+			inert={ inertValue( disabled ) }
 		>
 			{ connections.length ? (
 				<>

@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router';
+import { MemoryRouter, useLocation } from 'react-router';
 import { FeaturesContent } from '../content';
 import { getModuleFeatureState } from '../use-more-features';
 import type { MyJetpackModule } from '../../../../types';
@@ -61,9 +61,12 @@ jest.mock( '../use-more-features', () => ( {
 } ) );
 jest.mock( '../features-banner', () => ( { FeaturesBanner: () => null } ) );
 
+const RouteState = () => <output data-testid="route">{ useLocation().search }</output>;
+
 const tree = ( url: string, client: QueryClient ) => (
 	<QueryClientProvider client={ client }>
 		<MemoryRouter initialEntries={ [ url ] }>
+			<RouteState />
 			<FeaturesContent />
 		</MemoryRouter>
 	</QueryClientProvider>
@@ -85,6 +88,30 @@ describe( 'FeaturesContent', () => {
 			features: [ { slug: 'stats' } ],
 			isPlaceholderData: false,
 		};
+	} );
+
+	it( 'restores the available filter and search from the route after a remount', async () => {
+		const view = renderAt( '/features?view=list' );
+		await userEvent.click( screen.getByRole( 'button', { name: /^Available/ } ) );
+		await userEvent.type( screen.getByRole( 'searchbox', { name: 'Search features' } ), 'monitor' );
+		const saved = screen.getByTestId( 'route' ).textContent;
+		expect( new URLSearchParams( saved || '' ).get( 'filter' ) ).toBe( 'available' );
+		expect( new URLSearchParams( saved || '' ).get( 'search' ) ).toBe( 'monitor' );
+		view.unmount();
+		renderAt( `/features${ saved }` );
+		expect( screen.getByRole( 'button', { name: /^Available/ } ) ).toHaveAttribute(
+			'aria-pressed',
+			'false'
+		);
+		expect( screen.getByRole( 'searchbox', { name: 'Search features' } ) ).toHaveValue( 'monitor' );
+		expect(
+			new URLSearchParams( screen.getByTestId( 'route' ).textContent || '' ).get( 'filter' )
+		).toBe( 'available' );
+		await userEvent.clear( screen.getByRole( 'searchbox', { name: 'Search features' } ) );
+		expect( screen.getByRole( 'button', { name: /^Available/ } ) ).toHaveAttribute(
+			'aria-pressed',
+			'true'
+		);
 	} );
 
 	it( 'names the filter that matched nothing and switches back from the empty state', async () => {
@@ -131,6 +158,56 @@ describe( 'FeaturesContent', () => {
 		expect(
 			screen.getByRole( 'heading', { name: 'We couldn’t load your features.' } )
 		).toBeVisible();
+	} );
+
+	it( 'leaves every filter pill unpressed while a search covers all features', () => {
+		renderAt( '/features?filter=growth&search=stats' );
+
+		const pills = within( screen.getByRole( 'group', { name: 'Filter features' } ) );
+
+		expect( pills.getByRole( 'button', { name: /^Growth/ } ) ).toBeInTheDocument();
+		expect( pills.queryAllByRole( 'button', { pressed: true } ) ).toHaveLength( 0 );
+	} );
+
+	it( 'drops the category pills for a visit that arrived on Included in plan, until it leaves the tab', async () => {
+		const { unmount } = renderAt( '/features?filter=included' );
+
+		const pillNames = () =>
+			within( screen.getByRole( 'group', { name: 'Filter features' } ) )
+				.getAllByRole( 'button' )
+				.map( pill => pill.textContent?.replace( /\d+$/, '' ) );
+
+		expect( pillNames() ).toEqual( [
+			'All',
+			'Available',
+			'Active',
+			'Inactive',
+			'Included in plan',
+		] );
+
+		await userEvent.click( screen.getByRole( 'button', { name: /^All/ } ) );
+
+		expect( pillNames() ).toEqual( [
+			'All',
+			'Available',
+			'Active',
+			'Inactive',
+			'Included in plan',
+		] );
+
+		// A fresh mount is a new visit to the tab, which offers the usual pills again.
+		unmount();
+		renderAt( '/features' );
+
+		expect( pillNames() ).toEqual( [
+			'All',
+			'Available',
+			'Active',
+			'Inactive',
+			'Essential',
+			'Security',
+			'Growth',
+		] );
 	} );
 
 	it( 'shows the grid by default and switches to the list from the toolbar', async () => {

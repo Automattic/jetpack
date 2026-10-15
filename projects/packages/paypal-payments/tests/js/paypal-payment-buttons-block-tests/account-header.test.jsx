@@ -213,7 +213,7 @@ describe( 'PayPalAccountHeader', () => {
 		expect( drawnPath( card ) ).toBe( PayPalIcon.props.children[ 0 ].props.d );
 	} );
 
-	it( 'lists the three menu items in the order the design draws them', async () => {
+	it( 'lists the four menu items in the order the design draws them', async () => {
 		const user = userEvent.setup();
 		openSidebar();
 		renderHeader();
@@ -224,6 +224,7 @@ describe( 'PayPalAccountHeader', () => {
 		expect( screen.getAllByRole( 'menuitem' ).map( menuItem => menuItem.textContent ) ).toEqual( [
 			'Customize checkout settings',
 			'View transactions',
+			'How to issue a refund',
 			'Log out',
 		] );
 	} );
@@ -243,7 +244,7 @@ describe( 'PayPalAccountHeader', () => {
 		).toBeInTheDocument();
 	} );
 
-	it( 'gives the two PayPal links the external icon and Log out the login icon', async () => {
+	it( 'gives the three PayPal links the external icon and Log out the login icon', async () => {
 		const user = userEvent.setup();
 		openSidebar();
 		renderHeader();
@@ -253,6 +254,7 @@ describe( 'PayPalAccountHeader', () => {
 
 		expect( drawnPath( item( 'Customize checkout settings' ) ) ).toBe( pathOf( external ) );
 		expect( drawnPath( item( 'View transactions' ) ) ).toBe( pathOf( external ) );
+		expect( drawnPath( item( 'How to issue a refund' ) ) ).toBe( pathOf( external ) );
 		expect( drawnPath( item( 'Log out' ) ) ).toBe( pathOf( login ) );
 	} );
 
@@ -273,6 +275,23 @@ describe( 'PayPalAccountHeader', () => {
 			'href',
 			'https://www.sandbox.paypal.com/unifiedtransactions/'
 		);
+	} );
+
+	it( 'links to the same refund help article in every environment', async () => {
+		const user = userEvent.setup();
+		openSidebar();
+		renderHeader( { environment: 'sandbox' } );
+		await expect( screen.findByText( 'PayPal Payment Button' ) ).resolves.toBeInTheDocument();
+
+		await openMenu( user );
+
+		const refund = item( 'How to issue a refund' );
+		expect( refund ).toHaveAttribute(
+			'href',
+			'https://www.paypal.com/us/cshelp/article/how-do-i-issue-a-refund-help101'
+		);
+		expect( refund ).toHaveAttribute( 'target', '_blank' );
+		expect( refund ).toHaveAttribute( 'rel', 'noopener noreferrer' );
 	} );
 
 	it( 'falls back to production for an unknown environment', async () => {

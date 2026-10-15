@@ -2,45 +2,73 @@
  * External dependencies
  */
 import { fireEvent, render, screen } from '@testing-library/react';
-import { setSettings } from '@wordpress/date';
+import userEvent from '@testing-library/user-event';
 import { _n } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { siteSettingsIn } from '../../../__fixtures__/wp-date-settings';
+import {
+	resetMockCharts,
+	setMockChartWidth,
+	setMockElementStyles,
+} from '../../../../../../tests/js/chart-test-utils';
+import * as comparativeBarChart from '../../chart-comparative-bar/comparative-bar-chart';
+import * as comparativeLineChart from '../../chart-comparative-line/comparative-line-chart';
+import { WidgetRootContext } from '../../widget-root/context';
 import { MetricTabsChart } from '../metric-tabs-chart';
 import type { ComparativeLineChartSeries } from '../../chart-comparative-line/types';
 import type { MetricTab } from '../metric-tabs-chart';
-import type { DateFormatName } from '@jetpack-premium-analytics/formatters';
+import type { ReportParams } from '@jetpack-premium-analytics/data';
+
+jest.mock( '@jetpack-premium-analytics/externals', () =>
+	jest.requireActual( '../../../../../../tests/js/chart-test-utils' ).mockChartExternals()
+);
+
+jest.mock(
+	'@wordpress/compose',
+	() => jest.requireActual( '../../../../../../tests/js/chart-test-utils' ).mockWordPressCompose
+);
 
 // The charts render SVG through a provider jsdom cannot lay out, so stand them in
 // for prop recorders.
 const mockLineSpy = jest.fn();
 const mockBarSpy = jest.fn();
 
-jest.mock( '../../chart-comparative-line', () => ( {
-	ComparativeLineChart: ( props: ChartProps ) => {
-		mockLineSpy( props );
-		return <div data-testid="line-chart" />;
-	},
-} ) );
+/** Stand the comparative charts in for prop recorders, restoring them after each test. */
+function recordChartProps() {
+	let lineChart: jest.SpyInstance;
+	let barChart: jest.SpyInstance;
 
-jest.mock( '../../chart-comparative-bar', () => ( {
-	ComparativeBarChart: ( props: ChartProps ) => {
-		mockBarSpy( props );
-		return <div data-testid="bar-chart" />;
-	},
-} ) );
+	beforeEach( () => {
+		resetMockCharts();
+		mockLineSpy.mockClear();
+		mockBarSpy.mockClear();
+		lineChart = jest
+			.spyOn( comparativeLineChart, 'ComparativeLineChart' )
+			.mockImplementation( props => {
+				mockLineSpy( props );
+				return <div data-testid="line-chart" />;
+			} );
+		barChart = jest
+			.spyOn( comparativeBarChart, 'ComparativeBarChart' )
+			.mockImplementation( props => {
+				mockBarSpy( props );
+				return <div data-testid="bar-chart" />;
+			} );
+	} );
 
-jest.mock( '../../../hooks', () => ( {
-	useSeriesStyles: () => [],
-} ) );
+	afterEach( () => {
+		lineChart.mockRestore();
+		barChart.mockRestore();
+	} );
+}
 
 type ChartProps = {
 	series: ComparativeLineChartSeries[];
 	chartId?: string;
 	defaultHiddenSeries?: readonly string[];
 	legendInteractive?: boolean;
+	comparisonLabel?: string;
 	baseline?: 'zero' | 'padded';
 	onPointerDown?: ( params: PointerParams ) => void;
 	onPointerUp?: ( params: PointerParams ) => void;
@@ -87,6 +115,18 @@ const VISITORS: MetricTab = {
 	counterpartKey: 'views',
 };
 
+/** Params for the week of 2026-10-05 compared with the given window. */
+const comparedWith = ( preset: string, from: string, to: string ) =>
+	( {
+		from: '2026-10-05T00:00:00Z',
+		to: '2026-10-11T23:59:59.999Z',
+		interval: 'day',
+		comp: '1',
+		compare_from: `${ from }T00:00:00Z`,
+		compare_to: `${ to }T23:59:59.999Z`,
+		compare_preset: preset,
+	} ) as ReportParams;
+
 /** The props the most recent chart render received. */
 function recordedProps( spy: jest.Mock ): ChartProps {
 	// Without this, a chart that never rendered yields `undefined` and the
@@ -121,19 +161,8 @@ function recordedPropsFor( spy: jest.Mock, label: string ): ChartProps {
 	return call[ 0 ];
 }
 
-/** The tooltip date formatter the most recent chart render received. */
-function recordedTooltipDateFormatter(
-	spy: jest.Mock
-): ( date: Date, format: DateFormatName ) => string {
-	expect( spy ).toHaveBeenCalled();
-	return spy.mock.calls.at( -1 )[ 0 ].formatTooltipDate;
-}
-
 describe( 'MetricTabsChart', () => {
-	beforeEach( () => {
-		mockLineSpy.mockClear();
-		mockBarSpy.mockClear();
-	} );
+	recordChartProps();
 
 	it( 'draws a line chart by default', () => {
 		render( <MetricTabsChart metrics={ [ METRIC ] } dataFormat={ DATA_FORMAT } /> );
@@ -155,15 +184,6 @@ describe( 'MetricTabsChart', () => {
 		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'renders multiple metrics as tabs', () => {
-		const visitors = { ...METRIC, key: 'visitors', label: 'Visitors' };
-
-		render( <MetricTabsChart metrics={ [ METRIC, visitors ] } dataFormat={ DATA_FORMAT } /> );
-
-		expect( screen.getByRole( 'tablist' ) ).toBeInTheDocument();
-		expect( screen.getAllByRole( 'tab' ) ).toHaveLength( 2 );
-	} );
-
 	it( 'draws a bar chart when chartType is bar', () => {
 		render( <MetricTabsChart metrics={ [ METRIC ] } dataFormat={ DATA_FORMAT } chartType="bar" /> );
 
@@ -171,24 +191,12 @@ describe( 'MetricTabsChart', () => {
 		expect( screen.queryByTestId( 'line-chart' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'hands the baseline to the line chart only', () => {
+	it( 'hands the baseline to the line chart', () => {
 		render(
 			<MetricTabsChart metrics={ [ METRIC ] } dataFormat={ DATA_FORMAT } baseline="padded" />
 		);
 		expect( mockLineSpy ).toHaveBeenLastCalledWith(
 			expect.objectContaining( { baseline: 'padded' } )
-		);
-
-		render(
-			<MetricTabsChart
-				metrics={ [ METRIC ] }
-				dataFormat={ DATA_FORMAT }
-				chartType="bar"
-				baseline="padded"
-			/>
-		);
-		expect( mockBarSpy ).toHaveBeenLastCalledWith(
-			expect.not.objectContaining( { baseline: expect.anything() } )
 		);
 	} );
 
@@ -227,7 +235,8 @@ describe( 'MetricTabsChart', () => {
 		render( <MetricTabsChart metrics={ [ unavailable ] } dataFormat={ DATA_FORMAT } /> );
 
 		expect( screen.queryByTestId( 'line-chart' ) ).not.toBeInTheDocument();
-		expect( screen.getAllByText( reason ) ).not.toHaveLength( 0 );
+		// Once in the plot, once in the headline's visually hidden note.
+		expect( screen.getAllByText( reason ) ).toHaveLength( 2 );
 		// The headline stands down to a placeholder rather than reporting a total
 		// the endpoint never returned.
 		expect( screen.queryByText( '300' ) ).not.toBeInTheDocument();
@@ -301,6 +310,24 @@ describe( 'MetricTabsChart', () => {
 			expect( screen.queryByText( EMPTY_TEXT ) ).not.toBeInTheDocument();
 		} );
 
+		// A post published on a day with no views is a row to read out, not traffic to draw.
+		it( "shows it when only the metric's own extras have readings", () => {
+			const posts = {
+				label: 'Posts published',
+				data: [ { date: new Date( '2026-07-01T00:00:00Z' ), value: 1 } ],
+			};
+
+			render(
+				<MetricTabsChart
+					metrics={ [ { ...zeroFilled, tooltipExtras: [ posts ] } ] }
+					dataFormat={ DATA_FORMAT }
+					empty={ <p>{ EMPTY_TEXT }</p> }
+				/>
+			);
+
+			expect( screen.getByText( EMPTY_TEXT ) ).toBeInTheDocument();
+		} );
+
 		it( 'shows it when every metric in the tooltip readout is empty too', () => {
 			render(
 				<MetricTabsChart
@@ -326,7 +353,7 @@ describe( 'MetricTabsChart', () => {
 			);
 
 			expect( screen.queryByText( EMPTY_TEXT ) ).not.toBeInTheDocument();
-			expect( screen.getAllByText( reason ) ).not.toHaveLength( 0 );
+			expect( screen.getAllByText( reason ) ).toHaveLength( 2 );
 		} );
 	} );
 
@@ -352,28 +379,6 @@ describe( 'MetricTabsChart', () => {
 		expect( screen.queryByTestId( 'line-chart' ) ).not.toBeInTheDocument();
 		expect( screen.getByText( reason ) ).toBeInTheDocument();
 		expect( screen.getByText( '300' ) ).toBeInTheDocument();
-	} );
-
-	// A point's date is the instant it is: the component passes it through, and
-	// the site's zone decides which calendar day that instant lands on.
-	it.each( [
-		[ 'Asia/Tokyo', 'July 2, 2026 12:00 am' ],
-		[ 'America/Los_Angeles', 'July 1, 2026 8:00 am' ],
-	] )( 'labels a point in the site zone, on a site in %s', ( siteZone, expected ) => {
-		setSettings( siteSettingsIn( siteZone ) );
-
-		const instant = new Date( Date.UTC( 2026, 6, 1, 15, 0 ) );
-
-		render(
-			<MetricTabsChart
-				metrics={ [
-					{ ...METRIC, current: [ { date: instant, value: 100 } ], previous: undefined },
-				] }
-				dataFormat={ DATA_FORMAT }
-			/>
-		);
-
-		expect( recordedTooltipDateFormatter( mockLineSpy )( instant, 'dateTime' ) ).toBe( expected );
 	} );
 
 	it( 'keeps an unavailable metric selectable, so its reason stays reachable', () => {
@@ -479,6 +484,63 @@ describe( 'MetricTabsChart', () => {
 		expect( legendInteractive ).toBe( true );
 	} );
 
+	it( 'renames the comparison without touching what keeps the counterpart hidden', () => {
+		const chart = ( reportParams: ReportParams ) => (
+			<WidgetRootContext.Provider value={ { reportParams } }>
+				<MetricTabsChart
+					metrics={ [ { ...VIEWS, counterpartHidden: true }, VISITORS ] }
+					dataFormat={ DATA_FORMAT }
+				/>
+			</WidgetRootContext.Provider>
+		);
+
+		const { rerender } = render(
+			chart( comparedWith( 'previous-year', '2025-10-05', '2025-10-11' ) )
+		);
+		const before = recordedPropsFor( mockLineSpy, 'Views' );
+
+		rerender( chart( comparedWith( 'previous-period', '2026-09-28', '2026-10-04' ) ) );
+		const after = recordedPropsFor( mockLineSpy, 'Views' );
+
+		expect( [ before.comparisonLabel, after.comparisonLabel ] ).toEqual( [
+			'2025',
+			'Prev. 7 days',
+		] );
+		expect( after.chartId ).toBe( before.chartId );
+		expect( after.series.map( item => item.label ) ).toEqual(
+			before.series.map( item => item.label )
+		);
+		expect( after.defaultHiddenSeries ).toEqual( [ 'Visitors', 'Visitors · previous period' ] );
+	} );
+
+	it.each( [
+		[ 'bar chart', mockBarSpy, [ VIEWS, VISITORS ], 'bar', undefined, [ 0, 2 ] ],
+		[ 'narrow dropdown layout', mockLineSpy, [ VIEWS, VISITORS ], undefined, 100, [ 1, 0 ] ],
+		[ 'single metric', mockLineSpy, [ VIEWS ], undefined, undefined, [ 0, 0 ] ],
+	] as const )(
+		"hands the widget's comparison name to the %s",
+		( _layout, spy, metrics, chartType, width, [ selects, tabs ] ) => {
+			setMockChartWidth( width );
+			render(
+				<WidgetRootContext.Provider
+					value={ { reportParams: comparedWith( 'previous-year', '2025-10-05', '2025-10-11' ) } }
+				>
+					<MetricTabsChart
+						metrics={ [ ...metrics ] }
+						dataFormat={ DATA_FORMAT }
+						chartType={ chartType }
+					/>
+				</WidgetRootContext.Provider>
+			);
+
+			expect( [
+				screen.queryAllByRole( 'combobox' ).length,
+				screen.queryAllByRole( 'tab' ).length,
+			] ).toEqual( [ selects, tabs ] );
+			expect( recordedPropsFor( spy, 'Views' ).comparisonLabel ).toBe( '2025' );
+		}
+	);
+
 	it( 'swaps the pair around when the reader picks the counterpart', () => {
 		render( <MetricTabsChart metrics={ [ VIEWS, VISITORS ] } dataFormat={ DATA_FORMAT } /> );
 
@@ -495,55 +557,61 @@ describe( 'MetricTabsChart', () => {
 		expect( after.chartId ).not.toBe( before.chartId );
 	} );
 
-	it( 'leaves the legend inert for a metric with no counterpart', () => {
-		render( <MetricTabsChart metrics={ [ METRIC ] } dataFormat={ DATA_FORMAT } /> );
+	it.each( [
+		[ 'line', mockLineSpy ],
+		[ 'bar', mockBarSpy ],
+	] as const )(
+		'draws the selected metric in the accent and its counterpart in a dark shade, previous periods included (%s)',
+		async ( chartType, spy ) => {
+			const accent = '#3858E9';
+			const darkShade = '#1c2c75';
+			setMockElementStyles( ( { index } ) => ( { color: index === 0 ? accent : '#5AA61B' } ) );
+			const user = userEvent.setup();
+			render(
+				<MetricTabsChart
+					metrics={ [ VIEWS, VISITORS ] }
+					dataFormat={ DATA_FORMAT }
+					chartType={ chartType }
+				/>
+			);
+			const strokes = ( label: string ) =>
+				recordedPropsFor( spy, label ).series.map( series => series.options?.stroke );
+			const expected = [ accent, accent, darkShade, darkShade ];
 
-		const { series, defaultHiddenSeries, legendInteractive } = recordedProps( mockLineSpy );
+			expect( strokes( 'Views' ) ).toEqual( expected );
+			await user.click( screen.getByRole( 'tab', { name: /Visitors/ } ) );
+			expect( strokes( 'Visitors' ) ).toEqual( expected );
+		}
+	);
+
+	// The Traffic summary pairs Views with Visitors, but the hourly grain serves Views
+	// alone, so drawing the pair there offers the legend a flat zero line.
+	it.each( [
+		[ 'a metric with no counterpart', [ METRIC ] ],
+		[ 'a counterpart key that names no metric', [ { ...METRIC, counterpartKey: 'nowhere' } ] ],
+		[
+			'a counterpart key that names the metric itself',
+			[ { ...METRIC, counterpartKey: 'views' } ],
+		],
+		[
+			'an unavailable counterpart',
+			[ VIEWS, { ...VISITORS, unavailable: "Hourly data isn't available." } ],
+		],
+		[
+			'a counterpart whose series alone is unavailable',
+			[ VIEWS, { ...VISITORS, seriesUnavailable: "Hourly data isn't available." } ],
+		],
+	] )( 'draws the metric alone, with an inert legend, for %s', ( _case, metrics ) => {
+		render( <MetricTabsChart metrics={ metrics } dataFormat={ DATA_FORMAT } /> );
+
+		const { series, defaultHiddenSeries, legendInteractive } = recordedPropsFor(
+			mockLineSpy,
+			'Views'
+		);
 
 		expect( series ).toHaveLength( 2 );
 		expect( defaultHiddenSeries ).toBeUndefined();
 		expect( legendInteractive ).toBe( false );
-	} );
-
-	it( 'ignores a counterpart key that names no metric', () => {
-		const orphan = { ...METRIC, counterpartKey: 'nowhere' };
-
-		render( <MetricTabsChart metrics={ [ orphan ] } dataFormat={ DATA_FORMAT } /> );
-
-		expect( recordedProps( mockLineSpy ).series ).toHaveLength( 2 );
-		expect( recordedProps( mockLineSpy ).legendInteractive ).toBe( false );
-	} );
-
-	// The Traffic summary pairs Views with Visitors, but the hourly grain serves Views
-	// alone, so drawing the pair there offers the legend a flat zero line.
-	it.each( [ 'unavailable', 'seriesUnavailable' ] )(
-		'ignores a counterpart with nothing to draw at this bucket size (%s)',
-		reasonKey => {
-			const unavailableVisitors = { ...VISITORS, [ reasonKey ]: "Hourly data isn't available." };
-
-			render(
-				<MetricTabsChart metrics={ [ VIEWS, unavailableVisitors ] } dataFormat={ DATA_FORMAT } />
-			);
-
-			const { series, defaultHiddenSeries, legendInteractive } = recordedPropsFor(
-				mockLineSpy,
-				'Views'
-			);
-
-			expect( series ).toHaveLength( 2 );
-			expect( defaultHiddenSeries ).toBeUndefined();
-			expect( legendInteractive ).toBe( false );
-		}
-	);
-
-	it( 'ignores a counterpart key that names the metric itself', () => {
-		const selfPaired = { ...METRIC, counterpartKey: METRIC.key };
-
-		render( <MetricTabsChart metrics={ [ selfPaired ] } dataFormat={ DATA_FORMAT } /> );
-
-		expect( recordedProps( mockLineSpy ).series ).toHaveLength( 2 );
-		expect( recordedProps( mockLineSpy ).defaultHiddenSeries ).toBeUndefined();
-		expect( recordedProps( mockLineSpy ).legendInteractive ).toBe( false );
 	} );
 
 	it( 'pairs the metrics in bar mode too', () => {
@@ -712,15 +780,40 @@ describe( 'MetricTabsChart tooltipMetrics', () => {
 		return ( recordedProps( spy ) as ChartProps & { tooltipExtras?: unknown } ).tooltipExtras;
 	}
 
-	beforeEach( () => {
-		mockLineSpy.mockClear();
-		mockBarSpy.mockClear();
-	} );
+	recordChartProps();
 
 	it( 'reads only the drawn metric out by default', () => {
 		render( <MetricTabsChart metrics={ [ METRIC, CPM ] } dataFormat={ DATA_FORMAT } /> );
 
 		expect( recordedExtras( mockLineSpy ) ).toBeUndefined();
+	} );
+
+	it( "appends the drawn metric's own extras after the other metrics", () => {
+		const ratio = {
+			label: 'Views per visitor',
+			data: [ { date: new Date( '2026-07-01T00:00:00Z' ), value: 2.5 } ],
+			dataFormat: { type: 'number' as const, options: { decimals: 2 } },
+		};
+
+		render(
+			<MetricTabsChart
+				metrics={ [ { ...METRIC, tooltipExtras: [ ratio ] }, CPM ] }
+				dataFormat={ DATA_FORMAT }
+			/>
+		);
+		expect( recordedExtras( mockLineSpy ) ).toEqual( [ ratio ] );
+
+		render(
+			<MetricTabsChart
+				metrics={ [ { ...METRIC, tooltipExtras: [ ratio ] }, CPM ] }
+				dataFormat={ DATA_FORMAT }
+				tooltipMetrics="all"
+			/>
+		);
+		expect( recordedExtras( mockLineSpy ) ).toEqual( [
+			{ label: 'Average CPM', data: CPM.current, dataFormat: CURRENCY },
+			ratio,
+		] );
 	} );
 
 	it( 'hands every other metric to the tooltip, each in its own format, when set to all', () => {

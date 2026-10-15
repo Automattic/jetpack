@@ -171,19 +171,10 @@ class Dashboard_Layout_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The Top videos instance follows VideoPress, which this test env lacks.
+	 * Nothing here seeds Top videos: the VideoPress package appends it at order 8.
 	 */
-	public function test_traffic_default_excludes_videopress_widget_without_videopress() {
-		$this->assertNotContains( 'jpa/videopress', $this->served_layout_types( 'analytics/traffic' ), 'Top videos must not be part of the default layout without VideoPress.' );
-	}
-
-	/**
-	 * With VideoPress, the Top videos instance is back in the default layout.
-	 */
-	public function test_traffic_default_keeps_videopress_widget_with_videopress() {
-		add_filter( VIDEOPRESS_AVAILABLE_FILTER, '__return_true' );
-
-		$this->assertContains( 'jpa/videopress', $this->served_layout_types( 'analytics/traffic' ) );
+	public function test_traffic_default_leaves_top_videos_to_the_videopress_package() {
+		$this->assertNotContains( 8, array_column( array_column( get_traffic_section_default_layout(), 'placement' ), 'order' ) );
 	}
 
 	/**
@@ -203,7 +194,7 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$layout_types = $this->served_layout_types( 'analytics/insights' );
 
 		$this->assertNotContains( 'jpa/shares', $layout_types, 'Simple-only widget instances must not be part of the default layout on self-hosted sites.' );
-		$this->assertContains( 'jpa/tags', $layout_types, 'Regular widget instances remain in the default layout.' );
+		$this->assertContains( 'jpa/most-commented-posts', $layout_types, 'Regular widget instances remain in the default layout.' );
 	}
 
 	/**
@@ -272,6 +263,84 @@ class Dashboard_Layout_Test extends BaseTestCase {
 
 		$this->assertContains( 'example/registered', $layout_types );
 		$this->assertNotContains( 'example/unregistered', $layout_types, 'A default must not seed a type the site has not registered.' );
+	}
+
+	/**
+	 * An instance a plugin still adds under a former name is renamed, and so survives the
+	 * unregistered-type check under the current one.
+	 */
+	public function test_default_renames_an_instance_added_under_a_former_type_name() {
+		$this->assertInstanceOf(
+			Widget_Type::class,
+			register_widget_type(
+				'example/current',
+				array(
+					'render_module' => 'example/render',
+					'former_names'  => array( 'example/former' ),
+				)
+			)
+		);
+		$this->filter_default_layout(
+			static function ( $layout, $section_id ) {
+				if ( 'analytics/traffic' === $section_id ) {
+					$layout[] = get_dashboard_default_widget_instance( 'example-former', 'example/former', 20 );
+				}
+				return $layout;
+			}
+		);
+
+		$layout_types = $this->served_layout_types( 'analytics/traffic' );
+
+		$this->assertContains( 'example/current', $layout_types );
+		$this->assertNotContains( 'example/former', $layout_types );
+	}
+
+	/**
+	 * An instance whose type is not a string, such as the Widget_Type object
+	 * register_widget_type() returns, is an unknown type: dropped, without failing the route.
+	 */
+	public function test_default_drops_an_instance_whose_type_is_not_a_string() {
+		$widget_type = register_widget_type( 'example/object-typed', array( 'render_module' => 'example/render' ) );
+		$this->assertInstanceOf( Widget_Type::class, $widget_type );
+		$this->filter_default_layout(
+			static function ( $layout, $section_id ) use ( $widget_type ) {
+				if ( 'analytics/traffic' === $section_id ) {
+					// What a plugin gets by passing the object register_widget_type() returns, or a list.
+					$object_typed         = get_dashboard_default_widget_instance( 'object-typed', 'example/object-typed', 20 );
+					$object_typed['type'] = $widget_type;
+					$array_typed          = get_dashboard_default_widget_instance( 'array-typed', 'example/object-typed', 21 );
+					$array_typed['type']  = array( 'example/object-typed' );
+					$layout[]             = $object_typed;
+					$layout[]             = $array_typed;
+					$layout[]             = get_dashboard_default_widget_instance( 'string-typed', 'example/object-typed', 22 );
+				}
+				return $layout;
+			}
+		);
+
+		$layout_types = $this->served_layout_types( 'analytics/traffic' );
+
+		$this->assertNotContains( $widget_type, $layout_types );
+		$this->assertNotContains( array( 'example/object-typed' ), $layout_types );
+		$this->assertSame( array( 'example/object-typed' ), array_values( array_filter( $layout_types, 'is_string' ) ) );
+	}
+
+	/**
+	 * Something that is not an instance at all passes through the policy untouched.
+	 */
+	public function test_policy_leaves_non_instances_alone() {
+		$this->register_example_widget_type( 'example/registered' );
+
+		$layout = remove_unsupported_default_layout_items(
+			array(
+				'not-an-instance',
+				get_dashboard_default_widget_instance( 'registered', 'example/registered', 20 ),
+				get_dashboard_default_widget_instance( 'unregistered', 'example/unregistered', 21 ),
+			)
+		);
+
+		$this->assertSame( array( 'not-an-instance', 'registered' ), array( $layout[0], $layout[1]['uuid'] ) );
+		$this->assertCount( 2, $layout );
 	}
 
 	/**
@@ -359,16 +428,13 @@ class Dashboard_Layout_Test extends BaseTestCase {
 				'default-top-platforms-widget-instance'   => array( 'jpa/top-platforms', 1, 2, 5 ),
 				'default-utm-insights-widget-instance'    => array( 'jpa/utm-insights', 1, 2, 6 ),
 				'default-clicks-widget-instance'          => array( 'jpa/clicks', 1, 2, 7 ),
-				'default-videopress-widget-instance'      => array( 'jpa/videopress', 1, 2, 8 ),
 				'default-authors-widget-instance'         => array( 'jpa/authors', 1, 2, 9 ),
 				'default-search-terms-widget-instance'    => array( 'jpa/search-terms', 1, 2, 10 ),
 				'default-file-downloads-widget-instance'  => array( 'jpa/file-downloads', 1, 2, 11 ),
+				'default-tags-widget-instance'            => array( 'jpa/tags', 2, 2, 12 ),
 			),
 			$layout
 		);
-
-		// Plan usage is intentionally not a default (and held back entirely while the paid plan is revised).
-		$this->assertNotContains( 'jpa/plan-usage', array_column( $layout, 'type' ) );
 
 		$this->assertSame(
 			array(
@@ -395,18 +461,18 @@ class Dashboard_Layout_Test extends BaseTestCase {
 				'default-most-popular-day-widget-instance' => array( 'jpa/most-popular-day', 1, 2, 3 ),
 				'default-popular-post-widget-instance'     => array( 'jpa/popular-post', 2, 2, 4 ),
 				'default-latest-post-widget-instance'      => array( 'jpa/latest-post', 1, 2, 5 ),
-				'default-posting-activity-widget-instance' => array( 'jpa/posting-activity', 3, 1, 6 ),
+				'default-posting-activity-widget-instance' => array( 'jpa/posting-activity', 3, 2, 6 ),
 				'default-views-over-years-widget-instance' => array( 'jpa/views-over-years', 3, 2, 7 ),
-				'default-tags-widget-instance'             => array( 'jpa/tags', 2, 2, 8 ),
-				'default-most-commented-posts-widget-instance' => array( 'jpa/most-commented-posts', 1, 2, 9 ),
+				'default-most-commented-posts-widget-instance' => array( 'jpa/most-commented-posts', 1, 2, 8 ),
+				'default-most-commented-authors-widget-instance' => array( 'jpa/most-commented-authors', 2, 2, 9 ),
 				'default-shares-widget-instance'           => array( 'jpa/shares', 1, 2, 10 ),
-				'default-most-commented-authors-widget-instance' => array( 'jpa/most-commented-authors', 2, 2, 11 ),
 			),
 			$layout
 		);
 
 		$this->assertNotContains( 'jpa/authors', $layout_types );
-		$this->assertNotContains( 'jpa/videopress', $layout_types );
+		// Tags follow the date picker, so they sit on the Traffic tab.
+		$this->assertNotContains( 'jpa/tags', $layout_types );
 		// Emails is not an Insights module — it lives on the Subscribers tab.
 		$this->assertNotContains( 'jpa/stats-emails', $layout_types );
 		// The Comments module ships as two focused widgets, not one toggled widget.
@@ -457,18 +523,5 @@ class Dashboard_Layout_Test extends BaseTestCase {
 			),
 			$layout_by_uuid['default-subscribers-emails-widget-instance']['attributes']
 		);
-	}
-
-	/**
-	 * The Store tab declares its bundled store widgets.
-	 */
-	public function test_store_section_declares_the_bundled_widgets() {
-		$layout_types = array_column( get_store_section_default_layout(), 'type' );
-
-		$this->assertContains( 'jpa/store-performance', $layout_types );
-		$this->assertContains( 'jpa/total-sales-over-time', $layout_types );
-		$this->assertContains( 'jpa/conversion-rate', $layout_types );
-		$this->assertContains( 'jpa/orders-over-time', $layout_types );
-		$this->assertContains( 'jpa/top-performing-products', $layout_types );
 	}
 }

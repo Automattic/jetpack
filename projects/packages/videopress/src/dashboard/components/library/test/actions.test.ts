@@ -5,6 +5,7 @@ import { setSimpleSite, unsetSimpleSite } from '../../../test-utils/simple-site'
 import { buildLibraryActions } from '../actions';
 import type { LibraryItem } from '../../../types/library';
 import type { Action, RenderModalProps } from '@wordpress/dataviews';
+import type { JSX } from 'react';
 
 jest.mock( '@wordpress/i18n', () => ( {
 	__: ( text: string ) => text,

@@ -195,10 +195,15 @@
 }
 
 .jetpack-paypal-wizard__logo {
-	display: block;
-	width: 140px;
-	height: auto;
-	margin: 12px 0 16px;
+	display: flex;
+	justify-content: center;
+	margin: 16px 0;
+
+	// The block icon is drawn at 24px. The design shows it at 48 here.
+	svg {
+		width: 48px;
+		height: 48px;
+	}
 }
 
 .jetpack-paypal-wizard__welcome,
@@ -209,11 +214,41 @@
 	h3 {
 		margin-top: 0;
 		margin-bottom: 8px;
+		// Core's .interface-complementary-area h3 rule would otherwise show "PAYPAL".
+		text-transform: none;
 	}
 
 	p {
 		color: #757575;
 		margin-bottom: 12px;
+	}
+}
+
+// Design: centered, with the button the full width.
+.jetpack-paypal-wizard__welcome {
+	text-align: center;
+
+	// Core's .interface-complementary-area h3 rule would otherwise make it 11px.
+	h3 {
+		font-size: variables.$font-size-medium;
+		line-height: variables.$font-line-height-small;
+	}
+
+	// Plus the toggle's own 12px, the design's 20px down to the button.
+	p {
+		color: inherit;
+		margin-bottom: 8px;
+	}
+
+	.jetpack-paypal-wizard__actions .components-button {
+		justify-content: center;
+		width: 100%;
+	}
+
+	// Keep the toggle and the error notice left-aligned.
+	.jetpack-paypal-wizard__env-toggle,
+	.components-notice {
+		text-align: start;
 	}
 }
 
@@ -360,13 +395,12 @@
 	@extend %field-error-row;
 }
 
-// An amount field can show a hint too, so its error gets a span of its own
-// below the hint.
-.jetpack-paypal-payment-buttons__has-error .jetpack-paypal-payment-buttons__field-error {
+// The error goes below the field.
+.jetpack-paypal-payment-buttons__field-error {
 
 	@extend %field-error-row;
 
-	// Only when a hint sits above it.
+	// Only when a hint or a select is above it.
 	&:not(:first-child) {
 		margin-top: 8px;
 	}
@@ -547,35 +581,6 @@
 	}
 }
 
-// Image upload field in the create/edit form.
-.jetpack-paypal-payment-buttons__image-field {
-	margin-bottom: 16px;
-}
-
-.jetpack-paypal-payment-buttons__image-preview {
-
-	img {
-		display: block;
-		max-width: 100%;
-		max-height: 200px;
-		width: auto;
-		height: auto;
-		border-radius: 4px;
-		border: 1px solid #e0e0e0;
-		margin-bottom: 8px;
-	}
-}
-
-.jetpack-paypal-payment-buttons__image-actions {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-}
-
-.jetpack-paypal-payment-buttons__upload-button {
-	margin-bottom: 4px;
-}
-
 // ---------------------------------------------------------------
 // PayPal Button Preview Component
 // ---------------------------------------------------------------
@@ -623,6 +628,19 @@
 // it gets the default cursor. Two classes, so this outranks style.scss.
 .jetpack-paypal-button-preview__checkout-button.jetpack-paypal-button__checkout-link {
 	cursor: default;
+}
+
+// Gray until the block has a link. Repeated on hover, focus and active to
+// override the theme's button colors.
+.jetpack-paypal-button-preview__checkout-button.is-disabled {
+
+	&,
+	&:hover,
+	&:focus,
+	&:active {
+		background: #edf0f2;
+		color: rgba(0, 0, 0, 0.6);
+	}
 }
 
 // ---------------------------------------------------------------

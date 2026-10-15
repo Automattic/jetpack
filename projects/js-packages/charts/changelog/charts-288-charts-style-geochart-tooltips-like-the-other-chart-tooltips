@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Geo chart: Draw tooltips on the same dark surface, and at the same distance from the cursor, as the other chart tooltips.

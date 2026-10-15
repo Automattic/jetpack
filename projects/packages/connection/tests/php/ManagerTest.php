@@ -141,12 +141,25 @@ class ManagerTest extends TestCase {
 	}
 
 	/**
-	 * A consumer can lock ownership via the jetpack_connection_ownership_transferable filter.
+	 * The deprecated filter still locks ownership until it is removed, and says it is deprecated.
 	 */
-	public function test_is_ownership_transferable_can_be_locked_via_filter() {
+	public function test_is_ownership_transferable_deprecated_filter_still_locks() {
+		$deprecated = array();
+		$record     = function ( $hook ) use ( &$deprecated ) {
+			$deprecated[] = $hook;
+		};
+		add_action( 'deprecated_hook_run', $record );
+		add_filter( 'deprecated_hook_trigger_error', '__return_false' );
 		add_filter( 'jetpack_connection_ownership_transferable', '__return_false' );
-		$this->assertFalse( ( new Manager() )->is_ownership_transferable() );
+
+		$transferable = ( new Manager() )->is_ownership_transferable();
+
 		remove_filter( 'jetpack_connection_ownership_transferable', '__return_false' );
+		remove_filter( 'deprecated_hook_trigger_error', '__return_false' );
+		remove_action( 'deprecated_hook_run', $record );
+
+		$this->assertFalse( $transferable );
+		$this->assertSame( array( 'jetpack_connection_ownership_transferable' ), $deprecated );
 	}
 
 	/**
@@ -482,6 +495,76 @@ class ManagerTest extends TestCase {
 
 		$this->assertSame( 'linked', $result );
 		$this->assertFalse( $cached );
+	}
+
+	/**
+	 * Test that only a user with `jetpack_connect` takes a vacant connection owner slot in `authorize`.
+	 *
+	 * @param string $role            The authorizing user's role.
+	 * @param bool   $expected_master Whether the token should be stored as the connection owner's.
+	 * @param string $expected_result The expected `authorize` result.
+	 * @param array  $disconnect_cap  Value for the `jetpack_disconnect_cap` filter, which `jetpack_connect` resolves through.
+	 * @dataProvider provide_authorize_vacant_owner_slot
+	 */
+	#[DataProvider( 'provide_authorize_vacant_owner_slot' )]
+	public function test_authorize_vacant_owner_slot( $role, $expected_master, $expected_result, $disconnect_cap = array( 'manage_options' ) ) {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => "test_authorize_vacant_owner_slot_$role",
+				'user_pass'  => '123',
+				'role'       => $role,
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		$tokens = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Tokens' )
+			->onlyMethods( array( 'get', 'update_user_token' ) )
+			->getMock();
+		$tokens->method( 'get' )->willReturn( 'usertoken.secret' );
+		$tokens->expects( $this->once() )
+			->method( 'update_user_token' )
+			->with( $user_id, "usertoken.secret.$user_id", $expected_master )
+			->willReturn( true );
+
+		$manager = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
+			->onlyMethods( array( 'get_tokens', 'get_connection_owner_id' ) )
+			->getMock();
+		$manager->method( 'get_tokens' )->willReturn( $tokens );
+		$manager->method( 'get_connection_owner_id' )->willReturn( false );
+
+		// Resolve `jetpack_connect` through the real meta-cap map, which this bootstrap doesn't wire.
+		add_filter( 'map_meta_cap', array( $manager, 'jetpack_connection_custom_caps' ), 1, 4 );
+		$filter_disconnect_cap = static function () use ( $disconnect_cap ) {
+			return $disconnect_cap;
+		};
+		add_filter( 'jetpack_disconnect_cap', $filter_disconnect_cap );
+
+		try {
+			$result = $manager->authorize(
+				array(
+					'state' => (string) $user_id,
+					'code'  => 'authorization_code',
+				)
+			);
+		} finally {
+			remove_filter( 'map_meta_cap', array( $manager, 'jetpack_connection_custom_caps' ), 1 );
+			remove_filter( 'jetpack_disconnect_cap', $filter_disconnect_cap );
+		}
+
+		$this->assertSame( $expected_result, $result );
+	}
+
+	/**
+	 * Data provider for test_authorize_vacant_owner_slot.
+	 *
+	 * @return array
+	 */
+	public static function provide_authorize_vacant_owner_slot() {
+		return array(
+			'administrator takes the slot' => array( 'administrator', true, 'authorized' ),
+			'editor links as secondary'    => array( 'editor', false, 'linked' ),
+			'editor granted connection rights takes the slot' => array( 'editor', true, 'authorized', array( 'edit_others_posts' ) ),
+		);
 	}
 
 	/**

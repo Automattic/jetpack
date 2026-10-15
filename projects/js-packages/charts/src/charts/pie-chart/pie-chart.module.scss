@@ -1,4 +1,7 @@
 .pie-chart {
+	// Keeps the tooltip's z-index inside the chart, as `.xy-plot` does.
+	isolation: isolate;
+
 	// Anchors the tooltip, which renders next to the SVG in here.
 	&__plot {
 		position: relative;
@@ -21,6 +24,15 @@
 
 		&--on-light {
 			fill: var(--a8c-charts-color-label, #1e1e1e);
+		}
+
+		// Neither role reaches AA on this slice; see pickLabelTextColor.
+		&--black {
+			fill: #000;
+		}
+
+		&--white {
+			fill: #fff;
 		}
 	}
 }

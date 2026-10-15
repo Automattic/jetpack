@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "852808280846e51f74ebd623d545ca0f",
+    "content-hash": "09c5408c63cac0d502dbac0c62dad5a0",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -477,7 +477,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "b2a4bae2f69c1662763ebacc77c9517c36411a91"
+                "reference": "310c555198afd13d38d6f8486946ac583b50744e"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -514,7 +514,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "9.8.x-dev"
+                    "dev-trunk": "9.11.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -546,6 +546,12 @@
                 ],
                 "test-php": [
                     "@composer phpunit"
+                ],
+                "test-js": [
+                    "pnpm run test"
+                ],
+                "test-js-coverage": [
+                    "pnpm run test-coverage"
                 ],
                 "test-php-coverage": [
                     "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
@@ -897,12 +903,75 @@
             }
         },
         {
+            "name": "automattic/jetpack-plans",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/plans",
+                "reference": "5c14b8a379641981708c669dc2c93ab682bcab22"
+            },
+            "require": {
+                "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-constants": "@dev",
+                "php": ">=7.4"
+            },
+            "require-dev": {
+                "automattic/jetpack-status": "@dev",
+                "automattic/jetpack-test-environment": "@dev",
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^4.0.0"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-plans",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-plans/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-trunk": "0.14.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "test-php-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ],
+                "build-production": [
+                    "echo 'Add your build step to composer.json, please!'"
+                ],
+                "build-development": [
+                    "echo 'Add your build step to composer.json, please!'"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Fetch information about Jetpack Plans from wpcom",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/jetpack-premium-analytics",
             "version": "dev-trunk",
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "d082156e7fe2fb467b95bf6e23eca683f6b03ef6"
+                "reference": "e9cf06028169a4dc38d405ca75fedc904804dc2d"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -910,6 +979,7 @@
                 "automattic/jetpack-config": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-feature-flags": "@dev",
+                "automattic/jetpack-plans": "@dev",
                 "automattic/jetpack-stats": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-sync": "@dev",
@@ -934,7 +1004,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-premium-analytics/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.8.x-dev"
+                    "dev-trunk": "0.12.x-dev"
                 }
             },
             "autoload": {
@@ -1092,7 +1162,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats",
-                "reference": "9d2c199732027364c672b1dc26ddfc18b28eaf5c"
+                "reference": "3e8e7d610f1b5fa1b3c4cc59da64f99f50f41965"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1121,7 +1191,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-stats/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.22.x-dev"
+                    "dev-trunk": "0.23.x-dev"
                 },
                 "textdomain": "jetpack-stats-pkg"
             },
@@ -1224,7 +1294,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "87b350488aa15dcb73f0e464c4e90799f4ed30e3"
+                "reference": "d08b72b882c138a17ba10f01018ea4a83ed66f5e"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1257,7 +1327,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "5.3.x-dev"
+                    "dev-trunk": "5.4.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1286,6 +1356,83 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Everything needed to allow syncing to the WP.com infrastructure.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-woocommerce-stats",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/woocommerce-stats",
+                "reference": "cbb7883c974de9dae2d0f7d5bcd6477875ac9680"
+            },
+            "require": {
+                "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-premium-analytics": "@dev",
+                "php": ">=7.4"
+            },
+            "require-dev": {
+                "automattic/jetpack-test-environment": "@dev",
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^4.0.0"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autorelease": true,
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-woocommerce-stats",
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                },
+                "textdomain": "jetpack-woocommerce-stats-pkg",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-analytics-dashboard.php"
+                },
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-woocommerce-stats/compare/v${old}...v${new}"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "build-development": [
+                    "pnpm run build"
+                ],
+                "build-production": [
+                    "pnpm run build-production"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
+                ],
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "test-php-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ],
+                "test-js": [
+                    "pnpm run test"
+                ],
+                "test-js-coverage": [
+                    "pnpm run test-coverage"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "WooCommerce: the WooCommerce section of the Premium Analytics dashboard.",
             "transport-options": {
                 "relative": true
             }
@@ -3293,6 +3440,7 @@
         "automattic/jetpack-composer-plugin": 20,
         "automattic/jetpack-cookie-consent": 20,
         "automattic/jetpack-premium-analytics": 20,
+        "automattic/jetpack-woocommerce-stats": 20,
         "automattic/phpunit-select-config": 20
     },
     "prefer-stable": true,

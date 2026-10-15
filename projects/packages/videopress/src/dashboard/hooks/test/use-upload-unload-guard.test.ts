@@ -46,6 +46,18 @@ describe( 'useUploadUnloadGuard', () => {
 		}
 	);
 
+	it.each( [
+		{ status: 'success', isSavingDetails: true },
+		{ status: 'success', detailsError: true },
+		{ status: 'failed', details: { title: 'Draft' } },
+	] )( 'protects unsaved details in $status uploads', extra => {
+		mockUseUpload.mockReturnValue( {
+			uploadQueue: [ { ...queueWith( 'success' )[ 0 ], ...extra } ],
+		} );
+		renderHook( () => useUploadUnloadGuard() );
+		expect( dispatchBeforeUnload() ).toBe( true );
+	} );
+
 	it.each( [ 'success', 'failed' ] as const )(
 		'does not block tab close once the only upload is %s',
 		status => {

@@ -19,7 +19,7 @@ use Automattic\Jetpack\Status\Host;
 
 if ( ! defined( 'WPCOM_WRITE_VERSION' ) ) {
 	// Use file modification time to bust CDN caches when files change.
-	define( 'WPCOM_WRITE_VERSION', (string) max( filemtime( __DIR__ . '/view.js' ), filemtime( __DIR__ . '/style.css' ), filemtime( __DIR__ . '/undo-history.js' ), filemtime( __DIR__ . '/image-format.js' ), filemtime( __DIR__ . '/text-helpers.js' ), filemtime( __DIR__ . '/post-publish-checklist.js' ), filemtime( __DIR__ . '/post-publish-checklist.css' ), filemtime( __DIR__ . '/post-publish-survey.js' ), filemtime( __DIR__ . '/post-publish-survey.css' ) ) );
+	define( 'WPCOM_WRITE_VERSION', (string) max( filemtime( __DIR__ . '/view.js' ), filemtime( __DIR__ . '/style.css' ), filemtime( __DIR__ . '/undo-history.js' ), filemtime( __DIR__ . '/image-format.js' ), filemtime( __DIR__ . '/text-helpers.js' ), filemtime( __DIR__ . '/quote-editing.js' ), filemtime( __DIR__ . '/post-publish-checklist.js' ), filemtime( __DIR__ . '/post-publish-checklist.css' ), filemtime( __DIR__ . '/post-publish-survey.js' ), filemtime( __DIR__ . '/post-publish-survey.css' ) ) );
 }
 
 if ( ! defined( 'WPCOM_WRITE_BLOCK_EDITOR_PREFERRED_COOKIE' ) ) {
@@ -199,6 +199,12 @@ add_action(
 			WPCOM_WRITE_VERSION
 		);
 		wp_register_script_module(
+			'wpcom-write/quote-editing',
+			wpcom_write_asset_url( 'quote-editing.js' ),
+			array(),
+			WPCOM_WRITE_VERSION
+		);
+		wp_register_script_module(
 			'wpcom-write/view',
 			wpcom_write_asset_url( 'view.js' ),
 			array(
@@ -206,6 +212,7 @@ add_action(
 				'wpcom-write/undo-history',
 				'wpcom-write/image-format',
 				'wpcom-write/text-helpers',
+				'wpcom-write/quote-editing',
 			),
 			WPCOM_WRITE_VERSION
 		);
@@ -789,7 +796,7 @@ function wpcom_write_inline_color_marks_to_spans( $html ) {
  * available it becomes the citation, so the published quote points readers at
  * the other answers — the one piece of the blogging-prompt block worth keeping.
  *
- * @since $$next-version$$
+ * @since 6.11.0
  *
  * @param string $prompt_text   The prompt text from the blogging-prompts endpoint.
  * @param string $citation_text Optional citation text (e.g. the responses link text).

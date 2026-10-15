@@ -1,11 +1,11 @@
 import { LoadingPlaceholder } from '@automattic/jetpack-components';
 import { FormToggle } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Button, LinkButton } from '@wordpress/ui';
+import { Button, ButtonLink } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { ModuleToggle } from '../../module-toggle';
 import { getSwitchLabel } from '../utils';
-import { getForcedReason } from './feature-state';
+import { getFeatureManageUrl, getForcedReason } from './feature-state';
 import { useFeaturesTracking } from './features-tracking-context';
 import styles from './styles.module.scss';
 import { useFeaturePlugin } from './use-main-features';
@@ -118,9 +118,8 @@ type FeatureActionProps = {
 /**
  * The card's control, as the feature map decides it.
  *
- * Nothing here reloads the page, unlike the Products tab's switches, so several features
- * can be flipped in a row; the wp-admin sidebar is refreshed in place after each switch
- * (see `use-sidebar-sync.ts`).
+ * Nothing here reloads the page, so several features can be flipped in a row; the
+ * wp-admin sidebar is refreshed in place after each switch (see `use-sidebar-sync.ts`).
  *
  * @param {FeatureActionProps} props             - The component props.
  * @param {FeatureState}       props.state       - Live state for the feature.
@@ -130,6 +129,7 @@ type FeatureActionProps = {
  */
 export function FeatureAction( { state, describedby, origin = 'card' }: FeatureActionProps ) {
 	const { control, feature } = state;
+	const manageUrl = getFeatureManageUrl( state );
 	const pluginName = feature.plugin_name || feature.name;
 	const tracking = useFeaturesTracking();
 
@@ -152,7 +152,6 @@ export function FeatureAction( { state, describedby, origin = 'card' }: FeatureA
 
 	switch ( control.kind ) {
 		case 'module': {
-			// FeatureItem shows why, under the description: this slot does not shrink.
 			if ( getForcedReason( state ) ) {
 				return null;
 			}
@@ -185,11 +184,11 @@ export function FeatureAction( { state, describedby, origin = 'card' }: FeatureA
 
 		case 'install-plugin':
 			// Already running on the plan, so the card opens it; Install stays in the modal.
-			if ( control.runsWithoutPlugin && feature.manage_url ) {
+			if ( control.runsWithoutPlugin && manageUrl ) {
 				return (
-					<LinkButton href={ feature.manage_url } variant="outline" size="compact">
+					<ButtonLink href={ manageUrl } variant="outline" size="compact">
 						{ __( 'Open', 'jetpack-my-jetpack' ) }
-					</LinkButton>
+					</ButtonLink>
 				);
 			}
 

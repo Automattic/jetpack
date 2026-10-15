@@ -10,7 +10,6 @@ import {
 	type StatsEmailTimeSeriesReport,
 } from '@jetpack-premium-analytics/data';
 import { resolveBucketStamp } from '@jetpack-premium-analytics/datetime';
-import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	ChartEmptyState,
 	MetricTabsChart,
@@ -75,8 +74,7 @@ type EmailTimeSeriesReportProps = {
 
 /**
  * Draws the selected email's opens or clicks timeline. Comparison report
- * params are ignored (no period-over-period here) but left in the URL so
- * dashboard state survives the round trip.
+ * params are ignored: there is no period-over-period view here.
  */
 function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProps ) {
 	const { reportParams } = useWidgetRootContext();
@@ -154,7 +152,6 @@ function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProp
 					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: retry } ],
 				} }
 				empty={ {
-					icon: reports,
 					description: __(
 						'Open an email report to see its timeline here.',
 						'jetpack-premium-analytics-pkg'

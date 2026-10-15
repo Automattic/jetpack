@@ -8,7 +8,6 @@ import { render, screen } from '@testing-library/react';
 import { getMockRouteLinkUrl, setMockRouteSearch } from '../../../../tests/js/route-test-utils';
 import { getCommentsFields } from './fields';
 import type { CommentReportRow } from './use-report-records';
-import type { ReactNode } from 'react';
 
 // The router is built dynamically at runtime, so a field-level test has no
 // router to mount. Render `Link` as the anchor it becomes, keeping `to`/`params`
@@ -18,54 +17,6 @@ jest.mock( '@wordpress/route', () => {
 
 	return mockWordPressRoute;
 } );
-
-setMockRouteSearch( {
-	from: '2026-06-01',
-	to: '2026-06-16',
-	interval: 'day',
-	section: 'posts',
-	foreign: 'drop-me',
-} );
-
-// The fields import `Link` from the externals passthrough, so the stub has to
-// replace it there; the Proxy leaves the rest of the barrel intact for any
-// other consumer in the graph.
-jest.mock(
-	'@jetpack-premium-analytics/externals',
-	() =>
-		new Proxy(
-			{
-				Link: ( {
-					href,
-					children,
-					openInNewTab,
-					variant,
-					...props
-				}: {
-					href: string;
-					children: ReactNode;
-					openInNewTab?: boolean;
-					variant?: string;
-				} ) => (
-					<a
-						href={ href }
-						data-variant={ variant }
-						target={ openInNewTab ? '_blank' : undefined }
-						rel={ openInNewTab ? 'noopener noreferrer' : undefined }
-						{ ...props }
-					>
-						{ children }
-					</a>
-				),
-			},
-			{
-				get: ( overrides, prop ) =>
-					prop in overrides
-						? overrides[ prop as keyof typeof overrides ]
-						: jest.requireActual( '@jetpack-premium-analytics/externals' )[ prop ],
-			}
-		)
-);
 
 /**
  * Mount the label field's render component for a table row.
@@ -86,6 +37,16 @@ function renderLabelField( item: CommentReportRow ) {
 }
 
 describe( 'comments fields', () => {
+	beforeEach( () => {
+		setMockRouteSearch( {
+			from: '2026-06-01',
+			to: '2026-06-16',
+			interval: 'day',
+			section: 'posts',
+			foreign: 'drop-me',
+		} );
+	} );
+
 	it( 'drills post rows with an id into the post detail page', () => {
 		renderLabelField( {
 			id: '42',
@@ -118,7 +79,7 @@ describe( 'comments fields', () => {
 			link: 'edit-comments.php?s=aggie%40example.com',
 		} );
 
-		const link = screen.getByRole( 'link', { name: 'Aggie' } );
+		const link = screen.getByRole( 'link', { name: /^Aggie/ } );
 		expect( link ).toHaveAttribute( 'href', 'edit-comments.php?s=aggie%40example.com' );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
 	} );

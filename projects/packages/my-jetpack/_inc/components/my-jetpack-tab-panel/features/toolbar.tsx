@@ -6,7 +6,6 @@ import { IconButton, Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback } from 'react';
 import styles from './styles.module.scss';
-import { getFeatureFilters } from './use-feature-filter';
 import type { FeatureFilter } from './use-feature-filter';
 import type { ReactNode } from 'react';
 
@@ -80,8 +79,11 @@ function ViewButton( { value, current, onSelect }: ViewButtonProps ) {
 		<IconButton
 			icon={ value === 'grid' ? category : blockTable }
 			label={ value === 'grid' ? gridLabel : listLabel }
-			variant={ isActive ? 'solid' : 'outline' }
+			// Minimal either way: the design system paints a pressed neutral minimal button
+			// with the same strong fill `solid` would, and documents aria-pressed for this variant.
+			variant="minimal"
 			tone="neutral"
+			size="compact"
 			aria-pressed={ isActive }
 			className={ styles[ 'view-button' ] }
 			onClick={ onClick }
@@ -93,6 +95,7 @@ type ToolbarProps = {
 	view: FeaturesView;
 	onViewChange: ( view: FeaturesView ) => void;
 	filter: FeatureFilter;
+	filters: Array< { value: FeatureFilter; label: string } >;
 	onFilterChange: ( filter: FeatureFilter ) => void;
 	counts: Record< FeatureFilter, number >;
 	countsPending?: boolean;
@@ -101,9 +104,8 @@ type ToolbarProps = {
 	bulk?: ReactNode;
 };
 
-// Only these two are counted from live state; the rest come from the catalog and are
-// right from the first paint.
-const LIVE_COUNTS: FeatureFilter[] = [ 'active', 'inactive' ];
+// These are counted from live state; the rest come from the catalog.
+const LIVE_COUNTS: FeatureFilter[] = [ 'available', 'active', 'inactive' ];
 
 /**
  * The filter pills and the search box above the grid.
@@ -112,6 +114,7 @@ const LIVE_COUNTS: FeatureFilter[] = [ 'active', 'inactive' ];
  * @param {string}       props.view           - Whether the features show as a grid or a list.
  * @param {Function}     props.onViewChange   - Switches between the grid and the list.
  * @param {string}       props.filter         - The active filter.
+ * @param {Array}        props.filters        - The filters on offer, in order.
  * @param {Function}     props.onFilterChange - Switches the active filter.
  * @param {object}       props.counts         - How many features each filter shows.
  * @param {boolean}      props.countsPending  - Whether those counts are still settling.
@@ -124,6 +127,7 @@ export function Toolbar( {
 	view,
 	onViewChange,
 	filter,
+	filters,
 	onFilterChange,
 	counts,
 	countsPending,
@@ -148,35 +152,47 @@ export function Toolbar( {
 					aria-label={ __( 'Filter features', 'jetpack-my-jetpack' ) }
 					className={ styles.pills }
 				>
-					{ getFeatureFilters( filter ).map( ( { value, label } ) => (
+					{ filters.map( ( { value, label } ) => (
 						<FilterPill
 							key={ value }
 							value={ value }
 							label={ label }
 							count={ counts[ value ] ?? 0 }
 							countPending={ countsPending && LIVE_COUNTS.includes( value ) }
-							isActive={ value === filter }
+							// A search covers every feature, so no pill is in play while one runs.
+							isActive={ ! search && value === filter }
 							onSelect={ onFilterChange }
 						/>
 					) ) }
 				</Stack>
 
-				{ /* Below the breakpoint the pills above are hidden and this takes over: six
-				     of them stack one per row on a phone, which is most of the screen. */ }
 				<div className={ styles[ 'filter-select' ] }>
 					<SelectControl
 						__nextHasNoMarginBottom
 						label={ __( 'Filter features', 'jetpack-my-jetpack' ) }
 						hideLabelFromVision
-						value={ filter }
-						options={ getFeatureFilters( filter ).map( ( { value, label } ) => ( {
-							value,
-							// No count until it is a count; the pills alongside do the same.
-							label:
-								countsPending && LIVE_COUNTS.includes( value )
-									? label
-									: `${ label } (${ counts[ value ] ?? 0 })`,
-						} ) ) }
+						// Like the pills, no filter is in play while a search covers every feature; the
+						// placeholder lets any filter, the current one included, end the search.
+						value={ search ? '' : filter }
+						options={ [
+							...( search
+								? [
+										{
+											value: '',
+											label: __( 'Searching all features', 'jetpack-my-jetpack' ),
+											disabled: true,
+										},
+									]
+								: [] ),
+							...filters.map( ( { value, label } ) => ( {
+								value,
+								// No count until it is a count; the pills alongside do the same.
+								label:
+									countsPending && LIVE_COUNTS.includes( value )
+										? label
+										: `${ label } (${ counts[ value ] ?? 0 })`,
+							} ) ),
+						] }
 						onChange={ onSelectFilter }
 					/>
 				</div>
@@ -186,16 +202,16 @@ export function Toolbar( {
 					value={ search }
 					onChange={ onSearchChange }
 					aria-label={ __( 'Search features', 'jetpack-my-jetpack' ) }
-					placeholder={ __( 'Search features', 'jetpack-my-jetpack' ) }
+					placeholder={ __( 'Search', 'jetpack-my-jetpack' ) }
 					className={ styles.search }
 				/>
 
 				<Stack
 					direction="row"
 					align="center"
-					gap="sm"
 					role="group"
 					aria-label={ __( 'Layout', 'jetpack-my-jetpack' ) }
+					className={ styles[ 'view-group' ] }
 				>
 					<ViewButton value="grid" current={ view } onSelect={ onViewChange } />
 					<ViewButton value="list" current={ view } onSelect={ onViewChange } />

@@ -266,6 +266,23 @@ class Environment_Test extends BaseTestCase {
 		$this->assertTrue( $sharing_running );
 	}
 
+	public function test_likes_are_unsupported_offline_even_on_a_connected_site(): void {
+		$this->given_site( array( 'likes', 'comment-likes' ), true );
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+
+		$supported             = Environment::likes_supported();
+		$likes_running         = Environment::likes_module_running();
+		$comment_likes_running = Environment::comment_likes_module_running();
+		$settings_in_use       = Environment::likes_settings_in_use();
+
+		remove_filter( 'jetpack_offline_mode', '__return_true' );
+
+		$this->assertFalse( $supported );
+		$this->assertFalse( $likes_running );
+		$this->assertFalse( $comment_likes_running );
+		$this->assertFalse( $settings_in_use );
+	}
+
 	/**
 	 * Simple has no modules: both features load unconditionally there, so every
 	 * lookup has to answer yes whatever `active_modules` holds.

@@ -30,4 +30,10 @@
 
 	font-size: var(--wpds-typography-font-size-md);
 	line-height: var(--wpds-typography-line-height-sm);
+
+	:global(.components-base-control__help) {
+		font-size: inherit;
+		line-height: inherit;
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
 }

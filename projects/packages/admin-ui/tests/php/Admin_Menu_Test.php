@@ -89,11 +89,12 @@ class Admin_Menu_Test extends TestCase {
 	public function setUp(): void {
 		parent::setUp();
 		// A leftover top-level `jetpack` makes core add a second parent copy to the submenu.
-		global $menu, $submenu, $_parent_pages, $_registered_pages;
+		global $menu, $submenu, $_parent_pages, $_registered_pages, $admin_page_hooks;
 		$menu              = array();
 		$submenu           = array();
 		$_parent_pages     = array();
 		$_registered_pages = array();
+		$admin_page_hooks  = array();
 		delete_option( 'jetpack_active_plan' );
 		delete_option( 'jetpack_site_products' );
 		update_option( 'jetpack_options', array( 'id' => 123456 ) );
@@ -139,17 +140,18 @@ class Admin_Menu_Test extends TestCase {
 
 		static $top_registered = false;
 
+		add_menu_page(
+			'Jetpack',
+			'Jetpack',
+			'edit_posts',
+			'jetpack',
+			'__return_null',
+			'div',
+			3
+		);
+
 		if ( ! $top_registered ) {
 			$top_registered = true;
-			add_menu_page(
-				'Jetpack',
-				'Jetpack',
-				'edit_posts',
-				'jetpack',
-				'__return_null',
-				'div',
-				3
-			);
 
 			$user_id = wp_insert_user(
 				array(
@@ -202,6 +204,23 @@ class Admin_Menu_Test extends TestCase {
 			has_action( 'load-' . $hook . '-network', array( Admin_Menu::class, 'hide_core_admin_notices' ) ),
 			'Expected the network-admin load hook to hide core admin notices to be registered.'
 		);
+	}
+
+	/**
+	 * A page core registers as admin_page_<slug>, for a user without the Jetpack menu, gets the same hooks.
+	 */
+	public function test_add_menu_covers_the_admin_page_fallback_hook() {
+		wp_set_current_user( self::$editor_user_id );
+		wp_dequeue_style( 'wp-theme' );
+		wp_deregister_style( 'wp-theme' );
+
+		Admin_Menu::add_menu( 'Test', 'Test', 'edit_posts', 'fallback_menu', '__return_null' );
+		$wp_suffix = add_submenu_page( 'jetpack', 'Test', 'Test', 'edit_posts', 'fallback_menu', '__return_null' );
+
+		$this->assertSame( 'admin_page_fallback_menu', $wp_suffix );
+		$this->assertNotFalse( has_action( 'load-' . $wp_suffix, array( Admin_Menu::class, 'hide_core_admin_notices' ) ) );
+		Admin_Menu::maybe_enqueue_design_tokens( $wp_suffix );
+		$this->assertTrue( wp_style_is( Admin_Menu::DESIGN_TOKENS_HANDLE, 'enqueued' ) );
 	}
 
 	/**

@@ -74,7 +74,7 @@ final class Environment {
 	 * sharedaddy from `post-flair.php` without either.
 	 */
 	public static function legacy_sharing_supported(): bool {
-		return self::is_simple_site() || self::is_connected() || ( new Status() )->is_offline_mode();
+		return self::is_simple_site() || self::is_connected() || self::is_offline_mode();
 	}
 
 	/**
@@ -94,9 +94,11 @@ final class Environment {
 	 * The Likes module declares `Requires Connection: Yes`, so without a
 	 * WordPress.com connection it cannot be activated and its buttons cannot
 	 * render: the widget is keyed on the blog ID a connection provides.
+	 * Offline mode keeps a connected site's tokens, but `Jetpack::load_modules()`
+	 * skips every module that requires a connection until it ends.
 	 */
 	public static function likes_supported(): bool {
-		return self::is_simple_site() || self::is_connected();
+		return self::is_simple_site() || ( self::is_connected() && ! self::is_offline_mode() );
 	}
 
 	/**
@@ -104,6 +106,13 @@ final class Environment {
 	 */
 	private static function is_connected(): bool {
 		return ( new Connection_Manager( 'jetpack' ) )->is_connected();
+	}
+
+	/**
+	 * Whether the site is in offline mode, where it cannot connect to WordPress.com either.
+	 */
+	public static function is_offline_mode(): bool {
+		return ( new Status() )->is_offline_mode();
 	}
 
 	/**

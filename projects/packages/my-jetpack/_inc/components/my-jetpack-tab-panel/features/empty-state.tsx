@@ -3,9 +3,9 @@ import { __, sprintf } from '@wordpress/i18n';
 import { info as infoIcon, search as searchIcon } from '@wordpress/icons';
 import { Button, EmptyState, Link } from '@wordpress/ui';
 import { useCallback, useEffect } from 'react';
-import { reloadPage } from '../products/reload-page';
-import { hasSearch } from '../products/utils';
+import { reloadPage } from '../../../utils/reload-page';
 import { useFeaturesTracking } from './features-tracking-context';
+import { hasSearch } from './search';
 import styles from './styles.module.scss';
 import type { EmptyStateReason } from './features-tracking-context';
 import type { FeatureFilter } from './use-feature-filter';
@@ -79,7 +79,7 @@ function getEmptyStateReason( {
 		return 'search';
 	}
 
-	if ( filter === 'active' || filter === 'inactive' ) {
+	if ( filter === 'active' || filter === 'inactive' || filter === 'included' ) {
 		return filter;
 	}
 
@@ -206,6 +206,21 @@ export function FeaturesEmptyState( {
 				mark={ infoMark }
 				heading={ __( 'Everything is turned on.', 'jetpack-my-jetpack' ) }
 				body={ __( 'There are no inactive features left on this site.', 'jetpack-my-jetpack' ) }
+			>
+				{ exploreAll }
+			</Empty>
+		);
+	}
+
+	if ( reason === 'included' ) {
+		return (
+			<Empty
+				mark={ infoMark }
+				heading={ __( 'Your plan doesn’t include any of these yet.', 'jetpack-my-jetpack' ) }
+				body={ __(
+					'Features a paid plan covers will appear here once you have one.',
+					'jetpack-my-jetpack'
+				) }
 			>
 				{ exploreAll }
 			</Empty>

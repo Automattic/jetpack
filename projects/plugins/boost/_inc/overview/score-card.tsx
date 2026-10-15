@@ -2,10 +2,11 @@ import { __ } from '@wordpress/i18n';
 import { ProgressBar } from '@wordpress/components';
 import { Icon, info } from '@wordpress/icons';
 import { Badge, Popover, Stack, Text, VisuallyHidden } from '@wordpress/ui';
-import { useId } from 'react';
+import { useId, useState } from 'react';
 import {
 	formatScoreDelta,
 	getScoreDelta,
+	getScoreGain,
 	getScoreTier,
 	getScoreTierLabel,
 } from './lib/score-utils';
@@ -20,6 +21,8 @@ type Props = {
 	score?: number;
 	tier?: ScoreTier;
 	noBoost?: number | null;
+	isStale?: boolean;
+	closePopover?: boolean;
 };
 
 /**
@@ -50,11 +53,13 @@ export default function ScoreCard( {
 	score,
 	tier = score === undefined ? undefined : getScoreTier( score ),
 	noBoost,
+	isStale = false,
+	closePopover = false,
 }: Props ) {
 	const headingId = useId();
-	const delta = score === undefined ? null : getScoreDelta( score, noBoost );
-	// The badge states what Boost improved, so a worse-than-baseline comparison reads as zero.
-	const gain = delta === null ? null : Math.max( 0, delta );
+	const [ infoTrigger, setInfoTrigger ] = useState< HTMLButtonElement | null >( null );
+	const delta = getScoreDelta( score, noBoost, isStale );
+	const gain = getScoreGain( score, noBoost, isStale );
 	return (
 		<section className="jetpack-boost-overview__score-section" aria-labelledby={ headingId }>
 			<Stack direction="row" align="center" gap="sm">
@@ -88,11 +93,24 @@ export default function ScoreCard( {
 							gap="sm"
 							className="jetpack-boost-overview__delta"
 						>
-							<Badge intent={ gain > 0 ? 'informational' : 'none' }>
-								{ formatScoreDelta( gain ) }
-							</Badge>
-							<Popover.Root>
+							<Popover.Root key={ closePopover ? 'running' : 'loaded' }>
 								<Popover.Trigger
+									openOnHover
+									delay={ 200 }
+									nativeButton={ false }
+									// The badge only adds a hover target; the info button stays the control.
+									role={ undefined }
+									tabIndex={ undefined }
+									aria-haspopup={ undefined }
+									aria-expanded={ undefined }
+									render={
+										<Badge intent={ gain > 0 ? 'informational' : 'none' }>
+											{ formatScoreDelta( gain ) }
+										</Badge>
+									}
+								/>
+								<Popover.Trigger
+									ref={ setInfoTrigger }
 									openOnHover
 									delay={ 200 }
 									aria-label={ __( 'About points', 'jetpack-boost' ) }
@@ -100,7 +118,10 @@ export default function ScoreCard( {
 								>
 									<Icon icon={ info } className="jetpack-boost-overview__score-icon" />
 								</Popover.Trigger>
-								<Popover.Popup>
+								<Popover.Popup
+									className="jetpack-boost-overview__score-popover jetpack-boost-overview__points-tooltip"
+									positioner={ <Popover.Positioner anchor={ infoTrigger } /> }
+								>
 									<VisuallyHidden render={ <Popover.Title /> }>
 										{ __( 'About points', 'jetpack-boost' ) }
 									</VisuallyHidden>

@@ -9,6 +9,7 @@ import { Card } from '@wordpress/ui';
  */
 import { Radio } from '../components/radio';
 import type { NewsletterSettings } from '../types';
+import type { JSX } from 'react';
 
 interface EmailReplyToSettingsSectionProps {
 	data: NewsletterSettings;

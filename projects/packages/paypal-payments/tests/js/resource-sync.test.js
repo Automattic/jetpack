@@ -309,7 +309,6 @@ describe( 'a block built from a fully populated payment', () => {
 		productName: 'Widget',
 		currencyCode: 'USD',
 		productDescription: 'A fine widget.',
-		imageUrl: 'https://example.com/widget.png',
 		variantsEnabled: true,
 		variants: {
 			dimensions: [
@@ -473,8 +472,7 @@ describe( 'GATED_ATTRIBUTES', () => {
 		'productId',
 		'customerNotes',
 		'returnUrl',
-		// Shown under the shipping toggle, but PayPal stores it on every payment, so the
-		// toggle leaves it alone.
+		// The address toggle is separate from shipping fees, so no gate clears it.
 		'collectShippingAddress',
 		// Both come off the payment rather than a form field, so a gate would have
 		// nothing to open or close.
@@ -528,7 +526,6 @@ describe( 'GATED_ATTRIBUTES', () => {
 				shippingMode: 'QUANTITY',
 				shippingValue: '5.00',
 				shippingAdditionalValue: '2.00',
-				collectShippingAddress: true,
 				maxQuantity: 25,
 				variants: { dimensions: [ { name: 'Size', options: [] } ] },
 			};

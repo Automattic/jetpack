@@ -18,6 +18,7 @@ import { store as editorStore } from '@wordpress/editor';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
+import paypalWordmark from '../images/paypal-wordmark-color.svg';
 import {
 	getButtonStyle,
 	getMarginStyle,
@@ -148,6 +149,7 @@ function QrPreview( {
  * @param {string}  props.imageUrl           - Optional product image URL.
  * @param {string}  props.buttonText         - Label on the checkout button.
  * @param {object}  props.attributes         - The block attributes, for the style mapping.
+ * @param {boolean} props.isDisabled         - Whether to gray the button. True until the block has a link.
  * @return {Element} Button preview element.
  */
 function ButtonPreview( {
@@ -160,6 +162,7 @@ function ButtonPreview( {
 	imageUrl,
 	buttonText,
 	attributes = {},
+	isDisabled,
 } ) {
 	// An empty currencyCode attribute arrives as '', which the destructure
 	// default above lets through, so it needs a fallback of its own.
@@ -235,17 +238,23 @@ function ButtonPreview( {
 				</div>
 			) }
 
-			{ /* Checkout button preview — theme-native unless the Styles tab says
-			     otherwise, labeled with the buttonText attribute. */ }
+			{ /* Checkout button preview - theme-native unless the Styles tab says
+			     otherwise, labeled with the buttonText attribute. Gray until the
+			     block has a link. The gray skips the button's own Styles settings -
+			     they would override it. Width and Powered by PayPal still follow the
+			     Styles tab. */ }
 			<div className="jetpack-paypal-button__buttons">
 				<div
 					className={ clsx(
 						'jetpack-paypal-button__checkout-link',
 						'jetpack-paypal-button-preview__checkout-button',
 						'wp-element-button',
-						{ 'is-style-outline': isOutlineButton( attributes ) }
+						{
+							'is-style-outline': ! isDisabled && isOutlineButton( attributes ),
+							'is-disabled': isDisabled,
+						}
 					) }
-					style={ getButtonStyle( attributes ) }
+					style={ isDisabled ? undefined : getButtonStyle( attributes ) }
 					aria-hidden="true"
 				>
 					<span className="jetpack-paypal-button__button-text">{ label }</span>
@@ -260,7 +269,17 @@ function ButtonPreview( {
 							__( 'Powered by %s', 'jetpack-paypal-payments' ),
 							'<logo />'
 						),
-						{ logo: <span className="jetpack-paypal-button__logo">PayPal</span> }
+						{
+							logo: (
+								<img
+									className="jetpack-paypal-button__logo"
+									src={ paypalWordmark }
+									alt="PayPal"
+									width="42"
+									height="15"
+								/>
+							),
+						}
 					) }
 				</p>
 			) }

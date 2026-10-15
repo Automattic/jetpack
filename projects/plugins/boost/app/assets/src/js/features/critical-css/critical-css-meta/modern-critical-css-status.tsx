@@ -58,6 +58,7 @@ export default function ModernCriticalCssStatus( { cssState, isGenerating, progr
 						{ ! generating && (
 							<Button
 								variant="minimal"
+								size="compact"
 								onClick={ generate }
 								disabled={ regenerateAction.isPending }
 							>

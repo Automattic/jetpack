@@ -242,3 +242,59 @@ it( 'gives the dialog preview a named region focus can enter, as the card has', 
 	expect( preview ).toHaveAttribute( 'tabindex', '0' );
 	expect( preview ).toContainElement( screen.getByText( 'Hello.' ) );
 } );
+
+it( 'keeps two columns from 640px, with the tree track floored and the card track flexible', async () => {
+	panel = mockPanelWidth( 700 );
+
+	await openTheFile();
+
+	await expect(
+		screen.findByRole( 'heading', { level: 3, name: 'readme.txt' } )
+	).resolves.toBeInTheDocument();
+	expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+	// jsdom does not lay out a grid, so the track definition is what can be asserted.
+	// eslint-disable-next-line testing-library/no-node-access -- no role or text names the layout box
+	expect( document.querySelector( '.jpb-file-browser__layout' ) ).toHaveStyle( {
+		gridTemplateColumns: 'minmax(344px, 1fr) minmax(280px, 450px)',
+	} );
+} );
+
+it( 'uses the dialog below 640px', async () => {
+	panel = mockPanelWidth( 630 );
+
+	await openTheFile();
+
+	await expect( screen.findByRole( 'dialog' ) ).resolves.toBeInTheDocument();
+} );
+
+it( 'does not carry a failed download over to the next file', async () => {
+	panel = mockPanelWidth( 900 );
+	mockApiFetch.mockImplementation( ( options: { path: string } ) => {
+		if ( options.path.includes( '/file-download-url' ) ) {
+			return Promise.reject( new Error( 'nope' ) );
+		}
+		if ( options.path.includes( '/rewind/backup/file-content' ) ) {
+			return Promise.resolve( { content: 'Hello.', is_text: true, truncated: false } );
+		}
+		if ( options.path.includes( '/rewind/backup/path-info' ) ) {
+			return Promise.resolve( { size: 42 } );
+		}
+		return Promise.resolve( {
+			contents: {
+				...ROOT,
+				'other.txt': { type: 'file', period: '1786644531', manifest_path: 'f5:/other.txt' },
+			},
+		} );
+	} );
+
+	await openTheFile();
+	await userEvent.click( await screen.findByRole( 'button', { name: 'Download file' } ) );
+	await expect( screen.findByRole( 'alert' ) ).resolves.toBeInTheDocument();
+
+	await userEvent.click( screen.getByRole( 'button', { name: 'File: other.txt' } ) );
+
+	await expect(
+		screen.findByRole( 'heading', { level: 3, name: 'other.txt' } )
+	).resolves.toBeInTheDocument();
+	expect( screen.queryByRole( 'alert' ) ).not.toBeInTheDocument();
+} );

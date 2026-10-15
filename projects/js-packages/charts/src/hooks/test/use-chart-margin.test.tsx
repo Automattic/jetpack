@@ -282,16 +282,20 @@ describe( 'useChartMargin', () => {
 			expect( result.current.left ).toBe( 60 );
 		} );
 
-		it( 'reserves nothing for a hidden x axis', () => {
+		it.each( [ 'bottom', 'top' ] )( 'reserves nothing for a hidden %s x axis', orientation => {
 			mockGetEdgeTickWidths.mockReturnValue( { first: 120, last: 60 } );
+			const largeLabels = { axisLabel: { fontSize: 16 }, tickLength: 10 } as unknown as never;
+			const theme = {
+				...baseTheme,
+				axisStyles: { ...baseTheme.axisStyles, x: { top: largeLabels, bottom: largeLabels } },
+			} as XYChartTheme;
 
 			const { result } = renderHook( () =>
-				useChartMargin( 300, datedXOptions( { display: false } ), data, baseTheme )
+				useChartMargin( 300, datedXOptions( { display: false, orientation } ), data, theme )
 			);
 
 			expect( mockGetEdgeTickWidths ).not.toHaveBeenCalled();
-			expect( result.current.right ).toBe( 20 );
-			expect( result.current.left ).toBe( 51 );
+			expect( result.current ).toEqual( { top: 10, right: 20, bottom: 10, left: 51 } );
 		} );
 	} );
 
