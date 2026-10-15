@@ -920,6 +920,7 @@ function TransferOwnershipModal( { onClose, onTransferred } ) {
 			title: __( 'Transfer connection ownership', 'jetpack-connection' ),
 			onRequestClose: onClose,
 			size: 'small',
+			focusOnMount: 'firstElement',
 			// A transfer cannot be undone halfway, so every way out is held shut while it runs.
 			isDismissible: ! isTransferring,
 			shouldCloseOnClickOutside: ! isTransferring,
