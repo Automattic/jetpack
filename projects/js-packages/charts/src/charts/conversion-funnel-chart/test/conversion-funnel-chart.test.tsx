@@ -1,7 +1,7 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ConversionFunnelChart from '../conversion-funnel-chart';
-import type { FunnelStep } from '../types';
+import type { ConversionFunnelChartProps, FunnelStep } from '../types';
 
 let mockChartHeight = 0;
 jest.mock( '../../../hooks/use-element-size', () => ( {
@@ -45,6 +45,8 @@ const defaultProps = {
 const renderWithoutTheme = ( component: React.ReactElement ) => {
 	return render( component );
 };
+
+const focus = ( element: HTMLElement ) => act( () => element.focus() );
 
 describe( 'ConversionFunnelChart', () => {
 	afterEach( () => {
@@ -175,7 +177,7 @@ describe( 'ConversionFunnelChart', () => {
 			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
 
 			const cartBar = screen.getByRole( 'button', { name: /cart/i } );
-			cartBar.focus();
+			focus( cartBar );
 			await user.keyboard( '{Enter}' );
 
 			// Check that component still works after keyboard interaction
@@ -188,7 +190,7 @@ describe( 'ConversionFunnelChart', () => {
 			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
 
 			const cartBar = screen.getByRole( 'button', { name: /cart/i } );
-			cartBar.focus();
+			focus( cartBar );
 			await user.keyboard( ' ' );
 
 			// Check that component still works after keyboard interaction
@@ -302,14 +304,109 @@ describe( 'ConversionFunnelChart', () => {
 			} );
 		} );
 
-		it( 'has proper tabIndex for keyboard navigation', () => {
+		it( 'groups the steps in a toolbar', () => {
 			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
 
-			// Bars should be focusable
-			mockSteps.forEach( step => {
-				const bar = screen.getByRole( 'button', { name: new RegExp( step.label, 'i' ) } );
-				expect( bar ).toHaveAttribute( 'tabIndex', '0' );
-			} );
+			expect( screen.getByRole( 'toolbar', { name: 'Funnel steps' } ) ).toContainElement(
+				screen.getByRole( 'button', { name: 'Cart' } )
+			);
+		} );
+
+		it( 'marks only the selected step as pressed', async () => {
+			const user = userEvent.setup();
+			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
+
+			await user.click( screen.getByRole( 'button', { name: 'Cart' } ) );
+
+			expect( screen.getByRole( 'button', { name: 'Cart', pressed: true } ) ).toBeInTheDocument();
+			expect( screen.getAllByRole( 'button', { pressed: false } ) ).toHaveLength( 3 );
+		} );
+	} );
+
+	describe( 'Keyboard navigation', () => {
+		const renderBetweenButtons = ( props: Partial< ConversionFunnelChartProps > = {} ) =>
+			renderWithoutTheme(
+				<>
+					<button>Before</button>
+					<ConversionFunnelChart { ...defaultProps } { ...props } />
+					<button>After</button>
+				</>
+			);
+
+		it( 'enters the funnel on the first step and leaves it on the next Tab', async () => {
+			const user = userEvent.setup();
+			renderBetweenButtons();
+
+			screen.getByRole( 'button', { name: 'Before' } ).focus();
+			await user.tab();
+			expect( screen.getByRole( 'button', { name: 'Sessions' } ) ).toHaveFocus();
+
+			await user.tab();
+			expect( screen.getByRole( 'button', { name: 'After' } ) ).toHaveFocus();
+		} );
+
+		it( 'returns to the last focused step', async () => {
+			const user = userEvent.setup();
+			renderBetweenButtons();
+
+			focus( screen.getByRole( 'button', { name: 'Sessions' } ) );
+			await user.keyboard( '{ArrowRight}{ArrowRight}' );
+			await user.tab();
+			await user.tab( { shift: true } );
+
+			expect( screen.getByRole( 'button', { name: 'Checkout' } ) ).toHaveFocus();
+		} );
+
+		it( 'reaches every step with the arrow keys after a step is selected', async () => {
+			const user = userEvent.setup();
+			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
+
+			focus( screen.getByRole( 'button', { name: 'Cart' } ) );
+			await user.keyboard( '{Enter}{ArrowRight}{ArrowRight}' );
+			expect( screen.getByRole( 'button', { name: 'Purchase' } ) ).toHaveFocus();
+
+			await user.keyboard( '{ArrowLeft}{ArrowLeft}{ArrowLeft}' );
+			expect( screen.getByRole( 'button', { name: 'Sessions' } ) ).toHaveFocus();
+			expect( screen.getByRole( 'button', { name: 'Cart', pressed: true } ) ).toBeInTheDocument();
+		} );
+
+		it.each( [
+			[ 'Sessions', '{End}', 'Purchase' ],
+			[ 'Purchase', '{Home}', 'Sessions' ],
+			[ 'Purchase', '{ArrowRight}', 'Purchase' ],
+			[ 'Sessions', '{ArrowLeft}', 'Sessions' ],
+		] )( 'from %s, %s focuses %s', async ( from, keys, to ) => {
+			const user = userEvent.setup();
+			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
+
+			focus( screen.getByRole( 'button', { name: from } ) );
+			await user.keyboard( keys );
+
+			expect( screen.getByRole( 'button', { name: to } ) ).toHaveFocus();
+		} );
+
+		it( 'swaps Left and Right in a right-to-left layout', async () => {
+			const user = userEvent.setup();
+			renderWithoutTheme(
+				<ConversionFunnelChart { ...defaultProps } style={ { direction: 'rtl' } } />
+			);
+
+			focus( screen.getByRole( 'button', { name: 'Sessions' } ) );
+			await user.keyboard( '{ArrowLeft}' );
+
+			expect( screen.getByRole( 'button', { name: 'Cart' } ) ).toHaveFocus();
+		} );
+
+		it( 'clears the selection on Escape and keeps focus on the step', async () => {
+			const user = userEvent.setup();
+			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
+
+			const cart = screen.getByRole( 'button', { name: 'Cart' } );
+			focus( cart );
+			await user.keyboard( '{Enter}{Escape}' );
+
+			expect( cart ).toHaveFocus();
+			expect( screen.getAllByRole( 'button', { pressed: false } ) ).toHaveLength( 4 );
 		} );
 	} );
 
