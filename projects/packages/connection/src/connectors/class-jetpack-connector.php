@@ -41,7 +41,7 @@ class Jetpack_Connector {
 	/**
 	 * Path of the card's built script module relative to this file, without the extension.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.11.0
 	 *
 	 * @var string
 	 */
@@ -106,7 +106,7 @@ class Jetpack_Connector {
 	 * Skips the card when its built files are missing.
 	 *
 	 * @since 8.2.0
-	 * @since $$next-version$$ Loads the webpack build from dist/, with its dependencies and version from the asset file.
+	 * @since 9.11.0 Loads the webpack build from dist/, with its dependencies and version from the asset file.
 	 */
 	public static function enqueue_script_module() {
 		$screen = get_current_screen();
@@ -166,7 +166,7 @@ class Jetpack_Connector {
 	/**
 	 * Read the asset file the build emits beside the card's script module.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.11.0
 	 *
 	 * @param string $module_path Path of the built module, without the extension.
 	 * @return array|null Asset data, or null if the module or its asset file is missing, or the asset is invalid.

@@ -3,7 +3,7 @@ import { getUserConnectionUrl } from '@automattic/jetpack-connection';
 import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { FormToggle } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
-import { Button, LinkButton } from '@wordpress/ui';
+import { Button, ButtonLink } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { ModuleToggle } from '../../module-toggle';
 import { getSwitchLabel } from '../utils';
@@ -190,9 +190,9 @@ export function FeatureAction( { state, describedby, origin = 'card' }: FeatureA
 			// Already running on the plan, so the card opens it; Install stays in the modal.
 			if ( control.runsWithoutPlugin && manageUrl ) {
 				return (
-					<LinkButton href={ manageUrl } variant="outline" size="compact">
+					<ButtonLink href={ manageUrl } variant="outline" size="compact">
 						{ __( 'Open', 'jetpack-my-jetpack' ) }
-					</LinkButton>
+					</ButtonLink>
 				);
 			}
 
@@ -242,7 +242,7 @@ export function ConnectAccountButton( {
 		[ origin, state, tracking ]
 	);
 	return (
-		<LinkButton
+		<ButtonLink
 			href={ getUserConnectionUrl( { redirect_url: getMyJetpackUrl( '#/features' ) } ) }
 			variant="outline"
 			size="compact"
@@ -254,7 +254,7 @@ export function ConnectAccountButton( {
 			) }
 		>
 			{ __( 'Connect account', 'jetpack-my-jetpack' ) }
-		</LinkButton>
+		</ButtonLink>
 	);
 }
 

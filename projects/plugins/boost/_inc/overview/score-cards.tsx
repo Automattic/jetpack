@@ -1,4 +1,5 @@
 import { getScoreLetter } from '@automattic/jetpack-boost-score-api';
+import { speak } from '@wordpress/a11y';
 import { CardDivider } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { Icon, dashboard, desktop, info, mobile } from '@wordpress/icons';
@@ -52,12 +53,16 @@ export default function ScoreCards( {
 	}, [ showOverlay, titleRef ] );
 	const { current } = scores;
 	const grade = getScoreLetter( current.mobile, current.desktop );
+	const errorMessage =
+		error && isVisible ? __( 'Failed to load speed scores', 'jetpack-boost' ) : '';
+	useEffect( () => {
+		if ( errorMessage ) {
+			speak( errorMessage, 'assertive' );
+		}
+	}, [ errorMessage ] );
 	const notice = error && (
 		<Card.Content className="jetpack-boost-overview__scores-error">
-			<Notice.Root
-				intent="error"
-				spokenMessage={ isVisible ? __( 'Failed to load speed scores', 'jetpack-boost' ) : '' }
-			>
+			<Notice.Root intent="error">
 				<Notice.Title>{ __( 'Failed to load speed scores', 'jetpack-boost' ) }</Notice.Title>
 				<Notice.Description>{ error.message }</Notice.Description>
 				<Notice.Actions>

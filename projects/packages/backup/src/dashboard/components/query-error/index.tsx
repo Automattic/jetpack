@@ -110,8 +110,6 @@ export default function QueryError( {
 		<Notice.Root
 			ref={ rootRef }
 			intent="error"
-			// `null`, not `undefined`: an omitted message falls back to speaking the children.
-			spokenMessage={ null }
 			className={ [ 'jpb-query-error', className ].filter( Boolean ).join( ' ' ) }
 		>
 			<Notice.Title>{ title }</Notice.Title>

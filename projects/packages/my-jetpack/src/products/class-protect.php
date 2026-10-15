@@ -113,7 +113,7 @@ class Protect extends Hybrid_Product {
 	/**
 	 * Activate local product steps without scheduling connected modules offline.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.10.0
 	 * @param bool|WP_Error $current_result The plugin activation result.
 	 * @param bool          $local          Whether to keep activation local.
 	 * @return bool|WP_Error
@@ -252,12 +252,12 @@ class Protect extends Hybrid_Product {
 	/**
 	 * Get the internationalized comparison of free vs upgraded features
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 6.10.0
 	 *
 	 * @return array[] Protect features comparison
 	 */
 	public static function get_features_by_tier() {
-		_deprecated_function( __METHOD__, 'jetpack-my-jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-my-jetpack-6.10.0' );
 
 		return array(
 			array(

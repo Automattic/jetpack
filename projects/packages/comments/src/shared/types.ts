@@ -53,6 +53,8 @@ export type EditorLabels = {
 	blockTools: string;
 	addBlock: string;
 	embedUrl: string;
+	images: boolean;
+	imageError: string;
 };
 
 /** A subscribe checkbox the host draws itself, posted under the host's own field name. */

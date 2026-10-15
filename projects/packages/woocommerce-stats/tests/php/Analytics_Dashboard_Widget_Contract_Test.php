@@ -38,6 +38,17 @@ class Analytics_Dashboard_Widget_Contract_Test extends BaseTestCase {
 		if ( null !== $version ) {
 			define( 'Automattic\\Jetpack\\PremiumAnalytics\\WIDGET_API_VERSION', $version );
 		}
+		// WooCommerce and the reader are satisfied, so the contract alone decides.
+		add_filter( Analytics_Dashboard::WOOCOMMERCE_AVAILABLE_FILTER, '__return_true' );
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'contract_admin_' . wp_rand(),
+					'user_pass'  => 'password',
+					'role'       => 'administrator',
+				)
+			)
+		);
 		$registry = new Widget_Type_Registry();
 
 		Analytics_Dashboard::register_widget_types( $registry );

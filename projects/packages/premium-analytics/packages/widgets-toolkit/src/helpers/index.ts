@@ -1,4 +1,3 @@
-export { BOOKINGS_FILTER } from './product-type-filters';
 export {
 	resolveSegmentStyles,
 	applyStylesToItems,
