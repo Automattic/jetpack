@@ -1,5 +1,6 @@
 import DashboardPage from '../dashboard/dashboard-page';
 import { screenForTab } from '../data/record-seo-event';
+import overviewStyles from '../screens/overview/style.module.scss';
 import EnableSeoCard from './enable-seo-card';
 import type { SeoTab } from '../dashboard/dashboard-nav';
 import type { FC } from 'react';
@@ -11,9 +12,9 @@ import type { FC } from 'react';
  * to act on while the module is inactive, and their REST endpoints aren't even
  * registered (see `Initializer::init()`), so they'd be editable-but-dead.
  *
- * Mirrors the Overview's own module-off state, so Settings / Content / GEO behave
- * consistently with it. Enabling SEO tools reloads the page (see
- * `useSeoToolsToggle`), bringing the full surface online.
+ * Mirrors the Overview's own module-off state, column included, so Settings /
+ * Content / GEO behave and line up consistently with it. Enabling SEO tools
+ * reloads the page (see `useSeoToolsToggle`), bringing the full surface online.
  *
  * @param props        - Component props.
  * @param props.active - The tab whose stage is being gated.
@@ -21,7 +22,9 @@ import type { FC } from 'react';
  */
 const SeoDisabledStage: FC< { active: SeoTab } > = ( { active } ) => (
 	<DashboardPage active={ active }>
-		<EnableSeoCard screen={ screenForTab( active ) } />
+		<div className={ overviewStyles.root }>
+			<EnableSeoCard screen={ screenForTab( active ) } />
+		</div>
 	</DashboardPage>
 );
 

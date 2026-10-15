@@ -134,7 +134,7 @@ export default function TestDetails( {
 					<Dialog.Title>
 						{ __( 'How the firewall test works', 'jetpack-protect-pkg' ) }
 					</Dialog.Title>
-					<Dialog.CloseIcon />
+					<Dialog.CloseIconButton />
 				</Dialog.Header>
 				<Dialog.Content>
 					<TestSteps result={ result } recorded={ recorded } />

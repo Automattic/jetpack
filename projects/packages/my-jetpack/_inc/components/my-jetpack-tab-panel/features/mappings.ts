@@ -43,12 +43,9 @@ export const PRODUCT_MODULES: {
 /**
  * The product-to-module map to build cards from.
  *
- * Pre-release gate: outside internal testing environments the AI card is not
- * backed by the 'ai' module, so its cards resolve no module and render exactly
- * as they did before the module existed. Remove when the AI settings page goes
- * public.
+ * Remove the AI pre-release gate when its settings page goes public.
  *
- * @return The map, without the AI entry while the gate is on.
+ * @return The map, without the AI entry while the control is gated.
  */
 export function getProductModules() {
 	const { showAiModuleToggle = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );

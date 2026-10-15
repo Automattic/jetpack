@@ -10,7 +10,7 @@ import {
 import { __, sprintf } from '@wordpress/i18n';
 import { border, drafts, published, wordpress } from '@wordpress/icons';
 import { ThemeProvider } from '@wordpress/theme';
-import { Button, Icon, LinkButton, Stack, Text } from '@wordpress/ui';
+import { Button, ButtonLink, Icon, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { Slide01Gradient } from '../../testimonials/slide-01-gradient';
@@ -190,7 +190,7 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 				 */ }
 				<NavigableRegion ariaLabel={ wizardTitle } className={ styles.rail }>
 					<div className={ styles[ 'rail-head' ] }>
-						<LinkButton
+						<ButtonLink
 							variant="minimal"
 							tone="neutral"
 							size="compact"
@@ -198,8 +198,8 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 							aria-label={ __( 'Back to your WordPress site', 'jetpack-my-jetpack' ) }
 							className={ styles.exit }
 						>
-							<LinkButton.Icon icon={ wordpress } />
-						</LinkButton>
+							<ButtonLink.Icon icon={ wordpress } />
+						</ButtonLink>
 
 						<Heading level={ 2 } size="title" className={ styles[ 'rail-title' ] }>
 							{ wizardTitle }
@@ -282,14 +282,14 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 							>
 								{ /* My Jetpack needs the site connection accepting the terms creates. */ }
 								{ isRegistered && (
-									<LinkButton
+									<ButtonLink
 										variant="minimal"
 										tone="neutral"
 										href={ exitUrl }
 										onClick={ handleExit( 'skipped' ) }
 									>
 										{ __( 'Skip setup', 'jetpack-my-jetpack' ) }
-									</LinkButton>
+									</ButtonLink>
 								) }
 
 								{ /* The start screen carries its own primary, so the footer keeps only the exit. */ }
@@ -303,14 +303,14 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 										{ isLastStep( step ) ? (
 											// Nothing else is saved yet, so finishing records that it
 											// happened and leaves.
-											<LinkButton
+											<ButtonLink
 												variant="solid"
 												className={ styles[ 'primary-green' ] }
 												href={ exitUrl }
 												onClick={ handleExit( 'completed' ) }
 											>
 												{ __( 'Finish', 'jetpack-my-jetpack' ) }
-											</LinkButton>
+											</ButtonLink>
 										) : (
 											<Button
 												variant="solid"

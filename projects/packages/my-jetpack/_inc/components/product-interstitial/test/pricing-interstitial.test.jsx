@@ -77,7 +77,7 @@ jest.mock( '@wordpress/ui', () => ( {
 			{ children }
 		</button>
 	),
-	LinkButton: ( { children } ) => <a href="https://example.org">{ children }</a>,
+	ButtonLink: ( { children } ) => <a href="https://example.org">{ children }</a>,
 } ) );
 
 jest.mock( '@wordpress/components', () => ( { Spinner: () => <div /> } ) );

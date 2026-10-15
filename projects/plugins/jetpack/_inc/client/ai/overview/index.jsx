@@ -10,7 +10,7 @@ import { ExternalLink, ProgressBar, VisuallyHidden } from '@wordpress/components
 import { useEffect } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 import { list } from '@wordpress/icons';
-import { Card, LinkButton, Notice, Skeleton, Stack, Text } from '@wordpress/ui';
+import { Card, ButtonLink, Notice, Skeleton, Stack, Text } from '@wordpress/ui';
 import { getActivityLogDescription, onActivityLogClick } from '../activity-log';
 import assetUrl from '../asset-url';
 import NavRow from '../components/nav-row';
@@ -311,9 +311,9 @@ function UsageCard( { upgradeUrl, planName } ) {
 						     bottom-anchored, exactly as in the standard card. */ }
 						<div className="jetpack-ai-overview__usage-cell">
 							<RequestsMeter usage={ usage } />
-							<LinkButton href={ upgradeUrl } className="jetpack-ai-overview__upsell-cta">
+							<ButtonLink href={ upgradeUrl } className="jetpack-ai-overview__upsell-cta">
 								{ __( 'Upgrade', 'jetpack' ) }
-							</LinkButton>
+							</ButtonLink>
 						</div>
 					</div>
 				) }

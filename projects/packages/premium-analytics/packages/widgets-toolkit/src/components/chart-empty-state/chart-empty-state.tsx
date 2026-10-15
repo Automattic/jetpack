@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Button, EmptyState, Icon, LinkButton } from '@jetpack-premium-analytics/externals';
+import { Button, EmptyState, Icon, ButtonLink } from '@jetpack-premium-analytics/externals';
 import { search } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
 /**
@@ -44,9 +44,9 @@ export function ChartEmptyState( {
 				{ action && (
 					<EmptyState.Actions>
 						{ 'href' in action ? (
-							<LinkButton variant="outline" size="compact" href={ action.href }>
+							<ButtonLink variant="outline" size="compact" href={ action.href }>
 								{ action.label }
-							</LinkButton>
+							</ButtonLink>
 						) : (
 							<Button variant="outline" size="compact" onClick={ action.onClick }>
 								{ action.label }

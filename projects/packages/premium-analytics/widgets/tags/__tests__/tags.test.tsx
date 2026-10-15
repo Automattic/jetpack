@@ -236,3 +236,63 @@ describe( 'TagsWidget CSV export', () => {
 		expect( lines ).toHaveLength( 13 );
 	} );
 } );
+
+describe( 'TagsWidget empty state', () => {
+	const NONE_RECORDED = 'You don’t have tags or categories recorded yet.';
+	const GENERIC_TEXT = 'We couldn’t find results for this time period.';
+
+	/** Whether any request so far asked core for a published post. */
+	function askedForPosts() {
+		return mockApiFetch.mock.calls.some( ( [ options ] ) =>
+			String( options?.path ?? '' ).startsWith( '/wp/v2/posts' )
+		);
+	}
+
+	/**
+	 * Answer the tags report with no rows and the published-post lookup with the given posts.
+	 *
+	 * @param posts - The `/wp/v2/posts` response.
+	 */
+	function mockEmptyTags( posts: unknown[] ) {
+		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
+			Promise.resolve( path.startsWith( '/wp/v2/posts' ) ? posts : { ...TAGS_RESPONSE, tags: [] } )
+		);
+	}
+
+	beforeEach( () => {
+		jest.useFakeTimers();
+		queryClient.clear();
+		mockApiFetch.mockReset();
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
+	it( 'says nothing is recorded yet when the site has no published post', async () => {
+		mockEmptyTags( [] );
+
+		render( <TagsWidget attributes={ { reportParams: getDefaultQueryParams() } } /> );
+
+		await expect( screen.findByText( NONE_RECORDED ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( GENERIC_TEXT ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'keeps the period text when the site has a published post', async () => {
+		mockEmptyTags( [ { id: 1 } ] );
+
+		render( <TagsWidget attributes={ { reportParams: getDefaultQueryParams() } } /> );
+
+		await expect( screen.findByText( GENERIC_TEXT ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( NONE_RECORDED ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'does not ask for a published post when the list has rows', async () => {
+		mockApiFetch.mockResolvedValue( TAGS_RESPONSE );
+
+		render( <TagsWidget attributes={ { reportParams: getDefaultQueryParams() } } /> );
+
+		await expect( screen.findByText( 'Recipes' ) ).resolves.toBeInTheDocument();
+		expect( askedForPosts() ).toBe( false );
+	} );
+} );

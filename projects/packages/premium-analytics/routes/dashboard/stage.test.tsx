@@ -383,6 +383,10 @@ jest.mock( './components', () => ( {
 	OnboardingTour: () => <div data-testid="onboarding-tour" />,
 	onboardingTourSteps: () => [],
 	PlanLimitNotice: () => <div data-testid="plan-limit-notice" />,
+	hasPurchaseSuccess: jest.requireActual(
+		'./components/purchase-success-notice/purchase-success-notice'
+	).hasPurchaseSuccess,
+	PurchaseSuccessNotice: () => <div data-testid="purchase-success-notice" />,
 	// A marker, not the real notice, which reads a query cache these tests do not
 	// stand up. Covered here: where the stage puts it.
 	RefreshFailureNotice: () => <div data-testid="refresh-failure-notice" />,
@@ -444,6 +448,7 @@ beforeEach( () => {
 	mockSyncOptions = undefined;
 	mockIsAdmin = true;
 	mockCanSendFeedback = true;
+	delete window.JetpackScriptData;
 	mockMountedSectionSlugs = null;
 	mockTriggerSync.mockImplementation( () => Promise.resolve() );
 	useOnboardingMock.mockReturnValue( closedOnboarding );
@@ -769,6 +774,17 @@ describe( 'Dashboard feedback banner', () => {
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
 
+		expect( screen.queryByTestId( 'plan-limit-notice' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'thanks a reader back from checkout in place of the plan limit notice', () => {
+		window.JetpackScriptData = {
+			premium_analytics: { purchase_success: { type: 'paid' } },
+		} as typeof window.JetpackScriptData;
+
+		render( <Dashboard /> );
+
+		expect( screen.getByTestId( 'purchase-success-notice' ) ).toBeInTheDocument();
 		expect( screen.queryByTestId( 'plan-limit-notice' ) ).not.toBeInTheDocument();
 	} );
 } );
