@@ -76,6 +76,7 @@ test( 'an expired nonce renews without the reader noticing', async ( { dashboard
 	await dashboard.periodControl().click();
 	await dashboard.page.getByRole( 'menuitemradio', { name: 'Last 30 days' } ).click();
 	await expect( dashboard.periodControl() ).toHaveText( 'Last 30 days' );
+	// Without the replay, Devices would read the stale-nonce 403 as no access.
 	const devices = dashboard.page.getByRole( 'region', { name: 'Devices' } );
 	await expect(
 		devices.getByText( 'We couldn’t find results for this time period.' )

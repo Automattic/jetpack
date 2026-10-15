@@ -191,16 +191,17 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	/**
 	 * @dataProvider data_read_statuses
 	 *
-	 * @param int  $status The WPCOM response status.
-	 * @param bool $cached Whether the proxy should store it.
+	 * @param int   $status The WPCOM response status.
+	 * @param array $body   The WPCOM response body.
+	 * @param bool  $cached Whether the proxy should store it.
 	 */
 	#[DataProvider( 'data_read_statuses' )]
-	public function test_only_a_200_read_is_cached( int $status, bool $cached ) {
+	public function test_only_a_200_read_is_cached( int $status, array $body, bool $cached ) {
 		$request  = $this->build_request( 'reports/totals' );
 		$response = $this->cache_and_build_response(
 			array(
 				'response' => array( 'code' => $status ),
-				'body'     => wp_json_encode( array( 'error' => 'some_error' ), JSON_UNESCAPED_SLASHES ),
+				'body'     => wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
 				'headers'  => array(),
 			),
 			$this->cache_key( $request )
@@ -211,13 +212,13 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	}
 
 	/**
-	 * @return array<string, array{0: int, 1: bool}>
+	 * @return array<string, array{0: int, 1: array, 2: bool}>
 	 */
 	public static function data_read_statuses(): array {
 		return array(
-			'200 is cached'     => array( 200, true ),
-			'403 is not cached' => array( 403, false ),
-			'500 is not cached' => array( 500, false ),
+			'200 is cached'     => array( 200, array( 'views' => 10 ), true ),
+			'403 is not cached' => array( 403, array( 'error' => 'some_error' ), false ),
+			'500 is not cached' => array( 500, array( 'error' => 'some_error' ), false ),
 		);
 	}
 
