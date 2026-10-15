@@ -12,6 +12,8 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Hosting_Feature_Page;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Scan;
 use Brain\Monkey\Functions;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-backup/wpcom-backup.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-scan/wpcom-scan.php';
@@ -19,7 +21,14 @@ require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-admin-menu/wpcom-ad
 
 /**
  * Tests for the hosting feature pages. Shared behavior is exercised through the Backup page.
+ *
+ * Each test runs in its own process: stubbing wpcom_site_has_feature() defines it for the rest of the run.
+ *
+ * @runTestsInSeparateProcesses
+ * @preserveGlobalState disabled
  */
+#[RunTestsInSeparateProcesses]
+#[PreserveGlobalState( false )]
 class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 
 	/**
