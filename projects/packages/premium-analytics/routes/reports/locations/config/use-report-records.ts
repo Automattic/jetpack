@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import { useStatsLocations, type ReportParams } from '@jetpack-premium-analytics/data';
+import {
+	isStatsFeatureLocked,
+	useStatsLocations,
+	type ReportParams,
+} from '@jetpack-premium-analytics/data';
 import {
 	buildLocationRows,
 	getLocationsReportQueryParams,
@@ -41,8 +45,13 @@ export function useLocationsReportRecords(
 	// query covers both, so picking a country does not shrink the list you pick
 	// from.
 	const countries = useStatsLocations( queryParams.countries );
-	const regions = useStatsLocations( queryParams.regions, { enabled: activeTab === 'regions' } );
-	const cities = useStatsLocations( queryParams.cities, { enabled: activeTab === 'cities' } );
+	const regionsLocked = isStatsFeatureLocked( 'regions-cities' );
+	const regions = useStatsLocations( queryParams.regions, {
+		enabled: activeTab === 'regions' && ! regionsLocked,
+	} );
+	const cities = useStatsLocations( queryParams.cities, {
+		enabled: activeTab === 'cities' && ! regionsLocked,
+	} );
 
 	const reportsByTab = { countries, regions, cities };
 	const activeReport = reportsByTab[ activeTab ];

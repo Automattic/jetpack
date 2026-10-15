@@ -6,6 +6,31 @@
 export interface ConnectionOwner {
 	id: number;
 	displayName: string;
+	/** Optional: the store's post-transfer owner carries no avatar. */
+	avatar?: string;
+}
+
+/**
+ * Whether a raw store value is a usable connection owner.
+ *
+ * The value starts life as server-provided JSON and crosses an untyped store, so
+ * it is checked rather than asserted: consumers decide ownership by comparing
+ * `owner.id` to the viewer's ID, and a partial owner would pass that test by
+ * matching `undefined` against `undefined`. Anything short of a complete owner
+ * means "owner unknown".
+ *
+ * @param {unknown} value - The raw selector value.
+ * @return {boolean} Whether the value is a complete connection owner.
+ */
+export function isConnectionOwner( value: unknown ): value is ConnectionOwner {
+	return (
+		!! value &&
+		typeof value === 'object' &&
+		'id' in value &&
+		typeof value.id === 'number' &&
+		'displayName' in value &&
+		typeof value.displayName === 'string'
+	);
 }
 
 /**
