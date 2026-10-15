@@ -74,7 +74,7 @@ describe( 'ConnectionForm', () => {
 		mockRegistrationError = { name: 'JsonParseError' };
 		render( <ConnectionForm /> );
 		expect(
-			screen.getByText( /Your site sent an unexpected response/, { selector: 'p' } )
+			screen.getByText( /The connection request got an unexpected response/, { selector: 'p' } )
 		).toBeInTheDocument();
 	} );
 

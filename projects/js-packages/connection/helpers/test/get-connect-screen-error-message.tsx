@@ -72,7 +72,7 @@ describe( 'getConnectScreenErrorMessage', () => {
 			'connection endpoint was not found'
 		);
 		expect( getConnectScreenErrorMessage( 'site_inaccessible_503' ) ).toContain(
-			'Your site returned an error (HTTP 503)'
+			'WordPress.com got an error (HTTP 503)'
 		);
 	} );
 
@@ -98,7 +98,7 @@ describe( 'getConnectScreenErrorMessage', () => {
 		expect( getConnectScreenErrorMessage( 'site_requires_authorization' ) ).toContain( 'log in' );
 		expect( getConnectScreenErrorMessage( 'xml_rpc-32700' ) ).toContain( 'xmlrpc.php' );
 		expect( getConnectScreenErrorMessage( 'xml_rpc-32601' ) ).toContain(
-			'blocking or replacing XML-RPC'
+			'couldn’t connect to your site through xmlrpc.php'
 		);
 		expect( getConnectScreenErrorMessage( 'verify_secrets_mismatch' ) ).toBe(
 			'The connection attempt expired or was interrupted, for example by another connection attempt at the same time. Please try again.'
@@ -120,6 +120,22 @@ describe( 'getConnectScreenErrorMessage', () => {
 			'session expired'
 		);
 		expect( getConnectScreenErrorMessage( 'internal_server_error' ) ).toContain( 'critical error' );
+	} );
+
+	it( 'does not ask to try again after asking for another action', () => {
+		// The action is the advice; the user retries by connecting again anyway.
+		for ( const code of [
+			'site_requires_authorization',
+			'host_lookup_fail',
+			'ssl_error',
+			'xml_rpc-32601',
+			'xml_rpc-32700',
+			'site_inaccessible_500',
+			'JsonParseError',
+			'internal_server_error',
+		] ) {
+			expect( getConnectScreenErrorMessage( code ) ).not.toMatch( /then (try|connect) again/ );
+		}
 	} );
 
 	it( 'returns undefined for unknown error codes', () => {

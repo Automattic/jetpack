@@ -122,7 +122,7 @@ const siteHttpErrorMessage = ( status: number ): string => {
 		return sprintf(
 			/* translators: %d is an HTTP status code, e.g. 500. */
 			__(
-				'Your site returned an error (HTTP %d) when WordPress.com tried to verify it. Check your site’s error log, then try again.',
+				'WordPress.com got an error (HTTP %d) when it tried to verify your site. Your site’s error log may show the cause.',
 				'jetpack-connection-js'
 			),
 			status
@@ -131,7 +131,7 @@ const siteHttpErrorMessage = ( status: number ): string => {
 	return sprintf(
 		/* translators: %d is an HTTP status code, e.g. 403. */
 		__(
-			'Something blocked WordPress.com from verifying your site (HTTP %d). Try again in a minute. If it keeps happening, a firewall, CDN or security plugin is usually the cause: ask your hosting provider to allow connections from WordPress.com.',
+			'Something blocked WordPress.com from verifying your site (HTTP %d). Try again in a minute. If it keeps happening, a firewall or security rule is usually the cause: ask your hosting provider to allow connections from WordPress.com.',
 			'jetpack-connection-js'
 		),
 		status
@@ -193,17 +193,17 @@ export const getConnectScreenErrorMessage = (
 			);
 		case 'site_requires_authorization':
 			return __(
-				'Your site asks visitors to log in (for example password protection or a maintenance mode plugin), so WordPress.com couldn’t verify it. Turn that off while you connect, then try again.',
+				'Your site asks visitors to log in (for example password protection or a maintenance mode plugin), so WordPress.com couldn’t verify it. Turn it off while you connect.',
 				'jetpack-connection-js'
 			);
 		case 'host_lookup_fail':
 			return __(
-				'WordPress.com couldn’t find your site’s domain. Check that the domain is set up correctly and points to your site, then try again.',
+				'WordPress.com couldn’t find your site’s domain. Check that the domain is set up correctly and points to your site.',
 				'jetpack-connection-js'
 			);
 		case 'ssl_error':
 			return __(
-				'WordPress.com couldn’t verify your site because its SSL certificate isn’t valid. Ask your hosting provider to fix the certificate, then try again.',
+				'WordPress.com cannot securely connect to your site because its SSL certificate could not be verified. Ask your hosting provider to fix the certificate.',
 				'jetpack-connection-js'
 			);
 		case 'site_inaccessible':
@@ -215,12 +215,12 @@ export const getConnectScreenErrorMessage = (
 			return unreachableMessage();
 		case 'xml_rpc-32601':
 			return __(
-				'Your site didn’t respond to Jetpack’s connection request through xmlrpc.php. A security plugin or your hosting provider may be blocking or replacing XML-RPC. Allow xmlrpc.php, then try again.',
+				'WordPress.com couldn’t connect to your site through xmlrpc.php. A security plugin or your hosting provider may be blocking it.',
 				'jetpack-connection-js'
 			);
 		case 'xml_rpc-32700':
 			return __(
-				'WordPress.com couldn’t read your site’s response. Another plugin may be adding extra output to xmlrpc.php. Try deactivating other plugins, then connect again.',
+				'WordPress.com couldn’t read your site’s response. Another plugin may be adding extra output to xmlrpc.php. Try deactivating other plugins.',
 				'jetpack-connection-js'
 			);
 		case 'verify_secrets_missing':
@@ -250,7 +250,7 @@ export const getConnectScreenErrorMessage = (
 		case 'JsonParseError':
 		case 'JsonParseAfterRedirectError':
 			return __(
-				'Your site sent an unexpected response. A plugin or PHP error may be adding extra output. Check your site’s error log, or temporarily deactivate other plugins, then try again.',
+				'The connection request got an unexpected response. Another plugin or a PHP error may be adding extra output; your site’s error log, or temporarily deactivating other plugins, can show which.',
 				'jetpack-connection-js'
 			);
 		case 'Api404Error':
@@ -268,7 +268,7 @@ export const getConnectScreenErrorMessage = (
 			return __( 'Your session expired. Reload the page and try again.', 'jetpack-connection-js' );
 		case 'internal_server_error':
 			return __(
-				'Your site ran into a critical error while connecting. Check your site’s error log for details.',
+				'A critical error stopped the connection. Your site’s error log has the details.',
 				'jetpack-connection-js'
 			);
 		case 'invalid_user_permission_jetpack_connect':
