@@ -9,6 +9,7 @@
 namespace Automattic\Jetpack\SEO;
 
 use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -34,10 +35,10 @@ class InitializerTest extends TestCase {
 	}
 
 	/**
-	 * Either the existing filter or the WordPress.com site feature can make SEO
-	 * available; neither path is required when the other is enabled.
+	 * The existing filter, offline mode, or the WordPress.com site feature can each
+	 * make SEO available on its own.
 	 */
-	public function test_is_available_uses_filter_or_site_feature() {
+	public function test_is_available_uses_filter_offline_mode_or_site_feature() {
 		$plan                       = Current_Plan::get();
 		$plan['features']['active'] = array();
 		update_option( Current_Plan::PLAN_OPTION, $plan );
@@ -47,6 +48,7 @@ class InitializerTest extends TestCase {
 		// WordPress.com's separate plan-entitlement check.
 		\Wpcom_Test_Features::$known    = array( Initializer::FEATURE_SLUG );
 		\Wpcom_Test_Features::$entitled = array();
+		Status_Cache::clear();
 
 		try {
 			$this->assertFalse( Initializer::is_available() );
@@ -55,12 +57,20 @@ class InitializerTest extends TestCase {
 			$this->assertTrue( Initializer::is_available() );
 			remove_filter( Initializer::FEATURE_FILTER, '__return_true' );
 
+			add_filter( 'jetpack_offline_mode', '__return_true' );
+			Status_Cache::clear();
+			$this->assertTrue( Initializer::is_available() );
+			remove_filter( 'jetpack_offline_mode', '__return_true' );
+			Status_Cache::clear();
+
 			$plan['features']['active'] = array( Initializer::FEATURE_SLUG );
 			update_option( Current_Plan::PLAN_OPTION, $plan );
 			self::reset_current_plan_cache();
 			$this->assertTrue( Initializer::is_available() );
 		} finally {
 			remove_filter( Initializer::FEATURE_FILTER, '__return_true' );
+			remove_filter( 'jetpack_offline_mode', '__return_true' );
+			Status_Cache::clear();
 			delete_option( Current_Plan::PLAN_OPTION );
 			self::reset_current_plan_cache();
 			\Wpcom_Test_Features::reset();

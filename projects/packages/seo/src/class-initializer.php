@@ -43,8 +43,7 @@ class Initializer {
 	/**
 	 * Filter name that can enable the entire Jetpack SEO surface.
 	 *
-	 * The surface is available when this filter returns true or the current site's
-	 * active features include {@see self::FEATURE_SLUG}. When neither is enabled,
+	 * One of the conditions {@see self::is_available()} checks. When it returns false,
 	 * the package registers no admin menu or assets and changes nothing about the
 	 * existing Jetpack UI.
 	 *
@@ -109,7 +108,6 @@ class Initializer {
 		}
 		self::$initialized = true;
 
-		// Gate the entire SEO surface behind its legacy filter or per-site feature.
 		if ( ! self::is_available() ) {
 			return;
 		}
@@ -237,11 +235,17 @@ class Initializer {
 	 *
 	 * Keep the existing filter as an override while allowing WordPress.com to
 	 * enable the product for individual sites through its feature registry.
+	 * Offline-mode sites have no plan data to read that feature from, so they
+	 * are treated as available.
 	 *
 	 * @return bool
 	 */
 	public static function is_available() {
 		if ( (bool) apply_filters( self::FEATURE_FILTER, false ) ) {
+			return true;
+		}
+
+		if ( ( new Status() )->is_offline_mode() ) {
 			return true;
 		}
 
