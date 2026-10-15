@@ -26,7 +26,7 @@ import type { FC } from 'react';
  * @return The Advanced settings module.
  */
 const AdvancedCard: FC = () => {
-	const { isToggling, setActive } = useSeoToolsToggle();
+	const { isToggling, setActive } = useSeoToolsToggle( 'settings' );
 
 	return (
 		<CollapsibleCard.Root defaultOpen={ false }>

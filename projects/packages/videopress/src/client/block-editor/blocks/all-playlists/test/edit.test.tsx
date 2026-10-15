@@ -178,4 +178,20 @@ describe( 'AllPlaylistsEdit', () => {
 		await userEvent.click( screen.getByRole( 'radio', { name: '“Load more” button' } ) );
 		expect( setAttributes ).toHaveBeenLastCalledWith( { pagination: 'load-more' } );
 	} );
+
+	it( 'sorts by last update and shows it on the cards', async () => {
+		apiFetchMock.mockResolvedValue( { rendered: '' } );
+		const setAttributes = jest.fn();
+
+		renderEdit( { orderBy: 'updated', showUpdated: true }, setAttributes );
+		await waitFor( () => expect( apiFetchMock ).toHaveBeenCalled() );
+
+		const path = decodeURIComponent( apiFetchMock.mock.calls[ 0 ][ 0 ].path );
+		expect( path ).toContain( 'attributes[orderBy]=updated' );
+		expect( path ).toContain( 'attributes[showUpdated]=true' );
+		expect( screen.getByRole( 'combobox', { name: 'Order by' } ) ).toHaveValue( 'updated' );
+
+		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Last update and length' } ) );
+		expect( setAttributes ).toHaveBeenLastCalledWith( { showUpdated: false } );
+	} );
 } );

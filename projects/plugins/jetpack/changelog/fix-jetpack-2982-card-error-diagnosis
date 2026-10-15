@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+My Jetpack: Show a connection error on the Overview connection card while your account is still to be connected, instead of only asking you to connect it.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Use apply_shortcodes() terminology instead of do_shortcode().

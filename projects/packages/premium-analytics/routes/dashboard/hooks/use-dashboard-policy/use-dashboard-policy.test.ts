@@ -72,6 +72,28 @@ describe( 'useDashboardPolicy', () => {
 		expect( result.current( { operation: 'remove', widget, widgetType } ) ).toBe( true );
 	} );
 
+	it( 'keeps plan-locked types out of the inserter, but lets their placed widgets keep their controls', () => {
+		Object.defineProperty( window, 'JetpackScriptData', {
+			value: {
+				premium_analytics: {
+					dashboard_composition_enabled: true,
+					plan_gates: {
+						tier: 'paid',
+						locked_features: { devices: { description: '', support_url: '', upgrade_url: '' } },
+						locked_widget_types: { [ widgetType.name ]: 'devices' },
+					},
+				},
+			},
+			configurable: true,
+			writable: true,
+		} );
+		const { result } = renderHook( () => useDashboardPolicy( POLICY_INPUTS ) );
+
+		expect( result.current( { operation: 'insert', widgetType } ) ).toBe( false );
+		expect( result.current( { operation: 'edit', widget, widgetType } ) ).toBe( true );
+		expect( result.current( { operation: 'remove', widget, widgetType } ) ).toBe( true );
+	} );
+
 	it( 'offers the insertable types, and no other', () => {
 		seedScriptData( { dashboard_composition_enabled: true } );
 		const { result } = renderHook( () => useDashboardPolicy( POLICY_INPUTS ) );

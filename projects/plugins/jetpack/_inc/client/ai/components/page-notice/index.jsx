@@ -1,5 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ConnectionError } from '@automattic/jetpack-connection';
+import { speak } from '@wordpress/a11y';
+import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
 import { GATED_VIEWS } from '../../constants';
@@ -217,6 +219,18 @@ function getNoticeContent( state, pageData ) {
  */
 export default function PageNotice( props ) {
 	const { state } = props;
+	const content = getNoticeContent( state, props );
+	// Not static: the state follows the view and the connection store, so each
+	// new message is announced.
+	const message = content
+		? [ content.title, content.description ].filter( Boolean ).join( ' ' )
+		: '';
+
+	useEffect( () => {
+		if ( message ) {
+			speak( message, 'polite' );
+		}
+	}, [ message ] );
 
 	// The shared notice brings no page spacing of its own.
 	if ( state === PAGE_NOTICE_STATES.CONNECTION_ERROR ) {
@@ -227,22 +241,14 @@ export default function PageNotice( props ) {
 		);
 	}
 
-	const content = getNoticeContent( state, props );
-
 	if ( ! content ) {
 		return null;
 	}
 
 	const { title, description, action } = content;
 
-	// Announce a plain string: the default serializes children mid-render, which
-	// corrupts the Notice's own hook order when the children change shape.
 	return (
-		<Notice.Root
-			intent="warning"
-			className="jetpack-ai-admin__page-notice"
-			spokenMessage={ [ title, description ].filter( Boolean ).join( ' ' ) }
-		>
+		<Notice.Root intent="warning" className="jetpack-ai-admin__page-notice">
 			{ title && <Notice.Title>{ title }</Notice.Title> }
 			{ description && <Notice.Description>{ description }</Notice.Description> }
 			{ action && (

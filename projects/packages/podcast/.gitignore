@@ -2,6 +2,7 @@ vendor/
 node_modules/
 .cache/
 build/
+build-module/
 dist/
 composer.lock
 

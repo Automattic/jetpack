@@ -336,7 +336,7 @@ describe( 'The Restore screen across a gate flip', () => {
 		render( <RestoreStage /> );
 		await user.click( await screen.findByRole( 'button', { name: /Confirm restore/ } ) );
 		await expect(
-			screen.findByText( /queued and will begin automatically/ )
+			screen.findByRole( 'heading', { name: /queued and will begin automatically/ } )
 		).resolves.toBeInTheDocument();
 		const posts = () => mockApiFetch.mock.calls.filter( ( [ o ] ) => o?.method === 'POST' ).length;
 		expect( posts() ).toBe( 1 );
@@ -353,7 +353,7 @@ describe( 'The Restore screen across a gate flip', () => {
 			await queryClient.invalidateQueries( { queryKey: keys.capabilities() } );
 		} );
 		await expect(
-			screen.findByText( /queued and will begin automatically/ )
+			screen.findByRole( 'heading', { name: /queued and will begin automatically/ } )
 		).resolves.toBeInTheDocument();
 
 		expect( screen.queryByRole( 'button', { name: /Confirm restore/ } ) ).not.toBeInTheDocument();

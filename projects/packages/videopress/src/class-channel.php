@@ -24,10 +24,11 @@ use WP_Post;
  */
 class Channel {
 
-	const MIME_TYPE = 'video/videopress';
-	const ENDPOINT  = 'videopress';
-	const QUERY_VAR = 'videopress_video';
-	const TEMPLATE  = 'videopress-video';
+	const MIME_TYPE        = 'video/videopress';
+	const ENDPOINT         = 'videopress';
+	const QUERY_VAR        = 'videopress_video';
+	const TEMPLATE         = 'videopress-video';
+	const PLAYLIST_SOURCES = array( 'own', 'index' );
 
 	/**
 	 * Whether the feature has been wired up in this request.
@@ -125,14 +126,42 @@ class Channel {
 		if ( ! is_string( $guid ) || ! preg_match( '/^[a-zA-Z0-9]{8}$/', $guid ) ) {
 			return 0;
 		}
-		$id = function_exists( 'videopress_get_post_id_by_guid' ) ? videopress_get_post_id_by_guid( $guid ) : false;
-		if ( ! is_int( $id ) && function_exists( 'video_get_info_by_guid' ) ) {
+
+		/*
+		 * WordPress.com's videopress_get_post_id_by_guid() returns the post ID of
+		 * whichever blog owns the GUID, so every candidate must prove it is this
+		 * blog's attachment for that GUID before it is used.
+		 */
+		$candidates = array();
+		if ( function_exists( 'videopress_get_post_id_by_guid' ) ) {
+			$candidates[] = videopress_get_post_id_by_guid( $guid );
+		}
+		if ( function_exists( 'video_get_info_by_guid' ) ) {
 			$info = video_get_info_by_guid( $guid );
-			if ( is_object( $info ) && ! empty( $info->post_id ) && (int) $info->blog_id === get_current_blog_id() ) {
-				$id = (int) $info->post_id;
+			if ( is_object( $info ) && ! empty( $info->post_id ) && isset( $info->blog_id ) && (int) $info->blog_id === get_current_blog_id() ) {
+				$candidates[] = $info->post_id;
 			}
 		}
-		return is_int( $id ) && $id > 0 ? $id : 0;
+
+		foreach ( $candidates as $candidate ) {
+			$id = is_numeric( $candidate ) ? (int) $candidate : 0;
+			if ( $id > 0 && self::is_attachment_for( $id, $guid ) ) {
+				return $id;
+			}
+		}
+		return 0;
+	}
+
+	/**
+	 * Whether a post ID is this blog's VideoPress attachment for a GUID.
+	 *
+	 * @param int    $id   Post ID.
+	 * @param string $guid The GUID.
+	 * @return bool
+	 */
+	private static function is_attachment_for( $id, $guid ) {
+		$post = get_post( $id );
+		return $post instanceof WP_Post && 'attachment' === $post->post_type && self::guid( $post ) === $guid;
 	}
 
 	/**
@@ -144,6 +173,17 @@ class Channel {
 	public static function video_url( $attachment ) {
 		$guid = self::guid( $attachment );
 		return '' === $guid ? '' : add_query_arg( 'v', $guid, user_trailingslashit( home_url( '/' . self::ENDPOINT ) ) );
+	}
+
+	/**
+	 * Whether a URL points at this site rather than, say, videopress.com.
+	 *
+	 * @param string $url The URL.
+	 * @return bool
+	 */
+	public static function is_site_url( $url ) {
+		$host = wp_parse_url( (string) $url, PHP_URL_HOST );
+		return is_string( $host ) && strtolower( $host ) === strtolower( (string) wp_parse_url( home_url(), PHP_URL_HOST ) );
 	}
 
 	/**
@@ -272,6 +312,139 @@ class Channel {
 		if ( $details && ! empty( $details->poster ) ) {
 			$parsed_block['attrs']['poster'] = (string) $details->poster;
 		}
+		return $parsed_block;
+	}
+
+	/**
+	 * Whether this request is a channel video page.
+	 *
+	 * @return bool
+	 */
+	public static function is_video_page() {
+		return (bool) get_query_var( self::QUERY_VAR );
+	}
+
+	/**
+	 * The GUID of the video page's video, or an empty string.
+	 *
+	 * @return string
+	 */
+	public static function queried_guid() {
+		if ( ! self::is_video_page() ) {
+			return '';
+		}
+		$post = self::current_video();
+		return $post instanceof WP_Post ? self::guid( $post ) : '';
+	}
+
+	/**
+	 * One indexed playlist with its key, or null.
+	 *
+	 * @param string $key Playlist key.
+	 * @return array|null Record with key, title, description, videos and post_id.
+	 */
+	public static function playlist_record( $key ) {
+		$key = is_string( $key ) ? sanitize_key( $key ) : '';
+		if ( '' === $key ) {
+			return null;
+		}
+		$index = Playlist_Index::get_playlists();
+		if ( ! isset( $index[ $key ] ) || ! is_array( $index[ $key ] ) ) {
+			return null;
+		}
+		return self::normalize_record( $key, $index[ $key ] );
+	}
+
+	/**
+	 * Every indexed playlist whose source post is published, most recently updated first.
+	 *
+	 * @return array[] Records as playlist_record() returns them, plus `updated` ( unix time ).
+	 */
+	public static function playlists() {
+		$playlists = array();
+		foreach ( Playlist_Index::get_playlists() as $key => $record ) {
+			if ( ! is_array( $record ) ) {
+				continue;
+			}
+			$record = self::normalize_record( (string) $key, $record );
+			$post   = $record['post_id'] ? get_post( $record['post_id'] ) : null;
+			if ( ! $post instanceof WP_Post || 'publish' !== $post->post_status ) {
+				continue;
+			}
+			$record['updated'] = (int) strtotime( $post->post_modified_gmt . ' UTC' );
+			$playlists[]       = $record;
+		}
+		usort(
+			$playlists,
+			function ( $a, $b ) {
+				return $b['updated'] !== $a['updated'] ? $b['updated'] - $a['updated'] : strcmp( $a['key'], $b['key'] );
+			}
+		);
+		return $playlists;
+	}
+
+	/**
+	 * Normalize an index record.
+	 *
+	 * @param string $key    Playlist key.
+	 * @param array  $record Index record.
+	 * @return array
+	 */
+	private static function normalize_record( $key, array $record ) {
+		return array(
+			'key'         => $key,
+			'title'       => isset( $record['title'] ) && is_string( $record['title'] ) ? $record['title'] : '',
+			'description' => isset( $record['description'] ) && is_string( $record['description'] ) ? $record['description'] : '',
+			'videos'      => Initializer::sanitize_playlist_entries( $record['videos'] ?? null ),
+			'post_id'     => isset( $record['post_id'] ) ? absint( $record['post_id'] ) : 0,
+		);
+	}
+
+	/**
+	 * The playlist a block shows: an indexed one by key ( the most recently
+	 * updated when no key is set ).
+	 *
+	 * @param string $source One of PLAYLIST_SOURCES.
+	 * @param string $key    Playlist key for the `index` source.
+	 * @return array|null
+	 */
+	public static function source_playlist( $source, $key = '' ) {
+		if ( 'index' !== $source ) {
+			return null;
+		}
+		if ( is_string( $key ) && '' !== $key ) {
+			return self::playlist_record( $key );
+		}
+		$playlists = self::playlists();
+		return $playlists ? $playlists[0] : null;
+	}
+
+	/**
+	 * A Video Playlist block whose `source` is `index` shows that playlist. Hooked by
+	 * Channel_Blocks::register() on every site with the block, channel theme or not.
+	 *
+	 * @param array $parsed_block The block being rendered.
+	 * @return array
+	 */
+	public static function playlist_source_block( $parsed_block ) {
+		if ( ! isset( $parsed_block['blockName'] ) || Playlist_Index::BLOCK_NAME !== $parsed_block['blockName'] ) {
+			return $parsed_block;
+		}
+		$attrs  = isset( $parsed_block['attrs'] ) && is_array( $parsed_block['attrs'] ) ? $parsed_block['attrs'] : array();
+		$source = isset( $attrs['source'] ) && in_array( $attrs['source'], self::PLAYLIST_SOURCES, true ) ? $attrs['source'] : 'own';
+		if ( 'own' === $source ) {
+			return $parsed_block;
+		}
+
+		$playlist = self::source_playlist( $source, isset( $attrs['sourcePlaylistId'] ) ? (string) $attrs['sourcePlaylistId'] : '' );
+		if ( ! $playlist ) {
+			$parsed_block['attrs']['videos'] = array();
+			return $parsed_block;
+		}
+
+		$parsed_block['attrs']['videos']              = $playlist['videos'];
+		$parsed_block['attrs']['playlistTitle']       = $playlist['title'];
+		$parsed_block['attrs']['playlistDescription'] = $playlist['description'];
 		return $parsed_block;
 	}
 }

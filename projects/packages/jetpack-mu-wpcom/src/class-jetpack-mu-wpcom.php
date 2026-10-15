@@ -14,7 +14,7 @@ define( 'WPCOM_ADMIN_BAR_UNIFICATION', true );
  * Jetpack_Mu_Wpcom main class.
  */
 class Jetpack_Mu_Wpcom {
-	const PACKAGE_VERSION = '6.10.1';
+	const PACKAGE_VERSION = '6.11.0';
 	const PKG_DIR         = __DIR__ . '/../';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
@@ -48,6 +48,11 @@ class Jetpack_Mu_Wpcom {
 		'meetinghub/meetinghub.php'                      => null,
 		'mail-mint/mail-mint.php'                        => null,
 		'wp-letsencrypt-ssl-pro/wp-letsencrypt.php'      => null,
+		'astra-pro-sites/astra-pro-sites.php'            => null,
+		'echo-rewards/echo-rewards.php'                  => null,
+		'forminator/forminator.php'                      => null,
+		'iron-security/iron-security.php'                => null,
+		'stackable-ultimate-gutenberg-blocks/plugin.php' => null,
 	);
 
 	/**
@@ -196,7 +201,7 @@ class Jetpack_Mu_Wpcom {
 		/**
 		 * Filters whether WordPress.com Simple should register the Jetpack AI Hub.
 		 *
-		 * @since $$next-version$$
+		 * @since 6.11.0
 		 *
 		 * @param bool $load Whether to load the AI Hub integration.
 		 */
@@ -507,6 +512,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-theme-tracking.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
+		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes-tab.php';
 		require_once __DIR__ . '/features/wpcom-user-edit/wpcom-user-edit.php';
 		require_once __DIR__ . '/features/wpcom-videopress/wpcom-videopress.php';
 
@@ -917,7 +923,7 @@ class Jetpack_Mu_Wpcom {
 	 * Hooks the dashboard's registry action, which only fires once the package boots, so this
 	 * is inert on a site without the dashboard.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.11.0
 	 */
 	public static function load_premium_analytics_wordads_section() {
 		require_once __DIR__ . '/features/premium-analytics/wordads-section.php';
@@ -928,7 +934,7 @@ class Jetpack_Mu_Wpcom {
 	 *
 	 * Same seam as the Ads tab: inert on a site without the dashboard.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.11.0
 	 */
 	public static function load_premium_analytics_videopress_widgets() {
 		require_once __DIR__ . '/features/premium-analytics/videopress-widgets.php';
@@ -1036,7 +1042,7 @@ class Jetpack_Mu_Wpcom {
 	 * The `wc-disable-block-editor-unified-assets` blog sticker force-disables the feature,
 	 * while the `wc-block-editor-unified-assets` sticker opts the site in.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.11.0
 	 *
 	 * @param mixed $enabled The current feature option value.
 	 * @return mixed Original option value, `yes` when enabled, or `no` when force-disabled.

@@ -1,13 +1,14 @@
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { starFilled } from '@wordpress/icons';
-import { Link, LinkButton, Text } from '@wordpress/ui';
+import { Link, ButtonLink, Text } from '@wordpress/ui';
 import { useCallback } from 'react';
+import { isOfflineFeatures } from '../../../data/utils/offline-features';
 import useAnalytics from '../../../hooks/use-analytics';
 import { getFeaturePricingHref } from '../utils';
 import { FeatureHighlights } from './feature-highlights';
-import { getForcedReason } from './feature-state';
 import { useFeaturesTracking } from './features-tracking-context';
+import { getModuleStatus } from './module-availability';
 import styles from './styles.module.scss';
 import type { FeatureState } from './feature-state';
 
@@ -65,13 +66,19 @@ function getIncludedIn( count: number ): string {
 }
 
 /**
- * Whether a host forced the feature off, which a purchase cannot change.
+ * Whether host policy or multisite support blocks a purchase route.
  *
  * @param state - Live state for the feature.
- * @return True when the feature is off and the host decides that.
+ * @return True when buying cannot remove the limitation.
  */
-function isForcedOff( state: FeatureState ): boolean {
-	return state.status !== 'active' && !! getForcedReason( state );
+function isPurchaseBlocked( state: FeatureState ): boolean {
+	return (
+		( state.control.kind === 'module' &&
+			( state.control.module.override === 'inactive' ||
+				getModuleStatus( { ...state.control.module, override: false } ).isMultisiteBlocked ) ) ||
+		( ( state.control.kind === 'plugin' || state.control.kind === 'none' ) &&
+			state.control.override === 'inactive' )
+	);
 }
 
 /**
@@ -81,7 +88,7 @@ function isForcedOff( state: FeatureState ): boolean {
  * @return The My Jetpack route.
  */
 function getUpgradePath( state: FeatureState ): string {
-	if ( isForcedOff( state ) ) {
+	if ( isPurchaseBlocked( state ) ) {
 		return '';
 	}
 
@@ -100,7 +107,21 @@ type UpgradeButtonProps = {
  * @param {FeatureState}       props.state - Live state for the feature.
  * @return The rendered component, or null when there is nothing to sell.
  */
-export function UpgradeButton( { state }: UpgradeButtonProps ) {
+export function UpgradeButton( props: UpgradeButtonProps ) {
+	if ( isOfflineFeatures() ) {
+		return null;
+	}
+	return <TrackedUpgradeButton { ...props } />;
+}
+
+/**
+ * Render an upgrade with connected analytics.
+ *
+ * @param props       - The props.
+ * @param props.state - The feature state.
+ * @return The upgrade button.
+ */
+function TrackedUpgradeButton( { state }: UpgradeButtonProps ) {
 	const { feature } = state;
 	const { recordEvent } = useAnalytics();
 	const upgradePath = getUpgradePath( state );
@@ -118,7 +139,7 @@ export function UpgradeButton( { state }: UpgradeButtonProps ) {
 	}
 
 	return (
-		<LinkButton
+		<ButtonLink
 			href={ getFeaturePricingHref( upgradePath, feature.slug ) }
 			onClick={ onUpgrade }
 			variant="outline"
@@ -132,7 +153,7 @@ export function UpgradeButton( { state }: UpgradeButtonProps ) {
 			) }
 		>
 			{ __( 'Upgrade', 'jetpack-my-jetpack' ) }
-		</LinkButton>
+		</ButtonLink>
 	);
 }
 
@@ -151,7 +172,7 @@ export function FeaturePaid( { state }: FeaturePaidProps ) {
 	const { feature } = state;
 	const plans = feature.plans ?? [];
 	const highlights = feature.paid_highlights ?? [];
-	const showPlans = ! isForcedOff( state ) && plans.length > 0;
+	const showPlans = ! isPurchaseBlocked( state ) && plans.length > 0;
 
 	if ( ! highlights.length && ! showPlans ) {
 		return null;

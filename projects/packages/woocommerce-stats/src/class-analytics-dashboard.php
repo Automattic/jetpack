@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\WooCommerceStats;
 
+use Automattic\Jetpack\PremiumAnalytics\Enablement_Setting;
 use function Automattic\Jetpack\PremiumAnalytics\get_dashboard_default_widget_instance;
 use function Automattic\Jetpack\PremiumAnalytics\register_dashboard_section;
 use function Automattic\Jetpack\PremiumAnalytics\register_widget_types_from_manifest;
@@ -15,14 +16,14 @@ use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_NAME;
 /**
  * Registers the WooCommerce section and the package's widget types.
  *
- * The package decides nothing about who gets them: the plugin that bundles it calls `init()`, and
- * both register when the dashboard's registries hydrate.
+ * The plugin that bundles it calls `init()`; both register when the dashboard's registries hydrate,
+ * gated here on WooCommerce and on the reader's store reports capability.
  *
  * @since 0.1.0-alpha
  */
 class Analytics_Dashboard {
 
-	const PACKAGE_VERSION = '0.1.0-alpha';
+	const PACKAGE_VERSION = '0.1.0';
 
 	/**
 	 * Namespaced section identifier. Its slug, `woocommerce`, keys the section's URL and stored layouts.
@@ -32,6 +33,7 @@ class Analytics_Dashboard {
 	/**
 	 * Widget type names the package builds, from `widgets/*\/widget.json`.
 	 */
+	const STORE_PERFORMANCE_TYPE         = 'woocommerce-analytics/store-performance';
 	const NET_SALES_OVER_TIME_TYPE       = 'woocommerce-analytics/net-sales-over-time';
 	const TOTAL_SALES_OVER_TIME_TYPE     = 'woocommerce-analytics/total-sales-over-time';
 	const GROSS_SALES_OVER_TIME_TYPE     = 'woocommerce-analytics/gross-sales-over-time';
@@ -45,11 +47,29 @@ class Analytics_Dashboard {
 	const ORDERS_FULFILLMENT_TYPE        = 'woocommerce-analytics/orders-fulfillment';
 	const COUPON_USAGE_OVER_TIME_TYPE    = 'woocommerce-analytics/coupon-usage-over-time';
 	const BOOKINGS_BY_STATUS_TYPE        = 'woocommerce-analytics/bookings-by-status';
-	const TOP_PERFORMING_PRODUCTS_TYPE   = 'woocommerce-analytics/top-performing-products';
-	const TOP_PERFORMING_BOOKINGS_TYPE   = 'woocommerce-analytics/top-performing-bookings';
-	const SALES_BY_UTM_SOURCE_TYPE       = 'woocommerce-analytics/sales-by-utm-source';
-	const SALES_BY_UTM_CHANNEL_TYPE      = 'woocommerce-analytics/sales-by-utm-channel';
-	const SALES_BY_UTM_CAMPAIGN_TYPE     = 'woocommerce-analytics/sales-by-utm-campaign';
+	const SESSIONS_BY_DEVICE_TYPE        = 'woocommerce-analytics/sessions-by-device';
+
+	/**
+	 * The columns family, with the bookings variants of the first two.
+	 */
+	const REVENUE_BY_CUSTOMER_TYPE_TYPE          = 'woocommerce-analytics/revenue-by-customer-type';
+	const BOOKINGS_REVENUE_BY_CUSTOMER_TYPE_TYPE = 'woocommerce-analytics/bookings-revenue-by-customer-type';
+	const SALES_BY_DEVICE_TYPE                   = 'woocommerce-analytics/sales-by-device';
+	const BOOKINGS_BY_DEVICE_TYPE                = 'woocommerce-analytics/bookings-by-device';
+	const TOTAL_RETURNS_TYPE                     = 'woocommerce-analytics/total-returns';
+	const SALES_BY_COUPON_TYPE                   = 'woocommerce-analytics/sales-by-coupon';
+	const TOP_PERFORMING_PRODUCTS_TYPE           = 'woocommerce-analytics/top-performing-products';
+	const TOP_PERFORMING_BOOKINGS_TYPE           = 'woocommerce-analytics/top-performing-bookings';
+	const SALES_BY_UTM_SOURCE_TYPE               = 'woocommerce-analytics/sales-by-utm-source';
+	const SALES_BY_UTM_CHANNEL_TYPE              = 'woocommerce-analytics/sales-by-utm-channel';
+	const SALES_BY_UTM_CAMPAIGN_TYPE             = 'woocommerce-analytics/sales-by-utm-campaign';
+	const VISITORS_BY_LOCATION_TYPE              = 'woocommerce-analytics/visitors-by-location';
+
+	/**
+	 * The conversion funnel, for every product and for bookings.
+	 */
+	const CONVERSION_RATE_TYPE                = 'woocommerce-analytics/conversion-rate';
+	const STORE_CONVERSION_RATE_BOOKINGS_TYPE = 'woocommerce-analytics/store-conversion-rate-bookings';
 
 	/**
 	 * Registry actions of the dashboard package.
@@ -63,10 +83,31 @@ class Analytics_Dashboard {
 	const TEXTDOMAIN = 'jetpack-woocommerce-stats-pkg';
 
 	/**
-	 * Lowest widget contract the build works against: the UTM leaderboards draw the bars variant,
-	 * which the dashboard ships from 1.7.0.
+	 * Lowest widget contract the build works against: Visitors by location draws `Locations`,
+	 * which the dashboard ships from 1.11.0.
 	 */
-	const MIN_WIDGET_API_VERSION = '1.7.0';
+	const MIN_WIDGET_API_VERSION = '1.11.0';
+
+	/**
+	 * Widget categories the package builds but holds back from the tab for now: the bookings
+	 * reports answer 500 on a store without a synced booking (WOOA7S-2287).
+	 */
+	const HELD_BACK_WIDGET_CATEGORIES = array( 'bookings' );
+
+	/**
+	 * Ahead of Traffic (10), so a store's dashboard opens on this tab.
+	 */
+	const SECTION_ORDER = 5;
+
+	/**
+	 * Filter through which WooCommerce detection is resolved, for hosts and tests without the plugin.
+	 */
+	const WOOCOMMERCE_AVAILABLE_FILTER = 'jetpack_woocommerce_stats_woocommerce_available';
+
+	/**
+	 * Widget categories that also need the WooCommerce Bookings extension.
+	 */
+	const BOOKINGS_WIDGET_CATEGORIES = array( 'bookings' );
 
 	/**
 	 * Hook both registrants on the dashboard's registry actions, the reports proxy on REST
@@ -98,17 +139,13 @@ class Analytics_Dashboard {
 			return;
 		}
 
-		$is_available = function_exists( 'Automattic\\Jetpack\\PremiumAnalytics\\is_store_dashboard_section_available' )
-			? 'Automattic\\Jetpack\\PremiumAnalytics\\is_store_dashboard_section_available'
-			: '__return_false';
-
 		register_dashboard_section(
 			DASHBOARD_NAME,
 			self::SECTION_ID,
 			array(
 				'label'          => __( 'WooCommerce', 'jetpack-woocommerce-stats-pkg' ),
-				'order'          => 40,
-				'is_available'   => $is_available,
+				'order'          => self::SECTION_ORDER,
+				'is_available'   => array( __CLASS__, 'is_section_available' ),
 				// Nothing backfills historical orders to WordPress.com but the analytics full sync.
 				'requires_sync'  => true,
 				'default_layout' => array( __CLASS__, 'get_default_layout' ),
@@ -119,30 +156,61 @@ class Analytics_Dashboard {
 	/**
 	 * The default layout of the WooCommerce tab, which is also what the inserter offers there.
 	 *
-	 * A new composition, built up as the widgets land in the package.
+	 * Each group below fills one row of the dashboard grid.
 	 *
 	 * @return array[] Widget instances, as `get_dashboard_default_widget_instance()` builds them.
 	 */
 	public static function get_default_layout() {
 		return array(
-			get_dashboard_default_widget_instance( 'default-net-sales-over-time-widget-instance', self::NET_SALES_OVER_TIME_TYPE, 0, 1, 2 ),
-			get_dashboard_default_widget_instance( 'default-total-sales-over-time-widget-instance', self::TOTAL_SALES_OVER_TIME_TYPE, 1, 1, 2 ),
-			get_dashboard_default_widget_instance( 'default-gross-sales-over-time-widget-instance', self::GROSS_SALES_OVER_TIME_TYPE, 2, 1, 2 ),
-			get_dashboard_default_widget_instance( 'default-orders-over-time-widget-instance', self::ORDERS_OVER_TIME_TYPE, 3, 1, 2 ),
-			get_dashboard_default_widget_instance( 'default-average-order-value-widget-instance', self::AVERAGE_ORDER_VALUE_TYPE, 4, 1, 2 ),
-			get_dashboard_default_widget_instance( 'default-average-items-per-order-widget-instance', self::AVERAGE_ITEMS_PER_ORDER_TYPE, 5, 1, 2 ),
-			get_dashboard_default_widget_instance( 'default-bookings-over-time-widget-instance', self::BOOKINGS_OVER_TIME_TYPE, 6, 1, 2 ),
-			get_dashboard_default_widget_instance( 'default-visitors-over-time-widget-instance', self::VISITORS_OVER_TIME_TYPE, 7, 1, 2 ),
-			get_dashboard_default_widget_instance( 'default-new-vs-returning-customer-widget-instance', self::NEW_VS_RETURNING_CUSTOMER_TYPE, 8, 1, 2 ),
-			get_dashboard_default_widget_instance( 'default-payment-status-widget-instance', self::PAYMENT_STATUS_TYPE, 9, 1, 2 ),
-			get_dashboard_default_widget_instance( 'default-orders-fulfillment-widget-instance', self::ORDERS_FULFILLMENT_TYPE, 10, 1, 2 ),
-			get_dashboard_default_widget_instance( 'default-coupon-usage-over-time-widget-instance', self::COUPON_USAGE_OVER_TIME_TYPE, 11, 1, 2 ),
-			get_dashboard_default_widget_instance( 'default-bookings-by-status-widget-instance', self::BOOKINGS_BY_STATUS_TYPE, 12, 1, 2 ),
-			get_dashboard_default_widget_instance( 'default-top-performing-products-widget-instance', self::TOP_PERFORMING_PRODUCTS_TYPE, 13, 1, 2 ),
-			get_dashboard_default_widget_instance( 'default-top-performing-bookings-widget-instance', self::TOP_PERFORMING_BOOKINGS_TYPE, 14, 1, 2 ),
-			get_dashboard_default_widget_instance( 'default-sales-by-utm-source-widget-instance', self::SALES_BY_UTM_SOURCE_TYPE, 15, 1, 2 ),
-			get_dashboard_default_widget_instance( 'default-sales-by-utm-channel-widget-instance', self::SALES_BY_UTM_CHANNEL_TYPE, 16, 1, 2 ),
-			get_dashboard_default_widget_instance( 'default-sales-by-utm-campaign-widget-instance', self::SALES_BY_UTM_CAMPAIGN_TYPE, 17, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-store-performance-widget-instance', self::STORE_PERFORMANCE_TYPE, 0, 'full', 2 ),
+
+			get_dashboard_default_widget_instance( 'default-top-performing-products-widget-instance', self::TOP_PERFORMING_PRODUCTS_TYPE, 10, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-average-order-value-widget-instance', self::AVERAGE_ORDER_VALUE_TYPE, 20, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-average-items-per-order-widget-instance', self::AVERAGE_ITEMS_PER_ORDER_TYPE, 30, 1, 2 ),
+
+			get_dashboard_default_widget_instance( 'default-conversion-rate-widget-instance', self::CONVERSION_RATE_TYPE, 40, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-visitors-by-location-widget-instance', self::VISITORS_BY_LOCATION_TYPE, 50, 2, 2 ),
+
+			get_dashboard_default_widget_instance( 'default-new-vs-returning-customer-widget-instance', self::NEW_VS_RETURNING_CUSTOMER_TYPE, 60, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-revenue-by-customer-type-widget-instance', self::REVENUE_BY_CUSTOMER_TYPE_TYPE, 70, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-total-returns-widget-instance', self::TOTAL_RETURNS_TYPE, 80, 1, 2 ),
+
+			get_dashboard_default_widget_instance( 'default-sales-by-utm-channel-widget-instance', self::SALES_BY_UTM_CHANNEL_TYPE, 90, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-sales-by-utm-source-widget-instance', self::SALES_BY_UTM_SOURCE_TYPE, 100, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-sales-by-utm-campaign-widget-instance', self::SALES_BY_UTM_CAMPAIGN_TYPE, 110, 1, 2 ),
+
+			get_dashboard_default_widget_instance( 'default-orders-fulfillment-widget-instance', self::ORDERS_FULFILLMENT_TYPE, 120, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-sales-by-coupon-widget-instance', self::SALES_BY_COUPON_TYPE, 130, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-coupon-usage-over-time-widget-instance', self::COUPON_USAGE_OVER_TIME_TYPE, 140, 1, 2 ),
+
+			get_dashboard_default_widget_instance( 'default-payment-status-widget-instance', self::PAYMENT_STATUS_TYPE, 150, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-sessions-by-device-widget-instance', self::SESSIONS_BY_DEVICE_TYPE, 160, 1, 2 ),
+			get_dashboard_default_widget_instance( 'default-sales-by-device-widget-instance', self::SALES_BY_DEVICE_TYPE, 170, 1, 2 ),
+		);
+	}
+
+	/**
+	 * The manifest minus the categories held back from the tab and the bookings categories
+	 * without their extension.
+	 *
+	 * @param array[] $widget_modules     Widget module records of the build manifest.
+	 * @param bool    $bookings_available Whether the WooCommerce Bookings extension is active.
+	 * @return array[] The records the package registers.
+	 */
+	private static function remove_unavailable_widget_types( $widget_modules, $bookings_available ) {
+		return array_values(
+			array_filter(
+				$widget_modules,
+				static function ( $widget_module ) use ( $bookings_available ) {
+					$category = $widget_module['category'] ?? '';
+
+					if ( in_array( $category, self::HELD_BACK_WIDGET_CATEGORIES, true ) ) {
+						return false;
+					}
+
+					return $bookings_available || ! in_array( $category, self::BOOKINGS_WIDGET_CATEGORIES, true );
+				}
+			)
 		);
 	}
 
@@ -152,11 +220,14 @@ class Analytics_Dashboard {
 	 * Loads the generated build first: after `init` it registers the widget script modules on the
 	 * spot, so they reach the page import map the same request.
 	 *
+	 * Registers nothing without WooCommerce or for a reader who cannot see store reports: the types
+	 * would only collect 403s from the proxy.
+	 *
 	 * @param object $registry The widget type registry being hydrated.
 	 * @return void
 	 */
 	public static function register_widget_types( $registry ) {
-		if ( ! self::supports_widget_contract() ) {
+		if ( ! self::supports_widget_contract() || ! self::is_woocommerce_available() || ! self::current_user_can_view_store_reports() ) {
 			return;
 		}
 
@@ -166,13 +237,79 @@ class Analytics_Dashboard {
 		}
 
 		register_widget_types_from_manifest(
-			jetpack_woocommerce_stats_get_registered_widget_modules(),
+			self::remove_unavailable_widget_types( jetpack_woocommerce_stats_get_registered_widget_modules(), self::is_bookings_plugin_active() ),
 			array(
 				'textdomain'    => self::TEXTDOMAIN,
 				'i18n_manifest' => add_query_arg( 'ver', self::PACKAGE_VERSION, plugins_url( 'i18n-manifest.json', self::build_dir() . '/build.php' ) ),
 			),
 			$registry
 		);
+	}
+
+	/**
+	 * Whether the WooCommerce tab is available: WooCommerce is active, the reader may see store
+	 * reports, and a site that opted in on its own carries the dashboard's store flag.
+	 *
+	 * @return bool
+	 */
+	public static function is_section_available() {
+		return self::is_store_section_enabled() && self::is_woocommerce_available() && self::current_user_can_view_store_reports();
+	}
+
+	/**
+	 * Whether WooCommerce is active.
+	 *
+	 * @return bool
+	 */
+	public static function is_woocommerce_available() {
+		$is_available = class_exists( 'WooCommerce' ) || function_exists( 'WC' );
+
+		/**
+		 * Filters whether WooCommerce was detected.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $is_available Whether WooCommerce was detected in the current request.
+		 */
+		return (bool) apply_filters( self::WOOCOMMERCE_AVAILABLE_FILTER, $is_available );
+	}
+
+	/**
+	 * Whether the current user may read the store reports, the rule the reports proxy enforces.
+	 *
+	 * @return bool
+	 */
+	public static function current_user_can_view_store_reports() {
+		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- WooCommerce registers this capability.
+		return current_user_can( 'manage_options' ) || current_user_can( 'view_woocommerce_reports' );
+	}
+
+	/**
+	 * The dashboard's soft-launch policy: a site that opted in through the option needs the store
+	 * flag; the blog sticker and the enabled filter leave the option off and keep every section.
+	 *
+	 * @return bool
+	 */
+	private static function is_store_section_enabled() {
+		if ( ! get_option( Enablement_Setting::ENABLED_OPTION ) ) {
+			return true;
+		}
+
+		// An older dashboard package may have loaded dashboard-policy.php without the flag.
+		$is_flag_enabled = 'Automattic\\Jetpack\\PremiumAnalytics\\is_dashboard_store_section_enabled';
+
+		return function_exists( $is_flag_enabled ) && $is_flag_enabled();
+	}
+
+	/**
+	 * Whether the WooCommerce Bookings extension is active; `is_plugin_active()` only exists in
+	 * admin contexts, hence the guard.
+	 *
+	 * @return bool
+	 */
+	private static function is_bookings_plugin_active() {
+		return class_exists( 'WC_Bookings' )
+			|| ( function_exists( 'is_plugin_active' ) && \is_plugin_active( 'woocommerce-bookings/woocommerce-bookings.php' ) );
 	}
 
 	/**

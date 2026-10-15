@@ -33,7 +33,7 @@ export const FREE_TIER_AT_LIMIT_NOTICE_ID = 'vp-upload-at-limit';
  * Library and Settings tabs render it once the free upload is used, with the
  * at-limit copy, so the disabled upload path always comes with a visible
  * upgrade path (VIDP-311). The `@wordpress/ui` Notice compound API expresses
- * non-dismissibility by omitting `<Notice.CloseIcon>` rather than via a
+ * non-dismissibility by omitting `<Notice.CloseIconButton` rather than via a
  * boolean prop.
  *
  * The upgrade CTA delegates to the shared `useVideoPressUpgrade` hook so

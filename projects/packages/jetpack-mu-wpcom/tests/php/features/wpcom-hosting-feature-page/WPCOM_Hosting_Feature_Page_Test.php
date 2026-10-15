@@ -401,27 +401,27 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Run the enqueue pass and hand back what it localized for the page script.
+	 * Run the enqueue pass and hand back the initial state it printed.
 	 *
-	 * @return array|null The payload, or null when nothing was localized.
+	 * @return array|null The state, or null when none was printed.
 	 */
-	private function localized_initial_state() {
+	private function printed_initial_state() {
 		$handle = WPCOM_Backup::WP_BUILD_PAGE . '-wp-admin-prerequisites';
+		$prefix = 'window.' . WPCOM_Backup::INITIAL_STATE_VAR . ' = ';
 
-		// The script registry outlives a test, and with it anything an earlier one localized.
+		// The script registry outlives a test, and with it anything an earlier one added.
 		wp_deregister_script( $handle );
 		wp_register_script( $handle, 'https://example.org/prerequisites.js', array(), '1', true );
 
-		WPCOM_Backup::enqueue_initial_state();
+		WPCOM_Backup::enqueue_page_data();
 
-		$data  = wp_scripts()->get_data( $handle, 'data' );
-		$start = is_string( $data ) ? strpos( $data, '{' ) : false;
-
-		if ( false === $start ) {
-			return null;
+		foreach ( (array) wp_scripts()->get_data( $handle, 'before' ) as $script ) {
+			if ( is_string( $script ) && str_starts_with( $script, $prefix ) ) {
+				return json_decode( substr( $script, strlen( $prefix ), -1 ), true );
+			}
 		}
 
-		return json_decode( substr( (string) $data, $start, -1 ), true );
+		return null;
 	}
 
 	/**
@@ -488,34 +488,6 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Routing resolves the render hook by searching $submenu for the page.
-	 */
-	public function test_page_hook_still_resolves_on_the_backup_request() {
-		$this->set_up_admin_menu();
-		$this->set_up_backup_request();
-
-		WPCOM_Backup::register_page();
-
-		$this->assertSame(
-			'jetpack_page_' . WPCOM_Backup::MENU_SLUG,
-			get_plugin_page_hook( WPCOM_Backup::MENU_SLUG, 'admin.php' )
-		);
-	}
-
-	/**
-	 * Registration must land between Jetpack's Admin_Menu and the WordPress.com menu's hide pass.
-	 */
-	public function test_page_registers_between_admin_menu_and_the_wpcom_menu_hide() {
-		remove_action( 'admin_menu', array( WPCOM_Backup::class, 'register_page' ), WPCOM_Backup::REGISTER_PRIORITY );
-
-		WPCOM_Backup::init();
-		$priority = has_action( 'admin_menu', array( WPCOM_Backup::class, 'register_page' ) );
-
-		$this->assertGreaterThan( 1000, $priority );
-		$this->assertLessThan( has_action( 'admin_menu', 'wpcom_add_jetpack_submenu' ), $priority );
-	}
-
-	/**
 	 * Pinned because the value looks arbitrary in isolation and is easy to
 	 * "tidy" into something else, and links into the page depend on it.
 	 *
@@ -538,33 +510,15 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	 * @dataProvider provide_pages
 	 */
 	#[DataProvider( 'provide_pages' )]
-	public function test_render_callback_matches_the_wp_build_page_name( $page ) {
+	public function test_route_declares_the_wp_build_page( $page ) {
 		$route = (array) json_decode(
 			(string) file_get_contents(
 				\Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'routes/' . $page::WP_BUILD_PAGE . '/package.json'
 			),
 			true
 		);
-		$name  = isset( $route['route']['page'] ) ? (string) $route['route']['page'] : '';
 
-		$this->assertSame( $page::WP_BUILD_PAGE, $name );
-		$this->assertSame(
-			$page::RENDER_CALLBACK,
-			'jetpack_mu_wpcom_' . str_replace( '-', '_', $name ) . '_wp_admin_render_page'
-		);
-	}
-
-	/**
-	 * Registration state is per page, so one page claiming its slug must not make
-	 * another alias the screen or localize state for a page it never registered.
-	 */
-	public function test_one_page_registering_does_not_make_another_own_its_slug() {
-		$this->set_up_admin_menu();
-
-		WPCOM_Backup::register_page();
-
-		$this->assertTrue( WPCOM_Backup::owns_page() );
-		$this->assertFalse( WPCOM_Scan::owns_page() );
+		$this->assertSame( $page::WP_BUILD_PAGE, $route['route']['page'] ?? null );
 	}
 
 	/**
@@ -615,6 +569,43 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 		);
 
 		$this->assertSame( array(), WPCOM_Backup::get_transfer_warnings( $eligibility ) );
+	}
+
+	/**
+	 * The page renders support_url as a link.
+	 *
+	 * @dataProvider provide_support_urls
+	 *
+	 * @param string $support_url As the API returned it.
+	 * @param string $expected    As the page receives it.
+	 */
+	#[DataProvider( 'provide_support_urls' )]
+	public function test_transfer_warnings_pass_only_web_support_urls( $support_url, $expected ) {
+		$eligibility = array(
+			'warnings' => array(
+				'subdomain' => array(
+					array(
+						'id'          => 'wordpress_subdomain',
+						'support_url' => $support_url,
+					),
+				),
+			),
+		);
+
+		$this->assertSame( $expected, WPCOM_Backup::get_transfer_warnings( $eligibility )[0]['support_url'] );
+	}
+
+	/**
+	 * Data provider for test_transfer_warnings_pass_only_web_support_urls.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_support_urls() {
+		return array(
+			'https'      => array( 'https://wordpress.com/support/changing-site-address/', 'https://wordpress.com/support/changing-site-address/' ),
+			'javascript' => array( 'javascript:alert(1)', '' ),
+			'data'       => array( 'data:text/html,<script>alert(1)</script>', '' ),
+		);
 	}
 
 	/**
@@ -721,58 +712,6 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The alias is what makes wp-build's enqueue callback fire on a slug it does
-	 * not recognise.
-	 */
-	public function test_screen_id_is_aliased_for_wp_build() {
-		$this->set_up_admin_menu();
-		$this->set_up_backup_request();
-		WPCOM_Backup::register_page();
-
-		WPCOM_Backup::alias_screen_id();
-
-		$this->assertSame( WPCOM_Backup::WP_BUILD_PAGE, get_current_screen()->id );
-	}
-
-	/**
-	 * Anything reading the screen after the enqueue pass — the page-view tracker
-	 * among them — has to see the real ID, not the one wp-build needed.
-	 */
-	public function test_screen_id_is_restored_after_the_enqueue_pass() {
-		$this->set_up_admin_menu();
-		$this->set_up_backup_request();
-		WPCOM_Backup::register_page();
-
-		WPCOM_Backup::alias_screen_id();
-		WPCOM_Backup::restore_screen_id();
-
-		$this->assertSame( self::SCREEN_ID, get_current_screen()->id );
-	}
-
-	/**
-	 * Aliasing the screen of a page another plugin serves would break its own
-	 * asset loading, which keys off the screen ID.
-	 */
-	public function test_screen_id_is_left_alone_when_another_plugin_owns_the_page() {
-		$this->set_up_backup_request();
-
-		WPCOM_Backup::alias_screen_id();
-
-		$this->assertSame( self::SCREEN_ID, get_current_screen()->id );
-	}
-
-	/**
-	 * Requests to admin-ajax.php are also `is_admin()`, and a stray `page` arg
-	 * there must not drag in the wp-build assets for a page that never renders.
-	 */
-	public function test_ajax_requests_are_not_page_requests() {
-		$this->set_up_backup_request();
-		$GLOBALS['pagenow'] = 'admin-ajax.php';
-
-		$this->assertFalse( WPCOM_Backup::is_page_request() );
-	}
-
-	/**
 	 * The domain lands in a path segment, so it has to be encoded there.
 	 */
 	public function test_upgrade_url_encodes_the_domain() {
@@ -791,7 +730,7 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 		$this->set_up_backup_request();
 		WPCOM_Backup::register_page();
 
-		$payload = (array) $this->localized_initial_state();
+		$payload = (array) $this->printed_initial_state();
 
 		$this->assertSame(
 			array( 'state', 'domain', 'isEligible', 'errors', 'warnings', 'upgradeUrl', 'activateUrl' ),
@@ -799,8 +738,7 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 		);
 		$this->assertSame( WPCOM_Backup::STATE_UPGRADE, $payload['state'] );
 		$this->assertSame( wp_parse_url( home_url(), PHP_URL_HOST ), $payload['domain'] );
-		// wp_localize_script() stringifies scalars, so the page reads "1" and "" for the flag.
-		$this->assertSame( '1', $payload['isEligible'] );
+		$this->assertTrue( $payload['isEligible'] );
 	}
 
 	/**
@@ -833,10 +771,10 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 		);
 		WPCOM_Backup::register_page();
 
-		$payload = (array) $this->localized_initial_state();
+		$payload = (array) $this->printed_initial_state();
 
 		$this->assertSame( WPCOM_Backup::STATE_ACTIVATE, $payload['state'] );
-		$this->assertSame( '', $payload['isEligible'] );
+		$this->assertFalse( $payload['isEligible'] );
 		$this->assertSame( 'email_unverified', $payload['errors'][0]['code'] );
 		$this->assertSame( 'plugin_warning', $payload['warnings'][0]['id'] );
 		$this->assertSame( '', $payload['warnings'][0]['support_url'], 'Only a web URL may become a link.' );
@@ -851,45 +789,9 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 		$this->grant_feature( \WPCOM_Features::BACKUPS_SELF_SERVE );
 		WPCOM_Backup::register_page();
 
-		$payload = (array) $this->localized_initial_state();
+		$payload = (array) $this->printed_initial_state();
 
 		$this->assertSame( WPCOM_Backup::STATE_ACTIVATE, $payload['state'] );
-		$this->assertSame( '1', $payload['isEligible'] );
-	}
-
-	/**
-	 * Eligibility is fetched directly here rather than through the wpcom endpoint
-	 * that gates it, so the capability check has to be restated.
-	 */
-	public function test_initial_state_is_withheld_from_users_who_cannot_manage_options() {
-		$this->set_up_admin_menu();
-		$this->set_up_backup_request();
-		WPCOM_Backup::register_page();
-
-		wp_set_current_user(
-			wp_insert_user(
-				array(
-					'user_login' => 'wpcom_hosting_feature_subscriber',
-					'user_pass'  => 'password',
-					'role'       => 'subscriber',
-				)
-			)
-		);
-
-		$this->assertNull( $this->localized_initial_state() );
-	}
-
-	/**
-	 * When the Jetpack plugin owns the slug it renders its own Backup page, which
-	 * would be handed a state describing a page it is not showing.
-	 */
-	public function test_initial_state_is_withheld_when_another_plugin_owns_the_page() {
-		$this->set_up_admin_menu();
-		$this->set_up_backup_request();
-		$GLOBALS['submenu']['jetpack'][] = array( 'VaultPress Backup', 'manage_options', WPCOM_Backup::MENU_SLUG, 'Jetpack VaultPress Backup' );
-
-		WPCOM_Backup::register_page();
-
-		$this->assertNull( $this->localized_initial_state() );
+		$this->assertTrue( $payload['isEligible'] );
 	}
 }

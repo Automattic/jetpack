@@ -69,6 +69,7 @@ describe( 'isBulkSwitchable', () => {
 	it.each( [
 		[ 'a module with a plain switch', moduleState( 'stats', 'inactive' ), true ],
 		[ 'a plugin switch', pluginState( 'akismet', 'active' ), true ],
+		[ 'an unavailable module', moduleState( 'stats', 'inactive', { available: false } ), false ],
 		[ 'a forced module', moduleState( 'stats', 'active', { override: 'active' } ), false ],
 		[
 			'a forced plugin',
@@ -158,7 +159,11 @@ describe( 'useBulkFeatureSwitch', () => {
 		let run: Promise< BulkOutcome > = Promise.resolve( { attempted: 0, failed: [] } );
 		act( () => {
 			run = result.current.bulk.run(
-				[ moduleState( 'stats', 'active' ), pluginState( 'akismet', 'active' ) ],
+				[
+					moduleState( 'stats', 'active' ),
+					pluginState( 'akismet', 'active' ),
+					moduleState( 'monitor', 'active', { available: false } ),
+				],
 				false
 			);
 		} );
@@ -218,6 +223,11 @@ describe( 'useBulkFeatureSwitch', () => {
 
 		// Both were sent, so the one that came back failed leaves one that did not.
 		expect( outcome ).toEqual( { attempted: 2, failed: [ 'akismet' ] } );
+		expect( mockApiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				data: { active: false, modules: [ 'stats' ], plugins: [ 'akismet' ] },
+			} )
+		);
 	} );
 
 	it( 'gives features held back for the same reason one notice between them', async () => {

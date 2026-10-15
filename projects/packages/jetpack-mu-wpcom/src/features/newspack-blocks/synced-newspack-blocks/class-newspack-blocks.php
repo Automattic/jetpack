@@ -21,6 +21,27 @@ class Newspack_Blocks {
 	];
 
 	/**
+	 * Nesting depth of `the_content` filter applications. A depth of zero marks
+	 * the start of a top-level render pass, where deduplication state is reset.
+	 *
+	 * @var int
+	 */
+	private static $content_render_depth = 0;
+
+	/**
+	 * Stack of routes for the REST requests currently being served, innermost
+	 * last. Pushed on `rest_request_before_callbacks` and popped on
+	 * `rest_request_after_callbacks`, which bracket the endpoint callback on every
+	 * dispatch path (HTTP, `rest_do_request()`, batch, embeds, preload). Using a
+	 * stack, rather than a single value cleared on `rest_post_dispatch`, keeps an
+	 * in-process request from leaving its route set after it returns, and restores
+	 * the outer route when a nested request completes.
+	 *
+	 * @var string[]
+	 */
+	private static $rest_route_stack = [];
+
+	/**
 	 * Add hooks and filters.
 	 */
 	public static function init() {
@@ -30,8 +51,12 @@ class Newspack_Blocks {
 		add_post_type_support( 'page', 'newspack_blocks' );
 		add_action( 'jetpack_register_gutenberg_extensions', [ __CLASS__, 'disable_jetpack_donate' ], 99 );
 		add_filter( 'the_content', [ __CLASS__, 'hide_post_content_when_iframe_block_is_fullscreen' ] );
+		add_filter( 'the_content', [ __CLASS__, 'start_content_render_pass' ], PHP_INT_MIN );
+		add_filter( 'the_content', [ __CLASS__, 'end_content_render_pass' ], PHP_INT_MAX );
 		add_filter( 'body_class', [ __CLASS__, 'add_body_classes' ] );
 		add_filter( 'admin_body_class', [ __CLASS__, 'add_body_classes' ] );
+		add_filter( 'rest_request_before_callbacks', [ __CLASS__, 'push_rest_route' ], 10, 3 );
+		add_filter( 'rest_request_after_callbacks', [ __CLASS__, 'pop_rest_route' ], 10, 3 );
 
 		/**
 		 * Disable NextGEN's `C_NextGen_Shortcode_Manager`.
@@ -230,6 +255,8 @@ class Newspack_Blocks {
 			$localized_data = [
 				'patterns'                   => self::get_patterns_for_post_type( get_post_type() ),
 				'posts_rest_url'             => rest_url( 'newspack-blocks/v1/newspack-blocks-posts' ),
+				'posts_batch_rest_url'       => rest_url( 'newspack-blocks/v1/newspack-blocks-posts-batch' ),
+				'posts_batch_max_queries'    => Newspack_Blocks_API::POSTS_BATCH_MAX_QUERIES,
 				'specific_posts_rest_url'    => rest_url( 'newspack-blocks/v1/newspack-blocks-specific-posts' ),
 				'authors_rest_url'           => rest_url( 'newspack-blocks/v1/authors' ),
 				'assets_path'                => plugins_url( '/src/assets', NEWSPACK_BLOCKS__PLUGIN_FILE ),
@@ -617,6 +644,128 @@ class Newspack_Blocks {
 	}
 
 	/**
+	 * Mark the start of a `the_content` render pass.
+	 *
+	 * Deduplication state accumulates in globals for the life of the request,
+	 * which is right for a front-end page but wrong wherever one request renders
+	 * the same content more than once (a REST save renders it up to three times)
+	 * or renders several posts (a REST collection). There, every top-level pass
+	 * starts from a clean slate so each returns the same posts. Nested passes
+	 * (a Query Loop rendering Post Content, a synced pattern) keep the state of
+	 * the pass they belong to.
+	 *
+	 * @param string $content Post content.
+	 * @return string Unmodified post content.
+	 */
+	public static function start_content_render_pass( $content ) {
+		if ( 0 === self::$content_render_depth && self::should_reset_deduplication_per_render_pass() ) {
+			self::reset_deduplication();
+		}
+		self::$content_render_depth++;
+		return $content;
+	}
+
+	/**
+	 * Mark the end of a `the_content` render pass.
+	 *
+	 * @param string $content Post content.
+	 * @return string Unmodified post content.
+	 */
+	public static function end_content_render_pass( $content ) {
+		self::$content_render_depth = max( 0, self::$content_render_depth - 1 );
+		return $content;
+	}
+
+	/**
+	 * Whether deduplication state should be reset at the start of each top-level
+	 * `the_content` pass.
+	 *
+	 * On the front end the state is kept for the whole request, because a block
+	 * theme can render Content Loop blocks in the template before the post
+	 * content, and those have to be excluded from the blocks inside it.
+	 *
+	 * @return bool
+	 */
+	public static function should_reset_deduplication_per_render_pass() {
+		$is_front_end = ! is_admin()
+			&& ! wp_doing_ajax()
+			&& ! wp_doing_cron()
+			&& ! ( defined( 'REST_REQUEST' ) && REST_REQUEST )
+			&& ! ( defined( 'WP_CLI' ) && WP_CLI );
+
+		return ! $is_front_end;
+	}
+
+	/**
+	 * Remember the route of the REST request whose callback is about to run.
+	 *
+	 * WordPress has no accessor for the request currently in flight, so track it
+	 * around the endpoint callback. `rest_request_before_callbacks` fires on every
+	 * dispatch path, including in-process `rest_do_request()` calls that never
+	 * reach `rest_post_dispatch`, so pairing it with `rest_request_after_callbacks`
+	 * keeps the route from leaking past the request. Passes the value through
+	 * unchanged.
+	 *
+	 * @param mixed           $response Callback result to be replaced, unused here.
+	 * @param array           $handler  Matched route handler, unused here.
+	 * @param WP_REST_Request $request  The request being dispatched.
+	 * @return mixed The unchanged $response.
+	 */
+	public static function push_rest_route( $response, $handler, $request ) {
+		self::$rest_route_stack[] = $request->get_route();
+		return $response;
+	}
+
+	/**
+	 * Forget the route once its callback has run, so it never leaks into later work
+	 * in a long-running process. `rest_request_after_callbacks` fires even when the
+	 * permission check or callback returned an error, so it always balances the
+	 * matching `push_rest_route()`.
+	 *
+	 * @param mixed           $response Callback result to be served, passed through.
+	 * @param array           $handler  Matched route handler, unused here.
+	 * @param WP_REST_Request $request  The request that was dispatched, unused here.
+	 * @return mixed The unchanged $response.
+	 */
+	public static function pop_rest_route( $response, $handler, $request ) {
+		array_pop( self::$rest_route_stack );
+		return $response;
+	}
+
+	/**
+	 * Whether the current render is happening while a revision or autosave is being
+	 * prepared for the REST API.
+	 *
+	 * The revisions and autosaves endpoints render a revision's `content.rendered`
+	 * through `the_content`, which runs every dynamic block's render callback. That
+	 * output is never displayed, so a Content Loop or Carousel block can skip its
+	 * query entirely, which matters on sites where the editor autosaves against a
+	 * large post set. Checks the innermost in-flight route so a nested request is
+	 * judged on its own endpoint, not an outer one.
+	 *
+	 * @return bool
+	 */
+	public static function is_rest_revision_or_autosave_render() {
+		$route = end( self::$rest_route_stack );
+		return ! empty( $route )
+			&& (bool) preg_match( '#/(?:revisions|autosaves)(?:/\d+)?$#', $route );
+	}
+
+	/**
+	 * Forget which posts have been rendered so far, so the next Content Loop or
+	 * Carousel block starts deduplicating from scratch.
+	 *
+	 * The list of posts picked by specific-posts blocks is left alone: it is
+	 * derived from the current post, which `wp_reset_postdata()` cannot restore
+	 * inside a REST request once a block's loop has moved it, so recomputing it
+	 * per pass would give each pass a different exclusion list.
+	 */
+	public static function reset_deduplication() {
+		global $newspack_blocks_post_id;
+		$newspack_blocks_post_id = [];
+	}
+
+	/**
 	 * Whether the block should be included in the deduplication logic.
 	 *
 	 * @param array $attributes Block attributes.
@@ -712,6 +861,8 @@ class Newspack_Blocks {
 			'has_password'        => false,
 			'is_newspack_query'   => true,
 			'tax_query'           => [], // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+			// The total is only needed to decide whether a More button has a next page.
+			'no_found_rows'       => empty( $attributes['moreButton'] ),
 		);
 		if ( $specific_mode && $specific_posts ) {
 			$args['posts_per_page'] = count( $specific_posts );
@@ -1724,6 +1875,44 @@ class Newspack_Blocks {
 		);
 
 		return $combined_caption;
+	}
+
+	/**
+	 * Inline tags this plugin allows in a post subtitle.
+	 *
+	 * The theme owns the subtitle and sanitizes it on write, but a value stored before
+	 * that was in place is still raw, so the plugin filters it on the way out rather
+	 * than trusting the meta.
+	 *
+	 * @return array Allowed tags in wp_kses() form.
+	 */
+	public static function get_post_subtitle_allowed_tags() {
+		return array(
+			'b'      => true,
+			'strong' => true,
+			'i'      => true,
+			'em'     => true,
+			'mark'   => true,
+			'u'      => true,
+			'small'  => true,
+			'sub'    => true,
+			'sup'    => true,
+			'a'      => array(
+				'href'   => true,
+				'target' => true,
+				'rel'    => true,
+			),
+		);
+	}
+
+	/**
+	 * Limit a post subtitle to the inline tags this plugin renders.
+	 *
+	 * @param string $subtitle Raw subtitle.
+	 * @return string Sanitized subtitle.
+	 */
+	public static function sanitize_post_subtitle( $subtitle ) {
+		return wp_kses( (string) $subtitle, self::get_post_subtitle_allowed_tags() );
 	}
 }
 Newspack_Blocks::init();

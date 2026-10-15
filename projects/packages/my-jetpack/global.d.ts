@@ -469,7 +469,20 @@ type MainFeaturesState = {
 	features: MainFeature[];
 	// Optional: a plugin carrying an older copy of this package sends none.
 	module_groups?: MainFeatureModuleGroup[];
+	hidden_modules?: string[];
+	available_admin_pages?: string[];
 	plugin_installs?: MainFeatureInstallAccess;
+};
+
+type OfflineFeaturesSeed = {
+	mainFeatures: Omit< MainFeaturesState, 'features' > & {
+		features: Array< Omit< MainFeature, 'upgrade' > & { upgrade: null } >;
+	};
+	plugins: Record< string, { active: boolean; [ key: string ]: unknown } >;
+};
+
+type OfflineFeaturesScriptData = import( '@automattic/jetpack-script-data' ).MyJetpackScriptData & {
+	offlineFeatures?: OfflineFeaturesSeed;
 };
 
 type MainFeatureModuleGroup = {
@@ -515,8 +528,13 @@ type MainFeature = {
 
 interface Window {
 	myJetpackInitialState?: {
+		isOfflineFeatures?: boolean | '1';
 		mainFeatures: MainFeaturesState | null;
 		featuresBanner: { isDismissed: boolean } | null;
+		// Optional: a plugin carrying an older copy of this package sends none.
+		header?: {
+			connectorsUrl: string | null;
+		};
 		siteSuffix: string;
 		siteUrl: string;
 		latestBoostSpeedScores: {
@@ -545,6 +563,7 @@ interface Window {
 		loadAddLicenseScreen: string;
 		myJetpackCheckoutUri: string;
 		myJetpackFlags: {
+			overviewV1: boolean;
 			showAiModuleToggle: boolean;
 			showFullJetpackStatsCard: boolean;
 			videoPressStats: boolean;
@@ -593,11 +612,9 @@ interface Window {
 					has_free_offering: boolean;
 					feature_identifying_paid_plan: string;
 					has_paid_plan_for_product: boolean;
-					features_by_tier: Array< string >;
 					is_bundle: boolean;
 					is_feature: boolean;
 					is_plugin_active: boolean;
-					is_tiered_pricing: boolean;
 					is_upgradable: boolean;
 					is_upgradable_by_bundle: string[];
 					long_description: string;
