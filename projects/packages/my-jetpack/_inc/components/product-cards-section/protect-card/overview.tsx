@@ -14,7 +14,7 @@ import type { ProductCardComponent } from '../types';
 
 const ProtectOverviewCard: ProductCardComponent = ( { admin } ) => {
 	const { detail, isLoading: isLoadingProduct } = useProduct( PRODUCT_SLUGS.PROTECT );
-	const { isPluginActive = false, hasPaidPlanForProduct = false } = detail || {};
+	const { isPluginActive = false, hasPaidPlanForProduct = false, manageUrl } = detail || {};
 	const { isSiteConnected } = useMyJetpackConnection();
 	const {
 		data,
@@ -36,7 +36,7 @@ const ProtectOverviewCard: ProductCardComponent = ( { admin } ) => {
 		label = __( 'Threats found', 'jetpack-my-jetpack' );
 		count = isPluginActive && isSiteConnected ? ( data?.scanData?.num_threats ?? 0 ) : undefined;
 	} else {
-		label = __( 'Logins blocked', 'jetpack-my-jetpack' );
+		label = __( 'Blocked login attempts', 'jetpack-my-jetpack' );
 		const canBlockLogins =
 			( isPluginActive || isJetpackPluginActive() ) &&
 			isSiteConnected &&
@@ -57,11 +57,28 @@ const ProtectOverviewCard: ProductCardComponent = ( { admin } ) => {
 					? { label: __( 'Off', 'jetpack-my-jetpack' ), intent: 'none' }
 					: undefined
 			}
+			action={
+				hasPaidPlanForProduct && manageUrl
+					? {
+							label: count
+								? __( 'Fix threats', 'jetpack-my-jetpack' )
+								: __( 'Manage Protect', 'jetpack-my-jetpack' ),
+							href: manageUrl,
+						}
+					: undefined
+			}
+			upgrade={
+				hasPaidPlanForProduct
+					? undefined
+					: { label: __( 'Scan threats', 'jetpack-my-jetpack' ), href: '#/add-protect' }
+			}
 			isLoading={ isLoadingProduct || isLoadingProtectData }
 			error={
 				hasFailed
 					? {
-							reason: __( 'Your security data could not be loaded.', 'jetpack-my-jetpack' ),
+							reason: hasPaidPlanForProduct
+								? __( 'Failed to load threats', 'jetpack-my-jetpack' )
+								: __( 'Failed to load blocked logins', 'jetpack-my-jetpack' ),
 							onRetry: refetch,
 						}
 					: undefined

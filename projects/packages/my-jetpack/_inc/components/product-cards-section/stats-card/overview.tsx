@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { useCallback, useMemo } from 'react';
-import { PRODUCT_STATUSES } from '../../../constants';
+import { MyJetpackRoutes, PRODUCT_STATUSES } from '../../../constants';
 import { PRODUCT_SLUGS } from '../../../data/constants';
 import useProduct from '../../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
@@ -40,11 +40,14 @@ const StatsOverviewCard: ProductCardComponent = ( { admin } ) => {
 	const action =
 		isActive && manageUrl
 			? {
-					label: __( 'View detailed stats', 'jetpack-my-jetpack' ),
+					label: __( 'More stats', 'jetpack-my-jetpack' ),
 					href: `${ manageUrl }${ viewStatsQuery }`,
 					onClick: onDetailedStatsClick,
 				}
-			: undefined;
+			: {
+					label: __( 'Activate Stats', 'jetpack-my-jetpack' ),
+					href: `#${ MyJetpackRoutes.AddStats }`,
+				};
 
 	return (
 		<OverviewCard
@@ -57,7 +60,7 @@ const StatsOverviewCard: ProductCardComponent = ( { admin } ) => {
 			error={
 				isActive && isError
 					? {
-							reason: __( 'Your stats could not be loaded.', 'jetpack-my-jetpack' ),
+							reason: __( 'Failed to load stats', 'jetpack-my-jetpack' ),
 							onRetry: refetch,
 						}
 					: undefined
