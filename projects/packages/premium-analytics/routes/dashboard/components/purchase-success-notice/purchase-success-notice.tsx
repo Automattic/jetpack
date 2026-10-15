@@ -107,7 +107,7 @@ function ConnectedNotice(): JSX.Element | null {
 		<Notice.Root intent="success" className={ styles.notice }>
 			<Notice.Title>{ title }</Notice.Title>
 			<Notice.Description>{ description }</Notice.Description>
-			<Notice.CloseIcon
+			<Notice.CloseIconButton
 				label={ __( 'Dismiss', 'jetpack-premium-analytics-pkg' ) }
 				onClick={ dismiss }
 			/>
