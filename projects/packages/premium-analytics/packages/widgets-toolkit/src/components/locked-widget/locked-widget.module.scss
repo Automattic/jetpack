@@ -1,0 +1,54 @@
+@use "../../styles/widget-container" as *;
+
+// Laid out like the chart empty state, so a locked tile
+// keeps its neighbours' rhythm.
+.root {
+	display: flex;
+	align-items: center;
+	overflow-y: auto;
+	height: 100%;
+	width: 100%;
+	margin-inline: auto;
+	container-type: size;
+	padding: var(--wpds-dimension-padding-md);
+	text-align: center;
+}
+
+.page {
+	min-block-size: 320px;
+}
+
+.root > * {
+	flex-shrink: 0;
+}
+
+// Auto margins centre the state, and let it scroll from
+// the top when it overflows.
+.root > :first-child {
+	margin-block-start: auto;
+}
+
+.root > :last-child {
+	margin-block-end: auto;
+}
+
+.icon {
+	margin-block-end: var(--wpds-dimension-gap-md);
+}
+
+// Temporary: since WordPress/gutenberg#77420 the new-tab arrow can wrap
+// onto its own line. Remove once @wordpress/ui's Link keeps it with the text.
+.link {
+	white-space: nowrap;
+}
+
+@container (max-block-size: #{$widget-short-max-block-size}) {
+
+	.icon {
+		display: none;
+	}
+
+	.root > .icon + * {
+		margin-block-start: auto;
+	}
+}

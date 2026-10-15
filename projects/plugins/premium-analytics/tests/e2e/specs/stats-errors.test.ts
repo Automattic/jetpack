@@ -13,17 +13,19 @@ test( 'a Stats request WordPress.com refuses reads as no access, without Retry',
 	testUtils,
 } ) => {
 	await setStatsFault( testUtils, {
-		route: 'devices',
+		route: 'referrers',
 		status: 403,
 		error: 'unauthorized',
 		message: 'user cannot view stats',
 	} );
-	dashboard.allowErrors( /^403 .*\/stats\/devices\// );
+	dashboard.allowErrors( /^403 .*\/stats\/referrers[/?& ]/ );
 	await dashboard.open();
 
-	const devices = dashboard.page.getByRole( 'region', { name: 'Devices' } );
-	await expect( devices.getByRole( 'alert' ) ).toHaveText( "You don't have access to this data." );
-	await expect( devices.getByRole( 'button', { name: 'Retry' } ) ).toHaveCount( 0 );
+	const referrers = dashboard.page.getByRole( 'region', { name: 'Top referrers' } );
+	await expect( referrers.getByRole( 'alert' ) ).toHaveText(
+		"You don't have access to this data."
+	);
+	await expect( referrers.getByRole( 'button', { name: 'Retry' } ) ).toHaveCount( 0 );
 } );
 
 test( 'a failed Stats request recovers through Retry once WordPress.com does', async ( {
@@ -76,10 +78,10 @@ test( 'an expired nonce renews without the reader noticing', async ( { dashboard
 	await dashboard.periodControl().click();
 	await dashboard.page.getByRole( 'menuitemradio', { name: 'Last 30 days' } ).click();
 	await expect( dashboard.periodControl() ).toHaveText( 'Last 30 days' );
-	// Without the replay, Devices would read the stale-nonce 403 as no access.
-	const devices = dashboard.page.getByRole( 'region', { name: 'Devices' } );
+	// Without the replay, Top referrers would read the stale-nonce 403 as no access.
+	const referrers = dashboard.page.getByRole( 'region', { name: 'Top referrers' } );
 	await expect(
-		devices.getByText( 'We couldn’t find results for this time period.' )
+		referrers.getByText( 'We couldn’t find results for this time period.' )
 	).toBeVisible();
 	await expect( dashboard.page.getByRole( 'tab', { name: /^Views \d/ } ) ).toBeVisible();
 	await expect( dashboard.page.getByTestId( 'widget-skeleton' ) ).toHaveCount( 0 );
