@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.10.0] - 2026-10-14
+### Added
+- Give the geo, leaderboard, conversion funnel and bar list charts an accessible name, and accept `ariaLabel` on every chart except Sparkline. [#53516]
+- Legend: Add a comparisonSeriesItems option that adds one static item per comparison series, named after its metric and hidden along with it. [#53457]
+
+### Changed
+- Reject invalid values like `12.px` when resolving theme font sizes. [#53475]
+
+### Fixed
+- Conversion funnel chart: Tighten the spacing on a short chart so its bars stay visible. [#53554]
+- Ignore invalid theme label font sizes, such as negative values, so axis labels no longer clip. Accept a leading `+` sign, as CSS does. [#53498]
+- Pie Chart, Pie Semi-Circle Chart: Paint the tooltip above content passed as children, such as a center total. [#53449]
+
 ## [4.9.0] - 2026-10-12
 ### Added
 - Heatmap chart: Add a fitCells option that grows compact cells to fill the chart, wrapping column groups onto more rows when that makes the cells larger, and draw column group labels at 13px in the body text color. [#53341]
@@ -1174,6 +1187,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[4.10.0]: https://github.com/Automattic/charts/compare/v4.9.0...v4.10.0
 [4.9.0]: https://github.com/Automattic/charts/compare/v4.8.0...v4.9.0
 [4.8.0]: https://github.com/Automattic/charts/compare/v4.7.0...v4.8.0
 [4.7.0]: https://github.com/Automattic/charts/compare/v4.6.0...v4.7.0

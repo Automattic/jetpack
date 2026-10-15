@@ -22,7 +22,7 @@ class Images {
 		/**
 		 * Offer the image block in the Jetpack Comments editor. Off, comments show their images as links.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.6.0
 		 *
 		 * @param bool $enabled Whether to offer it. Default true, wherever the block editor is on.
 		 */

@@ -102,7 +102,7 @@ export interface HeatmapChartProps extends Omit<
 	/** Floor a cell's height (px) in non-compact mode; see `minCellWidth`. */
 	minCellHeight?: number;
 	/**
-	 * Color the cell scale is built from, deepened at the highest value toward 9:1
+	 * Color the cell scale is built from, deepened at the highest value toward 6:1
 	 * against the background. Defaults to the first series palette slot,
 	 * `--a8c-charts-color-series-1`.
 	 */

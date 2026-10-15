@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Let a logged-in reader post from a page left open past a day, or after logging in again elsewhere.

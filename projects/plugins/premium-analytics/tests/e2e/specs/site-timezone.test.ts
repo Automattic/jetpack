@@ -1,4 +1,4 @@
-import { test, expect, setSiteState } from '../fixtures/dashboard';
+import { test, expect, setSiteState, routeParam } from '../fixtures/dashboard';
 
 // 25 hours apart, so a range or label in the browser's zone always lands on another day.
 const PAIRS = [
@@ -37,12 +37,6 @@ function offsetOn( timeZone: string, day: string ): string {
 	return name?.slice( 3 ) || '+00:00';
 }
 
-// The app writes `p` encoded once more than `open()` does, and a raw `+` must stay a `+`.
-const routeParam = ( url: URL, name: string ) =>
-	decodeURIComponent( url.searchParams.get( 'p' ) ?? '' ).match(
-		new RegExp( `[?&]${ name }=([^&]*)` )
-	)?.[ 1 ];
-
 for ( const { site, browser } of PAIRS ) {
 	test.describe( `a ${ site } site viewed from ${ browser }`, () => {
 		test.use( { timezoneId: browser } );
@@ -72,11 +66,8 @@ for ( const { site, browser } of PAIRS ) {
 			expect( days, `from=${ from }` ).toHaveLength( 7 );
 			expect( routeParam( url, 'to' ) ).toBe( dayEnd( days[ 6 ] ) );
 
-			// The helper serves each day's day of the month as its views.
 			const views = days.reduce( ( sum, day ) => sum + Number( day.slice( 8 ) ), 0 );
-			await expect(
-				dashboard.page.getByRole( 'tab', { name: new RegExp( `^Views ${ views }( |$)` ) } )
-			).toBeVisible();
+			await expect( dashboard.viewsTab( views ) ).toBeVisible();
 		} );
 
 		test( 'labels the chart with site days', async ( { dashboard } ) => {
