@@ -1,4 +1,4 @@
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { border, drafts, published } from '@wordpress/icons';
 import { Children, isValidElement } from 'react';
@@ -61,6 +61,16 @@ jest.mock( '../assign-location', () => ( {
 } ) );
 
 const assignedHref = () => mockAssignLocation.mock.calls.at( -1 )?.[ 0 ] ?? null;
+
+// The start screen's restore callback, so a test can play Back from WordPress.com.
+let mockOnRestore: () => void = () => {};
+
+jest.mock( '../use-restored-connection', () => ( {
+	__esModule: true,
+	useRestoredConnection: ( onRestore: () => void ) => {
+		mockOnRestore = onRestore;
+	},
+} ) );
 
 beforeEach( () => {
 	mockAssignLocation.mockClear();
@@ -216,6 +226,18 @@ describe( 'Wizard start screen', () => {
 		setupWizard();
 
 		expect( getStarted() ).toHaveAttribute( 'aria-disabled', 'true' );
+	} );
+
+	it( 'takes Get started again once Back brings the page back mid-hand-off', async () => {
+		const { user } = setupWizard();
+
+		mockConnection.handleRegisterSite.mockImplementation( () => new Promise( () => {} ) );
+
+		await user.click( getStarted() );
+		act( () => mockOnRestore() );
+		await user.click( getStarted() );
+
+		expect( mockConnection.handleRegisterSite ).toHaveBeenCalledTimes( 2 );
 	} );
 
 	it( 'holds on the start screen when it fails, and says what happened', async () => {

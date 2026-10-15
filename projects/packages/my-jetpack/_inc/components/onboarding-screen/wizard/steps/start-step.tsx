@@ -14,6 +14,7 @@ import {
 	startBenefits,
 } from '../lib';
 import styles from '../styles.module.scss';
+import { useRestoredConnection } from '../use-restored-connection';
 
 type StartStepProps = {
 	// Owned by the wizard so the panel region can be labelled by the heading.
@@ -68,6 +69,13 @@ export function StartStep( { titleId, title, description }: StartStepProps ) {
 	// a second click. This closes the gap before that state has rendered, so a
 	// double click cannot register the site twice.
 	const inFlight = useRef( false );
+
+	// Back from WordPress.com can return this page with the click still in flight.
+	useRestoredConnection(
+		useCallback( () => {
+			inFlight.current = false;
+		}, [] )
+	);
 
 	const handleConnect = useCallback( () => {
 		if ( inFlight.current ) {
