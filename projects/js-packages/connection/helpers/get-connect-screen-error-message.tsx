@@ -84,9 +84,83 @@ export const getRegistrationErrorDescription = (
 export const getRegistrationErrorSummary = (
 	registrationError?: RegistrationError | false,
 	isOfflineMode?: boolean
-): ReactNode =>
-	getConnectScreenErrorMessage( getRegistrationErrorCode( registrationError ), isOfflineMode ) ||
-	getRegistrationErrorDescription( registrationError );
+): ReactNode => getRegistrationErrorDisplay( registrationError, isOfflineMode ).message;
+
+export type RegistrationErrorDisplay = {
+	/** The message to show; undefined when there's nothing better than the caller's generic fallback. */
+	message?: ReactNode;
+	/** A second line with the underlying cause, when it adds something the message doesn't say. */
+	detail?: string;
+	/** Whether to show `detail` behind a "Details" toggle rather than inline. */
+	detailCollapsed?: boolean;
+};
+
+// WordPress.com codes for failing to reach the site; their text ends with the cause in brackets.
+const WPCOM_TRANSPORT_CODES = new Set( [
+	'site_inaccessible',
+	'request_timeout',
+	'connection_timeout',
+	'connection_refused',
+	'connection_reset',
+	'bad_redirect_url',
+	'ssl_error',
+	'host_lookup_fail',
+] );
+
+/**
+ * The underlying cause from a WordPress.com transport error: the bracketed part at the end of its text.
+ *
+ * @param {string} description - The site's cleaned explanation of the error.
+ * @return {string} The cause, or the whole description when it has no bracketed part.
+ */
+const getTransportCause = ( description: string ): string => {
+	const start = description.indexOf( '[' );
+	// The description may be cut before the closing bracket, so only an end bracket is dropped.
+	return start === -1
+		? description
+		: description
+				.slice( start + 1 )
+				.replace( /\]\s*$/, '' )
+				.trim();
+};
+
+/**
+ * What to show for a registration error: one message, plus a detail line only when it adds something.
+ *
+ * - A mapped code shows only our copy, since the site's text mostly repeats or contradicts it.
+ * - An unmapped code shows the site's own text as the message.
+ * - Transport failures keep the underlying cause (the cURL error or the bracketed part of WordPress.com's text).
+ * - `site_inaccessible_{status}` keeps WordPress.com's text collapsed, for the URL it tried to reach.
+ *
+ * @param {RegistrationError|false} registrationError - The `registrationError` from `useConnection()`.
+ * @param {boolean}                 isOfflineMode     - Whether the site is in offline mode, from `useConnection()`.
+ * @return {RegistrationErrorDisplay} The message and optional detail.
+ */
+export const getRegistrationErrorDisplay = (
+	registrationError?: RegistrationError | false,
+	isOfflineMode?: boolean
+): RegistrationErrorDisplay => {
+	const code = getRegistrationErrorCode( registrationError );
+	const message = getConnectScreenErrorMessage( code, isOfflineMode );
+	const description = getRegistrationErrorDescription( registrationError );
+
+	if ( ! message ) {
+		return { message: description };
+	}
+	if ( ! description ) {
+		return { message };
+	}
+	if ( code === 'register_http_request_failed' ) {
+		return { message, detail: description };
+	}
+	if ( code && WPCOM_TRANSPORT_CODES.has( code ) ) {
+		return { message, detail: getTransportCause( description ) };
+	}
+	if ( code && /^site_inaccessible_\d{3}$/.test( code ) ) {
+		return { message, detail: description, detailCollapsed: true };
+	}
+	return { message };
+};
 
 const offlineModeMessage = () =>
 	createInterpolateElement( __( 'Unavailable in <a>Offline Mode</a>', 'jetpack-connection-js' ), {
@@ -98,6 +172,12 @@ const offlineModeMessage = () =>
 			/>
 		),
 	} );
+
+const sslMessage = () =>
+	__(
+		'WordPress.com cannot securely connect to your site because its SSL certificate could not be verified. Ask your hosting provider to fix the certificate.',
+		'jetpack-connection-js'
+	);
 
 const unreachableMessage = () =>
 	__(
@@ -118,7 +198,14 @@ const siteHttpErrorMessage = ( status: number ): string => {
 			'jetpack-connection-js'
 		);
 	}
-	if ( status >= 500 && status < 520 ) {
+	// Cloudflare's 521–524 and 530 mean the origin server is down or unreachable, 525 and 526 are SSL failures.
+	if ( ( status >= 521 && status <= 524 ) || status === 530 ) {
+		return unreachableMessage();
+	}
+	if ( status === 525 || status === 526 ) {
+		return sslMessage();
+	}
+	if ( status >= 500 && status <= 520 ) {
 		return sprintf(
 			/* translators: %d is an HTTP status code, e.g. 500. */
 			__(
@@ -202,10 +289,7 @@ export const getConnectScreenErrorMessage = (
 				'jetpack-connection-js'
 			);
 		case 'ssl_error':
-			return __(
-				'WordPress.com cannot securely connect to your site because its SSL certificate could not be verified. Ask your hosting provider to fix the certificate.',
-				'jetpack-connection-js'
-			);
+			return sslMessage();
 		case 'site_inaccessible':
 		case 'request_timeout':
 		case 'connection_timeout':
@@ -216,6 +300,11 @@ export const getConnectScreenErrorMessage = (
 		case 'xml_rpc-32601':
 			return __(
 				'WordPress.com couldn’t connect to your site through xmlrpc.php. A security plugin or your hosting provider may be blocking it.',
+				'jetpack-connection-js'
+			);
+		case 'xml_extension_missing':
+			return __(
+				'PHP’s XML extension isn’t available on your site, and Jetpack needs it to connect. Ask your hosting provider to enable it.',
 				'jetpack-connection-js'
 			);
 		case 'xml_rpc-32700':

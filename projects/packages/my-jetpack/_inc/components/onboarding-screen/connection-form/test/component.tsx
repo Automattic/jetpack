@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import ConnectionForm from '../connection-form';
 
 let mockRegistrationError: unknown = false;
@@ -34,7 +34,7 @@ describe( 'ConnectionForm', () => {
 		expect( screen.queryByText( /An error occurred/ ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'shows the mapped message with the site’s own description underneath', () => {
+	it( 'shows the mapped message, with WordPress.com’s text behind Details for HTTP errors', () => {
 		mockRegistrationError = {
 			response: {
 				code: 'site_inaccessible_403',
@@ -45,14 +45,26 @@ describe( 'ConnectionForm', () => {
 		expect(
 			screen.getByText( /Something blocked WordPress.com/, { selector: 'p' } )
 		).toBeInTheDocument();
+		expect( screen.getByText( 'Details' ) ).toBeInTheDocument();
 		expect(
-			screen.getByText( 'The Jetpack server was unable to communicate with your site [HTTP 403].', {
-				selector: 'p',
-			} )
+			within( screen.getByRole( 'group' ) ).getByText(
+				'The Jetpack server was unable to communicate with your site [HTTP 403].'
+			)
 		).toBeInTheDocument();
 	} );
 
-	it( 'keeps the site’s own message under the generic text for unmapped codes', () => {
+	it( 'shows only the mapped message when the site’s text adds nothing', () => {
+		mockRegistrationError = {
+			response: { code: 'request_cancelled', message: 'Too many attempts.' },
+		};
+		render( <ConnectionForm /> );
+		expect(
+			screen.getByText( /too many connection attempts/, { selector: 'p' } )
+		).toBeInTheDocument();
+		expect( screen.queryByText( 'Too many attempts.' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'shows the site’s own message instead of the generic text for unmapped codes', () => {
 		mockRegistrationError = {
 			response: {
 				code: 'cannot_save_secrets',
@@ -61,13 +73,11 @@ describe( 'ConnectionForm', () => {
 		};
 		render( <ConnectionForm /> );
 		expect(
-			screen.getByText( 'An error occurred. Please try again.', { selector: 'p' } )
-		).toBeInTheDocument();
-		expect(
 			screen.getByText( 'Jetpack could not save secrets. Please contact your host.', {
 				selector: 'p',
 			} )
 		).toBeInTheDocument();
+		expect( screen.queryByText( 'An error occurred. Please try again.' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'maps failures of the site’s own request by error name', () => {

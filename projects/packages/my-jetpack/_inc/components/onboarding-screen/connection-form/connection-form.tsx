@@ -1,8 +1,7 @@
 import { JetpackLogo, TermsOfService, Text } from '@automattic/jetpack-components';
 import {
-	getConnectScreenErrorMessage,
 	getRegistrationErrorCode,
-	getRegistrationErrorDescription,
+	getRegistrationErrorDisplay,
 	useConnection,
 } from '@automattic/jetpack-connection';
 import { Button, Spinner, Notice } from '@wordpress/components';
@@ -24,6 +23,8 @@ const ConnectionForm = () => {
 		recordEvent( 'jetpack_my_jetpack_onboarding_click' );
 		handleRegisterSite();
 	}, [ recordEvent, handleRegisterSite ] );
+
+	const errorDisplay = getRegistrationErrorDisplay( registrationError );
 
 	useEffect( () => {
 		if ( registrationError ) {
@@ -69,14 +70,29 @@ const ConnectionForm = () => {
 			</Button>
 
 			{ registrationError ? (
-				<Notice status="error" isDismissible={ false }>
+				<Notice
+					status="error"
+					isDismissible={ false }
+					// Announce only what's visible: a collapsed detail stays out of the spoken message.
+					spokenMessage={
+						errorDisplay.detailCollapsed && typeof errorDisplay.message === 'string'
+							? errorDisplay.message
+							: undefined
+					}
+				>
 					<p>
-						{ getConnectScreenErrorMessage( getRegistrationErrorCode( registrationError ) ) ||
+						{ errorDisplay.message ||
 							__( 'An error occurred. Please try again.', 'jetpack-my-jetpack' ) }
 					</p>
-					{ getRegistrationErrorDescription( registrationError ) && (
-						<p>{ getRegistrationErrorDescription( registrationError ) }</p>
-					) }
+					{ errorDisplay.detail &&
+						( errorDisplay.detailCollapsed ? (
+							<details>
+								<summary>{ __( 'Details', 'jetpack-my-jetpack' ) }</summary>
+								<p>{ errorDisplay.detail }</p>
+							</details>
+						) : (
+							<p>{ errorDisplay.detail }</p>
+						) ) }
 				</Notice>
 			) : null }
 

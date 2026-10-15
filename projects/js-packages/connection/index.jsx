@@ -58,6 +58,7 @@ export {
 	getConnectScreenErrorMessage,
 	getRegistrationErrorCode,
 	getRegistrationErrorDescription,
+	getRegistrationErrorDisplay,
 	getRegistrationErrorSummary,
 } from './helpers/get-connect-screen-error-message';
 

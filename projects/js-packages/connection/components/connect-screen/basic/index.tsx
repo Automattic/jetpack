@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import {
 	getRegistrationErrorCode,
-	getRegistrationErrorDescription,
+	getRegistrationErrorDisplay,
 } from '../../../helpers/get-connect-screen-error-message';
 import useConnection from '../../use-connection';
 import ConnectScreenVisual from './visual';
@@ -86,7 +86,7 @@ function ConnectScreen( {
 	const displayButtonError = Boolean( registrationError );
 	const buttonIsLoading = siteIsRegistering || userIsConnecting;
 	const errorCode = getRegistrationErrorCode( registrationError );
-	const errorDescription = getRegistrationErrorDescription( registrationError );
+	const errorDisplay = getRegistrationErrorDisplay( registrationError, isOfflineMode );
 
 	return (
 		<ConnectScreenVisual
@@ -101,7 +101,7 @@ function ConnectScreen( {
 			handleButtonClick={ handleRegisterSite }
 			displayButtonError={ displayButtonError }
 			errorCode={ errorCode }
-			errorDescription={ errorDescription }
+			errorDisplay={ errorDisplay }
 			buttonIsLoading={ buttonIsLoading }
 			footer={ footer }
 			isOfflineMode={ isOfflineMode }

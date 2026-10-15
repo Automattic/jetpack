@@ -3,6 +3,7 @@ import {
 	getConnectScreenErrorMessage,
 	getRegistrationErrorCode,
 	getRegistrationErrorDescription,
+	getRegistrationErrorDisplay,
 	getRegistrationErrorSummary,
 } from '../get-connect-screen-error-message';
 
@@ -65,7 +66,7 @@ describe( 'getConnectScreenErrorMessage', () => {
 		expect( getConnectScreenErrorMessage( 'site_inaccessible_403' ) ).toContain(
 			'Try again in a minute.'
 		);
-		expect( getConnectScreenErrorMessage( 'site_inaccessible_520' ) ).toContain(
+		expect( getConnectScreenErrorMessage( 'site_inaccessible_429' ) ).toContain(
 			'Something blocked WordPress.com'
 		);
 		expect( getConnectScreenErrorMessage( 'site_inaccessible_404' ) ).toContain(
@@ -74,6 +75,20 @@ describe( 'getConnectScreenErrorMessage', () => {
 		expect( getConnectScreenErrorMessage( 'site_inaccessible_503' ) ).toContain(
 			'WordPress.com got an error (HTTP 503)'
 		);
+		// Cloudflare: 520 is an unexpected origin reply, 521–524 and 530 an unreachable origin, 525–526 SSL.
+		expect( getConnectScreenErrorMessage( 'site_inaccessible_520' ) ).toContain(
+			'WordPress.com got an error (HTTP 520)'
+		);
+		for ( const status of [ 521, 522, 523, 524, 530 ] ) {
+			expect( getConnectScreenErrorMessage( `site_inaccessible_${ status }` ) ).toBe(
+				getConnectScreenErrorMessage( 'site_inaccessible' )
+			);
+		}
+		for ( const status of [ 525, 526 ] ) {
+			expect( getConnectScreenErrorMessage( `site_inaccessible_${ status }` ) ).toBe(
+				getConnectScreenErrorMessage( 'ssl_error' )
+			);
+		}
 	} );
 
 	it( 'maps WordPress.com failing to reach the site to one message', () => {
@@ -205,6 +220,66 @@ describe( 'getRegistrationErrorDescription', () => {
 			response: { message: '<'.repeat( 50000 ) },
 		} );
 		expect( description?.length ?? 0 ).toBeLessThanOrEqual( 400 );
+	} );
+} );
+
+describe( 'getRegistrationErrorDisplay', () => {
+	const display = ( code: string, message: string ) =>
+		getRegistrationErrorDisplay( { response: { code, message } } );
+
+	it( 'shows only our copy for a mapped code', () => {
+		expect(
+			display( 'request_cancelled', 'Your site has been generating too many attempts.' )
+		).toEqual( { message: getConnectScreenErrorMessage( 'request_cancelled' ) } );
+		expect( display( 'rest_cookie_invalid_nonce', 'Cookie check failed' ).detail ).toBeUndefined();
+	} );
+
+	it( 'uses the site’s own text as the message for an unmapped code', () => {
+		expect( display( 'cannot_save_secrets', 'Please contact your host.' ) ).toEqual( {
+			message: 'Please contact your host.',
+		} );
+		expect( display( 'cannot_save_secrets', '' ) ).toEqual( { message: undefined } );
+	} );
+
+	it( 'keeps the cURL error for a failed request to WordPress.com', () => {
+		expect(
+			display( 'register_http_request_failed', 'cURL error 6: Could not resolve host.' ).detail
+		).toBe( 'cURL error 6: Could not resolve host.' );
+	} );
+
+	it( 'keeps only the bracketed cause of a WordPress.com transport error', () => {
+		const result = display(
+			'request_timeout',
+			'The Jetpack server was unable to communicate with your site https://example.com [REST http_request_failed: cURL error 28: Operation timed out]'
+		);
+		expect( result.message ).toContain( 'WordPress.com couldn’t reach your site' );
+		expect( result.detail ).toBe( 'REST http_request_failed: cURL error 28: Operation timed out' );
+		expect( result.detailCollapsed ).toBeUndefined();
+		expect( display( 'connection_refused', 'Connection refused' ).detail ).toBe(
+			'Connection refused'
+		);
+	} );
+
+	it( 'keeps WordPress.com’s text collapsed for an HTTP status from the site', () => {
+		const text =
+			'The Jetpack server was unable to communicate with your site https://example.com [HTTP 503].';
+		expect( display( 'site_inaccessible_503', text ) ).toEqual( {
+			message: getConnectScreenErrorMessage( 'site_inaccessible_503' ),
+			detail: text,
+			detailCollapsed: true,
+		} );
+	} );
+
+	it( 'shows nothing extra for a status-only message', () => {
+		expect( display( 'wpcom_bad_response', '403' ) ).toEqual( {
+			message: getConnectScreenErrorMessage( 'wpcom_bad_response' ),
+		} );
+	} );
+
+	it( 'names a missing PHP XML extension', () => {
+		expect( display( 'xml_extension_missing', 'PHP’s XML extension is not available.' ) ).toEqual( {
+			message: expect.stringContaining( 'XML extension' ),
+		} );
 	} );
 } );
 

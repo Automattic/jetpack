@@ -1,6 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/ui';
 import { getConnectScreenErrorMessage } from '../../../helpers/get-connect-screen-error-message';
+import type { RegistrationErrorDisplay } from '../../../helpers/get-connect-screen-error-message';
 import type { MouseEventHandler } from 'react';
 
 export { getConnectScreenErrorMessage };
@@ -16,8 +17,8 @@ export type Props = {
 	displayButtonError?: boolean;
 	// The connection error code
 	errorCode?: string;
-	// The site's own explanation of the error, shown under the message
-	errorDescription?: string;
+	// What to show for the registration error, from getRegistrationErrorDisplay()
+	errorDisplay?: RegistrationErrorDisplay;
 	// Whether the site is in offline mode
 	isOfflineMode?: boolean;
 };
@@ -36,7 +37,7 @@ function ConnectScreenAction( {
 	buttonIsLoading,
 	displayButtonError,
 	errorCode,
-	errorDescription,
+	errorDisplay,
 	isOfflineMode,
 }: Props ) {
 	return (
@@ -55,12 +56,22 @@ function ConnectScreenAction( {
 					role={ displayButtonError ? 'alert' : undefined }
 				>
 					<p>
-						{ getConnectScreenErrorMessage( errorCode, isOfflineMode ) ||
+						{ ( displayButtonError && errorDisplay?.message ) ||
+							getConnectScreenErrorMessage( errorCode, isOfflineMode ) ||
 							__( 'An error occurred. Please try again.', 'jetpack-connection-js' ) }
 					</p>
-					{ displayButtonError && errorDescription && (
-						<p className="jp-connection__connect-screen__error-description">{ errorDescription }</p>
-					) }
+					{ displayButtonError &&
+						errorDisplay?.detail &&
+						( errorDisplay.detailCollapsed ? (
+							<details className="jp-connection__connect-screen__error-details">
+								<summary>{ __( 'Details', 'jetpack-connection-js' ) }</summary>
+								<p>{ errorDisplay.detail }</p>
+							</details>
+						) : (
+							<p className="jp-connection__connect-screen__error-description">
+								{ errorDisplay.detail }
+							</p>
+						) ) }
 				</div>
 			) }
 		</>
