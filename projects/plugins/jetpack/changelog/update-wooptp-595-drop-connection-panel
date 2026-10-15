@@ -1,4 +1,4 @@
-Significance: patch
+Significance: minor
 Type: enhancement
 
-PayPal Payment Buttons: Remove the PayPal Connection panel. Delete and Manage move to the block menus, and Log out in the account menu replaces Disconnect.
+PayPal Payment Buttons: Move the connection panel's actions into the menus, drop the unused connect Success step, and show Sandbox under Log out for sandbox accounts.

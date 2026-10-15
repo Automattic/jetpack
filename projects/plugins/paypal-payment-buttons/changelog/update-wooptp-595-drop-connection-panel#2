@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix a "PayPal account connected!" screen showing after another block logs out.
