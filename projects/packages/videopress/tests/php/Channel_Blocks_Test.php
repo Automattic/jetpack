@@ -132,6 +132,32 @@ class Channel_Blocks_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The editor data is only wired up where the Video Playlist block is.
+	 */
+	public function test_register_requires_the_playlist_block() {
+		Channel_Blocks::register();
+		$this->assertFalse( has_action( 'enqueue_block_editor_assets', array( Channel_Blocks::class, 'enqueue_editor_data' ) ) );
+
+		register_block_type( 'videopress/playlist', array() );
+		Channel_Blocks::register();
+		$this->assertSame( 10, has_action( 'enqueue_block_editor_assets', array( Channel_Blocks::class, 'enqueue_editor_data' ) ) );
+
+		// Without an editor script there is nothing to attach the data to.
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'channel-author',
+					'user_pass'  => 'password',
+					'role'       => 'author',
+				)
+			)
+		);
+		Channel_Blocks::enqueue_editor_data();
+		$this->assertStringNotContainsString( 'videopressChannelEditor', wp_json_encode( wp_scripts()->registered, JSON_UNESCAPED_SLASHES ) );
+		unregister_block_type( 'videopress/playlist' );
+	}
+
+	/**
 	 * The editor gets the playlists ( key and title ) for the pickers, before the playlist block's script.
 	 */
 	public function test_editor_data_lists_the_playlists() {

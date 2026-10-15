@@ -104,6 +104,19 @@ class All_Playlists_Block_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Set a post's last modified date.
+	 *
+	 * @param int    $post_id Post id.
+	 * @param string $date    Modified date, Y-m-d H:i:s GMT.
+	 */
+	private function set_modified( $post_id, $date ) {
+		// wp_insert_post() stamps the modified date itself.
+		$post                    = get_post( $post_id );
+		$post->post_modified_gmt = $date;
+		wp_cache_replace( $post_id, $post, 'posts' );
+	}
+
+	/**
 	 * Build an index record.
 	 *
 	 * @param string $title   Playlist title.
@@ -373,6 +386,58 @@ class All_Playlists_Block_Test extends BaseTestCase {
 			$markup = All_Playlists_Block::render( array( 'orderBy' => $order ) );
 			$this->assertGreaterThan( strrpos( $markup, 'charlie' ), strpos( $markup, 'Zulu' ) );
 		}
+	}
+
+	/**
+	 * The `updated` order lists the playlist whose post was modified last first.
+	 */
+	public function test_render_orders_playlists_by_last_update() {
+		$alpha = $this->create_post( '2026-01-01 10:00:00' );
+		$bravo = $this->create_post( '2026-03-01 10:00:00' );
+		$this->set_modified( $alpha, '2026-04-01 10:00:00' );
+		$this->set_modified( $bravo, '2026-03-01 10:00:00' );
+		$this->seed_index(
+			array(
+				'a' => $this->record( 'Alpha', $alpha ),
+				'b' => $this->record( 'Bravo', $bravo ),
+				'z' => $this->record( 'Zulu', 999999 ),
+			)
+		);
+
+		$this->assertSame(
+			array( 'Bravo', 'Alpha' ),
+			$this->titles_in( All_Playlists_Block::render( array() ) )
+		);
+		$this->assertSame(
+			array( 'Alpha', 'Bravo' ),
+			$this->titles_in( All_Playlists_Block::render( array( 'orderBy' => 'updated' ) ) )
+		);
+	}
+
+	/**
+	 * `showUpdated` adds when the playlist was last updated and its total length.
+	 */
+	public function test_render_shows_the_last_update_and_length() {
+		$post = $this->create_post();
+		$this->set_modified( $post, gmdate( 'Y-m-d H:i:s', time() - 2 * WEEK_IN_SECONDS ) );
+		$this->seed_index( array( 'one' => $this->record( 'One', $post, 7 ) ) );
+
+		$this->assertStringNotContainsString( 'videopress-all-playlists__meta', All_Playlists_Block::render( array() ) );
+		$this->assertStringContainsString(
+			'<span class="videopress-all-playlists__meta">Updated 2 weeks ago · 1 hr 10 min</span>',
+			All_Playlists_Block::render( array( 'showUpdated' => true ) )
+		);
+
+		// Without a post or a known length there is nothing to say.
+		$this->assertSame(
+			'',
+			All_Playlists_Block::updated_meta(
+				array(
+					'post'   => null,
+					'videos' => array( array( 'guid' => 'abcDEF12' ) ),
+				)
+			)
+		);
 	}
 
 	/**

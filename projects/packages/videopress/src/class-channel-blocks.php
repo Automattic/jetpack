@@ -8,41 +8,20 @@
 namespace Automattic\Jetpack\VideoPress;
 
 /**
- * Registers the server-side blocks a VideoPress channel theme builds its
- * pages from, and hands the editor the data their playlist pickers read.
+ * Shared pieces of the blocks a VideoPress channel theme builds its pages
+ * from: for now, the data their playlist pickers read in the editor.
  */
 class Channel_Blocks {
 
 	/**
-	 * Blocks, by name, with their render method.
-	 *
-	 * @var array<string, string>
-	 */
-	const BLOCKS = array();
-
-	/**
-	 * Register the blocks. Like the All Playlists block, only where the Video Playlist block is.
-	 *
-	 * @param string|null $build_dir Directory holding each block's block.json; tests can point it at fixtures.
+	 * Hand the editor the picker data. Like the All Playlists block, only where the Video Playlist block is.
 	 *
 	 * @return void
 	 */
-	public static function register( $build_dir = null ) {
+	public static function register() {
 		if ( ! \WP_Block_Type_Registry::get_instance()->is_registered( Playlist_Index::BLOCK_NAME ) ) {
 			return;
 		}
-		if ( null === $build_dir ) {
-			$build_dir = __DIR__ . '/../build/block-editor/blocks';
-		}
-
-		foreach ( self::BLOCKS as $name => $method ) {
-			$metadata_file = $build_dir . '/' . substr( $name, strlen( 'videopress/' ) ) . '/block.json';
-			if ( ! file_exists( $metadata_file ) || \WP_Block_Type_Registry::get_instance()->is_registered( $name ) ) {
-				continue;
-			}
-			register_block_type( $metadata_file, array( 'render_callback' => array( __CLASS__, $method ) ) );
-		}
-
 		if ( ! has_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_editor_data' ) ) ) {
 			add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_editor_data' ) );
 		}

@@ -327,5 +327,64 @@ class Channel_Test extends BaseTestCase {
 		);
 		$this->assertSame( array( 'abcDEF12', 'ghiJKL34' ), array_column( $picked['videos'], 'guid' ) );
 		$this->assertSame( 'Attunement to Ragnaros.', $picked['playlistDescription'] );
+
+		// A playlist that is gone shows nothing; other blocks are left alone.
+		$missing = $block(
+			array(
+				'source'           => 'index',
+				'sourcePlaylistId' => 'nope',
+				'videos'           => array( array( 'guid' => 'zzzzzzzz' ) ),
+			)
+		);
+		$this->assertSame( array(), $missing['videos'] );
+		$paragraph = array(
+			'blockName' => 'core/paragraph',
+			'attrs'     => array( 'source' => 'index' ),
+		);
+		$this->assertSame( $paragraph, Channel::playlist_source_block( $paragraph ) );
+	}
+
+	/**
+	 * Playlist records: only published playlists are listed, and lookups of
+	 * unknown keys or sources come back empty.
+	 */
+	public function test_playlist_records() {
+		$posts = $this->index_playlists();
+		$draft = wp_insert_post(
+			array(
+				'post_title'  => 'Draft',
+				'post_status' => 'draft',
+			)
+		);
+
+		$index           = get_option( 'videopress_playlist_index' );
+		$index['draft']  = array(
+			'title'   => 'Not yet',
+			'post_id' => $draft,
+		);
+		$index['broken'] = 'nope';
+		update_option( 'videopress_playlist_index', $index );
+
+		$this->assertSame( array( 'road', 'mc' ), array_column( Channel::playlists(), 'key' ) );
+		$this->assertSame(
+			array(
+				'key'         => 'draft',
+				'title'       => 'Not yet',
+				'description' => '',
+				'videos'      => array(),
+				'post_id'     => $draft,
+			),
+			Channel::playlist_record( 'draft' )
+		);
+		$mc = Channel::playlist_record( 'mc' );
+		$this->assertNotNull( $mc );
+		$this->assertSame( $posts['mc'], $mc['post_id'] );
+		$this->assertNull( Channel::playlist_record( '' ) );
+		$this->assertNull( Channel::playlist_record( 'broken' ) );
+		$this->assertNull( Channel::source_playlist( 'own', 'mc' ) );
+		$this->assertNull( Channel::source_playlist( 'index', 'nope' ) );
+
+		delete_option( 'videopress_playlist_index' );
+		$this->assertNull( Channel::source_playlist( 'index' ) );
 	}
 }
