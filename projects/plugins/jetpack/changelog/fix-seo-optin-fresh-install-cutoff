@@ -1,4 +1,5 @@
 Significance: patch
-Type: bugfix
+Type: other
+Comment: SEO: Offer the new SEO dashboard as an opt-in to sites installed before this release, rather than switching them over.
 
-SEO: Offer the new SEO dashboard as an opt-in to sites installed before this release, rather than switching them over.
+
