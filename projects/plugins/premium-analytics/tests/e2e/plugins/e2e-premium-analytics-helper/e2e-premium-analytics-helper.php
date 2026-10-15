@@ -9,6 +9,8 @@
  * @package automattic/jetpack-premium-analytics-plugin
  */
 
+use Automattic\Jetpack\PremiumAnalytics\Enablement_Setting;
+
 const E2E_PA_SITE_ID = 1234567;
 
 register_activation_hook( __FILE__, 'e2e_pa_fake_connection' );
@@ -32,6 +34,85 @@ add_filter( 'jetpack_offline_mode', '__return_false', 99 );
 
 add_filter( 'pre_http_request', 'e2e_pa_intercept_wpcom', 10, 3 );
 add_filter( 'nonce_life', 'e2e_pa_nonce_life' );
+add_action( 'rest_api_init', 'e2e_pa_register_site_state_route' );
+
+/**
+ * Registers the route specs reset the site through: one request instead of a wp-cli process per setting.
+ */
+function e2e_pa_register_site_state_route() {
+	register_rest_route(
+		'e2e-premium-analytics/v1',
+		'/site-state',
+		array(
+			'methods'             => 'POST',
+			'callback'            => 'e2e_pa_set_site_state',
+			'permission_callback' => static function () {
+				return current_user_can( 'manage_options' );
+			},
+			'args'                => array(
+				'enabled'       => array(
+					'type'     => 'boolean',
+					'required' => true,
+				),
+				'subscriptions' => array(
+					'type'     => 'boolean',
+					'required' => true,
+				),
+				'wordads'       => array(
+					'type'     => 'boolean',
+					'required' => true,
+				),
+				'timezone'      => array(
+					'type'    => 'string',
+					'default' => 'UTC',
+				),
+			),
+		)
+	);
+}
+
+/**
+ * Puts the site in one dashboard state. The mocked plan must already be set, since WordAds activates only on a plan that includes it.
+ *
+ * @param WP_REST_Request $request Request with the `enabled`, `subscriptions`, `wordads` and `timezone` params.
+ * @return WP_REST_Response|WP_Error
+ */
+function e2e_pa_set_site_state( $request ) {
+	update_option( 'timezone_string', $request['timezone'] );
+	delete_option( 'e2e_pa_stats_fault' );
+	delete_option( 'e2e_pa_nonce_life' );
+	update_option( Enablement_Setting::ENABLED_OPTION, $request['enabled'] ? 1 : 0 );
+	// The welcome dialog marks everything behind it inert, so specs start with onboarding done.
+	// Do not move above the opt-in update: turning the dashboard on resets onboarding.
+	global $wpdb;
+	update_user_meta(
+		get_current_user_id(),
+		$wpdb->get_blog_prefix() . 'persisted_preferences',
+		array(
+			Enablement_Setting::PREFERENCES_SCOPE => array( Enablement_Setting::ONBOARDING_KEY => '2026-01-01T00:00:00.000Z' ),
+			'_modified'                           => '2026-01-01T00:00:00.000Z',
+		)
+	);
+	Automattic\Jetpack\Current_Plan::refresh_from_wpcom();
+
+	$modules = array(
+		'stats'         => true,
+		'subscriptions' => $request['subscriptions'],
+		'wordads'       => $request['wordads'],
+	);
+	foreach ( $modules as $module => $active ) {
+		if ( $active ) {
+			Jetpack::activate_module( $module, false, false );
+		} else {
+			Jetpack::deactivate_module( $module );
+		}
+		if ( Jetpack::is_module_active( $module ) !== $active ) {
+			return new WP_Error( 'e2e_pa_module_state', sprintf( 'The %s module did not turn %s.', $module, $active ? 'on' : 'off' ), array( 'status' => 500 ) );
+		}
+	}
+
+	return rest_ensure_response( array( 'success' => true ) );
+}
 
 /**
  * Shortens nonces while a spec sets `e2e_pa_nonce_life`, so the dashboard's expires mid-session.
