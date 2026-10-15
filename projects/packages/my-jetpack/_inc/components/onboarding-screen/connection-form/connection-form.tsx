@@ -29,8 +29,8 @@ const ConnectionForm = () => {
 		if ( registrationError ) {
 			recordEvent( 'jetpack_my_jetpack_onboarding_error', {
 				error: registrationError,
-				error_code: getRegistrationErrorCode( registrationError ) ?? '',
-				error_message: getRegistrationErrorDescription( registrationError ) ?? '',
+				// Not `unknown` or `unknown_error`: both are real registration error codes.
+				error_code: getRegistrationErrorCode( registrationError ) ?? 'no_error_code',
 			} );
 		}
 	}, [ registrationError, recordEvent ] );

@@ -78,17 +78,24 @@ describe( 'ConnectionForm', () => {
 		).toBeInTheDocument();
 	} );
 
-	it( 'records the error code and message as plain values', () => {
+	it( 'records the error code as a plain value', () => {
 		mockRegistrationError = {
 			response: { code: 'request_cancelled', message: 'Too many attempts.' },
 		};
 		render( <ConnectionForm /> );
 		expect( mockRecordEvent ).toHaveBeenCalledWith(
 			'jetpack_my_jetpack_onboarding_error',
-			expect.objectContaining( {
-				error_code: 'request_cancelled',
-				error_message: 'Too many attempts.',
-			} )
+			expect.objectContaining( { error_code: 'request_cancelled' } )
+		);
+		expect( mockRecordEvent.mock.calls[ 0 ][ 1 ] ).not.toHaveProperty( 'error_message' );
+	} );
+
+	it( 'records no_error_code when the error carries no code or name', () => {
+		mockRegistrationError = { response: { message: 'Something odd.' } };
+		render( <ConnectionForm /> );
+		expect( mockRecordEvent ).toHaveBeenCalledWith(
+			'jetpack_my_jetpack_onboarding_error',
+			expect.objectContaining( { error_code: 'no_error_code' } )
 		);
 	} );
 } );
