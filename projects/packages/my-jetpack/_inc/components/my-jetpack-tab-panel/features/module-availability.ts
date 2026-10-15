@@ -55,21 +55,20 @@ export function getModuleStatus( $module: MyJetpackModule ) {
 }
 
 /**
- * A host override controls the switch but cannot remove the module's restrictions.
+ * Whether the module can run on this site, ignoring any host override: an override only forces the switch on or off, and does not lift the module's own limits, such as multisite.
  *
  * @param $module - The module to check.
- * @return The module's availability, reason and multisite restriction without a host override.
+ * @return The module's availability, the reason when it is unavailable, and whether multisite blocks it, as if no host override were set.
  */
 export function getModuleAvailability( $module: MyJetpackModule ) {
 	return getModuleStatus( { ...$module, override: false } );
 }
 
 /**
- * The feature's availability restriction, including a required account connection.
+ * Why the feature cannot run on this site, if something stops it, including a missing WordPress.com account.
  *
  * @param state - The feature's live state.
- * @return The unavailable reason, including a required account connection, or undefined when an
- * installed plugin or an available module provides a route.
+ * @return The reason to show, or undefined when nothing stops the feature, for example when its plugin is installed or its module is available.
  */
 export function getFeatureUnavailableReason( state: FeatureState ): string | undefined {
 	if ( state.control.kind === 'connect-account' ) {
@@ -85,7 +84,7 @@ export function getFeatureUnavailableReason( state: FeatureState ): string | und
 }
 
 /**
- * The status shared by the feature row and its details.
+ * The status badge text on the feature card and in its details dialog: Account needed, Unavailable, Active or Inactive.
  *
  * @param state - The feature's live state.
  * @return The status label.

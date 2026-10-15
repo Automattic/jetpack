@@ -210,7 +210,8 @@ export function resolveFeatureState(
 	modulesLoading = false,
 	needsAccount = false
 ): FeatureState {
-	// Wait before the account branch: module overrides and multisite blocks are still unknown.
+	// Wait for the module list: without it, a feature Jetpack already runs would offer a plugin
+	// install, and the account check cannot see host overrides or multisite blocks.
 	if ( feature.in_jetpack && jetpack === 'active' && modulesLoading ) {
 		return { feature, product, pending: true, status: 'inactive', control: { kind: 'none' } };
 	}
@@ -401,7 +402,7 @@ export function useFeaturesNeedsAccount(): boolean {
 			if ( offline ) {
 				return false;
 			}
-			// useMyJetpackConnection needs connection initial state, which the offline entry does not render.
+			// Read the connection store directly: useMyJetpackConnection needs page data that the offline Features page does not load.
 			const store = select( CONNECTION_STORE ) as unknown as {
 				getConnectionStatus?: () => { isRegistered: boolean; hasConnectedOwner: boolean };
 				getIsOfflineMode?: () => boolean;

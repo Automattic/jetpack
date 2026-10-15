@@ -225,7 +225,7 @@ export function FeatureAction( { state, describedby, origin = 'card' }: FeatureA
 }
 
 /**
- * Open the existing account connection flow from a feature.
+ * A "Connect account" button that starts the WordPress.com account connection and returns to the Features tab.
  *
  * @param props        - The component props.
  * @param props.state  - The feature's live state.
