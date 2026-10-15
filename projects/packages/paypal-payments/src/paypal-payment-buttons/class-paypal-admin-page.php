@@ -48,6 +48,15 @@ class PayPal_Admin_Page {
 	const EMBED_SCAN_LIMIT = 100;
 
 	/**
+	 * Posts listed per page in the Link Locations card.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var int
+	 */
+	const LOCATIONS_PER_PAGE = 100;
+
+	/**
 	 * PayPal's merchant activity list, per environment.
 	 */
 	const TRANSACTIONS_URLS = array(
@@ -152,6 +161,7 @@ class PayPal_Admin_Page {
 	 *
 	 * Unlike find_published_embeds(), this searches for the one link rather
 	 * than scanning every block post, so it can page past the scan cap.
+	 * Fetches one row past the page to learn whether there is a next one.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -165,8 +175,8 @@ class PayPal_Admin_Page {
 			array(
 				'post_type'              => 'any',
 				'post_status'            => array( 'publish', 'future', 'draft', 'pending', 'private' ),
-				'posts_per_page'         => self::EMBED_SCAN_LIMIT + 1,
-				'offset'                 => ( $page - 1 ) * self::EMBED_SCAN_LIMIT,
+				'posts_per_page'         => self::LOCATIONS_PER_PAGE + 1,
+				'offset'                 => ( $page - 1 ) * self::LOCATIONS_PER_PAGE,
 				's'                      => '"resourceId":"' . $resource_id . '"',
 				'sentence'               => true,
 				'orderby'                => 'date',
@@ -178,8 +188,8 @@ class PayPal_Admin_Page {
 		);
 
 		return array(
-			'posts'    => array_slice( $posts, 0, self::EMBED_SCAN_LIMIT ),
-			'has_more' => count( $posts ) > self::EMBED_SCAN_LIMIT,
+			'posts'    => array_slice( $posts, 0, self::LOCATIONS_PER_PAGE ),
+			'has_more' => count( $posts ) > self::LOCATIONS_PER_PAGE,
 		);
 	}
 
