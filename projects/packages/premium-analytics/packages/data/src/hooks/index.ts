@@ -6,7 +6,6 @@ export {
 	type PostThumbnailUrls,
 } from './use-post-thumbnail';
 export { useStatsSite } from './use-stats-site';
-export { useNoUsedCategory } from './use-no-used-category';
 export { usePrefetchViewerCountry, useViewerCountry } from './use-viewer-country';
 export {
 	useStatsPost,

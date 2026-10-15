@@ -23,13 +23,13 @@ import {
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { useNoUsedCategory } from '@jetpack-premium-analytics/data';
 import { useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
+import { useNoPublishedPosts } from '../use-no-published-posts';
 import styles from './style.module.css';
 import useTagViews, { type TagChildView } from './use-tag-views';
 import { type TagsAttributes } from './widget';
@@ -84,7 +84,7 @@ function TagsInner() {
 	} = useWidgetDrillDown< string >();
 
 	const isEmptyList = ! isLoading && ! isError && data.length === 0;
-	const { noUsedCategory, isChecking } = useNoUsedCategory( isEmptyList );
+	const { noPublishedPosts, isChecking } = useNoPublishedPosts( isEmptyList );
 
 	const selectedGroup = useMemo(
 		() => ( selectedLabel ? ( data.find( row => row.label === selectedLabel ) ?? null ) : null ),
@@ -153,7 +153,7 @@ function TagsInner() {
 						],
 					} }
 					empty={
-						noUsedCategory
+						noPublishedPosts
 							? {
 									description: __(
 										'You don’t have tags or categories recorded yet.',

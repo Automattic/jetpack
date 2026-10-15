@@ -16,24 +16,6 @@ jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
-type UseEntityRecords = (
-	kind: string,
-	name: string,
-	query: object,
-	options: { enabled: boolean }
-) => { records: unknown[] | null; hasResolved: boolean };
-
-const mockUseEntityRecords = jest.fn<
-	ReturnType< UseEntityRecords >,
-	Parameters< UseEntityRecords >
->( () => ( { records: [], hasResolved: false } ) );
-
-jest.mock( '@wordpress/core-data', () => ( {
-	...jest.requireActual( '@wordpress/core-data' ),
-	useEntityRecords: ( ...args: Parameters< typeof mockUseEntityRecords > ) =>
-		mockUseEntityRecords( ...args ),
-} ) );
-
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
 // `type: 'category'` is the only value the sanitizer turns into the `folder`
@@ -259,15 +241,21 @@ describe( 'TagsWidget empty state', () => {
 	const NONE_RECORDED = 'You don’t have tags or categories recorded yet.';
 	const GENERIC_TEXT = 'We couldn’t find results for this time period.';
 
+	/** Whether any request so far asked core for a published post. */
+	function askedForPosts() {
+		return mockApiFetch.mock.calls.some( ( [ options ] ) =>
+			String( options?.path ?? '' ).startsWith( '/wp/v2/posts' )
+		);
+	}
+
 	/**
-	 * Answer the tags report with no rows and the categories lookup with the given records.
+	 * Answer the tags report with no rows and the published-post lookup with the given posts.
 	 *
-	 * @param records - The categories core-data resolved, or `null` for a failed request.
+	 * @param posts - The `/wp/v2/posts` response.
 	 */
-	function mockEmptyTags( records: unknown[] | null ) {
-		mockApiFetch.mockResolvedValue( { ...TAGS_RESPONSE, tags: [] } );
-		mockUseEntityRecords.mockImplementation( ( _kind, _name, _query, { enabled } ) =>
-			enabled ? { records, hasResolved: true } : { records: [], hasResolved: false }
+	function mockEmptyTags( posts: unknown[] ) {
+		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
+			Promise.resolve( path.startsWith( '/wp/v2/posts' ) ? posts : { ...TAGS_RESPONSE, tags: [] } )
 		);
 	}
 
@@ -275,34 +263,23 @@ describe( 'TagsWidget empty state', () => {
 		jest.useFakeTimers();
 		queryClient.clear();
 		mockApiFetch.mockReset();
-		mockUseEntityRecords.mockReset();
 	} );
 
 	afterEach( () => {
 		jest.useRealTimers();
 	} );
 
-	it( 'says nothing is recorded yet when no category holds a published post', async () => {
+	it( 'says nothing is recorded yet when the site has no published post', async () => {
 		mockEmptyTags( [] );
 
 		render( <TagsWidget attributes={ { reportParams: getDefaultQueryParams() } } /> );
 
 		await expect( screen.findByText( NONE_RECORDED ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( GENERIC_TEXT ) ).not.toBeInTheDocument();
-		// Without `view`, core-data asks in the edit context and a user who cannot manage categories gets a 403.
-		expect( mockUseEntityRecords ).toHaveBeenCalledWith(
-			'taxonomy',
-			'category',
-			expect.objectContaining( { hide_empty: true, context: 'view' } ),
-			{ enabled: true }
-		);
 	} );
 
-	it.each( [
-		[ 'a category holds a published post', [ { id: 1 } ] ],
-		[ 'the categories request fails', null ],
-	] )( 'keeps the period text when %s', async ( _case, records ) => {
-		mockEmptyTags( records );
+	it( 'keeps the period text when the site has a published post', async () => {
+		mockEmptyTags( [ { id: 1 } ] );
 
 		render( <TagsWidget attributes={ { reportParams: getDefaultQueryParams() } } /> );
 
@@ -310,18 +287,12 @@ describe( 'TagsWidget empty state', () => {
 		expect( screen.queryByText( NONE_RECORDED ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'does not ask for categories when the list has rows', async () => {
+	it( 'does not ask for a published post when the list has rows', async () => {
 		mockApiFetch.mockResolvedValue( TAGS_RESPONSE );
-		mockUseEntityRecords.mockReturnValue( { records: [], hasResolved: false } );
 
 		render( <TagsWidget attributes={ { reportParams: getDefaultQueryParams() } } /> );
 
 		await expect( screen.findByText( 'Recipes' ) ).resolves.toBeInTheDocument();
-		expect( mockUseEntityRecords ).not.toHaveBeenCalledWith(
-			expect.anything(),
-			expect.anything(),
-			expect.anything(),
-			{ enabled: true }
-		);
+		expect( askedForPosts() ).toBe( false );
 	} );
 } );

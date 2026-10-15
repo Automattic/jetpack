@@ -93,19 +93,22 @@ it( 'keeps the period text when the site has views outside the selected range', 
 	expect( screen.queryByText( 'You don’t have referrers recorded yet.' ) ).not.toBeInTheDocument();
 } );
 
-it( 'shows neither text while the all-time views request has no answer', async () => {
-	mockEmptyLists( new Promise< never >( () => {} ) );
+it.each( WIDGETS )(
+	'%s shows neither text while the all-time views request has no answer',
+	async ( _title, Widget, text ) => {
+		mockEmptyLists( new Promise< never >( () => {} ) );
 
-	render( <ReferrersWidget attributes={ { reportParams } } /> );
+		render( <Widget attributes={ { reportParams } } /> );
 
-	await waitFor( () =>
-		expect( mockApiFetch ).toHaveBeenCalledWith(
-			expect.objectContaining( { path: expect.stringMatching( SITE_SUMMARY_PATH ) } )
-		)
-	);
-	expect( screen.queryByText( GENERIC_TEXT ) ).not.toBeInTheDocument();
-	expect( screen.queryByText( 'You don’t have referrers recorded yet.' ) ).not.toBeInTheDocument();
-} );
+		await waitFor( () =>
+			expect( mockApiFetch ).toHaveBeenCalledWith(
+				expect.objectContaining( { path: expect.stringMatching( SITE_SUMMARY_PATH ) } )
+			)
+		);
+		expect( screen.queryByText( GENERIC_TEXT ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( text ) ).not.toBeInTheDocument();
+	}
+);
 
 it( 'stops saying nothing is recorded when a refresh fails after a cached zero', async () => {
 	mockEmptyLists( { stats: { views: 0 } } );
