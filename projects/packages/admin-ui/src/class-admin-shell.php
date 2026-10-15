@@ -122,7 +122,7 @@ class Admin_Shell {
 		print_head_scripts();
 		print_footer_scripts();
 		do_action( 'admin_print_footer_scripts' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core hook.
-		wp_send_json_success( array( 'html' => ob_get_clean() ), null, JSON_UNESCAPED_SLASHES );
+		wp_send_json_success( array( 'html' => ob_get_clean() ), 200, JSON_UNESCAPED_SLASHES );
 	}
 
 	/**
