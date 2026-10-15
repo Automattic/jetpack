@@ -361,16 +361,6 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Tags sits on Traffic among locked cards that each say what they show, so it must not fall back to the generic sentence.
-	 */
-	public function test_locked_tags_widget_carries_its_own_copy() {
-		add_filter( STATS_PLAN_TIER_FILTER, static fn() => STATS_TIER_FREE );
-		$locked = get_stats_plan_gates()['locked_features'][ WIDGET_TYPE_PLAN_FEATURES['jpa/tags'] ];
-
-		$this->assertSame( 'Track the most viewed <link>tags & categories</link>.', $locked['description'] );
-	}
-
-	/**
 	 * WordPress.com sells Premium for commercial features and Personal for the rest.
 	 */
 	public function test_wpcom_upgrade_url_targets_the_plan_that_unlocks_the_feature() {
@@ -434,6 +424,8 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		return array(
 			'own copy'     => array( 'utm', 'Generate UTM parameters and track your <link>campaign performance data</link>.', 'https://jetpack.com/support/jetpack-stats/traffic-dashboard/#harnessing-utm-stats-for-precision-tracking' ),
 			'generic copy' => array( 'insights', 'Upgrade your plan to unlock Jetpack Stats.', '' ),
+			// Keyed through the card's mapping, which no other test fails on if it reverts to insights.
+			'tags card'    => array( WIDGET_TYPE_PLAN_FEATURES['jpa/tags'], 'Track the most viewed <link>tags & categories</link>.', 'https://wordpress.com/support/stats/learn-insights-about-your-website/#all-time-insights' ),
 		);
 	}
 

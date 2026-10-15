@@ -282,7 +282,7 @@ function get_stats_feature_copy( $feature ) {
 		case 'tags':
 			return array(
 				'description' => __( 'Track the most viewed <link>tags & categories</link>.', 'jetpack-premium-analytics-pkg' ),
-				'support_url' => 'https://wordpress.com/support/stats/learn-insights-about-your-website/#:~:text=Tags%20,%20Categories',
+				'support_url' => 'https://wordpress.com/support/stats/learn-insights-about-your-website/#all-time-insights',
 			);
 		default:
 			return array(
