@@ -328,16 +328,17 @@ class PayPal_Admin_Page_Test extends TestCase {
 	 * @param string $content    Post content.
 	 * @param string $post_type  Post type.
 	 * @param string $post_title Post title.
+	 * @param string $status     Post status.
 	 * @return \WP_Post The post.
 	 */
-	private function make_post( $content, $post_type = 'post', $post_title = '' ) {
+	private function make_post( $content, $post_type = 'post', $post_title = '', $status = 'publish' ) {
 		static $next_id = 1000;
 
 		return new \WP_Post(
 			(object) array(
 				'ID'           => $next_id++,
 				'post_type'    => $post_type,
-				'post_status'  => 'publish',
+				'post_status'  => $status,
 				'post_title'   => $post_title,
 				'post_content' => $content,
 				'filter'       => 'raw',
@@ -1032,7 +1033,10 @@ class PayPal_Admin_Page_Test extends TestCase {
 	}
 
 	/**
-	 * Test the detail view lists the published posts embedding the link, with edit and view links.
+	 * Test the detail view lists the posts embedding the link, drafts marked, with edit and view links.
+	 *
+	 * The card asks for the one link, the delete warning scans every published
+	 * block post; the mock answers each by the query's search term.
 	 */
 	public function test_detail_view_lists_the_posts_embedding_the_link() {
 		$admin = $this->create_admin_user();
@@ -1041,13 +1045,22 @@ class PayPal_Admin_Page_Test extends TestCase {
 		$this->set_up_connected_state();
 		$this->mock_get_resource_response( $this->get_sample_resource() );
 
-		$embedding = $this->make_post( '<!-- wp:jetpack/paypal-payment-buttons {"isApiManaged":true,"resourceId":"PLB-ABC123"} /-->', 'page', 'Shop' );
-		$other     = $this->make_post( '<!-- wp:jetpack/paypal-payment-buttons {"isApiManaged":true,"resourceId":"PLB-OTHER1"} /-->', 'post', 'Unrelated' );
+		$block     = '<!-- wp:jetpack/paypal-payment-buttons {"isApiManaged":true,"resourceId":"%s"} /-->';
+		$embedding = $this->make_post( sprintf( $block, 'PLB-ABC123' ), 'page', 'Shop' );
+		$draft     = $this->make_post( sprintf( $block, 'PLB-ABC123' ), 'post', 'Coming soon', 'draft' );
+		$other     = $this->make_post( sprintf( $block, 'PLB-OTHER1' ), 'post', 'Unrelated' );
+		$queries   = array();
 		add_filter(
 			'posts_pre_query',
-			function () use ( $embedding, $other ) {
+			function ( $pre, $query ) use ( $embedding, $draft, $other, &$queries ) {
+				$queries[] = $query->query_vars;
+				if ( '"resourceId":"PLB-ABC123"' === $query->get( 's' ) ) {
+					return array( $embedding, $draft );
+				}
 				return array( $embedding, $other );
-			}
+			},
+			10,
+			2
 		);
 
 		$_GET['action']      = 'view';
@@ -1060,10 +1073,62 @@ class PayPal_Admin_Page_Test extends TestCase {
 		$this->assertStringContainsString( 'Link Locations', $output );
 		$this->assertStringContainsString( '<td>Shop</td><td>Page</td>', $output );
 		$this->assertStringContainsString( 'post=' . $embedding->ID . '&#038;action=edit', $output );
-		$this->assertStringContainsString( esc_url( get_permalink( $embedding ) ), $output );
+		$this->assertStringContainsString( esc_url( get_permalink( $embedding ) ) . '" target="_blank" rel="noopener noreferrer">View</a>', $output );
+		$this->assertStringContainsString( '<td>[Draft] Coming soon</td><td>Post</td>', $output );
+		$this->assertStringContainsString( 'preview=true" target="_blank" rel="noopener noreferrer">Preview</a>', $output );
 		$this->assertStringNotContainsString( 'Unrelated', $output );
-		// The delete warning counts the same posts.
+		$this->assertStringNotContainsString( 'locations_page', $output );
+		// The delete warning still counts published posts only.
 		$this->assertStringContainsString( 'embedded in 1 published post', $output );
+
+		$location_queries = array_values( array_filter( $queries, fn( $vars ) => '"resourceId":"PLB-ABC123"' === $vars['s'] ) );
+		$this->assertCount( 1, $location_queries );
+		$this->assertContains( 'draft', $location_queries[0]['post_status'] );
+		$this->assertSame( PayPal_Admin_Page::EMBED_SCAN_LIMIT + 1, $location_queries[0]['posts_per_page'] );
+		$this->assertSame( 0, $location_queries[0]['offset'] );
+	}
+
+	/**
+	 * Test the detail view pages through the embedding posts beyond the scan cap.
+	 */
+	public function test_detail_view_pages_through_the_embedding_posts() {
+		$admin = $this->create_admin_user();
+		wp_set_current_user( $admin );
+
+		$this->set_up_connected_state();
+		$this->mock_get_resource_response( $this->get_sample_resource() );
+
+		$posts = array();
+		for ( $i = 0; $i <= PayPal_Admin_Page::EMBED_SCAN_LIMIT; $i++ ) {
+			$posts[] = $this->make_post( '<!-- wp:jetpack/paypal-payment-buttons {"isApiManaged":true,"resourceId":"PLB-ABC123"} /-->', 'post', 'Embed ' . $i );
+		}
+		$offsets = array();
+		add_filter(
+			'posts_pre_query',
+			function ( $pre, $query ) use ( $posts, &$offsets ) {
+				if ( '"resourceId":"PLB-ABC123"' !== $query->get( 's' ) ) {
+					return array();
+				}
+				$offsets[] = $query->get( 'offset' );
+				return $posts;
+			},
+			10,
+			2
+		);
+
+		$_GET['action']         = 'view';
+		$_GET['resource_id']    = 'PLB-ABC123';
+		$_GET['locations_page'] = '2';
+
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		$output = ob_get_clean();
+
+		$this->assertSame( array( PayPal_Admin_Page::EMBED_SCAN_LIMIT ), $offsets );
+		$this->assertSame( PayPal_Admin_Page::EMBED_SCAN_LIMIT, substr_count( $output, '<td>Embed ' ) );
+		$this->assertStringNotContainsString( '<td>Embed ' . PayPal_Admin_Page::EMBED_SCAN_LIMIT . '</td>', $output );
+		$this->assertStringContainsString( 'locations_page=1">&laquo; Previous</a>', $output );
+		$this->assertStringContainsString( 'locations_page=3">More &raquo;</a>', $output );
 	}
 
 	/**
@@ -1084,7 +1149,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 		PayPal_Admin_Page::render_page();
 		$output = ob_get_clean();
 
-		$this->assertStringContainsString( 'not used on any published post or page yet', $output );
+		$this->assertStringContainsString( 'not used on any post or page yet', $output );
 		$this->assertStringNotContainsString( 'paypal-link-locations', $output );
 	}
 
