@@ -16,7 +16,6 @@ const WATCHER_NAMESPACE = 'jetpack-woocommerce-stats/store-performance';
 
 const listeners = new Set< () => void >();
 let snapshot: StorePerformanceMetric[] | undefined;
-let watching = false;
 
 /**
  * Drop the cached list when the metrics filter gains or loses a registrant.
@@ -31,18 +30,18 @@ function onHookChange( hookName: string ) {
 	listeners.forEach( listener => listener() );
 }
 
+// Watched from load, not from the first subscription: React subscribes after the commit, and a
+// registrant that adds its filter in between would otherwise leave the cached list stale.
+addAction( 'hookAdded', WATCHER_NAMESPACE, onHookChange );
+addAction( 'hookRemoved', WATCHER_NAMESPACE, onHookChange );
+
 /**
- * Watch the metrics filter, once, and keep the listener until it unsubscribes.
+ * Keep the listener until it unsubscribes.
  *
  * @param {Function} listener - Called when the list changes.
  * @return {Function} Unsubscribes.
  */
 function subscribe( listener: () => void ) {
-	if ( ! watching ) {
-		watching = true;
-		addAction( 'hookAdded', WATCHER_NAMESPACE, onHookChange );
-		addAction( 'hookRemoved', WATCHER_NAMESPACE, onHookChange );
-	}
 	listeners.add( listener );
 
 	return () => {

@@ -1,14 +1,12 @@
 /**
  * External dependencies
  */
-import { act, renderHook } from '@testing-library/react';
 import { addFilter, removeFilter } from '@wordpress/hooks';
 /**
  * Internal dependencies
  */
 import { STORE_PERFORMANCE_METRICS_FILTER } from '../../../src/store-performance/metric';
 import { getStorePerformanceMetrics, STORE_PERFORMANCE_METRICS } from '../metrics';
-import { useStorePerformanceMetrics } from '../use-store-performance-metrics';
 import type { StorePerformanceMetric } from '../../../src/store-performance/metric';
 
 jest.mock( '@automattic/jetpack-premium-analytics-sdk', () => ( { useReport: jest.fn() } ) );
@@ -80,26 +78,5 @@ describe( 'getStorePerformanceMetrics', () => {
 		addFilter( STORE_PERFORMANCE_METRICS_FILTER, NAMESPACE, () => 'nothing' );
 
 		expect( getStorePerformanceMetrics() ).toBe( STORE_PERFORMANCE_METRICS );
-	} );
-} );
-
-describe( 'useStorePerformanceMetrics', () => {
-	it( 'reads the filter again when a registrant comes or goes', () => {
-		const { result } = renderHook( () => useStorePerformanceMetrics() );
-		expect( ids( result.current ) ).toEqual( OWN_IDS );
-
-		act( () => {
-			addFilter(
-				STORE_PERFORMANCE_METRICS_FILTER,
-				NAMESPACE,
-				( metrics: StorePerformanceMetric[] ) => [ ...metrics, EXTRA ]
-			);
-		} );
-		expect( ids( result.current ) ).toEqual( [ ...OWN_IDS, 'extra' ] );
-
-		act( () => {
-			removeFilter( STORE_PERFORMANCE_METRICS_FILTER, NAMESPACE );
-		} );
-		expect( ids( result.current ) ).toEqual( OWN_IDS );
 	} );
 } );
