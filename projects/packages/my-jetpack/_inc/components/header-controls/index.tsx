@@ -16,9 +16,7 @@ const HeaderControls: FC = () => (
 );
 
 /**
- * The value for `AdminPage`'s `globalControls`.
- *
- * Null while the `my-jetpack-header-controls` flag is off, since any element makes `Page` draw an actions row.
+ * The value for `AdminPage`'s `globalControls`: null while the `my-jetpack-header-controls` flag is off.
  *
  * @return The controls, or null.
  */
