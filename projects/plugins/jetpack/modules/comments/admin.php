@@ -120,6 +120,25 @@ class Jetpack_Comments_Settings {
 			array( $this, 'comment_form_greeting_sanitize' )
 		);
 
+		// The rebuilt comment form offers blocks and takes the theme's colors; the package may lag this file on a staged deploy.
+		if ( self::is_new_form() ) {
+			add_settings_field(
+				'enable_blocks_comments',
+				__( 'Allow Blocks', 'jetpack' ),
+				array( $this, 'allow_blocks_field' ),
+				'discussion',
+				'jetpack_comment_form'
+			);
+
+			register_setting(
+				'discussion',
+				'enable_blocks_comments',
+				array( $this, 'allow_blocks_sanitize' )
+			);
+
+			return;
+		}
+
 		/**
 		 * Color Scheme
 		 */
@@ -136,25 +155,15 @@ class Jetpack_Comments_Settings {
 			'jetpack_comment_form_color_scheme',
 			array( $this, 'comment_form_color_scheme_sanitize' )
 		);
+	}
 
-		// The rebuilt comment form is what offers blocks; the package may lag this file on a staged deploy.
-		if ( ! class_exists( Block_Editor::class ) || ! Comments::is_enabled() ) {
-			return;
-		}
-
-		add_settings_field(
-			'enable_blocks_comments',
-			__( 'Allow Blocks', 'jetpack' ),
-			array( $this, 'allow_blocks_field' ),
-			'discussion',
-			'jetpack_comment_form'
-		);
-
-		register_setting(
-			'discussion',
-			'enable_blocks_comments',
-			array( $this, 'allow_blocks_sanitize' )
-		);
+	/**
+	 * Whether the rebuilt Jetpack Comments form has taken over from the legacy one.
+	 *
+	 * @return bool
+	 */
+	private static function is_new_form() {
+		return class_exists( Block_Editor::class ) && Comments::is_enabled();
 	}
 
 	/**
@@ -189,7 +198,15 @@ class Jetpack_Comments_Settings {
 	public function comment_form_settings_section() {
 		?>
 
-		<p id="jetpack-comments-settings"><?php esc_html_e( 'Adjust your Comments form with a clever greeting and color-scheme.', 'jetpack' ); ?></p>
+		<p id="jetpack-comments-settings">
+			<?php
+			if ( self::is_new_form() ) {
+				esc_html_e( 'Adjust your Comments form with a clever greeting.', 'jetpack' );
+			} else {
+				esc_html_e( 'Adjust your Comments form with a clever greeting and color-scheme.', 'jetpack' );
+			}
+			?>
+		</p>
 
 		<?php
 	}

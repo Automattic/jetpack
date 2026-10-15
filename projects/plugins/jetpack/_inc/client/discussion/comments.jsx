@@ -136,25 +136,28 @@ class CommentsComponent extends Component {
 							<span className="jp-form-setting-explanation">
 								{ __( 'A few catchy words to motivate your visitors to comment.', 'jetpack' ) }
 							</span>
-							<FormLabel>
-								<span className="jp-form-label-wide">{ __( 'Color scheme', 'jetpack' ) }</span>
-								<FormSelect
-									name={ 'jetpack_comment_form_color_scheme' }
-									value={ this.props.getOptionValue( 'jetpack_comment_form_color_scheme' ) }
-									disabled={
-										! isCommentsActive ||
-										commentsUnavailableInOfflineMode ||
-										this.props.isSavingAnyOption( 'jetpack_comment_form_color_scheme' )
-									}
-									onChange={ this.props.onOptionChange }
-									{ ...this.props }
-									validValues={ this.props.validValues(
-										'jetpack_comment_form_color_scheme',
-										'comments'
-									) }
-									rna
-								/>
-							</FormLabel>
+							{ /* The rebuilt form, which is what offers blocks, takes the theme's colors. */ }
+							{ ! this.props.hasBlockEditor && (
+								<FormLabel>
+									<span className="jp-form-label-wide">{ __( 'Color scheme', 'jetpack' ) }</span>
+									<FormSelect
+										name={ 'jetpack_comment_form_color_scheme' }
+										value={ this.props.getOptionValue( 'jetpack_comment_form_color_scheme' ) }
+										disabled={
+											! isCommentsActive ||
+											commentsUnavailableInOfflineMode ||
+											this.props.isSavingAnyOption( 'jetpack_comment_form_color_scheme' )
+										}
+										onChange={ this.props.onOptionChange }
+										{ ...this.props }
+										validValues={ this.props.validValues(
+											'jetpack_comment_form_color_scheme',
+											'comments'
+										) }
+										rna
+									/>
+								</FormLabel>
+							) }
 						</FormFieldset>
 					</SettingsGroup>
 				) }
