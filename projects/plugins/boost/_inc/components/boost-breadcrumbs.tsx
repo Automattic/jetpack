@@ -18,7 +18,8 @@ export default function BoostBreadcrumbs( { subpage }: Props ) {
 		<>
 			<VisuallyHidden render={ <h1 /> }>{ title }</VisuallyHidden>
 			<Breadcrumb.Root
-				// Remount per page: the trail freezes its items while the overflow trigger has focus.
+				// Breadcrumb doesn't update while its "…" button has focus, so after a page change
+				// it could still show the previous page. Remounting on the title avoids that.
 				key={ title }
 				className="jetpack-boost-breadcrumbs"
 				aria-label={ __( 'Breadcrumbs', 'jetpack-boost' ) }

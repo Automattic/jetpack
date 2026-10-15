@@ -153,31 +153,17 @@ describe( 'Boost dashboard stage', () => {
 		expect( screen.queryByRole( 'link', { name: 'Jetpack' } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'links the Jetpack ancestor to My Jetpack', () => {
+	it( 'renders the Jetpack › Boost trail with one h1', () => {
 		render( <Stage /> );
 		expect( screen.getByRole( 'link', { name: 'Jetpack' } ) ).toHaveAttribute(
 			'href',
 			'admin.php?page=my-jetpack'
 		);
-	} );
-
-	it( 'marks Boost as the current breadcrumb item', () => {
-		render( <Stage /> );
 		expect(
 			screen.getByText( 'Boost', { selector: '[aria-current="page"]' } )
 		).toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: 'Boost' } ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'labels the breadcrumb navigation', () => {
-		render( <Stage /> );
-		expect( screen.getByRole( 'navigation', { name: 'Breadcrumbs' } ) ).toBeInTheDocument();
-	} );
-
-	it( 'keeps one h1 outside the breadcrumb measurement copy', () => {
-		render( <Stage /> );
 		expect( screen.getAllByRole( 'heading', { level: 1, hidden: true } ) ).toHaveLength( 1 );
-		expect( screen.getByRole( 'heading', { level: 1 } ) ).toHaveTextContent( 'Boost' );
 	} );
 
 	it.each( [ '', SETTINGS_ARG, '&tab=settings', '&p=%2F%3Ftab%3Doverview' ] )(

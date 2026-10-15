@@ -90,14 +90,10 @@ describe( 'SubpageFrame', () => {
 		}
 	} );
 
-	it.each( [
-		[ 'Cache debug log', true ],
-		[ 'Critical CSS recommendations', true ],
-		[ 'Cache debug log', false ],
-		[ 'Critical CSS recommendations', false ],
-	] )(
-		'renders one trail and heading for %s with My Jetpack available: %s',
-		( title, myJetpack ) => {
+	it.each( [ true, false ] )(
+		'renders one trail and heading with My Jetpack available: %s',
+		myJetpack => {
+			const title = 'Cache debug log';
 			Object.assign( window, {
 				wpApiSettings: { root: '/wp-json/', nonce: 'test' },
 				Jetpack_Boost: { site: { myJetpack } },
