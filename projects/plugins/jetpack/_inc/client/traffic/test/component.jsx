@@ -36,13 +36,14 @@ function enhancerToggle() {
  * State for a site that has the enhancer (plan feature + option registered),
  * varying the seo-tools module, Jetpack AI, and the AI SEO feature.
  *
- * @param {object}  _            - Options.
- * @param {boolean} _.seoToolsOn - Whether the seo-tools module is active.
- * @param {boolean} _.aiOn       - Whether Jetpack AI is effectively on.
- * @param {boolean} _.aiSeoOn    - Whether the AI SEO feature is effectively on.
+ * @param {object}  _             - Options.
+ * @param {boolean} _.seoToolsOn  - Whether the seo-tools module is active.
+ * @param {boolean} _.aiOn        - Whether Jetpack AI is effectively on.
+ * @param {boolean} _.aiSeoOn     - Whether the AI SEO feature is effectively on.
+ * @param {boolean} _.advancedSeo - Whether the plan includes advanced-seo.
  * @return {object} Initial redux state.
  */
-function buildInitialState( { seoToolsOn, aiOn = false, aiSeoOn = false } ) {
+function buildInitialState( { seoToolsOn, aiOn = false, aiSeoOn = false, advancedSeo = true } ) {
 	return {
 		jetpack: {
 			connection: {
@@ -83,7 +84,9 @@ function buildInitialState( { seoToolsOn, aiOn = false, aiSeoOn = false } ) {
 					description: '',
 					URL: 'https://example.com',
 					site: {
-						features: { active: [ 'ai-seo-enhancer', 'advanced-seo' ] },
+						features: {
+							active: [ 'ai-seo-enhancer', ...( advancedSeo ? [ 'advanced-seo' ] : [] ) ],
+						},
 					},
 					plan: { product_slug: 'jetpack_complete' },
 				},
@@ -155,4 +158,20 @@ describe( 'SEO card enhancer row explanation', () => {
 		expect( screen.queryByText( AI_SEO_OFF_MESSAGE ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( AI_OFF_MESSAGE ) ).not.toBeInTheDocument();
 	} );
+} );
+
+describe( 'SEO opt-in banner', () => {
+	afterEach( () => {
+		delete window.JetpackScriptData;
+	} );
+
+	it.each( [ true, false ] )(
+		'shows whether or not the plan includes advanced-seo (%s)',
+		advancedSeo => {
+			window.JetpackScriptData = { seo: { optin_available: true } };
+			renderSeo( buildInitialState( { seoToolsOn: true, advancedSeo } ) );
+
+			expect( screen.getByText( 'SEO has a new home' ) ).toBeInTheDocument();
+		}
+	);
 } );

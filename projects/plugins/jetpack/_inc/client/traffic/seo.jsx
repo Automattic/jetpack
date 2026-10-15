@@ -282,7 +282,7 @@ export const SEO = withModuleSettingsFormHelpers(
 
 			// Destructure feature out to ensure our explicit prop takes precedence
 			const { feature: _ignoredFeature, ...restProps } = this.props;
-			return (
+			const settingsCard = (
 				<SettingsCard
 					{ ...restProps }
 					header={ _x( 'Search engine optimization', 'Settings header', 'jetpack' ) }
@@ -291,7 +291,6 @@ export const SEO = withModuleSettingsFormHelpers(
 					saveDisabled={ this.props.isSavingAnyOption( this.constants.moduleOptionsArray ) }
 					hideButton={ hasConflictingSeoPlugin || ! hasSeoTools }
 				>
-					{ optInBanner && <div className="jp-settings-card__notice">{ optInBanner }</div> }
 					{ hasSeoTools && hasConflictingSeoPlugin && (
 						<div className="jp-settings-card__notice">
 							<SimpleNotice showDismiss={ false }>
@@ -528,6 +527,14 @@ export const SEO = withModuleSettingsFormHelpers(
 							</>
 						) }
 				</SettingsCard>
+			);
+
+			// Outside SettingsCard, which hides its children on plans without advanced-seo.
+			return (
+				<>
+					{ optInBanner }
+					{ settingsCard }
+				</>
 			);
 		}
 	}
