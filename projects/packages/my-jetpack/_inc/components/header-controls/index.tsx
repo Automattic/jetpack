@@ -1,19 +1,14 @@
 // eslint-disable-next-line @typescript-eslint/triple-slash-reference -- Same as header-data.ts: a package entry point.
 /// <reference path="../../../global.d.ts" />
-import { __ } from '@wordpress/i18n';
-import { Button } from '@wordpress/ui';
+import ConnectionControl from './connection-control';
 import type { FC, ReactNode } from 'react';
 
 /**
- * The shared header's global controls. A placeholder until the connection control (JETPACK-3052) replaces it.
+ * The shared header's global controls.
  *
  * @return The controls.
  */
-const HeaderControls: FC = () => (
-	<Button variant="outline" size="compact" disabled>
-		{ __( 'Connection', 'jetpack-my-jetpack' ) }
-	</Button>
-);
+const HeaderControls: FC = () => <ConnectionControl />;
 
 /**
  * The value for `AdminPage`'s `globalControls`.
