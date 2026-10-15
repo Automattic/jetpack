@@ -298,14 +298,14 @@ class Sync_Status_Tracker_Test extends TestCase {
 
 	public static function provide_full_sync_status_without_finished_analytics() {
 		return array(
-			'sync still running'         => array(
+			'sync still running'          => array(
 				array(
 					'started'  => 1730000000,
 					'finished' => false,
 					'progress' => array( 'woocommerce_analytics' => array( 'finished' => true ) ),
 				),
 			),
-			'finished without analytics' => array(
+			'finished without analytics'  => array(
 				array(
 					'started'  => 1730000000,
 					'finished' => 1730000123,
