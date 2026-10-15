@@ -21,6 +21,8 @@ use WP_REST_Server;
 use function current_user_can;
 use function delete_site_transient;
 use function esc_html__;
+use function function_exists;
+use function get_current_blog_id;
 use function get_site_transient;
 use function http_build_query;
 use function is_wp_error;
@@ -267,9 +269,17 @@ class REST_Controller {
 	 * standalone Backup plans are covered correctly, regardless of whether
 	 * backup credentials have been configured.
 	 *
+	 * On WordPress.com Simple sites the feature is checked locally instead.
+	 *
+	 * @since $$next-version$$ Checks the feature locally on WordPress.com Simple sites.
+	 *
 	 * @return bool True when the site has the full-activity-log feature.
 	 */
 	public static function has_activity_logs_access() {
+		if ( Jetpack_Activity_Log::is_wpcom_simple() ) {
+			return function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( 'full-activity-log', get_current_blog_id() );
+		}
+
 		$blog_id = (int) Jetpack_Options::get_option( 'id' );
 		if ( ! $blog_id ) {
 			return false;
