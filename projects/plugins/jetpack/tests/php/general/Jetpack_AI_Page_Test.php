@@ -386,7 +386,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 				),
 			)
 		);
-		update_option( 'jetpack_seo_surface_visible', $is_visible );
+		update_option( \Automattic\Jetpack\SEO\Initializer::VISIBILITY_OPTION, $is_visible );
 
 		$settings = $this->get_injected_settings();
 
