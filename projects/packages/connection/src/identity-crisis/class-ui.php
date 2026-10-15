@@ -70,6 +70,10 @@ class UI {
 			Assets::enqueue_script( 'jp_identity_crisis_banner' );
 			wp_add_inline_script( 'jp_identity_crisis_banner', static::get_initial_state(), 'before' );
 
+			// The Modal fallback needs this style; enqueue it explicitly rather than
+			// relying on transitive script-dependency resolution.
+			wp_enqueue_style( 'wp-components' );
+
 			add_action( 'admin_notices', array( static::class, 'render_container' ) );
 		}
 	}
