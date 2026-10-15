@@ -18,6 +18,7 @@ import {
 	CustomSelectControl,
 	Notice,
 	PanelBody,
+	Placeholder,
 	SelectControl,
 	Spinner,
 	TextControl,
@@ -60,6 +61,7 @@ import VariantBuilder, {
 import { useExistingLinks } from './hooks/use-existing-links';
 import { broadcastConnectionChange, usePayPalConnection } from './hooks/use-paypal-connection';
 import { usePayPalResource } from './hooks/use-paypal-resource';
+import PayPalIcon from './icon';
 import { API_BASE } from './utils/api-base';
 import { SUPPORTED_CURRENCIES } from './utils/currencies';
 import { CURRENCY_SYMBOLS, getPricePlaceholder, getPriceStep } from './utils/currency-symbols';
@@ -858,15 +860,18 @@ export default function ApiManagedEdit( {
 	if ( ! isConnected && ( ! hasButton || showReconnect ) ) {
 		return (
 			<div { ...blockProps }>
-				<div className="jetpack-paypal-payment-buttons__placeholder">
-					<h4>{ __( 'PayPal Payment Button', 'jetpack-paypal-payments' ) }</h4>
-					<p>
-						{ __(
-							'Log in to or create a PayPal business account to use payment buttons',
-							'jetpack-paypal-payments'
-						) }
-					</p>
-				</div>
+				<Placeholder
+					className="jetpack-paypal-payment-buttons__placeholder"
+					icon={ PayPalIcon }
+					label={ __( 'PayPal Payment Button', 'jetpack-paypal-payments' ) }
+				>
+					{ /* Copy goes in children: core hides instructions when the box is
+					     under 480px wide. */ }
+					{ __(
+						'Connect your PayPal business account to accept payments via PayPal.',
+						'jetpack-paypal-payments'
+					) }
+				</Placeholder>
 				<OnboardingFrame
 					signupUrl={ signupUrl }
 					isOverlayOpen={ isOverlayOpen }

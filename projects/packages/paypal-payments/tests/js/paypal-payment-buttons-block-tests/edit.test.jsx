@@ -13,6 +13,7 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { doActionAsync, removeAction, removeFilter } from '@wordpress/hooks';
+import { renderToStaticMarkup } from 'react-dom/server';
 import {
 	validateCustomerNotes,
 	validateVariants,
@@ -20,6 +21,7 @@ import {
 } from '../../../src/paypal-payment-buttons/components/variant-builder';
 import Edit from '../../../src/paypal-payment-buttons/edit';
 import { broadcastConnectionChange } from '../../../src/paypal-payment-buttons/hooks/use-paypal-connection';
+import PayPalIcon from '../../../src/paypal-payment-buttons/icon';
 import { forgetExistingLinks } from '../../../src/paypal-payment-buttons/utils/existing-links';
 import { forgetMerchantStatus } from '../../../src/paypal-payment-buttons/utils/merchant-status';
 import {
@@ -411,6 +413,17 @@ jest.mock( '@wordpress/components', () => ( {
 	PanelBody: ( { children, title, initialOpen } ) => (
 		<div data-testid="panel-body" data-title={ title } data-initial-open={ !! initialOpen }>
 			{ children }
+		</div>
+	),
+	// Like the real Placeholder, icon and label share one row, with children below.
+	// Drops instructions, so copy passed there fails the copy assertions.
+	Placeholder: ( { icon, label, className, children } ) => (
+		<div data-testid="placeholder" className={ className }>
+			<div>
+				{ icon }
+				{ label }
+			</div>
+			<div>{ children }</div>
 		</div>
 	),
 	// Like TextControl, the real SelectControl hands className and help to the
@@ -875,12 +888,20 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		it( 'puts the wizard in the sidebar and a placeholder on the canvas', async () => {
 			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
 
-			await expect(
-				screen.findByRole( 'heading', { name: 'PayPal Payment Button', level: 4 } )
-			).resolves.toBeInTheDocument();
+			const title = await screen.findByText( 'PayPal Payment Button' );
+			// The label row shows the logo, then the title.
+			expect( title.innerHTML ).toBe(
+				renderToStaticMarkup( <>{ PayPalIcon }PayPal Payment Button</> )
+			);
 			expect(
-				screen.getByText( 'Log in to or create a PayPal business account to use payment buttons' )
+				screen.queryByRole( 'heading', { name: 'PayPal Payment Button' } )
+			).not.toBeInTheDocument();
+			expect(
+				screen.getByText( 'Connect your PayPal business account to accept payments via PayPal.' )
 			).toBeInTheDocument();
+			expect( screen.getByTestId( 'placeholder' ) ).toHaveClass(
+				'jetpack-paypal-payment-buttons__placeholder'
+			);
 
 			const sidebar = within( screen.getByTestId( 'inspector-controls' ) );
 			expect(
@@ -7576,6 +7597,9 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			await expect( screen.findByText( /Get Your API Credentials/ ) ).resolves.toBeInTheDocument();
 			expect( screen.queryByTestId( 'paypal-button-preview' ) ).not.toBeInTheDocument();
+			expect(
+				screen.getByText( 'Connect your PayPal business account to accept payments via PayPal.' )
+			).toBeInTheDocument();
 		} );
 	} );
 
