@@ -34,6 +34,19 @@ describe( 'Protect dashboard stage', () => {
 		expect( mockApiFetch ).toHaveBeenCalledTimes( requests );
 	} );
 
+	it.each( [
+		[ 'shows the report in place of the tabs', { scan: { hasPlan: true, threats: [] } }, false ],
+		[ 'keeps the tabs without a Scan section', {}, true ],
+	] )( 'with threat ids in the URL, %s', ( _name, state, hasTabs ) => {
+		window.jetpackProtectDashboard = state;
+		mockUseSearch.mockReturnValue( { threats: '5' } );
+		render( <Stage /> );
+		delete window.jetpackProtectDashboard;
+
+		expect( screen.queryAllByRole( 'tab' ).length > 0 ).toBe( hasTabs );
+		expect( Boolean( screen.queryByText( 'No longer detected' ) ) ).toBe( ! hasTabs );
+	} );
+
 	it( 'switching tabs closes the threat inspector', async () => {
 		mockUseSearch.mockReturnValue( { threat: '7' } );
 		render( <Stage /> );
