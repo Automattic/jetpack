@@ -467,15 +467,13 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 	public static function provide_support_url_localization() {
 		$wpcom   = 'https://wordpress.com/support/stats/analyze-content-performance/#track-file-downloads';
 		$jetpack = 'https://jetpack.com/support/jetpack-stats/traffic-dashboard/#devices-stats';
-		$quote   = 'https://wordpress.com/support/stats/learn-insights-about-your-website/#:~:text=Tags';
 
 		return array(
-			'region kept'           => array( 'pt_BR', $wpcom, 'https://wordpress.com/pt-br/support/stats/analyze-content-performance/#track-file-downloads' ),
-			'region dropped'        => array( 'de_DE_formal', $wpcom, 'https://wordpress.com/de/support/stats/analyze-content-performance/#track-file-downloads' ),
-			'no stats translation'  => array( 'hi_IN', $wpcom, $wpcom ),
-			'english'               => array( 'en_US', $wpcom, $wpcom ),
-			'jetpack.com'           => array( 'zh_TW', $jetpack, $jetpack ),
-			'english text fragment' => array( 'zh_TW', $quote, $quote ),
+			'region kept'          => array( 'pt_BR', $wpcom, 'https://wordpress.com/pt-br/support/stats/analyze-content-performance/#track-file-downloads' ),
+			'region dropped'       => array( 'de_DE_formal', $wpcom, 'https://wordpress.com/de/support/stats/analyze-content-performance/#track-file-downloads' ),
+			'no stats translation' => array( 'hi_IN', $wpcom, $wpcom ),
+			'english'              => array( 'en_US', $wpcom, $wpcom ),
+			'jetpack.com'          => array( 'zh_TW', $jetpack, $jetpack ),
 		);
 	}
 

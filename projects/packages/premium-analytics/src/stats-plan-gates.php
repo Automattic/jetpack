@@ -306,8 +306,7 @@ const WPCOM_SUPPORT_LOCALES = array( 'ar', 'de', 'es', 'fr', 'he', 'id', 'it', '
  */
 function localize_stats_support_url( $url ) {
 	$prefix = 'https://wordpress.com/support/';
-	// A text fragment quotes English words, which a translated article does not contain.
-	if ( ! str_starts_with( $url, $prefix ) || str_contains( $url, '#:~:' ) ) {
+	if ( ! str_starts_with( $url, $prefix ) ) {
 		return $url;
 	}
 
