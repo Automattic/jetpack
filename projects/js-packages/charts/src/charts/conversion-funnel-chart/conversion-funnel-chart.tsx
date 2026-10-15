@@ -1,5 +1,5 @@
 import { useTooltip } from '@visx/tooltip';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { type FC, useRef, useMemo, useEffect, useState, useCallback, useContext } from 'react';
@@ -433,7 +433,12 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 									onFocus={ handlers?.onFocus }
 									role="button"
 									tabIndex={ getTabIndex( step.id ) }
-									aria-label={ step.label }
+									aria-label={ sprintf(
+										/* translators: 1: Funnel step name. 2: Conversion rate of the step, e.g. 71.1%. */
+										__( '%1$s, %2$s', 'jetpack-charts' ),
+										step.label,
+										formatPercentage( step.rate )
+									) }
 									aria-pressed={ isClicked }
 								>
 									<div
