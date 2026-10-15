@@ -69,7 +69,7 @@ function getStateModule( state: FeatureState ): MyJetpackModule | null {
  *                       its own card is still that card's, and must not surface here instead.
  * @param requested      - Switch key to the value asked of it.
  * @param hidden         - Modules that do not apply to the site, left out entirely.
- * @return Non-empty groups by label, each sorted by name, with every leftover module under Other, last.
+ * @return Non-empty groups by label, each sorted by name, with eligible ungrouped modules under Other, last.
  */
 export function groupMoreFeatures(
 	features: MainFeature[],
@@ -90,9 +90,10 @@ export function groupMoreFeatures(
 
 	// One pass over the name-sorted modules, so every group reads A to Z.
 	for ( const $module of Object.values( modules ).sort( compareModulesByName ) ) {
-		// The Modules screen hides the same legacy VaultPress stub.
+		// The Modules screen hides these legacy features too.
 		if (
 			$module.module === 'vaultpress' ||
+			$module.module === 'custom-content-types' ||
 			covered.has( $module.module ) ||
 			hidden.has( $module.module )
 		) {

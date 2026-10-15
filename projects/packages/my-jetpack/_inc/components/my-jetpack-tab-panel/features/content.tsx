@@ -361,16 +361,13 @@ function FeaturesTabContent() {
 	);
 	const openIndex = stepOrder.findIndex( feature => feature.slug === openSlug );
 
-	// Neither read has anything to say yet: a seed-only catalog is not a failure to load
-	// one, and features whose modules are still in flight all read inactive, which would
-	// otherwise announce "nothing is active" on a site with plenty on.
-	// Only the status filters wait on the modules: a search or a plan filter is already
-	// a settled answer once the catalog is here, and an unreachable module read would
-	// otherwise leave those two with no message at all.
-	const onStatus = filter === 'active' || filter === 'inactive';
+	// Hold back "no matches" until module data arrives: before then every feature reads as
+	// inactive and unavailable, so Active and Available can wrongly come up empty. A search ignores the filter.
+	const onModules =
+		filter === 'active' || filter === 'inactive' || ( filter === 'available' && ! search.trim() );
 	const settling =
 		( mainFeatures.isPlaceholderData && mainFeatures.features.length === 0 ) ||
-		( onStatus && states.some( state => state.pending ) ) ||
+		( onModules && states.some( state => state.pending ) ) ||
 		( ( Boolean( moduleTag ) || legacySearch ) && ! modulesLoaded );
 
 	return (
