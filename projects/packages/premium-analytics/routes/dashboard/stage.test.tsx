@@ -776,7 +776,6 @@ describe( 'Dashboard feedback banner', () => {
 
 		expect( screen.queryByTestId( 'dashboard-notices' ) ).not.toBeInTheDocument();
 	} );
-
 } );
 
 describe( 'Dashboard options menu', () => {
