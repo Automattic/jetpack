@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { Badge, Button, LinkButton } from '@wordpress/ui';
+import { Badge, Button, ButtonLink } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { useModuleActivation } from '../../module-toggle';
 import { getSwitchLabel } from '../utils';
@@ -144,14 +144,14 @@ export function FeatureModalActions( { state }: FeatureModalActionsProps ) {
 	return (
 		<>
 			{ isActive && feature.manage_url ? (
-				<LinkButton
+				<ButtonLink
 					href={ feature.manage_url }
 					variant="solid"
 					size="compact"
 					onClick={ onManageClick }
 				>
 					{ __( 'Open', 'jetpack-my-jetpack' ) }
-				</LinkButton>
+				</ButtonLink>
 			) : null }
 
 			{ forcedReason ? <Badge intent="medium">{ forcedReason }</Badge> : null }

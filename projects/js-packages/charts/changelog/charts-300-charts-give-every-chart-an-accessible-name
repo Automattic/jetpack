@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Give the geo, leaderboard, conversion funnel and bar list charts an accessible name, and accept `ariaLabel` on every chart except Sparkline.

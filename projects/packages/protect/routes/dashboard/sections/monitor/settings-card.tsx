@@ -30,8 +30,9 @@ export default function MonitorSettingsCard( { state, settings }: MonitorContext
 				}
 				setIsEnabling( true );
 				try {
-					await save( patch, path );
+					const saved = await save( patch, path );
 					await refresh( [ 'monitor_receive_notifications' ] );
+					return saved;
 				} finally {
 					setIsEnabling( false );
 				}

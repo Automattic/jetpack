@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Dashboard: Fix error notices shown after deleting or trashing a form, even though it succeeded.
