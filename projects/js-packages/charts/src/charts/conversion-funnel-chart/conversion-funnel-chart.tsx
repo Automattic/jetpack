@@ -40,7 +40,14 @@ const formatStepCount = ( count: number ) =>
 	);
 
 const getDefaultStepDescription = ( step: FunnelStep ) =>
-	step.count === undefined ? '' : formatStepCount( step.count );
+	step.count === undefined
+		? formatPercentage( step.rate )
+		: sprintf(
+				/* translators: 1: Conversion rate of a funnel step, e.g. 71.1%. 2: Its item count, e.g. "7,110 items". */
+				__( '%1$s, %2$s', 'jetpack-charts' ),
+				formatPercentage( step.rate ),
+				formatStepCount( step.count )
+			);
 
 /**
  * Internal ConversionFunnelChart component with chart registration
@@ -61,7 +68,7 @@ const getDefaultStepDescription = ( step: FunnelStep ) =>
  * @param props.renderMainMetric   - Custom render function for the entire main metric section
  * @param props.renderTooltip      - Custom render function for tooltip content
  * @param props.tooltipStyle       - Inline styles merged over the tooltip box defaults
- * @param props.getStepDescription - Plain text screen readers read after each step's name
+ * @param props.getStepDescription - Plain text screen readers read after each step's name, matching its tooltip
  * @return JSX element representing the conversion funnel chart
  */
 const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
@@ -468,12 +475,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 									onFocus={ handlers?.onFocus }
 									role="button"
 									tabIndex={ getTabIndex( step.id ) }
-									aria-label={ sprintf(
-										/* translators: 1: Funnel step name. 2: Conversion rate of the step, e.g. 71.1%. */
-										__( '%1$s, %2$s', 'jetpack-charts' ),
-										step.label,
-										formatPercentage( step.rate )
-									) }
+									aria-label={ step.label }
 									aria-pressed={ isClicked }
 									aria-describedby={ description ? descriptionId : undefined }
 								>

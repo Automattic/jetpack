@@ -314,17 +314,11 @@ describe( 'ConversionFunnelChart', () => {
 			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
 
 			expect( screen.getByRole( 'toolbar', { name: 'Funnel steps' } ) ).toContainElement(
-				screen.getByRole( 'button', { name: /^Cart,/ } )
+				screen.getByRole( 'button', { name: 'Cart' } )
 			);
 		} );
 
-		it( 'names each step with its label and rate', () => {
-			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
-
-			expect( screen.getByRole( 'button', { name: 'Cart, 71.1%' } ) ).toBeInTheDocument();
-		} );
-
-		it( 'describes each step with its count by default', () => {
+		it( 'describes each step with what its default tooltip shows', () => {
 			renderWithoutTheme(
 				<ConversionFunnelChart
 					mainRate={ 50 }
@@ -332,10 +326,10 @@ describe( 'ConversionFunnelChart', () => {
 				/>
 			);
 
-			expect( screen.getByRole( 'button', { name: /^Cart,/ } ) ).toHaveAccessibleDescription(
-				'7,110 items'
+			expect( screen.getByRole( 'button', { name: 'Cart' } ) ).toHaveAccessibleDescription(
+				'71.1%, 7,110 items'
 			);
-			expect( screen.getByRole( 'button', { name: /^None,/ } ) ).not.toHaveAccessibleDescription();
+			expect( screen.getByRole( 'button', { name: 'None' } ) ).toHaveAccessibleDescription( '50%' );
 		} );
 
 		it( 'describes each step with getStepDescription when given', () => {
@@ -343,7 +337,7 @@ describe( 'ConversionFunnelChart', () => {
 				<ConversionFunnelChart { ...defaultProps } getStepDescription={ getStepDescription } />
 			);
 
-			expect( screen.getByRole( 'button', { name: /^Cart,/ } ) ).toHaveAccessibleDescription(
+			expect( screen.getByRole( 'button', { name: 'Cart' } ) ).toHaveAccessibleDescription(
 				'1: cart'
 			);
 		} );
@@ -352,9 +346,9 @@ describe( 'ConversionFunnelChart', () => {
 			const user = userEvent.setup();
 			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
 
-			await user.click( screen.getByRole( 'button', { name: /^Cart,/ } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Cart' } ) );
 
-			expect( screen.getByRole( 'button', { name: /^Cart,/, pressed: true } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: 'Cart', pressed: true } ) ).toBeInTheDocument();
 			expect( screen.getAllByRole( 'button', { pressed: false } ) ).toHaveLength( 3 );
 		} );
 	} );
@@ -375,7 +369,7 @@ describe( 'ConversionFunnelChart', () => {
 
 			screen.getByRole( 'button', { name: 'Before' } ).focus();
 			await user.tab();
-			expect( screen.getByRole( 'button', { name: /^Sessions,/ } ) ).toHaveFocus();
+			expect( screen.getByRole( 'button', { name: 'Sessions' } ) ).toHaveFocus();
 
 			await user.tab();
 			expect( screen.getByRole( 'button', { name: 'After' } ) ).toHaveFocus();
@@ -385,25 +379,25 @@ describe( 'ConversionFunnelChart', () => {
 			const user = userEvent.setup();
 			renderBetweenButtons();
 
-			focus( screen.getByRole( 'button', { name: /^Sessions,/ } ) );
+			focus( screen.getByRole( 'button', { name: 'Sessions' } ) );
 			await user.keyboard( '{ArrowRight}{ArrowRight}' );
 			await user.tab();
 			await user.tab( { shift: true } );
 
-			expect( screen.getByRole( 'button', { name: /^Checkout,/ } ) ).toHaveFocus();
+			expect( screen.getByRole( 'button', { name: 'Checkout' } ) ).toHaveFocus();
 		} );
 
 		it( 'reaches every step with the arrow keys after a step is selected', async () => {
 			const user = userEvent.setup();
 			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
 
-			focus( screen.getByRole( 'button', { name: /^Cart,/ } ) );
+			focus( screen.getByRole( 'button', { name: 'Cart' } ) );
 			await user.keyboard( '{Enter}{ArrowRight}{ArrowRight}' );
-			expect( screen.getByRole( 'button', { name: /^Purchase,/ } ) ).toHaveFocus();
+			expect( screen.getByRole( 'button', { name: 'Purchase' } ) ).toHaveFocus();
 
 			await user.keyboard( '{ArrowLeft}{ArrowLeft}{ArrowLeft}' );
-			expect( screen.getByRole( 'button', { name: /^Sessions,/ } ) ).toHaveFocus();
-			expect( screen.getByRole( 'button', { name: /^Cart,/, pressed: true } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: 'Sessions' } ) ).toHaveFocus();
+			expect( screen.getByRole( 'button', { name: 'Cart', pressed: true } ) ).toBeInTheDocument();
 		} );
 
 		it.each( [
@@ -415,10 +409,10 @@ describe( 'ConversionFunnelChart', () => {
 			const user = userEvent.setup();
 			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
 
-			focus( screen.getByRole( 'button', { name: new RegExp( `^${ from },` ) } ) );
+			focus( screen.getByRole( 'button', { name: from } ) );
 			await user.keyboard( keys );
 
-			expect( screen.getByRole( 'button', { name: new RegExp( `^${ to },` ) } ) ).toHaveFocus();
+			expect( screen.getByRole( 'button', { name: to } ) ).toHaveFocus();
 		} );
 
 		it( 'swaps Left and Right in a right-to-left layout', async () => {
@@ -427,17 +421,17 @@ describe( 'ConversionFunnelChart', () => {
 				<ConversionFunnelChart { ...defaultProps } style={ { direction: 'rtl' } } />
 			);
 
-			focus( screen.getByRole( 'button', { name: /^Sessions,/ } ) );
+			focus( screen.getByRole( 'button', { name: 'Sessions' } ) );
 			await user.keyboard( '{ArrowLeft}' );
 
-			expect( screen.getByRole( 'button', { name: /^Cart,/ } ) ).toHaveFocus();
+			expect( screen.getByRole( 'button', { name: 'Cart' } ) ).toHaveFocus();
 		} );
 
 		it( 'clears the selection on Escape and keeps focus on the step', async () => {
 			const user = userEvent.setup();
 			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
 
-			const cart = screen.getByRole( 'button', { name: /^Cart,/ } );
+			const cart = screen.getByRole( 'button', { name: 'Cart' } );
 			focus( cart );
 			await user.keyboard( '{Enter}{Escape}' );
 

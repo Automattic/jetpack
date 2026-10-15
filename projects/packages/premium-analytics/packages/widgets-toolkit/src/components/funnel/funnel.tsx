@@ -81,25 +81,29 @@ export function Funnel( {
 	);
 	const errorState = useMemo( () => resolveWidgetStateError( error, refetch ), [ error, refetch ] );
 
+	const conversionRateLabel = __( 'Conversion rate', 'jetpack-premium-analytics-pkg' );
+
+	// Reads the tooltip's rows as a sentence, so screen readers hear what the tooltip shows.
 	const getStepDescription = useCallback(
-		( step: { count?: number }, index: number ) => {
-			const { type, options } = exactFormatOf( format );
-			const firstCount = chartSteps[ 0 ]?.count;
-			if ( step.count === undefined ) {
-				return '';
-			}
-			const count = formatMetricValue( step.count, type, options );
-			if ( index === 0 || firstCount === undefined ) {
+		( step: { count?: number; rate: number }, index: number ) => {
+			const countFormat = exactFormatOf( format );
+			const count =
+				step.count === undefined
+					? __( 'No data', 'jetpack-premium-analytics-pkg' )
+					: formatMetricValue( step.count, countFormat.type, countFormat.options );
+			if ( index === 0 ) {
 				return count;
 			}
+			const rateFormat = exactFormatOf( RATE_FORMAT );
 			return sprintf(
-				/* translators: 1: Number that reached a funnel step, e.g. "310". 2: Number at the funnel's first step, e.g. "1,250". */
-				__( '%1$s of %2$s', 'jetpack-premium-analytics-pkg' ),
+				/* translators: 1: Number that reached a funnel step, e.g. "310". 2: The "Conversion rate" label. 3: The step's conversion rate, e.g. "24.8%". */
+				__( '%1$s, %2$s %3$s', 'jetpack-premium-analytics-pkg' ),
 				count,
-				formatMetricValue( firstCount, type, options )
+				conversionRateLabel,
+				formatMetricValue( step.rate / 100, rateFormat.type, rateFormat.options )
 			);
 		},
-		[ chartSteps, format ]
+		[ conversionRateLabel, format ]
 	);
 
 	return (
@@ -139,7 +143,7 @@ export function Funnel( {
 						{ index > 0 && (
 							<TooltipRow
 								indicator={ null }
-								label={ __( 'Conversion rate', 'jetpack-premium-analytics-pkg' ) }
+								label={ conversionRateLabel }
 								value={ step.rate / 100 }
 								dataFormat={ RATE_FORMAT }
 							/>
