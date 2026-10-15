@@ -147,7 +147,8 @@ Two local REST surfaces; almost all data comes from WordPress.com via one agnost
 `manage_options` is always accepted too. `POST` is rejected (`405 rest_read_only`) outside the
 Writes column. Query params pass through except control params (`endpoint`, `version`,
 `force_refresh`) and `site`. Successful `GET`s are cached 5 min (key: path+version+params); add
-`force_refresh` to bypass. `x-wp-total` / `x-wp-totalpages` are forwarded back. Errors:
+`force_refresh` to bypass. A dashboard load returning from a Stats checkout (`statsPurchaseSuccess`)
+drops every cached read, and the cached notices. `x-wp-total` / `x-wp-totalpages` are forwarded back. Errors:
 `403 no_connection`, `500`/`502 api_error`, `405 rest_read_only`, `401`/`403` on a failed cap.
 
 The `jetpack-stats` write is the one body the proxy rewrites: it gains the submitting user's

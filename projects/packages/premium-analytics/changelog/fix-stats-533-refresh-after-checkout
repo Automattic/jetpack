@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Refresh the plan and the cached Stats data on the dashboard load a Stats checkout returns to.

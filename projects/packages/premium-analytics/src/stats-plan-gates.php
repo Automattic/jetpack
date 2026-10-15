@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -302,7 +303,7 @@ function get_stats_feature_copy( $feature ) {
  * @return string The URL, or an empty string when there is nowhere to buy it.
  */
 function get_stats_upgrade_url( $feature, $tier ) {
-	$return_path = 'admin.php?page=' . Analytics::MENU_PAGE_SLUG . '&jpa_purchased=1';
+	$return_path = 'admin.php?page=' . Analytics::MENU_PAGE_SLUG;
 
 	if ( STATS_TIER_JETPACK_FREE === $tier ) {
 		// The purchase flow lives in Odyssey Stats; with it off, `page=stats` shows only an opt-in notice.
@@ -375,6 +376,7 @@ function get_stats_plan_gates() {
 function configure_stats_plan_gates() {
 	add_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_stats_plan_gates_script_data', 20 );
 	add_action( 'admin_init', __NAMESPACE__ . '\\maybe_refresh_jetpack_plan' );
+	add_action( 'admin_init', __NAMESPACE__ . '\\maybe_invalidate_stats_caches' );
 }
 
 /**
@@ -418,6 +420,35 @@ const EMPTY_PLAN_REFRESH_TRANSIENT = 'jetpack_premium_analytics_empty_plan_refre
 const PURCHASE_PLAN_REFRESH_TRANSIENT = 'jetpack_premium_analytics_purchase_plan_refresh';
 
 /**
+ * Whether this request returns from the Stats purchase flow, which marks its return with `statsPurchaseSuccess`.
+ *
+ * @since $$next-version$$
+ *
+ * @return bool
+ */
+function is_stats_purchase_return() {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only trigger: it only re-reads the site's own plan and Stats data.
+	return isset( $_GET['statsPurchaseSuccess'] );
+}
+
+/**
+ * Drops the cached Stats replies a checkout made stale, before the dashboard it returns to asks for them.
+ *
+ * @since $$next-version$$
+ *
+ * @return void
+ */
+function maybe_invalidate_stats_caches() {
+	// Simple serves the dashboard from WordPress.com, with neither cache.
+	if ( ! Analytics::is_dashboard_request() || ! is_stats_purchase_return() || ( new Host() )->is_wpcom_simple() ) {
+		return;
+	}
+
+	Api_Proxy_Controller::invalidate_cache();
+	delete_transient( Notices::NOTICES_CACHE_KEY );
+}
+
+/**
  * Refreshes a self-hosted site's cached plan on the dashboard when it is empty or a checkout just returned.
  *
  * Script data is final once printed, so the gates can only change before it.
@@ -431,8 +462,7 @@ function maybe_refresh_jetpack_plan() {
 		return;
 	}
 
-	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only trigger: it only re-reads the site's own plan.
-	if ( ! empty( $_GET['jpa_purchased'] ) ) {
+	if ( is_stats_purchase_return() ) {
 		$transient = PURCHASE_PLAN_REFRESH_TRANSIENT;
 		$ttl       = MINUTE_IN_SECONDS;
 	} elseif ( ! has_cached_jetpack_plan() ) {

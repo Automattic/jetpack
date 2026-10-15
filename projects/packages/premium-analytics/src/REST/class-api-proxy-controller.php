@@ -65,6 +65,13 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	private const CACHE_GENERATIONS_OPTION = 'jetpack_premium_analytics_proxy_cache_generations';
 
 	/**
+	 * The generations entry that every cached read is keyed under, whatever its scope.
+	 *
+	 * @var string
+	 */
+	private const ALL_SCOPES = '*';
+
+	/**
 	 * Timeout for the outbound WPCOM request, in seconds.
 	 *
 	 * @var int
@@ -538,20 +545,37 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * The current generation of a cache scope, or '' for an unscoped read.
+	 * Make every cached read stale, as when a purchase changes what WPCOM returns.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function invalidate_cache(): void {
+		self::bump_cache_generation( self::ALL_SCOPES );
+	}
+
+	/**
+	 * The generations a read's cache key carries: every read's, then its scope's, or '' when neither applies.
 	 *
 	 * @param string|null $scope The `invalidates` entry covering the read.
 	 *
 	 * @return string
 	 */
 	private function cache_generation( ?string $scope ): string {
-		if ( null === $scope ) {
-			return '';
+		$generations = get_option( self::CACHE_GENERATIONS_OPTION, array() );
+		$generations = is_array( $generations ) ? $generations : array();
+
+		$parts = array();
+		// Left out until first bumped, so keys cached before it existed stay valid.
+		if ( ! empty( $generations[ self::ALL_SCOPES ] ) ) {
+			$parts[] = self::ALL_SCOPES . ':' . (int) $generations[ self::ALL_SCOPES ];
+		}
+		if ( null !== $scope ) {
+			$parts[] = $scope . ':' . (int) ( $generations[ $scope ] ?? 0 );
 		}
 
-		$generations = get_option( self::CACHE_GENERATIONS_OPTION, array() );
-
-		return $scope . ':' . (int) ( is_array( $generations ) ? ( $generations[ $scope ] ?? 0 ) : 0 );
+		return implode( '|', $parts );
 	}
 
 	/**
@@ -561,7 +585,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 *
 	 * @return void
 	 */
-	private function bump_cache_generation( string $scope ): void {
+	private static function bump_cache_generation( string $scope ): void {
 		$scope       = strtolower( $scope );
 		$generations = get_option( self::CACHE_GENERATIONS_OPTION, array() );
 		$generations = is_array( $generations ) ? $generations : array();
@@ -589,7 +613,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 			&& null === $request->get_param( 'force_refresh' );
 
 		$cache_key = $cacheable
-			? $this->cache_key_for( $wpcom_path, $version, $base, $this->get_forwarded_params( $request ), $this->cache_generation( $opts['cache_scope'] ?? null ) )
+			? $this->cache_key_for( $wpcom_path, $version, $base, $this->get_forwarded_params( $request ), $opts['cache_scope'] ?? null )
 			: null;
 		if ( null !== $cache_key ) {
 			$cached = get_transient( $cache_key );
@@ -734,7 +758,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		}
 
 		foreach ( $opts['invalidates'] ?? array() as $scope ) {
-			$this->bump_cache_generation( $scope );
+			self::bump_cache_generation( $scope );
 		}
 	}
 
@@ -851,17 +875,18 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 * Transient key for a target path + API version/base + forwarded params (order-independent).
 	 * Version and base are part of the key so the same path at different versions doesn't collide.
 	 *
-	 * @param string $wpcom_path WPCOM path without the forwarded query string.
-	 * @param string $version    WPCOM API version.
-	 * @param string $base       WPCOM API base.
-	 * @param array  $params     Forwarded query params.
-	 * @param string $generation The read's cache-scope generation; '' for an unscoped read.
+	 * @param string      $wpcom_path WPCOM path without the forwarded query string.
+	 * @param string      $version    WPCOM API version.
+	 * @param string      $base       WPCOM API base.
+	 * @param array       $params     Forwarded query params.
+	 * @param string|null $scope      The `invalidates` entry covering the read, if any.
 	 *
 	 * @return string
 	 */
-	private function cache_key_for( string $wpcom_path, string $version, string $base, array $params, string $generation = '' ): string {
+	private function cache_key_for( string $wpcom_path, string $version, string $base, array $params, ?string $scope = null ): string {
 		ksort( $params );
-		$parts = array( $wpcom_path, $version, $base, (string) wp_json_encode( $params, JSON_UNESCAPED_SLASHES ) );
+		$generation = $this->cache_generation( $scope );
+		$parts      = array( $wpcom_path, $version, $base, (string) wp_json_encode( $params, JSON_UNESCAPED_SLASHES ) );
 		if ( '' !== $generation ) {
 			$parts[] = $generation;
 		}
