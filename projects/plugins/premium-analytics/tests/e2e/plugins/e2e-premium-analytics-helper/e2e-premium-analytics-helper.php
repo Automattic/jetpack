@@ -9,6 +9,7 @@
  * @package automattic/jetpack-premium-analytics-plugin
  */
 
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\PremiumAnalytics\Enablement_Setting;
 
 const E2E_PA_SITE_ID = 1234567;
@@ -95,18 +96,19 @@ function e2e_pa_set_site_state( $request ) {
 	);
 	Automattic\Jetpack\Current_Plan::refresh_from_wpcom();
 
-	$modules = array(
+	$modules         = array(
 		'stats'         => true,
 		'subscriptions' => $request['subscriptions'],
 		'wordads'       => $request['wordads'],
 	);
+	$jetpack_modules = new Modules();
 	foreach ( $modules as $module => $active ) {
 		if ( $active ) {
-			Jetpack::activate_module( $module, false, false );
+			$jetpack_modules->activate( $module, false, false );
 		} else {
-			Jetpack::deactivate_module( $module );
+			$jetpack_modules->deactivate( $module );
 		}
-		if ( Jetpack::is_module_active( $module ) !== $active ) {
+		if ( $jetpack_modules->is_active( $module ) !== $active ) {
 			return new WP_Error( 'e2e_pa_module_state', sprintf( 'The %s module did not turn %s.', $module, $active ? 'on' : 'off' ), array( 'status' => 500 ) );
 		}
 	}
