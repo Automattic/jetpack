@@ -64,7 +64,7 @@ function stylesSidebarLabels() {
 			[
 				'Manage the fonts and typography used on links.',
 				_x(
-					'Links inside your post. Footer links take their color from Default text.',
+					'Links inside your post. Links in the header, post title and footer follow the text around them instead.',
 					'email design styles',
 					'jetpack'
 				),

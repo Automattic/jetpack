@@ -2142,6 +2142,22 @@ describe( 'Email design editor entry point', () => {
 			).toContain( 'Links inside your post' );
 		} );
 
+		it( 'keeps colour off the screens that have no colour control', () => {
+			// Only Default text carries a Color panel; for the rest colour lives in the separate
+			// Colors section, so naming it here describes a control that is not on screen. NL-1052.
+			const described = source => relabelStylesSidebar( source, source );
+
+			expect( described( 'Manage the fonts and typography used on links.' ) ).not.toContain(
+				'color'
+			);
+			expect( described( 'Manage the fonts and typography used on buttons.' ) ).not.toContain(
+				'color'
+			);
+			expect( described( 'Manage the fonts and typography used on headings.' ) ).not.toContain(
+				'color'
+			);
+		} );
+
 		it( 'says that the byline and footer take only the default colour', () => {
 			const described = relabelStylesSidebar(
 				'Manage the fonts and typography used on text.',
