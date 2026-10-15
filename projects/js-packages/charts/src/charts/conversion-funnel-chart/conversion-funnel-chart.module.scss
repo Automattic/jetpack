@@ -52,13 +52,28 @@
 	height: 100%;
 
 	&--animated {
-		transition:
-			opacity var(--wpds-motion-duration-lg)
-			var(--wpds-motion-easing-subtle);
+
+		.step-text,
+		.funnel-bar,
+		.bar-container {
+			transition:
+				opacity var(--wpds-motion-duration-lg) var(--wpds-motion-easing-subtle),
+				background-color var(--wpds-motion-duration-lg) var(--wpds-motion-easing-subtle);
+		}
 	}
 
+	// Dim the contents, not the step: opacity on an ancestor would also fade
+	// the bar's focus ring.
 	&--blurred {
-		opacity: 0.3;
+
+		.step-text,
+		.funnel-bar {
+			opacity: 0.3;
+		}
+
+		.bar-container {
+			background-color: color-mix(in sRGB, var(--a8c-charts-color-surface-secondary) 30%, transparent);
+		}
 	}
 }
 
