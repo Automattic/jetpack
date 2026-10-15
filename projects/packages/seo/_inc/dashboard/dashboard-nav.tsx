@@ -6,7 +6,7 @@ import { Icon, Popover, Tabs, VisuallyHidden } from '@wordpress/ui';
 import { isGated } from '../data/is-gated';
 import type { ReactNode } from 'react';
 
-export type SeoTab = 'overview' | 'settings' | 'content' | 'ai';
+export type SeoTab = 'overview' | 'settings' | 'content' | 'geo';
 
 // Each tab is its own wp-build route; selecting one navigates there. Overview is
 // the default route, so it lives at the bare page URL (`/`).
@@ -14,7 +14,7 @@ const ROUTE_BY_TAB: Record< SeoTab, string > = {
 	overview: '/',
 	settings: '/settings',
 	content: '/content',
-	ai: '/ai',
+	geo: '/geo',
 };
 
 const geoInfotipLabel = __( 'What is GEO?', 'jetpack-seo' );
@@ -88,7 +88,7 @@ const DashboardNav = ( { active, children }: { active: SeoTab; children: ReactNo
 
 	const onTabChange = useCallback(
 		( next: string | null ) => {
-			if ( next === 'overview' || next === 'settings' || next === 'content' || next === 'ai' ) {
+			if ( next === 'overview' || next === 'settings' || next === 'content' || next === 'geo' ) {
 				navigate( { href: ROUTE_BY_TAB[ next ] } );
 			}
 		},
@@ -103,7 +103,7 @@ const DashboardNav = ( { active, children }: { active: SeoTab; children: ReactNo
 					<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-seo' ) }</Tabs.Tab>
 					{ ! gated && <Tabs.Tab value="content">{ __( 'Content', 'jetpack-seo' ) }</Tabs.Tab> }
 					{ ! gated && (
-						<Tabs.Tab value="ai">
+						<Tabs.Tab value="geo">
 							{ _x(
 								'GEO',
 								'Generative Engine Optimization; the SEO dashboard tab label',

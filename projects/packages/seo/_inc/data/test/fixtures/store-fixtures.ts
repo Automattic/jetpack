@@ -1,4 +1,4 @@
-import { AI_PATH, OVERVIEW_PATH, SETTINGS_PATH } from '../../get-preloaded';
+import { GEO_PATH, OVERVIEW_PATH, SETTINGS_PATH } from '../../get-preloaded';
 import { makeSchemaSettings } from './schema-settings-fixtures';
 import type { AiState } from '../../ai-types';
 import type { ContentCoverage } from '../../overview-types';
@@ -41,7 +41,7 @@ export const SEEDED_SETTINGS: SettingsResponse = {
 	schema: SEEDED_SCHEMA,
 };
 
-export const SEEDED_AI: AiState = {
+export const SEEDED_GEO: AiState = {
 	enhancer: { available: true, enabled: false, aiSeoEnabled: true },
 	llmsTxt: { enabled: false, url: 'https://example.com/llms.txt', canServe: true },
 	crawlers: {
@@ -81,7 +81,7 @@ export const SEEDED_AI: AiState = {
 		preload: {
 			[ OVERVIEW_PATH ]: { body: { content_coverage: SEEDED_COVERAGE } },
 			[ SETTINGS_PATH ]: { body: SEEDED_SETTINGS },
-			[ AI_PATH ]: { body: SEEDED_AI },
+			[ GEO_PATH ]: { body: SEEDED_GEO },
 		},
 	},
 };

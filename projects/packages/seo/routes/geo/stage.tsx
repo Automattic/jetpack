@@ -5,22 +5,22 @@ import DashboardLoadError from '../../_inc/components/dashboard-load-error';
 import DashboardSkeleton from '../../_inc/components/dashboard-skeleton';
 import SeoDisabledStage from '../../_inc/components/seo-disabled-stage';
 import DashboardPage from '../../_inc/dashboard/dashboard-page';
-import { aiStore } from '../../_inc/data/ai-store';
+import { geoStore } from '../../_inc/data/geo-store';
 import getOverview from '../../_inc/data/get-overview';
-import { AI_PATH, OVERVIEW_PATH } from '../../_inc/data/get-preloaded';
+import { GEO_PATH, OVERVIEW_PATH } from '../../_inc/data/get-preloaded';
 import { isGated } from '../../_inc/data/is-gated';
 import isSeoToolsActive from '../../_inc/data/is-seo-tools-active';
 import { settingsStore } from '../../_inc/data/settings-store';
 import { useAiForm } from '../../_inc/data/use-ai';
 import useEnsureTabData from '../../_inc/data/use-ensure-tab-data';
-import AiScreen from '../../_inc/screens/ai';
+import GeoScreen from '../../_inc/screens/geo';
 import type { AiState } from '../../_inc/data/ai-types';
 
-// The AI form controller is owned here (the route stage); it's only used on this
+// The GEO form controller is owned here (the route stage); it's only used on this
 // route and saves through `/wp/v2/settings`, so it needn't persist across
 // route changes. Split out so it mounts only once the data is ready — its
 // one-time seed reads the store, which the gate below has populated by then.
-const AiReady = () => {
+const GeoReady = () => {
 	const form = useAiForm();
 	const overview = getOverview();
 	const settings = useSelect( select => select( settingsStore ).getSettings(), [] );
@@ -33,8 +33,8 @@ const AiReady = () => {
 		settings?.search_engines_visible ?? overview?.site_visibility.search_engines_visible ?? true;
 
 	return (
-		<DashboardPage active="ai">
-			<AiScreen
+		<DashboardPage active="geo">
+			<GeoScreen
 				form={ form }
 				searchEnginesVisible={ searchEnginesVisible }
 				onManageVisibility={ onManageVisibility }
@@ -44,7 +44,7 @@ const AiReady = () => {
 };
 
 const Stage = () => {
-	const { setEnhancer, setLlmsTxt, setCrawlers } = useDispatch( aiStore );
+	const { setEnhancer, setLlmsTxt, setCrawlers } = useDispatch( geoStore );
 	const navigate = useNavigate();
 
 	// The GEO tab is a paid feature on plan-gated sites (below-Premium WordPress.com),
@@ -56,18 +56,18 @@ const Stage = () => {
 		}
 	}, [ gated, navigate ] );
 
-	// AI gates on the seo-tools state, which lives in the Overview slice, so ensure
-	// both are available. Every slice of a recovered AI payload is pushed into
+	// GEO gates on the seo-tools state, which lives in the Overview slice, so ensure
+	// both are available. Every slice of a recovered GEO payload is pushed into
 	// the store so the form (seeded from it) reflects it.
 	const { status, retry } = useEnsureTabData( [
 		{ path: OVERVIEW_PATH },
 		{
-			path: AI_PATH,
+			path: GEO_PATH,
 			seed: body => {
-				const ai = body as AiState;
-				setEnhancer( ai.enhancer );
-				setLlmsTxt( ai.llmsTxt );
-				setCrawlers( ai.crawlers );
+				const geo = body as AiState;
+				setEnhancer( geo.enhancer );
+				setLlmsTxt( geo.llmsTxt );
+				setCrawlers( geo.crawlers );
 			},
 		},
 	] );
@@ -78,7 +78,7 @@ const Stage = () => {
 
 	if ( status === 'loading' ) {
 		return (
-			<DashboardPage active="ai">
+			<DashboardPage active="geo">
 				<DashboardSkeleton />
 			</DashboardPage>
 		);
@@ -86,15 +86,15 @@ const Stage = () => {
 
 	if ( status === 'error' ) {
 		return (
-			<DashboardPage active="ai">
+			<DashboardPage active="geo">
 				<DashboardLoadError onRetry={ retry } />
 			</DashboardPage>
 		);
 	}
 
 	// When the `seo-tools` module is off, show the enable affordance instead of the
-	// AI controls — they can't save (the REST endpoints aren't registered).
-	return isSeoToolsActive() ? <AiReady /> : <SeoDisabledStage active="ai" />;
+	// GEO controls — they can't save (the REST endpoints aren't registered).
+	return isSeoToolsActive() ? <GeoReady /> : <SeoDisabledStage active="geo" />;
 };
 
 export { Stage as stage };

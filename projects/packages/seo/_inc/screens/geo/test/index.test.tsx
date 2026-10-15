@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom';
 import { jest } from '@jest/globals';
 import { fireEvent, render, screen, within } from '@testing-library/react';
-import AiScreen from '../index';
+import GeoScreen from '../index';
 import type { AiState } from '../../../data/ai-types';
 import type { AiForm } from '../../../data/use-ai';
 
@@ -11,7 +11,7 @@ import type { AiForm } from '../../../data/use-ai';
  * honest "can't serve llms.txt" state directly.
  *
  * @param canServe - Whether WordPress can serve /llms.txt on this site.
- * @return A form controller for AiScreen with the enhancer hidden.
+ * @return A form controller for GeoScreen with the enhancer hidden.
  */
 const formWith = ( canServe: boolean ): AiForm => ( {
 	enhancer: { available: false, enabled: false, aiSeoEnabled: true },
@@ -28,7 +28,7 @@ const formWith = ( canServe: boolean ): AiForm => ( {
  * Build a form with crawler controls and selected environment flags.
  *
  * @param flags - Environment flags to override.
- * @return A form controller for AiScreen.
+ * @return A form controller for GeoScreen.
  */
 const crawlerForm = (
 	flags: Partial<
@@ -79,10 +79,10 @@ const crawlerForm = (
 
 const noop = () => {};
 
-describe( 'AiScreen (GEO tab) — llms.txt serving state', () => {
+describe( 'GeoScreen (GEO tab) — llms.txt serving state', () => {
 	it( 'shows the view link and no warning when llms.txt can be served', () => {
 		render(
-			<AiScreen form={ formWith( true ) } searchEnginesVisible onManageVisibility={ noop } />
+			<GeoScreen form={ formWith( true ) } searchEnginesVisible onManageVisibility={ noop } />
 		);
 
 		expect( screen.getByRole( 'link', { name: /view your llms\.txt/i } ) ).toBeInTheDocument();
@@ -91,7 +91,7 @@ describe( 'AiScreen (GEO tab) — llms.txt serving state', () => {
 
 	it( 'shows an honest notice and hides the view link when it cannot serve', () => {
 		render(
-			<AiScreen form={ formWith( false ) } searchEnginesVisible onManageVisibility={ noop } />
+			<GeoScreen form={ formWith( false ) } searchEnginesVisible onManageVisibility={ noop } />
 		);
 
 		// The @wordpress/ui Notice renders its text in more than one node, so match
@@ -105,7 +105,7 @@ describe( 'AiScreen (GEO tab) — llms.txt serving state', () => {
 	it( 'disables llms.txt and links to visibility settings when indexing is blocked', () => {
 		const onManageVisibility = jest.fn();
 		render(
-			<AiScreen
+			<GeoScreen
 				form={ formWith( true ) }
 				searchEnginesVisible={ false }
 				onManageVisibility={ onManageVisibility }
@@ -129,9 +129,9 @@ describe( 'AiScreen (GEO tab) — llms.txt serving state', () => {
 	} );
 } );
 
-describe( 'AiScreen (GEO tab) — crawler policy state', () => {
+describe( 'GeoScreen (GEO tab) — crawler policy state', () => {
 	it( 'files Google-Extended under Training, not its own module', () => {
-		render( <AiScreen form={ crawlerForm() } searchEnginesVisible onManageVisibility={ noop } /> );
+		render( <GeoScreen form={ crawlerForm() } searchEnginesVisible onManageVisibility={ noop } /> );
 
 		expect( screen.getByText( 'Training crawlers' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Google Gemini (Google-Extended)' ) ).toBeInTheDocument();
@@ -140,7 +140,7 @@ describe( 'AiScreen (GEO tab) — crawler policy state', () => {
 
 	it( 'tags each group header with its allow/block status', () => {
 		// Defaults: answer engines allowed, training crawlers blocked.
-		render( <AiScreen form={ crawlerForm() } searchEnginesVisible onManageVisibility={ noop } /> );
+		render( <GeoScreen form={ crawlerForm() } searchEnginesVisible onManageVisibility={ noop } /> );
 		const answerHeader = screen.getByRole( 'button', { name: /answer engines/i } );
 		const trainingHeader = screen.getByRole( 'button', { name: /training crawlers/i } );
 		expect( within( answerHeader ).getByText( 'Allowed' ) ).toBeInTheDocument();
@@ -150,7 +150,7 @@ describe( 'AiScreen (GEO tab) — crawler policy state', () => {
 	it( 'tags a mixed group as partly blocked', () => {
 		// Allow one of the two training bots so the group is neither all-allowed nor all-blocked.
 		render(
-			<AiScreen
+			<GeoScreen
 				form={ crawlerForm( { overrides: { gptbot: false } } ) }
 				searchEnginesVisible
 				onManageVisibility={ noop }
@@ -161,7 +161,7 @@ describe( 'AiScreen (GEO tab) — crawler policy state', () => {
 	} );
 
 	it( 'links each group to the robots.txt file under its description', () => {
-		render( <AiScreen form={ crawlerForm() } searchEnginesVisible onManageVisibility={ noop } /> );
+		render( <GeoScreen form={ crawlerForm() } searchEnginesVisible onManageVisibility={ noop } /> );
 
 		// The link sits under the description, inside the collapsed panel — include hidden.
 		const links = screen.getAllByRole( 'link', { name: /view your robots\.txt/i, hidden: true } );
@@ -173,7 +173,7 @@ describe( 'AiScreen (GEO tab) — crawler policy state', () => {
 
 	it( 'disables the crawler controls and links to the setting under the data-sharing opt-out', () => {
 		render(
-			<AiScreen
+			<GeoScreen
 				form={ crawlerForm( { dataSharingOptOut: true } ) }
 				searchEnginesVisible
 				onManageVisibility={ noop }
@@ -198,7 +198,7 @@ describe( 'AiScreen (GEO tab) — crawler policy state', () => {
 
 	it( 'hides per-site controls on path-based multisite', () => {
 		render(
-			<AiScreen
+			<GeoScreen
 				form={ crawlerForm( { pathBasedMultisite: true } ) }
 				searchEnginesVisible
 				onManageVisibility={ noop }
@@ -211,7 +211,7 @@ describe( 'AiScreen (GEO tab) — crawler policy state', () => {
 
 	it( 'explains a staging subdomain instead of offering controls', () => {
 		render(
-			<AiScreen
+			<GeoScreen
 				form={ crawlerForm( { restrictedSubdomain: true } ) }
 				searchEnginesVisible
 				onManageVisibility={ noop }
@@ -224,7 +224,7 @@ describe( 'AiScreen (GEO tab) — crawler policy state', () => {
 
 	it( 'accurately describes a detected static robots.txt file', () => {
 		render(
-			<AiScreen
+			<GeoScreen
 				form={ crawlerForm( { staticRobotsTxt: true } ) }
 				searchEnginesVisible
 				onManageVisibility={ noop }
@@ -251,12 +251,12 @@ const allModulesForm = (): AiForm => ( {
 	llmsTxt: { enabled: true, url: 'https://example.com/llms.txt', canServe: true },
 } );
 
-describe( 'AiScreen (GEO tab) — module titles', () => {
+describe( 'GeoScreen (GEO tab) — module titles', () => {
 	// The chip must not swallow the title text, which is how these modules are found
 	// by assistive tech and by every other test in this file.
 	it( 'leads every module title with an icon chip, keeping the title readable', () => {
 		render(
-			<AiScreen form={ allModulesForm() } searchEnginesVisible onManageVisibility={ noop } />
+			<GeoScreen form={ allModulesForm() } searchEnginesVisible onManageVisibility={ noop } />
 		);
 
 		for ( const title of [
@@ -278,7 +278,7 @@ describe( 'AiScreen (GEO tab) — module titles', () => {
 	// shared glyph would hide the only distinction on the tab that needs acting on.
 	it( 'gives the two crawler groups different glyphs', () => {
 		render(
-			<AiScreen form={ allModulesForm() } searchEnginesVisible onManageVisibility={ noop } />
+			<GeoScreen form={ allModulesForm() } searchEnginesVisible onManageVisibility={ noop } />
 		);
 
 		const glyphOf = ( title: string ) =>
@@ -299,7 +299,7 @@ describe( 'AiScreen (GEO tab) — module titles', () => {
 	// `aria-describedby` instead.
 	it( 'renders each module header as a heading, named by its title alone', () => {
 		render(
-			<AiScreen form={ allModulesForm() } searchEnginesVisible onManageVisibility={ noop } />
+			<GeoScreen form={ allModulesForm() } searchEnginesVisible onManageVisibility={ noop } />
 		);
 
 		for ( const title of [
@@ -322,7 +322,7 @@ describe( 'AiScreen (GEO tab) — module titles', () => {
 	// oversight — see the comment on the llms.txt header.
 	it( 'gives no state tag to the modules that open by default', () => {
 		render(
-			<AiScreen form={ allModulesForm() } searchEnginesVisible onManageVisibility={ noop } />
+			<GeoScreen form={ allModulesForm() } searchEnginesVisible onManageVisibility={ noop } />
 		);
 
 		for ( const title of [ 'llms.txt', 'AI SEO Enhancer' ] ) {
@@ -338,7 +338,7 @@ describe( 'AiScreen (GEO tab) — module titles', () => {
 	it( 'marks a partly-blocked group amber, distinct from allowed and blocked', () => {
 		// `gptbot` allowed, `google-extended` left at the training default of blocked.
 		render(
-			<AiScreen
+			<GeoScreen
 				form={ crawlerForm( { overrides: { gptbot: false } } ) }
 				searchEnginesVisible
 				onManageVisibility={ noop }
@@ -359,7 +359,7 @@ describe( 'AiScreen (GEO tab) — module titles', () => {
 	// "Allowed" too.)
 	it( 'keeps each state badge on screen, wired as the trigger description', () => {
 		render(
-			<AiScreen form={ allModulesForm() } searchEnginesVisible onManageVisibility={ noop } />
+			<GeoScreen form={ allModulesForm() } searchEnginesVisible onManageVisibility={ noop } />
 		);
 
 		for ( const [ title, state ] of [
@@ -382,7 +382,7 @@ describe( 'AiScreen (GEO tab) — module titles', () => {
 	// groups — so it carries the combined glyph rather than either group's.
 	it( 'still titles and chips the blocked state', () => {
 		render(
-			<AiScreen
+			<GeoScreen
 				form={ crawlerForm( { pathBasedMultisite: true } ) }
 				searchEnginesVisible
 				onManageVisibility={ noop }
@@ -397,12 +397,12 @@ describe( 'AiScreen (GEO tab) — module titles', () => {
 	} );
 } );
 
-describe( 'AiScreen (AI tab) — the AI SEO Enhancer card', () => {
+describe( 'GeoScreen (GEO tab) — the AI SEO Enhancer card', () => {
 	// Same treatment the Traffic page gives it: disabled with an explanation
 	// rather than hidden, so the saved choice stays visible.
 	it( 'disables the toggle and explains why while the AI SEO control is off', () => {
 		render(
-			<AiScreen
+			<GeoScreen
 				form={ {
 					...allModulesForm(),
 					enhancer: { available: true, enabled: true, aiSeoEnabled: false },
@@ -420,7 +420,7 @@ describe( 'AiScreen (AI tab) — the AI SEO Enhancer card', () => {
 
 	it( 'leaves the toggle usable while the AI SEO control is on', () => {
 		render(
-			<AiScreen
+			<GeoScreen
 				form={ {
 					...allModulesForm(),
 					enhancer: { available: true, enabled: true, aiSeoEnabled: true },

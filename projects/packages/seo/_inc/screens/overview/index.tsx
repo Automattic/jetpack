@@ -7,7 +7,7 @@ import { useNavigate } from '@wordpress/route';
 import { Notice, Stack } from '@wordpress/ui';
 import EnableSeoCard from '../../components/enable-seo-card';
 import UpsellBanner from '../../components/upsell-banner';
-import { aiStore } from '../../data/ai-store';
+import { geoStore } from '../../data/geo-store';
 import { coverageStore } from '../../data/coverage-store';
 import getOverview from '../../data/get-overview';
 import { isGated } from '../../data/is-gated';
@@ -34,11 +34,11 @@ const OverviewScreen: FC = () => {
 	const settings = useSelect( select => select( settingsStore ).getSettings(), [] );
 
 	// AI-crawler state lives in the same store the GEO tab uses (seeded from the
-	// page's `ai` preload), so the Overview reads it directly rather than adding a
+	// page's `geo` preload), so the Overview reads it directly rather than adding a
 	// crawler slice to the Overview payload.
-	const crawlers = useSelect( select => select( aiStore ).getCrawlers(), [] );
+	const crawlers = useSelect( select => select( geoStore ).getCrawlers(), [] );
 
-	const llmsTxt = useSelect( select => select( aiStore ).getLlmsTxt(), [] );
+	const llmsTxt = useSelect( select => select( geoStore ).getLlmsTxt(), [] );
 
 	// Deep-link to a Settings section: navigate to the Settings route with
 	// `?focus=`, which the Settings screen reads to scroll the section to top.
@@ -60,7 +60,7 @@ const OverviewScreen: FC = () => {
 	);
 
 	// Deep-link to the GEO route.
-	const goToAi = useCallback( () => navigate( { href: '/ai' } ), [ navigate ] );
+	const goToGeo = useCallback( () => navigate( { href: '/geo' } ), [ navigate ] );
 
 	if ( ! data ) {
 		return (
@@ -146,7 +146,7 @@ const OverviewScreen: FC = () => {
 							settings?.search_engines_visible ?? crawlers.searchEnginesVisible
 						}
 						llmsTxt={ llmsTxt }
-						onManage={ goToAi }
+						onManage={ goToGeo }
 					/>
 				) }
 			</div>

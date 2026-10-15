@@ -3,13 +3,13 @@ import { select, useDispatch } from '@wordpress/data';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
-import { aiStore } from './ai-store';
+import { geoStore } from './geo-store';
 import { recordSeoEvent } from './record-seo-event';
 import type { AiCrawler, AiState } from './ai-types';
 
 // Single snackbar id reused across a save so "Updating settings…" is replaced
 // in place by "Settings saved." (or an error) — matches the Settings tab.
-const SAVE_NOTICE_ID = 'jetpack-seo-ai-save';
+const SAVE_NOTICE_ID = 'jetpack-seo-geo-save';
 
 // WordPress core's settings endpoint. Every AI toggle is an option registered
 // with `show_in_rest` server-side, so it round-trips through core REST — which
@@ -32,23 +32,23 @@ export interface AiForm {
 }
 
 /**
- * Owns the AI tab's form state: seeds from the page bootstrap and auto-saves each
+ * Owns the GEO tab's form state: seeds from the page bootstrap and auto-saves each
  * toggle through WordPress core's `/wp/v2/settings`. There's no Save button —
  * toggles save on change, surfacing the shared "Updating settings…"→"Settings
  * saved." snackbar. On failure the local value reverts.
  *
- * The AI tab is its own route, so this controller remounts on every tab switch.
- * Each slice is seeded from (and written back to) [ai-store] rather than the
+ * The GEO tab is its own route, so this controller remounts on every tab switch.
+ * Each slice is seeded from (and written back to) [geo-store] rather than the
  * one-time bootstrap, so a saved toggle persists across route switches without a
  * reload.
  *
- * @return The AI form controller.
+ * @return The GEO form controller.
  */
 export function useAiForm(): AiForm {
 	// Seed from the store (latest-saved snapshot), not the one-time bootstrap.
-	const initialEnhancer = useMemo( () => select( aiStore ).getEnhancer(), [] );
-	const initialLlmsTxt = useMemo( () => select( aiStore ).getLlmsTxt(), [] );
-	const initialCrawlers = useMemo( () => select( aiStore ).getCrawlers(), [] );
+	const initialEnhancer = useMemo( () => select( geoStore ).getEnhancer(), [] );
+	const initialLlmsTxt = useMemo( () => select( geoStore ).getLlmsTxt(), [] );
+	const initialCrawlers = useMemo( () => select( geoStore ).getCrawlers(), [] );
 
 	const [ enhancer, setEnhancer ] = useState< AiState[ 'enhancer' ] | null >( initialEnhancer );
 	const [ llmsTxt, setLlmsTxt ] = useState< AiState[ 'llmsTxt' ] | null >( initialLlmsTxt );
@@ -60,7 +60,7 @@ export function useAiForm(): AiForm {
 		setEnhancer: persistEnhancer,
 		setLlmsTxt: persistLlmsTxt,
 		setCrawlers: persistCrawlers,
-	} = useDispatch( aiStore );
+	} = useDispatch( geoStore );
 
 	// Shared save lifecycle: optimistic snackbar, POST, then `onSuccess` (persist
 	// the saved value to the store) or `onError` (revert the optimistic update).

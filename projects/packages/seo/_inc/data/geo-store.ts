@@ -1,18 +1,18 @@
 import { createReduxStore, register } from '@wordpress/data';
-import { AI_PATH, getPreloaded } from './get-preloaded';
+import { GEO_PATH, getPreloaded } from './get-preloaded';
 import type { AiState } from './ai-types';
 
 /**
- * A tiny `@wordpress/data` store holding the latest-saved AI tab state.
+ * A tiny `@wordpress/data` store holding the latest-saved GEO tab state.
  *
- * Same rationale as [settings-store]: the AI tab is its own route, so toggling a
+ * Same rationale as [settings-store]: the GEO tab is its own route, so toggling a
  * setting and saving was lost on the next visit (the form re-seeded from the
  * never-updated bootstrap) until a reload. This store keeps the current snapshot
- * of each AI slice — seeded from the bootstrap, replaced on each successful save
+ * of each GEO slice — seeded from the bootstrap, replaced on each successful save
  * — so `useAiForm` re-seeds from the freshest values across routes.
  */
 
-const STORE_NAME = 'jetpack-seo/ai';
+const STORE_NAME = 'jetpack-seo/geo';
 
 type Enhancer = AiState[ 'enhancer' ];
 type LlmsTxt = AiState[ 'llmsTxt' ];
@@ -29,7 +29,7 @@ type Action =
 	| { type: 'SET_LLMS_TXT'; llmsTxt: LlmsTxt }
 	| { type: 'SET_CRAWLERS'; crawlers: Crawlers };
 
-const preloaded = getPreloaded< AiState >( AI_PATH );
+const preloaded = getPreloaded< AiState >( GEO_PATH );
 
 const DEFAULT_STATE: State = {
 	enhancer: preloaded?.enhancer ?? null,
@@ -116,4 +116,4 @@ const store = createReduxStore( STORE_NAME, {
 
 register( store );
 
-export { store as aiStore, STORE_NAME as AI_STORE_NAME };
+export { store as geoStore, STORE_NAME as GEO_STORE_NAME };
