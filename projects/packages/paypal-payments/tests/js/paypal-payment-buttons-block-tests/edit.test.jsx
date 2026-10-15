@@ -7171,6 +7171,20 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			).not.toBeInTheDocument();
 			expect( disconnectRequests() ).toHaveLength( 0 );
 		} );
+
+		it( 'shows Manage all links and buttons before the block has a saved link', async () => {
+			mockRoutes( true );
+			openSidebar();
+
+			cardRendered = render(
+				<Edit attributes={ {} } setAttributes={ setAttributes } isSelected />
+			);
+
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+			await expect(
+				screen.findByRole( 'menuitem', { name: 'Manage all links and buttons' } )
+			).resolves.toBeInTheDocument();
+		} );
 	} );
 
 	describe( 'Delete confirmation', () => {

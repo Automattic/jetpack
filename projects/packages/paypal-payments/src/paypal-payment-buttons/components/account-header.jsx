@@ -5,10 +5,11 @@
  * @package
  */
 
+import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { DropdownMenu, MenuGroup, MenuItem } from '@wordpress/components';
 import { createPortal } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { external, login, moreVertical } from '@wordpress/icons';
+import { external, home, login, moreVertical } from '@wordpress/icons';
 import { useBlockCardNode } from '../hooks/use-block-card-node';
 import PayPalIcon from '../icon';
 
@@ -28,6 +29,9 @@ const TRANSACTIONS_URL = {
 // PayPal's help article on issuing refunds. The block does not refund through the API,
 // so PayPal's certification asks that sellers be pointed at how to do it themselves.
 const REFUND_HELP_URL = 'https://www.paypal.com/us/cshelp/article/how-do-i-issue-a-refund-help101';
+
+// The admin page that lists every payment link on the site.
+const MANAGE_LINKS_PATH = 'admin.php?page=paypal-payment-links';
 
 /**
  * The PayPal account header: the block's name and the account menu.
@@ -96,6 +100,16 @@ export default function PayPalAccountHeader( { isSelected, environment, accountE
 								onClick={ onClose }
 							>
 								{ __( 'How to issue a refund', 'jetpack-paypal-payments' ) }
+							</MenuItem>
+							<MenuItem
+								icon={ home }
+								iconPosition="left"
+								href={ getAdminUrl( MANAGE_LINKS_PATH ) }
+								target="_blank"
+								rel="noopener noreferrer"
+								onClick={ onClose }
+							>
+								{ __( 'Manage all links and buttons', 'jetpack-paypal-payments' ) }
 							</MenuItem>
 						</MenuGroup>
 						{ /* A second group, so MenuGroup draws the divider the design has here. */ }

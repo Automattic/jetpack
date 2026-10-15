@@ -16,6 +16,11 @@ jest.mock( '@wordpress/element', () => ( {
 	createPortal: require( 'react-dom' ).createPortal,
 } ) );
 
+// The admin URL comes from the page's script data.
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	getAdminUrl: path => `https://example.test/wp-admin/${ path }`,
+} ) );
+
 const noop = () => {};
 
 /**
@@ -224,6 +229,7 @@ describe( 'PayPalAccountHeader', () => {
 		expect( item( 'Customize checkout settings' ) ).toBeInTheDocument();
 		expect( item( 'View transactions' ) ).toBeInTheDocument();
 		expect( item( 'How to issue a refund' ) ).toBeInTheDocument();
+		expect( item( 'Manage all links and buttons' ) ).toBeInTheDocument();
 		expect( item( 'Log out' ) ).toBeInTheDocument();
 	} );
 
@@ -290,6 +296,23 @@ describe( 'PayPalAccountHeader', () => {
 		);
 		expect( refund ).toHaveAttribute( 'target', '_blank' );
 		expect( refund ).toHaveAttribute( 'rel', 'noopener noreferrer' );
+	} );
+
+	it( 'links to the PayPal Payment Links admin page in a new tab', async () => {
+		const user = userEvent.setup();
+		openSidebar();
+		renderHeader();
+		await expect( screen.findByText( 'PayPal Payment Button' ) ).resolves.toBeInTheDocument();
+
+		await openMenu( user );
+
+		const manage = item( 'Manage all links and buttons' );
+		expect( manage ).toHaveAttribute(
+			'href',
+			'https://example.test/wp-admin/admin.php?page=paypal-payment-links'
+		);
+		expect( manage ).toHaveAttribute( 'target', '_blank' );
+		expect( manage ).toHaveAttribute( 'rel', 'noopener noreferrer' );
 	} );
 
 	it( 'falls back to production for an unknown environment', async () => {
