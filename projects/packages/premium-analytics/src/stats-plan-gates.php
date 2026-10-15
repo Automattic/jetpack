@@ -177,6 +177,32 @@ function has_jetpack_stats_commercial_purchase() {
 }
 
 /**
+ * Whether a self-hosted site's cached plan or products include any Jetpack Stats product, free or PWYW included.
+ *
+ * @since $$next-version$$
+ *
+ * @return bool
+ */
+function has_jetpack_stats_product() {
+	$plan     = get_option( Current_Plan::PLAN_OPTION );
+	$products = get_option( Current_Plan::SITE_PRODUCTS_OPTION, array() );
+	$products = is_array( $products ) ? $products : array();
+
+	$slugs = array_column( $products, 'product_slug' );
+	if ( isset( $plan['product_slug'] ) ) {
+		$slugs[] = $plan['product_slug'];
+	}
+
+	foreach ( $slugs as $slug ) {
+		if ( is_string( $slug ) && 0 === strpos( $slug, 'jetpack_stats' ) ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
  * The features classic Stats gates on WordPress.com Personal: the newer, commercial modules.
  */
 const STATS_COMMERCIAL_FEATURES = array( 'authors', 'search-terms', 'videos', 'utm', 'devices', 'regions-cities' );
@@ -438,6 +464,7 @@ function inject_stats_plan_gates_script_data( array $data ): array {
 		'tier'                => $gates['tier'],
 		'locked_features'     => (object) $gates['locked_features'],
 		'locked_widget_types' => (object) $gates['locked_widget_types'],
+		'has_stats_product'   => has_jetpack_stats_product(),
 	);
 
 	return $data;

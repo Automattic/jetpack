@@ -27,6 +27,7 @@ require_once ABSPATH . 'wp-admin/includes/plugin.php';
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_jetpack_stats_plan_tier
  * @covers ::Automattic\Jetpack\PremiumAnalytics\has_cached_jetpack_plan
  * @covers ::Automattic\Jetpack\PremiumAnalytics\has_jetpack_stats_commercial_purchase
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\has_jetpack_stats_product
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_locked_stats_features
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_stats_feature_copy
  * @covers ::Automattic\Jetpack\PremiumAnalytics\localize_stats_support_url
@@ -42,6 +43,7 @@ require_once ABSPATH . 'wp-admin/includes/plugin.php';
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_jetpack_stats_plan_tier' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\has_cached_jetpack_plan' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\has_jetpack_stats_commercial_purchase' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\has_jetpack_stats_product' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_locked_stats_features' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_stats_feature_copy' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\localize_stats_support_url' )]
@@ -246,6 +248,40 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 			'growth plan'              => array( $plan( 'jetpack_growth_yearly' ), array(), STATS_TIER_COMMERCIAL ),
 			'security plan is not'     => array( $plan( 'jetpack_security_t1_yearly' ), array(), STATS_TIER_JETPACK_FREE ),
 			'stats-commercial feature' => array( array( 'features' => array( 'active' => array( 'stats-commercial' ) ) ), array(), STATS_TIER_COMMERCIAL ),
+		);
+	}
+
+	/**
+	 * The free and PWYW Stats products count as a Stats product; other Jetpack products do not.
+	 *
+	 * @dataProvider provide_stats_products
+	 *
+	 * @param mixed $plan     The `jetpack_active_plan` option.
+	 * @param mixed $products The `jetpack_site_products` option.
+	 * @param bool  $expected Whether the site has a Stats product.
+	 */
+	#[DataProvider( 'provide_stats_products' )]
+	public function test_stats_product_follows_purchases( $plan, $products, $expected ) {
+		update_option( 'jetpack_active_plan', $plan );
+		update_option( 'jetpack_site_products', $products );
+
+		$this->assertSame( $expected, has_jetpack_stats_product() );
+	}
+
+	/**
+	 * Purchase states and whether each holds a Stats product.
+	 *
+	 * @return array
+	 */
+	public static function provide_stats_products() {
+		$products = static fn( $slug ) => array( array( 'product_slug' => $slug ) );
+
+		return array(
+			'no products'          => array( self::FREE_PLAN, array(), false ),
+			'malformed products'   => array( self::FREE_PLAN, 'garbage', false ),
+			'free Stats'           => array( self::FREE_PLAN, $products( 'jetpack_stats_free_yearly' ), true ),
+			'PWYW Stats'           => array( self::FREE_PLAN, $products( 'jetpack_stats_pwyw_yearly' ), true ),
+			'another product only' => array( self::FREE_PLAN, $products( 'jetpack_backup_t1_yearly' ), false ),
 		);
 	}
 
@@ -490,10 +526,13 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 	 */
 	public function test_script_data_carries_the_gates_without_clobbering_siblings() {
 		add_filter( STATS_PLAN_TIER_FILTER, static fn() => STATS_TIER_COMMERCIAL );
+		update_option( 'jetpack_site_products', array( array( 'product_slug' => 'jetpack_stats_free_yearly' ) ) );
 		$_GET['page'] = Analytics::MENU_PAGE_SLUG;
 		set_current_screen( 'toplevel_page_' . Analytics::MENU_PAGE_SLUG );
 
 		$data = inject_stats_plan_gates_script_data( array( 'premium_analytics' => array( 'has_videopress' => true ) ) );
+
+		$this->assertTrue( $data['premium_analytics']['plan_gates']['has_stats_product'] );
 
 		$this->assertTrue( $data['premium_analytics']['has_videopress'] );
 		$this->assertSame( STATS_TIER_COMMERCIAL, $data['premium_analytics']['plan_gates']['tier'] );
