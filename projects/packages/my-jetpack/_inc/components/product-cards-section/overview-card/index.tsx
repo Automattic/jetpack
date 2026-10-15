@@ -1,6 +1,6 @@
 import { Text } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import { Badge, Button, LinkButton, Skeleton, Text as UIText } from '@wordpress/ui';
+import { Badge, Button, ButtonLink, Skeleton, Text as UIText } from '@wordpress/ui';
 import { PRODUCT_STATUSES } from '../../../constants';
 import useProduct from '../../../data/products/use-product';
 import useProductsByOwnership from '../../../data/products/use-products-by-ownership';
@@ -122,9 +122,9 @@ const OverviewCard: FC< OverviewCardProps > = ( {
 		);
 	} else if ( admin && action?.href ) {
 		actionContent = (
-			<LinkButton href={ action.href } variant="outline" size="compact" onClick={ action.onClick }>
+			<ButtonLink href={ action.href } variant="outline" size="compact" onClick={ action.onClick }>
 				{ action.label }
-			</LinkButton>
+			</ButtonLink>
 		);
 	} else if ( admin && action ) {
 		actionContent = (
