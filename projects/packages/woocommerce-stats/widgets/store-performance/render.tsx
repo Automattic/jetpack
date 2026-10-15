@@ -101,8 +101,8 @@ function MetricReport( { metric, params, onChange }: MetricReportProps ) {
 }
 
 type StorePerformanceProps = {
-	/** The metrics shown, by id. Absent, every metric on offer. */
-	metricIds?: string[];
+	/** The metrics switched off, by id. */
+	hiddenMetricIds?: string[];
 };
 
 /**
@@ -112,18 +112,15 @@ type StorePerformanceProps = {
  * @param {StorePerformanceProps} props - The component props.
  * @return {JSX.Element} The chart, or the loading or error state of its reports.
  */
-function StorePerformance( { metricIds }: StorePerformanceProps ) {
+function StorePerformance( { hiddenMetricIds }: StorePerformanceProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const offered = useStorePerformanceMetrics();
 
-	// Resolved against the list on offer, so the tab order holds whatever order the ids were picked in.
+	// Resolved against the list on offer, so a metric registered later shows unless hidden.
 	const metrics = useMemo( () => {
-		if ( ! metricIds ) {
-			return offered;
-		}
-		const selected = new Set( metricIds );
-		return offered.filter( metric => selected.has( metric.id ) );
-	}, [ metricIds, offered ] );
+		const hidden = new Set( hiddenMetricIds );
+		return offered.filter( metric => ! hidden.has( metric.id ) );
+	}, [ hiddenMetricIds, offered ] );
 
 	const [ reports, setReports ] = useState< Record< string, MetricReportState > >( {} );
 	const onReportChange = useCallback( ( id: string, state: MetricReportState | null ) => {
@@ -232,7 +229,7 @@ function StorePerformance( { metricIds }: StorePerformanceProps ) {
 }
 
 /**
- * The Store performance widget. A missing `metrics` attribute shows every metric on offer.
+ * The Store performance widget: every metric on offer but the ones `hiddenMetrics` names.
  *
  * @param {WidgetRenderProps< StorePerformanceRenderAttributes >} props - The props the host passes.
  * @return {JSX.Element} The widget.
@@ -242,7 +239,7 @@ export default function StorePerformanceRender( {
 }: WidgetRenderProps< StorePerformanceRenderAttributes > ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<StorePerformance metricIds={ attributes.metrics } />
+			<StorePerformance hiddenMetricIds={ attributes.hiddenMetrics } />
 		</WidgetRoot>
 	);
 }
