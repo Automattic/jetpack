@@ -1342,7 +1342,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				sidebar.getByRole( 'heading', { name: 'Connect your PayPal account' } )
 			).toBeInTheDocument();
 			expect(
-				sidebar.getByText( 'Create a link or button directly in the editor - no code required.' )
+				sidebar.getByText( 'Create payment links and buttons directly in the editor - no code required.' )
 			).toBeInTheDocument();
 			expect( sidebar.getByLabelText( 'Use sandbox (testing)' ) ).toBeInTheDocument();
 		} );
@@ -2845,8 +2845,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
 
 			// The connection check has a spinner of its own, so wait for the step's panel.
-			await waitFor( () => expect( panel( 'Payment link' ) ).toBeDefined() );
-			expect( within( panel( 'Payment link' ) ).getByTestId( 'spinner' ) ).toBeInTheDocument();
+			await waitFor( () => expect( panel( 'Payment button' ) ).toBeDefined() );
+			expect( within( panel( 'Payment button' ) ).getByTestId( 'spinner' ) ).toBeInTheDocument();
 			expect( screen.queryByLabelText( 'Product Name' ) ).not.toBeInTheDocument();
 
 			await act( async () => resolveList( { resources: [] } ) );
@@ -2893,7 +2893,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				screen.findByRole( 'button', { name: 'Create new' } )
 			).resolves.toBeInTheDocument();
 			expect( screen.queryByLabelText( 'Product Name' ) ).not.toBeInTheDocument();
-			expect( screen.queryByLabelText( 'Search payment links' ) ).not.toBeInTheDocument();
+			expect( screen.queryByLabelText( 'Search payment buttons' ) ).not.toBeInTheDocument();
 
 			const croissant = screen.getByRole( 'button', { name: /Croissant/ } );
 			expect( croissant ).toHaveTextContent( '$12.00' );
@@ -2903,7 +2903,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			);
 			expect(
 				screen.getByText(
-					'Choose a payment link you already have, or create a new one, in the block settings.'
+					'Choose a payment button you already have, or create a new one, in the block settings.'
 				)
 			).toBeInTheDocument();
 		} );
@@ -3048,7 +3048,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
 
-			const search = await screen.findByLabelText( 'Search payment links' );
+			const search = await screen.findByLabelText( 'Search payment buttons' );
 			expect( screen.getAllByRole( 'button', { name: /Loaf/ } ) ).toHaveLength( 11 );
 
 			await user.type( search, 'loaf 1' );
@@ -3066,7 +3066,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			await user.clear( search );
 			await user.type( search, 'brioche' );
-			expect( screen.getByText( 'No payment links match your search.' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'No payment buttons match your search.' ) ).toBeInTheDocument();
 		} );
 
 		/**
@@ -3137,7 +3137,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				integrationMode: '',
 			} );
 			expect( screen.getByLabelText( 'Product Name' ) ).toBeInTheDocument();
-			expect( screen.getByRole( 'button', { name: 'New payment link' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: 'New payment button' } ) ).toBeInTheDocument();
 
 			// The copy reopens on the V2 form.
 			unmount();
@@ -3250,7 +3250,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
 
 			await user.click( await screen.findByRole( 'button', { name: 'Create new' } ) );
-			await user.click( screen.getByRole( 'button', { name: 'New payment link' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'New payment button' } ) );
 
 			expect( screen.getByRole( 'button', { name: 'Create new' } ) ).toBeInTheDocument();
 			expect( screen.queryByLabelText( 'Product Name' ) ).not.toBeInTheDocument();
@@ -3272,7 +3272,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				/>
 			);
 
-			await user.click( await screen.findByRole( 'button', { name: 'New payment link' } ) );
+			await user.click( await screen.findByRole( 'button', { name: 'New payment button' } ) );
 
 			expect( screen.getByRole( 'button', { name: 'Create new' } ) ).toBeInTheDocument();
 			expect( setAttributes ).toHaveBeenCalledWith(
@@ -3288,12 +3288,12 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			const { rerender } = render(
 				<Edit attributes={ draft } setAttributes={ setAttributes } isSelected />
 			);
-			await user.click( await screen.findByRole( 'button', { name: 'New payment link' } ) );
+			await user.click( await screen.findByRole( 'button', { name: 'New payment button' } ) );
 			rerender( <Edit attributes={ draft } setAttributes={ setAttributes } /> );
 
 			expect(
 				screen.getByText(
-					'Choose a payment link you already have, or create a new one, in the block settings.'
+					'Choose a payment button you already have, or create a new one, in the block settings.'
 				)
 			).toBeInTheDocument();
 			expect( screen.queryByTestId( 'paypal-button-preview' ) ).not.toBeInTheDocument();
@@ -3317,7 +3317,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			render(
 				<Edit attributes={ stale } setAttributes={ setAttributes } clientId="a" isSelected />
 			);
-			await user.click( await screen.findByRole( 'button', { name: 'New payment link' } ) );
+			await user.click( await screen.findByRole( 'button', { name: 'New payment button' } ) );
 			const [ reset ] = setAttributes.mock.lastCall;
 			expect( reset ).toMatchObject( { isApiManaged: false, resourceId: '', productName: '' } );
 			await user.click( screen.getByRole( 'button', { name: 'Create new' } ) );
@@ -3342,7 +3342,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
 			expect(
-				screen.queryByRole( 'button', { name: 'New payment link' } )
+				screen.queryByRole( 'button', { name: 'New payment button' } )
 			).not.toBeInTheDocument();
 		} );
 
@@ -3357,7 +3357,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			).resolves.toBeInTheDocument();
 			await user.click( rowAction( 'Croissant', 'Delete' ) );
 
-			const dialog = screen.getByRole( 'dialog', { name: 'Delete payment link' } );
+			const dialog = screen.getByRole( 'dialog', { name: 'Delete payment button' } );
 			const confirm = within( dialog ).getByRole( 'button', { name: 'Delete permanently' } );
 			expect( confirm ).toBeDisabled();
 			await user.click( within( dialog ).getByLabelText( 'I understand this cannot be undone.' ) );
@@ -3369,8 +3369,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				expect( screen.queryByRole( 'button', { name: /Croissant/ } ) ).not.toBeInTheDocument()
 			);
 			expect( screen.getByRole( 'button', { name: /Baguette/ } ) ).toBeInTheDocument();
-			expect( screen.getByText( 'Or reuse an existing link (1)' ) ).toBeInTheDocument();
-			expect( mockToast ).toHaveBeenCalledWith( 'success', 'Payment link deleted.' );
+			expect( screen.getByText( 'Or reuse an existing button (1)' ) ).toBeInTheDocument();
+			expect( mockToast ).toHaveBeenCalledWith( 'success', 'Payment button deleted.' );
 			expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
 			expect( setAttributes ).not.toHaveBeenCalled();
 		} );
@@ -3385,7 +3385,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				screen.findByRole( 'button', { name: 'Create new' } )
 			).resolves.toBeInTheDocument();
 			await user.click( screen.getByRole( 'menuitem', { name: 'Delete' } ) );
-			const dialog = screen.getByRole( 'dialog', { name: 'Delete payment link' } );
+			const dialog = screen.getByRole( 'dialog', { name: 'Delete payment button' } );
 			await user.click( within( dialog ).getByRole( 'button', { name: 'Cancel' } ) );
 
 			expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
@@ -3411,7 +3411,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				screen.findByRole( 'button', { name: 'Create new' } )
 			).resolves.toBeInTheDocument();
 			await user.click( screen.getByRole( 'menuitem', { name: 'Delete' } ) );
-			const dialog = screen.getByRole( 'dialog', { name: 'Delete payment link' } );
+			const dialog = screen.getByRole( 'dialog', { name: 'Delete payment button' } );
 			await user.click( within( dialog ).getByLabelText( 'I understand this cannot be undone.' ) );
 			await user.click( within( dialog ).getByRole( 'button', { name: 'Delete permanently' } ) );
 
@@ -3440,7 +3440,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				screen.findByRole( 'button', { name: 'Create new' } )
 			).resolves.toBeInTheDocument();
 			await user.click( screen.getByRole( 'menuitem', { name: 'Delete' } ) );
-			const dialog = screen.getByRole( 'dialog', { name: 'Delete payment link' } );
+			const dialog = screen.getByRole( 'dialog', { name: 'Delete payment button' } );
 			await user.click( within( dialog ).getByLabelText( 'I understand this cannot be undone.' ) );
 			await user.click( within( dialog ).getByRole( 'button', { name: 'Delete permanently' } ) );
 
@@ -3449,7 +3449,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			);
 			expect( mockToast ).toHaveBeenCalledWith(
 				'success',
-				'The payment link was already removed from PayPal.'
+				'The payment button was already removed from PayPal.'
 			);
 		} );
 
@@ -3564,7 +3564,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( listRequests() ).toHaveLength( 2 );
 			// The first block stays on its form, with the way back to the list.
 			expect( screen.getByLabelText( 'Product Name' ) ).toBeInTheDocument();
-			expect( screen.getByRole( 'button', { name: 'New payment link' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: 'New payment button' } ) ).toBeInTheDocument();
 		} );
 
 		it( 'shows a link renamed by a save on the way back to the list', async () => {
@@ -3578,7 +3578,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					isSelected
 				/>
 			);
-			const back = await screen.findByRole( 'button', { name: 'New payment link' } );
+			const back = await screen.findByRole( 'button', { name: 'New payment button' } );
 
 			mockLinks( [ resource( 'PLB-A1', 'Pain au chocolat' ) ] );
 			recordPaymentRead( 'other', 'PLB-A1' );
@@ -3666,7 +3666,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					name: 'Delete',
 				} )
 			);
-			const dialog = screen.getByRole( 'dialog', { name: 'Delete payment link' } );
+			const dialog = screen.getByRole( 'dialog', { name: 'Delete payment button' } );
 			await user.click( within( dialog ).getByLabelText( 'I understand this cannot be undone.' ) );
 			await user.click( within( dialog ).getByRole( 'button', { name: 'Delete permanently' } ) );
 
@@ -3698,7 +3698,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await expect(
 				screen.findByRole( 'button', { name: /Croissant/ } )
 			).resolves.toBeInTheDocument();
-			await user.click( screen.getByTestId( 'toolbar-Delete payment link' ) );
+			await user.click( screen.getByTestId( 'toolbar-Delete payment button' ) );
 			await user.click( screen.getByLabelText( 'I understand this cannot be undone.' ) );
 			await user.click( screen.getByRole( 'button', { name: 'Delete permanently' } ) );
 
@@ -3737,7 +3737,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			);
 
 			await expect(
-				screen.findByText( /This payment link was deleted from PayPal/ )
+				screen.findByText( /This payment button was deleted from PayPal/ )
 			).resolves.toBeInTheDocument();
 			await expect(
 				screen.findByRole( 'button', { name: /Baguette/ } )
@@ -3757,7 +3757,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			await saveNewLink( resource( 'PLB-N1', 'Scone' ) );
 
-			expect( screen.getByText( 'Or reuse an existing link (2)' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Or reuse an existing button (2)' ) ).toBeInTheDocument();
 			expect( screen.getAllByRole( 'button', { name: /Scone|Croissant/ } )[ 0 ] ).toHaveTextContent(
 				'Scone'
 			);
@@ -3773,7 +3773,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await saveNewLink( resource( 'PLB-N1', 'Scone' ) );
 
 			expect( screen.getByLabelText( 'Product Name' ) ).toBeInTheDocument();
-			expect( screen.getByRole( 'button', { name: 'New payment link' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: 'New payment button' } ) ).toBeInTheDocument();
 		} );
 
 		it( 'is not offered to a block that already has a product typed in', async () => {
@@ -4586,7 +4586,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			).toEqual( [ 'warning' ] );
 			// The shared-link line is inspector text, not a notice.
 			expect(
-				screen.getByText( 'Changes made will apply to all payment buttons with this link.' )
+				screen.getByText( 'Changes made will apply to every block using this payment button.' )
 			).toHaveClass( 'jetpack-paypal-payment-buttons__shared-link-note' );
 		} );
 
@@ -4605,7 +4605,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
 
 			const notice = await screen.findByText(
-				'This payment link could not be loaded from PayPal: PayPal authentication failed (HTTP 401): Client Authentication failed Changes to it will not be saved until it loads. Reload the post to try again.'
+				'This payment button could not be loaded from PayPal: PayPal authentication failed (HTTP 401): Client Authentication failed Changes to it will not be saved until it loads. Reload the post to try again.'
 			);
 			expect( notice ).toHaveAttribute( 'data-status', 'error' );
 			expect( setAttributes ).not.toHaveBeenCalled();
@@ -4624,7 +4624,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 		// The line warns about what an edit will reach, so it belongs to the form.
 		it( 'keeps the shared-link warning on the form of a saved link', async () => {
-			const sharedNote = 'Changes made will apply to all payment buttons with this link.';
+			const sharedNote = 'Changes made will apply to every block using this payment button.';
 			mockResource( { ...attributes } );
 
 			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
@@ -4651,7 +4651,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			// No link means the create form, which must not claim a shared one.
 			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
 			expect(
-				screen.queryByText( 'Changes made will apply to all payment buttons with this link.' )
+				screen.queryByText( 'Changes made will apply to every block using this payment button.' )
 			).not.toBeInTheDocument();
 		} );
 
@@ -4809,7 +4809,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
 			expect(
-				screen.queryByText( 'Changes made will apply to all payment buttons with this link.' )
+				screen.queryByText( 'Changes made will apply to every block using this payment button.' )
 			).not.toBeInTheDocument();
 		} );
 	} );
@@ -7031,7 +7031,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			resourceId: 'PLB-GONE1',
 			paymentLink: 'https://www.paypal.com/ncp/payment/PLB-GONE1',
 		};
-		const notice = /This payment link was deleted from PayPal/;
+		const notice = /This payment button was deleted from PayPal/;
 
 		it( 'warns that the link is gone when PayPal no longer has it', async () => {
 			apiFetch.mockImplementation( request => {
@@ -7252,9 +7252,9 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			mockConnectedRoutes();
 			renderForm( saved );
 
-			await user.click( await screen.findByTestId( 'toolbar-Delete payment link' ) );
+			await user.click( await screen.findByTestId( 'toolbar-Delete payment button' ) );
 
-			const dialog = screen.getByRole( 'dialog', { name: 'Delete payment link' } );
+			const dialog = screen.getByRole( 'dialog', { name: 'Delete payment button' } );
 			expect( within( dialog ).getByText( /cannot pause, deactivate, or restore/ ) ).toBeVisible();
 			const confirm = within( dialog ).getByRole( 'button', { name: 'Delete permanently' } );
 			expect( confirm ).toBeDisabled();
@@ -7270,7 +7270,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await waitFor( () => expect( deleteRequests() ).toHaveLength( 1 ) );
 			expect( deleteRequests()[ 0 ][ 0 ].path ).toContain( '/buttons/PLB-DELETE1' );
 			await waitFor( () =>
-				expect( mockToast ).toHaveBeenCalledWith( 'success', 'Payment link deleted.' )
+				expect( mockToast ).toHaveBeenCalledWith( 'success', 'Payment button deleted.' )
 			);
 		} );
 
@@ -7292,14 +7292,14 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			const { unmount } = renderForm( saved );
 
-			await user.click( await screen.findByTestId( 'toolbar-Delete payment link' ) );
+			await user.click( await screen.findByTestId( 'toolbar-Delete payment button' ) );
 			await user.click( screen.getByLabelText( 'I understand this cannot be undone.' ) );
 			await user.click( screen.getByRole( 'button', { name: 'Delete permanently' } ) );
 
 			await waitFor( () =>
 				expect( mockToast ).toHaveBeenCalledWith(
 					'success',
-					'The payment link was already removed from PayPal.'
+					'The payment button was already removed from PayPal.'
 				)
 			);
 
@@ -7324,12 +7324,12 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			mockConnectedRoutes();
 			renderForm( saved );
 
-			await user.click( await screen.findByTestId( 'toolbar-Delete payment link' ) );
+			await user.click( await screen.findByTestId( 'toolbar-Delete payment button' ) );
 			await user.click( screen.getByLabelText( 'I understand this cannot be undone.' ) );
 			await user.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
 
 			expect(
-				screen.queryByRole( 'dialog', { name: 'Delete payment link' } )
+				screen.queryByRole( 'dialog', { name: 'Delete payment button' } )
 			).not.toBeInTheDocument();
 			expect( deleteRequests() ).toHaveLength( 0 );
 			expect( setAttributes ).not.toHaveBeenCalledWith(
@@ -7343,11 +7343,11 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			mockConnectedRoutes();
 			renderForm( saved );
 
-			await user.click( await screen.findByTestId( 'toolbar-Delete payment link' ) );
+			await user.click( await screen.findByTestId( 'toolbar-Delete payment button' ) );
 			await user.click( screen.getByLabelText( 'I understand this cannot be undone.' ) );
 			await user.click( screen.getByTestId( 'modal-close' ) );
 
-			await user.click( screen.getByTestId( 'toolbar-Delete payment link' ) );
+			await user.click( screen.getByTestId( 'toolbar-Delete payment button' ) );
 
 			expect( screen.getByLabelText( 'I understand this cannot be undone.' ) ).not.toBeChecked();
 			expect( screen.getByRole( 'button', { name: 'Delete permanently' } ) ).toBeDisabled();
@@ -7359,12 +7359,12 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			renderForm( saved );
 
 			// The DropdownMenu mock lays its items out flat. The exact name skips the
-			// toolbar's "Delete payment link" button.
+			// toolbar's "Delete payment button" button.
 			const deleteItem = await screen.findByRole( 'button', { name: 'Delete' } );
 			// Disabled until the connection check comes back.
 			await waitFor( () => expect( deleteItem ).toBeEnabled() );
 			await user.click( deleteItem );
-			const dialog = screen.getByRole( 'dialog', { name: 'Delete payment link' } );
+			const dialog = screen.getByRole( 'dialog', { name: 'Delete payment button' } );
 			await user.click( within( dialog ).getByLabelText( 'I understand this cannot be undone.' ) );
 			await user.click( within( dialog ).getByRole( 'button', { name: 'Delete permanently' } ) );
 
@@ -7398,7 +7398,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			paymentLink: saved.paymentLink,
 		};
 		const notice =
-			/This payment link was updated elsewhere and this block has been updated to match\. Save the post so this page shows the change\./;
+			/This payment button was updated elsewhere and this block has been updated to match\. Save the post so this page shows the change\./;
 
 		/**
 		 * Answer the connection check, then hand back one payment.
@@ -7565,7 +7565,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			renderForm( saved );
 
-			await user.click( await screen.findByTestId( 'toolbar-Delete payment link' ) );
+			await user.click( await screen.findByTestId( 'toolbar-Delete payment button' ) );
 			await user.click( screen.getByLabelText( 'I understand this cannot be undone.' ) );
 			await user.click( screen.getByRole( 'button', { name: 'Delete permanently' } ) );
 
@@ -7899,7 +7899,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 				const embedAs = await screen.findByLabelText( 'Embed as' );
 				expect( screen.getAllByTestId( 'inspector-controls' ) ).toHaveLength( 1 );
-				expect( screen.getByText( 'Link used on' ) ).toAppearBefore( embedAs );
+				expect( screen.getByText( 'Used on' ) ).toAppearBefore( embedAs );
 			} );
 
 			it( 'offers the four formats in order', async () => {
@@ -8729,7 +8729,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				const inspector = await screen.findByTestId( 'inspector-controls' );
 				expect( within( inspector ).getByLabelText( 'Embed as' ) ).toBeEnabled();
 
-				await user.click( await screen.findByTestId( 'toolbar-Delete payment link' ) );
+				await user.click( await screen.findByTestId( 'toolbar-Delete payment button' ) );
 				await user.click( screen.getByLabelText( 'I understand this cannot be undone.' ) );
 				await user.click( screen.getByRole( 'button', { name: 'Delete permanently' } ) );
 
@@ -8789,7 +8789,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			);
 
 			await expect(
-				screen.findByTestId( 'toolbar-Delete payment link' )
+				screen.findByTestId( 'toolbar-Delete payment button' )
 			).resolves.toBeInTheDocument();
 			expect( screen.queryByTestId( 'toolbar-Edit' ) ).not.toBeInTheDocument();
 			expect( screen.queryByTestId( 'toolbar-Preview' ) ).not.toBeInTheDocument();
@@ -8884,11 +8884,11 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await waitFor( () => expect( detail( 'Created' ) ).toContain( '2026' ) );
 			// The hosted button id, as PayPal shows it: the resource id without its prefix.
 			expect( detail( 'Hosted ID' ) ).toBe( 'DETAIL1' );
-			expect( detail( 'Link used on' ) ).toBe( '2 published posts' );
+			expect( detail( 'Used on' ) ).toBe( '2 published posts' );
 			expect( screen.queryByText( 'Max quantity' ) ).not.toBeInTheDocument();
 			expect( screen.getByTestId( 'dropdown-menu' ) ).toHaveAttribute(
 				'aria-label',
-				'Payment link options'
+				'Payment button options'
 			);
 		} );
 
@@ -8903,7 +8903,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				/>
 			);
 
-			await waitFor( () => expect( detail( 'Link used on' ) ).toBe( '1 published post' ) );
+			await waitFor( () => expect( detail( 'Used on' ) ).toBe( '1 published post' ) );
 			expect( detail( 'Max quantity' ) ).toBe( '5' );
 		} );
 
@@ -8956,7 +8956,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				expect( apiFetch ).toHaveBeenCalledWith( expect.objectContaining( { path: resourcePath } ) )
 			);
 			expect( detail( 'Created' ) ).toBe( '—' );
-			expect( detail( 'Link used on' ) ).toBe( '—' );
+			expect( detail( 'Used on' ) ).toBe( '—' );
 		} );
 
 		// A closed form would hide the error, and the details view has nowhere to show it.
@@ -9594,7 +9594,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				)
 			);
 			expect( setAttributes.mock.calls[ 0 ][ 0 ] ).not.toHaveProperty( 'imageUrl' );
-			expect( mockToast ).toHaveBeenCalledWith( 'success', 'Payment link updated.' );
+			expect( mockToast ).toHaveBeenCalledWith( 'success', 'Payment button updated.' );
 		} );
 
 		// The switch reads the payment, so the next save can write it.
@@ -9649,12 +9649,12 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await expect( screen.findByText( 'Hosted ID' ) ).resolves.toBeInTheDocument();
 			expect( changeItem() ).toBeEnabled();
 			await user.click( changeItem() );
-			expect( within( panel( 'Payment link' ) ).getByTestId( 'spinner' ) ).toBeInTheDocument();
+			expect( within( panel( 'Payment button' ) ).getByTestId( 'spinner' ) ).toBeInTheDocument();
 
 			await act( async () => resolveList( { resources: [ resource( 'PLB-A1', 'Croissant' ) ] } ) );
 
 			expect( screen.getByText( 'Choose a button to change' ) ).toBeInTheDocument();
-			expect( screen.getByText( 'No other payment links available.' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'No other payment buttons available.' ) ).toBeInTheDocument();
 		} );
 
 		it( 'reports a failed switch in the snackbar and keeps the block as it was', async () => {

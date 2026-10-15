@@ -1,6 +1,6 @@
 <?php
 /**
- * PayPal Payment Links admin dashboard page.
+ * PayPal Payment Buttons admin dashboard page.
  *
  * Registers the admin menu item and renders the payment links list table.
  * Handles delete actions with nonce verification.
@@ -73,11 +73,11 @@ class PayPal_Admin_Page {
 	 * @return string Plain text; escape it for wherever it goes.
 	 */
 	public static function delete_confirm_text( $embed_count = 0 ) {
-		$text = __( 'This will permanently delete your payment link. Any links, QR codes, or embedded buttons using this payment will stop working and cannot be recovered.', 'jetpack-paypal-payments' );
+		$text = __( 'This will permanently delete your payment button. Any payment links, QR codes, or embedded buttons using it will stop working and cannot be recovered.', 'jetpack-paypal-payments' );
 
 		if ( $embed_count > 0 ) {
 			$text .= ' ' . sprintf(
-				/* translators: %d: number of published posts embedding the payment link */
+				/* translators: %d: number of published posts embedding the payment button */
 				_n(
 					'It is embedded in %d published post, which will show a broken button.',
 					'It is embedded in %d published posts, which will show broken buttons.',
@@ -180,15 +180,15 @@ class PayPal_Admin_Page {
 	 */
 	public static function deleted_link_notice( $resource_id ) {
 		$posts   = self::find_published_embeds( $resource_id );
-		$message = __( 'Payment link deleted successfully.', 'jetpack-paypal-payments' );
+		$message = __( 'Payment button deleted successfully.', 'jetpack-paypal-payments' );
 		$links   = array();
 
 		if ( $posts ) {
 			$message .= ' ' . sprintf(
 				/* translators: %d: number of published posts */
 				_n(
-					'%d published post still embeds it and now shows nothing where the button was. Edit it to remove the block, or update it to create a new link:',
-					'%d published posts still embed it and now show nothing where the button was. Edit them to remove the block, or update them to create a new link:',
+					'%d published post still embeds it and now shows nothing where the button was. Edit it to remove the block, or update it to create a new payment button:',
+					'%d published posts still embed it and now show nothing where the button was. Edit them to remove the block, or update them to create a new payment button:',
 					count( $posts ),
 					'jetpack-paypal-payments'
 				),
@@ -242,8 +242,8 @@ class PayPal_Admin_Page {
 
 		add_submenu_page(
 			$parent_slug,
-			__( 'PayPal Payment Links', 'jetpack-paypal-payments' ),
-			__( 'PayPal Payment Links', 'jetpack-paypal-payments' ),
+			__( 'PayPal Payment Buttons', 'jetpack-paypal-payments' ),
+			__( 'PayPal Payment Buttons', 'jetpack-paypal-payments' ),
 			self::CAPABILITY,
 			self::PAGE_SLUG,
 			array( __CLASS__, 'render_page' )
@@ -305,7 +305,7 @@ class PayPal_Admin_Page {
 					'type'    => 'error',
 					'message' => sprintf(
 						/* translators: %s: error message */
-						__( 'Failed to delete payment link: %s', 'jetpack-paypal-payments' ),
+						__( 'Failed to delete payment button: %s', 'jetpack-paypal-payments' ),
 						$result->get_error_message()
 					),
 				),
@@ -580,7 +580,7 @@ class PayPal_Admin_Page {
 
 		// Header.
 		echo '<div class="paypal-admin-header">';
-		echo '<h1>' . esc_html__( 'PayPal Payment Links', 'jetpack-paypal-payments' ) . '</h1>';
+		echo '<h1>' . esc_html__( 'PayPal Payment Buttons', 'jetpack-paypal-payments' ) . '</h1>';
 
 		$status = PayPal_OAuth::get_connection_status();
 		if ( ! empty( $status['connected'] ) ) {
@@ -665,7 +665,7 @@ class PayPal_Admin_Page {
 	/**
 	 * The delete confirmation, opened by the inline script when a Delete link is clicked.
 	 *
-	 * PayPal cannot pause or restore a payment link, so the confirm button stays
+	 * PayPal cannot pause or restore a payment button, so the confirm button stays
 	 * disabled until the acknowledgement box is ticked. The warning paragraph is
 	 * filled from the clicked link's data-confirm attribute.
 	 *
@@ -673,9 +673,9 @@ class PayPal_Admin_Page {
 	 */
 	private static function render_delete_dialog() {
 		echo '<dialog id="paypal-delete-dialog" class="paypal-delete-dialog" aria-labelledby="paypal-delete-dialog-title">';
-		echo '<h2 id="paypal-delete-dialog-title">' . esc_html__( 'Delete payment link', 'jetpack-paypal-payments' ) . '</h2>';
+		echo '<h2 id="paypal-delete-dialog-title">' . esc_html__( 'Delete payment button', 'jetpack-paypal-payments' ) . '</h2>';
 		echo '<p class="paypal-delete-dialog__text"></p>';
-		echo '<p>' . esc_html__( 'PayPal cannot pause, deactivate, or restore a payment link. Anyone who opens it afterwards lands on a PayPal "not found" page instead of a checkout.', 'jetpack-paypal-payments' ) . '</p>';
+		echo '<p>' . esc_html__( 'PayPal cannot pause, deactivate, or restore a payment button. Anyone who opens its link afterwards lands on a PayPal "not found" page instead of a checkout.', 'jetpack-paypal-payments' ) . '</p>';
 		echo '<label class="paypal-delete-dialog__acknowledge"><input type="checkbox" id="paypal-delete-acknowledge"> ' . esc_html__( 'I understand this cannot be undone.', 'jetpack-paypal-payments' ) . '</label>';
 		echo '<div class="paypal-delete-dialog__actions">';
 		echo '<button type="button" class="button paypal-delete-dialog__cancel">' . esc_html__( 'Cancel', 'jetpack-paypal-payments' ) . '</button>';
@@ -696,7 +696,7 @@ class PayPal_Admin_Page {
 		printf(
 			'<p><a href="%s">&larr; %s</a></p>',
 			esc_url( admin_url( 'admin.php?page=' . self::PAGE_SLUG ) ),
-			esc_html__( 'Back to Payment Links', 'jetpack-paypal-payments' )
+			esc_html__( 'Back to Payment Buttons', 'jetpack-paypal-payments' )
 		);
 
 		// 404 / error handling.
@@ -1011,10 +1011,10 @@ class PayPal_Admin_Page {
 	 */
 	private static function render_disconnected_state() {
 		echo '<div class="paypal-disconnected-notice">';
-		printf( '<h2>%s</h2>', esc_html__( 'Connect PayPal to view your payment links', 'jetpack-paypal-payments' ) );
+		printf( '<h2>%s</h2>', esc_html__( 'Connect PayPal to view your payment buttons', 'jetpack-paypal-payments' ) );
 		printf(
 			'<p>%s</p>',
-			esc_html__( 'Add a PayPal Payment Buttons block in the editor to connect your PayPal account and start creating payment links.', 'jetpack-paypal-payments' )
+			esc_html__( 'Add a PayPal Payment Buttons block in the editor to connect your PayPal account and start creating payment buttons.', 'jetpack-paypal-payments' )
 		);
 		printf(
 			'<a href="%s" class="button button-primary">%s</a>',

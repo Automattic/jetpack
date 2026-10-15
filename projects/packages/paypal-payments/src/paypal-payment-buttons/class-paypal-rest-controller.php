@@ -210,7 +210,7 @@ class PayPal_REST_Controller {
 								'required'    => false,
 								'type'        => 'boolean',
 								'default'     => false,
-								'description' => __( 'Whether this replaces a payment link PayPal no longer has.', 'jetpack-paypal-payments' ),
+								'description' => __( 'Whether this replaces a payment button PayPal no longer has.', 'jetpack-paypal-payments' ),
 							),
 						)
 					),
@@ -300,7 +300,7 @@ class PayPal_REST_Controller {
 						'unused_only' => array(
 							'type'        => 'boolean',
 							'default'     => false,
-							'description' => __( 'Keep the payment link when another published post still embeds it.', 'jetpack-paypal-payments' ),
+							'description' => __( 'Keep the payment button when another published post still embeds it.', 'jetpack-paypal-payments' ),
 						),
 						'post_id'     => array(
 							'type'        => 'integer',
@@ -831,8 +831,8 @@ class PayPal_REST_Controller {
 						'message'     => sprintf(
 							/* translators: %d: number of published posts */
 							_n(
-								'Kept the payment link: %d other published post still uses it.',
-								'Kept the payment link: %d other published posts still use it.',
+								'Kept the payment button: %d other published post still uses it.',
+								'Kept the payment button: %d other published posts still use it.',
 								$others,
 								'jetpack-paypal-payments'
 							),
