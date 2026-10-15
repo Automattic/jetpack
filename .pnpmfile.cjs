@@ -86,6 +86,16 @@ async function fixDeps( pkg ) {
 		}
 	}
 
+	// Outdated dependencies
+	if ( pkg.name === '@wordpress/build' ) {
+		if ( pkg.dependencies.cssnano === '^6.0.1' ) {
+			pkg.dependencies.cssnano = '^6 || ^7';
+		}
+		if ( pkg.dependencies.esbuild === '^0.27.2' ) {
+			pkg.dependencies.esbuild = '^0.27 || ^0.28';
+		}
+	}
+
 	// Update localtunnel axios dep to avoid CVE
 	// https://github.com/localtunnel/localtunnel/issues/632
 	if ( pkg.name === 'localtunnel' && pkg.dependencies.axios === '0.21.4' ) {
