@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a settings route so the dashboard works without the Jetpack plugin.

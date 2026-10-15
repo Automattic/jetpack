@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+SSO: Add SSO::init_standalone() so plugins other than Jetpack can offer SSO.

@@ -15,13 +15,16 @@ use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\SSO;
 use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Monitor\Monitor;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Protect\Credentials;
+use Automattic\Jetpack\Protect\Dashboard;
 use Automattic\Jetpack\Protect\Onboarding;
 use Automattic\Jetpack\Protect\REST_Controller;
 use Automattic\Jetpack\Protect\Scan_History;
@@ -70,7 +73,15 @@ class Jetpack_Protect {
 	 */
 	public function __construct() {
 		add_action( 'init', array( $this, 'init' ) );
-		add_action( '_admin_menu', array( $this, 'admin_page_init' ) );
+
+		Monitor::init();
+
+		// Fallback: an older jetpack-protect package loaded by another plugin may lack the dashboard.
+		if ( class_exists( Dashboard::class ) ) {
+			Dashboard::init( array( 'product' => 'protect' ) );
+		} else {
+			add_action( '_admin_menu', array( $this, 'admin_page_init' ) );
+		}
 
 		// Activate the module as the plugin is activated
 		add_action( 'admin_init', array( $this, 'do_plugin_activation_activities' ) );
@@ -103,6 +114,8 @@ class Jetpack_Protect {
 							'get_plugins'       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_plugins' ),
 							'get_themes'        => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_themes' ),
 							'wp_version'        => array( 'Automattic\\Jetpack\\Sync\\Functions', 'wp_version' ),
+							// Tells WordPress.com which modules, such as Monitor, are on.
+							'active_modules'    => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_active_modules' ),
 						),
 						'jetpack_sync_options_contentless' => array(),
 						'jetpack_sync_options_whitelist'   => array(
@@ -120,6 +133,11 @@ class Jetpack_Protect {
 
 				// Account protection package.
 				$config->ensure( 'account_protection' );
+
+				// Fallback: an older connection package loaded by another plugin may predate init_standalone().
+				if ( method_exists( SSO::class, 'init_standalone' ) ) {
+					SSO::init_standalone();
+				}
 			},
 			1
 		);
