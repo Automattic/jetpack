@@ -34,7 +34,7 @@ export const useFunnelSelection = ( hideTooltip?: () => void ) => {
 				} else {
 					setClickedStep( stepId );
 				}
-			} else if ( event.key === 'Escape' ) {
+			} else if ( event.key === 'Escape' && clickedStep !== null ) {
 				event.preventDefault();
 				setClickedStep( null );
 				hideTooltip?.();
