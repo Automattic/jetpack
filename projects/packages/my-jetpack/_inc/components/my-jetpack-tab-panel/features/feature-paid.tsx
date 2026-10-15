@@ -7,6 +7,7 @@ import { isOfflineFeatures } from '../../../data/utils/offline-features';
 import useAnalytics from '../../../hooks/use-analytics';
 import { getFeaturePricingHref } from '../utils';
 import { FeatureHighlights } from './feature-highlights';
+import { isPlanExpired } from './feature-state';
 import { useFeaturesTracking } from './features-tracking-context';
 import { getModuleStatus } from './module-availability';
 import styles from './styles.module.scss';
@@ -82,16 +83,25 @@ function isPurchaseBlocked( state: FeatureState ): boolean {
 }
 
 /**
- * Where Upgrade sells a feature: a host's own plans, else a My Jetpack route; null when nothing is sold.
+ * Where Upgrade sells a feature: an expired plan's purchase page, a host's own plans, else a My
+ * Jetpack route; null when nothing is sold.
  *
  * @param state - Live state for the feature.
- * @return The address, and what to track for it.
+ * @return The address, what to track for it, and whether it renews.
  */
-function getUpgradeLink( state: FeatureState ): { href: string; target: string } | null {
+function getUpgradeLink(
+	state: FeatureState
+): { href: string; target: string; renew?: boolean } | null {
 	const { feature } = state;
 
 	if ( isPurchaseBlocked( state ) ) {
 		return null;
+	}
+
+	// Ahead of a host's plans: a WordPress.com plan expires too, and it is the one to renew.
+	const renewUrl = isPlanExpired( state ) ? state.product?.managePaidPlanPurchaseUrl : '';
+	if ( renewUrl ) {
+		return { href: renewUrl, target: 'renew', renew: true };
 	}
 
 	// Tracked as `host`: a host's URL can carry the site's address.
@@ -156,13 +166,21 @@ function TrackedUpgradeButton( { state }: UpgradeButtonProps ) {
 			size="compact"
 			// Upselling is not what the modal is open to reach, so focus skips it.
 			data-feature-upgrade
-			aria-label={ sprintf(
-				/* translators: %s is a product name, such as "Jetpack Akismet Anti-spam". */
-				__( 'Upgrade to %s', 'jetpack-my-jetpack' ),
-				feature.upgrade?.name || feature.name
-			) }
+			aria-label={
+				link.renew
+					? sprintf(
+							/* translators: %s is a feature name, such as "Backup". */
+							__( 'Renew the plan for %s', 'jetpack-my-jetpack' ),
+							feature.name
+						)
+					: sprintf(
+							/* translators: %s is a product name, such as "Jetpack Akismet Anti-spam". */
+							__( 'Upgrade to %s', 'jetpack-my-jetpack' ),
+							feature.upgrade?.name || feature.name
+						)
+			}
 		>
-			{ __( 'Upgrade', 'jetpack-my-jetpack' ) }
+			{ link.renew ? __( 'Renew', 'jetpack-my-jetpack' ) : __( 'Upgrade', 'jetpack-my-jetpack' ) }
 		</ButtonLink>
 	);
 }
@@ -182,8 +200,12 @@ export function FeaturePaid( { state }: FeaturePaidProps ) {
 	const { feature } = state;
 	const plans = feature.plans ?? [];
 	const highlights = feature.paid_highlights ?? [];
-	// A host's own upgrade sells its plans, not the Jetpack ones listed here.
-	const showPlans = ! isPurchaseBlocked( state ) && ! feature.upgrade?.url && plans.length > 0;
+	// A host's own upgrade sells its plans, and a renewal resumes one, not the Jetpack ones listed here.
+	const showPlans =
+		! isPurchaseBlocked( state ) &&
+		! feature.upgrade?.url &&
+		! isPlanExpired( state ) &&
+		plans.length > 0;
 
 	if ( ! highlights.length && ! showPlans ) {
 		return null;

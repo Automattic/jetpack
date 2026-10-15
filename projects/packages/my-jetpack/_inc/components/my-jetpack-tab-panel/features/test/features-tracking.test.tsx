@@ -84,6 +84,7 @@ jest.mock( '../feature-state', () => ( {
 	// Nothing here is forced by a host, which is what leaves the switches on show.
 	getForcedReason: () => null,
 	hasNoSwitch: () => false,
+	isPlanExpired: () => false,
 	getFeatureManageUrl: ( state: FeatureState ) => state.feature.manage_url || '',
 } ) );
 

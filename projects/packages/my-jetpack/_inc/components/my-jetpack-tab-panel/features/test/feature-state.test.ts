@@ -350,7 +350,7 @@ describe( 'resolveFeatureState, for a module its plan switches on', () => {
 	it.each( [
 		[ PRODUCT_STATUSES.ACTIVE, true, 'active', 'Included in your plan' ],
 		[ PRODUCT_STATUSES.EXPIRING_SOON, true, 'active', 'Included in your plan' ],
-		[ PRODUCT_STATUSES.EXPIRED, true, 'inactive', null ],
+		[ PRODUCT_STATUSES.EXPIRED, true, 'inactive', 'Your plan expired' ],
 		[ PRODUCT_STATUSES.NEEDS_PLAN, false, 'inactive', null ],
 	] )(
 		'reads its state from the plan and offers no switch: %s',

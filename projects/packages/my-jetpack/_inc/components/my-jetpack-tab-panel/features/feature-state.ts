@@ -124,6 +124,10 @@ export function getForcedReason( state: FeatureState ): string | null {
 				return __( 'Included in your plan', 'jetpack-my-jetpack' );
 			}
 
+			if ( isPlanExpired( state ) ) {
+				return __( 'Your plan expired', 'jetpack-my-jetpack' );
+			}
+
 			return state.feature.included
 				? __( 'Included in your plan, but not running', 'jetpack-my-jetpack' )
 				: null;
@@ -139,6 +143,20 @@ export function getForcedReason( state: FeatureState ): string | null {
 	}
 
 	return state.unavailableReason ?? null;
+}
+
+/**
+ * Whether the plan behind a plan-driven feature has expired, which Renew offers to resume.
+ *
+ * @param state - The feature's live state.
+ * @return True when the plan expired.
+ */
+export function isPlanExpired( state: FeatureState ): boolean {
+	return (
+		state.control.kind === 'module' &&
+		isPlanDriven( state.control.module ) &&
+		state.product?.status === PRODUCT_STATUSES.EXPIRED
+	);
 }
 
 /**
