@@ -262,6 +262,11 @@ class REST_Main_Features {
 	 * @return true|WP_Error
 	 */
 	private static function switch_module( $slug, $active ) {
+		// Jetpack switches it on whenever it finds the plan, so a switch here would not hold.
+		if ( Products\Backup::$module_name === $slug ) {
+			return new WP_Error( 'plan_driven', __( 'Follows your plan, so it has no switch.', 'jetpack-my-jetpack' ) );
+		}
+
 		$modules = new Modules();
 
 		// Not is_module(): with no modules on offer, its allow-list is skipped and any slug passes.

@@ -319,7 +319,7 @@ class Initializer {
 		}
 
 		// Before the page reads Backup's state, so it reads the module this switched on.
-		if ( $connection->is_connected() && current_user_can( 'manage_options' ) ) {
+		if ( current_user_can( 'manage_options' ) ) {
 			Products\Backup::activate_module_for_plan();
 		}
 

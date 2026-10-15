@@ -190,6 +190,27 @@ class Backup_Product_Test extends TestCase {
 	}
 
 	/**
+	 * A failed lookup says so, rather than passing for a site without a plan, so the check is retried.
+	 */
+	public function test_activate_module_for_plan_reports_a_failed_lookup() {
+		( new Tokens() )->update_blog_token( 'test.test.1' );
+		( new Tokens() )->update_user_token( self::$user_id, 'test.test.' . self::$user_id, true );
+		Jetpack_Options::update_option( 'id', 123 );
+		activate_plugins( 'jetpack/jetpack.php' );
+		deactivate_plugins( Backup::get_installed_plugin_filename() );
+		Jetpack_Options::update_option( 'active_modules', array() );
+		$fail = static function () {
+			return array( 'response' => array( 'code' => 500 ) );
+		};
+		add_filter( 'pre_http_request', $fail );
+
+		$on = Backup::activate_module_for_plan();
+		remove_filter( 'pre_http_request', $fail );
+
+		$this->assertNull( $on );
+	}
+
+	/**
 	 * Data provider for test_activate_module_for_plan_asks_only_with_a_plan.
 	 *
 	 * @return array

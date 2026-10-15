@@ -231,9 +231,14 @@ describe( 'FeatureAction', () => {
 		expect( countControls() ).toBe( 0 );
 	} );
 
-	it( 'leaves the switch slot empty for a module a host forced on', () => {
+	it( 'leaves the switch slot empty for a module a host forced on, even with a plan to sell', () => {
+		const feature = buildFeature( {
+			upgrade: { path: '/add-complete', name: 'Jetpack Complete' },
+		} );
 		const { container } = render(
-			<FeatureAction state={ buildState( { kind: 'module', module: forcedModule } ) } />
+			<FeatureAction
+				state={ buildState( { kind: 'module', module: forcedModule }, { feature } ) }
+			/>
 		);
 
 		expect( container ).toBeEmptyDOMElement();

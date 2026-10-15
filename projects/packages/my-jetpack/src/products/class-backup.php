@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
@@ -492,19 +493,27 @@ class Backup extends Hybrid_Product {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return bool Whether the module is on afterwards.
+	 * @return bool|null Whether the module is on afterwards, or null when WordPress.com could not say.
 	 */
 	public static function activate_module_for_plan() {
 		if ( static::is_module_active() ) {
 			return true;
 		}
 
-		// The Backup package does not support multisite.
-		if ( is_multisite() || ! static::is_jetpack_plugin_active() || ! static::has_any_plan_for_product() ) {
+		// The Backup package does not support multisite, and its dashboard needs a linked account.
+		if ( is_multisite() || ! static::is_jetpack_plugin_active() || ! ( new Connection_Manager() )->has_connected_owner() ) {
 			return false;
 		}
 
-		return (bool) ( new Modules() )->activate( static::$module_name, false, false );
+		if ( ! static::has_any_plan_for_product() ) {
+			// The lookup is memoized, so this asks WordPress.com nothing new.
+			return is_wp_error( Wpcom_Products::get_site_current_purchases() ) ? null : false;
+		}
+
+		( new Modules() )->activate( static::$module_name, false, false );
+
+		// activate() saves the option even when a `jetpack_active_modules` callback holds it off.
+		return static::is_module_active();
 	}
 
 	/**

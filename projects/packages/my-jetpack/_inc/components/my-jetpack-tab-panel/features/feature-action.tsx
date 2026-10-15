@@ -8,6 +8,7 @@ import { getSwitchLabel } from '../utils';
 import { UpgradeButton } from './feature-paid';
 import { getFeatureManageUrl, hasNoSwitch } from './feature-state';
 import { useFeaturesTracking } from './features-tracking-context';
+import { isPlanDriven } from './module-availability';
 import styles from './styles.module.scss';
 import { useFeaturePlugin } from './use-main-features';
 import type { FeatureState } from './feature-state';
@@ -155,7 +156,9 @@ export function FeatureAction( { state, describedby, origin = 'card' }: FeatureA
 		case 'module': {
 			// A plan-driven module without its plan has a sale to offer instead of a switch.
 			if ( hasNoSwitch( state ) ) {
-				return state.status === 'active' ? null : <UpgradeButton state={ state } />;
+				return isPlanDriven( control.module ) && state.status !== 'active' ? (
+					<UpgradeButton state={ state } />
+				) : null;
 			}
 
 			return (

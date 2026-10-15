@@ -904,6 +904,27 @@ class Main_Features_Rest_Test extends TestCase {
 	/**
 	 * The activate direction runs through Modules::activate(), which does the most work.
 	 */
+	/**
+	 * Backup follows the plan, so switching it here is refused and leaves the module as it was.
+	 */
+	public function test_bulk_refuses_to_switch_backup() {
+		add_filter( 'user_has_cap', array( $this, 'grant_manage_modules' ) );
+		Jetpack_Options::update_option( 'active_modules', array( 'backup' ) );
+
+		$response = $this->send_bulk(
+			array(
+				'active'  => false,
+				'modules' => array( 'backup' ),
+			)
+		);
+
+		$this->assertSame(
+			array( 'backup' => 'Follows your plan, so it has no switch.' ),
+			array_column( $response->get_data()['failed'], 'message', 'slug' )
+		);
+		$this->assertContains( 'backup', Jetpack_Options::get_option( 'active_modules', array() ) );
+	}
+
 	public function test_bulk_switches_a_module_on() {
 		$this->offer_stats_module();
 		// Once another test has loaded the Jetpack mock, activation also asks the plan.

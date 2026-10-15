@@ -10,6 +10,7 @@
 
 use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * @covers Jetpack
@@ -409,6 +410,109 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Only an admin opening the Backup page counts as a Backup page request.
+	 *
+	 * @dataProvider provide_backup_page_visitors
+	 *
+	 * @param bool $is_admin Whether the visitor is an admin.
+	 */
+	#[DataProvider( 'provide_backup_page_visitors' )]
+	public function test_backup_page_request_needs_an_admin( $is_admin ) {
+		global $pagenow;
+		$original_pagenow = $pagenow;
+		set_current_screen( 'dashboard' );
+		$pagenow      = 'admin.php'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$_GET['page'] = 'jetpack-backup';
+		wp_set_current_user( $is_admin ? self::factory()->user->create( array( 'role' => 'administrator' ) ) : 0 );
+		$method = new ReflectionMethod( Jetpack::class, 'is_backup_page_request' );
+		// @todo Remove once we drop PHP < 8.1 support; `setAccessible()` is deprecated in 8.5.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		try {
+			$this->assertSame( $is_admin, $method->invoke( null ) );
+		} finally {
+			$pagenow = $original_pagenow; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			unset( $_GET['page'] );
+		}
+	}
+
+	/**
+	 * Data provider for test_backup_page_request_needs_an_admin.
+	 *
+	 * @return array
+	 */
+	public static function provide_backup_page_visitors() {
+		return array(
+			'logged out' => array( false ),
+			'admin'      => array( true ),
+		);
+	}
+
+	/**
+	 * Updating Jetpack queues the Backup plan check rather than running it in that request.
+	 */
+	public function test_update_queues_the_backup_module_check() {
+		delete_transient( Jetpack::BACKUP_MODULE_CHECK_TRANSIENT );
+
+		do_action( 'updating_jetpack_version', '99.0', '98.0' );
+
+		$this->assertNotFalse( get_transient( Jetpack::BACKUP_MODULE_CHECK_TRANSIENT ) );
+	}
+
+	/**
+	 * A queued check runs for an admin, and stays queued only when WordPress.com could not answer.
+	 *
+	 * @dataProvider provide_queued_backup_checks
+	 *
+	 * @param string $scenario The site and visitor.
+	 * @param bool   $queued   Whether the check should still be queued.
+	 */
+	#[DataProvider( 'provide_queued_backup_checks' )]
+	public function test_run_queued_backup_module_check( $scenario, $queued ) {
+		$this->set_up_backup_test();
+		update_option( 'active_plugins', array( 'jetpack/jetpack.php' ) );
+		Jetpack_Options::update_option( 'active_modules', array() );
+		$user = 'not an admin' === $scenario ? 0 : self::factory()->user->create( array( 'role' => 'administrator' ) );
+		if ( 'lookup failed' === $scenario || 'no plan' === $scenario ) {
+			$user = $this->connect_owner();
+		}
+		wp_set_current_user( $user );
+		if ( 'no plan' === $scenario ) {
+			set_transient( \Automattic\Jetpack\My_Jetpack\Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY, array(), HOUR_IN_SECONDS );
+			set_transient( \Automattic\Jetpack\My_Jetpack\Product::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY, array( 'active' => array() ), HOUR_IN_SECONDS );
+		}
+		$fail = static function () {
+			return array( 'response' => array( 'code' => 500 ) );
+		};
+		add_filter( 'pre_http_request', $fail );
+		Jetpack::queue_backup_module_check();
+
+		Jetpack::run_queued_backup_module_check();
+		remove_filter( 'pre_http_request', $fail );
+
+		$this->assertSame( $queued, false !== get_transient( Jetpack::BACKUP_MODULE_CHECK_TRANSIENT ) );
+		delete_transient( Jetpack::BACKUP_MODULE_CHECK_TRANSIENT );
+		delete_transient( \Automattic\Jetpack\My_Jetpack\Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY );
+		delete_transient( \Automattic\Jetpack\My_Jetpack\Product::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY );
+	}
+
+	/**
+	 * Data provider for test_run_queued_backup_module_check.
+	 *
+	 * @return array
+	 */
+	public static function provide_queued_backup_checks() {
+		return array(
+			'not an admin'  => array( 'not an admin', true ),
+			'not connected' => array( 'not connected', false ),
+			'lookup failed' => array( 'lookup failed', true ),
+			'no plan'       => array( 'no plan', false ),
+		);
+	}
+
+	/**
 	 * A site without a connected owner does not get the Backup dashboard.
 	 */
 	public function test_backup_needs_a_connected_owner() {
@@ -484,6 +588,8 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 		Jetpack_Options::update_option( 'master_user', $owner );
 		Jetpack_Options::update_option( 'user_tokens', array( $owner => "dummy.usertoken.$owner" ) );
 		Jetpack::connection()->reset_connection_status();
+
+		return $owner;
 	}
 
 	/**
