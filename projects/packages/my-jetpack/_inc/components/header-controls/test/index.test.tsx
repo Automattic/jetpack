@@ -49,14 +49,18 @@ const openControl = async () => {
 describe( 'HeaderControls', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
+		window.myJetpackInitialState = {
+			userIsAdmin: false,
+		} as unknown as typeof window.myJetpackInitialState;
 		mockApiFetch.mockResolvedValue( [] );
 		mockUseMyJetpackConnection.mockReturnValue( {
 			isSiteConnected: true,
+			userConnectionData: {},
 		} as ReturnType< typeof useMyJetpackConnection > );
 	} );
 
 	it.each( [
-		[ 'CONNECT_USER', 'button', 'Connect my account' ],
+		[ 'CONNECT_USER', 'link', 'Connect my account' ],
 		[ 'CONNECT_SITE', 'link', 'Connect site' ],
 		[ 'REPAIR', 'button', 'Restore connection' ],
 	] as const )( 'offers the %s action', async ( action, role, name ) => {

@@ -6,27 +6,23 @@ import {
 } from '@automattic/jetpack-connection';
 import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { caution, connection, error as errorIcon, offline } from '@wordpress/icons';
-import { Badge, Button, Icon, Link, Popover, Stack, Text } from '@wordpress/ui';
+import { Badge, Button, Link, Popover, Stack, Text } from '@wordpress/ui';
+import clsx from 'clsx';
 import { useCallback, useState } from 'react';
+import { connectionStatusEmptyAvatar as emptyAvatar } from '../../assets/inline-svgs';
 import { MyJetpackRoutes } from '../../constants';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import { useConnectionState } from '../../hooks/use-connection-state';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import { assignLocation } from '../../hooks/use-notification-watcher/assignLocation';
-import getManageYourPlanUrl from '../../utils/get-manage-your-plan-url';
+import { ConnectionOwnerInfo } from '../connection-status-card/connection-owner-info';
+import { ConnectionStatusArt } from '../connection-status-card/connection-status-art';
+import { PlanLogo, PlanSection, PlanSectionFooter } from '../plans-section';
 import styles from './style.module.scss';
 import useSitePurchases from './use-site-purchases';
 import type { Purchase } from '../../data/types';
 import type { ConnectionState } from '../../hooks/use-connection-state';
 import type { FC } from 'react';
-
-const STATUS_ICONS = {
-	success: connection,
-	neutral: connection,
-	warning: caution,
-	error: errorIcon,
-};
 
 const STATUS_INTENTS = {
 	success: 'stable',
@@ -36,37 +32,63 @@ const STATUS_INTENTS = {
 } as const;
 
 /**
- * The site's plans, as the Overview's Plan section names them.
+ * The badge's words: Eder's short "Connected" and "Not connected" where they apply, else the state's label.
+ *
+ * @param state - The connection state.
+ * @return The badge text.
+ */
+function getBadgeLabel( state: ConnectionState ): string {
+	if ( state.id === 'connected' || state.id === 'site-connected' ) {
+		return __( 'Connected', 'jetpack-my-jetpack' );
+	}
+
+	if ( state.id === 'owner-missing' || state.id === 'user-not-connected' ) {
+		return __( 'Not connected', 'jetpack-my-jetpack' );
+	}
+
+	return state.label;
+}
+
+/**
+ * The site's plans, laid out like the Overview's Plan section.
  *
  * @param props           - Component props.
  * @param props.purchases - The site's purchases, or null until they load.
- * @return The plan names and a link to manage them, or nothing until they load.
+ * @return The plans and their links, or nothing until they load.
  */
 const PlanSummary: FC< { purchases: Purchase[] | null } > = ( { purchases } ) => {
 	if ( ! purchases ) {
 		return null;
 	}
 
+	const hasComplete = purchases.some( purchase =>
+		purchase.product_slug?.startsWith( 'jetpack_complete' )
+	);
+
 	return (
-		<Stack direction="column" gap="xs">
-			<Text variant="heading-sm">{ __( 'Plan', 'jetpack-my-jetpack' ) }</Text>
+		<Stack direction="column" gap="sm">
+			<Text variant="heading-md">
+				{ _n( 'Your plan', 'Your plans', purchases.length || 1, 'jetpack-my-jetpack' ) }
+			</Text>
 			{ purchases.length ? (
 				purchases.map( purchase => (
-					<Text key={ purchase.ID } variant="body-md">
-						{ purchase.product_name }
-					</Text>
+					<Stack key={ purchase.ID } direction="row" gap="sm" align="start">
+						<PlanLogo />
+						<PlanSection purchase={ purchase } />
+					</Stack>
 				) )
 			) : (
-				<Text variant="body-md">
-					{ __( 'Jetpack Essentials', 'jetpack-my-jetpack' ) }
-					<br />
-					{ __( 'Free', 'jetpack-my-jetpack' ) }
-				</Text>
+				<Stack direction="row" gap="sm" align="start">
+					<PlanLogo />
+					<Text variant="body-md">
+						{ __( 'Jetpack Essentials', 'jetpack-my-jetpack' ) }
+						<br />
+						{ __( 'Free', 'jetpack-my-jetpack' ) }
+					</Text>
+				</Stack>
 			) }
-			{ purchases.length > 0 && !! getMyJetpackWindowInitialState( 'userIsAdmin' ) && (
-				<Link openInNewTab href={ getManageYourPlanUrl() }>
-					{ _n( 'Manage your plan', 'Manage your plans', purchases.length, 'jetpack-my-jetpack' ) }
-				</Link>
+			{ !! getMyJetpackWindowInitialState( 'userIsAdmin' ) && (
+				<PlanSectionFooter numberOfPurchases={ purchases.length } hasComplete={ hasComplete } />
 			) }
 		</Stack>
 	);
@@ -84,15 +106,11 @@ const PrimaryAction: FC< {
 	action: ConnectionState[ 'action' ];
 	repairActions: ReturnType< typeof useConnectionErrorNotice >[ 'actions' ];
 } > = ( { action, repairActions } ) => {
-	const connectUser = useCallback( () => {
-		window.location.href = getUserConnectionUrl();
-	}, [] );
-
 	if ( action === 'CONNECT_USER' ) {
 		return (
-			<Button variant="solid" size="compact" onClick={ connectUser }>
+			<Link href={ getUserConnectionUrl() }>
 				{ __( 'Connect my account', 'jetpack-my-jetpack' ) }
-			</Button>
+			</Link>
 		);
 	}
 
@@ -129,14 +147,20 @@ const PrimaryAction: FC< {
 };
 
 /**
- * The shared header's connection control: the connection state, its fix, and the site's plan.
+ * The shared header's connection control: the viewer's avatar opening today's Overview Connection and Plan sections.
  *
  * @return The control.
  */
 const ConnectionControl: FC = () => {
 	const state = useConnectionState();
-	const { apiRoot, apiNonce, isSiteConnected, connectedPlugins, userConnectionData } =
-		useMyJetpackConnection();
+	const {
+		apiRoot,
+		apiNonce,
+		isSiteConnected,
+		isUserConnected,
+		connectedPlugins,
+		userConnectionData,
+	} = useMyJetpackConnection();
 	const { errorGroups, showSupportLink, connectionErrorMessage, actions } =
 		useConnectionErrorNotice( { trackingContext: 'my-jetpack-header', navigate: assignLocation } );
 	const [ isOpen, setIsOpen ] = useState( false );
@@ -155,26 +179,36 @@ const ConnectionControl: FC = () => {
 	}, [] );
 	const onUnlinked = useCallback( () => window.location.reload(), [] );
 
-	const icon = state.id === 'offline' ? offline : STATUS_ICONS[ state.status ];
+	const avatar = userConnectionData?.currentUser?.wpcomUser?.avatar;
+	const showAvatar = isUserConnected || state.action === 'CONNECT_USER';
 
 	return (
 		<>
 			<Popover.Root open={ isOpen } onOpenChange={ setIsOpen }>
 				<Popover.Trigger
-					render={ <Button variant="minimal" size="compact" /> }
+					render={ <Button variant="minimal" size="compact" className={ styles.trigger } /> }
 					aria-label={ sprintf(
 						/* translators: %s is the connection state, e.g. "Site and account connected". */
 						__( 'Connection: %s', 'jetpack-my-jetpack' ),
 						state.label
 					) }
 				>
-					<Icon icon={ icon } size={ 24 } />
+					<img
+						src={ isUserConnected && avatar ? avatar : emptyAvatar }
+						alt=""
+						className={ styles.avatar }
+					/>
+					<span className={ clsx( styles.dot, styles[ state.status ] ) } />
 				</Popover.Trigger>
 				<Popover.Popup>
 					<Stack direction="column" gap="md" className={ styles.content }>
-						<Popover.Title>{ __( 'Connection', 'jetpack-my-jetpack' ) }</Popover.Title>
 						<Stack direction="column" gap="sm" align="start">
-							<Badge intent={ STATUS_INTENTS[ state.status ] }>{ state.label }</Badge>
+							<Text variant="heading-md" render={ <Popover.Title /> }>
+								{ __( 'Connection', 'jetpack-my-jetpack' ) }
+							</Text>
+							<ConnectionStatusArt status={ state.status } showAvatar={ showAvatar } />
+							<Badge intent={ STATUS_INTENTS[ state.status ] }>{ getBadgeLabel( state ) }</Badge>
+							<ConnectionOwnerInfo />
 							{ state.isDiagnosis && typeof ConnectionErrorDetails === 'function' && (
 								<ConnectionErrorDetails
 									variant="body-sm"
@@ -185,7 +219,9 @@ const ConnectionControl: FC = () => {
 							{ state.isDiagnosis && typeof ConnectionErrorDetails !== 'function' && (
 								<Text variant="body-sm">{ connectionErrorMessage }</Text>
 							) }
-							{ state.description && <Text variant="body-sm">{ state.description }</Text> }
+							{ state.status !== 'success' && state.description && (
+								<Text variant="body-sm">{ state.description }</Text>
+							) }
 							<PrimaryAction action={ state.action } repairActions={ actions } />
 							{ state.manageConnection?.type === 'link' && (
 								<Link href={ state.manageConnection.url }>
@@ -198,6 +234,7 @@ const ConnectionControl: FC = () => {
 								</Link>
 							) }
 						</Stack>
+						{ purchases && <hr className={ styles.divider } /> }
 						<PlanSummary purchases={ purchases } />
 					</Stack>
 				</Popover.Popup>

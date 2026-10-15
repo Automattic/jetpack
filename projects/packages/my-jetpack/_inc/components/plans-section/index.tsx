@@ -27,7 +27,11 @@ interface PlanSectionHeaderAndFooterProps {
 	numberOfPurchases: number;
 }
 
-const PlanSection: FC< PlanSectionProps > = ( { purchase } ) => {
+interface PlanSectionFooterProps extends PlanSectionHeaderAndFooterProps {
+	hasComplete: boolean;
+}
+
+export const PlanSection: FC< PlanSectionProps > = ( { purchase } ) => {
 	const { product_name } = purchase;
 	return (
 		<section className={ styles[ 'plan-container' ] }>
@@ -155,26 +159,24 @@ const PlanSectionHeader: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 				) }
 			</h3>
 			<div className={ styles.logo }>
-				<svg
-					width="24"
-					height="24"
-					viewBox="0 0 24 24"
-					fill="none"
-					xmlns="http://www.w3.org/2000/svg"
-				>
-					<path
-						d="M0 4C0 1.79086 1.79086 0 4 0H20C22.2091 0 24 1.79086 24 4V20C24 22.2091 22.2091 24 20 24H4C1.79086 24 0 22.2091 0 20V4Z"
-						fill="#003010"
-					/>
-					<path
-						d="M12 4C7.58779 4 4 7.58779 4 12C4 16.4122 7.58779 20 12 20C16.4122 20 20 16.4122 20 12C20 7.58779 16.4122 4 12 4ZM11.5878 13.3282H7.60305L11.5878 5.57252V13.3282ZM12.3969 18.4122V10.6565H16.3817L12.3969 18.4122Z"
-						fill="#0CED57"
-					/>
-				</svg>
+				<PlanLogo />
 			</div>
 		</>
 	);
 };
+
+export const PlanLogo: FC = () => (
+	<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<path
+			d="M0 4C0 1.79086 1.79086 0 4 0H20C22.2091 0 24 1.79086 24 4V20C24 22.2091 22.2091 24 20 24H4C1.79086 24 0 22.2091 0 20V4Z"
+			fill="#003010"
+		/>
+		<path
+			d="M12 4C7.58779 4 4 7.58779 4 12C4 16.4122 7.58779 20 12 20C16.4122 20 20 16.4122 20 12C20 7.58779 16.4122 4 12 4ZM11.5878 13.3282H7.60305L11.5878 5.57252V13.3282ZM12.3969 18.4122V10.6565H16.3817L12.3969 18.4122Z"
+			fill="#0CED57"
+		/>
+	</svg>
+);
 
 /**
  * Whether the Features tab would have anything under its Included in plan filter.
@@ -187,11 +189,12 @@ function hasIncludedFeatures(): boolean {
 	return Array.isArray( features ) ? features.some( feature => feature.included ) : false;
 }
 
-const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPurchases } ) => {
+export const PlanSectionFooter: FC< PlanSectionFooterProps > = ( {
+	numberOfPurchases,
+	hasComplete,
+} ) => {
 	const { recordEvent } = useAnalytics();
 	const { isUserConnected } = useMyJetpackConnection();
-	const { detail: complete } = useProduct( 'complete' );
-	const hasComplete = complete.hasPaidPlanForProduct;
 
 	const planManageDescription = _n(
 		'Manage your plan',
@@ -286,6 +289,7 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 const PlansSection: FC = () => {
 	const userIsAdmin = !! getMyJetpackWindowInitialState( 'userIsAdmin' );
 	const { isSiteConnected } = useMyJetpackConnection();
+	const { detail: complete } = useProduct( 'complete' );
 	const response = useSimpleQuery< Purchase[] >( {
 		name: QUERY_PURCHASES_KEY,
 		query: { path: REST_API_SITE_PURCHASES_ENDPOINT },
@@ -332,7 +336,12 @@ const PlansSection: FC = () => {
 						</section>
 					) ) }
 			</div>
-			{ userIsAdmin && <PlanSectionFooter numberOfPurchases={ numberOfPurchases } /> }
+			{ userIsAdmin && (
+				<PlanSectionFooter
+					numberOfPurchases={ numberOfPurchases }
+					hasComplete={ complete.hasPaidPlanForProduct }
+				/>
+			) }
 		</section>
 	);
 };

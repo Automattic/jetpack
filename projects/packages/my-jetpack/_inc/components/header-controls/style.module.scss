@@ -1,3 +1,43 @@
 .content {
 	max-inline-size: 20rem;
 }
+
+.trigger {
+	position: relative;
+}
+
+.avatar {
+	inline-size: 24px;
+	block-size: 24px;
+	border-radius: 50%;
+}
+
+// The status dot on the avatar, as in Eder's header mock (JETPACK-2909).
+.dot {
+	position: absolute;
+	inset-block-start: 2px;
+	inset-inline-end: 2px;
+	inline-size: 8px;
+	block-size: 8px;
+	border-radius: 50%;
+	box-shadow: 0 0 0 2px var(--jp-white);
+	background-color: var(--jp-gray-40);
+
+	&.success {
+		background-color: var(--jp-green-50);
+	}
+
+	&.warning {
+		background-color: var(--jp-yellow-50);
+	}
+
+	&.error {
+		background-color: var(--jp-red);
+	}
+}
+
+.divider {
+	margin: 0;
+	border: 0;
+	border-block-start: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+}
