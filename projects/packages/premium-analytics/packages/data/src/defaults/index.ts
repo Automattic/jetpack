@@ -6,7 +6,6 @@ export {
 } from './reports';
 export {
 	DASHBOARD_PREFERENCES_SCOPE,
-	NO_COMPARISON,
 	rememberComparison,
 	rememberPreset,
 } from './remembered-preset';

@@ -89,7 +89,6 @@ export {
 	getDefaultPreset,
 	getDefaultQueryParams,
 	getDefaultReportParams,
-	NO_COMPARISON,
 	rememberComparison,
 	rememberPreset,
 	withDefaultComparison,

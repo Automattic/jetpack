@@ -1,13 +1,12 @@
 /**
  * External dependencies
  */
-import { NO_COMPARISON, rememberComparison, rememberPreset } from '@jetpack-premium-analytics/data';
+import { rememberComparison, rememberPreset } from '@jetpack-premium-analytics/data';
 import { isSelectablePreset } from '@jetpack-premium-analytics/datetime';
 import { useCallback, useRef } from '@wordpress/element';
 import type { ReportDateFilters } from '@jetpack-premium-analytics/routing';
 
 type StagedRange = Parameters< ReportDateFilters[ 'onChange' ] >;
-type ComparisonChange = Parameters< ReportDateFilters[ 'onComparisonChange' ] >;
 
 /**
  * Remembers the named preset and comparison the reader applies in the header.
@@ -33,13 +32,5 @@ export function useRememberAppliedPreset() {
 	}, [] );
 
 	// Remembered at once: the menu sits outside the range popover, whose close discards any draft.
-	const onComparisonChange = useCallback( ( ...[ range, presetId ]: ComparisonChange ) => {
-		const comparison = range ? presetId : NO_COMPARISON;
-
-		if ( comparison ) {
-			rememberComparison( comparison );
-		}
-	}, [] );
-
-	return { onChange, onApply, onComparisonChange };
+	return { onChange, onApply, onComparisonChange: rememberComparison };
 }

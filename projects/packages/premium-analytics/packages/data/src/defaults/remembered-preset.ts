@@ -12,6 +12,7 @@ import {
 	isComparisonPresetId,
 	isSelectablePreset,
 	type ComparisonPresetId,
+	type DateRange,
 } from '@jetpack-premium-analytics/datetime';
 import { dispatch, select } from '@wordpress/data';
 import type { PresetType } from '../utils/search';
@@ -86,10 +87,16 @@ export function getRememberedComparison(): RememberedComparison | undefined {
 /**
  * Remember a comparison the reader applied, so the next visit without dates opens on it.
  *
- * @param comparison - The applied comparison preset, or `NO_COMPARISON`.
+ * @param range    - The applied comparison range, or none for "No comparison".
+ * @param presetId - The applied comparison preset.
  */
-export function rememberComparison( comparison: RememberedComparison ): void {
-	if ( getRememberedComparison() === comparison ) {
+export function rememberComparison(
+	range: DateRange | undefined,
+	presetId?: ComparisonPresetId
+): void {
+	const comparison = range ? presetId : NO_COMPARISON;
+
+	if ( ! comparison || getRememberedComparison() === comparison ) {
 		return;
 	}
 
