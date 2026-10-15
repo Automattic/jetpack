@@ -219,11 +219,10 @@ async function fillButtonForm( page, { name = 'Test Product', price = '29.99' } 
 		page,
 		canvas.locator( '.wp-block-jetpack-paypal-payment-buttons' )
 	);
-	await expect( sidebar.locator( 'input[placeholder="e.g., Premium Widget"]' ) ).toBeVisible( {
-		timeout: 10000,
-	} );
-	await sidebar.locator( 'input[placeholder="e.g., Premium Widget"]' ).fill( name );
-	await sidebar.locator( 'input[placeholder="29.99"]' ).fill( price );
+	const nameInput = sidebar.getByLabel( 'Product Name', { exact: true } );
+	await expect( nameInput ).toBeVisible( { timeout: 10000 } );
+	await nameInput.fill( name );
+	await sidebar.getByLabel( 'Price', { exact: true } ).fill( price );
 }
 
 /**
@@ -517,7 +516,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 
 			// Connecting closes the wizard and opens the form directly.
 			await expect( sidebar.locator( '.jetpack-paypal-payment-buttons__connect' ) ).toBeHidden();
-			await expect( sidebar.locator( 'input[placeholder="e.g., Premium Widget"]' ) ).toBeVisible();
+			await expect( sidebar.getByLabel( 'Product Name', { exact: true } ) ).toBeVisible();
 		} );
 	} );
 

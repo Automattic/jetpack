@@ -171,8 +171,8 @@ Support documentation for common issues with the PayPal Payment Buttons plugin.
 The plugin connects to **Production**; the sandbox is only available to developers behind the `paypal-payments-sandbox` feature flag (see `DEVELOPMENT.md`). If a site was connected to the sandbox while that flag was on:
 
 1. In the block editor, select the block and open the menu beside **PayPal Payment Button** at the top of the sidebar
-2. Choose **Manage all links and buttons** and note the current environment in the admin page header ("Connected — Sandbox")
-3. Back in the editor, open that menu again, choose **Log out** and confirm (this clears the stored credentials and token — your existing published buttons continue to work, as their payment links are static PayPal URLs)
+2. Check the line under **Log out**: it starts with "Sandbox" on a sandbox connection. A live connection shows only the account email, if there is one
+3. Choose **Log out** and confirm (this clears the stored credentials and token — your existing published buttons continue to work, as their payment links are static PayPal URLs)
 4. Reconnect with **Live** credentials from the [PayPal Developer Dashboard](https://developer.paypal.com/dashboard/applications/), or through **Connect PayPal**
 5. Recreate any buttons you need — payment resources from one environment don't work in the other
 
