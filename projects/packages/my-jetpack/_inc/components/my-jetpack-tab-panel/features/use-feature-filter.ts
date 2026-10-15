@@ -102,7 +102,7 @@ export function matchesModuleTag(
 		return true;
 	}
 	const module =
-		state.control.kind === 'module'
+		state.control.kind === 'module' || state.control.kind === 'connect-account'
 			? state.control.module
 			: modules[ getFeatureModuleSlug( state.feature, PRODUCT_MODULES ) ];
 	return module?.module_tags?.includes( tag ) ?? false;
