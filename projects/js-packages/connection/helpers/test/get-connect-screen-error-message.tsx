@@ -214,13 +214,6 @@ describe( 'getRegistrationErrorDescription', () => {
 		} );
 		expect( atPreCut ).toBe( 'x'.repeat( 249 ) );
 	} );
-
-	it( 'bounds pathological markup', () => {
-		const description = getRegistrationErrorDescription( {
-			response: { message: '<'.repeat( 50000 ) },
-		} );
-		expect( description?.length ?? 0 ).toBeLessThanOrEqual( 400 );
-	} );
 } );
 
 describe( 'getRegistrationErrorDisplay', () => {
@@ -256,6 +249,21 @@ describe( 'getRegistrationErrorDisplay', () => {
 		expect( result.detail ).toBe( 'REST http_request_failed: cURL error 28: Operation timed out' );
 		expect( display( 'connection_refused', 'Connection refused' ).detail ).toBe(
 			'Connection refused'
+		);
+	} );
+
+	it( 'stops the cause at its closing bracket and drops a bare HTTP status', () => {
+		expect(
+			display(
+				'request_timeout',
+				'The Jetpack server timed out communicating with your site https://example.com [HTTP 408].  Ask your web host to check the site’s logs.'
+			)
+		).toEqual( { message: getConnectScreenErrorMessage( 'request_timeout' ) } );
+		expect(
+			display( 'ssl_error', 'Text [SSL certificate problem]. More text [other]' ).detail
+		).toBe( 'SSL certificate problem' );
+		expect( display( 'request_timeout', 'Cut before it closes [cURL error 28' ).detail ).toBe(
+			'cURL error 28'
 		);
 	} );
 

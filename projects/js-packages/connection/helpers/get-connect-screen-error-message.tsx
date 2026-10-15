@@ -28,11 +28,11 @@ export const getRegistrationErrorCode = (
 	return typeof registrationError.name === 'string' ? registrationError.name : undefined;
 };
 
-// Long enough for WordPress.com's site_inaccessible_* text, site URL included; matches the PHP helper.
+// Matches the PHP helper.
 const DESCRIPTION_MAX_LENGTH = 400;
 
 /**
- * The site's own explanation of a registration error, safe to show under the mapped message.
+ * The site's own explanation of a registration error, cleaned up so it's safe to display.
  *
  * Applies the same rules as the connection package's `Utils::get_registration_error_description()`:
  * drops messages that are only an HTTP status and `jetpack_id` (which carries the raw response body),
@@ -67,7 +67,6 @@ export const getRegistrationErrorDescription = (
 	if ( chars.length <= DESCRIPTION_MAX_LENGTH ) {
 		return text || undefined;
 	}
-	// Cut at a word boundary, so a trailing link is dropped rather than broken.
 	const cut = chars.slice( 0, DESCRIPTION_MAX_LENGTH ).join( '' );
 	return cut.replace( /\s+\S*$/u, '' ) || cut;
 };
@@ -106,20 +105,21 @@ const WPCOM_TRANSPORT_CODES = new Set( [
 ] );
 
 /**
- * The underlying cause from a WordPress.com transport error: the bracketed part at the end of its text.
+ * The underlying cause from a WordPress.com transport error: the first bracketed part of its text.
  *
  * @param {string} description - The site's cleaned explanation of the error.
- * @return {string} The cause, or the whole description when it has no bracketed part.
+ * @return {string|undefined} The cause, the whole description when it has no bracketed part, or undefined when the brackets only hold an HTTP status.
  */
-const getTransportCause = ( description: string ): string => {
+const getTransportCause = ( description: string ): string | undefined => {
 	const start = description.indexOf( '[' );
-	// The description may be cut before the closing bracket, so only an end bracket is dropped.
-	return start === -1
-		? description
-		: description
-				.slice( start + 1 )
-				.replace( /\]\s*$/, '' )
-				.trim();
+	if ( start === -1 ) {
+		return description;
+	}
+	// The text can go on after the bracket (e.g. for HTTP 408), or be cut before it closes.
+	const end = description.indexOf( ']', start );
+	const cause = description.slice( start + 1, end === -1 ? undefined : end ).trim();
+	// A bare status adds nothing to our message.
+	return /^HTTP \d+$/.test( cause ) ? undefined : cause || undefined;
 };
 
 /**
@@ -133,11 +133,6 @@ const getSiteUrl = ( description: string ): string | undefined =>
 
 /**
  * What to show for a registration error: one message, plus a detail line only when it adds something.
- *
- * - A mapped code shows only our copy, since the site's text mostly repeats or contradicts it.
- * - An unmapped code shows the site's own text as the message.
- * - Transport failures keep the underlying cause (the cURL error or the bracketed part of WordPress.com's text).
- * - `site_inaccessible_{status}` names the URL WordPress.com tried in the message, the only thing its text adds.
  *
  * @param {RegistrationError|false} registrationError - The `registrationError` from `useConnection()`.
  * @param {boolean}                 isOfflineMode     - Whether the site is in offline mode, from `useConnection()`.
@@ -161,7 +156,8 @@ export const getRegistrationErrorDisplay = (
 		return { message, detail: description };
 	}
 	if ( code && WPCOM_TRANSPORT_CODES.has( code ) ) {
-		return { message, detail: getTransportCause( description ) };
+		const detail = getTransportCause( description );
+		return detail ? { message, detail } : { message };
 	}
 	if ( code && /^site_inaccessible_\d{3}$/.test( code ) ) {
 		return {
@@ -285,14 +281,8 @@ const siteHttpErrorMessage = ( status: number, siteUrl?: string ): string => {
 /**
  * Maps a connection error code (and offline mode) to a user-facing message.
  *
- * Covers three kinds of registration failure:
- * - WordPress.com rejected the registration (it couldn't verify the site, or refused it).
- * - The site's own REST request failed before WordPress.com was contacted.
- * - The site couldn't reach WordPress.com.
- *
- * The Jetpack plugin keeps its own overlapping code→copy map in
- * `projects/plugins/jetpack/_inc/client/components/jetpack-notices/state-notices.jsx`
- * (`getErrorFromKey`); when changing copy for a code shared by both, check the other file too.
+ * The Jetpack plugin's `state-notices.jsx` (`getErrorFromKey`) keeps an overlapping map;
+ * when changing copy for a code in both, check the other file too.
  *
  * @param {string}  errorCode     - The connection error code, see `getRegistrationErrorCode()`.
  * @param {boolean} isOfflineMode - Whether the site is in offline mode.
