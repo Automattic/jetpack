@@ -48,6 +48,10 @@ Whenever the module is ready. The widget reads the list again each time the filt
 
 A metric registered later shows on every widget until the user unticks it: the `hiddenMetrics` attribute stores what was switched off, not what was picked.
 
+## Reference registrant
+
+`packages/store-performance-bookings/` adds Bookings after Orders (`order: 25`). It is a wp-build script module the package enqueues only on a store running WooCommerce Bookings; it waits for its translation catalog before registering, and it imports nothing from `src/`, so it reads as a third-party registrant would.
+
 ## Files
 
 - `metrics.ts`: the widget's metrics and `getStorePerformanceMetrics()`, which applies the filter, validates, drops repeats and sorts by `order`.
