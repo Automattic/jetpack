@@ -234,6 +234,60 @@ class Jetpack_Connector_Test extends TestCase {
 	}
 
 	/**
+	 * Another administrator is named as this site knows them, not as WordPress.com does.
+	 *
+	 * The viewer's own row still resolves against WordPress.com, so this pins the split rather
+	 * than just the owner half of it.
+	 */
+	public function test_the_owner_is_named_locally_while_the_viewer_is_named_by_wpcom() {
+		$owner_id = wp_insert_user(
+			array(
+				'user_login'   => 'connector_owner',
+				'user_pass'    => 'password',
+				'user_email'   => 'owner@example.org',
+				'display_name' => 'Local Owner',
+				'role'         => 'administrator',
+			)
+		);
+
+		\Jetpack_Options::update_option( 'blog_token', 'test.secret' );
+		\Jetpack_Options::update_option( 'id', 12345 );
+		\Jetpack_Options::update_option( 'master_user', $owner_id );
+		\Jetpack_Options::update_option(
+			'user_tokens',
+			array(
+				$owner_id       => 'ownerkey.private.' . $owner_id,
+				$this->admin_id => 'viewerkey.private.' . $this->admin_id,
+			)
+		);
+
+		// Cached so neither lookup reaches WordPress.com during the test.
+		set_transient(
+			'jetpack_connected_user_data_' . $owner_id,
+			array(
+				'display_name' => 'Wpcom Owner',
+				'login'        => 'wpcom_owner',
+				'email'        => 'owner@wordpress.com',
+			)
+		);
+		set_transient(
+			'jetpack_connected_user_data_' . $this->admin_id,
+			array(
+				'display_name' => 'Wpcom Viewer',
+				'login'        => 'wpcom_viewer',
+				'email'        => 'viewer@wordpress.com',
+			)
+		);
+
+		// The transients are options-backed, so tearDown's clear_options() removes them.
+		$data = Jetpack_Connector::get_connector_data( array() );
+
+		$this->assertSame( 'Local Owner', $data['connectionOwner']['displayName'] );
+		$this->assertSame( 'connector_owner', $data['connectionOwner']['login'] );
+		$this->assertSame( 'Wpcom Viewer', $data['currentUser']['displayName'] );
+	}
+
+	/**
 	 * A consumer request exposes protected-owner card state before anyone has claimed it.
 	 */
 	public function test_protected_owner_card_state_when_a_consumer_requests_one() {
