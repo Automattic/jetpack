@@ -362,7 +362,7 @@ The options and corresponding components are:
 
 - `autoWpPolyfill`: Set false to disable use of [babel-plugin-polyfill-corejs3](https://www.npmjs.com/package/babel-plugin-polyfill-corejs3) to produce magic `/* wp:polyfill */` comments that [@wordpress/dependency-extraction-webpack-plugin](https://www.npmjs.com/package/@wordpress/dependency-extraction-webpack-plugin) will use to add a dep on `wp-polyfill`.
 
-  Note that polyfills will not be considered unless there's at least one WordPress release that includes that feature as part of its `wp-polyfill`.
+  We only add `wp-polyfill` for features that are polyfilled in at least one supported WordPress release, since there's no point including the script if it doesn't actually polyfill the feature we need.
 
   Options include:
   - `exclude`: Core-js polyfills that `wp-polyfill` contains but that shouldn't add the dependency, e.g. `[ 'web.dom-exception.stack' ]`.
