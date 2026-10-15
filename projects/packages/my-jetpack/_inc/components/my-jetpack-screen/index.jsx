@@ -59,7 +59,7 @@ export const GlobalNotice = ( { message, title, options } ) => {
 	return (
 		<div className={ styles.notice }>
 			<Notice.Root intent={ options.level || 'info' }>
-				{ title && <Notice.Title className={ styles.title }>{ title }</Notice.Title> }
+				{ title && <Notice.Title>{ title }</Notice.Title> }
 				{ /* `render={ <div /> }`: `message` can carry block content, but Description defaults to a `span`. */ }
 				<Notice.Description className={ styles.message } render={ <div /> }>
 					{ message }
@@ -207,13 +207,15 @@ export default function MyJetpackScreen() {
 							</Container>
 						) }
 						{ noticeMessage && (
-							<div className={ styles.notices }>
-								<GlobalNotice
-									message={ noticeMessage }
-									title={ noticeTitle }
-									options={ noticeOptions }
-								/>
-							</div>
+							<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+								<Col>
+									<GlobalNotice
+										message={ noticeMessage }
+										title={ noticeTitle }
+										options={ noticeOptions }
+									/>
+								</Col>
+							</Container>
 						) }
 					</>
 				}
