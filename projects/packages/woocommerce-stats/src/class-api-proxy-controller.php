@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\WooCommerceStats;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\PremiumAnalytics\Sync\Sync_Status_Tracker;
 use Jetpack_Options;
 use WP_Error;
 use WP_REST_Request;
@@ -132,7 +133,7 @@ class Api_Proxy_Controller {
 	public function handle_request( WP_REST_Request $request ) {
 		$path      = sprintf( '/sites/%d/%s', (int) Jetpack_Options::get_option( 'id' ), $request->get_param( 'endpoint' ) );
 		$params    = $this->get_forwarded_params( $request );
-		$cache_key = null === $request->get_param( 'force_refresh' ) ? $this->get_cache_key( $path, $params ) : null;
+		$cache_key = null === $request->get_param( 'force_refresh' ) && $this->is_store_synced() ? $this->get_cache_key( $path, $params ) : null;
 
 		$cached = null === $cache_key ? false : get_transient( $cache_key );
 		if ( false !== $cached ) {
@@ -253,6 +254,16 @@ class Api_Proxy_Controller {
 		}
 
 		return $forwarded;
+	}
+
+	/**
+	 * Whether the store's first analytics full sync has finished. Until then WordPress.com answers
+	 * with incomplete reports, which must not outlive the sync in the cache.
+	 *
+	 * @return bool
+	 */
+	private function is_store_synced() {
+		return (int) get_option( Sync_Status_Tracker::INITIAL_ANALYTICS_SYNC_OPTION, 0 ) > 0;
 	}
 
 	/**

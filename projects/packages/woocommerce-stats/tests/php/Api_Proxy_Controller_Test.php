@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\WooCommerceStats;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\PremiumAnalytics\Sync\Sync_Status_Tracker;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
@@ -52,6 +53,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		\Jetpack_Options::update_option( 'id', 4242 );
 		\Jetpack_Options::update_option( 'blog_token', 'blog_token.secret' );
 		( new Connection_Manager() )->reset_connection_status();
+		update_option( Sync_Status_Tracker::INITIAL_ANALYTICS_SYNC_OPTION, 1700000000 );
 
 		$this->requests = array();
 		$this->upstream = $this->upstream_response( 200, '{"orders":42}' );
@@ -67,6 +69,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		remove_filter( 'pre_http_request', array( $this, 'answer_as_wordpress_com' ) );
 		remove_action( 'rest_api_init', array( Api_Proxy_Controller::class, 'init' ) );
 
+		delete_option( Sync_Status_Tracker::INITIAL_ANALYTICS_SYNC_OPTION );
 		\Jetpack_Options::delete_option( 'blog_token' );
 		\Jetpack_Options::delete_option( 'id' );
 		( new Connection_Manager() )->reset_connection_status();
@@ -188,6 +191,16 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 
 		$this->assertCount( 4, $this->requests );
 		$this->assertStringNotContainsString( 'force_refresh', $this->requests[3]['url'] );
+	}
+
+	public function test_does_not_cache_a_report_before_the_first_store_sync_finishes() {
+		delete_option( Sync_Status_Tracker::INITIAL_ANALYTICS_SYNC_OPTION );
+
+		$response = $this->get_report();
+		$this->get_report();
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertCount( 2, $this->requests );
 	}
 
 	/**
