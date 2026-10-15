@@ -10,7 +10,6 @@ const PNG = Buffer.from(
 );
 
 test.beforeAll( async ( { testUtils } ) => {
-	await testUtils.executeWpCommand( [ 'plugin', 'activate', 'e2e-comments-new-hotness' ] );
 	await testUtils.activateModule( 'comments' );
 } );
 
@@ -23,7 +22,6 @@ test.afterAll( async ( { requestUtils, testUtils } ) => {
 		} );
 	}
 	await testUtils.deactivateModule( 'comments' );
-	await testUtils.executeWpCommand( [ 'plugin', 'deactivate', 'e2e-comments-new-hotness' ] );
 } );
 
 test.describe( 'Comments: Block editor', () => {
