@@ -1,3 +1,3 @@
-// The GEO route hosts the AI SEO Enhancer toggle; no inspector or preloading
-// beyond the page bootstrap, so the route needs no configuration.
+// The GEO route hosts the llms.txt, AI SEO Enhancer and AI crawler controls. Its
+// stage loads their data, so the route itself needs no configuration.
 export const route = {};
