@@ -79,6 +79,8 @@ function e2e_pa_fixture( $path, $query ) {
 	$stats = '/rest/v1.1/sites/' . E2E_PA_SITE_ID . '/stats';
 
 	switch ( $path ) {
+		case $stats:
+			return e2e_pa_site_summary();
 		case $stats . '/visits':
 			return e2e_pa_visits( $query );
 		case '/wpcom/v2/sites/' . E2E_PA_SITE_ID . '/jetpack-stats/usage':
@@ -99,6 +101,15 @@ function e2e_pa_plan_usage() {
 		'current_usage' => array( 'views_count' => 0 ),
 		'views_limit'   => null,
 	);
+}
+
+/**
+ * Builds the all-time site summary. It has views, as the visits series does, so the empty Traffic widgets keep the period text.
+ *
+ * @return array
+ */
+function e2e_pa_site_summary() {
+	return array( 'stats' => array( 'views' => 1000 ) );
 }
 
 /**
