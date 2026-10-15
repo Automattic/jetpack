@@ -25,6 +25,8 @@ definition and lazily renders that report's page component. Adding a report does
    		getLabel: () => __( 'All pages', 'jetpack-premium-analytics-pkg' ),
    		// Optional — only for reports that own sections:
    		// resolveSection: value => resolveSectionId( value ),
+   		// Optional, for a paid Stats feature: a plan without it gets the locked page.
+   		// feature: 'utm',
    		load: () => import( './posts/page' ),
    	},
    };

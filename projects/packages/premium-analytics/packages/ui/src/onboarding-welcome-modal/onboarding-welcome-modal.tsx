@@ -53,7 +53,7 @@ export function OnboardingWelcomeModal( {
 	return (
 		<Dialog.Root open={ open } onOpenChange={ handleOpenChange } disablePointerDismissal>
 			<Dialog.Popup size="small">
-				<Dialog.CloseIcon className={ styles.close } />
+				<Dialog.CloseIconButton className={ styles.close } />
 				{ /* The stage lives in the scroll region so the copy and the button
 				     stay reachable on short viewports; the footer stays pinned. */ }
 				<Dialog.Content>

@@ -130,7 +130,7 @@ export function UtmUrlBuilderDialog( { onClose }: { onClose: () => void } ) {
 			<Dialog.Popup size="large">
 				<Dialog.Header>
 					<Dialog.Title>{ __( 'Build URL', 'jetpack-premium-analytics-pkg' ) }</Dialog.Title>
-					<Dialog.CloseIcon />
+					<Dialog.CloseIconButton />
 				</Dialog.Header>
 				<Dialog.Content>
 					<div className={ styles.layout }>

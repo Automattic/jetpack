@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { Button, Link, LinkButton } from '@wordpress/ui';
+import { Button, Link, ButtonLink } from '@wordpress/ui';
 import type { FC, MouseEvent } from 'react';
 
 export type SecondaryButtonProps = {
@@ -80,12 +80,12 @@ const SecondaryButton: FC< SecondaryButtonProps > = props => {
 	};
 
 	// A loading or disabled control isn't navigable, so keep a real Button for
-	// the spinner / disabled chrome. Otherwise LinkButton owns href natively.
+	// the spinner / disabled chrome. Otherwise ButtonLink owns href natively.
 	if ( href && ! isLoading && ! disabled ) {
 		return (
-			<LinkButton { ...sharedProps } href={ href } openInNewTab={ isExternalLink }>
+			<ButtonLink { ...sharedProps } href={ href } openInNewTab={ isExternalLink }>
 				{ label }
-			</LinkButton>
+			</ButtonLink>
 		);
 	}
 

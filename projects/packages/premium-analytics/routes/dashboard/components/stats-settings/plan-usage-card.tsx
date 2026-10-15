@@ -2,7 +2,7 @@ import {
 	Button,
 	Card,
 	Link,
-	LinkButton,
+	ButtonLink,
 	Stack,
 	Text,
 	Spinner,
@@ -145,9 +145,9 @@ export function PlanUsageCard(): JSX.Element {
 					</Link>
 				</Text>
 				{ upgradeUrl && (
-					<LinkButton href={ upgradeUrl } onClick={ trackUpgrade }>
+					<ButtonLink href={ upgradeUrl } onClick={ trackUpgrade }>
 						{ __( 'Upgrade', 'jetpack-premium-analytics-pkg' ) }
-					</LinkButton>
+					</ButtonLink>
 				) }
 			</Stack>
 		);

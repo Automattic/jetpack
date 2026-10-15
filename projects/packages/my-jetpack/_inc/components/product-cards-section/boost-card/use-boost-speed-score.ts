@@ -3,7 +3,7 @@ import {
 	requestSpeedScores,
 	calculateDaysSince,
 } from '@automattic/jetpack-boost-score-api';
-import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { PRODUCT_STATUSES } from '../../../constants';
 import useProduct from '../../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
@@ -27,7 +27,8 @@ const useBoostSpeedScore = () => {
 
 	const { siteUrl = '', latestBoostSpeedScores } = getMyJetpackWindowInitialState();
 	const { apiRoot, apiNonce, isSiteConnected } = useMyJetpackConnection();
-	const { detail } = useProduct( 'boost' );
+	const slug = 'boost';
+	const { detail } = useProduct( slug );
 	const { status } = detail;
 	const isBoostActive =
 		status === PRODUCT_STATUSES.ACTIVE || status === PRODUCT_STATUSES.CAN_UPGRADE;
@@ -133,9 +134,6 @@ const useBoostSpeedScore = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
-	// eslint-disable-next-line react-hooks/exhaustive-deps
-	const retry = useCallback( () => getSpeedScores(), [ isSiteConnected, apiRoot, apiNonce ] );
-
 	return {
 		isLoading,
 		isSiteConnected,
@@ -143,7 +141,7 @@ const useBoostSpeedScore = () => {
 		currentSpeedScore,
 		boostScoreIncrease,
 		isSpeedScoreError,
-		retry,
+		retry: getSpeedScores,
 	};
 };
 
