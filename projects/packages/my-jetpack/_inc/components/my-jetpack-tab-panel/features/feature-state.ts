@@ -55,8 +55,7 @@ export type FeatureState = {
 	pending?: boolean;
 	// True while this feature's own switch has a request out.
 	isSwitching?: boolean;
-	// Whether the feature is switched on here, which is not whether a plan covers it:
-	// the wp-admin sidebar asks the same question, and the two have to agree.
+	// Whether the feature is switched on and has the account connection it needs.
 	status: 'active' | 'inactive';
 	control: FeatureControl;
 	// The product behind the feature, for the modal's copy.
@@ -240,7 +239,7 @@ export function resolveFeatureState(
 			feature.product === 'social' ||
 			feature.product === 'backup' )
 	) {
-		return getAccountNeededState( feature, product, $module || gatedModule );
+		return getAccountNeededState( feature, product, accountModule );
 	}
 	if ( gatedModule?.available === false ) {
 		return {

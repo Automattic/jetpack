@@ -473,7 +473,10 @@ describe( 'account-dependent features', () => {
 			false,
 			true
 		);
-		expect( state.control.kind ).toBe( 'connect-account' );
+		expect( state.control ).toEqual( {
+			kind: 'connect-account',
+			module: expect.objectContaining( { module } ),
+		} );
 		expect( state.status ).toBe( 'inactive' );
 		expect( isFeatureAvailable( state ) ).toBe( false );
 		expect( getFeatureManageUrl( state ) ).toBe( '' );
@@ -502,14 +505,42 @@ describe( 'account-dependent features', () => {
 	} );
 
 	it.each( [
-		[ 'plugin forced off', 'publicize', 'social', 'inactive', false, false, 'plugin' ],
-		[ 'plugin forced on', 'publicize', 'social', 'active', false, false, 'connect-account' ],
-		[ 'module forced on', 'publicize', 'social', '', 'active', false, 'connect-account' ],
-		[ 'multisite', 'backup', 'backup', '', false, true, 'module' ],
-		[ 'module forced on, multisite', 'backup', 'backup', '', 'active', true, 'module' ],
+		[
+			'plugin forced off',
+			'publicize',
+			'social',
+			'inactive',
+			false,
+			false,
+			'plugin',
+			'connect-account',
+		],
+		[
+			'plugin forced on',
+			'publicize',
+			'social',
+			'active',
+			false,
+			false,
+			'connect-account',
+			'connect-account',
+		],
+		[
+			'module forced on',
+			'publicize',
+			'social',
+			'',
+			'active',
+			false,
+			'connect-account',
+			'connect-account',
+		],
+		[ 'module forced off', 'publicize', 'social', '', 'inactive', false, 'module', 'module' ],
+		[ 'multisite', 'backup', 'backup', '', false, true, 'module', 'module' ],
+		[ 'module forced on, multisite', 'backup', 'backup', '', 'active', true, 'module', 'module' ],
 	] as const )(
 		'handles account connection with %s',
-		( _name, module, product, plugin_override, override, is_multisite, kind ) => {
+		( _name, module, product, plugin_override, override, is_multisite, kind, moduleKind ) => {
 			const previousData = window.JetpackScriptData;
 			window.JetpackScriptData = {
 				...previousData,
@@ -520,6 +551,7 @@ describe( 'account-dependent features', () => {
 					module,
 					requires_user_connection: true,
 					override,
+					...( override === 'inactive' ? { activated: false, available: false } : {} ),
 				} );
 				const state = resolveFeatureState(
 					buildFeature( {
@@ -538,43 +570,10 @@ describe( 'account-dependent features', () => {
 					true
 				);
 				expect( state.control.kind ).toBe( kind );
-				expect( getModuleFeatureState( accountModule, {}, true ).control.kind ).toBe(
-					plugin_override ? 'connect-account' : kind
-				);
+				expect( getModuleFeatureState( accountModule, {}, true ).control.kind ).toBe( moduleKind );
 			} finally {
 				window.JetpackScriptData = previousData;
 			}
 		}
 	);
 } );
-
-it.each( [ [ 'publicize', 'social' ] ] )(
-	'keeps a host-forced-off %s blocked before asking for an account',
-	( module, product ) => {
-		const blocked = buildModule( {
-			module,
-			activated: false,
-			available: false,
-			requires_user_connection: true,
-			override: 'inactive',
-		} );
-		const state = resolveFeatureState(
-			buildFeature( {
-				module,
-				product,
-				in_jetpack: true,
-				plugin: 'jetpack-social',
-				plugin_status: 'active',
-			} ),
-			'active',
-			undefined,
-			{ [ module ]: blocked },
-			PRODUCT_MODULES,
-			false,
-			true
-		);
-		expect( state.control.kind ).toBe( 'module' );
-		expect( getForcedReason( state ) ).toBe( 'Disabled by your host or site administrator' );
-		expect( getModuleFeatureState( blocked, {}, true ).control.kind ).toBe( 'module' );
-	}
-);

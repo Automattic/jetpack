@@ -5,6 +5,7 @@ import { FormToggle } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Button, ButtonLink } from '@wordpress/ui';
 import { useCallback } from 'react';
+import { MyJetpackRoutes } from '../../../constants';
 import { ModuleToggle } from '../../module-toggle';
 import { getSwitchLabel } from '../utils';
 import { getFeatureManageUrl, getForcedReason } from './feature-state';
@@ -154,7 +155,7 @@ export function FeatureAction( { state, describedby, origin = 'card' }: FeatureA
 
 	switch ( control.kind ) {
 		case 'connect-account':
-			return <ConnectAccountButton state={ state } origin={ origin } />;
+			return <ConnectAccountButton state={ state } origin={ origin } describedby={ describedby } />;
 		case 'module': {
 			if ( getForcedReason( state ) ) {
 				return null;
@@ -227,15 +228,17 @@ export function FeatureAction( { state, describedby, origin = 'card' }: FeatureA
 /**
  * A "Connect" button that starts the WordPress.com account connection and returns to the Features tab.
  *
- * @param props        - The component props.
- * @param props.state  - The feature's live state.
- * @param props.origin - Where the connection link is shown.
+ * @param props             - The component props.
+ * @param props.state       - The feature's live state.
+ * @param props.origin      - Where the connection link is shown.
+ * @param props.describedby - Id of the existing status text, when shown.
  * @return The connection link.
  */
 export function ConnectAccountButton( {
 	state,
-	origin = 'card',
-}: Pick< FeatureActionProps, 'state' | 'origin' > ) {
+	origin,
+	describedby,
+}: Pick< FeatureActionProps, 'state' | 'describedby' > & { origin: FeatureActionOrigin } ) {
 	const tracking = useFeaturesTracking();
 	const onClick = useCallback(
 		() => tracking?.trackConnectClick( state, origin ),
@@ -243,10 +246,13 @@ export function ConnectAccountButton( {
 	);
 	return (
 		<ButtonLink
-			href={ getUserConnectionUrl( { redirect_url: getMyJetpackUrl( '#/features' ) } ) }
+			href={ getUserConnectionUrl( {
+				redirect_url: getMyJetpackUrl( `#${ MyJetpackRoutes.Features }` ),
+			} ) }
 			variant="outline"
 			size="compact"
 			onClick={ onClick }
+			aria-describedby={ describedby }
 			aria-label={ sprintf(
 				/* translators: %s is the feature name. */
 				__( 'Connect account for %s', 'jetpack-my-jetpack' ),

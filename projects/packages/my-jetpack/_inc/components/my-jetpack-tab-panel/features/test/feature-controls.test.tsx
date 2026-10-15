@@ -563,6 +563,9 @@ describe( 'account connection controls', () => {
 	it( 'shows the status, reason and direct connection link on the card', () => {
 		render( <FeatureItem state={ state } onOpen={ jest.fn() } /> );
 		expect( screen.getByText( 'Account needed' ) ).toBeInTheDocument();
+		expect(
+			screen.getByRole( 'link', { name: 'Connect account for Boost' } )
+		).toHaveAccessibleDescription( 'Account needed' );
 		expect( screen.getByRole( 'link', { name: 'Connect account for Boost' } ) ).toHaveTextContent(
 			/^Connect$/
 		);
@@ -587,6 +590,9 @@ describe( 'account connection controls', () => {
 		);
 		expect( screen.getByText( state.unavailableReason ) ).toBeInTheDocument();
 		expect( screen.getAllByRole( 'link' ) ).toHaveLength( 1 );
+		expect( screen.getByRole( 'link', { name: 'Connect account for Boost' } ) ).not.toHaveAttribute(
+			'aria-describedby'
+		);
 		expect( screen.getByRole( 'link', { name: 'Connect account for Boost' } ) ).toHaveAttribute(
 			'href',
 			'/wp-admin/admin.php?connect_url_redirect=1&skip_pricing=true'

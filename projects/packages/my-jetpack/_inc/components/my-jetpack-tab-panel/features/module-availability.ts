@@ -108,6 +108,7 @@ export function isFeatureAvailable( state: FeatureState ): boolean {
 	const { control } = state;
 	return (
 		! state.pending &&
+		control.kind !== 'connect-account' &&
 		( control.kind !== 'install-jetpack' || ! control.blocked ) &&
 		( control.kind !== 'install-plugin' ||
 			! control.blocked ||

@@ -13,7 +13,7 @@ jest.mock( '@wordpress/data', () => ( {
 	useSelect: ( callback: ( select: unknown ) => unknown ) =>
 		callback( () => ( {
 			getConnectionStatus: () => mockConnection(),
-			getIsOfflineMode: () => mockConnection().offlineMode?.isActive,
+			getIsOfflineMode: () => mockConnection().isOfflineMode,
 		} ) ),
 } ) );
 
@@ -147,28 +147,18 @@ describe( 'useFeatureStates, while a module switch is answering a click', () => 
 
 describe( 'Features account connection gate', () => {
 	it.each( [
-		[ 'registered without an owner', true, false, false, false, false, 'connect-account' ],
-		[ 'owner connected, viewer unlinked', true, true, false, false, false, 'module' ],
-		[ 'fully connected', true, true, true, false, false, 'module' ],
-		[ 'unregistered', false, false, false, false, false, 'module' ],
-		[ 'offline mode', true, false, false, true, false, 'module' ],
-		[ 'offline Features', true, false, false, false, true, 'module' ],
+		[ 'registered without an owner', true, false, false, false, 'connect-account' ],
+		[ 'owner connected', true, true, false, false, 'module' ],
+		[ 'unregistered', false, false, false, false, 'module' ],
+		[ 'offline mode', true, false, true, false, 'module' ],
+		[ 'offline Features', true, false, false, true, 'module' ],
 	] )(
 		'%s preserves its expected action',
-		(
-			name,
-			isRegistered,
-			hasConnectedOwner,
-			isUserConnected,
-			isOfflineMode,
-			isOfflineFeatures,
-			kind
-		) => {
+		( name, isRegistered, hasConnectedOwner, isOfflineMode, isOfflineFeatures, kind ) => {
 			mockConnection.mockReturnValue( {
 				isRegistered,
 				hasConnectedOwner,
-				isUserConnected,
-				offlineMode: { isActive: isOfflineMode },
+				isOfflineMode,
 			} );
 			window.myJetpackInitialState.isOfflineFeatures = isOfflineFeatures as boolean;
 			mockModules.mockReturnValue( {

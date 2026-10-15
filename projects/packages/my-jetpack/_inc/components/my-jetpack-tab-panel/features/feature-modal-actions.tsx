@@ -122,8 +122,8 @@ type FeatureModalActionsProps = {
 };
 
 /**
- * What the modal offers to do with a feature: Open once it is running, the button that
- * switches it, installs its plugin, or installs Jetpack, and Upgrade where a plan sells more.
+ * The modal offers Connect when an account is needed; otherwise Open, activation,
+ * installation, and Upgrade where a plan sells more.
  *
  * @param {FeatureModalActionsProps} props       - The component props.
  * @param {FeatureState}             props.state - Live state for the feature.
