@@ -42,6 +42,7 @@ import {
 	PlanLimitNotice,
 	PurchaseSuccessNotice,
 	RefreshFailureNotice,
+	SectionNotice,
 	SectionSyncNotice,
 	StatsSettingsPanel,
 } from './components';
@@ -482,7 +483,9 @@ function Dashboard(): JSX.Element {
 														onRetry={ retrySync }
 														isRetrying={ isRetryingSync }
 													/>
-												) : null }
+												) : (
+													section.notice && <SectionNotice message={ section.notice } />
+												) }
 
 												<WidgetDashboard.NoWidgetsState />
 												<div ref={ setWidgetsFrame }>

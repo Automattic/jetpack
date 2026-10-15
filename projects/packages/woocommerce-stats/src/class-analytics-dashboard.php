@@ -148,9 +148,37 @@ class Analytics_Dashboard {
 				'is_available'   => array( __CLASS__, 'is_section_available' ),
 				// Nothing backfills historical orders to WordPress.com but the analytics full sync.
 				'requires_sync'  => true,
+				'notice'         => array( __CLASS__, 'get_no_orders_notice' ),
 				'default_layout' => array( __CLASS__, 'get_default_layout' ),
 			)
 		);
+	}
+
+	/**
+	 * The message above the tab while the store has never had an order.
+	 *
+	 * @return string|null The message, or null once the store has an order or without WooCommerce.
+	 */
+	public static function get_no_orders_notice() {
+		if ( ! function_exists( 'wc_get_orders' ) ) {
+			return null;
+		}
+
+		// The registered statuses, so an abandoned checkout draft is not mistaken for a first order.
+		$orders = wc_get_orders(
+			array(
+				'type'   => 'shop_order',
+				'status' => array_keys( wc_get_order_statuses() ),
+				'limit'  => 1,
+				'return' => 'ids',
+			)
+		);
+
+		if ( ! empty( $orders ) ) {
+			return null;
+		}
+
+		return __( 'Your store has no orders yet. Your sales, orders and customers will show here after your first order.', 'jetpack-woocommerce-stats-pkg' );
 	}
 
 	/**

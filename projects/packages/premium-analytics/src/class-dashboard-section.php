@@ -127,6 +127,14 @@ final class Dashboard_Section {
 	public $requires_sync = false;
 
 	/**
+	 * Message, or a callback returning one, shown above the section's widgets; null when none.
+	 *
+	 * @since $$next-version$$
+	 * @var string|callable|null
+	 */
+	private $notice = null;
+
+	/**
 	 * Availability flag or callback; null when the registration declared none.
 	 *
 	 * @var bool|callable|null
@@ -217,6 +225,19 @@ final class Dashboard_Section {
 	}
 
 	/**
+	 * Returns the message to show above the section's widgets, resolved for this request.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string|null The message, or null when there is none.
+	 */
+	public function get_notice() {
+		$notice = is_callable( $this->notice ) ? call_user_func( $this->notice, $this ) : $this->notice;
+
+		return is_string( $notice ) && '' !== $notice ? $notice : null;
+	}
+
+	/**
 	 * Returns the public REST representation.
 	 *
 	 * @return array
@@ -231,6 +252,7 @@ final class Dashboard_Section {
 			'date_filter'         => $this->date_filter,
 			'date_filter_options' => $this->date_filter_options,
 			'requires_sync'       => $this->requires_sync,
+			'notice'              => $this->get_notice(),
 			'default_layout'      => $this->get_default_layout(),
 		);
 	}
@@ -281,6 +303,10 @@ final class Dashboard_Section {
 
 		if ( isset( $args['requires_sync'] ) ) {
 			$this->requires_sync = (bool) $args['requires_sync'];
+		}
+
+		if ( array_key_exists( 'notice', $args ) ) {
+			$this->notice = $args['notice'];
 		}
 
 		if ( array_key_exists( 'is_available', $args ) ) {
