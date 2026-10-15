@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { getLockedFeature, type StatsFeatureKey } from '@jetpack-premium-analytics/data';
-import { EmptyState, Icon, LinkButton } from '@jetpack-premium-analytics/externals';
+import { ButtonLink, EmptyState, Icon } from '@jetpack-premium-analytics/externals';
 import { createInterpolateElement, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { lock } from '@wordpress/icons';
@@ -51,14 +51,14 @@ function LockedState( { feature, source, className }: LockedStateProps ) {
 			) }
 			{ locked?.upgrade_url && (
 				<EmptyState.Actions>
-					<LinkButton
+					<ButtonLink
 						href={ locked.upgrade_url }
 						onClick={ () =>
 							trackEvent( 'jetpack_premium_analytics_plan_upgrade_click', { feature, source } )
 						}
 					>
 						{ __( 'Upgrade', 'jetpack-premium-analytics-pkg' ) }
-					</LinkButton>
+					</ButtonLink>
 				</EmptyState.Actions>
 			) }
 		</EmptyState.Root>
