@@ -5,12 +5,12 @@ import { commentContent, details, key, page } from '@wordpress/icons';
 import { Badge, Card, CollapsibleCard, Link, Notice, Stack } from '@wordpress/ui';
 import CardTitleIcon from '../../components/card-title-icon';
 import './style.scss';
-import type { AiCrawler } from '../../data/ai-types';
-import type { AiForm } from '../../data/use-ai';
+import type { AiCrawler } from '../../data/geo-types';
+import type { GeoForm } from '../../data/use-geo';
 import type { ComponentProps, FC, ReactNode } from 'react';
 
 interface Props {
-	form: AiForm;
+	form: GeoForm;
 	searchEnginesVisible: boolean;
 	onManageVisibility: () => void;
 }
@@ -229,9 +229,9 @@ const CrawlerSection: FC< CrawlerSectionProps > = ( {
 				   keep their own tighter `md` rhythm in the nested Stack. */ }
 				<Stack direction="column" gap="lg">
 					<Stack direction="column" gap="xs">
-						<p className="jetpack-seo-ai__crawlers-intro">{ intro }</p>
+						<p className="jetpack-seo-geo__crawlers-intro">{ intro }</p>
 						<Link
-							className="jetpack-seo-ai__robots-link"
+							className="jetpack-seo-geo__robots-link"
 							href={ robotsTxtUrl }
 							openInNewTab
 							rel="noopener noreferrer"
@@ -240,7 +240,7 @@ const CrawlerSection: FC< CrawlerSectionProps > = ( {
 						</Link>
 					</Stack>
 					<Stack direction="column" gap="md">
-						<div className="jetpack-seo-ai__crawler-bulk">
+						<div className="jetpack-seo-geo__crawler-bulk">
 							<ToggleControl
 								label={ __( 'Allow all', 'jetpack-seo' ) }
 								checked={ allAllowed }
@@ -266,8 +266,8 @@ const CrawlerSection: FC< CrawlerSectionProps > = ( {
 };
 
 /**
- * GEO (Generative Engine Optimization) tab — internal id/route still keyed `ai`.
- * Stacks (in a single centered column matching the Settings tab's width):
+ * GEO (Generative Engine Optimization) tab. Stacks (in a single centered column
+ * matching the Settings tab's width):
  * llms.txt, the plan-gated AI SEO Enhancer, then the AI-crawler controls — split
  * into answer-engine and training groups. When the controls can't take effect,
  * they are replaced by an explanation instead of ineffective toggles.
@@ -276,12 +276,12 @@ const CrawlerSection: FC< CrawlerSectionProps > = ( {
  * it survives tab switches); this component is the presentation.
  *
  * @param props                      - Component props.
- * @param props.form                 - The AI form controller from `useAiForm`.
+ * @param props.form                 - The GEO form controller from `useGeoForm`.
  * @param props.searchEnginesVisible - Whether the site allows search-engine indexing.
  * @param props.onManageVisibility   - Opens the Settings visibility controls.
- * @return The AI tab content.
+ * @return The GEO tab content.
  */
-const AiScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibility } ) => {
+const GeoScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibility } ) => {
 	const {
 		enhancer,
 		llmsTxt,
@@ -398,7 +398,7 @@ const AiScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibility
 		// WordPress.com — the option doesn't exist on self-hosted.
 		const managedByPrivacySetting = crawlers.dataSharingOptOut;
 		const privacyNotice = managedByPrivacySetting ? (
-			<Notice.Root intent="info" className="jetpack-seo-ai__crawler-notice">
+			<Notice.Root intent="info" className="jetpack-seo-geo__crawler-notice">
 				<Notice.Description>
 					{ __(
 						'AI crawler access is set by your privacy settings while third-party sharing is turned off. Turn sharing on to manage individual crawlers here.',
@@ -452,7 +452,7 @@ const AiScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibility
 	const llmsTxtEffectivelyOn = Boolean( searchEnginesVisible && llmsTxt?.enabled );
 
 	return (
-		<div className="jetpack-seo-ai">
+		<div className="jetpack-seo-geo">
 			{ llmsTxt && (
 				<CollapsibleCard.Root defaultOpen>
 					<CollapsibleCard.Header render={ <h2 /> }>
@@ -489,7 +489,7 @@ const AiScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibility
 									__nextHasNoMarginBottom
 								/>
 								{ ! searchEnginesVisible && (
-									<Notice.Root intent="info" className="jetpack-seo-ai__llms-notice">
+									<Notice.Root intent="info" className="jetpack-seo-geo__llms-notice">
 										<Notice.Description>
 											{ createInterpolateElement(
 												__(
@@ -505,7 +505,7 @@ const AiScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibility
 								) }
 								{ llmsTxtEffectivelyOn && llmsTxt.canServe && (
 									<Link
-										className="jetpack-seo-ai__llms-link"
+										className="jetpack-seo-geo__llms-link"
 										href={ llmsTxt.url }
 										openInNewTab
 										rel="noopener noreferrer"
@@ -554,4 +554,4 @@ const AiScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibility
 	);
 };
 
-export default AiScreen;
+export default GeoScreen;

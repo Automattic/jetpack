@@ -45,15 +45,15 @@ class DashboardDataTest extends SeoTestCase {
 	 * control's state, so the dashboard disables the toggle rather than hiding
 	 * it and the saved choice stays visible.
 	 */
-	public function test_get_ai_data_reports_the_ai_seo_control_state() {
+	public function test_get_geo_data_reports_the_ai_seo_control_state() {
 		self::set_plan( 'jetpack_business' );
 		self::set_seo_tools_active( true );
 
-		$on = Dashboard_Data::get_ai_data()['enhancer'];
+		$on = Dashboard_Data::get_geo_data()['enhancer'];
 
 		\Jetpack_AI_Settings::$is_ai_seo_enabled = false;
 
-		$off = Dashboard_Data::get_ai_data()['enhancer'];
+		$off = Dashboard_Data::get_geo_data()['enhancer'];
 
 		$this->assertTrue( $on['available'], 'Precondition: available while the control is on.' );
 		$this->assertTrue( $on['aiSeoEnabled'] );
@@ -65,11 +65,11 @@ class DashboardDataTest extends SeoTestCase {
 	 * The plan and the feature filter still veto availability outright — those
 	 * are entitlement questions, not a switched-off control.
 	 */
-	public function test_get_ai_data_enhancer_unavailable_without_the_entitlement() {
+	public function test_get_geo_data_enhancer_unavailable_without_the_entitlement() {
 		self::set_plan( 'jetpack_free' );
 		self::set_seo_tools_active( true );
 
-		$this->assertFalse( Dashboard_Data::get_ai_data()['enhancer']['available'] );
+		$this->assertFalse( Dashboard_Data::get_geo_data()['enhancer']['available'] );
 	}
 
 	/**
@@ -114,38 +114,38 @@ class DashboardDataTest extends SeoTestCase {
 	}
 
 	/**
-	 * The AI tab bootstrap exposes the enhancer shape the React app expects, with
+	 * The GEO tab bootstrap exposes the enhancer shape the React app expects, with
 	 * boolean availability/enabled. Without a plan-supporting environment the
 	 * enhancer is unavailable.
 	 */
-	public function test_get_ai_data_shape() {
+	public function test_get_geo_data_shape() {
 		// Force the enhancer feature filter off so availability is deterministic
 		// regardless of whether Current_Plan happens to be loaded in the test
 		// environment (availability is `filter_on && plan_supports`).
 		add_filter( 'ai_seo_enhancer_enabled', '__return_false' );
 
 		try {
-			$ai = Dashboard_Data::get_ai_data();
+			$geo = Dashboard_Data::get_geo_data();
 
-			$this->assertArrayHasKey( 'enhancer', $ai );
-			$this->assertArrayHasKey( 'available', $ai['enhancer'] );
-			$this->assertArrayHasKey( 'enabled', $ai['enhancer'] );
-			$this->assertIsBool( $ai['enhancer']['available'] );
-			$this->assertIsBool( $ai['enhancer']['enabled'] );
+			$this->assertArrayHasKey( 'enhancer', $geo );
+			$this->assertArrayHasKey( 'available', $geo['enhancer'] );
+			$this->assertArrayHasKey( 'enabled', $geo['enhancer'] );
+			$this->assertIsBool( $geo['enhancer']['available'] );
+			$this->assertIsBool( $geo['enhancer']['enabled'] );
 			// With the feature filter forced off, the enhancer is never available.
-			$this->assertFalse( $ai['enhancer']['available'] );
-			$this->assertArrayHasKey( 'llmsTxt', $ai );
-			$this->assertIsBool( $ai['llmsTxt']['enabled'] );
-			$this->assertIsString( $ai['llmsTxt']['url'] );
-			$this->assertIsBool( $ai['llmsTxt']['canServe'] );
-			$this->assertArrayHasKey( 'crawlers', $ai );
-			$this->assertIsArray( $ai['crawlers']['catalog'] );
+			$this->assertFalse( $geo['enhancer']['available'] );
+			$this->assertArrayHasKey( 'llmsTxt', $geo );
+			$this->assertIsBool( $geo['llmsTxt']['enabled'] );
+			$this->assertIsString( $geo['llmsTxt']['url'] );
+			$this->assertIsBool( $geo['llmsTxt']['canServe'] );
+			$this->assertArrayHasKey( 'crawlers', $geo );
+			$this->assertIsArray( $geo['crawlers']['catalog'] );
 			// A sparse map, cast to an object by get_bootstrap_data() so an empty
 			// override set serializes as `{}` rather than `[]` — the same reason
 			// `title_formats` is cast in get_settings_data().
-			$this->assertIsObject( $ai['crawlers']['overrides'] );
-			$this->assertIsBool( $ai['crawlers']['dataSharingOptOut'] );
-			$this->assertIsBool( $ai['crawlers']['pathBasedMultisite'] );
+			$this->assertIsObject( $geo['crawlers']['overrides'] );
+			$this->assertIsBool( $geo['crawlers']['dataSharingOptOut'] );
+			$this->assertIsBool( $geo['crawlers']['pathBasedMultisite'] );
 		} finally {
 			remove_filter( 'ai_seo_enhancer_enabled', '__return_false' );
 		}

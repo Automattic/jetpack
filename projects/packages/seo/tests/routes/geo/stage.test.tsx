@@ -41,9 +41,9 @@ jest.unstable_mockModule( '../../../_inc/components/seo-disabled-stage', () => (
 jest.unstable_mockModule( '../../../_inc/dashboard/dashboard-page', () => ( {
 	default: ( { children }: { children: React.ReactNode } ) => children,
 } ) );
-jest.unstable_mockModule( '../../../_inc/data/ai-store', () => ( { aiStore: 'ai' } ) );
+jest.unstable_mockModule( '../../../_inc/data/geo-store', () => ( { geoStore: 'geo' } ) );
 jest.unstable_mockModule( '../../../_inc/data/get-preloaded', () => ( {
-	AI_PATH: '/jetpack/v4/seo/ai',
+	GEO_PATH: '/jetpack/v4/seo/geo',
 	OVERVIEW_PATH: '/jetpack/v4/seo/overview',
 } ) );
 jest.unstable_mockModule( '../../../_inc/data/get-overview', () => ( {
@@ -55,20 +55,20 @@ jest.unstable_mockModule( '../../../_inc/data/is-seo-tools-active', () => ( {
 jest.unstable_mockModule( '../../../_inc/data/settings-store', () => ( {
 	settingsStore: 'settings',
 } ) );
-jest.unstable_mockModule( '../../../_inc/data/use-ai', () => ( {
-	useAiForm: jest.fn(),
+jest.unstable_mockModule( '../../../_inc/data/use-geo', () => ( {
+	useGeoForm: jest.fn(),
 } ) );
 jest.unstable_mockModule( '../../../_inc/data/use-ensure-tab-data', () => ( {
 	default: useEnsureTabData,
 } ) );
-jest.unstable_mockModule( '../../../_inc/screens/ai', () => ( {
+jest.unstable_mockModule( '../../../_inc/screens/geo', () => ( {
 	default: () => null,
 } ) );
 
-const { stage: Stage } = await import( '../../../routes/ai/stage' );
+const { stage: Stage } = await import( '../../../routes/geo/stage' );
 
-describe( 'AI route stage', () => {
-	it( 'seeds every form slice from a recovered AI response', () => {
+describe( 'GEO route stage', () => {
+	it( 'seeds every form slice from a recovered GEO response', () => {
 		let seed: ( body: unknown ) => void = () => undefined;
 		useEnsureTabData.mockImplementation( requests => {
 			seed = requests[ 1 ].seed ?? seed;
@@ -76,15 +76,15 @@ describe( 'AI route stage', () => {
 		} );
 
 		Stage();
-		const ai = {
+		const geo = {
 			enhancer: { available: true, enabled: false, aiSeoEnabled: true },
 			llmsTxt: { enabled: true, url: 'https://example.com/llms.txt', canServe: true },
 			crawlers: { catalog: [], overrides: {} },
 		};
-		seed( ai );
+		seed( geo );
 
-		expect( setEnhancer ).toHaveBeenCalledWith( ai.enhancer );
-		expect( setLlmsTxt ).toHaveBeenCalledWith( ai.llmsTxt );
-		expect( setCrawlers ).toHaveBeenCalledWith( ai.crawlers );
+		expect( setEnhancer ).toHaveBeenCalledWith( geo.enhancer );
+		expect( setLlmsTxt ).toHaveBeenCalledWith( geo.llmsTxt );
+		expect( setCrawlers ).toHaveBeenCalledWith( geo.crawlers );
 	} );
 } );
