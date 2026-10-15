@@ -947,7 +947,7 @@ export default function ApiManagedEdit( {
 		/>
 	) : null;
 
-	// The connection panel sits last in the Settings tab, under whichever view is showing.
+	// The connection panel sits last in the sidebar, under whichever view is showing.
 	const connectionPanel = (
 		<PayPalInspectorControls
 			isConnected={ isConnected }
@@ -959,19 +959,6 @@ export default function ApiManagedEdit( {
 			hasButton={ hasButton }
 		/>
 	);
-
-	// The Styles tab — Embed as and the format's own controls — is a fill of its own.
-	// Only once there is a link, so the editor hides the tab bar until then.
-	const formatControls = hasButton ? (
-		<PayPalFormatControls
-			format={ activeFormat }
-			attributes={ attributes }
-			setAttributes={ setAttributes }
-			paymentUrl={ linkDeleted ? '' : withPartnerAttribution( paymentLink, partnerAttributionId ) }
-			disabled={ isBusy }
-			environment={ environment }
-		/>
-	) : null;
 
 	// Shared confirmation dialogs — extracted so they render regardless of which return branch is active.
 	const confirmDialogs = (
@@ -1073,14 +1060,27 @@ export default function ApiManagedEdit( {
 	);
 
 	const detailsView = (
-		<LinkDetails
-			attributes={ attributes }
-			resource={ resource }
-			notices={ paymentChangedNotice }
-			onEdit={ () => setIsEditing( true ) }
-			onChangeLink={ () => setIsSwitching( true ) }
-			canChangeLink={ canChangeLink }
-		/>
+		<>
+			<LinkDetails
+				attributes={ attributes }
+				resource={ resource }
+				notices={ paymentChangedNotice }
+				onEdit={ () => setIsEditing( true ) }
+				onChangeLink={ () => setIsSwitching( true ) }
+				canChangeLink={ canChangeLink }
+			/>
+			{ /* The style controls show with the link details only. */ }
+			<PayPalFormatControls
+				format={ activeFormat }
+				attributes={ attributes }
+				setAttributes={ setAttributes }
+				paymentUrl={
+					linkDeleted ? '' : withPartnerAttribution( paymentLink, partnerAttributionId )
+				}
+				disabled={ isBusy }
+				environment={ environment }
+			/>
+		</>
 	);
 
 	const formPanels = (
@@ -1629,15 +1629,14 @@ export default function ApiManagedEdit( {
 	return (
 		<div { ...blockProps }>
 			{ toolbarControls }
-			{ /* One fill for the whole Settings tab. Separate fills portal into the same
-			     container, so the sidebar orders them by which mounted last rather than
-			     by source. */ }
+			{ /* One fill for the sidebar panels, so they show in source order.
+			     Separate fills portal into the same container and show in the
+			     order they mounted. */ }
 			<InspectorControls>
 				{ sidebar }
 				{ connectionPanel }
 			</InspectorControls>
 			{ accountHeader }
-			{ formatControls }
 
 			{ /* The inspector only mounts when the block is selected, so these notices go
 			     on the canvas. */ }
