@@ -1034,7 +1034,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 	}
 
 	/**
-	 * Test the detail view lists the posts embedding the link, drafts marked, with edit and view links.
+	 * Test the detail view lists the posts embedding the link, drafts typed as such, with edit and view links.
 	 *
 	 * The card asks for the one link, the delete warning scans every published
 	 * block post; the mock answers each by the query's search term.
@@ -1075,7 +1075,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 		$this->assertStringContainsString( '<td>Shop</td><td>Page</td>', $output );
 		$this->assertStringContainsString( 'post=' . $embedding->ID . '&#038;action=edit', $output );
 		$this->assertStringContainsString( esc_url( get_permalink( $embedding ) ) . '" target="_blank" rel="noopener noreferrer">View</a>', $output );
-		$this->assertStringContainsString( '<td>[Draft] Coming soon</td><td>Post</td>', $output );
+		$this->assertStringContainsString( '<td>Coming soon</td><td>Draft Post</td>', $output );
 		$this->assertStringContainsString( 'preview=true" target="_blank" rel="noopener noreferrer">Preview</a>', $output );
 		$this->assertStringNotContainsString( 'Unrelated', $output );
 		$this->assertStringNotContainsString( 'paypal-link-locations-more', $output );
