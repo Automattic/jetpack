@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+WooCommerce Stats: Show the empty state in the report charts when the period and its comparison have no activity, instead of a flat line at zero.

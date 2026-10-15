@@ -111,6 +111,22 @@ class Protect extends Hybrid_Product {
 	public static $plugin_slug = 'jetpack-protect';
 
 	/**
+	 * Activate local product steps without scheduling connected modules offline.
+	 *
+	 * @since 6.10.0
+	 * @param bool|WP_Error $current_result The plugin activation result.
+	 * @param bool          $local          Whether to keep activation local.
+	 * @return bool|WP_Error
+	 */
+	public static function do_product_specific_activation( $current_result, $local = false ) {
+		if ( $local ) {
+			// Protect's deferred admin hook would activate connected modules on the next request.
+			delete_option( static::$plugin_slug . '_activated' );
+		}
+		return parent::do_product_specific_activation( $current_result, $local );
+	}
+
+	/**
 	 * The category of the product
 	 *
 	 * @var string
@@ -236,12 +252,12 @@ class Protect extends Hybrid_Product {
 	/**
 	 * Get the internationalized comparison of free vs upgraded features
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 6.10.0
 	 *
 	 * @return array[] Protect features comparison
 	 */
 	public static function get_features_by_tier() {
-		_deprecated_function( __METHOD__, 'jetpack-my-jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-my-jetpack-6.10.0' );
 
 		return array(
 			array(

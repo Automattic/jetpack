@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Write editor: Fix media modal closing when mouse drag moves outside the modal during text selection.

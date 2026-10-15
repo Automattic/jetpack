@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-T/nbfoy3xC0dmf1F3PN2D6ugg49d3S+Dg0NuTZBSuGQ=
+pnpmfileChecksum: sha256-MhyuVnWQ7SuOdHMIDyDpqHNZxjMYlVkqsvsDfSRDUGg=
 
 patchedDependencies:
   '@wordpress/build': 151ae1c0c3786b862724512e48d8cfcb4b34faf4cac98e352a450abd4741e022
@@ -3182,11 +3182,11 @@ importers:
         specifier: 2.31.0
         version: 2.31.0
       newspack-colors:
-        specifier: 1.1.3
-        version: 1.1.3
+        specifier: 1.1.5
+        version: 1.1.5
       newspack-icons:
-        specifier: 1.1.3
-        version: 1.1.3(@wordpress/primitives@4.55.0(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
+        specifier: 1.2.0
+        version: 1.2.0(@wordpress/primitives@4.55.0(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
       preact:
         specifier: 10.28.2
         version: 10.28.2
@@ -5054,6 +5054,9 @@ importers:
       '@automattic/babel-plugin-replace-textdomain':
         specifier: workspace:*
         version: link:../../js-packages/babel-plugin-replace-textdomain
+      '@automattic/jetpack-analytics':
+        specifier: workspace:*
+        version: link:../../js-packages/analytics
       '@automattic/jetpack-base-styles':
         specifier: workspace:*
         version: link:../../js-packages/base-styles
@@ -5529,9 +5532,6 @@ importers:
       '@wordpress/api-fetch':
         specifier: 7.55.0
         version: 7.55.0
-      '@wordpress/components':
-        specifier: 40.1.0
-        version: 40.1.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/date':
         specifier: 5.55.0
         version: 5.55.0
@@ -6064,106 +6064,6 @@ importers:
         version: 7.2.1(webpack@5.111.1)
 
   projects/plugins/boost/tests/e2e:
-    devDependencies:
-      '@automattic/_jetpack-e2e-commons':
-        specifier: workspace:*
-        version: link:../../../../../tools/e2e-commons
-      '@playwright/test':
-        specifier: 1.60.0
-        version: 1.60.0
-      '@types/node':
-        specifier: ^24.12.0
-        version: 24.13.3
-      '@typescript/native-preview':
-        specifier: 7.0.0-dev.20260707.2
-        version: 7.0.0-dev.20260707.2
-      allure-playwright:
-        specifier: 2.15.1
-        version: 2.15.1
-      config:
-        specifier: 4.4.1
-        version: 4.4.1
-      playwright-ctrf-json-reporter:
-        specifier: ^0.0.26
-        version: 0.0.26
-
-  projects/plugins/classic-theme-helper-plugin:
-    dependencies:
-      '@automattic/jetpack-base-styles':
-        specifier: workspace:*
-        version: link:../../js-packages/base-styles
-      '@automattic/jetpack-components':
-        specifier: workspace:*
-        version: link:../../js-packages/components
-      '@automattic/jetpack-connection':
-        specifier: workspace:*
-        version: link:../../js-packages/connection
-      '@automattic/jetpack-script-data':
-        specifier: workspace:*
-        version: link:../../js-packages/script-data
-      '@automattic/jetpack-shared-extension-utils':
-        specifier: workspace:*
-        version: link:../../js-packages/shared-extension-utils
-      '@wordpress/data':
-        specifier: 10.55.0
-        version: 10.55.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/date':
-        specifier: 5.55.0
-        version: 5.55.0
-      '@wordpress/element':
-        specifier: 8.7.0
-        version: 8.7.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/i18n':
-        specifier: 6.28.0
-        version: 6.28.0
-      react:
-        specifier: 18.3.1
-        version: 18.3.1
-      react-dom:
-        specifier: 18.3.1
-        version: 18.3.1(react@18.3.1)
-    devDependencies:
-      '@automattic/jetpack-webpack-config':
-        specifier: workspace:*
-        version: link:../../js-packages/webpack-config
-      '@babel/core':
-        specifier: 7.29.7
-        version: 7.29.7
-      '@babel/runtime':
-        specifier: 7.29.7
-        version: 7.29.7
-      '@testing-library/dom':
-        specifier: 10.4.2
-        version: 10.4.2
-      '@testing-library/react':
-        specifier: 16.3.3
-        version: 16.3.3(@testing-library/dom@10.4.2)(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@types/react':
-        specifier: 18.3.31
-        version: 18.3.31
-      '@wordpress/browserslist-config':
-        specifier: 6.55.0
-        version: 6.55.0
-      concurrently:
-        specifier: 10.0.5
-        version: 10.0.5
-      jest:
-        specifier: 30.5.1
-        version: 30.5.1
-      sass-embedded:
-        specifier: 1.97.3
-        version: 1.97.3
-      sass-loader:
-        specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.3)(webpack@5.111.1)
-      webpack:
-        specifier: 5.111.1
-        version: 5.111.1(webpack-cli@7.2.1)
-      webpack-cli:
-        specifier: 7.2.1
-        version: 7.2.1(webpack@5.111.1)
-
-  projects/plugins/classic-theme-helper-plugin/tests/e2e:
     devDependencies:
       '@automattic/_jetpack-e2e-commons':
         specifier: workspace:*
@@ -15876,11 +15776,11 @@ packages:
   neo-async@2.6.2:
     resolution: {integrity: sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==}
 
-  newspack-colors@1.1.3:
-    resolution: {integrity: sha512-XjQWVIrTIATm66zmP0JoFmLVcYPAZZ+4zWcTdSTAvQ3y/SeWC5mPcWgdn/BO2NZE3qDXLJL1EZ4JymBU02mo8A==}
+  newspack-colors@1.1.5:
+    resolution: {integrity: sha512-93zaeRU+A+0FfjOgWXL2QubCVat7tNnypmlo59JeATuKs6gAitva9SQCKNp+DVTzWf7WV3ArMzl7GDfK/p0bzA==}
 
-  newspack-icons@1.1.3:
-    resolution: {integrity: sha512-UFtHqlVUyqDjYZSAh0tPv5hR8ioXawAJ5kJJIHwda4y+vYi+bxUbczbdIoDL/eYLQ9/dyKbsEZk/UraSwa+xiQ==}
+  newspack-icons@1.2.0:
+    resolution: {integrity: sha512-Hqz0StNPHQ+U2e7RMwEoTi9vvX2CgwpcsQ9UQVNo7ARXRY9TfXDsMf2gdA8haHmcW9S9g90vV5G9ENLpA+v+1Q==}
     peerDependencies:
       '@wordpress/primitives': ^3.0.0 || ^4.0.0
       react: ^17.0.0 || ^18.0.0 || ^19.0.0
@@ -35109,9 +35009,9 @@ snapshots:
 
   neo-async@2.6.2: {}
 
-  newspack-colors@1.1.3: {}
+  newspack-colors@1.1.5: {}
 
-  newspack-icons@1.1.3(@wordpress/primitives@4.55.0(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1):
+  newspack-icons@1.2.0(@wordpress/primitives@4.55.0(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1):
     dependencies:
       '@wordpress/primitives': 4.55.0(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react: 18.3.1

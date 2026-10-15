@@ -12,23 +12,6 @@ const meta: Meta< typeof GeoChart > = {
 export default meta;
 type Story = StoryObj< typeof GeoChart >;
 
-export const HTML: Story = {
-	args: {
-		...geoChartStoryArgs,
-		data: [
-			[
-				'Country',
-				'Orders',
-				{ type: 'string', role: GoogleDataTableColumnRoleType.tooltip, p: { html: true } },
-			],
-			[ 'United States', 1000, '<b>United States</b><br/>1,000 orders' ],
-			[ 'Canada', 500, '<b>Canada</b><br/>500 orders' ],
-			[ 'United Kingdom', 450, '<b>United Kingdom</b><br/>450 orders' ],
-			[ 'Germany', 400, '<b>Germany</b><br/>400 orders' ],
-		],
-	},
-};
-
 export const FormattedValues: Story = {
 	args: {
 		...geoChartStoryArgs,
@@ -48,16 +31,16 @@ export const PlainText: Story = {
 		...geoChartStoryArgs,
 		data: [
 			[ 'Country', 'Orders', { type: 'string', role: GoogleDataTableColumnRoleType.tooltip } ],
-			[ 'United States', 1000, 'United States: 1,000 orders (40% of total)' ],
-			[ 'Canada', 500, 'Canada: 500 orders (20% of total)' ],
-			[ 'United Kingdom', 450, 'United Kingdom: 450 orders (18% of total)' ],
-			[ 'Germany', 400, 'Germany: 400 orders (16% of total)' ],
-			[ 'France', 150, 'France: 150 orders (6% of total)' ],
+			[ 'United States', 1000, '1,000 orders (40% of total)' ],
+			[ 'Canada', 500, '500 orders (20% of total)' ],
+			[ 'United Kingdom', 450, '450 orders (18% of total)' ],
+			[ 'Germany', 400, '400 orders (16% of total)' ],
+			[ 'France', 150, '150 orders (6% of total)' ],
 		],
 	},
 };
 
-export const Complex: Story = {
+export const HTML: Story = {
 	args: {
 		...geoChartStoryArgs,
 		data: [
@@ -66,33 +49,9 @@ export const Complex: Story = {
 				'Orders',
 				{ type: 'string', role: GoogleDataTableColumnRoleType.tooltip, p: { html: true } },
 			],
-			[
-				'United States',
-				1000,
-				`<div style="padding: 12px; font-family: sans-serif;">
-					<div style="font-weight: bold; font-size: 14px; margin-bottom: 8px;">🇺🇸 United States</div>
-					<div style="color: #666;">Orders: <strong>1,000</strong></div>
-					<div style="color: #666;">Share: <strong>40%</strong></div>
-				</div>`,
-			],
-			[
-				'Canada',
-				500,
-				`<div style="padding: 12px; font-family: sans-serif;">
-					<div style="font-weight: bold; font-size: 14px; margin-bottom: 8px;">🇨🇦 Canada</div>
-					<div style="color: #666;">Orders: <strong>500</strong></div>
-					<div style="color: #666;">Share: <strong>20%</strong></div>
-				</div>`,
-			],
-			[
-				'United Kingdom',
-				450,
-				`<div style="padding: 12px; font-family: sans-serif;">
-					<div style="font-weight: bold; font-size: 14px; margin-bottom: 8px;">🇬🇧 United Kingdom</div>
-					<div style="color: #666;">Orders: <strong>450</strong></div>
-					<div style="color: #666;">Share: <strong>18%</strong></div>
-				</div>`,
-			],
+			[ 'United States', 1000, 'Orders: <strong>1,000</strong><br/>Share: <strong>40%</strong>' ],
+			[ 'Canada', 500, 'Orders: <strong>500</strong><br/>Share: <strong>20%</strong>' ],
+			[ 'United Kingdom', 450, 'Orders: <strong>450</strong><br/>Share: <strong>18%</strong>' ],
 		],
 	},
 };

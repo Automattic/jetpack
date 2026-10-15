@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-woocommerce-stats",
-	"version": "0.1.0-alpha",
+	"version": "0.1.0",
 	"private": true,
 	"description": "WooCommerce: the WooCommerce section of the Premium Analytics dashboard.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/woocommerce-stats/#readme",
@@ -33,7 +33,6 @@
 	"dependencies": {
 		"@automattic/jetpack-premium-analytics-sdk": "workspace:*",
 		"@wordpress/api-fetch": "7.55.0",
-		"@wordpress/components": "40.1.0",
 		"@wordpress/date": "5.55.0",
 		"@wordpress/i18n": "6.28.0",
 		"@wordpress/icons": "16.0.0",
