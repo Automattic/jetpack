@@ -985,6 +985,27 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				[ 'jetpack_paypal_wizard_credentials_reached', { environment: 'production' } ],
 			] );
 		} );
+
+		it( 'shows the first wizard step when another block logs out after connecting', async () => {
+			apiFetch.mockImplementation( ( { path } ) =>
+				Promise.resolve(
+					path.endsWith( '/connect' )
+						? { connected: true, environment: 'sandbox' }
+						: { connected: false, environment: 'sandbox' }
+				)
+			);
+			const user = userEvent.setup();
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			await navigateToCredentialsStep( user );
+			await user.type( screen.getByLabelText( 'Client ID' ), 'AbcdefghijklmnopqrstuvwxyZ' );
+			await user.type( screen.getByLabelText( 'Client Secret' ), 'secret' );
+			await user.click( screen.getByRole( 'button', { name: /^Connect$/i } ) );
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+
+			await act( async () => broadcastConnectionChange( false ) );
+
+			await expect( screen.findByText( /Get Your API Credentials/ ) ).resolves.toBeInTheDocument();
+		} );
 	} );
 
 	describe( 'Connect PayPal (Partner Referrals)', () => {
@@ -1781,6 +1802,34 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			// than covering the welcome step with nothing in it.
 			const frame = await screen.findByTitle( 'PayPal onboarding' );
 			expect( frame ).not.toHaveClass( 'jetpack-paypal-onboarding-frame--active' );
+		} );
+
+		it( 'drops the blocked-window notice when another block logs out after onboarding', async () => {
+			stubPopups( null );
+			mockPlatformMode( {
+				action_url: 'https://www.sandbox.paypal.com/merchantsignup/x',
+				complete: { connected: true },
+			} );
+
+			const frame = await openActiveOverlay();
+			act( () => {
+				frame.contentWindow.open( 'https://www.sandbox.paypal.com/merchantsignup/x', 'PPFrame' );
+			} );
+			await expect( screen.findByText( /blocked PayPal’s window/ ) ).resolves.toBeInTheDocument();
+
+			await act( async () => {
+				window.jetpackPayPalOnboardComplete();
+			} );
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+
+			await act( async () => broadcastConnectionChange( false ) );
+
+			await expect(
+				screen.findByRole( 'button', { name: /Connect PayPal/i } )
+			).resolves.toBeVisible();
+			expect( screen.queryByText( /blocked PayPal’s window/ ) ).not.toBeInTheDocument();
+			// A notice left over also stops the prefetch, so Connect would need two clicks.
+			await waitFor( () => expect( signupLinkCalls() ).toHaveLength( 2 ) );
 		} );
 
 		it( 'closes the frame when the exchange fails, so the error is not hidden behind it', async () => {

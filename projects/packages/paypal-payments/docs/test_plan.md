@@ -103,7 +103,7 @@ pnpm test:run
 
 | Section | Status | Covers | Ticket |
 |---|---|---|---|
-| Credential Wizard Flow | ✅ | Welcome → Dashboard → Credentials → Success wizard, show/hide toggle, dashboard link URL, whitespace trimming, Client ID format warning, environment default, sandbox toggle + warning, inline error on bad credentials, back nav preserves data, Success CTA transition | WOOPTP-162 |
+| Credential Wizard Flow | ✅ | Welcome → Dashboard → Credentials → button form, show/hide toggle, dashboard link URL, whitespace trimming, Client ID format warning, environment default, sandbox toggle + warning, inline error on bad credentials, back nav preserves data | WOOPTP-162 |
 | Create Button Flow | ✅ | Form rendering, disabled state, button creation + preview | WOOPTP-154 |
 | Frontend Rendering | ✅ | Published post "Buy Now" button + payment link | WOOPTP-154 |
 | Error Flow | ✅ | Empty name disabled, zero price disabled, blur field error, API 400 notice | WOOPTP-154 |
@@ -135,7 +135,7 @@ Items marked 🔧 Manual are genuinely manual-only (accessibility, live PayPal A
 
 | Test Point | Coverage |
 |---|---|
-| Full wizard flow: Welcome → Dashboard → Credentials → Success → Create Button | ✅ Auto (E2E + Jest) |
+| Full wizard flow: Welcome → Dashboard → Credentials → button form | ✅ Auto (E2E + Jest) |
 | Pasted credentials with whitespace are auto-trimmed | ✅ Auto (E2E + PHPUnit) |
 | Client ID format warning for invalid-looking IDs | ✅ Auto (E2E) |
 | Show/hide toggle on Client Secret | ✅ Auto (E2E) |
@@ -144,7 +144,7 @@ Items marked 🔧 Manual are genuinely manual-only (accessibility, live PayPal A
 | "Open PayPal Dashboard" link points to correct URL | ✅ Auto (E2E) |
 | Environment defaults to Production | ✅ Auto (E2E + PHPUnit) |
 | Sandbox toggle switches environment and shows warning | ✅ Auto (E2E) |
-| Success step transitions to button creation form | ✅ Auto (E2E) |
+| Connect goes straight to the button form | ✅ Auto (E2E) |
 | Keyboard navigation through wizard steps (Tab, Enter) | 🔧 Manual |
 | Screen reader announces step changes (VoiceOver / NVDA) | 🔧 Manual |
 

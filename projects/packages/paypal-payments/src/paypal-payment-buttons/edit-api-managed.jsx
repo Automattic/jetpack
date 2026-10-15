@@ -876,7 +876,6 @@ export default function ApiManagedEdit( {
 				/>
 				<InspectorControls>
 					<ConnectionWizard
-						setIsConnected={ setIsConnected }
 						environment={ environment }
 						setEnvironment={ setEnvironment }
 						showReconnect={ showReconnect }

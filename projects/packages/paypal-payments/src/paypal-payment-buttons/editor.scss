@@ -208,8 +208,7 @@
 
 .jetpack-paypal-wizard__welcome,
 .jetpack-paypal-wizard__dashboard,
-.jetpack-paypal-wizard__credentials,
-.jetpack-paypal-wizard__success {
+.jetpack-paypal-wizard__credentials {
 
 	h3 {
 		margin-top: 0;
@@ -311,23 +310,6 @@
 	.components-button.is-link {
 		font-size: 12px;
 	}
-}
-
-.jetpack-paypal-wizard__success {
-	text-align: center;
-}
-
-.jetpack-paypal-wizard__success-icon {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 48px;
-	height: 48px;
-	border-radius: 50%;
-	background: #00a32a;
-	color: #fff;
-	font-size: 24px;
-	margin-bottom: 12px;
 }
 
 // Field warning (soft validation — yellow instead of red).
