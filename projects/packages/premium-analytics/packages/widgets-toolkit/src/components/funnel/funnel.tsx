@@ -4,11 +4,12 @@
 import { ConversionFunnelChart } from '@jetpack-premium-analytics/externals';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { __, sprintf } from '@wordpress/i18n';
-import { useMemo, type JSX } from 'react';
+import { useCallback, useMemo, type JSX } from 'react';
 /**
  * Internal dependencies
  */
 import { TooltipRow } from '../chart-tooltip/tooltip-row';
+import { exactFormatOf } from '../chart-tooltip/utils';
 import { MetricWithComparison } from '../metric-with-comparison';
 import {
 	WidgetState,
@@ -81,6 +82,27 @@ export function Funnel( {
 	);
 	const errorState = useMemo( () => resolveWidgetStateError( error, refetch ), [ error, refetch ] );
 
+	const getStepDescription = useCallback(
+		( step: { count?: number }, index: number ) => {
+			const { type, options } = exactFormatOf( format );
+			const firstCount = chartSteps[ 0 ]?.count;
+			if ( step.count === undefined ) {
+				return '';
+			}
+			const count = formatMetricValue( step.count, type, options );
+			if ( index === 0 || firstCount === undefined ) {
+				return count;
+			}
+			return sprintf(
+				/* translators: 1: Number that reached a funnel step, e.g. "310". 2: Number at the funnel's first step, e.g. "1,250". */
+				__( '%1$s of %2$s', 'jetpack-premium-analytics-pkg' ),
+				count,
+				formatMetricValue( firstCount, type, options )
+			);
+		},
+		[ chartSteps, format ]
+	);
+
 	return (
 		<WidgetState
 			isLoading={ isLoading }
@@ -94,6 +116,7 @@ export function Funnel( {
 				className={ styles.chart }
 				steps={ chartSteps }
 				mainRate={ rate * 100 }
+				getStepDescription={ getStepDescription }
 				renderMainMetric={ () => (
 					<MetricWithComparison
 						value={ rate }
@@ -111,7 +134,6 @@ export function Funnel( {
 						<TooltipRow
 							indicator={ null }
 							label={ step.label }
-							isLabelAriaHidden
 							value={ step.count ?? null }
 							dataFormat={ format }
 						/>

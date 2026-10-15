@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Conversion funnel: Stop screen readers repeating the step name when they read a selected step's tooltip.
+Conversion funnel: Describe each step to screen readers by its count against the first step, e.g. "310 of 1,250".

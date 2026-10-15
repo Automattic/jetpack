@@ -48,6 +48,17 @@ const renderWithoutTheme = ( component: React.ReactElement ) => {
 
 const focus = ( element: HTMLElement ) => act( () => element.focus() );
 
+/**
+ * Describes a step by its position and id.
+ *
+ * @param step  - The step.
+ * @param index - Its position.
+ * @return The description.
+ */
+function getStepDescription( step: FunnelStep, index: number ) {
+	return `${ index }: ${ step.id }`;
+}
+
 describe( 'ConversionFunnelChart', () => {
 	afterEach( () => {
 		mockChartHeight = 0;
@@ -313,18 +324,28 @@ describe( 'ConversionFunnelChart', () => {
 			expect( screen.getByRole( 'button', { name: 'Cart, 71.1%' } ) ).toBeInTheDocument();
 		} );
 
-		it( 'describes only the selected step with its tooltip', async () => {
-			const user = userEvent.setup();
-			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
-
-			await user.click( screen.getByRole( 'button', { name: /^Cart,/ } ) );
+		it( 'describes each step with its count by default', () => {
+			renderWithoutTheme(
+				<ConversionFunnelChart
+					mainRate={ 50 }
+					steps={ [ ...mockSteps.slice( 0, 2 ), { id: 'none', label: 'None', rate: 50 } ] }
+				/>
+			);
 
 			expect( screen.getByRole( 'button', { name: /^Cart,/ } ) ).toHaveAccessibleDescription(
 				'7,110 items'
 			);
-			expect(
-				screen.getByRole( 'button', { name: /^Sessions,/ } )
-			).not.toHaveAccessibleDescription();
+			expect( screen.getByRole( 'button', { name: /^None,/ } ) ).not.toHaveAccessibleDescription();
+		} );
+
+		it( 'describes each step with getStepDescription when given', () => {
+			renderWithoutTheme(
+				<ConversionFunnelChart { ...defaultProps } getStepDescription={ getStepDescription } />
+			);
+
+			expect( screen.getByRole( 'button', { name: /^Cart,/ } ) ).toHaveAccessibleDescription(
+				'1: cart'
+			);
 		} );
 
 		it( 'marks only the selected step as pressed', async () => {
