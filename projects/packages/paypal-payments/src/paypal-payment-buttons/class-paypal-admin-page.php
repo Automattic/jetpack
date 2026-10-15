@@ -148,6 +148,42 @@ class PayPal_Admin_Page {
 	}
 
 	/**
+	 * One page of the posts embedding a payment link, drafts included.
+	 *
+	 * Unlike find_published_embeds(), this searches for the one link rather
+	 * than scanning every block post, so it can page past the scan cap.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $resource_id PayPal resource ID.
+	 * @param int    $page        1-based page number.
+	 * @return array{posts: \WP_Post[], has_more: bool}
+	 */
+	public static function find_embeds_page( $resource_id, $page = 1 ) {
+		$page  = max( 1, (int) $page );
+		$posts = get_posts(
+			array(
+				'post_type'              => 'any',
+				'post_status'            => array( 'publish', 'future', 'draft', 'pending', 'private' ),
+				'posts_per_page'         => self::EMBED_SCAN_LIMIT + 1,
+				'offset'                 => ( $page - 1 ) * self::EMBED_SCAN_LIMIT,
+				's'                      => '"resourceId":"' . $resource_id . '"',
+				'sentence'               => true,
+				'orderby'                => 'date',
+				'order'                  => 'DESC',
+				'no_found_rows'          => true,
+				'update_post_meta_cache' => false,
+				'update_post_term_cache' => false,
+			)
+		);
+
+		return array(
+			'posts'    => array_slice( $posts, 0, self::EMBED_SCAN_LIMIT ),
+			'has_more' => count( $posts ) > self::EMBED_SCAN_LIMIT,
+		);
+	}
+
+	/**
 	 * The published posts carrying a PayPal Payment Buttons block, capped.
 	 *
 	 * @return \WP_Post[]
@@ -738,8 +774,6 @@ class PayPal_Admin_Page {
 			$payment_link = PayPal_Payment_Buttons::add_partner_attribution( $payment_link );
 		}
 
-		$embeds = self::find_published_embeds( $resource_id );
-
 		// --- Header ---
 		printf( '<h2>%s <span class="paypal-status-badge %s">%s</span></h2>', esc_html( $name ), esc_attr( $badge_cls ), esc_html( $status ) );
 
@@ -785,7 +819,7 @@ class PayPal_Admin_Page {
 		printf(
 			'<a href="%s" class="button paypal-delete-link" data-confirm="%s">%s</a>',
 			esc_url( $delete_url ),
-			esc_attr( self::delete_confirm_text( count( $embeds ) ) ),
+			esc_attr( self::delete_confirm_text( self::count_published_embeds()[ $resource_id ] ?? 0 ) ),
 			esc_html__( 'Delete', 'jetpack-paypal-payments' )
 		);
 		echo '</p>';
@@ -900,30 +934,64 @@ class PayPal_Admin_Page {
 		}
 
 		// --- Link Locations Card (WOOPTP-597) ---
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only paging of a read-only view.
+		$locations_page = isset( $_GET['locations_page'] ) ? max( 1, absint( $_GET['locations_page'] ) ) : 1;
+		$locations      = self::find_embeds_page( $resource_id, $locations_page );
+
 		echo '<div class="card paypal-detail-card">';
 		printf( '<h3>%s</h3>', esc_html__( 'Link Locations', 'jetpack-paypal-payments' ) );
-		if ( ! $embeds ) {
-			printf( '<p>%s</p>', esc_html__( 'This payment link is not used on any published post or page yet.', 'jetpack-paypal-payments' ) );
+		if ( ! $locations['posts'] ) {
+			printf( '<p>%s</p>', esc_html__( 'This payment link is not used on any post or page yet.', 'jetpack-paypal-payments' ) );
 		} else {
-			printf( '<p class="description">%s</p>', esc_html__( 'Published posts and pages showing this payment link.', 'jetpack-paypal-payments' ) );
+			printf( '<p class="description">%s</p>', esc_html__( 'Posts and pages using this payment link. Drafts are marked with their status.', 'jetpack-paypal-payments' ) );
 			echo '<table class="widefat striped paypal-link-locations"><thead><tr>';
 			printf( '<th scope="col">%s</th>', esc_html__( 'Title', 'jetpack-paypal-payments' ) );
 			printf( '<th scope="col">%s</th>', esc_html__( 'Type', 'jetpack-paypal-payments' ) );
 			printf( '<th scope="col">%s</th>', esc_html__( 'Actions', 'jetpack-paypal-payments' ) );
 			echo '</tr></thead><tbody>';
-			foreach ( $embeds as $post ) {
+			foreach ( $locations['posts'] as $post ) {
 				$type_object = get_post_type_object( $post->post_type );
+				$title       = get_the_title( $post ) ? get_the_title( $post ) : __( '(no title)', 'jetpack-paypal-payments' );
+				$is_live     = 'publish' === $post->post_status;
+				if ( ! $is_live ) {
+					$status_object = get_post_status_object( $post->post_status );
+					$title         = sprintf(
+						/* translators: 1: post status label, such as Draft; 2: post title */
+						__( '[%1$s] %2$s', 'jetpack-paypal-payments' ),
+						$status_object ? $status_object->label : $post->post_status,
+						$title
+					);
+				}
 				printf(
 					'<tr><td>%s</td><td>%s</td><td><a href="%s">%s</a> | <a href="%s" target="_blank" rel="noopener noreferrer">%s</a></td></tr>',
-					esc_html( get_the_title( $post ) ? get_the_title( $post ) : __( '(no title)', 'jetpack-paypal-payments' ) ),
+					esc_html( $title ),
 					esc_html( $type_object ? $type_object->labels->singular_name : $post->post_type ),
 					esc_url( admin_url( 'post.php?post=' . (int) $post->ID . '&action=edit' ) ),
 					esc_html__( 'Edit', 'jetpack-paypal-payments' ),
-					esc_url( get_permalink( $post ) ),
-					esc_html__( 'View', 'jetpack-paypal-payments' )
+					esc_url( $is_live ? get_permalink( $post ) : get_preview_post_link( $post ) ),
+					$is_live ? esc_html__( 'View', 'jetpack-paypal-payments' ) : esc_html__( 'Preview', 'jetpack-paypal-payments' )
 				);
 			}
 			echo '</tbody></table>';
+
+			if ( $locations_page > 1 || $locations['has_more'] ) {
+				echo '<p class="paypal-link-locations__nav">';
+				if ( $locations_page > 1 ) {
+					printf(
+						'<a href="%s">&laquo; %s</a> ',
+						esc_url( add_query_arg( 'locations_page', $locations_page - 1 ) ),
+						esc_html__( 'Previous', 'jetpack-paypal-payments' )
+					);
+				}
+				if ( $locations['has_more'] ) {
+					printf(
+						'<a href="%s">%s &raquo;</a>',
+						esc_url( add_query_arg( 'locations_page', $locations_page + 1 ) ),
+						esc_html__( 'More', 'jetpack-paypal-payments' )
+					);
+				}
+				echo '</p>';
+			}
 		}
 		echo '</div>';
 

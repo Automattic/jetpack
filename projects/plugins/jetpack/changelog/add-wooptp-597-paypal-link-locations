@@ -1,4 +1,4 @@
 Significance: minor
 Type: enhancement
 
-PayPal Payment Buttons: List the published posts and pages using a payment link on its admin detail view, with edit and view links.
+PayPal Payment Buttons: List the posts and pages using a payment link on its admin detail view, drafts included, with edit and view links.
