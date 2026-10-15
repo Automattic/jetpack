@@ -67,28 +67,28 @@ class SEO_Visibility_Cohort_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * An install the superseded key marked visible is re-seeded hidden, so it gets the opt-in.
+	 * An upgrading install is re-seeded hidden whatever the superseded key held, and that key is dropped.
 	 *
-	 * @dataProvider provide_old_versions
-	 * @param string|false $old_version The previous version; false after a reactivation.
+	 * @dataProvider provide_superseded_values
+	 * @param bool $superseded_value The superseded key's stored value.
 	 */
-	#[DataProvider( 'provide_old_versions' )]
-	public function test_install_seeded_under_superseded_key_is_reseeded_hidden( $old_version ) {
-		add_option( 'jetpack_seo_surface_visible', true );
+	#[DataProvider( 'provide_superseded_values' )]
+	public function test_upgrade_reseeds_hidden_and_drops_superseded_key( $superseded_value ) {
+		add_option( 'jetpack_seo_surface_visible', $superseded_value );
 
-		Jetpack::seed_seo_visibility_cohort( '14.0:1700000000', $old_version );
+		Jetpack::seed_seo_visibility_cohort( '14.0:1700000000', '13.9:1690000000' );
 
 		$this->assertFalse( (bool) get_option( $this->option ) );
 		$this->assertNull( get_option( 'jetpack_seo_surface_visible', null ) );
 	}
 
 	/**
-	 * @return array Previous-version values the seed is called with.
+	 * @return array Values the superseded key was seeded with.
 	 */
-	public static function provide_old_versions() {
+	public static function provide_superseded_values() {
 		return array(
-			'upgrade'      => array( '13.9:1690000000' ),
-			'reactivation' => array( false ),
+			'seeded visible' => array( true ),
+			'seeded hidden'  => array( false ),
 		);
 	}
 }

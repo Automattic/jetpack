@@ -3182,23 +3182,19 @@ p {
 	 * first — with `$old_version === false` on a brand-new site (the same signal
 	 * {@see self::activate_subscriptions_module_for_existing_sites()} keys off). Fresh
 	 * installs are seeded visible; existing installs are seeded hidden and opt in later
-	 * via the legacy Traffic page or My Jetpack. `add_option()` makes this seed-once: it
-	 * never overrides a value a later opt-in (or opt-out) has set. WordPress.com sites
-	 * ignore this option entirely (always visible) — see
+	 * via the legacy Traffic page or My Jetpack. Deactivation deletes the stored version,
+	 * so a reactivation before this option exists counts as fresh. `add_option()` makes
+	 * this seed-once: it never overrides a value a later opt-in (or opt-out) has set.
+	 * WordPress.com sites ignore this option entirely (always visible) — see
 	 * {@see \Automattic\Jetpack\SEO\Initializer::is_seo_surface_visible()}.
 	 *
 	 * @param string       $version     The new Jetpack version (unused).
 	 * @param string|false $old_version The previous version, or false on a fresh install.
 	 */
 	public static function seed_seo_visibility_cohort( $version, $old_version ) {
-		// The superseded key (see VISIBILITY_OPTION) also marks an existing install, since
-		// deactivation deletes the stored version and a reactivation then looks fresh.
-		$had_superseded_key = null !== get_option( 'jetpack_seo_surface_visible', null );
-		if ( $had_superseded_key ) {
-			delete_option( 'jetpack_seo_surface_visible' );
-		}
-
-		add_option( Jetpack_SEO_Initializer::VISIBILITY_OPTION, ! $old_version && ! $had_superseded_key );
+		// Drop the superseded key (see VISIBILITY_OPTION); it plays no part in the seed.
+		delete_option( 'jetpack_seo_surface_visible' );
+		add_option( Jetpack_SEO_Initializer::VISIBILITY_OPTION, ! $old_version );
 	}
 
 	/**
