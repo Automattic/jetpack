@@ -32,25 +32,36 @@ import type { FunnelStep, ConversionFunnelChartProps } from './types';
 /** Chart height (px) below which the funnel tightens its gaps so the bars keep their room. */
 const SHORT_CHART_HEIGHT = 180;
 
+const formatStepCount = ( count: number ) =>
+	sprintf(
+		/* translators: %s: Number of items that reached the funnel step. */
+		_n( '%s item', '%s items', count, 'jetpack-charts' ),
+		formatMetricValue( count )
+	);
+
+const getDefaultStepDescription = ( step: FunnelStep ) =>
+	step.count === undefined ? '' : formatStepCount( step.count );
+
 /**
  * Internal ConversionFunnelChart component with chart registration
  *
- * @param props                  - Component props
- * @param props.chartId          - Optional unique identifier for the chart
- * @param props.mainRate         - Main conversion rate to highlight
- * @param props.changeIndicator  - Change indicator (e.g., +2%, -1.5%)
- * @param props.steps            - Array of funnel steps
- * @param props.loading          - Whether the chart is in loading state
- * @param props.animation        - Whether to show chart animation on initial render or not
- * @param props.className        - Additional CSS class name
- * @param props.ariaLabel        - Accessible name for the chart group
- * @param props.height           - Height of the chart container. Falls back to style.height if set, otherwise defaults to "100%".
- * @param props.style            - Custom styling
- * @param props.renderStepLabel  - Custom render function for step labels
- * @param props.renderStepRate   - Custom render function for step rates
- * @param props.renderMainMetric - Custom render function for the entire main metric section
- * @param props.renderTooltip    - Custom render function for tooltip content
- * @param props.tooltipStyle     - Inline styles merged over the tooltip box defaults
+ * @param props                    - Component props
+ * @param props.chartId            - Optional unique identifier for the chart
+ * @param props.mainRate           - Main conversion rate to highlight
+ * @param props.changeIndicator    - Change indicator (e.g., +2%, -1.5%)
+ * @param props.steps              - Array of funnel steps
+ * @param props.loading            - Whether the chart is in loading state
+ * @param props.animation          - Whether to show chart animation on initial render or not
+ * @param props.className          - Additional CSS class name
+ * @param props.ariaLabel          - Accessible name for the chart group
+ * @param props.height             - Height of the chart container. Falls back to style.height if set, otherwise defaults to "100%".
+ * @param props.style              - Custom styling
+ * @param props.renderStepLabel    - Custom render function for step labels
+ * @param props.renderStepRate     - Custom render function for step rates
+ * @param props.renderMainMetric   - Custom render function for the entire main metric section
+ * @param props.renderTooltip      - Custom render function for tooltip content
+ * @param props.tooltipStyle       - Inline styles merged over the tooltip box defaults
+ * @param props.getStepDescription - Plain text screen readers read after each step's name
  * @return JSX element representing the conversion funnel chart
  */
 const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
@@ -69,13 +80,14 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 	renderMainMetric,
 	renderTooltip,
 	tooltipStyle,
+	getStepDescription = getDefaultStepDescription,
 } ) => {
 	const chartId = useChartId( providedChartId );
 	const { getElementStyles, isColorPaletteResolved } = useGlobalChartsContext();
 	const chartRef = useRef< HTMLDivElement >( null );
 	const selectedBarRef = useRef< HTMLDivElement | null >( null );
 	const [ scopeNode, setScopeNode ] = useState< HTMLElement | null >( null );
-	const tooltipId = useId();
+	const descriptionIdPrefix = useId();
 
 	// Use @visx/tooltip hooks for tooltip positioning
 	const { tooltipData, tooltipLeft, tooltipTop, tooltipOpen, showTooltip, hideTooltip } =
@@ -289,23 +301,12 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 	);
 
 	// Default tooltip rendering function
-	// The label and rate are already the step's accessible name, so the description carries only the count.
 	const renderDefaultTooltip = ( step: FunnelStep ) => (
 		<Stack direction="column" align="flex-start" gap="xs">
-			<div className={ styles[ 'tooltip-title' ] } aria-hidden="true">
-				{ step.label }
-			</div>
+			<div className={ styles[ 'tooltip-title' ] }>{ step.label }</div>
 			<div className={ styles[ 'tooltip-content' ] }>
-				<span aria-hidden="true">
-					{ formatPercentage( step.rate ) }
-					{ step.count !== undefined && ' • ' }
-				</span>
-				{ step.count !== undefined &&
-					sprintf(
-						/* translators: %s: Number of items that reached the funnel step. */
-						_n( '%s item', '%s items', step.count, 'jetpack-charts' ),
-						formatMetricValue( step.count )
-					) }
+				{ formatPercentage( step.rate ) }
+				{ step.count !== undefined && ` • ${ formatStepCount( step.count ) }` }
 			</div>
 		</Stack>
 	);
@@ -417,6 +418,8 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 						const barHeight = ( step.rate / maxRate ) * 100;
 						const { isClicked, isBlurred } = getStepState( step.id );
 						const handlers = stepHandlers.get( step.id );
+						const description = getStepDescription( step, index );
+						const descriptionId = `${ descriptionIdPrefix }-${ index }`;
 
 						return (
 							<Stack
@@ -472,7 +475,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 										formatPercentage( step.rate )
 									) }
 									aria-pressed={ isClicked }
-									aria-describedby={ isClicked && tooltipContent ? tooltipId : undefined }
+									aria-describedby={ description ? descriptionId : undefined }
 								>
 									<div
 										className={ clsx( styles[ 'funnel-bar' ], {
@@ -485,6 +488,11 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 										} }
 									/>
 								</Stack>
+								{ description && (
+									<span id={ descriptionId } hidden>
+										{ description }
+									</span>
+								) }
 							</Stack>
 						);
 					} ) }
@@ -498,9 +506,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 					className={ standaloneScopeClass }
 					style={ tooltipStyle }
 				>
-					<div role="tooltip" id={ tooltipId }>
-						{ tooltipContent }
-					</div>
+					<div role="tooltip">{ tooltipContent }</div>
 				</BoundedTooltip>
 			) }
 		</Stack>

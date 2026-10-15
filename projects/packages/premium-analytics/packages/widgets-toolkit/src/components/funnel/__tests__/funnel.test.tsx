@@ -53,14 +53,15 @@ describe( 'Funnel', () => {
 		expect( screen.getByRole( 'group', { name: 'Chart: Conversion rate' } ) ).toBeInTheDocument();
 	} );
 
-	it( 'describes the selected step without repeating its name', async () => {
+	it.each( [
+		[ 'Sessions', '1,250' ],
+		[ 'Cart', '310 of 1,250' ],
+	] )( 'describes the %s step by its count', ( label, description ) => {
 		renderFunnel( <Funnel steps={ STEPS } status={ READY } /> );
 
-		await userEvent.click( screen.getByRole( 'button', { name: /^Cart,/ } ) );
-
-		expect( screen.getByRole( 'button', { name: /^Cart,/ } ) ).toHaveAccessibleDescription(
-			'310 of Sessions 24.8%'
-		);
+		expect(
+			screen.getByRole( 'button', { name: new RegExp( `^${ label },` ) } )
+		).toHaveAccessibleDescription( description );
 	} );
 
 	it( 'renders the empty state when the first step is empty', () => {
