@@ -16,24 +16,34 @@ describe( 'SeoOptInBanner', () => {
 		delete window.JetpackScriptData;
 	} );
 
-	it.each( [
-		[ 'shows', true ],
-		[ 'hides', false ],
-	] )( '%s while the opt-in is offered: %s', ( _, optinAvailable ) => {
-		window.JetpackScriptData = { seo: { optin_available: optinAvailable } };
-		render( <SeoOptInBanner /> );
-
-		expect( screen.queryByText( 'SEO has a new home' ) !== null ).toBe( optinAvailable );
-	} );
-
-	it( 'shows the error and re-enables the button when the opt-in fails', async () => {
+	it( 'shows while the opt-in is offered', () => {
 		window.JetpackScriptData = { seo: { optin_available: true } };
-		apiFetch.mockRejectedValue( new Error( 'Request failed' ) );
 		render( <SeoOptInBanner /> );
 
-		await userEvent.click( screen.getByRole( 'button', CTA ) );
-
-		await expect( screen.findByText( /Something went wrong/ ) ).resolves.toBeInTheDocument();
-		expect( screen.getByRole( 'button', CTA ) ).toBeEnabled();
+		expect( screen.getByText( 'SEO has a new home' ) ).toBeInTheDocument();
 	} );
+
+	it( 'renders nothing once the opt-in is no longer offered', () => {
+		window.JetpackScriptData = { seo: { optin_available: false } };
+		render( <SeoOptInBanner /> );
+
+		expect( screen.queryByText( 'SEO has a new home' ) ).not.toBeInTheDocument();
+	} );
+
+	it.each( [
+		[ 'fails', () => apiFetch.mockRejectedValueOnce( new Error( 'Request failed' ) ) ],
+		[ 'returns no redirect', () => apiFetch.mockResolvedValueOnce( {} ) ],
+	] )(
+		'shows the error and re-enables the button when the opt-in %s',
+		async ( _, mockResponse ) => {
+			window.JetpackScriptData = { seo: { optin_available: true } };
+			mockResponse();
+			render( <SeoOptInBanner /> );
+
+			await userEvent.click( screen.getByRole( 'button', CTA ) );
+
+			await expect( screen.findByText( /Something went wrong/ ) ).resolves.toBeInTheDocument();
+			expect( screen.getByRole( 'button', CTA ) ).toBeEnabled();
+		}
+	);
 } );

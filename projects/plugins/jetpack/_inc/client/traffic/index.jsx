@@ -66,9 +66,8 @@ export class Traffic extends Component {
 		// new page. Existing self-hosted installs that haven't opted in keep them
 		// (JETPACK-1682).
 		const seoMovedToDashboard = getScriptData()?.seo?.surface_visible === true;
-		// The opt-in and pointer notices speak for every section that moves, so show them whenever
-		// any of them would have rendered — including a settings search for "sitemap"
-		// or "verification" that matches even when the SEO section itself does not.
+		// The opt-in and pointer notices cover every section that moves, so show them for any of
+		// those, including a "sitemap" or "verification" search that misses the SEO section.
 		const foundMovedToDashboard =
 			foundSeo || foundCanonicalUrls || foundSitemaps || foundVerification;
 
@@ -99,7 +98,7 @@ export class Traffic extends Component {
 							) }
 				</h2>
 				{ foundRelated && <RelatedPosts { ...commonProps } /> }
-				{ ! seoMovedToDashboard && foundMovedToDashboard && <SeoOptInBanner /> }
+				{ foundMovedToDashboard && <SeoOptInBanner /> }
 				{ ! seoMovedToDashboard && ( foundSeo || foundCanonicalUrls ) && (
 					<SEO
 						{ ...commonProps }
