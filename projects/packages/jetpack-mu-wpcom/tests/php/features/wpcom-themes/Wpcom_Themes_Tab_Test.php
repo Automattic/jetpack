@@ -429,4 +429,19 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( 'Included with plan', $theme->plan_badge );
 		$this->assertFalse( isset( $theme->upgrade_url ) );
 	}
+
+	/**
+	 * A partner theme says nothing: a plan alone never settles whether the site may install one.
+	 */
+	public function test_a_partner_theme_claims_nothing() {
+		$theme = wpcom_themes_tab_add_plan(
+			(object) array(
+				'slug'       => 'example',
+				'theme_tier' => 'partner',
+			)
+		);
+
+		$this->assertFalse( isset( $theme->plan_badge ) );
+		$this->assertFalse( isset( $theme->upgrade_url ) );
+	}
 }

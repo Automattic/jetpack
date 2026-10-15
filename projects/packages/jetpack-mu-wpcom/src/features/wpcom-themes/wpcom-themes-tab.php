@@ -173,6 +173,13 @@ function wpcom_themes_tab_checkout_url( string $plan, string $slug ) {
  */
 function wpcom_themes_tab_add_plan( $theme ) {
 	$tier = isset( $theme->theme_tier ) ? (string) $theme->theme_tier : '';
+
+	// A partner theme needs a subscription of its own that no plan reports, so neither badge can
+	// tell the truth about one. DOTCOM-18722.
+	if ( WPCom_Themes_Tiers::PARTNER === $tier ) {
+		return $theme;
+	}
+
 	$plan = WPCom_Themes_Tiers::plan_for( $tier );
 
 	if ( '' === $plan || WPCom_Themes_Tiers::site_can_use( $tier ) ) {

@@ -21,16 +21,21 @@ class WPCom_Themes_Tiers {
 	const FREE = 'free';
 
 	/**
+	 * The tier whose themes each need a subscription of their own.
+	 */
+	const PARTNER = 'partner';
+
+	/**
 	 * The plan each tier needs, by tier slug.
 	 *
-	 * Must stay consistent with Calypso's THEME_TIERS.minimumUpsellPlan, which answers this for the
-	 * theme showcase. A tier that is not listed needs no plan.
+	 * These are the plans that grant the tier's capability, so buying one satisfies
+	 * site_can_use(). A tier that is not listed needs no plan.
 	 */
 	const MINIMUM_PLAN = array(
 		'personal'    => 'personal-bundle',
 		'premium'     => 'personal-bundle',
 		'partner'     => 'personal-bundle',
-		'woocommerce' => 'value_bundle',
+		'woocommerce' => 'business-bundle',
 		'sensei'      => 'business-bundle',
 		'community'   => 'business-bundle',
 	);

@@ -28,6 +28,7 @@ class Wpcom_Themes_Tiers_Test extends \WorDBless\BaseTestCase {
 	public function test_the_plan_a_tier_needs() {
 		$this->assertSame( 'personal-bundle', WPCom_Themes_Tiers::plan_for( 'premium' ) );
 		$this->assertSame( 'business-bundle', WPCom_Themes_Tiers::plan_for( 'sensei' ) );
+		$this->assertSame( 'business-bundle', WPCom_Themes_Tiers::plan_for( 'woocommerce' ) );
 		$this->assertSame( '', WPCom_Themes_Tiers::plan_for( 'free' ) );
 	}
 
