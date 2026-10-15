@@ -27,7 +27,7 @@ const getTargetIndex = (
  * Roving tabindex for the funnel steps: one Tab stop, and arrow keys, Home and End move focus between steps.
  *
  * @param stepIds        - Step ids in visual order.
- * @param selectedStepId - The selected step, which holds the Tab stop until another step takes focus.
+ * @param selectedStepId - The selected step, which holds the Tab stop until any step has taken focus.
  * @return Tab index, element registration, focus and key handlers for each step.
  */
 export const useRovingStepFocus = ( stepIds: string[], selectedStepId: string | null ) => {
