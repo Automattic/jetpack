@@ -14,6 +14,7 @@ import { MenuPointer } from './menu-pointer';
 import { MoreFeatures } from './more-features';
 import styles from './styles.module.scss';
 import { Toolbar } from './toolbar';
+import { useAllJetpackModules } from './use-all-jetpack-modules';
 import { getFeatureFilters, isFeatureFilter, matchesFilter } from './use-feature-filter';
 import { useFeatureSearch } from './use-feature-search';
 import { useFeatureSelection } from './use-feature-selection';
@@ -84,6 +85,7 @@ export function FeaturesContent() {
  */
 function FeaturesTabContent() {
 	const mainFeatures = useMainFeatures();
+	const { hasLoaded: modulesLoaded } = useAllJetpackModules();
 	const { states, isLoading } = useFeatureStates( mainFeatures );
 	const { pointer, dismissPointer } = useSidebarSync( mainFeatures.features );
 	const moreFeatures = useMoreFeatures( mainFeatures );
@@ -323,8 +325,11 @@ function FeaturesTabContent() {
 
 	// Hold back "no matches" until module data arrives: before then every feature reads as
 	// inactive and unavailable, so Active and Available can wrongly come up empty. A search ignores the filter.
+	// Available stops waiting once the module request ends, so a failed request still ends in a message.
 	const onModules =
-		filter === 'active' || filter === 'inactive' || ( filter === 'available' && ! search.trim() );
+		filter === 'active' ||
+		filter === 'inactive' ||
+		( filter === 'available' && ! search.trim() && ! modulesLoaded );
 	const settling =
 		( mainFeatures.isPlaceholderData && mainFeatures.features.length === 0 ) ||
 		( onModules && states.some( state => state.pending ) );

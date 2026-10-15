@@ -28,6 +28,11 @@ let mockMainFeatures: Record< string, unknown > = {
 	isPlaceholderData: false,
 };
 
+let mockModulesLoaded = true;
+jest.mock( '../use-all-jetpack-modules', () => ( {
+	useAllJetpackModules: () => ( { modules: {}, isLoading: false, hasLoaded: mockModulesLoaded } ),
+} ) );
+
 jest.mock( '../use-main-features', () => ( { useMainFeatures: () => mockMainFeatures } ) );
 
 let mockIsLoading = false;
@@ -82,6 +87,7 @@ describe( 'FeaturesContent', () => {
 	beforeEach( () => {
 		mockStates = [ activeStats ];
 		mockIsLoading = false;
+		mockModulesLoaded = true;
 		mockGroups = [];
 		mockMainFeatures = {
 			jetpack: 'active',
@@ -154,12 +160,14 @@ describe( 'FeaturesContent', () => {
 
 	it( 'waits for modules before reporting an empty Available filter after a reload', () => {
 		mockIsLoading = true;
+		mockModulesLoaded = false;
 		mockStates = [ { ...activeStats, pending: true } as FeatureState ];
 		const { rerenderAt } = renderAt( '/features?filter=available' );
 
 		expect( screen.queryByText( 'No features found.' ) ).not.toBeInTheDocument();
 
 		mockIsLoading = false;
+		mockModulesLoaded = true;
 		mockStates = [ activeStats ];
 		rerenderAt();
 		expect( screen.getByText( 'grid card' ) ).toBeInTheDocument();
@@ -167,6 +175,14 @@ describe( 'FeaturesContent', () => {
 		mockStates = [ { ...activeStats, unavailableReason: 'Unavailable' } ];
 		rerenderAt();
 		expect( screen.getByText( 'No features found.' ) ).toBeInTheDocument();
+	} );
+
+	it( 'stops holding Available back once a failed module request has ended', () => {
+		mockStates = [ { ...activeStats, pending: true, status: 'inactive' } as FeatureState ];
+
+		renderAt( '/features?filter=available' );
+
+		expect( screen.getByRole( 'heading', { name: 'No features found.' } ) ).toBeVisible();
 	} );
 
 	it( 'reports an empty catalog as a failure rather than a site with no features', () => {
