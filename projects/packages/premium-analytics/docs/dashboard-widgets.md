@@ -162,6 +162,8 @@ A widget that shows nothing but a paid Stats feature declares that feature in `p
 
 `stats-plan-gates.php` owns the features and which plan locks each. On the dashboard it publishes `premium_analytics.plan_gates`: `locked_features` maps each feature the site's plan lacks to its copy (`description`, with `<link>` around the words `support_url` explains) and `upgrade_url`, empty when there is nowhere to buy it, and `locked_widget_types` maps each available type whose feature is locked to that feature. The `jetpack_premium_analytics_stats_plan_tier` filter overrides the tier both come from. Declaring a plan feature needs `WIDGET_API_VERSION` 1.12.0; an older registry ignores it, and the widget stays open.
 
+The dashboard points a locked type at `LockedWidget` instead of its render module, which it never imports, so the widget requests nothing. A feature locked inside a widget that stays open, like the Regions and Cities of **Top locations**, is the widget's to check: it reads `isStatsFeatureLocked()`, renders `LockedWidget` for that part and skips its request.
+
 ### Script modules
 
 The module ids are what the client hands to `import()`. The package's are registered by the generated `jpa_register_widget_modules()`; a plugin's by the same generated file of its own build.
