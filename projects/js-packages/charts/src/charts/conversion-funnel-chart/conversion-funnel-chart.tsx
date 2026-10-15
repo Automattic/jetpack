@@ -213,8 +213,6 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 				if ( event.key === 'Enter' || event.key === ' ' ) {
 					handleStepInteraction( step, event, 'keyboard' );
 				} else {
-					// For other keys (like Escape), just handle the selection
-					selectedBarRef.current = event.currentTarget as HTMLDivElement;
 					handleBarKeyDown( step.id, event );
 				}
 			};
