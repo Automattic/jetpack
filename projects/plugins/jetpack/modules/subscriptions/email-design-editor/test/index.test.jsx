@@ -2148,9 +2148,10 @@ describe( 'Email design editor entry point', () => {
 				'Manage the fonts and typography used on text.'
 			);
 
-			// Of this screen's four controls only colour reaches the byline and footer; their
-			// fonts are pinned in wpcom's stylesheet until NL-813. NL-1052.
-			expect( described ).toContain( 'The byline and footer follow its color only' );
+			// Colour is all of this screen that reaches the byline, and all that reaches the
+			// footer bar its copyright line, whose font is the one wpcom leaves unpinned. NL-1052.
+			expect( described ).toContain( 'The byline and footer follow its color' );
+			expect( described ).toContain( 'copyright line follows its font' );
 			expect( described ).not.toContain( 'the whole email' );
 		} );
 

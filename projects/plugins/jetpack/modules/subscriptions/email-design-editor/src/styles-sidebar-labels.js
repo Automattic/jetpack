@@ -56,7 +56,7 @@ function stylesSidebarLabels() {
 			[
 				'Manage the fonts and typography used on text.',
 				_x(
-					'The default for your post body. The byline and footer follow its color only.',
+					'The default for your post body. The byline and footer follow its color, and the footer’s copyright line follows its font.',
 					'email design styles',
 					'jetpack'
 				),
