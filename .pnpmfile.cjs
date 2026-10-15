@@ -180,32 +180,6 @@ async function fixDeps( pkg ) {
  * @return {object} Modified pkg.
  */
 function fixPeerDeps( pkg ) {
-	// Indirect deps that still depend on React <18.
-	const reactOldPkgs = new Set( [
-		// Still on 16.
-		'react-autosize-textarea', // @wordpress/block-editor <https://github.com/WordPress/gutenberg/issues/39619>
-	] );
-	if ( reactOldPkgs.has( pkg.name ) ) {
-		for ( const p of [ 'react', 'react-dom' ] ) {
-			if ( ! pkg.peerDependencies?.[ p ] ) {
-				continue;
-			}
-
-			if (
-				pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^16|16\.x)/ ) &&
-				! pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^17|17\.x)/ )
-			) {
-				pkg.peerDependencies[ p ] += ' || ^17';
-			}
-			if (
-				pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^17|17\.x)/ ) &&
-				! pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^18|18\.x)/ )
-			) {
-				pkg.peerDependencies[ p ] += ' || ^18';
-			}
-		}
-	}
-
 	// Outdated eslint deps.
 	const eslintOldPkgs = new Set( [
 		'eslint-plugin-import', // https://github.com/import-js/eslint-plugin-import/issues/3227
