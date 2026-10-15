@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Show the new Stats plan and views limit as soon as a Stats checkout returns to the dashboard.
+Show the new Stats plan and views limit on the first load after a Jetpack Stats purchase.

@@ -872,7 +872,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Transient key for a target path + API version/base + forwarded params (order-independent).
+	 * Transient key for a target path + API version/base + forwarded params (order-independent) + cache generations.
 	 * Version and base are part of the key so the same path at different versions doesn't collide.
 	 *
 	 * @param string      $wpcom_path WPCOM path without the forwarded query string.

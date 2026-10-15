@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Refresh the plan and the cached Stats data on the dashboard load a Stats checkout returns to.
+Show the new plan and fresh Stats data on the first dashboard load after a Stats purchase.

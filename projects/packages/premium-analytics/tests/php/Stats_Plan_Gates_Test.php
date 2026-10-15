@@ -575,6 +575,38 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		$this->assertSame( array( '*' => 1 ), get_option( 'jetpack_premium_analytics_proxy_cache_generations' ) );
 	}
 
+	/**
+	 * @dataProvider provide_purchase_returns_that_keep_the_caches
+	 *
+	 * @param string      $page     The admin page loaded.
+	 * @param string|null $platform `simple`, or null for a self-hosted site.
+	 */
+	#[DataProvider( 'provide_purchase_returns_that_keep_the_caches' )]
+	public function test_purchase_return_keeps_the_caches_off_the_dashboard_or_on_simple( $page, $platform ) {
+		$_GET['page']                 = $page;
+		$_GET['statsPurchaseSuccess'] = 'paid';
+		set_current_screen( 'toplevel_page_' . $page );
+		if ( $platform ) {
+			$this->set_wpcom_platform( $platform );
+		}
+		set_transient( Notices::NOTICES_CACHE_KEY, '{}', MINUTE_IN_SECONDS );
+
+		maybe_invalidate_stats_caches();
+
+		$this->assertNotFalse( get_transient( Notices::NOTICES_CACHE_KEY ) );
+		$this->assertFalse( get_option( 'jetpack_premium_analytics_proxy_cache_generations' ) );
+	}
+
+	/**
+	 * @return array<string, array{0: string, 1: string|null}>
+	 */
+	public static function provide_purchase_returns_that_keep_the_caches() {
+		return array(
+			'off the dashboard' => array( 'jetpack', null ),
+			'on Simple'         => array( Analytics::MENU_PAGE_SLUG, 'simple' ),
+		);
+	}
+
 	public function test_configure_hooks_the_purchase_return() {
 		configure_stats_plan_gates();
 

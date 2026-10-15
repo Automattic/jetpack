@@ -427,7 +427,7 @@ const PURCHASE_PLAN_REFRESH_TRANSIENT = 'jetpack_premium_analytics_purchase_plan
  * @return bool
  */
 function is_stats_purchase_return() {
-	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only trigger: it only re-reads the site's own plan and Stats data.
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Presence-only flag: its value is never used, and it only triggers a refresh of the site's own data.
 	return isset( $_GET['statsPurchaseSuccess'] );
 }
 
