@@ -52,7 +52,7 @@
 		},
 		"orderBy": {
 			"type": "string",
-			"enum": [ "newest", "oldest", "title" ],
+			"enum": [ "newest", "oldest", "title", "updated" ],
 			"default": "newest"
 		},
 		"showDescription": {
@@ -67,6 +67,10 @@
 			"type": "string",
 			"enum": [ "numbered", "load-more" ],
 			"default": "numbered"
+		},
+		"showUpdated": {
+			"type": "boolean",
+			"default": false
 		}
 	},
 	"editorScript": "file:./index.js",

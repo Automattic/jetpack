@@ -40,6 +40,66 @@ class Channel_Test extends BaseTestCase {
 		remove_filter( 'videopress_channel_enabled', '__return_true' );
 		$_GET = array();
 		unset( $GLOBALS['post'] );
+		delete_option( 'videopress_playlist_index' );
+	}
+
+	/**
+	 * Index two playlists held by published posts, the second updated last.
+	 *
+	 * @return array{mc: int, road: int} Source post IDs.
+	 */
+	private function index_playlists() {
+		$mc   = wp_insert_post(
+			array(
+				'post_title'        => 'Molten Core',
+				'post_status'       => 'publish',
+				'post_modified_gmt' => '2026-01-01 00:00:00',
+			)
+		);
+		$road = wp_insert_post(
+			array(
+				'post_type'         => 'page',
+				'post_title'        => 'Road',
+				'post_status'       => 'publish',
+				'post_modified_gmt' => '2026-02-01 00:00:00',
+			)
+		);
+		update_option(
+			'videopress_playlist_index',
+			array(
+				'mc'   => array(
+					'title'       => 'Molten Core progression',
+					'description' => 'Attunement to Ragnaros.',
+					'videos'      => array(
+						array(
+							'guid'       => 'abcDEF12',
+							'durationMs' => 1000,
+						),
+						array( 'guid' => 'ghiJKL34' ),
+					),
+					'post_id'     => $mc,
+				),
+				'road' => array(
+					'title'       => 'The road to 60',
+					'description' => '',
+					'videos'      => array( array( 'guid' => 'ghiJKL34' ) ),
+					'post_id'     => $road,
+				),
+			)
+		);
+		// wp_insert_post() stamps the modified date itself.
+		foreach ( array(
+			$mc   => '2026-01-01 00:00:00',
+			$road => '2026-02-01 00:00:00',
+		) as $id => $date ) {
+			$post                    = get_post( $id );
+			$post->post_modified_gmt = $date;
+			wp_cache_replace( $id, $post, 'posts' );
+		}
+		return array(
+			'mc'   => $mc,
+			'road' => $road,
+		);
 	}
 
 	/**
@@ -234,5 +294,38 @@ class Channel_Test extends BaseTestCase {
 			)
 		);
 		$this->assertSame( '', $none['attrs']['guid'] );
+	}
+
+	/**
+	 * A playlist block with a `source` shows an indexed playlist ( the most
+	 * recently updated by default ).
+	 */
+	public function test_playlist_source_block() {
+		$this->index_playlists();
+		$block = function ( $attrs ) {
+			return Channel::playlist_source_block(
+				array(
+					'blockName' => 'videopress/playlist',
+					'attrs'     => $attrs,
+				)
+			)['attrs'];
+		};
+
+		$own = array(
+			'videos' => array( array( 'guid' => 'zzzzzzzz' ) ),
+		);
+		$this->assertSame( $own, $block( $own ) );
+
+		$latest = $block( array( 'source' => 'index' ) );
+		$this->assertSame( 'The road to 60', $latest['playlistTitle'] );
+
+		$picked = $block(
+			array(
+				'source'           => 'index',
+				'sourcePlaylistId' => 'mc',
+			)
+		);
+		$this->assertSame( array( 'abcDEF12', 'ghiJKL34' ), array_column( $picked['videos'], 'guid' ) );
+		$this->assertSame( 'Attunement to Ragnaros.', $picked['playlistDescription'] );
 	}
 }

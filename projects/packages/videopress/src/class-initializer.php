@@ -295,6 +295,9 @@ class Initializer {
 
 		// Register All Playlists block.
 		self::register_videopress_all_playlists_block();
+
+		// Register the channel blocks' shared pieces: the editor data their playlist pickers read.
+		Channel_Blocks::register();
 	}
 
 	/**
@@ -828,7 +831,7 @@ class Initializer {
 	 *
 	 * @return string Runtime label, or an empty string when the duration is unknown.
 	 */
-	private static function playlist_runtime_label( $duration_ms ) {
+	public static function playlist_runtime_label( $duration_ms ) {
 		if ( $duration_ms <= 0 ) {
 			return '';
 		}

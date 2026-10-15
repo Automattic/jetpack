@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Extensions\VideoPress_Video;
 
 use Automattic\Jetpack\VideoPress\Channel as VideoPress_Pkg_Channel;
+use Automattic\Jetpack\VideoPress\Channel_Blocks as VideoPress_Pkg_Channel_Blocks;
 use Automattic\Jetpack\VideoPress\Initializer as VideoPress_Pkg_Initializer;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -55,6 +56,11 @@ function register_videopress_blocks( $playlist_metadata_file = null, $latest_vid
 	// The All Playlists block only registers once the playlist block has.
 	if ( method_exists( 'Automattic\Jetpack\VideoPress\Initializer', 'register_videopress_all_playlists_block' ) ) {
 		VideoPress_Pkg_Initializer::register_videopress_all_playlists_block();
+	}
+
+	// The channel blocks' shared pieces ( the editor data their playlist pickers read ) also need the playlist block.
+	if ( method_exists( 'Automattic\Jetpack\VideoPress\Channel_Blocks', 'register' ) ) {
+		VideoPress_Pkg_Channel_Blocks::register();
 	}
 }
 // Ignore the empty argument supplied by do_action( 'init' ) so metadata uses the package default.

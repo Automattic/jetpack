@@ -192,6 +192,7 @@ class All_Playlists_Block_Test extends BaseTestCase {
 				'show_description' => true,
 				'show_video_count' => true,
 				'pagination'       => 'numbered',
+				'show_updated'     => false,
 			),
 			All_Playlists_Block::settings( 'nope' )
 		);

@@ -24,10 +24,11 @@ use WP_Post;
  */
 class Channel {
 
-	const MIME_TYPE = 'video/videopress';
-	const ENDPOINT  = 'videopress';
-	const QUERY_VAR = 'videopress_video';
-	const TEMPLATE  = 'videopress-video';
+	const MIME_TYPE        = 'video/videopress';
+	const ENDPOINT         = 'videopress';
+	const QUERY_VAR        = 'videopress_video';
+	const TEMPLATE         = 'videopress-video';
+	const PLAYLIST_SOURCES = array( 'own', 'index' );
 
 	/**
 	 * Whether the feature has been wired up in this request.
@@ -85,6 +86,7 @@ class Channel {
 		add_filter( 'attachment_link', array( __CLASS__, 'attachment_link' ), 10, 2 );
 		add_filter( 'videopress_playlist_entry_url', array( __CLASS__, 'playlist_entry_url' ), 10, 2 );
 		add_filter( 'render_block_data', array( __CLASS__, 'queried_video_block' ) );
+		add_filter( 'render_block_data', array( __CLASS__, 'playlist_source_block' ) );
 	}
 
 	/**
@@ -334,5 +336,115 @@ class Channel {
 		}
 		$post = self::current_video();
 		return $post instanceof WP_Post ? self::guid( $post ) : '';
+	}
+
+	/**
+	 * One indexed playlist with its key, or null.
+	 *
+	 * @param string $key Playlist key.
+	 * @return array|null Record with key, title, description, videos and post_id.
+	 */
+	public static function playlist_record( $key ) {
+		$key = is_string( $key ) ? sanitize_key( $key ) : '';
+		if ( '' === $key ) {
+			return null;
+		}
+		$index = Playlist_Index::get_playlists();
+		if ( ! isset( $index[ $key ] ) || ! is_array( $index[ $key ] ) ) {
+			return null;
+		}
+		return self::normalize_record( $key, $index[ $key ] );
+	}
+
+	/**
+	 * Every indexed playlist whose source post is published, most recently updated first.
+	 *
+	 * @return array[] Records as playlist_record() returns them, plus `updated` ( unix time ).
+	 */
+	public static function playlists() {
+		$playlists = array();
+		foreach ( Playlist_Index::get_playlists() as $key => $record ) {
+			if ( ! is_array( $record ) ) {
+				continue;
+			}
+			$record = self::normalize_record( (string) $key, $record );
+			$post   = $record['post_id'] ? get_post( $record['post_id'] ) : null;
+			if ( ! $post instanceof WP_Post || 'publish' !== $post->post_status ) {
+				continue;
+			}
+			$record['updated'] = (int) strtotime( $post->post_modified_gmt . ' UTC' );
+			$playlists[]       = $record;
+		}
+		usort(
+			$playlists,
+			function ( $a, $b ) {
+				return $b['updated'] !== $a['updated'] ? $b['updated'] - $a['updated'] : strcmp( $a['key'], $b['key'] );
+			}
+		);
+		return $playlists;
+	}
+
+	/**
+	 * Normalize an index record.
+	 *
+	 * @param string $key    Playlist key.
+	 * @param array  $record Index record.
+	 * @return array
+	 */
+	private static function normalize_record( $key, array $record ) {
+		return array(
+			'key'         => $key,
+			'title'       => isset( $record['title'] ) && is_string( $record['title'] ) ? $record['title'] : '',
+			'description' => isset( $record['description'] ) && is_string( $record['description'] ) ? $record['description'] : '',
+			'videos'      => Initializer::sanitize_playlist_entries( $record['videos'] ?? null ),
+			'post_id'     => isset( $record['post_id'] ) ? absint( $record['post_id'] ) : 0,
+		);
+	}
+
+	/**
+	 * The playlist a block shows: an indexed one by key ( the most recently
+	 * updated when no key is set ).
+	 *
+	 * @param string $source One of PLAYLIST_SOURCES.
+	 * @param string $key    Playlist key for the `index` source.
+	 * @return array|null
+	 */
+	public static function source_playlist( $source, $key = '' ) {
+		if ( 'index' !== $source ) {
+			return null;
+		}
+		if ( is_string( $key ) && '' !== $key ) {
+			return self::playlist_record( $key );
+		}
+		$playlists = self::playlists();
+		return $playlists ? $playlists[0] : null;
+	}
+
+	/**
+	 * A Video Playlist block whose `source` is `index` shows that playlist.
+	 *
+	 * @param array $parsed_block The block being rendered.
+	 * @return array
+	 */
+	public static function playlist_source_block( $parsed_block ) {
+		if ( ! isset( $parsed_block['blockName'] ) || Playlist_Index::BLOCK_NAME !== $parsed_block['blockName'] ) {
+			return $parsed_block;
+		}
+		$attrs  = isset( $parsed_block['attrs'] ) && is_array( $parsed_block['attrs'] ) ? $parsed_block['attrs'] : array();
+		$source = isset( $attrs['source'] ) && in_array( $attrs['source'], self::PLAYLIST_SOURCES, true ) ? $attrs['source'] : 'own';
+		if ( 'own' === $source ) {
+			return $parsed_block;
+		}
+
+		$playlist = self::source_playlist( $source, isset( $attrs['sourcePlaylistId'] ) ? (string) $attrs['sourcePlaylistId'] : '' );
+		if ( ! $playlist ) {
+			$parsed_block['attrs']['videos'] = array();
+			return $parsed_block;
+		}
+
+		$parsed_block['attrs']['videos']              = $playlist['videos'];
+		$parsed_block['attrs']['playlistTitle']       = $playlist['title'];
+		$parsed_block['attrs']['playlistDescription'] = $playlist['description'];
+		return $parsed_block;
 	}
 }
