@@ -414,4 +414,19 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 			$url
 		);
 	}
+
+	/**
+	 * A theme needing no plan is badged as included, and keeps the install core would run.
+	 */
+	public function test_a_theme_needing_no_plan_is_included() {
+		$theme = wpcom_themes_tab_add_plan(
+			(object) array(
+				'slug'       => 'example',
+				'theme_tier' => 'free',
+			)
+		);
+
+		$this->assertSame( 'Included with plan', $theme->plan_badge );
+		$this->assertFalse( isset( $theme->upgrade_url ) );
+	}
 }

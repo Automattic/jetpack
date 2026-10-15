@@ -163,24 +163,26 @@ function wpcom_themes_tab_checkout_url( string $plan, string $slug ) {
 }
 
 /**
- * Says which plan a theme needs, for the cards that offer it rather than an install.
+ * Says what a theme costs this site, for the badge every card carries.
  *
- * Core's grid offers Install for whatever it is given, so a theme the plan excludes has to carry
- * the upgrade that belongs in its place.
+ * Core's grid offers Install for whatever it is given, so a theme the plan excludes also has to
+ * carry the upgrade that belongs in its place.
  *
  * @param stdClass $theme A theme in the themes API shape.
- * @return stdClass The theme, carrying the plan it needs when the site lacks it.
+ * @return stdClass The theme, carrying its badge and, when the plan excludes it, an upgrade.
  */
-function wpcom_themes_tab_add_upgrade( $theme ) {
+function wpcom_themes_tab_add_plan( $theme ) {
 	$tier = isset( $theme->theme_tier ) ? (string) $theme->theme_tier : '';
 	$plan = WPCom_Themes_Tiers::plan_for( $tier );
 
 	if ( '' === $plan || WPCom_Themes_Tiers::site_can_use( $tier ) ) {
+		$theme->plan_badge = __( 'Included with plan', 'jetpack-mu-wpcom' );
+
 		return $theme;
 	}
 
-	$theme->upgrade_plan = WPCom_Themes_Tiers::plan_name_for( $tier );
-	$theme->upgrade_url  = wpcom_themes_tab_checkout_url( $plan, (string) ( $theme->slug ?? '' ) );
+	$theme->plan_badge  = WPCom_Themes_Tiers::plan_name_for( $tier );
+	$theme->upgrade_url = wpcom_themes_tab_checkout_url( $plan, (string) ( $theme->slug ?? '' ) );
 
 	return $theme;
 }
@@ -255,7 +257,7 @@ function wpcom_themes_tab_serve_themes_api( $result, $action, $args ) {
 				'pages'   => 1,
 				'results' => 1,
 			),
-			'themes' => array( wpcom_themes_tab_add_upgrade( wpcom_themes_tab_mapper()->map_wpcom_to_wporg( $theme ) ) ),
+			'themes' => array( wpcom_themes_tab_add_plan( wpcom_themes_tab_mapper()->map_wpcom_to_wporg( $theme ) ) ),
 		);
 	}
 
@@ -277,7 +279,7 @@ function wpcom_themes_tab_serve_themes_api( $result, $action, $args ) {
 			'pages'   => (int) ceil( count( $themes ) / WPCOM_THEMES_TAB_PER_PAGE ),
 			'results' => count( $themes ),
 		),
-		'themes' => array_values( array_map( 'wpcom_themes_tab_add_upgrade', array_map( array( $mapper, 'map_wpcom_to_wporg' ), $shown ) ) ),
+		'themes' => array_values( array_map( 'wpcom_themes_tab_add_plan', array_map( array( $mapper, 'map_wpcom_to_wporg' ), $shown ) ) ),
 	);
 }
 add_filter( 'themes_api', 'wpcom_themes_tab_serve_themes_api', 10, 3 );

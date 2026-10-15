@@ -56,26 +56,29 @@
 	const planBadge = ( theme, modifier ) => {
 		const badge = document.createElement( 'span' );
 		badge.className = modifier ? `wpcom-themes-tab__plan ${ modifier }` : 'wpcom-themes-tab__plan';
-		badge.textContent = theme.upgrade_plan;
+		badge.textContent = theme.plan_badge;
 		return badge;
 	};
 
 	/**
-	 * Patches a rendered theme, when the site's plan does not include it.
+	 * Patches a rendered theme with what its plan costs this site.
 	 *
 	 * @param {Element}  el    - The view's element.
 	 * @param {object}   theme - The theme being rendered.
 	 * @param {Function} badge - Places the plan badge for this view.
 	 * @return {void}
 	 */
-	const showUpgrade = ( el, theme, badge ) => {
-		if ( ! el || ! theme || ! theme.upgrade_url ) {
+	const showPlan = ( el, theme, badge ) => {
+		if ( ! el || ! theme || ! theme.plan_badge ) {
 			return;
 		}
 
-		const button = el.querySelector( '.theme-install, .activate' );
-		if ( button ) {
-			offerUpgrade( button, theme );
+		// Only a theme the plan excludes needs its install taken away.
+		if ( theme.upgrade_url ) {
+			const button = el.querySelector( '.theme-install, .activate' );
+			if ( button ) {
+				offerUpgrade( button, theme );
+			}
 		}
 
 		badge( el, theme );
@@ -102,7 +105,7 @@
 
 	// On a card the badge sits over the screenshot; in the preview it follows the author line.
 	afterRender( views.Theme, ( el, theme ) =>
-		showUpgrade( el, theme, () => {
+		showPlan( el, theme, () => {
 			const screenshot = el.querySelector( '.theme-screenshot' );
 			if ( screenshot ) {
 				screenshot.appendChild( planBadge( theme, 'wpcom-themes-tab__plan--on-screenshot' ) );
@@ -112,7 +115,7 @@
 
 	if ( views.Preview ) {
 		afterRender( views.Preview, ( el, theme ) =>
-			showUpgrade( el, theme, () => {
+			showPlan( el, theme, () => {
 				const author = el.querySelector( '.theme-by' );
 				if ( author ) {
 					author.insertAdjacentElement( 'afterend', planBadge( theme ) );
