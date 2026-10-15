@@ -13,6 +13,7 @@ use Automattic\Jetpack\Protect\Dashboard;
 use Automattic\Jetpack\Protect\Dashboard_Section;
 use Jetpack_Options;
 use WP_Error;
+use WP_REST_Request;
 use WP_REST_Server;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -34,7 +35,7 @@ class Monitor implements Dashboard_Section {
 	const UPTIME_DAYS = 40;
 
 	/**
-	 * Transient caching the uptime history.
+	 * Transient caching the uptime history, or why fetching it failed.
 	 *
 	 * @var string
 	 */
@@ -85,6 +86,13 @@ class Monitor implements Dashboard_Section {
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_uptime' ),
 				'permission_callback' => array( Dashboard::class, 'can_manage' ),
+				'args'                => array(
+					'retry' => array(
+						'description' => __( 'Ask WordPress.com again, even if it failed in the last minute.', 'jetpack-protect-pkg' ),
+						'type'        => 'boolean',
+						'default'     => false,
+					),
+				),
 			)
 		);
 	}
@@ -92,9 +100,10 @@ class Monitor implements Dashboard_Section {
 	/**
 	 * Daily uptime for the last UPTIME_DAYS days (oldest first) and the current status, from WordPress.com.
 	 *
+	 * @param WP_REST_Request|null $request The request; its `retry` flag skips a remembered failure.
 	 * @return array|WP_Error
 	 */
-	public function get_uptime() {
+	public function get_uptime( $request = null ) {
 		if ( ! Dashboard::get_module_state( 'monitor' )['active'] ) {
 			return new WP_Error( 'monitor_inactive', __( 'Downtime monitoring is off.', 'jetpack-protect-pkg' ), array( 'status' => 409 ) );
 		}
@@ -105,11 +114,11 @@ class Monitor implements Dashboard_Section {
 		}
 
 		$cached = get_transient( self::UPTIME_TRANSIENT );
-		if ( is_array( $cached ) ) {
+		if ( is_array( $cached ) && ! isset( $cached['failed'] ) ) {
 			return $cached;
 		}
-		if ( 'failed' === $cached ) {
-			return $this->unavailable_error();
+		if ( isset( $cached['failed'] ) && ! ( $request && $request['retry'] ) ) {
+			return $this->unavailable_error( $cached['failed'] );
 		}
 
 		// It has no 40-day period, so ask for 90 and keep the newest days.
@@ -118,9 +127,13 @@ class Monitor implements Dashboard_Section {
 		if ( ! $days ) {
 			// A 401 or 403 is about this user's token, so it must not hide the history from other admins.
 			if ( ! in_array( $history['code'], array( 401, 403 ), true ) ) {
-				set_transient( self::UPTIME_TRANSIENT, 'failed', MINUTE_IN_SECONDS );
+				$failed = array(
+					'code'  => $history['code'],
+					'error' => $history['error'],
+				);
+				set_transient( self::UPTIME_TRANSIENT, array( 'failed' => $failed ), MINUTE_IN_SECONDS );
 			}
-			return $this->unavailable_error();
+			return $this->unavailable_error( $history );
 		}
 
 		$uptime = array(
@@ -187,7 +200,8 @@ class Monitor implements Dashboard_Section {
 	 * GET a wpcom/v2 site endpoint as the current user.
 	 *
 	 * @param string $path Path after `/sites/<id>`.
-	 * @return array The HTTP `code` (0 when the request failed) and the decoded `body`, null unless the code is 200.
+	 * @return array The HTTP `code` (0 when the request failed), the decoded `body` (null unless the code is 200),
+	 *               and an `error` string describing a transport failure (null otherwise).
 	 */
 	private function request( $path ) {
 		$response = Client::wpcom_json_api_request_as_user(
@@ -197,19 +211,35 @@ class Monitor implements Dashboard_Section {
 			null,
 			'wpcom'
 		);
-		$code     = is_wp_error( $response ) ? 0 : (int) wp_remote_retrieve_response_code( $response );
+		if ( is_wp_error( $response ) ) {
+			return array(
+				'code'  => 0,
+				'body'  => null,
+				'error' => $response->get_error_code() . ': ' . $response->get_error_message(),
+			);
+		}
+		$code = (int) wp_remote_retrieve_response_code( $response );
 		return array(
-			'code' => $code,
-			'body' => 200 === $code ? json_decode( wp_remote_retrieve_body( $response ), true ) : null,
+			'code'  => $code,
+			'body'  => 200 === $code ? json_decode( wp_remote_retrieve_body( $response ), true ) : null,
+			'error' => null,
 		);
 	}
 
 	/**
-	 * The error returned when WordPress.com can't be reached.
+	 * The error returned when WordPress.com can't be reached, carrying the upstream detail for debugging.
 	 *
+	 * @param array $request The failing request's `code` and `error`, as returned by `request()`.
 	 * @return WP_Error
 	 */
-	private function unavailable_error() {
-		return new WP_Error( 'uptime_unavailable', __( 'Uptime history is unavailable right now.', 'jetpack-protect-pkg' ), array( 'status' => 502 ) );
+	private function unavailable_error( $request ) {
+		$data = array(
+			'status'         => 502,
+			'upstreamStatus' => $request['code'],
+		);
+		if ( ! empty( $request['error'] ) ) {
+			$data['upstreamError'] = $request['error'];
+		}
+		return new WP_Error( 'uptime_unavailable', __( 'Uptime history is unavailable right now.', 'jetpack-protect-pkg' ), $data );
 	}
 }

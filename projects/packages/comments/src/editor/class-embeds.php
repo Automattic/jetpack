@@ -80,7 +80,7 @@ class Embeds extends WP_REST_Controller {
 		/**
 		 * Offer the embed block in the Jetpack Comments editor.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.5.0
 		 *
 		 * @param bool $enabled Whether to offer it. Default true, wherever the block editor is on.
 		 */

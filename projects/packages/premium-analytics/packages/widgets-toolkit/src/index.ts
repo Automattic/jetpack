@@ -286,7 +286,6 @@ export type { ReportParamsFieldAttributes } from './fields';
 export {
 	calculateDelta,
 	flagUrl,
-	BOOKINGS_FILTER,
 	formatLegendLabels,
 	formatDisplayLabel,
 	buildCsv,
@@ -352,11 +351,6 @@ export {
 	useTrackedDateRangeApply,
 	useWidgetDrillDown,
 } from './hooks';
-
-/**
- * Widget components
- */
-export { VisitorsByLocationWidget } from './widgets';
 
 /**
  * Types
