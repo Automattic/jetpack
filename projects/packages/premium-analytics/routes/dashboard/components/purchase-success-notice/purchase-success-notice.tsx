@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { getScriptData } from '@automattic/jetpack-script-data';
+import { AnalyticsQueryClientProvider, useSiteIsCommercial } from '@jetpack-premium-analytics/data';
 import { Link, Notice } from '@jetpack-premium-analytics/externals';
 import { useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
 import { createInterpolateElement, useCallback, useEffect, useState } from '@wordpress/element';
@@ -48,13 +49,15 @@ function removePurchaseSuccessParam() {
 }
 
 /**
- * Thanks the reader for the Stats plan they just bought or picked, with the copy Stats shows.
+ * Reads the returned purchase and renders the notice for it.
  *
  * @return The notice, or nothing.
  */
-export function PurchaseSuccessNotice(): JSX.Element | null {
+function ConnectedNotice(): JSX.Element | null {
 	const purchase = getScriptData()?.premium_analytics?.purchase_success;
+	const isPaid = purchase?.type === 'paid';
 	const [ isDismissed, setIsDismissed ] = useState( isDismissedThisLoad );
+	const { data: isCommercial, isPending } = useSiteIsCommercial( { enabled: isPaid } );
 	const trackEvent = useTrackEvent();
 
 	useEffect( removePurchaseSuccessParam, [] );
@@ -68,15 +71,16 @@ export function PurchaseSuccessNotice(): JSX.Element | null {
 		trackEvent( 'jetpack_premium_analytics_purchase_success_notice_upgrade_click' );
 	}, [ trackEvent ] );
 
-	if ( ! purchase || isDismissed ) {
+	// The paid copy depends on the classification, so wait rather than swap a line under the reader.
+	if ( ! purchase || isDismissed || ( isPaid && isPending ) ) {
 		return null;
 	}
 
 	let title: string;
 	let description: string | JSX.Element;
-	if ( purchase.type === 'paid' ) {
+	if ( isPaid ) {
 		title = __( 'Thank you for supporting Jetpack Stats!', 'jetpack-premium-analytics-pkg' );
-		description = purchase.is_commercial
+		description = isCommercial
 			? __(
 					'You’ll now get instant access to upcoming features and priority support.',
 					'jetpack-premium-analytics-pkg'
@@ -108,5 +112,19 @@ export function PurchaseSuccessNotice(): JSX.Element | null {
 				onClick={ dismiss }
 			/>
 		</Notice.Root>
+	);
+}
+
+/**
+ * Thanks the reader for the Stats plan they just bought or picked, with the copy Stats shows.
+ * Brings its own query provider, since the dashboard stage has none.
+ *
+ * @return The notice, or nothing.
+ */
+export function PurchaseSuccessNotice(): JSX.Element {
+	return (
+		<AnalyticsQueryClientProvider>
+			<ConnectedNotice />
+		</AnalyticsQueryClientProvider>
 	);
 }

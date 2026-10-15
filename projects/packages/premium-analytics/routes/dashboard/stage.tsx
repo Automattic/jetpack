@@ -455,7 +455,7 @@ function Dashboard(): JSX.Element {
 										{ activeSection === section.slug ? (
 											<div className={ styles.body }>
 												{ /* A checkout return holds the plan limit notice back for the
-												     whole load, even once dismissed, as Stats does. */ }
+												     whole load, even once dismissed. */ }
 												{ ! editMode &&
 													( hasPurchaseSuccess() ? (
 														<PurchaseSuccessNotice />

@@ -46,7 +46,6 @@ let mockIsSyncFinished: boolean;
 let mockSyncOptions: { enabled?: boolean; autoStart?: boolean } | undefined;
 let mockIsAdmin: boolean;
 let mockCanSendFeedback: boolean;
-let mockHasPurchaseSuccess: boolean;
 const mockResetLayout = jest.fn();
 const mockChangeComparison = jest.fn();
 let mockDateFiltersPanelProps: {
@@ -384,7 +383,9 @@ jest.mock( './components', () => ( {
 	OnboardingTour: () => <div data-testid="onboarding-tour" />,
 	onboardingTourSteps: () => [],
 	PlanLimitNotice: () => <div data-testid="plan-limit-notice" />,
-	hasPurchaseSuccess: () => mockHasPurchaseSuccess,
+	hasPurchaseSuccess: jest.requireActual(
+		'./components/purchase-success-notice/purchase-success-notice'
+	).hasPurchaseSuccess,
 	PurchaseSuccessNotice: () => <div data-testid="purchase-success-notice" />,
 	// A marker, not the real notice, which reads a query cache these tests do not
 	// stand up. Covered here: where the stage puts it.
@@ -447,7 +448,7 @@ beforeEach( () => {
 	mockSyncOptions = undefined;
 	mockIsAdmin = true;
 	mockCanSendFeedback = true;
-	mockHasPurchaseSuccess = false;
+	delete window.JetpackScriptData;
 	mockMountedSectionSlugs = null;
 	mockTriggerSync.mockImplementation( () => Promise.resolve() );
 	useOnboardingMock.mockReturnValue( closedOnboarding );
@@ -777,7 +778,9 @@ describe( 'Dashboard feedback banner', () => {
 	} );
 
 	it( 'thanks a reader back from checkout in place of the plan limit notice', () => {
-		mockHasPurchaseSuccess = true;
+		window.JetpackScriptData = {
+			premium_analytics: { purchase_success: { type: 'paid' } },
+		} as typeof window.JetpackScriptData;
 
 		render( <Dashboard /> );
 

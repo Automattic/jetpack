@@ -28,7 +28,7 @@ declare module '@automattic/jetpack-script-data' {
 				features_url: string | null;
 			};
 			// The Stats purchase this page load returned from checkout with; absent on every other load.
-			purchase_success?: { type: 'paid' | 'free'; is_commercial?: boolean };
+			purchase_success?: { type: 'paid' | 'free' };
 		};
 		newsletter?: {
 			// The Newsletter page's Subscribers tab; null when this user cannot open it.
