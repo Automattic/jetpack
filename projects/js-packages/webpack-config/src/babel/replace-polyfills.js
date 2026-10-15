@@ -1,4 +1,29 @@
 const npath = require( 'path' );
+const wpPolyfillModules = require( './wp-polyfill-modules.json' ).modules;
+
+/**
+ * Normalize a polyfill's name.
+ *
+ * @param {string} name - The polyfill name to normalize.
+ *
+ * @return {string} The normalized name.
+ */
+function normalizePolyfillName( name ) {
+	return name.replace( /^esnext\./, 'es.' );
+}
+
+const normalizedPolyfillModules = wpPolyfillModules.map( normalizePolyfillName );
+
+/**
+ * Check whether any of the supported `wp-polyfill` versions include this polyfill.
+ *
+ * @param {string} name - The polyfill name to check.
+ *
+ * @return {boolean} Whether any of the supported `wp-polyfill` versions include this polyfill
+ */
+function isPolyfillSupported( name ) {
+	return normalizedPolyfillModules.includes( normalizePolyfillName( name ) );
+}
 
 /**
  * Babel plugin that looks for `core-js` imports (or requires)
@@ -43,8 +68,11 @@ module.exports = ( babel, opts ) => {
 				if ( name.startsWith( coreJsPrefix ) ) {
 					// Replace import.
 					path.replaceWith( t.noop() );
-					path.addComment( 'leading', ` wp:polyfill ${ npath.basename( name, '.js' ) } ` );
-					this.hasAddedPolyfills = true;
+					const polyfillName = npath.basename( name, '.js' );
+					if ( isPolyfillSupported( polyfillName ) ) {
+						path.addComment( 'leading', ` wp:polyfill ${ polyfillName } ` );
+						this.hasAddedPolyfills = true;
+					}
 				}
 			},
 
@@ -65,8 +93,11 @@ module.exports = ( babel, opts ) => {
 				) {
 					// Replace require.
 					path.replaceWith( t.noop() );
-					path.addComment( 'leading', ` wp:polyfill ${ npath.basename( arg.value, '.js' ) } ` );
-					this.hasAddedPolyfills = true;
+					const polyfillName = npath.basename( arg.value, '.js' );
+					if ( isPolyfillSupported( polyfillName ) ) {
+						path.addComment( 'leading', ` wp:polyfill ${ polyfillName } ` );
+						this.hasAddedPolyfills = true;
+					}
 				}
 			},
 		},
