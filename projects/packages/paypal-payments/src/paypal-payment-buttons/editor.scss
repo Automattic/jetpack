@@ -919,13 +919,10 @@
 	}
 }
 
-// The link details view — the sidebar's default for a saved link. A plain
-// section with a divider, like the format section, not a collapsible panel.
+// The link details view, a plain section. It ends at the list's bottom rule.
+// The format section below has its own top padding.
 .jetpack-paypal-payment-buttons__details {
-	padding: variables.$grid-unit-10 variables.$grid-unit-15 variables.$grid-unit-15;
-	// `.components-panel__body` draws its own borders with this gray, so the
-	// section sits flush with the panels stacked under it.
-	border-block-end: variables.$border-width solid colors.$gray-200;
+	padding: variables.$grid-unit-10 variables.$grid-unit-15 0;
 }
 
 .jetpack-paypal-payment-buttons__details-header {
@@ -954,8 +951,8 @@
 	line-height: variables.$font-line-height-x-small;
 }
 
-// The rows step one unit further in than the title. The rule above them is this
-// list's own top border, since core styles every `hr` inside
+// The rows step one unit further in than the title. The rules above and below
+// them are this list's own borders, since core styles every `hr` inside
 // `.interface-complementary-area` and that outranks a single class.
 .jetpack-paypal-payment-buttons__details-list {
 	display: grid;
@@ -965,8 +962,8 @@
 	row-gap: 0;
 	margin-block: variables.$grid-unit-20 0;
 	margin-inline: variables.$grid-unit-15;
-	border-block-start: variables.$border-width solid colors.$gray-200;
-	padding-block-start: variables.$grid-unit-20;
+	border-block: variables.$border-width solid colors.$gray-200;
+	padding-block: variables.$grid-unit-20;
 	font-size: variables.$font-size-medium;
 	line-height: variables.$font-line-height-small;
 
