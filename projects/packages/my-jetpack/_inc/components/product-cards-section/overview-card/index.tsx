@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { lock } from '@wordpress/icons';
-import { Badge, Icon, Link, Text } from '@wordpress/ui';
+import { Badge, Button, Icon, Link, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { PRODUCT_STATUSES } from '../../../constants';
 import useProduct from '../../../data/products/use-product';
@@ -114,7 +114,7 @@ const OverviewCard: FC< OverviewCardProps > = ( {
 	const links: ReactNode[] = [];
 	if ( error && ! isLoading ) {
 		links.push(
-			<Link key="retry" render={ <button type="button" onClick={ error.onRetry } /> }>
+			<Link key="retry" render={ <Button variant="unstyled" onClick={ error.onRetry } /> }>
 				{ __( 'Try again', 'jetpack-my-jetpack' ) }
 			</Link>
 		);
