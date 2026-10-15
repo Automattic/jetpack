@@ -5,6 +5,7 @@ import {
 	findResumableDownload,
 	hasSelectedItems,
 	pickLastBackup,
+	readCreatedDownload,
 	readDownload,
 } from './download.ts';
 
@@ -108,6 +109,20 @@ describe( 'findResumableDownload', () => {
 
 		assert.equal( download, null );
 	} );
+} );
+
+describe( 'readCreatedDownload', () => {
+	for ( const [ name, response, expected ] of [
+		[ 'its own job', { downloadId: 7, rewindId: '100' }, 7 ],
+		[ 'a running job of another backup as busy', { downloadId: 7, rewindId: '90' }, 'busy' ],
+		[ 'a rewind ID echoed as a number', { downloadId: 7, rewindId: 100 }, 7 ],
+		[ 'a reply that does not echo the rewind ID', { downloadId: 7 }, 7 ],
+		[ 'nothing without a download ID', { rewindId: '100' }, null ],
+	] as const ) {
+		it( `reads ${ name }`, () => {
+			assert.equal( readCreatedDownload( response, '100' ), expected );
+		} );
+	}
 } );
 
 describe( 'hasSelectedItems', () => {

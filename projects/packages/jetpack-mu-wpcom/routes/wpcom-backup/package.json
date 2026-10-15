@@ -4,6 +4,7 @@
 	"dependencies": {
 		"@automattic/jetpack-components": "workspace:*",
 		"@types/react": "^18.3.28",
+		"@wordpress/a11y": "4.57.0",
 		"@wordpress/admin-ui": "2.12.0",
 		"@wordpress/api-fetch": "7.57.0",
 		"@wordpress/date": "5.57.0",

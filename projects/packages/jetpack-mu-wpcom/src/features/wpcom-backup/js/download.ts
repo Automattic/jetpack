@@ -144,8 +144,7 @@ export function findResumableDownload( response: unknown, rewindId: string ): Do
 	let newest: Download | null = null;
 
 	for ( const raw of response ) {
-		const download =
-			String( ( raw as RawDownload | null )?.rewindId ) === rewindId ? readDownload( raw ) : null;
+		const download = isOfBackup( raw, rewindId ) ? readDownload( raw ) : null;
 
 		if ( download && ( ! newest || download.id > newest.id ) ) {
 			newest = download;
@@ -153,6 +152,40 @@ export function findResumableDownload( response: unknown, rewindId: string ): Do
 	}
 
 	return newest?.status === 'running' || newest?.status === 'finished' ? newest : null;
+}
+
+/**
+ * The download a create request started.
+ *
+ * While one download runs, the API answers every create request with that job, whichever backup it is of.
+ *
+ * @param response - The `rewind/downloads` POST response.
+ * @param rewindId - The backup that was asked for.
+ * @return The download ID, `busy` when the job belongs to another backup, or null when none was named.
+ */
+export function readCreatedDownload( response: unknown, rewindId: string ): number | 'busy' | null {
+	const id = Number( ( response as RawDownload | null )?.downloadId );
+
+	if ( ! Number.isInteger( id ) || id <= 0 ) {
+		return null;
+	}
+
+	const echoed = ( response as RawDownload ).rewindId;
+
+	return echoed === undefined || isOfBackup( response, rewindId ) ? id : 'busy';
+}
+
+/**
+ * Whether a download belongs to a backup, however its rewind ID was encoded.
+ *
+ * @param raw      - One download from the API.
+ * @param rewindId - The backup's rewind ID.
+ * @return True when the IDs match as strings or as numbers.
+ */
+function isOfBackup( raw: unknown, rewindId: string ): boolean {
+	const echoed = ( raw as RawDownload | null )?.rewindId;
+
+	return String( echoed ) === rewindId || Number( echoed ) === Number( rewindId );
 }
 
 /**

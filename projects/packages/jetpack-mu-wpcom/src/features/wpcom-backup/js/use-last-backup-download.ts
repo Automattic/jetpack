@@ -5,6 +5,7 @@ import {
 	findResumableDownload,
 	hasSelectedItems,
 	pickLastBackup,
+	readCreatedDownload,
 	readDownload,
 } from './download.ts';
 import { recordTracksEvent } from './tracks.ts';
@@ -176,18 +177,30 @@ export function useLastBackupDownload() {
 			recordTracksEvent( 'calypso_jetpack_backup_download_click' );
 
 			try {
-				const response = await apiFetch< { downloadId?: unknown } >( {
-					path: DOWNLOADS_PATH,
-					method: 'POST',
-					data: { rewindId: backup.rewindId, types: items },
-				} );
-				const id = Number( response?.downloadId );
-
-				setPhase(
-					Number.isInteger( id ) && id > 0
-						? { name: 'progress', id, percent: 0 }
-						: { name: 'error', message: failureMessage( '' ) }
+				const created = readCreatedDownload(
+					await apiFetch( {
+						path: DOWNLOADS_PATH,
+						method: 'POST',
+						data: { rewindId: backup.rewindId, types: items },
+					} ),
+					backup.rewindId
 				);
+
+				if ( created === 'busy' ) {
+					setPhase( {
+						name: 'error',
+						message: __(
+							'Another downloadable file is being created for this site. Try again once it finishes.',
+							'jetpack-mu-wpcom'
+						),
+					} );
+				} else {
+					setPhase(
+						created
+							? { name: 'progress', id: created, percent: 0 }
+							: { name: 'error', message: failureMessage( '' ) }
+					);
+				}
 			} catch ( error ) {
 				const reason = ( error as { message?: unknown } | null )?.message;
 				setPhase( {

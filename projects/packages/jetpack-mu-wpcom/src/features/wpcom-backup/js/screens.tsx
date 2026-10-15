@@ -132,7 +132,6 @@ export function ActivateScreen( { state }: { state: InitialState } ) {
 							variant="solid"
 							size="compact"
 							disabled={ state.transferFailed }
-							focusableWhenDisabled
 							onClick={ handleClick }
 						>
 							{ __( 'Activate backups', 'jetpack-mu-wpcom' ) }

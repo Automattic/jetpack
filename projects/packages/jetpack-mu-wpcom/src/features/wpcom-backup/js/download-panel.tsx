@@ -143,8 +143,7 @@ export function DownloadPanel( { supportUrl }: { supportUrl: string } ) {
 								variant="solid"
 								size="compact"
 								loading={ isSubmitting }
-								disabled={ ! hasSelectedItems( items ) }
-								focusableWhenDisabled
+								disabled={ isSubmitting || ! hasSelectedItems( items ) }
 								onClick={ () => {
 									hasActed.current = true;
 									submit( items );
