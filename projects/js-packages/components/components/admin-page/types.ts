@@ -40,7 +40,7 @@ export type AdminPageProps = {
 	actions?: ReactNode;
 
 	/**
-	 * Jetpack-wide controls, such as the connection control, shown before the page's own `actions`.
+	 * Jetpack-wide controls, such as the connection control, shown after the page's own `actions`.
 	 * Only rendered in the unified header.
 	 */
 	globalControls?: ReactNode;
