@@ -19,6 +19,8 @@ const OUTPUT_FILE = path.resolve( import.meta.dirname, '../src/babel/wp-polyfill
 const INSTALL_CALLS =
 	/\$\(\{ ?(?:global|target)[^\n]*|exportTypedArray(?:Static)?Method\('[^']+'|defineBuiltInAccessor\([^,()]+, '[^']+'/g;
 
+const debug = process.argv.includes( '--debug' );
+
 /**
  * Fetch a URL's body as text.
  *
@@ -159,15 +161,18 @@ try {
 	const modules = [ ...new Set( Object.values( modulesByRelease ).flat() ) ].sort();
 	fs.writeFileSync(
 		OUTPUT_FILE,
-		JSON.stringify(
-			{ minWordPressVersion: min, releases: modulesByRelease, modules },
-			null,
-			'\t'
-		) + '\n'
+		JSON.stringify( { minWordPressVersion: min, modules }, null, '\t' ) + '\n'
 	);
 	console.log(
 		`Wrote ${ modules.length } modules to ${ path.relative( process.cwd(), OUTPUT_FILE ) }`
 	);
+
+	if ( debug ) {
+		console.log( '\nModules included per release:\n' );
+		Object.entries( modulesByRelease ).forEach( ( [ rel, mod ] ) => {
+			console.log( `${ rel }: ${ ( mod || [] ).join( ', ' ) }\n` );
+		} );
+	}
 } finally {
 	fs.rmSync( tmpDir, { recursive: true, force: true } );
 }
