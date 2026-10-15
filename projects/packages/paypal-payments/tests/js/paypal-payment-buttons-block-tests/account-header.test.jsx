@@ -106,7 +106,7 @@ describe( 'PayPalAccountHeader', () => {
 		const { container } = renderHeader();
 
 		expect( container ).toBeEmptyDOMElement();
-		expect( screen.queryByText( 'PayPal Payment Button' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'PayPal Payment Buttons' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'leaves the card alone for a block that is not selected', async () => {
@@ -121,32 +121,32 @@ describe( 'PayPalAccountHeader', () => {
 
 	it( 'finds the card when the sidebar opens after the block mounted', async () => {
 		renderHeader();
-		expect( screen.queryByText( 'PayPal Payment Button' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'PayPal Payment Buttons' ) ).not.toBeInTheDocument();
 
 		// Opening the sidebar re-renders no block, so the header has to notice on its own.
 		const { card } = openSidebar();
 
 		await waitFor( () =>
-			expect( card ).toContainElement( screen.getByText( 'PayPal Payment Button' ) )
+			expect( card ).toContainElement( screen.getByText( 'PayPal Payment Buttons' ) )
 		);
 	} );
 
 	it( 'moves to the new card when the sidebar closes and opens again', async () => {
 		const { inspector } = openSidebar();
 		renderHeader();
-		await expect( screen.findByText( 'PayPal Payment Button' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'PayPal Payment Buttons' ) ).resolves.toBeInTheDocument();
 
 		// Core builds a new card on the way back; holding the old one leaves the
 		// header in a detached node.
 		inspector.remove();
 		await waitFor( () =>
-			expect( screen.queryByText( 'PayPal Payment Button' ) ).not.toBeInTheDocument()
+			expect( screen.queryByText( 'PayPal Payment Buttons' ) ).not.toBeInTheDocument()
 		);
 
 		const { card } = openSidebar();
 
 		await waitFor( () =>
-			expect( card ).toContainElement( screen.getByText( 'PayPal Payment Button' ) )
+			expect( card ).toContainElement( screen.getByText( 'PayPal Payment Buttons' ) )
 		);
 	} );
 
@@ -175,15 +175,15 @@ describe( 'PayPalAccountHeader', () => {
 
 		const { rerender } = render( bothBlocks( 'first' ) );
 		await waitFor( () =>
-			expect( screen.getAllByText( 'PayPal Payment Button' ) ).toHaveLength( 1 )
+			expect( screen.getAllByText( 'PayPal Payment Buttons' ) ).toHaveLength( 1 )
 		);
 
 		rerender( bothBlocks( 'second' ) );
 
 		await waitFor( () =>
-			expect( screen.getAllByText( 'PayPal Payment Button' ) ).toHaveLength( 1 )
+			expect( screen.getAllByText( 'PayPal Payment Buttons' ) ).toHaveLength( 1 )
 		);
-		expect( card ).toContainElement( screen.getByText( 'PayPal Payment Button' ) );
+		expect( card ).toContainElement( screen.getByText( 'PayPal Payment Buttons' ) );
 
 		// The email says which block has it.
 		await openMenu( user );
@@ -195,7 +195,7 @@ describe( 'PayPalAccountHeader', () => {
 		renderHeader();
 
 		await waitFor( () =>
-			expect( card ).toContainElement( screen.getByText( 'PayPal Payment Button' ) )
+			expect( card ).toContainElement( screen.getByText( 'PayPal Payment Buttons' ) )
 		);
 		expect( parentCard ).toBeEmptyDOMElement();
 	} );
@@ -205,7 +205,7 @@ describe( 'PayPalAccountHeader', () => {
 
 		renderHeader();
 
-		const title = await screen.findByText( 'PayPal Payment Button' );
+		const title = await screen.findByText( 'PayPal Payment Buttons' );
 		expect( card ).toContainElement( title );
 		expect( card ).toContainElement(
 			screen.getByRole( 'button', { name: 'PayPal account options' } )
@@ -217,7 +217,7 @@ describe( 'PayPalAccountHeader', () => {
 		const user = userEvent.setup();
 		openSidebar();
 		renderHeader();
-		await expect( screen.findByText( 'PayPal Payment Button' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'PayPal Payment Buttons' ) ).resolves.toBeInTheDocument();
 
 		await openMenu( user );
 
@@ -233,7 +233,7 @@ describe( 'PayPalAccountHeader', () => {
 		const user = userEvent.setup();
 		openSidebar();
 		renderHeader();
-		await expect( screen.findByText( 'PayPal Payment Button' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'PayPal Payment Buttons' ) ).resolves.toBeInTheDocument();
 
 		await openMenu( user );
 
@@ -248,7 +248,7 @@ describe( 'PayPalAccountHeader', () => {
 		const user = userEvent.setup();
 		openSidebar();
 		renderHeader();
-		await expect( screen.findByText( 'PayPal Payment Button' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'PayPal Payment Buttons' ) ).resolves.toBeInTheDocument();
 
 		await openMenu( user );
 
@@ -262,7 +262,7 @@ describe( 'PayPalAccountHeader', () => {
 		const user = userEvent.setup();
 		openSidebar();
 		renderHeader( { environment: 'sandbox' } );
-		await expect( screen.findByText( 'PayPal Payment Button' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'PayPal Payment Buttons' ) ).resolves.toBeInTheDocument();
 
 		await openMenu( user );
 
@@ -281,7 +281,7 @@ describe( 'PayPalAccountHeader', () => {
 		const user = userEvent.setup();
 		openSidebar();
 		renderHeader( { environment: 'sandbox' } );
-		await expect( screen.findByText( 'PayPal Payment Button' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'PayPal Payment Buttons' ) ).resolves.toBeInTheDocument();
 
 		await openMenu( user );
 
@@ -298,7 +298,7 @@ describe( 'PayPalAccountHeader', () => {
 		const user = userEvent.setup();
 		openSidebar();
 		renderHeader( { environment: '' } );
-		await expect( screen.findByText( 'PayPal Payment Button' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'PayPal Payment Buttons' ) ).resolves.toBeInTheDocument();
 
 		await openMenu( user );
 
@@ -312,7 +312,7 @@ describe( 'PayPalAccountHeader', () => {
 		const user = userEvent.setup();
 		openSidebar();
 		renderHeader( { accountEmail: 'junior@sports.com' } );
-		await expect( screen.findByText( 'PayPal Payment Button' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'PayPal Payment Buttons' ) ).resolves.toBeInTheDocument();
 
 		await openMenu( user );
 
@@ -328,7 +328,7 @@ describe( 'PayPalAccountHeader', () => {
 		const onLogOut = jest.fn();
 		openSidebar();
 		renderHeader( { onLogOut } );
-		await expect( screen.findByText( 'PayPal Payment Button' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'PayPal Payment Buttons' ) ).resolves.toBeInTheDocument();
 
 		await openMenu( user );
 		const logOut = item( 'Log out' );

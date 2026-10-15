@@ -58,7 +58,7 @@ export default function PayPalInspectorControls( {
 							onClick={ handleDeleteButton }
 							disabled={ isBusy || ! isConnected }
 						>
-							{ __( 'Delete payment link', 'jetpack-paypal-payments' ) }
+							{ __( 'Delete payment button', 'jetpack-paypal-payments' ) }
 						</Button>
 						{ isConnected ? (
 							<Button variant="secondary" isDestructive onClick={ handleDisconnect }>
@@ -72,7 +72,7 @@ export default function PayPalInspectorControls( {
 					</div>
 					<p className="jetpack-paypal-payment-buttons__manage-links">
 						<ExternalLink href={ getAdminUrl( MANAGE_LINKS_PATH ) }>
-							{ __( 'Manage PayPal Payment Links', 'jetpack-paypal-payments' ) }
+							{ __( 'Manage PayPal Payment Buttons', 'jetpack-paypal-payments' ) }
 						</ExternalLink>
 					</p>
 				</PanelBody>

@@ -53,7 +53,7 @@ export default function PayPalAccountHeader( { isSelected, environment, accountE
 		<div className="jetpack-paypal-payment-buttons__account-header">
 			<span className="jetpack-paypal-payment-buttons__account-header-icon">{ PayPalIcon }</span>
 			<h2 className="jetpack-paypal-payment-buttons__account-header-title">
-				{ __( 'PayPal Payment Button', 'jetpack-paypal-payments' ) }
+				{ __( 'PayPal Payment Buttons', 'jetpack-paypal-payments' ) }
 			</h2>
 			<DropdownMenu
 				icon={ moreVertical }

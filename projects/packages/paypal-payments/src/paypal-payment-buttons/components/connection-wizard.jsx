@@ -276,7 +276,7 @@ export default function ConnectionWizard( {
 					<div className="jetpack-paypal-wizard__logo">{ PayPalIcon }</div>
 					<p>
 						{ __(
-							'Create a link or button directly in the editor - no code required.',
+							'Create payment links and buttons directly in the editor - no code required.',
 							'jetpack-paypal-payments'
 						) }
 					</p>
@@ -526,7 +526,7 @@ export default function ConnectionWizard( {
 					<h3>{ __( 'PayPal account connected!', 'jetpack-paypal-payments' ) }</h3>
 					<p>
 						{ __(
-							"You're ready to create payment buttons and links. Fill in your product details and we'll create both an embeddable PayPal button and a shareable payment link.",
+							"You're ready to create payment links and buttons. Fill in your product details and we'll create both an embeddable PayPal button and a shareable payment link.",
 							'jetpack-paypal-payments'
 						) }
 					</p>

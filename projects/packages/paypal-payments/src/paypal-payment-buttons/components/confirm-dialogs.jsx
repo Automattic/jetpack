@@ -22,7 +22,7 @@ const disconnectWarning = __(
 );
 
 /**
- * The delete confirmation. PayPal cannot pause or restore a payment link, so
+ * The delete confirmation. PayPal cannot pause or restore a payment button, so
  * the merchant has to acknowledge that before the delete button is enabled.
  *
  * @param {object}   props           - Component props.
@@ -35,14 +35,14 @@ export function DeleteLinkDialog( { onConfirm, onCancel } ) {
 
 	return (
 		<Modal
-			title={ __( 'Delete payment link', 'jetpack-paypal-payments' ) }
+			title={ __( 'Delete payment button', 'jetpack-paypal-payments' ) }
 			onRequestClose={ onCancel }
 			size="medium"
 			className="jetpack-paypal-payment-buttons__delete-dialog"
 		>
 			<p>
 				{ __(
-					'This permanently deletes the payment link from your PayPal account. PayPal cannot pause, deactivate, or restore it.',
+					'This permanently deletes the payment button from your PayPal account. PayPal cannot pause, deactivate, or restore it.',
 					'jetpack-paypal-payments'
 				) }
 			</p>
