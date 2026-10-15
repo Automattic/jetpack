@@ -285,7 +285,7 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 			'jetpack free' => array( STATS_TIER_JETPACK_FREE, array( 'utm', 'devices', 'regions-cities' ) ),
 			'paid'         => array( STATS_TIER_PAID, $commercial ),
 			'legacy basic' => array( STATS_TIER_LEGACY_BASIC, array_merge( $commercial, array( 'referrers', 'clicks', 'csv', 'intervals', 'long-date-presets' ) ) ),
-			'free'         => array( STATS_TIER_FREE, array_merge( $commercial, array( 'top-posts', 'referrers', 'countries', 'clicks', 'file-downloads', 'insights', 'csv', 'intervals', 'long-date-presets', 'recent-7-days' ) ) ),
+			'free'         => array( STATS_TIER_FREE, array_merge( $commercial, array( 'top-posts', 'referrers', 'countries', 'clicks', 'file-downloads', 'insights', 'tags', 'csv', 'intervals', 'long-date-presets', 'recent-7-days' ) ) ),
 		);
 	}
 
@@ -424,6 +424,8 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		return array(
 			'own copy'     => array( 'utm', 'Generate UTM parameters and track your <link>campaign performance data</link>.', 'https://jetpack.com/support/jetpack-stats/traffic-dashboard/#harnessing-utm-stats-for-precision-tracking' ),
 			'generic copy' => array( 'insights', 'Upgrade your plan to unlock Jetpack Stats.', '' ),
+			// Keyed through the card's mapping, which no other test fails on if it reverts to insights.
+			'tags card'    => array( WIDGET_TYPE_PLAN_FEATURES['jpa/tags'], 'Track the most viewed <link>tags & categories</link>.', 'https://wordpress.com/support/stats/learn-insights-about-your-website/#all-time-insights' ),
 		);
 	}
 
