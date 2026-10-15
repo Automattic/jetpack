@@ -164,12 +164,7 @@ describe( 'ConversionFunnelChart', () => {
 			const cartBar = screen.getByRole( 'button', { name: /cart/i } );
 			await user.click( cartBar );
 
-			// Check that the component still renders correctly after click
-			// After clicking, there will be multiple 'Cart' texts (header + tooltip)
-			expect( screen.getAllByText( 'Cart' ) ).toHaveLength( 2 );
-			// Rate appears once in header, and in tooltip it's combined with count text
-			expect( screen.getByText( '71.1%' ) ).toBeInTheDocument();
-			expect( screen.getByText( /71\.1% • .* items/ ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'Cart71.1% • 7,110 items' );
 		} );
 
 		it( 'handles keyboard navigation with Enter key', async () => {
@@ -325,7 +320,7 @@ describe( 'ConversionFunnelChart', () => {
 			await user.click( screen.getByRole( 'button', { name: /^Cart,/ } ) );
 
 			expect( screen.getByRole( 'button', { name: /^Cart,/ } ) ).toHaveAccessibleDescription(
-				'Cart 71.1% • 7,110 items'
+				'7,110 items'
 			);
 			expect(
 				screen.getByRole( 'button', { name: /^Sessions,/ } )
