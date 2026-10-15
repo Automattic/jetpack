@@ -6,6 +6,7 @@
 use Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Backup\V0005\Jetpack_Backup;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Hosting_Feature_Page;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\My_Jetpack\Jetpack_Manage;
 use Automattic\Jetpack\Scan\Admin_Sidebar_Link;
@@ -127,6 +128,11 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 		 */
 		Admin_Menu::add_menu( 'Aaa External', 'Aaa External <span aria-hidden="true">↗</span>', 'manage_options', 'https://example.org/aaa-external', null, 100 );
 		Admin_Menu::add_menu( 'Aaa Bottom', 'Aaa Bottom', 'manage_options', 'aaa-bottom-fixture', '__return_null', 998 );
+
+		// jetpack-mu-wpcom adds its hidden hosting feature pages after this sort, which the wpcomsh run simulates.
+		if ( class_exists( WPCOM_Hosting_Feature_Page::class ) ) {
+			remove_all_actions( 'admin_menu', WPCOM_Hosting_Feature_Page::REGISTER_PRIORITY );
+		}
 
 		do_action( 'admin_menu' );
 
