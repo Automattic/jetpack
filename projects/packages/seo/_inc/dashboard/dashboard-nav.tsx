@@ -10,12 +10,15 @@ export type SeoTab = 'overview' | 'settings' | 'content' | 'geo';
 
 // Each tab is its own wp-build route; selecting one navigates there. Overview is
 // the default route, so it lives at the bare page URL (`/`).
-const ROUTE_BY_TAB: Record< SeoTab, string > = {
+export const ROUTE_BY_TAB: Record< SeoTab, string > = {
 	overview: '/',
 	settings: '/settings',
 	content: '/content',
 	geo: '/geo',
 };
+
+const isSeoTab = ( value: string | null ): value is SeoTab =>
+	value !== null && Object.hasOwn( ROUTE_BY_TAB, value );
 
 const geoInfotipLabel = __( 'What is GEO?', 'jetpack-seo' );
 
@@ -88,7 +91,7 @@ const DashboardNav = ( { active, children }: { active: SeoTab; children: ReactNo
 
 	const onTabChange = useCallback(
 		( next: string | null ) => {
-			if ( next === 'overview' || next === 'settings' || next === 'content' || next === 'geo' ) {
+			if ( isSeoTab( next ) ) {
 				navigate( { href: ROUTE_BY_TAB[ next ] } );
 			}
 		},

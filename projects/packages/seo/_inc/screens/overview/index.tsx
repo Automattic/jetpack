@@ -7,6 +7,7 @@ import { useNavigate } from '@wordpress/route';
 import { Notice, Stack } from '@wordpress/ui';
 import EnableSeoCard from '../../components/enable-seo-card';
 import UpsellBanner from '../../components/upsell-banner';
+import { ROUTE_BY_TAB } from '../../dashboard/dashboard-nav';
 import { coverageStore } from '../../data/coverage-store';
 import { geoStore } from '../../data/geo-store';
 import getOverview from '../../data/get-overview';
@@ -44,23 +45,24 @@ const OverviewScreen: FC = () => {
 	// `?focus=`, which the Settings screen reads to scroll the section to top.
 	const goToSection = useCallback(
 		( section: 'visibility' | 'verification' ) =>
-			navigate( { href: `/settings?focus=${ encodeURIComponent( section ) }` } ),
+			navigate( { href: `${ ROUTE_BY_TAB.settings }?focus=${ encodeURIComponent( section ) }` } ),
 		[ navigate ]
 	);
 
 	// Deep-link to the Content route.
-	const goToContent = useCallback( () => navigate( { href: '/content' } ), [ navigate ] );
+	const goToContent = useCallback( () => navigate( { href: ROUTE_BY_TAB.content } ), [ navigate ] );
 
 	// Deep-link to the Content route filtered to the rows still missing a field
 	// (`?needs=`, read by the Content screen). Clicking a coverage ring lands the
 	// user on exactly the content there's an action to take on.
 	const goToContentNeeds = useCallback(
-		( need: ContentNeed ) => navigate( { href: `/content?needs=${ encodeURIComponent( need ) }` } ),
+		( need: ContentNeed ) =>
+			navigate( { href: `${ ROUTE_BY_TAB.content }?needs=${ encodeURIComponent( need ) }` } ),
 		[ navigate ]
 	);
 
 	// Deep-link to the GEO route.
-	const goToGeo = useCallback( () => navigate( { href: '/geo' } ), [ navigate ] );
+	const goToGeo = useCallback( () => navigate( { href: ROUTE_BY_TAB.geo } ), [ navigate ] );
 
 	if ( ! data ) {
 		return (

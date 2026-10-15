@@ -1,8 +1,12 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { getScriptData } from '@automattic/jetpack-script-data';
+import type { SeoTab } from '../dashboard/dashboard-nav';
 
-/** The dashboard screen an event was fired from. */
-export type SeoTracksScreen = 'overview' | 'settings' | 'content' | 'geo';
+/**
+ * The dashboard screen an event was fired from. It is the tab id, so renaming a
+ * tab changes the `screen` value Tracks reports.
+ */
+export type SeoTracksScreen = SeoTab;
 
 /**
  * Server-provided identifiers attached to every SEO event

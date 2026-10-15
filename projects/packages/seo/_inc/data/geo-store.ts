@@ -116,4 +116,4 @@ const store = createReduxStore( STORE_NAME, {
 
 register( store );
 
-export { store as geoStore, STORE_NAME as GEO_STORE_NAME };
+export { store as geoStore };
