@@ -1,4 +1,5 @@
 Significance: patch
-Type: bugfix
+Type: other
+Comment: Traffic settings: Show the SEO opt-in banner on plans without advanced SEO tools, and in sitemap and verification search results.
 
-Traffic settings: Show the switch to the new SEO dashboard on plans without advanced SEO tools, and in sitemap and verification search results.
+
