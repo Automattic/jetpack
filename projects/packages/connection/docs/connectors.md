@@ -11,7 +11,7 @@ The relevant class is `Automattic\Jetpack\Connection\Jetpack_Connector`.
 `Jetpack_Connector::init()` is called automatically when you configure the connection package (it runs from `Manager::configure()`), so no extra setup is required in your plugin. Initialization wires up three things:
 
 1. **Connector registration** — on `wp_connectors_init`, registers a `wordpress_com` connector (a `cloud_service` type with `authentication.method = none`) in the core registry.
-2. **Script module** — on the Connectors admin screen, enqueues the `@automattic/jetpack-connection-connectors` script module (and its stylesheet), which provides a custom render function for the card. The module is built by webpack into `dist/connectors/`, and its `connectors-card.asset.php` lists the script modules it imports (`module_dependencies`) and the classic scripts it reads as globals (`dependencies`), which are enqueued beside it. If either built file is missing, the card is skipped.
+2. **Script module** — on the Connectors admin screen, enqueues the `@automattic/jetpack-connection-connectors` script module (and its stylesheet), which provides a custom render function for the card. The module is built by webpack into `dist/connectors/`, and its `connectors-card.asset.php` lists the script modules it imports (`module_dependencies`) and the classic scripts it reads as globals (`dependencies`), which are enqueued beside it. Imports from `@automattic/jetpack-connection` resolve to the shared `jetpack-connection` script, so it always loads with the card. If either built file is missing, the card is skipped.
 3. **Auth error capture** — on `jetpack_client_authorize_error`, stores the error so it can be surfaced in the card after an authorization attempt.
 
 ## What the card shows
@@ -20,12 +20,13 @@ The card's render function receives data via the `script_module_data_@automattic
 
 - **Connection / registration status** — `isRegistered` (site has a blog token), `isConnected` (registered *and* has a connected owner), and `isOfflineMode`.
 - **Site details** — blog id, site URL, and home URL once registered.
-- **Connection owner and current user** — display name, login, email, and avatar, sourced from WordPress.com data where available, plus whether the current user is the owner.
+- **Connection owner and current user** — display name, login, email, and avatar, sourced from WordPress.com data where available, plus whether the current user is the owner. Both are included once the site is registered. When the owner's token is missing or malformed, the owner falls back to their local account, flagged `isConnectionBroken` and `isCurrentUser`, and only for viewers with `jetpack_connect`.
 - **Connected plugins** — the plugins currently sharing the connection.
 - **SSO status** — when the Jetpack plugin is connected.
 - **Safe Mode / Identity Crisis** — when the site is in Safe Mode, the status badge swaps to "Safe Mode" and the card renders the resolution options (migrate / start fresh / stay in safe mode).
 - **Hosting context** — `isWoaSite` and `isVipSite` flags.
 - **Auth errors** — any error captured from the last authorization attempt.
+- **Connection errors** — the shared connection error notice (`ConnectionErrorView`, fed by the card's own `useConnectionErrorNotice()` call) at the top of the expanded details, with an error or warning status badge. Hidden in offline mode. While it offers to reconnect the connection owner's account, the connect prompt is hidden. When ownership is locked the notice is informational only, so the prompt stays as the viewer's route to connect. Its reconnect CTA returns to the Connectors page (`connectorsUrl`) rather than My Jetpack.
 
 Connect and disconnect actions performed from the card go through the package's existing connection REST endpoints. Connecting and disconnecting are disabled while the site is in offline mode.
 

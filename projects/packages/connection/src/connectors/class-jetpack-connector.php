@@ -152,11 +152,6 @@ class Jetpack_Connector {
 			Assets::enqueue_script( $handle );
 		}
 
-		// The card reads these dialogs from window.JetpackConnection, so the asset file does not list the script.
-		if ( static::should_enqueue_protected_owner_dialogs( new Manager() ) ) {
-			Assets::enqueue_script( 'jetpack-connection' );
-		}
-
 		add_filter(
 			'script_module_data_' . static::MODULE_ID,
 			array( static::class, 'get_connector_data' )
@@ -186,6 +181,7 @@ class Jetpack_Connector {
 	 * Build the data passed to the script module via the script_module_data_ filter.
 	 *
 	 * @since 8.2.0
+	 * @since $$next-version$$ Includes the viewer's account and the owner when the owner's token is broken, and `connectorsUrl`.
 	 *
 	 * @param array $data Existing script module data.
 	 * @return array Filtered script module data.
@@ -202,6 +198,7 @@ class Jetpack_Connector {
 		$data['apiRoot']              = esc_url_raw( rest_url() );
 		$data['apiNonce']             = wp_create_nonce( 'wp_rest' );
 		$data['redirectUri']          = static::get_connectors_page_path();
+		$data['connectorsUrl']        = admin_url( $data['redirectUri'] );
 		$data['connectorName']        = 'Jetpack Connection';
 		$data['connectorDescription'] = __( 'Enhanced functionality for Jetpack and WooCommerce with WordPress.com.', 'jetpack-connection' );
 		$data['connectorLogoUrl']     = static::get_connector_logo_url();
@@ -222,10 +219,21 @@ class Jetpack_Connector {
 			static::add_identity_crisis_data( $data );
 		}
 
-		if ( $is_connected ) {
-			$data['currentUser']       = static::get_current_user_data( $manager );
-			$data['connectionOwner']   = static::get_connection_owner_data( $manager );
-			$data['connectedUsersUrl'] = Users_Connection_Admin::get_connected_view_url();
+		// Not gated on $is_connected: has_connected_owner() is false when the owner's token breaks,
+		// which would drop a healthy viewer's account and the owner the error notice refers to.
+		if ( $is_registered ) {
+			$current_user     = static::get_current_user_data( $manager );
+			$connection_owner = static::get_connection_owner_data( $manager );
+
+			if ( null !== $current_user ) {
+				$data['currentUser'] = $current_user;
+			}
+			if ( null !== $connection_owner ) {
+				$data['connectionOwner'] = $connection_owner;
+			}
+			if ( null !== $current_user || null !== $connection_owner ) {
+				$data['connectedUsersUrl'] = Users_Connection_Admin::get_connected_view_url();
+			}
 		}
 
 		$protected_owner = static::get_protected_owner_card_state( $manager );
@@ -318,39 +326,6 @@ class Jetpack_Connector {
 	}
 
 	/**
-	 * Whether the card can open one of the shared protected-owner dialogs.
-	 *
-	 * Confirming is only reachable for a connected administrator, on a site that has asked for a
-	 * protected owner and does not have one yet. Releasing is only reachable for the confirmed
-	 * owner, and deliberately does not depend on a consumer still asking: a site has to be able
-	 * to give up a lock after the plugin that wanted it is gone.
-	 *
-	 * Both read the one state call rather than asking again, so neither adds a WordPress.com
-	 * round trip to a screen load.
-	 *
-	 * The card always uses the package dialogs. `jetpack_connection_protected_owner_default_ui`
-	 * is for a consumer's own surface, not this one.
-	 *
-	 * @since 9.9.0
-	 *
-	 * @param Manager $manager Connection manager instance.
-	 * @return bool
-	 */
-	private static function should_enqueue_protected_owner_dialogs( $manager ) {
-		$state = $manager->resolve_protected_owner_state();
-
-		if ( $manager->requires_protected_owner() && Manager::PO_STATE_CAN_ESTABLISH === $state['status'] ) {
-			return true;
-		}
-
-		// `RE_EVALUATE` is the anchored state where the connection owner matches the anchor, so
-		// pinning the viewer to that owner is the same gate the release endpoint applies — a
-		// matching binding alone would offer a dialog the endpoint then refuses.
-		return Manager::PO_STATE_RE_EVALUATE === $state['status']
-			&& get_current_user_id() === (int) $manager->get_connection_owner_id();
-	}
-
-	/**
 	 * Get the current (logged-in) user's connection details.
 	 *
 	 * @param Manager $manager Connection manager instance.
@@ -385,19 +360,45 @@ class Jetpack_Connector {
 	/**
 	 * Get the connection owner details for the script module.
 	 *
+	 * When the owner's token is broken, falls back to the owner's local account, flagged with
+	 * `isConnectionBroken`, so the card can still name who has to reconnect.
+	 *
+	 * @since $$next-version$$ Returns the owner when their token is broken.
+	 *
 	 * @param Manager $manager Connection manager instance.
 	 * @return array|null Owner data or null if unavailable.
 	 */
 	private static function get_connection_owner_data( $manager ) {
-		$owner = $manager->get_connection_owner();
+		$connected_owner = $manager->get_connection_owner();
 
-		if ( false === $owner ) {
+		if ( false !== $connected_owner ) {
+			$fields = static::resolve_user_fields(
+				$connected_owner,
+				$manager->get_connected_user_data( $connected_owner->ID )
+			);
+
+			$fields['localLogin'] = $connected_owner->user_login;
+
+			return $fields;
+		}
+
+		// Same owner-of-record lookup and gate as Initial_State::get_data(), which explains why.
+		if ( ! current_user_can( 'jetpack_connect' ) ) {
 			return null;
 		}
 
-		$fields = static::resolve_user_fields( $owner, $manager->get_connected_user_data( $owner->ID ) );
+		$owner_id = (int) \Jetpack_Options::get_option( 'master_user' );
+		$owner    = $owner_id > 0 ? get_userdata( $owner_id ) : false;
+		if ( ! $owner instanceof \WP_User ) {
+			return null;
+		}
 
-		$fields['localLogin'] = $owner->user_login;
+		// Local fields only: the WordPress.com lookup needs the token that is broken.
+		$fields = static::resolve_user_fields( $owner, false );
+
+		$fields['localLogin']         = $owner->user_login;
+		$fields['isConnectionBroken'] = true;
+		$fields['isCurrentUser']      = get_current_user_id() === $owner->ID;
 
 		return $fields;
 	}
