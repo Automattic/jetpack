@@ -385,16 +385,20 @@ Measure content consumption funnel from page views to conversions.
 
 ### Keyboard Navigation
 
-- **Tab Navigation**: Funnel step bars are focusable and accessible via Tab key
-- **Enter/Space**: Activate step interactions and show tooltips
-- **Escape**: Clear selections and hide tooltips
-- **Focus Management**: Blurred steps have `tabIndex={-1}` to prevent focus
+The steps form a [toolbar](https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/) with one Tab stop.
+
+- **Tab**: Enters the funnel on the last focused step, else the selected step, else the first step. The next Tab leaves the funnel.
+- **Left/Right arrows**: Move focus to the previous or next step. They are swapped in a right-to-left layout and do not wrap.
+- **Home/End**: Move focus to the first or last step.
+- **Enter/Space**: Select or deselect the focused step and show its tooltip
+- **Escape**: Clear the selection and hide the tooltip. Focus stays on the step.
 
 ### Screen Reader Support
 
 - Set `ariaLabel` to name the chart. See [Accessible names](./?path=/docs/js-packages-charts-library-introduction--docs#accessible-names).
-- **ARIA Roles**: Each funnel step uses `role="button"` for proper semantic meaning
+- **ARIA Roles**: The steps sit in a `role="toolbar"` labelled "Funnel steps", and each step uses `role="button"`
 - **ARIA Labels**: Each step has `aria-label` with the step name
+- **Selection State**: The selected step has `aria-pressed="true"`, the others `aria-pressed="false"`
 - **Alternative Text**: Step labels and rates are accessible to screen readers
 - **Loading States**: Loading and empty states provide appropriate text content
 
@@ -407,7 +411,6 @@ Measure content consumption funnel from page views to conversions.
 
 ### Focus Management
 
-- **Logical Tab Order**: Focus moves through steps in visual order
-- **Dynamic `tabIndex`**: Blurred (non-selected) steps are removed from tab order when another step is selected
-- **Visual Focus Indicators**: CSS focus styles provide clear visual feedback
+- **Roving `tabIndex`**: One step has `tabIndex={0}` and the others `tabIndex={-1}`. Dimmed (non-selected) steps stay reachable with the arrow keys.
+- **Visual Focus Indicators**: The focused step shows a focus ring when focus comes from the keyboard
 
