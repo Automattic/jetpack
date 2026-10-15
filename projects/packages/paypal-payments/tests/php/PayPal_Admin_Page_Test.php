@@ -325,11 +325,12 @@ class PayPal_Admin_Page_Test extends TestCase {
 	/**
 	 * Build a post object with the given content.
 	 *
-	 * @param string $content   Post content.
-	 * @param string $post_type Post type.
+	 * @param string $content    Post content.
+	 * @param string $post_type  Post type.
+	 * @param string $post_title Post title.
 	 * @return \WP_Post The post.
 	 */
-	private function make_post( $content, $post_type = 'post' ) {
+	private function make_post( $content, $post_type = 'post', $post_title = '' ) {
 		static $next_id = 1000;
 
 		return new \WP_Post(
@@ -337,6 +338,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 				'ID'           => $next_id++,
 				'post_type'    => $post_type,
 				'post_status'  => 'publish',
+				'post_title'   => $post_title,
 				'post_content' => $content,
 				'filter'       => 'raw',
 			)
@@ -1027,6 +1029,63 @@ class PayPal_Admin_Page_Test extends TestCase {
 
 		$this->assertStringContainsString( '8.25 (PERCENTAGE)', $output );
 		$this->assertStringNotContainsString( ': 8.25', $output );
+	}
+
+	/**
+	 * Test the detail view lists the published posts embedding the link, with edit and view links.
+	 */
+	public function test_detail_view_lists_the_posts_embedding_the_link() {
+		$admin = $this->create_admin_user();
+		wp_set_current_user( $admin );
+
+		$this->set_up_connected_state();
+		$this->mock_get_resource_response( $this->get_sample_resource() );
+
+		$embedding = $this->make_post( '<!-- wp:jetpack/paypal-payment-buttons {"isApiManaged":true,"resourceId":"PLB-ABC123"} /-->', 'page', 'Shop' );
+		$other     = $this->make_post( '<!-- wp:jetpack/paypal-payment-buttons {"isApiManaged":true,"resourceId":"PLB-OTHER1"} /-->', 'post', 'Unrelated' );
+		add_filter(
+			'posts_pre_query',
+			function () use ( $embedding, $other ) {
+				return array( $embedding, $other );
+			}
+		);
+
+		$_GET['action']      = 'view';
+		$_GET['resource_id'] = 'PLB-ABC123';
+
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'Link Locations', $output );
+		$this->assertStringContainsString( '<td>Shop</td><td>Page</td>', $output );
+		$this->assertStringContainsString( 'post=' . $embedding->ID . '&#038;action=edit', $output );
+		$this->assertStringContainsString( esc_url( get_permalink( $embedding ) ), $output );
+		$this->assertStringNotContainsString( 'Unrelated', $output );
+		// The delete warning counts the same posts.
+		$this->assertStringContainsString( 'embedded in 1 published post', $output );
+	}
+
+	/**
+	 * Test the detail view says when nothing embeds the link instead of printing an empty table.
+	 */
+	public function test_detail_view_says_when_nothing_embeds_the_link() {
+		$admin = $this->create_admin_user();
+		wp_set_current_user( $admin );
+
+		$this->set_up_connected_state();
+		$this->mock_get_resource_response( $this->get_sample_resource() );
+		add_filter( 'posts_pre_query', '__return_empty_array' );
+
+		$_GET['action']      = 'view';
+		$_GET['resource_id'] = 'PLB-ABC123';
+
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'not used on any published post or page yet', $output );
+		$this->assertStringNotContainsString( 'paypal-link-locations', $output );
 	}
 
 	/**
