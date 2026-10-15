@@ -334,7 +334,7 @@ function wpcom_marketplace_card_button( array $card, $back_url = '' ) {
 	 * Simple sites add the plan the purchase needs, or send it through Calypso when the purchase
 	 * cannot go ahead.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.11.0
 	 *
 	 * @param string $checkout Checkout URL, or empty when there is no store product.
 	 * @param array  $card     The product's card.

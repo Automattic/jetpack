@@ -358,7 +358,7 @@ abstract class Blocked_Login_Page {
 	 *
 	 * The nag can outlive a working password (e.g. the install admin), so only a key issued at registration counts.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.29.3
 	 *
 	 * @param WP_User $user The user.
 	 *

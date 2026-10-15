@@ -2042,9 +2042,9 @@ EOT;
 			 *
 			 * @since 2.8.0
 			 *
-			 * @param bool $allow_feature_toggle Display a feature toggle. Default to false.
+			 * @param bool $allow_feature_toggle Display a feature toggle. Default to true.
 			 */
-			$this->allow_feature_toggle = apply_filters( 'jetpack_relatedposts_filter_allow_feature_toggle', false );
+			$this->allow_feature_toggle = apply_filters( 'jetpack_relatedposts_filter_allow_feature_toggle', true );
 		}
 		return $this->allow_feature_toggle;
 	}

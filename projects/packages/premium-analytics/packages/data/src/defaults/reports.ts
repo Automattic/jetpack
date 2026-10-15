@@ -3,8 +3,11 @@
  */
 import {
 	dateToISOStringWithLocalTZ,
+	findComparisonOption,
+	getComparisonOptions,
 	getComparisonRangeFromPreset,
 	localTZDate,
+	type ComparisonPresetId,
 } from '@jetpack-premium-analytics/datetime';
 /**
  * Internal dependencies
@@ -12,7 +15,12 @@ import {
 // Leaf modules, not the `../utils` barrel, which loads `@wordpress/core-data`.
 import { getDefaultIntervalForPeriod } from '../utils/interval';
 import { computeDateRangeFromPreset } from '../utils/preset-date-range';
-import { getRememberedPreset, getStatsV1Preset } from './remembered-preset';
+import {
+	NO_COMPARISON,
+	getRememberedComparison,
+	getRememberedPreset,
+	getStatsV1Preset,
+} from './remembered-preset';
 import type { PresetType, ReportParams } from '../utils/search';
 
 /**
@@ -34,15 +42,16 @@ export function getDefaultReportParams(): { preset: PresetType } {
 }
 
 /**
- * Add the previous-period comparison a fresh load starts on.
+ * Add a comparison preset's window to the params.
  *
- * @param params - Report params for the primary range.
+ * @param params   - Report params for the primary range.
+ * @param presetId - The comparison preset.
  * @return The params with the comparison, or unchanged when none resolves.
  */
-export function withDefaultComparison( params: ReportParams ): ReportParams {
+function withComparisonPreset( params: ReportParams, presetId: ComparisonPresetId ): ReportParams {
 	const comparison = getComparisonRangeFromPreset(
 		{ from: localTZDate( params.from ), to: localTZDate( params.to ) },
-		'previous-period',
+		presetId,
 		{ primaryPresetId: params.preset }
 	);
 
@@ -54,9 +63,36 @@ export function withDefaultComparison( params: ReportParams ): ReportParams {
 		...params,
 		compare_from: dateToISOStringWithLocalTZ( comparison.from ),
 		compare_to: dateToISOStringWithLocalTZ( comparison.to ),
-		compare_preset: 'previous-period',
+		compare_preset: presetId,
 		comp: '1',
 	};
+}
+
+/**
+ * Add the comparison a fresh load starts on: the reader's last applied one, else the previous period.
+ *
+ * @param params - Report params for the primary range.
+ * @return The params with the comparison, or unchanged when none applies.
+ */
+export function withDefaultComparison( params: ReportParams ): ReportParams {
+	const remembered = getRememberedComparison();
+
+	if ( remembered === NO_COMPARISON ) {
+		return params;
+	}
+
+	// A remembered preset the range does not offer, say the previous week of a year, falls back.
+	const isOffered =
+		remembered !== undefined &&
+		!! findComparisonOption(
+			getComparisonOptions(
+				{ from: localTZDate( params.from ), to: localTZDate( params.to ) },
+				{ primaryPresetId: params.preset }
+			),
+			remembered
+		);
+
+	return withComparisonPreset( params, isOffered ? remembered : 'previous-period' );
 }
 
 /**
@@ -80,5 +116,5 @@ export const getDefaultQueryParams = (
 		interval: getDefaultIntervalForPeriod( preset, range.from, range.to ),
 	};
 
-	return withComparison ? withDefaultComparison( params ) : params;
+	return withComparison ? withComparisonPreset( params, 'previous-period' ) : params;
 };

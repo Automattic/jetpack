@@ -1,4 +1,0 @@
-Significance: minor
-Type: removed
-
-Remove `chartTypeAttributeField`: a widget declares the chart type attribute as a `jpa/toggle-group` field, and the README lists the field types the dashboard registers.

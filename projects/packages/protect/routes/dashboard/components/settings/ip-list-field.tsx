@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Button, Stack, TextareaControl } from '@wordpress/ui';
+import { appendIp, getIpList, splitIps } from './ip-list';
 import type { ProtectSettingsData } from '../../data/use-protect-settings';
 import type { ChangeEvent } from 'react';
 
@@ -8,7 +9,8 @@ type Props = {
 	data: ProtectSettingsData;
 	name: string;
 	label: string;
-	description: string;
+	/** Shown under the field; without one the label is hidden, for a toggle above that names the list. */
+	description?: string;
 	currentIp?: string;
 };
 
@@ -19,13 +21,12 @@ type Props = {
  * @param props.data        - The settings and their save function.
  * @param props.name        - The setting holding the list.
  * @param props.label       - The field's label.
- * @param props.description - What the list does.
+ * @param props.description - What the list does; defaults to the format hint.
  * @param props.currentIp   - When set, offers to add the visitor's own address.
  * @return The field.
  */
 export default function IpListField( { data, name, label, description, currentIp }: Props ) {
-	const saved =
-		typeof data.settings?.[ name ] === 'string' ? ( data.settings[ name ] as string ) : '';
+	const saved = getIpList( data.settings, name );
 	const [ draft, setDraft ] = useState( saved );
 
 	const lastSaved = useRef( saved );
@@ -53,20 +54,24 @@ export default function IpListField( { data, name, label, description, currentIp
 		return save( { [ name ]: draft } );
 	}, [ save, name, draft ] );
 	const onAddIp = useCallback(
-		() =>
-			setDraft( current =>
-				current.trim() ? `${ current.trim() }\n${ currentIp }` : `${ currentIp }`
-			),
+		() => setDraft( current => appendIp( current, currentIp ?? '' ) ),
 		[ currentIp ]
 	);
 
-	const hasIp = !! currentIp && draft.split( /[\s,]+/ ).includes( currentIp );
+	const hasIp = !! currentIp && splitIps( draft ).includes( currentIp );
 
 	return (
 		<Stack direction="column" gap="sm">
 			<TextareaControl
 				label={ label }
-				description={ description }
+				hideLabelFromVision={ ! description }
+				description={
+					description ??
+					__(
+						'Separate addresses or ranges with commas, spaces or new lines.',
+						'jetpack-protect-pkg'
+					)
+				}
 				value={ draft }
 				onChange={ onChange }
 				rows={ 4 }
