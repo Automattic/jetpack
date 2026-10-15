@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-my-jetpack",
-	"version": "6.9.0",
+	"version": "6.10.0",
 	"private": true,
 	"description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/my-jetpack/#readme",
@@ -20,7 +20,8 @@
 		"*.scss"
 	],
 	"exports": {
-		"./components/*": "./_inc/components/*"
+		"./components/*": "./_inc/components/*",
+		"./header-data": "./_inc/header-data.ts"
 	},
 	"scripts": {
 		"build": "pnpm run clean && concurrently 'pnpm:build-client' 'pnpm:build:wp-build' && pnpm run build:stamp-textdomains && pnpm run build:boot-asset && pnpm run build:copy-images",

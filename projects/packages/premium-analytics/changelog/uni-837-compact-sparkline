@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Charts: Draw a summary chart too short for its axes as a sparkline without axes, so its tooltip can be reached.

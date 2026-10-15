@@ -1,0 +1,3 @@
+Significance: patch
+Type: other
+Comment: Update composer.lock for the SEO package's new jetpack-connection dependency.

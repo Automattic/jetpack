@@ -275,21 +275,19 @@ class Checkpoint {
 
 	/**
 	 * Whether the browser says the request came from this site: the Origin or Referer
-	 * host against the home and site hosts, or Sec-Fetch-Site alone when a proxy
-	 * stripped both. Nothing at all is allowed through; another site's name is not.
+	 * origin against the home and site origins, or Sec-Fetch-Site alone when a proxy
+	 * stripped both. Nothing at all is refused: every browser that runs the sign-in flow sends Origin.
 	 *
 	 * @return bool
 	 */
 	public static function is_same_site_request() {
-		$hosts = array();
+		$origins = array();
 
 		// Both: a page on the home host posts to wp-comments-post.php on the site host.
 		foreach ( array( home_url(), site_url() ) as $url ) {
-			$host = wp_parse_url( $url, PHP_URL_HOST );
-
-			if ( is_string( $host ) ) {
-				$hosts[] = strtolower( $host );
-			}
+			$origins[] = self::origin( $url );
+			// A site still set to http:// but served over https posts from the https origin.
+			$origins[] = self::origin( set_url_scheme( $url, 'https' ) );
 		}
 
 		foreach ( array( 'HTTP_ORIGIN', 'HTTP_REFERER' ) as $header ) {
@@ -297,14 +295,34 @@ class Checkpoint {
 				continue;
 			}
 
-			$host = wp_parse_url( sanitize_text_field( wp_unslash( $_SERVER[ $header ] ) ), PHP_URL_HOST );
+			$origin = self::origin( sanitize_text_field( wp_unslash( $_SERVER[ $header ] ) ) );
 
-			return is_string( $host ) && in_array( strtolower( $host ), $hosts, true );
+			return '' !== $origin && in_array( $origin, $origins, true );
 		}
 
 		$site = isset( $_SERVER['HTTP_SEC_FETCH_SITE'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_SEC_FETCH_SITE'] ) ) : '';
 
-		return '' === $site || in_array( $site, array( 'same-origin', 'none' ), true );
+		return in_array( $site, array( 'same-origin', 'none' ), true );
+	}
+
+	/**
+	 * A URL's origin as a browser writes it: scheme, host and any port other than the default.
+	 *
+	 * @param string $url The URL.
+	 * @return string The origin, or '' when the URL has none.
+	 */
+	private static function origin( $url ) {
+		$scheme = wp_parse_url( $url, PHP_URL_SCHEME );
+		$host   = wp_parse_url( $url, PHP_URL_HOST );
+		$port   = wp_parse_url( $url, PHP_URL_PORT );
+
+		if ( ! $scheme || ! $host ) {
+			return '';
+		}
+
+		$port = in_array( "$scheme:$port", array( 'http:80', 'https:443' ), true ) ? '' : ( $port ? ":$port" : '' );
+
+		return strtolower( "$scheme://$host$port" );
 	}
 
 	/**
