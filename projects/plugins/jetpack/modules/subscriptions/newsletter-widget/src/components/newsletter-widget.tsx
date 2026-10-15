@@ -82,14 +82,17 @@ export const NewsletterWidget = ( {
 							</span>
 							<span className="newsletter-widget__stat-content">
 								<span className="newsletter-widget__stat-label">
-									{ subscriberStatsUrl
-										? DashboardLink(
-												true,
-												subscriberStatsUrl,
-												'all_subscribers_click',
-												subscribersText
-											)
-										: subscribersText }
+									{ subscriberStatsUrl ? (
+										<DashboardLink
+											internal
+											href={ subscriberStatsUrl }
+											eventName="all_subscribers_click"
+										>
+											{ subscribersText }
+										</DashboardLink>
+									) : (
+										subscribersText
+									) }
 								</span>
 							</span>
 						</span>
@@ -99,14 +102,17 @@ export const NewsletterWidget = ( {
 							</span>
 							<span className="newsletter-widget__stat-content">
 								<span className="newsletter-widget__stat-label">
-									{ subscriberStatsUrl
-										? DashboardLink(
-												true,
-												subscriberStatsUrl,
-												'paid_subscribers_click',
-												paidSubscribersText
-											)
-										: paidSubscribersText }
+									{ subscriberStatsUrl ? (
+										<DashboardLink
+											internal
+											href={ subscriberStatsUrl }
+											eventName="paid_subscribers_click"
+										>
+											{ paidSubscribersText }
+										</DashboardLink>
+									) : (
+										paidSubscribersText
+									) }
 								</span>
 							</span>
 						</span>
@@ -127,12 +133,16 @@ export const NewsletterWidget = ( {
 							'jetpack'
 						),
 						{
-							link: DashboardLink(
-								isWpcomSite,
-								isWpcomSite
-									? 'https://wordpress.com/learn/courses/newsletters-101/wordpress-com-newsletter'
-									: 'https://jetpack.com/support/newsletter',
-								'learn_more_click'
+							link: (
+								<DashboardLink
+									internal={ isWpcomSite }
+									href={
+										isWpcomSite
+											? 'https://wordpress.com/learn/courses/newsletters-101/wordpress-com-newsletter'
+											: 'https://jetpack.com/support/newsletter'
+									}
+									eventName="learn_more_click"
+								/>
 							),
 						}
 					) }
@@ -150,53 +160,59 @@ export const NewsletterWidget = ( {
 						</li>
 						{ isStatsModuleActive && subscriberStatsUrl && (
 							<li>
-								{ DashboardLink(
-									true,
-									subscriberStatsUrl,
-									'view_stats_click',
-									__( 'View subscriber stats', 'jetpack' )
-								) }
+								<DashboardLink internal href={ subscriberStatsUrl } eventName="view_stats_click">
+									{ __( 'View subscriber stats', 'jetpack' ) }
+								</DashboardLink>
 							</li>
 						) }
 						<li>
-							{ DashboardLink(
-								isWpcomSite,
-								getRedirectUrl( buildJPRedirectSource( `subscribers/${ site }`, isWpcomSite ), {
-									anchor: 'add-subscribers',
-								} ),
-								'import_subscribers_click',
-								__( 'Import subscribers', 'jetpack' )
-							) }
+							<DashboardLink
+								internal={ isWpcomSite }
+								href={ getRedirectUrl(
+									buildJPRedirectSource( `subscribers/${ site }`, isWpcomSite ),
+									{
+										anchor: 'add-subscribers',
+									}
+								) }
+								eventName="import_subscribers_click"
+							>
+								{ __( 'Import subscribers', 'jetpack' ) }
+							</DashboardLink>
 						</li>
 						<li>
-							{ DashboardLink(
-								isWpcomSite,
-								getRedirectUrl( buildJPRedirectSource( `subscribers/${ site }`, isWpcomSite ) ),
-								'manage_subscribers_click',
-								__( 'Manage subscribers', 'jetpack' )
-							) }
+							<DashboardLink
+								internal={ isWpcomSite }
+								href={ getRedirectUrl(
+									buildJPRedirectSource( `subscribers/${ site }`, isWpcomSite )
+								) }
+								eventName="manage_subscribers_click"
+							>
+								{ __( 'Manage subscribers', 'jetpack' ) }
+							</DashboardLink>
 						</li>
 						<li>
-							{ DashboardLink(
-								isWpcomSite,
-								getRedirectUrl(
+							<DashboardLink
+								internal={ isWpcomSite }
+								href={ getRedirectUrl(
 									buildJPRedirectSource(
 										`${ isWpcomSite ? 'earn' : 'monetize' }/${ site }`,
 										isWpcomSite
 									)
-								),
-								'monetize_click',
-								__( 'Monetize', 'jetpack' )
-							) }
+								) }
+								eventName="monetize_click"
+							>
+								{ __( 'Monetize', 'jetpack' ) }
+							</DashboardLink>
 						</li>
 						{ newsletterSettingsUrl && (
 							<li>
-								{ DashboardLink(
-									true,
-									newsletterSettingsUrl,
-									'newsletter_settings_click',
-									__( 'Newsletter settings', 'jetpack' )
-								) }
+								<DashboardLink
+									internal
+									href={ newsletterSettingsUrl }
+									eventName="newsletter_settings_click"
+								>
+									{ __( 'Newsletter settings', 'jetpack' ) }
+								</DashboardLink>
 							</li>
 						) }
 					</ul>

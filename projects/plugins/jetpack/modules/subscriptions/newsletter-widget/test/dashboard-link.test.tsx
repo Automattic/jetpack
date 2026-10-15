@@ -1,15 +1,22 @@
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { Link } from '@wordpress/ui';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { DashboardLink } from '../src/components/dashboard-link';
 import { TRACKS_EVENT_NAME_PREFIX } from '../src/constants';
 
-// Mock WordPress element hooks
-jest.mock( '@wordpress/element', () => ( {
-	...jest.requireActual( '@wordpress/element' ),
-	useEffect: jest.fn( cb => cb() ), // Execute the callback immediately
+jest.mock( '@wordpress/ui', () => ( {
+	Link: ( { href, children, openInNewTab, onClick } ) => (
+		<a
+			href={ href }
+			target={ openInNewTab ? '_blank' : undefined }
+			onClick={ onClick }
+			rel="noreferrer"
+		>
+			{ children }
+		</a>
+	),
 } ) );
 
-// Mock the useAnalytics hook
 jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
 	useAnalytics: jest.fn(),
 } ) );
@@ -28,44 +35,56 @@ describe( 'DashboardLink', () => {
 	} );
 
 	it( 'renders as a regular anchor tag for links that stay within the platform', () => {
-		const link = DashboardLink( true, testHref, testEventName, testText );
-		expect( link.type ).toBe( 'a' );
-		expect( link.props.href ).toBe( testHref );
-		expect( link.props.children ).toBe( testText );
+		render(
+			<DashboardLink internal href={ testHref } eventName={ testEventName }>
+				{ testText }
+			</DashboardLink>
+		);
+
+		const link = screen.getByRole( 'link', { name: testText } );
+		expect( link.tagName ).toBe( 'A' );
+		expect( link ).toHaveAttribute( 'href', testHref );
+		expect( link ).not.toHaveAttribute( 'target' );
 	} );
 
-	it( 'renders as Link for links that point to external resources', () => {
-		const link = DashboardLink( false, testHref, testEventName, testText );
-		expect( link.type ).toBe( Link );
-		expect( link.props.href ).toBe( testHref );
-		expect( link.props.openInNewTab ).toBe( true );
-		expect( link.props.children ).toBe( testText );
+	it( 'renders external links so they open in a new tab', () => {
+		render(
+			<DashboardLink internal={ false } href={ testHref } eventName={ testEventName }>
+				{ testText }
+			</DashboardLink>
+		);
+
+		const link = screen.getByRole( 'link', { name: testText } );
+		expect( link ).toHaveAttribute( 'href', testHref );
+		expect( link ).toHaveAttribute( 'target', '_blank' );
 	} );
 
-	it( 'handles not being passed a text prop', () => {
-		const link = DashboardLink( true, testHref, testEventName );
-		expect( link.props.children ).toBeUndefined();
+	it( 'renders without text content', () => {
+		render( <DashboardLink internal href={ testHref } eventName={ testEventName } /> );
+
+		expect( screen.getByRole( 'link' ) ).toHaveAttribute( 'href', testHref );
+		expect( screen.getByRole( 'link' ) ).not.toHaveTextContent( /\S/ );
 	} );
 
-	it( 'sets up click tracking with the provided event name', () => {
-		const link = DashboardLink( true, testHref, testEventName, testText );
-		expect( link.props.onClick ).toBeDefined();
+	it( 'records the click event and not a view', async () => {
+		const user = userEvent.setup();
+		render(
+			<DashboardLink internal href={ testHref } eventName={ testEventName }>
+				{ testText }
+			</DashboardLink>
+		);
 
-		// Clear any previous calls (like the view event)
-		mockRecordEvent.mockClear();
+		expect( mockRecordEvent ).not.toHaveBeenCalled();
 
-		// Simulate clicking the link
-		link.props.onClick();
+		const link = screen.getByRole( 'link', { name: testText } );
+		// jsdom reports an error if the click follows the href.
+		link.addEventListener( 'click', event => event.preventDefault() );
+		await user.click( link );
 
-		// Verify that the tracking event was recorded with empty object as second parameter
+		expect( mockRecordEvent ).toHaveBeenCalledTimes( 1 );
 		expect( mockRecordEvent ).toHaveBeenCalledWith(
 			`${ TRACKS_EVENT_NAME_PREFIX }${ testEventName }`,
 			{}
 		);
-	} );
-
-	it( 'records view event on mount', () => {
-		DashboardLink( true, testHref, testEventName, testText );
-		expect( mockRecordEvent ).toHaveBeenCalledWith( `${ TRACKS_EVENT_NAME_PREFIX }_view` );
 	} );
 } );
