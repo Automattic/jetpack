@@ -31,6 +31,13 @@ const projects = [
 		buildGroup: 'jetpack-core',
 	},
 	{
+		project: 'Jetpack comments',
+		path: 'projects/plugins/jetpack/tests/e2e',
+		testArgs: [ 'specs/comments' ],
+		targets: [ 'packages/comments' ],
+		buildGroup: 'jetpack-core',
+	},
+	{
 		project: 'Jetpack sync',
 		path: 'projects/plugins/jetpack/tests/e2e',
 		testArgs: [ 'specs/sync' ],
