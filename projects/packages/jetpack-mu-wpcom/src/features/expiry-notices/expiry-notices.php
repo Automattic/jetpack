@@ -111,7 +111,7 @@ function wpcom_expiry_notices_is_enabled_for_site(): bool {
 	/**
 	 * Filters whether the new expiry notices are enabled for this site.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.11.0
 	 *
 	 * @param bool $enabled    Whether the site is on the new expiry notices.
 	 * @param int  $percentage Always 100 now the rollout is done; kept so two-argument callbacks keep working.

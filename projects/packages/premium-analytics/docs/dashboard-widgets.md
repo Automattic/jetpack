@@ -83,6 +83,7 @@ add_action(
 				'textdomain'    => 'jetpack-videopress-pkg',
 				'i18n_manifest' => plugins_url( 'i18n-manifest.json', __DIR__ . '/build/build.php' ),
 				'former_names'  => array( 'videopress/top-videos' => array( 'jpa/videopress' ) ),
+				'plan_features' => array( 'videopress/top-videos' => 'videos' ),
 			),
 			$registry
 		);
@@ -100,6 +101,8 @@ The `require_once` of the generated `build/build.php` is what registers the plug
 `i18n_manifest` is the URL of the build's `i18n-manifest.json`, which `stamp-textdomains` writes next to the bundles. The real code appends the package version to it as a cache buster.
 
 `former_names` maps a current name to the names it registered under before (see [Renaming a widget type](#renaming-a-widget-type)).
+
+`plan_features` maps a name to the plan feature the widget shows (see [Locking a widget by plan](#locking-a-widget-by-plan)).
 
 A single type written by hand goes through `register_widget_type( $name, $args )`, the primitive the helper is built on.
 
@@ -125,7 +128,7 @@ The name must be a lowercase `<namespace>/<name>` string, and must not be regist
 
 ### Arguments
 
-Any public property of `Widget_Type`: `render_module`, `widget_module`, `presentation` (`framed`, `content-bleed` or `full-bleed`), `category`, `title`, `description`, `help` (`content` plus optional `links`), `icon` (`collection/name`), `actions`, `keywords`, `textdomain`, `i18n_manifest`, `former_names`. `set_props()` copies every key onto the instance.
+Any public property of `Widget_Type`: `render_module`, `widget_module`, `presentation` (`framed`, `content-bleed` or `full-bleed`), `category`, `title`, `description`, `help` (`content` plus optional `links`), `icon` (`collection/name`), `actions`, `keywords`, `textdomain`, `i18n_manifest`, `former_names`, `plan_feature`. `set_props()` copies every key onto the instance.
 
 Through `register_widget_type()` the strings arrive translated and `help`, `icon` and `actions` in shape. The manifest helper translates and sanitizes them itself.
 
@@ -152,6 +155,12 @@ The registry maps each former name to the current one. `get_registered()` answer
 The REST record publishes `former_names`. The dashboard stage maps a stored layout's types through them before rendering (`buildWidgetTypeRenames()`, `useDashboardSectionLayout()`), with no write-back: the current name persists with the section's next commit. On the server, `resolve_former_widget_types_in_default_layout()` renames default-layout instances at priority 99, ahead of the unregistered-type check, so a plugin that still adds an instance under the old name keeps it.
 
 A rename keeps the attributes as they are. One that changes them needs a migration, which nothing offers yet.
+
+### Locking a widget by plan
+
+A widget that shows nothing but a paid Stats feature declares that feature in `plan_feature`: in the `$args['plan_features']` map of `register_widget_types_from_manifest()`, or in the arguments of `register_widget_type()`. wp-build drops unknown `widget.json` keys, so the manifest cannot carry it. `register()` refuses one that is not a string. The package declares its own in `WIDGET_TYPE_PLAN_FEATURES`; a widget every plan includes declares none.
+
+`stats-plan-gates.php` owns the features and which plan locks each. On the dashboard it publishes `premium_analytics.plan_gates`: `locked_features` maps each feature the site's plan lacks to its copy (`description`, with `<link>` around the words `support_url` explains) and `upgrade_url`, empty when there is nowhere to buy it, and `locked_widget_types` maps each available type whose feature is locked to that feature. The `jetpack_premium_analytics_stats_plan_tier` filter overrides the tier both come from. Declaring a plan feature needs `WIDGET_API_VERSION` 1.12.0; an older registry ignores it, and the widget stays open.
 
 ### Script modules
 
@@ -229,7 +238,7 @@ It reads the package's fixed list and, once the registry can answer, the registr
 
 `WIDGET_API_VERSION` names the contract a widget is built against: the `@automattic/jetpack-premium-analytics-sdk` module and the exports it declares, the dashboard modules the facade re-exports from (`@jetpack-premium-analytics/widgets-toolkit`, `data`, `fields`, `datetime`, `externals`), and the `Widget_Type` fields the client reads.
 
-The major changes when a widget built against the previous contract stops working; the minor when a consumer can rely on something new. So far, 1.1.0 added `former_names` and 1.2.0 `Leaderboard`, `describeError()` and `useStatsVideoPlays`, and 1.3.0 `ExporterCsvDownloadButton`, which takes the linked report by id. 1.4.0 added `useReport`, which runs a report query and its comparison in the dashboard's query client, and `toBucketStamp`, which writes the bounds of a report row the way the dashboard's time series read them. 1.5.0 added `Donut`, the breakdown kind, and `WidgetStatus`, the request status every kind takes. 1.6.0 resolves the `jpa/<name>` icon references the records carry, through the resolver `packages/init` registers. 1.7.0 added the `bars` variant of `Leaderboard`, which lays the label above the bar and draws the comparison period as a second bar under a period legend. 1.8.0 added the `half-ring` variant of `Donut`, which draws the breakdown as a semi-circle with the total under the arc, and `withTotal`, off for shares that add up to one. 1.9.0 added `Funnel`, the funnel kind: steps as counts in, the rate of the whole, the shares and the states out. 1.10.0 added `Columns`, the kind for a few categories compared across the periods as vertical bars. 1.11.0 added `Locations`, the kind that lists a ranking of places beside the map that draws them, countries or the regions of one country. The field types the dashboard registers are part of the contract too: `jpa/select`, `jpa/toggle-group` and `jpa/array-checkbox` have been there since 1.0.0, so a new name is a minor. `chartTypeAttributeField` left the SDK while it is private and every consumer lives in this repository; a widget declares the attribute itself.
+The major changes when a widget built against the previous contract stops working; the minor when a consumer can rely on something new. So far, 1.1.0 added `former_names` and 1.2.0 `Leaderboard`, `describeError()` and `useStatsVideoPlays`, and 1.3.0 `ExporterCsvDownloadButton`, which takes the linked report by id. 1.4.0 added `useReport`, which runs a report query and its comparison in the dashboard's query client, and `toBucketStamp`, which writes the bounds of a report row the way the dashboard's time series read them. 1.5.0 added `Donut`, the breakdown kind, and `WidgetStatus`, the request status every kind takes. 1.6.0 resolves the `jpa/<name>` icon references the records carry, through the resolver `packages/init` registers. 1.7.0 added the `bars` variant of `Leaderboard`, which lays the label above the bar and draws the comparison period as a second bar under a period legend. 1.8.0 added the `half-ring` variant of `Donut`, which draws the breakdown as a semi-circle with the total under the arc, and `withTotal`, off for shares that add up to one. 1.9.0 added `Funnel`, the funnel kind: steps as counts in, the rate of the whole, the shares and the states out. 1.10.0 added `Columns`, the kind for a few categories compared across the periods as vertical bars. 1.11.0 added `Locations`, the kind that lists a ranking of places beside the map that draws them, countries or the regions of one country. 1.12.0 added `plan_feature`, the paid Stats feature a widget shows, which the plan gates lock. The field types the dashboard registers are part of the contract too: `jpa/select`, `jpa/toggle-group` and `jpa/array-checkbox` have been there since 1.0.0, so a new name is a minor. `chartTypeAttributeField` left the SDK while it is private and every consumer lives in this repository; a widget declares the attribute itself.
 
 Inside `plugins/jetpack` the package and a consumer module ship together, so the check is a formality. With the standalone `plugins/premium-analytics` next to another plugin, each brings its own copy, and the check is what keeps a widget built against 1.x from registering on a 2.x package.
 
