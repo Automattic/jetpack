@@ -390,13 +390,13 @@ The steps form a [toolbar](https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/) wi
 - **Tab**: Enters the funnel on the last focused step, else the selected step, else the first step. The next Tab leaves the funnel.
 - **Left/Right arrows**: Move focus to the previous or next step. They are swapped in a right-to-left layout and do not wrap.
 - **Home/End**: Move focus to the first or last step.
-- **Enter/Space**: Select or deselect the focused step and show its tooltip
+- **Enter/Space**: Select or deselect the focused step and show its tooltip.
 - **Escape**: Clear the selection and hide the tooltip. Focus stays on the step.
 
 ### Screen Reader Support
 
 - Set `ariaLabel` to name the chart. See [Accessible names](./?path=/docs/js-packages-charts-library-introduction--docs#accessible-names).
-- **ARIA Roles**: The steps sit in a `role="toolbar"` labelled "Funnel steps", and each step uses `role="button"`
+- **ARIA Roles**: The steps sit in a `role="toolbar"` labeled "Funnel steps", and each step uses `role="button"`
 - **ARIA Labels**: Each step has `aria-label` with the step name
 - **Selection State**: The selected step has `aria-pressed="true"`, the others `aria-pressed="false"`
 - **Alternative Text**: Step labels and rates are accessible to screen readers
