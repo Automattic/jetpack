@@ -28,6 +28,8 @@
 import { test, expect } from '@playwright/test';
 import {
 	MOCK_RESPONSES,
+	getUnmockedRequests,
+	paypalRoute,
 	setupPayPalMocks,
 	setupDisconnectedMocks,
 } from '../helpers/paypal-api-mock';
@@ -98,10 +100,7 @@ function recordCreateRequests( page ) {
 	const created = [];
 
 	page.on( 'request', request => {
-		if (
-			request.method() === 'POST' &&
-			/\/wp-json\/wpcom\/v2\/paypal\/buttons(\?|$)/.test( request.url() )
-		) {
+		if ( request.method() === 'POST' && paypalRoute( '/buttons' )( request.url() ) ) {
 			created.push( request.url() );
 		}
 	} );
@@ -150,7 +149,7 @@ async function connectThroughWizard( page, canvas ) {
 	await block.locator( 'input[type="password"]' ).fill( 'valid_client_secret' );
 
 	// After connect POST, return connected state.
-	await page.route( /\/wp-json\/wpcom\/v2\/paypal\/connection(\?|$)/, route => {
+	await page.route( paypalRoute( '/connection' ), route => {
 		route.fulfill( {
 			status: 200,
 			contentType: 'application/json',
@@ -166,6 +165,37 @@ async function connectThroughWizard( page, canvas ) {
 			'button:has-text("Create Your First Button"), h3:has-text("Create PayPal Payment Button")'
 		)
 	).toBeVisible( { timeout: 8000 } );
+}
+
+/**
+ * Select the block and open the Settings sidebar, where its `InspectorControls`
+ * render. The sidebar is in the top document, outside the editor-canvas iframe.
+ *
+ * @param {import('@playwright/test').Page}    page  - Playwright page instance.
+ * @param {import('@playwright/test').Locator} block - The block, inside the canvas.
+ * @return {Promise<import('@playwright/test').Locator>} The sidebar.
+ */
+async function openBlockSidebar( page, block ) {
+	const closeInserter = page.locator( 'button[aria-label="Close Block Inserter"]' );
+	if ( await closeInserter.isVisible( { timeout: 1000 } ).catch( () => false ) ) {
+		await closeInserter.click();
+		await page.waitForTimeout( 300 );
+	}
+
+	// The inspector panels mount on block selection, not on the sidebar opening.
+	await block.click();
+	await page.waitForTimeout( 300 );
+
+	const settingsBtn = page.locator( 'button[aria-label="Settings"]' );
+	const isPressed = await settingsBtn
+		.evaluate( el => el.classList.contains( 'is-pressed' ) )
+		.catch( () => false );
+	if ( ! isPressed ) {
+		await settingsBtn.click();
+		await page.waitForTimeout( 500 );
+	}
+
+	return page.locator( '.interface-complementary-area' );
 }
 
 /**
@@ -211,6 +241,11 @@ async function publishPost( page ) {
 // ---------------------------------------------------------------
 
 test.describe( 'PayPal Payment Buttons Block', () => {
+	// Fail a test whose PayPal requests hit the setupPayPalMocks catch-all.
+	test.afterEach( async ( { page } ) => {
+		expect( getUnmockedRequests( page ), 'Unmocked PayPal requests' ).toEqual( [] );
+	} );
+
 	// ---------------------------------------------------------------
 	// 1. Credential Wizard Flow (WOOPTP-162)
 	// ---------------------------------------------------------------
@@ -440,7 +475,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await inputs.first().fill( 'AValidClientId123456789' );
 			await block.locator( 'input[type="password"]' ).fill( 'valid_client_secret' );
 
-			await page.route( /\/wp-json\/wpcom\/v2\/paypal\/connection(\?|$)/, route => {
+			await page.route( paypalRoute( '/connection' ), route => {
 				route.fulfill( {
 					status: 200,
 					contentType: 'application/json',
@@ -652,7 +687,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 		test( 'shows API error message in notice', async ( { page } ) => {
 			// Override create endpoint to return 400 error.
 			await setupPayPalMocks( page );
-			await page.route( /\/wp-json\/wpcom\/v2\/paypal\/buttons(\?|$)/, route => {
+			await page.route( paypalRoute( '/buttons' ), route => {
 				if ( route.request().method() === 'POST' ) {
 					return route.fulfill( {
 						status: 400,
@@ -660,7 +695,8 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 						body: JSON.stringify( MOCK_RESPONSES.error400 ),
 					} );
 				}
-				route.continue();
+				// Pass GETs on to the list mock in setupPayPalMocks.
+				route.fallback();
 			} );
 
 			await goToNewPost( page );
@@ -717,31 +753,21 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 				'<div class="wp-block-jetpack-paypal-payment-buttons"><div class="jetpack-paypal-button jetpack-paypal-button--stacked" id="LEGACY456"></div></div>\n' +
 				'<!-- /wp:jetpack/paypal-payment-buttons -->';
 
-			// Navigate to block editor to ensure wpApiSettings nonce is loaded.
+			// Navigate to block editor so wp.apiFetch is loaded with the REST root and nonce.
 			await page.goto( '/wp-admin/post-new.php' );
 			await page.waitForSelector( '.edit-post-visual-editor', { timeout: 30000 } );
 
-			// Create the post via the browser's fetch with the WP nonce.
+			// apiFetch builds the REST URL for the site's permalink setting and throws on an error response.
 			const postUrl = await page.evaluate( async markup => {
-				const nonce = window.wpApiSettings ? window.wpApiSettings.nonce : '';
-				const res = await window.fetch( '/wp-json/wp/v2/posts', {
+				const post = await window.wp.apiFetch( {
+					path: '/wp/v2/posts',
 					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-						'X-WP-Nonce': nonce,
-					},
-					credentials: 'same-origin',
-					body: JSON.stringify( {
+					data: {
 						title: 'Legacy PayPal Block Test',
 						content: markup,
 						status: 'publish',
-					} ),
+					},
 				} );
-				if ( ! res.ok ) {
-					const err = await res.text();
-					throw new Error( 'REST API error: ' + res.status + ' ' + err );
-				}
-				const post = await res.json();
 				return post.link;
 			}, legacyMarkup456 );
 
@@ -812,7 +838,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await accountMenu.click( { force: true } );
 
 			// After disconnect, mock returns disconnected state.
-			await page.route( /\/wp-json\/wpcom\/v2\/paypal\/connection(\?|$)/, route => {
+			await page.route( paypalRoute( '/connection' ), route => {
 				route.fulfill( {
 					status: 200,
 					contentType: 'application/json',
@@ -986,7 +1012,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 
 			// Intercept the connect POST to verify it hits the production domain.
 			let connectRequestBody = null;
-			await page.route( /\/wp-json\/wpcom\/v2\/paypal\/connect(\?|$)/, route => {
+			await page.route( paypalRoute( '/connect' ), route => {
 				connectRequestBody = route.request().postDataJSON();
 				route.fulfill( {
 					status: 200,
@@ -1008,7 +1034,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await inputs.first().fill( 'AValidClientId123456789' );
 			await block.locator( 'input[type="password"]' ).fill( 'valid_client_secret' );
 
-			await page.route( /\/wp-json\/wpcom\/v2\/paypal\/connection(\?|$)/, route => {
+			await page.route( paypalRoute( '/connection' ), route => {
 				route.fulfill( {
 					status: 200,
 					contentType: 'application/json',
@@ -1043,7 +1069,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await setupDisconnectedMocks( page );
 
 			// Mock connect to return a 403 -- app lacks Payment Links scope.
-			await page.route( /\/wp-json\/wpcom\/v2\/paypal\/connect(\?|$)/, route => {
+			await page.route( paypalRoute( '/connect' ), route => {
 				route.fulfill( {
 					status: 403,
 					contentType: 'application/json',
@@ -1080,7 +1106,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await setupDisconnectedMocks( page );
 
 			// First connect returns 403.
-			await page.route( /\/wp-json\/wpcom\/v2\/paypal\/connect(\?|$)/, route => {
+			await page.route( paypalRoute( '/connect' ), route => {
 				route.fulfill( {
 					status: 403,
 					contentType: 'application/json',
@@ -1116,7 +1142,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await setupDisconnectedMocks( page );
 
 			// Connect returns success despite PayPal 5xx during validation.
-			await page.route( /\/wp-json\/wpcom\/v2\/paypal\/connect(\?|$)/, route => {
+			await page.route( paypalRoute( '/connect' ), route => {
 				route.fulfill( {
 					status: 200,
 					contentType: 'application/json',
@@ -1138,7 +1164,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await block.locator( 'input[type="password"]' ).fill( 'valid_client_secret' );
 
 			// After connect POST succeeds, subsequent connection checks return connected.
-			await page.route( /\/wp-json\/wpcom\/v2\/paypal\/connection(\?|$)/, route => {
+			await page.route( paypalRoute( '/connection' ), route => {
 				route.fulfill( {
 					status: 200,
 					contentType: 'application/json',
@@ -1211,28 +1237,9 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 		 * @return {Promise<object>} The `Embed as` select locator.
 		 */
 		async function openFormatSwitcher( page, block ) {
-			const closeInserter = page.locator( 'button[aria-label="Close Block Inserter"]' );
-			if ( await closeInserter.isVisible( { timeout: 1000 } ).catch( () => false ) ) {
-				await closeInserter.click();
-				await page.waitForTimeout( 300 );
-			}
+			const sidebar = await openBlockSidebar( page, block );
 
-			// The inspector panels mount on block selection, not on the sidebar opening.
-			await block.click();
-			await page.waitForTimeout( 300 );
-
-			const settingsBtn = page.locator( 'button[aria-label="Settings"]' );
-			const isPressed = await settingsBtn
-				.evaluate( el => el.classList.contains( 'is-pressed' ) )
-				.catch( () => false );
-			if ( ! isPressed ) {
-				await settingsBtn.click();
-				await page.waitForTimeout( 500 );
-			}
-
-			const switcher = page
-				.locator( '.interface-complementary-area' )
-				.locator( '.jetpack-paypal-payment-buttons__format-switcher select' );
+			const switcher = sidebar.locator( '.jetpack-paypal-payment-buttons__format-switcher select' );
 			await expect( switcher ).toBeVisible( { timeout: 5000 } );
 
 			return switcher;
@@ -1272,7 +1279,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			// Count create POSTs to /buttons. `fallback()` passes each one on to the
 			// setupPayPalMocks route.
 			let createCallCount = 0;
-			await page.route( /\/wp-json\/wpcom\/v2\/paypal\/buttons(\?|$)/, route => {
+			await page.route( paypalRoute( '/buttons' ), route => {
 				if ( route.request().method() === 'POST' ) {
 					createCallCount++;
 				}
