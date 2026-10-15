@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ca868935e9a89aabb9d153c1b3952c60",
+    "content-hash": "0b7b352995458de91b799092b1589b6e",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -2234,6 +2234,61 @@
                 "GPL-2.0-or-later"
             ],
             "description": "A JSON Web Token (JWT) implementation for Jetpack.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-knowledge",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/knowledge",
+                "reference": "10ea6536577cc6c2b3f019226dff9f9f458fe6ea"
+            },
+            "require": {
+                "php": ">=7.4"
+            },
+            "require-dev": {
+                "automattic/jetpack-test-environment": "@dev",
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^4.0.0"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": false,
+                "mirror-repo": "Automattic/jetpack-knowledge",
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                },
+                "textdomain": "jetpack-knowledge",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-knowledge.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "test-php-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Knowledge runtime polyfill.",
             "transport-options": {
                 "relative": true
             }
@@ -6710,6 +6765,7 @@
         "automattic/jetpack-import": 20,
         "automattic/jetpack-ip": 20,
         "automattic/jetpack-jitm": 20,
+        "automattic/jetpack-knowledge": 20,
         "automattic/jetpack-licensing": 20,
         "automattic/jetpack-logo": 20,
         "automattic/jetpack-masterbar": 20,
