@@ -1,10 +1,5 @@
 import { PRODUCT_STATUSES } from '../../../../constants';
-import {
-	getFeatureManageUrl,
-	getForcedReason,
-	hasNoSwitch,
-	resolveFeatureState,
-} from '../feature-state';
+import { getFeatureManageUrl, getForcedReason, resolveFeatureState } from '../feature-state';
 import { PRODUCT_MODULES } from '../mappings';
 import { getFeatureUnavailableReason } from '../module-availability';
 import type { ProductCamelCase } from '../../../../data/types';
@@ -336,12 +331,13 @@ describe( 'resolveFeatureState, for a module the plan does not cover', () => {
 	} );
 } );
 
-describe( 'resolveFeatureState, for a module its plan switches on', () => {
+describe( 'resolveFeatureState, for a feature its plan decides', () => {
 	const backup = buildFeature( {
 		slug: 'backup',
 		in_jetpack: true,
 		product: 'backup',
 		plugin: 'jetpack-backup',
+		plan_driven: true,
 	} );
 	const modules = {
 		backup: buildModule( { module: 'backup', activated: true } ),
@@ -365,7 +361,33 @@ describe( 'resolveFeatureState, for a module its plan switches on', () => {
 
 			expect( state.status ).toBe( status );
 			expect( getForcedReason( state ) ).toBe( reason );
-			expect( hasNoSwitch( state ) ).toBe( true );
+			expect( state.control.kind ).toBe( 'plan' );
+		}
+	);
+
+	it.each( [
+		[ 'Jetpack', 'active', 'not-installed', modules, 'plan' ],
+		[ 'the standalone plugin', 'not-installed', 'active', {}, 'plan' ],
+		[ 'neither', 'not-installed', 'not-installed', {}, 'install-plugin' ],
+		[
+			'a module a host forced off',
+			'active',
+			'not-installed',
+			{ backup: buildModule( { module: 'backup', activated: false, override: 'inactive' } ) },
+			'module',
+		],
+	] as const )(
+		'follows the plan when %s delivers it',
+		( _case, jetpack, pluginStatus, siteModules, kind ) => {
+			const state = resolveFeatureState(
+				{ ...backup, plugin_status: pluginStatus },
+				jetpack,
+				{ status: PRODUCT_STATUSES.ACTIVE, hasPaidPlanForProduct: true } as ProductCamelCase,
+				siteModules,
+				{}
+			);
+
+			expect( state.control.kind ).toBe( kind );
 		}
 	);
 

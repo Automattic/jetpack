@@ -278,10 +278,7 @@ describe( 'FeaturePaid', () => {
 			},
 			product: { status: 'expired', managePaidPlanPurchaseUrl: purchase },
 			status: 'inactive',
-			control: {
-				kind: 'module',
-				module: { module: 'backup', available: true, activated: true, override: false },
-			},
+			control: { kind: 'plan' },
 		} as unknown as FeatureState;
 		render(
 			<>

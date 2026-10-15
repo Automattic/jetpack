@@ -34,15 +34,6 @@ describe( 'getModuleStatus', () => {
 		} );
 	} );
 
-	it( 'offers no switch for Backup, whose plan decides it, unless a host forced it off', () => {
-		expect( getModuleStatus( buildModule( { module: 'backup' } ) ) ).toEqual( {
-			isAvailable: false,
-		} );
-		expect(
-			getModuleStatus( buildModule( { module: 'backup', activated: false, override: 'inactive' } ) )
-		).toEqual( { isAvailable: false, reason: 'Disabled by your host or site administrator' } );
-	} );
-
 	it( 'takes the control away from a module forced off', () => {
 		expect( getModuleStatus( buildModule( { activated: false, override: 'inactive' } ) ) ).toEqual(
 			{

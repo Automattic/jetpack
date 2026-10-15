@@ -190,24 +190,52 @@ class Backup_Product_Test extends TestCase {
 	}
 
 	/**
-	 * A failed lookup says so, rather than passing for a site without a plan, so the check is retried.
+	 * A queued check runs for an admin, and stays queued only when WordPress.com could not answer.
+	 *
+	 * @dataProvider provide_queued_checks
+	 *
+	 * @param string $scenario The visitor and what WordPress.com says.
+	 * @param bool   $queued   Whether the check should still be queued.
 	 */
-	public function test_activate_module_for_plan_reports_a_failed_lookup() {
+	#[DataProvider( 'provide_queued_checks' )]
+	public function test_run_queued_module_check( $scenario, $queued ) {
 		( new Tokens() )->update_blog_token( 'test.test.1' );
 		( new Tokens() )->update_user_token( self::$user_id, 'test.test.' . self::$user_id, true );
 		Jetpack_Options::update_option( 'id', 123 );
 		activate_plugins( 'jetpack/jetpack.php' );
 		deactivate_plugins( Backup::get_installed_plugin_filename() );
 		Jetpack_Options::update_option( 'active_modules', array() );
+		if ( 'not an admin' === $scenario ) {
+			wp_set_current_user( 0 );
+		}
+		if ( 'no plan' === $scenario ) {
+			set_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY, array(), HOUR_IN_SECONDS );
+		}
 		$fail = static function () {
 			return array( 'response' => array( 'code' => 500 ) );
 		};
 		add_filter( 'pre_http_request', $fail );
+		Backup::queue_module_check();
 
-		$on = Backup::activate_module_for_plan();
+		Backup::run_queued_module_check();
 		remove_filter( 'pre_http_request', $fail );
 
-		$this->assertNull( $on );
+		$this->assertSame( $queued, false !== get_transient( Backup::MODULE_CHECK_TRANSIENT_KEY ) );
+		delete_transient( Backup::MODULE_CHECK_TRANSIENT_KEY );
+		delete_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY );
+	}
+
+	/**
+	 * Data provider for test_run_queued_module_check.
+	 *
+	 * @return array
+	 */
+	public static function provide_queued_checks() {
+		return array(
+			'not an admin'  => array( 'not an admin', true ),
+			'lookup failed' => array( 'lookup failed', true ),
+			'no plan'       => array( 'no plan', false ),
+		);
 	}
 
 	/**

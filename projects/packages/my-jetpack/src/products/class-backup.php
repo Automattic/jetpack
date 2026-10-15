@@ -26,6 +26,13 @@ class Backup extends Hybrid_Product {
 	public const BACKUP_STATUS_TRANSIENT_KEY = 'my-jetpack-backup-status';
 
 	/**
+	 * Transient that queues a plan check for the next admin page load.
+	 *
+	 * @var string
+	 */
+	public const MODULE_CHECK_TRANSIENT_KEY = 'jetpack_backup_module_check';
+
+	/**
 	 * The product slug
 	 *
 	 * @var string
@@ -500,8 +507,10 @@ class Backup extends Hybrid_Product {
 			return true;
 		}
 
+		$connection = new Connection_Manager();
+
 		// The Backup package does not support multisite, and its dashboard needs a linked account.
-		if ( is_multisite() || ! static::is_jetpack_plugin_active() || ! ( new Connection_Manager() )->has_connected_owner() ) {
+		if ( is_multisite() || ! static::is_jetpack_plugin_active() || ! $connection->is_connected() || ! $connection->has_connected_owner() ) {
 			return false;
 		}
 
@@ -514,6 +523,34 @@ class Backup extends Hybrid_Product {
 
 		// activate() saves the option even when a `jetpack_active_modules` callback holds it off.
 		return static::is_module_active();
+	}
+
+	/**
+	 * Queue a plan check for the next admin page load, so it never holds up this request.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function queue_module_check() {
+		set_transient( self::MODULE_CHECK_TRANSIENT_KEY, 1, 5 * MINUTE_IN_SECONDS );
+	}
+
+	/**
+	 * Run a queued plan check for an admin, keeping it queued when WordPress.com could not answer.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function run_queued_module_check() {
+		if ( ! current_user_can( 'manage_options' ) || ! get_transient( self::MODULE_CHECK_TRANSIENT_KEY ) ) {
+			return;
+		}
+
+		if ( null !== static::activate_module_for_plan() ) {
+			delete_transient( self::MODULE_CHECK_TRANSIENT_KEY );
+		}
 	}
 
 	/**

@@ -15,7 +15,6 @@ import {
 	getFeatureUnavailableReason,
 	getModuleStatus,
 	getOverrideReason,
-	isPlanDriven,
 } from './module-availability';
 import { useAllJetpackModules } from './use-all-jetpack-modules';
 import type { ProductCamelCase } from '../../../data/types';
@@ -37,6 +36,8 @@ const RUNNING_ON_PLAN_STATUSES: string[] = [
  */
 export type FeatureControl =
 	| { kind: 'module'; module: MyJetpackModule }
+	// The plan decides it, whichever plugin delivers it: the card sells or renews the plan instead.
+	| { kind: 'plan' }
 	| { kind: 'plugin'; plugin: string; override?: 'active' | 'inactive' }
 	| { kind: 'install-plugin'; plugin: string; runsWithoutPlugin?: true; blocked?: InstallBlock }
 	| { kind: 'install-jetpack'; installed: boolean; blocked?: InstallBlock }
@@ -115,23 +116,23 @@ export function getModuleUnavailableNote( state: FeatureState ): string | undefi
 export function getForcedReason( state: FeatureState ): string | null {
 	const { control } = state;
 
+	// Off without the plan is a sale, which Upgrade offers; off with it has no Upgrade, so it says why.
+	if ( control.kind === 'plan' ) {
+		if ( state.status === 'active' ) {
+			return __( 'Included in your plan', 'jetpack-my-jetpack' );
+		}
+
+		if ( isPlanExpired( state ) ) {
+			return __( 'Your plan expired', 'jetpack-my-jetpack' );
+		}
+
+		return state.feature.included
+			? __( 'Included in your plan, but not running', 'jetpack-my-jetpack' )
+			: null;
+	}
+
 	if ( control.kind === 'module' ) {
 		const status = getModuleStatus( control.module );
-
-		// Off without the plan is a sale, which Upgrade offers; off with it has no Upgrade, so it says why.
-		if ( ! status.reason && isPlanDriven( control.module ) ) {
-			if ( state.status === 'active' ) {
-				return __( 'Included in your plan', 'jetpack-my-jetpack' );
-			}
-
-			if ( isPlanExpired( state ) ) {
-				return __( 'Your plan expired', 'jetpack-my-jetpack' );
-			}
-
-			return state.feature.included
-				? __( 'Included in your plan, but not running', 'jetpack-my-jetpack' )
-				: null;
-		}
 
 		if ( control.module.override || ! status.isAvailable ) {
 			return status.reason ?? null;
@@ -152,24 +153,7 @@ export function getForcedReason( state: FeatureState ): string | null {
  * @return True when the plan expired.
  */
 export function isPlanExpired( state: FeatureState ): boolean {
-	return (
-		state.control.kind === 'module' &&
-		isPlanDriven( state.control.module ) &&
-		state.product?.status === PRODUCT_STATUSES.EXPIRED
-	);
-}
-
-/**
- * Whether the feature has no switch here: getForcedReason() gives one, or its plan decides it.
- *
- * @param state - The feature's live state.
- * @return True when no switch should be offered.
- */
-export function hasNoSwitch( state: FeatureState ): boolean {
-	return (
-		!! getForcedReason( state ) ||
-		( state.control.kind === 'module' && isPlanDriven( state.control.module ) )
-	);
+	return state.control.kind === 'plan' && state.product?.status === PRODUCT_STATUSES.EXPIRED;
 }
 
 /**
@@ -268,6 +252,25 @@ export function resolveFeatureState(
 		};
 	}
 
+	// Delivered by Jetpack's module or by the standalone plugin. A module that something else,
+	// such as a host or multisite, keeps off explains itself below instead.
+	const deliversPlan = $module
+		? ! getModuleStatus( $module ).reason
+		: feature.plugin_status === 'active';
+	if ( feature.plan_driven && deliversPlan ) {
+		return {
+			feature,
+			product,
+			// Until the product arrives there is no plan to read.
+			pending: ! product,
+			status:
+				product?.hasPaidPlanForProduct && RUNNING_ON_PLAN_STATUSES.includes( product.status )
+					? 'active'
+					: 'inactive',
+			control: { kind: 'plan' },
+		};
+	}
+
 	if ( feature.in_jetpack && jetpack === 'active' ) {
 		// Answering from an empty module list would offer to install a plugin for a
 		// feature Jetpack is already running.
@@ -276,22 +279,6 @@ export function resolveFeatureState(
 		}
 
 		const moduleStatus = $module && getModuleStatus( $module );
-
-		// Only when nothing else, such as offline mode or multisite, already keeps it off.
-		if ( $module && isPlanDriven( $module ) && ! moduleStatus?.reason ) {
-			return {
-				feature,
-				product,
-				// Until the product arrives there is no plan to read.
-				pending: ! product,
-				status:
-					product?.hasPaidPlanForProduct && RUNNING_ON_PLAN_STATUSES.includes( product.status )
-						? 'active'
-						: 'inactive',
-				control: { kind: 'module', module: $module },
-			};
-		}
-
 		// A host's override decides the module whatever the plan, so it explains itself
 		// rather than falling through to the standalone plugin.
 		if (

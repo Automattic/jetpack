@@ -5,19 +5,6 @@ import type { FeatureState } from './feature-state';
 
 export const JETPACK_MODULES_NOT_FOR_MULTISITE = [ 'backup', 'waf', 'wordads' ];
 
-// The plan, not a switch, decides these: Jetpack turns the module on when the plan includes it.
-export const PLAN_DRIVEN_MODULES = [ 'backup' ];
-
-/**
- * Whether a module follows the site's plan, unless a host forced it off.
- *
- * @param {MyJetpackModule} $module - The module to check.
- * @return True when the plan decides the module.
- */
-export function isPlanDriven( $module: MyJetpackModule ): boolean {
-	return $module.override !== 'inactive' && PLAN_DRIVEN_MODULES.includes( $module.module );
-}
-
 /**
  * Why a feature forced on or off by the host has no switch.
  *
@@ -61,10 +48,6 @@ export function getModuleStatus( $module: MyJetpackModule ) {
 			isAvailable: false,
 			reason: $module.unavailable_reason || __( 'Unavailable', 'jetpack-my-jetpack' ),
 		};
-	}
-
-	if ( isPlanDriven( $module ) ) {
-		return { isAvailable: false };
 	}
 
 	return { isAvailable: true };

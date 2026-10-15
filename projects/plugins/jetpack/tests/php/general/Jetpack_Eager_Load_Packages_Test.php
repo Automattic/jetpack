@@ -9,6 +9,7 @@
  */
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\My_Jetpack\Products\Backup;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -454,62 +455,12 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 	 * Updating Jetpack queues the Backup plan check rather than running it in that request.
 	 */
 	public function test_update_queues_the_backup_module_check() {
-		delete_transient( Jetpack::BACKUP_MODULE_CHECK_TRANSIENT );
+		delete_transient( Backup::MODULE_CHECK_TRANSIENT_KEY );
 
 		do_action( 'updating_jetpack_version', '99.0', '98.0' );
 
-		$this->assertNotFalse( get_transient( Jetpack::BACKUP_MODULE_CHECK_TRANSIENT ) );
-	}
-
-	/**
-	 * A queued check runs for an admin, and stays queued only when WordPress.com could not answer.
-	 *
-	 * @dataProvider provide_queued_backup_checks
-	 *
-	 * @param string $scenario The site and visitor.
-	 * @param bool   $queued   Whether the check should still be queued.
-	 */
-	#[DataProvider( 'provide_queued_backup_checks' )]
-	public function test_run_queued_backup_module_check( $scenario, $queued ) {
-		$this->set_up_backup_test();
-		update_option( 'active_plugins', array( 'jetpack/jetpack.php' ) );
-		Jetpack_Options::update_option( 'active_modules', array() );
-		$user = 'not an admin' === $scenario ? 0 : self::factory()->user->create( array( 'role' => 'administrator' ) );
-		if ( 'lookup failed' === $scenario || 'no plan' === $scenario ) {
-			$user = $this->connect_owner();
-		}
-		wp_set_current_user( $user );
-		if ( 'no plan' === $scenario ) {
-			set_transient( \Automattic\Jetpack\My_Jetpack\Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY, array(), HOUR_IN_SECONDS );
-			set_transient( \Automattic\Jetpack\My_Jetpack\Product::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY, array( 'active' => array() ), HOUR_IN_SECONDS );
-		}
-		$fail = static function () {
-			return array( 'response' => array( 'code' => 500 ) );
-		};
-		add_filter( 'pre_http_request', $fail );
-		Jetpack::queue_backup_module_check();
-
-		Jetpack::run_queued_backup_module_check();
-		remove_filter( 'pre_http_request', $fail );
-
-		$this->assertSame( $queued, false !== get_transient( Jetpack::BACKUP_MODULE_CHECK_TRANSIENT ) );
-		delete_transient( Jetpack::BACKUP_MODULE_CHECK_TRANSIENT );
-		delete_transient( \Automattic\Jetpack\My_Jetpack\Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY );
-		delete_transient( \Automattic\Jetpack\My_Jetpack\Product::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY );
-	}
-
-	/**
-	 * Data provider for test_run_queued_backup_module_check.
-	 *
-	 * @return array
-	 */
-	public static function provide_queued_backup_checks() {
-		return array(
-			'not an admin'  => array( 'not an admin', true ),
-			'not connected' => array( 'not connected', false ),
-			'lookup failed' => array( 'lookup failed', true ),
-			'no plan'       => array( 'no plan', false ),
-		);
+		$this->assertNotFalse( get_transient( Backup::MODULE_CHECK_TRANSIENT_KEY ) );
+		delete_transient( Backup::MODULE_CHECK_TRANSIENT_KEY );
 	}
 
 	/**
@@ -588,8 +539,6 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 		Jetpack_Options::update_option( 'master_user', $owner );
 		Jetpack_Options::update_option( 'user_tokens', array( $owner => "dummy.usertoken.$owner" ) );
 		Jetpack::connection()->reset_connection_status();
-
-		return $owner;
 	}
 
 	/**

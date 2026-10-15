@@ -3,7 +3,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { VisuallyHidden } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { FeatureItem } from './feature-item';
-import { hasNoSwitch } from './feature-state';
+import { getForcedReason } from './feature-state';
 import styles from './styles.module.scss';
 import { isBulkSwitchable } from './use-bulk-feature-switch';
 import type { FeatureState } from './feature-state';
@@ -56,8 +56,8 @@ function RowCheckbox( { state, isSelected, onSelect }: RowCheckboxProps ) {
 		[ slug, onSelect ]
 	);
 
-	// A forced feature has no control to point at, so it gets no checkbox; the hidden one holds the column.
-	if ( hasNoSwitch( state ) ) {
+	// Forced and plan-driven features have no switch, so no checkbox; the hidden one holds the column.
+	if ( getForcedReason( state ) || state.control.kind === 'plan' ) {
 		return (
 			<span className={ styles[ 'row-checkbox-placeholder' ] } aria-hidden="true">
 				<CheckboxControl __nextHasNoMarginBottom checked={ false } disabled onChange={ onChange } />

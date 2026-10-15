@@ -711,7 +711,6 @@ class Jetpack {
 
 		// Sites upgrading from before the module existed never had a purchase to switch it on.
 		add_action( 'updating_jetpack_version', array( __CLASS__, 'queue_backup_module_check' ) );
-		add_action( 'admin_init', array( __CLASS__, 'run_queued_backup_module_check' ) );
 		add_filter( 'jetpack_get_default_modules', array( $this, 'filter_default_modules' ) );
 		add_filter( 'jetpack_get_default_modules', array( $this, 'handle_deprecated_modules' ), 99 );
 
@@ -854,38 +853,23 @@ class Jetpack {
 		$backup = 'Automattic\\Jetpack\\My_Jetpack\\Products\\Backup';
 
 		// Another plugin may have loaded an older My Jetpack without it.
-		if ( ! method_exists( $backup, 'activate_module_for_plan' ) || ! self::is_connection_ready() ) {
-			return self::is_module_active( 'backup' );
-		}
-
-		return $backup::activate_module_for_plan();
+		return method_exists( $backup, 'activate_module_for_plan' )
+			? $backup::activate_module_for_plan()
+			: self::is_module_active( 'backup' );
 	}
 
 	/**
-	 * Queue a Backup plan check for the next admin page load, so it never holds up this request.
+	 * Queue a Backup plan check for the next admin page load; see Backup::queue_module_check().
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @return void
 	 */
 	public static function queue_backup_module_check() {
-		set_transient( self::BACKUP_MODULE_CHECK_TRANSIENT, 1, 5 * MINUTE_IN_SECONDS );
-	}
+		$backup = 'Automattic\\Jetpack\\My_Jetpack\\Products\\Backup';
 
-	/**
-	 * Run a queued Backup plan check, keeping it queued when WordPress.com could not answer.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return void
-	 */
-	public static function run_queued_backup_module_check() {
-		if ( ! current_user_can( 'manage_options' ) || ! get_transient( self::BACKUP_MODULE_CHECK_TRANSIENT ) ) {
-			return;
-		}
-
-		if ( null !== self::activate_backup_module_for_plan() ) {
-			delete_transient( self::BACKUP_MODULE_CHECK_TRANSIENT );
+		if ( method_exists( $backup, 'queue_module_check' ) ) {
+			$backup::queue_module_check();
 		}
 	}
 
@@ -3157,13 +3141,6 @@ p {
 			update_option( 'jetpack_subscriptions_default_on_migrated', true );
 		}
 	}
-
-	/**
-	 * Transient that queues a Backup plan check for the next admin page load.
-	 *
-	 * @var string
-	 */
-	const BACKUP_MODULE_CHECK_TRANSIENT = 'jetpack_backup_module_check';
 
 	/**
 	 * Option flag that records the AI master-switch opt-out reconciliation has run,

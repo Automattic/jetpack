@@ -147,6 +147,8 @@ class Main_Features {
 				'long_description' => __( 'Every change you make is saved off-site as it happens, so your content and WooCommerce orders stay safe even if your host goes down. Restore your site in one click, even when it is offline.', 'jetpack-my-jetpack' ),
 				'icon'             => 'backup',
 				'product'          => 'backup',
+				// The plan decides it, whichever plugin delivers it, so its card has no switch.
+				'plan_driven'      => true,
 				'interstitial'     => '/add-backup',
 				'setup_note'       => __( 'Backups start once you add a paid plan.', 'jetpack-my-jetpack' ),
 				'paid_highlights'  => array(
@@ -1034,6 +1036,7 @@ class Main_Features {
 				'icon'             => $definition['icon'],
 				'manage_url'       => self::get_feature_manage_url( $definition, $product_class, $local ),
 				'essential'        => ! empty( $definition['essential'] ),
+				'plan_driven'      => ! empty( $definition['plan_driven'] ),
 				'in_jetpack'       => $delivery['jetpack'] ?? false,
 				'plugin'           => $plugin,
 				'plugin_name'      => $plugin ? ( $delivery['plugin_name'] ?? $definition['name'] ) : '',
