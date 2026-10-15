@@ -2,6 +2,13 @@ import { expect, test } from '@automattic/_jetpack-e2e-commons/fixtures/base-tes
 
 let postId: number | undefined;
 
+const IMAGE = 'https://example.com/e2e.png';
+// A 1x1 PNG, so the image loads without the network.
+const PNG = Buffer.from(
+	'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=',
+	'base64'
+);
+
 test.beforeAll( async ( { testUtils } ) => {
 	await testUtils.executeWpCommand( [ 'plugin', 'activate', 'e2e-comments-new-hotness' ] );
 	await testUtils.activateModule( 'comments' );
@@ -20,7 +27,7 @@ test.afterAll( async ( { requestUtils, testUtils } ) => {
 } );
 
 test.describe( 'Comments: Block editor', () => {
-	test( 'Posts a comment with a paragraph, a list, and a quote', async ( {
+	test( 'Posts a comment with a paragraph, a list, a quote, and an image', async ( {
 		page,
 		requestUtils,
 	} ) => {
@@ -30,6 +37,8 @@ test.describe( 'Comments: Block editor', () => {
 			data: { title: 'E2E Comments', status: 'publish' },
 		} );
 		postId = post.id;
+
+		await page.route( IMAGE, route => route.fulfill( { contentType: 'image/png', body: PNG } ) );
 
 		await test.step( 'Write the comment in the block editor', async () => {
 			await page.goto( post.link );
@@ -48,6 +57,16 @@ test.describe( 'Comments: Block editor', () => {
 			// A block that crashes on select takes the whole editor down to the plain textarea.
 			await expect( editor.locator( '[data-type="core/list"]' ) ).toBeVisible();
 			await expect( editor.locator( '[data-type="core/quote"]' ) ).toBeVisible();
+
+			await page.getByRole( 'button', { name: 'Add block' } ).click();
+			await page.getByRole( 'menuitem', { name: 'Image' } ).click();
+			await editor.getByRole( 'textbox', { name: 'URL' } ).fill( IMAGE );
+			await editor.getByRole( 'button', { name: 'Apply' } ).click();
+			// A failed load clears the URL, so the image must actually draw.
+			await expect( editor.locator( '[data-type="core/image"] img' ) ).toHaveJSProperty(
+				'naturalWidth',
+				1
+			);
 		} );
 
 		await test.step( 'Post it', async () => {
@@ -61,7 +80,9 @@ test.describe( 'Comments: Block editor', () => {
 					} );
 					return comments[ 0 ]?.content.raw ?? '';
 				} )
-				.toMatch( /Hello from E2E[\s\S]*<li>First item<\/li>[\s\S]*<blockquote[\s\S]*A quote/ );
+				.toMatch(
+					/Hello from E2E[\s\S]*<li>First item<\/li>[\s\S]*<blockquote[\s\S]*A quote[\s\S]*<figure class="wp-block-image">https:\/\/example\.com\/e2e\.png<\/figure>/
+				);
 		} );
 	} );
 } );
