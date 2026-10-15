@@ -36,7 +36,9 @@ const TransferConfirmStep = ( {
 	isProtectedOwner,
 	error,
 }: TransferConfirmStepProps ) => {
-	const currentOwnerName = currentOwner?.displayName ?? '';
+	// A third party can blank an avatar URL through the get_avatar_url filter, and half a
+	// handover reads as broken: show both faces or neither.
+	const showHandover = Boolean( currentOwner?.avatar && candidate.avatar );
 
 	return (
 		<Stack direction="column" gap="lg" className="jp-connection__transfer-ownership">
@@ -46,15 +48,15 @@ const TransferConfirmStep = ( {
 				gap="md"
 				className="jp-connection__transfer-ownership__handover"
 			>
-				{ currentOwnerName && (
+				{ showHandover && (
 					<>
 						<AvatarBadge avatar={ currentOwner?.avatar } />
 						<span className="jp-connection__transfer-ownership__arrow" aria-hidden="true">
 							&rarr;
 						</span>
+						<AvatarBadge avatar={ candidate.avatar } />
 					</>
 				) }
-				<AvatarBadge avatar={ candidate.avatar } />
 				<Text>
 					{ createInterpolateElement(
 						/* translators: <name/> is replaced with the display name of the administrator taking over. */
