@@ -362,6 +362,51 @@ describe( 'what the offer says', () => {
 	} );
 } );
 
+describe( 'the Learn more link', () => {
+	const HREF =
+		'https://jetpack.com/redirect/?source=jetpack-backup-storage-retention&site=example.wordpress.com';
+
+	it.each( [
+		[ 'near full', { size: 70 * GB } ],
+		[ 'full', { size: 100 * GB, days_of_backups_saved: 3 } ],
+		[
+			'old backups removed',
+			{ size: 70 * GB, days_of_backups_saved: 10, min_days_of_backups_allowed: 5 },
+		],
+	] )( 'opens the retention guide in a new tab when storage is %s', async ( _label, size ) => {
+		mockEndpoints( { size } );
+		renderWithClient( <StorageSpace /> );
+
+		const link = await screen.findByRole( 'link', { name: /^Learn more/ } );
+		expect( link ).toHaveAttribute( 'href', HREF );
+		expect( link ).toHaveAttribute( 'target', '_blank' );
+	} );
+
+	it( 'still shows when the offer never arrives', async () => {
+		// The checkout button is gone then, and the actions slot must not go with it.
+		mockApiFetch.mockImplementation( ( options: { path?: string } ) => {
+			const path = options?.path ?? '';
+			if ( path.includes( '/site/backup/addon-offer' ) ) {
+				return Promise.reject( new Error( 'catalogue unavailable' ) );
+			}
+			if ( path.includes( '/site/backup/policies' ) ) {
+				return Promise.resolve( { policies: { storage_limit_bytes: CRITICAL.limit } } );
+			}
+			if ( path.includes( '/site/backup/size' ) ) {
+				return Promise.resolve( { ok: true, size: CRITICAL.size, days_of_backups_saved: 14 } );
+			}
+			return Promise.resolve( {} );
+		} );
+		renderWithClient( <StorageSpace /> );
+
+		await expect( screen.findByRole( 'link', { name: /^Learn more/ } ) ).resolves.toHaveAttribute(
+			'href',
+			HREF
+		);
+		expect( screen.queryByRole( 'link', { name: /Upgrade now/ } ) ).not.toBeInTheDocument();
+	} );
+} );
+
 describe( 'the checkout link', () => {
 	it( 'names the product and the site, and comes back here afterwards', async () => {
 		renderWithClient( <StorageSpace /> );
