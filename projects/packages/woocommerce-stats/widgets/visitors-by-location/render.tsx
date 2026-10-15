@@ -15,32 +15,22 @@ import { __ } from '@wordpress/i18n';
  */
 import styles from './style.module.css';
 import { useVisitorsByLocation } from './use-visitors-by-location';
-import {
-	DEFAULT_REGION,
-	DEFAULT_REGION_COUNTRY,
-	type VisitorsByLocationAttributes,
-	type Region,
-} from './widget';
+import type { VisitorsByLocationAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 type VisitorsByLocationRenderAttributes = VisitorsByLocationAttributes &
 	Partial< ReportParamsFieldAttributes >;
 
-type VisitorsByLocationProps = {
-	region: Region;
-};
-
 /**
- * Store visitors by location, US states or countries as the region says, listed beside the map,
- * read under the widget root for its report params.
+ * Store visitors by location, countries listed beside the world map, read under the widget root
+ * for its report params.
  *
- * @param {VisitorsByLocationProps} props - The component props.
  * @return {JSX.Element} The locations.
  */
-function VisitorsByLocation( { region }: VisitorsByLocationProps ): JSX.Element {
+function VisitorsByLocation(): JSX.Element {
 	const { reportParams } = useWidgetRootContext();
 	const { rows, hasComparison, isLoading, isFetching, hasData, isError, error, refetch } =
-		useVisitorsByLocation( reportParams, region );
+		useVisitorsByLocation( reportParams );
 
 	return (
 		<Stack className={ styles.root } direction="column">
@@ -63,7 +53,6 @@ function VisitorsByLocation( { region }: VisitorsByLocationProps ): JSX.Element 
 						),
 						onRetry: refetch,
 					} ) }
-					country={ region === DEFAULT_REGION ? DEFAULT_REGION_COUNTRY : undefined }
 				/>
 			</div>
 		</Stack>
@@ -81,7 +70,7 @@ export default function VisitorsByLocationRender( {
 }: WidgetRenderProps< VisitorsByLocationRenderAttributes > ): JSX.Element {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<VisitorsByLocation region={ attributes.region ?? DEFAULT_REGION } />
+			<VisitorsByLocation />
 		</WidgetRoot>
 	);
 }
