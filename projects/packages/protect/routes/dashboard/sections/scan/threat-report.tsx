@@ -1,12 +1,11 @@
 import { Breadcrumbs } from '@wordpress/admin-ui';
 import { DataViews, filterSortAndPaginate, type View } from '@wordpress/dataviews';
-import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { caution, check, help, seen } from '@wordpress/icons';
 import { Notice, Text } from '@wordpress/ui';
 import { CardRow, ProtectCard, type CardStatus } from '../../components/card';
 import useArrowKeyNavigation from '../../components/use-arrow-key-navigation';
-import HistorySkeleton from '../history/history-skeleton';
 import { HISTORY_THREAT_PARAM, loadHistory, useHistory } from '../history/store';
 import useOpenThreat from '../use-open-threat';
 import { groupThreats } from './group-threats';
@@ -15,7 +14,6 @@ import { getThreatRowActions } from './threat-row-actions';
 import { getThreatFields } from './threats-list';
 import type { ScanThreat } from './types';
 import type { ReactElement } from 'react';
-import '../history/style.scss';
 
 const DEFAULT_LAYOUTS = { table: {} };
 const NO_THREATS: ScanThreat[] = [];
@@ -198,28 +196,40 @@ export default function ThreatReport( { ids }: { ids: string[] } ) {
 	);
 	const [ refreshing, setRefreshing ] = useState( hasHistory );
 
-	// A fix moves its threat out of the active list but not into history, so reload history then.
-	const activeKey = active.map( getId ).join( ',' );
-	useEffect( () => {
-		if ( ! hasHistory ) {
-			return;
-		}
-		let live = true;
+	const reload = useCallback( () => {
 		setRefreshing( true );
-		loadHistory( true ).finally( () => live && setRefreshing( false ) );
-		return () => {
-			live = false;
-		};
-	}, [ activeKey, hasHistory ] );
+		loadHistory( true ).finally( () => setRefreshing( false ) );
+	}, [] );
+	useEffect( () => {
+		if ( hasHistory ) {
+			reload();
+		}
+	}, [ hasHistory, reload ] );
+
+	// A fix moves its threat out of the active list but not into history, so reload history then; ignoring needs no reload.
+	const lastActive = useRef( active );
+	useEffect( () => {
+		const still = new Set( [ ...active, ...( scan?.ignored ?? [] ) ].map( getId ) );
+		const left = lastActive.current.some(
+			item => ids.includes( getId( item ) ) && ! still.has( getId( item ) )
+		);
+		lastActive.current = active;
+		if ( hasHistory && left ) {
+			reload();
+		}
+	}, [ active, scan?.ignored, ids, hasHistory, reload ] );
 
 	let known: ScanThreat[] | null = NO_THREATS;
 	if ( hasHistory ) {
-		known = refreshing || history.error ? null : history.threats;
+		known = history.error ? null : history.threats;
 	}
 	const groups = useMemo(
 		() => groupThreats( ids, { active, ignored: scan?.ignored, history: known } ),
 		[ ids, active, scan?.ignored, known ]
 	);
+	// While history reloads, an id missing from the last copy may be a threat just fixed.
+	const notFound = refreshing ? [] : groups.notFound;
+	const pending = refreshing ? [ ...groups.pending, ...groups.notFound ] : groups.pending;
 
 	const [ threatParam ] = useSearchParam( THREAT_PARAM );
 	const [ historyParam ] = useSearchParam( HISTORY_THREAT_PARAM );
@@ -236,6 +246,22 @@ export default function ThreatReport( { ids }: { ids: string[] } ) {
 
 	return (
 		<div className="jp-protect-dashboard__cards">
+			{ pending.length > 0 && ! failed && (
+				<Notice.Root intent="info">
+					<Notice.Description>
+						{ sprintf(
+							/* translators: %d is a number of threats. */
+							_n(
+								'Checking the latest status of %d threat…',
+								'Checking the latest status of %d threats…',
+								pending.length,
+								'jetpack-protect-pkg'
+							),
+							pending.length
+						) }
+					</Notice.Description>
+				</Notice.Root>
+			) }
 			{ failed && (
 				<Notice.Root intent="error">
 					<Notice.Description>{ history.error }</Notice.Description>
@@ -255,13 +281,6 @@ export default function ThreatReport( { ids }: { ids: string[] } ) {
 				canAct={ canAct }
 				selected={ selected }
 			/>
-			{ groups.pending.length > 0 && ! failed && (
-				<ProtectCard icon={ help } title={ __( 'Checking status', 'jetpack-protect-pkg' ) }>
-					<CardRow className="jp-protect-card__threats">
-						<HistorySkeleton rows={ groups.pending.length } showFilter={ false } />
-					</CardRow>
-				</ProtectCard>
-			) }
 			<ThreatGroup
 				icon={ check }
 				title={ __( 'Fixed', 'jetpack-protect-pkg' ) }
@@ -297,7 +316,7 @@ export default function ThreatReport( { ids }: { ids: string[] } ) {
 					'Scan no longer finds these, for example after the plugin or theme was updated or removed.',
 					'jetpack-protect-pkg'
 				) }
-				ids={ groups.notFound }
+				ids={ notFound }
 			/>
 			{ failed && (
 				<UnknownThreats
@@ -307,7 +326,7 @@ export default function ThreatReport( { ids }: { ids: string[] } ) {
 						'These couldn’t be checked right now. Reload the page to try again.',
 						'jetpack-protect-pkg'
 					) }
-					ids={ groups.pending }
+					ids={ pending }
 				/>
 			) }
 		</div>
