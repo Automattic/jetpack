@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-no-bind */
 /**
- * PayPal Payment Buttons — The block inspector sidebar.
+ * PayPal Payment Buttons - The PayPal Connection panel.
  *
  * @package
  */
@@ -15,12 +15,12 @@ import { __ } from '@wordpress/i18n';
 const MANAGE_LINKS_PATH = 'admin.php?page=paypal-payment-links';
 
 /**
- * The Settings panel — connection info, and a link to the admin page that lists every link.
+ * The PayPal Connection panel - environment and disconnect or reconnect. A saved
+ * button adds delete and a link to the admin page.
  *
- * Panels only: the caller wraps them in the one fill the Settings tab uses.
+ * The caller puts it in the sidebar fill.
  *
- * Embed as and everything that styles the output live in the Styles tab, in
- * components/format-controls.jsx.
+ * Embed as and everything that styles the output live in components/format-controls.jsx.
  *
  * @param {object}   props                    - Component props.
  * @param {boolean}  props.isConnected        - Whether the site is connected to PayPal.

@@ -361,8 +361,8 @@ function TypographyPanel( { fontSizeKey, attributes, setAttributes } ) {
 /**
  * Styles — Fill or Outline, on the button only.
  *
- * Not a `registerBlockStyle` variation: core shows those as preview cards, and the
- * design puts this below Color as two plain buttons.
+ * Two plain buttons below Color, per the design. A `registerBlockStyle` variation
+ * would show as preview cards.
  *
  * @param {object}   props               - Component props.
  * @param {string}   props.buttonStyle   - The chosen style.
