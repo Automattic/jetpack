@@ -205,7 +205,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 		$notice = PayPal_Admin_Page::deleted_link_notice( 'PLB-GONE1' );
 
 		$this->assertSame( 'success', $notice['type'] );
-		$this->assertStringContainsString( 'Payment link deleted successfully.', $notice['message'] );
+		$this->assertStringContainsString( 'Payment button deleted successfully.', $notice['message'] );
 		$this->assertStringContainsString( '1 published post still embeds it and now shows nothing', $notice['message'] );
 		$this->assertCount( 1, $notice['links'] );
 		// make_post() gives the post no title.
@@ -221,7 +221,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 
 		$notice = PayPal_Admin_Page::deleted_link_notice( 'PLB-GONE1' );
 
-		$this->assertSame( 'Payment link deleted successfully.', $notice['message'] );
+		$this->assertSame( 'Payment button deleted successfully.', $notice['message'] );
 		$this->assertSame( array(), $notice['links'] );
 	}
 
@@ -235,7 +235,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 			'paypal_admin_notice_' . get_current_user_id(),
 			array(
 				'type'    => 'success',
-				'message' => 'Payment link deleted successfully. 1 published post still embeds it:',
+				'message' => 'Payment button deleted successfully. 1 published post still embeds it:',
 				'links'   => array(
 					array(
 						'url'   => 'http://example.org/wp-admin/post.php?post=12&action=edit',
@@ -261,8 +261,8 @@ class PayPal_Admin_Page_Test extends TestCase {
 	public function test_delete_confirm_text_warns_about_orphaned_blocks() {
 		$text = PayPal_Admin_Page::delete_confirm_text();
 
-		$this->assertStringContainsString( 'permanently delete your payment link', $text );
-		$this->assertStringContainsString( 'embedded buttons using this payment will stop working', $text );
+		$this->assertStringContainsString( 'permanently delete your payment button', $text );
+		$this->assertStringContainsString( 'embedded buttons using it will stop working', $text );
 		$this->assertStringNotContainsString( 'published post', $text );
 	}
 
@@ -408,7 +408,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 
 		$this->assertStringContainsString( 'Connected', $output );
 		$this->assertStringContainsString( 'Production', $output );
-		$this->assertStringContainsString( 'PayPal Payment Links', $output );
+		$this->assertStringContainsString( 'PayPal Payment Buttons', $output );
 	}
 
 	/**
@@ -488,7 +488,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 			'paypal_admin_notice_' . get_current_user_id(),
 			array(
 				'type'    => 'success',
-				'message' => 'Payment link deleted successfully.',
+				'message' => 'Payment button deleted successfully.',
 			),
 			30
 		);
@@ -498,7 +498,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 		$output = ob_get_clean();
 
 		$this->assertStringContainsString( 'notice-success', $output );
-		$this->assertStringContainsString( 'Payment link deleted successfully.', $output );
+		$this->assertStringContainsString( 'Payment button deleted successfully.', $output );
 
 		// Transient should be consumed.
 		$this->assertFalse( get_transient( 'paypal_admin_notice_' . get_current_user_id() ) );
@@ -515,7 +515,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 			'paypal_admin_notice_' . get_current_user_id(),
 			array(
 				'type'    => 'error',
-				'message' => 'Failed to delete payment link: Resource not found.',
+				'message' => 'Failed to delete payment button: Resource not found.',
 			),
 			30
 		);
@@ -582,7 +582,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 		$output = ob_get_clean();
 
 		$this->assertStringContainsString( '<dialog id="paypal-delete-dialog"', $output );
-		$this->assertStringContainsString( 'cannot pause, deactivate, or restore a payment link', $output );
+		$this->assertStringContainsString( 'cannot pause, deactivate, or restore a payment button', $output );
 		$this->assertStringContainsString( 'id="paypal-delete-acknowledge"', $output );
 		$this->assertStringContainsString( 'I understand this cannot be undone.', $output );
 		$this->assertStringContainsString( 'id="paypal-delete-confirm" disabled', $output );
@@ -661,7 +661,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 		// Should show product name as heading.
 		$this->assertStringContainsString( 'Premium Widget', $output );
 		// Should show breadcrumb back link.
-		$this->assertStringContainsString( 'Back to Payment Links', $output );
+		$this->assertStringContainsString( 'Back to Payment Buttons', $output );
 		// Should show resource ID.
 		$this->assertStringContainsString( 'PLB-ABC123', $output );
 	}
@@ -921,7 +921,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 		$output = ob_get_clean();
 
 		$this->assertStringContainsString( 'notice-error', $output );
-		$this->assertStringContainsString( 'Back to Payment Links', $output );
+		$this->assertStringContainsString( 'Back to Payment Buttons', $output );
 	}
 
 	/**
