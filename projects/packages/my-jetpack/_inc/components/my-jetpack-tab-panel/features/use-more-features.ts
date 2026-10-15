@@ -120,7 +120,7 @@ export function groupMoreFeatures(
  * @param groups   - The grouped modules.
  * @param filter   - The active filter.
  * @param search   - The search term.
- * @param migrated - Whether the term came from Modules.
+ * @param migrated - Whether the search came from a classic Modules screen link, which also matches long descriptions and tags.
  * @return The groups still showing something.
  */
 export function filterMoreFeatures(

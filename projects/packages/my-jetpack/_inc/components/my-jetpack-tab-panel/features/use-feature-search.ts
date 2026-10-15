@@ -12,7 +12,7 @@ import type { MyJetpackModule } from '../../../types';
  *
  * @param states  - Live state for every feature.
  * @param search  - The search term.
- * @param modules - Module metadata for migrated searches only.
+ * @param modules - Module data, passed only for a search carried over from the classic Modules screen, so the search also matches each feature's module name, search terms, description, long description and tags.
  * @return The ranked features, or null when nothing is being searched for.
  */
 export function useFeatureSearch(

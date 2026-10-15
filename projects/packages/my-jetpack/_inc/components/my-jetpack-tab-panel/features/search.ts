@@ -128,7 +128,7 @@ export function rankBy< T >(
  * The weighted fields for a standalone module.
  *
  * @param {MyJetpackModule} module   - The module.
- * @param {boolean}         migrated - Whether the term came from Modules.
+ * @param {boolean}         migrated - Whether the search came from a classic Modules screen link; if so, also match the long description and tags, as that screen did.
  * @return The weighted fields to match against.
  */
 export function moduleFields( module: MyJetpackModule, migrated = false ): Array< ScoredField > {

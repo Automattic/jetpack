@@ -914,7 +914,7 @@ class Main_Features {
 	}
 
 	/**
-	 * Host-hidden items and the modules their feature or product names refer to.
+	 * Slugs the host has hidden, plus the module behind each hidden feature or product.
 	 *
 	 * @since $$next-version$$
 	 * @return string[] Hidden module and feature slugs.

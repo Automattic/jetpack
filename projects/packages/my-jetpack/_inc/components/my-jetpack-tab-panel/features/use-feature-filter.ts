@@ -86,12 +86,12 @@ export function matchesFilter( state: FeatureState, filter: FeatureFilter ): boo
 }
 
 /**
- * Match the exact module tag carried by a legacy Modules link.
+ * Whether a row has the module tag from a classic Modules screen link, such as "Jetpack Stats".
  *
  * @param state   - The feature or module row.
- * @param tag     - The legacy tag.
- * @param modules - Existing module metadata, keyed by slug.
- * @return Whether the row matches, or is still awaiting metadata.
+ * @param tag     - The tag name; empty matches every row.
+ * @param modules - Module data keyed by slug, used to find a product card's module.
+ * @return True when the row's module has the tag, and while the row is still loading, so it does not vanish before its data arrives.
  */
 export function matchesModuleTag(
 	state: FeatureState,

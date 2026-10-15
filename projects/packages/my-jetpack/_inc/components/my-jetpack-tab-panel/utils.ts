@@ -48,9 +48,9 @@ export function getFeatureCheckoutReturnUrl( hash = window.location.hash ) {
 }
 
 /**
- * The module-management destination supplied by the loaded PHP package.
+ * Where links to manage Jetpack modules go, as the server decided: the Features tab when the site can use it, else the classic Modules screen.
  *
- * @param classicUrl - Destination for older packages and ineligible sites.
+ * @param classicUrl - Classic Modules screen URL, used when the page data has no URL (an older My Jetpack package, or a page that does not send one).
  * @return The management URL.
  */
 export function getModulesManagementUrl( classicUrl: string ): string {

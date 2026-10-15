@@ -824,17 +824,17 @@ class Initializer {
 	 * Get a Features management link with a classic Modules fallback.
 	 *
 	 * @since $$next-version$$
-	 * @param array     $args Legacy Modules view arguments.
-	 * @param bool|null $eligible Whether the returned URL is an eligible Features view.
+	 * @param array     $args     Query arguments from a classic Modules screen link; only `s` and `module_tag` can carry over to Features.
+	 * @param bool|null $eligible Set to true when the URL points at the Features tab, false when it is the classic Modules screen.
 	 * @return string The management URL.
 	 */
 	public static function get_modules_management_url( $args = array(), &$eligible = null ) {
 		$eligible = false;
 		/**
-		 * Whether the host permits module management on the My Jetpack route.
+		 * Filters whether links to the classic Modules screen may send people to the Features tab in My Jetpack instead.
 		 *
 		 * @since $$next-version$$
-		 * @param bool $available Whether Features can manage modules on this host.
+		 * @param bool $available True to allow the Features tab; false keeps the classic Modules screen, for a host where My Jetpack is not shown.
 		 */
 		$available = apply_filters( 'jetpack_my_jetpack_modules_management_available', true );
 		$classic   = add_query_arg( array_merge( urlencode_deep( $args ), array( 'page' => 'jetpack_modules' ) ), admin_url( 'admin.php' ) );
@@ -900,7 +900,8 @@ class Initializer {
 	}
 
 	/**
-	 * Print the classic fallback for marked module-management links.
+	 * On a My Jetpack page reached from a redirected Modules link (`modules_fallback=1`), send the browser back to the classic Modules screen:
+	 * always when JavaScript is off, and for everyone when the REST API is off or blocked.
 	 *
 	 * @since $$next-version$$
 	 * @return void

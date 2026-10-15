@@ -36,7 +36,7 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 	}
 
 	/**
-	 * Register browser navigation for eligible Modules views.
+	 * On the classic Modules screen, send the browser to the matching Features view, with the same search and tag, when the site can manage modules there.
 	 *
 	 * @return void
 	 */

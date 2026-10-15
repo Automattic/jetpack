@@ -122,8 +122,6 @@ function FeaturesTabContent() {
 		[ searchParams, setSearchParams ]
 	);
 
-	// Searching replaces the grid outright, so a term in play takes the filter's place
-	// rather than narrowing alongside it.
 	const legacyParams = new URLSearchParams( window.location.search );
 	const hasModulesFallback = legacyParams.get( 'modules_fallback' ) === '1';
 	const legacySearch = hasModulesFallback && legacyParams.get( 's' ) === search;
@@ -135,6 +133,8 @@ function FeaturesTabContent() {
 			...( moduleTag ? { module_tag: moduleTag } : {} ),
 		} ) }`
 	);
+	// Searching replaces the grid outright, so a term in play takes the filter's place
+	// rather than narrowing alongside it.
 	const results = useFeatureSearch( states, search, legacySearch ? modules : undefined );
 	const visible = useMemo(
 		() =>
@@ -399,7 +399,7 @@ function FeaturesTabContent() {
 			{ moduleTag && (
 				<div className={ styles[ 'modules-navigation' ] }>
 					{ sprintf(
-						/* translators: %s is the module tag selected in an old Modules link. */
+						/* translators: %s is a module tag name from the classic Modules screen, such as "Writing". */
 						__( 'Tag: %s', 'jetpack-my-jetpack' ),
 						moduleTag
 					) }{ ' ' }
