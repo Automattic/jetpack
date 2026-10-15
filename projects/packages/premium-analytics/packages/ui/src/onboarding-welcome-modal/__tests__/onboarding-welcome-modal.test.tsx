@@ -2,15 +2,6 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { OnboardingWelcomeModal } from '../onboarding-welcome-modal';
 
-/**
- * What `speak()` handed a screen reader, from `@wordpress/a11y`'s polite live region.
- *
- * @return The announcement.
- */
-function announcement() {
-	return ( document.querySelector( '#a11y-speak-polite' )?.textContent ?? '' ).trim();
-}
-
 function renderModal( open = true ) {
 	const onStart = jest.fn();
 	const onDismiss = jest.fn();
@@ -123,6 +114,10 @@ describe( 'OnboardingWelcomeModal', () => {
 		await userEvent.click( screen.getByRole( 'button', { name: 'Next' } ) );
 
 		expect( screen.getByRole( 'img', { name: 'Slide 2 of 2' } ) ).toBeInTheDocument();
-		expect( announcement() ).toBe( 'Slide 2 of 2: Your store analytics integrated' );
+		expect(
+			screen.getByText( 'Slide 2 of 2: Your store analytics integrated', {
+				selector: '#a11y-speak-polite',
+			} )
+		).toBeInTheDocument();
 	} );
 } );
