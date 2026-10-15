@@ -2,7 +2,7 @@ import { Breadcrumbs } from '@wordpress/admin-ui';
 import { DataViews, filterSortAndPaginate, type View } from '@wordpress/dataviews';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { caution, check, help, seen } from '@wordpress/icons';
+import { check, help, seen } from '@wordpress/icons';
 import { Notice, Text } from '@wordpress/ui';
 import { CardRow, ProtectCard, type CardStatus } from '../../components/card';
 import useArrowKeyNavigation from '../../components/use-arrow-key-navigation';
@@ -11,6 +11,7 @@ import useOpenThreat from '../use-open-threat';
 import { groupThreats } from './group-threats';
 import { THREAT_PARAM, useScan, useSearchParam } from './store';
 import { getThreatRowActions } from './threat-row-actions';
+import threatsIcon from './threats-icon';
 import { getThreatFields } from './threats-list';
 import type { ScanThreat } from './types';
 import type { ReactElement } from 'react';
@@ -268,7 +269,7 @@ export default function ThreatReport( { ids }: { ids: string[] } ) {
 				</Notice.Root>
 			) }
 			<ThreatGroup
-				icon={ caution }
+				icon={ threatsIcon }
 				title={ __( 'Needs attention', 'jetpack-protect-pkg' ) }
 				description={ __(
 					'Scan still finds these. Fix them, or open one to see how.',
