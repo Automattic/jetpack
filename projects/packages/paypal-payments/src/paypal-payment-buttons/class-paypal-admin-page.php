@@ -57,6 +57,15 @@ class PayPal_Admin_Page {
 	const LOCATIONS_PER_PAGE = 100;
 
 	/**
+	 * AJAX action that returns the next page of the Link Locations card.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var string
+	 */
+	const LOCATIONS_AJAX_ACTION = 'paypal_link_locations';
+
+	/**
 	 * PayPal's merchant activity list, per environment.
 	 */
 	const TRANSACTIONS_URLS = array(
@@ -276,6 +285,38 @@ class PayPal_Admin_Page {
 		add_action( 'admin_menu', array( __CLASS__, 'register_menu' ) );
 		add_action( 'admin_init', array( __CLASS__, 'handle_actions' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
+		add_action( 'wp_ajax_' . self::LOCATIONS_AJAX_ACTION, array( __CLASS__, 'handle_locations_request' ) );
+	}
+
+	/**
+	 * Answer the Link Locations card's request for its next page of posts.
+	 *
+	 * @since $$next-version$$
+	 * @return void
+	 */
+	public static function handle_locations_request() {
+		if ( ! check_ajax_referer( self::LOCATIONS_AJAX_ACTION, '_wpnonce', false ) ) {
+			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'jetpack-paypal-payments' ) ), 403, JSON_HEX_TAG | JSON_HEX_AMP );
+		}
+		if ( ! current_user_can( self::CAPABILITY ) ) {
+			wp_send_json_error( array( 'message' => __( 'You do not have permission to view payment links.', 'jetpack-paypal-payments' ) ), 403, JSON_HEX_TAG | JSON_HEX_AMP );
+		}
+
+		$resource_id = isset( $_POST['resource_id'] ) ? sanitize_text_field( wp_unslash( $_POST['resource_id'] ) ) : '';
+		if ( ! PayPal_Attribute_Mapper::is_valid_resource_id( $resource_id ) ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid payment link.', 'jetpack-paypal-payments' ) ), 400, JSON_HEX_TAG | JSON_HEX_AMP );
+		}
+
+		$locations = self::find_embeds_page( $resource_id, isset( $_POST['page'] ) ? absint( $_POST['page'] ) : 1 );
+
+		wp_send_json_success(
+			array(
+				'rows'     => self::location_rows_html( $locations['posts'] ),
+				'has_more' => $locations['has_more'],
+			),
+			200,
+			JSON_HEX_TAG | JSON_HEX_AMP
+		);
 	}
 
 	/**
@@ -594,6 +635,46 @@ class PayPal_Admin_Page {
 					})
 					.finally(function() {
 						btn.disabled = false;
+					});
+				});
+			}
+
+			// Link Locations "More" button (WOOPTP-597): appends the next page in place.
+			var moreBtn = document.getElementById("paypal-link-locations-more");
+			if (moreBtn) {
+				moreBtn.addEventListener("click", function() {
+					var rows = document.getElementById("paypal-link-locations-rows");
+					var status = document.getElementById("paypal-link-locations-status");
+					var body = new FormData();
+					body.append("action", ' . wp_json_encode( self::LOCATIONS_AJAX_ACTION, JSON_HEX_TAG | JSON_HEX_AMP ) . ');
+					body.append("_wpnonce", moreBtn.getAttribute("data-nonce"));
+					body.append("resource_id", moreBtn.getAttribute("data-resource-id"));
+					body.append("page", moreBtn.getAttribute("data-page"));
+					moreBtn.disabled = true;
+					status.textContent = ' . wp_json_encode( __( 'Loading…', 'jetpack-paypal-payments' ), JSON_HEX_TAG | JSON_HEX_AMP ) . ';
+
+					fetch(' . wp_json_encode( admin_url( 'admin-ajax.php' ), JSON_HEX_TAG | JSON_HEX_AMP ) . ', {
+						method: "POST",
+						credentials: "same-origin",
+						body: body,
+					})
+					.then(function(r) { return r.json(); })
+					.then(function(data) {
+						if (!data.success) {
+							throw new Error(data.data && data.data.message);
+						}
+						rows.insertAdjacentHTML("beforeend", data.data.rows);
+						status.textContent = "";
+						if (data.data.has_more) {
+							moreBtn.setAttribute("data-page", String(parseInt(moreBtn.getAttribute("data-page"), 10) + 1));
+							moreBtn.disabled = false;
+						} else {
+							moreBtn.parentNode.remove();
+						}
+					})
+					.catch(function(err) {
+						status.textContent = (err && err.message) || ' . wp_json_encode( __( 'Could not load more. Please try again.', 'jetpack-paypal-payments' ), JSON_HEX_TAG | JSON_HEX_AMP ) . ';
+						moreBtn.disabled = false;
 					});
 				});
 			}
@@ -944,9 +1025,7 @@ class PayPal_Admin_Page {
 		}
 
 		// --- Link Locations Card (WOOPTP-597) ---
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only paging of a read-only view.
-		$locations_page = isset( $_GET['locations_page'] ) ? max( 1, absint( $_GET['locations_page'] ) ) : 1;
-		$locations      = self::find_embeds_page( $resource_id, $locations_page );
+		$locations = self::find_embeds_page( $resource_id );
 
 		echo '<div class="card paypal-detail-card">';
 		printf( '<h3>%s</h3>', esc_html__( 'Link Locations', 'jetpack-paypal-payments' ) );
@@ -958,49 +1037,17 @@ class PayPal_Admin_Page {
 			printf( '<th scope="col">%s</th>', esc_html__( 'Title', 'jetpack-paypal-payments' ) );
 			printf( '<th scope="col">%s</th>', esc_html__( 'Type', 'jetpack-paypal-payments' ) );
 			printf( '<th scope="col">%s</th>', esc_html__( 'Actions', 'jetpack-paypal-payments' ) );
-			echo '</tr></thead><tbody>';
-			foreach ( $locations['posts'] as $post ) {
-				$type_object = get_post_type_object( $post->post_type );
-				$title       = get_the_title( $post ) ? get_the_title( $post ) : __( '(no title)', 'jetpack-paypal-payments' );
-				$is_live     = 'publish' === $post->post_status;
-				if ( ! $is_live ) {
-					$status_object = get_post_status_object( $post->post_status );
-					$title         = sprintf(
-						/* translators: 1: post status label, such as Draft; 2: post title */
-						__( '[%1$s] %2$s', 'jetpack-paypal-payments' ),
-						$status_object ? $status_object->label : $post->post_status,
-						$title
-					);
-				}
-				printf(
-					'<tr><td>%s</td><td>%s</td><td><a href="%s">%s</a> | <a href="%s" target="_blank" rel="noopener noreferrer">%s</a></td></tr>',
-					esc_html( $title ),
-					esc_html( $type_object ? $type_object->labels->singular_name : $post->post_type ),
-					esc_url( admin_url( 'post.php?post=' . (int) $post->ID . '&action=edit' ) ),
-					esc_html__( 'Edit', 'jetpack-paypal-payments' ),
-					esc_url( $is_live ? get_permalink( $post ) : get_preview_post_link( $post ) ),
-					$is_live ? esc_html__( 'View', 'jetpack-paypal-payments' ) : esc_html__( 'Preview', 'jetpack-paypal-payments' )
-				);
-			}
+			echo '</tr></thead><tbody id="paypal-link-locations-rows">';
+			echo self::location_rows_html( $locations['posts'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped while built.
 			echo '</tbody></table>';
 
-			if ( $locations_page > 1 || $locations['has_more'] ) {
-				echo '<p class="paypal-link-locations__nav">';
-				if ( $locations_page > 1 ) {
-					printf(
-						'<a href="%s">&laquo; %s</a> ',
-						esc_url( add_query_arg( 'locations_page', $locations_page - 1 ) ),
-						esc_html__( 'Previous', 'jetpack-paypal-payments' )
-					);
-				}
-				if ( $locations['has_more'] ) {
-					printf(
-						'<a href="%s">%s &raquo;</a>',
-						esc_url( add_query_arg( 'locations_page', $locations_page + 1 ) ),
-						esc_html__( 'More', 'jetpack-paypal-payments' )
-					);
-				}
-				echo '</p>';
+			if ( $locations['has_more'] ) {
+				printf(
+					'<p class="paypal-link-locations__nav"><button type="button" class="button" id="paypal-link-locations-more" data-resource-id="%s" data-page="2" data-nonce="%s">%s</button> <span id="paypal-link-locations-status" role="status"></span></p>',
+					esc_attr( $resource_id ),
+					esc_attr( wp_create_nonce( self::LOCATIONS_AJAX_ACTION ) ),
+					esc_html__( 'More', 'jetpack-paypal-payments' )
+				);
 			}
 		}
 		echo '</div>';
@@ -1115,6 +1162,41 @@ class PayPal_Admin_Page {
 			esc_html( $label ),
 			wp_kses_post( $html )
 		);
+	}
+
+	/**
+	 * The Link Locations table rows for a set of posts, escaped.
+	 *
+	 * @param \WP_Post[] $posts Posts embedding the link.
+	 * @return string HTML table rows.
+	 */
+	private static function location_rows_html( array $posts ) {
+		$html = '';
+		foreach ( $posts as $post ) {
+			$type_object = get_post_type_object( $post->post_type );
+			$title       = get_the_title( $post ) ? get_the_title( $post ) : __( '(no title)', 'jetpack-paypal-payments' );
+			$is_live     = 'publish' === $post->post_status;
+			if ( ! $is_live ) {
+				$status_object = get_post_status_object( $post->post_status );
+				$title         = sprintf(
+					/* translators: 1: post status label, such as Draft; 2: post title */
+					__( '[%1$s] %2$s', 'jetpack-paypal-payments' ),
+					$status_object ? $status_object->label : $post->post_status,
+					$title
+				);
+			}
+			$html .= sprintf(
+				'<tr><td>%s</td><td>%s</td><td><a href="%s">%s</a> | <a href="%s" target="_blank" rel="noopener noreferrer">%s</a></td></tr>',
+				esc_html( $title ),
+				esc_html( $type_object ? $type_object->labels->singular_name : $post->post_type ),
+				esc_url( admin_url( 'post.php?post=' . (int) $post->ID . '&action=edit' ) ),
+				esc_html__( 'Edit', 'jetpack-paypal-payments' ),
+				esc_url( $is_live ? get_permalink( $post ) : get_preview_post_link( $post ) ),
+				$is_live ? esc_html__( 'View', 'jetpack-paypal-payments' ) : esc_html__( 'Preview', 'jetpack-paypal-payments' )
+			);
+		}
+
+		return $html;
 	}
 
 	/**
