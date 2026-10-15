@@ -151,7 +151,6 @@ class Initializer {
 		add_action( 'admin_menu', array( __CLASS__, 'add_my_jetpack_menu_item' ) );
 
 		add_action( 'admin_init', array( __CLASS__, 'setup_historically_active_jetpack_modules_sync' ) );
-		add_action( 'admin_init', array( Products\Backup::class, 'run_queued_module_check' ) );
 		// Registered on admin_menu (not admin_init) and well before priority 100000, so the
 		// counts it registers exist before the menu-badges renderer runs on admin_menu 100000.
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_show_red_bubble' ), 30 );

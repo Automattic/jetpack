@@ -455,12 +455,24 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 	 * Updating Jetpack queues the Backup plan check rather than running it in that request.
 	 */
 	public function test_update_queues_the_backup_module_check() {
-		delete_transient( Backup::MODULE_CHECK_TRANSIENT_KEY );
+		delete_option( Backup::MODULE_CHECK_OPTION );
 
 		do_action( 'updating_jetpack_version', '99.0', '98.0' );
 
-		$this->assertNotFalse( get_transient( Backup::MODULE_CHECK_TRANSIENT_KEY ) );
-		delete_transient( Backup::MODULE_CHECK_TRANSIENT_KEY );
+		$this->assertNotFalse( get_option( Backup::MODULE_CHECK_OPTION ) );
+		delete_option( Backup::MODULE_CHECK_OPTION );
+	}
+
+	/**
+	 * Writes to the active modules can't switch Backup off.
+	 */
+	public function test_backup_module_cannot_be_switched_off() {
+		$this->activate_backup_module();
+
+		Jetpack::deactivate_module( 'backup' );
+		Jetpack::delete_active_modules();
+
+		$this->assertContains( 'backup', Jetpack_Options::get_option( 'active_modules', array() ) );
 	}
 
 	/**
@@ -502,7 +514,8 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 		$this->set_up_backup_test();
 		$this->connect_owner();
 		$this->force_unfire_action( 'jetpack_backup_initialized' );
-		Jetpack_Options::update_option( 'active_modules', array() );
+		// Deleted, not saved empty, which the plan-driven module would refuse.
+		Jetpack_Options::delete_option( 'active_modules' );
 
 		Jetpack::configure_backup_package();
 

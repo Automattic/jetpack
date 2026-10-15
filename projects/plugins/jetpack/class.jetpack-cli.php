@@ -610,6 +610,10 @@ class Jetpack_CLI extends WP_CLI_Command {
 				break;
 			case 'deactivate':
 				$module = Jetpack::get_module( $module_slug );
+				$locked = Jetpack::get_module_locked_on_reason( $module_slug );
+				if ( $locked && Jetpack::is_module_active( $module_slug ) ) {
+					WP_CLI::error( $locked );
+				}
 				Jetpack::log( 'deactivate', $module_slug );
 				Jetpack::deactivate_module( $module_slug );
 				if ( Jetpack::is_module_active( $module_slug ) ) {
@@ -621,6 +625,9 @@ class Jetpack_CLI extends WP_CLI_Command {
 				break;
 			case 'deactivate_all':
 				Jetpack::delete_active_modules();
+				if ( Jetpack::is_module_active( 'backup' ) ) {
+					WP_CLI::warning( Jetpack::get_module_locked_on_reason( 'backup' ) );
+				}
 				WP_CLI::success( __( 'All modules deactivated!', 'jetpack' ) );
 				break;
 			case 'toggle':

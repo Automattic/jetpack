@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Products\Backup;
 use Automattic\Jetpack\Redirect;
 use Jetpack_Options;
@@ -205,6 +206,7 @@ class Backup_Product_Test extends TestCase {
 		activate_plugins( 'jetpack/jetpack.php' );
 		deactivate_plugins( Backup::get_installed_plugin_filename() );
 		Jetpack_Options::update_option( 'active_modules', array() );
+		Wpcom_Products::reset_purchases_cache();
 		if ( 'not an admin' === $scenario ) {
 			wp_set_current_user( 0 );
 		}
@@ -220,8 +222,8 @@ class Backup_Product_Test extends TestCase {
 		Backup::run_queued_module_check();
 		remove_filter( 'pre_http_request', $fail );
 
-		$this->assertSame( $queued, false !== get_transient( Backup::MODULE_CHECK_TRANSIENT_KEY ) );
-		delete_transient( Backup::MODULE_CHECK_TRANSIENT_KEY );
+		$this->assertSame( $queued, false !== get_option( Backup::MODULE_CHECK_OPTION ) );
+		delete_option( Backup::MODULE_CHECK_OPTION );
 		delete_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY );
 	}
 
@@ -236,6 +238,21 @@ class Backup_Product_Test extends TestCase {
 			'lookup failed' => array( 'lookup failed', true ),
 			'no plan'       => array( 'no plan', false ),
 		);
+	}
+
+	/**
+	 * Writes to the active modules cannot switch Backup off, and the plan is what decides it.
+	 */
+	public function test_switching_backup_off_keeps_it_on() {
+		add_filter( 'pre_update_option_jetpack_active_modules', array( Backup::class, 'keep_module_on' ), 10, 2 );
+		try {
+			( new Modules() )->deactivate( 'backup' );
+			$this->assertTrue( Backup::deactivate() );
+		} finally {
+			remove_filter( 'pre_update_option_jetpack_active_modules', array( Backup::class, 'keep_module_on' ), 10 );
+		}
+
+		$this->assertContains( 'backup', Jetpack_Options::get_option( 'active_modules', array() ) );
 	}
 
 	/**

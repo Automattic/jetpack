@@ -26,11 +26,11 @@ class Backup extends Hybrid_Product {
 	public const BACKUP_STATUS_TRANSIENT_KEY = 'my-jetpack-backup-status';
 
 	/**
-	 * Transient that queues a plan check for the next admin page load.
+	 * Option that queues a plan check for the next admin page load.
 	 *
 	 * @var string
 	 */
-	public const MODULE_CHECK_TRANSIENT_KEY = 'jetpack_backup_module_check';
+	public const MODULE_CHECK_OPTION = 'jetpack_backup_module_check';
 
 	/**
 	 * The product slug
@@ -526,6 +526,42 @@ class Backup extends Hybrid_Product {
 	}
 
 	/**
+	 * Keep a write to the active modules from switching the backup module off, since the plan decides it.
+	 *
+	 * Hooked to `pre_update_option_jetpack_active_modules` by the Jetpack plugin, which owns the module.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param mixed $value     The modules about to be saved.
+	 * @param mixed $old_value The modules saved now.
+	 * @return mixed
+	 */
+	public static function keep_module_on( $value, $old_value ) {
+		if (
+			! is_array( $value )
+			|| ! is_array( $old_value )
+			|| ! in_array( static::$module_name, $old_value, true )
+			|| in_array( static::$module_name, $value, true )
+		) {
+			return $value;
+		}
+
+		$value[] = static::$module_name;
+
+		return $value;
+	}
+
+	/**
+	 * Deactivate the standalone plugin, leaving the backup module to the plan.
+	 *
+	 * @return bool
+	 */
+	public static function deactivate() {
+		deactivate_plugins( static::get_installed_plugin_filename() );
+		return true;
+	}
+
+	/**
 	 * Queue a plan check for the next admin page load, so it never holds up this request.
 	 *
 	 * @since $$next-version$$
@@ -533,7 +569,7 @@ class Backup extends Hybrid_Product {
 	 * @return void
 	 */
 	public static function queue_module_check() {
-		set_transient( self::MODULE_CHECK_TRANSIENT_KEY, 1, 5 * MINUTE_IN_SECONDS );
+		update_option( self::MODULE_CHECK_OPTION, array( 'retry_after' => 0 ), false );
 	}
 
 	/**
@@ -544,13 +580,20 @@ class Backup extends Hybrid_Product {
 	 * @return void
 	 */
 	public static function run_queued_module_check() {
-		if ( ! current_user_can( 'manage_options' ) || ! get_transient( self::MODULE_CHECK_TRANSIENT_KEY ) ) {
+		$queued = get_option( self::MODULE_CHECK_OPTION );
+
+		if ( ! is_array( $queued ) || time() < (int) ( $queued['retry_after'] ?? 0 ) || ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
 
 		if ( null !== static::activate_module_for_plan() ) {
-			delete_transient( self::MODULE_CHECK_TRANSIENT_KEY );
+			delete_option( self::MODULE_CHECK_OPTION );
+			return;
 		}
+
+		// Back off, so an outage costs one blocking lookup per few minutes rather than per page.
+		$queued['retry_after'] = time() + 5 * MINUTE_IN_SECONDS;
+		update_option( self::MODULE_CHECK_OPTION, $queued, false );
 	}
 
 	/**

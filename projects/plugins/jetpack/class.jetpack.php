@@ -709,8 +709,10 @@ class Jetpack {
 
 		add_filter( 'profile_update', array( 'Jetpack', 'user_meta_cleanup' ) );
 
-		// Sites upgrading from before the module existed never had a purchase to switch it on.
+		// The plan, not a switch, decides the backup module: re-check it after updates, and keep it on.
 		add_action( 'updating_jetpack_version', array( __CLASS__, 'queue_backup_module_check' ) );
+		add_action( 'admin_init', array( __CLASS__, 'run_queued_backup_module_check' ) );
+		add_filter( 'pre_update_option_jetpack_active_modules', array( __CLASS__, 'keep_backup_module_on' ), 10, 2 );
 		add_filter( 'jetpack_get_default_modules', array( $this, 'filter_default_modules' ) );
 		add_filter( 'jetpack_get_default_modules', array( $this, 'handle_deprecated_modules' ), 99 );
 
@@ -843,6 +845,13 @@ class Jetpack {
 	}
 
 	/**
+	 * My Jetpack's Backup product, which holds the plan checks behind the backup module.
+	 *
+	 * @var string
+	 */
+	private const BACKUP_PRODUCT_CLASS = 'Automattic\\Jetpack\\My_Jetpack\\Products\\Backup';
+
+	/**
 	 * Switch the backup module on when the site's plan includes Backup; see Backup::activate_module_for_plan().
 	 *
 	 * @since $$next-version$$
@@ -850,7 +859,7 @@ class Jetpack {
 	 * @return bool|null Whether the module is on afterwards, or null when WordPress.com could not say.
 	 */
 	public static function activate_backup_module_for_plan() {
-		$backup = 'Automattic\\Jetpack\\My_Jetpack\\Products\\Backup';
+		$backup = self::BACKUP_PRODUCT_CLASS;
 
 		// Another plugin may have loaded an older My Jetpack without it.
 		return method_exists( $backup, 'activate_module_for_plan' )
@@ -866,11 +875,57 @@ class Jetpack {
 	 * @return void
 	 */
 	public static function queue_backup_module_check() {
-		$backup = 'Automattic\\Jetpack\\My_Jetpack\\Products\\Backup';
+		$backup = self::BACKUP_PRODUCT_CLASS;
 
 		if ( method_exists( $backup, 'queue_module_check' ) ) {
 			$backup::queue_module_check();
 		}
+	}
+
+	/**
+	 * Run a queued Backup plan check for an admin; see Backup::run_queued_module_check().
+	 *
+	 * Hooked here rather than in My Jetpack, so it runs where a site turns My Jetpack off.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function run_queued_backup_module_check() {
+		$backup = self::BACKUP_PRODUCT_CLASS;
+
+		if ( method_exists( $backup, 'run_queued_module_check' ) ) {
+			$backup::run_queued_module_check();
+		}
+	}
+
+	/**
+	 * Keep a write to the active modules from switching Backup off; see Backup::keep_module_on().
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param mixed $value     The modules about to be saved.
+	 * @param mixed $old_value The modules saved now.
+	 * @return mixed
+	 */
+	public static function keep_backup_module_on( $value, $old_value ) {
+		$backup = self::BACKUP_PRODUCT_CLASS;
+
+		return method_exists( $backup, 'keep_module_on' ) ? $backup::keep_module_on( $value, $old_value ) : $value;
+	}
+
+	/**
+	 * Why a module can't be switched off by hand, or an empty string when it can.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $module Module slug.
+	 * @return string
+	 */
+	public static function get_module_locked_on_reason( $module ) {
+		return 'backup' === $module
+			? __( 'Backup follows your site’s plan, so it can’t be switched off.', 'jetpack' )
+			: '';
 	}
 
 	/**
