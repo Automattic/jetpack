@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Conversion funnel chart: Move between steps with the arrow keys, and keep every step reachable after one is selected.
