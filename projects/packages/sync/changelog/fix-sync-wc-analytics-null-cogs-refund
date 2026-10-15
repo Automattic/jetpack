@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+WooCommerce Analytics: Avoid a PHP 8.1+ deprecation notice when syncing refunds without a cost of goods value.
