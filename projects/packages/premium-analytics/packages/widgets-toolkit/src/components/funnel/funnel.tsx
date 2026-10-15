@@ -111,6 +111,7 @@ export function Funnel( {
 						<TooltipRow
 							indicator={ null }
 							label={ step.label }
+							isLabelAriaHidden
 							value={ step.count ?? null }
 							dataFormat={ format }
 						/>

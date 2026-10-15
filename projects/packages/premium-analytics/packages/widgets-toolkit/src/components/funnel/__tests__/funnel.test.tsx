@@ -47,6 +47,16 @@ describe( 'Funnel', () => {
 		expect( screen.getByText( /17%/ ) ).toBeInTheDocument();
 	} );
 
+	it( 'describes the selected step without repeating its name', async () => {
+		renderFunnel( <Funnel steps={ STEPS } status={ READY } /> );
+
+		await userEvent.click( screen.getByRole( 'button', { name: /^Cart,/ } ) );
+
+		expect( screen.getByRole( 'button', { name: /^Cart,/ } ) ).toHaveAccessibleDescription(
+			'310 of Sessions 24.8%'
+		);
+	} );
+
 	it( 'renders the empty state when the first step is empty', () => {
 		renderFunnel(
 			<Funnel

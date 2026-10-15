@@ -15,12 +15,20 @@ export type TooltipRowProps = {
 	/** Pre-rendered indicator element (LineShape, RectShape, etc.) */
 	indicator: React.ReactNode;
 	label: string;
+	/** Hides the label from assistive tech, for a tooltip that describes a control whose accessible name already says it. */
+	isLabelAriaHidden?: boolean;
 	/** Omit when the label already carries the value; null for a bucket with no reading, which reads "No data" rather than a formatted zero. */
 	value?: number | null;
 	dataFormat: DataFormat;
 };
 
-export function TooltipRow( { indicator, label, value, dataFormat }: TooltipRowProps ) {
+export function TooltipRow( {
+	indicator,
+	label,
+	isLabelAriaHidden,
+	value,
+	dataFormat,
+}: TooltipRowProps ) {
 	return (
 		<Stack
 			direction="row"
@@ -31,7 +39,9 @@ export function TooltipRow( { indicator, label, value, dataFormat }: TooltipRowP
 		>
 			{ indicator }
 
-			<div className={ styles.label }>{ label }</div>
+			<div className={ styles.label } aria-hidden={ isLabelAriaHidden || undefined }>
+				{ label }
+			</div>
 
 			{ value === null && (
 				<span className={ styles.value }>{ __( 'No data', 'jetpack-premium-analytics-pkg' ) }</span>
