@@ -27,7 +27,7 @@ Main component for displaying conversion funnel visualizations.
 | `renderMainMetric` | `(props: MainMetricRenderProps) => ReactNode` | - | Custom render function for main metric section |
 | `renderTooltip` | `(props: TooltipRenderProps) => ReactNode` | - | Custom render function for tooltip content |
 | `tooltipStyle` | `CSSProperties` | - | Inline styles merged over the tooltip box defaults |
-| `getStepDescription` | `(step: FunnelStep, index: number) => string` | The step's count, e.g. "7,110 items" | Plain text screen readers read after each step's name and rate. Return an empty string for no description. Set it when `renderTooltip` shows data the default does not describe. |
+| `getStepDescription` | `(step: FunnelStep, index: number) => string` | The default tooltip's rate and count, e.g. "71.1%, 7,110 items" | Plain text screen readers read after each step's name. Set it with `renderTooltip`, so screen readers hear what the tooltip shows. |
 
 ## FunnelStep Type
 

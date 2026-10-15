@@ -81,7 +81,7 @@ export interface ConversionFunnelChartProps extends Pick<
 	renderMainMetric?: ( props: MainMetricRenderProps ) => React.ReactNode;
 	/** Custom render function for tooltip content */
 	renderTooltip?: ( props: TooltipRenderProps ) => React.ReactNode;
-	/** Plain text that screen readers read after each step's name and rate. Defaults to the step's count, e.g. "7,110 items". Return an empty string for no description. */
+	/** Plain text that screen readers read after each step's name. Match it to what `renderTooltip` shows. Defaults to the default tooltip's rate and count, e.g. "71.1%, 7,110 items". */
 	getStepDescription?: ( step: FunnelStep, index: number ) => string;
 	/** Inline styles merged over the tooltip box defaults. */
 	tooltipStyle?: React.CSSProperties;
