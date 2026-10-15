@@ -363,6 +363,7 @@ function FeaturesTabContent() {
 
 	// Hold back "no matches" until module data arrives: before then every feature reads as
 	// inactive and unavailable, so Active and Available can wrongly come up empty. A search ignores the filter.
+	// Tags and searches from classic Modules links also wait for module data to avoid briefly showing "No features found."
 	const onModules =
 		filter === 'active' || filter === 'inactive' || ( filter === 'available' && ! search.trim() );
 	const settling =
