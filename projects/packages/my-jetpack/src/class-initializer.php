@@ -1422,12 +1422,9 @@ class Initializer {
 			);
 		}
 
+		$counted_elsewhere = self::get_alerts_counted_elsewhere();
 		foreach ( array_keys( $red_bubble_alerts ) as $slug ) {
-			// Protect reports its own count directly to the registry, but only when its
-			// standalone plugin is active (see class-jetpack-protect.php::admin_page_init()).
-			// If the standalone plugin isn't active, nobody else registers this count, so we
-			// must not skip it here or the alert silently disappears from the menu total.
-			if ( 'protect_has_threats' === $slug && Products\Protect::is_standalone_plugin_active() ) {
+			if ( in_array( $slug, $counted_elsewhere, true ) ) {
 				continue;
 			}
 			// The missing-connection slug and a connection error describe the same broken
@@ -1464,6 +1461,18 @@ class Initializer {
 	}
 
 	/**
+	 * Alerts left out of the My Jetpack badge because another menu item already counts them.
+	 *
+	 * The Protect page reports its own count, from the standalone plugin (class-jetpack-protect.php::admin_page_init())
+	 * or the Protect package's dashboard; without either, nobody else counts the threats, so they must stay.
+	 *
+	 * @return string[] Alert slugs.
+	 */
+	private static function get_alerts_counted_elsewhere() {
+		return Products\Protect::has_protect_page() ? array( 'protect_has_threats' ) : array();
+	}
+
+	/**
 	 * Enqueue the notification bubble script.
 	 * Fetches fresh alert data via REST API without blocking page load.
 	 *
@@ -1478,6 +1487,11 @@ class Initializer {
 				'enqueue'   => true,
 				'in_footer' => true,
 			)
+		);
+		wp_localize_script(
+			'my-jetpack-notification-bubble',
+			'myJetpackNotificationBubble',
+			array( 'excludedAlerts' => self::get_alerts_counted_elsewhere() )
 		);
 	}
 

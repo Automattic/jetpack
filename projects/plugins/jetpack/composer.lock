@@ -3292,12 +3292,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/protect",
-                "reference": "3051d8cff87922d4674ee8964dc08b6c5d627582"
+                "reference": "e014c4a14ac2b4b6eef3d4086439204ec46859a9"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-ip": "@dev",
+                "automattic/jetpack-menu-badges": "@dev",
                 "automattic/jetpack-protect-models": "@dev",
                 "automattic/jetpack-protect-status": "@dev",
                 "automattic/jetpack-status": "@dev",
