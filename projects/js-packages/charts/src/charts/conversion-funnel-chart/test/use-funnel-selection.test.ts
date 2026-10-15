@@ -139,6 +139,20 @@ describe( 'useFunnelSelection', () => {
 			expect( mockEvent.preventDefault ).not.toHaveBeenCalled();
 			expect( mockEvent.stopPropagation ).not.toHaveBeenCalled();
 		} );
+
+		it( 'leaves Escape to the page when no step is selected', () => {
+			const { result } = renderHook( () => useFunnelSelection() );
+			const mockEvent = {
+				key: 'Escape',
+				preventDefault: jest.fn(),
+			} as unknown as React.KeyboardEvent;
+
+			act( () => {
+				result.current.handleBarKeyDown( 'test-step', mockEvent );
+			} );
+
+			expect( mockEvent.preventDefault ).not.toHaveBeenCalled();
+		} );
 	} );
 
 	describe( 'Clear Selection', () => {
