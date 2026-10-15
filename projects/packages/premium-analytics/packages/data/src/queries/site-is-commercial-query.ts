@@ -19,6 +19,7 @@ export function siteIsCommercialQuery() {
 		},
 		staleTime: Infinity,
 		// Only picks between two lines of copy, so a failure settles on the default rather than waiting.
+		// Readers without `edit_posts` reach the dashboard but get a 403 from this endpoint.
 		retry: false,
 	} );
 }

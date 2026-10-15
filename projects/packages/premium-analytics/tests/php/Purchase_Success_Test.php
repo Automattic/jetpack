@@ -86,15 +86,31 @@ class Purchase_Success_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Other admin pages print script data too.
+	 * @dataProvider provide_requests_without_a_dashboard_purchase
+	 *
+	 * @param string|null $param The `statsPurchaseSuccess` query value, or none.
+	 * @param string      $page  The admin page requested.
 	 */
-	public function test_script_data_is_left_alone_off_the_dashboard_or_without_a_purchase() {
-		$this->assertSame( array( 'premium_analytics' => array() ), inject_purchase_success_script_data( array( 'premium_analytics' => array() ) ) );
+	#[DataProvider( 'provide_requests_without_a_dashboard_purchase' )]
+	public function test_script_data_is_left_alone( $param, $page ) {
+		if ( null !== $param ) {
+			$_GET['statsPurchaseSuccess'] = $param;
+		}
+		$_GET['page'] = $page;
+		set_current_screen( 'toplevel_page_' . $page );
 
-		$_GET['statsPurchaseSuccess'] = 'paid';
-		$_GET['page']                 = 'jetpack';
-		set_current_screen( 'toplevel_page_jetpack' );
-
 		$this->assertSame( array( 'premium_analytics' => array() ), inject_purchase_success_script_data( array( 'premium_analytics' => array() ) ) );
+	}
+
+	/**
+	 * Requests that must not report a purchase.
+	 *
+	 * @return array
+	 */
+	public static function provide_requests_without_a_dashboard_purchase() {
+		return array(
+			'no purchase on the dashboard' => array( null, Analytics::MENU_PAGE_SLUG ),
+			'purchase on another page'     => array( 'paid', 'jetpack' ),
+		);
 	}
 }
