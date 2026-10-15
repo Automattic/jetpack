@@ -3,7 +3,7 @@
  */
 import analytics from '@automattic/jetpack-analytics';
 import { queryClient } from '@jetpack-premium-analytics/data';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 /**
@@ -76,7 +76,7 @@ describe( 'PurchaseSuccessNotice', () => {
 			const { container } = render( <PurchaseSuccessNotice /> );
 
 			await expect(
-				screen.findByText( 'Thank you for supporting Jetpack Stats!' )
+				within( container ).findByText( 'Thank you for supporting Jetpack Stats!' )
 			).resolves.toBeVisible();
 			expect( container ).toHaveTextContent( copy );
 			expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
@@ -93,6 +93,9 @@ describe( 'PurchaseSuccessNotice', () => {
 		await userEvent.click( link );
 
 		expect( container ).toHaveTextContent( 'Thank you for using Jetpack Stats!' );
+		expect(
+			screen.getByText( 'Thank you for using Jetpack Stats!', { selector: '#a11y-speak-polite' } )
+		).toBeInTheDocument();
 		expect( link ).toHaveAttribute(
 			'href',
 			expect.stringContaining(

@@ -5,6 +5,7 @@ import { getScriptData } from '@automattic/jetpack-script-data';
 import { AnalyticsQueryClientProvider, useSiteIsCommercial } from '@jetpack-premium-analytics/data';
 import { Link, Notice } from '@jetpack-premium-analytics/externals';
 import { useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
+import { speak } from '@wordpress/a11y';
 import { createInterpolateElement, useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
@@ -72,14 +73,23 @@ function ConnectedNotice(): JSX.Element | null {
 	}, [ trackEvent ] );
 
 	// The paid copy depends on the classification, so wait rather than swap a line under the reader.
-	if ( ! purchase || isDismissed || ( isPaid && isPending ) ) {
+	const isVisible = !! purchase && ! isDismissed && ! ( isPaid && isPending );
+	const title = isPaid
+		? __( 'Thank you for supporting Jetpack Stats!', 'jetpack-premium-analytics-pkg' )
+		: __( 'Thank you for using Jetpack Stats!', 'jetpack-premium-analytics-pkg' );
+
+	useEffect( () => {
+		if ( isVisible ) {
+			speak( title, 'polite' );
+		}
+	}, [ isVisible, title ] );
+
+	if ( ! isVisible ) {
 		return null;
 	}
 
-	let title: string;
 	let description: string | JSX.Element;
 	if ( isPaid ) {
-		title = __( 'Thank you for supporting Jetpack Stats!', 'jetpack-premium-analytics-pkg' );
 		description = isCommercial
 			? __(
 					'You’ll now get instant access to upcoming features and priority support.',
@@ -91,7 +101,6 @@ function ConnectedNotice(): JSX.Element | null {
 				);
 	} else {
 		const upgradeHref = getPlanUpgradeUrl( 'jetpack-free-stats-purchase-success-notice' );
-		title = __( 'Thank you for using Jetpack Stats!', 'jetpack-premium-analytics-pkg' );
 		description = createInterpolateElement(
 			__(
 				'We appreciate your continued support. If you want to access upcoming features, <link>please consider upgrading</link>.',
