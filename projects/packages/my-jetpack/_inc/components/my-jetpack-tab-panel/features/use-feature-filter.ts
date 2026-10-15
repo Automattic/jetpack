@@ -1,6 +1,9 @@
 import { __ } from '@wordpress/i18n';
+import { getFeatureModuleSlug } from './feature-state';
+import { PRODUCT_MODULES } from './mappings';
 import { getFeatureUnavailableReason, isFeatureAvailable } from './module-availability';
 import type { FeatureState } from './feature-state';
+import type { MyJetpackModule } from '../../../types';
 
 export type FeatureFilter =
 	'all' | 'available' | 'active' | 'inactive' | 'included' | 'essential' | 'security' | 'growth';
@@ -80,4 +83,27 @@ export function matchesFilter( state: FeatureState, filter: FeatureFilter ): boo
 	}
 
 	return state.feature.essential;
+}
+
+/**
+ * Whether a row has the module tag from a classic Modules screen link, such as "Jetpack Stats".
+ *
+ * @param state   - The feature or module row.
+ * @param tag     - The tag name; empty matches every row.
+ * @param modules - Module data keyed by slug, used to find a product card's module.
+ * @return True when the row's module has the tag, and while the row is still loading, so it does not vanish before its data arrives.
+ */
+export function matchesModuleTag(
+	state: FeatureState,
+	tag: string,
+	modules: Record< string, MyJetpackModule >
+): boolean {
+	if ( ! tag || state.pending ) {
+		return true;
+	}
+	const module =
+		state.control.kind === 'module'
+			? state.control.module
+			: modules[ getFeatureModuleSlug( state.feature, PRODUCT_MODULES ) ];
+	return module?.module_tags?.includes( tag ) ?? false;
 }

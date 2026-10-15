@@ -19,6 +19,17 @@ require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-admin-menu/wpcom-ad
  */
 class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 
+	public function test_module_management_availability_follows_the_host_route() {
+		foreach ( array(
+			'personal-bundle' => false,
+			'value_bundle'    => false,
+			'business-bundle' => true,
+		) as $slug => $available ) {
+			\Automattic\Jetpack\Current_Plan::update_from_site_record( array( 'plan' => array( 'product_slug' => $slug ) ) );
+			$this->assertSame( $available, apply_filters( 'jetpack_my_jetpack_modules_management_available', true ), $slug );
+		}
+	}
+
 	/**
 	 * Admin user ID.
 	 *

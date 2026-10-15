@@ -12,13 +12,139 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-react-page.php';
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-settings-page.php';
 
 /**
  * @covers \Jetpack_React_Page
+ * @covers \Jetpack_Settings_Page
  */
 #[CoversClass( Jetpack_React_Page::class )]
+#[CoversClass( Jetpack_Settings_Page::class )]
 class Jetpack_React_Page_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
+	public function test_classic_search_preserves_only_a_present_fallback_marker() {
+		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
+		$original_get = $_GET;
+		try {
+			foreach ( array( array(), array( 'modules_fallback' => '1' ) ) as $args ) {
+				$_GET = $args;
+				ob_start();
+				( new Jetpack_Settings_Page() )->page_render();
+				$html = ob_get_clean();
+				$this->assertSame( 1, preg_match( '/<form class="navbar-form".*?<\/form>/s', $html, $matches ) );
+				$this->assertSame( isset( $args['modules_fallback'] ), false !== strpos( $matches[0], '<input type="hidden" name="modules_fallback" value="1" />' ) );
+			}
+		} finally {
+			$_GET = $original_get;
+		}
+	}
+
+	/**
+	 * @dataProvider modules_navigation_cases
+	 */
+	#[DataProvider( 'modules_navigation_cases' )]
+	public function test_modules_navigation_preserves_supported_views_and_fallbacks( $args, $mode, $redirect ) {
+		update_option( 'active_plugins', array( 'jetpack/jetpack.php' ) );
+		$original_get              = $_GET;
+		$original_method           = $_SERVER['REQUEST_METHOD'] ?? null;
+		$_GET                      = array_merge( array( 'page' => 'jetpack_modules' ), $args );
+		$_SERVER['REQUEST_METHOD'] = $mode === 'post' ? 'POST' : 'GET';
+		remove_all_actions( 'admin_head' );
+		add_filter( 'jetpack_offline_mode', $mode === 'offline' ? '__return_true' : '__return_false' );
+		add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
+		$auth = static function ( $result ) use ( $mode ) {
+			return $mode === 'rest-error' ? new WP_Error( 'denied' ) : $result;
+		};
+		add_filter( 'rest_authentication_errors', $auth, 999 );
+		if ( $mode === 'rest-off' ) {
+			add_filter( 'rest_enabled', '__return_false' );
+		}
+		if ( $mode === 'host-redirect' ) {
+			add_filter( 'jetpack_my_jetpack_modules_management_available', '__return_false' );
+		}
+		if ( $mode === 'fonts-off' ) {
+			Jetpack::deactivate_module( 'google-fonts' );
+		}
+		$visibility = static function ( $states ) use ( $mode ) {
+			return $mode === 'host-hidden' ? array( 'stats' => 'hidden' ) : $states;
+		};
+		add_filter( 'jetpack_my_jetpack_feature_visibility', $visibility );
+		if ( $mode === 'role' ) {
+			$user = wp_get_current_user();
+			$user->set_role( 'subscriber' );
+			$user->add_cap( 'jetpack_manage_modules' );
+		}
+		if ( $mode === 'notice' ) {
+			Jetpack::state( 'error', 'test-error' );
+		}
+		Status_Cache::clear();
+		try {
+			$page = new Jetpack_Settings_Page();
+			$page->add_page_actions( 'modules-test' );
+			do_action( 'load-modules-test' ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores -- WordPress page-load hook.
+			ob_start();
+			do_action( 'admin_head' );
+			$html = ob_get_clean();
+			$this->assertSame( $redirect, false !== strpos( $html, 'window.location.replace(' ) );
+			if ( $redirect ) {
+				$this->assertStringContainsString( '#\\/features', $html );
+				if ( isset( $args['s'] ) ) {
+					$this->assertStringContainsString( 'search=' . rawurlencode( $args['s'] ), $html );
+				}
+				if ( isset( $args['module_tag'] ) ) {
+					$this->assertStringContainsString( 'module_tag=Jetpack%20Stats', $html );
+				}
+			}
+		} finally {
+			$_GET                      = $original_get;
+			$_SERVER['REQUEST_METHOD'] = $original_method;
+			Jetpack::state( 'error', '' );
+			remove_filter( 'rest_authentication_errors', $auth, 999 );
+			remove_filter( 'rest_enabled', '__return_false' );
+			remove_filter( 'jetpack_my_jetpack_modules_management_available', '__return_false' );
+			remove_filter( 'jetpack_my_jetpack_feature_visibility', $visibility );
+		}
+	}
+
+	public static function modules_navigation_cases() {
+		return array(
+			'plain'                               => array( array(), 'online', true ),
+			'search encoding'                     => array( array( 's' => 'stats & visits' ), 'online', true ),
+			'tag'                                 => array( array( 'module_tag' => 'Jetpack Stats' ), 'online', true ),
+			'combined'                            => array(
+				array(
+					's'          => 'stats',
+					'module_tag' => 'Jetpack Stats',
+				),
+				'online',
+				true,
+			),
+			'host replaces My Jetpack with Stats' => array( array(), 'host-redirect', false ),
+			'hidden-only Fonts tag'               => array( array( 'module_tag' => 'Fonts' ), 'fonts-off', false ),
+			'host-hidden Stats tag'               => array( array( 'module_tag' => 'Jetpack Stats' ), 'host-hidden', false ),
+			'crafted key'                         => array( array( 'x#/features' => '1' ), 'offline', false ),
+			'unknown tag'                         => array( array( 'module_tag' => 'unknown' ), 'online', false ),
+			'purpose'                             => array( array( 'product_group' => 'grow' ), 'online', false ),
+			'state'                               => array( array( 'activated' => 'false' ), 'online', false ),
+			'availability'                        => array( array( 'offline_available' => 'all' ), 'online', false ),
+			'array'                               => array( array( 's' => array( 'stats' ) ), 'online', false ),
+			'action'                              => array(
+				array(
+					'action'   => 'activate',
+					'_wpnonce' => 'nonce',
+				),
+				'online',
+				false,
+			),
+			'offline entry enabled'               => array( array(), 'offline', false ),
+			'REST disabled'                       => array( array(), 'rest-off', false ),
+			'REST error'                          => array( array(), 'rest-error', false ),
+			'POST'                                => array( array(), 'post', false ),
+			'module manager'                      => array( array(), 'role', false ),
+			'pending notice'                      => array( array(), 'notice', false ),
+		);
+	}
 
 	/**
 	 * Log in as an administrator of a connected site.
