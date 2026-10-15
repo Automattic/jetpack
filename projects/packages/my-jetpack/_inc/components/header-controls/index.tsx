@@ -5,7 +5,7 @@ import { Button } from '@wordpress/ui';
 import type { FC, ReactNode } from 'react';
 
 /**
- * The shared header's global controls. A placeholder until the connection control is built (JETPACK-2910).
+ * The shared header's global controls. A placeholder until the connection control (JETPACK-3052) replaces it.
  *
  * @return The controls.
  */
