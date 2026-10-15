@@ -321,7 +321,8 @@ function FeaturesTabContent() {
 	const stepOrder = useStepOrder( visible, openSlug, `${ filter }|${ search }|${ isLoading }` );
 	const openIndex = stepOrder.findIndex( feature => feature.slug === openSlug );
 
-	// Module-dependent filters cannot report no matches until their modules arrive.
+	// Hold back "no matches" until module data arrives: before then every feature reads as
+	// inactive and unavailable, so Active and Available can wrongly come up empty. A search ignores the filter.
 	const onModules =
 		filter === 'active' || filter === 'inactive' || ( filter === 'available' && ! search.trim() );
 	const settling =
