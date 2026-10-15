@@ -7842,6 +7842,18 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				expect( embedAs ).toAppearBefore( panel( 'PayPal Connection' ) );
 			} );
 
+			it( 'offers the four formats in order', async () => {
+				render( <Edit attributes={ qrAttributes } setAttributes={ setAttributes } /> );
+
+				const embedAs = await screen.findByLabelText( 'Embed as' );
+				expect( [ ...embedAs.options ].map( o => [ o.value, o.textContent ] ) ).toEqual( [
+					[ 'BUTTON', 'Single button' ],
+					[ 'STACKED', 'Stacked buttons' ],
+					[ 'QR', 'QR code' ],
+					[ 'LINK', 'Link' ],
+				] );
+			} );
+
 			it( 'offers Download beside the inspector QR code', async () => {
 				render( <Edit attributes={ qrAttributes } setAttributes={ setAttributes } /> );
 				await expect( screen.findByText( 'Download' ) ).resolves.toBeInTheDocument();
