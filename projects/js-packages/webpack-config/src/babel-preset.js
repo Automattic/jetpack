@@ -1,7 +1,32 @@
 const path = require( 'path' );
+const wpPolyfillModules = require( './babel/wp-polyfill-modules.json' ).modules;
 
 const isProduction = process.env.NODE_ENV === 'production';
 const isDevelopment = ! isProduction;
+
+/**
+ * Normalize a polyfill's name.
+ *
+ * @param {string} name - The polyfill name to normalize.
+ *
+ * @return {string} The normalized name.
+ */
+function normalizePolyfillName( name ) {
+	return name.replace( /^esnext\./, 'es.' );
+}
+
+const normalizedPolyfillModules = wpPolyfillModules.map( normalizePolyfillName );
+
+/**
+ * Check whether any of the supported `wp-polyfill` versions include this polyfill.
+ *
+ * @param {string} name - The polyfill name to check.
+ *
+ * @return {boolean} Whether any of the supported `wp-polyfill` versions include this polyfill
+ */
+function isPolyfillSupported( name ) {
+	return normalizedPolyfillModules.includes( normalizePolyfillName( name ) );
+}
 
 module.exports = ( api, opts = {} ) => {
 	const ret = {
@@ -10,6 +35,27 @@ module.exports = ( api, opts = {} ) => {
 		plugins: [],
 		overrides: [],
 	};
+
+	/**
+	 * Decide whether a polyfill should be injected, based on exclusions and support.
+	 *
+	 * @param {string}  name                - The polyfill name.
+	 * @param {boolean} defaultShouldInject - Babel's decision on whether the polyfill should be injected, based on browser support alone.
+	 *
+	 * @return {boolean} Whether the polyfill should be injected.
+	 */
+	function shouldInjectPolyfill( name, defaultShouldInject ) {
+		// The `exclude` option isn't compatible with `shouldInjectPolyfill`, so we need
+		// to check for exclusions ourselves.
+		// `include` isn't compatible either, but that's not an option on this preset.
+		const exclusions = ( opts.autoWpPolyfill?.exclude ?? [] ).map( normalizePolyfillName );
+		if ( exclusions.includes( normalizePolyfillName( name ) ) ) {
+			return false;
+		}
+
+		// Only inject if the polyfill is supported by `wp-polyfill`.
+		return isPolyfillSupported( name ) ? defaultShouldInject : false;
+	}
 
 	if ( opts.autoWpPolyfill !== false ) {
 		if ( opts.presetEnv?.useBuiltIns ) {
@@ -27,7 +73,8 @@ module.exports = ( api, opts = {} ) => {
 					method: 'usage-global',
 					version: require( 'core-js/package.json' ).version,
 					absoluteImports: importDir,
-					exclude: opts.autoWpPolyfill?.exclude,
+					isDevelopment,
+					shouldInjectPolyfill,
 				},
 			],
 			[
