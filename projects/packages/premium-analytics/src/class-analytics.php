@@ -362,6 +362,12 @@ class Analytics {
 		}
 		configure_videopress_availability();
 
+		// The plan's locked Stats features, for the client's locked states.
+		if ( ! function_exists( __NAMESPACE__ . '\\configure_stats_plan_gates' ) ) {
+			require_once __DIR__ . '/stats-plan-gates.php';
+		}
+		configure_stats_plan_gates();
+
 		// The composition flag's answer, read by the dashboard policy; the file is
 		// already loaded by boot_shared_services().
 		configure_dashboard_policy();
