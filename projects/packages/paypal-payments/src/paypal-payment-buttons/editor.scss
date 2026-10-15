@@ -783,28 +783,6 @@
 	margin-block-start: 24px;
 }
 
-.jetpack-paypal-payment-buttons__confirm-body {
-
-	p {
-		margin: 0 0 12px;
-	}
-
-	ul {
-		margin: 0;
-		padding-inline-start: 20px;
-		list-style: disc;
-	}
-
-	li {
-		margin-bottom: 6px;
-		color: #757575;
-
-		&:last-child {
-			margin-bottom: 0;
-		}
-	}
-}
-
 // Checkout options.
 // 16px between rows and 16px below the group. The gap above comes from
 // the toggle's own margin.

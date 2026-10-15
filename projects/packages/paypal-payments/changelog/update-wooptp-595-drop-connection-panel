@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Move the PayPal Connection panel's Delete and Manage links into the block menus and remove the panel.
+Remove the PayPal Connection panel. Delete and Manage move to the block menus, and Log out in the account menu replaces Disconnect.

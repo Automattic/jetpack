@@ -374,17 +374,6 @@ jest.mock( '@wordpress/components', () => ( {
 			</button>
 		</div>
 	),
-	__experimentalConfirmDialog: ( { children, title, confirmButtonText, onConfirm, onCancel } ) => (
-		<div data-testid="confirm-dialog" role="dialog" aria-label={ title }>
-			<div>{ children }</div>
-			<button data-testid="confirm-dialog-confirm" onClick={ onConfirm }>
-				{ confirmButtonText || 'OK' }
-			</button>
-			<button data-testid="confirm-dialog-cancel" onClick={ onCancel }>
-				Cancel
-			</button>
-		</div>
-	),
 	MenuGroup: ( { children } ) => <div role="group">{ children }</div>,
 	// isDestructive and the icon props belong to MenuItem, so they stay off the DOM node.
 	MenuItem: ( { children, info, href, onClick, icon, iconPosition, isDestructive, ...rest } ) =>

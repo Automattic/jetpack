@@ -354,7 +354,6 @@ export default function ApiManagedEdit( {
 
 	// Confirmation dialog state for destructive actions.
 	const [ showDeleteConfirm, setShowDeleteConfirm ] = useState( false );
-	const [ showDisconnectConfirm, setShowDisconnectConfirm ] = useState( false );
 	const [ showLogOutConfirm, setShowLogOutConfirm ] = useState( false );
 
 	// Inline validation state — track which fields have been touched.
@@ -479,8 +478,6 @@ export default function ApiManagedEdit( {
 	 * Execute the PayPal disconnect after the user confirms.
 	 */
 	const executeDisconnect = useCallback( () => {
-		setShowDisconnectConfirm( false );
-
 		const doDisconnect = () => {
 			setIsConnected( false );
 			setWizardStep( 'welcome' );
@@ -943,8 +940,6 @@ export default function ApiManagedEdit( {
 		<ConfirmDialogs
 			showDeleteConfirm={ showDeleteConfirm }
 			setShowDeleteConfirm={ setShowDeleteConfirm }
-			showDisconnectConfirm={ showDisconnectConfirm }
-			setShowDisconnectConfirm={ setShowDisconnectConfirm }
 			showLogOutConfirm={ showLogOutConfirm }
 			setShowLogOutConfirm={ setShowLogOutConfirm }
 			executeDeleteButton={ executeDeleteButton }
