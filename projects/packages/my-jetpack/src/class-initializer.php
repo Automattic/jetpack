@@ -1031,7 +1031,7 @@ class Initializer {
 	 *   real availability switch and the same one the SEO package gates its own surface behind);
 	 * - the site is self-hosted — WordPress.com (Simple + Atomic) decides its own SEO surface, so
 	 *   the opt-in card is for self-hosted installs only;
-	 * - the install hasn't opted in yet — `jetpack_seo_surface_visible` is still false. On wpcom
+	 * - the install hasn't opted in yet — the SEO surface isn't visible. On wpcom
 	 *   the SEO package's `is_seo_surface_visible()` short-circuits to `true`, so the
 	 *   "not visible yet" check also doubles as the self-hosted guard, but we check the platform
 	 *   explicitly for clarity.

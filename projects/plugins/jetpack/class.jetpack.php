@@ -3191,7 +3191,14 @@ p {
 	 * @param string|false $old_version The previous version, or false on a fresh install.
 	 */
 	public static function seed_seo_visibility_cohort( $version, $old_version ) {
-		add_option( Jetpack_SEO_Initializer::VISIBILITY_OPTION, ! $old_version );
+		// The superseded key (see VISIBILITY_OPTION) also marks an existing install, since
+		// deactivation deletes the stored version and a reactivation then looks fresh.
+		$had_superseded_key = null !== get_option( 'jetpack_seo_surface_visible', null );
+		if ( $had_superseded_key ) {
+			delete_option( 'jetpack_seo_surface_visible' );
+		}
+
+		add_option( Jetpack_SEO_Initializer::VISIBILITY_OPTION, ! $old_version && ! $had_superseded_key );
 	}
 
 	/**

@@ -8,6 +8,7 @@
 
 use Automattic\Jetpack\SEO\Initializer as Jetpack_SEO_Initializer;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * @covers \Jetpack
@@ -63,5 +64,31 @@ class SEO_Visibility_Cohort_Test extends WP_UnitTestCase {
 		Jetpack::seed_seo_visibility_cohort( '14.0:1700000000', '13.9:1690000000' );
 
 		$this->assertTrue( (bool) get_option( $this->option ) );
+	}
+
+	/**
+	 * An install the superseded key marked visible is re-seeded hidden, so it gets the opt-in.
+	 *
+	 * @dataProvider provide_old_versions
+	 * @param string|false $old_version The previous version; false after a reactivation.
+	 */
+	#[DataProvider( 'provide_old_versions' )]
+	public function test_install_seeded_under_superseded_key_is_reseeded_hidden( $old_version ) {
+		add_option( 'jetpack_seo_surface_visible', true );
+
+		Jetpack::seed_seo_visibility_cohort( '14.0:1700000000', $old_version );
+
+		$this->assertFalse( (bool) get_option( $this->option ) );
+		$this->assertNull( get_option( 'jetpack_seo_surface_visible', null ) );
+	}
+
+	/**
+	 * @return array Previous-version values the seed is called with.
+	 */
+	public static function provide_old_versions() {
+		return array(
+			'upgrade'      => array( '13.9:1690000000' ),
+			'reactivation' => array( false ),
+		);
 	}
 }
