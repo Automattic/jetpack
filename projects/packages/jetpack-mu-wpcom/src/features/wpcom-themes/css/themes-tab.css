@@ -1,20 +1,19 @@
 /**
- * The plan a theme needs, on the cards that offer an upgrade
- * instead of an install.
+ * The plan a theme belongs to, on its card and in the preview.
  */
 
 /* Literal colours: this screen loads neither color-studio nor the
    block library, so --studio-* and --wp-admin-theme-color are both
-   undefined here. These match core's own theme cards. */
+   undefined here. These are wp-admin's own text and border greys. */
 .wpcom-themes-tab__plan {
 	display: inline-block;
-	padding: 6px 12px;
-	border: 1px solid rgb(0, 0, 0, 0.1);
-	border-radius: 4px;
+	padding: 4px 8px;
+	border: 1px solid #dcdcde;
+	border-radius: 3px;
 	background: #fff;
-	color: #1e1e1e;
-	font-size: 13px;
-	line-height: 1.4;
+	color: #1d2327;
+	font-size: 12px;
+	line-height: 1.2;
 }
 
 /* Core's cards position their own children, so the screenshot is
@@ -29,5 +28,5 @@
 .install-theme-info .wpcom-themes-tab__plan {
 	display: block;
 	width: fit-content;
-	margin-block: 12px;
+	margin-block-start: 10px;
 }
