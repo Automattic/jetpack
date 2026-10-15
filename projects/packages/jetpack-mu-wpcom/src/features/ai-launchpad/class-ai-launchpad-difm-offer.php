@@ -17,9 +17,10 @@ use Automattic\Jetpack\Status\Host;
 class AI_Launchpad_Difm_Offer {
 
 	/**
-	 * The ExPlat experiment. A placeholder until the experiment is registered, the same name Calypso uses.
+	 * The ExPlat experiment, the same one Calypso uses. It is registered on the calypso platform,
+	 * which the server-side assigner also accepts.
 	 */
-	const EXPERIMENT = 'wpcom_difm_post_signup_offer_placeholder';
+	const EXPERIMENT = 'calypso_difm_free_with_upgrade_wpadmin_202610_v1';
 
 	/**
 	 * The only variation that shows the banner.
