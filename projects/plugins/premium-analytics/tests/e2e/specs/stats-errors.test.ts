@@ -1,7 +1,7 @@
-import { test, expect, setSiteState, setStatsFault } from '../fixtures/dashboard';
+import { test, expect, setNonceLife, setSiteState, setStatsFault } from '../fixtures/dashboard';
 
 type WpWindow = {
-	wp: { apiFetch: ( options: { path: string; parse: boolean } ) => Promise< Response > };
+	wp: { apiFetch: ( options: { path: string; parse: false } ) => Promise< Response > };
 };
 
 test.beforeEach( async ( { testUtils } ) => {
@@ -51,7 +51,7 @@ test( 'a failed Stats request recovers through Retry once WordPress.com does', a
 } );
 
 test( 'an expired nonce renews without the reader noticing', async ( { dashboard, testUtils } ) => {
-	await testUtils.executeWpCommand( 'option update e2e_pa_nonce_life 10' );
+	await setNonceLife( testUtils, 10 );
 	// Requests fail on the stale nonce, during boot too on a slow machine, before the page renews it.
 	dashboard.allowErrors( /^403 .* rest_cookie_invalid_nonce$/ );
 	await dashboard.open();
@@ -66,7 +66,7 @@ test( 'an expired nonce renews without the reader noticing', async ( { dashboard
 						.apiFetch( { path: '/wp/v2/users/me', parse: false } )
 						.then(
 							response => response.status,
-							( response: Response ) => response.status
+							( error: unknown ) => ( error instanceof Response ? error.status : String( error ) )
 						)
 				),
 			{ timeout: 20_000, intervals: [ 1_000 ] }
@@ -81,5 +81,6 @@ test( 'an expired nonce renews without the reader noticing', async ( { dashboard
 		devices.getByText( 'We couldn’t find results for this time period.' )
 	).toBeVisible();
 	await expect( dashboard.page.getByRole( 'tab', { name: /^Views \d/ } ) ).toBeVisible();
+	await expect( dashboard.page.getByTestId( 'widget-skeleton' ) ).toHaveCount( 0 );
 	await expect( dashboard.page.getByRole( 'alert' ) ).toHaveCount( 0 );
 } );

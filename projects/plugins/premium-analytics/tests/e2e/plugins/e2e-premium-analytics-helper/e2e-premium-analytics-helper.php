@@ -46,6 +46,7 @@ function e2e_pa_nonce_life( $life ) {
 
 /**
  * Answers the WordPress.com requests the Premium Analytics proxy makes and blocks every other one.
+ * A spec sets `e2e_pa_stats_fault` to make one Stats route fail with WordPress.com's error envelope.
  *
  * @param false|array|WP_Error $preempt Earlier short-circuit, if any.
  * @param array                $args    Request arguments.
@@ -60,7 +61,7 @@ function e2e_pa_intercept_wpcom( $preempt, $args, $url ) {
 
 	$path  = (string) wp_parse_url( $url, PHP_URL_PATH );
 	$fault = get_option( 'e2e_pa_stats_fault' );
-	if ( 'public-api.wordpress.com' === $host && is_array( $fault ) && false !== strpos( $path, '/stats/' . $fault['route'] ) ) {
+	if ( 'public-api.wordpress.com' === $host && is_array( $fault ) && preg_match( '#/stats/' . preg_quote( $fault['route'], '#' ) . '(/|$)#', $path ) ) {
 		return e2e_pa_reply(
 			(int) $fault['status'],
 			array(
@@ -83,7 +84,7 @@ function e2e_pa_intercept_wpcom( $preempt, $args, $url ) {
 }
 
 /**
- * Builds a WordPress.com JSON reply. A spec sets `e2e_pa_stats_fault` to make one Stats route fail with WordPress.com's error envelope.
+ * Builds a WordPress.com JSON reply with the given status.
  *
  * @param int          $code HTTP status.
  * @param array|object $body Reply body.

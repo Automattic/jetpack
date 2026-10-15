@@ -106,6 +106,16 @@ export async function setStatsFault( testUtils: TestUtils, fault: StatsFault | n
 	await testUtils.executeWpCommand( 'transient delete --all' );
 }
 
+/**
+ * Shortens nonces so the dashboard's expires mid-session. `setSiteState()` restores the default.
+ *
+ * @param testUtils - e2e-commons test utilities.
+ * @param seconds   - Nonce lifetime in seconds.
+ */
+export async function setNonceLife( testUtils: TestUtils, seconds: number ) {
+	await testUtils.executeWpCommand( `option update e2e_pa_nonce_life ${ seconds }` );
+}
+
 export class Dashboard {
 	readonly errors: string[] = [];
 
@@ -157,10 +167,16 @@ export class Dashboard {
 		);
 	}
 
+	/**
+	 * Stops counting error responses whose `<status> <url> <error code>` entry matches the pattern.
+	 *
+	 * @param pattern - Matched against the entry, e.g. `/^403 .* rest_cookie_invalid_nonce$/`.
+	 */
 	allowErrors( pattern: RegExp ) {
 		this.allowed.push( pattern );
 	}
 
+	/** Waits for the error bodies still being read, so the teardown check sees every error. */
 	async settled() {
 		await Promise.all( this.pending );
 	}
