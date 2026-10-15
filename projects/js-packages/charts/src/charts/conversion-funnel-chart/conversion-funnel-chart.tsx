@@ -1,8 +1,17 @@
 import { useTooltip } from '@visx/tooltip';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
-import { type FC, useRef, useMemo, useEffect, useState, useCallback, useContext } from 'react';
+import {
+	type FC,
+	useRef,
+	useMemo,
+	useEffect,
+	useState,
+	useCallback,
+	useContext,
+	useId,
+} from 'react';
 import { BoundedTooltip } from '../../components/tooltip/private/bounded-tooltip';
 import { useElementSize, usePrefersReducedMotion } from '../../hooks';
 import {
@@ -15,7 +24,7 @@ import {
 } from '../../providers';
 import { CATALOG_POINTERS } from '../../providers/chart-context/private/catalog-pointers';
 import { useStandaloneScopeClass } from '../../providers/chart-scope';
-import { formatPercentage } from '../../utils';
+import { formatMetricValue, formatPercentage } from '../../utils';
 import styles from './conversion-funnel-chart.module.scss';
 import { useFunnelSelection, useRovingStepFocus } from './private';
 import type { FunnelStep, ConversionFunnelChartProps } from './types';
@@ -66,6 +75,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 	const chartRef = useRef< HTMLDivElement >( null );
 	const selectedBarRef = useRef< HTMLDivElement | null >( null );
 	const [ scopeNode, setScopeNode ] = useState< HTMLElement | null >( null );
+	const tooltipId = useId();
 
 	// Use @visx/tooltip hooks for tooltip positioning
 	const { tooltipData, tooltipLeft, tooltipTop, tooltipOpen, showTooltip, hideTooltip } =
@@ -284,7 +294,12 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 			<div className={ styles[ 'tooltip-title' ] }>{ step.label }</div>
 			<div className={ styles[ 'tooltip-content' ] }>
 				{ formatPercentage( step.rate ) }
-				{ ` • ${ step.count ?? 'no' } items` }
+				{ step.count !== undefined &&
+					` • ${ sprintf(
+						/* translators: %s: Number of items that reached the funnel step. */
+						_n( '%s item', '%s items', step.count, 'jetpack-charts' ),
+						formatMetricValue( step.count )
+					) }` }
 			</div>
 		</Stack>
 	);
@@ -338,6 +353,19 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 
 	// Calculate bar heights relative to the maximum (first step)
 	const maxRate = Math.max( ...steps.map( step => step.rate ) );
+
+	const tooltipStep = tooltipOpen ? ( tooltipData as FunnelStep | undefined ) : undefined;
+	let tooltipContent: React.ReactNode = null;
+	if ( tooltipStep ) {
+		tooltipContent = renderTooltip
+			? renderTooltip( {
+					step: tooltipStep,
+					index: steps.findIndex( s => s.id === tooltipStep.id ),
+					top: tooltipTop,
+					left: tooltipLeft,
+				} )
+			: renderDefaultTooltip( tooltipStep );
+	}
 
 	return (
 		<Stack
@@ -438,6 +466,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 										formatPercentage( step.rate )
 									) }
 									aria-pressed={ isClicked }
+									aria-describedby={ isClicked && tooltipContent ? tooltipId : undefined }
 								>
 									<div
 										className={ clsx( styles[ 'funnel-bar' ], {
@@ -456,32 +485,18 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 				</Stack>
 			</ChartScopeContext.Provider>
 
-			{ tooltipOpen &&
-				tooltipData &&
-				( () => {
-					const tooltipContent = renderTooltip
-						? renderTooltip( {
-								step: tooltipData as FunnelStep,
-								index: steps.findIndex( s => s.id === ( tooltipData as FunnelStep ).id ),
-								top: tooltipTop,
-								left: tooltipLeft,
-							} )
-						: renderDefaultTooltip( tooltipData as FunnelStep );
-
-					// Don't render tooltip if renderTooltip returns falsy
-					if ( ! tooltipContent ) return null;
-
-					return (
-						<BoundedTooltip
-							top={ tooltipTop }
-							left={ tooltipLeft }
-							className={ standaloneScopeClass }
-							style={ tooltipStyle }
-						>
-							<div role="tooltip">{ tooltipContent }</div>
-						</BoundedTooltip>
-					);
-				} )() }
+			{ tooltipContent && (
+				<BoundedTooltip
+					top={ tooltipTop }
+					left={ tooltipLeft }
+					className={ standaloneScopeClass }
+					style={ tooltipStyle }
+				>
+					<div role="tooltip" id={ tooltipId }>
+						{ tooltipContent }
+					</div>
+				</BoundedTooltip>
+			) }
 		</Stack>
 	);
 };
