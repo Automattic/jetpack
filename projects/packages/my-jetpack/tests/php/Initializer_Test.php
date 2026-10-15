@@ -662,7 +662,7 @@ class Initializer_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The header's placeholder controls stay hidden unless the flag is turned on.
+	 * The header's controls show only with the flag on and My Jetpack running.
 	 */
 	public function test_my_jetpack_flags_show_header_controls_only_when_the_flag_is_on() {
 		Initializer::register_feature_flags();
@@ -671,7 +671,11 @@ class Initializer_Test extends BaseTestCase {
 		add_filter( 'jetpack_feature_flag_enabled_' . Initializer::HEADER_CONTROLS_FLAG, '__return_true' );
 		try {
 			$this->assertTrue( Initializer::get_my_jetpack_flags()['headerControls'] );
+
+			add_filter( 'jetpack_my_jetpack_should_initialize', '__return_false' );
+			$this->assertFalse( Initializer::get_my_jetpack_flags()['headerControls'] );
 		} finally {
+			remove_filter( 'jetpack_my_jetpack_should_initialize', '__return_false' );
 			remove_filter( 'jetpack_feature_flag_enabled_' . Initializer::HEADER_CONTROLS_FLAG, '__return_true' );
 			Feature_Flags::reset();
 		}

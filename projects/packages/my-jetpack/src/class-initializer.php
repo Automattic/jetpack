@@ -1025,7 +1025,8 @@ class Initializer {
 			// caches its report and wants a `force_refresh` hint the dashboard does not.
 			'premiumAnalyticsEnabled'  => Products\Stats::is_premium_analytics_enabled(),
 			'showAiModuleToggle'       => Products\Jetpack_Ai::is_feature_ui_enabled(),
-			'headerControls'           => Feature_Flags::is_enabled( self::HEADER_CONTROLS_FLAG ),
+			// Pages outside My Jetpack, such as Boost's, get this state even where My Jetpack is off.
+			'headerControls'           => Feature_Flags::is_enabled( self::HEADER_CONTROLS_FLAG ) && self::should_initialize(),
 			'overviewV1'               => self::is_overview_v1_enabled(),
 		);
 
