@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Move between conversion funnel steps with the arrow keys, keep every step reachable after one is selected, and announce each step's rate and count to screen readers.
+Move between conversion funnel steps with the arrow keys, keep every step reachable after one is selected, announce each step's rate and count to screen readers, and label the tooltip's rate "Conversion rate".
