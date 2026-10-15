@@ -196,6 +196,11 @@ class Sync_Status_Tracker {
 		$progress = $full_status['progress'];
 		foreach ( self::get_analytics_sync_modules() as $module_name ) {
 			if ( isset( $progress[ $module_name ]['finished'] ) && true === $progress[ $module_name ]['finished'] ) {
+				// The sender sets the milestone before it stores `finished`, so re-read it past the
+				// request's option cache to avoid firing the action a second time.
+				if ( (int) \Jetpack_Options::get_raw_option( self::INITIAL_ANALYTICS_SYNC_OPTION, 0 ) > 0 ) {
+					return;
+				}
 				self::set_milestone( $full_status );
 				return;
 			}
