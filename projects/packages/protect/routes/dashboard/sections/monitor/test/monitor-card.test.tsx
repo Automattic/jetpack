@@ -1,7 +1,9 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
+import { useCallback, useState } from '@wordpress/element';
 import MonitorCard from '../monitor-card';
-import type { ProtectSettingsData } from '../../../data/use-protect-settings';
+import type { ProtectSettings, ProtectSettingsData } from '../../../data/use-protect-settings';
 import type { MonitorState, UptimeDay } from '../types';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
@@ -21,7 +23,14 @@ const renderCard = (
 	render(
 		<MonitorCard
 			state={ { available: true, active: true, uptimeDays: 40, userConnected: true, ...state } }
-			settings={ { settings: null, isSaving: () => false, ...settings } as ProtectSettingsData }
+			settings={
+				{
+					settings: null,
+					isSaving: () => false,
+					refresh: jest.fn(),
+					...settings,
+				} as ProtectSettingsData
+			}
 			openTab={ jest.fn() }
 		/>
 	);
@@ -61,15 +70,64 @@ describe( 'MonitorCard', () => {
 		expect( mockApiFetch ).not.toHaveBeenCalled();
 	} );
 
-	it( 'says the history is unavailable when it cannot be loaded', async () => {
-		mockApiFetch.mockRejectedValue( { code: 'not_connected' } );
+	it( 'offers a retry that skips the remembered failure when WordPress.com fails', async () => {
+		mockApiFetch.mockRejectedValueOnce( { code: 'uptime_unavailable' } );
+		mockApiFetch.mockResolvedValue( { days, isUp: true } );
 		renderCard();
 
 		await expect(
 			screen.findByText( 'Uptime history is unavailable right now.' )
 		).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'Status unknown' ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'listitem' ) ).not.toBeInTheDocument();
+		await userEvent.click( screen.getByRole( 'button', { name: 'Try again' } ) );
+
+		await expect( screen.findByText( 'Operational' ) ).resolves.toBeInTheDocument();
+		expect( mockApiFetch ).toHaveBeenLastCalledWith( {
+			path: '/jetpack/v4/protect-dashboard/uptime?retry=1',
+		} );
+	} );
+
+	it.each( [
+		[ 'at page load', { userConnected: false }, 0 ],
+		[ 'since page load', {}, 1 ],
+	] )(
+		'points a user who is not connected %s to the connection page',
+		async ( _name, state, requests ) => {
+			mockApiFetch.mockRejectedValue( { code: 'not_connected' } );
+			renderCard( {}, state );
+
+			await expect(
+				screen.findByRole( 'link', { name: 'Connect your account' } )
+			).resolves.toHaveAttribute( 'href', 'admin.php?page=my-jetpack#/connection' );
+			expect( screen.getByText( 'On' ) ).toBeInTheDocument();
+			expect( screen.queryByText( /^Uptime, last/ ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'button', { name: 'Try again' } ) ).not.toBeInTheDocument();
+			expect( mockApiFetch ).toHaveBeenCalledTimes( requests );
+		}
+	);
+
+	it( 'shows Off when the server says Monitor was turned off elsewhere', async () => {
+		mockApiFetch.mockRejectedValue( { code: 'monitor_inactive' } );
+		const Card = () => {
+			const [ live, setLive ] = useState< ProtectSettings | null >( null );
+			const refresh = useCallback( async () => setLive( { monitor: false } ), [] );
+			return (
+				<MonitorCard
+					state={ { available: true, active: true, uptimeDays: 40, userConnected: true } }
+					settings={
+						{ settings: live, isSaving: () => false, refresh } as unknown as ProtectSettingsData
+					}
+					openTab={ jest.fn() }
+				/>
+			);
+		};
+		render( <Card /> );
+
+		await expect( screen.findByText( 'Off' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'Turn on in Settings' ) ).toBeInTheDocument();
+		expect(
+			screen.queryByText( 'Uptime history is unavailable right now.' )
+		).not.toBeInTheDocument();
 	} );
 
 	it( 'waits for a Monitor save to finish before asking for uptime', () => {

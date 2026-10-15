@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Recognize YouTube live links (youtube.com/live/...) when extracting a video ID.

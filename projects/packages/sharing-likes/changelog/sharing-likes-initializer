@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Add Initializer::init() to set up the settings screen and its REST routes in one call.

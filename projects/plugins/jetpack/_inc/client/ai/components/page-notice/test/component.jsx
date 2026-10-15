@@ -1,5 +1,8 @@
 import { render, screen } from '@testing-library/react';
+import { speak } from '@wordpress/a11y';
 import PageNotice, { getPageNoticeState } from '../index';
+
+jest.mock( '@wordpress/a11y', () => ( { speak: jest.fn() } ) );
 
 jest.mock( '@automattic/jetpack-connection', () => ( {
 	ConnectionError: () => <div data-testid="connection-error" />,
@@ -271,6 +274,14 @@ describe( 'PageNotice', () => {
 		expect( screen.getByRole( 'link', { name: 'Connect Jetpack' } ) ).toHaveAttribute(
 			'href',
 			'admin.php?page=my-jetpack#/connection'
+		);
+	} );
+
+	it( 'announces the title and description, leaving the action out', () => {
+		renderNotice( { state: 'site-disconnected' } );
+		expect( speak ).toHaveBeenCalledWith(
+			'This site is not connected to WordPress.com. Your feature settings are saved and will apply again once the site is connected.',
+			'polite'
 		);
 	} );
 

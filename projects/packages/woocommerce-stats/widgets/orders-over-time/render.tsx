@@ -41,7 +41,6 @@ function OrdersOverTime( { chartType }: { chartType?: ChartDisplayChartType } ) 
 			label={ __( 'Orders', 'jetpack-woocommerce-stats-pkg' ) }
 			countLabel={ countLabel }
 			dataFormat={ { type: 'number' } }
-			emptyText={ __( 'No orders in this period.', 'jetpack-woocommerce-stats-pkg' ) }
 			errorText={ __(
 				"We couldn't load orders. Please try again in a moment.",
 				'jetpack-woocommerce-stats-pkg'

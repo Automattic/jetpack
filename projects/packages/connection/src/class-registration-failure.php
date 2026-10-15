@@ -18,7 +18,7 @@ use WP_Error;
  *
  * @internal Use Manager::get_registration_failure() and Manager::clear_registration_failure().
  *
- * @since $$next-version$$
+ * @since 9.11.0
  */
 class Registration_Failure {
 

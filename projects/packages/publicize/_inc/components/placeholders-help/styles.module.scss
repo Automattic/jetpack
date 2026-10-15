@@ -26,6 +26,7 @@
 	ul {
 		display: grid;
 		grid-template-columns: max-content 1fr;
+		align-items: baseline;
 		gap: 0.25rem 0.75rem;
 		margin: 0;
 		padding: 0;
@@ -36,6 +37,7 @@
 		display: contents;
 
 		code {
+			justify-self: start;
 			font-size: 0.85em;
 			white-space: nowrap;
 		}

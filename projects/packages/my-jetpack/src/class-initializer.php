@@ -46,7 +46,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '6.9.0';
+	const PACKAGE_VERSION = '6.10.0';
 
 	/**
 	 * Handle for the classic script that carries the React initial state.
@@ -176,7 +176,7 @@ class Initializer {
 	/**
 	 * Keep uncached module-list options local on the offline route.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.10.0
 	 * @param mixed            $response Response before the callback.
 	 * @param array            $handler  Route handler.
 	 * @param \WP_REST_Request $request  REST request.
@@ -193,7 +193,7 @@ class Initializer {
 	/**
 	 * Restore normal option reads after the offline module-list callback.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.10.0
 	 * @param mixed            $response Response after the callback.
 	 * @param array            $handler  Route handler.
 	 * @param \WP_REST_Request $request  REST request.
@@ -268,7 +268,7 @@ class Initializer {
 	/**
 	 * Whether the current user may access the page selected by My Jetpack.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.10.0
 	 * @return bool
 	 */
 	public static function current_user_can_access_page() {
@@ -701,6 +701,7 @@ class Initializer {
 				),
 				'mainFeatures'           => Main_Features::get_state(),
 				'featuresBanner'         => array( 'isDismissed' => REST_Main_Features::is_banner_dismissed() ),
+				'header'                 => self::get_header_state(),
 				'plugins'                => Plugins_Installer::get_plugins(),
 				'themes'                 => Sync_Functions::get_themes(),
 				'myJetpackUrl'           => admin_url( 'admin.php?page=my-jetpack' ),
@@ -760,6 +761,20 @@ class Initializer {
 		if ( self::can_use_analytics() ) {
 			Tracking::register_tracks_functions_scripts( true );
 		}
+	}
+
+	/**
+	 * What the shared header needs beyond the rest of the state, so it renders without a request.
+	 *
+	 * @since 6.10.0
+	 *
+	 * @return array{connectorsUrl: string|null} The state.
+	 */
+	public static function get_header_state() {
+		return array(
+			// The same probe the connection package uses: the core screen ships with WordPress 7.0.
+			'connectorsUrl' => file_exists( ABSPATH . 'wp-admin/options-connectors.php' ) ? admin_url( 'options-connectors.php' ) : null,
+		);
 	}
 
 	/**
@@ -1114,9 +1129,26 @@ class Initializer {
 			// caches its report and wants a `force_refresh` hint the dashboard does not.
 			'premiumAnalyticsEnabled'  => Products\Stats::is_premium_analytics_enabled(),
 			'showAiModuleToggle'       => Products\Jetpack_Ai::is_feature_ui_enabled(),
+			'overviewV1'               => self::is_overview_v1_enabled(),
 		);
 
 		return $flags;
+	}
+
+	/**
+	 * Whether My Jetpack shows Overview v1.
+	 *
+	 * @since 6.10.0
+	 * @return bool
+	 */
+	public static function is_overview_v1_enabled() {
+		/**
+		 * Filters whether My Jetpack shows Overview v1.
+		 *
+		 * @since 6.10.0
+		 * @param bool $enabled Whether to show Overview v1. Default false.
+		 */
+		return (bool) apply_filters( 'jetpack_my_jetpack_overview_v1', false );
 	}
 
 	/**
@@ -1264,7 +1296,7 @@ class Initializer {
 	/**
 	 * Whether the site uses the local Features entry instead of the connected dashboard.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.10.0
 	 * @return bool
 	 */
 	public static function is_offline_features_enabled() {
@@ -1275,7 +1307,7 @@ class Initializer {
 		/**
 		 * Enable local Features data and entry in offline mode.
 		 *
-		 * @since $$next-version$$
+		 * @since 6.10.0
 		 * @param bool $enabled Whether to enable offline Features. Default false.
 		 */
 		return (bool) apply_filters( 'jetpack_my_jetpack_offline_features', false );

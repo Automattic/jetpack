@@ -9,6 +9,13 @@ export type SiteState = {
 	timezone?: string;
 };
 
+export type StatsFault = {
+	route: string;
+	status: number;
+	error: string;
+	message: string;
+};
+
 // The welcome dialog marks everything behind it inert, so specs start with onboarding done.
 const ONBOARDED_PREFERENCES =
 	'{"jetpack-premium-analytics/dashboard":{"onboardingCompletedAt":"2026-01-01T00:00:00.000Z"},"_modified":"2026-01-01T00:00:00.000Z"}';
@@ -20,6 +27,13 @@ const OWN_URL_PARTS = [
 	'/wpcom/v2/widget-modules',
 ];
 const isOwn = ( text: string ) => OWN_URL_PARTS.some( part => text.includes( part ) );
+
+// The app writes `p` encoded once more than `open()` does.
+export const route = ( url: URL ) => decodeURIComponent( url.searchParams.get( 'p' ) ?? '' );
+
+// Not URLSearchParams: a raw `+` in an offset must stay a `+`.
+export const routeParam = ( url: URL, name: string ) =>
+	route( url ).match( new RegExp( `[?&]${ name }=([^&]*)` ) )?.[ 1 ];
 
 /**
  * Puts the site in one dashboard state from scratch, so no spec depends on the one before it.
@@ -33,6 +47,10 @@ export async function setSiteState( testUtils: TestUtils, state: SiteState ) {
 		'update',
 		'timezone_string',
 		state.timezone ?? 'UTC',
+	] );
+	await testUtils.executeWpCommand( [
+		'eval',
+		"delete_option( 'e2e_pa_stats_fault' ); delete_option( 'e2e_pa_nonce_life' );",
 	] );
 	await testUtils.executeWpCommand(
 		`option update jetpack_premium_analytics_enabled ${ state.enabled ? 1 : 0 }`
@@ -65,8 +83,45 @@ export async function setSiteState( testUtils: TestUtils, state: SiteState ) {
 	}
 }
 
+/**
+ * Makes WordPress.com answer one Stats route with its error envelope, or answer normally again.
+ *
+ * @param testUtils - e2e-commons test utilities.
+ * @param fault     - The route, status and envelope, or null to clear it.
+ */
+export async function setStatsFault( testUtils: TestUtils, fault: StatsFault | null ) {
+	if ( ! fault ) {
+		// Transients stay: a failure the proxy wrongly cached must still show.
+		await testUtils.executeWpCommand( [ 'eval', "delete_option( 'e2e_pa_stats_fault' );" ] );
+		return;
+	}
+	await testUtils.executeWpCommand( [
+		'option',
+		'update',
+		'e2e_pa_stats_fault',
+		JSON.stringify( fault ),
+		'--format=json',
+	] );
+	// The proxy would answer from a cached success.
+	await testUtils.executeWpCommand( 'transient delete --all' );
+}
+
+/**
+ * Shortens nonces so the dashboard's expires mid-session. `setSiteState()` restores the default.
+ *
+ * @param testUtils - e2e-commons test utilities.
+ * @param seconds   - Nonce lifetime in seconds.
+ */
+export async function setNonceLife( testUtils: TestUtils, seconds: number ) {
+	await testUtils.executeWpCommand( `option update e2e_pa_nonce_life ${ seconds }` );
+}
+
 export class Dashboard {
 	readonly errors: string[] = [];
+
+	private readonly allowed: RegExp[] = [];
+
+	private readonly pending: Promise< void >[] = [];
 
 	constructor( readonly page: Page ) {
 		page.on( 'pageerror', error => {
@@ -84,7 +139,21 @@ export class Dashboard {
 			}
 			const contentType = response.headers()[ 'content-type' ] ?? '';
 			if ( response.status() >= 400 ) {
-				this.errors.push( `${ response.status() } ${ url }` );
+				// The body's error code tells a refusal a spec expects from a real failure.
+				this.pending.push(
+					response
+						.json()
+						.then(
+							body => body?.code ?? body?.error ?? '',
+							() => ''
+						)
+						.then( code => {
+							const entry = `${ response.status() } ${ url } ${ code }`.trim();
+							if ( ! this.allowed.some( pattern => pattern.test( entry ) ) ) {
+								this.errors.push( entry );
+							}
+						} )
+				);
 			} else if ( type === 'script' && contentType.includes( 'text/html' ) ) {
 				// A module script served as HTML is refused without a page error.
 				this.errors.push( `${ contentType } ${ url }` );
@@ -98,8 +167,37 @@ export class Dashboard {
 		);
 	}
 
+	/**
+	 * Stops counting error responses whose `<status> <url> <error code>` entry matches the pattern.
+	 *
+	 * @param pattern - Matched against the entry, e.g. `/^403 .* rest_cookie_invalid_nonce$/`.
+	 */
+	allowErrors( pattern: RegExp ) {
+		this.allowed.push( pattern );
+	}
+
+	/** Waits for the error bodies still being read, so the teardown check sees every error. */
+	async settled() {
+		await Promise.all( this.pending );
+	}
+
 	tab( name: string ): Locator {
 		return this.page.getByRole( 'tab', { name, exact: true } );
+	}
+
+	periodControl(): Locator {
+		// Its name is the period itself, so only its class tells it from the comparison and interval controls.
+		return this.page.locator( '.date-period-dropdown__toggle' );
+	}
+
+	viewsTab( total: number ): Locator {
+		// The comparison may follow the total, as in "Views 10 +11%".
+		return this.page.getByRole( 'tab', { name: new RegExp( `^Views ${ total }( |$)` ) } );
+	}
+
+	async clickInWidget( target: Locator ) {
+		// eslint-disable-next-line playwright/no-force-option -- Each widget sits in the grid's aria-disabled sortable button, so Playwright reads its contents as disabled.
+		await target.click( { force: true } );
 	}
 
 	async expectTabHidden( name: string ) {
@@ -111,9 +209,10 @@ export class Dashboard {
 
 export const test = base.extend< { dashboard: Dashboard } >( {
 	dashboard: async ( { page }, use ) => {
-		await page.route( /pixel\.wp\.com/, route => route.abort() );
+		await page.route( /pixel\.wp\.com/, pixel => pixel.abort() );
 		const dashboard = new Dashboard( page );
 		await use( dashboard );
+		await dashboard.settled();
 		expect( dashboard.errors, 'Dashboard errors' ).toEqual( [] );
 	},
 } );
