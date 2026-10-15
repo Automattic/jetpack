@@ -30,8 +30,11 @@ class Jetpack_React_Page_Test extends WP_UnitTestCase {
 			foreach ( array( array(), array( 'modules_fallback' => '1' ) ) as $args ) {
 				$_GET = $args;
 				ob_start();
-				( new Jetpack_Settings_Page() )->page_render();
-				$html = ob_get_clean();
+				try {
+					( new Jetpack_Settings_Page() )->page_render();
+				} finally {
+					$html = ob_get_clean();
+				}
 				$this->assertSame( 1, preg_match( '/<form class="navbar-form".*?<\/form>/s', $html, $matches ) );
 				$this->assertSame( isset( $args['modules_fallback'] ), false !== strpos( $matches[0], '<input type="hidden" name="modules_fallback" value="1" />' ) );
 			}
@@ -84,8 +87,11 @@ class Jetpack_React_Page_Test extends WP_UnitTestCase {
 			$page->add_page_actions( 'modules-test' );
 			do_action( 'load-modules-test' ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores -- WordPress page-load hook.
 			ob_start();
-			do_action( 'admin_head' );
-			$html = ob_get_clean();
+			try {
+				do_action( 'admin_head' );
+			} finally {
+				$html = ob_get_clean();
+			}
 			$this->assertSame( $redirect, false !== strpos( $html, 'window.location.replace(' ) );
 			if ( $redirect ) {
 				$this->assertStringContainsString( '#\\/features', $html );
@@ -121,6 +127,7 @@ class Jetpack_React_Page_Test extends WP_UnitTestCase {
 				true,
 			),
 			'host replaces My Jetpack with Stats' => array( array(), 'host-redirect', false ),
+			'hidden-only Fonts search'            => array( array( 's' => 'fonts' ), 'fonts-off', false ),
 			'hidden-only Fonts tag'               => array( array( 'module_tag' => 'Fonts' ), 'fonts-off', false ),
 			'host-hidden Stats tag'               => array( array( 'module_tag' => 'Jetpack Stats' ), 'host-hidden', false ),
 			'crafted key'                         => array( array( 'x#/features' => '1' ), 'offline', false ),

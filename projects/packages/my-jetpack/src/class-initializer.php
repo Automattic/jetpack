@@ -813,8 +813,10 @@ class Initializer {
 		$auth    = false;
 		try {
 			/** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
+			// Keep the signed-in user when checking without a REST nonce.
 			$auth = apply_filters( 'rest_authentication_errors', true );
 		} finally {
+			// Authentication filters can clear the user; later admin checks still need it.
 			wp_set_current_user( $user->ID );
 		}
 		return $enabled && ! is_wp_error( $enabled ) && false !== $auth && ! is_wp_error( $auth );
@@ -874,6 +876,33 @@ class Initializer {
 			}
 			$known = array_map( array( Jetpack::class, 'translate_module_tag' ), $known );
 			if ( ! in_array( $args['module_tag'], $known, true ) ) {
+				return $classic;
+			}
+		}
+
+		if ( isset( $args['s'] ) && '' !== $args['s'] ) {
+			require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
+			$hidden        = Main_Features::get_hidden_modules();
+			$deprecated    = Feature_Visibility::get_deprecated_modules();
+			$hidden_match  = false;
+			$visible_match = false;
+			foreach ( Jetpack::get_translated_modules( \Jetpack_Admin::init()->get_modules() ) as $slug => $module ) {
+				if ( ! empty( $args['module_tag'] ) && ! in_array( $args['module_tag'], $module['module_tags'], true ) ) {
+					continue;
+				}
+				$text  = $module['name'] . ' ' . $module['description'] . ' ' . $module['long_description'] . ' ' . $module['search_terms'] . ' ' . implode( ',', $module['module_tags'] );
+				$match = function_exists( 'mb_stripos' ) ? mb_stripos( $text, $args['s'] ) : stripos( $text, $args['s'] );
+				if ( false === $match ) {
+					continue;
+				}
+				if ( in_array( $slug, $hidden, true ) || ( in_array( $slug, $deprecated, true ) && ! $module['activated'] ) ) {
+					$hidden_match = true;
+				} else {
+					$visible_match = true;
+					break;
+				}
+			}
+			if ( $hidden_match && ! $visible_match ) {
 				return $classic;
 			}
 		}
