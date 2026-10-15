@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Premium Analytics: Move between conversion funnel steps with the arrow keys, keep every step reachable after one is selected, and announce each step's rate to screen readers.
+Premium Analytics: Move between conversion funnel steps with the arrow keys, keep every step reachable after one is selected, and announce each step's rate and the selected step's count to screen readers.
