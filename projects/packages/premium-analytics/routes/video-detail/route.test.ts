@@ -94,12 +94,19 @@ describe( 'video detail route.beforeLoad', () => {
 		} );
 	} );
 
-	it( 'sends a plan-locked video to the locked Videos report', async () => {
+	it( 'sends a plan-locked video to the locked Videos report, keeping the window it was opened from', async () => {
 		jest.mocked( isStatsFeatureLocked ).mockImplementationOnce( key => key === 'videos' );
+		const search = {
+			...settledSearch,
+			ref_from: '2026-05-01T00:00:00',
+			ref_to: '2026-05-31T23:59:59',
+			ds: 'traffic',
+		};
 
-		await expect( beforeLoad( { videoId: '42' }, settledSearch ) ).rejects.toMatchObject( {
+		await expect( beforeLoad( { videoId: '42' }, search ) ).rejects.toMatchObject( {
 			to: '/reports/$report',
 			params: { report: 'videos' },
+			search: { from: search.ref_from, to: search.ref_to, ds: 'traffic' },
 		} );
 	} );
 

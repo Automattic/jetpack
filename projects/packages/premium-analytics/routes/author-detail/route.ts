@@ -49,7 +49,7 @@ export const route = {
 			throw redirect( { to: '/' } );
 		}
 
-		redirectIfReportLocked( 'authors' );
+		redirectIfReportLocked( 'authors', search );
 
 		// A malformed path param would render site-wide stats under an author
 		// header; this also closes the `?author_id=` spoof.

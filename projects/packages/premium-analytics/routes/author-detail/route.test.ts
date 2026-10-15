@@ -70,12 +70,15 @@ describe( 'author detail route.beforeLoad', () => {
 		} );
 	} );
 
-	it( 'sends a plan-locked author to the locked Authors report', async () => {
+	it( 'sends a plan-locked author to the locked Authors report, keeping its window and tab', async () => {
 		jest.mocked( isStatsFeatureLocked ).mockImplementationOnce( key => key === 'authors' );
 
-		await expect( beforeLoad( { authorId: '7' }, settledSearch ) ).rejects.toMatchObject( {
+		await expect(
+			beforeLoad( { authorId: '7' }, { ...settledSearch, ds: 'traffic' } )
+		).rejects.toMatchObject( {
 			to: '/reports/$report',
 			params: { report: 'authors' },
+			search: { from: settledSearch.from, to: settledSearch.to, ds: 'traffic' },
 		} );
 	} );
 

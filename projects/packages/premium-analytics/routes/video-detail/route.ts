@@ -58,7 +58,7 @@ export const route = {
 			throw redirect( { to: '/' } );
 		}
 
-		redirectIfReportLocked( 'videos' );
+		redirectIfReportLocked( 'videos', search );
 
 		const videoId = params?.videoId;
 		if ( ! isValidVideoId( videoId ) ) {
