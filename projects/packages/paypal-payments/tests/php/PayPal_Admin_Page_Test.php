@@ -1084,7 +1084,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 		$location_queries = array_values( array_filter( $queries, fn( $vars ) => '"resourceId":"PLB-ABC123"' === $vars['s'] ) );
 		$this->assertCount( 1, $location_queries );
 		$this->assertContains( 'draft', $location_queries[0]['post_status'] );
-		$this->assertSame( PayPal_Admin_Page::EMBED_SCAN_LIMIT + 1, $location_queries[0]['posts_per_page'] );
+		$this->assertSame( PayPal_Admin_Page::LOCATIONS_PER_PAGE + 1, $location_queries[0]['posts_per_page'] );
 		$this->assertSame( 0, $location_queries[0]['offset'] );
 	}
 
@@ -1099,7 +1099,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 		$this->mock_get_resource_response( $this->get_sample_resource() );
 
 		$posts = array();
-		for ( $i = 0; $i <= PayPal_Admin_Page::EMBED_SCAN_LIMIT; $i++ ) {
+		for ( $i = 0; $i <= PayPal_Admin_Page::LOCATIONS_PER_PAGE; $i++ ) {
 			$posts[] = $this->make_post( '<!-- wp:jetpack/paypal-payment-buttons {"isApiManaged":true,"resourceId":"PLB-ABC123"} /-->', 'post', 'Embed ' . $i );
 		}
 		$offsets = array();
@@ -1124,9 +1124,9 @@ class PayPal_Admin_Page_Test extends TestCase {
 		PayPal_Admin_Page::render_page();
 		$output = ob_get_clean();
 
-		$this->assertSame( array( PayPal_Admin_Page::EMBED_SCAN_LIMIT ), $offsets );
-		$this->assertSame( PayPal_Admin_Page::EMBED_SCAN_LIMIT, substr_count( $output, '<td>Embed ' ) );
-		$this->assertStringNotContainsString( '<td>Embed ' . PayPal_Admin_Page::EMBED_SCAN_LIMIT . '</td>', $output );
+		$this->assertSame( array( PayPal_Admin_Page::LOCATIONS_PER_PAGE ), $offsets );
+		$this->assertSame( PayPal_Admin_Page::LOCATIONS_PER_PAGE, substr_count( $output, '<td>Embed ' ) );
+		$this->assertStringNotContainsString( '<td>Embed ' . PayPal_Admin_Page::LOCATIONS_PER_PAGE . '</td>', $output );
 		$this->assertStringContainsString( 'locations_page=1">&laquo; Previous</a>', $output );
 		$this->assertStringContainsString( 'locations_page=3">More &raquo;</a>', $output );
 	}
