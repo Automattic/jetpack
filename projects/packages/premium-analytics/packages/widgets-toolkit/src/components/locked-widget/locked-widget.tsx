@@ -40,7 +40,7 @@ function LockedState( { feature, source, className }: LockedStateProps ) {
 				<EmptyState.Description>
 					{ createInterpolateElement( locked.description, {
 						link: locked.support_url ? (
-							<ExternalLink href={ locked.support_url } variant="default">
+							<ExternalLink href={ locked.support_url } variant="default" className={ styles.link }>
 								{ null }
 							</ExternalLink>
 						) : (

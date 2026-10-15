@@ -36,6 +36,12 @@
 	margin-block-end: var(--wpds-dimension-gap-md);
 }
 
+// Temporary: since WordPress/gutenberg#77420 the new-tab arrow can wrap
+// onto its own line. Remove once @wordpress/ui's Link keeps it with the text.
+.link {
+	white-space: nowrap;
+}
+
 @container (max-block-size: #{$widget-short-max-block-size}) {
 
 	.icon {
