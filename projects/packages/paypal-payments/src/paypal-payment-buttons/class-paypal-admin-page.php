@@ -415,6 +415,9 @@ class PayPal_Admin_Page {
 				width: 100%;
 				max-width: 400px;
 			}
+			.paypal-link-locations {
+				max-width: 600px;
+			}
 			.paypal-detail-link-url {
 				font-size: 14px;
 				padding: 4px 8px;
@@ -735,6 +738,8 @@ class PayPal_Admin_Page {
 			$payment_link = PayPal_Payment_Buttons::add_partner_attribution( $payment_link );
 		}
 
+		$embeds = self::find_published_embeds( $resource_id );
+
 		// --- Header ---
 		printf( '<h2>%s <span class="paypal-status-badge %s">%s</span></h2>', esc_html( $name ), esc_attr( $badge_cls ), esc_html( $status ) );
 
@@ -780,7 +785,7 @@ class PayPal_Admin_Page {
 		printf(
 			'<a href="%s" class="button paypal-delete-link" data-confirm="%s">%s</a>',
 			esc_url( $delete_url ),
-			esc_attr( self::delete_confirm_text( self::count_published_embeds()[ $resource_id ] ?? 0 ) ),
+			esc_attr( self::delete_confirm_text( count( $embeds ) ) ),
 			esc_html__( 'Delete', 'jetpack-paypal-payments' )
 		);
 		echo '</p>';
@@ -893,6 +898,34 @@ class PayPal_Admin_Page {
 			echo '</table>';
 			echo '</div>';
 		}
+
+		// --- Link Locations Card (WOOPTP-597) ---
+		echo '<div class="card paypal-detail-card">';
+		printf( '<h3>%s</h3>', esc_html__( 'Link Locations', 'jetpack-paypal-payments' ) );
+		if ( ! $embeds ) {
+			printf( '<p>%s</p>', esc_html__( 'This payment link is not used on any published post or page yet.', 'jetpack-paypal-payments' ) );
+		} else {
+			printf( '<p class="description">%s</p>', esc_html__( 'Published posts and pages showing this payment link.', 'jetpack-paypal-payments' ) );
+			echo '<table class="widefat striped paypal-link-locations"><thead><tr>';
+			printf( '<th scope="col">%s</th>', esc_html__( 'Title', 'jetpack-paypal-payments' ) );
+			printf( '<th scope="col">%s</th>', esc_html__( 'Type', 'jetpack-paypal-payments' ) );
+			printf( '<th scope="col">%s</th>', esc_html__( 'Actions', 'jetpack-paypal-payments' ) );
+			echo '</tr></thead><tbody>';
+			foreach ( $embeds as $post ) {
+				$type_object = get_post_type_object( $post->post_type );
+				printf(
+					'<tr><td>%s</td><td>%s</td><td><a href="%s">%s</a> | <a href="%s" target="_blank" rel="noopener noreferrer">%s</a></td></tr>',
+					esc_html( get_the_title( $post ) ? get_the_title( $post ) : __( '(no title)', 'jetpack-paypal-payments' ) ),
+					esc_html( $type_object ? $type_object->labels->singular_name : $post->post_type ),
+					esc_url( admin_url( 'post.php?post=' . (int) $post->ID . '&action=edit' ) ),
+					esc_html__( 'Edit', 'jetpack-paypal-payments' ),
+					esc_url( get_permalink( $post ) ),
+					esc_html__( 'View', 'jetpack-paypal-payments' )
+				);
+			}
+			echo '</tbody></table>';
+		}
+		echo '</div>';
 
 		// --- Payment Link Card ---
 		if ( $payment_link ) {
