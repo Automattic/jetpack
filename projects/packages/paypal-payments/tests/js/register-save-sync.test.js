@@ -319,7 +319,9 @@ describe( 'registerSaveSync', () => {
 				expect( apiFetch ).toHaveBeenCalledWith(
 					expect.objectContaining( { path: `${ API_BASE }/buttons`, method: 'POST' } )
 				);
-				expect( mockToast.mock.calls ).toEqual( [ saved( 'Payment button successfully created.' ) ] );
+				expect( mockToast.mock.calls ).toEqual( [
+					saved( 'Payment button successfully created.' ),
+				] );
 			}
 		);
 
@@ -530,7 +532,9 @@ describe( 'registerSaveSync', () => {
 				expect( apiFetch ).toHaveBeenCalledWith(
 					expect.objectContaining( { path: `${ API_BASE }/buttons`, method: 'POST' } )
 				);
-				expect( mockToast.mock.calls ).toEqual( [ saved( 'Payment button successfully created.' ) ] );
+				expect( mockToast.mock.calls ).toEqual( [
+					saved( 'Payment button successfully created.' ),
+				] );
 				expect( recordEvent ).not.toHaveBeenCalled();
 			} );
 
@@ -566,7 +570,9 @@ describe( 'registerSaveSync', () => {
 				await runSaveFilter( { content: blockComment( 'PLB-NEW1' ) } );
 				runSavedAction();
 
-				expect( mockToast.mock.calls ).toEqual( [ saved( 'Payment button successfully created.' ) ] );
+				expect( mockToast.mock.calls ).toEqual( [
+					saved( 'Payment button successfully created.' ),
+				] );
 				expect( recordEvent ).not.toHaveBeenCalled();
 			} );
 		} );
