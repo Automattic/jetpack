@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\WooCommerceStats;
 
 use Automattic\Jetpack\PremiumAnalytics\Enablement_Setting;
+use Automattic\Jetpack\PremiumAnalytics\Sync\Sync_Status_Tracker;
 use function Automattic\Jetpack\PremiumAnalytics\get_dashboard_default_widget_instance;
 use function Automattic\Jetpack\PremiumAnalytics\register_dashboard_section;
 use function Automattic\Jetpack\PremiumAnalytics\register_widget_types_from_manifest;
@@ -122,7 +123,8 @@ class Analytics_Dashboard {
 
 	/**
 	 * Hook both registrants on the dashboard's registry actions, the Bookings metric on the dashboard
-	 * page, the reports proxy on REST requests, and the store currency on the script data.
+	 * page, the reports proxy on REST requests and its cache reset on the end of the initial sync,
+	 * and the store currency on the script data.
 	 *
 	 * Priority 20, after the dashboard package's own registrants: an older package that still
 	 * registers the section itself is found by slug and left alone.
@@ -136,6 +138,7 @@ class Analytics_Dashboard {
 
 		add_action( 'rest_api_init', array( Api_Proxy_Controller::class, 'init' ) );
 		add_filter( 'jetpack_stats_transient_cleanup_prefixes', array( Api_Proxy_Controller::class, 'register_transient_cleanup_prefix' ) );
+		add_action( Sync_Status_Tracker::MILESTONE_ACTION, array( Api_Proxy_Controller::class, 'clear_cache' ) );
 
 		Store_Currency::init();
 	}
