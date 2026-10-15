@@ -53,7 +53,7 @@ const TransferConfirmStep = ( {
 						</span>
 					</>
 				) }
-				<AvatarBadge avatar={ candidate.avatar } isIncoming />
+				<AvatarBadge avatar={ candidate.avatar } />
 				<Text>
 					{ createInterpolateElement(
 						/* translators: <name/> is replaced with the display name of the administrator taking over. */

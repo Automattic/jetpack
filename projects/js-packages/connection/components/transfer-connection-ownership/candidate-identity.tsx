@@ -11,8 +11,6 @@ import './style.scss';
 export interface AvatarBadgeProps {
 	/** Avatar URL. */
 	avatar?: string;
-	/** Whether this is the person taking ownership over. */
-	isIncoming?: boolean;
 }
 
 /**
@@ -21,7 +19,7 @@ export interface AvatarBadgeProps {
  * @param {AvatarBadgeProps} props - Component props.
  * @return {import('react').ReactNode} The AvatarBadge component.
  */
-export const AvatarBadge = ( { avatar, isIncoming }: AvatarBadgeProps ) => {
+export const AvatarBadge = ( { avatar }: AvatarBadgeProps ) => {
 	if ( ! avatar ) {
 		return null;
 	}
@@ -32,11 +30,7 @@ export const AvatarBadge = ( { avatar, isIncoming }: AvatarBadgeProps ) => {
 			alt=""
 			width={ 48 }
 			height={ 48 }
-			className={
-				isIncoming
-					? 'jp-connection__transfer-ownership__avatar is-incoming'
-					: 'jp-connection__transfer-ownership__avatar'
-			}
+			className="jp-connection__transfer-ownership__avatar"
 		/>
 	);
 };
@@ -65,7 +59,7 @@ const CandidateIdentity = ( { displayName, login, email, avatar }: CandidateIden
 		gap="md"
 		className="jp-connection__transfer-ownership__identity"
 	>
-		<AvatarBadge avatar={ avatar } isIncoming />
+		<AvatarBadge avatar={ avatar } />
 		<Stack direction="column" className="jp-connection__transfer-ownership__who">
 			<Text render={ <strong /> }>{ displayName }</Text>
 			<Text className="jp-connection__transfer-ownership__meta">
