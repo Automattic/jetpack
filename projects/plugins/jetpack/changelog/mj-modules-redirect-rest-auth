@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Settings: Show Modules when REST authentication fails.
+Settings: Keep the classic Modules list when Features cannot load or a saved search matches only hidden modules.

@@ -53,9 +53,6 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only view arguments; actions are rejected by the URL helper.
 		$args = wp_unslash( $_GET );
 		unset( $args['page'] );
-		if ( array_diff( array_keys( $args ), array( 's', 'module_tag' ) ) ) {
-			return;
-		}
 		$eligible = false;
 		$url      = $initializer::get_modules_management_url( $args, $eligible );
 		if ( ! $eligible ) {
