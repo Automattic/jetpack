@@ -397,9 +397,9 @@ The steps form a [toolbar](https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/) wi
 
 - Set `ariaLabel` to name the chart. See [Accessible names](./?path=/docs/js-packages-charts-library-introduction--docs#accessible-names).
 - **ARIA Roles**: The steps sit in a `role="toolbar"` labeled "Funnel steps", and each step uses `role="button"`
-- **ARIA Labels**: Each step has `aria-label` with the step name and rate, for example "Cart, 71.1%"
+- **ARIA Labels**: Each step has `aria-label` with the step name
 - **Selection State**: The selected step has `aria-pressed="true"`, the others `aria-pressed="false"`
-- **Descriptions**: Each step has an `aria-describedby` description, the step's count by default ("7,110 items"). Pass `getStepDescription` to describe steps in your own words, for example when a custom tooltip shows other data. The tooltip itself is visual only.
+- **Descriptions**: Each step has an `aria-describedby` description with what its tooltip shows, by default the rate and count ("71.1%, 7,110 items"). With a custom `renderTooltip`, pass `getStepDescription` with the same content, so screen readers hear what the tooltip shows. The tooltip itself is visual only.
 - **Alternative Text**: Step labels and rates are accessible to screen readers
 - **Loading States**: Loading and empty states provide appropriate text content
 

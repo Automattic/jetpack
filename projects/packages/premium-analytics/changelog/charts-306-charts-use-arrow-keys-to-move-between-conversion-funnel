@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Conversion funnel: Label the tooltip's rate "Conversion rate", and describe each step to screen readers by its count against the first step, e.g. "310 of 1,250".
+Conversion funnel: Label the tooltip's rate "Conversion rate", and make screen readers announce what each step's tooltip shows.
