@@ -179,7 +179,7 @@ class Jetpack_AI_Settings {
 		$callback = array( __CLASS__, 'drop_ai_module' );
 
 		// Read once per request: a `wp_supports_ai` or `jetpack_ai_enabled` callback must be registered before `after_setup_theme`.
-		if ( ! ( new Host() )->is_wpcom_simple() && ( ! self::host_allows_ai() || self::third_party_disables_ai() ) ) {
+		if ( ! ( new Host() )->is_wpcom_simple() && self::should_enforce_ai_controls() && ( ! self::host_allows_ai() || self::third_party_disables_ai() ) ) {
 			add_filter( 'jetpack_active_modules', $callback, 100 );
 			return;
 		}

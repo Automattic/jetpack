@@ -517,6 +517,36 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Ordinary Atomic requests do not enforce the module, so the override stays out there.
+	 */
+	public function test_override_not_registered_for_ordinary_atomic_request() {
+		Constants::set_constant( 'IS_WPCOM', false );
+		$this->force_atomic_site();
+		\Jetpack_Options::update_option( 'active_modules', array( 'ai' ) );
+		add_filter( 'jetpack_ai_enabled', '__return_false' );
+
+		Jetpack_AI_Settings::hold_module_off_when_ai_is_off();
+
+		$this->assertFalse( has_filter( 'jetpack_active_modules', array( 'Jetpack_AI_Settings', 'drop_ai_module' ) ) );
+		$this->assertTrue( ( new Modules() )->is_active( 'ai' ) );
+	}
+
+	/**
+	 * Internal-testing Atomic requests enforce the module, so the override applies there.
+	 */
+	public function test_override_registered_for_internal_testing_atomic_request() {
+		Constants::set_constant( 'IS_WPCOM', false );
+		$this->force_internal_testing_env();
+		\Jetpack_Options::update_option( 'active_modules', array( 'ai' ) );
+		add_filter( 'jetpack_ai_enabled', '__return_false' );
+
+		Jetpack_AI_Settings::hold_module_off_when_ai_is_off();
+
+		$this->assertNotFalse( has_filter( 'jetpack_active_modules', array( 'Jetpack_AI_Settings', 'drop_ai_module' ) ) );
+		$this->assertFalse( ( new Modules() )->is_active( 'ai' ) );
+	}
+
+	/**
 	 * Never forced off on WordPress.com Simple.
 	 */
 	public function test_master_never_forced_off_on_simple() {
