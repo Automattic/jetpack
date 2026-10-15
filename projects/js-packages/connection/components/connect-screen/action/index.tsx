@@ -60,18 +60,11 @@ function ConnectScreenAction( {
 							getConnectScreenErrorMessage( errorCode, isOfflineMode ) ||
 							__( 'An error occurred. Please try again.', 'jetpack-connection-js' ) }
 					</p>
-					{ displayButtonError &&
-						errorDisplay?.detail &&
-						( errorDisplay.detailCollapsed ? (
-							<details className="jp-connection__connect-screen__error-details">
-								<summary>{ __( 'Details', 'jetpack-connection-js' ) }</summary>
-								<p>{ errorDisplay.detail }</p>
-							</details>
-						) : (
-							<p className="jp-connection__connect-screen__error-description">
-								{ errorDisplay.detail }
-							</p>
-						) ) }
+					{ displayButtonError && errorDisplay?.detail && (
+						<p className="jp-connection__connect-screen__error-description">
+							{ errorDisplay.detail }
+						</p>
+					) }
 				</div>
 			) }
 		</>

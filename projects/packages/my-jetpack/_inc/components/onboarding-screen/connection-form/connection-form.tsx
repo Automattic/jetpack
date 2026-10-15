@@ -70,29 +70,12 @@ const ConnectionForm = () => {
 			</Button>
 
 			{ registrationError ? (
-				<Notice
-					status="error"
-					isDismissible={ false }
-					// Announce only what's visible: a collapsed detail stays out of the spoken message.
-					spokenMessage={
-						errorDisplay.detailCollapsed && typeof errorDisplay.message === 'string'
-							? errorDisplay.message
-							: undefined
-					}
-				>
+				<Notice status="error" isDismissible={ false }>
 					<p>
 						{ errorDisplay.message ||
 							__( 'An error occurred. Please try again.', 'jetpack-my-jetpack' ) }
 					</p>
-					{ errorDisplay.detail &&
-						( errorDisplay.detailCollapsed ? (
-							<details>
-								<summary>{ __( 'Details', 'jetpack-my-jetpack' ) }</summary>
-								<p>{ errorDisplay.detail }</p>
-							</details>
-						) : (
-							<p>{ errorDisplay.detail }</p>
-						) ) }
+					{ errorDisplay.detail && <p>{ errorDisplay.detail }</p> }
 				</Notice>
 			) : null }
 

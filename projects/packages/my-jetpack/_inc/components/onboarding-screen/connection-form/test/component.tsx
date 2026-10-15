@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import ConnectionForm from '../connection-form';
 
 let mockRegistrationError: unknown = false;
@@ -34,23 +34,24 @@ describe( 'ConnectionForm', () => {
 		expect( screen.queryByText( /An error occurred/ ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'shows the mapped message, with WordPress.com’s text behind Details for HTTP errors', () => {
+	it( 'shows one message naming the URL WordPress.com tried for HTTP errors', () => {
 		mockRegistrationError = {
 			response: {
 				code: 'site_inaccessible_403',
-				message: 'The Jetpack server was unable to communicate with your site [HTTP 403].',
+				message:
+					'The Jetpack server was unable to communicate with your site https://example.com [HTTP 403].',
 			},
 		};
 		render( <ConnectionForm /> );
 		expect(
-			screen.getByText( /Something blocked WordPress.com/, { selector: 'p' } )
-		).toBeInTheDocument();
-		expect( screen.getByText( 'Details' ) ).toBeInTheDocument();
-		expect(
-			within( screen.getByRole( 'group' ) ).getByText(
-				'The Jetpack server was unable to communicate with your site [HTTP 403].'
+			screen.getByText(
+				/Something blocked WordPress.com from verifying your site at https:\/\/example\.com \(HTTP 403\)/,
+				{
+					selector: 'p',
+				}
 			)
 		).toBeInTheDocument();
+		expect( screen.queryByText( /The Jetpack server was unable/ ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'shows only the mapped message when the site’s text adds nothing', () => {

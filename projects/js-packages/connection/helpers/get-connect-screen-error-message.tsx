@@ -91,8 +91,6 @@ export type RegistrationErrorDisplay = {
 	message?: ReactNode;
 	/** A second line with the underlying cause, when it adds something the message doesn't say. */
 	detail?: string;
-	/** Whether to show `detail` behind a "Details" toggle rather than inline. */
-	detailCollapsed?: boolean;
 };
 
 // WordPress.com codes for failing to reach the site; their text ends with the cause in brackets.
@@ -125,12 +123,21 @@ const getTransportCause = ( description: string ): string => {
 };
 
 /**
+ * The site URL WordPress.com quotes in its text, e.g. "…unable to communicate with your site https://example.com [HTTP 503]".
+ *
+ * @param {string} description - The site's cleaned explanation of the error.
+ * @return {string|undefined} The URL, or undefined when the text has none.
+ */
+const getSiteUrl = ( description: string ): string | undefined =>
+	description.match( /https?:\/\/[^\s\]]+/ )?.[ 0 ].replace( /[.,;:)]+$/, '' );
+
+/**
  * What to show for a registration error: one message, plus a detail line only when it adds something.
  *
  * - A mapped code shows only our copy, since the site's text mostly repeats or contradicts it.
  * - An unmapped code shows the site's own text as the message.
  * - Transport failures keep the underlying cause (the cURL error or the bracketed part of WordPress.com's text).
- * - `site_inaccessible_{status}` keeps WordPress.com's text collapsed, for the URL it tried to reach.
+ * - `site_inaccessible_{status}` names the URL WordPress.com tried in the message, the only thing its text adds.
  *
  * @param {RegistrationError|false} registrationError - The `registrationError` from `useConnection()`.
  * @param {boolean}                 isOfflineMode     - Whether the site is in offline mode, from `useConnection()`.
@@ -157,7 +164,9 @@ export const getRegistrationErrorDisplay = (
 		return { message, detail: getTransportCause( description ) };
 	}
 	if ( code && /^site_inaccessible_\d{3}$/.test( code ) ) {
-		return { message, detail: description, detailCollapsed: true };
+		return {
+			message: getConnectScreenErrorMessage( code, isOfflineMode, getSiteUrl( description ) ),
+		};
 	}
 	return { message };
 };
@@ -173,56 +182,104 @@ const offlineModeMessage = () =>
 		),
 	} );
 
-const sslMessage = () =>
-	__(
-		'WordPress.com cannot securely connect to your site because its SSL certificate could not be verified. Ask your hosting provider to fix the certificate.',
-		'jetpack-connection-js'
-	);
+const sslMessage = ( siteUrl?: string ) =>
+	siteUrl
+		? sprintf(
+				/* translators: %s is the site URL WordPress.com tried, e.g. https://example.com. */
+				__(
+					'WordPress.com cannot securely connect to your site at %s because its SSL certificate could not be verified. Ask your hosting provider to fix the certificate.',
+					'jetpack-connection-js'
+				),
+				siteUrl
+			)
+		: __(
+				'WordPress.com cannot securely connect to your site because its SSL certificate could not be verified. Ask your hosting provider to fix the certificate.',
+				'jetpack-connection-js'
+			);
 
-const unreachableMessage = () =>
-	__(
-		'WordPress.com couldn’t reach your site to verify it. Make sure your site is publicly reachable and its domain and SSL certificate are set up correctly. If they are, ask your hosting provider whether they block connections from WordPress.com.',
-		'jetpack-connection-js'
-	);
+const unreachableMessage = ( siteUrl?: string ) =>
+	siteUrl
+		? sprintf(
+				/* translators: %s is the site URL WordPress.com tried, e.g. https://example.com. */
+				__(
+					'WordPress.com couldn’t reach your site at %s to verify it. Make sure your site is publicly reachable and its domain and SSL certificate are set up correctly. If they are, ask your hosting provider whether they block connections from WordPress.com.',
+					'jetpack-connection-js'
+				),
+				siteUrl
+			)
+		: __(
+				'WordPress.com couldn’t reach your site to verify it. Make sure your site is publicly reachable and its domain and SSL certificate are set up correctly. If they are, ask your hosting provider whether they block connections from WordPress.com.',
+				'jetpack-connection-js'
+			);
 
 /**
  * Message for a `site_inaccessible_{status}` code, based on the HTTP status WordPress.com got from the site.
  *
- * @param {number} status - The HTTP status.
+ * @param {number} status  - The HTTP status.
+ * @param {string} siteUrl - The URL WordPress.com tried, when known; it helps spot a wrong site address.
  * @return {string} The message.
  */
-const siteHttpErrorMessage = ( status: number ): string => {
+const siteHttpErrorMessage = ( status: number, siteUrl?: string ): string => {
 	if ( status === 404 || status === 405 || status === 410 ) {
-		return __(
-			'WordPress.com reached your site, but the connection endpoint was not found. A security plugin or server rule may be blocking xmlrpc.php or the REST API.',
-			'jetpack-connection-js'
-		);
+		return siteUrl
+			? sprintf(
+					/* translators: %s is the site URL WordPress.com tried, e.g. https://example.com. */
+					__(
+						'WordPress.com reached your site at %s, but the connection endpoint was not found. A security plugin or server rule may be blocking xmlrpc.php or the REST API.',
+						'jetpack-connection-js'
+					),
+					siteUrl
+				)
+			: __(
+					'WordPress.com reached your site, but the connection endpoint was not found. A security plugin or server rule may be blocking xmlrpc.php or the REST API.',
+					'jetpack-connection-js'
+				);
 	}
 	// Cloudflare's 521–524 and 530 mean the origin server is down or unreachable, 525 and 526 are SSL failures.
 	if ( ( status >= 521 && status <= 524 ) || status === 530 ) {
-		return unreachableMessage();
+		return unreachableMessage( siteUrl );
 	}
 	if ( status === 525 || status === 526 ) {
-		return sslMessage();
+		return sslMessage( siteUrl );
 	}
 	if ( status >= 500 && status <= 520 ) {
-		return sprintf(
-			/* translators: %d is an HTTP status code, e.g. 500. */
-			__(
-				'WordPress.com got an error (HTTP %d) when it tried to verify your site. Your site’s error log may show the cause.',
-				'jetpack-connection-js'
-			),
-			status
-		);
+		return siteUrl
+			? sprintf(
+					/* translators: %1$d is an HTTP status code, e.g. 500; %2$s is the site URL WordPress.com tried, e.g. https://example.com. */
+					__(
+						'WordPress.com got an error (HTTP %1$d) when it tried to verify your site at %2$s. Your site’s error log may show the cause.',
+						'jetpack-connection-js'
+					),
+					status,
+					siteUrl
+				)
+			: sprintf(
+					/* translators: %d is an HTTP status code, e.g. 500. */
+					__(
+						'WordPress.com got an error (HTTP %d) when it tried to verify your site. Your site’s error log may show the cause.',
+						'jetpack-connection-js'
+					),
+					status
+				);
 	}
-	return sprintf(
-		/* translators: %d is an HTTP status code, e.g. 403. */
-		__(
-			'Something blocked WordPress.com from verifying your site (HTTP %d). Try again in a minute. If it keeps happening, a firewall or security rule is usually the cause: ask your hosting provider to allow connections from WordPress.com.',
-			'jetpack-connection-js'
-		),
-		status
-	);
+	return siteUrl
+		? sprintf(
+				/* translators: %1$s is the site URL WordPress.com tried, e.g. https://example.com; %2$d is an HTTP status code, e.g. 403. */
+				__(
+					'Something blocked WordPress.com from verifying your site at %1$s (HTTP %2$d). Try again in a minute. If it keeps happening, a firewall or security rule is usually the cause: ask your hosting provider to allow connections from WordPress.com.',
+					'jetpack-connection-js'
+				),
+				siteUrl,
+				status
+			)
+		: sprintf(
+				/* translators: %d is an HTTP status code, e.g. 403. */
+				__(
+					'Something blocked WordPress.com from verifying your site (HTTP %d). Try again in a minute. If it keeps happening, a firewall or security rule is usually the cause: ask your hosting provider to allow connections from WordPress.com.',
+					'jetpack-connection-js'
+				),
+				status
+			);
 };
 
 /**
@@ -239,11 +296,13 @@ const siteHttpErrorMessage = ( status: number ): string => {
  *
  * @param {string}  errorCode     - The connection error code, see `getRegistrationErrorCode()`.
  * @param {boolean} isOfflineMode - Whether the site is in offline mode.
+ * @param {string}  siteUrl       - For `site_inaccessible_{status}`: the URL WordPress.com tried, when known.
  * @return {import('react').ReactNode} The error message, or undefined if there isn't one.
  */
 export const getConnectScreenErrorMessage = (
 	errorCode?: string,
-	isOfflineMode?: boolean
+	isOfflineMode?: boolean,
+	siteUrl?: string
 ): ReactNode => {
 	// Offline mode takes away the connect capability, so this error means offline mode, not a missing role.
 	if ( isOfflineMode && errorCode === 'invalid_user_permission_jetpack_connect' ) {
@@ -252,7 +311,7 @@ export const getConnectScreenErrorMessage = (
 
 	const siteHttpStatus = errorCode?.match( /^site_inaccessible_(\d{3})$/ );
 	if ( siteHttpStatus ) {
-		return siteHttpErrorMessage( Number( siteHttpStatus[ 1 ] ) );
+		return siteHttpErrorMessage( Number( siteHttpStatus[ 1 ] ), siteUrl );
 	}
 
 	// Explicit error code takes precedence over the offline mode.
