@@ -48,7 +48,7 @@ class PayPal_Admin_Page {
 	const EMBED_SCAN_LIMIT = 100;
 
 	/**
-	 * Posts listed per page in the Link Locations card.
+	 * Posts listed per page in the Button Locations card.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -57,7 +57,7 @@ class PayPal_Admin_Page {
 	const LOCATIONS_PER_PAGE = 100;
 
 	/**
-	 * AJAX action that returns the next page of the Link Locations card.
+	 * AJAX action that returns the next page of the Button Locations card.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -166,9 +166,9 @@ class PayPal_Admin_Page {
 	}
 
 	/**
-	 * One page of the posts embedding a payment link, drafts included.
+	 * One page of the posts embedding a payment button, drafts included.
 	 *
-	 * Unlike find_published_embeds(), this searches for the one link rather
+	 * Unlike find_published_embeds(), this searches for the one button rather
 	 * than scanning every block post, so it can page past the scan cap.
 	 * Fetches one row past the page to learn whether there is a next one.
 	 *
@@ -289,7 +289,7 @@ class PayPal_Admin_Page {
 	}
 
 	/**
-	 * Answer the Link Locations card's request for its next page of posts.
+	 * Answer the Button Locations card's request for its next page of posts.
 	 *
 	 * @since $$next-version$$
 	 * @return void
@@ -299,12 +299,12 @@ class PayPal_Admin_Page {
 			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'jetpack-paypal-payments' ) ), 403, JSON_HEX_TAG | JSON_HEX_AMP );
 		}
 		if ( ! current_user_can( self::CAPABILITY ) ) {
-			wp_send_json_error( array( 'message' => __( 'You do not have permission to view payment links.', 'jetpack-paypal-payments' ) ), 403, JSON_HEX_TAG | JSON_HEX_AMP );
+			wp_send_json_error( array( 'message' => __( 'You do not have permission to view payment buttons.', 'jetpack-paypal-payments' ) ), 403, JSON_HEX_TAG | JSON_HEX_AMP );
 		}
 
 		$resource_id = isset( $_POST['resource_id'] ) ? sanitize_text_field( wp_unslash( $_POST['resource_id'] ) ) : '';
 		if ( ! PayPal_Attribute_Mapper::is_valid_resource_id( $resource_id ) ) {
-			wp_send_json_error( array( 'message' => __( 'Invalid payment link.', 'jetpack-paypal-payments' ) ), 400, JSON_HEX_TAG | JSON_HEX_AMP );
+			wp_send_json_error( array( 'message' => __( 'Invalid payment button.', 'jetpack-paypal-payments' ) ), 400, JSON_HEX_TAG | JSON_HEX_AMP );
 		}
 
 		$locations = self::find_embeds_page( $resource_id, isset( $_POST['page'] ) ? absint( $_POST['page'] ) : 1 );
@@ -639,7 +639,7 @@ class PayPal_Admin_Page {
 				});
 			}
 
-			// Link Locations "More" button (WOOPTP-597): appends the next page in place.
+			// Button Locations "More" button (WOOPTP-597): appends the next page in place.
 			var moreBtn = document.getElementById("paypal-link-locations-more");
 			if (moreBtn) {
 				moreBtn.addEventListener("click", function() {
@@ -1024,15 +1024,15 @@ class PayPal_Admin_Page {
 			echo '</div>';
 		}
 
-		// --- Link Locations Card (WOOPTP-597) ---
+		// --- Button Locations Card (WOOPTP-597) ---
 		$locations = self::find_embeds_page( $resource_id );
 
 		echo '<div class="card paypal-detail-card">';
-		printf( '<h3>%s</h3>', esc_html__( 'Link Locations', 'jetpack-paypal-payments' ) );
+		printf( '<h3>%s</h3>', esc_html__( 'Button Locations', 'jetpack-paypal-payments' ) );
 		if ( ! $locations['posts'] ) {
-			printf( '<p>%s</p>', esc_html__( 'This payment link is not used on any post or page yet.', 'jetpack-paypal-payments' ) );
+			printf( '<p>%s</p>', esc_html__( 'This payment button is not used on any post or page yet.', 'jetpack-paypal-payments' ) );
 		} else {
-			printf( '<p class="description">%s</p>', esc_html__( 'Posts and pages using this payment link.', 'jetpack-paypal-payments' ) );
+			printf( '<p class="description">%s</p>', esc_html__( 'Posts and pages using this payment button.', 'jetpack-paypal-payments' ) );
 			echo '<table class="widefat striped paypal-link-locations"><thead><tr>';
 			printf( '<th scope="col">%s</th>', esc_html__( 'Title', 'jetpack-paypal-payments' ) );
 			printf( '<th scope="col">%s</th>', esc_html__( 'Type', 'jetpack-paypal-payments' ) );
@@ -1165,9 +1165,9 @@ class PayPal_Admin_Page {
 	}
 
 	/**
-	 * The Link Locations table rows for a set of posts, escaped.
+	 * The Button Locations table rows for a set of posts, escaped.
 	 *
-	 * @param \WP_Post[] $posts Posts embedding the link.
+	 * @param \WP_Post[] $posts Posts embedding the button.
 	 * @return string HTML table rows.
 	 */
 	private static function location_rows_html( array $posts ) {
