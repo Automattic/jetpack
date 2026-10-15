@@ -28,6 +28,8 @@ declare module '@automattic/jetpack-script-data' {
 				roles: Array< { slug: string; name: string; count: number | null } >;
 				features_url: string | null;
 			};
+			// Unix time of the site's first dashboard load.
+			first_visit?: number;
 			// The Stats features the site's plan lacks, each with its copy and upgrade URL (empty when there is nowhere to buy it), and the widget types they lock. Dashboard only.
 			plan_gates?: {
 				tier: string;
@@ -50,6 +52,8 @@ declare module '@automattic/jetpack-script-data' {
 						open_widget_types: string[];
 					}
 				>;
+				// Whether a self-hosted site has any Jetpack Stats product, the free one included.
+				has_stats_product?: boolean;
 			};
 			// The Stats purchase this page load returned from checkout with; absent on every other load.
 			purchase_success?: { type: 'paid' | 'free' };
