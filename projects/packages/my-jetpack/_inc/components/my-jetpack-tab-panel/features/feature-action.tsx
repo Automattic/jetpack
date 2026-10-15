@@ -225,7 +225,7 @@ export function FeatureAction( { state, describedby, origin = 'card' }: FeatureA
 }
 
 /**
- * A "Connect account" button that starts the WordPress.com account connection and returns to the Features tab.
+ * A "Connect" button that starts the WordPress.com account connection and returns to the Features tab.
  *
  * @param props        - The component props.
  * @param props.state  - The feature's live state.
@@ -253,7 +253,7 @@ export function ConnectAccountButton( {
 				state.feature.name
 			) }
 		>
-			{ __( 'Connect account', 'jetpack-my-jetpack' ) }
+			{ __( 'Connect', 'jetpack-my-jetpack' ) }
 		</ButtonLink>
 	);
 }

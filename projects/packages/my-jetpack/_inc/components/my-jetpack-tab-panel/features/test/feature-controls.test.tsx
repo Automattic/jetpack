@@ -563,6 +563,9 @@ describe( 'account connection controls', () => {
 	it( 'shows the status, reason and direct connection link on the card', () => {
 		render( <FeatureItem state={ state } onOpen={ jest.fn() } /> );
 		expect( screen.getByText( 'Account needed' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Connect account for Boost' } ) ).toHaveTextContent(
+			/^Connect$/
+		);
 		expect( getUserConnectionUrl ).toHaveBeenCalledWith( {
 			redirect_url: expect.stringContaining( '#/features' ),
 		} );
