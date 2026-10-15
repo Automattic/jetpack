@@ -143,6 +143,11 @@ class Verbum_Admin {
 			array( $this, 'comment_form_greeting_sanitize' )
 		);
 
+		// Jetpack Comments takes the theme's colors.
+		if ( self::is_jetpack_comments() ) {
+			return;
+		}
+
 		/**
 		 * Color Scheme
 		 */
@@ -169,9 +174,26 @@ class Verbum_Admin {
 	public function comment_form_settings_section() {
 		?>
 
-		<p id="jetpack-comments-settings"><?php esc_html_e( 'Adjust your Comments form with a clever greeting and color-scheme.', 'jetpack-mu-wpcom' ); ?></p>
+		<p id="jetpack-comments-settings">
+			<?php
+			if ( self::is_jetpack_comments() ) {
+				esc_html_e( 'Adjust your Comments form with a clever greeting.', 'jetpack-mu-wpcom' );
+			} else {
+				esc_html_e( 'Adjust your Comments form with a clever greeting and color-scheme.', 'jetpack-mu-wpcom' );
+			}
+			?>
+		</p>
 
 		<?php
+	}
+
+	/**
+	 * Whether Jetpack Comments has replaced Verbum on this site.
+	 *
+	 * @return bool
+	 */
+	private static function is_jetpack_comments() {
+		return class_exists( '\Automattic\Jetpack\Comments\Comments' ) && \Automattic\Jetpack\Comments\Comments::is_enabled();
 	}
 
 	/**
