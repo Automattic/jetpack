@@ -1034,12 +1034,12 @@ class PayPal_Admin_Page_Test extends TestCase {
 	}
 
 	/**
-	 * Test the detail view lists the posts embedding the link, drafts typed as such, with edit and view links.
+	 * Test the detail view lists the posts embedding the button, drafts typed as such, with edit and view links.
 	 *
-	 * The card asks for the one link, the delete warning scans every published
+	 * The card asks for the one button, the delete warning scans every published
 	 * block post; the mock answers each by the query's search term.
 	 */
-	public function test_detail_view_lists_the_posts_embedding_the_link() {
+	public function test_detail_view_lists_the_posts_embedding_the_button() {
 		$admin = $this->create_admin_user();
 		wp_set_current_user( $admin );
 
@@ -1071,7 +1071,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 		PayPal_Admin_Page::render_page();
 		$output = ob_get_clean();
 
-		$this->assertStringContainsString( 'Link Locations', $output );
+		$this->assertStringContainsString( 'Button Locations', $output );
 		$this->assertStringContainsString( '<td>Shop</td><td>Page</td>', $output );
 		$this->assertStringContainsString( 'post=' . $embedding->ID . '&#038;action=edit', $output );
 		$this->assertStringContainsString( esc_url( get_permalink( $embedding ) ) . '" target="_blank" rel="noopener noreferrer">View</a>', $output );
@@ -1171,8 +1171,8 @@ class PayPal_Admin_Page_Test extends TestCase {
 	public static function provide_rejected_locations_requests() {
 		return array(
 			'bad nonce'    => array( array( '_wpnonce' => 'nope' ), 'Security check failed.' ),
-			'subscriber'   => array( array( 'role' => 'subscriber' ), 'You do not have permission to view payment links.' ),
-			'malformed id' => array( array( 'resource_id' => 'PLB-<script>' ), 'Invalid payment link.' ),
+			'subscriber'   => array( array( 'role' => 'subscriber' ), 'You do not have permission to view payment buttons.' ),
+			'malformed id' => array( array( 'resource_id' => 'PLB-<script>' ), 'Invalid payment button.' ),
 		);
 	}
 
@@ -1191,7 +1191,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 	}
 
 	/**
-	 * Post a Link Locations page request and return the JSON response.
+	 * Post a Button Locations page request and return the JSON response.
 	 *
 	 * @param array $overrides Request fields to change; 'role' swaps the admin for another user.
 	 * @return array<string, mixed> Decoded response.
@@ -1255,9 +1255,9 @@ class PayPal_Admin_Page_Test extends TestCase {
 	}
 
 	/**
-	 * Test the detail view says when nothing embeds the link instead of printing an empty table.
+	 * Test the detail view says when nothing embeds the button instead of printing an empty table.
 	 */
-	public function test_detail_view_says_when_nothing_embeds_the_link() {
+	public function test_detail_view_says_when_nothing_embeds_the_button() {
 		$admin = $this->create_admin_user();
 		wp_set_current_user( $admin );
 
