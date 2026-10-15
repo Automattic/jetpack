@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\PaypalPayments;
 
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 require_once __DIR__ . '/trait-paypal-resource-fixtures.php';
@@ -1077,7 +1078,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 		$this->assertStringContainsString( '<td>[Draft] Coming soon</td><td>Post</td>', $output );
 		$this->assertStringContainsString( 'preview=true" target="_blank" rel="noopener noreferrer">Preview</a>', $output );
 		$this->assertStringNotContainsString( 'Unrelated', $output );
-		$this->assertStringNotContainsString( 'locations_page', $output );
+		$this->assertStringNotContainsString( 'paypal-link-locations-more', $output );
 		// The delete warning still counts published posts only.
 		$this->assertStringContainsString( 'embedded in 1 published post', $output );
 
@@ -1089,46 +1090,168 @@ class PayPal_Admin_Page_Test extends TestCase {
 	}
 
 	/**
-	 * Test the detail view pages through the embedding posts beyond the scan cap.
+	 * Test the detail view shows a More button, with what the next request needs, past the first page.
 	 */
-	public function test_detail_view_pages_through_the_embedding_posts() {
+	public function test_detail_view_offers_more_past_the_first_page_of_locations() {
 		$admin = $this->create_admin_user();
 		wp_set_current_user( $admin );
 
 		$this->set_up_connected_state();
 		$this->mock_get_resource_response( $this->get_sample_resource() );
-
-		$posts = array();
-		for ( $i = 0; $i <= PayPal_Admin_Page::LOCATIONS_PER_PAGE; $i++ ) {
-			$posts[] = $this->make_post( '<!-- wp:jetpack/paypal-payment-buttons {"isApiManaged":true,"resourceId":"PLB-ABC123"} /-->', 'post', 'Embed ' . $i );
-		}
-		$offsets = array();
 		add_filter(
 			'posts_pre_query',
-			function ( $pre, $query ) use ( $posts, &$offsets ) {
-				if ( '"resourceId":"PLB-ABC123"' !== $query->get( 's' ) ) {
-					return array();
-				}
-				$offsets[] = $query->get( 'offset' );
-				return $posts;
+			function ( $pre, $query ) {
+				return '"resourceId":"PLB-ABC123"' === $query->get( 's' ) ? $this->embedding_posts( PayPal_Admin_Page::LOCATIONS_PER_PAGE + 1 ) : array();
 			},
 			10,
 			2
 		);
 
-		$_GET['action']         = 'view';
-		$_GET['resource_id']    = 'PLB-ABC123';
-		$_GET['locations_page'] = '2';
+		$_GET['action']      = 'view';
+		$_GET['resource_id'] = 'PLB-ABC123';
 
 		ob_start();
 		PayPal_Admin_Page::render_page();
 		$output = ob_get_clean();
 
-		$this->assertSame( array( PayPal_Admin_Page::LOCATIONS_PER_PAGE ), $offsets );
 		$this->assertSame( PayPal_Admin_Page::LOCATIONS_PER_PAGE, substr_count( $output, '<td>Embed ' ) );
-		$this->assertStringNotContainsString( '<td>Embed ' . PayPal_Admin_Page::LOCATIONS_PER_PAGE . '</td>', $output );
-		$this->assertStringContainsString( 'locations_page=1">&laquo; Previous</a>', $output );
-		$this->assertStringContainsString( 'locations_page=3">More &raquo;</a>', $output );
+		$this->assertMatchesRegularExpression(
+			'/<button type="button" class="button" id="paypal-link-locations-more" data-resource-id="PLB-ABC123" data-page="2" data-nonce="[a-f0-9]+">More<\/button>/',
+			$output
+		);
+	}
+
+	/**
+	 * Test the AJAX handler returns the requested page of rows and whether more follow.
+	 */
+	public function test_handle_locations_request_returns_the_requested_page() {
+		$offsets = array();
+		add_filter(
+			'posts_pre_query',
+			function ( $pre, $query ) use ( &$offsets ) {
+				$offsets[] = $query->get( 'offset' );
+				return $this->embedding_posts( PayPal_Admin_Page::LOCATIONS_PER_PAGE );
+			},
+			10,
+			2
+		);
+
+		$response = $this->request_locations( array( 'page' => '3' ) );
+
+		$this->assertTrue( $response['success'] );
+		$this->assertSame( array( 2 * PayPal_Admin_Page::LOCATIONS_PER_PAGE ), $offsets );
+		$this->assertSame( PayPal_Admin_Page::LOCATIONS_PER_PAGE, substr_count( $response['data']['rows'], '<tr>' ) );
+		$this->assertStringContainsString( '<td>Embed 0</td><td>Post</td>', $response['data']['rows'] );
+		$this->assertFalse( $response['data']['has_more'] );
+	}
+
+	/**
+	 * Test the AJAX handler refuses a bad nonce, a non-admin, and a malformed resource id.
+	 *
+	 * @dataProvider provide_rejected_locations_requests
+	 *
+	 * @param array  $overrides Request fields to change.
+	 * @param string $message   Expected error message.
+	 */
+	#[DataProvider( 'provide_rejected_locations_requests' )]
+	public function test_handle_locations_request_rejects_bad_requests( array $overrides, $message ) {
+		add_filter( 'posts_pre_query', '__return_empty_array' );
+
+		$response = $this->request_locations( $overrides );
+
+		$this->assertFalse( $response['success'] );
+		$this->assertSame( $message, $response['data']['message'] );
+	}
+
+	/**
+	 * Requests the locations handler must refuse.
+	 *
+	 * @return array<string, array{0: array, 1: string}>
+	 */
+	public static function provide_rejected_locations_requests() {
+		return array(
+			'bad nonce'    => array( array( '_wpnonce' => 'nope' ), 'Security check failed.' ),
+			'subscriber'   => array( array( 'role' => 'subscriber' ), 'You do not have permission to view payment links.' ),
+			'malformed id' => array( array( 'resource_id' => 'PLB-<script>' ), 'Invalid payment link.' ),
+		);
+	}
+
+	/**
+	 * Published posts embedding PLB-ABC123, titled "Embed 0" onwards.
+	 *
+	 * @param int $count How many.
+	 * @return \WP_Post[]
+	 */
+	private function embedding_posts( $count ) {
+		$posts = array();
+		for ( $i = 0; $i < $count; $i++ ) {
+			$posts[] = $this->make_post( '<!-- wp:jetpack/paypal-payment-buttons {"isApiManaged":true,"resourceId":"PLB-ABC123"} /-->', 'post', 'Embed ' . $i );
+		}
+		return $posts;
+	}
+
+	/**
+	 * Post a Link Locations page request and return the JSON response.
+	 *
+	 * @param array $overrides Request fields to change; 'role' swaps the admin for another user.
+	 * @return array<string, mixed> Decoded response.
+	 * @throws \RuntimeException When the handler throws anything but the wp_die() stand-in.
+	 */
+	private function request_locations( array $overrides = array() ) {
+		if ( isset( $overrides['role'] ) ) {
+			wp_set_current_user(
+				wp_insert_user(
+					array(
+						'user_login' => 'locations_' . wp_generate_password( 6, false ),
+						'user_pass'  => 'pw',
+						'role'       => $overrides['role'],
+					)
+				)
+			);
+			unset( $overrides['role'] );
+		} else {
+			wp_set_current_user( $this->create_admin_user() );
+		}
+
+		$_POST    = array_merge(
+			array(
+				'action'      => PayPal_Admin_Page::LOCATIONS_AJAX_ACTION,
+				'_wpnonce'    => wp_create_nonce( PayPal_Admin_Page::LOCATIONS_AJAX_ACTION ),
+				'resource_id' => 'PLB-ABC123',
+				'page'        => '1',
+			),
+			$overrides
+		);
+		$_REQUEST = $_POST;
+
+		add_filter( 'wp_doing_ajax', '__return_true' );
+
+		// Throw from wp_die() so wp_send_json_*() returns to the test instead of exiting.
+		$expected_exception = new \RuntimeException( 'wp_die' );
+		$throw_die_handler  = /** @return never */ static function () use ( $expected_exception ) {
+			throw $expected_exception;
+		};
+		add_filter( 'wp_die_ajax_handler', $throw_die_handler, 20 );
+
+		ob_start();
+		try {
+			PayPal_Admin_Page::handle_locations_request();
+		} catch ( \RuntimeException $caught_exception ) {
+			if ( $caught_exception !== $expected_exception ) {
+				throw $caught_exception;
+			}
+		}
+		$output = ob_get_clean();
+
+		remove_filter( 'wp_die_ajax_handler', $throw_die_handler, 20 );
+		remove_filter( 'wp_doing_ajax', '__return_true' );
+		$_POST    = array();
+		$_REQUEST = array();
+
+		$response = json_decode( $output, true );
+		$this->assertNotNull( $response, 'handle_locations_request did not return valid JSON. Output: ' . substr( $output, 0, 200 ) );
+
+		return $response;
 	}
 
 	/**
