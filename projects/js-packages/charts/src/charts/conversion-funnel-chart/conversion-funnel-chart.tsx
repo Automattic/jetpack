@@ -289,17 +289,23 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 	);
 
 	// Default tooltip rendering function
+	// The label and rate are already the step's accessible name, so the description carries only the count.
 	const renderDefaultTooltip = ( step: FunnelStep ) => (
 		<Stack direction="column" align="flex-start" gap="xs">
-			<div className={ styles[ 'tooltip-title' ] }>{ step.label }</div>
+			<div className={ styles[ 'tooltip-title' ] } aria-hidden="true">
+				{ step.label }
+			</div>
 			<div className={ styles[ 'tooltip-content' ] }>
-				{ formatPercentage( step.rate ) }
+				<span aria-hidden="true">
+					{ formatPercentage( step.rate ) }
+					{ step.count !== undefined && ' • ' }
+				</span>
 				{ step.count !== undefined &&
-					` • ${ sprintf(
+					sprintf(
 						/* translators: %s: Number of items that reached the funnel step. */
 						_n( '%s item', '%s items', step.count, 'jetpack-charts' ),
 						formatMetricValue( step.count )
-					) }` }
+					) }
 			</div>
 		</Stack>
 	);
