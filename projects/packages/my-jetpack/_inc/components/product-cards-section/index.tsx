@@ -88,16 +88,16 @@ const DisplayItems: FC< DisplayItemsProps > = ( { slugs, isLoading } ) => {
 	const { userIsAdmin = false, canUserViewStats = false } = getMyJetpackWindowInitialState();
 	const { detail: statsDetail } = useProduct( PRODUCT_SLUGS.STATS );
 	const statsStatus = statsDetail?.status;
-	const canShowFullStatsCard = shouldShowFullStatsCard(
+	const showFullStatsCard = shouldShowFullStatsCard(
 		showFullJetpackStatsCard,
 		canUserViewStats,
 		statsStatus
 	);
-	// Overview v1 shows Stats as a grid card, in place of the large chart.
-	const showFullStatsCard = canShowFullStatsCard && ! overviewV1;
-	const showCompactStatsCard =
-		shouldShowCompactStatsCard( showFullJetpackStatsCard, canUserViewStats, statsStatus ) ||
-		( canShowFullStatsCard && overviewV1 );
+	const showCompactStatsCard = shouldShowCompactStatsCard(
+		showFullJetpackStatsCard,
+		canUserViewStats,
+		statsStatus
+	);
 	const isAdmin = userIsAdmin === '1';
 	const StatsGridCard = overviewV1 ? StatsOverviewCard : StatsCard;
 
@@ -133,7 +133,7 @@ const DisplayItems: FC< DisplayItemsProps > = ( { slugs, isLoading } ) => {
 
 	return (
 		<>
-			{ isLoading && ! overviewV1 && (
+			{ isLoading && (
 				<Col className={ styles.fullStatsCard }>
 					<LoadingBlock width="100%" height="350px" />
 				</Col>
