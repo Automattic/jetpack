@@ -1,7 +1,7 @@
 import { Breadcrumbs } from '@wordpress/admin-ui';
 import { DataViews, filterSortAndPaginate, type View } from '@wordpress/dataviews';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { caution, check, help, seen } from '@wordpress/icons';
 import { Notice, Text } from '@wordpress/ui';
 import { CardRow, ProtectCard, type CardStatus } from '../../components/card';
@@ -177,38 +177,6 @@ function UnknownThreats( {
 	);
 }
 
-/**
- * The line that tells the reader what to do next.
- *
- * @param active   - How many of the threats need attention.
- * @param total    - How many threats the link lists.
- * @param checking - Whether some statuses are still loading.
- * @return The summary, or an empty string while there's nothing to say yet.
- */
-function getSummary( active: number, total: number, checking: boolean ): string {
-	if ( active ) {
-		return total === 1
-			? __( 'This threat needs your attention.', 'jetpack-protect-pkg' )
-			: sprintf(
-					/* translators: %1$d is a number of threats needing attention, %2$d is the number of threats in the alert. */
-					_n(
-						'%1$d of %2$d threats needs your attention.',
-						'%1$d of %2$d threats need your attention.',
-						active,
-						'jetpack-protect-pkg'
-					),
-					active,
-					total
-				);
-	}
-	if ( checking ) {
-		return '';
-	}
-	return total === 1
-		? __( 'This threat no longer needs your attention.', 'jetpack-protect-pkg' )
-		: __( 'None of the threats from this alert need your attention.', 'jetpack-protect-pkg' );
-}
-
 const getDetected = ( item: ScanThreat ) => item.firstDetected ?? '';
 const getFixed = ( item: ScanThreat ) => item.fixedOn ?? '';
 
@@ -265,15 +233,9 @@ export default function ThreatReport( { ids }: { ids: string[] } ) {
 	useArrowKeyNavigation( rows, selected, getItemId, open );
 
 	const failed = Boolean( history.error ) && ! refreshing;
-	const summary = getSummary( groups.active.length, ids.length, groups.pending.length > 0 );
 
 	return (
 		<div className="jp-protect-dashboard__cards">
-			{ summary && (
-				<Notice.Root intent={ groups.active.length ? 'warning' : 'success' }>
-					<Notice.Description>{ summary }</Notice.Description>
-				</Notice.Root>
-			) }
 			{ failed && (
 				<Notice.Root intent="error">
 					<Notice.Description>{ history.error }</Notice.Description>
