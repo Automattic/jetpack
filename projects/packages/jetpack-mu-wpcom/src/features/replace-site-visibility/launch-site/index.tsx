@@ -48,7 +48,7 @@ const LaunchSite = ( {
 	const isAnyComingSoonEnabled =
 		( 0 === blogPublic && wpcomPublicComingSoon ) || isPrivateAndUnlaunched || wpcomComingSoon;
 
-	const launchUrl = addQueryArgs( 'https://wordpress.com/start/launch-site', {
+	const launchUrl = addQueryArgs( 'https://wordpress.com/setup/launch-site', {
 		siteSlug: new URL( homeUrl ).host,
 		source: 'options-reading.php',
 		new: siteTitle,

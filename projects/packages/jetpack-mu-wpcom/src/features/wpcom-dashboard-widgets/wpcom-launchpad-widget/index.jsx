@@ -53,7 +53,7 @@ const LaunchpadWidget = ( {
 
 	const qualifiesForPreLaunch = shouldShowPreLaunchModal( { sitePlan, hasCustomDomain } );
 
-	const launchUrl = addQueryArgs( 'https://wordpress.com/start/launch-site', {
+	const launchUrl = addQueryArgs( 'https://wordpress.com/setup/launch-site', {
 		siteSlug: siteDomain,
 		ref: 'wp-admin',
 	} );

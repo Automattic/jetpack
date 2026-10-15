@@ -109,7 +109,7 @@ function wpcom_add_launch_button_to_admin_bar( WP_Admin_Bar $admin_bar ) {
 					'ref'      => 'wp-admin',
 					'back_to'  => rawurlencode( wpcom_get_launch_button_back_to() ),
 				),
-				'https://wordpress.com/start/launch-site'
+				'https://wordpress.com/setup/launch-site'
 			),
 			'meta'   => array(
 				// Use `admin-color-modern` to keep the button always in blueberry (modern scheme).

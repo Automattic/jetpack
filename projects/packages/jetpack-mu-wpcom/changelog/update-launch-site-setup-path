@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Launch site: send wp-admin's launch entry points to Calypso's `/setup/launch-site` flow instead of the legacy `/start/launch-site`.

@@ -47,7 +47,7 @@ export function LaunchButton() {
 		case null:
 		default: {
 			// Markup should match what's coming from the back-end.
-			const launchUrl = addQueryArgs( 'https://wordpress.com/start/launch-site', {
+			const launchUrl = addQueryArgs( 'https://wordpress.com/setup/launch-site', {
 				siteSlug: launchButtonData.siteDomain,
 				ref: 'wp-admin',
 				back_to: window.location.href,
