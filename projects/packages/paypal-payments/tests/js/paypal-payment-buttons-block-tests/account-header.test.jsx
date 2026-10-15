@@ -338,10 +338,10 @@ describe( 'PayPalAccountHeader', () => {
 		);
 	} );
 
-	it( 'draws Log out in the destructive style with the account email under it', async () => {
+	it( "draws Log out in the destructive style with a production account's email under it", async () => {
 		const user = userEvent.setup();
 		openSidebar();
-		renderHeader( { accountEmail: 'junior@sports.com' } );
+		renderHeader( { environment: 'production', accountEmail: 'junior@sports.com' } );
 		await expect( screen.findByText( 'PayPal Payment Button' ) ).resolves.toBeInTheDocument();
 
 		await openMenu( user );
@@ -353,17 +353,16 @@ describe( 'PayPalAccountHeader', () => {
 		);
 	} );
 
-	it( 'offers a working Log out for an account with no stored email', async () => {
+	it( 'offers a working Log out with only its label for a production account with an empty email', async () => {
 		const user = userEvent.setup();
 		const onLogOut = jest.fn();
 		openSidebar();
-		renderHeader( { onLogOut } );
+		renderHeader( { environment: 'production', onLogOut } );
 		await expect( screen.findByText( 'PayPal Payment Button' ) ).resolves.toBeInTheDocument();
 
 		await openMenu( user );
 		const logOut = item( 'Log out' );
 		expect( logOut ).toBeEnabled();
-		// Anchored, so the label is all the item shows.
 		expect( logOut ).toHaveTextContent( /^Log out$/ );
 
 		await user.click( logOut );

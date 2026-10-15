@@ -8,7 +8,7 @@
 import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { DropdownMenu, MenuGroup, MenuItem, VisuallyHidden } from '@wordpress/components';
 import { createPortal } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { external, home, login, moreVertical } from '@wordpress/icons';
 import { useBlockCardNode } from '../hooks/use-block-card-node';
 import PayPalIcon from '../icon';
@@ -62,6 +62,19 @@ export default function PayPalAccountHeader( { isSelected, environment, accountE
 			}
 		</VisuallyHidden>
 	);
+
+	// The line under Log out: the email, with "Sandbox" in front for a sandbox account.
+	let logOutInfo = accountEmail || undefined;
+	if ( environment === 'sandbox' ) {
+		logOutInfo = accountEmail
+			? sprintf(
+					/* translators: %s: the connected PayPal account's email. Sandbox is PayPal's test environment. */
+					__( 'Sandbox • %s', 'jetpack-paypal-payments' ),
+					accountEmail
+				)
+			: /* translators: PayPal's test environment */
+				__( 'Sandbox', 'jetpack-paypal-payments' );
+	}
 
 	return createPortal(
 		<div className="jetpack-paypal-payment-buttons__account-header">
@@ -132,7 +145,7 @@ export default function PayPalAccountHeader( { isSelected, environment, accountE
 								isDestructive
 								icon={ login }
 								iconPosition="left"
-								info={ accountEmail || undefined }
+								info={ logOutInfo }
 								onClick={ () => {
 									onClose();
 									onLogOut();
