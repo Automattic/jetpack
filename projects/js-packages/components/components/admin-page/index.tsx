@@ -84,8 +84,15 @@ const AdminPage: FC< AdminPageProps > = ( {
 					actions={
 						globalControls ? (
 							<>
-								{ globalControls }
 								{ actions }
+								{ actions && (
+									<span
+										role="separator"
+										aria-orientation="vertical"
+										className={ styles[ 'global-controls-separator' ] }
+									/>
+								) }
+								{ globalControls }
 							</>
 						) : (
 							actions
