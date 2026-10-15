@@ -11,12 +11,13 @@ import { Link, Notice, Stack, Text } from '@wordpress/ui';
 import { AvatarBadge } from './candidate-identity';
 import './style.scss';
 import type { ConnectionOwnerCandidate } from './use-ownership-transfer';
+import type { ConnectionOwner } from '../../types';
 
 export interface TransferConfirmStepProps {
 	/** The administrator about to become the owner. */
 	candidate: ConnectionOwnerCandidate;
 	/** The administrator handing ownership over. */
-	currentOwner?: { displayName?: string; avatar?: string } | null;
+	currentOwner?: ConnectionOwner | null;
 	/** Whether the current owner is also this connection's protected owner. */
 	isProtectedOwner?: boolean;
 	/** A failed transfer's message, if any. */
