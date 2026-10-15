@@ -9,18 +9,23 @@ namespace Automattic\Jetpack\VideoPress;
 
 /**
  * Shared pieces of the blocks a VideoPress channel theme builds its pages
- * from: for now, the data their playlist pickers read in the editor.
+ * from: for now, the Video Playlist block's `source` ( a playlist published
+ * on the site ) and the data its playlist picker reads in the editor.
  */
 class Channel_Blocks {
 
 	/**
-	 * Hand the editor the picker data. Like the All Playlists block, only where the Video Playlist block is.
+	 * Resolve the Video Playlist block's `source` when it renders, and hand the editor the picker
+	 * data. Like the All Playlists block, only where the Video Playlist block is; any theme.
 	 *
 	 * @return void
 	 */
 	public static function register() {
 		if ( ! \WP_Block_Type_Registry::get_instance()->is_registered( Playlist_Index::BLOCK_NAME ) ) {
 			return;
+		}
+		if ( ! has_filter( 'render_block_data', array( Channel::class, 'playlist_source_block' ) ) ) {
+			add_filter( 'render_block_data', array( Channel::class, 'playlist_source_block' ) );
 		}
 		if ( ! has_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_editor_data' ) ) ) {
 			add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_editor_data' ) );

@@ -132,15 +132,17 @@ class Channel_Blocks_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The editor data is only wired up where the Video Playlist block is.
+	 * The playlist source and the editor data are only wired up where the Video Playlist block is.
 	 */
 	public function test_register_requires_the_playlist_block() {
 		Channel_Blocks::register();
 		$this->assertFalse( has_action( 'enqueue_block_editor_assets', array( Channel_Blocks::class, 'enqueue_editor_data' ) ) );
+		$this->assertFalse( has_filter( 'render_block_data', array( Channel::class, 'playlist_source_block' ) ) );
 
 		register_block_type( 'videopress/playlist', array() );
 		Channel_Blocks::register();
 		$this->assertSame( 10, has_action( 'enqueue_block_editor_assets', array( Channel_Blocks::class, 'enqueue_editor_data' ) ) );
+		$this->assertSame( 10, has_filter( 'render_block_data', array( Channel::class, 'playlist_source_block' ) ) );
 
 		// Without an editor script there is nothing to attach the data to.
 		wp_set_current_user(
@@ -154,6 +156,31 @@ class Channel_Blocks_Test extends BaseTestCase {
 		);
 		Channel_Blocks::enqueue_editor_data();
 		$this->assertStringNotContainsString( 'videopressChannelEditor', wp_json_encode( wp_scripts()->registered, JSON_UNESCAPED_SLASHES ) );
+		unregister_block_type( 'videopress/playlist' );
+	}
+
+	/**
+	 * A Video Playlist block showing a playlist from the site renders that playlist's videos on any
+	 * theme, not only a channel theme.
+	 */
+	public function test_source_playlist_renders_without_a_channel_theme() {
+		// Undo what set_up() hooked as a channel site.
+		remove_all_filters( 'videopress_channel_enabled' );
+		remove_filter( 'render_block_data', array( Channel::class, 'playlist_source_block' ) );
+		$this->assertFalse( Channel::is_enabled() );
+		register_block_type(
+			'videopress/playlist',
+			array(
+				'render_callback' => function ( $attributes ) {
+					return implode( ',', array_column( $attributes['videos'] ?? array(), 'guid' ) );
+				},
+			)
+		);
+		Channel_Blocks::register();
+
+		$this->assertSame( 'bbbbbbb2,ccccccc3', do_blocks( '<!-- wp:videopress/playlist {"source":"index","sourcePlaylistId":"dungeons"} /-->' ) );
+		$this->assertSame( 'bbbbbbb2,ccccccc3', do_blocks( '<!-- wp:videopress/playlist {"source":"index"} /-->' ) );
+		$this->assertSame( 'aaaaaaa1', do_blocks( '<!-- wp:videopress/playlist {"videos":[{"guid":"aaaaaaa1"}]} /-->' ) );
 		unregister_block_type( 'videopress/playlist' );
 	}
 

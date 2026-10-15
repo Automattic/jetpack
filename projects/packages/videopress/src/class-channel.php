@@ -86,7 +86,6 @@ class Channel {
 		add_filter( 'attachment_link', array( __CLASS__, 'attachment_link' ), 10, 2 );
 		add_filter( 'videopress_playlist_entry_url', array( __CLASS__, 'playlist_entry_url' ), 10, 2 );
 		add_filter( 'render_block_data', array( __CLASS__, 'queried_video_block' ) );
-		add_filter( 'render_block_data', array( __CLASS__, 'playlist_source_block' ) );
 	}
 
 	/**
@@ -421,7 +420,8 @@ class Channel {
 	}
 
 	/**
-	 * A Video Playlist block whose `source` is `index` shows that playlist.
+	 * A Video Playlist block whose `source` is `index` shows that playlist. Hooked by
+	 * Channel_Blocks::register() on every site with the block, channel theme or not.
 	 *
 	 * @param array $parsed_block The block being rendered.
 	 * @return array

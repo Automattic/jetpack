@@ -296,7 +296,7 @@ class Initializer {
 		// Register All Playlists block.
 		self::register_videopress_all_playlists_block();
 
-		// Register the channel blocks' shared pieces: the editor data their playlist pickers read.
+		// Register the channel blocks' shared pieces: the playlist block's `source` and the editor data its picker reads.
 		Channel_Blocks::register();
 	}
 
