@@ -760,7 +760,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 	// 6. Disconnect Flow
 	// ---------------------------------------------------------------
 	test.describe( 'Disconnect Flow', () => {
-		test( 'disconnecting shows wizard for new blocks', async ( { page } ) => {
+		test( 'logging out shows the wizard for new blocks', async ( { page } ) => {
 			await setupPayPalMocks( page );
 			await goToNewPost( page );
 			const canvas = await insertPayPalBlock( page );

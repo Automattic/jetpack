@@ -1723,7 +1723,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		 *
 		 * @param {object} user - userEvent instance.
 		 */
-		async function onboardThenDisconnect( user ) {
+		async function onboardThenLogOut( user ) {
 			openSidebar();
 			await openActiveOverlay( { isSelected: true } );
 
@@ -1747,7 +1747,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				complete: { connected: true },
 			} );
 
-			await onboardThenDisconnect( user );
+			await onboardThenLogOut( user );
 
 			expect( mockToast ).toHaveBeenCalledWith( 'success', 'PayPal account disconnected.' );
 		} );
@@ -1759,7 +1759,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				complete: { connected: true },
 			} );
 
-			await onboardThenDisconnect( user );
+			await onboardThenLogOut( user );
 
 			// A referral that has been through onboarding cannot be reopened, and
 			// only an empty signupUrl lets the prefetch ask for a fresh one. Wait
@@ -1775,7 +1775,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				complete: { connected: true },
 			} );
 
-			await onboardThenDisconnect( user );
+			await onboardThenLogOut( user );
 
 			// The prefetch remounts the frame. It must come back closed rather
 			// than covering the welcome step with nothing in it.
@@ -7654,7 +7654,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( screen.queryByTestId( 'notice' ) ).not.toBeInTheDocument();
 		} );
 
-		it( 'takes the warning down on a disconnect', async () => {
+		it( 'takes the warning down on Log out', async () => {
 			const user = userEvent.setup();
 			mockStatus();
 			openSidebar();
