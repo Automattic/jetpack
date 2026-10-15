@@ -1032,7 +1032,7 @@ class PayPal_Admin_Page {
 		if ( ! $locations['posts'] ) {
 			printf( '<p>%s</p>', esc_html__( 'This payment link is not used on any post or page yet.', 'jetpack-paypal-payments' ) );
 		} else {
-			printf( '<p class="description">%s</p>', esc_html__( 'Posts and pages using this payment link. Drafts are marked with their status.', 'jetpack-paypal-payments' ) );
+			printf( '<p class="description">%s</p>', esc_html__( 'Posts and pages using this payment link.', 'jetpack-paypal-payments' ) );
 			echo '<table class="widefat striped paypal-link-locations"><thead><tr>';
 			printf( '<th scope="col">%s</th>', esc_html__( 'Title', 'jetpack-paypal-payments' ) );
 			printf( '<th scope="col">%s</th>', esc_html__( 'Type', 'jetpack-paypal-payments' ) );
@@ -1174,21 +1174,21 @@ class PayPal_Admin_Page {
 		$html = '';
 		foreach ( $posts as $post ) {
 			$type_object = get_post_type_object( $post->post_type );
-			$title       = get_the_title( $post ) ? get_the_title( $post ) : __( '(no title)', 'jetpack-paypal-payments' );
+			$type        = $type_object ? $type_object->labels->singular_name : $post->post_type;
 			$is_live     = 'publish' === $post->post_status;
 			if ( ! $is_live ) {
 				$status_object = get_post_status_object( $post->post_status );
-				$title         = sprintf(
-					/* translators: 1: post status label, such as Draft; 2: post title */
-					__( '[%1$s] %2$s', 'jetpack-paypal-payments' ),
+				$type          = sprintf(
+					/* translators: 1: post status label, such as Draft; 2: post type label, such as Page */
+					__( '%1$s %2$s', 'jetpack-paypal-payments' ),
 					$status_object ? $status_object->label : $post->post_status,
-					$title
+					$type
 				);
 			}
 			$html .= sprintf(
 				'<tr><td>%s</td><td>%s</td><td><a href="%s">%s</a> | <a href="%s" target="_blank" rel="noopener noreferrer">%s</a></td></tr>',
-				esc_html( $title ),
-				esc_html( $type_object ? $type_object->labels->singular_name : $post->post_type ),
+				esc_html( get_the_title( $post ) ? get_the_title( $post ) : __( '(no title)', 'jetpack-paypal-payments' ) ),
+				esc_html( $type ),
 				esc_url( admin_url( 'post.php?post=' . (int) $post->ID . '&action=edit' ) ),
 				esc_html__( 'Edit', 'jetpack-paypal-payments' ),
 				esc_url( $is_live ? get_permalink( $post ) : get_preview_post_link( $post ) ),
