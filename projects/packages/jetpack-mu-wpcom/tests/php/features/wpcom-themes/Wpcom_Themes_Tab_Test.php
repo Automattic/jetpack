@@ -41,7 +41,7 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 		'block_theme' => true,
 		'date_added'  => '2023-02-01',
 		'taxonomies'  => array(),
-		'theme_tier'  => array( 'slug' => 'partner' ),
+		'theme_tier'  => array( 'slug' => 'personal' ),
 	);
 
 	/**
@@ -215,7 +215,7 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 		}
 		$this->assertArrayHasKey( 'display_name', $theme->author );
 		$this->assertObjectHasProperty( 'installed', $theme );
-		$this->assertSame( 'partner', $theme->theme_tier );
+		$this->assertSame( 'personal', $theme->theme_tier );
 	}
 
 	/**
