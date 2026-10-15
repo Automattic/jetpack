@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.10.0] - 2026-10-14
+### Added
+- Add an opt-in Features page for managing local features in offline mode. [#53280]
+- Add a `jetpack_my_jetpack_overview_v1` filter that turns on Overview v1. [#53627]
+- Add shared data for the header's connection status. [#53243]
+- Print where Jetpack AI is managed in the admin script data, so other screens can link to it. [#53519]
+
+### Changed
+- Connection card: Show a connection error while your account is still to be connected, instead of only asking you to connect it. [#53409]
+
+### Deprecated
+- Deprecate `get_features_by_tier()` on every product except Boost, and remove the unused `features_by_tier` and `is_tiered_pricing` fields from the product data. [#53199]
+
+### Fixed
+- Notices: Show the highest-priority notice first when several are set at once. [#53400]
+
 ## [6.9.1] - 2026-10-12
 ### Changed
 - Features: Offer the Protect switch through Jetpack when the Protect Dashboard feature flag is on. [#53182]
@@ -3049,6 +3065,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[6.10.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.9.1...6.10.0
 [6.9.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.9.0...6.9.1
 [6.9.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.8.0...6.9.0
 [6.8.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.7.1...6.8.0

@@ -145,6 +145,8 @@ export {
 	FeedbackModal,
 	type FeedbackSource,
 	PageEmptyState,
+	LockedPage,
+	LockedWidget,
 	PageNotice,
 	type PageNoticeProps,
 	PageOptionsMenu,

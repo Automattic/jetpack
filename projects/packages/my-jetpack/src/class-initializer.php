@@ -46,7 +46,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '6.9.1';
+	const PACKAGE_VERSION = '6.10.0';
 
 	/**
 	 * Handle for the classic script that carries the React initial state.
@@ -175,7 +175,7 @@ class Initializer {
 	/**
 	 * Keep uncached module-list options local on the offline route.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.10.0
 	 * @param mixed            $response Response before the callback.
 	 * @param array            $handler  Route handler.
 	 * @param \WP_REST_Request $request  REST request.
@@ -192,7 +192,7 @@ class Initializer {
 	/**
 	 * Restore normal option reads after the offline module-list callback.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.10.0
 	 * @param mixed            $response Response after the callback.
 	 * @param array            $handler  Route handler.
 	 * @param \WP_REST_Request $request  REST request.
@@ -267,7 +267,7 @@ class Initializer {
 	/**
 	 * Whether the current user may access the page selected by My Jetpack.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.10.0
 	 * @return bool
 	 */
 	public static function current_user_can_access_page() {
@@ -763,7 +763,7 @@ class Initializer {
 	/**
 	 * What the shared header needs beyond the rest of the state, so it renders without a request.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.10.0
 	 *
 	 * @return array{connectorsUrl: string|null} The state.
 	 */
@@ -845,9 +845,32 @@ class Initializer {
 				'mainFeatures' => Main_Features::get_state( true ),
 				'plugins'      => Plugins_Installer::get_plugins(),
 			);
+			$data['myJetpack']['offlineFeatures']['mainFeatures']['available_admin_pages'] = self::get_registered_admin_page_slugs();
 		}
 
 		return $data;
+	}
+
+	/**
+	 * Get the slugs of registered admin pages.
+	 *
+	 * Skip hooks containing `?`: they are `edit.php?post_type=...` style pages, not page slugs.
+	 *
+	 * @return string[]
+	 */
+	private static function get_registered_admin_page_slugs() {
+		global $_registered_pages;
+
+		$hooks = array_filter(
+			array_keys( $_registered_pages ?? array() ),
+			static fn( $hook ) => false !== strpos( $hook, '_page_' ) && false === strpos( $hook, '?' )
+		);
+
+		return array_values(
+			array_unique(
+				array_map( static fn( $hook ) => substr( $hook, strpos( $hook, '_page_' ) + 6 ), $hooks )
+			)
+		);
 	}
 
 	/**
@@ -974,9 +997,26 @@ class Initializer {
 			// caches its report and wants a `force_refresh` hint the dashboard does not.
 			'premiumAnalyticsEnabled'  => Products\Stats::is_premium_analytics_enabled(),
 			'showAiModuleToggle'       => Products\Jetpack_Ai::is_feature_ui_enabled(),
+			'overviewV1'               => self::is_overview_v1_enabled(),
 		);
 
 		return $flags;
+	}
+
+	/**
+	 * Whether My Jetpack shows Overview v1.
+	 *
+	 * @since 6.10.0
+	 * @return bool
+	 */
+	public static function is_overview_v1_enabled() {
+		/**
+		 * Filters whether My Jetpack shows Overview v1.
+		 *
+		 * @since 6.10.0
+		 * @param bool $enabled Whether to show Overview v1. Default false.
+		 */
+		return (bool) apply_filters( 'jetpack_my_jetpack_overview_v1', false );
 	}
 
 	/**
@@ -1124,7 +1164,7 @@ class Initializer {
 	/**
 	 * Whether the site uses the local Features entry instead of the connected dashboard.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.10.0
 	 * @return bool
 	 */
 	public static function is_offline_features_enabled() {
@@ -1135,7 +1175,7 @@ class Initializer {
 		/**
 		 * Enable local Features data and entry in offline mode.
 		 *
-		 * @since $$next-version$$
+		 * @since 6.10.0
 		 * @param bool $enabled Whether to enable offline Features. Default false.
 		 */
 		return (bool) apply_filters( 'jetpack_my_jetpack_offline_features', false );

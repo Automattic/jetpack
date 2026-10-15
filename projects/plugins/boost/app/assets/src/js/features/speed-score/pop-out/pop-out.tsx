@@ -3,7 +3,7 @@ import CloseButton from '$features/ui/close-button/close-button';
 import styles from './pop-out.module.scss';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
-import { Button as UIButton, Card, IconButton, LinkButton, Stack, Text } from '@wordpress/ui';
+import { Button as UIButton, Card, IconButton, ButtonLink, Stack, Text } from '@wordpress/ui';
 import { ReactNode, useState, useEffect } from 'react';
 import { Button, getRedirectUrl } from '@automattic/jetpack-components';
 import { useDismissibleAlertState } from '$features/performance-history/lib/hooks';
@@ -142,9 +142,9 @@ export const ModernPopOut = ( { message, onClose, onDismiss, isVisible }: Vanill
 						{ message.body }
 					</Text>
 					<Stack direction="row" wrap="wrap" gap="sm">
-						<LinkButton size="compact" href={ message.ctaLink } openInNewTab onClick={ onDismiss }>
+						<ButtonLink size="compact" href={ message.ctaLink } openInNewTab onClick={ onDismiss }>
 							{ message.cta }
-						</LinkButton>
+						</ButtonLink>
 						<UIButton variant="minimal" size="compact" onClick={ onDismiss }>
 							{ __( 'Do not show me again', 'jetpack-boost' ) }
 						</UIButton>
