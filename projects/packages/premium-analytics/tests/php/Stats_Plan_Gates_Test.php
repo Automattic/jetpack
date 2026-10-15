@@ -285,7 +285,7 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 			'jetpack free' => array( STATS_TIER_JETPACK_FREE, array( 'utm', 'devices', 'regions-cities' ) ),
 			'paid'         => array( STATS_TIER_PAID, $commercial ),
 			'legacy basic' => array( STATS_TIER_LEGACY_BASIC, array_merge( $commercial, array( 'referrers', 'clicks', 'csv', 'intervals', 'long-date-presets' ) ) ),
-			'free'         => array( STATS_TIER_FREE, array_merge( $commercial, array( 'top-posts', 'referrers', 'countries', 'clicks', 'file-downloads', 'insights', 'csv', 'intervals', 'long-date-presets', 'recent-7-days' ) ) ),
+			'free'         => array( STATS_TIER_FREE, array_merge( $commercial, array( 'top-posts', 'referrers', 'countries', 'clicks', 'file-downloads', 'insights', 'tags', 'csv', 'intervals', 'long-date-presets', 'recent-7-days' ) ) ),
 		);
 	}
 

@@ -19,6 +19,7 @@ export type StatsFeatureKey =
 	| 'devices'
 	| 'regions-cities'
 	| 'insights'
+	| 'tags'
 	| 'csv'
 	| 'intervals'
 	| 'long-date-presets'

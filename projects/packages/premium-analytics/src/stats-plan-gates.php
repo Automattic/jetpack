@@ -205,7 +205,7 @@ function get_locked_stats_features( $tier ) {
 		case STATS_TIER_FREE:
 			return array_merge(
 				STATS_COMMERCIAL_FEATURES,
-				array( 'top-posts', 'referrers', 'countries', 'clicks', 'file-downloads', 'insights', 'csv', 'intervals', 'long-date-presets', 'recent-7-days' )
+				array( 'top-posts', 'referrers', 'countries', 'clicks', 'file-downloads', 'insights', 'tags', 'csv', 'intervals', 'long-date-presets', 'recent-7-days' )
 			);
 		default:
 			return array();
@@ -278,6 +278,11 @@ function get_stats_feature_copy( $feature ) {
 			return array(
 				'description' => __( 'See which <link>devices, browsers and OS</link> your visitors are using.', 'jetpack-premium-analytics-pkg' ),
 				'support_url' => $traffic_support . '#devices-stats',
+			);
+		case 'tags':
+			return array(
+				'description' => __( 'Track the most viewed <link>tags & categories</link>.', 'jetpack-premium-analytics-pkg' ),
+				'support_url' => 'https://wordpress.com/support/stats/learn-insights-about-your-website/#:~:text=Tags%20,%20Categories',
 			);
 		default:
 			return array(
