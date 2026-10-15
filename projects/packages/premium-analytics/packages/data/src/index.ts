@@ -88,7 +88,6 @@ export {
 	getLockedFeature,
 	getLockedWidgetFeature,
 	isStatsFeatureLocked,
-	type LockedFeature,
 	type StatsFeatureKey,
 } from './utils/plan-gates';
 export {
