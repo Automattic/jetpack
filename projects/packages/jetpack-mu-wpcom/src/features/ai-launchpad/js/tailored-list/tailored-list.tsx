@@ -1,8 +1,9 @@
+import { speak } from '@wordpress/a11y';
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, _n, _x, sprintf } from '@wordpress/i18n';
-import { LinkButton, Notice, Stack } from '@wordpress/ui';
+import { ButtonLink, Notice, Stack } from '@wordpress/ui';
 import { DifmOfferBanner, type DifmOffer } from '../difm-offer/difm-offer-banner.tsx';
 import { createAboutPage } from '../lib/about-page.ts';
 import { fireConfetti } from '../lib/confetti.ts';
@@ -265,6 +266,23 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 	// Prefer the goal from the loaded AI output; fall back to the wizard's.
 	const effectiveGoal = output?.inferred?.goal ?? goal ?? null;
 
+	const saveErrorTitle = __( "We couldn't save your checklist.", 'jetpack-mu-wpcom' );
+	const saveErrorDescription = retryFailed
+		? __( "It still didn't save. Check your connection, then try again.", 'jetpack-mu-wpcom' )
+		: __(
+				'Your checklist is ready, but saving it failed. Check your connection, then try again.',
+				'jetpack-mu-wpcom'
+			);
+	const saveErrorMessage =
+		saveError && ! savedOnRetry ? `${ saveErrorTitle } ${ saveErrorDescription }` : null;
+	// Polite: the user is waiting on this result, not interrupted by it. The description
+	// changes after a failed retry, which announces it again.
+	useEffect( () => {
+		if ( saveErrorMessage ) {
+			speak( saveErrorMessage, 'polite' );
+		}
+	}, [ saveErrorMessage ] );
+
 	if ( saveError && ! savedOnRetry ) {
 		const handleRetry = async () => {
 			setRetrying( true );
@@ -289,23 +307,9 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 				siteTitle={ siteTitle }
 				siteEditUrl={ siteEditUrl }
 			>
-				{ /* Polite: the user is waiting on this result, not interrupted by it. The description
-				changes after a failed retry, which announces it again. */ }
-				<Notice.Root intent="error" politeness="polite">
-					<Notice.Title>
-						{ __( "We couldn't save your checklist.", 'jetpack-mu-wpcom' ) }
-					</Notice.Title>
-					<Notice.Description>
-						{ retryFailed
-							? __(
-									"It still didn't save. Check your connection, then try again.",
-									'jetpack-mu-wpcom'
-								)
-							: __(
-									'Your checklist is ready, but saving it failed. Check your connection, then try again.',
-									'jetpack-mu-wpcom'
-								) }
-					</Notice.Description>
+				<Notice.Root intent="error">
+					<Notice.Title>{ saveErrorTitle }</Notice.Title>
+					<Notice.Description>{ saveErrorDescription }</Notice.Description>
 					<Notice.Actions>
 						<Notice.ActionButton
 							variant="solid"
@@ -494,9 +498,9 @@ export function TailoredList( { pendingTailor, initialData, site, goal, copy }: 
 				{ /* The div keeps the button as wide as its label instead of stretching with the column. */ }
 				{ allDone && (
 					<div>
-						<LinkButton variant="solid" href={ DASHBOARD_URL }>
+						<ButtonLink variant="solid" href={ DASHBOARD_URL }>
 							{ __( 'Go to Dashboard now', 'jetpack-mu-wpcom' ) }
-						</LinkButton>
+						</ButtonLink>
 					</div>
 				) }
 				{ difmOffer && ! allDone && (

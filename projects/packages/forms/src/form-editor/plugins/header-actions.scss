@@ -3,7 +3,7 @@
 /*
  * `@wordpress/interface` hides pinned items on narrow viewports so the list
  * doesn't wreak havoc on the header layout, but it does so with a
- * `.interface-pinned-items .components-button` rule. `LinkButton` renders an
+ * `.interface-pinned-items .components-button` rule. `ButtonLink` renders an
  * anchor carrying only `@wordpress/ui` classes, so it slips past that rule —
  * reapply the same breakpoint here.
  */

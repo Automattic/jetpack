@@ -11,7 +11,13 @@ jest.unstable_mockModule( '@automattic/jetpack-api', () => ( {
 		setApiNonce: jest.fn(),
 		fetchConnectionOwnerCandidates: () =>
 			Promise.resolve( [
-				{ id: 7, login: 'kazz', displayName: 'Kazz', email: 'kazz@example.com' },
+				{
+					id: 7,
+					login: 'kazz',
+					displayName: 'Kazz',
+					email: 'kazz@example.com',
+					avatar: 'https://example.com/kazz.png',
+				},
 			] ),
 		setConnectionOwner: jest.fn(),
 	},

@@ -1,16 +1,16 @@
 diff --git a/lib/build-shared.mjs b/lib/build-shared.mjs
-new file mode 100755
-index 0000000..6ecc938
+new file mode 100644
+index 0000000..85da1e7
 --- /dev/null
 +++ b/lib/build-shared.mjs
-@@ -0,0 +1,241 @@
+@@ -0,0 +1,227 @@
 +#!/usr/bin/env node
 +/**
 + * Bundles libraries that several wp-build plugins use into shared script modules.
 + *
 + * Reads `wpSharedModules` from the project's package.json:
 + * { namespace, outdir, modules: { specifier: name }, styles: { name: [ stylesheet ] }, consumers: [ glob ] }
-+ * and writes `<outdir>/manifest.json` for `wpPlugin.sharedModules` plus `<outdir>/modules.php`.
++ * and writes `<outdir>/modules.php`. Consumers point `wpPlugin.sharedModules` at that package.json.
 + */
 +import { mkdir, readFile, rm, writeFile } from 'fs/promises';
 +import path from 'path';
@@ -24,6 +24,7 @@ index 0000000..6ecc938
 +import { getBrowserslistQueries } from './browserslist.mjs';
 +import { compileInlineStyle } from './compile-inline-style.mjs';
 +import { createWordpressExternalsPlugin } from './wordpress-externals-plugin.mjs';
++import { getSharedModulesManifest } from './shared-modules-manifest.mjs';
 +
 +const ROOT_DIR = process.cwd();
 +const config = JSON.parse(
@@ -105,10 +106,13 @@ index 0000000..6ecc938
 +}
 +
 +/*
-+ * Once the consumers are built, export only the names they import so the shared bundle (and the
-+ * CSS it injects) can be tree-shaken. Consumers must be rebuilt first when they import new names.
++ * With WP_BUILD_SHARED_PRUNE set, export only the names the built consumers import, so the bundle can be
++ * tree-shaken. Off by default: it depends on every consumer being built first, which CI does not guarantee.
 + */
 +async function findUsedExports() {
++	if ( ! process.env.WP_BUILD_SHARED_PRUNE ) {
++		return null;
++	}
 +	const files = await glob( config.consumers ?? [], { cwd: ROOT_DIR, absolute: true } );
 +	if ( ! files.length ) {
 +		return null;
@@ -212,25 +216,7 @@ index 0000000..6ecc938
 +}
 +const version = hash.digest( 'hex' ).slice( 0, 20 );
 +
-+const ids = Object.fromEntries(
-+	Object.entries( config.modules ).map( ( [ specifier, name ] ) => [
-+		specifier,
-+		`@${ config.namespace }/${ name }`,
-+	] )
-+);
-+await writeFile(
-+	path.join( outdir, 'manifest.json' ),
-+	JSON.stringify(
-+		{
-+			modules: ids,
-+			styles: Object.values( config.styles ?? {} )
-+				.flat()
-+				.map( ( style ) => style.replace( /\.css$/, '' ) ),
-+		},
-+		null,
-+		'\t'
-+	) + '\n'
-+);
++const ids = getSharedModulesManifest( config ).modules;
 +const phpModules = Object.entries( config.modules )
 +	.map(
 +		( [ specifier, name ] ) =>
@@ -246,26 +232,36 @@ index 0000000..6ecc938
 +	console.log( `   ${ path.relative( ROOT_DIR, file ) } ${ ( output.bytes / 1024 ) | 0 }K` );
 +}
 diff --git a/lib/build.mjs b/lib/build.mjs
-index dae3268..2748f7e 100755
+index f108eb2..f1981b1 100755
 --- a/lib/build.mjs
 +++ b/lib/build.mjs
-@@ -106,6 +106,15 @@ const PACKAGE_NAMESPACE = WP_PLUGIN_CONFIG.packageNamespace;
+@@ -29,6 +29,7 @@ import { getPackageInfo, getPackageInfoFromFile } from './package-utils.mjs';
+ import { getBrowserslistQueries } from './browserslist.mjs';
+ import { getSourceFileGlob, isTestSourceFile } from './source-files.mjs';
+ import { createWordpressExternalsPlugin } from './wordpress-externals-plugin.mjs';
++import { getSharedModulesManifest } from './shared-modules-manifest.mjs';
+ import {
+ 	getAllRoutes,
+ 	getRouteFiles,
+@@ -105,6 +106,17 @@ const PACKAGE_NAMESPACE = WP_PLUGIN_CONFIG.packageNamespace;
  const HANDLE_PREFIX = WP_PLUGIN_CONFIG.handlePrefix || PACKAGE_NAMESPACE;
  const EXTERNAL_NAMESPACES = WP_PLUGIN_CONFIG.externalNamespaces || {};
  const PAGES = WP_PLUGIN_CONFIG.pages || [];
-+// A manifest written by `wp-build-shared`: { modules: { specifier: moduleId }, styles: [ specifier ] }.
++// The package.json whose `wpSharedModules` lists the libraries served by `wp-build-shared`.
 +const SHARED_MODULES = WP_PLUGIN_CONFIG.sharedModules
-+	? JSON.parse(
-+			await readFile(
-+				path.resolve( ROOT_DIR, WP_PLUGIN_CONFIG.sharedModules ),
-+				'utf8'
-+			)
++	? getSharedModulesManifest(
++			JSON.parse(
++				await readFile(
++					path.resolve( ROOT_DIR, WP_PLUGIN_CONFIG.sharedModules ),
++					'utf8'
++				)
++			).wpSharedModules
 +	  )
 +	: { modules: {}, styles: [] };
  
  // Capability required to view a generated page when the page config does not
  // declare one. Pages rendering outside the menu page callback flow must
-@@ -152,7 +161,8 @@ const wordpressExternalsPlugin = createWordpressExternalsPlugin(
+@@ -151,7 +163,8 @@ const wordpressExternalsPlugin = createWordpressExternalsPlugin(
  	PACKAGE_NAMESPACE,
  	SCRIPT_GLOBAL,
  	EXTERNAL_NAMESPACES,
@@ -275,7 +271,7 @@ index dae3268..2748f7e 100755
  );
  
  const styleRuntimeRequire = createNodeRequire( import.meta.url );
-@@ -211,6 +221,28 @@ function inlineStyle( contents ) {
+@@ -210,6 +223,28 @@ function inlineStyle( contents ) {
  	return contents;
  }
  
@@ -304,7 +300,7 @@ index dae3268..2748f7e 100755
  /**
   * Create style bundling plugins with the given working directory.
   *
-@@ -218,7 +250,10 @@ function inlineStyle( contents ) {
+@@ -217,7 +252,10 @@ function inlineStyle( contents ) {
   * @return {object[]} Array of esbuild plugins for handling CSS/SCSS.
   */
  function createStyleBundlingPlugins( workingDir ) {
@@ -316,6 +312,31 @@ index dae3268..2748f7e 100755
  	return [
  		styleRuntimeAliasPlugin(),
  		// Handle CSS modules (.module.css and .module.scss)
+diff --git a/lib/shared-modules-manifest.mjs b/lib/shared-modules-manifest.mjs
+new file mode 100644
+index 0000000..136645b
+--- /dev/null
++++ b/lib/shared-modules-manifest.mjs
+@@ -0,0 +1,19 @@
++/**
++ * Map a `wpSharedModules` config to the script module IDs and stylesheets it serves.
++ *
++ * @param {Object} config `wpSharedModules` from the providing package's package.json.
++ * @return {{modules: Object<string,string>, styles: string[]}} Module ID per bare specifier, and the stylesheets the modules inject.
++ */
++export function getSharedModulesManifest( config ) {
++	return {
++		modules: Object.fromEntries(
++			Object.entries( config.modules ).map( ( [ specifier, name ] ) => [
++				specifier,
++				`@${ config.namespace }/${ name }`,
++			] )
++		),
++		styles: Object.values( config.styles ?? {} )
++			.flat()
++			.map( ( style ) => style.replace( /\.css$/, '' ) ),
++	};
++}
 diff --git a/lib/wordpress-externals-plugin.mjs b/lib/wordpress-externals-plugin.mjs
 index ab099e9..5f9b319 100644
 --- a/lib/wordpress-externals-plugin.mjs
@@ -361,10 +382,10 @@ index ab099e9..5f9b319 100644
  				 * Check if a package import is a script module.
  				 * A package is considered a script module if it has wpScriptModuleExports
 diff --git a/package.json b/package.json
-index 2ce3fda..5aadc60 100644
+index 0ac559c..6e4fad9 100644
 --- a/package.json
 +++ b/package.json
-@@ -32,7 +32,8 @@
+@@ -31,7 +31,8 @@
  		"./package.json": "./package.json"
  	},
  	"bin": {
@@ -373,7 +394,7 @@ index 2ce3fda..5aadc60 100644
 +		"wp-build-shared": "./lib/build-shared.mjs"
  	},
  	"dependencies": {
- 		"@emotion/babel-plugin": "^11.13.5",
+ 		"@babel/core": "^7.25.7",
 diff --git a/templates/page-wp-admin.php.template b/templates/page-wp-admin.php.template
 index 32416c5..292e0e8 100644
 --- a/templates/page-wp-admin.php.template

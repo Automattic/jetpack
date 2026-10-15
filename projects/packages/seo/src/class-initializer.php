@@ -278,7 +278,7 @@ class Initializer {
 	 * FREE plan's supports list, so `Current_Plan::supports( 'advanced-seo' )` returns
 	 * true on self-hosted (never gated) and hijacks to `wpcom_site_has_feature()` on
 	 * WordPress.com, where it's false below the Premium plan. Mirrors the AI SEO
-	 * Enhancer's plan check in {@see Dashboard_Data::get_ai_data()}.
+	 * Enhancer's plan check in {@see Dashboard_Data::get_geo_data()}.
 	 *
 	 * Public because {@see Admin_Page::inject_script_data()} reads it to build the
 	 * dashboard's gating payload, and {@see self::init()} uses it to decide whether the

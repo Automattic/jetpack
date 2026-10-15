@@ -6,6 +6,7 @@ export {
 	type PostThumbnailUrls,
 } from './use-post-thumbnail';
 export { useStatsSite } from './use-stats-site';
+export { useSiteIsCommercial } from './use-site-is-commercial';
 export { usePrefetchViewerCountry, useViewerCountry } from './use-viewer-country';
 export {
 	useStatsPost,

@@ -38,7 +38,9 @@ import {
 	FeedbackBanner,
 	OnboardingTour,
 	onboardingTourSteps,
+	hasPurchaseSuccess,
 	PlanLimitNotice,
+	PurchaseSuccessNotice,
 	RefreshFailureNotice,
 	SectionSyncNotice,
 	StatsSettingsPanel,
@@ -256,7 +258,11 @@ function Dashboard(): JSX.Element {
 		showsPeriodControl
 	);
 
-	const { onChange: changeDateRange, onApply: applyDateRange } = dateFilters;
+	const {
+		onChange: changeDateRange,
+		onComparisonChange: changeComparison,
+		onApply: applyDateRange,
+	} = dateFilters;
 	const { trackedOnChange, trackedOnApply } = useTrackedDateRangeApply(
 		{
 			presetId: dateFilters.presetId,
@@ -267,7 +273,11 @@ function Dashboard(): JSX.Element {
 		},
 		{ surface: 'dashboard', section: widgetSection, offersComparison: showComparison }
 	);
-	const { onChange: rememberOnChange, onApply: rememberOnApply } = useRememberAppliedPreset();
+	const {
+		onChange: rememberOnChange,
+		onComparisonChange: rememberOnComparisonChange,
+		onApply: rememberOnApply,
+	} = useRememberAppliedPreset();
 	const onDateChange = useCallback< typeof changeDateRange >(
 		( ...args ) => {
 			changeDateRange( ...args );
@@ -281,6 +291,13 @@ function Dashboard(): JSX.Element {
 		trackedOnApply();
 		rememberOnApply();
 	}, [ applyDateRange, trackedOnApply, rememberOnApply ] );
+	const onComparisonChange = useCallback< typeof changeComparison >(
+		( range, presetId ) => {
+			changeComparison( range, presetId );
+			rememberOnComparisonChange( range, presetId );
+		},
+		[ changeComparison, rememberOnComparisonChange ]
+	);
 
 	/*
 	 * The year surface applies on click — no Apply step of its own — so stage and
@@ -358,6 +375,7 @@ function Dashboard(): JSX.Element {
 				<DateFiltersPanel
 					{ ...dateFilters }
 					onChange={ onDateChange }
+					onComparisonChange={ onComparisonChange }
 					onApply={ onDateApply }
 					withIntervalControl={ showHeaderIntervalControl }
 					attentionId={ attentionId }
@@ -436,7 +454,14 @@ function Dashboard(): JSX.Element {
 
 										{ activeSection === section.slug ? (
 											<div className={ styles.body }>
-												{ ! editMode && <PlanLimitNotice /> }
+												{ /* A checkout return holds the plan limit notice back for the
+												     whole load, even once dismissed. */ }
+												{ ! editMode &&
+													( hasPurchaseSuccess() ? (
+														<PurchaseSuccessNotice />
+													) : (
+														<PlanLimitNotice />
+													) ) }
 
 												{ /* Behind the onboarding journey: it introduces the tabs
 												     the banner asks about. */ }

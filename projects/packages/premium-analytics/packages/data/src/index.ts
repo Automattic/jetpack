@@ -85,10 +85,17 @@ export {
 export type { IntervalType } from './utils/interval';
 export { chartInterval, defaultPeriodForInterval, drawableIntervals } from './utils/periods';
 export {
+	getLockedFeature,
+	getLockedWidgetFeature,
+	isStatsFeatureLocked,
+	type StatsFeatureKey,
+} from './utils/plan-gates';
+export {
 	DASHBOARD_PREFERENCES_SCOPE,
 	getDefaultPreset,
 	getDefaultQueryParams,
 	getDefaultReportParams,
+	rememberComparison,
 	rememberPreset,
 	withDefaultComparison,
 } from './defaults';

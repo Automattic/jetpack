@@ -5,7 +5,7 @@ import analytics from '@automattic/jetpack-analytics';
 import { getSiteType } from '@automattic/jetpack-script-data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Button, Card, LinkButton, Stack, Text } from '@wordpress/ui';
+import { Button, Card, ButtonLink, Stack, Text } from '@wordpress/ui';
 import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
@@ -62,9 +62,9 @@ export function EmailDesignSection( {
 						) }
 					</Text>
 					{ isNewsletterEnabled ? (
-						<LinkButton variant="solid" href={ href } onClick={ handleEmailDesignClick }>
+						<ButtonLink variant="solid" href={ href } onClick={ handleEmailDesignClick }>
 							{ buttonText }
-						</LinkButton>
+						</ButtonLink>
 					) : (
 						<Button variant="solid" disabled>
 							{ buttonText }

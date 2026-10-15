@@ -1,4 +1,5 @@
 import { Button, Col, Container, Text } from '@automattic/jetpack-components';
+import { speak } from '@wordpress/a11y';
 import { Popover, ToggleControl } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { createInterpolateElement } from '@wordpress/element';
@@ -210,6 +211,18 @@ const FirewallPage = () => {
 			has_plan: hasPlan,
 		},
 	} );
+
+	useEffect( () => {
+		if ( wafSupported && ! isWafModuleEnabled ) {
+			speak(
+				__(
+					'Jetpack Firewall is currently disabled. Re-enable the Firewall to continue.',
+					'jetpack-protect'
+				),
+				'assertive'
+			);
+		}
+	}, [ wafSupported, isWafModuleEnabled ] );
 
 	/**
 	 * Module Disabled Notice
