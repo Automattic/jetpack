@@ -74,7 +74,6 @@ export function Funnel( {
 }: FunnelProps ): JSX.Element {
 	const { isLoading, isFetching, isError, refetch } = status;
 	const hasComparison = !! status.hasComparison;
-	const firstLabel = steps[ 0 ]?.label ?? '';
 
 	const { chartSteps, rate, previousRate } = useMemo(
 		() => buildFunnelChartData( steps, { hasComparison } ),
@@ -140,11 +139,7 @@ export function Funnel( {
 						{ index > 0 && (
 							<TooltipRow
 								indicator={ null }
-								label={ sprintf(
-									/* translators: %s is the label of the funnel's first step, e.g. "Sessions". */
-									__( 'of %s', 'jetpack-premium-analytics-pkg' ),
-									firstLabel
-								) }
+								label={ __( 'Conversion rate', 'jetpack-premium-analytics-pkg' ) }
 								value={ step.rate / 100 }
 								dataFormat={ RATE_FORMAT }
 							/>
