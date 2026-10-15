@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Conversion funnel: Stop screen readers repeating the step name when they read a selected step's tooltip.
