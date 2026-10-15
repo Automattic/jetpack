@@ -19,22 +19,11 @@
 }
 
 .jp-connection__transfer-ownership__avatar {
-	display: flex;
-	align-items: center;
-	justify-content: center;
 	flex-shrink: 0;
 	inline-size: 38px;
 	block-size: 38px;
 	border-radius: 50%;
-	background-color: var(--jp-black, #000);
-	color: var(--jp-white, #fff);
-	font-size: 0.875em;
-	font-weight: 600;
-
-	// Not a status colour: red, yellow and green mean something else here.
-	&.is-incoming {
-		background-color: var(--jp-pink, #c9356e);
-	}
+	object-fit: cover;
 }
 
 .jp-connection__transfer-ownership__who {

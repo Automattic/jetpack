@@ -3,7 +3,7 @@ import type { DataFormat, ReportResult } from '@automattic/jetpack-premium-analy
 
 /**
  * Filter on the metrics Store performance offers. A plugin returns the list with its metric in;
- * the widget reads the list when it renders and when its Metrics field opens.
+ * the widget reads the list again whenever a registrant comes or goes.
  */
 export const STORE_PERFORMANCE_METRICS_FILTER = 'jetpack.woocommerceStats.storePerformance.metrics';
 
@@ -11,7 +11,7 @@ export const STORE_PERFORMANCE_METRICS_FILTER = 'jetpack.woocommerceStats.storeP
 export type StorePerformanceReport = ReportResult< unknown >;
 
 export type StorePerformanceMetric = {
-	/** Keys the tab and names the metric in the widget's `metrics` attribute. */
+	/** Keys the tab and names the metric in the widget's `hiddenMetrics` attribute. */
 	id: string;
 	/** Where the tab goes, lowest first; the widget's own run 10 to 50. Absent, after them. */
 	order?: number;
