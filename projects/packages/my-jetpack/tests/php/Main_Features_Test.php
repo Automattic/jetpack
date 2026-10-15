@@ -14,6 +14,20 @@ use PHPUnit\Framework\TestCase;
  */
 class Main_Features_Test extends TestCase {
 
+	public function test_rest_state_omits_page_load_admin_pages() {
+		global $_registered_pages;
+		$original          = $_registered_pages;
+		$_registered_pages = array(
+			'jetpack_page_jetpack-forms'  => true,
+			'toplevel_page_jetpack-boost' => true,
+		);
+		try {
+			$this->assertArrayNotHasKey( 'available_admin_pages', Main_Features::get_state( true ) );
+		} finally {
+			$_registered_pages = $original;
+		}
+	}
+
 	public function test_local_catalog_keeps_cloud_cards_and_local_plugin_metadata_without_ownership() {
 		$plugins = function () {
 			return array( 'jetpack-boost-dev/jetpack-boost.php' => array( 'Name' => 'Boost' ) );

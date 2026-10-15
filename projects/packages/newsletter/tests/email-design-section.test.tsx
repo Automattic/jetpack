@@ -13,7 +13,7 @@ jest.mock( '@wordpress/ui', () => ( {
 		<button disabled={ disabled }>{ children }</button>
 	),
 	Text: ( { children }: { children: React.ReactNode } ) => <p>{ children }</p>,
-	LinkButton: ( {
+	ButtonLink: ( {
 		children,
 		href,
 		onClick,

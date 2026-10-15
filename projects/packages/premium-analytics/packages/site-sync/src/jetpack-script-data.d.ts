@@ -27,6 +27,15 @@ declare module '@automattic/jetpack-script-data' {
 				roles: Array< { slug: string; name: string; count: number | null } >;
 				features_url: string | null;
 			};
+			// The Stats features the site's plan lacks, each with its copy and upgrade URL (empty when there is nowhere to buy it), and the widget types they lock. Dashboard only.
+			plan_gates?: {
+				tier: string;
+				locked_features: Record<
+					string,
+					{ description: string; support_url: string; upgrade_url: string }
+				>;
+				locked_widget_types: Record< string, string >;
+			};
 			// The Stats purchase this page load returned from checkout with; absent on every other load.
 			purchase_success?: { type: 'paid' | 'free' };
 		};

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Button, LinkButton, Notice, Stack, Text } from '@wordpress/ui';
+import { Button, ButtonLink, Notice, Stack, Text } from '@wordpress/ui';
 import { useStatus } from '../data/queries';
 import { useFeatureAction } from '../data/use-feature-action';
 import { SECTION_GAP, SettingGroup } from './section-card';
@@ -94,9 +94,9 @@ export function FeatureVariant( {
 				<SettingGroup>
 					<Text render={ <p /> }>{ copy.addBlock }</Text>
 					<div>
-						<LinkButton variant="outline" href={ status?.site_editor_url ?? '' }>
+						<ButtonLink variant="outline" href={ status?.site_editor_url ?? '' }>
 							{ __( 'Open Site Editor', 'jetpack-sharing-likes' ) }
-						</LinkButton>
+						</ButtonLink>
 					</div>
 				</SettingGroup>
 			);

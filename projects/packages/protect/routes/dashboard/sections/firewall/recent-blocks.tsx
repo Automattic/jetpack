@@ -67,7 +67,7 @@ export default function RecentBlocks( { blocks }: { blocks: BlockedRequest[] } )
 							<Dialog.Title>
 								{ __( 'Recently blocked requests', 'jetpack-protect-pkg' ) }
 							</Dialog.Title>
-							<Dialog.CloseIcon />
+							<Dialog.CloseIconButton />
 						</Dialog.Header>
 						<Dialog.Content>
 							<table className="jp-protect-blocks-table">

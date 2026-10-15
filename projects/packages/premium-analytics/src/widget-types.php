@@ -391,7 +391,7 @@ const WIDGET_TYPE_PLAN_FEATURES = array(
 	'jpa/most-commented-posts'           => 'insights',
 	'jpa/most-commented-authors'         => 'insights',
 	'jpa/shares'                         => 'insights',
-	'jpa/tags'                           => 'insights',
+	'jpa/tags'                           => 'tags',
 );
 
 /**

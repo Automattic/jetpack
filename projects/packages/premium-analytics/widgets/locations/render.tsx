@@ -1,12 +1,13 @@
 /**
  * External dependencies
  */
-import { usePrefetchViewerCountry } from '@jetpack-premium-analytics/data';
+import { isStatsFeatureLocked, usePrefetchViewerCountry } from '@jetpack-premium-analytics/data';
 import {
 	ExporterCsvDownloadButton,
 	LeaderboardChart,
 	LOCATIONS_GEO_MODES,
 	LocationsGeoChart,
+	LockedWidget,
 	ReportLink,
 	WIDGET_ROW_LIMIT,
 	WidgetBackLink,
@@ -34,6 +35,7 @@ import { Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
+import { useNoViewsEmptyState } from '../use-no-views-empty-state';
 import styles from './style.module.css';
 import useHeldLevel from './use-held-level';
 import useLocationViews, { type GeoMode, type LocationView } from './use-location-views';
@@ -101,6 +103,10 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 
 	const { isLoading, isFetching, isError, refetch } = views;
 	const { data, hasComparison, isHeld } = useHeldLevel( { ...views, drillDepth, reportParams } );
+	const emptyState = useNoViewsEmptyState(
+		{ isLoading: isLoading && ! isHeld, isError, isEmpty: data.length === 0 },
+		__( 'You don’t have locations recorded yet.', 'jetpack-premium-analytics-pkg' )
+	);
 
 	const csvExporter = useMemo(
 		() => locationsCsvExporter( getLocationsReportSection( geoMode ), scope ),
@@ -122,11 +128,13 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 		[ data, isHeld ]
 	);
 
+	const regionsLocked = isStatsFeatureLocked( 'regions-cities' );
+
 	const leaderboardData = useMemo( () => {
 		const getDrillDownAction = ( location: LocationView ) => {
 			// The previous level's rows would drill with the new level's mode. Dropping the
 			// buttons also unmounts a focused one, which `WidgetState` catches.
-			if ( isHeld || ! location.countryCode ) {
+			if ( isHeld || ! location.countryCode || regionsLocked ) {
 				return { kind: 'static' as const };
 			}
 
@@ -192,7 +200,7 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 						: undefined,
 			};
 		} ) as LeaderboardChartData;
-	}, [ data, geoMode, hasComparison, isHeld, setDrillDownPath ] );
+	}, [ data, geoMode, hasComparison, isHeld, regionsLocked, setDrillDownPath ] );
 
 	// From a Countries-mode region, Back returns to that country's regions.
 	const parentCountry =
@@ -239,7 +247,7 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 				{ bodyHeader }
 				<div className={ styles.stateArea }>
 					<WidgetState
-						isLoading={ isLoading && ! isHeld }
+						isLoading={ emptyState.isLoading }
 						isFetching={ isFetching }
 						isError={ isError }
 						isEmpty={ data.length === 0 }
@@ -252,6 +260,7 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 								{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
 							],
 						} }
+						empty={ emptyState.empty }
 					>
 						<div className={ styles.chartArea }>
 							<Disabled isDisabled={ isHeld } className={ styles.leaderboardPanel }>
@@ -307,6 +316,15 @@ export default function Locations( { attributes = {} }: LocationsWidgetProps ) {
 	)
 		? storedGranularity
 		: DEFAULT_GEO_GRANULARITY;
+
+	// Regions and cities are paid on plans that keep countries; without countries the whole widget locks.
+	if ( geoGranularity !== 'country' && isStatsFeatureLocked( 'regions-cities' ) ) {
+		return (
+			<WidgetRoot attributes={ attributes }>
+				<LockedWidget feature="regions-cities" />
+			</WidgetRoot>
+		);
+	}
 
 	return (
 		<WidgetRoot attributes={ attributes }>

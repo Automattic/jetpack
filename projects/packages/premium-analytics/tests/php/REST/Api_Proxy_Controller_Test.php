@@ -188,6 +188,40 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$this->assertFalse( get_transient( $this->cache_key( $request ) ) );
 	}
 
+	/**
+	 * @dataProvider data_read_statuses
+	 *
+	 * @param int   $status The WPCOM response status.
+	 * @param array $body   The WPCOM response body.
+	 * @param bool  $cached Whether the proxy should store it.
+	 */
+	#[DataProvider( 'data_read_statuses' )]
+	public function test_only_a_200_read_is_cached( int $status, array $body, bool $cached ) {
+		$request  = $this->build_request( 'reports/totals' );
+		$response = $this->cache_and_build_response(
+			array(
+				'response' => array( 'code' => $status ),
+				'body'     => wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
+				'headers'  => array(),
+			),
+			$this->cache_key( $request )
+		);
+
+		$this->assertSame( $status, $response->get_status() );
+		$this->assertSame( $cached, false !== get_transient( $this->cache_key( $request ) ) );
+	}
+
+	/**
+	 * @return array<string, array{0: int, 1: array, 2: bool}>
+	 */
+	public static function data_read_statuses(): array {
+		return array(
+			'200 is cached'     => array( 200, array( 'views' => 10 ), true ),
+			'403 is not cached' => array( 403, array( 'error' => 'some_error' ), false ),
+			'500 is not cached' => array( 500, array( 'error' => 'some_error' ), false ),
+		);
+	}
+
 	public function test_response_with_null_cache_key_is_not_cached() {
 		$response = $this->cache_and_build_response(
 			array(

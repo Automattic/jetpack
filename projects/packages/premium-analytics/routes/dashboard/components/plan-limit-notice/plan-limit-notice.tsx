@@ -145,7 +145,7 @@ function ConnectedNotice(): JSX.Element | null {
 			) }
 
 			{ ! isOver && (
-				<Notice.CloseIcon
+				<Notice.CloseIconButton
 					label={ __( 'Dismiss', 'jetpack-premium-analytics-pkg' ) }
 					onClick={ postpone }
 				/>

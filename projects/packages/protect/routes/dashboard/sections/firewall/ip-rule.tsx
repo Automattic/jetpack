@@ -119,7 +119,7 @@ export default function IpRule( {
 				<Dialog.Popup>
 					<Dialog.Header>
 						<Dialog.Title>{ dialogTitle }</Dialog.Title>
-						<Dialog.CloseIcon />
+						<Dialog.CloseIconButton />
 					</Dialog.Header>
 					<Dialog.Content>
 						<Stack direction="column" gap="sm" align="start">

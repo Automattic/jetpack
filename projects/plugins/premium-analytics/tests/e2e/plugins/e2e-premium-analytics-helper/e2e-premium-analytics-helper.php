@@ -31,9 +31,22 @@ function e2e_pa_fake_connection() {
 add_filter( 'jetpack_offline_mode', '__return_false', 99 );
 
 add_filter( 'pre_http_request', 'e2e_pa_intercept_wpcom', 10, 3 );
+add_filter( 'nonce_life', 'e2e_pa_nonce_life' );
+
+/**
+ * Shortens nonces while a spec sets `e2e_pa_nonce_life`, so the dashboard's expires mid-session.
+ *
+ * @param int $life Nonce lifetime in seconds.
+ * @return int
+ */
+function e2e_pa_nonce_life( $life ) {
+	$seconds = (int) get_option( 'e2e_pa_nonce_life' );
+	return $seconds > 0 ? $seconds : $life;
+}
 
 /**
  * Answers the WordPress.com requests the Premium Analytics proxy makes and blocks every other one.
+ * A spec sets `e2e_pa_stats_fault` to make one Stats route fail with WordPress.com's error envelope.
  *
  * @param false|array|WP_Error $preempt Earlier short-circuit, if any.
  * @param array                $args    Request arguments.
@@ -46,21 +59,44 @@ function e2e_pa_intercept_wpcom( $preempt, $args, $url ) {
 		return $preempt;
 	}
 
+	$path  = (string) wp_parse_url( $url, PHP_URL_PATH );
+	$fault = get_option( 'e2e_pa_stats_fault' );
+	if ( 'public-api.wordpress.com' === $host && is_array( $fault ) && preg_match( '#/stats/' . preg_quote( $fault['route'], '#' ) . '(/|$)#', $path ) ) {
+		return e2e_pa_reply(
+			(int) $fault['status'],
+			array(
+				'error'   => $fault['error'],
+				'message' => $fault['message'],
+			)
+		);
+	}
+
 	$query = array();
 	wp_parse_str( (string) wp_parse_url( $url, PHP_URL_QUERY ), $query );
-	$body = 'public-api.wordpress.com' === $host ? e2e_pa_fixture( (string) wp_parse_url( $url, PHP_URL_PATH ), $query ) : null;
+	$body = 'public-api.wordpress.com' === $host ? e2e_pa_fixture( $path, $query ) : null;
 
 	// The tokens are fake and the site ID may be a real blog's, so nothing reaches WordPress.com.
 	if ( null === $body ) {
 		return new WP_Error( 'e2e_blocked', 'The E2E helper blocks WordPress.com requests it has no fixture for.' );
 	}
 
+	return e2e_pa_reply( 200, $body );
+}
+
+/**
+ * Builds a WordPress.com JSON reply with the given status.
+ *
+ * @param int          $code HTTP status.
+ * @param array|object $body Reply body.
+ * @return array
+ */
+function e2e_pa_reply( $code, $body ) {
 	return array(
 		'headers'  => array( 'content-type' => 'application/json' ),
 		'body'     => wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
 		'response' => array(
-			'code'    => 200,
-			'message' => 'OK',
+			'code'    => $code,
+			'message' => get_status_header_desc( $code ),
 		),
 		'cookies'  => array(),
 		'filename' => null,
@@ -79,6 +115,8 @@ function e2e_pa_fixture( $path, $query ) {
 	$stats = '/rest/v1.1/sites/' . E2E_PA_SITE_ID . '/stats';
 
 	switch ( $path ) {
+		case $stats:
+			return e2e_pa_site_summary();
 		case $stats . '/visits':
 			return e2e_pa_visits( $query );
 		case '/wpcom/v2/sites/' . E2E_PA_SITE_ID . '/jetpack-stats/usage':
@@ -99,6 +137,15 @@ function e2e_pa_plan_usage() {
 		'current_usage' => array( 'views_count' => 0 ),
 		'views_limit'   => null,
 	);
+}
+
+/**
+ * Builds the all-time site summary. It has views, as the visits series does, so the empty Traffic widgets keep the period text.
+ *
+ * @return array
+ */
+function e2e_pa_site_summary() {
+	return array( 'stats' => array( 'views' => 1000 ) );
 }
 
 /**
