@@ -84,6 +84,52 @@ class Jetpack_Settings_React_Page extends Jetpack_Admin_Page {
 	}
 
 	/**
+	 * Register Settings with the Jetpack admin shell when its wp-build app would render.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $members Shell members keyed by admin page slug.
+	 * @return array
+	 */
+	public function add_admin_shell_member( $members ) {
+		// The same gates add_actions() and get_page_hook() apply before registering the page.
+		$is_registered = current_user_can( 'manage_options' )
+			|| ( ! ( new Status() )->is_offline_mode() && Jetpack::is_connection_ready() );
+		if (
+			! $is_registered
+			|| ! current_user_can( 'jetpack_admin_page' )
+			|| ! file_exists( JETPACK__PLUGIN_DIR . 'build/build.php' )
+			|| ! $this->is_rest_api_enabled()
+			|| $this->block_page_rendering_for_idc()
+		) {
+			return $members;
+		}
+
+		$members['jetpack-settings'] = array(
+			'build_prefix' => 'jetpack_plugin',
+			'build_page'   => self::WP_BUILD_PAGE_ID,
+			'init_modules' => array( '@jetpack-plugin/init' ),
+			'title'        => __( 'Settings', 'jetpack' ),
+			'load'         => array( $this, 'load_as_admin_shell_guest' ),
+		);
+		return $members;
+	}
+
+	/**
+	 * Ready the Settings routes and initial state on another shell member's page.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public function load_as_admin_shell_guest() {
+		$this->is_wp_build_loaded = Jetpack_WP_Build_Page::load_as_guest( self::WP_BUILD_PAGE_ID );
+		if ( $this->is_wp_build_loaded ) {
+			add_action( 'admin_enqueue_scripts', array( $this, 'page_admin_scripts' ) );
+		}
+	}
+
+	/**
 	 * Whether this request renders through wp-build.
 	 *
 	 * @since 16.3

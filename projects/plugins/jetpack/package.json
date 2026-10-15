@@ -194,6 +194,7 @@
 					"@jetpack-plugin/init"
 				]
 			}
-		]
+		],
+		"sharedModules": "../../packages/admin-ui/build/shared-modules/manifest.json"
 	}
 }

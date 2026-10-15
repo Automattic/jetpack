@@ -104,6 +104,8 @@ class Admin_UI {
 
 		add_action( 'admin_menu', array( __CLASS__, 'enable_menu' ), 1 ); // Akismet uses 4, so we use 1 to ensure both menus are added when only they exist.
 
+		add_filter( 'jetpack_admin_shell_members', array( __CLASS__, 'add_admin_shell_member' ) );
+
 		add_action( 'admin_footer-upload.php', array( __CLASS__, 'attachment_details_two_column_template' ) );
 		add_action( 'admin_footer-post.php', array( __CLASS__, 'attachment_details_template' ), 20 );
 
@@ -136,6 +138,54 @@ class Admin_UI {
 		if ( function_exists( 'jetpack_videopress_register_script_modules' ) ) {
 			jetpack_videopress_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
 		}
+	}
+
+	/**
+	 * Register VideoPress with the Jetpack admin shell.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $members Shell members keyed by admin page slug.
+	 * @return array
+	 */
+	public static function add_admin_shell_member( $members ) {
+		if ( ! self::is_modernized() || ! current_user_can( 'manage_options' ) || ! VideoPress_Status::is_active() ) {
+			return $members;
+		}
+		$members[ self::ADMIN_PAGE_SLUG ] = array(
+			'build_prefix' => 'jetpack_videopress',
+			'build_page'   => 'jetpack-videopress-dashboard',
+			'init_modules' => array( '@jetpack-videopress/init' ),
+			'title'        => 'VideoPress',
+			'load'         => array( __CLASS__, 'load_as_admin_shell_guest' ),
+		);
+		return $members;
+	}
+
+	/**
+	 * Ready the VideoPress routes and data on another shell member's page.
+	 *
+	 * Skips the screen ID alias: on another page it would make the generated enqueue boot a second app.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function load_as_admin_shell_guest() {
+		self::load_wp_build();
+		self::maybe_strip_chapters_editor_routes();
+		if ( function_exists( 'jetpack_videopress_register_script_modules' ) ) {
+			jetpack_videopress_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Defined in the generated build/modules.php.
+		}
+		// Initial_State inlines the page data on this handle, which only the page's own enqueue registers.
+		add_action(
+			'admin_enqueue_scripts',
+			function () {
+				wp_register_script( Initial_State::SCRIPT_HANDLE, false, array(), null, true ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- A data-only handle with no file.
+				wp_enqueue_script( Initial_State::SCRIPT_HANDLE );
+			}
+		);
+		self::admin_init();
 	}
 
 	/**

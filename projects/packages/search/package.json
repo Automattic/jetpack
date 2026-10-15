@@ -134,6 +134,7 @@
 					"@jetpack-search/init"
 				]
 			}
-		]
+		],
+		"sharedModules": "../admin-ui/build/shared-modules/manifest.json"
 	}
 }

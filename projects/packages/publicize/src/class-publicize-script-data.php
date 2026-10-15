@@ -110,6 +110,7 @@ class Publicize_Script_Data {
 		// the Jetpack settings page, or the block editor.
 		$should_set_script_data = Utils::is_jetpack_settings_page()
 			|| Utils::is_social_settings_page()
+			|| Social_Admin_Page::is_admin_shell_guest()
 			|| Utils::should_block_editor_have_social();
 
 		if ( ! $should_set_script_data ) {
