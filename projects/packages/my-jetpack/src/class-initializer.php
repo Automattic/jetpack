@@ -1013,17 +1013,6 @@ class Initializer {
 	}
 
 	/**
-	 * Whether the shared header shows its global controls.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return bool
-	 */
-	public static function is_header_controls_enabled() {
-		return Feature_Flags::is_enabled( self::HEADER_CONTROLS_FLAG );
-	}
-
-	/**
 	 *  Build flags for My Jetpack UI
 	 *
 	 *  @return array
@@ -1036,7 +1025,7 @@ class Initializer {
 			// caches its report and wants a `force_refresh` hint the dashboard does not.
 			'premiumAnalyticsEnabled'  => Products\Stats::is_premium_analytics_enabled(),
 			'showAiModuleToggle'       => Products\Jetpack_Ai::is_feature_ui_enabled(),
-			'headerControls'           => self::is_header_controls_enabled(),
+			'headerControls'           => Feature_Flags::is_enabled( self::HEADER_CONTROLS_FLAG ),
 			'overviewV1'               => self::is_overview_v1_enabled(),
 		);
 

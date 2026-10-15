@@ -563,7 +563,7 @@ interface Window {
 		loadAddLicenseScreen: string;
 		myJetpackCheckoutUri: string;
 		myJetpackFlags: {
-			headerControls: boolean;
+			headerControls?: boolean;
 			overviewV1: boolean;
 			showAiModuleToggle: boolean;
 			showFullJetpackStatsCard: boolean;

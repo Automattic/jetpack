@@ -2,7 +2,7 @@ import '@testing-library/jest-dom';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
-import HeaderControls from '../';
+import HeaderControls, { getHeaderControls } from '../';
 import { useConnectionState } from '../../../hooks/use-connection-state';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import type { ConnectionState } from '../../../hooks/use-connection-state';
@@ -41,24 +41,48 @@ const stateWith = ( overrides: Partial< ConnectionState > ): ConnectionState => 
 	...overrides,
 } );
 
+const setPageState = ( myJetpackFlags: Record< string, boolean > = {} ) => {
+	window.myJetpackInitialState = {
+		userIsAdmin: false,
+		myJetpackFlags,
+	} as unknown as typeof window.myJetpackInitialState;
+};
+
 const openControl = async () => {
 	await userEvent.click( screen.getByRole( 'button', { name: /^Connection:/ } ) );
 	return screen.findByRole( 'dialog' );
 };
 
-describe( 'HeaderControls', () => {
-	beforeEach( () => {
-		jest.clearAllMocks();
-		window.myJetpackInitialState = {
-			userIsAdmin: false,
-		} as unknown as typeof window.myJetpackInitialState;
-		mockApiFetch.mockResolvedValue( [] );
-		mockUseMyJetpackConnection.mockReturnValue( {
-			isSiteConnected: true,
-			userConnectionData: {},
-		} as ReturnType< typeof useMyJetpackConnection > );
+beforeEach( () => {
+	jest.clearAllMocks();
+	setPageState();
+	mockApiFetch.mockResolvedValue( [] );
+	mockUseConnectionState.mockReturnValue( stateWith( {} ) );
+	mockUseMyJetpackConnection.mockReturnValue( {
+		isSiteConnected: true,
+		userConnectionData: {},
+	} as ReturnType< typeof useMyJetpackConnection > );
+} );
+
+describe( 'getHeaderControls', () => {
+	it.each( [
+		[ 'off', { headerControls: false } ],
+		[ 'missing, as from an older My Jetpack', {} ],
+	] )( 'returns null while the flag is %s', ( _, flags ) => {
+		setPageState( flags );
+
+		expect( getHeaderControls() ).toBeNull();
 	} );
 
+	it( 'returns the controls once the flag is on', () => {
+		setPageState( { headerControls: true } );
+		render( <>{ getHeaderControls() }</> );
+
+		expect( screen.getByRole( 'button', { name: /^Connection:/ } ) ).toBeInTheDocument();
+	} );
+} );
+
+describe( 'HeaderControls', () => {
 	it.each( [
 		[ 'CONNECT_USER', 'link', 'Connect my account' ],
 		[ 'CONNECT_SITE', 'link', 'Connect site' ],
@@ -85,7 +109,6 @@ describe( 'HeaderControls', () => {
 	} );
 
 	it( 'loads the plan once, on first open', async () => {
-		mockUseConnectionState.mockReturnValue( stateWith( {} ) );
 		render( <HeaderControls /> );
 
 		expect( mockApiFetch ).not.toHaveBeenCalled();

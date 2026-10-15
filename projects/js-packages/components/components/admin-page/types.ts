@@ -41,7 +41,8 @@ export type AdminPageProps = {
 
 	/**
 	 * Jetpack-wide controls, such as the connection control, shown after the page's own `actions`.
-	 * Only rendered in the unified header.
+	 * Only rendered in the unified header, in `Page`'s actions row, so pass compact controls such as icon buttons.
+	 * Pass `null` when there is nothing to show: any element, even an empty one, makes `Page` draw the row.
 	 */
 	globalControls?: ReactNode;
 
