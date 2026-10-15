@@ -17,7 +17,7 @@ import { CATALOG_POINTERS } from '../../providers/chart-context/private/catalog-
 import { useStandaloneScopeClass } from '../../providers/chart-scope';
 import { formatPercentage } from '../../utils';
 import styles from './conversion-funnel-chart.module.scss';
-import { useFunnelSelection } from './private';
+import { useFunnelSelection, useRovingStepFocus } from './private';
 import type { FunnelStep, ConversionFunnelChartProps } from './types';
 
 /** Chart height (px) below which the funnel tightens its gaps so the bars keep their room. */
@@ -72,8 +72,13 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 		useTooltip();
 
 	// Use custom hook for selection management
-	const { handleBarClick, handleBarKeyDown, clearSelection, getStepState } =
+	const { clickedStep, handleBarClick, handleBarKeyDown, clearSelection, getStepState } =
 		useFunnelSelection( hideTooltip );
+	const stepIds = useMemo( () => steps?.map( step => step.id ) ?? [], [ steps ] );
+	const { getTabIndex, setStepElement, handleStepFocus, handleNavigationKey } = useRovingStepFocus(
+		stepIds,
+		clickedStep
+	);
 	const standaloneScopeClass = useStandaloneScopeClass();
 	const [ measureChartRef, , chartHeight ] = useElementSize< HTMLDivElement >();
 	// A zero height is an unmeasured or hidden chart, not a short one.
@@ -188,7 +193,9 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 			string,
 			{
 				onClick: ( event: React.MouseEvent ) => void;
-				onKeyDown: ( event: React.KeyboardEvent ) => void;
+				onKeyDown: ( event: React.KeyboardEvent< HTMLElement > ) => void;
+				onFocus: () => void;
+				ref: ( element: HTMLDivElement | null ) => void;
 			}
 		>();
 
@@ -198,7 +205,11 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 				handleStepInteraction( step, event, 'click' );
 			};
 
-			const onKeyDown = ( event: React.KeyboardEvent ) => {
+			const onKeyDown = ( event: React.KeyboardEvent< HTMLElement > ) => {
+				if ( handleNavigationKey( step.id, event ) ) {
+					return;
+				}
+
 				if ( event.key === 'Enter' || event.key === ' ' ) {
 					handleStepInteraction( step, event, 'keyboard' );
 				} else {
@@ -208,11 +219,21 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 				}
 			};
 
-			handlers.set( step.id, { onClick, onKeyDown } );
+			const onFocus = () => handleStepFocus( step.id );
+			const ref = ( element: HTMLDivElement | null ) => setStepElement( step.id, element );
+
+			handlers.set( step.id, { onClick, onKeyDown, onFocus, ref } );
 		} );
 
 		return handlers;
-	}, [ steps, handleStepInteraction, handleBarKeyDown ] );
+	}, [
+		steps,
+		handleStepInteraction,
+		handleBarKeyDown,
+		handleNavigationKey,
+		handleStepFocus,
+		setStepElement,
+	] );
 
 	// Handle document-level click to clear selection when clicking outside selected bar
 	useEffect( () => {
@@ -352,10 +373,18 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 				) }
 
 				{ /* Funnel Steps */ }
-				<Stack direction="row" align="flex-end" gap="lg" className={ styles[ 'funnel-container' ] }>
+				<Stack
+					direction="row"
+					align="flex-end"
+					gap="lg"
+					role="toolbar"
+					aria-label={ __( 'Funnel steps', 'jetpack-charts' ) }
+					className={ styles[ 'funnel-container' ] }
+				>
 					{ steps.map( ( step, index ) => {
 						const barHeight = ( step.rate / maxRate ) * 100;
-						const { isBlurred } = getStepState( step.id );
+						const { isClicked, isBlurred } = getStepState( step.id );
+						const handlers = stepHandlers.get( step.id );
 
 						return (
 							<Stack
@@ -398,11 +427,14 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 									direction="column"
 									justify="flex-end"
 									className={ styles[ 'bar-container' ] }
-									onClick={ stepHandlers.get( step.id )?.onClick }
-									onKeyDown={ stepHandlers.get( step.id )?.onKeyDown }
+									ref={ handlers?.ref }
+									onClick={ handlers?.onClick }
+									onKeyDown={ handlers?.onKeyDown }
+									onFocus={ handlers?.onFocus }
 									role="button"
-									tabIndex={ isBlurred ? -1 : 0 }
+									tabIndex={ getTabIndex( step.id ) }
 									aria-label={ step.label }
+									aria-pressed={ isClicked }
 								>
 									<div
 										className={ clsx( styles[ 'funnel-bar' ], {
