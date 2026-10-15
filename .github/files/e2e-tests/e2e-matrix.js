@@ -34,7 +34,7 @@ const projects = [
 		project: 'Jetpack comments',
 		path: 'projects/plugins/jetpack/tests/e2e',
 		testArgs: [ 'specs/comments' ],
-		targets: [ 'packages/comments' ],
+		targets: [ 'plugins/jetpack', 'packages/comments' ],
 		buildGroup: 'jetpack-core',
 	},
 	{
