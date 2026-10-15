@@ -368,6 +368,12 @@ class Analytics {
 		}
 		configure_stats_plan_gates();
 
+		// The purchase a Stats checkout returned with, for the thank-you notice.
+		if ( ! function_exists( __NAMESPACE__ . '\\configure_purchase_success' ) ) {
+			require_once __DIR__ . '/purchase-success.php';
+		}
+		configure_purchase_success();
+
 		// The composition flag's answer, read by the dashboard policy; the file is
 		// already loaded by boot_shared_services().
 		configure_dashboard_policy();
