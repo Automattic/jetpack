@@ -213,6 +213,7 @@ class Write_Post_Publish_Checklist_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringContainsString( 'https://wordpress.com/setup/launch-site', $url );
 		$this->assertStringContainsString( 'siteSlug=', $url );
+		$this->assertStringContainsString( 'ref=wp-admin', $url );
 		$host = wp_parse_url( home_url(), PHP_URL_HOST );
 		$this->assertStringContainsString( rawurlencode( (string) $host ), $url );
 	}

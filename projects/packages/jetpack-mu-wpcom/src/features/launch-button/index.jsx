@@ -11,8 +11,9 @@ async function renderLaunchButton() {
 		return;
 	}
 
+	const launchUrl = launchButton.querySelector( 'a' )?.href;
 	const root = createRoot( launchButton );
-	root.render( <LaunchButton /> );
+	root.render( <LaunchButton launchUrl={ launchUrl } /> );
 }
 
 document.addEventListener( 'DOMContentLoaded', renderLaunchButton, { once: true } );
