@@ -47,7 +47,7 @@ jobs:
           fi
 
           PR_ID=
-          if git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin "$BRANCH" >/dev/null 2>&1; then
+          if git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin "$BRANCH" >/dev/null; then
             HAS_BRANCH=true
             PR_ID="$( gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number // empty' )"
             if [[ -n "$PR_ID" ]] && git diff --quiet --exit-code "origin/$BRANCH" -- "$MODULES_FILE"; then
