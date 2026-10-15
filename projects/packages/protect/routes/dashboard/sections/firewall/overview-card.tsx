@@ -292,7 +292,7 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 				<CardRow>
 					<Notice.Root intent="error">
 						<Notice.Description>{ settings.error }</Notice.Description>
-						<Notice.CloseIcon onClick={ settings.dismissError } />
+						<Notice.CloseIconButton onClick={ settings.dismissError } />
 					</Notice.Root>
 				</CardRow>
 			) }

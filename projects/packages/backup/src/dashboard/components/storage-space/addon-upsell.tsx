@@ -1,7 +1,8 @@
 import { formatCurrency } from '@automattic/number-formatters';
-import { createInterpolateElement, useCallback } from '@wordpress/element';
+import { speak } from '@wordpress/a11y';
+import { createInterpolateElement, useCallback, useEffect } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { LinkButton, Notice } from '@wordpress/ui';
+import { ButtonLink, Notice } from '@wordpress/ui';
 import { StorageUsageLevels } from '../../data/storage-usage-levels';
 import { useAnalytics } from '../../hooks/use-analytics';
 import { useSiteSuffix } from '../../hooks/use-connection';
@@ -198,39 +199,45 @@ export default function StorageAddonUpsell( {
 	}, [ analytics, site ] );
 
 	const copy = noticeCopy( usageLevel, daysOfBackupsSaved, minDaysOfBackupsAllowed, sizeText );
+	const isWarning =
+		usageLevel === StorageUsageLevels.Warning || usageLevel === StorageUsageLevels.Critical;
+	// Without the size, which arrives later: a changed message would be announced a second time.
+	const spoken = noticeCopy( usageLevel, daysOfBackupsSaved, minDaysOfBackupsAllowed, null );
+	const spokenMessage = [ spoken?.title, spoken?.body ].filter( Boolean ).join( ' ' );
+	const politeness = isWarning ? 'polite' : 'assertive';
+
+	useEffect( () => {
+		if ( spokenMessage ) {
+			speak( spokenMessage, politeness );
+		}
+	}, [ spokenMessage, politeness ] );
 
 	if ( ! copy ) {
 		return null;
 	}
-
-	// Without the size, which arrives later: a changed message would be announced a second time.
-	const spoken = noticeCopy( usageLevel, daysOfBackupsSaved, minDaysOfBackupsAllowed, null );
 
 	// Priced or no link: a slug missing from the catalogue arrives with an empty pricing block.
 	const href =
 		slug !== null && monthlyPrice !== null && currencyCode !== null && site !== undefined
 			? storageAddonCheckoutUrl( slug, site )
 			: null;
-	const isWarning =
-		usageLevel === StorageUsageLevels.Warning || usageLevel === StorageUsageLevels.Critical;
 
 	return (
 		<Notice.Root
 			ref={ noticeRef }
 			intent={ isWarning ? 'warning' : 'error' }
 			className="jpb-storage-notice"
-			spokenMessage={ [ spoken?.title, spoken?.body ].filter( Boolean ).join( ' ' ) }
 		>
 			{ copy.title && <Notice.Title>{ copy.title }</Notice.Title> }
 			<Notice.Description>{ copy.body }</Notice.Description>
 			{ href && (
 				<Notice.Actions>
-					<LinkButton variant="solid" size="compact" href={ href } onClick={ recordClick }>
+					<ButtonLink variant="solid" size="compact" href={ href } onClick={ recordClick }>
 						{ __( 'Upgrade now', 'jetpack-backup-pkg' ) }
-					</LinkButton>
+					</ButtonLink>
 				</Notice.Actions>
 			) }
-			{ onDismiss && <Notice.CloseIcon onClick={ onDismiss } /> }
+			{ onDismiss && <Notice.CloseIconButton onClick={ onDismiss } /> }
 		</Notice.Root>
 	);
 }
