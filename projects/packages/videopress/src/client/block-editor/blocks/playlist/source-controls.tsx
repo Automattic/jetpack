@@ -3,17 +3,21 @@
  */
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { PanelBody, Placeholder, SelectControl } from '@wordpress/components';
+import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { PlaylistPicker } from '../../channel/editor-controls';
+import { editorSourcePlaylist, PlaylistPicker } from '../../channel/editor-controls';
 import { VideoPressIcon } from '../video/components/icons';
 import { PlaylistSettingsPanels, PlaylistStylesControls } from './inspector-controls';
+import PlaylistPreview from './preview';
+import usePlaylistLiveMetadata from './use-live-metadata';
+import { playlistFontVariables, playlistWrapperClasses } from './utils';
 /**
  * Types
  */
-import type { PlaylistAttributes, PlaylistSource } from './types';
+import type { PlaylistAttributes, PlaylistEntry, PlaylistSource } from './types';
 import type { BlockEditProps } from '@wordpress/blocks';
 
 type Props = Pick< BlockEditProps< PlaylistAttributes >, 'attributes' | 'setAttributes' >;
@@ -56,8 +60,12 @@ export function PlaylistSourcePanel( { attributes, setAttributes }: Props ) {
 	);
 }
 
+// Stable, so the live metadata effect does not rerun while there are no videos.
+const NO_VIDEOS: PlaylistEntry[] = [];
+
 /**
- * Canvas of a playlist that shows another playlist: the videos are only known on the site.
+ * Canvas of a playlist that shows another playlist: a preview of that playlist's videos, as the
+ * site renders them, with the display settings of this block.
  *
  * @param props               - Component props.
  * @param props.attributes    - Block attributes.
@@ -65,17 +73,69 @@ export function PlaylistSourcePanel( { attributes, setAttributes }: Props ) {
  * @return Edit component.
  */
 export function SourcedPlaylistEdit( { attributes, setAttributes }: Props ) {
-	return (
-		<div { ...useBlockProps() }>
+	const playlist = editorSourcePlaylist( attributes.sourcePlaylistId ?? '' );
+	const videos = playlist?.videos?.length ? playlist.videos : NO_VIDEOS;
+	const { liveMetadata } = usePlaylistLiveMetadata( videos );
+	const [ previewIndex, setPreviewIndex ] = useState( 0 );
+	const currentIndex = Math.min( previewIndex, Math.max( 0, videos.length - 1 ) );
+
+	const blockProps = useBlockProps( {
+		className: videos.length
+			? playlistWrapperClasses( attributes )
+			: 'videopress-playlist is-empty',
+		style: playlistFontVariables( attributes.entryTitleFontFamily ),
+	} );
+	const controls = (
+		<>
 			<InspectorControls>
 				<PlaylistSettingsPanels attributes={ attributes } setAttributes={ setAttributes } />
 			</InspectorControls>
 			<PlaylistStylesControls attributes={ attributes } setAttributes={ setAttributes } />
-			<Placeholder
-				icon={ VideoPressIcon }
-				label={ __( 'Video Playlist', 'jetpack-videopress-pkg' ) }
-				instructions={ __( 'Shows a playlist published on this site.', 'jetpack-videopress-pkg' ) }
+		</>
+	);
+
+	if ( ! videos.length ) {
+		// Kept as separate statements so the minifier can't merge the __() calls.
+		const unknownLabel = __( 'Shows a playlist published on this site.', 'jetpack-videopress-pkg' );
+		const noneLabel = __(
+			'No playlists yet. Publish a Video Playlist block with a title and it will show up here.',
+			'jetpack-videopress-pkg'
+		);
+		const missingLabel = __(
+			'This playlist is no longer published. Pick another one in the block settings.',
+			'jetpack-videopress-pkg'
+		);
+		const emptyLabel = __( 'This playlist has no videos yet.', 'jetpack-videopress-pkg' );
+
+		let instructions: string = unknownLabel;
+		if ( null === playlist ) {
+			instructions = attributes.sourcePlaylistId ? missingLabel : noneLabel;
+		} else if ( playlist ) {
+			instructions = emptyLabel;
+		}
+
+		return (
+			<div { ...blockProps }>
+				{ controls }
+				<Placeholder
+					icon={ VideoPressIcon }
+					label={ playlist?.title || __( 'Video Playlist', 'jetpack-videopress-pkg' ) }
+					instructions={ instructions }
+				/>
+			</div>
+		);
+	}
+
+	return (
+		<figure { ...blockProps }>
+			{ controls }
+			<PlaylistPreview
+				videos={ videos }
+				attributes={ attributes }
+				currentIndex={ currentIndex }
+				liveMetadata={ liveMetadata }
+				onSelect={ setPreviewIndex }
 			/>
-		</div>
+		</figure>
 	);
 }

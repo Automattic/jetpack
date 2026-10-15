@@ -28,8 +28,9 @@ class Channel_Blocks {
 	}
 
 	/**
-	 * Hand the editor the site's playlists, for the playlist pickers of the blocks that show one.
-	 * An inline script rather than a REST route, so WordPress.com Simple's editor gets it too.
+	 * Hand the editor the site's playlists, most recently updated first, for the playlist pickers
+	 * of the blocks that show one and for their canvas previews. An inline script rather than a
+	 * REST route, so WordPress.com Simple's editor gets it too.
 	 *
 	 * @return void
 	 */
@@ -52,8 +53,9 @@ class Channel_Blocks {
 		$playlists = array();
 		foreach ( Channel::playlists() as $playlist ) {
 			$playlists[] = array(
-				'key'   => $playlist['key'],
-				'title' => $playlist['title'],
+				'key'    => $playlist['key'],
+				'title'  => $playlist['title'],
+				'videos' => $playlist['videos'],
 			);
 		}
 		wp_add_inline_script(

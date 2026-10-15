@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { PlaylistSourcePanel, SourcedPlaylistEdit } from '../source-controls';
 import type { PlaylistAttributes } from '../types';
@@ -14,6 +14,25 @@ jest.mock( '@wordpress/block-editor', () => ( {
 jest.mock( '../inspector-controls', () => ( {
 	PlaylistSettingsPanels: () => <div data-testid="settings-panels" />,
 	PlaylistStylesControls: () => <div data-testid="styles-controls" />,
+} ) );
+
+// The preview and the live metadata have their own tests; here, only which videos reach them.
+const mockUseLiveMetadata = jest.fn< { liveMetadata: object }, [ unknown ] >( () => ( {
+	liveMetadata: {},
+} ) );
+jest.mock( '../use-live-metadata', () => ( {
+	__esModule: true,
+	default: ( videos: Array< { guid: string } > ) => mockUseLiveMetadata( videos ),
+} ) );
+jest.mock( '../preview', () => ( {
+	__esModule: true,
+	default: ( { videos }: { videos: Array< { guid: string } > } ) => (
+		<ol data-testid="playlist-preview">
+			{ videos.map( video => (
+				<li key={ video.guid }>{ video.guid }</li>
+			) ) }
+		</ol>
+	),
 } ) );
 
 /**
@@ -62,18 +81,89 @@ describe( 'PlaylistSourcePanel', () => {
 } );
 
 describe( 'SourcedPlaylistEdit', () => {
-	it( 'shows a placeholder with the display settings', () => {
+	const playlists = [
+		{
+			key: 'road',
+			title: 'The road to 60',
+			videos: [ { guid: 'ghiJKL34', durationMs: 1000, height: 1080 } ],
+		},
+		{
+			key: 'mc',
+			title: 'Molten Core progression',
+			videos: [ { guid: 'abcDEF12' }, { guid: 'ghiJKL34' } ],
+		},
+		{ key: 'new', title: 'Coming soon', videos: [] },
+	];
+
+	/**
+	 * Render the canvas of an `index` playlist block.
+	 *
+	 * @param sourcePlaylistId - Picked playlist key.
+	 */
+	function renderSourced( sourcePlaylistId?: string ) {
 		render(
 			<SourcedPlaylistEdit
-				attributes={ attributes( { source: 'index' } ) }
+				attributes={ attributes( { source: 'index', sourcePlaylistId, layout: 'grid' } ) }
 				setAttributes={ jest.fn() }
 			/>
 		);
+	}
 
-		expect(
-			screen.getAllByText( 'Shows a playlist published on this site.' ).length
-		).toBeGreaterThan( 0 );
+	/**
+	 * GUIDs the preview lists.
+	 *
+	 * @return GUIDs.
+	 */
+	function previewGuids() {
+		return within( screen.getByTestId( 'playlist-preview' ) )
+			.getAllByRole( 'listitem' )
+			.map( item => item.textContent );
+	}
+
+	it( 'previews the picked playlist with the block’s display settings', () => {
+		window.videopressChannelEditor = { playlists };
+		renderSourced( 'mc' );
+
+		expect( previewGuids() ).toEqual( [ 'abcDEF12', 'ghiJKL34' ] );
+		expect( mockUseLiveMetadata ).toHaveBeenLastCalledWith( playlists[ 1 ].videos );
+		expect( screen.getByRole( 'figure' ) ).toHaveClass( 'videopress-playlist', 'is-layout-grid' );
 		expect( screen.getByTestId( 'settings-panels' ) ).toBeInTheDocument();
 		expect( screen.getByTestId( 'styles-controls' ) ).toBeInTheDocument();
+	} );
+
+	it( 'previews the most recently updated playlist when none is picked', () => {
+		window.videopressChannelEditor = { playlists };
+		renderSourced();
+
+		expect( previewGuids() ).toEqual( [ 'ghiJKL34' ] );
+	} );
+
+	it.each( [
+		[ 'a playlist without videos', { playlists }, 'new', 'This playlist has no videos yet.' ],
+		[
+			'a playlist that is no longer published',
+			{ playlists },
+			'gone',
+			'This playlist is no longer published. Pick another one in the block settings.',
+		],
+		[
+			'a site without playlists',
+			{ playlists: [] },
+			'',
+			'No playlists yet. Publish a Video Playlist block with a title and it will show up here.',
+		],
+		[
+			'an editor without the playlist list',
+			undefined,
+			'mc',
+			'Shows a playlist published on this site.',
+		],
+	] )( 'shows a placeholder for %s', ( _case, data, key, instructions ) => {
+		window.videopressChannelEditor = data;
+		renderSourced( key );
+
+		expect( screen.queryByTestId( 'playlist-preview' ) ).not.toBeInTheDocument();
+		expect( screen.getAllByText( instructions ).length ).toBeGreaterThan( 0 );
+		expect( screen.getByTestId( 'settings-panels' ) ).toBeInTheDocument();
 	} );
 } );

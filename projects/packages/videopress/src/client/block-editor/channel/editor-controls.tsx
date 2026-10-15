@@ -3,15 +3,41 @@
  */
 import { SelectControl, TextControl } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
+/**
+ * Types
+ */
+import type { PlaylistEntry } from '../blocks/playlist/types';
+
+export type ChannelPlaylist = {
+	key: string;
+	title: string;
+	videos?: PlaylistEntry[];
+};
 
 type ChannelEditorData = {
-	playlists?: Array< { key: string; title: string } >;
+	// The site's published playlists, most recently updated first.
+	playlists?: ChannelPlaylist[];
 };
 
 declare global {
 	interface Window {
 		videopressChannelEditor?: ChannelEditorData;
 	}
+}
+
+/**
+ * The playlist a block with the `index` source shows, as the server resolves it: the one with the
+ * key, or the most recently updated one when no key is set.
+ *
+ * @param key - Selected playlist key; empty for the most recently updated.
+ * @return The playlist; null when there is no such playlist; undefined when the editor was not given the list.
+ */
+export function editorSourcePlaylist( key = '' ): ChannelPlaylist | null | undefined {
+	const playlists = window.videopressChannelEditor?.playlists;
+	if ( ! Array.isArray( playlists ) ) {
+		return undefined;
+	}
+	return ( key ? playlists.find( playlist => playlist.key === key ) : playlists[ 0 ] ) ?? null;
 }
 
 type PlaylistPickerProps = {

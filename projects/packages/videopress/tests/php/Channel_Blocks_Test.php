@@ -158,7 +158,8 @@ class Channel_Blocks_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The editor gets the playlists ( key and title ) for the pickers, before the playlist block's script.
+	 * The editor gets the playlists ( key, title and videos ) for the pickers and the canvas
+	 * previews, before the playlist block's script.
 	 */
 	public function test_editor_data_lists_the_playlists() {
 		wp_register_script( 'videopress-playlist-editor-test', 'https://example.org/editor.js', array(), '1', true );
@@ -178,7 +179,7 @@ class Channel_Blocks_Test extends BaseTestCase {
 		);
 		Channel_Blocks::enqueue_editor_data();
 		$this->assertContains(
-			'window.videopressChannelEditor = {"playlists":[{"key":"dungeons","title":"Classic dungeons"}]};',
+			'window.videopressChannelEditor = {"playlists":[{"key":"dungeons","title":"Classic dungeons","videos":[{"guid":"bbbbbbb2","durationMs":600000,"height":0},{"guid":"ccccccc3","durationMs":600000,"height":0}]}]};',
 			(array) wp_scripts()->get_data( 'videopress-playlist-editor-test', 'before' )
 		);
 	}
