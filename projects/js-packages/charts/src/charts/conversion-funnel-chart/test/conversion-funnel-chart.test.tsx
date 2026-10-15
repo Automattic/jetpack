@@ -318,6 +318,20 @@ describe( 'ConversionFunnelChart', () => {
 			expect( screen.getByRole( 'button', { name: 'Cart, 71.1%' } ) ).toBeInTheDocument();
 		} );
 
+		it( 'describes only the selected step with its tooltip', async () => {
+			const user = userEvent.setup();
+			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
+
+			await user.click( screen.getByRole( 'button', { name: /^Cart,/ } ) );
+
+			expect( screen.getByRole( 'button', { name: /^Cart,/ } ) ).toHaveAccessibleDescription(
+				'Cart 71.1% • 7,110 items'
+			);
+			expect(
+				screen.getByRole( 'button', { name: /^Sessions,/ } )
+			).not.toHaveAccessibleDescription();
+		} );
+
 		it( 'marks only the selected step as pressed', async () => {
 			const user = userEvent.setup();
 			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
@@ -443,10 +457,7 @@ describe( 'ConversionFunnelChart', () => {
 			const bar = screen.getByRole( 'button', { name: /test/i } );
 			await user.click( bar );
 
-			// Check that component renders correctly with large numbers
-			// After clicking, there will be multiple 'Test' texts (header + tooltip)
-			expect( screen.getAllByText( 'Test' ) ).toHaveLength( 2 );
-			expect( screen.getAllByText( '50%' ) ).toHaveLength( 2 );
+			expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( '50% • 1,234,567 items' );
 		} );
 
 		it( 'handles steps without count in tooltip', async () => {
