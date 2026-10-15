@@ -6,7 +6,7 @@
  */
 
 import { getAdminUrl } from '@automattic/jetpack-script-data';
-import { DropdownMenu, MenuGroup, MenuItem } from '@wordpress/components';
+import { DropdownMenu, MenuGroup, MenuItem, VisuallyHidden } from '@wordpress/components';
 import { createPortal } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { external, home, login, moreVertical } from '@wordpress/icons';
@@ -53,6 +53,16 @@ export default function PayPalAccountHeader( { isSelected, environment, accountE
 		return null;
 	}
 
+	// Screen reader text for the items that open in a new tab.
+	const opensInNewTab = (
+		<VisuallyHidden as="span">
+			{
+				/* translators: accessibility text */
+				__( '(opens in a new tab)', 'jetpack-paypal-payments' )
+			}
+		</VisuallyHidden>
+	);
+
 	return createPortal(
 		<div className="jetpack-paypal-payment-buttons__account-header">
 			<span className="jetpack-paypal-payment-buttons__account-header-icon">{ PayPalIcon }</span>
@@ -80,6 +90,7 @@ export default function PayPalAccountHeader( { isSelected, environment, accountE
 								onClick={ onClose }
 							>
 								{ __( 'Customize checkout settings', 'jetpack-paypal-payments' ) }
+								{ opensInNewTab }
 							</MenuItem>
 							<MenuItem
 								icon={ external }
@@ -90,6 +101,7 @@ export default function PayPalAccountHeader( { isSelected, environment, accountE
 								onClick={ onClose }
 							>
 								{ __( 'View transactions', 'jetpack-paypal-payments' ) }
+								{ opensInNewTab }
 							</MenuItem>
 							<MenuItem
 								icon={ external }
@@ -100,6 +112,7 @@ export default function PayPalAccountHeader( { isSelected, environment, accountE
 								onClick={ onClose }
 							>
 								{ __( 'How to issue a refund', 'jetpack-paypal-payments' ) }
+								{ opensInNewTab }
 							</MenuItem>
 							<MenuItem
 								icon={ home }
@@ -110,6 +123,7 @@ export default function PayPalAccountHeader( { isSelected, environment, accountE
 								onClick={ onClose }
 							>
 								{ __( 'Manage all links and buttons', 'jetpack-paypal-payments' ) }
+								{ opensInNewTab }
 							</MenuItem>
 						</MenuGroup>
 						{ /* A second group, so MenuGroup draws the divider the design has here. */ }

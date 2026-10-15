@@ -387,6 +387,7 @@ jest.mock( '@wordpress/components', () => ( {
 				{ info && <span>{ info }</span> }
 			</button>
 		),
+	VisuallyHidden: ( { children } ) => <span>{ children }</span>,
 	// The block icon is built from these two.
 	SVG: ( { children, ...rest } ) => <svg { ...rest }>{ children }</svg>,
 	Path: props => <path { ...props } />,
@@ -7193,7 +7194,9 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
 			await expect(
-				screen.findByRole( 'menuitem', { name: 'Manage all links and buttons' } )
+				screen.findByRole( 'menuitem', {
+					name: 'Manage all links and buttons(opens in a new tab)',
+				} )
 			).resolves.toBeInTheDocument();
 		} );
 	} );

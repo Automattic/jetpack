@@ -101,6 +101,15 @@ const drawnPath = element => element.querySelector( 'svg path' )?.getAttribute( 
  */
 const item = name => screen.getByRole( 'menuitem', { name } );
 
+/**
+ * A menu item that opens in a new tab, by its label. Its name is the label with
+ * the hidden "(opens in a new tab)" right after it.
+ *
+ * @param {string} label - The label.
+ * @return {HTMLElement} The item.
+ */
+const newTabItem = label => item( `${ label }(opens in a new tab)` );
+
 describe( 'PayPalAccountHeader', () => {
 	// Cleared on the way in, so the header is unmounted before its card goes.
 	beforeEach( () => {
@@ -226,10 +235,10 @@ describe( 'PayPalAccountHeader', () => {
 
 		await openMenu( user );
 
-		expect( item( 'Customize checkout settings' ) ).toBeInTheDocument();
-		expect( item( 'View transactions' ) ).toBeInTheDocument();
-		expect( item( 'How to issue a refund' ) ).toBeInTheDocument();
-		expect( item( 'Manage all links and buttons' ) ).toBeInTheDocument();
+		expect( newTabItem( 'Customize checkout settings' ) ).toBeInTheDocument();
+		expect( newTabItem( 'View transactions' ) ).toBeInTheDocument();
+		expect( newTabItem( 'How to issue a refund' ) ).toBeInTheDocument();
+		expect( newTabItem( 'Manage all links and buttons' ) ).toBeInTheDocument();
 		expect( item( 'Log out' ) ).toBeInTheDocument();
 	} );
 
@@ -256,9 +265,9 @@ describe( 'PayPalAccountHeader', () => {
 
 		await openMenu( user );
 
-		expect( drawnPath( item( 'Customize checkout settings' ) ) ).toBe( pathOf( external ) );
-		expect( drawnPath( item( 'View transactions' ) ) ).toBe( pathOf( external ) );
-		expect( drawnPath( item( 'How to issue a refund' ) ) ).toBe( pathOf( external ) );
+		expect( drawnPath( newTabItem( 'Customize checkout settings' ) ) ).toBe( pathOf( external ) );
+		expect( drawnPath( newTabItem( 'View transactions' ) ) ).toBe( pathOf( external ) );
+		expect( drawnPath( newTabItem( 'How to issue a refund' ) ) ).toBe( pathOf( external ) );
 		expect( drawnPath( item( 'Log out' ) ) ).toBe( pathOf( login ) );
 	} );
 
@@ -270,12 +279,12 @@ describe( 'PayPalAccountHeader', () => {
 
 		await openMenu( user );
 
-		const settings = item( 'Customize checkout settings' );
+		const settings = newTabItem( 'Customize checkout settings' );
 		expect( settings ).toHaveAttribute( 'href', 'https://www.sandbox.paypal.com/ncp/settings' );
 		expect( settings ).toHaveAttribute( 'target', '_blank' );
 		expect( settings ).toHaveAttribute( 'rel', 'noopener noreferrer' );
 
-		expect( item( 'View transactions' ) ).toHaveAttribute(
+		expect( newTabItem( 'View transactions' ) ).toHaveAttribute(
 			'href',
 			'https://www.sandbox.paypal.com/unifiedtransactions/'
 		);
@@ -289,7 +298,7 @@ describe( 'PayPalAccountHeader', () => {
 
 		await openMenu( user );
 
-		const refund = item( 'How to issue a refund' );
+		const refund = newTabItem( 'How to issue a refund' );
 		expect( refund ).toHaveAttribute(
 			'href',
 			'https://www.paypal.com/us/cshelp/article/how-do-i-issue-a-refund-help101'
@@ -306,7 +315,7 @@ describe( 'PayPalAccountHeader', () => {
 
 		await openMenu( user );
 
-		const manage = item( 'Manage all links and buttons' );
+		const manage = newTabItem( 'Manage all links and buttons' );
 		expect( manage ).toHaveAttribute(
 			'href',
 			'https://example.test/wp-admin/admin.php?page=paypal-payment-links'
@@ -323,7 +332,7 @@ describe( 'PayPalAccountHeader', () => {
 
 		await openMenu( user );
 
-		expect( item( 'Customize checkout settings' ) ).toHaveAttribute(
+		expect( newTabItem( 'Customize checkout settings' ) ).toHaveAttribute(
 			'href',
 			'https://www.paypal.com/ncp/settings'
 		);
