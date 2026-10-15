@@ -4,8 +4,6 @@ import { getConnectScreenErrorMessage } from '../../../helpers/get-connect-scree
 import type { RegistrationErrorDisplay } from '../../../helpers/get-connect-screen-error-message';
 import type { MouseEventHandler } from 'react';
 
-export { getConnectScreenErrorMessage };
-
 export type Props = {
 	// The Connect Button label
 	buttonLabel: string;

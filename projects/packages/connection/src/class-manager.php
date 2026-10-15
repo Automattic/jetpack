@@ -2702,6 +2702,8 @@ class Manager {
 	/**
 	 * Whether PHP's XML extension, which the XML-RPC connection needs, is available.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @return bool
 	 */
 	protected function is_xml_extension_available() {

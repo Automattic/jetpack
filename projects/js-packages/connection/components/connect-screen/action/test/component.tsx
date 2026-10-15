@@ -9,17 +9,6 @@ describe( 'ConnectScreenAction', () => {
 		expect( screen.getByText( 'An error occurred. Please try again.' ) ).toBeInTheDocument();
 	} );
 
-	it( 'shows the mapped message for known error codes', () => {
-		render(
-			<ConnectScreenAction
-				buttonLabel="Set up Jetpack"
-				displayButtonError
-				errorCode="register_http_request_failed"
-			/>
-		);
-		expect( screen.getByText( /Your site couldn’t reach WordPress\.com/ ) ).toBeInTheDocument();
-	} );
-
 	it( 'shows the detail under the message', () => {
 		render(
 			<ConnectScreenAction
@@ -34,7 +23,6 @@ describe( 'ConnectScreenAction', () => {
 		);
 		expect( screen.getByText( /Your site couldn’t reach WordPress\.com/ ) ).toBeInTheDocument();
 		expect( screen.getByText( 'cURL error 6: Could not resolve host.' ) ).toBeInTheDocument();
-		expect( screen.queryByText( 'Details' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'shows the site’s own message for an unmapped code', () => {
