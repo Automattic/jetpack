@@ -1068,6 +1068,8 @@ export default function ApiManagedEdit( {
 				onEdit={ () => setIsEditing( true ) }
 				onChangeLink={ () => setIsSwitching( true ) }
 				canChangeLink={ canChangeLink }
+				onDelete={ handleDeleteButton }
+				canDelete={ isConnected && ! isBusy }
 			/>
 			{ /* The style controls show with the link details only. */ }
 			<PayPalFormatControls

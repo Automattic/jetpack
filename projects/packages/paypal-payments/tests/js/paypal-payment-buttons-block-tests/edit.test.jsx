@@ -7317,6 +7317,35 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( screen.getByLabelText( 'I understand this cannot be undone.' ) ).not.toBeChecked();
 			expect( screen.getByRole( 'button', { name: 'Delete permanently' } ) ).toBeDisabled();
 		} );
+
+		it( 'deletes from the details menu through the same dialog', async () => {
+			const user = userEvent.setup();
+			mockConnectedRoutes();
+			renderForm( saved );
+
+			// The DropdownMenu mock lays its items out flat. The exact name skips the
+			// toolbar's "Delete payment link" button.
+			const deleteItem = await screen.findByRole( 'button', { name: 'Delete' } );
+			// Disabled until the connection check comes back.
+			await waitFor( () => expect( deleteItem ).toBeEnabled() );
+			await user.click( deleteItem );
+			const dialog = screen.getByRole( 'dialog', { name: 'Delete payment link' } );
+			await user.click( within( dialog ).getByLabelText( 'I understand this cannot be undone.' ) );
+			await user.click( within( dialog ).getByRole( 'button', { name: 'Delete permanently' } ) );
+
+			await waitFor( () => expect( deleteRequests() ).toHaveLength( 1 ) );
+			expect( deleteRequests()[ 0 ][ 0 ].path ).toContain( '/buttons/PLB-DELETE1' );
+		} );
+
+		it( 'disables Delete in the details menu while PayPal is disconnected', async () => {
+			apiFetch.mockResolvedValue( { connected: false, environment: 'sandbox' } );
+			renderForm( saved );
+
+			await expect(
+				screen.findByText( /PayPal account is disconnected/ )
+			).resolves.toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: 'Delete' } ) ).toBeDisabled();
+		} );
 	} );
 
 	describe( 'Changed at PayPal', () => {
