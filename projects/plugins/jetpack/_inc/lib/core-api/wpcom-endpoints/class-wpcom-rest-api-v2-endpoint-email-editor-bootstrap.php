@@ -65,12 +65,17 @@ class WPCOM_REST_API_V2_Endpoint_Email_Editor_Bootstrap extends WP_REST_Controll
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => $is_simple
 						? array( $this, 'get_bootstrap_data' )
-						: array( $this, 'proxy_request_to_wpcom_as_user' ),
+						: array( $this, 'proxy_read_to_wpcom' ),
 					'permission_callback' => array( $this, 'permissions_check' ),
 					'args'                => array(
 						'template_slug' => array(
 							'description' => __( 'Slug of the email template to open in the editor.', 'jetpack' ),
 							'type'        => 'string',
+						),
+						'post_id'       => array(
+							'description' => __( 'Post to preview in the editor canvas. Defaults to the most recent published post.', 'jetpack' ),
+							'type'        => 'integer',
+							'minimum'     => 1,
 						),
 					),
 				),
@@ -161,6 +166,46 @@ class WPCOM_REST_API_V2_Endpoint_Email_Editor_Bootstrap extends WP_REST_Controll
 		}
 
 		return $this->respond( $data );
+	}
+
+	/**
+	 * Proxies the read, minus a `post_id` the current user may not edit here.
+	 *
+	 * Off Simple only: WordPress.com checks `edit_post` against the shadow blog rather than against
+	 * this site, so the same check has to happen locally too. On Simple its check is this check on
+	 * the same blog, which is why that path has none. The two agree on ids because Jetpack Sync
+	 * preserves them, as the email preview endpoint next door already relies on.
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 *
+	 * @return mixed|WP_Error Response from WordPress.com, or an error.
+	 */
+	public function proxy_read_to_wpcom( $request ) {
+		return $this->proxy_request_to_wpcom_as_user( $this->drop_unauthorized_post_id( $request ) );
+	}
+
+	/**
+	 * Drops a `post_id` the current user may not edit from what the proxy will forward.
+	 *
+	 * Dropped rather than refused, so the screen still opens on the default post the way entering
+	 * from Appearance does. WordPress.com falls back the same way for an id it will not use.
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 *
+	 * @return WP_REST_Request The request to forward.
+	 */
+	public function drop_unauthorized_post_id( $request ) {
+		$post_id = (int) $request->get_param( 'post_id' );
+
+		if ( $post_id > 0 && ! current_user_can( 'edit_post', $post_id ) ) {
+			$query_params = $request->get_query_params();
+
+			unset( $query_params['post_id'] );
+
+			$request->set_query_params( $query_params );
+		}
+
+		return $request;
 	}
 
 	/**

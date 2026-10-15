@@ -125,6 +125,23 @@ class WPCOM_REST_API_V2_Endpoint_Email_Editor_Bootstrap_Test extends Jetpack_RES
 	}
 
 	/**
+	 * The loaded endpoint, rather than a second instance whose constructor would register the
+	 * routes all over again.
+	 *
+	 * @return WPCOM_REST_API_V2_Endpoint_Email_Editor_Bootstrap
+	 */
+	private function endpoint() {
+		$plugins  = $GLOBALS['wpcom_rest_api_v2_plugins'] ?? array();
+		$endpoint = $plugins[ WPCOM_REST_API_V2_Endpoint_Email_Editor_Bootstrap::class ] ?? null;
+
+		if ( ! $endpoint instanceof WPCOM_REST_API_V2_Endpoint_Email_Editor_Bootstrap ) {
+			$this->fail( 'The email editor bootstrap endpoint is not loaded.' );
+		}
+
+		return $endpoint;
+	}
+
+	/**
 	 * A design document, in the shape the editor saves.
 	 *
 	 * @return array
@@ -238,6 +255,112 @@ class WPCOM_REST_API_V2_Endpoint_Email_Editor_Bootstrap_Test extends Jetpack_RES
 
 		$this->assertInstanceOf( WP_REST_Request::class, $seen );
 		$this->assertSame( 'wpcom-new-post', $seen->get_param( 'template_slug' ) );
+	}
+
+	/**
+	 * Test that the read hands on the post the previewer named, so the canvas previews that post
+	 * rather than the site's default one. NL-1051.
+	 */
+	public function test_read_passes_the_preview_post_to_the_filter() {
+		$seen = null;
+
+		$this->add_temporary_filter(
+			'jetpack_email_editor_bootstrap',
+			static function ( $data, $request ) use ( &$seen ) {
+				$seen = $request;
+				return array( 'ok' => true );
+			}
+		);
+
+		$this->server->dispatch( $this->request( Requests::GET, array( 'post_id' => '42' ) ) );
+
+		$this->assertInstanceOf( WP_REST_Request::class, $seen );
+
+		// An integer, not the string the query arg arrived as: WordPress.com's implementation is
+		// stricter about the type than a query string can be.
+		$this->assertSame( 42, $seen->get_param( 'post_id' ) );
+	}
+
+	/**
+	 * Test that something which cannot name a post is refused here rather than forwarded.
+	 *
+	 * @param mixed $post_id What the query arg carries.
+	 *
+	 * @dataProvider provide_invalid_preview_posts
+	 */
+	#[PHPUnit\Framework\Attributes\DataProvider( 'provide_invalid_preview_posts' )]
+	public function test_read_rejects_a_post_id_that_cannot_name_a_post( $post_id ) {
+		$response = $this->server->dispatch( $this->request( Requests::GET, array( 'post_id' => $post_id ) ) );
+
+		$this->assertErrorResponse( 'rest_invalid_param', $response, 400 );
+	}
+
+	/**
+	 * @return array[]
+	 */
+	public static function provide_invalid_preview_posts() {
+		return array(
+			'not a number' => array( 'abc' ),
+			'zero'         => array( 0 ),
+			'negative'     => array( -5 ),
+		);
+	}
+
+	/**
+	 * Test that off Simple the read goes through the local capability check.
+	 *
+	 * Without this the stripping below is unreachable, and the only thing standing between a
+	 * hand-edited `post_id` and WordPress.com is a capability check made against another blog.
+	 */
+	public function test_off_simple_the_read_is_proxied_through_the_capability_check() {
+		$this->register_routes_as_non_simple();
+
+		$callbacks = array();
+
+		foreach ( $this->server->get_routes()[ static::$path ] as $handler ) {
+			if ( isset( $handler['methods'][ Requests::GET ] ) ) {
+				$callbacks[] = $handler['callback'][1];
+			}
+		}
+
+		$this->assertSame( array( 'proxy_read_to_wpcom' ), $callbacks );
+	}
+
+	/**
+	 * Test that a post this user may edit here reaches WordPress.com.
+	 */
+	public function test_a_post_the_user_can_edit_is_forwarded() {
+		$post_id = self::factory()->post->create( array( 'post_author' => static::$user_id_admin ) );
+		$request = new WP_REST_Request( Requests::GET, static::$path );
+		$request->set_query_params( array( 'post_id' => $post_id ) );
+
+		$forwarded = $this->endpoint()->drop_unauthorized_post_id( $request );
+
+		$this->assertSame( array( 'post_id' => $post_id ), $forwarded->get_query_params() );
+	}
+
+	/**
+	 * Test that a post this user may not edit is dropped rather than refused.
+	 *
+	 * The screen then opens on the default post, the way entering from Appearance does. Refusing
+	 * would leave a stale link showing an error instead of a design to edit.
+	 */
+	public function test_a_post_the_user_cannot_edit_is_dropped_rather_than_refused() {
+		$post_id = self::factory()->post->create( array( 'post_author' => static::$user_id_editor ) );
+		$request = new WP_REST_Request( Requests::GET, static::$path );
+		$request->set_query_params(
+			array(
+				'post_id'       => $post_id,
+				'template_slug' => 'wpcom-new-post',
+			)
+		);
+
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'author' ) ) );
+
+		$forwarded = $this->endpoint()->drop_unauthorized_post_id( $request );
+
+		// The rest of the request still goes, so dropping the post does not also drop the template.
+		$this->assertSame( array( 'template_slug' => 'wpcom-new-post' ), $forwarded->get_query_params() );
 	}
 
 	/**

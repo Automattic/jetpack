@@ -399,7 +399,7 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 		$data = $this->call_private( 'get_screen_data' );
 
 		$this->assertSame(
-			array( 'elementId', 'editorSettings', 'urls', 'userEmail' ),
+			array( 'elementId', 'editorSettings', 'urls', 'userEmail', 'postId' ),
 			array_keys( $data )
 		);
 	}
@@ -450,6 +450,66 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 			'another host'         => array( 'https://example.net/wp-admin/' ),
 			'this site, not admin' => array( home_url( '/some-post/' ) ),
 			'empty'                => array( '' ),
+		);
+	}
+
+	/**
+	 * The previewer's link carries the post the reader was looking at, so changing the design does
+	 * not replace it with the sample post. See NL-1051.
+	 */
+	public function test_the_canvas_previews_the_post_the_previewer_named() {
+		$post_id         = self::factory()->post->create();
+		$_GET['post_id'] = (string) $post_id;
+
+		$data = $this->call_private( 'get_screen_data' );
+
+		$this->assertSame( $post_id, $data['postId'] );
+	}
+
+	/**
+	 * A hand-edited URL cannot aim the canvas at a post this user may not read.
+	 */
+	public function test_a_post_this_user_cannot_edit_is_not_previewed() {
+		$post_id         = self::factory()->post->create( array( 'post_author' => self::factory()->user->create( array( 'role' => 'author' ) ) ) );
+		$_GET['post_id'] = (string) $post_id;
+
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'author' ) ) );
+
+		$data = $this->call_private( 'get_screen_data' );
+
+		$this->assertNull( $data['postId'] );
+	}
+
+	/**
+	 * Without a usable one the canvas keeps its default post, which is what entering from
+	 * Appearance or a bookmark does.
+	 *
+	 * @param string|null $post_id What the query arg carries, or null for no arg at all.
+	 *
+	 * @dataProvider provide_unusable_preview_posts
+	 */
+	#[PHPUnit\Framework\Attributes\DataProvider( 'provide_unusable_preview_posts' )]
+	public function test_an_unusable_post_id_leaves_the_canvas_on_its_default( $post_id ) {
+		if ( null !== $post_id ) {
+			$_GET['post_id'] = $post_id;
+		}
+
+		$data = $this->call_private( 'get_screen_data' );
+
+		$this->assertNull( $data['postId'] );
+	}
+
+	/**
+	 * @return array[]
+	 */
+	public static function provide_unusable_preview_posts() {
+		return array(
+			'no arg at all'       => array( null ),
+			'not a number'        => array( 'abc' ),
+			'zero'                => array( '0' ),
+			'negative'            => array( '-5' ),
+			'empty'               => array( '' ),
+			'a post that is gone' => array( '999999' ),
 		);
 	}
 

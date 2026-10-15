@@ -398,6 +398,40 @@ describe( 'Email design editor entry point', () => {
 			expect( mockApiFetch.mock.calls[ 0 ][ 0 ].path ).toContain( 'template_slug=wpcom-digest' );
 		} );
 
+		// The previewer's link carries the post the reader was looking at, so the canvas previews
+		// it rather than the sample post. NL-1051.
+		it( 'passes on the post to preview when the page names one', async () => {
+			window.JetpackEmailDesignEditor = pageData( { postId: 4242 } );
+
+			await loadEntryPoint();
+
+			expect( mockApiFetch.mock.calls[ 0 ][ 0 ].path ).toContain( 'post_id=4242' );
+		} );
+
+		it( 'passes on both the template and the post together', async () => {
+			window.JetpackEmailDesignEditor = pageData( {
+				templateSlug: 'wpcom-digest',
+				postId: 4242,
+			} );
+
+			await loadEntryPoint();
+
+			const path = mockApiFetch.mock.calls[ 0 ][ 0 ].path;
+
+			expect( path ).toContain( 'template_slug=wpcom-digest' );
+			expect( path ).toContain( 'post_id=4242' );
+		} );
+
+		it( 'asks for no particular post when the page names none', async () => {
+			window.JetpackEmailDesignEditor = pageData( { postId: null } );
+
+			await loadEntryPoint();
+
+			expect( mockApiFetch ).toHaveBeenCalledWith( {
+				path: '/wpcom/v2/email-editor-bootstrap',
+			} );
+		} );
+
 		it( 'takes the template id from the bundle rather than deriving one', async () => {
 			// The id is namespaced by whichever theme served it, so a site computing it
 			// locally is right on Simple and wrong on Atomic and self-hosted.

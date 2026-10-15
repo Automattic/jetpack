@@ -1068,6 +1068,29 @@ function LoadError() {
 }
 
 /**
+ * The bootstrap route, with whatever this entry point narrows the bundle to.
+ *
+ * `post_id` is the post the canvas should preview, which the previewer's link carries; entering
+ * from Appearance or Newsletter settings sends none and WordPress.com picks the default. NL-1051.
+ *
+ * @param {object} data - The value of `window.JetpackEmailDesignEditor`.
+ * @return {string} The path to fetch.
+ */
+function bootstrapPath( data ) {
+	const args = {};
+
+	if ( data.templateSlug ) {
+		args.template_slug = data.templateSlug;
+	}
+
+	if ( data.postId ) {
+		args.post_id = data.postId;
+	}
+
+	return Object.keys( args ).length ? addQueryArgs( BOOTSTRAP_PATH, args ) : BOOTSTRAP_PATH;
+}
+
+/**
  * Fetch the bootstrap bundle and mount the editor into the page's container.
  *
  * @return {Promise<void>} Resolves once the editor or an error has rendered.
@@ -1091,11 +1114,7 @@ export async function mountEmailDesignEditor() {
 	let stopDerivingTextColor = null;
 
 	try {
-		const bundle = await apiFetch( {
-			path: data.templateSlug
-				? addQueryArgs( BOOTSTRAP_PATH, { template_slug: data.templateSlug } )
-				: BOOTSTRAP_PATH,
-		} );
+		const bundle = await apiFetch( { path: bootstrapPath( data ) } );
 
 		const config = buildEditorConfig( bundle, data );
 
