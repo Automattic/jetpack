@@ -121,12 +121,12 @@ class Jetpack_Ai extends Module_Product {
 	/**
 	 * Get the internationalized comparison of free vs upgraded features
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 6.10.0
 	 *
 	 * @return array[] Jetpack AI features comparison
 	 */
 	public static function get_features_by_tier() {
-		_deprecated_function( __METHOD__, 'jetpack-my-jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-my-jetpack-6.10.0' );
 
 		if ( ! self::are_tier_plans_enabled() ) {
 			return array();

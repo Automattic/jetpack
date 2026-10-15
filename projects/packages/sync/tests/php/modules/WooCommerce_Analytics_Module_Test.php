@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Sync;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
@@ -365,6 +366,125 @@ class WooCommerce_Analytics_Module_Test extends BaseTestCase {
 	 */
 	public function test_missing_order_item_has_no_cogs_value() {
 		$this->assertNull( $this->invoke_instance_helper( 'get_order_product_cogs_value', false ) );
+	}
+
+	/**
+	 * Refund lookup rows negate a COGS value and keep a missing one as null.
+	 *
+	 * @dataProvider provide_refund_cogs_cases
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 *
+	 * @param bool       $cogs_enabled Whether the COGS feature is enabled.
+	 * @param float|null $expected     Expected cogs_amount.
+	 */
+	#[DataProvider( 'provide_refund_cogs_cases' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_refund_lookup_rows_sign_cogs_amount( $cogs_enabled, $expected ) {
+		global $wpdb, $jetpack_sync_test_features, $jetpack_sync_test_order_items;
+
+		require_once __DIR__ . '/../stubs/class-featuresutil.php';
+		require_once __DIR__ . '/../stubs/class-wc-order-factory.php';
+
+		$jetpack_sync_test_features    = $cogs_enabled ? array( 'cost_of_goods_sold' ) : array();
+		$jetpack_sync_test_order_items = array(
+			55 => new class() {
+				/**
+				 * Get the item's COGS value.
+				 *
+				 * @return float
+				 */
+				public function get_cogs_value() {
+					return 12.5;
+				}
+			},
+		);
+
+		$original_wpdb = $wpdb;
+		$wpdb          = new class() {
+			/**
+			 * WordPress table prefix.
+			 *
+			 * @var string
+			 */
+			public $prefix = 'wp_';
+
+			/**
+			 * Return the order ID as the prepared query.
+			 *
+			 * @param string $query    Query template.
+			 * @param int    $order_id Order ID.
+			 * @return int
+			 */
+			public function prepare( $query, $order_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+				return $order_id;
+			}
+
+			/**
+			 * Return a refund's order-stats row and its refunded parent's.
+			 *
+			 * @param int    $order_id Prepared order ID.
+			 * @param string $output   Requested output format.
+			 * @return array|null
+			 */
+			public function get_row( $order_id, $output ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+				$rows = array(
+					101 => array( 'parent_id' => 202 ),
+					202 => array( 'status' => 'wc-refunded' ),
+				);
+
+				return $rows[ $order_id ] ?? null;
+			}
+
+			/**
+			 * Return the refund's product lookup row.
+			 *
+			 * @param int    $order_id Prepared order ID.
+			 * @param string $output   Requested output format.
+			 * @return array
+			 */
+			public function get_results( $order_id, $output ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+				return array(
+					array(
+						'order_id'              => $order_id,
+						'order_item_id'         => 55,
+						'product_id'            => 7,
+						'variation_id'          => 0,
+						'customer_id'           => 3,
+						'date_created'          => '2026-09-01 10:00:00',
+						'product_qty'           => -1,
+						'product_net_revenue'   => -10,
+						'product_gross_revenue' => -10,
+						'coupon_amount'         => 0,
+						'tax_amount'            => 0,
+						'shipping_amount'       => 0,
+						'shipping_tax_amount'   => 0,
+					),
+				);
+			}
+		};
+
+		$products = null;
+		try {
+			$products = $this->invoke_instance_helper( 'get_order_product_data_from_db', 101 );
+		} finally {
+			$wpdb = $original_wpdb;
+		}
+
+		$this->assertSame( $expected, $products[0]['cogs_amount'] );
+	}
+
+	/**
+	 * Data provider for test_refund_lookup_rows_sign_cogs_amount.
+	 *
+	 * @return array
+	 */
+	public static function provide_refund_cogs_cases() {
+		return array(
+			'COGS disabled' => array( false, null ),
+			'COGS enabled'  => array( true, -12.5 ),
+		);
 	}
 
 	/**

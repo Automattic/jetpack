@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Plugin Conflicts Guardian: bucket the staged rollout on the WP.com blog ID so partial percentages enroll a real sample of sites.

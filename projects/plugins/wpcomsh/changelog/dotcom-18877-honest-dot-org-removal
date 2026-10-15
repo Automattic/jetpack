@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Themes: when a plan does not include WordPress.org themes, remove those themes from the Add Themes results rather than emptying the results.

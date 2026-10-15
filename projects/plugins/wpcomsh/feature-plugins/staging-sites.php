@@ -37,7 +37,7 @@ function wpcomsh_is_staging_environment() {
 	 *
 	 * Core's `wp_get_environment_type()` caches for the life of the request and has no filter of its own.
 	 *
-	 * @since $$next-version$$
+	 * @since 10.0.0
 	 *
 	 * @param bool $is_staging Whether the environment type is 'staging'.
 	 */

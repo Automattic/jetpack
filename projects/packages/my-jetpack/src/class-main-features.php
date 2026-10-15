@@ -52,7 +52,7 @@ class Main_Features {
 	/**
 	 * Whether module metadata proves it can run without either connection.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.10.0
 	 * @param string $slug Module slug.
 	 * @return bool
 	 */

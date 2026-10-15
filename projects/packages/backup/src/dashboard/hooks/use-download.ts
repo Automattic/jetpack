@@ -27,6 +27,28 @@ type Result = {
 };
 
 const POLL_INTERVAL_MS = 1500;
+const POLL_MAX_INTERVAL_MS = 15_000;
+// Slower interval once this many polls have run: ~1 minute at the base, ~5 minutes in all.
+const POLL_BACKOFF_STEPS = [
+	{ afterPolls: 40, intervalMs: 5000 },
+	{ afterPolls: 88, intervalMs: POLL_MAX_INTERVAL_MS },
+];
+
+/**
+ * The poll interval after `polls` status requests, whatever their outcome.
+ *
+ * @param polls - Polls so far, failed ones included.
+ * @return Milliseconds until the next poll.
+ */
+function pollInterval( polls: number ): number {
+	let interval = POLL_INTERVAL_MS;
+	for ( const step of POLL_BACKOFF_STEPS ) {
+		if ( polls >= step.afterPolls ) {
+			interval = step.intervalMs;
+		}
+	}
+	return interval;
+}
 
 /**
  * Whether a failed poll is a refusal that retrying cannot fix.
@@ -42,6 +64,19 @@ function isPermanentPollError( error: unknown ): boolean {
 	return (
 		typeof status === 'number' && status >= 400 && status < 500 && status !== 408 && status !== 429
 	);
+}
+
+type PollState = { data?: { status?: string }; error: unknown };
+
+/**
+ * Whether the download still needs status reads: no permanent error, and not yet finished.
+ *
+ * @param state - The status query state.
+ * @return True while polling should go on.
+ */
+function isWaiting( state: PollState ): boolean {
+	const status = state.data?.status;
+	return ! isPermanentPollError( state.error ) && ( status === undefined || status === 'running' );
 }
 
 /**
@@ -90,14 +125,13 @@ export function useDownload( rewindId: string, enabled = true ): Result {
 		queryKey: keys.downloadStatus( rewindId, effectiveDownloadId ),
 		queryFn: () => fetchDownloadStatus( rewindId, effectiveDownloadId ),
 		enabled: downloadId !== null && enabled,
+		// Backed-off polls skip hidden tabs, so refetch on refocus instead of waiting up to 15s.
+		refetchOnWindowFocus: query => ( isWaiting( query.state ) ? 'always' : false ),
 		// No reading yet is not a reason to stop: the first poll may simply have failed.
-		refetchInterval: query => {
-			const status = query.state.data?.status;
-			if ( isPermanentPollError( query.state.error ) ) {
-				return false;
-			}
-			return status === undefined || status === 'running' ? POLL_INTERVAL_MS : false;
-		},
+		refetchInterval: query =>
+			isWaiting( query.state )
+				? pollInterval( query.state.dataUpdateCount + query.state.errorUpdateCount )
+				: false,
 	} );
 	const failedPolls = usePollFailures( statusQuery.errorUpdatedAt, statusQuery.dataUpdatedAt );
 

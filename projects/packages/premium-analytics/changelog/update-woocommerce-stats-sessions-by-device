@@ -1,4 +1,0 @@
-Significance: minor
-Type: removed
-
-Remove the WooCommerce Sessions by device widget, now built by the WooCommerce Stats package.
