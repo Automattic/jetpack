@@ -15,6 +15,7 @@ import { useConnectionState } from '../../hooks/use-connection-state';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import { assignLocation } from '../../hooks/use-notification-watcher/assignLocation';
 import getManageYourPlanUrl from '../../utils/get-manage-your-plan-url';
+import styles from './style.module.scss';
 import useSitePurchases from './use-site-purchases';
 import type { Purchase } from '../../data/types';
 import type { ConnectionState } from '../../hooks/use-connection-state';
@@ -39,7 +40,7 @@ const STATUS_INTENTS = {
  *
  * @param props           - Component props.
  * @param props.purchases - The site's purchases, or null until they load.
- * @return The plan names and a link to manage them.
+ * @return The plan names and a link to manage them, or nothing until they load.
  */
 const PlanSummary: FC< { purchases: Purchase[] | null } > = ( { purchases } ) => {
 	if ( ! purchases ) {
@@ -48,6 +49,7 @@ const PlanSummary: FC< { purchases: Purchase[] | null } > = ( { purchases } ) =>
 
 	return (
 		<Stack direction="column" gap="xs">
+			<Text variant="heading-sm">{ __( 'Plan', 'jetpack-my-jetpack' ) }</Text>
 			{ purchases.length ? (
 				purchases.map( purchase => (
 					<Text key={ purchase.ID } variant="body-md">
@@ -169,7 +171,7 @@ const ConnectionControl: FC = () => {
 					<Icon icon={ icon } size={ 24 } />
 				</Popover.Trigger>
 				<Popover.Popup>
-					<Stack direction="column" gap="md">
+					<Stack direction="column" gap="md" className={ styles.content }>
 						<Popover.Title>{ __( 'Connection', 'jetpack-my-jetpack' ) }</Popover.Title>
 						<Stack direction="column" gap="sm" align="start">
 							<Badge intent={ STATUS_INTENTS[ state.status ] }>{ state.label }</Badge>
@@ -196,12 +198,7 @@ const ConnectionControl: FC = () => {
 								</Link>
 							) }
 						</Stack>
-						{ isSiteConnected && (
-							<Stack direction="column" gap="sm">
-								<Text variant="heading-sm">{ __( 'Plan', 'jetpack-my-jetpack' ) }</Text>
-								<PlanSummary purchases={ purchases } />
-							</Stack>
-						) }
+						<PlanSummary purchases={ purchases } />
 					</Stack>
 				</Popover.Popup>
 			</Popover.Root>
