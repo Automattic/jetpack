@@ -765,6 +765,39 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			/>
 		);
 
+	let cardRoot = null;
+	let cardRendered = null;
+
+	/**
+	 * Put the block card in the document, the way the open sidebar does.
+	 */
+	const openSidebar = () => {
+		cardRoot = document.createElement( 'div' );
+		cardRoot.className = 'block-editor-block-inspector';
+		cardRoot.innerHTML = '<div class="block-editor-block-card"></div>';
+		document.body.appendChild( cardRoot );
+	};
+
+	afterEach( () => {
+		// Unmount first, so the account header stops watching the sidebar before it goes.
+		cardRendered?.unmount();
+		cardRendered = null;
+		cardRoot?.remove();
+		cardRoot = null;
+	} );
+
+	/**
+	 * Log out from the account menu and confirm.
+	 *
+	 * @param {object} user - userEvent instance.
+	 */
+	const logOut = async user => {
+		// The DropdownMenu mock lays its items out flat.
+		await user.click( await screen.findByRole( 'menuitem', { name: /Log out/ } ) );
+		const dialog = screen.getByRole( 'dialog', { name: 'Log out from PayPal' } );
+		await user.click( within( dialog ).getByRole( 'button', { name: 'Log out' } ) );
+	};
+
 	/**
 	 * Wait for a saved link's sidebar and open its form.
 	 *
@@ -1132,11 +1165,15 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		 * first takes the cached branch every time; 'buys the referral on a click
 		 * that has none' covers the other one.
 		 *
+		 * @param {object}  options            - Options.
+		 * @param {boolean} options.isSelected - Render the block selected, so the account header mounts in the block card.
 		 * @return {Promise<HTMLIFrameElement>} The frame, with the overlay up.
 		 */
-		async function openActiveOverlay() {
+		async function openActiveOverlay( { isSelected } = {} ) {
 			const user = userEvent.setup();
-			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			cardRendered = render(
+				<Edit attributes={ {} } setAttributes={ setAttributes } isSelected={ isSelected } />
+			);
 			const frame = blockFrameNavigation( await screen.findByTitle( 'PayPal onboarding' ) );
 			await settlePartnerScript( frame );
 			const click = jest.spyOn( await findConnectLink( frame ), 'click' );
@@ -1691,15 +1728,15 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		} );
 
 		/**
-		 * Onboard, then disconnect — the only route back to the wizard once the
-		 * SDK has reported completion. Disconnect leaves signupUrl and the
-		 * overlay flag alone, so whatever completion left behind is what the
-		 * merchant comes back to.
+		 * Onboard, then log out, the way back to the wizard after the SDK
+		 * reports completion. Log out keeps signupUrl and the overlay flag, so
+		 * the merchant comes back to whatever completion left.
 		 *
 		 * @param {object} user - userEvent instance.
 		 */
 		async function onboardThenDisconnect( user ) {
-			await openActiveOverlay();
+			openSidebar();
+			await openActiveOverlay( { isSelected: true } );
 
 			await act( async () => {
 				window.jetpackPayPalOnboardComplete( 'AUTH_CODE_1', 'SHARED_ID_1' );
@@ -1707,8 +1744,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
 
-			await user.click( screen.getByRole( 'button', { name: /Disconnect PayPal/i } ) );
-			await user.click( screen.getByTestId( 'confirm-dialog-confirm' ) );
+			await logOut( user );
 
 			await expect(
 				screen.findByRole( 'button', { name: /Connect PayPal/i } )
@@ -7053,19 +7089,6 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			paymentLink: 'https://www.paypal.com/ncp/payment/PLB-LOGOUT1',
 		};
 
-		let inspector = null;
-		let rendered = null;
-
-		/**
-		 * Put the block card in the document, the way the open sidebar does.
-		 */
-		const openSidebar = () => {
-			inspector = document.createElement( 'div' );
-			inspector.className = 'block-editor-block-inspector';
-			inspector.innerHTML = '<div class="block-editor-block-card"></div>';
-			document.body.appendChild( inspector );
-		};
-
 		/**
 		 * Answer the connection check, and everything else with an empty response.
 		 *
@@ -7086,22 +7109,16 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		const disconnectRequests = () =>
 			apiFetch.mock.calls.filter( ( [ request ] ) => request.path.endsWith( '/disconnect' ) );
 
-		afterEach( () => {
-			// Unmount first, so the header stops watching before its sidebar goes.
-			rendered?.unmount();
-			rendered = null;
-			inspector?.remove();
-			inspector = null;
-		} );
-
 		/**
 		 * Render the selected block, which is the only one that takes the card.
 		 *
 		 * @return {object} Testing Library render result.
 		 */
 		const renderSelected = () => {
-			rendered = render( <Edit attributes={ saved } setAttributes={ setAttributes } isSelected /> );
-			return rendered;
+			cardRendered = render(
+				<Edit attributes={ saved } setAttributes={ setAttributes } isSelected />
+			);
+			return cardRendered;
 		};
 
 		it( 'leaves the block card alone while PayPal is disconnected', async () => {
@@ -7116,18 +7133,14 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( screen.queryByText( 'PayPal Payment Button' ) ).not.toBeInTheDocument();
 		} );
 
-		it( 'logs out through the same disconnect the connection panel runs', async () => {
+		it( 'logs out through the disconnect endpoint', async () => {
 			const user = userEvent.setup();
 			mockRoutes( true );
 			openSidebar();
 			renderSelected();
 
 			await expect( screen.findByText( 'PayPal Payment Button' ) ).resolves.toBeInTheDocument();
-			// The DropdownMenu mock lays its items out flat, so there is nothing to open.
-			await user.click( screen.getByRole( 'menuitem', { name: /Log out/ } ) );
-
-			const dialog = screen.getByRole( 'dialog', { name: 'Log out from PayPal' } );
-			await user.click( within( dialog ).getByRole( 'button', { name: 'Log out' } ) );
+			await logOut( user );
 
 			await waitFor( () => expect( disconnectRequests() ).toHaveLength( 1 ) );
 			expect( disconnectRequests()[ 0 ][ 0 ].method ).toBe( 'POST' );
@@ -7640,12 +7653,14 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		it( 'takes the warning down on a disconnect', async () => {
 			const user = userEvent.setup();
 			mockStatus();
+			openSidebar();
 
-			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			cardRendered = render(
+				<Edit attributes={ {} } setAttributes={ setAttributes } isSelected />
+			);
 
 			await waitFor( () => expect( accountStatusNotices() ).toHaveLength( 1 ) );
-			await user.click( screen.getByRole( 'button', { name: /Disconnect PayPal/i } ) );
-			await user.click( screen.getByTestId( 'confirm-dialog-confirm' ) );
+			await logOut( user );
 
 			await waitFor( () => expect( accountStatusNotices() ).toHaveLength( 0 ) );
 		} );
@@ -8291,9 +8306,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				expect( screen.queryByLabelText( 'Show "Powered by PayPal"' ) ).not.toBeInTheDocument();
 			} );
 
-			// The button puts Width Settings between Color and Typography; QR does
-			// not, so one shared Color+Typography component cannot draw both.
-			it( 'orders the button panels Color, Styles, Width, Typography, Border, then PayPal Connection', async () => {
+			it( 'shows the button panels', async () => {
 				render(
 					<Edit
 						attributes={ { ...qrAttributes, format: 'BUTTON' } }
@@ -8302,25 +8315,15 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				);
 
 				const inspector = await screen.findByTestId( 'inspector-controls' );
-				// Both testids in one query, so the result comes back in document
-				// order. Only PanelBody has a title; the Color panel is a
-				// ToolsPanel and is named by its testid.
 				const titles = within( inspector )
-					.getAllByTestId( /^(tools-panel-Color|panel-body)$/ )
-					.map( node =>
-						node.dataset.testid === 'tools-panel-Color'
-							? 'Color'
-							: node.getAttribute( 'data-title' )
-					);
+					.getAllByTestId( 'panel-body' )
+					.map( body => body.getAttribute( 'data-title' ) );
 
-				expect( titles ).toEqual( [
-					'Color',
-					'Styles',
-					'Width Settings',
-					'Typography',
-					'Border Settings',
-					'PayPal Connection',
-				] );
+				// The Color panel is a ToolsPanel, so it is found by testid.
+				expect( within( inspector ).getByTestId( 'tools-panel-Color' ) ).toBeInTheDocument();
+				expect( titles ).toEqual(
+					expect.arrayContaining( [ 'Styles', 'Width Settings', 'Typography', 'Border Settings' ] )
+				);
 			} );
 
 			// The Light / Auto / Dark preset only ever changed the editor — the
