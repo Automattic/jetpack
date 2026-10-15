@@ -2627,6 +2627,16 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( screen.getByLabelText( /Description/ ) ).toBeInTheDocument();
 		} );
 
+		it( 'has no PayPal Connection panel or Disconnect button', async () => {
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+			expect( panel( 'PayPal Connection' ) ).toBeUndefined();
+			expect(
+				screen.queryByRole( 'button', { name: 'Disconnect PayPal' } )
+			).not.toBeInTheDocument();
+		} );
+
 		it( 'records no wizard events on a connected site', async () => {
 			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
 
@@ -6955,43 +6965,6 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		} );
 	} );
 
-	describe( 'Manage PayPal Payment Links', () => {
-		const saved = {
-			isApiManaged: true,
-			resourceId: 'PLB-MANAGE1',
-			paymentLink: 'https://www.paypal.com/ncp/payment/PLB-MANAGE1',
-		};
-
-		it( 'links to the admin page from the connection panel once the block has a saved link', async () => {
-			apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
-			renderForm( saved );
-
-			const connectionPanel = ( await screen.findAllByTestId( 'panel-body' ) ).find(
-				body => body.dataset.title === 'PayPal Connection'
-			);
-			const link = within( connectionPanel ).getByRole( 'link', {
-				name: 'Manage PayPal Payment Links',
-			} );
-
-			expect( link ).toHaveAttribute(
-				'href',
-				'https://example.test/wp-admin/admin.php?page=paypal-payment-links'
-			);
-			// A new tab, so the post being edited is not left behind.
-			expect( link ).toHaveAttribute( 'target', '_blank' );
-		} );
-
-		it( 'has nothing to manage before the link exists', async () => {
-			apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
-			renderForm();
-
-			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
-			expect(
-				screen.queryByRole( 'link', { name: 'Manage PayPal Payment Links' } )
-			).not.toBeInTheDocument();
-		} );
-	} );
-
 	describe( 'Deleted link', () => {
 		const saved = {
 			isApiManaged: true,
@@ -7552,8 +7525,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			renderForm( saved );
 
-			// Match on the copy - the canvas carries other warnings too, and the sidebar
-			// has its own Reconnect button, so scope the click.
+			// Match on the copy - the canvas carries other warnings too, so scope the click.
 			const disconnected = ( await screen.findAllByTestId( 'notice' ) ).find( body =>
 				body.textContent.includes( 'Your PayPal account is disconnected' )
 			);
@@ -7781,40 +7753,6 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
 		} );
 
-		it( 'shows Disconnect in the sidebar instead of a status on the canvas', async () => {
-			render(
-				<Edit
-					attributes={ {
-						isApiManaged: true,
-						resourceId: 'PLB-TEST123',
-						paymentLink: 'https://www.paypal.com/paymentpage/PLB-TEST123',
-					} }
-					setAttributes={ setAttributes }
-				/>
-			);
-
-			const disconnect = await screen.findByRole( 'button', { name: 'Disconnect' } );
-			expect( screen.getByTestId( 'inspector-controls' ) ).toContainElement( disconnect );
-			expect( screen.queryByText( 'PayPal Connected' ) ).not.toBeInTheDocument();
-		} );
-
-		it( 'shows the sandbox environment in the sidebar instead of a canvas badge', async () => {
-			render(
-				<Edit
-					attributes={ {
-						isApiManaged: true,
-						resourceId: 'PLB-TEST123',
-						paymentLink: 'https://www.paypal.com/paymentpage/PLB-TEST123',
-					} }
-					setAttributes={ setAttributes }
-				/>
-			);
-
-			const environment = await screen.findByText( 'sandbox' );
-			expect( screen.getByTestId( 'inspector-controls' ) ).toContainElement( environment );
-			expect( screen.queryByText( 'Sandbox' ) ).not.toBeInTheDocument();
-		} );
-
 		it( 'shows button preview when API-managed button exists', async () => {
 			render(
 				<Edit
@@ -7886,7 +7824,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			} );
 
 			// One fill, so the panels show in source order.
-			it( 'puts the style controls under the link details, above PayPal Connection', async () => {
+			it( 'puts the style controls under the link details', async () => {
 				render(
 					<Edit
 						attributes={ { ...qrAttributes, format: 'BUTTON' } }
@@ -7897,7 +7835,6 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				const embedAs = await screen.findByLabelText( 'Embed as' );
 				expect( screen.getAllByTestId( 'inspector-controls' ) ).toHaveLength( 1 );
 				expect( screen.getByText( 'Link used on' ) ).toAppearBefore( embedAs );
-				expect( embedAs ).toAppearBefore( panel( 'PayPal Connection' ) );
 			} );
 
 			it( 'offers the four formats in order', async () => {
@@ -8367,6 +8304,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				expect( titles ).toEqual(
 					expect.arrayContaining( [ 'Styles', 'Width Settings', 'Typography', 'Border Settings' ] )
 				);
+				expect( titles ).not.toContain( 'PayPal Connection' );
 			} );
 
 			// The Light / Auto / Dark preset only ever changed the editor — the
@@ -9052,29 +8990,20 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( screen.queryByRole( 'button', { name: 'Edit Button' } ) ).not.toBeInTheDocument();
 		} );
 
-		// Two fills into one slot order by which mounted last, not by source, so the whole
-		// sidebar is one fill and the connection panel stays last.
-		it( 'keeps the PayPal Connection panel last when the form opens', async () => {
+		it( 'has no PayPal Connection panel in the details or the form', async () => {
 			mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
 
 			render( <Edit attributes={ saved } setAttributes={ setAttributes } clientId="a" /> );
 
 			await expect( screen.findByText( 'Hosted ID' ) ).resolves.toBeInTheDocument();
-			expect( screen.getAllByTestId( 'inspector-controls' ) ).toHaveLength( 1 );
-
+			expect( panel( 'PayPal Connection' ) ).toBeUndefined();
 			await userEvent.setup().click( screen.getByRole( 'button', { name: 'Edit' } ) );
 
-			expect( screen.getAllByTestId( 'inspector-controls' ) ).toHaveLength( 1 );
-			const titles = within( screen.getByTestId( 'inspector-controls' ) )
-				.getAllByTestId( 'panel-body' )
-				.map( node => node.getAttribute( 'data-title' ) );
-			expect( titles ).toEqual( [
-				'Details',
-				'Product Options',
-				'Checkout Options',
-				'URL Redirect',
-				'PayPal Connection',
-			] );
+			expect( panel( 'Details' ) ).toBeInTheDocument();
+			expect( panel( 'Product Options' ) ).toBeInTheDocument();
+			expect( panel( 'Checkout Options' ) ).toBeInTheDocument();
+			expect( panel( 'URL Redirect' ) ).toBeInTheDocument();
+			expect( panel( 'PayPal Connection' ) ).toBeUndefined();
 		} );
 
 		// The form was open for the link that has just been replaced, so it closes with it.
@@ -9374,17 +9303,6 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				expect( screen.getByText( 'Hosted ID' ) ).toBeInTheDocument();
 				expect( mockSavePost ).not.toHaveBeenCalled();
 			} );
-		} );
-
-		it( 'drops the id from the connection panel, which the details carry now', async () => {
-			mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
-
-			render( <Edit attributes={ saved } setAttributes={ setAttributes } clientId="a" /> );
-
-			await expect( screen.findByText( 'Hosted ID' ) ).resolves.toBeInTheDocument();
-			// The PanelBody mock renders closed panels too, so a second copy of the id would show.
-			expect( screen.getByText( 'Environment:' ) ).toBeInTheDocument();
-			expect( screen.getAllByText( 'DETAIL1' ) ).toHaveLength( 1 );
 		} );
 	} );
 

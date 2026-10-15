@@ -781,18 +781,17 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await block.locator( 'h3' ).click();
 			await page.waitForTimeout( 300 );
 
-			// Open the settings sidebar. Click it once if not active, then ensure
-			// the Block tab is showing InspectorControls. Retry block click if needed.
+			// Open the settings sidebar and ensure Block tab is active.
 			const settingsBtn = page.locator( 'button[aria-label="Settings"]' );
 			await settingsBtn.click();
 			await page.waitForTimeout( 500 );
 
-			const connectionPanel = page.locator( 'button:has-text("PayPal Connection")' );
+			const accountMenu = page.getByRole( 'button', { name: 'PayPal account options' } );
 
 			// The sidebar might open on the Post tab. Click the block again to
 			// ensure the Block tab is selected, then check again.
 			for ( let attempt = 0; attempt < 3; attempt++ ) {
-				if ( await connectionPanel.isVisible( { timeout: 1000 } ).catch( () => false ) ) {
+				if ( await accountMenu.isVisible( { timeout: 1000 } ).catch( () => false ) ) {
 					break;
 				}
 				// Re-click the block in the iframe to trigger Block tab.
@@ -809,8 +808,8 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 				}
 			}
 
-			await connectionPanel.waitFor( { state: 'visible', timeout: 5000 } );
-			await connectionPanel.click( { force: true } );
+			await accountMenu.waitFor( { state: 'visible', timeout: 5000 } );
+			await accountMenu.click( { force: true } );
 
 			// After disconnect, mock returns disconnected state.
 			await page.route( /\/wp-json\/wpcom\/v2\/paypal\/connection(\?|$)/, route => {
@@ -821,14 +820,15 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 				} );
 			} );
 
-			const disconnectBtn = page.locator( 'button:has-text("Disconnect PayPal")' );
-			await expect( disconnectBtn ).toBeVisible( { timeout: 5000 } );
-			await disconnectBtn.click();
+			// The item's name includes the account email, so match its start.
+			const logOutItem = page.getByRole( 'menuitem', { name: /^Log out/ } );
+			await expect( logOutItem ).toBeVisible( { timeout: 5000 } );
+			await logOutItem.click();
 
-			// ConfirmDialog replaces window.confirm — confirm the disconnect action.
-			const disconnectConfirmDialog = page.locator( '[role="dialog"]' );
-			await expect( disconnectConfirmDialog ).toBeVisible( { timeout: 3000 } );
-			await disconnectConfirmDialog.locator( 'button:has-text("Disconnect")' ).first().click();
+			// Confirm the log out, which runs the disconnect.
+			const logOutDialog = page.locator( '[role="dialog"]' );
+			await expect( logOutDialog ).toBeVisible( { timeout: 3000 } );
+			await logOutDialog.getByRole( 'button', { name: 'Log out', exact: true } ).click();
 
 			// Block content (wizard) is inside the iframe.
 			await expect( block.locator( 'h3:has-text("Connect PayPal")' ) ).toBeVisible( {
@@ -836,7 +836,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			} );
 		} );
 
-		test( 'delete button clears block state and shows the empty creation form', async ( {
+		test( 'deleting from the link details menu clears block state and shows the empty creation form', async ( {
 			page,
 		} ) => {
 			await setupPayPalMocks( page );
@@ -867,11 +867,11 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await settingsBtn.click();
 			await page.waitForTimeout( 500 );
 
-			const connectionPanel = page.locator( 'button:has-text("PayPal Connection")' );
+			const linkMenu = page.getByRole( 'button', { name: 'Payment link options' } );
 
-			// Retry block click if the Block tab / panel isn't showing yet.
+			// Retry the block click until the link details show.
 			for ( let attempt = 0; attempt < 3; attempt++ ) {
-				if ( await connectionPanel.isVisible( { timeout: 1000 } ).catch( () => false ) ) {
+				if ( await linkMenu.isVisible( { timeout: 1000 } ).catch( () => false ) ) {
 					break;
 				}
 				await block.click();
@@ -887,12 +887,12 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 				}
 			}
 
-			await connectionPanel.waitFor( { state: 'visible', timeout: 5000 } );
-			await connectionPanel.click( { force: true } );
+			await linkMenu.waitFor( { state: 'visible', timeout: 5000 } );
+			await linkMenu.click( { force: true } );
 
-			const deleteBtn = page.locator( 'button:has-text("Delete payment link")' );
-			await expect( deleteBtn ).toBeVisible( { timeout: 3000 } );
-			await deleteBtn.click();
+			const deleteItem = page.getByRole( 'menuitem', { name: 'Delete', exact: true } );
+			await expect( deleteItem ).toBeVisible( { timeout: 3000 } );
+			await deleteItem.click();
 
 			// The delete button stays disabled until the merchant acknowledges the warning.
 			const deleteConfirmDialog = page.locator( '[role="dialog"]' );

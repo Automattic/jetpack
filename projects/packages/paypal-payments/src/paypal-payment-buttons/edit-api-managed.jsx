@@ -57,7 +57,6 @@ import VariantBuilder, {
 	validateCustomerNotes,
 	validateVariants,
 } from './components/variant-builder';
-import PayPalInspectorControls from './controls';
 import { useExistingLinks } from './hooks/use-existing-links';
 import { broadcastConnectionChange, usePayPalConnection } from './hooks/use-paypal-connection';
 import { usePayPalResource } from './hooks/use-paypal-resource';
@@ -475,14 +474,6 @@ export default function ApiManagedEdit( {
 		clientId: blockClientId,
 		setShowDeleteConfirm,
 	} );
-
-	/**
-	 * Handle PayPal disconnect with confirmation.
-	 * Triggers a ConfirmDialog — actual disconnect runs in executeDisconnect().
-	 */
-	const handleDisconnect = useCallback( () => {
-		setShowDisconnectConfirm( true );
-	}, [] );
 
 	/**
 	 * Execute the PayPal disconnect after the user confirms.
@@ -946,19 +937,6 @@ export default function ApiManagedEdit( {
 			onLogOut={ () => setShowLogOutConfirm( true ) }
 		/>
 	) : null;
-
-	// The connection panel sits last in the sidebar, under whichever view is showing.
-	const connectionPanel = (
-		<PayPalInspectorControls
-			isConnected={ isConnected }
-			environment={ environment }
-			setShowReconnect={ setShowReconnect }
-			isBusy={ isBusy }
-			handleDeleteButton={ handleDeleteButton }
-			handleDisconnect={ handleDisconnect }
-			hasButton={ hasButton }
-		/>
-	);
 
 	// Shared confirmation dialogs — extracted so they render regardless of which return branch is active.
 	const confirmDialogs = (
@@ -1634,10 +1612,7 @@ export default function ApiManagedEdit( {
 			{ /* One fill for the sidebar panels, so they show in source order.
 			     Separate fills portal into the same container and show in the
 			     order they mounted. */ }
-			<InspectorControls>
-				{ sidebar }
-				{ connectionPanel }
-			</InspectorControls>
+			<InspectorControls>{ sidebar }</InspectorControls>
 			{ accountHeader }
 
 			{ /* The inspector only mounts when the block is selected, so these notices go

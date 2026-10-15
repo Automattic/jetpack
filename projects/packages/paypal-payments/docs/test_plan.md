@@ -108,7 +108,7 @@ pnpm test:run
 | Frontend Rendering | ✅ | Published post "Buy Now" button + payment link | WOOPTP-154 |
 | Error Flow | ✅ | Empty name disabled, zero price disabled, blur field error, API 400 notice | WOOPTP-154 |
 | Legacy Block Compatibility | ✅ | Legacy paste-code indicator in the editor, front-end rendering of V1 markup | WOOPTP-154 |
-| Disconnect Flow | ✅ | Disconnect and delete via sidebar InspectorControls | WOOPTP-154 |
+| Disconnect Flow | ✅ | Log out via the account menu, delete via the link details menu | WOOPTP-154 |
 | Production Default | ✅ | Connect request defaults to the production environment | WOOPTP-163 |
 | Token Pre-validation | ✅ | 403 shows Payment Links guidance + stays on Credentials, 403 clears partial state, 5xx does not block connection | WOOPTP-164 |
 | SVG Block Icon | ✅ | SVG in block inserter, SVG in block toolbar | WOOPTP-166 |
