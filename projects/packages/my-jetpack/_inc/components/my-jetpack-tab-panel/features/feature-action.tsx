@@ -153,8 +153,26 @@ export function FeatureAction( { state, describedby, origin = 'card' }: FeatureA
 
 	switch ( control.kind ) {
 		case 'plan':
-			// Without its plan there is a sale to offer instead of a switch.
-			return state.status === 'active' ? null : <UpgradeButton state={ state } />;
+			if ( state.status === 'active' ) {
+				return null;
+			}
+
+			// Paid for, with its plugin off: activating it is all that is left to do.
+			if ( control.activatePlugin && state.feature.included ) {
+				return (
+					<InstallButton
+						state={ state }
+						origin={ origin }
+						plugin={ control.activatePlugin }
+						name={ pluginName }
+						label={ __( 'Activate', 'jetpack-my-jetpack' ) }
+						action="activate"
+					/>
+				);
+			}
+
+			// Otherwise there is a sale to offer instead of a switch; buying it sets the plugin up.
+			return <UpgradeButton state={ state } />;
 
 		case 'module': {
 			if ( getForcedReason( state ) ) {

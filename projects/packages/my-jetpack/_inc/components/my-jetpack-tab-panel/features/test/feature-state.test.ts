@@ -366,28 +366,46 @@ describe( 'resolveFeatureState, for a feature its plan decides', () => {
 	);
 
 	it.each( [
-		[ 'Jetpack', 'active', 'not-installed', modules, 'plan' ],
-		[ 'the standalone plugin', 'not-installed', 'active', {}, 'plan' ],
-		[ 'neither', 'not-installed', 'not-installed', {}, 'install-plugin' ],
+		[ 'Jetpack', 'active', 'not-installed', '', modules, { kind: 'plan' } ],
+		[ 'the standalone plugin', 'not-installed', 'active', '', {}, { kind: 'plan' } ],
+		[
+			'the standalone plugin, installed but off',
+			'not-installed',
+			'inactive',
+			'',
+			{},
+			{ kind: 'plan', activatePlugin: 'jetpack-backup' },
+		],
+		[ 'neither', 'not-installed', 'not-installed', '', {}, { kind: 'install-plugin' } ],
+		[
+			'a plugin a host forced off',
+			'not-installed',
+			'inactive',
+			'inactive',
+			{},
+			{ kind: 'plugin', override: 'inactive' },
+		],
 		[
 			'a module a host forced off',
 			'active',
 			'not-installed',
+			'',
 			{ backup: buildModule( { module: 'backup', activated: false, override: 'inactive' } ) },
-			'module',
+			{ kind: 'module' },
 		],
 	] as const )(
 		'follows the plan when %s delivers it',
-		( _case, jetpack, pluginStatus, siteModules, kind ) => {
+		( _case, jetpack, pluginStatus, pluginOverride, siteModules, control ) => {
 			const state = resolveFeatureState(
-				{ ...backup, plugin_status: pluginStatus },
+				{ ...backup, plugin_status: pluginStatus, plugin_override: pluginOverride },
 				jetpack,
 				{ status: PRODUCT_STATUSES.ACTIVE, hasPaidPlanForProduct: true } as ProductCamelCase,
 				siteModules,
 				{}
 			);
 
-			expect( state.control.kind ).toBe( kind );
+			expect( state.control ).toEqual( expect.objectContaining( control ) );
+			expect( 'activatePlugin' in state.control ).toBe( 'activatePlugin' in control );
 		}
 	);
 

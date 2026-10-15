@@ -276,6 +276,30 @@ describe( 'FeatureAction', () => {
 		expect( countControls() + screen.queryAllByRole( 'link' ).length ).toBe( 0 );
 	} );
 
+	it.each( [
+		[ 'Activate', true ],
+		[ 'Upgrade to Jetpack VaultPress Backup', false ],
+	] )(
+		'offers %s, not a switch, for Backup whose plugin is installed but off',
+		( name, included ) => {
+			const feature = buildFeature( {
+				slug: 'backup',
+				included,
+				upgrade: included
+					? { path: '', name: '' }
+					: { path: '/add-backup', name: 'Jetpack VaultPress Backup' },
+			} );
+			render(
+				<FeatureAction
+					state={ buildState( { kind: 'plan', activatePlugin: 'jetpack-backup' }, { feature } ) }
+				/>
+			);
+
+			expect( screen.getByRole( included ? 'button' : 'link', { name } ) ).toBeVisible();
+			expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+		}
+	);
+
 	it( 'renders nothing when this site cannot switch the feature', () => {
 		const { container } = render( <FeatureAction state={ buildState( { kind: 'none' } ) } /> );
 

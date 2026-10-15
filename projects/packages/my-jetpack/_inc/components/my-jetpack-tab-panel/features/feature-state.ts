@@ -37,7 +37,8 @@ const RUNNING_ON_PLAN_STATUSES: string[] = [
 export type FeatureControl =
 	| { kind: 'module'; module: MyJetpackModule }
 	// The plan decides it, whichever plugin delivers it: the card sells or renews the plan instead.
-	| { kind: 'plan' }
+	// `activatePlugin` names the installed plugin that is off, for a site that pays already.
+	| { kind: 'plan'; activatePlugin?: string }
 	| { kind: 'plugin'; plugin: string; override?: 'active' | 'inactive' }
 	| { kind: 'install-plugin'; plugin: string; runsWithoutPlugin?: true; blocked?: InstallBlock }
 	| { kind: 'install-jetpack'; installed: boolean; blocked?: InstallBlock }
@@ -252,11 +253,11 @@ export function resolveFeatureState(
 		};
 	}
 
-	// Delivered by Jetpack's module or by the standalone plugin. A module that something else,
-	// such as a host or multisite, keeps off explains itself below instead.
+	// Delivered by Jetpack's module or the installed standalone plugin. A module or plugin that
+	// something else, such as a host or multisite, keeps off explains itself below instead.
 	const deliversPlan = $module
 		? ! getModuleStatus( $module ).reason
-		: feature.plugin_status === 'active';
+		: feature.plugin_status !== 'not-installed' && feature.plugin_override !== 'inactive';
 	if ( feature.plan_driven && deliversPlan ) {
 		return {
 			feature,
@@ -267,7 +268,11 @@ export function resolveFeatureState(
 				product?.hasPaidPlanForProduct && RUNNING_ON_PLAN_STATUSES.includes( product.status )
 					? 'active'
 					: 'inactive',
-			control: { kind: 'plan' },
+			control: {
+				kind: 'plan',
+				...( ! $module &&
+					feature.plugin_status === 'inactive' && { activatePlugin: feature.plugin } ),
+			},
 		};
 	}
 
