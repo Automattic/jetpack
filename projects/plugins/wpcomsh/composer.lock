@@ -894,7 +894,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "3764809b2cfb89eba56ebd865bd0264aa0edd90e"
+                "reference": "23608e12e1a8f042531bcb8429417fc26c6fcf39"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -931,7 +931,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "9.11.x-dev"
+                    "dev-trunk": "9.12.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
