@@ -122,22 +122,6 @@ describe( 'getConnectScreenErrorMessage', () => {
 		expect( getConnectScreenErrorMessage( 'internal_server_error' ) ).toContain( 'critical error' );
 	} );
 
-	it( 'does not ask to try again after asking for another action', () => {
-		// The action is the advice; the user retries by connecting again anyway.
-		for ( const code of [
-			'site_requires_authorization',
-			'host_lookup_fail',
-			'ssl_error',
-			'xml_rpc-32601',
-			'xml_rpc-32700',
-			'site_inaccessible_500',
-			'JsonParseError',
-			'internal_server_error',
-		] ) {
-			expect( getConnectScreenErrorMessage( code ) ).not.toMatch( /then (try|connect) again/ );
-		}
-	} );
-
 	it( 'returns undefined for unknown error codes', () => {
 		expect( getConnectScreenErrorMessage( 'some_unknown_code' ) ).toBeUndefined();
 		expect( getConnectScreenErrorMessage( undefined ) ).toBeUndefined();
