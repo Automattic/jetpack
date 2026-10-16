@@ -1,4 +1,3 @@
-Significance: minor
+Significance: patch
 Type: changed
-
-Modules: Open supported links in Features and preserve saved searches and tags. Keep saved searches matching only hidden modules on the classic Modules list.
+Comment: Prepare Modules navigation for a later Features launch behind a disabled feature flag.

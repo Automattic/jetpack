@@ -1,4 +1,3 @@
-Significance: minor
-Type: enhancement
-
-My Jetpack: Open Features from supported Modules links, keeping the selected search and tag.
+Significance: patch
+Type: other
+Comment: Prepare Modules navigation for a later Features launch behind a disabled feature flag.

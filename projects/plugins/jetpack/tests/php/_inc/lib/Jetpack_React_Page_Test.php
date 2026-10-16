@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\My_Jetpack\Initializer;
 use Automattic\Jetpack\Partner_Coupon;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -22,6 +23,14 @@ require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-settings-
 #[CoversClass( Jetpack_Settings_Page::class )]
 class Jetpack_React_Page_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
+	public function test_modules_management_link_stays_classic_with_launch_flag_off() {
+		update_option( 'active_plugins', array( 'jetpack/jetpack.php' ) );
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+		Initializer::register_feature_flags();
+
+		$this->assertSame( admin_url( 'admin.php?page=jetpack_modules' ), Initializer::get_modules_management_url() );
+	}
 
 	public function test_classic_search_preserves_only_a_present_fallback_marker() {
 		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
@@ -56,6 +65,7 @@ class Jetpack_React_Page_Test extends WP_UnitTestCase {
 		remove_all_actions( 'admin_head' );
 		add_filter( 'jetpack_offline_mode', $mode === 'offline' ? '__return_true' : '__return_false' );
 		add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
+		add_filter( 'jetpack_feature_flag_enabled_' . Initializer::MODULES_TO_FEATURES_FLAG, '__return_true' );
 		$auth = static function ( $result ) use ( $mode ) {
 			return $mode === 'rest-error' ? new WP_Error( 'denied' ) : $result;
 		};
@@ -110,6 +120,7 @@ class Jetpack_React_Page_Test extends WP_UnitTestCase {
 			remove_filter( 'rest_enabled', '__return_false' );
 			remove_filter( 'jetpack_my_jetpack_modules_management_available', '__return_false' );
 			remove_filter( 'jetpack_my_jetpack_feature_visibility', $visibility );
+			remove_filter( 'jetpack_feature_flag_enabled_' . Initializer::MODULES_TO_FEATURES_FLAG, '__return_true' );
 		}
 	}
 

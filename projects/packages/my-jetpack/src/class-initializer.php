@@ -100,6 +100,13 @@ class Initializer {
 	public const HEADER_CONTROLS_FLAG = 'my-jetpack-header-controls';
 
 	/**
+	 * Feature flag for sending classic Modules links to Features.
+	 *
+	 * @var string
+	 */
+	public const MODULES_TO_FEATURES_FLAG = 'my-jetpack-modules-to-features';
+
+	/**
 	 * Holds info/data about the site (from the /sites/%d endpoint)
 	 *
 	 * @var object
@@ -828,12 +835,11 @@ class Initializer {
 		$enabled = apply_filters( 'rest_enabled', true );
 		$user    = wp_get_current_user();
 		$auth    = false;
+		// Passing true skips WordPress's nonce check, which would sign the user out; restore the user if another filter clears it.
 		try {
 			/** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
-			// Keep the signed-in user when checking without a REST nonce.
 			$auth = apply_filters( 'rest_authentication_errors', true );
 		} finally {
-			// Authentication filters can clear the user; later admin checks still need it.
 			wp_set_current_user( $user->ID );
 		}
 		return $enabled && ! is_wp_error( $enabled ) && false !== $auth && ! is_wp_error( $auth );
@@ -856,6 +862,7 @@ class Initializer {
 		 * @param bool $available True to allow the Features tab; false keeps the classic Modules screen, for a host where My Jetpack is not shown.
 		 */
 		$available = apply_filters( 'jetpack_my_jetpack_modules_management_available', true );
+		$available = $available && Feature_Flags::is_enabled( self::MODULES_TO_FEATURES_FLAG );
 		$classic   = add_query_arg( array_merge( urlencode_deep( $args ), array( 'page' => 'jetpack_modules' ) ), admin_url( 'admin.php' ) );
 		if (
 			! $available
@@ -1184,6 +1191,14 @@ class Initializer {
 			array(
 				'default'     => false,
 				'description' => 'Show the global controls in the shared header of My Jetpack and Boost.',
+				'owner'       => 'my-jetpack',
+			)
+		);
+		Feature_Flags::register(
+			self::MODULES_TO_FEATURES_FLAG,
+			array(
+				'default'     => false,
+				'description' => 'Open supported classic Modules links in Features.',
 				'owner'       => 'my-jetpack',
 			)
 		);
