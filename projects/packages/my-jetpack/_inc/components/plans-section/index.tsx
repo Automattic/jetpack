@@ -6,9 +6,8 @@ import { Link, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback } from 'react';
 import { MyJetpackRoutes, PRODUCT_STATUSES } from '../../constants';
-import { QUERY_PURCHASES_KEY, REST_API_SITE_PURCHASES_ENDPOINT } from '../../data/constants';
 import useProduct from '../../data/products/use-product';
-import useSimpleQuery from '../../data/use-simple-query';
+import useSitePurchases from '../../data/use-site-purchases';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics, { type TracksProperties } from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
@@ -291,13 +290,8 @@ export const PlanSectionFooter: FC< PlanSectionFooterProps > = ( {
 
 const PlansSection: FC = () => {
 	const userIsAdmin = !! getMyJetpackWindowInitialState( 'userIsAdmin' );
-	const { isSiteConnected } = useMyJetpackConnection();
 	const { detail: complete } = useProduct( 'complete' );
-	const response = useSimpleQuery< Purchase[] >( {
-		name: QUERY_PURCHASES_KEY,
-		query: { path: REST_API_SITE_PURCHASES_ENDPOINT },
-		options: { enabled: isSiteConnected },
-	} );
+	const response = useSitePurchases();
 
 	const { isLoading, isError } = response;
 	const purchases = response.data;
