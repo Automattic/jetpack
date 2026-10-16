@@ -19,6 +19,7 @@ use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authent
 use Automattic\Jetpack\Connection\REST_Jetpack_AI_JWT;
 use Automattic\Jetpack\Constants as Jetpack_Constants;
 use Automattic\Jetpack\ExPlat;
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Menu_Badges\Menu_Badges;
@@ -85,6 +86,13 @@ class Initializer {
 	private const MY_JETPACK_SITE_INFO_TRANSIENT_KEY = 'my-jetpack-site-info';
 
 	/**
+	 * Feature flag for the shared header's global controls.
+	 *
+	 * @var string
+	 */
+	public const HEADER_CONTROLS_FLAG = 'my-jetpack-header-controls';
+
+	/**
 	 * Holds info/data about the site (from the /sites/%d endpoint)
 	 *
 	 * @var object
@@ -104,6 +112,8 @@ class Initializer {
 	 * @return void
 	 */
 	public static function init() {
+		self::register_feature_flags();
+
 		// Before the gate: the Jetpack plugin renders this package's connection screen and footer
 		// links even where My Jetpack is off, and `myJetpackInitialState` only exists on its own page.
 		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_admin_script_data' ) );
@@ -985,6 +995,24 @@ class Initializer {
 	}
 
 	/**
+	 * Register My Jetpack's feature flags.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function register_feature_flags() {
+		Feature_Flags::register(
+			self::HEADER_CONTROLS_FLAG,
+			array(
+				'default'     => false,
+				'description' => 'Show the global controls in the shared header of My Jetpack and Boost.',
+				'owner'       => 'my-jetpack',
+			)
+		);
+	}
+
+	/**
 	 *  Build flags for My Jetpack UI
 	 *
 	 *  @return array
@@ -997,6 +1025,7 @@ class Initializer {
 			// caches its report and wants a `force_refresh` hint the dashboard does not.
 			'premiumAnalyticsEnabled'  => Products\Stats::is_premium_analytics_enabled(),
 			'showAiModuleToggle'       => Products\Jetpack_Ai::is_feature_ui_enabled(),
+			'headerControls'           => Feature_Flags::is_enabled( self::HEADER_CONTROLS_FLAG ),
 			'overviewV1'               => self::is_overview_v1_enabled(),
 		);
 
