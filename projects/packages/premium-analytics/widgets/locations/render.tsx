@@ -67,6 +67,20 @@ type LocationsInnerProps = {
  * context. Attributes arrive already normalized by the outer component, so
  * defaults are applied in exactly one place.
  */
+/** Names the rows at a drill-down depth: depth 1 lists a country's regions, depth 2 a region's cities. */
+function getLevelLabel( depth: number, geoGranularity: GeoGranularity ): string {
+	const level = depth === 0 ? geoGranularity : ( [ 'region', 'city' ] as const )[ depth - 1 ];
+	switch ( level ) {
+		case 'region':
+			return __( 'Regions', 'jetpack-premium-analytics-pkg' );
+		case 'city':
+			return __( 'Cities', 'jetpack-premium-analytics-pkg' );
+		case 'country':
+		default:
+			return __( 'Countries', 'jetpack-premium-analytics-pkg' );
+	}
+}
+
 function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 	// Below `WidgetRoot`, which provides the query client.
 	usePrefetchViewerCountry();
@@ -102,7 +116,13 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 	} );
 
 	const { isLoading, isFetching, isError, refetch } = views;
-	const { data, hasComparison, isHeld } = useHeldLevel( { ...views, drillDepth, reportParams } );
+	const {
+		data,
+		hasComparison,
+		isHeld,
+		drillDepth: shownDepth,
+	} = useHeldLevel( { ...views, drillDepth, reportParams } );
+	const rowsLabel = getLevelLabel( shownDepth, geoGranularity );
 	const emptyState = useNoViewsEmptyState(
 		{ isLoading: isLoading && ! isHeld, isError, isEmpty: data.length === 0 },
 		__( 'You don’t have locations recorded yet.', 'jetpack-premium-analytics-pkg' )
@@ -270,6 +290,7 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 									withOverlayLabel
 									withComparison={ hasComparison }
 									showLegend={ false }
+									columns={ { label: rowsLabel, metric: 'views' } }
 									dataFormat={ {
 										type: 'number',
 										options: { useMultipliers: true, decimals: 0 },

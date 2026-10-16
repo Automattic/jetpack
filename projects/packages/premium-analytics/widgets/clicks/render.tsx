@@ -169,6 +169,10 @@ export type ClicksLeaderboardProps = {
 	 * Callback fired when a row with child links is selected.
 	 */
 	onDrillDown?: ( row: ClickRow ) => void;
+	/**
+	 * Whether the rows are one domain's links rather than the domains.
+	 */
+	isDrillDown?: boolean;
 };
 
 /**
@@ -178,6 +182,7 @@ export function ClicksLeaderboard( {
 	rows = [],
 	withComparison = false,
 	onDrillDown,
+	isDrillDown = false,
 }: ClicksLeaderboardProps ) {
 	return (
 		<LeaderboardChart
@@ -186,6 +191,12 @@ export function ClicksLeaderboard( {
 			withOverlayLabel
 			showLegend={ false }
 			dataFormat={ DATA_FORMAT }
+			columns={ {
+				label: isDrillDown
+					? __( 'Links', 'jetpack-premium-analytics-pkg' )
+					: __( 'Domains', 'jetpack-premium-analytics-pkg' ),
+				metric: 'clicks',
+			} }
 		/>
 	);
 }
@@ -276,6 +287,7 @@ function ClicksInner() {
 						rows={ activeRows }
 						withComparison={ withComparison }
 						onDrillDown={ isDrillDown ? undefined : handleDrillDown }
+						isDrillDown={ isDrillDown }
 					/>
 				</WidgetState>
 			</div>
