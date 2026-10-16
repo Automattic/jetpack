@@ -39,7 +39,6 @@ class AI_Assistant_Plugin_Test extends WP_UnitTestCase {
 		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
 		$this->deactivate_ai_module_for_test();
 		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
-		unregister_setting( 'jetpack_search', 'jetpack_ai_agents_enabled' );
 		Constants::clear_single_constant( 'IS_WPCOM' );
 
 		remove_filter( 'jetpack_ai_enabled', '__return_false' );
@@ -49,52 +48,6 @@ class AI_Assistant_Plugin_Test extends WP_UnitTestCase {
 		\Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
 
 		parent::tear_down();
-	}
-
-	/**
-	 * Test that the AI Agent Access setting is exposed as a REST-writable boolean.
-	 */
-	public function test_register_ai_agents_setting_registers_rest_boolean_option() {
-		global $new_allowed_options, $wp_registered_settings;
-
-		AiAssistantPlugin\register_ai_agents_setting();
-
-		$this->assertArrayHasKey( 'jetpack_ai_agents_enabled', $wp_registered_settings );
-
-		$setting = $wp_registered_settings['jetpack_ai_agents_enabled'];
-
-		$this->assertSame( 'boolean', $setting['type'] );
-		$this->assertSame( 'Whether AI Agent Access is enabled on this site.', $setting['description'] );
-		$this->assertSame( 'rest_sanitize_boolean', $setting['sanitize_callback'] );
-		$this->assertTrue( $setting['show_in_rest'] );
-		$this->assertFalse( $setting['default'] );
-		$this->assertSame( 'jetpack_search', $setting['group'] );
-		$this->assertContains( 'jetpack_ai_agents_enabled', $new_allowed_options['jetpack_search'] ?? array() );
-		$this->assertNotContains( 'jetpack_ai_agents_enabled', $new_allowed_options['general'] ?? array() );
-	}
-
-	/**
-	 * Test that WPCOM Simple uses the dedicated wpcom/v2 endpoint instead of core settings.
-	 */
-	public function test_register_ai_agents_setting_hides_rest_option_on_wpcom_simple() {
-		global $wp_registered_settings;
-
-		Constants::set_constant( 'IS_WPCOM', true );
-
-		AiAssistantPlugin\register_ai_agents_setting();
-
-		$this->assertArrayHasKey( 'jetpack_ai_agents_enabled', $wp_registered_settings );
-		$this->assertFalse( $wp_registered_settings['jetpack_ai_agents_enabled']['show_in_rest'] );
-	}
-
-	/**
-	 * Test that the AI Agent Access setting is registered on init.
-	 */
-	public function test_register_ai_agents_setting_is_hooked_to_init() {
-		$this->assertSame(
-			10,
-			has_action( 'init', 'Automattic\Jetpack\Extensions\AiAssistantPlugin\register_ai_agents_setting' )
-		);
 	}
 
 	/**
