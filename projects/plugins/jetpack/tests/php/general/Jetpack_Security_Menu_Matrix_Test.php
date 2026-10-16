@@ -79,6 +79,10 @@ class Jetpack_Security_Menu_Matrix_Test extends WP_UnitTestCase {
 	 */
 	#[DataProvider( 'provide_sites' )]
 	public function test_jetpack_menu_has_one_security_entry( $has_scan, $has_protect_plugin, $is_atomic ) {
+		if ( $is_atomic && is_multisite() ) {
+			$this->markTestSkipped( 'Atomic sites are never multisite.' );
+		}
+
 		$this->set_scan_entitlement( $has_scan );
 
 		if ( $is_atomic ) {
@@ -194,7 +198,8 @@ class Jetpack_Security_Menu_Matrix_Test extends WP_UnitTestCase {
 		$entries = array();
 
 		foreach ( $items as $item ) {
-			$title = trim( wp_strip_all_tags( $item[0] ) );
+			// Drop the menu-badges count, which renders hidden at zero but keeps its text.
+			$title = trim( wp_strip_all_tags( preg_replace( '/<span[^>]*data-jp-menu-badge=.*$/s', '', $item[0] ) ) );
 
 			// jetpack-mu-wpcom hides an entry by class and leaves it registered.
 			if ( isset( $item[4] ) && false !== strpos( $item[4], 'hide-if-js' ) ) {
