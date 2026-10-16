@@ -69,7 +69,6 @@ export type FeatureState = {
 	// the wp-admin sidebar asks the same question, and the two have to agree.
 	status: 'active' | 'inactive';
 	// The feature needs an account the site does not have: Connect, or Install for a missing plugin, starts one.
-	// Coming back from Connect turns the feature on (see connect-resume.tsx).
 	accountNeeded?: boolean;
 	control: FeatureControl;
 	// The product behind the feature, for the modal's copy.

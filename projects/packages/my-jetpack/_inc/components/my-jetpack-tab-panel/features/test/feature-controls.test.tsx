@@ -640,7 +640,6 @@ describe( 'features waiting for an account', () => {
 			);
 			await userEvent.click( screen.getByRole( 'button', { name: /^Connect account for / } ) );
 
-			// The return names this click, so coming back turns the feature on.
 			expect( getUserConnectionUrl ).toHaveBeenCalledWith( {
 				redirect_url: expect.stringMatching( /#\/features\?connect_intent=[0-9a-f]{16}$/ ),
 			} );
@@ -744,12 +743,12 @@ describe( 'features waiting for an account', () => {
 		[
 			'a module',
 			accountModule( false ),
-			/nothing to install\. Connecting your WordPress.com account turns it on\./,
+			/nothing to install\. After you connect your WordPress.com account, Activity Log turns on when you’re back here\./,
 		],
 		[
 			'a plugin',
 			accountPlugin( 'inactive' ),
-			/already installed\. Connecting your WordPress.com account turns it on\./,
+			/already installed\. After you connect your WordPress.com account, Backup turns on when you’re back here\./,
 		],
 		[
 			'a missing plugin',

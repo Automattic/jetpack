@@ -267,7 +267,7 @@ type ConnectButtonProps = {
 };
 
 /**
- * Start connecting the WordPress.com account a feature is waiting for; the return turns the feature on.
+ * Start connecting the WordPress.com account a feature is waiting for.
  *
  * @param {ConnectButtonProps} props             - The component props.
  * @param {FeatureState}       props.state       - Live state for the feature.

@@ -653,13 +653,25 @@ describe( 'FeaturesContent after connecting the account', () => {
 		mockSetModuleActive.mockClear();
 		mockMainFeatures = { jetpack: 'active', features: [], isPlaceholderData: false };
 		mockGroups = [];
+		mockIsLoading = false;
 	} );
 	afterEach( () => nowSpy?.mockRestore() );
 
 	it.each( [
 		[ 'a module that is off', [ monitor ], 'monitor', [ [ 'monitor', true ] ] ],
 		[ 'a plugin that is off', [ social ], 'social', [ [ 'jetpack-social', 'activate' ] ] ],
-		[ 'a feature Jetpack already turned on', [ { ...monitor, status: 'active' } ], 'monitor', [] ],
+	] as const )( 'turns on once, after the return, %s', ( _, states, slug, expected ) => {
+		mockStates = [ ...states ] as FeatureState[];
+		const id = rememberConnectIntent( slug );
+
+		renderAt( `/features?view=list&connect_intent=${ id }` );
+
+		expect( requests() ).toEqual( expected );
+		expect( screen.getByTestId( 'route' ) ).toHaveTextContent( /^\?view=list$/ );
+	} );
+
+	it.each( [
+		[ 'a feature Jetpack already turned on', [ { ...monitor, status: 'active' } ], 'monitor' ],
 		[
 			'a feature unavailable for another reason',
 			[
@@ -669,21 +681,19 @@ describe( 'FeaturesContent after connecting the account', () => {
 				} ),
 			],
 			'monitor',
-			[],
 		],
 		[
 			'a feature the host keeps off',
 			[ off( 'social', { kind: 'plugin', plugin: 'jetpack-social', override: 'inactive' } ) ],
 			'social',
-			[],
 		],
-	] as const )( 'turns on once, after the return, %s', ( _, states, slug, expected ) => {
+	] as const )( 'leaves %s as it is after the return', ( _, states, slug ) => {
 		mockStates = [ ...states ] as FeatureState[];
 		const id = rememberConnectIntent( slug );
 
 		renderAt( `/features?view=list&connect_intent=${ id }` );
 
-		expect( requests() ).toEqual( expected );
+		expect( requests() ).toEqual( [] );
 		expect( screen.getByTestId( 'route' ) ).toHaveTextContent( /^\?view=list$/ );
 	} );
 
@@ -731,6 +741,20 @@ describe( 'FeaturesContent after connecting the account', () => {
 		render( <ConnectResume state={ target } /> );
 
 		expect( requests() ).toEqual( [ [ 'monitor', true ] ] );
+	} );
+
+	it( 'checks the feature again when a mount claims it, and sends nothing if it went on meanwhile', () => {
+		const id = rememberConnectIntent( 'monitor' );
+		const wrapper = ( { children }: { children: React.ReactNode } ) => (
+			<MemoryRouter initialEntries={ [ `/features?connect_intent=${ id }` ] }>
+				{ children }
+			</MemoryRouter>
+		);
+		renderHook( () => useConnectResume( [ monitor ], true ), { wrapper } ).unmount();
+
+		render( <ConnectResume state={ { ...monitor, status: 'active' } } /> );
+
+		expect( requests() ).toEqual( [] );
 	} );
 
 	it( 'waits for the modules, finds a More Features row, and never replays the click', () => {

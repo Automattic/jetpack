@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { isOfflineFeatures } from '../../../data/utils/offline-features';
 import { useModuleActivation } from '../../module-toggle';
-import { getForcedReason, useAccountConnected } from './feature-state';
+import { useAccountConnected } from './feature-state';
 import { isAccountConnectEnabled } from './mappings';
+import { isBulkSwitchable } from './use-bulk-feature-switch';
 import { useFeaturePlugin } from './use-main-features';
 import type { FeatureState } from './feature-state';
 import type { MyJetpackModule } from '../../../types';
@@ -65,11 +66,10 @@ let turnOn: string | null = null;
  * Read and forget the remembered click, once per page load, whichever Features mount asks first.
  *
  * @param returnId - The id in the return URL, if the page was loaded from one.
- * @return The feature's slug when this load is the fresh return for that click, else null.
  */
-function takeConnectIntent( returnId: string | null ): string | null {
+function takeConnectIntent( returnId: string | null ) {
 	if ( taken !== undefined ) {
-		return taken;
+		return;
 	}
 
 	let intent: ConnectIntent | null;
@@ -84,7 +84,6 @@ function takeConnectIntent( returnId: string | null ): string | null {
 		intent && returnId && intent.id === returnId && Date.now() - intent.at < MAX_AGE_MS
 			? intent.feature
 			: null;
-	return taken;
 }
 
 /**
@@ -98,19 +97,11 @@ export function resetConnectIntentForTests() {
 /**
  * Whether the feature's own switch on this page would turn it on, so the return can do the same.
  *
- * The account is connected by then, so nothing is waiting for one.
- *
  * @param state - The feature's live state after the return.
  * @return Whether to turn it on.
  */
 function canTurnOn( state: FeatureState ): boolean {
-	const { control } = state;
-
-	return (
-		( control.kind === 'module' || control.kind === 'plugin' ) &&
-		state.status !== 'active' &&
-		! getForcedReason( state )
-	);
+	return isBulkSwitchable( state ) && state.status !== 'active';
 }
 
 /**
@@ -134,7 +125,7 @@ export function useConnectResume( states: FeatureState[], ready: boolean ): Feat
 		takeConnectIntent( returnId );
 	}
 
-	// A reload of the return URL must not look like a return.
+	// Keeps the id out of the address bar and out of links copied from it.
 	useEffect( () => {
 		if ( enabled && returnId ) {
 			const next = new URLSearchParams( searchParams );
@@ -162,56 +153,70 @@ export function useConnectResume( states: FeatureState[], ready: boolean ): Feat
 }
 
 /**
- * Claim the decided feature, so only one mount turns it on.
+ * Claim the decided feature, so only one mount turns it on, and only if it still can be.
  *
- * @param slug - The feature's slug.
+ * @param state - The feature's live state.
  * @return Whether this caller should turn it on.
  */
-function claimTurnOn( slug: string ): boolean {
-	if ( turnOn !== slug ) {
+function claimTurnOn( state: FeatureState ): boolean {
+	if ( turnOn !== state.feature.slug ) {
 		return false;
 	}
 	turnOn = null;
-	return true;
+	return canTurnOn( state );
 }
 
 /**
- * Turn a module on, as its switch would, with the switch's notices.
+ * Turn a module on with its switch's request and notices; no Tracks event fires, since nobody clicked.
  *
  * @param {object}          props        - The component props.
- * @param {string}          props.slug   - The feature's slug.
+ * @param {FeatureState}    props.state  - The feature's live state.
  * @param {MyJetpackModule} props.module - The module.
- * @return Nothing visible.
+ * @return The rendered component.
  */
-function TurnOnModule( { slug, module: $module }: { slug: string; module: MyJetpackModule } ) {
+function TurnOnModule( {
+	state,
+	module: $module,
+}: {
+	state: FeatureState;
+	module: MyJetpackModule;
+} ) {
 	const { setModuleActive } = useModuleActivation( $module, { reload: false } );
 
 	useEffect( () => {
-		if ( claimTurnOn( slug ) ) {
+		if ( claimTurnOn( state ) ) {
 			setModuleActive( true );
 		}
-	}, [ setModuleActive, slug ] );
+	}, [ setModuleActive, state ] );
 
 	return null;
 }
 
 /**
- * Turn a standalone plugin on, as its switch would, with the switch's notices.
+ * Turn a standalone plugin on with its switch's request and notices; no Tracks event fires, since nobody clicked.
  *
- * @param {object} props        - The component props.
- * @param {string} props.slug   - The feature's slug.
- * @param {string} props.plugin - The plugin's slug.
- * @param {string} props.name   - The plugin's name, for the notice.
- * @return Nothing visible.
+ * @param {object}       props        - The component props.
+ * @param {FeatureState} props.state  - The feature's live state.
+ * @param {string}       props.plugin - The plugin's slug.
+ * @param {string}       props.name   - The plugin's name, for the notice.
+ * @return The rendered component.
  */
-function TurnOnPlugin( { slug, plugin, name }: { slug: string; plugin: string; name: string } ) {
+function TurnOnPlugin( {
+	state,
+	plugin,
+	name,
+}: {
+	state: FeatureState;
+	plugin: string;
+	name: string;
+} ) {
 	const { run } = useFeaturePlugin( plugin, name );
 
 	useEffect( () => {
-		if ( claimTurnOn( slug ) ) {
+		if ( claimTurnOn( state ) ) {
 			run( 'activate' );
 		}
-	}, [ run, slug ] );
+	}, [ run, state ] );
 
 	return null;
 }
@@ -221,19 +226,19 @@ function TurnOnPlugin( { slug, plugin, name }: { slug: string; plugin: string; n
  *
  * @param {object}       props       - The component props.
  * @param {FeatureState} props.state - The feature's live state.
- * @return Nothing visible.
+ * @return The rendered component.
  */
 export function ConnectResume( { state }: { state: FeatureState } ) {
 	const { control, feature } = state;
 
 	if ( control.kind === 'module' ) {
-		return <TurnOnModule slug={ feature.slug } module={ control.module } />;
+		return <TurnOnModule state={ state } module={ control.module } />;
 	}
 
 	if ( control.kind === 'plugin' ) {
 		return (
 			<TurnOnPlugin
-				slug={ feature.slug }
+				state={ state }
 				plugin={ control.plugin }
 				name={ feature.plugin_name || feature.name }
 			/>
