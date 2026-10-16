@@ -2,11 +2,11 @@
  * External dependencies
  */
 import { render } from '@testing-library/react';
-import type { ReactNode, ComponentProps } from 'react';
 /**
  * Internal dependencies
  */
 import { ReportMetricChart } from '../report-metric-chart';
+import type { ComponentProps, ReactNode } from 'react';
 
 const mockMetricTabsChart = jest.fn();
 
