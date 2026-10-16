@@ -1,3 +1,5 @@
+// Must run before anything loads a chunk.
+import './public-path';
 /**
  * External dependencies
  */

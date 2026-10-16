@@ -958,6 +958,7 @@ class Initializer {
 				'loadAddLicenseScreen'   => self::is_licensing_ui_enabled(),
 				'adminUrl'               => esc_url( admin_url() ),
 				'assetsUrl'              => self::get_assets_url(),
+				'webpackPublicPath'      => trailingslashit( Assets::normalize_path( plugins_url( '../build/', __FILE__ ) ) ),
 				'IDCContainerID'         => static::get_idc_container_id(),
 				'userIsAdmin'            => current_user_can( 'manage_options' ),
 				'lifecycleStats'         => array(

@@ -17,7 +17,8 @@
 	"type": "module",
 	"sideEffects": [
 		"*.css",
-		"*.scss"
+		"*.scss",
+		"./_inc/public-path.ts"
 	],
 	"exports": {
 		"./components/*": "./_inc/components/*",
