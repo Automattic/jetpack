@@ -59,10 +59,7 @@ export type AbbreviatedValueProps = {
 	 */
 	currencyCode?: string;
 
-	/** Restored in place of the exact figure when it was shortened, e.g. `'18,432 opens'`. */
-	restored?: string;
-
-	/** Builds `restored` from the exact figure, for callers that do not format it themselves. */
+	/** Builds the text restored when the figure was shortened, e.g. `'18,432 opens'`. */
 	formatRestored?: ( exact: string ) => string;
 
 	className?: string;
@@ -76,7 +73,6 @@ export function AbbreviatedValue( {
 	value,
 	dataFormat = { type: 'number' },
 	currencyCode,
-	restored,
 	formatRestored,
 	className,
 }: AbbreviatedValueProps ) {
@@ -93,7 +89,7 @@ export function AbbreviatedValue( {
 		<AbbreviatedText
 			display={ display }
 			exact={ exact }
-			restored={ restored ?? formatRestored?.( exact ) }
+			restored={ formatRestored?.( exact ) }
 			className={ className }
 		/>
 	);

@@ -141,7 +141,7 @@ function metricValues( row: EmailRow, metric: EmailMetric ) {
 		return {
 			count: row.clicks,
 			rate,
-			label: formatListMetricCount( 'clicks', row.clicks, exact ),
+			formatRestored: ( full: string ) => formatListMetricCount( 'clicks', row.clicks, full ),
 			description: describeClicks( row.clicks, exact, rate, isEmailRateKnown( signals ) ),
 		};
 	}
@@ -152,7 +152,7 @@ function metricValues( row: EmailRow, metric: EmailMetric ) {
 	return {
 		count: row.opens,
 		rate,
-		label: formatListMetricCount( 'opens', row.opens, exact ),
+		formatRestored: ( full: string ) => formatListMetricCount( 'opens', row.opens, full ),
 		description: describeOpens( row.opens, exact, rate, isEmailRateKnown( signals ) ),
 	};
 }
@@ -165,7 +165,7 @@ export const EmailsList = ( { rows = [], metric = 'opens' }: EmailsListProps ) =
 	} );
 
 	const items: MetricListItem[] = rows.map( row => {
-		const { count, rate, label, description } = metricValues( row, metric );
+		const { count, rate, formatRestored, description } = metricValues( row, metric );
 
 		return {
 			id: row.id,
@@ -180,7 +180,11 @@ export const EmailsList = ( { rows = [], metric = 'opens' }: EmailsListProps ) =
 			),
 			value: [
 				<span key="count" aria-hidden="true">
-					<AbbreviatedValue value={ count } dataFormat={ COUNT_FORMAT } restored={ label } />
+					<AbbreviatedValue
+						value={ count }
+						dataFormat={ COUNT_FORMAT }
+						formatRestored={ formatRestored }
+					/>
 				</span>,
 				<span key="rate">
 					<span className={ styles.rate } aria-hidden="true">
@@ -194,10 +198,12 @@ export const EmailsList = ( { rows = [], metric = 'opens' }: EmailsListProps ) =
 
 	const columns = {
 		label: __( 'Emails', 'jetpack-premium-analytics-pkg' ),
-		values:
+		values: [
+			getListMetricLabel( metric ),
 			metric === 'clicks'
-				? [ getListMetricLabel( 'clicks' ), __( 'Click rate', 'jetpack-premium-analytics-pkg' ) ]
-				: [ getListMetricLabel( 'opens' ), __( 'Open rate', 'jetpack-premium-analytics-pkg' ) ],
+				? __( 'Click rate', 'jetpack-premium-analytics-pkg' )
+				: __( 'Open rate', 'jetpack-premium-analytics-pkg' ),
+		],
 	};
 
 	return <MetricList className={ styles.list } items={ items } columns={ columns } />;

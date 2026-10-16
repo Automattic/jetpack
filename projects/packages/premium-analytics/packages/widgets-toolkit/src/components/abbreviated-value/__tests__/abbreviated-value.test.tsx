@@ -9,6 +9,7 @@ import userEvent from '@testing-library/user-event';
 import { AbbreviatedValue } from '../abbreviated-value';
 
 const COMPACT = { type: 'number' as const, options: { useMultipliers: true } };
+const withOpens = ( exact: string ) => `${ exact } opens`;
 
 describe( 'AbbreviatedValue', () => {
 	beforeEach( () => {
@@ -65,7 +66,9 @@ describe( 'AbbreviatedValue', () => {
 
 	it( 'restores a labelled figure in place of the bare one', async () => {
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
-		render( <AbbreviatedValue value={ 18432 } dataFormat={ COMPACT } restored="18,432 opens" /> );
+		render(
+			<AbbreviatedValue value={ 18432 } dataFormat={ COMPACT } formatRestored={ withOpens } />
+		);
 
 		expect( screen.getByText( '18,432 opens' ) ).toBeInTheDocument();
 		expect( screen.queryByText( '18,432' ) ).not.toBeInTheDocument();
@@ -78,7 +81,9 @@ describe( 'AbbreviatedValue', () => {
 	} );
 
 	it( 'renders a plain value even with a label when nothing was shortened', () => {
-		render( <AbbreviatedValue value={ 432 } dataFormat={ COMPACT } restored="432 opens" /> );
+		render(
+			<AbbreviatedValue value={ 432 } dataFormat={ COMPACT } formatRestored={ withOpens } />
+		);
 
 		expect( screen.getByText( '432' ) ).not.toHaveAttribute( 'aria-hidden' );
 		expect( screen.queryByText( '432 opens' ) ).not.toBeInTheDocument();
