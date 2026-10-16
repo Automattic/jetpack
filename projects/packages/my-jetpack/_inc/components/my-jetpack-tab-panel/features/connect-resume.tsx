@@ -95,7 +95,7 @@ export function resetConnectIntentForTests() {
 }
 
 /**
- * Whether the feature's own switch on this page would turn it on, so the return can do the same.
+ * Whether the return turns the feature on: the bulk switch's rule says it can be switched here, and it is not already on.
  *
  * @param state - The feature's live state after the return.
  * @return Whether to turn it on.

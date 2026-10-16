@@ -19,8 +19,6 @@ import type { Ref } from 'react';
 /**
  * Leave to connect a WordPress.com account, coming back to the same Features view.
  *
- * After Connect, the return turns the feature on; Install has already turned its plugin on.
- *
  * @return Starts the connection for the feature the action was taken on.
  */
 export function useAccountConnection() {
