@@ -748,6 +748,16 @@ else
 	fi
 fi
 
+# - webpack-config's wp-polyfill module list should be generated for MIN_WP_VERSION in .github/versions.sh.
+debug "Checking webpack-config's wp-polyfill modules vs versions.sh"
+FILE=projects/js-packages/webpack-config/src/babel/wp-polyfill-modules.json
+GENERATED_FOR="$(jq -r '.minWordPressVersion' "$FILE")"
+if [[ "$GENERATED_FOR" != "$MIN_WP_VERSION" ]]; then
+	EXIT=1
+	LINE=$(jq --stream 'if length == 1 then .[0][:-1] else .[0] end | if . == ["minWordPressVersion"] then input_line_number else empty end' "$FILE")
+	echo "::error file=$FILE,line=$LINE::Generated for WordPress $GENERATED_FOR and up, but MIN_WP_VERSION in .github/versions.sh is $MIN_WP_VERSION. Run \`pnpm run update-wp-polyfill-modules\` in projects/js-packages/webpack-config to regenerate it."
+fi
+
 # - Check for incorrect next-version tokens.
 debug "Checking for incorrect next-version tokens."
 RE='[^$]\$next[-_]version\$\|\$next[-_]version\$[^$]\|\$\$next_version\$\$'
