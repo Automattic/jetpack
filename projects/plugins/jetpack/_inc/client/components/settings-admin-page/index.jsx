@@ -8,10 +8,12 @@ import {
 	isDevVersion as _isDevVersion,
 	getCurrentVersion,
 	userCanManageOptions,
+	userCanManageModules,
 	getApiNonce,
 	getApiRootUrl,
 	getSiteAdminUrl,
 } from 'state/initial-state';
+import { isModuleActivated } from 'state/modules';
 import onKeyDownCallback from 'utils/onkeydown-callback';
 
 /**
@@ -98,8 +100,38 @@ function getSubTitle( pathname ) {
 	}
 }
 
+/**
+ * The tab whose sections render at `pathname`.
+ *
+ * @param {string}   pathname         - Router path.
+ * @param {boolean}  canManageModules - Whether the user can manage modules.
+ * @param {Function} isModuleActive   - Whether a module is active.
+ * @return {string|undefined} Tab path.
+ */
+function getActiveTab( pathname, canManageModules, isModuleActive ) {
+	// Mirrors settings/index.jsx: without module access, `/settings` shows Sharing or Writing.
+	if ( '/settings' !== pathname || canManageModules ) {
+		return pathname;
+	}
+	if ( isModuleActive( 'publicize' ) ) {
+		return '/sharing';
+	}
+	if ( isModuleActive( 'post-by-email' ) ) {
+		return '/writing';
+	}
+}
+
 const SettingsAdminPage = props => {
-	const { apiRoot, apiNonce, isDevVersion, displayDevCard, tabs, children } = props;
+	const {
+		apiRoot,
+		apiNonce,
+		isDevVersion,
+		displayDevCard,
+		tabs,
+		children,
+		canManageModules,
+		isModuleActive,
+	} = props;
 	const { pathname, search } = useLocation();
 	// Search results span every tab, so no single tab's description applies.
 	const isSearching = !! new URLSearchParams( search ).get( 'term' );
@@ -111,7 +143,11 @@ const SettingsAdminPage = props => {
 			<AdminPage
 				className="jp-settings-admin-page"
 				title={ __( 'Settings', 'jetpack' ) }
-				subTitle={ isSearching ? undefined : getSubTitle( pathname ) }
+				subTitle={
+					isSearching
+						? undefined
+						: getSubTitle( getActiveTab( pathname, canManageModules, isModuleActive ) )
+				}
 				apiRoot={ apiRoot }
 				apiNonce={ apiNonce }
 				showBackground={ true }
@@ -133,6 +169,8 @@ export default connect(
 		isDevVersion: _isDevVersion( state ),
 		displayDevCard: canDisplayDevCard( state ),
 		canManageOptions: userCanManageOptions( state ),
+		canManageModules: userCanManageModules( state ),
+		isModuleActive: name => isModuleActivated( state, name ),
 		siteAdminUrl: getSiteAdminUrl( state ),
 	} ),
 	dispatch => ( {
