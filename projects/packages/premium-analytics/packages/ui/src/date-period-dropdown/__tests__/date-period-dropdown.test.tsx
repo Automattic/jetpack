@@ -429,11 +429,11 @@ describe( 'DatePeriodDropdown attention', () => {
 		expect( screen.getByRole( 'menu', { name: 'Period' } ) ).toBeInTheDocument();
 	} );
 
-	it( 'shows a locked preset that cannot be picked, explained by the footer', async () => {
+	it( 'shows a locked preset that cannot be picked, explained by the lock notice', async () => {
 		const user = userEvent.setup();
 		const { onSelect } = renderDropdown( {
 			lockedPresetIds: [ 'last-30-days' ],
-			menuFooter: <p>Upgrade to see more.</p>,
+			lockNotice: <p>Upgrade to see more.</p>,
 		} );
 		await openMenu( user, 'Last 30 days' );
 

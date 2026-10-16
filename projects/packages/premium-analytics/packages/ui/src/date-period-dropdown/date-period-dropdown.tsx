@@ -154,8 +154,8 @@ type DatePeriodDropdownProps = {
 	/** The earliest day a custom range may include; earlier days cannot be picked or typed. */
 	earliestDate?: Date;
 
-	/** Shown under the presets, such as why some are locked. */
-	menuFooter?: ReactNode;
+	/** Why the locked presets are locked, shown under them and read as each one's description. */
+	lockNotice?: ReactNode;
 };
 
 /**
@@ -182,9 +182,9 @@ export function DatePeriodDropdown( {
 	attentionId,
 	lockedPresetIds,
 	earliestDate,
-	menuFooter,
+	lockNotice,
 }: DatePeriodDropdownProps ) {
-	const footerId = useInstanceId( DatePeriodDropdown, 'date-period-dropdown__footer' );
+	const lockNoticeId = useInstanceId( DatePeriodDropdown, 'date-period-dropdown__lock-notice' );
 	// The menu floats free of the row it opens from, so the window is what says
 	// whether a second month fits beside the list.
 	const isWideScreen = useMediaQuery( `(min-width: ${ WIDE_MENU_THRESHOLD }px)` );
@@ -292,7 +292,7 @@ export function DatePeriodDropdown( {
 			{ /* Both halves stretch: the seam is drawn on the calendar, which would
 			   cut it short beside a longer list. */ }
 			<Stack direction="row" align="stretch" className="date-period-dropdown__panel">
-				{ /* A menu may hold only menu items, so the footer sits below it. */ }
+				{ /* A menu may hold only menu items, so the lock notice sits below it. */ }
 				<Stack direction="column">
 					<NavigableMenu role="menu" aria-label={ __( 'Period', 'jetpack-premium-analytics-pkg' ) }>
 						{ groups.map( group => (
@@ -307,9 +307,9 @@ export function DatePeriodDropdown( {
 											role="menuitemradio"
 											isSelected={ isSelected }
 											icon={ getPresetIcon( isLocked, isSelected ) }
-											// MenuItem keeps a disabled item focusable, so its footer is read out.
+											// MenuItem keeps a disabled item focusable, so its lock notice is read out.
 											disabled={ isLocked }
-											aria-describedby={ isLocked && menuFooter ? footerId : undefined }
+											aria-describedby={ isLocked && lockNotice ? lockNoticeId : undefined }
 											onClick={ () => {
 												closedByActionRef.current = true;
 												selectPreset( preset );
@@ -338,9 +338,9 @@ export function DatePeriodDropdown( {
 						) }
 					</NavigableMenu>
 
-					{ menuFooter && (
-						<div id={ footerId } className="date-period-dropdown__footer">
-							{ menuFooter }
+					{ lockNotice && (
+						<div id={ lockNoticeId } className="date-period-dropdown__lock-notice">
+							{ lockNotice }
 						</div>
 					) }
 				</Stack>

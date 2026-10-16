@@ -48,14 +48,14 @@ function DatePeriodDropdownWithState( {
 	presetIds,
 	allTimeStart,
 	lockedPresetIds,
-	menuFooter,
+	lockNotice,
 }: {
 	initialPresetId?: PrimaryPresetId;
 	initialRange?: DateRange;
 	presetIds?: readonly QuickSurfacePresetId[];
 	allTimeStart?: Date;
 	lockedPresetIds?: readonly QuickSurfacePresetId[];
-	menuFooter?: ReactNode;
+	lockNotice?: ReactNode;
 } ) {
 	const [ appliedPresetId, setAppliedPresetId ] = useState< PrimaryPresetId | undefined >(
 		initialPresetId
@@ -78,7 +78,7 @@ function DatePeriodDropdownWithState( {
 			presetIds={ presetIds }
 			allTimeStart={ allTimeStart }
 			lockedPresetIds={ lockedPresetIds }
-			menuFooter={ menuFooter }
+			lockNotice={ lockNotice }
 			timeZone={ TIME_ZONE }
 			canApply={ range !== appliedRange }
 			onSelect={ ( nextRange, nextPresetId ) => {
@@ -133,7 +133,7 @@ export const DetailSurface: Story = {
 
 /**
  * A plan that leaves out everything past the last 7 days: those periods show a
- * lock and cannot be picked, and the footer says why.
+ * lock and cannot be picked, and the lock notice says why.
  */
 export const PlanLimited: Story = {
 	render: () => (
@@ -147,7 +147,7 @@ export const PlanLimited: Story = {
 				'last-12-months',
 				'all-time',
 			] }
-			menuFooter={ <p>Your plan includes the last 7 days. Upgrade to see more.</p> }
+			lockNotice={ <p>Your plan includes the last 7 days. Upgrade to see more.</p> }
 		/>
 	),
 };
