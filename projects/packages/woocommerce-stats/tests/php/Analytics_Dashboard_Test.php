@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\WooCommerceStats;
 
 use Automattic\Jetpack\PremiumAnalytics\Dashboard_Section_Registry;
 use Automattic\Jetpack\PremiumAnalytics\Enablement_Setting;
+use Automattic\Jetpack\PremiumAnalytics\Sync\Sync_Status_Tracker;
 use Automattic\Jetpack\PremiumAnalytics\Widget_Type_Registry;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
@@ -42,6 +43,7 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		remove_action( Analytics_Dashboard::REGISTER_WIDGET_TYPES_ACTION, array( Analytics_Dashboard::class, 'register_widget_types' ), 20 );
 		remove_action( 'rest_api_init', array( Api_Proxy_Controller::class, 'init' ) );
 		remove_filter( 'jetpack_stats_transient_cleanup_prefixes', array( Api_Proxy_Controller::class, 'register_transient_cleanup_prefix' ) );
+		remove_action( Sync_Status_Tracker::MILESTONE_ACTION, array( Api_Proxy_Controller::class, 'clear_cache' ) );
 		remove_filter( 'jetpack_admin_js_script_data', array( Store_Currency::class, 'add_script_data' ), 20 );
 		remove_action( Analytics_Dashboard::DASHBOARD_PAGE_INIT_ACTION, array( Analytics_Dashboard::class, 'enqueue_store_performance_bookings' ) );
 		delete_option( 'active_plugins' );
@@ -81,12 +83,14 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The reports proxy registers with the REST API, and its cache with the Stats cleanup.
+	 * The reports proxy registers with the REST API, its cache with the Stats cleanup, and its cache
+	 * reset with the end of the initial sync.
 	 */
 	public function test_init_hooks_the_reports_proxy() {
 		Analytics_Dashboard::init();
 
 		$this->assertSame( 10, has_action( 'rest_api_init', array( Api_Proxy_Controller::class, 'init' ) ) );
+		$this->assertSame( 10, has_action( Sync_Status_Tracker::MILESTONE_ACTION, array( Api_Proxy_Controller::class, 'clear_cache' ) ) );
 		$this->assertSame(
 			array( Api_Proxy_Controller::CACHE_PREFIX ),
 			apply_filters( 'jetpack_stats_transient_cleanup_prefixes', array() )
