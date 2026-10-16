@@ -1,7 +1,7 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import * as React from 'react';
-import { Component, Fragment } from 'react';
+import { Component, createRef, Fragment } from 'react';
 import { getConstrastingColor } from '../lib/colors';
 import { MULTISITE_NO_GROUP_VALUE, OVERLAY_FOCUS_ANCHOR_ID } from '../lib/constants';
 import { getErrorMessage } from '../lib/errors';
@@ -22,6 +22,42 @@ import './search-results.scss';
 class SearchResults extends Component {
 	state = {
 		shouldShowMobileSecondary: false,
+	};
+
+	primaryRef = createRef();
+	headerRef = createRef();
+	secondaryRef = createRef();
+
+	componentDidMount() {
+		// Content above the header (AI answers, tabs) can resize while the mobile filters panel is open.
+		if ( typeof window.ResizeObserver === 'function' && this.primaryRef.current ) {
+			this.primaryResizeObserver = new window.ResizeObserver( this.updateSecondaryOffset );
+			this.primaryResizeObserver.observe( this.primaryRef.current );
+		}
+	}
+
+	componentDidUpdate( prevProps, prevState ) {
+		if ( this.state.shouldShowMobileSecondary && ! prevState.shouldShowMobileSecondary ) {
+			this.updateSecondaryOffset();
+		}
+	}
+
+	componentWillUnmount() {
+		this.primaryResizeObserver?.disconnect();
+	}
+
+	updateSecondaryOffset = () => {
+		const header = this.headerRef.current;
+		const secondary = this.secondaryRef.current;
+		// offsetParent is null while the panel is hidden; it is measured again when opened.
+		const container = secondary?.offsetParent;
+		if ( header && container ) {
+			const offset =
+				header.getBoundingClientRect().bottom -
+				container.getBoundingClientRect().top -
+				container.clientTop;
+			secondary.style.setProperty( '--jetpack-instant-search-secondary-top', `${ offset }px` );
+		}
 	};
 
 	toggleMobileSecondary = event => {
@@ -169,7 +205,7 @@ class SearchResults extends Component {
 				/>
 				<TabbedSearchFilters />
 
-				<div className="jetpack-instant-search__search-results-header">
+				<div className="jetpack-instant-search__search-results-header" ref={ this.headerRef }>
 					<h2 className="jetpack-instant-search__search-results-title">
 						{ this.getSearchTitle() }
 					</h2>
@@ -185,6 +221,8 @@ class SearchResults extends Component {
 								onClick={ this.toggleMobileSecondary }
 								onKeyDown={ this.toggleMobileSecondary }
 								tabIndex="0"
+								aria-expanded={ this.state.shouldShowMobileSecondary }
+								aria-controls="jetpack-instant-search__search-results-secondary"
 								className="jetpack-instant-search__search-results-filter-button"
 							>
 								{ __( 'Filters', 'jetpack-search-pkg' ) }
@@ -194,11 +232,6 @@ class SearchResults extends Component {
 									alt={ __( 'Show search filters', 'jetpack-search-pkg' ) }
 									aria-hidden="true"
 								/>
-								<span className="screen-reader-text assistive-text">
-									{ this.state.shouldShowMobileSecondary
-										? __( 'Hide filters', 'jetpack-search-pkg' )
-										: __( 'Show filters', 'jetpack-search-pkg' ) }
-								</span>
 							</div>
 						) }
 					</SearchControls>
@@ -320,10 +353,12 @@ class SearchResults extends Component {
 						className="jetpack-instant-search__search-results-content"
 						id="jetpack-instant-search__search-results-content"
 					>
-						<div className="jetpack-instant-search__search-results-primary">
+						<div className="jetpack-instant-search__search-results-primary" ref={ this.primaryRef }>
 							{ this.renderPrimarySection() }
 						</div>
 						<div
+							id="jetpack-instant-search__search-results-secondary"
+							ref={ this.secondaryRef }
 							className={ [
 								'jetpack-instant-search__search-results-secondary',
 								`${

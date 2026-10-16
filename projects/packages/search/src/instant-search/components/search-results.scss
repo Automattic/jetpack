@@ -169,7 +169,8 @@ $colophon-height: 40px;
 
 		@include helper.multiple-breaks-for-customberg( "<l", "<xl" ) {
 			position: absolute;
-			top: 0;
+			inset-block-start: var(--jetpack-instant-search-secondary-top, 0);
+			inset-block-end: auto;
 			right: 1em;
 			left: 1em;
 
