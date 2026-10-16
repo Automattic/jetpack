@@ -27,11 +27,30 @@ const previousValues = ( previous?: ReturnType< typeof report > ) =>
 	] );
 
 describe( 'normalizeOrderAttributionByProductResponse', () => {
-	it( 'leaves an item the comparison lacks without a previous value', () => {
-		expect( previousValues( report( [ [ 'Desktop', '400' ] ] ) ) ).toEqual( [
+	const FULL_LIST = report( [
+		[ 'Desktop', '400' ],
+		[ 'Mobile', '300' ],
+		[ 'Watch', '200' ],
+		[ 'Console', '100' ],
+		[ 'TV', '50' ],
+	] );
+
+	it.each( [
+		[
+			'a full list, which may have cut it',
+			FULL_LIST,
 			[ 'Desktop', '400', 1 ],
 			[ 'Tablet', null, 0 ],
-		] );
+		],
+		[
+			'a shorter list, so it had no sales',
+			report( [ [ 'Desktop', '400' ] ] ),
+			[ 'Desktop', '400', 1 ],
+			[ 'Tablet', '0', 1 ],
+		],
+		[ 'no items at all', report( [] ), [ 'Desktop', '0', 1 ], [ 'Tablet', '0', 1 ] ],
+	] )( 'reads an item missing from %s', ( _, previous, desktop, tablet ) => {
+		expect( previousValues( previous ).slice( 0, 2 ) ).toEqual( [ desktop, tablet ] );
 	} );
 
 	it( 'reads the current period as the previous one without a comparison', () => {

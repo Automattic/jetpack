@@ -71,7 +71,8 @@ class Average_Items_Per_Order_Controller extends Abstract_Csv_Report_Controller 
 	 * @return array The formatted row.
 	 */
 	public function format_row_for_csv( array $item, ?string $interval = null ): array {
-		$has_orders = (int) ( $item['orders_no'] ?? 0 ) > 0 && isset( $item['avg_items'] );
+		$defaults   = $this->get_default_values();
+		$has_orders = (int) ( $item['orders_no'] ?? $defaults['orders_no'] ) > 0 && isset( $item['avg_items'] );
 
 		return array(
 			'time_interval' => $this->format_time_interval( $item, $interval ),
@@ -86,6 +87,7 @@ class Average_Items_Per_Order_Controller extends Abstract_Csv_Report_Controller 
 	 */
 	public function get_default_values(): array {
 		return array(
+			'orders_no' => 0,
 			'avg_items' => 0,
 		);
 	}

@@ -122,7 +122,8 @@ export function buildMetricTab< TReport extends MetricReport >(
 	const hasPrevious = !! previous?.length;
 	const value = total( primary, field );
 	const isMissing = value === null && !! noDataLabel;
-	const previousHasReading = !! previous?.some( point => point.value );
+	// A comparison of real zeros draws nothing either (the chart's empty rule), so the reason shows.
+	const previousHasReading = !! previous?.some( point => ! point.missing && point.value !== 0 );
 
 	return {
 		key: field,

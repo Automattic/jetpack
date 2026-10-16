@@ -155,6 +155,7 @@ describe( 'buildMetricTab', () => {
 
 	it.each( [
 		[ 'has no reading either', null, null, 'No orders in this period.' ],
+		[ 'reads a real zero', 0, 0, 'No orders in this period.' ],
 		[ 'has orders', 210, 270.5, undefined ],
 	] )(
 		'reads a null headline as no value, with the reason only when the comparison %s',
