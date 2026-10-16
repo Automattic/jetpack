@@ -65,6 +65,8 @@ function SessionsByDevice() {
 				onRetry: refetch,
 			} ) }
 			variant="half-ring"
+			total={ primary.data?.summary.total_sessions }
+			previousTotal={ comparison.data?.summary.total_sessions }
 		/>
 	);
 }

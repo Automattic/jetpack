@@ -94,6 +94,9 @@ export type DonutProps = {
 	variant?: 'ring' | 'half-ring';
 	// Whether the total of the segments shows; off for shares that add up to one. Defaults to on.
 	withTotal?: boolean;
+	// The total the report states, for segments that need not add up to it. Omit to sum them.
+	total?: number;
+	previousTotal?: number;
 };
 
 // Funnels: steps as counts in, with the rate of the whole, the shares and the states handled.
@@ -128,8 +131,8 @@ export type ColumnInput = {
 	label: string;
 	// Figure for the selected period.
 	value: number;
-	// Figure for the comparison period; undefined draws as 0 there.
-	previousValue?: number;
+	// Figure for the comparison period; undefined draws as 0 there, and null, no figure, draws no bar.
+	previousValue?: number | null;
 };
 export type ColumnsProps = {
 	// The columns in order; each one draws once per period.
