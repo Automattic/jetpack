@@ -281,6 +281,24 @@ class Channel_Blocks_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Previous and next follow the playlist when the page plays from one, else upload order.
+	 */
+	public function test_episode_navigation() {
+		$this->assertSame( '', Channel_Blocks::render_episode_navigation() );
+
+		$this->view_video( 'ccccccc3', 'dungeons' );
+		$markup = Channel_Blocks::render_episode_navigation();
+		$this->assertStringContainsString( 'is-prev" href="' . esc_url( Channel::video_url( $this->videos['bbbbbbb2'], 'dungeons' ) ) . '"', $markup );
+		$this->assertStringContainsString( '<span class="videopress-episode-navigation__title">Goldshire episode</span>', $markup );
+		$this->assertStringNotContainsString( 'is-next', $markup );
+
+		$this->view_video( 'aaaaaaa1' );
+		$markup = Channel_Blocks::render_episode_navigation();
+		$this->assertStringContainsString( 'is-next" href="' . esc_url( Channel::video_url( $this->videos['bbbbbbb2'] ) ) . '"', $markup );
+		$this->assertStringNotContainsString( 'is-prev', $markup );
+	}
+
+	/**
 	 * The editor gets the playlists ( key, title and videos ) for the pickers and the canvas
 	 * previews, before the playlist block's script.
 	 */
