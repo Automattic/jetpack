@@ -151,7 +151,7 @@ type DatePeriodDropdownProps = {
 	/** Presets shown with a lock, which cannot be picked. */
 	lockedPresetIds?: readonly QuickSurfacePresetId[];
 
-	/** The first day a custom range may start on. */
+	/** The earliest day a custom range may include; earlier days cannot be picked or typed. */
 	earliestDate?: Date;
 
 	/** Shown under the presets, such as why some are locked. */
