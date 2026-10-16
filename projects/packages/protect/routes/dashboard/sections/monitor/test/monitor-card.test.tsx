@@ -132,7 +132,7 @@ describe( 'MonitorCard', () => {
 		await expect(
 			screen.findByLabelText( 'Enable downtime monitoring' )
 		).resolves.not.toBeChecked();
-		expect( screen.queryByText( 'Configure Downtime Monitoring' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Configure downtime monitoring' ) ).not.toBeInTheDocument();
 		expect(
 			screen.queryByText( 'Uptime history is unavailable right now.' )
 		).not.toBeInTheDocument();

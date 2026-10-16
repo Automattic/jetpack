@@ -308,7 +308,7 @@ export default function MonitorCard( { state: monitor, settings, openTab }: Moni
 						) }
 						<div>
 							<TabLink tab="settings" onOpen={ openTab }>
-								{ __( 'Configure Downtime Monitoring', 'jetpack-protect-pkg' ) }
+								{ __( 'Configure downtime monitoring', 'jetpack-protect-pkg' ) }
 							</TabLink>
 						</div>
 					</Stack>
