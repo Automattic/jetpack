@@ -453,7 +453,11 @@ function get_stats_plan_gates() {
 	foreach ( get_locked_stats_sections( $tier ) as $section ) {
 		$copy                        = get_stats_section_copy( $section );
 		$copy['support_url']         = localize_stats_support_url( $copy['support_url'] );
-		$locked_sections[ $section ] = $copy + array( 'upgrade_url' => get_stats_upgrade_url( $section, $tier ) );
+		$locked_sections[ $section ] = $copy + array(
+			'upgrade_url'       => get_stats_upgrade_url( $section, $tier ),
+			// An allowlist, so a type no plan feature names, or one no longer registered, is hidden too.
+			'open_widget_types' => 'traffic' === $section ? array( 'jpa/traffic-chart' ) : array(),
+		);
 	}
 
 	return array(

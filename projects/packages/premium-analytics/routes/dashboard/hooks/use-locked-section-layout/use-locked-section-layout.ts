@@ -1,12 +1,10 @@
 /**
  * External dependencies
  */
-import { getLockedSection, getLockedWidgetFeature } from '@jetpack-premium-analytics/data';
+import { getLockedSection } from '@jetpack-premium-analytics/data';
 import { useCallback, useMemo } from 'react';
 import type { LockedSectionGate } from '@jetpack-premium-analytics/data';
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
-
-const isLockedWidget = ( widget: DashboardWidget ) => !! getLockedWidgetFeature( widget.type );
 
 /**
  * Put the hidden widgets back around a layout the dashboard saved, each at its old index.
@@ -55,17 +53,21 @@ export function useLockedSectionLayout(
 	onVisibleLayoutChange: ( next: DashboardWidget[] ) => void;
 } {
 	const lockedSection = getLockedSection( section );
+	const isHidden = useCallback(
+		( widget: DashboardWidget ) => ! lockedSection?.open_widget_types.includes( widget.type ),
+		[ lockedSection ]
+	);
 
 	const visibleLayout = useMemo(
-		() => ( lockedSection ? layout.filter( widget => ! isLockedWidget( widget ) ) : layout ),
-		[ lockedSection, layout ]
+		() => ( lockedSection ? layout.filter( widget => ! isHidden( widget ) ) : layout ),
+		[ lockedSection, layout, isHidden ]
 	);
 
 	// An inline attribute edit autosaves the layout the dashboard holds, which lacks the hidden widgets.
 	const onVisibleLayoutChange = useCallback(
 		( next: DashboardWidget[] ) =>
-			onLayoutChange( lockedSection ? restoreHiddenWidgets( layout, next, isLockedWidget ) : next ),
-		[ lockedSection, layout, onLayoutChange ]
+			onLayoutChange( lockedSection ? restoreHiddenWidgets( layout, next, isHidden ) : next ),
+		[ lockedSection, layout, onLayoutChange, isHidden ]
 	);
 
 	return { lockedSection, visibleLayout, onVisibleLayoutChange };

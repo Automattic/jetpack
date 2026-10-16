@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { getLockedSection, getLockedWidgetFeature } from '@jetpack-premium-analytics/data';
+import { getLockedSection } from '@jetpack-premium-analytics/data';
 import { renderHook } from '@testing-library/react';
 /**
  * Internal dependencies
@@ -12,7 +12,6 @@ import type { DashboardWidget } from '@wordpress/widget-dashboard';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	getLockedSection: jest.fn(),
-	getLockedWidgetFeature: jest.fn(),
 } ) );
 
 const OPEN_TYPE = 'jpa/traffic-chart';
@@ -26,16 +25,13 @@ const trafficLayout = [
 	...Array.from( { length: 11 }, ( _, index ) => widget( `locked-${ index }` ) ),
 ];
 
-const gate = { title: 'Unlock site growth analytics' } as LockedSectionGate;
+const gate = { open_widget_types: [ OPEN_TYPE ] } as LockedSectionGate;
 
 describe( 'useLockedSectionLayout', () => {
 	beforeEach( () => {
 		jest
 			.mocked( getLockedSection )
 			.mockImplementation( section => ( section === 'traffic' ? gate : undefined ) );
-		jest
-			.mocked( getLockedWidgetFeature )
-			.mockImplementation( type => ( type === OPEN_TYPE ? undefined : 'referrers' ) );
 	} );
 
 	it( 'keeps every hidden widget, in place, when an inline edit saves the visible ones', () => {
@@ -55,9 +51,19 @@ describe( 'useLockedSectionLayout', () => {
 		expect( saved.slice( 1 ) ).toEqual( trafficLayout.slice( 1 ) );
 	} );
 
+	it( 'hides a type the section does not keep open, such as one no longer registered', () => {
+		const layout = [ widget( 'chart', OPEN_TYPE ), widget( 'ghost', 'jpa/videopress' ) ];
+
+		const { result } = renderHook( () => useLockedSectionLayout( 'traffic', layout, jest.fn() ) );
+
+		expect( result.current.visibleLayout.map( item => item.uuid ) ).toEqual( [ 'chart' ] );
+	} );
+
 	it( 'shows nothing on a section whose every widget is locked', () => {
 		const insights = [ widget( 'a' ), widget( 'b' ) ];
-		jest.mocked( getLockedSection ).mockReturnValue( gate );
+		jest
+			.mocked( getLockedSection )
+			.mockReturnValue( { open_widget_types: [] } as unknown as LockedSectionGate );
 
 		const { result } = renderHook( () =>
 			useLockedSectionLayout( 'insights', insights, jest.fn() )

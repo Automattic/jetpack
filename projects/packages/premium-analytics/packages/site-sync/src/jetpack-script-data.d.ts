@@ -46,6 +46,7 @@ declare module '@automattic/jetpack-script-data' {
 						expand_label: string;
 						support_url: string;
 						upgrade_url: string;
+						open_widget_types: string[];
 					}
 				>;
 			};

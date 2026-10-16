@@ -492,6 +492,8 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		$this->assertSame( 'Unlock site insights', $sections['insights']['title'] );
 		$this->assertSame( 'View trends and data from any time period', $sections['traffic']['features'][0] );
 		$this->assertSame( 'Monitor your posting activity', $sections['insights']['features'][0] );
+		$this->assertSame( array( 'jpa/traffic-chart' ), $sections['traffic']['open_widget_types'] );
+		$this->assertSame( array(), $sections['insights']['open_widget_types'] );
 
 		foreach ( $sections as $section ) {
 			$this->assertCount( 11, $section['features'] );

@@ -46,6 +46,8 @@ export type LockedSectionGate = {
 	expand_label: string;
 	support_url: string;
 	upgrade_url: string;
+	/** The widget types the section still shows; every other one is hidden. */
+	open_widget_types: string[];
 };
 
 /**
