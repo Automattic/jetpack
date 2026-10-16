@@ -37,6 +37,9 @@ const UNAVAILABLE: FirewallState = {
 // One id for the test's snackbars, so the result replaces "Testing the firewall…".
 const NOTICE_ID = 'jetpack-protect-firewall-test';
 
+/** Opens the Settings tab at this section's card. */
+const SETTINGS_PARAMS = { section: 'firewall' };
+
 type NoticeStatus = 'success' | 'info' | 'warning' | 'error';
 
 // Icon SVGs default to black; currentColor picks up the snackbar's light text.
@@ -308,7 +311,7 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 							label={ __( 'All-time blocked requests', 'jetpack-protect-pkg' ) }
 							value={ blocks.blockedCount === null ? '—' : formatCount( blocks.blockedCount ) }
 						/>
-						<TabLink tab="settings" onOpen={ openTab }>
+						<TabLink tab="settings" params={ SETTINGS_PARAMS } onOpen={ openTab }>
 							{ __( 'Configure Firewall', 'jetpack-protect-pkg' ) }
 						</TabLink>
 					</Stack>

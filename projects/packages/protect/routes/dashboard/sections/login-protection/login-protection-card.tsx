@@ -7,6 +7,9 @@ import isModuleActive from '../../data/is-module-active';
 import type { LoginProtectionContext, ModuleState } from './types';
 import type { CardStatus } from '../../components/card';
 
+/** Opens the Settings tab at this section's card. */
+const SETTINGS_PARAMS = { section: 'loginProtection' };
+
 /**
  * One way of protecting logins, with whether it's on.
  *
@@ -139,7 +142,7 @@ export default function LoginProtectionCard( {
 				state={ sso }
 			/>
 			<CardRow>
-				<TabLink tab="settings" onOpen={ openTab }>
+				<TabLink tab="settings" params={ SETTINGS_PARAMS } onOpen={ openTab }>
 					{ __( 'Configure login protection', 'jetpack-protect-pkg' ) }
 				</TabLink>
 			</CardRow>

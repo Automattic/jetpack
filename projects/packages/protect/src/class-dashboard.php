@@ -52,6 +52,28 @@ class Dashboard {
 	const RENDER_FUNCTION = 'jetpack_protect_jetpack_protect_dashboard_wp_admin_render_page';
 
 	/**
+	 * The settings section that owns each Jetpack security module, for links from other screens.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var array<string, string>
+	 */
+	const MODULE_SECTIONS = array(
+		'waf'                => 'firewall',
+		'protect'            => 'loginProtection',
+		'account-protection' => 'loginProtection',
+		'sso'                => 'loginProtection',
+		'monitor'            => 'monitor',
+	);
+
+	/**
+	 * The Jetpack filter that sets a module's Configure link, minus the module slug.
+	 *
+	 * @var string
+	 */
+	const CONFIGURATION_URL_FILTER = 'jetpack_module_configuration_url_';
+
+	/**
 	 * Extra Admin_Menu item options, such as the module that owns the item.
 	 *
 	 * @var array
@@ -86,6 +108,12 @@ class Dashboard {
 		add_action( 'admin_menu', array( __CLASS__, 'add_menu' ), 999 );
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
 		Threat_Count::init();
+
+		foreach ( array_keys( self::MODULE_SECTIONS ) as $module ) {
+			add_filter( self::CONFIGURATION_URL_FILTER . $module, array( __CLASS__, 'filter_module_configuration_url' ) );
+			// Firewall and Account protection have no Configure link otherwise.
+			add_filter( 'jetpack_module_configurable_' . $module, '__return_true' );
+		}
 
 		self::load_sections( __DIR__ . '/sections' );
 
@@ -195,6 +223,37 @@ class Dashboard {
 	 */
 	public static function can_manage() {
 		return current_user_can( 'manage_options' );
+	}
+
+	/**
+	 * The Settings tab's URL, scrolled to a section's card.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $section Section key, such as `firewall`; empty for the top of the tab.
+	 * @return string
+	 */
+	public static function get_settings_url( $section = '' ) {
+		$query = array( 'tab' => 'settings' );
+		if ( '' !== $section ) {
+			$query['section'] = $section;
+		}
+
+		return admin_url( 'admin.php?page=' . self::MENU_SLUG . '&p=' . rawurlencode( '/?' . http_build_query( $query ) ) );
+	}
+
+	/**
+	 * Point a security module's Configure link at its card on the Settings tab.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $url The URL Jetpack would use.
+	 * @return string
+	 */
+	public static function filter_module_configuration_url( $url ) {
+		$module = substr( current_filter(), strlen( self::CONFIGURATION_URL_FILTER ) );
+
+		return isset( self::MODULE_SECTIONS[ $module ] ) ? self::get_settings_url( self::MODULE_SECTIONS[ $module ] ) : $url;
 	}
 
 	/**
