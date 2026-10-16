@@ -26,6 +26,7 @@ import {
 import { useSeriesStyles } from '../../hooks';
 import { ComparativeBarChart } from '../chart-comparative-bar';
 import { ComparativeLineChart } from '../chart-comparative-line';
+import { exactFormatOf } from '../chart-tooltip/utils';
 import { MetricWithComparison } from '../metric-with-comparison';
 import { WidgetRootContext } from '../widget-root/context';
 import styles from './metric-tabs-chart.module.scss';
@@ -451,12 +452,20 @@ function MetricTabContent( {
 	dataFormat,
 	fontSize,
 	withDescription = false,
+	exact = false,
 }: {
 	metric: MetricTab;
 	dataFormat: DataFormat;
 	fontSize?: ComponentProps< typeof MetricWithComparison >[ 'fontSize' ];
 	withDescription?: boolean;
+	/** Spell the value out in full, for a layout with room for it. */
+	exact?: boolean;
 } ) {
+	const format = metric.dataFormat ?? dataFormat;
+	const valueFormat = useMemo(
+		() => ( exact ? exactFormatOf( format ) : format ),
+		[ exact, format ]
+	);
 	// The description is opt-in: a tab already carries it on `title`, and in the
 	// dropdown trigger a hidden node would join the button's accessible name.
 	const note = metric.unavailable ?? ( withDescription ? metric.description : undefined );
@@ -485,7 +494,7 @@ function MetricTabContent( {
 					className={ styles.metricComparison }
 					value={ metric.value }
 					previousValue={ metric.previousValue }
-					dataFormat={ metric.dataFormat ?? dataFormat }
+					dataFormat={ valueFormat }
 					fontSize={ fontSize }
 					direction="row"
 					align="flex-end"
@@ -675,7 +684,7 @@ export function MetricTabsChart( {
 							} }
 							triggerContent={
 								activeMetric && (
-									<MetricTabContent metric={ activeMetric } dataFormat={ dataFormat } />
+									<MetricTabContent metric={ activeMetric } dataFormat={ dataFormat } exact />
 								)
 							}
 						/>

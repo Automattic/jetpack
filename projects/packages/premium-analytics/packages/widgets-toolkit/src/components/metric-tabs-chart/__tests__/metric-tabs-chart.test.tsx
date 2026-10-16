@@ -202,6 +202,22 @@ describe( 'MetricTabsChart', () => {
 		).toBe( columns );
 	} );
 
+	it( 'spells the figure out in the dropdown, which has room for it', () => {
+		setMockChartWidth( 100 );
+		const compact = { type: 'number' as const, options: { useMultipliers: true } };
+
+		render(
+			<MetricTabsChart
+				metrics={ [ { ...VIEWS, value: 12345, dataFormat: compact }, VISITORS ] }
+				dataFormat={ DATA_FORMAT }
+			/>
+		);
+
+		const trigger = screen.getByRole( 'combobox' );
+		expect( trigger ).toHaveTextContent( '12,345' );
+		expect( trigger ).not.toHaveTextContent( '12.3K' );
+	} );
+
 	it( 'draws a bar chart when chartType is bar', () => {
 		render( <MetricTabsChart metrics={ [ METRIC ] } dataFormat={ DATA_FORMAT } chartType="bar" /> );
 
