@@ -4,20 +4,24 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { check, lineSolid } from '@wordpress/icons';
 import { ButtonLink, Icon, Text } from '@wordpress/ui';
 import clsx from 'clsx';
+import { tallyResults } from '../lib';
 import styles from '../styles.module.scss';
 import type { SetupModuleResult } from '../use-setup-modules';
 import type { MouseEvent } from 'react';
 
+type Tally = ReturnType< typeof tallyResults >;
+
 type FinishStepProps = {
 	// Owned by the wizard so the region can be labelled by the heading.
 	titleId: string;
-	// Null until the feature step has run, which only happens by going through it.
-	results: SetupModuleResult[] | null;
+	results: SetupModuleResult[];
 	// Where the two ways out lead.
 	dashboardUrl: string;
 	exitUrl: string;
 	// Records that setup is finished.
 	onLeave: ( event: MouseEvent< HTMLElement > ) => void;
+	// True once one of the exits has been taken.
+	isLeaving?: boolean;
 };
 
 /**
@@ -27,12 +31,11 @@ type FinishStepProps = {
  * on says so, and anything that failed is named rather than folded into a total.
  *
  * @param results - What became of each module.
+ * @param counts  - The same results, counted.
  * @return The heading and the line under it.
  */
-function summarise( results: SetupModuleResult[] ) {
-	const failed = results.filter( result => ! result.ok );
-
-	if ( failed.length ) {
+function summarise( results: SetupModuleResult[], counts: Tally ) {
+	if ( counts.failed ) {
 		return {
 			title: __( 'Some features need another look', 'jetpack-my-jetpack' ),
 			description: __(
@@ -86,13 +89,12 @@ function featureCount( count: number ): string {
  * all. Each line names setup, because the rows show end state and a bare count
  * reads as their total.
  *
- * @param results - What became of each module.
+ * @param counts     - What the run did, counted.
+ * @param counts.on  - How many it switched on.
+ * @param counts.off - How many it switched off.
  * @return The line above the list.
  */
-function sessionTally( results: SetupModuleResult[] ): string {
-	const on = results.filter( result => result.changed && result.wanted && result.ok ).length;
-	const off = results.filter( result => result.changed && ! result.wanted && result.ok ).length;
-
+function sessionTally( { on, off }: Tally ): string {
 	if ( ! on && ! off ) {
 		return __( 'Nothing needed changing on this site.', 'jetpack-my-jetpack' );
 	}
@@ -144,10 +146,11 @@ function statusLabel( result: SetupModuleResult ) {
  *
  * @param props              - The component props.
  * @param props.titleId      - The id the region is labelled by.
- * @param props.results      - What became of each module, or null if the step was never run.
+ * @param props.results      - What became of each module.
  * @param props.dashboardUrl - Back to wp-admin.
  * @param props.exitUrl      - On to My Jetpack.
  * @param props.onLeave      - Records the finish, then follows the link.
+ * @param props.isLeaving    - Whether an exit is already under way.
  * @return The rendered step.
  */
 export function FinishStep( {
@@ -156,11 +159,12 @@ export function FinishStep( {
 	dashboardUrl,
 	exitUrl,
 	onLeave,
+	isLeaving = false,
 }: FinishStepProps ) {
 	const reduced = useReducedMotion();
-	const rows = results ?? [];
-	const summary = summarise( rows );
-	const tally = sessionTally( rows );
+	const counts = tallyResults( results );
+	const summary = summarise( results, counts );
+	const tally = sessionTally( counts );
 
 	return (
 		<div className={ styles.finish }>
@@ -217,7 +221,7 @@ export function FinishStep( {
 					</Text>
 				</div>
 
-				{ rows.length > 0 && (
+				{ results.length > 0 && (
 					<div className={ styles[ 'finish-summary' ] }>
 						<Text
 							variant="body-md"
@@ -232,7 +236,7 @@ export function FinishStep( {
 							role="list"
 							className={ clsx( styles[ 'finish-card' ], styles.wave, styles[ 'wave-3' ] ) }
 						>
-							{ rows.map( result => (
+							{ results.map( result => (
 								<li key={ result.slug } className={ styles[ 'finish-row' ] }>
 									<span
 										aria-hidden="true"
@@ -260,6 +264,7 @@ export function FinishStep( {
 						variant="solid"
 						href={ exitUrl }
 						onClick={ onLeave }
+						aria-disabled={ isLeaving || undefined }
 						className={ clsx( styles[ 'primary-green' ], styles[ 'finish-primary' ] ) }
 					>
 						{ __( 'Go to My Jetpack', 'jetpack-my-jetpack' ) }
@@ -270,6 +275,7 @@ export function FinishStep( {
 						tone="neutral"
 						href={ dashboardUrl }
 						onClick={ onLeave }
+						aria-disabled={ isLeaving || undefined }
 						className={ styles[ 'finish-secondary' ] }
 					>
 						{ __( 'Back to your WordPress site', 'jetpack-my-jetpack' ) }

@@ -98,6 +98,15 @@ describe( 'Applying the wizard’s switches', () => {
 } );
 
 describe( 'The modules the wizard offers', () => {
+	// Only a connected user reaches the step that lists them, so reading earlier is wasted.
+	it( 'does not read the modules until it is enabled', () => {
+		mockStore.modules = { stats: { name: 'Stats', description: '', activated: true } };
+
+		const { result } = renderHook( () => useSetupModules( undefined, false ) );
+
+		expect( result.current ).toEqual( { modules: [], isLoading: true } );
+	} );
+
 	it( 'locks host-forced modules and leaves out ones Jetpack does not have here', () => {
 		mockStore.modules = {
 			stats: { name: 'Stats', description: '', activated: true, override: 'active' },
