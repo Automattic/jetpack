@@ -8,6 +8,7 @@ import { getSettings, setSettings } from '@wordpress/date';
  * Internal dependencies
  */
 import { statsAppNoticesQuery, updateStatsAppNotice } from '../stats-app-notices-query';
+import { statsAppPlanUsageQuery } from '../stats-app-plan-usage-query';
 import { statsAppPurchasesQuery } from '../stats-app-purchases-query';
 import { statsAppProxyQuery } from '../stats-app-query';
 import {
@@ -1049,6 +1050,18 @@ describe( 'Stats query factories', () => {
 			{},
 			true,
 		] );
+	} );
+
+	it( 'skips the proxy cache for usage and purchases on the load returning from checkout', () => {
+		window.JetpackScriptData = {
+			premium_analytics: { purchase_success: { type: 'paid' } },
+		} as unknown as typeof window.JetpackScriptData;
+
+		expect( statsAppPlanUsageQuery().queryKey[ 5 ] ).toEqual( { force_refresh: 1 } );
+		expect( statsAppPurchasesQuery( { site: 41 } ).queryKey[ 5 ] ).toEqual( {
+			site: 41,
+			force_refresh: 1,
+		} );
 	} );
 
 	it( 'builds subscribers query keys with Calypso endpoint params and default stat fields', () => {
