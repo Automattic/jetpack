@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-AI Assistant banner: Update copy to name ChatGPT, Claude, and the WordPress Agent, and match the button label to the AI tools page.
+AI Assistant banner: Update copy to name ChatGPT, Claude, and the WordPress Agent, and keep showing the banner until dismissed while either the WordPress Agent or MCP access is off.
