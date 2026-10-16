@@ -2,11 +2,8 @@ import { useCallback, useMemo } from 'react';
 import useAnalytics from '../../../hooks/use-analytics';
 
 /*
- * Every name here has to match Tracks' own
- * `Jetpack_Tracks_Event::EVENT_NAME_REGEX`, `/^(([a-z0-9]+)_){2}([a-z0-9_]+)$/`
- * — two lowercase segments, then the rest. A name that misses it is dropped
- * server side with nothing said, so they are written out in full rather than
- * assembled from parts a search could not find.
+ * Tracks silently drops any name that misses `Jetpack_Tracks_Event::EVENT_NAME_REGEX`.
+ * Written out in full, not assembled, so a search finds each one.
  */
 export const WIZARD_EVENTS = {
 	stepView: 'jetpack_my_jetpack_onboarding_wizard_step_view',
@@ -28,9 +25,7 @@ const FLOW_ID_KEY = 'jetpack-onboarding-flow-id';
 /**
  * An id for one run through the wizard.
  *
- * Session storage, because connecting leaves wp-admin for WordPress.com and
- * comes back to a fresh page: without this the two halves of a run are two
- * unrelated sets of events and the funnel cannot be joined up.
+ * In session storage, so a run that leaves for WordPress.com to connect keeps it.
  *
  * @return The id, or 'none' where storage cannot be reached.
  */
@@ -82,10 +77,7 @@ export function forgetFlowId(): void {
 /**
  * How long the free text was, in buckets.
  *
- * The words themselves never leave the browser. What someone types about their
- * own site is theirs, it is the one field here that could carry a name or an
- * address, and no question we have needs the string to answer it — whether the
- * field gets used at all, and roughly how much people write in it, does.
+ * The words never leave the browser: it is the one field that could carry a name or an address.
  *
  * @param text - What was typed.
  * @return A bucket name, never the text.
@@ -108,18 +100,10 @@ type WizardEvent = ( typeof WIZARD_EVENTS )[ keyof typeof WIZARD_EVENTS ];
 type EventProperties = Record< string, string | number | boolean >;
 
 /**
- * Reports one run through the wizard.
+ * Reports one run through the wizard, tagging every event with the run's id and the step's slug.
  *
- * Every event carries the run's id and the step it happened on, so the funnel
- * is one query rather than a join across event names. The step is its slug and
- * never its index: a connected site starts at the second step, so the index of
- * a given screen is not the same number for everyone.
- *
- * Nothing here fires on a site that has neither agreed to the terms nor
- * connected a user. Tracks' own script is not on the page until one of those is
- * true (`Tracking::should_enable_tracking`), so the start screen's events are
- * queued into an array nothing drains. That is the gate working, not a bug, and
- * it is why the funnel starts where it does.
+ * The slug, not the index, because a connected site starts at the second step.
+ * Nothing is sent before the terms are agreed (`Tracking::should_enable_tracking`).
  *
  * @param stepId - The slug of the step being reported on.
  * @return A recorder bound to this step.
