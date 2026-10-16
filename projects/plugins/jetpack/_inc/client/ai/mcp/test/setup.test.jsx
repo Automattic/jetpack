@@ -41,3 +41,27 @@ describe( 'McpSetup: Cursor quick setup', () => {
 		expect( screen.getByRole( 'heading', { name: 'Manual setup' } ) ).toBeInTheDocument();
 	} );
 } );
+
+describe( 'McpSetup: ChatGPT quick setup', () => {
+	afterEach( () => {
+		delete window.jetpackAiSettings;
+	} );
+
+	test.each( [
+		[ 'jetpack', 'Jetpack connector', 'jetpack-ai-hub-mcp-setup-chatgpt-self-hosted' ],
+		[ 'wpcom', 'WordPress.com connector', 'jetpack-ai-hub-mcp-setup-chatgpt' ],
+		[ undefined, 'WordPress.com connector', 'jetpack-ai-hub-mcp-setup-chatgpt' ],
+	] )( 'chatgptConnector %s links to the %s', async ( chatgptConnector, name, source ) => {
+		window.jetpackAiSettings = { chatgptConnector };
+		render( <McpSetup /> );
+		await userEvent.selectOptions(
+			screen.getByRole( 'combobox', { name: 'Choose your AI agent' } ),
+			'chatgpt'
+		);
+
+		expect( screen.getByRole( 'link', { name: new RegExp( name ) } ) ).toHaveAttribute(
+			'href',
+			expect.stringMatching( new RegExp( `source=${ source }(&|$)` ) )
+		);
+	} );
+} );
