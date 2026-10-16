@@ -1,14 +1,12 @@
-import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { key } from '@wordpress/icons';
-import { Notice, Stack } from '@wordpress/ui';
+import { Stack } from '@wordpress/ui';
 import { CardRow, ProtectCard, Stat } from '../../components/card';
 import SettingToggle from '../../components/settings/setting-toggle';
+import SettingsErrorRow from '../../components/settings/settings-error-row';
 import TabLink from '../../components/tab-link';
-import isModuleActive from '../../data/is-module-active';
-import SsoToggle from './sso-toggle';
+import SsoToggle, { getSsoBlocker } from './sso-toggle';
 import type { LoginProtectionContext } from './types';
-import './style.scss';
 
 /**
  * The Login protection card: blocked logins, and toggles for account protection and WordPress.com login.
@@ -24,27 +22,22 @@ export default function LoginProtectionCard( {
 	settings,
 	openTab,
 }: LoginProtectionContext ) {
-	// Settings load on the Settings tab; until then the toggles show the page-load state.
-	const data = useMemo(
-		() =>
-			login && {
-				...settings,
-				settings: {
-					protect: login.bruteForce.active,
-					'account-protection': login.accountProtection.active,
-					sso: login.sso.active,
-					...settings.settings,
-				},
-			},
-		[ settings, login ]
-	);
-
-	if ( ! login || ! data ) {
+	if ( ! login ) {
 		return null;
 	}
 
-	const bruteForceOn = isModuleActive( settings.settings, 'protect', login.bruteForce.active );
-	const ssoOn = Boolean( data.settings.sso ) && login.sso.available && login.ssoUsable;
+	// Settings load on the Settings tab; until then the toggles show the page-load state.
+	const data = {
+		...settings,
+		settings: {
+			protect: login.bruteForce.active,
+			'account-protection': login.accountProtection.active,
+			sso: login.sso.active,
+			...settings.settings,
+		},
+	};
+	const bruteForceOn = Boolean( data.settings.protect );
+	const ssoOn = Boolean( data.settings.sso ) && getSsoBlocker( login ) === null;
 
 	return (
 		<ProtectCard
@@ -55,14 +48,7 @@ export default function LoginProtectionCard( {
 				'jetpack-protect-pkg'
 			) }
 		>
-			{ settings.error && (
-				<CardRow>
-					<Notice.Root intent="error">
-						<Notice.Description>{ settings.error }</Notice.Description>
-						<Notice.CloseIconButton onClick={ settings.dismissError } />
-					</Notice.Root>
-				</CardRow>
-			) }
+			<SettingsErrorRow settings={ settings } />
 			<CardRow>
 				{ bruteForceOn ? (
 					<Stack direction="column" gap="md" align="start">
@@ -84,7 +70,7 @@ export default function LoginProtectionCard( {
 					/>
 				) }
 			</CardRow>
-			<CardRow className="jp-protect-login-protection__split">
+			<CardRow className="jp-protect-card__cells">
 				<div>
 					<SettingToggle
 						data={ data }

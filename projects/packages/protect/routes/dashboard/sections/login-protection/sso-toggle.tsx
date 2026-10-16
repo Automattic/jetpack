@@ -11,7 +11,7 @@ import type { ProtectSettingsData } from '../../data/use-protect-settings';
  * @param login - This section's state from PHP.
  * @return The reason, or null when it can be used.
  */
-function getSsoBlocker( login: LoginProtectionState | undefined ): string | null {
+export function getSsoBlocker( login: LoginProtectionState | undefined ): string | null {
 	if ( login && ! login.sso.available ) {
 		return __( 'WordPress.com login isn’t available on this site.', 'jetpack-protect-pkg' );
 	}
