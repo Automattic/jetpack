@@ -3,6 +3,7 @@
  */
 import { Stack } from '@jetpack-premium-analytics/externals';
 import { __, sprintf } from '@wordpress/i18n';
+import clsx from 'clsx';
 import { useCallback, useEffect, useMemo, type JSX, type ReactNode } from 'react';
 /**
  * Internal dependencies
@@ -230,7 +231,10 @@ export function Leaderboard( {
 
 	return (
 		<Stack direction="column" className={ styles.root }>
-			<Stack direction="column" className={ styles.content }>
+			<Stack
+				direction="column"
+				className={ clsx( styles.content, footer && legendLabels && styles.legendAboveFooter ) }
+			>
 				{ backLink }
 				<WidgetState
 					isLoading={ isLoading }
