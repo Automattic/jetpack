@@ -189,6 +189,14 @@ describe( 'HeaderControls', () => {
 } );
 
 describe( 'header controls script', () => {
+	const observe = jest.spyOn( MutationObserver.prototype, 'observe' );
+
+	// The script's observer outlives the test; left running, it fires during teardown, with no document.
+	afterAll( () => {
+		( observe.mock.contexts as MutationObserver[] ).forEach( observer => observer.disconnect() );
+		observe.mockRestore();
+	} );
+
 	it( 'renders into the container once it mounts, and follows a replacement', async () => {
 		await import( '../../../header-controls-script' );
 		const mountContainer = () => {
