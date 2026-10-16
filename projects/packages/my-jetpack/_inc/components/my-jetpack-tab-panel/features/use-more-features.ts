@@ -2,11 +2,7 @@ import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import { moduleSwitchKey, useRequestedSwitches } from '../../../data/requested-switch-state';
 import { getHiddenFeatures } from '../../../data/utils/get-my-jetpack-window-state';
-import {
-	getAccountNeededState,
-	getFeatureModuleSlug,
-	useFeaturesNeedsAccount,
-} from './feature-state';
+import { getFeatureModuleSlug, useFeaturesNeedsAccount, withAccountNeeded } from './feature-state';
 import { PRODUCT_MODULES } from './mappings';
 import { getFeatureUnavailableReason, getModuleAvailability } from './module-availability';
 import { compareModulesByName, hasSearch, moduleFields, rankBy, searchTerms } from './search';
@@ -57,7 +53,8 @@ export function getModuleFeatureState(
 		$module.override !== 'inactive' &&
 		! getModuleAvailability( $module ).isMultisiteBlocked
 	) {
-		return getAccountNeededState( state.feature, undefined, $module );
+		// Keeps the value a switch in flight asked for.
+		return { ...withAccountNeeded( state, $module ), status: state.status };
 	}
 	return getFeatureUnavailableReason( state ) ? { ...state, status: 'inactive' } : state;
 }
@@ -69,9 +66,7 @@ export function getModuleFeatureState(
  * @return The module, or null.
  */
 function getStateModule( state: FeatureState ): MyJetpackModule | null {
-	return state.control.kind === 'module' || state.control.kind === 'connect-account'
-		? ( state.control.module ?? null )
-		: null;
+	return state.control.kind === 'module' ? state.control.module : null;
 }
 
 /**

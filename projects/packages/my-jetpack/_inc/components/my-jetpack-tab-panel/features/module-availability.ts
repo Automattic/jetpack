@@ -71,8 +71,8 @@ export function getModuleAvailability( $module: MyJetpackModule ) {
  * @return The reason to show, or undefined when nothing stops the feature, for example when its plugin is installed or its module is available.
  */
 export function getFeatureUnavailableReason( state: FeatureState ): string | undefined {
-	if ( state.control.kind === 'connect-account' ) {
-		return state.unavailableReason;
+	if ( state.accountNeeded ) {
+		return __( 'Requires a connected WordPress.com account', 'jetpack-my-jetpack' );
 	}
 	if ( state.control.kind === 'module' ) {
 		return getModuleAvailability( state.control.module ).reason;
@@ -84,14 +84,14 @@ export function getFeatureUnavailableReason( state: FeatureState ): string | und
 }
 
 /**
- * The status badge text on the feature card and in its details dialog: Account needed, Unavailable, Active or Inactive.
+ * The status badge text on the feature card and in its details dialog: Needs user account, Unavailable, Active or Inactive.
  *
  * @param state - The feature's live state.
  * @return The status label.
  */
 export function getFeatureStatusLabel( state: FeatureState ): string {
-	if ( state.control.kind === 'connect-account' ) {
-		return __( 'Account needed', 'jetpack-my-jetpack' );
+	if ( state.accountNeeded ) {
+		return __( 'Needs user account', 'jetpack-my-jetpack' );
 	}
 	return getFeatureUnavailableReason( state )
 		? __( 'Unavailable', 'jetpack-my-jetpack' )
@@ -108,7 +108,6 @@ export function isFeatureAvailable( state: FeatureState ): boolean {
 	const { control } = state;
 	return (
 		! state.pending &&
-		control.kind !== 'connect-account' &&
 		( control.kind !== 'install-jetpack' || ! control.blocked ) &&
 		( control.kind !== 'install-plugin' ||
 			! control.blocked ||

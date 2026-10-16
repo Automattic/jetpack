@@ -74,7 +74,8 @@ export function FeatureItem( {
 	const chevron = isRTL() ? chevronLeft : chevronRight;
 	const onClick = useCallback( () => onOpen?.( feature.slug ), [ feature.slug, onOpen ] );
 	const unavailable = getFeatureUnavailableReason( state );
-	const reason = unavailable || getModuleUnavailableNote( state );
+	// The badge already says an account is needed, so the card does not repeat it.
+	const reason = ( ! state.accountNeeded && unavailable ) || getModuleUnavailableNote( state );
 	const statusId = `feature-status-${ feature.slug }`;
 	// Only while the state is first being read. A switch answers its own click, so
 	// mid-request the badge has a value to show and should show it.
@@ -94,7 +95,6 @@ export function FeatureItem( {
 		<div
 			className={ clsx( styles[ 'feature-item' ], className, {
 				[ styles[ 'feature-item--static' ] ]: ! onOpen,
-				[ styles[ 'feature-item--account-needed' ] ]: state.control.kind === 'connect-account',
 			} ) }
 			data-feature={ feature.slug }
 		>

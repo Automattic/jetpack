@@ -38,7 +38,6 @@ const RUNNING_ON_PLAN_STATUSES: string[] = [
  * standalone plugin, so an installed plugin is only the switch when no module applies.
  */
 export type FeatureControl =
-	| { kind: 'connect-account'; module?: MyJetpackModule }
 	| { kind: 'module'; module: MyJetpackModule }
 	| { kind: 'plugin'; plugin: string; override?: 'active' | 'inactive' }
 	| { kind: 'install-plugin'; plugin: string; runsWithoutPlugin?: true; blocked?: InstallBlock }
@@ -55,8 +54,11 @@ export type FeatureState = {
 	pending?: boolean;
 	// True while this feature's own switch has a request out.
 	isSwitching?: boolean;
-	// Whether the feature is switched on and has the account connection it needs.
+	// Whether the feature is switched on here, which is not whether a plan covers it:
+	// the wp-admin sidebar asks the same question, and the two have to agree.
 	status: 'active' | 'inactive';
+	// The site has no connected owner and the feature needs one: its usual action connects one next.
+	accountNeeded?: boolean;
 	control: FeatureControl;
 	// The product behind the feature, for the modal's copy.
 	product?: ProductCamelCase;
@@ -231,16 +233,37 @@ export function resolveFeatureState(
 		( ! accountModule ||
 			( accountModule.override !== 'inactive' &&
 				! getModuleAvailability( accountModule ).isMultisiteBlocked ) );
-	if (
+	const needsAccountHere =
 		needsAccount &&
 		connectionCanHelp &&
-		( $module?.requires_user_connection ||
+		Boolean(
+			$module?.requires_user_connection ||
 			gatedModule?.requires_user_connection ||
 			feature.product === 'social' ||
-			feature.product === 'backup' )
-	) {
-		return getAccountNeededState( feature, product, accountModule );
-	}
+			feature.product === 'backup'
+		);
+	const resolved = resolveMechanism( feature, jetpack, product, $module, gatedModule );
+
+	return needsAccountHere ? withAccountNeeded( resolved, accountModule ) : resolved;
+}
+
+/**
+ * Pick what switches the feature: its Jetpack module, its standalone plugin, or Jetpack itself.
+ *
+ * @param feature     - The feature, from the map-backed catalog.
+ * @param jetpack     - The Jetpack plugin's status.
+ * @param product     - The product behind the feature, if any.
+ * @param $module     - The feature's Jetpack module, if Jetpack is active.
+ * @param gatedModule - The module behind a product whose switch is still behind a pre-release gate.
+ * @return The feature's state.
+ */
+function resolveMechanism(
+	feature: MainFeature,
+	jetpack: MainFeaturePluginStatus,
+	product: ProductCamelCase | undefined,
+	$module: MyJetpackModule | undefined,
+	gatedModule: MyJetpackModule | undefined
+): FeatureState {
 	if ( gatedModule?.available === false ) {
 		return {
 			feature,
@@ -418,24 +441,40 @@ export function useFeaturesNeedsAccount(): boolean {
 }
 
 /**
- * Resolve a feature waiting for a connected account.
+ * Keep the feature's own control while it waits for an account, and say so instead of calling it unavailable.
  *
- * @param feature - The feature.
- * @param product - The product behind it.
- * @param module  - The module behind it, if Jetpack is active.
- * @return The feature's account connection state.
+ * Jetpack reports a module needing an account as unavailable on a site without one; the badge
+ * says that instead, so the switch stays and shows what is saved.
+ *
+ * @param state         - The feature's resolved state.
+ * @param accountModule - The module behind it, if Jetpack is active.
+ * @return The state, marked as waiting for an account.
  */
-export function getAccountNeededState(
-	feature: MainFeature,
-	product?: ProductCamelCase,
-	module?: MyJetpackModule
+export function withAccountNeeded(
+	state: FeatureState,
+	accountModule?: MyJetpackModule
 ): FeatureState {
+	const accountOnly = Boolean(
+		accountModule?.requires_user_connection && accountModule.available === false
+	);
+	const { control } = state;
+	const marked: FeatureState = {
+		...state,
+		accountNeeded: true,
+		...( accountOnly && { unavailableReason: undefined, moduleUnavailableReason: undefined } ),
+	};
+
+	if ( control.kind !== 'module' || ! control.module.requires_user_connection ) {
+		return marked;
+	}
+
 	return {
-		feature,
-		product,
-		status: 'inactive',
-		control: { kind: 'connect-account', module },
-		unavailableReason: __( 'Requires a connected WordPress.com account', 'jetpack-my-jetpack' ),
+		...marked,
+		status: control.module.activated ? 'active' : 'inactive',
+		control: {
+			kind: 'module',
+			module: { ...control.module, available: true, unavailable_reason: false },
+		},
 	};
 }
 

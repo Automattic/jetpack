@@ -197,69 +197,58 @@ describe( 'FeaturesContent', () => {
 		}
 	} );
 
-	it.each( [ 'module', 'connect-account' ] as const )(
-		'applies a saved tag and search to product cards and module rows, and clears only the tag: %s',
-		async kind => {
-			const stats = {
+	it( 'applies a saved tag and search to product cards and module rows, and clears only the tag', async () => {
+		const stats = {
+			...activeStats,
+			feature: { ...activeStats.feature, product: 'stats' },
+		} as FeatureState;
+		mockModules = { stats: { module_tags: [ 'Jetpack Stats' ] } as MyJetpackModule };
+		mockStates = [
+			stats,
+			{
 				...activeStats,
-				feature: { ...activeStats.feature, product: 'stats' },
-			} as FeatureState;
-			mockModules = { stats: { module_tags: [ 'Jetpack Stats' ] } as MyJetpackModule };
-			mockStates = [
-				stats,
-				{
-					...activeStats,
-					feature: {
-						...activeStats.feature,
-						slug: 'other-stats',
-						name: 'Other stats',
-						product: undefined,
-					},
+				feature: {
+					...activeStats.feature,
+					slug: 'other-stats',
+					name: 'Other stats',
+					product: undefined,
 				},
-			];
-			const tagged = moduleState( 'stats-extra', false );
-			if ( tagged.control.kind === 'module' ) {
-				tagged.control = {
-					kind,
-					module: { ...tagged.control.module, module_tags: [ 'Jetpack Stats' ] },
-				};
-			}
-			mockGroups = [
-				{ label: 'Other', states: [ tagged, moduleState( 'stats-unrelated', false ) ] },
-			];
-			const original = window.location.href;
-			try {
-				window.history.replaceState( {}, '', '?modules_fallback=1&s=old&module_tag=old' );
-				renderAt( '/features?search=stats&module_tag=Jetpack%20Stats' );
-				expect( screen.getAllByText( 'grid card' ) ).toHaveLength( 2 );
-				expect( screen.getByRole( 'button', { name: /^All/ } ) ).toHaveTextContent( 'All2' );
-				expect( screen.getByText( 'stats-extra' ) ).toBeInTheDocument();
-				expect( screen.queryByText( 'stats-unrelated' ) ).not.toBeInTheDocument();
-				await userEvent.click( screen.getByRole( 'button', { name: 'Clear tag' } ) );
-				expect( screen.getByRole( 'searchbox', { name: 'Search features' } ) ).toHaveFocus();
-				expect( screen.getByTestId( 'route' ) ).toHaveTextContent( '?search=stats' );
-				expect( screen.getAllByText( 'grid card' ) ).toHaveLength( 4 );
-				expect( screen.getByText( 'stats-unrelated' ) ).toBeInTheDocument();
-				expect( screen.getByRole( 'link', { name: 'Classic Modules list' } ) ).toHaveAttribute(
-					'href',
-					expect.stringContaining( '&s=stats' )
-				);
-				expect(
-					screen.getByRole( 'link', { name: 'Classic Modules list' } ).getAttribute( 'href' )
-				).not.toContain( 'module_tag' );
-				await userEvent.type(
-					screen.getByRole( 'searchbox', { name: 'Search features' } ),
-					' new'
-				);
-				expect( screen.getByRole( 'link', { name: 'Classic Modules list' } ) ).toHaveAttribute(
-					'href',
-					expect.stringContaining( 's=stats+new' )
-				);
-			} finally {
-				window.history.replaceState( {}, '', original );
-			}
+			},
+		];
+		const tagged = moduleState( 'stats-extra', false );
+		if ( tagged.control.kind === 'module' ) tagged.control.module.module_tags = [ 'Jetpack Stats' ];
+		mockGroups = [
+			{ label: 'Other', states: [ tagged, moduleState( 'stats-unrelated', false ) ] },
+		];
+		const original = window.location.href;
+		try {
+			window.history.replaceState( {}, '', '?modules_fallback=1&s=old&module_tag=old' );
+			renderAt( '/features?search=stats&module_tag=Jetpack%20Stats' );
+			expect( screen.getAllByText( 'grid card' ) ).toHaveLength( 2 );
+			expect( screen.getByRole( 'button', { name: /^All/ } ) ).toHaveTextContent( 'All2' );
+			expect( screen.getByText( 'stats-extra' ) ).toBeInTheDocument();
+			expect( screen.queryByText( 'stats-unrelated' ) ).not.toBeInTheDocument();
+			await userEvent.click( screen.getByRole( 'button', { name: 'Clear tag' } ) );
+			expect( screen.getByRole( 'searchbox', { name: 'Search features' } ) ).toHaveFocus();
+			expect( screen.getByTestId( 'route' ) ).toHaveTextContent( '?search=stats' );
+			expect( screen.getAllByText( 'grid card' ) ).toHaveLength( 4 );
+			expect( screen.getByText( 'stats-unrelated' ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'link', { name: 'Classic Modules list' } ) ).toHaveAttribute(
+				'href',
+				expect.stringContaining( '&s=stats' )
+			);
+			expect(
+				screen.getByRole( 'link', { name: 'Classic Modules list' } ).getAttribute( 'href' )
+			).not.toContain( 'module_tag' );
+			await userEvent.type( screen.getByRole( 'searchbox', { name: 'Search features' } ), ' new' );
+			expect( screen.getByRole( 'link', { name: 'Classic Modules list' } ) ).toHaveAttribute(
+				'href',
+				expect.stringContaining( 's=stats+new' )
+			);
+		} finally {
+			window.history.replaceState( {}, '', original );
 		}
-	);
+	} );
 
 	it.each( [
 		[ 'search=related', false ],

@@ -187,6 +187,25 @@ describe( 'ModuleToggle', () => {
 		expect( mockCreateSuccessNotice ).toHaveBeenCalled();
 	} );
 
+	it.each( [
+		[ 'sends nothing when the surface takes over switching on', false, [] ],
+		[ 'switches off without asking the surface', true, [ { name: 'monitor', active: false } ] ],
+	] )( '%s', async ( _, activated, requests ) => {
+		const interceptActivation = jest.fn( () => true );
+		render(
+			<ModuleToggle
+				module={ buildModule( { module: 'monitor', activated } ) }
+				reloadAfterToggle={ false }
+				interceptActivation={ interceptActivation }
+			/>
+		);
+
+		await userEvent.click( screen.getByRole( 'checkbox' ) );
+
+		expect( interceptActivation ).toHaveBeenCalledTimes( activated ? 0 : 1 );
+		expect( mockToggleModule.mock.calls ).toEqual( requests.map( request => [ request ] ) );
+	} );
+
 	it( 'sends a second module update only after the first has settled', async () => {
 		let settleFirst: ( value: boolean ) => void = () => undefined;
 		mockToggleModule.mockImplementationOnce(

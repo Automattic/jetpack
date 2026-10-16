@@ -47,6 +47,32 @@ export function getFeatureCheckoutReturnUrl( hash = window.location.hash ) {
 		: '';
 }
 
+// What an account connection started from Features brings back: the open feature, layout, search and tag.
+// The status filter is left behind, since connecting can move the feature out of it.
+const CONNECT_RETURN_PARAMS = [ 'feature', 'view', 'search', 'module_tag' ];
+
+/**
+ * Where an account connection started from Features returns to.
+ *
+ * Read from the hash rather than the router, so it still answers once an install has replaced the button that asked.
+ *
+ * @param hash - The page's location hash.
+ * @return The admin URL of the same Features view.
+ */
+export function getFeatureConnectReturnUrl( hash = window.location.hash ) {
+	const current = new URLSearchParams( hash.split( '?' )[ 1 ] ?? '' );
+	const kept = new URLSearchParams();
+	CONNECT_RETURN_PARAMS.forEach( key => {
+		const value = current.get( key );
+		if ( value ) {
+			kept.set( key, value );
+		}
+	} );
+	const query = kept.toString();
+
+	return getMyJetpackUrl( `#${ MyJetpackRoutes.Features }${ query ? `?${ query }` : '' }` );
+}
+
 /**
  * Where links to manage Jetpack modules go, as the server decided: the Features tab when the site can use it, else the classic Modules screen.
  *

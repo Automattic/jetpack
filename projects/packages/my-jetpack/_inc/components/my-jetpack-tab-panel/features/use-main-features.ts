@@ -128,7 +128,7 @@ function requestPluginSwitch(
  *
  * @param plugin - The plugin's WordPress.org slug, or `jetpack`.
  * @param name   - What to call it in the notice.
- * @return The handler and whether a request is in flight.
+ * @return The handler, which resolves to whether the action succeeded, and whether a request is in flight.
  */
 export function useFeaturePlugin( plugin: string, name: string ) {
 	const queryClient = useQueryClient();
@@ -136,7 +136,7 @@ export function useFeaturePlugin( plugin: string, name: string ) {
 	const { invalidateResolution } = useDispatch( modulesStore );
 
 	const mutationKey = pluginMutationKey( plugin );
-	const { mutate } = useMutation( {
+	const { mutateAsync } = useMutation( {
 		mutationKey,
 		mutationFn: async ( action: PluginAction ) => {
 			// A read already in flight would land after this request and overwrite what it
@@ -198,7 +198,16 @@ export function useFeaturePlugin( plugin: string, name: string ) {
 	// The asked-for value also covers a bulk switch, which skips this mutation.
 	const isAsked = useRequestedSwitch( pluginSwitchKey( plugin ) ) !== null;
 	const isBusy = useIsMutating( { mutationKey } ) > 0 || isAsked;
-	const run = useCallback( ( action: PluginAction ) => mutate( action ), [ mutate ] );
+	// The promise rather than mutate's own callbacks: an install swaps the Install button for a
+	// switch, and a callback passed by the unmounted button would never run.
+	const run = useCallback(
+		( action: PluginAction ): Promise< boolean > =>
+			mutateAsync( action ).then(
+				() => true,
+				() => false
+			),
+		[ mutateAsync ]
+	);
 
 	return { run, isBusy };
 }

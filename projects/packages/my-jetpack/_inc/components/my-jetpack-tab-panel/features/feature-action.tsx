@@ -1,19 +1,37 @@
 import { LoadingPlaceholder } from '@automattic/jetpack-components';
 import { getUserConnectionUrl } from '@automattic/jetpack-connection';
-import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { FormToggle } from '@wordpress/components';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { Button, ButtonLink } from '@wordpress/ui';
 import { useCallback } from 'react';
-import { MyJetpackRoutes } from '../../../constants';
+import { leavePageFor } from '../../../utils/reload-page';
 import { ModuleToggle } from '../../module-toggle';
-import { getSwitchLabel } from '../utils';
+import { getFeatureConnectReturnUrl, getSwitchLabel } from '../utils';
 import { getFeatureManageUrl, getForcedReason } from './feature-state';
 import { useFeaturesTracking } from './features-tracking-context';
 import styles from './styles.module.scss';
 import { useFeaturePlugin } from './use-main-features';
 import type { FeatureState } from './feature-state';
-import type { FeatureActionOrigin } from './features-tracking-context';
+import type { FeatureActionOrigin, FeatureActionType } from './features-tracking-context';
+
+/**
+ * Leave to connect a WordPress.com account, coming back to the same Features view.
+ *
+ * Called once the feature's own action has done what it can without the account.
+ *
+ * @return Starts the connection for the feature the action was taken on.
+ */
+export function useAccountConnection() {
+	const tracking = useFeaturesTracking();
+
+	return useCallback(
+		( state: FeatureState, origin: FeatureActionOrigin, action: FeatureActionType ) => {
+			tracking?.trackConnectionStart( state, origin, action );
+			leavePageFor( getUserConnectionUrl( { redirect_url: getFeatureConnectReturnUrl() } ) );
+		},
+		[ tracking ]
+	);
+}
 
 type PluginToggleProps = {
 	state: FeatureState;
@@ -39,14 +57,19 @@ type PluginToggleProps = {
 function PluginToggle( { state, origin, plugin, isOn, name, describedby }: PluginToggleProps ) {
 	const { run, isBusy } = useFeaturePlugin( plugin, name );
 	const tracking = useFeaturesTracking();
+	const connectAccount = useAccountConnection();
 	const onChange = useCallback( () => {
 		tracking?.trackFeatureAction( {
 			state,
 			action: isOn ? 'deactivate' : 'activate',
 			origin,
 		} );
-		run( isOn ? 'deactivate' : 'activate' );
-	}, [ isOn, origin, run, state, tracking ] );
+		run( isOn ? 'deactivate' : 'activate' ).then( done => {
+			if ( done && ! isOn && state.accountNeeded ) {
+				connectAccount( state, origin, 'activate' );
+			}
+		} );
+	}, [ connectAccount, isOn, origin, run, state, tracking ] );
 
 	return (
 		<FormToggle
@@ -90,10 +113,15 @@ export function InstallButton( {
 }: InstallButtonProps ) {
 	const { run, isBusy } = useFeaturePlugin( plugin, name );
 	const tracking = useFeaturesTracking();
+	const connectAccount = useAccountConnection();
 	const onClick = useCallback( () => {
 		tracking?.trackFeatureAction( { state, action, origin } );
-		run( action );
-	}, [ action, origin, run, state, tracking ] );
+		run( action ).then( done => {
+			if ( done && state?.accountNeeded ) {
+				connectAccount( state, origin, action );
+			}
+		} );
+	}, [ action, connectAccount, origin, run, state, tracking ] );
 	const busyLabel =
 		action === 'install'
 			? __( 'Installing…', 'jetpack-my-jetpack' )
@@ -145,6 +173,15 @@ export function FeatureAction( { state, describedby, origin = 'card' }: FeatureA
 			} ),
 		[ origin, state, tracking ]
 	);
+	const connectAccount = useAccountConnection();
+	// Switching on a module that needs an account connects one first and leaves the module off.
+	const interceptModuleActivation = useCallback( () => {
+		if ( ! state.accountNeeded ) {
+			return false;
+		}
+		connectAccount( state, origin, 'activate' );
+		return true;
+	}, [ connectAccount, origin, state ] );
 
 	if ( state.pending ) {
 		return (
@@ -154,8 +191,6 @@ export function FeatureAction( { state, describedby, origin = 'card' }: FeatureA
 	}
 
 	switch ( control.kind ) {
-		case 'connect-account':
-			return <ConnectAccountButton state={ state } origin={ origin } describedby={ describedby } />;
 		case 'module': {
 			if ( getForcedReason( state ) ) {
 				return null;
@@ -167,6 +202,7 @@ export function FeatureAction( { state, describedby, origin = 'card' }: FeatureA
 					reloadAfterToggle={ false }
 					describedby={ describedby }
 					onSwitch={ onModuleSwitch }
+					interceptActivation={ interceptModuleActivation }
 				/>
 			);
 		}
@@ -223,45 +259,6 @@ export function FeatureAction( { state, describedby, origin = 'card' }: FeatureA
 		default:
 			return null;
 	}
-}
-
-/**
- * A "Connect" button that starts the WordPress.com account connection and returns to the Features tab.
- *
- * @param props             - The component props.
- * @param props.state       - The feature's live state.
- * @param props.origin      - Where the connection link is shown.
- * @param props.describedby - Id of the existing status text, when shown.
- * @return The connection link.
- */
-export function ConnectAccountButton( {
-	state,
-	origin,
-	describedby,
-}: Pick< FeatureActionProps, 'state' | 'describedby' > & { origin: FeatureActionOrigin } ) {
-	const tracking = useFeaturesTracking();
-	const onClick = useCallback(
-		() => tracking?.trackConnectClick( state, origin ),
-		[ origin, state, tracking ]
-	);
-	return (
-		<ButtonLink
-			href={ getUserConnectionUrl( {
-				redirect_url: getMyJetpackUrl( `#${ MyJetpackRoutes.Features }` ),
-			} ) }
-			variant="outline"
-			size="compact"
-			onClick={ onClick }
-			aria-describedby={ describedby }
-			aria-label={ sprintf(
-				/* translators: %s is the feature name. */
-				__( 'Connect account for %s', 'jetpack-my-jetpack' ),
-				state.feature.name
-			) }
-		>
-			{ __( 'Connect', 'jetpack-my-jetpack' ) }
-		</ButtonLink>
-	);
 }
 
 type JetpackButtonProps = {

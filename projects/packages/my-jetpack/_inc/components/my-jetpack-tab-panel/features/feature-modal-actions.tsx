@@ -3,7 +3,7 @@ import { Badge, Button, ButtonLink, Stack } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { useModuleActivation } from '../../module-toggle';
 import { getSwitchLabel } from '../utils';
-import { ConnectAccountButton, InstallButton, JetpackButton } from './feature-action';
+import { InstallButton, JetpackButton, useAccountConnection } from './feature-action';
 import { UpgradeButton } from './feature-paid';
 import { getFeatureManageUrl, getForcedReason } from './feature-state';
 import { useFeaturesTracking } from './features-tracking-context';
@@ -66,14 +66,19 @@ function ModuleSwitch( { state, module: $module, name }: ModuleSwitchProps ) {
 		reload: false,
 	} );
 	const tracking = useFeaturesTracking();
+	const connectAccount = useAccountConnection();
 	const onClick = useCallback( () => {
 		tracking?.trackFeatureAction( {
 			state,
 			action: isActive ? 'deactivate' : 'activate',
 			origin: 'modal',
 		} );
+		if ( ! isActive && state.accountNeeded ) {
+			connectAccount( state, 'modal', 'activate' );
+			return;
+		}
 		setModuleActive( ! isActive );
-	}, [ isActive, setModuleActive, state, tracking ] );
+	}, [ connectAccount, isActive, setModuleActive, state, tracking ] );
 
 	return (
 		<SwitchButton
@@ -105,14 +110,19 @@ type PluginSwitchProps = {
 function PluginSwitch( { state, plugin, isOn, name }: PluginSwitchProps ) {
 	const { run, isBusy } = useFeaturePlugin( plugin, name );
 	const tracking = useFeaturesTracking();
+	const connectAccount = useAccountConnection();
 	const onClick = useCallback( () => {
 		tracking?.trackFeatureAction( {
 			state,
 			action: isOn ? 'deactivate' : 'activate',
 			origin: 'modal',
 		} );
-		run( isOn ? 'deactivate' : 'activate' );
-	}, [ isOn, run, state, tracking ] );
+		run( isOn ? 'deactivate' : 'activate' ).then( done => {
+			if ( done && ! isOn && state.accountNeeded ) {
+				connectAccount( state, 'modal', 'activate' );
+			}
+		} );
+	}, [ connectAccount, isOn, run, state, tracking ] );
 
 	return <SwitchButton isOn={ isOn } name={ name } disabled={ isBusy } onClick={ onClick } />;
 }
@@ -122,8 +132,8 @@ type FeatureModalActionsProps = {
 };
 
 /**
- * The modal offers Connect when an account is needed; otherwise Open, activation,
- * installation, and Upgrade where a plan sells more.
+ * What the modal offers to do with a feature: Open once it is running, the button that
+ * switches it, installs its plugin, or installs Jetpack, and Upgrade where a plan sells more.
  *
  * @param {FeatureModalActionsProps} props       - The component props.
  * @param {FeatureState}             props.state - Live state for the feature.
@@ -143,10 +153,6 @@ export function FeatureModalActions( { state }: FeatureModalActionsProps ) {
 		() => tracking?.trackManageClick( state ),
 		[ state, tracking ]
 	);
-
-	if ( control.kind === 'connect-account' ) {
-		return <ConnectAccountButton state={ state } origin="modal" />;
-	}
 
 	return (
 		<>

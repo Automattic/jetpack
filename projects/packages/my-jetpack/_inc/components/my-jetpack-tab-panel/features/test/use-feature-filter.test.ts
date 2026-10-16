@@ -48,7 +48,6 @@ describe( 'matchesFilter', () => {
 			{ kind: 'install-jetpack', installed: false, blocked: 'disabled' },
 			false,
 		],
-		[ 'account connection', { kind: 'connect-account' }, false ],
 		[
 			'paid product running without its plugin',
 			{

@@ -136,7 +136,7 @@ describe( 'installing a plugin', () => {
 
 		const { result } = renderInstall();
 
-		act( () => result.current.plugin.run( 'install' ) );
+		act( () => void result.current.plugin.run( 'install' ) );
 
 		await waitFor( () => expect( result.current.plugin.isBusy ).toBe( true ) );
 		expect( result.current.crm?.control.kind ).toBe( 'install-plugin' );
@@ -149,7 +149,7 @@ describe( 'installing a plugin', () => {
 		expect( result.current.plugin.isBusy ).toBe( false );
 	} );
 
-	it( 'keeps a failed install on the feature instead of a notice, until it is tried again', async () => {
+	it( 'keeps a failed install on the feature instead of a notice, until it is tried again, and says which attempt worked', async () => {
 		let attempts = 0;
 		mockApiFetch.mockImplementation( ( { method }: { method?: string } ) => {
 			if ( method !== 'POST' ) {
@@ -163,16 +163,23 @@ describe( 'installing a plugin', () => {
 		} );
 
 		const { result } = renderInstall();
+		let outcome: Promise< boolean > = Promise.resolve( false );
 
-		act( () => result.current.plugin.run( 'install' ) );
+		act( () => {
+			outcome = result.current.plugin.run( 'install' );
+		} );
 
 		await waitFor( () => expect( result.current.error ).toBe( 'Could not download.' ) );
 		expect( mockCreateErrorNotice ).not.toHaveBeenCalled();
+		await expect( outcome ).resolves.toBe( false );
 
-		act( () => result.current.plugin.run( 'install' ) );
+		act( () => {
+			outcome = result.current.plugin.run( 'install' );
+		} );
 
 		await waitFor( () => expect( result.current.crm?.control.kind ).toBe( 'plugin' ) );
 		expect( result.current.error ).toBeNull();
+		await expect( outcome ).resolves.toBe( true );
 	} );
 
 	it( 'marks the install blocked, and why, when the user cannot make it', () => {
@@ -259,7 +266,7 @@ describe( 'useFeaturePlugin', () => {
 				wrapper: wrapper( client ),
 			} );
 
-			act( () => result.current.run( action ) );
+			act( () => void result.current.run( action ) );
 
 			await waitFor( () =>
 				expect( window.myJetpackInitialState.products.items.videopress.is_plugin_active ).toBe(
@@ -300,7 +307,7 @@ describe( 'useFeaturePlugin', () => {
 
 		expect( result.current.status( 'anti-spam' ) ).toBe( 'active' );
 
-		act( () => result.current.akismet.run( 'deactivate' ) );
+		act( () => void result.current.akismet.run( 'deactivate' ) );
 
 		// Well before the request settles at 400ms, so this is the asked-for value.
 		await waitFor( () => expect( result.current.status( 'anti-spam' ) ).toBe( 'inactive' ), {
@@ -326,7 +333,7 @@ describe( 'useFeaturePlugin', () => {
 
 		await waitFor( () => expect( result.current.status( 'anti-spam' ) ).toBe( 'active' ) );
 
-		act( () => result.current.akismet.run( 'deactivate' ) );
+		act( () => void result.current.akismet.run( 'deactivate' ) );
 
 		await waitFor( () => expect( result.current.status( 'anti-spam' ) ).toBe( 'inactive' ) );
 		await waitFor( () => expect( result.current.status( 'anti-spam' ) ).toBe( 'active' ) );
@@ -354,8 +361,8 @@ describe( 'useFeaturePlugin', () => {
 
 		await waitFor( () => expect( result.current.status( 'boost' ) ).toBe( 'active' ) );
 
-		act( () => result.current.akismet.run( 'deactivate' ) );
-		act( () => result.current.boost.run( 'deactivate' ) );
+		act( () => void result.current.akismet.run( 'deactivate' ) );
+		act( () => void result.current.boost.run( 'deactivate' ) );
 
 		await waitFor( () => expect( result.current.status( 'boost' ) ).toBe( 'inactive' ) );
 

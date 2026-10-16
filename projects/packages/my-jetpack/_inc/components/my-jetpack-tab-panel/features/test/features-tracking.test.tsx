@@ -3,7 +3,7 @@ import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import useAnalytics from '../../../../hooks/use-analytics';
-import { reloadPage } from '../../../../utils/reload-page';
+import { leavePageFor, reloadPage } from '../../../../utils/reload-page';
 import { FeaturesContent } from '../content';
 import { FeaturesEmptyState } from '../empty-state';
 import { FeatureAction } from '../feature-action';
@@ -15,12 +15,15 @@ import type { FeatureFilter } from '../use-feature-filter';
 import type { MoreFeaturesGroup } from '../use-more-features';
 import type { ReactNode } from 'react';
 
-const mockRun = jest.fn();
+const mockRun = jest.fn< Promise< boolean >, [ unknown ] >( () => Promise.resolve( true ) );
 const mockSetModuleActive = jest.fn();
 const recordEvent = jest.fn();
 
 jest.mock( '../../../../hooks/use-analytics' );
-jest.mock( '../../../../utils/reload-page', () => ( { reloadPage: jest.fn() } ) );
+jest.mock( '../../../../utils/reload-page', () => ( {
+	reloadPage: jest.fn(),
+	leavePageFor: jest.fn(),
+} ) );
 
 jest.mock( '../use-all-jetpack-modules', () => ( {
 	useAllJetpackModules: () => ( { modules: {}, isLoading: false, hasLoaded: true } ),
@@ -40,11 +43,16 @@ jest.mock( '../use-main-features', () => ( {
 
 // The real switch calls this; that it does is covered by the module-toggle tests, so here
 // it is held onto and called directly.
-const mockModuleSwitch: { onSwitch?: ( active: boolean ) => void } = {};
+type MockModuleSwitch = {
+	onSwitch?: ( active: boolean ) => void;
+	interceptActivation?: () => boolean;
+};
+const mockModuleSwitch: MockModuleSwitch = {};
 
 jest.mock( '../../../module-toggle', () => ( {
-	ModuleToggle: ( { onSwitch }: { onSwitch?: ( active: boolean ) => void } ) => {
+	ModuleToggle: ( { onSwitch, interceptActivation }: MockModuleSwitch ) => {
 		mockModuleSwitch.onSwitch = onSwitch;
+		mockModuleSwitch.interceptActivation = interceptActivation;
 
 		// ds-allow: input -- stands in for the real ModuleToggle, which reaches the modules store.
 		return <input type="checkbox" aria-label="Module toggle" readOnly />;
@@ -335,10 +343,19 @@ describe( 'Features tab modal tracking', () => {
 } );
 
 describe( 'Feature action tracking', () => {
-	it.each( [ 'card', 'modal', 'more_features' ] as const )(
-		'records the connection click from %s before navigating',
-		async origin => {
-			const state = buildState( { kind: 'connect-account' } );
+	it.each( [
+		[ 'an install from the card', 'card', 'install', false ],
+		[ 'an install from the modal', 'modal', 'install', false ],
+		[ 'a module switched on', 'more_features', 'activate', true ],
+	] as const )(
+		'records %s, then one connection start rather than a success',
+		async ( _, origin, action, isModule ) => {
+			const state = buildState(
+				isModule
+					? { kind: 'module', module: { module: 'monitor', activated: false } as never }
+					: { kind: 'install-plugin', plugin: 'jetpack-boost' },
+				{ accountNeeded: true }
+			);
 			state.feature.product = 'boost';
 			renderTracked(
 				origin === 'modal' ? (
@@ -347,15 +364,27 @@ describe( 'Feature action tracking', () => {
 					<FeatureAction state={ state } origin={ origin } />
 				)
 			);
-			const link = screen.getByRole( 'link', { name: 'Connect account for Boost' } );
-			link.addEventListener( 'click', event => event.preventDefault() );
-			await userEvent.click( link );
-			expect( recordEvent ).toHaveBeenCalledTimes( 1 );
-			expect( lastEvent( 'jetpack_myjetpack_feature_fixconnection_click' ) ).toMatchObject( {
+
+			if ( isModule ) {
+				act( () => {
+					mockModuleSwitch.onSwitch?.( true );
+					mockModuleSwitch.interceptActivation?.();
+				} );
+			} else {
+				await userEvent.click( screen.getByRole( 'button', { name: 'Install' } ) );
+			}
+
+			await waitFor( () => expect( leavePageFor ).toHaveBeenCalledTimes( 1 ) );
+			expect( recordEvent.mock.calls.map( ( [ name ] ) => name ) ).toEqual( [
+				'jetpack_myjetpack_feature_action',
+				'jetpack_myjetpack_feature_connection_start',
+			] );
+			expect( lastEvent( 'jetpack_myjetpack_feature_connection_start' ) ).toMatchObject( {
+				action,
 				origin,
 				product: 'boost',
 				feature_slug: 'boost',
-				control_kind: 'connect-account',
+				account_needed: true,
 				current_filter: 'all',
 				view: 'grid',
 				event_version: 1,

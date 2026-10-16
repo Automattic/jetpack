@@ -51,7 +51,11 @@ type FeaturesTrackingContextType = {
 	trackModalView: ( state: FeatureState, trigger: ModalTrigger ) => void;
 	trackModalClose: ( state: FeatureState ) => void;
 	trackManageClick: ( state: FeatureState ) => void;
-	trackConnectClick: ( state: FeatureState, origin: FeatureActionOrigin ) => void;
+	trackConnectionStart: (
+		state: FeatureState,
+		origin: FeatureActionOrigin,
+		action: FeatureActionType
+	) => void;
 	trackPlanClick: ( state: FeatureState, plan: string ) => void;
 	trackFeatureAction: ( params: FeatureActionParams ) => void;
 	trackBulkAction: ( params: BulkActionParams ) => void;
@@ -80,6 +84,7 @@ function featureProps( state: FeatureState ) {
 		feature_status: state.status,
 		control_kind: state.control.kind,
 		is_essential: Boolean( feature.essential ),
+		account_needed: Boolean( state.accountNeeded ),
 		...when( 'plugin', feature.plugin || '' ),
 		...when( 'plugin_status', feature.plugin_status || '' ),
 	};
@@ -199,9 +204,12 @@ export function FeaturesTrackingProvider( {
 		[ context, recordEvent ]
 	);
 
-	const trackConnectClick = useCallback(
-		( state: FeatureState, origin: FeatureActionOrigin ) => {
-			recordEvent( 'jetpack_myjetpack_feature_fixconnection_click', {
+	// Recorded as the page leaves to connect an account, after the action the click asked for:
+	// it says an account connection started, not that the feature is now on.
+	const trackConnectionStart = useCallback(
+		( state: FeatureState, origin: FeatureActionOrigin, action: FeatureActionType ) => {
+			recordEvent( 'jetpack_myjetpack_feature_connection_start', {
+				action,
 				origin,
 				...when( 'product', state.feature.product || '' ),
 				...featureProps( state ),
@@ -286,7 +294,7 @@ export function FeaturesTrackingProvider( {
 			trackModalView,
 			trackModalClose,
 			trackManageClick,
-			trackConnectClick,
+			trackConnectionStart,
 			trackPlanClick,
 			trackFeatureAction,
 			trackBulkAction,
@@ -294,7 +302,7 @@ export function FeaturesTrackingProvider( {
 			trackEmptyStateClick,
 		} ),
 		[
-			trackConnectClick,
+			trackConnectionStart,
 			trackBulkAction,
 			trackEmptyStateClick,
 			trackEmptyStateView,

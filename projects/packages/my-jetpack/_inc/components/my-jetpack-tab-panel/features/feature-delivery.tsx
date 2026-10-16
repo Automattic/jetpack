@@ -27,8 +27,8 @@ function getNote( state: FeatureState, pluginName: string ): string {
 	}
 
 	switch ( control.kind ) {
-		case 'install-plugin':
-			return sprintf(
+		case 'install-plugin': {
+			const installNote = sprintf(
 				/* translators: %s is a plugin name. Keep the <plugin> tags around it. */
 				__(
 					'Installing adds the free <plugin>%s</plugin> plugin and turns it on. You won’t be charged.',
@@ -36,9 +36,19 @@ function getNote( state: FeatureState, pluginName: string ): string {
 				),
 				pluginName
 			);
+			const installAndConnectNote = sprintf(
+				/* translators: %s is a plugin name. Keep the <plugin> tags around it. */
+				__(
+					'Installing adds the free <plugin>%s</plugin> plugin and turns it on, then connects your WordPress.com account. You won’t be charged.',
+					'jetpack-my-jetpack'
+				),
+				pluginName
+			);
+			return state.accountNeeded ? installAndConnectNote : installNote;
+		}
 
-		case 'plugin':
-			return sprintf(
+		case 'plugin': {
+			const activateNote = sprintf(
 				/* translators: %s is a plugin name. Keep the <plugin> tags around it. */
 				__(
 					'The <plugin>%s</plugin> plugin is already installed. Activating turns it on.',
@@ -46,12 +56,28 @@ function getNote( state: FeatureState, pluginName: string ): string {
 				),
 				pluginName
 			);
+			const activateAndConnectNote = sprintf(
+				/* translators: %s is a plugin name. Keep the <plugin> tags around it. */
+				__(
+					'The <plugin>%s</plugin> plugin is already installed. Activating turns it on, then connects your WordPress.com account.',
+					'jetpack-my-jetpack'
+				),
+				pluginName
+			);
+			return state.accountNeeded ? activateAndConnectNote : activateNote;
+		}
 
-		case 'module':
-			return __(
+		case 'module': {
+			const moduleNote = __(
 				'Built into Jetpack, so there is nothing to install. Activating turns it on.',
 				'jetpack-my-jetpack'
 			);
+			const connectFirstNote = __(
+				'Built into Jetpack, so there is nothing to install. Activating connects your WordPress.com account first. After connecting, switch it on if it’s still off.',
+				'jetpack-my-jetpack'
+			);
+			return state.accountNeeded ? connectFirstNote : moduleNote;
+		}
 
 		case 'install-jetpack':
 			return sprintf(
@@ -77,18 +103,16 @@ function getNote( state: FeatureState, pluginName: string ): string {
  */
 export function FeatureDelivery( { state }: FeatureDeliveryProps ) {
 	const { feature } = state;
-	if ( state.control.kind === 'connect-account' ) {
-		return <Text variant="body-sm">{ state.unavailableReason }</Text>;
-	}
-
 	const moduleNote = getModuleUnavailableNote( state );
+	const isSettled = state.status === 'active' || Boolean( getForcedReason( state ) );
 	// An active plugin does not remove its module's limitation.
-	if ( state.status === 'active' || getForcedReason( state ) ) {
+	// One still waiting for an account keeps its setup note, since that step is still ahead.
+	if ( isSettled && ! state.accountNeeded ) {
 		return moduleNote ? <Text variant="body-sm">{ moduleNote }</Text> : null;
 	}
 
 	const pluginName = feature.plugin_name || feature.name;
-	const note = getNote( state, pluginName );
+	const note = isSettled ? '' : getNote( state, pluginName );
 	// A blocked install never reaches the next step, so naming it would only mislead.
 	const setupNote = getInstallBlockReason( state ) ? '' : feature.setup_note;
 

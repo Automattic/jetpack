@@ -249,7 +249,11 @@ it( 'keeps an account-required extra module visible and excludes it from Availab
 	} as MyJetpackModule;
 	const state = getModuleFeatureState( module, {}, true );
 	const accountGroups = [ { label: 'Other', states: [ state ] } ];
-	expect( state.control.kind ).toBe( 'connect-account' );
+	expect( state.control ).toEqual( {
+		kind: 'module',
+		module: expect.objectContaining( { module: 'notes', available: true } ),
+	} );
+	expect( state.accountNeeded ).toBe( true );
 	expect( filterMoreFeatures( accountGroups, 'all', '' )[ 0 ].states ).toEqual( [ state ] );
 	expect( filterMoreFeatures( accountGroups, 'available', '' ) ).toEqual( [] );
 	expect( filterMoreFeatures( accountGroups, 'all', 'alerts' )[ 0 ].states ).toEqual( [ state ] );

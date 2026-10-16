@@ -97,6 +97,20 @@ type FeatureModalProps = {
 };
 
 /**
+ * The details window's status badge style, matching the card's for a feature waiting for an account.
+ *
+ * @param state    - Live state for the feature.
+ * @param isActive - Whether the feature is running.
+ * @return The badge intent.
+ */
+function getModalStatusIntent( state: FeatureState, isActive: boolean ) {
+	if ( state.accountNeeded ) {
+		return 'none';
+	}
+	return isActive ? 'stable' : 'draft';
+}
+
+/**
  * The feature's details, shown over the grid rather than on a page of its own.
  *
  * @param {FeatureModalProps} props          - The component props.
@@ -239,7 +253,7 @@ export function FeatureModal( {
 						<Stack direction="column" gap="xs" className={ styles[ 'modal-heading' ] }>
 							<Dialog.Title>{ feature.name }</Dialog.Title>
 							<Stack direction="row" align="center" gap="sm" wrap="wrap">
-								<Badge intent={ isActive ? 'stable' : 'draft' }>
+								<Badge intent={ getModalStatusIntent( state, isActive ) }>
 									{ getFeatureStatusLabel( state ) }
 								</Badge>
 								{ feature.essential ? (

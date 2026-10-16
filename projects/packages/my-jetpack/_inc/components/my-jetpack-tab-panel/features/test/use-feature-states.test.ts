@@ -147,14 +147,14 @@ describe( 'useFeatureStates, while a module switch is answering a click', () => 
 
 describe( 'Features account connection gate', () => {
 	it.each( [
-		[ 'registered without an owner', true, false, false, false, 'connect-account' ],
-		[ 'owner connected', true, true, false, false, 'module' ],
-		[ 'unregistered', false, false, false, false, 'module' ],
-		[ 'offline mode', true, false, true, false, 'module' ],
-		[ 'offline Features', true, false, false, true, 'module' ],
+		[ 'registered without an owner', true, false, false, false, true ],
+		[ 'owner connected', true, true, false, false, false ],
+		[ 'unregistered', false, false, false, false, false ],
+		[ 'offline mode', true, false, true, false, false ],
+		[ 'offline Features', true, false, false, true, false ],
 	] )(
-		'%s preserves its expected action',
-		( name, isRegistered, hasConnectedOwner, isOfflineMode, isOfflineFeatures, kind ) => {
+		'%s keeps the module switch and decides whether it waits for an account',
+		( name, isRegistered, hasConnectedOwner, isOfflineMode, isOfflineFeatures, accountNeeded ) => {
 			mockConnection.mockReturnValue( {
 				isRegistered,
 				hasConnectedOwner,
@@ -172,7 +172,8 @@ describe( 'Features account connection gate', () => {
 				},
 			} );
 			const { result } = renderHook( () => useFeatureStates( state( 'active' ) ) );
-			expect( result.current.states[ 0 ].control.kind ).toBe( kind );
+			expect( result.current.states[ 0 ].control.kind ).toBe( 'module' );
+			expect( Boolean( result.current.states[ 0 ].accountNeeded ) ).toBe( accountNeeded );
 		}
 	);
 } );
