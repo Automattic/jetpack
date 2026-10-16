@@ -62,11 +62,6 @@ type LocationsInnerProps = {
 	geoGranularity: NonNullable< LocationsAttributes[ 'geoGranularity' ] >;
 };
 
-/**
- * Locations widget inner component. Reads report params from WidgetRoot
- * context. Attributes arrive already normalized by the outer component, so
- * defaults are applied in exactly one place.
- */
 /** Names the rows at a drill-down depth: depth 1 lists a country's regions, depth 2 a region's cities. */
 function getLevelLabel( depth: number, geoGranularity: GeoGranularity ): string {
 	const level = depth === 0 ? geoGranularity : ( [ 'region', 'city' ] as const )[ depth - 1 ];
@@ -81,6 +76,11 @@ function getLevelLabel( depth: number, geoGranularity: GeoGranularity ): string 
 	}
 }
 
+/**
+ * Locations widget inner component. Reads report params from WidgetRoot
+ * context. Attributes arrive already normalized by the outer component, so
+ * defaults are applied in exactly one place.
+ */
 function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 	// Below `WidgetRoot`, which provides the query client.
 	usePrefetchViewerCountry();
