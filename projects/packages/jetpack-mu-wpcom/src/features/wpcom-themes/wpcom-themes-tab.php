@@ -6,7 +6,6 @@
  */
 
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
-use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
 /**
  * The tab's `data-sort` value, which core's theme.js sends to themes_api() as `browse`.
@@ -65,20 +64,31 @@ function wpcom_themes_tab_enqueue_script() {
 		return;
 	}
 
+	// Core's theme.js owns the views this decorates, and routes on DOM ready rather than on load.
 	wp_enqueue_script(
 		'wpcom-themes-tab',
 		plugins_url( 'js/themes-tab.js', __FILE__ ),
-		array(),
-		Jetpack_Mu_Wpcom::PACKAGE_VERSION,
+		array( 'theme' ),
+		// The package version does not change between builds of it, and these are served for a year.
+		(string) filemtime( __DIR__ . '/js/themes-tab.js' ),
 		array( 'in_footer' => true )
 	);
 	wp_localize_script(
 		'wpcom-themes-tab',
 		'wpcomThemesTab',
 		array(
-			'sort'  => WPCOM_THEMES_TAB,
-			'label' => _x( 'Marketplace', 'Theme Installer', 'jetpack-mu-wpcom' ),
+			'sort'         => WPCOM_THEMES_TAB,
+			'label'        => _x( 'Marketplace', 'Theme Installer', 'jetpack-mu-wpcom' ),
+			'upgrade'      => __( 'Upgrade', 'jetpack-mu-wpcom' ),
+			/* translators: %s: Theme name. */
+			'upgradeLabel' => __( 'Upgrade for %s', 'jetpack-mu-wpcom' ),
 		)
+	);
+	wp_enqueue_style(
+		'wpcom-themes-tab',
+		plugins_url( 'css/themes-tab.css', __FILE__ ),
+		array(),
+		(string) filemtime( __DIR__ . '/css/themes-tab.css' )
 	);
 }
 add_action( 'load-theme-install.php', 'wpcom_themes_tab_enqueue_script' );
@@ -112,10 +122,78 @@ function wpcom_themes_tab_redirect_to_default_view() {
 		return;
 	}
 
-	wp_safe_redirect( admin_url( 'theme-install.php?browse=' . WPCOM_THEMES_TAB ) );
+	wp_safe_redirect( wpcom_themes_tab_url() );
 	exit;
 }
 add_action( 'load-theme-install.php', 'wpcom_themes_tab_redirect_to_default_view' );
+/**
+ * This tab's own URL.
+ *
+ * @return string
+ */
+function wpcom_themes_tab_url() {
+	return admin_url( 'theme-install.php?browse=' . WPCOM_THEMES_TAB );
+}
+
+/**
+ * Where to buy the plan a theme needs.
+ *
+ * Checkout returns to the theme itself, where the plan now allows an install, and back out to
+ * the tab if it is abandoned instead.
+ *
+ * @param string $plan Plan slug.
+ * @param string $slug Theme slug.
+ * @return string
+ */
+function wpcom_themes_tab_checkout_url( string $plan, string $slug ) {
+	$url = sprintf(
+		'https://wordpress.com/checkout/%s/%s',
+		rawurlencode( (string) wp_parse_url( home_url(), PHP_URL_HOST ) ),
+		rawurlencode( $plan )
+	);
+
+	// Checkout honours these on the site's own host, and add_query_arg() does not encode values.
+	return add_query_arg(
+		array(
+			'checkoutBackUrl' => rawurlencode( wpcom_themes_tab_url() ),
+			'redirect_to'     => rawurlencode( admin_url( 'theme-install.php?theme=' . rawurlencode( $slug ) ) ),
+		),
+		$url
+	);
+}
+
+/**
+ * Says what a theme costs this site, for the badge every card carries.
+ *
+ * Core's grid offers Install for whatever it is given, so a theme the plan excludes also has to
+ * carry the upgrade that belongs in its place.
+ *
+ * @param stdClass $theme A theme in the themes API shape.
+ * @return stdClass The theme, carrying its badge and, when the plan excludes it, an upgrade.
+ */
+function wpcom_themes_tab_add_plan( $theme ) {
+	$tier = isset( $theme->theme_tier ) ? (string) $theme->theme_tier : '';
+
+	// A partner theme needs a subscription of its own that no plan reports, so neither badge can
+	// tell the truth about one. DOTCOM-18722.
+	if ( WPCom_Themes_Tiers::PARTNER === $tier ) {
+		return $theme;
+	}
+
+	$plan = WPCom_Themes_Tiers::plan_for( $tier );
+
+	if ( '' === $plan || WPCom_Themes_Tiers::site_can_use( $tier ) ) {
+		$theme->plan_badge = __( 'Included with plan', 'jetpack-mu-wpcom' );
+
+		return $theme;
+	}
+
+	$theme->plan_badge  = WPCom_Themes_Tiers::plan_name_for( $tier );
+	$theme->upgrade_url = wpcom_themes_tab_checkout_url( $plan, (string) ( $theme->slug ?? '' ) );
+
+	return $theme;
+}
+
 /**
  * The shared WordPress.com themes reader, which wpcomsh also uses for core's own tabs.
  *
@@ -186,7 +264,7 @@ function wpcom_themes_tab_serve_themes_api( $result, $action, $args ) {
 				'pages'   => 1,
 				'results' => 1,
 			),
-			'themes' => array( wpcom_themes_tab_mapper()->map_wpcom_to_wporg( $theme ) ),
+			'themes' => array( wpcom_themes_tab_add_plan( wpcom_themes_tab_mapper()->map_wpcom_to_wporg( $theme ) ) ),
 		);
 	}
 
@@ -208,7 +286,7 @@ function wpcom_themes_tab_serve_themes_api( $result, $action, $args ) {
 			'pages'   => (int) ceil( count( $themes ) / WPCOM_THEMES_TAB_PER_PAGE ),
 			'results' => count( $themes ),
 		),
-		'themes' => array_values( array_map( array( $mapper, 'map_wpcom_to_wporg' ), $shown ) ),
+		'themes' => array_values( array_map( 'wpcom_themes_tab_add_plan', array_map( array( $mapper, 'map_wpcom_to_wporg' ), $shown ) ) ),
 	);
 }
 add_filter( 'themes_api', 'wpcom_themes_tab_serve_themes_api', 10, 3 );
