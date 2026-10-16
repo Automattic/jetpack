@@ -75,13 +75,8 @@
 		}
 	}
 
-	.jpb-overview > .jpb-backup-detail {
-		min-height: 0;
-
-		.jpb-backup-detail__body {
-			flex: 1 1 auto;
-			min-height: 0;
-			overflow: auto;
-		}
+	.jpb-overview > .jpb-backup-detail > .jpb-backup-detail__body {
+		flex: 1 1 auto;
+		overflow: auto;
 	}
 }

@@ -24,13 +24,12 @@
 
 			// `align-self` is load-bearing: grid stretches the card to its row's
 			// height — the tree's — and a stretched card has nowhere to travel.
-			// Silently unsticks if `Card.Root` ever becomes `overflow: hidden`:
-			// that makes `.jpb-backup-detail` the scrollport, not the one it sticks in.
+			// Unsticks if a scroll container appears between it and its scrollport:
+			// `.jpb-backup-detail__body` side by side, `.jpb-dashboard-body` stacked.
 			> .jpb-file-info-card {
 				position: sticky;
 				align-self: start;
-				// Zero: the scrollport is `.jpb-backup-detail__body` side by side and
-				// `.jpb-dashboard-body` stacked, both below the admin bar and header.
+				// Zero: both scrollports start below the admin bar and the page header.
 				inset-block-start: 0;
 			}
 		}
