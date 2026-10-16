@@ -3,6 +3,7 @@ import {
 	Card,
 	Link,
 	ButtonLink,
+	Meter,
 	Stack,
 	Text,
 	Spinner,
@@ -10,7 +11,6 @@ import {
 } from '@jetpack-premium-analytics/externals';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
-import { ProgressBar } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { getOverLimitMessage, getPlanUpgradeUrl } from './plan-usage';
@@ -45,11 +45,17 @@ function UsageMeter( {
 		formatMetricValue( usage, 'number', { decimals: 0 } ),
 		formatMetricValue( limit, 'number', { decimals: 0 } )
 	);
+	const formatLabel = useCallback( () => label, [ label ] );
 
 	return (
-		<Stack direction="column" gap="sm">
+		<Meter.Root
+			value={ usage }
+			max={ limit }
+			aria-label={ __( 'Billable views', 'jetpack-premium-analytics-pkg' ) }
+			getAriaValueText={ formatLabel }
+		>
 			<Stack direction="row" justify="space-between" align="baseline" gap="md">
-				<Text className={ styles.usageCount }>{ label }</Text>
+				<Meter.Value className={ styles.usageCount }>{ formatLabel }</Meter.Value>
 				{ daysToReset !== undefined && (
 					<Text className={ styles.usageReset }>
 						{ sprintf(
@@ -65,13 +71,10 @@ function UsageMeter( {
 					</Text>
 				) }
 			</Stack>
-			{ /* Until the @wordpress/ui update (Automattic/jetpack#53004) ships `Meter`, which fits usage against a limit; switch to it then. */ }
-			<ProgressBar
-				className={ styles.usageBar }
-				value={ Math.min( 100, ( usage / limit ) * 100 ) }
-				aria-label={ label }
-			/>
-		</Stack>
+			<Meter.Track>
+				<Meter.Indicator tone="brand" />
+			</Meter.Track>
+		</Meter.Root>
 	);
 }
 

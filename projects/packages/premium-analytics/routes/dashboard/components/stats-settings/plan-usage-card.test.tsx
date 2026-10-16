@@ -66,9 +66,8 @@ describe( 'PlanUsageCard', () => {
 
 		renderCard();
 
-		const meter = await screen.findByRole( 'progressbar' );
-		// eslint-disable-next-line jest-dom/prefer-to-have-value -- toHaveValue reads form controls only, not <progress>.
-		expect( meter ).toHaveAttribute( 'value', '100' );
+		const meter = await screen.findByRole( 'meter', { name: 'Billable views' } );
+		expect( meter ).toHaveValue( 10000 );
 	} );
 
 	it( 'links Upgrade to the Stats purchase screen for the connected site', async () => {
