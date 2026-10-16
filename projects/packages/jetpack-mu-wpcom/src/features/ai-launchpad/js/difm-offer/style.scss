@@ -78,8 +78,10 @@
 	}
 
 	// The wide layout: thumbnail, copy, and the call to action at the end of
-	// one row. It comes last so it wins over the narrow rules above.
-	@container ( min-width: 560px ) {
+	// one row. It comes last so it wins over the narrow rules above. The query
+	// measures the content box: about 550px in a 1280px window with the preview
+	// column beside the task list, and 324px in the 380px mobile banner.
+	@container ( min-width: 480px ) {
 
 		&__content {
 			grid-template-columns: auto minmax(0, 1fr) auto;
