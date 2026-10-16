@@ -841,21 +841,52 @@ class Jetpack {
 	}
 
 	/**
-	 * Enable the bundled Backup dashboard.
+	 * Switch the backup module back on for an existing site with each Jetpack update.
 	 *
-	 * The standalone plugin initializes the package first, so with both active this is a no-op.
+	 * @since $$next-version$$
 	 *
+	 * @param string       $version     The version being installed.
+	 * @param string|false $old_version The version it replaces, or false on a fresh install.
 	 * @return void
 	 */
-	public static function configure_backup_package() {
-		// Not offered on multisite, which the Backup package does not support, or without a
-		// connected owner, since buying and managing backups needs a linked account.
-		if ( is_multisite() || ! self::is_connection_ready() || ! self::connection()->has_connected_owner() ) {
+	public static function activate_backup_module_for_existing_sites( $version, $old_version ) {
+		// Fresh installs get it from "Auto Activate: Yes".
+		if ( ! $old_version || ! self::is_connection_ready() || self::is_module_active( 'backup' ) ) {
 			return;
 		}
 
-		if ( ! self::is_module_active( 'backup' ) ) {
-			return;
+		self::activate_module( 'backup', false, false );
+	}
+
+	/**
+	 * What switching a module off leaves unchanged, for interfaces that still offer it; empty when nothing.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $module Module slug.
+	 * @return string
+	 */
+	public static function get_module_deactivation_note( $module ) {
+		return 'backup' === $module
+			? __( 'Backups are not affected: your site’s plan, not the Backup module, decides whether they run.', 'jetpack' )
+			: '';
+	}
+
+	/**
+	 * Whether to offer the bundled Backup dashboard; Backup::offers_jetpack_dashboard() decides.
+	 *
+	 * @return bool
+	 */
+	private static function offers_backup_dashboard() {
+		$product = 'Automattic\\Jetpack\\My_Jetpack\\Products\\Backup';
+
+		if ( method_exists( $product, 'offers_jetpack_dashboard' ) ) {
+			return $product::offers_jetpack_dashboard();
+		}
+
+		// Another plugin may have loaded an older My Jetpack without it: the same gates, on the current plan only.
+		if ( is_multisite() || ! self::is_connection_ready() || ! self::connection()->has_connected_owner() || ! Jetpack_Plan::supports( 'backups' ) ) {
+			return false;
 		}
 
 		/**
@@ -867,7 +898,18 @@ class Jetpack {
 		 *
 		 * @param bool $enabled Whether to initialize the bundled Backup dashboard. Default true.
 		 */
-		if ( ! apply_filters( 'jetpack_backup_dashboard_enabled', true ) ) {
+		return (bool) apply_filters( 'jetpack_backup_dashboard_enabled', true );
+	}
+
+	/**
+	 * Enable the bundled Backup dashboard.
+	 *
+	 * The standalone plugin initializes the package first, so with both active this is a no-op.
+	 *
+	 * @return void
+	 */
+	public static function configure_backup_package() {
+		if ( ! self::offers_backup_dashboard() ) {
 			return;
 		}
 

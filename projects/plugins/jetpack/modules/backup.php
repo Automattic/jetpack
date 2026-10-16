@@ -10,7 +10,9 @@
  * Feature: Security
  * Additional Search Queries: backup, backups, restore, vaultpress, rewind, cloud backup, off-site backup
  *
- * Jetpack::configure_backup_package() initializes the dashboard while this module is active.
+ * The site's plan, not this module, decides Backup: backups run and
+ * Jetpack::configure_backup_package() initializes the dashboard whenever the plan includes it.
+ * Jetpack::activate_backup_module_for_existing_sites() switches it back on with each Jetpack update.
  *
  * @package automattic/jetpack
  */

@@ -3,9 +3,11 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\My_Jetpack\Products\Backup;
 use Automattic\Jetpack\Redirect;
 use Jetpack_Options;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
@@ -75,6 +77,127 @@ class Backup_Product_Test extends TestCase {
 	}
 
 	/**
+	 * On the Jetpack plugin, Manage opens the wp-admin dashboard only once the stored plan registers it.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 * @dataProvider provide_manage_urls
+	 *
+	 * @param array $stored    The stored plan's active features.
+	 * @param array $wpcom     The active features WordPress.com reports.
+	 * @param array $refreshed The active features a refresh of the stored plan brings.
+	 * @param bool  $dashboard Whether a host leaves the bundled dashboard on.
+	 * @param bool  $in_admin  Whether Manage should open wp-admin.
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	#[DataProvider( 'provide_manage_urls' )]
+	public function test_manage_url_follows_the_plan( $stored, $wpcom, $refreshed, $dashboard, $in_admin ) {
+		( new Tokens() )->update_blog_token( 'key.secret' );
+		( new Tokens() )->update_user_token( self::$user_id, 'test.test.' . self::$user_id, true );
+		Jetpack_Options::update_option( 'id', 123 );
+		activate_plugins( 'jetpack/jetpack.php' );
+		deactivate_plugins( Backup::get_installed_plugin_filename() );
+		update_option( 'jetpack_active_plan', array( 'features' => array( 'active' => $stored ) ) );
+		set_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY, array(), HOUR_IN_SECONDS );
+		set_transient(
+			Product::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY,
+			array(
+				'active'    => $wpcom,
+				'available' => array(),
+			),
+			HOUR_IN_SECONDS
+		);
+		// Signing the refresh needs an absolute API base.
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		Constants::set_constant( 'JETPACK__API_VERSION', 1 );
+		add_filter(
+			'pre_http_request',
+			static function () use ( $refreshed ) {
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => wp_json_encode( array( 'plan' => array( 'features' => array( 'active' => $refreshed ) ) ), JSON_UNESCAPED_SLASHES ),
+				);
+			}
+		);
+		$dashboard || add_filter( 'jetpack_backup_dashboard_enabled', '__return_false' );
+
+		$this->assertSame( $in_admin, admin_url( 'admin.php?page=jetpack-backup' ) === Backup::get_manage_url() );
+	}
+
+	/**
+	 * Data provider for test_manage_url_follows_the_plan.
+	 *
+	 * @return array
+	 */
+	public static function provide_manage_urls() {
+		return array(
+			'a stored Backup plan'                   => array( array( 'backups' ), array(), array(), true, true ),
+			'a purchase the stored plan catches up'  => array( array(), array( 'backups' ), array( 'backups' ), true, true ),
+			'a purchase the stored plan lacks still' => array( array(), array( 'backups' ), array(), true, false ),
+			'no plan'                                => array( array(), array(), array(), true, false ),
+			'a host turned the dashboard off'        => array( array( 'backups' ), array(), array(), false, false ),
+		);
+	}
+
+	/**
+	 * The stored plan and products answer whether the site has, or had, Backup.
+	 *
+	 * @dataProvider provide_stored_plans
+	 *
+	 * @param array $plan     The stored plan.
+	 * @param array $products The stored products.
+	 * @param bool  $expected Whether a Backup plan is on record.
+	 */
+	#[DataProvider( 'provide_stored_plans' )]
+	public function test_has_plan_on_record( $plan, $products, $expected ) {
+		update_option( 'jetpack_active_plan', $plan );
+		update_option( 'jetpack_site_products', $products );
+
+		$this->assertSame( $expected, Backup::has_plan_on_record() );
+	}
+
+	/**
+	 * Data provider for test_has_plan_on_record.
+	 *
+	 * @return array
+	 */
+	public static function provide_stored_plans() {
+		$free = array(
+			'product_slug' => 'jetpack_free',
+			'features'     => array( 'active' => array() ),
+		);
+
+		return array(
+			'nothing'                     => array( $free, array(), false ),
+			'a feature of a current plan' => array( array( 'features' => array( 'active' => array( 'backups' ) ) ), array(), true ),
+			'an expired Backup product'   => array(
+				$free,
+				array(
+					array(
+						'product_slug' => 'jetpack_backup_t1_yearly',
+						'expired'      => true,
+					),
+				),
+				true,
+			),
+			'an expired bundle'           => array(
+				array(
+					'product_slug' => 'jetpack_security_t1_yearly',
+					'expired'      => true,
+					'features'     => array(
+						'active'    => array(),
+						'available' => array( 'backups' => array( 'jetpack_security_t1_yearly' ) ),
+					),
+				),
+				array(),
+				true,
+			),
+			'another product'             => array( $free, array( array( 'product_slug' => 'jetpack_scan' ) ), false ),
+		);
+	}
+
+	/**
 	 * Installs the mock plugin present in the test assets folder as if it was the Boost plugin
 	 *
 	 * @return void
@@ -130,25 +253,17 @@ class Backup_Product_Test extends TestCase {
 	}
 
 	/**
-	 * With only the Jetpack plugin, the backup module switches the product on and off.
+	 * Either plugin delivers Backup with the backup module off, since the plan decides it.
+	 *
+	 * @dataProvider provide_delivering_plugins
+	 *
+	 * @param bool $jetpack    Whether the Jetpack plugin is active.
+	 * @param bool $standalone Whether the standalone plugin is active.
 	 */
-	public function test_backup_module_switches_backup_on_the_jetpack_plugin() {
-		activate_plugins( 'jetpack/jetpack.php' );
-		deactivate_plugins( Backup::get_installed_plugin_filename() );
-		$this->assertSame( 'backup', Backup::$module_name );
-		$this->assertTrue( Backup::is_activated() );
-
-		Jetpack_Options::update_option( 'active_modules', array() );
-		$this->assertFalse( Backup::is_module_active() );
-		$this->assertFalse( Backup::is_activated() );
-	}
-
-	/**
-	 * The standalone plugin draws its own dashboard, so the backup module being off does not switch Backup off.
-	 */
-	public function test_standalone_plugin_keeps_backup_on_with_the_module_off() {
-		activate_plugins( 'jetpack/jetpack.php' );
-		activate_plugins( Backup::get_installed_plugin_filename() );
+	#[DataProvider( 'provide_delivering_plugins' )]
+	public function test_backup_module_off_does_not_switch_backup_off( $jetpack, $standalone ) {
+		$jetpack ? activate_plugins( 'jetpack/jetpack.php' ) : deactivate_plugins( 'jetpack/jetpack.php' );
+		$standalone ? activate_plugins( Backup::get_installed_plugin_filename() ) : deactivate_plugins( Backup::get_installed_plugin_filename() );
 		Jetpack_Options::update_option( 'active_modules', array() );
 
 		$this->assertTrue( Backup::is_module_active() );
@@ -156,9 +271,32 @@ class Backup_Product_Test extends TestCase {
 	}
 
 	/**
-	 * A plan holder who switched the module off is offered the module, not a purchase.
+	 * Deactivating the product turns off the standalone plugin and leaves the locked backup module on.
 	 */
-	public function test_get_status_reports_module_disabled_with_a_plan() {
+	public function test_deactivate_leaves_the_backup_module_on() {
+		activate_plugins( Backup::get_installed_plugin_filename() );
+
+		$this->assertTrue( Backup::deactivate() );
+		$this->assertFalse( Backup::is_standalone_plugin_active() );
+		$this->assertContains( 'backup', Jetpack_Options::get_option( 'active_modules', array() ) );
+	}
+
+	/**
+	 * Data provider for test_backup_module_off_does_not_switch_backup_off.
+	 *
+	 * @return array
+	 */
+	public static function provide_delivering_plugins() {
+		return array(
+			'the Jetpack plugin'    => array( true, false ),
+			'the standalone plugin' => array( false, true ),
+		);
+	}
+
+	/**
+	 * A plan holder who switched the module off still has Backup running.
+	 */
+	public function test_get_status_follows_the_plan_with_the_module_off() {
 		( new Tokens() )->update_blog_token( 'test.test.1' );
 		( new Tokens() )->update_user_token( self::$user_id, 'test.test.' . self::$user_id, true );
 		Jetpack_Options::update_option( 'id', 123 );
@@ -178,7 +316,7 @@ class Backup_Product_Test extends TestCase {
 		);
 		set_transient( Backup::BACKUP_STATUS_TRANSIENT_KEY, 'no_errors', HOUR_IN_SECONDS );
 
-		$this->assertSame( Products::STATUS_MODULE_DISABLED, Backup::get_status() );
+		$this->assertSame( Products::STATUS_ACTIVE, Backup::get_status() );
 
 		delete_transient( Backup::BACKUP_STATUS_TRANSIENT_KEY );
 		delete_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY );

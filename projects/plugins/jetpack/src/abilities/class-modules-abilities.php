@@ -152,6 +152,10 @@ class Modules_Abilities extends Registrar {
 						'slug'    => array( 'type' => 'string' ),
 						'active'  => array( 'type' => 'boolean' ),
 						'changed' => array( 'type' => 'boolean' ),
+						'note'    => array(
+							'type'        => 'string',
+							'description' => __( 'What the change leaves unaffected, when that is not obvious.', 'jetpack' ),
+						),
 					),
 				),
 				'execute_callback'    => array( __CLASS__, 'set_module_status' ),
@@ -403,11 +407,18 @@ class Modules_Abilities extends Registrar {
 			);
 		}
 
-		return array(
+		$result = array(
 			'slug'    => $slug,
 			'active'  => $actual,
 			'changed' => true,
 		);
+
+		$note = $actual ? '' : Jetpack::get_module_deactivation_note( $slug );
+		if ( $note ) {
+			$result['note'] = $note;
+		}
+
+		return $result;
 	}
 
 	/**

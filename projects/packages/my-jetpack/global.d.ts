@@ -519,6 +519,8 @@ type MainFeature = {
 	icon: string;
 	manage_url: string;
 	essential: boolean;
+	// Its plan, not a switch, decides whether it runs, whichever plugin delivers it.
+	plan_driven?: boolean;
 	in_jetpack: boolean;
 	plugin: string;
 	plugin_name: string;
@@ -530,7 +532,8 @@ type MainFeature = {
 	paid_highlights: string[];
 	pricing_notes?: string[];
 	// The My Jetpack route that sells the feature, such as `/add-akismet`, and the product it sells.
-	upgrade: { path: string; name: string };
+	// A host may send it elsewhere instead, with an absolute `url`.
+	upgrade: { path: string; name: string; url?: string };
 	// Whether the site already pays for the feature, directly or through a bundle.
 	included?: boolean;
 	// What to expect after turning it on, such as picking a plan.
