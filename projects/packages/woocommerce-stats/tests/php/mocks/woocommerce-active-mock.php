@@ -5,7 +5,7 @@
  * Require it from inside a process-isolated test only, so the class never leaks
  * into tests that assert the no-WooCommerce path.
  *
- * @package automattic/jetpack-premium-analytics
+ * @package automattic/jetpack-woocommerce-stats
  */
 
 // phpcs:disable WordPress.Files.FileName
