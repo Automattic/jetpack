@@ -681,6 +681,25 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		$this->assertSame( STATS_TIER_COMMERCIAL, $data['premium_analytics']['plan_gates']['tier'] );
 		$this->assertSame( '{}', wp_json_encode( $data['premium_analytics']['plan_gates']['locked_features'], JSON_UNESCAPED_SLASHES ) );
 		$this->assertSame( '{}', wp_json_encode( $data['premium_analytics']['plan_gates']['locked_sections'], JSON_UNESCAPED_SLASHES ) );
+		$this->assertNull( $data['premium_analytics']['plan_gates']['free_site_upgrade'] );
+	}
+
+	/**
+	 * The offer carries the server's purchase URL, credited to the banner.
+	 */
+	public function test_script_data_offers_the_free_site_upgrade_with_its_purchase_url() {
+		add_filter( STATS_PLAN_TIER_FILTER, static fn() => STATS_TIER_JETPACK_FREE );
+		update_option( DASHBOARD_FIRST_VISIT_OPTION, time() - 31 * DAY_IN_SECONDS );
+		$GLOBALS['_parent_pages']['stats'] = false;
+		\Jetpack_Options::update_option( 'id', 1234 );
+		$_GET['page'] = Analytics::MENU_PAGE_SLUG;
+		set_current_screen( 'toplevel_page_' . Analytics::MENU_PAGE_SLUG );
+
+		$data = inject_stats_plan_gates_script_data( array() );
+
+		$url = $data['premium_analytics']['plan_gates']['free_site_upgrade']['upgrade_url'];
+		$this->assertStringContainsString( 'page=stats#!/stats/purchase/1234?', $url );
+		$this->assertStringContainsString( 'from=jetpack-premium-analytics-free-site-upgrade-notice', $url );
 	}
 
 	/**
