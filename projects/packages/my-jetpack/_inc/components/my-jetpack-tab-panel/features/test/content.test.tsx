@@ -1,7 +1,13 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen, within } from '@testing-library/react';
+import { render, renderHook, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, useLocation } from 'react-router';
+import {
+	ConnectResume,
+	rememberConnectIntent,
+	resetConnectIntentForTests,
+	useConnectResume,
+} from '../connect-resume';
 import { FeaturesContent } from '../content';
 import { getModuleFeatureState } from '../use-more-features';
 import type { MyJetpackModule } from '../../../../types';
@@ -39,7 +45,19 @@ jest.mock( '../use-all-jetpack-modules', () => ( {
 	} ),
 } ) );
 
-jest.mock( '../use-main-features', () => ( { useMainFeatures: () => mockMainFeatures } ) );
+const mockRun = jest.fn();
+const mockSetModuleActive = jest.fn();
+jest.mock( '../use-main-features', () => ( {
+	useMainFeatures: () => mockMainFeatures,
+	useFeaturePlugin: ( plugin: string ) => ( {
+		run: ( action: string ) => mockRun( plugin, action ),
+	} ),
+} ) );
+jest.mock( '../../../module-toggle', () => ( {
+	useModuleActivation: ( $module: MyJetpackModule ) => ( {
+		setModuleActive: ( active: boolean ) => mockSetModuleActive( $module.module, active ),
+	} ),
+} ) );
 
 let mockIsLoading = false;
 
@@ -53,7 +71,9 @@ jest.mock( '../../../../hooks/use-analytics', () => ( {
 jest.mock( '../feature-state', () => ( {
 	...jest.requireActual( '../feature-state' ),
 	useFeatureStates: () => ( { states: mockStates, isLoading: mockIsLoading } ),
+	useAccountConnected: () => mockConnected,
 } ) );
+let mockConnected = true;
 
 jest.mock( '../feature-item', () => ( {
 	FeatureItem: ( { state }: { state: FeatureState } ) => (
@@ -600,5 +620,135 @@ describe( 'FeaturesContent', () => {
 
 		expect( mockModalProps ).toMatchObject( { next: { slug: 'podcast' }, position: 1, total: 2 } );
 		expect( mockModalProps?.previous ).toBeUndefined();
+	} );
+} );
+
+describe( 'FeaturesContent after connecting the account', () => {
+	const off = ( slug: string, control: FeatureState[ 'control' ], overrides = {} ) =>
+		( {
+			feature: { slug, name: slug, plans: [] },
+			status: 'inactive',
+			control,
+			...overrides,
+		} ) as unknown as FeatureState;
+	const $module = { module: 'monitor', name: 'Monitor', available: true, activated: false };
+	const monitor = off( 'monitor', { kind: 'module', module: $module as MyJetpackModule } );
+	const social = off( 'social', { kind: 'plugin', plugin: 'jetpack-social' } );
+	const requests = () => [ ...mockSetModuleActive.mock.calls, ...mockRun.mock.calls ];
+	const setFlag = ( accountConnect: boolean ) => {
+		window.myJetpackInitialState = {
+			...window.myJetpackInitialState,
+			myJetpackFlags: { accountConnect },
+		} as typeof window.myJetpackInitialState;
+	};
+
+	let nowSpy: jest.SpyInstance | undefined;
+
+	beforeEach( () => {
+		window.sessionStorage.clear();
+		resetConnectIntentForTests();
+		setFlag( true );
+		mockConnected = true;
+		mockRun.mockClear();
+		mockSetModuleActive.mockClear();
+		mockMainFeatures = { jetpack: 'active', features: [], isPlaceholderData: false };
+		mockGroups = [];
+	} );
+	afterEach( () => nowSpy?.mockRestore() );
+
+	it.each( [
+		[ 'a module that is off', [ monitor ], 'monitor', [ [ 'monitor', true ] ] ],
+		[ 'a plugin that is off', [ social ], 'social', [ [ 'jetpack-social', 'activate' ] ] ],
+		[ 'a feature Jetpack already turned on', [ { ...monitor, status: 'active' } ], 'monitor', [] ],
+		[
+			'a feature unavailable for another reason',
+			[
+				off( 'monitor', {
+					kind: 'module',
+					module: { ...$module, available: false } as MyJetpackModule,
+				} ),
+			],
+			'monitor',
+			[],
+		],
+		[
+			'a feature the host keeps off',
+			[ off( 'social', { kind: 'plugin', plugin: 'jetpack-social', override: 'inactive' } ) ],
+			'social',
+			[],
+		],
+	] as const )( 'turns on once, after the return, %s', ( _, states, slug, expected ) => {
+		mockStates = [ ...states ] as FeatureState[];
+		const id = rememberConnectIntent( slug );
+
+		renderAt( `/features?view=list&connect_intent=${ id }` );
+
+		expect( requests() ).toEqual( expected );
+		expect( screen.getByTestId( 'route' ) ).toHaveTextContent( /^\?view=list$/ );
+	} );
+
+	it.each( [
+		[ 'the account is still missing', () => ( mockConnected = false ) ],
+		[ 'the return is for another tab', () => 'another' ],
+		[
+			'the click is over an hour old',
+			() => {
+				const at = Date.now();
+				nowSpy = jest.spyOn( Date, 'now' ).mockReturnValue( at + 60 * 60 * 1000 );
+			},
+		],
+		[
+			'Back from WordPress.com showed the cached page',
+			() => {
+				const event = new Event( 'pageshow' );
+				Object.defineProperty( event, 'persisted', { value: true } );
+				window.dispatchEvent( event );
+			},
+		],
+		[ 'the account-connect flag is off', () => setFlag( false ) ],
+	] )( 'turns nothing on when %s', ( _, setup ) => {
+		mockStates = [ monitor ];
+		const id = rememberConnectIntent( 'monitor' );
+		const returnId = setup();
+
+		renderAt( `/features?connect_intent=${ typeof returnId === 'string' ? returnId : id }` );
+
+		expect( requests() ).toEqual( [] );
+	} );
+
+	it( 'still turns the feature on once when the mount that decided goes away first', () => {
+		const id = rememberConnectIntent( 'monitor' );
+		const wrapper = ( { children }: { children: React.ReactNode } ) => (
+			<MemoryRouter initialEntries={ [ `/features?connect_intent=${ id }` ] }>
+				{ children }
+			</MemoryRouter>
+		);
+		renderHook( () => useConnectResume( [ monitor ], true ), { wrapper } ).unmount();
+
+		const { result } = renderHook( () => useConnectResume( [ monitor ], true ), { wrapper } );
+		const target = result.current as FeatureState;
+		render( <ConnectResume state={ target } /> ).unmount();
+		render( <ConnectResume state={ target } /> );
+
+		expect( requests() ).toEqual( [ [ 'monitor', true ] ] );
+	} );
+
+	it( 'waits for the modules, finds a More Features row, and never replays the click', () => {
+		mockIsLoading = true;
+		mockGroups = [ { label: 'Other', states: [ monitor ] } ];
+		const id = rememberConnectIntent( 'monitor' );
+		const view = renderAt( `/features?connect_intent=${ id }` );
+		expect( requests() ).toEqual( [] );
+
+		mockIsLoading = false;
+		view.rerenderAt();
+		view.rerenderAt();
+		view.unmount();
+		renderAt( `/features?connect_intent=${ id }` );
+		// A reload of the same return URL is a new page load.
+		resetConnectIntentForTests();
+		renderAt( `/features?connect_intent=${ id }` );
+
+		expect( requests() ).toEqual( [ [ 'monitor', true ] ] );
 	} );
 } );

@@ -59,7 +59,7 @@ function getNote( state: FeatureState, pluginName: string ): string {
 			const connectNote = sprintf(
 				/* translators: %s is a plugin name. Keep the <plugin> tags around it. */
 				__(
-					'The <plugin>%s</plugin> plugin is already installed. Connect your WordPress.com account, then turn it on here.',
+					'The <plugin>%s</plugin> plugin is already installed. Connecting your WordPress.com account turns it on.',
 					'jetpack-my-jetpack'
 				),
 				pluginName
@@ -73,7 +73,7 @@ function getNote( state: FeatureState, pluginName: string ): string {
 				'jetpack-my-jetpack'
 			);
 			const connectFirstNote = __(
-				'Built into Jetpack, so there is nothing to install. Connect your WordPress.com account, then turn it on here if it’s still off.',
+				'Built into Jetpack, so there is nothing to install. Connecting your WordPress.com account turns it on.',
 				'jetpack-my-jetpack'
 			);
 			return state.accountNeeded ? connectFirstNote : moduleNote;

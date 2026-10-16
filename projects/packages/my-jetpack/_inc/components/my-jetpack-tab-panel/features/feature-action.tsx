@@ -7,6 +7,7 @@ import { useCallback } from 'react';
 import { leavePageFor } from '../../../utils/reload-page';
 import { ModuleToggle } from '../../module-toggle';
 import { getFeatureConnectReturnUrl, getSwitchLabel } from '../utils';
+import { CONNECT_INTENT_PARAM, rememberConnectIntent } from './connect-resume';
 import { getFeatureManageUrl, getForcedReason, offersConnect } from './feature-state';
 import { useFeaturesTracking } from './features-tracking-context';
 import styles from './styles.module.scss';
@@ -18,6 +19,8 @@ import type { Ref } from 'react';
 /**
  * Leave to connect a WordPress.com account, coming back to the same Features view.
  *
+ * After Connect, the return turns the feature on; Install has already turned its plugin on.
+ *
  * @return Starts the connection for the feature the action was taken on.
  */
 export function useAccountConnection() {
@@ -26,7 +29,12 @@ export function useAccountConnection() {
 	return useCallback(
 		( state: FeatureState, origin: FeatureActionOrigin, action: ConnectionStartAction ) => {
 			tracking?.trackConnectionStart( state, origin, action );
-			leavePageFor( getUserConnectionUrl( { redirect_url: getFeatureConnectReturnUrl() } ) );
+			const intent = action === 'connect' ? rememberConnectIntent( state.feature.slug ) : null;
+			const returnUrl = getFeatureConnectReturnUrl(
+				undefined,
+				intent ? { [ CONNECT_INTENT_PARAM ]: intent } : {}
+			);
+			leavePageFor( getUserConnectionUrl( { redirect_url: returnUrl } ) );
 		},
 		[ tracking ]
 	);
@@ -259,7 +267,7 @@ type ConnectButtonProps = {
 };
 
 /**
- * Start connecting the WordPress.com account a feature is waiting for, changing nothing else.
+ * Start connecting the WordPress.com account a feature is waiting for; the return turns the feature on.
  *
  * @param {ConnectButtonProps} props             - The component props.
  * @param {FeatureState}       props.state       - Live state for the feature.

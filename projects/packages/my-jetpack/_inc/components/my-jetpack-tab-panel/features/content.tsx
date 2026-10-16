@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { isOfflineFeatures } from '../../../data/utils/offline-features';
 import { BulkBar } from './bulk-bar';
+import { ConnectResume, useConnectResume } from './connect-resume';
 import { FeaturesEmptyState } from './empty-state';
 import { FeatureItem } from './feature-item';
 import { FeatureList, UnswitchableNote } from './feature-list';
@@ -100,6 +101,14 @@ function FeaturesTabContent() {
 	const { pointer, dismissPointer } = useSidebarSync( mainFeatures.features );
 	const moreFeatures = useMoreFeatures( mainFeatures );
 	const tracking = useFeaturesTracking();
+	const allStates = useMemo(
+		() => [ ...states, ...moreFeatures.flatMap( group => group.states ) ],
+		[ states, moreFeatures ]
+	);
+	const turnOn = useConnectResume(
+		allStates,
+		! isLoading && ( mainFeatures.jetpack !== 'active' || modulesLoaded )
+	);
 
 	const [ searchParams, setSearchParams ] = useSearchParams();
 
@@ -174,11 +183,8 @@ function FeaturesTabContent() {
 	// Both lists, since a filter narrows both: the pills, and the count the filter event
 	// reports, are answers about the whole tab rather than about the grid alone.
 	const countable = useMemo(
-		() =>
-			[ ...states, ...moreFeatures.flatMap( group => group.states ) ].filter( state =>
-				matchesModuleTag( state, moduleTag, modules, modulesLoaded )
-			),
-		[ states, moreFeatures, moduleTag, modules, modulesLoaded ]
+		() => allStates.filter( state => matchesModuleTag( state, moduleTag, modules, modulesLoaded ) ),
+		[ allStates, moduleTag, modules, modulesLoaded ]
 	);
 
 	// Read once, so the pills hold steady until the visitor leaves the tab.
@@ -378,6 +384,7 @@ function FeaturesTabContent() {
 
 	return (
 		<section ref={ contentRef } className={ styles.content }>
+			{ turnOn && <ConnectResume state={ turnOn } /> }
 			{ ! isOfflineFeatures() && <FeaturesBanner /> }
 
 			<Toolbar

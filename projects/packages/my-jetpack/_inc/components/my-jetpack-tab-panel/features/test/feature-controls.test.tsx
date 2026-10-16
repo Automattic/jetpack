@@ -640,8 +640,9 @@ describe( 'features waiting for an account', () => {
 			);
 			await userEvent.click( screen.getByRole( 'button', { name: /^Connect account for / } ) );
 
+			// The return names this click, so coming back turns the feature on.
 			expect( getUserConnectionUrl ).toHaveBeenCalledWith( {
-				redirect_url: expect.stringContaining( '#/features' ),
+				redirect_url: expect.stringMatching( /#\/features\?connect_intent=[0-9a-f]{16}$/ ),
 			} );
 			expect( leavePageFor ).toHaveBeenCalledWith( connectionUrl );
 			expect( mockRun ).not.toHaveBeenCalled();
@@ -684,6 +685,12 @@ describe( 'features waiting for an account', () => {
 				expect.objectContaining( { action, leavesPage: true } )
 			);
 			expect( leavePageFor ).toHaveBeenCalledTimes( connections );
+			// Install has already turned its plugin on, so the return has nothing to finish.
+			expect( ( getUserConnectionUrl as jest.Mock ).mock.calls ).toEqual(
+				Array( connections ).fill( [
+					{ redirect_url: expect.not.stringContaining( 'connect_intent' ) },
+				] )
+			);
 		}
 	);
 
@@ -734,11 +741,15 @@ describe( 'features waiting for an account', () => {
 	} );
 
 	it.each( [
-		[ 'a module', accountModule( false ), /then turn it on here if it’s still off\./ ],
+		[
+			'a module',
+			accountModule( false ),
+			/nothing to install\. Connecting your WordPress.com account turns it on\./,
+		],
 		[
 			'a plugin',
 			accountPlugin( 'inactive' ),
-			/Connect your WordPress.com account, then turn it on here\./,
+			/already installed\. Connecting your WordPress.com account turns it on\./,
 		],
 		[
 			'a missing plugin',
