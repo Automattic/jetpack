@@ -9,6 +9,7 @@ import { getSimpleQueryKey } from '../../../data/use-simple-query';
 import useAnalytics from '../../../hooks/use-analytics';
 import { useConnectionState } from '../../../hooks/use-connection-state';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
+import { getHeaderControlsSlot, HEADER_CONTROLS_CONTAINER_ID } from '../slot';
 import type { ConnectionState } from '../../../hooks/use-connection-state';
 import type { ReactElement } from 'react';
 
@@ -85,12 +86,13 @@ beforeEach( () => {
 
 describe( 'getHeaderControls', () => {
 	it.each( [
-		[ 'off', { headerControls: false } ],
-		[ 'missing, as from an older My Jetpack', {} ],
-	] )( 'returns null while the flag is %s', ( _, flags ) => {
+		[ 'getHeaderControls', 'off', getHeaderControls, { headerControls: false } ],
+		[ 'getHeaderControlsSlot', 'off', getHeaderControlsSlot, { headerControls: false } ],
+		[ 'getHeaderControls', 'missing, as from an older My Jetpack', getHeaderControls, {} ],
+	] )( '%s returns null while the flag is %s', ( _, __, getter, flags ) => {
 		setPageState( flags );
 
-		expect( getHeaderControls() ).toBeNull();
+		expect( getter() ).toBeNull();
 	} );
 
 	it( 'returns the controls once the flag is on', () => {
@@ -183,5 +185,24 @@ describe( 'HeaderControls', () => {
 		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_myjetpack_plans_manage_click', {
 			location: 'header',
 		} );
+	} );
+} );
+
+describe( 'header controls script', () => {
+	it( 'renders into the container once it mounts, and follows a replacement', async () => {
+		await import( '../../../header-controls-script' );
+		const mountContainer = () => {
+			const container = document.createElement( 'div' );
+			container.id = HEADER_CONTROLS_CONTAINER_ID;
+			document.body.append( container );
+			return container;
+		};
+
+		const first = mountContainer();
+		await waitFor( () => expect( within( first ).getByRole( 'button' ) ).toBeInTheDocument() );
+		first.remove();
+		const second = mountContainer();
+
+		await waitFor( () => expect( within( second ).getByRole( 'button' ) ).toBeInTheDocument() );
 	} );
 } );

@@ -1,7 +1,5 @@
-// eslint-disable-next-line @typescript-eslint/triple-slash-reference -- Same as header-data.ts: a package entry point.
-/// <reference path="../../../global.d.ts" />
-import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import ConnectionControl from './connection-control';
+import { isHeaderControlsEnabled } from './slot';
 import type { FC, ReactNode } from 'react';
 
 /**
@@ -12,11 +10,11 @@ import type { FC, ReactNode } from 'react';
 const HeaderControls: FC = () => <ConnectionControl />;
 
 /**
- * The value for `AdminPage`'s `globalControls`: null while the `my-jetpack-header-controls` flag is off.
+ * The value for `AdminPage`'s `globalControls` on My Jetpack's own page: null while the `my-jetpack-header-controls` flag is off.
  *
  * @return The controls, or null.
  */
 export const getHeaderControls = (): ReactNode =>
-	getMyJetpackWindowInitialState( 'myJetpackFlags' ).headerControls ? <HeaderControls /> : null;
+	isHeaderControlsEnabled() ? <HeaderControls /> : null;
 
 export default HeaderControls;
