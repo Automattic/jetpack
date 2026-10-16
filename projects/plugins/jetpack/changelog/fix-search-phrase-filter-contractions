@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Search: Fix Classic Search treating contractions and inch marks as quoted phrases.
