@@ -183,6 +183,10 @@ function TagsInner() {
 								type: 'number',
 								options: { useMultipliers: false, decimals: 0 },
 							} }
+							columns={ {
+								label: __( 'Tags & categories', 'jetpack-premium-analytics-pkg' ),
+								metric: 'views',
+							} }
 						/>
 					) }
 				</WidgetState>

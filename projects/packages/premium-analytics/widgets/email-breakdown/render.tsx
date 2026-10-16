@@ -98,6 +98,20 @@ function buildLeaderboardData(
 	} );
 }
 
+function viewLabel( view: EmailBreakdownView ): string {
+	switch ( view ) {
+		case 'devices':
+			return __( 'Devices', 'jetpack-premium-analytics-pkg' );
+		case 'clients':
+			return __( 'Email clients', 'jetpack-premium-analytics-pkg' );
+		case 'links':
+			return __( 'Links', 'jetpack-premium-analytics-pkg' );
+		case 'countries':
+		default:
+			return __( 'Countries', 'jetpack-premium-analytics-pkg' );
+	}
+}
+
 function emptyStateText( view: EmailBreakdownView ): string {
 	switch ( view ) {
 		case 'devices':
@@ -191,6 +205,7 @@ export const EmailBreakdownLeaderboard = ( {
 						withOverlayLabel
 						showLegend={ false }
 						dataFormat={ DATA_FORMAT }
+						columns={ { label: viewLabel( view ), metric } }
 					/>
 					{ renderMap && (
 						<div className={ styles.map } data-testid="email-breakdown-map">

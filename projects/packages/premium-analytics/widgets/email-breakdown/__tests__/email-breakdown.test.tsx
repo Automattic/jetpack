@@ -107,13 +107,15 @@ describe( 'EmailBreakdownWidget', () => {
 			'renders the opens-by-country breakdown for the selected email',
 			{},
 			'stats/opens/emails/1234/country',
+			'Opens',
 		],
 		[
 			'reads the clicks endpoint for dimension views when metric is clicks',
 			{ metric: 'clicks' as const },
 			'stats/clicks/emails/1234/country',
+			'Clicks',
 		],
-	] )( '%s', async ( _title, metricAttributes, endpoint ) => {
+	] )( '%s', async ( _title, metricAttributes, endpoint, metricHeading ) => {
 		mockApiFetch.mockResolvedValue( COUNTRY_RESPONSE );
 
 		render(
@@ -128,6 +130,8 @@ describe( 'EmailBreakdownWidget', () => {
 
 		await expect( screen.findByText( 'United States' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'United Kingdom' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Countries' ) ).toBeInTheDocument();
+		expect( screen.getByText( metricHeading ) ).toBeInTheDocument();
 
 		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
 		expect( requestedPath ).toContain( endpoint );
