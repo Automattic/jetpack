@@ -92,6 +92,7 @@ jest.mock( '../feature-state', () => ( {
 	getForcedReason: () => null,
 	getFeatureManageUrl: ( state: FeatureState ) => state.feature.manage_url || '',
 	offersConnect: jest.requireActual( '../feature-state' ).offersConnect,
+	needsAccountWithoutConnect: jest.requireActual( '../feature-state' ).needsAccountWithoutConnect,
 } ) );
 
 // The card's own click target is covered elsewhere; here the handler is held onto.

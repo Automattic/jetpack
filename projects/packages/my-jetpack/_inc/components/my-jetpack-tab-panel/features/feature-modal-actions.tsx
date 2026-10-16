@@ -5,7 +5,12 @@ import { useModuleActivation } from '../../module-toggle';
 import { getSwitchLabel } from '../utils';
 import { ConnectButton, InstallButton, JetpackButton } from './feature-action';
 import { UpgradeButton } from './feature-paid';
-import { getFeatureManageUrl, getForcedReason, offersConnect } from './feature-state';
+import {
+	getFeatureManageUrl,
+	getForcedReason,
+	needsAccountWithoutConnect,
+	offersConnect,
+} from './feature-state';
 import { useFeaturesTracking } from './features-tracking-context';
 import { getFeatureUnavailableReason } from './module-availability';
 import { useFeaturePlugin } from './use-main-features';
@@ -137,8 +142,7 @@ export function FeatureModalActions( { state }: FeatureModalActionsProps ) {
 	const forcedReason = getForcedReason( state );
 	const unavailable = getFeatureUnavailableReason( state );
 	const connectFirst = offersConnect( state );
-	// Jetpack AI has no Connect yet, so with no badge this is what says it waits for an account.
-	const accountReason = state.accountNeeded && control.kind === 'none' ? unavailable : undefined;
+	const accountReason = needsAccountWithoutConnect( state ) ? unavailable : undefined;
 	// Waiting for an account, the switch only stays to turn off a feature already on, and
 	// until that request lands, so the button being pressed does not vanish under the click.
 	const showSwitch =

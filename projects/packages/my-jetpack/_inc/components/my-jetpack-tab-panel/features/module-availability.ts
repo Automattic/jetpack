@@ -94,14 +94,14 @@ export function getFeatureUnavailableReason( state: FeatureState ): string | und
  * @return The status label, or null when the feature's own control already says it.
  */
 export function getFeatureStatusLabel( state: FeatureState ): string | null {
-	// Connect or Install says what is missing; a feature with neither says it under its description.
+	// Connect or Install says what is missing; see `needsAccountWithoutConnect()` for a feature with neither.
 	if ( state.accountNeeded ) {
 		return null;
 	}
 	if ( getFeatureUnavailableReason( state ) ) {
 		return __( 'Unavailable', 'jetpack-my-jetpack' );
 	}
-	if ( isAccountConnectEnabled() && ( state.control.kind !== 'none' || state.control.override ) ) {
+	if ( isAccountConnectEnabled() && state.control.kind !== 'none' ) {
 		return null;
 	}
 	return getActivationStatusLabel( state.status === 'active' );

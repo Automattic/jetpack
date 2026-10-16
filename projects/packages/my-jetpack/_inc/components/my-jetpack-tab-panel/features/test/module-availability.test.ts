@@ -94,17 +94,20 @@ describe( 'getFeatureStatusLabel', () => {
 			'Inactive',
 			build( { kind: 'none' }, { status: 'inactive' } ),
 		],
-		[
-			'a feature waiting for an account',
-			null,
-			null,
-			build( { kind: 'none' }, { accountNeeded: true } ),
-		],
 	] )( 'labels %s %s with the flag off and %s with it on', ( _, flagOff, flagOn, state ) => {
 		expect( getFeatureStatusLabel( state ) ).toBe( flagOff );
 		window.myJetpackInitialState.myJetpackFlags = {
 			accountConnect: true,
 		} as typeof window.myJetpackInitialState.myJetpackFlags;
 		expect( getFeatureStatusLabel( state ) ).toBe( flagOn );
+	} );
+
+	it( 'labels nothing on a feature waiting for an account, which only happens with the flag on', () => {
+		window.myJetpackInitialState.myJetpackFlags = {
+			accountConnect: true,
+		} as typeof window.myJetpackInitialState.myJetpackFlags;
+		expect(
+			getFeatureStatusLabel( build( { kind: 'none' }, { accountNeeded: true } ) )
+		).toBeNull();
 	} );
 } );

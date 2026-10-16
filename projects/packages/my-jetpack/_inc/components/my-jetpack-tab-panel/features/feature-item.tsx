@@ -8,7 +8,12 @@ import { getBlockThemeMigration } from '../../../utils/block-theme-migration';
 import { FeatureAction } from './feature-action';
 import { FeatureIcon } from './feature-icon';
 import { FeatureInstallNotice } from './feature-install-notice';
-import { getForcedReason, getModuleUnavailableNote, offersConnect } from './feature-state';
+import {
+	getForcedReason,
+	getModuleUnavailableNote,
+	needsAccountWithoutConnect,
+	offersConnect,
+} from './feature-state';
 import { isAccountConnectEnabled } from './mappings';
 import { getFeatureStatusLabel, getFeatureUnavailableReason } from './module-availability';
 import styles from './styles.module.scss';
@@ -75,11 +80,12 @@ export function FeatureItem( {
 	const chevron = isRTL() ? chevronLeft : chevronRight;
 	const onClick = useCallback( () => onOpen?.( feature.slug ), [ feature.slug, onOpen ] );
 	const unavailable = getFeatureUnavailableReason( state );
-	// Connect or Install already says an account is needed; Jetpack AI has neither yet.
+	// Connect or Install already says an account is needed.
 	const reason =
-		( ( ! state.accountNeeded || state.control.kind === 'none' ) && unavailable ) ||
+		( ( ! state.accountNeeded || needsAccountWithoutConnect( state ) ) && unavailable ) ||
 		getModuleUnavailableNote( state );
-	// With no Active or Inactive badge, this is what says a host turned the feature on or off.
+	// With no Active or Inactive badge, this says why there is no switch, a host's choice or what
+	// the site can't run, unless the line above already does.
 	const forcedReason = isAccountConnectEnabled() ? getForcedReason( state ) : null;
 	const forcedNote = forcedReason !== reason ? forcedReason : null;
 	const statusId = `feature-status-${ feature.slug }`;

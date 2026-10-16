@@ -384,6 +384,31 @@ describe( 'FeatureModal Free column', () => {
 		expect( screen.getByText( 'Inactive' ) ).toBeVisible();
 	} );
 
+	it( 'leaves the header with only the title once the flag drops the status badge', () => {
+		window.myJetpackInitialState.myJetpackFlags = {
+			accountConnect: true,
+		} as typeof window.myJetpackInitialState.myJetpackFlags;
+		try {
+			render(
+				<QueryClientProvider client={ new QueryClient() }>
+					<FeatureModal
+						state={ moduleState( false, 'active' ) }
+						position={ 1 }
+						total={ 1 }
+						onStep={ jest.fn() }
+						onClose={ jest.fn() }
+					/>
+				</QueryClientProvider>
+			);
+			const title = screen.getByRole( 'heading', { name: 'Forms' } );
+			// eslint-disable-next-line testing-library/no-node-access -- an empty badge row has no role or text to query.
+			expect( title.parentElement?.childElementCount ).toBe( 1 );
+			expect( screen.queryByText( /^(Active|Inactive)$/ ) ).not.toBeInTheDocument();
+		} finally {
+			window.myJetpackInitialState.myJetpackFlags = undefined;
+		}
+	} );
+
 	it( 'agrees with the card status for an unavailable feature with no standalone route', () => {
 		const state = moduleState( false, 'inactive' );
 		state.feature = { ...feature, plugin: '' };

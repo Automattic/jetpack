@@ -473,18 +473,30 @@ describe( 'FeatureItem', () => {
 		}
 	);
 
+	const forcedOn = buildState( { kind: 'module', module: forcedModule }, { status: 'active' } );
+	const forcedOff = buildState( { kind: 'plugin', plugin: 'jetpack-boost', override: 'inactive' } );
+
 	it.each( [
-		[ 'a module a host forced on', false, 'Active', null ],
-		[ 'a module a host forced on', true, null, 'Enabled by your host or site administrator' ],
-		[ 'a plugin a host forced off', false, 'Inactive', null ],
-		[ 'a plugin a host forced off', true, null, 'Disabled by your host or site administrator' ],
+		[ 'a module a host forced on', false, 'Active', null, forcedOn ],
+		[
+			'a module a host forced on',
+			true,
+			null,
+			'Enabled by your host or site administrator',
+			forcedOn,
+		],
+		[ 'a plugin a host forced off', false, 'Inactive', null, forcedOff ],
+		[
+			'a plugin a host forced off',
+			true,
+			null,
+			'Disabled by your host or site administrator',
+			forcedOff,
+		],
 	] as const )(
 		'shows no switch for %s (flag on: %s), with badge %s and host note %s',
-		( name, flagOn, badge, note ) => {
+		( _, flagOn, badge, note, state ) => {
 			setAccountConnect( flagOn );
-			const state = name.startsWith( 'a module' )
-				? buildState( { kind: 'module', module: forcedModule }, { status: 'active' } )
-				: buildState( { kind: 'plugin', plugin: 'jetpack-boost', override: 'inactive' } );
 
 			render( <FeatureItem state={ state } onOpen={ jest.fn() } /> );
 

@@ -1182,7 +1182,7 @@ class Initializer {
 			self::ACCOUNT_CONNECT_FLAG,
 			array(
 				'default'     => false,
-				'description' => 'Show Needs user account on Features cards, and connect the account from their Install or Connect button.',
+				'description' => 'Connect the account from the Install or Connect button of Features cards that need one.',
 				'owner'       => 'my-jetpack',
 			)
 		);
