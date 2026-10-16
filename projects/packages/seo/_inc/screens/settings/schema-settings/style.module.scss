@@ -58,20 +58,94 @@
 	min-block-size: 40px;
 }
 
-// The Organization details + local-business group. The hairline separating it
-// from the Breadcrumbs toggle is a border on the container — the settings-list
-// pattern from `title-structure-field.module.scss` — rather than a separate
-// `<hr>`, which would add an unnamed separator to the accessibility tree for
-// what is a purely visual cue.
+// Site-entity selector: two selectable cards (Organization / Person) driven by
+// native radios so the platform provides radiogroup keyboard + a11y semantics.
+.entityGrid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: var(--wpds-dimension-gap-md);
+
+	@media (max-width: 600px) {
+		grid-template-columns: 1fr;
+	}
+}
+
+.entity {
+	display: flex;
+	gap: var(--wpds-dimension-gap-sm);
+	align-items: flex-start;
+	padding: var(--wpds-dimension-gap-md);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+	border-radius: var(--wpds-border-radius-md);
+	cursor: pointer;
+
+	&:hover {
+		border-color: var(--wpds-color-stroke-interactive-brand);
+	}
+
+	// The radio itself is hidden; the label card carries the visible state, so
+	// surface keyboard focus on the whole card instead.
+	&:focus-within {
+		outline: 2px solid var(--wpds-color-stroke-interactive-brand);
+		outline-offset: 2px;
+	}
+}
+
+.entitySelected {
+	border-color: var(--wpds-color-stroke-interactive-brand);
+	background: var(--wpds-color-background-surface-brand);
+}
+
+// Visually hidden but still focusable and in the tab/arrow-key order.
+.entityRadio {
+	position: absolute;
+	inline-size: 1px;
+	block-size: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+	border: 0;
+}
+
+.entityIcon {
+	display: inline-flex;
+	flex: none;
+	color: var(--wpds-color-foreground-content-neutral-weak);
+
+	.entitySelected & {
+		color: var(--wpds-color-foreground-interactive-brand);
+	}
+}
+
+.entityBody {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-xs);
+}
+
+.entityTitle {
+	font-weight: 600;
+}
+
+// The site-entity group: the selector plus the entity fields it reveals.
+// The hairline separating it from the Breadcrumbs toggle is a border on the
+// container — the settings-list pattern from `title-structure-field` — not a
+// separate `<hr>`, which would add an unnamed separator to the accessibility
+// tree for what is a purely visual cue.
 .entityGroup {
-	// `fieldset` gets a UA `min-width: min-content` that @wordpress/ui's reset
-	// doesn't clear; without this the `.pairedFields` grid inside refuses to
-	// shrink on narrow viewports.
-	min-inline-size: 0;
 	padding-block-start: var(--wpds-dimension-gap-lg);
 	border-block-start:
 		var(--wpds-border-width-xs) solid
 		var(--wpds-color-stroke-surface-neutral-weak);
+}
+
+// `fieldset` gets a UA `min-width: min-content` that @wordpress/ui's reset
+// doesn't clear; without this the `.pairedFields` grid inside refuses to shrink
+// on narrow viewports.
+.entityFieldset {
+	min-inline-size: 0;
 }
 
 .saveError {
