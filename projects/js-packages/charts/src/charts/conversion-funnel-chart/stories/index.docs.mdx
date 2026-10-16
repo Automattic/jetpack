@@ -185,13 +185,17 @@ Full control over component rendering with custom render functions:
 				)}
 			</div>
 		)}
-		renderTooltip={({ step }) => (
+		renderTooltip={({ step, content }) => (
 			<div style={{ minWidth: '200px' }}>
 				<div>{step.label}</div>
-				<div style={{ fontSize: '18px', fontWeight: 'bold' }}>
-					{step.rate.toFixed(1)}%
-					{step.count && <span> • {step.count.toLocaleString()} items</span>}
-				</div>
+				{content.value && (
+					<div style={{ fontSize: '18px', fontWeight: 'bold' }}>{content.value}</div>
+				)}
+				{content.rows?.map(row => (
+					<div key={row.label}>
+						{row.label}: <strong>{row.value}</strong>
+					</div>
+				))}
 			</div>
 		)}
 		tooltipStyle={{
@@ -208,7 +212,8 @@ Full control over component rendering with custom render functions:
 - **`renderMainMetric`**: Customize the main conversion rate display
 - **`renderStepLabel`**: Customize individual step labels
 - **`renderStepRate`**: Customize individual step rate displays
-- **`renderTooltip`**: Customize tooltip content. It sits inside the dark tooltip box, so let it inherit the box colors.
+- **`getTooltipContent`**: Set what each step's tooltip shows: a `value` beside the step's name and labeled `rows` below it. Screen readers read the same content, so the two cannot drift.
+- **`renderTooltip`**: Customize the tooltip's layout. Render the `content` it receives, which is what screen readers read. It sits inside the dark tooltip box, so let it inherit the box colors.
 - **`tooltipStyle`**: Restyle the tooltip box itself, such as its background, radius or padding. Set `color` with any background change.
 
 ### Disabling Components
@@ -385,16 +390,21 @@ Measure content consumption funnel from page views to conversions.
 
 ### Keyboard Navigation
 
-- **Tab Navigation**: Funnel step bars are focusable and accessible via Tab key
-- **Enter/Space**: Activate step interactions and show tooltips
-- **Escape**: Clear selections and hide tooltips
-- **Focus Management**: Blurred steps have `tabIndex={-1}` to prevent focus
+The steps form a [toolbar](https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/) with one Tab stop.
+
+- **Tab**: Enters the funnel on the last focused step, else the selected step, else the first step. The next Tab leaves the funnel.
+- **Left/Right arrows**: Move focus to the previous or next step. They are swapped in a right-to-left layout and do not wrap.
+- **Home/End**: Move focus to the first or last step.
+- **Enter/Space**: Select or deselect the focused step and show its tooltip.
+- **Escape**: Clear the selection and hide the tooltip. Focus stays on the step.
 
 ### Screen Reader Support
 
 - Set `ariaLabel` to name the chart. See [Accessible names](./?path=/docs/js-packages-charts-library-introduction--docs#accessible-names).
-- **ARIA Roles**: Each funnel step uses `role="button"` for proper semantic meaning
+- **ARIA Roles**: The steps sit in a `role="toolbar"` labeled "Funnel steps", and each step uses `role="button"`
 - **ARIA Labels**: Each step has `aria-label` with the step name
+- **Selection State**: The selected step has `aria-pressed="true"`, the others `aria-pressed="false"`
+- **Descriptions**: Each step has an `aria-describedby` description built from the same `getTooltipContent` as its tooltip, by default "7,110 items, Conversion rate 71.1%". The tooltip itself is visual only.
 - **Alternative Text**: Step labels and rates are accessible to screen readers
 - **Loading States**: Loading and empty states provide appropriate text content
 
@@ -407,7 +417,6 @@ Measure content consumption funnel from page views to conversions.
 
 ### Focus Management
 
-- **Logical Tab Order**: Focus moves through steps in visual order
-- **Dynamic `tabIndex`**: Blurred (non-selected) steps are removed from tab order when another step is selected
-- **Visual Focus Indicators**: CSS focus styles provide clear visual feedback
+- **Roving `tabIndex`**: One step has `tabIndex={0}` and the others `tabIndex={-1}`. Dimmed (non-selected) steps stay reachable with the arrow keys.
+- **Visual Focus Indicators**: The focused step shows a focus ring when focus comes from the keyboard
 

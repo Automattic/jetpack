@@ -47,6 +47,28 @@ describe( 'Funnel', () => {
 		expect( screen.getByText( /17%/ ) ).toBeInTheDocument();
 	} );
 
+	it.each( [
+		[ 'Sessions', 'Sessions1,250' ],
+		[ 'Cart', 'Cart310Conversion rate24.8%' ],
+	] )( 'shows the %s step count and conversion rate in its tooltip', async ( label, text ) => {
+		renderFunnel( <Funnel steps={ STEPS } status={ READY } /> );
+
+		await userEvent.click( screen.getByRole( 'button', { name: label } ) );
+
+		expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( text );
+	} );
+
+	it.each( [
+		[ 'Sessions', '1,250' ],
+		[ 'Cart', '310, Conversion rate 24.8%' ],
+	] )( 'describes the %s step with what its tooltip shows', ( label, description ) => {
+		renderFunnel( <Funnel steps={ STEPS } status={ READY } /> );
+
+		expect( screen.getByRole( 'button', { name: label } ) ).toHaveAccessibleDescription(
+			description
+		);
+	} );
+
 	it( 'renders the empty state when the first step is empty', () => {
 		renderFunnel(
 			<Funnel
