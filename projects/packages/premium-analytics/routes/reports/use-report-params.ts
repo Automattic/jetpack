@@ -5,7 +5,6 @@ import {
 	normalizeReportParams,
 	useReportScope,
 	withoutComparison,
-	NO_LOCKED_INTERVALS,
 } from '@jetpack-premium-analytics/data';
 import { useSearch } from '@wordpress/route';
 import { useMemo } from 'react';
@@ -29,8 +28,7 @@ export function useReportParams() {
 
 	return useMemo( () => {
 		const params = normalizeReportParams(
-			search as Parameters< typeof normalizeReportParams >[ 0 ],
-			{ lockedIntervals: NO_LOCKED_INTERVALS }
+			search as Parameters< typeof normalizeReportParams >[ 0 ]
 		);
 
 		return offersComparison ? params : withoutComparison( params );

@@ -1,11 +1,7 @@
 /**
  * External dependencies
  */
-import {
-	isStatsFeatureLocked,
-	usePrefetchViewerCountry,
-	NO_LOCKED_INTERVALS,
-} from '@jetpack-premium-analytics/data';
+import { isStatsFeatureLocked, usePrefetchViewerCountry } from '@jetpack-premium-analytics/data';
 import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
@@ -159,7 +155,7 @@ export default function LocationsReportPage(): JSX.Element {
 		return { code: countryFilter, name: country?.label ?? countryFilter };
 	}, [ countryFilter, records.countries.options ] );
 
-	const dateFilters = useReportDateFilters( ROUTE_FROM, { lockedIntervals: NO_LOCKED_INTERVALS } );
+	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const tableIsLoading = records.table.isLoading || records.table.isFetching;
 	const { getLabel } = REPORTS.locations;
 	// Stays mounted while the rows load, so a map the user collapsed stays collapsed.

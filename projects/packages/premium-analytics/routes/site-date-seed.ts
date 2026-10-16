@@ -6,7 +6,6 @@ import {
 	normalizeReportParams,
 	withDefaultComparison,
 	type ReportParams,
-	NO_LOCKED_INTERVALS,
 } from '@jetpack-premium-analytics/data';
 
 /**
@@ -19,8 +18,7 @@ import {
  */
 export function seedSiteDateParams( search: Record< string, unknown > ): ReportParams {
 	const normalized = normalizeReportParams(
-		search as Parameters< typeof normalizeReportParams >[ 0 ],
-		{ lockedIntervals: NO_LOCKED_INTERVALS }
+		search as Parameters< typeof normalizeReportParams >[ 0 ]
 	);
 
 	const isFreshLoad = ! search.from && ! search.to && ! search.preset;

@@ -14,7 +14,7 @@ jest.mock( '@wordpress/route', () => ( {
  * External dependencies
  */
 import { TZDate } from '@date-fns/tz';
-import { PeriodChangeSignalProvider, NO_LOCKED_INTERVALS } from '@jetpack-premium-analytics/data';
+import { PeriodChangeSignalProvider } from '@jetpack-premium-analytics/data';
 import { act, renderHook } from '@testing-library/react';
 import { getSettings, setSettings } from '@wordpress/date';
 /**
@@ -42,8 +42,8 @@ const wrapper = ( { children }: { children: ReactNode } ) => (
 function renderStage() {
 	return renderHook(
 		() => {
-			const dateFilters = useReportDateFilters( '/', { lockedIntervals: NO_LOCKED_INTERVALS } );
-			const host = usePeriodHost( 'traffic', dateFilters.appliedRange, true, NO_LOCKED_INTERVALS );
+			const dateFilters = useReportDateFilters( '/' );
+			const host = usePeriodHost( 'traffic', dateFilters.appliedRange, true );
 
 			return { dateFilters, host };
 		},

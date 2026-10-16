@@ -1,11 +1,7 @@
 /**
  * External dependencies
  */
-import {
-	AnalyticsQueryClientProvider,
-	ReportScopeProvider,
-	NO_LOCKED_INTERVALS,
-} from '@jetpack-premium-analytics/data';
+import { AnalyticsQueryClientProvider, ReportScopeProvider } from '@jetpack-premium-analytics/data';
 import {
 	pickReportNavigationParams,
 	useReportDateFilters,
@@ -70,7 +66,7 @@ function VideoDetail(): JSX.Element {
 	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules );
 
 	// The applied report date range lives in the URL search params.
-	const dateFilters = useReportDateFilters( ROUTE_FROM, { lockedIntervals: NO_LOCKED_INTERVALS } );
+	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const { dateControls, isAnchoringAllTime } = useDetailDateControls(
 		summary.publishedDate,
 		dateFilters,

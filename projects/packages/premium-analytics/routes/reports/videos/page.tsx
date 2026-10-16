@@ -1,10 +1,7 @@
 /**
  * External dependencies
  */
-import {
-	type StatsVideoPlaysComparisonItem,
-	NO_LOCKED_INTERVALS,
-} from '@jetpack-premium-analytics/data';
+import { type StatsVideoPlaysComparisonItem } from '@jetpack-premium-analytics/data';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
@@ -82,7 +79,7 @@ function VideosReport(): JSX.Element {
 		[ records.hasComparison ]
 	);
 
-	const dateFilters = useReportDateFilters( ROUTE_FROM, { lockedIntervals: NO_LOCKED_INTERVALS } );
+	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const { getLabel } = REPORTS.videos;
 
 	return (

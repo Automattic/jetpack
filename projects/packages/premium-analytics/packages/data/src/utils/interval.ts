@@ -97,7 +97,7 @@ function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] 
  */
 export function withoutLockedIntervals(
 	intervals: IntervalType[],
-	locked: readonly LockableInterval[]
+	locked: readonly LockableInterval[] = NO_LOCKED_INTERVALS
 ): IntervalType[] {
 	const open = intervals.filter( interval => ! locked.some( bucket => bucket === interval ) );
 	return open.length ? open : [ 'day' ];
@@ -114,7 +114,7 @@ export function getAllowedIntervalsForPreset(
 	preset: PrimaryPresetId | undefined,
 	from: string,
 	to: string,
-	locked: readonly LockableInterval[]
+	locked: readonly LockableInterval[] = NO_LOCKED_INTERVALS
 ): IntervalType[] {
 	return withoutLockedIntervals( allowedIntervalsForPreset( preset, from, to ), locked );
 }
@@ -160,8 +160,8 @@ export function resolveIntervalForRange(
 	preset: PrimaryPresetId | undefined,
 	from: string,
 	to: string,
-	current: string | undefined,
-	locked: readonly LockableInterval[]
+	current?: string,
+	locked: readonly LockableInterval[] = NO_LOCKED_INTERVALS
 ): IntervalType {
 	const allowed = getAllowedIntervalsForPreset( preset, from, to, locked );
 
@@ -183,8 +183,8 @@ export function resolveIntervalForPresetChange(
 	nextPreset: PrimaryPresetId | undefined,
 	from: string,
 	to: string,
-	currentInterval: string | undefined,
-	locked: readonly LockableInterval[]
+	currentInterval?: string,
+	locked: readonly LockableInterval[] = NO_LOCKED_INTERVALS
 ): IntervalType {
 	const switchesNamedPreset =
 		!! nextPreset && nextPreset !== PRESET_CUSTOM && nextPreset !== currentPreset;
@@ -204,5 +204,5 @@ export function getDefaultIntervalForPeriod(
 	from: string,
 	to: string
 ): IntervalType {
-	return resolveIntervalForRange( preset, from, to, undefined, NO_LOCKED_INTERVALS );
+	return resolveIntervalForRange( preset, from, to );
 }

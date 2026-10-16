@@ -154,7 +154,7 @@ export function isPresetLockedByPolicy(
 		return false;
 	}
 
-	// Single years belong to the Insights surface, which a limited plan locks whole.
+	// A single year is Insights' window, so a plan-limited surface locks every one.
 	if ( isYearPresetId( presetId ) ) {
 		return !! policy.feature;
 	}

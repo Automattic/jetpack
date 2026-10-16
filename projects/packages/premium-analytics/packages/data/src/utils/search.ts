@@ -15,7 +15,12 @@ import {
  * Internal dependencies
  */
 import { getDefaultQueryParams } from '../defaults';
-import { resolveIntervalForRange, type IntervalType, type LockableInterval } from './interval';
+import {
+	NO_LOCKED_INTERVALS,
+	resolveIntervalForRange,
+	type IntervalType,
+	type LockableInterval,
+} from './interval';
 import { computeDateRangeFromPreset } from './preset-date-range';
 import { toAuthorId, toPostId } from './to-post-id';
 import type { DateType } from './types';
@@ -91,18 +96,11 @@ function canonicalTimestamp< T extends string | undefined >( value: T ): T {
 		: value;
 }
 
-/** How a surface normalizes its params: the preset it opens on, and the buckets its plan locks. */
-export type NormalizeReportParamsOptions = {
-	/** The preset a search without dates opens on; defaults to the reader's. */
-	defaultPreset?: PresetType;
-	/** Required, so a caller that forgets the plan fails typecheck instead of unlocking it. */
-	lockedIntervals: readonly LockableInterval[];
-};
-
 /** Returns normalized report params, falling back to the defaults for anything absent. */
 export function normalizeReportParams(
-	search: NormalizeReportParamsArgType | undefined,
-	{ defaultPreset, lockedIntervals }: NormalizeReportParamsOptions
+	search?: NormalizeReportParamsArgType,
+	defaultPreset?: PresetType,
+	{ lockedIntervals = NO_LOCKED_INTERVALS }: { lockedIntervals?: readonly LockableInterval[] } = {}
 ): ReportParams {
 	const defaults = getDefaultQueryParams( false, defaultPreset );
 
@@ -172,8 +170,8 @@ export function normalizeReportParams(
  * Whether report date params are incomplete or the interval is invalid for the range.
  */
 export function needsReportDateParamsSeed(
-	search: ReportDateWindowSearch | undefined,
-	lockedIntervals: readonly LockableInterval[]
+	search?: ReportDateWindowSearch,
+	lockedIntervals?: readonly LockableInterval[]
 ): boolean {
 	if ( ! search?.from || ! search?.to || ! search?.interval ) {
 		return true;

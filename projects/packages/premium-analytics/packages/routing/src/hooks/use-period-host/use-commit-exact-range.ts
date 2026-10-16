@@ -29,7 +29,7 @@ export type CommitExactRange = (
  * @return The commit, taking the surface, the range, and whether to open the surface as a dashboard section.
  */
 export function useCommitExactRange(
-	lockedIntervals: readonly LockableInterval[]
+	lockedIntervals?: readonly LockableInterval[]
 ): CommitExactRange {
 	const { effective, stage, commit } = useStagedSearch< ExactRangeSearch, string >( {} );
 	const raisePeriodChange = useRaisePeriodChange();

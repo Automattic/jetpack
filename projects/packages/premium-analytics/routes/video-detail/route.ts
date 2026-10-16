@@ -4,7 +4,6 @@
 import {
 	ensureCoreSettingsReady,
 	needsReportDateParamsSeed,
-	NO_LOCKED_INTERVALS,
 } from '@jetpack-premium-analytics/data';
 import {
 	pickDashboardOriginParams,
@@ -67,7 +66,7 @@ export const route = {
 		}
 
 		const currentSearch = ( search ?? {} ) as VideoDetailSearch;
-		const needsDateSeed = needsReportDateParamsSeed( currentSearch, NO_LOCKED_INTERVALS );
+		const needsDateSeed = needsReportDateParamsSeed( currentSearch );
 		const needsPostSeed = currentSearch.post_id !== videoId;
 
 		if ( needsDateSeed || needsPostSeed ) {

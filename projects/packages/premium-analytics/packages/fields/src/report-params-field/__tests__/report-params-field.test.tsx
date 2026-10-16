@@ -1,11 +1,7 @@
 /**
  * External dependencies
  */
-import {
-	ReportScopeProvider,
-	normalizeReportParams,
-	NO_LOCKED_INTERVALS,
-} from '@jetpack-premium-analytics/data';
+import { ReportScopeProvider, normalizeReportParams } from '@jetpack-premium-analytics/data';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
@@ -404,7 +400,7 @@ describe( 'report params field', () => {
 		// The preset's own end, not the end of the day it falls in.
 		expect( latest()?.to ).toBe( '2026-06-15T12:59:59.999+00:00' );
 
-		const params = normalizeReportParams( latest(), { lockedIntervals: NO_LOCKED_INTERVALS } );
+		const params = normalizeReportParams( latest() );
 		const span = ( from?: string, to?: string ) =>
 			new Date( String( to ) ).getTime() - new Date( String( from ) ).getTime();
 

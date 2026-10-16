@@ -8,7 +8,6 @@ import { store as preferencesStore } from '@wordpress/preferences';
  * Internal dependencies
  */
 import { DASHBOARD_PREFERENCES_SCOPE } from '../../defaults/remembered-preset';
-import { NO_LOCKED_INTERVALS } from '../interval';
 import * as presetDateRange from '../preset-date-range';
 import { normalizeReportParams } from '../search';
 
@@ -43,7 +42,7 @@ describe( 'normalizeReportParams', () => {
 	} );
 
 	it( 'applies default preset without comparison on fresh load', () => {
-		const result = normalizeReportParams( undefined, { lockedIntervals: NO_LOCKED_INTERVALS } );
+		const result = normalizeReportParams();
 
 		expect( result.preset ).toBe( 'last-7-days' );
 		expect( result.from ).toBe( DEFAULT_FROM );
@@ -60,9 +59,7 @@ describe( 'normalizeReportParams', () => {
 		preferences.set( DASHBOARD_PREFERENCES_SCOPE, 'datePreset', 'last-30-days' );
 
 		try {
-			expect(
-				normalizeReportParams( undefined, { lockedIntervals: NO_LOCKED_INTERVALS } )
-			).toMatchObject( {
+			expect( normalizeReportParams() ).toMatchObject( {
 				preset: 'last-30-days',
 				from: FRESH_FROM,
 				to: FRESH_TO,
@@ -73,15 +70,12 @@ describe( 'normalizeReportParams', () => {
 	} );
 
 	it( 'passes the candidate interval through resolveIntervalForRange', () => {
-		const result = normalizeReportParams(
-			{
-				from: FRESH_FROM,
-				to: FRESH_TO,
-				preset: 'last-30-days',
-				interval: 'week',
-			},
-			{ lockedIntervals: NO_LOCKED_INTERVALS }
-		);
+		const result = normalizeReportParams( {
+			from: FRESH_FROM,
+			to: FRESH_TO,
+			preset: 'last-30-days',
+			interval: 'week',
+		} );
 
 		expect( result.interval ).toBe( 'week' );
 	} );
@@ -90,13 +84,10 @@ describe( 'normalizeReportParams', () => {
 		const customFrom = '2026-01-01T00:00:00.000-05:00';
 		const customTo = '2026-01-31T23:59:59.999-05:00';
 
-		const result = normalizeReportParams(
-			{
-				from: customFrom,
-				to: customTo,
-			},
-			{ lockedIntervals: NO_LOCKED_INTERVALS }
-		);
+		const result = normalizeReportParams( {
+			from: customFrom,
+			to: customTo,
+		} );
 
 		expect( result.from ).toBe( customFrom );
 		expect( result.to ).toBe( customTo );
@@ -105,17 +96,14 @@ describe( 'normalizeReportParams', () => {
 
 	// An unencoded `+` in a pasted link reaches the router as a space.
 	it( 'restores the plus a querystring decoded away from explicit dates', () => {
-		const result = normalizeReportParams(
-			{
-				from: '2026-01-20T00:00:00.000 05:00',
-				to: '2026-02-18T23:59:59.999 05:00',
-				interval: 'day',
-				comp: '1',
-				compare_from: '2025-12-21T00:00:00.000 05:00',
-				compare_to: '2026-01-19T23:59:59.999 05:00',
-			},
-			{ lockedIntervals: NO_LOCKED_INTERVALS }
-		);
+		const result = normalizeReportParams( {
+			from: '2026-01-20T00:00:00.000 05:00',
+			to: '2026-02-18T23:59:59.999 05:00',
+			interval: 'day',
+			comp: '1',
+			compare_from: '2025-12-21T00:00:00.000 05:00',
+			compare_to: '2026-01-19T23:59:59.999 05:00',
+		} );
 
 		expect( result ).toMatchObject( {
 			from: '2026-01-20T00:00:00.000+05:00',
@@ -130,14 +118,11 @@ describe( 'normalizeReportParams', () => {
 		const customFrom = '2026-01-01T00:00:00.000-05:00';
 		const customTo = '2026-01-31T23:59:59.999-05:00';
 
-		const result = normalizeReportParams(
-			{
-				from: customFrom,
-				to: customTo,
-				preset: 'custom',
-			},
-			{ lockedIntervals: NO_LOCKED_INTERVALS }
-		);
+		const result = normalizeReportParams( {
+			from: customFrom,
+			to: customTo,
+			preset: 'custom',
+		} );
 
 		expect( result.from ).toBe( customFrom );
 		expect( result.to ).toBe( customTo );
@@ -148,19 +133,16 @@ describe( 'normalizeReportParams', () => {
 		const compFrom = '2025-12-20T00:00:00.000-05:00';
 		const compTo = '2026-01-18T23:59:59.999-05:00';
 
-		const result = normalizeReportParams(
-			{
-				from: STALE_FROM,
-				to: STALE_TO,
-				preset: 'last-30-days',
-				interval: 'day',
-				comp: '1',
-				compare_from: compFrom,
-				compare_to: compTo,
-				compare_preset: 'previous-period',
-			},
-			{ lockedIntervals: NO_LOCKED_INTERVALS }
-		);
+		const result = normalizeReportParams( {
+			from: STALE_FROM,
+			to: STALE_TO,
+			preset: 'last-30-days',
+			interval: 'day',
+			comp: '1',
+			compare_from: compFrom,
+			compare_to: compTo,
+			compare_preset: 'previous-period',
+		} );
 
 		expect( result.from ).toBe( FRESH_FROM );
 		expect( result.to ).toBe( FRESH_TO );
@@ -178,19 +160,16 @@ describe( 'normalizeReportParams', () => {
 		const compFrom = '2025-12-20T00:00:00.000-05:00';
 		const compTo = '2026-01-18T23:59:59.999-05:00';
 
-		const result = normalizeReportParams(
-			{
-				from: STALE_FROM,
-				to: STALE_TO,
-				preset: 'last-30-days',
-				interval: 'day',
-				comp: 1 as unknown as '1',
-				compare_from: compFrom,
-				compare_to: compTo,
-				compare_preset: 'previous-period',
-			},
-			{ lockedIntervals: NO_LOCKED_INTERVALS }
-		);
+		const result = normalizeReportParams( {
+			from: STALE_FROM,
+			to: STALE_TO,
+			preset: 'last-30-days',
+			interval: 'day',
+			comp: 1 as unknown as '1',
+			compare_from: compFrom,
+			compare_to: compTo,
+			compare_preset: 'previous-period',
+		} );
 
 		expect( result.comp ).toBe( '1' );
 		expect( result.compare_from ).toBe( compFrom );
@@ -198,15 +177,12 @@ describe( 'normalizeReportParams', () => {
 	} );
 
 	it( 'recalculates primary with no comparison when comp is absent', () => {
-		const result = normalizeReportParams(
-			{
-				from: STALE_FROM,
-				to: STALE_TO,
-				preset: 'last-30-days',
-				interval: 'day',
-			},
-			{ lockedIntervals: NO_LOCKED_INTERVALS }
-		);
+		const result = normalizeReportParams( {
+			from: STALE_FROM,
+			to: STALE_TO,
+			preset: 'last-30-days',
+			interval: 'day',
+		} );
 
 		expect( result.from ).toBe( FRESH_FROM );
 		expect( result.to ).toBe( FRESH_TO );
@@ -227,14 +203,11 @@ describe( 'normalizeReportParams', () => {
 			);
 
 		try {
-			const result = normalizeReportParams(
-				{
-					from: STALE_FROM,
-					to: STALE_TO,
-					preset: 'last-30-days',
-				},
-				{ lockedIntervals: NO_LOCKED_INTERVALS }
-			);
+			const result = normalizeReportParams( {
+				from: STALE_FROM,
+				to: STALE_TO,
+				preset: 'last-30-days',
+			} );
 
 			expect( result.preset ).toBeUndefined();
 			expect( result.from ).toBe( STALE_FROM );
@@ -248,27 +221,21 @@ describe( 'normalizeReportParams', () => {
 	 * Edge case – chart period is preserved from search.
 	 */
 	it( 'preserves period from search', () => {
-		const result = normalizeReportParams(
-			{
-				from: FRESH_FROM,
-				to: FRESH_TO,
-				period: 'week',
-			},
-			{ lockedIntervals: NO_LOCKED_INTERVALS }
-		);
+		const result = normalizeReportParams( {
+			from: FRESH_FROM,
+			to: FRESH_TO,
+			period: 'week',
+		} );
 
 		expect( result.period ).toBe( 'week' );
 	} );
 
 	it( 'drops date_type, even when search has one', () => {
-		const result = normalizeReportParams(
-			{
-				from: FRESH_FROM,
-				to: FRESH_TO,
-				date_type: 'created',
-			},
-			{ lockedIntervals: NO_LOCKED_INTERVALS }
-		);
+		const result = normalizeReportParams( {
+			from: FRESH_FROM,
+			to: FRESH_TO,
+			date_type: 'created',
+		} );
 
 		expect( result ).not.toHaveProperty( 'date_type' );
 	} );
@@ -278,14 +245,11 @@ describe( 'normalizeReportParams', () => {
 	 * widgets stay bound to their post/page.
 	 */
 	it( 'coerces a valid post_id to a positive integer', () => {
-		const result = normalizeReportParams(
-			{
-				from: FRESH_FROM,
-				to: FRESH_TO,
-				post_id: '2428',
-			},
-			{ lockedIntervals: NO_LOCKED_INTERVALS }
-		);
+		const result = normalizeReportParams( {
+			from: FRESH_FROM,
+			to: FRESH_TO,
+			post_id: '2428',
+		} );
 
 		expect( result.post_id ).toBe( 2428 );
 	} );
@@ -296,15 +260,12 @@ describe( 'normalizeReportParams', () => {
 	 * all-time range covering one year is indistinguishable from that year.
 	 */
 	it( 'recomputes a year preset so the current year stays fresh', () => {
-		const result = normalizeReportParams(
-			{
-				from: '2026-01-01T00:00:00.000-05:00',
-				to: STALE_TO,
-				preset: 'year-2026',
-				interval: 'month',
-			},
-			{ lockedIntervals: NO_LOCKED_INTERVALS }
-		);
+		const result = normalizeReportParams( {
+			from: '2026-01-01T00:00:00.000-05:00',
+			to: STALE_TO,
+			preset: 'year-2026',
+			interval: 'month',
+		} );
 
 		expect( result.preset ).toBe( 'year-2026' );
 		expect( result.from ).toBe( '2026-01-01T00:00:00.000-05:00' );
@@ -312,14 +273,11 @@ describe( 'normalizeReportParams', () => {
 	} );
 
 	it( 'keeps the all-time start and refreshes its end', () => {
-		const result = normalizeReportParams(
-			{
-				from: '2023-01-01T00:00:00.000-05:00',
-				to: STALE_TO,
-				preset: 'all-time',
-			},
-			{ lockedIntervals: NO_LOCKED_INTERVALS }
-		);
+		const result = normalizeReportParams( {
+			from: '2023-01-01T00:00:00.000-05:00',
+			to: STALE_TO,
+			preset: 'all-time',
+		} );
 
 		expect( result.preset ).toBe( 'all-time' );
 		expect( result.from ).toBe( '2023-01-01T00:00:00.000-05:00' );
@@ -327,10 +285,7 @@ describe( 'normalizeReportParams', () => {
 	} );
 
 	it( 'rebuilds a year preset that arrives without its range', () => {
-		const result = normalizeReportParams(
-			{ preset: 'year-2025' },
-			{ lockedIntervals: NO_LOCKED_INTERVALS }
-		);
+		const result = normalizeReportParams( { preset: 'year-2025' } );
 
 		expect( result.preset ).toBe( 'year-2025' );
 		expect( result.from ).toBe( '2025-01-01T00:00:00.000-05:00' );
@@ -338,10 +293,7 @@ describe( 'normalizeReportParams', () => {
 	} );
 
 	it( 'drops an all-time preset that arrives without its site-specific range', () => {
-		const result = normalizeReportParams(
-			{ preset: 'all-time' },
-			{ lockedIntervals: NO_LOCKED_INTERVALS }
-		);
+		const result = normalizeReportParams( { preset: 'all-time' } );
 
 		expect( result.preset ).toBe( 'last-7-days' );
 		expect( result.from ).toBe( DEFAULT_FROM );
@@ -349,64 +301,49 @@ describe( 'normalizeReportParams', () => {
 	} );
 
 	it( 'omits post_id when search has none', () => {
-		const result = normalizeReportParams(
-			{
-				from: FRESH_FROM,
-				to: FRESH_TO,
-			},
-			{ lockedIntervals: NO_LOCKED_INTERVALS }
-		);
+		const result = normalizeReportParams( {
+			from: FRESH_FROM,
+			to: FRESH_TO,
+		} );
 
 		expect( result.post_id ).toBeUndefined();
 	} );
 
 	it( 'drops an invalid post_id (0)', () => {
-		const result = normalizeReportParams(
-			{
-				from: FRESH_FROM,
-				to: FRESH_TO,
-				post_id: '0',
-			},
-			{ lockedIntervals: NO_LOCKED_INTERVALS }
-		);
+		const result = normalizeReportParams( {
+			from: FRESH_FROM,
+			to: FRESH_TO,
+			post_id: '0',
+		} );
 
 		expect( result.post_id ).toBeUndefined();
 	} );
 
 	it( 'carries a valid author_id through as a number', () => {
-		const result = normalizeReportParams(
-			{
-				from: FRESH_FROM,
-				to: FRESH_TO,
-				author_id: '7',
-			},
-			{ lockedIntervals: NO_LOCKED_INTERVALS }
-		);
+		const result = normalizeReportParams( {
+			from: FRESH_FROM,
+			to: FRESH_TO,
+			author_id: '7',
+		} );
 
 		expect( result.author_id ).toBe( 7 );
 	} );
 
 	it.each( [ undefined, 'foo' ] )( 'omits an absent or invalid author_id (%s)', invalid => {
-		const result = normalizeReportParams(
-			{
-				from: FRESH_FROM,
-				to: FRESH_TO,
-				author_id: invalid,
-			},
-			{ lockedIntervals: NO_LOCKED_INTERVALS }
-		);
+		const result = normalizeReportParams( {
+			from: FRESH_FROM,
+			to: FRESH_TO,
+			author_id: invalid,
+		} );
 
 		expect( result.author_id ).toBeUndefined();
 	} );
 
 	it( 'keeps a locked range on days instead of resolving it to weeks', () => {
 		expect(
-			normalizeReportParams(
-				{ from: '2026-01-01', to: '2026-06-30', interval: 'day' },
-				{
-					lockedIntervals: [ 'week', 'month', 'year' ],
-				}
-			).interval
+			normalizeReportParams( { from: '2026-01-01', to: '2026-06-30', interval: 'day' }, undefined, {
+				lockedIntervals: [ 'week', 'month', 'year' ],
+			} ).interval
 		).toBe( 'day' );
 	} );
 } );

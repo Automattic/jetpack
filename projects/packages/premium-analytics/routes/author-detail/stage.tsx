@@ -5,7 +5,6 @@ import {
 	AnalyticsQueryClientProvider,
 	PeriodChangeSignalProvider,
 	ReportScopeProvider,
-	NO_LOCKED_INTERVALS,
 } from '@jetpack-premium-analytics/data';
 import { PRESET_ALL_TIME } from '@jetpack-premium-analytics/datetime';
 import {
@@ -72,7 +71,7 @@ function AuthorDetail(): JSX.Element {
 
 	const anchor = useAuthorAllTimeStart( authorId );
 
-	const dateFilters = useReportDateFilters( ROUTE_FROM, { lockedIntervals: NO_LOCKED_INTERVALS } );
+	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const { dateControls, isAnchoringAllTime: isAnchoringProvisional } = useDetailDateControls(
 		anchor.allTimeStart,
 		dateFilters,
@@ -139,8 +138,7 @@ function AuthorDetail(): JSX.Element {
 	const { openPeriod, attentionId } = usePeriodHost(
 		`author:${ authorId }`,
 		dateFilters.appliedRange,
-		true,
-		NO_LOCKED_INTERVALS
+		true
 	);
 
 	// Without cards there is nothing to arrange, and a refetch that fails

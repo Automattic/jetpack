@@ -23,7 +23,6 @@ import {
 	PeriodChangeSignalProvider,
 	useRaisePeriodChange,
 	useSettlePeriodChange,
-	NO_LOCKED_INTERVALS,
 } from '@jetpack-premium-analytics/data';
 import { act, renderHook } from '@testing-library/react';
 import { getSettings, setSettings } from '@wordpress/date';
@@ -44,7 +43,7 @@ const LOCKED_INTERVALS = [ 'week', 'month', 'year' ] as const;
 
 function renderDateFilters( search: Record< string, unknown > = {} ) {
 	mockSearch = search;
-	return renderHook( () => useReportDateFilters( '/', { lockedIntervals: NO_LOCKED_INTERVALS } ) );
+	return renderHook( () => useReportDateFilters( '/' ) );
 }
 
 describe( 'useReportDateFilters', () => {
@@ -516,7 +515,7 @@ describe( 'useReportDateFilters', () => {
 		mockSearch = { preset: 'last-30-days' };
 		const { result, rerender } = renderHook(
 			() => {
-				const filters = useReportDateFilters( '/', { lockedIntervals: NO_LOCKED_INTERVALS } );
+				const filters = useReportDateFilters( '/' );
 				return {
 					filters,
 					raise: useRaisePeriodChange(),
