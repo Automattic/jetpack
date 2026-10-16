@@ -58,6 +58,13 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		Constants::clear_constants();
 		Jetpack_Options::delete_option( 'id' );
 		delete_site_transient( 'jetpack_activity_log_has_access_1234' );
+		// Current_Plan memoises the plan in a static that the DB rollback does not reset.
+		$plan_cache = new \ReflectionProperty( \Automattic\Jetpack\Current_Plan::class, 'active_plan_cache' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$plan_cache->setAccessible( true );
+		}
+		$plan_cache->setValue( null, null );
 
 		parent::tear_down();
 	}
@@ -358,6 +365,43 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		$settings = $this->get_injected_settings();
 
 		$this->assertSame( '', $settings['searchSettingsUrl'] );
+	}
+
+	/**
+	 * The SEO row opens the Jetpack SEO page only where that page registers.
+	 *
+	 * @dataProvider seo_settings_url_cases
+	 *
+	 * @param string[] $features   Active plan features.
+	 * @param bool     $is_visible Whether this install shows the SEO page.
+	 * @param string   $expected   Admin path the link should open.
+	 */
+	#[DataProvider( 'seo_settings_url_cases' )]
+	public function test_seo_settings_url_follows_the_seo_page( array $features, $is_visible, $expected ) {
+		\Automattic\Jetpack\Current_Plan::update_from_site_record(
+			array(
+				'plan' => array(
+					'product_slug' => 'jetpack_free',
+					'features'     => array( 'active' => $features ),
+				),
+			)
+		);
+		update_option( \Automattic\Jetpack\SEO\Initializer::VISIBILITY_OPTION, $is_visible );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertSame( admin_url( $expected ), $settings['seoSettingsUrl'] );
+	}
+
+	/**
+	 * @return array Plan features, visibility, and the expected link.
+	 */
+	public static function seo_settings_url_cases() {
+		return array(
+			'plan has the SEO page'         => array( array( 'seo-admin-ui' ), true, 'admin.php?page=jetpack-seo' ),
+			'existing install not opted in' => array( array( 'seo-admin-ui' ), false, 'admin.php?page=jetpack-settings#/traffic' ),
+			'plan lacks the SEO page'       => array( array(), true, 'admin.php?page=jetpack-settings#/traffic' ),
+		);
 	}
 
 	/**
