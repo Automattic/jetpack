@@ -601,7 +601,7 @@ export const SettingsCard = inprops => {
 												'Button caption',
 												'jetpack',
 												/* dummy arg to avoid bad minification */ 0
-										  ) }
+											) }
 								</Button>
 							) }
 							{ props.action && (
@@ -639,9 +639,12 @@ SettingsCard.propTypes = {
  */
 const getSeoUpgradeUrl = state => {
 	const siteFragment = getSiteFragment();
-	const redirectTo = addQueryArgs( getSiteAdminUrl( state ) + 'admin.php?page=jetpack#/traffic', {
-		feature: 'seo',
-	} );
+	const redirectTo = addQueryArgs(
+		getSiteAdminUrl( state ) + 'admin.php?page=jetpack-settings#/traffic',
+		{
+			feature: 'seo',
+		}
+	);
 	return addQueryArgs( `https://wordpress.com/checkout/${ siteFragment }/${ PLAN_BUSINESS }`, {
 		redirect_to: redirectTo,
 	} );

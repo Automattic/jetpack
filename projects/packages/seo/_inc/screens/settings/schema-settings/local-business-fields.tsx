@@ -2,8 +2,9 @@
 
 import { TextControl } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
+import { Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
+import styles from './style.module.scss';
 import type {
 	LocalBusinessAddress,
 	LocalBusinessSettings,
@@ -177,19 +178,16 @@ const LocalBusinessFields: FC< Props > = ( { form } ) => {
 	return (
 		<Stack direction="column" gap="lg">
 			{ storedAddressEmpty && defaultAddressEmpty && (
-				<span className="jetpack-seo-settings__title-tokens-label">
-					{ __(
-						'Add your business address — Google requires it before LocalBusiness info is shown.',
-						'jetpack-seo'
-					) }
-				</span>
+				<Text variant="body-sm" className={ styles.muted }>
+					{ __( 'Google requires an address before showing LocalBusiness info.', 'jetpack-seo' ) }
+				</Text>
 			) }
 
 			{ ADDRESS_FIELD_ROWS.map( fields => (
 				<div
 					key={ fields[ 0 ].field }
 					className={ clsx( {
-						'jetpack-seo-settings__schema-paired-fields': fields.length > 1,
+						[ styles.pairedFields ]: fields.length > 1,
 					} ) }
 				>
 					{ fields.map( ( { field, label, help } ) => {
@@ -197,8 +195,8 @@ const LocalBusinessFields: FC< Props > = ( { form } ) => {
 						return (
 							<div
 								key={ field }
-								className={ clsx( 'jetpack-seo-settings__schema-paired-field', {
-									'jetpack-seo-settings__schema-field--error': fieldError,
+								className={ clsx( styles.pairedField, {
+									[ styles.fieldError ]: fieldError,
 								} ) }
 							>
 								<TextControl
@@ -220,10 +218,10 @@ const LocalBusinessFields: FC< Props > = ( { form } ) => {
 				</div>
 			) ) }
 
-			<div className="jetpack-seo-settings__schema-paired-fields">
+			<div className={ styles.pairedFields }>
 				<div
-					className={ clsx( 'jetpack-seo-settings__schema-paired-field', {
-						'jetpack-seo-settings__schema-field--error': ! isPhoneNumber( localBusiness.telephone ),
+					className={ clsx( styles.pairedField, {
+						[ styles.fieldError ]: ! isPhoneNumber( localBusiness.telephone ),
 					} ) }
 				>
 					<TextControl
@@ -244,8 +242,8 @@ const LocalBusinessFields: FC< Props > = ( { form } ) => {
 				</div>
 
 				<div
-					className={ clsx( 'jetpack-seo-settings__schema-paired-field', {
-						'jetpack-seo-settings__schema-field--error': ! isPriceRange( localBusiness.priceRange ),
+					className={ clsx( styles.pairedField, {
+						[ styles.fieldError ]: ! isPriceRange( localBusiness.priceRange ),
 					} ) }
 				>
 					<TextControl
@@ -254,10 +252,7 @@ const LocalBusinessFields: FC< Props > = ( { form } ) => {
 						help={
 							! isPriceRange( localBusiness.priceRange )
 								? PRICE_RANGE_ERROR
-								: __(
-										'Use a numerical range (for example $10–$20) or a relative price level (for example $$).',
-										'jetpack-seo'
-								  )
+								: __( 'A range like $10–$20, or a level like $$.', 'jetpack-seo' )
 						}
 						value={ localBusiness.priceRange }
 						onChange={ next => setLocalBusinessField( { priceRange: next } ) }
@@ -269,11 +264,11 @@ const LocalBusinessFields: FC< Props > = ( { form } ) => {
 				</div>
 			</div>
 
-			<div className="jetpack-seo-settings__schema-paired-fields">
+			<div className={ styles.pairedFields }>
 				{ GEO_FIELDS.map( ( { field, label, max } ) => {
 					const fieldError = hasPartialGeo || ! isCoordinate( geo[ field ], max );
 					return (
-						<div key={ field } className="jetpack-seo-settings__schema-paired-field">
+						<div key={ field } className={ styles.pairedField }>
 							<TextControl
 								label={ label }
 								inputMode="decimal"
@@ -289,22 +284,22 @@ const LocalBusinessFields: FC< Props > = ( { form } ) => {
 					);
 				} ) }
 				{ geoError && (
-					<span id={ GEO_ERROR_ID } className="jetpack-seo-settings__schema-pair-error">
+					<Text id={ GEO_ERROR_ID } variant="body-sm" className={ styles.pairError }>
 						{ geoError }
-					</span>
+					</Text>
 				) }
 			</div>
 
 			<Stack direction="column" gap="sm">
-				<span className="jetpack-seo-settings__schema-field-label">
+				<Text variant="heading-sm" className={ styles.fieldLabel }>
 					{ __( 'Opening hours', 'jetpack-seo' ) }
-				</span>
-				<span className="jetpack-seo-settings__title-tokens-label">
+				</Text>
+				<Text variant="body-sm" className={ styles.muted }>
 					{ __(
 						"Leave a day blank if it's closed. A closing time earlier than opening means the business closes the following day.",
 						'jetpack-seo'
 					) }
-				</span>
+				</Text>
 				{ OPENING_DAYS.map( ( { code, label } ) => {
 					const hasOpens = Boolean( openingHours[ code ].opens.trim() );
 					const hasCloses = Boolean( openingHours[ code ].closes.trim() );
@@ -313,10 +308,12 @@ const LocalBusinessFields: FC< Props > = ( { form } ) => {
 					const hasPairError = opensError || closesError;
 					const errorId = `jetpack-seo-settings-opening-hours-${ code }-error`;
 					return (
-						<div key={ code } className="jetpack-seo-settings__schema-opening-hours-row">
-							<span className="jetpack-seo-settings__schema-day-label">{ label }</span>
-							<div className="jetpack-seo-settings__schema-paired-fields">
-								<div className="jetpack-seo-settings__schema-paired-field">
+						<div key={ code } className={ styles.openingHoursRow }>
+							<Stack render={ <span /> } align="center" className={ styles.dayLabel }>
+								{ label }
+							</Stack>
+							<div className={ styles.pairedFields }>
+								<div className={ styles.pairedField }>
 									<TextControl
 										label={ sprintf(
 											/* translators: %s: day of week. */
@@ -335,7 +332,7 @@ const LocalBusinessFields: FC< Props > = ( { form } ) => {
 										__nextHasNoMarginBottom
 									/>
 								</div>
-								<div className="jetpack-seo-settings__schema-paired-field">
+								<div className={ styles.pairedField }>
 									<TextControl
 										label={ sprintf(
 											/* translators: %s: day of week. */
@@ -355,9 +352,9 @@ const LocalBusinessFields: FC< Props > = ( { form } ) => {
 									/>
 								</div>
 								{ hasPairError && (
-									<span id={ errorId } className="jetpack-seo-settings__schema-pair-error">
+									<Text id={ errorId } variant="body-sm" className={ styles.pairError }>
 										{ OPENING_HOURS_PAIR_ERROR }
-									</span>
+									</Text>
 								) }
 							</div>
 						</div>

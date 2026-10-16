@@ -1,11 +1,88 @@
 .options-general-php {
 
+	.wpcom-site-logo-preview {
+		inline-size: fit-content;
+		max-inline-size: 100%;
+		padding: 4px;
+		border: 1px solid #dcdcde;
+		border-radius: 2px;
+		// Transparency grid so white, dark, and transparent logos all stay
+		// visible against WP Admin's light canvas.
+		background-color: #f6f7f7;
+		background-image:
+			linear-gradient(45deg, #c3c4c7 25%, transparent 25%),
+			linear-gradient(-45deg, #c3c4c7 25%, transparent 25%),
+			linear-gradient(45deg, transparent 75%, #c3c4c7 75%),
+			linear-gradient(-45deg, transparent 75%, #c3c4c7 75%);
+		background-size: 16px 16px;
+		background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+
+		.wpcom-site-logo-preview-image {
+			display: block;
+			// Override wp_get_attachment_image()'s width/height attributes so the
+			// max constraints scale the image instead of distorting it.
+			inline-size: auto;
+			block-size: auto;
+			max-inline-size: 160px;
+			max-block-size: 30px;
+		}
+	}
+
 	.button.wpcom-fiverr-cta-button {
 		margin-top: 0.4em;
 
 		svg {
 			vertical-align: middle;
 		}
+	}
+
+	.wpcom-site-logo {
+		// Preview and button share one line, wrapping on narrow screens rather
+		// than overflowing.
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 10px;
+
+		.button.wpcom-fiverr-cta-button {
+			margin-top: 0;
+		}
+	}
+
+	.wpcom-fiverr-cta-box {
+		display: flex;
+		align-items: flex-start;
+		gap: 8px;
+		// Shrink to the width of the copy rather than filling the settings
+		// cell, while still giving way on narrow screens.
+		inline-size: fit-content;
+		max-inline-size: 100%;
+		padding: 12px;
+		border: 1px solid #ccc;
+		border-radius: 2px;
+		background-color: #fafafa;
+
+		.wpcom-fiverr-cta-logo {
+			// Keep the mark circular at any text length, and align it with the
+			// first line rather than the middle of the block.
+			flex-shrink: 0;
+			margin-block-start: 2px;
+		}
+
+		p {
+			margin: 0;
+		}
+
+		p + p {
+			margin-block-start: 4px;
+			color: #646970;
+		}
+	}
+
+	.wpcom-site-logo-description {
+		// Sits on its own line below the CTA, clear of the tighter spacing core
+		// gives paragraphs inside a form table cell.
+		margin-block-start: 8px;
 	}
 
 	.button.wpcom-add-custom-address-button {

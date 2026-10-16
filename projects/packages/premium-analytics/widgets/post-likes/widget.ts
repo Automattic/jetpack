@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { starEmpty } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
@@ -14,15 +13,12 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 export type PostLikesAttributes = Record< never, never >;
 
 /**
- * Widget type definition.
- *
  * Ported from the Jetpack Stats post detail "Post likes" card. Lists the
  * scoped post's likers — avatar, name, and the like's relative time, most
  * recent first, with an "N more" footer when the total exceeds the rows
  * shown. The list is a lifetime roster and is not date-scoped.
  */
 export default {
-	icon: starEmpty,
 	attributes: [] as WidgetAttributeField< PostLikesAttributes >[],
 	example: {
 		attributes: {},

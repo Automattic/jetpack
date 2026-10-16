@@ -1,4 +1,5 @@
 import FoldingElement from '$features/critical-css/folding-element/folding-element';
+import { useModuleSurface } from '$features/module/surface';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
@@ -70,6 +71,25 @@ const PageError = ( { url, error }: PageErrorProps ) => {
 			);
 		}
 
+		if ( type === 'page-navigated' ) {
+			return meta?.finalUrl
+				? createInterpolateElement(
+						/* translators: <url /> is replaced with the URL the page redirected to. */
+						__(
+							'This page redirected to <url /> during analysis, so Boost could not measure its LCP. Remove it from your Cornerstone Pages, or make sure it loads without redirecting.',
+							'jetpack-boost'
+						),
+						// Pass finalUrl as a React text child, not interpolated into the markup string,
+						// so a redirect target containing `<`/`>` renders as inert text instead of
+						// corrupting the createInterpolateElement token structure.
+						{ url: <strong>{ meta.finalUrl }</strong> }
+					)
+				: __(
+						'This page redirected during analysis, so Boost could not measure its LCP. Remove it from your Cornerstone Pages, or make sure it loads without redirecting.',
+						'jetpack-boost'
+					);
+		}
+
 		return sprintf(
 			/* translators: %s is the error type */
 			__(
@@ -102,6 +122,7 @@ const PageError = ( { url, error }: PageErrorProps ) => {
 
 export const ErrorDetails = () => {
 	const [ query ] = useLcpState();
+	const isModern = useModuleSurface() === 'row';
 	const lcpState = query?.data;
 
 	if ( lcpState?.status !== 'analyzed' ) {
@@ -123,7 +144,7 @@ export const ErrorDetails = () => {
 	);
 
 	return (
-		<Notice.Root intent="warning">
+		<Notice.Root intent="warning" className={ isModern ? styles[ 'is-modern' ] : undefined }>
 			<Notice.Title>{ __( 'LCP Optimization issues', 'jetpack-boost' ) }</Notice.Title>
 			<Notice.Description>
 				<div className={ styles.summary }>

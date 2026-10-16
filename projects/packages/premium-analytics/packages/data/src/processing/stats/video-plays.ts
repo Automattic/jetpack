@@ -1,4 +1,5 @@
 import { safeParseFloat } from '../../utils/parsing';
+import { decodeHtmlText } from '../../utils/text';
 import {
 	createStatsSummaryDataPoint,
 	getStatsArrayFromKeys,
@@ -6,6 +7,7 @@ import {
 	getStatsReportItems,
 	getStatsSummaryIntervalFields,
 	getStatsTopLevelDataDate,
+	isStatsNumericSummaryValue,
 	limitStatsRows,
 	mapStatsReportDataPoints,
 	mergeStatsComparisonRows,
@@ -25,14 +27,18 @@ export type StatsVideoPlaysItem = StatsNormalizedItemBase & {
 	plays: number;
 	impressions: number;
 	watch_time: number;
-	retention_rate: number;
+	/** Null when wpcom cannot compute it, e.g. a video without a duration. */
+	retention_rate: number | null;
 	link: string | null;
+	/** Poster-frame URL, absent when the video has none or is private. */
+	poster?: string;
 	actions?: StatsItemAction[];
 	children: null;
 };
 
 export type StatsVideoPlaysComparisonItem = StatsVideoPlaysItem & {
 	previousPlays?: number;
+	previousImpressions?: number;
 };
 
 // Returns null when the video has no stable identifier at all, so unrelated
@@ -56,13 +62,16 @@ export function sanitizeStatsVideoPlaysResponse(
 	const videoDataKeys = query?.complete_stats ? [ 'data', 'plays' ] : [ 'plays', 'data' ];
 	const parse = ( item: StatsRecord ): StatsVideoPlaysItem => ( {
 		id: item.post_id as string | number | undefined,
-		label: item.title,
+		label: decodeHtmlText( item.title ),
 		// Complete-stats summary rows use `views` for the play count.
 		plays: safeParseFloat( item.views ?? item.plays ),
 		impressions: safeParseFloat( item.impressions ),
 		watch_time: safeParseFloat( item.watch_time ),
-		retention_rate: safeParseFloat( item.retention_rate ),
+		retention_rate: isStatsNumericSummaryValue( item.retention_rate )
+			? safeParseFloat( item.retention_rate )
+			: null,
 		link: typeof item.url === 'string' ? item.url : null,
+		...( typeof item.poster === 'string' && item.poster !== '' ? { poster: item.poster } : {} ),
 		actions: typeof item.url === 'string' ? [ { type: 'link', data: item.url } ] : [],
 		children: null,
 	} );
@@ -93,7 +102,7 @@ export function sanitizeStatsVideoPlaysResponse(
 			? {
 					...normalizeStatsSummary( summarySource, videoDataKeys ),
 					...getStatsSummaryIntervalFields( query, response ),
-			  }
+				}
 			: {},
 		data: summaryData.length
 			? summaryData
@@ -116,9 +125,10 @@ export function mergeStatsVideoPlaysComparisonRows(
 		getPrimaryKey: getVideoKey,
 		getComparisonKey: getVideoKey,
 		getComparisonValue: video => video.plays,
-		mapRow: ( video, { previousValue } ) => ( {
+		mapRow: ( video, { previousValue, comparisonItem } ) => ( {
 			...video,
 			previousPlays: previousValue,
+			previousImpressions: comparisonItem?.impressions,
 		} ),
 	} );
 }

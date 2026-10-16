@@ -105,7 +105,21 @@ const Template: StoryFn< StoryArgs > = args => {
 export const Default: StoryObj< StoryArgs > = Template.bind( {} );
 Default.args = {
 	...lineChartStoryArgs,
+};
+
+export const Zoomable: StoryObj< StoryArgs > = Template.bind( {} );
+Zoomable.args = {
+	...lineChartStoryArgs,
 	zoomable: true,
+};
+
+Zoomable.parameters = {
+	docs: {
+		description: {
+			story:
+				'With `zoomable`, drag horizontally across the plot to zoom into a range. A reset button appears while zoomed to restore the full domain. Defaults to `false`.',
+		},
+	},
 };
 
 export const FixedDimensions: StoryObj< StoryArgs > = Template.bind( {} );
@@ -180,6 +194,23 @@ export const WithCompositionLegend: StoryObj< StoryArgs > = {
 				story:
 					'Composition API using `<LineChart.Legend />` as a child component for explicit legend placement and configuration. This is the recommended approach for flexible legend positioning.',
 			},
+		},
+	},
+};
+
+export const WithDefaultHiddenSeries: StoryObj< StoryArgs > = Template.bind( {} );
+WithDefaultHiddenSeries.args = {
+	...Default.args,
+	showLegend: true,
+	legendInteractive: true,
+	chartId: 'default-hidden-series-demo',
+	defaultHiddenSeries: [ 'London' ],
+};
+WithDefaultHiddenSeries.parameters = {
+	docs: {
+		description: {
+			story:
+				'London is hidden from the initial render and marked inactive in the legend. Select its legend item to reveal it.',
 		},
 	},
 };
@@ -312,10 +343,7 @@ export const ErrorStates: StoryObj< StoryArgs > = {
 					data={ [
 						{
 							label: 'Invalid Values',
-							data: [
-								{ date: new Date( '2024-01-01' ), value: NaN },
-								{ date: new Date( '2024-01-02' ), value: null as number | null },
-							],
+							data: [ { date: new Date( '2024-01-01' ), value: NaN } ],
 							options: {},
 						},
 					] }
@@ -346,6 +374,72 @@ export const ErrorStates: StoryObj< StoryArgs > = {
 			description: {
 				story: 'Examples of how the line chart handles various error states and edge cases.',
 			},
+		},
+	},
+};
+
+const siteLaunchedInApril: SeriesData[] = [
+	{
+		label: 'Subscribers',
+		data: [
+			{ date: new Date( 2026, 0, 1 ), value: null },
+			{ date: new Date( 2026, 1, 1 ), value: null },
+			{ date: new Date( 2026, 2, 1 ), value: null },
+			{ date: new Date( 2026, 3, 1 ), value: 0 },
+			{ date: new Date( 2026, 4, 1 ), value: 12 },
+			{ date: new Date( 2026, 5, 1 ), value: 31 },
+			{ date: new Date( 2026, 6, 1 ), value: 58 },
+		],
+	},
+];
+
+export const BucketsWithNoData: StoryObj< StoryArgs > = Template.bind( {} );
+BucketsWithNoData.args = {
+	...Default.args,
+	data: siteLaunchedInApril,
+};
+BucketsWithNoData.argTypes = {
+	// The series-count control swaps in the sample data, which has no gaps to show.
+	seriesCount: { table: { disable: true } },
+	zoomable: { control: 'boolean' },
+};
+BucketsWithNoData.parameters = {
+	docs: {
+		description: {
+			story:
+				'A null value is a bucket with no reading. It keeps its place on the axis so the chart still spans the selected range, but breaks the line and its gradient fill at that point, and its tooltip reads "No data" rather than zero. April is a real zero, so the line starts there, at 0, rather than in May. Pointer events still reach a bucket with no reading, so with `zoomable` a drag can start in January.',
+		},
+	},
+};
+
+const wholeNumberRange: SeriesData[] = [
+	{
+		label: 'Errors',
+		data: [
+			{ date: new Date( 2026, 0, 1 ), value: 0 },
+			{ date: new Date( 2026, 1, 1 ), value: 1 },
+			{ date: new Date( 2026, 2, 1 ), value: 1 },
+			{ date: new Date( 2026, 3, 1 ), value: 0 },
+			{ date: new Date( 2026, 4, 1 ), value: 1 },
+			{ date: new Date( 2026, 5, 1 ), value: 1 },
+		],
+	},
+];
+
+export const SmallWholeNumberRange: StoryObj< StoryArgs > = Template.bind( {} );
+SmallWholeNumberRange.args = {
+	...Default.args,
+	data: wholeNumberRange,
+};
+SmallWholeNumberRange.argTypes = {
+	// The series-count control swaps in the sample data, which isn't a whole-number range.
+	seriesCount: { table: { disable: true } },
+};
+SmallWholeNumberRange.parameters = {
+	docs: {
+		description: {
+			story:
+				'When every visible value is a whole number, the value axis places ticks only on whole numbers, instead of repeating a rounded label at fractional steps. Pass `options.axis.y.tickValues` to choose the ticks yourself. A y domain you pin with `options.yScale.domain` keeps every tick, so a percentage axis on `[ 0, 1 ]` still steps by 20%.',
 		},
 	},
 };
@@ -459,6 +553,33 @@ SmartFormatting.parameters = {
 	},
 };
 
+export const ZeroBaseline: StoryObj< StoryArgs > = Template.bind( {} );
+ZeroBaseline.args = {
+	...lineChartStoryArgs,
+	showLegend: false,
+	withGradientFill: false,
+	data: [
+		{
+			label: 'Views',
+			data: [ 921, 989, 954, 924, 967, 933, 978 ].map( ( value, day ) => ( {
+				date: new Date( 2024, 0, day + 1 ),
+				value,
+			} ) ),
+		},
+	],
+	options: {
+		yScale: { zero: true },
+	},
+};
+ZeroBaseline.parameters = {
+	docs: {
+		description: {
+			story:
+				"`yScale.zero` starts the value axis at zero, so a series that only moves between 921 and 989 reads as steady rather than as a swing. The axis top is rounded from zero, not from the data's floor: here it ends at 1,000 with a labelled tick, instead of at 990 with the line running into the top edge.",
+		},
+	},
+};
+
 // Offset for dashed line to prevent overlapping with solid line
 const DASHED_LINE_OFFSET = 100;
 
@@ -487,6 +608,174 @@ BrokenLine.parameters = {
 	docs: {
 		description: {
 			story: 'Demonstrates the option of setting a seriesLineStyle to a dash array.',
+		},
+	},
+};
+
+// Wall-clock dates in the browser frame — the library's parsing convention —
+// so the ticks read the same in any viewer timezone.
+const hourlySeries = ( label: string, startDay: number, hours: number ): SeriesData => ( {
+	label,
+	data: Array.from( { length: hours }, ( _, i ) => ( {
+		date: new Date( 2026, 7, startDay, i ),
+		value: Math.round( 60 + 40 * Math.sin( ( i % 24 ) / 3.5 ) ),
+	} ) ),
+	options: {},
+} );
+
+export const TimeAxisTickFormats: StoryObj< StoryArgs > = {
+	render: () => (
+		<div style={ { display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(2, 1fr)' } }>
+			<div>
+				<h3>Hourly buckets, single day → hour ticks</h3>
+				<LineChart
+					width={ 460 }
+					height={ 220 }
+					data={ [ hourlySeries( 'Views', 2, 24 ) ] }
+					withGradientFill={ false }
+					withLegendGlyph={ false }
+				/>
+			</div>
+			<div>
+				<h3>Hourly buckets, two days → hour ticks, date at midnight</h3>
+				<LineChart
+					width={ 460 }
+					height={ 220 }
+					data={ [ hourlySeries( 'Views', 2, 48 ) ] }
+					withGradientFill={ false }
+					withLegendGlyph={ false }
+				/>
+			</div>
+			<div>
+				<h3>Daily buckets → date ticks</h3>
+				<LineChart
+					width={ 460 }
+					height={ 220 }
+					data={ [
+						{
+							label: 'Views',
+							data: Array.from( { length: 30 }, ( _, i ) => ( {
+								date: new Date( 2026, 6, 1 + i ),
+								value: Math.round( 60 + 40 * Math.sin( i / 4 ) ),
+							} ) ),
+							options: {},
+						},
+					] }
+					withGradientFill={ false }
+					withLegendGlyph={ false }
+				/>
+			</div>
+			<div>
+				<h3>Monthly buckets → month ticks, year at January</h3>
+				<LineChart
+					width={ 460 }
+					height={ 220 }
+					data={ [
+						{
+							label: 'Views',
+							data: Array.from( { length: 13 }, ( _, i ) => ( {
+								date: new Date( 2025, 7 + i, 1 ),
+								value: Math.round( 60 + 40 * Math.sin( i / 2 ) ),
+							} ) ),
+							options: {},
+						},
+					] }
+					withGradientFill={ false }
+					withLegendGlyph={ false }
+				/>
+			</div>
+		</div>
+	),
+	args: {
+		containerWidth: '1020px',
+		containerHeight: '700px',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					"The time axis picks its tick format from the data's bucket resolution as well as its span: hour ticks within a day; hour ticks with the date at midnight boundaries for sub-daily data spanning up to a week; date ticks for daily and weekly buckets within a year; month ticks (with the year at January) for month-or-coarser buckets; year ticks beyond that.",
+			},
+		},
+	},
+};
+
+// Single-bucket series: the shape where point-spacing inference can't recover
+// the resolution — there is no spacing to measure — so only the declared
+// `tickResolution` can pick the right tick format.
+const loneHourlyBucket: SeriesData[] = [
+	{
+		label: 'Views',
+		data: [ { date: new Date( 2026, 7, 2, 13 ), value: 42 } ],
+		options: {},
+	},
+];
+
+const loneYearlyBucket: SeriesData[] = [
+	{
+		label: 'Views',
+		data: [ { date: new Date( 2026, 5, 1 ), value: 640 } ],
+		options: {},
+	},
+];
+
+export const TimeAxisTickResolution: StoryObj< StoryArgs > = {
+	render: () => (
+		<div style={ { display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(2, 1fr)' } }>
+			<div>
+				<h3>Lone hourly bucket, resolution inferred → date tick</h3>
+				<LineChart
+					width={ 460 }
+					height={ 220 }
+					data={ loneHourlyBucket }
+					withGradientFill={ false }
+					withLegendGlyph={ false }
+				/>
+			</div>
+			<div>
+				<h3>Same point, tickResolution: &apos;hour&apos; → hour tick</h3>
+				<LineChart
+					width={ 460 }
+					height={ 220 }
+					data={ loneHourlyBucket }
+					options={ { axis: { x: { tickResolution: 'hour' } } } }
+					withGradientFill={ false }
+					withLegendGlyph={ false }
+				/>
+			</div>
+			<div>
+				<h3>Lone yearly bucket, resolution inferred → date tick</h3>
+				<LineChart
+					width={ 460 }
+					height={ 220 }
+					data={ loneYearlyBucket }
+					withGradientFill={ false }
+					withLegendGlyph={ false }
+				/>
+			</div>
+			<div>
+				<h3>Same point, tickResolution: &apos;year&apos; → year tick</h3>
+				<LineChart
+					width={ 460 }
+					height={ 220 }
+					data={ loneYearlyBucket }
+					options={ { axis: { x: { tickResolution: 'year' } } } }
+					withGradientFill={ false }
+					withLegendGlyph={ false }
+				/>
+			</div>
+		</div>
+	),
+	args: {
+		containerWidth: '1020px',
+		containerHeight: '700px',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					"When the caller already knows the data's bucket resolution — e.g. from a granularity selector — `options.axis.x.tickResolution` declares it and the automatic formatter derives tick formats from it directly, instead of inferring the resolution from point spacing. Inference needs at least two points, so a single-bucket series always falls back to date ticks; the declared resolution picks the right format. The overall time span still constrains the choice, and an explicit `tickFormat` takes precedence over the hint.",
+			},
 		},
 	},
 };
@@ -525,35 +814,84 @@ DateStringFormats.parameters = {
 	},
 };
 
-export const Comparison: StoryObj< StoryArgs > = Template.bind( {} );
-Comparison.args = {
+// One metric paired with its previous-period comparison overlay, sharing a `group`. Left
+// uncollapsed so the legend keeps an item per series — the default.
+export const ComparisonSingle: StoryObj< StoryArgs > = Template.bind( {} );
+ComparisonSingle.args = {
 	...lineChartStoryArgs,
 	showLegend: true,
+	legendCollapseGroups: false,
 	smoothing: false,
 	data: [
 		{
 			...sampleData[ 0 ],
-			label: 'New York',
+			label: 'Views',
+			group: 'views',
 		},
 		{
 			...sampleData[ 1 ],
-			label: 'New York last year',
-			group: 'new-york',
+			label: 'Views — previous',
+			group: 'views',
+			options: {
+				type: 'comparison' as const,
+			},
+		},
+	],
+};
+ComparisonSingle.parameters = {
+	docs: {
+		description: {
+			story:
+				'A primary series paired with a `type: "comparison"` previous-period series sharing the same `group`. `legend.collapseGroups` is off here, the default, so each series keeps its own legend item; turn the `legendCollapseGroups` control on to fold the pair into a single **Views** item.',
+		},
+	},
+};
+
+// Two metrics side by side, each with its own previous-period comparison overlay. With
+// `legendCollapseGroups` the legend shows one item per group (Views, Visitors); because it is also
+// interactive, clicking one toggles both of that metric's series at once.
+export const ComparisonMulti: StoryObj< StoryArgs > = Template.bind( {} );
+ComparisonMulti.args = {
+	...lineChartStoryArgs,
+	showLegend: true,
+	legendInteractive: true,
+	legendCollapseGroups: true,
+	rescaleYOnVisibilityChange: false,
+	smoothing: false,
+	data: [
+		{
+			...sampleData[ 0 ],
+			label: 'Views',
+			group: 'views',
+		},
+		{
+			...sampleData[ 1 ],
+			label: 'Views — previous',
+			group: 'views',
 			options: {
 				type: 'comparison' as const,
 			},
 		},
 		{
 			...sampleData[ 2 ],
-			label: 'Tokyo',
+			label: 'Visitors',
+			group: 'visitors',
 		},
 		{
 			...sampleData[ 3 ],
-			label: 'Tokyo last year',
-			group: 'tokyo',
+			label: 'Visitors — previous',
+			group: 'visitors',
 			options: {
 				type: 'comparison' as const,
 			},
 		},
 	],
+};
+ComparisonMulti.parameters = {
+	docs: {
+		description: {
+			story:
+				'Two groups (`views` and `visitors`), each a primary series plus its `type: "comparison"` overlay. With `legend.collapseGroups` each group is a single legend item, and because `legend.interactive` is also on, clicking one toggles both its current and previous-period series at once. The value axis stays fixed as series are toggled. Turn the `legendCollapseGroups` control off to get one item per series, each toggling alone.',
+		},
+	},
 };

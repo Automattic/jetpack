@@ -15,11 +15,21 @@ jest.mock( '@wordpress/components', () => {
 	 * child and switches its contentWindow between a same-origin Window and
 	 * a cross-origin Proxy based on the `allowSameOrigin` prop.
 	 *
+	 * The `sandbox` attribute mirrors how the real component composes its
+	 * permissions, so tests can assert on the flags VideoPress opts into.
+	 *
 	 * @param {object}  props                 - Props forwarded from VideoPress.
 	 * @param {boolean} props.allowSameOrigin - Whether contentWindow should be same-origin.
+	 * @param {boolean} props.allowForms      - Whether the iframe may submit forms.
 	 * @return {ReactElement} A div hosting the simulated sandbox iframe.
 	 */
-	function SandBoxMock( { allowSameOrigin }: { allowSameOrigin?: boolean } ) {
+	function SandBoxMock( {
+		allowSameOrigin,
+		allowForms,
+	}: {
+		allowSameOrigin?: boolean;
+		allowForms?: boolean;
+	} ) {
 		return React.createElement( 'div', {
 			ref: ( host: HTMLDivElement | null ) => {
 				// Direct DOM access is intentional — this mock simulates the real
@@ -30,13 +40,19 @@ jest.mock( '@wordpress/components', () => {
 				}
 				const iframe = host.ownerDocument.createElement( 'iframe' );
 				iframe.className = 'components-sandbox';
+				iframe.setAttribute(
+					'sandbox',
+					[
+						'allow-scripts',
+						allowSameOrigin ? 'allow-same-origin' : null,
+						'allow-presentation',
+						allowForms ? 'allow-forms' : null,
+					]
+						.filter( Boolean )
+						.join( ' ' )
+				);
 
-				if ( allowSameOrigin ) {
-					Object.defineProperty( iframe, 'contentWindow', {
-						value: globalThis,
-						configurable: true,
-					} );
-				} else {
+				if ( ! allowSameOrigin ) {
 					// Any property read/write on a cross-origin Window throws
 					// a SecurityError. The Proxy mirrors that.
 					const throwSecurity = () => {
@@ -163,6 +179,18 @@ describe( 'Player', () => {
 			expect( securityErrors ).toEqual( [] );
 			expect( screen.getByRole( 'figure' ) ).toBeInTheDocument();
 		} );
+
+		it( 'allows form submission so the age gate birth date can be sent', () => {
+			// Videos whose rating requires an age check render a birth date form
+			// inside the player. Sandboxes block form submission unless
+			// `allow-forms` is set, which left "Continue" doing nothing.
+			const { container } = render( <Player { ...defaultProps } /> );
+
+			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- the sandbox iframe is created imperatively by the SandBox mock.
+			const iframe = container.querySelector( 'iframe.components-sandbox' );
+
+			expect( iframe ).toHaveAttribute( 'sandbox', expect.stringContaining( 'allow-forms' ) );
+		} );
 	} );
 
 	describe( 'videoPlayerEventsHandler origin check', () => {
@@ -173,7 +201,7 @@ describe( 'Player', () => {
 			expect( screen.getByText( 'Loading\u2026' ) ).toBeInTheDocument();
 
 			act( () => {
-				window.dispatchEvent(
+				window.frames[ 0 ].dispatchEvent(
 					new MessageEvent( 'message', {
 						data: { event: 'videopress_loading_state', state: 'loaded' },
 						origin: 'https://evil.com',
@@ -189,7 +217,7 @@ describe( 'Player', () => {
 			render( <Player { ...defaultProps } /> );
 
 			act( () => {
-				window.dispatchEvent(
+				window.frames[ 0 ].dispatchEvent(
 					new MessageEvent( 'message', {
 						data: { event: 'videopress_loading_state', state: 'loaded' },
 						origin: 'https://videopress.com',

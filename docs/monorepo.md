@@ -41,7 +41,7 @@ All GitHub Actions configuration for the monorepo, including CI, lives in `.gith
 
 ## Compatibility
 
-All projects should be compatible with PHP versions WordPress supports. That's currently PHP 7.2 to 8.5.
+All projects should be compatible with PHP versions WordPress supports. That's currently PHP 7.4 to 8.5.
 
 ## First Time
 
@@ -164,6 +164,7 @@ A project must define `.scripts.build-development` and/or `.scripts.build-produc
 The build commands should assume that `pnpm install` and `composer install` have already been run, and _must not_ run them again.
 
 * If you're building JavaScript bundles with Webpack and [@automattic/jetpack-webpack-config](../projects/js-packages/webpack-config/README.md) (more information on setup [in the README.md](../projects/js-packages/webpack-config/README.md)), note that your build-production command should set `NODE_ENV=production` and `BABEL_ENV=production`.
+* If you're moving an admin dashboard from Webpack onto the wp-build (esbuild) pipeline, follow the [wp-build porting checklist](wp-build-porting-checklist.md).
 * If you run into problems with Composer not recognizing the local git branch as being the right version, try setting `COMPOSER_ROOT_VERSION=dev-trunk` in the environment.
 * When building for the mirror repos, note that `COMPOSER_MIRROR_PATH_REPOS=1` will be set in the environment and the list of repositories in `composer.json` may be altered.
   This is not normally done in development environments, even with `jetpack build --production`.
@@ -254,6 +255,14 @@ This assumes you have PHP installed via Homebrew, e.g. you've done `brew install
 
 Alternatives, if you can't install the ast extension, include running Phan with the `--allow-polyfill-parser` option (note this may cause false positives and cannot be used to update baseline files) or running Phan inside the [Docker development environment](../tools/docker/README.md).
 
+#### Referencing wpcom-only symbols
+
+Some Jetpack code calls classes or functions that exist only on WordPress.com, not in this repo. Phan flags these as `PhanUndeclared{Class,ClassMethod,Function}`. Rather than suppressing the error permanently, add the symbol to Phan's stub set:
+
+1. Add the class/method (or function) to the wpcom stub definitions at `bin/teamcity-builds/jetpack-stubs/stub-defs.php` in the wpcom repo — this is the source that the monorepo's `.phan/stubs/wpcom-stubs.php` is generated from. Do **not** hand-edit the generated `wpcom-stubs.php`; it will be overwritten.
+2. Trigger the *Jetpack Staging → Update WPCOM Stubs* TeamCity job, which opens a "phan: Update wpcom stubs" PR. Land that PR first, then rebase your feature PR on top so it picks up the new stubs.
+3. Remove any temporary inline `@phan-suppress-next-line <Rule> -- <reason>` you added at the call site as a bridge — once the stub exists, Phan passes without it.
+
 [^1]: In 2024 we evaluated Phan, Psalm, and PHPStan. Psalm was unable to produce a consistent baseline. PHPStan was confused about which constants were defined, and would have needed a bootstrapping file re-defining them all to work. Thus we settled on Phan. Details in pdWQjU-IH-p2.
 
 ### PHP tests
@@ -262,7 +271,7 @@ If a project contains PHP tests (typically PHPUnit), it must define `.scripts.te
 
 A MySQL database is available if needed; credentials may be found in `~/.my.cnf`. Note that the host must be specified as `127.0.0.1`, as when passed `localhost` PHP will try to connect via a Unix domain socket which is not available in the Actions environment.
 
-Tests are run with a variety of supported PHP versions from 7.2 to 8.5. If you have tests that only need to be run once, run them when `PHP_VERSION` matches that in `.github/versions.sh`.
+Tests are run with a variety of supported PHP versions from 7.4 to 8.5. If you have tests that only need to be run once, run them when `PHP_VERSION` matches that in `.github/versions.sh`.
 
 #### PHP tests for non-plugins
 
@@ -270,7 +279,7 @@ For all project types other than WordPress plugins, the necessary version of PHP
 
 We currently make use of the following packages in testing; it's encouraged to use these rather than introducing other tools that serve the same purpose.
 
-* [yoast/phpunit-polyfills](https://packagist.org/packages/yoast/phpunit-polyfills) supplies polyfills for compatibility with PHPUnit 8.5 to 12.4, to support PHP 7.2 to 8.5.
+* [yoast/phpunit-polyfills](https://packagist.org/packages/yoast/phpunit-polyfills) supplies polyfills for compatibility with PHPUnit 9.6 to 12.4, to support PHP 7.4 to 8.5.
 * [automattic/phpunit-select-config](https://packagist.org/packages/automattic/phpunit-select-config) allows for selecting a configuration file based on the version of PHPUnit in use, since configs are often not compatible across major versions since PHPUnit 9.
 * PHPUnit's built-in mocking is used for class mocks.
 * [brain/monkey](https://packagist.org/packages/brain/monkey) is used for mocking functions, and can also provide some functions for minimal WordPress compatibility.
@@ -408,7 +417,7 @@ Most projects in the monorepo should have a mirror repository holding a built ve
 4. If there are any files included in the monorepo that should not be included in the mirror, use `.gitattributes` to tag them with "production-exclude".
 5. If there are any built files in `.gitignore` that should be included in the mirror, use `.gitattributes` to tag them with "production-include".
 6. Set `.extra.mirror-repo` in your project's `composer.json` to the name of the repo.
-   * When you push the PR making this change to `composer.json`, pay attention to the Build workflow. Download the "jetpack-build" artifact and make sure it contains your project, and that there are no extra or missing files.
+   * When you push the PR making this change to `composer.json`, pay attention to the Build workflow. Download the "jetpack-build.tar.xz" artifact and make sure it contains your project, and that there are no extra or missing files.
 
 ### Autotagger
 

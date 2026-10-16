@@ -8,11 +8,19 @@ import type { Meta, StoryObj } from '@storybook/react';
  * Widget card wrapper, simulating a dashboard widget container so each state is
  * shown within typical widget dimensions.
  */
-const WidgetCard = ( { title, children }: { title: string; children: React.ReactNode } ) => (
+const WidgetCard = ( {
+	title,
+	height = '320px',
+	children,
+}: {
+	title: string;
+	height?: string;
+	children: React.ReactNode;
+} ) => (
 	<div
 		style={ {
 			width: '360px',
-			height: '320px',
+			height,
 			border: '1px solid var(--wpds-color-stroke-surface-neutral-weak)',
 			borderRadius: 'var(--wpds-border-radius-md)',
 			background: 'var(--wpds-color-background-surface-neutral)',
@@ -36,8 +44,13 @@ const WidgetCard = ( { title, children }: { title: string; children: React.React
 	</div>
 );
 
-const withWidgetCard = ( Story: React.ComponentType ) => (
-	<WidgetCard title="Traffic by source">
+// `widgetCardHeight` story parameter sizes the mock card, so height-dependent
+// behavior (the 140px short-tile breakpoint) can be shown per story.
+const withWidgetCard = (
+	Story: React.ComponentType,
+	context: { parameters: { widgetCardHeight?: string } }
+) => (
+	<WidgetCard title="Traffic by source" height={ context.parameters.widgetCardHeight }>
 		<Story />
 	</WidgetCard>
 );
@@ -51,13 +64,12 @@ const meta: Meta< typeof WidgetState > = {
 		docs: {
 			description: {
 				component:
-					'Data-agnostic widget content-area state. Derives one state (error → loading → empty → ready, plus a busy overlay on background refetch) from four boolean signals and renders it. Callers map their fetch result to the signals and pass generic `error` / `empty` descriptors. Stories render it inside a mock widget card; the ready and busy states show a mock bar chart standing in for real widget content.',
+					'Data-agnostic widget content-area state. Derives one state (error → loading → empty → ready) from four boolean signals and renders it. The skeleton is reserved for `isLoading`, meaning nothing on screen answers the current params; a background revalidation (`isFetching` alone) draws nothing and only marks the widget busy. Callers map their fetch result to the signals and pass generic `error` / `empty` descriptors. Stories render it inside a mock widget card; the ready state shows a mock bar chart standing in for real widget content.',
 			},
 		},
 	},
 	// Every story renders inside the mock widget card; `withChartTheme` supplies
-	// the charts context so the mock `BarChart` renders, mirroring what
-	// `WidgetRoot` provides at the top of the widget tree in the app.
+	// the charts context, mirroring what `WidgetRoot` provides in the app.
 	decorators: [ withWidgetCard, withChartTheme ],
 };
 
@@ -97,10 +109,6 @@ const MockChart = () => (
 	</div>
 );
 
-/**
- * First load: a fetch is in flight and there is no data yet, so the loading
- * overlay is shown instead of the children.
- */
 export const Loading: Story = {
 	args: {
 		isLoading: true,
@@ -128,15 +136,75 @@ export const Error: Story = {
 };
 
 /**
- * Resolved with no rows. Renders no icon by default — a widget opts in via
- * `empty.icon` with its own neutral glyph, distinct from the error state.
+ * Resolved with no rows for the selected period, with no `empty` passed: the
+ * generic magnifier glyph and "We couldn’t find results for this time period."
  */
 export const Empty: Story = {
 	args: {
 		isLoading: false,
 		isError: false,
 		isEmpty: true,
-		empty: { description: 'No traffic recorded for this period.' },
+		children: <MockChart />,
+	},
+};
+
+/**
+ * A widget's own empty state, for a case the generic copy does not describe
+ * (here a scope prompt). It keeps the generic magnifier unless it names an icon.
+ */
+export const EmptyCustom: Story = {
+	args: {
+		isLoading: false,
+		isError: false,
+		isEmpty: true,
+		empty: { description: 'Open an author to see their top posts here.' },
+		children: <MockChart />,
+	},
+};
+
+export const EmptyWithAction: Story = {
+	args: {
+		isLoading: false,
+		isError: false,
+		isEmpty: true,
+		empty: {
+			description: 'You haven’t published any posts yet.',
+			action: { label: 'Create post', href: '/wp-admin/post-new.php' },
+		},
+		children: <MockChart />,
+	},
+};
+
+/**
+ * Error on a short tile (below the 140px body breakpoint): the container query
+ * hides the glyph so the text-only state stays vertically centered inside the
+ * body and never overlaps the widget footer.
+ */
+export const ErrorShortTile: Story = {
+	parameters: { widgetCardHeight: '180px' },
+	args: {
+		isLoading: false,
+		isError: true,
+		isEmpty: false,
+		error: {
+			description: "We couldn't load this data. Please try again in a moment.",
+			// eslint-disable-next-line no-console
+			actions: [ { label: 'Retry', onClick: () => console.log( 'Retry clicked' ) } ],
+		},
+		children: <MockChart />,
+	},
+};
+
+/**
+ * The generic empty state on a short tile: same degradation as the error
+ * state — the glyph hides and the text stays vertically centered.
+ */
+export const EmptyShortTile: Story = {
+	parameters: { widgetCardHeight: '180px' },
+	args: {
+		isLoading: false,
+		isError: false,
+		isEmpty: true,
 		children: <MockChart />,
 	},
 };
@@ -154,10 +222,10 @@ export const Ready: Story = {
 };
 
 /**
- * Background refetch: the chart stays visible under a non-blocking busy overlay
- * while fresh data loads.
+ * Unchanged params being revalidated. Identical to `Ready` by design — only
+ * `aria-busy` differs.
  */
-export const Busy: Story = {
+export const Refetching: Story = {
 	args: {
 		isLoading: false,
 		isFetching: true,

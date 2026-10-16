@@ -24,8 +24,6 @@ const english: ILanguage = {
 	clear: 'Clear',
 	close: 'Close',
 	ariaLabel: {
-		enterPicker:
-			'You are on a date picker input. Use the down key to focus into the date picker. Or type the date in the format MM/DD/YYYY',
 		dayPicker:
 			'You are currently inside the date picker, use the arrow keys to navigate between the dates. Use tab key to jump to more controls.',
 		monthPicker:

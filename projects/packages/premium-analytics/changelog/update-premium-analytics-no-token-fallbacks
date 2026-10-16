@@ -1,3 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Expand stylelint no-token-fallback-values to the whole package and remove manual WPDS token fallbacks from source so wp-build injects canonical theme fallbacks at build time.

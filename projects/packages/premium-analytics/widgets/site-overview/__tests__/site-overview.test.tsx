@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { queryClient } from '@jetpack-premium-analytics/data';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
@@ -62,9 +62,14 @@ describe( 'SiteOverviewWidget', () => {
 		expect( screen.getByText( 'Comments' ) ).toBeInTheDocument();
 		expect( screen.getByText( '260' ) ).toBeInTheDocument();
 		expect( screen.getByText( '17' ) ).toBeInTheDocument();
+		// Sighted mouse users get the caveat as a hover title…
+		expect( screen.getByTitle( /Sum of daily visitors/ ) ).toBeInTheDocument();
+		// …and assistive technology gets it as visually hidden text, since a
+		// `title` on a non-focusable element is unreachable by keyboard.
+		expect( screen.getByText( /Sum of daily visitors/ ) ).toBeInTheDocument();
 	} );
 
-	it( 'exposes the exact total on hover while the tile shows a shortened count', async () => {
+	it( 'keeps the exact total behind the shortened count', async () => {
 		mockApiFetch.mockResolvedValue( { ...SUMMARY_RESPONSE, views: 18400 } );
 
 		render(
@@ -73,29 +78,11 @@ describe( 'SiteOverviewWidget', () => {
 			/>
 		);
 
-		// The tile abbreviates the count…
-		await expect( screen.findByText( '18K' ) ).resolves.toBeInTheDocument();
-		// …and its hover title carries the exact total, formatted through the
-		// package formatter so tile and title agree on the app locale.
-		expect( screen.getByTitle( '18,400' ) ).toBeInTheDocument();
+		await expect( screen.findByText( '18.4K' ) ).resolves.toHaveAttribute( 'aria-hidden', 'true' );
+		expect( screen.getByText( '18,400' ) ).toBeInTheDocument();
 	} );
 
-	it( 'explains the per-day visitor aggregation on the Visitors tile', async () => {
-		render(
-			<SiteOverviewWidget
-				attributes={ { reportParams: { from: '2026-03-01', to: '2026-03-10' } } }
-			/>
-		);
-
-		await expect( screen.findByText( 'Visitors' ) ).resolves.toBeInTheDocument();
-		// Sighted mouse users get the caveat as a hover title…
-		expect( screen.getByTitle( /Sum of daily visitors/ ) ).toBeInTheDocument();
-		// …and assistive technology gets it as visually hidden text, since a
-		// `title` on a non-focusable element is unreachable by keyboard.
-		expect( screen.getByText( /Sum of daily visitors/ ) ).toBeInTheDocument();
-	} );
-
-	it( 'shows the empty state when every visible metric is zero', async () => {
+	it( 'shows zeros, not an empty state, when every visible metric is zero', async () => {
 		mockApiFetch.mockResolvedValue( {
 			...SUMMARY_RESPONSE,
 			views: 0,
@@ -110,10 +97,8 @@ describe( 'SiteOverviewWidget', () => {
 			/>
 		);
 
-		await expect(
-			screen.findByText( 'No stats recorded for this period.' )
-		).resolves.toBeInTheDocument();
-		expect( screen.queryByText( 'Views' ) ).not.toBeInTheDocument();
+		await expect( screen.findAllByText( '0' ) ).resolves.toHaveLength( 4 );
+		expect( screen.getByText( 'Views' ) ).toBeInTheDocument();
 	} );
 
 	it( 'shows the error state with a Retry action that refetches', async () => {
@@ -170,21 +155,7 @@ describe( 'SiteOverviewWidget', () => {
 		expect( screen.queryByText( 'Views' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'requests the dashboard date range from report params', async () => {
-		render(
-			<SiteOverviewWidget
-				attributes={ { reportParams: { from: '2026-03-01', to: '2026-03-10' } } }
-			/>
-		);
-
-		await expect( screen.findByText( '420' ) ).resolves.toBeInTheDocument();
-
-		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
-		expect( requestedPath ).toContain( 'stats/summary' );
-		expect( requestedPath ).toContain( 'date=2026-03-10' );
-	} );
-
-	it( 'fetches the comparison window when comparison params are present', async () => {
+	it( 'requests the report range and the comparison window from the summary endpoint', async () => {
 		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
 			Promise.resolve( path.includes( 'date=2026-02-10' ) ? COMPARISON_RESPONSE : SUMMARY_RESPONSE )
 		);
@@ -206,17 +177,20 @@ describe( 'SiteOverviewWidget', () => {
 		await expect( screen.findByText( '420' ) ).resolves.toBeInTheDocument();
 
 		const requestedPaths = mockApiFetch.mock.calls.map( call => call[ 0 ].path as string );
-		expect( requestedPaths.some( path => path.includes( 'date=2026-03-10' ) ) ).toBe( true );
-		expect( requestedPaths.some( path => path.includes( 'date=2026-02-10' ) ) ).toBe( true );
+		expect( requestedPaths ).toEqual(
+			expect.arrayContaining( [
+				expect.stringMatching( /stats\/summary\?.*date=2026-03-10/ ),
+				expect.stringMatching( /stats\/summary\?.*date=2026-02-10/ ),
+			] )
+		);
 
-		// Each tile derives its delta from the same metric in the comparison
-		// response, so distinct metrics show distinct period-over-period changes
-		// rather than one shared value: views 420 vs 300 rises, likes 48 vs 60 falls.
+		// Distinct metrics must show distinct deltas, not one shared value: views
+		// 420 vs 300 rises, likes 48 vs 60 falls.
 		await expect( screen.findByText( '+40%' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByText( '-20%' ) ).toBeInTheDocument();
 	} );
 
-	it( 'keeps the stale tiles and overlays a spinner while a new date range loads', async () => {
+	it( 'shows the skeleton instead of the stale tiles while a new date range loads', async () => {
 		// Hold the second period's fetch open so the refetch state is observable.
 		let resolveNextPeriod: ( () => void ) | undefined;
 		mockApiFetch.mockImplementation( ( { path }: { path: string } ) => {
@@ -228,19 +202,13 @@ describe( 'SiteOverviewWidget', () => {
 			} );
 		} );
 
-		const { container, rerender } = render(
+		const { rerender } = render(
 			<SiteOverviewWidget
 				attributes={ { reportParams: { from: '2026-03-01', to: '2026-03-10' } } }
 			/>
 		);
 
 		await expect( screen.findByText( '420' ) ).resolves.toBeInTheDocument();
-
-		// The overlay's spinner is decorative (`role="presentation"`), so there is
-		// no accessible role/text to query — assert on its stable class instead.
-		const hasOverlaySpinner = () =>
-			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- decorative spinner, no accessible query target
-			container.querySelector( '.components-spinner' ) !== null;
 
 		// Switch the date range: the new fetch is in flight but not yet resolved.
 		rerender(
@@ -249,15 +217,12 @@ describe( 'SiteOverviewWidget', () => {
 			/>
 		);
 
-		// The previous period's tiles stay put rather than blanking to a spinner…
-		expect( screen.getByText( '420' ) ).toBeInTheDocument();
-		// …and the refetch overlay spinner is layered on top.
-		await waitFor( () => expect( hasOverlaySpinner() ).toBe( true ) );
+		// March's total is not April's, so it gives way to the skeleton.
+		await expect( screen.findByTestId( 'widget-skeleton' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( '420' ) ).not.toBeInTheDocument();
 
-		// Once the new period resolves, its totals replace the stale ones and the
-		// overlay clears.
 		resolveNextPeriod?.();
 		await expect( screen.findByText( '999' ) ).resolves.toBeInTheDocument();
-		expect( hasOverlaySpinner() ).toBe( false );
+		expect( screen.queryByTestId( 'widget-skeleton' ) ).not.toBeInTheDocument();
 	} );
 } );

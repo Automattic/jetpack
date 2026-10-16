@@ -134,7 +134,7 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 		if ( ! empty( $instance['title'] ) ) {
 			/** This filter is documented in core/src/wp-includes/default-widgets.php */
 			$instance['title'] = apply_filters( 'widget_title', $instance['title'] );
-			$content          .= $args['before_title'] . $instance['title'] . ': ' . $site_info->name . $args['after_title'];
+			$content          .= $args['before_title'] . $instance['title'] . ': ' . esc_html( $site_info->name ) . $args['after_title'];
 		} else {
 			$content .= $args['before_title'] . esc_html( $site_info->name ) . $args['after_title'];
 		}
@@ -181,11 +181,11 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 				 * @param array $args Array of Photon Parameters.
 				 */
 				$image_params = apply_filters( 'jetpack_display_posts_widget_image_params', array() );
-				$content     .= '<a title="' . esc_attr( $post_title ) . '" href="' . esc_url( $single_post['url'] ) . '"' . $target . '><img src="' . Image_CDN_Core::cdn_url( $featured_image, $image_params ) . '" alt="' . esc_attr( $post_title ) . '"/></a>';
+				$content     .= '<a title="' . esc_attr( $post_title ) . '" href="' . esc_url( $single_post['url'] ) . '"' . $target . '><img src="' . esc_url( Image_CDN_Core::cdn_url( $featured_image, $image_params ) ) . '" alt="' . esc_attr( $post_title ) . '"/></a>';
 			}
 
 			if ( true === $instance['show_excerpts'] ) {
-				$content .= $single_post['excerpt'];
+				$content .= wp_kses_post( $single_post['excerpt'] );
 			}
 		}
 

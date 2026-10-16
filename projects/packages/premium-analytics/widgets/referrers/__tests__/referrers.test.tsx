@@ -66,6 +66,26 @@ const REFERRERS_RESPONSE = {
 	},
 };
 
+// A single-result group renders as the result itself, so this is the shortest
+// path from an API-supplied URL to a rendered anchor.
+const HOSTILE_REFERRERS_RESPONSE = {
+	date: '2026-06-29',
+	days: {},
+	summary: {
+		groups: [
+			{
+				group: 'evil.example',
+				name: 'evil.example',
+				url: 'javascript:alert(document.cookie)',
+				total: 12,
+				results: { views: 12 },
+			},
+		],
+		other_views: 0,
+		total_views: 12,
+	},
+};
+
 describe( 'ReferrersWidget', () => {
 	beforeEach( () => {
 		queryClient.clear();
@@ -76,7 +96,7 @@ describe( 'ReferrersWidget', () => {
 	it( 'drills down through nested referrer groups and navigates back', async () => {
 		render(
 			<ReferrersWidget
-				attributes={ { max: 10, reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
+				attributes={ { reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
 			/>
 		);
 
@@ -117,7 +137,7 @@ describe( 'ReferrersWidget', () => {
 	it( 'keeps the drill-down across date range changes while the path still resolves', async () => {
 		const { rerender } = render(
 			<ReferrersWidget
-				attributes={ { max: 10, reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
+				attributes={ { reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
 			/>
 		);
 
@@ -134,7 +154,7 @@ describe( 'ReferrersWidget', () => {
 		// survives — matching how Locations keeps its country across ranges.
 		rerender(
 			<ReferrersWidget
-				attributes={ { max: 10, reportParams: getDefaultQueryParams( false, 'last-30-days' ) } }
+				attributes={ { reportParams: getDefaultQueryParams( false, 'last-30-days' ) } }
 			/>
 		);
 
@@ -147,7 +167,7 @@ describe( 'ReferrersWidget', () => {
 	it( 'resets the drill-down when the drilled group disappears from the data', async () => {
 		const { rerender } = render(
 			<ReferrersWidget
-				attributes={ { max: 10, reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
+				attributes={ { reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
 			/>
 		);
 
@@ -181,7 +201,7 @@ describe( 'ReferrersWidget', () => {
 		} );
 		rerender(
 			<ReferrersWidget
-				attributes={ { max: 10, reportParams: getDefaultQueryParams( false, 'last-30-days' ) } }
+				attributes={ { reportParams: getDefaultQueryParams( false, 'last-30-days' ) } }
 			/>
 		);
 
@@ -196,7 +216,7 @@ describe( 'ReferrersWidget', () => {
 	it( 'renders childless referrers with a URL as outbound links that open in a new tab', async () => {
 		render(
 			<ReferrersWidget
-				attributes={ { max: 10, reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
+				attributes={ { reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
 			/>
 		);
 
@@ -205,14 +225,34 @@ describe( 'ReferrersWidget', () => {
 		expect( link ).toHaveAttribute( 'target', '_blank' );
 	} );
 
-	it( 'links to the full Referrers report', () => {
+	// Referrer rows derive from inbound request data rather than anything the site
+	// owner authored, and the scheme is not guaranteed by the API contract.
+	it( 'renders a referrer with an unsafe URL as plain text instead of a link', async () => {
+		mockApiFetch.mockResolvedValue( HOSTILE_REFERRERS_RESPONSE );
+
 		render(
 			<ReferrersWidget
-				attributes={ { max: 10, reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
+				attributes={ { reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
 			/>
 		);
 
-		const link = screen.getByRole( 'link', { name: 'See report' } );
+		// The row still lists — rejecting the URL must not drop the data.
+		await expect( screen.findByTitle( 'evil.example' ) ).resolves.toBeInTheDocument();
+
+		expect( screen.queryByRole( 'link', { name: /evil\.example/i } ) ).not.toBeInTheDocument();
+		screen.queryAllByRole( 'link' ).forEach( link => {
+			expect( link ).not.toHaveAttribute( 'href', expect.stringMatching( /^javascript:/i ) );
+		} );
+	} );
+
+	it( 'links to the full Referrers report', () => {
+		render(
+			<ReferrersWidget
+				attributes={ { reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
+			/>
+		);
+
+		const link = screen.getByRole( 'link', { name: 'View all' } );
 		expect( link ).toHaveAttribute( 'href', expect.stringContaining( '/reports/referrers' ) );
 	} );
 } );

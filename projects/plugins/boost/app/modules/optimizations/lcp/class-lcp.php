@@ -156,12 +156,34 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 									Schema::as_assoc_array(
 										array(
 											'type' => Schema::as_string(),
+											// `meta` is nullable: a literal null (and, outside Schema
+											// debug mode, any non-assoc scalar) resolves through Type_Void
+											// instead of throwing and aborting the whole error item. An
+											// empty `[]`/`{}` parses to an empty assoc array, not null,
+											// since every declared key is optional and dropped when absent.
+											// The client tolerates both. Unknown keys are dropped.
 											'meta' => Schema::as_assoc_array(
 												array(
 													'code' => Schema::as_number()->nullable(),
 													'selector' => Schema::as_string()->nullable(),
+													// `page-navigated` errors from boost-cloud (BOOST-597) carry
+													// the redirect target here. Without this key it was stripped
+													// and stored as an empty `[]`, which broke the client parse.
+													'finalUrl' => Schema::as_string()->nullable(),
 												)
 											)->nullable(),
+										)
+									)->fallback(
+										// Isolate a single malformed error at the item boundary. Type_Array
+										// aborts the whole list on the first Schema_Error, and the list-level
+										// nullable() below would then null out `errors` entirely, discarding
+										// every valid sibling error (and its finalUrl) before the client parser
+										// ever sees them. Degrading only the bad item to a benign `unknown`
+										// error mirrors the client-side LcpErrorDetailsSchema.catch and keeps
+										// the good siblings intact.
+										array(
+											'type' => 'unknown',
+											'meta' => null,
 										)
 									)
 								)->nullable(),

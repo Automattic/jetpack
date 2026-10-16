@@ -60,7 +60,7 @@ const HistoryAdminSectionHero: FC = () => {
 									__( '%1$s previously active %2$s', 'jetpack-protect' ),
 									numAllThreats.toString(),
 									numAllThreats === 1 ? 'threat' : 'threats'
-							  )
+								)
 							: __( 'No previously active threats', 'jetpack-protect' ) }
 					</AdminSectionHero.Heading>
 					<AdminSectionHero.Subheading>

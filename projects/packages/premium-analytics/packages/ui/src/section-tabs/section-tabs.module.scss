@@ -1,8 +1,12 @@
 .tabList {
+	// The page gutter, and the page header's fill: the tab bar and the section
+	// header under it are page chrome, so the block above the content reads as
+	// one plane. The header below owns the spacing between the two.
+	padding-inline: var(--wpds-dimension-padding-2xl);
+	background: var(--wpds-color-background-surface-neutral-strong);
 	border-block-end:
 		var(--wpds-border-width-xs) solid
 		var(--wpds-color-stroke-surface-neutral-weak);
-	margin-block-end: var(--wpds-dimension-gap-lg);
 }
 
 /*

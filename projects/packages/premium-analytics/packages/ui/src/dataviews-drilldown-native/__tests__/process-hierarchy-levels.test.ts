@@ -1,4 +1,4 @@
-import { processHierarchyLevels, withAncestors } from '../process-hierarchy-levels';
+import { processHierarchyLevels, withHierarchyContext } from '../process-hierarchy-levels';
 
 type Row = {
 	id: string;
@@ -103,9 +103,9 @@ describe( 'processHierarchyLevels', () => {
 	} );
 } );
 
-describe( 'withAncestors', () => {
+describe( 'withHierarchyContext', () => {
 	it( 'includes the ancestor chain of a matched row, in data order', () => {
-		const result = withAncestors(
+		const result = withHierarchyContext(
 			rows,
 			new Set( [ 'google-search' ] ),
 			getItemId,
@@ -115,29 +115,71 @@ describe( 'withAncestors', () => {
 		expect( result.map( row => row.id ) ).toEqual( [ 'search', 'google', 'google-search' ] );
 	} );
 
-	it( 'returns a top-level match on its own', () => {
-		const result = withAncestors( rows, new Set( [ 'social' ] ), getItemId, getItemParentId );
+	it( 'includes the whole subtree of a matched row', () => {
+		const result = withHierarchyContext(
+			rows,
+			new Set( [ 'search' ] ),
+			getItemId,
+			getItemParentId
+		);
 
-		expect( result.map( row => row.id ) ).toEqual( [ 'social' ] );
+		expect( result.map( row => row.id ) ).toEqual( [
+			'search',
+			'google',
+			'google-search',
+			'bing',
+		] );
+	} );
+
+	it( 'returns a childless top-level match on its own', () => {
+		const childless: Row = { id: 'direct', referrer: 'Direct', views: 12 };
+		const result = withHierarchyContext(
+			[ ...rows, childless ],
+			new Set( [ 'direct' ] ),
+			getItemId,
+			getItemParentId
+		);
+
+		expect( result.map( row => row.id ) ).toEqual( [ 'direct' ] );
 	} );
 
 	it( 'collects a shared ancestor once for sibling matches', () => {
-		const result = withAncestors(
+		const result = withHierarchyContext(
 			rows,
 			new Set( [ 'google', 'bing' ] ),
 			getItemId,
 			getItemParentId
 		);
 
-		expect( result.map( row => row.id ) ).toEqual( [ 'search', 'google', 'bing' ] );
+		expect( result.map( row => row.id ) ).toEqual( [
+			'search',
+			'google',
+			'google-search',
+			'bing',
+		] );
+	} );
+
+	it( 'does not pull in the siblings of an ancestor it collected', () => {
+		// `bing` is a sibling of `google`, so reaching `search` as an ancestor
+		// of `google-search` must not sweep it in.
+		const result = withHierarchyContext(
+			rows,
+			new Set( [ 'google-search' ] ),
+			getItemId,
+			getItemParentId
+		);
+
+		expect( result.map( row => row.id ) ).not.toContain( 'bing' );
 	} );
 
 	it( 'returns nothing when no row matched', () => {
-		expect( withAncestors( rows, new Set< string >(), getItemId, getItemParentId ) ).toEqual( [] );
+		expect( withHierarchyContext( rows, new Set< string >(), getItemId, getItemParentId ) ).toEqual(
+			[]
+		);
 	} );
 
 	it( 'returns every row when all matched, preserving order', () => {
-		const result = withAncestors(
+		const result = withHierarchyContext(
 			rows,
 			new Set( rows.map( getItemId ) ),
 			getItemId,
@@ -149,7 +191,7 @@ describe( 'withAncestors', () => {
 
 	it( 'stops at a parent absent from the data', () => {
 		const orphan: Row = { id: 'orphan', parentId: 'missing', referrer: 'Orphan', views: 1 };
-		const result = withAncestors(
+		const result = withHierarchyContext(
 			[ ...rows, orphan ],
 			new Set( [ 'orphan' ] ),
 			getItemId,
@@ -164,8 +206,20 @@ describe( 'withAncestors', () => {
 			{ id: 'a', parentId: 'b', referrer: 'A', views: 1 },
 			{ id: 'b', parentId: 'a', referrer: 'B', views: 1 },
 		];
-		const result = withAncestors( cycle, new Set( [ 'a' ] ), getItemId, getItemParentId );
+		const result = withHierarchyContext( cycle, new Set( [ 'a' ] ), getItemId, getItemParentId );
 
 		expect( result.map( row => row.id ).sort() ).toEqual( [ 'a', 'b' ] );
+	} );
+
+	it( 'does not loop on a self-referential row', () => {
+		const selfReferential: Row[] = [ { id: 'loop', parentId: 'loop', referrer: 'Loop', views: 1 } ];
+		const result = withHierarchyContext(
+			selfReferential,
+			new Set( [ 'loop' ] ),
+			getItemId,
+			getItemParentId
+		);
+
+		expect( result.map( row => row.id ) ).toEqual( [ 'loop' ] );
 	} );
 } );

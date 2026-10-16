@@ -40,7 +40,7 @@ class WPCOM_Client {
 		$use_cache = $use_cache && ! ( isset( $args['method'] ) && strtoupper( $args['method'] ) !== 'GET' ) && ! static::should_bypass_cache();
 
 		// Arrays are serialized without considering the order of objects, but it's okay atm.
-		$cache_key = $cache_key ?? self::CACHE_TRANSIENT_PREFIX . md5( implode( '|', array( $path, $version, wp_json_encode( $args, JSON_UNESCAPED_SLASHES ), wp_json_encode( $body, JSON_UNESCAPED_SLASHES ), $base_api_path ) ) );
+		$cache_key ??= self::CACHE_TRANSIENT_PREFIX . md5( implode( '|', array( $path, $version, wp_json_encode( $args, JSON_UNESCAPED_SLASHES ), wp_json_encode( $body, JSON_UNESCAPED_SLASHES ), $base_api_path ) ) );
 
 		if ( $use_cache ) {
 			$response_body_content = get_transient( $cache_key );
@@ -81,6 +81,19 @@ class WPCOM_Client {
 		);
 
 		if ( is_wp_error( $response ) ) {
+			// `Client` fails before sending anything when the site holds no blog token, and that
+			// error carries no status, which the REST API renders as a 500. Say what actually
+			// happened so callers can tell an unconnected site from a broken one. Newer connection
+			// packages name the reason (`no_possible_tokens`); older ones return `missing_token`.
+			// `malformed_token` means the stored token has no secret half and cannot sign anything.
+			if ( in_array( $response->get_error_code(), array( 'missing_token', 'no_possible_tokens', 'malformed_token' ), true ) ) {
+				return new WP_Error(
+					'site_not_connected',
+					__( 'This site is not connected to WordPress.com.', 'jetpack-stats-admin' ),
+					array( 'status' => 400 )
+				);
+			}
+
 			return $response;
 		}
 
@@ -90,6 +103,15 @@ class WPCOM_Client {
 
 		$error = static::get_wp_error( $response_body, (int) $response_code );
 		if ( is_wp_error( $error ) ) {
+			// Unknown token keys and incorrect secrets also mean the site cannot authenticate.
+			// Expose these rejections like a missing token so callers can identify the broken connection.
+			if ( in_array( $error->get_error_code(), array( 'invalid_token', 'unknown_token', 'signature_mismatch' ), true ) ) {
+				return new WP_Error(
+					'site_not_connected',
+					__( 'This site is not connected to WordPress.com.', 'jetpack-stats-admin' ),
+					array( 'status' => 400 )
+				);
+			}
 			return $error;
 		}
 

@@ -6,10 +6,9 @@
  */
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once __DIR__ . '/fixtures/memberships-stubs.php';
-//phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
-require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/class-ai-launchpad-memberships.php';
 
 /**
  * Test class for AI_Launchpad_Memberships.
@@ -20,69 +19,48 @@ require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-la
 class AI_Launchpad_Memberships_Test extends \WorDBless\BaseTestCase {
 
 	/**
-	 * Reset the stub signals before each test.
+	 * Reset the stub so its signals don't leak into later tests.
 	 */
-	public function set_up() {
-		parent::set_up();
-		AI_Launchpad_Stub_Jetpack_Memberships::$connected        = false;
-		AI_Launchpad_Stub_Jetpack_Memberships::$plans            = false;
-		AI_Launchpad_Stub_Jetpack_Memberships::$newsletter_plans = false;
+	public function tear_down() {
+		AI_Launchpad_Stub_Jetpack_Memberships::reset();
+		parent::tear_down();
 	}
 
 	/**
-	 * The stripe_connected and set_up_payments tasks follow the connected-account signal.
+	 * Each membership task follows its own Jetpack_Memberships signal; a generic paid plan does not complete
+	 * newsletter_plan_created, and a non-membership task is not overridden at all.
+	 *
+	 * @dataProvider provide_membership_signals
+	 *
+	 * @param string[] $signals  The Jetpack_Memberships signals that are on ('connected', 'plans', 'newsletter_plans').
+	 * @param string   $task_id  The catalog task ID.
+	 * @param bool     $expected Whether the task should be reported complete.
 	 */
-	public function test_stripe_tasks_follow_connected_account() {
-		$this->assertFalse( AI_Launchpad_Memberships::is_task_complete( 'stripe_connected' ) );
-		$this->assertFalse( AI_Launchpad_Memberships::is_task_complete( 'set_up_payments' ) );
+	#[DataProvider( 'provide_membership_signals' )]
+	public function test_is_task_complete( array $signals, $task_id, $expected ) {
+		AI_Launchpad_Stub_Jetpack_Memberships::$connected        = in_array( 'connected', $signals, true );
+		AI_Launchpad_Stub_Jetpack_Memberships::$plans            = in_array( 'plans', $signals, true );
+		AI_Launchpad_Stub_Jetpack_Memberships::$newsletter_plans = in_array( 'newsletter_plans', $signals, true );
 
-		AI_Launchpad_Stub_Jetpack_Memberships::$connected = true;
-
-		$this->assertTrue( AI_Launchpad_Memberships::is_task_complete( 'stripe_connected' ) );
-		$this->assertTrue( AI_Launchpad_Memberships::is_task_complete( 'set_up_payments' ) );
+		$this->assertSame( $expected, AI_Launchpad_Memberships::is_task_complete( $task_id ) );
+		$this->assertSame( 'first_post_published' !== $task_id, AI_Launchpad_Memberships::has_override( $task_id ) );
 	}
 
 	/**
-	 * The paid_offer_created task follows the any-paid-plan signal.
+	 * Data provider for test_is_task_complete.
+	 *
+	 * @return array
 	 */
-	public function test_paid_offer_follows_configured_plans() {
-		$this->assertFalse( AI_Launchpad_Memberships::is_task_complete( 'paid_offer_created' ) );
-
-		AI_Launchpad_Stub_Jetpack_Memberships::$plans = true;
-
-		$this->assertTrue( AI_Launchpad_Memberships::is_task_complete( 'paid_offer_created' ) );
-	}
-
-	/**
-	 * The newsletter_plan_created task follows the newsletter-plan signal,
-	 * independent of the generic paid-plan signal.
-	 */
-	public function test_newsletter_plan_follows_newsletter_signal() {
-		// A generic paid plan alone does not complete the newsletter task.
-		AI_Launchpad_Stub_Jetpack_Memberships::$plans = true;
-		$this->assertFalse( AI_Launchpad_Memberships::is_task_complete( 'newsletter_plan_created' ) );
-
-		AI_Launchpad_Stub_Jetpack_Memberships::$newsletter_plans = true;
-		$this->assertTrue( AI_Launchpad_Memberships::is_task_complete( 'newsletter_plan_created' ) );
-	}
-
-	/**
-	 * Only the four membership tasks are overridden.
-	 */
-	public function test_only_membership_tasks_are_overridden() {
-		$this->assertTrue( AI_Launchpad_Memberships::has_override( 'stripe_connected' ) );
-		$this->assertTrue( AI_Launchpad_Memberships::has_override( 'set_up_payments' ) );
-		$this->assertTrue( AI_Launchpad_Memberships::has_override( 'paid_offer_created' ) );
-		$this->assertTrue( AI_Launchpad_Memberships::has_override( 'newsletter_plan_created' ) );
-		$this->assertFalse( AI_Launchpad_Memberships::has_override( 'first_post_published' ) );
-		$this->assertFalse( AI_Launchpad_Memberships::has_override( 'setup_ssh' ) );
-	}
-
-	/**
-	 * A task that isn't overridden is never reported complete by this helper.
-	 */
-	public function test_non_membership_task_is_not_complete() {
-		AI_Launchpad_Stub_Jetpack_Memberships::$connected = true;
-		$this->assertFalse( AI_Launchpad_Memberships::is_task_complete( 'first_post_published' ) );
+	public static function provide_membership_signals() {
+		return array(
+			'stripe_connected without a connected account' => array( array(), 'stripe_connected', false ),
+			'stripe_connected with a connected account'    => array( array( 'connected' ), 'stripe_connected', true ),
+			'set_up_payments with a connected account'     => array( array( 'connected' ), 'set_up_payments', true ),
+			'paid_offer_created without configured plans'  => array( array(), 'paid_offer_created', false ),
+			'paid_offer_created with configured plans'     => array( array( 'plans' ), 'paid_offer_created', true ),
+			'newsletter_plan_created ignores generic plans' => array( array( 'plans' ), 'newsletter_plan_created', false ),
+			'newsletter_plan_created with its own plan'    => array( array( 'newsletter_plans' ), 'newsletter_plan_created', true ),
+			'a non-membership task is never complete'      => array( array( 'connected', 'plans', 'newsletter_plans' ), 'first_post_published', false ),
+		);
 	}
 }

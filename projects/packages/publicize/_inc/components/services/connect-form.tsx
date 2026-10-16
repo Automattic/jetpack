@@ -3,10 +3,8 @@ import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useIsDashboard } from '../../hooks/use-is-dashboard';
 import { store } from '../../social-store';
 import { CustomInputs } from './custom-inputs';
-import { DashboardCustomInputs } from './custom-inputs-dashboard';
 import styles from './style.module.scss';
 import { SupportedService } from './types';
 import { useRequestAccess } from './use-request-access';
@@ -39,7 +37,6 @@ export function ConnectForm( {
 	buttonLabel,
 	compact,
 }: ConnectFormProps ) {
-	const isDashboard = useIsDashboard();
 	const { fetchKeyringResult, setKeyringResult, completeReconnect } = useDispatch( store );
 
 	// In the Social dashboard the submit button sits flush in a compact
@@ -118,11 +115,7 @@ export function ConnectForm( {
 		>
 			{ displayInputs ? (
 				<div className={ clsx( styles[ 'fields-wrapper' ], styles.input ) }>
-					{ isDashboard ? (
-						<DashboardCustomInputs service={ service } />
-					) : (
-						<CustomInputs service={ service } />
-					) }
+					<CustomInputs service={ service } />
 				</div>
 			) : null }
 

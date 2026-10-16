@@ -1,12 +1,15 @@
-import { Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { border, drafts, lock, published } from '@wordpress/icons';
-import { Button, Card, CollapsibleCard } from '@wordpress/ui';
-import { ctaKind, type EnrichedTask } from './model.ts';
+import { Button, Card, CollapsibleCard, Icon, Stack, Text } from '@wordpress/ui';
+import { ctaKind, type CtaKind, type EnrichedTask } from './model.ts';
+
+// Which of a card's actions is in flight. The CTA and "Mark as complete" are
+// mutually exclusive, so they share the `primary` slot; "Skip" is its own.
+export type BusyAction = 'primary' | 'skip';
 
 interface Props {
 	task: EnrichedTask;
-	isBusy: boolean;
+	busyAction: BusyAction | null;
 	isLocked: boolean;
 	canStart: boolean;
 	canMarkComplete: boolean;
@@ -22,12 +25,33 @@ interface Props {
 }
 
 /**
- * Resolve the action-specific label for a task's primary CTA, keyed first by task
- * id then by {@link ctaKind}, falling back to a generic "Get started".
+ * The CTA label for every {@link CtaKind}, including the `deeplink` catch-all.
  *
- * The map lives here rather than in `model.ts` because the labels must be `__()`
- * literals for translation extraction, and `model.ts` is kept free of
- * `@wordpress/*` imports so its node:test suite runs.
+ * A `Record` keyed by the union rather than a `switch` with a `default`, so that adding a kind
+ * without labelling it is a compile error. As a switch it was neither: a missing arm fell through to
+ * the generic "Get started" silently, and no test could see it — the labels can't be asserted from
+ * `model.test.mts`, because reaching them means importing `@wordpress/*`, which the node:test runner
+ * can't load. That is also why the map lives here and not in `model.ts`: the labels must be `__()`
+ * literals for translation extraction, and `model.ts` is kept import-free so its suite runs.
+ *
+ * Thunks rather than plain strings, so each `__()` still runs at render time — a module-scope call
+ * would resolve before the locale data is in place.
+ */
+const CTA_KIND_LABELS: Record< CtaKind, () => string > = {
+	first_post: () => __( 'Write post', 'jetpack-mu-wpcom' ),
+	about_page: () => __( 'Add page', 'jetpack-mu-wpcom' ),
+	gallery_page: () => __( 'Create gallery', 'jetpack-mu-wpcom' ),
+	contact_page: () => __( 'Add contact page', 'jetpack-mu-wpcom' ),
+	events_page: () => __( 'Add events page', 'jetpack-mu-wpcom' ),
+	video_page: () => __( 'Add video page', 'jetpack-mu-wpcom' ),
+	portfolio_piece: () => __( 'Add portfolio piece', 'jetpack-mu-wpcom' ),
+	launch: () => __( 'Launch site', 'jetpack-mu-wpcom' ),
+	deeplink: () => __( 'Get started', 'jetpack-mu-wpcom' ),
+};
+
+/**
+ * Resolve the action-specific label for a task's primary CTA, keyed first by task
+ * id then by {@link ctaKind}.
  *
  * @param taskId     - The catalog task id.
  * @param inProgress - Whether the task has a saved-but-unpublished draft.
@@ -48,8 +72,8 @@ function getCtaLabel( taskId: string, inProgress: boolean ): string {
 	switch ( taskId ) {
 		case 'site_theme_selected':
 			return __( 'Browse themes', 'jetpack-mu-wpcom' );
-		case 'add_gallery_page':
-			return __( 'Create gallery', 'jetpack-mu-wpcom' );
+		// `add_gallery_page` is not listed here: it is the only id of its kind, so the
+		// `gallery_page` entry in CTA_KIND_LABELS carries its label and this arm would be dead.
 		case 'install_woocommerce':
 			return __( 'Install WooCommerce', 'jetpack-mu-wpcom' );
 		case 'setup_woocommerce_store':
@@ -71,16 +95,7 @@ function getCtaLabel( taskId: string, inProgress: boolean ): string {
 			return __( 'Add subscribers', 'jetpack-mu-wpcom' );
 	}
 
-	switch ( ctaKind( taskId ) ) {
-		case 'first_post':
-			return __( 'Write post', 'jetpack-mu-wpcom' );
-		case 'about_page':
-			return __( 'Add page', 'jetpack-mu-wpcom' );
-		case 'launch':
-			return __( 'Launch site', 'jetpack-mu-wpcom' );
-		default:
-			return __( 'Get started', 'jetpack-mu-wpcom' );
-	}
+	return CTA_KIND_LABELS[ ctaKind( taskId ) ]();
 }
 
 /**
@@ -91,7 +106,8 @@ function getCtaLabel( taskId: string, inProgress: boolean ): string {
  *
  * @param props                  - The component props.
  * @param props.task             - The enriched task to render.
- * @param props.isBusy           - Whether this card's action is in flight (spinner).
+ * @param props.busyAction       - Which of this card's actions is in flight, or null; the
+ *                               matching button shows the spinner.
  * @param props.isLocked         - Whether any card's action is in flight; disables all
  *                               actions so concurrent writes can't interleave.
  * @param props.canStart         - Whether the task has an actionable CTA destination.
@@ -109,7 +125,7 @@ function getCtaLabel( taskId: string, inProgress: boolean ): string {
  */
 export function TaskCard( {
 	task,
-	isBusy,
+	busyAction,
 	isLocked,
 	canStart,
 	canMarkComplete,
@@ -132,18 +148,22 @@ export function TaskCard( {
 				onOpenChange={ onOpenChange }
 			>
 				<CollapsibleCard.Header>
-					<span className="ai-launchpad-tailored-list__header-inner">
+					<Stack render={ <span /> } align="center" gap="sm">
 						<span className="ai-launchpad-tailored-list__icon">
 							<Icon icon={ lock } size={ 24 } />
 						</span>
-						<span className="ai-launchpad-tailored-list__title">{ task.title }</span>
-					</span>
+						<Text variant="heading-md" className="ai-launchpad-tailored-list__title">
+							{ task.title }
+						</Text>
+					</Stack>
 				</CollapsibleCard.Header>
 				<CollapsibleCard.Content>
-					<p className="ai-launchpad-tailored-list__subtitle">{ task.subtitle }</p>
-					<p className="ai-launchpad-tailored-list__hint">
+					<Text render={ <p /> } className="ai-launchpad-tailored-list__subtitle">
+						{ task.subtitle }
+					</Text>
+					<Text render={ <p /> } className="ai-launchpad-tailored-list__hint">
 						{ __( 'Available once WooCommerce is active.', 'jetpack-mu-wpcom' ) }
-					</p>
+					</Text>
 				</CollapsibleCard.Content>
 			</CollapsibleCard.Root>
 		);
@@ -158,12 +178,14 @@ export function TaskCard( {
 				onClick={ onCollapsedClick }
 			>
 				<Card.Header>
-					<span className="ai-launchpad-tailored-list__header-inner">
+					<Stack render={ <span /> } align="center" gap="sm">
 						<span className="ai-launchpad-tailored-list__icon is-done">
 							<Icon icon={ published } size={ 24 } />
 						</span>
-						<span className="ai-launchpad-tailored-list__title is-done">{ task.title }</span>
-					</span>
+						<Text variant="heading-md" className="ai-launchpad-tailored-list__title is-done">
+							{ task.title }
+						</Text>
+					</Stack>
 				</Card.Header>
 			</Card.Root>
 		);
@@ -176,22 +198,26 @@ export function TaskCard( {
 			onOpenChange={ onOpenChange }
 		>
 			<CollapsibleCard.Header>
-				<span className="ai-launchpad-tailored-list__header-inner">
+				<Stack render={ <span /> } align="center" gap="sm">
 					<span className="ai-launchpad-tailored-list__icon">
 						{ /* To-do vs in-progress is conveyed by the glyph alone; both share the neutral color. */ }
 						<Icon icon={ task.in_progress ? drafts : border } size={ 24 } />
 					</span>
-					<span className="ai-launchpad-tailored-list__title">{ task.title }</span>
-				</span>
+					<Text variant="heading-md" className="ai-launchpad-tailored-list__title">
+						{ task.title }
+					</Text>
+				</Stack>
 			</CollapsibleCard.Header>
 			<CollapsibleCard.Content>
-				<p className="ai-launchpad-tailored-list__subtitle">{ task.subtitle }</p>
-				<div className="ai-launchpad-tailored-list__actions">
+				<Text render={ <p /> } className="ai-launchpad-tailored-list__subtitle">
+					{ task.subtitle }
+				</Text>
+				<Stack align="center" gap="sm">
 					{ canStart && (
 						<Button
 							variant="solid"
 							onClick={ onGetStarted }
-							loading={ isBusy }
+							loading={ busyAction === 'primary' }
 							disabled={ isLocked }
 						>
 							{ getCtaLabel( task.id, task.in_progress ) }
@@ -201,17 +227,23 @@ export function TaskCard( {
 						<Button
 							variant="solid"
 							onClick={ onMarkComplete }
-							loading={ isBusy }
+							loading={ busyAction === 'primary' }
 							disabled={ isLocked }
 						>
 							{ __( 'Mark as complete', 'jetpack-mu-wpcom' ) }
 						</Button>
 					) }
 					{ /* Skip persists a server write too, so it shares the lock with the primary action. */ }
-					<Button variant="minimal" tone="neutral" onClick={ onSkip } disabled={ isLocked }>
+					<Button
+						variant="minimal"
+						tone="neutral"
+						onClick={ onSkip }
+						loading={ busyAction === 'skip' }
+						disabled={ isLocked }
+					>
 						{ __( 'Skip', 'jetpack-mu-wpcom' ) }
 					</Button>
-				</div>
+				</Stack>
 			</CollapsibleCard.Content>
 		</CollapsibleCard.Root>
 	);

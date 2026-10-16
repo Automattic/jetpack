@@ -1,0 +1,14 @@
+// Rendered in DataViews' centered `.dataviews-no-results` box, which
+// shrinks it to its icon unless it takes the full width, and in left-aligned
+// slots, so it also resets text alignment.
+.jpb-query-error {
+	inline-size: 100%;
+	text-align: start;
+}
+
+// The Overview renders one directly above the two-pane grid, which
+// declares no block margin of its own. 16px matches
+// `.jpb-backup-status-banner`, the sibling that occupies the same slot.
+.jpb-query-error--standalone {
+	margin-block-end: 16px;
+}

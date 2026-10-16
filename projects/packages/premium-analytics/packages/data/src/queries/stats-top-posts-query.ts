@@ -7,6 +7,12 @@ import { statsReportQuery, type StatsReportParams } from './stats-query';
 // post list, mirroring the Stats "Most viewed" card — archives are their own
 // report (`stats/archives`).
 export const statsTopPostsQuery = ( params: StatsReportParams ) =>
-	statsReportQuery( 'top-posts', 'stats/top-posts', params, 'topPosts', '1.1', {
-		skip_archives: 1,
-	} );
+	statsReportQuery(
+		'top-posts',
+		'stats/top-posts',
+		params,
+		'topPosts',
+		'1.1',
+		{ skip_archives: 1 },
+		{ omitParams: [ 'days' ] }
+	);

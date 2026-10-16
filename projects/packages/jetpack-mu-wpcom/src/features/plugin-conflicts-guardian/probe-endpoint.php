@@ -219,7 +219,6 @@ function pcg_probe_respond( $payload, $status = 200 ) {
 		ob_end_clean();
 	}
 	wp_send_json( $payload, (int) $status, JSON_UNESCAPED_SLASHES );
-	exit;
 }
 
 /**

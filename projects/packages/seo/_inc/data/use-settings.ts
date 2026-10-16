@@ -3,8 +3,10 @@ import { select, useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
-import { buildCorePayload, buildJetpackPayload } from './build-payload';
+import { buildCorePayload, buildModulesPayload, readCoreResponse } from './build-payload';
+import { recordSeoEvent } from './record-seo-event';
 import { settingsStore } from './settings-store';
+import { VERIFICATION_KEYS } from './verification-services';
 import type { SchemaSettings } from './schema-settings-types';
 import type { SettingsResponse, VerificationKey } from './settings-types';
 
@@ -12,6 +14,84 @@ import type { SettingsResponse, VerificationKey } from './settings-types';
 // in place by "Settings saved." (or an error) — mirrors the Jetpack → Settings
 // page's two-stage toast.
 const SAVE_NOTICE_ID = 'jetpack-seo-settings-save';
+
+/** Tracks props for one changed setting; `none` stands in for N/A. */
+type SettingChange = {
+	setting: string;
+	verification_service: string;
+	setting_value: string | boolean;
+};
+
+// The Tracks name of each setting a save can send, keyed by its form field.
+const TRACKED_SETTINGS = {
+	front_page_description: 'front_page_description',
+	title_formats: 'title_formats',
+	search_engines_visible: 'search_engines_visible',
+	sitemap_active: 'sitemap',
+	canonical_active: 'canonical',
+	verification_tools_active: 'verification_tools',
+	verification: 'site_verification',
+} as const;
+
+type TrackedField = keyof typeof TRACKED_SETTINGS;
+
+/** A setting a save sends, and whether the module route carries it. */
+type SentSetting = { field: TrackedField; viaModules: boolean; props: SettingChange };
+
+/**
+ * One Tracks payload per setting this save sends, so co-firing can't inflate the
+ * distinct-site metric. Text settings report `none`, never their content.
+ *
+ * @param baseline - The last-saved values.
+ * @param values   - The values being saved.
+ * @return One entry per sent setting.
+ */
+function sentSettings( baseline: SettingsResponse, values: SettingsResponse ): SentSetting[] {
+	return ( Object.keys( TRACKED_SETTINGS ) as TrackedField[] ).flatMap( field => {
+		// A payload built from this field alone tells whether, and where, build-payload sends it.
+		const alone = { ...baseline, [ field ]: values[ field ] };
+		const viaModules = Object.keys( buildModulesPayload( baseline, alone ) ).length > 0;
+		if ( ! viaModules && Object.keys( buildCorePayload( baseline, alone ) ).length === 0 ) {
+			return [];
+		}
+
+		const sent = ( value: string | boolean, service = 'none' ): SentSetting => ( {
+			field,
+			viaModules,
+			props: {
+				setting: TRACKED_SETTINGS[ field ],
+				verification_service: service,
+				setting_value: value,
+			},
+		} );
+		if ( field === 'verification' ) {
+			return VERIFICATION_KEYS.filter(
+				key => baseline.verification[ key ] !== values.verification[ key ]
+			).map( key => sent( values.verification[ key ] ? 'set' : 'cleared', key ) );
+		}
+		const value = values[ field ];
+		return [ sent( typeof value === 'boolean' ? value : 'none' ) ];
+	} );
+}
+
+// The package's own settings read, re-fetched after every save so the form shows
+// what the server actually stored — including a value it refused and the
+// recomputed `sitemap_url`.
+const SEO_SETTINGS_PATH = '/jetpack/v4/seo/settings';
+
+// WordPress core's settings endpoint, which every option-backed SEO setting is
+// registered with. Core registers it on every platform, so this one path works
+// on WordPress.com and self-hosted alike.
+const CORE_SETTINGS_PATH = '/wp/v2/settings';
+
+// The package's own route for the settings whose write switches a Jetpack module,
+// which core's settings endpoint can't own because it has no way to refuse a value.
+const SEO_MODULES_PATH = '/jetpack/v4/seo/modules';
+
+// Cap on the post-save re-read. It's a courtesy refresh, so a hung request must
+// never be what keeps the controls disabled: a stale form is recoverable, a
+// permanently locked one isn't.
+const REFRESH_TIMEOUT_MS = 10000;
 
 export interface SettingsForm {
 	local: SettingsResponse | null;
@@ -81,27 +161,107 @@ export function useSettingsForm(): SettingsForm {
 		localRef.current = local;
 	}, [ local ] );
 
+	// Re-read the server's own view of the settings and adopt it for the fields this
+	// save touched, so the form shows what actually persisted rather than what we
+	// hoped would. The server can legitimately refuse a value — the sitemap and
+	// canonical settings only take if their legacy module switches with them — and a
+	// save can fail after its first request already committed. `sitemap_url` comes
+	// along because it's read-only and recomputed by the sitemap toggle.
+	const adoptServerState = useCallback(
+		( touched: Array< keyof SettingsResponse >, savedTitlePage?: string ) =>
+			new Promise< void >( resolve => {
+				// Always settles: on the response, on an error, or on the timeout that
+				// aborts a request which never came back.
+				const controller = new AbortController();
+				const timer = setTimeout( () => {
+					controller.abort();
+					resolve();
+				}, REFRESH_TIMEOUT_MS );
+
+				apiFetch< SettingsResponse >( { path: SEO_SETTINGS_PATH, signal: controller.signal } )
+					.then( fresh => {
+						const current = localRef.current;
+						const baseline = baselineRef.current;
+						if ( ! current || ! baseline || ! fresh ) {
+							return;
+						}
+						// Only fields the response actually carries: a truncated payload must
+						// blank nothing out.
+						const patch: Partial< SettingsResponse > = {};
+						[ ...touched, 'sitemap_url' as const ].forEach( field => {
+							if ( field in fresh ) {
+								( patch as Record< string, unknown > )[ field ] = fresh[ field ];
+							}
+						} );
+
+						const localPatch = { ...patch };
+						if ( savedTitlePage && patch.title_formats ) {
+							const titleFormats = { ...patch.title_formats };
+							Object.keys( current.title_formats ).forEach( pageType => {
+								if (
+									pageType !== savedTitlePage &&
+									JSON.stringify( current.title_formats[ pageType ] ?? [] ) !==
+										JSON.stringify( baseline.title_formats[ pageType ] ?? [] )
+								) {
+									// Refresh the saved row without discarding another row's pending edit.
+									titleFormats[ pageType ] = current.title_formats[ pageType ];
+								}
+							} );
+							localPatch.title_formats = titleFormats;
+						}
+
+						localRef.current = { ...current, ...localPatch };
+						baselineRef.current = { ...baseline, ...patch };
+						setLocal( localRef.current );
+						setSettings( baselineRef.current );
+					} )
+					.catch( () => {
+						// Nothing better to show than what's already on screen; the next load
+						// is authoritative either way.
+					} )
+					.then( () => {
+						clearTimeout( timer );
+						resolve();
+					} );
+			} ),
+		[ setSettings ]
+	);
+
 	const saveValues = useCallback(
-		( values: SettingsResponse ) => {
+		( values: SettingsResponse, savedTitlePage?: string ) => {
 			const baseline = baselineRef.current;
 			if ( ! baseline ) {
 				return;
 			}
-			const jetpackPayload = buildJetpackPayload( baseline, values );
 			const corePayload = buildCorePayload( baseline, values );
-
-			const requests: Array< Promise< unknown > > = [];
-			if ( Object.keys( jetpackPayload ).length > 0 ) {
-				requests.push(
-					apiFetch( { path: '/jetpack/v4/settings', method: 'POST', data: jetpackPayload } )
-				);
-			}
-			if ( Object.keys( corePayload ).length > 0 ) {
-				requests.push( apiFetch( { path: '/wp/v2/settings', method: 'POST', data: corePayload } ) );
-			}
-			if ( requests.length === 0 ) {
+			const modulesPayload = buildModulesPayload( baseline, values );
+			if ( Object.keys( corePayload ).length + Object.keys( modulesPayload ).length === 0 ) {
 				return;
 			}
+
+			const touched = ( Object.keys( values ) as Array< keyof SettingsResponse > ).filter(
+				field => JSON.stringify( values[ field ] ) !== JSON.stringify( baseline[ field ] )
+			);
+			const settings = sentSettings( baseline, values );
+			// What landed: core's settings write reports what it stored, and the module
+			// route lists what it applied, even when it fails partway.
+			let coreSaved = false;
+			let coreStored: Partial< SettingsResponse > = {};
+			let modulesApplied: string[] = [];
+			// Core answers 200 even when a sanitizer kept the old value, so a setting
+			// counts only once its stored value moved off the baseline.
+			const storedInCore = ( { field, props }: SentSetting ): boolean => {
+				if ( ! coreSaved ) {
+					return false;
+				}
+				if ( ! ( field in coreStored ) ) {
+					return true;
+				}
+				const key = props.verification_service as VerificationKey;
+				return field === 'verification'
+					? coreStored.verification?.[ key ] !== baseline.verification[ key ]
+					: JSON.stringify( coreStored[ field ] ) !== JSON.stringify( baseline[ field ] );
+			};
 
 			setIsSaving( true );
 			createInfoNotice( __( 'Updating settings…', 'jetpack-seo' ), {
@@ -109,25 +269,71 @@ export function useSettingsForm(): SettingsForm {
 				type: 'snackbar',
 				isDismissible: false,
 			} );
-			Promise.all( requests )
-				.then( () => {
+
+			// Sequential, not parallel: the module writes switch Jetpack modules and can
+			// be refused, and the re-read below has to see a settled server state to
+			// reconcile against. Overlapping the two would race that read, and a failure
+			// in one would leave the client unable to say what the other had landed.
+			Promise.resolve()
+				.then( () =>
+					Object.keys( corePayload ).length > 0
+						? apiFetch( { path: CORE_SETTINGS_PATH, method: 'POST', data: corePayload } )
+						: undefined
+				)
+				.then( response => {
+					coreSaved = true;
+					coreStored = readCoreResponse( response );
+					return Object.keys( modulesPayload ).length > 0
+						? apiFetch< Record< string, boolean > >( {
+								path: SEO_MODULES_PATH,
+								method: 'POST',
+								data: modulesPayload,
+							} )
+						: undefined;
+				} )
+				.then( applied => {
+					modulesApplied = Object.keys( applied ?? {} );
+					// Adopt what we asked for; `adoptServerState()` below then corrects it
+					// wherever the server reports something else. Skipped on failure, where
+					// only the server knows what landed.
 					baselineRef.current = values;
-					// Persist the saved snapshot so a return to the tab re-seeds from it.
 					setSettings( values );
 					createSuccessNotice( __( 'Settings saved.', 'jetpack-seo' ), {
 						id: SAVE_NOTICE_ID,
 						type: 'snackbar',
 					} );
 				} )
-				.catch( ( error: { message?: string } ) => {
+				.catch( ( error: { message?: string; data?: { applied?: Record< string, boolean > } } ) => {
+					modulesApplied = Object.keys( error?.data?.applied ?? {} );
 					createErrorNotice(
 						error?.message ?? __( 'Could not save settings. Please try again.', 'jetpack-seo' ),
 						{ id: SAVE_NOTICE_ID, type: 'snackbar' }
 					);
 				} )
+				// Recorded before the re-read, which can take seconds, so leaving the page
+				// straight after a save doesn't lose the event.
+				.then( () =>
+					settings.forEach( setting =>
+						recordSeoEvent(
+							(
+								setting.viaModules
+									? modulesApplied.includes( setting.field )
+									: storedInCore( setting )
+							)
+								? 'jetpack_seo_setting_updated'
+								: 'jetpack_seo_setting_update_failed',
+							'settings',
+							setting.props
+						)
+					)
+				)
+				// Either way — including a save that failed with its first request already
+				// committed — the form is reconciled with the server before the controls
+				// unlock, so `isSaving` also serializes this against the next save.
+				.then( () => adoptServerState( touched, savedTitlePage ) )
 				.finally( () => setIsSaving( false ) );
 		},
-		[ createInfoNotice, createSuccessNotice, createErrorNotice, setSettings ]
+		[ createInfoNotice, createSuccessNotice, createErrorNotice, setSettings, adoptServerState ]
 	);
 
 	const setField = useCallback(
@@ -231,7 +437,7 @@ export function useSettingsForm(): SettingsForm {
 					[ pageType ]: current.title_formats[ pageType ] ?? [],
 				},
 			};
-			saveValues( values );
+			saveValues( values, pageType );
 		},
 		[ saveValues ]
 	);

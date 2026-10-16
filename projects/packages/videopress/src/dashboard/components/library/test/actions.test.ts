@@ -1,9 +1,17 @@
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { makeLibraryItem as item } from '../../../test-utils/library-item';
 import { setSimpleSite, unsetSimpleSite } from '../../../test-utils/simple-site';
 import { buildLibraryActions } from '../actions';
+import type { LibraryItem } from '../../../types/library';
+import type { Action, RenderModalProps } from '@wordpress/dataviews';
+import type { JSX } from 'react';
 
 jest.mock( '@wordpress/i18n', () => ( {
 	__: ( text: string ) => text,
+	_n: ( single: string, plural: string, count: number ) => ( count === 1 ? single : plural ),
+	sprintf: ( format: string, ...args: unknown[] ) =>
+		format.replace( /%d/g, () => String( args.shift() ) ),
 } ) );
 
 const makeApi = () => ( {
@@ -55,6 +63,27 @@ describe( 'buildLibraryActions', () => {
 		expect( actions.find( a => a.id === 'manage-captions' )?.isEligible?.( idle ) ).toBe( true );
 	} );
 
+	it( 'makes an idle local row deletable (plain attachment delete)', () => {
+		const actions = buildLibraryActions( makeApi() );
+		const local = item( { type: 'local' } );
+
+		expect( actions.find( a => a.id === 'delete' )?.isEligible?.( local ) ).toBe( true );
+	} );
+
+	it( 'gives every idle row a bulk-capable action so DataViews enables its checkbox', () => {
+		// DataViews disables an item's selection checkbox when no
+		// `supportsBulk` action is eligible for it (useHasAPossibleBulkAction,
+		// same gate in the grid and table layouts). Local rows used to have
+		// zero bulk-capable actions and were silently unselectable
+		// (JETPACK-2032); this pins the invariant for both row types.
+		const actions = buildLibraryActions( makeApi() );
+		const hasAPossibleBulkAction = ( row: ReturnType< typeof item > ) =>
+			actions.some( a => a.supportsBulk && ( ! a.isEligible || a.isEligible( row ) ) );
+
+		expect( hasAPossibleBulkAction( item() ) ).toBe( true );
+		expect( hasAPossibleBulkAction( item( { type: 'local' } ) ) ).toBe( true );
+	} );
+
 	it( 'offers Upload to VideoPress for idle local items on every host', () => {
 		const local = item( { type: 'local' } );
 		const eligible = ( actions: ReturnType< typeof buildLibraryActions > ) =>
@@ -74,6 +103,19 @@ describe( 'buildLibraryActions', () => {
 		}
 	} );
 
+	it( 'fans a bulk Upload to VideoPress out to every selected item', () => {
+		const api = makeApi();
+		const action = buildLibraryActions( api ).find( a => a.id === 'upload-to-vp' );
+
+		expect( action?.supportsBulk ).toBe( true );
+
+		const rows = [ item( { type: 'local', id: '11' } ), item( { type: 'local', id: '12' } ) ];
+		if ( action && 'callback' in action ) {
+			action.callback( rows, { registry: {} } );
+		}
+		expect( api.promoteLocal.mock.calls ).toEqual( [ [ '11' ], [ '12' ] ] );
+	} );
+
 	it( 'makes a local row with any operation in flight ineligible for Upload to VideoPress', () => {
 		const action = buildLibraryActions( makeApi() ).find( a => a.id === 'upload-to-vp' );
 
@@ -86,5 +128,32 @@ describe( 'buildLibraryActions', () => {
 				eligible: false,
 			} );
 		}
+	} );
+
+	it( 'asks for confirmation before deleting, and only deletes on confirm', async () => {
+		const user = userEvent.setup();
+		const api = makeApi();
+		const rawAction = buildLibraryActions( api ).find(
+			a => a.id === 'delete'
+		) as Action< LibraryItem >;
+		const rows = [ item( { id: '11' } ), item( { id: '12' } ) ];
+		const closeModal = jest.fn();
+
+		expect( 'RenderModal' in rawAction ).toBe( true );
+		expect( 'modalHeader' in rawAction ).toBe( true );
+
+		const deleteAction = rawAction as unknown as {
+			RenderModal: ( props: RenderModalProps< LibraryItem > ) => JSX.Element;
+		};
+		render( deleteAction.RenderModal( { items: rows, closeModal } ) );
+		expect( api.deleteItems ).not.toHaveBeenCalled();
+
+		await user.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
+		expect( closeModal ).toHaveBeenCalledTimes( 1 );
+		expect( api.deleteItems ).not.toHaveBeenCalled();
+
+		await user.click( screen.getByRole( 'button', { name: 'Delete' } ) );
+		expect( api.deleteItems ).toHaveBeenCalledWith( [ '11', '12' ] );
+		expect( closeModal ).toHaveBeenCalledTimes( 2 );
 	} );
 } );

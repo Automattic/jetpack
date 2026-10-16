@@ -163,8 +163,15 @@ const sbconfig = {
 			},
 			resolve: {
 				conditions: [ 'jetpack:src' ],
-				// Somehow or other vitest blows up trying to process `node_modules/storybook/dist/manager-api/index.js` unless we set this.
-				dedupe: [ 'react', 'react-dom' ],
+				dedupe: [
+					// Somehow or other vitest blows up trying to process `node_modules/storybook/dist/manager-api/index.js` unless we set this.
+					'react',
+					'react-dom',
+
+					// Certain Gutenberg packages are sensitive to duplication.
+					'@wordpress/data',
+					'@wordpress/notices',
+				],
 				alias: {
 					...config.resolve?.alias,
 

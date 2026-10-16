@@ -1,0 +1,56 @@
+// Body styles for the Chapters help modal.
+
+// The Dialog portals into `<body>`, so wp-admin's global element rules apply
+// to everything inside it — and they win: `@wordpress/ui` ships its styles
+// inside `@layer wp-ui`, and an unlayered declaration always outranks a
+// layered one regardless of specificity. That means `p { margin: 1em 0 }`,
+// `ul li { margin-bottom: 6px }` and `h3 { font-size: 1.3em }` beat anything
+// the design system sets. Rather than fight that per property, the body zeroes
+// the inherited block margins and lets `Stack` gaps own the vertical rhythm.
+
+// Scoped to the dashboard body class (as in `admin-shell.scss`) so these rules
+// stay inside the modernized VideoPress pages.
+
+body.jetpack_page_jetpack-videopress {
+
+	.vp-chapters-help {
+
+		p,
+		ol,
+		li {
+			margin-block: 0;
+		}
+
+		// Sub-headings inside the dialog body. `Dialog.Title` is the `<h2>`,
+		// so these are `<h3>`; the visual treatment stays plain bold body
+		// text rather than wp-admin's larger heading scale.
+		&__heading {
+			font-size: inherit;
+			font-weight: 600;
+			line-height: inherit;
+			margin-block: 0;
+		}
+
+		// Marker indent has to be restated: the margin reset above drops
+		// wp-admin's list offset along with its bottom margins.
+		&__steps {
+			padding-inline-start: 1.5em;
+
+			li + li {
+				margin-block-start: var(--wpds-dimension-gap-sm);
+			}
+		}
+
+		// The sample chapter list is text the user copies into the video
+		// Description, so it reads as a code-style block: monospace keeps the
+		// timestamps aligned, and the fill separates it from the surrounding
+		// prose.
+		&__example {
+			background-color: var(--wpds-color-background-surface-neutral-weak);
+			border-radius: var(--wpds-border-radius-sm);
+			font-family: Menlo, Consolas, monaco, monospace;
+			padding: var(--wpds-dimension-padding-md);
+		}
+	}
+
+}

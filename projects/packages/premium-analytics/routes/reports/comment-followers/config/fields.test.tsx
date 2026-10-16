@@ -6,23 +6,17 @@ import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
+import { getMockRouteLinkUrl, setMockRouteSearch } from '../../../../tests/js/route-test-utils';
 import { getCommentFollowersFields } from './fields';
-import type { ReactNode } from 'react';
 
 // The router is built dynamically at runtime, so a field-level test has no
 // router to mount. Render `Link` as the anchor it becomes, keeping `to`/`params`
 // assertable.
-jest.mock( '@wordpress/route', () => ( {
-	Link: ( {
-		to,
-		params,
-		children,
-	}: {
-		to: string;
-		params: Record< string, string >;
-		children: ReactNode;
-	} ) => <a href={ to.replace( /\$(\w+)/g, ( _match, key ) => params[ key ] ) }>{ children }</a>,
-} ) );
+jest.mock( '@wordpress/route', () => {
+	const { mockWordPressRoute } = jest.requireActual( '../../../../tests/js/route-test-utils' );
+
+	return mockWordPressRoute;
+} );
 
 /**
  * Mount the post field's render component for a table row.
@@ -43,6 +37,15 @@ function renderPostField( item: StatsCommentFollowersItem ) {
 }
 
 describe( 'comment followers fields', () => {
+	beforeEach( () => {
+		setMockRouteSearch( {
+			from: '2026-06-01',
+			to: '2026-06-16',
+			interval: 'day',
+			foreign: 'drop-me',
+		} );
+	} );
+
 	it( 'drills posts with an id into the post detail page', () => {
 		renderPostField( {
 			id: 42,
@@ -55,7 +58,14 @@ describe( 'comment followers fields', () => {
 		} );
 
 		const link = screen.getByRole( 'link', { name: 'Hello world' } );
-		expect( link ).toHaveAttribute( 'href', '/post/42' );
+		const url = getMockRouteLinkUrl( link );
+		expect( url.pathname ).toBe( '/post/42' );
+		expect( Object.fromEntries( url.searchParams ) ).toEqual( {
+			from: '2026-06-01',
+			to: '2026-06-16',
+			interval: 'day',
+			ref: 'comment-followers',
+		} );
 		// Navigation stays in the app, so the row must not open a new tab.
 		expect( link ).not.toHaveAttribute( 'target' );
 	} );
@@ -71,25 +81,24 @@ describe( 'comment followers fields', () => {
 			children: null,
 		} as never );
 
-		const link = screen.getByRole( 'link', { name: 'Hello world' } );
+		const link = screen.getByRole( 'link', { name: 'Hello world(opens in a new tab)' } );
 		expect( link ).toHaveAttribute( 'href', 'https://example.com/hello-world/' );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
-		expect( link ).toHaveAttribute( 'rel', 'noopener noreferrer' );
-		// eslint-disable-next-line testing-library/no-node-access -- The external-link icon SVG has no accessible role or text to query.
-		expect( link.querySelector( 'svg' ) ).toBeInTheDocument();
 	} );
 
-	it( 'renders plain text for rows with neither an id nor a link', () => {
+	it( 'renders plain text for rows with an unsafe external link', () => {
 		renderPostField( {
 			id: undefined,
 			label: 'Hello world',
 			followers: 12,
 			value: 12,
+			link: 'javascript:alert(1)',
+			labelIcon: 'external',
 			children: null,
 		} as never );
 
-		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
 		expect( screen.getByText( 'Hello world' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'uses followers as the Subscribers field value', () => {

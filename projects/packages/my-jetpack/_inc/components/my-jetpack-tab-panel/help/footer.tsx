@@ -26,14 +26,6 @@ export function HelpFooter() {
 		trackHelpRequest( 'documentation', 'clicked_debug_information_link' );
 	}, [ trackHelpRequest ] );
 
-	// These links target wp-admin pages (the Jetpack modules list and the
-	// Debugger) that only exist, and are only reachable, under two conditions:
-	// the Jetpack plugin is active (My Jetpack also runs inside other standalone
-	// plugins where these pages aren't registered), and the current user can
-	// manage options (both pages require it, but the Help tab is also shown to
-	// non-admins like editors). Neither page is registered on WordPress.com
-	// Simple sites. Guard on all of these to avoid links that dead-end on a
-	// 404 or a "you are not allowed to access this page" screen.
 	const showUsefulLinks =
 		isJetpackPluginActive() && currentUserCan( 'manage_options' ) && ! isSimpleSite();
 

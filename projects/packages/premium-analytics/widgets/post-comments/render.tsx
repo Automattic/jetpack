@@ -3,9 +3,9 @@
  */
 import { useStatsPostComments, toPostId } from '@jetpack-premium-analytics/data';
 import { formatRelativeSince } from '@jetpack-premium-analytics/datetime';
-import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	SubscriberList,
+	SubscriberListSkeleton,
 	WidgetRoot,
 	WidgetState,
 	useWidgetRootContext,
@@ -24,14 +24,11 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 type PostCommentsRenderAttributes = PostCommentsAttributes & Partial< ReportParamsFieldAttributes >;
 type PostCommentsWidgetProps = WidgetRenderProps< PostCommentsRenderAttributes >;
 
-/** How many comments to list; `found` feeds the "N more" footer. */
+/** How many comments to list. */
 const COMMENTS_SHOWN = 10;
 
 /**
- * Latest comments inner component. Reads the post scope from WidgetRoot's
- * report params and lists approved comments in reverse chronological order.
- *
- * @return The rendered widget content.
+ * Lists the scoped post's approved comments, newest first.
  */
 function PostCommentsInner() {
 	const { reportParams } = useWidgetRootContext();
@@ -56,50 +53,44 @@ function PostCommentsInner() {
 		[ data ]
 	);
 
-	const found = data?.found ?? 0;
 	const isEmpty = postId <= 0 || ( !! data && items.length === 0 );
 
 	return (
 		<div className={ styles.root }>
 			<WidgetState
-				isLoading={ isLoading && ! data }
+				isLoading={ isLoading }
 				isFetching={ isFetching }
-				// The query keeps prior data via `placeholderData`, so a transient
-				// refetch failure keeps the comments visible; only surface the error
-				// when there is nothing to show.
+				// `placeholderData` keeps the prior comments on screen, so a transient
+				// refetch failure should not replace them with an error.
 				isError={ ! data && isError }
 				isEmpty={ isEmpty }
+				renderLoading={ <SubscriberListSkeleton rows={ COMMENTS_SHOWN } /> }
 				error={ {
 					description: __(
 						"We couldn't load these comments. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
-					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 				} }
 				empty={ {
-					icon: reports,
 					description:
 						postId <= 0
 							? __(
 									'Open a post or page report to see its comments here.',
-									'jetpack-premium-analytics'
-							  )
-							: __( 'There are no comments yet.', 'jetpack-premium-analytics' ),
+									'jetpack-premium-analytics-pkg'
+								)
+							: __( 'This post has no comments yet.', 'jetpack-premium-analytics-pkg' ),
 				} }
 			>
-				<SubscriberList items={ items } moreCount={ Math.max( 0, found - items.length ) } />
+				<SubscriberList
+					items={ items }
+					moreCount={ data?.found === undefined ? null : Math.max( 0, data.found - items.length ) }
+				/>
 			</WidgetState>
 		</div>
 	);
 }
 
-/**
- * Latest comments widget: the scoped post's recent commenters as an avatar
- * roster.
- *
- * @param {PostCommentsWidgetProps} props - The widget render props.
- * @return The rendered widget.
- */
 export default function PostComments( { attributes = {} }: PostCommentsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>

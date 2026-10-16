@@ -4,15 +4,18 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"php": ">=7.2",
+		"php": ">=7.4",
+		"automattic/jetpack-admin-ui": "@dev",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-config": "@dev",
 		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-feature-flags": "@dev",
+		"automattic/jetpack-plans": "@dev",
 		"automattic/jetpack-stats": "@dev",
 		"automattic/jetpack-status": "@dev",
 		"automattic/jetpack-sync": "@dev",
 		"automattic/jetpack-wp-build-polyfills": "@dev",
-		"automattic/woocommerce-analytics": "^0.16"
+		"automattic/woocommerce-analytics": "^0.18"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
@@ -30,6 +33,8 @@
 		],
 		"test-php": "@composer phpunit",
 		"test-php-coverage": "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"",
+		"test-js": "pnpm run test && pnpm run test-tz",
+		"test-js-coverage": "pnpm run test-coverage",
 		"build-development": [
 			"pnpm run build"
 		],
@@ -62,7 +67,7 @@
 	"extra": {
 		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-premium-analytics",
-		"textdomain": "jetpack-premium-analytics",
+		"textdomain": "jetpack-premium-analytics-pkg",
 		"version-constants": {
 			"::PACKAGE_VERSION": "src/class-analytics.php"
 		},
@@ -70,7 +75,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-premium-analytics/compare/${old}...${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.1.x-dev"
+			"dev-trunk": "0.12.x-dev"
 		}
 	}
 }

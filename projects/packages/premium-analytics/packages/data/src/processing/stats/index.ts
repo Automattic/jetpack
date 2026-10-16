@@ -1,5 +1,4 @@
 export {
-	combineStatsNormalizedReports,
 	flattenStatsLeaves,
 	getStatsReportItems,
 	mergeStatsComparisonRows,
@@ -11,12 +10,18 @@ export type {
 	FlattenStatsLeavesOptions,
 	StatsComparisonRowContext,
 } from './utils';
-export { bucketStatsTimeSeries, getStatsChartBucketKey } from './chart-buckets';
+export {
+	bucketStatsTimeSeries,
+	getStatsChartBucketKey,
+	STATS_CHART_BUCKET_PERIODS,
+} from './chart-buckets';
 export type { StatsChartBucketPeriod } from './chart-buckets';
 export { aggregateStatsDrilldownRows } from './drilldown-rows';
 export type {
+	AggregateStatsDrilldownRowsOptions,
+	StatsDrilldownItemContext,
 	StatsDrilldownRow,
-	StatsDrilldownSourceItem,
+	StatsDrilldownRowContext,
 	StatsDrilldownSourceReport,
 } from './drilldown-rows';
 export { mergeStatsTopPostsComparisonRows, sanitizeStatsTopPostsResponse } from './top-posts';
@@ -38,11 +43,12 @@ export { sanitizeStatsHighlightsResponse } from './highlights';
 export { mergeStatsLocationsComparisonRows, sanitizeStatsLocationsResponse } from './locations';
 export { mergeStatsVideoPlaysComparisonRows, sanitizeStatsVideoPlaysResponse } from './video-plays';
 export {
-	isStatsTimeSeriesPayload,
 	sanitizeStatsTimeSeriesResponse,
 	sanitizeStatsEmailTimeSeriesResponse,
 } from './time-series';
+export { toStatsBucketWindowParams, windowEndHour, type StatsBucketFilter } from './bucket-window';
 export { sanitizeStatsVisitsResponse } from './visits';
+export { sanitizeStatsHourOfDayResponse } from './hour-of-day';
 export { sanitizeStatsInsightsResponse } from './insights';
 export { mergeStatsUtmComparisonRows, sanitizeStatsUtmResponse } from './utm';
 export { sanitizeStatsEmailSummaryResponse } from './email-summary';
@@ -50,7 +56,7 @@ export { compareEmailBreakdownItems, sanitizeStatsEmailBreakdownResponse } from 
 export { mergeStatsArchivesComparisonRows, sanitizeStatsArchivesResponse } from './archives';
 export { sanitizeStatsCommentFollowersResponse } from './comment-followers';
 export { sanitizeStatsFollowersResponse } from './followers';
-export { sanitizeStatsCommentsResponse } from './comments';
+export { sanitizeStatsCommentsResponse, selectStatsCommentsRows } from './comments';
 export {
 	sanitizeStatsSubscribersResponse,
 	sanitizeStatsSubscribersCountsResponse,
@@ -58,13 +64,9 @@ export {
 export { sanitizeStatsStreakResponse } from './streak';
 export { sanitizeStatsTagsResponse } from './tags';
 export { mergeStatsDevicesComparisonRows, sanitizeStatsDevicesResponse } from './devices';
-export { sanitizeStatsPublicizeResponse } from './publicize';
-export {
-	sanitizeStatsWordAdsStatsResponse,
-	sanitizeStatsWordAdsEarningsResponse,
-	sliceWordAdsStatsReport,
-} from './wordads';
+export { sanitizeStatsWordAdsStatsResponse, sanitizeStatsWordAdsEarningsResponse } from './wordads';
 export { sanitizeStatsSingleVideoResponse } from './single-video';
+export { sanitizeStatsAuthorResponse } from './author';
 export { sanitizeStatsSummaryResponse } from './summary';
 export type { StatsTopPostsComparisonItem, StatsTopPostsItem } from './top-posts';
 export type { StatsSummaryResponse } from './summary';
@@ -97,7 +99,11 @@ export type {
 	StatsHighlightsRawResponse,
 	StatsHighlightsResponse,
 } from './highlights';
-export type { StatsLocationsComparisonItem, StatsLocationsItem } from './locations';
+export type {
+	StatsLocationCoordinates,
+	StatsLocationsComparisonItem,
+	StatsLocationsItem,
+} from './locations';
 export type { StatsVideoPlaysComparisonItem, StatsVideoPlaysItem } from './video-plays';
 export type {
 	StatsInsightsHourlyViews,
@@ -128,17 +134,13 @@ export type {
 } from './comment-followers';
 export type { StatsDevicesComparisonItem, StatsDevicesItem } from './devices';
 export type {
-	StatsPublicizeApiResponse,
-	StatsPublicizeItem,
-	StatsPublicizeService,
-} from './publicize';
-export type {
 	StatsFollowersItem,
 	StatsFollowersRawItem,
 	StatsFollowersRawResponse,
 } from './followers';
 export type {
 	StatsCommentsAuthorItem,
+	StatsCommentsGroup,
 	StatsCommentsGroupItem,
 	StatsCommentsItem,
 	StatsCommentsPostItem,
@@ -147,6 +149,7 @@ export type {
 	StatsCommentsRawPost,
 	StatsCommentsRawResponse,
 	StatsCommentsResponse,
+	StatsCommentsRow,
 } from './comments';
 export type {
 	StatsSubscribersCounts,
@@ -183,6 +186,7 @@ export type {
 	StatsSingleVideoPage,
 	StatsSingleVideoPost,
 	StatsSingleVideoReport,
+	StatsSingleVideoTotals,
 } from './single-video';
 export type {
 	StatsItemAction,
@@ -192,3 +196,4 @@ export type {
 	StatsNormalizedReport,
 	StatsNormalizedSummary,
 } from './types';
+export type { StatsHourOfDayBucket, StatsHourOfDayReport } from './hour-of-day';

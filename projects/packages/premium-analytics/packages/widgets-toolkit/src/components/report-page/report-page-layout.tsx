@@ -1,73 +1,76 @@
 /**
  * External dependencies
  */
-import { Text } from '@wordpress/ui';
+import { MENU_SURFACE_PRESETS_WITH_ALL_TIME } from '@jetpack-premium-analytics/datetime';
+import { DateFiltersPanel, SectionHeader } from '@jetpack-premium-analytics/ui';
 import clsx from 'clsx';
+import { createContext, useContext } from 'react';
 /**
  * Internal dependencies
  */
 import styles from './report-page-layout.module.scss';
+import type { ReportDateFilters } from '@jetpack-premium-analytics/routing';
 import type { ReactNode } from 'react';
 
+const ReportHasPeriodContext = createContext( false );
+
+const ALL_TIME_MENU = {
+	presetIds: MENU_SURFACE_PRESETS_WITH_ALL_TIME,
+	allTimeStartsOnServer: true,
+} as const;
+
+/**
+ * Whether the report around the caller has a date window, so copy can speak of "this time period" only where one exists.
+ *
+ * @return True only inside a `ReportPageLayout` with date filters.
+ */
+export function useReportHasPeriod(): boolean {
+	return useContext( ReportHasPeriodContext );
+}
+
 export interface ReportPageLayoutProps {
+	/** Heading for the section on screen: `Posts & Pages`. */
+	title: string;
+	/** Date-filter controller, from `useReportDateFilters`. Omit on a report with no date window. */
+	dateFilters?: ReportDateFilters;
 	/**
-	 * Page breadcrumbs, rendered at the top of the header. Pass `Breadcrumbs`
-	 * from `@wordpress/admin-ui`; its trailing crumb is the page's `h1`.
+	 * Offer All time. Only for a report whose query adds `getReportWindowParams()` and whose
+	 * endpoint reads `num: -1` as the whole history: `stats/video-plays` reads it as one day.
 	 */
-	breadcrumbs?: ReactNode;
-	/** Short page description shown under the breadcrumbs. */
-	description?: ReactNode;
-	/** Header-right slot for page-level actions (e.g. a Download button). */
-	actions?: ReactNode;
+	withAllTime?: boolean;
 	/** Internal tab bar for pages with multiple views (e.g. Posts & Pages / Archives). */
 	tabs?: ReactNode;
-	/** Filters row shown above the content (the date-range + comparison picker). */
-	filters?: ReactNode;
 	/** The stacked report sections (chart, records table, …). */
 	children: ReactNode;
 }
 
 /**
- * The shared second-level report page scaffold: a breadcrumb header with an
- * actions slot, optional internal tabs, a filters row, and the stacked report
- * sections. Every module report page (Posts & Pages, Referrers, …) composes
- * this layout instead of re-implementing the page chrome.
+ * Second-level report page scaffold: the scroll area below the page header,
+ * holding the tabs, the section header pinned at its top, and the stacked
+ * sections. The header shows only the range — interval/comparison controls
+ * are hidden, not cleared, so they survive on the URL.
  *
  * @param {ReportPageLayoutProps} props - The component props.
  * @return The report page scaffold.
  */
 export function ReportPageLayout( {
-	breadcrumbs,
-	description,
-	actions,
+	title,
+	dateFilters,
+	withAllTime = false,
 	tabs,
-	filters,
 	children,
 }: ReportPageLayoutProps ) {
-	const hasHeader = !! ( breadcrumbs || description || actions );
-
 	return (
 		<div className={ styles.root }>
-			{ hasHeader ? (
-				<header className={ styles.header }>
-					<div className={ styles.heading }>
-						{ breadcrumbs }
-						{ description ? (
-							<Text variant="body-md" className={ styles.description }>
-								{ description }
-							</Text>
-						) : null }
-					</div>
-					{ actions ? <div className={ styles.actions }>{ actions }</div> : null }
-				</header>
-			) : null }
 			{ tabs }
-			{ filters ? (
-				<div className={ styles.filters }>
-					<div className={ styles.filtersContent }>{ filters }</div>
-				</div>
-			) : null }
-			<div className={ styles.sections }>{ children }</div>
+			<SectionHeader title={ title } pinned>
+				{ dateFilters ? (
+					<DateFiltersPanel { ...dateFilters } { ...( withAllTime ? ALL_TIME_MENU : {} ) } />
+				) : null }
+			</SectionHeader>
+			<ReportHasPeriodContext.Provider value={ !! dateFilters }>
+				<div className={ styles.sections }>{ children }</div>
+			</ReportHasPeriodContext.Provider>
 		</div>
 	);
 }

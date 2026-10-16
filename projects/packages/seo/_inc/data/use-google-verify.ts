@@ -55,7 +55,7 @@ export interface GoogleVerify {
  * @param options             - Hook options.
  * @param options.onCodeSaved - Called with the verification code once auto-verify
  *                            persists it, so the consumer can mirror it into form
- *                            state (e.g. to keep a "configured" badge in sync).
+ *                            state (e.g. to keep the completion status in sync).
  * @return The Google-verification controller.
  */
 export function useGoogleVerify( {
@@ -160,15 +160,15 @@ export function useGoogleVerify( {
 					}
 					savedToken = status.token;
 					return apiFetch( {
-						path: '/jetpack/v4/settings',
+						path: '/wp/v2/settings',
 						method: 'POST',
-						data: { google: status.token },
+						data: { verification_services_codes: { google: status.token } },
 					} );
 				} )
 				.then( () => {
 					// The code is now persisted to `verification_services_codes.google`;
 					// mirror it into the consumer's form state so the verification card's
-					// "configured" badge updates without a reload.
+					// completion status updates without a reload.
 					onCodeSaved?.( savedToken );
 					return apiFetch( {
 						path: ENDPOINT,

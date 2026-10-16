@@ -38,16 +38,14 @@ export interface SchemaSettingsForm {
 	isOrganizationDirty: boolean;
 	/** Whether the local LocalBusiness values differ from their last-saved baseline. */
 	isLocalBusinessDirty: boolean;
-	/** Patch one or more Organization fields locally (persisted by `saveOrganization()`). */
+	/** Patch one or more Organization fields locally (persisted by `saveOrganizationEntity()`). */
 	setOrganizationField: ( patch: Partial< OrganizationSettings > ) => void;
 	/** Patch the BreadcrumbList setting and persist it immediately (toggles auto-save). */
 	commitBreadcrumbList: ( patch: Partial< BreadcrumbListSettings > ) => void;
-	/** Patch one or more LocalBusiness fields locally (persisted by `saveLocalBusiness()`). */
+	/** Patch one or more LocalBusiness fields locally (persisted by `saveOrganizationEntity()`). */
 	setLocalBusinessField: ( patch: Partial< LocalBusinessSettings > ) => void;
-	/** Persist only the current Organization values through the schema-settings route. */
-	saveOrganization: () => void;
-	/** Persist only the current LocalBusiness values through the schema-settings route. */
-	saveLocalBusiness: () => void;
+	/** Persist the current Organization + LocalBusiness values together (one Save). */
+	saveOrganizationEntity: () => void;
 }
 
 /**
@@ -84,30 +82,26 @@ export function useSchemaSettings(
 		JSON.stringify( cleanLocalBusiness( sections.localBusiness ) ) !==
 		JSON.stringify( baselineRef.current.localBusiness );
 
-	const commitBreadcrumbList = useCallback(
-		( patch: Partial< BreadcrumbListSettings > ) => {
-			// Update local for immediate UI feedback, but persist only this section
-			// so pending Organization / LocalBusiness edits stay local until their
-			// own Save — matching the toggle sections of the main Settings form.
-			const next = { ...sections.breadcrumbList, ...patch };
-			setSections( current => ( { ...current, breadcrumbList: next } ) );
+	// The one POST path: in-flight guard, the "Saving…" → result snackbar, and error
+	// handling, all in one place. `onSuccess` re-seeds only the sections the caller
+	// actually sent, so pending edits elsewhere in the form survive the round trip.
+	// `onError` lets an optimistic caller (the auto-saving toggle) roll back.
+	const persist = useCallback(
+		(
+			data: Partial< EditableSchemaSections >,
+			savingNotice: string,
+			onSuccess: ( settings: SchemaSettings ) => void,
+			onError?: () => void
+		) => {
 			setIsSaving( true );
-			createInfoNotice( __( 'Saving breadcrumbs…', 'jetpack-seo' ), {
+			createInfoNotice( savingNotice, {
 				id: NOTICE_ID,
 				type: 'snackbar',
 				isDismissible: false,
 			} );
-			apiFetch< SchemaSettings >( {
-				path: ENDPOINT,
-				method: 'POST',
-				data: { breadcrumbList: next },
-			} )
+			apiFetch< SchemaSettings >( { path: ENDPOINT, method: 'POST', data } )
 				.then( settings => {
-					baselineRef.current = {
-						...baselineRef.current,
-						breadcrumbList: { ...settings.breadcrumbList },
-					};
-					setSections( current => ( { ...current, breadcrumbList: settings.breadcrumbList } ) );
+					onSuccess( settings );
 					onSave?.( settings );
 					createSuccessNotice( __( 'Schema settings saved.', 'jetpack-seo' ), {
 						id: NOTICE_ID,
@@ -115,6 +109,7 @@ export function useSchemaSettings(
 					} );
 				} )
 				.catch( ( error: { message?: string } ) => {
+					onError?.();
 					createErrorNotice(
 						error?.message ??
 							__( 'Could not save schema settings. Please try again.', 'jetpack-seo' ),
@@ -123,7 +118,42 @@ export function useSchemaSettings(
 				} )
 				.finally( () => setIsSaving( false ) );
 		},
-		[ sections, onSave, createInfoNotice, createSuccessNotice, createErrorNotice ]
+		[ onSave, createInfoNotice, createSuccessNotice, createErrorNotice ]
+	);
+
+	const commitBreadcrumbList = useCallback(
+		( patch: Partial< BreadcrumbListSettings > ) => {
+			// Guard before the optimistic update, not just before the request, so a
+			// toggle during an in-flight save doesn't move the switch either.
+			if ( isSaving ) {
+				return;
+			}
+			// Update local for immediate UI feedback, but persist only this section so
+			// pending Organization / LocalBusiness edits stay local until the module's
+			// Save — matching the toggle sections of the main Settings form.
+			const next = { ...sections.breadcrumbList, ...patch };
+			setSections( current => ( { ...current, breadcrumbList: next } ) );
+			persist(
+				{ breadcrumbList: next },
+				__( 'Saving breadcrumbs…', 'jetpack-seo' ),
+				settings => {
+					baselineRef.current = {
+						...baselineRef.current,
+						breadcrumbList: { ...settings.breadcrumbList },
+					};
+					setSections( current => ( { ...current, breadcrumbList: settings.breadcrumbList } ) );
+				},
+				// The optimistic update above is unpersisted, so roll it back to the
+				// last-saved value rather than leaving the UI asserting a state the
+				// server rejected.
+				() =>
+					setSections( current => ( {
+						...current,
+						breadcrumbList: baselineRef.current.breadcrumbList,
+					} ) )
+			);
+		},
+		[ isSaving, sections, persist ]
 	);
 
 	const setOrganizationField = useCallback( ( patch: Partial< OrganizationSettings > ) => {
@@ -140,65 +170,40 @@ export function useSchemaSettings(
 		} ) );
 	}, [] );
 
-	const saveSection = useCallback(
-		( section: 'organization' | 'localBusiness' ) => {
-			if ( isSaving ) {
-				return;
-			}
-			setIsSaving( true );
-			createInfoNotice(
-				section === 'organization'
-					? __( 'Saving organization…', 'jetpack-seo' )
-					: __( 'Saving local business…', 'jetpack-seo' ),
-				{
-					id: NOTICE_ID,
-					type: 'snackbar',
-					isDismissible: false,
-				}
-			);
-			apiFetch< SchemaSettings >( {
-				path: ENDPOINT,
-				method: 'POST',
-				data:
-					section === 'organization'
-						? { organization: cleanOrganization( sections.organization ) }
-						: { localBusiness: cleanLocalBusiness( sections.localBusiness ) },
-			} )
-				.then( settings => {
-					// Re-seed only the saved section from the server so sanitization is
-					// reflected without discarding pending edits in the sibling section.
-					if ( section === 'organization' ) {
-						baselineRef.current = {
-							...baselineRef.current,
-							organization: cleanOrganization( settings.organization ),
-						};
-						setSections( current => ( { ...current, organization: settings.organization } ) );
-					} else {
-						baselineRef.current = {
-							...baselineRef.current,
-							localBusiness: cleanLocalBusiness( settings.localBusiness ),
-						};
-						setSections( current => ( { ...current, localBusiness: settings.localBusiness } ) );
-					}
-					onSave?.( settings );
-					createSuccessNotice( __( 'Schema settings saved.', 'jetpack-seo' ), {
-						id: NOTICE_ID,
-						type: 'snackbar',
-					} );
-				} )
-				.catch( ( error: { message?: string } ) => {
-					createErrorNotice(
-						error?.message ??
-							__( 'Could not save schema settings. Please try again.', 'jetpack-seo' ),
-						{ id: NOTICE_ID, type: 'snackbar' }
-					);
-				} )
-				.finally( () => setIsSaving( false ) );
-		},
-		[ sections, isSaving, createInfoNotice, createSuccessNotice, createErrorNotice, onSave ]
-	);
-	const saveOrganization = useCallback( () => saveSection( 'organization' ), [ saveSection ] );
-	const saveLocalBusiness = useCallback( () => saveSection( 'localBusiness' ), [ saveSection ] );
+	// The Organization entity and its LocalBusiness refinement share one Save, so a
+	// single click persists both — but the request carries only the sections that
+	// actually changed. The route merges partial payloads, so an untouched section
+	// keeps whatever is stored. Sending both unconditionally would widen the
+	// lost-update window from one section to two: with the page open twice, saving
+	// Organization in one tab would overwrite a local-business edit saved from the
+	// other with this tab's stale copy.
+	const saveOrganizationEntity = useCallback( () => {
+		if ( isSaving ) {
+			return;
+		}
+		const data: Partial< EditableSchemaSections > = {};
+		if ( isOrganizationDirty ) {
+			data.organization = cleanOrganization( sections.organization );
+		}
+		if ( isLocalBusinessDirty ) {
+			data.localBusiness = cleanLocalBusiness( sections.localBusiness );
+		}
+		persist( data, __( 'Saving schema settings…', 'jetpack-seo' ), settings => {
+			// Re-seed both from the response regardless of what was sent: neither is
+			// dirty afterwards, so there are no pending edits to lose, and a section
+			// changed elsewhere is picked up instead of silently ignored.
+			baselineRef.current = {
+				...baselineRef.current,
+				organization: cleanOrganization( settings.organization ),
+				localBusiness: cleanLocalBusiness( settings.localBusiness ),
+			};
+			setSections( current => ( {
+				...current,
+				organization: settings.organization,
+				localBusiness: settings.localBusiness,
+			} ) );
+		} );
+	}, [ isSaving, isOrganizationDirty, isLocalBusinessDirty, persist, sections ] );
 
 	return {
 		breadcrumbList: sections.breadcrumbList,
@@ -212,7 +217,6 @@ export function useSchemaSettings(
 		commitBreadcrumbList,
 		setOrganizationField,
 		setLocalBusinessField,
-		saveOrganization,
-		saveLocalBusiness,
+		saveOrganizationEntity,
 	};
 }

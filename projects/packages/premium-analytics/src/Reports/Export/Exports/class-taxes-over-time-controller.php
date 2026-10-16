@@ -19,7 +19,7 @@ use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Abstract_Csv_Report_Contr
  * Handles CSV exports for the Taxes Over Time report, supporting both
  * single interval and comparison interval data.
  *
- * @since $$next-version$$
+ * @since 0.1.0
  */
 class Taxes_Over_Time_Controller extends Abstract_Csv_Report_Controller {
 
@@ -38,7 +38,7 @@ class Taxes_Over_Time_Controller extends Abstract_Csv_Report_Controller {
 	 * @return string The report label.
 	 */
 	public function get_report_label(): string {
-		return __( 'Taxes Over Time', 'jetpack-premium-analytics' );
+		return __( 'Taxes Over Time', 'jetpack-premium-analytics-pkg' );
 	}
 
 	/**
@@ -59,10 +59,10 @@ class Taxes_Over_Time_Controller extends Abstract_Csv_Report_Controller {
 	public function get_column_headers( ?string $interval = null ): array {
 		return array(
 			'time_interval' => $this->get_interval_label( $interval ),
-			'orders_count'  => __( 'Orders', 'jetpack-premium-analytics' ),
-			'order_tax'     => __( 'Order tax', 'jetpack-premium-analytics' ),
-			'shipping_tax'  => __( 'Shipping tax', 'jetpack-premium-analytics' ),
-			'total_tax'     => __( 'Total tax', 'jetpack-premium-analytics' ),
+			'orders_count'  => __( 'Orders', 'jetpack-premium-analytics-pkg' ),
+			'order_tax'     => __( 'Order tax', 'jetpack-premium-analytics-pkg' ),
+			'shipping_tax'  => __( 'Shipping tax', 'jetpack-premium-analytics-pkg' ),
+			'total_tax'     => __( 'Total tax', 'jetpack-premium-analytics-pkg' ),
 		);
 	}
 
@@ -95,17 +95,6 @@ class Taxes_Over_Time_Controller extends Abstract_Csv_Report_Controller {
 			'order_tax'     => self::format_amount( $item['order_tax'] ?? $defaults['order_tax'] ),
 			'shipping_tax'  => self::format_amount( $item['shipping_tax'] ?? $defaults['shipping_tax'] ),
 			'total_tax'     => self::format_amount( $item['total_tax'] ?? $defaults['total_tax'] ),
-		);
-	}
-
-	/**
-	 * Get additional request parameters for data fetching.
-	 *
-	 * @return array Additional parameters to include in data requests.
-	 */
-	public function get_additional_params(): array {
-		return array(
-			'date_type' => self::DEFAULT_DATE_TYPE,
 		);
 	}
 

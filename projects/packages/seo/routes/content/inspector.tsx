@@ -26,7 +26,7 @@ function Inspector() {
 	if ( ! postId ) {
 		return null;
 	}
-	const postType: ContentPostType = search.postType === 'page' ? 'page' : 'post';
+	const postType = ( search.postType || 'post' ) as ContentPostType;
 
 	return (
 		<ThemeProvider>

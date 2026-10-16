@@ -4,7 +4,7 @@
 import { AdminPage, Col, Container, TermsOfService } from '@automattic/jetpack-components';
 import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { __, sprintf } from '@wordpress/i18n';
-import { Button } from '@wordpress/ui';
+import { ButtonLink } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useEffect } from 'react';
 /**
@@ -18,8 +18,9 @@ import { useGoBack } from '../../hooks/use-go-back';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import GoBackLink from '../go-back-link';
+import { getFeatureCheckoutReturnUrl } from '../my-jetpack-tab-panel/utils';
 import ProductDetailCard from '../product-detail-card';
-import ProductDetailTable from '../product-detail-table';
+import { reloadIfActivationChangesAdminMenu } from './reload-after-activation';
 import styles from './style.module.scss';
 
 /**
@@ -71,10 +72,10 @@ export default function ProductInterstitial( {
 		redirectUri = detail.postActivationUrlsByFeature[ feature ];
 	}
 
-	const { isUpgradableByBundle, pricingForUi, isTieredPricing } = detail;
+	const { isUpgradableByBundle, pricingForUi } = detail;
 	const { recordEvent } = useAnalytics();
-	const { onClickGoBack } = useGoBack( { slug, fallback: '/products' } );
-	const myJetpackCheckoutUri = getMyJetpackUrl();
+	const { onClickGoBack } = useGoBack( { slug, fallback: MyJetpackRoutes.Features } );
+	const myJetpackCheckoutUri = getFeatureCheckoutReturnUrl() || getMyJetpackUrl();
 	const { siteIsRegistering, handleRegisterSite } = useMyJetpackConnection( {
 		skipUserConnection: true,
 		redirectUri,
@@ -112,7 +113,7 @@ export default function ProductInterstitial( {
 	const trackProductOrBundleClick = useCallback(
 		options => {
 			const { customSlug = null, isFreePlan = false, ctaText = null } = options || {};
-			const productSlug = customSlug ? customSlug : bundle ?? slug;
+			const productSlug = customSlug ? customSlug : ( bundle ?? slug );
 			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
 				product: productSlug,
 				product_slug: getProductSlugForTrackEvent( isFreePlan ),
@@ -125,8 +126,8 @@ export default function ProductInterstitial( {
 	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( MyJetpackRoutes.Home );
 
 	const clickHandler = useCallback(
-		( checkout, product, tier ) => {
-			ctaCallback?.( { slug, product, tier } );
+		( checkout, product ) => {
+			ctaCallback?.( { slug, product } );
 
 			if ( product?.isBundle || directCheckout ) {
 				// Get straight to the checkout page.
@@ -147,12 +148,8 @@ export default function ProductInterstitial( {
 
 						// there is a separate hasRequiredTier, but it is not implemented
 						const hasPaidPlanForProduct = product?.hasPaidPlanForProduct;
-						const isFree = tier
-							? product?.pricingForUi?.tiers?.[ tier ]?.isFree
-							: product?.pricingForUi?.isFree;
-						const isUpgradeToHigherTier =
-							tier && product?.pricingForUi?.tiers?.[ tier ] && ! isFree && product?.isUpgradable;
-						const needsPurchase = ( ! isFree && ! hasPaidPlanForProduct ) || isUpgradeToHigherTier;
+						const isFree = product?.pricingForUi?.isFree;
+						const needsPurchase = ! isFree && ! hasPaidPlanForProduct;
 
 						// If the product is CRM, redirect the user to the Jetpack CRM pricing page.
 						// This is done because CRM is not part of the WP billing system
@@ -166,7 +163,10 @@ export default function ProductInterstitial( {
 						if ( ! needsPurchase ) {
 							// for free products, we still initiate the site connection
 							handleRegisterSite().then( postRegisterRedirectUri => {
-								if ( ! postRegisterRedirectUri ) {
+								if (
+									! postRegisterRedirectUri &&
+									! reloadIfActivationChangesAdminMenu( slug, productName )
+								) {
 									// Fall back to the My Jetpack overview page.
 									return navigateToMyJetpackOverviewPage();
 								}
@@ -190,6 +190,7 @@ export default function ProductInterstitial( {
 			activate,
 			handleRegisterSite,
 			navigateToMyJetpackOverviewPage,
+			productName,
 		]
 	);
 
@@ -199,84 +200,66 @@ export default function ProductInterstitial( {
 			breadcrumbs={
 				<GoBackLink
 					onClick={ onClickGoBack }
-					to="/products"
+					to={ MyJetpackRoutes.Features }
 					label={ __( 'My Jetpack', 'jetpack-my-jetpack' ) }
 				/>
 			}
 			actions={
 				existingLicenseKeyUrl ? (
-					<Button
-						size="compact"
-						variant="outline"
-						nativeButton={ false }
-						render={ <a href={ existingLicenseKeyUrl } /> }
-					>
+					<ButtonLink size="compact" variant="outline" href={ existingLicenseKeyUrl }>
 						{ __( 'Use license key', 'jetpack-my-jetpack' ) }
-					</Button>
+					</ButtonLink>
 				) : null
 			}
 		>
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 				<Col>
-					{ isTieredPricing ? (
-						<ProductDetailTable
-							slug={ slug }
-							clickHandler={ clickHandler }
-							onProductButtonClick={ clickHandler }
-							trackProductButtonClick={ trackProductOrBundleClick }
-							preferProductName={ preferProductName }
-							isFetching={ isActivating || siteIsRegistering }
-							isFetchingSuccess={ isSuccess }
-							feature={ feature }
-						/>
-					) : (
-						<Container
-							className={ ! isUpgradableByBundle ? styles.container : null }
-							horizontalSpacing={ 0 }
-							horizontalGap={ 0 }
-							fluid
+					<Container
+						className={ ! isUpgradableByBundle ? styles.container : null }
+						horizontalSpacing={ 0 }
+						horizontalGap={ 0 }
+						fluid
+					>
+						<Col sm={ 4 } md={ 4 } lg={ 7 }>
+							<ProductDetailCard
+								slug={ slug }
+								trackButtonClick={ trackProductOrBundleClick }
+								onClick={ installsPlugin ? clickHandler : undefined }
+								className={ isUpgradableByBundle ? styles.container : null }
+								supportingInfo={ supportingInfo }
+								preferProductName={ preferProductName }
+								ctaButtonLabel={ ctaButtonLabel }
+								hideTOS={ hideTOS || showBundledTOS }
+								quantity={ quantity }
+								highlightLastFeature={ highlightLastFeature }
+								isFetching={ isActivating || siteIsRegistering }
+								isFetchingSuccess={ isSuccess }
+							/>
+						</Col>
+						<Col
+							sm={ 4 }
+							md={ 4 }
+							lg={ 5 }
+							className={ clsx( styles.imageContainer, imageContainerClassName ) }
 						>
-							<Col sm={ 4 } md={ 4 } lg={ 7 }>
+							{ bundle ? (
 								<ProductDetailCard
-									slug={ slug }
+									slug={ bundle }
 									trackButtonClick={ trackProductOrBundleClick }
-									onClick={ installsPlugin ? clickHandler : undefined }
+									onClick={ clickHandler }
 									className={ isUpgradableByBundle ? styles.container : null }
-									supportingInfo={ supportingInfo }
-									preferProductName={ preferProductName }
-									ctaButtonLabel={ ctaButtonLabel }
 									hideTOS={ hideTOS || showBundledTOS }
 									quantity={ quantity }
 									highlightLastFeature={ highlightLastFeature }
-									isFetching={ isActivating || siteIsRegistering }
+									isFetching={ isActivating }
 									isFetchingSuccess={ isSuccess }
+									isUpsell={ true }
 								/>
-							</Col>
-							<Col
-								sm={ 4 }
-								md={ 4 }
-								lg={ 5 }
-								className={ clsx( styles.imageContainer, imageContainerClassName ) }
-							>
-								{ bundle ? (
-									<ProductDetailCard
-										slug={ bundle }
-										trackButtonClick={ trackProductOrBundleClick }
-										onClick={ clickHandler }
-										className={ isUpgradableByBundle ? styles.container : null }
-										hideTOS={ hideTOS || showBundledTOS }
-										quantity={ quantity }
-										highlightLastFeature={ highlightLastFeature }
-										isFetching={ isActivating }
-										isFetchingSuccess={ isSuccess }
-										isUpsell={ true }
-									/>
-								) : (
-									children
-								) }
-							</Col>
-						</Container>
-					) }
+							) : (
+								children
+							) }
+						</Col>
+					</Container>
 				</Col>
 				<Col>
 					{ showBundledTOS && (

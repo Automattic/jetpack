@@ -1,13 +1,7 @@
 .notice {
-	background-color: var(--jp-gray-90);
-	color: var(--jp-white);
-	display: flex;
-	border-radius: var(--jp-border-radius); // 4px
-	overflow: hidden;
 	z-index: 1;
 
 	&.notice--info {
-		border-left: 4px solid var(--jp-yellow-20);
 		margin-bottom: calc(var(--spacing-base) * 3); // 24px
 	}
 
@@ -17,59 +11,12 @@
 		right: calc(var(--spacing-base) * 3); // 24px
 		margin-left: calc(var(--spacing-base) * 3); // 24px
 
+		// The notice sets `container-type: inline-size`, so it reports no width to
+		// this shrink-to-fit fixed box and collapses to a sliver.
+		container-type: normal;
+
 		@media ( max-width: 782px ) {
 			top: calc(var(--spacing-base) * 8); // 72px
 		}
 	}
-
-	a,
-	a:link,
-	a:hover,
-	a:visited,
-	a:active {
-		color: var(--jp-white);
-	}
-}
-
-.notice__icon {
-	background-color: var(--jp-yellow-30);
-	fill: var(--jp-white);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	padding: calc(var(--spacing-base) * 1.5); // 12px
-
-	.notice--success & {
-		background-color: var(--jp-green-50);
-	}
-
-	.notice--error & {
-		background-color: var(--jp-red);
-	}
-
-	.notice--info & {
-		fill: var(--jp-yellow-50);
-		background-color: var(--jp-yellow-5);
-	}
-}
-
-.notice__message {
-	font-size: 14px;
-	padding: calc(var(--spacing-base) * 1.75); // 14px
-
-	.notice--info & {
-		color: var(--jp-gray-90);
-		background-color: var(--jp-yellow-5);
-	}
-}
-
-.notice__close {
-	fill: var(--jp-gray);
-	cursor: pointer;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	padding: calc(var(--spacing-base) * 1.5); // 12px
-	background: transparent;
-	border: none;
 }

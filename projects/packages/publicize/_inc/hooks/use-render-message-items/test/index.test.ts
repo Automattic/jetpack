@@ -111,9 +111,7 @@ const mockSelect = ( connections: Connection[], siteMessageTemplate = '' ) => {
 };
 
 const allFeaturesOn = ( feature: string ) =>
-	[ 'social-message-templates', 'social-image-generator', 'social-enhanced-publishing' ].includes(
-		feature
-	);
+	[ 'social-image-generator', 'social-enhanced-publishing' ].includes( feature );
 
 let mockConnections: Connection[];
 let mockPostIntent: {
@@ -186,7 +184,7 @@ describe( 'useRenderMessageItems', () => {
 		clearMockedScriptData();
 	} );
 
-	it( 'returns empty items when MESSAGE_TEMPLATES is off', () => {
+	it( 'returns empty items when the site lacks paid features', () => {
 		mockSiteHasFeature.mockReturnValue( false );
 		mockSelect( [] );
 

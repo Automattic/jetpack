@@ -1,4 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { currentUserCan } from '@automattic/jetpack-script-data';
+import { getJetpackAiManageUrl } from '@automattic/jetpack-shared-extension-utils';
 import { __, _x } from '@wordpress/i18n';
 import { Component } from 'react';
 import { connect } from 'react-redux';
@@ -73,6 +75,7 @@ export class Composing extends Component {
 							'jetpack'
 						),
 						link: getRedirectUrl( 'jetpack-support-copy-post' ),
+						wpcomLink: 'https://wordpress.com/support/copy-a-post-or-page/',
 					} }
 				>
 					<FormFieldset>
@@ -96,6 +99,7 @@ export class Composing extends Component {
 							'jetpack'
 						),
 						link: getRedirectUrl( 'jetpack-support-markdown' ),
+						wpcomLink: 'https://wordpress.com/support/wordpress-editor/blocks/markdown-block/',
 					} }
 				>
 					<FormFieldset>
@@ -124,6 +128,7 @@ export class Composing extends Component {
 							'jetpack'
 						),
 						link: getRedirectUrl( 'jetpack-support-beautiful-math-with-latex' ),
+						wpcomLink: 'https://wordpress.com/support/latex/',
 					} }
 				>
 					<FormFieldset>
@@ -144,6 +149,7 @@ export class Composing extends Component {
 					support={ {
 						text: shortcodes.description,
 						link: getRedirectUrl( 'jetpack-support-shortcode-embeds' ),
+						wpcomLink: 'https://wordpress.com/support/wordpress-editor/blocks/shortcode-block/',
 					} }
 				>
 					<FormFieldset>
@@ -206,7 +212,13 @@ export class Composing extends Component {
 			),
 			aiAssistantLink = (
 				<CompactCard className="jp-settings-card__configure-link">
-					<a href={ `${ this.props.siteAdminUrl }admin.php?page=my-jetpack#/jetpack-ai` }>
+					<a
+						href={
+							currentUserCan( 'manage_options' )
+								? getJetpackAiManageUrl()
+								: getRedirectUrl( 'org-ai' )
+						}
+					>
 						{ __( 'Learn more about all Jetpack AI features', 'jetpack' ) }
 					</a>
 				</CompactCard>

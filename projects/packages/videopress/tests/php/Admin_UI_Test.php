@@ -7,6 +7,10 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
 
 /**
@@ -20,6 +24,89 @@ class Admin_UI_Test extends BaseTestCase {
 	public function tearDown(): void {
 		parent::tearDown();
 		remove_all_filters( Admin_UI::MODERNIZATION_FILTER );
+		remove_all_filters( 'jetpack_my_jetpack_should_initialize' );
+		remove_action( 'admin_menu', array( Admin_UI::class, 'enable_menu' ), 1 );
+		remove_action( 'admin_enqueue_scripts', array( Admin_UI::class, 'alias_screen_id_for_wp_build' ) );
+		remove_action( 'admin_enqueue_scripts', array( Admin_UI::class, 'restore_screen_id_after_wp_build' ) );
+		remove_all_actions( 'load-jetpack_page_' . Admin_UI::ADMIN_PAGE_SLUG );
+		unset( $_GET['page'], $GLOBALS['current_screen'] );
+		$this->set_admin_menu_items( array() );
+		\Jetpack_Options::delete_option( 'id' );
+		\Jetpack_Options::delete_option( 'blog_token' );
+		\Jetpack_Options::delete_option( 'user_tokens' );
+		wp_set_current_user( 0 );
+		$this->reset_connection_status_cache();
+	}
+
+	/**
+	 * Make Connection\Manager::is_connected() return true by storing the
+	 * blog ID and blog token it checks for.
+	 */
+	private function mock_connected_site() {
+		\Jetpack_Options::update_option( 'id', 1234 );
+		\Jetpack_Options::update_option( 'blog_token', 'blog.token' );
+		$this->reset_connection_status_cache();
+	}
+
+	/**
+	 * Make Connection\Manager report a connected site whose current user has
+	 * their own user connection (is_user_connected()).
+	 */
+	private function mock_connected_user() {
+		$this->mock_connected_site();
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'videopress_admin',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		$this->assertIsInt( $user_id );
+		wp_set_current_user( $user_id );
+		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'user.token.' . $user_id ) );
+	}
+
+	/**
+	 * Reset the Connection\Manager::$is_connected static cache so each test
+	 * re-evaluates the connection options.
+	 */
+	private function reset_connection_status_cache() {
+		$this->accessible_property( Connection_Manager::class, 'is_connected' )->setValue( null, null );
+	}
+
+	/**
+	 * Read the Admin_Menu package's queued menu items.
+	 *
+	 * @return array
+	 */
+	private function get_admin_menu_items() {
+		return $this->accessible_property( Admin_Menu::class, 'menu_items' )->getValue();
+	}
+
+	/**
+	 * Overwrite the Admin_Menu package's queued menu items.
+	 *
+	 * @param array $items The items to set.
+	 */
+	private function set_admin_menu_items( $items ) {
+		$this->accessible_property( Admin_Menu::class, 'menu_items' )->setValue( null, $items );
+	}
+
+	/**
+	 * Get an accessible reflection of a non-public property.
+	 *
+	 * @param string $class_name    The class owning the property.
+	 * @param string $property_name The property name.
+	 * @return \ReflectionProperty
+	 */
+	private function accessible_property( $class_name, $property_name ) {
+		$property = new \ReflectionProperty( $class_name, $property_name );
+		if ( \PHP_VERSION_ID < 80100 ) {
+			// Required to access non-public members before PHP 8.1; deprecated no-op since PHP 8.5.
+			$property->setAccessible( true );
+		}
+		return $property;
 	}
 
 	/**
@@ -48,5 +135,225 @@ class Admin_UI_Test extends BaseTestCase {
 		// The early return must fire before add_submenu_page() — with the flag
 		// off, no submenu entry (and no load- hook) may exist.
 		$this->assertSame( array(), $submenu );
+	}
+
+	/**
+	 * Test that init_inactive_menu() hooks the shared dynamic menu registration on admin_menu.
+	 */
+	public function test_init_inactive_menu_hooks_admin_menu() {
+		Admin_UI::init_inactive_menu();
+
+		$this->assertSame( 1, has_action( 'admin_menu', array( Admin_UI::class, 'enable_menu' ) ) );
+	}
+
+	/**
+	 * Test that enable_menu() resolves the menu target at call time: with the
+	 * module inactive it queues the My Jetpack activation link, not the dashboard.
+	 */
+	public function test_enable_menu_registers_activation_link_when_module_inactive() {
+		$this->mock_connected_user();
+		add_filter( 'jetpack_my_jetpack_should_initialize', '__return_true' );
+
+		$this->assertFalse( Status::is_active() );
+		Admin_UI::enable_menu();
+
+		$items = $this->get_admin_menu_items();
+		$this->assertCount( 1, $items );
+		$this->assertSame( Admin_UI::MY_JETPACK_ADD_VIDEOPRESS_URI, $items[0]['menu_slug'] );
+	}
+
+	/**
+	 * Test that enable_menu() registers the VideoPress library dashboard
+	 * (admin.php?page=jetpack-videopress) when the module is active.
+	 *
+	 * Runs in a separate process: forcing Status::is_active() true requires
+	 * loading the standalone-plugin class stub, which must not leak into the
+	 * rest of the suite.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_enable_menu_registers_dashboard_when_module_active() {
+		require_once __DIR__ . '/mocks/class-jetpack-videopress-plugin.php';
+
+		$this->assertTrue( Status::is_active() );
+		Admin_UI::enable_menu();
+
+		$items = $this->get_admin_menu_items();
+		$this->assertCount( 1, $items );
+		$this->assertSame( Admin_UI::ADMIN_PAGE_SLUG, $items[0]['menu_slug'] );
+		$this->assertNotNull( $items[0]['function'] );
+	}
+
+	/**
+	 * Test that the inactive-state menu item is queued as a plain link to the
+	 * My Jetpack "add VideoPress" interstitial.
+	 */
+	public function test_enable_inactive_menu_queues_my_jetpack_link() {
+		$this->mock_connected_user();
+		add_filter( 'jetpack_my_jetpack_should_initialize', '__return_true' );
+
+		Admin_UI::enable_inactive_menu();
+
+		$items = $this->get_admin_menu_items();
+		$this->assertCount( 1, $items );
+		$this->assertSame( Admin_UI::MY_JETPACK_ADD_VIDEOPRESS_URI, $items[0]['menu_slug'] );
+		$this->assertSame( 'VideoPress', $items[0]['menu_title'] );
+		$this->assertSame( 'manage_options', $items[0]['capability'] );
+		// No render callback: WordPress renders an unregistered slug as a direct link.
+		$this->assertNull( $items[0]['function'] );
+		$this->assertSame(
+			array(
+				'product' => 'videopress',
+				'key'     => Admin_UI::VISIBILITY_KEY,
+			),
+			$items[0]['args']
+		);
+	}
+
+	/**
+	 * Test that no menu item is queued when My Jetpack is not initialized,
+	 * since the link would point to an unregistered page.
+	 */
+	public function test_enable_inactive_menu_bails_without_my_jetpack() {
+		$this->mock_connected_user();
+		add_filter( 'jetpack_my_jetpack_should_initialize', '__return_false' );
+
+		Admin_UI::enable_inactive_menu();
+
+		$this->assertSame( array(), $this->get_admin_menu_items() );
+	}
+
+	/**
+	 * Test that no menu item is queued while Jetpack is not connected at all:
+	 * activating VideoPress requires a connection, so the item would be a
+	 * dead end.
+	 */
+	public function test_enable_inactive_menu_bails_when_jetpack_not_connected() {
+		add_filter( 'jetpack_my_jetpack_should_initialize', '__return_true' );
+
+		Admin_UI::enable_inactive_menu();
+
+		$this->assertSame( array(), $this->get_admin_menu_items() );
+	}
+
+	/**
+	 * Test that a site-level connection is not enough: the item is only shown
+	 * to users with their own user connection. The check runs at admin_menu
+	 * time, so the item starts rendering as soon as the current user connects.
+	 */
+	public function test_enable_inactive_menu_bails_without_user_connection() {
+		$this->mock_connected_site();
+		add_filter( 'jetpack_my_jetpack_should_initialize', '__return_true' );
+
+		Admin_UI::enable_inactive_menu();
+
+		$this->assertSame( array(), $this->get_admin_menu_items() );
+	}
+
+	public function test_maybe_load_wp_build_hooks_the_screen_alias_around_the_generated_check() {
+		set_current_screen( 'jetpack_page_jetpack-videopress' );
+		$_GET['page'] = Admin_UI::ADMIN_PAGE_SLUG;
+
+		Admin_UI::maybe_load_wp_build();
+
+		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', array( Admin_UI::class, 'alias_screen_id_for_wp_build' ) ) );
+		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', array( Admin_UI::class, 'restore_screen_id_after_wp_build' ) ) );
+		$this->assertFalse( has_action( 'current_screen', array( Admin_UI::class, 'alias_screen_id_for_wp_build' ) ) );
+	}
+
+	public function test_screen_id_is_restored_after_admin_enqueue_scripts() {
+		set_current_screen( 'jetpack_page_jetpack-videopress' );
+		$_GET['page'] = Admin_UI::ADMIN_PAGE_SLUG;
+
+		Admin_UI::maybe_load_wp_build();
+		do_action( 'current_screen', get_current_screen() );
+		do_action( 'admin_enqueue_scripts', 'jetpack_page_jetpack-videopress' );
+
+		$this->assertSame( 'jetpack_page_jetpack-videopress', get_current_screen()->id );
+	}
+
+	public function test_alias_screen_id_round_trip() {
+		unset( $GLOBALS['current_screen'] );
+		Admin_UI::alias_screen_id_for_wp_build();
+		Admin_UI::restore_screen_id_after_wp_build();
+
+		set_current_screen( 'jetpack_page_jetpack-videopress' );
+		Admin_UI::restore_screen_id_after_wp_build();
+		$this->assertSame( 'jetpack_page_jetpack-videopress', get_current_screen()->id );
+
+		Admin_UI::alias_screen_id_for_wp_build();
+		$this->assertSame( 'jetpack-videopress-dashboard', get_current_screen()->id );
+
+		Admin_UI::restore_screen_id_after_wp_build();
+		$this->assertSame( 'jetpack_page_jetpack-videopress', get_current_screen()->id );
+	}
+
+	/**
+	 * The Simple registration hooks admin_init on the screen add_submenu_page() returns.
+	 */
+	public function test_add_wp_admin_submenu_registers_its_load_action() {
+		$this->mock_connected_user();
+		// Stands in for the Jetpack parent menu wpcom-admin-menu.php creates.
+		add_menu_page( 'Jetpack', 'Jetpack', 'manage_options', 'jetpack', '__return_null' );
+
+		Admin_UI::add_wp_admin_submenu();
+
+		$this->assertNotFalse( has_action( 'load-jetpack_page_jetpack-videopress', array( Admin_UI::class, 'admin_init' ) ) );
+	}
+
+	/**
+	 * With modernization off, the dashboard menu item is not registered.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_enable_menu_registers_no_dashboard_when_not_modernized() {
+		require_once __DIR__ . '/mocks/class-jetpack-videopress-plugin.php';
+
+		add_filter( Admin_UI::MODERNIZATION_FILTER, '__return_false' );
+		Admin_UI::enable_menu();
+
+		$this->assertSame( array(), $this->get_admin_menu_items() );
+	}
+
+	/**
+	 * On the VideoPress page, a missing wp-build render function yields no callback.
+	 */
+	public function test_dashboard_callback_is_null_on_the_page_when_the_build_is_missing() {
+		$method = new \ReflectionMethod( Admin_UI::class, 'get_dashboard_render_callback' );
+		if ( \PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$this->assertIsString( $method->invoke( null ) );
+
+		set_current_screen( 'dashboard' );
+		$_GET['page'] = Admin_UI::ADMIN_PAGE_SLUG;
+		$this->assertNull( $method->invoke( null ) );
+	}
+
+	/**
+	 * Both dashboards render the JITM slot, so neither opts its screen out.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_enable_menu_keeps_jitms_on_both_dashboards() {
+		require_once __DIR__ . '/mocks/class-jetpack-videopress-plugin.php';
+
+		Admin_UI::enable_menu();
+		$this->assertTrue( apply_filters( 'jetpack_display_jitms_on_screen', true, 'jetpack_page_jetpack-videopress' ) );
+
+		add_filter( Admin_UI::MODERNIZATION_FILTER, '__return_false' );
+
+		Admin_UI::enable_menu();
+		$this->assertTrue( apply_filters( 'jetpack_display_jitms_on_screen', true, 'jetpack_page_jetpack-videopress' ) );
 	}
 }

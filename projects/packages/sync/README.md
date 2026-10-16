@@ -71,6 +71,58 @@ the following modules will be enabled no matter the configuration:
 
 **Attention**: Sync currently only supports configuring the list of [default Sync modules](https://github.com/Automattic/jetpack/blob/trunk/projects/packages/sync/src/class-modules.php#L25). Any modules that Sync already loads conditionally, such as `WooCommerce` or `Search` are **NOT** configurable.
 
+#### Configuring WooCommerce Analytics Sync
+
+The high-volume `woocommerce_analytics` module is not enabled by default. Consumers
+own its registration and full-sync policy. When active, the module adds the minimum
+option and post meta requirements. Consumers may contribute additional data
+requirements through `Config`:
+
+Generic WooCommerce Sync owns the `woocommerce_custom_orders_table_enabled` and
+`woocommerce_date_type` options. The Analytics module owns the excluded report
+statuses option and the `_stock`, `_stock_quantity`, `_cogs_total_value`, and
+`_global_unique_id` post meta requirements.
+
+```php
+use Automattic\Jetpack\Config;
+use Automattic\Jetpack\Sync\Modules\Meta;
+use Automattic\Jetpack\Sync\Modules\Posts;
+use Automattic\Jetpack\Sync\Modules\Term_Relationships;
+use Automattic\Jetpack\Sync\Modules\Terms;
+use Automattic\Jetpack\Sync\Modules\WooCommerce_Analytics;
+
+add_action(
+	'plugins_loaded',
+	static function () {
+		if ( ! class_exists( 'WooCommerce' ) && ! function_exists( 'WC' ) ) {
+			return;
+		}
+
+		( new Config() )->ensure(
+			'sync',
+			array(
+				'jetpack_sync_modules' => array(
+					WooCommerce_Analytics::class,
+					Meta::class,
+					Posts::class,
+					Terms::class,
+					Term_Relationships::class,
+				),
+			)
+		);
+	},
+	1
+);
+```
+
+The priority-1 `plugins_loaded` callback above guards the WooCommerce runtime
+dependency and gives `Config` time to initialize Sync at its priority-2 callback.
+Consumers must also register their `jetpack_full_sync_config` policy.
+
+Analytics checksum schemas are registered centrally by `Table_Checksum` and become
+usable when the `woocommerce_analytics` module is active. Consumers do not need to
+register the schemas themselves.
+
 ##### `jetpack_sync_options_whitelist` / `jetpack_sync_options_contentless`
 
 **Controlled by the Sync Options Module, which is required.**
@@ -134,6 +186,21 @@ $config->ensure(
 ```
 
 **When it comes to configuring callables, you need to pass an associative array where the key is the name of your callable and the value the corresponding callback function.**
+
+**Callable values must be statically resolvable — never instantiate objects while registering the whitelist.** The whitelist is registered on every request (typically at `plugins_loaded`), but the callables are only invoked when Sync actually sends data. Any work done while building the array — object construction and, worse, option reads inside constructors — is paid on every request for nothing. Use one of:
+
+- a function name string: `'my_callable' => 'my_get_value_function'`
+- a static method reference: `'my_callable' => array( 'My_Plugin_Class', 'get_settings' )`
+- a closure, when the value can only be produced by an object instance, so construction is deferred to invocation time:
+
+```php
+'my_callable' => static function () {
+	return ( new My_Plugin_Settings() )->get();
+},
+```
+
+Also note that entries failing `is_callable()` (e.g. a typo in the method name, or a method removed later) are **silently skipped** — the callable is never synced and no error is logged — so make sure the reference actually resolves, ideally with a test invoking your whitelist entries.
+
 It's important to note that we consider a list of certain callables required for Sync to properly function, therefore the following callables will be synced no matter the configuration:
 
 - `site_url`               

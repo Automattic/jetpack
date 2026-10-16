@@ -1,116 +1,138 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
-import { chartBar } from '@wordpress/icons';
+import { __, _n } from '@wordpress/i18n';
+import type { StatsPeriod } from '@jetpack-premium-analytics/data';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
  * Internal dependencies
  */
-import { ArrayCheckboxField, SelectField } from '@jetpack-premium-analytics/fields';
+import {
+	chartIntervalElements,
+	chartIntervalField,
+	type ChartIntervalFieldAttributes,
+} from '@jetpack-premium-analytics/fields';
+import {
+	CHART_TYPE_ELEMENTS,
+	type ChartDisplayChartType,
+	type CountLabel,
+} from '@jetpack-premium-analytics/widgets-toolkit';
+import { readStatsV1ChartType } from './stats-v1-chart-type';
 
 /**
- * Granularity the chart can be grouped by. `auto` follows the dashboard date
- * range (a wide range buckets by month, a narrow one by day); an explicit
- * value sticks across range changes.
+ * The bucket sizes this chart draws, offered by its own interval control.
  */
-export type TrafficChartGranularity = 'auto' | 'day' | 'week' | 'month';
+export const TRAFFIC_PERIODS = [
+	'hour',
+	'day',
+	'week',
+	'month',
+] as const satisfies readonly StatsPeriod[];
 
 /**
- * The metric tabs the chart can show, in display order: the persisted id and
- * label of each metric. The id doubles as the visits `stat_fields` field the
- * tab reads. Single source for the settings checkboxes and the chart tabs so
- * the two cannot drift apart.
+ * The chart type drawn when nothing is saved: the one Stats v1 saved in this browser, else bars.
+ *
+ * @return The default chart type.
+ */
+export function defaultChartType(): TrafficChartType {
+	return readStatsV1ChartType() ?? 'bar';
+}
+
+export type TrafficChartGranularity = ( typeof TRAFFIC_PERIODS )[ number ];
+
+/**
+ * How the selected metric is drawn. The shared chart-display list keeps every
+ * chart widget's dropdown identical and ties it to the toolkit's own union.
+ */
+export type TrafficChartType = ChartDisplayChartType;
+
+/** The visits `stat_fields` field each metric tab reads, which is also its id. */
+export type TrafficChartMetricId = 'views' | 'visitors' | 'comments' | 'likes';
+
+/**
+ * Metric tabs in display order; id doubles as the `stat_fields` value. Views
+ * and Visitors pair via `counterpartId` (unavailable at the hourly bucket);
+ * `counterpartId` is typed to the id set so a typo can't silently drop the pairing.
+ * Visitors starts with Views hidden, since Views' scale would flatten its line.
  */
 export const TRAFFIC_CHART_METRICS = [
-	{ id: 'views', label: __( 'Views', 'jetpack-premium-analytics' ) },
-	{ id: 'visitors', label: __( 'Visitors', 'jetpack-premium-analytics' ) },
-	{ id: 'likes', label: __( 'Likes', 'jetpack-premium-analytics' ) },
-	{ id: 'comments', label: __( 'Comments', 'jetpack-premium-analytics' ) },
-] as const satisfies readonly { id: string; label: string }[];
+	{
+		id: 'views',
+		label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
+		countLabel: count =>
+			/* translators: %s: number of views. */
+			_n( '%s View', '%s Views', count, 'jetpack-premium-analytics-pkg' ),
+		counterpartId: 'visitors',
+	},
+	{
+		id: 'visitors',
+		label: __( 'Visitors', 'jetpack-premium-analytics-pkg' ),
+		countLabel: count =>
+			/* translators: %s: number of visitors. */
+			_n( '%s Visitor', '%s Visitors', count, 'jetpack-premium-analytics-pkg' ),
+		counterpartId: 'views',
+		counterpartHidden: true,
+	},
+	{
+		id: 'comments',
+		label: __( 'Comments', 'jetpack-premium-analytics-pkg' ),
+		countLabel: count =>
+			/* translators: %s: number of comments. */
+			_n( '%s Comment', '%s Comments', count, 'jetpack-premium-analytics-pkg' ),
+	},
+	{
+		id: 'likes',
+		label: __( 'Likes', 'jetpack-premium-analytics-pkg' ),
+		countLabel: count =>
+			/* translators: %s: number of likes. */
+			_n( '%s Like', '%s Likes', count, 'jetpack-premium-analytics-pkg' ),
+	},
+] as const satisfies readonly {
+	id: TrafficChartMetricId;
+	label: string;
+	countLabel: CountLabel;
+	counterpartId?: TrafficChartMetricId;
+	counterpartHidden?: boolean;
+}[];
 
 /**
- * Identifier persisted in the widget's `metrics` attribute for one metric tab.
- */
-export type TrafficChartMetricId = ( typeof TRAFFIC_CHART_METRICS )[ number ][ 'id' ];
-
-/**
- * Configurable attributes for the Traffic chart widget. Report params still
- * reach it through WidgetRoot: the dashboard date range, or
- * `attributes.reportParams` when a host injects them (e.g. Storybook and
- * dashboard previews).
+ * Configurable attributes for the Traffic chart widget; report params still
+ * reach it through WidgetRoot or `attributes.reportParams` from a host.
  *
- * @property granularity - Bucket size within the dashboard range. Defaults to `auto`.
- * @property metrics     - Metric tabs to show in the chart. Defaults to every metric.
+ * @property chartType     - How to draw the selected metric. Defaults to the Stats v1 choice, else `bar`.
+ * @property chartInterval - The bucket size. Defaults to the one the date range suggests.
  */
-export type TrafficChartAttributes = {
-	granularity?: TrafficChartGranularity;
-	metrics?: TrafficChartMetricId[];
+export type TrafficChartAttributes = ChartIntervalFieldAttributes< TrafficChartGranularity > & {
+	chartType?: TrafficChartType;
+};
+
+const chartIntervalAttribute = {
+	...chartIntervalField,
+	elements: chartIntervalElements( TRAFFIC_PERIODS ),
+};
+
+// The switch must show what the chart draws, and the default depends on Stats v1.
+const chartTypeAttribute = {
+	id: 'chartType',
+	label: __( 'Chart type', 'jetpack-premium-analytics-pkg' ),
+	type: 'jpa/toggle-group',
+	elements: CHART_TYPE_ELEMENTS,
+	relevance: 'high',
+	getValue: ( { item }: { item: TrafficChartAttributes } ) => item.chartType ?? defaultChartType(),
 };
 
 /**
- * Default selection for new widget instances: every metric enabled.
- */
-export const DEFAULT_TRAFFIC_CHART_METRICS: TrafficChartMetricId[] = TRAFFIC_CHART_METRICS.map(
-	metric => metric.id
-);
-
-/**
- * Widget type definition.
- *
- * Ported from the Jetpack Stats `stats-chart-tabs` card in wp-calypso (the chart
- * above the Traffic page). Renders the selected period's Views, Visitors, Likes,
- * and Comments as selectable metric tabs over a comparative line chart. The date
- * range and comparison state come from the dashboard via `reportParams`; the
- * `granularity` attribute (`relevance: 'high'`) chooses the bucket size within
- * that range and the `metrics` attribute selects which tabs render.
- * `example.attributes` doubles as the defaults applied to new instances.
+ * Ported from the Jetpack Stats `stats-chart-tabs` card in wp-calypso. Date
+ * range and comparison come from `reportParams`; the plotted metric is the
+ * chart's own tab selection, not an attribute.
  */
 export default {
-	icon: chartBar,
 	attributes: [
-		{
-			id: 'granularity',
-			label: __( 'Group by', 'jetpack-premium-analytics' ),
-			type: 'text',
-			Edit: SelectField,
-			elements: [
-				{
-					label: __( 'Auto', 'jetpack-premium-analytics' ),
-					value: 'auto',
-				},
-				{
-					label: __( 'By days', 'jetpack-premium-analytics' ),
-					value: 'day',
-				},
-				{
-					label: __( 'By weeks', 'jetpack-premium-analytics' ),
-					value: 'week',
-				},
-				{
-					label: __( 'By months', 'jetpack-premium-analytics' ),
-					value: 'month',
-				},
-			],
-			relevance: 'high',
-		},
-		{
-			id: 'metrics',
-			label: __( 'Metrics', 'jetpack-premium-analytics' ),
-			type: 'array',
-			relevance: 'high',
-			Edit: ArrayCheckboxField,
-			elements: TRAFFIC_CHART_METRICS.map( metric => ( {
-				value: metric.id,
-				label: metric.label,
-			} ) ),
-		},
+		chartIntervalAttribute,
+		chartTypeAttribute,
 	] as WidgetAttributeField< TrafficChartAttributes >[],
 	example: {
-		attributes: {
-			granularity: 'auto',
-			metrics: DEFAULT_TRAFFIC_CHART_METRICS,
-		},
+		attributes: {},
 	},
 };

@@ -65,6 +65,17 @@ abstract class Hybrid_Product extends Product {
 	}
 
 	/**
+	 * Checks whether the site has switched the product on, whether or not it has a plan for it.
+	 *
+	 * The standalone plugin being active is enough: off the Jetpack plugin, the module may not be available at all.
+	 *
+	 * @return boolean
+	 */
+	public static function is_activated() {
+		return static::is_standalone_plugin_active() || ( static::is_jetpack_plugin_active() && static::is_module_active() );
+	}
+
+	/**
 	 * Activates the plugin
 	 *
 	 * @return null|WP_Error Null on success, WP_Error on invalid file.
@@ -91,9 +102,10 @@ abstract class Hybrid_Product extends Product {
 	 * Activates the product. If the Hybrid product has declared a jetpack module name, let's try to activate it if Jetpack plugin is active
 	 *
 	 * @param bool|WP_Error $product_activation Is the result of the top level activation actions. You probably won't do anything if it is an WP_Error.
+	 * @param bool          $local              Skip plan reads and activate only modules that work locally.
 	 * @return bool|WP_Error
 	 */
-	public static function do_product_specific_activation( $product_activation ) {
+	public static function do_product_specific_activation( $product_activation, $local = false ) {
 
 		if ( is_wp_error( $product_activation ) ) {
 			// If we failed to install the stand-alone plugin because the package was not found, let's try and install Jetpack plugin instead.
@@ -110,9 +122,13 @@ abstract class Hybrid_Product extends Product {
 		}
 
 		if ( ! empty( static::$module_name ) ) {
+			if ( $local && ! Main_Features::module_works_locally( static::$module_name ) ) {
+				return true;
+			}
+
 			// Only activate the module if the plan supports it
 			// We don't want to throw an error for a missing plan here since we try activation before purchase
-			if ( static::$requires_plan && ! static::has_any_plan_for_product() ) {
+			if ( ! $local && static::$requires_plan && ! static::has_any_plan_for_product() ) {
 				return true;
 			}
 
@@ -133,17 +149,23 @@ abstract class Hybrid_Product extends Product {
 	 *
 	 * In addition to the parent's plugin deactivation, also deactivates the
 	 * matching Jetpack module when `static::$module_name` is set and the
-	 * module is currently active — otherwise Hybrid products activated via
+	 * module is saved and active — otherwise Hybrid products activated via
 	 * the Jetpack-module path stay half-on after "deactivation".
 	 *
 	 * @return bool|WP_Error True on success (matches Product::deactivate()),
 	 *                       WP_Error if the module deactivation failed.
 	 */
 	public static function deactivate() {
-		$result  = parent::deactivate();
-		$modules = new Modules();
+		$result               = parent::deactivate();
+		$modules              = new Modules();
+		$saved_active_modules = (array) \Jetpack_Options::get_option( 'active_modules', array() );
 
-		if ( ! empty( static::$module_name ) && $modules->is_active( static::$module_name ) ) {
+		// Modules::deactivate() can't remove a module only a plugin's filter forces on, nor a saved one that is unavailable.
+		if (
+			! empty( static::$module_name )
+			&& in_array( static::$module_name, $saved_active_modules, true )
+			&& $modules->is_active( static::$module_name )
+		) {
 			if ( ! $modules->deactivate( static::$module_name ) ) {
 				return new WP_Error(
 					'module_deactivation_failed',

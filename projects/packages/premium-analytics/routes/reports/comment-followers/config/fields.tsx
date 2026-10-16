@@ -2,15 +2,11 @@
  * External dependencies
  */
 import { type StatsCommentFollowersItem } from '@jetpack-premium-analytics/data';
+import { type Field } from '@jetpack-premium-analytics/externals';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
-import { type Field } from '@wordpress/dataviews';
+import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
+import { ExternalLink, PostDetailLink } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { Icon, external } from '@wordpress/icons';
-import { Link } from '@wordpress/route';
-/**
- * Internal dependencies
- */
-import styles from './fields.module.css';
 
 /**
  * DataViews field config for the Comments Subscribers records table.
@@ -24,7 +20,7 @@ export function getCommentFollowersFields(): Field< StatsCommentFollowersItem >[
 	return [
 		{
 			id: 'post',
-			label: __( 'Post', 'jetpack-premium-analytics' ),
+			label: __( 'Post', 'jetpack-premium-analytics-pkg' ),
 			enableGlobalSearch: true,
 			enableHiding: false,
 			getValue: ( { item } ) => item.label,
@@ -34,34 +30,24 @@ export function getCommentFollowersFields(): Field< StatsCommentFollowersItem >[
 				// the ID for some entries) keep the external link as the fallback.
 				if ( item.id ) {
 					return (
-						<Link to="/post/$postId" params={ { postId: String( item.id ) } as unknown as never }>
+						<PostDetailLink postId={ item.id } report="comment-followers">
 							{ item.label }
-						</Link>
+						</PostDetailLink>
 					);
 				}
 
-				if ( ! item.link ) {
+				const href = safeHttpUrl( item.link );
+
+				if ( ! href ) {
 					return <>{ item.label }</>;
 				}
 
-				return (
-					<a
-						className={ styles.postLink }
-						href={ item.link }
-						target="_blank"
-						rel="noopener noreferrer"
-					>
-						{ item.label }
-						{ item.labelIcon === 'external' ? (
-							<Icon className={ styles.externalIcon } icon={ external } size={ 16 } />
-						) : null }
-					</a>
-				);
+				return <ExternalLink href={ href }>{ item.label }</ExternalLink>;
 			},
 		},
 		{
 			id: 'subscribers',
-			label: __( 'Subscribers', 'jetpack-premium-analytics' ),
+			label: __( 'Subscribers', 'jetpack-premium-analytics-pkg' ),
 			getValue: ( { item } ) => item.followers,
 			render: ( { item } ) => (
 				<>

@@ -1,11 +1,9 @@
-import { __experimentalConfirmDialog as ConfirmDialog } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useDispatch, useSelect } from '@wordpress/data';
-import { createInterpolateElement, useCallback, useReducer } from '@wordpress/element';
+import { createInterpolateElement, useCallback, useState } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
-import { Button, Link } from '@wordpress/ui';
+import { AlertDialog, Button, Link } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
 import { Connection } from '../../social-store/types';
-import styles from './style.module.scss';
 
 export type DisconnectProps = {
 	connection: Connection;
@@ -32,7 +30,8 @@ export function Disconnect( {
 	size = 'small',
 	tone,
 }: DisconnectProps ) {
-	const [ isConfirmOpen, toggleConfirm ] = useReducer( state => ! state, false );
+	const [ isConfirmOpen, setIsConfirmOpen ] = useState( false );
+	const toggleConfirm = useCallback( () => setIsConfirmOpen( open => ! open ), [] );
 
 	const { deleteConnectionById } = useDispatch( socialStore );
 
@@ -48,9 +47,10 @@ export function Disconnect( {
 		[ connection ]
 	);
 
+	// `AlertDialog` closes itself once the handler settles, and disables its
+	// buttons while the promise is in flight — so unlike the old ConfirmDialog
+	// this must not toggle the open state itself.
 	const onClickDisconnect = useCallback( async () => {
-		toggleConfirm();
-
 		await deleteConnectionById( {
 			connectionId: connection.connection_id,
 		} );
@@ -63,7 +63,7 @@ export function Disconnect( {
 				toggleConfirm();
 			}
 		},
-		[ isDisconnecting ]
+		[ isDisconnecting, toggleConfirm ]
 	);
 
 	if ( ! canManageConnection ) {
@@ -76,26 +76,36 @@ export function Disconnect( {
 
 	return (
 		<>
-			<ConfirmDialog
-				className={ styles.confirmDialog }
-				isOpen={ isConfirmOpen }
+			{ /*
+			 * A WPDS dialog rather than a `@wordpress/components` ConfirmDialog, so
+			 * the confirmation matches the connections modal it opens from. Both
+			 * portal to `document.body` at z-index auto, so the later-mounted
+			 * confirmation stacks above the modal on DOM order alone — do not move
+			 * either into the compat overlay slot without moving both.
+			 */ }
+			<AlertDialog.Root
+				open={ isConfirmOpen }
+				onOpenChange={ setIsConfirmOpen }
 				onConfirm={ onClickDisconnect }
-				onCancel={ toggleConfirm }
-				cancelButtonText={ __( 'Cancel', 'jetpack-publicize-pkg' ) }
-				confirmButtonText={ __( 'Yes', 'jetpack-publicize-pkg' ) }
 			>
-				{ createInterpolateElement(
-					sprintf(
-						// translators: %s: The name of the connection the user is disconnecting.
-						__(
-							'Are you sure you want to disconnect <strong>%s</strong>?',
-							'jetpack-publicize-pkg'
+				<AlertDialog.Popup
+					title={ _x( 'Disconnect', 'Disconnect a social media account', 'jetpack-publicize-pkg' ) }
+					cancelButtonText={ __( 'Cancel', 'jetpack-publicize-pkg' ) }
+					confirmButtonText={ __( 'Yes', 'jetpack-publicize-pkg' ) }
+				>
+					{ createInterpolateElement(
+						sprintf(
+							// translators: %s: The name of the connection the user is disconnecting.
+							__(
+								'Are you sure you want to disconnect <strong>%s</strong>?',
+								'jetpack-publicize-pkg'
+							),
+							connection.display_name
 						),
-						connection.display_name
-					),
-					{ strong: <strong></strong> }
-				) }
-			</ConfirmDialog>
+						{ strong: <strong></strong> }
+					) }
+				</AlertDialog.Popup>
+			</AlertDialog.Root>
 			{ variant === 'link' ? (
 				<Link
 					variant="default"

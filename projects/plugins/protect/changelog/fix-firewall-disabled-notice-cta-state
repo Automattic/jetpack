@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Firewall: fix "Enable Firewall" notice CTA missing loading/disabled state, which let users double-click and toggle the WAF back off.

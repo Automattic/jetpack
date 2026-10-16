@@ -6,14 +6,10 @@
  */
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
-// class-ai-launchpad-rest.php defines the OPTION_* constants referenced by
-// AI_Launchpad_Dev_Enable::RESET_OPTIONS; load it first so the handler file is
-// self-contained. Neither file pulls in eligibility.php, so this does not leak
-// wpcom_ai_launchpad_is_eligible() into the shared process (which would break
-// the REST test's Brain Monkey mock).
-require_once __DIR__ . '/../../../../src/features/ai-launchpad/class-ai-launchpad-rest.php';
-require_once __DIR__ . '/../../../../src/features/ai-launchpad/class-ai-launchpad-dev-enable.php';
+//phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
+require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/common/launchpad-no-guidance.php';
 
 /**
  * Test class for AI_Launchpad_Dev_Enable.
@@ -49,48 +45,44 @@ class AI_Launchpad_Dev_Enable_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * With neither param present the handler does nothing and returns no redirect.
+	 * The enablement param sets or deletes the per-site option and routes accordingly — but only
+	 * for a `manage_options` user, and only when the param is actually present. Disabling lands on
+	 * the dashboard rather than the now-inaccessible launchpad page.
+	 *
+	 * @dataProvider provide_enable_requests
+	 *
+	 * @param string      $role             The role of the requesting user.
+	 * @param string|null $param            The `enable-ai-launchpad` value, or null to omit the param.
+	 * @param bool        $already_enabled  Whether the option is already set going in.
+	 * @param string      $expected_target  The expected REDIRECT_* token.
+	 * @param mixed       $expected_enabled The expected option value afterwards.
 	 */
-	public function test_no_params_is_a_noop() {
-		$this->login_as( 'administrator' );
+	#[DataProvider( 'provide_enable_requests' )]
+	public function test_handle_enablement( $role, $param, $already_enabled, $expected_target, $expected_enabled ) {
+		$this->login_as( $role );
+		if ( $already_enabled ) {
+			update_option( 'wpcom_ai_launchpad_enabled', 1 );
+		}
+		if ( null !== $param ) {
+			$_GET['enable-ai-launchpad'] = $param;
+		}
 
-		$this->assertSame( AI_Launchpad_Dev_Enable::REDIRECT_NONE, AI_Launchpad_Dev_Enable::handle() );
-		$this->assertFalse( get_option( 'wpcom_ai_launchpad_enabled' ) );
+		$this->assertSame( $expected_target, AI_Launchpad_Dev_Enable::handle() );
+		$this->assertSame( $expected_enabled, get_option( 'wpcom_ai_launchpad_enabled' ) );
 	}
 
 	/**
-	 * A non-admin cannot enable the feature even with the param present.
+	 * Data provider for test_handle_enablement.
+	 *
+	 * @return array
 	 */
-	public function test_non_admin_cannot_enable() {
-		$this->login_as( 'subscriber' );
-		$_GET['enable-ai-launchpad'] = '1';
-
-		$this->assertSame( AI_Launchpad_Dev_Enable::REDIRECT_NONE, AI_Launchpad_Dev_Enable::handle() );
-		$this->assertFalse( get_option( 'wpcom_ai_launchpad_enabled' ) );
-	}
-
-	/**
-	 * `?enable-ai-launchpad=1` sets the per-site option and routes to the page.
-	 */
-	public function test_enable_sets_the_option() {
-		$this->login_as( 'administrator' );
-		$_GET['enable-ai-launchpad'] = '1';
-
-		$this->assertSame( AI_Launchpad_Dev_Enable::REDIRECT_PAGE, AI_Launchpad_Dev_Enable::handle() );
-		$this->assertSame( 1, get_option( 'wpcom_ai_launchpad_enabled' ) );
-	}
-
-	/**
-	 * `?enable-ai-launchpad=0` removes the option and routes to the dashboard
-	 * (not the now-inaccessible launchpad page).
-	 */
-	public function test_enable_zero_deletes_the_option() {
-		$this->login_as( 'administrator' );
-		update_option( 'wpcom_ai_launchpad_enabled', 1 );
-		$_GET['enable-ai-launchpad'] = '0';
-
-		$this->assertSame( AI_Launchpad_Dev_Enable::REDIRECT_DASHBOARD, AI_Launchpad_Dev_Enable::handle() );
-		$this->assertFalse( get_option( 'wpcom_ai_launchpad_enabled' ) );
+	public static function provide_enable_requests() {
+		return array(
+			'no params is a noop'                => array( 'administrator', null, false, AI_Launchpad_Dev_Enable::REDIRECT_NONE, false ),
+			'a non-admin cannot enable'          => array( 'subscriber', '1', false, AI_Launchpad_Dev_Enable::REDIRECT_NONE, false ),
+			'enable=1 sets the option'           => array( 'administrator', '1', false, AI_Launchpad_Dev_Enable::REDIRECT_PAGE, 1 ),
+			'enable=0 deletes it and lands home' => array( 'administrator', '0', true, AI_Launchpad_Dev_Enable::REDIRECT_DASHBOARD, false ),
+		);
 	}
 
 	/**
@@ -113,5 +105,20 @@ class AI_Launchpad_Dev_Enable_Test extends \WorDBless\BaseTestCase {
 		$this->assertFalse( get_option( 'launchpad_checklist_tasks_statuses' ) );
 		// Reset leaves enablement alone.
 		$this->assertSame( 1, get_option( 'wpcom_ai_launchpad_enabled' ) );
+	}
+
+	/**
+	 * Enabling clears both no-guidance sources, so neither overrides the flag just set.
+	 */
+	public function test_enable_clears_no_guidance_and_dismissed() {
+		$this->login_as( 'administrator' );
+		update_option( 'wpcom_ai_launchpad_no_guidance', 1 );
+		update_option( 'wpcom_ai_launchpad_dismissed', 1 );
+		$_GET['enable-ai-launchpad'] = '1';
+
+		$this->assertSame( AI_Launchpad_Dev_Enable::REDIRECT_PAGE, AI_Launchpad_Dev_Enable::handle() );
+		$this->assertFalse( get_option( 'wpcom_ai_launchpad_no_guidance' ) );
+		$this->assertFalse( get_option( 'wpcom_ai_launchpad_dismissed' ) );
+		$this->assertFalse( wpcom_launchpad_is_no_guidance() );
 	}
 }

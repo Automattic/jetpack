@@ -2,9 +2,9 @@
  * External dependencies
  */
 import { useStatsSummary, type StatsSummaryResponse } from '@jetpack-premium-analytics/data';
-import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import {
 	MetricTileGrid,
+	MetricTileGridSkeleton,
 	WidgetRoot,
 	WidgetState,
 	useWidgetRootContext,
@@ -12,8 +12,8 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { comment, globe, people, seen, starEmpty } from '@wordpress/icons';
-import { Text } from '@wordpress/ui';
+import { comment, people, seen, starEmpty } from '@wordpress/icons';
+import { Text } from '@jetpack-premium-analytics/externals';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -38,14 +38,9 @@ const COUNT_FORMAT: DataFormat = {
 };
 
 /**
- * Render-only config per metric: the tile icon, the summary-response field the
- * tile displays, and an optional aggregation caveat. Ids and labels are shared
- * with the settings checkboxes via `SITE_OVERVIEW_METRICS` in `widget.ts`.
- *
- * Each metric reads a numeric field of the `summary` response, which totals
- * views/visitors/likes/comments over the period; `followers` is excluded
- * because it is an all-time running total, not a period metric, so it has no
- * meaningful period-over-period comparison.
+ * Render-only per-metric config; ids/labels are shared with the settings
+ * checkboxes via `SITE_OVERVIEW_METRICS` in `widget.ts`. `followers` is excluded
+ * — it's an all-time running total, not a period metric with a meaningful delta.
  */
 const TILE_CONFIG: Record<
 	SiteOverviewMetricId,
@@ -67,7 +62,7 @@ const TILE_CONFIG: Record<
 		// visitors, so a returning visitor counts once per day, not once overall.
 		note: __(
 			'Sum of daily visitors — a returning visitor is counted once per day, not once for the whole period.',
-			'jetpack-premium-analytics'
+			'jetpack-premium-analytics-pkg'
 		),
 	},
 	likes: { icon: starEmpty, value: summary => summary.likes },
@@ -75,18 +70,8 @@ const TILE_CONFIG: Record<
 };
 
 /**
- * Fetches the period summary through the designated `useStatsSummary` Stats hook
- * and renders views, visitors, likes, and comments as metric tiles. The date
- * range and comparison period come from the dashboard picker via `reportParams`.
- *
- * When a comparison period is requested and returns data, each tile shows its
- * period-over-period change; the comparison total is looked up per metric so a
- * primary metric is never paired with a fabricated previous value. Which tiles
- * appear is controlled by the `metrics` attribute.
- *
- * @param props           - The component props.
- * @param props.metricIds - The selected metric tile ids; missing means every metric.
- * @return The widget content.
+ * Looks up the comparison total per metric so a primary metric is never paired
+ * with a fabricated previous value. Missing `metrics` attribute means every tile.
  */
 function SiteOverviewReport( {
 	metricIds = DEFAULT_SITE_OVERVIEW_METRICS,
@@ -115,17 +100,12 @@ function SiteOverviewReport( {
 			<div className={ styles.root }>
 				<div className={ styles.state }>
 					<Text>
-						{ __( 'Select at least one metric to display.', 'jetpack-premium-analytics' ) }
+						{ __( 'Select at least one metric to display.', 'jetpack-premium-analytics-pkg' ) }
 					</Text>
 				</div>
 			</div>
 		);
 	}
-
-	// The summary endpoint resolves to a flat totals object even for an idle
-	// period, so "empty" is every visible metric at zero, not a missing payload.
-	const isEmpty =
-		! summary || visibleMetrics.every( ( { id } ) => TILE_CONFIG[ id ].value( summary ) === 0 );
 
 	const tiles = visibleMetrics.map( ( { id, label } ) => {
 		const { icon, note, value: metricValue } = TILE_CONFIG[ id ];
@@ -135,43 +115,27 @@ function SiteOverviewReport( {
 			icon,
 			label,
 			value,
-			// Only pair a comparison value when the comparison period actually
-			// returned a summary; a `null` (never `undefined`) keeps every tile in
-			// the fixed-size comparison layout — no fabricated delta, and one value
-			// size instead of MetricTileGrid's responsive `.value` clamp — so tiles
-			// stay consistently sized with or without comparison data.
+			// `null` (never `undefined`) keeps every tile in the fixed-size comparison
+			// layout instead of MetricTileGrid's responsive single-value sizing.
 			previousValue: hasComparison && comparisonSummary ? metricValue( comparisonSummary ) : null,
 			note,
-			// The tile shows a shortened count (e.g. 18K); the hover title carries
-			// the exact total, as the upstream Stats tooltip does.
-			valueTitle: formatMetricValue( value, 'number', { decimals: 0 } ),
 		};
 	} );
 
 	return (
 		<div className={ styles.root }>
 			<WidgetState
-				// `isPending` covers the query being disabled before a date resolves;
-				// once a period's totals are on screen a date-range change refetches in
-				// the background and the busy overlay layers over the stale tiles.
-				isLoading={ ( isLoading || primary.isPending ) && ! summary }
+				isLoading={ isLoading || primary.isPending }
 				isFetching={ isFetching }
-				// As with `isLoading` above: the stale totals stay on screen through a
-				// transient refetch failure, so only surface the error when there is
-				// nothing to show.
 				isError={ ! summary && isError }
-				isEmpty={ isEmpty }
 				error={ {
 					description: __(
 						"We couldn't load the site overview. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
-					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 				} }
-				empty={ {
-					icon: globe,
-					description: __( 'No stats recorded for this period.', 'jetpack-premium-analytics' ),
-				} }
+				renderLoading={ <MetricTileGridSkeleton tiles={ visibleMetrics.length } /> }
 			>
 				<MetricTileGrid tiles={ tiles } dataFormat={ COUNT_FORMAT } />
 			</WidgetState>
@@ -179,17 +143,6 @@ function SiteOverviewReport( {
 	);
 }
 
-/**
- * Widget render entry point.
- *
- * WidgetRoot provides the analytics query client, chart theme, and the report
- * params consumed by the inner report — resolved from the dashboard date range
- * and comparison state via context, the same way the other Stats widgets read
- * them.
- *
- * @param {SiteOverviewWidgetProps} props - The widget render props.
- * @return The rendered widget.
- */
 export default function SiteOverview( { attributes = {} }: SiteOverviewWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>

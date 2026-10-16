@@ -22,8 +22,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Renders Publicize message templates for a given post and a batch of
  * connection inputs in a single request, so the block-editor preview can
- * fetch all enabled connections' previews in one round-trip when the
- * `social-message-templates` feature is enabled.
+ * fetch all enabled connections' previews in one round-trip on sites with
+ * social paid features.
  *
  * POST takes a JSON body of `{ post_id, items: [...], post_intent: {...} }`
  * and returns one record per input item, in input order, keyed by the
@@ -153,6 +153,20 @@ class Render_Messages_Controller extends Base_Controller {
 					'readonly'    => true,
 					'context'     => array( 'view', 'edit' ),
 				),
+				'hyperlinks'       => array(
+					'description' => __( 'Editor hyperlinks preserved from content or excerpt placeholders.', 'jetpack-publicize-pkg' ),
+					'type'        => 'array',
+					'readonly'    => true,
+					'context'     => array( 'view', 'edit' ),
+					'items'       => array(
+						'type'       => 'object',
+						'properties' => array(
+							'text'       => array( 'type' => 'string' ),
+							'href'       => array( 'type' => 'string' ),
+							'occurrence' => array( 'type' => 'integer' ),
+						),
+					),
+				),
 				'error'            => array(
 					'description' => __( 'Per-item error. Present only when this item failed to render.', 'jetpack-publicize-pkg' ),
 					'type'        => 'object',
@@ -215,9 +229,7 @@ class Render_Messages_Controller extends Base_Controller {
 	 */
 	public function render_messages( $request ) {
 		if ( Utils::is_wpcom() ) {
-			require_lib( 'publicize/util/message-templates' );
-
-			if ( ! \Publicize\is_message_templates_enabled() ) {
+			if ( ! wpcom_site_has_feature( \WPCOM_Features::SOCIAL_ENHANCED_PUBLISHING ) ) {
 				return new WP_Error(
 					'feature_not_enabled',
 					__( 'Publicize message templates are not enabled for this site.', 'jetpack-publicize-pkg' ),
@@ -238,6 +250,8 @@ class Render_Messages_Controller extends Base_Controller {
 					array( 'status' => 404 )
 				);
 			}
+
+			require_lib( 'publicize/util/message-templates' );
 
 			return rest_ensure_response(
 				\Publicize\render_messages( $post, $items, $intent )

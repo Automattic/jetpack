@@ -1,34 +1,31 @@
 /**
  * External dependencies
  */
-import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { DrilldownLeafCell, safeHttpUrl } from '@jetpack-premium-analytics/ui';
+import {
+	ExternalLink,
+	MetricWithComparison,
+	type ClickRow,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { Link } from '@wordpress/ui';
-import type { Field } from '@wordpress/dataviews';
+import type { Field } from '@jetpack-premium-analytics/externals';
 
-export type ClickRow = {
-	id: string;
-	/** The click-group parent row id; unset on group rows and single-URL groups. */
-	parentId?: string;
-	clickedUrl: string;
-	/** The external URL; group parent rows have none. */
-	href?: string;
-	/** Group parent rows keep the title-field styling; leaf rows opt out. */
-	isGroup?: boolean;
-	clicks: number;
-};
+const CLICKS_DATA_FORMAT = {
+	type: 'number',
+	options: { decimals: 0, useMultipliers: false },
+} as const;
 
 /**
  * DataViews field config for the Clicks records table.
  *
+ * @param withComparison - Whether to render available period-over-period deltas.
  * @return The field config.
  */
-export function getClicksFields(): Field< ClickRow >[] {
+export function getClicksFields( withComparison = false ): Field< ClickRow >[] {
 	return [
 		{
 			id: 'clickedUrl',
-			label: __( 'Clicked URL', 'jetpack-premium-analytics' ),
+			label: __( 'Link', 'jetpack-premium-analytics-pkg' ),
 			enableGlobalSearch: true,
 			enableHiding: false,
 			getValue: ( { item } ) => item.clickedUrl,
@@ -47,9 +44,9 @@ export function getClicksFields(): Field< ClickRow >[] {
 					// visually.
 					<DrilldownLeafCell groupLabel={ item.parentId }>
 						{ safeUrl ? (
-							<Link href={ safeUrl } openInNewTab rel="noopener noreferrer">
+							<ExternalLink href={ safeUrl } variant="default">
 								{ item.clickedUrl }
-							</Link>
+							</ExternalLink>
 						) : (
 							item.clickedUrl
 						) }
@@ -59,10 +56,15 @@ export function getClicksFields(): Field< ClickRow >[] {
 		},
 		{
 			id: 'clicks',
-			label: __( 'Clicks', 'jetpack-premium-analytics' ),
+			label: __( 'Clicks', 'jetpack-premium-analytics-pkg' ),
 			getValue: ( { item } ) => item.clicks,
 			render: ( { item } ) => (
-				<>{ formatMetricValue( item.clicks, 'number', { decimals: 0, useMultipliers: false } ) }</>
+				<MetricWithComparison
+					value={ item.clicks }
+					previousValue={ withComparison ? item.previousClicks : undefined }
+					dataFormat={ CLICKS_DATA_FORMAT }
+					fontSize="md"
+				/>
 			),
 		},
 	];

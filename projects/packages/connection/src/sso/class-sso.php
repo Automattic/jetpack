@@ -14,6 +14,7 @@ use Automattic\Jetpack\Connection\SSO\Notices;
 use Automattic\Jetpack\Connection\SSO\User_Admin;
 use Automattic\Jetpack\Connection\Webhooks\Authorize_Redirect;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -33,6 +34,13 @@ class SSO {
 	 * @var false|object
 	 */
 	private $user_data;
+
+	/**
+	 * Whether the SSO attempt failed because the site requires two-step authentication and the WordPress.com account lacks it.
+	 *
+	 * @var bool
+	 */
+	private $two_step_required = false;
 
 	/**
 	 * Automattic\Jetpack\Connection\SSO instance.
@@ -232,14 +240,7 @@ class SSO {
 	 * @param int $user_id User to disconnect from the site.
 	 **/
 	public function xmlrpc_user_disconnect( $user_id ) {
-		$user_query = new WP_User_Query(
-			array(
-				'meta_key'   => 'wpcom_user_id',
-				'meta_value' => $user_id,
-			)
-		);
-		$user       = $user_query->get_results();
-		$user       = $user[0];
+		$user = self::get_user_by_wpcom_id( $user_id );
 
 		if ( $user instanceof WP_User ) {
 			$user = wp_set_current_user( $user->ID );
@@ -291,7 +292,7 @@ class SSO {
 			/**
 			 * Should we show the SSO login form?
 			 *
-			 * $_GET['jetpack-sso-default-form'] is used to provide a fallback in case JavaScript is not enabled.
+			 * $_GET['jetpack-sso-show-default-form'] is used to provide a fallback in case JavaScript is not enabled.
 			 *
 			 * The default_to_sso_login() method allows us to dynamically decide whether we show the SSO login form or not.
 			 * The SSO module uses the method to display the default login form if we cannot find a user to log in via SSO.
@@ -310,6 +311,11 @@ class SSO {
 				}
 			}
 
+			if ( $this->two_step_required && '1' !== $default_form_preference ) {
+				// The two-step screen only follows an SSO attempt, so show the SSO form regardless of the site default.
+				$show_sso_form = true;
+			}
+
 			if ( $show_sso_form ) {
 				$classes[] = 'jetpack-sso-form-display';
 			}
@@ -319,21 +325,40 @@ class SSO {
 	}
 
 	/**
-	 * Inlined admin styles for SSO.
+	 * Print the SSO styles for the login screen.
+	 *
+	 * @deprecated 8.12.0 Use enqueue_login_styles().
 	 */
 	public function print_inline_admin_css() {
-		?>
-			<style>
-				.jetpack-sso .message {
-					margin-top: 20px;
-				}
+		_deprecated_function( __METHOD__, 'connection-8.12.0', __CLASS__ . '::enqueue_login_styles' );
+		$this->enqueue_login_styles();
+	}
 
-				.jetpack-sso #login .message:first-child,
-				.jetpack-sso #login h1 + .message {
-					margin-top: 0;
-				}
-			</style>
-		<?php
+	/**
+	 * Enqueue the SSO styles for the login screen.
+	 */
+	public function enqueue_login_styles() {
+		$handle = 'jetpack-sso-login-styles';
+
+		// No src: the handle only carries the inline CSS below. Core enqueues `login` before `login_enqueue_scripts` fires,
+		// so these rules already print after the core login stylesheet, which sets `.message` margins at the same
+		// specificity. No dependency on `login`: plugins that replace the login screen deregister that handle, and a
+		// missing dependency would drop this one from the queue.
+		wp_register_style( $handle, false, array(), Package_Version::PACKAGE_VERSION );
+		wp_enqueue_style( $handle );
+
+		$css = <<<'CSS'
+.jetpack-sso .message {
+	margin-top: 20px;
+}
+
+.jetpack-sso #login .message:first-child,
+.jetpack-sso #login h1 + .message {
+	margin-top: 0;
+}
+CSS;
+
+		wp_add_inline_style( $handle, $css );
 	}
 
 	/**
@@ -559,7 +584,7 @@ class SSO {
 	 */
 	public function display_sso_login_form() {
 		add_filter( 'login_body_class', array( $this, 'login_body_class' ) );
-		add_action( 'login_head', array( $this, 'print_inline_admin_css' ) );
+		add_action( 'login_enqueue_scripts', array( $this, 'enqueue_login_styles' ) );
 
 		if ( ( new Status() )->in_safe_mode() ) {
 			add_filter( 'login_message', array( Notices::class, 'sso_not_allowed_in_safe_mode' ) );
@@ -646,7 +671,7 @@ class SSO {
 		 */
 		do_action( 'jetpack_sso_login_form_above_wpcom' );
 
-		if ( $display_name && $gravatar ) :
+		if ( $display_name && $gravatar && ! $this->two_step_required ) :
 			?>
 				<div id="jetpack-sso-wrap__user">
 					<img width="72" height="72" src="<?php echo esc_html( $gravatar ); ?>" />
@@ -666,6 +691,16 @@ class SSO {
 
 
 			<div id="jetpack-sso-wrap__action">
+				<?php if ( $this->two_step_required ) : ?>
+					<?php // Opens in a new tab so this tab keeps the button to log in again after setup. ?>
+					<a rel="noopener noreferrer" target="_blank" class="button button-primary" href="<?php echo esc_url( Redirect::get_url( 'calypso-me-security-two-step' ) ); ?>">
+						<?php esc_html_e( 'Set up two-step authentication', 'jetpack-connection' ); ?>
+					</a>
+					<div class="jetpack-sso-then">
+						<span><?php esc_html_e( 'Then', 'jetpack-connection' ); ?></span>
+					</div>
+					<?php echo $this->build_sso_button(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaping done in build_sso_button() ?>
+				<?php else : ?>
 					<?php echo $this->build_sso_button( array(), true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaping done in build_sso_button() ?>
 
 					<?php if ( $display_name && $gravatar ) : ?>
@@ -695,6 +730,7 @@ class SSO {
 							echo esc_html( $sso_explanation );
 						?>
 					</p>
+					<?php endif; ?>
 				<?php endif; ?>
 			</div>
 
@@ -1041,7 +1077,8 @@ class SSO {
 		$tracking = new Tracking();
 
 		if ( Helpers::is_two_step_required() && 0 === (int) $user_data->two_step_enabled ) {
-			$this->user_data = $user_data;
+			$this->user_data         = $user_data;
+			$this->two_step_required = true;
 
 			$tracking->record_user_event(
 				'sso_login_failed',
@@ -1054,7 +1091,12 @@ class SSO {
 
 			/** This filter is documented in core/src/wp-includes/pluggable.php */
 			do_action( 'wp_login_failed', $user_data->login, $error );
-			add_filter( 'login_message', array( Notices::class, 'error_msg_enable_two_step' ) );
+			add_filter(
+				'login_message',
+				function ( $message ) use ( $user_data ) {
+					return Notices::error_msg_enable_two_step( $message, $user_data );
+				}
+			);
 			return;
 		}
 
@@ -1063,8 +1105,8 @@ class SSO {
 			$user_found_with = 'external_user_id';
 			$user            = get_user_by( 'id', (int) $user_data->external_user_id );
 			if ( $user ) {
-				$expected_id = get_user_meta( $user->ID, 'wpcom_user_id', true );
-				if ( $expected_id && $expected_id != $user_data->ID ) { // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison, Universal.Operators.StrictComparisons.LooseNotEqual
+				$expected_id = Utils::get_wpcom_user_id( $user->ID );
+				if ( $expected_id && $expected_id !== (int) $user_data->ID ) {
 					$error = new WP_Error( 'expected_wpcom_user', __( 'Something got a little mixed up and an unexpected WordPress.com user logged in.', 'jetpack-connection' ) );
 
 					$tracking->record_user_event(
@@ -1120,10 +1162,6 @@ class SSO {
 					add_filter( 'login_message', array( Notices::class, 'error_unable_to_create_user' ) );
 					return;
 				}
-
-				// generate_user() sets wpcom_user_id meta on the new user,
-				// but another user may still have stale meta for this WP.com ID.
-				self::set_wpcom_user_id_meta( $user->ID, $user_data->ID );
 
 				$user_found_with = $new_user_override_role
 				? 'user_created_new_user_override'
@@ -1478,11 +1516,7 @@ class SSO {
 	}
 
 	/**
-	 * Sets the wpcom_user_id meta on a local user, removing it from any other user first.
-	 *
-	 * Multiple local users should never share the same wpcom_user_id. This can happen
-	 * when user resolution changes (e.g., external_user_id points to a different local
-	 * user than the one that previously had the meta).
+	 * Sets the wpcom_user_id meta on a local user.
 	 *
 	 * @since 8.6.0
 	 *
@@ -1490,22 +1524,7 @@ class SSO {
 	 * @param int $wpcom_user_id The WordPress.com user ID.
 	 */
 	private static function set_wpcom_user_id_meta( $user_id, $wpcom_user_id ) {
-		$existing = new WP_User_Query(
-			array(
-				'meta_key'   => 'wpcom_user_id',
-				'meta_value' => (int) $wpcom_user_id,
-				'exclude'    => array( $user_id ),
-				'fields'     => 'ID',
-			)
-		);
-
-		foreach ( $existing->get_results() as $stale_user_id ) {
-			delete_user_meta( $stale_user_id, 'wpcom_user_id' );
-			clean_user_cache( $stale_user_id );
-		}
-
-		update_user_meta( $user_id, 'wpcom_user_id', $wpcom_user_id );
-		clean_user_cache( $user_id );
+		Utils::set_wpcom_user_id( $user_id, $wpcom_user_id );
 	}
 
 	/**

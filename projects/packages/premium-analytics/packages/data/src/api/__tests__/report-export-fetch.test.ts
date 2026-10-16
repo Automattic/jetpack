@@ -16,30 +16,28 @@ jest.mock( '@wordpress/api-fetch' );
 const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
 
 describe( 'report export downloads', () => {
-	const createObjectURL = jest.fn( () => 'blob:report' );
-	const revokeObjectURL = jest.fn();
-	const click = jest.spyOn( HTMLAnchorElement.prototype, 'click' ).mockImplementation( () => {} );
+	let createObjectURL: jest.Mock;
+	let click: jest.SpyInstance;
+	let originalCreateObjectURL: typeof window.URL.createObjectURL;
+	let originalRevokeObjectURL: typeof window.URL.revokeObjectURL;
 
 	beforeEach( () => {
 		jest.useFakeTimers();
-		Object.defineProperty( window.URL, 'createObjectURL', {
-			configurable: true,
-			value: createObjectURL,
-		} );
-		Object.defineProperty( window.URL, 'revokeObjectURL', {
-			configurable: true,
-			value: revokeObjectURL,
-		} );
-		jest.clearAllMocks();
+		mockApiFetch.mockReset();
+		originalCreateObjectURL = window.URL.createObjectURL;
+		originalRevokeObjectURL = window.URL.revokeObjectURL;
+		createObjectURL = jest.fn( () => 'blob:report' );
+		window.URL.createObjectURL = createObjectURL;
+		window.URL.revokeObjectURL = () => {};
+		click = jest.spyOn( HTMLAnchorElement.prototype, 'click' ).mockImplementation( () => {} );
 	} );
 
 	afterEach( () => {
 		jest.runOnlyPendingTimers();
 		jest.useRealTimers();
-	} );
-
-	afterAll( () => {
 		click.mockRestore();
+		window.URL.createObjectURL = originalCreateObjectURL;
+		window.URL.revokeObjectURL = originalRevokeObjectURL;
 	} );
 
 	it( 'builds a download request for the selected period and comparison', () => {
@@ -116,6 +114,21 @@ describe( 'report export downloads', () => {
 				to: '2026-06-30T23:59:59+02:00',
 			} )
 		).rejects.toThrow( 'The upstream report API is unavailable.' );
+	} );
+
+	it( 'rethrows a non-Response failure untouched (offline / abort)', async () => {
+		// The download button maps this through `getErrorMessage()`, so wrapping it
+		// in the response-shaped message would report "status undefined" instead.
+		const offline = { code: 'offline_error', message: 'Unable to connect.' };
+		mockApiFetch.mockRejectedValue( offline );
+
+		await expect(
+			downloadReport( {
+				reportType: 'ordersovertime',
+				from: '2026-06-01T00:00:00+02:00',
+				to: '2026-06-30T23:59:59+02:00',
+			} )
+		).rejects.toBe( offline );
 	} );
 
 	it( 'reads standard and UTF-8 response filenames', () => {

@@ -316,6 +316,44 @@ class Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * Regression: block.json attribute schema must be preserved for plan-gated blocks
+	 * named in the $gated_blocks list inside jetpack_register_block.
+	 *
+	 * Without this preservation, array_merge in the plan_check branch replaces the
+	 * full block.json attributes with only `shouldDisplayFrontendBanner`, after which
+	 * WordPress core's wp_register_custom_css_support (WP 6.9+) auto-injects
+	 * `style: { type: object }` into any block whose attributes lack a `style` key.
+	 * That coerces a string-typed `style` enum to an object schema, which then fails
+	 * runtime validation in WP_Block_Type::prepare_attributes_for_render.
+	 */
+	public function test_jetpack_register_block_gated_preserves_block_json_attributes() {
+		add_filter( 'jetpack_is_standalone_block', '__return_false' );
+		try {
+			$block_type = Blocks::jetpack_register_block(
+				__DIR__ . '/fixtures/calendly',
+				array( 'plan_check' => true )
+			);
+
+			$this->assertInstanceOf( 'WP_Block_Type', $block_type );
+			$this->assertEquals( 'jetpack/calendly', $block_type->name );
+
+			$attributes = $block_type->attributes;
+			$this->assertIsArray( $attributes );
+
+			$this->assertArrayHasKey( 'style', $attributes );
+			$this->assertEquals( 'string', $attributes['style']['type'] );
+			$this->assertEquals( array( 'inline', 'link' ), $attributes['style']['enum'] );
+			$this->assertEquals( 'inline', $attributes['style']['default'] );
+
+			$this->assertArrayHasKey( 'url', $attributes );
+			$this->assertArrayHasKey( 'shouldDisplayFrontendBanner', $attributes );
+		} finally {
+			remove_filter( 'jetpack_is_standalone_block', '__return_false' );
+			unregister_block_type( 'jetpack/calendly' );
+		}
+	}
+
+	/**
 	 * Test reading metadata from a block.json file by specifying its path.
 	 *
 	 * @since 1.5.0

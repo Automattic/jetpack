@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { Link, Text } from '@wordpress/ui';
 import '../../disconnect-survey/_jp-connect_disconnect-survey-card.scss';
 import DisconnectSurvey from '../../disconnect-survey';
 import type { MouseEvent } from 'react';
@@ -7,9 +8,13 @@ interface StepSurveyProps {
 	/** Callback function used to close the modal and leave the disconnect flow. */
 	onExit?: ( e?: MouseEvent< HTMLElement > ) => void;
 	/** Callback function to handle submission of survey response. */
-	onFeedBackProvided?: ( answerId: string | undefined, answerText: string ) => void;
+	onFeedBackProvided?: ( answerId: string, answerText: string ) => void;
 	/** If the survey feedback is currently being saved/submitted. */
 	isSubmittingFeedback?: boolean;
+	/** Whether the survey runs on the plugins page, before the plugin is deactivated. */
+	isBeforeDeactivation?: boolean;
+	/** Whether to offer the "couldn't connect" answer. */
+	showConnectionOption?: boolean;
 }
 
 /**
@@ -18,24 +23,42 @@ interface StepSurveyProps {
  * @param {StepSurveyProps} props - The properties.
  * @return {import('react').ReactNode} The StepSurvey Component
  */
-const StepSurvey = ( { onExit, onFeedBackProvided, isSubmittingFeedback }: StepSurveyProps ) => {
+const StepSurvey = ( {
+	onExit,
+	onFeedBackProvided,
+	isSubmittingFeedback,
+	isBeforeDeactivation,
+	showConnectionOption,
+}: StepSurveyProps ) => {
 	return (
 		<div className="jp-connection__disconnect-dialog__content">
 			<h1>{ __( 'Before you go, help us improve Jetpack', 'jetpack-connection-js' ) }</h1>
-			<p className="jp-connection__disconnect-dialog__large-text">
-				{ __( 'Let us know what didn‘t work for you', 'jetpack-connection-js' ) }
-			</p>
+			<Text className="jp-connection__disconnect-dialog__large-text">
+				{ __( "Let us know what didn't work for you", 'jetpack-connection-js' ) }
+			</Text>
 			<DisconnectSurvey
 				onSubmit={ onFeedBackProvided }
 				isSubmittingFeedback={ isSubmittingFeedback }
+				showConnectionOption={ showConnectionOption }
+				submitLabel={
+					isBeforeDeactivation ? __( 'Submit and deactivate', 'jetpack-connection-js' ) : undefined
+				}
 			/>
-			<a
+			<Link
 				className="jp-connection__disconnect-dialog__link jp-connection__disconnect-dialog__link--bold"
 				href="#"
 				onClick={ onExit }
+				aria-disabled={ ( isBeforeDeactivation && isSubmittingFeedback ) || undefined }
 			>
-				{ __( 'Skip for now', 'jetpack-connection-js' ) }
-			</a>
+				{ isBeforeDeactivation
+					? __( 'Skip and deactivate', 'jetpack-connection-js' )
+					: __(
+							'Skip for now',
+							'jetpack-connection-js',
+							// @ts-expect-error Dummy arg to avoid bad minification; ignored at runtime.
+							0
+						) }
+			</Link>
 		</div>
 	);
 };

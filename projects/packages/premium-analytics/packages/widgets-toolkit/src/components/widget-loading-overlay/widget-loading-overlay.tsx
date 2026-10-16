@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
+import { Stack } from '@jetpack-premium-analytics/externals';
 import { Spinner } from '@wordpress/components';
-import { Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */

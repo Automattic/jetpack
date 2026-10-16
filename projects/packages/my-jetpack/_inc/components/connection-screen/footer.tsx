@@ -1,9 +1,11 @@
 import { __ } from '@wordpress/i18n';
-import appleLogo from './apple.svg';
-import githubLogo from './github.svg';
-import googleLogo from './google.svg';
+import {
+	connectionScreenApple as appleLogo,
+	connectionScreenGithub as githubLogo,
+	connectionScreenGoogle as googleLogo,
+	connectionScreenWordpress as wordpressLogo,
+} from '../../assets/inline-svgs';
 import styles from './styles.module.scss';
-import wordpressLogo from './wordpress.svg';
 import type { FC } from 'react';
 
 const ConnectionScreenFooter: FC = () => (

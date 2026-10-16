@@ -1,21 +1,26 @@
-import { DropZone, TextareaControl } from '@wordpress/components';
+import { speak } from '@wordpress/a11y';
+import { DropZone, FormTokenField, TextareaControl, ToggleControl } from '@wordpress/components';
 import {
 	createInterpolateElement,
 	useCallback,
+	useEffect,
 	useMemo,
 	useRef,
 	useState,
 } from '@wordpress/element';
+import { decodeEntities } from '@wordpress/html-entities';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { check, cloudUpload, Icon } from '@wordpress/icons';
 import { Button, Dialog, Notice, Stack, Tabs, Text } from '@wordpress/ui';
 import { useAddSubscribersMutation } from '../../data/use-add-subscribers-mutation';
 import { isJobInProgress, isJobStale, useImportJobs } from '../../data/use-import-jobs';
+import { useNewsletterCategories } from '../../data/use-newsletter-categories';
 import { useResetImportMutation } from '../../data/use-reset-import-mutation';
 import { extractEmailsFromCsv } from '../../lib/csv-parse';
 import { recordTracksEvent } from '../../lib/tracks';
 import './add-subscribers-modal.scss';
 import type { ImportJob } from '../../data/types';
+import type { JSX } from 'react';
 
 type Props = {
 	isOpen: boolean;
@@ -89,6 +94,111 @@ function ImportConsentNotice(): JSX.Element {
 					'jetpack-newsletter'
 				) }
 			</Text>
+		</Stack>
+	);
+}
+
+type CategoriesFieldProps = {
+	// Currently selected category ids, owned by the parent tab so they can be sent on submit.
+	selectedIds: number[];
+	// Called with the next set of selected ids as the user toggles the section or edits tokens.
+	onChange: ( ids: number[] ) => void;
+	// Whether editing is blocked (an import is already running).
+	disabled: boolean;
+};
+
+/**
+ * Optional "add these subscribers to specific categories" picker, mirroring Calypso's
+ * `CategoriesSection` on the Add Subscribers flow. Renders nothing unless the site has Newsletter
+ * categories enabled and at least one exists — the same gate Calypso uses — so it stays invisible
+ * on sites that don't use categories. A toggle reveals a token field of the site's categories;
+ * selected ids are lifted to the parent tab, which sends them with the import.
+ *
+ * WordPress stores term names HTML-encoded (`Tips &amp; Tricks`), so names are decoded for display
+ * and mapped back to ids on change. Two categories sharing a decoded name is not something WP.com
+ * prevents, but it's rare enough that a name-keyed lookup is the same tradeoff Calypso makes.
+ *
+ * @param props             - Component props.
+ * @param props.selectedIds - Selected category ids.
+ * @param props.onChange    - Selection change handler.
+ * @param props.disabled    - Whether editing is blocked.
+ * @return Picker element, or null when categories aren't available.
+ */
+function CategoriesField( {
+	selectedIds,
+	onChange,
+	disabled,
+}: CategoriesFieldProps ): JSX.Element | null {
+	const { data } = useNewsletterCategories();
+	const [ isEnabled, setIsEnabled ] = useState( false );
+
+	const categories = useMemo( () => data?.newsletter_categories ?? [], [ data ] );
+
+	// Name <-> id maps, keyed on the decoded name the token field shows the user.
+	const { nameById, idByName } = useMemo( () => {
+		const byId = new Map< number, string >();
+		const byName = new Map< string, number >();
+		for ( const category of categories ) {
+			const name = decodeEntities( category.name );
+			byId.set( category.id, name );
+			byName.set( name, category.id );
+		}
+		return { nameById: byId, idByName: byName };
+	}, [ categories ] );
+
+	const handleToggle = useCallback(
+		( next: boolean ) => {
+			setIsEnabled( next );
+			// Clear any prior selection when the section is switched off so a hidden picker never
+			// smuggles categories into the import.
+			if ( ! next ) {
+				onChange( [] );
+			}
+		},
+		[ onChange ]
+	);
+
+	const handleTokensChange = useCallback(
+		( tokens: ( string | { value: string } )[] ) => {
+			const ids = tokens
+				.map( token => idByName.get( typeof token === 'string' ? token : token.value ) )
+				.filter( ( id ): id is number => typeof id === 'number' );
+			onChange( ids );
+		},
+		[ idByName, onChange ]
+	);
+
+	// Only offer the picker when the feature is on and there's at least one category to pick.
+	if ( ! data?.enabled || categories.length === 0 ) {
+		return null;
+	}
+
+	const selectedNames = selectedIds
+		.map( id => nameById.get( id ) )
+		.filter( ( name ): name is string => typeof name === 'string' );
+
+	return (
+		<Stack direction="column" gap="sm">
+			<ToggleControl
+				__nextHasNoMarginBottom
+				label={ __( 'Add these subscribers to specific categories', 'jetpack-newsletter' ) }
+				checked={ isEnabled }
+				onChange={ handleToggle }
+				disabled={ disabled }
+			/>
+			{ isEnabled ? (
+				<FormTokenField
+					__next40pxDefaultSize
+					__nextHasNoMarginBottom
+					__experimentalShowHowTo={ false }
+					label={ __( 'Categories', 'jetpack-newsletter' ) }
+					placeholder={ __( 'Type to add categories', 'jetpack-newsletter' ) }
+					value={ selectedNames }
+					suggestions={ Array.from( idByName.keys() ) }
+					onChange={ handleTokensChange }
+					disabled={ disabled }
+				/>
+			) : null }
 		</Stack>
 	);
 }
@@ -178,65 +288,66 @@ function ImportStatusNotice( { jobs }: { jobs: ImportJob[] } ): JSX.Element | nu
 	const resetMutation = useResetImportMutation();
 	const handleCancelImport = useCallback( () => resetMutation.mutate(), [ resetMutation ] );
 
-	if ( ! jobs.some( isJobInProgress ) ) {
-		return null;
+	let message: string | null = null;
+	let notice: JSX.Element | null = null;
+	// Each variant carries a `key` so switching variants remounts the notice instead of reusing
+	// the previous variant's subtree state.
+	if ( jobs.some( isJobInProgress ) ) {
+		if ( ! jobs.some( job => isJobStale( job ) ) ) {
+			message = __(
+				'Your subscribers are being imported. This may take a few minutes. You can close this window and we’ll notify you when the import is complete.',
+				'jetpack-newsletter'
+			);
+			notice = (
+				<Notice.Root key="import-in-progress" intent="info">
+					<Notice.Description>{ message }</Notice.Description>
+				</Notice.Root>
+			);
+		} else if ( jobs[ 1 ]?.status === 'cancelled' ) {
+			// Mirrors Calypso: once a reset has already been tried (the previous job shows as
+			// cancelled), another "Cancel import" is unlikely to help — point at support instead.
+			message = __(
+				'Your recent import is taking longer than expected to complete. If this issue persists, please contact our support team for assistance.',
+				'jetpack-newsletter'
+			);
+			notice = (
+				<Notice.Root key="import-stale-support" intent="warning">
+					<Notice.Description>{ message }</Notice.Description>
+					<Notice.Actions>
+						<Notice.ActionLink
+							href="https://jetpack.com/support/newsletter/import-subscribers/"
+							openInNewTab
+						>
+							{ __( 'Learn more', 'jetpack-newsletter' ) }
+						</Notice.ActionLink>
+					</Notice.Actions>
+				</Notice.Root>
+			);
+		} else {
+			message = __(
+				'Your recent import is taking longer than expected to complete. Please cancel your import and try again.',
+				'jetpack-newsletter'
+			);
+			notice = (
+				<Notice.Root key="import-stale" intent="warning">
+					<Notice.Description>{ message }</Notice.Description>
+					<Notice.Actions>
+						<Notice.ActionButton onClick={ handleCancelImport } loading={ resetMutation.isPending }>
+							{ __( 'Cancel import', 'jetpack-newsletter' ) }
+						</Notice.ActionButton>
+					</Notice.Actions>
+				</Notice.Root>
+			);
+		}
 	}
 
-	// Each variant carries a `key` (remount instead of reusing the previous variant's hook
-	// state) and an explicit string `spokenMessage` — Notice.Root otherwise renderToString()s
-	// its children mid-render, which corrupts hook order when they include action buttons.
-	if ( ! jobs.some( job => isJobStale( job ) ) ) {
-		const inProgressMessage = __(
-			'Your subscribers are being imported. This may take a few minutes. You can close this window and we’ll notify you when the import is complete.',
-			'jetpack-newsletter'
-		);
-		return (
-			<Notice.Root key="import-in-progress" intent="info" spokenMessage={ inProgressMessage }>
-				<Notice.Description>{ inProgressMessage }</Notice.Description>
-			</Notice.Root>
-		);
-	}
+	useEffect( () => {
+		if ( message ) {
+			speak( message, 'polite' );
+		}
+	}, [ message ] );
 
-	// Mirrors Calypso: once a reset has already been tried (the previous job shows as
-	// cancelled), another "Cancel import" is unlikely to help — point at support instead.
-	if ( jobs[ 1 ]?.status === 'cancelled' ) {
-		const contactSupportMessage = __(
-			'Your recent import is taking longer than expected to complete. If this issue persists, please contact our support team for assistance.',
-			'jetpack-newsletter'
-		);
-		return (
-			<Notice.Root
-				key="import-stale-support"
-				intent="warning"
-				spokenMessage={ contactSupportMessage }
-			>
-				<Notice.Description>{ contactSupportMessage }</Notice.Description>
-				<Notice.Actions>
-					<Notice.ActionLink
-						href="https://jetpack.com/support/newsletter/import-subscribers/"
-						openInNewTab
-					>
-						{ __( 'Learn more', 'jetpack-newsletter' ) }
-					</Notice.ActionLink>
-				</Notice.Actions>
-			</Notice.Root>
-		);
-	}
-
-	const staleMessage = __(
-		'Your recent import is taking longer than expected to complete. Please cancel your import and try again.',
-		'jetpack-newsletter'
-	);
-	return (
-		<Notice.Root key="import-stale" intent="warning" spokenMessage={ staleMessage }>
-			<Notice.Description>{ staleMessage }</Notice.Description>
-			<Notice.Actions>
-				<Notice.ActionButton onClick={ handleCancelImport } loading={ resetMutation.isPending }>
-					{ __( 'Cancel import', 'jetpack-newsletter' ) }
-				</Notice.ActionButton>
-			</Notice.Actions>
-		</Notice.Root>
-	);
+	return notice;
 }
 
 type SubmitButtonProps = {
@@ -264,7 +375,7 @@ function SubmitButton( { count, isPending, disabled, onClick }: SubmitButtonProp
 					// translators: %d: number of subscribers to add.
 					_n( 'Add %d subscriber', 'Add %d subscribers', count, 'jetpack-newsletter' ),
 					count
-			  )
+				)
 			: __( 'Add subscribers', 'jetpack-newsletter' );
 	return (
 		<Button
@@ -296,6 +407,7 @@ type AddTabProps = {
  */
 function ManualTab( { mutation, importInProgress, onClose }: AddTabProps ): JSX.Element {
 	const [ value, setValue ] = useState( '' );
+	const [ categoryIds, setCategoryIds ] = useState< number[] >( [] );
 
 	// Submit button reflects the *live* value so the user never has to wait to submit — typing one
 	// valid email enables the CTA right away.
@@ -325,14 +437,18 @@ function ManualTab( { mutation, importInProgress, onClose }: AddTabProps ): JSX.
 		if ( valid.length === 0 ) {
 			return;
 		}
-		mutation.mutate( valid, {
-			onSuccess: () => {
-				setValue( '' );
-				setBlurredValue( '' );
-				onClose();
-			},
-		} );
-	}, [ mutation, onClose, valid ] );
+		mutation.mutate(
+			{ emails: valid, categories: categoryIds },
+			{
+				onSuccess: () => {
+					setValue( '' );
+					setBlurredValue( '' );
+					setCategoryIds( [] );
+					onClose();
+				},
+			}
+		);
+	}, [ categoryIds, mutation, onClose, valid ] );
 
 	return (
 		<Stack direction="column" gap="md">
@@ -348,6 +464,11 @@ function ManualTab( { mutation, importInProgress, onClose }: AddTabProps ): JSX.
 				onBlur={ handleBlur }
 				rows={ 6 }
 				placeholder="reader@example.com&#10;another@example.com"
+			/>
+			<CategoriesField
+				selectedIds={ categoryIds }
+				onChange={ setCategoryIds }
+				disabled={ importInProgress }
 			/>
 			<ImportConsentNotice />
 			<InvalidEntriesNotice invalid={ invalid } />
@@ -468,6 +589,7 @@ function UploadTab( { mutation, importInProgress, onClose }: AddTabProps ): JSX.
 	const [ fileName, setFileName ] = useState< string | null >( null );
 	const [ emails, setEmails ] = useState< string[] >( [] );
 	const [ readError, setReadError ] = useState< string | null >( null );
+	const [ categoryIds, setCategoryIds ] = useState< number[] >( [] );
 
 	const handleFile = useCallback( ( file: File ) => {
 		// Drag-and-drop can deliver any file type, so enforce the same allow-list the picker
@@ -502,17 +624,21 @@ function UploadTab( { mutation, importInProgress, onClose }: AddTabProps ): JSX.
 		if ( emails.length === 0 ) {
 			return;
 		}
-		mutation.mutate( emails, {
-			onSuccess: () => {
-				setEmails( [] );
-				setFileName( null );
-				if ( fileInputRef.current ) {
-					fileInputRef.current.value = '';
-				}
-				onClose();
-			},
-		} );
-	}, [ mutation, onClose, emails ] );
+		mutation.mutate(
+			{ emails, categories: categoryIds },
+			{
+				onSuccess: () => {
+					setEmails( [] );
+					setFileName( null );
+					setCategoryIds( [] );
+					if ( fileInputRef.current ) {
+						fileInputRef.current.value = '';
+					}
+					onClose();
+				},
+			}
+		);
+	}, [ categoryIds, mutation, onClose, emails ] );
 
 	return (
 		<Stack direction="column" gap="md">
@@ -539,6 +665,11 @@ function UploadTab( { mutation, importInProgress, onClose }: AddTabProps ): JSX.
 				disabled={ mutation.isPending }
 				onFile={ handleFile }
 				inputRef={ fileInputRef }
+			/>
+			<CategoriesField
+				selectedIds={ categoryIds }
+				onChange={ setCategoryIds }
+				disabled={ importInProgress }
 			/>
 			<ImportConsentNotice />
 			{ readError ? (
@@ -652,7 +783,7 @@ export default function AddSubscribersModal( { isOpen, onClose }: Props ): JSX.E
 			<Dialog.Popup>
 				<Dialog.Header>
 					<Dialog.Title>{ __( 'Add subscribers', 'jetpack-newsletter' ) }</Dialog.Title>
-					<Dialog.CloseIcon />
+					<Dialog.CloseIconButton />
 				</Dialog.Header>
 				<Dialog.Content>
 					<Stack direction="column" gap="lg">

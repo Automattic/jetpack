@@ -8,12 +8,21 @@
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Terms_Of_Service;
+use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 
 // helpers.php defines the shared option reader the listeners depend on, so it loads first.
 require_once __DIR__ . '/helpers.php';
+require_once __DIR__ . '/../../common/wp-build-script-translations.php';
+require_once __DIR__ . '/../../common/launchpad-no-guidance.php';
 require_once __DIR__ . '/eligibility.php';
 require_once __DIR__ . '/class-ai-launchpad-memberships.php';
+require_once __DIR__ . '/class-ai-launchpad-difm-offer.php';
+require_once __DIR__ . '/class-ai-launchpad-task-registry.php';
 require_once __DIR__ . '/class-ai-launchpad-rest.php';
 require_once __DIR__ . '/class-ai-launchpad-listeners.php';
 require_once __DIR__ . '/class-ai-launchpad-theme-listener.php';
@@ -22,6 +31,10 @@ require_once __DIR__ . '/class-ai-launchpad-subscribers-listener.php';
 require_once __DIR__ . '/class-ai-launchpad-subscribe-block-listener.php';
 require_once __DIR__ . '/class-ai-launchpad-about-page-listener.php';
 require_once __DIR__ . '/class-ai-launchpad-gallery-page-listener.php';
+require_once __DIR__ . '/class-ai-launchpad-contact-page-listener.php';
+require_once __DIR__ . '/class-ai-launchpad-events-page-listener.php';
+require_once __DIR__ . '/class-ai-launchpad-video-page-listener.php';
+require_once __DIR__ . '/class-ai-launchpad-portfolio-piece-listener.php';
 require_once __DIR__ . '/class-ai-launchpad-first-post-listener.php';
 require_once __DIR__ . '/class-ai-launchpad-dev-enable.php';
 
@@ -50,9 +63,23 @@ class AI_Launchpad {
 			return;
 		}
 
+		add_action( 'admin_page_access_denied', array( __CLASS__, 'redirect_to_dashboard' ) );
+
 		self::load_wp_build();
-		self::fix_boot_import_map_ordering();
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_jwt_initial_state' ), 20 );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_tracks' ), 20 );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_script_translations' ), 20 );
+	}
+
+	/**
+	 * Sends a Site Setup visit the page can't serve (done, dismissed, ineligible, not an admin) to the Dashboard
+	 * instead of core's "not allowed" screen, e.g. a refresh right after the last task or an old bookmark.
+	 *
+	 * @return never
+	 */
+	public static function redirect_to_dashboard() {
+		wp_safe_redirect( admin_url( 'index.php' ) );
+		exit;
 	}
 
 	/**
@@ -68,9 +95,7 @@ class AI_Launchpad {
 	/**
 	 * Whether the current site is eligible for the AI Launchpad.
 	 *
-	 * Gate: not already AI-onboarded, not dismissed (skipping the wizard dismisses it, reverting the site
-	 * to the regular launchpad), and explicitly enabled for the site via the `wpcom_ai_launchpad_enabled`
-	 * option. The paid-plan requirement is temporarily lifted (see below).
+	 * Gate: enabled for the site (see is_enabled_for_site(), which also excludes a dismissed AI Launchpad).
 	 *
 	 * @return bool
 	 */
@@ -78,34 +103,21 @@ class AI_Launchpad {
 		static $eligible = null;
 
 		if ( null === $eligible ) {
-			// TEMPORARY: the paid-plan gate is lifted so the AI Launchpad is available on all plans, including free.
-			// Revert this commit to re-require a paid bundle (the removed has_paid_plan() check).
-			$eligible = self::is_enabled_for_site()
-				&& ! self::was_ai_onboarded()
-				&& ! get_option( \AI_Launchpad_REST::OPTION_DISMISSED );
+			$eligible = self::is_enabled_for_site();
 		}
 
 		return $eligible;
 	}
 
 	/**
-	 * Whether the site already went through an AI onboarding flow.
+	 * Whether the AI Launchpad has been enabled for this site.
 	 *
-	 * @return bool
-	 */
-	private static function was_ai_onboarded() {
-		return get_option( 'site_intent' ) === 'ai-assembler' || get_option( 'site_creation_flow' ) === 'ai-site-builder';
-	}
-
-	/**
-	 * Whether the AI Launchpad has been explicitly enabled for this site.
-	 *
-	 * Set per-site with `wp option update wpcom_ai_launchpad_enabled 1`.
+	 * Set at site creation for new onboarding sites, by the ?enable-ai-launchpad=1 dev handler, or manually.
 	 *
 	 * @return bool
 	 */
 	private static function is_enabled_for_site() {
-		return (bool) get_option( 'wpcom_ai_launchpad_enabled' );
+		return (bool) get_option( 'wpcom_ai_launchpad_enabled' ) && ! wpcom_launchpad_is_no_guidance();
 	}
 
 	/**
@@ -187,52 +199,75 @@ class AI_Launchpad {
 	}
 
 	/**
-	 * Fix import map ordering for the wp-build boot script.
-	 *
-	 * In wp-admin both _wp_footer_scripts and print_import_map hook admin_print_footer_scripts at priority 10, but
-	 * _wp_footer_scripts runs first, so the inline import("@wordpress/boot") executes before the import map exists.
-	 * This moves the import() call to a <script type="module"> printed at priority 20, after the import map.
-	 *
-	 * @todo Remove once @wordpress/build ships the loader.js fix upstream
-	 *       (WordPress/gutenberg#76870) and Jetpack updates the dependency.
+	 * Install the JS translation catalogs on the prerequisites script, which runs before the boot
+	 * module, so every `__()` in the route bundle evaluates translated.
 	 */
-	private static function fix_boot_import_map_ordering() {
+	public static function enqueue_script_translations() {
+		$handle    = self::MENU_SLUG . '-prerequisites';
+		$build_dir = dirname( __DIR__, 3 ) . '/build';
+		$constants = $build_dir . '/constants.php';
+
+		if ( ! wp_script_is( $handle, 'registered' ) || ! file_exists( $constants ) ) {
+			return;
+		}
+
+		// The same URL the generated route registrations use, so core resolves the same catalog names.
+		$build_constants = require $constants;
+		$translations    = wpcom_wp_build_script_translations( $build_dir . '/i18n-manifest.json', $build_constants['build_url'], 'site-setup' );
+
+		if ( null !== $translations ) {
+			wp_add_inline_script( $handle, $translations, 'before' );
+		}
+	}
+
+	/**
+	 * Attach the page's Tracks preconditions: the transport itself on Atomic, and the standard
+	 * event properties as a global the client recorder reads.
+	 *
+	 * On Simple, wpcom's stats.php loads the Tracks transport on every admin page and pushes
+	 * identifyUser and the blog_id super prop with it. On Atomic nothing does — wpcomsh only
+	 * enqueues jp-tracks inside the editor — so `window._tkq` stays an ordinary array, every
+	 * push accumulates in it, and the whole client-side funnel is discarded on unload.
+	 *
+	 * The transport is only enqueued where tracking is actually permitted: "not Simple" also
+	 * covers jurassic.ninja / jurassic.tube and self-hosted sites running this package, where
+	 * the server recorder already stays silent under a declined ToS or offline mode. Gating
+	 * here mirrors `wpcom_enqueue_tracking_scripts()` in `src/common/index.php`. The props/
+	 * identity global below stays ungated: it is inert without the transport.
+	 */
+	public static function enqueue_tracks() {
 		$handle = self::MENU_SLUG . '-prerequisites';
 
-		add_action(
-			'admin_enqueue_scripts',
-			static function () use ( $handle ) {
-				$data = wp_scripts()->get_data( $handle, 'after' );
-				if ( empty( $data ) ) {
-					return;
-				}
+		if ( ! wp_script_is( $handle, 'registered' ) ) {
+			return;
+		}
 
-				$boot_script = null;
-				$remaining   = array();
-				foreach ( $data as $line ) {
-					if ( strpos( $line, '@wordpress/boot' ) !== false ) {
-						$boot_script = $line;
-					} else {
-						$remaining[] = $line;
-					}
-				}
+		if ( ! ( new Host() )->is_wpcom_simple() ) {
+			$tracking = new Tracking( 'jetpack-mu-wpcom', new Connection_Manager() );
+			if ( $tracking->should_enable_tracking( new Terms_Of_Service(), new Status() ) ) {
+				wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
+			}
+		}
 
-				if ( $boot_script === null ) {
-					return;
-				}
-
-				wp_scripts()->add_data( $handle, 'after', $remaining );
-
-				// Re-emit as a module script after the import map.
-				add_action(
-					'admin_print_footer_scripts',
-					static function () use ( $boot_script ) {
-						wp_print_inline_script_tag( $boot_script, array( 'type' => 'module' ) );
-					},
-					20
-				);
-			},
-			PHP_INT_MAX
+		// JSON rather than wp_localize_script(), which stringifies every value: blog_id would
+		// reach Tracks as a string instead of an int.
+		$bootstrap = wp_json_encode(
+			array(
+				'props'    => wpcom_ai_launchpad_standard_props(),
+				'identity' => wpcom_ai_launchpad_tracks_identity(),
+			),
+			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 		);
+
+		// WordPress concatenates every `before` inline script queued for this handle into one
+		// <script> tag, so a false here (encode failure) would emit a syntax error that also
+		// takes out the other scripts sharing the handle — including JP_CONNECTION_INITIAL_STATE
+		// and Jetpack_Editor_Initial_State.wpcomBlogId, the JWT and blog id the page needs to
+		// function at all. Fall back to an empty object so this global stays inert instead.
+		if ( false === $bootstrap ) {
+			$bootstrap = '{}';
+		}
+
+		wp_add_inline_script( $handle, 'window.wpcomAiLaunchpadTracks = ' . $bootstrap . ';', 'before' );
 	}
 }

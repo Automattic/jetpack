@@ -6,14 +6,24 @@ const DAY_IN_MS = 24 * 60 * 60 * 1000;
 const ACTIVE_POLL_INTERVAL_MS = 5000;
 
 /**
+ * Stable id for the "Importing…" snackbar. The add-subscribers mutation creates the notice under
+ * this id when it kicks off an import; `useImportCompletionRefresh` removes it (and replaces it with
+ * a success / failure notice) once the job reaches a terminal state, so the message tracks the
+ * import instead of the notice system's auto-dismiss timer.
+ */
+export const IMPORT_IN_PROGRESS_NOTICE_ID = 'jetpack-newsletter/subscribers-import-in-progress';
+
+/**
  * Whether an import job is still running. WP.com refuses to start a new import while any job is
- * in one of these states.
+ * in one of these states. `awaiting` is the gap between "enqueued" and "picked up by a worker" —
+ * still in-flight, so it must count as in progress or a poll landing mid-queue would read the job
+ * as finished.
  *
  * @param job - Import job.
- * @return Whether the job is pending or importing.
+ * @return Whether the job is pending, awaiting, or importing.
  */
 export function isJobInProgress( job: ImportJob ): boolean {
-	return job.status === 'pending' || job.status === 'importing';
+	return job.status === 'pending' || job.status === 'awaiting' || job.status === 'importing';
 }
 
 /**

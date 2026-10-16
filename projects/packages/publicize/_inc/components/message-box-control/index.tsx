@@ -1,10 +1,10 @@
-import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { TextareaControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useCallback, useRef } from 'react';
-import { features } from '../../utils/constants';
+import { hasSocialPaidFeatures } from '../../utils/script-data';
+import PlaceholderToken from '../placeholder-token';
 import PlaceholdersHelp from '../placeholders-help';
 import styles from './styles.module.scss';
 import type { ReactNode } from 'react';
@@ -77,7 +77,7 @@ export default function MessageBoxControl( {
 	const { recordEvent } = useAnalytics();
 	const isFirstChange = useRef( true );
 
-	const templatesEnabled = siteHasFeature( features.MESSAGE_TEMPLATES );
+	const templatesEnabled = hasSocialPaidFeatures();
 
 	const charactersRemaining = maxLength - message.length;
 
@@ -109,10 +109,10 @@ export default function MessageBoxControl( {
 						'jetpack-publicize-pkg'
 					),
 					{
-						title: <code>{ '{title}' }</code>,
-						url: <code>{ '{url}' }</code>,
+						title: <PlaceholderToken>{ '{title}' }</PlaceholderToken>,
+						url: <PlaceholderToken>{ '{url}' }</PlaceholderToken>,
 					}
-			  )
+				)
 			: sprintf(
 					/* translators: %d: the number of characters remaining. */
 					_n(
@@ -122,7 +122,7 @@ export default function MessageBoxControl( {
 						'jetpack-publicize-pkg'
 					),
 					charactersRemaining
-			  ) );
+				) );
 
 	return (
 		<div className={ styles[ 'message-box-control' ] }>

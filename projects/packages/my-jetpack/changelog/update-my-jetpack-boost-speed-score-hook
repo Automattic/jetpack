@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Move the Boost card's speed score loading into a hook, unchanged.
+

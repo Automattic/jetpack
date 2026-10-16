@@ -1,7 +1,12 @@
 /**
  * External dependencies
  */
-import { useStatsTags, type StatsTagsItem } from '@jetpack-premium-analytics/data';
+import {
+	useStatsTags,
+	type ReportParams,
+	type StatsTagsItem,
+} from '@jetpack-premium-analytics/data';
+import { TAGS_REPORT_ROW_LIMIT } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 
 /**
@@ -15,18 +20,13 @@ export function getTagRowId( item: StatsTagsItem ): string {
 }
 
 /**
- * Fetch the all-time Tags & categories rows.
+ * Fetch the Tags & categories rows for the report window.
  *
- * The endpoint ignores date-window parameters (`period`, `start_date`,
- * `days`, `summarize`) and always reports one flat all-time list — verified
- * against WPCOM directly, and matching Calypso, which never sends date
- * params here — so the report requests only `max: 0` (all rows) and renders
- * no chart or date filters.
- *
+ * @param reportParams - The report's date window.
  * @return Table rows and fetch state.
  */
-export function useTagsReportRecords() {
-	const tags = useStatsTags( { max: 0 } );
+export function useTagsReportRecords( reportParams: ReportParams ) {
+	const tags = useStatsTags( { ...reportParams, max: TAGS_REPORT_ROW_LIMIT } );
 	const rows = useMemo< StatsTagsItem[] >(
 		() => tags.data?.data?.[ 0 ]?.items ?? [],
 		[ tags.data ]
@@ -35,7 +35,9 @@ export function useTagsReportRecords() {
 	return {
 		rows,
 		isLoading: tags.isLoading,
+		isFetching: tags.isFetching,
 		isError: tags.isError,
+		error: tags.error,
 		refetch: tags.refetch,
 	};
 }

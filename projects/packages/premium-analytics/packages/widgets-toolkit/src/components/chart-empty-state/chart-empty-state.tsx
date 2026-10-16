@@ -1,57 +1,60 @@
 /**
  * External dependencies
  */
+import { Button, EmptyState, Icon, ButtonLink } from '@jetpack-premium-analytics/externals';
+import { search } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
-import { cautionFilled } from '@wordpress/icons';
-import { EmptyState, Icon } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
 import styles from './chart-empty-state.module.scss';
 
+export type EmptyStateAction =
+	{ label: string; href: string; onClick?: never } | { label: string; onClick: () => void };
+
 export type ChartEmptyStateProps = {
 	/**
-	 * Icon to display in the empty state.
-	 * Should be a ReactNode (typically an SVG icon).
-	 * Defaults to cautionFilled when omitted; pass `null` to render no icon.
+	 * Defaults to the `search` magnifier when omitted.
 	 */
-	icon?: React.ComponentProps< typeof Icon >[ 'icon' ] | null;
+	icon?: React.ComponentProps< typeof Icon >[ 'icon' ];
 
 	/**
-	 * Text to display in the empty state.
-	 * @default "No data in this period."
+	 * @default "We couldn’t find results for this time period."
 	 */
 	text?: string;
+	/** One action under the description. */
+	action?: EmptyStateAction;
 };
 
 /**
- * ChartEmptyState component.
- *
- * A reusable empty state component for charts that displays an icon and text
- * when no data is available. Designed to be used by chart wrapper components.
- *
- * @example
- * ```tsx
- * import { customer } from '@jetpack-premium-analytics/icons';
- *
- * // With custom icon
- * <ChartEmptyState icon={ customer } />
- *
- * // With custom text
- * <ChartEmptyState
- *   icon={ customer }
- *   text="No customer data found."
- * />
- * ```
+ * The empty state chart wrappers render when their data has nothing to show.
  */
 export function ChartEmptyState( {
-	icon = cautionFilled,
-	text = __( 'No data in this period.', 'jetpack-premium-analytics' ),
+	icon = search,
+	text = __( 'We couldn’t find results for this time period.', 'jetpack-premium-analytics-pkg' ),
+	action,
 }: ChartEmptyStateProps ) {
 	return (
-		<EmptyState.Root className={ styles.container }>
-			{ icon && <Icon size={ 48 } className={ styles.icon } icon={ icon } /> }
-			<EmptyState.Description>{ text }</EmptyState.Description>
-		</EmptyState.Root>
+		<div className={ styles.root }>
+			<EmptyState.Root className={ styles.container }>
+				<EmptyState.Visual className={ styles.icon }>
+					<Icon size={ 40 } icon={ icon } />
+				</EmptyState.Visual>
+				<EmptyState.Description>{ text }</EmptyState.Description>
+				{ action && (
+					<EmptyState.Actions>
+						{ 'href' in action ? (
+							<ButtonLink variant="outline" size="compact" href={ action.href }>
+								{ action.label }
+							</ButtonLink>
+						) : (
+							<Button variant="outline" size="compact" onClick={ action.onClick }>
+								{ action.label }
+							</Button>
+						) }
+					</EmptyState.Actions>
+				) }
+			</EmptyState.Root>
+		</div>
 	);
 }

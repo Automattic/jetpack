@@ -21,6 +21,7 @@
 PHAN;
 
 require_once __DIR__ . '/../../utils.php';
+require_once __DIR__ . '/../../common/launchpad-no-guidance.php';
 require_once __DIR__ . '/class-launchpad-task-lists.php';
 require_once __DIR__ . '/launchpad-task-definitions.php';
 
@@ -749,6 +750,25 @@ function wpcom_maybe_disable_for_difm( $value ) {
 if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 	add_filter( 'option_launchpad_screen', 'wpcom_maybe_disable_for_difm' );
 }
+
+/**
+ * Filter for `get_option( 'launchpad_screen' )`: hide the old Launchpad on Site Setup and no-guidance sites.
+ *
+ * @param mixed $value The filterable option value, retrieved from the DB.
+ * @return mixed 'off' for those sites, the unaltered value otherwise.
+ */
+function wpcom_maybe_disable_launchpad_screen_for_site_setup( $value ) {
+	if ( false === $value ) {
+		return $value;
+	}
+
+	if ( get_option( 'wpcom_ai_launchpad_enabled' ) || wpcom_launchpad_is_no_guidance() ) {
+		return 'off';
+	}
+
+	return $value;
+}
+add_filter( 'option_launchpad_screen', 'wpcom_maybe_disable_launchpad_screen_for_site_setup' );
 
 add_action( 'wp_head', 'wpcom_maybe_preview_with_no_interactions', PHP_INT_MAX );
 /**

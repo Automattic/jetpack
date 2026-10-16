@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Register the plugin i18n map so JS translation catalogs resolve for the dashboard.

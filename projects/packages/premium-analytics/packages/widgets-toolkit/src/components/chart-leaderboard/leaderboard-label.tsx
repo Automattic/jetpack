@@ -1,20 +1,30 @@
 /**
  * External dependencies
  */
+import { Icon, Stack } from '@jetpack-premium-analytics/externals';
 import { __, sprintf } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useState } from 'react';
 /**
  * Internal dependencies
  */
 import styles from './leaderboard-label.module.scss';
+import type { ComponentProps } from 'react';
+
+type IconGlyph = ComponentProps< typeof Icon >[ 'icon' ];
 
 export type LeaderboardRowMedia =
 	| { kind: 'avatar'; url?: string; name: string }
 	| { kind: 'favicon'; url?: string }
 	| { kind: 'flag'; url?: string; country: string }
-	| { kind: 'thumbnail'; url?: string; alt: string }
+	| {
+			kind: 'thumbnail';
+			url?: string;
+			alt: string;
+			/** Drawn in place of the grey placeholder when there is no image or it fails to load. */
+			fallbackIcon?: IconGlyph;
+	  }
+	| { kind: 'icon'; icon: IconGlyph }
 	| { kind: 'none' };
 
 export type LeaderboardLabelProps = {
@@ -30,13 +40,15 @@ export type LeaderboardLabelProps = {
 const DEFAULT_IMAGE_URL =
 	'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50"><rect width="50" height="50" fill="%23e5e7eb"/></svg>';
 
-function getMediaDetails( media: Exclude< LeaderboardRowMedia, { kind: 'none' } > ) {
+function getMediaDetails(
+	media: Exclude< LeaderboardRowMedia, { kind: 'none' } | { kind: 'icon' } >
+) {
 	switch ( media.kind ) {
 		case 'avatar':
 			return {
 				alt: sprintf(
 					/* translators: %s is a person's name. */
-					__( 'Avatar of %s', 'jetpack-premium-analytics' ),
+					__( 'Avatar of %s', 'jetpack-premium-analytics-pkg' ),
 					media.name
 				),
 				className: styles.avatar,
@@ -54,7 +66,7 @@ function getMediaDetails( media: Exclude< LeaderboardRowMedia, { kind: 'none' } 
 			return {
 				alt: sprintf(
 					/* translators: %s is a country name. */
-					__( 'Flag of %s', 'jetpack-premium-analytics' ),
+					__( 'Flag of %s', 'jetpack-premium-analytics-pkg' ),
 					media.country
 				),
 				className: styles.flag,
@@ -74,10 +86,6 @@ function getMediaDetails( media: Exclude< LeaderboardRowMedia, { kind: 'none' } 
 /**
  * Render media and truncating text outside a leaderboard chart row.
  *
- * @param props                 - Component props.
- * @param props.label           - Label text.
- * @param props.media           - Optional media rendered before the label.
- * @param props.decorativeMedia - Whether assistive technology should ignore the image.
  * @return The rendered label.
  */
 export function LeaderboardLabel( {
@@ -86,9 +94,14 @@ export function LeaderboardLabel( {
 	decorativeMedia = false,
 }: LeaderboardLabelProps ) {
 	const [ failedImageUrl, setFailedImageUrl ] = useState< string >();
-	const mediaDetails = media.kind === 'none' ? null : getMediaDetails( media );
+	const mediaDetails =
+		media.kind === 'none' || media.kind === 'icon' ? null : getMediaDetails( media );
+	const fallbackIcon = media.kind === 'thumbnail' ? media.fallbackIcon : undefined;
+	const showsFallbackIcon =
+		Boolean( fallbackIcon ) && ( ! mediaDetails?.url || mediaDetails.url === failedImageUrl );
 	const shouldRenderImage =
 		mediaDetails &&
+		! showsFallbackIcon &&
 		( mediaDetails.fallback === 'placeholder' || Boolean( mediaDetails.url ) ) &&
 		( mediaDetails.fallback !== 'hidden' || mediaDetails.url !== failedImageUrl );
 
@@ -99,11 +112,22 @@ export function LeaderboardLabel( {
 			align="center"
 			className={ clsx( styles.container, mediaDetails?.className ) }
 		>
+			{ media.kind === 'icon' && (
+				<Icon icon={ media.icon } size={ 20 } className={ styles.icon } />
+			) }
+			{ showsFallbackIcon && (
+				<span
+					className={ clsx( styles.media, styles.mediaPlaceholder ) }
+					data-testid="leaderboard-thumbnail-placeholder"
+				>
+					<Icon icon={ fallbackIcon } size={ 16 } />
+				</span>
+			) }
 			{ shouldRenderImage && (
 				<img
 					src={ mediaDetails.url || DEFAULT_IMAGE_URL }
 					onError={ event => {
-						if ( mediaDetails.fallback === 'hidden' ) {
+						if ( mediaDetails.fallback === 'hidden' || fallbackIcon ) {
 							setFailedImageUrl( mediaDetails.url );
 							return;
 						}

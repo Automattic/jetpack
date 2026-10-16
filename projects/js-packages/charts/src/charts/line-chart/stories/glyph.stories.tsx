@@ -1,5 +1,5 @@
 import { GlyphStar } from '@visx/glyph';
-import { useGlobalChartsTheme, GlobalChartsProvider } from '../../../providers';
+import { useGlobalChartsContext, GlobalChartsProvider } from '../../../providers';
 import { CHART_THEME_MAP, themeArgTypes } from '../../../stories';
 import LineChart from '../line-chart';
 import {
@@ -212,7 +212,7 @@ CustomSvg.args = {
 };
 
 const ToolTipWithGlyph = ( { tooltipData }: RenderTooltipParams< DataPointDate > ) => {
-	const providerTheme = useGlobalChartsTheme();
+	const { getElementStyles } = useGlobalChartsContext();
 
 	return (
 		<div>
@@ -238,7 +238,7 @@ const ToolTipWithGlyph = ( { tooltipData }: RenderTooltipParams< DataPointDate >
 										top={ 10 }
 										left={ 10 }
 										fill={ '#fff' }
-										stroke={ providerTheme.colors[ index % providerTheme.colors.length ] }
+										stroke={ getElementStyles( { index } ).color }
 									/>
 								</svg>
 								{ key }: { datum.value }
@@ -261,6 +261,28 @@ InTooltip.args = {
 		radius: 10,
 	},
 	renderTooltip: ToolTipWithGlyph,
+};
+
+// A tooltip glyph may ignore `x` and `y`: the chart places its group on the
+// datum, as visx's own Tooltip did. Start glyphs are positioned by the renderer
+// itself, so the story turns them off (end glyphs are off by default).
+export const InTooltipUnpositioned: StoryObj< StoryArgs > = Template.bind( {} );
+InTooltipUnpositioned.args = {
+	...glyphStoryArgs,
+	withStartGlyphs: false,
+	renderGlyph: ( { color, size } ) => <GlyphStar size={ size * size } fill={ color } />,
+	glyphStyle: {
+		radius: 10,
+	},
+	renderTooltip: ToolTipWithGlyph,
+};
+InTooltipUnpositioned.parameters = {
+	docs: {
+		description: {
+			story:
+				'A `renderGlyph` that leaves out `left` and `top`. The chart positions the tooltip glyph on its datum, so this renderer lands correctly without reading `x` and `y`; the tooltip rows carry inline SVG icons that stay on their line.',
+		},
+	},
 };
 
 export const CustomPerDataPoint: StoryObj< StoryArgs > = Template.bind( {} );

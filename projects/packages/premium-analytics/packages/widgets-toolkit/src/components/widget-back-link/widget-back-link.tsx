@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
+import { Button, Icon } from '@jetpack-premium-analytics/externals';
 import { chevronLeft } from '@wordpress/icons';
-import { Button, Icon } from '@wordpress/ui';
 import clsx from 'clsx';
 /**
  * Internal dependencies
@@ -15,9 +15,6 @@ export type WidgetBackLinkProps = {
 	 */
 	label: string;
 
-	/**
-	 * Callback fired when the user navigates back to the parent view.
-	 */
 	onClick: () => void;
 
 	/**
@@ -26,7 +23,12 @@ export type WidgetBackLinkProps = {
 	ariaLabel?: string;
 
 	/**
-	 * Optional class for widget-specific layout tweaks.
+	 * Optional name of the current view, shown after the link as a breadcrumb.
+	 */
+	current?: string;
+
+	/**
+	 * Optional class for widget-specific layout tweaks, set on the outermost element.
 	 */
 	className?: string;
 };
@@ -34,28 +36,38 @@ export type WidgetBackLinkProps = {
 /**
  * Small back link used by drill-down widget bodies.
  *
- * @param props           - Component props.
- * @param props.label     - Visible parent-view label.
- * @param props.onClick   - Back navigation callback.
- * @param props.ariaLabel - Optional accessible label.
- * @param props.className - Optional additional class name.
  * @return The rendered back link.
  */
 export function WidgetBackLink( {
 	label,
 	onClick,
 	ariaLabel = label,
+	current,
 	className,
 }: WidgetBackLinkProps ) {
-	return (
+	const link = (
 		<Button
 			variant="unstyled"
 			onClick={ onClick }
 			aria-label={ ariaLabel }
-			className={ clsx( styles.backLink, className ) }
+			className={ clsx( styles.backLink, ! current && className ) }
 		>
 			<Icon icon={ chevronLeft } size={ 20 } className={ styles.icon } />
 			<span className={ styles.label }>{ label }</span>
 		</Button>
+	);
+
+	if ( ! current ) {
+		return link;
+	}
+
+	return (
+		<div className={ clsx( styles.trail, className ) }>
+			{ link }
+			<span className={ styles.separator } aria-hidden="true">
+				/
+			</span>
+			<span className={ styles.current }>{ current }</span>
+		</div>
 	);
 }

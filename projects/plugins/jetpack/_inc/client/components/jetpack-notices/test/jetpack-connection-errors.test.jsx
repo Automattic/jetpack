@@ -1,5 +1,11 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen } from 'test/test-utils';
 import JetpackConnectionErrors from '../jetpack-connection-errors';
+
+// The 'reconnect' action reaches a connected NoticeActionReconnect, which reads
+// the site reconnection request state.
+const initialState = {
+	jetpack: { connection: { requests: { reconnectingSite: false } } },
+};
 
 describe( 'JetpackConnectionErrors', () => {
 	it( 'should render error with URL action', () => {
@@ -67,6 +73,26 @@ describe( 'JetpackConnectionErrors', () => {
 		expect( screen.queryByText( 'Secondary Action' ) ).not.toBeInTheDocument();
 	} );
 
+	it( "should render an informational notice with no action for the 'none' action", () => {
+		const errors = [
+			{
+				code: 'no_valid_user_token',
+				message: 'The connection owner needs to reconnect their account.',
+				action: 'none',
+				data: {},
+			},
+		];
+
+		render( <JetpackConnectionErrors errors={ errors } />, { initialState } );
+
+		expect(
+			screen.getByText( 'The connection owner needs to reconnect their account.' )
+		).toBeInTheDocument();
+		// Matched by label, not by role: NoticeAction renders an <a> with no href, which
+		// has no implicit link role, so queryByRole( 'link' ) can never fail here.
+		expect( screen.queryByText( 'Restore Connection' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'should handle multiple errors correctly', () => {
 		const errors = [
 			{
@@ -85,10 +111,12 @@ describe( 'JetpackConnectionErrors', () => {
 			},
 		];
 
-		render( <JetpackConnectionErrors errors={ errors } /> );
+		render( <JetpackConnectionErrors errors={ errors } />, { initialState } );
 
 		expect( screen.getByText( 'First error' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Second error' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Fix Issue' ) ).toBeInTheDocument();
+		// Positive control for the 'none' case above: proves this query can see the CTA.
+		expect( screen.getByText( 'Restore Connection' ) ).toBeInTheDocument();
 	} );
 } );

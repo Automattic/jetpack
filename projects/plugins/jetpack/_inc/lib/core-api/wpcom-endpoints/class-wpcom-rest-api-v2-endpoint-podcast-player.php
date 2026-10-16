@@ -114,7 +114,8 @@ class WPCOM_REST_API_V2_Endpoint_Podcast_Player extends WP_REST_Controller {
 
 		$helper = new Jetpack_Podcast_Helper( $request['url'] );
 
-		$args = array();
+		// The editor needs the feed's true state, not a fallback papering over a broken URL.
+		$args = array( 'report_errors' => true );
 
 		if ( isset( $request['guids'] ) ) {
 			$args['guids'] = $request['guids'];

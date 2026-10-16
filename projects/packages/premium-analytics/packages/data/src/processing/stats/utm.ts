@@ -1,4 +1,5 @@
 import { safeParseFloat, safeParseInt } from '../../utils/parsing';
+import { decodeHtmlText } from '../../utils/text';
 import {
 	coerceStatsArray,
 	coerceStatsRecord,
@@ -46,8 +47,12 @@ function getUtmItemLabel( item: { label: unknown } ): string {
 	return getStatsLabel( item.label );
 }
 
-function getUtmTopPostKey( item: StatsUtmTopPostItem ): string {
-	return item.href ?? getUtmItemLabel( item );
+function getUtmItemKey( item: { label: unknown; paramValues?: string } ): string {
+	return item.paramValues ?? getUtmItemLabel( item );
+}
+
+function getUtmTopPostKey( item: StatsUtmTopPostItem ): number {
+	return item.id;
 }
 
 function parseUtmLabelParts( key: string ): string[] {
@@ -84,12 +89,12 @@ function normalizeUtmTopPost(
 		? [
 				{ type: 'link', data: href },
 				{ type: 'url-builder', data: { url: href, ...utmData } },
-		  ]
+			]
 		: [];
 
 	return {
 		id,
-		label: payload.title ?? '',
+		label: decodeHtmlText( payload.title ?? '' ),
 		value: safeParseFloat( payload.views ),
 		href,
 		page: id ? `/stats/post/${ id }` : null,
@@ -106,8 +111,8 @@ export function mergeStatsUtmComparisonRows(
 	return mergeStatsComparisonRows< StatsUtmItem, StatsUtmItem, StatsUtmComparisonItem >( {
 		primaryRows: limitStatsRows( getStatsReportItems( primaryReport ), maxRows ),
 		comparisonRows: getStatsReportItems( comparisonReport ),
-		getPrimaryKey: getUtmItemLabel,
-		getComparisonKey: getUtmItemLabel,
+		getPrimaryKey: getUtmItemKey,
+		getComparisonKey: getUtmItemKey,
 		getComparisonValue: item => item.value,
 		mapRow: ( item, { previousValue, comparisonItem } ) => {
 			const { rows: children, hasComparison: childrenHaveComparison } = mergeStatsComparisonRows<

@@ -154,7 +154,7 @@ export default function useFormItemActions(): UseFormItemActionsReturn {
 									/* translators: %d: number of forms */
 									_n( '%d form published.', '%d forms published.', updatedCount, 'jetpack-forms' ),
 									updatedCount
-							  )
+								)
 							: sprintf(
 									/* translators: %d: number of forms */
 									_n(
@@ -164,7 +164,7 @@ export default function useFormItemActions(): UseFormItemActionsReturn {
 										'jetpack-forms'
 									),
 									updatedCount
-							  );
+								);
 					const fallbackStatus = nextStatus === 'publish' ? 'draft' : 'publish';
 					createSuccessNotice( message, {
 						type: 'snackbar',
@@ -201,7 +201,7 @@ export default function useFormItemActions(): UseFormItemActionsReturn {
 														string,
 														unknown
 													>,
-											  ];
+												];
 										undoQueries.forEach( invalidateListQuery );
 									} finally {
 										isUpdatingStatusRef.current = false;
@@ -224,7 +224,7 @@ export default function useFormItemActions(): UseFormItemActionsReturn {
 										'jetpack-forms'
 									),
 									failedCount
-							  )
+								)
 							: sprintf(
 									/* translators: %d: number of forms */
 									_n(
@@ -234,7 +234,7 @@ export default function useFormItemActions(): UseFormItemActionsReturn {
 										'jetpack-forms'
 									),
 									failedCount
-							  );
+								);
 					createErrorNotice( errorMessage, {
 						type: 'snackbar',
 					} );
@@ -244,7 +244,7 @@ export default function useFormItemActions(): UseFormItemActionsReturn {
 					? options.invalidateQueries
 					: [
 							getFormsListQuery( 1, 20, '', NON_TRASH_FORM_STATUSES ) as Record< string, unknown >,
-					  ];
+						];
 				invalidateQueries.forEach( invalidateListQuery );
 			} finally {
 				isUpdatingStatusRef.current = false;

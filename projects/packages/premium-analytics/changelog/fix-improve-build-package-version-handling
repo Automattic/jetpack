@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Revert dummy dev-deps now that `jetpack build` is fixed.
-
-

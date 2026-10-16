@@ -2,7 +2,11 @@
 
 namespace Automattic\Jetpack_Boost\Tests;
 
+use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History;
 use Automattic\Jetpack_Boost\Jetpack_Boost;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
+use Automattic\Jetpack_Boost\Modules\Modules_Setup;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Lcp\LCP_State;
 use WorDBless\BaseTestCase;
 
 // Include the main plugin file to load all functions and classes
@@ -71,5 +75,44 @@ class Jetpack_Boost_Test extends BaseTestCase {
 		// Verify that the array remains unchanged
 		$this->assertIsArray( $updated_pages, 'The updated pages should be an array' );
 		$this->assertEquals( array_map( 'home_url', $initial_pages ), $updated_pages, 'The array should remain unchanged when no empty string is present' );
+	}
+
+	/**
+	 * Test that the lazy sync callables are invocable and read current state at invocation time.
+	 */
+	public function test_sync_callable_whitelist_closures_are_invocable() {
+		// Data_Settings only adds the filter hook once per process, but WorDBless
+		// resets hooks between tests, so start from a clean slate.
+		( new \Automattic\Jetpack\Sync\Data_Settings() )->empty_data_settings_and_hooks();
+		new Jetpack_Boost();
+
+		$whitelist = apply_filters( 'jetpack_sync_callable_whitelist', array() );
+
+		foreach ( array( 'boost_modules', 'boost_latest_scores', 'boost_latest_no_boost_scores', 'critical_css_state', 'lcp_state' ) as $key ) {
+			$this->assertArrayHasKey( $key, $whitelist );
+			$this->assertIsCallable( $whitelist[ $key ] );
+		}
+
+		// The module status callable returns the same data as direct access.
+		$this->assertEquals( ( new Modules_Setup() )->get_status(), call_user_func( $whitelist['boost_modules'] ) );
+
+		// History is read at invocation time: an entry pushed after registration is visible.
+		$this->assertNull( call_user_func( $whitelist['boost_latest_scores'] ) );
+		$entry = array(
+			'timestamp' => 1234567890,
+			'scores'    => array(
+				'mobile'  => 80,
+				'desktop' => 90,
+			),
+		);
+		( new Speed_Score_History( get_home_url() ) )->push( $entry );
+		$this->assertSame( $entry, call_user_func( $whitelist['boost_latest_scores'] ) );
+
+		// The no-boost variant reads its own, still empty, history bucket.
+		$this->assertNull( call_user_func( $whitelist['boost_latest_no_boost_scores'] ) );
+
+		// State callables return the same data as direct access.
+		$this->assertEquals( ( new Critical_CSS_State() )->get(), call_user_func( $whitelist['critical_css_state'] ) );
+		$this->assertEquals( ( new LCP_State() )->get(), call_user_func( $whitelist['lcp_state'] ) );
 	}
 }

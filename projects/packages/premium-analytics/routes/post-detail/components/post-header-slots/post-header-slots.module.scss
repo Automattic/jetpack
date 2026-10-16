@@ -1,0 +1,11 @@
+// The email tabs' envelope tile is brand-tinted per the design mocks: the
+// non-interactive brand surface behind the brand foreground. Fills the
+// header's visual box, replacing the neutral fill it supplies.
+.emailTile {
+	display: grid;
+	place-items: center;
+	inline-size: 100%;
+	block-size: 100%;
+	background: var(--wpds-color-background-surface-brand);
+	color: var(--wpds-color-foreground-interactive-brand);
+}

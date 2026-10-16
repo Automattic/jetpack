@@ -1,0 +1,9 @@
+.intro {
+	margin: 0;
+	color: var(--wpds-color-foreground-content-neutral);
+}
+
+// Replaces the field's helper copy, so it has to read as a problem.
+.hint {
+	color: var(--wpds-color-foreground-content-error);
+}

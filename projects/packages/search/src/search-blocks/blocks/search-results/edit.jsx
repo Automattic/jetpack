@@ -2,8 +2,8 @@
  * Editor preview for jetpack-search/search-results.
  *
  * Renders an InnerBlocks region pre-populated with the result-display stack
- * (count + sort row, results list, load-more). The results-list block owns
- * its empty-state and error-state messages internally. Container owns no
+ * (count + sort row, results list, no-results, load-more). The no-results block
+ * owns every empty state, the failed request included. Container owns no
  * behavior beyond the post-type-scope inspector setting — render.php is a
  * Group-like wrapper that emits `$content` and lets each inner block
  * contribute its own markup and Interactivity API directives.
@@ -31,6 +31,7 @@ const TEMPLATE = [
 		[ [ 'jetpack-search/results-count' ], [ 'jetpack-search/results-sort' ] ],
 	],
 	[ 'jetpack-search/results-list' ],
+	[ 'jetpack-search/no-results' ],
 	[ 'jetpack-search/results-load-more' ],
 	[ 'jetpack-search/powered-by' ],
 ];
@@ -40,6 +41,7 @@ const ALLOWED = [
 	'jetpack-search/results-count',
 	'jetpack-search/results-sort',
 	'jetpack-search/results-list',
+	'jetpack-search/no-results',
 	'jetpack-search/results-load-more',
 	'jetpack-search/powered-by',
 ];

@@ -35,7 +35,11 @@ export const Nudge = ( {
 					</strong>
 				) }
 				{ description && (
-					<span className={ `${ className }__description banner-description` }>
+					<span
+						className={ clsx( 'banner-description', {
+							[ `${ className }__description` ]: className,
+						} ) }
+					>
 						{ description }
 					</span>
 				) }
@@ -44,9 +48,8 @@ export const Nudge = ( {
 						href={ isRedirecting ? null : checkoutUrl } // Only for server-side rendering, since onClick doesn't work there.
 						onClick={ goToCheckoutPage }
 						target={ target }
-						className={ clsx( 'is-primary', {
-							'jetpack-upgrade-plan__hidden': ! checkoutUrl,
-						} ) }
+						variant="primary"
+						className={ clsx( { 'jetpack-upgrade-plan__hidden': ! checkoutUrl } ) }
 						isBusy={ isRedirecting }
 					>
 						<span>{ isRedirecting ? redirectingText : buttonText }</span>

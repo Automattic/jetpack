@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.1.0] - 2026-08-13
+### Added
+- Add the Activity Log page to wp-admin, so it is available without the Jetpack plugin installed. [#51222]
+- Search Blocks: Add a No Results block so empty states can contain links, images, buttons, and other blocks instead of plain text. Continue rendering existing Results List messages while deprecating their settings. [#51164]
+
 ## [7.0.1] - 2026-07-22
 ### Changed
 - Add a results-per-page setting to the Search Results block, falling back to the site's Reading setting when unset. [#50652]
@@ -327,6 +332,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [1.1.0-beta]: https://github.com/Automattic/jetpack-search-plugin/compare/1.0.0...1.1.0-beta
 [1.2.0-beta]: https://github.com/Automattic/jetpack-search-plugin/compare/1.1.0...1.2.0-beta
+[7.1.0]: https://github.com/Automattic/jetpack-search-plugin/compare/7.0.1...7.1.0
 [7.0.1]: https://github.com/Automattic/jetpack-search-plugin/compare/7.0.0...7.0.1
 [7.0.0]: https://github.com/Automattic/jetpack-search-plugin/compare/6.0.0...7.0.0
 [6.0.0]: https://github.com/Automattic/jetpack-search-plugin/compare/5.2.2...6.0.0

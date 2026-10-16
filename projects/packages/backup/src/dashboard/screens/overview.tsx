@@ -1,84 +1,404 @@
-import { useCallback, useMemo } from '@wordpress/element';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { calendar } from '@wordpress/icons';
 import { useNavigate, useSearch } from '@wordpress/route';
-import { Button, Stack, Text } from '@wordpress/ui';
+import { Button, Spinner, Stack, Text, VisuallyHidden } from '@wordpress/ui';
 import ActivityDetail from '../components/activity-detail';
-import ActivityList from '../components/activity-list';
+import ActivityList, { activityQueryArgs } from '../components/activity-list';
 import BackupDetail from '../components/backup-detail';
+import BackupNowButton from '../components/backup-now-button';
+import BackupStatusPanel, { replacesOverview } from '../components/backup-status';
+import BackupStatusBanner, {
+	BackupFailedRunBanner,
+	BackupTroubleBanner,
+	BackupWarningsBanner,
+} from '../components/backup-status/banner';
 import DashboardLayout from '../components/dashboard-layout';
-import { MOCK_ACTIVITY_LOG, findActivityById } from '../fixtures/activity-log';
+import NextScheduledBackup from '../components/next-scheduled-backup';
+import QueryError from '../components/query-error';
+import StorageSpace, { StorageNotice } from '../components/storage-space';
+import { isRestoreRowId } from '../data/normalize/restores';
+import {
+	ACTIVITY_LOG_DEFAULT_PER_PAGE,
+	ACTIVITY_LOG_NEWEST_FIRST,
+	useActivityById,
+	useDefaultBackupRewindId,
+	useHasRestorePoints,
+} from '../hooks/use-activity-log';
+import { useAnalytics } from '../hooks/use-analytics';
+import { failedAttemptReference, isUsableBackup, useBackups } from '../hooks/use-backups';
+import { useBackupRequested } from '../hooks/use-enqueue-backup';
+import { useRefreshActivityOnBackupComplete } from '../hooks/use-refresh-activity-on-backup-complete';
+import { useRevealDetail } from '../hooks/use-reveal-detail';
 import { isBackupItem } from '../types/activity';
-import type { ActivityItem } from '../types/activity';
+import type { ActivitySortOrder } from '../data/api/activity-log';
+import type { View } from '@wordpress/dataviews';
 
 type OverviewSearch = Record< string, unknown > & { selected?: string };
 
 /**
- * Returns the selection id of the newest backup row in the fixture, so the
- * Overview can preselect it on first load and keep the right pane populated.
- *
- * @param items - Activity items to scan.
- * @return The newest backup's rewindId, or null when none exists.
+ * The list's starting view state, exported so tests can pin what a reader sees first.
  */
-function findDefaultSelection( items: readonly ActivityItem[] ): string | null {
-	for ( const item of items ) {
-		if ( isBackupItem( item ) ) {
-			return item.rewindId;
-		}
-	}
-	return null;
+export const INITIAL_VIEW: View = {
+	type: 'list',
+	page: 1,
+	perPage: ACTIVITY_LOG_DEFAULT_PER_PAGE,
+	filters: [],
+	// Seeding `sort` is the fix for JETPACK-2298: left undefined, the cog's "Sort
+	// by" select shows its first option whatever the real order, and DataViews
+	// disables items-per-page until `view.sort.field` is set.
+	sort: { field: 'description', direction: ACTIVITY_LOG_NEWEST_FIRST },
+	titleField: 'title',
+	mediaField: 'icon',
+	descriptionField: 'description',
+	// In DataViews' list layout, the `titleField`, `mediaField` and
+	// `descriptionField` fields are rendered implicitly — anything else
+	// in `fields` would render a second time as a generic row. Leave
+	// `fields` empty so the title + media + description are the only
+	// things shown per row.
+	fields: [],
+};
+
+/**
+ * Whether this page load has already recorded its view.
+ *
+ * See the effect below for why this is module state rather than a ref.
+ */
+let hasRecordedPageView = false;
+
+/**
+ * Where the reader last was in the list, and which row they last chose.
+ *
+ * Module state for the same reason `hasRecordedPageView` is: a trip to Download or
+ * Restore unmounts this screen, and a gate verdict change unmounts its body — so
+ * anything held in the component is gone by the time the reader comes back.
+ */
+let lastView: View = INITIAL_VIEW;
+let lastSelectedId: string | null = null;
+
+/**
+ * Reset the page-view latch. Test-only.
+ *
+ * The latch is module state precisely so it outlives an unmount, which
+ * also means one test's render would otherwise silence every later one
+ * in the same file.
+ */
+export function resetPageViewForTesting(): void {
+	hasRecordedPageView = false;
+}
+
+/**
+ * Forget where the reader was. Test-only.
+ *
+ * Same hazard as the latch above: this state outlives an unmount, so one test's
+ * paging would otherwise seed every later one in the same file.
+ */
+export function resetListStateForTesting(): void {
+	lastView = INITIAL_VIEW;
+	lastSelectedId = null;
 }
 
 /**
  * Overview screen for the modernized Backup dashboard.
  *
- * Renders the shared `<DashboardLayout>` chrome around a two-pane body: the
- * left pane is the searchable activity list; the right pane resolves the
- * selected row to a detail card. Selection is persisted in the URL via
- * `?selected=<id>` so a refresh preserves it; on first visit the newest
- * backup is preselected so the right pane mirrors Calypso's behaviour.
+ * Records the page view and mounts `<DashboardLayout>` around a body that lives below
+ * `<Gates>` — the view is recorded above the gate, so a plan-less visit still counts.
  *
  * @return The rendered Overview screen.
  */
 export default function OverviewScreen() {
+	// Called before any other hook here so its initialization effect runs
+	// before the page-view effect below: React runs a component's effects
+	// in the order the hooks were called, and an event recorded before
+	// `initialize()` carries no identity.
+	const { tracks } = useAnalytics();
+	// Overview only, deliberately. All three routes declare
+	// `"page": "jetpack-backup-dashboard"` in their `package.json`, so
+	// this is one admin page whose Download and Restore views are
+	// client-side transitions through `@wordpress/route` — the same shape
+	// as legacy, which records one view per visit. Recording from all
+	// three routes would report three views for one reader moving between
+	// them, a step change at flag-flip that reads as growth and is not.
+	// Landing straight on Download or Restore therefore goes uncounted,
+	// which is the accepted cost of keeping the metric comparable.
+	useEffect( () => {
+		// The latch is module scope, not a ref. A client-side transition
+		// to Download and back unmounts and remounts this screen, and a
+		// per-instance guard resets with it — so a ref would record a
+		// second view for the same visit, which is the over-counting this
+		// whole decision exists to avoid. Module scope also subsumes the
+		// StrictMode double-invocation a ref was reaching for.
+		if ( hasRecordedPageView ) {
+			return;
+		}
+
+		hasRecordedPageView = true;
+		tracks.recordEvent( 'jetpack_backup_admin_page_view' );
+	}, [ tracks ] );
+
+	return (
+		<DashboardLayout actions={ <BackupNowButton /> }>
+			<OverviewBody />
+		</DashboardLayout>
+	);
+}
+
+/**
+ * The Overview's body: a paginated activity list beside a detail pane for the row
+ * selected by `?selected=<id>`, defaulting to the newest backup.
+ *
+ * Mounted by `<Gates>`, not rendered above it: React runs a component's hooks before its
+ * children, so reads moved up into the screen would fetch — and poll — behind the upsell.
+ *
+ * @return The rendered body.
+ */
+function OverviewBody() {
 	const search = useSearch( {
 		from: '/' as unknown as never,
 		strict: false,
 	} ) as OverviewSearch;
 	const navigate = useNavigate();
-	const defaultSelectedId = useMemo( () => findDefaultSelection( MOCK_ACTIVITY_LOG ), [] );
-	const selectedId = typeof search.selected === 'string' ? search.selected : defaultSelectedId;
+	// View state lives here so RightPane's `useActivityById` can
+	// subscribe to the same paginated query the list reads from.
+	const [ view, setView ] = useState< View >( lastView );
+	// Written on the way through, because the return trip has nothing to read it from:
+	// the back links on Download and Restore carry no search.
+	const rememberView = useCallback( ( next: View ) => {
+		lastView = next;
+		setView( next );
+	}, [] );
+	// Same derivation `<ActivityList>` uses, so the right pane reads the cache
+	// entry the list filled rather than opening its own.
+	const { page, pageSize, sortOrder } = activityQueryArgs( view );
+	// Subscribe to page 1 of the activity log so the right pane
+	// reconciles to the newest backup the moment that page resolves.
+	// Until then, `defaultSelectedId` is null and the empty-state
+	// placeholder renders. Page 1 dedupes with the list's first
+	// fetch when the list is on page 1 with the default per-page.
+	const defaultSelectedId = useDefaultBackupRewindId();
+	const urlSelectedId = typeof search.selected === 'string' ? search.selected : null;
+	// The remembered row stands in for a missing one only on mount, which is the return trip
+	// from Download or Restore. Back to the entry that had none means the newest backup again.
+	const [ returnTripId, setReturnTripId ] = useState( () =>
+		urlSelectedId ? null : lastSelectedId
+	);
+	const selectedId = urlSelectedId ?? returnTripId ?? defaultSelectedId;
+	// Only an explicit choice is remembered: `defaultSelectedId` moves as new backups
+	// land, and pinning the row it happened to name would outlive its own reason.
+	useEffect( () => {
+		lastSelectedId = urlSelectedId ?? returnTripId;
+	}, [ urlSelectedId, returnTripId ] );
+	// Puts the remembered row in the address, so `clearSelected` below always has a real
+	// change to make: without one, TanStack treats its navigate as a no-op and pushes no
+	// history entry, leaving Back with nowhere on the Overview to land. `replace`: this is
+	// not its own stop.
+	useEffect( () => {
+		if ( urlSelectedId ) {
+			setReturnTripId( null );
+			return;
+		}
+		if ( returnTripId ) {
+			navigate( {
+				search: ( previous: OverviewSearch ) => ( { ...previous, selected: returnTripId } ),
+				replace: true,
+			} as Parameters< typeof navigate >[ 0 ] );
+		}
+	}, [ urlSelectedId, returnTripId, navigate ] );
+	// `/site/rewindable-activity` only lists completed restore points, so
+	// on its own it cannot tell "no backups yet" from "the first one is
+	// running" from "they're all failing". This second query answers that.
+	const {
+		state: backupsState,
+		backups,
+		progress,
+		isInitialBackup,
+		hasWarnings,
+		error: backupsError,
+		isRefetching: backupsRefetching,
+		refetch: refetchBackups,
+	} = useBackups();
+	const isBackupRequested = useBackupRequested();
+	// Owned here, and only here. `BackupNowButton` reads the same query
+	// through its own `useBackups`, so this screen has two observers of
+	// the state below — but the refresh must fire once per finished
+	// backup, not once per observer. See the hook's docblock.
+	const { finishedRuns, failedRun } = useRefreshActivityOnBackupComplete(
+		backupsState,
+		isBackupRequested,
+		backups.find( isUsableBackup )?.id ?? null,
+		backups[ 0 ] ?? null
+	);
+	// A second opinion on whether anything is restorable, from the
+	// paginated activity log rather than the short `/backups` window.
+	// While it is still unknown, assume there *are* restore points:
+	// briefly showing the two-pane view is a milder error than briefly
+	// telling an established customer they have no backups.
+	//
+	// A failed request is "still unknown" too, and so is one React Query
+	// parked because the browser is offline — that is what `isError` and
+	// `isPaused` are for: neither loads nor has rows, so without them the veto lifts
+	// on a question nobody managed to ask: the first-run panel takes the
+	// body over and takes the activity log's own error report down with
+	// it, and a 5xx reads as "your first backup is on its way".
+	const {
+		hasRestorePoints,
+		isLoading: restorePointsLoading,
+		isError: restorePointsError,
+		isPaused: restorePointsPaused,
+	} = useHasRestorePoints();
 
+	const overviewRef = useRef< HTMLDivElement >( null );
+	const revealDetail = useRevealDetail( overviewRef, selectedId );
+	const storageRef = useRef< HTMLElement >( null );
+
+	// The updater form, like `clearSelected` below: an object literal replaces the
+	// search wholesale, so every future param would depend on this closure being fresh.
 	const setSelected = useCallback(
 		( id: string ) => {
-			// Merge into existing search so future params (filters, range, etc.) aren't dropped.
+			revealDetail( id );
 			navigate( {
-				search: { ...search, selected: id },
-			} as unknown as Parameters< typeof navigate >[ 0 ] );
+				search: ( previous: OverviewSearch ) => ( { ...previous, selected: id } ),
+			} as Parameters< typeof navigate >[ 0 ] );
 		},
-		[ navigate, search ]
+		[ navigate, revealDetail ]
 	);
 
+	// The stale id lives in the URL, so the dead end survives a reload without this.
+	// A new history entry, not a replacement: the selection may be fine, so Back must restore it.
+	const clearSelected = useCallback( () => {
+		overviewRef.current?.focus();
+		navigate( {
+			search: ( previous: OverviewSearch ) => {
+				const next = { ...previous };
+				delete next.selected;
+				return next;
+			},
+			// A single assertion, not `as unknown as`: the updater form stays
+			// comparable, so a typo in the key is still a build error.
+		} as Parameters< typeof navigate >[ 0 ] );
+	}, [ navigate ] );
+
+	if (
+		replacesOverview(
+			backupsState,
+			isInitialBackup,
+			restorePointsLoading || restorePointsError || restorePointsPaused || hasRestorePoints
+		)
+	) {
+		return (
+			<BackupStatusPanel
+				state={ backupsState }
+				progress={ progress }
+				isStarting={ isBackupRequested && backupsState !== 'in-progress' }
+				reference={ failedAttemptReference( backups ) }
+			/>
+		);
+	}
+
 	return (
-		<DashboardLayout
-			actions={
-				<Stack direction="row" gap="sm">
-					<Button variant="outline" tone="neutral">
-						<Button.Icon icon={ calendar } />
-						{ /* Placeholder copy for the upcoming date-range filter — not translated until the real UI lands. */ }
-						Apr 16, 2026 to May 15, 2026
-					</Button>
-					<Button variant="outline" tone="neutral">
-						{ __( 'Back up now', 'jetpack-backup-pkg' ) }
-					</Button>
-				</Stack>
-			}
-		>
-			<div className="jpb-overview">
-				<ActivityList selectedId={ selectedId } onSelect={ setSelected } />
-				<RightPane selectedId={ selectedId } />
+		<>
+			<StorageNotice returnFocusTo={ storageRef } />
+			{ /*
+			 * A backup running on a site that already has restore points is
+			 * reported alongside the list rather than in place of it. The
+			 * banner is a sibling of `.jpb-overview` — not a child — because
+			 * that element is a two-column grid above 960px, and a third
+			 * child would be auto-placed into it.
+			 */ }
+			{ ( backupsState === 'in-progress' || isBackupRequested ) && (
+				<BackupStatusBanner progress={ backupsState === 'in-progress' ? progress : undefined } />
+			) }
+			{ /*
+			 * The backup-state read failed. Reported here rather than as a
+			 * takeover for the same reason as the banner: whatever the
+			 * activity log managed to load is still worth showing, and this
+			 * failure says nothing about it.
+			 *
+			 * `error` can be null on this path and that is not a bug. The
+			 * route answers a WPCOM reply it cannot decode with a bare
+			 * `null` body, which WordPress serves as HTTP 200 — so the
+			 * request resolves, React Query records a success, and the only
+			 * signal left is the derived state. That is also why the retry button
+			 * matters more here than elsewhere: nothing else will ask again.
+			 * The poll stops deliberately on an unreadable response rather
+			 * than hammering a failing upstream.
+			 */ }
+			{ backupsState === 'error' && (
+				<QueryError
+					className="jpb-query-error--standalone"
+					title={ __( "We couldn't check your site's backup status.", 'jetpack-backup-pkg' ) }
+					error={ backupsError }
+					onRetry={ refetchBackups }
+					isRetrying={ backupsRefetching }
+					returnFocusTo={ overviewRef }
+				/>
+			) }
+			{ /*
+			 * The takeover panel has stood down but the site's backups are
+			 * still failing, so the report moves here rather than vanishing
+			 * with it. See `BackupTroubleBanner` for why those were two jobs
+			 * in one predicate.
+			 *
+			 * Held back while the activity log is still loading. Both
+			 * queries start together and `/jetpack/v4/backups` is one round
+			 * trip against the activity log's paginated one, so it normally
+			 * wins — and during that window the veto is still up, which puts
+			 * us here. On a site that turns out to have no restore points
+			 * the veto then lifts and the takeover panel replaces the body,
+			 * saying the same thing the banner just said. Waiting costs
+			 * nothing and avoids announcing the most alarming state in the
+			 * dashboard twice in two different shapes. `isError` is not
+			 * loading, so the terminal case still reports immediately.
+			 */ }
+			{ ! restorePointsLoading && (
+				<BackupTroubleBanner
+					state={ backupsState }
+					reference={ failedAttemptReference( backups ) }
+				/>
+			) }
+			{ backupsState === 'complete' && hasWarnings && <BackupWarningsBanner /> }
+			{ backupsState === 'complete' && failedRun && (
+				<BackupFailedRunBanner willRetry={ failedRun === 'will-retry' } />
+			) }
+			{ /*
+			 * The storage row, with the next scheduled backup at its end. The gate stops an
+			 * errored or loading backups read promising a next run under "We couldn't check
+			 * your site's backup status."
+			 */ }
+			<StorageSpace
+				ref={ storageRef }
+				trailing={
+					( backupsState === 'complete' || backupsState === 'in-progress' ) && (
+						<NextScheduledBackup />
+					)
+				}
+			/>
+			{ /*
+			 * Where focus goes once the empty state or the backup-status error unmounts,
+			 * so the next Tab reaches the list rather than the top of the page.
+			 */ }
+			<div
+				className="jpb-overview"
+				ref={ overviewRef }
+				tabIndex={ -1 }
+				role="group"
+				aria-label={ __( 'Backup activity', 'jetpack-backup-pkg' ) }
+			>
+				<ActivityList
+					selectedId={ selectedId }
+					onSelect={ setSelected }
+					view={ view }
+					onChangeView={ rememberView }
+					finishedRuns={ finishedRuns }
+				/>
+				<RightPane
+					selectedId={ selectedId }
+					page={ page }
+					pageSize={ pageSize }
+					sortOrder={ sortOrder }
+					onClearSelected={ clearSelected }
+				/>
 			</div>
-		</DashboardLayout>
+		</>
 	);
 }
 
@@ -87,31 +407,105 @@ export default function OverviewScreen() {
  *
  * Resolves the URL-driven `selectedId` to an activity item and renders the
  * matching detail card: `<BackupDetail>` for backup rows and `<ActivityDetail>`
- * for everything else. Falls back to an empty/not-found state when the
- * selection is missing or doesn't resolve.
+ * for everything else. A selection that resolves to nothing is reported three
+ * ways — the log failed, the log has not answered yet, or nothing loaded holds
+ * the row — and only the last of those offers to drop the selection.
  *
- * @param props            - Component props.
- * @param props.selectedId - Currently selected row id, or null when nothing is selected.
+ * @param props                 - Component props.
+ * @param props.selectedId      - Currently selected row id, or null when nothing is selected.
+ * @param props.page            - The page currently shown in the list.
+ * @param props.pageSize        - The per-page setting currently shown in the list.
+ * @param props.sortOrder       - The sort direction currently shown in the list.
+ * @param props.onClearSelected - Drops `?selected=` from the URL.
  * @return The rendered detail card or an empty-state placeholder.
  */
-function RightPane( { selectedId }: { selectedId: string | null } ) {
+function RightPane( {
+	selectedId,
+	page,
+	pageSize,
+	sortOrder,
+	onClearSelected,
+}: {
+	selectedId: string | null;
+	page: number;
+	pageSize: number;
+	sortOrder: ActivitySortOrder;
+	onClearSelected: () => void;
+} ) {
+	// All four must match the list's arguments — this reads its cache entry.
+	const { item, hasAnswered, error, isFetching } = useActivityById(
+		selectedId,
+		page,
+		pageSize,
+		sortOrder
+	);
+	// Paused (offline) or disabled queries never answer, and the list cannot load either.
+	if ( ! selectedId && ! error && ! hasAnswered && ! isFetching ) {
+		return null;
+	}
+	if ( ! item && ! error && ! hasAnswered ) {
+		return (
+			<div className="jpb-overview__detail jpb-overview__detail--empty">
+				{ /* `Spinner` is `role="presentation"` with no text, so on its own this branch is silent. */ }
+				<Spinner />
+				<VisuallyHidden>{ __( 'Loading item details…', 'jetpack-backup-pkg' ) }</VisuallyHidden>
+			</div>
+		);
+	}
 	if ( ! selectedId ) {
+		// The list beside this pane already reports a failed log.
+		if ( error ) {
+			return null;
+		}
 		return (
 			<div className="jpb-overview__detail jpb-overview__detail--empty">
 				<Text>{ __( 'Select an item from the list to see details.', 'jetpack-backup-pkg' ) }</Text>
 			</div>
 		);
 	}
-	const item = findActivityById( selectedId );
+	if ( ! item && error ) {
+		return (
+			<div className="jpb-overview__detail jpb-overview__detail--empty">
+				{ /*
+				 * Neither the upstream reason nor a retry: the list beside this pane
+				 * reports the activity feed's failure with both, and a second copy of
+				 * each is two error notices and two buttons for one thing to fix.
+				 * Silent too: spoken beside the list's notice, it would only repeat the failure.
+				 */ }
+				<QueryError title={ __( "We couldn't load this item.", 'jetpack-backup-pkg' ) } silent />
+			</div>
+		);
+	}
 	if ( ! item ) {
 		return (
 			<div className="jpb-overview__detail jpb-overview__detail--empty">
-				<Text>{ __( 'Item not found.', 'jetpack-backup-pkg' ) }</Text>
+				<Stack direction="column" gap="sm" align="center">
+					<Text>
+						{ isRestoreRowId( selectedId )
+							? // The collection is the last ten restores and has no pages,
+								// so there is nowhere else to send the reader.
+								__(
+									"That restore isn't among this site's most recent ones any more.",
+									'jetpack-backup-pkg'
+								)
+							: // Only loaded pages were searched, so "gone" is not ours to claim.
+								__(
+									"That item isn't on this page of the activity log. It may be on another page, or no longer available.",
+									'jetpack-backup-pkg'
+								) }
+					</Text>
+					<Button variant="outline" onClick={ onClearSelected }>
+						{ __( 'Clear selection', 'jetpack-backup-pkg' ) }
+					</Button>
+				</Stack>
 			</div>
 		);
 	}
 	if ( isBackupItem( item ) ) {
-		return <BackupDetail item={ item } />;
+		// Keyed by rewindId so switching backups remounts the detail pane —
+		// `BackupDetail` and `FileBrowser` hold selection/open-file state that
+		// otherwise survives a prop change and leaks into the next backup.
+		return <BackupDetail key={ item.rewindId } item={ item } />;
 	}
 	return <ActivityDetail item={ item } />;
 }

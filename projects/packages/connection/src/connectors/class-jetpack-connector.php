@@ -11,6 +11,7 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status;
@@ -36,6 +37,15 @@ class Jetpack_Connector {
 	 * @var string
 	 */
 	const MODULE_ID = '@automattic/jetpack-connection-connectors';
+
+	/**
+	 * Path of the card's built script module relative to this file, without the extension.
+	 *
+	 * @since 9.11.0
+	 *
+	 * @var string
+	 */
+	const MODULE_FILE = '../../dist/connectors/connectors-card';
 
 	/**
 	 * Screen ID assigned by WordPress to the Gutenberg plugin's connectors submenu page.
@@ -76,8 +86,7 @@ class Jetpack_Connector {
 	 * @param \WP_Connector_Registry $registry Connector registry instance.
 	 */
 	public static function register_connector( $registry ) {
-		// @phan-suppress-previous-line PhanUndeclaredTypeParameter -- WP 7.0+ class.
-		$registry->register( // @phan-suppress-current-line PhanUndeclaredClassMethod -- WP 7.0+ class.
+		$registry->register(
 			'wordpress_com',
 			array(
 				'name'           => 'Jetpack Connection',
@@ -94,7 +103,10 @@ class Jetpack_Connector {
 	/**
 	 * Enqueue the connectors card script module on the Settings > Connectors page.
 	 *
+	 * Skips the card when its built files are missing.
+	 *
 	 * @since 8.2.0
+	 * @since 9.11.0 Loads the webpack build from dist/, with its dependencies and version from the asset file.
 	 */
 	public static function enqueue_script_module() {
 		$screen = get_current_screen();
@@ -107,6 +119,12 @@ class Jetpack_Connector {
 			return;
 		}
 
+		// The built files are missing in a checkout that hasn't run the build, or mid-deploy.
+		$asset = static::get_module_asset( __DIR__ . '/' . static::MODULE_FILE );
+		if ( null === $asset ) {
+			return;
+		}
+
 		$css_path = __DIR__ . '/css/connectors-card.css';
 		wp_enqueue_style(
 			'jetpack-connector-card',
@@ -115,24 +133,53 @@ class Jetpack_Connector {
 			(string) @filemtime( $css_path ) // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- fallback to empty string if file is missing.
 		);
 
-		$js_path = __DIR__ . '/js/connectors-card.js';
 		wp_register_script_module(
 			static::MODULE_ID,
-			plugins_url( 'js/connectors-card.js', __FILE__ ),
-			array(
-				array(
-					'id'     => '@wordpress/connectors',
-					'import' => 'static',
-				),
-			),
-			(string) @filemtime( $js_path ) // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- fallback to empty string if file is missing.
+			// Resolve the '..' so core finds translations under the file's real path, as Assets::register_script() does.
+			Assets::normalize_path( plugins_url( static::MODULE_FILE . '.js', __FILE__ ) ),
+			$asset['module_dependencies'] ?? array(),
+			$asset['version'] ?? false
 		);
+		// WP 7.0+; the Gutenberg plugin's Connectors screen can run on older cores.
+		if ( function_exists( 'wp_set_script_module_translations' ) ) {
+			wp_set_script_module_translations( static::MODULE_ID, 'jetpack-connection' );
+		}
 		wp_enqueue_script_module( static::MODULE_ID );
+
+		// A script module can't depend on classic scripts, so the card's globals are enqueued beside it.
+		// Assets::enqueue_script also loads the stylesheet registered with the handle.
+		foreach ( $asset['dependencies'] ?? array() as $handle ) {
+			Assets::enqueue_script( $handle );
+		}
+
+		// The card reads these dialogs from window.JetpackConnection, so the asset file does not list the script.
+		if ( static::should_enqueue_protected_owner_dialogs( new Manager() ) ) {
+			Assets::enqueue_script( 'jetpack-connection' );
+		}
 
 		add_filter(
 			'script_module_data_' . static::MODULE_ID,
 			array( static::class, 'get_connector_data' )
 		);
+	}
+
+	/**
+	 * Read the asset file the build emits beside the card's script module.
+	 *
+	 * @since 9.11.0
+	 *
+	 * @param string $module_path Path of the built module, without the extension.
+	 * @return array|null Asset data, or null if the module or its asset file is missing, or the asset is invalid.
+	 */
+	private static function get_module_asset( $module_path ) {
+		$asset_path = $module_path . '.asset.php';
+		if ( ! file_exists( $module_path . '.js' ) || ! file_exists( $asset_path ) ) {
+			return null;
+		}
+
+		$asset = require $asset_path;
+
+		return is_array( $asset ) ? $asset : null;
 	}
 
 	/**
@@ -176,8 +223,14 @@ class Jetpack_Connector {
 		}
 
 		if ( $is_connected ) {
-			$data['currentUser']     = static::get_current_user_data( $manager );
-			$data['connectionOwner'] = static::get_connection_owner_data( $manager );
+			$data['currentUser']       = static::get_current_user_data( $manager );
+			$data['connectionOwner']   = static::get_connection_owner_data( $manager );
+			$data['connectedUsersUrl'] = Users_Connection_Admin::get_connected_view_url();
+		}
+
+		$protected_owner = static::get_protected_owner_card_state( $manager );
+		if ( null !== $protected_owner ) {
+			$data['protectedOwner'] = $protected_owner;
 		}
 
 		$host              = new Host();
@@ -229,6 +282,75 @@ class Jetpack_Connector {
 	}
 
 	/**
+	 * Protected-owner state for the connector card.
+	 *
+	 * Omitted when nothing requests a protected owner and no anchor is stored,
+	 * so the card keeps its current account sections. The status is
+	 * Manager::resolve_protected_owner_state(), which the card switches on.
+	 *
+	 * `viewerIsConfirmedOwner` is that method's `is_current_user_the_po`. It tells the recovery
+	 * copy apart: an owner whose own token broke is asked to reconnect, not to connect.
+	 *
+	 * @since 9.9.0
+	 *
+	 * @param Manager $manager Connection manager instance.
+	 * @return array{status: string, viewerIsConfirmedOwner: bool}|null
+	 */
+	private static function get_protected_owner_card_state( $manager ) {
+		$requires = $manager->requires_protected_owner();
+		$anchor   = Protected_Owner::get_locked();
+
+		if ( ! $requires && ! $anchor ) {
+			return null;
+		}
+
+		$state = $manager->resolve_protected_owner_state();
+
+		// No anchor and this viewer cannot confirm: leave the card as it is.
+		if ( ! $anchor && Manager::PO_STATE_NOT_ELIGIBLE === $state['status'] ) {
+			return null;
+		}
+
+		return array(
+			'status'                 => $state['status'],
+			'viewerIsConfirmedOwner' => $state['is_current_user_the_po'],
+		);
+	}
+
+	/**
+	 * Whether the card can open one of the shared protected-owner dialogs.
+	 *
+	 * Confirming is only reachable for a connected administrator, on a site that has asked for a
+	 * protected owner and does not have one yet. Releasing is only reachable for the confirmed
+	 * owner, and deliberately does not depend on a consumer still asking: a site has to be able
+	 * to give up a lock after the plugin that wanted it is gone.
+	 *
+	 * Both read the one state call rather than asking again, so neither adds a WordPress.com
+	 * round trip to a screen load.
+	 *
+	 * The card always uses the package dialogs. `jetpack_connection_protected_owner_default_ui`
+	 * is for a consumer's own surface, not this one.
+	 *
+	 * @since 9.9.0
+	 *
+	 * @param Manager $manager Connection manager instance.
+	 * @return bool
+	 */
+	private static function should_enqueue_protected_owner_dialogs( $manager ) {
+		$state = $manager->resolve_protected_owner_state();
+
+		if ( $manager->requires_protected_owner() && Manager::PO_STATE_CAN_ESTABLISH === $state['status'] ) {
+			return true;
+		}
+
+		// `RE_EVALUATE` is the anchored state where the connection owner matches the anchor, so
+		// pinning the viewer to that owner is the same gate the release endpoint applies — a
+		// matching binding alone would offer a dialog the endpoint then refuses.
+		return Manager::PO_STATE_RE_EVALUATE === $state['status']
+			&& get_current_user_id() === (int) $manager->get_connection_owner_id();
+	}
+
+	/**
 	 * Get the current (logged-in) user's connection details.
 	 *
 	 * @param Manager $manager Connection manager instance.
@@ -263,6 +385,9 @@ class Jetpack_Connector {
 	/**
 	 * Get the connection owner details for the script module.
 	 *
+	 * Local fields only: another administrator is named as this site knows them, and resolving
+	 * their WordPress.com identity would cost a signed request on every Connectors screen load.
+	 *
 	 * @param Manager $manager Connection manager instance.
 	 * @return array|null Owner data or null if unavailable.
 	 */
@@ -273,7 +398,7 @@ class Jetpack_Connector {
 			return null;
 		}
 
-		$fields = static::resolve_user_fields( $owner, $manager->get_connected_user_data( $owner->ID ) );
+		$fields = static::resolve_user_fields( $owner, false );
 
 		$fields['localLogin'] = $owner->user_login;
 
@@ -283,8 +408,8 @@ class Jetpack_Connector {
 	/**
 	 * Merge local WP user fields with WordPress.com user data.
 	 *
-	 * WPCOM values take precedence when available. Returns the common
-	 * user shape used by both currentUser and connectionOwner.
+	 * WPCOM values take precedence when the caller passes them. Returns the common user shape
+	 * used by both currentUser and connectionOwner; only currentUser resolves against WPCOM.
 	 *
 	 * @param \WP_User|false $wp_user        Local WordPress user object (false if unavailable).
 	 * @param array|false    $wpcom_user_data WPCOM user data from the connection manager.

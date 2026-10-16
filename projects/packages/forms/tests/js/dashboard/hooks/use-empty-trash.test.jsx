@@ -42,6 +42,8 @@ await jest.unstable_mockModule( '../../../../src/dashboard/hooks/use-inbox-data'
 await jest.unstable_mockModule( '@wordpress/data', () => {
 	const mockDispatch = {
 		createSuccessNotice: jest.fn(),
+		createInfoNotice: jest.fn(),
+		removeNotice: jest.fn(),
 		createErrorNotice: jest.fn(),
 		invalidateResolutionForStoreSelector: jest.fn(),
 		invalidateCounts: jest.fn(),
@@ -52,6 +54,8 @@ await jest.unstable_mockModule( '@wordpress/data', () => {
 			if ( store === 'notices' ) {
 				return {
 					createSuccessNotice: mockDispatch.createSuccessNotice,
+					createInfoNotice: mockDispatch.createInfoNotice,
+					removeNotice: mockDispatch.removeNotice,
 					createErrorNotice: mockDispatch.createErrorNotice,
 				};
 			}
@@ -142,6 +146,7 @@ describe( 'useEmptyTrash', () => {
 			expect( apiFetchModule.default ).toHaveBeenCalledWith( {
 				method: 'DELETE',
 				path: '/wp/v2/feedback/trash',
+				data: { status: 'trash', limit: 500 },
 			} );
 		} );
 
@@ -162,6 +167,46 @@ describe( 'useEmptyTrash', () => {
 				'getEntityRecords'
 			);
 			expect( dashboardDispatch.invalidateCounts ).toHaveBeenCalled();
+		} );
+	} );
+
+	it( 'uses the singular success message when a single response is deleted', async () => {
+		const apiFetchModule = await import( '@wordpress/api-fetch' );
+		apiFetchModule.default.mockImplementationOnce( () => Promise.resolve( { deleted: 1 } ) );
+		const { useDispatch } = await import( '@wordpress/data' );
+
+		const { result } = renderHook( () => useEmptyTrash() );
+
+		await act( async () => {
+			await result.current.onConfirmEmptying();
+		} );
+
+		const mockDispatch = useDispatch( 'notices' );
+		await waitFor( () => {
+			expect( mockDispatch.createSuccessNotice ).toHaveBeenCalledWith(
+				'Response deleted permanently.',
+				{ type: 'snackbar', id: 'empty-trash' }
+			);
+		} );
+	} );
+
+	it( 'shows an error notice when the API call fails', async () => {
+		const apiFetchModule = await import( '@wordpress/api-fetch' );
+		apiFetchModule.default.mockImplementationOnce( () => Promise.reject( new Error( 'boom' ) ) );
+		const { useDispatch } = await import( '@wordpress/data' );
+
+		const { result } = renderHook( () => useEmptyTrash() );
+
+		await act( async () => {
+			await result.current.onConfirmEmptying();
+		} );
+
+		const mockDispatch = useDispatch( 'notices' );
+		await waitFor( () => {
+			expect( mockDispatch.createErrorNotice ).toHaveBeenCalledWith( 'Could not empty trash.', {
+				type: 'snackbar',
+				id: 'empty-trash-error',
+			} );
 		} );
 	} );
 

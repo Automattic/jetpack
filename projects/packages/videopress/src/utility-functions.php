@@ -675,12 +675,16 @@ function videopress_get_post_id_by_guid( $guid ) {
 	}
 
 	$args = array(
-		'post_type'      => 'attachment',
-		'post_mime_type' => 'video/videopress',
-		'post_status'    => 'inherit',
-		'no_found_rows'  => true,
-		'fields'         => 'ids',
-		'meta_query'     => array(
+		'post_type'              => 'attachment',
+		'post_mime_type'         => 'video/videopress',
+		'post_status'            => 'inherit',
+		'no_found_rows'          => true,
+		'fields'                 => 'ids',
+		// A GUID identifies the same attachment regardless of the current language.
+		'suppress_filters'       => true,
+		// Prevent WPML Media Translation from re-enabling attachment query filters.
+		'force_suppress_filters' => true,
+		'meta_query'             => array(
 			array(
 				'key'     => 'videopress_guid',
 				'value'   => $guid,

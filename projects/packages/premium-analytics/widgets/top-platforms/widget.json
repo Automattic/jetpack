@@ -1,6 +1,7 @@
 {
 	"name": "jpa/top-platforms",
-	"title": "Top Platforms",
+	"icon": "jpa/desktop",
+	"title": "Top platforms",
 	"description": "Top browsers and operating systems your visitors use.",
 	"help": {
 		"content": "A breakdown of the operating systems and browsers your visitors used, sorted by views.",

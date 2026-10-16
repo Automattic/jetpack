@@ -49,6 +49,8 @@
 
 		.jp-forms__image-select-preview-label {
 			flex-grow: 1;
+			// Lets the label shrink below its text, so the ellipsis can show.
+			min-width: 0;
 			overflow: hidden;
 			text-overflow: ellipsis;
 			white-space: nowrap;

@@ -5,7 +5,19 @@ import type { StatsCommentsResponse } from '@jetpack-premium-analytics/data';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	useStatsArchives: jest.fn(),
+	useStatsClicks: jest.fn(),
+	useStatsCommentFollowersAllPages: jest.fn(),
 	useStatsComments: jest.fn(),
+	useStatsFileDownloads: jest.fn(),
+	useStatsLocations: jest.fn(),
+	useStatsReferrers: jest.fn(),
+	useStatsSearchTerms: jest.fn(),
+	useStatsTags: jest.fn(),
+	useStatsTopAuthors: jest.fn(),
+	useStatsTopPosts: jest.fn(),
+	useStatsUtm: jest.fn(),
+	useStatsVideoPlays: jest.fn(),
 } ) );
 
 const mockUseStatsComments = useStatsComments as jest.MockedFunction< typeof useStatsComments >;
@@ -38,6 +50,35 @@ const report: StatsCommentsResponse = {
 	],
 };
 
+/**
+ * Build a one-post report carrying the given link.
+ *
+ * @param link      - The post link the API returns.
+ * @param overrides - Fields to override on the post item.
+ * @return The report response.
+ */
+function withPostLink(
+	link: string,
+	overrides: Record< string, unknown > = {}
+): StatsCommentsResponse {
+	const group = report.data[ 0 ].items[ 0 ] as { children: unknown[] };
+
+	return {
+		...report,
+		data: [
+			{
+				...report.data[ 0 ],
+				items: [
+					{
+						...( report.data[ 0 ].items[ 0 ] as object ),
+						children: [ { ...( group.children[ 0 ] as object ), link, ...overrides } ],
+					},
+				],
+			},
+		],
+	} as StatsCommentsResponse;
+}
+
 describe( 'useCommentsReportRecords', () => {
 	beforeEach( () => {
 		mockUseStatsComments.mockReturnValue( {
@@ -63,6 +104,22 @@ describe( 'useCommentsReportRecords', () => {
 				link: 'https://example.com/hello-world/',
 				postId: '42',
 			} ),
+		] );
+	} );
+
+	// A post with no id keys its row on the raw link, so the guard must not disturb identity.
+	it( 'keeps the raw link as the row id when the post has no id', () => {
+		mockUseStatsComments.mockReturnValue( {
+			data: withPostLink( 'javascript:alert(1)', { id: null } ),
+			isLoading: false,
+			isError: false,
+			refetch: jest.fn(),
+		} as unknown as ReturnType< typeof useStatsComments > );
+
+		const { result } = renderHook( () => useCommentsReportRecords( 'posts' ) );
+
+		expect( result.current.rows ).toEqual( [
+			expect.objectContaining( { id: 'javascript:alert(1)', link: undefined } ),
 		] );
 	} );
 } );

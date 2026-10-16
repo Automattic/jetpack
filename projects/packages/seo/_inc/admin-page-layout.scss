@@ -46,6 +46,43 @@ body.toplevel_page_jetpack-seo {
 	flex-direction: column;
 }
 
+// The tabs strip carries one non-tab affordance — the GEO infotip — so it has
+// to lay its children out in a row. The shared `.jp-admin-page-tabs` wrapper is
+// a block (it only ever held `Tabs.List`, which is `width: fit-content`), so
+// without this the icon drops to its own line under the tabs. Scoped to this
+// package rather than added to the shared mixin, which no one else needs.
+.jetpack-seo-tabs-strip {
+	display: flex;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-xs);
+}
+
+// Reset the trigger's button chrome so it reads as an icon beside the tab label
+// rather than a control of its own. Sized to the 20px glyph; the tab row's own
+// height keeps it vertically centered.
+.jetpack-seo-tabs-strip__infotip {
+	display: inline-flex;
+	align-items: center;
+	padding: 0;
+	border: 0;
+	border-radius: var(--wpds-border-radius-sm);
+	background: none;
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	cursor: var(--wpds-cursor-control);
+
+	&:hover {
+		color: var(--wpds-color-foreground-content-neutral);
+	}
+}
+
+// `Popover.Popup` sizes to its content, so a single sentence lays out as one
+// ~600px line — wider than the space left of the trigger, which put the start
+// of the sentence off the content area and clipped it. Cap it so the text
+// wraps into a compact block the positioner can keep on screen.
+.jetpack-seo-tabs-strip__infotip-popup {
+	max-inline-size: 20rem;
+}
+
 // The full-bleed Content (DataViews) tab opts out of the `0 0 auto` sizing:
 // it used to be a direct flex child of the page column and so inherited the
 // layout mixin's fill treatment (`flex: 1 1 auto; min-height: 0; display:

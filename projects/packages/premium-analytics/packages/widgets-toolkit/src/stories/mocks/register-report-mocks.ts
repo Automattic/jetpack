@@ -1,17 +1,7 @@
 /**
- * Storybook report-data mocking via a `@wordpress/api-fetch` middleware.
- *
- * The shared Jetpack Storybook config cannot be modified, and there is no
- * analytics backend in Storybook, so report requests have nothing to resolve
- * against.
- *
- * To mock report data we register an `apiFetch` middleware that intercepts the
- * proxy report paths and returns generated mock data. The data package fetches
- * every report through `fetchReport()`, which builds the same base path, so a
- * single middleware covers all widget stories.
- *
- * The middleware is registered exactly once (guarded by a module-level flag) and
- * is triggered automatically when `with-widget-root.tsx` is imported.
+ * Storybook report-data mocking via a `@wordpress/api-fetch` middleware: Storybook has no
+ * backend, so this middleware intercepts the Stats proxy paths and returns generated mock data.
+ * Registered once, triggered when `with-widget-root.tsx` is imported.
  */
 /**
  * External dependencies
@@ -23,34 +13,13 @@ import { differenceInCalendarDays, isValid, parseISO } from 'date-fns';
  * Internal dependencies
  */
 import {
-	mockOrderAttributionDeviceData,
-	mockOrderAttributionByProductDeviceData,
-	mockOrderAttributionByProductDeviceComparisonData,
-	mockOrderAttributionChannelData,
-	mockOrderAttributionSourceData,
-	mockOrderAttributionCampaignData,
-	generateOrdersByProductType,
-	filterDataByDateRange,
-	recalculateSummary,
-	generateBookings,
-	filterBookingsDataByDateRange,
-	recalculateBookingsSummary,
-	buildVisitorsByLocationResponse,
-	mockSessionsByDeviceData,
-	mockSessionsByDeviceComparisonData,
-	mockCouponsData,
-	mockCouponsComparisonData,
-	mockCouponsByDateData,
-	mockCouponsByDateComparisonData,
-	mockCustomersData,
-	mockCustomersComparisonData,
-	mockCustomersByDateData,
-	mockCustomersByDateComparisonData,
 	mockCommentsData,
 	mockSearchTermsData,
 	mockSearchTermsComparisonData,
 	mockSingleVideoData,
 	mockTagsData,
+	buildAuthorStatsData,
+	MOCK_AUTHOR_FIRST_CONTENT_DAY,
 	mockTopAuthorsData,
 	mockTopAuthorsComparisonData,
 	mockSiteSummary,
@@ -60,8 +29,7 @@ import {
 	mockPostLikesData,
 	mockStatsSummaryData,
 	mockStatsSummaryComparisonData,
-	mockStatsSubscribersCountsData,
-	mockPlanUsageData,
+	buildStatsSubscribersCountsData,
 	buildEmailRateResponse,
 	buildEmailTimelineResponse,
 	mockEmailCountryBreakdown,
@@ -69,26 +37,20 @@ import {
 	mockEmailClientBreakdown,
 	mockEmailInternalLinkBreakdown,
 	mockEmailUserContentLinkBreakdown,
+	buildPostContentResponse,
 } from './data';
-import { getMockParamsFromPreset } from './presets';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
 
-/**
- * Base path for Woo analytics report requests. Matches the non-Simple path
- * built by `fetchReport()` in the data package (`@jetpack-premium-analytics/data`).
- */
-const API_BASE = '/jetpack-premium-analytics/v1/proxy/v2/analytics/reports';
 const STATS_FOLLOWERS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/followers';
 const STATS_SUBSCRIBERS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/subscribers';
 // The subscribers/counts endpoint is a v2 proxy path (not under /stats), so it
 // is matched on its own rather than through routeStatsReport().
 const STATS_SUBSCRIBERS_COUNTS_PATH = '/jetpack-premium-analytics/v1/proxy/v2/subscribers/counts';
 const STATS_VISITS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/visits';
+const STATS_VIEWS_BY_HOUR_PATH =
+	'/jetpack-premium-analytics/v1/proxy/v1.1/stats/views-by/hour-of-day';
 const STATS_EMAIL_SUMMARY_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/emails/summary';
 const STATS_VIDEO_PLAYS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/video-plays';
-// Plan usage is served off the v2 base (not under /v1.1/stats), so it needs its
-// own path branch rather than a `routeStatsReport()` case.
-const STATS_PLAN_USAGE_PATH = '/jetpack-premium-analytics/v1/proxy/v2/jetpack-stats/usage';
 const STATS_WORDADS_STATS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/wordads/stats';
 const STATS_WORDADS_EARNINGS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/wordads/earnings';
 // Post likes is a `posts/{id}/likes` proxy path (not under /stats), so it is
@@ -99,6 +61,9 @@ const POST_LIKES_PATH_PATTERN =
 const POST_COMMENTS_PATH_PATTERN =
 	/^\/jetpack-premium-analytics\/v1\/proxy\/v1\.1\/posts\/\d+\/replies(?:\?|$)/;
 const WP_SETTINGS_PATH = '/wp/v2/settings';
+// Core posts endpoint: single-post highlight widgets read post content (title,
+// permalink, image) from core since Stats rows lack it; only `include=` is handled here.
+const WP_POSTS_PATH = '/wp/v2/posts';
 
 const coreSettingsMock = {
 	timezone: 'UTC',
@@ -114,38 +79,8 @@ const coreSettingsMock = {
  */
 const STATS_API_BASE = '/jetpack-premium-analytics/v1/proxy/v1.1/stats';
 
-/**
- * Days of mock data to generate (covering past requests).
- */
-const SPECTRUM_DAYS = 90;
-const DAY_MS = 24 * 60 * 60 * 1000;
-
-/**
- * Parameters for dynamic mock data generation.
- */
-interface MockDataParams {
-	seed: number;
-	density: number;
-	volume: number;
-}
-
-type VisitorsByLocationSignatureState = {
-	primaryFrom?: string;
-	comparisonFrom?: string;
-	lastSeenMs: number;
-};
-
-const visitorsByLocationRequestState = new Map< string, VisitorsByLocationSignatureState >();
-
-/**
- * Map view parameter to mock data for the order attribution endpoint.
- */
-const orderAttributionMockMap: Record< string, object > = {
-	device: mockOrderAttributionDeviceData,
-	channel: mockOrderAttributionChannelData,
-	source: mockOrderAttributionSourceData,
-	campaign: mockOrderAttributionCampaignData,
-};
+const HOUR_MS = 60 * 60 * 1000;
+const DAY_MS = 24 * HOUR_MS;
 
 /**
  * Per-endpoint request counters used to alternate between primary and
@@ -156,20 +91,28 @@ const requestCounters: Record< string, number > = {};
 
 /**
  * Forced response state for a request path fragment, so stories can exercise a
- * widget's loading, error, and empty UI. `error` rejects the request; `loading`
- * returns a promise that never settles; `empty` resolves with a valid response
- * that has no rows.
+ * widget's loading, error, and empty UI. `error` is a permission-gated 403;
+ * `error-retryable` is the proxy's `no_connection` 403 (which `describeError`
+ * renders with Retry); `loading` never settles; `empty` resolves with no rows.
  */
-type ReportMockState = 'error' | 'loading' | 'empty';
+export type ReportMockState = 'error' | 'error-retryable' | 'loading' | 'empty';
 
 const mockStateOverrides = new Map< string, ReportMockState >();
 
 /**
+ * Clear cached queries after a forced mock override changes.
+ *
+ * Forced-state stories are excluded from autodocs, so clearing the shared cache
+ * is safe and avoids coupling mocks to widget query keys.
+ */
+export function resetForcedStateQueries(): void {
+	queryClient.clear();
+}
+
+/**
  * Force every request whose path contains `pathFragment` into a loading or error
- * state, or clear the override with `null`. Intended for a story's `beforeEach`
- * (set on enter, clear on cleanup). Because the override is keyed by path, scope
- * stories that use it out of the shared autodocs page (`tags: [ '!autodocs' ]`)
- * so it cannot bleed into sibling stories rendered alongside it.
+ * state (or clear it with `null`), for a story's `beforeEach`. Keyed by path, so
+ * scope stories that use it out of autodocs (`tags: [ '!autodocs' ]`) to avoid bleeding into siblings.
  *
  * @param pathFragment - Substring matched against the request path (e.g. `stats/search-terms`).
  * @param state        - The forced state, or `null` to clear.
@@ -180,20 +123,14 @@ export function setReportMockState( pathFragment: string, state: ReportMockState
 	} else {
 		mockStateOverrides.set( pathFragment, state );
 	}
+	resetForcedStateQueries();
 }
 
 /**
  * Story `beforeEach` that forces the shared `wordads/earnings` request into a
- * loading, error, or empty state and drops its cached query on both enter and
- * cleanup. Shared by every WordAds earnings widget story (highlights and the
- * three history tables) so the cache-reset cannot drift between them.
- *
- * The earnings endpoint takes no params, so its query key is static and every
- * WordAds story shares one cache entry (a distinct date preset can't separate
- * them). Resetting on both edges gives each forced-state story a fresh fetch and
- * clears a never-settling `loading` fetch before the next story reuses the key.
- * Because the override is keyed by path, keep such stories off the shared
- * autodocs page (`tags: [ '!autodocs' ]`).
+ * loading, error, or empty state, resetting its cache on both enter and cleanup.
+ * The endpoint takes no params, so every WordAds story shares one static query
+ * key — the reset avoids drift and clears a never-settling `loading` fetch before reuse.
  *
  * @param state - The forced mock state.
  * @return A Storybook `beforeEach` implementation returning its cleanup.
@@ -209,16 +146,32 @@ export function forceWordAdsEarningsState( state: ReportMockState ) {
 	};
 }
 
+/**
+ * Story `beforeEach` that forces the shared `stats/comments` request into a
+ * loading, error, or empty state, resetting its cache on both enter and cleanup.
+ * The endpoint is all-time, so every comment-widget story shares one static
+ * query key — the reset avoids drift and clears a never-settling `loading` fetch before reuse.
+ *
+ * @param state - The forced mock state.
+ * @return A Storybook `beforeEach` implementation returning its cleanup.
+ */
+export function forceStatsCommentsState( state: ReportMockState ) {
+	return () => {
+		setReportMockState( 'stats/comments', state );
+		queryClient.removeQueries( { queryKey: [ 'stats', 'comments' ] } );
+		return () => {
+			setReportMockState( 'stats/comments', null );
+			queryClient.removeQueries( { queryKey: [ 'stats', 'comments' ] } );
+		};
+	};
+}
+
 const mockResponseOverrides = new Map< string, unknown >();
 
 /**
  * Force every request whose path contains `pathFragment` to resolve with a
- * specific payload, or clear the override with `null`. Unlike
- * `setReportMockState`, which forces a widget's loading/error/empty UI, this
- * swaps the successful response body — for exercising a data-driven variant (an
- * over-limit reading, a specific row shape) the default fixture doesn't cover.
- * Same scoping caveat: keyed by path, so scope such stories out of the shared
- * autodocs page (`tags: [ '!autodocs' ]`) and clear the override on cleanup.
+ * specific payload (or clear with `null`) — unlike `setReportMockState`, this
+ * swaps the response body for data-driven variants the default fixture doesn't cover. Same autodocs-scoping caveat applies.
  *
  * @param pathFragment - Substring matched against the request path.
  * @param response     - The response body to resolve with, or `null` to clear.
@@ -229,6 +182,21 @@ export function setReportMockResponse( pathFragment: string, response: unknown |
 	} else {
 		mockResponseOverrides.set( pathFragment, response );
 	}
+	resetForcedStateQueries();
+}
+
+let mockSitePaidSubscribers = 0;
+
+/**
+ * Sets how many paid subscribers the mocked site has. One switch for
+ * `subscribers/counts` and the `stats/subscribers` series, so widgets reading
+ * either cannot disagree about whether the site sells subscriptions.
+ *
+ * @param count - Paid subscribers; 0 for a site with none.
+ */
+export function setMockSitePaidSubscribers( count: number ): void {
+	mockSitePaidSubscribers = Math.max( 0, count );
+	resetForcedStateQueries();
 }
 
 /**
@@ -244,77 +212,6 @@ function nextIsComparison( key: string ): boolean {
 	return count % 2 === 1;
 }
 
-/**
- * Resolves the mock data params. No Storybook toolbar global is wired up, so we
- * fall back to the `default` preset, but still honour
- * `window.__STORYBOOK_MOCK_PARAMS__` if a consumer sets it.
- *
- * @return Mock data params (seed/density/volume).
- */
-function getMockParams(): MockDataParams {
-	const fromGlobal =
-		typeof window !== 'undefined'
-			? ( window as unknown as { __STORYBOOK_MOCK_PARAMS__?: Partial< MockDataParams > } )
-					.__STORYBOOK_MOCK_PARAMS__
-			: undefined;
-
-	return { ...getMockParamsFromPreset( 'default' ), ...fromGlobal };
-}
-
-/**
- * Gets the end date for the mock data spectrum (end of today).
- *
- * @return Date set to the end of today (23:59:59.999).
- */
-function getSpectrumToday(): Date {
-	const today = new Date();
-	today.setHours( 23, 59, 59, 999 );
-	return today;
-}
-
-/**
- * Computes the spectrum date range (90 days ending today).
- *
- * @return ISO `from`/`to` strings for the spectrum.
- */
-function getSpectrumRange(): { from: string; to: string } {
-	const spectrumToday = getSpectrumToday();
-	const spectrumFrom = new Date( spectrumToday );
-	spectrumFrom.setDate( spectrumFrom.getDate() - SPECTRUM_DAYS );
-	return {
-		from: spectrumFrom.toISOString(),
-		to: spectrumToday.toISOString(),
-	};
-}
-
-/**
- * Splits an apiFetch path into its sub-path (relative to `API_BASE`) and parsed
- * query string.
- *
- * @param path - Full request path.
- * @return The sub-path and a `URLSearchParams` of the query.
- */
-function parseReportPath( path: string ): {
-	subPath: string;
-	query: URLSearchParams;
-} {
-	const withoutBase = path.slice( API_BASE.length );
-	const queryIndex = withoutBase.indexOf( '?' );
-	const subPath = queryIndex === -1 ? withoutBase : withoutBase.slice( 0, queryIndex );
-	const query = new URLSearchParams( queryIndex === -1 ? '' : withoutBase.slice( queryIndex + 1 ) );
-	return { subPath, query };
-}
-
-function toDayStart( date: Date ) {
-	return new Date( Date.UTC( date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate() ) );
-}
-
-function toDayEnd( date: Date ) {
-	const end = toDayStart( date );
-	end.setUTCHours( 23, 59, 59, 999 );
-	return end;
-}
-
 function parseDateParam( value: string | null, fallback: Date ) {
 	if ( ! value ) {
 		return fallback;
@@ -325,449 +222,81 @@ function parseDateParam( value: string | null, fallback: Date ) {
 }
 
 /**
- * Builds the orders / orders-by-product-type response using the
- * "spectrum + filter" strategy from upstream.
+ * Builds a mock Stats "followers" (subscribers) response for the Latest
+ * Subscribers widget. Rows arrive grouped by subscriber type rather than in
+ * date order, and `total` exceeds them so the "N more" footer appears.
  *
- * @param key   - Endpoint counter key.
- * @param query - Parsed query params (uses `from`/`to`).
- * @return Orders report response (summary + filtered data).
- */
-function buildOrdersResponse( key: string, query: URLSearchParams ) {
-	const params = getMockParams();
-	const isComparison = nextIsComparison( key );
-
-	const spectrum = getSpectrumRange();
-	const requestFrom = query.get( 'from' ) || '2024-01-01T00:00:00.000+00:00';
-	const requestTo = query.get( 'to' ) || '2024-01-07T23:59:59.999+00:00';
-
-	const seed = params.seed + ( isComparison ? 10000 : 0 );
-	const density = isComparison ? Math.max( 0.1, params.density - 0.1 ) : params.density;
-	const volume = isComparison ? Math.max( 1, params.volume - 1 ) : params.volume;
-
-	const fullSpectrum = generateOrdersByProductType( {
-		from: spectrum.from,
-		to: spectrum.to,
-		interval: 'day',
-		seed,
-		density,
-		volume,
-	} );
-
-	const filteredData = filterDataByDateRange( fullSpectrum.data, requestFrom, requestTo );
-	const summary = recalculateSummary( filteredData, requestFrom, requestTo );
-
-	return { summary, data: filteredData };
-}
-
-/**
- * Builds the bookings response using the "spectrum + filter" strategy.
- *
- * @param query - Parsed query params (uses `from`/`to`).
- * @return Bookings report response (summary + filtered data).
- */
-function buildBookingsResponse( query: URLSearchParams ) {
-	const params = getMockParams();
-	const isComparison = nextIsComparison( 'bookings/by-date' );
-
-	const spectrum = getSpectrumRange();
-	const requestFrom = query.get( 'from' ) || '2024-01-01T00:00:00.000+00:00';
-	const requestTo = query.get( 'to' ) || '2024-01-07T23:59:59.999+00:00';
-
-	const seed = params.seed + ( isComparison ? 10000 : 0 );
-	// Bookings default density is 0.8 upstream; honour the preset density.
-	const density = isComparison ? Math.max( 0.1, params.density - 0.1 ) : params.density;
-	const volume = isComparison ? Math.max( 1, params.volume - 2 ) : Math.max( 1, params.volume - 2 );
-
-	const fullSpectrum = generateBookings( {
-		from: spectrum.from,
-		to: spectrum.to,
-		interval: 'day',
-		seed,
-		density,
-		volume,
-	} );
-
-	const filteredData = filterBookingsDataByDateRange( fullSpectrum.data, requestFrom, requestTo );
-	const summary = recalculateBookingsSummary( filteredData, requestFrom, requestTo );
-
-	return { summary, data: filteredData };
-}
-
-/**
- * Builds the sessions/by-device response.
- *
- * Note: the data package's sanitizer reads `response.data` (not `items`), so we
- * return the items under the `data` key here.
- *
- * @return Sessions-by-device report response.
- */
-function buildSessionsByDeviceResponse() {
-	const isComparison = nextIsComparison( 'sessions/by-device' );
-	const items = isComparison ? mockSessionsByDeviceComparisonData : mockSessionsByDeviceData;
-
-	const totalSessions = items.reduce(
-		( sum, item ) => sum + parseInt( item.active_sessions, 10 ),
-		0
-	);
-
-	return {
-		summary: {
-			active_sessions: String( totalSessions ),
-			total_orders: '0',
-			date_start: '',
-			date_end: '',
-		},
-		data: items,
-	};
-}
-
-/**
- * Builds the sessions/by-date (visitors over time) response.
- *
- * @param query - Parsed query params.
- * @return Visitors time-series report response.
- */
-function buildVisitorsByDateResponse( query: URLSearchParams ) {
-	const params = getMockParams();
-	const isComparison = nextIsComparison( 'sessions/by-date' );
-	const fallbackTo = toDayEnd( new Date() );
-	const fallbackFrom = toDayStart( new Date( fallbackTo.getTime() - 29 * DAY_MS ) );
-	const from = toDayStart( parseDateParam( query.get( 'from' ), fallbackFrom ) );
-	const to = toDayStart( parseDateParam( query.get( 'to' ), fallbackTo ) );
-	const days = Math.max(
-		1,
-		Math.min( SPECTRUM_DAYS, Math.floor( ( to.getTime() - from.getTime() ) / DAY_MS ) + 1 )
-	);
-	const seed = params.seed + ( isComparison ? 10000 : 0 ) + from.getUTCDate();
-	const density = Math.max( 0.1, Math.min( 1, params.density ) );
-	const volume = Math.max( 1, params.volume * 100 );
-	let visitorsTotal = 0;
-	let sessionsTotal = 0;
-
-	const data = Array.from( { length: days }, ( _, index ) => {
-		const date = new Date( from.getTime() + index * DAY_MS );
-		const activeDay = ( ( index * 37 + seed ) % 100 ) / 100 <= density;
-		const trend = index * Math.max( 2, Math.round( volume / 120 ) );
-		const wave = Math.sin( ( index + seed ) / 2.6 ) * volume * 0.35;
-		const visitors = activeDay ? Math.max( 1, Math.round( volume + trend + wave ) ) : 0;
-		const activeSessions = Math.round( visitors * 0.78 );
-
-		visitorsTotal += visitors;
-		sessionsTotal += activeSessions;
-
-		return {
-			date_start: date.toISOString(),
-			date_end: toDayEnd( date ).toISOString(),
-			time_interval: date.toISOString(),
-			active_sessions: String( activeSessions ),
-			visitors: String( visitors ),
-		};
-	} );
-
-	return {
-		summary: {
-			active_sessions: String( sessionsTotal ),
-			visitors: String( visitorsTotal ),
-			date_start: from.toISOString(),
-			date_end: toDayEnd( new Date( from.getTime() + ( days - 1 ) * DAY_MS ) ).toISOString(),
-		},
-		data,
-	};
-}
-
-/**
- * Per-day rows for customers/by-date. Dense like the real endpoint, which
- * zero-fills every interval in the range.
- *
- * @param query        - Parsed query params.
- * @param isComparison - Whether this request is the comparison period.
- * @return Daily customers-by-date rows.
- */
-function buildCustomersByDateRows( query: URLSearchParams, isComparison: boolean ) {
-	const params = getMockParams();
-	const fallbackTo = toDayEnd( new Date() );
-	const fallbackFrom = toDayStart( new Date( fallbackTo.getTime() - 29 * DAY_MS ) );
-	const from = toDayStart( parseDateParam( query.get( 'from' ), fallbackFrom ) );
-	const to = toDayStart( parseDateParam( query.get( 'to' ), fallbackTo ) );
-	const days = Math.max(
-		1,
-		Math.min( SPECTRUM_DAYS, Math.floor( ( to.getTime() - from.getTime() ) / DAY_MS ) + 1 )
-	);
-	const seed = params.seed + ( isComparison ? 10000 : 0 ) + from.getUTCDate();
-	const density = Math.max( 0.1, Math.min( 1, params.density ) );
-	const volume = Math.max( 1, params.volume * 60 );
-
-	return Array.from( { length: days }, ( _, index ) => {
-		const date = new Date( from.getTime() + index * DAY_MS );
-		const activeDay = ( ( index * 37 + seed ) % 100 ) / 100 <= density;
-		const wave = Math.sin( ( index + seed ) / 2.6 ) * volume * 0.35;
-		const totalCustomers = activeDay ? Math.max( 1, Math.round( volume + wave ) ) : 0;
-		const newCustomers = Math.round( totalCustomers * 0.2 );
-		const orders = Math.round( totalCustomers * 0.25 );
-		const newCustomerOrders = Math.round( orders * 0.2 );
-		const netSales = totalCustomers * 42;
-		const newCustomerNetSales = Math.round( netSales * 0.2 );
-
-		return {
-			time_interval: date.toISOString(),
-			date_start: date.toISOString(),
-			date_end: toDayEnd( date ).toISOString(),
-			total_customers: String( totalCustomers ),
-			new_customers: String( newCustomers ),
-			returning_customers: String( totalCustomers - newCustomers ),
-			orders_count: String( orders ),
-			new_customer_orders: String( newCustomerOrders ),
-			returning_customer_orders: String( orders - newCustomerOrders ),
-			net_sales: String( netSales ),
-			new_customer_net_sales: String( newCustomerNetSales ),
-			returning_customer_net_sales: String( netSales - newCustomerNetSales ),
-		};
-	} );
-}
-
-/**
- * The sessions/by-conversion-rate response: a daily session funnel
- * (sessions → cart → checkout → completed). Dense like the real endpoint,
- * which zero-fills every interval in the range.
- *
- * @param query - Parsed query params.
- * @return Conversion-rate funnel report response.
- */
-function buildConversionRateResponse( query: URLSearchParams ) {
-	const params = getMockParams();
-	const isComparison = nextIsComparison( 'sessions/by-conversion-rate' );
-	const fallbackTo = toDayEnd( new Date() );
-	const fallbackFrom = toDayStart( new Date( fallbackTo.getTime() - 29 * DAY_MS ) );
-	const from = toDayStart( parseDateParam( query.get( 'from' ), fallbackFrom ) );
-	const to = toDayStart( parseDateParam( query.get( 'to' ), fallbackTo ) );
-	const days = Math.max(
-		1,
-		Math.min( SPECTRUM_DAYS, Math.floor( ( to.getTime() - from.getTime() ) / DAY_MS ) + 1 )
-	);
-	const seed = params.seed + ( isComparison ? 10000 : 0 ) + from.getUTCDate();
-	const density = Math.max( 0.1, Math.min( 1, params.density ) );
-	const volume = Math.max( 1, params.volume * 100 );
-	const totals = {
-		active_sessions: 0,
-		visitors: 0,
-		with_cart_addition: 0,
-		reached_checkout: 0,
-		completed_checkout: 0,
-	};
-
-	const data = Array.from( { length: days }, ( _, index ) => {
-		const date = new Date( from.getTime() + index * DAY_MS );
-		const activeDay = ( ( index * 37 + seed ) % 100 ) / 100 <= density;
-		const trend = index * Math.max( 2, Math.round( volume / 120 ) );
-		const wave = Math.sin( ( index + seed ) / 2.6 ) * volume * 0.35;
-		const visitors = activeDay ? Math.max( 1, Math.round( volume + trend + wave ) ) : 0;
-		const activeSessions = Math.round( visitors * 0.78 );
-		const withCartAddition = Math.round( activeSessions * 0.32 );
-		const reachedCheckout = Math.round( activeSessions * 0.14 );
-		const completedCheckout = Math.round( activeSessions * 0.06 );
-
-		totals.visitors += visitors;
-		totals.active_sessions += activeSessions;
-		totals.with_cart_addition += withCartAddition;
-		totals.reached_checkout += reachedCheckout;
-		totals.completed_checkout += completedCheckout;
-
-		return {
-			date_start: date.toISOString(),
-			date_end: toDayEnd( date ).toISOString(),
-			time_interval: date.toISOString(),
-			active_sessions: String( activeSessions ),
-			visitors: String( visitors ),
-			with_cart_addition: String( withCartAddition ),
-			reached_checkout: String( reachedCheckout ),
-			completed_checkout: String( completedCheckout ),
-		};
-	} );
-
-	return {
-		summary: {
-			active_sessions: String( totals.active_sessions ),
-			visitors: String( totals.visitors ),
-			with_cart_addition: String( totals.with_cart_addition ),
-			reached_checkout: String( totals.reached_checkout ),
-			completed_checkout: String( totals.completed_checkout ),
-			date_start: from.toISOString(),
-			date_end: toDayEnd( new Date( from.getTime() + ( days - 1 ) * DAY_MS ) ).toISOString(),
-		},
-		data,
-	};
-}
-
-/**
- * Builds the sessions/by-location (visitors by location) response, detecting
- * comparison requests by tracking the distinct `from` values per request
- * signature (mirrors upstream).
- *
- * @param query - Parsed query params.
- * @return Visitors-by-location report response.
- */
-function buildVisitorsByLocation( query: URLSearchParams ) {
-	const requestFrom = query.get( 'from' ) || '2024-01-01T00:00:00.000+00:00';
-	const requestTo = query.get( 'to' ) || '2024-01-07T23:59:59.999+00:00';
-	const groupBy = ( query.get( 'group_by' ) as 'country' | 'region' ) || 'country';
-	const countryCode = query.get( 'country_code' ) || '';
-	const limit = query.get( 'limit' ) || '';
-
-	const signature = [ groupBy, countryCode, limit ].join( '|' );
-	const now = Date.now();
-
-	const state = visitorsByLocationRequestState.get( signature ) ?? {
-		lastSeenMs: 0,
-	};
-
-	// Reset if this signature hasn't been used recently (e.g. story changed).
-	if ( now - state.lastSeenMs > 2000 ) {
-		state.primaryFrom = undefined;
-		state.comparisonFrom = undefined;
-	}
-
-	if ( requestFrom ) {
-		if ( ! state.primaryFrom ) {
-			state.primaryFrom = requestFrom;
-		} else if ( state.primaryFrom !== requestFrom && ! state.comparisonFrom ) {
-			// Assign primary/comparison by which range is more recent.
-			const primaryTime = Date.parse( state.primaryFrom );
-			const otherTime = Date.parse( requestFrom );
-			if ( ! isNaN( primaryTime ) && ! isNaN( otherTime ) && otherTime > primaryTime ) {
-				state.comparisonFrom = state.primaryFrom;
-				state.primaryFrom = requestFrom;
-			} else {
-				state.comparisonFrom = requestFrom;
-			}
-		}
-	}
-
-	state.lastSeenMs = now;
-	visitorsByLocationRequestState.set( signature, state );
-
-	const isComparison = Boolean( state.comparisonFrom ) && requestFrom === state.comparisonFrom;
-
-	return buildVisitorsByLocationResponse( {
-		period: { from: requestFrom, to: requestTo },
-		groupBy,
-		isComparison,
-	} );
-}
-
-/**
- * Routes a report sub-path to the matching mock generator.
- *
- * @param subPath - Path relative to `API_BASE` (e.g. `/orders/by-date`).
- * @param query   - Parsed query params.
- * @return The mock response body, or `null` if no specific handler matched.
- */
-function routeReport( subPath: string, query: URLSearchParams ): unknown {
-	// Product-filtered order attribution: /order-attribution-by-product/{view}/summary
-	const attributionByProductMatch = subPath.match(
-		/^\/order-attribution-by-product\/([^/]+)\/summary$/
-	);
-	if ( attributionByProductMatch ) {
-		const view = attributionByProductMatch[ 1 ];
-
-		if ( view === 'device' ) {
-			return nextIsComparison( 'order-attribution-by-product/device' )
-				? mockOrderAttributionByProductDeviceComparisonData
-				: mockOrderAttributionByProductDeviceData;
-		}
-
-		return {
-			view,
-			order_by: 'net_sales',
-			data: [],
-		};
-	}
-
-	// Order attribution: /order-attribution/{view}/summary
-	const attributionMatch = subPath.match( /^\/order-attribution\/([^/]+)\/summary$/ );
-	if ( attributionMatch ) {
-		const view = attributionMatch[ 1 ];
-		return orderAttributionMockMap[ view ] || mockOrderAttributionDeviceData;
-	}
-
-	switch ( subPath ) {
-		case '/orders/by-date':
-			return buildOrdersResponse( 'orders/by-date', query );
-		case '/orders-by-product-type/by-date':
-			return buildOrdersResponse( 'orders-by-product-type/by-date', query );
-		case '/bookings/by-date':
-			return buildBookingsResponse( query );
-		case '/sessions/by-date':
-			return buildVisitorsByDateResponse( query );
-		case '/sessions/by-conversion-rate':
-			return buildConversionRateResponse( query );
-		case '/sessions/by-device':
-			return buildSessionsByDeviceResponse();
-		case '/sessions/by-location':
-			return buildVisitorsByLocation( query );
-		case '/coupons/':
-		case '/coupons':
-			return nextIsComparison( 'coupons' ) ? mockCouponsComparisonData : mockCouponsData;
-		case '/coupons/by-date':
-			return nextIsComparison( 'coupons/by-date' )
-				? mockCouponsByDateComparisonData
-				: mockCouponsByDateData;
-		case '/customers/new-returning':
-			return nextIsComparison( 'customers/new-returning' )
-				? mockCustomersComparisonData
-				: mockCustomersData;
-		case '/customers/by-date': {
-			const isComparison = nextIsComparison( 'customers/by-date' );
-			const base = isComparison ? mockCustomersByDateComparisonData : mockCustomersByDateData;
-			return { ...base, data: buildCustomersByDateRows( query, isComparison ) };
-		}
-		default:
-			return null;
-	}
-}
-
-/**
- * Builds a mock Stats "followers" (subscribers) response with a realistic spread
- * of recent subscription times so the Latest Subscribers widget renders
- * populated in Storybook. The shape matches what `sanitizeStatsFollowersResponse`
- * expects (`{ subscribers, total, … }`); `total` exceeds the shown rows so the
- * "N more" footer appears.
- *
+ * @param max - Rows per type; `0` or a missing param returns every row.
  * @return Raw followers response.
  */
-function buildFollowersResponse() {
+function buildFollowersResponse( max: number ) {
 	const now = Date.now();
 	const MINUTE = 60 * 1000;
 	const HOUR = 60 * MINUTE;
 	const DAY = 24 * HOUR;
-	const people = [
-		{ name: 'Diego Morales', offset: 20 * 1000 },
-		{ name: 'Olivia Park', offset: 12 * MINUTE },
-		{ name: 'Hiroshi Tanaka', offset: HOUR },
-		{ name: 'Emma Rossi', offset: 3 * HOUR },
-		{ name: 'Aarav Patel', offset: 5 * HOUR },
-		{ name: 'Sofia Nguyen', offset: DAY },
+	const emailPeople = [
+		{ label: 'subscriber-one@example.com', offset: 120 * DAY },
+		{ label: 'subscriber-two@example.com', offset: 240 * DAY },
+		{ label: 'subscriber-three@example.com', offset: 300 * DAY },
+		{ label: 'subscriber-four@example.com', offset: 330 * DAY },
+		{ label: 'subscriber-five@example.com', offset: 400 * DAY },
+		{ label: 'subscriber-six@example.com', offset: 430 * DAY },
 	];
-	const subscribers = people.map( ( person, index ) => ( {
-		ID: 1000 + index,
-		subscription_id: 1000 + index,
-		display_name: person.name,
-		avatar: `https://i.pravatar.cc/64?img=${ 10 + index }`,
-		url: 'https://example.com',
-		date_subscribed: new Date( now - person.offset ).toISOString(),
-	} ) );
+	const wpcomPeople = [
+		{ label: 'Diego Morales', offset: 20 * 1000 },
+		{ label: 'Olivia Park', offset: 12 * MINUTE },
+		{ label: 'Hiroshi Tanaka', offset: HOUR },
+		{ label: 'Emma Rossi', offset: 3 * HOUR },
+		{ label: 'Aarav Patel', offset: 5 * HOUR },
+		{ label: 'Sofia Nguyen', offset: DAY },
+		{ label: 'Chloe Dubois', offset: 2 * DAY },
+		{ label: 'Liam Carter', offset: 3 * DAY },
+		{ label: 'Mia Andersson', offset: 4 * DAY },
+		{ label: 'Noah Bergström', offset: 5 * DAY },
+		{ label: 'Priya Sharma', offset: 6 * DAY },
+		{ label: 'Tomás Silva', offset: 8 * DAY },
+	];
+	const page = ( people: typeof emailPeople ) => people.slice( 0, max > 0 ? max : undefined );
+	const subscribers = [ ...page( emailPeople ), ...page( wpcomPeople ) ].map(
+		( person, index ) => ( {
+			ID: 1000 + index,
+			subscription_id: 1000 + index,
+			label: person.label,
+			avatar: `https://i.pravatar.cc/64?img=${ 10 + index }`,
+			url: 'https://example.com',
+			date_subscribed: new Date( now - person.offset ).toISOString(),
+		} )
+	);
 	return { subscribers, total: 30, total_email: 18, total_wpcom: 12, page: 1, pages: 5 };
 }
 
 /**
- * Builds the stats/subscribers time-series response.
+ * The mocked subscriber totals on `day`, shared by `stats/subscribers` and `subscribers/counts` so the two agree.
  *
- * Honours the `unit`, `quantity`, and `date` query params so the subscribers
- * chart's two requests (current window and the immediately preceding window)
- * return continuous data: values are anchored to each bucket's absolute date,
- * so the current window trends above the previous one and the headline shows a
- * positive period-over-period delta. The series is wavy (not flat) so the
- * dashed previous-period overlay reads clearly against the solid current line.
- * Paid subscribers are always present so both chart lines are exercised.
+ * @param day - The day to total.
+ * @return Email and WordPress.com subscribers, and paid subscribers.
+ */
+function mockSubscribersOn( day: Date ) {
+	// Anchor growth to a fixed day so totals stay in a realistic range and stay
+	// continuous across the current/previous windows.
+	const anchorDay = Math.floor( Date.now() / DAY_MS ) - 400;
+	const absDay = Math.floor( day.getTime() / DAY_MS );
+	// Upward trend plus a ~44-day wave that doesn't align with a 30-day window, so
+	// the previous-period series stays out of phase and its dashed line diverges visibly.
+	const trend = ( absDay - anchorDay ) * 9;
+	const wave = 420 * Math.sin( absDay / 7 ) + 180 * Math.cos( absDay / 11 );
+	const subscribers = Math.max( 0, Math.round( 900 + trend + wave ) );
+	const paid = mockSitePaidSubscribers
+		? Math.max( 0, Math.round( subscribers * 0.32 + 120 * Math.sin( absDay / 6 ) ) )
+		: 0;
+	return { subscribers, paid };
+}
+
+/**
+ * Builds the stats/subscribers time-series response. Values are anchored to each
+ * bucket's absolute date so the current window trends above the previous one
+ * (continuous across both windows, wavy so the comparison overlay reads clearly);
+ * paid subscribers are always present so both chart lines are exercised.
  *
  * @param query - Parsed query params (`unit`, `quantity`, `date`).
  * @return Raw subscribers response in the WPCOM matrix shape.
@@ -776,10 +305,6 @@ function buildSubscribersResponse( query: URLSearchParams ) {
 	const unit = query.get( 'unit' ) || 'day';
 	const quantity = Math.max( 1, Math.min( 60, parseInt( query.get( 'quantity' ) || '30', 10 ) ) );
 	const endDate = parseDateParam( query.get( 'date' ), new Date() );
-
-	// Anchor growth to a fixed day so totals stay in a realistic range and stay
-	// continuous across the current/previous windows.
-	const anchorDay = Math.floor( Date.now() / DAY_MS ) - 400;
 	const stepDays = unit === 'week' ? 7 : 1;
 
 	const rows = Array.from( { length: quantity }, ( _, index ) => {
@@ -805,14 +330,7 @@ function buildSubscribersResponse( query: URLSearchParams ) {
 			period = bucket.toISOString().slice( 0, 10 );
 		}
 
-		const absDay = Math.floor( bucket.getTime() / DAY_MS );
-		// Upward trend plus a wave whose period (~44 days) does not align with a
-		// 30-day window, so the index-aligned previous-period series stays out of
-		// phase and its dashed line diverges visibly from the current solid line.
-		const trend = ( absDay - anchorDay ) * 9;
-		const wave = 420 * Math.sin( absDay / 7 ) + 180 * Math.cos( absDay / 11 );
-		const subscribers = Math.max( 0, Math.round( 900 + trend + wave ) );
-		const paid = Math.max( 0, Math.round( subscribers * 0.32 + 120 * Math.sin( absDay / 6 ) ) );
+		const { subscribers, paid } = mockSubscribersOn( bucket );
 
 		return [ period, subscribers, paid ];
 	} );
@@ -821,7 +339,9 @@ function buildSubscribersResponse( query: URLSearchParams ) {
 		date: endDate.toISOString().slice( 0, 10 ),
 		unit,
 		fields: [ 'period', 'subscribers', 'subscribers_paid' ],
-		data: rows,
+		// Newest first, as the live endpoint returns them. An oldest-first mock here
+		// hid WOOA7S-1907.
+		data: rows.reverse(),
 	};
 }
 
@@ -831,15 +351,93 @@ function buildSubscribersResponse( query: URLSearchParams ) {
 const VISITS_STEP_DAYS: Record< string, number > = { day: 1, week: 7, month: 30, year: 365 };
 
 /**
- * Builds the stats/visits time-series response for the traffic chart.
+ * Build an hour-of-day response over the requested date range.
+ */
+function buildHourOfDayResponse( query: URLSearchParams ) {
+	const endDate = parseDateParam( query.get( 'date' ), new Date() );
+	const requestedDays = Number.parseInt( query.get( 'days' ) ?? '', 10 );
+	const fallbackDays = Number.isInteger( requestedDays ) && requestedDays > 0 ? requestedDays : 30;
+	const startDate = parseDateParam(
+		query.get( 'start_date' ),
+		new Date( endDate.getTime() - ( fallbackDays - 1 ) * DAY_MS )
+	);
+	const days = Math.max(
+		1,
+		Math.round( ( endDate.getTime() - startDate.getTime() ) / DAY_MS ) + 1
+	);
+
+	// Two peaks make the distribution easier to read in Storybook.
+	const data = Array.from( { length: 24 }, ( _, hour ) => {
+		const evening = 900 * Math.exp( -( ( hour - 19 ) ** 2 ) / 6 );
+		const morning = 420 * Math.exp( -( ( hour - 10 ) ** 2 ) / 8 );
+
+		return [ String( hour ).padStart( 2, '0' ), Math.round( ( 60 + evening + morning ) * days ) ];
+	} );
+
+	return {
+		date: endDate.toISOString().slice( 0, 10 ),
+		start_date: startDate.toISOString().slice( 0, 10 ),
+		days,
+		dimension: 'hour-of-day',
+		utc_offset: '+00:00',
+		fields: [ 'period', 'views' ],
+		data,
+	};
+}
+
+/**
+ * The hourly slice of `stats/visits`: mirrors the real endpoint by packing date
+ * and hour into a single `period` string (not split columns), with only Views
+ * carrying a number — every other requested field comes back `null`.
  *
- * Honours the `unit`, `date`, `start_date`, and `stat_fields` query params, and
- * returns only the requested fields (the traffic chart fetches views/visitors
- * and likes/comments as two separate requests). Values are anchored to each
- * bucket's absolute date so the current window trends above the comparison
- * window and each metric shows a positive period-over-period delta; the series
- * is wavy so the dashed previous-period overlay reads clearly against the solid
- * current line.
+ * @param query   - Parsed query params (`start_date`, `quantity`, `stat_fields`).
+ * @param fields  - The requested stat fields, in order.
+ * @param endDate - The last bucket's instant.
+ * @return Raw hourly visits response in the WPCOM matrix shape.
+ */
+function buildHourlyVisitsResponse( query: URLSearchParams, fields: string[], endDate: Date ) {
+	// Counted from the range, as the endpoint does, not `quantity` — a range-bounded
+	// request carries none, so reading it would peg every story to 24 buckets. `quantity` is the range-less fallback.
+	const startDate = query.get( 'start_date' )
+		? parseDateParam( query.get( 'start_date' ), endDate )
+		: null;
+	const spanHours = startDate
+		? Math.floor( ( endDate.getTime() - startDate.getTime() ) / HOUR_MS ) + 1
+		: Number( query.get( 'quantity' ) ) || 24;
+	const count = Math.max( 1, Math.min( 400, spanHours ) );
+
+	const rows = Array.from( { length: count }, ( _, index ) => {
+		const bucket = new Date( endDate );
+		bucket.setUTCHours( bucket.getUTCHours() - ( count - 1 - index ), 0, 0, 0 );
+
+		const hour = bucket.getUTCHours();
+		const period = `${ bucket.toISOString().slice( 0, 10 ) } ${ String( hour ).padStart(
+			2,
+			'0'
+		) }:00:00`;
+		// A daily rhythm — quiet overnight, busiest mid-afternoon — so the shape
+		// reads as hourly traffic rather than noise.
+		const views = Math.max(
+			0,
+			Math.round( 70 + 55 * Math.sin( ( ( hour - 4 ) / 24 ) * 2 * Math.PI ) + 8 * Math.cos( hour ) )
+		);
+
+		return [ period, ...fields.map( field => ( field === 'views' ? views : null ) ) ];
+	} );
+
+	return {
+		date: endDate.toISOString().slice( 0, 10 ),
+		unit: 'hour',
+		fields: [ 'period', ...fields ],
+		data: rows,
+	};
+}
+
+/**
+ * Builds the stats/visits time-series response for the traffic chart, honouring
+ * `unit`/`date`/`start_date`/`stat_fields` and returning only the requested
+ * fields (views/visitors and likes/comments are separate requests). Values are
+ * anchored to each bucket's absolute date so the window trends above the comparison and the wavy series reads clearly.
  *
  * @param query - Parsed query params (`unit`, `date`, `start_date`, `stat_fields`).
  * @return Raw visits response in the WPCOM matrix shape.
@@ -849,6 +447,11 @@ function buildVisitsResponse( query: URLSearchParams ) {
 	const stepDays = VISITS_STEP_DAYS[ unit ] ?? 1;
 	const fields = ( query.get( 'stat_fields' ) || 'views,visitors' ).split( ',' );
 	const endDate = parseDateParam( query.get( 'date' ), new Date() );
+
+	if ( unit === 'hour' ) {
+		return buildHourlyVisitsResponse( query, fields, endDate );
+	}
+
 	const startDate = parseDateParam(
 		query.get( 'start_date' ),
 		new Date( endDate.getTime() - 29 * stepDays * DAY_MS )
@@ -892,7 +495,16 @@ function buildVisitsResponse( query: URLSearchParams ) {
 			comments: Math.max( 0, Math.round( views * 0.03 + 3 * Math.cos( absDay / 6 ) ) ),
 		};
 
-		return [ period, ...fields.map( field => values[ field ] ?? 0 ) ];
+		// A post every third bucket, two on every ninth, so the tooltip's posts row shows.
+		const postTitles = [ 'Spring recipes', 'Weekend reading' ].slice(
+			i % 9 === 0 ? 0 : 1,
+			i % 3 === 0 ? 2 : 1
+		);
+
+		return [
+			period,
+			...fields.map( field => ( field === 'post_titles' ? postTitles : ( values[ field ] ?? 0 ) ) ),
+		];
 	} );
 
 	return {
@@ -904,10 +516,9 @@ function buildVisitsResponse( query: URLSearchParams ) {
 }
 
 /**
- * Builds a mock Stats "email summary" response so the Emails widget renders
- * populated in Storybook. The shape matches what `sanitizeStatsEmailSummaryResponse`
- * expects (`{ posts: [ { title, opens_rate, clicks_rate, … } ] }`); rates are
- * 0–100 percentages and the rows are newest-first to mirror the live endpoint.
+ * Builds a mock Stats "email summary" response matching what
+ * `sanitizeStatsEmailSummaryResponse` expects (`{ posts: [...] }`); rates are
+ * 0–100 percentages, rows are newest-first, and one subject carries HTML entities to mirror the live endpoint's encoding.
  *
  * @return Raw email-summary response.
  */
@@ -921,7 +532,11 @@ function buildEmailSummaryResponse() {
 			opens_rate: 52.4,
 			clicks_rate: 8.93,
 		},
-		{ title: 'WordCamp Europe 2026: What to Expect', opens_rate: 47.9, clicks_rate: 10.25 },
+		{
+			title: 'WordCamp Europe 2026: Talks &amp; Workshops You Shouldn&#8217;t Miss',
+			opens_rate: 47.9,
+			clicks_rate: 10.25,
+		},
 		{
 			title: 'Click, Comment, Done: A Better Way to Collaborate',
 			opens_rate: 44.3,
@@ -946,23 +561,26 @@ function buildEmailSummaryResponse() {
 
 /**
  * Builds a mock email breakdown response for the "Email breakdown" widget. The
- * request path ends with the breakdown dimension
- * (`.../stats/opens|clicks/emails/{id}/{breakdown}`), so the trailing segment
- * selects the matching fieldless fixture. The endpoints have no comparison period.
+ * trailing path segment (`.../emails/{id}/{breakdown}`) selects the matching
+ * fixture; the endpoints have no comparison period.
  *
  * @param requestPath - The request path, used to read the breakdown dimension.
  * @return Raw email breakdown response.
  */
 function buildEmailBreakdownResponse( requestPath: string ): unknown {
-	const breakdown = requestPath.split( '?' )[ 0 ].split( '/' ).pop() ?? '';
+	const path = requestPath.split( '?' )[ 0 ];
+	const breakdown = path.split( '/' ).pop() ?? '';
+	const isClicks = /\/clicks\/emails\//.test( path );
 
 	switch ( breakdown ) {
 		case 'country':
-			return mockEmailCountryBreakdown;
+			return isClicks
+				? scaleEmailBreakdown( mockEmailCountryBreakdown )
+				: mockEmailCountryBreakdown;
 		case 'device':
-			return mockEmailDeviceBreakdown;
+			return isClicks ? scaleEmailBreakdown( mockEmailDeviceBreakdown ) : mockEmailDeviceBreakdown;
 		case 'client':
-			return mockEmailClientBreakdown;
+			return isClicks ? scaleEmailBreakdown( mockEmailClientBreakdown ) : mockEmailClientBreakdown;
 		case 'link':
 			return mockEmailInternalLinkBreakdown;
 		case 'user-content-link':
@@ -972,22 +590,72 @@ function buildEmailBreakdownResponse( requestPath: string ): unknown {
 	}
 }
 
+// Clicks are a fraction of opens, so the clicks breakdowns reuse the opens
+// fixtures scaled down rather than carrying a second fixture per dimension.
+const EMAIL_CLICKS_RATIO = 0.3;
+
+function scaleEmailBreakdown< Fixture extends Record< string, unknown > >(
+	fixture: Fixture
+): Fixture {
+	return Object.fromEntries(
+		Object.entries( fixture ).map( ( [ key, section ] ) => {
+			const data = ( section as { data?: unknown } )?.data;
+			if ( ! Array.isArray( data ) ) {
+				return [ key, section ];
+			}
+			return [
+				key,
+				{
+					...( section as object ),
+					data: data.map( row =>
+						Array.isArray( row ) && typeof row[ 1 ] === 'number'
+							? [ row[ 0 ], Math.round( row[ 1 ] * EMAIL_CLICKS_RATIO ) ]
+							: row
+					),
+				},
+			];
+		} )
+	) as Fixture;
+}
+
 /**
  * Routes a Stats sub-path to the matching mock generator.
  *
- * @param subPath - Path relative to `STATS_API_BASE` (e.g. `/search-terms`).
+ * @param subPath     - Path relative to `STATS_API_BASE` (e.g. `/search-terms`).
+ * @param requestPath - The full request path, including query parameters.
  * @return The mock response body, or `null` if no specific handler matched.
  */
-function routeStatsReport( subPath: string ): unknown {
-	// Single-post detail — `stats/post/{id}`. Any post ID resolves to the
-	// shared fixture so post-scoped widgets render real values.
-	if ( subPath.startsWith( '/post/' ) ) {
-		return mockStatsPostData;
+function routeStatsReport( subPath: string, requestPath: string ): unknown {
+	// Single-post detail — `stats/post/{id}`. Any ID resolves to the shared fixture,
+	// but must echo the requested ID: widgets skeleton on a mismatch.
+	const statsPost = subPath.match( /^\/post\/(\d+)/ );
+	if ( statsPost ) {
+		return {
+			...mockStatsPostData,
+			post: { ...mockStatsPostData.post, ID: Number( statsPost[ 1 ] ) },
+		};
 	}
 
-	// Single-video detail: `/video/{postId}` (drives the "Video embeds" widget).
+	// Single-author detail — `stats/author/{id}`, over a window or, with `num=-1`, all time.
+	const statsAuthor = subPath.match( /^\/author\/(\d+)$/ );
+	if ( statsAuthor ) {
+		const today = new Date().toISOString().slice( 0, 10 );
+		const allTime = getQueryParam( requestPath, 'num' ) === '-1';
+		const period = getQueryParam( requestPath, 'period' );
+
+		return buildAuthorStatsData(
+			Number( statsAuthor[ 1 ] ),
+			allTime
+				? MOCK_AUTHOR_FIRST_CONTENT_DAY
+				: ( getQueryParam( requestPath, 'start_date' )?.slice( 0, 10 ) ?? today ),
+			getQueryParam( requestPath, 'date' )?.slice( 0, 10 ) ?? today,
+			period === 'week' || period === 'month' || period === 'year' ? period : 'day'
+		);
+	}
+
+	// Single-video detail: `/video/{postId}` (drives video detail widgets).
 	if ( /^\/video\/\d+$/.test( subPath ) ) {
-		return mockSingleVideoData;
+		return buildSingleVideoResponse( requestPath );
 	}
 
 	// Per-post email rate breakdowns: `/opens/emails/<postId>/rate`, `/clicks/emails/<postId>/rate`.
@@ -1024,10 +692,11 @@ function routeStatsReport( subPath: string ): unknown {
 			return nextIsComparison( 'stats/search-terms' )
 				? mockSearchTermsComparisonData
 				: mockSearchTermsData;
-		case '/top-authors':
+		case '/top-authors': {
 			return nextIsComparison( 'stats/top-authors' )
 				? mockTopAuthorsComparisonData
 				: mockTopAuthorsData;
+		}
 		case '/tags':
 			// The Stats `tags` endpoint has no comparison period, so the same
 			// primary fixture is returned for every request.
@@ -1050,14 +719,89 @@ function routeStatsReport( subPath: string ): unknown {
 function getQueryParam( requestPath: string, key: string ): string | undefined {
 	const query = requestPath.split( '?' )[ 1 ];
 
-	return query ? new URLSearchParams( query ).get( key ) ?? undefined : undefined;
+	return query ? ( new URLSearchParams( query ).get( key ) ?? undefined ) : undefined;
 }
 
 /**
- * Scale factor for play counts based on how recent the requested window ends,
- * so the primary (recent) period reads higher than the comparison (earlier)
- * period and the widget shows period-over-period growth. Recent windows return
- * the full count; windows ~30+ days back taper to ~70%.
+ * Parse the query string of a (possibly relative) apiFetch request path.
+ *
+ * @param requestPath - The request path, with or without a query string.
+ * @return The parsed params, empty when the path carries none.
+ */
+function queryParamsOf( requestPath: string ): URLSearchParams {
+	return new URLSearchParams( requestPath.split( '?' )[ 1 ] ?? '' );
+}
+
+/**
+ * Builds a single-video response for the requested metric and window. Requests
+ * with an explicit `start_date`/`date` window get fixture days inside it; others
+ * (the embeds widget's default `period=month`) keep the default trailing 31-day
+ * window. `statType=all` mirrors wpcom #229903: four-metric tuples plus range totals (retention play-weighted, not averaged).
+ *
+ * @param requestPath - The request path, used to read `statType` and the window.
+ * @return Raw single-video response.
+ */
+function buildSingleVideoResponse( requestPath: string ) {
+	const statType = getQueryParam( requestPath, 'statType' );
+	const startDate = getQueryParam( requestPath, 'start_date' );
+	const endDate = getQueryParam( requestPath, 'date' ) ?? getQueryParam( requestPath, 'end_date' );
+	const windowDays =
+		startDate && endDate
+			? mockSingleVideoData.data.filter( ( [ day ] ) => day >= startDate && day <= endDate )
+			: mockSingleVideoData.data.slice( -31 );
+
+	if ( statType === 'all' ) {
+		const rows = windowDays.map( ( [ period, value ], index ) => {
+			const plays = Number( value );
+
+			return [
+				period,
+				plays,
+				Math.round( plays * 1.8 ),
+				Number( ( plays * 0.05 ).toFixed( 1 ) ),
+				Number( ( 52 + ( index % 7 ) * 2 ).toFixed( 1 ) ),
+			] as [ string, number, number, number, number ];
+		} );
+		const totalPlays = rows.reduce( ( sum, row ) => sum + row[ 1 ], 0 );
+		const total = {
+			plays: totalPlays,
+			impressions: rows.reduce( ( sum, row ) => sum + row[ 2 ], 0 ),
+			watch_time: Number( rows.reduce( ( sum, row ) => sum + row[ 3 ], 0 ).toFixed( 1 ) ),
+			retention_rate: Number(
+				(
+					rows.reduce( ( sum, row ) => sum + row[ 4 ] * row[ 1 ], 0 ) / ( totalPlays || 1 )
+				).toFixed( 1 )
+			),
+		};
+
+		return {
+			...mockSingleVideoData,
+			fields: [ 'period', 'plays', 'impressions', 'watch_time', 'retention_rate' ],
+			data: rows,
+			total,
+		};
+	}
+
+	let factor = 1;
+	if ( statType === 'impressions' ) {
+		factor = 2;
+	} else if ( statType === 'watch_time' ) {
+		factor = 0.05;
+	}
+
+	return {
+		...mockSingleVideoData,
+		data: windowDays.map( ( [ period, value ] ) => [
+			period,
+			Number( ( Number( value ) * factor ).toFixed( 1 ) ),
+		] ),
+	};
+}
+
+/**
+ * Scale factor for play counts based on how recent the window ends, so the
+ * primary (recent) period reads higher than the comparison and the widget shows
+ * growth. Recent windows return the full count; ~30+ days back tapers to ~70%.
  *
  * @param endDate - The window's end date (YYYY-MM-DD), or undefined for "today".
  * @return A multiplier in the range [0.7, 1].
@@ -1073,20 +817,17 @@ function playsFactorForWindow( endDate: string | undefined ): number {
 		return 1;
 	}
 
-	// `differenceInCalendarDays` counts whole calendar days between the two
-	// dates, so the scaling (and the mocked counts) stay stable regardless of
-	// the machine's timezone.
+	// `differenceInCalendarDays` counts whole calendar days, so the scaling (and
+	// mocked counts) stay stable regardless of the machine's timezone.
 	const daysAgo = Math.max( 0, differenceInCalendarDays( new Date(), end ) );
 
 	return 1 - Math.min( daysAgo / 30, 1 ) * 0.3;
 }
 
 /**
- * Builds a mock Stats "video-plays" response so the Videos widget renders a
- * populated leaderboard in Storybook. The shape matches what
- * `sanitizeStatsVideoPlaysResponse` reads (`days.<date>.plays[]`), and play
- * metrics scale by how recent the requested window is so the comparison period
- * reads lower than the primary one, including complete-stats highlight rows.
+ * Builds a mock Stats "video-plays" response matching what
+ * `sanitizeStatsVideoPlaysResponse` reads (`days.<date>.plays[]`); play metrics
+ * scale by window recency so the comparison period reads lower than the primary.
  *
  * @param requestPath - The request path, used to read the window's end date.
  * @return Raw video-plays response.
@@ -1095,19 +836,57 @@ function buildVideoPlaysResponse( requestPath: string ) {
 	const endDate = getQueryParam( requestPath, 'end_date' ) ?? getQueryParam( requestPath, 'date' );
 	const date = endDate ?? new Date().toISOString().slice( 0, 10 );
 	const factor = playsFactorForWindow( endDate );
-	const videos = [
-		{ post_id: 101, title: 'Getting Started Walkthrough', plays: 3820, hours: 72.4 },
-		{ post_id: 102, title: 'Product Launch Highlights', plays: 2640, hours: 51.8 },
-		{ post_id: 103, title: 'Customer Story: Acme Co.', plays: 1980, hours: 38.2 },
-		{ post_id: 104, title: 'How-To: Advanced Settings', plays: 1410, hours: 27.6 },
-		{ post_id: 105, title: 'Behind the Scenes', plays: 980, hours: 18.9 },
-		{ post_id: 106, title: 'Weekly Recap', plays: 540, hours: 10.7 },
-		{ post_id: 107, title: '', plays: 320, hours: 6.1 },
+	const posterFor = ( id: number ) => `https://picsum.photos/seed/jpa-video-${ id }/640/360`;
+	const videos: Array< {
+		post_id: number;
+		title: string;
+		plays: number;
+		hours: number;
+		poster?: string | null;
+	} > = [
+		{
+			post_id: 101,
+			title: 'Getting Started Walkthrough',
+			plays: 3820,
+			hours: 72.4,
+			poster: posterFor( 101 ),
+		},
+		{
+			post_id: 102,
+			title: 'Product Launch Highlights',
+			plays: 2640,
+			hours: 51.8,
+			poster: posterFor( 102 ),
+		},
+		{
+			post_id: 103,
+			title: 'Customer Story: Acme Co.',
+			plays: 1980,
+			hours: 38.2,
+			poster: posterFor( 103 ),
+		},
+		{
+			post_id: 104,
+			title: 'How-To: Advanced Settings',
+			plays: 1410,
+			hours: 27.6,
+			poster: posterFor( 104 ),
+		},
+		{ post_id: 105, title: 'Behind the Scenes', plays: 980, hours: 18.9, poster: null },
+		{
+			post_id: 106,
+			title: 'Weekly Recap',
+			plays: 540,
+			hours: 10.7,
+			poster: 'https://videos.files.wordpress.com/jpa-missing/poster.jpg',
+		},
+		{ post_id: 107, title: '', plays: 320, hours: 6.1, poster: posterFor( 107 ) },
 	];
 	const rows = videos.map( video => ( {
 		post_id: video.post_id,
 		title: video.title,
 		url: `https://example.com/video/${ video.post_id }/`,
+		...( video.poster !== undefined ? { poster: video.poster } : {} ),
 		plays: Math.round( video.plays * factor ),
 		impressions: Math.round( video.plays * factor * 1.8 ),
 		watch_time: Number( ( video.hours * factor ).toFixed( 1 ) ),
@@ -1133,14 +912,10 @@ function buildVideoPlaysResponse( requestPath: string ) {
 }
 
 /**
- * Builds the wordads/stats time-series response for the WordAds chart tabs.
- *
- * Honours the `unit`, `date`, and `quantity` query params and returns the raw
- * WPCOM matrix shape (`fields: [ 'period', 'impressions', 'revenue', 'cpm' ]`).
- * Impressions are anchored to each bucket's absolute date so the current window
- * trends above the comparison window (a positive period-over-period delta), and
- * revenue is derived from impressions and a wavy CPM so all three metrics move
- * together and read clearly against the dashed previous-period overlay.
+ * Builds the wordads/stats time-series response for the WordAds chart tabs,
+ * honouring `unit`/`date`/`quantity` and returning the raw WPCOM matrix shape.
+ * Impressions anchor to each bucket's date so the window trends above the
+ * comparison; revenue derives from impressions and a wavy CPM so all three metrics move together.
  *
  * @param query - Parsed query params (`unit`, `date`, `quantity`).
  * @return Raw wordads/stats response in the WPCOM matrix shape.
@@ -1178,6 +953,11 @@ function buildWordAdsStatsResponse( query: URLSearchParams ) {
 			period = bucket.toISOString().slice( 0, 10 );
 		}
 
+		// A day bucket for today has no figures until the nightly WordAds run lands.
+		if ( unit === 'day' && period >= new Date().toISOString().slice( 0, 10 ) ) {
+			return [ period, 0, 0, 0 ];
+		}
+
 		const absDay = Math.floor( bucket.getTime() / DAY_MS );
 		const trend = ( absDay - anchorDay ) * 3;
 		const wave = 200 * Math.sin( absDay / 9 ) + 80 * Math.cos( absDay / 13 );
@@ -1197,14 +977,9 @@ function buildWordAdsStatsResponse( query: URLSearchParams ) {
 }
 
 /**
- * Builds the wordads/earnings response for the WordAds earnings widgets.
- *
- * The earnings module reports all-time totals (not period-scoped), so this
- * returns a fixed raw WPCOM payload: `total_earnings` and `total_amount_owed`
- * feed the widget's Earnings / Paid / Outstanding cards (paid = earnings −
- * owed). All three per-period breakdowns are populated so the three history
- * widgets render their primary table state by default. Together the rows cover
- * every known payment status for visual review.
+ * Builds the wordads/earnings response. All-time totals (not period-scoped):
+ * `total_earnings`/`total_amount_owed` feed the Earnings/Paid/Outstanding cards
+ * (paid = earnings − owed), and all three breakdowns are populated, covering every payment status, so the history tables render fully by default.
  *
  * @return Raw wordads/earnings response in the WPCOM shape.
  */
@@ -1251,16 +1026,37 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 			return new Promise< never >( () => {} );
 		}
 		if ( state === 'empty' ) {
+			if ( requestPath.startsWith( STATS_VIEWS_BY_HOUR_PATH ) ) {
+				// `sanitizeStatsHourOfDayResponse` throws on any other `dimension`, so the
+				// generic empty payload below would render the error state here instead.
+				return {
+					date: '2026-01-01',
+					start_date: '2025-12-03',
+					days: 30,
+					dimension: 'hour-of-day',
+					fields: [ 'period', 'views' ],
+					data: [],
+				};
+			}
 			// A valid response with no rows across the shapes report sanitizers read
 			// (`summary` / `days` / `data`), so the widget resolves to its empty state.
 			return { date: '2026-01-01', period: 'day', summary: {}, days: {}, data: [] };
 		}
-		// A 403 is not retried by `shouldRetryApiError`, so the error UI shows at
-		// once instead of after the query's retry backoff.
+		if ( state === 'error-retryable' ) {
+			// The local proxy's `no_connection` shape: still a 403, so the error UI shows
+			// at once, but `describeError` keeps it retryable since a broken connection can heal.
+			return Promise.reject( {
+				code: 'no_connection',
+				message: 'Mocked connection failure for Storybook.',
+				data: { status: 403 },
+			} );
+		}
+		// The WPCOM pass-through error envelope. A 403 isn't retried by
+		// `shouldRetryApiError`, so the error UI shows at once; `describeError` reads it as a permission gate and drops Retry.
 		return Promise.reject( {
-			code: 'stats_mock_error',
+			error: 'unauthorized',
 			message: 'Mocked error response for Storybook.',
-			data: { status: 403 },
+			status: 403,
 		} );
 	}
 
@@ -1268,12 +1064,26 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 		return coreSettingsMock;
 	}
 
+	if ( requestPath.startsWith( WP_POSTS_PATH ) ) {
+		const includeParam = getQueryParam( requestPath, 'include' );
+
+		if ( includeParam ) {
+			return buildPostContentResponse( includeParam );
+		}
+
+		return next( options );
+	}
+
 	if ( requestPath.startsWith( STATS_FOLLOWERS_PATH ) ) {
-		return buildFollowersResponse();
+		const queryIndex = requestPath.indexOf( '?' );
+		const query = new URLSearchParams(
+			queryIndex === -1 ? '' : requestPath.slice( queryIndex + 1 )
+		);
+		return buildFollowersResponse( Number( query.get( 'max' ) ) );
 	}
 
 	if ( requestPath.startsWith( STATS_SUBSCRIBERS_COUNTS_PATH ) ) {
-		return mockStatsSubscribersCountsData;
+		return buildStatsSubscribersCountsData( mockSubscribersOn( new Date() ) );
 	}
 
 	if ( requestPath.startsWith( STATS_SUBSCRIBERS_PATH ) ) {
@@ -1283,11 +1093,12 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 		);
 	}
 
+	if ( requestPath.startsWith( STATS_VIEWS_BY_HOUR_PATH ) ) {
+		return buildHourOfDayResponse( queryParamsOf( requestPath ) );
+	}
+
 	if ( requestPath.startsWith( STATS_VISITS_PATH ) ) {
-		const queryIndex = requestPath.indexOf( '?' );
-		return buildVisitsResponse(
-			new URLSearchParams( queryIndex === -1 ? '' : requestPath.slice( queryIndex + 1 ) )
-		);
+		return buildVisitsResponse( queryParamsOf( requestPath ) );
 	}
 
 	if ( requestPath.startsWith( STATS_EMAIL_SUMMARY_PATH ) ) {
@@ -1296,10 +1107,6 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 
 	if ( requestPath.startsWith( STATS_VIDEO_PLAYS_PATH ) ) {
 		return buildVideoPlaysResponse( requestPath );
-	}
-
-	if ( requestPath.startsWith( STATS_PLAN_USAGE_PATH ) ) {
-		return mockPlanUsageData;
 	}
 
 	if ( POST_LIKES_PATH_PATTERN.test( requestPath ) ) {
@@ -1325,38 +1132,24 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 		const subPath = requestPath.slice( STATS_API_BASE.length ).split( '?' )[ 0 ];
 
 		// Per-post email timelines — `/opens|clicks/emails/<postId>` with
-		// `stats_fields=timeline`. Matched here rather than in routeStatsReport()
-		// because the generated buckets read period/quantity/date off the query.
+		// `stats_fields=timeline`. Matched here, not in routeStatsReport(), since buckets read period/quantity/date off the query.
 		const emailTimeline = subPath.match( /^\/(opens|clicks)\/emails\/\d+$/ );
 		if ( emailTimeline && getQueryParam( requestPath, 'stats_fields' ) === 'timeline' ) {
 			return buildEmailTimelineResponse( emailTimeline[ 1 ] as 'opens' | 'clicks', requestPath );
 		}
 
-		const response = routeStatsReport( subPath );
+		const response = routeStatsReport( subPath, requestPath );
 
 		if ( response !== null ) {
 			return response;
 		}
 
-		// Stats endpoints this middleware doesn't route may be owned by the
-		// legacy stats mocks (register-stats-mocks.ts). Fall through so
-		// middleware registration order doesn't decide whether they load.
+		// Unrouted Stats endpoints may be owned by the legacy mocks (register-stats-mocks.ts);
+		// fall through so middleware registration order doesn't decide whether they load.
 		return next( options );
 	}
 
-	if ( ! requestPath.startsWith( API_BASE ) ) {
-		return next( options );
-	}
-
-	const { subPath, query } = parseReportPath( requestPath );
-	const response = routeReport( subPath, query );
-
-	if ( response !== null ) {
-		return response;
-	}
-
-	// Catch-all for any other report path: an empty-but-valid response.
-	return { data: [], summary: {} };
+	return next( options );
 };
 
 let registered = false;

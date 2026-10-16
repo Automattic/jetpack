@@ -1,41 +1,42 @@
 /**
  * External dependencies
  */
-import { normalizeReportParams } from '@jetpack-premium-analytics/data';
+import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
+import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
-	useDashboardLink,
-	useReportDateFilters,
-	useSectionTab,
-} from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
-import {
-	ReportErrorState,
+	ReportDrilldownTable,
 	ReportPageLayout,
+	ReportErrorState,
 	ReportPageShell,
 	ReportPageTabs,
-	ReportRecordsTable,
-	useReportRetry,
+	ExporterCsvAction,
+	utmCsvExporters,
+	type UtmReportRow,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { Breadcrumbs } from '@wordpress/admin-ui';
-import { useMemo, useState } from '@wordpress/element';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useSearch } from '@wordpress/route';
 /**
  * Internal dependencies
  */
 import { route } from '../package.json';
+import { REPORTS } from '../registry';
+import { useReportParams } from '../use-report-params';
 import {
 	getReportUtmTabs,
 	getUtmFields,
+	getUtmTabLabel,
 	resolveSection,
 	useUtmReportRecords,
-	type UtmReportRow,
 } from './config';
+import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;
 
+/*
+ * No default sort: rows arrive as UTM parents followed by their posts. The
+ * unsorted view preserves that hierarchy; user sorting stays within levels.
+ */
 const RECORDS_VIEW = {
-	sort: { field: 'views', direction: 'desc' as const },
 	layout: {
 		styles: {
 			utmValue: { width: '100%' },
@@ -55,61 +56,70 @@ function getUtmRowId( item: UtmReportRow ): string {
 }
 
 /**
+ * Resolve the UTM parent row id for nested post rows.
+ *
+ * @param item - The UTM or post row.
+ * @return The parent row id, if any.
+ */
+function getUtmRowParentId( item: UtmReportRow ): string | undefined {
+	return item.parentId;
+}
+
+/**
  * Premium Analytics UTM report page.
  *
  * @return The UTM report page.
  */
 function UtmReport(): JSX.Element {
-	const search = useSearch( { from: ROUTE_FROM } ) as Record< string, string | undefined >;
-	const reportParams = useMemo(
-		() => normalizeReportParams( search as Parameters< typeof normalizeReportParams >[ 0 ] ),
-		[ search ]
-	);
+	const reportParams = useReportParams();
 	const tabs = useMemo( () => getReportUtmTabs(), [] );
 	const [ activeTab, setActiveTab ] = useSectionTab( ROUTE_FROM, resolveSection );
 	const records = useUtmReportRecords( activeTab, reportParams );
-	const retry = useReportRetry( records.refetch );
 	const fields = useMemo( () => getUtmFields( activeTab ), [ activeTab ] );
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const dashboardLink = useDashboardLink();
-	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
+	const { getLabel } = REPORTS.utm;
 
 	return (
 		<ReportPageShell
-			tabbed
-			breadcrumbs={
-				<Breadcrumbs
-					items={ [
-						{ label: __( 'Stats', 'jetpack-premium-analytics' ), to: dashboardLink },
-						{ label: __( 'UTM', 'jetpack-premium-analytics' ) },
-					] }
+			visual={ <StatsPageIcon /> }
+			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
+			actions={
+				<ExporterCsvAction
+					exporter={ utmCsvExporters[ activeTab ] }
+					items={ records.rows }
+					status={ records }
+					reportParams={ reportParams }
 				/>
 			}
 		>
 			<ReportPageLayout
+				title={ getUtmTabLabel( activeTab ) }
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
-				filters={
-					<div ref={ setContainerElement }>
-						<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
-					</div>
-				}
+				dateFilters={ dateFilters }
+				withAllTime
 			>
-				{ records.isError ? (
-					<ReportErrorState
-						title={ __( 'Unable to load UTM data', 'jetpack-premium-analytics' ) }
-						onRetry={ retry }
-					/>
-				) : (
-					<ReportRecordsTable< UtmReportRow >
+				<ReportErrorState
+					status={ records }
+					retryDescription={ __(
+						"We couldn't load UTM data. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					) }
+				>
+					<ReportDrilldownTable< UtmReportRow >
 						key={ activeTab }
 						data={ records.rows }
 						fields={ fields }
 						getItemId={ getUtmRowId }
+						getItemParentId={ getUtmRowParentId }
 						isLoading={ records.isLoading }
+						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
-						searchLabel={ __( 'Search UTM values', 'jetpack-premium-analytics' ) }
+						searchLabel={ __( 'Search UTM values', 'jetpack-premium-analytics-pkg' ) }
+						hideLevelMarkers
+						collapsible
+						defaultExpanded="none"
 					/>
-				) }
+				</ReportErrorState>
 			</ReportPageLayout>
 		</ReportPageShell>
 	);

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Date range picker: make the first calendar click start a new range instead of moving the nearest endpoint

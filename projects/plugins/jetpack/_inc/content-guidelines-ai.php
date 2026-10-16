@@ -9,6 +9,7 @@
  */
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Status\Visitor;
 use Automattic\Jetpack\Tracking;
 
@@ -17,25 +18,24 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Check if the current user is an Automattician.
+ * Check whether the current visitor should be marked as Automattician traffic.
  *
- * - Simple sites: wpcom_is_proxied_request() + is_automattician()
- * - Atomic sites: Visitor::is_automattician_feature_flags_only()
+ * @since 16.2
  *
- * @return bool
+ * @return bool True when the visitor is Automattician traffic.
  */
-function jetpack_content_guidelines_ai_is_automattician() {
-	// Simple sites.
-	if ( function_exists( 'wpcom_is_proxied_request' )
-		&& wpcom_is_proxied_request()
-		&& function_exists( 'is_automattician' )
-		&& is_automattician()
-	) {
-		return true;
+function jetpack_content_guidelines_ai_is_tracking_automattician() {
+	$visitor = new Visitor();
+
+	// Another plugin can supply an older copy of jetpack-status through its own
+	// autoloader, where this method does not exist yet.
+	if ( ! method_exists( $visitor, 'is_tracking_automattician' ) ) {
+		return ( function_exists( 'is_automattician' ) && is_automattician() )
+			|| ( function_exists( 'wpcom_is_proxied_request' ) && wpcom_is_proxied_request() )
+			|| ( defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST );
 	}
 
-	// Atomic sites.
-	return ( new Visitor() )->is_automattician_feature_flags_only();
+	return $visitor->is_tracking_automattician();
 }
 
 /**
@@ -50,8 +50,20 @@ function jetpack_content_guidelines_ai_enqueue_scripts( $hook_suffix ) {
 		return;
 	}
 
-	// Temporarily gate to Automatticians only during internal rollout.
-	if ( ! jetpack_content_guidelines_ai_is_automattician() ) {
+	// Content Guidelines AI is only offered on WordPress.com platform sites
+	// (Simple and Atomic) and WordPress VIP sites — a hard gate the
+	// jetpack_ai_enabled filter below cannot widen. Free-tier sites still load
+	// the bundle so the upgrade path can be shown — the paid-plan requirement
+	// is enforced by the suggest-guidelines API.
+	$host = new Host();
+	if ( ! $host->is_wpcom_platform() && ! $host->is_vip_site() ) {
+		return;
+	}
+
+	// Bail when Jetpack AI is disabled for the site: the AI settings master
+	// switch and other site-wide disables ride this filter.
+	/** This filter is documented in projects/plugins/jetpack/_inc/lib/class-jetpack-ai-helper.php */
+	if ( ! apply_filters( 'jetpack_ai_enabled', true ) ) {
 		return;
 	}
 
@@ -97,6 +109,10 @@ function jetpack_content_guidelines_ai_enqueue_scripts( $hook_suffix ) {
 	// and upgrade notice.
 	$initial_state = array(
 		'bannerDismissed' => class_exists( 'Jetpack_AI_Helper' ) && Jetpack_AI_Helper::is_guidelines_banner_dismissed(),
+		// Tags every Tracks event fired from this page as internal traffic. The
+		// feature is new and low-volume, so Automattician testing is otherwise a
+		// visible share of the numbers with no way to filter it out after the fact.
+		'isA11n'          => jetpack_content_guidelines_ai_is_tracking_automattician(),
 	);
 
 	// Resolve the AI feature state server-side so the bundle can hydrate the

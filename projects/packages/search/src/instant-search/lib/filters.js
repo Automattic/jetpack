@@ -1,4 +1,5 @@
 import { SERVER_OBJECT_NAME } from './constants';
+import { normalizeWidgets } from './widgets';
 
 // NOTE: This list is missing custom taxonomy names.
 //       getFilterKeys must be used to get the conclusive list of valid filter keys.
@@ -32,8 +33,8 @@ export const FILTER_KEYS = Object.freeze( [
  * @return {string[]} filterKeys
  */
 export function getFilterKeys(
-	widgets = window[ SERVER_OBJECT_NAME ]?.widgets,
-	widgetsOutsideOverlay = window[ SERVER_OBJECT_NAME ]?.widgetsOutsideOverlay
+	widgets = normalizeWidgets( window[ SERVER_OBJECT_NAME ]?.widgets ),
+	widgetsOutsideOverlay = normalizeWidgets( window[ SERVER_OBJECT_NAME ]?.widgetsOutsideOverlay )
 ) {
 	// Extract taxonomy names from server widget data
 	const keys = new Set( FILTER_KEYS );
@@ -59,11 +60,15 @@ export function getFilterKeys(
  * @return {Array} list of available static filters.
  */
 export function getAvailableStaticFilters( variation ) {
-	if ( ! window[ SERVER_OBJECT_NAME ]?.staticFilters ) {
+	const staticFilters = window[ SERVER_OBJECT_NAME ]?.staticFilters;
+	if ( ! Array.isArray( staticFilters ) ) {
 		return [];
 	}
 
-	return window[ SERVER_OBJECT_NAME ].staticFilters.filter( filter => {
+	return staticFilters.filter( filter => {
+		if ( ! filter || typeof filter !== 'object' || Array.isArray( filter ) ) {
+			return false;
+		}
 		// this check makes the function backwards compatible (it didn't have variation as an argument before)
 		if ( ! variation ) {
 			// if variation is not provided, return all filters
@@ -98,7 +103,9 @@ export function getStaticFilterKeys() {
  * @param {object[]} widgets - Array of Jetpack Search widget objects inside the overlay sidebar.
  * @return {string[]} filterKeys
  */
-export function getSelectableFilterKeys( widgets = window[ SERVER_OBJECT_NAME ]?.widgets ) {
+export function getSelectableFilterKeys(
+	widgets = normalizeWidgets( window[ SERVER_OBJECT_NAME ]?.widgets )
+) {
 	return (
 		widgets?.map( extractFilterKeys ).reduce( ( prev, current ) => prev.concat( current ), [] ) ??
 		[]
@@ -112,7 +119,9 @@ export function getSelectableFilterKeys( widgets = window[ SERVER_OBJECT_NAME ]?
  * @param {object[]} widgets - Array of Jetpack Search widget objects inside the overlay sidebar.
  * @return {string[]} filterKeys
  */
-export function getUnselectableFilterKeys( widgets = window[ SERVER_OBJECT_NAME ]?.widgets ) {
+export function getUnselectableFilterKeys(
+	widgets = normalizeWidgets( window[ SERVER_OBJECT_NAME ]?.widgets )
+) {
 	const selectable = getSelectableFilterKeys( widgets );
 	return getFilterKeys().filter( key => ! selectable.includes( key ) );
 }

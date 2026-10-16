@@ -1,22 +1,25 @@
 /**
  * External dependencies
  */
-import { useDashboardLink } from '@jetpack-premium-analytics/routing';
+import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
-	ReportErrorState,
+	ExporterCsvAction,
 	ReportPageLayout,
+	ReportErrorState,
+	ReportPageShell,
 	ReportRecordsTable,
-	useReportRetry,
+	annualInsightsCsvExporter,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { Breadcrumbs, Page } from '@wordpress/admin-ui';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { REPORTS } from '../registry';
+import { useReportParams } from '../use-report-params';
 import { getAnnualInsightsFields, useAnnualInsightsReportRecords } from './config';
-import styles from './page.module.css';
 import type { StatsInsightsYear } from '@jetpack-premium-analytics/data';
+import type { JSX } from 'react';
 
 const RECORDS_VIEW = {
 	sort: { field: 'year', direction: 'desc' as const },
@@ -30,6 +33,8 @@ const RECORDS_VIEW = {
 			avg_likes: { align: 'end' as const },
 			total_words: { align: 'end' as const },
 			avg_words: { align: 'end' as const },
+			total_images: { align: 'end' as const },
+			avg_images: { align: 'end' as const },
 		},
 	},
 };
@@ -51,51 +56,44 @@ function getAnnualInsightRowId( item: StatsInsightsYear ): string {
  */
 function AnnualInsightsReport(): JSX.Element {
 	const records = useAnnualInsightsReportRecords();
+	const reportParams = useReportParams();
 	const fields = useMemo( () => getAnnualInsightsFields(), [] );
-	const retry = useReportRetry( records.refetch );
-	const dashboardLink = useDashboardLink();
+
+	const { getLabel } = REPORTS[ 'annual-insights' ];
 
 	return (
-		<Page
-			breadcrumbs={
-				<Breadcrumbs
-					items={ [
-						{ label: __( 'Stats', 'jetpack-premium-analytics' ), to: dashboardLink },
-						{ label: __( 'Annual insights', 'jetpack-premium-analytics' ) },
-					] }
+		<ReportPageShell
+			visual={ <StatsPageIcon /> }
+			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
+			actions={
+				<ExporterCsvAction
+					exporter={ annualInsightsCsvExporter }
+					items={ records.rows }
+					status={ records }
+					reportParams={ reportParams }
 				/>
 			}
-			subTitle={ __(
-				'Year-by-year publishing and engagement totals.',
-				'jetpack-premium-analytics'
-			) }
-			className={ styles.page }
 		>
-			<div className={ styles.content }>
-				<ReportPageLayout>
-					{ /*
-					 * The error state replaces the table rather than sitting beside it:
-					 * `ReportRecordsTable`'s empty state is row-count based, so a failed
-					 * request would otherwise look like a legitimate empty report.
-					 */ }
-					{ records.isError ? (
-						<ReportErrorState
-							title={ __( 'Unable to load annual insights', 'jetpack-premium-analytics' ) }
-							onRetry={ retry }
-						/>
-					) : (
-						<ReportRecordsTable< StatsInsightsYear >
-							data={ records.rows }
-							fields={ fields }
-							getItemId={ getAnnualInsightRowId }
-							isLoading={ records.isLoading }
-							initialView={ RECORDS_VIEW }
-							searchLabel={ __( 'Search annual insights', 'jetpack-premium-analytics' ) }
-						/>
+			<ReportPageLayout title={ getLabel() }>
+				<ReportErrorState
+					status={ records }
+					retryDescription={ __(
+						"We couldn't load annual insights. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
 					) }
-				</ReportPageLayout>
-			</div>
-		</Page>
+				>
+					<ReportRecordsTable< StatsInsightsYear >
+						data={ records.rows }
+						fields={ fields }
+						getItemId={ getAnnualInsightRowId }
+						isLoading={ records.isLoading }
+						isFetching={ records.isFetching }
+						initialView={ RECORDS_VIEW }
+						searchLabel={ __( 'Search annual insights', 'jetpack-premium-analytics-pkg' ) }
+					/>
+				</ReportErrorState>
+			</ReportPageLayout>
+		</ReportPageShell>
 	);
 }
 

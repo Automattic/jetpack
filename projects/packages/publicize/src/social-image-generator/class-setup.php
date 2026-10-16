@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Publicize\Social_Image_Generator;
 
 use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings;
+use Automattic\Jetpack\Publicize\Publicize;
 
 /**
  * Class for setting up Social Image Generator-related functionality.
@@ -55,6 +56,47 @@ class Setup {
 		}
 
 		$post_settings->update_setting( 'token', sanitize_text_field( $token ) );
+
+		$this->sync_attached_media( $post_settings->post_id );
+	}
+
+	/**
+	 * Point the shared attachment at the post's current generated image.
+	 *
+	 * When the post shares the generated image as an attachment, attached_media holds a
+	 * plain URL instead of being derived from the token at render time like the OG tag is.
+	 * It therefore goes stale whenever the token changes — most visibly after a template
+	 * edit, which shares the previous template's image. This runs alongside the
+	 * authoritative token write so the two can't drift, including when the editor closes
+	 * before its debounced preview ever produced a token.
+	 *
+	 * @param int $post_id Post whose attachment should follow the generated image.
+	 */
+	private function sync_attached_media( $post_id ) {
+		$options = get_post_meta( $post_id, Publicize::POST_JETPACK_SOCIAL_OPTIONS, true );
+
+		if ( ! is_array( $options ) || ( $options['media_source'] ?? '' ) !== 'sig' ) {
+			return;
+		}
+
+		// A non-empty id means real library media, which must not be replaced.
+		if ( ! isset( $options['attached_media'][0] ) || ! empty( $options['attached_media'][0]['id'] ) ) {
+			return;
+		}
+
+		$url = get_image_url( $post_id );
+
+		if ( empty( $url ) || ( $options['attached_media'][0]['url'] ?? '' ) === $url ) {
+			return;
+		}
+
+		$options['attached_media'][0] = array(
+			'id'   => 0,
+			'url'  => $url,
+			'type' => 'image/png',
+		);
+
+		update_post_meta( $post_id, Publicize::POST_JETPACK_SOCIAL_OPTIONS, $options );
 	}
 
 	/**

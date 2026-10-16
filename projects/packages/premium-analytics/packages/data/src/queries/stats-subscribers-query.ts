@@ -1,17 +1,22 @@
 /**
+ * External dependencies
+ */
+import { localTZDate } from '@jetpack-premium-analytics/datetime';
+import { format, subDays } from 'date-fns';
+/**
  * Internal dependencies
  */
 import { getPeriodsBetweenInclusive, reportParamsToStatsQueryParams } from '../utils/stats-params';
 import { statsProxyQuery } from './stats-query';
 import type { StatsReportParams, StatsReportQueryOptions } from './stats-query';
-import type { StatsPeriod } from '../utils/stats-params';
+import type { StatsPeriod, StatsQueryParams } from '../utils/stats-params';
 
 export const statsSubscribersDefaultStatFields = 'subscribers,subscribers_paid';
 
 /**
  * Granularities the `stats/subscribers` endpoint supports as its `unit`. The
- * dashboard's finer/coarser intervals (`hour`, `quarter`) have no subscriber
- * bucket, so they collapse onto these.
+ * dashboard's `hour` interval has no subscriber bucket, so it collapses onto
+ * these.
  */
 export type StatsSubscribersUnit = 'day' | 'week' | 'month' | 'year';
 
@@ -22,12 +27,7 @@ export type StatsSubscribersParams = {
 	stat_fields?: string;
 };
 
-/**
- * Map a stats `period` onto a granularity the subscribers endpoint accepts.
- *
- * @param period - The period derived from the dashboard interval.
- * @return The nearest supported subscribers unit.
- */
+/** Map a stats `period` onto the nearest granularity the subscribers endpoint accepts. */
 function toSubscribersUnit( period?: string ): StatsSubscribersUnit {
 	return period === 'week' || period === 'month' || period === 'year' ? period : 'day';
 }
@@ -35,7 +35,8 @@ function toSubscribersUnit( period?: string ): StatsSubscribersUnit {
 export type StatsSubscribersCountsParams = Record< string, never >;
 
 export const statsSubscribersQuery = (
-	params: StatsSubscribersParams
+	params: StatsSubscribersParams,
+	sanitizerParams?: StatsQueryParams
 ): StatsReportQueryOptions< 'subscribers' > =>
 	statsProxyQuery( {
 		name: 'subscribers',
@@ -49,20 +50,14 @@ export const statsSubscribersQuery = (
 			stat_fields: params.stat_fields ?? statsSubscribersDefaultStatFields,
 		},
 		sanitizer: 'subscribers',
+		sanitizerParams,
 	} );
 
 /**
  * Build the subscribers time-series query from dashboard report params.
  *
- * The `stats/subscribers` endpoint is quantity-based (`unit` + `quantity` ending
- * at `date`), not `from`/`to`-based, so the dashboard range is translated here:
- * the interval picks the `unit`, the range end becomes `date`, and the number of
- * buckets spanning the range becomes `quantity`. Wrapped in `useStatsReport`,
- * the comparison window is fetched automatically from the dashboard's compare
- * range.
- *
- * @param params - The dashboard report params.
- * @return The subscribers query options.
+ * The endpoint is quantity-based (`unit` + `quantity` ending at `date`), not
+ * `from`/`to`-based, so the dashboard range is translated here.
  */
 export const statsSubscribersReportQuery = (
 	params: StatsReportParams
@@ -76,12 +71,28 @@ export const statsSubscribersReportQuery = (
 	const quantity =
 		startDate && endDate ? getPeriodsBetweenInclusive( unit, startDate, endDate ) : 1;
 
-	// Reuse the endpoint config; only gate on a resolved range end.
+	// Reuse the endpoint config; only gate on a resolved range end. The sanitizer
+	// reads the range start to label a partial first bucket.
 	return {
-		...statsSubscribersQuery( { unit, quantity, date: endDate ?? '' } ),
+		...statsSubscribersQuery(
+			{ unit, quantity, date: endDate ?? '' },
+			startDate ? { start_date: startDate } : undefined
+		),
 		enabled: !! endDate,
 	};
 };
+
+/**
+ * The subscriber count on the site-local day `daysAgo` days before today.
+ */
+export const statsSubscribersDaysAgoQuery = (
+	daysAgo: number
+): StatsReportQueryOptions< 'subscribers' > =>
+	statsSubscribersQuery( {
+		unit: 'day',
+		quantity: 1,
+		date: format( subDays( localTZDate(), daysAgo ), 'yyyy-MM-dd' ),
+	} );
 
 export const statsSubscribersCountsQuery = (
 	params: StatsSubscribersCountsParams = {}

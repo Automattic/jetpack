@@ -29,6 +29,7 @@ const baseVideo: LibraryItem = {
 	shortcode: '[videopress abc123]',
 	sourceUrl: 'https://example.test/movie.mp4',
 	isProcessing: false,
+	orientation: null,
 	tracks: [],
 };
 
@@ -81,6 +82,45 @@ describe( 'PreviewPlayer', () => {
 		expect( screen.queryByText( 'Processing' ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'reloads the embed when the saved title or thumbnail changes, not on unrelated re-renders', () => {
+		const { rerender } = render( <PreviewPlayer video={ baseVideo } /> );
+		const initial = screen.getByTitle( 'Video preview' );
+
+		// Unrelated field change: same iframe instance, playback undisturbed.
+		rerender( <PreviewPlayer video={ { ...baseVideo, durationSeconds: 61 } } /> );
+		expect( screen.getByTitle( 'Video preview' ) ).toBe( initial );
+
+		// A committed rename remounts the iframe so the embed re-fetches.
+		rerender( <PreviewPlayer video={ { ...baseVideo, title: 'Renamed' } } /> );
+		const afterRename = screen.getByTitle( 'Video preview' );
+		expect( afterRename ).not.toBe( initial );
+
+		// A new poster remounts it again.
+		rerender(
+			<PreviewPlayer
+				video={ {
+					...baseVideo,
+					title: 'Renamed',
+					thumbnailUrl: 'https://example.test/poster-2.jpg',
+				} }
+			/>
+		);
+		expect( screen.getByTitle( 'Video preview' ) ).not.toBe( afterRename );
+	} );
+
+	it( 'keeps the iframe when processing supplies its first poster, then refreshes later poster edits', () => {
+		const { rerender } = render(
+			<PreviewPlayer video={ { ...baseVideo, isProcessing: true, thumbnailUrl: null } } />
+		);
+		const player = screen.getByTitle( 'Video preview' );
+		rerender( <PreviewPlayer video={ baseVideo } /> );
+		expect( screen.getByTitle( 'Video preview' ) ).toBe( player );
+		rerender(
+			<PreviewPlayer video={ { ...baseVideo, thumbnailUrl: 'https://example.test/custom.jpg' } } />
+		);
+		expect( screen.getByTitle( 'Video preview' ) ).not.toBe( player );
+	} );
+
 	it( 'plays local items without a GUID through a native video element', () => {
 		render( <PreviewPlayer video={ { ...baseVideo, type: 'local', guid: '' } } /> );
 
@@ -96,4 +136,13 @@ describe( 'PreviewPlayer', () => {
 
 		expect( container ).toBeEmptyDOMElement();
 	} );
+} );
+
+it( 'shows conversion failure recovery without minting a token or loading a player', () => {
+	render( <PreviewPlayer video={ { ...baseVideo, isPrivate: true, conversionFailed: true } } /> );
+	expect( screen.getByRole( 'status' ) ).toHaveTextContent(
+		'Conversion failed. Delete this video and upload it again.'
+	);
+	expect( screen.queryByTitle( 'Video preview' ) ).not.toBeInTheDocument();
+	expect( mockedGetMediaToken ).not.toHaveBeenCalled();
 } );

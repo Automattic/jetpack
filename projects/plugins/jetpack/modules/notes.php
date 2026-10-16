@@ -85,20 +85,6 @@ class Jetpack_Notifications {
 			return;
 		}
 
-		// Do not show notifications in the Site Editor, which is always in fullscreen mode.
-		global $pagenow;
-
-		// Pre 13.7 pages that still need to be supported if < 13.7 is
-		// still installed.
-		$allowed_old_pages       = array( 'admin.php', 'themes.php' );
-		$is_old_site_editor_page = in_array( $pagenow, $allowed_old_pages, true ) && isset( $_GET['page'] ) && 'gutenberg-edit-site' === $_GET['page']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		// For Gutenberg > 13.7, the core `site-editor.php` route is used instead
-		$is_site_editor_page = 'site-editor.php' === $pagenow;
-
-		if ( $is_site_editor_page || $is_old_site_editor_page ) {
-			return;
-		}
-
 		add_action( 'admin_bar_menu', array( $this, 'admin_bar_menu' ), 120 );
 		add_action( 'wp_head', array( $this, 'styles_and_scripts' ), 120 );
 		add_action( 'admin_head', array( $this, 'styles_and_scripts' ) );
@@ -110,9 +96,6 @@ class Jetpack_Notifications {
 	 * @return void
 	 */
 	public function styles_and_scripts() {
-		if ( self::is_block_editor() ) {
-			return;
-		}
 		$is_rtl = is_rtl();
 
 		if ( ( new Host() )->is_woa_site() ) {
@@ -171,10 +154,6 @@ class Jetpack_Notifications {
 		global $wp_admin_bar;
 
 		if ( ! is_object( $wp_admin_bar ) ) {
-			return;
-		}
-
-		if ( self::is_block_editor() ) {
 			return;
 		}
 

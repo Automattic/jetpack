@@ -8,7 +8,6 @@ import type { StatsEmailSummaryItem } from './email-summary';
 import type { StatsFileDownloadsItem } from './file-downloads';
 import type { StatsFollowersItem } from './followers';
 import type { StatsLocationsItem } from './locations';
-import type { StatsPublicizeItem } from './publicize';
 import type { StatsReferrersItem } from './referrers';
 import type { StatsSearchTermsItem } from './search-terms';
 import type { StatsTagsItem } from './tags';
@@ -45,8 +44,7 @@ export type StatsNormalizedItem =
 	| StatsFollowersItem
 	| StatsCommentsItem
 	| StatsTagsItem
-	| StatsDevicesItem
-	| StatsPublicizeItem;
+	| StatsDevicesItem;
 
 export type StatsNormalizedDataPoint< TItem extends StatsNormalizedItem = StatsNormalizedItem > = {
 	time_interval: string;

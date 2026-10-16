@@ -4,6 +4,7 @@
 import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import {
+	htmlspecialcharsDecode,
 	isFieldsCollection,
 	isFileUploadField,
 	isImageSelectField,
@@ -31,7 +32,7 @@ export type ResponseFieldsProps = {
 const ResponseFieldsIterator = ( {
 	fields,
 	onFilePreview,
-}: ResponseFieldsProps ): import('react').JSX.Element => {
+}: ResponseFieldsProps ): import( 'react' ).JSX.Element => {
 	const fieldsAreNewFormat = isFieldsCollection( fields );
 	const rootClass = clsx( 'jp-forms__inbox-response-data', {
 		'is-collection-format': fieldsAreNewFormat,
@@ -60,7 +61,9 @@ const ResponseFieldsIterator = ( {
 			return <Link href={ `tel:${ value }` }>{ String( value ) }</Link>;
 		}
 
-		return value as import('react').ReactNode;
+		return (
+			typeof value === 'string' ? htmlspecialcharsDecode( value ) : value
+		) as import( 'react' ).ReactNode;
 	};
 
 	return (

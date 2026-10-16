@@ -8,6 +8,5 @@ export function flagUrl( countryCode: string ): string | null {
 		return null;
 	}
 
-	// Use jsDelivr CDN to serve flag-icons package SVGs
 	return `https://cdn.jsdelivr.net/npm/flag-icons@7.5.0/flags/4x3/${ countryCode.toLowerCase() }.svg`;
 }

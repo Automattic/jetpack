@@ -1,6 +1,9 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, act, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { GlobalChartsProvider } from '../../../providers';
+import { useGlobalChartsContext } from '../../../providers/chart-context/hooks/use-global-charts-context';
 import LeaderboardChart from '../leaderboard-chart';
+import type { GlobalChartsContextValue } from '../../../providers/chart-context/types';
 import type { LeaderboardEntry } from '../../../types';
 
 const mockDefaultParentSize = () => ( {
@@ -97,9 +100,56 @@ describe( 'LeaderboardChart', () => {
 		expect( screen.getByText( '+25%' ) ).toBeInTheDocument();
 		expect( screen.getByText( '-8%' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'New Source' ) ).toBeInTheDocument();
-		expect( screen.getByText( '-' ) ).toHaveAttribute( 'aria-hidden', 'true' );
+		expect( screen.getByText( '—' ) ).toHaveAttribute( 'aria-hidden', 'true' );
 		expect( screen.getByText( 'No comparison data' ) ).toBeInTheDocument();
 		expect( screen.queryByText( '+100%' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'shows an unavailable delta when a known previous value is zero', () => {
+		render(
+			<LeaderboardChart
+				data={ [
+					{
+						id: 'new',
+						label: 'New Source',
+						currentValue: 100,
+						previousValue: 0,
+						currentShare: 100,
+						previousShare: 0,
+					},
+				] }
+				withComparison={ true }
+			/>
+		);
+
+		expect( screen.getByText( '—' ) ).toHaveAttribute( 'aria-hidden', 'true' );
+		expect( screen.getByText( 'Percentage change unavailable' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'No comparison data' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( '+100%' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'still renders the comparison bar when the previous value is known but the delta is unavailable', () => {
+		// The comparison bar is gated on a known previous value, not on the
+		// delta, so a row whose delta is unavailable keeps its bar. previousShare
+		// is non-zero here so a dropped bar cannot hide behind a zero width.
+		const { container } = render(
+			<LeaderboardChart
+				data={ [
+					{
+						id: 'zero-prev',
+						label: 'Zero Prev',
+						currentValue: 100,
+						previousValue: 0,
+						currentShare: 100,
+						previousShare: 40,
+					},
+				] }
+				withComparison={ true }
+			/>
+		);
+
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+		expect( container.querySelectorAll( '.bar' ) ).toHaveLength( 2 );
 	} );
 
 	it( 'shows custom label when provided', () => {
@@ -371,6 +421,109 @@ describe( 'LeaderboardChart', () => {
 		} );
 	} );
 
+	describe( 'Programmatic visibility', () => {
+		it( 'hides the primary series programmatically when the legend is not interactive', () => {
+			let context: GlobalChartsContextValue;
+			const Grab = () => {
+				context = useGlobalChartsContext();
+				return null;
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<Grab />
+					<LeaderboardChart
+						width={ 500 }
+						height={ 300 }
+						showLegend={ true }
+						legend={ { interactive: false } }
+						chartId="test-programmatic-leaderboard"
+						data={ mockData }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			const primaryLabel = screen.getAllByTestId( 'legend-item' )[ 0 ].textContent;
+
+			act( () => {
+				context.toggleSeriesVisibility( 'test-programmatic-leaderboard', primaryLabel );
+			} );
+
+			expect( screen.getByText( /all series are hidden/i ) ).toBeInTheDocument();
+		} );
+
+		it( 'omits the click instruction when the legend cannot be clicked', () => {
+			let context: GlobalChartsContextValue;
+			const Grab = () => {
+				context = useGlobalChartsContext();
+				return null;
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<Grab />
+					<LeaderboardChart
+						width={ 500 }
+						height={ 300 }
+						showLegend={ true }
+						legend={ { interactive: false } }
+						chartId="test-empty-copy-leaderboard"
+						data={ mockData }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			const primaryLabel = screen.getAllByTestId( 'legend-item' )[ 0 ].textContent;
+
+			act( () => {
+				context.toggleSeriesVisibility( 'test-empty-copy-leaderboard', primaryLabel );
+			} );
+
+			expect( screen.getByText( 'All series are hidden.' ) ).toBeInTheDocument();
+			expect( screen.queryByText( /click legend items/i ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'still renders the primary series when only the comparison is hidden programmatically', () => {
+			// Hiding every series routes through allSeriesHidden to the empty state and
+			// never exercises the per-series render path. Hiding only the comparison
+			// series exercises that path for the leaderboard's primary/comparison split.
+			let context: GlobalChartsContextValue;
+			const Grab = () => {
+				context = useGlobalChartsContext();
+				return null;
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<Grab />
+					<LeaderboardChart
+						width={ 500 }
+						height={ 300 }
+						showLegend={ true }
+						withComparison={ true }
+						legend={ { interactive: false } }
+						chartId="test-programmatic-comparison-leaderboard"
+						data={ mockData }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			const comparisonLabel = screen.getAllByTestId( 'legend-item' )[ 1 ].textContent;
+
+			act( () => {
+				context.toggleSeriesVisibility(
+					'test-programmatic-comparison-leaderboard',
+					comparisonLabel
+				);
+			} );
+
+			expect( screen.queryByText( /all series are hidden/i ) ).not.toBeInTheDocument();
+			expect( screen.getByText( 'Direct' ) ).toBeInTheDocument();
+			expect( screen.getByText( '12.5K' ) ).toBeInTheDocument();
+			expect( screen.queryByText( '+25%' ) ).not.toBeInTheDocument();
+		} );
+	} );
+
 	describe( 'Responsive wrapper', () => {
 		it( 'applies explicit width and height to chart container', () => {
 			const { useParentSize } = jest.requireMock( '@visx/responsive' );
@@ -392,6 +545,59 @@ describe( 'LeaderboardChart', () => {
 			render( <LeaderboardChart data={ [ { ...mockData[ 0 ], onClick: jest.fn() } ] } /> );
 			expect( screen.getByRole( 'button' ) ).toBeInTheDocument();
 			expect( screen.getByRole( 'button' ).tagName ).toBe( 'BUTTON' );
+		} );
+
+		it( 'keeps a label link beside the row button, not inside it, when the label is interactive', async () => {
+			const user = userEvent.setup();
+			const onClick = jest.fn();
+			render(
+				<LeaderboardChart
+					data={ [
+						{
+							...mockData[ 0 ],
+							label: <a href="/author/1">Author</a>,
+							onClick,
+							ariaLabel: 'View posts by Author',
+							hasInteractiveLabel: true,
+						},
+					] }
+				/>
+			);
+
+			const button = screen.getByRole( 'button', { name: 'View posts by Author' } );
+			const link = screen.getByRole( 'link', { name: 'Author' } );
+			link.addEventListener( 'click', event => event.preventDefault() );
+			expect( button ).not.toContainElement( link );
+
+			await user.click( button );
+			expect( onClick ).toHaveBeenCalledTimes( 1 );
+			await user.click( link );
+			expect( onClick ).toHaveBeenCalledTimes( 1 );
+			// A value tooltip takes pointer events above the button; its click still drills down.
+			await user.click( screen.getByText( '12.5K' ) );
+			expect( onClick ).toHaveBeenCalledTimes( 2 );
+		} );
+
+		it( 'tabs to the label link before the row button when the label is interactive', async () => {
+			const user = userEvent.setup();
+			render(
+				<LeaderboardChart
+					data={ [
+						{
+							...mockData[ 0 ],
+							label: <a href="/author/1">Author</a>,
+							onClick: jest.fn(),
+							ariaLabel: 'View posts by Author',
+							hasInteractiveLabel: true,
+						},
+					] }
+				/>
+			);
+
+			await user.tab();
+			expect( screen.getByRole( 'link', { name: 'Author' } ) ).toHaveFocus();
+			await user.tab();
+			expect( screen.getByRole( 'button', { name: 'View posts by Author' } ) ).toHaveFocus();
 		} );
 
 		it( 'calls onClick when the row is clicked', async () => {
@@ -440,7 +646,31 @@ describe( 'LeaderboardChart', () => {
 			expect( screen.getByRole( 'button' ) ).toHaveAccessibleName(
 				/New Source.*100.*No comparison data/
 			);
-			expect( screen.getByRole( 'button' ) ).not.toHaveAccessibleName( /-/ );
+			expect( screen.getByRole( 'button' ) ).not.toHaveAccessibleName( /—/ );
+		} );
+
+		it( 'does not include the unavailable delta dash in interactive row names', () => {
+			render(
+				<LeaderboardChart
+					data={ [
+						{
+							id: 'zero-prev',
+							label: 'Zero Prev',
+							currentValue: 100,
+							previousValue: 0,
+							currentShare: 1,
+							previousShare: 0,
+							onClick: jest.fn(),
+						},
+					] }
+					withComparison={ true }
+				/>
+			);
+
+			expect( screen.getByRole( 'button' ) ).toHaveAccessibleName(
+				/Zero Prev.*100.*Percentage change unavailable/
+			);
+			expect( screen.getByRole( 'button' ) ).not.toHaveAccessibleName( /—/ );
 		} );
 
 		it( 'derives the accessible name from an image label via its alt text', () => {
@@ -476,6 +706,32 @@ describe( 'LeaderboardChart', () => {
 			);
 		} );
 
+		it( 'renders each entry as a list item, keeping clickable rows as named buttons', () => {
+			render(
+				<LeaderboardChart
+					data={ [
+						mockData[ 0 ],
+						{ ...mockData[ 1 ], ariaLabel: 'Open Home', onClick: jest.fn() },
+						{
+							...mockData[ 1 ],
+							id: 'about',
+							ariaLabel: 'Open About',
+							onClick: jest.fn(),
+							hasInteractiveLabel: true,
+						},
+					] }
+				/>
+			);
+			const items = screen.getAllByRole( 'listitem' );
+			expect( items ).toHaveLength( 3 );
+			expect(
+				within( items[ 1 ] ).getByRole( 'button', { name: 'Open Home' } )
+			).toBeInTheDocument();
+			expect(
+				within( items[ 2 ] ).getByRole( 'button', { name: 'Open About' } )
+			).toBeInTheDocument();
+		} );
+
 		it( 'does not render a button for entries without onClick', () => {
 			render( <LeaderboardChart data={ [ mockData[ 0 ] ] } /> );
 			expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
@@ -486,6 +742,23 @@ describe( 'LeaderboardChart', () => {
 				<LeaderboardChart data={ [ { ...mockData[ 0 ], onClick: jest.fn() }, mockData[ 1 ] ] } />
 			);
 			expect( screen.getAllByRole( 'button' ) ).toHaveLength( 1 );
+		} );
+	} );
+
+	describe( 'grid gaps', () => {
+		// eslint-disable-next-line testing-library/no-node-access -- The grid is rendered by `Grid` from @wordpress/components, which takes no test id.
+		const grid = () => document.querySelector< HTMLElement >( '[data-leaderboard-grid]' );
+
+		it( 'hands the catalog role to the grid', () => {
+			render( <LeaderboardChart data={ mockData } /> );
+
+			// Grid writes its gaps into custom properties and reads them from a stylesheet.
+			expect( grid().style.getPropertyValue( '--wp-components-grid-row-gap' ) ).toBe(
+				'var(--a8c-charts-dimension-leaderboard-row-gap, 12px)'
+			);
+			expect( grid().style.getPropertyValue( '--wp-components-grid-column-gap' ) ).toBe(
+				'var(--a8c-charts-dimension-leaderboard-column-gap, 4px)'
+			);
 		} );
 	} );
 } );

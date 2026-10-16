@@ -110,7 +110,7 @@ The tunnel url will be stored in a file in the config folder of your tests, so t
 By default the environment runs the latest WordPress release. Set `WP_VERSION` to run against a specific one instead, e.g. the oldest version we support (`MIN_WP_VERSION` in `.github/versions.sh`):
 
 ```shell
-WP_VERSION=6.9 pnpm env:up
+WP_VERSION=7.0 pnpm env:up
 ```
 
 In CI, every E2E suite runs twice: once against the latest WordPress release and once against `MIN_WP_VERSION`, so a change that only breaks the oldest supported version is caught in review. The `E2E Tests` workflow can also be dispatched manually with a `wp_version` input to run everything against a single other version, including pre-releases such as `7.1-RC1`.

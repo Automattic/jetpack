@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Register wp-build polyfills on the legacy settings page so the admin bundle loads when the wp-theme script handle isn't registered.

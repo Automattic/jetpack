@@ -23,7 +23,7 @@
 
 .jp-form-label input[type="radio"] + span {
 	font-weight: 400;
-	margin-left: 8px;
+	margin-inline-start: 8px;
 }
 
 .jp-form-radio-gap .components-radio-control__option {
@@ -39,7 +39,7 @@
 
 	@include breakpoints.breakpoint( ">480px" ) {
 		position: absolute;
-		right: rem.convert(16px);
+		inset-inline-end: rem.convert(16px);
 		bottom: rem.convert(16px);
 	}
 }
@@ -50,9 +50,9 @@
 	vertical-align: baseline;
 
 	.jp-form-toggle-privacy-info {
-		margin-left: rem.convert(5px);
-		padding-left: rem.convert(5px);
-		border-left: 1px solid rgba(colors.$gray, 0.5);
+		margin-inline-start: rem.convert(5px);
+		padding-inline-start: rem.convert(5px);
+		border-inline-start: 1px solid rgba(colors.$gray, 0.5);
 	}
 }
 
@@ -82,7 +82,7 @@
 
 		@include breakpoints.breakpoint( "<660px" ) {
 			display: block;
-			text-align: left;
+			text-align: start;
 		}
 	}
 
@@ -90,7 +90,7 @@
 		width: 100%;
 
 		@include breakpoints.breakpoint( ">660px" ) {
-			border-left: 0;
+			border-inline-start: 0;
 		}
 
 		@include breakpoints.breakpoint( "<660px" ) {
@@ -129,7 +129,7 @@ button.jp-form-input-suffix {
 
 	> .jp-form-fieldset,
 	> .jp-form-setting-explanation {
-		margin-left: rem.convert(36px);
+		margin-inline-start: rem.convert(36px);
 	}
 
 	> .jp-form-fieldset {
@@ -140,7 +140,7 @@ button.jp-form-input-suffix {
 .jp-form-block-fade {
 	position: absolute;
 	top: 0;
-	left: 0;
+	inset-inline-start: 0;
 	z-index: 1;
 	background: rgba(255, 255, 255, 0.8);
 	width: 100%;

@@ -84,6 +84,10 @@ class Admin_Color_Schemes_Test extends BaseTestCase {
 
 	/**
 	 * Tests retrieving the color scheme setting for a user.
+	 *
+	 * A user who has never chosen a scheme keeps whatever core stored for them, so the
+	 * expectation follows core's default rather than naming it — it changed from `fresh`
+	 * to `modern` in WordPress 7.0.
 	 */
 	public function test_get_color_scheme() {
 		wp_set_current_user( static::$user_id );
@@ -94,7 +98,7 @@ class Admin_Color_Schemes_Test extends BaseTestCase {
 
 		$this->assertArrayHasKey( 'meta', $data );
 		$this->assertArrayHasKey( 'admin_color', $data['meta'] );
-		$this->assertSame( 'fresh', $data['meta']['admin_color'] );
+		$this->assertSame( get_user_option( 'admin_color', static::$user_id ), $data['meta']['admin_color'] );
 	}
 
 	/**

@@ -27,11 +27,11 @@
 		flex: 0 1 auto;
 		gap: var(--wpds-dimension-gap-sm);
 		justify-content: flex-start;
-		padding: var(--wpds-dimension-padding-xs) var(--wpds-dimension-padding-sm); // 4px 6px->8px
+		padding: var(--wpds-dimension-padding-xs) var(--wpds-dimension-padding-sm);
 	}
 
 	.legendLabel {
-		// font-size and color come from chartTheme.legendLabelStyles
+		// font-size and color come from the chart theme's legend.labelStyles
 		min-width: 0;
 		flex: 0 1 auto !important; // Override the 0 0 auto default value
 		text-align: start;

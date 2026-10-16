@@ -1,4 +1,5 @@
 import { safeParseFloat } from '../../utils/parsing';
+import { decodeHtmlText } from '../../utils/text';
 import {
 	coerceStatsArray,
 	getStatsReportItems,
@@ -71,7 +72,7 @@ function normalizeStatsTopPostItem( item: StatsRecord ): StatsTopPostsItem {
 
 	return {
 		id: item.id as string | number | undefined,
-		label: item.title,
+		label: decodeHtmlText( item.title ),
 		views: safeParseFloat( item.views ),
 		link,
 		page: item.id ? `/stats/post/${ item.id }` : null,

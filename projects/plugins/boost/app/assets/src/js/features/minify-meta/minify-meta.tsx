@@ -1,3 +1,4 @@
+import { useModuleSurface } from '$features/module/surface';
 import { useState } from 'react';
 import { Button } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
@@ -5,10 +6,21 @@ import { type Props, useMetaQuery } from '$lib/stores/minify';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import styles from './minify-meta.module.scss';
 import CollapsibleMeta from '$features/ui/collapsible-meta/collapsible-meta';
+import SaveButton from '$features/ui/save-button/save-button';
 import { useNotices } from '$features/notice/context';
 import { useMinifyDefaults } from './lib/stores';
 
 const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
+	const legacyScriptHelp = __( 'Use a comma (,) to separate the handles.', 'jetpack-boost' );
+	const modernScriptHelp = __(
+		'Scripts listed here will be excluded from concatenation and minification. They continue loading separately.',
+		'jetpack-boost'
+	);
+	const modernStyleHelp = __(
+		'Styles listed here will be excluded from concatenation and minification. They continue loading separately.',
+		'jetpack-boost'
+	);
+	const isRow = useModuleSurface() === 'row';
 	const noticeId = `minify-meta-${ datasyncKey }`;
 
 	const [ values, updateValues ] = useMetaQuery( datasyncKey, newState => {
@@ -89,11 +101,11 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 
 	const content = (
 		<div className={ styles.body }>
-			<div className={ styles.section }>
-				<div className={ styles.title }>{ __( 'Exceptions', 'jetpack-boost' ) }</div>
+			<div className={ styles.section } data-except-content={ isRow || undefined }>
+				{ ! isRow && <div className={ styles.title }>{ __( 'Exceptions', 'jetpack-boost' ) }</div> }
 				<div className={ styles[ 'manage-excludes' ] }>
 					<label className={ styles[ 'sub-header' ] } htmlFor={ htmlId }>
-						{ subHeaderText }
+						{ isRow ? __( 'Add handles separated with a comma:', 'jetpack-boost' ) : subHeaderText }
 					</label>
 					<input
 						type="text"
@@ -108,15 +120,17 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 						} }
 					/>
 					<div className={ styles.description }>
-						{ __( 'Use a comma (,) to separate the handles.', 'jetpack-boost' ) }
+						{ isRow && datasyncKey === 'minify_js_excludes'
+							? modernScriptHelp
+							: isRow
+								? modernStyleHelp
+								: legacyScriptHelp }
 					</div>
-					<Button
+					<SaveButton
 						disabled={ values.join( ', ' ) === inputValue }
 						className={ styles.button }
 						onClick={ save }
-					>
-						{ __( 'Save', 'jetpack-boost' ) }
-					</Button>
+					/>
 					<Button
 						disabled={ inputValue === defaultValue }
 						onClick={ loadDefaultValue }
@@ -133,6 +147,7 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 	return (
 		<div className={ styles.wrapper } data-testid={ `meta-${ datasyncKey }` }>
 			<CollapsibleMeta
+				exceptions={ isRow ? values : undefined }
 				headerText={ summary }
 				toggleText={ buttonText }
 				tracksEvent={ togglePanelTracksEvent }

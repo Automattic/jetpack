@@ -2,7 +2,7 @@
 //
 // The bootstrap (keyring connect URL + whether the current user is connected) is
 // injected onto `window.JetpackScriptData.seo.google_verify` by
-// `Initializer::get_google_verify_data()`. The live verified status is fetched
+// `Dashboard_Data::get_google_verify_data()`. The live verified status is fetched
 // client-side from `/jetpack/v4/verify-site/google` (a wpcom round-trip).
 
 export interface GoogleVerifyBootstrap {

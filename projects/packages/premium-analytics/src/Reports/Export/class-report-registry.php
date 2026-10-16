@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Report Registry class for managing report configurations.
  *
- * @since $$next-version$$
+ * @since 0.1.0
  */
 class Report_Registry {
 
@@ -40,7 +40,6 @@ class Report_Registry {
 			return false;
 		}
 
-		// Store the controller instance.
 		$this->controllers[ $report_key ] = $controller;
 
 		return true;
@@ -101,7 +100,7 @@ class Report_Registry {
 			foreach ( $columns as $key => $label ) {
 				$comparison_columns[ Report_Data_Fetcher::COMPARISON_INDEX_PREFIX . $key ] = sprintf(
 					/* translators: %s: the column label, e.g. "Orders". */
-					__( '%s (Previous Period)', 'jetpack-premium-analytics' ),
+					__( '%s (Previous Period)', 'jetpack-premium-analytics-pkg' ),
 					$label
 				);
 			}
@@ -193,7 +192,7 @@ class Report_Registry {
 				'invalid_report_type',
 				sprintf(
 					/* translators: %s: Report type key. */
-					__( 'Invalid report type: %s', 'jetpack-premium-analytics' ),
+					__( 'Invalid report type: %s', 'jetpack-premium-analytics-pkg' ),
 					$report_key
 				),
 				array( 'status' => 400 )

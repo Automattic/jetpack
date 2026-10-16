@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Date filters: Keep the custom range Apply button disabled when re-selecting "No comparison".

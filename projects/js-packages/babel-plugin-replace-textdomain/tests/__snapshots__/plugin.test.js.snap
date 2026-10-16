@@ -465,3 +465,131 @@ exports[`@automattic/babel-plugin-replace-textdomain 20. Import alias: ignores g
 exports[`@automattic/babel-plugin-replace-textdomain 21. Import alias: ignores field accesses with same name: debug calls 1`] = `[]`;
 
 exports[`@automattic/babel-plugin-replace-textdomain 22. Import alias: ignores shadowed variables: debug calls 1`] = `[]`;
+
+exports[`@automattic/babel-plugin-replace-textdomain 23. requireI18nSource: ignores a member call on a non-i18n binding: debug calls 1`] = `[]`;
+
+exports[`@automattic/babel-plugin-replace-textdomain 24. requireI18nSource: ignores a locally defined function: debug calls 1`] = `[]`;
+
+exports[`@automattic/babel-plugin-replace-textdomain 25. requireI18nSource: stamps esbuild externalized output: 25. requireI18nSource: stamps esbuild externalized output 1`] = `
+
+var require_i18n = __commonJS( {
+	"package-external:@wordpress/i18n"( exports, module ) {
+		module.exports = window.wp.i18n;
+	}
+} );
+var import_i18n3 = __toESM( require_i18n(), 1 );
+x = (0, import_i18n3.__)( 'Hello' );
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+var require_i18n = __commonJS({
+	'package-external:@wordpress/i18n'(exports, module) {
+		module.exports = window.wp.i18n;
+	},
+});
+var import_i18n3 = __toESM(require_i18n(), 1);
+x = (0, import_i18n3.__)('Hello', 'new-domain');
+
+`;
+
+exports[`@automattic/babel-plugin-replace-textdomain 25. requireI18nSource: stamps esbuild externalized output: debug calls 1`] = `
+[
+  [
+    Domain argument (index 2) is missing
+  5 | } );
+  6 | var import_i18n3 = __toESM( require_i18n(), 1 );
+> 7 | x = (0, import_i18n3.__)( 'Hello' );
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^,
+  ],
+]
+`;
+
+exports[`@automattic/babel-plugin-replace-textdomain 26. requireI18nSource: stamps the minified externalized shape: 26. requireI18nSource: stamps the minified externalized shape 1`] = `
+
+var Te=Ht((a,b)=>{b.exports=window.wp.i18n;});var Ri=f(Te(),1);x=(0,Ri.__)("Hi");
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+var Te = Ht((a, b) => {
+	b.exports = window.wp.i18n;
+});
+var Ri = f(Te(), 1);
+x = (0, Ri.__)('Hi', 'new-domain');
+
+`;
+
+exports[`@automattic/babel-plugin-replace-textdomain 26. requireI18nSource: stamps the minified externalized shape: debug calls 1`] = `
+[
+  [
+    Domain argument (index 2) is missing
+> 1 | var Te=Ht((a,b)=>{b.exports=window.wp.i18n;});var Ri=f(Te(),1);x=(0,Ri.__)("Hi");
+    |                                                                  ^^^^^^^^^^^^^^^,
+  ],
+]
+`;
+
+exports[`@automattic/babel-plugin-replace-textdomain 27. requireI18nSource: stamps a require() of the i18n module: 27. requireI18nSource: stamps a require() of the i18n module 1`] = `
+
+const i18n = require( '@wordpress/i18n' );
+i18n.__( 'Hello' );
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+const i18n = require('@wordpress/i18n');
+i18n.__('Hello', 'new-domain');
+
+`;
+
+exports[`@automattic/babel-plugin-replace-textdomain 27. requireI18nSource: stamps a require() of the i18n module: debug calls 1`] = `
+[
+  [
+    Domain argument (index 2) is missing
+  1 | const i18n = require( '@wordpress/i18n' );
+> 2 | i18n.__( 'Hello' );
+    | ^^^^^^^^^^^^^^^^^^,
+  ],
+]
+`;
+
+exports[`@automattic/babel-plugin-replace-textdomain 28. requireI18nSource: stamps an import of the i18n module: 28. requireI18nSource: stamps an import of the i18n module 1`] = `
+
+import { __ } from '@wordpress/i18n';
+__( 'Hello' );
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+import { __ } from '@wordpress/i18n';
+__('Hello', 'new-domain');
+
+`;
+
+exports[`@automattic/babel-plugin-replace-textdomain 28. requireI18nSource: stamps an import of the i18n module: debug calls 1`] = `
+[
+  [
+    Domain argument (index 2) is missing
+  1 | import { __ } from '@wordpress/i18n';
+> 2 | __( 'Hello' );
+    | ^^^^^^^^^^^^^,
+  ],
+]
+`;
+
+exports[`@automattic/babel-plugin-replace-textdomain 29. requireI18nSource: stamps when the callee source is unknown: 29. requireI18nSource: stamps when the callee source is unknown 1`] = `
+
+x = (0, e.__)( 'Hello' );
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+x = (0, e.__)('Hello', 'new-domain');
+
+`;
+
+exports[`@automattic/babel-plugin-replace-textdomain 29. requireI18nSource: stamps when the callee source is unknown: debug calls 1`] = `
+[
+  [
+    Domain argument (index 2) is missing
+> 1 | x = (0, e.__)( 'Hello' );
+    |     ^^^^^^^^^^^^^^^^^^^^,
+  ],
+]
+`;

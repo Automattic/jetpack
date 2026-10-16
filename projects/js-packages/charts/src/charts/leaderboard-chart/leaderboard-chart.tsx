@@ -4,7 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { Icon, chevronRight } from '@wordpress/icons';
 import { Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useContext, useMemo, type FC } from 'react';
+import { useContext, useMemo, type FC, type MouseEvent } from 'react';
 import { Legend } from '../../components/legend';
 import { usePrefersReducedMotion } from '../../hooks';
 import {
@@ -17,13 +17,23 @@ import {
 } from '../../providers';
 import { formatMetricValue, attachSubComponents } from '../../utils';
 import { useChartChildren } from '../private/chart-composition';
+import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
-import { SingleChartContext } from '../private/single-chart-context';
+import { getAllHiddenMessage } from '../private/svg-empty-state';
 import { withResponsive } from '../private/with-responsive';
-import { useLeaderboardLegendItems } from './hooks';
+import { useFittedRowCount, useLeaderboardLegendItems } from './hooks';
 import styles from './leaderboard-chart.module.scss';
 import type { LeaderboardChartProps } from './types';
 import type { LeaderboardEntry } from '../../types';
+
+// Handed to `Grid` as a chain rather than set in this component's stylesheet: `Grid` writes
+// its own gaps through an Emotion class, which a module class of equal specificity would not
+// reliably outrank. The chain lands on the element and resolves there.
+const ROW_GAP = 'var(--a8c-charts-dimension-leaderboard-row-gap, 12px)';
+const COLUMN_GAP = 'var(--a8c-charts-dimension-leaderboard-column-gap, 4px)';
+
+/** Indexed by `Math.sign( delta ) + 1`, so [negative, neutral, positive]. */
+const DELTA_TREND_CLASS = [ 'deltaValue--down', 'deltaValue--neutral', 'deltaValue--up' ] as const;
 
 /**
  * Default value formatter using formatMetricValue
@@ -62,15 +72,36 @@ const defaultDeltaFormatter = ( value: number ): string => {
  * @return A CSS width value.
  */
 const getBarWidth = ( share: number ): string =>
-	`calc(${ share }% - var(--a8c--charts--leaderboard--bar--hover-inset, 0px) * ${ share } / 100)`;
+	`calc(${ share }% - var(--a8c-charts-dimension-leaderboard-bar-hover-inset, 0px) * ${ share } / 100)`;
 
-const hasComparisonValue = (
+const hasPreviousValue = (
+	entry: LeaderboardEntry
+): entry is LeaderboardEntry & {
+	previousValue: number;
+	previousShare: number;
+} => entry.previousValue != null && entry.previousShare != null;
+
+const hasDeltaValue = (
 	entry: LeaderboardEntry
 ): entry is LeaderboardEntry & {
 	previousValue: number;
 	previousShare: number;
 	delta: number;
-} => entry.previousValue != null && entry.previousShare != null && entry.delta != null;
+} => hasPreviousValue( entry ) && entry.delta != null;
+
+/**
+ * A layered row's cell that takes pointer events of its own (a value tooltip)
+ * sits above the row button; pass its clicks on so they still drill down.
+ *
+ * @param event - The click on the row.
+ */
+function forwardCellClickToRowButton( event: MouseEvent< HTMLDivElement > ) {
+	if ( ( event.target as Element ).closest( 'a, button' ) ) {
+		return;
+	}
+
+	event.currentTarget.querySelector< HTMLButtonElement >( ':scope > button' )?.click();
+}
 
 const BarLabel = ( { label }: { label: LeaderboardEntry[ 'label' ] } ) => (
 	<>{ typeof label === 'string' ? <Text className={ styles.label }>{ label }</Text> : label }</>
@@ -117,7 +148,7 @@ const BarWithLabel = ( {
 				></div>
 			) }
 
-			{ showComparisonBar && hasComparisonValue( entry ) && (
+			{ showComparisonBar && hasPreviousValue( entry ) && (
 				<div
 					className={ clsx( styles.bar, {
 						[ styles[ 'bar--animated' ] ]: animation,
@@ -148,6 +179,7 @@ const BarWithLabel = ( {
  * @param props.valueFormatter   - Custom formatter for values
  * @param props.deltaFormatter   - Custom formatter for delta values
  * @param props.loading          - Whether the chart is in loading state
+ * @param props.fitRows          - Whether to show only the rows that fit the chart's height
  * @param props.animation        - Whether the chart should animate on load
  * @param props.showLegend       - Whether to show legend
  * @param props.legend           - Legend configuration (orientation, position, alignment, shape, shapeStyles, interactive)
@@ -156,6 +188,7 @@ const BarWithLabel = ( {
  * @param props.children         - Child components for composition API
  * @param props.className        - Additional CSS class name
  * @param props.style            - Custom styling for the chart container
+ * @param props.ariaLabel        - Accessible name for the list, defaulting to "Leaderboard chart"
  * @return JSX element representing the leaderboard chart
  */
 const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
@@ -171,10 +204,12 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	deltaFormatter = defaultDeltaFormatter,
 	animation,
 	loading = false,
+	fitRows = false,
 	showLegend = false,
 	legend = {},
 	legendLabels,
 	gap = 'md',
+	ariaLabel,
 	className,
 	style,
 	children,
@@ -188,22 +223,15 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 
 	// Process children to extract compound components
 	const { legendChildren, nonLegendChildren } = useChartChildren( children, 'LeaderboardChart' );
-	const {
-		labelSpacing,
-		rowGap,
-		columnGap,
-		primaryColor: settingsPrimaryColor,
-		secondaryColor: settingsSecondaryColor,
-		deltaColors,
-	} = leaderboardChartSettings;
+	const { labelSpacing } = leaderboardChartSettings;
 	const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
 	const { color: resolvedPrimaryColor } = getElementStyles( {
 		index: 0,
-		overrideColor: primaryColor || settingsPrimaryColor,
+		overrideColor: primaryColor,
 	} );
 	const { color: resolvedSecondaryColor } = getElementStyles( {
 		index: 1,
-		overrideColor: secondaryColor || settingsSecondaryColor,
+		overrideColor: secondaryColor,
 	} );
 
 	// Create legend items using the custom hook
@@ -216,35 +244,28 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 		legendLabels,
 	} );
 
-	// Track visibility of primary and comparison series for interactive legends
+	// Track visibility of primary and comparison series from the shared legend state.
 	const isPrimaryVisible = useMemo( () => {
-		if ( ! chartId || ! legendInteractive || legendItems.length === 0 ) {
+		if ( legendItems.length === 0 ) {
 			return true;
 		}
 		return isSeriesVisible( chartId, legendItems[ 0 ].label );
-	}, [ chartId, legendInteractive, legendItems, isSeriesVisible ] );
+	}, [ chartId, legendItems, isSeriesVisible ] );
 
 	const isComparisonVisible = useMemo( () => {
-		if ( ! chartId || ! legendInteractive || legendItems.length < 2 ) {
+		if ( legendItems.length < 2 ) {
 			return true;
 		}
 		return isSeriesVisible( chartId, legendItems[ 1 ].label );
-	}, [ chartId, legendInteractive, legendItems, isSeriesVisible ] );
+	}, [ chartId, legendItems, isSeriesVisible ] );
 
 	// Check if all series are hidden
 	const allSeriesHidden = useMemo( () => {
-		if ( ! legendInteractive ) return false;
 		if ( withComparison && ! withOverlayLabel ) {
 			return ! isPrimaryVisible && ! isComparisonVisible;
 		}
 		return ! isPrimaryVisible;
-	}, [
-		legendInteractive,
-		isPrimaryVisible,
-		isComparisonVisible,
-		withComparison,
-		withOverlayLabel,
-	] );
+	}, [ isPrimaryVisible, isComparisonVisible, withComparison, withOverlayLabel ] );
 
 	// Validate data
 	const isDataValid = Boolean( data && data.length > 0 );
@@ -269,15 +290,27 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 
 	const prefersReducedMotion = usePrefersReducedMotion();
 
+	// There are no rows to measure while every series is hidden, whether from an
+	// interactive legend click or a programmatic toggle. Pausing fitting restores
+	// the full row count and, when a series is shown again, re-runs the effect
+	// against the newly mounted grid.
+	const { contentRef, fittedCount, isMeasurable } = useFittedRowCount(
+		fitRows && ! allSeriesHidden,
+		data?.length ?? 0,
+		data
+	);
+	const shouldFitRows = fitRows && isMeasurable;
+
 	// Handle empty or undefined data
 	if ( ! data || data.length === 0 ) {
 		return (
-			<SingleChartContext.Provider value={ { chartId } }>
+			<ChartInstanceContext.Provider value={ { chartId } }>
 				<ChartLayout
 					legendPosition={ legendPosition }
 					legendElement={ false }
 					legendChildren={ legendChildren }
 					className={ clsx(
+						'leaderboard-chart',
 						styles.leaderboardChart,
 						{
 							[ styles[ 'leaderboardChart--responsive' ] ]: ! propWidth && ! propHeight,
@@ -296,7 +329,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 							: __( 'No data available', 'jetpack-charts' ) }
 					</div>
 				</ChartLayout>
-			</SingleChartContext.Provider>
+			</ChartInstanceContext.Provider>
 		);
 	}
 
@@ -316,12 +349,13 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	);
 
 	return (
-		<SingleChartContext.Provider value={ { chartId } }>
+		<ChartInstanceContext.Provider value={ { chartId } }>
 			<ChartLayout
 				legendPosition={ legendPosition }
 				legendElement={ legendElement }
 				legendChildren={ legendChildren }
 				className={ clsx(
+					'leaderboard-chart',
 					styles.leaderboardChart,
 					{
 						[ styles[ 'leaderboardChart--responsive' ] ]: ! propWidth && ! propHeight,
@@ -338,20 +372,50 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 				data-testid="leaderboard-chart-container"
 				trailingContent={ nonLegendChildren }
 			>
-				<div className={ styles.leaderboardChart__content }>
+				<div
+					ref={ contentRef }
+					data-testid="leaderboard-chart-content"
+					className={ clsx( styles.leaderboardChart__content, {
+						[ styles[ 'leaderboardChart__content--fit' ] ]: shouldFitRows,
+					} ) }
+				>
+					{ shouldFitRows && fittedCount === 0 && ! allSeriesHidden && (
+						// Overlaid, not swapped in: the rows must stay laid out to stay measurable.
+						<div className={ clsx( styles.emptyState, styles.fitEmptyState ) }>
+							{ __( 'Not enough space to display data', 'jetpack-charts' ) }
+						</div>
+					) }
 					{ allSeriesHidden ? (
 						<div className={ styles.emptyState }>
-							{ __( 'All series are hidden. Click legend items to show data.', 'jetpack-charts' ) }
+							{ getAllHiddenMessage( legendInteractive, 'series' ) }
 						</div>
 					) : (
-						<Grid templateColumns="minmax(0, 1fr) auto" rowGap={ rowGap } columnGap={ columnGap }>
-							{ data.map( entry => {
+						<Grid
+							role="list"
+							aria-label={ ariaLabel ?? __( 'Leaderboard chart', 'jetpack-charts' ) }
+							templateColumns="minmax(0, 1fr) auto"
+							rowGap={ ROW_GAP }
+							columnGap={ COLUMN_GAP }
+							data-leaderboard-grid
+						>
+							{ data.map( ( entry, rowIndex ) => {
+								// visibility, not clipping: hidden rows keep their geometry (so a
+								// taller container can reveal them) but leave hit testing, focus,
+								// and the accessibility tree.
+								const rowStyle =
+									shouldFitRows && rowIndex >= fittedCount
+										? ( { visibility: 'hidden' } as const )
+										: undefined;
 								const showComparisonColumn = withComparison && isComparisonVisible;
-								const hasDeltaValue = hasComparisonValue( entry );
-								const showComparisonValue = showComparisonColumn && hasDeltaValue;
-								const showComparisonPlaceholder = showComparisonColumn && ! hasDeltaValue;
-								const colorIndex = showComparisonValue ? Math.sign( entry.delta ) + 1 : 1;
-								const deltaColor = deltaColors[ colorIndex ];
+								const hasPreviousPeriodValue = hasPreviousValue( entry );
+								const hasDelta = hasDeltaValue( entry );
+								const showComparisonValue = showComparisonColumn && hasDelta;
+								const showComparisonPlaceholder = showComparisonColumn && ! hasDelta;
+								// Math.sign gives -1/0/1; the placeholder has no delta to read, so it takes neutral.
+								const deltaTrendClass =
+									styles[
+										DELTA_TREND_CLASS[ showComparisonValue ? Math.sign( entry.delta ) + 1 : 1 ]
+									];
 
 								const rowCells = (
 									<>
@@ -378,19 +442,24 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 											{ isPrimaryVisible && <Text>{ valueFormatter( entry.currentValue ) }</Text> }
 
 											{ showComparisonValue && (
-												<Text className={ styles.deltaValue } style={ { color: deltaColor } }>
+												<Text className={ clsx( styles.deltaValue, deltaTrendClass ) }>
 													{ deltaFormatter( entry.delta ) }
 												</Text>
 											) }
 
 											{ showComparisonPlaceholder && (
 												<Text
-													className={ clsx( styles.deltaValue, styles.deltaPlaceholder ) }
-													style={ { color: deltaColor } }
+													className={ clsx(
+														styles.deltaValue,
+														styles.deltaPlaceholder,
+														deltaTrendClass
+													) }
 												>
-													<span aria-hidden="true">-</span>
+													<span aria-hidden="true">—</span>
 													<VisuallyHidden as="span">
-														{ __( 'No comparison data', 'jetpack-charts' ) }
+														{ hasPreviousPeriodValue
+															? __( 'Percentage change unavailable', 'jetpack-charts' )
+															: __( 'No comparison data', 'jetpack-charts' ) }
 													</VisuallyHidden>
 												</Text>
 											) }
@@ -398,23 +467,63 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 									</>
 								);
 
+								if ( entry.onClick && entry.hasInteractiveLabel ) {
+									return (
+										<div
+											key={ entry.id }
+											role="listitem"
+											data-row-index={ rowIndex }
+											style={ rowStyle }
+											className={ styles.rowItem }
+										>
+											{ /* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- Mouse-only fallback; the row button carries keyboard access. */ }
+											<div
+												className={ clsx( styles.row, styles.interactiveRow, styles.layeredRow ) }
+												onClick={ forwardCellClickToRowButton }
+											>
+												{ rowCells }
+												<button
+													type="button"
+													className={ styles.rowButton }
+													onClick={ entry.onClick }
+													aria-label={ entry.ariaLabel }
+												/>
+												<Icon className={ styles.chevron } icon={ chevronRight } size={ 24 } />
+											</div>
+										</div>
+									);
+								}
+
 								if ( entry.onClick ) {
 									return (
-										<button
+										<div
 											key={ entry.id }
-											type="button"
-											className={ clsx( styles.row, styles.interactiveRow ) }
-											onClick={ entry.onClick }
-											aria-label={ entry.ariaLabel }
+											role="listitem"
+											data-row-index={ rowIndex }
+											style={ rowStyle }
+											className={ styles.rowItem }
 										>
-											{ rowCells }
-											<Icon className={ styles.chevron } icon={ chevronRight } size={ 24 } />
-										</button>
+											<button
+												type="button"
+												className={ clsx( styles.row, styles.interactiveRow ) }
+												onClick={ entry.onClick }
+												aria-label={ entry.ariaLabel }
+											>
+												{ rowCells }
+												<Icon className={ styles.chevron } icon={ chevronRight } size={ 24 } />
+											</button>
+										</div>
 									);
 								}
 
 								return (
-									<div key={ entry.id } className={ styles.row }>
+									<div
+										key={ entry.id }
+										role="listitem"
+										data-row-index={ rowIndex }
+										style={ rowStyle }
+										className={ styles.row }
+									>
 										{ rowCells }
 									</div>
 								);
@@ -423,7 +532,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 					) }
 				</div>
 			</ChartLayout>
-		</SingleChartContext.Provider>
+		</ChartInstanceContext.Provider>
 	);
 };
 

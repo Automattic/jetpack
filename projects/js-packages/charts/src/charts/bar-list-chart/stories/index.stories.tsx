@@ -1,7 +1,7 @@
 import { formatNumberCompact } from '@automattic/number-formatters';
 import { Circle } from '@visx/shape';
 import { Text } from '@visx/text';
-import { useGlobalChartsTheme } from '../../../providers';
+import { useGlobalChartsContext } from '../../../providers';
 import {
 	chartDecorator,
 	sharedChartArgTypes,
@@ -71,6 +71,31 @@ export const Animation: Story = {
 	},
 };
 
+// The color is resolved here, not inside `labelComponent`. visx renders that through its axis
+// render prop, outside this provider, so a `useGlobalChartsContext()` call in it throws; the
+// closure carries the resolved value in instead.
+const BarListChartWithCircleLabels = ( args: StoryArgs ) => {
+	const { getElementStyles } = useGlobalChartsContext();
+	const circleColor = getElementStyles( { index: 1 } ).color;
+
+	return (
+		<BarListChart
+			{ ...args }
+			options={ {
+				...args.options,
+				labelComponent: ( { textProps, x, y, label, formatter } ) => (
+					<>
+						<Circle cx={ x + 6 } cy={ y } r={ 8 } fill={ circleColor } />
+						<Text { ...textProps } textAnchor="start" x={ x + 24 } y={ y } fontWeight={ 500 }>
+							{ formatter( label ) }
+						</Text>
+					</>
+				),
+			} }
+		/>
+	);
+};
+
 export const CustomLabelComponent: Story = {
 	args: {
 		...Default.args,
@@ -85,22 +110,9 @@ export const CustomLabelComponent: Story = {
 		options: {
 			xScale: {},
 			yScale: {},
-			labelComponent: ( { textProps, x, y, label, formatter } ) => {
-				// eslint-disable-next-line react-hooks/rules-of-hooks
-				const theme = useGlobalChartsTheme();
-				const circleColor = theme.colors[ 1 ]; // Use second theme color for contrast
-
-				return (
-					<>
-						<Circle cx={ x + 6 } cy={ y } r={ 8 } fill={ circleColor } />
-						<Text { ...textProps } textAnchor="start" x={ x + 24 } y={ y } fontWeight={ 500 }>
-							{ formatter( label ) }
-						</Text>
-					</>
-				);
-			},
 		},
 	},
+	render: args => <BarListChartWithCircleLabels { ...args } />,
 };
 
 export const CustomValueComponent: Story = {

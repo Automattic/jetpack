@@ -23,14 +23,15 @@ class Dashboard_Support_Routes_Test extends TestCase {
 		$wp_rest_server = null;
 		remove_all_actions( 'rest_api_init' );
 		remove_all_actions( 'init' );
+		Capabilities::unregister();
 		parent::tearDown();
 	}
 
 	/**
-	 * Standalone register() registers all three routes — the contract
+	 * Standalone register() registers the support routes — the contract
 	 * WPCOM's public-api process relies on.
 	 */
-	public function test_register_registers_all_three_routes() {
+	public function test_register_registers_the_support_routes() {
 		Dashboard_Support_Routes::register();
 
 		global $wp_rest_server;
@@ -41,11 +42,32 @@ class Dashboard_Support_Routes_Test extends TestCase {
 		$routes = rest_get_server()->get_routes();
 
 		$this->assertArrayHasKey( '/wpcom/v2/widget-modules', $routes );
+		$this->assertArrayHasKey( '/wpcom/v2/dashboards/(?P<name>[a-z][a-z0-9-]*(?:_[a-z0-9-]+)*)/sections', $routes );
 		$this->assertArrayHasKey(
-			'/wpcom/v2/dashboards/(?P<name>[a-z][a-z0-9-]*(?:_[a-z0-9-]+)*)/default-layout',
+			'/wpcom/v2/dashboards/(?P<name>[a-z][a-z0-9-]*(?:_[a-z0-9-]+)*)/sections/(?P<section>[a-z0-9-]+\/[a-z0-9-]+)/default-layout',
 			$routes
 		);
-		$this->assertArrayHasKey( '/wpcom/v2/dashboards/(?P<name>[a-z][a-z0-9-]*(?:_[a-z0-9-]+)*)/sections', $routes );
+	}
+
+	/**
+	 * Older copies guard their include of dashboard-layout.php on this function and call it from
+	 * boot_routes(), so it has to exist and register nothing.
+	 */
+	public function test_older_copies_can_still_call_the_default_layout_route_function() {
+		Dashboard_Support_Routes::register();
+
+		global $wp_rest_server;
+		$wp_rest_server = new WP_REST_Server();
+		do_action( 'init' );
+		do_action( 'rest_api_init' );
+
+		$this->assertTrue( function_exists( __NAMESPACE__ . '\\register_dashboard_default_layout_route' ) );
+		register_dashboard_default_layout_route();
+
+		$this->assertArrayNotHasKey(
+			'/wpcom/v2/dashboards/(?P<name>[a-z][a-z0-9-]*(?:_[a-z0-9-]+)*)/default-layout',
+			rest_get_server()->get_routes()
+		);
 	}
 
 	/**
@@ -65,5 +87,23 @@ class Dashboard_Support_Routes_Test extends TestCase {
 
 		$this->assertArrayHasKey( '/wpcom/v2/widget-modules', $routes );
 		$this->assertCount( 1, $routes['/wpcom/v2/widget-modules'] );
+	}
+
+	/**
+	 * Booting standalone also maps the capability these routes are gated on.
+	 * WPCOM Simple takes this path without ever calling Analytics::init(), so
+	 * without the mapping every request to them would be refused.
+	 */
+	public function test_boot_routes_maps_the_dashboard_capability() {
+		Dashboard_Support_Routes::register();
+
+		global $wp_rest_server;
+		$wp_rest_server = new WP_REST_Server();
+		do_action( 'init' );
+		do_action( 'rest_api_init' );
+
+		$this->assertNotFalse(
+			has_filter( 'map_meta_cap', array( Capabilities::class, 'map_meta_caps' ) )
+		);
 	}
 }

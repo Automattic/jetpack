@@ -1,0 +1,338 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import SubscriberDetailContent from '../_inc/subscribers/components/detail/subscriber-detail-content';
+import type {
+	SubscribedNewsletterCategories,
+	SubscriberDetails,
+} from '../_inc/subscribers/data/types';
+
+const mockFetchSubscriberDetails = jest.fn();
+const mockFetchSubscriberStats = jest.fn();
+const mockFetchSubscribedNewsletterCategories = jest.fn();
+const mockSendBounceConfirmation = jest.fn();
+
+jest.mock( '../_inc/subscribers/data/api', () => ( {
+	fetchSubscriberDetails: ( ...args: unknown[] ) => mockFetchSubscriberDetails( ...args ),
+	fetchSubscriberStats: ( ...args: unknown[] ) => mockFetchSubscriberStats( ...args ),
+	fetchSubscribedNewsletterCategories: ( ...args: unknown[] ) =>
+		mockFetchSubscribedNewsletterCategories( ...args ),
+	sendBounceConfirmation: ( ...args: unknown[] ) => mockSendBounceConfirmation( ...args ),
+} ) );
+
+jest.mock( '@automattic/jetpack-components/gravatar', () => ( {
+	__esModule: true,
+	default: () => null,
+} ) );
+
+const OPEN = { subscriptionId: 946836646, userId: 229907063 };
+
+/**
+ * Individual-endpoint payload, matching the real shape: one `date_subscribed` rather than the
+ * list's `wpcom_`/`email_` pair.
+ *
+ * @param overrides - Fields to override.
+ * @return Subscriber details payload.
+ */
+function makeDetails( overrides: Partial< SubscriberDetails > = {} ): SubscriberDetails {
+	return {
+		user_id: OPEN.userId,
+		display_name: 'douglashenritest',
+		email_address: 'reader@example.com',
+		subscription_status: 'Subscribed',
+		date_subscribed: '2026-07-28T19:02:09+00:00',
+		...overrides,
+	};
+}
+
+/**
+ * Build the categories payload the WP.com endpoint returns: every site category, discriminated by
+ * `subscribed`.
+ *
+ * @param enabled - Whether the site has newsletter categories turned on.
+ * @return Categories payload.
+ */
+function makeCategories( enabled: boolean ): SubscribedNewsletterCategories {
+	return {
+		enabled,
+		newsletter_categories: [
+			{ id: 23, name: 'Test Posts', subscribed: true },
+			{ id: 24, name: 'Category 2', subscribed: false },
+			{ id: 1, name: 'Uncategorized', subscribed: false },
+		],
+	};
+}
+
+/**
+ * Render the detail panel with a fresh query client.
+ *
+ * @return The query client used for the render.
+ */
+function renderPanel(): QueryClient {
+	const queryClient = new QueryClient( {
+		defaultOptions: { queries: { retry: false } },
+	} );
+
+	render(
+		<QueryClientProvider client={ queryClient }>
+			<SubscriberDetailContent open={ OPEN } />
+		</QueryClientProvider>
+	);
+
+	return queryClient;
+}
+
+describe( 'SubscriberDetailContent', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		mockFetchSubscriberDetails.mockResolvedValue( makeDetails() );
+		mockFetchSubscriberStats.mockResolvedValue( {
+			emails_sent: 0,
+			unique_opens: 0,
+			unique_clicks: 0,
+		} );
+		mockFetchSubscribedNewsletterCategories.mockResolvedValue( makeCategories( true ) );
+	} );
+
+	it( 'lists the categories the subscriber receives emails for', async () => {
+		renderPanel();
+
+		await expect( screen.findByText( 'Receives emails for' ) ).resolves.toBeInTheDocument();
+		// Only categories flagged `subscribed` — WP.com returns every site category and stores
+		// opt-outs, so presence in the array means nothing on its own.
+		expect( screen.getByText( 'Test Posts' ) ).toBeInTheDocument();
+		expect( screen.queryByText( /Category 2/ ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'queries the categories endpoint by the identifiers the panel was opened with', async () => {
+		renderPanel();
+
+		await waitFor( () =>
+			expect( mockFetchSubscribedNewsletterCategories ).toHaveBeenCalledWith( {
+				subscription_id: OPEN.subscriptionId,
+				user_id: OPEN.userId,
+			} )
+		);
+	} );
+
+	it( 'decodes HTML entities in category names', async () => {
+		// WordPress stores term names encoded (`Tips &amp; Tricks`) and WP.com passes them through
+		// as stored, so an undecoded name renders the raw entity to the user.
+		mockFetchSubscribedNewsletterCategories.mockResolvedValue( {
+			enabled: true,
+			newsletter_categories: [ { id: 23, name: 'Tips &amp; Tricks', subscribed: true } ],
+		} );
+
+		renderPanel();
+
+		await expect( screen.findByText( 'Tips & Tricks' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( /&amp;/ ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'says so when the subscriber opted out of every category', async () => {
+		mockFetchSubscribedNewsletterCategories.mockResolvedValue( {
+			enabled: true,
+			newsletter_categories: [ { id: 23, name: 'Test Posts', subscribed: false } ],
+		} );
+
+		renderPanel();
+
+		await expect(
+			screen.findByText( 'Not subscribed to any newsletter categories' )
+		).resolves.toBeInTheDocument();
+	} );
+
+	it( 'hides the row entirely when the site has newsletter categories turned off', async () => {
+		mockFetchSubscribedNewsletterCategories.mockResolvedValue( makeCategories( false ) );
+
+		renderPanel();
+
+		// Wait for the panel to settle before asserting an absence.
+		await expect( screen.findByText( 'Subscription type' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'Receives emails for' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'hides the row when WP.com has no categories record for the subscriber', async () => {
+		// A 404 is an expected absence, not a failure: it resolves to "feature off" so the query
+		// settles rather than retrying something that will never succeed.
+		mockFetchSubscribedNewsletterCategories.mockRejectedValue( {
+			code: 'rest_subscriber_not_found',
+			data: { status: 404 },
+		} );
+
+		renderPanel();
+
+		await expect( screen.findByText( 'Subscription type' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'Receives emails for' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'hides the row on a missing route, for a Jetpack version without the proxy', async () => {
+		mockFetchSubscribedNewsletterCategories.mockRejectedValue( { code: 'rest_no_route' } );
+
+		renderPanel();
+
+		await expect( screen.findByText( 'Subscription type' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'Receives emails for' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'leaves the rest of the panel intact when the categories request errors outright', async () => {
+		// A 500 is left to reject so React Query can retry it, rather than being cached as a
+		// successful "feature off" for the rest of the session.
+		mockFetchSubscribedNewsletterCategories.mockRejectedValue( {
+			code: 'internal_server_error',
+			data: { status: 500 },
+		} );
+
+		renderPanel();
+
+		await expect( screen.findByText( 'Subscription type' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'Receives emails for' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'formats open and click rates as locale-aware percentages', async () => {
+		mockFetchSubscriberStats.mockResolvedValue( {
+			emails_sent: 10,
+			unique_opens: 5,
+			unique_clicks: 1,
+		} );
+
+		renderPanel();
+
+		await expect( screen.findByText( 'Open rate' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( '50%' ) ).toBeInTheDocument();
+		expect( screen.getByText( '10%' ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders the date the individual endpoint reports', async () => {
+		renderPanel();
+
+		await expect( screen.findByText( 'Date subscribed' ) ).resolves.toBeInTheDocument();
+	} );
+
+	it( 'renders the email subscription status the individual endpoint reports', async () => {
+		renderPanel();
+
+		await expect( screen.findByText( 'Email subscription' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'Subscribed' ) ).toBeInTheDocument();
+	} );
+
+	it( 'omits the status field when the endpoint has no status for the subscriber', async () => {
+		mockFetchSubscriberDetails.mockResolvedValue(
+			makeDetails( {
+				subscription_status: null as unknown as SubscriberDetails[ 'subscription_status' ],
+			} )
+		);
+
+		renderPanel();
+
+		await expect( screen.findByText( 'Subscription type' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'Email subscription' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'shows an error with a retry when the details request fails', async () => {
+		mockFetchSubscriberDetails.mockRejectedValueOnce( new Error( 'Boom' ) );
+
+		renderPanel();
+
+		await expect(
+			screen.findByText( 'Could not load subscriber details.' )
+		).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'Boom' ) ).toBeInTheDocument();
+
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'button', { name: 'Try again' } ) );
+
+		await expect( screen.findByText( 'Subscription type' ) ).resolves.toBeInTheDocument();
+		expect( mockFetchSubscriberDetails ).toHaveBeenCalledTimes( 2 );
+	} );
+
+	it( 'keeps the loaded details when a background refetch fails', async () => {
+		// eslint-disable-next-line testing-library/render-result-naming-convention
+		const queryClient = renderPanel();
+		await expect( screen.findByText( 'Subscription type' ) ).resolves.toBeInTheDocument();
+
+		mockFetchSubscriberDetails.mockRejectedValue( new Error( 'Boom' ) );
+		await act( async () => {
+			await queryClient.refetchQueries( { queryKey: [ 'subscriber-details' ] } );
+		} );
+
+		// Let React Query's batched notification reach the component before asserting an absence.
+		await act( async () => {
+			await new Promise( resolve => setTimeout( resolve, 0 ) );
+		} );
+		expect( mockFetchSubscriberDetails ).toHaveBeenCalledTimes( 2 );
+		expect( screen.getByText( 'Subscription type' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Could not load subscriber details.' ) ).not.toBeInTheDocument();
+	} );
+
+	describe( 'bounced subscriber', () => {
+		const SEND = { name: 'Send confirmation email' };
+
+		it( 'sends the confirmation to the subscriber’s address', async () => {
+			mockFetchSubscriberDetails.mockResolvedValue(
+				makeDetails( {
+					subscription_status: 'Not sending',
+					subscription_status_reason: 'bounced',
+					bounce_retry: { can_retry: true, sent_on: null },
+				} )
+			);
+			mockSendBounceConfirmation.mockResolvedValue( { success: true } );
+
+			renderPanel();
+
+			// eslint-disable-next-line testing-library/prefer-user-event
+			fireEvent.click( await screen.findByRole( 'button', SEND ) );
+
+			await waitFor( () =>
+				expect( mockSendBounceConfirmation ).toHaveBeenCalledWith( 'reader@example.com' )
+			);
+		} );
+
+		it( 'tells the owner when they can send again after a confirmation went out', async () => {
+			mockFetchSubscriberDetails.mockResolvedValue(
+				makeDetails( {
+					subscription_status: 'Not sending',
+					subscription_status_reason: 'bounced',
+					bounce_retry: { can_retry: false, sent_on: '2026-10-01T12:00:00+00:00' },
+				} )
+			);
+
+			renderPanel();
+
+			await expect(
+				screen.findByText( /^A confirmation email was sent on/ )
+			).resolves.toBeInTheDocument();
+			expect( screen.getByRole( 'button', SEND ) ).toHaveAttribute( 'aria-disabled', 'true' );
+		} );
+
+		it( 'gives no date while the mail system still blocks the address', async () => {
+			mockFetchSubscriberDetails.mockResolvedValue(
+				makeDetails( {
+					subscription_status: 'Not sending',
+					subscription_status_reason: 'bounced',
+					bounce_retry: { can_retry: false, sent_on: null },
+				} )
+			);
+
+			renderPanel();
+
+			await expect(
+				screen.findByText( /You can't send a confirmation email right now/ )
+			).resolves.toBeInTheDocument();
+			expect( screen.getByRole( 'button', SEND ) ).toHaveAttribute( 'aria-disabled', 'true' );
+		} );
+
+		it( 'offers no confirmation email to a subscriber who paused emails', async () => {
+			mockFetchSubscriberDetails.mockResolvedValue(
+				makeDetails( {
+					subscription_status: 'Not sending',
+					subscription_status_reason: 'emails_paused',
+				} )
+			);
+
+			renderPanel();
+
+			await expect( screen.findByText( 'Subscription type' ) ).resolves.toBeInTheDocument();
+			expect( screen.queryByRole( 'button', SEND ) ).not.toBeInTheDocument();
+		} );
+	} );
+} );

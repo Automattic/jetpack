@@ -33,18 +33,14 @@ interface SearchTermsStoryControls {
 
 function renderSearchTerms( { withComparison }: SearchTermsStoryControls ) {
 	return (
-		<SearchTermsRender
-			attributes={ { max: 10, reportParams: getDefaultQueryParams( withComparison ) } }
-		/>
+		<SearchTermsRender attributes={ { reportParams: getDefaultQueryParams( withComparison ) } } />
 	);
 }
 
 // Distinct preset → own query-cache entry; see forceStatsMockState.
 function renderSearchTermsOnPreset( preset: PresetType ) {
 	return (
-		<SearchTermsRender
-			attributes={ { max: 10, reportParams: getDefaultQueryParams( false, preset ) } }
-		/>
+		<SearchTermsRender attributes={ { reportParams: getDefaultQueryParams( false, preset ) } } />
 	);
 }
 
@@ -101,8 +97,9 @@ export const Loading: Story = {
 };
 
 /**
- * The fetch failed: the widget shows its error state with a Retry action (which
- * re-runs the query — still mocked as failing while this story is active).
+ * The fetch failed with a permission-gated 403: the widget shows the neutral
+ * "You don't have access to this data." copy and no Retry action, since a
+ * permission gate is deterministic and retrying cannot clear it.
  */
 export const Error: Story = {
 	render: () => renderSearchTermsOnPreset( 'last-7-days' ),
@@ -115,11 +112,26 @@ export const Error: Story = {
 };
 
 /**
- * Resolved with no rows: the widget shows its empty state (the neutral search
- * glyph and "No search terms in this period.").
+ * The fetch failed in a way that can heal — the proxy's `no_connection` 403: the
+ * widget shows its retryable copy with a Retry action, which re-runs the query
+ * (still mocked as failing while this story is active).
+ */
+export const ErrorRetryable: Story = {
+	render: () => renderSearchTermsOnPreset( 'last-12-months' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
+	beforeEach: () => {
+		setReportMockState( 'stats/search-terms', 'error-retryable' );
+		return () => setReportMockState( 'stats/search-terms', null );
+	},
+};
+
+/**
+ * Resolved with no rows: the widget shows the generic empty state (the magnifier
+ * glyph and "We couldn’t find results for this time period.").
  */
 export const Empty: Story = {
-	render: () => renderSearchTermsOnPreset( 'last-365-days' ),
+	render: () => renderSearchTermsOnPreset( 'last-year' ),
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
@@ -129,8 +141,7 @@ export const Empty: Story = {
 };
 
 interface SearchTermsDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		SearchTermsStoryControls {}
+	extends WidgetDashboardWithWidgetControls, SearchTermsStoryControls {}
 
 function SearchTermsDashboardStory( {
 	withComparison,
@@ -144,7 +155,7 @@ function SearchTermsDashboardStory( {
 			renderComponent={
 				SearchTermsDashboardRender as ComponentType< WidgetRenderProps< unknown > >
 			}
-			attributes={ { max: 10, reportParams: getDefaultQueryParams( withComparison ) } }
+			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
 		/>
 	);
 }

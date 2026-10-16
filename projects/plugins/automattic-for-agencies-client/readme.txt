@@ -1,10 +1,10 @@
 === Automattic For Agencies Client ===
 Contributors: automattic, jeherve, njweller, rcanepa
 Tags: agency, dashboard, management, sites, monitoring
-Requires at least: 6.9
-Requires PHP: 7.2
-Tested up to: 7.0
-Stable tag: 0.8.0
+Requires at least: 7.0
+Requires PHP: 7.4
+Tested up to: 7.1
+Stable tag: 0.10.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -44,21 +44,20 @@ Once connected, your site will display within Automattic for Agencies.
 1. Manage your connection to the agency dashboard from the Settings screen in your WordPress dashboard.
 
 == Changelog ==
-### 0.8.0 - 2026-04-11
+### 0.10.0 - 2026-10-14
 #### Added
-- IDC: Add revalidation for IDCs.
+- Connection: Add a Connected view to the Users page listing users with a linked WordPress.com account.
 
 #### Changed
-- Dependencies: Update lock file to keep root requirements in sync.
-- Remove header border-bottom from the admin page for a cleaner unified header appearance.
-- Update dependencies.
-- Update design of the sidebar upsell.
+- General: Update minimum WordPress version to 7.0.
+- Tested up to WordPress 7.1.
 - Update package dependencies.
 
 #### Removed
-- General: Update minimum WordPress version to 6.8.
+- Updated PHP version requirements to PHP 7.4 or newer.
 
 #### Fixed
-- Admin Page: Restore border on header component.
-- Ensure proper flags are used with `json_encode()`.
+- Connection: Fix a stale connection error state that could persist on healthy sites.
+- Connection: Translate the Connectors card's text on sites that don't use English.
+- Status: Detect a site served on any 127.0.0.0/8 loopback address, or on 0.0.0.0, as a local site.
 

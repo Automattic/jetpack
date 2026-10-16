@@ -7,8 +7,6 @@ const REST_API_PORTABLE_NAMESPACE = 'wpcom/v2/my-jetpack';
 
 export const REST_API_SITE_PURCHASES_ENDPOINT = `${ REST_API_PORTABLE_NAMESPACE }/purchases`;
 export const REST_API_REWINDABLE_BACKUP_EVENTS_ENDPOINT = `${ REST_API_NAMESPACE }/site/backup/undo-event`;
-export const REST_API_CHAT_AVAILABILITY_ENDPOINT = `${ REST_API_NAMESPACE }/chat/availability`;
-export const REST_API_CHAT_AUTHENTICATION_ENDPOINT = `${ REST_API_NAMESPACE }/chat/authentication`;
 export const REST_API_SITE_PRODUCTS_ENDPOINT = `${ REST_API_NAMESPACE }/site/products`;
 export const REST_API_SITE_PRODUCTS_OWNERSHIP_ENDPOINT = `${ REST_API_NAMESPACE }/site/products-ownership`;
 export const REST_API_SITE_PRODUCTS_INTERSTITIALS_ENDPOINT = `${ REST_API_NAMESPACE }/site/products/interstitials`;
@@ -18,6 +16,8 @@ export const REST_API_EVALUATE_SITE_RECOMMENDATIONS = `${ REST_API_NAMESPACE }/s
 export const REST_API_SITE_EVALUATION_RESULT = `${ REST_API_NAMESPACE }/site/recommendations/evaluation/result`;
 export const REST_API_UPDATE_HISTORICALLY_ACTIVE_MODULES = `${ REST_API_NAMESPACE }/site/update-historically-active-modules`;
 export const REST_API_GET_JETPACK_MANAGE_DATA = `${ REST_API_NAMESPACE }/jetpack-manage/data`;
+export const REST_API_DISMISS_A4A_BANNER = `${ REST_API_NAMESPACE }/jetpack-manage/dismiss-banner`;
+export const REST_API_DISMISS_FEATURES_BANNER = '/wpcom/v2/my-jetpack/site/features/banner/dismiss';
 export const REST_API_RED_BUBBLE_ALERTS = `${ REST_API_NAMESPACE }/red-bubble-notifications`;
 export const REST_API_GET_PROTECT_DATA = `${ REST_API_NAMESPACE }/site/protect/data`;
 export const REST_API_GET_VIDEOPRESS_DATA = `${ REST_API_NAMESPACE }/site/videopress/data`;
@@ -35,11 +35,10 @@ export const QUERY_PRODUCT_KEY = 'product';
 export const QUERY_PRODUCT_BY_OWNERSHIP_KEY = 'product ownership';
 export const QUERY_PRODUCT_INTERSTITIALS_KEY = 'product interstitials';
 export const QUERY_ACTIVATE_PRODUCT_KEY = 'activate product';
+export const QUERY_ACTIVATE_SEARCH_FREE_KEY = 'activate search free';
 export const QUERY_INSTALL_PRODUCT_KEY = 'install product';
 export const QUERY_VIDEOPRESS_STATS_KEY = 'videopress stats';
 export const QUERY_LICENSES_KEY = 'available licenses';
-export const QUERY_CHAT_AVAILABILITY_KEY = 'chat availability';
-export const QUERY_CHAT_AUTHENTICATION_KEY = 'chat authentication';
 export const QUERY_BACKUP_HISTORY_KEY = 'backup history';
 export const QUERY_STATS_COUNTS_KEY = 'stats counts';
 export const QUERY_DISMISS_WELCOME_BANNER_KEY = 'dismiss welcome banner';
@@ -49,6 +48,8 @@ export const QUERY_SAVE_EVALUATION_KEY = 'save site evaluation result';
 export const QUERY_REMOVE_EVALUATION_KEY = 'remove site evaluation result';
 export const QUERY_UPDATE_HISTORICALLY_ACTIVE_MODULES_KEY = 'update historically active modules';
 export const QUERY_GET_JETPACK_MANAGE_DATA_KEY = 'get jetpack manage data';
+export const QUERY_DISMISS_A4A_BANNER_KEY = 'dismiss a4a banner';
+export const QUERY_DISMISS_FEATURES_BANNER_KEY = 'dismiss features banner';
 export const QUERY_RED_BUBBLE_ALERTS_KEY = 'red bubble alerts';
 export const QUERY_GET_PROTECT_DATA_KEY = 'get protect data';
 export const QUERY_GET_VIDEOPRESS_DATA_KEY = 'get videopress data';
@@ -82,3 +83,12 @@ export const PRODUCT_SLUGS = {
 	GROWTH: 'growth',
 	COMPLETE: 'complete',
 } satisfies Record< string, JetpackModule >;
+
+/**
+ * Descriptor for the Jetpack Manage data query, shared by the component that reads it and the
+ * dismissal mutation that updates its cache.
+ */
+export const JETPACK_MANAGE_DATA_QUERY = {
+	name: QUERY_GET_JETPACK_MANAGE_DATA_KEY,
+	query: { path: REST_API_GET_JETPACK_MANAGE_DATA },
+};

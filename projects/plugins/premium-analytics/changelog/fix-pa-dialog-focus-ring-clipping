@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dialogs: keep the focus ring from being clipped by the dialog footer.

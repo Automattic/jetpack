@@ -6,30 +6,31 @@ interface HierarchyRow< Item > {
 	id: string;
 }
 
+/**
+ * Normalise a `getItemParentId` result to the string ids the walks compare, or
+ * `undefined` for a row with no parent.
+ */
+export function resolveParentId(
+	rawParentId: string | number | null | undefined
+): string | undefined {
+	return rawParentId === null || rawParentId === undefined ? undefined : rawParentId.toString();
+}
+
 type ProcessedHierarchyLevels< Item > = {
 	/** The items re-emitted in depth-first hierarchy order. */
 	data: Item[];
 	/**
-	 * Depth per item id, for DataViews' `getItemLevel`. Keyed by id rather
-	 * than item identity because DataViews clones each record internally (for
-	 * position tracking), so the objects reaching `getItemLevel` are never the
-	 * ones this walk saw.
+	 * Depth per item id, for `getItemLevel`. Keyed by id, not item identity:
+	 * DataViews clones each record internally, so `getItemLevel` never sees
+	 * the objects this walk saw.
 	 */
 	levelById: ReadonlyMap< string, number >;
 };
 
 /**
- * Resolve flat parent/child rows into what DataViews' native hierarchy
- * support consumes: the rows re-emitted in depth-first hierarchy order, and a
- * depth per item for `getItemLevel`.
- *
- * This is the only preprocessing the native `view.showLevels` rendering
- * needs — DataViews displays the level marker per row but does not order the
- * rows itself, so consumers (like the Gutenberg Pages screen) supply both.
- * Rows whose parent is absent from the data (or self-referential) become
- * roots. Ids are expected to be stable, non-empty, and unique (DataViews
- * requires that too); colliding ids degrade the parent/child wiring, but no
- * row is ever dropped.
+ * Resolve flat parent/child rows into depth-first hierarchy order plus a
+ * depth per item for `getItemLevel`. Rows with a missing or self-referential
+ * parent become roots; no row is ever dropped, even on a cycle or id collision.
  *
  * @param data            - Flat rows: parents and children mixed.
  * @param getItemId       - Row id resolver.
@@ -50,9 +51,7 @@ export function processHierarchyLevels< Item >(
 	const childrenByParentId = new Map< string, HierarchyRow< Item >[] >();
 
 	for ( const row of rows ) {
-		const rawParentId = getItemParentId( row.item );
-		const parentId =
-			rawParentId === null || rawParentId === undefined ? undefined : rawParentId.toString();
+		const parentId = resolveParentId( getItemParentId( row.item ) );
 		const parent = parentId && parentId !== row.id ? rowById.get( parentId ) : undefined;
 
 		if ( ! parent ) {
@@ -95,19 +94,17 @@ export function processHierarchyLevels< Item >(
 }
 
 /**
- * Given the ids of the rows a search or filter matched, return those rows plus
- * every ancestor up to a root, in the original `data` order (ready for
- * {@link processHierarchyLevels}). This keeps a filtered view's matches under
- * their parents instead of orphaning them. A missing, self-referential, or
- * already-kept parent ends the walk, so cycles cannot loop.
+ * Given matched row ids, return those rows plus their ancestors (so a
+ * matching child stays under its parents) and descendants (so a matching
+ * parent keeps its group) — never a match's siblings. Cycle-safe.
  *
  * @param data            - The full flat rows.
  * @param matchedIds      - Ids (from `getItemId`) of the rows that matched.
  * @param getItemId       - Row id resolver.
  * @param getItemParentId - Parent id resolver.
- * @return The matched rows plus their ancestors, in `data` order.
+ * @return The matched rows plus ancestors and descendants, in `data` order.
  */
-export function withAncestors< Item >(
+export function withHierarchyContext< Item >(
 	data: Item[],
 	matchedIds: ReadonlySet< string >,
 	getItemId: ( item: Item ) => string,
@@ -120,13 +117,10 @@ export function withAncestors< Item >(
 		let current = itemById.get( id );
 
 		while ( current ) {
-			const rawParentId = getItemParentId( current );
-			const parentId =
-				rawParentId === null || rawParentId === undefined ? undefined : rawParentId.toString();
+			const parentId = resolveParentId( getItemParentId( current ) );
 
-			// Stop at a root, a self-referential parent, or one already kept
-			// (the last also breaks cycles, since a kept id's ancestors are
-			// guaranteed collected).
+			// Stop at a root, self-referential parent, or one already kept — the
+			// last also breaks cycles, since a kept id's ancestors are already collected.
 			if ( ! parentId || parentId === getItemId( current ) || keep.has( parentId ) ) {
 				break;
 			}
@@ -138,6 +132,39 @@ export function withAncestors< Item >(
 
 			keep.add( parentId );
 			current = parent;
+		}
+	}
+
+	const childIdsByParentId = new Map< string, string[] >();
+	for ( const item of data ) {
+		const id = getItemId( item );
+		const parentId = resolveParentId( getItemParentId( item ) );
+
+		if ( ! parentId || parentId === id ) {
+			continue;
+		}
+
+		const siblingIds = childIdsByParentId.get( parentId ) ?? [];
+		siblingIds.push( id );
+		childIdsByParentId.set( parentId, siblingIds );
+	}
+
+	// Walk down from the matches only — seeding from `keep` would sweep in the
+	// ancestors' other branches.
+	const pending = [ ...matchedIds ];
+	const visited = new Set< string >();
+	while ( pending.length ) {
+		const id = pending.pop() as string;
+
+		if ( visited.has( id ) ) {
+			continue;
+		}
+
+		visited.add( id );
+
+		for ( const childId of childIdsByParentId.get( id ) ?? [] ) {
+			keep.add( childId );
+			pending.push( childId );
 		}
 	}
 

@@ -1,9 +1,36 @@
 export const REGEX = /(^|\/\/)(calendly\.com[^"']*)/i;
 
+/**
+ * Restrict a URL to calendly.com over HTTPS, matching the front end's host allowlist.
+ *
+ * @param {string} input - The URL to check.
+ * @return {string|undefined} The HTTPS URL, or undefined if it isn't a calendly.com URL.
+ */
+export function normalizeCalendlyUrl( input ) {
+	try {
+		const url = new URL( input );
+
+		if (
+			! [ 'http:', 'https:' ].includes( url.protocol ) ||
+			'calendly.com' !== url.hostname ||
+			url.username ||
+			url.password ||
+			url.port
+		) {
+			return undefined;
+		}
+
+		url.protocol = 'https:';
+		return url.toString();
+	} catch {
+		return undefined;
+	}
+}
+
 export const getURLFromEmbedCode = embedCode => {
 	const url = embedCode.match( REGEX );
 	if ( url ) {
-		return 'https://' + url[ 2 ];
+		return normalizeCalendlyUrl( 'https://' + url[ 2 ] );
 	}
 };
 

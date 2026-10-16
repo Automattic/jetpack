@@ -1,14 +1,17 @@
 /**
  * External dependencies
  */
+import { Link, Stack, Text } from '@jetpack-premium-analytics/externals';
+import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import { _n, sprintf } from '@wordpress/i18n';
-import { Link, Stack, Text } from '@wordpress/ui';
+import clsx from 'clsx';
 /**
  * Internal dependencies
  */
 import { ChartEmptyState } from '../chart-empty-state';
-import { WidgetLoadingOverlay } from '../widget-loading-overlay';
+import { ExternalLink } from '../external-link';
 import styles from './subscriber-list.module.scss';
+import { useFittedRosterRows } from './use-fitted-roster-rows';
 
 /**
  * A single row in the subscriber list: a person with an avatar, a name (which
@@ -20,9 +23,6 @@ export type SubscriberListItem = {
 	 * Stable key for the row (e.g. a subscription id, or a caller-provided fallback).
 	 */
 	id: string | number;
-	/**
-	 * Display name.
-	 */
 	name: string;
 	/**
 	 * Avatar image URL. Falls back to a neutral placeholder when missing or it
@@ -34,32 +34,28 @@ export type SubscriberListItem = {
 	 */
 	href?: string | null;
 	/**
+	 * Open `href` in a new tab. Pass false for links that stay in wp-admin.
+	 * @default true
+	 */
+	openInNewTab?: boolean;
+	/**
 	 * Right-aligned secondary text, e.g. a relative "since" time.
 	 */
 	secondaryText?: string;
 };
 
 export type SubscriberListProps = {
-	/**
-	 * Rows to render. When empty (and not loading) the empty state is shown.
-	 */
 	items?: SubscriberListItem[];
-	/**
-	 * When `true` and there are no rows yet, render the loading overlay.
-	 */
-	loading?: boolean;
-	/**
-	 * Empty-state message shown when there are no rows.
-	 */
 	emptyStateText?: string;
+	/** Rows beyond `items`; null when unknown, so the "N more" footer counts only hidden rows. */
+	moreCount?: number | null;
 	/**
-	 * Count of additional rows beyond those shown; renders an "N more" footer
-	 * when greater than zero.
+	 * Show only the whole rows that fit the available height, rather than letting the
+	 * host scroll the roster. Hidden rows join the "N more" footer, so the footer can
+	 * appear with `moreCount` at zero. Requires an ancestor with a definite height.
+	 * @default true
 	 */
-	moreCount?: number;
-	/**
-	 * Optional extra class for the list container.
-	 */
+	fitRows?: boolean;
 	className?: string;
 };
 
@@ -69,73 +65,91 @@ const DEFAULT_AVATAR_URL =
 	'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50"><circle cx="25" cy="25" r="25" fill="%23e5e7eb"/></svg>';
 
 /**
- * A roster of people — avatar, name, and an optional relative-time secondary
- * line per row, with an optional "N more" footer. Used by list-style Stats
- * widgets (e.g. the Subscribers card) where rows are ordered by recency rather
- * than ranked by a metric, so a bar leaderboard would not fit.
- *
- * @param {SubscriberListProps} props - The component props.
- * @return The rendered list, or the loading/empty state.
+ * A roster of people — avatar, name, and an optional relative-time secondary line per
+ * row. For Stats widgets whose rows are ordered by recency rather than ranked by a
+ * metric, where a bar leaderboard would not fit.
  */
 export function SubscriberList( {
 	items = [],
-	loading = false,
 	emptyStateText,
 	moreCount = 0,
+	fitRows = true,
 	className,
 }: SubscriberListProps ) {
-	if ( loading && items.length === 0 ) {
-		return <WidgetLoadingOverlay />;
-	}
+	const knownMoreCount = moreCount ?? 0;
+	const { listRef, fittedCount } = useFittedRosterRows( fitRows, items.length, knownMoreCount > 0 );
 
 	if ( items.length === 0 ) {
 		return <ChartEmptyState text={ emptyStateText } />;
 	}
 
+	// Include fetched rows hidden by the fitting logic.
+	const hiddenCount = knownMoreCount + ( items.length - fittedCount );
+
 	return (
-		<Stack direction="column" className={ className }>
-			{ items.map( item => (
-				<Stack
-					key={ item.id }
-					direction="row"
-					align="center"
-					justify="space-between"
-					gap="md"
-					className={ styles.row }
-				>
-					<Stack direction="row" align="center" gap="sm" className={ styles.person }>
-						<img
-							src={ item.avatarUrl || DEFAULT_AVATAR_URL }
-							onError={ ( e: React.SyntheticEvent< HTMLImageElement > ) => {
-								e.currentTarget.src = DEFAULT_AVATAR_URL;
-							} }
-							alt=""
-							aria-hidden="true"
-							className={ styles.avatar }
-						/>
-						{ item.href ? (
-							<Link
-								className={ styles.name }
-								href={ item.href }
-								variant="unstyled"
-								openInNewTab
-								title={ item.name }
-							>
-								{ item.name }
-							</Link>
-						) : (
-							<Text className={ styles.name }>{ item.name }</Text>
-						) }
-					</Stack>
-					{ item.secondaryText && <Text className={ styles.since }>{ item.secondaryText }</Text> }
-				</Stack>
-			) ) }
-			{ moreCount > 0 && (
-				<Text className={ styles.more }>
+		<Stack
+			direction="column"
+			className={ clsx( styles.root, fitRows && styles.fitted, className ) }
+		>
+			<div ref={ listRef } className={ styles.list }>
+				{ items.map( ( item, index ) => {
+					// Callers pass `href` straight from report data, so the scheme is
+					// guarded here at the sink rather than in each consuming widget.
+					const href = safeHttpUrl( item.href );
+
+					return (
+						<Stack
+							key={ item.id }
+							direction="row"
+							align="center"
+							justify="space-between"
+							gap="md"
+							className={ styles.row }
+							data-roster-row
+							// Keep hidden rows mounted so they remain available for measurement.
+							aria-hidden={ index >= fittedCount ? true : undefined }
+							style={ index >= fittedCount ? { visibility: 'hidden' } : undefined }
+						>
+							<Stack direction="row" align="center" gap="sm" className={ styles.person }>
+								<img
+									src={ item.avatarUrl || DEFAULT_AVATAR_URL }
+									onError={ ( e: React.SyntheticEvent< HTMLImageElement > ) => {
+										e.currentTarget.src = DEFAULT_AVATAR_URL;
+									} }
+									alt=""
+									aria-hidden="true"
+									className={ styles.avatar }
+								/>
+								{ ! href && <Text className={ styles.name }>{ item.name }</Text> }
+								{ href && ( item.openInNewTab ?? true ) && (
+									<ExternalLink className={ styles.name } href={ href } title={ item.name }>
+										{ item.name }
+									</ExternalLink>
+								) }
+								{ href && item.openInNewTab === false && (
+									<Link
+										className={ styles.name }
+										href={ href }
+										variant="unstyled"
+										title={ item.name }
+									>
+										{ item.name }
+									</Link>
+								) }
+							</Stack>
+							{ item.secondaryText && (
+								<Text className={ styles.since }>{ item.secondaryText }</Text>
+							) }
+						</Stack>
+					);
+				} ) }
+			</div>
+			{ hiddenCount > 0 && (
+				<Text className={ styles.more } data-roster-footer>
 					{ sprintf(
 						// translators: %d is the number of additional subscribers not shown.
-						_n( '%d more', '%d more', moreCount, 'jetpack-premium-analytics' ),
-						moreCount
+						_n( '%d more', '%d more', hiddenCount, 'jetpack-premium-analytics-pkg' ),
+						hiddenCount
 					) }
 				</Text>
 			) }

@@ -14,7 +14,7 @@ available to routes and other internal packages within
 import {
 	AnalyticsQueryClientProvider,
 	useReport,
-	prefetchReport,
+	useStatsTopPosts,
 	// ... other exports
 } from '@jetpack-premium-analytics/data';
 ```
@@ -23,8 +23,6 @@ import {
 
 - **React Query Integration**: Built on `@tanstack/react-query` for
   caching and state management
-- **Prefetching Support**: Route-based data prefetching for improved
-  performance
 - **Data Processing**: Automatic sanitization of API responses
   (strings → numbers)
 - **Comparison Support**: Built-in primary + comparison data fetching
@@ -46,179 +44,39 @@ function App() {
 
 ### Fetching Data
 
+Every report goes through `useReport`: hand it a query factory and the report
+params, and it runs the primary request plus the comparison one when the params
+carry a comparison range. The Stats hooks (`useStatsTopPosts`,
+`useStatsReferrers`, `useStatsVisits`, …) are built on it, one per endpoint of
+the Stats API.
+
 ```tsx
-import {
-	useReportOrders,
-	useReportOrdersByProductType,
-	useReportOrderAttribution,
-	useReportCoupons,
-} from '@jetpack-premium-analytics/data';
+import { useStatsTopPosts } from '@jetpack-premium-analytics/data';
 
-function OrdersReport() {
-	// Orders endpoint separates primary and comparison periods
-	const { primary, comparison, hasComparison } = useReportOrders( {
-		from: '2025-07-01T00:00:00',
-		to: '2025-07-29T23:59:59',
-		interval: 'day',
-	} );
-}
-
-function OrdersByProductTypeReport() {
-	// Orders by product type with filtering support
-	const { primary, comparison, hasComparison } = useReportOrdersByProductType( {
-		from: '2025-07-01T00:00:00',
-		to: '2025-07-29T23:59:59',
-		interval: 'day',
-		filters: [
-			{
-				key: 'product_type',
-				value: [ 'simple' ],
-				compare: 'IN',
-			},
-		],
-	} );
-}
-
-function OrderAttributionReport() {
-	// Order attribution requires a view parameter
-	const { primary, comparison, hasComparison } = useReportOrderAttribution( {
-		from: '2025-07-01T00:00:00',
-		to: '2025-07-29T23:59:59',
-		interval: 'day',
-		view: 'channel', // 'channel' | 'source' | 'campaign' | 'device' | 'channel-source'
-	} );
-}
-
-function CouponsReport() {
-	// Coupons works like orders with separate comparison requests
-	const { primary, comparison, hasComparison } = useReportCoupons( {
-		from: '2025-07-01T00:00:00',
-		to: '2025-07-29T23:59:59',
-		interval: 'day',
-	} );
+function TopPosts( { reportParams } ) {
+	const { primary, comparison, hasComparison } = useStatsTopPosts( reportParams );
+	// `primary.data` is the sanitized report; `comparison.data` the previous
+	// period's when `hasComparison`.
 }
 ```
 
-### Prefetching
-
-```tsx
-import { prefetchReport, ensureCoreSettingsReady } from '@jetpack-premium-analytics/data';
-
-export const route = {
-	beforeLoad: async () => {
-		// Ensure site settings are loaded first
-		await ensureCoreSettingsReady();
-
-		// Now safely prefetch reports
-		await prefetchReport( 'orders' );
-	},
-};
-```
+The WooCommerce report client lives in the WooCommerce Stats package, which
+calls `useReport` with its own queries.
 
 ## API Reference
 
-### Individual Hooks (Recommended)
+### `useReport( queryFactory, params, options? )`
 
-#### `useReportOrders( params )`
-
-Fetches orders report data with automatic processing and comparison support.
+Runs a report's primary query, and its comparison query when `params` carry
+`compare_from` / `compare_to`.
 
 **Parameters:**
 
+- `queryFactory`: builds the query definition from the params of each request
 - `params`: `ReportParams` with `from`, `to`, `interval`, and optional comparison params
+- `options`: optional, e.g. `enabled`
 
-**Returns:** `{ primary, comparison, hasComparison }`
-
-#### `useReportOrdersByProductType( params )`
-
-Fetches orders report data filtered by product type or other product characteristics with automatic processing and comparison support.
-
-**Parameters:**
-
-- `params`: `ReportParams` with `from`, `to`, `interval`, optional `filters` array, and optional comparison params
-
-**Filters Structure:**
-
-```typescript
-filters: Array< {
-	key: string; // e.g., 'product_type', 'virtual'
-	value: string | string[]; // e.g., ['simple'], '1'
-	compare: '=' | 'IN' | 'NOT IN' | '!=' | '>' | '<' | '>=' | '<=';
-} >;
-```
-
-**Common Filter Examples:**
-
-- Product types: `{ key: 'product_type', value: ['simple', 'variable'], compare: 'IN' }`
-- Virtual products: `{ key: 'virtual', value: '1', compare: '=' }`
-- Non-virtual products: `{ key: 'virtual', value: '0', compare: '=' }`
-
-**Returns:** `{ primary, comparison, hasComparison }`
-
-#### `useReportOrderAttribution( params )`
-
-Fetches order attribution data with built-in comparison handling.
-
-**Parameters:**
-
-- `params`: `ReportParams` with `from`, `to`, `interval`, `view`, and optional comparison params
-
-**Returns:** `{ primary, comparison, hasComparison }`
-
-#### `useReportCoupons( params )`
-
-Fetches coupons report data with automatic processing and comparison support.
-
-**Parameters:**
-
-- `params`: `ReportParams` with `from`, `to`, `interval`, and optional comparison params
-
-**Returns:** `{ primary, comparison, hasComparison }`
-
-### Legacy Hook (Deprecated)
-
-#### `useReport( reportType, params )`
-
-**⚠️ Deprecated:** Use individual hooks instead for better type safety and performance.
-
-**Parameters:**
-
-- `reportType`: `'orders'` | `'orders-by-product-type'` | `'order-attribution'` | `'coupons'`
-- `params`: `ReportParams`
-
-**Returns:** Same as individual hooks above
-
-### `prefetchReport( reportType, params )`
-
-Prefetches data for improved performance. Same parameters as `useReport`.
-
-**Usage:** Call in route `beforeLoad` functions for instant data loading
-
-**Returns:** Promise that resolves when data is prefetched
-
-**Caching:** Uses React Query cache, so subsequent `useReport` calls are
-instant
-
-**Example:**
-
-```tsx
-// Prefetch orders data
-await prefetchReport( 'orders', { from, to, interval } );
-
-// Prefetch orders by product type data
-await prefetchReport( 'orders-by-product-type', {
-	from,
-	to,
-	interval,
-	filters: [ { key: 'product_type', value: [ 'simple' ], compare: 'IN' } ],
-} );
-
-// Prefetch order attribution data
-await prefetchReport( 'order-attribution', { from, to, interval, view: 'channel' } );
-
-// Prefetch coupons data
-await prefetchReport( 'coupons', { from, to, interval } );
-```
+**Returns:** `{ primary, comparison, hasComparison, isLoading, isFetching, hasData, isError, error, refetch }`
 
 ### `normalizeReportParams( params? )`
 
@@ -230,173 +88,109 @@ Normalizes and validates report parameters, providing defaults when needed.
 
 **Returns:** `{ primary, comparison? }` with normalized parameters
 
-**Defaults:** Last 30 days, daily interval when not specified
+**Defaults:** The reader's last applied preset, else their Jetpack Stats v1 range, else Last 7 days; daily interval when not specified
 
 **Validation:** Ensures required fields are present for API calls
 
-### `getDefaultIntervalForPeriod( period, from, to )`
+### `getDefaultIntervalForPeriod( preset, from, to )`
 
-Returns the optimal default interval for a given time period.
+Returns the default interval for a preset / date range: the first one it allows.
 
 **Parameters:**
 
-- `period`: `string` - Period identifier (e.g., 'today', 'last-7-days', 'last-30-days')
+- `preset`: `PrimaryPresetId | undefined` - Primary date-range preset, when known
 - `from`: `string` - Start date
 - `to`: `string` - End date
 
-**Returns:** `IntervalType` - Optimal interval ('hour', 'day', 'week', 'month', 'quarter', 'year')
+**Returns:** `IntervalType` - `'hour' | 'day' | 'week' | 'month' | 'year'`
 
 **Example:**
 
 ```tsx
 import { getDefaultIntervalForPeriod } from '@jetpack-premium-analytics/data';
 
-const interval = getDefaultIntervalForPeriod( 'last-7-days', from, to ); // Returns 'day'
+const interval = getDefaultIntervalForPeriod( 'last-7-days', from, to ); // 'day'
 ```
 
-### `ORDER_ATTRIBUTION_VIEWS`
+### `resolveIntervalForRange( preset, from, to, current? )`
 
-Constant array of available order attribution views.
+Returns a valid interval for a date range. Keeps `current` when it is still
+allowed; otherwise returns the range default.
 
-**Values:** `['channel', 'source', 'campaign', 'device', 'channel-source']`
+**Parameters:**
 
-**Example:**
+- `preset`: `PrimaryPresetId | undefined`
+- `from`: `string`
+- `to`: `string`
+- `current`: `string | undefined` - Candidate interval to keep when still allowed
 
-```tsx
-import { ORDER_ATTRIBUTION_VIEWS } from '@jetpack-premium-analytics/data';
+**Returns:** `IntervalType`
 
-// Use in components for view selection
-const views = ORDER_ATTRIBUTION_VIEWS; // ['channel', 'source', ...]
-```
+### `resolveIntervalForPresetChange( currentPreset, nextPreset, from, to, currentInterval? )`
+
+Returns a valid interval for a range picked while `currentPreset` was active.
+Switching to a different named preset returns that preset's default; any other
+change (same preset, `custom`, no preset) keeps `currentInterval` when still
+allowed.
+
+**Parameters:**
+
+- `currentPreset`: `PrimaryPresetId | undefined`
+- `nextPreset`: `PrimaryPresetId | undefined`
+- `from`: `string`
+- `to`: `string`
+- `currentInterval`: `string | undefined` - Candidate interval to keep when still allowed
+
+**Returns:** `IntervalType`
+
+### `needsReportDateParamsSeed( search? )`
+
+Returns whether report date params are incomplete or the interval is invalid
+for the range (`from` / `to` / `interval` missing, or `interval` not allowed).
+
+**Parameters:**
+
+- `search`: date-window fields from unnormalized report params (`from`, `to`, `interval`, `preset`)
+
+**Returns:** `boolean`
 
 ## Architecture
 
 ```
 src/
-├── api/                    # API functions and query keys
-│   ├── index.ts           # API exports
-│   ├── constants.ts       # Shared API endpoint constants
-│   ├── report-orders-fetch/                # Orders API client
-│   │   ├── index.ts       # Orders API exports
-│   │   └── report-orders-fetch.ts          # Orders API implementation
-│   ├── report-orders-by-product-type-fetch/  # Orders by product type API client
-│   │   ├── index.ts       # Orders by product type API exports
-│   │   └── report-orders-by-product-type-fetch.ts  # Orders by product type API implementation
-│   ├── report-order-attribution-summary-fetch/  # Attribution API client
-│   │   ├── index.ts       # Attribution API exports
-│   │   └── report-order-attribution-summary-fetch.ts  # Attribution API implementation
-│   └── report-coupons-fetch/               # Coupons API client
-│       ├── index.ts       # Coupons API exports
-│       └── report-coupons-fetch.ts         # Coupons API implementation
-├── queries/                # React Query configurations
-│   ├── index.ts           # Query exports
-│   ├── report-orders-query.ts              # Orders query definition
-│   ├── report-orders-by-product-type-query.ts  # Orders by product type query definition
-│   ├── report-order-attribution-summary-query.ts  # Attribution query definition
-│   └── report-coupons-query.ts             # Coupons query definition
-├── hooks/                  # React hooks
-│   ├── index.ts           # Hook exports
-│   └── use-report.ts      # Main useReport hook with comparison
-├── prefetch/               # Prefetching functions
-│   ├── index.ts           # Prefetch exports
-│   └── prefetch-report-orders.ts  # Multi-report prefetch logic (orders + attribution + coupons)
-├── processing/             # Data sanitization and transformation
-│   ├── orders/            # Orders-specific data processing
-│   ├── orders-by-product-type/  # Orders by product type data processing
-│   ├── coupons/           # Coupons data processing
-│   └── order-attribution/ # Attribution data processing
-├── providers/              # React Context providers
-│   ├── index.ts           # Provider exports
-│   └── query-client-provider.tsx  # React Query client setup
-├── defaults/               # Default parameters and configurations
-├── utils/                  # Utility functions
-│   ├── date.ts            # Date manipulation utilities (timezone-aware)
-│   ├── ensure-core-settings.ts  # Core settings initialization
-│   ├── interval.ts        # Interval calculation and optimization
-│   ├── search.ts          # Search parameter utilities
-│   └── types.ts           # Shared utility types (Override, etc.)
-└── types.ts                # TypeScript type definitions
+├── api/                    # Transport: the proxy fetchers and the CSV export request
+├── queries/                # React Query definitions, one per Stats endpoint
+├── hooks/                  # useReport and the Stats hooks built on it
+├── processing/             # Response sanitization (author, latest post, stats)
+├── providers/              # React Query client provider
+├── defaults/               # Default report params and presets
+└── utils/                  # Report params, intervals, timezone, API errors
 ```
 
 ### Data Flow
 
-1. **Route Prefetching**: `beforeLoad` calls `prefetchReport()` to load
-   data
-2. **Component Consumption**: Components use `useReport()` to access cached
-   data
-3. **Automatic Processing**: Raw API responses are sanitized
+1. **Component Consumption**: A component calls a hook, which builds the
+   query from the report params
+2. **Automatic Processing**: Raw API responses are sanitized
    (strings → numbers)
-4. **Comparison Handling**: Primary and comparison queries are managed
+3. **Comparison Handling**: Primary and comparison queries are managed
    automatically
-5. **Cache Management**: React Query handles caching, background updates,
+4. **Cache Management**: React Query handles caching, background updates,
    and invalidation
 
-## Date Utilities
+## Core Settings
 
-This package provides timezone-aware date utilities that integrate with
-WordPress site settings:
-
-### `localTZDate( value?, timezone? )`
-
-Creates a timezone-aware date using the site's configured timezone by
-default.
-
-```typescript
-import { localTZDate } from '@jetpack-premium-analytics/data';
-
-const now = localTZDate(); // Current time in site timezone
-const custom = localTZDate( '2024-01-15', 'America/New_York' );
-```
-
-**Parameters:**
-
-- `value` (optional): `number | string | Date` - Date value to convert
-- `timezone` (optional): `string` - Target timezone (defaults to site
-  timezone)
-
-**Returns:** `TZDate` - Timezone-aware date object
-
-### `dateToISOStringWithLocalTZ( date, timezone? )`
-
-Converts a date to ISO string with the site's timezone offset applied.
-
-```typescript
-const withTZ = dateToISOStringWithLocalTZ( new Date() );
-// Returns: "2024-01-15T14:30:00.000-05:00" (with site timezone offset)
-```
-
-**Parameters:**
-
-- `date`: `Date` - Date to convert
-- `timezone` (optional): `string` - Target timezone (defaults to site
-  timezone)
-
-**Returns:** `string` - ISO string with timezone offset
-
-### `getSiteTimezone()`
-
-Returns the WordPress site's configured timezone string.
-
-```typescript
-const timezone = getSiteTimezone();
-// Returns: "America/New_York" or "+05:30" (offset format)
-```
-
-**Returns:** `string` - Site timezone from WordPress settings
-
-**Note:** This function will throw an error if called before core settings
-are loaded. Use `ensureCoreSettingsReady()` in route loaders to prevent
-this.
+Timezone-aware date helpers live in `@jetpack-premium-analytics/datetime`.
 
 ### `ensureCoreSettingsReady()`
 
-Ensures WordPress core settings (site and general settings) are loaded
-before accessing timezone-dependent functions.
+Ensures the WordPress core `site` and `general settings` records are
+resolved, so components reading them (e.g. `useSiteHomeUrl`) render with a
+warm cache.
 
 ```typescript
 // In route loaders or beforeLoad hooks
 await ensureCoreSettingsReady();
-// Now getSiteTimezone() can be safely called
 ```
 
 **Returns:** `Promise<void>` - Resolves when settings are loaded
@@ -420,29 +214,22 @@ This package exports the following public API:
 
 ### Hooks
 
-- `useReportOrders` - Hook for fetching orders report data
-- `useReportOrdersByProductType` - Hook for fetching orders by product type with filtering
-- `useReportOrderAttribution` - Hook for fetching order attribution data
-- `useReportCoupons` - Hook for fetching coupons report data
-- `useReport` - Legacy main hook for fetching report data (deprecated)
+- `useReport` - Run a report query with comparison support
+- `useStats*` - One hook per Stats endpoint (`useStatsTopPosts`, `useStatsReferrers`, `useStatsVisits`, …)
 
 ### Functions
 
-- `prefetchReport` - Prefetch data for routes
 - `normalizeReportParams` - Normalize and validate parameters
-- `getDefaultIntervalForPeriod` - Get optimal interval for time period
+- `getDefaultIntervalForPeriod` - Default interval for a preset / range
+- `resolveIntervalForRange` - Keep a still-valid candidate interval, else the range default
+- `resolveIntervalForPresetChange` - Reset to the preset default on a named-preset switch, else keep a still-valid interval
+- `needsReportDateParamsSeed` - Whether report date params are incomplete or the interval is invalid for the range
+- `downloadReport` - Download one report as a CSV file
 
-### Date Utilities
+### Core Settings
 
-- `localTZDate` - Create timezone-aware dates
-- `dateToISOStringWithLocalTZ` - Convert to ISO with timezone
-- `getSiteTimezone` - Get WordPress site timezone
-- `ensureCoreSettingsReady` - Ensure settings are loaded
-
-### Constants
-
-- `ORDER_ATTRIBUTION_VIEWS` - Available attribution view types
+- `ensureCoreSettingsReady` - Ensure core settings records are resolved
 
 ### Types
 
-- `ReportDataMap` - TypeScript type mapping for report data structures
+- `ReportParams` - The report params every hook takes

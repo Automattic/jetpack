@@ -67,7 +67,7 @@ export function getConsentChoices( nonRequiredValue?: boolean ): ConsentEventCho
 		const preferenceKey = getCategoryPreferenceKey( category );
 		choices[ preferenceKey ] = category.required
 			? true
-			: nonRequiredValue ?? category.defaultChecked;
+			: ( nonRequiredValue ?? category.defaultChecked );
 		return choices;
 	}, {} );
 }

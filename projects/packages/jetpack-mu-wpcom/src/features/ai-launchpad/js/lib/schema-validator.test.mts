@@ -5,23 +5,35 @@ import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import {
 	AGENT_OUTPUT_SCHEMA,
+	MAX_REASONS_PER_ATTEMPT,
 	parseAgentResponse,
 	validateAgainstSchema,
 } from './schema-validator.ts';
 
-const __dirname = dirname( fileURLToPath( import.meta.url ) );
-const CONTRACTS = resolve( __dirname, '../../contracts' );
-
 const fileSchema = JSON.parse(
-	readFileSync( resolve( CONTRACTS, 'agent-output-schema.json' ), 'utf8' )
+	readFileSync(
+		resolve(
+			dirname( fileURLToPath( import.meta.url ) ),
+			'../../contracts/agent-output-schema.json'
+		),
+		'utf8'
+	)
 );
 
+interface AgentOutput {
+	tasks: Array< { id: string; subtitle: string } >;
+	inferred: Record< string, string >;
+	first_post_draft: { title: string; paragraphs: string[] };
+	about_page_draft: { title: string; paragraphs: string[] };
+	page_intros?: Record< string, string | null >;
+}
+
 /**
- * A baseline schema-valid agent output used as the basis for mutation tests.
+ * A baseline schema-valid agent output for the cases below to edit.
  *
  * @return A valid TailoredOutput-shaped object.
  */
-function validOutput() {
+function validOutput(): AgentOutput {
 	return {
 		tasks: [
 			{ id: 'first_post_published', subtitle: 'Write your first post.' },
@@ -43,126 +55,201 @@ function validOutput() {
 	};
 }
 
+type Mutate = ( out: AgentOutput ) => unknown;
+
+/**
+ * Validate the baseline output with one edit applied.
+ *
+ * @param mutate - Applies the edit under test to a fresh baseline output.
+ * @return The validation errors.
+ */
+function errorsAfter( mutate: Mutate ): string[] {
+	const out = validOutput();
+	mutate( out );
+	return validateAgainstSchema( out, AGENT_OUTPUT_SCHEMA );
+}
+
 describe( 'inlined AGENT_OUTPUT_SCHEMA', () => {
 	it( 'deep-equals the committed contract file', () => {
-		// Strip the JSON-Schema annotation keywords the inlined constant omits
-		// ($schema/$id/description, and the root title) so the structural
-		// keywords can be compared. "title" is only an annotation at the root;
-		// inside `properties` it is a real property name, so it is left intact.
-		const META = new Set( [ '$schema', '$id', 'description' ] );
-		const stripMeta = (
-			node: Record< string, unknown >,
-			isRoot: boolean
-		): Record< string, unknown > => {
-			const out: Record< string, unknown > = {};
-			for ( const [ key, value ] of Object.entries( node ) ) {
-				if ( META.has( key ) || ( isRoot && key === 'title' ) ) {
-					continue;
-				}
-				if ( key === 'properties' && value && typeof value === 'object' ) {
-					const props: Record< string, unknown > = {};
-					for ( const [ propName, propSchema ] of Object.entries(
-						value as Record< string, unknown >
-					) ) {
-						props[ propName ] = stripMeta( propSchema as Record< string, unknown >, false );
-					}
-					out[ key ] = props;
-				} else if ( value && typeof value === 'object' && ! Array.isArray( value ) ) {
-					out[ key ] = stripMeta( value as Record< string, unknown >, false );
-				} else {
-					out[ key ] = value;
-				}
+		// Strip annotation keywords from schema nodes only: inside `properties`, "title" is a real key.
+		const META = [ '$schema', '$id', 'description', 'title' ];
+		const stripMeta = ( node: unknown, isPropertyMap = false ): unknown => {
+			if ( ! node || typeof node !== 'object' || Array.isArray( node ) ) {
+				return node;
 			}
-			return out;
+			return Object.fromEntries(
+				Object.entries( node )
+					.filter( ( [ key ] ) => isPropertyMap || ! META.includes( key ) )
+					.map( ( [ key, value ] ) => [
+						key,
+						stripMeta( value, ! isPropertyMap && key === 'properties' ),
+					] )
+			);
 		};
-		assert.deepEqual( AGENT_OUTPUT_SCHEMA, stripMeta( fileSchema, true ) );
+		assert.deepEqual( AGENT_OUTPUT_SCHEMA, stripMeta( fileSchema ) );
 	} );
 } );
 
 describe( 'validateAgainstSchema', () => {
 	it( 'accepts a valid output', () => {
-		assert.deepEqual( validateAgainstSchema( validOutput(), fileSchema ), [] );
+		assert.deepEqual( validateAgainstSchema( validOutput(), AGENT_OUTPUT_SCHEMA ), [] );
 	} );
 
-	it( 'rejects fewer than 6 tasks', () => {
-		const out = validOutput();
-		out.tasks = out.tasks.slice( 0, 5 );
-		assert.ok( validateAgainstSchema( out, fileSchema ).length > 0 );
-	} );
+	const ACCEPTED: Array< [ string, Mutate ] > = [
+		[ 'an inferred theme_category from the enum', out => ( out.inferred.theme_category = 'blog' ) ],
+		[ 'a third About paragraph', out => out.about_page_draft.paragraphs.push( 'Come say hi.' ) ],
+		[
+			'an intro for every page task at once',
+			out =>
+				( out.page_intros = {
+					add_contact_page: 'Say hello.',
+					add_events_page: 'Come along.',
+					add_video_page: 'Take a look.',
+					add_gallery_page: 'A year of work.',
+				} ),
+		],
+		[ 'an empty page_intros object', out => ( out.page_intros = {} ) ],
+	];
+	for ( const [ label, mutate ] of ACCEPTED ) {
+		it( `accepts ${ label }`, () => assert.deepEqual( errorsAfter( mutate ), [] ) );
+	}
 
-	it( 'rejects an empty subtitle', () => {
-		const out = validOutput();
-		out.tasks[ 0 ].subtitle = '';
-		assert.ok( validateAgainstSchema( out, fileSchema ).length > 0 );
-	} );
-
-	it( 'accepts an inferred theme_category and rejects an out-of-enum slug', () => {
-		const out = validOutput();
-		( out.inferred as Record< string, unknown > ).theme_category = 'travel-lifestyle';
-		assert.deepEqual( validateAgainstSchema( out, fileSchema ), [] );
-		( out.inferred as Record< string, unknown > ).theme_category = 'hiking';
-		assert.ok( validateAgainstSchema( out, fileSchema ).length > 0 );
-	} );
-
-	it( 'accepts an inferred_goal and rejects an out-of-enum value', () => {
-		const out = validOutput();
-		( out.inferred as Record< string, unknown > ).inferred_goal = 'portfolio';
-		assert.deepEqual( validateAgainstSchema( out, fileSchema ), [] );
-		( out.inferred as Record< string, unknown > ).inferred_goal = 'cook';
-		assert.ok( validateAgainstSchema( out, fileSchema ).length > 0 );
-	} );
-
-	it( 'accepts an output without inferred_goal (optional field)', () => {
-		assert.deepEqual( validateAgainstSchema( validOutput(), fileSchema ), [] );
-	} );
-
-	it( 'rejects an unknown goal enum value', () => {
-		const out = validOutput();
-		( out.inferred as { goal: string } ).goal = 'cook';
-		assert.ok( validateAgainstSchema( out, fileSchema ).length > 0 );
-	} );
-
-	it( 'rejects additional properties', () => {
-		const out = validOutput() as Record< string, unknown >;
-		out.extra = true;
-		assert.ok( validateAgainstSchema( out, fileSchema ).length > 0 );
-	} );
-
-	it( 'rejects a missing required field', () => {
-		const out = validOutput() as Record< string, unknown >;
-		delete out.first_post_draft;
-		assert.ok( validateAgainstSchema( out, fileSchema ).length > 0 );
-	} );
-
-	it( 'rejects a missing about_page_draft', () => {
-		const out = validOutput() as Record< string, unknown >;
-		delete out.about_page_draft;
-		assert.ok( validateAgainstSchema( out, fileSchema ).length > 0 );
-	} );
-
-	it( 'accepts a third About paragraph but rejects a fourth', () => {
-		const out = validOutput();
-		out.about_page_draft.paragraphs.push( 'A closing invitation.' );
-		assert.deepEqual( validateAgainstSchema( out, fileSchema ), [] );
-		out.about_page_draft.paragraphs.push( 'One too many.' );
-		assert.ok( validateAgainstSchema( out, fileSchema ).length > 0 );
-	} );
+	const REJECTED: Array< [ string, Mutate, string ] > = [
+		[
+			'fewer than 6 tasks',
+			out => ( out.tasks = out.tasks.slice( 0, 5 ) ),
+			'$.tasks: length 5 < minItems 6',
+		],
+		[
+			'an empty subtitle',
+			out => ( out.tasks[ 0 ].subtitle = '' ),
+			'$.tasks[0].subtitle: length 0 < minLength 1',
+		],
+		[
+			'additional properties',
+			out => ( ( out as unknown as Record< string, unknown > ).extra = true ),
+			'$.extra: additionalProperties:false but key present',
+		],
+		[
+			'a missing required field',
+			out => delete ( out as Partial< AgentOutput > ).first_post_draft,
+			'$.first_post_draft: required, missing',
+		],
+		[
+			'a fourth About paragraph',
+			out => out.about_page_draft.paragraphs.push( 'C.', 'D.' ),
+			'$.about_page_draft.paragraphs: length 4 > maxItems 3',
+		],
+	];
+	for ( const [ label, mutate, error ] of REJECTED ) {
+		it( `rejects ${ label }`, () => assert.deepEqual( errorsAfter( mutate ), [ error ] ) );
+	}
 } );
 
 describe( 'parseAgentResponse', () => {
 	it( 'returns the typed output for a valid JSON string', () => {
-		const parsed = parseAgentResponse( JSON.stringify( validOutput() ) );
-		assert.ok( parsed );
-		assert.equal( parsed!.tasks.length, 6 );
+		assert.deepEqual( parseAgentResponse( JSON.stringify( validOutput() ) ), {
+			output: validOutput(),
+			errors: [],
+		} );
 	} );
 
-	it( 'returns null for malformed JSON', () => {
-		assert.equal( parseAgentResponse( '{ not json' ), null );
+	it( 'returns a fixed reason for malformed JSON, never the parser message', () => {
+		assert.deepEqual( parseAgentResponse( 'Here is your plan: { not json' ), {
+			output: null,
+			errors: [ '$: invalid JSON' ],
+		} );
 	} );
 
-	it( 'returns null for schema-invalid JSON', () => {
+	for ( const [ field, value ] of [
+		[ 'inferred_goal', 'business' ],
+		[ 'brand_name', 'x'.repeat( 81 ) ],
+	] ) {
+		it( `drops an invalid optional ${ field } instead of rejecting the output`, () => {
+			const out = validOutput();
+			out.inferred[ field ] = value;
+			const { output } = parseAgentResponse( JSON.stringify( out ) );
+			assert.ok( output );
+			assert.equal( field in output.inferred, false );
+		} );
+	}
+
+	const DROPPED_INTROS: Array< [ string, Record< string, string | null > ] > = [
+		[
+			'empty and null intros for page tasks the model did not choose',
+			{
+				add_contact_page: 'Say hello.',
+				add_events_page: '',
+				add_video_page: null,
+				add_gallery_page: '',
+			},
+		],
+		[
+			'an intro for a task that has none',
+			{ add_contact_page: 'Say hello.', add_about_page: 'Hi.' },
+		],
+	];
+	for ( const [ label, page_intros ] of DROPPED_INTROS ) {
+		it( `accepts ${ label }, leaving the key out`, () => {
+			const { output, errors } = parseAgentResponse(
+				JSON.stringify( { ...validOutput(), page_intros } )
+			);
+			assert.ok( output, errors.join( '; ' ) );
+			assert.deepEqual( output.page_intros, { add_contact_page: 'Say hello.' } );
+		} );
+	}
+
+	// Required fields keep failing: only optional keys are ever dropped.
+	const REQUIRED_FAILURES: Array< [ string, Mutate, string ] > = [
+		[
+			'an out-of-enum required goal',
+			out => ( out.inferred.goal = 'business' ),
+			'inferred.goal: not in enum',
+		],
+		[
+			'a null task subtitle',
+			out => ( ( out.tasks[ 5 ] as { subtitle: unknown } ).subtitle = null ),
+			'tasks[5].subtitle: expected string',
+		],
+		[
+			'a page intro past the length ceiling',
+			out => ( out.page_intros = { add_contact_page: 'x'.repeat( 201 ) } ),
+			'page_intros.add_contact_page: length 201 > maxLength 200',
+		],
+	];
+	for ( const [ label, mutate, reason ] of REQUIRED_FAILURES ) {
+		it( `rejects ${ label }, and says why`, () => {
+			const out = validOutput();
+			mutate( out );
+			assert.deepEqual( parseAgentResponse( JSON.stringify( out ) ), {
+				output: null,
+				errors: [ reason ],
+			} );
+		} );
+	}
+
+	it( 'never puts a field value in a reason', () => {
 		const out = validOutput();
-		out.tasks = out.tasks.slice( 0, 3 );
-		assert.equal( parseAgentResponse( JSON.stringify( out ) ), null );
+		out.inferred.goal = 'Private Bakery Name';
+		out.tasks[ 0 ].subtitle = 'Ceramics from my studio at 12 Example Street. '.repeat( 5 );
+		const { errors } = parseAgentResponse( JSON.stringify( out ) );
+		assert.equal( errors.length, 2 );
+		for ( const reason of errors ) {
+			assert.equal( /Bakery|Ceramics|Example/.test( reason ), false, reason );
+		}
+	} );
+
+	it( 'caps the reasons per reply, and strips odd characters from invented keys', () => {
+		const out = validOutput() as unknown as Record< string, unknown >;
+		out[ 'naïve "key" 🎉' ] = 1;
+		out.extra_two = 2;
+		out.extra_three = 3;
+		out.extra_four = 4;
+		const { errors } = parseAgentResponse( JSON.stringify( out ) );
+		assert.equal( errors.length, MAX_REASONS_PER_ATTEMPT );
+		assert.equal( errors[ 0 ], 'nave key : additionalProperties:false but key present' );
+		for ( const reason of errors ) {
+			assert.match( reason, /^[A-Za-z0-9_.$[\]:<>= -]{1,120}$/ );
+		}
 	} );
 } );

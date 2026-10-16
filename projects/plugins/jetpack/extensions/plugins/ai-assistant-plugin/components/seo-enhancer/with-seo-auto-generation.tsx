@@ -1,7 +1,6 @@
 /*
  * External dependencies
  */
-import { isSimpleSite } from '@automattic/jetpack-script-data';
 import {
 	getJetpackExtensionAvailability,
 	useModuleStatus,
@@ -13,6 +12,7 @@ import { addFilter } from '@wordpress/hooks';
 /*
  * Internal dependencies
  */
+import { canAutoEnhanceMetadata } from './can-auto-enhance-metadata';
 import { store } from './store';
 import { useSeoModuleSettings } from './use-seo-module-settings';
 import { useSeoRequests } from './use-seo-requests';
@@ -22,7 +22,8 @@ import { useSeoRequests } from './use-seo-requests';
 import type { Block } from '@automattic/jetpack-ai-client';
 
 const isSeoEnhancerEnabled =
-	getJetpackExtensionAvailability( 'ai-seo-enhancer' )?.available === true && ! isSimpleSite();
+	getJetpackExtensionAvailability( 'ai-seo-enhancer' )?.available === true &&
+	canAutoEnhanceMetadata();
 
 function isPossibleToExtendImageBlock( blockName: string ): boolean {
 	return blockName === 'core/image' && isSeoEnhancerEnabled;

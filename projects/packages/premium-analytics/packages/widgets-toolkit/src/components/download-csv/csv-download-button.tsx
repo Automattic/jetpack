@@ -1,31 +1,29 @@
 /**
  * External dependencies
  */
-import { useRegistry } from '@wordpress/data';
+import { Button, IconButton } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
 import { download } from '@wordpress/icons';
-import { Button } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useState, type ComponentProps } from 'react';
+import { useState, type ComponentProps, type ReactElement } from 'react';
 /**
  * Internal dependencies
  */
 import styles from './csv-download-button.module.scss';
+import { useDownloadWithErrorNotice } from './use-download-with-error-notice';
 
 export type CsvDownloadButtonProps = {
-	/**
-	 * Starts the download.
-	 */
 	onDownload: () => Promise< unknown > | void;
 
 	/**
-	 * Visible label. Defaults to "Download CSV".
+	 * Label for the action. Defaults to "Download CSV". Without `showLabel` it
+	 * becomes the icon button's tooltip and accessible name.
 	 */
 	label?: string;
 
-	/**
-	 * Optional class for layout tweaks.
-	 */
+	/** Defaults to the download icon. */
+	icon?: ReactElement;
+
 	className?: string;
 
 	/**
@@ -34,48 +32,34 @@ export type CsvDownloadButtonProps = {
 	variant?: ComponentProps< typeof Button >[ 'variant' ];
 
 	/**
-	 * Whether to show the download icon. Defaults to true.
+	 * Whether to show the download icon alongside a visible label. Ignored
+	 * without `showLabel`, where the icon is the whole button.
 	 */
 	showIcon?: boolean;
+
+	/**
+	 * Whether to render the label as text. Defaults to false, the icon-only
+	 * widget footer action; page-level actions opt into a labelled button.
+	 */
+	showLabel?: boolean;
 };
-
-function getErrorMessage( error: unknown ): string {
-	if ( error instanceof Error && error.message ) {
-		return error.message;
-	}
-	if (
-		typeof error === 'object' &&
-		error !== null &&
-		'message' in error &&
-		typeof error.message === 'string' &&
-		error.message
-	) {
-		return error.message;
-	}
-
-	return __( 'Could not download report.', 'jetpack-premium-analytics' );
-}
 
 /**
  * Shared CSV download action with loading state and snackbar errors.
  *
- * @param props            - Component props.
- * @param props.onDownload - Download behavior supplied by the caller.
- * @param props.label      - Optional visible label.
- * @param props.className  - Optional additional class name.
- * @param props.variant    - Optional button treatment.
- * @param props.showIcon   - Whether to render the download icon.
  * @return The rendered download action.
  */
 export function CsvDownloadButton( {
 	onDownload,
-	label = __( 'Download CSV', 'jetpack-premium-analytics' ),
+	label = __( 'Download CSV', 'jetpack-premium-analytics-pkg' ),
+	icon = download,
 	className,
 	variant = 'minimal',
 	showIcon = true,
+	showLabel = false,
 }: CsvDownloadButtonProps ) {
 	const [ isBusy, setIsBusy ] = useState( false );
-	const registry = useRegistry();
+	const runDownload = useDownloadWithErrorNotice( onDownload );
 
 	const onClick = async () => {
 		if ( isBusy ) {
@@ -85,27 +69,28 @@ export function CsvDownloadButton( {
 		setIsBusy( true );
 
 		try {
-			await onDownload();
-		} catch ( error ) {
-			registry.dispatch( 'core/notices' ).createErrorNotice( getErrorMessage( error ), {
-				type: 'snackbar',
-				explicitDismiss: true,
-			} );
+			await runDownload();
 		} finally {
 			setIsBusy( false );
 		}
 	};
 
+	const buttonProps = {
+		variant,
+		tone: 'neutral',
+		size: 'compact',
+		onClick,
+		loading: isBusy,
+		className: clsx( styles.downloadCsv, className ),
+	} as const;
+
+	if ( ! showLabel ) {
+		return <IconButton { ...buttonProps } icon={ icon } label={ label } />;
+	}
+
 	return (
-		<Button
-			variant={ variant }
-			tone="neutral"
-			size="compact"
-			onClick={ onClick }
-			loading={ isBusy }
-			className={ clsx( styles.downloadCsv, className ) }
-		>
-			{ showIcon ? <Button.Icon icon={ download } /> : null }
+		<Button { ...buttonProps }>
+			{ showIcon ? <Button.Icon icon={ icon } /> : null }
 			<span className={ styles.label }>{ label }</span>
 		</Button>
 	);

@@ -51,9 +51,8 @@ await jest.unstable_mockModule( '../../../../src/form-editor/plugins/copy-code-r
 } ) );
 
 // Import component after mocks
-const { EmbedCodePanel, EMBED_CODE_PANEL_PLUGIN } = await import(
-	'../../../../src/form-editor/plugins/embed-code-panel.tsx'
-);
+const { EmbedCodePanel, EMBED_CODE_PANEL_PLUGIN } =
+	await import( '../../../../src/form-editor/plugins/embed-code-panel.tsx' );
 
 describe( 'EmbedCodePanel', () => {
 	beforeEach( () => {

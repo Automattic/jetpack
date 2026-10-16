@@ -91,12 +91,10 @@ await jest.unstable_mockModule(
 	} )
 );
 
-const { ConvertFormToolbar } = await import(
-	'../../../../src/blocks/contact-form/components/convert-form-toolbar'
-);
-const { navigateToForm } = await import(
-	'../../../../src/blocks/contact-form/util/navigate-to-form'
-);
+const { ConvertFormToolbar } =
+	await import( '../../../../src/blocks/contact-form/components/convert-form-toolbar' );
+const { navigateToForm } =
+	await import( '../../../../src/blocks/contact-form/util/navigate-to-form' );
 
 describe( 'ConvertFormToolbar', () => {
 	beforeEach( () => {

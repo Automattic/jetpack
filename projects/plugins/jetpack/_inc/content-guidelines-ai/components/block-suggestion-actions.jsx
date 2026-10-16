@@ -1,6 +1,7 @@
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { acceptBlockSuggestion } from '../lib/dom';
+import { getBlockModalTextarea } from '../lib/drafts';
 import { recordGuidelinesEvent } from '../lib/tracks';
 import { AI_STORE_NAME } from '../store';
 import DiffView from './diff-view';
@@ -34,7 +35,7 @@ export default function BlockSuggestionActions( { blockName, blockModal } ) {
 
 		// Capture textarea content and height before hiding it.
 		if ( suggestion && ! blockModal.classList.contains( 'has-jetpack-suggestion' ) ) {
-			const textarea = blockModal.querySelector( '.components-textarea-control__input' );
+			const textarea = getBlockModalTextarea( blockModal );
 			if ( textarea ) {
 				setOriginal( textarea.value || '' );
 				if ( textarea.offsetHeight > 0 ) {

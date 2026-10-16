@@ -48,22 +48,22 @@ function isEmailLinkType( value: unknown ): value is EmailLinkType {
 function emailLinkLabel( linkType: EmailLinkType ): string {
 	switch ( linkType ) {
 		case 'post-url':
-			return _x( 'Post URL', 'Email link type', 'jetpack-premium-analytics' );
+			return _x( 'Post URL', 'Email link type', 'jetpack-premium-analytics-pkg' );
 		case 'like-post':
-			return _x( 'Like', 'Email link type', 'jetpack-premium-analytics' );
+			return _x( 'Like', 'Email link type', 'jetpack-premium-analytics-pkg' );
 		case 'comment-post':
-			return _x( 'Comment', 'Email link type', 'jetpack-premium-analytics' );
+			return _x( 'Comment', 'Email link type', 'jetpack-premium-analytics-pkg' );
 		case 'remove-subscription':
-			return _x( 'Unsubscribe', 'Email link type', 'jetpack-premium-analytics' );
+			return _x( 'Unsubscribe', 'Email link type', 'jetpack-premium-analytics-pkg' );
 	}
 }
 
 function otherLabel(): string {
-	return __( 'Other', 'jetpack-premium-analytics' );
+	return __( 'Other', 'jetpack-premium-analytics-pkg' );
 }
 
 function otherEmailLinkLabel(): string {
-	return _x( 'Other', 'Email link type', 'jetpack-premium-analytics' );
+	return _x( 'Other', 'Email link type', 'jetpack-premium-analytics-pkg' );
 }
 
 function isEmailBreakdownSummaryValue( value: unknown ): boolean {
@@ -114,7 +114,7 @@ function sortEmailBreakdownItems( items: StatsEmailBreakdownItem[] ): StatsEmail
 	return [ ...items ].sort( compareEmailBreakdownItems );
 }
 
-function parseFieldlessEmailCountryRows( response: StatsRecord ): StatsEmailBreakdownItem[] {
+function parseEmailCountryRows( response: StatsRecord ): StatsEmailBreakdownItem[] {
 	const countries = coerceStatsArray< unknown[] >( coerceStatsRecord( response.countries ).data );
 	const countryInfo = coerceStatsRecord( response[ 'countries-info' ] );
 
@@ -125,7 +125,7 @@ function parseFieldlessEmailCountryRows( response: StatsRecord ): StatsEmailBrea
 			const countryFull = country.country_full;
 
 			return {
-				label: countryFull ?? __( 'Unknown', 'jetpack-premium-analytics' ),
+				label: countryFull ?? __( 'Unknown', 'jetpack-premium-analytics-pkg' ),
 				value: safeParseFloat( row[ 1 ] ),
 				countryCode: countryFull ? countryCode : undefined,
 				countryFull,
@@ -136,7 +136,7 @@ function parseFieldlessEmailCountryRows( response: StatsRecord ): StatsEmailBrea
 	);
 }
 
-function parseFieldlessEmailListRows(
+function parseEmailListRows(
 	response: StatsRecord,
 	key: 'clients' | 'devices'
 ): StatsEmailBreakdownItem[] {
@@ -156,7 +156,7 @@ function parseFieldlessEmailListRows(
 	);
 }
 
-function parseFieldlessEmailLinkRows( response: StatsRecord ): StatsEmailBreakdownItem[] {
+function parseEmailLinkRows( response: StatsRecord ): StatsEmailBreakdownItem[] {
 	const internalLinks = coerceStatsArray< unknown[] >( coerceStatsRecord( response.links ).data );
 	const userContentLinks = coerceStatsArray< unknown[] >(
 		coerceStatsRecord( response[ 'user-content-links' ] ).data
@@ -173,7 +173,7 @@ function parseFieldlessEmailLinkRows( response: StatsRecord ): StatsEmailBreakdo
 						value: safeParseFloat( row[ 1 ] ),
 						children: null,
 					},
-			  ]
+				]
 			: [];
 	} );
 	const otherInternalLinks = internalLinks.reduce( ( total, row ) => {
@@ -207,105 +207,53 @@ function parseFieldlessEmailLinkRows( response: StatsRecord ): StatsEmailBreakdo
 	return sortEmailBreakdownItems( items );
 }
 
-function parseFieldlessEmailBreakdownRows( response: StatsRecord ): StatsEmailBreakdownItem[] {
+/**
+ * Rows by payload key, reading each row as `[ label, count ]` like Calypso's email stats
+ * parser. The payload's `fields` only restates that order.
+ *
+ * @param response - The raw breakdown payload.
+ * @return The sorted rows, or none for the scalar `rate` payload.
+ */
+function parseEmailBreakdownRows( response: StatsRecord ): StatsEmailBreakdownItem[] {
 	if ( coerceStatsArray( coerceStatsRecord( response.countries ).data ).length ) {
-		return parseFieldlessEmailCountryRows( response );
+		return parseEmailCountryRows( response );
 	}
 
 	if ( coerceStatsArray( coerceStatsRecord( response.devices ).data ).length ) {
-		return parseFieldlessEmailListRows( response, 'devices' );
+		return parseEmailListRows( response, 'devices' );
 	}
 
 	if ( coerceStatsArray( coerceStatsRecord( response.clients ).data ).length ) {
-		return parseFieldlessEmailListRows( response, 'clients' );
+		return parseEmailListRows( response, 'clients' );
 	}
 
 	if (
 		coerceStatsArray( coerceStatsRecord( response.links ).data ).length ||
 		coerceStatsArray( coerceStatsRecord( response[ 'user-content-links' ] ).data ).length
 	) {
-		return parseFieldlessEmailLinkRows( response );
+		return parseEmailLinkRows( response );
 	}
 
 	return [];
-}
-
-function parseStatsEmailBreakdownRows( response: unknown ): {
-	items: StatsEmailBreakdownItem[];
-	metricKey?: string;
-} {
-	const payload = coerceStatsRecord( response );
-	const matrixKey = [ 'clients', 'devices', 'countries', 'links', 'user-content-links' ].find(
-		key => coerceStatsArray( coerceStatsRecord( payload[ key ] ).fields ).length
-	);
-
-	if ( ! matrixKey ) {
-		const items = parseFieldlessEmailBreakdownRows( payload );
-
-		return { items, metricKey: items.length ? 'value' : undefined };
-	}
-
-	const matrix = coerceStatsRecord( payload[ matrixKey ] );
-	const fields = coerceStatsArray< string >( matrix.fields );
-	const labelKey = fields[ 0 ] ?? 'label';
-	const metricKey = fields.find( field => field.endsWith( '_count' ) ) ?? fields[ 1 ] ?? 'value';
-	const countryInfo = coerceStatsRecord( payload[ 'countries-info' ] );
-	const items = coerceStatsArray< unknown[] >( matrix.data ).map( record => {
-		const parsed: StatsRecord = {};
-		record.forEach( ( value, index ) => {
-			const field = fields[ index ];
-
-			if ( field ) {
-				parsed[ field ] =
-					field === labelKey || ! ( typeof value === 'number' || typeof value === 'string' )
-						? value
-						: safeParseFloat( value );
-			}
-		} );
-
-		const rawLabel = parsed[ labelKey ];
-		const country = coerceStatsRecord( countryInfo[ String( rawLabel ) ] );
-		// Matrix link payloads keep their API labels; fieldless all-time link payloads map known
-		// link types to display labels to match the legacy email stats parser.
-		const isOther = matrixKey !== 'countries' && rawLabel === API_OTHER_BUCKET;
-		let label = rawLabel;
-
-		if ( isOther ) {
-			label = otherLabel();
-		} else if ( matrixKey === 'countries' ) {
-			label = country.country_full ?? rawLabel;
-		}
-
-		return {
-			...parsed,
-			label,
-			...( isOther && { isOther: true } ),
-			value: safeParseFloat( parsed[ metricKey ] ),
-			countryCode: matrixKey === 'countries' ? String( parsed[ labelKey ] ) : undefined,
-			countryFull: country.country_full,
-			children: null,
-		};
-	} );
-
-	return { items: sortEmailBreakdownItems( items ), metricKey };
 }
 
 export function sanitizeStatsEmailBreakdownResponse(
 	response: unknown,
 	query?: StatsQueryParams
 ): StatsNormalizedReport< StatsEmailBreakdownItem > {
-	const { items, metricKey } = parseStatsEmailBreakdownRows( response );
+	const payload = coerceStatsRecord( response );
+	const items = parseEmailBreakdownRows( payload );
 
-	if ( ! items.length || ! metricKey ) {
+	if ( ! items.length ) {
 		return {
-			summary: normalizeEmailBreakdownScalarSummary( coerceStatsRecord( response ) ),
+			summary: normalizeEmailBreakdownScalarSummary( payload ),
 			data: [],
 		};
 	}
 
 	return {
 		summary: {
-			[ metricKey ]: items.reduce( ( total, item ) => total + item.value, 0 ),
+			value: items.reduce( ( total, item ) => total + item.value, 0 ),
 		},
 		data: [ createStatsListDataPoint( response, query, items ) ],
 	};

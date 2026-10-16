@@ -18,6 +18,8 @@ function mockVideoQuery( overrides: Record< string, unknown > = {} ) {
 	mockUseStatsSingleVideo.mockReturnValue( {
 		data: { post: { id: 42, title: 'Demo', mimeType: 'video/mp4' } },
 		isLoading: false,
+		isPending: false,
+		isPaused: false,
 		isError: false,
 		isSuccess: true,
 		refetch,
@@ -62,8 +64,56 @@ describe( 'useVideoSummary', () => {
 			const { result } = renderHook( () => useVideoSummary( 42 ) );
 
 			expect( result.current.isNotFound ).toBe( false );
+			expect( mockUseStatsSingleVideo ).toHaveBeenCalledWith( 42 );
 		}
 	);
+
+	it( 'passes a safe http(s) poster URL through as posterUrl', () => {
+		mockVideoQuery( {
+			data: {
+				post: {
+					id: 42,
+					mimeType: 'video/mp4',
+					poster: 'https://i0.wp.com/videos.files.wordpress.com/abcd1234/demo.jpg',
+				},
+			},
+		} );
+
+		const { result } = renderHook( () => useVideoSummary( 42 ) );
+
+		expect( result.current.posterUrl ).toBe(
+			'https://i0.wp.com/videos.files.wordpress.com/abcd1234/demo.jpg'
+		);
+	} );
+
+	it.each( [ undefined, 'javascript:alert(1)', 'not-a-url' ] )(
+		'resolves no posterUrl for a missing or unsafe poster (%p)',
+		poster => {
+			mockVideoQuery( { data: { post: { id: 42, mimeType: 'video/mp4', poster } } } );
+
+			const { result } = renderHook( () => useVideoSummary( 42 ) );
+
+			expect( result.current.posterUrl ).toBeUndefined();
+		}
+	);
+
+	it( 'reports a first load paused offline or in a hidden tab as loading', () => {
+		mockVideoQuery( { data: undefined, isPending: true, isPaused: true, isSuccess: false } );
+
+		const { result } = renderHook( () => useVideoSummary( 42 ) );
+
+		expect( result.current.isLoading ).toBe( true );
+	} );
+
+	it( 'passes the failed request error through', () => {
+		const error = { code: 'rest_forbidden', status: 403 };
+		mockVideoQuery( { data: undefined, isError: true, isSuccess: false, error } );
+
+		const { result } = renderHook( () => useVideoSummary( 42 ) );
+
+		expect( result.current.isError ).toBe( true );
+		expect( result.current.error ).toBe( error );
+	} );
 
 	it.each( [
 		{ isLoading: true, isSuccess: false },

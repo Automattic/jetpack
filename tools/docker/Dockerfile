@@ -26,8 +26,11 @@ RUN \
 RUN --mount=type=cache,target=/var/lib/apt/lists/,sharing=private \
 	export DEBIAN_FRONTEND=noninteractive \
 	&& apt-get update \
-	&& apt-get install -y curl gpg language-pack-en-base software-properties-common \
-	&& add-apt-repository ppa:ondrej/php \
+	&& apt-get install -y curl gpg language-pack-en-base lsb-release \
+	&& curl -fsSLo /tmp/debsuryorg-archive-keyring.deb https://packages.sury.org/debsuryorg-archive-keyring.deb \
+	&& dpkg -i /tmp/debsuryorg-archive-keyring.deb \
+	&& rm /tmp/debsuryorg-archive-keyring.deb \
+	&& echo "deb [signed-by=/usr/share/keyrings/debsuryorg-archive-keyring.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list \
 	&& curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
 	&& apt-get update \
 	&& apt-get --purge install -y \
@@ -35,6 +38,7 @@ RUN --mount=type=cache,target=/var/lib/apt/lists/,sharing=private \
 		git \
 		jq \
 		less \
+		libatomic1 \
 		libsodium23 \
 		mysql-client \
 		nano \
@@ -46,7 +50,7 @@ RUN --mount=type=cache,target=/var/lib/apt/lists/,sharing=private \
 		vim \
 		xz-utils \
 		zip \
-	&& apt-get remove --purge --auto-remove -y gpg software-properties-common \
+	&& apt-get remove --purge --auto-remove -y gpg \
 	&& find /var/ -name '*-old' -delete && rm -rf /var/log/dpkg.log /var/log/alternatives.log /var/log/apt/ ~/.launchpadlib
 
 # Enable various Apache modules.
@@ -84,15 +88,17 @@ RUN --mount=type=cache,target=/var/lib/apt/lists/,sharing=private \
 	&& find /var/ -name '*-old' -delete && rm -rf /var/log/dpkg.log /var/log/alternatives.log /var/log/apt/ ~/.launchpadlib
 
 # Install requested version of pnpm.
+# It wants to install in a user homedir, sigh; point it at /usr/local/pnpm and create shims from /usr/local/bin instead.
 RUN \
 	: "${PNPM_VERSION:?Build argument PNPM_VERSION needs to be set and non-empty.}" \
-	&& npm install --global pnpm@$PNPM_VERSION \
-	&& SHELL=bash pnpm setup \
-	&& rm -rf ~/.npm
+	&& curl -fsSL https://get.pnpm.io/install.sh | SHELL=bash PNPM_VERSION=$PNPM_VERSION PNPM_HOME=/usr/local/pnpm bash - \
+	&& for file in /usr/local/pnpm/bin/*; do basename=${file##*/}; printf '#!/bin/sh\nexport PATH="/usr/local/pnpm/bin/:$PATH"\n"%s" "$@"\n' "$basename" > "/usr/local/bin/$basename"; chmod +x "/usr/local/bin/$basename"; done \
+	&& rm -rf ~/.cache
 
 # Install wp-cli.
 RUN curl -o /usr/local/bin/wp -fSL https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli-nightly.phar \
-	&& chmod +x /usr/local/bin/wp
+	&& chmod +x /usr/local/bin/wp \
+	&& rm -rf ~/.cache
 
 # Install PsySH to use in wp-cli shell.
 RUN mkdir /usr/local/src/psysh \
@@ -100,7 +106,7 @@ RUN mkdir /usr/local/src/psysh \
 	&& composer require psy/psysh:@stable \
 	&& mkdir ~/.wp-cli \
 	&& echo "require: /usr/local/src/psysh/vendor/autoload.php" > ~/.wp-cli/config.yml \
-	&& rm -rf ~/.composer ~/.subversion
+	&& rm -rf ~/.composer ~/.subversion ~/.cache
 
 # Copy a default config file for an apache host.
 COPY ./config/apache_default /etc/apache2/sites-available/000-default.conf

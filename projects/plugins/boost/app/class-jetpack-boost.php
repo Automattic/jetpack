@@ -12,6 +12,7 @@
 
 namespace Automattic\Jetpack_Boost;
 
+use Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log;
 use Automattic\Jetpack\Boost_Core\Lib\Transient;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History;
 use Automattic\Jetpack\Config as Jetpack_Config;
@@ -35,10 +36,13 @@ use Automattic\Jetpack_Boost\Lib\Super_Cache_Tracking;
 use Automattic\Jetpack_Boost\Modules\Module;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Lcp\LCP_State;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Lcp\LCP_Storage;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Cache_Preload;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache_Setup;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Settings;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Storage\File_Storage;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\List_Cornerstone_Pages;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\List_LCP_Analysis;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\List_Site_Urls;
@@ -137,6 +141,9 @@ class Jetpack_Boost {
 
 		My_Jetpack_Initializer::init();
 
+		// Activity Log. No-ops while the `activity-log` module is off.
+		Jetpack_Activity_Log::initialize();
+
 		Deactivation_Handler::init( $this->plugin_name, __DIR__ . '/admin/deactivation-dialog.php' );
 
 		// Register the core Image CDN hooks.
@@ -195,6 +202,19 @@ class Jetpack_Boost {
 			// We need to clear Minify scheduled events to ensure the latest scheduled jobs are only scheduled irrespective of scheduled arguments.
 			jetpack_boost_minify_clear_scheduled_events();
 			jetpack_boost_minify_activation();
+		}
+
+		if ( ! get_option( 'jetpack_boost_page_cache_uri_keys' ) ) {
+			$home_url  = home_url();
+			$home_host = wp_parse_url( $home_url, PHP_URL_HOST );
+			if ( is_string( $home_host ) ) {
+				$home_port = wp_parse_url( $home_url, PHP_URL_PORT );
+				if ( is_int( $home_port ) ) {
+					$home_host .= ':' . $home_port;
+				}
+				( new Boost_Cache( new File_Storage( strtolower( $home_host ) ) ) )->delete_recursive( $home_url );
+			}
+			update_option( 'jetpack_boost_page_cache_uri_keys', 1, false );
 		}
 
 		$page_cache = new Module( new Page_Cache() );
@@ -362,13 +382,25 @@ class Jetpack_Boost {
 		$jetpack_config->ensure(
 			'sync',
 			array(
+				// Closures defer construction (and option reads) to Sync invocation time.
 				'jetpack_sync_callable_whitelist' => array(
-					'boost_modules'                => array( new Modules_Setup(), 'get_status' ),
-					'boost_sub_modules_state'      => array( new Modules_Setup(), 'get_all_sub_modules_state' ),
-					'boost_latest_scores'          => array( new Speed_Score_History( get_home_url() ), 'latest' ),
-					'boost_latest_no_boost_scores' => array( new Speed_Score_History( add_query_arg( Module::DISABLE_MODULE_QUERY_VAR, 'all', get_home_url() ) ), 'latest' ),
-					'critical_css_state'           => array( new Critical_CSS_State(), 'get' ),
-					'lcp_state'                    => array( new LCP_State(), 'get' ),
+					// boost_sub_modules_state was removed: it pointed at a method that never
+					// existed, so the callable never resolved and Sync never sent it.
+					'boost_modules'                => static function () {
+						return ( new Modules_Setup() )->get_status();
+					},
+					'boost_latest_scores'          => static function () {
+						return ( new Speed_Score_History( get_home_url() ) )->latest();
+					},
+					'boost_latest_no_boost_scores' => static function () {
+						return ( new Speed_Score_History( add_query_arg( Module::DISABLE_MODULE_QUERY_VAR, 'all', get_home_url() ) ) )->latest();
+					},
+					'critical_css_state'           => static function () {
+						return ( new Critical_CSS_State() )->get();
+					},
+					'lcp_state'                    => static function () {
+						return ( new LCP_State() )->get();
+					},
 				),
 			)
 		);
@@ -449,8 +481,9 @@ class Jetpack_Boost {
 		delete_site_option( 'jetpack_boost_404_tester_last_run' );
 		delete_site_option( 'jetpack_boost_minify_cron_cache_cleanup_last_run' );
 
-		// Delete stored Critical CSS.
+		// Delete stored Critical CSS and LCP data.
 		( new Critical_CSS_Storage() )->clear();
+		( new LCP_Storage() )->clear();
 
 		// Delete all transients created by boost.
 		Transient::delete_bulk();

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useGlobalChartsContext } from '@automattic/charts';
+import { useGlobalChartsContext } from '@jetpack-premium-analytics/externals';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -12,17 +12,11 @@ import type {
 } from '../components/chart-comparative-line/types';
 
 /**
- * Hook to build series styles from theme.
- * Maps each chart series to its color and line styles from the theme provider.
+ * Maps each chart series to the color and line styles the theme provider
+ * resolves for it.
  *
  * @param series - Array of chart series data
  * @return Array of series styles with stroke color and line properties
- *
- * @example
- * ```tsx
- * const seriesStyles = useSeriesStyles( chartSeries );
- * return <ComparativeLineChart series={ chartSeries } styles={ seriesStyles } ... />;
- * ```
  */
 export function useSeriesStyles( series: ComparativeLineChartSeries[] ): SeriesStyle[] {
 	const { getElementStyles } = useGlobalChartsContext();

@@ -1,142 +1,85 @@
 /**
- * Mocks – must appear before the import of the module under test.
+ * External dependencies
  */
-jest.mock( '../../defaults', () => ( {
-	getDefaultQueryParams: jest.fn(),
-} ) );
-
-jest.mock( '../preset-date-range', () => ( {
-	computeDateRangeFromPreset: jest.fn(),
-} ) );
-
-jest.mock( '../interval', () => ( {
-	getDefaultIntervalForPeriod: jest.fn(),
-} ) );
+import { dispatch } from '@wordpress/data';
+import { getSettings, setSettings } from '@wordpress/date';
+import { store as preferencesStore } from '@wordpress/preferences';
 /**
  * Internal dependencies
  */
-import { getDefaultQueryParams } from '../../defaults';
-import { getDefaultIntervalForPeriod } from '../interval';
-import { computeDateRangeFromPreset } from '../preset-date-range';
+import { DASHBOARD_PREFERENCES_SCOPE } from '../../defaults/remembered-preset';
+import * as presetDateRange from '../preset-date-range';
 import { normalizeReportParams } from '../search';
-import type { ReportParams } from '../search';
 
-const mockGetDefaults = getDefaultQueryParams as jest.MockedFunction<
-	typeof getDefaultQueryParams
->;
-const mockComputeRange = computeDateRangeFromPreset as jest.MockedFunction<
-	typeof computeDateRangeFromPreset
->;
-const mockGetInterval = getDefaultIntervalForPeriod as jest.MockedFunction<
-	typeof getDefaultIntervalForPeriod
->;
-
-/*
- * Deterministic date strings.
- * FRESH = what computeDateRangeFromPreset returns "today".
- * STALE = what the URL had from a previous day.
- */
+// "Today" is 2026-02-18 in the site zone, so last-30-days resolves to FRESH.
+const NOW = new Date( '2026-02-18T17:00:00.000Z' );
 const FRESH_FROM = '2026-01-20T00:00:00.000-05:00';
 const FRESH_TO = '2026-02-18T23:59:59.999-05:00';
 const STALE_FROM = '2026-01-19T00:00:00.000-05:00';
 const STALE_TO = '2026-02-17T23:59:59.999-05:00';
-
-const DEFAULTS_WITH_COMPARISON: ReportParams = {
-	from: FRESH_FROM,
-	to: FRESH_TO,
-	preset: 'last-30-days',
-	interval: 'day',
-	compare_from: '2025-12-21T00:00:00.000-05:00',
-	compare_to: '2026-01-19T23:59:59.999-05:00',
-	compare_preset: 'previous-period',
-	comp: '1',
-};
-
-beforeEach( () => {
-	jest.clearAllMocks();
-
-	// Sensible defaults for every test – override per-scenario as needed.
-	mockGetDefaults.mockReturnValue( { ...DEFAULTS_WITH_COMPARISON } );
-	mockComputeRange.mockReturnValue( {
-		from: FRESH_FROM,
-		to: FRESH_TO,
-	} );
-	mockGetInterval.mockReturnValue( 'day' );
-} );
+const DEFAULT_FROM = '2026-02-12T00:00:00.000-05:00';
 
 describe( 'normalizeReportParams', () => {
-	/*
-	 * Scenario 1 – Fresh load (no params in URL)
-	 * The user visits /dashboard with no query string.
-	 * Expected: defaults kick in, preset "last-30-days" is used,
-	 * and default comparison is applied.
-	 */
-	it( 'applies defaults with preset and comparison on fresh load', () => {
-		const result = normalizeReportParams();
+	const originalSettings = getSettings();
 
-		// Preset should come from defaults.
-		expect( result.preset ).toBe( 'last-30-days' );
-		expect( mockComputeRange ).toHaveBeenCalledWith( 'last-30-days' );
-
-		// Dates should come from computeDateRangeFromPreset.
-		expect( result.from ).toBe( FRESH_FROM );
-		expect( result.to ).toBe( FRESH_TO );
-
-		// Default comparison should be applied (search is undefined
-		// → !search?.from → true → default branch).
-		expect( result.comp ).toBe( '1' );
-		expect( result.compare_from ).toBe( DEFAULTS_WITH_COMPARISON.compare_from );
-		expect( result.compare_to ).toBe( DEFAULTS_WITH_COMPARISON.compare_to );
+	beforeAll( () => {
+		setSettings( {
+			...originalSettings,
+			timezone: { string: 'America/New_York', offset: -5, offsetFormatted: '-5', abbr: 'EST' },
+		} );
 	} );
 
-	/*
-	 * Scenario 2 – Same-day reload with preset
-	 * The URL has preset=last-30-days and from/to that match today's
-	 * computation. The dates are still fresh → no redirect needed.
-	 */
-	it( 'returns same dates when preset range is still fresh', () => {
+	beforeEach( () => {
+		jest.useFakeTimers().setSystemTime( NOW );
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
+	afterAll( () => {
+		setSettings( originalSettings );
+	} );
+
+	it( 'applies default preset without comparison on fresh load', () => {
+		const result = normalizeReportParams();
+
+		expect( result.preset ).toBe( 'last-7-days' );
+		expect( result.from ).toBe( DEFAULT_FROM );
+		expect( result.to ).toBe( FRESH_TO );
+
+		expect( result.comp ).toBeUndefined();
+		expect( result.compare_from ).toBeUndefined();
+		expect( result.compare_to ).toBeUndefined();
+		expect( result.compare_preset ).toBeUndefined();
+	} );
+
+	it( 'applies the preset the reader last applied on fresh load', () => {
+		const preferences = dispatch( preferencesStore );
+		preferences.set( DASHBOARD_PREFERENCES_SCOPE, 'datePreset', 'last-30-days' );
+
+		try {
+			expect( normalizeReportParams() ).toMatchObject( {
+				preset: 'last-30-days',
+				from: FRESH_FROM,
+				to: FRESH_TO,
+			} );
+		} finally {
+			preferences.set( DASHBOARD_PREFERENCES_SCOPE, 'datePreset', undefined );
+		}
+	} );
+
+	it( 'passes the candidate interval through resolveIntervalForRange', () => {
 		const result = normalizeReportParams( {
 			from: FRESH_FROM,
 			to: FRESH_TO,
 			preset: 'last-30-days',
-			interval: 'day',
+			interval: 'week',
 		} );
 
-		expect( result.from ).toBe( FRESH_FROM );
-		expect( result.to ).toBe( FRESH_TO );
-		expect( result.preset ).toBe( 'last-30-days' );
-
-		// No comparison in search → no comparison in output
-		// (search.from is present → !search.from is false
-		// → default comparison branch is skipped).
-		expect( result.comp ).toBeUndefined();
+		expect( result.interval ).toBe( 'week' );
 	} );
 
-	/*
-	 * Scenario 3 – Next-day reload with stale dates
-	 * The URL has yesterday's dates but the same preset.
-	 * computeDateRangeFromPreset returns fresh dates → redirect.
-	 */
-	it( 'recalculates dates when preset range is stale', () => {
-		const result = normalizeReportParams( {
-			from: STALE_FROM,
-			to: STALE_TO,
-			preset: 'last-30-days',
-			interval: 'day',
-		} );
-
-		// Should use the fresh range from the preset, not stale URL dates.
-		expect( result.from ).toBe( FRESH_FROM );
-		expect( result.to ).toBe( FRESH_TO );
-		expect( result.preset ).toBe( 'last-30-days' );
-		expect( mockComputeRange ).toHaveBeenCalledWith( 'last-30-days' );
-	} );
-
-	/*
-	 * Scenario 4 – Custom range (no preset)
-	 * The user picked explicit from/to dates without a preset.
-	 * The dates should be used as-is, no recalculation.
-	 */
 	it( 'uses explicit dates as-is when no preset is set', () => {
 		const customFrom = '2026-01-01T00:00:00.000-05:00';
 		const customTo = '2026-01-31T23:59:59.999-05:00';
@@ -149,8 +92,26 @@ describe( 'normalizeReportParams', () => {
 		expect( result.from ).toBe( customFrom );
 		expect( result.to ).toBe( customTo );
 		expect( result.preset ).toBeUndefined();
-		// computeDateRangeFromPreset should NOT be called.
-		expect( mockComputeRange ).not.toHaveBeenCalled();
+	} );
+
+	// An unencoded `+` in a pasted link reaches the router as a space.
+	it( 'restores the plus a querystring decoded away from explicit dates', () => {
+		const result = normalizeReportParams( {
+			from: '2026-01-20T00:00:00.000 05:00',
+			to: '2026-02-18T23:59:59.999 05:00',
+			interval: 'day',
+			comp: '1',
+			compare_from: '2025-12-21T00:00:00.000 05:00',
+			compare_to: '2026-01-19T23:59:59.999 05:00',
+		} );
+
+		expect( result ).toMatchObject( {
+			from: '2026-01-20T00:00:00.000+05:00',
+			to: '2026-02-18T23:59:59.999+05:00',
+			interval: 'day',
+			compare_from: '2025-12-21T00:00:00.000+05:00',
+			compare_to: '2026-01-19T23:59:59.999+05:00',
+		} );
 	} );
 
 	it( 'uses explicit dates as-is when preset is custom', () => {
@@ -166,14 +127,8 @@ describe( 'normalizeReportParams', () => {
 		expect( result.from ).toBe( customFrom );
 		expect( result.to ).toBe( customTo );
 		expect( result.preset ).toBeUndefined();
-		expect( mockComputeRange ).not.toHaveBeenCalled();
 	} );
 
-	/*
-	 * Scenario 5 – Preset with stale comparison enabled
-	 * The URL has a stale preset and comparison params.
-	 * Primary range is recalculated; comparison is preserved from URL.
-	 */
 	it( 'recalculates primary but preserves comparison from URL', () => {
 		const compFrom = '2025-12-20T00:00:00.000-05:00';
 		const compTo = '2026-01-18T23:59:59.999-05:00';
@@ -189,22 +144,38 @@ describe( 'normalizeReportParams', () => {
 			compare_preset: 'previous-period',
 		} );
 
-		// Primary recalculated from preset.
 		expect( result.from ).toBe( FRESH_FROM );
 		expect( result.to ).toBe( FRESH_TO );
 
-		// Comparison passed through from search.
 		expect( result.comp ).toBe( '1' );
 		expect( result.compare_from ).toBe( compFrom );
 		expect( result.compare_to ).toBe( compTo );
 		expect( result.compare_preset ).toBe( 'previous-period' );
 	} );
 
-	/*
-	 * Scenario 6 – Preset without comparison
-	 * The URL has a stale preset but comparison is disabled.
-	 * Primary is recalculated; comparison params are absent.
-	 */
+	// The router JSON-parses search values, so an unquoted URL (hand-edited or
+	// from an older link builder) can deliver comp as the number 1, which must
+	// still enable comparison, normalized back to '1'.
+	it( 'accepts a numeric comp flag from an unquoted URL', () => {
+		const compFrom = '2025-12-20T00:00:00.000-05:00';
+		const compTo = '2026-01-18T23:59:59.999-05:00';
+
+		const result = normalizeReportParams( {
+			from: STALE_FROM,
+			to: STALE_TO,
+			preset: 'last-30-days',
+			interval: 'day',
+			comp: 1 as unknown as '1',
+			compare_from: compFrom,
+			compare_to: compTo,
+			compare_preset: 'previous-period',
+		} );
+
+		expect( result.comp ).toBe( '1' );
+		expect( result.compare_from ).toBe( compFrom );
+		expect( result.compare_to ).toBe( compTo );
+	} );
+
 	it( 'recalculates primary with no comparison when comp is absent', () => {
 		const result = normalizeReportParams( {
 			from: STALE_FROM,
@@ -213,68 +184,37 @@ describe( 'normalizeReportParams', () => {
 			interval: 'day',
 		} );
 
-		// Primary recalculated.
 		expect( result.from ).toBe( FRESH_FROM );
 		expect( result.to ).toBe( FRESH_TO );
 
-		// No comparison in search, and search.from is present
-		// → default comparison is NOT applied.
+		// No comparison in the URL, so none is applied.
 		expect( result.comp ).toBeUndefined();
 		expect( result.compare_from ).toBeUndefined();
 		expect( result.compare_to ).toBeUndefined();
 	} );
 
-	/*
-	 * Edge case – Invalid preset in URL is ignored.
-	 */
-	it( 'ignores invalid preset and uses URL dates', () => {
-		const customFrom = '2026-02-01T00:00:00.000-05:00';
-		const customTo = '2026-02-15T23:59:59.999-05:00';
-
-		const result = normalizeReportParams( {
-			from: customFrom,
-			to: customTo,
-			// @ts-expect-error – testing with invalid preset on purpose
-			preset: 'not-a-real-preset',
-		} );
-
-		expect( result.from ).toBe( customFrom );
-		expect( result.to ).toBe( customTo );
-		expect( result.preset ).toBeUndefined();
-		expect( mockComputeRange ).not.toHaveBeenCalled();
-	} );
-
-	/*
-	 * Edge case – computeDateRangeFromPreset returns undefined
-	 * (e.g., an unimplemented preset). Falls back to search dates.
-	 */
+	// No selectable preset lacks a range today, so this guard is reached only by a stub.
 	it( 'falls back to URL dates when preset has no range implementation', () => {
-		mockComputeRange.mockReturnValue( undefined );
+		const { computeDateRangeFromPreset } = presetDateRange;
+		const computeRange = jest
+			.spyOn( presetDateRange, 'computeDateRangeFromPreset' )
+			.mockImplementation( preset =>
+				preset === 'last-30-days' ? undefined : computeDateRangeFromPreset( preset )
+			);
 
-		const result = normalizeReportParams( {
-			from: STALE_FROM,
-			to: STALE_TO,
-			preset: 'last-30-days',
-		} );
+		try {
+			const result = normalizeReportParams( {
+				from: STALE_FROM,
+				to: STALE_TO,
+				preset: 'last-30-days',
+			} );
 
-		// Preset should be cleared.
-		expect( result.preset ).toBeUndefined();
-		// Falls back to search dates.
-		expect( result.from ).toBe( STALE_FROM );
-		expect( result.to ).toBe( STALE_TO );
-	} );
-
-	/*
-	 * Edge case – date_type is preserved from search.
-	 */
-	it( 'preserves date_type from search', () => {
-		const result = normalizeReportParams( {
-			from: FRESH_FROM,
-			to: FRESH_TO,
-			date_type: 'paid',
-		} );
-
-		expect( result.date_type ).toBe( 'paid' );
+			expect( result.preset ).toBeUndefined();
+			expect( result.from ).toBe( STALE_FROM );
+			expect( result.to ).toBe( STALE_TO );
+		} finally {
+			computeRange.mockRestore();
+		}
 	} );
 
 	/*
@@ -290,16 +230,14 @@ describe( 'normalizeReportParams', () => {
 		expect( result.period ).toBe( 'week' );
 	} );
 
-	/*
-	 * Edge case – date_type defaults to "created".
-	 */
-	it( 'defaults date_type to created', () => {
+	it( 'drops date_type, even when search has one', () => {
 		const result = normalizeReportParams( {
 			from: FRESH_FROM,
 			to: FRESH_TO,
+			date_type: 'created',
 		} );
 
-		expect( result.date_type ).toBe( 'created' );
+		expect( result ).not.toHaveProperty( 'date_type' );
 	} );
 
 	/*
@@ -316,6 +254,52 @@ describe( 'normalizeReportParams', () => {
 		expect( result.post_id ).toBe( 2428 );
 	} );
 
+	/*
+	 * Scenario – a section on the year surface (all time / a single calendar
+	 * year). Its selection has to survive normalization: as dates alone, an
+	 * all-time range covering one year is indistinguishable from that year.
+	 */
+	it( 'recomputes a year preset so the current year stays fresh', () => {
+		const result = normalizeReportParams( {
+			from: '2026-01-01T00:00:00.000-05:00',
+			to: STALE_TO,
+			preset: 'year-2026',
+			interval: 'month',
+		} );
+
+		expect( result.preset ).toBe( 'year-2026' );
+		expect( result.from ).toBe( '2026-01-01T00:00:00.000-05:00' );
+		expect( result.to ).toBe( FRESH_TO );
+	} );
+
+	it( 'keeps the all-time start and refreshes its end', () => {
+		const result = normalizeReportParams( {
+			from: '2023-01-01T00:00:00.000-05:00',
+			to: STALE_TO,
+			preset: 'all-time',
+		} );
+
+		expect( result.preset ).toBe( 'all-time' );
+		expect( result.from ).toBe( '2023-01-01T00:00:00.000-05:00' );
+		expect( result.to ).toBe( FRESH_TO );
+	} );
+
+	it( 'rebuilds a year preset that arrives without its range', () => {
+		const result = normalizeReportParams( { preset: 'year-2025' } );
+
+		expect( result.preset ).toBe( 'year-2025' );
+		expect( result.from ).toBe( '2025-01-01T00:00:00.000-05:00' );
+		expect( result.to ).toBe( '2025-12-31T23:59:59.999-05:00' );
+	} );
+
+	it( 'drops an all-time preset that arrives without its site-specific range', () => {
+		const result = normalizeReportParams( { preset: 'all-time' } );
+
+		expect( result.preset ).toBe( 'last-7-days' );
+		expect( result.from ).toBe( DEFAULT_FROM );
+		expect( result.to ).toBe( FRESH_TO );
+	} );
+
 	it( 'omits post_id when search has none', () => {
 		const result = normalizeReportParams( {
 			from: FRESH_FROM,
@@ -325,13 +309,33 @@ describe( 'normalizeReportParams', () => {
 		expect( result.post_id ).toBeUndefined();
 	} );
 
-	it.each( [ 'foo', '0', '-5', '12.5' ] )( 'drops an invalid post_id (%s)', invalid => {
+	it( 'drops an invalid post_id (0)', () => {
 		const result = normalizeReportParams( {
 			from: FRESH_FROM,
 			to: FRESH_TO,
-			post_id: invalid,
+			post_id: '0',
 		} );
 
 		expect( result.post_id ).toBeUndefined();
+	} );
+
+	it( 'carries a valid author_id through as a number', () => {
+		const result = normalizeReportParams( {
+			from: FRESH_FROM,
+			to: FRESH_TO,
+			author_id: '7',
+		} );
+
+		expect( result.author_id ).toBe( 7 );
+	} );
+
+	it.each( [ undefined, 'foo' ] )( 'omits an absent or invalid author_id (%s)', invalid => {
+		const result = normalizeReportParams( {
+			from: FRESH_FROM,
+			to: FRESH_TO,
+			author_id: invalid,
+		} );
+
+		expect( result.author_id ).toBeUndefined();
 	} );
 } );

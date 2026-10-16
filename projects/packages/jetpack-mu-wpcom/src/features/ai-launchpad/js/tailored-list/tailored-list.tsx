@@ -1,10 +1,17 @@
+import { speak } from '@wordpress/a11y';
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, _x, sprintf } from '@wordpress/i18n';
+import { ButtonLink, Notice, Stack } from '@wordpress/ui';
+import { DifmOfferBanner, type DifmOffer } from '../difm-offer/difm-offer-banner.tsx';
 import { createAboutPage } from '../lib/about-page.ts';
+import { fireConfetti } from '../lib/confetti.ts';
+import { createContactPage } from '../lib/contact-page.ts';
+import { createEventsPage } from '../lib/events-page.ts';
 import { createFirstPostDraft } from '../lib/first-post.ts';
-import { createGalleryPage } from '../lib/pattern-page.ts';
+import { createGalleryPage } from '../lib/gallery-page.ts';
+import { createPortfolioPiece } from '../lib/portfolio-piece.ts';
 import {
 	contextFromInferred,
 	contextFromTaskIds,
@@ -16,6 +23,7 @@ import {
 	trackWizardCompleted,
 	type TaskStatus,
 } from '../lib/tracks.ts';
+import { createVideoPage } from '../lib/video-page.ts';
 import { Layout } from './layout.tsx';
 import {
 	nextIncompleteId,
@@ -28,8 +36,8 @@ import {
 	type SiteData,
 } from './model.ts';
 import { TailoredListSkeleton } from './skeleton.tsx';
-import { TaskCard } from './task-card.tsx';
-import type { GoalSlug, TailoredOutput, TailorResult } from '../lib/types.ts';
+import { TaskCard, type BusyAction } from './task-card.tsx';
+import type { GoalSlug, SiteCopy, TailoredOutput, TailorResult } from '../lib/types.ts';
 
 import './style.scss';
 
@@ -41,6 +49,8 @@ import './style.scss';
 function navigate( url: string ): void {
 	window.location.href = url;
 }
+
+const DASHBOARD_URL = 'index.php';
 
 interface Props {
 	// In-flight tailor promise on the wizard→list path. The list waits for it to
@@ -59,6 +69,9 @@ interface Props {
 
 	// The wizard goal, used for the heading until the AI output supplies its own.
 	goal?: GoalSlug;
+
+	// The site-language copy the page tasks write into the pages they create.
+	copy: SiteCopy;
 }
 
 /**
@@ -72,9 +85,10 @@ interface Props {
  * @param props.initialData   - Composite read supplied by the host (returning users).
  * @param props.site          - Site context for the preview (always supplied by the host).
  * @param props.goal          - The wizard goal (wizard→list path), for the heading.
+ * @param props.copy          - Site-language copy for the pages the tasks create.
  * @return The tailored-list element.
  */
-export function TailoredList( { pendingTailor, initialData, site, goal }: Props = {} ) {
+export function TailoredList( { pendingTailor, initialData, site, goal, copy }: Props ) {
 	// Returning users seed straight from initialData so the first frame isn't the
 	// loading copy. The wizard→list path has no initialData and starts as loading.
 	const [ tasks, setTasks ] = useState< EnrichedTask[] | null >( () => initialData?.tasks ?? null );
@@ -82,7 +96,9 @@ export function TailoredList( { pendingTailor, initialData, site, goal }: Props 
 		() => initialData?.ai_output?.payload ?? null
 	);
 	const [ skippedIds, setSkippedIds ] = useState< Set< string > >( () => new Set() );
-	const [ busyId, setBusyId ] = useState< string | null >( null );
+	// Carries both which task and which of its actions is in flight, so each button
+	// shows its own spinner instead of the task's primary CTA spinning for every action.
+	const [ busy, setBusy ] = useState< { id: string; action: BusyAction } | null >( null );
 	// The single expanded card (accordion: only one open at a time). `null` means
 	// every card is collapsed — a state the user can reach by toggling the open card
 	// shut, which must not auto-reopen.
@@ -104,6 +120,19 @@ export function TailoredList( { pendingTailor, initialData, site, goal }: Props 
 	const [ siteEditUrl, setSiteEditUrl ] = useState< string | null >(
 		() => initialData?.site?.edit_url ?? site?.edit_url ?? null
 	);
+	// Set when the tailored list could not be saved: an error with "Try again" renders in place of
+	// a list nobody saved, whose progress would vanish on the next visit.
+	const [ saveError, setSaveError ] = useState< TailorResult[ 'saveError' ] | null >( null );
+	// Set once "Try again" has saved the list, so the load below reads it back like any other.
+	const [ savedOnRetry, setSavedOnRetry ] = useState( false );
+	const [ retrying, setRetrying ] = useState( false );
+	const [ retryFailed, setRetryFailed ] = useState( false );
+	// The free DIFM offer under the task list; null when the server withholds it or the user dismisses it.
+	const [ difmOffer, setDifmOffer ] = useState< DifmOffer | null >(
+		() => initialData?.difm_offer ?? null
+	);
+	// Set once the server latches the list as done (here or elsewhere): celebrate, then hand off to the Dashboard.
+	const [ allDone, setAllDone ] = useState( false );
 
 	// One viewed event per screen shown; the launchpad screen includes its
 	// loading skeleton. The host seeds the context before mounting this view.
@@ -115,7 +144,9 @@ export function TailoredList( { pendingTailor, initialData, site, goal }: Props 
 		// Returning users: render from the data the host already fetched.
 		if ( initialData ) {
 			setTasks( initialData.tasks );
+			setAllDone( !! initialData.list_completed );
 			setOutput( initialData.ai_output?.payload ?? null );
+			setDifmOffer( initialData.difm_offer ?? null );
 			if ( initialData.site ) {
 				setSiteUrl( initialData.site.url ?? null );
 				setSiteTitle( initialData.site.title ?? null );
@@ -129,6 +160,12 @@ export function TailoredList( { pendingTailor, initialData, site, goal }: Props 
 			// Wait for the tailor call to settle so the PUT has persisted before we
 			// read it back. A rejected tailor still gives its in-memory output as a fallback.
 			const result = await Promise.resolve( pendingTailor ).catch( () => undefined );
+			if ( result?.saveError && ! savedOnRetry ) {
+				if ( ! cancelled ) {
+					setSaveError( result.saveError );
+				}
+				return;
+			}
 
 			let data: LaunchpadData | null = null;
 			try {
@@ -148,6 +185,7 @@ export function TailoredList( { pendingTailor, initialData, site, goal }: Props 
 				setSiteTitle( data.site.title != null ? decodeEntities( data.site.title ) : null );
 				setSiteEditUrl( data.site.edit_url ?? null );
 			}
+			setDifmOffer( data?.difm_offer ?? null );
 
 			let nextOutput: TailoredOutput | null = null;
 			let nextTasks: EnrichedTask[] = [];
@@ -161,6 +199,7 @@ export function TailoredList( { pendingTailor, initialData, site, goal }: Props 
 			}
 			setOutput( nextOutput );
 			setTasks( nextTasks );
+			setAllDone( !! data?.list_completed );
 
 			// The wizard→list handoff: the user has completed the wizard and landed on
 			// their tasklist. Seed the context synchronously (from exactly what will
@@ -176,7 +215,16 @@ export function TailoredList( { pendingTailor, initialData, site, goal }: Props 
 		return () => {
 			cancelled = true;
 		};
-	}, [ pendingTailor, initialData ] );
+	}, [ pendingTailor, initialData, savedOnRetry ] );
+
+	useEffect( () => {
+		if ( ! allDone ) {
+			return;
+		}
+		fireConfetti();
+		const timer = setTimeout( () => navigate( DASHBOARD_URL ), 3000 );
+		return () => clearTimeout( timer );
+	}, [ allDone ] );
 
 	// Keep the shared Tracks context in step with what is actually rendered, on
 	// both the wizard→list path (fresh tailor) and the returning-user path.
@@ -218,10 +266,76 @@ export function TailoredList( { pendingTailor, initialData, site, goal }: Props 
 	// Prefer the goal from the loaded AI output; fall back to the wizard's.
 	const effectiveGoal = output?.inferred?.goal ?? goal ?? null;
 
+	const saveErrorTitle = __( "We couldn't save your checklist.", 'jetpack-mu-wpcom' );
+	const saveErrorDescription = retryFailed
+		? __( "It still didn't save. Check your connection, then try again.", 'jetpack-mu-wpcom' )
+		: __(
+				'Your checklist is ready, but saving it failed. Check your connection, then try again.',
+				'jetpack-mu-wpcom'
+			);
+	const saveErrorMessage =
+		saveError && ! savedOnRetry ? `${ saveErrorTitle } ${ saveErrorDescription }` : null;
+	// Polite: the user is waiting on this result, not interrupted by it. The description
+	// changes after a failed retry, which announces it again.
+	useEffect( () => {
+		if ( saveErrorMessage ) {
+			speak( saveErrorMessage, 'polite' );
+		}
+	}, [ saveErrorMessage ] );
+
+	if ( saveError && ! savedOnRetry ) {
+		const handleRetry = async () => {
+			setRetrying( true );
+			const ok = await saveError.retry();
+			setRetrying( false );
+			if ( ok ) {
+				setSavedOnRetry( true );
+			} else {
+				setRetryFailed( true );
+			}
+		};
+
+		return (
+			<Layout
+				progressLabel={ _x(
+					'Your checklist is not saved yet',
+					'Status line when the generated checklist could not be saved',
+					'jetpack-mu-wpcom'
+				) }
+				goal={ effectiveGoal }
+				siteUrl={ siteUrl }
+				siteTitle={ siteTitle }
+				siteEditUrl={ siteEditUrl }
+			>
+				<Notice.Root intent="error">
+					<Notice.Title>{ saveErrorTitle }</Notice.Title>
+					<Notice.Description>{ saveErrorDescription }</Notice.Description>
+					<Notice.Actions>
+						<Notice.ActionButton
+							variant="solid"
+							loading={ retrying }
+							loadingAnnouncement={
+								/* translators: announced to screen reader users while the checklist is being saved again. */
+								__( 'Saving your checklist…', 'jetpack-mu-wpcom' )
+							}
+							onClick={ handleRetry }
+						>
+							{ __( 'Try again', 'jetpack-mu-wpcom' ) }
+						</Notice.ActionButton>
+					</Notice.Actions>
+				</Notice.Root>
+			</Layout>
+		);
+	}
+
 	if ( ! tasks ) {
 		return (
 			<Layout
-				progressLabel={ __( 'Tailoring your checklist…', 'jetpack-mu-wpcom' ) }
+				progressLabel={ _x(
+					'Tailoring your checklist…',
+					'Status shown while the checklist is being generated, not an instruction',
+					'jetpack-mu-wpcom'
+				) }
 				goal={ effectiveGoal }
 				siteUrl={ siteUrl }
 				siteTitle={ siteTitle }
@@ -235,13 +349,13 @@ export function TailoredList( { pendingTailor, initialData, site, goal }: Props 
 	const completedCount = visibleTasks.filter( task => task.completed ).length;
 	const progressLabel = sprintf(
 		/* translators: 1: number of completed tasks, 2: total number of tasks. */
-		__( '%1$d of %2$d completed', 'jetpack-mu-wpcom' ),
+		_n( '%1$d of %2$d completed', '%1$d of %2$d completed', completedCount, 'jetpack-mu-wpcom' ),
 		completedCount,
 		visibleTasks.length
 	);
 
 	const handleGetStarted = async ( task: EnrichedTask ) => {
-		setBusyId( task.id );
+		setBusy( { id: task.id, action: 'primary' } );
 		try {
 			const url = await resolveCtaUrl(
 				task,
@@ -249,8 +363,12 @@ export function TailoredList( { pendingTailor, initialData, site, goal }: Props 
 				{
 					trackTaskCtaClicked,
 					createFirstPostDraft,
-					createAboutPage,
-					createGalleryPage,
+					createAboutPage: draft => createAboutPage( draft, copy ),
+					createGalleryPage: intro => createGalleryPage( intro, copy ),
+					createContactPage: intro => createContactPage( intro, copy ),
+					createEventsPage: intro => createEventsPage( intro, copy ),
+					createVideoPage: intro => createVideoPage( intro, copy ),
+					createPortfolioPiece: () => createPortfolioPiece( copy ),
 				},
 				siteUrl
 			);
@@ -273,17 +391,17 @@ export function TailoredList( { pendingTailor, initialData, site, goal }: Props 
 		} catch {
 			// Fall through to clear busy so a thrown CTA can't leave the card disabled.
 		}
-		setBusyId( null );
+		setBusy( null );
 	};
 
 	// Complete-on-click tasks with no CTA destination offer "Mark as complete":
 	// persist the completion and flip the card to done in place. Only flips on a
 	// successful write so a failed POST doesn't show a completion that reverts on reload.
 	const handleMarkComplete = async ( task: EnrichedTask ) => {
-		setBusyId( task.id );
+		setBusy( { id: task.id, action: 'primary' } );
 		try {
 			trackTaskCtaClicked( { task_id: task.id } );
-			await apiFetch( {
+			const response = await apiFetch< { list_completed: boolean } >( {
 				path: '/wpcom/v2/ai-launchpad/complete-task',
 				method: 'POST',
 				data: { task_id: task.id },
@@ -297,10 +415,11 @@ export function TailoredList( { pendingTailor, initialData, site, goal }: Props 
 				t.id === task.id || skippedIds.has( t.id ) ? { ...t, completed: true } : t
 			);
 			setOpenId( nextIncompleteId( afterComplete, task.id ) );
+			setAllDone( response.list_completed );
 		} catch {
 			// Leave the task incomplete on failure.
 		} finally {
-			setBusyId( null );
+			setBusy( null );
 		}
 	};
 
@@ -308,59 +427,86 @@ export function TailoredList( { pendingTailor, initialData, site, goal }: Props 
 	// completion), then marks the task complete and expands the next incomplete
 	// task. Compute the next id from the post-skip list so it's never re-opened.
 	const handleSkip = async ( task: EnrichedTask ) => {
-		setBusyId( task.id );
+		setBusy( { id: task.id, action: 'skip' } );
 		trackTaskSkipped( { task_id: task.id } );
-		await apiFetch( {
+		const response = await apiFetch< { list_completed: boolean } >( {
 			path: '/wpcom/v2/ai-launchpad/skip-task',
 			method: 'POST',
 			data: { task_id: task.id },
-		} ).catch( () => {} );
-		setBusyId( null );
+		} ).catch( () => null );
+		setBusy( null );
 		const nextSkipped = new Set( skippedIds ).add( task.id );
 		setSkippedIds( nextSkipped );
 		const afterSkip = ( tasks ?? [] ).map( t =>
 			nextSkipped.has( t.id ) ? { ...t, completed: true } : t
 		);
 		setOpenId( nextIncompleteId( afterSkip, task.id ) );
+		setAllDone( !! response?.list_completed );
 	};
 
 	return (
 		<Layout
-			progressLabel={ progressLabel }
+			heading={
+				allDone
+					? _x(
+							"You're all set!",
+							'Site Setup heading once every task is done',
+							'jetpack-mu-wpcom'
+						)
+					: undefined
+			}
+			progressLabel={
+				allDone
+					? __( 'Your setup is complete. Taking you to your Dashboard…', 'jetpack-mu-wpcom' )
+					: progressLabel
+			}
 			goal={ effectiveGoal }
 			siteUrl={ siteUrl }
 			siteTitle={ siteTitle }
 			siteEditUrl={ siteEditUrl }
 		>
-			<div className="ai-launchpad-tailored-list">
-				{ visibleTasks.map( task => (
-					<TaskCard
-						key={ task.id }
-						task={ task }
-						isBusy={ busyId === task.id }
-						isLocked={ busyId !== null }
-						canStart={ isTaskActionable( task, output, siteUrl ) }
-						canMarkComplete={
-							isCompleteOnClickTask( task.id ) && ! isTaskActionable( task, output, siteUrl )
-						}
-						isOpen={ openId === task.id }
-						onOpenChange={ open => {
-							// Only a collapsed task records a click (auto-expansion goes
-							// through setOpenId directly and records nothing).
-							if ( open ) {
-								trackTaskClicked( { task_id: task.id, task_status: taskStatus( task ) } );
+			<Stack direction="column" gap="lg">
+				<Stack direction="column" gap="sm" className="ai-launchpad-tailored-list">
+					{ visibleTasks.map( task => (
+						<TaskCard
+							key={ task.id }
+							task={ task }
+							busyAction={ busy?.id === task.id ? busy.action : null }
+							isLocked={ busy !== null }
+							canStart={ isTaskActionable( task, output, siteUrl ) }
+							canMarkComplete={
+								isCompleteOnClickTask( task.id ) && ! isTaskActionable( task, output, siteUrl )
 							}
-							setOpenId( open ? task.id : null );
-						} }
-						onCollapsedClick={ () =>
-							trackTaskClicked( { task_id: task.id, task_status: taskStatus( task ) } )
-						}
-						onGetStarted={ () => handleGetStarted( task ) }
-						onMarkComplete={ () => handleMarkComplete( task ) }
-						onSkip={ () => handleSkip( task ) }
-					/>
-				) ) }
-			</div>
+							isOpen={ openId === task.id }
+							onOpenChange={ open => {
+								// Only a collapsed task records a click (auto-expansion goes
+								// through setOpenId directly and records nothing).
+								if ( open ) {
+									trackTaskClicked( { task_id: task.id, task_status: taskStatus( task ) } );
+								}
+								setOpenId( open ? task.id : null );
+							} }
+							onCollapsedClick={ () =>
+								trackTaskClicked( { task_id: task.id, task_status: taskStatus( task ) } )
+							}
+							onGetStarted={ () => handleGetStarted( task ) }
+							onMarkComplete={ () => handleMarkComplete( task ) }
+							onSkip={ () => handleSkip( task ) }
+						/>
+					) ) }
+				</Stack>
+				{ /* The div keeps the button as wide as its label instead of stretching with the column. */ }
+				{ allDone && (
+					<div>
+						<ButtonLink variant="solid" href={ DASHBOARD_URL }>
+							{ __( 'Go to Dashboard now', 'jetpack-mu-wpcom' ) }
+						</ButtonLink>
+					</div>
+				) }
+				{ difmOffer && ! allDone && (
+					<DifmOfferBanner offer={ difmOffer } onDismiss={ () => setDifmOffer( null ) } />
+				) }
+			</Stack>
 		</Layout>
 	);
 }

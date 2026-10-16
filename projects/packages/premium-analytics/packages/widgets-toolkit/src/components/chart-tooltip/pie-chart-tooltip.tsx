@@ -1,12 +1,9 @@
 /**
  * External dependencies
  */
-import { RectShape } from '@automattic/charts/visx/legend';
-import { Stack } from '@wordpress/ui';
-import styles from './chart-tooltip.module.scss';
+import { RectShape, Stack, type DataPointPercentage } from '@jetpack-premium-analytics/externals';
 import { TooltipRow } from './tooltip-row';
 import type { DataFormat } from '../../types';
-import type { DataPointPercentage } from '@automattic/charts';
 
 /**
  * Internal dependencies
@@ -18,22 +15,16 @@ export type PieChartTooltipProps = {
 	 */
 	tooltipData: DataPointPercentage;
 
-	/**
-	 * Format configuration for the value display.
-	 */
 	dataFormat: DataFormat;
 };
 
 /**
  * Tooltip component for pie and semi-circle charts.
  * Renders a single row with a color indicator, label, and formatted value.
- *
- * Reuses the same SCSS module as ChartTooltip so styling (box-shadow, padding,
- * the `:global(.visx-tooltip):has(.tooltip)` override) is shared.
  */
 export function PieChartTooltip( { tooltipData, dataFormat }: PieChartTooltipProps ) {
 	return (
-		<Stack direction="column" className={ styles.tooltip } gap="xs">
+		<Stack direction="column" gap="xs">
 			<TooltipRow
 				indicator={
 					<RectShape fill={ tooltipData.color || 'currentColor' } height={ 8 } width={ 8 } />

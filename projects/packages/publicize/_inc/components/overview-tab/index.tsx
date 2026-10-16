@@ -3,13 +3,17 @@ import useConnectionErrorNotice, {
 } from '@automattic/jetpack-connection/use-connection-error-notice';
 import { currentUserCan } from '@automattic/jetpack-script-data';
 import { useDispatch, useSelect } from '@wordpress/data';
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { share } from '@wordpress/icons';
 import { Button, Card, EmptyState } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
+import { hasAdminUiV2 } from '../../utils/script-data';
+import { ConnectionFlowModal } from '../connection-flow';
 import ConnectionManagement from '../connection-management';
 import { ThemedConnectionsModal } from '../manage-connections-modal';
 import TrafficChartCard from './traffic-chart-card';
+import type { JSX } from 'react';
 import './style.scss';
 
 /**
@@ -21,7 +25,15 @@ import './style.scss';
  * @return The empty-state body.
  */
 const NoConnectionsEmptyState = () => {
-	const { openConnectionsModal } = useDispatch( socialStore );
+	const { openConnectionsModal, startConnectionFlow } = useDispatch( socialStore );
+
+	const onAddAccount = useCallback( () => {
+		if ( hasAdminUiV2() ) {
+			startConnectionFlow( { origin: 'dashboard' } );
+		} else {
+			openConnectionsModal();
+		}
+	}, [ openConnectionsModal, startConnectionFlow ] );
 
 	return (
 		<div className="jetpack-social-overview__empty">
@@ -37,7 +49,7 @@ const NoConnectionsEmptyState = () => {
 					) }
 				</EmptyState.Description>
 				<EmptyState.Actions>
-					<Button variant="solid" onClick={ openConnectionsModal }>
+					<Button variant="solid" onClick={ onAddAccount }>
 						{ __( 'Add account', 'jetpack-publicize-pkg' ) }
 					</Button>
 				</EmptyState.Actions>
@@ -49,7 +61,7 @@ const NoConnectionsEmptyState = () => {
 /**
  * Overview tab — sits inside the Social dashboard (`SocialPage`
  * → `Tabs.Panel value="overview"`). Renders the connection-error notice
- * + JITM mount-point above a single `Card.Root` that wraps the existing
+ * above a single `Card.Root` that wraps the existing
  * `ConnectionManagement` list. The "Connect an account" CTA is lifted
  * out of `ConnectionManagement` and rendered as a page-header action by
  * the route's `Stage`, so the card itself stays purely informational.
@@ -77,18 +89,19 @@ export default function OverviewTab(): JSX.Element {
 		<div className="jetpack-social-overview">
 			{ hasConnectionError && (
 				<div className="jetpack-social-overview__notice">
-					<ConnectionError />
+					<ConnectionError trackingContext="social" />
 				</div>
 			) }
-			<div id="jp-admin-notices" className="jetpack-social-jitm-card" />
 			{ /*
 			 * Mount the connections modal at the tab level when the
 			 * empty state replaces the connections list, so the
 			 * "Add account" header + empty-state buttons stay
 			 * functional. When `ConnectionManagement` renders, it
-			 * already brings its own `ManageConnectionsModal`.
+			 * already brings its own modal. Behind ADMIN_UI_V2 this is
+			 * the new `ConnectionFlowModal`; otherwise today's modal.
 			 */ }
-			{ ! hasConnections && <ThemedConnectionsModal /> }
+			{ ! hasConnections &&
+				( hasAdminUiV2() ? <ConnectionFlowModal /> : <ThemedConnectionsModal /> ) }
 			{ /*
 			 * Traffic chart only renders for admins with at least one
 			 * connection. The no-connections state focuses the user on

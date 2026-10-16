@@ -2,35 +2,39 @@
  * External dependencies
  */
 import {
-	mergeStatsClicksComparisonRows,
 	useStatsClicks,
 	type StatsClicksComparisonItem,
 	type StatsClicksItem,
-	type StatsNormalizedReport,
 	type StatsReportParams,
 } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
+	LeaderboardSkeleton,
 	ReportLink,
+	WIDGET_ROW_LIMIT,
 	WidgetBackLink,
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
 	buildLeaderboardRow,
 	calculateDelta,
+	getCombinedPeriodMax,
 	resolveLeaderboardRowAction,
+	safeHttpUrl,
 	sharePercentage,
 	useWidgetDrillDown,
 	useWidgetRootContext,
+	ExporterCsvDownloadButton,
+	clicksCsvExporter,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { link } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
+import { useNoViewsEmptyState } from '../use-no-views-empty-state';
 import styles from './style.module.css';
 import { type ClicksAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -82,12 +86,18 @@ function getItemLabel( item: StatsClicksComparisonItem | StatsClicksItem ): stri
 	return item.link ?? '';
 }
 
-function toClickRow( item: StatsClicksComparisonItem ): ClickRow {
+/**
+ * Maps a merged data-layer row (comparison matching and the row cap happen in
+ * `mergeStatsClicksComparisonRows`) onto the widget's row shape.
+ */
+export function toClickRow( item: StatsClicksComparisonItem ): ClickRow {
+	const href = safeHttpUrl( item.link );
+
 	return {
 		label: getItemLabel( item ),
 		value: item.views,
 		previousValue: item.previousValue,
-		...( item.link ? { href: item.link } : {} ),
+		...( href ? { href } : {} ),
 		icon: item.icon,
 		children: item.children?.map( toClickRow ),
 		...( item.childrenHaveComparison ? { childrenHaveComparison: true } : {} ),
@@ -95,60 +105,17 @@ function toClickRow( item: StatsClicksComparisonItem ): ClickRow {
 }
 
 /**
- * Flattens a normalized clicks report into `ClickRow[]` and attaches matching
- * comparison values when a comparison report is present.
- *
- * @param report           - Primary clicks report.
- * @param comparisonReport - Comparison clicks report.
- * @param max              - Maximum rows to keep. 0 keeps all rows.
- * @return Rows ready for the leaderboard.
- */
-export function toClickRowsWithComparison(
-	report: StatsNormalizedReport< StatsClicksItem > | undefined,
-	comparisonReport: StatsNormalizedReport< StatsClicksItem > | undefined,
-	max: number
-): { rows: ClickRow[]; hasComparison: boolean } {
-	const { rows, hasComparison } = mergeStatsClicksComparisonRows( report, comparisonReport, max );
-	const clickRows = rows.map( toClickRow );
-
-	return {
-		rows: clickRows,
-		hasComparison,
-	};
-}
-
-/**
- * Flattens a normalized clicks report into `ClickRow[]` and attaches matching
- * comparison values when a comparison report is present.
- *
- * @param report           - Primary clicks report.
- * @param comparisonReport - Comparison clicks report.
- * @param max              - Maximum rows to keep. 0 keeps all rows.
- * @return Rows ready for the leaderboard.
- */
-export function toClickRows(
-	report: StatsNormalizedReport< StatsClicksItem > | undefined,
-	comparisonReport: StatsNormalizedReport< StatsClicksItem > | undefined,
-	max: number
-): ClickRow[] {
-	return toClickRowsWithComparison( report, comparisonReport, max ).rows;
-}
-
-/**
  * Maps normalized click rows onto the shape `LeaderboardChart` expects.
- *
- * @param rows           - Normalized click rows.
- * @param withComparison - Whether to include comparison values and deltas.
- * @param onDrillDown    - Callback fired when a row with child links is selected.
- * @return Leaderboard chart data.
  */
 function buildLeaderboardData(
 	rows: ClickRow[],
 	withComparison: boolean,
 	onDrillDown?: ( row: ClickRow ) => void
 ): LeaderboardChartData {
-	const maxCurrentClicks = Math.max( ...rows.map( row => row.value ), 1 );
-	const maxPreviousClicks = Math.max( ...rows.map( row => row.previousValue ?? 0 ), 1 );
+	const maxClicks = getCombinedPeriodMax(
+		rows.map( row => row.value ),
+		withComparison ? rows.map( row => row.previousValue ) : []
+	);
 
 	return rows.map( ( row, index ) => {
 		const previousValue = row.previousValue;
@@ -167,19 +134,19 @@ function buildLeaderboardData(
 								onClick: () => onDrillDown( row ),
 								ariaLabel: sprintf(
 									/* translators: %s is the clicked link or domain label. */
-									__( 'View clicked links for %s', 'jetpack-premium-analytics' ),
+									__( 'View clicked links for %s', 'jetpack-premium-analytics-pkg' ),
 									row.label
 								),
-						  }
+							}
 						: undefined,
 				} ),
 			} ),
 			currentValue: row.value,
-			currentShare: sharePercentage( row.value, maxCurrentClicks ),
+			currentShare: sharePercentage( row.value, maxClicks ),
 			previousValue,
 			previousShare:
 				withComparison && previousValue !== undefined
-					? sharePercentage( previousValue, maxPreviousClicks )
+					? sharePercentage( previousValue, maxClicks )
 					: undefined,
 			delta:
 				withComparison && previousValue !== undefined
@@ -206,9 +173,6 @@ export type ClicksLeaderboardProps = {
 
 /**
  * Presentational leaderboard for the Clicks widget.
- *
- * @param {ClicksLeaderboardProps} props - The component props.
- * @return The rendered leaderboard.
  */
 export function ClicksLeaderboard( {
 	rows = [],
@@ -222,25 +186,16 @@ export function ClicksLeaderboard( {
 			withOverlayLabel
 			showLegend={ false }
 			dataFormat={ DATA_FORMAT }
+			columns={ { label: __( 'Links', 'jetpack-premium-analytics-pkg' ), metric: 'clicks' } }
 		/>
 	);
 }
 
-type ClicksInnerProps = {
-	/**
-	 * Maximum rows to display. 0 means all rows returned by the API.
-	 */
-	max: number;
-};
-
 /**
  * Clicks widget inner component. Reads report params from WidgetRoot context
  * and renders the leaderboard, with drill-down into a link's child clicks.
- *
- * @param {ClicksInnerProps} props - The component props.
- * @return The rendered widget content.
  */
-function ClicksInner( { max }: ClicksInnerProps ) {
+function ClicksInner() {
 	const { reportParams } = useWidgetRootContext();
 	const {
 		drillDownItem: selectedClickLabel,
@@ -249,12 +204,10 @@ function ClicksInner( { max }: ClicksInnerProps ) {
 	} = useWidgetDrillDown< string >();
 	const statsParams = {
 		...reportParams,
-		max,
+		max: WIDGET_ROW_LIMIT,
 	} as StatsReportParams;
-	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } = useStatsClicks(
-		statsParams,
-		{ maxRows: max }
-	);
+	const { primary, comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
+		useStatsClicks( statsParams, { maxRows: WIDGET_ROW_LIMIT } );
 
 	const rows = useMemo(
 		() => ( comparisonRows?.rows ?? [] ).map( toClickRow ),
@@ -265,20 +218,22 @@ function ClicksInner( { max }: ClicksInnerProps ) {
 		[ rows, selectedClickLabel ]
 	);
 	const isDrillDown = !! selectedClick?.children?.length;
-	const activeRows = isDrillDown ? selectedClick.children ?? [] : rows;
+	const activeRows = isDrillDown ? ( selectedClick.children ?? [] ) : rows;
 	const withComparison = isDrillDown ? !! selectedClick?.childrenHaveComparison : hasComparison;
 
-	// The view already falls back to the top list when the selected link is
-	// missing or no longer drillable (no children); clear the stored selection
-	// too once data has settled without a drillable match, so stale state
-	// can't resurface on a later refetch (WOOA7S-1666). In-flight fetches keep
-	// placeholder rows and errors aren't settled data, so a valid selection
-	// survives refetches and transient failures.
+	// Clear the stored selection only once data has settled without a drillable
+	// match, so it can't resurface on a later refetch (WOOA7S-1666) and a valid
+	// selection survives in-flight fetches and transient failures.
 	useEffect( () => {
 		if ( selectedClickLabel && ! isDrillDown && ! isLoading && ! isFetching && ! isError ) {
 			clearSelectedClick();
 		}
 	}, [ selectedClickLabel, isDrillDown, isLoading, isFetching, isError, clearSelectedClick ] );
+
+	const emptyState = useNoViewsEmptyState(
+		{ isLoading, isError, isEmpty: rows.length === 0 },
+		__( 'You don’t have clicked links recorded yet.', 'jetpack-premium-analytics-pkg' )
+	);
 
 	const handleDrillDown = useCallback(
 		( row: ClickRow ) => {
@@ -289,65 +244,63 @@ function ClicksInner( { max }: ClicksInnerProps ) {
 
 	const backLink = isDrillDown ? (
 		<WidgetBackLink
-			label={ __( 'All Clicks', 'jetpack-premium-analytics' ) }
-			ariaLabel={ __( 'View all clicks', 'jetpack-premium-analytics' ) }
+			label={ __( 'All clicks', 'jetpack-premium-analytics-pkg' ) }
+			ariaLabel={ __( 'View all clicks', 'jetpack-premium-analytics-pkg' ) }
 			onClick={ clearSelectedClick }
 		/>
 	) : null;
 
 	return (
-		<div className={ styles.content }>
-			{ backLink }
-			<WidgetState
-				isLoading={ isLoading }
-				isFetching={ isFetching }
-				// The Stats queries carry `placeholderData: previousData => previousData`, so a
-				// failed range change keeps the prior period's rows while `isError` flips true.
-				// Only surface the error when there's nothing to show, so a transient refetch
-				// failure doesn't replace populated rows with the error state.
-				isError={ rows.length === 0 && isError }
-				isEmpty={ activeRows.length === 0 }
-				error={ {
-					description: __(
-						"We couldn't load clicks. Please try again in a moment.",
-						'jetpack-premium-analytics'
-					),
-					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
-				} }
-				empty={ {
-					icon: link,
-					description: __( 'No clicks in this period.', 'jetpack-premium-analytics' ),
-				} }
-			>
-				<ClicksLeaderboard
-					rows={ activeRows }
-					withComparison={ withComparison }
-					onDrillDown={ isDrillDown ? undefined : handleDrillDown }
+		<>
+			<div className={ styles.content }>
+				{ backLink }
+				<WidgetState
+					isLoading={ emptyState.isLoading }
+					isFetching={ isFetching }
+					// `placeholderData` keeps the prior period's rows on screen while `isError`
+					// flips true, so a transient refetch failure should not replace them.
+					isError={ rows.length === 0 && isError }
+					isEmpty={ activeRows.length === 0 }
+					error={ {
+						description: __(
+							"We couldn't load clicks. Please try again in a moment.",
+							'jetpack-premium-analytics-pkg'
+						),
+						actions: [
+							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
+						],
+					} }
+					empty={ emptyState.empty }
+					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
+				>
+					<ClicksLeaderboard
+						rows={ activeRows }
+						withComparison={ withComparison }
+						onDrillDown={ isDrillDown ? undefined : handleDrillDown }
+					/>
+				</WidgetState>
+			</div>
+			<WidgetFooter>
+				<ReportLink report="clicks" />
+				<ExporterCsvDownloadButton
+					exporter={ clicksCsvExporter }
+					status={ { isLoading, isFetching, isError: primary.isError } }
+					rowCount={ rows.length }
 				/>
-			</WidgetState>
-		</div>
+			</WidgetFooter>
+		</>
 	);
 }
 
 /**
- * Clicks widget render component.
- *
  * Shows the most-clicked external links as a ranked leaderboard. Date range
  * comes from the shared dashboard date picker via WidgetRoot.
- *
- * @param {ClicksWidgetProps} props - The widget render props.
- * @return The rendered widget content.
  */
 export default function ClicksWidget( { attributes = {} }: ClicksWidgetProps ) {
-	const max = attributes?.max ?? 10;
-
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<ClicksInner max={ max } />
-				<WidgetFooter>
-					<ReportLink report="clicks" />
-				</WidgetFooter>
+				<ClicksInner />
 			</div>
 		</WidgetRoot>
 	);

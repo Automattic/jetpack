@@ -131,7 +131,7 @@ class CSVExportScheduler_Test extends TestCase {
 	): Csv_Export_Scheduler {
 		$registry = new Report_Registry();
 		$registry->register_controller( new Orders_Over_Time_Controller( $registry ) );
-		$logger          = $logger ?? new Spy_Logger();
+		$logger        ??= new Spy_Logger();
 		$fetcher         = new Fake_Fetcher( $logger );
 		$fetcher->result = $fetch_result;
 		return new Csv_Export_Scheduler( $registry, $fetcher, new Fake_Generator( $logger ), $email, $logger );

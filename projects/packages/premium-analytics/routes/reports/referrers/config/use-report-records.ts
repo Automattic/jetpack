@@ -1,67 +1,51 @@
 /**
  * External dependencies
  */
+import { useStatsReferrers, type ReportParams } from '@jetpack-premium-analytics/data';
 import {
-	useStatsReferrers,
-	type ReportParams,
-	type StatsChartBucketPeriod,
-} from '@jetpack-premium-analytics/data';
+	flattenReferrerRows,
+	getReferrerSpamDomain,
+	getSummarizedReportQueryParams,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
-/**
- * Internal dependencies
- */
-import { aggregateReferrerRows, referrersToTimeSeries } from './aggregate';
+
+const NO_DOMAINS: ReadonlySet< string > = new Set();
 
 /**
- * Fetch and derive the Referrers report chart and table records.
+ * Fetch and derive the Referrers report table records.
  *
- * @param reportParams - The shared report-window parameters.
- * @param chartPeriod  - The chart's bucket period.
- * @return Chart data and table records.
+ * @param reportParams  - The shared report-window parameters.
+ * @param hiddenDomains - Spam domains to drop, with their nested rows.
+ * @return Hierarchical table records.
  */
 export function useReferrersReportRecords(
 	reportParams: ReportParams,
-	chartPeriod: StatsChartBucketPeriod
+	hiddenDomains: ReadonlySet< string > = NO_DOMAINS
 ) {
-	// A single bucketed query feeds both report sections. `summarize: 0`
-	// preserves the time buckets for the chart, and `max: 0` requests every
-	// referrer so table search, sorting, and pagination remain client-side.
 	const recordsParams = useMemo(
-		() => ( {
-			...reportParams,
-			max: 0,
-			summarize: 0,
-			period: 'day',
-		} ),
+		() => getSummarizedReportQueryParams( reportParams ),
 		[ reportParams ]
 	);
 	const report = useStatsReferrers( recordsParams );
-
-	const chartPrimary = useMemo(
-		() => referrersToTimeSeries( report.primary.data, chartPeriod ),
-		[ report.primary.data, chartPeriod ]
-	);
-	const chartComparison = useMemo( () => {
-		if ( ! reportParams.compare_from || ! reportParams.compare_to ) {
-			return undefined;
-		}
-
-		return referrersToTimeSeries( report.comparison.data, chartPeriod );
-	}, [ reportParams, report.comparison.data, chartPeriod ] );
+	const comparisonRows = report.comparisonRows?.rows;
 	const rows = useMemo(
-		() => aggregateReferrerRows( report.primary.data ),
-		[ report.primary.data ]
+		() =>
+			flattenReferrerRows(
+				( comparisonRows ?? [] ).filter( item => {
+					const domain = getReferrerSpamDomain( item );
+
+					return ! domain || ! hiddenDomains.has( domain );
+				} )
+			),
+		[ comparisonRows, hiddenDomains ]
 	);
 
 	return {
 		isError: report.isError,
+		error: report.error,
 		refetch: report.refetch,
-		chart: {
-			primary: chartPrimary,
-			comparison: report.comparison.data ? chartComparison : undefined,
-			isLoading: report.isLoading,
-		},
 		rows,
 		isLoading: report.isLoading,
+		isFetching: report.isFetching,
 	};
 }

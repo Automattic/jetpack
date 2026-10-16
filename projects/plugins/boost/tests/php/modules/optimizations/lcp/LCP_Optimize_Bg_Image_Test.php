@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack_Boost\Tests\Modules\Optimizations\Lcp;
 
-use Automattic\Jetpack_Boost\Modules\Optimizations\Lcp\LCP;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Lcp\Lcp;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Lcp\LCP_Optimize_Bg_Image;
 use WorDBless\BaseTestCase;
 
@@ -54,7 +54,7 @@ class LCP_Optimize_Bg_Image_Test extends BaseTestCase {
 	private function create_lcp_data( $optimizations = null ) {
 		$data = array(
 			'success'     => true,
-			'type'        => LCP::TYPE_BACKGROUND_IMAGE,
+			'type'        => Lcp::TYPE_BACKGROUND_IMAGE,
 			'selector'    => 'div.hero-bg',
 			'html'        => '<div class="hero-bg" id="test-bg"></div>',
 			'url'         => 'https://example.com/background.jpg',
@@ -171,7 +171,7 @@ class LCP_Optimize_Bg_Image_Test extends BaseTestCase {
 	 */
 	public function test_get_responsive_image_rules_returns_empty_for_non_bg_type() {
 		$lcp_data         = $this->create_lcp_data( array( 'cssOverride' => true ) );
-		$lcp_data['type'] = LCP::TYPE_IMAGE; // Not a background image
+		$lcp_data['type'] = Lcp::TYPE_IMAGE; // Not a background image
 
 		$instance = new LCP_Optimize_Bg_Image( array( $lcp_data ) );
 		$method   = $this->get_private_method( $instance, 'get_responsive_image_rules' );
@@ -238,6 +238,82 @@ class LCP_Optimize_Bg_Image_Test extends BaseTestCase {
 		// With empty optimizations object, empty() check will return true for missing cssOverride
 		// so optimizations won't be applied (empty array returned)
 		$this->assertEmpty( $result );
+	}
+
+	/**
+	 * Both public entry points index 'selector' before anything else touches the
+	 * record, and the field is optional.
+	 */
+	public function test_a_record_with_no_selector_is_skipped_rather_than_indexed() {
+		$lcp_data = $this->create_lcp_data( array( 'cssOverride' => true ) );
+		unset( $lcp_data['selector'] );
+
+		$instance = new LCP_Optimize_Bg_Image( array( $lcp_data ) );
+
+		ob_start();
+		$instance->preload_background_images();
+		$instance->add_bg_style_override();
+		$output = ob_get_clean();
+
+		$this->assertSame(
+			'',
+			$output,
+			'A record missing the field both of these paths are keyed on must produce nothing, not a warning and a half-built rule.'
+		);
+	}
+
+	/**
+	 * A non-empty 'imageDimensions' array does not have to carry an index 0: a JSON
+	 * object decodes to a string-keyed array. This path indexes [0] directly.
+	 */
+	public function test_image_dimensions_without_a_first_entry_is_skipped_rather_than_indexed() {
+		$lcp_data = $this->create_lcp_data( array( 'cssOverride' => true ) );
+
+		$lcp_data['breakpoints'] = array_map(
+			function ( $breakpoint ) {
+				$breakpoint['imageDimensions'] = array(
+					'desktop' => array(
+						'width'  => 1200,
+						'height' => 800,
+					),
+				);
+
+				return $breakpoint;
+			},
+			$lcp_data['breakpoints']
+		);
+
+		$instance = new LCP_Optimize_Bg_Image( array( $lcp_data ) );
+
+		// Captured explicitly. Indexing a missing key yields null, so the breakpoint is
+		// skipped either way and the rendered output cannot tell the guard from its
+		// absence. The warning is the whole difference.
+		$raised = array();
+		set_error_handler(
+			function ( $errno, $errstr ) use ( &$raised ) {
+				$raised[] = $errstr;
+				return true;
+			},
+			E_WARNING | E_NOTICE
+		);
+
+		ob_start();
+		$instance->preload_background_images();
+		$instance->add_bg_style_override();
+		$output = ob_get_clean();
+
+		restore_error_handler();
+
+		$this->assertSame(
+			array(),
+			$raised,
+			'A breakpoint whose dimensions are not keyed from zero must be skipped, not indexed.'
+		);
+		$this->assertSame(
+			'',
+			$output,
+			'...and it must contribute nothing to the rendered rule.'
+		);
 	}
 
 	/**

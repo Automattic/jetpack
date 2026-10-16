@@ -1,9 +1,5 @@
 import { mergeStatsDevicesComparisonRows, sanitizeStatsDevicesResponse } from '..';
-import {
-	devicesBrowserFixture,
-	devicesEmptyFixture,
-	devicesFixture,
-} from '../__fixtures__/devices';
+import { devicesEmptyFixture, devicesFixture } from '../__fixtures__/devices';
 import type { StatsDevicesItem, StatsNormalizedReport } from '..';
 
 function makeReport( items: StatsDevicesItem[] ): StatsNormalizedReport< StatsDevicesItem > {
@@ -33,28 +29,25 @@ describe( 'Stats devices normalizer', () => {
 	} );
 
 	it( 'sorts items descending by value', () => {
-		const result = sanitizeStatsDevicesResponse( devicesFixture, { end_date: '2026-06-25' } );
-		const values = result.data[ 0 ].items.map( i => i.value );
-		expect( values ).toEqual( [ ...values ].sort( ( a, b ) => b - a ) );
+		const result = sanitizeStatsDevicesResponse(
+			{ top_values: { mobile: 13.5, desktop: 85.9, tablet: 0.5 } },
+			{ end_date: '2026-06-25' }
+		);
+
+		expect( result.data[ 0 ].items.map( item => item.label ) ).toEqual( [
+			'desktop',
+			'mobile',
+			'tablet',
+		] );
 	} );
 
-	it( 'normalizes browser breakdown', () => {
-		const result = sanitizeStatsDevicesResponse( devicesBrowserFixture, {
-			end_date: '2026-06-25',
-		} );
-
-		expect( result.data[ 0 ].items[ 0 ] ).toMatchObject( { label: 'chrome', value: 29451 } );
-	} );
-
-	it( 'returns empty data when top_values is empty', () => {
-		const result = sanitizeStatsDevicesResponse( devicesEmptyFixture, { end_date: '2026-06-25' } );
-		expect( result.data ).toHaveLength( 0 );
-	} );
-
-	it( 'returns empty data for an empty response', () => {
-		const result = sanitizeStatsDevicesResponse( {}, { end_date: '2026-06-25' } );
-		expect( result.data ).toHaveLength( 0 );
-	} );
+	it.each( [ devicesEmptyFixture, {} ] )(
+		'returns empty data for an empty response (%j)',
+		response => {
+			const result = sanitizeStatsDevicesResponse( response, { end_date: '2026-06-25' } );
+			expect( result.data ).toHaveLength( 0 );
+		}
+	);
 
 	it( 'detects comparison overlap only in visible rows and preserves zero values', () => {
 		const primary = makeReport( [

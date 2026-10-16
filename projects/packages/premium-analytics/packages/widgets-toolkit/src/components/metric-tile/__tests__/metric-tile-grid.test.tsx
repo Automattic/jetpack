@@ -31,6 +31,13 @@ describe( 'MetricTileGrid', () => {
 		expect( screen.getByText( 'Comments' ) ).toBeInTheDocument();
 	} );
 
+	it( 'marks the list with the layout picked for its box', () => {
+		// jsdom lays nothing out, so the box measures 0x0: too short to stretch.
+		renderMetricGrid();
+
+		expect( screen.getByRole( 'list' ) ).toHaveAttribute( 'data-layout', 'compact' );
+	} );
+
 	it( 'renders the placeholder for null and non-finite values', () => {
 		render(
 			<MetricTileGrid

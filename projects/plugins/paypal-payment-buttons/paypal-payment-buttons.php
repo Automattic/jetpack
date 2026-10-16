@@ -4,7 +4,7 @@
  * Plugin Name: PayPal Payment Buttons
  * Plugin URI: https://wordpress.org/plugins/paypal-payment-buttons
  * Description: Add PayPal payment buttons to your WordPress site with ease.
- * Version: 0.4.0
+ * Version: 0.5.0
  * Author: Automattic
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later
@@ -39,6 +39,14 @@ define( 'PAYPAL_PAYMENT_BUTTONS_SLUG', 'paypal-payment-buttons' );
 define( 'PAYPAL_PAYMENT_BUTTONS_NAME', 'PayPal Payment Buttons' );
 define( 'PAYPAL_PAYMENT_BUTTONS_URI', 'https://jetpack.com/paypal-payment-buttons' );
 define( 'PAYPAL_PAYMENT_BUTTONS_FOLDER', dirname( plugin_basename( __FILE__ ) ) );
+
+/*
+ * The Connection package builds WordPress.com API URLs from this constant, and the
+ * Jetpack plugin is what normally defines it. Onboarding proxies through
+ * wpcom/v2/paypal/platform/signup-link, so without it the request URL has no host
+ * and signing fails.
+ */
+defined( 'JETPACK__WPCOM_JSON_API_BASE' ) || define( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
 
 // Jetpack Autoloader.
 $jetpack_autoloader = PAYPAL_PAYMENT_BUTTONS_DIR . 'vendor/autoload_packages.php';

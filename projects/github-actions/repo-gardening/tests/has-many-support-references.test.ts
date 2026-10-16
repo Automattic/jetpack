@@ -1,5 +1,5 @@
 import { jest } from '@jest/globals';
-import type { IssueComment } from '@octokit/webhooks-types';
+import type { IssueComment } from '../src/types.d.ts';
 
 // Mock @actions/core before importing the module under test.
 jest.unstable_mockModule( '@actions/core', () => ( {
@@ -7,9 +7,8 @@ jest.unstable_mockModule( '@actions/core', () => ( {
 } ) );
 
 const { getInput } = await import( '@actions/core' );
-const { default: hasManySupportReferences } = await import(
-	'../src/utils/parse-content/has-many-support-references.ts'
-);
+const { default: hasManySupportReferences } =
+	await import( '../src/utils/parse-content/has-many-support-references.ts' );
 
 /**
  * Create a mock issue comment with a given login and body.

@@ -1,8 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { Notice } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
-import { features } from '../../utils/constants';
+import { hasSocialPaidFeatures } from '../../utils';
 
 /**
  * Notice displayed when trying to share to Instagram without media.
@@ -21,16 +20,16 @@ export function InstagramNoMediaNotice() {
 				},
 			] }
 		>
-			{ siteHasFeature( features.ENHANCED_PUBLISHING )
+			{ hasSocialPaidFeatures()
 				? __(
 						'To share to Instagram, add an image/video, or enable Social Image Generator.',
 						'jetpack-publicize-pkg'
-				  )
+					)
 				: _x(
 						'You need a featured image to share to Instagram.',
 						'Notice shown when there is no featured image set for the post.',
 						'jetpack-publicize-pkg'
-				  ) }
+					) }
 		</Notice>
 	);
 }

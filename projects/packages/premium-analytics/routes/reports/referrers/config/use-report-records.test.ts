@@ -1,180 +1,141 @@
 import { useStatsReferrers } from '@jetpack-premium-analytics/data';
 import { renderHook } from '@testing-library/react';
 import { useReferrersReportRecords } from './use-report-records';
-import type {
-	ReportParams,
-	StatsNormalizedReport,
-	StatsReferrersItem,
-} from '@jetpack-premium-analytics/data';
+import type { ReportParams, StatsReferrersComparisonItem } from '@jetpack-premium-analytics/data';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	useStatsArchives: jest.fn(),
+	useStatsClicks: jest.fn(),
+	useStatsCommentFollowersAllPages: jest.fn(),
+	useStatsComments: jest.fn(),
+	useStatsFileDownloads: jest.fn(),
+	useStatsLocations: jest.fn(),
 	useStatsReferrers: jest.fn(),
+	useStatsSearchTerms: jest.fn(),
+	useStatsTags: jest.fn(),
+	useStatsTopAuthors: jest.fn(),
+	useStatsTopPosts: jest.fn(),
+	useStatsUtm: jest.fn(),
+	useStatsVideoPlays: jest.fn(),
 } ) );
 
 const mockUseStatsReferrers = useStatsReferrers as jest.MockedFunction< typeof useStatsReferrers >;
 
-const report: StatsNormalizedReport< StatsReferrersItem > = {
-	summary: {},
-	data: [
-		{
-			time_interval: '2026-07-09',
-			date_start: '2026-07-09T00:00:00+00:00',
-			date_end: '2026-07-09T23:59:59+00:00',
-			items: [
-				{
-					label: 'example.com',
-					views: 7,
-					link: 'https://example.com/',
-					icon: null,
-					labelIcon: 'external',
-					children: null,
-				},
-			],
-		},
-		{
-			time_interval: '2026-07-10',
-			date_start: '2026-07-10T00:00:00+00:00',
-			date_end: '2026-07-10T23:59:59+00:00',
-			items: [
-				{
-					label: 'example.com',
-					views: 6,
-					link: 'https://example.com/',
-					icon: null,
-					labelIcon: 'external',
-					children: null,
-				},
-			],
-		},
-	],
-};
-
-const comparisonReport: StatsNormalizedReport< StatsReferrersItem > = {
-	summary: {},
-	data: [
-		{
-			time_interval: '2026-07-07',
-			date_start: '2026-07-07T00:00:00+00:00',
-			date_end: '2026-07-07T23:59:59+00:00',
-			items: [
-				{
-					label: 'wordpress.com',
-					views: 4,
-					link: 'https://wordpress.com/',
-					icon: null,
-					labelIcon: 'external',
-					children: null,
-				},
-			],
-		},
-		{
-			time_interval: '2026-07-08',
-			date_start: '2026-07-08T00:00:00+00:00',
-			date_end: '2026-07-08T23:59:59+00:00',
-			items: [
-				{
-					label: 'wordpress.org',
-					views: 5,
-					link: 'https://wordpress.org/',
-					icon: null,
-					labelIcon: 'external',
-					children: null,
-				},
-			],
-		},
-	],
-};
+const comparisonRows: StatsReferrersComparisonItem[] = [
+	{
+		label: 'Search Engines',
+		views: 13,
+		previousValue: 10,
+		link: null,
+		icon: null,
+		labelIcon: null,
+		children: [
+			{
+				label: 'google.com',
+				views: 13,
+				previousValue: 8,
+				link: 'https://www.google.com/',
+				icon: null,
+				labelIcon: 'external',
+				children: null,
+			},
+		],
+	},
+];
 
 describe( 'useReferrersReportRecords', () => {
 	beforeEach( () => {
 		mockUseStatsReferrers.mockReturnValue( {
-			primary: { data: report },
+			primary: { data: undefined },
 			comparison: { data: undefined },
-			hasComparison: false,
+			comparisonRows: { rows: comparisonRows, hasComparison: true },
+			hasComparison: true,
 			isLoading: false,
-		} as ReturnType< typeof useStatsReferrers > );
+			isError: false,
+			refetch: jest.fn(),
+		} as unknown as ReturnType< typeof useStatsReferrers > );
 	} );
 
 	afterEach( () => {
 		jest.clearAllMocks();
 	} );
 
-	it( 'keeps the request day-bucketed while grouping only the chart by week', () => {
+	it( 'matches the summarized Calypso request and returns parent-linked comparison rows', () => {
 		const params: ReportParams = {
 			from: '2026-07-09',
 			to: '2026-07-10',
 			interval: 'day',
-		};
-		const { result: dayResult } = renderHook( () => useReferrersReportRecords( params, 'day' ) );
-		const { result: weekResult } = renderHook( () => useReferrersReportRecords( params, 'week' ) );
-
-		expect( mockUseStatsReferrers ).toHaveBeenLastCalledWith( {
-			...params,
-			max: 0,
-			summarize: 0,
-			period: 'day',
-		} );
-		expect( weekResult.current.chart.primary ).toEqual( {
-			summary: {
-				date_start: '2026-07-09T00:00:00+00:00',
-				date_end: '2026-07-10T23:59:59+00:00',
-			},
-			data: [
-				expect.objectContaining( {
-					time_interval: '2026-07-06',
-					date_start: '2026-07-06T00:00:00+00:00',
-					views: 13,
-				} ),
-			],
-		} );
-		expect( weekResult.current.rows ).toEqual( dayResult.current.rows );
-	} );
-
-	it( 'includes comparison chart buckets when referrers do not overlap the primary period', () => {
-		mockUseStatsReferrers.mockReturnValue( {
-			primary: { data: report },
-			comparison: { data: comparisonReport },
-			hasComparison: false,
-			isLoading: false,
-		} as ReturnType< typeof useStatsReferrers > );
-		const params: ReportParams = {
-			from: '2026-07-09',
-			to: '2026-07-10',
-			interval: 'day',
+			comp: '1',
 			compare_from: '2026-07-07',
 			compare_to: '2026-07-08',
 		};
+		const { result } = renderHook( () => useReferrersReportRecords( params ) );
 
-		const { result } = renderHook( () => useReferrersReportRecords( params, 'day' ) );
-
-		expect( result.current.chart.comparison ).toBeDefined();
-		expect( result.current.chart.comparison?.data.map( point => point.views ) ).toEqual( [ 4, 5 ] );
+		expect( mockUseStatsReferrers ).toHaveBeenCalledWith( {
+			...params,
+			max: 0,
+			summarize: 1,
+			period: 'day',
+		} );
+		expect( result.current.rows ).toEqual( [
+			expect.objectContaining( {
+				id: '["Search Engines"]',
+				label: 'Search Engines',
+				previousValue: 10,
+				hasChildren: true,
+			} ),
+			expect.objectContaining( {
+				parentId: '["Search Engines"]',
+				label: 'google.com',
+				previousValue: 8,
+			} ),
+		] );
 	} );
 
-	it( 'omits the comparison chart when comparison params are absent', () => {
+	it( 'offers spam only on eligible rows and drops a hidden domain with its nested rows', () => {
+		const spamRow = ( domain: string ): StatsReferrersComparisonItem => ( {
+			label: domain,
+			views: 2,
+			link: null,
+			icon: null,
+			labelIcon: null,
+			actions: [ { type: 'spam', data: { domain } } ],
+			children: [
+				{ label: '/page', views: 2, link: null, icon: null, labelIcon: null, children: null },
+			],
+		} );
 		mockUseStatsReferrers.mockReturnValue( {
-			primary: { data: report },
-			comparison: { data: comparisonReport },
-			hasComparison: false,
+			comparisonRows: {
+				rows: [ ...comparisonRows, spamRow( 'kept.example' ), spamRow( 'spam.example' ) ],
+				hasComparison: false,
+			},
 			isLoading: false,
-		} as ReturnType< typeof useStatsReferrers > );
-		const params: ReportParams = {
-			from: '2026-07-09',
-			to: '2026-07-10',
-			interval: 'day',
-		};
+			isError: false,
+			refetch: jest.fn(),
+		} as unknown as ReturnType< typeof useStatsReferrers > );
 
-		const { result } = renderHook( () => useReferrersReportRecords( params, 'day' ) );
+		const { result } = renderHook( () =>
+			useReferrersReportRecords(
+				{ from: '2026-07-09', to: '2026-07-10', interval: 'day' },
+				new Set( [ 'spam.example' ] )
+			)
+		);
 
-		expect( result.current.chart.comparison ).toBeUndefined();
+		expect( result.current.rows.map( row => [ row.label, row.spamDomain ?? null ] ) ).toEqual( [
+			[ 'Search Engines', null ],
+			[ 'google.com', null ],
+			[ 'kept.example', 'kept.example' ],
+			[ '/page', null ],
+		] );
 	} );
 
 	it( 'surfaces error and refetch from the report', () => {
 		const refetch = jest.fn();
 		mockUseStatsReferrers.mockReturnValue( {
-			primary: { data: report },
+			primary: { data: undefined },
 			comparison: { data: undefined },
+			comparisonRows: { rows: [], hasComparison: false },
 			hasComparison: false,
 			isLoading: false,
 			isError: true,
@@ -186,7 +147,7 @@ describe( 'useReferrersReportRecords', () => {
 			interval: 'day',
 		};
 
-		const { result } = renderHook( () => useReferrersReportRecords( params, 'day' ) );
+		const { result } = renderHook( () => useReferrersReportRecords( params ) );
 
 		expect( result.current.isError ).toBe( true );
 		expect( result.current.refetch ).toBe( refetch );

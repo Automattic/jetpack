@@ -2,9 +2,9 @@
  * External dependencies
  */
 import { toPostId } from '@jetpack-premium-analytics/data';
-import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	MetricTileGrid,
+	MetricTileGridSkeleton,
 	WidgetRoot,
 	WidgetState,
 	useWidgetRootContext,
@@ -32,21 +32,12 @@ const COUNT_FORMAT: DataFormat = {
 };
 
 const ALL_TIME_NOTE = () =>
-	__( 'All-time total — this metric has no per-post history.', 'jetpack-premium-analytics' );
+	__( 'All-time total — this metric has no per-post history.', 'jetpack-premium-analytics-pkg' );
 
 /**
- * Post highlights inner component. Reads the post scope and report params
- * from WidgetRoot context and renders the three highlight metrics as a
- * `MetricTileGrid` through `<WidgetState>`; without a post scope (e.g. the
- * widget added outside a post detail page) the query never enables and the
- * empty state shows.
- *
- * Views is period-scoped with a period-over-period delta when comparison is
- * on. Comments and likes are lifetime totals: when comparison is on their
- * `previousValue` is `null` — the tile keeps the comparison layout but shows
- * no fabricated delta.
- *
- * @return The rendered widget content.
+ * Without a post scope the query never enables and the empty state shows.
+ * Comments and likes are lifetime totals, so under comparison their
+ * `previousValue` is `null` — the tile keeps the layout but fabricates no delta.
  */
 function PostDetailHighlightsInner() {
 	const { reportParams } = useWidgetRootContext();
@@ -69,15 +60,15 @@ function PostDetailHighlightsInner() {
 		() => [
 			{
 				key: 'views',
-				label: __( 'Views', 'jetpack-premium-analytics' ),
+				label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
 				icon: seen,
 				value: views,
 				previousValue: viewsPrevious,
-				note: __( 'Views in the selected date range.', 'jetpack-premium-analytics' ),
+				note: __( 'Views in the selected date range.', 'jetpack-premium-analytics-pkg' ),
 			},
 			{
 				key: 'likes',
-				label: __( 'Likes', 'jetpack-premium-analytics' ),
+				label: __( 'Likes', 'jetpack-premium-analytics-pkg' ),
 				icon: starEmpty,
 				value: likes,
 				previousValue: hasComparison ? null : undefined,
@@ -85,7 +76,7 @@ function PostDetailHighlightsInner() {
 			},
 			{
 				key: 'comments',
-				label: __( 'Comments', 'jetpack-premium-analytics' ),
+				label: __( 'Comments', 'jetpack-premium-analytics-pkg' ),
 				icon: comment,
 				value: comments,
 				previousValue: hasComparison ? null : undefined,
@@ -98,27 +89,26 @@ function PostDetailHighlightsInner() {
 	return (
 		<div className={ styles.root }>
 			<WidgetState
-				isLoading={ isLoading && ! hasData }
+				isLoading={ isLoading }
 				isFetching={ isFetching }
-				// As with `isLoading` above: the highlights stay on screen through a
-				// transient refetch failure, so only surface the error when there is
-				// nothing to show.
+				// The highlights stay on screen through a transient refetch failure, so
+				// only surface the error when there is nothing to show.
 				isError={ ! hasData && isError }
 				isEmpty={ postId <= 0 }
 				error={ {
 					description: __(
 						"We couldn't load this post's highlights. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
-					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: refetch } ],
+					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 				} }
 				empty={ {
-					icon: reports,
 					description: __(
 						'Open a post or page report to see its highlights here.',
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
 				} }
+				renderLoading={ <MetricTileGridSkeleton tiles={ tiles.length } /> }
 			>
 				<MetricTileGrid tiles={ tiles } dataFormat={ COUNT_FORMAT } />
 			</WidgetState>
@@ -126,13 +116,6 @@ function PostDetailHighlightsInner() {
 	);
 }
 
-/**
- * Post highlights widget: the scoped post's views, comments, and likes as
- * metric tiles — the post detail Traffic view's highlights card.
- *
- * @param {PostDetailHighlightsWidgetProps} props - The widget render props.
- * @return The rendered widget.
- */
 export default function PostDetailHighlights( {
 	attributes = {},
 }: PostDetailHighlightsWidgetProps ) {

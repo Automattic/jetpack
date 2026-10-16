@@ -14,6 +14,10 @@ import {
 	mockConnection,
 	unMockConnection,
 	resetEnvironment,
+	setDashboardModernization,
+	resetDashboardModernization,
+	setDashboardJitm,
+	resetDashboardJitm,
 } from './boost-utils';
 
 class BoostUtils extends TestUtils {
@@ -31,6 +35,10 @@ class BoostUtils extends TestUtils {
 	mockConnection: typeof mockConnection = mockConnection;
 	unMockConnection: typeof unMockConnection = unMockConnection;
 	resetEnvironment: typeof resetEnvironment = resetEnvironment;
+	setDashboardModernization: typeof setDashboardModernization = setDashboardModernization;
+	resetDashboardModernization: typeof resetDashboardModernization = resetDashboardModernization;
+	setDashboardJitm: typeof setDashboardJitm = setDashboardJitm;
+	resetDashboardJitm: typeof resetDashboardJitm = resetDashboardJitm;
 }
 
 export { BoostUtils };

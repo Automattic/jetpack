@@ -3,93 +3,39 @@ import { renderHook } from '@testing-library/react';
 import { useDownloadsReportRecords } from './use-report-records';
 import type {
 	ReportParams,
-	StatsFileDownloadsItem,
-	StatsNormalizedReport,
+	StatsFileDownloadsComparisonItem,
 } from '@jetpack-premium-analytics/data';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	useStatsArchives: jest.fn(),
+	useStatsClicks: jest.fn(),
+	useStatsCommentFollowersAllPages: jest.fn(),
+	useStatsComments: jest.fn(),
 	useStatsFileDownloads: jest.fn(),
+	useStatsLocations: jest.fn(),
+	useStatsReferrers: jest.fn(),
+	useStatsSearchTerms: jest.fn(),
+	useStatsTags: jest.fn(),
+	useStatsTopAuthors: jest.fn(),
+	useStatsTopPosts: jest.fn(),
+	useStatsUtm: jest.fn(),
+	useStatsVideoPlays: jest.fn(),
 } ) );
 
 const mockUseStatsFileDownloads = useStatsFileDownloads as jest.MockedFunction<
 	typeof useStatsFileDownloads
 >;
 
-const report: StatsNormalizedReport< StatsFileDownloadsItem > = {
-	summary: {},
-	data: [
-		{
-			time_interval: '2026-07-09',
-			date_start: '2026-07-09T00:00:00+00:00',
-			date_end: '2026-07-09T23:59:59+00:00',
-			items: [
-				{
-					label: '/files/report.pdf',
-					shortLabel: 'report.pdf',
-					link: 'https://example.com/files/report.pdf',
-					downloads: 7,
-					linkTitle: '/files/report.pdf',
-					labelIcon: 'external',
-					children: null,
-				},
-			],
-		},
-		{
-			time_interval: '2026-07-10',
-			date_start: '2026-07-10T00:00:00+00:00',
-			date_end: '2026-07-10T23:59:59+00:00',
-			items: [
-				{
-					label: '/files/report.pdf',
-					shortLabel: 'report.pdf',
-					link: 'https://example.com/files/report.pdf',
-					downloads: 6,
-					linkTitle: '/files/report.pdf',
-					labelIcon: 'external',
-					children: null,
-				},
-			],
-		},
-	],
-};
-
-const comparisonReport: StatsNormalizedReport< StatsFileDownloadsItem > = {
-	summary: {},
-	data: [
-		{
-			time_interval: '2026-07-07',
-			date_start: '2026-07-07T00:00:00+00:00',
-			date_end: '2026-07-07T23:59:59+00:00',
-			items: [
-				{
-					label: '/files/guide.pdf',
-					shortLabel: 'guide.pdf',
-					link: 'https://example.com/files/guide.pdf',
-					downloads: 4,
-					linkTitle: '/files/guide.pdf',
-					labelIcon: 'external',
-					children: null,
-				},
-			],
-		},
-		{
-			time_interval: '2026-07-08',
-			date_start: '2026-07-08T00:00:00+00:00',
-			date_end: '2026-07-08T23:59:59+00:00',
-			items: [
-				{
-					label: '/files/guide.pdf',
-					shortLabel: 'guide.pdf',
-					link: 'https://example.com/files/guide.pdf',
-					downloads: 5,
-					linkTitle: '/files/guide.pdf',
-					labelIcon: 'external',
-					children: null,
-				},
-			],
-		},
-	],
+const row: StatsFileDownloadsComparisonItem = {
+	label: '/files/report.pdf',
+	shortLabel: 'report.pdf',
+	link: 'https://example.com/files/report.pdf',
+	downloads: 13,
+	previousDownloads: 9,
+	linkTitle: '/files/report.pdf',
+	labelIcon: 'external',
+	children: null,
 };
 
 const params: ReportParams = {
@@ -100,101 +46,50 @@ const params: ReportParams = {
 
 describe( 'useDownloadsReportRecords', () => {
 	beforeEach( () => {
+		mockUseStatsFileDownloads.mockReset();
 		mockUseStatsFileDownloads.mockReturnValue( {
-			primary: { data: report },
+			primary: { data: undefined },
 			comparison: { data: undefined },
-			hasComparison: false,
+			comparisonRows: { rows: [ row ], hasComparison: true },
+			hasComparison: true,
 			isLoading: false,
-		} as ReturnType< typeof useStatsFileDownloads > );
+			isFetching: false,
+			isError: false,
+			refetch: jest.fn(),
+		} as unknown as ReturnType< typeof useStatsFileDownloads > );
 	} );
 
-	it( 'derives table and chart data from a day-bucketed request', () => {
-		const { result } = renderHook( () => useDownloadsReportRecords( params, 'day' ) );
+	it( 'requests a summarized range and returns the shared comparison rows', () => {
+		const paramsWithStaleChartPeriod = { ...params, period: 'month' as const };
+		const { result } = renderHook( () => useDownloadsReportRecords( paramsWithStaleChartPeriod ) );
 
 		expect( mockUseStatsFileDownloads ).toHaveBeenCalledWith( {
-			...params,
+			...paramsWithStaleChartPeriod,
 			max: 0,
-			summarize: 0,
+			summarize: 1,
 			period: 'day',
 		} );
-		expect( result.current.chart.primary.data.map( point => point.downloads ) ).toEqual( [ 7, 6 ] );
-		expect( result.current.rows ).toEqual( [
-			expect.objectContaining( { shortLabel: 'report.pdf', downloads: 13 } ),
-		] );
+		expect( result.current.rows ).toEqual( [ row ] );
+		expect( result.current.hasComparison ).toBe( true );
 	} );
 
-	it( 'keeps the request day-bucketed while grouping the chart by week', () => {
-		const dayResult = renderHook( () => useDownloadsReportRecords( params, 'day' ) ).result;
-		const weekResult = renderHook( () => useDownloadsReportRecords( params, 'week' ) ).result;
-
-		expect( mockUseStatsFileDownloads ).toHaveBeenLastCalledWith( {
-			...params,
-			max: 0,
-			summarize: 0,
-			period: 'day',
-		} );
-		expect( weekResult.current.chart.primary.summary ).toEqual( {
-			date_start: '2026-07-09T00:00:00+00:00',
-			date_end: '2026-07-10T23:59:59+00:00',
-		} );
-		expect( weekResult.current.chart.primary.data ).toEqual( [
-			expect.objectContaining( {
-				time_interval: '2026-07-06',
-				date_start: '2026-07-06T00:00:00+00:00',
-				date_end: '2026-07-10T23:59:59+00:00',
-				downloads: 13,
-			} ),
-		] );
-		expect( weekResult.current.rows ).toEqual( dayResult.current.rows );
-	} );
-
-	it( 'includes comparison chart buckets when downloads do not overlap the primary period', () => {
-		mockUseStatsFileDownloads.mockReturnValue( {
-			primary: { data: report },
-			comparison: { data: comparisonReport },
-			hasComparison: false,
-			isLoading: false,
-		} as ReturnType< typeof useStatsFileDownloads > );
-		const comparisonParams: ReportParams = {
-			...params,
-			compare_from: '2026-07-07',
-			compare_to: '2026-07-08',
-		};
-
-		const { result } = renderHook( () => useDownloadsReportRecords( comparisonParams, 'day' ) );
-
-		expect( result.current.chart.comparison ).toBeDefined();
-		expect( result.current.chart.comparison?.data.map( point => point.downloads ) ).toEqual( [
-			4, 5,
-		] );
-	} );
-
-	it( 'omits the comparison chart when comparison params are absent', () => {
-		mockUseStatsFileDownloads.mockReturnValue( {
-			primary: { data: report },
-			comparison: { data: comparisonReport },
-			hasComparison: false,
-			isLoading: false,
-		} as ReturnType< typeof useStatsFileDownloads > );
-
-		const { result } = renderHook( () => useDownloadsReportRecords( params, 'day' ) );
-
-		expect( result.current.chart.comparison ).toBeUndefined();
-	} );
-
-	it( 'surfaces error and refetch from the report', () => {
+	it( 'surfaces loading, fetching, error, and refetch from the report', () => {
 		const refetch = jest.fn();
 		mockUseStatsFileDownloads.mockReturnValue( {
-			primary: { data: report },
+			primary: { data: undefined },
 			comparison: { data: undefined },
+			comparisonRows: { rows: [], hasComparison: false },
 			hasComparison: false,
-			isLoading: false,
+			isLoading: true,
+			isFetching: true,
 			isError: true,
 			refetch,
 		} as unknown as ReturnType< typeof useStatsFileDownloads > );
 
-		const { result } = renderHook( () => useDownloadsReportRecords( params, 'day' ) );
+		const { result } = renderHook( () => useDownloadsReportRecords( params ) );
 
+		expect( result.current.isLoading ).toBe( true );
+		expect( result.current.isFetching ).toBe( true );
 		expect( result.current.isError ).toBe( true );
 		expect( result.current.refetch ).toBe( refetch );
 	} );

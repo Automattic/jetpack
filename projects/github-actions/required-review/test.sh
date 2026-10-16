@@ -18,11 +18,11 @@ function addenv {
 
 eval "$(
 	# Read defaults from action.yml
-	node -e 'console.log( JSON.stringify( require( "js-yaml" ).load( require( "fs" ).readFileSync( process.argv[1] ) ) ) );' "$BASE/projects/github-actions/required-review/action.yml" |
+	node -e 'const { load } = require( "js-yaml" ); console.log( JSON.stringify( load( require( "fs" ).readFileSync( process.argv[1] ) ) ) );' "$BASE/projects/github-actions/required-review/action.yml" |
 		jq -r '.inputs | to_entries | .[] | select( .key != "token" and ( .value | has( "default" ) ) ) | [ "addenv INPUT_", ( .key | ascii_upcase | sub( " "; "_" ) ), " ", @sh "\(.value.default)" ] | join( "" )';
 
 	# Read values from .github/workflows/required-review.yml
-	node -e 'console.log( JSON.stringify( require( "js-yaml" ).load( require( "fs" ).readFileSync( process.argv[1] ) ) ) );' "$BASE/.github/workflows/required-review.yml" |
+	node -e 'const { load } = require( "js-yaml" ); console.log( JSON.stringify( load( require( "fs" ).readFileSync( process.argv[1] ) ) ) );' "$BASE/.github/workflows/required-review.yml" |
 		jq -r '.jobs.check_required_reviews.steps[] | select( .uses // "" | contains( "required-review" ) ) | .with | to_entries | .[] | [ "addenv INPUT_", ( .key | ascii_upcase | sub( " "; "_" ) ), " ", @sh "\(.value)" ] | join( "" )'
 )"
 

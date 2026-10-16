@@ -8,11 +8,14 @@
  */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Backup;
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Newsletter\Settings as Newsletter_Settings;
 use Automattic\Jetpack\Podcast\Admin_Page as Podcast_Admin_Page;
 use Automattic\Jetpack\Redirect;
 
 require_once __DIR__ . '/../../common/wpcom-callout.php';
+require_once __DIR__ . '/../../common/launchpad-no-guidance.php';
 
 /**
  * Checks if the current user has a WordPress.com account connected.
@@ -92,12 +95,9 @@ function wpcom_add_my_home_menu() {
 		return;
 	}
 
-	// Site Setup (manage_options) replaces My Home only for users who can see it; others keep My Home.
-	if (
-		current_user_can( 'manage_options' )
-		&& function_exists( 'wpcom_ai_launchpad_is_eligible' )
-		&& wpcom_ai_launchpad_is_eligible()
-	) {
+	// My Home only goes with the legacy launchpad: AI Launchpad and no-guidance sites drop it for every user.
+	// Removing it here also drops it from the Calypso sidebar.
+	if ( get_option( 'wpcom_ai_launchpad_enabled' ) || wpcom_launchpad_is_no_guidance() ) {
 		return;
 	}
 
@@ -308,6 +308,17 @@ function wpcom_reorder_submenu( $menu_slug, $desired_order ) {
 }
 
 /**
+ * Whether Jetpack > Backup opens the wp-admin Backup page rather than Calypso.
+ *
+ * Only meaningful once whatever serves the page has registered it; see WPCOM_WP_Build_Page::REGISTER_PRIORITY.
+ *
+ * @return bool
+ */
+function wpcom_backup_opens_in_wp_admin() {
+	return class_exists( WPCOM_Backup::class ) && WPCOM_Backup::slug_is_claimed() && WPCOM_Backup::is_modernized();
+}
+
+/**
  * Adds WordPress.com submenu items related to Jetpack under the Jetpack admin menu.
  */
 function wpcom_add_jetpack_submenu() {
@@ -333,8 +344,9 @@ function wpcom_add_jetpack_submenu() {
 		// Jetpack > My Jetpack.
 		wpcom_hide_submenu_page( 'jetpack', 'my-jetpack' );
 
-		// Jetpack > Settings.
+		// Jetpack > Settings; WoA can pair this with a Jetpack serving either address.
 		wpcom_hide_submenu_page( 'jetpack', admin_url( 'admin.php?page=jetpack#/settings' ) );
+		wpcom_hide_submenu_page( 'jetpack', 'jetpack-settings' );
 
 		// Redirect My Jetpack page to Stats for Atomic sites on Personal or Premium plans.
 		add_action(
@@ -342,7 +354,8 @@ function wpcom_add_jetpack_submenu() {
 			function () {
 				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No action taken, just checking page.
 				if ( isset( $_GET['page'] ) && 'my-jetpack' === $_GET['page'] ) {
-					wp_safe_redirect( admin_url( 'admin.php?page=stats' ) );
+					/** This filter is documented in projects/packages/stats-admin/src/class-admin-bar.php */
+					wp_safe_redirect( apply_filters( 'jetpack_stats_url', admin_url( 'admin.php?page=stats' ), array( 'view' => 'dashboard' ) ) );
 					exit;
 				}
 			}
@@ -374,17 +387,21 @@ function wpcom_add_jetpack_submenu() {
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 	);
 
-	// Jetpack > Backup.
+	// Jetpack > Backup. Until the wp-admin page takes over, Calypso owns the nav and `jetpack-backup`
+	// is hidden rather than removed, so links into it keep working.
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
-	add_submenu_page(
-		'jetpack',
-		/** "Backup" is a product name, do not translate. */
-		'Backup',
-		'Backup',
-		'manage_options',
-		'https://wordpress.com/backup/' . $domain,
-		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-	);
+	if ( ! wpcom_backup_opens_in_wp_admin() ) {
+		wpcom_hide_submenu_page( 'jetpack', 'jetpack-backup' );
+		add_submenu_page(
+			'jetpack',
+			/** "Backup" is a product name, do not translate. */
+			'Backup',
+			'Backup',
+			'manage_options',
+			'https://wordpress.com/backup/' . $domain,
+			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+		);
+	}
 
 	// Jetpack > Monetize.
 	add_submenu_page(
@@ -399,17 +416,9 @@ function wpcom_add_jetpack_submenu() {
 	// Jetpack > Subscribers. Always hide the auto-added Calypso redirect link.
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'jetpack-menu-jetpack-manage-subscribers', array( 'site' => $blog_id ) ) ) );
 
-	// The unified Newsletter page now owns the Subscribers tab on every site: the
-	// legacy Calypso "Subscribers" submenu is retired and replaced by a transitional
-	// announcement page that points there. (The wp-admin subscriber-management variant
-	// was removed with the subscribers-dashboard package and isn't restored.) Hosts
-	// (and a11ns who want the legacy view back) can still force the old submenu back
-	// with add_filter( 'rsm_jetpack_ui_modernization_newsletter', '__return_false' ).
-	//
-	// On WordPress.com (Simple and WoA) this menu is the canonical owner of the
-	// Subscribers entry, so the announcement page is registered here for both
-	// platforms; the standalone plugin's subscriptions module defers to it on
-	// wpcom to avoid a duplicate.
+	// The unified Newsletter page owns the Subscribers tab on every site, so the legacy
+	// Calypso "Subscribers" submenu is retired. add_filter( 'rsm_jetpack_ui_modernization_newsletter',
+	// '__return_false' ) brings it back — the Calypso link only, not a wp-admin dashboard.
 	if ( ! apply_filters( 'rsm_jetpack_ui_modernization_newsletter', true ) ) {
 		add_submenu_page(
 			'jetpack',
@@ -419,12 +428,14 @@ function wpcom_add_jetpack_submenu() {
 			'https://wordpress.com/subscribers/' . $domain,
 			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		);
-	} elseif ( class_exists( '\Automattic\Jetpack\Newsletter\Subscribers_Announcement' ) ) {
-		// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by the sibling autoloader (bundled Jetpack on Simple, standalone plugin on Atomic).
-		\Automattic\Jetpack\Newsletter\Subscribers_Announcement::add_wp_admin_submenu();
 	}
 
-	Podcast_Admin_Page::add_wp_admin_submenu();
+	// Atomic loads Podcast through the Jetpack module, which the owner can switch
+	// off, and this builder runs either way. is_active() is always true on Simple,
+	// where the package loads unconditionally. The package ships with Jetpack, not this one.
+	if ( class_exists( Podcast_Admin_Page::class ) && ( new Modules() )->is_active( 'podcast' ) ) {
+		Podcast_Admin_Page::add_wp_admin_submenu();
+	}
 
 	if ( $is_simple_site ) {
 		// Jetpack > Newsletter.
@@ -449,7 +460,6 @@ function wpcom_add_jetpack_submenu() {
 			class_exists( '\WPCOM_Features' ) &&
 			wpcom_site_has_feature( \WPCOM_Features::VIDEOPRESS )
 		) {
-			// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by sibling autoloader.
 			\Automattic\Jetpack\VideoPress\Admin_UI::add_wp_admin_submenu();
 		}
 
@@ -464,18 +474,24 @@ function wpcom_add_jetpack_submenu() {
 		);
 	}
 
-	// Jetpack > Activity Log. On WPCOM hosts we prefer the direct wordpress.com/activity-log link
-	// below; hide the native Jetpack Activity Log page added by the `jetpack-activity-log` package.
-	wpcom_hide_submenu_page( 'jetpack', 'jetpack-activity-log' );
-	add_submenu_page(
-		'jetpack',
-		/** "Activity Log" is a product name, do not translate. */
-		'Activity Log',
-		'Activity Log',
-		'manage_options',
-		'https://wordpress.com/activity-log/' . $domain,
-		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-	);
+	// Jetpack > Activity Log.
+	// Atomic sites use the native Activity Log page that the `jetpack-activity-log`
+	// package registers at `admin.php?page=jetpack-activity-log`, whichever admin
+	// interface the site uses, and behave like a self-hosted site when that page is
+	// not available: the Calypso Activity Log screen is being retired. Simple sites
+	// still hide the native page and link to wordpress.com/activity-log.
+	if ( $is_simple_site ) {
+		wpcom_hide_submenu_page( 'jetpack', 'jetpack-activity-log' );
+		add_submenu_page(
+			'jetpack',
+			/** "Activity Log" is a product name, do not translate. */
+			'Activity Log',
+			'Activity Log',
+			'manage_options',
+			'https://wordpress.com/activity-log/' . $domain,
+			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+		);
+	}
 
 	wpcom_reorder_submenu(
 		'jetpack',
@@ -497,6 +513,7 @@ function wpcom_add_jetpack_submenu() {
 			'podcast',
 			'traffic',
 			'jetpack#/settings',
+			'jetpack-settings',
 		)
 	);
 }
@@ -720,7 +737,6 @@ function wpcom_add_tools_menu() {
 		array(
 			'tools.php',
 			'advertising-moved',
-			'marketing',
 			'monetize',
 			'import',
 			'export.php',
@@ -734,6 +750,39 @@ function wpcom_add_tools_menu() {
 	);
 }
 add_action( 'admin_menu', 'wpcom_add_tools_menu', 999999 );
+
+/**
+ * Sends the retired Tools > Marketing URL to the dashboard.
+ *
+ * The page was removed in DOTCOM-18531. Nothing links to it any more, but the
+ * Calypso sidebar pointed at this exact URL until the removal shipped, so it is
+ * still in plenty of browser histories and bookmarks. Left alone, WordPress
+ * answers an unregistered page slug with a bare "Cannot load
+ * wpcom-marketing-tools.", which reads like a broken install rather than a page
+ * that went away. The dashboard mirrors where the Calypso URL now lands.
+ *
+ * This runs on admin_init, which fires before the point in wp-admin/admin.php
+ * where core gives up on the slug.
+ *
+ * Tombstone: delete this function and its hook by 2027-09-10. A year is long
+ * enough for the stale bookmarks to age out, and after that the redirect is
+ * just a puzzle for whoever reads this next.
+ */
+function wpcom_redirect_retired_marketing_page() {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading a menu slug from a GET request, no state changes.
+	if ( ! isset( $_GET['page'] ) ) {
+		return;
+	}
+
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- As above.
+	if ( 'wpcom-marketing-tools' !== sanitize_text_field( wp_unslash( $_GET['page'] ) ) ) {
+		return;
+	}
+
+	wp_safe_redirect( admin_url() );
+	exit; // @codeCoverageIgnore -- the tests unwind from the wp_redirect filter before this line.
+}
+add_action( 'admin_init', 'wpcom_redirect_retired_marketing_page' ); // @codeCoverageIgnore
 
 /**
  * Displays an Export/Erase Personal Date page for Simple sites.

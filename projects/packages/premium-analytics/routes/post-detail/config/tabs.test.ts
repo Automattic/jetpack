@@ -13,7 +13,7 @@ describe( 'post-detail tabs', () => {
 			{ id: 'email-clicks', label: 'Email clicks' },
 		] );
 
-		expect( __ ).toHaveBeenCalledWith( 'Post traffic', 'jetpack-premium-analytics' );
+		expect( __ ).toHaveBeenCalledWith( 'Post traffic', 'jetpack-premium-analytics-pkg' );
 	} );
 
 	it( 'keeps the default tab first', () => {

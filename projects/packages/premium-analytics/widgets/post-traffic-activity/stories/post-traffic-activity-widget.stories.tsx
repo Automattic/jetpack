@@ -18,7 +18,10 @@ import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
 /**
  * Internal dependencies
  */
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import {
+	registerReportMocks,
+	setReportMockState,
+} from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import {
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 	WidgetDashboardWithWidget as WidgetDashboardWithWidgetStory,
@@ -26,10 +29,12 @@ import {
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
+import { siteLocaleArgTypes, withSiteLocale } from '../../stories/with-site-locale';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import PostTrafficActivityRender from '../render';
 import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
+import type { SiteLocaleControls } from '../../stories/with-site-locale';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
@@ -42,19 +47,13 @@ const MOCK_POST_ID = 779;
 
 const POST_TRAFFIC_ACTIVITY_RENDER_MODULE = 'storybook/post-traffic-activity';
 
-interface PostTrafficActivityStoryControls {
+const POST_STATS_REQUEST_PATH = `stats/post/${ MOCK_POST_ID }`;
+
+interface PostTrafficActivityStoryControls extends SiteLocaleControls {
 	hasPostScope: boolean;
 	preset: 'last-30-days' | 'last-365-days';
 }
 
-/**
- * Builds the widget attributes: report params with the post scope the detail
- * page seeds from its URL when `hasPostScope` is on.
- *
- * @param {PostTrafficActivityStoryControls} controls       - The story controls.
- * @param {boolean}                          withComparison - Include comparison report params.
- * @return The widget attributes.
- */
 function getPostTrafficActivityAttributes(
 	{ hasPostScope, preset }: PostTrafficActivityStoryControls,
 	withComparison = false
@@ -67,12 +66,6 @@ function getPostTrafficActivityAttributes(
 	};
 }
 
-/**
- * Renders the data-connected widget with the composed attributes.
- *
- * @param {PostTrafficActivityStoryControls} controls - The story controls.
- * @return The rendered widget.
- */
 function renderPostTrafficActivity( controls: PostTrafficActivityStoryControls ) {
 	return <PostTrafficActivityRender attributes={ getPostTrafficActivityAttributes( controls ) } />;
 }
@@ -81,7 +74,9 @@ const meta = {
 	title: 'Packages/Premium Analytics/Widgets/PostTrafficActivity',
 	component: PostTrafficActivityRender,
 	tags: [ 'autodocs' ],
+	decorators: [ withSiteLocale ],
 	argTypes: {
+		...siteLocaleArgTypes,
 		hasPostScope: {
 			control: 'boolean',
 			description: 'Include the `post_id` report param the post detail page seeds from its URL.',
@@ -138,16 +133,62 @@ export const NoPostScope: Story = {
 	decorators: [ withWidgetCanvas ],
 };
 
+/**
+ * Loading — the first fetch is still in flight, so the widget shows its
+ * heatmap skeleton. The mock is forced to never resolve for this story.
+ */
+export const Loading: Story = {
+	render: renderPostTrafficActivity,
+	args: { hasPostScope: true, preset: 'last-30-days' },
+	// Off the shared autodocs page — path-keyed override; see setReportMockState.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( POST_STATS_REQUEST_PATH, 'loading' );
+		return () => setReportMockState( POST_STATS_REQUEST_PATH, null );
+	},
+};
+
+/**
+ * Error — the fetch failed with a 403: the widget shows its error copy and a
+ * Retry action, which re-runs the query (still mocked as failing here).
+ */
+export const Error: Story = {
+	render: renderPostTrafficActivity,
+	args: { hasPostScope: true, preset: 'last-30-days' },
+	// Off the shared autodocs page — path-keyed override; see setReportMockState.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( POST_STATS_REQUEST_PATH, 'error' );
+		return () => setReportMockState( POST_STATS_REQUEST_PATH, null );
+	},
+};
+
+/**
+ * Empty — a scoped post with no views in the range: the grid stays complete
+ * and every cell is blank, per the sparse design. The widget's empty state
+ * covers only a missing post scope (see NoPostScope), so this is what a
+ * traffic-free post actually looks like.
+ */
+export const Empty: Story = {
+	render: renderPostTrafficActivity,
+	args: { hasPostScope: true, preset: 'last-30-days' },
+	// Off the shared autodocs page — path-keyed override; see setReportMockState.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( POST_STATS_REQUEST_PATH, 'empty' );
+		return () => setReportMockState( POST_STATS_REQUEST_PATH, null );
+	},
+};
+
 interface PostTrafficActivityDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		PostTrafficActivityStoryControls {}
+	extends WidgetDashboardWithWidgetControls, PostTrafficActivityStoryControls {}
 
 /**
  * Mounts the real `WidgetDashboard` with this single widget so it renders
  * exactly as it does in product (framed card, sizing, host environment).
- *
- * @param {PostTrafficActivityDashboardStoryProps} props - The dashboard story controls.
- * @return The widget mounted inside the real dashboard.
  */
 function PostTrafficActivityDashboardStory( {
 	hasPostScope,
@@ -172,7 +213,7 @@ export const WidgetDashboardWithWidget: StoryObj< PostTrafficActivityDashboardSt
 	render: args => <PostTrafficActivityDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
-		widgetWidth: 4,
+		widgetWidth: 3,
 		widgetHeight: 2,
 		hasPostScope: true,
 		preset: 'last-30-days',

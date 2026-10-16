@@ -1,26 +1,68 @@
 /**
  * External dependencies
  */
-import { Link } from '@wordpress/ui';
+import clsx from 'clsx';
 /**
  * Internal dependencies
  */
+import { ExternalLink } from '../external-link';
+import { InternalLink, type InternalLinkProps } from '../internal-link';
+import { PostTitleLink } from '../post-title-link';
+import { VideoTitleLink } from '../video-title-link';
 import { LeaderboardLabel, type LeaderboardRowMedia } from './leaderboard-label';
 import styles from './leaderboard-label.module.scss';
+import type { LeaderboardVariant } from './leaderboard-variant';
 import type { MouseEvent, ReactElement } from 'react';
+
+type LeaderboardRowLabelLink = Pick< InternalLinkProps, 'to' | 'params' | 'search' >;
 
 export type LeaderboardRowAction =
 	| { kind: 'link'; href: string }
 	| {
+			/** A post, page, or email with a detail page inside the dashboard. */
+			kind: 'postLink';
+			/** Post or page ID. Rows carrying one link to the internal detail route. */
+			id?: number | string;
+			/** Public URL. It becomes the link itself when there is no post ID. */
+			href?: string | null;
+			/**
+			 * Required, so a row cannot silently open the detail page on its own
+			 * default range. Pass `{}` to navigate without a window on purpose.
+			 */
+			search: Record< string, unknown >;
+	  }
+	| {
+			/** A video with a detail page inside the dashboard. */
+			kind: 'videoLink';
+			/** Video ID. Rows carrying one link to the internal detail route. */
+			id?: number | string;
+			/** Public URL. It becomes the link itself when there is no video ID. */
+			href?: string | null;
+			/**
+			 * Required, so a row cannot silently open the detail page on its own
+			 * default range. Pass `{}` to navigate without a window on purpose.
+			 */
+			search: Record< string, unknown >;
+	  }
+	| {
 			kind: 'drillDown';
 			onClick: ( event: MouseEvent< HTMLButtonElement > ) => void;
+			/**
+			 * A dashboard page the label itself opens, while the rest of the row
+			 * still drills down.
+			 */
+			link?: LeaderboardRowLabelLink;
 			/**
 			 * Replaces the button name computed from its image alt and visible label.
 			 * Without this, screen readers can announce the row label twice.
 			 */
 			ariaLabel: string;
 	  }
-	| { kind: 'static' };
+	| {
+			kind: 'static';
+			/** A dashboard page the label opens. */
+			link?: LeaderboardRowLabelLink;
+	  };
 
 export type LeaderboardRowActionOptions = {
 	/** An external destination used only when the row has no children. */
@@ -38,24 +80,27 @@ export type LeaderboardRowProps = {
 	media: LeaderboardRowMedia;
 	/** The mutually exclusive action applied to this chart row. */
 	action: LeaderboardRowAction;
+	/** The look of the chart the row sits in. Only `list` insets the label and sizes the bar. */
+	variant?: LeaderboardVariant;
+};
+
+type LeaderboardRowButtonProps = {
+	label: ReactElement;
+	onClick: ( event: MouseEvent< HTMLButtonElement > ) => void;
+	ariaLabel: string;
 };
 
 export type LeaderboardRowChartProps =
-	| {
-			label: ReactElement;
-			onClick: ( event: MouseEvent< HTMLButtonElement > ) => void;
-			ariaLabel: string;
-	  }
+	| ( LeaderboardRowButtonProps & { hasInteractiveLabel?: false } )
+	| ( LeaderboardRowButtonProps & { hasInteractiveLabel: true } )
 	| { label: ReactElement; onClick?: never; ariaLabel?: never };
 
 /**
  * Resolve raw row navigation facts into one mutually exclusive action.
  *
- * Child rows take precedence over an external URL because chart rows cannot
- * be buttons and contain interactive link content at the same time. A URL is
- * therefore used only for a childless row; otherwise the row stays static.
+ * Child rows take precedence over an external URL because a chart row cannot be a
+ * button and hold interactive link content at the same time.
  *
- * @param options - Row navigation facts and optional drill-down behavior.
  * @return The single action that the leaderboard row should expose.
  */
 export function resolveLeaderboardRowAction(
@@ -75,37 +120,72 @@ export function resolveLeaderboardRowAction(
 /**
  * Render the shared leaderboard row chrome around a label.
  *
- * Link actions own the anchor and its new-tab affordance. Drill-down actions
- * stay non-interactive here because `LeaderboardChart` turns the whole row
- * into a button; `buildLeaderboardRow` passes that action to the chart.
+ * Drill-down actions stay non-interactive here because `LeaderboardChart` turns the
+ * whole row into a button.
  *
- * @param props        - Component props.
- * @param props.label  - Label text.
- * @param props.media  - Media rendered before the label.
- * @param props.action - The row action.
  * @return A single label element accepted by `LeaderboardEntry.label`.
  */
-export function LeaderboardRow( { label, media, action }: LeaderboardRowProps ): ReactElement {
+export function LeaderboardRow( {
+	label,
+	media,
+	action,
+	variant = 'list',
+}: LeaderboardRowProps ): ReactElement {
+	const rowClassName = clsx( styles.row, variant === 'bars' && styles.bars );
+	const rowLinkClassName = clsx( styles.rowLink, variant === 'bars' && styles.bars );
+
+	// Title-link rows put the row chrome on the link itself.
+	if ( action.kind === 'postLink' || action.kind === 'videoLink' ) {
+		const TitleLink = action.kind === 'postLink' ? PostTitleLink : VideoTitleLink;
+		const titleLinkProps = {
+			id: action.id,
+			label,
+			link: action.href,
+			search: action.search,
+			title: label,
+			classNames: {
+				internal: rowLinkClassName,
+				external: rowLinkClassName,
+				plain: rowClassName,
+				text: styles.label,
+			},
+		};
+
+		if ( action.kind === 'videoLink' && media.kind !== 'none' ) {
+			return (
+				<VideoTitleLink { ...titleLinkProps }>
+					<LeaderboardLabel label={ label } media={ media } decorativeMedia />
+				</VideoTitleLink>
+			);
+		}
+
+		return <TitleLink { ...titleLinkProps } />;
+	}
+
+	if ( ( action.kind === 'drillDown' || action.kind === 'static' ) && action.link ) {
+		return (
+			<span className={ styles.row } title={ label }>
+				<InternalLink { ...action.link } className={ styles.labelLink }>
+					<LeaderboardLabel label={ label } media={ media } decorativeMedia />
+				</InternalLink>
+			</span>
+		);
+	}
+
 	const content = (
 		<LeaderboardLabel label={ label } media={ media } decorativeMedia={ action.kind === 'link' } />
 	);
 
 	if ( action.kind === 'link' ) {
 		return (
-			<Link
-				className={ styles.rowLink }
-				href={ action.href }
-				variant="unstyled"
-				openInNewTab
-				title={ label }
-			>
+			<ExternalLink className={ rowLinkClassName } href={ action.href } title={ label }>
 				{ content }
-			</Link>
+			</ExternalLink>
 		);
 	}
 
 	return (
-		<span className={ styles.row } title={ label }>
+		<span className={ rowClassName } title={ label }>
 			{ content }
 		</span>
 	);
@@ -114,18 +194,15 @@ export function LeaderboardRow( { label, media, action }: LeaderboardRowProps ):
 /**
  * Build the label and chart-level interaction props for one leaderboard row.
  *
- * @param props - Leaderboard row content and action.
  * @return Props to spread onto a `LeaderboardEntry`.
  */
 export function buildLeaderboardRow( props: LeaderboardRowProps ): LeaderboardRowChartProps {
 	const label = <LeaderboardRow { ...props } />;
 
 	if ( props.action.kind === 'drillDown' ) {
-		return {
-			label,
-			onClick: props.action.onClick,
-			ariaLabel: props.action.ariaLabel,
-		};
+		const button = { label, onClick: props.action.onClick, ariaLabel: props.action.ariaLabel };
+
+		return props.action.link ? { ...button, hasInteractiveLabel: true } : button;
 	}
 
 	return { label };

@@ -80,6 +80,53 @@ class WP_REST_Newspack_Articles_Controller extends WP_REST_Controller {
 			]
 		);
 
+		// Endpoint to get articles for every block on a page in one request, in document order.
+		register_rest_route(
+			$this->namespace,
+			'/newspack-blocks-posts-batch',
+			[
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => [ 'Newspack_Blocks_API', 'posts_batch_endpoint' ],
+				'args'                => [
+					'queries' => [
+						'type'     => 'array',
+						'required' => true,
+						'maxItems' => Newspack_Blocks_API::POSTS_BATCH_MAX_QUERIES,
+						// Core fills defaults for top-level args only, so the handler supplies its
+						// own for these two rather than relying on the schema.
+						'items'    => [
+							'type'       => 'object',
+							'properties' => [
+								'clientId'    => [
+									'type'     => 'string',
+									'required' => true,
+								],
+								'postsQuery'  => [
+									'type' => 'object',
+								],
+								'deduplicate' => [
+									'type' => 'boolean',
+								],
+							],
+						],
+					],
+					'exclude' => [ // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude
+						'type'     => 'array',
+						'items'    => [
+							'type' => 'integer',
+						],
+						// Every deduplicating query carries this list plus everything the batch has
+						// matched so far, so an unbounded list here is work every query pays for.
+						'maxItems' => Newspack_Blocks_API::POSTS_BATCH_MAX_EXCLUDE,
+						'default'  => [],
+					],
+				],
+				'permission_callback' => function() {
+					return current_user_can( 'edit_posts' );
+				},
+			]
+		);
+
 		// Endpoint to get articles in the editor, in specific posts mode.
 		register_rest_route(
 			$this->namespace,
@@ -116,7 +163,7 @@ class WP_REST_Newspack_Articles_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Response
 	 */
 	public function get_items( $request ) {
-		$page        = (int) $request->get_param( 'page' ) ?? 1;
+		$page        = max( 1, (int) $request->get_param( 'page' ) );
 		$exclude_ids = $request->get_param( 'exclude_ids' ) ?? [];
 		$next_page   = $page + 1;
 		$attributes  = wp_parse_args(
@@ -127,6 +174,15 @@ class WP_REST_Newspack_Articles_Controller extends WP_REST_Controller {
 		$deduplicate = $request->get_param( 'deduplicate' ) ?? 1;
 		if ( ! $deduplicate ) {
 			$exclude_ids = [];
+		}
+
+		// This endpoint is public, so restrict it to publicly viewable post types — matching
+		// what WordPress exposes on the front end. The editor endpoints are capability-gated.
+		$attributes['postType'] = self::filter_viewable_post_types( $attributes['postType'] );
+		if ( empty( $attributes['postType'] ) ) {
+			// Every requested post type was non-viewable; return nothing rather than
+			// substituting a different post type.
+			return self::articles_response();
 		}
 
 		$article_query_args = Newspack_Blocks::build_articles_query( $attributes, apply_filters( 'newspack_blocks_block_name', 'newspack-blocks/homepage-articles' ) );
@@ -172,8 +228,9 @@ class WP_REST_Newspack_Articles_Controller extends WP_REST_Controller {
 
 		Newspack_Blocks::remove_excerpt_filter();
 
-		// Provide next URL if there are more pages.
-		$show_next_button = ! empty( $exclude_ids ) ? $article_query->max_num_pages > 1 : $article_query->max_num_pages > $next_page;
+		// Provide next URL if posts remain after this response. With exclude_ids the query holds only
+		// unseen posts, so a second page means more remain; otherwise this response is page $page.
+		$show_next_button = ! empty( $exclude_ids ) ? $article_query->max_num_pages > 1 : $article_query->max_num_pages > $page;
 		if ( $show_next_button ) {
 			$next_url = add_query_arg(
 				array_merge(
@@ -192,12 +249,57 @@ class WP_REST_Newspack_Articles_Controller extends WP_REST_Controller {
 			);
 		}
 
+		return self::articles_response( $items, $ids, $next_url );
+	}
+
+	/**
+	 * Build the articles endpoint response.
+	 *
+	 * @param array  $items Rendered article items.
+	 * @param array  $ids   Post ids in the response.
+	 * @param string $next  URL for the next page, or empty string when there is none.
+	 * @return WP_REST_Response
+	 */
+	private static function articles_response( $items = [], $ids = [], $next = '' ) {
 		return rest_ensure_response(
 			[
 				'items' => $items,
 				'ids'   => $ids,
-				'next'  => $next_url,
+				'next'  => $next,
 			]
+		);
+	}
+
+	/**
+	 * Restrict a list of post types to those the public articles endpoint may serve:
+	 * publicly-viewable types, plus any explicitly allow-listed via the
+	 * `newspack_blocks_articles_allowed_post_types` filter.
+	 *
+	 * Keeps the endpoint from exposing post types WordPress would not surface on the
+	 * front end, while letting a plugin deliberately opt a specific non-viewable CPT
+	 * in. Disallowed types are dropped; the returned list may be empty when none
+	 * qualify (the caller then returns no results).
+	 *
+	 * @param array|string $post_types Requested post type(s).
+	 * @return array Allowed post types (may be empty).
+	 */
+	private static function filter_viewable_post_types( $post_types ) {
+		/**
+		 * Post types the public articles endpoint may serve in addition to the
+		 * publicly-viewable ones. Each entry is an explicit, per-CPT decision to
+		 * expose that type's published posts to unauthenticated callers — do not
+		 * add types whose published content should stay off the public REST surface.
+		 *
+		 * @param string[] $allowed Post type slugs to allow. Default empty.
+		 */
+		$allowed = (array) apply_filters( 'newspack_blocks_articles_allowed_post_types', [] );
+		return array_values(
+			array_filter(
+				(array) $post_types,
+				function ( $type ) use ( $allowed ) {
+					return is_post_type_viewable( $type ) || in_array( $type, $allowed, true );
+				}
+			)
 		);
 	}
 

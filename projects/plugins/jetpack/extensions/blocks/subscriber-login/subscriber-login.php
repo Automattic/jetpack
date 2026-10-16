@@ -113,12 +113,15 @@ function get_subscriber_login_url( $redirect ) {
 }
 
 /**
- * Determines whether the current visitor is a logged in user or a subscriber.
+ * Determines whether the visitor has a subscriber session for the login UI.
+ *
+ * WordPress sessions count on Simple; other hosts require the subscriber cookie.
+ * Content access validates the token separately.
  *
  * @return bool
  */
 function is_subscriber_logged_in() {
-	return is_user_logged_in() || Abstract_Token_Subscription_Service::has_token_from_cookie();
+	return ( ( new Host() )->is_wpcom_simple() && is_user_logged_in() ) || Abstract_Token_Subscription_Service::has_token_from_cookie();
 }
 
 /**

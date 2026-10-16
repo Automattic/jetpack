@@ -29,6 +29,12 @@ class Script_Data {
 	 * Configure.
 	 */
 	public static function configure() {
+		// Hooked by actions.php since 2.3.0, so this is the package's recovery point.
+		// Assets can still resolve to an older copy than this class, hence the guard.
+		if ( method_exists( Assets::class, 'ensure_package_bootstrap' ) ) {
+			Assets::ensure_package_bootstrap();
+		}
+
 		/**
 		 * Ensure that assets are registered on wp_loaded,
 		 * which is fired before *_enqueue_scripts actions.
@@ -192,7 +198,7 @@ class Script_Data {
 	 * @return string
 	 */
 	protected static function get_site_title() {
-		$title = get_bloginfo( 'name' );
+		$title = wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES );
 
 		return $title ? $title : esc_url_raw( ( get_site_url() ) );
 	}

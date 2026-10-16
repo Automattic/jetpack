@@ -1,0 +1,20 @@
+// Pinned chrome zeroes the scroll container's block padding on that edge,
+// clipping a focus ring, which sits twice the focus width outside its control.
+// Drop when @wordpress/ui ships https://github.com/WordPress/gutenberg/pull/82443.
+header ~ [data-wp-ui-overlay-scroll-container] {
+	padding-block-start: calc(var(--wpds-border-width-focus) * 2);
+}
+
+[data-wp-ui-overlay-scroll-container]:has(~ footer) {
+	padding-block-end: calc(var(--wpds-border-width-focus) * 2);
+}
+
+// The chrome gives that clearance back, so the gap matches trunk. `- 1px` is
+// the separator slot; an unlayered rule cannot read the layered value.
+header:has(~ [data-wp-ui-overlay-scroll-container]) {
+	padding-block-end: calc(var(--wpds-dimension-gap-lg) - 1px - var(--wpds-border-width-focus) * 2);
+}
+
+[data-wp-ui-overlay-scroll-container] ~ footer {
+	padding-block-start: calc(var(--wpds-dimension-gap-lg) - 1px - var(--wpds-border-width-focus) * 2);
+}

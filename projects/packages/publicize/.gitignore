@@ -4,3 +4,4 @@ wordpress/
 jetpack_vendor
 .cache
 build
+build-module

@@ -12,6 +12,10 @@ namespace Automattic\Jetpack\Forms\Abilities;
 
 use Automattic\Jetpack\WP_Abilities\Registrar;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class Forms_Abilities
  *
@@ -838,7 +842,7 @@ class Forms_Abilities extends Registrar {
 	 * Extract field definitions from raw block content.
 	 *
 	 * Walks `jetpack/field-*` blocks and projects each into a compact
-	 * `{ label, type, required, options?, placeholder? }` shape. Modern
+	 * `{ label, type, required, options?, placeholder?, help_text? }` shape. Modern
 	 * field blocks store the label/placeholder in `jetpack/label` and
 	 * `jetpack/input` sub-blocks; legacy fixtures keep them inline as
 	 * top-level attrs. Both layouts are supported.
@@ -914,6 +918,11 @@ class Forms_Abilities extends Registrar {
 		$placeholder = $input_attrs['placeholder'] ?? $attrs['placeholder'] ?? '';
 		if ( '' !== $placeholder ) {
 			$field['placeholder'] = $placeholder;
+		}
+
+		$help_text = trim( (string) ( $attrs['helpText'] ?? '' ) );
+		if ( '' !== $help_text ) {
+			$field['help_text'] = $help_text;
 		}
 
 		return $field;

@@ -23,12 +23,14 @@ const SINGLE_VIDEO_RESPONSE = {
 	pages: [ 'https://example.com/getting-started/', 'https://example.com/blog/weekly-recap/' ],
 };
 
-// A 403 is not retried by the data layer's `shouldRetryApiError`, so the error
-// state shows at once instead of after the query's retry backoff.
+// The WPCOM pass-through error envelope, with the status attached the way the
+// fetch layer attaches it. A 403 is not retried by the data layer's
+// `shouldRetryApiError`, so the error state shows at once instead of after the
+// query's retry backoff.
 const MOCK_API_ERROR = {
-	code: 'stats_mock_error',
+	error: 'unauthorized',
 	message: 'Mocked error response.',
-	data: { status: 403 },
+	status: 403,
 };
 
 function renderWidget( postId?: number ) {
@@ -60,6 +62,12 @@ describe( 'VideoDetailEmbedsWidget', () => {
 			'href',
 			'https://example.com/blog/weekly-recap/'
 		);
+
+		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
+		expect( requestedPath ).toContain( 'stats/video/105' );
+		expect( requestedPath ).toContain( 'period=month' );
+		expect( requestedPath ).not.toContain( 'start_date=' );
+		expect( requestedPath ).not.toContain( 'date=' );
 	} );
 
 	it( 'prompts to select a video and skips fetching when no video is scoped', () => {

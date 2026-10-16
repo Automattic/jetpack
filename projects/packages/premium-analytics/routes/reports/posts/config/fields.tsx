@@ -2,40 +2,78 @@
  * External dependencies
  */
 import {
-	flattenStatsLeaves,
 	useSiteHomeUrl,
-	type StatsArchivesItem,
-	type StatsTopPostsItem,
+	type PostThumbnailUrls,
+	type StatsTopPostsComparisonItem,
 } from '@jetpack-premium-analytics/data';
-import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
+import {
+	createReportOriginSearch,
+	pickReportNavigationParams,
+} from '@jetpack-premium-analytics/routing';
+import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
+import {
+	ExternalLink,
+	MetricWithComparison,
+	PostTitleLink,
+	REPORT_TITLE_LINK_CLASS_NAMES,
+	ReportThumbnail,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { Icon, external } from '@wordpress/icons';
-import { Link } from '@wordpress/route';
+import { page as pageIcon, post as postIcon } from '@wordpress/icons';
+import { useSearch } from '@wordpress/route';
+import { useMemo, type JSX } from 'react';
 /**
  * Internal dependencies
  */
-import styles from './fields.module.css';
-import type { Field } from '@wordpress/dataviews';
+import type { ReportPostsTabId } from './tabs';
+import type { Field } from '@jetpack-premium-analytics/externals';
+import type { ArchiveRow } from '@jetpack-premium-analytics/widgets-toolkit';
+
+const VIEWS_DATA_FORMAT = {
+	type: 'number',
+	options: { decimals: 0, useMultipliers: false },
+} as const;
+
+type PostTitleProps = {
+	item: StatsTopPostsComparisonItem;
+	originSection: ReportPostsTabId;
+};
 
 /**
- * Render the homepage title using the URL from core site settings.
+ * Render a post row's title. Rows with an ID drill into the internal post/page
+ * detail page, carrying the report's current date window for its breadcrumbs
+ * to return to; the public URL is the external fallback for rows without one.
  *
- * @param props       - Component props.
- * @param props.title - The homepage row title.
- * @return The linked title, or plain text while settings are unavailable.
+ * The API sends no URL for homepage rows, so they fall back to the site home
+ * resolved from core settings. They never take the detail page: the homepage
+ * is not a single post.
+ *
+ * @param {PostTitleProps} props - Component props.
+ * @return The linked or plain post title.
  */
-function HomepageTitle( { title }: { title: string } ) {
+function PostTitle( { item, originSection }: PostTitleProps ): JSX.Element {
+	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
+	const detailSearch = useMemo(
+		() => ( {
+			...pickReportNavigationParams( search ),
+			...createReportOriginSearch( 'posts', originSection ),
+		} ),
+		[ search, originSection ]
+	);
 	const homeUrl = useSiteHomeUrl();
 
-	if ( ! homeUrl ) {
-		return <>{ title }</>;
-	}
+	const isHomepage = item.type === 'homepage';
+	const title = String( item.label ?? '' );
 
 	return (
-		<a className={ styles.homepageLink } href={ homeUrl } target="_blank" rel="noopener noreferrer">
-			{ title }
-			<Icon className={ styles.externalIcon } icon={ external } size={ 16 } />
-		</a>
+		<PostTitleLink
+			id={ isHomepage ? undefined : item.id }
+			label={ title }
+			link={ isHomepage ? homeUrl : item.link }
+			search={ detailSearch }
+			classNames={ REPORT_TITLE_LINK_CLASS_NAMES }
+			title={ title }
+		/>
 	);
 }
 
@@ -46,147 +84,89 @@ function HomepageTitle( { title }: { title: string } ) {
  * i18n locale data has loaded, mirroring the tab/section definitions on the
  * other routes.
  *
+ * @param withComparison - Whether to render available period-over-period deltas.
+ * @param originSection  - The active Posts & Pages report tab.
+ * @param thumbnailUrls  - Thumbnail URLs keyed by post ID.
  * @return The field config.
  */
-export function getPostsFields(): Field< StatsTopPostsItem >[] {
+export function getPostsFields(
+	withComparison: boolean,
+	originSection: ReportPostsTabId,
+	thumbnailUrls: PostThumbnailUrls = {}
+): Field< StatsTopPostsComparisonItem >[] {
 	return [
 		{
 			id: 'title',
-			label: __( 'Title', 'jetpack-premium-analytics' ),
+			label: __( 'Title', 'jetpack-premium-analytics-pkg' ),
 			enableGlobalSearch: true,
 			enableHiding: false,
 			getValue: ( { item } ) => String( item.label ?? '' ),
-			render: ( { item } ) => {
-				const title = String( item.label ?? '' );
-
-				// The API sends no URL for homepage rows, so link them to the site
-				// home resolved from core settings. Posts with an ID drill into the
-				// post/page detail page; other rows without an ID stay plain text.
-				if ( item.type === 'homepage' ) {
-					return <HomepageTitle title={ title } />;
-				}
-
-				if ( ! item.id ) {
-					return <>{ title }</>;
-				}
-
-				return (
-					<Link to="/post/$postId" params={ { postId: String( item.id ) } as unknown as never }>
-						{ title }
-					</Link>
-				);
-			},
+			render: ( { item } ) => <PostTitle item={ item } originSection={ originSection } />,
+		},
+		{
+			id: 'thumbnail',
+			type: 'media',
+			label: __( 'Thumbnail', 'jetpack-premium-analytics-pkg' ),
+			enableHiding: false,
+			render: ( { item } ) => (
+				<ReportThumbnail
+					thumbnailUrl={ thumbnailUrls[ Number( item.id ) ] }
+					fallbackIcon={ item.type === 'page' ? pageIcon : postIcon }
+				/>
+			),
 		},
 		{
 			id: 'views',
-			label: __( 'Views', 'jetpack-premium-analytics' ),
+			label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
 			getValue: ( { item } ) => item.views,
 			render: ( { item } ) => (
-				<>{ formatMetricValue( item.views, 'number', { decimals: 0, useMultipliers: false } ) }</>
+				<MetricWithComparison
+					value={ item.views }
+					previousValue={ withComparison ? item.previousViews : undefined }
+					dataFormat={ VIEWS_DATA_FORMAT }
+					fontSize="md"
+				/>
 			),
 		},
 	];
 }
 
 /**
- * A flattened Archives row: the normalized archives report is grouped by
- * archive type (`home`, `tax`, …) with the individual archive pages/terms as
- * children; the table shows the flat list of those entries.
- */
-export type ArchiveRow = {
-	id: string;
-	label: string;
-	views: number;
-	link?: string;
-};
-
-/**
- * Build the visible table label from an archive URL.
- *
- * @param link - The archive URL from the stats response.
- * @return The archive path and query string.
- */
-function getArchiveLinkLabel( link: string ): string | undefined {
-	try {
-		const url = new URL( link, 'https://example.com' );
-		const path = url.pathname.replace( /\/+$/, '' ) || '/';
-
-		return `${ path }${ url.search }`;
-	} catch {
-		return undefined;
-	}
-}
-
-/**
- * Build a fallback label from the normalized archive group path.
- *
- * @param parts - Archive group labels from root to leaf.
- * @return The slash-joined fallback label.
- */
-function getArchiveFallbackLabel( parts: string[] ): string {
-	return parts.filter( Boolean ).join( '/' );
-}
-
-/**
- * Flatten the archives report groups into table rows. The backend groups
- * archive entries by type/taxonomy; DataViews does not show nested rows yet,
- * so the table shows only the leaf archive entries and labels them by URL
- * path/query (`/category/news`, `/?s=analytics`, …).
- *
- * @param items - The top-level archive groups.
- * @return The flat rows.
- */
-export function flattenArchiveRows( items: StatsArchivesItem[] ): ArchiveRow[] {
-	return flattenStatsLeaves< StatsArchivesItem, ArchiveRow >( items, {
-		getChildren: item => item.children,
-		mapLeaf: ( item, { ancestors, indexPath } ) => {
-			const link = typeof item.link === 'string' ? item.link : undefined;
-			const pathLabels = [ ...ancestors, item ].map( entry => String( entry.label ?? '' ) );
-			const rootLabel = String( ( ancestors[ 0 ] ?? item ).label ?? '' );
-
-			return {
-				id: [ rootLabel, ...indexPath ].join( '-' ),
-				label: link
-					? getArchiveLinkLabel( link ) ?? getArchiveFallbackLabel( pathLabels )
-					: getArchiveFallbackLabel( pathLabels ),
-				views: item.value,
-				link,
-			};
-		},
-	} );
-}
-
-/**
  * DataViews field config for the Archives records table.
  *
+ * @param withComparison - Whether to render available period-over-period deltas.
  * @return The field config.
  */
-export function getArchivesFields(): Field< ArchiveRow >[] {
+export function getArchivesFields( withComparison = false ): Field< ArchiveRow >[] {
 	return [
 		{
 			id: 'title',
-			label: __( 'Title', 'jetpack-premium-analytics' ),
+			label: __( 'Title', 'jetpack-premium-analytics-pkg' ),
 			enableGlobalSearch: true,
 			enableHiding: false,
 			getValue: ( { item } ) => item.label,
 			render: ( { item } ) => {
-				if ( ! item.link ) {
-					return <>{ item.label }</>;
+				const label = item.isGroup ? <strong>{ item.label }</strong> : <>{ item.label }</>;
+				const href = safeHttpUrl( item.link );
+
+				if ( ! href ) {
+					return label;
 				}
 
-				return (
-					<a href={ item.link } target="_blank" rel="noopener noreferrer">
-						{ item.label }
-					</a>
-				);
+				return <ExternalLink href={ href }>{ label }</ExternalLink>;
 			},
 		},
 		{
 			id: 'views',
-			label: __( 'Views', 'jetpack-premium-analytics' ),
+			label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
 			getValue: ( { item } ) => item.views,
 			render: ( { item } ) => (
-				<>{ formatMetricValue( item.views, 'number', { decimals: 0, useMultipliers: false } ) }</>
+				<MetricWithComparison
+					value={ item.views }
+					previousValue={ withComparison ? item.previousViews : undefined }
+					dataFormat={ VIEWS_DATA_FORMAT }
+					fontSize="md"
+				/>
 			),
 		},
 	];

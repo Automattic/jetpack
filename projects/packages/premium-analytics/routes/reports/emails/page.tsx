@@ -1,22 +1,25 @@
 /**
  * External dependencies
  */
-import { useDashboardLink } from '@jetpack-premium-analytics/routing';
+import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
-	ReportErrorState,
+	ExporterCsvAction,
 	ReportPageLayout,
+	ReportErrorState,
+	ReportPageShell,
 	ReportRecordsTable,
-	useReportRetry,
+	emailsCsvExporter,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { Breadcrumbs, Page } from '@wordpress/admin-ui';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { REPORTS } from '../registry';
+import { useReportParams } from '../use-report-params';
 import { getEmailsFields, useEmailsReportRecords } from './config';
-import styles from './page.module.css';
 import type { StatsEmailSummaryItem } from '@jetpack-premium-analytics/data';
+import type { JSX } from 'react';
 
 /**
  * Initial records-table view: newest emails first (matching the endpoint's
@@ -47,66 +50,52 @@ function getEmailRowId( item: StatsEmailSummaryItem ): string {
 }
 
 /**
- * Premium Analytics Emails report page component.
- *
- * The summary endpoint reports across the whole lifetime of the site and
- * caps its row count at 30, so the page composes only the breadcrumb header
- * and records table: no date filters, tabs, or performance chart. Each row's
- * title links into the post detail page's Email opens tab — the per-email
- * detail surface.
+ * All-time summary capped at 30 rows, so only the breadcrumb header and records table
+ * render — no date filters, tabs, or performance chart. Row titles link to the post
+ * detail page's Email opens tab.
  *
  * @return The Emails report page.
  */
 function EmailsReport(): JSX.Element {
 	const records = useEmailsReportRecords();
+	const reportParams = useReportParams();
 	const fields = useMemo( () => getEmailsFields(), [] );
-	const retry = useReportRetry( records.refetch );
 
-	// Preserve the shared report window when returning to the dashboard.
-	const dashboardLink = useDashboardLink();
+	const { getLabel } = REPORTS.emails;
 
 	return (
-		<Page
-			breadcrumbs={
-				<Breadcrumbs
-					items={ [
-						{ label: __( 'Stats', 'jetpack-premium-analytics' ), to: dashboardLink },
-						{ label: __( 'Emails', 'jetpack-premium-analytics' ) },
-					] }
+		<ReportPageShell
+			visual={ <StatsPageIcon /> }
+			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
+			actions={
+				<ExporterCsvAction
+					exporter={ emailsCsvExporter }
+					items={ records.rows }
+					status={ records }
+					reportParams={ reportParams }
 				/>
 			}
-			subTitle={ __(
-				'Open and click performance of your latest emails.',
-				'jetpack-premium-analytics'
-			) }
-			className={ styles.page }
 		>
-			<div className={ styles.content }>
-				<ReportPageLayout>
-					{ /*
-					 * The error state replaces the table rather than sitting beside it:
-					 * `ReportRecordsTable`'s `empty` renders on row count, not fetch
-					 * status, so a failed refetch over cached rows would otherwise leave
-					 * stale data on screen with no notice and no way to retry.
-					 */ }
-					{ records.isError ? (
-						<ReportErrorState
-							title={ __( 'Unable to load emails', 'jetpack-premium-analytics' ) }
-							onRetry={ retry }
-						/>
-					) : (
-						<ReportRecordsTable< StatsEmailSummaryItem >
-							data={ records.rows }
-							fields={ fields }
-							getItemId={ getEmailRowId }
-							isLoading={ records.isLoading }
-							initialView={ RECORDS_VIEW }
-							searchLabel={ __( 'Search emails', 'jetpack-premium-analytics' ) }
-						/>
+			<ReportPageLayout title={ getLabel() }>
+				<ReportErrorState
+					status={ records }
+					retryDescription={ __(
+						"We couldn't load emails. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
 					) }
-				</ReportPageLayout>
-			</div>
-		</Page>
+				>
+					<ReportRecordsTable< StatsEmailSummaryItem >
+						data={ records.rows }
+						fields={ fields }
+						getItemId={ getEmailRowId }
+						isLoading={ records.isLoading }
+						isFetching={ records.isFetching }
+						initialView={ RECORDS_VIEW }
+						searchLabel={ __( 'Search emails', 'jetpack-premium-analytics-pkg' ) }
+					/>
+				</ReportErrorState>
+			</ReportPageLayout>
+		</ReportPageShell>
 	);
 }
 

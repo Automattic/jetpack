@@ -2,7 +2,7 @@ import { DataViews, filterSortAndPaginate } from '@wordpress/dataviews';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { pencil } from '@wordpress/icons';
-import { useNavigate } from '@wordpress/route';
+import { useNavigate, useSearch } from '@wordpress/route';
 import { Badge, IconButton, Link } from '@wordpress/ui';
 import useSeoPosts from '../../data/use-seo-posts';
 import styles from './style.module.scss';
@@ -10,7 +10,7 @@ import type { ContentRow } from '../../data/content-types';
 import type { Field, Operator, View } from '@wordpress/dataviews';
 import type { FC } from 'react';
 
-// Filter field ids. Every filter runs client-side over the merged posts+pages
+// Filter field ids. Every filter runs client-side over the merged content
 // set via `filterSortAndPaginate`, matching each row through the field's
 // `getValue`. Post type filters on the record's `type`; schema / description /
 // search-visibility filter on the derived SEO-meta flags.
@@ -20,6 +20,10 @@ const DESCRIPTION_FIELD = 'description';
 // Filter-only field id for search visibility; the displayed column is
 // 'searchVisibility'.
 const SEARCH_FIELD = 'searchFilter';
+// Filter-only field id for SEO-title set/not-set; the displayed column is
+// 'seoTitle'. Lets the Overview "SEO title set" ring deep-link to the rows
+// that still need a title.
+const TITLE_FIELD = 'titleFilter';
 
 // Schema filter sentinel for the no-override rows. The schema column's raw
 // value for those rows is '' (empty meta); the filter element uses this value
@@ -47,11 +51,37 @@ const DEFAULT_VIEW: View = {
 	sort: { field: 'title', direction: 'asc' },
 	titleField: 'title',
 	fields: [ 'schema', 'seoTitle', 'metaDescription', 'searchVisibility', 'editAction' ],
-	// No post-type filter by default, so both posts and pages show.
+	// No post-type filter by default, so every supported type shows.
 	filters: [],
 };
 
 const defaultLayouts = { table: {} };
+
+// The Overview's coverage rings deep-link here via `?needs=` (see needsToFilter).
+type ContentSearch = Record< string, unknown > & { needs?: string };
+type ViewFilter = NonNullable< View[ 'filters' ] >[ number ];
+
+/**
+ * Map an Overview `?needs=` value to the DataViews filter that narrows the list
+ * to the rows still missing that field.
+ *
+ * @param needs - The `?needs=` query value (schema | title | description | search).
+ * @return The matching filter, or null when the value is absent or unrecognized.
+ */
+function needsToFilter( needs: string | undefined ): ViewFilter | null {
+	switch ( needs ) {
+		case 'schema':
+			return { field: SCHEMA_FIELD, operator: 'is', value: SCHEMA_DEFAULT };
+		case 'title':
+			return { field: TITLE_FIELD, operator: 'is', value: 'not_set' };
+		case 'description':
+			return { field: DESCRIPTION_FIELD, operator: 'is', value: 'not_set' };
+		case 'search':
+			return { field: SEARCH_FIELD, operator: 'is', value: 'hidden' };
+		default:
+			return null;
+	}
+}
 
 interface EditButtonProps {
 	item: ContentRow;
@@ -89,9 +119,9 @@ function schemaLabel( schemaType: ContentRow[ 'schemaType' ] ): string {
 }
 
 /**
- * Content route stage: a DataViews list of posts *and* pages backed by
+ * Content route stage: a DataViews list of supported post types backed by
  * WordPress core REST, reporting the factual *state* of each post's SEO fields
- * (never a score). The hook fetches both types and merges them; filtering
+ * (never a score). The hook fetches every type and merges them; filtering
  * (including the post-type filter), sorting and pagination all run client-side
  * over the merged set via `filterSortAndPaginate`. Editing a row selects it via
  * the URL (`?postId`), which opens the SEO editor in the route's native
@@ -100,10 +130,21 @@ function schemaLabel( schemaType: ContentRow[ 'schemaType' ] ): string {
  * @return The Content stage content.
  */
 const ContentScreen: FC = () => {
-	const [ view, setView ] = useState< View >( DEFAULT_VIEW );
 	const navigate = useNavigate();
 
-	const { items, isLoading } = useSeoPosts();
+	// Overview coverage rings deep-link here with `?needs=` to pre-filter the list
+	// to the rows still missing that field. Seed the initial view once from it; the
+	// filter then behaves like any user-applied filter (visible chip, dismissable).
+	const search = useSearch( {
+		from: '/content' as unknown as never,
+		strict: false,
+	} ) as ContentSearch;
+	const [ view, setView ] = useState< View >( () => {
+		const filter = needsToFilter( search.needs );
+		return filter ? { ...DEFAULT_VIEW, filters: [ filter ] } : DEFAULT_VIEW;
+	} );
+
+	const { items, isLoading, postTypeOptions } = useSeoPosts();
 
 	// Select a row for editing by writing it to the URL; the Content route's
 	// `inspector` predicate (`?postId`) then renders the editor in the sidebar.
@@ -128,15 +169,12 @@ const ContentScreen: FC = () => {
 			{
 				id: POST_TYPE_FIELD,
 				label: __( 'Type', 'jetpack-seo' ),
-				elements: [
-					{ value: 'post', label: __( 'Posts', 'jetpack-seo' ) },
-					{ value: 'page', label: __( 'Pages', 'jetpack-seo' ) },
-				],
+				elements: postTypeOptions,
 				filterBy: { operators: [ 'is' ] as Operator[], isPrimary: true },
 				enableSorting: false,
 				enableHiding: false,
 				// Filter-only field; not shown as a column. Core REST records
-				// expose `type` as 'post' | 'page', matching the elements, so
+				// expose the post type slug, matching the elements, so
 				// `filterSortAndPaginate` narrows the merged set.
 				render: () => null,
 				getValue: ( { item } ) => item.type,
@@ -180,6 +218,19 @@ const ContentScreen: FC = () => {
 						{ item.hasCustomTitle ? setLabel : notSetLabel }
 					</Badge>
 				),
+			},
+			{
+				id: TITLE_FIELD,
+				label: __( 'SEO title set', 'jetpack-seo' ),
+				elements: [
+					{ value: 'set', label: setLabel },
+					{ value: 'not_set', label: notSetLabel },
+				],
+				filterBy: { operators: [ 'is' ] as Operator[] },
+				enableSorting: false,
+				enableHiding: false,
+				render: () => null,
+				getValue: ( { item } ) => ( item.hasCustomTitle ? 'set' : 'not_set' ),
 			},
 			{
 				id: 'metaDescription',
@@ -239,10 +290,10 @@ const ContentScreen: FC = () => {
 				render: ( { item } ) => <EditButton item={ item } onEdit={ onEdit } />,
 			},
 		],
-		[ onEdit ]
+		[ onEdit, postTypeOptions ]
 	);
 
-	// Client-side filter, sort and paginate the merged posts+pages set. Returns
+	// Client-side filter, sort and paginate the merged content set. Returns
 	// the page slice plus the pagination totals DataViews needs.
 	const { data, paginationInfo } = useMemo(
 		() => filterSortAndPaginate( items, view, fields ),

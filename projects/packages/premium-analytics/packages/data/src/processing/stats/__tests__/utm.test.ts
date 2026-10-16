@@ -1,6 +1,6 @@
 import { mergeStatsUtmComparisonRows, sanitizeStatsUtmResponse } from '..';
 import { utmFixture, utmWithTopPostsFixture } from '../__fixtures__/utm';
-import type { StatsNormalizedReport, StatsUtmItem } from '..';
+import type { StatsNormalizedReport, StatsUtmItem, StatsUtmTopPostItem } from '..';
 
 function makeReport( items: StatsUtmItem[] ): StatsNormalizedReport< StatsUtmItem > {
 	return {
@@ -8,11 +8,28 @@ function makeReport( items: StatsUtmItem[] ): StatsNormalizedReport< StatsUtmIte
 		data: [
 			{
 				time_interval: '2026-06-16',
-				date_start: '2026-06-16T00:00:00+00:00',
-				date_end: '2026-06-16T23:59:59+00:00',
+				date_start: '2026-06-16T00:00:00',
+				date_end: '2026-06-16T23:59:59',
 				items,
 			},
 		],
+	};
+}
+
+function makeTopPost(
+	id: number,
+	value: number,
+	overrides: Partial< StatsUtmTopPostItem > = {}
+): StatsUtmTopPostItem {
+	return {
+		id,
+		label: `Post ${ id }`,
+		value,
+		href: `https://example.com/post-${ id }/`,
+		page: `/stats/post/${ id }`,
+		actions: [],
+		children: null,
+		...overrides,
 	};
 }
 
@@ -27,8 +44,8 @@ describe( 'Stats UTM normalizer', () => {
 		expect( result.data[ 0 ] ).toEqual(
 			expect.objectContaining( {
 				time_interval: '2026-06-16',
-				date_start: '2026-06-16T00:00:00+00:00',
-				date_end: '2026-06-16T23:59:59+00:00',
+				date_start: '2026-06-16T00:00:00',
+				date_end: '2026-06-16T23:59:59',
 				items: [
 					{
 						label: 'newsletter / email',
@@ -98,27 +115,6 @@ describe( 'Stats UTM normalizer', () => {
 		} );
 	} );
 
-	it( 'returns no children for an empty top posts object', () => {
-		const result = sanitizeStatsUtmResponse(
-			{
-				top_utm_values: {
-					direct: 7,
-				},
-				top_posts: {},
-			},
-			{ date: '2026-06-16' }
-		);
-
-		expect( result.data[ 0 ].items ).toEqual( [
-			{
-				label: 'direct',
-				value: 7,
-				paramValues: 'direct',
-				children: null,
-			},
-		] );
-	} );
-
 	it( 'keeps param values when top posts are null', () => {
 		const result = sanitizeStatsUtmResponse(
 			{
@@ -135,30 +131,6 @@ describe( 'Stats UTM normalizer', () => {
 				label: 'direct',
 				value: 7,
 				paramValues: 'direct',
-				children: null,
-			},
-		] );
-	} );
-
-	it( 'keeps param values when top post queries are disabled', () => {
-		const result = sanitizeStatsUtmResponse(
-			{
-				top_utm_values: {
-					'["newsletter","email"]': 24,
-				},
-			},
-			{
-				date: '2026-06-16',
-				query_top_posts: false,
-				utm_param: 'utm_source,utm_medium',
-			}
-		);
-
-		expect( result.data[ 0 ].items ).toEqual( [
-			{
-				label: 'newsletter / email',
-				value: 24,
-				paramValues: '["newsletter","email"]',
 				children: null,
 			},
 		] );
@@ -229,5 +201,84 @@ describe( 'Stats UTM normalizer', () => {
 				} ),
 			],
 		} );
+	} );
+
+	it( 'matches comparison rows by the raw UTM tuple when display labels collide', () => {
+		const primary = makeReport( [
+			{
+				label: 'a / b / c',
+				value: 10,
+				paramValues: '["a / b","c"]',
+				children: null,
+			},
+			{
+				label: 'a / b / c',
+				value: 20,
+				paramValues: '["a","b / c"]',
+				children: null,
+			},
+		] );
+		const comparison = makeReport( [
+			{
+				label: 'a / b / c',
+				value: 8,
+				paramValues: '["a / b","c"]',
+				children: null,
+			},
+			{
+				label: 'a / b / c',
+				value: 2,
+				paramValues: '["a","b / c"]',
+				children: null,
+			},
+		] );
+
+		expect(
+			mergeStatsUtmComparisonRows( primary, comparison ).rows.map( row => row.previousValue )
+		).toEqual( [ 8, 2 ] );
+	} );
+
+	it( 'matches top post comparisons by post id when permalinks and labels change', () => {
+		const primary = makeReport( [
+			{
+				label: 'spring-sale',
+				value: 60,
+				paramValues: 'spring-sale',
+				children: [
+					makeTopPost( 1, 10, {
+						label: 'Renamed landing page',
+						href: 'https://example.com/new-landing-page/',
+					} ),
+					makeTopPost( 2, 20, { label: '(unknown or deleted)', href: null } ),
+					makeTopPost( 3, 30, { label: '(unknown or deleted)', href: null } ),
+				],
+			},
+		] );
+		const comparison = makeReport( [
+			{
+				label: 'spring-sale',
+				value: 15,
+				paramValues: 'spring-sale',
+				children: [
+					makeTopPost( 1, 4, {
+						label: 'Landing page',
+						href: 'https://example.com/landing-page/',
+					} ),
+					makeTopPost( 2, 5, { label: '(unknown or deleted)', href: null } ),
+					makeTopPost( 3, 6, { label: '(unknown or deleted)', href: null } ),
+				],
+			},
+		] );
+
+		expect(
+			mergeStatsUtmComparisonRows( primary, comparison ).rows[ 0 ].children?.map( child => ( {
+				id: child.id,
+				previousValue: child.previousValue,
+			} ) )
+		).toEqual( [
+			{ id: 1, previousValue: 4 },
+			{ id: 2, previousValue: 5 },
+			{ id: 3, previousValue: 6 },
+		] );
 	} );
 } );

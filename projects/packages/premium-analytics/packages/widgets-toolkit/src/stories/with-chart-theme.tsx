@@ -1,22 +1,8 @@
-import { GlobalChartsProvider } from '@automattic/charts';
-import { useChartTheme } from '../hooks';
+import { ChartsProvider } from '../components/charts-provider';
+import { applyFixtureSiteSettings } from './fixture-site';
 import type { Decorator } from '@storybook/react';
-import type { ReactNode } from 'react';
 
-/**
- * Wraps children in a `GlobalChartsProvider` seeded with the Woo chart theme.
- * Mirrors what `WidgetRoot` does in the app, where the provider lives at the
- * top of the widget tree.
- *
- * @param props          - Component props.
- * @param props.children - The subtree to render inside the provider.
- * @return The themed chart provider wrapping `children`.
- */
-const ChartThemeProvider = ( { children }: { children: ReactNode } ) => {
-	const theme = useChartTheme();
-
-	return <GlobalChartsProvider theme={ theme }>{ children }</GlobalChartsProvider>;
-};
+applyFixtureSiteSettings();
 
 /**
  * Storybook decorator that supplies the charts context.
@@ -27,10 +13,10 @@ const ChartThemeProvider = ( { children }: { children: ReactNode } ) => {
  * "useGlobalChartsContext must be used within a GlobalChartsProvider".
  *
  * @param Story - The story being decorated.
- * @return The story wrapped in a themed `GlobalChartsProvider`.
+ * @return The story wrapped in the app's `ChartsProvider`.
  */
 export const withChartTheme: Decorator = Story => (
-	<ChartThemeProvider>
+	<ChartsProvider>
 		<Story />
-	</ChartThemeProvider>
+	</ChartsProvider>
 );

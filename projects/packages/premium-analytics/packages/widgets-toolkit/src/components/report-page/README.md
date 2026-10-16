@@ -6,49 +6,56 @@ pieces with the module's data hook and DataViews field config — composition,
 not a bespoke page per module.
 
 ```tsx
-const dashboardLink = useDashboardLink();
+const label = __( 'All pages' );
 
-<ReportPageLayout
-	breadcrumbs={
-		<Breadcrumbs
-			items={ [
-				{ label: __( 'Stats' ), to: dashboardLink },
-				{ label: __( 'Pages' ) },
-			] }
-		/>
-	}
-	description={ __( 'All your posts and archive pages.' ) }
+<ReportPageShell
+	visual={ <StatsPageIcon /> }
+	breadcrumbs={ <StatsBreadcrumbs items={ [ { label } ] } /> }
 	actions={ downloadButton }
-	filters={ <DateFiltersPanel /* … */ /> }
 >
-	<ReportPerformanceChart
-		primary={ visits.primary.data }
-		comparison={ visits.hasComparison ? visits.comparison.data : undefined }
-		isLoading={ visits.isLoading }
-		interval={ interval }
-		onIntervalChange={ setInterval }
-	/>
-	<ReportRecordsTable
-		data={ rows }
-		fields={ fields }
-		getItemId={ item => String( item.id ) }
-		isLoading={ report.isLoading }
-		initialView={ { sort: { field: 'views', direction: 'desc' } } }
-	/>
-</ReportPageLayout>
+	<ReportPageLayout title={ getTabLabel( activeTab ) } dateFilters={ dateFilters }>
+		<ReportRecordsTable
+			data={ rows }
+			fields={ fields }
+			getItemId={ item => String( item.id ) }
+			isLoading={ report.isLoading }
+			initialView={ { sort: { field: 'views', direction: 'desc' } } }
+		/>
+	</ReportPageLayout>
+</ReportPageShell>;
 ```
 
-- **`ReportPageLayout`** — page scaffold: breadcrumb header with an actions
-  slot, optional internal tabs, a filters row, and stacked sections.
+- **`ReportPageShell`** — the outer `Page` shell: the shared Jetpack visual,
+  Stats breadcrumbs and page-level actions.
+- **`ReportPageLayout`** — the scroll area below the page header: optional
+  internal tabs, the section header pinned at its top, and stacked sections.
   `ReportPageSection` is the bordered card each section renders in.
-- **`ReportPerformanceChart`** — the multi-metric visits chart
-  (Views/Visitors/Comments/Likes via `useStatsVisits` `stat_fields`), with a
-  metric show/hide menu, the time-bucket selector (owned by the page — it
-  changes the query), and a collapse toggle. With exactly one visible metric
-  and comparison data, the previous period draws as a dashed overlay.
+
+- **`ReportChartSection`** — a chart in its own card, with the control below it
+  that collapses the card. Every chart above a records table renders through it, so
+  the toggle reads and behaves the same on every report. It also carries the
+  optional heading, icon and info tip a chart names itself with. The collapsed
+  state lasts as long as the section stays mounted: hiding a chart is a per-visit
+  preference, not a stored one. The chart stays mounted while collapsed so the
+  card animates shut, and the stylesheet takes it out of the tab order.
+- **`ReportLocationsMap`** — the Locations report's map of views by location,
+  over the rows the records table already fetched. It renders the shared
+  `LocationsGeoChart`, which the Locations dashboard widget also uses.
 - **`ReportRecordsTable`** — a Core DataViews table over the module's
   summarized rows; search, sorting, column config, and pagination run
   client-side via `filterSortAndPaginate`.
+- **`ReportThumbnail`** — a records-table row thumbnail for the view's
+  `mediaField`, falling back to `fallbackIcon` when there is none or it fails
+  to load. DataViews draws it beside the `titleField` in its fixed 32px box.
+- **`REPORT_TITLE_LINK_CLASS_NAMES`** — the `classNames` to pass a
+  `PostTitleLink` or `VideoTitleLink` rendered in a records table's
+  `titleField`, so a long title ellipsizes and keeps its outbound marker.
+- **`ReportEmptyState`** — replaces the records table when the report returned
+  no rows. `ReportRecordsTable` and `ReportDrilldownTable` render it
+  themselves, from the `data` they get before their own search, so a search
+  that matches nothing keeps the table's "No results", and so does a filter
+  that scoped the rows to none. The copy mentions "this
+  time period" only inside a `ReportPageLayout` that has date filters.
 - **`ReportPageTabs`** — the presentational tab bar for report pages with
   multiple views (the `tabs` slot above). It renders `{ id, label }` triggers
   and reports selection upward; panel children render inside the same `Tabs.Root`
@@ -60,25 +67,45 @@ const dashboardLink = useDashboardLink();
   copy, and Base UI's tabs context does not cross bundle copies — a route's
   `Tabs.Panel` throws `TabsRootContext is missing` at runtime even though the
   JSX nesting looks right.
-The `breadcrumbs` slot takes `Breadcrumbs` from `@wordpress/admin-ui`, the same
-component the post-detail page uses. Two things follow from its contract. The
-trailing item carries no `to` and renders as the page's `h1`, so the report page
-has no separate title prop. The leading `Stats` crumb links back to the
-dashboard through `useDashboardLink()` from
-`@jetpack-premium-analytics/routing`, which carries the shared date range and
-comparison across so Back returns to the same view.
 
-`Breadcrumbs` renders router links, so it needs a mounted router. That is why
-the slot stays a plain `ReactNode` (as it is on Core's own `Page`) and the page,
-not this layout, builds it: `ReportPageLayout` keeps rendering outside a router,
-which is what lets the story compose it.
+## The section header
+
+`ReportPageLayout` renders `SectionHeader`, the component the dashboard's
+sections use. Pass `title` and the `useReportDateFilters` controller; the layout
+composes `DateFiltersPanel` in the header's controls slot.
+
+The picker offers the range alone — no interval control, no comparison. Both
+stay on the URL untouched, so the dashboard keeps them. Declaring this per
+report is WOOA7S-1952.
+
+The header's `h2` reuses a name the page already shows: the open tab's label
+on a tabbed report (`getTabLabel( activeTab )`, e.g. `Posts & Pages`), and the
+report's own label from `routes/reports/registry.ts` otherwise (`All pages`).
+
+Omit `dateFilters` on a report with no date window; the header is then the title
+alone. It pins at the top of the layout's scroll area and condenses on scroll,
+as the dashboard's does: the layout only declares the timeline scope the
+header's own pin marker publishes into.
+
+Pass `StatsBreadcrumbs` from `@jetpack-premium-analytics/ui` to the shell's
+`breadcrumbs` slot. It owns the leading `Stats` crumb and links it back to the
+dashboard through `useDashboardLink()`, carrying the shared date range and
+comparison so Back returns to the same view. The trailing item carries no `to`
+and renders as the page's `h1`, so the shell takes no separate title prop.
+Pair it with `StatsPageIcon` in the shell's `visual` slot so every Stats page
+uses the same header treatment.
+
+`StatsBreadcrumbs` renders router links, so it needs a mounted router. That is
+why the shell receives it as a plain `ReactNode` (as on Core's own `Page`) and
+the route, not `ReportPageLayout`, builds it. The content layout can still render
+outside a router, which is what lets its story compose it independently.
 
 These components do not fetch: the page owns the data hooks and the
 `reportParams` derived from the URL (`useReportDateFilters`), and passes
 results in as props.
 
 They also mount no providers. The `/reports/$report` stage provides the
-surface's context once — React Query, global errors, and the chart theme
+surface's context once — React Query and the chart theme
 (`GlobalChartsProvider`). That is why a page can compose a chart the same way a
 widget does: `useSeriesStyles` plus `ComparativeLineChart`, nothing else.
 Outside the stage (Storybook), mount `GlobalChartsProvider` with

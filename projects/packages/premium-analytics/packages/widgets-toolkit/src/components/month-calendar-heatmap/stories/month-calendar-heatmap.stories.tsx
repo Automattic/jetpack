@@ -1,0 +1,174 @@
+import { seededRandom } from '../../../stories/mocks/data';
+import { WidgetCard } from '../../../stories/widget-card';
+import { withChartTheme } from '../../../stories/with-chart-theme';
+import { MonthCalendarHeatmap } from '../month-calendar-heatmap';
+import type { MonthCalendarHeatmapProps } from '../month-calendar-heatmap';
+import type { Meta, StoryObj } from '@storybook/react';
+
+// Fixed days: a story that moved with the clock would render differently on
+// every visual diff. The range ends mid-month so the last block has filler.
+const RANGE_END = '2026-09-14';
+
+const LABELS = {
+	ariaLabel: 'Monthly posting activity',
+	formatValue: ( value: number ) => ( value === 1 ? '1 post' : `${ value } posts` ),
+	emptyLabel: 'No posts',
+	lessLabel: 'Fewer posts',
+	moreLabel: 'More posts',
+};
+
+/**
+ * The first of the month `months - 1` months before the range end.
+ *
+ * @param months - How many months the range covers.
+ * @return The range start, `yyyy-MM-dd`.
+ */
+function rangeStart( months: number ) {
+	const end = new Date( `${ RANGE_END }T00:00:00Z` );
+	const start = new Date( Date.UTC( end.getUTCFullYear(), end.getUTCMonth() - ( months - 1 ), 1 ) );
+
+	return start.toISOString().slice( 0, 10 );
+}
+
+/**
+ * A deterministic sparse series: about half the days have posts, in clusters,
+ * so the calendar reads as real posting activity rather than uniform noise.
+ *
+ * @param start - First day, `yyyy-MM-dd`.
+ * @return Posts per day for the days from `start` to the range end.
+ */
+function buildPostsByDay( start: string ) {
+	const postsByDay: Record< string, number > = {};
+	const day = new Date( `${ start }T00:00:00Z` );
+	const end = new Date( `${ RANGE_END }T00:00:00Z` );
+
+	const nextRandom = seededRandom( 1337 );
+
+	for ( ; day.getTime() <= end.getTime(); day.setUTCDate( day.getUTCDate() + 1 ) ) {
+		if ( nextRandom() < 0.55 ) {
+			continue;
+		}
+		postsByDay[ day.toISOString().slice( 0, 10 ) ] = 1 + Math.floor( nextRandom() * 5 );
+	}
+
+	return postsByDay;
+}
+
+/**
+ * A deterministic series shaped like most blogs: a post on about a third of the
+ * days, nearly always just one, so most cells sit at the bottom of the scale.
+ *
+ * @param start - First day, `yyyy-MM-dd`.
+ * @return Posts per day for the days from `start` to the range end.
+ */
+function buildMostlySinglePostsByDay( start: string ) {
+	const postsByDay: Record< string, number > = {};
+	const day = new Date( `${ start }T00:00:00Z` );
+	const end = new Date( `${ RANGE_END }T00:00:00Z` );
+
+	const nextRandom = seededRandom( 516 );
+
+	for ( ; day.getTime() <= end.getTime(); day.setUTCDate( day.getUTCDate() + 1 ) ) {
+		const roll = nextRandom();
+		if ( roll < 0.7 ) {
+			continue;
+		}
+		postsByDay[ day.toISOString().slice( 0, 10 ) ] = roll < 0.95 ? 1 : 2;
+	}
+
+	return postsByDay;
+}
+
+interface MonthCalendarHeatmapStoryControls {
+	/** How many months to draw, ending with September 2026. */
+	months: number;
+	/** Width of the mock tile, in px. Drives whether the blocks spread or the grid scrolls. */
+	tileWidth: number;
+	/** Height of the mock tile, in px. The legend is dropped once the body inside the card padding is under 140px. */
+	tileHeight: number;
+}
+
+const renderWithPosts =
+	( buildValueByDay: ( start: string ) => Record< string, number > ) =>
+	( { months, tileWidth, tileHeight }: MonthCalendarHeatmapStoryControls ) => {
+		const start = rangeStart( months );
+
+		return (
+			<WidgetCard width={ `${ tileWidth }px` } height={ `${ tileHeight }px` }>
+				<MonthCalendarHeatmap
+					valueByDay={ buildValueByDay( start ) }
+					range={ { start, end: RANGE_END } }
+					{ ...LABELS }
+				/>
+			</WidgetCard>
+		);
+	};
+
+const renderMonthCalendarHeatmap = renderWithPosts( buildPostsByDay );
+
+const meta = {
+	title: 'Packages/Premium Analytics/Widgets Toolkit/Components/MonthCalendarHeatmap',
+	component: MonthCalendarHeatmap,
+	tags: [ 'autodocs' ],
+	parameters: {
+		docs: {
+			description: {
+				component:
+					'One mini calendar per month on a shared scale, named beneath, as the Posting activity widget draws its last 12 months. Days of the first and last month outside the range are faded filler with no tooltip. The days grow with the tile, wrapping the months onto more rows when that makes them larger; when even the smallest days do not fit, one row of months scrolls, opening on the current month and keeping the legend in place. A tile too short for a legend (a one-row dashboard tile) drops it. Drag `tileWidth` and `tileHeight` to watch both.',
+			},
+		},
+	},
+	argTypes: {
+		months: { control: { type: 'range', min: 1, max: 12, step: 1 } },
+		tileWidth: { control: { type: 'range', min: 360, max: 1600, step: 20 } },
+		tileHeight: { control: { type: 'range', min: 100, max: 500, step: 8 } },
+	},
+	decorators: [ withChartTheme ],
+	// `component` is the component's own props, but the args are story controls:
+	// intersect the two so both type-check.
+} satisfies Meta< MonthCalendarHeatmapProps & MonthCalendarHeatmapStoryControls >;
+
+export default meta;
+
+type Story = StoryObj< MonthCalendarHeatmapStoryControls >;
+
+const DEFAULT_ARGS: MonthCalendarHeatmapStoryControls = {
+	months: 12,
+	tileWidth: 1400,
+	tileHeight: 300,
+};
+
+/**
+ * Twelve months in a two-row tile: two rows of six, the days grown to fill it. The
+ * last block closes with filler after the 14th.
+ */
+export const Default: Story = {
+	render: renderMonthCalendarHeatmap,
+	args: DEFAULT_ARGS,
+};
+
+/**
+ * Too narrow for even two rows of the smallest days: one row scrolls sideways on its
+ * own, opening on the current month, while the legend stays put.
+ */
+export const Scrolling: Story = {
+	render: renderMonthCalendarHeatmap,
+	args: { ...DEFAULT_ARGS, tileWidth: 480 },
+};
+
+/**
+ * A one-row dashboard tile: the legend is dropped so the blocks keep their room.
+ */
+export const ShortTile: Story = {
+	render: renderMonthCalendarHeatmap,
+	args: { ...DEFAULT_ARGS, tileHeight: 140 },
+};
+
+/**
+ * Most days with a post have just one, so most cells take the lowest step of the
+ * scale, which still has to stand out from the empty days around it.
+ */
+export const MostlySinglePosts: Story = {
+	render: renderWithPosts( buildMostlySinglePostsByDay ),
+	args: DEFAULT_ARGS,
+};

@@ -30,7 +30,7 @@ class Csv_Exports_Test extends TestCase {
 		remove_all_filters( CSV_EXPORTS_ENABLED_FILTER );
 	}
 
-	public function test_script_data_disables_csv_exports_by_default() {
+	public function test_script_data_enables_csv_exports_by_default() {
 		$data = inject_csv_exports_script_data(
 			array(
 				'premium_analytics' => array(
@@ -41,15 +41,15 @@ class Csv_Exports_Test extends TestCase {
 
 		$this->assertSame( 0, $data['premium_analytics']['initial_full_sync_finished'] );
 		$this->assertArrayHasKey( 'csv_exports_enabled', $data['premium_analytics'] );
-		$this->assertFalse( $data['premium_analytics']['csv_exports_enabled'] );
+		$this->assertTrue( $data['premium_analytics']['csv_exports_enabled'] );
 	}
 
-	public function test_script_data_enables_csv_exports_via_filter() {
-		add_filter( CSV_EXPORTS_ENABLED_FILTER, '__return_true' );
+	public function test_script_data_disables_csv_exports_via_filter() {
+		add_filter( CSV_EXPORTS_ENABLED_FILTER, '__return_false' );
 
 		$data = inject_csv_exports_script_data( array() );
 
-		$this->assertTrue( $data['premium_analytics']['csv_exports_enabled'] );
+		$this->assertFalse( $data['premium_analytics']['csv_exports_enabled'] );
 	}
 
 	public function test_configure_registers_script_data_filter() {

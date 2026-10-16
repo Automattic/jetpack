@@ -1,77 +1,67 @@
 /**
  * External dependencies
  */
+import { type StatsVideoPlaysComparisonItem } from '@jetpack-premium-analytics/data';
+import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
+import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
-	normalizeReportParams,
-	type IntervalType,
-	type StatsChartBucketPeriod,
-	type StatsVideoPlaysItem,
-} from '@jetpack-premium-analytics/data';
-import { useDashboardLink, useReportDateFilters } from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
-import {
-	formatLegendLabels,
-	ReportErrorState,
 	ReportPageLayout,
+	ReportErrorState,
 	ReportPageShell,
-	ReportPerformanceChart,
 	ReportRecordsTable,
-	useReportRetry,
+	ExporterCsvAction,
+	videosCsvExporter,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { Breadcrumbs } from '@wordpress/admin-ui';
-import { useCallback, useMemo, useState } from '@wordpress/element';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useNavigate, useSearch } from '@wordpress/route';
+import { type JSX } from 'react';
 /**
  * Internal dependencies
  */
 import { route } from '../package.json';
-import { getVideoRowId, getVideosFields, useVideosReportRecords } from './config';
+import { REPORTS } from '../registry';
+import { useReportParams } from '../use-report-params';
+import {
+	getVideosFields,
+	isVideoRowClickable,
+	renderVideoRowLink,
+	useVideosReportRecords,
+} from './config';
 
 const ROUTE_FROM = route.path;
-const REPORT_PARAMS = { report: 'videos' };
-const CHART_PERIODS = [
-	'day',
-	'week',
-	'month',
-] as const satisfies readonly StatsChartBucketPeriod[];
-type ChartPeriod = ( typeof CHART_PERIODS )[ number ];
 
 /**
- * Whether a value is one of the chart bucket periods this report offers.
+ * Resolve a stable records-table identity for a video.
  *
- * @param value - The candidate value (e.g. from the URL search).
- * @return Whether the value is a chart period.
+ * @param video - The normalized video row.
+ * @return The video's stable row key.
  */
-function isChartPeriod( value: unknown ): value is ChartPeriod {
-	return CHART_PERIODS.includes( value as ChartPeriod );
-}
+function getVideoRowId( video: StatsVideoPlaysComparisonItem ): string {
+	const id = video.id != null ? String( video.id ) : '';
 
-/**
- * Choose the chart bucket period for a report interval.
- *
- * @param interval - The report date interval.
- * @return The default chart bucket period.
- */
-function getDefaultChartPeriod( interval?: IntervalType ): ChartPeriod {
-	if ( interval === 'week' ) {
-		return 'week';
+	if ( id ) {
+		return id;
 	}
 
-	if ( interval === 'month' || interval === 'quarter' || interval === 'year' ) {
-		return 'month';
+	if ( video.link ) {
+		return video.link;
 	}
 
-	return 'day';
+	const label = typeof video.label === 'string' ? video.label.trim() : '';
+
+	return label ? `video:${ label }` : 'video:unknown';
 }
 
 const RECORDS_VIEW = {
 	sort: { field: 'plays', direction: 'desc' as const },
+	titleField: 'label',
+	mediaField: 'poster',
 	layout: {
 		styles: {
-			label: { width: '100%' },
 			plays: { align: 'end' as const },
 			impressions: { align: 'end' as const },
+			watch_time: { align: 'end' as const },
+			retention_rate: { align: 'end' as const },
 		},
 	},
 };
@@ -82,92 +72,49 @@ const RECORDS_VIEW = {
  * @return The Videos report page.
  */
 function VideosReport(): JSX.Element {
-	const search = useSearch( { from: ROUTE_FROM } ) as Record< string, string | undefined >;
-	const reportParams = useMemo(
-		() => normalizeReportParams( search as Parameters< typeof normalizeReportParams >[ 0 ] ),
-		[ search ]
-	);
-	const chartPeriod = isChartPeriod( search.period )
-		? search.period
-		: getDefaultChartPeriod( reportParams.interval );
-	const records = useVideosReportRecords( reportParams, chartPeriod );
-	const retry = useReportRetry( records.refetch );
-	const fields = useMemo( () => getVideosFields(), [] );
-	const chartMetrics = useMemo(
-		() => [ { key: 'plays', label: __( 'Plays', 'jetpack-premium-analytics' ) } ],
-		[]
-	);
-	const chartLegendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
-
-	const navigate = useNavigate();
-	const handleIntervalChange = useCallback(
-		( interval: IntervalType ) => {
-			const period = isChartPeriod( interval ) ? interval : getDefaultChartPeriod( interval );
-			navigate( {
-				to: ROUTE_FROM,
-				params: REPORT_PARAMS as unknown as never,
-				replace: true,
-				search: ( ( current: Record< string, unknown > ) => ( {
-					...current,
-					period,
-				} ) ) as unknown as never,
-			} );
-		},
-		[ navigate ]
+	const reportParams = useReportParams();
+	const records = useVideosReportRecords( reportParams );
+	const fields = useMemo(
+		() => getVideosFields( records.hasComparison ),
+		[ records.hasComparison ]
 	);
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const dashboardLink = useDashboardLink();
-	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
+	const { getLabel } = REPORTS.videos;
 
 	return (
 		<ReportPageShell
-			breadcrumbs={
-				<Breadcrumbs
-					items={ [
-						{
-							label: __( 'Stats', 'jetpack-premium-analytics' ),
-							to: dashboardLink,
-						},
-						{ label: __( 'Videos', 'jetpack-premium-analytics' ) },
-					] }
+			visual={ <StatsPageIcon /> }
+			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
+			actions={
+				<ExporterCsvAction
+					exporter={ videosCsvExporter }
+					items={ records.rows }
+					status={ records }
+					reportParams={ reportParams }
 				/>
 			}
-			subTitle={ __( 'See how your videos perform.', 'jetpack-premium-analytics' ) }
 		>
-			<ReportPageLayout
-				filters={
-					<div ref={ setContainerElement }>
-						<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
-					</div>
-				}
-			>
-				{ records.isError ? (
-					<ReportErrorState
-						title={ __( 'Unable to load videos', 'jetpack-premium-analytics' ) }
-						onRetry={ retry }
+			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters }>
+				<ReportErrorState
+					status={ records }
+					retryDescription={ __(
+						"We couldn't load videos. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					) }
+				>
+					<ReportRecordsTable< StatsVideoPlaysComparisonItem >
+						data={ records.rows }
+						fields={ fields }
+						getItemId={ getVideoRowId }
+						isLoading={ records.isLoading }
+						isFetching={ records.isFetching }
+						initialView={ RECORDS_VIEW }
+						searchLabel={ __( 'Search videos', 'jetpack-premium-analytics-pkg' ) }
+						isItemClickable={ isVideoRowClickable }
+						renderItemLink={ renderVideoRowLink }
 					/>
-				) : (
-					<>
-						<ReportPerformanceChart
-							primary={ records.chart.primary }
-							comparison={ records.chart.comparison }
-							isLoading={ records.chart.isLoading }
-							metrics={ chartMetrics }
-							interval={ chartPeriod }
-							onIntervalChange={ handleIntervalChange }
-							legendLabels={ chartLegendLabels }
-						/>
-						<ReportRecordsTable< StatsVideoPlaysItem >
-							data={ records.rows }
-							fields={ fields }
-							getItemId={ getVideoRowId }
-							isLoading={ records.isLoading }
-							initialView={ RECORDS_VIEW }
-							searchLabel={ __( 'Search videos', 'jetpack-premium-analytics' ) }
-						/>
-					</>
-				) }
+				</ReportErrorState>
 			</ReportPageLayout>
 		</ReportPageShell>
 	);

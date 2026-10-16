@@ -123,6 +123,10 @@
 		},
 		"duration": {
 			"type": "number"
+		},
+		"useQueriedVideo": {
+			"type": "boolean",
+			"default": false
 		}
 	},
 	"textdomain": "jetpack-videopress-pkg",

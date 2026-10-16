@@ -3,24 +3,30 @@
  */
 import { statsReportQuery, type StatsReportParams } from './stats-query';
 
-export const statsLocationsQuery = (
-	params: StatsReportParams & {
-		geoMode?: 'country' | 'region' | 'city';
-		filter_by_country?: string;
-	}
-) => {
-	const geoMode = params.geoMode ?? 'country';
-	const { filter_by_country } = params;
+export type StatsLocationsParams = StatsReportParams & {
+	geoMode?: 'country' | 'region' | 'city';
+	filter_by_country?: string;
+	/** Region name. The endpoint rejects it without `filter_by_country` or in the country geo mode. */
+	filter_by_region?: string;
+};
 
-	// filter_by_country is an endpoint-specific param that reportParamsToStatsQueryParams
-	// would strip (it only forwards a fixed allow-list). Pass it via extraParams so it
-	// survives the conversion and reaches the proxy request.
+export const statsLocationsQuery = ( params: StatsLocationsParams ) => {
+	const geoMode = params.geoMode ?? 'country';
+	const { filter_by_country, filter_by_region } = params;
+
+	// The filters are endpoint-specific params that reportParamsToStatsQueryParams
+	// would strip (it only forwards a fixed allow-list). Pass them via extraParams so
+	// they survive the conversion and reach the proxy request.
 	return statsReportQuery(
 		`locations-${ geoMode }`,
 		`stats/location-views/${ geoMode }`,
 		params,
 		'locations',
 		'1.1',
-		filter_by_country ? { filter_by_country } : undefined
+		{
+			...( filter_by_country ? { filter_by_country } : {} ),
+			...( filter_by_region ? { filter_by_region } : {} ),
+		},
+		{ omitParams: [ 'days' ] }
 	);
 };

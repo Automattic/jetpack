@@ -6,6 +6,7 @@ import {
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
+import { withStoryRouter } from '../../stories/with-story-router';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import {
 	registerReportMocks,
@@ -29,20 +30,12 @@ interface AuthorsStoryControls {
 }
 
 function renderAuthors( { withComparison }: AuthorsStoryControls ) {
-	return (
-		<AuthorsRender
-			attributes={ { max: 7, reportParams: getDefaultQueryParams( withComparison ) } }
-		/>
-	);
+	return <AuthorsRender attributes={ { reportParams: getDefaultQueryParams( withComparison ) } } />;
 }
 
 // Distinct preset → own query-cache entry; see forceStatsMockState.
 function renderAuthorsOnPreset( preset: PresetType ) {
-	return (
-		<AuthorsRender
-			attributes={ { max: 7, reportParams: getDefaultQueryParams( false, preset ) } }
-		/>
-	);
+	return <AuthorsRender attributes={ { reportParams: getDefaultQueryParams( false, preset ) } } />;
 }
 
 function AuthorsDashboardRender( props: WidgetRenderProps< unknown > ) {
@@ -64,9 +57,8 @@ const meta = {
 			},
 		},
 	},
-	// The story args are the widget-specific controls, but `component` is the
-	// render component (host `WidgetRenderProps`). Intersect the two so
-	// `component` type-checks against the meta while the controls drive argTypes.
+	// Intersected so `component` type-checks against the meta while the
+	// widget-specific controls still drive argTypes.
 } satisfies Meta< ComponentProps< typeof AuthorsRender > & AuthorsStoryControls >;
 
 export default meta;
@@ -76,13 +68,13 @@ type Story = StoryObj< AuthorsStoryControls >;
 export const Default: Story = {
 	render: renderAuthors,
 	args: { withComparison: false },
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
 export const WithComparison: Story = {
 	render: renderAuthors,
 	args: { withComparison: true },
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
 /**
@@ -93,7 +85,7 @@ export const Loading: Story = {
 	render: () => renderAuthorsOnPreset( 'last-90-days' ),
 	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		setReportMockState( 'stats/top-authors', 'loading' );
 		return () => setReportMockState( 'stats/top-authors', null );
@@ -107,7 +99,7 @@ export const Loading: Story = {
 export const Error: Story = {
 	render: () => renderAuthorsOnPreset( 'last-7-days' ),
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		setReportMockState( 'stats/top-authors', 'error' );
 		return () => setReportMockState( 'stats/top-authors', null );
@@ -115,13 +107,13 @@ export const Error: Story = {
 };
 
 /**
- * Resolved with no rows: the widget shows its empty state (the neutral author
- * glyph and the introductory description).
+ * Resolved with no rows: the widget shows the generic empty state (the magnifier
+ * glyph and "We couldn’t find results for this time period.").
  */
 export const Empty: Story = {
 	render: () => renderAuthorsOnPreset( 'last-365-days' ),
 	tags: [ '!autodocs' ],
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 	beforeEach: () => {
 		setReportMockState( 'stats/top-authors', 'empty' );
 		return () => setReportMockState( 'stats/top-authors', null );
@@ -129,8 +121,7 @@ export const Empty: Story = {
 };
 
 interface AuthorsDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		AuthorsStoryControls {}
+	extends WidgetDashboardWithWidgetControls, AuthorsStoryControls {}
 
 function AuthorsDashboardStory( { withComparison, ...dashboardArgs }: AuthorsDashboardStoryProps ) {
 	return (
@@ -139,7 +130,7 @@ function AuthorsDashboardStory( { withComparison, ...dashboardArgs }: AuthorsDas
 			widgetType={ storyWidgetType }
 			renderModule={ AUTHORS_RENDER_MODULE }
 			renderComponent={ AuthorsDashboardRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { max: 7, reportParams: getDefaultQueryParams( withComparison ) } }
+			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
 		/>
 	);
 }

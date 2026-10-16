@@ -8,14 +8,15 @@ import {
 } from '@jetpack-premium-analytics/data';
 import {
 	ChartEmptyState,
+	ExternalLink,
 	WidgetRoot,
 	WidgetState,
+	safeHttpUrl,
 	useWidgetRootContext,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { video } from '@wordpress/icons';
-import { Link, Stack } from '@wordpress/ui';
+import { Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
@@ -37,29 +38,33 @@ type VideoEmbedsListProps = {
 };
 
 /**
- * Presentational list for the "Video embeds" widget: the pages where the
- * selected video is embedded, each as an external link. Loading / error /
+ * Presentational list for the "Used on posts & pages" widget: the pages where
+ * the selected video is embedded, each as an external link. Loading / error /
  * empty are owned by the surrounding `WidgetState`.
- *
- * @param {VideoEmbedsListProps} props - The component props.
- * @return The rendered list.
  */
 function VideoEmbedsList( { pages }: VideoEmbedsListProps ) {
 	return (
 		<ul className={ styles.list }>
-			{ pages.map( ( page, index ) => (
-				<li key={ `${ index }-${ page.link }` } className={ styles.item }>
-					<Link
-						className={ styles.link }
-						href={ page.link }
-						variant="unstyled"
-						openInNewTab
-						title={ page.label }
-					>
-						{ page.label }
-					</Link>
-				</li>
-			) ) }
+			{ pages.map( ( page, index ) => {
+				// The report returns each embed location as a bare string used verbatim
+				// as the href, so a page that is not a safe http(s) URL still lists as
+				// plain text rather than becoming a clickable link.
+				const href = safeHttpUrl( page.link );
+
+				return (
+					<li key={ `${ index }-${ page.link }` } className={ styles.item }>
+						{ href ? (
+							<ExternalLink className={ styles.link } href={ href } title={ page.label }>
+								{ page.label }
+							</ExternalLink>
+						) : (
+							<span className={ styles.link } title={ page.label }>
+								{ page.label }
+							</span>
+						) }
+					</li>
+				);
+			} ) }
 		</ul>
 	);
 }
@@ -69,27 +74,21 @@ function VideoEmbedsList( { pages }: VideoEmbedsListProps ) {
  * embed pages through `WidgetState`. The video is scoped by the host through
  * `reportParams.post_id`; the query stays disabled until a video is selected,
  * with a prompt shown instead of the data states.
- *
- * @return The widget content.
  */
 function VideoDetailEmbedsReport() {
 	const { reportParams } = useWidgetRootContext();
 	const videoId = toPostId( reportParams.post_id );
 
-	const { data, isLoading, isFetching, isError, refetch } = useStatsSingleVideo(
-		videoId,
-		reportParams
-	);
+	const { data, isLoading, isFetching, isError, refetch } = useStatsSingleVideo( videoId );
 
 	let body;
 
 	if ( videoId <= 0 ) {
 		body = (
 			<ChartEmptyState
-				icon={ video }
 				text={ __(
 					'Select a video to see where it is embedded across your site.',
-					'jetpack-premium-analytics'
+					'jetpack-premium-analytics-pkg'
 				) }
 			/>
 		);
@@ -108,17 +107,19 @@ function VideoDetailEmbedsReport() {
 				error={ {
 					description: __(
 						"We couldn't load video embeds. Please try again in a moment.",
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
 					actions: [
-						{ label: __( 'Retry', 'jetpack-premium-analytics' ), onClick: () => void refetch() },
+						{
+							label: __( 'Retry', 'jetpack-premium-analytics-pkg' ),
+							onClick: () => void refetch(),
+						},
 					],
 				} }
 				empty={ {
-					icon: video,
 					description: __(
 						'This video has not been embedded on any pages yet.',
-						'jetpack-premium-analytics'
+						'jetpack-premium-analytics-pkg'
 					),
 				} }
 			>
@@ -135,14 +136,8 @@ function VideoDetailEmbedsReport() {
 }
 
 /**
- * Video embeds widget render entry point.
- *
- * WidgetRoot provides the analytics query client, chart theme, and the report
- * params consumed by the inner component — including the single-video scope
+ * The report params reaching the inner component include the single-video scope
  * (`post_id`) the host composes for detail views.
- *
- * @param {VideoDetailEmbedsWidgetProps} props - The widget render props.
- * @return The rendered widget.
  */
 export default function VideoDetailEmbeds( { attributes = {} }: VideoDetailEmbedsWidgetProps ) {
 	return (

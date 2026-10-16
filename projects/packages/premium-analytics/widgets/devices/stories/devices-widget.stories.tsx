@@ -31,24 +31,15 @@ interface DevicesStoryControls {
 }
 
 interface DevicesDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		DevicesStoryControls {}
+	extends WidgetDashboardWithWidgetControls, DevicesStoryControls {}
 
 function renderDevicesWidget( { withComparison }: DevicesStoryControls ) {
-	return (
-		<DevicesRender
-			attributes={ { max: 5, reportParams: getDefaultQueryParams( withComparison ) } }
-		/>
-	);
+	return <DevicesRender attributes={ { reportParams: getDefaultQueryParams( withComparison ) } } />;
 }
 
 // Distinct preset → own query-cache entry; see forceStatsMockState.
 function renderDevicesOnPreset( preset: PresetType ) {
-	return (
-		<DevicesRender
-			attributes={ { max: 5, reportParams: getDefaultQueryParams( false, preset ) } }
-		/>
-	);
+	return <DevicesRender attributes={ { reportParams: getDefaultQueryParams( false, preset ) } } />;
 }
 
 function DevicesDashboardRender( props: WidgetRenderProps< unknown > ) {
@@ -62,7 +53,7 @@ function DevicesDashboardStory( { withComparison, ...dashboardArgs }: DevicesDas
 			widgetType={ storyWidgetType }
 			renderModule={ DEVICES_RENDER_MODULE }
 			renderComponent={ DevicesDashboardRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { max: 5, reportParams: getDefaultQueryParams( withComparison ) } }
+			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
 		/>
 	);
 }
@@ -119,8 +110,9 @@ export const Loading: StoryObj< DevicesStoryControls > = {
 };
 
 /**
- * The fetch failed: the widget shows its error state with a Retry action (which
- * re-runs the query — still mocked as failing while this story is active).
+ * The fetch failed with a permission-gated 403: the widget shows the neutral
+ * "You don't have access to this data." copy and no Retry action, since a
+ * permission gate is deterministic and retrying cannot clear it.
  */
 export const Error: StoryObj< DevicesStoryControls > = {
 	render: () => renderDevicesOnPreset( 'last-7-days' ),
@@ -133,11 +125,25 @@ export const Error: StoryObj< DevicesStoryControls > = {
 };
 
 /**
- * Resolved with no rows: the widget shows its empty state (the neutral device
- * glyph and "No device data in this period.").
+ * The fetch failed in a way that can heal — the proxy's `no_connection` 403: the
+ * widget shows its retryable copy with a Retry action, which re-runs the query
+ * (still mocked as failing while this story is active).
+ */
+export const ErrorRetryable: StoryObj< DevicesStoryControls > = {
+	render: () => renderDevicesOnPreset( 'last-12-months' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		forceStatsMockState( 'stats/devices/screensize', 'error-retryable' );
+		return () => forceStatsMockState( 'stats/devices/screensize', null );
+	},
+};
+
+/**
+ * Resolved with no rows: the widget shows the generic empty state.
  */
 export const Empty: StoryObj< DevicesStoryControls > = {
-	render: () => renderDevicesOnPreset( 'last-365-days' ),
+	render: () => renderDevicesOnPreset( 'last-year' ),
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => {

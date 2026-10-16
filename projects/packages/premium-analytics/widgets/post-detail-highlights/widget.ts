@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { starEmpty } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
@@ -14,8 +13,6 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 export type PostDetailHighlightsAttributes = Record< never, never >;
 
 /**
- * Widget type definition.
- *
  * The post detail Traffic view's highlights card: the scoped post's views,
  * comments, and likes as metric tiles. Views is period-scoped to the
  * dashboard date range (with a period-over-period delta when comparison is
@@ -25,7 +22,6 @@ export type PostDetailHighlightsAttributes = Record< never, never >;
  * summary header, not repeated here.
  */
 export default {
-	icon: starEmpty,
 	attributes: [] as WidgetAttributeField< PostDetailHighlightsAttributes >[],
 	example: {
 		attributes: {},

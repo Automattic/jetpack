@@ -1,62 +1,92 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
 import { describe, it } from 'node:test';
-import { fileURLToPath } from 'node:url';
-import { buildTailorPrompt, chooseTailoringMenu, TASK_MENU } from './prompts.ts';
+import {
+	buildTailorPrompt,
+	chooseTailoringMenu,
+	isEnglishLocale,
+	languageDisplayName,
+	TASK_ANNOTATIONS,
+	TASK_MENU,
+} from './prompts.ts';
+import { AGENT_OUTPUT_SCHEMA } from './schema-validator.ts';
 import type { WizardInput } from './types.ts';
 
-const __dirname = dirname( fileURLToPath( import.meta.url ) );
-const CONTRACTS = resolve( __dirname, '../../contracts' );
+// No ui_locale, like an input persisted before it existed.
+const INPUT = {
+	goal: 'write',
+	site_name: 'Alpine Notes',
+	description: 'Personal blog about long-distance hiking in the Alps.',
+	locale: 'en',
+} as WizardInput;
 
-const fixtures = JSON.parse( readFileSync( resolve( CONTRACTS, 'eval-fixtures.json' ), 'utf8' ) )
-	.fixtures as Array< { name: string; input: WizardInput } >;
-
-describe( 'buildTailorPrompt', () => {
-	for ( const fixture of fixtures ) {
-		it( `interpolates goal, site_name, and description for "${ fixture.name }"`, () => {
-			const prompt = buildTailorPrompt( fixture.input );
-			assert.ok( prompt.includes( fixture.input.goal ), 'goal missing from prompt' );
-			assert.ok( prompt.includes( fixture.input.site_name ), 'site_name missing from prompt' );
-			assert.ok( prompt.includes( fixture.input.description ), 'description missing from prompt' );
-		} );
-	}
-
-	it( 'lists every menu task ID', () => {
-		const prompt = buildTailorPrompt( fixtures[ 0 ].input );
-		for ( const id of TASK_MENU ) {
-			assert.ok( prompt.includes( id ), `menu ID "${ id }" missing from prompt` );
-		}
+describe( 'TASK_ANNOTATIONS', () => {
+	it( 'has no duplicate ids', () => {
+		assert.equal( new Set( TASK_MENU ).size, TASK_MENU.length );
 	} );
 
-	it( 'offers only the actionable theme task, not the legacy design tasks', () => {
-		// design_selected is always-complete and design_completed has no wp-admin
-		// completion path; both are consolidated onto site_theme_selected.
-		assert.ok( TASK_MENU.includes( 'site_theme_selected' ) );
-		assert.ok( ! TASK_MENU.includes( 'design_selected' ) );
-		assert.ok( ! TASK_MENU.includes( 'design_completed' ) );
+	it( 'gives every entry a non-empty what and pick when', () => {
+		for ( const entry of TASK_ANNOTATIONS ) {
+			assert.ok( entry.what.length > 0, `${ entry.id } is missing "what"` );
+			assert.ok( entry.pickWhen.length > 0, `${ entry.id } is missing "pickWhen"` );
+		}
+	} );
+} );
+
+describe( 'buildTailorPrompt', () => {
+	it( 'interpolates goal, site_name, and description', () => {
+		const prompt = buildTailorPrompt( INPUT );
+		assert.ok( prompt.includes( `Goal: ${ INPUT.goal }` ) );
+		assert.ok( prompt.includes( `Site name: ${ INPUT.site_name }` ) );
+		assert.ok( prompt.includes( `User description: ${ INPUT.description }` ) );
+	} );
+
+	it( 'renders each offered task as an annotated block, not a bare id', () => {
+		const prompt = buildTailorPrompt( INPUT, [ 'first_post_published', 'site_launched' ] );
+
+		assert.match( prompt, /- id: first_post_published\n {2}what: .+\n {2}pick when: .+/ );
 	} );
 
 	it( 'restricts the offered menu to the available tasks when given', () => {
 		const available = [ 'first_post_published', 'site_theme_selected', 'site_launched' ];
-		const prompt = buildTailorPrompt( fixtures[ 0 ].input, available );
-		// A menu section lists only the available ids...
-		for ( const id of available ) {
-			assert.ok( prompt.includes( '- ' + id ), `available ID "${ id }" missing from menu` );
-		}
-		// ...and a menu-only task that is not available is dropped from the list.
-		const dropped = TASK_MENU.find( id => ! available.includes( id ) ) as string;
-		assert.ok(
-			! prompt.includes( '- ' + dropped ),
-			`unavailable ID "${ dropped }" should be dropped`
-		);
+		const prompt = buildTailorPrompt( INPUT, available );
+		const offered = [ ...prompt.matchAll( /^- id: (\S+)$/gm ) ].map( match => match[ 1 ] );
+
+		assert.deepEqual( offered.sort(), [ ...available ].sort() );
 	} );
 
-	it( 'falls back to the full menu when the available list is empty', () => {
-		const prompt = buildTailorPrompt( fixtures[ 0 ].input, [] );
+	it( 'falls back to the full menu when availability is unknown', () => {
+		const prompt = buildTailorPrompt( INPUT, [] );
+
 		for ( const id of TASK_MENU ) {
-			assert.ok( prompt.includes( '- ' + id ), `menu ID "${ id }" missing from prompt` );
+			assert.ok( prompt.includes( `- id: ${ id }` ), `${ id } missing from full menu` );
 		}
+	} );
+
+	it( 'renders optional fields only when present', () => {
+		const withAvoid = TASK_ANNOTATIONS.find( entry => entry.avoidWhen );
+		const withoutAvoid = TASK_ANNOTATIONS.find( entry => ! entry.avoidWhen );
+		assert.ok( withAvoid && withoutAvoid, 'table needs both shapes to exercise this' );
+
+		const prompt = buildTailorPrompt( INPUT, [ withAvoid.id, withoutAvoid.id ] );
+		const blocks = prompt.split( '- id: ' );
+		const plainBlock = blocks.find( block => block.startsWith( `${ withoutAvoid.id }\n` ) );
+
+		assert.ok( prompt.includes( `  avoid when: ${ withAvoid.avoidWhen }` ) );
+		assert.ok( plainBlock && ! plainBlock.includes( 'avoid when:' ) );
+	} );
+
+	it( 'lists only server-enforced rules under the HARD RULES header', () => {
+		// Pinned to the exact strings: the header tells the model each of these is rejected server-side.
+		const prompt = buildTailorPrompt( INPUT, [] );
+		const block = prompt.slice( prompt.indexOf( 'HARD RULES' ) ).split( '\n\n' )[ 0 ];
+		const bullets = block.split( '\n' ).filter( line => line.startsWith( '- ' ) );
+
+		assert.deepEqual( bullets, [
+			'- Every "id" MUST be copied verbatim from the menu below. Never invent IDs: the server drops any id it cannot recognize, and rejects the whole list if too few tasks survive.',
+			'- Return exactly 6 tasks.',
+			'- The 6th and final task MUST be a launch task: "site_launched" (canonical) or "blog_launched".',
+			'- Subtitles must be plain text: no URLs, no HTML, and no template syntax such as {{ }} or [[ ]].',
+		] );
 	} );
 
 	it( 'offers the actionable ids while enough of them remain on the menu', () => {
@@ -72,31 +102,151 @@ describe( 'buildTailorPrompt', () => {
 		assert.equal( chooseTailoringMenu( actionable, renderable ), renderable );
 	} );
 
-	it( 'instructs the model to return only JSON', () => {
-		const prompt = buildTailorPrompt( fixtures[ 0 ].input );
-		assert.ok( /return only a json object/i.test( prompt ) );
+	it( 'lists every theme_category slug the schema accepts', () => {
+		const prompt = buildTailorPrompt( INPUT );
+		for ( const slug of AGENT_OUTPUT_SCHEMA.properties?.inferred.properties?.theme_category.enum ??
+			[] ) {
+			assert.ok( prompt.includes( `${ slug } = ` ), `${ slug } missing from the prompt` );
+		}
 	} );
 
-	it( 'asks for a diagnostic inferred_goal that must not influence the output', () => {
-		const prompt = buildTailorPrompt( fixtures[ 0 ].input );
-		assert.ok( prompt.includes( '"inferred_goal"' ), 'inferred_goal missing from prompt' );
-		// The field is analytics-only; the prompt must tell the model to keep it
-		// out of its task selection.
-		assert.ok(
-			/must NOT influence/.test( prompt ),
-			'no-influence instruction missing from prompt'
+	// Listing every page intro key in the format template made the model fill the unchosen ones with "" or null.
+	it( 'shows a single page_intros key in the output template', () => {
+		const template = buildTailorPrompt( INPUT ).split( '============ format ============' )[ 1 ];
+		assert.match( template, /"page_intros": \{ "add_contact_page": "\.\.\." \}/ );
+		assert.ok( ! /add_(events|video|gallery)_page/.test( template ) );
+	} );
+
+	it( 'asks for exactly the page_intros keys the schema accepts', () => {
+		const prompt = buildTailorPrompt( INPUT );
+		const keys = [ ...prompt.matchAll( /^- "(add_[a-z_]+)": /gm ) ].map( match => match[ 1 ] );
+
+		assert.deepEqual(
+			keys,
+			Object.keys( AGENT_OUTPUT_SCHEMA.properties?.page_intros.properties ?? {} )
+		);
+	} );
+} );
+
+describe( 'buildTailorPrompt output language', () => {
+	const LANGUAGE_HEADER = '============ output language ============';
+	const languageBlock = ( prompt: string ) =>
+		prompt.slice( prompt.indexOf( LANGUAGE_HEADER ) ).split( '\n\n' )[ 0 ];
+
+	it( 'tells an English site to write in English even when the description is not', () => {
+		const block = languageBlock(
+			buildTailorPrompt( {
+				...INPUT,
+				description: "Un'azienda di creativi!",
+				locale: 'en_US',
+				ui_locale: 'en_US',
+			} )
+		);
+
+		assert.match( block, /The site's language is [^.]*English \(locale "en_US"\)/ );
+		assert.match( block, /even when the site name or description is written in another language/ );
+		assert.ok( ! block.includes( 'do not fall back to English' ) );
+	} );
+
+	it( 'does not split the subtitles between two different Englishes', () => {
+		for ( const [ locale, ui ] of [
+			[ 'en_US', 'en_GB' ],
+			[ 'en', 'en_AU' ],
+		] ) {
+			const prompt = buildTailorPrompt( { ...INPUT, locale, ui_locale: ui } );
+			assert.ok( ! prompt.includes( 'Two languages are in play' ), `${ locale } / ${ ui }` );
+		}
+	} );
+
+	it( 'names the site language and forbids an English fallback for other locales', () => {
+		const block = languageBlock(
+			buildTailorPrompt( { ...INPUT, locale: 'it_IT', ui_locale: 'it_IT' } )
+		);
+
+		assert.match( block, /The site's language is Italian[^.]*\(locale "it_IT"\)/ );
+		assert.ok( block.includes( 'do not fall back to English' ) );
+		// The server validates these against English enums, so the model must not translate them.
+		for ( const slug of [ '"goal"', '"inferred_goal"', '"theme_category"', '"id"' ] ) {
+			assert.ok( block.includes( slug ), `${ slug } is not pinned to English` );
+		}
+	} );
+
+	it( 'treats only en* locales as English', () => {
+		for ( const locale of [ 'en', 'en_US', 'en-gb', 'EN' ] ) {
+			assert.ok( isEnglishLocale( locale ), locale );
+		}
+		for ( const locale of [ 'it_IT', 'es', 'eng', 'enm', 'pt_BR' ] ) {
+			assert.ok( ! isEnglishLocale( locale ), locale );
+		}
+	} );
+
+	it( 'splits the languages when the account language differs from the site language', () => {
+		const block = languageBlock(
+			buildTailorPrompt( { ...INPUT, locale: 'fr_FR', ui_locale: 'it_IT' } )
+		);
+
+		// The display name may carry a region ("Italian (Italy)"), so only the language leads the match.
+		assert.match( block, /"subtitle" values in Italian[^"]*\(locale "it_IT"\)/ );
+		assert.match(
+			block,
+			/about_page_draft and every page_intros line in French[^"]*\(locale "fr_FR"\)/
 		);
 	} );
 
-	it( 'asks for a theme_category chosen from the showcase subject slugs', () => {
-		const prompt = buildTailorPrompt( fixtures[ 0 ].input );
-		assert.ok( prompt.includes( '"theme_category"' ), 'theme_category missing from prompt' );
-		// The full slug menu must be in the prompt, and the instruction must steer the
-		// model toward the specific subject over the generic goal bucket.
-		assert.ok(
-			prompt.includes( 'travel-lifestyle' ) && prompt.includes( 'community-non-profit' ),
-			'category slugs missing from prompt'
-		);
-		assert.ok( /specific subject/i.test( prompt ), 'subject-over-bucket guidance missing' );
+	const stepText = ( prompt: string, step: string ) => {
+		const start = prompt.indexOf( `============ ${ step }` );
+		return prompt.slice( start, prompt.indexOf( '\n============ ', start + 1 ) );
+	};
+	const STEP_LANGUAGES: Array< [ string, RegExp ] > = [
+		[ 'STEP 2', /Write every subtitle in Italian/ ],
+		[ 'STEP 3', /Write it in French[^,]*, NOT in Italian/ ],
+		[ 'STEP 4', /Write it in French[^,]*, NOT in Italian/ ],
+		[ 'STEP 5', /Write it in French[^,]*, NOT in Italian/ ],
+	];
+	for ( const [ step, expected ] of STEP_LANGUAGES ) {
+		it( `repeats the split language in ${ step }`, () => {
+			const prompt = buildTailorPrompt( { ...INPUT, locale: 'fr_FR', ui_locale: 'it_IT' } );
+			assert.match( stepText( prompt, step ), expected );
+		} );
+	}
+
+	it( 'leaves the steps alone when both languages match', () => {
+		const prompt = buildTailorPrompt( { ...INPUT, locale: 'it_IT', ui_locale: 'it_IT' } );
+		for ( const step of [ 'STEP 2', 'STEP 3', 'STEP 4', 'STEP 5' ] ) {
+			assert.ok( ! /Write (every subtitle|it) in /.test( stepText( prompt, step ) ), step );
+		}
+	} );
+
+	it( 'still splits when only one of the two languages is English', () => {
+		const englishSite = buildTailorPrompt( { ...INPUT, locale: 'en_US', ui_locale: 'it_IT' } );
+		assert.match( englishSite, /"subtitle" values in Italian/ );
+		assert.match( englishSite, /about_page_draft and every page_intros line in [^"]*English/ );
+
+		const englishAdmin = buildTailorPrompt( { ...INPUT, locale: 'it_IT', ui_locale: 'en_US' } );
+		assert.match( englishAdmin, /"subtitle" values in [^"]*English/ );
+
+		for ( const prompt of [ englishSite, englishAdmin ] ) {
+			assert.ok( ! prompt.includes( 'do not fall back to English' ) );
+		}
+	} );
+
+	it( 'treats a short WordPress.com locale and its regional form as one language', () => {
+		const prompt = buildTailorPrompt( { ...INPUT, locale: 'it', ui_locale: 'it_IT' } );
+
+		assert.ok( ! prompt.includes( 'Two languages are in play' ) );
+		assert.match( prompt, /The site's language is Italian/ );
+	} );
+
+	it( 'writes everything in the site language when no account language is persisted', () => {
+		const prompt = buildTailorPrompt( { ...INPUT, locale: 'it_IT' } );
+
+		assert.ok( ! prompt.includes( 'Two languages are in play' ) );
+		assert.match( prompt, /Write these in that language: the task subtitles/ );
+	} );
+
+	it( 'resolves a WordPress locale to an English language name, or keeps the code', () => {
+		assert.match( languageDisplayName( 'it_IT' ), /^Italian/ );
+		assert.match( languageDisplayName( 'pt_BR' ), /Portuguese/ );
+		assert.equal( languageDisplayName( '!!' ), '!!' );
 	} );
 } );

@@ -26,6 +26,8 @@ interface SearchTermViewsState {
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
+	isPrimaryError: boolean;
+	error: unknown;
 	hasComparison: boolean;
 	refetch: () => void;
 }
@@ -36,21 +38,20 @@ interface SearchTermViewsState {
  * Delegates fetching, caching, and normalization to `useStatsSearchTerms` from
  * `@jetpack-premium-analytics/data`. When comparison params are present, the hook
  * fetches both periods and pairs each primary term with its comparison view count.
- *
- * @param {UseSearchTermViewsArgs} args - Hook arguments.
- * @return The current data/loading/error state.
  */
 export default function useSearchTermViews( {
 	reportParams,
 	max,
 }: UseSearchTermViewsArgs ): SearchTermViewsState {
 	const {
+		primary,
 		comparisonRows,
 		comparison,
 		hasComparison,
 		isLoading,
 		isFetching,
 		isError: hasError,
+		error,
 		refetch,
 	} = useStatsSearchTerms( reportParams as Parameters< typeof useStatsSearchTerms >[ 0 ], {
 		maxRows: max,
@@ -63,15 +64,20 @@ export default function useSearchTermViews( {
 		previousViews: comparisonUsable ? item.previousViews : undefined,
 	} ) );
 
+	// The Stats queries carry `placeholderData: previousData => previousData`, so a
+	// failed range change keeps the prior period's rows in `data` while `isError`
+	// flips true. Only surface the error when there's nothing to show, so a transient
+	// refetch failure doesn't replace populated rows with the error state. `error` is
+	// gated by the same predicate so it is populated iff `isError` is true.
+	const showError = items.length === 0 && hasError;
+
 	return {
 		data: items,
 		isLoading,
 		isFetching,
-		// The Stats queries carry `placeholderData: previousData => previousData`, so a
-		// failed range change keeps the prior period's rows in `data` while `isError`
-		// flips true. Only surface the error when there's nothing to show, so a transient
-		// refetch failure doesn't replace populated rows with the error state.
-		isError: items.length === 0 && hasError,
+		isError: showError,
+		isPrimaryError: primary.isError,
+		error: showError ? error : null,
 		hasComparison: comparisonUsable,
 		refetch,
 	};

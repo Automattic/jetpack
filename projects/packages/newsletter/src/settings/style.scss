@@ -1,4 +1,5 @@
 @use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+@use "@wordpress/base-styles/mixins" as gb;
 @use "sass:meta";
 
 // This stylesheet feeds two bundles: the wp-build dashboard
@@ -88,4 +89,43 @@ body.jetpack_page_jetpack-newsletter {
 			justify-content: space-between;
 		}
 	}
+
+	// Combined search-and-create categories control: help text and the field's
+	// validation message render beneath the token field.
+	.newsletter-categories-control__help {
+		margin-block: var(--wpds-dimension-gap-xs) 0;
+		color: var(--wpds-color-foreground-content-neutral-weak);
+		font-size: var(--wpds-typography-font-size-sm);
+	}
+
+	.newsletter-categories-control__error {
+		display: flex;
+		align-items: center;
+		gap: var(--wpds-dimension-gap-xs);
+		margin-block: var(--wpds-dimension-gap-xs) 0;
+		// Matches the @wordpress/components form-validation red used on trunk (and
+		// across wp-admin form errors). There is no wpds token at this brightness —
+		// the wpds error-foreground tokens are a much darker maroon — so mirror the
+		// components literal to stay consistent with the platform's error styling.
+		color: #cc1818;
+		font-size: var(--wpds-typography-font-size-sm);
+
+		svg {
+			flex-shrink: 0;
+			fill: currentColor;
+		}
+	}
+}
+
+// Core snackbar placement (matches `@wordpress/boot`'s snackbar-container).
+// A section reached from a link (e.g. the Overview checklist). Programmatic
+// focus after a click doesn't match :focus-visible, so ring it on :focus.
+.newsletter-settings__linked-section:focus {
+	outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
+	outline-offset: var(--wpds-border-width-focus);
+}
+
+.jetpack-newsletter-snackbar-notices {
+
+	@include gb.snackbar-container();
 }

@@ -6,55 +6,26 @@ import { ReactNode } from 'react';
 /**
  * Internal dependencies
  */
-import { getApiErrorStatus, shouldRetryApiError } from '../utils';
-import { globalErrorManager } from './global-error-manager';
+// Not the `../utils` barrel, which loads `@wordpress/core-data`.
+import { shouldRetryApiError, StatsResponseShapeError } from '../utils/api-error';
+
+// Everything below reads the HTTP status, which apiFetch drops on its way to
+// throwing the parsed body. `fetchPreservingStatus()` restores it at its own
+// call site; the queries still on bare apiFetch hit local WP REST routes, whose
+// `WP_Error` bodies already carry `data.status`.
 
 const DEFAULT_STALE_TIME = 5 * 60 * 1000;
 const DEFAULT_GC_TIME = 10 * 60 * 1000;
 
-/**
- * QueryCache with global error detection for auth and server errors.
- *
- * Error codes handled:
- * - 401: Authentication failure (session expired, invalid token)
- * - 502: Bad gateway (proxy/load balancer can't reach upstream)
- * - 503: Service unavailable (server overloaded or under maintenance)
- * - 504: Gateway timeout (request took too long)
- *
- * This is QueryClient configuration (not a side effect subscription), so it's
- * appropriate at module level. The globalErrorManager singleton is used here
- * because QueryClient must be instantiated once (singleton pattern), but the
- * error state is safely consumed via useSyncExternalStore in GlobalErrorProvider.
- *
- * Network errors are handled separately in GlobalErrorProvider via onlineManager.
- */
+// Module level is safe: configuration rather than a side-effect subscription,
+// and QueryClient must be instantiated once.
 const queryCache = new QueryCache( {
 	onError: error => {
-		const currentError = globalErrorManager.getError();
-
-		// Don't override network error (highest priority)
-		if ( currentError === 'network' ) {
-			return;
-		}
-
-		const status = getApiErrorStatus( error );
-
-		if ( status === 401 ) {
-			// Auth errors take precedence over server errors, but not network errors.
-			if ( currentError !== 'auth' ) {
-				globalErrorManager.setError( 'auth' );
-			}
-		} else if ( status === 502 || status === 503 || status === 504 ) {
-			// Server errors: only set if no higher-priority error exists.
-			if ( currentError !== 'auth' && currentError !== 'server' ) {
-				globalErrorManager.setError( 'server' );
-			}
-		}
-	},
-	onSuccess: () => {
-		// Clear transient server errors once queries start succeeding again.
-		if ( globalErrorManager.getError() === 'server' ) {
-			globalErrorManager.clearError();
+		if ( error instanceof StatsResponseShapeError ) {
+			// A response contract violation needs a developer-visible diagnostic;
+			// the widget intentionally replaces the detail with user-safe copy.
+			// eslint-disable-next-line no-console
+			console.warn( `Unexpected Stats response: ${ error.message }` );
 		}
 	},
 } );
@@ -63,18 +34,8 @@ export const queryClient = new QueryClient( {
 	queryCache,
 	defaultOptions: {
 		queries: {
-			/*
-			 * Stale time is the time after which the data
-			 * is considered stale and a new request is made.
-			 * Stale time: 5 minutes
-			 */
 			staleTime: DEFAULT_STALE_TIME,
 
-			/*
-			 * GC time is the time after which the data is considered garbage
-			 * collected and removed from the cache.
-			 * GC time: 10 minutes
-			 */
 			gcTime: DEFAULT_GC_TIME,
 
 			/**

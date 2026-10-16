@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Stop shipping megabytes of unminified JS as part of the package.

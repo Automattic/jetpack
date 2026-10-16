@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Dashboard: fix widget grid flicker when resizing a widget vertically by letting the section panel fill the viewport height and scroll internally, so it no longer oscillates with the grid.

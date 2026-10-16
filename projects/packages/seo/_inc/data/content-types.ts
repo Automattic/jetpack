@@ -1,5 +1,5 @@
-// Types for the Content tab, which lists posts/pages backed by WordPress core
-// REST (`/wp/v2/posts`, `/wp/v2/pages`) plus the SEO post meta registered in
+// Types for the Content tab, which lists supported post types backed by
+// WordPress core REST plus the SEO post meta registered in
 // `class-jetpack-seo-posts.php`. There is no package REST controller — every
 // field here comes from a core REST record's `meta` object.
 
@@ -15,9 +15,8 @@ export interface SeoPostMeta {
 	jetpack_seo_schema_type: SchemaType;
 }
 
-// The post type the Content tab is currently listing. Switches the core
-// endpoint between `/wp/v2/posts` and `/wp/v2/pages`.
-export type ContentPostType = 'post' | 'page';
+// The post type slug the Content tab is currently listing/editing.
+export type ContentPostType = string;
 
 // A single row in the Content DataViews table. Factual flags only — the table
 // reports the *state* of each SEO field, never a score or quality judgement.
@@ -37,10 +36,19 @@ export interface ContentRow {
 	hasDescription: boolean;
 }
 
-// An option for the post-type filter (Posts / Pages).
+// An option for the post-type filter.
 export interface PostTypeOption {
 	value: ContentPostType;
 	label: string;
+}
+
+// The PHP-selected post types preloaded for the Content tab. This keeps the
+// client aligned with the supported-type rule used for Overview and llms.txt.
+export interface ContentData {
+	post_types: Array< {
+		slug: ContentPostType;
+		label: string;
+	} >;
 }
 
 // Optimistic adjustment applied to the Overview coverage counts when a post's

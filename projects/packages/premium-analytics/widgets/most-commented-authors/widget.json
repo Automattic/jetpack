@@ -1,0 +1,17 @@
+{
+	"name": "jpa/most-commented-authors",
+	"icon": "jpa/post-author",
+	"title": "All-time most commented authors",
+	"description": "The people who comment the most on your site.",
+	"help": {
+		"content": "The people who left the most comments on your site.",
+		"links": [
+			{
+				"label": "Learn more",
+				"href": "https://jetpack.com/support/jetpack-stats/"
+			}
+		]
+	},
+	"category": "stats",
+	"presentation": "framed"
+}

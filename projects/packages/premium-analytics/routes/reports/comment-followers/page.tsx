@@ -2,31 +2,30 @@
  * External dependencies
  */
 import { type StatsCommentFollowersItem } from '@jetpack-premium-analytics/data';
-import { useDashboardLink } from '@jetpack-premium-analytics/routing';
+import { Text } from '@jetpack-premium-analytics/externals';
+import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	MetricValue,
-	ReportErrorState,
 	ReportPageLayout,
 	ReportPageSection,
+	ReportErrorState,
 	ReportPageShell,
 	ReportRecordsTable,
-	useReportRetry,
+	ReportCsvAction,
+	useReportCsvExport,
+	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { Breadcrumbs } from '@wordpress/admin-ui';
-import { Spinner } from '@wordpress/components';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { EmptyState, Text } from '@wordpress/ui';
+import { type JSX } from 'react';
 /**
  * Internal dependencies
  */
+import { REPORTS } from '../registry';
 import { getCommentFollowersFields, useCommentFollowersReportRecords } from './config';
 import styles from './page.module.css';
 
-/**
- * Initial records-table view: subscribers sort descending, the post column
- * absorbs spare width, and the numeric column stays compact and right-aligned.
- */
+/** Default records-table view: sort by subscribers, other columns auto-sized. */
 const RECORDS_VIEW = {
 	sort: { field: 'subscribers', direction: 'desc' as const },
 	layout: {
@@ -36,6 +35,9 @@ const RECORDS_VIEW = {
 		},
 	},
 };
+
+const sortCommentFollowerCsvRows = ( a: StatsCommentFollowersItem, b: StatsCommentFollowersItem ) =>
+	b.followers - a.followers;
 
 /**
  * Stable row id for the records table.
@@ -48,81 +50,93 @@ function getCommentFollowerRowId( item: StatsCommentFollowersItem ): string {
 }
 
 /**
- * Premium Analytics Comments Subscribers report page component.
- *
- * This legacy report is an all-time paginated list without date buckets, so
- * it composes only the breadcrumb header and records table: no date filters,
- * tabs, or performance chart.
+ * Legacy all-time paginated list with no date buckets: only the breadcrumb header and
+ * records table render, no date filters, tabs, or performance chart.
  *
  * @return The Comments Subscribers report page.
  */
 function CommentFollowersReport(): JSX.Element {
 	const records = useCommentFollowersReportRecords();
 	const fields = useMemo( () => getCommentFollowersFields(), [] );
-	const retry = useReportRetry( records.refetch );
+	const csvColumns = useMemo< CsvColumn< StatsCommentFollowersItem >[] >(
+		() => [
+			{
+				label: __( 'Post', 'jetpack-premium-analytics-pkg' ),
+				getValue: row => String( row.label ?? '' ),
+			},
+			{
+				label: __( 'Subscribers', 'jetpack-premium-analytics-pkg' ),
+				getValue: row => row.followers,
+			},
+			{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: row => row.link ?? '' },
+		],
+		[]
+	);
+	const {
+		canExport,
+		rows: csvRows,
+		filename: csvFilename,
+	} = useReportCsvExport( {
+		rows: records.rows,
+		filenamePrefix: 'comment-subscribers',
+		status: records,
+		sort: sortCommentFollowerCsvRows,
+	} );
 
-	// Preserve the shared report window when returning to the dashboard.
-	const dashboardLink = useDashboardLink();
+	const { getLabel } = REPORTS[ 'comment-followers' ];
+	// The endpoint reports site-wide followers apart from the per-post rows, so either can exist alone.
+	const hasAllPostsFollowers = ( records.allPostsFollowers ?? 0 ) > 0;
+	const hasPostRows = records.rows.length > 0;
 
 	return (
 		<ReportPageShell
-			breadcrumbs={
-				<Breadcrumbs
-					items={ [
-						{ label: __( 'Stats', 'jetpack-premium-analytics' ), to: dashboardLink },
-						{ label: __( 'Comments Subscribers', 'jetpack-premium-analytics' ) },
-					] }
-				/>
+			visual={ <StatsPageIcon /> }
+			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
+			actions={
+				canExport ? (
+					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
+				) : undefined
 			}
 		>
-			<ReportPageLayout>
-				{ records.isError ? (
-					<ReportErrorState
-						title={ __( 'Unable to load subscribers', 'jetpack-premium-analytics' ) }
-						onRetry={ retry }
-					/>
-				) : (
-					<>
+			<ReportPageLayout title={ getLabel() }>
+				<ReportErrorState
+					status={ records }
+					retryDescription={ __(
+						"We couldn't load subscribers. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					) }
+				>
+					{ ( hasAllPostsFollowers || hasPostRows ) && (
 						<ReportPageSection className={ styles.summary }>
 							<Text variant="heading-md" render={ <h3 /> }>
-								{ __( 'All Posts', 'jetpack-premium-analytics' ) }
+								{ __( 'All Posts', 'jetpack-premium-analytics-pkg' ) }
 							</Text>
-							{ records.isLoading ? (
-								<Spinner />
-							) : (
-								<MetricValue
-									value={ records.allPostsFollowers ?? 0 }
-									dataFormat={ { type: 'number' } }
-								/>
-							) }
+							<MetricValue
+								value={ records.allPostsFollowers ?? 0 }
+								dataFormat={ { type: 'number' } }
+							/>
 						</ReportPageSection>
+					) }
+					{ ( hasPostRows || ! hasAllPostsFollowers ) && (
 						<ReportRecordsTable< StatsCommentFollowersItem >
 							data={ records.rows }
 							fields={ fields }
 							getItemId={ getCommentFollowerRowId }
 							isLoading={ records.isLoading }
+							isFetching={ records.isFetching }
 							initialView={ RECORDS_VIEW }
-							searchLabel={ __( 'Search posts', 'jetpack-premium-analytics' ) }
-							empty={
-								<EmptyState.Root>
-									<EmptyState.Title>
-										{ __( 'No subscribers', 'jetpack-premium-analytics' ) }
-									</EmptyState.Title>
-								</EmptyState.Root>
-							}
+							searchLabel={ __( 'Search posts', 'jetpack-premium-analytics-pkg' ) }
 						/>
-					</>
-				) }
+					) }
+				</ReportErrorState>
 			</ReportPageLayout>
 		</ReportPageShell>
 	);
 }
 
 /**
- * Comments Subscribers report page (default export for the report registry).
- *
- * React Query and global error handling are provided by the shared report
- * stage, which lazily renders this page through the registry.
+ * Registry entry point; React Query and error handling come from the shared
+ * report stage that renders this lazily.
  *
  * @return The Comments Subscribers report page.
  */

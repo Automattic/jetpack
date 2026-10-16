@@ -33,4 +33,5 @@ export const amazon: PodcastApp = {
 	name: 'Amazon Music',
 	Logo: AmazonLogo,
 	submitUrl: 'https://podcasters.amazon.com',
+	submission: 'manual',
 };

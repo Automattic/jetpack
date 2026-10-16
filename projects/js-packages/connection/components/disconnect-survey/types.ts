@@ -1,14 +1,18 @@
-import type { KeyboardEvent, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 export interface SurveyChoiceProps {
-	/** The ID/slug string of the survey option. */
+	/** The ID/slug string of the survey option. Used as the radio's value. */
 	id: string;
-	/** Event handler for clicking on the survey option. */
-	onClick: ( id: string ) => void;
-	/** Event handler for pressing a key on the survey option. */
-	onKeyDown: ( id: string, e: KeyboardEvent< HTMLDivElement > ) => void;
-	/** Any passed elements as children to this component. */
+	/** The `name` shared by every radio in the survey, which forms the radio group. */
+	name: string;
+	/** The visible label for this option. */
+	label: ReactNode;
+	/** Whether this option is the currently selected one. */
+	checked: boolean;
+	/** Called with the option's ID when this option is selected. */
+	onSelect: ( id: string ) => void;
+	/**
+	 * Extra content rendered inside the card, beside the label.
+	 */
 	children?: ReactNode;
-	/** A class name to apply to the survey choice. */
-	className: string;
 }

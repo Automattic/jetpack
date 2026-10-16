@@ -1,10 +1,12 @@
 import { getSettings as getDateSettings } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
+import { Icon, mobile } from '@wordpress/icons';
 import { Badge, Stack, Text } from '@wordpress/ui';
 import { useProcessingProgress } from '../../hooks/use-processing-progress';
 import { formatBytes, formatDuration } from '../../utils/format';
 import ThumbnailField from './thumbnail-field';
 import { useUploadActions } from './upload-actions-context';
+import { getUploadFailureLabel } from './upload-failure-label';
 import type { LibraryItem } from '../../types/library';
 import type { Field, Operator } from '@wordpress/dataviews';
 
@@ -13,12 +15,10 @@ const dateSettings = getDateSettings();
 type BadgeIntent = React.ComponentProps< typeof Badge >[ 'intent' ];
 
 /**
- * Render a video's title. For idle VideoPress videos it's a link-styled button
- * that opens the video's Details (mirroring Core); for every other state it's a
- * plain span so uploading/failed/local rows stay non-navigable.
+ * Open details for uploaded videos and temporary upload drafts.
  *
  * @param props      - Component props.
- * @param props.item - The library item rendered by this cell.
+ * @param props.item - The library item.
  * @return The title element.
  */
 const TitleText = ( { item }: { item: LibraryItem } ) => {
@@ -28,7 +28,7 @@ const TitleText = ( { item }: { item: LibraryItem } ) => {
 	// `title` attributes expose the full text on hover; the elements
 	// themselves truncate with an ellipsis (see &__title-link /
 	// &__title-text in style.scss).
-	if ( type === 'videopress' && upload.status === 'idle' ) {
+	if ( id.startsWith( 'upload-' ) || ( type === 'videopress' && upload.status === 'idle' ) ) {
 		return (
 			<button
 				type="button"
@@ -44,6 +44,39 @@ const TitleText = ( { item }: { item: LibraryItem } ) => {
 	return (
 		<span className="vp-library__title-text" title={ title }>
 			{ title }
+		</span>
+	);
+};
+
+const orientationLabel = ( orientation: NonNullable< LibraryItem[ 'orientation' ] > ): string =>
+	orientation === 'landscape'
+		? __( 'Landscape', 'jetpack-videopress-pkg' )
+		: __( 'Portrait', 'jetpack-videopress-pkg' );
+
+/**
+ * Render the orientation indicator: the core `mobile` icon, upright for
+ * portrait videos and rotated a quarter turn (via CSS) for landscape ones.
+ * Videos with unknown dimensions or a square frame render nothing.
+ *
+ * @param props      - Component props.
+ * @param props.item - The library item rendered by this cell.
+ * @return The orientation indicator, or null.
+ */
+const OrientationCell = ( { item }: { item: LibraryItem } ) => {
+	if ( ! item.orientation ) {
+		return null;
+	}
+
+	const label = orientationLabel( item.orientation );
+
+	return (
+		<span
+			role="img"
+			aria-label={ label }
+			title={ label }
+			className={ `vp-library__orientation vp-library__orientation--${ item.orientation }` }
+		>
+			<Icon icon={ mobile } size={ 24 } />
 		</span>
 	);
 };
@@ -82,10 +115,22 @@ const TitleCell = ( { item }: { item: LibraryItem } ) => {
 			label: __( 'Deleting…', 'jetpack-videopress-pkg' ),
 		};
 	} else if ( upload.status === 'failed' ) {
+		// The pill is one line, so the cause is joined onto the summary here. The
+		// grid's thumbnail overlay stacks the same two parts instead.
+		const { summary, cause } = getUploadFailureLabel( upload.failureReason );
 		pill = {
 			intent: 'high',
-			label: __( 'Upload failed', 'jetpack-videopress-pkg' ),
+			label: cause
+				? sprintf(
+						/* translators: 1: what went wrong, e.g. "Upload failed". 2: what it was attributed to, e.g. "Jetpack connection issue". */
+						__( '%1$s: %2$s', 'jetpack-videopress-pkg' ),
+						summary,
+						cause
+					)
+				: summary,
 		};
+	} else if ( item.conversionFailed ) {
+		pill = { intent: 'high', label: __( 'Conversion failed', 'jetpack-videopress-pkg' ) };
 	} else if ( isProcessing ) {
 		pill = {
 			intent: 'informational',
@@ -95,7 +140,7 @@ const TitleCell = ( { item }: { item: LibraryItem } ) => {
 							/* translators: %d: transcoding progress percentage */
 							__( 'Processing %d%%', 'jetpack-videopress-pkg' ),
 							processingProgress
-					  )
+						)
 					: __( 'Processing', 'jetpack-videopress-pkg' ),
 		};
 	} else if ( type === 'local' ) {
@@ -174,6 +219,13 @@ export const libraryFields: Field< LibraryItem >[] = [
 		label: __( 'Duration', 'jetpack-videopress-pkg' ),
 		getValue: ( { item } ) => item.durationSeconds,
 		render: ( { item } ) => formatDuration( item.durationSeconds ),
+		enableSorting: false,
+	},
+	{
+		id: 'orientation',
+		label: __( 'Orientation', 'jetpack-videopress-pkg' ),
+		getValue: ( { item } ) => item.orientation ?? '',
+		render: OrientationCell,
 		enableSorting: false,
 	},
 	{

@@ -1,6 +1,9 @@
 <?php
 /**
- * Dashboard Sections: registry bootstrap and REST routes.
+ * Dashboard Sections API: the registry helpers, the section script data, and the REST routes.
+ *
+ * The package's own sections register through this API from default-dashboard-sections.php,
+ * the same way a plugin extending the dashboard does.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -9,13 +12,14 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 
 require_once __DIR__ . '/dashboard-layout.php';
 require_once __DIR__ . '/dashboard-grammar.php';
+require_once __DIR__ . '/rest-namespace.php';
 require_once __DIR__ . '/class-dashboard-section.php';
 require_once __DIR__ . '/class-dashboard-section-registry.php';
 
-/**
- * Filter through which WooCommerce section availability is resolved.
- */
-const WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER = 'jetpack_premium_analytics_woocommerce_dashboard_section_available';
+// Guarded on a symbol the file declares, so a second copy of the package can't redeclare it.
+if ( ! function_exists( __NAMESPACE__ . '\\register_dashboard_feature_flags' ) ) {
+	require_once __DIR__ . '/dashboard-policy.php';
+}
 
 /**
  * Registers a dashboard section.
@@ -51,86 +55,96 @@ function get_available_dashboard_sections( $dashboard_name ) {
 }
 
 /**
- * Whether the WooCommerce dashboard section should be exposed.
+ * Slugs of the tabs the dashboard exposes, for the client's report routes.
  *
- * @return bool True when WooCommerce is active.
- */
-function is_woocommerce_dashboard_section_available() {
-	$is_available = class_exists( 'WooCommerce' ) || function_exists( 'WC' );
-
-	/**
-	 * Filters whether the WooCommerce dashboard section is available.
-	 *
-	 * @param bool $is_available Whether WooCommerce was detected in the current request.
-	 */
-	return (bool) apply_filters( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, $is_available );
-}
-
-/**
- * Returns the default widget layout for the WooCommerce dashboard section.
+ * Reads the same sections the tab list does, so a report cannot outlive the tab it sits
+ * behind. Null, never `array()`, while nothing is registered: an empty array means no
+ * tab is available.
  *
- * @return array Array of widget instances.
- */
-function get_woocommerce_dashboard_section_default_layout() {
-	return get_dashboard_default_layout_for( 'woocommerce/store' );
-}
-
-/**
- * Registers the default Premium Analytics dashboard sections.
+ * @since 0.6.0
  *
- * @return void
+ * @return string[]|null
  */
-function register_default_dashboard_sections() {
+function get_available_dashboard_section_slugs() {
 	$registry = Dashboard_Section_Registry::get_instance();
 
-	$sections = array(
-		'analytics/traffic'     => array(
-			'label'          => __( 'Traffic', 'jetpack-premium-analytics' ),
-			'order'          => 10,
-			'default_layout' => static function () {
-				return get_dashboard_default_layout_for( 'analytics/traffic' );
-			},
-		),
-		'analytics/insights'    => array(
-			'label'          => __( 'Insights', 'jetpack-premium-analytics' ),
-			'order'          => 20,
-			'default_layout' => static function () {
-				return get_dashboard_default_layout_for( 'analytics/insights' );
-			},
-		),
-		'analytics/subscribers' => array(
-			'label'          => __( 'Subscribers', 'jetpack-premium-analytics' ),
-			'order'          => 30,
-			'default_layout' => static function () {
-				return get_dashboard_default_layout_for( 'analytics/subscribers' );
-			},
-		),
-		'woocommerce/store'     => array(
-			'label'          => __( 'Store', 'jetpack-premium-analytics' ),
-			'order'          => 40,
-			'is_available'   => __NAMESPACE__ . '\\is_woocommerce_dashboard_section_available',
-			'default_layout' => __NAMESPACE__ . '\\get_woocommerce_dashboard_section_default_layout',
-		),
-	);
-
-	foreach ( $sections as $id => $args ) {
-		if ( ! $registry->is_registered( DASHBOARD_NAME, $id ) ) {
-			register_dashboard_section( DASHBOARD_NAME, $id, $args );
-		}
+	if ( empty( $registry->get_all_registered( DASHBOARD_NAME ) ) ) {
+		return null;
 	}
+
+	return array_map(
+		static function ( Dashboard_Section $section ) {
+			return $section->slug;
+		},
+		$registry->get_available_sections( DASHBOARD_NAME )
+	);
 }
 
 /**
- * Hydrates the dashboard section registry.
+ * Configures the section script data.
+ *
+ * @since 0.6.0
  *
  * @return void
  */
-function bootstrap_dashboard_sections() {
-	if ( did_action( 'init' ) ) {
-		register_default_dashboard_sections();
-	} else {
-		add_action( 'init', __NAMESPACE__ . '\\register_default_dashboard_sections' );
+function configure_dashboard_sections_script_data() {
+	add_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_dashboard_sections_script_data', 20 );
+}
+
+/**
+ * Kept for older copies of the package, whose Dashboard_Section::is_available() calls it on every
+ * availability check. Every section is in scope now, so the section's own rule decides.
+ *
+ * @since 0.6.0
+ * @deprecated 0.10.0 The preview scope is gone.
+ *
+ * @param string $dashboard_name Dashboard identifier.
+ * @param string $slug           URL-facing section slug.
+ * @return bool Always true.
+ */
+function is_dashboard_section_in_preview_scope( $dashboard_name, $slug ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Kept for the signature older copies call.
+	return true;
+}
+
+/**
+ * Kept for older copies of the package: they guard their include of this file on another
+ * symbol and call this, so a newer copy loading first must still define it.
+ *
+ * @since 0.6.0
+ * @deprecated 0.10.0 Use configure_dashboard_sections_script_data().
+ *
+ * @return void
+ */
+function configure_dashboard_preview_scope() {
+	configure_dashboard_sections_script_data();
+}
+
+/**
+ * Injects the available section slugs, and whether the reader may see Stats, into JetpackScriptData.
+ *
+ * The same list travels over REST for the tab bar, but a report route reads no REST before
+ * choosing its redirect, so it reads the slugs from boot data instead.
+ *
+ * @since 0.6.0
+ *
+ * @param array $data The script data passed by the assets package.
+ * @return array
+ */
+function inject_dashboard_sections_script_data( array $data ): array {
+	if ( ! isset( $data['premium_analytics'] ) || ! is_array( $data['premium_analytics'] ) ) {
+		$data['premium_analytics'] = array();
 	}
+
+	// Surfaces outside any section, such as feedback, post to Stats endpoints.
+	$data['premium_analytics']['can_view_stats'] = Capabilities::current_user_can_view_stats();
+
+	$sections = get_available_dashboard_section_slugs();
+
+	if ( null !== $sections ) {
+		$data['premium_analytics']['sections'] = $sections;
+	}
+
+	return $data;
 }
 
 /**
@@ -139,7 +153,7 @@ function bootstrap_dashboard_sections() {
  * @return bool
  */
 function check_dashboard_sections_permission() {
-	return current_user_can( 'manage_options' );
+	return Capabilities::current_user_can_view_analytics();
 }
 
 /**
@@ -155,7 +169,7 @@ function get_available_dashboard_section_for_route( $dashboard_name, $section_id
 	if ( ! $section ) {
 		return new \WP_Error(
 			'dashboard_section_not_found',
-			__( 'Dashboard section not found.', 'jetpack-premium-analytics' ),
+			__( 'Dashboard section not found.', 'jetpack-premium-analytics-pkg' ),
 			array( 'status' => 404 )
 		);
 	}
@@ -163,12 +177,110 @@ function get_available_dashboard_section_for_route( $dashboard_name, $section_id
 	if ( ! $section->is_available() ) {
 		return new \WP_Error(
 			'dashboard_section_unavailable',
-			__( 'Dashboard section is not available.', 'jetpack-premium-analytics' ),
+			__( 'Dashboard section is not available.', 'jetpack-premium-analytics-pkg' ),
 			array( 'status' => 404 )
 		);
 	}
 
 	return $section;
+}
+
+/**
+ * REST schema for one dashboard section, as returned by the sections route.
+ *
+ * Mirrored by the frontend's `sections.ts` and reused by WPCOM for Simple sites (see AGENTS.md).
+ *
+ * @since 0.2.0
+ *
+ * @return array The JSON schema for a dashboard section.
+ */
+function get_dashboard_section_schema() {
+	return array(
+		'$schema'    => 'http://json-schema.org/draft-04/schema#',
+		'title'      => 'jetpack-premium-analytics-dashboard-section',
+		'type'       => 'object',
+		'properties' => array(
+			'id'                      => array(
+				'description' => __( 'Namespaced section identifier.', 'jetpack-premium-analytics-pkg' ),
+				'type'        => 'string',
+				'readonly'    => true,
+			),
+			'slug'                    => array(
+				'description' => __( 'URL-facing section slug, derived from the identifier.', 'jetpack-premium-analytics-pkg' ),
+				'type'        => 'string',
+				'readonly'    => true,
+			),
+			'label'                   => array(
+				'description' => __( 'Translated display label, naming the section tab.', 'jetpack-premium-analytics-pkg' ),
+				'type'        => 'string',
+				'readonly'    => true,
+			),
+			'title'                   => array(
+				'description' => __( 'Translated section heading, distinct from the tab label. Null falls back to the label.', 'jetpack-premium-analytics-pkg' ),
+				'type'        => array( 'string', 'null' ),
+				'readonly'    => true,
+			),
+			'order'                   => array(
+				'description' => __( 'Sort order, ascending.', 'jetpack-premium-analytics-pkg' ),
+				'type'        => 'integer',
+				'readonly'    => true,
+			),
+			'date_filter'             => array(
+				'description' => __( 'Which shape the section date filter takes: the rolling date range, or all time plus single years.', 'jetpack-premium-analytics-pkg' ),
+				'type'        => 'string',
+				'enum'        => Dashboard_Section::DATE_FILTERS,
+				'default'     => Dashboard_Section::DATE_FILTER_RANGE,
+				'readonly'    => true,
+			),
+			'date_filter_options'     => array(
+				'description' => __( 'What the section date filter supports, and where it renders.', 'jetpack-premium-analytics-pkg' ),
+				'type'        => 'object',
+				'properties'  => array(
+					'with_date_comparison'         => array(
+						'description' => __( 'Whether the section supports period-over-period comparison at all. When false, no widget in the section receives comparison parameters.', 'jetpack-premium-analytics-pkg' ),
+						'type'        => 'boolean',
+						'default'     => true,
+					),
+					'with_header_date_control'     => array(
+						'description' => __( 'Whether the section header renders the date control. When false, the section widgets host their own.', 'jetpack-premium-analytics-pkg' ),
+						'type'        => 'boolean',
+						'default'     => true,
+					),
+					'with_header_interval_control' => array(
+						'description' => __( 'Whether the section header renders the chart interval control. When false, the section charts host their own.', 'jetpack-premium-analytics-pkg' ),
+						'type'        => 'boolean',
+						'default'     => true,
+					),
+				),
+				'readonly'    => true,
+			),
+			'requires_sync'           => array(
+				'description' => __( 'Whether the section\'s numbers stay incomplete until the analytics initial full sync has finished.', 'jetpack-premium-analytics-pkg' ),
+				'type'        => 'boolean',
+				'default'     => false,
+				'readonly'    => true,
+			),
+			'notice'                  => array(
+				'description' => __( 'Message shown above the section widgets, or null when there is none.', 'jetpack-premium-analytics-pkg' ),
+				'type'        => array( 'string', 'null' ),
+				'default'     => null,
+				'readonly'    => true,
+			),
+			'default_layout'          => array(
+				'description' => __( 'Bundled default widget layout.', 'jetpack-premium-analytics-pkg' ),
+				'type'        => 'array',
+				'items'       => array( 'type' => 'object' ),
+				'readonly'    => true,
+			),
+			'insertable_widget_types' => array(
+				'description' => __( 'Widget types the section inserter offers on top of its default layout.', 'jetpack-premium-analytics-pkg' ),
+				'type'        => 'array',
+				'items'       => array( 'type' => 'string' ),
+				'default'     => array(),
+				'readonly'    => true,
+			),
+		),
+	);
 }
 
 /**
@@ -214,15 +326,19 @@ function register_dashboard_sections_rest_routes() {
 		DASHBOARD_REST_NAMESPACE,
 		'/dashboards/(?P<name>' . get_dashboard_name_pattern() . ')/sections',
 		array(
-			'methods'             => \WP_REST_Server::READABLE,
-			'callback'            => __NAMESPACE__ . '\\get_dashboard_sections_response',
-			'permission_callback' => __NAMESPACE__ . '\\check_dashboard_sections_permission',
-			'args'                => array(
-				'name' => array(
-					'description' => __( 'Dashboard identifier as produced by the build pipeline.', 'jetpack-premium-analytics' ),
-					'type'        => 'string',
+			array(
+				// @phan-suppress-next-line PhanPluginMixedKeyNoKey -- register_rest_route()'s own signature mixes a numerically keyed endpoint list with a route-level `schema` key.
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => __NAMESPACE__ . '\\get_dashboard_sections_response',
+				'permission_callback' => __NAMESPACE__ . '\\check_dashboard_sections_permission',
+				'args'                => array(
+					'name' => array(
+						'description' => __( 'Dashboard identifier as produced by the build pipeline.', 'jetpack-premium-analytics-pkg' ),
+						'type'        => 'string',
+					),
 				),
 			),
+			'schema' => __NAMESPACE__ . '\\get_dashboard_section_schema',
 		)
 	);
 
@@ -235,16 +351,14 @@ function register_dashboard_sections_rest_routes() {
 			'permission_callback' => __NAMESPACE__ . '\\check_dashboard_sections_permission',
 			'args'                => array(
 				'name'    => array(
-					'description' => __( 'Dashboard identifier as produced by the build pipeline.', 'jetpack-premium-analytics' ),
+					'description' => __( 'Dashboard identifier as produced by the build pipeline.', 'jetpack-premium-analytics-pkg' ),
 					'type'        => 'string',
 				),
 				'section' => array(
-					'description' => __( 'Dashboard section identifier.', 'jetpack-premium-analytics' ),
+					'description' => __( 'Dashboard section identifier.', 'jetpack-premium-analytics-pkg' ),
 					'type'        => 'string',
 				),
 			),
 		)
 	);
 }
-
-bootstrap_dashboard_sections();

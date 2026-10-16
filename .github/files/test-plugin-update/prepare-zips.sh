@@ -2,11 +2,55 @@
 
 set -eo pipefail
 
-BETAJSON="$(curl -L --fail --retry 2 --retry-delay $(( 30 + RANDOM % 8 )) --url "https://betadownload.jetpack.me/plugins.json")"
-jq -e '.' <<<"$BETAJSON" &>/dev/null
+function fetchurl {
+	local code=0
+	local delay=$(( 30 + RANDOM % 8 ))
+	local ct=0
+
+	while true; do
+		curl -L --fail --retry 2 --retry-delay $delay --url "$1" --output "$2" 2>&1 || code=$?
+		case $code in
+			0)
+				return 0
+				;;
+			35)
+				ct=$(( ct + 1 ))
+				if [[ $ct -ge 3 ]]; then
+					echo "::error::Multiple network errors trying to download $1."
+					echo "❌ Multiple network errors trying to download $1" >> "$GITHUB_STEP_SUMMARY"
+					exit $code
+				fi
+				echo "Network error. Will retry."
+				sleep $delay
+				continue
+				;;
+			*)
+				echo "::error::Failed to download $1."
+				echo "❌ Failed to download $1" >> "$GITHUB_STEP_SUMMARY"
+				exit $code
+				;;
+		esac
+	done
+}
+
+function fetchjson {
+	local code=0
+
+	fetchurl "$1" "$2" || return $?
+	if ! jq -e '.' "$2" &>/dev/null; then
+		echo "::error::Unexpected response from $1"
+		cat "$2"
+		echo "❌ Unexpected response from $1" >> "$GITHUB_STEP_SUMMARY"
+		exit 1
+	fi
+	return 0
+}
+
 
 mkdir work
 mkdir zips
+
+fetchjson "https://betadownload.jetpack.me/plugins.json" work/plugins.json
 
 if [[ "$PLUGIN_SLUG" == wpcomsh ]]; then
 	echo "Skipping $PLUGIN_SLUG, doesn't work on self-hosted sites."
@@ -25,27 +69,20 @@ BETASLUG="$(jq -r '.extra["beta-plugin-slug"] // .extra["wp-plugin-slug"] // ""'
 if [[ -z "$BETASLUG" ]]; then
 	echo "No beta-plugin-slug or wp-plugin-slug in composer.json, skipping"
 else
-	URL="$(jq -r --arg slug "$BETASLUG" '.[$slug].manifest_url // ""' <<<"$BETAJSON")"
+	URL="$(jq -r --arg slug "$BETASLUG" '.[$slug].manifest_url // ""' work/plugins.json)"
 	if [[ -z "$URL" ]]; then
 		echo "Beta slug $BETASLUG is not in plugins.json, skipping"
 	else
-		JSON="$(curl -L --fail --retry 2 --retry-delay $(( 30 + RANDOM % 8 )) --url "$URL")"
-		if jq -e '.' <<<"$JSON" &>/dev/null; then
-			URL="$(jq -r '.trunk.download_url // .master.download_url // ""' <<<"$JSON")"
-			if [[ -z "$URL" ]]; then
-				echo "Plugin has no trunk build."
-			else
-				curl -L --fail --retry 2 --retry-delay $(( 30 + RANDOM % 8 )) --url "$URL" --output "work/tmp.zip" 2>&1
-				(cd work && unzip -q tmp.zip)
-				mv "work/$BETASLUG-dev" "work/$PLUGIN_SLUG"
-				(cd work && zip -qr "../zips/${PLUGIN_SLUG}-trunk.zip" "$PLUGIN_SLUG")
-				rm -rf "work/$PLUGIN_SLUG" "work/tmp.zip"
-			fi
+		fetchjson "$URL" "work/manifest.json"
+		URL="$(jq -r '.trunk.download_url // .master.download_url // ""' work/manifest.json)"
+		if [[ -z "$URL" ]]; then
+			echo "Plugin has no trunk build."
 		else
-			echo "::error::Unexpected response from betadownload.jetpack.me for $PLUGIN_SLUG"
-			echo "$JSON"
-			echo "❌ Unexpected response from betadownload.jetpack.me for $PLUGIN_SLUG" >> "$GITHUB_STEP_SUMMARY"
-			exit 1
+			fetchurl "$URL" "work/tmp.zip"
+			(cd work && unzip -q tmp.zip)
+			mv "work/$BETASLUG-dev" "work/$PLUGIN_SLUG"
+			(cd work && zip -qr "../zips/${PLUGIN_SLUG}-trunk.zip" "$PLUGIN_SLUG")
+			rm -rf "work/$PLUGIN_SLUG" "work/tmp.zip"
 		fi
 	fi
 fi
@@ -59,7 +96,7 @@ if jq -e --arg slug "$PLUGIN_SLUG" '.slug == $slug' <<<"$JSON" &>/dev/null; then
 	if [[ -z "$URL" ]]; then
 		echo "Plugin has no stable release."
 	else
-		curl -L --fail --retry 2 --retry-delay $(( 30 + RANDOM % 8 )) --url "$URL" --output "zips/$PLUGIN_SLUG-stable.zip" 2>&1
+		fetchurl "$URL" "zips/$PLUGIN_SLUG-stable.zip"
 	fi
 elif jq -e '.error == "Plugin not found."' <<<"$JSON" &>/dev/null; then
 	echo "Plugin is not published."

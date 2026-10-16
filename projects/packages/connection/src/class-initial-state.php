@@ -22,20 +22,76 @@ class Initial_State {
 	private static function get_data() {
 		global $wp_version;
 
-		$status = new Status();
+		$status                = new Status();
+		$manager               = new Manager();
+		$can_manage_connection = current_user_can( 'jetpack_connect' );
+
+		// Only expose the owner's identity to users who can act on connection issues:
+		// this state is printed for any logged-in user loading connection scripts
+		// (e.g. contributors in the editor). The owner is derived from the master_user
+		// option rather than the token-dependent Manager::get_connection_owner(): that
+		// method returns false exactly when the owner's token is broken, which is the
+		// scenario connection-error UIs need this data for (and it re-reports
+		// invalid_connection_owner as a side effect). Unlike
+		// userConnectionData.connectionOwner (the *connected* owner), this field
+		// identifies who holds ownership regardless of token health.
+		$connection_owner = null;
+		if ( $can_manage_connection ) {
+			$owner_id = (int) \Jetpack_Options::get_option( 'master_user' );
+			$owner    = $owner_id > 0 ? get_userdata( $owner_id ) : false;
+
+			if ( $owner instanceof \WP_User ) {
+				$connection_owner = array(
+					'id'          => $owner_id,
+					'displayName' => $owner->display_name,
+					'avatar'      => get_avatar_url(
+						$owner_id,
+						array(
+							'size'    => 48,
+							'default' => 'mysteryman',
+						)
+					),
+				);
+			}
+		}
+
+		// Behind the same gate: on an anchored site, resolving the owner can cost a WordPress.com lookup.
+		$has_protected_owner            = null;
+		$requires_protected_owner       = null;
+		$use_default_protected_owner_ui = null;
+		if ( $can_manage_connection ) {
+			$has_protected_owner      = $manager->has_protected_owner();
+			$requires_protected_owner = $manager->requires_protected_owner();
+
+			/**
+			 * Filters whether the connection package renders its default protected owner UI.
+			 *
+			 * Return `false` from a consumer that renders its own confirmation flow.
+			 *
+			 * @since 9.7.0
+			 *
+			 * @param bool $use_default_ui Whether to render the default UI. Default true.
+			 */
+			$use_default_protected_owner_ui = (bool) apply_filters( 'jetpack_connection_protected_owner_default_ui', true );
+		}
 
 		return array(
-			'apiRoot'            => esc_url_raw( rest_url() ),
-			'apiNonce'           => wp_create_nonce( 'wp_rest' ),
-			'registrationNonce'  => wp_create_nonce( 'jetpack-registration-nonce' ),
-			'connectionStatus'   => REST_Connector::connection_status( false ),
-			'userConnectionData' => REST_Connector::get_user_connection_data( false ),
-			'connectedPlugins'   => REST_Connector::get_connection_plugins( false ),
-			'wpVersion'          => $wp_version,
-			'siteSuffix'         => $status->get_site_suffix(),
-			'connectionErrors'   => Error_Handler::get_instance()->get_displayable_errors(),
-			'isOfflineMode'      => $status->is_offline_mode(),
-			'calypsoEnv'         => ( new Status\Host() )->get_calypso_env(),
+			'apiRoot'                    => esc_url_raw( rest_url() ),
+			'apiNonce'                   => wp_create_nonce( 'wp_rest' ),
+			'registrationNonce'          => wp_create_nonce( 'jetpack-registration-nonce' ),
+			'connectionStatus'           => REST_Connector::connection_status( false ),
+			'userConnectionData'         => REST_Connector::get_user_connection_data( false ),
+			'connectedPlugins'           => REST_Connector::get_connection_plugins( false ),
+			'wpVersion'                  => $wp_version,
+			'siteSuffix'                 => $status->get_site_suffix(),
+			'connectionErrors'           => Error_Handler::get_instance()->get_displayable_errors(),
+			'isOfflineMode'              => $status->is_offline_mode(),
+			'calypsoEnv'                 => ( new Status\Host() )->get_calypso_env(),
+			'isOwnershipTransferable'    => $manager->is_ownership_transferable(),
+			'connectionOwner'            => $connection_owner,
+			'hasProtectedOwner'          => $has_protected_owner,
+			'requiresProtectedOwner'     => $requires_protected_owner,
+			'useDefaultProtectedOwnerUi' => $use_default_protected_owner_ui,
 		);
 	}
 

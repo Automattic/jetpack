@@ -32,6 +32,53 @@ class Protect extends Hybrid_Product {
 	const FIREWALL_FEATURE_SLUG = 'firewall';
 
 	/**
+	 * Keys from Waf_Runner::get_config() that may be exposed to users without `manage_options`.
+	 *
+	 * My Jetpack is reachable with `edit_posts`, and the Protect card renders these two as
+	 * on/off status indicators. Everything else the WAF config carries (IP allow/block lists,
+	 * the bootstrap file path, data sharing settings) is administrator-only.
+	 *
+	 * @var string[]
+	 */
+	private const NON_ADMIN_WAF_CONFIG_KEYS = array(
+		'jetpack_waf_automatic_rules',
+		'brute_force_protection',
+	);
+
+	/**
+	 * Status_Model properties that may be exposed to users without `manage_options`.
+	 *
+	 * My Jetpack is reachable with `edit_posts`, and the Protect card renders scan counts and the
+	 * last scan time from these. The rest of the status report -- the scan state, the error
+	 * details, the list of fixable threat IDs -- is administrator-only.
+	 *
+	 * @var string[]
+	 */
+	private const NON_ADMIN_SCAN_DATA_KEYS = array(
+		'last_checked',
+		'num_threats',
+		'num_plugins_threats',
+		'num_themes_threats',
+		'threats',
+		'plugins',
+		'themes',
+		'core',
+		'files',
+		'database',
+	);
+
+	/**
+	 * Threat_Model properties that may be exposed to users without `manage_options`.
+	 *
+	 * The card counts threats and critical (severity >= 5) threats; it never renders a threat.
+	 * Everything else a threat carries -- the infected file path, the surrounding source, the
+	 * signature, the database table and the vulnerable extension version -- is administrator-only.
+	 *
+	 * @var string[]
+	 */
+	private const NON_ADMIN_THREAT_KEYS = array( 'severity' );
+
+	/**
 	 * The product slug
 	 *
 	 * @var string
@@ -64,18 +111,27 @@ class Protect extends Hybrid_Product {
 	public static $plugin_slug = 'jetpack-protect';
 
 	/**
+	 * Activate local product steps without scheduling connected modules offline.
+	 *
+	 * @since 6.10.0
+	 * @param bool|WP_Error $current_result The plugin activation result.
+	 * @param bool          $local          Whether to keep activation local.
+	 * @return bool|WP_Error
+	 */
+	public static function do_product_specific_activation( $current_result, $local = false ) {
+		if ( $local ) {
+			// Protect's deferred admin hook would activate connected modules on the next request.
+			delete_option( static::$plugin_slug . '_activated' );
+		}
+		return parent::do_product_specific_activation( $current_result, $local );
+	}
+
+	/**
 	 * The category of the product
 	 *
 	 * @var string
 	 */
 	public static $category = 'security';
-
-	/**
-	 * Defines whether or not to show a product interstitial as tiered pricing or not
-	 *
-	 * @var bool
-	 */
-	public static $is_tiered_pricing = true;
 
 	/**
 	 * Whether this product requires a user connection
@@ -196,9 +252,13 @@ class Protect extends Hybrid_Product {
 	/**
 	 * Get the internationalized comparison of free vs upgraded features
 	 *
+	 * @deprecated 6.10.0
+	 *
 	 * @return array[] Protect features comparison
 	 */
 	public static function get_features_by_tier() {
+		_deprecated_function( __METHOD__, 'jetpack-my-jetpack-6.10.0' );
+
 		return array(
 			array(
 				'name'  => __( 'Scan for threats and vulnerabilities', 'jetpack-my-jetpack' ),
@@ -387,12 +447,38 @@ class Protect extends Hybrid_Product {
 	}
 
 	/**
+	 * Whether wp-admin has a Protect page, from the standalone plugin or the Protect package's dashboard.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function has_protect_page() {
+		return static::is_standalone_plugin_active() || (bool) did_action( 'jetpack_protect_dashboard_initialized' );
+	}
+
+	/**
+	 * Get the product info, with whether the Protect page exists and where Scan's results are listed.
+	 *
+	 * @return array
+	 */
+	public static function get_info() {
+		return array_merge(
+			parent::get_info(),
+			array(
+				'has_protect_page' => static::has_protect_page(),
+				'scan_results_url' => Scan::get_manage_url(),
+			)
+		);
+	}
+
+	/**
 	 * Get the URL where the user manages the product
 	 *
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
-		if ( static::is_standalone_plugin_active() ) {
+		if ( static::has_protect_page() ) {
 			// Protect admin dashboard.
 			return admin_url( 'admin.php?page=jetpack-protect' );
 		}
@@ -441,19 +527,16 @@ class Protect extends Hybrid_Product {
 		$is_waf_enabled = false;
 
 		if ( class_exists( 'Automattic\Jetpack\Waf\Waf_Runner' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredClassMethod
-			$waf_config = Waf_Runner::get_config();
-			// @phan-suppress-next-line PhanUndeclaredClassMethod
+			$waf_config     = Waf_Runner::get_config();
 			$is_waf_enabled = Waf_Runner::is_enabled();
-			// @phan-suppress-next-line PhanUndeclaredClassMethod
-			$waf_supported = Waf_Runner::is_supported_environment();
+			$waf_supported  = Waf_Runner::is_supported_environment();
 		}
 
 		return rest_ensure_response(
 			array(
-				'scanData'  => $scan_data,
+				'scanData'  => self::filter_scan_data_by_capability( $scan_data ),
 				'wafConfig' => array_merge(
-					$waf_config,
+					self::filter_waf_config_by_capability( $waf_config ),
 					array(
 						'waf_supported' => $waf_supported,
 						'waf_enabled'   => $is_waf_enabled,
@@ -462,5 +545,71 @@ class Protect extends Hybrid_Product {
 				),
 			)
 		);
+	}
+
+	/**
+	 * Reduce the WAF configuration to the keys the current user is allowed to read.
+	 *
+	 * @param array $waf_config The WAF configuration as returned by Waf_Runner::get_config().
+	 * @return array
+	 */
+	private static function filter_waf_config_by_capability( array $waf_config ) {
+		if ( current_user_can( 'manage_options' ) ) {
+			return $waf_config;
+		}
+
+		return array_intersect_key( $waf_config, array_flip( self::NON_ADMIN_WAF_CONFIG_KEYS ) );
+	}
+
+	/**
+	 * Reduce the scan status to the parts the current user is allowed to read.
+	 *
+	 * @param \Automattic\Jetpack\Protect_Models\Status_Model $scan_data The scan status as returned by Protect_Status::get_status().
+	 * @return \Automattic\Jetpack\Protect_Models\Status_Model|array
+	 */
+	private static function filter_scan_data_by_capability( $scan_data ) {
+		if ( current_user_can( 'manage_options' ) ) {
+			return $scan_data;
+		}
+
+		$filtered = array_intersect_key( (array) $scan_data, array_flip( self::NON_ADMIN_SCAN_DATA_KEYS ) );
+
+		// `files` and `database` hold Threat_Model instances, not extensions.
+		foreach ( array( 'threats', 'files', 'database' ) as $key ) {
+			$filtered[ $key ] = array_map( array( __CLASS__, 'redact_threat' ), (array) ( $filtered[ $key ] ?? array() ) );
+		}
+
+		foreach ( array( 'plugins', 'themes' ) as $key ) {
+			$filtered[ $key ] = array_map( array( __CLASS__, 'redact_extension' ), (array) ( $filtered[ $key ] ?? array() ) );
+		}
+
+		$filtered['core'] = self::redact_extension( $filtered['core'] ?? array() );
+
+		return $filtered;
+	}
+
+	/**
+	 * Reduce a threat to the properties a user without `manage_options` may read.
+	 *
+	 * @param object|array $threat A Threat_Model instance.
+	 * @return array
+	 */
+	private static function redact_threat( $threat ) {
+		return array_intersect_key( (array) $threat, array_flip( self::NON_ADMIN_THREAT_KEYS ) );
+	}
+
+	/**
+	 * Reduce an extension to the properties a user without `manage_options` may read.
+	 *
+	 * Only the nested threats survive: the extension's name, slug and installed version identify
+	 * which vulnerable software the site is running.
+	 *
+	 * @param object|array $extension An Extension_Model instance.
+	 * @return array
+	 */
+	private static function redact_extension( $extension ) {
+		$threats = ( (array) $extension )['threats'] ?? array();
+
+		return array( 'threats' => array_map( array( __CLASS__, 'redact_threat' ), (array) $threats ) );
 	}
 }

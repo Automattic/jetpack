@@ -1,9 +1,11 @@
 import { safeParseFloat } from '../../utils/parsing';
+import { decodeHtmlText } from '../../utils/text';
 import {
 	coerceStatsArray,
 	coerceStatsRecord,
 	createStatsListDataPoint,
 	getStatsLabel,
+	limitStatsRows,
 	normalizeStatsSummary,
 } from './utils';
 import type { StatsItemAction, StatsNormalizedItemBase, StatsNormalizedReport } from './types';
@@ -68,9 +70,7 @@ export type StatsCommentsGroupItem = StatsNormalizedItemBase<
 };
 
 export type StatsCommentsItem =
-	| StatsCommentsAuthorItem
-	| StatsCommentsPostItem
-	| StatsCommentsGroupItem;
+	StatsCommentsAuthorItem | StatsCommentsPostItem | StatsCommentsGroupItem;
 
 export type StatsCommentsResponse = StatsNormalizedReport< StatsCommentsItem >;
 
@@ -78,22 +78,29 @@ function normalizeCommentAvatar( avatar?: string | null ) {
 	return avatar ? `${ avatar.split( '?' )[ 0 ] }?d=mm` : null;
 }
 
+// The endpoint sends exactly one of these, with the value unencoded.
+const USER_ID_FRAGMENT = /^\?user_id=([1-9]\d*)$/;
+const EMAIL_FRAGMENT = /^\?s=(.+)$/;
+
 /**
- * Build the author row's link from the raw payload's `link`, which is not a
- * URL but a `?s=<email>` search fragment (legacy Calypso used it to open the
- * comment management screen filtered to that author). The dashboard runs
- * inside wp-admin, so a relative `edit-comments.php` href resolves to the
- * same screen.
+ * Build the author row's comments-admin link from the raw payload's `link` fragment.
+ * A `?user_id=` fragment comes only from Simple, where it is the site's own user id.
  *
  * @param link - The raw author `link` fragment.
- * @return The comments-admin search URL, or null when there is no email.
+ * @return The comments-admin URL, or null when the fragment is neither shape.
  */
 function normalizeCommentAuthorLink( link: unknown ): string | null {
-	if ( typeof link !== 'string' || ! link.startsWith( '?s=' ) ) {
+	if ( typeof link !== 'string' ) {
 		return null;
 	}
 
-	const email = link.slice( '?s='.length );
+	const userId = link.match( USER_ID_FRAGMENT )?.[ 1 ];
+
+	if ( userId ) {
+		return `edit-comments.php?user_id=${ userId }`;
+	}
+
+	const email = link.match( EMAIL_FRAGMENT )?.[ 1 ];
 
 	return email ? `edit-comments.php?s=${ encodeURIComponent( email ) }` : null;
 }
@@ -106,7 +113,7 @@ export function sanitizeStatsCommentsResponse(
 	const authors: StatsCommentsAuthorItem[] = coerceStatsArray< StatsCommentsRawAuthor >(
 		payload.authors
 	).map( author => ( {
-		label: getStatsLabel( author.name ),
+		label: decodeHtmlText( getStatsLabel( author.name ) ),
 		value: safeParseFloat( author.comments ),
 		iconClassName: 'avatar-user',
 		icon: normalizeCommentAvatar( author.gravatar ),
@@ -124,7 +131,7 @@ export function sanitizeStatsCommentsResponse(
 		payload.posts
 	).map( post => ( {
 		id: post.id,
-		label: getStatsLabel( post.name ?? post.title ),
+		label: decodeHtmlText( getStatsLabel( post.name ?? post.title ) ),
 		value: safeParseFloat( post.comments ),
 		link: typeof post.link === 'string' ? post.link : null,
 		page: post.id ? `/stats/post/${ post.id }` : null,
@@ -149,4 +156,115 @@ export function sanitizeStatsCommentsResponse(
 		summary: normalizeStatsSummary( payload, [ 'authors', 'posts' ] ),
 		data: items.length ? [ createStatsListDataPoint( response, query, items ) ] : [],
 	};
+}
+
+/**
+ * The two groups the all-time Comments report is split into.
+ */
+export type StatsCommentsGroup = 'authors' | 'posts';
+
+/**
+ * A flat Comments report row, shared by every consumer of the report.
+ *
+ * `link` is the value the report carries: a locally built, document-relative
+ * `edit-comments.php` filter for authors, and a remote permalink for posts.
+ * Consumers that render the post link must pass it through `safeHttpUrl`
+ * first — the guard cannot live here, because the row id falls back to the raw
+ * link and must stay stable even when the URL is rejected.
+ */
+export type StatsCommentsRow = {
+	/**
+	 * Stable row key, derived from the item's own identity rather than its
+	 * position so it survives a refetch.
+	 */
+	id: string;
+	/**
+	 * Display label: the author name or the post title.
+	 */
+	label: string;
+	/**
+	 * Number of comments attributed to this author or post.
+	 */
+	value: number;
+	/**
+	 * Author avatar URL. Set for the `authors` group only.
+	 */
+	avatarUrl?: string;
+	link?: string;
+	/**
+	 * Numeric post id as a string. Set for the `posts` group only.
+	 */
+	postId?: string;
+};
+
+// The normalized item `label` is typed `unknown`; the comments endpoint always
+// yields strings, but coerce defensively so the row shape stays `string`.
+function toCommentsRowLabel( value: unknown ): string {
+	return typeof value === 'string' ? value : String( value );
+}
+
+/**
+ * Map one group child to a flat row.
+ *
+ * @param item  - The group child to map.
+ * @param group - The group the child belongs to.
+ * @return The flat row.
+ */
+function toCommentsRow(
+	item: StatsCommentsAuthorItem | StatsCommentsPostItem,
+	group: StatsCommentsGroup
+): StatsCommentsRow {
+	const label = toCommentsRowLabel( item.label );
+	const shared = { label, value: item.value, link: item.link ?? undefined };
+
+	if ( group === 'authors' ) {
+		const { icon } = item as StatsCommentsAuthorItem;
+
+		return {
+			...shared,
+			// Authors key on their gravatar hash, falling back to the label.
+			id: icon ?? `author-${ label }`,
+			avatarUrl: icon ?? undefined,
+		};
+	}
+
+	// `!= null` rather than a truthiness test: post id 0 is a real id.
+	const { id } = item as StatsCommentsPostItem;
+	const postId = id != null ? String( id ) : undefined;
+
+	return {
+		...shared,
+		// Falls back to the raw link so row identity holds even when a consumer
+		// rejects that URL, and finally to the label.
+		id: postId ?? shared.link ?? `post-${ label }`,
+		postId,
+	};
+}
+
+/**
+ * Select one group's rows from a normalized Comments report.
+ *
+ * The endpoint returns a single all-time report whose `data[0].items` are two
+ * group rows — one keyed `authors`, one keyed `posts`. Sorted by comment count
+ * and trimmed to `maxRows` (`0` or omitted means all rows).
+ *
+ * @param report  - The normalized Comments report, if it has resolved.
+ * @param group   - The group to select.
+ * @param maxRows - Maximum rows to return; `0` or omitted means all.
+ * @return The group's rows, highest comment count first.
+ */
+export function selectStatsCommentsRows(
+	report: StatsCommentsResponse | undefined,
+	group: StatsCommentsGroup,
+	maxRows?: number
+): StatsCommentsRow[] {
+	const items = report?.data?.[ 0 ]?.items ?? [];
+	const groupItem = items.find( item => item.label === group ) as
+		StatsCommentsGroupItem | undefined;
+
+	const rows = ( groupItem?.children ?? [] )
+		.map( child => toCommentsRow( child, group ) )
+		.sort( ( a, b ) => b.value - a.value );
+
+	return limitStatsRows( rows, maxRows );
 }
