@@ -527,6 +527,10 @@ type MainFeature = {
 };
 
 interface Window {
+	/** Set by the `my-jetpack-header-controls` script on dashboards outside My Jetpack. */
+	myJetpackHeaderControls?: {
+		getHeaderControls: () => import( 'react' ).ReactNode;
+	};
 	myJetpackInitialState?: {
 		isOfflineFeatures?: boolean | '1';
 		mainFeatures: MainFeaturesState | null;

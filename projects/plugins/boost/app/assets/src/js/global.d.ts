@@ -58,6 +58,13 @@ declare global {
 			blogId: number;
 		};
 	};
+
+	interface Window {
+		// Set by My Jetpack's `my-jetpack-header-controls` script.
+		myJetpackHeaderControls?: {
+			getHeaderControls: () => import( 'react' ).ReactNode;
+		};
+	}
 }
 
 export {};
