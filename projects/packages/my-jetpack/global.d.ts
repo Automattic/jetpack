@@ -282,6 +282,16 @@ type PlanExpirationAlert = {
 	expiry_message?: string;
 	manage_url?: string;
 	products_effected?: JetpackProductName[];
+	// WordPress.com's own notice for its plans, replacing the generated one.
+	wpcom_plan_notice?: {
+		title: string;
+		message: string;
+		actions: { label: string; url: string }[];
+		is_dismissible: boolean;
+		level: 'warning' | 'error';
+		// Matches the WordPress.com expiry notices' own Tracks events.
+		track_props: Record< Lowercase< string >, string | number >;
+	};
 };
 
 type PlanExpiredAlerts = Record< `${ JetpackPlanSlug }--plan_expired`, PlanExpirationAlert >;

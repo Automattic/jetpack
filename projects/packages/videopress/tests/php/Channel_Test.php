@@ -41,6 +41,9 @@ class Channel_Test extends BaseTestCase {
 		$_GET = array();
 		unset( $GLOBALS['post'] );
 		delete_option( 'videopress_playlist_index' );
+		foreach ( array( Channel::QUERY_VAR, Channel::PLAYLIST_QUERY_VAR, Channel::LIST_VAR ) as $var ) {
+			set_query_var( $var, '' );
+		}
 	}
 
 	/**
@@ -297,8 +300,52 @@ class Channel_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A playlist block with a `source` shows an indexed playlist ( the most
-	 * recently updated by default ).
+	 * `/videopress?list=<key>` routes to the post holding the playlist and the
+	 * playlist template; `?v=…&list=…` keeps the playlist context; unknown keys 404.
+	 */
+	public function test_playlist_page_routing() {
+		$posts = $this->index_playlists();
+		$this->video( 'abcDEF12' );
+
+		$wp                        = new \WP();
+		$wp->request               = 'videopress';
+		$_GET[ Channel::LIST_VAR ] = 'road';
+		Channel::route_video_page( $wp );
+		$this->assertSame(
+			array(
+				'p'                         => $posts['road'],
+				'post_type'                 => 'page',
+				Channel::PLAYLIST_QUERY_VAR => 1,
+				Channel::LIST_VAR           => 'road',
+			),
+			$wp->query_vars
+		);
+
+		$wp                        = new \WP();
+		$wp->request               = 'videopress';
+		$_GET[ Channel::LIST_VAR ] = 'nope';
+		Channel::route_video_page( $wp );
+		$this->assertSame( array( 'error' => '404' ), $wp->query_vars );
+
+		$wp          = new \WP();
+		$wp->request = 'videopress';
+		$_GET        = array(
+			'v'               => 'abcDEF12',
+			Channel::LIST_VAR => 'mc',
+		);
+		Channel::route_video_page( $wp );
+		$this->assertSame( 'mc', $wp->query_vars[ Channel::LIST_VAR ] );
+		$this->assertSame( 1, $wp->query_vars[ Channel::QUERY_VAR ] );
+
+		set_query_var( Channel::PLAYLIST_QUERY_VAR, 1 );
+		$this->assertSame( array( 'videopress-playlist.php', 'page.php' ), Channel::playlist_template_hierarchy( array( 'page.php' ) ) );
+		set_query_var( Channel::PLAYLIST_QUERY_VAR, 0 );
+		$this->assertSame( array( 'single.php' ), Channel::playlist_template_hierarchy( array( 'single.php' ) ) );
+	}
+
+	/**
+	 * A playlist block with a `source` shows the queried or an indexed playlist
+	 * ( the most recently updated by default ), and nothing when there is none.
 	 */
 	public function test_playlist_source_block() {
 		$this->index_playlists();
@@ -317,6 +364,7 @@ class Channel_Test extends BaseTestCase {
 		$this->assertSame( $own, $block( $own ) );
 
 		$latest = $block( array( 'source' => 'index' ) );
+		$this->assertSame( 'road', $latest['videopressListKey'] );
 		$this->assertSame( 'The road to 60', $latest['playlistTitle'] );
 
 		$picked = $block(
@@ -342,6 +390,12 @@ class Channel_Test extends BaseTestCase {
 			'attrs'     => array( 'source' => 'index' ),
 		);
 		$this->assertSame( $paragraph, Channel::playlist_source_block( $paragraph ) );
+
+		// Outside a channel page the URL's playlist is ignored.
+		set_query_var( Channel::LIST_VAR, 'mc' );
+		$this->assertSame( array(), $block( array( 'source' => 'queried' ) )['videos'] );
+		set_query_var( Channel::PLAYLIST_QUERY_VAR, 1 );
+		$this->assertSame( 'mc', $block( array( 'source' => 'queried' ) )['videopressListKey'] );
 	}
 
 	/**
@@ -386,5 +440,19 @@ class Channel_Test extends BaseTestCase {
 
 		delete_option( 'videopress_playlist_index' );
 		$this->assertNull( Channel::source_playlist( 'index' ) );
+	}
+
+	/**
+	 * Video URLs carry the playlist context.
+	 */
+	public function test_playlist_urls_and_membership() {
+		$this->index_playlists();
+		$id   = $this->video( 'ghiJKL34' );
+		$base = user_trailingslashit( home_url( '/videopress' ) );
+
+		$this->assertSame( $base . '?v=ghiJKL34&list=mc', Channel::video_url( $id, 'mc' ) );
+		$this->assertSame( $base . '?list=road', Channel::playlist_url( 'road' ) );
+		$this->assertTrue( Channel::is_site_url( $base ) );
+		$this->assertFalse( Channel::is_site_url( 'https://videopress.com/v/ghiJKL34' ) );
 	}
 }

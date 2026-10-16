@@ -338,8 +338,8 @@ class Playlist_Block_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Entries mapped to a page on this site open in the same tab and mark the
-	 * video being viewed; videopress.com keeps a new tab.
+	 * Entries mapped to a page on this site open in the same tab, keep the
+	 * playlist context and mark the video being viewed; videopress.com keeps a new tab.
 	 */
 	public function test_render_without_player_keeps_site_links_in_the_tab() {
 		add_filter(
@@ -354,10 +354,17 @@ class Playlist_Block_Test extends BaseTestCase {
 		set_query_var( \Automattic\Jetpack\VideoPress\Channel::QUERY_VAR, 1 );
 		$GLOBALS['post'] = get_post( $this->video_attachment( 'abcDEF12' ) ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
-		$markup = VideoPress_Initializer::render_videopress_playlist_block( $this->attributes( array( 'showPlayer' => false ) ) );
+		$markup = VideoPress_Initializer::render_videopress_playlist_block(
+			$this->attributes(
+				array(
+					'showPlayer'        => false,
+					'videopressListKey' => 'mc',
+				)
+			)
+		);
 
 		$this->assertStringContainsString(
-			'<a class="videopress-playlist__select is-current" href="' . esc_url( home_url( '/videopress/?v=abcDEF12' ) ) . '" aria-current="true" data-guid="abcDEF12"',
+			'<a class="videopress-playlist__select is-current" href="' . esc_url( home_url( '/videopress/?v=abcDEF12&list=mc' ) ) . '" aria-current="true" data-guid="abcDEF12"',
 			$markup
 		);
 		$this->assertStringContainsString( '<li class="videopress-playlist__entry is-current">', $markup );

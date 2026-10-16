@@ -60,6 +60,7 @@ module.exports = async () => {
 					'./src/features/wpcom-comments/wpcom-comment-like.css',
 				],
 				'wpcom-hotfixes-colors-modern': './src/features/wpcom-hotfixes/colors/modern/colors.css',
+				'wpcom-dashboard-tracks': './src/features/wpcom-dashboard-tracks/wpcom-dashboard-tracks.ts',
 				'wpcom-dashboard-widgets':
 					'./src/features/wpcom-dashboard-widgets/wpcom-dashboard-widgets.jsx',
 				'wpcom-global-styles-editor': './src/features/wpcom-global-styles/index.jsx',

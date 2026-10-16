@@ -176,7 +176,7 @@ describe( 'MetricTabsChart', () => {
 
 		render( <MetricTabsChart metrics={ [ describedMetric ] } dataFormat={ DATA_FORMAT } /> );
 
-		expect( screen.getByText( 'Views' ).className ).not.toContain( 'visually-hidden' );
+		expect( screen.getByText( 'Views' ) ).not.toHaveClass( /visually-hidden/ );
 		expect( screen.getByText( describedMetric.description ) ).toBeInTheDocument();
 		expect( screen.queryByTitle( describedMetric.description ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'tablist' ) ).not.toBeInTheDocument();
@@ -186,14 +186,10 @@ describe( 'MetricTabsChart', () => {
 
 	it( 'visually hides an opted-in single metric label without un-naming its series', () => {
 		render(
-			<MetricTabsChart
-				metrics={ [ METRIC ] }
-				dataFormat={ DATA_FORMAT }
-				hideSingleMetricLabel
-			/>
+			<MetricTabsChart metrics={ [ METRIC ] } dataFormat={ DATA_FORMAT } hideSingleMetricLabel />
 		);
 
-		expect( screen.getByText( 'Views' ).className ).toContain( 'visually-hidden' );
+		expect( screen.getByText( 'Views' ) ).toHaveClass( /visually-hidden/ );
 		expect( recordedSeries( mockLineSpy )[ 0 ].label ).toBe( 'Views' );
 	} );
 
@@ -206,8 +202,42 @@ describe( 'MetricTabsChart', () => {
 			/>
 		);
 
-		expect( screen.getByText( 'Views' ).className ).not.toContain( 'visually-hidden' );
-		expect( screen.getByText( 'Visitors' ).className ).not.toContain( 'visually-hidden' );
+		expect( screen.getByText( 'Views' ) ).not.toHaveClass( /visually-hidden/ );
+		expect( screen.getByText( 'Visitors' ) ).not.toHaveClass( /visually-hidden/ );
+	} );
+
+	it.each( [
+		[ 'spreads six cards over two even rows', 999, '3' ],
+		[ 'keeps six cards on one row when they fit', 1000, '6' ],
+	] )( '%s', ( _case, width, columns ) => {
+		setMockChartWidth( width );
+		const metrics = [ 'a', 'b', 'c', 'd', 'e', 'f' ].map( key => ( {
+			...METRIC,
+			key,
+			label: key,
+		} ) );
+
+		render( <MetricTabsChart metrics={ metrics } dataFormat={ DATA_FORMAT } /> );
+
+		expect(
+			screen.getByRole( 'tablist' ).style.getPropertyValue( '--jpa-metric-tabs-columns' )
+		).toBe( columns );
+	} );
+
+	it( 'spells the figure out in the dropdown, which has room for it', () => {
+		setMockChartWidth( 100 );
+		const compact = { type: 'number' as const, options: { useMultipliers: true } };
+
+		render(
+			<MetricTabsChart
+				metrics={ [ { ...VIEWS, value: 12345, dataFormat: compact }, VISITORS ] }
+				dataFormat={ DATA_FORMAT }
+			/>
+		);
+
+		const trigger = screen.getByRole( 'combobox' );
+		expect( trigger ).toHaveTextContent( '12,345' );
+		expect( trigger ).not.toHaveTextContent( '12.3K' );
 	} );
 
 	it( 'draws a bar chart when chartType is bar', () => {
