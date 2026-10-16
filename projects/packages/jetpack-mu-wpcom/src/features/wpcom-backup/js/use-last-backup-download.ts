@@ -122,18 +122,18 @@ export function useLastBackupDownload() {
 		const poll = async () => {
 			polls++;
 
-			let download: Download | null | undefined;
+			let download: Download | null = null;
 			try {
 				download = readDownload( await apiFetch( { path: `${ DOWNLOADS_PATH }/${ pollingId }` } ) );
 			} catch {
-				// Left undefined for a failed request; null means the payload named no download.
+				// A failed request and a reply that names no download count alike, as one failed poll.
 			}
 
 			if ( ! active ) {
 				return;
 			}
 
-			if ( download === undefined ) {
+			if ( ! download ) {
 				failures++;
 				if ( failures < MAX_POLL_FAILURES ) {
 					schedule();
@@ -150,11 +150,11 @@ export function useLastBackupDownload() {
 			}
 
 			failures = 0;
-			setPhase( download ? phaseOf( download ) : { name: 'error', message: failureMessage( '' ) } );
+			setPhase( phaseOf( download ) );
 
-			if ( download?.status === 'running' ) {
+			if ( download.status === 'running' ) {
 				schedule();
-			} else if ( download?.status === 'finished' ) {
+			} else if ( download.status === 'finished' ) {
 				recordTracksEvent( 'calypso_jetpack_backup_download_ready' );
 			}
 		};

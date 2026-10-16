@@ -75,6 +75,7 @@ export function DownloadPanel( { supportUrl }: { supportUrl: string } ) {
 	const [ items, setItems ] = useState< DownloadItems >( ALL_ITEMS );
 	const heading = useRef< HTMLHeadingElement >( null );
 	const hasActed = useRef( false );
+	const isLoaded = useRef( false );
 
 	// A step's button vanishes once clicked, so catch the focus it drops; never on load.
 	useEffect( () => {
@@ -86,13 +87,23 @@ export function DownloadPanel( { supportUrl }: { supportUrl: string } ) {
 		}
 	}, [ phase.name ] );
 
+	// A download resumed on load is already on screen, so speak only what changes after it.
 	useEffect( () => {
+		if ( backup === undefined ) {
+			return;
+		}
+
+		if ( ! isLoaded.current ) {
+			isLoaded.current = true;
+			return;
+		}
+
 		const message = announcementFor( phase );
 
 		if ( message ) {
 			speak( message, phase.name === 'error' ? 'assertive' : 'polite' );
 		}
-	}, [ phase ] );
+	}, [ backup, phase ] );
 
 	if ( ! backup ) {
 		return null;
@@ -118,7 +129,27 @@ export function DownloadPanel( { supportUrl }: { supportUrl: string } ) {
 						) }
 					</Text>
 
-					{ ( phase.name === 'idle' || isSubmitting ) && (
+					{ phase.name === 'ready' && (
+						<>
+							<Text>{ __( 'Your file is ready to download.', 'jetpack-mu-wpcom' ) }</Text>
+							<ButtonLink
+								variant="solid"
+								size="compact"
+								href={ phase.url }
+								onClick={ () => recordTracksEvent( 'calypso_jetpack_backup_file_download' ) }
+							>
+								{ phase.size
+									? sprintf(
+											/* translators: %s: the file's size, such as "1.2 GB". */
+											__( 'Download file (%s)', 'jetpack-mu-wpcom' ),
+											phase.size
+										)
+									: __( 'Download file', 'jetpack-mu-wpcom' ) }
+							</ButtonLink>
+						</>
+					) }
+
+					{ ( phase.name === 'idle' || isSubmitting || phase.name === 'ready' ) && (
 						<>
 							<Fieldset.Root>
 								<Fieldset.Legend>
@@ -140,7 +171,8 @@ export function DownloadPanel( { supportUrl }: { supportUrl: string } ) {
 								</Stack>
 							</Fieldset.Root>
 							<Button
-								variant="solid"
+								// The download link is the primary action once a file exists.
+								variant={ phase.name === 'ready' ? 'outline' : 'solid' }
 								size="compact"
 								loading={ isSubmitting }
 								disabled={ isSubmitting || ! hasSelectedItems( items ) }
@@ -170,26 +202,6 @@ export function DownloadPanel( { supportUrl }: { supportUrl: string } ) {
 								<Progress.Indicator />
 							</Progress.Track>
 						</Progress.Root>
-					) }
-
-					{ phase.name === 'ready' && (
-						<>
-							<Text>{ __( 'Your file is ready to download.', 'jetpack-mu-wpcom' ) }</Text>
-							<ButtonLink
-								variant="solid"
-								size="compact"
-								href={ phase.url }
-								onClick={ () => recordTracksEvent( 'calypso_jetpack_backup_file_download' ) }
-							>
-								{ phase.size
-									? sprintf(
-											/* translators: %s: the file's size, such as "1.2 GB". */
-											__( 'Download file (%s)', 'jetpack-mu-wpcom' ),
-											phase.size
-										)
-									: __( 'Download file', 'jetpack-mu-wpcom' ) }
-							</ButtonLink>
-						</>
 					) }
 
 					{ phase.name === 'error' && (

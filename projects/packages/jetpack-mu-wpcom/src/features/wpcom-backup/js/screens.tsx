@@ -106,7 +106,7 @@ export function ActivateScreen( { state }: { state: InitialState } ) {
 					</Notice.Description>
 					<Notice.Actions>
 						<Notice.ActionLink href={ state.supportUrl } openInNewTab>
-							{ __( 'Contact us', 'jetpack-mu-wpcom' ) }
+							{ __( 'Contact support', 'jetpack-mu-wpcom' ) }
 						</Notice.ActionLink>
 					</Notice.Actions>
 				</Notice.Root>
