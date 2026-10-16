@@ -21,6 +21,8 @@ type DateRangeInputProps = Pick<
 	'range' | 'onChange'
 > & {
 	timeZone: string;
+
+	/** The earliest day a custom range may include; earlier days cannot be picked or typed. */
 	earliestDate?: Date;
 };
 
@@ -94,8 +96,9 @@ function DateInput( { label, date, onChange, timeZone, min }: DateInputProps ) {
 
 export function DateRangeInput( { range, onChange, timeZone, earliestDate }: DateRangeInputProps ) {
 	const { from, to } = range;
-	const isBeforeEarliest = ( date: Date ) => !! earliestDate && date < earliestDate;
 	const min = earliestDate ? formatToString( earliestDate, timeZone ) : undefined;
+	// Compares days, as the calendar does, so an earliestDate past midnight still allows its day.
+	const isBeforeEarliest = ( date: Date ) => !! min && formatToString( date, timeZone ) < min;
 
 	return (
 		<Stack gap="sm" justify="space-between">

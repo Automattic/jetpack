@@ -46,7 +46,7 @@ type DateRangePopoverContentProps = {
 	 */
 	timeZone: string;
 
-	/** The first day a range may start on; earlier days cannot be picked. */
+	/** The earliest day a custom range may include; earlier days cannot be picked or typed. */
 	earliestDate?: Date;
 };
 
