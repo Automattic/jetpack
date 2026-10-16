@@ -2,15 +2,12 @@
  * External dependencies
  */
 import { getScriptData } from '@automattic/jetpack-script-data';
-import {
-	computePrimaryRange,
-	MENU_SURFACE_PRESETS_WITH_ALL_TIME,
-} from '@jetpack-premium-analytics/datetime';
+import { MENU_SURFACE_PRESETS_WITH_ALL_TIME } from '@jetpack-premium-analytics/datetime';
 import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
-import { normalizeReportParams } from '../search';
+import { normalizeReportParams, type PresetType } from '../search';
 import {
 	applyStatsDatePolicy,
 	deriveStatsDatePolicy,
@@ -18,8 +15,11 @@ import {
 	getStatsDatePolicy,
 	isPresetLockedByPolicy,
 	OPEN_DATE_POLICY,
+	type StatsDatePolicy,
 } from '../stats-date-policy';
 import type { StatsFeatureKey } from '../plan-gates';
+
+type Search = Parameters< typeof normalizeReportParams >[ 0 ];
 
 jest.mock(
 	'@automattic/jetpack-script-data',
@@ -71,9 +71,21 @@ describe( 'deriveStatsDatePolicy', () => {
 				fallbackPresetId: 'last-7-days',
 				offersComparison: false,
 			} );
-			expect( policy.earliestDate ).toEqual( computePrimaryRange( 'last-7-days', timeZone )?.from );
 		}
 	);
+
+	it.each( [
+		[ 'Asia/Tokyo', '2026-10-15T14:30:00Z', '2026-10-08T15:00:00Z' ],
+		[ 'Asia/Tokyo', '2026-10-15T15:30:00Z', '2026-10-09T15:00:00Z' ],
+		[ 'America/Los_Angeles', '2026-10-16T06:30:00Z', '2026-10-09T07:00:00Z' ],
+		[ 'America/Los_Angeles', '2026-10-16T07:30:00Z', '2026-10-10T07:00:00Z' ],
+	] )( 'starts the window at site-local midnight in %s at %s', ( timeZone, now, earliest ) => {
+		jest.setSystemTime( new Date( now ) );
+
+		const policy = deriveStatsDatePolicy( lockOnly( 'recent-7-days' ), timeZone );
+
+		expect( policy.earliestDate?.toISOString() ).toBe( new Date( earliest ).toISOString() );
+	} );
 
 	it.each( [
 		[
@@ -161,7 +173,7 @@ describe( 'getPolicyDefaultPreset', () => {
 } );
 
 describe( 'applyStatsDatePolicy', () => {
-	it.each( [
+	it.each< [ string, () => StatsDatePolicy, Search, PresetType ] >( [
 		[
 			'a custom range older than 7 days',
 			free,
@@ -178,19 +190,19 @@ describe( 'applyStatsDatePolicy', () => {
 			'last-30-days',
 		],
 	] )( 'replaces %s with the fallback', ( _name, policy, search, preset ) => {
-		const result = applyStatsDatePolicy( normalizeReportParams( search as never ), policy() );
+		const result = applyStatsDatePolicy( normalizeReportParams( search ), policy() );
 
 		expect( result.isWindowAdjusted ).toBe( true );
 		expect( result.params.preset ).toBe( preset );
 		expect( result.params.interval ).toBe( 'day' );
 	} );
 
-	it.each( [
+	it.each< [ string, () => StatsDatePolicy, Search ] >( [
 		[ 'a range inside the window', free, { from: '2026-10-12', to: '2026-10-14' } ],
 		[ 'a range starting on the earliest day', free, { from: '2026-10-09', to: '2026-10-14' } ],
 		[ 'a long custom range on legacy basic', basic, { from: '2026-01-01', to: '2026-06-30' } ],
 	] )( 'keeps %s', ( _name, policy, search ) => {
-		const params = normalizeReportParams( search as never, undefined, {
+		const params = normalizeReportParams( search, undefined, {
 			lockedIntervals: policy().lockedIntervals,
 		} );
 
@@ -205,7 +217,7 @@ describe( 'applyStatsDatePolicy', () => {
 		[ 'yesterday', 'yesterday' ],
 		[ 'last-30-days', 'last-7-days' ],
 	] as const )( 'lands a replaced window given %s on %s', ( landing, expected ) => {
-		const params = normalizeReportParams( { preset: 'last-30-days' } as never );
+		const params = normalizeReportParams( { preset: 'last-30-days' } );
 
 		expect( applyStatsDatePolicy( params, free(), landing ).params.preset ).toBe( expected );
 	} );
@@ -216,7 +228,7 @@ describe( 'applyStatsDatePolicy', () => {
 			comp: '1',
 			compare_from: '2026-04-01',
 			compare_to: '2026-06-30',
-		} as never );
+		} );
 
 		const result = applyStatsDatePolicy( params, basic() );
 
@@ -231,11 +243,41 @@ describe( 'applyStatsDatePolicy', () => {
 			comp: '1',
 			compare_from: '2026-10-01',
 			compare_to: '2026-10-07',
-		} as never );
+		} );
 
 		const result = applyStatsDatePolicy( params, free() );
 
 		expect( result.isComparisonDropped ).toBe( true );
 		expect( result.params.comp ).toBeUndefined();
+	} );
+
+	describe.each( [
+		[ 'America/Los_Angeles', -7, '2026-10-16T07:30:00Z' ],
+		[ 'Asia/Tokyo', 9, '2026-10-15T15:30:00Z' ],
+	] )( 'in %s, just after midnight on October 16', ( timeZone, offset, now ) => {
+		beforeEach( () => {
+			setSettings( {
+				...originalSettings,
+				timezone: { ...originalSettings.timezone, string: timeZone, offset },
+			} );
+			jest.setSystemTime( new Date( now ) );
+		} );
+
+		afterEach( () => {
+			setSettings( {
+				...originalSettings,
+				timezone: { string: 'UTC', offset: 0, offsetFormatted: '0', abbr: 'UTC' },
+			} );
+		} );
+
+		it.each( [
+			[ 'keeps', '2026-10-10', false ],
+			[ 'replaces', '2026-10-09', true ],
+		] )( '%s a range from %s', ( _name, from, isWindowAdjusted ) => {
+			const policy = deriveStatsDatePolicy( lockOnly( 'recent-7-days' ), timeZone );
+			const params = normalizeReportParams( { from, to: '2026-10-16' } );
+
+			expect( applyStatsDatePolicy( params, policy ).isWindowAdjusted ).toBe( isWindowAdjusted );
+		} );
 	} );
 } );
