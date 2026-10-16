@@ -16,7 +16,7 @@ import { useConnectionState } from '../../hooks/use-connection-state';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import { assignLocation } from '../../hooks/use-notification-watcher/assignLocation';
 import { ConnectionOwnerInfo } from '../connection-status-card/connection-owner-info';
-import { ConnectionStatusArt } from '../connection-status-card/connection-status-art';
+import { ConnectionStatus } from '../connection-status-card/connection-status';
 import { PlanLogo, PlanSection, PlanSectionFooter } from '../plans-section';
 import styles from './style.module.scss';
 import useSitePurchases from './use-site-purchases';
@@ -212,7 +212,7 @@ const ConnectionControl: FC = () => {
 							<Text variant="heading-md" render={ <Popover.Title /> }>
 								{ __( 'Connection', 'jetpack-my-jetpack' ) }
 							</Text>
-							<ConnectionStatusArt status={ state.status } showAvatar={ showAvatar } />
+							<ConnectionStatus status={ state.status } showAvatar={ showAvatar } />
 							<Badge intent={ STATUS_INTENTS[ state.status ] }>{ getBadgeLabel( state ) }</Badge>
 							<ConnectionOwnerInfo />
 							{ state.isDiagnosis && typeof ConnectionErrorDetails === 'function' && (
