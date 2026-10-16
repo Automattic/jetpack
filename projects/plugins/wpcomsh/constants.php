@@ -34,5 +34,8 @@ define( 'JETPACK_BLOCKS_VARIATION', 'experimental' );
 // Date for lowering storage from 200 GB to 50 GB for business and higher plans. Ref: D108151-code.
 define( 'LEGACY_200GB_CUTOFF_DATE', '2023-07-20' );
 
+// WP Cloud client that hosts WordPress.com Atomic sites (see wpcomsh-loader.php for the others).
+define( 'WPCOMSH_WPCOM_ATOMIC_CLIENT_ID', 2 );
+
 // Disable dupe comments for the MovableType Importer.
 define( 'WP_MT_IMPORT_ALLOW_DUPE_COMMENTS', false );

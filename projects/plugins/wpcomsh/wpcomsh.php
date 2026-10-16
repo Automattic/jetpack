@@ -144,6 +144,7 @@ require_once __DIR__ . '/feature-plugins/gutenberg-mods.php';
 require_once __DIR__ . '/feature-plugins/headstart-util.php';
 require_once __DIR__ . '/feature-plugins/headstart-woocommerce-terms.php';
 require_once __DIR__ . '/feature-plugins/hooks.php';
+require_once __DIR__ . '/feature-plugins/jetpack-ai-module-seed.php';
 require_once __DIR__ . '/feature-plugins/managed-plugins.php';
 require_once __DIR__ . '/feature-plugins/managed-themes.php';
 require_once __DIR__ . '/feature-plugins/marketplace.php';
