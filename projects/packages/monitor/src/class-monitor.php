@@ -67,6 +67,7 @@ class Monitor {
 	 */
 	public static function activate_module() {
 		if ( ( new Connection_Manager() )->is_user_connected() ) {
+			// A failure doesn't block activation: with no local copy saved, the next settings read asks WordPress.com.
 			self::set_notifications( true );
 		}
 	}
@@ -115,31 +116,6 @@ class Monitor {
 	}
 
 	/**
-	 * Whether the current user gets the emails: the local copy, or else WordPress.com's answer, which is then saved.
-	 *
-	 * @return bool
-	 */
-	public static function get_notifications() {
-		$value = get_option( self::notifications_copy_option_name( get_current_user_id() ), 'does_not_exist' );
-		if ( 'does_not_exist' !== $value ) {
-			return (bool) $value;
-		}
-
-		if ( ! ( new Connection_Manager() )->is_user_connected() ) {
-			return false;
-		}
-
-		$value = self::user_receives_notifications();
-		// Not saved: the user may not be connected yet, and would be stuck with this answer.
-		if ( is_wp_error( $value ) ) {
-			return false;
-		}
-
-		self::save_notifications_copy( $value );
-		return (bool) $value;
-	}
-
-	/**
 	 * Subscribe or unsubscribe the current user from the emails on WordPress.com, and save the choice locally.
 	 *
 	 * @param bool $enabled Whether to send the emails.
@@ -173,7 +149,7 @@ class Monitor {
 	}
 
 	/**
-	 * When the site last went down, cached for ten minutes.
+	 * When the site last went down, also saved in the `monitor_last_downtime` transient for ten minutes.
 	 *
 	 * @return string|WP_Error Date in `Y-m-d H:i:s` format.
 	 */
