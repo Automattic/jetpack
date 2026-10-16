@@ -11,6 +11,8 @@ use Automattic\Jetpack\PremiumAnalytics\Dashboard_Section_Registry;
 use Automattic\Jetpack\PremiumAnalytics\Enablement_Setting;
 use Automattic\Jetpack\PremiumAnalytics\Widget_Type_Registry;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
 use function Automattic\Jetpack\PremiumAnalytics\get_registered_dashboard_section;
 use function Automattic\Jetpack\PremiumAnalytics\register_dashboard_section;
@@ -22,7 +24,7 @@ require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/c
 require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/dashboard-policy.php';
 require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/dashboard-sections.php';
 require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/default-dashboard-sections.php';
-require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/widget-types.php';
+require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/widget-modules.php';
 
 /**
  * The package registers the section and its widget types when the dashboard hydrates.
@@ -163,6 +165,25 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		Analytics_Dashboard::enqueue_store_performance_bookings();
 
 		$this->assertNotNull( wp_script_modules()->get_registered( Analytics_Dashboard::STORE_PERFORMANCE_BOOKINGS_MODULE ) );
+		$this->assertContains( Analytics_Dashboard::STORE_PERFORMANCE_BOOKINGS_MODULE, wp_script_modules()->get_queue() );
+	}
+
+	/**
+	 * The dashboard page enqueues its scripts before anything reads the widget registry, so the
+	 * contract constant is not loaded yet; the Bookings metric must load all the same.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_loads_the_bookings_metric_before_the_widget_registry_is_read() {
+		$this->assertFalse( defined( 'Automattic\\Jetpack\\PremiumAnalytics\\WIDGET_API_VERSION' ), 'The contract file must be unloaded, as on the dashboard page.' );
+		$this->enable_store();
+		$this->activate_bookings();
+
+		Analytics_Dashboard::enqueue_store_performance_bookings();
+
 		$this->assertContains( Analytics_Dashboard::STORE_PERFORMANCE_BOOKINGS_MODULE, wp_script_modules()->get_queue() );
 	}
 

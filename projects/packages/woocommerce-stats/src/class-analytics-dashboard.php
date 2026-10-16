@@ -384,6 +384,15 @@ class Analytics_Dashboard {
 	 * @return bool
 	 */
 	private static function supports_widget_contract() {
+		// The dashboard loads the file naming its contract when its widget registry is first read,
+		// which has not happened yet when the dashboard page enqueues its scripts.
+		if (
+			! defined( 'Automattic\\Jetpack\\PremiumAnalytics\\WIDGET_API_VERSION' )
+			&& function_exists( 'Automattic\\Jetpack\\PremiumAnalytics\\ensure_widget_registry_ready' )
+		) {
+			\Automattic\Jetpack\PremiumAnalytics\ensure_widget_registry_ready();
+		}
+
 		if ( ! defined( 'Automattic\\Jetpack\\PremiumAnalytics\\WIDGET_API_VERSION' ) ) {
 			return false;
 		}
