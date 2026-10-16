@@ -15,7 +15,7 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 const DASHBOARD_FIRST_VISIT_OPTION = 'jetpack_premium_analytics_first_visit';
 
 /**
- * Configures the first-visit record and its script data.
+ * Configures the first-visit record.
  *
  * @since $$next-version$$
  *
@@ -23,7 +23,6 @@ const DASHBOARD_FIRST_VISIT_OPTION = 'jetpack_premium_analytics_first_visit';
  */
 function configure_dashboard_first_visit() {
 	add_action( 'admin_init', __NAMESPACE__ . '\\record_dashboard_first_visit' );
-	add_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_dashboard_first_visit_script_data', 20 );
 }
 
 /**
@@ -43,23 +42,14 @@ function record_dashboard_first_visit() {
 }
 
 /**
- * Injects the first-visit time into JetpackScriptData.
+ * The Unix time of the site's first dashboard load.
  *
  * @since $$next-version$$
  *
- * @param array $data The script data passed by the assets package.
- * @return array
+ * @return int|null Null until the dashboard has loaded once.
  */
-function inject_dashboard_first_visit_script_data( array $data ): array {
-	if ( ! Analytics::is_dashboard_request() ) {
-		return $data;
-	}
+function get_dashboard_first_visit() {
+	$first_visit = (int) get_option( DASHBOARD_FIRST_VISIT_OPTION );
 
-	if ( ! isset( $data['premium_analytics'] ) || ! is_array( $data['premium_analytics'] ) ) {
-		$data['premium_analytics'] = array();
-	}
-
-	$data['premium_analytics']['first_visit'] = (int) get_option( DASHBOARD_FIRST_VISIT_OPTION, time() );
-
-	return $data;
+	return $first_visit > 0 ? $first_visit : null;
 }

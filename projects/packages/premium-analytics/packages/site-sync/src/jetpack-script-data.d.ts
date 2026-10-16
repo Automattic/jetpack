@@ -18,8 +18,6 @@ declare module '@automattic/jetpack-script-data' {
 			dashboard_composition_enabled?: boolean;
 			// Whether the reader may see Stats reports; a shop manager may see only the store's.
 			can_view_stats?: boolean;
-			// Unix time of the site's first dashboard load.
-			first_visit?: number;
 			// The Stats features the site's plan lacks, each with its copy and upgrade URL (empty when there is nowhere to buy it), and the widget types they lock. Dashboard only.
 			plan_gates?: {
 				tier: string;
@@ -30,6 +28,8 @@ declare module '@automattic/jetpack-script-data' {
 				locked_widget_types: Record< string, string >;
 				// Whether a self-hosted site has any Jetpack Stats product, the free one included.
 				has_stats_product?: boolean;
+				// Whether the site has no paid Stats and first opened the dashboard over 30 days ago.
+				offers_free_site_upgrade?: boolean;
 			};
 			// Slugs of the tabs the dashboard exposes. Absent until the section registry is hydrated.
 			sections?: string[];

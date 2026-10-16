@@ -17,6 +17,7 @@ use WorDBless\BaseTestCase;
 
 require_once __DIR__ . '/../../src/stats-plan-gates.php';
 require_once __DIR__ . '/../../src/purchase-success.php';
+require_once __DIR__ . '/../../src/dashboard-first-visit.php';
 require_once __DIR__ . '/fixtures/widget-modules-manifest.php';
 require_once __DIR__ . '/traits/trait-widget-manifest-fixture.php';
 require_once ABSPATH . 'wp-admin/includes/plugin.php';
@@ -28,6 +29,8 @@ require_once ABSPATH . 'wp-admin/includes/plugin.php';
  * @covers ::Automattic\Jetpack\PremiumAnalytics\has_cached_jetpack_plan
  * @covers ::Automattic\Jetpack\PremiumAnalytics\has_jetpack_stats_commercial_purchase
  * @covers ::Automattic\Jetpack\PremiumAnalytics\has_jetpack_stats_product
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\offers_free_site_upgrade
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\get_dashboard_first_visit
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_locked_stats_features
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_stats_feature_copy
  * @covers ::Automattic\Jetpack\PremiumAnalytics\localize_stats_support_url
@@ -44,6 +47,8 @@ require_once ABSPATH . 'wp-admin/includes/plugin.php';
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\has_cached_jetpack_plan' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\has_jetpack_stats_commercial_purchase' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\has_jetpack_stats_product' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\offers_free_site_upgrade' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_dashboard_first_visit' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_locked_stats_features' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_stats_feature_copy' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\localize_stats_support_url' )]
@@ -119,6 +124,7 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		$GLOBALS['jpa_test_wpcom_purchases'] = array( array( 'product_slug' => 'business-bundle' ) );
 		delete_option( 'jetpack_active_plan' );
 		delete_option( 'jetpack_site_products' );
+		delete_option( DASHBOARD_FIRST_VISIT_OPTION );
 		remove_all_filters( STATS_PLAN_TIER_FILTER );
 		remove_all_filters( 'locale' );
 		remove_all_filters( 'doing_it_wrong_trigger_error' );
@@ -249,6 +255,53 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 			'security plan is not'     => array( $plan( 'jetpack_security_t1_yearly' ), array(), STATS_TIER_JETPACK_FREE ),
 			'stats-commercial feature' => array( array( 'features' => array( 'active' => array( 'stats-commercial' ) ) ), array(), STATS_TIER_COMMERCIAL ),
 		);
+	}
+
+	/**
+	 * A site without paid Stats is offered a plan from 30 days after its first dashboard load.
+	 *
+	 * @dataProvider provide_free_site_upgrade_offers
+	 *
+	 * @param string   $tier     The Stats plan tier.
+	 * @param int|null $days_ago Days since the first dashboard load, or null for none yet.
+	 * @param bool     $expected Whether the plan is offered.
+	 */
+	#[DataProvider( 'provide_free_site_upgrade_offers' )]
+	public function test_free_site_upgrade_follows_tier_and_first_visit( $tier, $days_ago, $expected ) {
+		if ( null !== $days_ago ) {
+			update_option( DASHBOARD_FIRST_VISIT_OPTION, time() - $days_ago * DAY_IN_SECONDS );
+		}
+
+		$this->assertSame( $expected, offers_free_site_upgrade( $tier ) );
+	}
+
+	/**
+	 * Tiers and first-visit ages, and whether each is offered a plan.
+	 *
+	 * @return array
+	 */
+	public static function provide_free_site_upgrade_offers() {
+		return array(
+			'Jetpack free on day 30' => array( STATS_TIER_JETPACK_FREE, 30, true ),
+			'Jetpack free on day 29' => array( STATS_TIER_JETPACK_FREE, 29, false ),
+			'no dashboard load yet'  => array( STATS_TIER_JETPACK_FREE, null, false ),
+			'WordPress.com free'     => array( STATS_TIER_FREE, 31, true ),
+			'legacy free'            => array( STATS_TIER_LEGACY_FREE, 31, true ),
+			'legacy basic'           => array( STATS_TIER_LEGACY_BASIC, 31, true ),
+			'paid'                   => array( STATS_TIER_PAID, 31, false ),
+			'commercial'             => array( STATS_TIER_COMMERCIAL, 31, false ),
+			'plan not synced'        => array( STATS_TIER_UNKNOWN, 31, false ),
+		);
+	}
+
+	/**
+	 * Simple keeps the upgrade rules of its own, so the dashboard does not offer it.
+	 */
+	public function test_free_site_upgrade_is_not_offered_on_simple() {
+		$this->set_wpcom_platform( 'simple' );
+		update_option( DASHBOARD_FIRST_VISIT_OPTION, time() - 31 * DAY_IN_SECONDS );
+
+		$this->assertFalse( offers_free_site_upgrade( STATS_TIER_FREE ) );
 	}
 
 	/**

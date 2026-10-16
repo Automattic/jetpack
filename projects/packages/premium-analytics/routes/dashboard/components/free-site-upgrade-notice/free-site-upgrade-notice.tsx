@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { getScriptData, isSimpleSite } from '@automattic/jetpack-script-data';
+import { getScriptData } from '@automattic/jetpack-script-data';
 import {
 	useStatsAppNoticeMutation,
 	useStatsAppNotices,
@@ -24,11 +24,6 @@ const NOTICE_ID = 'free_site_upgrade';
 // Stats postpones this notice for ten years, so a dismissal is final.
 const POSTPONE_SECONDS = 3650 * 24 * 60 * 60;
 
-const DELAY_AFTER_FIRST_VISIT_MS = 30 * 24 * 60 * 60 * 1000;
-
-// Tiers whose plan has no paid Stats. `unknown` is left out: it may be a paid site whose plan has not synced.
-const FREE_STATS_TIERS = [ 'jetpack-free', 'free', 'legacy-free', 'legacy-basic' ];
-
 // Stats dismissed these under their former IDs; the banner replaced both.
 const REPLACED_NOTICE_IDS = [ 'do_you_love_jetpack_stats', 'commercial_site_upgrade' ] as const;
 
@@ -46,34 +41,16 @@ export function resetFreeSiteUpgradeNoticeForTesting() {
 }
 
 /**
- * Whether the reader dismissed the banner, or one of the notices it replaced.
+ * Whether Stats lets the banner show: WordPress.com reports it visible until it is dismissed,
+ * so a missing key means the dismissal state could not be read.
  *
  * @param notices - The Stats notice visibility state.
- * @return Whether the banner stays hidden.
- */
-function isDismissed( notices: StatsAppNotices ): boolean {
-	return [ NOTICE_ID, ...REPLACED_NOTICE_IDS ].some( id => notices[ id ] === false );
-}
-
-/**
- * Whether the site qualifies for the banner from what the page already knows: a connected,
- * non-VIP site without paid Stats that first opened the dashboard over 30 days ago.
- *
  * @return Whether the banner may show.
  */
-function isEligible(): boolean {
-	const scriptData = getScriptData();
-	if ( isSimpleSite() || scriptData?.site?.host === 'vip' ) {
-		return false;
-	}
-
-	const tier = scriptData?.premium_analytics?.plan_gates?.tier;
-	const firstVisit = scriptData?.premium_analytics?.first_visit;
-	if ( ! tier || ! FREE_STATS_TIERS.includes( tier ) || ! firstVisit ) {
-		return false;
-	}
-
-	return Date.now() - firstVisit * 1000 >= DELAY_AFTER_FIRST_VISIT_MS;
+function isVisible( notices: StatsAppNotices ): boolean {
+	return (
+		notices[ NOTICE_ID ] === true && REPLACED_NOTICE_IDS.every( id => notices[ id ] !== false )
+	);
 }
 
 /**
@@ -82,14 +59,14 @@ function isEligible(): boolean {
  * @return `undefined` while the dismissal state loads, otherwise whether it shows.
  */
 export function useFreeSiteUpgradeNoticeVisibility(): boolean | undefined {
-	const eligible = isEligible();
+	const eligible = !! getScriptData()?.premium_analytics?.plan_gates?.offers_free_site_upgrade;
 	const { data: notices, isError } = useStatsAppNotices( undefined, { enabled: eligible } );
 
 	if ( ! eligible || isError ) {
 		return false;
 	}
 
-	return notices ? ! isDismissed( notices ) : undefined;
+	return notices ? isVisible( notices ) : undefined;
 }
 
 /**
