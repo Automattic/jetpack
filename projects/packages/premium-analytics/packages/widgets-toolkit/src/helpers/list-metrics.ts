@@ -20,7 +20,6 @@ export function getListMetricLabel( metric: ListMetric ): string {
 		case 'opens':
 			return __( 'Opens', 'jetpack-premium-analytics-pkg' );
 		case 'views':
-		default:
 			return __( 'Views', 'jetpack-premium-analytics-pkg' );
 	}
 }
@@ -59,7 +58,6 @@ export function formatListMetricCount( metric: ListMetric, value: number, exact:
 				exact
 			);
 		case 'views':
-		default:
 			return sprintf(
 				/* translators: %s: number of views, e.g. "2,033". */
 				_n( '%s view', '%s views', value, 'jetpack-premium-analytics-pkg' ),
