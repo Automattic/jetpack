@@ -11,7 +11,7 @@ namespace Automattic\Jetpack\PremiumAnalytics;
  * Sends links to Stats pages (the admin bar, the post list Views column, the newsletter action bar) to the matching
  * dashboard page instead.
  *
- * @since $$next-version$$
+ * @since 0.12.0
  */
 class Stats_Links {
 

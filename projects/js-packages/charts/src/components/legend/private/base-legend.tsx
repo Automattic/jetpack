@@ -11,6 +11,7 @@ import {
 	forwardRef,
 	useCallback,
 	useContext,
+	useMemo,
 } from 'react';
 import { ChartInstanceContext } from '../../../charts/private/chart-instance-context';
 import { useTextTruncation } from '../../../hooks';
@@ -115,7 +116,7 @@ export const BaseLegend: ForwardRefExoticComponent<
 > = forwardRef< HTMLDivElement, BaseLegendProps >(
 	(
 		{
-			items,
+			items: allItems,
 			className,
 			orientation = 'horizontal',
 			alignment = 'center',
@@ -154,6 +155,31 @@ export const BaseLegend: ForwardRefExoticComponent<
 		const chartInstanceContext = useContext( ChartInstanceContext );
 		const standaloneScopeClass = useStandaloneScopeClass();
 
+		// Disabling interaction for the whole legend still preserves its series' visibility state.
+		const isSeriesVisible = useCallback(
+			( seriesLabel: string ) => {
+				if ( chartInstanceContext?.isSeriesVisible ) {
+					return chartInstanceContext.isSeriesVisible( seriesLabel );
+				}
+				if ( ! chartId || ! context ) {
+					return true;
+				}
+				return context.isSeriesVisible( chartId, seriesLabel );
+			},
+			[ chartId, chartInstanceContext, context ]
+		);
+
+		const items = useMemo(
+			() =>
+				allItems.filter(
+					item =>
+						item.interactive !== false ||
+						! item.describesSeries ||
+						isSeriesVisible( item.describesSeries )
+				),
+			[ allItems, isSeriesVisible ]
+		);
+
 		// Keep duplicate labels: a static comparison item can share a metric's name.
 		const domain = items.map( item => item.label );
 		const legendScale = scaleOrdinal( {
@@ -187,20 +213,6 @@ export const BaseLegend: ForwardRefExoticComponent<
 				}
 			},
 			[ interactive, chartId, context ]
-		);
-
-		// Disabling interaction for the whole legend still preserves its series' visibility state.
-		const isSeriesVisible = useCallback(
-			( seriesLabel: string ) => {
-				if ( chartInstanceContext?.isSeriesVisible ) {
-					return chartInstanceContext.isSeriesVisible( seriesLabel );
-				}
-				if ( ! chartId || ! context ) {
-					return true;
-				}
-				return context.isSeriesVisible( chartId, seriesLabel );
-			},
-			[ chartId, chartInstanceContext, context ]
 		);
 
 		// Create event handlers to avoid inline arrow functions

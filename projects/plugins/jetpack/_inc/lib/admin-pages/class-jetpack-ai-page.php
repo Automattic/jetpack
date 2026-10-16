@@ -356,6 +356,8 @@ class Jetpack_AI_Page {
 					'path'   => '/wpcom/v2/jetpack-ai/mcp-settings',
 					'format' => 'jetpack',
 				),
+				// Which ChatGPT plugin, Jetpack's or WordPress.com's, the Hub's connect links open.
+				'chatgptConnector'  => $host->is_wpcom_platform() ? 'wpcom' : 'jetpack',
 			)
 		);
 
@@ -440,6 +442,7 @@ class Jetpack_AI_Page {
 			// cache miss, so it shares the sender's guard.
 			'tracksUserData'      => $can_send_tracks ? self::get_tracks_user_data() : null,
 			'mcpSettingsApi'      => $config['mcpSettingsApi'] ?? array(),
+			'chatgptConnector'    => 'jetpack' === ( $config['chatgptConnector'] ?? '' ) ? 'jetpack' : 'wpcom',
 		);
 
 		wp_add_inline_script(

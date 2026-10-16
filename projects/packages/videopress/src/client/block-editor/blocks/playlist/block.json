@@ -101,6 +101,15 @@
 		"entryTitleFontFamily": {
 			"type": "string",
 			"default": ""
+		},
+		"source": {
+			"type": "string",
+			"enum": [ "own", "queried", "index" ],
+			"default": "own"
+		},
+		"sourcePlaylistId": {
+			"type": "string",
+			"default": ""
 		}
 	},
 	"editorScript": "file:./index.js",

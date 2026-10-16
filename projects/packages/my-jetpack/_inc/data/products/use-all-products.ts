@@ -1,6 +1,7 @@
 import { QUERY_PRODUCT_KEY, REST_API_SITE_PRODUCTS_ENDPOINT } from '../constants';
 import useSimpleQuery from '../use-simple-query';
 import { getMyJetpackWindowInitialState } from '../utils/get-my-jetpack-window-state';
+import { isOfflineFeatures } from '../utils/offline-features';
 import { prepareProductData } from '../utils/prepare-product-data';
 import type { ProductCamelCase, ProductSnakeCase } from '../types';
 
@@ -18,7 +19,7 @@ export const useAllProducts = () => {
 		query: {
 			path: `${ REST_API_SITE_PRODUCTS_ENDPOINT }`,
 		},
-		options: { enabled: true },
+		options: { enabled: ! isOfflineFeatures() },
 	} );
 
 	if ( ! isLoading && ! isError ) {

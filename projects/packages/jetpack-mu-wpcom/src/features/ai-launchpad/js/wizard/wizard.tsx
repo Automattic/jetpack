@@ -1,5 +1,5 @@
 import apiFetch from '@wordpress/api-fetch';
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button, Dialog, Stack } from '@wordpress/ui';
 import { tailor } from '../lib/tailor.ts';
@@ -68,6 +68,7 @@ export function Wizard( {
 	const [ siteName, setSiteName ] = useState< string >( initialSiteName );
 	const [ intent, setIntent ] = useState< string >( initialIntent );
 	const [ skipping, setSkipping ] = useState( false );
+	const goalsTitleRef = useRef< HTMLHeadingElement >( null );
 
 	const state: WizardState = { goal, siteName, intent, locale, uiLocale };
 	// The analytics name of the current step, shared by every event that reports one.
@@ -77,6 +78,13 @@ export function Wizard( {
 	useEffect( () => {
 		trackViewed( { step: stepName } );
 	}, [ stepName ] );
+
+	// Back unmounts its own button, so move focus to the goals title instead of losing it to the page.
+	useEffect( () => {
+		if ( step === 0 ) {
+			goalsTitleRef.current?.focus();
+		}
+	}, [ step ] );
 
 	const handleNext = () => {
 		if ( ! isLastStep( step ) ) {
@@ -152,6 +160,7 @@ export function Wizard( {
 			<Dialog.Popup
 				size="medium"
 				className="ai-launchpad-wizard"
+				initialFocus={ goalsTitleRef }
 				portal={ <Dialog.Portal className="ai-launchpad-wizard__portal" /> }
 			>
 				<Dialog.Content>
@@ -164,6 +173,7 @@ export function Wizard( {
 
 					{ step === 0 && (
 						<GoalsStep
+							titleRef={ goalsTitleRef }
 							value={ goal }
 							onChange={ nextGoal => {
 								trackWizardGoalClicked( { goal_clicked: nextGoal } );

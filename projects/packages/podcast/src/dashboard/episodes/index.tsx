@@ -8,7 +8,7 @@ import { useCallback, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
-import { EmptyState, LinkButton, Stack } from '@wordpress/ui';
+import { EmptyState, ButtonLink, Stack } from '@wordpress/ui';
 import { usePodcastSettings } from '../hooks/use-podcast-settings';
 import LockedPreview from '../locked-preview';
 import './style.scss';
@@ -41,9 +41,9 @@ const EmptyEpisodes = () => (
 				) }
 			</EmptyState.Description>
 			<EmptyState.Actions>
-				<LinkButton variant="solid" href={ NEW_EPISODE_URL }>
+				<ButtonLink variant="solid" href={ NEW_EPISODE_URL }>
 					{ __( 'Create episode', 'jetpack-podcast' ) }
-				</LinkButton>
+				</ButtonLink>
 			</EmptyState.Actions>
 		</EmptyState.Root>
 	</Stack>

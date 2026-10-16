@@ -115,6 +115,7 @@ type BaseLegendItem = {
 - **`shapeStyle`** (optional): Additional CSS and line styles to apply to the shape. Supports standard CSSProperties plus visx LineStyles
 - **`seriesLabels`** (optional): The series labels this item controls. Auto-derived items set it to just the item's own series, unless `legend.collapseGroups` is on, in which case a group collapses to one item carrying every series it toggles (primary first). An interactive legend toggles all of these together
 - **`interactive`** (optional): Set to `false` to keep this item static inside an interactive legend. It renders without a button role, ignores clicks, and never dims; the `comparisonItem` option uses this for the "Comparison period" item
+- **`describesSeries`** (optional): For a static item, the label of the series it describes. The item is left out while that series is hidden; `comparisonSeriesItems` sets it on each comparison item
 
 ## GlyphProps Type
 

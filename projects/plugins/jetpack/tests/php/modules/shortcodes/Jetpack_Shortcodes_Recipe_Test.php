@@ -108,7 +108,7 @@ class Jetpack_Shortcodes_Recipe_Test extends WP_UnitTestCase {
 	public function test_shortcodes_recipe_preptime() {
 		$content = '[recipe preptime="30 min"]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 		$this->assertEqualHTML(
 			'<div class="hrecipe h-recipe jetpack-recipe" itemscope itemtype="https://schema.org/Recipe"><ul class="jetpack-recipe-meta"><li class="jetpack-recipe-preptime">
 				<time itemprop="prepTime" datetime="P0DT0H30M0S"><strong>Prep Time:</strong> <span class="preptime">30 min</span></time>
@@ -125,7 +125,7 @@ class Jetpack_Shortcodes_Recipe_Test extends WP_UnitTestCase {
 	public function test_shortcodes_recipe_cooktime() {
 		$content = '[recipe cooktime="2 hours 30 min"]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 		$this->assertEqualHTML(
 			'<div class="hrecipe h-recipe jetpack-recipe" itemscope itemtype="https://schema.org/Recipe"><ul class="jetpack-recipe-meta"><li class="jetpack-recipe-cooktime">
 				<time itemprop="cookTime" datetime="P0DT2H30M0S"><strong>Cook Time:</strong> <span class="cooktime">2 hours 30 min</span></time>
@@ -142,7 +142,7 @@ class Jetpack_Shortcodes_Recipe_Test extends WP_UnitTestCase {
 	public function test_shortcodes_recipe_rating() {
 		$content = '[recipe rating="2 stars"]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 		$this->assertStringContainsString( '<span itemprop="contentRating">2 stars</span>', $shortcode_content );
 	}
 
@@ -154,7 +154,7 @@ class Jetpack_Shortcodes_Recipe_Test extends WP_UnitTestCase {
 	public function test_shortcodes_recipe_image_empty_src() {
 		$content = '[recipe image=""]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 		$this->assertStringNotContainsString( '<img', $shortcode_content );
 	}
 
@@ -166,7 +166,7 @@ class Jetpack_Shortcodes_Recipe_Test extends WP_UnitTestCase {
 	public function test_shortcodes_recipe_image_invalid_src() {
 		$content = '[recipe image="test"]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 		$this->assertStringNotContainsString( '<img', $shortcode_content );
 	}
 
@@ -178,7 +178,7 @@ class Jetpack_Shortcodes_Recipe_Test extends WP_UnitTestCase {
 	public function test_shortcodes_recipe_image_invalid_attachment() {
 		$content = '[recipe image="-100"]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 		$this->assertStringNotContainsString( '<img', $shortcode_content );
 	}
 
@@ -195,7 +195,7 @@ class Jetpack_Shortcodes_Recipe_Test extends WP_UnitTestCase {
 		// Get shortcode with new attachment.
 		$content = '[recipe image="' . $attachment_id . '"]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$lazy = wp_lazy_loading_enabled( 'img', 'wp_get_attachment_image' ) ? ' loading="lazy"' : '';
 		$this->assertEqualHTML(
@@ -212,7 +212,7 @@ class Jetpack_Shortcodes_Recipe_Test extends WP_UnitTestCase {
 	public function test_shortcodes_recipe_image_src() {
 		$content = '[recipe image="https://example.com"]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$lazy = wp_lazy_loading_enabled( 'img', 'wp_get_attachment_image' ) ? ' loading="lazy"' : '';
 		$this->assertEqualHTML(
@@ -229,7 +229,7 @@ class Jetpack_Shortcodes_Recipe_Test extends WP_UnitTestCase {
 	public function test_shortcodes_recipe_image_location_move() {
 		$content = '[recipe image="https://example.com"][recipe-image][/recipe]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 		$this->assertStringNotContainsString( '<img', $shortcode_content );
 	}
 
@@ -241,7 +241,7 @@ class Jetpack_Shortcodes_Recipe_Test extends WP_UnitTestCase {
 	public function test_shortcodes_recipe_image_shortcode_empty() {
 		$content = '[recipe-image]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 		$this->assertStringNotContainsString( '<img', $shortcode_content );
 	}
 
@@ -253,7 +253,7 @@ class Jetpack_Shortcodes_Recipe_Test extends WP_UnitTestCase {
 	public function test_shortcodes_recipe_image_shortcode_empty_attr() {
 		$content = '[recipe-image image=""]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 		$this->assertStringNotContainsString( '<img', $shortcode_content );
 	}
 
@@ -266,7 +266,7 @@ class Jetpack_Shortcodes_Recipe_Test extends WP_UnitTestCase {
 
 		$content = '[recipe-image https://example.com]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		// We expect a different image markup when Lazy Load is enabled.
 		if ( wp_lazy_loading_enabled( 'img', 'wp_get_attachment_image' ) ) {
@@ -285,7 +285,7 @@ class Jetpack_Shortcodes_Recipe_Test extends WP_UnitTestCase {
 
 		$content = '[recipe-image image="https://example.com"]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		// We expect a different image markup when Lazy Load is enabled.
 		if ( wp_lazy_loading_enabled( 'img', 'wp_get_attachment_image' ) ) {
@@ -303,7 +303,7 @@ class Jetpack_Shortcodes_Recipe_Test extends WP_UnitTestCase {
 	public function test_shortcodes_recipe_image_shortcode_invalid_attachment() {
 		$content = '[recipe-image -100]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 		$this->assertStringNotContainsString( '<img', $shortcode_content );
 	}
 
@@ -315,7 +315,7 @@ class Jetpack_Shortcodes_Recipe_Test extends WP_UnitTestCase {
 	public function test_shortcodes_recipe_image_shortcode_invalid_attachment_attr() {
 		$content = '[recipe-image image="-100"]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 		$this->assertStringNotContainsString( '<img', $shortcode_content );
 	}
 
@@ -332,7 +332,7 @@ class Jetpack_Shortcodes_Recipe_Test extends WP_UnitTestCase {
 		// Get shortcode with new attachment.
 		$content = '[recipe-image ' . $attachment_id . ']';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 		$this->assertStringContainsString( 'src="' . $url . '" class="jetpack-recipe-image u-photo photo"', $shortcode_content );
 	}
 
@@ -349,7 +349,7 @@ class Jetpack_Shortcodes_Recipe_Test extends WP_UnitTestCase {
 		// Get shortcode with new attachment.
 		$content = '[recipe-image image="' . $attachment_id . '"]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 		$this->assertStringContainsString( 'src="' . $url . '" class="jetpack-recipe-image u-photo photo"', $shortcode_content );
 	}
 
@@ -366,7 +366,7 @@ class Jetpack_Shortcodes_Recipe_Test extends WP_UnitTestCase {
 [/recipe-nutrition]
 EOT;
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 		$this->assertStringContainsString( 'itemprop="nutrition"', $shortcode_content );
 		$this->assertStringContainsString( '<li class="jetpack-recipe-nutrition">food 100%</li>', $shortcode_content );
 		$this->assertStringContainsString( '<li class="jetpack-recipe-nutrition">taste 500mg</li>', $shortcode_content );
@@ -391,7 +391,7 @@ EOT;
 <div itemscope="" itemtype=""></div>
 EOT;
 
-		$shortcode_content = do_shortcode( "[recipe]\n$tags\n[/recipe]" );
+		$shortcode_content = apply_shortcodes( "[recipe]\n$tags\n[/recipe]" );
 		$this->assertEqualHTML(
 			'<div class="hrecipe h-recipe jetpack-recipe" itemscope itemtype="https://schema.org/Recipe"><div class="jetpack-recipe-content">' . "\n$tags\n" . '</div></div>',
 			$shortcode_content
@@ -450,7 +450,7 @@ EOT;
 		$expected = preg_replace( '/\s+/', ' ', $expected );
 		$expected = preg_replace( '/(?<=>)\s+(?=<)/', '', trim( $expected ) );
 
-		$actual = do_shortcode( $shortcode );
+		$actual = apply_shortcodes( $shortcode );
 		$actual = preg_replace( '/\s+/', ' ', $actual );
 		$actual = preg_replace( '/(?<=>)\s+(?=<)/', '', trim( $actual ) );
 

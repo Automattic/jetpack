@@ -5,8 +5,8 @@ $focus-ring-width: var(--wpds-border-width-focus);
 
 $heatmap-empty-fill: var(--a8c-charts-color-track);
 
-// JS sets the ends (getHeatmapScale): 3:1 against background and empty cell at
-// the low end. Unresolved, the floor is 15% of the primary.
+// JS sets the ends (getHeatmapScale). Unresolved, the floor is 15% of the
+// primary.
 $heatmap-fill: color-mix(in sRGB, var(--a8c-charts-color-heatmap-high, var(--a8c-charts-color-heatmap-primary)) calc(var(--a8c-charts-heatmap-cell-intensity) * 100%), var(--a8c-charts-color-heatmap-low, color-mix(in sRGB, var(--a8c-charts-color-heatmap-primary) 15%, var(--a8c-charts-color-background, #fff))));
 
 .heatmap-chart {
@@ -49,7 +49,7 @@ $heatmap-fill: color-mix(in sRGB, var(--a8c-charts-color-heatmap-high, var(--a8c
 		outline:
 			$focus-ring-width solid
 			var(--wpds-color-stroke-focus);
-		outline-offset: 2px;
+		outline-offset: $focus-ring-width;
 		border-radius: var(--wpds-border-radius-sm);
 	}
 }
@@ -98,9 +98,9 @@ $heatmap-fill: color-mix(in sRGB, var(--a8c-charts-color-heatmap-high, var(--a8c
 
 // Beneath its columns, set off from the last row by more than the cell gap.
 .heatmap-chart__group-label {
-	color: var(--a8c-charts-color-label-secondary);
-	font-size: var(--wpds-typography-font-size-xs);
-	line-height: var(--wpds-typography-line-height-xs);
+	color: var(--a8c-charts-color-label);
+	font-size: var(--wpds-typography-font-size-md);
+	line-height: var(--wpds-typography-line-height-sm);
 	white-space: nowrap;
 	text-align: center;
 	padding-block-start: var(--wpds-dimension-padding-xs);

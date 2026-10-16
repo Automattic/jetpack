@@ -8,7 +8,8 @@ import { Meta } from '@storybook/addon-docs/blocks';
 
 Main component for rendering a two-dimensional heatmap. Cells are laid out with CSS Grid
 and shaded on a scale derived from the primary color and the chart background, so its
-lowest step keeps 3:1 contrast against that background and the empty cells.
+lowest step reaches 2.5:1 contrast against that background and the empty cells, and never
+less than 2:1 against the background or the highest step.
 
 **Props:**
 
@@ -18,14 +19,15 @@ lowest step keeps 3:1 contrast against that background and the empty cells.
 | `rowLabels` | `string[]` | `[]` | y-axis labels by row index. Empty entries render blank. |
 | `columnGroups` | `HeatmapColumnGroup[]` | - | Consecutive runs of columns sharing one label beneath the grid, one group gap apart (in compact mode the gaps share the leftover width, down to the theme's `groupGap`). Runs from the first column; leftover columns stay ungrouped. Ignored with a warning when a span is not a positive integer or the spans reach past the last column. |
 | `keyboardNavigation` | `'grid' \| 'calendar'` | `'grid'` | How the arrow keys move the selection. `grid` steps across the whole grid. `calendar` reads each column group as a page: Left/Right by one cell, wrapping to the next row and then the next group; Up/Down by one row, into the neighboring group past the edge; Page Up/Down to the same slot of the neighboring group, or its nearest cell after it. |
-| `ariaLabel` | `string` | `'Heatmap chart'` | Accessible name of the grid. |
+| `ariaLabel` | `string` | `'Heatmap chart'` | Accessible name. See [Accessible names](./?path=/docs/js-packages-charts-library-introduction--docs#accessible-names). |
 | `compact` | `boolean` | `false` | Compact mode: tighten cell gaps, suppress in-cell values, and thin axis labels. |
+| `fitCells` | `boolean` | `false` | Compact mode only: grow the cells to fill the chart's box, wrapping the column groups onto more rows when that gives larger cells. The theme's `compactCellSize` is the floor: when no row count reaches it, the grid keeps one row of groups at that size and overflows. Needs a box with a definite height. Columns outside every group keep the groups on one row. Ignored, with a warning, outside compact mode or when a column is a summary. |
 | `showValues` | `boolean` | `!compact` | Render the numeric value inside each cell (compact notation for large numbers; the tooltip and aria-label keep full precision). |
 | `maxCellWidth` | `number` | - | Maximum cell width in pixels in non-compact mode. Cells stop growing at this width while narrower containers may still shrink them. |
 | `maxCellHeight` | `number` | - | Maximum cell height in pixels in non-compact mode. Applying it content-sizes the chart vertically so unused container height does not stretch the rows. |
 | `minCellWidth` | `number` | `0` | Minimum cell width in pixels in non-compact mode. The grid overflows horizontally instead of shrinking cells below this width. |
 | `minCellHeight` | `number` | `0` | Minimum cell height in pixels in non-compact mode. The grid overflows vertically instead of shrinking cells below this height. |
-| `primaryColor` | `string` | palette | Color the scale is built from, deepened at the highest value toward 9:1 against the background. Defaults to the first series palette color, `--a8c-charts-color-series-1`. |
+| `primaryColor` | `string` | palette | Color the scale is built from, deepened at the highest value toward 6:1 against the background. Defaults to the first series palette color, `--a8c-charts-color-series-1`. |
 | `withTooltips` | `boolean` | `false` | Show a tooltip on cell hover or keyboard navigation. |
 | `tooltipVariant` | `'light' \| 'dark'` | - | **Deprecated.** Every tooltip draws on the package tooltip surface; this prop has no effect. |
 | `tooltipStyle` | `CSSProperties` | - | Inline styles merged onto the tooltip box, over the surface's own; tighten the padding of a one-line tooltip, for example. |

@@ -4,7 +4,6 @@
 import { useStatsSite } from '@jetpack-premium-analytics/data';
 import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
 import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
-import { calendar } from '@jetpack-premium-analytics/icons';
 import {
 	AbbreviatedValue,
 	describeError,
@@ -109,9 +108,8 @@ function MostPopularDayReport() {
 						onRetry: () => void refetch(),
 					} ) }
 					empty={ {
-						icon: calendar,
 						description: __(
-							'Not enough views yet to pick a most popular day.',
+							'Your best day for traffic will show here once visitors start arriving.',
 							'jetpack-premium-analytics-pkg'
 						),
 					} }
