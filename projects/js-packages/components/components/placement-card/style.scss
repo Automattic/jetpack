@@ -1,0 +1,74 @@
+// `Card.Root` draws the surface, border and radius;
+// this adds the states and the checkbox position.
+
+.jp-placement-card-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	column-gap: var(--wpds-dimension-gap-md);
+	row-gap: var(--wpds-dimension-gap-2xl);
+
+	@media (max-width: 720px) {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+.jp-placement-card {
+	position: relative;
+
+	&[data-checked="true"] {
+		border-color: var(--wpds-color-stroke-interactive-brand-active);
+	}
+
+	&:hover:not([data-checked="true"]) {
+		border-color: var(--wpds-color-stroke-surface-neutral-strong);
+	}
+
+	&:has(input:focus-visible) {
+		outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
+		outline-offset: 2px;
+	}
+
+	@media (prefers-reduced-motion: no-preference) {
+		transition: border-color 0.15s ease-out;
+	}
+}
+
+.jp-placement-card__surface {
+	display: block;
+	cursor: var(--wpds-cursor-control);
+}
+
+.jp-placement-card__illustration {
+	aspect-ratio: 294 / 192;
+	background: var(--wpds-color-background-surface-neutral-weak);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
+
+	> svg {
+		display: block;
+		inline-size: 100%;
+		block-size: 100%;
+	}
+}
+
+.jp-placement-card__checkbox {
+	position: absolute;
+	inset-block-start: var(--wpds-dimension-padding-md);
+	inset-inline-start: var(--wpds-dimension-padding-md);
+
+	// Zero the BaseControl chrome until `@wordpress/ui`
+	// ships a checkbox of its own.
+	.components-base-control,
+	.components-base-control__field,
+	.components-checkbox-control,
+	.components-checkbox-control__input-container {
+		margin: 0;
+		padding: 0;
+	}
+
+	.components-checkbox-control__input {
+		margin: 0;
+	}
+}
