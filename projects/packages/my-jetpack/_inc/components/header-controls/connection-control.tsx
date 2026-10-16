@@ -1,5 +1,6 @@
 import {
 	ConnectionErrorDetails,
+	getReconnectErrorMessage,
 	getUserConnectionUrl,
 	ManageConnectionDialog,
 	useConnectionErrorNotice,
@@ -8,7 +9,7 @@ import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Badge, Button, Link, Popover, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { connectionStatusEmptyAvatar as emptyAvatar } from '../../assets/inline-svgs';
 import { MyJetpackRoutes } from '../../constants';
 import useSitePurchases from '../../data/use-site-purchases';
@@ -161,10 +162,12 @@ const ConnectionControl: FC = () => {
 	const state = useConnectionState();
 	const { apiRoot, apiNonce, isUserConnected, connectedPlugins, userConnectionData } =
 		useMyJetpackConnection();
-	const { errorGroups, showSupportLink, connectionErrorMessage, actions } =
+	const { errorGroups, showSupportLink, connectionErrorMessage, actions, restoreConnectionError } =
 		useConnectionErrorNotice( { trackingContext: 'my-jetpack-header', navigate: assignLocation } );
 	const [ isOpen, setIsOpen ] = useState( false );
 	const [ isDialogOpen, setIsDialogOpen ] = useState( false );
+	const triggerRef = useRef< HTMLButtonElement >( null );
+	const returnFocusRef = useRef( false );
 	// Never stale, so opening reuses what the Overview or an earlier open loaded.
 	const { data: purchases = null } = useSitePurchases( {
 		enabled: isOpen,
@@ -176,7 +179,18 @@ const ConnectionControl: FC = () => {
 		setIsOpen( false );
 		setIsDialogOpen( true );
 	}, [] );
-	const closeManageDialog = useCallback( () => setIsDialogOpen( false ), [] );
+	const closeManageDialog = useCallback( () => {
+		returnFocusRef.current = true;
+		setIsDialogOpen( false );
+	}, [] );
+
+	// The dialog returns focus to the link that opened it, which left with the popover.
+	useEffect( () => {
+		if ( ! isDialogOpen && returnFocusRef.current ) {
+			returnFocusRef.current = false;
+			triggerRef.current?.focus();
+		}
+	}, [ isDialogOpen ] );
 	const onDisconnected = useCallback( () => {
 		window.location.href = getMyJetpackWindowInitialState( 'adminUrl' ) || window.location.href;
 	}, [] );
@@ -189,6 +203,7 @@ const ConnectionControl: FC = () => {
 		<>
 			<Popover.Root open={ isOpen } onOpenChange={ setIsOpen }>
 				<Popover.Trigger
+					ref={ triggerRef }
 					className={ styles.trigger }
 					aria-label={ sprintf(
 						/* translators: %s is the connection state, e.g. "Site and account connected". */
@@ -212,6 +227,11 @@ const ConnectionControl: FC = () => {
 							<ConnectionStatus status={ state.status } showAvatar={ showAvatar } />
 							<Badge intent={ STATUS_INTENTS[ state.status ] }>{ getBadgeLabel( state ) }</Badge>
 							<ConnectionOwnerInfo />
+							{ state.isDiagnosis && restoreConnectionError && (
+								<Text variant="body-sm">
+									{ getReconnectErrorMessage( restoreConnectionError ) }
+								</Text>
+							) }
 							{ state.isDiagnosis && typeof ConnectionErrorDetails === 'function' && (
 								<ConnectionErrorDetails
 									variant="body-sm"

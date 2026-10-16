@@ -23,15 +23,24 @@ jest.mock( '../../../data/notices/use-fetching-error-notice', () => ( {
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getMyJetpackUrl: ( section = '' ) => `admin.php?page=my-jetpack${ section }`,
 } ) );
+const mockRestoreConnectionError = { current: '' };
 jest.mock( '@automattic/jetpack-connection', () => ( {
 	ConnectionErrorDetails: () => null,
+	getReconnectErrorMessage: ( error: string ) =>
+		`There was an error reconnecting Jetpack. Error: ${ error }`,
 	getUserConnectionUrl: () => 'https://example.com/connect-user',
-	ManageConnectionDialog: () => null,
+	ManageConnectionDialog: ( { isOpen, onClose }: { isOpen: boolean; onClose: () => void } ) =>
+		isOpen ? (
+			<button type="button" onClick={ onClose }>
+				Close dialog
+			</button>
+		) : null,
 	useConnectionErrorNotice: () => ( {
 		actions: [ { label: 'Restore connection', onClick: jest.fn() } ],
 		errorGroups: [],
 		showSupportLink: false,
 		connectionErrorMessage: '',
+		restoreConnectionError: mockRestoreConnectionError.current,
 	} ),
 } ) );
 
@@ -127,6 +136,34 @@ describe( 'HeaderControls', () => {
 
 		expect( within( dialog ).queryByRole( 'button' ) ).not.toBeInTheDocument();
 		expect( within( dialog ).queryByRole( 'link' ) ).not.toBeInTheDocument();
+	} );
+
+	it( "shows why restoring the connection failed, as the Overview's card does", async () => {
+		mockRestoreConnectionError.current = 'timed out';
+		mockUseConnectionState.mockReturnValue(
+			stateWith( { action: 'REPAIR', status: 'error', isDiagnosis: true } )
+		);
+		render( <HeaderControls /> );
+
+		const dialog = await openControl();
+		mockRestoreConnectionError.current = '';
+
+		expect(
+			within( dialog ).getByText( 'There was an error reconnecting Jetpack. Error: timed out' )
+		).toBeInTheDocument();
+	} );
+
+	it( 'returns focus to the control when the Manage connection dialog closes', async () => {
+		mockUseConnectionState.mockReturnValue( stateWith( { manageConnection: { type: 'dialog' } } ) );
+		render( <HeaderControls /> );
+
+		const dialog = await openControl();
+		await userEvent.click( within( dialog ).getByRole( 'button', { name: 'Manage connection' } ) );
+		await userEvent.click( await screen.findByRole( 'button', { name: 'Close dialog' } ) );
+
+		await waitFor( () =>
+			expect( screen.getByRole( 'button', { name: /^Connection:/ } ) ).toHaveFocus()
+		);
 	} );
 
 	it( 'loads the plan once, on first open', async () => {
