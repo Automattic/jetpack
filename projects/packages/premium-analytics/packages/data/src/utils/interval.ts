@@ -95,9 +95,9 @@ function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] 
  * @param locked    - The buckets the plan locks.
  * @return The open buckets.
  */
-export function withoutLockedIntervals(
+function withoutLockedIntervals(
 	intervals: IntervalType[],
-	locked: readonly LockableInterval[] = NO_LOCKED_INTERVALS
+	locked: readonly LockableInterval[]
 ): IntervalType[] {
 	const open = intervals.filter( interval => ! locked.some( bucket => bucket === interval ) );
 	return open.length ? open : [ 'day' ];

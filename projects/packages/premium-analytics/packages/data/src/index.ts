@@ -1,5 +1,10 @@
 export { AnalyticsQueryClientProvider, queryClient } from './providers/query-client-provider';
-export { ReportScopeProvider, useReportScope, type ReportScope } from './providers/report-scope';
+export {
+	ReportScopeProvider,
+	useReportScope,
+	useScopeLockedIntervals,
+	type ReportScope,
+} from './providers/report-scope';
 export {
 	PERIOD_CHANGE_ATTENTION_MS,
 	PeriodChangeSignalProvider,

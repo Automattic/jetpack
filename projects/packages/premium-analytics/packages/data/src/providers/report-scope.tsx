@@ -6,6 +6,7 @@ import { createContext, useContext, useMemo, type ReactNode } from 'react';
 /**
  * Internal dependencies
  */
+import { NO_LOCKED_INTERVALS, type LockableInterval } from '../utils/interval';
 import type { StatsDatePolicy } from '../utils/stats-date-policy';
 
 /** Date options the site's plan withholds, for the controls to show as locked. */
@@ -78,4 +79,13 @@ export function ReportScopeProvider( {
  */
 export function useReportScope(): ReportScope {
 	return useContext( ReportScopeContext );
+}
+
+/**
+ * Read the buckets the nearest surface's plan locks.
+ *
+ * @return The locked buckets, none where the host declares no date limits.
+ */
+export function useScopeLockedIntervals(): readonly LockableInterval[] {
+	return useReportScope().dateLimits?.lockedIntervals ?? NO_LOCKED_INTERVALS;
 }

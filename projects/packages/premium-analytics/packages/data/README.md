@@ -86,7 +86,7 @@ Normalizes and validates report parameters, providing defaults when needed.
 
 - `search`: Optional partial parameters object, as read off the URL
 - `defaultPreset`: `PresetType | undefined` - Preset to open on when `search` names no dates; defaults to `getDefaultPreset()`
-- `lockedIntervals`: `readonly LockableInterval[]` - Buckets the site's plan locks; the interval falls back to an open one
+- `lockedIntervals`: `readonly LockableInterval[] | undefined` - Buckets the site's plan locks; the interval falls back to an open one. Defaults to none
 
 **Returns:** `ReportParams` with normalized parameters
 
@@ -155,7 +155,7 @@ for the range (`from` / `to` / `interval` missing, or `interval` not allowed).
 **Parameters:**
 
 - `search`: date-window fields from unnormalized report params (`from`, `to`, `interval`, `preset`)
-- `lockedIntervals`: `readonly LockableInterval[] | undefined` - Buckets the site's plan locks, so a locked `interval` needs a seed
+- `lockedIntervals`: `readonly LockableInterval[] | undefined` - Buckets the site's plan locks, so a locked `interval` needs a seed. Defaults to none
 
 **Returns:** `boolean`
 
@@ -221,6 +221,7 @@ This package exports the following public API:
 
 - `useReport` - Run a report query with comparison support
 - `useStats*` - One hook per Stats endpoint (`useStatsTopPosts`, `useStatsReferrers`, `useStatsVisits`, …)
+- `useScopeLockedIntervals` - The buckets the nearest report scope's plan locks; none where it sets no date limits
 
 ### Functions
 
