@@ -34,13 +34,11 @@ import { isPremiumAnalyticsInitialSyncFinished } from '../site-readiness';
 import { useWidgetModules } from '../use-widget-modules';
 import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import {
+	DashboardNotices,
 	DashboardSections,
 	FeedbackBanner,
 	OnboardingTour,
 	onboardingTourSteps,
-	hasPurchaseSuccess,
-	PlanLimitNotice,
-	PurchaseSuccessNotice,
 	RefreshFailureNotice,
 	SectionNotice,
 	SectionSyncNotice,
@@ -471,14 +469,7 @@ function Dashboard(): JSX.Element {
 
 										{ activeSection === section.slug ? (
 											<div className={ styles.body }>
-												{ /* A checkout return holds the plan limit notice back for the
-												     whole load, even once dismissed. */ }
-												{ ! editMode &&
-													( hasPurchaseSuccess() ? (
-														<PurchaseSuccessNotice />
-													) : (
-														<PlanLimitNotice />
-													) ) }
+												{ ! editMode && <DashboardNotices /> }
 
 												{ /* Behind the onboarding journey: it introduces the tabs
 												     the banner asks about. */ }

@@ -382,11 +382,7 @@ jest.mock( './components', () => ( {
 		enabled ? <div data-testid="feedback-banner" /> : null,
 	OnboardingTour: () => <div data-testid="onboarding-tour" />,
 	onboardingTourSteps: () => [],
-	PlanLimitNotice: () => <div data-testid="plan-limit-notice" />,
-	hasPurchaseSuccess: jest.requireActual(
-		'./components/purchase-success-notice/purchase-success-notice'
-	).hasPurchaseSuccess,
-	PurchaseSuccessNotice: () => <div data-testid="purchase-success-notice" />,
+	DashboardNotices: () => <div data-testid="dashboard-notices" />,
 	// A marker, not the real notice, which reads a query cache these tests do not
 	// stand up. Covered here: where the stage puts it.
 	RefreshFailureNotice: () => <div data-testid="refresh-failure-notice" />,
@@ -772,24 +768,13 @@ describe( 'Dashboard feedback banner', () => {
 		expect( screen.queryByTestId( 'feedback-banner' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'puts the plan limit notice away while the reader arranges the layout', async () => {
+	it( 'puts the Stats notices away while the reader arranges the layout', async () => {
 		render( <Dashboard /> );
-		expect( screen.getByTestId( 'plan-limit-notice' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'dashboard-notices' ) ).toBeInTheDocument();
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
 
-		expect( screen.queryByTestId( 'plan-limit-notice' ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'thanks a reader back from checkout in place of the plan limit notice', () => {
-		window.JetpackScriptData = {
-			premium_analytics: { purchase_success: { type: 'paid' } },
-		} as typeof window.JetpackScriptData;
-
-		render( <Dashboard /> );
-
-		expect( screen.getByTestId( 'purchase-success-notice' ) ).toBeInTheDocument();
-		expect( screen.queryByTestId( 'plan-limit-notice' ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'dashboard-notices' ) ).not.toBeInTheDocument();
 	} );
 } );
 

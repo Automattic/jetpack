@@ -17,6 +17,7 @@ use WorDBless\BaseTestCase;
 
 require_once __DIR__ . '/../../src/stats-plan-gates.php';
 require_once __DIR__ . '/../../src/purchase-success.php';
+require_once __DIR__ . '/../../src/dashboard-first-visit.php';
 require_once __DIR__ . '/fixtures/widget-modules-manifest.php';
 require_once __DIR__ . '/traits/trait-widget-manifest-fixture.php';
 require_once ABSPATH . 'wp-admin/includes/plugin.php';
@@ -27,6 +28,9 @@ require_once ABSPATH . 'wp-admin/includes/plugin.php';
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_jetpack_stats_plan_tier
  * @covers ::Automattic\Jetpack\PremiumAnalytics\has_cached_jetpack_plan
  * @covers ::Automattic\Jetpack\PremiumAnalytics\has_jetpack_stats_commercial_purchase
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\has_jetpack_stats_product
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\offers_free_site_upgrade
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\get_dashboard_first_visit
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_locked_stats_features
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_stats_feature_copy
  * @covers ::Automattic\Jetpack\PremiumAnalytics\localize_stats_support_url
@@ -42,6 +46,9 @@ require_once ABSPATH . 'wp-admin/includes/plugin.php';
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_jetpack_stats_plan_tier' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\has_cached_jetpack_plan' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\has_jetpack_stats_commercial_purchase' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\has_jetpack_stats_product' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\offers_free_site_upgrade' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_dashboard_first_visit' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_locked_stats_features' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_stats_feature_copy' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\localize_stats_support_url' )]
@@ -117,6 +124,7 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		$GLOBALS['jpa_test_wpcom_purchases'] = array( array( 'product_slug' => 'business-bundle' ) );
 		delete_option( 'jetpack_active_plan' );
 		delete_option( 'jetpack_site_products' );
+		delete_option( DASHBOARD_FIRST_VISIT_OPTION );
 		remove_all_filters( STATS_PLAN_TIER_FILTER );
 		remove_all_filters( 'locale' );
 		remove_all_filters( 'doing_it_wrong_trigger_error' );
@@ -246,6 +254,87 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 			'growth plan'              => array( $plan( 'jetpack_growth_yearly' ), array(), STATS_TIER_COMMERCIAL ),
 			'security plan is not'     => array( $plan( 'jetpack_security_t1_yearly' ), array(), STATS_TIER_JETPACK_FREE ),
 			'stats-commercial feature' => array( array( 'features' => array( 'active' => array( 'stats-commercial' ) ) ), array(), STATS_TIER_COMMERCIAL ),
+		);
+	}
+
+	/**
+	 * A site without paid Stats is offered a plan from 30 days after its first dashboard load.
+	 *
+	 * @dataProvider provide_free_site_upgrade_offers
+	 *
+	 * @param string   $tier     The Stats plan tier.
+	 * @param int|null $days_ago Days since the first dashboard load, or null for none yet.
+	 * @param bool     $expected Whether the plan is offered.
+	 */
+	#[DataProvider( 'provide_free_site_upgrade_offers' )]
+	public function test_free_site_upgrade_follows_tier_and_first_visit( $tier, $days_ago, $expected ) {
+		if ( null !== $days_ago ) {
+			update_option( DASHBOARD_FIRST_VISIT_OPTION, time() - $days_ago * DAY_IN_SECONDS );
+		}
+
+		$this->assertSame( $expected, offers_free_site_upgrade( $tier ) );
+	}
+
+	/**
+	 * Tiers and first-visit ages, and whether each is offered a plan.
+	 *
+	 * @return array
+	 */
+	public static function provide_free_site_upgrade_offers() {
+		return array(
+			'Jetpack free on day 30' => array( STATS_TIER_JETPACK_FREE, 30, true ),
+			'Jetpack free on day 29' => array( STATS_TIER_JETPACK_FREE, 29, false ),
+			'no dashboard load yet'  => array( STATS_TIER_JETPACK_FREE, null, false ),
+			'WordPress.com free'     => array( STATS_TIER_FREE, 31, false ),
+			'legacy free'            => array( STATS_TIER_LEGACY_FREE, 31, true ),
+			'legacy basic'           => array( STATS_TIER_LEGACY_BASIC, 31, true ),
+			'paid'                   => array( STATS_TIER_PAID, 31, false ),
+			'commercial'             => array( STATS_TIER_COMMERCIAL, 31, false ),
+			'plan not synced'        => array( STATS_TIER_UNKNOWN, 31, false ),
+		);
+	}
+
+	/**
+	 * Simple keeps the upgrade rules of its own, so the dashboard does not offer it.
+	 */
+	public function test_free_site_upgrade_is_not_offered_on_simple() {
+		$this->set_wpcom_platform( 'simple' );
+		update_option( DASHBOARD_FIRST_VISIT_OPTION, time() - 31 * DAY_IN_SECONDS );
+
+		$this->assertFalse( offers_free_site_upgrade( STATS_TIER_LEGACY_FREE ) );
+	}
+
+	/**
+	 * The free and PWYW Stats products count as a Stats product; other Jetpack products do not.
+	 *
+	 * @dataProvider provide_stats_products
+	 *
+	 * @param mixed $plan     The `jetpack_active_plan` option.
+	 * @param mixed $products The `jetpack_site_products` option.
+	 * @param bool  $expected Whether the site has a Stats product.
+	 */
+	#[DataProvider( 'provide_stats_products' )]
+	public function test_stats_product_follows_purchases( $plan, $products, $expected ) {
+		update_option( 'jetpack_active_plan', $plan );
+		update_option( 'jetpack_site_products', $products );
+
+		$this->assertSame( $expected, has_jetpack_stats_product() );
+	}
+
+	/**
+	 * Purchase states and whether each holds a Stats product.
+	 *
+	 * @return array
+	 */
+	public static function provide_stats_products() {
+		$products = static fn( $slug ) => array( array( 'product_slug' => $slug ) );
+
+		return array(
+			'no products'          => array( self::FREE_PLAN, array(), false ),
+			'malformed products'   => array( self::FREE_PLAN, 'garbage', false ),
+			'free Stats'           => array( self::FREE_PLAN, $products( 'jetpack_stats_free_yearly' ), true ),
+			'PWYW Stats'           => array( self::FREE_PLAN, $products( 'jetpack_stats_pwyw_yearly' ), true ),
+			'another product only' => array( self::FREE_PLAN, $products( 'jetpack_backup_t1_yearly' ), false ),
 		);
 	}
 
@@ -490,14 +579,36 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 	 */
 	public function test_script_data_carries_the_gates_without_clobbering_siblings() {
 		add_filter( STATS_PLAN_TIER_FILTER, static fn() => STATS_TIER_COMMERCIAL );
+		update_option( 'jetpack_site_products', array( array( 'product_slug' => 'jetpack_stats_free_yearly' ) ) );
 		$_GET['page'] = Analytics::MENU_PAGE_SLUG;
 		set_current_screen( 'toplevel_page_' . Analytics::MENU_PAGE_SLUG );
 
 		$data = inject_stats_plan_gates_script_data( array( 'premium_analytics' => array( 'has_videopress' => true ) ) );
 
+		$this->assertTrue( $data['premium_analytics']['plan_gates']['has_stats_product'] );
+
 		$this->assertTrue( $data['premium_analytics']['has_videopress'] );
 		$this->assertSame( STATS_TIER_COMMERCIAL, $data['premium_analytics']['plan_gates']['tier'] );
 		$this->assertSame( '{}', wp_json_encode( $data['premium_analytics']['plan_gates']['locked_features'], JSON_UNESCAPED_SLASHES ) );
+		$this->assertNull( $data['premium_analytics']['plan_gates']['free_site_upgrade'] );
+	}
+
+	/**
+	 * The offer carries the server's purchase URL, credited to the banner.
+	 */
+	public function test_script_data_offers_the_free_site_upgrade_with_its_purchase_url() {
+		add_filter( STATS_PLAN_TIER_FILTER, static fn() => STATS_TIER_JETPACK_FREE );
+		update_option( DASHBOARD_FIRST_VISIT_OPTION, time() - 31 * DAY_IN_SECONDS );
+		$GLOBALS['_parent_pages']['stats'] = false;
+		\Jetpack_Options::update_option( 'id', 1234 );
+		$_GET['page'] = Analytics::MENU_PAGE_SLUG;
+		set_current_screen( 'toplevel_page_' . Analytics::MENU_PAGE_SLUG );
+
+		$data = inject_stats_plan_gates_script_data( array() );
+
+		$url = $data['premium_analytics']['plan_gates']['free_site_upgrade']['upgrade_url'];
+		$this->assertStringContainsString( 'page=stats#!/stats/purchase/1234?', $url );
+		$this->assertStringContainsString( 'from=jetpack-premium-analytics-free-site-upgrade-notice', $url );
 	}
 
 	/**
