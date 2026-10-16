@@ -21,7 +21,7 @@ import { canManageConnection, useConnectionState } from '../../hooks/use-connect
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import { assignLocation } from '../../hooks/use-notification-watcher/assignLocation';
 import { ConnectionOwnerInfo } from './connection-owner-info';
-import { ConnectionStatusArt } from './connection-status-art';
+import { ConnectionStatus } from './connection-status';
 import styles from './styles.module.scss';
 import type { ConnectionStatusCardType } from './types';
 import type { MouseEvent } from 'react';
@@ -159,7 +159,7 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 		<section className={ styles[ 'connection-status-card' ] }>
 			<h3>{ title }</h3>
 
-			<ConnectionStatusArt
+			<ConnectionStatus
 				status={ state.status }
 				showAvatar={ hasProductsThatRequireUserConnection || hasUserConnectionBrokenModules }
 			/>
