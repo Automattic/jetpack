@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Playground import: preserve the destination site's WooCommerce.com connection (woocommerce_helper_data) instead of taking the invalid token from the imported backup.
