@@ -53,10 +53,9 @@ class Passport {
 			return null;
 		}
 
-		// Moved to the new name, so the commenter's next page skips the cache too.
+		// Copied to the new name, so the next page skips the cache. The old one stays for code that still reads it.
 		if ( $legacy ) {
 			self::set_cookie( self::COOKIE, $cookie, (int) $payload['expires_at'], true );
-			self::set_cookie( self::LEGACY_COOKIE, '', time() - YEAR_IN_SECONDS, true );
 		}
 
 		$identity = array();
