@@ -276,6 +276,26 @@ describe( 'MetricTabsChart', () => {
 		expect( screen.queryByText( '300' ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'draws the previous period under a headline with no value', () => {
+		render(
+			<MetricTabsChart
+				metrics={ [
+					{
+						...METRIC,
+						value: null,
+						current: METRIC.current.map( point => ( { ...point, value: null } ) ),
+					},
+				] }
+				dataFormat={ DATA_FORMAT }
+				empty={ <p>Nothing in this window.</p> }
+			/>
+		);
+
+		expect( screen.getByTestId( 'line-chart' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'No data' ) ).toBeInTheDocument();
+		expect( screen.queryByText( '300' ) ).not.toBeInTheDocument();
+	} );
+
 	describe( 'with an empty state', () => {
 		const EMPTY_TEXT = 'Nothing in this window.';
 		const zeroFilled: MetricTab = {
