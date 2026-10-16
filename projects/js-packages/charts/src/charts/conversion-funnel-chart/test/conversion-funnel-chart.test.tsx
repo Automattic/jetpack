@@ -49,15 +49,17 @@ const renderWithoutTheme = ( component: React.ReactElement ) => {
 const focus = ( element: HTMLElement ) => act( () => element.focus() );
 
 /**
- * Describes a step by its position and id.
+ * Shows a step's position and id.
  *
  * @param step  - The step.
  * @param index - Its position.
- * @return The description.
+ * @return The tooltip content.
  */
-function getStepDescription( step: FunnelStep, index: number ) {
-	return `${ index }: ${ step.id }`;
+function getTooltipContent( step: FunnelStep, index: number ) {
+	return { value: `#${ index }`, rows: [ { label: 'Id', value: step.id } ] };
 }
+
+const getEmptyTooltipContent = () => ( {} );
 
 describe( 'ConversionFunnelChart', () => {
 	afterEach( () => {
@@ -175,7 +177,9 @@ describe( 'ConversionFunnelChart', () => {
 			const cartBar = screen.getByRole( 'button', { name: /cart/i } );
 			await user.click( cartBar );
 
-			expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'Cart71.1% • 7,110 items' );
+			expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent(
+				'Cart7,110 itemsConversion rate71.1%'
+			);
 		} );
 
 		it( 'handles keyboard navigation with Enter key', async () => {
@@ -327,18 +331,32 @@ describe( 'ConversionFunnelChart', () => {
 			);
 
 			expect( screen.getByRole( 'button', { name: 'Cart' } ) ).toHaveAccessibleDescription(
-				'71.1%, 7,110 items'
+				'7,110 items, Conversion rate 71.1%'
 			);
-			expect( screen.getByRole( 'button', { name: 'None' } ) ).toHaveAccessibleDescription( '50%' );
+			expect( screen.getByRole( 'button', { name: 'None' } ) ).toHaveAccessibleDescription(
+				'Conversion rate 50%'
+			);
 		} );
 
-		it( 'describes each step with getStepDescription when given', () => {
+		it( 'shows and describes each step with getTooltipContent when given', async () => {
+			const user = userEvent.setup();
 			renderWithoutTheme(
-				<ConversionFunnelChart { ...defaultProps } getStepDescription={ getStepDescription } />
+				<ConversionFunnelChart { ...defaultProps } getTooltipContent={ getTooltipContent } />
 			);
 
-			expect( screen.getByRole( 'button', { name: 'Cart' } ) ).toHaveAccessibleDescription(
-				'1: cart'
+			const cart = screen.getByRole( 'button', { name: 'Cart' } );
+			expect( cart ).toHaveAccessibleDescription( '#1, Id cart' );
+			await user.click( cart );
+			expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'Cart#1Idcart' );
+		} );
+
+		it( 'leaves a step undescribed when its tooltip content is empty', () => {
+			renderWithoutTheme(
+				<ConversionFunnelChart { ...defaultProps } getTooltipContent={ getEmptyTooltipContent } />
+			);
+
+			expect( screen.getByRole( 'button', { name: 'Cart' } ) ).not.toHaveAttribute(
+				'aria-describedby'
 			);
 		} );
 
@@ -467,7 +485,7 @@ describe( 'ConversionFunnelChart', () => {
 			const bar = screen.getByRole( 'button', { name: /test/i } );
 			await user.click( bar );
 
-			expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( '50% • 1,234,567 items' );
+			expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( '1,234,567 items' );
 		} );
 
 		it( 'handles steps without count in tooltip', async () => {
@@ -571,6 +589,10 @@ describe( 'ConversionFunnelChart', () => {
 			expect( customRenderTooltip ).toHaveBeenCalledWith( {
 				step: expect.objectContaining( { id: 'cart', label: 'Cart' } ),
 				index: 1,
+				content: {
+					value: '7,110 items',
+					rows: [ { label: 'Conversion rate', value: '71.1%' } ],
+				},
 				top: expect.any( Number ),
 				left: expect.any( Number ),
 			} );

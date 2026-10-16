@@ -3,12 +3,11 @@
  */
 import { ConversionFunnelChart } from '@jetpack-premium-analytics/externals';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { useCallback, useMemo, type JSX } from 'react';
 /**
  * Internal dependencies
  */
-import { TooltipRow } from '../chart-tooltip/tooltip-row';
 import { exactFormatOf } from '../chart-tooltip/utils';
 import { MetricWithComparison } from '../metric-with-comparison';
 import {
@@ -81,29 +80,27 @@ export function Funnel( {
 	);
 	const errorState = useMemo( () => resolveWidgetStateError( error, refetch ), [ error, refetch ] );
 
-	const conversionRateLabel = __( 'Conversion rate', 'jetpack-premium-analytics-pkg' );
-
-	// Reads the tooltip's rows as a sentence, so screen readers hear what the tooltip shows.
-	const getStepDescription = useCallback(
+	const getTooltipContent = useCallback(
 		( step: { count?: number; rate: number }, index: number ) => {
 			const countFormat = exactFormatOf( format );
-			const count =
-				step.count === undefined
-					? __( 'No data', 'jetpack-premium-analytics-pkg' )
-					: formatMetricValue( step.count, countFormat.type, countFormat.options );
-			if ( index === 0 ) {
-				return count;
-			}
 			const rateFormat = exactFormatOf( RATE_FORMAT );
-			return sprintf(
-				/* translators: 1: Number that reached a funnel step, e.g. "310". 2: The "Conversion rate" label. 3: The step's conversion rate, e.g. "24.8%". */
-				__( '%1$s, %2$s %3$s', 'jetpack-premium-analytics-pkg' ),
-				count,
-				conversionRateLabel,
-				formatMetricValue( step.rate / 100, rateFormat.type, rateFormat.options )
-			);
+			return {
+				value:
+					step.count === undefined
+						? __( 'No data', 'jetpack-premium-analytics-pkg' )
+						: formatMetricValue( step.count, countFormat.type, countFormat.options ),
+				rows:
+					index === 0
+						? []
+						: [
+								{
+									label: __( 'Conversion rate', 'jetpack-premium-analytics-pkg' ),
+									value: formatMetricValue( step.rate / 100, rateFormat.type, rateFormat.options ),
+								},
+							],
+			};
 		},
-		[ conversionRateLabel, format ]
+		[ format ]
 	);
 
 	return (
@@ -119,7 +116,7 @@ export function Funnel( {
 				className={ styles.chart }
 				steps={ chartSteps }
 				mainRate={ rate * 100 }
-				getStepDescription={ getStepDescription }
+				getTooltipContent={ getTooltipContent }
 				renderMainMetric={ () => (
 					<MetricWithComparison
 						value={ rate }
@@ -131,24 +128,6 @@ export function Funnel( {
 					<span className={ className }>
 						{ formatMetricValue( step.rate / 100, RATE_FORMAT.type, RATE_FORMAT.options ) }
 					</span>
-				) }
-				renderTooltip={ ( { step, index } ) => (
-					<>
-						<TooltipRow
-							indicator={ null }
-							label={ step.label }
-							value={ step.count ?? null }
-							dataFormat={ format }
-						/>
-						{ index > 0 && (
-							<TooltipRow
-								indicator={ null }
-								label={ conversionRateLabel }
-								value={ step.rate / 100 }
-								dataFormat={ RATE_FORMAT }
-							/>
-						) }
-					</>
 				) }
 			/>
 		</WidgetState>

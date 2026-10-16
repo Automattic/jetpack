@@ -118,6 +118,8 @@ export type {
 export type {
 	ConversionFunnelChartProps,
 	FunnelStep,
+	FunnelTooltipContent,
+	FunnelTooltipRow,
 	StepLabelRenderProps,
 	StepRateRenderProps,
 	MainMetricRenderProps,
