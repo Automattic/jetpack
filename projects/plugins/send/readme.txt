@@ -30,6 +30,10 @@ Jetpack Send sends the content and recipient addresses of the emails it delivers
 
 Emails with inline embedded images, a character set other than UTF-8, a multipart body with a custom boundary, or only Cc or Bcc recipients are sent with your host's default mail, even if the fallback setting is off.
 
+= Does the email log keep the content of my emails? =
+
+Yes. So you can preview each email, the log keeps its content in your site's database for 30 days, including links such as password resets. Developers can turn this off with the `jetpack_send_log_email_content` filter.
+
 = Does Jetpack Send run the phpmailer_init action? =
 
 No. Jetpack Send does not use PHPMailer for the emails it delivers, so code hooked to `phpmailer_init` does not apply to them.
