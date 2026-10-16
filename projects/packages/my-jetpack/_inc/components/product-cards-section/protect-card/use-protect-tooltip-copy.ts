@@ -54,7 +54,7 @@ export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 		if ( isStandaloneActive ) {
 			return 'admin.php?page=jetpack-protect#/firewall';
 		}
-		return isJetpackPluginActive() ? 'admin.php?page=jetpack#/security' : null;
+		return isJetpackPluginActive() ? 'admin.php?page=jetpack#/settings' : null;
 	}, [ isStandaloneActive ] );
 
 	const trackFirewallSettingsLinkClick = useCallback( () => {
