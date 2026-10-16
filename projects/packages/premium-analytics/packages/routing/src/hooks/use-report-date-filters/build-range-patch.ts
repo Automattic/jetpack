@@ -9,6 +9,7 @@ import {
 import {
 	type ComparisonPresetId,
 	type DateRange,
+	type IntervalType,
 	type PrimaryPresetId,
 } from '@jetpack-premium-analytics/datetime';
 /**
@@ -54,6 +55,8 @@ type BuildRangePatchArgs = {
 	 * range and to resolve the interval for the next range.
 	 */
 	effective: ReportQuerySearchParams;
+
+	lockedIntervals?: readonly IntervalType[];
 };
 
 /**
@@ -71,6 +74,7 @@ export function buildRangePatch( {
 	exactRange,
 	resetIntervalOnPresetChange,
 	effective,
+	lockedIntervals,
 }: BuildRangePatchArgs ): ReportQuerySearchParams | null {
 	const patch: ReportQuerySearchParams = {};
 
@@ -89,9 +93,16 @@ export function buildRangePatch( {
 					nextPresetId,
 					rangeFrom,
 					rangeTo,
-					effective.interval
+					effective.interval,
+					lockedIntervals
 				)
-			: resolveIntervalForRange( nextPresetId, rangeFrom, rangeTo, effective.interval );
+			: resolveIntervalForRange(
+					nextPresetId,
+					rangeFrom,
+					rangeTo,
+					effective.interval,
+					lockedIntervals
+				);
 
 		// Loose `comp` check: an unquoted URL delivers number 1, not '1'. The
 		// preset being staged measures the new range, not the one it replaces.

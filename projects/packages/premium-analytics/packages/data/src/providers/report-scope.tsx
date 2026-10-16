@@ -1,8 +1,21 @@
 /**
  * External dependencies
  */
-import { type DateRange } from '@jetpack-premium-analytics/datetime';
+import { type DateRange, type QuickSurfacePresetId } from '@jetpack-premium-analytics/datetime';
 import { createContext, useContext, useMemo, type ReactNode } from 'react';
+/**
+ * Internal dependencies
+ */
+import type { IntervalType } from '../utils/search';
+
+/** Date options the site's plan withholds, for the controls to show as locked. */
+export type DateLimits = {
+	lockedPresetIds: readonly QuickSurfacePresetId[];
+	earliestDate?: Date;
+	lockedIntervals: readonly IntervalType[];
+	upsell?: { description: string; supportUrl: string; upgradeUrl: string };
+	onUpgradeClick?: () => void;
+};
 
 /**
  * What the surface a widget or table is rendering on offers.
@@ -15,6 +28,7 @@ export type ReportScope = {
 	 * control's attention to it. Absent where the host offers none.
 	 */
 	openPeriod?: ( range: Required< DateRange > ) => void;
+	dateLimits?: DateLimits;
 };
 
 // Undeclared hosts keep the comparison behavior they had before report scopes.
@@ -28,12 +42,14 @@ const ReportScopeContext = createContext< ReportScope >( DEFAULT_REPORT_SCOPE );
  * @param props                  - Provider props.
  * @param props.offersComparison - Whether this surface offers the date comparison.
  * @param props.openPeriod       - How a widget sets this surface's period.
+ * @param props.dateLimits       - Date options the plan withholds.
  * @param props.children         - The surface's tree.
  * @return The provider.
  */
 export function ReportScopeProvider( {
 	offersComparison,
 	openPeriod,
+	dateLimits,
 	children,
 }: Partial< ReportScope > & {
 	children: ReactNode;
@@ -44,8 +60,9 @@ export function ReportScopeProvider( {
 			...inherited,
 			...( offersComparison !== undefined && { offersComparison } ),
 			...( openPeriod && { openPeriod } ),
+			...( dateLimits && { dateLimits } ),
 		} ),
-		[ inherited, offersComparison, openPeriod ]
+		[ inherited, offersComparison, openPeriod, dateLimits ]
 	);
 
 	return <ReportScopeContext.Provider value={ value }>{ children }</ReportScopeContext.Provider>;
