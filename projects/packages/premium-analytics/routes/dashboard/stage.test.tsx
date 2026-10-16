@@ -18,6 +18,7 @@ import { useCallback } from 'react';
 /**
  * Internal dependencies
  */
+import { useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { DATE_FILTER_RANGE, DATE_FILTER_YEAR } from './config';
 import {
 	useActiveSection,
@@ -427,7 +428,7 @@ jest.mock( './components', () => ( {
 
 jest.mock( '../widget-module-i18n', () => ( {
 	useWidgetModuleResolver: () => jest.fn(),
-	useWidgetTypesWithI18n: () => [ [], false ],
+	useWidgetTypesWithI18n: jest.fn( () => [ [], false ] ),
 } ) );
 
 jest.mock( './config', () => {
@@ -1393,6 +1394,15 @@ describe( 'Dashboard locked section', () => {
 
 		expect( mockDashboardProps.layout ).toBe( visibleLayout );
 		expect( mockDashboardProps.onLayoutChange ).toBe( onVisibleLayoutChange );
+	} );
+
+	it( 'loads only the open widgets at boot', () => {
+		render( <Dashboard /> );
+
+		expect( jest.mocked( useWidgetTypesWithI18n ) ).toHaveBeenLastCalledWith( expect.anything(), {
+			visibleNames: [ 'jpa/traffic-chart' ],
+			includeAll: false,
+		} );
 	} );
 
 	it( 'offers no Customize on a locked section', () => {
