@@ -39,8 +39,8 @@ export type BuildMetricTabOptions< TReport extends MetricReport > = {
 	 */
 	pendingLabel?: string;
 	/**
-	 * What the card and the chart say in place of a value when the summary reads null for the
-	 * field: a ratio or average over a period with nothing to divide by. Omit to show 0.
+	 * Set to show a null summary, such as an average over no orders, as no value instead of 0.
+	 * The chart then says it in place of the plot when the comparison has no reading to draw.
 	 */
 	noDataLabel?: string;
 };
@@ -114,16 +114,18 @@ export function buildMetricTab< TReport extends MetricReport >(
 	const previous = hasComparison ? toPoints( comparison, field, zone ) : undefined;
 	const hasPrevious = !! previous?.length;
 	const value = total( primary, field );
+	const isMissing = value === null && !! noDataLabel;
+	const previousHasReading = !! previous?.some( point => point.value );
 
 	return {
 		key: field,
 		label,
-		value: value ?? 0,
+		value: isMissing ? null : ( value ?? 0 ),
 		previousValue: hasPrevious ? total( comparison, field ) : undefined,
 		current: toPoints( primary, field, zone, pendingLabel ),
 		previous: hasPrevious ? previous : undefined,
 		dataFormat,
 		countLabel,
-		...( value === null && noDataLabel ? { unavailable: noDataLabel } : {} ),
+		...( isMissing && ! previousHasReading ? { unavailable: noDataLabel } : {} ),
 	};
 }

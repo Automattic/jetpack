@@ -153,20 +153,32 @@ describe( 'buildMetricTab', () => {
 		expect( tab.previous?.[ 0 ].value ).toBe( 12 );
 	} );
 
-	it( 'marks a null headline unavailable and hides the delta of a null previous one', () => {
-		const tab = buildMetricTab( {
-			primary: { summary: { aov: null }, data: [ { date_start: '2026-05-01', aov: null } ] },
-			comparison: { summary: { aov: null }, data: [ { date_start: '2026-04-01', aov: null } ] },
-			hasComparison: true,
-			field: 'aov',
-			label: 'Average order value',
-			zone: 'UTC',
-			noDataLabel: 'No orders in this period.',
-		} );
+	it.each( [
+		[ 'has no reading either', null, null, 'No orders in this period.' ],
+		[ 'has orders', 210, 270.5, undefined ],
+	] )(
+		'reads a null headline as no value, with the reason only when the comparison %s',
+		( _, previousTotal, previousPoint, unavailable ) => {
+			const tab = buildMetricTab( {
+				primary: { summary: { aov: null }, data: [ { date_start: '2026-05-01', aov: null } ] },
+				comparison: {
+					summary: { aov: previousTotal },
+					data: [ { date_start: '2026-04-01', aov: previousPoint } ],
+				},
+				hasComparison: true,
+				field: 'aov',
+				label: 'Average order value',
+				zone: 'UTC',
+				noDataLabel: 'No orders in this period.',
+			} );
 
-		expect( tab.unavailable ).toBe( 'No orders in this period.' );
-		expect( tab.previousValue ).toBeNull();
-	} );
+			expect( [ tab.value, tab.previousValue, tab.unavailable ] ).toEqual( [
+				null,
+				previousTotal,
+				unavailable,
+			] );
+		}
+	);
 
 	it( 'omits previous when comparison is off', () => {
 		const tab = buildMetricTab( {
