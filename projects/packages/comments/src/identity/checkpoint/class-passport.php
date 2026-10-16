@@ -16,7 +16,7 @@ class Passport {
 	const COOKIE         = 'comment_author_jetpack_identity';
 	const LEGACY_COOKIE  = 'jetpack_comment_identity';
 	const DISPLAY_COOKIE = 'jetpack_comment_identity_display';
-	const FIELDS         = array( 'site_commenter_id', 'name', 'email', 'avatar', 'user_id' );
+	const FIELDS         = array( 'site_commenter_id', 'name', 'email', 'avatar', 'wpcom_user_id' );
 	const LIFETIME       = 30 * DAY_IN_SECONDS;
 
 	/**

@@ -69,6 +69,7 @@ class Checkpoint {
 		add_action( 'pre_comment_on_post', array( $this, 'admit' ), 20 );
 		add_filter( 'preprocess_comment', array( $this, 'attribute' ), 0 );
 		add_action( 'comment_post', array( $this, 'record' ) );
+		add_filter( 'akismet_request_args', array( $this, 'akismet_request_args' ), 10, 2 );
 
 		Checkpoint_Endpoint::init();
 	}
@@ -171,7 +172,7 @@ class Checkpoint {
 	 * Redeem a code with WordPress.com.
 	 *
 	 * @param string $code The code the popup handed back.
-	 * @return array|WP_Error site_commenter_id, name, email, avatar, user_id.
+	 * @return array|WP_Error site_commenter_id, name, email, avatar, wpcom_user_id.
 	 */
 	public static function exchange( $code ) {
 		// The client stops verifying certificates for good on a host whose first request failed to.
@@ -210,8 +211,7 @@ class Checkpoint {
 				'name'              => sanitize_text_field( (string) ( $body['name'] ?? '' ) ),
 				'email'             => sanitize_email( (string) ( $body['email'] ?? '' ) ),
 				'avatar'            => esc_url_raw( (string) ( $body['avatar'] ?? '' ) ),
-				// Sent to Simple sites only.
-				'user_id'           => absint( $body['user_id'] ?? 0 ),
+				'wpcom_user_id'     => absint( $body['wpcom_user_id'] ?? 0 ),
 			);
 		}
 
@@ -392,13 +392,39 @@ class Checkpoint {
 		$commentdata['comment_author_url']   = '';
 
 		// The WordPress.com account, as Verbum attributed it. Elsewhere that id would name some local user.
-		$user_id = ( new Host() )->is_wpcom_simple() ? absint( $this->identity['user_id'] ?? 0 ) : 0;
+		$user_id = ( new Host() )->is_wpcom_simple() ? absint( $this->identity['wpcom_user_id'] ?? 0 ) : 0;
 		$user_id = $user_id && get_userdata( $user_id ) ? $user_id : 0;
 
 		$commentdata['user_id'] = $user_id;
 		$commentdata['user_ID'] = $user_id;
 
 		return $commentdata;
+	}
+
+	/**
+	 * Tell Akismet which WordPress.com account was verified, as Verbum's hc_post_as and hc_userid did.
+	 * This form never posts those fields, so any the request carried were forged.
+	 *
+	 * @param array  $args The request to Akismet.
+	 * @param string $path The Akismet endpoint.
+	 * @return array
+	 */
+	public function akismet_request_args( $args, $path ) {
+		if ( 'comment-check' !== $path || ! is_array( $args ) || ! Comment_Form::enabled_for_post_type( (int) ( $args['comment_post_ID'] ?? 0 ) ) ) {
+			return $args;
+		}
+
+		unset( $args['POST_hc_post_as'], $args['POST_hc_userid'] );
+
+		$user_id = null === $this->identity ? 0 : absint( $this->identity['wpcom_user_id'] ?? 0 );
+
+		if ( $user_id ) {
+			// The values Verbum posted from Simple and from Jetpack sites.
+			$args['POST_hc_post_as'] = ( new Host() )->is_wpcom_simple() ? 'wordpress' : 'jetpack'; // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText -- Verbum's service name.
+			$args['POST_hc_userid']  = (string) $user_id;
+		}
+
+		return $args;
 	}
 
 	/**
