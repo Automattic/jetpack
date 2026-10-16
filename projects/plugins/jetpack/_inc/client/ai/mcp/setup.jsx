@@ -232,8 +232,8 @@ export default function McpSetup() {
 															openInNewTab
 														>
 															{ isJetpackConnector
-																? __( 'Jetpack connector', 'jetpack' )
-																: __( 'WordPress.com connector', 'jetpack' ) }
+																? __( 'Jetpack plugin', 'jetpack' )
+																: __( 'WordPress.com plugin', 'jetpack' ) }
 														</Link>
 													),
 												}

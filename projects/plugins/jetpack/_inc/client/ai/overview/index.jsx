@@ -28,7 +28,7 @@ const QUICK_START = [
 		slug: 'jetpack-ai-hub-overview-quick-start-chatgpt',
 		jetpackSlug: 'jetpack-ai-hub-overview-quick-start-chatgpt-self-hosted',
 		title: __( 'Connect ChatGPT', 'jetpack' ),
-		description: __( 'Give ChatGPT access to your site by installing the connector.', 'jetpack' ),
+		description: __( 'Give ChatGPT access to your site by installing the plugin.', 'jetpack' ),
 		icon: chatGptIcon,
 	},
 	{

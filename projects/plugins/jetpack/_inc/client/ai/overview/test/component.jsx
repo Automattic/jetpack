@@ -524,7 +524,7 @@ describe( 'AiOverview', () => {
 			screen.getByText( 'Give Claude access to your site by installing the connector.' )
 		).toBeInTheDocument();
 		expect(
-			screen.getByText( 'Give ChatGPT access to your site by installing the connector.' )
+			screen.getByText( 'Give ChatGPT access to your site by installing the plugin.' )
 		).toBeInTheDocument();
 	} );
 

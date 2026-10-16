@@ -48,9 +48,9 @@ describe( 'McpSetup: ChatGPT quick setup', () => {
 	} );
 
 	test.each( [
-		[ 'jetpack', 'Jetpack connector', 'jetpack-ai-hub-mcp-setup-chatgpt-self-hosted' ],
-		[ 'wpcom', 'WordPress.com connector', 'jetpack-ai-hub-mcp-setup-chatgpt' ],
-		[ undefined, 'WordPress.com connector', 'jetpack-ai-hub-mcp-setup-chatgpt' ],
+		[ 'jetpack', 'Jetpack plugin', 'jetpack-ai-hub-mcp-setup-chatgpt-self-hosted' ],
+		[ 'wpcom', 'WordPress.com plugin', 'jetpack-ai-hub-mcp-setup-chatgpt' ],
+		[ undefined, 'WordPress.com plugin', 'jetpack-ai-hub-mcp-setup-chatgpt' ],
 	] )( 'chatgptConnector %s links to the %s', async ( chatgptConnector, name, source ) => {
 		window.jetpackAiSettings = { chatgptConnector };
 		render( <McpSetup /> );
