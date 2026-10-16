@@ -573,6 +573,20 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * A theme the store has withdrawn cannot be bought, so it is not offered either.
+	 */
+	public function test_a_withdrawn_partner_theme_claims_nothing() {
+		$store                                   = self::STORE_PRODUCTS;
+		$store['theme_stax_yearly']['available'] = false;
+		$this->answer_with_partner_prices( $store );
+
+		$theme = $this->add_plan_to_partner_theme();
+
+		$this->assertFalse( isset( $theme->price_product ) );
+		$this->assertFalse( isset( $theme->purchase_url ) );
+	}
+
+	/**
 	 * The partner theme the fixtures price, as the grid hands it over.
 	 *
 	 * @return stdClass
