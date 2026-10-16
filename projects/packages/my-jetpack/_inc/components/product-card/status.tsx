@@ -19,7 +19,7 @@ type StatusStateFunction = (
 	suppressNeedsAttention: boolean
 ) => string;
 
-const getStatusLabel: StatusStateFunction = ( status, isOwned, suppressNeedsAttention ) => {
+export const getStatusLabel: StatusStateFunction = ( status, isOwned, suppressNeedsAttention ) => {
 	switch ( status ) {
 		case PRODUCT_STATUSES.ACTIVE:
 		case PRODUCT_STATUSES.CAN_UPGRADE:
