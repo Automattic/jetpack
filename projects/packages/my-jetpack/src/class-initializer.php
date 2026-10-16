@@ -93,6 +93,13 @@ class Initializer {
 	public const HEADER_CONTROLS_FLAG = 'my-jetpack-header-controls';
 
 	/**
+	 * Feature flag for sending classic Modules links to Features.
+	 *
+	 * @var string
+	 */
+	public const MODULES_TO_FEATURES_FLAG = 'my-jetpack-modules-to-features';
+
+	/**
 	 * Holds info/data about the site (from the /sites/%d endpoint)
 	 *
 	 * @var object
@@ -848,6 +855,7 @@ class Initializer {
 		 * @param bool $available True to allow the Features tab; false keeps the classic Modules screen, for a host where My Jetpack is not shown.
 		 */
 		$available = apply_filters( 'jetpack_my_jetpack_modules_management_available', true );
+		$available = $available && Feature_Flags::is_enabled( self::MODULES_TO_FEATURES_FLAG );
 		$classic   = add_query_arg( array_merge( urlencode_deep( $args ), array( 'page' => 'jetpack_modules' ) ), admin_url( 'admin.php' ) );
 		if (
 			! $available
@@ -1168,6 +1176,14 @@ class Initializer {
 			array(
 				'default'     => false,
 				'description' => 'Show the global controls in the shared header of My Jetpack and Boost.',
+				'owner'       => 'my-jetpack',
+			)
+		);
+		Feature_Flags::register(
+			self::MODULES_TO_FEATURES_FLAG,
+			array(
+				'default'     => false,
+				'description' => 'Open supported classic Modules links in Features.',
 				'owner'       => 'my-jetpack',
 			)
 		);
