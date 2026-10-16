@@ -203,6 +203,30 @@ function has_jetpack_stats_product() {
 }
 
 /**
+ * Tiers whose plan has no paid Stats. `unknown` is left out: it may be a paid site whose plan has not synced.
+ */
+const STATS_UNPAID_TIERS = array( STATS_TIER_JETPACK_FREE, STATS_TIER_FREE, STATS_TIER_LEGACY_FREE, STATS_TIER_LEGACY_BASIC );
+
+/**
+ * Whether the dashboard offers a paid Stats plan: the tier has no paid Stats and the site first opened the dashboard over 30 days ago.
+ *
+ * @since $$next-version$$
+ *
+ * @param string $tier One of the STATS_TIER_* values.
+ * @return bool
+ */
+function offers_free_site_upgrade( $tier ) {
+	// Stats offers Simple sites this banner under rules of their own, which are not ported here.
+	if ( ! in_array( $tier, STATS_UNPAID_TIERS, true ) || ( new Host() )->is_wpcom_simple() ) {
+		return false;
+	}
+
+	$first_visit = get_dashboard_first_visit();
+
+	return null !== $first_visit && time() - $first_visit >= 30 * DAY_IN_SECONDS;
+}
+
+/**
  * The features classic Stats gates on WordPress.com Personal: the newer, commercial modules.
  */
 const STATS_COMMERCIAL_FEATURES = array( 'authors', 'search-terms', 'videos', 'utm', 'devices', 'regions-cities' );
@@ -545,11 +569,12 @@ function inject_stats_plan_gates_script_data( array $data ): array {
 
 	// Objects, so an empty map reaches JS as `{}` rather than `[]`.
 	$data['premium_analytics']['plan_gates'] = array(
-		'tier'                => $gates['tier'],
-		'locked_features'     => (object) $gates['locked_features'],
-		'locked_widget_types' => (object) $gates['locked_widget_types'],
-		'locked_sections'     => (object) $gates['locked_sections'],
-		'has_stats_product'   => has_jetpack_stats_product(),
+		'tier'                     => $gates['tier'],
+		'locked_features'          => (object) $gates['locked_features'],
+		'locked_widget_types'      => (object) $gates['locked_widget_types'],
+		'locked_sections'          => (object) $gates['locked_sections'],
+		'has_stats_product'        => has_jetpack_stats_product(),
+		'offers_free_site_upgrade' => offers_free_site_upgrade( $gates['tier'] ),
 	);
 
 	return $data;

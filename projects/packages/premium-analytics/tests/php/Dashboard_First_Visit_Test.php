@@ -15,11 +15,9 @@ require_once __DIR__ . '/../../src/dashboard-first-visit.php';
 /**
  * @covers ::Automattic\Jetpack\PremiumAnalytics\configure_dashboard_first_visit
  * @covers ::Automattic\Jetpack\PremiumAnalytics\record_dashboard_first_visit
- * @covers ::Automattic\Jetpack\PremiumAnalytics\inject_dashboard_first_visit_script_data
  */
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\configure_dashboard_first_visit' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\record_dashboard_first_visit' )]
-#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\inject_dashboard_first_visit_script_data' )]
 class Dashboard_First_Visit_Test extends BaseTestCase {
 
 	/**
@@ -29,7 +27,6 @@ class Dashboard_First_Visit_Test extends BaseTestCase {
 		delete_option( DASHBOARD_FIRST_VISIT_OPTION );
 		unset( $_GET['page'], $GLOBALS['current_screen'] );
 		remove_action( 'admin_init', __NAMESPACE__ . '\\record_dashboard_first_visit' );
-		remove_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_dashboard_first_visit_script_data', 20 );
 		parent::tear_down();
 	}
 
@@ -77,25 +74,11 @@ class Dashboard_First_Visit_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The stored time rides along with the rest of the script data.
+	 * Configure hooks the record.
 	 */
-	public function test_script_data_carries_the_first_visit_without_clobbering_siblings() {
-		$this->open_dashboard();
-		update_option( DASHBOARD_FIRST_VISIT_OPTION, 1000 );
-
-		$data = inject_dashboard_first_visit_script_data( array( 'premium_analytics' => array( 'has_videopress' => true ) ) );
-
-		$this->assertTrue( $data['premium_analytics']['has_videopress'] );
-		$this->assertSame( 1000, $data['premium_analytics']['first_visit'] );
-	}
-
-	/**
-	 * Configure hooks the record and the injector.
-	 */
-	public function test_configure_hooks_the_record_and_the_injector() {
+	public function test_configure_hooks_the_record() {
 		configure_dashboard_first_visit();
 
 		$this->assertSame( 10, has_action( 'admin_init', __NAMESPACE__ . '\\record_dashboard_first_visit' ) );
-		$this->assertSame( 20, has_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_dashboard_first_visit_script_data' ) );
 	}
 }

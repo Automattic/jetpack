@@ -25,13 +25,8 @@ jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 const recordEvent = jest.mocked( analytics.tracks.recordEvent );
 
-const NOW = new Date( '2026-10-15T00:00:00Z' ).getTime();
-const DAY_SECONDS = 24 * 60 * 60;
-
 type Site = {
-	host?: string;
-	tier?: string;
-	daysSinceFirstVisit?: number;
+	offered?: boolean;
 	hasStatsProduct?: boolean;
 	purchaseSuccess?: 'paid' | 'free';
 };
@@ -41,33 +36,25 @@ let notices = createNoticesRegistry();
 /**
  * Seeds the script data the banner reads.
  *
- * @param site                     - The site to seed.
- * @param site.host                - The site's host.
- * @param site.tier                - The Stats plan tier.
- * @param site.daysSinceFirstVisit - Days since the site first opened the dashboard.
- * @param site.hasStatsProduct     - Whether the site has a Jetpack Stats product.
- * @param site.purchaseSuccess     - The checkout this load returned from, if any.
+ * @param site                 - The site to seed.
+ * @param site.offered         - Whether the server offers the site a paid plan.
+ * @param site.hasStatsProduct - Whether the site has a Jetpack Stats product.
+ * @param site.purchaseSuccess - The checkout this load returned from, if any.
  */
-function setSite( {
-	host = 'jetpack',
-	tier = 'jetpack-free',
-	daysSinceFirstVisit = 30,
-	hasStatsProduct = false,
-	purchaseSuccess,
-}: Site = {} ) {
+function setSite( { offered = true, hasStatsProduct = false, purchaseSuccess }: Site = {} ) {
 	window.JetpackScriptData = {
 		site: {
 			admin_url: 'https://example.com/wp-admin/',
-			host,
+			host: 'jetpack',
 			wpcom: { blog_id: 123456789 },
 		},
 		premium_analytics: {
-			first_visit: NOW / 1000 - daysSinceFirstVisit * DAY_SECONDS,
 			plan_gates: {
-				tier,
+				tier: 'jetpack-free',
 				locked_features: {},
 				locked_widget_types: {},
 				has_stats_product: hasStatsProduct,
+				offers_free_site_upgrade: offered,
 			},
 			purchase_success: purchaseSuccess ? { type: purchaseSuccess } : undefined,
 		},
@@ -77,11 +64,11 @@ function setSite( {
 /**
  * Answers the notices and plan usage requests.
  *
- * @param state     - The Stats notice visibility state; a dismissal updates it.
+ * @param state     - The Stats notice visibility state, over a banner WordPress.com reports visible; a dismissal updates it.
  * @param viewsUsed - This cycle's views against a 10,000 limit.
  */
-function mockEndpoints( state: Record< string, boolean > = {}, viewsUsed = 0 ) {
-	let saved = state;
+function mockEndpoints( state: Record< string, boolean | undefined > = {}, viewsUsed = 0 ) {
+	let saved = { free_site_upgrade: true, ...state };
 	mockApiFetch.mockImplementation( ( { path, method }: { path: string; method?: string } ) => {
 		if ( path.includes( 'jetpack-stats/usage' ) ) {
 			return Promise.resolve( {
@@ -117,7 +104,7 @@ async function renderNotices() {
 
 describe( 'FreeSiteUpgradeNotice', () => {
 	beforeEach( () => {
-		jest.useFakeTimers( { now: NOW } );
+		jest.useFakeTimers();
 		queryClient.clear();
 		resetFreeSiteUpgradeNoticeForTesting();
 		resetPlanLimitNoticeForTesting();
@@ -155,15 +142,17 @@ describe( 'FreeSiteUpgradeNotice', () => {
 		expect( container ).toHaveTextContent( 'Want to get the most out of Jetpack Stats?' );
 	} );
 
-	it.each( [
-		[ 'a site with paid Stats', { tier: 'commercial' } ],
-		[ 'a site whose plan has not synced', { tier: 'unknown' } ],
-		[ 'a site in its first 30 days', { daysSinceFirstVisit: 29 } ],
-		[ 'a VIP site', { host: 'vip' } ],
-		[ 'a WordPress.com Simple site', { host: 'wpcom' } ],
-	] )( 'says nothing to %s', async ( _label, site: Site ) => {
-		setSite( site );
+	it( 'says nothing to a site the server does not offer a paid plan', async () => {
+		setSite( { offered: false } );
 		mockEndpoints();
+
+		const { container } = await renderNotices();
+
+		expect( container ).toBeEmptyDOMElement();
+	} );
+
+	it( 'stays away when the notices omit its state, as they do when WordPress.com fails', async () => {
+		mockEndpoints( { free_site_upgrade: undefined } );
 
 		const { container } = await renderNotices();
 
