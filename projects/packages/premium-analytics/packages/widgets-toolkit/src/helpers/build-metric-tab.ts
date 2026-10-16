@@ -40,7 +40,8 @@ export type BuildMetricTabOptions< TReport extends MetricReport > = {
 	pendingLabel?: string;
 	/**
 	 * Set to show a null summary, such as an average over no orders, as no value instead of 0.
-	 * The chart then says it in place of the plot when the comparison has no reading to draw.
+	 * The chart then says it in place of the plot when the comparison has no reading to draw,
+	 * and draws a null bucket at 0 that its tooltip reads as no value.
 	 */
 	noDataLabel?: string;
 };
@@ -61,17 +62,19 @@ function total( report: MetricReport | undefined, field: string ): number | null
 /**
  * Map a field of a normalized report into chart points.
  *
- * @param report       - The normalized report, or undefined while loading.
- * @param field        - The metric field to read from each period.
- * @param zone         - The report's reporting timezone.
- * @param pendingLabel - Carried as the note of a point the report flags `pending`.
- * @return One point per period, oldest first; a null reading stays null, drawn as a gap.
+ * @param report            - The normalized report, or undefined while loading.
+ * @param field             - The metric field to read from each period.
+ * @param zone              - The report's reporting timezone.
+ * @param pendingLabel      - Carried as the note of a point the report flags `pending`.
+ * @param drawMissingAtZero - Draw a null reading at 0, flagged `missing`, instead of as a gap.
+ * @return One point per period, oldest first.
  */
 function toPoints(
 	report: MetricReport | undefined,
 	field: string,
 	zone: string,
-	pendingLabel?: string
+	pendingLabel?: string,
+	drawMissingAtZero = false
 ): MetricTabDatum[] {
 	return ( report?.data ?? [] ).flatMap( point => {
 		const date = resolveBucketStamp( point.date_start, zone );
@@ -82,7 +85,8 @@ function toPoints(
 		const endDate = resolveBucketStamp( point.date_end, zone );
 		const raw = ( point as Record< string, unknown > )[ field ];
 		const value = raw === null ? null : Number( raw ?? 0 );
-		const datum: MetricTabDatum = endDate ? { date, endDate, value } : { date, value };
+		const reading = value === null && drawMissingAtZero ? { value: 0, missing: true } : { value };
+		const datum: MetricTabDatum = endDate ? { date, endDate, ...reading } : { date, ...reading };
 		return [ point.pending && pendingLabel ? { ...datum, note: pendingLabel } : datum ];
 	} );
 }
@@ -111,7 +115,10 @@ export function buildMetricTab< TReport extends MetricReport >(
 		noDataLabel,
 	} = options;
 	// The comparison period ends before today, so it has no uncounted day.
-	const previous = hasComparison ? toPoints( comparison, field, zone ) : undefined;
+	const drawMissingAtZero = !! noDataLabel;
+	const previous = hasComparison
+		? toPoints( comparison, field, zone, undefined, drawMissingAtZero )
+		: undefined;
 	const hasPrevious = !! previous?.length;
 	const value = total( primary, field );
 	const isMissing = value === null && !! noDataLabel;
@@ -122,7 +129,7 @@ export function buildMetricTab< TReport extends MetricReport >(
 		label,
 		value: isMissing ? null : ( value ?? 0 ),
 		previousValue: hasPrevious ? total( comparison, field ) : undefined,
-		current: toPoints( primary, field, zone, pendingLabel ),
+		current: toPoints( primary, field, zone, pendingLabel, drawMissingAtZero ),
 		previous: hasPrevious ? previous : undefined,
 		dataFormat,
 		countLabel,
