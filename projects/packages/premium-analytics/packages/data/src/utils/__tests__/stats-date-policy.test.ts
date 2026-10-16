@@ -1,0 +1,171 @@
+/**
+ * External dependencies
+ */
+import { getScriptData } from '@automattic/jetpack-script-data';
+import { MENU_SURFACE_PRESETS_WITH_ALL_TIME } from '@jetpack-premium-analytics/datetime';
+/**
+ * Internal dependencies
+ */
+import { normalizeReportParams } from '../search';
+import {
+	applyStatsDatePolicy,
+	deriveStatsDatePolicy,
+	getPolicyDefaultPreset,
+	getStatsDatePolicy,
+	isPresetLockedByPolicy,
+	OPEN_DATE_POLICY,
+} from '../stats-date-policy';
+import type { StatsFeatureKey } from '../plan-gates';
+
+jest.mock(
+	'@automattic/jetpack-script-data',
+	() => jest.requireActual( '../../../../../tests/js/script-data-test-utils' ).mockJetpackScriptData
+);
+
+const lockOnly =
+	( ...features: StatsFeatureKey[] ) =>
+	( feature: StatsFeatureKey ) =>
+		features.includes( feature );
+const free = () => deriveStatsDatePolicy( lockOnly( 'recent-7-days' ), 'UTC' );
+const basic = () => deriveStatsDatePolicy( lockOnly( 'long-date-presets' ), 'UTC' );
+
+beforeEach( () => {
+	jest.useFakeTimers().setSystemTime( new Date( '2026-10-15T12:00:00Z' ) );
+} );
+
+afterEach( () => {
+	jest.useRealTimers();
+} );
+
+describe( 'deriveStatsDatePolicy', () => {
+	it.each( [ 'UTC', 'America/Los_Angeles', 'Asia/Tokyo' ] )(
+		'keeps only the presets inside the last 7 days open in %s',
+		timeZone => {
+			const policy = deriveStatsDatePolicy( lockOnly( 'recent-7-days' ), timeZone );
+
+			expect(
+				MENU_SURFACE_PRESETS_WITH_ALL_TIME.filter( id => ! policy.lockedPresetIds.includes( id ) )
+			).toEqual( [ 'today', 'yesterday', 'last-24-hours', 'last-7-days' ] );
+			expect( policy ).toMatchObject( {
+				feature: 'recent-7-days',
+				fallbackPresetId: 'last-7-days',
+				offersComparison: false,
+			} );
+		}
+	);
+
+	it.each( [
+		[ 'long-date-presets', lockOnly( 'long-date-presets' ), 'last-30-days', true, [] ],
+		[ 'intervals only', lockOnly( 'intervals' ), undefined, true, [ 'week', 'month', 'year' ] ],
+		[ 'nothing', lockOnly(), undefined, true, [] ],
+		[
+			'recent-7-days with intervals',
+			lockOnly( 'recent-7-days', 'intervals' ),
+			'last-7-days',
+			false,
+			[ 'week', 'month', 'year' ],
+		],
+	] )(
+		'derives the %s policy',
+		( _name, isLocked, fallbackPresetId, offersComparison, lockedIntervals ) => {
+			const policy = deriveStatsDatePolicy( isLocked, 'UTC' );
+
+			expect( policy.earliestDate === undefined ).toBe( offersComparison );
+			expect( policy.fallbackPresetId ).toBe( fallbackPresetId );
+			expect( policy.offersComparison ).toBe( offersComparison );
+			expect( policy.lockedIntervals ).toEqual( lockedIntervals );
+		}
+	);
+
+	it( 'locks single years under either date limit', () => {
+		const longPresets = deriveStatsDatePolicy( lockOnly( 'long-date-presets' ), 'UTC' );
+
+		expect( isPresetLockedByPolicy( 'year-2025', longPresets ) ).toBe( true );
+		expect( isPresetLockedByPolicy( 'last-30-days', longPresets ) ).toBe( false );
+		expect( isPresetLockedByPolicy( 'year-2025', OPEN_DATE_POLICY ) ).toBe( false );
+	} );
+
+	it( 'opens everything when the server published no gates', () => {
+		( getScriptData as jest.Mock ).mockReturnValue( { premium_analytics: {} } );
+
+		expect( getStatsDatePolicy() ).toEqual( OPEN_DATE_POLICY );
+	} );
+} );
+
+describe( 'getPolicyDefaultPreset', () => {
+	it.each( [
+		[ 'an open plan', 'last-12-months', 'last-12-months', () => OPEN_DATE_POLICY ],
+		[ 'a free plan', 'yesterday', 'yesterday', free ],
+		[ 'a free plan', 'last-30-days', 'last-7-days', free ],
+		[ 'legacy basic', 'last-12-months', 'last-30-days', basic ],
+	] as const )( 'on %s opens %s as %s', ( _name, preset, expected, policy ) => {
+		expect( getPolicyDefaultPreset( policy(), preset ) ).toBe( expected );
+	} );
+} );
+
+describe( 'applyStatsDatePolicy', () => {
+	it.each( [
+		[
+			'a custom range older than 7 days',
+			free,
+			{ from: '2025-01-01', to: '2025-01-31' },
+			'last-7-days',
+		],
+		[ 'a locked preset', free, { preset: 'last-30-days' }, 'last-7-days' ],
+		[ 'a long preset', basic, { preset: 'last-90-days' }, 'last-30-days' ],
+	] )( 'replaces %s with the fallback', ( _name, policy, search, preset ) => {
+		const result = applyStatsDatePolicy( normalizeReportParams( search as never ), policy() );
+
+		expect( result.isWindowAdjusted ).toBe( true );
+		expect( result.params.preset ).toBe( preset );
+	} );
+
+	it.each( [
+		[ 'a range inside the window', free, { from: '2026-10-12', to: '2026-10-14' } ],
+		[ 'a range starting on the earliest day', free, { from: '2026-10-09', to: '2026-10-14' } ],
+		[ 'a long custom range on legacy basic', basic, { from: '2026-01-01', to: '2026-06-30' } ],
+	] )( 'keeps %s', ( _name, policy, search ) => {
+		const params = normalizeReportParams( search as never );
+
+		expect( applyStatsDatePolicy( params, policy() ) ).toEqual( {
+			params,
+			isWindowAdjusted: false,
+			isComparisonDropped: false,
+		} );
+	} );
+
+	it( 'lands a replaced window on the preset it is given', () => {
+		const params = normalizeReportParams( { preset: 'last-30-days' } as never );
+
+		expect( applyStatsDatePolicy( params, free(), 'yesterday' ).params.preset ).toBe( 'yesterday' );
+	} );
+
+	it( 'drops the comparison of a window the policy replaced', () => {
+		const params = normalizeReportParams( {
+			preset: 'last-90-days',
+			comp: '1',
+			compare_from: '2026-04-01',
+			compare_to: '2026-06-30',
+		} as never );
+
+		const result = applyStatsDatePolicy( params, basic() );
+
+		expect( result.isWindowAdjusted ).toBe( true );
+		expect( result.isComparisonDropped ).toBe( true );
+		expect( result.params.comp ).toBeUndefined();
+	} );
+
+	it( 'drops the comparison when the window has no room for it', () => {
+		const params = normalizeReportParams( {
+			preset: 'last-7-days',
+			comp: '1',
+			compare_from: '2026-10-01',
+			compare_to: '2026-10-07',
+		} as never );
+
+		const result = applyStatsDatePolicy( params, free() );
+
+		expect( result.isComparisonDropped ).toBe( true );
+		expect( result.params.comp ).toBeUndefined();
+	} );
+} );

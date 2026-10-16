@@ -83,6 +83,25 @@ function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] 
 }
 
 /**
+ * Drop the buckets the plan locks, landing on days when none is left.
+ *
+ * @param intervals - The buckets the range allows, default first.
+ * @param locked    - The buckets the plan locks.
+ * @return The open buckets.
+ */
+export function withoutLockedIntervals(
+	intervals: IntervalType[],
+	locked: readonly IntervalType[] = []
+): IntervalType[] {
+	if ( ! locked.length ) {
+		return intervals;
+	}
+
+	const open = intervals.filter( interval => ! locked.includes( interval ) );
+	return open.length ? open : [ 'day' ];
+}
+
+/**
  * Allowed intervals for a preset, default first.
  *
  * Where the interval control starts, before a widget narrows it to what its
@@ -90,6 +109,15 @@ function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] 
  * not the applied one: a bucket it would coerce away springs back on Apply.
  */
 export function getAllowedIntervalsForPreset(
+	preset: PrimaryPresetId | undefined,
+	from: string,
+	to: string,
+	locked: readonly IntervalType[] = []
+): IntervalType[] {
+	return withoutLockedIntervals( allowedIntervalsForPreset( preset, from, to ), locked );
+}
+
+function allowedIntervalsForPreset(
 	preset: PrimaryPresetId | undefined,
 	from: string,
 	to: string
@@ -130,9 +158,10 @@ export function resolveIntervalForRange(
 	preset: PrimaryPresetId | undefined,
 	from: string,
 	to: string,
-	current?: string
+	current?: string,
+	locked: readonly IntervalType[] = []
 ): IntervalType {
-	const allowed = getAllowedIntervalsForPreset( preset, from, to );
+	const allowed = getAllowedIntervalsForPreset( preset, from, to, locked );
 
 	if ( isIntervalType( current ) && allowed.includes( current ) ) {
 		return current;
@@ -152,7 +181,8 @@ export function resolveIntervalForPresetChange(
 	nextPreset: PrimaryPresetId | undefined,
 	from: string,
 	to: string,
-	currentInterval?: string
+	currentInterval?: string,
+	locked: readonly IntervalType[] = []
 ): IntervalType {
 	const switchesNamedPreset =
 		!! nextPreset && nextPreset !== PRESET_CUSTOM && nextPreset !== currentPreset;
@@ -161,7 +191,8 @@ export function resolveIntervalForPresetChange(
 		nextPreset,
 		from,
 		to,
-		switchesNamedPreset ? undefined : currentInterval
+		switchesNamedPreset ? undefined : currentInterval,
+		locked
 	);
 }
 

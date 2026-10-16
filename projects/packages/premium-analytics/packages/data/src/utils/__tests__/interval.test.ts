@@ -307,3 +307,15 @@ describe( 'resolveIntervalForPresetChange', () => {
 		).toBe( 'day' );
 	} );
 } );
+
+describe( 'getAllowedIntervalsForPreset with locked intervals', () => {
+	const LOCKED = [ 'week', 'month', 'year' ] as const;
+
+	it.each( [
+		[ 'last-30-days', '2026-09-16', '2026-10-15', [ 'day' ] ],
+		[ undefined, '2026-01-01', '2026-06-30', [ 'day' ] ],
+		[ 'last-24-hours', '2026-10-14', '2026-10-15', [ 'hour' ] ],
+	] )( 'offers %p from %s to %s as %p', ( preset, from, to, expected ) => {
+		expect( getAllowedIntervalsForPreset( preset as never, from, to, LOCKED ) ).toEqual( expected );
+	} );
+} );
