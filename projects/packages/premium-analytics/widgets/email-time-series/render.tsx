@@ -166,6 +166,7 @@ function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProp
 					dataFormat={ DATA_FORMAT }
 					chartType={ chartType }
 					empty={ <ChartEmptyState /> }
+					hideSingleMetricLabel
 				/>
 			</WidgetState>
 		</div>

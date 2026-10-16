@@ -149,6 +149,14 @@ final class Dashboard_Section {
 	private $default_layout = array();
 
 	/**
+	 * Widget type names the inserter offers on top of the default layout's.
+	 *
+	 * @since $$next-version$$
+	 * @var string[]
+	 */
+	private $insertable_widget_types = array();
+
+	/**
 	 * Constructor.
 	 *
 	 * @param string $dashboard_name Dashboard identifier.
@@ -238,22 +246,49 @@ final class Dashboard_Section {
 	}
 
 	/**
+	 * Returns the widget types the section's inserter offers on top of its default layout, run
+	 * through the insertable-types filter.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string[] Widget type names.
+	 */
+	public function get_insertable_widget_types() {
+		/**
+		 * Filters the widget types a dashboard section's inserter offers on top of its default layout.
+		 *
+		 * Runs for every section, so a callback adding a type to one switches on `$section_id`. A
+		 * type the widget type registry does not know is never offered.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string[]          $types      The section's declared widget type names.
+		 * @param string            $section_id Namespaced section identifier, e.g. `analytics/traffic`.
+		 * @param Dashboard_Section $section    The section.
+		 */
+		$types = apply_filters( DASHBOARD_INSERTABLE_WIDGET_TYPES_FILTER, $this->insertable_widget_types, $this->id, $this );
+
+		return self::normalize_widget_type_names( $types );
+	}
+
+	/**
 	 * Returns the public REST representation.
 	 *
 	 * @return array
 	 */
 	public function to_array() {
 		return array(
-			'id'                  => $this->id,
-			'slug'                => $this->slug,
-			'label'               => $this->label,
-			'title'               => $this->title,
-			'order'               => (int) $this->order,
-			'date_filter'         => $this->date_filter,
-			'date_filter_options' => $this->date_filter_options,
-			'requires_sync'       => $this->requires_sync,
-			'notice'              => $this->get_notice(),
-			'default_layout'      => $this->get_default_layout(),
+			'id'                      => $this->id,
+			'slug'                    => $this->slug,
+			'label'                   => $this->label,
+			'title'                   => $this->title,
+			'order'                   => (int) $this->order,
+			'date_filter'             => $this->date_filter,
+			'date_filter_options'     => $this->date_filter_options,
+			'requires_sync'           => $this->requires_sync,
+			'notice'                  => $this->get_notice(),
+			'default_layout'          => $this->get_default_layout(),
+			'insertable_widget_types' => $this->get_insertable_widget_types(),
 		);
 	}
 
@@ -316,5 +351,30 @@ final class Dashboard_Section {
 		if ( array_key_exists( 'default_layout', $args ) ) {
 			$this->default_layout = $args['default_layout'];
 		}
+
+		if ( isset( $args['insertable_widget_types'] ) ) {
+			$this->insertable_widget_types = self::normalize_widget_type_names( $args['insertable_widget_types'] );
+		}
+	}
+
+	/**
+	 * Narrows a value to its distinct, non-empty widget type names, as a list.
+	 *
+	 * @param mixed $types Candidate widget type names.
+	 * @return string[]
+	 */
+	private static function normalize_widget_type_names( $types ) {
+		if ( ! is_array( $types ) ) {
+			return array();
+		}
+
+		$names = array_filter(
+			$types,
+			static function ( $type ) {
+				return is_string( $type ) && '' !== $type;
+			}
+		);
+
+		return array_values( array_unique( $names ) );
 	}
 }

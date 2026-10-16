@@ -71,6 +71,12 @@ export type DashboardSection = {
 	 * Bundled default widget layout, consumed by the reset action.
 	 */
 	default_layout: DashboardWidget[];
+
+	/**
+	 * Widget types the section's inserter offers on top of its default layout.
+	 * Optional for the same reason as `date_filter` above; absent means none.
+	 */
+	insertable_widget_types?: string[];
 };
 
 /**
@@ -149,13 +155,17 @@ export function resolveSectionId(
 }
 
 /**
- * The widget types the inserter offers: those the available sections place by default.
+ * The widget types the inserter offers: those the available sections place by default, plus
+ * those they declare insertable.
  *
  * @param {DashboardSection[]} sections - The available sections.
  * @return The widget type names.
  */
 export function getInsertableWidgetTypeNames( sections: DashboardSection[] ): Set< string > {
 	return new Set(
-		sections.flatMap( section => section.default_layout.map( widget => widget.type ) )
+		sections.flatMap( section => [
+			...section.default_layout.map( widget => widget.type ),
+			...( section.insertable_widget_types ?? [] ),
+		] )
 	);
 }
