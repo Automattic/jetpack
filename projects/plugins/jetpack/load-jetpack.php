@@ -105,6 +105,7 @@ if ( is_admin() ) {
 }
 
 add_action( 'updating_jetpack_version', array( 'Jetpack', 'activate_subscriptions_module_for_existing_sites' ), 10, 2 );
+add_action( 'updating_jetpack_version', array( 'Jetpack', 'activate_backup_module_for_existing_sites' ), 10, 2 );
 add_action( 'updating_jetpack_version', array( 'Jetpack', 'cleanup_seo_module_state_options' ) );
 add_action( 'updating_jetpack_version', array( 'Jetpack', 'seed_seo_visibility_cohort' ), 10, 2 );
 add_filter( 'is_jetpack_site', '__return_true' );

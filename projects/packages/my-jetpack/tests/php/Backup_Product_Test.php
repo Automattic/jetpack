@@ -206,6 +206,17 @@ class Backup_Product_Test extends TestCase {
 	}
 
 	/**
+	 * Deactivating the product turns off the standalone plugin and leaves the locked backup module on.
+	 */
+	public function test_deactivate_leaves_the_backup_module_on() {
+		activate_plugins( Backup::get_installed_plugin_filename() );
+
+		$this->assertTrue( Backup::deactivate() );
+		$this->assertFalse( Backup::is_standalone_plugin_active() );
+		$this->assertContains( 'backup', Jetpack_Options::get_option( 'active_modules', array() ) );
+	}
+
+	/**
 	 * Data provider for test_backup_module_off_does_not_switch_backup_off.
 	 *
 	 * @return array

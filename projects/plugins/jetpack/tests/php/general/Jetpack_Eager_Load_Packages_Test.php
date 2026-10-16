@@ -461,7 +461,7 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 		$this->set_up_backup_test();
 		$this->connect_owner();
 		$this->force_unfire_action( 'jetpack_backup_initialized' );
-		Jetpack_Options::update_option( 'active_modules', array() );
+		Jetpack_Options::delete_option( 'active_modules' );
 		update_option( 'jetpack_active_plan', $plan );
 
 		Jetpack::configure_backup_package();
@@ -479,6 +479,31 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 			'a Backup plan' => array( self::BACKUP_PLAN, 1 ),
 			'no plan'       => array( array( 'features' => array( 'active' => array() ) ), 0 ),
 		);
+	}
+
+	/**
+	 * Writes to the active modules can't switch Backup off.
+	 */
+	public function test_backup_module_cannot_be_switched_off() {
+		Jetpack_Options::update_option( 'active_modules', array( 'backup' ) );
+
+		Jetpack::deactivate_module( 'backup' );
+		Jetpack::delete_active_modules();
+
+		$this->assertContains( 'backup', Jetpack_Options::get_option( 'active_modules', array() ) );
+	}
+
+	/**
+	 * Updating Jetpack switches the backup module back on for a site that had it off.
+	 */
+	public function test_update_switches_the_backup_module_on() {
+		$this->set_up_backup_test();
+		$this->connect_owner();
+		Jetpack_Options::delete_option( 'active_modules' );
+
+		Jetpack::activate_backup_module_for_existing_sites( '99.0:1700000000', '98.0:1700000000' );
+
+		$this->assertTrue( Jetpack::is_module_active( 'backup' ) );
 	}
 
 	/**

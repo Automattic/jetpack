@@ -709,6 +709,7 @@ class Jetpack {
 
 		add_filter( 'profile_update', array( 'Jetpack', 'user_meta_cleanup' ) );
 
+		add_filter( 'pre_update_option_jetpack_active_modules', array( __CLASS__, 'keep_backup_module_on' ), 10, 2 );
 		add_filter( 'jetpack_get_default_modules', array( $this, 'filter_default_modules' ) );
 		add_filter( 'jetpack_get_default_modules', array( $this, 'handle_deprecated_modules' ), 99 );
 
@@ -838,6 +839,64 @@ class Jetpack {
 				do_action( 'jetpack_feature_import_enabled' );
 			}
 		}
+	}
+
+	/**
+	 * Keep a write to the active modules from switching the backup module off.
+	 *
+	 * The plan decides Backup, so off would change nothing, and it must not mean "paused" once pausing ships.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param mixed $value     The modules about to be saved.
+	 * @param mixed $old_value The modules saved now.
+	 * @return mixed
+	 */
+	public static function keep_backup_module_on( $value, $old_value ) {
+		if (
+			! is_array( $value )
+			|| ! is_array( $old_value )
+			|| ! in_array( 'backup', $old_value, true )
+			|| in_array( 'backup', $value, true )
+		) {
+			return $value;
+		}
+
+		$value[] = 'backup';
+
+		return $value;
+	}
+
+	/**
+	 * Switch the backup module on for an existing site, so none keeps an off state from before it was locked.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string       $version     The version being installed.
+	 * @param string|false $old_version The version it replaces, or false on a fresh install.
+	 * @return void
+	 */
+	public static function activate_backup_module_for_existing_sites( $version, $old_version ) {
+		// Fresh installs get it from "Auto Activate: Yes", and once on it stays on, so later updates do nothing.
+		if ( ! $old_version || ! self::is_connection_ready() || self::is_module_active( 'backup' ) ) {
+			return;
+		}
+
+		self::activate_module( 'backup', false, false );
+	}
+
+	/**
+	 * Why a module can't be switched off by hand, or an empty string when it can.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $module Module slug.
+	 * @return string
+	 */
+	public static function get_module_locked_on_reason( $module ) {
+		return 'backup' === $module
+			? __( 'Backup follows your site’s plan, so it can’t be switched off.', 'jetpack' )
+			: '';
 	}
 
 	/**

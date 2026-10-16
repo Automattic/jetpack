@@ -443,6 +443,16 @@ class Backup extends Hybrid_Product {
 	}
 
 	/**
+	 * Deactivate the standalone plugin, leaving the backup module on.
+	 *
+	 * @return bool
+	 */
+	public static function deactivate() {
+		deactivate_plugins( static::get_installed_plugin_filename() );
+		return true;
+	}
+
+	/**
 	 * Get the URL where the user manages the product
 	 *
 	 * @return ?string

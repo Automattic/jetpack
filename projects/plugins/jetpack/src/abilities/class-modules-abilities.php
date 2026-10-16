@@ -383,6 +383,11 @@ class Modules_Abilities extends Registrar {
 				);
 			}
 		} else {
+			$locked = Jetpack::get_module_locked_on_reason( $slug );
+			if ( $locked ) {
+				return new \WP_Error( 'jetpack_modules_locked_on', $locked );
+			}
+
 			$ok = Jetpack::deactivate_module( $slug );
 			if ( ! $ok ) {
 				return new \WP_Error(

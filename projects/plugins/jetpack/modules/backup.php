@@ -12,6 +12,7 @@
  *
  * The site's plan, not this module, decides Backup: backups run and
  * Jetpack::configure_backup_package() initializes the dashboard whenever the plan includes it.
+ * Jetpack::keep_backup_module_on() keeps the module on until switching it off pauses backups.
  *
  * @package automattic/jetpack
  */
