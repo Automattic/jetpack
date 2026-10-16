@@ -6,11 +6,11 @@ import {
 	connectionStatusJetpack as jetpack,
 } from '../../assets/inline-svgs';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
-import styles from './connection-status-art.module.scss';
+import styles from './connection-status.module.scss';
 import type { ConnectionState } from '../../hooks/use-connection-state';
 import type { FC } from 'react';
 
-type ConnectionStatusArtProps = {
+type ConnectionStatusProps = {
 	status: ConnectionState[ 'status' ];
 	/** Whether to draw the account beside Jetpack: the viewer's avatar, or an empty one. */
 	showAvatar: boolean;
@@ -24,7 +24,7 @@ type ConnectionStatusArtProps = {
  * @param props.showAvatar - Whether to draw the account.
  * @return The illustration.
  */
-export const ConnectionStatusArt: FC< ConnectionStatusArtProps > = ( { status, showAvatar } ) => {
+export const ConnectionStatus: FC< ConnectionStatusProps > = ( { status, showAvatar } ) => {
 	const { isRegistered, isUserConnected, userConnectionData } = useMyJetpackConnection();
 	const avatar = userConnectionData.currentUser?.wpcomUser?.avatar;
 
