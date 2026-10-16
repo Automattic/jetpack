@@ -48,6 +48,8 @@ function register_block() {
 			'show_in_rest'  => true,
 			'single'        => true,
 			'type'          => 'boolean',
+			/* translators: Keep the quoted values, block names, meta keys and URLs in English. */
+			'description'   => __( 'Set automatically on every save: true when the content has a Paid Content block (premium-content/container). Do not set it; add or remove the block instead.', 'jetpack' ),
 			'auth_callback' => function () {
 				return wp_get_current_user()->has_cap( 'edit_posts' );
 			},
