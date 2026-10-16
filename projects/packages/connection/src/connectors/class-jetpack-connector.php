@@ -385,6 +385,9 @@ class Jetpack_Connector {
 	/**
 	 * Get the connection owner details for the script module.
 	 *
+	 * Local fields only: another administrator is named as this site knows them, and resolving
+	 * their WordPress.com identity would cost a signed request on every Connectors screen load.
+	 *
 	 * @param Manager $manager Connection manager instance.
 	 * @return array|null Owner data or null if unavailable.
 	 */
@@ -395,7 +398,7 @@ class Jetpack_Connector {
 			return null;
 		}
 
-		$fields = static::resolve_user_fields( $owner, $manager->get_connected_user_data( $owner->ID ) );
+		$fields = static::resolve_user_fields( $owner, false );
 
 		$fields['localLogin'] = $owner->user_login;
 
@@ -405,8 +408,8 @@ class Jetpack_Connector {
 	/**
 	 * Merge local WP user fields with WordPress.com user data.
 	 *
-	 * WPCOM values take precedence when available. Returns the common
-	 * user shape used by both currentUser and connectionOwner.
+	 * WPCOM values take precedence when the caller passes them. Returns the common user shape
+	 * used by both currentUser and connectionOwner; only currentUser resolves against WPCOM.
 	 *
 	 * @param \WP_User|false $wp_user        Local WordPress user object (false if unavailable).
 	 * @param array|false    $wpcom_user_data WPCOM user data from the connection manager.

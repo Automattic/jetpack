@@ -18,6 +18,7 @@
  * @see Jetpack_Connector::enqueue_script_module()
  */
 
+import { TransferConnectionOwnership } from '@automattic/jetpack-connection';
 // Namespace import: a missing named export would fail the whole module before the fallbacks run.
 // eslint-disable-next-line import/no-unresolved -- resolved via WP import map at runtime.
 import * as connectors from '@wordpress/connectors';
@@ -807,13 +808,14 @@ function ProtectedOwnerSection() {
  * @param {Function} props.onConnect       - Callback to start the authorization flow.
  * @param {boolean}  props.isConnecting    - Whether a connection attempt is in progress.
  * @param {boolean}  props.isDisconnecting - Whether a disconnect is in progress (disables button).
+ * @param {object}   props.owner           - Connection owner data, or null when there is none.
  * @return {object} React element.
  */
-function ConnectPrompt( { onConnect, isConnecting, isDisconnecting } ) {
+function ConnectPrompt( { onConnect, isConnecting, isDisconnecting, owner } ) {
 	// When a connection owner is already linked, the viewing admin is
 	// connecting as a secondary user — the site-registration framing no
 	// longer applies, so use shorter copy focused on the user benefit.
-	const promptText = connectionOwner
+	const promptText = owner
 		? __(
 				'Connect your user account to unlock more features and sign in via WordPress.com (SSO).',
 				'jetpack-connection'
@@ -895,6 +897,42 @@ function ConfirmationModal( { title, message, onConfirm, onCancel } ) {
 				)
 			)
 		)
+	);
+}
+
+/**
+ * Modal hosting the ownership transfer flow.
+ *
+ * The shared component carries the choose → confirm → done flow and its own actions, so the
+ * card supplies only the modal, its heading and the way out.
+ *
+ * @param {object}   props               - Component props.
+ * @param {Function} props.onClose       - Called when the modal is dismissed.
+ * @param {Function} props.onTransferred - Called once WordPress.com has accepted the new owner.
+ * @return {object} React element.
+ */
+function TransferOwnershipModal( { onClose, onTransferred } ) {
+	const [ isTransferring, setIsTransferring ] = useState( false );
+
+	return createElement(
+		Modal,
+		{
+			title: __( 'Transfer connection ownership', 'jetpack-connection' ),
+			onRequestClose: onClose,
+			size: 'small',
+			className: 'jetpack-connector__transfer-modal',
+			focusOnMount: 'firstElement',
+			// A transfer cannot be undone halfway, so every way out is held shut while it runs.
+			isDismissible: ! isTransferring,
+			shouldCloseOnClickOutside: ! isTransferring,
+			shouldCloseOnEsc: ! isTransferring,
+		},
+		createElement( TransferConnectionOwnership, {
+			apiRoot,
+			apiNonce,
+			onBusyChange: setIsTransferring,
+			onTransferred,
+		} )
 	);
 }
 
@@ -1423,9 +1461,12 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 	const [ isDisconnecting, setIsDisconnecting ] = useState( false );
 	const [ isUnlinking, setIsUnlinking ] = useState( false );
 	const [ showDetailsModal, setShowDetailsModal ] = useState( false );
+	const [ isTransferOpen, setIsTransferOpen ] = useState( false );
 	const [ pendingConfirm, setPendingConfirm ] = useState( null );
 	const [ actionError, setActionError ] = useState( null );
 	const detailsLinkRef = useRef( null );
+	const transferOwnershipRef = useRef( null );
+	const transferredRef = useRef( false );
 	const confirmTriggerRef = useRef( null );
 	const disconnectSiteRef = useRef( null );
 	const disconnectAccountRef = useRef( null );
@@ -1532,22 +1573,40 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 						isManagedPlatformSite && currentUser.isOwner
 							? null
 							: createElement(
-									Button,
-									{
-										ref: disconnectAccountRef,
-										variant: 'link',
-										isDestructive: true,
-										disabled: isUnlinking || isDisconnecting || isOfflineMode,
-										onClick: handleUnlinkUser,
-										className: 'jetpack-connector__inline-action',
-									},
-									isUnlinking
-										? __( 'Disconnecting…', 'jetpack-connection' )
-										: __(
-												'Disconnect account',
-												'jetpack-connection',
-												/* dummy arg to avoid bad minification */ 0
+									// The links right-align themselves; an alignment prop here would fight the mobile reset.
+									VStack,
+									{ spacing: 1 },
+									currentUser.isOwner
+										? createElement(
+												Button,
+												{
+													ref: transferOwnershipRef,
+													variant: 'link',
+													className: 'jetpack-connector__inline-action',
+													disabled: isUnlinking || isDisconnecting || isOfflineMode,
+													onClick: () => setIsTransferOpen( true ),
+												},
+												__( 'Transfer ownership', 'jetpack-connection' )
 											)
+										: null,
+									createElement(
+										Button,
+										{
+											ref: disconnectAccountRef,
+											variant: 'link',
+											isDestructive: true,
+											disabled: isUnlinking || isDisconnecting || isOfflineMode,
+											onClick: handleUnlinkUser,
+											className: 'jetpack-connector__inline-action',
+										},
+										isUnlinking
+											? __( 'Disconnecting…', 'jetpack-connection' )
+											: __(
+													'Disconnect account',
+													'jetpack-connection',
+													/* dummy arg to avoid bad minification */ 0
+												)
+									)
 								),
 				} )
 			: null,
@@ -1672,6 +1731,25 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 						focusWhenReady( confirmTriggerRef.current );
 					},
 				} )
+			: null,
+		isTransferOpen
+			? createElement( TransferOwnershipModal, {
+					onTransferred: () => {
+						transferredRef.current = true;
+					},
+					// The card reads its connection state from script module data, so a completed
+					// transfer is picked up by reloading. Held until the done step has been read.
+					onClose: () => {
+						setIsTransferOpen( false );
+
+						if ( transferredRef.current ) {
+							window.location.reload();
+							return;
+						}
+
+						focusWhenReady( transferOwnershipRef.current );
+					},
+				} )
 			: null
 	);
 }
@@ -1700,7 +1778,6 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 	const isSiteRegistered = initialIsRegistered;
 	const [ isConnecting, setIsConnecting ] = useState( false );
 	const [ connectError, setConnectError ] = useState( data.authError || null );
-
 	// Reset "Connecting…" state when the page is restored from bfcache
 	// (e.g. user hits Back after being redirected to the auth page).
 	useEffect( () => {

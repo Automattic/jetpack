@@ -312,6 +312,8 @@ export {
 	compareOptionalNumbers,
 	formatEmailRate,
 	formatViewCount,
+	formatListMetricCount,
+	getListMetricLabel,
 	HOURS_DATA_FORMAT,
 	getClicksRateSignals,
 	getKnownEmailRate,

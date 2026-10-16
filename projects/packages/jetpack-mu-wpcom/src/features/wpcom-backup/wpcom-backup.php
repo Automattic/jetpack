@@ -24,6 +24,11 @@ class WPCOM_Backup extends WPCOM_WP_Build_Page {
 	const MENU_SLUG = 'jetpack-backup';
 
 	/**
+	 * Filter that switches Backup to wp-admin, shared with the Backup package's dashboard.
+	 */
+	const MODERNIZATION_FILTER = 'rsm_jetpack_ui_modernization_backup';
+
+	/**
 	 * Page name for wp-build, as declared in routes/wpcom-backup/package.json.
 	 */
 	const WP_BUILD_PAGE = 'wpcom-backup';
@@ -90,6 +95,17 @@ class WPCOM_Backup extends WPCOM_WP_Build_Page {
 		}
 
 		return ! self::has_backup_feature();
+	}
+
+	/**
+	 * Whether Backup opens in wp-admin rather than Calypso.
+	 *
+	 * Defaults on for Automatticians only.
+	 *
+	 * @return bool
+	 */
+	public static function is_modernized() {
+		return (bool) apply_filters( self::MODERNIZATION_FILTER, Wpcom_Feature_Flags::is_a11n() );
 	}
 
 	/**
@@ -160,14 +176,35 @@ class WPCOM_Backup extends WPCOM_WP_Build_Page {
 	 * @return bool
 	 */
 	public static function has_backup_feature() {
-		if ( ! function_exists( 'wpcom_site_has_feature' ) || ! defined( '\WPCOM_Features::BACKUPS_SELF_SERVE' ) ) {
+		return self::site_has_feature( 'BACKUPS_SELF_SERVE' );
+	}
+
+	/**
+	 * Whether the site's plan includes WordPress.com's Atomic hosting, which backups run on.
+	 *
+	 * @return bool
+	 */
+	public static function has_atomic_feature() {
+		return self::site_has_feature( 'ATOMIC' );
+	}
+
+	/**
+	 * Whether the site's plan includes a WordPress.com feature.
+	 *
+	 * @param string $name Name of a `WPCOM_Features` constant.
+	 * @return bool
+	 */
+	private static function site_has_feature( $name ) {
+		$constant = 'WPCOM_Features::' . $name;
+
+		if ( ! function_exists( 'wpcom_site_has_feature' ) || ! defined( $constant ) ) {
 			return false;
 		}
 
 		// Called without a blog ID.
 		// WoA sites would pass the local blog ID, which is not the WordPress.com blog ID.
 		// wpcom resolves the current site.
-		return (bool) wpcom_site_has_feature( \WPCOM_Features::BACKUPS_SELF_SERVE );
+		return (bool) wpcom_site_has_feature( constant( $constant ) );
 	}
 
 	/**
@@ -244,7 +281,8 @@ class WPCOM_Backup extends WPCOM_WP_Build_Page {
 		// On WoA the plan is the only question: the site is already on the
 		// infrastructure that runs backups, so there is nothing to transfer, and
 		// should_register() has already stepped the page aside if it has the plan.
-		if ( ! self::has_backup_feature() || self::is_atomic() ) {
+		// On Simple, activation also needs the hosting platform, as Calypso requires.
+		if ( ! self::has_backup_feature() || ! self::has_atomic_feature() || self::is_atomic() ) {
 			$state = self::STATE_UPGRADE;
 		} elseif ( self::is_transfer_in_progress( $blog_id ) ) {
 			$state = self::STATE_IN_PROGRESS;

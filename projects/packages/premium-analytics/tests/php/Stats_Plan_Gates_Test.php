@@ -28,6 +28,7 @@ require_once ABSPATH . 'wp-admin/includes/plugin.php';
  * @covers ::Automattic\Jetpack\PremiumAnalytics\has_jetpack_stats_commercial_purchase
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_locked_stats_features
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_stats_feature_copy
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\localize_stats_support_url
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_stats_upgrade_url
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_stats_plan_gates
  * @covers ::Automattic\Jetpack\PremiumAnalytics\configure_stats_plan_gates
@@ -41,6 +42,7 @@ require_once ABSPATH . 'wp-admin/includes/plugin.php';
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\has_jetpack_stats_commercial_purchase' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_locked_stats_features' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_stats_feature_copy' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\localize_stats_support_url' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_stats_upgrade_url' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_stats_plan_gates' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\configure_stats_plan_gates' )]
@@ -113,6 +115,7 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		delete_option( 'jetpack_active_plan' );
 		delete_option( 'jetpack_site_products' );
 		remove_all_filters( STATS_PLAN_TIER_FILTER );
+		remove_all_filters( 'locale' );
 		remove_all_filters( 'doing_it_wrong_trigger_error' );
 		remove_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_stats_plan_gates_script_data', 20 );
 		remove_action( 'admin_init', __NAMESPACE__ . '\\maybe_refresh_jetpack_plan' );
@@ -426,6 +429,53 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 			'generic copy' => array( 'insights', 'Upgrade your plan to unlock Jetpack Stats.', '' ),
 			// Keyed through the card's mapping, which no other test fails on if it reverts to insights.
 			'tags card'    => array( WIDGET_TYPE_PLAN_FEATURES['jpa/tags'], 'Track the most viewed <link>tags & categories</link>.', 'https://wordpress.com/support/stats/learn-insights-about-your-website/#all-time-insights' ),
+		);
+	}
+
+	/**
+	 * The gates link the user's language to a WordPress.com page.
+	 */
+	public function test_locked_features_link_wpcom_support_in_the_user_language() {
+		add_filter( STATS_PLAN_TIER_FILTER, static fn() => STATS_TIER_FREE );
+		add_filter( 'locale', static fn() => 'zh_TW' );
+
+		$this->assertSame(
+			'https://wordpress.com/zh-tw/support/stats/analyze-content-performance/#track-file-downloads',
+			get_stats_plan_gates()['locked_features']['file-downloads']['support_url']
+		);
+	}
+
+	/**
+	 * Only a WordPress.com support URL moves, and only to a language its support site has.
+	 *
+	 * @dataProvider provide_support_url_localization
+	 *
+	 * @param string $locale   The user's locale.
+	 * @param string $url      English support URL.
+	 * @param string $expected Linked URL.
+	 */
+	#[DataProvider( 'provide_support_url_localization' )]
+	public function test_support_url_follows_the_user_locale( $locale, $url, $expected ) {
+		add_filter( 'locale', static fn() => $locale );
+
+		$this->assertSame( $expected, localize_stats_support_url( $url ) );
+	}
+
+	/**
+	 * Locales and URLs, localized or left in English.
+	 *
+	 * @return array
+	 */
+	public static function provide_support_url_localization() {
+		$wpcom   = 'https://wordpress.com/support/stats/analyze-content-performance/#track-file-downloads';
+		$jetpack = 'https://jetpack.com/support/jetpack-stats/traffic-dashboard/#devices-stats';
+
+		return array(
+			'region kept'          => array( 'pt_BR', $wpcom, 'https://wordpress.com/pt-br/support/stats/analyze-content-performance/#track-file-downloads' ),
+			'region dropped'       => array( 'de_DE_formal', $wpcom, 'https://wordpress.com/de/support/stats/analyze-content-performance/#track-file-downloads' ),
+			'no stats translation' => array( 'hi_IN', $wpcom, $wpcom ),
+			'english'              => array( 'en_US', $wpcom, $wpcom ),
+			'jetpack.com'          => array( 'zh_TW', $jetpack, $jetpack ),
 		);
 	}
 

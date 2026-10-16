@@ -27,6 +27,7 @@ const TransferDoneStep = ( { candidate }: TransferDoneStepProps ) => (
 			displayName={ candidate.displayName }
 			login={ candidate.login }
 			email={ candidate.email }
+			avatar={ candidate.avatar }
 		/>
 
 		<Notice.Root intent="success">

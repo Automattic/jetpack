@@ -8,4 +8,6 @@ export interface ConnectionOwnerCandidate {
 	displayName: string;
 	/** Local email address. */
 	email: string;
+	/** Avatar URL. */
+	avatar: string;
 }

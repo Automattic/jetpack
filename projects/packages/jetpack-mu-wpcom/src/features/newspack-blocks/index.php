@@ -56,6 +56,9 @@ function enqueue_newspack_blocks_data( $handle ) {
 	$newspack_blocks_data = wp_json_encode(
 		array(
 			'posts_rest_url'          => rest_url( 'newspack-blocks/v1/newspack-blocks-posts' ),
+			// The editor store loads posts for several blocks at once through the batch endpoint.
+			'posts_batch_rest_url'    => rest_url( 'newspack-blocks/v1/newspack-blocks-posts-batch' ),
+			'posts_batch_max_queries' => \Newspack_Blocks_API::POSTS_BATCH_MAX_QUERIES,
 			'specific_posts_rest_url' => rest_url( 'newspack-blocks/v1/newspack-blocks-specific-posts' ),
 			// Define URL to core one to make autocomplete working for newspack-blocks installed via jetpack-mu-wpcom.
 			'authors_rest_url'        => rest_url() . 'wp/v2/users',
