@@ -90,6 +90,7 @@ export {
 	isStatsFeatureLocked,
 	type StatsFeatureKey,
 } from './utils/plan-gates';
+export { getStatsCheckoutUrl } from './utils/stats-checkout-url';
 export {
 	DASHBOARD_PREFERENCES_SCOPE,
 	getDefaultPreset,

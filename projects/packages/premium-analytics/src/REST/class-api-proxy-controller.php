@@ -173,6 +173,11 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 			'capability' => 'view_stats',
 			'path'       => '/upgrades?site=%d',
 		),
+		// Stats tier prices, in the site's checkout currency.
+		'products'                      => array(
+			'capability' => 'view_stats',
+			'path'       => '/sites/%d/products?type=jetpack',
+		),
 		'posts'                         => array(
 			'capability'      => 'view_stats',
 			// Only a post's public likers and approved replies — never post content
