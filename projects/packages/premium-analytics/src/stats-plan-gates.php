@@ -9,7 +9,6 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller;
-use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -326,40 +325,22 @@ function localize_stats_support_url( $url ) {
 }
 
 /**
- * Where to buy a locked feature: classic Stats' purchase destinations.
+ * Where to buy a locked feature: the dashboard's upgrade page on a Jetpack site, a WordPress.com plan elsewhere.
  *
  * @since $$next-version$$
  *
  * @param string $feature Feature key.
  * @param string $tier    One of the STATS_TIER_* values.
- * @return string The URL, or an empty string when there is nowhere to buy it.
+ * @return string The URL.
  */
 function get_stats_upgrade_url( $feature, $tier ) {
-	$return_path = 'admin.php?page=' . Analytics::MENU_PAGE_SLUG;
-
 	if ( STATS_TIER_JETPACK_FREE === $tier ) {
-		// The purchase flow lives in Odyssey Stats; with it off, `page=stats` shows only an opt-in notice.
-		$stats_page = function_exists( 'menu_page_url' ) ? menu_page_url( 'stats', false ) : '';
-		if ( ! $stats_page || ! Stats_Options::get_option( 'enable_odyssey_stats' ) ) {
-			return '';
-		}
-
-		$query = http_build_query(
-			array(
-				'from'         => 'jetpack-premium-analytics',
-				'productType'  => 'commercial',
-				'redirect_uri' => $return_path,
-			),
-			'',
-			'&',
-			PHP_QUERY_RFC3986
-		);
-
-		return $stats_page . '#!/stats/purchase/' . (int) \Jetpack_Options::get_option( 'id' ) . '?' . $query;
+		return Analytics::dashboard_url( '/upgrade?source=jetpack-premium-analytics-locked-feature' );
 	}
 
-	$plan      = in_array( $feature, STATS_COMMERCIAL_FEATURES, true ) ? 'premium' : 'personal';
-	$site_slug = ( new Status() )->get_site_suffix();
+	$return_path = 'admin.php?page=' . Analytics::MENU_PAGE_SLUG;
+	$plan        = in_array( $feature, STATS_COMMERCIAL_FEATURES, true ) ? 'premium' : 'personal';
+	$site_slug   = ( new Status() )->get_site_suffix();
 
 	return 'https://wordpress.com/checkout/' . rawurlencode( $site_slug ) . '/' . $plan . '?redirect_to=' . rawurlencode( admin_url( $return_path ) );
 }
