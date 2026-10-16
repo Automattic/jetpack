@@ -58,13 +58,13 @@ type TrafficChartInnerProps = {
  */
 function TrafficChartInner( { chartType, interval }: TrafficChartInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
+	// A host without a period to set leaves the bars inert.
+	const { openPeriod, dateLimits } = useReportScope();
 	const period: TrafficChartGranularity = chartInterval(
 		{ ...reportParams, interval },
-		TRAFFIC_PERIODS
+		TRAFFIC_PERIODS,
+		dateLimits?.lockedIntervals
 	);
-
-	// A host without a period to set leaves the bars inert.
-	const { openPeriod } = useReportScope();
 
 	// Names the bucket size drawn, not the saved one: the range may clamp it,
 	// and the click must open the bar it hit.

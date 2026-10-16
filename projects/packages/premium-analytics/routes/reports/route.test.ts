@@ -4,11 +4,14 @@ import {
 	normalizeReportParams,
 } from '@jetpack-premium-analytics/data';
 import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
+import { limitStatsDateSearch } from '../stats-date-window';
 import { getReportDefinition } from './registry';
 import { route } from './route';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	ensureCoreSettingsReady: jest.fn( () => Promise.resolve() ),
+	getPolicyDefaultPreset: jest.fn( () => undefined ),
+	getStatsDatePolicy: () => ( { lockedIntervals: [] } ),
 	needsReportDateParamsSeed: jest.fn( () => false ),
 	// Carries incoming params through, as the real normalizer keeps the detail scopes.
 	normalizeReportParams: jest.fn( ( search: Record< string, string | undefined > ) => ( {
@@ -35,7 +38,20 @@ jest.mock( '../site-readiness', () => ( {
 } ) );
 
 jest.mock( './registry', () => ( {
-	getReportDefinition: jest.fn( ( report?: string ) => ( report === 'authors' ? {} : undefined ) ),
+	getReportDefinition: jest.fn( ( report?: string ) => {
+		const definitions: Record< string, object > = {
+			authors: {},
+			posts: { dashboardSection: 'traffic' },
+			earnings: { dashboardSection: 'ads' },
+		};
+		return report ? definitions[ report ] : undefined;
+	} ),
+} ) );
+
+jest.mock( '../stats-date-window', () => ( {
+	PLAN_DATE_LIMITED_SECTIONS: [ 'traffic' ],
+	isPlanDateLimitedSection: jest.fn( ( section?: string ) => section !== 'store' ),
+	limitStatsDateSearch: jest.fn( () => undefined ),
 } ) );
 
 jest.mock( '@wordpress/route', () => ( {
@@ -128,6 +144,42 @@ describe( 'report route.beforeLoad', () => {
 
 		await expect( beforeLoad( { report: 'authors' }, { ds: 'insights' } ) ).rejects.toMatchObject( {
 			search: { ds: 'insights' },
+		} );
+	} );
+
+	it( 'leaves a report off Traffic to its own dates', async () => {
+		await expect(
+			beforeLoad( { report: 'earnings' }, { from: '2026-06-01', to: '2026-06-16' } )
+		).resolves.toBeUndefined();
+		expect( limitStatsDateSearch ).not.toHaveBeenCalled();
+	} );
+
+	const longPreset = { preset: 'last-90-days' };
+
+	it.each( [
+		[ 'posts', [ [ expect.any( Object ), longPreset ] ] ],
+		[ 'earnings', [] ],
+	] )( 'limits the seed of the %s report only when it is on Traffic', async ( report, calls ) => {
+		( needsReportDateParamsSeed as jest.Mock ).mockReturnValueOnce( true );
+
+		await expect( beforeLoad( { report }, longPreset ) ).rejects.toMatchObject( {
+			to: '/reports/$report',
+			viewTransition: false,
+		} );
+		expect( ( limitStatsDateSearch as jest.Mock ).mock.calls ).toEqual( calls );
+	} );
+
+	it( 'redirects a settled report URL the plan does not allow', async () => {
+		( limitStatsDateSearch as jest.Mock ).mockReturnValueOnce( { preset: 'last-7-days' } );
+
+		await expect(
+			beforeLoad( { report: 'posts' }, { from: '2026-06-01', to: '2026-06-16' } )
+		).rejects.toMatchObject( {
+			to: '/reports/$report',
+			params: { report: 'posts' },
+			replace: true,
+			viewTransition: false,
+			search: { preset: 'last-7-days' },
 		} );
 	} );
 } );

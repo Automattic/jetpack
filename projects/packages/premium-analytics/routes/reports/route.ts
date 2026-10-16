@@ -3,6 +3,8 @@
  */
 import {
 	ensureCoreSettingsReady,
+	getPolicyDefaultPreset,
+	getStatsDatePolicy,
 	needsReportDateParamsSeed,
 } from '@jetpack-premium-analytics/data';
 import { pickDashboardOriginParams } from '@jetpack-premium-analytics/routing';
@@ -12,6 +14,7 @@ import { redirect } from '@wordpress/route';
  */
 import { seedSiteDateParams } from '../site-date-seed';
 import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
+import { limitStatsDateSearch, PLAN_DATE_LIMITED_SECTIONS } from '../stats-date-window';
 import { getReportDefinition } from './registry';
 
 type ReportRouteParams = { report?: string };
@@ -51,7 +54,11 @@ export const route = {
 			currentSearch.section && definition.resolveSection
 				? definition.resolveSection( currentSearch.section )
 				: undefined;
-		const needsDateSeed = needsReportDateParamsSeed( currentSearch );
+		const policy = PLAN_DATE_LIMITED_SECTIONS.includes( definition.dashboardSection )
+			? getStatsDatePolicy()
+			: undefined;
+		const lockedIntervals = policy?.lockedIntervals;
+		const needsDateSeed = needsReportDateParamsSeed( currentSearch, lockedIntervals );
 		const needsSectionSeed =
 			!! currentSearch.section &&
 			!! definition.resolveSection &&
@@ -71,7 +78,10 @@ export const route = {
 			// Allowlist the params this page owns rather than spreading `currentSearch`
 			// wholesale, so foreign params a link carried in aren't persisted.
 			const seeded: Record< string, unknown > = {
-				...seedSiteDateParams( currentSearch ),
+				...seedSiteDateParams(
+					currentSearch,
+					policy ? getPolicyDefaultPreset( policy ) : undefined
+				),
 				...pickDashboardOriginParams( currentSearch ),
 				...( resolvedSection ? { section: resolvedSection } : {} ),
 			};
@@ -88,7 +98,20 @@ export const route = {
 				 */
 				params: { report: reportId } as unknown as never,
 				replace: true,
-				search: seeded as unknown as never,
+				viewTransition: false,
+				search: ( ( policy && limitStatsDateSearch( seeded, currentSearch ) ) ||
+					seeded ) as unknown as never,
+			} );
+		}
+
+		const limited = policy ? limitStatsDateSearch( currentSearch ) : undefined;
+		if ( limited ) {
+			throw redirect( {
+				to: '/reports/$report',
+				params: { report: reportId } as unknown as never,
+				replace: true,
+				viewTransition: false,
+				search: limited as unknown as never,
 			} );
 		}
 	},

@@ -133,6 +133,21 @@ describe( 'useSectionDateFilter', () => {
 		expect( replaceRange.mock.calls[ 0 ][ 1 ] ).toBe( 'last-7-days' );
 	} );
 
+	it( 'waits for a section switch to commit before reconciling', () => {
+		const { filters, replaceRange } = dateFilters( toYearPresetId( 2024 ) );
+		const { rerender } = renderHook(
+			( { isCommitted }: { isCommitted: boolean } ) =>
+				useSectionDateFilter( section( 'range' ), filters, isCommitted ),
+			{ initialProps: { isCommitted: false } }
+		);
+
+		expect( replaceRange ).not.toHaveBeenCalled();
+
+		rerender( { isCommitted: true } );
+
+		expect( replaceRange ).toHaveBeenCalledTimes( 1 );
+	} );
+
 	it( 'waits for the sections to resolve before reconciling', () => {
 		const { filters, replaceRange } = dateFilters( toYearPresetId( 2024 ) );
 

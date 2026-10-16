@@ -3,7 +3,7 @@ export {
 	ReportCsvDownloadButton,
 	type ReportCsvDownloadButtonProps,
 } from './report-csv-download-button';
-export { isCsvExportEnabled } from './is-csv-export-enabled';
+export { isCsvExportEnabled, isStatsCsvExportEnabled } from './is-csv-export-enabled';
 export {
 	useReportCsvExport,
 	type UseReportCsvExportOptions,

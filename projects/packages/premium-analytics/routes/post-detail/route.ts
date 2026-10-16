@@ -3,6 +3,7 @@
  */
 import {
 	ensureCoreSettingsReady,
+	getStatsDatePolicy,
 	needsReportDateParamsSeed,
 } from '@jetpack-premium-analytics/data';
 import {
@@ -16,6 +17,7 @@ import { redirect } from '@wordpress/route';
 import { seedDetailDateParams } from '../detail-date-seed';
 import { getReportDefinition } from '../reports/registry';
 import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
+import { limitStatsDateSearch } from '../stats-date-window';
 import { resolveTabId } from './config';
 
 type PostDetailParams = { postId?: string };
@@ -65,7 +67,10 @@ export const route = {
 		const resolvedSection = currentSearch.section
 			? resolveTabId( currentSearch.section )
 			: undefined;
-		const needsDateSeed = needsReportDateParamsSeed( currentSearch );
+		const needsDateSeed = needsReportDateParamsSeed(
+			currentSearch,
+			getStatsDatePolicy().lockedIntervals
+		);
 		const needsPostSeed = currentSearch.post_id !== postId;
 		const needsSectionSeed = !! currentSearch.section && resolvedSection !== currentSearch.section;
 
@@ -102,7 +107,21 @@ export const route = {
 				 */
 				params: { postId } as unknown as never,
 				replace: true,
-				search: seeded as unknown as never,
+				viewTransition: false,
+				// An arrival seeds all time, not a window the reader asked for, so it gets no notice.
+				search: ( limitStatsDateSearch( seeded, needsPostSeed ? {} : currentSearch ) ??
+					seeded ) as unknown as never,
+			} );
+		}
+
+		const limited = limitStatsDateSearch( currentSearch );
+		if ( limited ) {
+			throw redirect( {
+				to: '/post/$postId',
+				params: { postId } as unknown as never,
+				replace: true,
+				viewTransition: false,
+				search: limited as unknown as never,
 			} );
 		}
 	},

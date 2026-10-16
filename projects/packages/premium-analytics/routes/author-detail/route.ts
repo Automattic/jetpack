@@ -3,6 +3,7 @@
  */
 import {
 	ensureCoreSettingsReady,
+	getStatsDatePolicy,
 	needsReportDateParamsSeed,
 	normalizeReportParams,
 } from '@jetpack-premium-analytics/data';
@@ -14,6 +15,7 @@ import { redirect } from '@wordpress/route';
 import { redirectIfReportLocked } from '../reports/redirect-if-locked';
 import { getReportDefinition } from '../reports/registry';
 import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
+import { limitStatsDateSearch } from '../stats-date-window';
 
 type AuthorDetailParams = { authorId?: string };
 type AuthorDetailSearch = Record< string, string | undefined >;
@@ -59,7 +61,10 @@ export const route = {
 		}
 
 		const currentSearch = ( search ?? {} ) as AuthorDetailSearch;
-		const needsDateSeed = needsReportDateParamsSeed( currentSearch );
+		const needsDateSeed = needsReportDateParamsSeed(
+			currentSearch,
+			getStatsDatePolicy().lockedIntervals
+		);
 		const needsAuthorSeed = currentSearch.author_id !== authorId;
 
 		// The seed mirrors post-detail/route.ts, which explains each step; this
@@ -85,7 +90,21 @@ export const route = {
 				to: '/author/$authorId',
 				params: { authorId } as unknown as never,
 				replace: true,
-				search: seeded as unknown as never,
+				viewTransition: false,
+				// An arrival carries the linking page's window, not one the reader asked of this page.
+				search: ( limitStatsDateSearch( seeded, needsAuthorSeed ? {} : currentSearch ) ??
+					seeded ) as unknown as never,
+			} );
+		}
+
+		const limited = limitStatsDateSearch( currentSearch );
+		if ( limited ) {
+			throw redirect( {
+				to: '/author/$authorId',
+				params: { authorId } as unknown as never,
+				replace: true,
+				viewTransition: false,
+				search: limited as unknown as never,
 			} );
 		}
 	},

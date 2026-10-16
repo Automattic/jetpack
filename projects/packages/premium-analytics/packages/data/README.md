@@ -159,6 +159,47 @@ for the range (`from` / `to` / `interval` missing, or `interval` not allowed).
 
 **Returns:** `boolean`
 
+### `getStatsDatePolicy()`
+
+Returns the `StatsDatePolicy` the site's plan sets, read from the Stats gates the server publishes
+(`recent-7-days`, `long-date-presets`, `intervals`) in the site's reporting timezone. A server that
+publishes no gates gets `OPEN_DATE_POLICY`.
+
+**Returns:** `StatsDatePolicy`
+
+### `applyStatsDatePolicy( params, policy, landingPresetId? )`
+
+Moves a window the policy locks, or one that starts before its earliest day, to the policy's
+fallback preset, drops a comparison the policy does not offer, and keeps the interval off locked
+buckets.
+
+**Parameters:**
+
+- `params`: `ReportParams` - Normalized report params
+- `policy`: `StatsDatePolicy`
+- `landingPresetId`: `PresetType | undefined` - Where a replaced window lands instead of the fallback, when the policy allows it
+
+**Returns:** `{ params, isWindowAdjusted, isComparisonDropped }`
+
+### `getPolicyDefaultPreset( policy, defaultPreset? )`
+
+Returns the preset a page opens on when its URL names no dates: `defaultPreset` (the reader's
+own by default), or the policy's fallback when the policy locks it.
+
+**Returns:** `PresetType`
+
+### `isPresetLockedByPolicy( presetId, policy )`
+
+Returns whether the policy locks a preset. Either date limit locks every single-year preset.
+
+**Returns:** `boolean`
+
+### `ReportScopeProvider`'s `dateLimits`
+
+The date options the surface's plan locks, as `DateLimits`: the policy's `lockedPresetIds`,
+`earliestDate` and `lockedIntervals`, plus the `upsell` copy and an `onUpgradeClick` callback.
+The date controls read it through `useReportScope()`; absent where the host applies no limits.
+
 ## Architecture
 
 ```
@@ -230,13 +271,24 @@ This package exports the following public API:
 - `resolveIntervalForRange` - Keep a still-valid candidate interval, else the range default
 - `resolveIntervalForPresetChange` - Reset to the preset default on a named-preset switch, else keep a still-valid interval
 - `needsReportDateParamsSeed` - Whether report date params are incomplete or the interval is invalid for the range
+- `getStatsDatePolicy` - The date limits the site's plan sets
+- `applyStatsDatePolicy` - Keep report params within a date policy
+- `getPolicyDefaultPreset` - The preset a page opens on within a date policy
+- `isPresetLockedByPolicy` - Whether a date policy locks a preset
 - `downloadReport` - Download one report as a CSV file
 
 ### Core Settings
 
 - `ensureCoreSettingsReady` - Ensure core settings records are resolved
 
+### Constants
+
+- `OPEN_DATE_POLICY` - The date policy of a plan that sets no limits
+
 ### Types
 
 - `ReportParams` - The report params every hook takes
 - `LockableInterval` - A bucket a plan can lock (`week`, `month`, `year`)
+- `StatsDatePolicy` - The date limits a plan sets: open, the last 7 days, or no long presets
+- `DateLimitFeature` - The Stats gate a date limit comes from
+- `DateLimits` - The date limits a report scope declares to its controls

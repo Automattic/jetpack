@@ -3,6 +3,7 @@
  */
 import {
 	ensureCoreSettingsReady,
+	getStatsDatePolicy,
 	needsReportDateParamsSeed,
 } from '@jetpack-premium-analytics/data';
 import {
@@ -17,6 +18,7 @@ import { seedDetailDateParams } from '../detail-date-seed';
 import { redirectIfReportLocked } from '../reports/redirect-if-locked';
 import { getReportDefinition } from '../reports/registry';
 import { isPremiumAnalyticsSiteConnected, isVideoPressAvailable } from '../site-readiness';
+import { limitStatsDateSearch } from '../stats-date-window';
 
 type VideoDetailParams = { videoId?: string };
 type VideoDetailSearch = Record< string, string | undefined >;
@@ -66,7 +68,10 @@ export const route = {
 		}
 
 		const currentSearch = ( search ?? {} ) as VideoDetailSearch;
-		const needsDateSeed = needsReportDateParamsSeed( currentSearch );
+		const needsDateSeed = needsReportDateParamsSeed(
+			currentSearch,
+			getStatsDatePolicy().lockedIntervals
+		);
 		const needsPostSeed = currentSearch.post_id !== videoId;
 
 		if ( needsDateSeed || needsPostSeed ) {
@@ -101,7 +106,21 @@ export const route = {
 				 */
 				params: { videoId } as unknown as never,
 				replace: true,
-				search: seeded as unknown as never,
+				viewTransition: false,
+				// An arrival seeds all time, not a window the reader asked for, so it gets no notice.
+				search: ( limitStatsDateSearch( seeded, needsPostSeed ? {} : currentSearch ) ??
+					seeded ) as unknown as never,
+			} );
+		}
+
+		const limited = limitStatsDateSearch( currentSearch );
+		if ( limited ) {
+			throw redirect( {
+				to: '/video/$videoId',
+				params: { videoId } as unknown as never,
+				replace: true,
+				viewTransition: false,
+				search: limited as unknown as never,
 			} );
 		}
 	},

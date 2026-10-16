@@ -4,11 +4,13 @@ import {
 	normalizeReportParams,
 } from '@jetpack-premium-analytics/data';
 import { isDashboardSectionAvailable, isPremiumAnalyticsSiteConnected } from '../site-readiness';
+import { limitStatsDateSearch } from '../stats-date-window';
 import { route } from './route';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	isStatsFeatureLocked: jest.fn( () => false ),
 	ensureCoreSettingsReady: jest.fn( () => Promise.resolve() ),
+	getStatsDatePolicy: () => ( { lockedIntervals: [] } ),
 	needsReportDateParamsSeed: jest.fn( () => false ),
 	// Mirrors the real normalizer's relevant behavior: carries incoming params
 	// through and adds a default comparison preset on top.
@@ -25,6 +27,12 @@ jest.mock( '../site-readiness', () => ( {
 	isPremiumAnalyticsInitialSyncFinished: jest.fn( () => true ),
 	isVideoPressAvailable: jest.fn( () => true ),
 	isDashboardSectionAvailable: jest.fn( () => true ),
+} ) );
+
+jest.mock( '../stats-date-window', () => ( {
+	PLAN_DATE_LIMITED_SECTIONS: [ 'traffic' ],
+	isPlanDateLimitedSection: jest.fn( ( section?: string ) => section !== 'store' ),
+	limitStatsDateSearch: jest.fn( () => undefined ),
 } ) );
 
 jest.mock( '@wordpress/route', () => ( {
@@ -127,5 +135,33 @@ describe( 'author detail route.beforeLoad', () => {
 
 		expect( thrown?.search ).toMatchObject( { author_id: '7' } );
 		expect( thrown?.search ).not.toHaveProperty( 'post_id' );
+	} );
+
+	it.each( [
+		[ 'an arrival as asked for nothing', { from: '2025-01-01', to: '2025-01-31' }, false ],
+		[ 'a reload as asked for its own window', settledSearch, true ],
+	] )( 'limits the seed of %s', async ( _name, search, isRequested ) => {
+		( needsReportDateParamsSeed as jest.Mock ).mockReturnValueOnce( true );
+
+		await expect( beforeLoad( { authorId: '7' }, search ) ).rejects.toMatchObject( {
+			replace: true,
+			viewTransition: false,
+		} );
+		expect( limitStatsDateSearch ).toHaveBeenCalledWith(
+			expect.any( Object ),
+			isRequested ? search : {}
+		);
+	} );
+
+	it( 'redirects a settled URL the plan does not allow', async () => {
+		( limitStatsDateSearch as jest.Mock ).mockReturnValueOnce( { preset: 'last-7-days' } );
+
+		await expect( beforeLoad( { authorId: '7' }, settledSearch ) ).rejects.toMatchObject( {
+			to: '/author/$authorId',
+			params: { authorId: '7' },
+			replace: true,
+			viewTransition: false,
+			search: { preset: 'last-7-days' },
+		} );
 	} );
 } );

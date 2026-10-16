@@ -9,6 +9,7 @@ import {
 	isPremiumAnalyticsSiteConnected,
 	isVideoPressAvailable,
 } from '../site-readiness';
+import { limitStatsDateSearch } from '../stats-date-window';
 import { route } from './route';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
@@ -35,6 +36,12 @@ jest.mock( '../site-readiness', () => ( {
 	isPremiumAnalyticsInitialSyncFinished: jest.fn( () => true ),
 	isVideoPressAvailable: jest.fn( () => true ),
 	isDashboardSectionAvailable: jest.fn( () => true ),
+} ) );
+
+jest.mock( '../stats-date-window', () => ( {
+	PLAN_DATE_LIMITED_SECTIONS: [ 'traffic' ],
+	isPlanDateLimitedSection: jest.fn( ( section?: string ) => section !== 'store' ),
+	limitStatsDateSearch: jest.fn( () => undefined ),
 } ) );
 
 jest.mock( '@wordpress/route', () => ( {
@@ -155,6 +162,22 @@ describe( 'video detail route.beforeLoad', () => {
 		} );
 	} );
 
+	it.each( [
+		[ 'an arrival as asked for nothing', { from: '2025-01-01', to: '2025-01-31' }, false ],
+		[ 'a reload as asked for its own window', settledSearch, true ],
+	] )( 'limits the seed of %s', async ( _name, search, isRequested ) => {
+		( needsReportDateParamsSeed as jest.Mock ).mockReturnValueOnce( true );
+
+		await expect( beforeLoad( { videoId: '42' }, search ) ).rejects.toMatchObject( {
+			replace: true,
+			viewTransition: false,
+		} );
+		expect( limitStatsDateSearch ).toHaveBeenCalledWith(
+			expect.any( Object ),
+			isRequested ? search : {}
+		);
+	} );
+
 	it( 'passes through comparison params without redirecting on a settled URL', async () => {
 		await expect(
 			beforeLoad( { videoId: '42' }, { ...settledSearch, comp: 'previous_period' } )
@@ -237,5 +260,17 @@ describe( 'video detail route report origin', () => {
 		await expect(
 			beforeLoad( { videoId: '42' }, { ...settledSearch, ref: 'utm', ref_section: 'campaign' } )
 		).resolves.toBeUndefined();
+	} );
+
+	it( 'redirects a settled URL the plan does not allow', async () => {
+		( limitStatsDateSearch as jest.Mock ).mockReturnValueOnce( { preset: 'last-7-days' } );
+
+		await expect( beforeLoad( { videoId: '42' }, settledSearch ) ).rejects.toMatchObject( {
+			to: '/video/$videoId',
+			params: { videoId: '42' },
+			replace: true,
+			viewTransition: false,
+			search: { preset: 'last-7-days' },
+		} );
 	} );
 } );

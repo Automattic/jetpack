@@ -30,7 +30,10 @@ import { Page } from '@wordpress/admin-ui';
 import { Spinner } from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
+import { useDateWindowNotice } from '../date-window-notice';
 import { isPremiumAnalyticsInitialSyncFinished } from '../site-readiness';
+import { isPlanDateLimitedSection } from '../stats-date-window';
+import { useStatsDateLimits } from '../use-stats-date-limits';
 import { useWidgetModules } from '../use-widget-modules';
 import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import {
@@ -56,6 +59,7 @@ import {
 	resolveSectionHeading,
 	resolveSectionId,
 	SETTINGS_SECTION,
+	type DashboardSection,
 } from './config';
 import {
 	useActiveSection,
@@ -68,6 +72,7 @@ import {
 	useSectionDateFilter,
 } from './hooks';
 import './overlay-focus-ring.scss';
+import { dateWindowForSectionSwitch } from './section-date-window';
 import styles from './stage.module.scss';
 import type { OnboardingTourStep } from './components/onboarding-tour';
 import type { OnboardingFlow } from './hooks/use-onboarding';
@@ -79,6 +84,19 @@ const SETTINGS_TAB_SLUGS = [ SETTINGS_SECTION ];
 const NO_TAB_SLUGS: string[] = [];
 
 /**
+ * The section whose layout and date state a tab shows.
+ *
+ * @param id       - The tab.
+ * @param sections - The available sections, in order.
+ * @return The section slug.
+ */
+function widgetSectionOf( id: string, sections: DashboardSection[] ): string {
+	// The Settings tab has no layout of its own, and `WidgetDashboard` opens Customize over an
+	// empty one, so the first section's layout and date state stay in place behind it.
+	return id === SETTINGS_SECTION ? resolveSectionId( undefined, sections ) : id;
+}
+
+/**
  * Premium Analytics dashboard page stage component.
  *
  * @return {JSX.Element} The Premium Analytics dashboard.
@@ -88,15 +106,23 @@ function Dashboard(): JSX.Element {
 	const [ editMode, setEditMode ] = useState( false );
 	// Present only for users who can manage the settings, on sites where the dashboard owns them.
 	const hasSettingsTab = !! getScriptData()?.premium_analytics?.stats_settings;
+	const switchSearch = useCallback(
+		( id: string, search: Record< string, unknown > ) =>
+			dateWindowForSectionSwitch(
+				id,
+				sections.find( section => section.slug === widgetSectionOf( id, sections ) ),
+				search
+			),
+		[ sections ]
+	);
 	// Disabled while customizing, since a layout is arranged on a widget section.
-	const [ activeSection, setActiveSection ] = useActiveSection(
+	const [ activeSection, setActiveSection, committedSection ] = useActiveSection(
 		sections,
-		hasSettingsTab && ! editMode ? SETTINGS_TAB_SLUGS : NO_TAB_SLUGS
+		hasSettingsTab && ! editMode ? SETTINGS_TAB_SLUGS : NO_TAB_SLUGS,
+		switchSearch
 	);
 	const isSettingsActive = activeSection === SETTINGS_SECTION;
-	// The Settings tab has no layout of its own, and `WidgetDashboard` opens Customize over an
-	// empty one, so the first section's layout and date state stay in place behind it.
-	const widgetSection = isSettingsActive ? resolveSectionId( undefined, sections ) : activeSection;
+	const widgetSection = widgetSectionOf( activeSection, sections );
 	const widgetModules = useWidgetModules();
 	const widgetTypeRenames = useMemo(
 		() => buildWidgetTypeRenames( widgetModules ),
@@ -241,23 +267,33 @@ function Dashboard(): JSX.Element {
 		includeAll: editMode,
 	} );
 
+	const { dateLimits, offersComparison: planOffersComparison } = useStatsDateLimits(
+		isPlanDateLimitedSection( widgetSection )
+	);
+	useDateWindowNotice();
+
 	/*
 	 * Date-range state lives in the URL search params; the controller stages edits
 	 * locally and commits on Apply, so widgets re-fetch only on commit.
 	 */
-	const dateFilters = useReportDateFilters( '/' );
+	const dateFilters = useReportDateFilters( '/', {
+		lockedIntervals: dateLimits?.lockedIntervals,
+	} );
 
 	/*
 	 * Also reconciles the preset in the URL with the resolved surface, so a section
 	 * switch never leaves the visible control unable to represent the selection.
 	 */
-	const dateFilterSurface = useSectionDateFilter( activeSectionRecord, dateFilters );
-
-	// Server-driven, like the surface above.
-	const showComparison = offersDateComparison(
-		dateFilterSurface,
-		activeSectionRecord?.date_filter_options
+	const dateFilterSurface = useSectionDateFilter(
+		activeSectionRecord,
+		dateFilters,
+		activeSection === committedSection
 	);
+
+	// Server-driven, like the surface above, and only where the plan has room for one.
+	const offersComparison =
+		offersDateComparison( dateFilterSurface, activeSectionRecord?.date_filter_options ) &&
+		planOffersComparison;
 
 	// Placement only: the date state is the same either way.
 	const showHeaderDateControl =
@@ -291,7 +327,7 @@ function Dashboard(): JSX.Element {
 			comparisonPresetId: dateFilters.comparisonPresetId,
 			appliedComparisonRange: dateFilters.appliedComparisonRange,
 		},
-		{ surface: 'dashboard', section: widgetSection, offersComparison: showComparison }
+		{ surface: 'dashboard', section: widgetSection, offersComparison }
 	);
 	const {
 		onChange: rememberOnChange,
@@ -414,7 +450,11 @@ function Dashboard(): JSX.Element {
 			 * Declared once for widgets below: hiding the control doesn't strip the params,
 			 * so a widget reading them off the URL could show a comparison the reader can't see.
 			 */ }
-			<ReportScopeProvider offersComparison={ showComparison } openPeriod={ openPeriod }>
+			<ReportScopeProvider
+				offersComparison={ offersComparison }
+				openPeriod={ openPeriod }
+				dateLimits={ dateLimits }
+			>
 				{ /* Outside the dashboard: the inserter mounts beyond `children`. */ }
 				<WidgetDashboard.Policy canPerform={ canPerform }>
 					<WidgetDashboard
@@ -473,7 +513,8 @@ function Dashboard(): JSX.Element {
 											{ dateControls }
 										</SectionHeader>
 
-										{ activeSection === section.slug ? (
+										{ /* Widgets query the committed URL, which keeps the last tab's window until a switch lands. */ }
+										{ activeSection === section.slug && committedSection === section.slug ? (
 											<div className={ styles.body }>
 												{ /* A checkout return holds the plan limit notice back for the
 												     whole load, even once dismissed. */ }
