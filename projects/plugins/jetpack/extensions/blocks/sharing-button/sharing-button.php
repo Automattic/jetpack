@@ -10,6 +10,8 @@
 namespace Automattic\Jetpack\Extensions\Sharing_Button_Block;
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Sharing_Likes\Hooked_Blocks\Hooked_Blocks;
+use Automattic\Jetpack\Status\Host;
 use Jetpack_Gutenberg;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -32,6 +34,11 @@ function register_block() {
 		__DIR__,
 		array( 'render_callback' => __NAMESPACE__ . '\render_block' )
 	);
+
+	// load-jetpack.php sets the package up everywhere else, but Simple's front end loads neither it nor sharing.php.
+	if ( ( new Host() )->is_wpcom_simple() && class_exists( Hooked_Blocks::class ) ) {
+		Hooked_Blocks::init();
+	}
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 

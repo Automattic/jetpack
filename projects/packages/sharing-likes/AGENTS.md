@@ -273,6 +273,10 @@ every request, and `Sharing_Buttons_Markup` builds the block with its buttons.
 That markup has to match `sharing-buttons/save.jsx` exactly, or the Site Editor
 flags the block as invalid.
 
+Simple only reaches `Initializer::init()` on admin and public-api requests (see
+above), so on its front end the Sharing Buttons block's `register_block()` calls
+`Hooked_Blocks::init()` instead; calling it twice is harmless.
+
 **One side of the content per block.** Core builds templates and patterns with
 `insert_hooked_blocks_and_set_ignored_hooked_blocks_metadata()`, which records
 a type in the anchor's `metadata.ignoredHookedBlocks` as soon as its `before`
