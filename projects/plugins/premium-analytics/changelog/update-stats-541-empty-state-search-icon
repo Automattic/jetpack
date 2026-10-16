@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Empty states: Show an "x" in the magnifier when there are no results.
