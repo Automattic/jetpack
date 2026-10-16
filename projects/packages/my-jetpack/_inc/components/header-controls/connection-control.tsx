@@ -192,7 +192,7 @@ const ConnectionControl: FC = () => {
 		<>
 			<Popover.Root open={ isOpen } onOpenChange={ setIsOpen }>
 				<Popover.Trigger
-					render={ <Button variant="minimal" size="compact" className={ styles.trigger } /> }
+					className={ styles.trigger }
 					aria-label={ sprintf(
 						/* translators: %s is the connection state, e.g. "Site and account connected". */
 						__( 'Connection: %s', 'jetpack-my-jetpack' ),

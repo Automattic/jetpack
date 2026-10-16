@@ -2,8 +2,30 @@
 	max-inline-size: 20rem;
 }
 
+// A circle around the avatar, not `Button`'s box; same colours and focus ring
+// as `Button`'s minimal variant.
 .trigger {
 	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	inline-size: 32px;
+	block-size: 32px;
+	padding: 0;
+	border: 0;
+	border-radius: 50%;
+	background: transparent;
+	cursor: pointer;
+
+	&:hover,
+	&[data-popup-open] {
+		background-color: var(--wpds-color-background-interactive-neutral-weak-active);
+	}
+
+	&:focus-visible {
+		outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
+		outline-offset: var(--wpds-border-width-focus);
+	}
 }
 
 .avatar {
