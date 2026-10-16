@@ -199,7 +199,7 @@ export function getFeatureModuleSlug(
  * @param modules        - Every Jetpack module on the site.
  * @param productModules - Product slug to module slug, where the two differ.
  * @param modulesLoading - Whether the module list is still being fetched.
- * @param needsAccount   - Whether the registered site has no connected owner.
+ * @param needsAccount   - Whether the site has no connected owner and the current admin is not linked.
  * @return The feature's state.
  */
 export function resolveFeatureState(

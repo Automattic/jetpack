@@ -25,7 +25,7 @@ export type MoreFeaturesGroup = {
  *
  * @param $module      - The module.
  * @param requested    - Switch key to the value asked of it, for a switch still in flight.
- * @param needsAccount - Whether the registered site has no connected owner.
+ * @param needsAccount - Whether the site has no connected owner and the current admin is not linked.
  * @return The module's state.
  */
 export function getModuleFeatureState(
@@ -80,7 +80,7 @@ function getStateModule( state: FeatureState ): MyJetpackModule | null {
  *                       its own card is still that card's, and must not surface here instead.
  * @param requested      - Switch key to the value asked of it.
  * @param hidden         - Modules that do not apply to the site, left out entirely.
- * @param needsAccount   - Whether the registered site has no connected owner.
+ * @param needsAccount   - Whether the site has no connected owner and the current admin is not linked.
  * @return Non-empty groups by label, each sorted by name, with eligible ungrouped modules under Other, last.
  */
 export function groupMoreFeatures(
