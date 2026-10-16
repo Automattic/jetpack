@@ -332,29 +332,34 @@ class Environment_Test extends BaseTestCase {
 	}
 
 	/**
-	 * @return array<string, array{0: string[], 1: bool, 2: bool, 3: bool, 4: bool}>
+	 * @return array<string, array{0: string[], 1: bool, 2: bool, 3: bool, 4: array<string, bool>, 5: bool}>
 	 */
 	public static function provide_jetpack_blocks_sites(): array {
 		return array(
-			'Blocks module on a connected site'     => array( array( 'blocks' ), true, false, false, true ),
-			'Blocks module in offline mode'         => array( array( 'blocks' ), false, true, false, true ),
-			'Blocks module off'                     => array( array(), true, false, false, false ),
-			'disconnected and online'               => array( array( 'blocks' ), false, false, false, false ),
-			'Simple, with no modules or connection' => array( array(), false, false, true, true ),
+			'Blocks module on a connected site'         => array( array( 'blocks' ), true, false, false, array(), true ),
+			'Blocks module in offline mode'             => array( array( 'blocks' ), false, true, false, array(), true ),
+			'Blocks module off'                         => array( array(), true, false, false, array(), false ),
+			'disconnected and online'                   => array( array( 'blocks' ), false, false, false, array(), false ),
+			'Simple, with no modules or connection'     => array( array(), false, false, true, array(), true ),
+			'filtered off with the Blocks module on'    => array( array( 'blocks' ), true, false, false, array( 'jetpack_gutenberg' => false ), false ),
+			'filtered on with the Blocks module off'    => array( array(), true, false, false, array( 'jetpack_gutenberg' => true ), true ),
+			'filtered on while disconnected and online' => array( array(), false, false, false, array( 'jetpack_gutenberg' => true ), false ),
+			'connected, connection not ready'           => array( array( 'blocks' ), true, false, false, array( 'jetpack_is_connection_ready' => false ), false ),
 		);
 	}
 
 	/**
 	 * @dataProvider provide_jetpack_blocks_sites
 	 *
-	 * @param string[] $modules   Active modules.
-	 * @param bool     $connected Whether the site holds a connection.
-	 * @param bool     $offline   Whether the site is in offline mode.
-	 * @param bool     $simple    Whether this is a Simple site.
-	 * @param bool     $expected  Whether Jetpack's blocks load.
+	 * @param string[]            $modules   Active modules.
+	 * @param bool                $connected Whether the site holds a connection.
+	 * @param bool                $offline   Whether the site is in offline mode.
+	 * @param bool                $simple    Whether this is a Simple site.
+	 * @param array<string, bool> $filters   What each filter returns.
+	 * @param bool                $expected  Whether Jetpack's blocks load.
 	 */
 	#[DataProvider( 'provide_jetpack_blocks_sites' )]
-	public function test_jetpack_blocks_load_where_the_plugin_loads_them( array $modules, bool $connected, bool $offline, bool $simple, bool $expected ): void {
+	public function test_jetpack_blocks_load_where_the_plugin_loads_them( array $modules, bool $connected, bool $offline, bool $simple, array $filters, bool $expected ): void {
 		$this->given_site( $modules, $connected );
 		if ( $offline ) {
 			add_filter( 'jetpack_offline_mode', '__return_true' );
@@ -362,10 +367,16 @@ class Environment_Test extends BaseTestCase {
 		if ( $simple ) {
 			Constants::set_constant( 'IS_WPCOM', true );
 		}
+		foreach ( $filters as $filter => $value ) {
+			add_filter( $filter, $value ? '__return_true' : '__return_false' );
+		}
 
 		$loads = Environment::jetpack_blocks_load();
 
 		remove_filter( 'jetpack_offline_mode', '__return_true' );
+		foreach ( array_keys( $filters ) as $filter ) {
+			remove_all_filters( $filter );
+		}
 
 		$this->assertSame( $expected, $loads );
 	}

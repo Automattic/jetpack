@@ -90,13 +90,18 @@ final class Environment {
 	}
 
 	/**
-	 * Whether Jetpack's blocks load on this site, as `Jetpack_Gutenberg::should_load()` decides
-	 * before its `jetpack_gutenberg` filter: the Blocks module, and a connection or offline mode.
+	 * Whether Jetpack's blocks load on this site, as `Jetpack_Gutenberg::should_load()` decides:
+	 * a ready connection or offline mode, then the Blocks module, which its `jetpack_gutenberg` filter can override.
 	 *
 	 * True on Simple without asking for modules or a connection, both of which it lacks.
 	 */
 	public static function jetpack_blocks_load(): bool {
-		return self::module_active( 'blocks' ) && self::legacy_sharing_supported();
+		if ( ! self::is_simple_site() && ! self::is_connection_ready() && ! self::is_offline_mode() ) {
+			return false;
+		}
+
+		/** This filter is documented in projects/plugins/jetpack/class.jetpack-gutenberg.php */
+		return (bool) apply_filters( 'jetpack_gutenberg', self::module_active( 'blocks' ) );
 	}
 
 	/**
@@ -117,6 +122,18 @@ final class Environment {
 	 */
 	private static function is_connected(): bool {
 		return ( new Connection_Manager( 'jetpack' ) )->is_connected();
+	}
+
+	/**
+	 * Whether the connection is ready for Jetpack's modules and blocks, as `Jetpack::is_connection_ready()` decides.
+	 *
+	 * WordPress.com's Atomic hosting filters it off on a site whose connection has no owner.
+	 */
+	private static function is_connection_ready(): bool {
+		$manager = new Connection_Manager( 'jetpack' );
+
+		/** This filter is documented in projects/plugins/jetpack/class.jetpack.php */
+		return (bool) apply_filters( 'jetpack_is_connection_ready', $manager->is_connected(), $manager );
 	}
 
 	/**
