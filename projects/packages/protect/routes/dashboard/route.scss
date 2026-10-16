@@ -42,6 +42,38 @@ body.toplevel_page_jetpack-protect {
 		border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
 	}
 
+	// Cells split by rules; each cell takes the row's padding,
+	// so the rules run edge to edge.
+	&__row.jp-protect-card__cells {
+		--jp-protect-cells: 2;
+
+		display: grid;
+		grid-template-columns: repeat(var(--jp-protect-cells), minmax(0, 1fr));
+		padding: 0;
+
+		> * {
+			box-sizing: border-box;
+			padding: 16px var(--wp-ui-card-padding);
+		}
+
+		> * + * {
+			border-inline-start:
+				var(--wpds-border-width-xs) solid
+				var(--wpds-color-stroke-surface-neutral);
+		}
+
+		@media (max-width: 600px) {
+			grid-template-columns: minmax(0, 1fr);
+
+			> * + * {
+				border-inline-start: 0;
+				border-block-start:
+					var(--wpds-border-width-xs) solid
+					var(--wpds-color-stroke-surface-neutral);
+			}
+		}
+	}
+
 	&__muted {
 		color: var(--wpds-color-foreground-content-neutral-weak);
 	}
