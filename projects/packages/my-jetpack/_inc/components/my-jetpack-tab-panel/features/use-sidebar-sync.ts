@@ -31,6 +31,7 @@ export type MenuPointerTarget = {
 export function useSidebarSync( features: MainFeature[] ) {
 	const [ pointer, setPointer ] = useState< MenuPointerTarget | null >( null );
 	const latest = useRef( features );
+	const requestRefresh = useRef< ( () => void ) | undefined >( undefined );
 
 	latest.current = features;
 
@@ -72,18 +73,42 @@ export function useSidebarSync( features: MainFeature[] ) {
 					}
 				} );
 
-		const unsubscribe = onSwitchWritten( () => {
-			// A newer write supersedes the refresh in flight, which could otherwise land last.
+		requestRefresh.current = () => {
+			// A newer request supersedes the refresh in flight, which could otherwise land last.
 			controller?.abort();
 			controller = new AbortController();
 			refresh( controller.signal, 1 );
-		} );
+		};
+
+		const unsubscribe = onSwitchWritten( () => requestRefresh.current?.() );
 
 		return () => {
 			unsubscribe();
 			controller?.abort();
+			requestRefresh.current = undefined;
 		};
 	}, [] );
+
+	// A plan-driven feature has no switch to write, so a plan that reached the site after this
+	// page drew its sidebar, as on landing back from checkout, refreshes it here instead.
+	const paidPages = features
+		.filter( feature => feature.plan_driven && feature.included && feature.admin_page )
+		.map( feature => feature.admin_page )
+		.join( ',' );
+
+	useEffect( () => {
+		const items = Array.from( document.querySelectorAll( '#adminmenu li' ) );
+		const missing = paidPages
+			.split( ',' )
+			.some(
+				slug =>
+					slug && ! items.some( item => linksTo( item, getAdminUrl( `admin.php?page=${ slug }` ) ) )
+			);
+
+		if ( missing ) {
+			requestRefresh.current?.();
+		}
+	}, [ paidPages ] );
 
 	const dismissPointer = useCallback( () => setPointer( null ), [] );
 
