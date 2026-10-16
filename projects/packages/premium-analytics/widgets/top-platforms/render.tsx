@@ -113,6 +113,13 @@ function TopPlatformsInner( { platformDimension }: TopPlatformsInnerProps ) {
 					withOverlayLabel
 					showLegend={ false }
 					dataFormat={ DATA_FORMAT }
+					columns={ {
+						label:
+							platformDimension === 'platform'
+								? __( 'Operating systems', 'jetpack-premium-analytics-pkg' )
+								: __( 'Browsers', 'jetpack-premium-analytics-pkg' ),
+						metric: 'views',
+					} }
 				/>
 			</WidgetState>
 		</div>

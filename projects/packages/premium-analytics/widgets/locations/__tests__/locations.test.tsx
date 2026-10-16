@@ -416,6 +416,7 @@ describe( 'LocationsWidget', () => {
 			// eslint-disable-next-line testing-library/no-node-access -- jsdom does not honour `inert`, so the attribute itself is the assertion.
 			expect( staleList.closest( '[inert]' ) ).not.toBeNull();
 			expect( lastLeaderboardProps().loading ).toBe( true );
+			expect( lastLeaderboardProps().columns ).toMatchObject( { label: 'Countries' } );
 			expect( within( staleList ).queryByRole( 'button' ) ).not.toBeInTheDocument();
 			expect( lastMapProps() ).toMatchObject( {
 				mode: 'region',
@@ -430,6 +431,7 @@ describe( 'LocationsWidget', () => {
 			// eslint-disable-next-line testing-library/no-node-access -- see above.
 			expect( freshRow.closest( '[inert]' ) ).toBeNull();
 			expect( lastLeaderboardProps().loading ).toBe( false );
+			expect( lastLeaderboardProps().columns ).toMatchObject( { label: 'Regions' } );
 			expect( lastMapProps().rows ).toEqual( [
 				expect.objectContaining( { label: 'Minnesota' } ),
 			] );
