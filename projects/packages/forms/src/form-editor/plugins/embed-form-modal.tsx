@@ -354,7 +354,7 @@ export const EmbedFormModal = ( { isOpen, onClose, variant = 'embed' }: EmbedFor
 									}
 								/>
 								<Field.Description>
-									{ __( 'Paste into the block editor.', 'jetpack-forms' ) }
+									{ __( 'Paste into the block editor or code editor.', 'jetpack-forms' ) }
 								</Field.Description>
 							</Field.Root>
 							<Field.Root>
