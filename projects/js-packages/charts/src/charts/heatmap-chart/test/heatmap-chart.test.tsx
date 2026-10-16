@@ -486,8 +486,8 @@ describe( 'HeatmapChart', () => {
 		);
 		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
 
-		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-low' ) ).toBe( '#6c83ef' );
-		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-high' ) ).toBe( '#283ea5' );
+		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-low' ) ).toBe( '#7f93f1' );
+		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-high' ) ).toBe( '#3554df' );
 
 		document.body.removeChild( scope );
 	} );
@@ -586,7 +586,7 @@ const mockRects = () =>
 describe( 'HeatmapChart value text contrast', () => {
 	// The low end, a mid-tone, and the high end of the scale.
 	const scale: HeatmapColumn[] = [
-		{ label: 'W1', data: [ { value: 1 }, { value: 30 }, { value: 100 } ] },
+		{ label: 'W1', data: [ { value: 1 }, { value: 60 }, { value: 100 } ] },
 	];
 
 	let injectedStyle: HTMLStyleElement | null = null;
@@ -619,7 +619,7 @@ describe( 'HeatmapChart value text contrast', () => {
 	test( 'falls back to black on a mid-tone cell where neither role reaches AA', () => {
 		renderScale();
 
-		expect( screen.getByText( '30' ) ).toHaveClass( 'heatmap-chart__cell-value--black' );
+		expect( screen.getByText( '60' ) ).toHaveClass( 'heatmap-chart__cell-value--black' );
 	} );
 
 	test( 'reads the label roles once data arrives after an empty first render', () => {
@@ -691,7 +691,7 @@ describe( 'HeatmapChart value text contrast', () => {
 
 		renderScale( 'pinned-heatmap' );
 
-		[ '1', '30', '100' ].forEach( value =>
+		[ '1', '60', '100' ].forEach( value =>
 			expect( screen.getByText( value ) ).toHaveClass( 'heatmap-chart__cell-value', {
 				exact: true,
 			} )

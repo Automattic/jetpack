@@ -26,6 +26,7 @@ import {
 import { useSeriesStyles } from '../../hooks';
 import { ComparativeBarChart } from '../chart-comparative-bar';
 import { ComparativeLineChart } from '../chart-comparative-line';
+import { exactFormatOf } from '../chart-tooltip/utils';
 import { MetricWithComparison } from '../metric-with-comparison';
 import { WidgetRootContext } from '../widget-root/context';
 import styles from './metric-tabs-chart.module.scss';
@@ -41,6 +42,12 @@ import type { ComponentProps, CSSProperties, ReactNode } from 'react';
  * tabs collapse into a dropdown instead of overflowing into a scrollbar.
  */
 const MIN_TAB_WIDTH = 120;
+
+/** Narrowest card (px) before the cards wrap; keep in step with `.tabs` in the stylesheet. */
+const MIN_CARD_WIDTH = 160;
+
+/** The gap (px) between cards, `--wpds-dimension-gap-sm`. */
+const CARD_GAP = 8;
 
 /**
  * How far (px) the pointer may travel between down and up and still count as a
@@ -118,6 +125,19 @@ export interface MetricTab {
 	 * value: a total the endpoint serves, but not at this bucket size.
 	 */
 	seriesUnavailable?: string;
+}
+
+/**
+ * How many card columns to lay out, spreading the cards evenly over the fewest
+ * rows so a last row is never left with a lone card (six cards: 3 + 3, not 4 + 2).
+ *
+ * @param count - The number of cards.
+ * @param width - The width (px) the cards share.
+ * @return The column count.
+ */
+function getBalancedColumns( count: number, width: number ): number {
+	const fit = Math.max( 1, Math.floor( ( width + CARD_GAP ) / ( MIN_CARD_WIDTH + CARD_GAP ) ) );
+	return Math.ceil( count / Math.ceil( count / fit ) );
 }
 
 /**
@@ -432,12 +452,20 @@ function MetricTabContent( {
 	dataFormat,
 	fontSize,
 	withDescription = false,
+	exact = false,
 }: {
 	metric: MetricTab;
 	dataFormat: DataFormat;
 	fontSize?: ComponentProps< typeof MetricWithComparison >[ 'fontSize' ];
 	withDescription?: boolean;
+	/** Spell the value out in full, for a layout with room for it. */
+	exact?: boolean;
 } ) {
+	const format = metric.dataFormat ?? dataFormat;
+	const valueFormat = useMemo(
+		() => ( exact ? exactFormatOf( format ) : format ),
+		[ exact, format ]
+	);
 	// The description is opt-in: a tab already carries it on `title`, and in the
 	// dropdown trigger a hidden node would join the button's accessible name.
 	const note = metric.unavailable ?? ( withDescription ? metric.description : undefined );
@@ -466,7 +494,7 @@ function MetricTabContent( {
 					className={ styles.metricComparison }
 					value={ metric.value }
 					previousValue={ metric.previousValue }
-					dataFormat={ metric.dataFormat ?? dataFormat }
+					dataFormat={ valueFormat }
 					fontSize={ fontSize }
 					direction="row"
 					align="flex-end"
@@ -553,6 +581,9 @@ export function MetricTabsChart( {
 	} );
 	useEffect( () => () => clearTimeout( flipTimerRef.current ), [] );
 	const useDropdown = width !== undefined && width < metrics.length * MIN_TAB_WIDTH;
+	// Controls share the header row, so the measured width is not the cards' alone.
+	const columns =
+		width !== undefined && ! controls ? getBalancedColumns( metrics.length, width ) : undefined;
 
 	const activeMetric = metrics.find( metric => metric.key === selectedKey ) ?? metrics[ 0 ];
 
@@ -653,7 +684,7 @@ export function MetricTabsChart( {
 							} }
 							triggerContent={
 								activeMetric && (
-									<MetricTabContent metric={ activeMetric } dataFormat={ dataFormat } />
+									<MetricTabContent metric={ activeMetric } dataFormat={ dataFormat } exact />
 								)
 							}
 						/>
@@ -690,7 +721,14 @@ export function MetricTabsChart( {
 			className={ styles.root }
 		>
 			<div className={ styles.header }>
-				<Tabs.List variant="minimal" className={ styles.tabs } aria-label={ groupLabel }>
+				<Tabs.List
+					variant="minimal"
+					className={ styles.tabs }
+					style={
+						columns ? ( { '--jpa-metric-tabs-columns': columns } as CSSProperties ) : undefined
+					}
+					aria-label={ groupLabel }
+				>
 					{ metrics.map( metric => (
 						<Tabs.Tab
 							key={ metric.key }

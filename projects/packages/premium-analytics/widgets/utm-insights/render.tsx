@@ -23,6 +23,7 @@ import {
 	useWidgetDrillDown,
 	useWidgetRootContext,
 	ExporterCsvDownloadButton,
+	getUtmDimensionLabel,
 	getUtmReportSection,
 	utmCsvExporters,
 	type LeaderboardChartData,
@@ -202,6 +203,12 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 						withOverlayLabel
 						showLegend={ false }
 						dataFormat={ DATA_FORMAT }
+						columns={ {
+							label: isDrillDown
+								? __( 'Posts', 'jetpack-premium-analytics-pkg' )
+								: getUtmDimensionLabel( reportSection ),
+							metric: 'views',
+						} }
 					/>
 				</WidgetState>
 			</div>

@@ -12,12 +12,6 @@ import { Icon, error as errorIcon } from '@wordpress/icons';
 import { Button as UIButton, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useMemo, useState } from 'react';
-import {
-	connectionStatusCloud as cloud,
-	connectionStatusEmptyAvatar as emptyAvatar,
-	connectionStatusJetpackGray as jetpackGray,
-	connectionStatusJetpack as jetpack,
-} from '../../assets/inline-svgs';
 import { useAllProducts } from '../../data/products/use-all-products';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import getProductSlugsThatRequireUserConnection from '../../data/utils/get-product-slugs-that-require-user-connection';
@@ -27,6 +21,7 @@ import { canManageConnection, useConnectionState } from '../../hooks/use-connect
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import { assignLocation } from '../../hooks/use-notification-watcher/assignLocation';
 import { ConnectionOwnerInfo } from './connection-owner-info';
+import { ConnectionStatus } from './connection-status';
 import styles from './styles.module.scss';
 import type { ConnectionStatusCardType } from './types';
 import type { MouseEvent } from 'react';
@@ -51,7 +46,6 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 	const [ isManageConnectionDialogOpen, setIsManageConnectionDialogOpen ] = useState( false );
 	const { setConnectionStatus, setUserIsConnecting } = useDispatch( CONNECTION_STORE_ID );
 	const connectUserFn = onConnectUser || setUserIsConnecting;
-	const avatar = userConnectionData.currentUser?.wpcomUser?.avatar;
 
 	const { brokenModules } = lifecycleStats || {};
 	const { data: products, isLoading, isError } = useAllProducts();
@@ -165,20 +159,10 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 		<section className={ styles[ 'connection-status-card' ] }>
 			<h3>{ title }</h3>
 
-			<div className={ styles.status }>
-				<div className={ styles[ 'avatar-wrapper' ] }>
-					<img src={ isRegistered ? jetpack : jetpackGray } alt="" className={ styles.jetpack } />
-					{ ( hasProductsThatRequireUserConnection || hasUserConnectionBrokenModules ) && (
-						<img
-							src={ isUserConnected && avatar ? avatar : emptyAvatar }
-							alt=""
-							className={ styles.avatar }
-						/>
-					) }
-				</div>
-				<div className={ clsx( styles.line, styles[ state.status ] ) } />
-				<img src={ cloud } alt="" className={ styles.cloud } />
-			</div>
+			<ConnectionStatus
+				status={ state.status }
+				showAvatar={ hasProductsThatRequireUserConnection || hasUserConnectionBrokenModules }
+			/>
 
 			<Stack
 				render={ <section /> }

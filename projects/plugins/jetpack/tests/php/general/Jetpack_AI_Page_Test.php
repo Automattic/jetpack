@@ -11,6 +11,7 @@
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
@@ -572,6 +573,54 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 
 		$this->assertFalse( $settings['showFeaturesView'] );
 		$this->assertSame( '', $settings['planName'] );
+	}
+
+	/**
+	 * Only WordPress.com sites keep the WordPress.com ChatGPT plugin.
+	 *
+	 * @param string      $host            Host to simulate: self-hosted, vip, woa or simple.
+	 * @param string|null $filtered_value  Value a host filter sets, or null for no filter.
+	 * @param string      $expected        Expected chatgptConnector setting.
+	 *
+	 * @dataProvider chatgpt_connector_provider
+	 */
+	#[DataProvider( 'chatgpt_connector_provider' )]
+	public function test_chatgpt_connector_setting( $host, $filtered_value, $expected ) {
+		$this->given_woa( 'woa' === $host );
+		if ( 'vip' === $host ) {
+			Constants::set_constant( 'WPCOM_IS_VIP_ENV', true );
+		}
+		if ( 'simple' === $host ) {
+			Constants::set_constant( 'IS_WPCOM', true );
+		}
+		if ( null !== $filtered_value ) {
+			add_filter(
+				'jetpack_ai_admin_config',
+				function ( $config ) use ( $filtered_value ) {
+					$config['chatgptConnector'] = $filtered_value;
+
+					return $config;
+				}
+			);
+		}
+
+		$this->assertSame( $expected, $this->get_injected_settings()['chatgptConnector'] );
+	}
+
+	/**
+	 * Data provider for test_chatgpt_connector_setting.
+	 *
+	 * @return array
+	 */
+	public static function chatgpt_connector_provider() {
+		return array(
+			'self-hosted'                    => array( 'self-hosted', null, 'jetpack' ),
+			'VIP'                            => array( 'vip', null, 'jetpack' ),
+			'WoA'                            => array( 'woa', null, 'wpcom' ),
+			'Simple'                         => array( 'simple', null, 'wpcom' ),
+			'host switches to WordPress.com' => array( 'vip', 'wpcom', 'wpcom' ),
+			'unknown filtered value'         => array( 'self-hosted', 'other', 'wpcom' ),
+		);
 	}
 
 	/**

@@ -8,6 +8,11 @@
 	--wp-ui-dialog-z-index: 100000;
 }
 
+.ai-launchpad-wizard__title:focus {
+	// A programmatic focus target, not a control, so it needs no ring.
+	outline: none;
+}
+
 .ai-launchpad-wizard__step-subtitle {
 	color: var(--wpds-color-foreground-content-neutral-weak);
 }
@@ -39,6 +44,7 @@
 }
 
 .ai-launchpad-wizard__card {
+	position: relative;
 	display: flex;
 	align-items: flex-start;
 	gap: var(--wpds-dimension-gap-md);
@@ -52,11 +58,12 @@
 		border-color var(--wpds-motion-duration-sm) var(--wpds-motion-easing-subtle),
 		box-shadow var(--wpds-motion-duration-sm) var(--wpds-motion-easing-subtle);
 
+	// Neutral, so hover never reads as the brand-blue selection.
 	&:hover {
-		border-color: var(--wpds-color-stroke-interactive-brand);
+		border-color: var(--wpds-color-stroke-interactive-neutral-active);
 	}
 
-	&:focus-visible {
+	&:has(:focus-visible) {
 		outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
 		outline-offset: var(--wpds-border-width-focus);
 	}
@@ -64,6 +71,11 @@
 	&.is-selected {
 		border-color: var(--wpds-color-stroke-interactive-brand);
 		box-shadow: 0 0 0 var(--wpds-border-width-xs) var(--wpds-color-stroke-interactive-brand);
+
+		// Forced colors drop the box-shadow, so thicken the border instead.
+		@media (forced-colors: active) {
+			border: var(--wpds-border-width-focus) solid Highlight;
+		}
 	}
 
 	svg {
@@ -74,6 +86,19 @@
 
 .ai-launchpad-wizard__card-text {
 	min-width: 0;
+}
+
+// Not VisuallyHidden: wp-admin's unlayered radio styles beat its layered CSS.
+.ai-launchpad-wizard__card-input {
+	position: absolute;
+	inline-size: 1px;
+	block-size: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip-path: inset(50%);
+	border: 0;
+	white-space: nowrap;
 }
 
 .ai-launchpad-wizard__card-description {

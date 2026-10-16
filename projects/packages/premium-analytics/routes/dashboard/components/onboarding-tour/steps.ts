@@ -3,6 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import type { OnboardingTourStep } from './onboarding-tour';
+import type { OnboardingWelcomeVariant } from '@jetpack-premium-analytics/ui';
 
 export type OnboardingTourAnchors = {
 	/** The first widget of the section, the traffic summary. */
@@ -13,26 +14,48 @@ export type OnboardingTourAnchors = {
 
 	/** The page options menu trigger: Customize, feedback and the way back to classic Stats. */
 	optionsMenu: Element | null;
+
+	/** The section tab bar. */
+	sectionTabs: Element | null;
 };
 
 export type OnboardingTourOptions = {
 	/** Whether the reader may send feedback, which the last step introduces. */
 	withFeedback: boolean;
+
+	/** The journey the tour belongs to. Defaults to the new Stats alone. */
+	flow?: OnboardingWelcomeVariant;
 };
 
 /**
- * The four steps of the tour, in order, over the elements the dashboard
- * stage hands in. The last two share the page options menu.
+ * The tour steps of a journey, in order, over the elements the dashboard
+ * stage hands in. The WooCommerce tab adds a step on the tab bar, which is all
+ * a reader who already knows the new Stats is shown.
  *
  * @param anchors              - The elements each step highlights, or null while unmounted.
  * @param options              - Tour options.
  * @param options.withFeedback - Whether to include the feedback step.
+ * @param options.flow         - The journey the tour belongs to.
  * @return The tour steps.
  */
 export function onboardingTourSteps(
 	anchors: OnboardingTourAnchors,
-	{ withFeedback }: OnboardingTourOptions = { withFeedback: true }
+	{ withFeedback, flow = 'stats' }: OnboardingTourOptions = { withFeedback: true }
 ): OnboardingTourStep[] {
+	const tabsStep: OnboardingTourStep = {
+		anchor: anchors.sectionTabs,
+		title: __( 'Switch between boards', 'jetpack-premium-analytics-pkg' ),
+		description: __(
+			'Access your different store and traffic boards from these tabs.',
+			'jetpack-premium-analytics-pkg'
+		),
+		side: 'bottom',
+	};
+
+	if ( flow === 'store' ) {
+		return [ tabsStep ];
+	}
+
 	const steps: OnboardingTourStep[] = [
 		{
 			anchor: anchors.firstWidget,
@@ -43,6 +66,7 @@ export function onboardingTourSteps(
 			),
 			side: 'top',
 		},
+		...( flow === 'stats-and-store' ? [ tabsStep ] : [] ),
 		{
 			anchor: anchors.dateControls,
 			title: __( 'A better date picker', 'jetpack-premium-analytics-pkg' ),

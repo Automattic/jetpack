@@ -11,6 +11,7 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Utils;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\Partner_Coupon;
 use Automattic\Jetpack\Status\Cache as StatusCache;
 use Jetpack_Options;
@@ -23,6 +24,49 @@ use WorDBless\BaseTestCase;
  * Tests for the Initializer class.
  */
 class Initializer_Test extends BaseTestCase {
+	public function test_offline_feature_list_respects_opt_in_and_host_hidden_modules() {
+		global $_registered_pages;
+		$original_pages    = $_registered_pages;
+		$_registered_pages = array_fill_keys( array( 'jetpack_page_jetpack-forms', 'toplevel_page_jetpack-boost', 'admin_page_theme-editor', 'appearance_page_theme-editor', 'admin_page_plugin-editor', 'plugins_page_plugin-editor', 'admin_page_edit?post_type=feedback' ), true );
+		$user              = wp_insert_user(
+			array(
+				'user_login' => 'unavailable-admin',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user );
+		$_GET['page'] = 'my-jetpack';
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		$hide = static function ( $states ) {
+			return array_merge(
+				$states,
+				array(
+					'stats'   => 'hidden',
+					'social'  => 'hidden',
+					'monitor' => 'hidden',
+				)
+			);
+		};
+		add_filter( 'jetpack_my_jetpack_feature_visibility', $hide );
+		try {
+			$this->assertArrayNotHasKey( 'offlineFeatures', Initializer::add_admin_script_data( array() )['myJetpack'] );
+			add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
+			$state = Initializer::add_admin_script_data( array() )['myJetpack']['offlineFeatures']['mainFeatures'];
+			$slugs = array_column( $state['features'], 'slug' );
+			$this->assertSame( array( 'jetpack-forms', 'jetpack-boost', 'theme-editor', 'plugin-editor' ), $state['available_admin_pages'] );
+			$this->assertContains( 'activity-log', $slugs );
+			$this->assertNotContains( 'stats', $slugs );
+			$this->assertNotContains( 'social', $slugs );
+			$this->assertContains( 'stats', $state['hidden_modules'] );
+			$this->assertContains( 'publicize', $state['hidden_modules'] );
+			$this->assertContains( 'monitor', $state['hidden_modules'] );
+		} finally {
+			$_registered_pages = $original_pages;
+			remove_filter( 'jetpack_my_jetpack_feature_visibility', $hide );
+		}
+	}
+
 	/**
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -615,6 +659,22 @@ class Initializer_Test extends BaseTestCase {
 	 */
 	public function test_my_jetpack_flags_hide_the_ai_module_toggle_without_compatible_jetpack() {
 		$this->assertFalse( Initializer::get_my_jetpack_flags()['showAiModuleToggle'] );
+	}
+
+	/**
+	 * The header's placeholder controls stay hidden unless the flag is turned on.
+	 */
+	public function test_my_jetpack_flags_show_header_controls_only_when_the_flag_is_on() {
+		Initializer::register_feature_flags();
+		$this->assertFalse( Initializer::get_my_jetpack_flags()['headerControls'] );
+
+		add_filter( 'jetpack_feature_flag_enabled_' . Initializer::HEADER_CONTROLS_FLAG, '__return_true' );
+		try {
+			$this->assertTrue( Initializer::get_my_jetpack_flags()['headerControls'] );
+		} finally {
+			remove_filter( 'jetpack_feature_flag_enabled_' . Initializer::HEADER_CONTROLS_FLAG, '__return_true' );
+			Feature_Flags::reset();
+		}
 	}
 
 	/**

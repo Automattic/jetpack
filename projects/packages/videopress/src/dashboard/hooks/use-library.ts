@@ -23,6 +23,7 @@ export type ApiMediaItem = {
 	date?: string;
 	mime_type?: string;
 	media_details?: {
+		file_statuses?: Record< string, string >;
 		original?: string;
 		length?: number;
 		filesize?: number;
@@ -241,7 +242,8 @@ export function toLibraryItem( raw: ApiMediaItem, simple: boolean ): LibraryItem
 	// thumb/duration, video won't load). Self-hosted additionally has finished===false;
 	// on Simple that flag is absent (no media_details.videopress), so the poster check
 	// carries it. Rendered as a processing placeholder instead of a blank/black tile.
-	const isProcessing = isVideoPress && ( ! poster || finished === false );
+	const conversionFailed = isVideoPress && details?.file_statuses?.mp4 === 'ERROR';
+	const isProcessing = isVideoPress && ! conversionFailed && ( ! poster || finished === false );
 	// Orientation is derived from the source dimensions; unknown (missing
 	// dimensions) and square videos carry no orientation.
 	const { width, height } = details ?? {};
@@ -271,6 +273,7 @@ export function toLibraryItem( raw: ApiMediaItem, simple: boolean ): LibraryItem
 		originalUrl: vpDetails?.original || details?.original || undefined,
 		playbackUrl: pickPlaybackUrl( vpDetails ),
 		isProcessing,
+		conversionFailed,
 		orientation,
 		// The media REST field omits `tracks` today, so this is seed-only:
 		// the caption manager modal fetches the authoritative list itself.

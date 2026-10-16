@@ -54,6 +54,7 @@ function MostCommentedAuthorsInner() {
 	return (
 		<Leaderboard
 			rows={ leaderboardRows }
+			columns={ { label: __( 'Authors', 'jetpack-premium-analytics-pkg' ), metric: 'comments' } }
 			status={ { isLoading, isFetching, isError, refetch } }
 			error={ describeError( error, {
 				retryDescription: __(

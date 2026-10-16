@@ -249,7 +249,7 @@ return [
         'modules/carousel/jetpack-carousel.php' => ['PhanDeprecatedProperty', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn'],
         'modules/comments/admin.php' => ['PhanTypeMismatchReturn'],
         'modules/comments/base.php' => ['PhanTypeMismatchReturnProbablyReal'],
-        'modules/comments/comments.php' => ['PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchArgument', 'PhanUndeclaredFunction'],
+        'modules/comments/comments.php' => ['PhanTypeMismatchArgument', 'PhanUndeclaredFunction'],
         'modules/comments/subscription-modal-on-comment/class-jetpack-subscription-modal-on-comment.php' => ['PhanTypeMismatchReturnNullable'],
         'modules/custom-content-types.php' => ['PhanRedefineFunction'],
         'modules/gravatar-hovercards.php' => ['PhanTypeMismatchArgumentProbablyReal'],

@@ -120,6 +120,7 @@ function TopVideosReport() {
 	return (
 		<Leaderboard
 			rows={ rows }
+			columns={ { label: __( 'Videos', 'jetpack-videopress-pkg' ), metric: 'views' } }
 			status={ {
 				isLoading: isInitialLoading || isCheckingMedia,
 				isFetching,

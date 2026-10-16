@@ -1,5 +1,6 @@
 import {
 	getInsertableWidgetTypeNames,
+	hasStoreSection,
 	isSectionAwaitingSync,
 	resolveSectionHeading,
 	resolveSectionId,
@@ -149,5 +150,15 @@ describe( 'getInsertableWidgetTypeNames', () => {
 	it( 'is empty when no section places a widget', () => {
 		expect( getInsertableWidgetTypeNames( SECTIONS ).size ).toBe( 0 );
 		expect( getInsertableWidgetTypeNames( [] ).size ).toBe( 0 );
+	} );
+} );
+
+describe( 'hasStoreSection', () => {
+	it.each( [
+		[ 'woocommerce', true ],
+		[ 'store', true ],
+		[ 'traffic', false ],
+	] )( 'treats a %s section as the WooCommerce tab: %s', ( slug, expected ) => {
+		expect( hasStoreSection( [ { ...SECTIONS[ 0 ], slug } ] ) ).toBe( expected );
 	} );
 } );
