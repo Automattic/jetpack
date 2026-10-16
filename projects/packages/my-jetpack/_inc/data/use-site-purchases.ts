@@ -1,38 +1,20 @@
-import { QueryClientContext, type QueryClient } from '@tanstack/react-query';
-import apiFetch from '@wordpress/api-fetch';
-import { useContext, useEffect, useState } from 'react';
+import useMyJetpackConnection from '../hooks/use-my-jetpack-connection';
 import { QUERY_PURCHASES_KEY, REST_API_SITE_PURCHASES_ENDPOINT } from './constants';
-import { getSimpleQueryKey } from './use-simple-query';
-import type { Purchase } from './types';
-
-const PURCHASES_QUERY = { path: REST_API_SITE_PURCHASES_ENDPOINT };
+import useSimpleQuery from './use-simple-query';
 
 /**
- * The site's purchases: the Overview's, where it has loaded them, else fetched the first time `enabled` is true.
+ * The site's purchases, fetched once the site is connected and shared by every caller.
  *
- * Plain `apiFetch` rather than `useSimpleQuery`, so it also works outside My Jetpack's query and notice providers, as on Boost.
- *
- * @param enabled - Whether to fetch, e.g. once a popover has opened.
- * @return The purchases, or null until they load or if the request fails.
+ * @param options         - Options.
+ * @param options.enabled - Whether to fetch yet, on top of the site being connected.
+ * @return The purchases query.
  */
-export default function useSitePurchases( enabled: boolean ): Purchase[] | null {
-	const queryClient = useContext( QueryClientContext ) as QueryClient | undefined;
-	const cached = queryClient?.getQueryData< Purchase[] >(
-		getSimpleQueryKey( { name: QUERY_PURCHASES_KEY, query: PURCHASES_QUERY } )
-	);
-	const [ purchases, setPurchases ] = useState< Purchase[] | null >( null );
-	const [ hasRequested, setHasRequested ] = useState( false );
+export default function useSitePurchases( { enabled = true }: { enabled?: boolean } = {} ) {
+	const { isSiteConnected } = useMyJetpackConnection();
 
-	useEffect( () => {
-		if ( ! enabled || hasRequested || cached ) {
-			return;
-		}
-
-		setHasRequested( true );
-		apiFetch< Purchase[] >( PURCHASES_QUERY )
-			.then( setPurchases )
-			.catch( () => setPurchases( null ) );
-	}, [ enabled, hasRequested, cached ] );
-
-	return cached ?? purchases;
+	return useSimpleQuery< Purchase[] >( {
+		name: QUERY_PURCHASES_KEY,
+		query: { path: REST_API_SITE_PURCHASES_ENDPOINT },
+		options: { enabled: isSiteConnected && enabled },
+	} );
 }

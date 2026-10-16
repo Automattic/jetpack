@@ -1,54 +1,46 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
-import { QUERY_PURCHASES_KEY, REST_API_SITE_PURCHASES_ENDPOINT } from '../constants';
-import { getSimpleQueryKey } from '../use-simple-query';
+import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useSitePurchases from '../use-site-purchases';
-import type { Purchase } from '../types';
 import type { ReactNode } from 'react';
 
 jest.mock( '@wordpress/api-fetch' );
+jest.mock( '../../hooks/use-my-jetpack-connection' );
+jest.mock( '../notices/use-fetching-error-notice', () => ( {
+	useFetchingErrorNotice: jest.fn(),
+} ) );
 
 const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
-const purchases = [ { ID: 1, product_name: 'Jetpack Search' } ] as Purchase[];
+const mockUseMyJetpackConnection = useMyJetpackConnection as jest.MockedFunction<
+	typeof useMyJetpackConnection
+>;
+
+const wrapper = ( { children }: { children: ReactNode } ) => (
+	<QueryClientProvider client={ new QueryClient() }>{ children }</QueryClientProvider>
+);
 
 describe( 'useSitePurchases', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
-		mockApiFetch.mockResolvedValue( purchases );
+		mockApiFetch.mockResolvedValue( [] );
 	} );
 
-	it( 'waits until enabled, then fetches once', async () => {
-		const { result, rerender } = renderHook( ( { enabled } ) => useSitePurchases( enabled ), {
-			initialProps: { enabled: false },
-		} );
+	it.each( [
+		[ false, true, false ],
+		[ true, false, false ],
+		[ true, true, true ],
+	] )(
+		'fetches when connected is %s and enabled is %s: %s',
+		async ( isSiteConnected, enabled, fetches ) => {
+			mockUseMyJetpackConnection.mockReturnValue( {
+				isSiteConnected,
+			} as ReturnType< typeof useMyJetpackConnection > );
 
-		expect( mockApiFetch ).not.toHaveBeenCalled();
+			const { result } = renderHook( () => useSitePurchases( { enabled } ), { wrapper } );
 
-		rerender( { enabled: true } );
-		await waitFor( () => expect( result.current ).toEqual( purchases ) );
-		rerender( { enabled: false } );
-		rerender( { enabled: true } );
-
-		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
-	} );
-
-	it( 'reuses the purchases a query client already holds', () => {
-		const queryClient = new QueryClient();
-		queryClient.setQueryData(
-			getSimpleQueryKey( {
-				name: QUERY_PURCHASES_KEY,
-				query: { path: REST_API_SITE_PURCHASES_ENDPOINT },
-			} ),
-			purchases
-		);
-		const wrapper = ( { children }: { children: ReactNode } ) => (
-			<QueryClientProvider client={ queryClient }>{ children }</QueryClientProvider>
-		);
-
-		const { result } = renderHook( () => useSitePurchases( true ), { wrapper } );
-
-		expect( result.current ).toEqual( purchases );
-		expect( mockApiFetch ).not.toHaveBeenCalled();
-	} );
+			await waitFor( () => expect( result.current.fetchStatus ).toBe( 'idle' ) );
+			expect( mockApiFetch ).toHaveBeenCalledTimes( fetches ? 1 : 0 );
+		}
+	);
 } );
