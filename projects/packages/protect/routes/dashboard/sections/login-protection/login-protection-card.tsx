@@ -58,7 +58,7 @@ function BruteForceRow( {
 							value={ login.blockedCount }
 						/>
 						<TabLink tab="settings" onOpen={ openTab }>
-							{ __( 'Configure Brute Force Protection', 'jetpack-protect-pkg' ) }
+							{ __( 'Configure brute force protection', 'jetpack-protect-pkg' ) }
 						</TabLink>
 					</Stack>
 				) : (
@@ -66,7 +66,7 @@ function BruteForceRow( {
 						data={ data }
 						name="protect"
 						disabled={ ! login.bruteForce.available }
-						label={ __( 'Enable Brute Force Protection', 'jetpack-protect-pkg' ) }
+						label={ __( 'Enable brute force protection', 'jetpack-protect-pkg' ) }
 						help={
 							login.bruteForce.available
 								? __( 'Block IP addresses that keep failing to log in.', 'jetpack-protect-pkg' )
@@ -129,7 +129,7 @@ export default function LoginProtectionCard( {
 						data={ data }
 						name="account-protection"
 						disabled={ ! login.accountProtection.available }
-						label={ __( 'Enable Account protection', 'jetpack-protect-pkg' ) }
+						label={ __( 'Enable account protection', 'jetpack-protect-pkg' ) }
 						help={
 							login.accountProtection.available
 								? __(
@@ -144,7 +144,7 @@ export default function LoginProtectionCard( {
 					<SsoToggle
 						data={ data }
 						login={ login }
-						label={ __( 'Enable Secure Sign On', 'jetpack-protect-pkg' ) }
+						label={ __( 'Enable WordPress.com login (SSO)', 'jetpack-protect-pkg' ) }
 						help={ __(
 							'Log in with WordPress.com and its two-step authentication.',
 							'jetpack-protect-pkg'
@@ -152,7 +152,7 @@ export default function LoginProtectionCard( {
 					/>
 					{ ssoOn && (
 						<TabLink tab="settings" onOpen={ openTab }>
-							{ __( 'Configure Secure Sign On', 'jetpack-protect-pkg' ) }
+							{ __( 'Configure WordPress.com login (SSO)', 'jetpack-protect-pkg' ) }
 						</TabLink>
 					) }
 				</Stack>

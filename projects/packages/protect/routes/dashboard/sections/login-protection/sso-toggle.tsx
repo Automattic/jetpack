@@ -77,7 +77,7 @@ export default function SsoToggle( {
 				onConfirm={ turnOff }
 			>
 				<AlertDialog.Popup
-					title={ __( 'Turn off WordPress.com login?', 'jetpack-protect-pkg' ) }
+					title={ __( 'Turn off WordPress.com login (SSO)?', 'jetpack-protect-pkg' ) }
 					description={ __(
 						'Users will have to log in with their username and password on this site instead.',
 						'jetpack-protect-pkg'
