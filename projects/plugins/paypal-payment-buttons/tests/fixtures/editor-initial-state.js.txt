@@ -1,0 +1,5 @@
+( function ( data ) {
+	var state = ( window.Jetpack_Editor_Initial_State = window.Jetpack_Editor_Initial_State || {} );
+	state.available_blocks = Object.assign( {}, state.available_blocks, data.available_blocks );
+	state.feature_flags = Object.assign( {}, state.feature_flags, data.feature_flags );
+} )( {"available_blocks":{"paypal-payment-buttons":{"available":true}},"feature_flags":{"paypal-payments-api-managed-buttons":false}} );

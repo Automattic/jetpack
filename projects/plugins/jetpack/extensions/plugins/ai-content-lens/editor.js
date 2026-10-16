@@ -12,7 +12,7 @@ const debug = debugFactory( 'jetpack-ai-content-lens:registration' );
 export const AI_CONTENT_LENS = 'ai-content-lens';
 
 const isAiAssistantSupportExtensionEnabled =
-	window?.Jetpack_Editor_Initial_State?.available_blocks[ 'ai-content-lens' ];
+	window?.Jetpack_Editor_Initial_State?.available_blocks?.[ 'ai-content-lens' ];
 
 /**
  * Extend the editor with AI Content Lens features,
@@ -36,16 +36,14 @@ function extendAiContentLensFeatures( settings, name ) {
 		return settings;
 	}
 
-	// Register AI Excerpt plugin.
-	registerJetpackPlugin( aiExcerptPluginName, aiExcerptPluginSettings );
+	// Keep the core excerpt panel unless the AI Excerpt plugin replaces it.
+	if ( ! registerJetpackPlugin( aiExcerptPluginName, aiExcerptPluginSettings ) ) {
+		debug( 'AI Excerpt plugin is unavailable, keeping the post-excerpt panel' );
+		return settings;
+	}
 	debug( 'Registered AI Excerpt plugin' );
 
-	// check if the removeEditorPanel function exists in the editorStore.
-	// íf not, look for it in the editPostStore.
-	const removeEditorPanel = dispatch( editorStore ).removeEditorPanel;
-
-	// Remove the excerpt panel by dispatching an action.
-	removeEditorPanel( 'post-excerpt' );
+	dispatch( editorStore ).removeEditorPanel( 'post-excerpt' );
 	debug( 'Removed the post-excerpt panel' );
 
 	return settings;
