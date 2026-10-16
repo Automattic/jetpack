@@ -16,7 +16,7 @@
 	overflow: hidden;
 }
 
-/* Lets the header hide on short tiles; needs a definite-height body. */
+/* For the short-tile query; see widget-state.module.scss. */
 .hasColumns {
 	container-type: size;
 }

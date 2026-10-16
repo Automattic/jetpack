@@ -4,8 +4,7 @@
 	height: 100%;
 }
 
-// Size container so the header can hide on short tiles. Safe: the chart
-// sits in a definite-height body, so size containment cannot collapse it.
+// For the short-tile query; see widget-state.module.scss.
 .hasColumns {
 	container-type: size;
 

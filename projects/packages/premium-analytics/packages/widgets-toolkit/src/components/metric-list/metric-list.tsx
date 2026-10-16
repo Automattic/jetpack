@@ -90,8 +90,8 @@ export function MetricList( {
 			{ columns && (
 				<div ref={ setHeaderRef } className={ styles.header } data-testid="metric-list-header">
 					<span className={ styles.headerLabel }>{ columns.label }</span>
-					{ columns.values.map( heading => (
-						<span key={ heading } className={ styles.headerValue }>
+					{ columns.values.map( ( heading, index ) => (
+						<span key={ index } className={ styles.headerValue }>
 							{ heading }
 						</span>
 					) ) }
