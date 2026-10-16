@@ -1,10 +1,5 @@
 export { AnalyticsQueryClientProvider, queryClient } from './providers/query-client-provider';
-export {
-	ReportScopeProvider,
-	useReportScope,
-	type DateLimits,
-	type ReportScope,
-} from './providers/report-scope';
+export { ReportScopeProvider, useReportScope, type ReportScope } from './providers/report-scope';
 export {
 	PERIOD_CHANGE_ATTENTION_MS,
 	PeriodChangeSignalProvider,
@@ -96,15 +91,6 @@ export {
 	isStatsFeatureLocked,
 	type StatsFeatureKey,
 } from './utils/plan-gates';
-export {
-	applyStatsDatePolicy,
-	getPolicyDefaultPreset,
-	getStatsDatePolicy,
-	isPresetLockedByPolicy,
-	OPEN_DATE_POLICY,
-	type DateLimitFeature,
-	type StatsDatePolicy,
-} from './utils/stats-date-policy';
 export {
 	DASHBOARD_PREFERENCES_SCOPE,
 	getDefaultPreset,
