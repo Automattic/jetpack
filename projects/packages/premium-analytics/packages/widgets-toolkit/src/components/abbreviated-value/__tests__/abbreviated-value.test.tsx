@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
@@ -80,13 +80,19 @@ describe( 'AbbreviatedValue', () => {
 		).resolves.toHaveTextContent( '18,432 opens' );
 	} );
 
-	it( 'renders a plain value even with a label when nothing was shortened', () => {
+	it( 'reads a label to assistive tech without a tooltip when nothing was shortened', async () => {
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		render(
 			<AbbreviatedValue value={ 432 } dataFormat={ COMPACT } formatRestored={ withOpens } />
 		);
 
-		expect( screen.getByText( '432' ) ).not.toHaveAttribute( 'aria-hidden' );
-		expect( screen.queryByText( '432 opens' ) ).not.toBeInTheDocument();
+		expect( screen.getByText( '432' ) ).toHaveAttribute( 'aria-hidden', 'true' );
+		expect( screen.getByText( '432 opens' ) ).toBeInTheDocument();
+
+		await user.hover( screen.getByText( '432' ) );
+		act( () => jest.advanceTimersByTime( 3000 ) );
+
+		expect( screen.queryByRole( 'tooltip' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'reads the currency from the data format when no prop overrides it', () => {

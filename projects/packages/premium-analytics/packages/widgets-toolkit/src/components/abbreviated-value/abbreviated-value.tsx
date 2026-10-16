@@ -17,21 +17,31 @@ export type AbbreviatedTextProps = {
 	display: string;
 	/** The full text restored in a tooltip and for assistive tech, e.g. `'18,432'`. */
 	exact: string;
-	/** Restored in place of `exact` when the display was shortened, e.g. `'18,432 opens'`. */
+	/** Restored in place of `exact`, e.g. `'18,432 opens'`; assistive tech only when nothing was shortened. */
 	restored?: string;
 	className?: string;
 };
 
 /**
  * Shows the shortened text and restores the full one in a tooltip and for
- * assistive tech; a plain span when nothing was shortened.
+ * assistive tech; no tooltip when nothing was shortened.
  */
 export function AbbreviatedText( { display, exact, restored, className }: AbbreviatedTextProps ) {
-	if ( display === exact ) {
+	const full = restored ?? exact;
+
+	if ( display === full ) {
 		return <span className={ className }>{ display }</span>;
 	}
 
-	const full = restored ?? exact;
+	// Sighted users get the unit from the column header, which assistive tech doesn't tie to the value.
+	if ( display === exact ) {
+		return (
+			<span className={ className }>
+				<span aria-hidden="true">{ display }</span>
+				<VisuallyHidden render={ <span /> }>{ full }</VisuallyHidden>
+			</span>
+		);
+	}
 
 	// Out of the tab order: assistive tech reads the exact figure below, and a
 	// focusable span would nest inside leaderboard row buttons and metric tabs.
@@ -59,7 +69,7 @@ export type AbbreviatedValueProps = {
 	 */
 	currencyCode?: string;
 
-	/** Builds the text restored when the figure was shortened, e.g. `'18,432 opens'`. */
+	/** Builds the text restored in place of the exact figure, e.g. `'18,432 opens'`. */
 	formatRestored?: ( exact: string ) => string;
 
 	className?: string;
