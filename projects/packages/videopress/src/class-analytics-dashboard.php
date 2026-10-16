@@ -96,6 +96,7 @@ class Analytics_Dashboard {
 				'textdomain'    => self::TEXTDOMAIN,
 				'i18n_manifest' => add_query_arg( 'ver', Package_Version::PACKAGE_VERSION, plugins_url( 'i18n-manifest.json', self::build_dir() . '/build.php' ) ),
 				'former_names'  => array( self::TOP_VIDEOS_TYPE => self::TOP_VIDEOS_FORMER_NAMES ),
+				'plan_features' => array( self::TOP_VIDEOS_TYPE => 'videos' ),
 			),
 			$registry
 		);

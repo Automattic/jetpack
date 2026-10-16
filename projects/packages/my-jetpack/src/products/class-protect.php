@@ -113,7 +113,7 @@ class Protect extends Hybrid_Product {
 	/**
 	 * Activate local product steps without scheduling connected modules offline.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.10.0
 	 * @param bool|WP_Error $current_result The plugin activation result.
 	 * @param bool          $local          Whether to keep activation local.
 	 * @return bool|WP_Error
@@ -252,12 +252,12 @@ class Protect extends Hybrid_Product {
 	/**
 	 * Get the internationalized comparison of free vs upgraded features
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 6.10.0
 	 *
 	 * @return array[] Protect features comparison
 	 */
 	public static function get_features_by_tier() {
-		_deprecated_function( __METHOD__, 'jetpack-my-jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-my-jetpack-6.10.0' );
 
 		return array(
 			array(
@@ -447,13 +447,38 @@ class Protect extends Hybrid_Product {
 	}
 
 	/**
+	 * Whether wp-admin has a Protect page, from the standalone plugin or the Protect package's dashboard.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function has_protect_page() {
+		return static::is_standalone_plugin_active() || (bool) did_action( 'jetpack_protect_dashboard_initialized' );
+	}
+
+	/**
+	 * Get the product info, with whether the Protect page exists and where Scan's results are listed.
+	 *
+	 * @return array
+	 */
+	public static function get_info() {
+		return array_merge(
+			parent::get_info(),
+			array(
+				'has_protect_page' => static::has_protect_page(),
+				'scan_results_url' => Scan::get_manage_url(),
+			)
+		);
+	}
+
+	/**
 	 * Get the URL where the user manages the product
 	 *
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
-		// The Protect package's dashboard, loaded by the Jetpack plugin's module, serves the same page as the standalone plugin.
-		if ( static::is_standalone_plugin_active() || did_action( 'jetpack_protect_dashboard_initialized' ) ) {
+		if ( static::has_protect_page() ) {
 			// Protect admin dashboard.
 			return admin_url( 'admin.php?page=jetpack-protect' );
 		}

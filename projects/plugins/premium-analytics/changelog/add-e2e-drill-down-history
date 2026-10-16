@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Add an E2E test for widget drill-downs and the browser's Back button.
+

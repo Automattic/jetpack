@@ -62,6 +62,12 @@ export type DashboardSection = {
 	requires_sync?: boolean;
 
 	/**
+	 * Message the registration puts above the section's widgets, e.g. a store with no
+	 * orders yet. Optional for the same reason as `date_filter` above; absent means none.
+	 */
+	notice?: string | null;
+
+	/**
 	 * Bundled default widget layout, consumed by the reset action.
 	 */
 	default_layout: DashboardWidget[];
@@ -99,6 +105,17 @@ export function isSectionAwaitingSync(
 	isSyncFinished: boolean
 ): boolean {
 	return !! section.requires_sync && ! isSyncFinished;
+}
+
+/**
+ * Whether the dashboard shows the WooCommerce tab, under its slug or the `store` slug an older
+ * WooCommerce Stats package still registers.
+ *
+ * @param sections - The available sections.
+ * @return Whether one of them is the WooCommerce tab.
+ */
+export function hasStoreSection( sections: DashboardSection[] ): boolean {
+	return sections.some( section => section.slug === 'woocommerce' || section.slug === 'store' );
 }
 
 /**

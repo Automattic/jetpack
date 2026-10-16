@@ -10,7 +10,7 @@ import { ExternalLink, ProgressBar, VisuallyHidden } from '@wordpress/components
 import { useEffect } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 import { list } from '@wordpress/icons';
-import { Card, LinkButton, Notice, Skeleton, Stack, Text } from '@wordpress/ui';
+import { Card, ButtonLink, Notice, Skeleton, Stack, Text } from '@wordpress/ui';
 import { getActivityLogDescription, onActivityLogClick } from '../activity-log';
 import assetUrl from '../asset-url';
 import NavRow from '../components/nav-row';
@@ -26,8 +26,9 @@ import './style.scss';
 const QUICK_START = [
 	{
 		slug: 'jetpack-ai-hub-overview-quick-start-chatgpt',
+		jetpackSlug: 'jetpack-ai-hub-overview-quick-start-chatgpt-self-hosted',
 		title: __( 'Connect ChatGPT', 'jetpack' ),
-		description: __( 'Give ChatGPT access to your site by installing the connector.', 'jetpack' ),
+		description: __( 'Give ChatGPT access to your site by installing the plugin.', 'jetpack' ),
 		icon: chatGptIcon,
 	},
 	{
@@ -311,9 +312,9 @@ function UsageCard( { upgradeUrl, planName } ) {
 						     bottom-anchored, exactly as in the standard card. */ }
 						<div className="jetpack-ai-overview__usage-cell">
 							<RequestsMeter usage={ usage } />
-							<LinkButton href={ upgradeUrl } className="jetpack-ai-overview__upsell-cta">
+							<ButtonLink href={ upgradeUrl } className="jetpack-ai-overview__upsell-cta">
 								{ __( 'Upgrade', 'jetpack' ) }
-							</LinkButton>
+							</ButtonLink>
 						</div>
 					</div>
 				) }
@@ -353,6 +354,7 @@ export default function AiOverview( {
 } ) {
 	const recordLinkClick = ( linkType, slug ) => () =>
 		recordAiHubEvent( EVENTS.LINK_CLICK, { link_type: linkType, link: slug } );
+	const isJetpackConnector = window?.jetpackAiSettings?.chatgptConnector === 'jetpack';
 	return (
 		<Stack direction="column" gap="3xl">
 			{ /* The banner and the usage card share a tighter rhythm than the
@@ -370,20 +372,23 @@ export default function AiOverview( {
 					{ __( 'Quick start', 'jetpack' ) }
 				</Text>
 				<div className="jetpack-ai-overview__quick-start-grid">
-					{ QUICK_START.map( ( { slug, title, description, icon } ) => (
-						<Card.Root key={ slug } className="jetpack-ai-overview__row-card">
-							<NavRow
-								icon={ icon }
-								iconSize={ 28 }
-								title={ title }
-								description={ description }
-								href={ getRedirectUrl( slug ) }
-								onClick={ recordLinkClick( 'quick_start', slug ) }
-								tone="neutral"
-								external
-							/>
-						</Card.Root>
-					) ) }
+					{ QUICK_START.map( ( { slug: wpcomSlug, jetpackSlug, title, description, icon } ) => {
+						const slug = isJetpackConnector && jetpackSlug ? jetpackSlug : wpcomSlug;
+						return (
+							<Card.Root key={ slug } className="jetpack-ai-overview__row-card">
+								<NavRow
+									icon={ icon }
+									iconSize={ 28 }
+									title={ title }
+									description={ description }
+									href={ getRedirectUrl( slug ) }
+									onClick={ recordLinkClick( 'quick_start', wpcomSlug ) }
+									tone="neutral"
+									external
+								/>
+							</Card.Root>
+						);
+					} ) }
 				</div>
 			</Stack>
 

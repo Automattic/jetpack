@@ -75,8 +75,8 @@ A live preview appears showing exactly how your button will look on the publishe
 Once a block has a saved link, selecting it opens the block settings sidebar on the link's details: its name and price, then when it was created, its Hosted ID, how many published posts use it, and the maximum quantity when buyers can pick one.
 
 - **Edit:** Open the menu beside the link's name and choose **Edit** to get the product form. Update the details, then update or publish the post. **Edit Button** at the top of the form goes back; a link with something to fix opens on the form instead
-- **Manage all links:** Once a block has a saved link, the PayPal Connection panel in the block settings sidebar has a "Manage PayPal Payment Links" link. It opens the PayPal Payment Links admin page in a new tab, so the post you are editing stays where it is
-- **Delete:** Click "Delete payment link" in the block toolbar or the PayPal Connection panel, or use the Delete action on the PayPal Payment Links admin page
+- **Manage all links:** Open the menu beside "PayPal Payment Button" at the top of the block settings sidebar and choose **Manage all links and buttons**. It opens the PayPal Payment Links admin page in a new tab, so the post you are editing stays where it is
+- **Delete:** Click "Delete payment link" in the block toolbar, choose **Delete** in the menu beside the link's name, or use the Delete action on the PayPal Payment Links admin page
 
 #### Deleting is permanent
 
@@ -113,7 +113,7 @@ USD, EUR, GBP, CAD, AUD, JPY, CHF, SEK, NOK, DKK, NZD, SGD, HKD, MXN, BRL, PLN, 
 
 ### Disconnecting
 
-Disconnect PayPal from the block sidebar at any time. Your stored credentials and cached token are removed. Published payment buttons continue to work — the payment links are hosted by PayPal and don't depend on the plugin connection.
+Disconnect PayPal at any time: open the menu beside "PayPal Payment Button" at the top of the block settings sidebar, choose **Log out**, and confirm. Your stored credentials and cached token are removed. Published payment buttons continue to work — the payment links are hosted by PayPal and don't depend on the plugin connection.
 
 ### Troubleshooting
 

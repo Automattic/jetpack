@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Write: Fix inline text color persistence and compatibility with block editor color picker.

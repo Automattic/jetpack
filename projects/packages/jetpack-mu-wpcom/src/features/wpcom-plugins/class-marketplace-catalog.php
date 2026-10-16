@@ -428,7 +428,7 @@ class Marketplace_Catalog {
 		 * Simple sites answer it from the store itself: their in-process API client cannot
 		 * reach the v1.1 products endpoint.
 		 *
-		 * @since $$next-version$$
+		 * @since 6.11.0
 		 *
 		 * @param array|null $response Products keyed by store slug, as /rest/v1.1/products returns them, or null to request them.
 		 */

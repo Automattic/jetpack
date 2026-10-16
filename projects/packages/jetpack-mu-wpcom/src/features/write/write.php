@@ -796,7 +796,7 @@ function wpcom_write_inline_color_marks_to_spans( $html ) {
  * available it becomes the citation, so the published quote points readers at
  * the other answers — the one piece of the blogging-prompt block worth keeping.
  *
- * @since $$next-version$$
+ * @since 6.11.0
  *
  * @param string $prompt_text   The prompt text from the blogging-prompts endpoint.
  * @param string $citation_text Optional citation text (e.g. the responses link text).

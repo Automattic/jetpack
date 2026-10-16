@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Plugins: Fix Empty cart and Save cart staying on checkout, instead of returning to Add Plugins, when Add Plugins was opened from another page.

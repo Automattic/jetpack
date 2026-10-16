@@ -160,7 +160,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	 * retained by default because they may be compliance records; pass true only
 	 * when the consuming plugin has decided uninstall should delete them.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.1.0
 	 *
 	 * @param bool $delete_consent_logs Whether to drop the consent-log table.
 	 */
@@ -178,7 +178,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 	 * Consumers should call this from their deactivation hook when they want to
 	 * stop background cleanup while retaining consent-log data.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.1.0
 	 */
 	public static function deactivate() {
 		self::unschedule_cleanup();
@@ -996,7 +996,7 @@ class Consent_Log_Controller extends WP_REST_Controller {
 		/**
 		 * Filters the consent-log retention period, in days.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.1.0
 		 *
 		 * @param int $retention_days Retention period in days from the injected log config.
 		 */

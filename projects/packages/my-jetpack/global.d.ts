@@ -469,6 +469,8 @@ type MainFeaturesState = {
 	features: MainFeature[];
 	// Optional: a plugin carrying an older copy of this package sends none.
 	module_groups?: MainFeatureModuleGroup[];
+	hidden_modules?: string[];
+	available_admin_pages?: string[];
 	plugin_installs?: MainFeatureInstallAccess;
 };
 
@@ -529,6 +531,10 @@ interface Window {
 		isOfflineFeatures?: boolean | '1';
 		mainFeatures: MainFeaturesState | null;
 		featuresBanner: { isDismissed: boolean } | null;
+		// Optional: a plugin carrying an older copy of this package sends none.
+		header?: {
+			connectorsUrl: string | null;
+		};
 		siteSuffix: string;
 		siteUrl: string;
 		latestBoostSpeedScores: {
@@ -557,6 +563,8 @@ interface Window {
 		loadAddLicenseScreen: string;
 		myJetpackCheckoutUri: string;
 		myJetpackFlags: {
+			headerControls?: boolean;
+			overviewV1: boolean;
 			showAiModuleToggle: boolean;
 			showFullJetpackStatsCard: boolean;
 			videoPressStats: boolean;
@@ -605,6 +613,8 @@ interface Window {
 					has_free_offering: boolean;
 					feature_identifying_paid_plan: string;
 					has_paid_plan_for_product: boolean;
+					has_protect_page?: boolean;
+					scan_results_url?: string;
 					is_bundle: boolean;
 					is_feature: boolean;
 					is_plugin_active: boolean;
@@ -753,5 +763,9 @@ interface Window {
 	/** Shared client for live-updating Jetpack admin-menu notification badges (automattic/jetpack-menu-badges). */
 	jetpackMenuBadges?: {
 		setCount: ( menuSlug: string, count: number ) => void;
+	};
+	/** Alerts another menu item already counts, so the async My Jetpack badge skips them. */
+	myJetpackNotificationBubble?: {
+		excludedAlerts: string[];
 	};
 }
