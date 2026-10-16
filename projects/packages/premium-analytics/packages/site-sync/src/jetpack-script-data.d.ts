@@ -36,6 +36,8 @@ declare module '@automattic/jetpack-script-data' {
 				>;
 				locked_widget_types: Record< string, string >;
 			};
+			// URL of the dashboard's copied `build/images/` directory, with a trailing slash. Dashboard only.
+			assets_url?: string;
 			// The Stats purchase this page load returned from checkout with; absent on every other load.
 			purchase_success?: { type: 'paid' | 'free' };
 		};

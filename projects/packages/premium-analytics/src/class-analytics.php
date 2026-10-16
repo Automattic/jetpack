@@ -374,6 +374,11 @@ class Analytics {
 		}
 		configure_purchase_success();
 
+		if ( ! function_exists( __NAMESPACE__ . '\\configure_assets_url' ) ) {
+			require_once __DIR__ . '/assets-url.php';
+		}
+		configure_assets_url();
+
 		// The composition flag's answer, read by the dashboard policy; the file is
 		// already loaded by boot_shared_services().
 		configure_dashboard_policy();
