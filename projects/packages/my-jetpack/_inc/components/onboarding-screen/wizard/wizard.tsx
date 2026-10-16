@@ -347,29 +347,19 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 		apply( modules, wantedModules )
 			.then( results => {
 				setModuleResults( results );
-				// Counts, not a list: which module failed is its own toggle event, and
-				// a property holding a list cannot be grouped on.
+				// Counts, not a list, because a property holding a list cannot be grouped on.
 				const { on, failed } = tallyResults( results );
 				track( WIZARD_EVENTS.applyResult, {
 					offered: results.length,
 					switched_on: on,
 					failed,
-					request_failed: false,
 				} );
 			} )
 			/*
 			 * apply() reports each switch's failure itself and does not reject. This only
 			 * keeps an unexpected throw from leaving the step on a spinner for ever.
 			 */
-			.catch( () => {
-				setModuleResults( [] );
-				track( WIZARD_EVENTS.applyResult, {
-					offered: modules.length,
-					switched_on: 0,
-					failed: 0,
-					request_failed: true,
-				} );
-			} )
+			.catch( () => setModuleResults( [] ) )
 			.finally( handleNext );
 	}, [ apply, modules, wantedModules, handleNext, track ] );
 
