@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Blogroll Block: Prevent PHP warning when config is incomplete. 

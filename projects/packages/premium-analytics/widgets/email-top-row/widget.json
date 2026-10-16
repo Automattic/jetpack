@@ -1,5 +1,6 @@
 {
 	"name": "jpa/email-top-row",
+	"icon": "jpa/envelope",
 	"title": "Email highlights",
 	"description": "Headline open and click totals for a single email, split into Opens and Clicks views.",
 	"help": {

@@ -796,10 +796,9 @@ class PayPal_REST_Controller {
 			return self::api_error_to_rest_error( $result );
 		}
 
-		// PayPal answers a PUT with 204 and no code_snippets, so a caller that needs them asks
-		// for the resource to be read back; that read is how a block switching to stacked draws
-		// in the same save rather than after a reload. Only the re-read gets `attributes`: the
-		// echo has no `id`, and mapping it would blank the block's resourceId.
+		// PayPal answers a PUT with an empty 204, so a stacked block's save asks for a re-read
+		// to get its SDK URL in the same save. Only the re-read gets `attributes`. The echo has
+		// no code_snippets, so mapping it would blank a stacked block's scriptSrc.
 		if ( $request->get_param( 'include_snippets' ) ) {
 			$fresh = PayPal_API_Client::get_resource( $resource_id );
 			if ( ! is_wp_error( $fresh ) ) {

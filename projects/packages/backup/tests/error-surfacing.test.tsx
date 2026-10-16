@@ -178,6 +178,23 @@ describe( 'file browser', () => {
 		expect( screen.queryByText( /items? selected/ ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'offers Contact support beside the retry when the root tree fails', async () => {
+		window.JP_CONNECTION_INITIAL_STATE = {
+			...window.JP_CONNECTION_INITIAL_STATE,
+			siteSuffix: 'example.wordpress.com',
+		} as typeof window.JP_CONNECTION_INITIAL_STATE;
+		failFileTree( { code: 'file_tree_fetch_failed', message: 'Backup storage unreachable' } );
+
+		render( <OverviewStage /> );
+
+		const link = await screen.findByRole( 'link', { name: /^Contact support/ } );
+		expect( link ).toHaveAttribute(
+			'href',
+			'https://jetpack.com/redirect/?source=jetpack-contact-support&site=example.wordpress.com'
+		);
+		expect( link ).toHaveAttribute( 'target', '_blank' );
+	} );
+
 	it( 'says a folder could not be read rather than that it is empty', async () => {
 		// The root listing succeeds; only the folder's own fetch fails.
 		mockApiFetch.mockImplementation( ( options: { path?: string; data?: unknown } ) => {

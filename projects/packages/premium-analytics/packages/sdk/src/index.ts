@@ -5,9 +5,13 @@
  */
 export {
 	ChartEmptyState,
+	Columns,
+	Donut,
 	EarningsHistoryList,
 	ExporterCsvDownloadButton,
+	Funnel,
 	Leaderboard,
+	Locations,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
 	MetricTileGrid,
@@ -17,7 +21,6 @@ export {
 	WidgetRoot,
 	WidgetState,
 	buildMetricTab,
-	chartTypeAttributeField,
 	describeError,
 	flattenEarningsBreakdown,
 	getVideoPosterUrl,

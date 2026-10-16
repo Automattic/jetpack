@@ -3,6 +3,7 @@
  */
 import { search } from '@jetpack-premium-analytics/icons';
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { chartBar } from '@wordpress/icons';
 import { useLayoutEffect, useState } from 'react';
 /**
@@ -101,7 +102,7 @@ describe( 'WidgetState', () => {
 		// React Query raises `isFetching` alongside `isLoading` on first load; a slow
 		// first load must not be mistaken for a refetch and wrapped in the busy region.
 		render(
-			<WidgetState isLoading isFetching isError={ false } isEmpty={ false }>
+			<WidgetState isLoading isFetching isError={ false }>
 				{ CONTENT }
 			</WidgetState>
 		);
@@ -148,7 +149,6 @@ describe( 'WidgetState', () => {
 				isLoading={ false }
 				isFetching
 				isError={ false }
-				isEmpty={ false }
 				renderLoading={ <div>override</div> }
 			>
 				{ CONTENT }
@@ -174,13 +174,55 @@ describe( 'WidgetState', () => {
 		expect( screen.queryByText( 'rows' ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'shows a custom empty action only while the widget has no results', () => {
+		const empty = {
+			description: 'No posts here.',
+			action: { label: 'Create post', href: '/wp-admin/post-new.php' },
+		};
+		const { rerender } = render(
+			<WidgetState isLoading={ false } isError={ false } isEmpty empty={ empty }>
+				{ CONTENT }
+			</WidgetState>
+		);
+
+		expect( screen.getByRole( 'link', { name: 'Create post' } ) ).toHaveAttribute(
+			'href',
+			'/wp-admin/post-new.php'
+		);
+
+		rerender(
+			<WidgetState isLoading={ false } isError={ false } isEmpty={ false } empty={ empty }>
+				{ CONTENT }
+			</WidgetState>
+		);
+		expect( screen.queryByRole( 'link', { name: 'Create post' } ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'rows' ) ).toBeInTheDocument();
+	} );
+
+	it( 'runs an empty-state button action without navigating', async () => {
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		const onClick = jest.fn();
+		render(
+			<WidgetState
+				isLoading={ false }
+				isError={ false }
+				isEmpty
+				empty={ { action: { label: 'Build URL', onClick } } }
+			>
+				{ CONTENT }
+			</WidgetState>
+		);
+
+		await user.click( screen.getByRole( 'button', { name: 'Build URL' } ) );
+		expect( onClick ).toHaveBeenCalledTimes( 1 );
+	} );
+
 	it( 'renders the error state with an action button', () => {
 		const onClick = jest.fn();
 		render(
 			<WidgetState
 				isLoading={ false }
 				isError
-				isEmpty={ false }
 				error={ { description: 'Failed.', actions: [ { label: 'Retry', onClick } ] } }
 			>
 				{ CONTENT }
@@ -206,7 +248,7 @@ describe( 'WidgetState', () => {
 		expect( svgPathOf( container ) ).toBe( iconPathOf( <>{ search }</> ) );
 	} );
 
-	it( 'renders no icon, not the generic magnifier, for a widget’s own copy that names none', () => {
+	it( 'keeps the generic magnifier, not a bare message, for a widget’s own copy that names no icon', () => {
 		const { container } = render(
 			<WidgetState
 				isLoading={ false }
@@ -218,7 +260,7 @@ describe( 'WidgetState', () => {
 			</WidgetState>
 		);
 		expect( screen.getByText( 'Open an author to see their top posts here.' ) ).toBeInTheDocument();
-		expect( svgPathOf( container ) ).toBeNull();
+		expect( svgPathOf( container ) ).toBe( iconPathOf( <>{ search }</> ) );
 	} );
 
 	it( 'renders the icon a widget names for its own copy instead of the generic magnifier', () => {
@@ -237,12 +279,7 @@ describe( 'WidgetState', () => {
 
 	it( 'renders the error glyph, not an empty-state one, when the fetch failed', () => {
 		const { container } = render(
-			<WidgetState
-				isLoading={ false }
-				isError
-				isEmpty={ false }
-				error={ { description: 'Failed.' } }
-			>
+			<WidgetState isLoading={ false } isError error={ { description: 'Failed.' } }>
 				{ CONTENT }
 			</WidgetState>
 		);
@@ -251,7 +288,7 @@ describe( 'WidgetState', () => {
 
 	it( 'leaves a refetch that resolves quickly alone, drawing no skeleton at all', () => {
 		render(
-			<WidgetState isLoading={ false } isFetching isError={ false } isEmpty={ false }>
+			<WidgetState isLoading={ false } isFetching isError={ false }>
 				{ CONTENT }
 			</WidgetState>
 		);
@@ -264,7 +301,7 @@ describe( 'WidgetState', () => {
 
 	it( 'marks the region busy once a refetch drags on, without covering the children', () => {
 		render(
-			<WidgetState isLoading={ false } isFetching isError={ false } isEmpty={ false }>
+			<WidgetState isLoading={ false } isFetching isError={ false }>
 				{ CONTENT }
 			</WidgetState>
 		);
@@ -279,7 +316,7 @@ describe( 'WidgetState', () => {
 	it( 'never takes the numbers off screen across a whole revalidation cycle', () => {
 		// The bug lived in the transition, so pinning `isFetching` to one value
 		// cannot catch it. `isLoading` stays false throughout: same params.
-		const props = { isLoading: false, isError: false, isEmpty: false };
+		const props = { isLoading: false, isError: false };
 		const rowsOnScreen = () => !! screen.queryByText( 'rows' );
 
 		const { rerender } = render(
@@ -309,7 +346,7 @@ describe( 'WidgetState', () => {
 	} );
 
 	it( 'leaves the children their own state through a revalidation', () => {
-		const props = { isLoading: false, isError: false, isEmpty: false };
+		const props = { isLoading: false, isError: false };
 		const { rerender } = render(
 			<WidgetState { ...props } isFetching={ false }>
 				<Counter />
@@ -336,14 +373,14 @@ describe( 'WidgetState', () => {
 	} );
 
 	it.each( [
-		[ 'the skeleton', { isLoading: true, isEmpty: false, isError: false } ],
+		[ 'the skeleton', { isLoading: true, isError: false } ],
 		[ 'the empty state', { isLoading: false, isEmpty: true, isError: false } ],
-		[ 'an error', { isLoading: false, isEmpty: false, isError: true } ],
+		[ 'an error', { isLoading: false, isError: true } ],
 	] )( 'catches the focus %s takes down with the children', ( _label, resolved ) => {
 		// A keyboard-activated drill-down row changes the params, landing on the
 		// skeleton; without the parking effect, focus would drop to <body>.
 		const { rerender } = render(
-			<WidgetState isLoading={ false } isError={ false } isEmpty={ false }>
+			<WidgetState isLoading={ false } isError={ false }>
 				<button type="button">Taiwan</button>
 			</WidgetState>
 		);
@@ -363,7 +400,7 @@ describe( 'WidgetState', () => {
 	it( 'catches focus when new rows replace the focused one with no branch change', () => {
 		// A reordered revalidation unmounts the focused row with no branch change to
 		// key on; keyed rows ensure React actually unmounts rather than reuses the node.
-		const props = { isLoading: false, isError: false, isEmpty: false };
+		const props = { isLoading: false, isError: false };
 		const { rerender } = render(
 			<WidgetState { ...props }>
 				<button type="button" key="tw">
@@ -391,7 +428,7 @@ describe( 'WidgetState', () => {
 	it( 'leaves focus alone when the reader had already left the widget', () => {
 		// Clicking something unfocusable drops focus to <body> on its own.
 		// Reclaiming it would haul the reader back to a widget they left.
-		const props = { isError: false, isEmpty: false };
+		const props = { isError: false };
 		const { rerender } = render(
 			<WidgetState { ...props } isLoading={ false }>
 				<button type="button">Taiwan</button>
@@ -411,7 +448,7 @@ describe( 'WidgetState', () => {
 	} );
 
 	it( 'leaves focus alone when it never entered the widget', () => {
-		const props = { isError: false, isEmpty: false };
+		const props = { isError: false };
 		const { rerender } = render(
 			<WidgetState { ...props } isLoading={ false }>
 				<button type="button">Taiwan</button>
@@ -428,7 +465,7 @@ describe( 'WidgetState', () => {
 	} );
 
 	it( 'never moves focus through a revalidation, which unmounts nothing', () => {
-		const props = { isLoading: false, isError: false, isEmpty: false };
+		const props = { isLoading: false, isError: false };
 		const { rerender } = render(
 			<WidgetState { ...props } isFetching={ false }>
 				<button type="button">Taiwan</button>
@@ -450,7 +487,7 @@ describe( 'WidgetState', () => {
 	it( 'forgets a row it did not park focus for, so a later fall to <body> stays put', () => {
 		// Something else claims focus in the same commit; left pointing at the
 		// detached row, this widget would wrongly answer a later, unrelated fall to <body>.
-		const props = { isError: false, isEmpty: false };
+		const props = { isError: false };
 		const elsewhereRef: RefObject< HTMLButtonElement | null > = { current: null };
 		const tree = ( { steal, isLoading }: { steal: boolean; isLoading: boolean } ) => (
 			<>

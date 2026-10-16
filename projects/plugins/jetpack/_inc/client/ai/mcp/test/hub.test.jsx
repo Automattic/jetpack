@@ -1,4 +1,6 @@
 import { render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import analytics from 'lib/analytics';
 import McpHub from '../index';
 
 jest.mock( 'lib/analytics', () => ( { tracks: { recordEvent: jest.fn() } } ), { virtual: true } );
@@ -8,12 +10,13 @@ const mcpAbilities = siteLevelEnabled => ( {
 	sites: [ { blog_id: 1, site_level_enabled: siteLevelEnabled } ],
 } );
 
-const renderHub = ( { siteLevelEnabled = true } = {} ) =>
+const renderHub = ( { siteLevelEnabled = true, activityLogFiltered = false } = {} ) =>
 	render(
 		<McpHub
 			mcpAbilities={ mcpAbilities( siteLevelEnabled ) }
 			blogId={ 1 }
 			activityLogUrl="https://example.com/activity"
+			activityLogFiltered={ activityLogFiltered }
 			savingToolIds={ new Set() }
 			onNavigate={ jest.fn() }
 			onUpdate={ jest.fn() }
@@ -61,6 +64,45 @@ describe( 'McpHub how-it-works card', () => {
 		const accessHeading = screen.getByRole( 'heading', { name: 'External AI agent access' } );
 		expect( region.compareDocumentPosition( accessHeading ) ).toBe(
 			Node.DOCUMENT_POSITION_FOLLOWING
+		);
+	} );
+} );
+
+describe( 'McpHub activity log row', () => {
+	test( 'promises AI agent actions when the link is filtered', () => {
+		renderHub( { activityLogFiltered: true } );
+
+		expect(
+			screen.getByText( 'Review recent actions taken by AI agents on your site.' )
+		).toBeInTheDocument();
+	} );
+
+	test( 'describes all actions when the link is not filtered', () => {
+		renderHub();
+
+		expect( screen.getByText( 'Review recent actions on your site.' ) ).toBeInTheDocument();
+	} );
+} );
+
+describe( 'McpHub activity log tracks', () => {
+	test( 'a click records whether the link is filtered', async () => {
+		renderHub( { activityLogFiltered: false } );
+
+		const link = screen.getByRole( 'link', { name: /Activity log/ } );
+		// jsdom can't navigate, so stop the link and keep only the click.
+		link.addEventListener( 'click', event => event.preventDefault() );
+		await userEvent.click( link );
+		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
+			'jetpack_ai_hub_link_click',
+			expect.not.objectContaining( { view: expect.anything() } )
+		);
+		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
+			'jetpack_ai_hub_link_click',
+			expect.objectContaining( {
+				link_type: 'activity_log',
+				link: 'activity_log',
+				filtered: 'false',
+			} )
 		);
 	} );
 } );

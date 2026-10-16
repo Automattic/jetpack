@@ -6,4 +6,6 @@ import makeReactConfig from 'jetpack-js-tools/eslintrc/react.mjs';
 export default defineConfig( makeBaseConfig( import.meta.url, { react: false } ), {
 	files: [ 'src/editor/**' ],
 	extends: [ makeReactConfig( import.meta.url ) ],
+	// The editor speaks core's strings, translated by core's language packs under the default domain.
+	rules: { '@wordpress/i18n-text-domain': 'off' },
 } );

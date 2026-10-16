@@ -13,7 +13,6 @@ import {
 	useWidgetRootContext,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { postList } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -45,7 +44,6 @@ function LatestPostReport( { authorScoped }: { authorScoped: boolean } ) {
 				isError={ false }
 				isEmpty
 				empty={ {
-					icon: postList,
 					description: __(
 						'Open an author to see their latest post here.',
 						'jetpack-premium-analytics-pkg'
@@ -96,10 +94,9 @@ function LatestPostCard( { authorId }: { authorId: number } ) {
 				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 			} }
 			empty={ {
-				icon: postList,
 				description: authorId
 					? __( 'This author has not published a post yet.', 'jetpack-premium-analytics-pkg' )
-					: __( 'Publish a post to see its stats here.', 'jetpack-premium-analytics-pkg' ),
+					: __( 'Your latest post will show here.', 'jetpack-premium-analytics-pkg' ),
 			} }
 			renderLoading={ <PostHighlightCardSkeleton /> }
 		>

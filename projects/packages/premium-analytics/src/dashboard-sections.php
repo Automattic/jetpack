@@ -120,7 +120,7 @@ function configure_dashboard_preview_scope() {
 }
 
 /**
- * Injects the available section slugs into JetpackScriptData.
+ * Injects the available section slugs, and whether the reader may see Stats, into JetpackScriptData.
  *
  * The same list travels over REST for the tab bar, but a report route reads no REST before
  * choosing its redirect, so it reads the slugs from boot data instead.
@@ -131,17 +131,18 @@ function configure_dashboard_preview_scope() {
  * @return array
  */
 function inject_dashboard_sections_script_data( array $data ): array {
-	$sections = get_available_dashboard_section_slugs();
-
-	if ( null === $sections ) {
-		return $data;
-	}
-
 	if ( ! isset( $data['premium_analytics'] ) || ! is_array( $data['premium_analytics'] ) ) {
 		$data['premium_analytics'] = array();
 	}
 
-	$data['premium_analytics']['sections'] = $sections;
+	// Surfaces outside any section, such as feedback, post to Stats endpoints.
+	$data['premium_analytics']['can_view_stats'] = Capabilities::current_user_can_view_stats();
+
+	$sections = get_available_dashboard_section_slugs();
+
+	if ( null !== $sections ) {
+		$data['premium_analytics']['sections'] = $sections;
+	}
 
 	return $data;
 }
@@ -199,39 +200,39 @@ function get_dashboard_section_schema() {
 		'title'      => 'jetpack-premium-analytics-dashboard-section',
 		'type'       => 'object',
 		'properties' => array(
-			'id'                  => array(
+			'id'                      => array(
 				'description' => __( 'Namespaced section identifier.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => 'string',
 				'readonly'    => true,
 			),
-			'slug'                => array(
+			'slug'                    => array(
 				'description' => __( 'URL-facing section slug, derived from the identifier.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => 'string',
 				'readonly'    => true,
 			),
-			'label'               => array(
+			'label'                   => array(
 				'description' => __( 'Translated display label, naming the section tab.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => 'string',
 				'readonly'    => true,
 			),
-			'title'               => array(
+			'title'                   => array(
 				'description' => __( 'Translated section heading, distinct from the tab label. Null falls back to the label.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => array( 'string', 'null' ),
 				'readonly'    => true,
 			),
-			'order'               => array(
+			'order'                   => array(
 				'description' => __( 'Sort order, ascending.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => 'integer',
 				'readonly'    => true,
 			),
-			'date_filter'         => array(
+			'date_filter'             => array(
 				'description' => __( 'Which shape the section date filter takes: the rolling date range, or all time plus single years.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => 'string',
 				'enum'        => Dashboard_Section::DATE_FILTERS,
 				'default'     => Dashboard_Section::DATE_FILTER_RANGE,
 				'readonly'    => true,
 			),
-			'date_filter_options' => array(
+			'date_filter_options'     => array(
 				'description' => __( 'What the section date filter supports, and where it renders.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => 'object',
 				'properties'  => array(
@@ -253,16 +254,29 @@ function get_dashboard_section_schema() {
 				),
 				'readonly'    => true,
 			),
-			'requires_sync'       => array(
+			'requires_sync'           => array(
 				'description' => __( 'Whether the section\'s numbers stay incomplete until the analytics initial full sync has finished.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => 'boolean',
 				'default'     => false,
 				'readonly'    => true,
 			),
-			'default_layout'      => array(
+			'notice'                  => array(
+				'description' => __( 'Message shown above the section widgets, or null when there is none.', 'jetpack-premium-analytics-pkg' ),
+				'type'        => array( 'string', 'null' ),
+				'default'     => null,
+				'readonly'    => true,
+			),
+			'default_layout'          => array(
 				'description' => __( 'Bundled default widget layout.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => 'array',
 				'items'       => array( 'type' => 'object' ),
+				'readonly'    => true,
+			),
+			'insertable_widget_types' => array(
+				'description' => __( 'Widget types the section inserter offers on top of its default layout.', 'jetpack-premium-analytics-pkg' ),
+				'type'        => 'array',
+				'items'       => array( 'type' => 'string' ),
+				'default'     => array(),
 				'readonly'    => true,
 			),
 		),

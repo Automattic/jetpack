@@ -11,7 +11,7 @@ namespace Automattic\Jetpack\PremiumAnalytics;
  * Sends links to Stats pages (the admin bar, the post list Views column, the newsletter action bar) to the matching
  * dashboard page instead.
  *
- * @since $$next-version$$
+ * @since 0.12.0
  */
 class Stats_Links {
 
@@ -65,7 +65,7 @@ class Stats_Links {
 	}
 
 	/**
-	 * A dashboard route, or `$url` for a user who cannot open the dashboard.
+	 * A dashboard route, or `$url` for a user who cannot read Stats there.
 	 *
 	 * Wins even where the link would otherwise point at Calypso: this dashboard is the site's
 	 * analytics UI and exists only in wp-admin, so the admin-interface preference doesn't apply.
@@ -76,7 +76,7 @@ class Stats_Links {
 	 * @return string
 	 */
 	private static function route_url( $url, $path ) {
-		if ( ! Capabilities::current_user_can_view_analytics() ) {
+		if ( ! Capabilities::current_user_can_view_stats() ) {
 			return $url;
 		}
 

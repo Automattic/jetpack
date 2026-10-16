@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Connection: Make the connection screen's Connect button and footer links reachable on shorter screens.

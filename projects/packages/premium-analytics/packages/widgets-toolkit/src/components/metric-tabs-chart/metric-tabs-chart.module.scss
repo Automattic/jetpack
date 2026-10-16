@@ -28,13 +28,13 @@
 	gap: var(--wpds-dimension-gap-md);
 }
 
-/* Equal-width cards fill the room left by the controls. The minimum keeps a
- * 2xl value + delta readable; when every card cannot fit, grid restores the
- * wrapping protection that flex-basis: 0 would otherwise remove. */
+/* Equal-width cards fill the room left by the controls. The component sets the
+ * column count that balances the rows; until it measures, or beside controls,
+ * as many cards as fit share a row. The minimum matches `MIN_CARD_WIDTH`. */
 .tabs {
 	display: grid;
 	flex: 1 1 auto;
-	grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+	grid-template-columns: repeat(var(--jpa-metric-tabs-columns, auto-fit), minmax(min(100%, 160px), 1fr));
 	gap: var(--wpds-dimension-gap-sm);
 	min-width: 0;
 	overflow: visible;
@@ -73,6 +73,7 @@
 }
 
 .tab {
+	container-type: inline-size;
 	height: auto;
 	min-width: 0;
 	overflow: hidden;
@@ -135,6 +136,12 @@
 	min-width: 0;
 }
 
+/* The value shrinks with its card, so a long figure fits rather than clips:
+ * 16cqi leaves room for about 11 characters, such as German "277.103 CHF". */
+.metricComparison > :first-child {
+	font-size: min(var(--wp-ui-metric-font-size), 16cqi);
+}
+
 /* Stands in for the headline of a metric with nothing to report at the current
  * bucket size. The size comes from the caller, matching the value it replaces
  * so cards keep a common height. */
@@ -167,6 +174,6 @@
 
 /* The plot answers a click, so the cursor says so; the legend beneath it does
    not. */
-.drillable [role="grid"] {
+.drillable [role="application"] {
 	cursor: pointer;
 }

@@ -3,13 +3,14 @@
  */
 import {
 	buildMetricTab,
+	ChartEmptyState,
 	MetricTabsChart,
 	WidgetState,
+	type ChartDisplayChartType,
 	type DataFormat,
 	type ReportResult,
 } from '@automattic/jetpack-premium-analytics-sdk';
 import { __ } from '@wordpress/i18n';
-import { chartBar } from '@wordpress/icons';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -33,7 +34,8 @@ type ReportMetricChartProps = {
 	countLabel?: ( count: number ) => string;
 	/** How the metric's values are written. */
 	dataFormat: DataFormat;
-	emptyText: string;
+	/** How the series is drawn. `MetricTabsChart` owns the default. */
+	chartType?: ChartDisplayChartType;
 	errorText: string;
 };
 
@@ -49,7 +51,7 @@ export function ReportMetricChart( {
 	label,
 	countLabel,
 	dataFormat,
-	emptyText,
+	chartType,
 	errorText,
 }: ReportMetricChartProps ) {
 	const primary = report.primary.data;
@@ -85,9 +87,14 @@ export function ReportMetricChart( {
 						{ label: __( 'Retry', 'jetpack-woocommerce-stats-pkg' ), onClick: report.refetch },
 					],
 				} }
-				empty={ { icon: chartBar, description: emptyText } }
 			>
-				<MetricTabsChart metrics={ metrics } dataFormat={ dataFormat } />
+				<MetricTabsChart
+					metrics={ metrics }
+					dataFormat={ dataFormat }
+					chartType={ chartType }
+					empty={ <ChartEmptyState /> }
+					hideSingleMetricLabel
+				/>
 			</WidgetState>
 		</div>
 	);

@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Protect: Improve the Scan section of the Protect dashboard: delete unused vulnerable plugins and themes in place, step through threats with the arrow keys, see whether the affected plugin or theme is active, and get clearer notices for each threat.

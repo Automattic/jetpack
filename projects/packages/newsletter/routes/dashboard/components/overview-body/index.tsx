@@ -1,5 +1,5 @@
 import { JetpackIcon } from '@automattic/jetpack-components';
-import { getScriptData } from '@automattic/jetpack-script-data';
+import { getScriptData, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -30,6 +30,13 @@ function OnboardingView(): JSX.Element {
 				displayName
 			)
 		: __( 'Welcome', 'jetpack-newsletter' );
+	const introTitle = isWpcomPlatformSite()
+		? sprintf(
+				/* translators: %s: Product name, "Jetpack Newsletter". Do not translate. */
+				__( '%s on WordPress.com', 'jetpack-newsletter' ),
+				'Jetpack Newsletter'
+			)
+		: 'Jetpack Newsletter';
 
 	return (
 		<Stack className="jetpack-newsletter-overview" gap="2xl" direction="column" align="flex-start">
@@ -55,7 +62,7 @@ function OnboardingView(): JSX.Element {
 								/>
 								<JetpackIcon className="jetpack-newsletter-overview__jetpack-icon" size={ 22 } />
 							</span>
-							{ __( 'Newsletters on WordPress.com', 'jetpack-newsletter' ) }
+							{ introTitle }
 						</Stack>
 					</Card.Title>
 				</Stack>
@@ -76,8 +83,8 @@ function OnboardingView(): JSX.Element {
 
 /**
  * Render the content of the Newsletter Overview tab: Stats once WP.com marks onboarding as done,
- * the onboarding view until then. A done onboarding is remembered in localStorage, since it can
- * never reopen, so later visits go straight to Stats without asking WP.com.
+ * the onboarding view until then. A done onboarding is remembered in localStorage, so later visits
+ * go straight to Stats without asking WP.com.
  *
  * @return The Overview tab content.
  */

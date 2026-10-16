@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Open the wp-admin Backup page from the Jetpack menu behind the Backup modernization flag, and offer Backup activation only on plans that include Atomic.
+
+

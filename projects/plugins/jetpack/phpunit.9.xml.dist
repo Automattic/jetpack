@@ -45,6 +45,9 @@
 		<testsuite name="likes">
 			<directory suffix="Test.php">tests/php/modules/likes</directory>
 		</testsuite>
+		<testsuite name="scan">
+			<directory suffix="Test.php">tests/php/modules/scan</directory>
+		</testsuite>
 		<testsuite name="markdown">
 			<directory suffix="Test.php">tests/php/modules/markdown</directory>
 		</testsuite>

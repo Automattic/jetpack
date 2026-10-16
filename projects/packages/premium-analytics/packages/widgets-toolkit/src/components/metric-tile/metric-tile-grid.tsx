@@ -105,13 +105,20 @@ function MetricTileValue( {
 		return <Text className={ styles.placeholder }>{ tile.placeholder ?? '—' }</Text>;
 	}
 
+	const format = tile.dataFormat ?? dataFormat;
+	const tileCurrencyCode = tile.currencyCode ?? currencyCode;
+
 	if ( tile.previousValue !== undefined ) {
 		return (
 			<span className={ styles.comparison }>
 				<MetricWithComparison
 					value={ tile.value as number }
 					previousValue={ tile.previousValue }
-					dataFormat={ tile.dataFormat ?? dataFormat }
+					dataFormat={
+						tileCurrencyCode === undefined
+							? format
+							: { ...format, options: { ...format.options, currencyCode: tileCurrencyCode } }
+					}
 				/>
 			</span>
 		);
@@ -120,8 +127,8 @@ function MetricTileValue( {
 	return (
 		<MetricValue
 			value={ tile.value as number }
-			dataFormat={ tile.dataFormat ?? dataFormat }
-			currencyCode={ tile.currencyCode ?? currencyCode }
+			dataFormat={ format }
+			currencyCode={ tileCurrencyCode }
 			className={ styles.value }
 		/>
 	);

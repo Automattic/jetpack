@@ -48,6 +48,12 @@ export {
 	type LeaderboardProps,
 	type LeaderboardRowInput,
 	type LeaderboardStatus,
+	Donut,
+	type DonutProps,
+	type DonutSegmentInput,
+	Funnel,
+	Locations,
+	Columns,
 	type LegendLabels,
 	LeaderboardLabel,
 	type LeaderboardLabelProps,
@@ -100,6 +106,8 @@ export {
 	type PostTitleLinkProps,
 	PostDetailLink,
 	type PostDetailLinkProps,
+	AuthorDetailLink,
+	authorDetailLinkProps,
 	HighlightField,
 	HighlightGroup,
 	type HighlightFieldProps,
@@ -120,7 +128,6 @@ export {
 	SemiCircleChart,
 	type SemiCircleChartData,
 	DETAIL_HEADER_GLYPH_SIZE,
-	DetailPageEmptyState,
 	DetailPageLayout,
 	DetailPageSection,
 	DetailPageActions,
@@ -134,8 +141,12 @@ export {
 	type DetailPageLayoutProps,
 	type DetailPageSectionProps,
 	type DetailPageShellProps,
+	canSendFeedback,
 	FeedbackModal,
 	type FeedbackSource,
+	PageEmptyState,
+	LockedPage,
+	LockedWidget,
 	PageNotice,
 	type PageNoticeProps,
 	PageOptionsMenu,
@@ -158,7 +169,7 @@ export {
 	ReportRecordsTable,
 	ReportThumbnail,
 	REPORT_TITLE_LINK_CLASS_NAMES,
-	useReportRetry,
+	ReportErrorState,
 	type ReportChartSectionProps,
 	type ReportDrilldownTableProps,
 	type ReportLocationsMapProps,
@@ -220,12 +231,16 @@ export {
 	getArchiveGroupLabel,
 	getArchiveTypeLabel,
 	getAuthorName,
+	getAuthorPostsQueryParams,
 	getAuthorsReportQueryParams,
 	getLocationColumnLabel,
+	getLocationsGeoModeOptions,
 	getLocationsReportQueryParams,
 	getLocationsReportSection,
+	getLocationsSectionLabel,
 	getLocationsScopeParams,
 	getPostsReportQueryParams,
+	getReferrerSpamDomain,
 	getSummarizedReportQueryParams,
 	getUtmDimensionLabel,
 	getUtmDimensionOptions,
@@ -273,19 +288,8 @@ export type { ReportParamsFieldAttributes } from './fields';
  * Helpers and utilities
  */
 export {
-	getFormatByMetricKey,
-	buildTimeSeriesChartData,
-	type TimeSeriesData,
 	calculateDelta,
 	flagUrl,
-	BOOKINGS_FILTER,
-	PHYSICAL_PRODUCTS_FILTER,
-	FULFILLED_ORDERS_FILTER,
-	UNFULFILLED_ORDERS_FILTER,
-	PAYMENT_STATUS_FILTERS,
-	buildPaymentStatusData,
-	type PaymentStatusData,
-	buildSalesByUtmData,
 	formatLegendLabels,
 	formatDisplayLabel,
 	buildCsv,
@@ -302,8 +306,7 @@ export {
 	defaultPeriodForInterval,
 	buildMetricTab,
 	siteChartFormatting,
-	CHART_DISPLAY_CHART_TYPES,
-	chartTypeAttributeField,
+	CHART_TYPE_ELEMENTS,
 	type ChartDisplayChartType,
 	CALENDAR_HEATMAP_CELL_GAP,
 	CALENDAR_HEATMAP_HEADER_HEIGHT,
@@ -311,6 +314,8 @@ export {
 	compareOptionalNumbers,
 	formatEmailRate,
 	formatViewCount,
+	formatListMetricCount,
+	getListMetricLabel,
 	HOURS_DATA_FORMAT,
 	getClicksRateSignals,
 	getKnownEmailRate,
@@ -354,42 +359,9 @@ export {
 } from './hooks';
 
 /**
- * Widget components
- */
-export {
-	BookingsByAttendanceWidget,
-	BookingsRevenueByCustomerTypeWidget,
-	BookingConversionRateWidget,
-	ConversionRateWidget,
-	CouponUseWidget,
-	RevenueByCustomerTypeWidget,
-	NewVsReturningCustomerWidget,
-	OrdersFulfillmentWidget,
-	SalesByCouponWidget,
-	TotalReturnsWidget,
-	VisitorsByLocationWidget,
-	SalesByDeviceWidget,
-	SalesByUtmWidget,
-	SessionsByDeviceWidget,
-	TopPerformingProductLeaderboardWidget,
-	type TopPerformingProductLeaderboardWidgetProps,
-	TopPerformingProductsWidget,
-	type TopPerformingProductsWidgetProps,
-	TopPerformingBookingsWidget,
-	type TopPerformingBookingsWidgetProps,
-} from './widgets';
-
-/**
  * Types
  */
-export type {
-	CountLabel,
-	MetricKey,
-	OrderMetricKey,
-	OrderMetrics,
-	OrdersSummary,
-	DataFormat,
-} from './types';
+export type { CountLabel, DataFormat, WidgetStatus } from './types';
 
 /**
  * Charts passthrough. Widgets must import chart components from here, never

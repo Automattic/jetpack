@@ -21,7 +21,6 @@ import {
 import { useResizeObserver } from '@wordpress/compose';
 import { useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { envelope } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -97,6 +96,20 @@ function buildLeaderboardData(
 			delta: 0,
 		};
 	} );
+}
+
+function viewLabel( view: EmailBreakdownView ): string {
+	switch ( view ) {
+		case 'devices':
+			return __( 'Devices', 'jetpack-premium-analytics-pkg' );
+		case 'clients':
+			return __( 'Email clients', 'jetpack-premium-analytics-pkg' );
+		case 'links':
+			return __( 'Links', 'jetpack-premium-analytics-pkg' );
+		case 'countries':
+		default:
+			return __( 'Countries', 'jetpack-premium-analytics-pkg' );
+	}
 }
 
 function emptyStateText( view: EmailBreakdownView ): string {
@@ -179,7 +192,6 @@ export const EmailBreakdownLeaderboard = ( {
 						: undefined,
 				} }
 				empty={ {
-					icon: envelope,
 					description: hasEmail
 						? emptyStateText( view )
 						: __( 'Select an email to see its breakdown.', 'jetpack-premium-analytics-pkg' ),
@@ -193,6 +205,7 @@ export const EmailBreakdownLeaderboard = ( {
 						withOverlayLabel
 						showLegend={ false }
 						dataFormat={ DATA_FORMAT }
+						columns={ { label: viewLabel( view ), metric: view === 'links' ? 'clicks' : metric } }
 					/>
 					{ renderMap && (
 						<div className={ styles.map } data-testid="email-breakdown-map">

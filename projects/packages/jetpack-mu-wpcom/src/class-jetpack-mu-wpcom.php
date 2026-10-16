@@ -14,7 +14,7 @@ define( 'WPCOM_ADMIN_BAR_UNIFICATION', true );
  * Jetpack_Mu_Wpcom main class.
  */
 class Jetpack_Mu_Wpcom {
-	const PACKAGE_VERSION = '6.10.1';
+	const PACKAGE_VERSION = '6.11.0';
 	const PKG_DIR         = __DIR__ . '/../';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
@@ -48,6 +48,11 @@ class Jetpack_Mu_Wpcom {
 		'meetinghub/meetinghub.php'                      => null,
 		'mail-mint/mail-mint.php'                        => null,
 		'wp-letsencrypt-ssl-pro/wp-letsencrypt.php'      => null,
+		'astra-pro-sites/astra-pro-sites.php'            => null,
+		'echo-rewards/echo-rewards.php'                  => null,
+		'forminator/forminator.php'                      => null,
+		'iron-security/iron-security.php'                => null,
+		'stackable-ultimate-gutenberg-blocks/plugin.php' => null,
 	);
 
 	/**
@@ -106,8 +111,8 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_rest_api_endpoints' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_newspack_blocks' ) );
 
-		// At mu-plugin scope, because Comments::is_enabled() is resolved at plugins_loaded on both hosts.
-		add_filter( 'jetpack_comments_new_hotness', array( __CLASS__, 'enable_jetpack_comments_for_sticker' ) );
+		// Jetpack builds cut before Jetpack Comments went on by default only load it when this returns true. Remove once Atomic is past them.
+		add_filter( 'jetpack_comments_new_hotness', '__return_true' );
 
 		// These features run only on simple sites.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -195,7 +200,7 @@ class Jetpack_Mu_Wpcom {
 		/**
 		 * Filters whether WordPress.com Simple should register the Jetpack AI Hub.
 		 *
-		 * @since $$next-version$$
+		 * @since 6.11.0
 		 *
 		 * @param bool $load Whether to load the AI Hub integration.
 		 */
@@ -408,6 +413,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php';
 		require_once __DIR__ . '/features/wpcom-block-editor/functions.editor-type.php';
 		require_once __DIR__ . '/features/wpcom-dashboard/class-wpcom-dashboard.php';
+		require_once __DIR__ . '/features/wpcom-dashboard-tracks/wpcom-dashboard-tracks.php';
 		require_once __DIR__ . '/features/wpcom-logout/wpcom-logout.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-theme-fixes.php';
 		require_once __DIR__ . '/features/wpcom-post-list/wpcom-post-types-tracking.php';
@@ -506,6 +512,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-theme-tracking.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
+		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes-tab.php';
 		require_once __DIR__ . '/features/wpcom-user-edit/wpcom-user-edit.php';
 		require_once __DIR__ . '/features/wpcom-videopress/wpcom-videopress.php';
 
@@ -536,6 +543,7 @@ class Jetpack_Mu_Wpcom {
 
 		if ( class_exists( 'Automattic\Jetpack\Agents_Manager\Agents_Manager' ) ) {
 			\Automattic\Jetpack\Agents_Manager\Agents_Manager::init();
+			require_once __DIR__ . '/features/wpcom-agents-manager/wpcom-agents-manager.php';
 		}
 	}
 
@@ -857,31 +865,15 @@ class Jetpack_Mu_Wpcom {
 	 * experience gates. admin-ajax is is_admin(), and a public-api request runs
 	 * plugins_loaded on the wrong blog, so load_verbum_comments() skips both.
 	 * Runs on every request, blog 1 and P2s included, on purpose: the routes
-	 * gate themselves on the feature filter, as Posts_To_Podcast_Endpoint does.
+	 * gate themselves on Comments::is_enabled(), as Posts_To_Podcast_Endpoint does.
 	 */
 	public static function load_jetpack_comments_routes() {
 		if ( class_exists( '\Automattic\Jetpack\Comments\Checkpoint_Endpoint' ) ) {
 			\Automattic\Jetpack\Comments\Checkpoint_Endpoint::init();
 		}
-	}
-
-	/**
-	 * Turn on the rebuilt Jetpack Comments form for a Simple or Atomic site
-	 * carrying the rollout sticker.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param bool $enabled Whether it is already on.
-	 * @return bool
-	 */
-	public static function enable_jetpack_comments_for_sticker( $enabled ) {
-		if ( $enabled ) {
-			return true;
+		if ( class_exists( '\Automattic\Jetpack\Comments\Embeds' ) ) {
+			\Automattic\Jetpack\Comments\Embeds::init();
 		}
-
-		$blog_id = (int) get_wpcom_blog_id();
-
-		return $blog_id > 0 && wpcom_has_blog_sticker( 'comment-new-hotness', $blog_id );
 	}
 
 	/**
@@ -922,7 +914,7 @@ class Jetpack_Mu_Wpcom {
 	 * Hooks the dashboard's registry action, which only fires once the package boots, so this
 	 * is inert on a site without the dashboard.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.11.0
 	 */
 	public static function load_premium_analytics_wordads_section() {
 		require_once __DIR__ . '/features/premium-analytics/wordads-section.php';
@@ -933,7 +925,7 @@ class Jetpack_Mu_Wpcom {
 	 *
 	 * Same seam as the Ads tab: inert on a site without the dashboard.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.11.0
 	 */
 	public static function load_premium_analytics_videopress_widgets() {
 		require_once __DIR__ . '/features/premium-analytics/videopress-widgets.php';
@@ -1041,7 +1033,7 @@ class Jetpack_Mu_Wpcom {
 	 * The `wc-disable-block-editor-unified-assets` blog sticker force-disables the feature,
 	 * while the `wc-block-editor-unified-assets` sticker opts the site in.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.11.0
 	 *
 	 * @param mixed $enabled The current feature option value.
 	 * @return mixed Original option value, `yes` when enabled, or `no` when force-disabled.

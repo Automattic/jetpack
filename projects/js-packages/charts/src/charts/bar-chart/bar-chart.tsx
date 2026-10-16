@@ -100,6 +100,7 @@ const renderTooltipRow = ( label: string | undefined, value: string ) => (
 
 const BarChartInternal: FC< BarChartProps > = ( {
 	data,
+	ariaLabel,
 	chartId: providedChartId,
 	width,
 	height,
@@ -138,6 +139,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const legendInteractive = legend.interactive ?? false;
 	const legendCollapseGroups = legend.collapseGroups ?? false;
 	const legendComparisonItem = legend.comparisonItem ?? false;
+	const legendComparisonSeriesItems = legend.comparisonSeriesItems;
 	const horizontal = orientation === 'horizontal';
 	const chartId = useChartId( providedChartId );
 	const hiddenSeries = useDefaultHiddenSeries( chartId, defaultHiddenSeries );
@@ -158,8 +160,12 @@ const BarChartInternal: FC< BarChartProps > = ( {
 
 	// Create legend items using the reusable hook
 	const legendOptions = useMemo(
-		() => ( { collapseGroups: legendCollapseGroups, comparisonItem: legendComparisonItem } ),
-		[ legendCollapseGroups, legendComparisonItem ]
+		() => ( {
+			collapseGroups: legendCollapseGroups,
+			comparisonItem: legendComparisonItem,
+			comparisonSeriesItems: legendComparisonSeriesItems,
+		} ),
+		[ legendCollapseGroups, legendComparisonItem, legendComparisonSeriesItems ]
 	);
 	const legendItems = useChartLegendItems( dataSorted, legendOptions );
 
@@ -603,10 +609,11 @@ const BarChartInternal: FC< BarChartProps > = ( {
 					const chartHeight = contentHeight > 0 ? contentHeight : height;
 
 					return (
+						// eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- the application role hands arrow keys to the chart's point navigation.
 						<div
-							role="grid"
+							role="application"
 							ref={ chartRef }
-							aria-label={ __( 'Bar chart', 'jetpack-charts' ) }
+							aria-label={ ariaLabel ?? __( 'Bar chart', 'jetpack-charts' ) }
 							tabIndex={ 0 }
 							onKeyDown={ onChartKeyDown }
 							onFocus={ onChartFocus }
@@ -615,6 +622,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 							{ chartHeight > 0 && (
 								<div className={ plotStyles[ 'xy-plot' ] }>
 									<XYChart
+										accessibilityLabel=""
 										theme={ theme }
 										width={ width }
 										height={ chartHeight }

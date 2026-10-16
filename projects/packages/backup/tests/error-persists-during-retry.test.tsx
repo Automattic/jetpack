@@ -23,6 +23,11 @@ jest.mock( '@wordpress/api-fetch', () => ( {
 	default: ( ...args: unknown[] ) => mockApiFetch( ...args ),
 } ) );
 
+jest.mock( '@wordpress/a11y', () => {
+	const actual = jest.requireActual( '@wordpress/a11y' );
+	return { ...actual, speak: jest.fn( actual.speak ) };
+} );
+
 jest.mock( '@wordpress/route', () => ( {
 	useSearch: () => ( {} ),
 	useNavigate: () => () => {},
@@ -33,9 +38,12 @@ jest.mock( '@wordpress/route', () => ( {
 // Imports must come after the jest.mock factories above.
 import { act, render, renderHook, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useState } from '@wordpress/element';
+import { speak } from '@wordpress/a11y';
+import { StrictMode, useState } from '@wordpress/element';
 import ActivityList from '../src/dashboard/components/activity-list';
 import FileBrowser, { EMPTY_FILE_SELECTION } from '../src/dashboard/components/file-browser';
+import QueryError from '../src/dashboard/components/query-error';
+import { ANNOUNCE_WINDOW_MS } from '../src/dashboard/data/announce';
 import { queryClient } from '../src/dashboard/data/query-client';
 import { useBackups } from '../src/dashboard/hooks/use-backups';
 import { useStickyError } from '../src/dashboard/hooks/use-sticky-error';
@@ -164,8 +172,70 @@ describe( 'useStickyError', () => {
 	} );
 } );
 
+describe( 'query error', () => {
+	beforeEach( () => {
+		jest.useFakeTimers();
+		( speak as jest.Mock ).mockClear();
+	} );
+	afterEach( () => jest.useRealTimers() );
+
+	it.each( [
+		[ 'the same message', 'Service unavailable' ],
+		[ 'a different message', 'Timed out' ],
+	] )( 'announces a failed retry once with %s', ( _name, next ) => {
+		const { rerender } = render(
+			<QueryError
+				title="Load failed"
+				error={ new Error( 'Service unavailable' ) }
+				onRetry={ noop }
+				isRetrying
+			/>
+		);
+		act( () => jest.advanceTimersByTime( ANNOUNCE_WINDOW_MS ) );
+		( speak as jest.Mock ).mockClear();
+
+		rerender(
+			<QueryError
+				title="Load failed"
+				error={ new Error( next ) }
+				onRetry={ noop }
+				isRetrying={ false }
+			/>
+		);
+		act( () => jest.advanceTimersByTime( ANNOUNCE_WINDOW_MS ) );
+
+		const spoken = ( speak as jest.Mock ).mock.calls.filter(
+			( [ text ] ) => text === `Load failed ${ next }`
+		);
+		expect( spoken ).toHaveLength( 1 );
+	} );
+
+	it( 'withdraws its announcement when a retry clears it inside the window', () => {
+		const { unmount } = render(
+			<QueryError title="Load failed" error={ new Error( 'Timed out' ) } onRetry={ noop } />
+		);
+		unmount();
+		act( () => jest.advanceTimersByTime( ANNOUNCE_WINDOW_MS ) );
+
+		expect( speak ).not.toHaveBeenCalled();
+	} );
+
+	it( 'is still announced once when StrictMode remounts it', () => {
+		render(
+			<StrictMode>
+				<QueryError title="Load failed" error={ new Error( 'Timed out' ) } onRetry={ noop } />
+			</StrictMode>
+		);
+		act( () => jest.advanceTimersByTime( ANNOUNCE_WINDOW_MS ) );
+
+		expect( ( speak as jest.Mock ).mock.calls ).toEqual( [
+			[ 'Load failed Timed out', 'assertive' ],
+		] );
+	} );
+} );
+
 describe( 'activity list', () => {
-	it( 'keeps the reason and shows the retry as busy while it runs', async () => {
+	it( 'keeps the reason and shows the retry as busy while it runs, then hands focus on', async () => {
 		mockApiFetch.mockRejectedValue( {
 			code: 'activity_log_fetch_failed',
 			message: 'Service unavailable',
@@ -177,6 +247,13 @@ describe( 'activity list', () => {
 			screen.findByText( "We couldn't load your site's activity." )
 		).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'Service unavailable' ) ).toBeInTheDocument();
+
+		// Exact match: the default spoken text would also carry "Try again".
+		await expect(
+			screen.findByText( "We couldn't load your site's activity. Service unavailable", {
+				selector: '.a11y-speak-region',
+			} )
+		).resolves.toBeInTheDocument();
 
 		const retry = deferred< unknown >();
 		mockApiFetch.mockImplementation( () => retry.promise );
@@ -193,6 +270,7 @@ describe( 'activity list', () => {
 			'aria-disabled',
 			'true'
 		);
+		expect( screen.getByRole( 'button', { name: 'Try again' } ) ).toHaveFocus();
 
 		retry.resolve( {
 			current: { orderedItems: [ activityEntry() ] },
@@ -202,11 +280,13 @@ describe( 'activity list', () => {
 
 		await expect( screen.findByText( 'Backup complete' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( 'Service unavailable' ) ).not.toBeInTheDocument();
+		// The focused button went with the notice; without a handoff, focus is on `<body>`.
+		expect( screen.getByRole( 'heading', { name: 'Latest backups' } ) ).toHaveFocus();
 	} );
 } );
 
 describe( 'file browser', () => {
-	it( 'keeps the reason on screen while its retry runs', async () => {
+	it( 'keeps the reason on screen while its retry runs, then hands focus on', async () => {
 		mockApiFetch.mockRejectedValue( {
 			code: 'file_browser_fetch_failed',
 			message: 'Backup host unreachable',
@@ -240,6 +320,7 @@ describe( 'file browser', () => {
 		await waitFor( () =>
 			expect( screen.queryByText( 'Backup host unreachable' ) ).not.toBeInTheDocument()
 		);
+		expect( screen.getByRole( 'group', { name: 'Files in this backup' } ) ).toHaveFocus();
 	} );
 } );
 

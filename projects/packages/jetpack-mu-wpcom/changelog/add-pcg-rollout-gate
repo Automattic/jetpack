@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Plugin Conflicts Guardian: add percentage rollout gate by blog ID (default 0%).

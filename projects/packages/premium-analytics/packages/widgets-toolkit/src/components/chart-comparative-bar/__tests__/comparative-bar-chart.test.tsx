@@ -9,6 +9,7 @@ import { getSettings, setSettings } from '@wordpress/date';
 import {
 	mockBarChartLegendSpy,
 	mockBarChartSpy,
+	mockSparklineMargin,
 	resetMockCharts,
 	setMockChartHeight,
 } from '../../../../../../tests/js/chart-test-utils';
@@ -106,10 +107,14 @@ function recordedProps(): {
 		axis: { x: Record< string, unknown >; y: Record< string, unknown > };
 		yScale?: { domain: [ number, number ] };
 	};
-	margin: { left?: number; right: number };
+	margin?: Record< string, number >;
 	chartId: string;
 	defaultHiddenSeries?: readonly string[];
-	legend: { collapseGroups: boolean; interactive: boolean };
+	legend: {
+		collapseGroups: boolean;
+		comparisonSeriesItems: ( metric: string ) => string;
+		interactive: boolean;
+	};
 	gridVisibility?: string;
 	showZeroValues?: boolean;
 	withTooltips: boolean;
@@ -398,15 +403,17 @@ describe( 'ComparativeBarChart', () => {
 		);
 	} );
 
-	it( 'collapses a single metric two periods into one legend item', () => {
-		render( <ComparativeBarChart series={ SERIES_WITH_COMPARISON } dataFormat={ DATA_FORMAT } /> );
+	it( "names each metric's comparison item after the comparison", () => {
+		render(
+			<ComparativeBarChart
+				series={ SERIES_WITH_COMPARISON }
+				dataFormat={ DATA_FORMAT }
+				comparisonLabel="2025"
+			/>
+		);
 
-		// A legend item names the metric; solid vs previous-period mark is what
-		// tells the two apart, so there is nothing for a second item to say.
-		expect( recordedProps().legend ).toEqual( {
-			collapseGroups: true,
-			interactive: false,
-		} );
+		expect( recordedProps().legend ).toMatchObject( { collapseGroups: true, interactive: false } );
+		expect( recordedProps().legend.comparisonSeriesItems( 'Views' ) ).toBe( 'Views (2025)' );
 	} );
 
 	it( 'abbreviates the y axis ticks', () => {
@@ -467,11 +474,10 @@ describe( 'ComparativeBarChart', () => {
 				<ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } compactWhenShort />
 			);
 
+			expect( recordedOptions().axis.x.display ).toBe( false );
 			expect( recordedOptions().axis.y.display ).toBe( false );
 			expect( recordedProps().gridVisibility ).toBe( 'none' );
-			// The hidden axis frees its gutter inside `useChartMargin`, so the bars
-			// gain the room without this component clipping the date labels away.
-			expect( recordedProps().margin ).toBeUndefined();
+			expect( recordedProps().margin ).toBe( mockSparklineMargin );
 			expect( screen.queryByTestId( 'bar-chart-legend' ) ).not.toBeInTheDocument();
 		} );
 
@@ -481,8 +487,10 @@ describe( 'ComparativeBarChart', () => {
 				<ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } compactWhenShort />
 			);
 
+			expect( recordedOptions().axis.x ).not.toHaveProperty( 'display' );
 			expect( recordedOptions().axis.y ).not.toHaveProperty( 'display' );
 			expect( recordedProps().gridVisibility ).toBeUndefined();
+			expect( recordedProps().margin ).toBeUndefined();
 			expect( screen.getByTestId( 'bar-chart-legend' ) ).toBeInTheDocument();
 		} );
 

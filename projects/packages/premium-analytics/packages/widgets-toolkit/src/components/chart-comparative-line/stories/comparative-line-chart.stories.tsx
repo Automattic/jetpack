@@ -598,8 +598,8 @@ export const Resizable: Story = {
 };
 
 /**
- * Sparkline: how the chart degrades on a tile too short for a y axis.
- * The dates stay readable at both ends; the chart reserves room for them.
+ * Sparkline: how the chart degrades on a tile too short for its axes.
+ * The whole area stays hoverable, and the tooltip carries the date.
  */
 export const Sparkline: Story = {
 	decorators: [

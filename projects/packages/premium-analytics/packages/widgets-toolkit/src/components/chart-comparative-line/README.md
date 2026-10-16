@@ -1,10 +1,10 @@
 # ComparativeLineChart
 
-A **pure** line chart component for comparing time series data across different periods. Built on top of `@automattic/charts` with automatic date alignment for comparison series.
+A line chart component for comparing time series data across different periods. Built on top of `@automattic/charts` with automatic date alignment for comparison series.
 
-## Pure Component Design
+## Series Styles from Props
 
-This component is **pure** in its styling: it receives all styling via props rather than from a theme. It must still render inside a `GlobalChartsProvider`, which tells it the series the legend hides.
+This component takes its series styles from props rather than from a theme. It must still render inside a `GlobalChartsProvider`, which tells it the series the legend hides and, with `compactWhenShort`, the sparkline margin (`sparkline.margin`) a short chart takes.
 
 ```tsx
 import { ComparativeLineChart } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -134,6 +134,7 @@ function MyWidget( { series } ) {
 | `chartId`             | `string`                       | No       | Identity the charts provider keys visibility on; generated when omitted. Change it whenever `defaultHiddenSeries` should be applied again |
 | `defaultHiddenSeries` | `readonly string[]`            | No       | Labels of series hidden until revealed from the legend. Applied once per `chartId`, so only useful with `legendInteractive`               |
 | `legendInteractive`   | `boolean`                      | No       | Let the reader click legend items to show and hide series; the first item stays locked. Defaults to `false`                               |
+| `comparisonLabel`     | `string`                       | No       | Names the comparison in each metric's previous-period legend item, e.g. "Prev. 30 days". Defaults to "Previous period"                    |
 | `baseline`            | `'zero' \| 'padded'`           | No       | Where the Y-axis starts. `zero` (default) for a per-period metric; `padded` for a cumulative count, see below                             |
 
 ## SeriesStyle Type

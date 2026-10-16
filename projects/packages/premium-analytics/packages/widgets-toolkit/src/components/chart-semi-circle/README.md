@@ -1,5 +1,7 @@
 # SemiCircleChart
 
+Widgets render [`Donut`](../donut/) with `variant="half-ring"` instead: it takes the segments and the request status, and draws this chart with its total, legend, deltas and states. `SemiCircleChart` is the chart alone, for the kind to compose; there is no separate semi-circle kind.
+
 A responsive semi-circle (half-donut) chart component that fills its parent container.
 
 ## Features

@@ -414,7 +414,7 @@ describe( 'the next-backup line', () => {
 		renderWithClient( <NextScheduledBackup /> );
 
 		await expect( scheduleLine() ).resolves.toHaveTextContent(
-			/^Next full backup: Oct 22, 10:00-10:59 AM\.$/
+			/^Next full backup: Oct 22, 10:00-10:59 am\.$/
 		);
 	} );
 
@@ -427,7 +427,7 @@ describe( 'the next-backup line', () => {
 		renderWithClient( <NextScheduledBackup /> );
 
 		await expect( scheduleLine() ).resolves.toHaveTextContent(
-			/^Next full backup: Oct 23, 10:00-10:59 AM\.$/
+			/^Next full backup: Oct 23, 10:00-10:59 am\.$/
 		);
 	} );
 
@@ -440,7 +440,7 @@ describe( 'the next-backup line', () => {
 		renderWithClient( <NextScheduledBackup /> );
 
 		await expect( scheduleLine() ).resolves.toHaveTextContent(
-			/^Next full backup: Oct 22, 10:00-10:59 AM\.$/
+			/^Next full backup: Oct 22, 10:00-10:59 am\.$/
 		);
 	} );
 
@@ -453,7 +453,7 @@ describe( 'the next-backup line', () => {
 		renderWithClient( <NextScheduledBackup /> );
 
 		await expect( scheduleLine() ).resolves.toHaveTextContent(
-			/^Next full backup: Oct 22, 12:00-12:59 AM\.$/
+			/^Next full backup: Oct 22, 12:00-12:59 am\.$/
 		);
 	} );
 } );
@@ -473,14 +473,14 @@ describe( 'the site timezone', () => {
 			timezone: { offset: -5, offsetFormatted: '-5', string: '', abbr: 'EST' },
 		} );
 		// The site is told about a backup running on its *previous* calendar day. Read
-		// as UTC this would say "Oct 22, 2:00-2:59 AM" instead.
+		// as UTC this would say "Oct 22, 2:00-2:59 am" instead.
 		freezeClock( '2026-10-22T01:00:00Z' );
 		mockEndpoints( { schedule: { ok: true, scheduled_hour: 2 } } );
 
 		renderWithClient( <NextScheduledBackup /> );
 
 		await expect( scheduleLine() ).resolves.toHaveTextContent(
-			/^Next full backup: Oct 21, 9:00-9:59 PM\.$/
+			/^Next full backup: Oct 21, 9:00-9:59 pm\.$/
 		);
 	} );
 } );
@@ -545,7 +545,7 @@ describe( 'when there is nothing to report', () => {
 
 	it( 'says nothing when the hour is not a whole number', async () => {
 		// `Date.UTC` truncates rather than rejecting, so without `Number.isInteger`
-		// this renders a confident "10:00-10:59 AM" for an unreadable payload.
+		// this renders a confident "10:00-10:59 am" for an unreadable payload.
 		freezeClock( '2026-10-22T05:00:00Z' );
 		mockEndpoints( { schedule: { ok: true, scheduled_hour: 10.5 } } );
 
@@ -660,7 +660,7 @@ describe( 'while the reads are in flight', () => {
 
 		releaseSize( { ok: true, backups_stopped: false } );
 		await expect( scheduleLine() ).resolves.toHaveTextContent(
-			/^Next full backup: Oct 22, 10:00-10:59 AM\.$/
+			/^Next full backup: Oct 22, 10:00-10:59 am\.$/
 		);
 	} );
 } );
@@ -691,7 +691,7 @@ describe( 'the line, translated', () => {
 
 		// Sequential placeholders would read this as "At Oct 22 on 10:00-10:59 AM".
 		await expect( screen.findByText( /^At/ ) ).resolves.toHaveTextContent(
-			/^At 10:00-10:59 AM on Oct 22, the next full backup runs\.$/
+			/^At 10:00-10:59 am on Oct 22, the next full backup runs\.$/
 		);
 	} );
 } );
@@ -719,7 +719,7 @@ describe( 'the Modify dialog', () => {
 		const dialog = await openScheduleDialog();
 
 		expect( within( dialog ).getByRole( 'combobox', { name: 'Backup window' } ) ).toHaveTextContent(
-			'9:00-9:59 PM'
+			'9:00-9:59 pm'
 		);
 	} );
 
@@ -741,12 +741,12 @@ describe( 'the Modify dialog', () => {
 
 		renderWithClient( <NextScheduledBackup /> );
 		await openScheduleDialog();
-		await pickWindow( '3:00-3:59 AM' );
+		await pickWindow( '3:00-3:59 am' );
 		await userEvent.click( screen.getByRole( 'button', { name: 'Save' } ) );
 
 		await waitFor( () => expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument() );
 		expect( sent ).toEqual( [ 8 ] );
-		await expect( scheduleLine() ).resolves.toHaveTextContent( /, 3:00-3:59 AM\.$/ );
+		await expect( scheduleLine() ).resolves.toHaveTextContent( /, 3:00-3:59 am\.$/ );
 		expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Daily backup time changed.' );
 	} );
 
@@ -762,7 +762,7 @@ describe( 'the Modify dialog', () => {
 
 		renderWithClient( <NextScheduledBackup /> );
 		const dialog = await openScheduleDialog();
-		await pickWindow( '3:00-3:59 AM' );
+		await pickWindow( '3:00-3:59 am' );
 		await userEvent.click( screen.getByRole( 'button', { name: 'Save' } ) );
 
 		await expect(
@@ -791,11 +791,11 @@ describe( 'the Modify dialog', () => {
 
 		renderWithClient( <NextScheduledBackup /> );
 		await openScheduleDialog();
-		await pickWindow( '3:00-3:59 AM' );
+		await pickWindow( '3:00-3:59 am' );
 		await userEvent.click( screen.getByRole( 'button', { name: 'Save' } ) );
 
 		await waitFor( () =>
-			expect( screen.getByText( /^Next full backup/ ) ).toHaveTextContent( /, 3:00-3:59 AM\.$/ )
+			expect( screen.getByText( /^Next full backup/ ) ).toHaveTextContent( /, 3:00-3:59 am\.$/ )
 		);
 	} );
 
@@ -811,7 +811,7 @@ describe( 'the Modify dialog', () => {
 
 		renderWithClient( <NextScheduledBackup /> );
 		const dialog = await openScheduleDialog();
-		await pickWindow( '3:00-3:59 AM' );
+		await pickWindow( '3:00-3:59 am' );
 		await userEvent.click( screen.getByRole( 'button', { name: 'Save' } ) );
 		await userEvent.keyboard( '{Escape}' );
 		refuse( {
@@ -834,9 +834,9 @@ describe( 'the Modify dialog', () => {
 		const options = scheduleOptions( new Date( '2026-10-22T12:00:00Z' ) );
 
 		expect( options ).toHaveLength( 24 );
-		expect( options[ 0 ] ).toEqual( { label: '12:30-1:29 AM', value: '19' } );
-		expect( options[ 23 ] ).toEqual( { label: '11:30 PM-12:29 AM', value: '18' } );
-		expect( options[ 11 ] ).toEqual( { label: '11:30 AM-12:29 PM', value: '6' } );
+		expect( options[ 0 ] ).toEqual( { label: '12:30-1:29 am', value: '19' } );
+		expect( options[ 23 ] ).toEqual( { label: '11:30 pm-12:29 am', value: '18' } );
+		expect( options[ 11 ] ).toEqual( { label: '11:30 am-12:29 pm', value: '6' } );
 	} );
 
 	it( 'goes with the line when there is no schedule to modify', async () => {
@@ -864,7 +864,7 @@ describe( 'on the Overview', () => {
 		render( <OverviewStage /> );
 
 		const line = await screen.findByText( /^Next full backup/ );
-		expect( line ).toHaveTextContent( /^Next full backup: Oct 22, 10:00-10:59 AM\.$/ );
+		expect( line ).toHaveTextContent( /^Next full backup: Oct 22, 10:00-10:59 am\.$/ );
 
 		// Placement, not just presence: `.jpb-overview` is a two-column grid above
 		// 960px, so a child would be auto-placed into a cell and a following sibling
@@ -872,11 +872,10 @@ describe( 'on the Overview', () => {
 		const row = scheduleRow();
 		expect( overviewGrid() ).not.toBeNull();
 		expect( row ).not.toBeNull();
-		// A block box, or the 16px separating this from the storage section below
-		// computes and then does nothing — vertical margins do not apply to the
-		// inline box `Text` renders by default.
 		expect( row?.tagName ).toBe( 'DIV' );
-		expect( placementRelativeToGrid( row as HTMLElement ) ).toEqual( {
+		// Inside the storage row's wrapper, which is the grid's sibling.
+		// eslint-disable-next-line testing-library/no-node-access -- Placement is the thing under test.
+		expect( placementRelativeToGrid( row?.parentElement as HTMLElement ) ).toEqual( {
 			isSibling: true,
 			comesFirst: true,
 		} );
@@ -895,11 +894,11 @@ describe( 'on the Overview', () => {
 
 		// The running backup is reported…
 		await expect(
-			screen.findByText( 'Your backup will be ready soon' )
+			screen.findByText( 'Generating backup… (42% progress)' )
 		).resolves.toBeInTheDocument();
 		// …and so is the next one.
 		await expect( screen.findByText( /^Next full backup/ ) ).resolves.toHaveTextContent(
-			/^Next full backup: Oct 22, 10:00-10:59 AM\.$/
+			/^Next full backup: Oct 22, 10:00-10:59 am\.$/
 		);
 	} );
 
@@ -916,7 +915,9 @@ describe( 'on the Overview', () => {
 		// Synchronized on the failure being reported *and* the schedule being
 		// available, neither of which the mutation under test removes.
 		await expect(
-			screen.findByText( "We couldn't check your site's backup status." )
+			screen.findByText( "We couldn't check your site's backup status.", {
+				ignore: '.a11y-speak-region, script, style',
+			} )
 		).resolves.toBeInTheDocument();
 		await expect( scheduleIsAvailable() ).resolves.toHaveTextContent( 'Oct 22' );
 		expect( screen.queryByText( /^Next full backup/ ) ).not.toBeInTheDocument();
@@ -953,9 +954,7 @@ describe( 'on the Overview', () => {
 
 		renderStageWithProbe();
 
-		await expect(
-			screen.findByText( 'Your first cloud backup will be ready soon' )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'Generating backup…' ) ).resolves.toBeInTheDocument();
 		await expect( scheduleIsAvailable() ).resolves.toHaveTextContent( 'Oct 22' );
 		expect( screen.queryByText( /^Next full backup/ ) ).not.toBeInTheDocument();
 	} );

@@ -33,6 +33,8 @@
 		// depending on the hash.
 		.jpb-dashboard-layout {
 
+			@include jetpack-admin-page-header;
+
 			[class*="__header-content"],
 			[class*="__header-actions"] {
 				flex-wrap: wrap;
