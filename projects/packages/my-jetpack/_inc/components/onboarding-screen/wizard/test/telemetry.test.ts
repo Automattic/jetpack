@@ -1,14 +1,7 @@
 import { WIZARD_EVENTS, lengthBucket } from '../telemetry';
 
-/*
- * Tracks' own name rule, copied from Jetpack_Tracks_Event::EVENT_NAME_REGEX in
- * packages/connection. An event that misses it is dropped server side and says
- * nothing about it, so the names are checked here rather than in production.
- */
+// Copied from Jetpack_Tracks_Event::EVENT_NAME_REGEX, which drops a miss without a word.
 const EVENT_NAME = /^(([a-z0-9]+)_){2}([a-z0-9_]+)$/;
-
-// The same rule for property keys. One camelCase key costs the whole event.
-const PROPERTY_KEY = /^[a-z_][a-z0-9_]*$/;
 
 describe( 'Wizard event names', () => {
 	it.each( Object.entries( WIZARD_EVENTS ) )( '%s is a name Tracks will take', ( _key, name ) => {
@@ -19,27 +12,6 @@ describe( 'Wizard event names', () => {
 		const names = Object.values( WIZARD_EVENTS );
 
 		expect( new Set( names ).size ).toBe( names.length );
-	} );
-
-	// Every property this wizard sends, listed here so the rule is checked once
-	// rather than trusted at each call site.
-	it( 'sends only property keys Tracks will take', () => {
-		const keys = [
-			'flow_id',
-			'flow',
-			'step',
-			'site_type',
-			'length_bucket',
-			'module',
-			'enabled',
-			'offered',
-			'switched_on',
-			'failed',
-			'request_failed',
-			'error_code',
-		];
-
-		keys.forEach( key => expect( key ).toMatch( PROPERTY_KEY ) );
 	} );
 } );
 

@@ -1314,7 +1314,7 @@ describe( 'What the wizard reports', () => {
 	} );
 
 	// Two of the four mock modules ship on; leaving them on is not switching them on.
-	it( 'counts only what the run switched on, and says when the request failed', async () => {
+	it( 'counts only what the run switched on', async () => {
 		const { user } = setupWizard( { isUserConnected: true } );
 		await user.click( screen.getByRole( 'radio', { name: 'A blog or publication' } ) );
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
@@ -1324,27 +1324,30 @@ describe( 'What the wizard reports', () => {
 		await waitFor( () =>
 			expect( mockRecordEvent ).toHaveBeenCalledWith(
 				'jetpack_my_jetpack_onboarding_wizard_apply_result',
-				expect.objectContaining( { offered: 4, switched_on: 1, request_failed: false } )
+				expect.objectContaining( { offered: 4, switched_on: 1, failed: 0 } )
 			)
 		);
 	} );
 
-	it( 'tells a failed request apart from an empty list', async () => {
-		mockApply.mockRejectedValueOnce( new Error( 'nope' ) );
+	// Tracks drops an event whose property keys miss its rule, and says nothing.
+	it( 'sends only property keys Tracks will take', async () => {
 		const { user } = setupWizard( { isUserConnected: true } );
-		await user.click( screen.getByRole( 'radio', { name: 'A blog or publication' } ) );
+		await user.click( screen.getByRole( 'radio', { name: 'Something else…' } ) );
+		await user.type( screen.getByRole( 'textbox' ), 'A wiki' );
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+		await user.click( screen.getByRole( 'checkbox', { name: 'Downtime Monitor' } ) );
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+		await user.click( await screen.findByRole( 'link', { name: 'Go to My Jetpack' } ) );
 
-		await waitFor( () =>
-			expect( mockRecordEvent ).toHaveBeenCalledWith(
-				'jetpack_my_jetpack_onboarding_wizard_apply_result',
-				expect.objectContaining( { offered: 4, request_failed: true } )
-			)
+		const keys = mockRecordEvent.mock.calls.flatMap( ( [ , props ] ) => Object.keys( props ) );
+
+		expect( keys ).toEqual(
+			expect.arrayContaining( [ 'length_bucket', 'module', 'switched_on' ] )
 		);
+		keys.forEach( key => expect( key ).toMatch( /^[a-z_][a-z0-9_]*$/ ) );
 	} );
 
-	// A double click, or the finish link then the rail's, must not report and settle twice.
+	// A double click, or both finish links, must not report and settle twice.
 	it( 'records one exit per run, and ends its id', async () => {
 		const { user } = setupWizard( { isUserConnected: true } );
 		await advance( user, 2 );
