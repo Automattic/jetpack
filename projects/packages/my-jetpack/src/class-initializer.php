@@ -591,6 +591,11 @@ class Initializer {
 			return false;
 		}
 
+		// Its features step switches Jetpack modules, whose routes only the Jetpack plugin has.
+		if ( ! class_exists( 'Jetpack' ) ) {
+			return false;
+		}
+
 		// The wizard registers the site at its own first step, which writes the marker
 		// below, so asking again on the way back from WordPress.com would drop someone
 		// out of a run already under way.

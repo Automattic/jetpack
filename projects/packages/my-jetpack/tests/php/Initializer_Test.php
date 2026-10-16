@@ -481,13 +481,46 @@ class Initializer_Test extends BaseTestCase {
 	}
 
 	/**
-	 * With its flag on, the wizard runs on a self-hosted site.
+	 * Load the mock Jetpack plugin. Only from a separate process: a class cannot be unloaded.
 	 */
-	public function test_wizard_is_enabled_on_self_hosted_with_the_flag_on() {
-		$this->enable_wizard_flag();
+	private function run_jetpack_plugin() {
+		require_once __DIR__ . '/assets/jetpack-mock-plugin.txt';
+	}
 
-		$this->assertTrue( Initializer::is_onboarding_wizard_enabled() );
-		$this->assertNotNull( Initializer::get_onboarding_wizard_state() );
+	/**
+	 * Data provider for the wizard with and without the Jetpack plugin.
+	 *
+	 * @return array
+	 */
+	public static function provide_jetpack_plugin_cases() {
+		return array(
+			'with the Jetpack plugin' => array( true, true ),
+			// Its features step switches modules only the Jetpack plugin has.
+			'standalone plugins only' => array( false, false ),
+		);
+	}
+
+	/**
+	 * With the flag on, a self-hosted site gets the wizard only when the Jetpack plugin runs.
+	 *
+	 * @dataProvider provide_jetpack_plugin_cases
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 *
+	 * @param bool $with_jetpack Whether the Jetpack plugin is active.
+	 * @param bool $expected     Whether the wizard should be enabled.
+	 */
+	#[DataProvider( 'provide_jetpack_plugin_cases' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_the_wizard_needs_the_jetpack_plugin( $with_jetpack, $expected ) {
+		$this->enable_wizard_flag();
+		if ( $with_jetpack ) {
+			$this->run_jetpack_plugin();
+		}
+
+		$this->assertSame( $expected, Initializer::is_onboarding_wizard_enabled() );
+		$this->assertSame( $expected, null !== Initializer::get_onboarding_wizard_state() );
 	}
 
 	/**
@@ -819,6 +852,7 @@ class Initializer_Test extends BaseTestCase {
 		$user_id = $this->log_in_as_admin();
 		$this->connect_owner( $user_id );
 		$this->enable_wizard_flag();
+		$this->run_jetpack_plugin();
 		$_GET['step'] = 'onboarding';
 
 		$this->assertNull( $this->capture_onboarding_redirect() );
@@ -922,6 +956,7 @@ class Initializer_Test extends BaseTestCase {
 		$this->assertFalse( REST_Onboarding::permissions_callback() );
 
 		$this->enable_wizard_flag();
+		$this->run_jetpack_plugin();
 
 		$this->assertTrue( REST_Onboarding::permissions_callback() );
 	}
@@ -1061,6 +1096,7 @@ class Initializer_Test extends BaseTestCase {
 	#[PreserveGlobalState( false )]
 	public function test_the_wizard_runs_for_a_standalone_plugin_user() {
 		$this->enable_wizard_flag();
+		$this->run_jetpack_plugin();
 		// A blog ID with no token: registered by a standalone plugin, not connected now.
 		Jetpack_Options::update_option( 'id', 1234 );
 		( new Connection_Manager() )->reset_connection_status();
@@ -1080,6 +1116,7 @@ class Initializer_Test extends BaseTestCase {
 	#[PreserveGlobalState( false )]
 	public function test_a_previous_jetpack_registration_closes_the_wizard() {
 		$this->enable_wizard_flag();
+		$this->run_jetpack_plugin();
 		Jetpack_Options::update_option( 'unique_registrations', 2 );
 
 		$this->assertFalse( Initializer::has_never_registered_jetpack() );
@@ -1102,6 +1139,7 @@ class Initializer_Test extends BaseTestCase {
 	public function test_connecting_mid_run_does_not_close_the_wizard() {
 		$user_id = $this->log_in_as_admin();
 		$this->enable_wizard_flag();
+		$this->run_jetpack_plugin();
 		$this->connect_owner( $user_id );
 		Jetpack_Options::update_option( 'unique_registrations', 1 );
 
@@ -1124,6 +1162,7 @@ class Initializer_Test extends BaseTestCase {
 	public function test_admin_init_sends_a_site_only_connection_back_into_setup() {
 		$this->log_in_as_admin();
 		$this->enable_wizard_flag();
+		$this->run_jetpack_plugin();
 		$this->connect_site_only();
 
 		$this->assertTrue( ( new Connection_Manager() )->is_connected() );
@@ -1163,6 +1202,7 @@ class Initializer_Test extends BaseTestCase {
 	public function test_a_skip_needs_the_site_connection( $site_connected, $expect_redirect ) {
 		$user_id = $this->log_in_as_admin();
 		$this->enable_wizard_flag();
+		$this->run_jetpack_plugin();
 		if ( $site_connected ) {
 			$this->connect_site_only();
 		}
