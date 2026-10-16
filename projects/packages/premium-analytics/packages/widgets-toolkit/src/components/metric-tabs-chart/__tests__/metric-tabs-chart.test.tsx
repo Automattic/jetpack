@@ -184,6 +184,40 @@ describe( 'MetricTabsChart', () => {
 		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
 	} );
 
+	it.each( [
+		[ 'spreads six cards over two even rows', 999, '3' ],
+		[ 'keeps six cards on one row when they fit', 1000, '6' ],
+	] )( '%s', ( _case, width, columns ) => {
+		setMockChartWidth( width );
+		const metrics = [ 'a', 'b', 'c', 'd', 'e', 'f' ].map( key => ( {
+			...METRIC,
+			key,
+			label: key,
+		} ) );
+
+		render( <MetricTabsChart metrics={ metrics } dataFormat={ DATA_FORMAT } /> );
+
+		expect(
+			screen.getByRole( 'tablist' ).style.getPropertyValue( '--jpa-metric-tabs-columns' )
+		).toBe( columns );
+	} );
+
+	it( 'spells the figure out in the dropdown, which has room for it', () => {
+		setMockChartWidth( 100 );
+		const compact = { type: 'number' as const, options: { useMultipliers: true } };
+
+		render(
+			<MetricTabsChart
+				metrics={ [ { ...VIEWS, value: 12345, dataFormat: compact }, VISITORS ] }
+				dataFormat={ DATA_FORMAT }
+			/>
+		);
+
+		const trigger = screen.getByRole( 'combobox' );
+		expect( trigger ).toHaveTextContent( '12,345' );
+		expect( trigger ).not.toHaveTextContent( '12.3K' );
+	} );
+
 	it( 'draws a bar chart when chartType is bar', () => {
 		render( <MetricTabsChart metrics={ [ METRIC ] } dataFormat={ DATA_FORMAT } chartType="bar" /> );
 
