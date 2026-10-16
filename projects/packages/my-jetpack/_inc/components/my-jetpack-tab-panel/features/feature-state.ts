@@ -254,10 +254,9 @@ export function resolveFeatureState(
 	}
 
 	// Delivered by Jetpack's module or the installed standalone plugin. A module or plugin that
-	// something else, such as a host or multisite, keeps off explains itself below instead, and a
-	// module the site switched off while it pays keeps its switch to come back on.
+	// something else, such as a host or multisite, keeps off explains itself below instead.
 	const deliversPlan = $module
-		? ! getModuleStatus( $module ).reason && ( $module.activated || ! feature.included )
+		? ! getModuleStatus( $module ).reason
 		: feature.plugin_status !== 'not-installed' && feature.plugin_override !== 'inactive';
 	if ( feature.plan_driven && deliversPlan ) {
 		return {

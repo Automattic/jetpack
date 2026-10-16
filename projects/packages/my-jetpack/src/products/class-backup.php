@@ -434,12 +434,12 @@ class Backup extends Hybrid_Product {
 	/**
 	 * Checks whether the backup module is active.
 	 *
-	 * The standalone plugin draws its dashboard whatever the module says, so it counts as on.
+	 * The plan, not the module, decides Backup wherever a plugin can deliver it, so either plugin counts as on.
 	 *
 	 * @return bool
 	 */
 	public static function is_module_active() {
-		return static::is_standalone_plugin_active() || parent::is_module_active();
+		return static::is_standalone_plugin_active() || static::is_jetpack_plugin_active();
 	}
 
 	/**

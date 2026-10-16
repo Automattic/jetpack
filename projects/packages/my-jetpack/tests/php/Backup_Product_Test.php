@@ -188,25 +188,17 @@ class Backup_Product_Test extends TestCase {
 	}
 
 	/**
-	 * With only the Jetpack plugin, the backup module switches the product on and off.
+	 * Either plugin delivers Backup with the backup module off, since the plan decides it.
+	 *
+	 * @dataProvider provide_delivering_plugins
+	 *
+	 * @param bool $jetpack    Whether the Jetpack plugin is active.
+	 * @param bool $standalone Whether the standalone plugin is active.
 	 */
-	public function test_backup_module_switches_backup_on_the_jetpack_plugin() {
-		activate_plugins( 'jetpack/jetpack.php' );
-		deactivate_plugins( Backup::get_installed_plugin_filename() );
-		$this->assertSame( 'backup', Backup::$module_name );
-		$this->assertTrue( Backup::is_activated() );
-
-		Jetpack_Options::update_option( 'active_modules', array() );
-		$this->assertFalse( Backup::is_module_active() );
-		$this->assertFalse( Backup::is_activated() );
-	}
-
-	/**
-	 * The standalone plugin draws its own dashboard, so the backup module being off does not switch Backup off.
-	 */
-	public function test_standalone_plugin_keeps_backup_on_with_the_module_off() {
-		activate_plugins( 'jetpack/jetpack.php' );
-		activate_plugins( Backup::get_installed_plugin_filename() );
+	#[DataProvider( 'provide_delivering_plugins' )]
+	public function test_backup_module_off_does_not_switch_backup_off( $jetpack, $standalone ) {
+		$jetpack ? activate_plugins( 'jetpack/jetpack.php' ) : deactivate_plugins( 'jetpack/jetpack.php' );
+		$standalone ? activate_plugins( Backup::get_installed_plugin_filename() ) : deactivate_plugins( Backup::get_installed_plugin_filename() );
 		Jetpack_Options::update_option( 'active_modules', array() );
 
 		$this->assertTrue( Backup::is_module_active() );
@@ -214,9 +206,21 @@ class Backup_Product_Test extends TestCase {
 	}
 
 	/**
-	 * A plan holder who switched the module off is offered the module, not a purchase.
+	 * Data provider for test_backup_module_off_does_not_switch_backup_off.
+	 *
+	 * @return array
 	 */
-	public function test_get_status_reports_module_disabled_with_a_plan() {
+	public static function provide_delivering_plugins() {
+		return array(
+			'the Jetpack plugin'    => array( true, false ),
+			'the standalone plugin' => array( false, true ),
+		);
+	}
+
+	/**
+	 * A plan holder who switched the module off still has Backup running.
+	 */
+	public function test_get_status_follows_the_plan_with_the_module_off() {
 		( new Tokens() )->update_blog_token( 'test.test.1' );
 		( new Tokens() )->update_user_token( self::$user_id, 'test.test.' . self::$user_id, true );
 		Jetpack_Options::update_option( 'id', 123 );
@@ -236,7 +240,7 @@ class Backup_Product_Test extends TestCase {
 		);
 		set_transient( Backup::BACKUP_STATUS_TRANSIENT_KEY, 'no_errors', HOUR_IN_SECONDS );
 
-		$this->assertSame( Products::STATUS_MODULE_DISABLED, Backup::get_status() );
+		$this->assertSame( Products::STATUS_ACTIVE, Backup::get_status() );
 
 		delete_transient( Backup::BACKUP_STATUS_TRANSIENT_KEY );
 		delete_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY );

@@ -409,27 +409,6 @@ describe( 'resolveFeatureState, for a feature its plan decides', () => {
 		}
 	);
 
-	it.each( [
-		[ false, 'plan' ],
-		[ true, 'module' ],
-	] )(
-		'gives a switched-off module its switch back only once the site pays: included %s',
-		( included, kind ) => {
-			const state = resolveFeatureState(
-				{ ...backup, included },
-				'active',
-				{
-					status: PRODUCT_STATUSES.MODULE_DISABLED,
-					hasPaidPlanForProduct: included,
-				} as ProductCamelCase,
-				{ backup: buildModule( { module: 'backup', activated: false } ) },
-				{}
-			);
-
-			expect( state.control.kind ).toBe( kind );
-		}
-	);
-
 	it( 'explains a plan that is paid for but not running, which has no Upgrade to offer', () => {
 		const state = resolveFeatureState(
 			{ ...backup, included: true },
