@@ -159,20 +159,17 @@ const PrimaryAction: FC< {
  */
 const ConnectionControl: FC = () => {
 	const state = useConnectionState();
-	const {
-		apiRoot,
-		apiNonce,
-		isSiteConnected,
-		isUserConnected,
-		connectedPlugins,
-		userConnectionData,
-	} = useMyJetpackConnection();
+	const { apiRoot, apiNonce, isUserConnected, connectedPlugins, userConnectionData } =
+		useMyJetpackConnection();
 	const { errorGroups, showSupportLink, connectionErrorMessage, actions } =
 		useConnectionErrorNotice( { trackingContext: 'my-jetpack-header', navigate: assignLocation } );
 	const [ isOpen, setIsOpen ] = useState( false );
 	const [ isDialogOpen, setIsDialogOpen ] = useState( false );
-	// Held here, not in the popup: its content unmounts on close and would refetch on every open.
-	const purchases = useSitePurchases( isOpen && isSiteConnected );
+	// Never stale, so opening reuses what the Overview or an earlier open loaded.
+	const { data: purchases = null } = useSitePurchases( {
+		enabled: isOpen,
+		staleTime: Infinity,
+	} );
 
 	// The dialog cannot open on top of the popover: close it first and hand focus over.
 	const openManageDialog = useCallback( () => {

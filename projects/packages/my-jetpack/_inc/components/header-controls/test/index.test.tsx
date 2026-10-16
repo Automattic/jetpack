@@ -1,17 +1,24 @@
 import '@testing-library/jest-dom';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { render as rtlRender, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import HeaderControls, { getHeaderControls } from '../';
+import { QUERY_PURCHASES_KEY, REST_API_SITE_PURCHASES_ENDPOINT } from '../../../data/constants';
+import { getSimpleQueryKey } from '../../../data/use-simple-query';
 import useAnalytics from '../../../hooks/use-analytics';
 import { useConnectionState } from '../../../hooks/use-connection-state';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import type { ConnectionState } from '../../../hooks/use-connection-state';
+import type { ReactElement } from 'react';
 
 jest.mock( '@wordpress/api-fetch' );
 jest.mock( '../../../hooks/use-analytics' );
 jest.mock( '../../../hooks/use-connection-state' );
 jest.mock( '../../../hooks/use-my-jetpack-connection' );
+jest.mock( '../../../data/notices/use-fetching-error-notice', () => ( {
+	useFetchingErrorNotice: jest.fn(),
+} ) );
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getMyJetpackUrl: ( section = '' ) => `admin.php?page=my-jetpack${ section }`,
 } ) );
@@ -26,6 +33,13 @@ jest.mock( '@automattic/jetpack-connection', () => ( {
 		connectionErrorMessage: '',
 	} ),
 } ) );
+
+const render = ( ui: ReactElement, queryClient = new QueryClient() ) =>
+	rtlRender( ui, {
+		wrapper: ( { children } ) => (
+			<QueryClientProvider client={ queryClient }>{ children }</QueryClientProvider>
+		),
+	} );
 
 const mockApiFetch = apiFetch as jest.MockedFunction< typeof apiFetch >;
 const mockRecordEvent = jest.fn();
@@ -125,6 +139,23 @@ describe( 'HeaderControls', () => {
 		await openControl();
 
 		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'reuses purchases the page has already loaded', async () => {
+		const queryClient = new QueryClient();
+		queryClient.setQueryData(
+			getSimpleQueryKey( {
+				name: QUERY_PURCHASES_KEY,
+				query: { path: REST_API_SITE_PURCHASES_ENDPOINT },
+			} ),
+			[]
+		);
+		render( <HeaderControls />, queryClient );
+
+		await openControl();
+
+		await expect( screen.findByText( /Jetpack Essentials/ ) ).resolves.toBeInTheDocument();
+		expect( mockApiFetch ).not.toHaveBeenCalled();
 	} );
 
 	it( "tags the plan links' Tracks events as from the header", async () => {
