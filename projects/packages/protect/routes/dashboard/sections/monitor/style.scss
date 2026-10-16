@@ -1,5 +1,11 @@
+$uptime-up: var(--wpds-color-stroke-surface-success-strong);
 $uptime-down: var(--wpds-color-stroke-surface-error-strong);
 $uptime-down-bg: var(--wpds-color-background-surface-error);
+$uptime-none: var(--wpds-color-background-track-neutral);
+
+.jp-protect-uptime-row {
+	padding-block: 24px;
+}
 
 .jp-protect-uptime {
 	display: flex;
@@ -12,11 +18,11 @@ $uptime-down-bg: var(--wpds-color-background-surface-error);
 		min-inline-size: 2px;
 		block-size: 40%;
 		border-radius: 2px;
-		background: var(--wpds-color-background-track-neutral);
+		background: $uptime-none;
 
 		&.is-up {
 			block-size: 100%;
-			background: var(--wpds-color-stroke-surface-success-strong);
+			background: $uptime-up;
 		}
 
 		// Stripes, so down days don't rely on color alone.
@@ -33,6 +39,34 @@ $uptime-down-bg: var(--wpds-color-background-surface-error);
 				background: CanvasText;
 				forced-color-adjust: none;
 			}
+		}
+	}
+
+	&__tip-date {
+		display: block;
+		opacity: 0.7;
+	}
+
+	&__tip-status {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		font-weight: 500;
+
+		&::before {
+			content: "";
+			inline-size: 8px;
+			block-size: 8px;
+			border-radius: 50%;
+			background: $uptime-none;
+		}
+
+		&.is-up::before {
+			background: $uptime-up;
+		}
+
+		&.is-down::before {
+			background: $uptime-down;
 		}
 	}
 
