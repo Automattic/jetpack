@@ -2869,7 +2869,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			);
 		} );
 
-		it( 'hides the styles group on the picker', async () => {
+		it( 'hides the style controls on the picker', async () => {
 			mockLinks( [ resource( 'PLB-A1', 'Croissant' ) ] );
 
 			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
@@ -2877,7 +2877,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await expect(
 				screen.findByRole( 'button', { name: 'Create new' } )
 			).resolves.toBeInTheDocument();
-			expect( screen.queryByTestId( 'inspector-controls-styles' ) ).not.toBeInTheDocument();
+			expect( screen.queryByLabelText( 'Embed as' ) ).not.toBeInTheDocument();
 		} );
 
 		it( 'reports a failed link pick in the snackbar', async () => {
@@ -7012,9 +7012,10 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			renderForm( { ...saved, format: 'LINK' } );
 
 			await expect( screen.findByText( notice ) ).resolves.toBeInTheDocument();
-			const styles = screen.getByTestId( 'inspector-controls-styles' );
-			expect( within( styles ).queryByLabelText( 'URL' ) ).not.toBeInTheDocument();
-			expect( within( styles ).queryByText( 'Copy' ) ).not.toBeInTheDocument();
+			await expect( screen.findByLabelText( 'Embed as' ) ).resolves.toBeInTheDocument();
+			const inspector = screen.getByTestId( 'inspector-controls' );
+			expect( within( inspector ).queryByLabelText( 'URL' ) ).not.toBeInTheDocument();
+			expect( within( inspector ).queryByText( 'Copy' ) ).not.toBeInTheDocument();
 		} );
 
 		it( 'swaps the QR code for its placeholder once PayPal has deleted the link', async () => {
@@ -7022,10 +7023,12 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			renderForm( { ...saved, format: 'QR' } );
 
 			await expect( screen.findByText( notice ) ).resolves.toBeInTheDocument();
-			const styles = screen.getByTestId( 'inspector-controls-styles' );
-			expect( within( styles ).queryByText( 'Download' ) ).not.toBeInTheDocument();
+			const inspector = screen.getByTestId( 'inspector-controls' );
+			expect( within( inspector ).queryByText( 'Download' ) ).not.toBeInTheDocument();
 			expect(
-				within( styles ).getByRole( 'img', { name: 'The QR code appears once the post is saved.' } )
+				within( inspector ).getByRole( 'img', {
+					name: 'The QR code appears once the post is saved.',
+				} )
 			).toBeInTheDocument();
 		} );
 
@@ -7798,15 +7801,13 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				'BUTTON'
 			);
 
-			// Embed as is a dropdown in the Styles tab.
 			await user.selectOptions( screen.getByLabelText( 'Embed as' ), 'QR' );
 
 			expect( setAttributes ).toHaveBeenCalledWith( { format: 'QR' } );
 		} );
 
-		// The Styles tab — the panel set changes per format and, for QR, per the
-		// caption toggle.
-		describe( 'the Styles tab', () => {
+		// The panel set changes per format and, for QR, per the caption toggle.
+		describe( 'the style controls', () => {
 			const qrAttributes = {
 				isApiManaged: true,
 				resourceId: 'PLB-TEST123',
@@ -7817,11 +7818,40 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				format: 'QR',
 			};
 
-			it( 'puts the format controls in the styles group, which is what draws the tab bar', async () => {
+			// A `group="styles"` fill would draw the editor's tab bar.
+			it( 'renders the style controls in the default sidebar fill', async () => {
 				render( <Edit attributes={ qrAttributes } setAttributes={ setAttributes } /> );
-				await expect(
-					screen.findByTestId( 'inspector-controls-styles' )
-				).resolves.toBeInTheDocument();
+
+				const embedAs = await screen.findByLabelText( 'Embed as' );
+				expect( screen.getByTestId( 'inspector-controls' ) ).toContainElement( embedAs );
+				expect( screen.queryByTestId( 'inspector-controls-styles' ) ).not.toBeInTheDocument();
+			} );
+
+			// One fill, so the panels show in source order.
+			it( 'puts the style controls under the link details, above PayPal Connection', async () => {
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'BUTTON' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				const embedAs = await screen.findByLabelText( 'Embed as' );
+				expect( screen.getAllByTestId( 'inspector-controls' ) ).toHaveLength( 1 );
+				expect( screen.getByText( 'Link used on' ) ).toAppearBefore( embedAs );
+				expect( embedAs ).toAppearBefore( panel( 'PayPal Connection' ) );
+			} );
+
+			it( 'offers the four formats in order', async () => {
+				render( <Edit attributes={ qrAttributes } setAttributes={ setAttributes } /> );
+
+				const embedAs = await screen.findByLabelText( 'Embed as' );
+				expect( [ ...embedAs.options ].map( o => [ o.value, o.textContent ] ) ).toEqual( [
+					[ 'BUTTON', 'Single button' ],
+					[ 'STACKED', 'Stacked buttons' ],
+					[ 'QR', 'QR code' ],
+					[ 'LINK', 'Link' ],
+				] );
 			} );
 
 			it( 'offers Download beside the inspector QR code', async () => {
@@ -7829,11 +7859,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				await expect( screen.findByText( 'Download' ) ).resolves.toBeInTheDocument();
 			} );
 
-			// Button text goes under Embed as so it follows the format, rather than
-			// in the Settings tab where QR and Link merchants saw a field that did
-			// nothing. Scoped to the styles fill: both fills render into one body,
-			// so an unscoped query passes wherever the control actually lives.
-			it( 'writes the button text from the styles tab', async () => {
+			it( 'writes the button text', async () => {
 				const user = userEvent.setup();
 				render(
 					<Edit
@@ -7842,21 +7868,21 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					/>
 				);
 
-				const styles = await screen.findByTestId( 'inspector-controls-styles' );
-				await user.type( within( styles ).getByLabelText( 'Button text' ), 'B' );
+				const inspector = await screen.findByTestId( 'inspector-controls' );
+				await user.type( within( inspector ).getByLabelText( 'Button text' ), 'B' );
 
 				expect( setAttributes ).toHaveBeenCalledWith( { buttonText: 'B' } );
 			} );
 
-			it( 'hides the styles group before a link exists', async () => {
+			it( 'hides the style controls before a link exists', async () => {
 				apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
 				renderForm( { format: 'BUTTON' } );
 
 				await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
-				expect( screen.queryByTestId( 'inspector-controls-styles' ) ).not.toBeInTheDocument();
+				expect( screen.queryByLabelText( 'Embed as' ) ).not.toBeInTheDocument();
 			} );
 
-			it( 'draws the styles group once the save writes the link', async () => {
+			it( 'shows the style controls once the save writes the link', async () => {
 				apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
 				const form = {
 					productName: 'Test Widget',
@@ -7868,7 +7894,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				const { rerender } = render( <Edit attributes={ form } setAttributes={ setAttributes } /> );
 
 				await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
-				expect( screen.queryByTestId( 'inspector-controls-styles' ) ).not.toBeInTheDocument();
+				expect( screen.queryByLabelText( 'Embed as' ) ).not.toBeInTheDocument();
 				expect( screen.getByTestId( 'paypal-button-preview' ) ).toHaveAttribute(
 					'data-disabled',
 					'true'
@@ -7886,8 +7912,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					/>
 				);
 
-				const styles = await screen.findByTestId( 'inspector-controls-styles' );
-				expect( within( styles ).getByLabelText( 'URL' ) ).toHaveValue( link );
+				const inspector = await screen.findByTestId( 'inspector-controls' );
+				expect( within( inspector ).getByLabelText( 'URL' ) ).toHaveValue( link );
 				expect( screen.getByTestId( 'paypal-button-preview' ) ).toHaveAttribute(
 					'data-disabled',
 					'false'
@@ -7895,30 +7921,38 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			} );
 
 			// A saved button still works while disconnected, so it stays stylable.
-			it( 'keeps the styles group while PayPal is disconnected', async () => {
+			it( 'keeps the style controls while PayPal is disconnected', async () => {
 				apiFetch.mockResolvedValue( { connected: false, environment: 'sandbox' } );
 				render( <Edit attributes={ qrAttributes } setAttributes={ setAttributes } /> );
 
 				await expect(
 					screen.findByText( /PayPal account is disconnected/ )
 				).resolves.toBeInTheDocument();
-				expect( screen.getByTestId( 'inspector-controls-styles' ) ).toBeInTheDocument();
+				expect(
+					within( screen.getByTestId( 'inspector-controls' ) ).getByLabelText( 'Embed as' )
+				).toBeInTheDocument();
 			} );
 
-			it( 'leaves no button text field in the settings tab', async () => {
+			// The form edits the link itself, so the style controls stay with the details.
+			it( 'hides the style controls while editing the link and shows them again on return', async () => {
+				const user = userEvent.setup();
 				render(
 					<Edit
 						attributes={ { ...qrAttributes, format: 'BUTTON' } }
 						setAttributes={ setAttributes }
 					/>
 				);
+				await expect( screen.findByLabelText( 'Embed as' ) ).resolves.toBeInTheDocument();
 
-				// The form and the connection panel are both ungrouped fills, so the
-				// settings tab is more than one node.
-				const settings = await screen.findAllByTestId( 'inspector-controls' );
-				settings.forEach( fill =>
-					expect( within( fill ).queryByLabelText( 'Button text' ) ).not.toBeInTheDocument()
-				);
+				await user.click( screen.getByRole( 'button', { name: 'Edit' } ) );
+
+				expect( screen.getByLabelText( 'Product Name' ) ).toBeInTheDocument();
+				expect( screen.queryByLabelText( 'Embed as' ) ).not.toBeInTheDocument();
+				expect( screen.queryByLabelText( 'Button text' ) ).not.toBeInTheDocument();
+
+				await user.click( screen.getByRole( 'button', { name: 'Edit Button' } ) );
+
+				expect( screen.getByLabelText( 'Embed as' ) ).toBeInTheDocument();
 			} );
 
 			// Document-wide, not scoped: a QR merchant must not see the field
@@ -7928,8 +7962,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					<Edit attributes={ qrAttributes } setAttributes={ setAttributes } />
 				);
 
-				let styles = await screen.findByTestId( 'inspector-controls-styles' );
-				expect( within( styles ).getByLabelText( 'Embed as' ) ).toHaveValue( 'QR' );
+				let inspector = await screen.findByTestId( 'inspector-controls' );
+				expect( within( inspector ).getByLabelText( 'Embed as' ) ).toHaveValue( 'QR' );
 				expect( screen.queryByLabelText( 'Button text' ) ).not.toBeInTheDocument();
 
 				rerender(
@@ -7939,8 +7973,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					/>
 				);
 
-				styles = await screen.findByTestId( 'inspector-controls-styles' );
-				expect( within( styles ).getByLabelText( 'Embed as' ) ).toHaveValue( 'LINK' );
+				inspector = await screen.findByTestId( 'inspector-controls' );
+				expect( within( inspector ).getByLabelText( 'Embed as' ) ).toHaveValue( 'LINK' );
 				expect( screen.queryByLabelText( 'Button text' ) ).not.toBeInTheDocument();
 			} );
 
@@ -7954,11 +7988,11 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					/>
 				);
 
-				const styles = await screen.findByTestId( 'inspector-controls-styles' );
+				const inspector = await screen.findByTestId( 'inspector-controls' );
 				// The connection is a sandbox one, so the link stays on the sandbox
 				// dashboard.
 				expect(
-					within( styles ).getByRole( 'link', { name: /Edit default settings in PayPal/ } )
+					within( inspector ).getByRole( 'link', { name: /Edit default settings in PayPal/ } )
 				).toHaveAttribute(
 					'href',
 					'https://www.sandbox.paypal.com/ncp/settings?initial_tab=stackedButtons'
@@ -7970,7 +8004,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					);
 					// Check the format changed before checking the link, so a stale
 					// render cannot pass.
-					const rendered = await screen.findByTestId( 'inspector-controls-styles' );
+					const rendered = await screen.findByTestId( 'inspector-controls' );
 					expect( within( rendered ).getByLabelText( 'Embed as' ) ).toHaveValue( format );
 					expect( screen.queryByText( 'Edit default settings in PayPal' ) ).not.toBeInTheDocument();
 				}
@@ -7990,9 +8024,9 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					/>
 				);
 
-				const styles = await screen.findByTestId( 'inspector-controls-styles' );
+				const inspector = await screen.findByTestId( 'inspector-controls' );
 				expect(
-					within( styles ).getByRole( 'link', { name: /Edit default settings in PayPal/ } )
+					within( inspector ).getByRole( 'link', { name: /Edit default settings in PayPal/ } )
 				).toHaveAttribute(
 					'href',
 					'https://www.paypal.com/ncp/settings?initial_tab=stackedButtons'
@@ -8009,8 +8043,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					/>
 				);
 
-				const styles = await screen.findByTestId( 'inspector-controls-styles' );
-				expect( within( styles ).getByLabelText( 'Button text' ) ).toBeInTheDocument();
+				const inspector = await screen.findByTestId( 'inspector-controls' );
+				expect( within( inspector ).getByLabelText( 'Button text' ) ).toBeInTheDocument();
 				expect( screen.queryByLabelText( 'Show QR code' ) ).not.toBeInTheDocument();
 			} );
 
@@ -8089,9 +8123,9 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					/>
 				);
 
-				let styles = await screen.findByTestId( 'inspector-controls-styles' );
-				expect( within( styles ).getByTestId( 'color-Background' ) ).toBeInTheDocument();
-				expect( within( styles ).getByTestId( 'contrast-checker' ) ).toBeInTheDocument();
+				let inspector = await screen.findByTestId( 'inspector-controls' );
+				expect( within( inspector ).getByTestId( 'color-Background' ) ).toBeInTheDocument();
+				expect( within( inspector ).getByTestId( 'contrast-checker' ) ).toBeInTheDocument();
 
 				rerender(
 					<Edit
@@ -8100,10 +8134,10 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					/>
 				);
 
-				styles = await screen.findByTestId( 'inspector-controls-styles' );
-				expect( within( styles ).getByTestId( 'color-Text' ) ).toBeInTheDocument();
-				expect( within( styles ).queryByTestId( 'color-Background' ) ).not.toBeInTheDocument();
-				expect( within( styles ).queryByTestId( 'contrast-checker' ) ).not.toBeInTheDocument();
+				inspector = await screen.findByTestId( 'inspector-controls' );
+				expect( within( inspector ).getByTestId( 'color-Text' ) ).toBeInTheDocument();
+				expect( within( inspector ).queryByTestId( 'color-Background' ) ).not.toBeInTheDocument();
+				expect( within( inspector ).queryByTestId( 'contrast-checker' ) ).not.toBeInTheDocument();
 			} );
 
 			// The row is hidden under Outline, but the value behind it is not — Reset
@@ -8193,8 +8227,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					/>
 				);
 
-				const styles = await screen.findByTestId( 'inspector-controls-styles' );
-				const toggle = within( styles ).getByTestId( 'toggle-group-Styles' );
+				const inspector = await screen.findByTestId( 'inspector-controls' );
+				const toggle = within( inspector ).getByTestId( 'toggle-group-Styles' );
 				expect( toggle ).toHaveAttribute( 'data-value', 'fill' );
 
 				await user.click( within( toggle ).getByText( 'Outline' ) );
@@ -8208,9 +8242,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				const { rerender } = render(
 					<Edit attributes={ qrAttributes } setAttributes={ setAttributes } />
 				);
-				await expect(
-					screen.findByTestId( 'inspector-controls-styles' )
-				).resolves.toBeInTheDocument();
+				await expect( screen.findByLabelText( 'Embed as' ) ).resolves.toBeInTheDocument();
 				expect( screen.queryByTestId( 'toggle-group-Styles' ) ).not.toBeInTheDocument();
 
 				rerender(
@@ -8232,8 +8264,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					/>
 				);
 
-				const styles = await screen.findByTestId( 'inspector-controls-styles' );
-				const checkbox = within( styles ).getByLabelText( 'Show "Powered by PayPal"' );
+				const inspector = await screen.findByTestId( 'inspector-controls' );
+				const checkbox = within( inspector ).getByLabelText( 'Show "Powered by PayPal"' );
 				expect( checkbox ).toBeChecked();
 
 				await user.click( checkbox );
@@ -8247,9 +8279,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				const { rerender } = render(
 					<Edit attributes={ qrAttributes } setAttributes={ setAttributes } />
 				);
-				await expect(
-					screen.findByTestId( 'inspector-controls-styles' )
-				).resolves.toBeInTheDocument();
+				await expect( screen.findByLabelText( 'Embed as' ) ).resolves.toBeInTheDocument();
 				expect( screen.queryByLabelText( 'Show "Powered by PayPal"' ) ).not.toBeInTheDocument();
 
 				rerender(
@@ -8263,7 +8293,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			// The button puts Width Settings between Color and Typography; QR does
 			// not, so one shared Color+Typography component cannot draw both.
-			it( 'orders the button panels Color, Styles, Width, Typography, Border', async () => {
+			it( 'orders the button panels Color, Styles, Width, Typography, Border, then PayPal Connection', async () => {
 				render(
 					<Edit
 						attributes={ { ...qrAttributes, format: 'BUTTON' } }
@@ -8271,11 +8301,11 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					/>
 				);
 
-				const styles = await screen.findByTestId( 'inspector-controls-styles' );
+				const inspector = await screen.findByTestId( 'inspector-controls' );
 				// Both testids in one query, so the result comes back in document
 				// order. Only PanelBody has a title; the Color panel is a
 				// ToolsPanel and is named by its testid.
-				const titles = within( styles )
+				const titles = within( inspector )
 					.getAllByTestId( /^(tools-panel-Color|panel-body)$/ )
 					.map( node =>
 						node.dataset.testid === 'tools-panel-Color'
@@ -8289,6 +8319,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					'Width Settings',
 					'Typography',
 					'Border Settings',
+					'PayPal Connection',
 				] );
 			} );
 
@@ -8302,15 +8333,12 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					/>
 				);
 
-				// Scoped to the Settings fills, where the preset used to live —
-				// unscoped, this would pass just as well if the tab stopped
-				// rendering for some unrelated reason.
-				const settings = await screen.findAllByTestId( 'inspector-controls' );
-				settings.forEach( fill => {
-					expect( within( fill ).queryByText( 'Light' ) ).not.toBeInTheDocument();
-					expect( within( fill ).queryByText( 'Auto' ) ).not.toBeInTheDocument();
-					expect( within( fill ).queryByText( 'Dark' ) ).not.toBeInTheDocument();
-				} );
+				// Positive control: Embed as is there.
+				await expect( screen.findByLabelText( 'Embed as' ) ).resolves.toBeInTheDocument();
+				const sidebar = within( screen.getByTestId( 'inspector-controls' ) );
+				expect( sidebar.queryByText( 'Light' ) ).not.toBeInTheDocument();
+				expect( sidebar.queryByText( 'Auto' ) ).not.toBeInTheDocument();
+				expect( sidebar.queryByText( 'Dark' ) ).not.toBeInTheDocument();
 			} );
 
 			// The inspector's copy shows the caption too, so the merchant sees what
@@ -8323,7 +8351,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					/>
 				);
 
-				let inspector = await screen.findByTestId( 'inspector-controls-styles' );
+				let inspector = await screen.findByTestId( 'inspector-controls' );
 				expect( within( inspector ).getByText( 'Scan to pay' ) ).toBeInTheDocument();
 
 				rerender(
@@ -8333,7 +8361,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					/>
 				);
 
-				inspector = await screen.findByTestId( 'inspector-controls-styles' );
+				inspector = await screen.findByTestId( 'inspector-controls' );
 				expect( within( inspector ).getByText( 'Download' ) ).toBeInTheDocument();
 				expect( within( inspector ).queryByText( 'Scan to pay' ) ).not.toBeInTheDocument();
 			} );
@@ -8341,10 +8369,10 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			// A fresh QR block draws a bare code; the caption is opt-in.
 			it( 'starts with the caption off', async () => {
 				render( <Edit attributes={ qrAttributes } setAttributes={ setAttributes } /> );
-				const styles = await screen.findByTestId( 'inspector-controls-styles' );
+				const inspector = await screen.findByTestId( 'inspector-controls' );
 
-				expect( within( styles ).getByLabelText( 'Show text under QR code' ) ).not.toBeChecked();
-				expect( within( styles ).queryByLabelText( 'Caption' ) ).not.toBeInTheDocument();
+				expect( within( inspector ).getByLabelText( 'Show text under QR code' ) ).not.toBeChecked();
+				expect( within( inspector ).queryByLabelText( 'Caption' ) ).not.toBeInTheDocument();
 			} );
 
 			it( 'toggles the caption off', async () => {
@@ -8355,9 +8383,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 						setAttributes={ setAttributes }
 					/>
 				);
-				await expect(
-					screen.findByTestId( 'inspector-controls-styles' )
-				).resolves.toBeInTheDocument();
+				await expect( screen.findByLabelText( 'Embed as' ) ).resolves.toBeInTheDocument();
 
 				await user.click( screen.getByLabelText( 'Show text under QR code' ) );
 
@@ -8371,9 +8397,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 						setAttributes={ setAttributes }
 					/>
 				);
-				await expect(
-					screen.findByTestId( 'inspector-controls-styles' )
-				).resolves.toBeInTheDocument();
+				await expect( screen.findByLabelText( 'Embed as' ) ).resolves.toBeInTheDocument();
 
 				expect( screen.queryByTestId( 'tools-panel-Color' ) ).not.toBeInTheDocument();
 				expect( screen.queryByTestId( 'color-dropdown' ) ).not.toBeInTheDocument();
@@ -8450,9 +8474,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 						setAttributes={ setAttributes }
 					/>
 				);
-				await expect(
-					screen.findByTestId( 'inspector-controls-styles' )
-				).resolves.toBeInTheDocument();
+				await expect( screen.findByLabelText( 'Embed as' ) ).resolves.toBeInTheDocument();
 				expect( panel( 'Border Settings' ) ).toBeInTheDocument();
 				expect( screen.queryByTestId( 'spacing-Margin' ) ).not.toBeInTheDocument();
 				// Radius and stroke still belong to the button.
@@ -8460,7 +8482,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				expect( screen.getByTestId( 'border-Stroke' ) ).toBeInTheDocument();
 			} );
 
-			it( 'writes the link text from the styles tab', async () => {
+			it( 'writes the link text', async () => {
 				const user = userEvent.setup();
 				render(
 					<Edit
@@ -8469,8 +8491,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					/>
 				);
 
-				const styles = await screen.findByTestId( 'inspector-controls-styles' );
-				await user.type( within( styles ).getByLabelText( 'Link text' ), 'B' );
+				const inspector = await screen.findByTestId( 'inspector-controls' );
+				await user.type( within( inspector ).getByLabelText( 'Link text' ), 'B' );
 
 				expect( setAttributes ).toHaveBeenCalledWith( { linkText: 'B' } );
 			} );
@@ -8491,16 +8513,16 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					/>
 				);
 
-				const styles = await screen.findByTestId( 'inspector-controls-styles' );
+				const inspector = await screen.findByTestId( 'inspector-controls' );
 				// The BN code has to be on it: a merchant shares this link
 				// directly, so it must attribute the same way the anchor does.
 				await waitFor( () =>
-					expect( within( styles ).getByLabelText( 'URL' ).value ).toContain( 'at_code=BN-TEST' )
+					expect( within( inspector ).getByLabelText( 'URL' ).value ).toContain( 'at_code=BN-TEST' )
 				);
-				expect( within( styles ).getByLabelText( 'URL' ).value ).toContain(
+				expect( within( inspector ).getByLabelText( 'URL' ).value ).toContain(
 					'paypal.com/paymentpage/PLB-TEST123'
 				);
-				expect( within( styles ).getByText( 'Copy' ) ).toBeInTheDocument();
+				expect( within( inspector ).getByText( 'Copy' ) ).toBeInTheDocument();
 			} );
 
 			it( 'copies the attributed URL and goes back to Copy', async () => {
@@ -8518,22 +8540,22 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					/>
 				);
 
-				const styles = await screen.findByTestId( 'inspector-controls-styles' );
+				const inspector = await screen.findByTestId( 'inspector-controls' );
 				await waitFor( () =>
-					expect( within( styles ).getByLabelText( 'URL' ).value ).toContain( 'at_code=BN-TEST' )
+					expect( within( inspector ).getByLabelText( 'URL' ).value ).toContain( 'at_code=BN-TEST' )
 				);
 
-				await user.click( within( styles ).getByText( 'Copy' ) );
+				await user.click( within( inspector ).getByText( 'Copy' ) );
 
 				// The clipboard gets the same attributed URL the field shows.
-				expect( mockCopiedText.last ).toBe( within( styles ).getByLabelText( 'URL' ).value );
-				expect( within( styles ).getByText( 'Copied!' ) ).toBeInTheDocument();
+				expect( mockCopiedText.last ).toBe( within( inspector ).getByLabelText( 'URL' ).value );
+				expect( within( inspector ).getByText( 'Copied!' ) ).toBeInTheDocument();
 
 				// The label goes back on its own rather than sticking at "Copied!".
 				await act( async () => {
 					jest.advanceTimersByTime( 2000 );
 				} );
-				expect( within( styles ).getByText( 'Copy' ) ).toBeInTheDocument();
+				expect( within( inspector ).getByText( 'Copy' ) ).toBeInTheDocument();
 			} );
 
 			it( 'restarts the confirmation when Copy is clicked twice', async () => {
@@ -8546,30 +8568,30 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					/>
 				);
 
-				const styles = await screen.findByTestId( 'inspector-controls-styles' );
-				await user.click( within( styles ).getByText( 'Copy' ) );
+				const inspector = await screen.findByTestId( 'inspector-controls' );
+				await user.click( within( inspector ).getByText( 'Copy' ) );
 
 				// Most of the way through the first window, then copy again.
 				await act( async () => {
 					jest.advanceTimersByTime( 1500 );
 				} );
-				await user.click( within( styles ).getByText( 'Copied!' ) );
+				await user.click( within( inspector ).getByText( 'Copied!' ) );
 
 				// The first timer would have fired by now; the second one has not.
 				await act( async () => {
 					jest.advanceTimersByTime( 1000 );
 				} );
-				expect( within( styles ).getByText( 'Copied!' ) ).toBeInTheDocument();
+				expect( within( inspector ).getByText( 'Copied!' ) ).toBeInTheDocument();
 
 				await act( async () => {
 					jest.advanceTimersByTime( 1000 );
 				} );
-				expect( within( styles ).getByText( 'Copy' ) ).toBeInTheDocument();
+				expect( within( inspector ).getByText( 'Copy' ) ).toBeInTheDocument();
 			} );
 
 			// The panels are shared with the QR caption, so the thing worth
-			// asserting is which attributes they write — wiring LINK to the
-			// caption's would draw an identical tab.
+			// asserting is which attributes they write - wiring LINK to the
+			// caption's would draw identical controls.
 			it( 'stores the link color, and clears it', async () => {
 				const user = userEvent.setup();
 				render(
@@ -8612,13 +8634,12 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					/>
 				);
 
-				const styles = await screen.findByTestId( 'inspector-controls-styles' );
-				// Positive control: the link's own field is there, so the case
-				// covers the wrong field being dropped rather than the whole tab.
-				expect( within( styles ).getByLabelText( 'Link text' ) ).toBeInTheDocument();
-				expect( within( styles ).queryByLabelText( 'Button text' ) ).not.toBeInTheDocument();
+				const inspector = await screen.findByTestId( 'inspector-controls' );
+				// Positive control: the link's own field is there.
+				expect( within( inspector ).getByLabelText( 'Link text' ) ).toBeInTheDocument();
+				expect( within( inspector ).queryByLabelText( 'Button text' ) ).not.toBeInTheDocument();
 				expect(
-					within( styles ).queryByLabelText( 'Show text under QR code' )
+					within( inspector ).queryByLabelText( 'Show text under QR code' )
 				).not.toBeInTheDocument();
 			} );
 
@@ -8629,28 +8650,23 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 						setAttributes={ setAttributes }
 					/>
 				);
-				await expect(
-					screen.findByTestId( 'inspector-controls-styles' )
-				).resolves.toBeInTheDocument();
+				await expect( screen.findByLabelText( 'Embed as' ) ).resolves.toBeInTheDocument();
 
-				// Positive control: Typography still draws, so an empty styles tab
-				// cannot pass this.
+				// Positive control: Typography still draws.
 				expect( panel( 'Typography' ) ).toBeInTheDocument();
 				expect( panel( 'Width Settings' ) ).toBeUndefined();
 				expect( panel( 'Border Settings' ) ).toBeUndefined();
 			} );
 
-			// Both controls take the same busy flag, so a request in flight locks
-			// the format and its label together.
 			/**
-			 * Put a block into the busy state and hand back its styles fill.
+			 * Put a block into the busy state and hand back its sidebar fill.
 			 *
 			 * Hangs the delete so the busy flag is still on when it is checked.
 			 *
 			 * @param {object} attributes - Attributes on top of qrAttributes.
-			 * @return {Element} The styles fill, once the controls have locked.
+			 * @return {Element} The sidebar fill, once the controls have locked.
 			 */
-			const lockedStylesTab = async attributes => {
+			const lockedControls = async attributes => {
 				const user = userEvent.setup();
 				apiFetch.mockImplementation( ( { method } ) =>
 					'DELETE' === method
@@ -8661,48 +8677,46 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					<Edit attributes={ { ...qrAttributes, ...attributes } } setAttributes={ setAttributes } />
 				);
 
-				const styles = await screen.findByTestId( 'inspector-controls-styles' );
-				expect( within( styles ).getByLabelText( 'Embed as' ) ).toBeEnabled();
+				const inspector = await screen.findByTestId( 'inspector-controls' );
+				expect( within( inspector ).getByLabelText( 'Embed as' ) ).toBeEnabled();
 
 				await user.click( await screen.findByTestId( 'toolbar-Delete payment link' ) );
 				await user.click( screen.getByLabelText( 'I understand this cannot be undone.' ) );
 				await user.click( screen.getByRole( 'button', { name: 'Delete permanently' } ) );
 
 				await waitFor( () => {
-					expect( within( styles ).getByLabelText( 'Embed as' ) ).toBeDisabled();
+					expect( within( inspector ).getByLabelText( 'Embed as' ) ).toBeDisabled();
 				} );
 
-				return styles;
+				return inspector;
 			};
 
-			// Every control in the tab takes the same busy flag, so a request in
-			// flight locks the format and the text that goes with it.
+			// Embed as and the per-format fields share one busy flag, so a request
+			// in flight locks them all.
 			it( 'locks embed as and button text while a request is in flight', async () => {
-				const styles = await lockedStylesTab( { format: 'BUTTON' } );
+				const inspector = await lockedControls( { format: 'BUTTON' } );
 
-				expect( within( styles ).getByLabelText( 'Button text' ) ).toBeDisabled();
+				expect( within( inspector ).getByLabelText( 'Button text' ) ).toBeDisabled();
 			} );
 
 			it( 'locks the link text and Copy while a request is in flight', async () => {
-				const styles = await lockedStylesTab( { format: 'LINK' } );
+				const inspector = await lockedControls( { format: 'LINK' } );
 
-				expect( within( styles ).getByLabelText( 'Link text' ) ).toBeDisabled();
-				expect( within( styles ).getByText( 'Copy' ) ).toBeDisabled();
+				expect( within( inspector ).getByLabelText( 'Link text' ) ).toBeDisabled();
+				expect( within( inspector ).getByText( 'Copy' ) ).toBeDisabled();
 			} );
 
 			it( 'locks the caption controls while a request is in flight', async () => {
-				const styles = await lockedStylesTab( { format: 'QR', qrShowCaption: true } );
+				const inspector = await lockedControls( { format: 'QR', qrShowCaption: true } );
 
-				expect( within( styles ).getByLabelText( 'Show text under QR code' ) ).toBeDisabled();
-				expect( within( styles ).getByLabelText( 'Caption' ) ).toBeDisabled();
+				expect( within( inspector ).getByLabelText( 'Show text under QR code' ) ).toBeDisabled();
+				expect( within( inspector ).getByLabelText( 'Caption' ) ).toBeDisabled();
 			} );
 
 			it( 'stores a width preset', async () => {
 				const user = userEvent.setup();
 				render( <Edit attributes={ qrAttributes } setAttributes={ setAttributes } /> );
-				await expect(
-					screen.findByTestId( 'inspector-controls-styles' )
-				).resolves.toBeInTheDocument();
+				await expect( screen.findByLabelText( 'Embed as' ) ).resolves.toBeInTheDocument();
 
 				await user.click( screen.getByText( '50%' ) );
 
@@ -8993,7 +9007,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		} );
 
 		// Two fills into one slot order by which mounted last, not by source, so the whole
-		// Settings tab is one fill and the connection panel stays last.
+		// sidebar is one fill and the connection panel stays last.
 		it( 'keeps the PayPal Connection panel last when the form opens', async () => {
 			mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
 
@@ -9496,17 +9510,18 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( listRequests() ).toHaveLength( 2 );
 		} );
 
-		it( 'keeps the styles group while picking another link', async () => {
+		it( 'hides the style controls while picking another link', async () => {
 			const user = userEvent.setup();
 			mockLinks( [ resource( 'PLB-A1', 'Croissant' ), resource( 'PLB-B2', 'Baguette' ) ] );
 
 			renderSelected();
 
 			await waitFor( () => expect( changeItem() ).toBeEnabled() );
+			expect( screen.getByLabelText( 'Embed as' ) ).toBeInTheDocument();
 			await user.click( changeItem() );
 
 			expect( screen.getByText( 'Choose a button to change' ) ).toBeInTheDocument();
-			expect( screen.getByTestId( 'inspector-controls-styles' ) ).toBeInTheDocument();
+			expect( screen.queryByLabelText( 'Embed as' ) ).not.toBeInTheDocument();
 		} );
 
 		it( 'switches the block to the picked link, with what PayPal holds for it, and keeps the image', async () => {

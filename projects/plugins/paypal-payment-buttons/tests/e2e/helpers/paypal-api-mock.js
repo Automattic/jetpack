@@ -48,8 +48,8 @@ const MOCK_RESPONSES = {
 			},
 		],
 	},
-	// A successful update is an empty 204, so the route echoes the request back with
-	// the id alone. See PayPal_API_Client.
+	// PayPal answers an update with an empty 204, so the real route echoes the request plus
+	// the id. This mock returns a fixed fixture.
 	updateButton: {
 		id: 'PLB-TESTMOCK001',
 		type: 'BUY_NOW',
@@ -92,6 +92,33 @@ const MOCK_RESPONSES = {
 		data: { status: 401 },
 	},
 };
+
+/**
+ * Build the `attributes` the create route adds to its response. Mirrors
+ * PayPal_Attribute_Mapper::api_response_to_attributes() for the fields the e2e specs send.
+ * The editor resets a missing key to its block.json default.
+ *
+ * @param {object} resource - The payment as the route returns it.
+ * @return {object} The payment as block attributes.
+ */
+function toAttributes( resource ) {
+	const [ item ] = resource.line_items;
+
+	return {
+		isApiManaged: true,
+		resourceId: resource.id,
+		paymentLink: resource.payment_link,
+		productName: item.name,
+		// Per-option prices replace unit_amount.
+		...( item.unit_amount
+			? { currencyCode: item.unit_amount.currency_code, price: item.unit_amount.value }
+			: {} ),
+		collectShippingAddress: !! item.collect_shipping_address,
+		integrationMode: resource.integration_mode,
+		// The mock has no code_snippets, so scriptSrc is empty.
+		scriptSrc: '',
+	};
+}
 
 /**
  * Match helper — uses regex-based route matching to handle query strings.
@@ -154,7 +181,6 @@ async function setupPayPalMocks( page, overrides = {} ) {
 	await page.route( /\/wp-json\/wpcom\/v2\/paypal\/buttons(\?|$)/, route => {
 		if ( route.request().method() === 'POST' ) {
 			const body = route.request().postDataJSON();
-			const lineItem = body?.line_items?.[ 0 ];
 
 			// Return a response that reflects the submitted data.
 			const response = {
@@ -162,14 +188,10 @@ async function setupPayPalMocks( page, overrides = {} ) {
 				line_items: body?.line_items || responses.createButton.line_items,
 			};
 
-			if ( lineItem?.name ) {
-				response.line_items[ 0 ].name = lineItem.name;
-			}
-
 			return route.fulfill( {
 				status: 201,
 				contentType: 'application/json',
-				body: JSON.stringify( response ),
+				body: JSON.stringify( { ...response, attributes: toAttributes( response ) } ),
 			} );
 		}
 
