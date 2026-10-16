@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Join the Jetpack admin shell and load common libraries from the shared script modules.

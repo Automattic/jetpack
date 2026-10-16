@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Build packages/admin-ui for e2e tests.
+

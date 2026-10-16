@@ -98,6 +98,7 @@
 					"@jetpack-podcast/init"
 				]
 			}
-		]
+		],
+		"sharedModules": "../admin-ui/package.json"
 	}
 }

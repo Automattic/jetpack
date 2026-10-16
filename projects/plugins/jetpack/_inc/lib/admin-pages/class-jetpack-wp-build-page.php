@@ -81,6 +81,37 @@ class Jetpack_WP_Build_Page {
 	}
 
 	/**
+	 * Ready one page's routes for the Jetpack admin shell while another member's page renders.
+	 *
+	 * Skips the screen ID alias, which would boot the guest app (or, on the other Jetpack page
+	 * sharing this build, retarget the host's alias), and the polyfills, which the host owns.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $page_id The route's page id.
+	 * @return bool Whether the build output can serve the page.
+	 */
+	public static function load_as_guest( $page_id ) {
+		$build_index = JETPACK__PLUGIN_DIR . 'build/build.php';
+		if ( ! file_exists( $build_index ) ) {
+			return false;
+		}
+		require_once $build_index;
+
+		if ( ! function_exists( 'jetpack_plugin_' . str_replace( '-', '_', $page_id ) . '_wp_admin_render_page' ) ) {
+			return false;
+		}
+
+		// Statically guarded, so a no-op when the host is the other page of this build.
+		if ( function_exists( 'jetpack_plugin_register_script_modules' ) ) {
+			jetpack_plugin_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
+		}
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_i18n_loader' ) );
+
+		return true;
+	}
+
+	/**
 	 * Point the screen ID at the wp-build page while its generated enqueue check runs.
 	 *
 	 * @return void
