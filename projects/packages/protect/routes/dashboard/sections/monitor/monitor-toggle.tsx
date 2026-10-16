@@ -44,10 +44,10 @@ export function useMonitorToggleData( settings: ProtectSettingsData ) {
  */
 export default function MonitorToggle( {
 	data,
-	available = true,
+	available,
 }: {
 	data: ProtectSettingsData;
-	available?: boolean;
+	available: boolean;
 } ) {
 	return (
 		<SettingToggle

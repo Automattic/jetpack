@@ -2,18 +2,9 @@ import apiFetch from '@wordpress/api-fetch';
 import { getSettings, gmdateI18n } from '@wordpress/date';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import {
-	Badge,
-	Button,
-	Link,
-	Notice,
-	Skeleton,
-	Stack,
-	Text,
-	Tooltip,
-	VisuallyHidden,
-} from '@wordpress/ui';
-import { CardRow, ProtectCard } from '../../components/card';
+import { Badge, Button, Link, Skeleton, Stack, Text, Tooltip, VisuallyHidden } from '@wordpress/ui';
+import { CardRow, ProtectCard, SettingsErrorRow, UnavailableCard } from '../../components/card';
+import formatNumber from '../../components/format-number';
 import TabLink from '../../components/tab-link';
 import isModuleActive from '../../data/is-module-active';
 import gauge from './icon';
@@ -25,6 +16,7 @@ import './style.scss';
 const UPTIME_PATH = '/jetpack/v4/protect-dashboard/uptime';
 const CONNECT_URL = 'admin.php?page=my-jetpack#/connection';
 const MINUTES_PER_DAY = 1440;
+const PERCENT = { style: 'percent', maximumFractionDigits: 3 } as const;
 
 /**
  * A day's date, in the site's date format.
@@ -82,41 +74,18 @@ function getUptimePercent( days: UptimeDay[] ): number | null {
 }
 
 /**
- * A percentage, to three decimals at most.
- *
- * @param percent - From 0 to 100.
- * @return The percentage.
- */
-function formatPercent( percent: number ): string {
-	const options = { style: 'percent', maximumFractionDigits: 3 } as const;
-	try {
-		return new Intl.NumberFormat( document.documentElement.lang || undefined, options ).format(
-			percent / 100
-		);
-	} catch {
-		// WordPress prints locales Intl rejects, such as pt-PT-ao90.
-		return new Intl.NumberFormat( undefined, options ).format( percent / 100 );
-	}
-}
-
-/**
  * The card's badge.
  *
- * @param active    - Whether Monitor is on.
  * @param connected - Whether the user has a WordPress.com connection.
  * @param uptime    - The uptime response, once loaded.
  * @param failed    - Whether loading it failed.
  * @return The badge, if any.
  */
 function getStatus(
-	active: boolean,
 	connected: boolean,
 	uptime: Uptime | null,
 	failed: boolean
 ): CardStatus | undefined {
-	if ( ! active ) {
-		return undefined;
-	}
 	if ( ! connected ) {
 		return { label: __( 'On', 'jetpack-protect-pkg' ), intent: 'none' };
 	}
@@ -180,27 +149,19 @@ export default function MonitorCard( { state: monitor, settings, openTab }: Moni
 	}, [ canLoad, retries, refresh ] );
 
 	const days = uptime?.days;
-	const status = getStatus( active, connected, uptime, failed );
-	const showHistory = connected && ! failed;
+	const status = getStatus( connected, uptime, failed );
 	const uptimePercent = days ? getUptimePercent( days ) : null;
+	const dayLabels = days?.map( day => ( {
+		day,
+		date: formatDay( day ),
+		text: describeStatus( day ),
+	} ) );
 
 	const title = __( 'Downtime monitoring', 'jetpack-protect-pkg' );
-	const toggleData = useMonitorToggleData( settings ).data;
+	const { data: toggleData } = useMonitorToggleData( settings );
 
 	if ( ! available ) {
-		return (
-			<ProtectCard
-				icon={ gauge }
-				title={ title }
-				status={ { label: __( 'Unavailable', 'jetpack-protect-pkg' ), intent: 'none' } }
-			>
-				<CardRow>
-					<Text variant="body-md">
-						{ __( 'This feature isn’t available on your site.', 'jetpack-protect-pkg' ) }
-					</Text>
-				</CardRow>
-			</ProtectCard>
-		);
+		return <UnavailableCard icon={ gauge } title={ title } />;
 	}
 
 	return (
@@ -212,32 +173,17 @@ export default function MonitorCard( { state: monitor, settings, openTab }: Moni
 				'jetpack-protect-pkg'
 			) }
 		>
-			{ settings.error && (
-				<CardRow>
-					<Notice.Root intent="error">
-						<Notice.Description>{ settings.error }</Notice.Description>
-						<Notice.CloseIconButton onClick={ settings.dismissError } />
-					</Notice.Root>
-				</CardRow>
-			) }
+			<SettingsErrorRow settings={ settings } />
 			{ ! active && (
 				<CardRow>
-					<MonitorToggle data={ toggleData } />
+					<MonitorToggle data={ toggleData } available />
 				</CardRow>
 			) }
 			{ active && (
 				<CardRow className="jp-protect-uptime-row">
 					<Stack direction="column" gap="lg">
 						<Stack direction="row" gap="md" align="center" justify="space-between">
-							{ ! connected && (
-								<Text variant="body-md">
-									{ __(
-										'Your site is being monitored. Connect your WordPress.com account to see its uptime history.',
-										'jetpack-protect-pkg'
-									) }
-								</Text>
-							) }
-							{ connected && (
+							{ connected ? (
 								<Stack direction="row" gap="sm" align="baseline">
 									<Text variant="body-md">
 										{ sprintf(
@@ -246,13 +192,20 @@ export default function MonitorCard( { state: monitor, settings, openTab }: Moni
 											days?.length ?? monitor?.uptimeDays ?? 0
 										) }
 									</Text>
-									{ showHistory && uptimePercent !== null && (
+									{ uptimePercent !== null && (
 										<Text variant="heading-md">
-											{ formatPercent( uptimePercent ) }
+											{ formatNumber( uptimePercent / 100, PERCENT ) }
 											{ uptimePercent === 100 && <span aria-hidden="true"> 🎉</span> }
 										</Text>
 									) }
 								</Stack>
+							) : (
+								<Text variant="body-md">
+									{ __(
+										'Your site is being monitored. Connect your WordPress.com account to see its uptime history.',
+										'jetpack-protect-pkg'
+									) }
+								</Text>
 							) }
 							{ status && <Badge intent={ status.intent }>{ status.label }</Badge> }
 						</Stack>
@@ -273,12 +226,14 @@ export default function MonitorCard( { state: monitor, settings, openTab }: Moni
 								</Button>
 							</Stack>
 						) }
-						{ showHistory && ! days && <Skeleton className="jp-protect-uptime__skeleton" /> }
-						{ showHistory && days && (
+						{ connected && ! failed && ! days && (
+							<Skeleton className="jp-protect-uptime__skeleton" />
+						) }
+						{ dayLabels && (
 							<>
 								<Tooltip.Provider delay={ 0 }>
 									<div className="jp-protect-uptime" aria-hidden="true">
-										{ days.map( day => (
+										{ dayLabels.map( ( { day, date, text } ) => (
 											<Tooltip.Root key={ day.date }>
 												<Tooltip.Trigger
 													render={
@@ -286,9 +241,9 @@ export default function MonitorCard( { state: monitor, settings, openTab }: Moni
 													}
 												/>
 												<Tooltip.Popup>
-													<span className="jp-protect-uptime__tip-date">{ formatDay( day ) }</span>
+													<span className="jp-protect-uptime__tip-date">{ date }</span>
 													<span className={ `jp-protect-uptime__tip-status is-${ day.status }` }>
-														{ describeStatus( day ) }
+														{ text }
 													</span>
 												</Tooltip.Popup>
 											</Tooltip.Root>
@@ -297,10 +252,8 @@ export default function MonitorCard( { state: monitor, settings, openTab }: Moni
 								</Tooltip.Provider>
 								<VisuallyHidden>
 									<ul>
-										{ days.map( day => (
-											<li key={ day.date }>
-												{ `${ formatDay( day ) }: ${ describeStatus( day ) }` }
-											</li>
+										{ dayLabels.map( ( { day, date, text } ) => (
+											<li key={ day.date }>{ `${ date }: ${ text }` }</li>
 										) ) }
 									</ul>
 								</VisuallyHidden>
