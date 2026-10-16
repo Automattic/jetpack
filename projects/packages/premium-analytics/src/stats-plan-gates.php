@@ -203,12 +203,13 @@ function has_jetpack_stats_product() {
 }
 
 /**
- * Tiers whose plan has no paid Stats. `unknown` is left out: it may be a paid site whose plan has not synced.
+ * Tiers without paid Stats that get the upgrade banner. `free` gets a section upgrade card instead, as in classic Stats,
+ * and `unknown` may be a paid site whose plan has not synced.
  */
-const STATS_UNPAID_TIERS = array( STATS_TIER_JETPACK_FREE, STATS_TIER_FREE, STATS_TIER_LEGACY_FREE, STATS_TIER_LEGACY_BASIC );
+const STATS_UPGRADE_BANNER_TIERS = array( STATS_TIER_JETPACK_FREE, STATS_TIER_LEGACY_FREE, STATS_TIER_LEGACY_BASIC );
 
 /**
- * Whether the dashboard offers a paid Stats plan: the tier has no paid Stats and the site first opened the dashboard over 30 days ago.
+ * Whether the dashboard offers a paid Stats plan: the tier gets the upgrade banner and the site first opened the dashboard over 30 days ago.
  *
  * @since $$next-version$$
  *
@@ -217,7 +218,7 @@ const STATS_UNPAID_TIERS = array( STATS_TIER_JETPACK_FREE, STATS_TIER_FREE, STAT
  */
 function offers_free_site_upgrade( $tier ) {
 	// Stats offers Simple sites this banner under rules of their own, which are not ported here.
-	if ( ! in_array( $tier, STATS_UNPAID_TIERS, true ) || ( new Host() )->is_wpcom_simple() ) {
+	if ( ! in_array( $tier, STATS_UPGRADE_BANNER_TIERS, true ) || ( new Host() )->is_wpcom_simple() ) {
 		return false;
 	}
 
