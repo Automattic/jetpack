@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { Badge, Button, ButtonLink, Stack } from '@wordpress/ui';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useModuleActivation } from '../../module-toggle';
 import { getSwitchLabel } from '../utils';
 import { ConnectButton, InstallButton, JetpackButton } from './feature-action';
@@ -122,8 +122,9 @@ type FeatureModalActionsProps = {
 };
 
 /**
- * What the modal offers to do with a feature: Open once it is running, the button that
- * switches it, installs its plugin, or installs Jetpack, and Upgrade where a plan sells more.
+ * What the modal offers to do with a feature: Open once it is running, Connect when only the
+ * account is missing (with Deactivate while it is still on), the button that switches it,
+ * installs its plugin, or installs Jetpack, and Upgrade where a plan sells more.
  *
  * @param {FeatureModalActionsProps} props       - The component props.
  * @param {FeatureState}             props.state - Live state for the feature.
@@ -137,9 +138,22 @@ export function FeatureModalActions( { state }: FeatureModalActionsProps ) {
 	const forcedReason = getForcedReason( state );
 	const unavailable = getFeatureUnavailableReason( state );
 	const connectFirst = offersConnect( state );
-	// Waiting for an account, the switch only stays to turn off a feature already on.
-	const showSwitch = ! forcedReason && ( ! connectFirst || isActive );
+	// Waiting for an account, the switch only stays to turn off a feature already on, and
+	// until that request lands, so the button being pressed does not vanish under the click.
+	const showSwitch =
+		! forcedReason && ( ! connectFirst || isActive || Boolean( state.isSwitching ) );
 	const tracking = useFeaturesTracking();
+	const connectRef = useRef< HTMLButtonElement >( null );
+	const hadSwitch = useRef( showSwitch );
+
+	// Once the feature is off its Deactivate goes; focus left on the page moves to Connect.
+	useEffect( () => {
+		const active = connectRef.current?.ownerDocument.activeElement;
+		if ( hadSwitch.current && ! showSwitch && ( ! active || active.tagName === 'BODY' ) ) {
+			connectRef.current?.focus();
+		}
+		hadSwitch.current = showSwitch;
+	}, [ showSwitch ] );
 
 	// Leaves for the feature's own screen, so the event has to be away before it does.
 	const onManageClick = useCallback(
@@ -164,7 +178,9 @@ export function FeatureModalActions( { state }: FeatureModalActionsProps ) {
 				</Stack>
 			) : null }
 
-			{ connectFirst ? <ConnectButton state={ state } origin="modal" /> : null }
+			{ connectFirst ? (
+				<ConnectButton state={ state } origin="modal" buttonRef={ connectRef } />
+			) : null }
 
 			{ control.kind === 'module' && showSwitch ? (
 				<ModuleSwitch state={ state } module={ control.module } name={ feature.name } />

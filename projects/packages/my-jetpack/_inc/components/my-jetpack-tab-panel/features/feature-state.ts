@@ -57,7 +57,7 @@ export type FeatureState = {
 	// Whether the feature is switched on here, which is not whether a plan covers it:
 	// the wp-admin sidebar asks the same question, and the two have to agree.
 	status: 'active' | 'inactive';
-	// The site has no connected owner and the feature needs one: its usual action connects one next.
+	// The feature needs an account the site does not have: Connect, or Install for a missing plugin, starts one.
 	accountNeeded?: boolean;
 	control: FeatureControl;
 	// The product behind the feature, for the modal's copy.
@@ -413,7 +413,7 @@ export function useFeatureStates( state: MainFeaturesState ): {
 }
 
 /**
- * Whether the registered site is waiting for its owner's account.
+ * Whether the registered site is waiting for its owner's account, with the current user unlinked too.
  *
  * @return Whether account-dependent features need a connection action.
  */
@@ -426,13 +426,19 @@ export function useFeaturesNeedsAccount(): boolean {
 			}
 			// Read the connection store directly: useMyJetpackConnection needs page data that the offline Features page does not load.
 			const store = select( CONNECTION_STORE ) as unknown as {
-				getConnectionStatus?: () => { isRegistered: boolean; hasConnectedOwner: boolean };
+				getConnectionStatus?: () => {
+					isRegistered: boolean;
+					hasConnectedOwner: boolean;
+					isUserConnected?: boolean;
+				};
 				getIsOfflineMode?: () => boolean;
 			};
 			const connection = store?.getConnectionStatus?.();
+			// A linked admin on a site whose owner left already has an account, so Connect would only loop.
 			return Boolean(
 				connection?.isRegistered &&
 				connection.hasConnectedOwner === false &&
+				! connection.isUserConnected &&
 				! store.getIsOfflineMode?.()
 			);
 		},

@@ -13,6 +13,7 @@ import styles from './styles.module.scss';
 import { useFeaturePlugin } from './use-main-features';
 import type { FeatureState } from './feature-state';
 import type { ConnectionStartAction, FeatureActionOrigin } from './features-tracking-context';
+import type { Ref } from 'react';
 
 /**
  * Leave to connect a WordPress.com account, coming back to the same Features view.
@@ -252,6 +253,7 @@ type ConnectButtonProps = {
 	state: FeatureState;
 	origin: FeatureActionOrigin;
 	describedby?: string;
+	buttonRef?: Ref< HTMLButtonElement >;
 };
 
 /**
@@ -261,9 +263,10 @@ type ConnectButtonProps = {
  * @param {FeatureState}       props.state       - Live state for the feature.
  * @param {string}             props.origin      - Which control this is.
  * @param {string}             props.describedby - Id of the element stating why it is needed.
+ * @param {Ref}                props.buttonRef   - Ref to the button, for a caller that moves focus to it.
  * @return The rendered component.
  */
-export function ConnectButton( { state, origin, describedby }: ConnectButtonProps ) {
+export function ConnectButton( { state, origin, describedby, buttonRef }: ConnectButtonProps ) {
 	const connectAccount = useAccountConnection();
 	const onClick = useCallback(
 		() => connectAccount( state, origin, 'connect' ),
@@ -272,6 +275,7 @@ export function ConnectButton( { state, origin, describedby }: ConnectButtonProp
 
 	return (
 		<Button
+			ref={ buttonRef }
 			variant="outline"
 			size="compact"
 			onClick={ onClick }

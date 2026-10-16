@@ -685,6 +685,26 @@ describe( 'features waiting for an account', () => {
 		}
 	);
 
+	it( 'keeps Deactivate while its request runs, then hands focus to Connect', async () => {
+		const on = accountModule( true );
+		const { rerender } = render( <FeatureModalActions state={ on } /> );
+		const button = screen.getByRole( 'button', { name: 'Deactivate Activity Log' } );
+		await userEvent.click( button );
+
+		// While the request is out, the card shows the asked-for value.
+		mockAskedFor = false;
+		rerender( <FeatureModalActions state={ { ...on, status: 'inactive', isSwitching: true } } /> );
+		expect( button ).toBeInTheDocument();
+		expect( button ).toHaveFocus();
+
+		mockAskedFor = null;
+		rerender( <FeatureModalActions state={ accountModule( false ) } /> );
+		expect( button ).not.toBeInTheDocument();
+		expect(
+			screen.getByRole( 'button', { name: 'Connect account for Activity Log' } )
+		).toHaveFocus();
+	} );
+
 	it.each( [ accountModule( false ), accountPlugin( 'inactive' ) ] )(
 		'offers no Activate in the details while the account is missing',
 		state => {
