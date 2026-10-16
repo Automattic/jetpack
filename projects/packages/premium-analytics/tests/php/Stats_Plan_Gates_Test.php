@@ -290,7 +290,7 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 			'Jetpack free on day 30' => array( STATS_TIER_JETPACK_FREE, 30, true ),
 			'Jetpack free on day 29' => array( STATS_TIER_JETPACK_FREE, 29, false ),
 			'no dashboard load yet'  => array( STATS_TIER_JETPACK_FREE, null, false ),
-			'WordPress.com free'     => array( STATS_TIER_FREE, 31, true ),
+			'WordPress.com free'     => array( STATS_TIER_FREE, 31, false ),
 			'legacy free'            => array( STATS_TIER_LEGACY_FREE, 31, true ),
 			'legacy basic'           => array( STATS_TIER_LEGACY_BASIC, 31, true ),
 			'paid'                   => array( STATS_TIER_PAID, 31, false ),
@@ -306,7 +306,7 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		$this->set_wpcom_platform( 'simple' );
 		update_option( DASHBOARD_FIRST_VISIT_OPTION, time() - 31 * DAY_IN_SECONDS );
 
-		$this->assertFalse( offers_free_site_upgrade( STATS_TIER_FREE ) );
+		$this->assertFalse( offers_free_site_upgrade( STATS_TIER_LEGACY_FREE ) );
 	}
 
 	/**
