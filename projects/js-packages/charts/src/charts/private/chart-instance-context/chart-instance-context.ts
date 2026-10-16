@@ -15,6 +15,7 @@ export interface ChartInstanceContextValue {
 	chartRef?: React.RefObject< ChartInstanceRef >;
 	chartWidth?: number;
 	chartHeight?: number;
+	isSeriesVisible?: ( seriesLabel: string ) => boolean;
 }
 
 export const ChartInstanceContext = createContext< ChartInstanceContextValue | null >( null );

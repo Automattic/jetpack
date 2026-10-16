@@ -13,12 +13,13 @@ import {
 	WidgetState,
 	describeError,
 	sharePercentage,
+	ExporterCsvDownloadButton,
+	commentsPostsCsvExporter,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { commentContent } from '@wordpress/icons';
 import { Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
@@ -34,9 +35,8 @@ type MostCommentedPostsWidgetProps = WidgetRenderProps< MostCommentedPostsRender
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 
 /**
- * Top commented posts inner component. The comment counts come from the
- * all-time `stats/comments` report, so there is no date range or comparison
- * period to read from context.
+ * Counts come from the all-time `stats/comments` report, so there is no date
+ * range or comparison period to read from context.
  */
 function MostCommentedPostsInner() {
 	const { rows, isLoading, isFetching, isError, error, refetch } = useStatsCommentsRows( {
@@ -49,7 +49,14 @@ function MostCommentedPostsInner() {
 
 		return rows.map( row => ( {
 			id: row.id,
-			label: <LeaderboardPostLabel id={ row.postId } label={ row.label } link={ row.link } />,
+			label: (
+				<LeaderboardPostLabel
+					id={ row.postId }
+					label={ row.label }
+					link={ row.link }
+					origin={ { report: 'comments', section: 'posts' } }
+				/>
+			),
 			currentValue: row.value,
 			currentShare: sharePercentage( row.value, maxValue ),
 		} ) );
@@ -71,9 +78,8 @@ function MostCommentedPostsInner() {
 						onRetry: refetch,
 					} ) }
 					empty={ {
-						icon: commentContent,
 						description: __(
-							'None of your posts or pages have comments yet.',
+							'You don’t have comments recorded yet.',
 							'jetpack-premium-analytics-pkg'
 						),
 					} }
@@ -84,6 +90,10 @@ function MostCommentedPostsInner() {
 						withOverlayLabel
 						showLegend={ false }
 						dataFormat={ DATA_FORMAT }
+						columns={ {
+							label: __( 'Posts', 'jetpack-premium-analytics-pkg' ),
+							metric: 'comments',
+						} }
 					/>
 				</WidgetState>
 			</div>
@@ -93,16 +103,17 @@ function MostCommentedPostsInner() {
 					section="posts"
 					ariaLabel={ __( 'See the commented posts report', 'jetpack-premium-analytics-pkg' ) }
 				/>
+				<ExporterCsvDownloadButton
+					exporter={ commentsPostsCsvExporter }
+					status={ { isLoading, isFetching, isError } }
+					rowCount={ rows.length }
+				/>
 			</WidgetFooter>
 		</Stack>
 	);
 }
 
 /**
- * Top commented posts widget: the posts and pages that receive the most
- * comments, ranked by comment count. Each row opens the post detail page, and
- * falls back to the published post when the report carries no post ID.
- *
  * One half of the Jetpack Stats "Comments" module; `jpa/most-commented-authors`
  * covers the other. Both read the same `stats/comments` response through
  * `useStatsCommentsRows`, so showing both costs a single request.

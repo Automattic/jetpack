@@ -1,14 +1,16 @@
 import type {
 	BaseChartProps,
+	BucketInfo,
 	DataPointDate,
 	SeriesData,
 	SeriesChartLegendConfig,
+	SeriesVisibilityProps,
 	AnnotationStyles,
 	DataPoint,
 } from '../../types';
-import type { RenderTooltipParams } from '../../visx/types';
+import type { CrosshairStyle, RenderTooltipParams } from '../../visx/types';
 import type { GlyphProps } from '@visx/xychart';
-import type { ReactNode, SVGProps, FC } from 'react';
+import type { ReactNode, SVGProps, CSSProperties } from 'react';
 
 export type LineChartAnnotationProps = {
 	datum: DataPointDate;
@@ -17,8 +19,8 @@ export type LineChartAnnotationProps = {
 	subjectType?: 'circle' | 'line-vertical' | 'line-horizontal';
 	styles?: AnnotationStyles;
 	testId?: string;
-	renderLabel?: FC< { title: string; subtitle?: string } >;
-	renderLabelPopover?: FC< { title: string; subtitle?: string } >;
+	renderLabel?: ( props: { title: string; subtitle?: string } ) => ReactNode;
+	renderLabelPopover?: ( props: { title: string; subtitle?: string } ) => ReactNode;
 };
 
 export type CurveType = 'smooth' | 'linear' | 'monotone';
@@ -28,7 +30,7 @@ export type RenderLineGlyphProps< Datum extends object > = GlyphProps< Datum > &
 	position?: 'start' | 'end';
 };
 
-export interface LineChartProps extends BaseChartProps< SeriesData[] > {
+export interface LineChartProps extends BaseChartProps< SeriesData[] >, SeriesVisibilityProps {
 	/**
 	 * Legend configuration. Supports `collapseGroups` on top of the shared options.
 	 */
@@ -36,7 +38,18 @@ export interface LineChartProps extends BaseChartProps< SeriesData[] > {
 	withGradientFill: boolean;
 	smoothing?: boolean;
 	curveType?: CurveType;
-	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
+	renderTooltip?: (
+		params: RenderTooltipParams< DataPointDate > & { bucketInfo?: BucketInfo }
+	) => ReactNode;
+	/**
+	 * Place the panel below the x-axis tick labels with a pointer at the datum x; horizontal bounds still apply.
+	 * @default 'auto'
+	 */
+	tooltipPlacement?: 'auto' | 'below-axis';
+	/**
+	 * Inline container styles; see Below-Axis Tooltips in stories/index.docs.mdx for content color overrides.
+	 */
+	tooltipStyle?: CSSProperties;
 	withStartGlyphs?: boolean;
 	withEndGlyphs?: boolean;
 	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;
@@ -45,6 +58,8 @@ export interface LineChartProps extends BaseChartProps< SeriesData[] > {
 	withTooltipCrosshairs?: {
 		showVertical?: boolean;
 		showHorizontal?: boolean;
+		verticalStyle?: CrosshairStyle;
+		horizontalStyle?: CrosshairStyle;
 	};
 	/**
 	 * Enable drag-to-zoom on the X axis. The user drags horizontally to
@@ -66,7 +81,8 @@ export interface LineChartProps extends BaseChartProps< SeriesData[] > {
 
 export type TooltipDatum = {
 	key: string;
-	value: number;
+	/** The series' reading, or null when the bucket has none. */
+	value: number | null;
 };
 
 export type LineChartGlyphProps = {

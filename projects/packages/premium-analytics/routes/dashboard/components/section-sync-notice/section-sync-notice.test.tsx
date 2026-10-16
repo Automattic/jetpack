@@ -61,6 +61,23 @@ describe( 'SectionSyncNotice', () => {
 		);
 	} );
 
+	it( 'tells a reader who cannot run the sync who can, with no progress or retry', () => {
+		const { container } = render(
+			<SectionSyncNotice
+				canRunSync={ false }
+				percentage={ 0 }
+				hasError
+				onRetry={ noop }
+				isRetrying={ false }
+			/>
+		);
+
+		expect( container ).toHaveTextContent(
+			"Your store data hasn't finished syncing, so the numbers below are incomplete. It finishes once a site administrator opens this page."
+		);
+		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'offers a retry once the sync fails', async () => {
 		const onRetry = jest.fn();
 		const { container } = render(
@@ -90,9 +107,8 @@ describe( 'SectionSyncNotice', () => {
 			<SectionSyncNotice percentage={ 40 } hasError={ false } onRetry={ noop } isRetrying />
 		);
 
-		// The button the user just pressed is still there and reports itself busy,
-		// through `aria-disabled` rather than `disabled`, so it keeps the focus the
-		// press gave it. Nothing announced a switch back to "still syncing" either.
+		// Reports busy via `aria-disabled`, not `disabled`, so it keeps the focus the
+		// press gave it; nothing announced a switch back to "still syncing" either.
 		const retry = screen.getByRole( 'button', { name: 'Try again' } );
 		expect( retry ).toHaveAttribute( 'aria-disabled', 'true' );
 		expect( container ).toHaveTextContent( 'Something went wrong' );

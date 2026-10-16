@@ -1,14 +1,14 @@
 /**
  * WordPress dependencies
  */
-import { seen } from '@wordpress/icons';
+import { __ } from '@wordpress/i18n';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
  * Internal dependencies
  */
 import {
-	chartTypeAttributeField,
+	CHART_TYPE_ELEMENTS,
 	type ChartDisplayChartType,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 
@@ -19,30 +19,31 @@ import {
 export type PostViewsChartType = ChartDisplayChartType;
 
 /**
- * Configurable attributes for the Post views widget. The post scope and
- * report params reach it through WidgetRoot: the detail page seeds
- * `post_id` into the URL, and the dashboard date picker owns the range.
- *
- * @property chartType - How to draw the views series. Defaults to `line`.
+ * Configurable attributes for the Post views widget. The post scope reaches it
+ * through WidgetRoot: the detail page seeds `post_id` into the URL.
  */
 export type PostViewsAttributes = {
 	chartType?: PostViewsChartType;
 };
 
 /**
- * The post detail Traffic view's view-trend card, the legacy Calypso post
- * summary chart (`stats-post-summary`): the scoped post's views over the
- * dashboard date range, with the window total as the metric headline. The
- * series comes from the `stats/post/{id}` daily history, bucketed client-side
- * at the page's chart interval; the `chartType` attribute
- * (`relevance: 'high'`) is rendered by the widget host.
+ * Ported from the legacy Calypso post summary chart (`stats-post-summary`). The
+ * series comes from the `stats/post/{id}` daily history, bucketed client-side at
+ * the page's chart interval.
  */
 export default {
-	icon: seen,
-	attributes: [ chartTypeAttributeField() ] as WidgetAttributeField< PostViewsAttributes >[],
+	attributes: [
+		{
+			id: 'chartType',
+			label: __( 'Chart type', 'jetpack-premium-analytics-pkg' ),
+			type: 'jpa/toggle-group',
+			elements: CHART_TYPE_ELEMENTS,
+			relevance: 'high',
+		},
+	] as WidgetAttributeField< PostViewsAttributes >[],
 	example: {
 		attributes: {
-			chartType: 'line',
+			chartType: 'bar',
 		},
 	},
 };

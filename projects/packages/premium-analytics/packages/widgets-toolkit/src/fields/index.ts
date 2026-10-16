@@ -1,5 +1,4 @@
 /**
  * Widget edit fields
  */
-export { ReportParamsField, type ReportParamsFieldAttributes } from './date-report-params-field';
-export { PageGranularityField } from './page-granularity-field';
+export type { ReportParamsFieldAttributes } from '@jetpack-premium-analytics/fields';

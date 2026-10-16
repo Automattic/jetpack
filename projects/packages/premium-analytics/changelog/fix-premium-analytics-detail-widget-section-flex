@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Apply the first widget section flex-column workaround to the post and video detail routes too.

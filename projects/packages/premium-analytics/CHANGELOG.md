@@ -5,6 +5,435 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.0] - 2026-10-12
+### Added
+- Add a Mark as spam action, with Undo, to the Referrers report. [#53277]
+- Add a Settings tab to the dashboard, where site owners can see their plan usage and change the Stats settings. [#53357]
+- Add likes, comments and an all-time traffic table to the author detail page, and count an author's views even when they rank below the top 20 authors. [#53292]
+- Dashboard: add the bars variant of the Leaderboard widget kind, which draws both periods as bars under a period legend; the widget contract is 1.7.0. [#53398]
+- Dashboard: add the Funnel widget kind, which the conversion rate widgets draw with. [#53460]
+- Dashboard: add the half-ring variant of the Donut widget kind, which Devices and Sessions by device draw with; the widget contract is 1.8.0. [#53429]
+- Dashboard: Expose the Donut widget kind and the shared WidgetStatus type through the SDK; the widget contract is 1.5.0. [#53309]
+- Dashboard: expose the Funnel widget kind through the SDK; the widget contract is 1.9.0. [#53461]
+- Dashboard: Resolve the icon a widget.json names, under the `jpa` collection; the widget contract is 1.6.0. [#53355]
+- Link author names in Popular authors and the Authors report to the author's page. [#53455]
+- Link the Videos report thumbnails to the video detail page, let video leaderboard rows show a linked poster, and mark the video detail poster with a play icon. [#53011]
+- Show hours watched and retention rate on the Videos report, and name the Videos, Clicks, Authors and Locations columns as in Stats. [#53205]
+- Widget SDK: Add `useReport` and `toBucketStamp`, so a package that extends the dashboard can run its own report queries and feed the dashboard time series. [#53234]
+- Widgets toolkit: Add a Donut component that renders a breakdown with its total, legend, deltas and states; the five WooCommerce donut widgets use it. [#53305]
+
+### Changed
+- Cap the cards on report pages at a centered 1440px column on wide screens, so each row's label and numbers stay close enough to read together. [#53139]
+- Charts: Draw chart tooltips with dark text on the light chart surface. [#53184]
+- Charts: Use a 2px corner radius on chart bars. [#53132]
+- Chart tooltips: Head the rows with the date once, read each as value then metric, and list the comparison period in a second column. [#53147]
+- Dashboard: Move the WooCommerce tab to the WooCommerce stats package and rename it from Store to WooCommerce, including its URL. [#53157]
+- Date controls: Compare with the previous period by default. [#53273]
+- Label store visitor counts as Store visitors in the Store performance widget, the location map, and CSV exports, so they aren't confused with Jetpack Stats visitors. [#53345]
+- Make the days in Monthly posting activity larger, growing with the card and wrapping the months onto two rows in the default layout. [#53341]
+- Move the Top tags & categories widget from Insights to Traffic, where it and its report follow the date picker instead of a fixed seven days. [#53299]
+- Open the dashboard from the admin bar Stats links and the newsletter action bar post stats link when it is enabled. [#52905]
+- Open the dashboard on the last 7 days, or on the range the reader last applied here or in Jetpack Stats, and remember a range applied from the header. [#53276]
+- Open the dashboard to anyone with a section available to them, so shop managers reach the WooCommerce tab, and keep Stats tabs, widgets and feedback to readers who can view Stats. [#53290]
+- Reports: Rename the Videos, Clicks, Authors and Locations CSV headers to match the report table columns. [#53271]
+- Show the empty-cell color at the start of heatmap legends such as Posting activity. [#53338]
+- Traffic: Move the chart interval control from the page header into the Traffic summary widget, which saves its own interval. [#53140]
+- Widgets toolkit: Move the remaining report and widget links onto the shared ExternalLink and InternalLink components; the Comments Subscribers and File downloads report links now open in a new tab with the outbound marker. [#53136]
+- WordAds data: Flag today's day bucket as pending and read its values as null, as WordAds counts nightly; chart tooltips can carry a note for a bucket with no reading. [#53229]
+
+### Removed
+- Remove the Store performance widget, now built by the WooCommerce Stats package. [#53427]
+- Remove the WooCommerce breakdown widgets, now built by the WooCommerce Stats package. [#53311]
+- Remove the WooCommerce conversion rate widgets, now built by the WooCommerce Stats package. [#53462]
+- Remove the WooCommerce leaderboard widgets, now built by the WooCommerce Stats package. [#53404]
+- Remove the WooCommerce Sessions by device widget, now built by the WooCommerce Stats package. [#53454]
+- Remove the WooCommerce time series widgets, now built by the WooCommerce Stats package. [#53291]
+
+### Fixed
+- Charts: Draw a summary chart too short for its axes as a sparkline without axes, so its tooltip can be reached. [#53206]
+- Charts: Paint the metric tabs chart's tooltip above the metric tabs. [#53135]
+- Date controls: Compare Last 30 days and custom ranges starting mid-month with the same number of days right before them. [#53272]
+- Draw attention to the date control when a click on the Traffic summary chart sets the period. [#53142]
+- Drop the URL column from the comment authors CSV, since its links only worked on the site and could expose guest commenters' email addresses. [#53138]
+- Label a partial first or last week on the Traffic, Subscribers, and ads charts with the selected range's own start or end date. [#53137]
+- Make donut and semi-circle chart widgets such as Devices reachable by keyboard, and name them for screen readers. [#53274]
+- Make low values in heatmaps such as Posting activity easier to tell apart from empty cells, and show zero counts as empty. [#53085]
+- Pair each week with its matching week in a year-ago weekly comparison, and show the days each week covers in the Traffic and ads chart tooltips. [#53207]
+- Reports: show the Referrers, Clicks, Authors and UTM tables at one weight on every row, so the chevron alone marks a row that expands. [#53306]
+- Show a video watched for a few minutes as "< 0.1" hours, not 0.0, on the Videos report and video detail page. [#53269]
+- Store: Show store revenue and other money values in the store's currency instead of always US dollars. [#53350]
+- Store performance: Use sentence case in the Store visitors chart tooltip, like the other count labels. [#53346]
+- Store reports: Follow the WooCommerce Analytics date type setting instead of always using the order creation date. [#53347]
+- Widgets toolkit: Leaderboard draws a negative value as an empty bar instead of a negative width. [#53319]
+
+## [0.11.0] - 2026-10-05
+### Added
+- Add a Download CSV action to more widgets that saves the full report for the selected dates. [#53079] [#52969] [#53019] [#53017]
+- Add video thumbnails to the Videos report. [#52908]
+- Dashboard: Expose the CSV download action of the linked report through the SDK; the widget contract is 1.3.0. [#52909]
+- Dashboard: Expose the Leaderboard component, the error mapper and the video plays hook through the SDK; the widget contract is 1.2.0. [#52885]
+- Dashboard: Let a widget type declare its former names, so layouts saved before a rename keep rendering it; the widget contract is 1.1.0. [#52874]
+- Date controls: Add the weekly chart interval to year-long date ranges such as Last 12 months, next to the monthly default. [#52978]
+- Locations: Add drill-down from a region to its cities. [#52911]
+- Top pages widget: Add the download to the Archives view. [#52966]
+- Widgets toolkit: Add a Leaderboard component that renders ranked rows with their states, shares and deltas; Top videos, Search terms and Most commented authors use it. [#52965]
+
+### Changed
+- Charts: Give every chart tooltip the same box, with no tooltip padding, shadow or font size of its own. [#53072]
+- Charts: Show tooltips on the shared dark chart tooltip surface. [#52850]
+- Dashboard: Turn on adding and removing widgets by default. [#52826]
+- Locations: Keep the previous list on screen, dimmed, while a drill-down loads, and move the map to the picked country straight away. [#53083]
+- Open post and video details on All time, return to the previous date range from the breadcrumbs, and rearrange the Email clicks tab to match the design. [#52960]
+- Reports: Drop "report" from headings and label the export button "Download CSV". [#52908]
+- Show load errors and missing items on author, post, and video details in a notice, and stop offering Retry when access is denied. [#53086] [#53141]
+- Show Posts & Pages and Videos report titles in bold beside a fixed-size thumbnail. [#52958]
+- Top pages widget: Download the full report for the selected dates instead of the rows on screen. [#52966]
+- Traffic chart: Default to the chart type Jetpack Stats v1 saved in this browser, else bars. [#52899]
+- Widgets toolkit: Keep the hover underline on the ReportLink text when it renders text with a badge beside it. [#52752]
+- Widgets toolkit: Share the internal and external link markup between components, and stop setting rel on links that open in a new tab. [#53043]
+
+### Removed
+- Dashboard: Move the Top videos widget to the VideoPress package, which registers it and seeds it into the Traffic section. [#52909]
+
+### Fixed
+- Dashboard: Open the date menus on the applied option instead of the first one. [#53081]
+- Date controls: Use the default chart interval when switching to a different preset, instead of keeping the previous preset's. [#52897]
+- Fix the Latest comments widget counting pingbacks and trackbacks in its remaining comments count. [#52964]
+- Fix the post comments count, the most popular time, and unnamed countries showing wrong values when Stats has no data for them. [#52902]
+- Reports: Show the "No data found" state on every report with no rows, and stop the table search and settings from showing while an empty report loads. [#52900]
+- Show report load errors in a notice across the report, without Retry when access is denied. [#53141]
+- Traffic chart: Show views per visitor and the number of posts published in the tooltip. [#52957]
+
+## [0.10.0] - 2026-09-29
+### Changed
+- Dashboard: Offer in the widget picker only the widgets the current tab shows by default. [#52922]
+- Dashboard: Show every section a site qualifies for instead of a fixed preview list, with the Store tab off unless the site opts in. [#52865]
+- Dashboard: Show the no-results message in chart widgets for a period with no data, instead of a flat zero line. [#52868]
+- Locations: Show each city as a marker on the map when Cities is selected. [#52859]
+- Refresh Stats data automatically every 30 minutes while the tab stays open, except for date ranges that ended before today. [#52898]
+- Traffic summary: Show Visitors on the chart alongside Views by default. [#52896]
+- Update package dependencies. [#52757]
+
+### Fixed
+- Reports: Give report cards a raised background so charts no longer sit in a lighter box on the page. [#52852]
+- Traffic summary: Show the day totals for visitors, likes, and comments when the chart shows hours. [#52858]
+
+## [0.9.0] - 2026-09-28
+### Added
+- Add a "Manage subscribers" link to the Latest subscribers widget, opening the Newsletter subscribers screen in wp-admin. [#52604]
+- Add additional analytics to dashboard customizing and feedback. [#52627] [#52824]
+- Add additional analytics to the date range controls. [#52693]
+- Add the `jetpack_premium_analytics_register_dashboard_sections` action, so a plugin can register a dashboard section. [#52454]
+- Add the `jetpack_premium_analytics_register_widget_types` action, `register_widget_types_from_manifest()` and `WIDGET_API_VERSION`, so a plugin can register its dashboard widget types. [#52568] [#52634] [#52866]
+- Ads: Note in the Earnings History widget when the site has adjustments, linking to the Adjustments history tab of the Earnings report. [#52526]
+- Charts: Add a "Comparison period" legend item to line charts that show a previous period. [#52423]
+- Dashboard: Add a feature flag that shows every section of a preview-limited dashboard. [#52549]
+- Dashboard: Register the SDK as the `@automattic/jetpack-premium-analytics-sdk` script module. [#52635]
+- Dashboard: Show the Ads tab in the customer preview on sites that use WordAds. [#52864]
+- Dashboard: Show the Subscribers tab in the customer preview. [#52768]
+- Date comparison: Add options that line up the same weekdays of the previous period and the previous year. [#52598]
+- Post detail: Show the Email opens and Email clicks tabs for every post, with a "This post hasn’t been sent as a newsletter" state for a post that was never sent. [#52801]
+- Reports: Replace the records table with a "No data found" state when the selected period has no rows. [#52792]
+- Subscriber highlights: Describe the 30, 60 and 90 days ago and Social followers counts on hover and for screen readers. [#52747]
+- Subscriber highlights: Show the change since 30 days ago on the all-time, paid and free subscriber counts for sites with paid subscribers. [#52741]
+
+### Changed
+- Ads: Adjust the Period column appearance in the Earnings report. [#52714]
+- Ads: Show payment status as a badge in the Earnings History widget, and shorten the pending statuses to "Pending" with the reason beside them. [#52565] [#52687]
+- Ads: Stop showing negative amounts in red in the Earnings History widget. [#52565]
+- Ads: Title the tab "Ads performance" and reword the three WordAds widget tips, adding a "Learn more" link. [#52714]
+- Charts: Start line chart value axes at zero, and pad the Subscribers chart's axis a little below its data instead. [#52600]
+- Charts: Use square legend swatches in bar mode. [#52423]
+- Chart tooltips: Lead each row with the value, then the metric as its unit, then the date. [#52527]
+- Dashboard: Call the preview the new Stats in its welcome, feedback and switch-off copy. [#52722]
+- Dashboard: Keep a chart widget's tabs at zero and show the no-results message inside the chart for a period with no data. [#52795]
+- Dashboard: Leave registering the Ads tab to the WordAds module and WordPress.com, so it no longer appears on sites without WordAds. [#52455]
+- Dashboard: Refuse to register a section whose slug another section already uses. [#52455]
+- Dashboard: Show one generic “no results for this time period” state in list widgets that have no data for the selected period. [#52791]
+- Dashboard: Show the empty state in chart widgets for a period with only zero or missing values. [#52795]
+- Dashboard: Show the generic “no results for this time period” state in chart widgets that have no data for the selected period. [#52794]
+- Dashboard: Show zeros or placeholders in highlight and Insights widgets for a period with no data, instead of an empty message. [#52795]
+- Date controls: Adjust the date triggers' appearance, and match the widget header's date range control to the other header controls. [#52500]
+- Latest subscribers: Open a subscriber on the Newsletter Subscribers page in wp-admin. [#52848]
+- Locations: Draw disputed borders on the map as the viewer's country shows them. [#52805]
+- Sync: Use the shared WooCommerce Analytics module from the jetpack-sync package, and sync store analytics whether or not WooCommerce order attribution is enabled. [#50851]
+
+### Removed
+- Ads: Remove the "Metrics" dropdown from the All-time balance card, so it always shows every amount. [#52700]
+- Ads: Remove the Ads Served note above the Earnings report table. [#52714]
+- Dashboard: Move the Ads widgets and their default layout to the Ads package, which registers them with the section. [#52635]
+
+### Fixed
+- Ads: Leave Average CPM empty instead of showing $0.00 in the Ads chart for periods with no ads served. [#52690]
+- Ads: Show a dash instead of zero in the Earnings report when a period has no Ads Served count. [#52510]
+- Authors: Stop listing an author's post that only appears in the comparison period as 0 (-100%). [#52678]
+- Charts: Draw the Visitors legend swatch solid in the Traffic summary to match its line, and keep the selected metric's legend item from being hidden. [#52423]
+- Charts: Show "1 Subscriber" rather than "1 Subscribers" in tooltips, using each language's plural rules. [#52683]
+- Dashboard: Show the date menus opened from a widget's controls above the controls popover. [#52751]
+- Email stats: Leave unknown rates blank in the Emails export. [#52684]
+- Email stats: Show a sent but unopened email's open and click rates as 0% instead of a dash. [#52684]
+- Email stats: Show readable link names in an email's Top links list, and list the links clicked inside the post instead of dropping them. [#52685]
+- Email stats: Show the email tabs for emails whose sends went unrecorded. [#52684]
+- Return the Stats breadcrumb to the dashboard tab a report or detail page was opened from, instead of always to Traffic. [#52862]
+- Search terms: Stop treating a comparison list capped at 500 terms as complete. [#52678]
+- Subscriber summary: Leave the months before a site launched or turned on subscriptions empty in the chart, with a "No data" tooltip, instead of showing zero. [#52523]
+
+## [0.8.0] - 2026-09-21
+### Added
+- Add an author detail page with the author's views, popular and latest posts, and top viewed posts. [#52312]
+- Add post thumbnails to the Posts & Pages report. [#52384]
+- Ads: Add a line or bar chart toggle to the WordAds chart. [#52483]
+- Ads: Link the Earnings History widget to its full report. [#52327]
+- Ads: Show sponsored content and adjustment earnings on the Earnings history report, each on its own tab. [#52437]
+- Dashboard widgets: Carry declarative actions and icon references from the widget manifest to the registry and the widget-modules REST record. [#51925]
+
+### Changed
+- Ads: Add a payment status filter to the Earnings history report. [#52389]
+- Ads: Explain Ads Served on the Earnings history report. [#52389]
+- Ads: Group the WordAds chart by the selected period instead of a separate grouping control. [#52483]
+- Ads: Label WordAds earnings history periods by month and year, such as "August 2026". [#52327]
+- Ads: Rename the WordAds widgets to Ads summary, All-time balance and WordAds earnings, and give each its own icon. [#52511]
+- Ads: Show payment status as a badge on the Earnings history report. [#52437]
+- Ads: Show the Earnings History widget as a compact list without in-widget pagination. [#52327]
+- Ads: Show unpaid and negative amounts in red on the Earnings History widget. [#52389]
+- Dashboard: Show opens and clicks beside their rates in Latest emails sent. [#52256]
+- Dashboard: Show the Insights tab beside Traffic while the site is running the customer preview, and name both tabs in the preview's welcome, feedback and switch-off copy. [#52525]
+- Draw attention to the date control, and read the new period out, when a card or a table cell sets the period rather than the reader. [#52255]
+- Insights: Align the Most popular post and Latest post cards with the design: regular-weight stat labels and a grey ground behind the featured image. [#52319]
+- Insights: Replace the daily Traffic views activity heatmap with a "Views over years" table of monthly views. [#52311] [#52364]
+- Insights: Use the page icon for the Posts metric in the All-time stats widget. [#52373]
+- Leaderboard widgets: Adjust row appearance in Top tags & Categories and its report. [#52317]
+- Let dashboard sections declare their default widget layout when they register, and pass that layout and the section id to the `jetpack_premium_analytics_dashboard_default_layout` filter. [#52452]
+- Let hosts show or hide the Analytics sidebar entry. [#52351]
+- Open the exact-figure tooltip below compact values instead of above them. [#52374]
+- Post detail: Bring the page back to the top when a month in All-time traffic sets the period. [#52320]
+- Posting activity: Show the last 12 months as one mini calendar per month. [#52265]
+- Rename the Subscribers summary widget to Subscriber summary. [#52413]
+- Show the heatmap tooltips in the dark style, the daily ones titled with the date, and draw the Views over years and All-time traffic cells as flush bands under a continuous scale. [#52369]
+- Subscribers: Move the date range control off the tab header and onto the Subscriber summary chart; the tab no longer offers a previous-period comparison. [#52421]
+- Subscribers: Rename the first Subscriber highlights tile to All-time subscribers. [#52310]
+- Subscribers: Show subscriber counts from 30, 60, and 90 days ago, and social followers, on the Subscriber highlights card. [#52310]
+- Update package dependencies. [#52187] [#52401] [#52402]
+
+### Removed
+- Ads: Remove the Sponsored Content History and Adjustments History widgets. [#52420]
+- Remove the unused `dashboards/{name}/default-layout` REST route. [#52451]
+- Subscribers: Remove the Metrics control from the Subscriber highlights card. [#52310]
+
+### Fixed
+- Ads: Open the WordAds chart on the last 7 days rather than a single day on a site launched today. [#52421]
+- Keep the first partial week or month bucket of a period list report when the date range starts mid-period. [#52366]
+- Keep the keyboard-selected cell of the Views over years and All-time traffic heatmaps in view, clear of the month and year labels, when the grid scrolls. [#52259]
+- Keep the originating report in post detail breadcrumbs when opening a post from a dashboard widget. [#52430]
+- Keep the year column and month labels of the Views over years and All-time traffic heatmaps fully opaque while the grid scrolls. [#52309]
+
+## [0.7.0] - 2026-09-15
+### Added
+- Add a dismissible feedback banner above the dashboard widgets. [#52325]
+- Ads: Add an earnings history report page, showing every period with its earnings, ads served, and payment status. [#52323]
+- Date picker: Add the "Month to date" and "Year to date" periods. [#52088]
+- Locations: Add a map of views by location to the report, with an option to hide it. [#51808]
+- Post detail: Add a "Totals" column to the "All-time traffic" card, with month labels that stay in view as the history scrolls. [#52137]
+- Post detail: Add a "Total views" / "Daily average" switch to the "All-time traffic" card. [#52127]
+- Traffic: Note in the widget help that the "Visitors" total is a per-period sum. [#52085]
+
+### Changed
+- Add feedback and the preview opt-out to the page options menu on post and video detail pages, and a "Reset to default" button while customizing. [#52190]
+- Ads: Rearrange the default widgets for the three-column grid, with the chart first, then the balance, then the three history tables side by side. [#52232]
+- Ads: Show ads served, average CPM and revenue together in the chart tooltip, whichever tab is selected. [#52262]
+- Build the custom date range calendar on the WordPress design system calendar. [#52090]
+- Dashboard: Ask the same readiness question when switching the new "Traffic" tab off, and point to the "Modules Visibility" setting to switch it back on. [#52186]
+- Dashboard: Ask whether the new "Traffic" tab is ready to replace the old one, instead of how it compares with the old one. [#52109]
+- Dashboard: Hide the date controls while customizing the layout, instead of disabling them. [#52176]
+- Dashboard: Move "Customize" into the page options menu, and offer "Reset to default" beside "Cancel" and "Done" while customizing. [#52192]
+- Date picker: Offer common periods, removing "Last 90 days", "Last 365 days" and "Last year" from the menu. [#52124]
+- Date range: Measure day boundaries in the site's time zone and report no period length when a range ends before it starts. [#52065]
+- Draw the "Post views" and "Video performance" charts as bars by default on post and video detail pages. [#52174]
+- Feedback: Tell readers where their feedback went and that they can send more, instead of a one-line thank you. [#52107]
+- Highlight widgets: Arrange metric tiles as a list in a one-column widget, or as a single row or two-column grid in a wider widget. [#52258]
+- Insights: Align the widget help text and the "Year in review" and "All-time stats" header icons with the design. [#52253]
+- Insights: Always show every total on the "All-time stats" card, and remove its "Metrics" control. [#52261]
+- Insights: Label the "Tags & categories" widget with its 7-day window, and the most commented and shares widgets as all-time. [#52308]
+- Insights: Lay out the default widgets on the three-column grid in the design's order. [#52253]
+- Insights: Remove "Total views", "Total visitors", "Popular days" and "Popular hours" from the default layout, and hold the four widgets back from every widget picker for now. [#52216]
+- Insights: Remove the year filter and interval dropdown from the section header. [#52175]
+- Insights: Rename the section title to "Site insights". [#52314]
+- Insights: Show "All-time stats" totals as compact figures, with the exact total in a tooltip. [#52306]
+- Insights: Show the "Most popular time" and "Most popular day" highlights side by side, stacking them only on a narrow tile. [#52219]
+- Keep the custom range calendar's "Cancel" and "Apply" buttons at the bottom of the period menu. [#52116]
+- Onboarding: Show the "Skip tour" button on every step of the spotlight tour. [#52140]
+- Pin and condense the post and video detail headers on scroll, as on the dashboard, with the tabs scrolling away, the subtitle folding and the media shrinking to the title row. [#52149]
+- Pin the section header on the report pages, as on the dashboard. [#52142]
+- Popular post: Retitle the card to "Most popular in the last year". [#52254]
+- Post All-time traffic: Share the monthly heatmap through the widgets toolkit and let translators order the month and year in its tooltip. [#52223]
+- Post detail: Replace the daily "Traffic activity" heatmap with an "All-time traffic" table of monthly views, and picking a month applies it as the page's period. [#52118] [#52214]
+- Report date filters: Stage a date range through one shared bounds helper in both pickers. [#52064]
+- Show the exact number on hover behind abbreviated figures, and abbreviate with one decimal where it fits (1.2K, 54.3K, 234K). [#52177]
+- Subscribers: Show "Subscriber highlights" by default and rearrange the widgets for the three-column grid. [#52231]
+- Update package dependencies. [#52162] [#52200] [#52297]
+
+### Removed
+- Remove the arrows that stepped the date range back and forward a period. [#52108]
+
+### Fixed
+- Anchor the activity heatmaps' window fallback on the site's today instead of the viewer's. [#52173]
+- Calendar heatmap: Show the weekday, month and tooltip labels in the site's language. [#52115]
+- Date comparison: Keep the same calendar dates for a range starting on the 1st, so "Year to date" in a leap year compares against 1 January of the previous year rather than 31 December. [#52215]
+- Dialogs: Keep the comment field's focus ring from being clipped by the dialog footer. [#52110]
+- Most commented authors: Link WordPress.com commenters to the comment screen filtered to their comments, as guest commenters already are. [#52291]
+- Offer every period the dashboard's date picker does, plus a custom range, on post, page and video detail pages. [#52087]
+- Onboarding: Keep the welcome modal open on a click outside it, so the tour can still be started. [#52095]
+- Stop the first and last dates on a chart's horizontal axis from being cut off. [#52112]
+- Year in review: Match the metric tile icons to the design, and add space between the tiles and the footer link. [#52307]
+
+## [0.6.1] - 2026-09-09
+### Changed
+- Internal updates.
+
+## [0.6.0] - 2026-09-08
+### Added
+- Add an "Any feedback?" action to the dashboard header. [#51870]
+- Dashboard: Add a page option that switches the new Traffic tab off, asks why on the way out, and returns to classic Stats. [#52025]
+- Dashboard: Show the onboarding again to a reader who switches the new Traffic tab back on. [#52038]
+- Date controls: Add a dropdown for common periods and a calendar for custom ranges. [#51835]
+- Detail pages: Add a page options menu with a Customize action to the post, email, and video detail pages; card arrangement persists per page and tab. [#51772]
+- Expose the dashboard opt-in as a site setting. [#51864]
+- Onboarding: Add the welcome modal shell. [#51938]
+- Onboarding: Add the widget grid animation for the welcome modal. [#51934]
+- Onboarding: Follow the welcome modal with a three-step spotlight tour of the customization menu, the date controls and the widgets. [#51949]
+- Onboarding: Open the welcome modal the first time a reader reaches the dashboard. [#51948]
+- Send dashboard feedback on to Jetpack support, so it is not lost when analytics are blocked. [#51921]
+
+### Changed
+- Comparison control: Mark an active comparison with a "vs" prefix, and name the compared window in the trigger's tooltip. [#51820]
+- Dashboard: Disable the date controls while customizing the layout. [#52024]
+- Dashboard: Hide the report pages behind tabs the dashboard does not show. [#51983]
+- Dashboard: Limit customization to moving and resizing widgets. [#51986]
+- Dashboard: Move the feedback action into a page options menu. [#52023]
+- Date controls: Pick the period from a dropdown instead of a row of buttons, with the calendar beside it on Custom range. [#51842]
+- Detail pages: Even out the header spacing on the post page to match the video page. [#51875]
+- Detail pages: Lay out post and video widgets on the dashboard's three-column grid. [#52044]
+- Detail pages: Match the post and video page headers to the layout used across the rest of Analytics. [#51875]
+- Display the dashboard on a three-column grid and rearrange the default Traffic widgets. [#51873]
+- Feedback modal: Render with the design system Dialog and TextareaControl. [#51968]
+- Match the Jetpack logo in the Stats header to the 20px size used by the other Jetpack admin pages. [#52060]
+- Onboarding: Revise the welcome modal copy and reorder the tour to start from the widgets and end on the page options menu. [#52025]
+- Reports: Open the Authors, Clicks and UTM reports folded to their top-level groups, and move the drill-down control to the right of the row title. [#51806]
+- Update package dependencies. [#51701] [#51853]
+
+### Removed
+- Plan usage: Remove the widget and its upgrade link from the dashboard. [#51834]
+- Remove the segmented date preset control, replaced by the period dropdown. [#51881]
+
+### Fixed
+- Comparison control: Stop showing a comparison as active when there is no window behind it. [#51820]
+- Dashboard: Keep the four-column layout regardless of a stored columns preference. [#51939]
+- Dashboard sections: Stop requiring `Enablement_Setting` by path, which caused errors on sites that include this package in more than one plugin. [#52029]
+- Date controls: Include the current day in last-N-day ranges and calculate 12-month ranges in whole calendar months. [#51428]
+- Insights: Collapse the year buttons into a select as soon as they stop fitting, instead of letting them run past the edge on a phone. [#51882]
+- Keep the date picker on the range a chart drill-down applies. [#51924]
+- Onboarding: Keep keyboard focus inside the tour card and let screen reader users skip the tour. [#51975]
+- Posting activity: Count published posts by the site's calendar day rather than the UTC one. [#51878]
+- Show chart dates in the site's timezone and locale, and name the hour on hourly charts. [#51814]
+- Show published dates in the site's language and date format. [#51967]
+
+## [0.5.0] - 2026-09-01
+### Added
+- Add a year dropdown to the Year in review (Highlights) widget header, defaulting to the current year, and drop its metric selector so the card always shows posts, words, likes, and comments. [#51638]
+- Annual insights: Add total and per-post image counts to the report. [#51747]
+- Insights: Add the All-time stats widget to the default layout. [#51635]
+- Insights: Add the Most popular day widget to the default layout, and say in its help note that its figures are all-time. [#51645]
+- Insights: Add the Most popular time card to the default layout. [#51636]
+- Traffic chart: Click a point on the chart to narrow the dashboard to that period. [#51544]
+
+### Changed
+- Ads: Move the date range into the WordAds card's own header, and drop the section header's date filter. [#51543]
+- Chart interval control: Name the active interval in the button's tooltip, and give its menu a heading. [#51770]
+- Charts: Take the series palette from the charts package instead of seeding it locally. [#51535]
+- CSV export will now handle `\"` sequences per RFC 4180. [#51572]
+- Date controls: Build the comparison menu from the applied range and restore the same-period-last-week option. [#51779]
+- Date controls: Turn the period comparison off by default. [#51771]
+- Date filters: Share one staged-value controller between the URL-backed and widget-backed surfaces, and resolve the chart interval against the same range on both. [#51644]
+- Date range control: Name a custom range covering a whole month or year by that period, and spell the dates out in the button's tooltip. [#51817]
+- Divide a widget's metrics with lines instead of boxing each one. [#51749]
+- Insights: Retitle the Popular post card to "Most popular post in the last 12 months" and pin it to the last 12 months. [#51649]
+- Insights: Shorten the Popular post card title so it survives a narrow dashboard cell. [#51746]
+- Leaderboards: Give shared rows one row height, bar radius, and link hover. [#51595]
+- Leaderboards: Match the Most viewed and Videos row labels to the other leaderboard widgets. [#51599]
+- Leaderboards: Match the remaining row labels to the other leaderboard widgets. [#51602]
+- Leaderboards: Tighten the spacing between rows. [#51540]
+- Post and video details: lead the date presets with All time (from the publish date), drop the custom range, period arrows, and interval dropdown per the design, and highlight the selected preset in the brand color. [#51533]
+- Post detail: Remove the settings drawer from the Email highlights and Email breakdown cards; their metric and view are fixed by the tab layout. [#51659]
+- Post detail: The email tabs' opens and clicks timelines cover the first 30 days after the send instead of the page date filter, which no longer shows there; the other email cards stay all-time. [#51547]
+- Subscriber list: Match the row height, avatar size, and footer type to the design. [#51597]
+- Top locations: Add breathing room above and below the map. [#51593]
+- Top pages: Rename the CSV comparison column to "Views (Previous Period)" and move it after the primary columns. [#51705]
+- Traffic summary: Follow the page chart interval control instead of a widget-level Group by. [#51532]
+- Update package dependencies. [#51303] [#51802]
+- Video details: Fold the highlight metrics into the Video performance chart as selectable tabs. [#51501]
+- Widget skeletons: Stop exposing the loading placeholder as a status region. [#51753]
+
+### Removed
+- Minimum supported PHP version is now 7.4. [#51515]
+- Remove the date configuration subtitle from the section header. [#51707]
+- Remove the page descriptions from the dashboard and report pages. [#51707]
+- Remove the unused granularity attribute from the default WordAds chart widget instance. [#51585]
+
+### Fixed
+- Ads: Drop the Last 24 hours range from the WordAds card, which has no hourly data to chart. [#51633]
+- Ads: Include the last day of the selected range in the WordAds card. [#51751]
+- Ads: Stop the chart interval menu offering buckets the WordAds chart cannot draw. [#51639]
+- Align title link styling across widgets: external video rows gain the standard outbound marker, long titles no longer clip it, and hover underlines cover only the title text. [#51534]
+- Annual insights: Keep the Year in review report link reachable. [#51747]
+- Annual insights: Print the words-per-post average whole, as the old Stats report does. [#51747]
+- Charts: Remove the quarterly interval option, which never changed the chart. [#51631]
+- Date filters: Keep the custom range Apply button disabled when re-selecting "No comparison". [#51764]
+- Decode HTML entities in post titles, author names, and other Stats labels. [#51632]
+- Emails: Decode HTML entities in email subject lines. [#51596]
+- Email timeline: Request the smallest hourly window the endpoint can serve and trim the chart and totals to the selected window. [#51588]
+- Insights: Show the Most popular time day and hour in the site's locale. [#51636]
+- Most popular day: Give the Day and Views labels the weight the design has them at and the heading structure a screen reader can navigate, state a share of views only when there is an all-time total to take it from, and drop the Retry a reader without stats access cannot use. [#51645]
+- Most popular day: Show the whole card on a short tile instead of clipping it. [#51645]
+- Post detail: Stop the Post traffic layout from flashing when an email tab is opened directly, and show placeholder lines in the header while the title loads. [#51805]
+- Referrers: Treat a group with an empty results list as an external-link row. [#51757]
+- Show a notice when a refresh fails, instead of silently leaving the previous numbers on screen. [#51383]
+- Subscriber list: Link a subscriber's name to their subscriber details page. [#51634]
+- Subscriber list: Order subscribers by subscription date instead of by subscriber type. [#51598]
+- Subscribers summary: Fix the help text to describe the cumulative subscriber total the chart plots, not new subscribers. [#51697]
+- Tables: Fall back to the last page instead of reporting no results when a date range returns fewer rows than the current page. [#51755]
+- Tags & categories: Print view counts in full, and list far more rows in the report. [#51646]
+
+## [0.4.0] - 2026-08-25
+### Added
+- Add an Ads dashboard section showing WordAds earnings and performance. [#51422]
+- Charts: Name each legend item by metric, folding a metric's two periods into one item. Traffic summary: add the paired metric to the chart, hidden until revealed from the legend. [#51468]
+- Insights: Add a Popular hours widget and show it instead of Most popular day by default. [#51239]
+- Link the post list table's views column to the post detail page. [#51357]
+- Locations: Name the regions behind each country total in the Regions map tooltip. [#51312]
+- Page the calendar heatmaps through weeks that do not fit the tile with floating hover arrows, replacing the post detail header pager and the Insights heatmaps' silent clipping. [#51437]
+- Referrers report: Add referrer groups that open folded and expand on demand. [#51465]
+
+### Changed
+- Chart widgets: Follow the page chart interval control instead of a per-widget Group by. [#51278]
+- Latest emails sent: Drop the bar behind each row and show the subject and rate as a plain list. [#51425]
+- Leaderboard: Replace the deprecated `--a8c--charts--leaderboard--bar--border-radius` variable with `--a8c-charts-border-radius-leaderboard-bar`. [#51308]
+- Name comparison dates in the dashboard header, omit weekdays from ranges longer than a week, and omit the year when it matches the current range. [#51420]
+- Traffic: Offer only the groupings the selected date range supports in the chart's Group by control. [#51446]
+
+### Fixed
+- Apply the first widget section flex-column workaround to the post and video detail routes too. [#51434]
+- Charts: Label chart points by the bucket they name rather than by the viewer's time zone, and format axis ticks and tooltips at the series' declared bucket size. [#51445]
+- Date comparison: End a sub-day previous period immediately before the reference window instead of one instant inside it. [#51374]
+- Date filters: Compute day boundaries and daylight-saving wall times in the site's timezone instead of the visitor's browser timezone. [#51419]
+- Fix charts getting stuck on their loading skeleton after switching a control that turns one of the underlying requests off. [#51443]
+- Insights: Scope the calendar heatmaps to the selected period, so the card no longer draws and reports on years outside it. [#51385]
+- Label Subscribers chart and email timeline points by the bucket they name rather than by the viewer's time zone. [#51499]
+- Show only the rows that fit the tile for Latest subscribers, Latest likes, and Latest comments, while keeping the "N more" footer visible. [#51379]
+- Show the dashboard right away instead of a sync screen, and flag the Store section's numbers as incomplete while store data is still syncing. [#51279]
+- Stats: Compare a date range against a previous month or year of the same length, unless the range is whole calendar months. [#51469]
+- Stats: Stamp bucket dates as timezone-naive site-local wall times, fixing report dates that could read a day off for sites away from UTC. [#51499]
+- Traffic: Start the chart's Group by control from the dashboard's interval, and replace Auto with hourly grouping. [#51446]
+
 ## [0.3.0] - 2026-08-20
 ### Added
 - Date controls: Let each dashboard section declare whether its header offers the period-over-period comparison control. [#51230]
@@ -136,5 +565,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - VideoPress: Add a video detail page with plays leaderboard, video highlights, and embed locations. [#50311] [#50536]
 - WordAds: Add widgets for ads served, average CPM and revenue over time, all-time earnings highlights, and earnings, sponsored content and adjustments history. [#50314] [#50490]
 
+[0.12.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.11.0...0.12.0
+[0.11.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.10.0...0.11.0
+[0.10.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.9.0...0.10.0
+[0.9.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.8.0...0.9.0
+[0.8.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.7.0...0.8.0
+[0.7.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.6.1...0.7.0
+[0.6.1]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.6.0...0.6.1
+[0.6.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.5.0...0.6.0
+[0.5.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.4.0...0.5.0
+[0.4.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.3.0...0.4.0
 [0.3.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.2.0...0.3.0
 [0.2.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.1.0...0.2.0

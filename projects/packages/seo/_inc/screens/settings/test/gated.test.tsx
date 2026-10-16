@@ -59,9 +59,12 @@ const buildForm = ( hasLegacy: boolean ): SettingsForm => {
 		verification_tools_active: true,
 		verification: { google: '', bing: '', pinterest: '', yandex: '', facebook: '' },
 		search_engines_visible: true,
+		site_is_private: false,
 		sitemap_active: false,
+		sitemap_switchable: true,
 		sitemap_url: '',
 		canonical_active: false,
+		canonical_switchable: true,
 		schema: {} as SettingsResponse[ 'schema' ],
 	};
 
@@ -90,6 +93,7 @@ describe( 'SettingsScreen — gated front-page description', () => {
 		render( <SettingsScreen form={ buildForm( false ) } /> );
 
 		expect( screen.queryByLabelText( FRONT_PAGE_LABEL ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Canonical URLs' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'keeps the front-page description on a gated site that has a legacy value', () => {

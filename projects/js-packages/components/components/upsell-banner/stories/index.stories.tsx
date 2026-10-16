@@ -9,6 +9,8 @@ export default {
 	},
 };
 
+const noop = () => {};
+
 const BannerTemplate = args => {
 	// Set up the first CTA
 	const secondaryCtaLabel = 'Learn more';
@@ -29,6 +31,7 @@ const BannerTemplate = args => {
 			primaryCtaLabel={ args.showPrimary ? primaryCtaLabel : null }
 			primaryCtaURL={ args.showPrimary ? primaryCtaUrl : null }
 			primaryCtaIsExternalLink={ true }
+			onDismiss={ args.showDismiss ? noop : null }
 		/>
 	);
 };
@@ -69,6 +72,17 @@ export const WithoutSecondaryBtn = args => {
 		showIcon: true,
 		showSecondary: false,
 		showPrimary: true,
+	};
+	return <BannerTemplate { ...props } />;
+};
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const Dismissible = args => {
+	const props = {
+		showIcon: true,
+		showSecondary: true,
+		showPrimary: true,
+		showDismiss: true,
 	};
 	return <BannerTemplate { ...props } />;
 };

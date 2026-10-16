@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Forms: Prevent an error that could stop responses from loading when a file upload field was stored without any file data.

@@ -165,21 +165,30 @@ class WPCOM_Site_Purchase {
 	 * value stored here would go stale between refreshes. Only the synced payload carries them
 	 * pre-computed, because an Atomic site has no billing code-base to ask.
 	 *
-	 * @param object $row     A row as returned by _wpcom_features_get_simple_site_purchases().
-	 * @param int    $blog_id The blog the row belongs to.
+	 * Takes the row in whichever shape it arrives, and treats every field as optional. The rows
+	 * are served from an object cache shared across requests, which has been seen to hand back
+	 * arrays rather than the objects the store query returned; an array still carries the whole
+	 * row, so it is read rather than dropped, and an entry that is not a row at all builds an empty
+	 * purchase, which matches no feature. This sits behind a feature check, on nearly every
+	 * request, where being strict about the shape costs the whole site a fatal.
+	 *
+	 * @param mixed $row     A row as returned by _wpcom_features_get_simple_site_purchases(), in
+	 *                       whichever shape it was handed back.
+	 * @param int   $blog_id The blog the row belongs to.
 	 */
-	public static function from_store_row( object $row, int $blog_id ): self {
+	public static function from_store_row( $row, int $blog_id ): self {
+		$row      = (object) $row;
 		$purchase = new self();
 
 		$purchase->blog_id                = $blog_id;
-		$purchase->product_slug           = (string) $row->product_slug;
-		$purchase->product_id             = (string) $row->product_id;
-		$purchase->billing_product_slug   = (string) $row->billing_product_slug;
-		$purchase->product_type           = (string) $row->product_type;
-		$purchase->subscribed_date        = (string) $row->subscribed_date;
-		$purchase->expiry_date            = (string) $row->expiry_date;
-		$purchase->subscription_id        = (string) $row->subscription_id;
-		$purchase->user_allows_auto_renew = (bool) $row->user_allows_auto_renew;
+		$purchase->product_slug           = self::text( $row->product_slug ?? null );
+		$purchase->product_id             = self::text( $row->product_id ?? null );
+		$purchase->billing_product_slug   = self::text( $row->billing_product_slug ?? null );
+		$purchase->product_type           = self::text( $row->product_type ?? null );
+		$purchase->subscribed_date        = self::text( $row->subscribed_date ?? null );
+		$purchase->expiry_date            = self::text( $row->expiry_date ?? null );
+		$purchase->subscription_id        = self::text( $row->subscription_id ?? null );
+		$purchase->user_allows_auto_renew = self::flag( $row->user_allows_auto_renew ?? null );
 		$purchase->auto_renew             = $purchase->user_allows_auto_renew;
 
 		return $purchase;
@@ -206,7 +215,7 @@ class WPCOM_Site_Purchase {
 		$purchase->expiry_date            = self::text( $entry->expiry_date ?? null );
 		$purchase->subscription_id        = self::text( $entry->subscription_id ?? null );
 		$purchase->ownership_id           = is_scalar( $entry->ownership_id ?? null ) ? (string) $entry->ownership_id : null;
-		$purchase->user_allows_auto_renew = (bool) ( $entry->auto_renew ?? false );
+		$purchase->user_allows_auto_renew = self::flag( $entry->auto_renew ?? null );
 		$purchase->auto_renew             = $purchase->user_allows_auto_renew;
 
 		$purchase->might_still_auto_renew        = is_bool( $entry->might_still_auto_renew ?? null ) ? $entry->might_still_auto_renew : null;
@@ -216,13 +225,26 @@ class WPCOM_Site_Purchase {
 	}
 
 	/**
-	 * Coerces a decoded JSON value to a string, defaulting anything that is not a scalar.
+	 * Coerces a value to a bool, defaulting anything that is not a scalar.
 	 *
-	 * Guards from_synced_payload() against a field arriving with the wrong shape -- an object or
-	 * array where a scalar was expected, which JSON can express trivially and an ordinary cast
-	 * cannot survive.
+	 * Sibling of text(), for the same reason: an ordinary cast reads a non-empty array or object
+	 * as `true`, so a field of the wrong shape would arrive claiming auto-renew is on rather than
+	 * defaulting away like every other field.
 	 *
-	 * @param mixed $value Decoded JSON value.
+	 * @param mixed $value Value read off a store row or a decoded payload.
+	 */
+	private static function flag( $value ): bool {
+		return is_scalar( $value ) && (bool) $value;
+	}
+
+	/**
+	 * Coerces a value to a string, defaulting anything that is not a scalar.
+	 *
+	 * Guards both constructors against a field arriving with the wrong shape -- an object or array
+	 * where a scalar was expected, which JSON can express trivially and an ordinary cast cannot
+	 * survive.
+	 *
+	 * @param mixed $value Value read off a store row or a decoded payload.
 	 */
 	private static function text( $value ): string {
 		return is_scalar( $value ) ? (string) $value : '';

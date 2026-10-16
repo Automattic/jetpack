@@ -19,7 +19,7 @@
 	}
 
 	&-recheck {
-		margin-top: 1em;
+		align-self: center;
 	}
 
 	// Hide everything else except notification when modifying notification labels
@@ -37,15 +37,13 @@
 	}
 
 	.components-placeholder__fieldset {
-		display: block;
-		flex-direction: unset;
-		flex-wrap: unset;
 
 		.components-button {
 			margin-bottom: 0;
 		}
 
 		.align-center {
+			width: 100%;
 			text-align: center;
 		}
 	}

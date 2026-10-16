@@ -1,3 +1,4 @@
+@use "newspack-colors" as np-colors;
 @use "../../shared/sass/variables";
 @use "../../shared/sass/mixins";
 @use "../../shared/sass/preview";
@@ -270,6 +271,7 @@
 		.cat-links,
 		.cat-links a,
 		.cat-links a:visited,
+		.tag-labels,
 		figcaption {
 			color: inherit;
 		}
@@ -299,7 +301,7 @@
 				}
 
 				&::after {
-					background: rgba(0, 0, 0, 0.5);
+					background: np-colors.$overlay-500;
 					content: "";
 					inset: 0;
 					position: absolute;
@@ -323,7 +325,7 @@
 			.entry-meta,
 			.entry-meta .byline a,
 			.cat-links a {
-				color: #fff;
+				color: np-colors.$neutral-000;
 			}
 		}
 
@@ -331,7 +333,7 @@
 			bottom: 1em;
 			/* autoprefixer: ignore next */
 			-webkit-box-orient: vertical;
-			color: rgba(white, 0.9);
+			color: rgba(np-colors.$neutral-000, 0.9);
 			display: -webkit-box;
 			font-style: italic;
 			left: 0;
@@ -348,7 +350,7 @@
 
 			a,
 			a:visited {
-				color: #fff;
+				color: np-colors.$neutral-000;
 			}
 
 			@include mixins.media( desktop ) {
@@ -428,7 +430,8 @@
 	&.has-text-align-center {
 		.cat-links,
 		.entry-meta,
-		.entry-sponsors {
+		.entry-sponsors,
+		.tag-labels {
 			justify-content: center;
 		}
 
@@ -443,7 +446,8 @@
 		.cat-links,
 		.entry-meta,
 		.entry-sponsors,
-		.sponsor-logos {
+		.sponsor-logos,
+		.tag-labels {
 			justify-content: flex-end;
 			text-align: right;
 		}
@@ -462,7 +466,12 @@
 	}
 
 	/* Article meta */
-	.cat-links {
+	// `.tag-labels` shares this rule rather than repeating it, so an edit to one
+	// cannot silently diverge from the other. The wrapper carries only
+	// `tag-labels`, which is what keeps a publisher's per-section `.cat-links a`
+	// rule from reaching a tag label; sharing layout here does not give that back.
+	.cat-links,
+	.tag-labels {
 		display: flex;
 		flex-wrap: wrap;
 		font-size: variables.$font__size-xxs;
@@ -506,6 +515,30 @@
 		flex-wrap: wrap;
 		gap: 0.5em;
 		line-height: 1;
+	}
+}
+
+[dir="rtl"] {
+	.wpnbha {
+		&.has-text-align-right {
+			.cat-links,
+			.entry-meta,
+			.entry-sponsors,
+			.sponsor-logos,
+			.tag-labels {
+				justify-content: flex-start;
+			}
+		}
+
+		&.has-text-align-left {
+			.cat-links,
+			.entry-meta,
+			.entry-sponsors,
+			.sponsor-logos,
+			.tag-labels {
+				justify-content: flex-end;
+			}
+		}
 	}
 }
 
@@ -690,7 +723,7 @@
 
 .wpnbha.is-style-borders {
 	article {
-		border: solid rgba(0, 0, 0, 0.2);
+		border: solid rgba(np-colors.$neutral-1000, 0.2);
 		border-width: 0 0 1px;
 		box-sizing: content-box;
 		padding-bottom: 1em;

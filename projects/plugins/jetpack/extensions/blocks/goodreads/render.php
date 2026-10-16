@@ -28,7 +28,16 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @return string Canonical URL rebuilt from the validated components, or an empty string when the URL is not allowed.
  */
 function get_validated_script_url( $url ) {
-	if ( ! is_string( $url ) || str_contains( $url, '\\' ) ) {
+	if ( ! is_string( $url ) ) {
+		return '';
+	}
+
+	// A link whose query separators are HTML-encoded parses as `amp;`-prefixed parameter
+	// names and fails the allowlist below. The decode table cannot produce a path or
+	// authority delimiter, so normalizing here does not widen what is accepted.
+	$url = wp_specialchars_decode( $url );
+
+	if ( str_contains( $url, '\\' ) ) {
 		return '';
 	}
 

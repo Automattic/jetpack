@@ -123,11 +123,28 @@
 		}
 	}
 
-	// Reads down the left edge of a long list. Amber says the condition will be
-	// skipped and the tooltip says why; green says it will be acted on.
+	// Reads down the left edge of a long list. The draft icon says the condition
+	// has not been started, amber says it will be skipped and the tooltip says
+	// why, and green says it will be acted on.
 	// The `-weak` tokens are the ones that carry the hue. Their unsuffixed
 	// counterparts are text-on-light colours, dark enough (near-black green and
 	// brown) that neither icon read as its status.
+	.jetpack-contact-form__conditional-logic-rule-subject.is-invalid {
+
+		.components-select-control__input {
+			border-color: var(--wpds-color-foreground-content-error-weak);
+		}
+	}
+
+	// Spans the rule rather than sitting in the subject's own column, which
+	// wraps a short sentence onto three lines. Indented past the status icon
+	// so that icon keeps its gutter and the message lines up with the
+	// controls it refers to.
+	.jetpack-contact-form__conditional-logic-rule-message {
+		margin-inline-start: calc(20px + var(--wpds-dimension-gap-sm));
+		color: var(--wpds-color-foreground-content-error-weak);
+	}
+
 	.jetpack-contact-form__conditional-logic-rule-status {
 		display: flex;
 		align-items: center;
@@ -136,6 +153,15 @@
 
 		&.is-active {
 			color: var(--wpds-color-foreground-content-success-weak);
+		}
+
+		&.is-unstarted {
+			color: var(--wpds-color-foreground-content-neutral-weak);
+		}
+
+		// Shares its colour with the message below the row.
+		&.is-invalid {
+			color: var(--wpds-color-foreground-content-error-weak);
 		}
 	}
 

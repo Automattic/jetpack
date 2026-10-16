@@ -1,6 +1,7 @@
 <?php
 namespace Automattic\Jetpack\WP_Build_Polyfills\Tests;
 
+use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Admin_Frame;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
@@ -36,6 +37,20 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	private $original_wp_script_modules;
 
 	/**
+	 * Original wp_scripts global.
+	 *
+	 * @var mixed
+	 */
+	private $original_wp_scripts;
+
+	/**
+	 * Build directories created by make_widget_primitives_build(), removed on tear down.
+	 *
+	 * @var string[]
+	 */
+	private $extra_build_dirs = array();
+
+	/**
 	 * Set up test fixtures.
 	 *
 	 * @before
@@ -63,6 +78,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 		mkdir( $this->build_dir . '/scripts/private-apis', 0755, true );
 		mkdir( $this->build_dir . '/scripts/rich-text', 0755, true );
 		mkdir( $this->build_dir . '/scripts/theme', 0755, true );
+		mkdir( $this->build_dir . '/scripts/views', 0755, true );
 		mkdir( $this->build_dir . '/modules/boot', 0755, true );
 		mkdir( $this->build_dir . '/modules/route', 0755, true );
 		mkdir( $this->build_dir . '/modules/a11y', 0755, true );
@@ -70,6 +86,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 
 		$this->original_wp_version        = $GLOBALS['wp_version'];
 		$this->original_wp_script_modules = $GLOBALS['wp_script_modules'] ?? null;
+		$this->original_wp_scripts        = $GLOBALS['wp_scripts'] ?? null;
 	}
 
 	/**
@@ -84,6 +101,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 			unset( $GLOBALS['wp_script_modules'] );
 		} else {
 			$GLOBALS['wp_script_modules'] = $this->original_wp_script_modules;      }
+		$GLOBALS['wp_scripts'] = $this->original_wp_scripts;
 
 		// Reset static state.
 		$requested = new \ReflectionProperty( WP_Build_Polyfills::class, 'requested' );
@@ -104,7 +122,20 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 		}
 		$threshold->setValue( null, '7.0' );
 
+		$build_dir = new \ReflectionProperty( WP_Build_Polyfills::class, 'build_dir_override' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$build_dir->setAccessible( true );
+		}
+		$build_dir->setValue( null, null );
+
+		remove_action( 'admin_head', array( WP_Build_Admin_Frame::class, 'print_styles' ) );
+		remove_action( 'in_admin_header', array( WP_Build_Admin_Frame::class, 'print_script' ) );
+		unset( $GLOBALS[ WP_Build_Polyfills::MODULE_VERSIONS_GLOBAL ] );
+
 		$this->recursive_rmdir( $this->build_dir );
+		foreach ( $this->extra_build_dirs as $dir ) {
+			$this->recursive_rmdir( $dir );
+		}
 
 		parent::tear_down();
 	}
@@ -192,15 +223,58 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 
 	/**
 	 * Invoke the private register_modules method.
+	 *
+	 * @param string|null $build_dir Build directory to register from; the test build by default.
 	 */
-	private function invoke_register_modules() {
+	private function invoke_register_modules( $build_dir = null ) {
 		$this->request_polyfills( WP_Build_Polyfills::MODULE_IDS );
 
 		$method = new \ReflectionMethod( WP_Build_Polyfills::class, 'register_modules' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
 		}
-		$method->invoke( null, $this->build_dir, __FILE__ );
+		$method->invoke( null, $build_dir ?? $this->build_dir, __FILE__ );
+	}
+
+	/**
+	 * Assert which widget-primitives registration won, by its asset version.
+	 *
+	 * @param string $expected Asset version of the build that should be registered.
+	 */
+	private function assert_widget_primitives_from( $expected ) {
+		$module = $this->get_module_data( '@wordpress/widget-primitives' );
+		$this->assertNotNull( $module );
+		$this->assertSame( $expected, $module['version'] );
+	}
+
+	/**
+	 * Create a separate build holding only widget-primitives, as another plugin's copy would.
+	 *
+	 * @param string|null $package_version Bundled package version, or null for a build without `package_version`.
+	 * @param string      $asset_version   Asset hash, to tell the registrations apart.
+	 * @return string The build directory.
+	 */
+	private function make_widget_primitives_build( $package_version, $asset_version ) {
+		$dir = $this->build_dir . '-' . $asset_version;
+		mkdir( $dir . '/modules/widget-primitives', 0755, true );
+		$this->extra_build_dirs[] = $dir;
+		$package_version_php      = null === $package_version ? '' : ", 'package_version' => '$package_version'";
+		file_put_contents(
+			$dir . '/modules/widget-primitives/index.asset.php',
+			"<?php return array('dependencies' => array(), 'version' => '$asset_version', 'module_dependencies' => array()$package_version_php);"
+		);
+		return $dir;
+	}
+
+	/**
+	 * Point register() at the fake build.
+	 */
+	private function use_fake_build() {
+		$build_dir = new \ReflectionProperty( WP_Build_Polyfills::class, 'build_dir_override' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$build_dir->setAccessible( true );
+		}
+		$build_dir->setValue( null, $this->build_dir );
 	}
 
 	/**
@@ -472,7 +546,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that wp-rich-text is force-replaced on WP 6.9 (core ships no rich-text private APIs).
+	 * Test that wp-rich-text is force-replaced on WP 6.9.
 	 */
 	public function test_register_scripts_force_replaces_wp_rich_text_on_old_wp() {
 		$GLOBALS['wp_version'] = '6.9';
@@ -780,6 +854,123 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	}
 
 	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_register_modules_force_replaces_widget_primitives_with_old_gutenberg() {
+		define( 'GUTENBERG_VERSION', '23.8.0' );
+
+		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules();
+		wp_register_script_module( '@wordpress/widget-primitives', 'https://example.com/old-gutenberg-widget-primitives.js', array(), '1.0.0-gutenberg' );
+
+		$this->create_asset_file(
+			'modules/widget-primitives/index.asset.php',
+			array(),
+			'9.9.9',
+			array( 'module_dependencies' => array() )
+		);
+
+		$this->invoke_register_modules();
+
+		$module = $this->get_module_data( '@wordpress/widget-primitives' );
+		$this->assertNotNull( $module );
+		$this->assertSame( '9.9.9', $module['version'] );
+	}
+
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_register_modules_does_not_replace_widget_primitives_with_supported_gutenberg() {
+		define( 'GUTENBERG_VERSION', '24.1.0' );
+
+		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules();
+		wp_register_script_module( '@wordpress/widget-primitives', 'https://example.com/gutenberg-widget-primitives.js', array(), '1.0.0-gutenberg' );
+
+		$this->create_asset_file(
+			'modules/widget-primitives/index.asset.php',
+			array(),
+			'9.9.9',
+			array( 'module_dependencies' => array() )
+		);
+
+		$this->invoke_register_modules();
+
+		$module = $this->get_module_data( '@wordpress/widget-primitives' );
+		$this->assertNotNull( $module );
+		$this->assertSame( '1.0.0-gutenberg', $module['version'] );
+	}
+
+	/**
+	 * A newer bundled widget-primitives replaces the copy another plugin registered first.
+	 */
+	public function test_register_modules_newer_copy_replaces_older_copy() {
+		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules();
+		$older                        = $this->make_widget_primitives_build( '0.7.0', 'older' );
+		$newer                        = $this->make_widget_primitives_build( '0.9.0', 'newer' );
+
+		$this->invoke_register_modules( $older );
+		$this->invoke_register_modules( $newer );
+
+		$this->assert_widget_primitives_from( 'newer' );
+	}
+
+	/**
+	 * An older bundled copy registered later leaves the newer registration alone.
+	 */
+	public function test_register_modules_older_copy_keeps_newer_registration() {
+		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules();
+		$older                        = $this->make_widget_primitives_build( '0.7.0', 'older' );
+		$newer                        = $this->make_widget_primitives_build( '0.9.0', 'newer' );
+
+		$this->invoke_register_modules( $newer );
+		$this->invoke_register_modules( $older );
+
+		$this->assert_widget_primitives_from( 'newer' );
+	}
+
+	/**
+	 * A build without `package_version` predates it and counts as older, whichever order it loads in.
+	 */
+	public function test_register_modules_copy_without_version_counts_as_older() {
+		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules();
+		$legacy                       = $this->make_widget_primitives_build( null, 'legacy' );
+		$newer                        = $this->make_widget_primitives_build( '0.9.0', 'newer' );
+
+		$this->invoke_register_modules( $legacy );
+		$this->invoke_register_modules( $newer );
+		$this->assert_widget_primitives_from( 'newer' );
+
+		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules();
+		unset( $GLOBALS[ WP_Build_Polyfills::MODULE_VERSIONS_GLOBAL ] );
+		$this->invoke_register_modules( $newer );
+		$this->invoke_register_modules( $legacy );
+		$this->assert_widget_primitives_from( 'newer' );
+	}
+
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_register_modules_newer_copy_leaves_supported_gutenberg_copy() {
+		define( 'GUTENBERG_VERSION', '24.1.0' );
+
+		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules();
+		wp_register_script_module( '@wordpress/widget-primitives', 'https://example.com/gutenberg-widget-primitives.js', array(), '1.0.0-gutenberg' );
+		$newer = $this->make_widget_primitives_build( '0.9.0', 'newer' );
+
+		$this->invoke_register_modules( $newer );
+
+		$this->assert_widget_primitives_from( '1.0.0-gutenberg' );
+	}
+
+	/**
 	 * Test that register() hooks into wp_default_scripts at priority 20.
 	 */
 	public function test_register_hooks_into_wp_default_scripts() {
@@ -791,6 +982,16 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 		global $wp_filter;
 		$this->assertArrayHasKey( 'wp_default_scripts', $wp_filter );
 		$this->assertArrayHasKey( 20, $wp_filter['wp_default_scripts']->callbacks );
+	}
+
+	/**
+	 * Test that register arms the admin frame backdrop for the request.
+	 */
+	public function test_register_arms_the_admin_frame() {
+		WP_Build_Polyfills::register( 'test-plugin', array( 'wp-notices' ) );
+
+		$this->assertSame( 10, has_action( 'admin_head', array( WP_Build_Admin_Frame::class, 'print_styles' ) ) );
+		$this->assertSame( 10, has_action( 'in_admin_header', array( WP_Build_Admin_Frame::class, 'print_script' ) ) );
 	}
 
 	/**
@@ -808,6 +1009,138 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 
 		// wp-theme implies wp-private-apis, so it is attributed to plugin-b only.
 		$this->assertSame( array( 'plugin-b' ), $consumers['wp-private-apis'] );
+	}
+
+	/**
+	 * Test that a threshold raised after synchronous registration still force-replaces.
+	 */
+	public function test_register_applies_a_threshold_raised_after_synchronous_registration() {
+		$GLOBALS['wp_version'] = '7.0';
+		$this->create_asset_file( 'scripts/notices/index.asset.php', array(), '9.9.9' );
+		$this->create_asset_file( 'scripts/private-apis/index.asset.php', array(), '8.8.8' );
+		$this->use_fake_build();
+
+		// Constructing WP_Scripts fires wp_default_scripts, so register() registers synchronously.
+		$scripts               = $this->create_clean_scripts();
+		$GLOBALS['wp_scripts'] = $scripts;
+		$scripts->add( 'wp-notices', 'https://example.com/core-notices.js', array(), '1.0.0-core', 1 );
+		$scripts->add( 'wp-private-apis', 'https://example.com/core-private-apis.js', array(), '1.0.0-core', 1 );
+
+		WP_Build_Polyfills::register( 'first', array( 'wp-notices', 'wp-private-apis' ) );
+
+		$this->assertSame( '1.0.0-core', $scripts->query( 'wp-notices', 'registered' )->ver );
+		$this->assertSame( '8.8.8', $scripts->query( 'wp-private-apis', 'registered' )->ver );
+
+		WP_Build_Polyfills::register( 'second', array( 'wp-notices' ), '7.1' );
+
+		$this->assertSame( '9.9.9', $scripts->query( 'wp-notices', 'registered' )->ver );
+		$this->assertSame( '8.8.8', $scripts->query( 'wp-private-apis', 'registered' )->ver );
+		$this->assertSame( 1, $scripts->query( 'wp-private-apis', 'registered' )->args );
+		$this->assertSame( array( 'first', 'second' ), WP_Build_Polyfills::get_consumers()['wp-notices'] );
+		$this->assertSame( array( 'first' ), WP_Build_Polyfills::get_consumers()['wp-private-apis'] );
+	}
+
+	/**
+	 * Test that a threshold raised after the deferred registration has run still force-replaces.
+	 */
+	public function test_register_applies_a_threshold_raised_after_deferred_registration() {
+		$GLOBALS['wp_version'] = '7.0';
+		$this->create_asset_file( 'scripts/notices/index.asset.php', array(), '9.9.9' );
+		$this->create_asset_file( 'scripts/private-apis/index.asset.php', array(), '8.8.8' );
+		$this->use_fake_build();
+
+		WP_Build_Polyfills::register( 'first', array( 'wp-notices', 'wp-private-apis' ) );
+
+		// Constructing WP_Scripts fires wp_default_scripts, which runs the deferred registration.
+		$scripts               = new \WP_Scripts();
+		$GLOBALS['wp_scripts'] = $scripts;
+
+		$this->assertSame( '8.8.8', $scripts->query( 'wp-private-apis', 'registered' )->ver );
+		$this->assertNotSame( '9.9.9', $scripts->query( 'wp-notices', 'registered' )->ver );
+
+		WP_Build_Polyfills::register( 'second', array( 'wp-notices' ), '7.1' );
+
+		$this->assertSame( '9.9.9', $scripts->query( 'wp-notices', 'registered' )->ver );
+	}
+
+	/**
+	 * Test that polyfills first requested after synchronous registration are still registered.
+	 */
+	public function test_register_applies_polyfills_requested_after_synchronous_registration() {
+		$this->create_asset_file( 'scripts/views/index.asset.php', array(), '7.7.7' );
+		$this->create_asset_file( 'modules/boot/index.asset.php', array(), '6.6.6', array( 'module_dependencies' => array() ) );
+		$this->use_fake_build();
+		$GLOBALS['wp_scripts']        = $this->create_clean_scripts();
+		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules();
+
+		WP_Build_Polyfills::register( 'first', array( 'wp-notices' ) );
+		WP_Build_Polyfills::register( 'second', array( 'wp-views', '@wordpress/boot' ) );
+
+		$this->assertSame( '7.7.7', wp_scripts()->query( 'wp-views', 'registered' )->ver ?? null );
+		$this->assertSame( '6.6.6', $this->get_module_data( '@wordpress/boot' )['version'] ?? null );
+	}
+
+	/**
+	 * Test that polyfills first requested after the deferred registration has run are still registered.
+	 */
+	public function test_register_applies_polyfills_requested_after_deferred_registration() {
+		$this->create_asset_file( 'scripts/views/index.asset.php', array(), '7.7.7' );
+		$this->create_asset_file( 'modules/boot/index.asset.php', array(), '6.6.6', array( 'module_dependencies' => array() ) );
+		$this->use_fake_build();
+
+		WP_Build_Polyfills::register( 'first', array( 'wp-notices' ) );
+		$GLOBALS['wp_scripts']        = new \WP_Scripts();
+		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules();
+		WP_Build_Polyfills::register( 'second', array( 'wp-views', '@wordpress/boot' ) );
+
+		$this->assertSame( '7.7.7', wp_scripts()->query( 'wp-views', 'registered' )->ver ?? null );
+		$this->assertSame( '6.6.6', $this->get_module_data( '@wordpress/boot' )['version'] ?? null );
+	}
+
+	/**
+	 * Test that registering again leaves an already replaced script, and what was attached to it, alone.
+	 */
+	public function test_register_keeps_an_already_replaced_script_intact() {
+		$GLOBALS['wp_version'] = '7.0';
+		$this->create_asset_file( 'scripts/private-apis/index.asset.php', array(), '8.8.8' );
+		$this->use_fake_build();
+		$scripts               = $this->create_clean_scripts();
+		$GLOBALS['wp_scripts'] = $scripts;
+		$scripts->add( 'wp-private-apis', 'https://example.com/core-private-apis.js', array(), '1.0.0-core', 1 );
+
+		WP_Build_Polyfills::register( 'first', array( 'wp-private-apis' ) );
+		$scripts->add_inline_script( 'wp-private-apis', 'window.attached = true;' );
+		WP_Build_Polyfills::register( 'second', array( 'wp-notices' ), '7.1' );
+
+		$this->assertSame( '8.8.8', $scripts->query( 'wp-private-apis', 'registered' )->ver );
+		$this->assertContains( 'window.attached = true;', (array) $scripts->get_data( 'wp-private-apis', 'after' ) );
+	}
+
+	/**
+	 * Test that registering again leaves an already replaced module enqueued.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_register_keeps_an_already_replaced_module_enqueued() {
+		define( 'GUTENBERG_VERSION', '23.8.0' );
+		$this->create_asset_file( 'modules/widget-primitives/index.asset.php', array(), '9.9.9', array( 'module_dependencies' => array() ) );
+		$this->use_fake_build();
+		$GLOBALS['wp_scripts']        = $this->create_clean_scripts();
+		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules();
+		wp_register_script_module( '@wordpress/widget-primitives', 'https://example.com/old-gutenberg-widget-primitives.js', array(), '1.0.0-gutenberg' );
+
+		WP_Build_Polyfills::register( 'first', array( '@wordpress/widget-primitives' ) );
+		wp_enqueue_script_module( '@wordpress/widget-primitives' );
+		WP_Build_Polyfills::register( 'second', array( '@wordpress/boot' ) );
+
+		$queue = new \ReflectionProperty( \WP_Script_Modules::class, 'queue' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$queue->setAccessible( true );
+		}
+		$this->assertContains( '@wordpress/widget-primitives', $queue->getValue( wp_script_modules() ) );
 	}
 
 	/**

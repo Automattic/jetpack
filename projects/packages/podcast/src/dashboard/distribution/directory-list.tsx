@@ -167,7 +167,7 @@ export const DirectoryList = ( {
 									__( 'Set up %1$s. %2$s', 'jetpack-podcast' ),
 									app.name,
 									blockedReason
-							  )
+								)
 							: ''
 					}
 					onAction={ onOpenModal }

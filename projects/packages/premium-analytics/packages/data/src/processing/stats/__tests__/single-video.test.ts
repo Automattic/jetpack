@@ -1,9 +1,5 @@
 import { sanitizeStatsSingleVideoResponse } from '..';
-import {
-	singleVideoAllMetricsFixture,
-	singleVideoEmptyFixture,
-	singleVideoFixture,
-} from '../__fixtures__/single-video';
+import { singleVideoAllMetricsFixture, singleVideoFixture } from '../__fixtures__/single-video';
 
 describe( 'Stats single video normalizer', () => {
 	it( 'normalizes the views time series and embed pages', () => {
@@ -16,6 +12,7 @@ describe( 'Stats single video normalizer', () => {
 				{ period: '2026-06-14', value: 0 },
 			],
 			metrics: null,
+			series: null,
 			total: null,
 			pages: [
 				{
@@ -45,6 +42,24 @@ describe( 'Stats single video normalizer', () => {
 				{ period: '2026-07-02', value: 0 },
 			],
 			metrics: [ 'plays', 'impressions', 'watch_time', 'retention_rate' ],
+			series: {
+				plays: [
+					{ period: '2026-07-01', value: 3 },
+					{ period: '2026-07-02', value: 0 },
+				],
+				impressions: [
+					{ period: '2026-07-01', value: 10 },
+					{ period: '2026-07-02', value: 4 },
+				],
+				watch_time: [
+					{ period: '2026-07-01', value: 0.5 },
+					{ period: '2026-07-02', value: 0 },
+				],
+				retention_rate: [
+					{ period: '2026-07-01', value: 25.5 },
+					{ period: '2026-07-02', value: 0 },
+				],
+			},
 			total: { plays: 3, impressions: 14, watch_time: 0.5, retention_rate: 25.5 },
 			pages: [],
 			post: null,
@@ -67,26 +82,18 @@ describe( 'Stats single video normalizer', () => {
 		// the usual tuples; it must not crash the tuple or fields mapping.
 		expect(
 			sanitizeStatsSingleVideoResponse( {
+				fields: [ 'period', 'plays' ],
 				data: { date: '7-10', p: '0' },
 				pages: [],
 			} )
-		).toEqual( { data: [], metrics: null, total: null, pages: [], post: null } );
-	} );
-
-	it( 'returns empty collections for an empty payload', () => {
-		expect( sanitizeStatsSingleVideoResponse( singleVideoEmptyFixture ) ).toEqual( {
-			data: [],
-			metrics: null,
-			total: null,
-			pages: [],
-			post: null,
-		} );
+		).toEqual( { data: [], metrics: null, series: null, total: null, pages: [], post: null } );
 	} );
 
 	it( 'drops malformed rows and keeps only well-formed [ date, views ] tuples', () => {
 		expect( sanitizeStatsSingleVideoResponse( undefined ) ).toEqual( {
 			data: [],
 			metrics: null,
+			series: null,
 			total: null,
 			pages: [],
 			post: null,
@@ -100,6 +107,7 @@ describe( 'Stats single video normalizer', () => {
 		).toEqual( {
 			data: [ { period: '2026-06-12', value: 2 } ],
 			metrics: null,
+			series: null,
 			total: null,
 			pages: [],
 			post: null,

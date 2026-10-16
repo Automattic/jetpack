@@ -1,11 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
 import { getRating } from '../../../../src/modules/field-rating/helpers.js';
-import {
-	maybeAddColonToLabel,
-	maybeTransformValue,
-	getImages,
-	getUrl,
-} from '../../../../src/modules/form/helpers.js';
+import { maybeAddColonToLabel, getImages, getUrl } from '../../../../src/modules/form/helpers.js';
 
 /**
  * Tests for the showPlainValue logic in form submission data formatting.
@@ -17,7 +12,11 @@ import {
 describe( 'Form View - showPlainValue computation', () => {
 	/**
 	 * Formats submission data for display, computing showPlainValue.
-	 * This matches the logic in setSubmissionData from view.js.
+	 * This matches the showPlainValue logic in setSubmissionData from view.js.
+	 *
+	 * The field value is deliberately absent: nothing here asserts it, and carrying a copy of
+	 * how view.js derives it only invites the reader to trust a mirror that is not kept. See
+	 * helpers.test.js for `getSubmissionDisplayValue`.
 	 *
 	 * @param {Array} data - Array of submission data items with label and value.
 	 * @return {Array} Formatted submission data with showPlainValue computed.
@@ -30,7 +29,6 @@ describe( 'Form View - showPlainValue computation', () => {
 
 			return {
 				label: maybeAddColonToLabel( item.label ),
-				value: maybeTransformValue( item.value ),
 				images,
 				url,
 				rating,

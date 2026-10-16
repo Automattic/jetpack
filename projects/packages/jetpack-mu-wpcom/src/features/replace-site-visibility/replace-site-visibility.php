@@ -41,12 +41,11 @@ function wp_ajax_wpcom_generate_site_preview_link() {
 	if ( is_wp_error( $body ) ) {
 		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
 		wp_send_json_error( $body, null, JSON_UNESCAPED_SLASHES );
-		return;
 	}
 
 	$response = json_decode( wp_remote_retrieve_body( $body ) );
 	// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
-	wp_send_json( $response[0] ?? $response, null, JSON_UNESCAPED_SLASHES );
+	wp_send_json( is_array( $response ) ? $response[0] ?? null : $response, null, JSON_UNESCAPED_SLASHES );
 }
 add_action( 'wp_ajax_wpcom_generate_site_preview_link', 'wp_ajax_wpcom_generate_site_preview_link' );
 
@@ -64,7 +63,6 @@ function wp_ajax_wpcom_delete_site_preview_link() {
 			null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
 			JSON_UNESCAPED_SLASHES
 		);
-		return;
 	}
 
 	$code    = sanitize_text_field( wp_unslash( $_POST['code'] ) );
@@ -103,7 +101,7 @@ function wpcom_get_site_preview_link() {
 	if ( ! is_array( $response ) ) {
 		return $response;
 	}
-	return $response[0];
+	return $response[0] ?? null;
 }
 
 /**

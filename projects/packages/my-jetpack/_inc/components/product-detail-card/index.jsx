@@ -17,6 +17,7 @@ import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-
 import useAnalytics from '../../hooks/use-analytics';
 import { useRedirectToReferrer } from '../../hooks/use-redirect-to-referrer';
 import LoadingBlock from '../loading-block';
+import { getFeatureCheckoutReturnUrl } from '../my-jetpack-tab-panel/utils';
 import ProductDetailButton from '../product-detail-button';
 import styles from './style.module.scss';
 
@@ -144,6 +145,7 @@ const ProductDetailCard = ( {
 	 * Function to handle the redirect URL selection.
 	 * - postCheckoutUrl is the URL provided by the product API and is the preferred URL
 	 * - referrerURL is the referrer URL, in case the redirect_to_referrer flag was provided
+	 * - the feature's details, when the pricing page was opened from one
 	 * - myJetpackCheckoutUri is the default URL
 	 */
 	const getCheckoutRedirectUrl = useCallback( () => {
@@ -155,7 +157,7 @@ const ProductDetailCard = ( {
 			return referrerURL;
 		}
 
-		return myJetpackCheckoutUri;
+		return getFeatureCheckoutReturnUrl() || myJetpackCheckoutUri;
 	}, [ postCheckoutUrl, referrerURL, myJetpackCheckoutUri ] );
 
 	const checkoutRedirectUrl = getCheckoutRedirectUrl();
@@ -266,12 +268,12 @@ const ProductDetailCard = ( {
 					/* translators: %s: product name. */
 					__( 'Install %s', 'jetpack-my-jetpack' ),
 					productMoniker
-			  )
+				)
 			: sprintf(
 					/* translators: %s: the product name. */
 					__( 'Get %s', 'jetpack-my-jetpack' ),
 					productMoniker
-			  );
+				);
 	const ctaLabel = ctaButtonLabel || defaultCtaLabel;
 
 	const clickHandler = useCallback( () => {
@@ -424,7 +426,7 @@ const ProductDetailCard = ( {
 											/* translators: %s: the call-to-action label. */
 											__( '%s or Start for free', 'jetpack-my-jetpack' ),
 											ctaLabel
-									  )
+										)
 									: ctaLabel
 							}
 						/>

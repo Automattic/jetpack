@@ -66,23 +66,26 @@ describe( 'useLatestPost', () => {
 		expect( result.current.isError ).toBe( false );
 	} );
 
-	it( 'returns a null post when the site has no published post', async () => {
-		mockApiFetch.mockImplementation(
-			( { path = '', url = '' }: { path?: string; url?: string } ) => {
-				const target = path || url;
-
-				if ( target.startsWith( '/wp/v2/posts' ) ) {
-					return Promise.resolve( [] );
-				}
-
-				return Promise.resolve( {} );
+	it( 'does not carry one author’s post over as the next author’s placeholder', async () => {
+		mockApiFetch.mockImplementation( ( { path = '' }: { path?: string } ) => {
+			if ( path.startsWith( '/wp/v2/posts?author=7' ) ) {
+				return Promise.resolve( [
+					{ id: 780, title: { rendered: 'By Priya' }, link: 'https://example.com/p/', date: '' },
+				] );
 			}
+
+			return Promise.resolve( path.startsWith( '/wp/v2/posts' ) ? [] : {} );
+		} );
+
+		const { result, rerender } = renderHook(
+			( { authorId }: { authorId: number } ) => useLatestPost( authorId ),
+			{ wrapper, initialProps: { authorId: 7 } }
 		);
+		await waitFor( () => expect( result.current.post?.id ).toBe( 780 ) );
 
-		const { result } = renderHook( () => useLatestPost(), { wrapper } );
-
-		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+		rerender( { authorId: 9 } );
 		expect( result.current.post ).toBeNull();
+		expect( result.current.isLoading ).toBe( true );
 	} );
 
 	it( 'still renders content, with metrics unknown, when stats/post fails (private site)', async () => {

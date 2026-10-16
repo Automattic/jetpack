@@ -263,7 +263,7 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 					// flat catalog. Happens when DB holds a category from an older
 					// Apple taxonomy revision; surfaces the raw string in the UI
 					// instead of dropping the value silently.
-					storage ? TOPIC_DISPLAY_BY_STORAGE.get( storage ) ?? storage : ''
+					storage ? ( TOPIC_DISPLAY_BY_STORAGE.get( storage ) ?? storage ) : ''
 				)
 				.filter( ( v ): v is string => !! v ),
 		[ draft?.podcasting_category_1, draft?.podcasting_category_2, draft?.podcasting_category_3 ]

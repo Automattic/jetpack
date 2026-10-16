@@ -454,8 +454,8 @@ export function computeResultsCountText( liveState ) {
 	}
 	const template =
 		total === 1
-			? liveState.strings?.resultsCountSingle ?? 'Found %d result'
-			: liveState.strings?.resultsCountPlural ?? 'Found %d results';
+			? ( liveState.strings?.resultsCountSingle ?? 'Found %d result' )
+			: ( liveState.strings?.resultsCountPlural ?? 'Found %d results' );
 	return template.replace( '%d', total );
 }
 

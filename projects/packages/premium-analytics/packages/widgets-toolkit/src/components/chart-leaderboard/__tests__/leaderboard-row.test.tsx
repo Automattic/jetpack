@@ -2,11 +2,48 @@
  * External dependencies
  */
 import { fireEvent, render, screen } from '@testing-library/react';
+import { category, tag } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
 import { LeaderboardLabel } from '../leaderboard-label';
-import { buildLeaderboardRow, resolveLeaderboardRowAction } from '../leaderboard-row';
+import {
+	buildLeaderboardRow,
+	resolveLeaderboardRowAction,
+	type LeaderboardRowAction,
+} from '../leaderboard-row';
+import type { ReactElement } from 'react';
+
+jest.mock( '@wordpress/route', () => {
+	const { mockWordPressRoute } = jest.requireActual(
+		'../../../../../../tests/js/route-test-utils'
+	);
+
+	return mockWordPressRoute;
+} );
+
+// Identity class names, so the chrome a look selects can be read off the row. The interop
+// reads `__esModule` first, and a string there would make it take `.default` as the module.
+jest.mock( '../../../../../../tests/style-stub.cjs', () => {
+	return new Proxy(
+		{},
+		{ get: ( _, name ) => ( name === '__esModule' ? false : String( name ) ) }
+	);
+} );
+
+function glyphPath( root: Element | null | undefined ) {
+	return root?.querySelector( 'path' )?.getAttribute( 'd' );
+}
+
+// `@wordpress/icons` exports elements, so naming a glyph means rendering that
+// icon on its own and comparing the two paths.
+function iconPath( icon: ReactElement ) {
+	const { container, unmount } = render( icon );
+	const path = glyphPath( container );
+
+	unmount();
+	return path;
+}
 
 describe( 'LeaderboardLabel', () => {
 	it( 'renders media and text without adding row actions', () => {
@@ -23,52 +60,102 @@ describe( 'LeaderboardLabel', () => {
 		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'swaps a thumbnail that fails to load for the placeholder', () => {
+		render(
+			<LeaderboardLabel
+				label="Private"
+				media={ { kind: 'thumbnail', url: 'https://example.com/private.jpg', alt: '' } }
+			/>
+		);
+
+		const image = screen.getByRole( 'presentation' );
+		fireEvent.error( image );
+
+		expect( image ).toHaveAttribute( 'src', expect.stringMatching( /^data:image\/svg\+xml/ ) );
+	} );
+
+	it( 'draws the fallback icon when a thumbnail has no image', () => {
+		render(
+			<LeaderboardLabel
+				label="No poster"
+				media={ { kind: 'thumbnail', alt: '', fallbackIcon: category } }
+			/>
+		);
+
+		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
+		expect( glyphPath( screen.getByTestId( 'leaderboard-thumbnail-placeholder' ) ) ).toBe(
+			iconPath( category )
+		);
+	} );
+
+	it( 'swaps a failed thumbnail for its fallback icon', () => {
+		render(
+			<LeaderboardLabel
+				label="Private"
+				media={ {
+					kind: 'thumbnail',
+					url: 'https://example.com/private.jpg',
+					alt: '',
+					fallbackIcon: category,
+				} }
+			/>
+		);
+
+		fireEvent.error( screen.getByRole( 'presentation' ) );
+
+		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
+		expect( screen.getByTestId( 'leaderboard-thumbnail-placeholder' ) ).toBeInTheDocument();
+	} );
+
 	it( 'supports a first-class no-media label', () => {
 		render( <LeaderboardLabel label="Desktop" media={ { kind: 'none' } } /> );
 
 		expect( screen.getByText( 'Desktop' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'img' ) ).not.toBeInTheDocument();
 	} );
+
+	it( 'renders the glyph it was handed, hidden from assistive technology', () => {
+		const { container } = render(
+			<LeaderboardLabel label="Recipes" media={ { kind: 'icon', icon: category } } />
+		);
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- the glyph is aria-hidden by design, so the DOM is the only place to reach it.
+		const glyph = container.querySelector( 'svg' );
+
+		expect( screen.getByText( 'Recipes' ) ).toBeInTheDocument();
+		expect( glyph ).toHaveAttribute( 'aria-hidden', 'true' );
+		// Naming the glyph rather than just counting one: an icon kind exists so a
+		// widget can pick between glyphs, so the wrong one has to fail here.
+		expect( glyphPath( glyph ) ).toBe( iconPath( category ) );
+		expect( glyphPath( glyph ) ).not.toBe( iconPath( tag ) );
+	} );
 } );
 
 describe( 'resolveLeaderboardRowAction', () => {
 	const drillDown = { onClick: () => {}, ariaLabel: 'Drill' };
 
-	it( 'drills down when a row has children and a drill-down handler', () => {
-		expect( resolveLeaderboardRowAction( { hasChildren: true, drillDown } ) ).toMatchObject( {
-			kind: 'drillDown',
-			ariaLabel: 'Drill',
-		} );
-	} );
-
-	it( 'prefers drill-down over an href when both are present', () => {
-		expect(
-			resolveLeaderboardRowAction( { hasChildren: true, href: 'https://a.test', drillDown } )
-		).toMatchObject( { kind: 'drillDown' } );
-	} );
-
-	it( 'links a childless row with an href', () => {
-		expect( resolveLeaderboardRowAction( { hasChildren: false, href: 'https://a.test' } ) ).toEqual(
-			{ kind: 'link', href: 'https://a.test' }
-		);
-	} );
-
-	it( 'stays static when a row has children but no drill-down handler, ignoring href', () => {
-		expect( resolveLeaderboardRowAction( { hasChildren: true, href: 'https://a.test' } ) ).toEqual(
-			{
-				kind: 'static',
-			}
-		);
-	} );
-
-	it( 'ignores a drill-down handler on a childless row', () => {
-		expect( resolveLeaderboardRowAction( { hasChildren: false, drillDown } ) ).toEqual( {
-			kind: 'static',
-		} );
-	} );
-
-	it( 'stays static with neither children nor href', () => {
-		expect( resolveLeaderboardRowAction( { hasChildren: false } ) ).toEqual( { kind: 'static' } );
+	it.each( [
+		[
+			'drills down over an href when a row has children and a handler',
+			{ hasChildren: true, href: 'https://a.test', drillDown },
+			{ kind: 'drillDown', ariaLabel: 'Drill' },
+		],
+		[
+			'links a childless row with an href',
+			{ hasChildren: false, href: 'https://a.test' },
+			{ kind: 'link', href: 'https://a.test' },
+		],
+		[
+			'stays static when a row has children but no handler, ignoring href',
+			{ hasChildren: true, href: 'https://a.test' },
+			{ kind: 'static' },
+		],
+		[
+			'ignores a drill-down handler on a childless row',
+			{ hasChildren: false, drillDown },
+			{ kind: 'static' },
+		],
+	] )( '%s', ( _title, options, expected ) => {
+		expect( resolveLeaderboardRowAction( options ) ).toMatchObject( expected );
 	} );
 } );
 
@@ -82,19 +169,47 @@ describe( 'buildLeaderboardRow', () => {
 
 		render( row.label );
 
-		expect( screen.getByRole( 'link', { name: /Alice/ } ) ).toHaveAttribute(
-			'href',
-			'https://example.com/alice'
-		);
+		const link = screen.getByRole( 'link', { name: /Alice/ } );
+		expect( link ).toHaveAttribute( 'href', 'https://example.com/alice' );
 		expect( screen.getByRole( 'presentation' ) ).toHaveAttribute( 'alt', '' );
 		expect( row ).not.toHaveProperty( 'onClick' );
+	} );
+
+	it.each( [
+		[ 'a static row', { kind: 'static' } ],
+		[ 'a link row', { kind: 'link', href: 'https://example.com/' } ],
+		[ 'a post link row', { kind: 'postLink', href: 'https://example.com/pricing/', search: {} } ],
+	] as const )( 'drops the list chrome from %s of the bars look', ( _, action ) => {
+		render(
+			buildLeaderboardRow( {
+				label: 'Pricing',
+				media: { kind: 'none' },
+				action: action as LeaderboardRowAction,
+				variant: 'bars',
+			} ).label
+		);
+
+		expect( screen.getByTitle( 'Pricing' ) ).toHaveClass( 'bars' );
+	} );
+
+	it( 'keeps the list chrome by default', () => {
+		render(
+			buildLeaderboardRow( {
+				label: 'Pricing',
+				media: { kind: 'none' },
+				action: { kind: 'static' },
+			} ).label
+		);
+
+		expect( screen.getByTitle( 'Pricing' ) ).toHaveClass( 'row' );
+		expect( screen.getByTitle( 'Pricing' ) ).not.toHaveClass( 'bars' );
 	} );
 
 	it( 'keeps a post link out of the chart button props', () => {
 		const row = buildLeaderboardRow( {
 			label: 'Pricing',
 			media: { kind: 'none' },
-			action: { kind: 'postLink', href: 'https://example.com/pricing/' },
+			action: { kind: 'postLink', href: 'https://example.com/pricing/', search: {} },
 		} );
 
 		render( row.label );
@@ -104,6 +219,37 @@ describe( 'buildLeaderboardRow', () => {
 			'https://example.com/pricing/'
 		);
 		expect( row ).not.toHaveProperty( 'onClick' );
+	} );
+
+	it( 'puts a video row thumbnail inside its detail link', () => {
+		const row = buildLeaderboardRow( {
+			label: 'Launch',
+			media: {
+				kind: 'thumbnail',
+				url: 'https://example.com/p.jpg',
+				alt: '',
+			},
+			action: { kind: 'videoLink', id: 12, search: {} },
+		} );
+
+		render( row.label );
+
+		expect( screen.getByRole( 'link', { name: 'Launch' } ) ).toContainElement(
+			screen.getByRole( 'presentation' )
+		);
+	} );
+
+	it( 'keeps post rows as a bare post title link, even with a thumbnail', () => {
+		const row = buildLeaderboardRow( {
+			label: 'Hello',
+			media: { kind: 'thumbnail', url: 'https://example.com/hello.jpg', alt: '' },
+			action: { kind: 'postLink', id: 5, search: {} },
+		} );
+
+		render( row.label );
+
+		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Hello' } ) ).toHaveAttribute( 'href', '/post/5' );
 	} );
 
 	it( 'returns chart button props for a drill-down without nesting an action', () => {

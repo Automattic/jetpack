@@ -204,14 +204,6 @@ class Contact_Form_Plugin {
 		add_action( 'dynamic_sidebar_before', array( $this, 'track_current_widget_before' ) );
 		add_action( 'dynamic_sidebar_after', array( $this, 'track_current_widget_after' ) );
 
-		// If Text Widgets don't get shortcode processed, hack ours into place.
-		if (
-			version_compare( get_bloginfo( 'version' ), '4.9-z', '<=' )
-			&& ! has_filter( 'widget_text', 'do_shortcode' )
-		) {
-			add_filter( 'widget_text', array( $this, 'widget_shortcode_hack' ), 5 );
-		}
-
 		add_filter( 'jetpack_contact_form_is_spam', array( $this, 'is_spam_blocklist' ), 10, 2 );
 		add_filter( 'jetpack_contact_form_in_comment_disallowed_list', array( $this, 'is_in_disallowed_list' ), 10, 2 );
 		// Akismet to the rescue
@@ -835,7 +827,7 @@ class Contact_Form_Plugin {
 					$input_attrs          = self::get_block_support_classes_and_styles( $block_name, $inner_block['attrs'] );
 					$atts['inputclasses'] = isset( $input_attrs['class'] ) ? ' ' . $input_attrs['class'] : '';
 					$atts['inputstyles']  = $input_attrs['style'] ?? null;
-					$atts['iconStyle']    = $atts['iconStyle'] ?? $inner_block['attrs']['iconStyle'] ?? 'stars';
+					$atts['iconStyle']  ??= $inner_block['attrs']['iconStyle'] ?? 'stars';
 					continue;
 				}
 
@@ -1565,11 +1557,10 @@ class Contact_Form_Plugin {
 			return;
 		}
 		\Automattic\Jetpack\Menu_Badges\Menu_Badges::init(); // idempotent; wires the renderer.
-		$slug = apply_filters( 'jetpack_forms_alpha', true ) ? Dashboard::FORMS_WPBUILD_ADMIN_SLUG : Dashboard::ADMIN_SLUG;
 		\Automattic\Jetpack\Menu_Badges\Notification_Counts::register(
 			'jetpack-forms',
 			array(
-				'menu_slug' => $slug,
+				'menu_slug' => Dashboard::FORMS_WPBUILD_ADMIN_SLUG,
 				'count'     => self::get_unread_count(),
 				'type'      => 'count',
 			)
@@ -1642,6 +1633,25 @@ class Contact_Form_Plugin {
 			$validation_error = $this->validate_parent_post( $form );
 			if ( $validation_error ) {
 				return $validation_error;
+			}
+
+			// Bind the posted `contact-form-id` to the form the JWT was signed for. The JWT
+			// authenticates the form's source, but the posted id is a separate, unsigned field;
+			// without this a submission could present one form's signed token while claiming a
+			// different id, leaving the two out of sync for anything downstream that reads the
+			// raw id. For a single-post form the posted id is the source post id (optionally
+			// suffixed for multiple forms on a page, e.g. `5-2`), so compare on the integer id.
+			//
+			// Only apply this when the source is an actual post: a form rendered with no post in
+			// scope has source id 0 (and a non-numeric posted id like `jp-form`), which is not a
+			// mismatch to reject. This mirrors validate_parent_post()'s `is_numeric && > 0` guard.
+			$source    = $form->get_source();
+			$source_id = $source->get_id();
+
+			if ( 'single' === $source->get_source_type() && is_numeric( $source_id ) && (int) $source_id > 0 ) {
+				if ( (int) $id !== (int) $source_id ) {
+					return Form_Submission_Error::system_error( 'form_id_mismatch_post', __( 'Form ID mismatch.', 'jetpack-forms' ) );
+				}
 			}
 
 			$form->validate();
@@ -1844,7 +1854,7 @@ class Contact_Form_Plugin {
 		// In future version we will be able to skip this step.
 		$form = Contact_Form::$forms[ $hash ] ?? null;
 
-		// No form may mean user is using do_shortcode, grab the form using the stored post meta
+		// No form may mean user is using apply_shortcodes, grab the form using the stored post meta
 		if ( ! $form && is_numeric( $id ) && $hash ) {
 
 			// Get shortcode from post meta
@@ -1865,7 +1875,7 @@ class Contact_Form_Plugin {
 				}
 
 				$shortcode = '[contact-form' . $parameters . ']' . $shortcode . '[/contact-form]';
-				do_shortcode( $shortcode );
+				apply_shortcodes( $shortcode );
 
 				// Recreate form
 				$form = Contact_Form::$last;
@@ -2248,8 +2258,12 @@ class Contact_Form_Plugin {
 	 * @param string $text The widget text.
 	 *
 	 * @return string The contact-form filtered widget text
+	 *
+	 * @deprecated $$next-version$$ Core processes shortcodes in text widgets since WordPress 4.9.
 	 */
 	public function widget_shortcode_hack( $text ) {
+		_deprecated_function( __METHOD__, 'package-$$next-version$$' );
+
 		if ( ! preg_match( '/\[contact-form([^a-zA-Z_-])/', $text ) ) {
 			return $text;
 		}
@@ -2259,7 +2273,7 @@ class Contact_Form_Plugin {
 		self::$using_contact_form_field = true;
 		$this->add_shortcode();
 
-		$text = do_shortcode( $text );
+		$text = apply_shortcodes( $text );
 
 		self::$using_contact_form_field = false;
 		$GLOBALS['shortcode_tags']      = $old; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
@@ -3237,8 +3251,7 @@ class Contact_Form_Plugin {
 		/**
 		 * Print CSV headers
 		 */
-		// @todo When we drop support for PHP <7.4, consider passing empty-string for `$escape` here for better spec compatibility.
-		fputcsv( $output, $fields, ',', '"', '\\' );
+		fputcsv( $output, $fields, ',', '"', '' );
 
 		/**
 		 * Print rows to the output.
@@ -3257,8 +3270,7 @@ class Contact_Form_Plugin {
 			/**
 			 * Output the complete CSV row
 			 */
-			// @todo When we drop support for PHP <7.4, consider passing empty-string for `$escape` here for better spec compatibility.
-			fputcsv( $output, $current_row, ',', '"', '\\' );
+			fputcsv( $output, $current_row, ',', '"', '' );
 		}
 
 		fclose( $output ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
@@ -3959,8 +3971,8 @@ class Contact_Form_Plugin {
 	 * Redirect users from the edit-feedback and edit-jetpack_form screens to the Jetpack Forms admin page.
 	 *
 	 * This method is hooked to 'current_screen' and redirects:
-	 * - edit-jetpack_form: to #/forms (legacy) or &p=/forms (wp-build)
-	 * - edit-feedback: to #/responses?status=inbox (legacy) or &p=/responses/inbox (wp-build)
+	 * - edit-jetpack_form: to &p=/forms
+	 * - edit-feedback: to &p=/responses/inbox
 	 *
 	 * @since 6.0.0
 	 */
@@ -4022,6 +4034,7 @@ class Contact_Form_Plugin {
 	 * Exports data to Google Drive, based on POST data.
 	 *
 	 * @see Contact_Form_Plugin::get_feedback_entries_from_post
+	 * @return never
 	 */
 	public function export_to_gdrive() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verification is done on validate_export_to_gdrive_request function
@@ -4033,7 +4046,6 @@ class Contact_Form_Plugin {
 				403,
 				JSON_UNESCAPED_SLASHES
 			);
-			return;
 		}
 
 		$grunion     = self::init();

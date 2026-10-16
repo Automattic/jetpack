@@ -2,16 +2,8 @@
 /**
  * Who may see the Premium Analytics dashboard.
  *
- * Jetpack Stats lets a site grant non-administrators access through the
- * `view_stats` meta capability, and this dashboard replaces that UI, so it has
- * to honour the same grant. `add_menu_page()` takes a single capability string,
- * so the "manage_options OR view_stats" rule lives in a meta capability of our
- * own rather than being spelled out at each call site.
- *
- * A class rather than a function file so every consumer reaches it through the
- * autoloader: gating lives in files loaded on several different paths, and a
- * `require_once` in each of them is a dependency to keep in sync (and an
- * unmeasurable line of coverage) for no benefit.
+ * Opening it takes one section available to the reader, by whatever rule that section registered,
+ * and add_menu_page() takes one capability string — hence a meta capability of our own.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -33,13 +25,13 @@ class Capabilities {
 	/**
 	 * Hooks the dashboard's meta capability mapping.
 	 *
-	 * Called from WordPress-aware entry points, never at load time: this class is
-	 * autoloaded in contexts where WordPress — and add_filter() — isn't there.
-	 * Idempotent, so overlapping callers are free to call it.
+	 * Called from WordPress-aware entry points, never at load time: this class is autoloaded where
+	 * WordPress — and add_filter() — isn't there. Idempotent, so overlapping callers may call it freely.
 	 *
 	 * @return void
 	 */
 	public static function register() {
+		self::$has_available_section = array();
 		add_filter( 'map_meta_cap', array( __CLASS__, 'map_meta_caps' ), 10, 3 );
 	}
 
@@ -52,17 +44,29 @@ class Capabilities {
 	 * @return void
 	 */
 	public static function unregister() {
+		self::$has_available_section = array();
 		remove_filter( 'map_meta_cap', array( __CLASS__, 'map_meta_caps' ), 10 );
 	}
 
 	/**
-	 * Maps the dashboard capability to the primitives that grant it.
+	 * Whether a section's availability check is running, so a section gated on the dashboard
+	 * capability itself does not recurse.
 	 *
-	 * `view_stats` alone would track Stats more closely, but it only means
-	 * anything once the Stats package has hooked its own `map_meta_cap` — which
-	 * `Analytics::init_wpcom_simple()` never does. Without the `manage_options`
-	 * arm, an unmapped `view_stats` would take the dashboard away from
-	 * administrators too, which is worse than the gap this closes.
+	 * @var bool
+	 */
+	private static $resolving_sections = false;
+
+	/**
+	 * Whether a section is available, per `<user id>:<blog id>`, for the rest of the request.
+	 *
+	 * @var array<string, bool>
+	 */
+	private static $has_available_section = array();
+
+	/**
+	 * Maps the dashboard capability: a reader needs at least one section available to them.
+	 *
+	 * Sections answer for the current user only, so checking anyone else is refused.
 	 *
 	 * @param string[] $caps    Primitive capabilities required of the user.
 	 * @param string   $cap     Capability being checked.
@@ -74,11 +78,36 @@ class Capabilities {
 			return $caps;
 		}
 
-		if ( user_can( $user_id, 'manage_options' ) || user_can( $user_id, 'view_stats' ) ) {
+		if ( (int) $user_id === get_current_user_id() && self::current_user_has_available_section() ) {
 			return array( 'read' );
 		}
 
 		return array( 'do_not_allow' );
+	}
+
+	/**
+	 * Whether any dashboard section is available to the current user.
+	 *
+	 * @return bool
+	 */
+	private static function current_user_has_available_section() {
+		// The registry hydrates only after init; the dashboard name comes with its loaded files.
+		if ( self::$resolving_sections || ! did_action( 'init' ) || ! defined( __NAMESPACE__ . '\\DASHBOARD_NAME' ) ) {
+			return false;
+		}
+
+		// add_menu_page() and the admin menu each check the capability on every admin screen.
+		$key = get_current_user_id() . ':' . get_current_blog_id();
+		if ( ! isset( self::$has_available_section[ $key ] ) ) {
+			self::$resolving_sections = true;
+			try {
+				self::$has_available_section[ $key ] = array() !== Dashboard_Section_Registry::get_instance()->get_available_sections( DASHBOARD_NAME );
+			} finally {
+				self::$resolving_sections = false;
+			}
+		}
+
+		return self::$has_available_section[ $key ];
 	}
 
 	/**
@@ -91,13 +120,26 @@ class Capabilities {
 	}
 
 	/**
+	 * Whether the current user may read the Stats reports.
+	 *
+	 * "Stats reports" is everything the proxy serves under `view_stats`, mirroring what
+	 * {@see \Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller} enforces there (pinned by Capabilities_Test).
+	 *
+	 * @since 0.12.0
+	 *
+	 * @return bool
+	 */
+	public static function current_user_can_view_stats() {
+		// `view_stats` alone would track Stats more closely, but it only works once Stats hooks its own
+		// `map_meta_cap` — which Analytics::init_wpcom_simple() never does, locking out administrators too.
+		return current_user_can( 'manage_options' ) || current_user_can( 'view_stats' );
+	}
+
+	/**
 	 * Whether the current user may read the store reports.
 	 *
-	 * "Store reports" is everything the proxy serves from its `analytics` prefix —
-	 * WooCommerce's own reporting data. Mirrors the capability
-	 * {@see \Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller} enforces
-	 * there (Capabilities_Test pins the two together); surfaces backed by the prefix
-	 * are hidden from readers who fail it, since all they could collect is 403s.
+	 * "Store reports" is everything the proxy serves from its `analytics` prefix, mirroring what
+	 * {@see \Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller} enforces there (pinned by Capabilities_Test).
 	 *
 	 * @return bool
 	 */
@@ -109,7 +151,7 @@ class Capabilities {
 	/**
 	 * Whether the current user may view ad reports.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.4.0
 	 *
 	 * @return bool
 	 */

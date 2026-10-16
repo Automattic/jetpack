@@ -1,7 +1,15 @@
 import { apiCall, apiPath } from './_helpers';
 
+/**
+ * The bridge's preview payload.
+ *
+ * `content` is null unless `is_text`: the bridge withholds bytes it cannot
+ * serve as text rather than let them reach the browser corrupted.
+ */
 export type FileContentsResponse = {
-	content: string;
+	content: string | null;
+	is_text: boolean;
+	truncated: boolean;
 };
 
 /**
@@ -14,7 +22,7 @@ export type FileContentsResponse = {
  *
  * @param filePeriod          - The file's own snapshot timestamp (Unix seconds, as returned in /ls's `period`).
  * @param encodedManifestPath - Standard base64 of the full manifest path (with `f5:/`-style volume prefix).
- * @return The decoded file content.
+ * @return The preview payload.
  */
 export async function fetchFileContents(
 	filePeriod: string,

@@ -3,7 +3,6 @@
  */
 import { useStatsPostLikes, toPostId } from '@jetpack-premium-analytics/data';
 import { formatRelativeSince } from '@jetpack-premium-analytics/datetime';
-import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	SubscriberList,
 	SubscriberListSkeleton,
@@ -66,9 +65,8 @@ function PostLikesInner() {
 			<WidgetState
 				isLoading={ isLoading }
 				isFetching={ isFetching }
-				// The query keeps prior data via `placeholderData`, so a transient
-				// refetch failure keeps the likes visible; only surface the error
-				// when there is nothing to show.
+				// `placeholderData` keeps the prior likes on screen, so a transient
+				// refetch failure should not replace them with an error.
 				isError={ ! data && isError }
 				isEmpty={ isEmpty }
 				renderLoading={ <SubscriberListSkeleton rows={ LIKES_SHOWN } /> }
@@ -80,13 +78,12 @@ function PostLikesInner() {
 					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 				} }
 				empty={ {
-					icon: reports,
 					description:
 						postId <= 0
 							? __(
 									'Open a post or page report to see its likes here.',
 									'jetpack-premium-analytics-pkg'
-							  )
+								)
 							: __( 'There are no likes yet.', 'jetpack-premium-analytics-pkg' ),
 				} }
 			>

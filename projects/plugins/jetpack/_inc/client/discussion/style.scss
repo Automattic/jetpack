@@ -6,11 +6,11 @@
 	margin-bottom: rem.convert(16px);
 
 	.jp-support-info {
-		right: rem.convert(-20px);
+		inset-inline-end: rem.convert(-20px);
 		top: rem.convert(5px);
 
 		@include layout.breakpoint( "<480px" ) {
-			right: rem.convert(-32px);
+			inset-inline-end: rem.convert(-32px);
 			top: rem.convert(5px);
 		}
 	}

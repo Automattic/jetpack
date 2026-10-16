@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Premium Analytics: fix report and chart dates that could read a day off for sites away from UTC.

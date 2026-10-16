@@ -9,6 +9,8 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+require_once __DIR__ . '/class-utility.php';
+
 use Automattic\Jetpack\Constants;
 use DOMDocument;
 use DOMElement;
@@ -69,7 +71,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$result = $form->process_submission();
 
 		// Processing should be successful
-		$this->assertTrue( is_string( $result ), 'Form submission should be successful' );
+		$this->assertIsString( $result, 'Form submission should be successful' );
 
 		// Check that a new feedback post was created
 		$final_posts = Posts::init()->posts;
@@ -114,7 +116,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$result = $form->process_submission();
 
 		// Processing should still be successful (email should still be sent)
-		$this->assertTrue( is_string( $result ), 'Form submission should be successful even when not saving responses' );
+		$this->assertIsString( $result, 'Form submission should be successful even when not saving responses' );
 
 		// Check that a new feedback post was created
 		$final_posts = Posts::init()->posts;
@@ -166,7 +168,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$initial_count = count( Posts::init()->posts );
 		$result        = $form->process_submission();
 
-		$this->assertTrue( is_string( $result ), 'Form submission should be successful for preview submissions.' );
+		$this->assertIsString( $result, 'Form submission should be successful for preview submissions.' );
 
 		$final_posts = Posts::init()->posts;
 		$this->assertCount( $initial_count + 1, $final_posts, 'A feedback post should be created for preview submissions.' );
@@ -213,7 +215,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$result = $form->process_submission();
 
 		// Processing should be successful
-		$this->assertTrue( is_string( $result ), 'Form submission should be successful' );
+		$this->assertIsString( $result, 'Form submission should be successful' );
 
 		// Check that a new feedback post was created (default behavior)
 		$final_posts = Posts::init()->posts;
@@ -278,8 +280,6 @@ class Contact_Form_Test extends BaseTestCase {
 	 */
 	#[BeforeClass]
 	public static function set_up_class() {
-		define( 'DOING_AJAX', true ); // Defined so that 'exit' is not called in process_submission.
-
 		// Remove any relevant filters that might exist before running the tests.
 		remove_all_filters( 'grunion_still_email_spam' );
 		remove_all_filters( 'jetpack_contact_form_is_spam' );
@@ -385,7 +385,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$result = $form->process_submission();
 
 		// Processing should be successful and produce the success message.
-		$this->assertTrue( is_string( $result ) );
+		$this->assertIsString( $result );
 
 		$feedback_id = end( Posts::init()->posts )->ID;
 		$submission  = get_post( $feedback_id );
@@ -444,7 +444,7 @@ class Contact_Form_Test extends BaseTestCase {
 
 		// Process the submission to create a feedback post
 		$result = $form->process_submission();
-		$this->assertTrue( is_string( $result ), 'Form submission should be successful' );
+		$this->assertIsString( $result, 'Form submission should be successful' );
 
 		// Get the feedback ID from the most recent post
 		$feedback_id = end( Posts::init()->posts )->ID;
@@ -505,7 +505,7 @@ class Contact_Form_Test extends BaseTestCase {
 		// Test value with brackets (should be escaped)
 		$bracket_value = 'This is a [test] with brackets';
 		$result        = Contact_Form::escape_and_sanitize_field_value( $bracket_value );
-		$this->assertEquals( 'This is a &#091;test&#093; with brackets', $result );
+		$this->assertEquals( 'This is a &#91;test&#93; with brackets', $result );
 
 		// Test value with HTML (should be stripped)
 		$html_value = 'This has <strong>HTML</strong> tags';
@@ -538,7 +538,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$result = $form->process_submission();
 
 		// Processing should be successful and produce the success message.
-		$this->assertTrue( is_string( $result ) );
+		$this->assertIsString( $result );
 
 		$feedback_id = end( Posts::init()->posts )->ID;
 		$submission  = get_post( $feedback_id );
@@ -558,7 +558,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$result                     = $form->process_submission();
 
 		// Processing should be successful and produce the success message.
-		$this->assertTrue( is_string( $result ) );
+		$this->assertIsString( $result );
 
 		$feedback_id = end( Posts::init()->posts )->ID;
 		$submission  = get_post( $feedback_id );
@@ -592,7 +592,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$result = $form->process_submission();
 
 		// Processing should be successful and produce the success message.
-		$this->assertTrue( is_string( $result ) );
+		$this->assertIsString( $result );
 
 		$feedback_id = end( Posts::init()->posts )->ID;
 		$submission  = get_post( $feedback_id );
@@ -628,7 +628,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$result = $form->process_submission();
 
 		// Processing should be successful and produce the success message.
-		$this->assertTrue( is_string( $result ) );
+		$this->assertIsString( $result );
 
 		$feedback_id = end( Posts::init()->posts )->ID;
 		$response    = Feedback::get( $feedback_id );
@@ -656,7 +656,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$result = $form->process_submission();
 
 		// Processing should be successful and produce the success message.
-		$this->assertTrue( is_string( $result ) );
+		$this->assertIsString( $result );
 
 		$feedback_id = end( Posts::init()->posts )->ID;
 		$response    = Feedback::get( $feedback_id );
@@ -682,7 +682,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$result = $form->process_submission();
 
 		// Processing should be successful and produce the success message.
-		$this->assertTrue( is_string( $result ) );
+		$this->assertIsString( $result );
 
 		$feedback_id = end( Posts::init()->posts )->ID;
 		$response    = Feedback::get( $feedback_id );
@@ -708,7 +708,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$result = $form->process_submission();
 
 		// Processing should be successful and produce the success message.
-		$this->assertTrue( is_string( $result ) );
+		$this->assertIsString( $result );
 
 		$feedback_id = end( Posts::init()->posts )->ID;
 		$response    = Feedback::get( $feedback_id );
@@ -738,7 +738,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$result = $form->process_submission();
 
 		// Processing should be successful and produce the success message.
-		$this->assertTrue( is_string( $result ) );
+		$this->assertIsString( $result );
 
 		$feedback_id = end( Posts::init()->posts )->ID;
 
@@ -772,7 +772,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$result = $form->process_submission();
 
 		// Processing should be successful and produce the success message.
-		$this->assertTrue( is_string( $result ) );
+		$this->assertIsString( $result );
 
 		$feedback_id = end( Posts::init()->posts )->ID;
 		$submission  = get_post( $feedback_id );
@@ -1312,7 +1312,7 @@ class Contact_Form_Test extends BaseTestCase {
 	 * the whole feature could be removed from the markup and they would all still pass.
 	 */
 	public function test_rendered_form_carries_form_fill_duration_markup() {
-		$html = do_shortcode( "[contact-form][contact-field label='Name' type='name' required='1'/][/contact-form]" );
+		$html = apply_shortcodes( "[contact-form][contact-field label='Name' type='name' required='1'/][/contact-form]" );
 
 		// Asserted as a pair: an unanchored `value=''` would also match the Name field, which
 		// renders an empty value of its own, so it would pass even if the duration input
@@ -1336,7 +1336,7 @@ class Contact_Form_Test extends BaseTestCase {
 	 */
 	public function test_parse_contact_field_keeps_string_unchanged_when_no_escaping_necesssary() {
 		$shortcode = '[contact-field label="Name" type="name" required="1"/][contact-field label="Email" type="email" required="1"/][contact-field label="asdasd" type="text"/][contact-field id="1" required derp herp asd lkj]adsasd[/contact-field]';
-		$html      = do_shortcode( $shortcode );
+		$html      = apply_shortcodes( $shortcode );
 
 		$this->assertEquals( $shortcode, $html );
 	}
@@ -1346,7 +1346,7 @@ class Contact_Form_Test extends BaseTestCase {
 	 */
 	public function test_make_sure_that_we_add_default_label_when_non_is_present() {
 		$shortcode = "[contact-field type='name' required='1' /]";
-		$html      = do_shortcode( $shortcode );
+		$html      = apply_shortcodes( $shortcode );
 		$this->assertEquals( '[contact-field type="name" required="1" label="Name"/]', $html );
 	}
 
@@ -1355,7 +1355,7 @@ class Contact_Form_Test extends BaseTestCase {
 	 */
 	public function test_make_sure_that_we_remove_empty_options_from_form_field() {
 		$shortcode = "[contact-field type='select' required='1' options='fun,,run' label='fun times' values='go,,have some fun'/]";
-		$html      = do_shortcode( $shortcode );
+		$html      = apply_shortcodes( $shortcode );
 		$this->assertEquals( '[contact-field type="select" required="1" options="fun,run" label="fun times" values="go,have some fun"/]', $html );
 	}
 
@@ -1364,7 +1364,7 @@ class Contact_Form_Test extends BaseTestCase {
 	 */
 	public function test_array_values_with_commas_and_brackets() {
 		$shortcode = "[contact-field type='radio' options='\"foo\",bar&#044; baz,&#091;b&#092;rackets&#093;' label='fun &#093;&#091; times'/]";
-		$html      = do_shortcode( $shortcode );
+		$html      = apply_shortcodes( $shortcode );
 		$this->assertEquals( '[contact-field type="radio" options="&quot;foo&quot;,bar&#044; baz,&#091;b&#092;rackets&#093;" label="fun &#093;&#091; times"/]', $html );
 	}
 
@@ -1489,7 +1489,6 @@ class Contact_Form_Test extends BaseTestCase {
 			'default'             => 'foo',
 			'placeholder'         => 'PLACEHOLDTHIS!',
 			'id'                  => 'funID',
-			'format'              => '(YYYY-MM-DD)',
 		);
 
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'text' ) );
@@ -2035,12 +2034,12 @@ class Contact_Form_Test extends BaseTestCase {
 	 *                                                       and radio buttons.
 	 */
 	public function assertFieldLabel( $wrapper_div, $attributes, $tag_name = 'label' ) {
-		$type     = $attributes['type'];
-		$label    = $this->getFirstElement( $wrapper_div, $tag_name );
-		$expected = 'date' === $type ? $attributes['label'] . ' ' . $attributes['format'] : $attributes['label'];
+		$label = $this->getFirstElement( $wrapper_div, $tag_name );
 
+		// The date field no longer welds its format into the visible label —
+		// the format now renders as a separate hint element below the input.
 		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-		$this->assertEquals( $expected, trim( (string) $label->nodeValue ), 'Label is not what we expect it to be...' );
+		$this->assertEquals( $attributes['label'], trim( (string) $label->nodeValue ), 'Label is not what we expect it to be...' );
 	}
 
 	/**
@@ -2320,7 +2319,7 @@ class Contact_Form_Test extends BaseTestCase {
 	public function test_parse_contact_field_escapes_things_inside_a_value_and_attribute_and_the_content() {
 
 		$shortcode = "[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type=''email'' req'uired='1'/][contact-field label='asdasd' type='text'/][contact-field id='1' required 'derp' herp asd lkj]adsasd[/contact-field]";
-		$html      = do_shortcode( $shortcode );
+		$html      = apply_shortcodes( $shortcode );
 
 		/*
 		 * The expected string has some quotes escaped, since we want to make
@@ -2335,7 +2334,7 @@ class Contact_Form_Test extends BaseTestCase {
 	public function test_parse_contact_field_trims_content() {
 
 		$shortcode = '[contact-field id="1" required]     adsasd        [/contact-field]';
-		$html      = do_shortcode( $shortcode );
+		$html      = apply_shortcodes( $shortcode );
 
 		/*
 		 * The expected string has some quotes escaped, since we want to make
@@ -2552,7 +2551,7 @@ class Contact_Form_Test extends BaseTestCase {
 		// Submit first form
 		$result1 = $form1->process_submission();
 
-		$this->assertTrue( is_string( $result1 ), 'First form submission should be successful' );
+		$this->assertIsString( $result1, 'First form submission should be successful' );
 
 		$this->add_field_values(
 			array(
@@ -2565,7 +2564,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$form2   = new Contact_Form( array(), "[contact-field label='Name' type='name' required='1'/][contact-field label='Message' type='textarea' required='1'/]" );
 		$result2 = $form2->process_submission();
 
-		$this->assertTrue( is_string( $result2 ), 'First form submission should be successful' );
+		$this->assertIsString( $result2, 'First form submission should be successful' );
 
 		// Verify that the forms have different IDs
 		$this->assertNotEquals( $form1->get_attribute( 'id' ), $form2->get_attribute( 'id' ), 'Forms should have unique IDs' );
@@ -4281,6 +4280,71 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A [contact-form] nested inside another renders as one form holding every field.
+	 *
+	 * @dataProvider nested_contact_form_shortcode_provider
+	 *
+	 * @param string $shortcode       Shortcode content with a nested form.
+	 * @param array  $expected_labels Labels of the fields the rendered form should hold.
+	 */
+	#[DataProvider( 'nested_contact_form_shortcode_provider' )]
+	public function test_nested_contact_form_shortcode_merges_into_outer_form( $shortcode, $expected_labels ) {
+		$html = apply_shortcodes( $shortcode );
+
+		$labels = array();
+		foreach ( Contact_Form::$last->fields as $field ) {
+			$labels[] = $field->get_attribute( 'label' );
+		}
+
+		$this->assertSame( 1, substr_count( $html, '<form' ) );
+		$this->assertSame( $expected_labels, $labels );
+	}
+
+	/**
+	 * A nested form's attributes fill in the ones the outer form left unset, without overriding it.
+	 */
+	public function test_nested_contact_form_shortcode_merges_attributes_with_outer_form_winning() {
+		apply_shortcodes( "[contact-form subject='Outer subject'][contact-form subject='Inner subject' to='inner@example.com' submit_button_text='Send it'][contact-field label='Email' type='email'/][/contact-form][/contact-form]" );
+
+		$form = Contact_Form::$last;
+		$this->assertSame( 'Outer subject', $form->get_attribute( 'subject' ) );
+		$this->assertSame( 'inner@example.com', $form->get_attribute( 'to' ) );
+		$this->assertSame( 'Send it', $form->get_attribute( 'submit_button_text' ) );
+	}
+
+	/**
+	 * Fields are built after a nested form's attributes are merged, so a subject field defaults to the inherited subject.
+	 */
+	public function test_nested_contact_form_shortcode_attributes_reach_fields() {
+		$html = apply_shortcodes( "[contact-form][contact-form subject='Inner subject'][contact-field label='Subject' type='subject'/][/contact-form][/contact-form]" );
+
+		$this->assertSame( 'Inner subject', Contact_Form::$last->get_attribute( 'subject' ) );
+		$this->assertStringContainsString( "value='Inner subject'", $html );
+	}
+
+	/**
+	 * Data provider for test_nested_contact_form_shortcode_merges_into_outer_form.
+	 *
+	 * @return array
+	 */
+	public static function nested_contact_form_shortcode_provider() {
+		return array(
+			'only a nested form'       => array(
+				"[contact-form][contact-form][contact-field label='Email' type='email'/][/contact-form][/contact-form]",
+				array( 'Email' ),
+			),
+			'field before nested form' => array(
+				"[contact-form][contact-field label='Name' type='name'/][contact-form][contact-field label='Email' type='email'/][/contact-form][/contact-form]",
+				array( 'Name', 'Email' ),
+			),
+			'self-closing nested form' => array(
+				"[contact-form][contact-field label='Name' type='name'/][contact-form /][/contact-form]",
+				array( 'Name' ),
+			),
+		);
+	}
+
+	/**
 	 * Test is_webhooks_enabled returns true by default.
 	 */
 	public function test_is_webhooks_enabled_default() {
@@ -5107,6 +5171,106 @@ class Contact_Form_Test extends BaseTestCase {
 		// Other types never vary with the value.
 		$this->assertSame( 'text', $this->invoke_private_static( 'get_field_type_icon_key', array( 'text', '' ) ) );
 		$this->assertSame( 'consent', $this->invoke_private_static( 'get_field_type_icon_key', array( 'consent', '' ) ) );
+	}
+
+	/**
+	 * The confirmation summary picks its checkbox icon from the submitted answer, so the
+	 * answer has to survive alongside the label the summary prints.
+	 *
+	 * `is_checked_value()` recognizes only the ASCII sentinel `no`, so a translated "No" reads
+	 * as ticked -- English passes by coincidence of the sentinel, every other locale renders
+	 * the ticked icon next to the word for "no".
+	 */
+	public function test_format_submission_data_keeps_the_raw_answer_for_the_icon() {
+		$translate = function ( $translation, $text ) {
+			return 'No' === $text ? 'Non' : $translation;
+		};
+		add_filter( 'gettext_jetpack-forms', $translate, 10, 2 );
+
+		$formatted = $this->invoke_private_static(
+			'format_submission_data',
+			array(
+				array(
+					array(
+						'label' => 'Send me a copy',
+						'value' => '',
+						'type'  => 'checkbox',
+					),
+				),
+			)
+		);
+
+		remove_filter( 'gettext_jetpack-forms', $translate, 10 );
+
+		$this->assertSame( 'Non', $formatted[0]['value'], 'the summary prints the translated label' );
+		$this->assertSame( '', $formatted[0]['rawValue'], 'the answer itself is kept for the icon' );
+
+		// What the icon actually keys off, and what it would key off without the split.
+		$this->assertSame(
+			'checkbox:unchecked',
+			$this->invoke_private_static( 'get_field_type_icon_key', array( 'checkbox', $formatted[0]['rawValue'] ) )
+		);
+		$this->assertSame(
+			'checkbox',
+			$this->invoke_private_static( 'get_field_type_icon_key', array( 'checkbox', $formatted[0]['value'] ) ),
+			'the translated label reads as ticked, which is why the raw answer is carried'
+		);
+	}
+
+	/**
+	 * An unticked checkbox submits nothing, so the summary drew the label over a blank line.
+	 * The email renderer has always said "No" here.
+	 */
+	public function test_get_submission_display_value_names_an_unticked_checkbox() {
+		$this->assertSame( 'No', $this->invoke_private_static( 'get_submission_display_value', array( '', 'checkbox' ) ) );
+		$this->assertSame( 'No', $this->invoke_private_static( 'get_submission_display_value', array( null, 'checkbox' ) ) );
+		$this->assertSame( 'No', $this->invoke_private_static( 'get_submission_display_value', array( 'No', 'checkbox' ) ) );
+	}
+
+	/**
+	 * Only the checkbox is treated this way: an empty text field really is unanswered, and
+	 * consent keeps its own wording.
+	 */
+	public function test_get_submission_display_value_leaves_other_values_alone() {
+		$this->assertSame( 'Yes', $this->invoke_private_static( 'get_submission_display_value', array( 'Yes', 'checkbox' ) ) );
+		$this->assertSame( '', $this->invoke_private_static( 'get_submission_display_value', array( '', 'text' ) ) );
+		$this->assertSame( '', $this->invoke_private_static( 'get_submission_display_value', array( '', 'consent' ) ) );
+		$this->assertSame( 'Ada', $this->invoke_private_static( 'get_submission_display_value', array( 'Ada', 'text' ) ) );
+	}
+
+	/**
+	 * The summary shows a stored less-than sign as typed.
+	 */
+	public function test_get_submission_display_value_shows_stored_text_as_typed() {
+		$this->assertSame( "<\f!-- note --> one", $this->invoke_private_static( 'get_submission_display_value', array( "&lt;\f!-- note --> one", 'textarea' ) ) );
+		$this->assertSame( array( 'x < 5', 'y' ), $this->invoke_private_static( 'get_submission_display_value', array( array( 'x &lt; 5', 'y' ), 'checkbox-multiple' ) ) );
+	}
+
+	/**
+	 * The notification subject reads as the text that was typed.
+	 */
+	public function test_process_submission_mail_subject_reads_as_typed() {
+		$subject = null;
+		add_filter(
+			'pre_wp_mail',
+			function ( $short_circuit, $atts ) use ( &$subject ) {
+				$subject = $atts['subject'];
+				return true;
+			},
+			1,
+			2
+		);
+
+		$this->add_field_values(
+			array(
+				'email'   => 'john@example.com',
+				'subject' => wp_slash( 'Order <b>42</b> & x < 5' ),
+			)
+		);
+		$form = new Contact_Form( array(), "[contact-field label='Email' type='email' required='1'/][contact-field label='Subject' type='subject'/]" );
+
+		$this->assertIsString( $form->process_submission() );
+		$this->assertSame( 'Order <b>42</b> & x < 5', $subject );
 	}
 
 	/**

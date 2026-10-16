@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-Comment: Refresh composer.lock after moving Blaze to a dev-only dependency in stats-admin.
-

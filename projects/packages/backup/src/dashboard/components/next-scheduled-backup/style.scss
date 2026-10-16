@@ -1,0 +1,11 @@
+// Sits inside the storage row, which owns the spacing around it.
+.jpb-next-scheduled-backup {
+	margin: 0;
+
+	// Stands in while the reads are in flight. The skeleton replaces the
+	// element, so the two are never in the DOM together.
+	&__placeholder {
+		block-size: 16px;
+		inline-size: 260px;
+	}
+}

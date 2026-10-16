@@ -47,6 +47,8 @@ const settings = {
 		...attributes,
 		label: ( attributes.label || '' ) + label,
 	} ),
+	// Splitting an option copies every attribute except those marked as content,
+	// so anything left unmarked here arrives pre-filled from the previous option.
 	attributes: {
 		placeholder: {
 			type: 'string',
@@ -55,6 +57,7 @@ const settings = {
 		label: {
 			type: 'string',
 			default: '',
+			role: 'content',
 		},
 		requiredText: {
 			type: 'string',
@@ -71,10 +74,12 @@ const settings = {
 		isOther: {
 			type: 'boolean',
 			default: false,
+			role: 'content',
 		},
 		otherPlaceholder: {
 			type: 'string',
 			default: __( 'Please specify…', 'jetpack-forms' ),
+			role: 'content',
 		},
 	},
 	usesContext: [

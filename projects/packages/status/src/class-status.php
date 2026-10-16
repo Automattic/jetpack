@@ -163,7 +163,12 @@ class Status {
 			$host = '';
 		}
 
-		// Check for localhost and sites using an IP only first.
+		/*
+		 * Check for localhost and sites using an IP only first. No dot means it can't be a
+		 * public domain. Dotless IPv6 literals land here too, routable ones included:
+		 * WordPress.com won't register an IPv6 site URL, so offline mode is where they belong.
+		 * An IPv4-mapped literal like [::ffff:127.0.0.1] keeps its dots and reads as remote.
+		 */
 		$is_local = '' !== $host && false === strpos( $host, '.' );
 
 		// Use Core's environment check, if available.
@@ -181,7 +186,9 @@ class Status {
 			'#\.dev\.cc$#i',       // ServerPress.
 			'#\.lndo\.site$#i',    // Lando.
 			'#\.ddev\.site$#i',    // DDEV.
-			'#^127\.0\.0\.1$#',
+			// The whole 127.0.0.0/8 range is loopback; each octet is capped at 255.
+			'#^127\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){2}$#',
+			'#^0\.0\.0\.0$#', // All-interfaces bind, common under Docker and `wp server`.
 			'#^playground\.wordpress\.net$#i', // WordPress Playground, which runs entirely in the browser.
 		);
 

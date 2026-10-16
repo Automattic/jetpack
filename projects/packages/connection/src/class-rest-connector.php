@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Connection;
 use Automattic\Jetpack\Connection\Webhooks\Authorize_Redirect;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
 use Jetpack_XMLRPC_Server;
 use WP_Error;
@@ -23,6 +24,19 @@ use WP_REST_Server;
  * @phan-constructor-used-for-side-effects
  */
 class REST_Connector {
+
+	/**
+	 * Site record options left out of the site data REST response.
+	 *
+	 * @since 9.9.1
+	 *
+	 * @var string[]
+	 */
+	const EXCLUDED_SITE_OPTIONS = array(
+		'frame_nonce',
+		'jetpack_frame_nonce',
+	);
+
 	/**
 	 * The Connection Manager.
 	 *
@@ -344,6 +358,39 @@ class REST_Connector {
 				),
 			)
 		);
+
+		// Users who could take over the connection, for the owner change above.
+		register_rest_route(
+			'jetpack/v4',
+			'/connection/owner/candidates',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( static::class, 'get_connection_owner_candidates' ),
+				'permission_callback' => array( static::class, 'get_connection_owner_candidates_permission_check' ),
+			)
+		);
+
+		// Confirm the current user as the protected owner. Not the connection-owner change above.
+		register_rest_route(
+			'jetpack/v4',
+			'/connection/owner/protect',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( static::class, 'protect_connection_owner' ),
+				'permission_callback' => array( static::class, 'protect_connection_owner_permission_check' ),
+			)
+		);
+
+		// Release the protected owner, leaving ownership open to any connected administrator.
+		register_rest_route(
+			'jetpack/v4',
+			'/connection/owner/release',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( static::class, 'release_connection_owner' ),
+				'permission_callback' => array( static::class, 'release_connection_owner_permission_check' ),
+			)
+		);
 	}
 
 	/**
@@ -506,13 +553,18 @@ class REST_Connector {
 		$status     = new Status();
 		$connection = new Manager();
 
+		// The REST route is public and the initial state reaches the block editor, while the
+		// stored failure quotes server and transport errors verbatim: only people who can
+		// connect the site get to see it.
+		$registration_failure = current_user_can( 'jetpack_connect' ) ? $connection->get_registration_failure() : null;
+
 		$connection_status = array(
-			'isActive'          => $connection->has_connected_owner(), // TODO deprecate this.
-			'isStaging'         => $status->in_safe_mode(), // TODO deprecate this.
-			'isRegistered'      => $connection->is_connected(),
-			'isUserConnected'   => $connection->is_user_connected(),
-			'hasConnectedOwner' => $connection->has_connected_owner(),
-			'offlineMode'       => array(
+			'isActive'            => $connection->has_connected_owner(), // TODO deprecate this.
+			'isStaging'           => $status->in_safe_mode(), // TODO deprecate this.
+			'isRegistered'        => $connection->is_connected(),
+			'isUserConnected'     => $connection->is_user_connected(),
+			'hasConnectedOwner'   => $connection->has_connected_owner(),
+			'offlineMode'         => array(
 				'isActive'        => $status->is_offline_mode(),
 				'constant'        => defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG,
 				'url'             => $status->is_local_site(),
@@ -521,7 +573,15 @@ class REST_Connector {
 				'wpLocalConstant' => defined( 'WP_LOCAL_DEV' ) && WP_LOCAL_DEV,
 				'option'          => (bool) get_option( 'jetpack_offline_mode' ),
 			),
-			'isPublic'          => '1' == get_option( 'blog_public' ), // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+			'isPublic'            => '1' == get_option( 'blog_public' ), // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+			'registrationFailure' => null === $registration_failure ? null : array(
+				'code'            => $registration_failure['error_code'],
+				'message'         => $registration_failure['error_message'],
+				'needsSiteChange' => (bool) $registration_failure['terminal'],
+				'attempts'        => (int) $registration_failure['attempts'],
+				'lastAttemptAt'   => (int) $registration_failure['last_attempt_at'],
+				'nextRetryAfter'  => (int) $registration_failure['next_retry_after'],
+			),
 		);
 
 		/**
@@ -744,14 +804,18 @@ class REST_Connector {
 	}
 
 	/**
-	 * Verify that user is allowed to disconnect Jetpack.
+	 * Verify that user is allowed to restore the connection.
+	 *
+	 * Users with only 'jetpack_connect_user' get through, but connection_reconnect()
+	 * limits them to refreshing their own user token.
 	 *
 	 * @since 1.15.0
+	 * @since 9.8.0 Also allows 'jetpack_connect_user'.
 	 *
-	 * @return bool|WP_Error Whether user has the capability 'jetpack_disconnect'.
+	 * @return bool|WP_Error Whether user has the capability 'jetpack_reconnect' or 'jetpack_connect_user'.
 	 */
 	public static function jetpack_reconnect_permission_check() {
-		if ( current_user_can( 'jetpack_reconnect' ) ) {
+		if ( current_user_can( 'jetpack_reconnect' ) || current_user_can( 'jetpack_connect_user' ) ) {
 			return true;
 		}
 
@@ -771,6 +835,7 @@ class REST_Connector {
 	 * The endpoint tried to partially or fully reconnect the website to WP.com.
 	 *
 	 * @since 1.15.0
+	 * @since 9.8.0 Users without 'jetpack_reconnect' only refresh their own user token.
 	 *
 	 * @return \WP_REST_Response|WP_Error
 	 */
@@ -779,7 +844,9 @@ class REST_Connector {
 
 		$next = null;
 
-		$result = $this->connection->restore();
+		$result = current_user_can( 'jetpack_reconnect' )
+			? $this->connection->restore()
+			: $this->connection->refresh_user_token( false );
 
 		if ( is_wp_error( $result ) ) {
 			$response = $result;
@@ -851,7 +918,7 @@ class REST_Connector {
 			}
 		}
 
-		$result = $this->connection->try_registration();
+		$result = $this->connection->try_registration( true, true );
 
 		if ( is_wp_error( $result ) ) {
 			return $result;
@@ -934,17 +1001,8 @@ class REST_Connector {
 			? (bool) $request['is_connection_owner']
 			: ( new Manager() )->get_connection_owner_id() === $user_id;
 
+		// Tokens::update_user_token() fires jetpack_updated_user_token itself.
 		( new Tokens() )->update_user_token( $user_id, $request['user_token'], $is_connection_owner );
-
-		/**
-		 * Fires when the user token gets successfully replaced.
-		 *
-		 * @since 1.29.0
-		 *
-		 * @param int $user_id User ID.
-		 * @param string $token New user token.
-		 */
-		do_action( 'jetpack_updated_user_token', $user_id, $request['user_token'] );
 
 		return rest_ensure_response(
 			array(
@@ -1076,6 +1134,195 @@ class REST_Connector {
 	}
 
 	/**
+	 * Users this connection's ownership could be handed to.
+	 *
+	 * Filtered by what `Manager::update_connection_owner()` requires of a new owner, so the
+	 * list cannot offer someone the change would then refuse.
+	 *
+	 * @since 9.11.0
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public static function get_connection_owner_candidates() {
+		$connection = new Manager();
+		$owner_id   = (int) $connection->get_connection_owner_id();
+		$admin_cap  = ( new Roles() )->translate_role_to_cap( 'administrator' );
+		$candidates = array();
+
+		if ( ! $admin_cap ) {
+			return rest_ensure_response( $candidates );
+		}
+
+		foreach ( $connection->get_connected_users( $admin_cap ) as $user ) {
+			if ( (int) $user->ID === $owner_id ) {
+				continue;
+			}
+
+			$candidates[] = array(
+				'id'          => (int) $user->ID,
+				'login'       => $user->user_login,
+				'displayName' => $user->display_name,
+				'email'       => $user->user_email,
+				'avatar'      => get_avatar_url(
+					$user->ID,
+					array(
+						'size'    => 48,
+						'default' => 'mysteryman',
+					)
+				),
+			);
+		}
+
+		return rest_ensure_response( $candidates );
+	}
+
+	/**
+	 * Whether the current user may list the users ownership could be handed to.
+	 *
+	 * Same capability as changing the owner: seeing the candidates and acting on them go
+	 * together, and the list carries logins and email addresses.
+	 *
+	 * @since 9.11.0
+	 *
+	 * @return true|WP_Error
+	 */
+	public static function get_connection_owner_candidates_permission_check() {
+		if ( current_user_can( 'jetpack_disconnect' ) ) {
+			return true;
+		}
+
+		return new WP_Error(
+			'invalid_user_permission_list_connection_owner_candidates',
+			self::get_user_permissions_error_msg(),
+			array( 'status' => rest_authorization_required_code() )
+		);
+	}
+
+	/**
+	 * Confirm the current user as the protected owner.
+	 *
+	 * The claim is always for the signed-in user. A caller cannot name someone else.
+	 *
+	 * @since 9.9.0
+	 *
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function protect_connection_owner() {
+		$result = ( new Manager() )->set_protected_owner( get_current_user_id() );
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return rest_ensure_response(
+			array(
+				'code' => 'success',
+			)
+		);
+	}
+
+	/**
+	 * Whether the current user may confirm a protected owner.
+	 *
+	 * A connected administrator qualifies, and only while a consumer is requesting a protected
+	 * owner. Holding the connection owner slot does not matter.
+	 *
+	 * `requires_protected_owner()` is documented as a momentary answer, but it is the only opt-in
+	 * signal there is, so a consumer that surfaces a confirmation must keep answering true for as
+	 * long as it is on screen. One that flips to false between render and submit turns its own
+	 * link into a 403.
+	 *
+	 * @since 9.9.0
+	 *
+	 * @return true|WP_Error
+	 */
+	public static function protect_connection_owner_permission_check() {
+		$user_id   = get_current_user_id();
+		$admin_cap = ( new Roles() )->translate_role_to_cap( 'administrator' );
+		$manager   = new Manager();
+
+		if (
+			$user_id
+			&& current_user_can( 'jetpack_connect' )
+			&& $admin_cap
+			&& current_user_can( $admin_cap )
+			&& $manager->is_user_connected( $user_id )
+			&& $manager->requires_protected_owner()
+		) {
+			return true;
+		}
+
+		return new WP_Error(
+			'invalid_user_permission_protect_owner',
+			self::get_user_permissions_error_msg(),
+			array( 'status' => rest_authorization_required_code() )
+		);
+	}
+
+	/**
+	 * Release the protected owner for this site.
+	 *
+	 * @since 9.9.0
+	 *
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function release_connection_owner() {
+		$result = ( new Manager() )->release_protected_owner();
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return rest_ensure_response(
+			array(
+				'code' => 'success',
+			)
+		);
+	}
+
+	/**
+	 * Whether the current user may release the protected owner.
+	 *
+	 * Only the confirmed owner qualifies. WordPress.com is asked again before anything is cleared,
+	 * and its answer is the one that decides.
+	 *
+	 * Deliberately not gated on `requires_protected_owner()`, unlike confirming: a consumer that
+	 * has stopped asking must not strand a site holding a lock it can no longer release.
+	 *
+	 * @since 9.9.0
+	 *
+	 * @return true|WP_Error
+	 */
+	public static function release_connection_owner_permission_check() {
+		$user_id   = get_current_user_id();
+		$admin_cap = ( new Roles() )->translate_role_to_cap( 'administrator' );
+		$manager   = new Manager();
+
+		if (
+			$user_id
+			&& current_user_can( 'jetpack_connect' )
+			&& $admin_cap
+			&& current_user_can( $admin_cap )
+			&& $manager->is_user_connected( $user_id )
+		) {
+			// `RE_EVALUATE` settles that the connection owner matches the anchor, so pinning this
+			// user to that owner is what makes it their identity. A matching binding would not:
+			// Premium Content writes the same key directly, so the IDs are not unique site-wide.
+			$state = $manager->resolve_protected_owner_state();
+
+			if ( Manager::PO_STATE_RE_EVALUATE === $state['status'] && $user_id === (int) $manager->get_connection_owner_id() ) {
+				return true;
+			}
+		}
+
+		return new WP_Error(
+			'invalid_user_permission_release_owner',
+			self::get_user_permissions_error_msg(),
+			array( 'status' => rest_authorization_required_code() )
+		);
+	}
+
+	/**
 	 * The endpoint verifies blog connection and blog token validity.
 	 *
 	 * @since 2.7.0
@@ -1188,6 +1435,8 @@ class REST_Connector {
 		$site_data = ( $connection ?? new Manager() )->get_connected_site_data();
 
 		if ( ! is_wp_error( $site_data ) ) {
+			$site_data = self::exclude_site_options( $site_data );
+
 			/**
 			 * Fires when the site data was successfully returned from the /sites/%d wpcom endpoint.
 			 *
@@ -1223,6 +1472,32 @@ class REST_Connector {
 				'api_http_code'  => empty( $error_data['api_http_code'] ) ? null : $error_data['api_http_code'],
 			)
 		);
+	}
+
+	/**
+	 * Removes EXCLUDED_SITE_OPTIONS from the site record before it is served to a REST caller.
+	 *
+	 * Works on a copy: a listener on 'jetpack_site_data_fetched', or any other internal
+	 * consumer holding the record, keeps seeing it whole.
+	 *
+	 * @since 9.9.1
+	 *
+	 * @param object $site_data The decoded site record.
+	 * @return object The record to serve, with EXCLUDED_SITE_OPTIONS removed.
+	 */
+	private static function exclude_site_options( $site_data ) {
+		if ( ! is_object( $site_data ) || ! isset( $site_data->options ) || ! is_object( $site_data->options ) ) {
+			return $site_data;
+		}
+
+		$site_data          = clone $site_data;
+		$site_data->options = clone $site_data->options;
+
+		foreach ( self::EXCLUDED_SITE_OPTIONS as $option ) {
+			unset( $site_data->options->$option );
+		}
+
+		return $site_data;
 	}
 
 	/**

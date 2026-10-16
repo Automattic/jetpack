@@ -5,7 +5,7 @@ import { __, sprintf } from '@wordpress/i18n';
 /**
  * Types
  */
-import type { PlaylistEntry } from './types';
+import type { PlaylistDisplayAttributes, PlaylistEntry } from './types';
 
 /**
  * Format a duration in milliseconds as a timecode, m:ss or h:mm:ss.
@@ -131,4 +131,68 @@ export function playlistEmbedUrl( guid: string, autoplay: boolean, muted = false
 	}
 
 	return `https://videopress.com/embed/${ encodeURIComponent( guid ) }?${ params.toString() }`;
+}
+
+/**
+ * Build the VideoPress page URL a playlist entry links to when the block
+ * has no player.
+ *
+ * @param guid - Video GUID.
+ * @return Video page URL.
+ */
+export function playlistVideoUrl( guid: string ): string {
+	return `https://videopress.com/v/${ encodeURIComponent( guid ) }`;
+}
+
+/**
+ * Append a metadata token to a VideoPress file URL: private videos' files —
+ * posters included — are served from videos.files.wordpress.com only when the
+ * request carries a valid token.
+ *
+ * @param url   - The file URL.
+ * @param token - The playback/metadata JWT.
+ * @return The tokenized URL.
+ */
+export function withMetadataToken( url: string, token: string ): string {
+	const separator = url.includes( '?' ) ? '&' : '?';
+	return `${ url }${ separator }metadata_token=${ encodeURIComponent( token ) }`;
+}
+
+/**
+ * Build the wrapper class list the stylesheet keys layout, dark surface and
+ * the hide-* display toggles off, matching the PHP render.
+ *
+ * @param attributes - Display and playback options.
+ * @return Space-separated class list.
+ */
+export function playlistWrapperClasses( attributes: PlaylistDisplayAttributes ): string {
+	return [
+		'videopress-playlist',
+		`is-layout-${ attributes.layout }`,
+		attributes.darkPlayer ? 'is-dark' : '',
+		attributes.showPlayer ? '' : 'hide-player',
+		attributes.showThumbnail ? '' : 'hide-thumbnails',
+		attributes.showTitle ? '' : 'hide-titles',
+		attributes.showResolution ? '' : 'hide-resolutions',
+		attributes.showDuration ? '' : 'hide-durations',
+		attributes.showTotalRuntime ? '' : 'hide-runtime',
+	]
+		.filter( Boolean )
+		.join( ' ' );
+}
+
+/**
+ * Expose the chosen theme font presets to the stylesheet as CSS custom
+ * properties, the same way the PHP render does on the front end.
+ *
+ * @param entryTitleFontFamily - Font preset slug for the entry titles; empty inherits.
+ * @return Inline style declarations.
+ */
+export function playlistFontVariables( entryTitleFontFamily: string ): Record< string, string > {
+	const fontVariables: Record< string, string > = {};
+	if ( entryTitleFontFamily ) {
+		fontVariables[ '--vpp-entry-title-font' ] =
+			`var(--wp--preset--font-family--${ entryTitleFontFamily })`;
+	}
+	return fontVariables;
 }

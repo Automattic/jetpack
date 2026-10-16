@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { toAuthorId } from '@jetpack-premium-analytics/data';
 import {
 	calculateDelta,
 	getCombinedPeriodMax,
@@ -44,6 +45,8 @@ export interface AuthorPost {
  */
 export interface AuthorLeaderboardRow {
 	id: string;
+	/** The author's user ID for the author page; `0` or absent when the row names no single author. */
+	authorId?: number;
 	label: string;
 	avatarUrl: string | null;
 	currentValue: number;
@@ -70,8 +73,7 @@ function getAuthorLabel( author: StatsTopAuthorsComparisonItem ) {
 
 /**
  * Map an author's merged posts (aligned across periods by the Stats data
- * layer, including posts that only existed in the comparison period) onto the
- * drill-down row shape.
+ * layer) onto the drill-down row shape.
  */
 function toAuthorPostRows( posts: StatsTopAuthorsPostComparisonItem[] ): AuthorPost[] {
 	const maxValue = getCombinedPeriodMax(
@@ -83,7 +85,7 @@ function toAuthorPostRows( posts: StatsTopAuthorsPostComparisonItem[] ): AuthorP
 		const previousValue = post.previousViews;
 
 		return {
-			id: post.id != null ? String( post.id ) : post.link ?? `post-${ index }`,
+			id: post.id != null ? String( post.id ) : ( post.link ?? `post-${ index }` ),
 			postId: post.id ?? undefined,
 			title: typeof post.label === 'string' ? post.label : String( post.label ?? '' ),
 			link: post.link ?? null,
@@ -124,6 +126,7 @@ export function buildTopAuthorsData(
 
 		return {
 			id: author.key,
+			authorId: toAuthorId( author.id ?? undefined ),
 			label: getAuthorLabel( author ),
 			avatarUrl: author.icon ?? null,
 			currentValue: author.views,

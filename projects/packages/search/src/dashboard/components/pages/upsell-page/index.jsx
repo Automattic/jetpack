@@ -22,9 +22,11 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback, useMemo } from 'react';
+import NoticesList from 'components/global-notices';
 import Loading from 'components/loading';
 import Price from 'components/price';
 import SearchPromotionBlock from 'components/search-promotion';
+import useActivateSearchFree from 'hooks/use-activate-search-free';
 import useProductCheckoutWorkflow from 'hooks/use-product-checkout-workflow';
 import { STORE_ID } from 'store';
 
@@ -80,14 +82,22 @@ export default function UpsellPage( { isLoading = false } ) {
 			isWpcom,
 		} );
 
+	const { run: activateFree, isActivating: isActivatingFree } = useActivateSearchFree( {
+		sendToCheckout: sendToCartFree,
+	} );
+
+	const notices = useSelect( select => select( STORE_ID ).getNotices(), [] );
+	const handleLocalNoticeDismissClick = useDispatch( STORE_ID ).removeNotice;
+
 	const isPageLoading = useSelect(
 		select =>
 			select( STORE_ID ).isResolving( 'getSearchPricing' ) ||
 			! select( STORE_ID ).hasStartedResolution( 'getSearchPricing' ) ||
 			hasCheckoutStartedPaid ||
 			hasCheckoutStartedFree ||
+			isActivatingFree ||
 			isLoading,
-		[ isLoading, hasCheckoutStartedPaid, hasCheckoutStartedFree ]
+		[ isLoading, hasCheckoutStartedPaid, hasCheckoutStartedFree, isActivatingFree ]
 	);
 
 	return (
@@ -108,6 +118,10 @@ export default function UpsellPage( { isLoading = false } ) {
 						)
 					}
 				>
+					<NoticesList
+						notices={ notices }
+						handleLocalNoticeDismissClick={ handleLocalNoticeDismissClick }
+					/>
 					{ /*
 					 * `<AdminSectionHero>` has `overflow: hidden` (BFC for margin
 					 * collapse), which under the shared admin-page-layout mixin's
@@ -124,7 +138,7 @@ export default function UpsellPage( { isLoading = false } ) {
 							{ isNewPricing ? (
 								<NewPricingComponent
 									sendToCartPaid={ sendToCartPaid }
-									sendToCartFree={ sendToCartFree }
+									activateFree={ activateFree }
 								/>
 							) : (
 								<OldPricingComponent sendToCart={ sendToCartPaid } />
@@ -153,7 +167,7 @@ const OldPricingComponent = ( { sendToCart } ) => {
 		<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 			{ hasConnectionError && (
 				<Col lg={ 12 } md={ 12 } sm={ 12 }>
-					<ConnectionError />
+					<ConnectionError trackingContext="search" />
 				</Col>
 			) }
 			<Col lg={ 6 } md={ 6 } sm={ 4 }>
@@ -177,7 +191,7 @@ const OldPricingComponent = ( { sendToCart } ) => {
 	);
 };
 
-const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
+const NewPricingComponent = ( { sendToCartPaid, activateFree } ) => {
 	const siteDomain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
 	const localeSlug = getUserLocale();
 	const priceBefore = useSelect( select => select( STORE_ID ).getPriceBefore() / 12, [] );
@@ -220,7 +234,7 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 		: new Intl.NumberFormat( localeSlug, {
 				notation: 'compact',
 				compactDisplay: 'short',
-		  } ).format( paidRequestsLimitRaw );
+			} ).format( paidRequestsLimitRaw );
 
 	const unitPrice = useSelect( select => select( STORE_ID ).getAdditionalUnitPrice(), [] );
 	const unitQuantityRaw = useSelect( select => select( STORE_ID ).getAdditionalUnitQuantity(), [] );
@@ -233,7 +247,7 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 		<Container horizontalSpacing={ 8 } className="jp-search-upsell-container">
 			{ hasConnectionError && (
 				<Col lg={ 12 } md={ 12 } sm={ 12 }>
-					<ConnectionError />
+					<ConnectionError trackingContext="search" />
 				</Col>
 			) }
 
@@ -347,7 +361,7 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 									currency={ priceCurrencyCode }
 									hidePriceFraction
 								/>
-								<JetpackButton onClick={ sendToCartFree } variant="secondary" fullWidth>
+								<JetpackButton onClick={ activateFree } variant="secondary" fullWidth>
 									{ __( 'Start for free', 'jetpack-search-pkg' ) }
 								</JetpackButton>
 							</PricingTableHeader>
@@ -564,7 +578,7 @@ const searchBlocksPricingItems = [
 const aiAnswersPricingItems = [
 	{
 		id: 'ai-answers',
-		name: __( 'AI Answers (Preview)', 'jetpack-search-pkg' ),
+		name: __( 'AI Answers', 'jetpack-search-pkg' ),
 		tooltipInfo: __(
 			'Let visitors ask a question and get an instant, AI-generated answer drawn from your own content — right at the top of the search results.',
 			'jetpack-search-pkg'

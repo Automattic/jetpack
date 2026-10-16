@@ -35,7 +35,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Top commented authors" widget. Ranks the people who comment most on the site by comment count, linking each guest commenter to the comment management screen filtered to them. One half of the Jetpack Stats Comments module; "Top commented posts" covers the other.',
+					'The "All-time most commented authors" widget. Ranks the people who comment most on the site by comment count, linking each guest commenter to the comment management screen filtered to them. One half of the Jetpack Stats Comments module; "All-time most commented posts" covers the other.',
 			},
 		},
 	},
@@ -89,8 +89,7 @@ export const RetryableErrorState: Story = {
 };
 
 /**
- * Resolved with no rows: the widget shows its empty state (the neutral comment
- * author glyph and "No one has commented on your site yet.").
+ * Resolved with no rows: the widget shows its empty state.
  */
 export const Empty: Story = {
 	render: renderMostCommentedAuthors,

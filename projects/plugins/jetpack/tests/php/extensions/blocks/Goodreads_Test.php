@@ -81,6 +81,10 @@ class Goodreads_Test extends \WP_UnitTestCase {
 				'www.goodreads.com/review/custom_widget/1176283.My%20Bookshelf?widget_id=4529663',
 				true,
 			),
+			'encoded ampersand query'    => array(
+				'https://www.goodreads.com/review/custom_widget/1176283.My%20Bookshelf?num_books=5&amp;shelf=read&amp;widget_id=4529663',
+				true,
+			),
 			'external host'              => array(
 				'https://attacker.example/review/custom_widget/1176283.My%20Bookshelf?widget_id=4529663',
 				false,

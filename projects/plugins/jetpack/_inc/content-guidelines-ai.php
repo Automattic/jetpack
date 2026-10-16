@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Check whether the current visitor should be marked as Automattician traffic.
  *
- * @since $$next-version$$
+ * @since 16.2
  *
  * @return bool True when the visitor is Automattician traffic.
  */

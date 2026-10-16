@@ -31,10 +31,6 @@ export const settings = {
 	description: __( 'Capture date information with a date picker.', 'jetpack-forms' ),
 	icon: blockIcon,
 	edit,
-	providesContext: {
-		...defaultSettings.providesContext,
-		'jetpack/field-date-format': 'dateFormat',
-	},
 	attributes: {
 		...defaultSettings.attributes,
 		dateFormat: {

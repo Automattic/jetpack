@@ -63,9 +63,11 @@ export function useConnection(): Result {
  *
  * Read from the same connection global as `useConnection`, and used to
  * scope Jetpack redirect links to this site. Returns undefined when the
- * global is missing, in which case callers should emit an unscoped
- * redirect rather than a broken one — `getRedirectUrl` omits the query
- * arg for an undefined `site`.
+ * global is missing, in which case callers must omit the `site` key
+ * entirely rather than pass it as undefined: `getRedirectUrl` walks its
+ * args with `for…in`, so a present-but-undefined key is encoded as the
+ * literal string `undefined`, and its presence also suppresses the
+ * helper's own `jetpack_redirects` fallback. See `no-backup-plan.tsx`.
  *
  * @return The site slug, or undefined.
  */

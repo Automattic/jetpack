@@ -2,29 +2,28 @@
  * External dependencies
  */
 import { LineShape, RectShape, Stack } from '@jetpack-premium-analytics/externals';
+import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 /**
  * Internal dependencies
  */
-import styles from './chart-tooltip.module.scss';
 import { TooltipRow } from './tooltip-row';
-import { isChartDatumEntry } from './utils';
+import { exactFormatOf, isChartDatumEntry } from './utils';
 import type { DataFormat } from '../../types';
 
-/**
- * Style configuration for tooltip indicators.
- * Matches SeriesStyle pattern from chart components.
- */
+/** Swatch box per indicator type. */
+const INDICATOR_SIZE = {
+	line: { width: 16, height: 15 },
+	rect: { width: 8, height: 8 },
+} as const;
+
+/** Mirrors the `SeriesStyle` shape the chart components use. */
 export type TooltipStyle = {
-	/** Color for the indicator */
 	stroke: string;
 
-	/** Stroke width (for line indicator) */
 	strokeWidth?: string | number;
 
-	/** Stroke dash array (for line indicator) */
 	strokeDasharray?: string | number;
 
-	/** Stroke dash offset (for line indicator) */
 	strokeDashoffset?: string | number;
 
 	/** Indicator opacity, so a swatch can match a mark the chart drew translucent. */
@@ -32,48 +31,76 @@ export type TooltipStyle = {
 };
 
 type DatumWithLabel = { label: string };
-type DatumWithValue = { value: number };
+type DatumWithValue = { value: number | null };
 
-// The default extractors assume the common datum shape; charts with other
-// shapes (dates on line charts, for one) pass their own via `getLabel`.
+// The default extractors assume the common datum shape; a chart with another
+// shape passes its own via `getLabel`.
 function defaultGetLabel( datum: unknown ): string {
 	return ( datum as DatumWithLabel ).label ?? '';
 }
 
-function defaultGetValue( datum: unknown ): number {
-	return ( datum as DatumWithValue ).value;
+function defaultGetValue( datum: unknown ): number | null {
+	return ( datum as DatumWithValue ).value ?? null;
 }
 
 export type ChartTooltipProps< TDatum = unknown > = {
-	/**
-	 * Tooltip data from visx chart
-	 */
+	/** Tooltip data from the visx chart. */
 	tooltipData?: {
 		datumByKey?: Record< string, unknown >;
 	};
 
 	dataFormat: DataFormat;
 
-	/**
-	 * Array of styles for each series (required).
-	 * Index corresponds to series index.
-	 */
+	/** One style per series, indexed by series position. */
 	seriesStyles: TooltipStyle[];
 
-	/**
-	 * Indicator type: 'line' for line charts, 'rect' for bar charts
-	 * Uses chart library's LineShape and RectShape components.
-	 */
 	indicatorType: 'line' | 'rect';
 
-	getLabel?: ( datum: TDatum, index: number, key: string ) => string;
+	/**
+	 * `value` is the row's value spelled out in full; `rawValue` picks a plural
+	 * form. Both are null for a bucket with no reading.
+	 */
+	getLabel?: (
+		datum: TDatum,
+		index: number,
+		key: string,
+		value: string | null,
+		rawValue: number | null
+	) => string;
 
-	getValue?: ( datum: TDatum ) => number;
+	getValue?: ( datum: TDatum ) => number | null;
 };
 
+export function SeriesIndicator( {
+	indicatorType,
+	style,
+}: {
+	indicatorType: ChartTooltipProps[ 'indicatorType' ];
+	style: TooltipStyle;
+} ) {
+	const { stroke, ...lineShapeStyle } = style;
+
+	return indicatorType === 'line' ? (
+		<LineShape
+			fill={ stroke || 'currentColor' }
+			width={ INDICATOR_SIZE.line.width }
+			height={ INDICATOR_SIZE.line.height }
+			style={ lineShapeStyle }
+		/>
+	) : (
+		<RectShape
+			fill={ stroke || 'currentColor' }
+			height={ INDICATOR_SIZE.rect.height }
+			width={ INDICATOR_SIZE.rect.width }
+			style={ { opacity: lineShapeStyle.opacity } }
+		/>
+	);
+}
+
 /**
- * Self-contained chart tooltip. Indicators use the chart library's own
- * `LineShape` / `RectShape` so they match the series they describe.
+ * Chart tooltip for label/value rows, one per series. Indicators use the chart
+ * library's own `LineShape` / `RectShape` so they match the series they
+ * describe. Date-bucketed charts use `DatedTooltip` instead.
  */
 export function ChartTooltip< TDatum >( {
 	tooltipData,
@@ -94,35 +121,30 @@ export function ChartTooltip< TDatum >( {
 	}
 
 	return (
-		<Stack direction="column" className={ styles.tooltip } gap="xs">
+		<Stack direction="column" gap="xs">
 			{ datumEntries.map( ( entry, index ) => {
 				if ( ! isChartDatumEntry< TDatum >( entry ) ) {
 					return null;
 				}
 
-				const { stroke, ...lineShapeStyle } = seriesStyles[ index ] || seriesStyles[ 0 ];
-				const label = getLabel( entry.datum, index, entry.key );
 				const value = getValue( entry.datum );
+				const exactFormat = exactFormatOf( dataFormat );
+				const label = getLabel(
+					entry.datum,
+					index,
+					entry.key,
+					value === null ? null : formatMetricValue( value, exactFormat.type, exactFormat.options ),
+					value
+				);
 
 				return (
 					<TooltipRow
 						key={ entry.key }
 						indicator={
-							indicatorType === 'line' ? (
-								<LineShape
-									fill={ stroke || 'currentColor' }
-									width={ 16 }
-									height={ 15 }
-									style={ lineShapeStyle }
-								/>
-							) : (
-								<RectShape
-									fill={ stroke || 'currentColor' }
-									height={ 8 }
-									width={ 8 }
-									style={ { opacity: lineShapeStyle.opacity } }
-								/>
-							)
+							<SeriesIndicator
+								indicatorType={ indicatorType }
+								style={ seriesStyles[ index ] || seriesStyles[ 0 ] }
+							/>
 						}
 						label={ label }
 						value={ value }

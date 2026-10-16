@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix a timeout error when updating a video poster from the media library.

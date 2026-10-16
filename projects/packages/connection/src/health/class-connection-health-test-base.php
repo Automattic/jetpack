@@ -421,6 +421,18 @@ class Connection_Health_Test_Base {
 	}
 
 	/**
+	 * Returns the translated text describing what a healthy connection provides.
+	 *
+	 * Shared by the passing and failing connection descriptions so the two cannot
+	 * drift apart.
+	 *
+	 * @return string
+	 */
+	protected static function helper_get_healthy_connection_text() {
+		return __( 'A healthy Jetpack Connection allows connected plugins (such as Jetpack and WooCommerce) to provide features like Stats, Site Security, and Payments to your site.', 'jetpack-connection' );
+	}
+
+	/**
 	 * Gets translated reconnect long description.
 	 *
 	 * @param string $connection_error  The connection specific error.
@@ -432,7 +444,7 @@ class Connection_Health_Test_Base {
 		return sprintf(
 			'<p>%1$s</p>' .
 			'<p><span class="dashicons fail"><span class="screen-reader-text">%2$s</span></span> %3$s</p><p><strong>%4$s</strong></p>',
-			__( 'A healthy Jetpack Connection allows connected plugins (such as Jetpack and WooCommerce) to provide features like Stats, Site Security, and Payments.', 'jetpack-connection' ),
+			self::helper_get_healthy_connection_text(),
 			/* translators: screen reader text indicating a test failed */
 			__( 'Error', 'jetpack-connection' ),
 			$connection_error,
@@ -467,25 +479,6 @@ class Connection_Health_Test_Base {
 		}
 
 		return self::failing_test( $args );
-	}
-
-	/**
-	 * Gets translated text to enable outbound requests.
-	 *
-	 * @param string $protocol Either 'HTTP' or 'HTTPS'.
-	 *
-	 * @return string
-	 */
-	protected function helper_enable_outbound_requests( $protocol ) {
-		return sprintf(
-			/* translators: %1$s - request protocol, either http or https */
-			__(
-				'Your server did not successfully connect to WordPress.com using %1$s.
-				Please ask your hosting provider to confirm your server can make outbound requests to WordPress.com.',
-				'jetpack-connection'
-			),
-			$protocol
-		);
 	}
 
 	/**

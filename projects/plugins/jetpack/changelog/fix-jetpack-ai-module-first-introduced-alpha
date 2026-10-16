@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-AI: Auto-activate the AI module on sites running a 16.2 prerelease build.

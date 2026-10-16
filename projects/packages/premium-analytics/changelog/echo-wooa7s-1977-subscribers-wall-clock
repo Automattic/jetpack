@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Subscribers chart, email timeline: label chart points by the bucket they name rather than by the viewer's time zone.

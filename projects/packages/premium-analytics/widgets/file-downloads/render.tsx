@@ -11,16 +11,18 @@ import {
  */
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { download } from '@wordpress/icons';
-import { Link } from '@jetpack-premium-analytics/externals';
 import {
+	ExporterCsvDownloadButton,
 	WIDGET_ROW_LIMIT,
 	calculateDelta,
+	fileDownloadsCsvExporter,
 	getCombinedPeriodMax,
 	safeHttpUrl,
 	LeaderboardChart,
 	LeaderboardSkeleton,
 	ReportLink,
+	buildLeaderboardRow,
+	resolveLeaderboardRowAction,
 	sharePercentage,
 	WidgetFooter,
 	WidgetRoot,
@@ -32,6 +34,7 @@ import {
 /**
  * Internal dependencies
  */
+import { useNoViewsEmptyState } from '../use-no-views-empty-state';
 import styles from './style.module.css';
 import { type FileDownloadsAttributes } from './widget';
 /**
@@ -77,21 +80,11 @@ function buildLeaderboardData(
 
 		return {
 			id: `${ index }-${ row.href ?? row.label }`,
-			label: row.href ? (
-				<Link
-					className={ styles.labelLink }
-					href={ row.href }
-					variant="unstyled"
-					openInNewTab
-					title={ row.label }
-				>
-					{ row.label }
-				</Link>
-			) : (
-				<span className={ styles.labelText } title={ row.label }>
-					{ row.label }
-				</span>
-			),
+			...buildLeaderboardRow( {
+				label: row.label,
+				media: { kind: 'none' },
+				action: resolveLeaderboardRowAction( { href: row.href, hasChildren: false } ),
+			} ),
 			currentValue: row.value,
 			currentShare: sharePercentage( row.value, maxValue ),
 			previousValue,
@@ -118,23 +111,13 @@ function toFileDownloadRows( items: StatsFileDownloadsComparisonItem[] ): FileDo
 }
 
 export type FileDownloadsLeaderboardProps = {
-	/**
-	 * Normalized download rows to render.
-	 */
 	rows?: FileDownloadRow[];
-	/**
-	 * When true, render previous-period deltas.
-	 */
 	withComparison?: boolean;
 };
 
 /**
- * Presentational leaderboard for the "File downloads" widget.
- *
- * Accepts already-fetched rows and renders only the populated (ready) state —
- * loading, error, and empty are handled by `<WidgetState>` in the
- * data-connected inner component. Exported so Storybook can render fixture
- * rows without needing a live WordPress backend.
+ * Renders only the populated state — the data-connected inner component owns the
+ * rest. Exported so Storybook can render fixture rows without a live backend.
  */
 export function FileDownloadsLeaderboard( {
 	rows = [],
@@ -147,13 +130,14 @@ export function FileDownloadsLeaderboard( {
 			withOverlayLabel
 			showLegend={ false }
 			dataFormat={ DATA_FORMAT }
+			columns={ { label: __( 'Files', 'jetpack-premium-analytics-pkg' ), metric: 'downloads' } }
 		/>
 	);
 }
 
 function FileDownloadsInner() {
 	const { reportParams } = useWidgetRootContext();
-	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
+	const { primary, comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
 		useStatsFileDownloads( reportParams as StatsReportParams, { maxRows: WIDGET_ROW_LIMIT } );
 
 	const rows = useMemo(
@@ -161,16 +145,19 @@ function FileDownloadsInner() {
 		[ comparisonRows ]
 	);
 	const withComparison = hasComparison;
+	const emptyState = useNoViewsEmptyState(
+		{ isLoading, isError, isEmpty: rows.length === 0 },
+		__( 'You don’t have downloads recorded yet.', 'jetpack-premium-analytics-pkg' )
+	);
 
 	return (
 		<>
 			<div className={ styles.content }>
 				<WidgetState
-					isLoading={ isLoading }
+					isLoading={ emptyState.isLoading }
 					isFetching={ isFetching }
-					// The Stats queries carry `placeholderData`, so a failed range change
-					// keeps the prior period's rows visible; only surface the error when
-					// there is nothing to show.
+					// `placeholderData` keeps the prior period's rows on screen, so a
+					// transient refetch failure should not replace them with an error.
 					isError={ rows.length === 0 && isError }
 					isEmpty={ rows.length === 0 }
 					error={ {
@@ -182,10 +169,7 @@ function FileDownloadsInner() {
 							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
 						],
 					} }
-					empty={ {
-						icon: download,
-						description: __( 'No file downloads in this period.', 'jetpack-premium-analytics-pkg' ),
-					} }
+					empty={ emptyState.empty }
 					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
 					<FileDownloadsLeaderboard rows={ rows } withComparison={ withComparison } />
@@ -193,6 +177,11 @@ function FileDownloadsInner() {
 			</div>
 			<WidgetFooter>
 				<ReportLink report="downloads" />
+				<ExporterCsvDownloadButton
+					exporter={ fileDownloadsCsvExporter }
+					status={ { isLoading, isFetching, isError: primary.isError } }
+					rowCount={ rows.length }
+				/>
 			</WidgetFooter>
 		</>
 	);

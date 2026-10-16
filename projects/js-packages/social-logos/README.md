@@ -33,6 +33,21 @@ function MyComponent() {
 * `size`: Number - (default: 24) set the size of the icon.
 * `onClick`: Function - (optional) if you need a click callback.
 
+## Brand colors
+
+The `social-logos/colors.css` export defines the brand color for some services via a `--jetpack-social-logo-color-{service}` custom property on `:root`.
+
+One can use that as follows:
+```
+import 'social-logos/colors.css';
+```
+
+```css
+.my-facebook-icon {
+	fill: var(--jetpack-social-logo-color-facebook);
+}
+```
+
 ## Notes & Pixel Grid
 
 The icon grid is based on [Gridicons](https://github.com/Automattic/gridicons) and adheres to the same rules. That is to say, the set is designed on a 24px base grid. That means logos will look their sharpest and crispest when SVGs are inserted with 24px width/height, or the icon font is used at `font-size: 24px;`.

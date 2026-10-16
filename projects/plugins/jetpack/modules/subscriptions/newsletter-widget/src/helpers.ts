@@ -1,7 +1,10 @@
-import analytics from '@automattic/jetpack-analytics';
 import { dateI18n } from '@wordpress/date';
 import { getAnalyticsUrl, hasAnalyticsDashboard } from '../../../../_inc/shared/analytics-url';
 import { SubscriberTotalsByDate, ChartSubscriptionDataPoint } from './types';
+
+export type TracksEventRecorder = {
+	recordEvent: ( eventName: string, eventProperties?: Record< string, unknown > ) => void;
+};
 
 /**
  * Creates an event handler function for tracking user interactions
@@ -15,7 +18,7 @@ import { SubscriberTotalsByDate, ChartSubscriptionDataPoint } from './types';
  * const handleClick = createTracksEventHandler( tracks, 'learn_more_click', { locale: 'en' } );
  */
 export const createTracksEventHandler = (
-	tracks: typeof analytics.tracks,
+	tracks: TracksEventRecorder,
 
 	eventAction: string,
 

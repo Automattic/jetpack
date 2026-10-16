@@ -9,9 +9,8 @@ const getContext = jest.fn();
 jest.unstable_mockModule( '@wordpress/interactivity', () => ( { store, getElement, getContext } ) );
 
 await import( '../../../../src/modules/form/field-type-icons-view.js' );
-const { getFieldTypeIconHtml, getFieldTypeIconKey } = await import(
-	'../../../../src/modules/form/field-type-icons.js'
-);
+const { getFieldTypeIconHtml, getFieldTypeIconKey } =
+	await import( '../../../../src/modules/form/field-type-icons.js' );
 
 const { watchFieldTypeIcon } = store.mock.calls[ 0 ][ 1 ].callbacks;
 
@@ -43,7 +42,7 @@ describe( 'watchFieldTypeIcon', () => {
 	} );
 
 	test( 'renders the icon for an AJAX submission', () => {
-		const ref = run( { innerHTML: '', dataset: {} }, { type: 'checkbox', value: 'Yes' } );
+		const ref = run( { innerHTML: '', dataset: {} }, { type: 'checkbox', rawValue: 'Yes' } );
 
 		expect( ref.dataset.renderedType ).toBe( 'checkbox' );
 		expect( ref.innerHTML ).toBe( getFieldTypeIconHtml( 'checkbox', 'Yes' ) );
@@ -52,7 +51,7 @@ describe( 'watchFieldTypeIcon', () => {
 	test( 'keeps a server-rendered icon whose key already matches', () => {
 		const ref = run(
 			{ innerHTML: '<svg data-server-rendered />', dataset: { renderedType: 'checkbox' } },
-			{ type: 'checkbox', value: 'Yes' }
+			{ type: 'checkbox', rawValue: 'Yes' }
 		);
 
 		expect( ref.innerHTML ).toBe( '<svg data-server-rendered />' );
@@ -63,12 +62,26 @@ describe( 'watchFieldTypeIcon', () => {
 		// checkbox must not inherit a ticked icon left over from a previous render.
 		const ref = run(
 			{ innerHTML: '<svg data-stale />', dataset: { renderedType: 'checkbox' } },
-			{ type: 'checkbox', value: '' }
+			{ type: 'checkbox', rawValue: '' }
 		);
 
 		expect( ref.dataset.renderedType ).toBe( 'checkbox:unchecked' );
 		expect( ref.innerHTML ).toBe( getFieldTypeIconHtml( 'checkbox', '' ) );
 		expect( getFieldTypeIconKey( 'checkbox', '' ) ).toBe( 'checkbox:unchecked' );
+	} );
+
+	/**
+	 * The printed label is localized; the answer is not. `isCheckedValue()` recognizes only
+	 * the ASCII `no` sentinel, so keying the icon off the label rendered the ticked box beside
+	 * the word for "no" in every locale whose word for it is not "no".
+	 */
+	test( 'keys off the submitted answer, not the localized label', () => {
+		const ref = run(
+			{ innerHTML: '', dataset: {} },
+			{ type: 'checkbox', value: 'Non', rawValue: '' }
+		);
+
+		expect( ref.dataset.renderedType ).toBe( 'checkbox:unchecked' );
 	} );
 
 	test( 'falls back to the text icon when the submission has no type', () => {

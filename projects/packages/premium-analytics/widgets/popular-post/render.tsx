@@ -1,7 +1,9 @@
 /**
  * External dependencies
  */
-import { pickReportDateParams } from '@jetpack-premium-analytics/routing';
+import { getAdminUrl } from '@automattic/jetpack-script-data';
+import { toAuthorId } from '@jetpack-premium-analytics/data';
+import { createReportOriginSearch } from '@jetpack-premium-analytics/routing';
 import {
 	PostHighlightCard,
 	type PostHighlightCardMetric,
@@ -10,38 +12,79 @@ import {
 	WidgetRoot,
 	WidgetState,
 	describeError,
+	useDashboardOriginSearch,
 	useWidgetRootContext,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { trendingUp } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
 import { usePopularPost } from './use-popular-post';
+import { useNoPublishedPosts } from '../use-no-published-posts';
 import type { PopularPostAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
-// Unlike Latest post, this widget is period-scoped: the host injects the
-// dashboard date range through `reportParams`.
+// The host's `reportParams` only matter to an author-scoped instance; the
+// dashboard card reports on its own pinned window.
 type PopularPostRenderAttributes = PopularPostAttributes & Partial< ReportParamsFieldAttributes >;
 type PopularPostWidgetProps = WidgetRenderProps< PopularPostRenderAttributes >;
 
 /**
- * The dashboard's date range picks which post is shown; all three tiles are
- * all-time totals from the Stats post endpoint, so they share one window and
- * need no per-tile aggregation note — the same treatment as `Latest post`,
- * which shares this card.
+ * The last 12 months pick which post is shown, or the page's range when
+ * author-scoped; all three tiles are all-time totals from the Stats post
+ * endpoint, so they share one window.
+ *
+ * The tiles carry no caveat saying so, which is deliberate: the old Stats card
+ * this replaces put the same lifetime totals under the same period-naming
+ * heading with nothing on the tiles either, and the widget header's help note
+ * spells the aggregation out. Adding one is a design decision, not a defect fix.
  */
-function PopularPostReport() {
+function PopularPostReport( { authorScoped }: { authorScoped: boolean } ) {
 	const { reportParams } = useWidgetRootContext();
-	const { post, isLoading, isFetching, isError, error, refetch } = usePopularPost( reportParams );
-	// The detail page opens on the dashboard's current window.
-	const detailSearch = useMemo( () => pickReportDateParams( reportParams ), [ reportParams ] );
+	// Gated on the instance attribute, not the URL alone, so a stray `author_id`
+	// on the dashboard cannot narrow the site-wide card.
+	const authorId = authorScoped ? toAuthorId( reportParams.author_id ) : 0;
+
+	// An author-scoped instance rendered off its page must not fall back to the
+	// site-wide pick under the author-scoped title.
+	if ( authorScoped && ! authorId ) {
+		return (
+			<WidgetState
+				isLoading={ false }
+				isError={ false }
+				isEmpty
+				empty={ {
+					description: __(
+						'Open an author to see their most viewed post here.',
+						'jetpack-premium-analytics-pkg'
+					),
+				} }
+			>
+				{ null }
+			</WidgetState>
+		);
+	}
+
+	return <PopularPostCard authorId={ authorId } />;
+}
+
+function PopularPostCard( { authorId }: { authorId: number } ) {
+	const { reportParams } = useWidgetRootContext();
+	const dashboardOrigin = useDashboardOriginSearch();
+	const { post, range, isLoading, isFetching, isError, error, refetch } = usePopularPost(
+		authorId ? { authorId, reportParams } : undefined
+	);
+	const { noPublishedPosts, isChecking } = useNoPublishedPosts(
+		! authorId && ! isLoading && ! isError && ! post
+	);
 
 	const metrics: PostHighlightCardMetric[] = post
 		? [
-				{ key: 'views', label: __( 'Views', 'jetpack-premium-analytics-pkg' ), value: post.views },
+				{
+					key: 'views',
+					label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
+					value: post.views,
+				},
 				{
 					key: 'likes',
 					label: __( 'Likes', 'jetpack-premium-analytics-pkg' ),
@@ -52,12 +95,22 @@ function PopularPostReport() {
 					label: __( 'Comments', 'jetpack-premium-analytics-pkg' ),
 					value: post.commentCount,
 				},
-		  ]
+			]
 		: [];
+
+	// Ranked over this card's window, not the host's.
+	const detailSearch = {
+		...range,
+		...dashboardOrigin,
+		...createReportOriginSearch(
+			authorId ? 'authors' : 'posts',
+			authorId ? undefined : 'posts-pages'
+		),
+	};
 
 	return (
 		<WidgetState
-			isLoading={ isLoading }
+			isLoading={ isLoading || isChecking }
 			isFetching={ isFetching }
 			isError={ isError }
 			isEmpty={ ! post }
@@ -68,10 +121,25 @@ function PopularPostReport() {
 				),
 				onRetry: refetch,
 			} ) }
-			empty={ {
-				icon: trendingUp,
-				description: __( 'No post views in this period.', 'jetpack-premium-analytics-pkg' ),
-			} }
+			// The site-wide card ranks over a pinned window, not the selected period, so the generic "this time period" copy would point at the wrong range.
+			empty={
+				authorId
+					? undefined
+					: {
+							description: noPublishedPosts
+								? __(
+										"Your most-read post will show here once you've published one.",
+										'jetpack-premium-analytics-pkg'
+									)
+								: __( 'No post views in the last 12 months.', 'jetpack-premium-analytics-pkg' ),
+							action: noPublishedPosts
+								? {
+										label: __( 'Create post', 'jetpack-premium-analytics-pkg' ),
+										href: getAdminUrl( 'post-new.php' ),
+									}
+								: undefined,
+						}
+			}
 			renderLoading={ <PostHighlightCardSkeleton /> }
 		>
 			{ post && (
@@ -93,7 +161,7 @@ function PopularPostReport() {
 export default function PopularPost( { attributes = {} }: PopularPostWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<PopularPostReport />
+			<PopularPostReport authorScoped={ attributes.authorScoped === true } />
 		</WidgetRoot>
 	);
 }

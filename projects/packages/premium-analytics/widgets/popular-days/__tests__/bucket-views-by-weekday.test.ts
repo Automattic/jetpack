@@ -17,12 +17,14 @@ function dailyRow( date: string, views: number ) {
 }
 
 describe( 'bucketViewsByWeekday', () => {
-	it( 'always returns seven buckets, Monday first', () => {
+	it( 'always returns seven buckets, Monday first, with localized weekday names', () => {
 		const buckets = bucketViewsByWeekday( [] );
 
 		expect( buckets ).toHaveLength( 7 );
 		expect( buckets.map( bucket => bucket.weekday ) ).toEqual( [ 0, 1, 2, 3, 4, 5, 6 ] );
 		expect( buckets.every( bucket => bucket.occurrences === 0 ) ).toBe( true );
+		expect( buckets[ 0 ].label ).toBe( 'Monday' );
+		expect( buckets[ 6 ].label ).toBe( 'Sunday' );
 	} );
 
 	it( 'assigns each date to its weekday', () => {
@@ -51,9 +53,8 @@ describe( 'bucketViewsByWeekday', () => {
 	} );
 
 	it( 'reads the calendar date, not a UTC instant', () => {
-		// `date_start` carries a nominal +00:00 that is a bucket label, not a real
-		// instant. Parsing it as UTC would shift the day west of Greenwich and move
-		// this row onto Sunday.
+		// `date_start`'s +00:00 is a bucket label, not a real instant: parsing it as
+		// UTC would shift the day west of Greenwich and move this row onto Sunday.
 		const buckets = bucketViewsByWeekday( [ dailyRow( '2026-07-06', 10 ) ] );
 
 		expect( buckets[ 0 ].occurrences ).toBe( 1 );
@@ -87,20 +88,12 @@ describe( 'bucketViewsByWeekday', () => {
 
 		expect( buckets.reduce( ( sum, bucket ) => sum + bucket.total, 0 ) ).toBe( 10 );
 	} );
-
-	it( 'labels buckets with localized weekday names', () => {
-		const buckets = bucketViewsByWeekday( [] );
-
-		expect( buckets[ 0 ].label ).toBe( 'Monday' );
-		expect( buckets[ 6 ].label ).toBe( 'Sunday' );
-	} );
 } );
 
 describe( 'pickPeakWeekday', () => {
 	it( 'picks the highest average, not the highest total', () => {
-		// This is the whole point of averaging: a range that is not a whole number
-		// of weeks samples some weekdays more often than others, and the extra
-		// sample alone must not decide the winner.
+		// A range that is not a whole number of weeks samples some weekdays more
+		// often, and the extra sample alone must not decide the winner.
 		const buckets = bucketViewsByWeekday( [
 			dailyRow( '2026-07-06', 10 ),
 			dailyRow( '2026-07-13', 10 ),

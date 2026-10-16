@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Export GoogleDataTableColumnRoleType as a value, so a consumer can build a GeoChart tooltip column.

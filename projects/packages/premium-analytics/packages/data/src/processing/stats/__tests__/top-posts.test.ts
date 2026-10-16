@@ -126,20 +126,6 @@ describe( 'Stats top posts normalizer', () => {
 		);
 	} );
 
-	it( 'keeps all by-date buckets when the query has a range end date', () => {
-		const result = sanitizeStatsTopPostsResponse( topPostsFixture, {
-			period: 'day',
-			start_date: '2026-06-15',
-			end_date: '2026-06-16',
-		} );
-
-		expect( result.data ).toHaveLength( 2 );
-		expect( result.data.map( item => item.time_interval ) ).toEqual( [
-			'2026-06-15',
-			'2026-06-16',
-		] );
-	} );
-
 	it( 'limits by-date buckets to the requested date range', () => {
 		const result = sanitizeStatsTopPostsResponse(
 			{
@@ -213,9 +199,8 @@ describe( 'Stats top posts normalizer', () => {
 		} );
 	} );
 	it( 'keeps URL-less rows and matches them by label', () => {
-		// With skip_archives=1 the API returns the homepage-as-latest-posts
-		// entry without a link; it must survive the merge and match across
-		// periods by its label.
+		// With skip_archives=1 the homepage-as-latest-posts entry comes back with
+		// no link, so it can only match across periods by its label.
 		const homepage: StatsTopPostsItem = {
 			id: 0,
 			label: 'Homepage (Latest posts)',

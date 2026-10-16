@@ -6,17 +6,20 @@ import PricingTable, {
 	PricingTableItem,
 } from '@automattic/jetpack-components/pricing-table';
 import ProductPrice from '@automattic/jetpack-components/product-price';
-import useProductCheckoutWorkflow from '@automattic/jetpack-connection/hooks/use-product-checkout-workflow';
 import useConnection from '@automattic/jetpack-connection/use-connection';
+import { useDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
-import { useState } from 'react';
+import { store as noticesStore } from '@wordpress/notices';
+import { useEffect, useState } from 'react';
+import useVideoPressCheckout from '../../../client/hooks/use-videopress-checkout';
 import { VIDEOPRESS_ADMIN_PAGE } from '../../utils/constants';
+import PageSubTitle from '../page-subtitle';
 import './style.scss';
 
 /**
  * Pre-connection upsell shown when the site isn't registered yet. A port of the
  * legacy dashboard's pricing table (`PricingSection`): the paid column drives
- * `useProductCheckoutWorkflow` (Get VideoPress), the free column registers the
+ * `useVideoPressCheckout` (Get VideoPress), the free column registers the
  * site and connects the user via `useConnection` (Start for free). Reads the
  * product/price payload from `JPVIDEOPRESS_INITIAL_STATE.pricing`, which the
  * server only populates for disconnected sites.
@@ -44,13 +47,25 @@ export default function PricingUpsell() {
 		redirectUri: redirectUrl,
 	} );
 
-	const { run, hasCheckoutStarted } = useProductCheckoutWorkflow( {
+	const { run, hasCheckoutStarted, checkoutError } = useVideoPressCheckout( {
 		productSlug: pricing?.yearly?.slug ?? '',
 		redirectUrl,
 		siteSuffix,
 		useBlogIdSuffix: true,
 		from: 'jetpack-videopress',
 	} );
+
+	const { createErrorNotice } = useDispatch( noticesStore );
+	useEffect( () => {
+		if ( checkoutError ) {
+			createErrorNotice(
+				__( 'Checkout could not start. Please try again.', 'jetpack-videopress-pkg' ),
+				{
+					type: 'snackbar',
+				}
+			);
+		}
+	}, [ checkoutError, createErrorNotice ] );
 
 	if ( ! pricing ) {
 		return null;
@@ -62,10 +77,7 @@ export default function PricingUpsell() {
 	return (
 		<AdminPage
 			title={ 'VideoPress' /* product name; not translated */ }
-			subTitle={ __(
-				'Host, manage, customize, and track your videos — all in one place.',
-				'jetpack-videopress-pkg'
-			) }
+			subTitle={ <PageSubTitle /> }
 		>
 			<div className="vp-connection-gate__upsell">
 				<PricingTable title={ title } items={ pricingItems }>
@@ -80,7 +92,7 @@ export default function PricingUpsell() {
 												/* translators: %1$s: the discount amount */
 												__( '%1$s%% off', 'jetpack-videopress-pkg' ),
 												String( yearly.discount )
-										  )
+											)
 										: undefined
 								}
 								legend={ __( '/month, billed yearly', 'jetpack-videopress-pkg' ) }

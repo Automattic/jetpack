@@ -8,13 +8,16 @@ import {
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls.jsx';
+import JetpackFieldHints from '../shared/components/jetpack-field-hints.jsx';
+import useFieldSelected from '../shared/hooks/use-field-selected.js';
 import useFormWrapper from '../shared/hooks/use-form-wrapper.js';
 import './editor.scss';
 
 export default function SliderFieldEdit( props ) {
 	useFormWrapper( props );
 
-	const { attributes, setAttributes } = props;
+	const { attributes, clientId, isSelected, setAttributes } = props;
+	const { isInnerBlockSelected } = useFieldSelected( clientId );
 	const {
 		min = 0,
 		max = 100,
@@ -127,20 +130,23 @@ export default function SliderFieldEdit( props ) {
 		}`,
 	} );
 
-	const innerBlocksProps = useInnerBlocksProps( blockProps, {
-		allowedBlocks: [ 'jetpack/label', 'jetpack/input-range' ],
-		template: [
-			[
-				'jetpack/label',
-				{
-					label: __( 'Slider', 'jetpack-forms' ),
-					placeholder: __( 'Add label…', 'jetpack-forms' ),
-				},
+	const innerBlocksProps = useInnerBlocksProps(
+		{ className: 'jetpack-field__control' },
+		{
+			allowedBlocks: [ 'jetpack/label', 'jetpack/input-range' ],
+			template: [
+				[
+					'jetpack/label',
+					{
+						label: __( 'Slider', 'jetpack-forms' ),
+						placeholder: __( 'Add label…', 'jetpack-forms' ),
+					},
+				],
+				[ 'jetpack/input-range', {} ],
 			],
-			[ 'jetpack/input-range', {} ],
-		],
-		templateLock: 'all',
-	} );
+			templateLock: 'all',
+		}
+	);
 
 	return (
 		<>
@@ -155,7 +161,14 @@ export default function SliderFieldEdit( props ) {
 					'jetpack/field-slider-onChangeMaxLabel': onChangeMaxLabel,
 				} }
 			>
-				<div { ...innerBlocksProps } />
+				<div { ...blockProps }>
+					<div { ...innerBlocksProps } />
+					<JetpackFieldHints
+						attributes={ attributes }
+						setAttributes={ setAttributes }
+						isActive={ isSelected || isInnerBlockSelected }
+					/>
+				</div>
 			</BlockContextProvider>
 			<JetpackFieldControls
 				attributes={ attributes }
@@ -163,6 +176,7 @@ export default function SliderFieldEdit( props ) {
 				required={ required }
 				setAttributes={ setAttributes }
 				width={ width }
+				helpTextSupport
 				extraFieldSettings={ [
 					{
 						index: 2,

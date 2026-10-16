@@ -6,8 +6,8 @@
  * Author: Heart of Gold
  * Version: 1.0.0
  * Text Domain: jetpack
- * Requires at least: 5.0
- * Requires PHP: 7.0
+ * Requires at least: 7.0
+ * Requires PHP: 7.4
  *
  * @package automattic/jetpack
  * @since 4.1.2

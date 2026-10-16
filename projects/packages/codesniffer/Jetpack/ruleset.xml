@@ -82,7 +82,7 @@
 	<!-- Only include select VIP rules -->
 	<rule ref="WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath" />
 
-	<!-- Re-enable this rule that was disabled by WordPress-Extra now that we're on PHP 7.0+. -->
+	<!-- Re-enable this rule that was disabled by WordPress-Extra now that we're on PHP 7.4+. -->
 	<rule ref="Modernize.FunctionCalls.Dirname.Nested">
 		<severity>5</severity>
 	</rule>
@@ -124,7 +124,7 @@
 		<exclude name="WordPress.WP.CapitalPDangit" />
 	</rule>
 
-	<!-- Not useful until we can use PHP 8's named parameters. We're currently stuck on 7.0! -->
+	<!-- Not useful until we can use PHP 8's named parameters. We're still stuck on 7.4. -->
 	<rule ref="Universal.NamingConventions.NoReservedKeywordParameterNames">
 		<exclude name="Universal.NamingConventions.NoReservedKeywordParameterNames" />
 	</rule>

@@ -37,6 +37,16 @@ class Jetpack_Carousel_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tears down each test.
+	 *
+	 * @inheritDoc
+	 */
+	public function tear_down() {
+		$GLOBALS['wp_scripts'] = null;
+		parent::tear_down();
+	}
+
+	/**
 	 * Creates an image attachment populated with EXIF image metadata.
 	 *
 	 * @return WP_Post The attachment post object.
@@ -212,5 +222,170 @@ class Jetpack_Carousel_Test extends WP_UnitTestCase {
 		$this->assertArrayHasKey( 'data-attachment-id', $attr );
 		$this->assertArrayHasKey( 'data-permalink', $attr );
 		$this->assertArrayHasKey( 'data-image-title', $attr );
+	}
+
+	/**
+	 * An attachment with no comments should not carry a data-comments-count attribute,
+	 * so galleries without comments pay nothing for it.
+	 */
+	public function test_add_data_to_images_omits_comments_count_when_there_are_none() {
+		$attachment = $this->create_image_attachment_with_exif();
+
+		$attr = $this->instance->add_data_to_images( array(), $attachment );
+
+		$this->assertArrayNotHasKey( 'data-comments-count', $attr );
+	}
+
+	/**
+	 * The carousel shows its "has comments" badge from this attribute, so it must
+	 * carry the attachment's approved comment count.
+	 */
+	public function test_add_data_to_images_includes_comments_count() {
+		$attachment = $this->create_image_attachment_with_exif();
+
+		self::factory()->comment->create_post_comments( $attachment->ID, 2 );
+
+		$attr = $this->instance->add_data_to_images( array(), get_post( $attachment->ID ) );
+
+		$this->assertArrayHasKey( 'data-comments-count', $attr );
+		$this->assertSame( 2, $attr['data-comments-count'] );
+	}
+
+	/**
+	 * Empty strings and numeric zeroes are never rendered in the EXIF panel, so they
+	 * should not be serialised into the page either.
+	 */
+	public function test_add_data_to_images_strips_empty_image_meta_values() {
+		update_option( 'carousel_display_exif', 1 );
+		$attachment = $this->create_image_attachment_with_exif();
+
+		wp_update_attachment_metadata(
+			$attachment->ID,
+			array(
+				'width'      => 100,
+				'height'     => 100,
+				'file'       => 'jetpack-icon.jpg',
+				'image_meta' => array(
+					'camera'        => 'JetpackCam',
+					'aperture'      => '0',
+					'focal_length'  => '0',
+					'shutter_speed' => '0',
+					'iso'           => '0',
+					'credit'        => '',
+					'copyright'     => '',
+					'orientation'   => '1',
+				),
+			)
+		);
+
+		$attr = $this->instance->add_data_to_images( array(), $attachment );
+		$meta = json_decode( html_entity_decode( $attr['data-image-meta'], ENT_QUOTES ), true );
+
+		$this->assertSame(
+			array(
+				'camera'      => 'JetpackCam',
+				'orientation' => '1',
+			),
+			$meta
+		);
+	}
+
+	/**
+	 * When every metadata value is empty there is nothing to show, so the attribute
+	 * should be dropped rather than emitted full of zeroes.
+	 */
+	public function test_add_data_to_images_omits_image_meta_when_all_values_are_empty() {
+		update_option( 'carousel_display_exif', 1 );
+		$attachment = $this->create_image_attachment_with_exif();
+
+		wp_update_attachment_metadata(
+			$attachment->ID,
+			array(
+				'width'      => 100,
+				'height'     => 100,
+				'file'       => 'jetpack-icon.jpg',
+				'image_meta' => array(
+					'camera'        => '',
+					'aperture'      => '0',
+					'focal_length'  => '0',
+					'shutter_speed' => '0.0',
+					'iso'           => '0',
+				),
+			)
+		);
+
+		$attr = $this->instance->add_data_to_images( array(), $attachment );
+
+		$this->assertArrayNotHasKey( 'data-image-meta', $attr );
+	}
+
+	/**
+	 * Enqueues the carousel assets and returns the script data WordPress will print.
+	 *
+	 * @return string The localized jetpackCarouselStrings script.
+	 */
+	private function get_localized_carousel_strings() {
+		$GLOBALS['wp_scripts'] = null;
+		$this->instance->enqueue_assets();
+
+		return (string) wp_scripts()->get_data( 'jetpack-carousel', 'data' );
+	}
+
+	/**
+	 * With the comments area turned off, nothing reads the loading text, so it must not reach the page.
+	 */
+	public function test_enqueue_assets_omits_loading_comments_string_when_comments_disabled() {
+		update_option( 'carousel_display_comments', 0 );
+
+		$this->assertStringNotContainsString( 'Loading Comments', $this->get_localized_carousel_strings() );
+	}
+
+	/**
+	 * With the comments area turned on, the loading text is still passed to the page.
+	 */
+	public function test_enqueue_assets_includes_loading_comments_string_when_comments_enabled() {
+		update_option( 'carousel_display_comments', 1 );
+
+		$this->assertStringContainsString( '"loading_comments":"Loading Comments..."', $this->get_localized_carousel_strings() );
+	}
+
+	/**
+	 * The skeleton's loading element is only rendered when the comments area is turned on.
+	 */
+	public function test_add_carousel_skeleton_renders_loading_comments_only_when_comments_enabled() {
+		update_option( 'carousel_display_comments', 1 );
+		$this->get_localized_carousel_strings();
+		ob_start();
+		$this->instance->add_carousel_skeleton();
+		$enabled = ob_get_clean();
+
+		update_option( 'carousel_display_comments', 0 );
+		$this->instance = new Jetpack_Carousel();
+		$this->get_localized_carousel_strings();
+		ob_start();
+		$this->instance->add_carousel_skeleton();
+		$disabled = ob_get_clean();
+
+		$this->assertStringContainsString( '<span>Loading Comments...</span>', $enabled );
+		$this->assertStringNotContainsString( 'Loading Comments', $disabled );
+	}
+
+	/**
+	 * A filter can turn the comments area on while the option is off; the skeleton still needs its loading text.
+	 */
+	public function test_add_carousel_skeleton_renders_loading_comments_when_filter_enables_comments() {
+		update_option( 'carousel_display_comments', 0 );
+		$force_comments = static function ( $strings ) {
+			$strings['display_comments'] = 1;
+			return $strings;
+		};
+		add_filter( 'jp_carousel_localize_strings', $force_comments );
+		$this->get_localized_carousel_strings();
+		ob_start();
+		$this->instance->add_carousel_skeleton();
+		$output = ob_get_clean();
+		remove_filter( 'jp_carousel_localize_strings', $force_comments );
+
+		$this->assertStringContainsString( '<span>Loading Comments...</span>', $output );
 	}
 }

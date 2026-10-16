@@ -3,8 +3,8 @@ Contributors: automattic, annezazu, apokalyptik, bjorsch, briancolinger, dsmart,
 Tags: security, malware, virus, archive, back up, back ups, backup, backups, scanning, restore, wordpress backup, site backup, website backup
 Requires at least: 5.2
 Tested up to: 7.1
-Stable tag: 4.0.7
-Requires PHP: 7.2
+Stable tag: 5.0.0
+Requires PHP: 7.4
 License: GPLv2
 
 (DEPRECATED: Please install "Jetpack VaultPress Backup" instead) Jetpack VaultPress offers real-time backups, one-click restores, and premium support from WordPress experts.
@@ -32,13 +32,19 @@ View our full list of FAQs at [http://help.vaultpress.com/faq/](http://help.vaul
 A Jetpack VaultPress subscription is for a single WordPress site.
 
 == Changelog ==
-### 4.0.7 - 2026-04-10
+### 5.0.0 - 2026-10-14
 #### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency.
+- Remove unneeded development and documentation files from the published plugin.
+- Sidebar: Register the VaultPress menu item through Jetpack's admin menu API so it sorts with the other Jetpack pages.
+- Tested up to WordPress 7.1.
 - Update package dependencies.
 
+#### Removed
+- Updated PHP version requirements to PHP 7.4 or newer.
+
 #### Fixed
-- Ensure proper flags are used with `json_encode()`.
-- Avoid fatal error when receiving an error from the VaultPress service.
+- Phan: Address PhanPluginDuplicateConditionalNullCoalescing violations.
 
 --------
 

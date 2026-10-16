@@ -3,14 +3,16 @@ import { createInterpolateElement, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
 import { FC, useCallback } from 'react';
+import { assetUrl } from '../../assets/url';
 import WelcomeTourImage from './image';
-import TourImage1x2 from './images/jp_onboarding_tour_1-2x.webp';
-import TourImage1 from './images/jp_onboarding_tour_1.webp';
-import TourImage2x2 from './images/jp_onboarding_tour_2-2x.webp';
-import TourImage2 from './images/jp_onboarding_tour_2.webp';
-import TourImage4x2 from './images/jp_onboarding_tour_4-2x.webp';
-import TourImage4 from './images/jp_onboarding_tour_4.webp';
 import './styles.scss';
+
+const TourImage1 = assetUrl( 'components/onboarding-tour/images/jp_onboarding_tour_1.webp' );
+const TourImage1x2 = assetUrl( 'components/onboarding-tour/images/jp_onboarding_tour_1-2x.webp' );
+const TourImage2 = assetUrl( 'components/onboarding-tour/images/jp_onboarding_tour_2.webp' );
+const TourImage2x2 = assetUrl( 'components/onboarding-tour/images/jp_onboarding_tour_2-2x.webp' );
+const TourImage4 = assetUrl( 'components/onboarding-tour/images/jp_onboarding_tour_4.webp' );
+const TourImage4x2 = assetUrl( 'components/onboarding-tour/images/jp_onboarding_tour_4-2x.webp' );
 
 const removeQueryParam = ( paramName: string ) => {
 	const url = new URL( window.location.href );

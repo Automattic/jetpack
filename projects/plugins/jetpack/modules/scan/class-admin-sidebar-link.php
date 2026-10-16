@@ -1,6 +1,6 @@
 <?php
 /**
- * A class that adds a scan and backup link to the admin sidebar.
+ * A class that adds a scan link to the admin sidebar.
  *
  * @package automattic/jetpack
  */
@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\Scan;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
-use Automattic\Jetpack\My_Jetpack\Products\Backup;
+use Automattic\Jetpack\My_Jetpack\Products\Protect;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Core_Json_Api_Endpoints;
@@ -61,12 +61,14 @@ class Admin_Sidebar_Link {
 	}
 
 	/**
-	 * Adds a link to the Scan and Backup page.
+	 * Adds a link to the Scan page.
 	 */
 	public function maybe_add_admin_link() {
 		if ( ! $this->should_show_link() ) {
 			return;
 		}
+
+		$position = defined( Admin_Menu::class . '::POSITION_EXTERNAL' ) ? Admin_Menu::POSITION_EXTERNAL : 100;
 
 		if ( $this->should_show_scan() ) {
 			Admin_Menu::add_menu(
@@ -76,7 +78,8 @@ class Admin_Sidebar_Link {
 				'manage_options',
 				esc_url( Redirect::get_url( 'cloud-scan-history-wp-menu' ) ),
 				null,
-				$this->get_link_offset()
+				$position,
+				array( 'key' => 'jetpack-scan-cloud' )
 			);
 		}
 
@@ -89,50 +92,17 @@ class Admin_Sidebar_Link {
 				'manage_options',
 				esc_url( Redirect::get_url( 'cloud-scan-history-wp-menu' ) ),
 				null,
-				$this->get_link_offset()
+				$position,
+				array( 'key' => 'jetpack-scan-cloud' )
 			);
 		}
-
-		if ( $this->should_show_backup() ) {
-			Admin_Menu::add_menu(
-				/** "VaultPress Backup" is a product name, do not translate. */
-				'VaultPress Backup',
-				'VaultPress Backup <span aria-hidden="true">↗</span>',
-				'manage_options',
-				esc_url( Redirect::get_url( 'calypso-backups' ) ),
-				null,
-				$this->get_link_offset()
-			);
-		}
-	}
-
-	/**
-	 * We create a menu offset by counting all the pages that have a jetpack_admin_page set as the capability.
-	 *
-	 * This makes it so that the highlight of the pages works as expected. When you click on the Setting or Dashboard.
-	 *
-	 * @return int Menu offset.
-	 */
-	private function get_link_offset() {
-		global $submenu;
-		$offset = 17;
-
-		if ( ! array_key_exists( 'jetpack', $submenu ) ) {
-			return $offset;
-		}
-
-		foreach ( $submenu['jetpack'] as $link ) {
-			if ( 'jetpack_admin_page' !== $link[1] ) {
-				break;
-			}
-			++$offset;
-		}
-
-		return $offset;
 	}
 
 	/**
 	 * Refreshes the state cache via API call. Called via cron.
+	 *
+	 * Still warms the rewind state, which this class no longer reads itself:
+	 * Jetpack_Core_Json_Api_Endpoints::rewind_data() serves it from that cache.
 	 */
 	public function refresh_state_cache() {
 		Jetpack_Core_Json_Api_Endpoints::get_scan_state();
@@ -145,7 +115,7 @@ class Admin_Sidebar_Link {
 	 * @return boolean
 	 */
 	private function should_show_link() {
-		// Jetpack Scan/Backup is currently not supported on multisite.
+		// Jetpack Scan is currently not supported on multisite.
 		if ( is_multisite() ) {
 			return false;
 		}
@@ -156,18 +126,18 @@ class Admin_Sidebar_Link {
 			return false;
 		}
 
-		return $this->should_show_scan() || $this->should_show_backup() || $this->should_show_scan_history_only();
+		return $this->should_show_scan() || $this->should_show_scan_history_only();
 	}
 
 	/**
 	 * Check if we should display the Scan menu item.
 	 *
-	 * It will only be displayed if site has Scan enabled, is not an Atomic site, and the stand-alone Protect plugin is not active, because it will have a menu item of its own.
+	 * It will only be displayed if site has Scan enabled, is not an Atomic site, and no Protect page is registered, because that has a menu item of its own.
 	 *
 	 * @return boolean
 	 */
 	private function should_show_scan() {
-		return $this->has_scan() && ! $this->has_protect_plugin() && ! ( new Host() )->is_woa_site();
+		return $this->has_scan() && ! $this->has_protect_page() && ! ( new Host() )->is_woa_site();
 	}
 
 	/**
@@ -179,17 +149,6 @@ class Admin_Sidebar_Link {
 	 */
 	private function should_show_scan_history_only() {
 		return $this->has_scan() && ( new Host() )->is_woa_site() && get_option( 'wpcom_admin_interface' ) === 'wp-admin';
-	}
-
-	/**
-	 * Check if we should display the Backup menu item.
-	 *
-	 * It will only be displayed if site has Backup enabled and the stand-alone Backup plugin is not active, because it will have a menu item of its own.
-	 *
-	 * @return boolean
-	 */
-	private function should_show_backup() {
-		return $this->has_backup() && ! $this->has_backup_plugin();
 	}
 
 	/**
@@ -208,36 +167,15 @@ class Admin_Sidebar_Link {
 	}
 
 	/**
-	 * Detects if Protect plugin is active.
+	 * Detects if the Protect plugin or the Protect dashboard module provides the Protect page.
 	 *
 	 * @return boolean
 	 */
-	private function has_protect_plugin() {
-		return class_exists( 'Jetpack_Protect' );
-	}
-
-	/**
-	 * Detects if Backup is enabled.
-	 *
-	 * @return boolean
-	 */
-	private function has_backup() {
-		$this->maybe_refresh_transient_cache();
-		$rewind_state = get_transient( 'jetpack_rewind_state' );
-		if ( ! $rewind_state ) {
-			return false;
+	private function has_protect_page() {
+		if ( method_exists( Protect::class, 'has_protect_page' ) ) {
+			return Protect::has_protect_page();
 		}
-
-		return isset( $rewind_state->state ) && 'unavailable' !== $rewind_state->state;
-	}
-
-	/**
-	 * Detects if Backup plugin is active.
-	 *
-	 * @return boolean
-	 */
-	private function has_backup_plugin() {
-		return Backup::is_standalone_plugin_active();
+		return class_exists( 'Jetpack_Protect' ) || did_action( 'jetpack_protect_dashboard_initialized' );
 	}
 
 	/**

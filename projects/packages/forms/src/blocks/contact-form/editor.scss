@@ -1,4 +1,5 @@
 @use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "../shared/styles/field-hints" as *;
 
 :where(.jetpack-contact-form) {
 	border-width: 0;
@@ -268,7 +269,8 @@
 
 	.block-editor-block-variation-picker__variation {
 
-		svg path:not([fill="none"]) {
+		// Filling the paths of a stroke-based icon would blot it.
+		svg:not([stroke]) path:not([fill="none"]) {
 			fill: currentColor;
 		}
 	}
@@ -278,6 +280,27 @@
 
 		.components-select-control {
 			text-align: left;
+		}
+	}
+
+	// The placeholder root is a flex container with a block gap, so this
+	// wrapper re-creates it or the picker and the shells below lose spacing.
+	.form-placeholder__body {
+		display: flex;
+		flex-direction: column;
+		gap: var(--wp--style--block-gap, 1.5rem);
+	}
+
+	.form-placeholder__body.is-creating-form {
+		// Belt and braces: inert already covers every supported browser, but it is
+		// a no-op on React 19, where an empty-string attribute is dropped.
+		pointer-events: none;
+
+		// Dim the controls only. The instructions line doubles as the status
+		// message while the form is being created, so it stays at full contrast.
+		.block-editor-block-variation-picker__variations,
+		.form-placeholder__shell {
+			opacity: 0.5;
 		}
 	}
 }
@@ -375,11 +398,6 @@
 		margin-bottom: 0.25em;
 	}
 
-	.jetpack-field-label__suffix {
-		margin-inline-start: 0.25em;
-		font-weight: 700;
-	}
-
 	.components-toggle-control .components-base-control__field {
 		margin-bottom: 0;
 	}
@@ -443,6 +461,11 @@
 		display: flex;
 		align-items: center;
 		justify-content: flex-start;
+		margin: unset; /* Override default margin on classic theme wp-block */
+
+		.wp-block {
+			margin: unset; /* Override default margin on classic theme wp-block */
+		}
 	}
 
 }
@@ -833,7 +856,11 @@
 	.is-style-outlined &,
 	.is-style-animated & {
 
-		.jetpack-field {
+		// The outer field anchors absolutely-positioned labels for field types
+		// with no control wrapper; the control wrapper anchors them for the
+		// rest, so the label sizes to label+input and not to the hints below.
+		.jetpack-field,
+		.jetpack-field__control {
 			position: relative;
 		}
 	}
@@ -895,10 +922,6 @@
 				transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
 				margin: 0;
 				z-index: 1;
-
-				.jetpack-field-label__suffix {
-					font-weight: 300;
-				}
 			}
 
 			:where(.notched-label__filler) {
@@ -956,8 +979,7 @@
 					font-size: 0.68em;
 				}
 
-				.jetpack-field-label__input,
-				.jetpack-field-label__suffix {
+				.jetpack-field-label__input {
 					font-size: 0.8em;
 				}
 
@@ -1084,8 +1106,7 @@
 				transform: translateY(0);
 				top: calc(2px + var(--jetpack--contact-form--border-top-size, 1px));
 
-				.jetpack-field-label__input,
-				.jetpack-field-label__suffix {
+				.jetpack-field-label__input {
 					font-size: 0.75em;
 				}
 
@@ -1190,7 +1211,13 @@
 .jetpack-contact-form__responses-storage-panel,
 .jetpack-contact-form__integrations-panel {
 
-	.components-button.is-secondary {
+	/*
+	 * `ButtonLink` renders an anchor with @wordpress/ui classes rather than
+	 * `.components-button`, so it needs naming here to stay full-width alongside
+	 * the panel's other buttons.
+	 */
+	.components-button.is-secondary,
+	.jetpack-contact-form__view-responses-button {
 		width: 100%;
 		justify-content: center;
 	}

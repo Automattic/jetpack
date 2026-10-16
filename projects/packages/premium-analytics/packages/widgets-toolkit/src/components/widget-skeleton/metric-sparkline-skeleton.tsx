@@ -14,17 +14,9 @@ export interface MetricSparklineSkeletonProps {
 }
 
 /**
- * Loading shape for the widgets that put a headline metric over a sparkline:
- * the headline, and the sparkline band filling what it leaves.
- *
- * The prototype stacks a label under the value, but none of these widgets
- * render one — `popular-days` sits its count beside the weekday on the same
- * line, and the two totals widgets have no second line at all. So the count is
- * opt-in and inline, and drawing it is the caller's call.
- *
- * @param props                   - Component props.
- * @param props.withHeadlineCount - Whether the headline carries a trailing count.
- * @return The rendered skeleton.
+ * Loading shape for the widgets that put a headline metric over a sparkline. The
+ * prototype stacks a label under the value, but none of these widgets render one, so
+ * the trailing count is opt-in and inline instead.
  */
 export function MetricSparklineSkeleton( {
 	withHeadlineCount = false,

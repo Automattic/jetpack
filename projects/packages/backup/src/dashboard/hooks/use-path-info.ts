@@ -1,3 +1,4 @@
+import { formatNumber } from '@automattic/number-formatters';
 import { useQuery } from '@tanstack/react-query';
 import { _x, sprintf } from '@wordpress/i18n';
 import { fetchPathInfo } from '../data/api/path-info';
@@ -50,8 +51,16 @@ export function toFileDetails( raw: PathInfoResponse | undefined ): FileDetails 
 	const lastModified =
 		mtimeDate && ! Number.isNaN( mtimeDate.getTime() ) ? mtimeDate.toISOString() : null;
 
+	// A bare `Number()` turns `null`, `''` and whitespace into a
+	// real-looking `0`, which a genuine zero-byte file has to stay apart from.
+	const rawSize = raw.size;
+	const byteCount =
+		typeof rawSize === 'number' || ( typeof rawSize === 'string' && rawSize.trim() !== '' )
+			? Number( rawSize )
+			: NaN;
+
 	return {
-		size: typeof raw.size === 'number' ? raw.size : null,
+		size: Number.isFinite( byteCount ) ? byteCount : null,
 		hash: raw.hash ? raw.hash : null,
 		lastModified,
 	};
@@ -87,7 +96,9 @@ export function formatFileSize( bytes: number ): string {
 		unit++;
 	}
 
-	const rounded = String( Math.round( value * 10 ) / 10 );
+	const rounded = formatNumber( value, {
+		numberFormatOptions: { maximumFractionDigits: 1, useGrouping: false },
+	} );
 
 	switch ( unit ) {
 		case 1:

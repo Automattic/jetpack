@@ -1,15 +1,43 @@
 import { buildChartTheme } from '@visx/xychart';
 import { useMemo } from 'react';
 import { useGlobalChartsTheme } from '../providers';
+import { CATALOG_POINTERS } from '../providers/chart-context/private/catalog-pointers';
 import { useChartScopeElement } from '../providers/chart-scope';
-import { createCssVariableResolver } from '../utils';
+import { createCssVariableResolver, resolveFontSize } from '../utils';
 import type { SeriesData } from '../types';
+
+type LabelStyle = { fontSize?: number | string };
+
+const STARTS_LIKE_A_NUMBER = /^[+-]?[\d.]/;
+const NON_NEGATIVE_CSS_NUMBER = /^\+?(?:\d*\.)?\d+(?:e[+-]?\d+)?(?:[a-z]+|%)?$/i;
+
+const isRenderableFontSize = ( fontSize: number | string ): boolean => {
+	if ( typeof fontSize === 'number' ) {
+		return resolveFontSize( fontSize ) !== undefined;
+	}
+	// A pattern, not `CSS.supports`, so SSR and the browser agree; `resolveFontSize` would drop renderable `rem`. Keywords, `var()` and `calc()` pass through.
+	const value = fontSize.trim();
+	if ( ! STARTS_LIKE_A_NUMBER.test( value ) ) {
+		return true;
+	}
+	return NON_NEGATIVE_CSS_NUMBER.test( value ) && Number.isFinite( parseFloat( value ) );
+};
+
+// visx writes `fontSize` straight onto `<text>`, where an invalid one renders at the browser's 16px default; dropping it lets visx use its own default.
+const withRenderableFontSize = < T extends LabelStyle >( style?: T ): T | undefined => {
+	if ( style?.fontSize === undefined || isRenderableFontSize( style.fontSize ) ) {
+		return style;
+	}
+	const rest = { ...style };
+	delete rest.fontSize;
+	return rest;
+};
 
 export const useXYChartTheme = ( data: SeriesData[] ) => {
 	const theme = useGlobalChartsTheme();
 	const scopeElement = useChartScopeElement();
 
-	// The only thing the theme takes from `data` is the series strokes, so key the memo on those rather than on the array's identity. A caller passing an inline literal — `<LineChart data={ [ … ] } />`, which the stories and several consumers do — otherwise rebuilds the whole theme on every render. Serialised rather than joined: a stroke can be `rgba(0, 0, 0, 0.5)` or `var(--brand, #fff)`, and any separator that reads naturally inside a colour cannot round-trip.
+	// The only thing the theme takes from `data` is the series strokes, so key the memo on those rather than on the array's identity. A caller passing an inline literal — `<LineChart data={ [ … ] } />`, which the stories and several consumers do — otherwise rebuilds the whole theme on every render. Serialized rather than joined: a stroke can be `rgba(0, 0, 0, 0.5)` or `var(--brand, #fff)`, and any separator that reads naturally inside a color cannot round-trip.
 	const seriesColorKey = JSON.stringify(
 		( data ?? [] )
 			.map( series => series.options?.stroke )
@@ -17,35 +45,40 @@ export const useXYChartTheme = ( data: SeriesData[] ) => {
 	);
 
 	return useMemo( () => {
-		// visx applies grid, axis, and tick-label colours as SVG presentation attributes, where CSS var() cannot resolve. Resolve the catalog token against the chart's own scope element — never :root — so this reads any override set inside the provider tree, the same one a CSS-painted element would inherit.
-		//
-		// One resolver per theme build, so the five roles below share a single getComputedStyle call rather than taking one each: this memo re-runs only when the scope element attaches or a series colour changes, which for a dashboard of charts is the difference between two style queries per chart and ten.
+		// Only what is read as a string is resolved: the palette and `backgroundColor`.
+		// At the chart's scope element, never :root, so an override inside the provider tree is seen.
+		// One resolver for both, so they share a single getComputedStyle call.
 		const resolve = createCssVariableResolver( scopeElement );
 		const resolveColor = ( value?: string ): string | undefined =>
-			value ? resolve( value ) ?? value : value;
+			value ? ( resolve( value ) ?? value ) : value;
 
 		const seriesColors: string[] = JSON.parse( seriesColorKey );
 
+		// visx uses this as the default stroke for a series without one, so an
+		// unresolved entry paints nothing.
+		const paletteColors = [ ...seriesColors, ...CATALOG_POINTERS.series ]
+			.map( color => resolveColor( color ) )
+			.filter( ( color ): color is string => Boolean( color ) && ! color.includes( 'var(' ) );
+
+		// visx's fallbacks for whichever axis or grid style object it is not given. All four are
+		// supplied, so these reach nothing; they stay because the config type requires them.
 		return buildChartTheme( {
 			...theme,
-			colors: [ ...seriesColors, ...( theme.colors ?? [] ) ],
-			backgroundColor: resolveColor( theme.backgroundColor ),
-			gridStyles: theme.gridStyles && {
-				...theme.gridStyles,
-				stroke: resolveColor( theme.gridStyles.stroke ),
+			gridColor: '',
+			gridColorDark: '',
+			colors: paletteColors,
+			backgroundColor: resolveColor( CATALOG_POINTERS.background ),
+			htmlLabel: { color: CATALOG_POINTERS.labelAxis },
+			gridStyles: { ...theme.gridStyles, stroke: CATALOG_POINTERS.grid },
+			xAxisLineStyles: { ...theme.xAxisLineStyles, stroke: CATALOG_POINTERS.axisX },
+			xTickLineStyles: { ...theme.xTickLineStyles, stroke: CATALOG_POINTERS.tickX },
+			yAxisLineStyles: { stroke: CATALOG_POINTERS.axisY },
+			yTickLineStyles: { stroke: CATALOG_POINTERS.tickY },
+			svgLabelSmall: {
+				...withRenderableFontSize( theme.svgLabelSmall ),
+				fill: CATALOG_POINTERS.labelAxis,
 			},
-			xAxisLineStyles: theme.xAxisLineStyles && {
-				...theme.xAxisLineStyles,
-				stroke: resolveColor( theme.xAxisLineStyles.stroke ),
-			},
-			xTickLineStyles: theme.xTickLineStyles && {
-				...theme.xTickLineStyles,
-				stroke: resolveColor( theme.xTickLineStyles.stroke ),
-			},
-			svgLabelSmall: theme.svgLabelSmall && {
-				...theme.svgLabelSmall,
-				fill: resolveColor( theme.svgLabelSmall.fill ),
-			},
+			svgLabelBig: withRenderableFontSize( theme.svgLabelBig ),
 		} );
 	}, [ theme, seriesColorKey, scopeElement ] );
 };

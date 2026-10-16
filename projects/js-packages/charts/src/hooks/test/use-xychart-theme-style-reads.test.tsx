@@ -4,7 +4,7 @@ import { useXYChartTheme } from '../use-xychart-theme';
 import type { SeriesData } from '../../types';
 import type { ReactNode } from 'react';
 
-// The theme resolves five catalog roles — background, grid, axis, tick and axis label. Each `getComputedStyle` call can force the browser to flush pending style, and this memo re-runs only when the scope element attaches or a series colour changes, so a dashboard mounting N charts pays the count below N times over.
+// The theme resolves the background role and the five palette slots. Each `getComputedStyle` call can force the browser to flush pending style, and this memo re-runs only when the scope element attaches or a series color changes, so a dashboard mounting N charts pays the count below N times over.
 const STABLE_DATA: SeriesData[] = [];
 
 describe( 'useXYChartTheme style reads', () => {
@@ -13,7 +13,6 @@ describe( 'useXYChartTheme style reads', () => {
 
 	beforeEach( () => {
 		scope = document.createElement( 'div' );
-		scope.style.setProperty( '--a8c-charts-color-grid', '#00ff00' );
 		document.body.appendChild( scope );
 		getComputedStyleSpy = jest.spyOn( window, 'getComputedStyle' );
 	} );
@@ -33,14 +32,13 @@ describe( 'useXYChartTheme style reads', () => {
 
 	it( 'reads every role from one computed-style snapshot, not one per role', () => {
 		scope.style.setProperty( '--a8c-charts-color-background', '#111111' );
-		scope.style.setProperty( '--a8c-charts-color-axis', '#222222' );
+		scope.style.setProperty( '--a8c-charts-color-series-2', '#222222' );
 
 		const { result } = renderWithScope();
 
 		expect( getComputedStyleSpy ).toHaveBeenCalledTimes( 1 );
 		expect( result.current.backgroundColor ).toBe( '#111111' );
-		expect( result.current.gridStyles.stroke ).toBe( '#00ff00' );
-		expect( result.current.axisStyles.x.bottom.axisLine.stroke ).toBe( '#222222' );
+		expect( result.current.colors ).toContain( '#222222' );
 	} );
 
 	it( 'does not re-read styles when the hook re-renders with the same inputs', () => {
@@ -74,16 +72,25 @@ describe( 'useXYChartTheme style reads', () => {
 		expect( result.current.colors[ 0 ] ).toBe( 'rebeccapurple' );
 	} );
 
-	// The memo key serialises the strokes rather than joining them, so a colour containing a comma or a space survives the round-trip intact.
+	// The memo key serializes the strokes rather than joining them, so a color containing a comma or a space survives the round-trip intact. `rgba(0, 0, 0, 0.5)` is the one that proves it: it holds both separators and comes back whole.
+	//
+	// The `var()` entry resolves to its fallback rather than passing through, which is the point of resolving the palette at all — visx paints these as SVG presentation attributes, where a `var()` resolves to nothing.
 	it( 'keeps a stroke that contains separators intact', () => {
 		const { result } = renderWithScope( [
 			{ label: 'A', options: { stroke: 'rgba(0, 0, 0, 0.5)' }, data: [] },
 			{ label: 'B', options: { stroke: 'var(--brand, #fff)' }, data: [] },
 		] as unknown as SeriesData[] );
 
-		expect( result.current.colors.slice( 0, 2 ) ).toEqual( [
-			'rgba(0, 0, 0, 0.5)',
-			'var(--brand, #fff)',
-		] );
+		expect( result.current.colors.slice( 0, 2 ) ).toEqual( [ 'rgba(0, 0, 0, 0.5)', '#fff' ] );
+	} );
+
+	// Four of the five palette slots carry no catalog default, so in jsdom they resolve to nothing. Passing those to visx unresolved would make them its default stroke for any series without an explicit one, painting nothing at all.
+	it( 'drops palette entries that resolve to nothing', () => {
+		const { result } = renderWithScope( [] );
+
+		expect( result.current.colors ).not.toEqual(
+			expect.arrayContaining( [ expect.stringContaining( 'var(' ) ] )
+		);
+		expect( result.current.colors.length ).toBeGreaterThan( 0 );
 	} );
 } );

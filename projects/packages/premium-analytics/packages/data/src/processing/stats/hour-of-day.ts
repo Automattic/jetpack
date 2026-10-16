@@ -1,14 +1,9 @@
 /**
- * External dependencies
- */
-import { getDatePart } from '@jetpack-premium-analytics/datetime';
-/**
  * Internal dependencies
  */
 import { StatsResponseShapeError } from '../../utils/api-error';
 import { safeParseFloat, safeParseInt } from '../../utils/parsing';
 import { coerceStatsArray, coerceStatsRecord } from './utils';
-import type { StatsQueryParams } from '../../utils/stats-params';
 
 export type StatsHourOfDayBucket = {
 	hour: number;
@@ -16,8 +11,6 @@ export type StatsHourOfDayBucket = {
 };
 
 export type StatsHourOfDayReport = {
-	startDate?: string;
-	date?: string;
 	/** Calendar days the buckets sum over, inclusive of both ends. */
 	days: number;
 	buckets: StatsHourOfDayBucket[];
@@ -33,14 +26,10 @@ const HOUR_LABEL = /^\d{1,2}$/;
  * Normalize an hour-of-day response into 24 fixed-position buckets.
  *
  * @param  response - Raw proxy response.
- * @param  query    - Request params used when the response omits its range.
  * @return The 24-bucket report.
  * @throws {StatsResponseShapeError} When the response is not an `hour-of-day` payload.
  */
-export function sanitizeStatsHourOfDayResponse(
-	response: unknown,
-	query?: StatsQueryParams
-): StatsHourOfDayReport {
+export function sanitizeStatsHourOfDayResponse( response: unknown ): StatsHourOfDayReport {
 	const payload = coerceStatsRecord( response );
 
 	// Another dimension folds the same fields into different buckets, so a mismatched
@@ -68,9 +57,8 @@ export function sanitizeStatsHourOfDayResponse(
 		throw new StatsResponseShapeError( 'Expected hour-of-day data to be an array' );
 	}
 
-	// The endpoint always reports the range it actually read, so take its count
-	// rather than re-deriving one from the echoed dates. Without it the buckets
-	// cannot be averaged, which is all the widget shows.
+	// The endpoint reports the range it actually read, so take its count rather
+	// than re-deriving one from the echoed dates.
 	const days = safeParseInt( payload.days );
 
 	if ( days < 1 ) {
@@ -97,13 +85,7 @@ export function sanitizeStatsHourOfDayResponse(
 		}
 	} );
 
-	const responseStartDate = getDatePart( payload.start_date );
-	const responseDate = getDatePart( payload.date );
-
-	// Prefer the actual range returned by the endpoint and normalize datetime values.
 	return {
-		startDate: responseStartDate || getDatePart( query?.start_date ),
-		date: responseDate || getDatePart( query?.date ),
 		days,
 		buckets: views.map( ( value, hour ) => ( { hour, views: value } ) ),
 	};

@@ -1,18 +1,40 @@
 import { DataViews } from '@wordpress/dataviews';
-import { dateI18n } from '@wordpress/date';
-import { useCallback, useMemo } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import { Icon, cloud, image, post, plugins as pluginsIcon, color, info } from '@wordpress/icons';
-import { Card, Stack, Text } from '@wordpress/ui';
+import {
+	createContext,
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+} from '@wordpress/element';
+import { __, _n, sprintf } from '@wordpress/i18n';
+import {
+	Icon,
+	cloud,
+	image,
+	post,
+	plugins as pluginsIcon,
+	color,
+	info,
+	rotateLeft,
+} from '@wordpress/icons';
+import { Badge, Card, Link, Stack, Text } from '@wordpress/ui';
+import { formatDuration } from '../../data/durations';
+import { formatStorageSize } from '../../data/storage-units';
 import { ACTIVITY_LOG_DEFAULT_PER_PAGE, useActivityLog } from '../../hooks/use-activity-log';
+import { useBackupRuns, type BackupRunLookup } from '../../hooks/use-backup-runs';
 import { isBackupItem } from '../../types/activity';
 import QueryError from '../query-error';
+import { formatRowDate } from './row-date';
+import { useNewBackupRow } from './use-new-backup-row';
 import './style.scss';
+import type { ActivitySortOrder } from '../../data/api/activity-log';
 import type { ActivityItem, ActivityKind } from '../../types/activity';
 import type { Field, View } from '@wordpress/dataviews';
 
 const ICON_BY_KIND: Record< ActivityKind, typeof cloud > = {
 	backup: cloud,
+	restore: rotateLeft,
 	upload: image,
 	post,
 	'plugin-update': pluginsIcon,
@@ -21,12 +43,38 @@ const ICON_BY_KIND: Record< ActivityKind, typeof cloud > = {
 	other: info,
 };
 
+// Context rather than a closure in `fields`: a new `render` would remount every cell.
+const BackupRunsContext = createContext< BackupRunLookup >( () => null );
+
 type Props = {
 	selectedId: string | null;
 	onSelect: ( id: string ) => void;
 	view: View;
 	onChangeView: ( next: View ) => void;
+	/** Count of backup runs watched to the end; a change marks the new row. */
+	finishedRuns: number;
 };
+
+/**
+ * The query a DataViews view is asking the server for.
+ *
+ * Exported so Overview derives the same cache key for `useActivityById` instead
+ * of repeating the arithmetic and drifting into a second, needless request.
+ *
+ * @param view - DataViews view state.
+ * @return The page, page size and direction to request.
+ */
+export function activityQueryArgs( view: View ): {
+	page: number;
+	pageSize: number;
+	sortOrder: ActivitySortOrder;
+} {
+	return {
+		page: view.page ?? 1,
+		pageSize: view.perPage ?? ACTIVITY_LOG_DEFAULT_PER_PAGE,
+		sortOrder: view.sort?.direction === 'asc' ? 'asc' : 'desc',
+	};
+}
 
 /**
  * Returns the row's stable id for DataViews selection bookkeeping.
@@ -42,13 +90,11 @@ function getRowId( item: ActivityItem ): string {
 }
 
 /**
- * Renders the icon tile that DataViews shows in the `media` slot of the
- * list layout — a small white square with a thin border, matching the
- * legacy admin's row affordance.
+ * Renders the icon that DataViews shows in the `media` slot of the list layout.
  *
  * @param props      - Component props.
  * @param props.item - The activity item to render an icon for.
- * @return The rendered icon tile.
+ * @return The rendered icon.
  */
 function MediaCell( { item }: { item: ActivityItem } ) {
 	return (
@@ -59,26 +105,111 @@ function MediaCell( { item }: { item: ActivityItem } ) {
 }
 
 /**
- * Descriptions cell — single muted line with the timestamp + optional
- * summary, joined by a thin separator.
+ * The row's timestamp, formatted once for both the name and the visible line.
+ *
+ * Drift between the two would announce a different restore point than the one
+ * on screen, on the control that picks what Restore and Download act on.
+ *
+ * @param item - The activity item.
+ * @return The formatted timestamp.
+ */
+function rowDate( item: ActivityItem ): string {
+	return formatRowDate( item.publishedAt );
+}
+
+/**
+ * Title cell — the visible summary, plus the timestamp for assistive tech.
+ *
+ * DataViews points the row's `aria-labelledby` at this cell alone, so without
+ * the date every row announces the same sentence and a screen-reader user
+ * cannot tell which restore point they are about to open, download or restore.
+ *
+ * @param props       - Component props.
+ * @param props.item  - The activity item.
+ * @param props.isNew - Whether to flag the row as a just-finished backup.
+ * @return The rendered title.
+ */
+function TitleCell( { item, isNew }: { item: ActivityItem; isNew: boolean } ) {
+	return (
+		<>
+			<Text variant="body-md" render={ <span /> }>
+				{ item.title }
+			</Text>
+			{ isNew && (
+				<Badge intent="none" className="jpb-activity-list__new">
+					{ __( 'New', 'jetpack-backup-pkg' ) }
+				</Badge>
+			) }
+			{ /* JSX drops the newline, and the name computation adds nothing back. */ }{ ' ' }
+			<span className="jpb-visually-hidden">{ rowDate( item ) }</span>
+		</>
+	);
+}
+
+/**
+ * A backup's size and duration as one line, in whichever of the two is known.
+ *
+ * @param run - The backup's run.
+ * @return The line, or an empty string when neither is known.
+ */
+function runMeta( run: NonNullable< ReturnType< BackupRunLookup > > ): string {
+	const parts = [
+		run.siteSize !== null && formatStorageSize( run.siteSize ),
+		run.duration !== null && formatDuration( run.duration, 'short' ),
+	].filter( ( part ): part is string => Boolean( part ) );
+
+	return parts.length === 2
+		? sprintf(
+				/* translators: %1$s and %2$s: two facts about one backup, such as its size and how long it took. */
+				__( '%1$s · %2$s', 'jetpack-backup-pkg' ),
+				parts[ 0 ],
+				parts[ 1 ]
+			)
+		: ( parts[ 0 ] ?? '' );
+}
+
+/**
+ * Descriptions cell — single muted line with the timestamp, a backup's
+ * size and duration once known, and the optional summary.
  *
  * @param props      - Component props.
  * @param props.item - The activity item.
  * @return The rendered description.
  */
 function DescriptionCell( { item }: { item: ActivityItem } ) {
+	const runFor = useContext( BackupRunsContext );
+	const run = isBackupItem( item ) ? runFor( item ) : null;
 	return (
-		<Stack direction="row" align="center" gap="xs">
+		<Stack direction="row" align="center" gap="md" className="jpb-activity-list__description">
 			<Text variant="body-sm" className="jpb-text-muted jpb-activity-list__date">
-				{ dateI18n( 'M j, Y, g:i A', item.publishedAt, undefined ) }
+				{ rowDate( item ) }
 			</Text>
+			{ /* Before the summary, which is the part that truncates. */ }
+			{ run && (
+				<Text variant="body-sm" className="jpb-text-muted jpb-activity-list__run">
+					{ runMeta( run ) }
+				</Text>
+			) }
+			{ /*
+			 * `auto`, not `ltr`: WPCOM may legitimately translate this line into RTL.
+			 * Same everywhere `stats` and `summary` are rendered.
+			 */ }
 			{ item.summary && (
-				<Text variant="body-sm" className="jpb-text-muted jpb-activity-list__summary">
+				<Text variant="body-sm" className="jpb-text-muted jpb-activity-list__summary" dir="auto">
 					{ item.summary }
 				</Text>
 			) }
 		</Stack>
 	);
+}
+
+/**
+ * The Activity Log admin URL PHP emitted, or null when that page is not registered.
+ *
+ * @return The URL, or null.
+ */
+function getActivityLogUrl(): string | null {
+	return window.JPBACKUP_DASHBOARD_STATE?.activityLogUrl || null;
 }
 
 /**
@@ -98,30 +229,97 @@ function DescriptionCell( { item }: { item: ActivityItem } ) {
  * @param props.onSelect     - Callback invoked with the new selection id when a row is activated.
  * @param props.view         - DataViews view state.
  * @param props.onChangeView - Callback invoked when the view state changes.
+ * @param props.finishedRuns - Count of backup runs watched to the end.
  * @return The rendered list.
  */
-export default function ActivityList( { selectedId, onSelect, view, onChangeView }: Props ) {
-	const page = view.page ?? 1;
-	const perPage = view.perPage ?? ACTIVITY_LOG_DEFAULT_PER_PAGE;
-	const { items, totalItems, totalPages, isLoading, isFetching, error, refetch } = useActivityLog( {
+export default function ActivityList( {
+	selectedId,
+	onSelect,
+	view,
+	onChangeView,
+	finishedRuns,
+}: Props ) {
+	const { page, pageSize, sortOrder } = activityQueryArgs( view );
+	const {
+		items,
+		totalItems,
+		totalPages,
+		isLoading,
+		isFetching,
+		isPlaceholderData,
+		isPaused,
+		error,
+		refetch,
+	} = useActivityLog( {
 		page,
-		pageSize: perPage,
+		pageSize,
+		sortOrder,
 	} );
+	const runFor = useBackupRuns( items.filter( isBackupItem ) );
+
+	const onNewestPage = page === 1 && sortOrder === 'desc';
+	const isReady = onNewestPage && ! isLoading && ! isPlaceholderData;
+	const topBackupId = isReady ? ( items.find( isBackupItem )?.rewindId ?? null ) : null;
+	const { newRowId, clearNewRow } = useNewBackupRow( {
+		finishedRuns,
+		topBackupId,
+		isReady,
+	} );
+
+	// DataViews' `SortDirectionControl` spreads `...view` and replaces only
+	// `sort`, so without this a reorder strands the reader on page 3 of an
+	// ordering they have not seen the start of.
+	const handleChangeView = useCallback(
+		( next: View ) => {
+			const reordered = ( next.sort?.direction ?? 'desc' ) !== sortOrder;
+			onChangeView( reordered ? { ...next, page: 1 } : next );
+		},
+		[ onChangeView, sortOrder ]
+	);
+
+	// A remembered page can outlive its log, and DataViews hides the footer at one
+	// page — so nothing on screen would offer a way back. `totalPages` is null in
+	// flight, paused offline and failed; a literal 0 is what `>= 1` guards against.
+	useEffect( () => {
+		if (
+			! isFetching &&
+			! isPaused &&
+			! error &&
+			totalPages !== null &&
+			totalPages >= 1 &&
+			page > totalPages
+		) {
+			onChangeView( { ...view, page: totalPages } );
+		}
+	}, [ isFetching, isPaused, error, totalPages, page, view, onChangeView ] );
+
+	// Where focus goes once a successful retry takes the error, and its button, away.
+	const headingRef = useRef< HTMLHeadingElement >( null );
 
 	// DataViews shows its own "No results" whenever `data` is empty, and a
 	// failed request leaves it empty — so without this a 5xx tells the
 	// reader their site has no activity. The `empty` slot is the same node
 	// that copy renders in, so replacing it puts the reason exactly where
 	// the wrong answer used to be.
-	const emptyState = error ? (
+	const failure = error ? (
 		<QueryError
 			title={ __( "We couldn't load your site's activity.", 'jetpack-backup-pkg' ) }
 			error={ error }
 			onRetry={ refetch }
 			isRetrying={ isFetching }
+			returnFocusTo={ headingRef }
 		/>
 	) : undefined;
 
+	// A stale page DataViews kept, or a merged restore row, leaves the `empty`
+	// slot unrendered — so a failure then needs somewhere else to report from.
+	const reportsAboveList = failure !== undefined && items.length > 0;
+
+	// Every field opts out of filtering, and all but `description` out of sorting:
+	// `/activity/rewindable` takes no search term and orders only on the event
+	// timestamp, so any other control would be a label the server cannot honour.
+	// Zero filters also keeps `FiltersToggle` unrendered, and with it a private
+	// `@wordpress/components` API that drops the dashboard to its error boundary.
 	const fields: Field< ActivityItem >[] = useMemo(
 		() => [
 			{
@@ -131,13 +329,16 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 				render: MediaCell,
 				enableHiding: false,
 				enableSorting: false,
+				filterBy: false,
 			},
 			{
 				id: 'title',
 				type: 'text',
 				label: __( 'Title', 'jetpack-backup-pkg' ),
+				render: ( { item } ) => <TitleCell item={ item } isNew={ getRowId( item ) === newRowId } />,
 				getValue: ( { item } ) => item.title,
-				enableGlobalSearch: true,
+				enableSorting: false,
+				filterBy: false,
 			},
 			{
 				id: 'description',
@@ -145,24 +346,23 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 				label: __( 'When', 'jetpack-backup-pkg' ),
 				render: DescriptionCell,
 				getValue: ( { item } ) =>
-					`${ dateI18n( 'M j, Y, g:i A', item.publishedAt, undefined ) }${
-						item.summary ? ` ${ item.summary }` : ''
-					}`,
-				enableGlobalSearch: true,
+					`${ rowDate( item ) }${ item.summary ? ` ${ item.summary }` : '' }`,
 				enableHiding: false,
+				filterBy: false,
 			},
 		],
-		[]
+		[ newRowId ]
 	);
 
 	const onChangeSelection = useCallback(
 		( next: string[] ) => {
 			const [ first ] = next;
 			if ( first ) {
+				clearNewRow();
 				onSelect( first );
 			}
 		},
-		[ onSelect ]
+		[ onSelect, clearNewRow ]
 	);
 
 	const selection = useMemo< string[] >(
@@ -176,30 +376,83 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 	// itself told DataViews nothing was happening while the reader looked
 	// at rows from the page they had just left.
 	//
-	// This cannot swallow `emptyState`: DataViews initialises
+	// This cannot swallow the `empty` slot: DataViews initialises
 	// `hasInitiallyLoaded` to `!isLoading` and latches it true on the first
 	// non-loading render, and the spinner branch that would replace the
-	// `empty` slot is gated on `!hasInitiallyLoaded`. Past the first load a
-	// truthy `isLoading` only reaches the footer, which marks itself inert
-	// while the next page is fetched.
-	const isBusy = isLoading || isFetching;
+	// `empty` slot is gated on `!hasInitiallyLoaded`.
+	//
+	// Placeholder data is the qualifier, not `isFetching` alone: DataViews
+	// puts `inert` on the composite that owns every row, so reporting a
+	// background refetch — the one a finished backup triggers — would blur
+	// the reader out of the list mid-read. A page or sort change still
+	// inerts them, and the footer's own copy of this flag inerts the
+	// control the reader just used; DataViews offers no way to separate
+	// those, so that case is unchanged rather than fixed.
+	const isBusy = isLoading || ( isFetching && isPlaceholderData );
+	const activityLogUrl = getActivityLogUrl();
 
 	return (
-		<Card.Root className="jpb-activity-list" aria-busy={ isBusy }>
-			<DataViews< ActivityItem >
-				data={ items }
-				fields={ fields }
-				view={ view }
-				onChangeView={ onChangeView }
-				paginationInfo={ { totalItems, totalPages } }
-				defaultLayouts={ { list: {} } }
-				getItemId={ getRowId }
-				selection={ selection }
-				onChangeSelection={ onChangeSelection }
-				isLoading={ isBusy }
-				search={ false }
-				empty={ emptyState }
-			/>
+		<Card.Root
+			className={ `jpb-activity-list${
+				failure && ! reportsAboveList ? ' jpb-activity-list--failed' : ''
+			}` }
+			aria-busy={ isBusy }
+		>
+			{ reportsAboveList && <div className="jpb-activity-list__failure">{ failure }</div> }
+			<BackupRunsContext.Provider value={ runFor }>
+				<DataViews< ActivityItem >
+					data={ items }
+					fields={ fields }
+					view={ view }
+					onChangeView={ handleChangeView }
+					// Typed as a number upstream, but the page clamp treats null as "unknown":
+					// https://github.com/WordPress/gutenberg/pull/82244
+					paginationInfo={ { totalItems, totalPages: totalPages as number } }
+					defaultLayouts={ { list: {} } }
+					getItemId={ getRowId }
+					selection={ selection }
+					onChangeSelection={ onChangeSelection }
+					isLoading={ isBusy }
+					search={ false }
+					empty={ reportsAboveList ? undefined : failure }
+				>
+					<Stack
+						direction="row"
+						align="start"
+						justify="space-between"
+						gap="sm"
+						className="jpb-activity-list__toolbar"
+					>
+						<Stack direction="column" gap="xs" className="jpb-activity-list__heading">
+							<Text variant="heading-lg" render={ <h2 /> } ref={ headingRef } tabIndex={ -1 }>
+								{ __( 'Latest backups', 'jetpack-backup-pkg' ) }
+							</Text>
+							<Text variant="body-sm" className="jpb-text-muted">
+								{ sprintf(
+									/* translators: %d: number of restore points shown on each page of the list. */
+									_n(
+										"Restore points from your site's activity. %d per page.",
+										"Restore points from your site's activity. %d per page.",
+										pageSize,
+										'jetpack-backup-pkg'
+									),
+									pageSize
+								) }
+							</Text>
+							{ activityLogUrl && (
+								<Text variant="body-sm">
+									<Link href={ activityLogUrl }>
+										{ __( 'See all activity in the Activity Log', 'jetpack-backup-pkg' ) }
+									</Link>
+								</Text>
+							) }
+						</Stack>
+						<DataViews.ViewConfig />
+					</Stack>
+					<DataViews.Layout />
+					<DataViews.Footer />
+				</DataViews>
+			</BackupRunsContext.Provider>
 		</Card.Root>
 	);
 }

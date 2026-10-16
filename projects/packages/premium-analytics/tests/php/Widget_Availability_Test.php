@@ -10,10 +10,11 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Cache;
 use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 require_once __DIR__ . '/../../src/widget-types.php';
-require_once __DIR__ . '/../../src/dashboard-sections.php';
+require_once __DIR__ . '/../../src/default-dashboard-sections.php';
 require_once __DIR__ . '/../../src/widget-availability.php';
 
 /**
@@ -24,8 +25,6 @@ require_once __DIR__ . '/../../src/widget-availability.php';
  * @covers ::Automattic\Jetpack\PremiumAnalytics\filter_registrable_widget_types_by_availability
  * @covers ::Automattic\Jetpack\PremiumAnalytics\filter_registrable_widget_types_by_environment
  * @covers ::Automattic\Jetpack\PremiumAnalytics\remove_dev_only_widget_types
- * @covers ::Automattic\Jetpack\PremiumAnalytics\filter_registrable_widget_types_by_plugin
- * @covers ::Automattic\Jetpack\PremiumAnalytics\remove_plugin_gated_widget_types
  * @covers ::Automattic\Jetpack\PremiumAnalytics\filter_registrable_widget_types_by_capability
  * @covers ::Automattic\Jetpack\PremiumAnalytics\remove_capability_gated_widget_types
  */
@@ -36,8 +35,6 @@ require_once __DIR__ . '/../../src/widget-availability.php';
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\filter_registrable_widget_types_by_availability' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\filter_registrable_widget_types_by_environment' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\remove_dev_only_widget_types' )]
-#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\filter_registrable_widget_types_by_plugin' )]
-#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\remove_plugin_gated_widget_types' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\filter_registrable_widget_types_by_capability' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\remove_capability_gated_widget_types' )]
 class Widget_Availability_Test extends BaseTestCase {
@@ -45,16 +42,14 @@ class Widget_Availability_Test extends BaseTestCase {
 	/**
 	 * Reset constants and availability filters between tests.
 	 *
-	 * The support context now reaches Host::is_wpcom_platform(), which memoizes
-	 * `is_woa_site` into the process-global status cache; clearing constants alone
-	 * would leave a stale host verdict for the next test that sets Atomic ones.
+	 * The support context reaches Host::is_wpcom_platform(), which memoizes `is_woa_site` into
+	 * the process-global status cache — clearing constants alone would leave a stale host verdict.
 	 */
 	public function tear_down() {
 		Constants::clear_constants();
 		Cache::clear();
 		$GLOBALS['jpa_test_wpcom_features'] = array();
 		delete_option( 'jetpack_active_modules' );
-		remove_all_filters( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER );
 		remove_all_filters( VIDEOPRESS_AVAILABLE_FILTER );
 
 		parent::tear_down();
@@ -76,16 +71,32 @@ class Widget_Availability_Test extends BaseTestCase {
 				'category' => 'traffic',
 			),
 			array(
-				'name'     => 'jpa/videopress',
+				'name'     => 'jpa/video-detail-embeds',
 				'category' => 'stats',
 			),
 			array(
-				'name'     => 'jpa/video-detail-highlights',
+				'name'     => 'jpa/video-detail-views-performance',
 				'category' => 'stats',
 			),
 			array(
 				'name'     => 'jpa/shares',
 				'category' => 'traffic',
+			),
+			array(
+				'name'     => 'jpa/total-views',
+				'category' => 'stats',
+			),
+			array(
+				'name'     => 'jpa/total-visitors',
+				'category' => 'stats',
+			),
+			array(
+				'name'     => 'jpa/popular-days',
+				'category' => 'stats',
+			),
+			array(
+				'name'     => 'jpa/popular-hours',
+				'category' => 'stats',
 			),
 			array(
 				'name'     => 'jpa/hello-world',
@@ -95,50 +106,28 @@ class Widget_Availability_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Candidate set spanning the commerce categories and an ungated one.
+	 * Candidate set spanning every store-report and Stats category, plus an ungated one.
 	 *
 	 * @return array[] List of widget candidates.
 	 */
-	private function commerce_widget_candidates() {
+	private function capability_widget_candidates() {
 		return array(
 			array(
 				'name'     => 'jpa/traffic-chart',
 				'category' => 'traffic',
 			),
 			array(
-				'name'     => 'jpa/store-performance',
-				'category' => 'store',
+				'name'     => 'jpa/top-posts',
+				'category' => 'stats',
 			),
 			array(
-				'name'     => 'jpa/orders-over-time',
-				'category' => 'orders',
+				'name'     => 'jpa/subscribers-chart',
+				'category' => 'subscribers',
 			),
 			array(
-				'name'     => 'jpa/sales-by-coupon-usage',
-				'category' => 'coupons',
+				'name'     => 'jpa/hello-world',
+				'category' => 'demo',
 			),
-			array(
-				'name'     => 'jpa/bookings-over-time',
-				'category' => 'bookings',
-			),
-		);
-	}
-
-	/**
-	 * Candidate set spanning every store-report category, plus one served from
-	 * elsewhere.
-	 *
-	 * @return array[] List of widget candidates.
-	 */
-	private function store_report_widget_candidates() {
-		return array_merge(
-			$this->commerce_widget_candidates(),
-			array(
-				array(
-					'name'     => 'jpa/visitors-over-time',
-					'category' => 'visitors',
-				),
-			)
 		);
 	}
 
@@ -181,6 +170,19 @@ class Widget_Availability_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The period widgets are held back regardless of host or features (WOOA7S-2020).
+	 */
+	public function test_type_policy_removes_period_widgets_everywhere() {
+		$period = array( 'jpa/total-views', 'jpa/total-visitors', 'jpa/popular-days', 'jpa/popular-hours' );
+
+		foreach ( $period as $name ) {
+			$this->assertNotContains( $name, $this->available_names( false, false ), $name );
+			$this->assertNotContains( $name, $this->available_names( true, true ), $name );
+		}
+		$this->assertContains( 'jpa/hello-world', $this->available_names( false, false ) );
+	}
+
+	/**
 	 * Without VideoPress, every gated video widget is unavailable.
 	 */
 	public function test_type_policy_removes_video_widgets_without_videopress() {
@@ -216,30 +218,24 @@ class Widget_Availability_Test extends BaseTestCase {
 	public function test_type_policy_keeps_video_widgets_with_videopress() {
 		$names = $this->available_names( false, true );
 
-		$this->assertContains( 'jpa/videopress', $names );
-		$this->assertContains( 'jpa/video-detail-highlights', $names );
+		$this->assertContains( 'jpa/video-detail-embeds', $names );
+		$this->assertContains( 'jpa/video-detail-views-performance', $names );
 	}
 
 	/**
-	 * The gate and the manifests agree in both directions: a renamed widget can't
-	 * drop out of the gate, and a new video widget can't be added without joining
-	 * it.
+	 * Every widget type name declared by a `widgets/*` manifest.
 	 *
-	 * The second half rests on a naming heuristic, which bounds what it can catch:
-	 * a VideoPress-backed widget named without `video` would not be demanded here,
-	 * and an unrelated `video-*` widget would be demanded wrongly. Widget manifests
-	 * carry no "requires" field to key on instead; if one is ever added, this
-	 * should read that rather than the name.
+	 * Asserts rather than skips a malformed manifest, so a dropped one can't quietly narrow
+	 * what the callers compare against.
+	 *
+	 * @return string[] Declared widget type names.
 	 */
-	public function test_videopress_widget_types_match_the_manifest() {
+	private function manifest_widget_names() {
 		$manifests = glob( __DIR__ . '/../../widgets/*/widget.json' );
 		$this->assertNotEmpty( $manifests, 'No widget manifests found — the glob path is wrong.' );
 
-		$video_names = array();
+		$names = array();
 		foreach ( $manifests as $manifest ) {
-			// Assert rather than skip: a manifest silently dropped here is absent from
-			// both sides of the comparison below, so the guard would pass while the
-			// gate is missing a type — the one failure this test exists to catch.
 			$raw = file_get_contents( $manifest ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 			$this->assertNotFalse( $raw, "Could not read $manifest" );
 
@@ -247,16 +243,45 @@ class Widget_Availability_Test extends BaseTestCase {
 			$this->assertIsArray( $widget, "Malformed manifest: $manifest" );
 			$this->assertArrayHasKey( 'name', $widget, "Manifest declares no name: $manifest" );
 
-			if ( str_contains( $widget['name'], 'video' ) ) {
-				$video_names[] = $widget['name'];
-			}
+			$names[] = $widget['name'];
 		}
+
+		return $names;
+	}
+
+	/**
+	 * The gate and the manifests agree in both directions: a renamed widget can't drop out of the
+	 * gate, and a new video widget can't be added without joining it.
+	 *
+	 * The second half rests on a naming heuristic: a VideoPress widget not named with `video` would
+	 * be missed, and an unrelated `video-*` widget wrongly demanded. Widget manifests have no
+	 * "requires" field to key on instead — read that here if one is ever added.
+	 */
+	public function test_videopress_widget_types_match_the_manifest() {
+		$video_names = array_filter(
+			$this->manifest_widget_names(),
+			static function ( $name ) {
+				return str_contains( $name, 'video' );
+			}
+		);
 
 		$gated = VIDEOPRESS_WIDGET_TYPES;
 		sort( $gated );
 		sort( $video_names );
 
 		$this->assertSame( $gated, $video_names, 'Every video widget must be listed in VIDEOPRESS_WIDGET_TYPES.' );
+	}
+
+	/**
+	 * Every held period type names a real manifest, so a renamed or moved widget
+	 * cannot lift the hold while the absence assertions stay green.
+	 */
+	public function test_period_widget_types_match_the_manifest() {
+		$names = $this->manifest_widget_names();
+
+		foreach ( PERIOD_WIDGET_TYPES as $held ) {
+			$this->assertContains( $held, $names, "$held is held back but no manifest declares it." );
+		}
 	}
 
 	/**
@@ -268,7 +293,7 @@ class Widget_Availability_Test extends BaseTestCase {
 			'name'
 		);
 
-		$this->assertNotContains( 'jpa/videopress', $names );
+		$this->assertNotContains( 'jpa/video-detail-views-performance', $names );
 	}
 
 	/**
@@ -286,7 +311,7 @@ class Widget_Availability_Test extends BaseTestCase {
 			'name'
 		);
 
-		$this->assertNotContains( 'jpa/videopress', $names, 'An active module does not stand in for the plan feature on Atomic.' );
+		$this->assertNotContains( 'jpa/video-detail-views-performance', $names, 'An active module does not stand in for the plan feature on Atomic.' );
 
 		$GLOBALS['jpa_test_wpcom_features'] = array( 'videopress' );
 
@@ -295,7 +320,7 @@ class Widget_Availability_Test extends BaseTestCase {
 			'name'
 		);
 
-		$this->assertContains( 'jpa/videopress', $names, 'The plan feature brings the video widgets back on Atomic.' );
+		$this->assertContains( 'jpa/video-detail-views-performance', $names, 'The plan feature brings the video widgets back on Atomic.' );
 	}
 
 	/**
@@ -309,7 +334,7 @@ class Widget_Availability_Test extends BaseTestCase {
 			'name'
 		);
 
-		$this->assertContains( 'jpa/videopress', $names );
+		$this->assertContains( 'jpa/video-detail-views-performance', $names );
 	}
 
 	/**
@@ -422,75 +447,33 @@ class Widget_Availability_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Without WooCommerce (and thus without its Bookings extension), every
-	 * commerce category is dropped; the rest pass through.
+	 * Each reader keeps the categories whose reports they can fetch, and nothing else.
+	 *
+	 * @dataProvider provide_capability_gated_readers
+	 *
+	 * @param bool     $can_view_stats Whether the reader may see the Stats reports.
+	 * @param string[] $expected       Names that survive.
 	 */
-	public function test_commerce_widgets_removed_without_woocommerce() {
-		$names = array_column( remove_plugin_gated_widget_types( $this->commerce_widget_candidates(), false, false ), 'name' );
-
-		$this->assertSame( array( 'jpa/traffic-chart' ), $names, 'Without WooCommerce only ungated categories remain.' );
-	}
-
-	/**
-	 * With WooCommerce but no Bookings extension, only `bookings` is dropped.
-	 */
-	public function test_bookings_widgets_removed_without_bookings_plugin() {
-		$names = array_column( remove_plugin_gated_widget_types( $this->commerce_widget_candidates(), true, false ), 'name' );
-
-		$this->assertNotContains( 'jpa/bookings-over-time', $names, 'Bookings widgets must be hidden without the Bookings extension.' );
-		$this->assertContains( 'jpa/store-performance', $names, 'Store widgets only need WooCommerce.' );
-		$this->assertContains( 'jpa/orders-over-time', $names, 'Orders widgets only need WooCommerce.' );
-		$this->assertContains( 'jpa/sales-by-coupon-usage', $names, 'Coupons widgets only need WooCommerce.' );
-	}
-
-	/**
-	 * With both plugins available, everything passes through.
-	 */
-	public function test_commerce_widgets_kept_with_both_plugins() {
+	#[DataProvider( 'provide_capability_gated_readers' )]
+	public function test_capability_gated_widgets_follow_the_reader( $can_view_stats, $expected ) {
 		$this->assertSame(
-			$this->commerce_widget_candidates(),
-			remove_plugin_gated_widget_types( $this->commerce_widget_candidates(), true, true ),
-			'With WooCommerce and Bookings available no candidate is dropped.'
-		);
-	}
-
-	/**
-	 * Candidates without a category are never plugin-gated.
-	 */
-	public function test_uncategorized_widgets_pass_through() {
-		$candidates = array( array( 'name' => 'jpa/no-category' ) );
-
-		$this->assertSame(
-			$candidates,
-			remove_plugin_gated_widget_types( $candidates, false, false ),
-			'A candidate without a category must not be plugin-gated.'
-		);
-	}
-
-	/**
-	 * Every store-report category — the commerce ones and `visitors` — is dropped
-	 * for a reader without that access, since all they could collect from those
-	 * widgets is 403s.
-	 */
-	public function test_store_report_widgets_removed_from_a_reader_without_access() {
-		$this->assertSame(
-			array( 'jpa/traffic-chart' ),
+			$expected,
 			array_column(
-				remove_capability_gated_widget_types( $this->store_report_widget_candidates(), false ),
+				remove_capability_gated_widget_types( $this->capability_widget_candidates(), $can_view_stats ),
 				'name'
-			),
-			'Only the category served by another prefix survives.'
+			)
 		);
 	}
 
 	/**
-	 * Administrators keep every category.
+	 * Readers by the reports they may see.
+	 *
+	 * @return array<string, array{bool, string[]}>
 	 */
-	public function test_store_report_widgets_kept_for_a_user_with_access() {
-		$this->assertSame(
-			$this->store_report_widget_candidates(),
-			remove_capability_gated_widget_types( $this->store_report_widget_candidates(), true ),
-			'With prefix access no candidate is dropped.'
+	public static function provide_capability_gated_readers() {
+		return array(
+			'stats reader' => array( true, array( 'jpa/traffic-chart', 'jpa/top-posts', 'jpa/subscribers-chart', 'jpa/hello-world' ) ),
+			'shop manager' => array( false, array( 'jpa/hello-world' ) ),
 		);
 	}
 
@@ -499,22 +482,24 @@ class Widget_Availability_Test extends BaseTestCase {
 	 * yields different types depending on who is asking.
 	 */
 	public function test_registry_callback_follows_the_current_user() {
-		$reader = wp_insert_user(
+		$shop_manager = wp_insert_user(
 			array(
-				'user_login' => 'jpa_widget_reader',
+				'user_login' => 'jpa_widget_shop_manager',
 				'user_pass'  => 'password',
-				'role'       => 'editor',
+				'role'       => 'subscriber',
 			)
 		);
-		wp_set_current_user( $reader );
+		// WorDBless has no shop_manager role, so grant the capability the role would carry.
+		( new \WP_User( $shop_manager ) )->add_cap( 'view_woocommerce_reports' );
+		wp_set_current_user( $shop_manager );
 
 		$this->assertSame(
-			array( 'jpa/traffic-chart' ),
+			array( 'jpa/hello-world' ),
 			array_column(
-				filter_registrable_widget_types_by_capability( $this->store_report_widget_candidates() ),
+				filter_registrable_widget_types_by_capability( $this->capability_widget_candidates() ),
 				'name'
 			),
-			'An editor cannot read the store reports, so their categories are dropped.'
+			'A shop manager cannot read Stats, so its categories are dropped.'
 		);
 
 		$admin = wp_insert_user(
@@ -527,8 +512,8 @@ class Widget_Availability_Test extends BaseTestCase {
 		wp_set_current_user( $admin );
 
 		$this->assertSame(
-			$this->store_report_widget_candidates(),
-			filter_registrable_widget_types_by_capability( $this->store_report_widget_candidates() ),
+			$this->capability_widget_candidates(),
+			filter_registrable_widget_types_by_capability( $this->capability_widget_candidates() ),
 			'An administrator keeps every category.'
 		);
 
@@ -577,23 +562,6 @@ class Widget_Availability_Test extends BaseTestCase {
 
 		$this->assertContains( 'jpa/file-downloads', $names );
 		$this->assertContains( 'jpa/shares', $names );
-	}
-
-	/**
-	 * The registry-time callback follows the store section's availability
-	 * signal, so forcing the section visible also surfaces its widgets.
-	 */
-	public function test_registry_filter_callback_follows_section_availability() {
-		$this->assertFalse( is_woocommerce_dashboard_section_available(), 'The test environment must not have WooCommerce loaded.' );
-
-		$names = array_column( filter_registrable_widget_types_by_plugin( $this->commerce_widget_candidates() ), 'name' );
-		$this->assertSame( array( 'jpa/traffic-chart' ), $names, 'Without WooCommerce the callback drops every commerce category.' );
-
-		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
-
-		$names = array_column( filter_registrable_widget_types_by_plugin( $this->commerce_widget_candidates() ), 'name' );
-		$this->assertContains( 'jpa/store-performance', $names, 'Forcing the section available must surface the store widgets.' );
-		$this->assertNotContains( 'jpa/bookings-over-time', $names, 'Bookings widgets still require the Bookings extension.' );
 	}
 
 	/**

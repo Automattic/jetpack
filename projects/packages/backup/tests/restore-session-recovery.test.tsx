@@ -24,7 +24,7 @@ jest.mock( '@wordpress/route', () => ( {
 } ) );
 
 // Imports must come after the jest.mock factories above.
-import { render, within } from '@testing-library/react';
+import { act, render, within } from '@testing-library/react';
 import { queryClient } from '../src/dashboard/data/query-client';
 import QueryClientProvider from '../src/dashboard/providers/query-client-provider';
 import RestoreScreen from '../src/dashboard/screens/restore';
@@ -159,11 +159,11 @@ describe( 'Restore screen — a restore already running', () => {
 		// heading that silently changes date leaves the reader to work out
 		// why their checklist vanished.
 		const notice = await view.findByText( ALREADY_RUNNING );
-		expect( notice ).toHaveTextContent( /Aug 12, 2026/ );
+		expect( notice ).toHaveTextContent( /August 12, 2026/ );
 
 		const point = await view.findByText( /Restore point:/ );
-		expect( point ).toHaveTextContent( /Aug 12, 2026/ );
-		expect( point ).not.toHaveTextContent( /Aug 13, 2026/ );
+		expect( point ).toHaveTextContent( /August 12, 2026/ );
+		expect( point ).not.toHaveTextContent( /August 13, 2026/ );
 	} );
 
 	it( 'never arms the form while it is still finding out', async () => {
@@ -182,6 +182,35 @@ describe( 'Restore screen — a restore already running', () => {
 		const view = within( renderScreen() );
 
 		await expect( view.findByRole( 'button', { name: CONFIRM } ) ).resolves.toBeInTheDocument();
+		expect( view.queryByText( ALREADY_RUNNING ) ).not.toBeInTheDocument();
+	} );
+
+	// The same notice, outliving the restore the other way. `adopted` is
+	// latched for the life of the screen, so nothing retires it when the
+	// restore it describes ends.
+	it.each( [
+		[ 'finished', /Restore complete/ ],
+		[ 'failed', /Restore failed/ ],
+	] )( 'retires the notice once the adopted restore is %s', async ( status, outcome ) => {
+		let calls = 0;
+		mockApiFetch.mockImplementation( ( options: { path?: string } ) => {
+			const path = options?.path ?? '';
+			if ( path.includes( '/restores' ) ) {
+				return Promise.resolve( [ restoreRow() ] );
+			}
+			if ( path.includes( '/rewind/restore/' ) ) {
+				calls += 1;
+				// Adopt on the first read, then let it end.
+				return Promise.resolve(
+					calls === 1 ? statusPayload() : statusPayload( { status, progress: 100 } )
+				);
+			}
+			return Promise.resolve( CAPABILITIES );
+		} );
+
+		const view = within( renderScreen() );
+
+		await expect( view.findAllByText( outcome ) ).resolves.not.toHaveLength( 0 );
 		expect( view.queryByText( ALREADY_RUNNING ) ).not.toBeInTheDocument();
 	} );
 
@@ -206,13 +235,22 @@ describe( 'Restore screen — a restore already running', () => {
 			return Promise.resolve( CAPABILITIES );
 		} );
 
-		const view = within( renderScreen() );
+		// A failed poll is temporary; only the silence deadline gives up.
+		jest.useFakeTimers();
+		try {
+			const view = within( renderScreen() );
+			for ( let elapsed = 0; elapsed <= 6 * 60_000; elapsed += 5000 ) {
+				await act( async () => {
+					await jest.advanceTimersByTimeAsync( 5000 );
+				} );
+			}
 
-		await expect(
-			view.findByText( /We've lost track of this restore/ )
-		).resolves.toBeInTheDocument();
-		expect( view.queryByText( ALREADY_RUNNING ) ).not.toBeInTheDocument();
-		// And still no way to start a second one.
-		expect( view.queryByRole( 'button', { name: CONFIRM } ) ).not.toBeInTheDocument();
+			expect( view.getByText( /We've lost track of this restore/ ) ).toBeInTheDocument();
+			expect( view.queryByText( ALREADY_RUNNING ) ).not.toBeInTheDocument();
+			// And still no way to start a second one.
+			expect( view.queryByRole( 'button', { name: CONFIRM } ) ).not.toBeInTheDocument();
+		} finally {
+			jest.useRealTimers();
+		}
 	} );
 } );

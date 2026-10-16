@@ -115,7 +115,7 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 						'jetpack-podcast'
 					),
 					issues.length
-			  )
+				)
 			: '';
 
 	const setupStepsLeftLabel =
@@ -129,7 +129,7 @@ const DistributionTab = ( { onEditSettings }: DistributionTabProps ) => {
 						'jetpack-podcast'
 					),
 					issues.length
-			  )
+				)
 			: '';
 
 	const automaticBlocked = blockedReason(

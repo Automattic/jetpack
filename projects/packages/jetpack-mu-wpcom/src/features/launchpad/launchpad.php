@@ -21,7 +21,7 @@
 PHAN;
 
 require_once __DIR__ . '/../../utils.php';
-require_once __DIR__ . '/../../common/class-launchpad-personalization-experiment.php';
+require_once __DIR__ . '/../../common/launchpad-no-guidance.php';
 require_once __DIR__ . '/class-launchpad-task-lists.php';
 require_once __DIR__ . '/launchpad-task-definitions.php';
 
@@ -752,28 +752,23 @@ if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 }
 
 /**
- * Filter for `get_option( 'launchpad_screen' )`: hide the old Launchpad for the
- * launchpad-personalization treatment variations. Derives from the variation rather than
- * writing the option, so no non-experiment site is ever mistaken for a cohort. Runs on
- * Simple and Atomic (not gated on IS_WPCOM).
+ * Filter for `get_option( 'launchpad_screen' )`: hide the old Launchpad on Site Setup and no-guidance sites.
  *
  * @param mixed $value The filterable option value, retrieved from the DB.
- * @return mixed 'off' for a treatment variation, the unaltered value otherwise.
+ * @return mixed 'off' for those sites, the unaltered value otherwise.
  */
-function wpcom_maybe_disable_for_launchpad_personalization( $value ) {
-	// If it's already false, leave it — and avoid resolving the variation needlessly.
-	if ( $value === false ) {
+function wpcom_maybe_disable_launchpad_screen_for_site_setup( $value ) {
+	if ( false === $value ) {
 		return $value;
 	}
 
-	$variation = \Automattic\Jetpack\Jetpack_Mu_Wpcom\Launchpad_Personalization_Experiment::get_variation();
-	if ( 'ai_launchpad' === $variation || 'no_guidance' === $variation ) {
+	if ( get_option( 'wpcom_ai_launchpad_enabled' ) || wpcom_launchpad_is_no_guidance() ) {
 		return 'off';
 	}
 
 	return $value;
 }
-add_filter( 'option_launchpad_screen', 'wpcom_maybe_disable_for_launchpad_personalization' );
+add_filter( 'option_launchpad_screen', 'wpcom_maybe_disable_launchpad_screen_for_site_setup' );
 
 add_action( 'wp_head', 'wpcom_maybe_preview_with_no_interactions', PHP_INT_MAX );
 /**

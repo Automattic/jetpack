@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Publicize\REST_API;
 
+use Automattic\Jetpack\Connection\Rest_Authentication;
 use Automattic\Jetpack\Connection\Traits\WPCOM_REST_API_Proxy_Request;
 use Automattic\Jetpack\Publicize\Connections;
 use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings;
@@ -105,7 +106,11 @@ class Connections_Controller extends Base_Controller {
 					'callback'            => array( $this, 'update_item' ),
 					'permission_callback' => array( $this, 'update_item_permissions_check' ),
 					'args'                => array(
-						'shared' => array(
+						'external_user_ID' => array(
+							'description' => __( 'External User Id - in case of services like Facebook.', 'jetpack-publicize-pkg' ),
+							'type'        => 'string',
+						),
+						'shared'           => array(
 							'description' => __( 'Whether the connection is shared with other users.', 'jetpack-publicize-pkg' ),
 							'type'        => 'boolean',
 						),
@@ -119,6 +124,55 @@ class Connections_Controller extends Base_Controller {
 				),
 				'schema' => array( $this, 'get_public_item_schema' ),
 			)
+		);
+
+		// This route receives pushes from WPCOM, so it is registered under the
+		// site-local jetpack/v4 namespace and never on WPCOM itself.
+		if ( ! Publicize_Utils::is_wpcom() ) {
+			register_rest_route(
+				'jetpack/v4',
+				'/publicize/connections/sync',
+				array(
+					array(
+						'methods'             => WP_REST_Server::CREATABLE,
+						'callback'            => array( $this, 'receive_updated_connections' ),
+						'permission_callback' => array( Rest_Authentication::class, 'is_signed_with_user_token' ),
+						'args'                => array(
+							// An empty value is accepted on purpose: a site with no connections left
+							// syncs an empty payload, which arrives here as an empty object.
+							'connections' => array(
+								'type'        => 'object',
+								'required'    => true,
+								'description' => __( 'The updated Publicize connections, keyed by service name.', 'jetpack-publicize-pkg' ),
+							),
+						),
+					),
+				)
+			);
+		}
+	}
+
+	/**
+	 * Receive updated Publicize connections from WPCOM.
+	 *
+	 * REST replacement for the jetpack.updatePublicizeConnections XML-RPC method.
+	 *
+	 * Unusable connections are dropped rather than rejected: an error response would send
+	 * WPCOM down its XML-RPC fallback, which stores the same payload without the check.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response
+	 */
+	public function receive_updated_connections( $request ) {
+		/**
+		 * The route only registers on Jetpack sites, where the global is this package's Publicize.
+		 *
+		 * @var \Automattic\Jetpack\Publicize\Publicize $publicize
+		 */
+		global $publicize;
+
+		return rest_ensure_response(
+			$publicize->receive_updated_publicize_connections( $request->get_param( 'connections' ) )
 		);
 	}
 
@@ -458,6 +512,11 @@ class Connections_Controller extends Base_Controller {
 			$input = array(
 				'shared' => $request->get_param( 'shared' ),
 			);
+
+			$external_user_id = $request->get_param( 'external_user_ID' );
+			if ( ! empty( $external_user_id ) ) {
+				$input['external_user_ID'] = $external_user_id;
+			}
 
 			if ( $request->has_param( 'template' ) ) {
 				require_lib( 'publicize/util/message-templates' );

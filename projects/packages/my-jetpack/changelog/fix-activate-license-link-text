@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Plans section: always label the license activation link 'Activate a license'. It previously read 'Activate a new license' on any site with a plan, including sites with no licenses activated.

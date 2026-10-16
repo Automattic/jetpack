@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Video details: move the add-to-content action into the page header, where it can now create a new page as well as a new post.

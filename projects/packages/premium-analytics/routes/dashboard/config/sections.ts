@@ -31,19 +31,10 @@ export type DashboardSection = {
 	label: string;
 
 	/**
-	 * Translated section heading, deliberately not the tab label: the `Traffic`
-	 * tab heads its section `Site traffic`. Read it through
-	 * `resolveSectionHeading`. Optional for the same reason as `date_filter`
-	 * below.
+	 * Translated section heading, deliberately not the tab label. Read it through
+	 * `resolveSectionHeading`. Optional for the same reason as `date_filter` below.
 	 */
 	title?: string | null;
-
-	/**
-	 * Translated section description, rendered as the page subtitle while this
-	 * section is active. Missing or `null` renders no subtitle — there is no
-	 * default copy behind it.
-	 */
-	description?: string | null;
 
 	/**
 	 * Sort order (ascending).
@@ -51,14 +42,9 @@ export type DashboardSection = {
 	order: number;
 
 	/**
-	 * Which date filter this section's header offers. Server-registered per
-	 * section, so a section reporting on whole history can ask for the year
-	 * surface while the rest keep the rolling date-range picker.
-	 *
-	 * Optional because the field can genuinely be absent: WPCOM's public-api
-	 * registers this route from its own checkout, so a Simple site can be served
-	 * a sections payload built before the field existed. A missing value means
-	 * the date-range surface.
+	 * Which date filter this section's header offers, registered per section on
+	 * the server. Optional because a Simple site's public-api route may serve a
+	 * payload built before this field existed; a missing value means the range surface.
 	 */
 	date_filter?: DateFilterSurface;
 
@@ -76,9 +62,21 @@ export type DashboardSection = {
 	requires_sync?: boolean;
 
 	/**
+	 * Message the registration puts above the section's widgets, e.g. a store with no
+	 * orders yet. Optional for the same reason as `date_filter` above; absent means none.
+	 */
+	notice?: string | null;
+
+	/**
 	 * Bundled default widget layout, consumed by the reset action.
 	 */
 	default_layout: DashboardWidget[];
+
+	/**
+	 * Widget types the section's inserter offers on top of its default layout.
+	 * Optional for the same reason as `date_filter` above; absent means none.
+	 */
+	insertable_widget_types?: string[];
 };
 
 /**
@@ -116,21 +114,58 @@ export function isSectionAwaitingSync(
 }
 
 /**
+ * Whether the dashboard shows the WooCommerce tab, under its slug or the `store` slug an older
+ * WooCommerce Stats package still registers.
+ *
+ * @param sections - The available sections.
+ * @return Whether one of them is the WooCommerce tab.
+ */
+export function hasStoreSection( sections: DashboardSection[] ): boolean {
+	return sections.some( section => section.slug === 'woocommerce' || section.slug === 'store' );
+}
+
+/**
+ * The Settings tab's slug. The stage renders that tab itself, after the registered sections.
+ */
+export const SETTINGS_SECTION = 'settings';
+
+/**
  * Narrow a candidate slug to an available section, falling back to the first
  * section by order. A miss is a stale slug or a section unavailable now
- * (`?section=store` with WooCommerce off).
+ * (`?section=woocommerce` with WooCommerce off).
  *
- * @param value    - The candidate section slug (e.g. from the URL).
- * @param sections - The available sections, in order.
+ * @param value      - The candidate section slug (e.g. from the URL).
+ * @param sections   - The available sections, in order.
+ * @param stageSlugs - Slugs of the tabs the stage renders itself.
  * @return The resolved section slug, or an empty string when no sections exist.
  */
 export function resolveSectionId(
 	value: string | undefined,
-	sections: DashboardSection[]
+	sections: DashboardSection[],
+	stageSlugs: readonly string[] = []
 ): DashboardSectionId {
-	if ( value && sections.some( section => section.slug === value ) ) {
+	if (
+		value &&
+		( stageSlugs.includes( value ) || sections.some( section => section.slug === value ) )
+	) {
 		return value;
 	}
 
 	return sections[ 0 ]?.slug ?? '';
+}
+
+/**
+ * The widget types the inserter offers: those the available sections place by default, plus
+ * those they declare insertable.
+ *
+ * @param {DashboardSection[]} sections - The available sections.
+ * @return The widget type names.
+ */
+export function getInsertableWidgetTypeNames( sections: DashboardSection[] ): Set< string > {
+	return new Set(
+		sections.flatMap( section => [
+			...section.default_layout.map( widget => widget.type ),
+			...( section.insertable_widget_types ?? [] ),
+		] )
+	);
 }

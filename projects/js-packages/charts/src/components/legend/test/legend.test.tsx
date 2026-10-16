@@ -9,6 +9,7 @@ import {
 	useChartRegistration,
 	useGlobalChartsContext,
 } from '../../../providers';
+import { useChartLegendItems } from '../hooks/use-chart-legend-items';
 import { Legend } from '../legend';
 import { BaseLegend } from '../private/base-legend';
 import type { ChartType } from '../../../types';
@@ -47,6 +48,26 @@ describe( 'BaseLegend', () => {
 		const markers = screen.getAllByTestId( 'legend-marker' );
 		expect( markers[ 0 ] ).toHaveAttribute( 'fill', '#ff0000' );
 		expect( markers[ 1 ] ).toHaveAttribute( 'fill', '#00ff00' );
+	} );
+
+	test( 'preserves each duplicate label, color, and following item', () => {
+		render(
+			<BaseLegend
+				items={ [
+					{ label: 'Views', color: '#ff0000' },
+					{ label: 'Views', color: '#00ff00', interactive: false },
+					{ label: 'Visitors', color: '#0000ff' },
+				] }
+				shape={ TestShape }
+				labelFormat={ label => `Metric: ${ label }` }
+			/>
+		);
+		expect( screen.getAllByText( 'Metric: Views' ) ).toHaveLength( 2 );
+		expect( screen.getByText( 'Metric: Visitors' ) ).toBeInTheDocument();
+		const markers = screen.getAllByTestId( 'legend-marker' );
+		expect( markers[ 0 ] ).toHaveAttribute( 'fill', '#ff0000' );
+		expect( markers[ 1 ] ).toHaveAttribute( 'fill', '#00ff00' );
+		expect( markers[ 2 ] ).toHaveAttribute( 'fill', '#0000ff' );
 	} );
 
 	test( 'handles empty items array', () => {
@@ -622,6 +643,24 @@ describe( 'BaseLegend', () => {
 			expect( buttons ).toHaveLength( 0 );
 		} );
 
+		it( 'uses chart-instance visibility before provider state', () => {
+			render(
+				<GlobalChartsProvider>
+					<ChartInstanceContext.Provider
+						value={ {
+							chartId: 'test-chart',
+							isSeriesVisible: label => label !== 'Item 1',
+						} }
+					>
+						<BaseLegend items={ defaultItems } chartId="test-chart" />
+					</ChartInstanceContext.Provider>
+				</GlobalChartsProvider>
+			);
+
+			expect( screen.getByRole( 'listitem', { name: /Item 1.*hidden/ } ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Item 2' ) ).toBeInTheDocument();
+		} );
+
 		it( 'works without chartId but does not toggle', async () => {
 			const user = userEvent.setup();
 
@@ -734,6 +773,111 @@ describe( 'BaseLegend', () => {
 			await user.click( legendButton );
 			expect( screen.getByTestId( 'views' ) ).toHaveTextContent( 'true' );
 			expect( screen.getByTestId( 'views-prev' ) ).toHaveTextContent( 'true' );
+		} );
+
+		it( 'keeps an item with interactive: false static inside an interactive legend', async () => {
+			const user = userEvent.setup();
+			const items = [
+				{ label: 'Views', color: '#0000ff' },
+				{ label: 'Comparison period', color: '#0000ff', interactive: false },
+			];
+
+			render(
+				<GlobalChartsProvider>
+					<BaseLegend items={ items } interactive={ true } chartId="test-chart" />
+				</GlobalChartsProvider>
+			);
+
+			expect( screen.getAllByRole( 'button' ) ).toHaveLength( 1 );
+			const staticItem = screen.getAllByTestId( 'legend-item' )[ 1 ];
+			expect( staticItem ).toHaveTextContent( 'Comparison period' );
+			expect( staticItem ).not.toHaveAttribute( 'role' );
+			expect( staticItem ).not.toHaveAttribute( 'tabindex' );
+			expect( staticItem ).not.toHaveAttribute( 'aria-pressed' );
+
+			await user.click( staticItem );
+
+			expect( screen.getByRole( 'button' ) ).toHaveAttribute( 'aria-pressed', 'true' );
+			expect( staticItem ).not.toHaveClass( 'legend-item--inactive' );
+		} );
+
+		it( 'leaves out a static item while its series is hidden, keeping later swatches aligned', async () => {
+			const user = userEvent.setup();
+			const items = [
+				{ label: 'Views', color: '#0000ff', seriesLabels: [ 'Views', 'Views · previous' ] },
+				{
+					label: 'Visitors',
+					color: '#00ff00',
+					seriesLabels: [ 'Visitors', 'Visitors · previous' ],
+				},
+				{
+					label: 'Views (Prev. 7 days)',
+					color: '#000088',
+					interactive: false,
+					describesSeries: 'Views · previous',
+				},
+				{
+					label: 'Visitors (Prev. 7 days)',
+					color: '#008800',
+					interactive: false,
+					describesSeries: 'Visitors · previous',
+				},
+			];
+
+			render(
+				<GlobalChartsProvider>
+					<BaseLegend items={ items } interactive chartId="test-chart" shape={ TestShape } />
+				</GlobalChartsProvider>
+			);
+
+			await user.click( screen.getByRole( 'button', { name: /^Views/ } ) );
+
+			expect( screen.getAllByTestId( 'legend-item' ).map( item => item.textContent ) ).toEqual( [
+				'Views',
+				'Visitors',
+				'Visitors (Prev. 7 days)',
+			] );
+			expect( screen.getAllByTestId( 'legend-marker' )[ 2 ] ).toHaveAttribute( 'fill', '#008800' );
+
+			await user.click( screen.getByRole( 'button', { name: /^Views/ } ) );
+			expect( screen.getAllByTestId( 'legend-item' ) ).toHaveLength( 4 );
+		} );
+
+		it( 'keeps a comparison item distinct when its label collides', async () => {
+			const user = userEvent.setup();
+			const Example = () => {
+				const items = useChartLegendItems(
+					[
+						{
+							label: 'Comparison period',
+							group: 'metric',
+							data: [ { label: 'Mon', value: 10 } ],
+						},
+						{
+							label: 'Previous metric',
+							group: 'metric',
+							options: { type: 'comparison' },
+							data: [ { label: 'Mon', value: 5 } ],
+						},
+					],
+					{ collapseGroups: true, comparisonItem: true },
+					'line'
+				);
+				return <BaseLegend items={ items } interactive chartId="test-chart" />;
+			};
+			render(
+				<GlobalChartsProvider>
+					<Example />
+				</GlobalChartsProvider>
+			);
+			expect( screen.getAllByTestId( 'legend-item' ) ).toHaveLength( 2 );
+			const staticItem = screen.getAllByTestId( 'legend-item' )[ 1 ];
+			expect( staticItem ).not.toHaveAttribute( 'role' );
+			await user.click( screen.getByRole( 'button' ) );
+			expect( screen.getByRole( 'button' ) ).toHaveAttribute( 'aria-pressed', 'false' );
+			expect( staticItem ).not.toHaveClass( 'legend-item--inactive' );
+			await user.click( staticItem );
+			expect( screen.getByRole( 'button' ) ).toHaveAttribute( 'aria-pressed', 'false' );
 		} );
 
 		it( 'falls back to the item label when seriesLabels is an empty array', async () => {

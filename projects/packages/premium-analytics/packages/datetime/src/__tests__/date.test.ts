@@ -1,7 +1,12 @@
 /**
  * Internal dependencies
  */
-import { formatDatePartWithTime, getDateIntervalDateParts, getDatePart } from '../date';
+import {
+	formatDatePartWithTime,
+	getDateIntervalDateParts,
+	getDatePart,
+	parseExactLabel,
+} from '../date';
 
 describe( 'date helpers', () => {
 	it( 'extracts date parts from ISO datetimes', () => {
@@ -43,6 +48,31 @@ describe( 'date helpers', () => {
 		expect( getDateIntervalDateParts( '2026', 'year' ) ).toEqual( {
 			startDate: '2026-01-01',
 			endDate: '2026-12-31',
+		} );
+	} );
+
+	describe( 'parseExactLabel', () => {
+		it( 'parses a label that round-trips through its format', () => {
+			expect( parseExactLabel( '2026-06-22', 'yyyy-MM-dd' ) ).toEqual( new Date( 2026, 5, 22 ) );
+			expect( parseExactLabel( '2026-06', 'yyyy-MM' ) ).toEqual( new Date( 2026, 5, 1 ) );
+		} );
+
+		it( 'rejects a day that does not exist', () => {
+			expect( parseExactLabel( '2026-02-31', 'yyyy-MM-dd' ) ).toBeNull();
+			expect( parseExactLabel( 'not a date', 'yyyy-MM-dd' ) ).toBeNull();
+		} );
+
+		// Both parse to a real date that `isValid` accepts; only the round trip
+		// rejects them. 2025-W53 resolves into 2026, and the loose day into June.
+		it( 'rejects a label that parses to a different label', () => {
+			expect( parseExactLabel( '2025-W53', "RRRR-'W'II" ) ).toBeNull();
+			expect( parseExactLabel( '2026-6-22', 'yyyy-MM-dd' ) ).toBeNull();
+		} );
+
+		// The round trip still succeeds, so a year-less format resolves against the
+		// reference year rather than failing. Every caller's format must carry one.
+		it( 'anchors a year-less format to the 2001 reference year', () => {
+			expect( parseExactLabel( '06-22', 'MM-dd' ) ).toEqual( new Date( 2001, 5, 22 ) );
 		} );
 	} );
 } );

@@ -1,3 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Backup: draw the correct file and folder icons in the modernized dashboard's file browser, head the detail pane with the selected row's own title, and indent the restore checklist helper text logically for RTL. No-op when the modernization filter is off.

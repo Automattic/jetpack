@@ -28,7 +28,7 @@ class Conditional_Logic_Required_Field_Test extends BaseTestCase {
 
 	protected function set_up() {
 		parent::set_up();
-		add_filter( 'jetpack_feature_flag_enabled_forms-conditional-logic', '__return_true' );
+		add_filter( 'jetpack_forms_conditional_logic_enabled', '__return_true' );
 
 		// Registered, never removed. The shortcode table is global and other suites register
 		// it once per class, so tearing it down here would leave them parsing nothing.
@@ -38,16 +38,16 @@ class Conditional_Logic_Required_Field_Test extends BaseTestCase {
 	}
 
 	protected function tear_down() {
-		remove_filter( 'jetpack_feature_flag_enabled_forms-conditional-logic', '__return_true' );
+		remove_all_filters( 'jetpack_forms_conditional_logic_enabled' );
 		Contact_Form::reset_seen_refs();
-		unset( $_POST );
+		$_POST = array();
 		parent::tear_down();
 	}
 
 	/**
 	 * Parse a form whose required second field is conditional on the first.
 	 *
-	 * Goes through do_shortcode(), so parse_contact_field() runs for real and decides for
+	 * Goes through apply_shortcodes(), so parse_contact_field() runs for real and decides for
 	 * itself whether to defer the dependent field's validation.
 	 *
 	 * @param string $trigger_value   Submitted value for the trigger field.
@@ -92,7 +92,7 @@ class Conditional_Logic_Required_Field_Test extends BaseTestCase {
 			. ' conditionallogic="' . $attribute . '"/]'
 			. '[/contact-form]';
 
-		do_shortcode( $shortcode );
+		apply_shortcodes( $shortcode );
 
 		return Contact_Form::$last;
 	}

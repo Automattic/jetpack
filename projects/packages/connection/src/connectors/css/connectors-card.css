@@ -132,6 +132,21 @@
 	color: inherit;
 }
 
+.jetpack-connector__protected-owner-shield.dashicons {
+	font-size: 16px;
+	inline-size: 16px;
+	block-size: 16px;
+	line-height: 1;
+	cursor: help;
+	color: #757575;
+}
+
+.jetpack-connector__protected-owner-shield.dashicons::before {
+	font-size: 16px;
+	inline-size: 16px;
+	block-size: 16px;
+}
+
 .jetpack-connector__plugin-icon {
 	inline-size: 20px;
 	block-size: 20px;
@@ -158,6 +173,7 @@
 }
 
 .jetpack-connector__modal .components-button:focus:not(:focus-visible),
+.jetpack-connector__transfer-modal .components-button:focus:not(:focus-visible),
 .jetpack-connector__confirm-modal .components-button:focus:not(:focus-visible) {
 	box-shadow: none;
 	outline: none;

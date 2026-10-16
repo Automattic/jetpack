@@ -1,46 +1,82 @@
+import { currentUserCan, getScriptData } from '@automattic/jetpack-script-data';
 import {
-	GlobalErrorProvider,
+	PeriodChangeSignalProvider,
 	queryClient,
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
 import { Stack } from '@jetpack-premium-analytics/externals';
-import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
+import { usePeriodHost, useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { useSyncStatus } from '@jetpack-premium-analytics/site-sync';
 import {
 	DateFiltersPanel,
 	DateIntervalDropdown,
 	DateYearFilter,
+	OnboardingWelcomeModal,
+	PeriodChangeStatus,
 	SectionHeader,
 	SectionTabPanel,
 	StatsBreadcrumbs,
 	StatsPageIcon,
-	getSectionSubtitle,
 } from '@jetpack-premium-analytics/ui';
+import {
+	canSendFeedback,
+	DashboardSectionProvider,
+	PageOptionsMenu,
+	ResetLayoutAction,
+	useTrackCustomize,
+	useTrackedDateRangeApply,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { Page } from '@wordpress/admin-ui';
 import { Spinner } from '@wordpress/components';
-import { store as coreStore } from '@wordpress/core-data';
-import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
-import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 import { isPremiumAnalyticsInitialSyncFinished } from '../site-readiness';
-import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
-import { DashboardSections, SectionSyncNotice } from './components';
+import { useWidgetModules } from '../use-widget-modules';
+import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import {
+	DashboardSections,
+	FeedbackBanner,
+	OnboardingTour,
+	onboardingTourSteps,
+	hasPurchaseSuccess,
+	PlanLimitNotice,
+	PurchaseSuccessNotice,
+	RefreshFailureNotice,
+	SectionNotice,
+	SectionSyncNotice,
+	StatsSettingsPanel,
+} from './components';
+import {
+	buildWidgetTypeRenames,
 	DATE_FILTER_YEAR,
+	getInsertableWidgetTypeNames,
+	hasStoreSection,
 	isSectionAwaitingSync,
 	offersDateComparison,
 	resolveSectionHeading,
+	resolveSectionId,
+	SETTINGS_SECTION,
 } from './config';
 import {
 	useActiveSection,
 	useDashboardGridSettings,
+	useDashboardPolicy,
 	useDashboardSectionLayout,
 	useDashboardSections,
+	useOnboarding,
+	useRememberAppliedPreset,
 	useSectionDateFilter,
 } from './hooks';
+import './overlay-focus-ring.scss';
 import styles from './stage.module.scss';
+import type { OnboardingTourStep } from './components/onboarding-tour';
+import type { OnboardingFlow } from './hooks/use-onboarding';
 import type { DateRange, YearSurfacePresetId } from '@jetpack-premium-analytics/datetime';
+import type { DashboardWidget } from '@wordpress/widget-dashboard';
+import type { JSX } from 'react';
+
+const SETTINGS_TAB_SLUGS = [ SETTINGS_SECTION ];
+const NO_TAB_SLUGS: string[] = [];
 
 /**
  * Premium Analytics dashboard page stage component.
@@ -49,27 +85,63 @@ import type { DateRange, YearSurfacePresetId } from '@jetpack-premium-analytics/
  */
 function Dashboard(): JSX.Element {
 	const { sections, hasResolved: hasResolvedSections } = useDashboardSections();
-	const [ activeSection, setActiveSection ] = useActiveSection( sections );
-	const [ layout, setLayout, resetLayout ] = useDashboardSectionLayout( activeSection, sections );
+	const [ editMode, setEditMode ] = useState( false );
+	// Present only for users who can manage the settings, on sites where the dashboard owns them.
+	const hasSettingsTab = !! getScriptData()?.premium_analytics?.stats_settings;
+	// Disabled while customizing, since a layout is arranged on a widget section.
+	const [ activeSection, setActiveSection ] = useActiveSection(
+		sections,
+		hasSettingsTab && ! editMode ? SETTINGS_TAB_SLUGS : NO_TAB_SLUGS
+	);
+	const isSettingsActive = activeSection === SETTINGS_SECTION;
+	// The Settings tab has no layout of its own, and `WidgetDashboard` opens Customize over an
+	// empty one, so the first section's layout and date state stay in place behind it.
+	const widgetSection = isSettingsActive ? resolveSectionId( undefined, sections ) : activeSection;
+	const widgetModules = useWidgetModules();
+	const widgetTypeRenames = useMemo(
+		() => buildWidgetTypeRenames( widgetModules ),
+		[ widgetModules ]
+	);
+	const [ layout, setLayout, resetLayout ] = useDashboardSectionLayout(
+		widgetSection,
+		sections,
+		widgetTypeRenames
+	);
 	const [ gridSettings ] = useDashboardGridSettings();
 
+	const activeSectionRecord = sections.find( section => section.slug === widgetSection );
+
+	// The inserter offers the active section's default layout types plus those it declares insertable.
+	const insertableWidgetTypes = useMemo(
+		() => getInsertableWidgetTypeNames( activeSectionRecord ? [ activeSectionRecord ] : [] ),
+		[ activeSectionRecord ]
+	);
+	const dashboardPolicy = useDashboardPolicy( { insertableWidgetTypes } );
+	// Settings has no layout to customize, and `WidgetDashboard` opens Customize over an empty one.
+	const canPerform = useMemo< typeof dashboardPolicy >(
+		() =>
+			isSettingsActive
+				? request => request.operation !== 'customize' && dashboardPolicy( request )
+				: dashboardPolicy,
+		[ dashboardPolicy, isSettingsActive ]
+	);
+
 	/*
-	 * Only a section whose data reaches WordPress.com through the analytics full
-	 * sync has incomplete numbers; the rest read data it already holds. The
-	 * watcher runs at the dashboard level rather than inside the notice below, so
-	 * the sync starts as soon as the dashboard opens instead of only once that
-	 * section is visited.
+	 * The watcher runs at the dashboard level, not inside the notice below, so the
+	 * sync starts as soon as the dashboard opens rather than when the section is visited.
 	 */
 	const isSyncFinished = isPremiumAnalyticsInitialSyncFinished();
 	const sectionsAwaitSync = sections.some( section =>
 		isSectionAwaitingSync( section, isSyncFinished )
 	);
+	// The sync routes take manage_options; anyone else would only collect 403s.
+	const canRunSync = currentUserCan( 'manage_options' );
 	const {
 		data: syncStatus,
 		error: syncError,
 		isComplete: isSyncComplete,
 		triggerSync,
-	} = useSyncStatus( { enabled: sectionsAwaitSync, autoStart: true } );
+	} = useSyncStatus( { enabled: sectionsAwaitSync && canRunSync, autoStart: true } );
 
 	const [ isRetryingSync, setIsRetryingSync ] = useState( false );
 	const retrySync = useCallback( async () => {
@@ -88,49 +160,92 @@ function Dashboard(): JSX.Element {
 		}
 	}, [ isSyncComplete ] );
 
-	const widgetModules = useSelect(
-		select =>
-			(
-				select( coreStore ) as unknown as {
-					getEntityRecords: (
-						kind: string,
-						name: string,
-						query?: Record< string, unknown >
-					) => WidgetModuleRecord[] | null;
-				}
-			 )
-				// `per_page: -1` returns every widget type. Without it, core-data's default
-				// query (`per_page: 10`) caps the mapped records at 10, silently hiding any
-				// widget past the tenth from the "Add widget" gallery.
-				.getEntityRecords( 'root', 'widgetModule', { per_page: -1 } ),
-		[]
+	const resolveWidgetModule = useWidgetModuleResolver( widgetModules );
+
+	const trackCustomize = useTrackCustomize( 'dashboard', widgetSection );
+	// Every way into and out of edit mode arrives here: the menu below, the command
+	// palette, an empty layout, and the dashboard's own Cancel and Done.
+	const onEditChange = useCallback(
+		( nextEditMode: boolean ) => {
+			if ( nextEditMode ) {
+				trackCustomize.start();
+			} else {
+				trackCustomize.exit();
+			}
+			setEditMode( nextEditMode );
+		},
+		[ trackCustomize ]
 	);
+	const startCustomizing = useCallback( () => onEditChange( true ), [ onEditChange ] );
+	const onLayoutChange = useCallback(
+		( nextLayout: DashboardWidget[] ) => {
+			trackCustomize.layoutChange( layout, nextLayout );
+			setLayout( nextLayout );
+		},
+		[ layout, setLayout, trackCustomize ]
+	);
+	const resetToDefault = useCallback( () => {
+		trackCustomize.reset();
+		resetLayout();
+		setEditMode( false );
+	}, [ resetLayout, trackCustomize ] );
 
-	const [ editMode, setEditMode ] = useState( false );
+	// The tour's anchors, handed in by the elements below once they mount.
+	const [ optionsMenuFrame, setOptionsMenuFrame ] = useState< HTMLDivElement | null >( null );
+	const [ controlsAnchor, setControlsAnchor ] = useState< HTMLDivElement | null >( null );
+	const [ widgetsFrame, setWidgetsFrame ] = useState< HTMLDivElement | null >( null );
+	const [ tabListFrame, setTabListFrame ] = useState< HTMLDivElement | null >( null );
+	const tourAnchors = {
+		// Every tile is a section; the grid draws them in layout order.
+		firstWidget: widgetsFrame?.querySelector( 'section' ) ?? null,
+		dateControls: controlsAnchor,
+		optionsMenu: optionsMenuFrame?.querySelector( 'button' ) ?? null,
+		sectionTabs: tabListFrame?.querySelector( '[role="tablist"]' ) ?? null,
+	};
+	// A step without its anchor is left out, so the counter counts what is on the page.
+	const tourStepsFor = ( flow: OnboardingFlow ) =>
+		onboardingTourSteps( tourAnchors, { withFeedback: canSendFeedback(), flow } ).filter(
+			step => step.anchor
+		);
+	// Built every render rather than memoized: the anchors are looked up fresh, since the
+	// first widget mounts after its frame.
+	const tourStepsByFlow: Record< OnboardingFlow, OnboardingTourStep[] > = {
+		stats: tourStepsFor( 'stats' ),
+		store: tourStepsFor( 'store' ),
+		'stats-and-store': tourStepsFor( 'stats-and-store' ),
+	};
 
-	// Only the widgets this section renders need their metadata resolved at
-	// boot; the complete registry is what the widget picker lists, so it can
-	// wait for edit mode. `null` until the sections resolve — the layout is
-	// empty until then, and this hook runs on those renders too, below the
-	// spinner returned further down. See `useWidgetTypesWithI18n`.
+	const defaultSection = resolveSectionId( undefined, sections );
+
+	// The journey introduces the default section at rest: not another tab, and
+	// not while the reader is already customizing.
+	const onboarding = useOnboarding( {
+		enabled: hasResolvedSections && ! editMode && activeSection === defaultSection,
+		hasStoreSection: hasStoreSection( sections ),
+		stepCounts: {
+			stats: tourStepsByFlow.stats.length,
+			store: tourStepsByFlow.store.length,
+			'stats-and-store': tourStepsByFlow[ 'stats-and-store' ].length,
+		},
+	} );
+	const tourSteps = tourStepsByFlow[ onboarding.flow ];
+
+	// Only the widgets this section renders need metadata at boot; the full registry
+	// waits for edit mode. `null` until sections resolve, since the layout is empty until then.
 	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules, {
 		visibleNames: hasResolvedSections ? layout.map( widget => widget.type ) : null,
 		includeAll: editMode,
 	} );
 
 	/*
-	 * Date-range state lives in the URL search params. The shared controller
-	 * stages edits locally and commits atomically on Apply (or immediately for
-	 * comparison changes), so widgets re-fetch only on commit.
+	 * Date-range state lives in the URL search params; the controller stages edits
+	 * locally and commits on Apply, so widgets re-fetch only on commit.
 	 */
 	const dateFilters = useReportDateFilters( '/' );
 
-	const activeSectionRecord = sections.find( section => section.slug === activeSection );
-
 	/*
-	 * Which date filter the active section's header shows. Also reconciles the
-	 * preset in the URL with that filter's surface, so a section switch never
-	 * leaves the visible control unable to represent the selection.
+	 * Also reconciles the preset in the URL with the resolved surface, so a section
+	 * switch never leaves the visible control unable to represent the selection.
 	 */
 	const dateFilterSurface = useSectionDateFilter( activeSectionRecord, dateFilters );
 
@@ -140,41 +255,70 @@ function Dashboard(): JSX.Element {
 		activeSectionRecord?.date_filter_options
 	);
 
-	/*
-	 * The subtitle states what the widgets are currently showing, so it follows
-	 * the applied range and comparison rather than the picker's staged draft:
-	 * it must not move while an edit is open, only once Apply commits it.
-	 *
-	 * A header without the comparison control must not announce one.
-	 */
-	const comparisonPresetId = showComparison ? dateFilters.appliedComparisonPresetId : undefined;
-	const comparisonRange = showComparison ? dateFilters.appliedComparisonRange : undefined;
-	const sectionSubtitle = useMemo(
-		() =>
-			getSectionSubtitle( {
-				range: dateFilters.appliedRange,
-				presetId: dateFilters.appliedPresetId,
-				comparisonPresetId,
-				comparisonRange,
-				// The interval control renders as a glyph, so the subtitle is
-				// where the active bucket is readable. Both surfaces carry it.
-				interval: dateFilters.appliedInterval,
-			} ),
-		[
-			dateFilters.appliedRange,
-			dateFilters.appliedPresetId,
-			dateFilters.appliedInterval,
-			comparisonPresetId,
-			comparisonRange,
-		]
+	// Placement only: the date state is the same either way.
+	const showHeaderDateControl =
+		activeSectionRecord?.date_filter_options?.with_header_date_control ?? true;
+	const showHeaderIntervalControl =
+		activeSectionRecord?.date_filter_options?.with_header_interval_control ?? true;
+
+	// A widget can set the period, here or on another section (WOOA7S-2036); once
+	// the section shows the period control, it draws attention to the new period.
+	const showsPeriodControl =
+		showHeaderDateControl &&
+		! editMode &&
+		! isSettingsActive &&
+		dateFilterSurface !== DATE_FILTER_YEAR;
+	const { openPeriod, attentionId } = usePeriodHost(
+		widgetSection,
+		dateFilters.appliedRange,
+		showsPeriodControl
+	);
+
+	const {
+		onChange: changeDateRange,
+		onComparisonChange: changeComparison,
+		onApply: applyDateRange,
+	} = dateFilters;
+	const { trackedOnChange, trackedOnApply } = useTrackedDateRangeApply(
+		{
+			presetId: dateFilters.presetId,
+			range: dateFilters.range,
+			interval: dateFilters.interval,
+			comparisonPresetId: dateFilters.comparisonPresetId,
+			appliedComparisonRange: dateFilters.appliedComparisonRange,
+		},
+		{ surface: 'dashboard', section: widgetSection, offersComparison: showComparison }
+	);
+	const {
+		onChange: rememberOnChange,
+		onComparisonChange: rememberOnComparisonChange,
+		onApply: rememberOnApply,
+	} = useRememberAppliedPreset();
+	const onDateChange = useCallback< typeof changeDateRange >(
+		( ...args ) => {
+			changeDateRange( ...args );
+			trackedOnChange( ...args );
+			rememberOnChange( ...args );
+		},
+		[ changeDateRange, trackedOnChange, rememberOnChange ]
+	);
+	const onDateApply = useCallback( () => {
+		applyDateRange();
+		trackedOnApply();
+		rememberOnApply();
+	}, [ applyDateRange, trackedOnApply, rememberOnApply ] );
+	const onComparisonChange = useCallback< typeof changeComparison >(
+		( range, presetId ) => {
+			changeComparison( range, presetId );
+			rememberOnComparisonChange( range, presetId );
+		},
+		[ changeComparison, rememberOnComparisonChange ]
 	);
 
 	/*
-	 * The year surface applies on click — it has no Apply step of its own — so
-	 * stage and commit together, the way the quick presets do inside
-	 * `DateRangeFilter`.
+	 * The year surface applies on click — no Apply step of its own — so stage and
+	 * commit together, the way `DatePeriodDropdown` applies a period.
 	 */
-	const { onChange: onDateChange, onApply: onDateApply } = dateFilters;
 	const selectYear = useCallback(
 		( range: DateRange, presetId: YearSurfacePresetId ) => {
 			onDateChange( range, presetId );
@@ -183,13 +327,19 @@ function Dashboard(): JSX.Element {
 		[ onDateChange, onDateApply ]
 	);
 
-	// Container element for the date filters panel responsive layout.
-	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
+	// The year surface still measures: its pills collapse into a select where the
+	// header row runs short, and the row is what it has to measure, not the body.
+	const [ headerElement, setHeaderElement ] = useState< HTMLDivElement | null >( null );
+	// Ignore the unmount. Tab panels overlap for a frame, so the outgoing
+	// header would otherwise overwrite the incoming one with null (WOOA7S-2066).
+	const setHeaderRef = useCallback( ( el: HTMLDivElement | null ) => {
+		if ( el ) {
+			setHeaderElement( el );
+		}
+	}, [] );
 
-	// The sections carry each section's default layout, so until the entity
-	// resolves the layout above is transiently empty. WidgetDashboard treats an
-	// empty layout as "no widgets" and force-opens edit mode, so it must not
-	// mount before the sections exist.
+	// WidgetDashboard treats a transiently-empty layout as "no widgets" and
+	// force-opens edit mode, so it must not mount before the sections resolve.
 	if ( ! hasResolvedSections ) {
 		return (
 			<Stack justify="center" align="center" className={ styles.loading }>
@@ -199,126 +349,214 @@ function Dashboard(): JSX.Element {
 	}
 
 	/*
-	 * The date controls belong to the active section: the tab panels unmount
-	 * when they lose focus, so only the active section's header is ever rendered
-	 * and one set of controls is enough.
+	 * Tab panels unmount when unfocused, so only the active section's header renders
+	 * and one set of controls suffices; an opted-out section renders none at all.
+	 * Gone while customizing: reading controls take no part in arranging a layout,
+	 * and Done or Cancel bring them back over the applied range.
 	 */
-	const dateControls =
-		dateFilterSurface === DATE_FILTER_YEAR ? (
-			/*
-			 * The year surface carries the interval control but no comparison.
-			 * Composed here rather than inside `DateYearFilter`, which stays the
-			 * preset surface alone.
-			 */
-			<Stack direction="row" align="center" gap="sm">
-				{ /*
-				 * `startYear` is left out on purpose: nothing in this package knows how
-				 * far back the site's data goes yet (`getStoreInfo()` is still a stub),
-				 * so the surface falls back to `DEFAULT_YEAR_SURFACE_COUNT` — six years,
-				 * which is the window the design shows. Pass the site's oldest year of
-				 * content here once a source for it exists, so a younger site stops
-				 * offering years it has nothing to show for.
-				 */ }
-				<DateYearFilter
-					value={ dateFilters.appliedPresetId }
-					onSelect={ selectYear }
-					timeZone={ dateFilters.timeZone }
-					containerElement={ containerElement }
-				/>
+	let dateControls: JSX.Element | null = null;
 
-				<DateIntervalDropdown
-					options={ dateFilters.intervalOptions }
-					value={ dateFilters.interval }
-					onChange={ dateFilters.onIntervalChange }
+	if ( showHeaderDateControl && ! editMode ) {
+		dateControls =
+			dateFilterSurface === DATE_FILTER_YEAR ? (
+				/*
+				 * The interval control is composed here rather than inside
+				 * `DateYearFilter`, which stays the preset surface alone.
+				 */
+				<Stack direction="row" align="center" gap="sm">
+					{ /*
+					 * `startYear` is omitted: nothing here knows how far back data goes, so the
+					 * surface falls back to `DEFAULT_YEAR_SURFACE_COUNT`.
+					 */ }
+					<DateYearFilter
+						value={ dateFilters.appliedPresetId }
+						onSelect={ selectYear }
+						timeZone={ dateFilters.timeZone }
+						containerElement={ headerElement }
+					/>
+
+					{ showHeaderIntervalControl && (
+						<DateIntervalDropdown
+							options={ dateFilters.intervalOptions }
+							value={ dateFilters.interval }
+							onChange={ dateFilters.onIntervalChange }
+						/>
+					) }
+				</Stack>
+			) : (
+				/*
+				 * Report pages mount this same panel over records tables, which have no
+				 * interval, so the control is asked for rather than implied.
+				 */
+				<DateFiltersPanel
+					{ ...dateFilters }
+					onChange={ onDateChange }
+					onComparisonChange={ onComparisonChange }
+					onApply={ onDateApply }
+					withIntervalControl={ showHeaderIntervalControl }
+					attentionId={ attentionId }
 				/>
-			</Stack>
-		) : (
-			/*
-			 * The dashboard's widgets are charts bucketed by the interval. The
-			 * report pages mount this same panel over records tables, which are
-			 * not, so the control is asked for rather than implied by the props.
-			 */
-			<DateFiltersPanel { ...dateFilters } withIntervalControl />
-		);
+			);
+	}
 
 	return (
-		<GlobalErrorProvider>
+		<>
+			<PeriodChangeStatus
+				attentionId={ attentionId }
+				appliedPresetId={ dateFilters.appliedPresetId }
+				appliedRange={ dateFilters.appliedRange }
+			/>
 			{ /*
-			 * The same answer the header uses to decide whether to render the
-			 * comparison control, declared once for the widgets below: hiding
-			 * the control does not strip the params, and a widget reading them
-			 * straight off the URL would show a comparison this section's
-			 * reader has no way to see or switch off.
+			 * Declared once for widgets below: hiding the control doesn't strip the params,
+			 * so a widget reading them off the URL could show a comparison the reader can't see.
 			 */ }
-			<ReportScopeProvider offersComparison={ showComparison }>
-				<WidgetDashboard
-					widgetTypes={ widgetTypes }
-					isResolvingWidgetTypes={ isResolvingWidgetTypes }
-					resolveWidgetModule={ resolveWidgetModuleWithI18n }
-					layout={ layout }
-					onLayoutChange={ setLayout }
-					onLayoutReset={ resetLayout }
-					gridSettings={ gridSettings }
-					editMode={ editMode }
-					onEditChange={ setEditMode }
-				>
-					<Page
-						visual={ <StatsPageIcon /> }
-						breadcrumbs={ <StatsBreadcrumbs isRoot /> }
-						subTitle={ activeSectionRecord?.description }
-						actions={ <WidgetDashboard.Actions /> }
-						className={ styles.dashboard }
+			<ReportScopeProvider offersComparison={ showComparison } openPeriod={ openPeriod }>
+				{ /* Outside the dashboard: the inserter mounts beyond `children`. */ }
+				<WidgetDashboard.Policy canPerform={ canPerform }>
+					<WidgetDashboard
+						widgetTypes={ widgetTypes }
+						isResolvingWidgetTypes={ isResolvingWidgetTypes }
+						resolveWidgetModule={ resolveWidgetModule }
+						layout={ layout }
+						onLayoutChange={ onLayoutChange }
+						onLayoutReset={ resetLayout }
+						gridSettings={ gridSettings }
+						editMode={ editMode }
+						onEditChange={ onEditChange }
 					>
-						<DashboardSections
-							sections={ sections }
-							value={ activeSection }
-							onChange={ setActiveSection }
+						<Page
+							visual={ <StatsPageIcon /> }
+							breadcrumbs={ <StatsBreadcrumbs isRoot /> }
+							actions={
+								<Stack direction="row" gap="sm">
+									{ /* At rest these would add a second Customize beside the menu's. */ }
+									{ editMode && (
+										<>
+											<WidgetDashboard.Actions />
+											<ResetLayoutAction onReset={ resetToDefault } />
+										</>
+									) }
+									<Stack ref={ setOptionsMenuFrame } direction="row">
+										<PageOptionsMenu
+											onCustomize={ editMode || isSettingsActive ? undefined : startCustomizing }
+										/>
+									</Stack>
+								</Stack>
+							}
+							className={ styles.dashboard }
 						>
-							{ sections.map( section => (
-								<SectionTabPanel
-									key={ section.slug }
-									value={ section.slug }
-									className={ styles.content }
-								>
-									{ /* Marks where the header below comes to rest, so its subtitle
-								     starts condensing there. Measured, never seen. */ }
-									<div className={ styles.pinMarker } aria-hidden="true" />
-
-									<div ref={ setContainerElement } className={ styles.sectionHeader }>
+							<DashboardSections
+								sections={ sections }
+								withSettingsTab={ hasSettingsTab }
+								isSettingsTabDisabled={ editMode }
+								value={ activeSection }
+								onChange={ setActiveSection }
+								tabListRef={ setTabListFrame }
+							>
+								{ sections.map( section => (
+									<SectionTabPanel
+										key={ section.slug }
+										value={ section.slug }
+										className={ styles.content }
+									>
 										<SectionHeader
+											ref={ setHeaderRef }
 											title={ resolveSectionHeading( section ) }
-											subtitle={ sectionSubtitle }
-											condenseOnScroll
+											pinned
+											notice={ <RefreshFailureNotice /> }
+											controlsRef={ setControlsAnchor }
 										>
 											{ dateControls }
 										</SectionHeader>
-									</div>
 
-									{ activeSection === section.slug ? (
-										<>
-											{ isSectionAwaitingSync( section, isSyncFinished ) && ! isSyncComplete ? (
-												<SectionSyncNotice
-													percentage={ syncStatus?.percentage ?? 0 }
-													hasError={ !! syncError }
-													onRetry={ retrySync }
-													isRetrying={ isRetryingSync }
+										{ activeSection === section.slug ? (
+											<div className={ styles.body }>
+												{ /* A checkout return holds the plan limit notice back for the
+												     whole load, even once dismissed. */ }
+												{ ! editMode &&
+													( hasPurchaseSuccess() ? (
+														<PurchaseSuccessNotice />
+													) : (
+														<PlanLimitNotice />
+													) ) }
+
+												{ /* Behind the onboarding journey: it introduces the tabs
+												     the banner asks about. */ }
+												<FeedbackBanner
+													enabled={
+														canSendFeedback() &&
+														! editMode &&
+														section.slug === defaultSection &&
+														onboarding.phase === 'closed'
+													}
 												/>
-											) : null }
 
-											<WidgetDashboard.NoWidgetsState />
-											<WidgetDashboard.Widgets className={ styles.widgets } />
-										</>
-									) : null }
-								</SectionTabPanel>
-							) ) }
-						</DashboardSections>
+												{ isSectionAwaitingSync( section, isSyncFinished ) && ! isSyncComplete ? (
+													<SectionSyncNotice
+														canRunSync={ canRunSync }
+														percentage={ syncStatus?.percentage ?? 0 }
+														hasError={ !! syncError }
+														onRetry={ retrySync }
+														isRetrying={ isRetryingSync }
+													/>
+												) : (
+													section.notice && <SectionNotice message={ section.notice } />
+												) }
 
-						<WidgetDashboard.Commands />
-					</Page>
-				</WidgetDashboard>
+												<WidgetDashboard.NoWidgetsState />
+												<div ref={ setWidgetsFrame }>
+													<DashboardSectionProvider section={ section.slug }>
+														<WidgetDashboard.Widgets className={ styles.widgets } />
+													</DashboardSectionProvider>
+												</div>
+											</div>
+										) : null }
+									</SectionTabPanel>
+								) ) }
+
+								{ hasSettingsTab && (
+									<SectionTabPanel value={ SETTINGS_SECTION } className={ styles.content }>
+										<div className={ styles.body }>
+											<StatsSettingsPanel />
+										</div>
+									</SectionTabPanel>
+								) }
+							</DashboardSections>
+
+							<WidgetDashboard.Commands />
+
+							<OnboardingWelcomeModal
+								open={ onboarding.phase === 'modal' }
+								variant={ onboarding.flow }
+								onStart={ onboarding.start }
+								onDismiss={ onboarding.dismiss }
+							/>
+							{ onboarding.phase === 'tour' && (
+								<OnboardingTour
+									steps={ tourSteps }
+									current={ onboarding.step }
+									onNext={ onboarding.next }
+									onDismiss={ onboarding.dismiss }
+								/>
+							) }
+						</Page>
+					</WidgetDashboard>
+				</WidgetDashboard.Policy>
 			</ReportScopeProvider>
-		</GlobalErrorProvider>
+		</>
 	);
 }
 
-export const stage = Dashboard;
+/**
+ * Route stage wrapper: the signal provider sits above the dashboard so a widget
+ * and the header, which both read it, share one.
+ *
+ * @return The dashboard page.
+ */
+export function stage(): JSX.Element {
+	return (
+		<PeriodChangeSignalProvider>
+			<Dashboard />
+		</PeriodChangeSignalProvider>
+	);
+}

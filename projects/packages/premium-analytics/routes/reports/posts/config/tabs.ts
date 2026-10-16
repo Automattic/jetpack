@@ -18,38 +18,27 @@ export type ReportPostsTabId = 'posts-pages' | 'archives';
 const DEFAULT_TAB_ID: ReportPostsTabId = 'posts-pages';
 
 /**
- * Canonical tab machinery built from the ordered definitions.
- *
- * Labels are defined once here, as getters resolved at call time, so translations
- * are applied after the i18n locale data has loaded. The generic `defineReportTabs`
- * helper turns these into the `resolve`/`getTabs`/`getTabLabel` API. Mirrors the
- * post-detail tab definitions.
+ * Canonical tab machinery. Labels are getters resolved at call time so translations
+ * apply after i18n locale data loads; mirrors the post-detail tab definitions.
  */
 const reportPostsTabs = defineReportTabs< ReportPostsTabId >(
 	[
 		{
 			id: 'posts-pages',
 			getLabel: () => __( 'Posts & Pages', 'jetpack-premium-analytics-pkg' ),
-			getTitle: () => __( 'Posts & Pages report', 'jetpack-premium-analytics-pkg' ),
 		},
 		{
 			id: 'archives',
 			getLabel: () => __( 'Archives', 'jetpack-premium-analytics-pkg' ),
-			getTitle: () => __( 'Archives report', 'jetpack-premium-analytics-pkg' ),
 		},
 	],
 	DEFAULT_TAB_ID
 );
 
 /**
- * Get the translated display label for a tab.
+ * Get the translated label for a tab, which also heads its section.
  */
 export const getTabLabel = reportPostsTabs.getTabLabel;
-
-/**
- * Get the translated heading for a tab's section.
- */
-export const getTabTitle = reportPostsTabs.getTabTitle;
 
 /**
  * Build the ordered list of tab definitions ({ id, label }).

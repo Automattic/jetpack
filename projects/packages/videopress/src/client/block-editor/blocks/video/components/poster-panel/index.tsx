@@ -144,7 +144,6 @@ export function PosterDropdown( {
 	return (
 		<Dropdown
 			contentClassName="poster-panel__dropdown"
-			placement="top left"
 			renderToggle={ ( { isOpen, onToggle } ) => (
 				<Button
 					ref={ buttonRef }
@@ -185,11 +184,11 @@ export function PosterDropdown( {
 														/* translators: %s: an image URL. */
 														__( 'The current poster image url is %s', 'jetpack-videopress-pkg' ),
 														poster
-												  )
+													)
 												: __(
 														'There is no poster image currently selected',
 														'jetpack-videopress-pkg'
-												  ) }
+													) }
 										</p>
 									</MenuItem>
 								) }
@@ -440,6 +439,8 @@ export default function PosterPanel( {
 	attributes,
 	setAttributes,
 	isGeneratingPoster,
+	posterError,
+	onRetryPoster,
 	videoBelongToSite,
 }: PosterPanelProps ): ReactElement {
 	const { poster, posterData } = attributes;
@@ -548,6 +549,16 @@ export default function PosterPanel( {
 
 	return (
 		<PanelBody title={ panelTitle } className="poster-panel" initialOpen={ false }>
+			{ pickPosterFromFrame && posterError && (
+				<Notice
+					status="error"
+					className="poster-panel__notice"
+					isDismissible={ false }
+					actions={ [ { label: __( 'Retry', 'jetpack-videopress-pkg' ), onClick: onRetryPoster } ] }
+				>
+					{ posterError }
+				</Notice>
+			) }
 			<ToggleControl
 				label={ __( 'Pick from video frame', 'jetpack-videopress-pkg' ) }
 				checked={ pickPosterFromFrame && videoBelongToSite }

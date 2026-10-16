@@ -29,19 +29,16 @@ const forcedStateMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 			return { date: '2026-01-01', period: 'day', summary: {}, days: {}, data: [] };
 		}
 		if ( state === 'error-retryable' ) {
-			// The local proxy's `no_connection` shape. Still a 403, so the error UI
-			// shows at once, but `describeError` keeps it retryable: a broken Jetpack
-			// connection can heal, unlike a permission gate.
+			// The local proxy's `no_connection` shape: still a 403, but `describeError`
+			// keeps it retryable because a broken connection can heal.
 			return Promise.reject( {
 				code: 'no_connection',
 				message: 'Mocked connection failure for Storybook.',
 				data: { status: 403 },
 			} );
 		}
-		// The WPCOM pass-through envelope, with the status attached the way the fetch
-		// layer attaches it. A 403 is not retried by `shouldRetryApiError`, so the
-		// error UI shows at once instead of after the query's retry backoff. Widgets
-		// on `describeError` read this as a permission gate and drop their Retry action.
+		// The WPCOM pass-through envelope. `shouldRetryApiError` does not retry a 403,
+		// so the error UI shows at once and `describeError` drops the Retry action.
 		return Promise.reject( {
 			error: 'unauthorized',
 			message: 'Mocked error response for Storybook.',
@@ -53,13 +50,9 @@ const forcedStateMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 };
 
 /**
- * Force a state for requests handled by story-local or legacy mocks.
- *
- * Re-register the middleware when setting a state because the most recently
- * registered `apiFetch` middleware runs first and stories load lazily.
- *
- * Use in `beforeEach`, clear on cleanup, and exclude the story from autodocs
- * because overrides are keyed by path. Cache isolation is automatic.
+ * Forces a state for requests handled by story-local or legacy mocks. Setting
+ * a state re-registers the middleware, since the most recently registered one
+ * runs first and stories load lazily. Keyed by path, so exclude the story from autodocs.
  *
  * @param pathFragment - Substring matched against the request path (e.g. `stats/clicks`).
  * @param state        - The forced state, or `null` to clear.

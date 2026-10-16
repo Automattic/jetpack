@@ -30,16 +30,8 @@ class StdinBootstrapTest extends TestCase {
 		);
 
 		$phpcs = __DIR__ . '/../../vendor/bin/phpcs';
-		if ( PHP_VERSION_ID >= 70400 ) {
-			$cmd = array_merge( array( $phpcs ), $args );
-		} else {
-			$cmd = $phpcs;
-			foreach ( $args as $arg ) {
-				$cmd .= ' ' . escapeshellarg( $arg );
-			}
-		}
-		$p = proc_open(
-			$cmd,
+		$p     = proc_open(
+			array( $phpcs, ...$args ),
 			array(
 				array( 'pipe', 'r' ),
 				array( 'pipe', 'w' ),

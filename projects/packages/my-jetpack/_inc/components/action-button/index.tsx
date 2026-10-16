@@ -1,6 +1,7 @@
 import { getUserConnectionUrl } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronDown, external, check } from '@wordpress/icons';
+import { Badge } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useState, useEffect, useMemo, useRef } from 'react';
 import { PRODUCT_STATUSES, MyJetpackRoutes } from '../../constants';
@@ -9,6 +10,7 @@ import useInstallPlugins from '../../data/products/use-install-plugins';
 import useProduct from '../../data/products/use-product';
 import useProductsByOwnership from '../../data/products/use-products-by-ownership';
 import useAnalytics from '../../hooks/use-analytics';
+import useForcedOffReason from '../../hooks/use-forced-off-reason';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import useOutsideAlerter from '../../hooks/use-outside-alerter';
@@ -65,8 +67,14 @@ const ActionButton: FC< ActionButtonProps > = ( {
 	const { activate, isPending: isActivating } = useActivatePlugins( slug );
 	const { install: installStandalonePlugin, isPending: isInstalling } = useInstallPlugins( slug );
 
+	const { reason: forcedOffReason, isPending: isForcedOffPending } = useForcedOffReason(
+		slug,
+		status
+	);
+
 	const isBusy =
 		isActivating ||
+		isForcedOffPending ||
 		isProductDataLoading ||
 		isRefetching ||
 		isInstalling ||
@@ -414,6 +422,15 @@ const ActionButton: FC< ActionButtonProps > = ( {
 			</ul>
 		</div>
 	);
+
+	// Activating or buying a feature the host keeps off changes nothing, so say why instead.
+	if ( forcedOffReason ) {
+		return (
+			<Badge intent="medium" className={ styles[ 'forced-off-reason' ] }>
+				{ forcedOffReason }
+			</Badge>
+		);
+	}
 
 	return (
 		<>

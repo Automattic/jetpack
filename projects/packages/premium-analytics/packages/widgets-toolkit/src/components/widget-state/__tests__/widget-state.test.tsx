@@ -1,7 +1,9 @@
 /**
  * External dependencies
  */
+import { search } from '@jetpack-premium-analytics/icons';
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { chartBar } from '@wordpress/icons';
 import { useLayoutEffect, useState } from 'react';
 /**
@@ -86,16 +88,6 @@ describe( 'WidgetState', () => {
 		jest.useRealTimers();
 	} );
 
-	it( 'renders children when ready, with no skeleton', () => {
-		render(
-			<WidgetState isLoading={ false } isError={ false } isEmpty={ false }>
-				{ CONTENT }
-			</WidgetState>
-		);
-		expect( screen.getByText( 'rows' ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'status', { hidden: true } ) ).not.toBeInTheDocument();
-	} );
-
 	it( 'renders the loading state on first load even when empty', () => {
 		render(
 			<WidgetState isLoading isError={ false } isEmpty>
@@ -103,39 +95,21 @@ describe( 'WidgetState', () => {
 			</WidgetState>
 		);
 		expect( screen.queryByText( 'rows' ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
-		// And nothing above it is busy. `aria-busy` defers descendant changes, so
-		// a busy ancestor could hold this status back until the moment the node is
-		// unmounted — silencing the one announcement a first load owes.
-		expect( screen.queryAllByRole( 'generic', { busy: true } ) ).toHaveLength( 0 );
+		expect( screen.getByTestId( 'widget-skeleton' ) ).toBeInTheDocument();
 	} );
 
 	it( 'keeps a slow first load out of a busy region, though it reports as fetching too', () => {
-		// React Query raises `isFetching` alongside `isLoading` on the first load,
-		// so a load that outlasts the delay must not be mistaken for a refetch and
-		// wrapped in the busy region that would defer its own announcement.
+		// React Query raises `isFetching` alongside `isLoading` on first load; a slow
+		// first load must not be mistaken for a refetch and wrapped in the busy region.
 		render(
-			<WidgetState isLoading isFetching isError={ false } isEmpty={ false }>
+			<WidgetState isLoading isFetching isError={ false }>
 				{ CONTENT }
 			</WidgetState>
 		);
 
 		elapseFetchDelay();
-		expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'widget-skeleton' ) ).toBeInTheDocument();
 		expect( screen.queryAllByRole( 'generic', { busy: true } ) ).toHaveLength( 0 );
-	} );
-
-	it( 'renders the loading state whenever isLoading, regardless of the caller-derived isEmpty', () => {
-		// `isEmpty` is derived by the caller and can be false during first load
-		// (e.g. `data?.rows.length === 0` while data is still undefined); loading
-		// must still block rendering children against absent data.
-		render(
-			<WidgetState isLoading isError={ false } isEmpty={ false }>
-				{ CONTENT }
-			</WidgetState>
-		);
-		expect( screen.queryByText( 'rows' ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
 	} );
 
 	it( 'keeps the empty state on screen through a refetch that drags on', () => {
@@ -156,7 +130,7 @@ describe( 'WidgetState', () => {
 		// Still the right answer for these params, so a revalidation has nothing
 		// to correct.
 		expect( screen.getByText( 'No posts here.' ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'status', { hidden: true } ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'widget-skeleton' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'renders the caller loading override instead of the default skeleton', () => {
@@ -166,7 +140,7 @@ describe( 'WidgetState', () => {
 			</WidgetState>
 		);
 		expect( screen.getByText( 'override' ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'widget-skeleton' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'keeps the caller loading override out of a refetch, however long it drags on', () => {
@@ -175,7 +149,6 @@ describe( 'WidgetState', () => {
 				isLoading={ false }
 				isFetching
 				isError={ false }
-				isEmpty={ false }
 				renderLoading={ <div>override</div> }
 			>
 				{ CONTENT }
@@ -201,13 +174,55 @@ describe( 'WidgetState', () => {
 		expect( screen.queryByText( 'rows' ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'shows a custom empty action only while the widget has no results', () => {
+		const empty = {
+			description: 'No posts here.',
+			action: { label: 'Create post', href: '/wp-admin/post-new.php' },
+		};
+		const { rerender } = render(
+			<WidgetState isLoading={ false } isError={ false } isEmpty empty={ empty }>
+				{ CONTENT }
+			</WidgetState>
+		);
+
+		expect( screen.getByRole( 'link', { name: 'Create post' } ) ).toHaveAttribute(
+			'href',
+			'/wp-admin/post-new.php'
+		);
+
+		rerender(
+			<WidgetState isLoading={ false } isError={ false } isEmpty={ false } empty={ empty }>
+				{ CONTENT }
+			</WidgetState>
+		);
+		expect( screen.queryByRole( 'link', { name: 'Create post' } ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'rows' ) ).toBeInTheDocument();
+	} );
+
+	it( 'runs an empty-state button action without navigating', async () => {
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		const onClick = jest.fn();
+		render(
+			<WidgetState
+				isLoading={ false }
+				isError={ false }
+				isEmpty
+				empty={ { action: { label: 'Build URL', onClick } } }
+			>
+				{ CONTENT }
+			</WidgetState>
+		);
+
+		await user.click( screen.getByRole( 'button', { name: 'Build URL' } ) );
+		expect( onClick ).toHaveBeenCalledTimes( 1 );
+	} );
+
 	it( 'renders the error state with an action button', () => {
 		const onClick = jest.fn();
 		render(
 			<WidgetState
 				isLoading={ false }
 				isError
-				isEmpty={ false }
 				error={ { description: 'Failed.', actions: [ { label: 'Retry', onClick } ] } }
 			>
 				{ CONTENT }
@@ -221,28 +236,35 @@ describe( 'WidgetState', () => {
 		expect( onClick ).toHaveBeenCalledTimes( 1 );
 	} );
 
-	it( 'renders no empty icon by default, but honors a caller icon distinct from the error icon', () => {
-		const providedGlyphPath = iconPathOf( <>{ chartBar }</> );
-		const errorGlyphPath = iconPathOf( errorStateIcon );
-		// Sanity: the sample and error source glyphs really are different.
-		expect( providedGlyphPath ).not.toBe( errorGlyphPath );
+	it( 'renders the generic magnifier and copy when the widget passes no empty state', () => {
+		const { container } = render(
+			<WidgetState isLoading={ false } isError={ false } isEmpty>
+				{ CONTENT }
+			</WidgetState>
+		);
+		expect(
+			screen.getByText( 'We couldn’t find results for this time period.' )
+		).toBeInTheDocument();
+		expect( svgPathOf( container ) ).toBe( iconPathOf( <>{ search }</> ) );
+	} );
 
-		// Default empty state carries no icon — no domain-specific default glyph.
-		const { container: bareEmpty, unmount: unmountBare } = render(
+	it( 'keeps the generic magnifier, not a bare message, for a widget’s own copy that names no icon', () => {
+		const { container } = render(
 			<WidgetState
 				isLoading={ false }
 				isError={ false }
 				isEmpty
-				empty={ { description: 'No posts here.' } }
+				empty={ { description: 'Open an author to see their top posts here.' } }
 			>
 				{ CONTENT }
 			</WidgetState>
 		);
-		expect( svgPathOf( bareEmpty ) ).toBeNull();
-		unmountBare();
+		expect( screen.getByText( 'Open an author to see their top posts here.' ) ).toBeInTheDocument();
+		expect( svgPathOf( container ) ).toBe( iconPathOf( <>{ search }</> ) );
+	} );
 
-		// A caller-provided icon renders and stays distinct from the error glyph.
-		const { container: emptyContainer, unmount: unmountEmpty } = render(
+	it( 'renders the icon a widget names for its own copy instead of the generic magnifier', () => {
+		const { container } = render(
 			<WidgetState
 				isLoading={ false }
 				isError={ false }
@@ -252,48 +274,41 @@ describe( 'WidgetState', () => {
 				{ CONTENT }
 			</WidgetState>
 		);
-		const emptyIcon = svgPathOf( emptyContainer );
-		expect( emptyIcon ).toBe( providedGlyphPath );
-		expect( emptyIcon ).not.toBe( errorGlyphPath );
-		unmountEmpty();
+		expect( svgPathOf( container ) ).toBe( iconPathOf( <>{ chartBar }</> ) );
+	} );
 
-		const { container: errorContainer } = render(
-			<WidgetState
-				isLoading={ false }
-				isError
-				isEmpty={ false }
-				error={ { description: 'Failed.' } }
-			>
+	it( 'renders the error glyph, not an empty-state one, when the fetch failed', () => {
+		const { container } = render(
+			<WidgetState isLoading={ false } isError error={ { description: 'Failed.' } }>
 				{ CONTENT }
 			</WidgetState>
 		);
-		expect( svgPathOf( errorContainer ) ).toBe( errorGlyphPath );
+		expect( svgPathOf( container ) ).toBe( iconPathOf( errorStateIcon ) );
 	} );
 
 	it( 'leaves a refetch that resolves quickly alone, drawing no skeleton at all', () => {
 		render(
-			<WidgetState isLoading={ false } isFetching isError={ false } isEmpty={ false }>
+			<WidgetState isLoading={ false } isFetching isError={ false }>
 				{ CONTENT }
 			</WidgetState>
 		);
-		expect( screen.queryByRole( 'status', { hidden: true } ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'widget-skeleton' ) ).not.toBeInTheDocument();
 		expect( screen.getByText( 'rows' ) ).toBeInTheDocument();
-		// Not busy either. Nothing on screen changed, so telling assistive tech
-		// the region is updating would interrupt a reader over an update a
-		// sighted one never sees.
+		// Not busy either: the fetch delay has not elapsed, so a revalidation this
+		// brief is never marked at all.
 		expect( screen.queryAllByRole( 'generic', { busy: true } ) ).toHaveLength( 0 );
 	} );
 
 	it( 'marks the region busy once a refetch drags on, without covering the children', () => {
 		render(
-			<WidgetState isLoading={ false } isFetching isError={ false } isEmpty={ false }>
+			<WidgetState isLoading={ false } isFetching isError={ false }>
 				{ CONTENT }
 			</WidgetState>
 		);
 		elapseFetchDelay();
 		// A long revalidation changes only `aria-busy` — no skeleton at all,
 		// hidden or otherwise.
-		expect( screen.queryByRole( 'status', { hidden: true } ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'widget-skeleton' ) ).not.toBeInTheDocument();
 		expect( screen.getAllByRole( 'generic', { busy: true } ) ).toHaveLength( 1 );
 		expect( screen.getByText( 'rows' ) ).toBeInTheDocument();
 	} );
@@ -301,7 +316,7 @@ describe( 'WidgetState', () => {
 	it( 'never takes the numbers off screen across a whole revalidation cycle', () => {
 		// The bug lived in the transition, so pinning `isFetching` to one value
 		// cannot catch it. `isLoading` stays false throughout: same params.
-		const props = { isLoading: false, isError: false, isEmpty: false };
+		const props = { isLoading: false, isError: false };
 		const rowsOnScreen = () => !! screen.queryByText( 'rows' );
 
 		const { rerender } = render(
@@ -331,7 +346,7 @@ describe( 'WidgetState', () => {
 	} );
 
 	it( 'leaves the children their own state through a revalidation', () => {
-		const props = { isLoading: false, isError: false, isEmpty: false };
+		const props = { isLoading: false, isError: false };
 		const { rerender } = render(
 			<WidgetState { ...props } isFetching={ false }>
 				<Counter />
@@ -358,16 +373,14 @@ describe( 'WidgetState', () => {
 	} );
 
 	it.each( [
-		[ 'the skeleton', { isLoading: true, isEmpty: false, isError: false } ],
+		[ 'the skeleton', { isLoading: true, isError: false } ],
 		[ 'the empty state', { isLoading: false, isEmpty: true, isError: false } ],
-		[ 'an error', { isLoading: false, isEmpty: false, isError: true } ],
+		[ 'an error', { isLoading: false, isError: true } ],
 	] )( 'catches the focus %s takes down with the children', ( _label, resolved ) => {
-		// Keyboard-activating a drill-down row changes the params by definition,
-		// so it lands on the skeleton and unmounts the row that was activated.
-		// Without this the browser drops focus to <body> and the next Tab
-		// restarts at the top of the page.
+		// A keyboard-activated drill-down row changes the params, landing on the
+		// skeleton; without the parking effect, focus would drop to <body>.
 		const { rerender } = render(
-			<WidgetState isLoading={ false } isError={ false } isEmpty={ false }>
+			<WidgetState isLoading={ false } isError={ false }>
 				<button type="button">Taiwan</button>
 			</WidgetState>
 		);
@@ -385,10 +398,9 @@ describe( 'WidgetState', () => {
 	} );
 
 	it( 'catches focus when new rows replace the focused one with no branch change', () => {
-		// A revalidation that comes back reordered unmounts the focused row
-		// without the state ever changing, so there is no branch to key on.
-		// Keyed, so React unmounts the old row rather than reusing the node.
-		const props = { isLoading: false, isError: false, isEmpty: false };
+		// A reordered revalidation unmounts the focused row with no branch change to
+		// key on; keyed rows ensure React actually unmounts rather than reuses the node.
+		const props = { isLoading: false, isError: false };
 		const { rerender } = render(
 			<WidgetState { ...props }>
 				<button type="button" key="tw">
@@ -416,7 +428,7 @@ describe( 'WidgetState', () => {
 	it( 'leaves focus alone when the reader had already left the widget', () => {
 		// Clicking something unfocusable drops focus to <body> on its own.
 		// Reclaiming it would haul the reader back to a widget they left.
-		const props = { isError: false, isEmpty: false };
+		const props = { isError: false };
 		const { rerender } = render(
 			<WidgetState { ...props } isLoading={ false }>
 				<button type="button">Taiwan</button>
@@ -436,7 +448,7 @@ describe( 'WidgetState', () => {
 	} );
 
 	it( 'leaves focus alone when it never entered the widget', () => {
-		const props = { isError: false, isEmpty: false };
+		const props = { isError: false };
 		const { rerender } = render(
 			<WidgetState { ...props } isLoading={ false }>
 				<button type="button">Taiwan</button>
@@ -453,7 +465,7 @@ describe( 'WidgetState', () => {
 	} );
 
 	it( 'never moves focus through a revalidation, which unmounts nothing', () => {
-		const props = { isLoading: false, isError: false, isEmpty: false };
+		const props = { isLoading: false, isError: false };
 		const { rerender } = render(
 			<WidgetState { ...props } isFetching={ false }>
 				<button type="button">Taiwan</button>
@@ -473,11 +485,9 @@ describe( 'WidgetState', () => {
 	} );
 
 	it( 'forgets a row it did not park focus for, so a later fall to <body> stays put', () => {
-		// Something else claiming focus in the same commit takes the widget out of
-		// the running. Left pointing at the detached row, it would answer the next
-		// unrelated fall to <body> — in tree order, ahead of the widget that
-		// actually lost its focused element.
-		const props = { isError: false, isEmpty: false };
+		// Something else claims focus in the same commit; left pointing at the
+		// detached row, this widget would wrongly answer a later, unrelated fall to <body>.
+		const props = { isError: false };
 		const elsewhereRef: RefObject< HTMLButtonElement | null > = { current: null };
 		const tree = ( { steal, isLoading }: { steal: boolean; isLoading: boolean } ) => (
 			<>
@@ -505,9 +515,8 @@ describe( 'WidgetState', () => {
 	} );
 
 	it( 'error wins over loading and empty (retry in flight after a failed fetch)', () => {
-		// The production shape on a failed fetch: isError with isEmpty derived
-		// true, plus loading signals while a retry is in flight. The priority
-		// contract (error → loading → empty → ready) must hold.
+		// Production shape on a failed fetch: isError with isEmpty derived true, plus
+		// loading signals mid-retry. The priority order (error → loading → empty → ready) must hold.
 		render(
 			<WidgetState isLoading isFetching isError isEmpty error={ { description: 'Failed.' } }>
 				{ CONTENT }
@@ -515,6 +524,6 @@ describe( 'WidgetState', () => {
 		);
 		expect( screen.getByText( 'Failed.' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'rows' ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'status', { hidden: true } ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'widget-skeleton' ) ).not.toBeInTheDocument();
 	} );
 } );

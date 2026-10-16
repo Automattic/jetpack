@@ -13,12 +13,9 @@ const COLUMNS = 28;
 const ROWS = 3;
 
 /**
- * Loading shape for the calendar-heatmap widgets: a fixed grid of square cells.
- *
- * The grid is deliberately not derived from the widget: the loaded heatmap's
- * column count comes from `computeCalendarHeatmapLayout` over the measured tile,
- * which is only known after the first paint, so a stand-in tracking it would land
- * on the wrong count and read as the jump it was meant to prevent.
+ * Loading shape for the calendar-heatmap widgets: a fixed grid of square cells,
+ * deliberately not derived from the widget — the real column count is only
+ * known after first paint, and tracking it would read as the jump this prevents.
  *
  * @return The rendered skeleton.
  */

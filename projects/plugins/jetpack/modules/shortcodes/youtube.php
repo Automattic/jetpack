@@ -158,7 +158,7 @@ if ( ! function_exists( 'jetpack_youtube_sanitize_url' ) ) :
 
 		$url = trim( $url, ' "' );
 		$url = trim( $url );
-		$url = str_replace( array( 'youtu.be/', '/v/', '/shorts/', '#!v=', '&amp;', '&#038;', 'playlist' ), array( 'youtu.be/?v=', '/?v=', '/watch?v=', '?v=', '&', '&', 'videoseries' ), $url );
+		$url = str_replace( array( 'youtu.be/', '/v/', '/shorts/', '/live/', '#!v=', '&amp;', '&#038;', 'playlist' ), array( 'youtu.be/?v=', '/?v=', '/watch?v=', '/watch?v=', '?v=', '&', '&', 'videoseries' ), $url );
 
 		// Replace any extra question marks with ampersands - the result of a URL like "https://www.youtube.com/v/dQw4w9WgXcQ?fs=1&hl=en_US" being passed in.
 		$query_string_start = strpos( $url, '?' );
@@ -183,6 +183,8 @@ endif;
  *    http://www.youtube.com/v/9FhMMmqzbD8?fs=1&hl=en_US
  *    http://youtu.be/Rrohlqeir5E
  *    https://www.youtube.com/watch?v=GJNxoe-iSb4&list=PLAVZ4NFtZX0fE54mDSqNKym-o_rz-8xmk
+ *    https://www.youtube.com/shorts/VIDEO_ID
+ *    https://www.youtube.com/live/VIDEO_ID
  *
  * @param string $url Youtube URL.
  */
@@ -546,7 +548,7 @@ function wpcom_youtube_embed_crazy_url( $matches, $attr, $url ) {
  * Get the regex for Youtube URLs.
  */
 function wpcom_youtube_get_regex() {
-	return '#https?://(?:www\.)?(?:youtube.com/(?:v/|playlist|watch[/\#?])|youtu\.be/).*#i';
+	return '#https?://(?:www\.)?(?:youtube.com/(?:v/|live/|playlist|watch[/\#?])|youtu\.be/).*#i';
 }
 
 /**

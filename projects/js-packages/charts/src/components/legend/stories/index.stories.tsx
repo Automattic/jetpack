@@ -394,7 +394,7 @@ export const TextOverflow: Story = {
 		const titleText = maxWidth
 			? `Legend with ${
 					textOverflow === 'ellipsis' ? 'Ellipsis' : 'Text Wrapping'
-			  } (maxWidth: ${ maxWidth })`
+				} (maxWidth: ${ maxWidth })`
 			: 'Legend without maxWidth constraint';
 
 		return (
@@ -451,5 +451,84 @@ export const CustomShape: Story = {
 			{ label: 'Mobile', value: '35%', color: '#80C8FF' },
 		],
 		shape: 'circle',
+	},
+};
+
+export const ComparisonItem: Story = {
+	render: () => (
+		<LineChart
+			withGradientFill={ false }
+			width={ 600 }
+			height={ 300 }
+			data={ [
+				{ ...lineChartData[ 0 ], group: 'desktop' },
+				{
+					...lineChartData[ 1 ],
+					label: 'Previous desktop',
+					group: 'desktop',
+					options: { type: 'comparison' },
+				},
+			] }
+			legend={ { collapseGroups: true, comparisonItem: 'Desktop', interactive: true } }
+		>
+			<LineChart.Legend interactive />
+		</LineChart>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'The comparison item deliberately shares the metric label. Only the solid metric item toggles the two series; the dashed comparison item stays visible.',
+			},
+		},
+	},
+};
+
+export const ComparisonSeriesItems: Story = {
+	render: () => (
+		<LineChart
+			withGradientFill={ false }
+			width={ 600 }
+			height={ 300 }
+			data={ [
+				{ ...lineChartData[ 0 ], group: 'desktop' },
+				{
+					label: 'Previous desktop',
+					group: 'desktop',
+					options: { type: 'comparison' },
+					data: [
+						{ date: new Date( '2023-01-01' ), value: 90 },
+						{ date: new Date( '2023-01-02' ), value: 110 },
+						{ date: new Date( '2023-01-03' ), value: 130 },
+					],
+				},
+				{ ...lineChartData[ 1 ], group: 'mobile' },
+				{
+					label: 'Previous mobile',
+					group: 'mobile',
+					options: { type: 'comparison' },
+					data: [
+						{ date: new Date( '2023-01-01' ), value: 70 },
+						{ date: new Date( '2023-01-02' ), value: 95 },
+						{ date: new Date( '2023-01-03' ), value: 85 },
+					],
+				},
+			] }
+			legend={ {
+				collapseGroups: true,
+				comparisonSeriesItems: label => `${ label } (Prev. period)`,
+				interactive: true,
+			} }
+		>
+			<LineChart.Legend interactive />
+		</LineChart>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Each metric gets its own static comparison item, named by `legend.comparisonSeriesItems`. Hiding **Mobile** also removes **Mobile (Prev. period)**.',
+			},
+		},
 	},
 };

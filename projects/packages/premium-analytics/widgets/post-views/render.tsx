@@ -2,8 +2,8 @@
  * External dependencies
  */
 import { STATS_CHART_BUCKET_PERIODS, toPostId } from '@jetpack-premium-analytics/data';
-import { reports } from '@jetpack-premium-analytics/icons';
 import {
+	ChartEmptyState,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
 	WidgetRoot,
@@ -14,7 +14,7 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _n } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -52,14 +52,16 @@ function PostViewsInner( { chartType }: PostViewsInnerProps ) {
 		period
 	);
 
-	// One "Views" metric: the headline is the window total (views are summed
-	// per bucket, so the sum of buckets is the range's views). The post detail
-	// page has no comparison control, so there is no previous series.
+	// The post detail page has no comparison control, so there is no previous
+	// series, and the headline is just the sum of the window's buckets.
 	const metricTabs = useMemo< MetricTab[] >(
 		() => [
 			{
 				key: 'views',
 				label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
+				countLabel: count =>
+					/* translators: %s: number of views. */
+					_n( '%s View', '%s Views', count, 'jetpack-premium-analytics-pkg' ),
 				value: current.reduce( ( sum, point ) => sum + point.value, 0 ),
 				current,
 			},
@@ -81,7 +83,6 @@ function PostViewsInner( { chartType }: PostViewsInnerProps ) {
 					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 				} }
 				empty={ {
-					icon: reports,
 					description: __(
 						'Open a post or page report to see its views here.',
 						'jetpack-premium-analytics-pkg'
@@ -95,6 +96,8 @@ function PostViewsInner( { chartType }: PostViewsInnerProps ) {
 					metrics={ metricTabs }
 					dataFormat={ DATA_FORMAT }
 					chartType={ chartType }
+					empty={ <ChartEmptyState /> }
+					hideSingleMetricLabel
 				/>
 			</WidgetState>
 		</div>
@@ -103,7 +106,7 @@ function PostViewsInner( { chartType }: PostViewsInnerProps ) {
 
 export default function PostViews( { attributes = {} }: PostViewsWidgetProps ) {
 	// Coerce unknown persisted values to the default.
-	const chartType = attributes?.chartType === 'bar' ? 'bar' : 'line';
+	const chartType = attributes?.chartType === 'line' ? 'line' : 'bar';
 
 	return (
 		<WidgetRoot attributes={ attributes }>

@@ -72,73 +72,33 @@ describe( 'Stats clicks normalizer', () => {
 		);
 	} );
 
-	it( 'uses fallback child label when click parent name is empty', () => {
-		const result = sanitizeStatsClicksResponse(
-			{
-				date: '2026-06-22',
-				days: {
-					'2026-06-16': {
-						clicks: [
-							{
-								name: '',
-								views: 1,
-								children: [
-									{
-										name: 'https://example.com/path',
-										views: 1,
-									},
-								],
-							},
-						],
+	it.each( [
+		[ '', 'https://example.com/path', '/' ],
+		[ 'example.com', 'example.com/path/example.com', '/path/example.com' ],
+	] )(
+		'labels a child relative to its parent name (parent %j)',
+		( parentName, childName, label ) => {
+			const result = sanitizeStatsClicksResponse(
+				{
+					date: '2026-06-22',
+					days: {
+						'2026-06-16': {
+							clicks: [
+								{ name: parentName, views: 1, children: [ { name: childName, views: 1 } ] },
+							],
+						},
 					},
 				},
-			},
-			{
-				end_date: '2026-06-16',
-			}
-		);
+				{
+					end_date: '2026-06-16',
+				}
+			);
 
-		expect( result.data[ 0 ].items[ 0 ].children?.[ 0 ] ).toEqual(
-			expect.objectContaining( {
-				label: '/',
-				views: 1,
-			} )
-		);
-	} );
-
-	it( 'removes only the first parent-name occurrence from child labels', () => {
-		const result = sanitizeStatsClicksResponse(
-			{
-				date: '2026-06-22',
-				days: {
-					'2026-06-16': {
-						clicks: [
-							{
-								name: 'example.com',
-								views: 1,
-								children: [
-									{
-										name: 'example.com/path/example.com',
-										views: 1,
-									},
-								],
-							},
-						],
-					},
-				},
-			},
-			{
-				end_date: '2026-06-16',
-			}
-		);
-
-		expect( result.data[ 0 ].items[ 0 ].children?.[ 0 ] ).toEqual(
-			expect.objectContaining( {
-				label: '/path/example.com',
-				views: 1,
-			} )
-		);
-	} );
+			expect( result.data[ 0 ].items[ 0 ].children?.[ 0 ] ).toEqual(
+				expect.objectContaining( { label, views: 1 } )
+			);
+		}
+	);
 
 	it( 'treats zero comparison values as overlapping click rows', () => {
 		const primary = sanitizeStatsClicksResponse(
@@ -365,9 +325,8 @@ describe( 'Stats clicks normalizer', () => {
 	} );
 
 	it( 'matches rows whose URL cannot be parsed by falling back to the raw value', () => {
-		// Not every `url` the endpoint returns is absolute — a root-relative one
-		// makes `new URL()` throw. Both periods have to key off the same raw
-		// string, or such rows would never match and would lose their delta.
+		// A root-relative `url` makes `new URL()` throw, so both periods must key
+		// off the same raw string or the row loses its delta.
 		const buildReport = ( views: number, date: string ) =>
 			sanitizeStatsClicksResponse(
 				{

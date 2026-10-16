@@ -18,6 +18,14 @@ We'd love to have you! Just [download the latest version of this plugin](https:/
 
 You can also join our Jetpack Beta mailing list at [jetpack.com/beta](https://jetpack.com/beta).
 
+### How things work
+
+* When installing a stable version of a plugin, the existing stable version will be replaced.
+* When installing a development version of a plugin, it will be installed in its own directory next to the stable one (e.g. `wp-content/plugins/jetpack-dev/` is installed next to `wp-content/plugins/jetpack/`).
+* Switching between stable and development versions of plugins only changes which of the two is active.
+* Deactivating the Jetpack Beta plugin switches every plugin it manages back to its stable version when possible, then deletes the `<slug>-dev` directories. This means that if there is no stable version installed, the plugin will be removed entirely (with the exception of Jetpack Beta plugin, which prevents a self-delete).
+* For mu-plugins things work a little differently (see [mu-plugin support](./docs/mu-plugin-info.md)).
+
 ### Contribute
 
 If you find issues with this plugin, you can [report bugs here on GitHub](https://github.com/Automattic/jetpack/issues/new?assignees=&labels=%5BType%5D+Bug&template=bug-report.yml).

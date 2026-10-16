@@ -132,6 +132,16 @@ function membersOf( groupFile: string ): string[] {
 	return readGroup( groupFile ).members;
 }
 
+/**
+ * Gets the leading docblock of a file, which is the only one Jest reads.
+ *
+ * @param {string} file - File to read.
+ * @return {string} The leading docblock, or an empty string when there is none.
+ */
+function leadingDocblock( file: string ): string {
+	return /^\s*\/\*\*[\s\S]*?\*\//.exec( fs.readFileSync( file, 'utf8' ) )?.[ 0 ] ?? '';
+}
+
 describe( 'mock signature parser', () => {
 	it( 'compares complete factories when comments and strings contain parentheses', () => {
 		const first = `jest.mock( 'example', () => {
@@ -178,16 +188,18 @@ describe( 'test groups', () => {
 		expect( groups.length ).toBeGreaterThan( 0 );
 	} );
 
-	// The Jest config keeps a member out of the ungrouped run by matching the
-	// same import lines this test reads. Anything either side cannot read is
-	// left running twice — standalone and inside its group — with nothing here
-	// checking it, so a group file carries imports and comments and nothing else.
+	// The Jest config excludes a member from the ungrouped run by matching these same import
+	// lines; anything unreadable runs twice, uncaught — so a group file must be only imports/comments.
 	it.each( groups )( '%s carries nothing but member imports', groupFile => {
 		expect( readGroup( groupFile ).unreadable ).toEqual( [] );
 	} );
 
 	it( 'holds no file that neither the config nor this test reads', () => {
 		expect( strayGroupDirEntries() ).toEqual( [] );
+	} );
+
+	it( 'keeps every group at ten members or fewer', () => {
+		expect( groups.filter( groupFile => membersOf( groupFile ).length > 10 ) ).toEqual( [] );
 	} );
 
 	it.each( groups )( '%s only lists suites that exist', groupFile => {
@@ -214,6 +226,16 @@ describe( 'test groups', () => {
 				signature: first.signature,
 			} );
 		}
+	} );
+
+	// Jest reads the environment docblock of the file it collects — the group file for a grouped
+	// suite — so a member's own `@jest-environment` pin is silently ignored (e.g. node becomes jsdom).
+	it.each( groups )( '%s members do not pin a Jest environment', groupFile => {
+		const pinned = membersOf( groupFile )
+			.map( member => resolveSuite( member ) as string )
+			.filter( file => /@jest-environment\b/.test( leadingDocblock( file ) ) );
+
+		expect( pinned.map( file => path.relative( GROUPS_DIR, file ) ) ).toEqual( [] );
 	} );
 
 	it( 'never lists the same suite in two groups', () => {

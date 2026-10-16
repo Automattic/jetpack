@@ -23,3 +23,22 @@ function add_action( $hook_name, $callback, $priority = 10, $accepted_args = 1 )
 
 	return true;
 }
+
+/**
+ * Record a filter registration without booting WordPress.
+ *
+ * @param string   $hook_name     Hook name.
+ * @param callable $callback      Hook callback.
+ * @param int      $priority      Hook priority.
+ * @param int      $accepted_args Number of accepted arguments.
+ * @return true
+ */
+function add_filter( $hook_name, $callback, $priority = 10, $accepted_args = 1 ) {
+	$GLOBALS['jpa_test_filters'][ $hook_name ][] = array(
+		'callback'      => $callback,
+		'priority'      => $priority,
+		'accepted_args' => $accepted_args,
+	);
+
+	return true;
+}

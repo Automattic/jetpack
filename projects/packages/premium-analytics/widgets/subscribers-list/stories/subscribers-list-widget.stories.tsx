@@ -22,6 +22,20 @@ import type { ComponentType } from 'react';
 
 registerReportMocks();
 
+// Only wp-admin supplies the slug and the Newsletter URL; seed them so the names and the footer link in Storybook.
+window.JetpackScriptData = {
+	...window.JetpackScriptData,
+	site: {
+		...window.JetpackScriptData?.site,
+		suffix: 'example.com',
+	},
+	newsletter: {
+		...window.JetpackScriptData?.newsletter,
+		subscribersUrl:
+			'https://example.com/wp-admin/admin.php?page=jetpack-newsletter&p=%2F%3Ftab%3Dsubscribers',
+	},
+} as typeof window.JetpackScriptData;
+
 const SUBSCRIBERS_LIST_RENDER_MODULE = 'storybook/subscribers-list';
 
 const meta = {
@@ -81,8 +95,7 @@ export const Error: Story = {
 };
 
 /**
- * Resolved with no rows: the widget shows its empty state (the neutral customer
- * glyph and "No subscribers yet.").
+ * Resolved with no rows: the widget shows its empty state.
  */
 export const Empty: Story = {
 	render: () => <SubscribersListRender attributes={ {} } />,

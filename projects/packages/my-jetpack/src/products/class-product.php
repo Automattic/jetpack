@@ -87,6 +87,42 @@ abstract class Product {
 	const MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY = 'my-jetpack-site-features';
 
 	/**
+	 * How long, in seconds, a site features lookup is reused before WPCOM is asked again
+	 *
+	 * @var int
+	 */
+	const MY_JETPACK_SITE_FEATURES_CACHE_DURATION = 15;
+
+	/**
+	 * A failed site features lookup, kept so one outage does not fire a request per product
+	 *
+	 * @var WP_Error|null
+	 */
+	private static $site_features_failure = null;
+
+	/**
+	 * Unix time at which the memoized failure above stops being used
+	 *
+	 * @var int
+	 */
+	private static $site_features_failure_expires = 0;
+
+	/**
+	 * A successful site features lookup, kept so one WPCOM request serves a whole render
+	 * even when the transient write does not retain (e.g. an object cache evicting under load)
+	 *
+	 * @var array|null
+	 */
+	private static $site_features_success = null;
+
+	/**
+	 * Unix time at which the memoized success above stops being used
+	 *
+	 * @var int
+	 */
+	private static $site_features_success_expires = 0;
+
+	/**
 	 * Whether this module is a Jetpack feature
 	 *
 	 * @var boolean
@@ -128,13 +164,6 @@ abstract class Product {
 	 * @var bool
 	 */
 	public static $requires_plan = false;
-
-	/**
-	 * Defines whether or not to show a product interstitial as tiered pricing or not
-	 *
-	 * @var bool
-	 */
-	public static $is_tiered_pricing = false;
 
 	/**
 	 * The feature slug that identifies the paid plan
@@ -231,12 +260,10 @@ abstract class Product {
 			'long_description'                => static::get_long_description(),
 			'tiers'                           => static::get_tiers(),
 			'features'                        => static::get_features(),
-			'features_by_tier'                => static::get_features_by_tier(),
 			/* End of legacy compatibility fields. */
 			'disclaimers'                     => static::get_disclaimers(),
 			'is_bundle'                       => static::is_bundle_product(),
 			'is_plugin_active'                => static::is_plugin_active(),
-			'is_tiered_pricing'               => static::$is_tiered_pricing,
 			'is_upgradable_by_bundle'         => static::is_upgradable_by_bundle(),
 			'is_feature'                      => static::$is_feature,
 			'supported_products'              => static::get_supported_products(),
@@ -293,7 +320,6 @@ abstract class Product {
 			'description'                   => static::get_description(),
 			'tiers'                         => static::get_tiers(),
 			'features'                      => static::get_features(),
-			'features_by_tier'              => static::get_features_by_tier(),
 			'long_description'              => static::get_long_description(),
 			'has_any_plan_for_product'      => static::has_any_plan_for_product(),
 			'has_free_plan_for_product'     => static::has_free_plan_for_product(),
@@ -317,24 +343,31 @@ abstract class Product {
 	 * @return WP_Error|array
 	 */
 	public static function get_site_features_from_wpcom() {
-		static $features = null;
-
-		if ( $features !== null ) {
-			return $features;
-		}
-
-		// Check for a cached value before doing lookup
+		// Read the cache first, so a memoized failure can never outrank a warm lookup.
 		$stored_features = get_transient( self::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY );
 		if ( $stored_features !== false ) {
 			return $stored_features;
+		}
+
+		/*
+		 * Checked after the transient so it can never outrank a warm cache, but kept so a
+		 * dashboard render still makes a single WPCOM request when the transient write is dropped.
+		 */
+		if ( self::$site_features_success !== null && time() < self::$site_features_success_expires ) {
+			return self::$site_features_success;
+		}
+
+		if ( self::$site_features_failure !== null && time() < self::$site_features_failure_expires ) {
+			return self::$site_features_failure;
 		}
 
 		$site_id  = Jetpack_Options::get_option( 'id' );
 		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/features', $site_id ), '1.1' );
 
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			$features = new WP_Error( 'site_features_fetch_failed' );
-			return $features;
+			self::$site_features_failure         = new WP_Error( 'site_features_fetch_failed' );
+			self::$site_features_failure_expires = time() + self::MY_JETPACK_SITE_FEATURES_CACHE_DURATION;
+			return self::$site_features_failure;
 		}
 
 		$body           = wp_remote_retrieve_body( $response );
@@ -344,10 +377,28 @@ abstract class Product {
 			'active'    => $feature_return->active,
 			'available' => $feature_return->available,
 		);
+
 		// set a short transient to help with multiple lookups on the same page load.
-		set_transient( self::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY, $features, 15 );
+		set_transient( self::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY, $features, self::MY_JETPACK_SITE_FEATURES_CACHE_DURATION );
+
+		self::$site_features_success         = $features;
+		self::$site_features_success_expires = time() + self::MY_JETPACK_SITE_FEATURES_CACHE_DURATION;
 
 		return $features;
+	}
+
+	/**
+	 * Forget the cached site features — both in-process memos and the transient — so the next
+	 * call asks WPCOM again.
+	 *
+	 * @return void
+	 */
+	public static function reset_site_features_cache() {
+		self::$site_features_failure         = null;
+		self::$site_features_failure_expires = 0;
+		self::$site_features_success         = null;
+		self::$site_features_success_expires = 0;
+		delete_transient( self::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY );
 	}
 
 	/**
@@ -417,9 +468,13 @@ abstract class Product {
 	/**
 	 * Get the internationalized comparison of features grouped by each tier
 	 *
+	 * @deprecated 6.10.0
+	 *
 	 * @return array
 	 */
 	public static function get_features_by_tier() {
+		_deprecated_function( __METHOD__, 'jetpack-my-jetpack-6.10.0' );
+
 		return array();
 	}
 
@@ -850,13 +905,14 @@ abstract class Product {
 				$status = Products::STATUS_CAN_UPGRADE;
 			}
 			// Check specifically for inactive modules, which will prevent a product from being active
-		} elseif ( static::$module_name && ! static::is_module_active() ) {
+			// Bundles have no module of their own, so they fall through to the plan checks below.
+		} elseif ( static::$module_name && ! static::is_bundle_product() && ! static::is_module_active() ) {
 			$status = Products::STATUS_MODULE_DISABLED;
 			// If there is not a plan associated with the disabled module, encourage a plan first
 			// Getting a plan set up should help resolve any connection issues
 			// However if the standalone plugin for this product is active, then we will defer to showing errors that prevent the module from being active
 			// This is because if a standalone plugin is installed, we expect the product to not show as "inactive" on My Jetpack
-			if ( static::$requires_plan || ( ! static::has_any_plan_for_product() && static::$has_standalone_plugin && ! self::is_plugin_active() ) ) {
+			if ( ! static::has_any_plan_for_product() && ( static::$requires_plan || ( static::$has_standalone_plugin && ! self::is_plugin_active() ) ) ) {
 				$status = static::is_owned() && static::$has_free_offering && ! static::$requires_plan ? Products::STATUS_NEEDS_ACTIVATION : Products::STATUS_NEEDS_PLAN;
 			} elseif ( static::$requires_site_connection && ! ( new Connection_Manager() )->is_connected() ) {
 				// Site has never been connected before and product is not owned
@@ -883,6 +939,18 @@ abstract class Product {
 	 */
 	public static function is_active() {
 		return static::is_plugin_active() && ( static::has_any_plan_for_product() || ( ! static::$requires_plan && static::$has_free_offering ) );
+	}
+
+	/**
+	 * Checks whether the site has switched the product on, whether or not it has a plan for it.
+	 *
+	 * Unlike is_active(), this never asks WordPress.com, so it is safe on every admin page load.
+	 * An override must keep it that way.
+	 *
+	 * @return boolean
+	 */
+	public static function is_activated() {
+		return static::is_plugin_active();
 	}
 
 	/**

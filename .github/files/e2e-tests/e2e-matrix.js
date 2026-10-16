@@ -31,6 +31,13 @@ const projects = [
 		buildGroup: 'jetpack-core',
 	},
 	{
+		project: 'Jetpack comments',
+		path: 'projects/plugins/jetpack/tests/e2e',
+		testArgs: [ 'specs/comments' ],
+		targets: [ 'plugins/jetpack', 'packages/comments' ],
+		buildGroup: 'jetpack-core',
+	},
+	{
 		project: 'Jetpack sync',
 		path: 'projects/plugins/jetpack/tests/e2e',
 		testArgs: [ 'specs/sync' ],
@@ -41,6 +48,13 @@ const projects = [
 		project: 'Jetpack Boost - Base',
 		path: 'projects/plugins/boost/tests/e2e',
 		testArgs: [ 'specs/base' ],
+		targets: [ 'plugins/boost' ],
+		buildGroup: 'jetpack-boost',
+	},
+	{
+		project: 'Jetpack Boost - Dashboard Modernization',
+		path: 'projects/plugins/boost/tests/e2e',
+		testArgs: [ 'specs/modernization' ],
 		targets: [ 'plugins/boost' ],
 		buildGroup: 'jetpack-boost',
 	},
@@ -127,6 +141,20 @@ const projects = [
 		testArgs: [ 'specs' ],
 		targets: [ 'plugins/protect' ],
 		buildGroup: 'jetpack-protect',
+	},
+	{
+		project: 'Backup',
+		path: 'projects/plugins/backup/tests/e2e',
+		testArgs: [ 'specs' ],
+		targets: [ 'plugins/backup' ],
+		buildGroup: 'jetpack-backup',
+	},
+	{
+		project: 'Premium Analytics',
+		path: 'projects/plugins/premium-analytics/tests/e2e',
+		testArgs: [ 'specs' ],
+		targets: [ 'plugins/premium-analytics', 'packages/ads' ],
+		buildGroup: 'jetpack-premium-analytics',
 	},
 ];
 

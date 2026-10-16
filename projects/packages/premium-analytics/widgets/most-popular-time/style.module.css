@@ -1,25 +1,10 @@
+/* Stacked highlights (a phone-width tile, or a value too wide to share a row)
+ * outgrow a one-row body, so scroll rather than clip. */
 .content {
-	position: relative;
 	display: flex;
 	flex-direction: column;
-	height: 100%;
-	min-height: 0;
+	block-size: 100%;
+	min-block-size: 0;
+	overflow-x: hidden;
+	overflow-y: auto;
 }
-
-.root {
-	height: 100%;
-	overflow: hidden;
-}
-
-.label {
-	color: var(--wpds-color-foreground-content-neutral);
-}
-
-.value {
-	color: var(--wpds-color-foreground-content-neutral);
-}
-
-.caption {
-	color: var(--wpds-color-foreground-content-neutral-weak);
-}
-

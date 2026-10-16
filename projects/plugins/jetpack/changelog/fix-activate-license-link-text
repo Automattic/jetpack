@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-My Jetpack: always label the license activation link 'Activate a license'. It previously read 'Activate a new license' on sites with a plan, even when no licenses had been activated.

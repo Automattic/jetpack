@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Stats: Tell the Stats dashboard when Start for Free was chosen, so it does not ask which plan you want a second time.

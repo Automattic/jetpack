@@ -1,4 +1,6 @@
+import { search } from '@jetpack-premium-analytics/icons';
 import { withChartTheme } from '../../../stories/with-chart-theme';
+import { ChartEmptyState } from '../../chart-empty-state';
 import { MetricTabsChart, type MetricTab } from '../metric-tabs-chart';
 import { MetricTabsChartSkeleton } from '../metric-tabs-chart-skeleton';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
@@ -26,13 +28,7 @@ const PREVIOUS_DATES = [
 	new Date( '2026-05-31' ),
 ];
 
-/**
- * Pair a value series with a set of dates.
- *
- * @param dates  - One date per value.
- * @param values - The series values.
- * @return The metric points.
- */
+/** Pair a value series with a set of dates. */
 const points = ( dates: Date[], values: number[] ) =>
 	dates.map( ( date, index ) => ( { date, value: values[ index ] } ) );
 
@@ -53,6 +49,11 @@ const METRICS: MetricTab[] = [
 		current: points( CURRENT_DATES, [ 520, 560, 610, 660, 710, 780, 820 ] ),
 		previous: points( PREVIOUS_DATES, [ 300, 340, 380, 430, 470, 510, 540 ] ),
 	},
+];
+
+const PAIRED_METRICS: MetricTab[] = [
+	{ ...METRICS[ 0 ], counterpartKey: 'paid' },
+	{ ...METRICS[ 1 ], counterpartKey: 'subscribers' },
 ];
 
 // Close-up canvas so the chart fills the frame.
@@ -96,7 +97,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'A metric switcher over a comparative chart: selectable cards (value + period-over-period delta), and the selected metric drawn with its previous-period overlay. `chartType` picks the mark — a current line with a dashed previous-period overlay, or bars with a translucent previous-period shadow. Shared by the subscribers and traffic charts.',
+					'A metric switcher over a comparative chart: selectable cards (value + period-over-period delta), and the selected metric drawn with its previous-period overlay. `chartType` picks the mark — a current line with a dashed previous-period overlay, or bars with a translucent previous-period shadow. A metric naming another through `counterpartKey` draws it alongside, visible from the start unless `counterpartHidden` is set. Shared by the subscribers and traffic charts.',
 			},
 		},
 	},
@@ -127,11 +128,67 @@ export const SingleMetric: Story = {
 };
 
 /**
+ * A host title that already names the metric can hide the repeated visual
+ * label while the chart and accessible headline keep the metric's name.
+ */
+export const SingleMetricWithoutLabel: Story = {
+	args: {
+		metrics: [ { ...METRICS[ 0 ], previousValue: undefined, previous: undefined } ],
+		dataFormat: DATA_FORMAT,
+		hideSingleMetricLabel: true,
+	},
+};
+
+/**
  * The same metrics drawn as bars, with the previous period as the translucent
  * shadow bar behind each current-period bar.
  */
 export const Bars: Story = {
 	args: { metrics: METRICS, dataFormat: DATA_FORMAT, chartType: 'bar' },
+};
+
+/**
+ * Metrics that name each other as `counterpartKey` are drawn together: the
+ * selected one solid and the other beside it, both toggled from the legend.
+ * Selecting the other card swaps the roles, and hiding a metric takes its
+ * previous-period overlay with it.
+ */
+export const PairedMetrics: Story = {
+	args: { metrics: PAIRED_METRICS, dataFormat: DATA_FORMAT },
+};
+
+/**
+ * The same pair as bars — four bars per interval once both metrics are shown.
+ */
+export const PairedMetricsAsBars: Story = {
+	args: { metrics: PAIRED_METRICS, dataFormat: DATA_FORMAT, chartType: 'bar' },
+};
+
+/**
+ * `tooltipMetrics="all"`: hovering reads out every metric at that date, not only
+ * the drawn one, as the WordAds chart does with ads served, CPM and revenue.
+ */
+export const AllMetricsInTooltip: Story = {
+	args: { metrics: METRICS, dataFormat: DATA_FORMAT, tooltipMetrics: 'all' },
+};
+
+/**
+ * A window with no readings: the cards keep their zeros and the plot shows the `empty` content instead of a flat zero line.
+ */
+export const Empty: Story = {
+	args: {
+		metrics: METRICS.map( metric => ( {
+			...metric,
+			value: 0,
+			previousValue: undefined,
+			current: metric.current.map( point => ( { ...point, value: 0 } ) ),
+			previous: undefined,
+		} ) ),
+		dataFormat: DATA_FORMAT,
+		empty: (
+			<ChartEmptyState icon={ search } text="We couldn’t find results for this time period." />
+		),
+	},
 };
 
 type SkeletonStory = StoryObj< typeof MetricTabsChartSkeleton >;
@@ -153,7 +210,7 @@ export const SkeletonShortTile: SkeletonStory = {
 };
 
 /**
- * On a short tile the chart degrades to a sparkline — dropping its axis, grid,
+ * On a short tile the chart degrades to a sparkline — dropping its axes, grid,
  * and legend — instead of squashing its labels, while the metric cards stay.
  */
 export const Compact: Story = {

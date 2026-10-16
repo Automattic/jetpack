@@ -2,6 +2,45 @@
 
 A responsive leaderboard (horizontal bar) chart component for displaying ranking and "top X by Y" data visualizations.
 
+## Widgets: use `Leaderboard`
+
+A widget does not compose this chart by hand. `Leaderboard` (`components/leaderboard`) takes ranked rows in the widget's own terms and the request status, and renders the chart with its loading, error and empty states, the row limit, the shares against the largest value of either period, the deltas, and the dashboard window on detail links. It must render inside `WidgetRoot`.
+
+```tsx
+// Inside `WidgetRoot`. Memoize the rows: the component rebuilds the chart data when they change.
+const rows = useMemo(
+	() =>
+		videos.map( video => ( {
+			id: video.key,
+			label: video.label,
+			value: video.plays,
+			previousValue: video.previousPlays,
+			action: { kind: 'videoLink', id: video.id, href: video.link },
+		} ) ),
+	[ videos ]
+);
+
+return (
+	<Leaderboard
+		rows={ rows }
+		status={ { isLoading, isFetching, isError, hasComparison, refetch } }
+		error={ describeError( error, {
+			retryDescription: __( "We couldn't load video plays. Please try again in a moment.", 'jetpack-premium-analytics-pkg' ),
+			onRetry: refetch,
+		} ) }
+		footer={ <ReportLink report="videos" /> }
+	/>
+);
+```
+
+A row's `media` defaults to none and its `action` to static. A `postLink` or `videoLink` action without `search` gets the dashboard window; pass `search: {}` to navigate without one on purpose.
+
+Pass `error` as `describeError()` builds it, so an access-denied failure offers no Retry. Without an `error`, the component shows the generic message with a Retry bound to `status.refetch`.
+
+Rows may carry `children`. With a `drillDown` (`backLabel`, `rowAriaLabel`) every such row becomes a button that shows its children under a back link, any number of levels deep; the selection heals itself when the settled data no longer backs it, and a widget whose rows change under a control of its own resets it by giving the leaderboard a `key`.
+
+The rest of this document covers the chart on its own.
+
 ## Features
 
 - **Context-aware styling**: Integrates with GlobalChartsProvider for consistent theming
@@ -77,8 +116,7 @@ const data = [
 ### Row labels
 
 Use `buildLeaderboardRow` for chart rows that need media, links, or drill-down actions. It
-returns one `ReactElement` label plus the chart-level button props for drill-down rows, so links
-and row buttons cannot be combined.
+returns one `ReactElement` label plus the chart-level button props for drill-down rows.
 
 ```tsx
 const row = {
@@ -117,6 +155,19 @@ An explicit drill-down `ariaLabel` replaces the accessible name otherwise comput
 the media alt text and visible label, which can cause a screen reader to announce the label
 twice.
 
+A drill-down row can also take a `link` to a dashboard page, which the label opens while the
+rest of the row still drills down. The builder sets the chart's `hasInteractiveLabel`, so the
+link sits beside the row button instead of inside it:
+
+```tsx
+action: {
+	kind: 'drillDown',
+	onClick: () => selectAuthor( 'id:42' ),
+	link: authorDetailLinkProps( 42 ),
+	ariaLabel: 'View posts by Ada Lovelace',
+},
+```
+
 For a post, page, or email with a detail page inside the dashboard, use the `postLink` action.
 `PostTitleLink` chooses the destination: the internal detail route when the row carries a post
 ID, the public URL when it does not, and plain text when neither is usable.
@@ -142,17 +193,30 @@ const row = {
 A `postLink` row carries no media, and never becomes a chart button: a chart row that is a
 button cannot nest an anchor.
 
-Inside a widget, use `LeaderboardPostLabel` instead of building the action by hand. It reads the
-report window from `WidgetRootContext` and passes it as `search`, so the detail page opens on
-the range the row was read against:
+Video rows use `videoLink`, which delegates to `VideoTitleLink` so the row reaches the video detail route instead of the post one. Unlike `postLink`, a `videoLink` row renders its media inside the detail link. It is never a chart button.
 
 ```tsx
-<LeaderboardPostLabel id={ row.postId } label={ row.label } link={ row.link } />
+action: { kind: 'videoLink', id: 9, search: { from: '2026-03-01', to: '2026-03-10' } },
 ```
 
-Pass `section` to open a named tab on the detail page, such as `email-opens`.
+Inside a widget, use `LeaderboardPostLabel` instead of building a post action by hand. It reads the report window from `WidgetRootContext` and names the report the detail breadcrumb returns to:
 
-`LeaderboardRowMedia` provides five semantic media variants. The variant owns its size,
+```tsx
+<LeaderboardPostLabel
+	id={ row.postId }
+	label={ row.label }
+	link={ row.link }
+	origin={ { report: 'posts', section: 'posts-pages' } }
+/>
+```
+
+Pass `section` to `LeaderboardPostLabel` to open a named tab on the detail page, such as
+`email-opens`. That destination tab is distinct from `origin.section`, which becomes `ref_section`.
+
+There is no `LeaderboardVideoLabel`, so a widget building a `videoLink` action takes that same
+window from `useWidgetNavigationSearch()` and passes it as `search`.
+
+`LeaderboardRowMedia` provides six semantic media variants. The variant owns its size,
 fallback, and default alt-text policy:
 
 | Kind        | Size      | Missing or failed image behavior |
@@ -161,29 +225,20 @@ fallback, and default alt-text policy:
 | `favicon`   | 16 × 16px | Hidden; always decorative        |
 | `flag`      | 28px wide | Placeholder; proportional height |
 | `thumbnail` | 28 × 28px | Placeholder                      |
+| `icon`      | 20 × 20px | No image; takes a glyph          |
 | `none`      | No media  | Renders text only                |
+
+Pass a `thumbnail` a `fallbackIcon` to draw that glyph in a bordered box, instead of the grey placeholder, when there is no image or it fails to load: `media: { kind: 'thumbnail', url, alt: '', fallbackIcon: video }`.
+
+`icon` takes a `@wordpress/icons` glyph rather than a URL and draws it in the muted neutral color: `media: { kind: 'icon', icon: category }`.
 
 Use `resolveLeaderboardRowAction` when raw data can contain both an external URL and children.
 It applies the shared precedence: drill-down for rows with children, external links for
 childless rows, and static content otherwise.
 
 Use `LeaderboardLabel` directly for media plus truncating text outside chart rows, such as a
-DataViews table cell. It deliberately does not add the chart row's 36px minimum block size.
-
-### Row layout
-
-`LeaderboardRow` takes two optional layout props. `LeaderboardPostLabel` accepts both and
-forwards them.
-
-| Prop        | Default     | Description                                                                                                 |
-| ----------- | ----------- | ----------------------------------------------------------------------------------------------------------- |
-| `variant`   | `'compact'` | `'compact'` is the standard 36px row. `'overlay'` drops that floor and takes its height from block padding. |
-| `className` | -           | Extra class on the row, for per-widget spacing.                                                             |
-
-Pick `variant` to match the sibling rows in the same widget, not the chart's `withOverlayLabel`
-prop. That prop only tints the bar fill; it sets no row height. Use `'overlay'` where the
-neighbouring rows also take their height from block padding, and `'compact'` where they come
-from `buildLeaderboardRow`.
+DataViews table cell. It deliberately does not add the chart row's 36px minimum block size or its
+inline padding.
 
 ## Props
 
@@ -196,11 +251,12 @@ from `buildLeaderboardRow`.
 | `withOverlayLabel` | `boolean`              | `false`                                                                | Places labels on top of bars instead of beside them                |
 | `legendLabels`     | `LegendLabels`         | `{ primary: 'Current period', comparison: 'Previous period' }`         | Custom legend labels                                               |
 | `showLegend`       | `boolean`              | `true`                                                                 | Whether to show the legend                                         |
-| `dataFormat`       | `DataFormat`           | `{ type: 'currency', options: { useMultipliers: true, decimals: 2 } }` | Value formatting configuration                                     |
+| `dataFormat`       | `DataFormat`           | `{ type: 'currency', options: { useMultipliers: true } }` | Value formatting configuration                                     |
 | `emptyState`       | `ReactNode`            | -                                                                      | Custom empty state content (overrides default)                     |
-| `emptyStateIcon`   | `ReactNode`            | -                                                                      | Icon to display in default empty state                             |
-| `emptyStateText`   | `string`               | `'No data available'`                                                  | Text for default empty state                                       |
+| `emptyStateIcon`   | `ReactNode`            | The `search` magnifier                                                 | Icon to display in default empty state                             |
+| `emptyStateText`   | `string`               | `'We couldn’t find results for this time period.'`                     | Text for default empty state                                       |
 | `fitRows`          | `boolean`              | `true`                                                                 | Show only the rows that fit the widget height instead of scrolling |
+| `columns`          | `LeaderboardColumns`   | -                                                                      | Names the rows (`label`) and the metric in a header, hidden on height-1 tiles; the metric also adds the unit to an abbreviated value's tooltip (`4,186 views`) |
 
 ### LeaderboardChartData Type
 

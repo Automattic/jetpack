@@ -49,16 +49,23 @@ class Activity_Log_Bridge {
 				// with a useful message instead of a round-trip that WPCOM
 				// rejects.
 				'args'                => array(
-					'number' => array(
+					'number'     => array(
 						'description' => __( 'Number of items to return per page.', 'jetpack-backup-pkg' ),
 						'type'        => 'integer',
 						'minimum'     => 1,
 						'maximum'     => 1000,
 					),
-					'page'   => array(
+					'page'       => array(
 						'description' => __( '1-indexed page number.', 'jetpack-backup-pkg' ),
 						'type'        => 'integer',
 						'minimum'     => 1,
+					),
+					// Direction only: WPCOM's `get_stream_args()` sorts on `ts_utc`
+					// and takes no field, so there is no `orderby` to declare.
+					'sort_order' => array(
+						'description' => __( 'Sort direction.', 'jetpack-backup-pkg' ),
+						'type'        => 'string',
+						'enum'        => array( 'asc', 'desc' ),
 					),
 				),
 			)
@@ -74,6 +81,10 @@ class Activity_Log_Bridge {
 	 * pagination footer. Same param shape the `automattic/jetpack-activity-log`
 	 * package uses against the parent `/sites/{id}/activity` endpoint.
 	 *
+	 * `sort_order` is forwarded too, so the list's Order control reorders
+	 * the real result set rather than the ten rows already on screen.
+	 * Omitted when absent: WPCOM defaults it to `desc`.
+	 *
 	 * @param WP_REST_Request $request The REST request.
 	 * @return \WP_REST_Response|WP_Error
 	 */
@@ -85,11 +96,12 @@ class Activity_Log_Bridge {
 
 		$query = array_filter(
 			array(
-				'number'  => $request->get_param( 'number' ),
-				'page'    => $request->get_param( 'page' ),
+				'number'     => $request->get_param( 'number' ),
+				'page'       => $request->get_param( 'page' ),
+				'sort_order' => $request->get_param( 'sort_order' ),
 				// Activity summaries are rendered by WPCOM. Without this they
 				// come back in English whatever the reader's language is.
-				'_locale' => get_user_locale(),
+				'_locale'    => get_user_locale(),
 			),
 			static function ( $value ) {
 				return null !== $value && '' !== $value;
@@ -113,12 +125,18 @@ class Activity_Log_Bridge {
 			return Rest_Controller::transport_error( $response, 'activity_log_fetch_failed' );
 		}
 
-		$status_code = wp_remote_retrieve_response_code( $response );
+		// Cast because `wp_remote_retrieve_response_code()` hands back
+		// whatever the transport put there, and a numeric string fails the
+		// strict comparison below — routing a perfectly good response into
+		// the failure branch, where `upstream_error()`'s clamp then reports
+		// it as a 500. Same reasoning at every bridge; the long version is
+		// on `Rest_Controller::upstream_error()`.
+		$status_code = (int) wp_remote_retrieve_response_code( $response );
 		if ( 200 !== $status_code ) {
-			return new WP_Error(
+			return Rest_Controller::upstream_error(
+				$response,
 				'activity_log_fetch_failed',
-				__( 'Could not fetch the site activity log.', 'jetpack-backup-pkg' ),
-				array( 'status' => is_int( $status_code ) && $status_code > 0 ? $status_code : 500 )
+				__( 'Could not fetch the site activity log.', 'jetpack-backup-pkg' )
 			);
 		}
 

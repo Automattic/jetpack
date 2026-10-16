@@ -9,6 +9,10 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Feedback field class.
  *
@@ -16,6 +20,16 @@ use Automattic\Jetpack\Forms\Jetpack_Forms;
  */
 class Feedback_Field {
 	use Country_Code_Utils;
+
+	/**
+	 * Maximum number of rating icons to render.
+	 *
+	 * The scale is visitor input, so every renderer that loops over it needs this bound.
+	 * Mirrors `MAX_RATING_ICONS` in `blocks/field-rating/rating-icons.js`.
+	 *
+	 * @var int
+	 */
+	const MAX_RATING_ICONS = 10;
 
 	/**
 	 * Cached admin theme color.
@@ -135,8 +149,8 @@ class Feedback_Field {
 	 * explicit "No". The ticked value is a translated string ( "Yes" ), so this
 	 * tests for emptiness and the "no" sentinel rather than matching "yes".
 	 *
-	 * Mirrored by `isCheckedValue()` in src/modules/form/field-type-icons.js and
-	 * in the dashboard's field-icons.tsx, which must agree with this.
+	 * Mirrored by `isCheckedValue()` in src/modules/form/helpers.js and in the
+	 * dashboard's field-icons.tsx, which must agree with this.
 	 *
 	 * @param mixed $value The submitted value.
 	 *
@@ -204,6 +218,16 @@ class Feedback_Field {
 	 * @return string
 	 */
 	private function get_render_csv_value() {
+		// A CSV cell is plain text, so it can hold the text as typed.
+		return Feedback::decode_special_chars( $this->get_render_csv_text() );
+	}
+
+	/**
+	 * Get the stored text of the field for the CSV.
+	 *
+	 * @return string
+	 */
+	private function get_render_csv_text() {
 		if ( $this->is_of_type( 'image-select' ) ) {
 			return implode(
 				', ',
@@ -380,6 +404,10 @@ class Feedback_Field {
 		if ( $rating > $max ) {
 			return $this->value;
 		}
+
+		$max    = min( $max, self::MAX_RATING_ICONS );
+		$rating = min( $rating, $max );
+
 		// Get icon style from meta data (defaults to 'stars').
 		$icon_style = $this->get_meta_key_value( 'iconStyle' );
 		if ( empty( $icon_style ) ) {
@@ -636,6 +664,9 @@ class Feedback_Field {
 		if ( $max <= 0 ) {
 			return $this->render_email_default();
 		}
+
+		$max    = min( $max, self::MAX_RATING_ICONS );
+		$rating = min( $rating, $max );
 
 		$stars = '';
 		for ( $i = 1; $i <= $max; $i++ ) {
@@ -912,7 +943,7 @@ class Feedback_Field {
 	 * but a feedback can carry a malformed value — an empty string, for
 	 * instance — so callers must never assume that shape.
 	 *
-	 * @since $$next-version$$
+	 * @since 7.26.0
 	 *
 	 * @return array The list of files, empty when the value holds none.
 	 */

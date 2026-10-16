@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Stats: stamp bucket dates as timezone-naive site-local wall times, fixing report dates that could read a day off for sites away from UTC.

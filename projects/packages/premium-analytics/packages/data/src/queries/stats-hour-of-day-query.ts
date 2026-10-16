@@ -33,9 +33,8 @@ export const statsHourOfDayQuery = (
 	const range: StatsQueryParams = date ? { date } : {};
 
 	if ( date && startDate && getDaysBetweenInclusive( startDate, date ) > HOUR_OF_DAY_MAX_DAYS ) {
-		// The endpoint counts `days` back from `date` exactly as it would derive the
-		// range from `start_date`, so ask it for the cap rather than shortening the
-		// start ourselves.
+		// The endpoint counts `days` back from `date` exactly as it derives the range
+		// from `start_date`, so ask it for the cap rather than shortening the start.
 		range.days = HOUR_OF_DAY_MAX_DAYS;
 	} else if ( startDate ) {
 		range.start_date = startDate;

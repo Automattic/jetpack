@@ -1,5 +1,1 @@
-export {
-	LeaderboardPostLabel,
-	type LeaderboardPostLabelProps,
-	type LeaderboardPostLabelVariant,
-} from './leaderboard-post-label';
+export { LeaderboardPostLabel, type LeaderboardPostLabelProps } from './leaderboard-post-label';

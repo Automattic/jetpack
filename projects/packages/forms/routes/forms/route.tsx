@@ -16,15 +16,20 @@ export const route = {
 	beforeLoad: async () => {
 		const config = await resolveSelect( CONFIG_STORE ).getConfig();
 
-		if ( ! config?.isCentralFormManagementEnabled ) {
+		// Absent means the fetch is still in flight, not a disabled flag — see the note on
+		// `isFulfilled` in src/store/config/resolvers.ts.
+		if ( config && ! config.isCentralFormManagementEnabled ) {
 			throw redirect( { href: '/responses/inbox' } );
 		}
 	},
 
 	/**
-	 * Preload data before the route renders.
+	 * Starts loading the tab counts as the route is entered.
+	 *
+	 * Deliberately not awaited: the router blocks navigation on a loader that returns a
+	 * promise, and the counts only feed the tab badges.
 	 */
-	loader: async () => {
-		await preloadGlobalTabCounts();
+	loader: () => {
+		preloadGlobalTabCounts().catch( () => {} );
 	},
 };

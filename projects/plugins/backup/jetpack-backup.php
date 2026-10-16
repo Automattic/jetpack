@@ -185,6 +185,5 @@ register_deactivation_hook( __FILE__, array( 'Automattic\\Jetpack\\Backup\\V0005
 My_Jetpack_Backup::initialize();
 // My Jetpack.
 My_Jetpack_Initializer::init();
-// Activity Log. Idempotent, so it no-ops when the Jetpack plugin already
-// initialized the package on this request.
+// Activity Log. No-ops while the `activity-log` module is off.
 Jetpack_Activity_Log::initialize();

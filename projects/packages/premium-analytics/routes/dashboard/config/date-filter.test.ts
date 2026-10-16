@@ -28,13 +28,20 @@ describe( 'resolvePresetForSurface', () => {
 		} );
 
 		it( 'takes over from a year-surface preset with the default preset', () => {
-			expect( resolvePresetForSurface( DATE_FILTER_RANGE, PRESET_ALL_TIME ) ).toBe(
-				'last-30-days'
-			);
+			expect( resolvePresetForSurface( DATE_FILTER_RANGE, PRESET_ALL_TIME ) ).toBe( 'last-7-days' );
 			expect( resolvePresetForSurface( DATE_FILTER_RANGE, toYearPresetId( 2024 ) ) ).toBe(
-				'last-30-days'
+				'last-7-days'
 			);
 		} );
+	} );
+} );
+
+describe( 'Date-filter surface constants', () => {
+	// An unrecognized surface silently falls back to `range`, so a typo here goes
+	// unnoticed; a PHP-side addition is only caught by `Dashboard_Section_Test`.
+	it( 'pins the surface literals the PHP constants use', () => {
+		expect( DATE_FILTER_RANGE ).toBe( 'range' );
+		expect( DATE_FILTER_YEAR ).toBe( 'year' );
 	} );
 } );
 
@@ -57,5 +64,20 @@ describe( 'offersDateComparison', () => {
 		expect( offersDateComparison( DATE_FILTER_YEAR, { with_date_comparison: true } ) ).toBe(
 			false
 		);
+	} );
+
+	it( 'ignores the placement of the control', () => {
+		expect(
+			offersDateComparison( DATE_FILTER_RANGE, {
+				with_date_comparison: true,
+				with_header_date_control: false,
+			} )
+		).toBe( true );
+		expect(
+			offersDateComparison( DATE_FILTER_RANGE, {
+				with_date_comparison: false,
+				with_header_date_control: true,
+			} )
+		).toBe( false );
 	} );
 } );

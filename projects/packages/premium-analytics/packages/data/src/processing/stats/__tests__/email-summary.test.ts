@@ -3,17 +3,31 @@ import { emailSummaryFixture } from '../__fixtures__/email-summary';
 
 describe( 'Stats email summary normalizer', () => {
 	it( 'normalizes email summary metrics', () => {
+		const [ newsletter ] = emailSummaryFixture.posts;
+		const digest = {
+			...newsletter,
+			id: 72,
+			title: 'Digest',
+			opens: 12,
+			clicks: 1,
+			unique_opens: 10,
+			unique_clicks: 1,
+			total_sends: 50,
+		};
+
 		expect(
-			sanitizeStatsEmailSummaryResponse( emailSummaryFixture, {
-				period: 'day',
-				date: '2026-06-16',
-			} )
+			sanitizeStatsEmailSummaryResponse(
+				{ posts: [ newsletter, digest ] },
+				{ period: 'day', date: '2026-06-16' }
+			)
 		).toEqual(
 			expect.objectContaining( {
 				summary: expect.objectContaining( {
-					total_sends: 100,
-					opens: 30,
-					clicks: 4,
+					total_sends: 150,
+					opens: 42,
+					clicks: 5,
+					unique_opens: 34,
+					unique_clicks: 4,
 				} ),
 				data: [
 					expect.objectContaining( {
@@ -28,6 +42,7 @@ describe( 'Stats email summary normalizer', () => {
 								unique_opens: 24,
 								unique_clicks: 3,
 							} ),
+							expect.objectContaining( { id: 72, label: 'Digest', value: 12 } ),
 						],
 					} ),
 				],

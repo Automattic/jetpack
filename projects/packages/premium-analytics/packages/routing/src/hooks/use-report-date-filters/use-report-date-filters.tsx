@@ -6,12 +6,13 @@ import {
 	hasComparisonEnabled,
 	resolveIntervalForRange,
 } from '@jetpack-premium-analytics/data';
-import { PRESET_CUSTOM, siteTimeZone, stepDateRange } from '@jetpack-premium-analytics/datetime';
+import { reportingTimeZone } from '@jetpack-premium-analytics/datetime';
 import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
  */
 import { decodeDateSearchParam, encodeDateToSearchParam } from '../../search/date-range';
+import { hasPrimaryDateDraft } from '../../search/report-params';
 import { useStagedSearch } from '../use-staged-search';
 import { buildRangePatch, type ReportQuerySearchParams } from './build-range-patch';
 import type {
@@ -19,19 +20,16 @@ import type {
 	DateRange,
 	IntervalType,
 	PrimaryPresetId,
-	StepDirection,
 } from '@jetpack-premium-analytics/datetime';
-
-type PickerRange = { from: Date | undefined; to: Date | undefined };
 
 /**
  * The values and callbacks that drive `DateFiltersPanel`.
  */
 export type ReportDateFilters = {
 	presetId?: PrimaryPresetId;
-	range: PickerRange;
+	range: DateRange;
 	appliedPresetId?: PrimaryPresetId;
-	appliedRange: PickerRange;
+	appliedRange: DateRange;
 	comparisonPresetId?: ComparisonPresetId;
 	appliedComparisonPresetId?: ComparisonPresetId;
 
@@ -46,25 +44,23 @@ export type ReportDateFilters = {
 	interval: IntervalType;
 
 	/**
-	 * The applied chart interval, for surfaces describing what the widgets are
-	 * currently drawing rather than what the picker is holding.
-	 */
-	appliedInterval: IntervalType;
-
-	/**
-	 * The intervals the applied range allows, finest first — what the control
-	 * lists.
+	 * The intervals the range being edited allows, finest first — what the
+	 * control lists.
 	 */
 	intervalOptions: IntervalType[];
 
-	onChange: ( range?: DateRange, presetId?: PrimaryPresetId ) => void;
+	/**
+	 * Stage a primary range edit. `exactRange` stores the ends as given rather
+	 * than widening `to` to the end of its day: for a range a card computed,
+	 * not one the reader picked from the calendar.
+	 */
+	onChange: (
+		range?: DateRange,
+		presetId?: PrimaryPresetId,
+		options?: { exactRange?: boolean }
+	) => void;
 	onComparisonChange: ( range: DateRange | undefined, presetId?: ComparisonPresetId ) => void;
 	onIntervalChange: ( interval: IntervalType ) => void;
-
-	/**
-	 * Step the applied window backward or forward by its own length.
-	 */
-	onStep: ( direction: StepDirection ) => void;
 
 	onApply: () => void;
 	onCancel: () => void;
@@ -72,14 +68,9 @@ export type ReportDateFilters = {
 	timeZone: string;
 
 	/**
-	 * Stage a primary range change and commit it in the same tick, replacing the
-	 * current history entry instead of pushing one.
-	 *
-	 * For range changes the page makes on the user's behalf rather than in
-	 * response to a date edit — reconciling the preset with what the current
-	 * screen can show, for instance. Those must not leave a Back step, or Back
-	 * would return to the state that triggered the reconciliation and be
-	 * corrected straight back out of.
+	 * Stage and commit a range change without pushing a history entry — for
+	 * programmatic reconciliation (not a direct date edit), so Back can't loop
+	 * into the state that triggered the reconciliation.
 	 */
 	replaceRange: ( range: DateRange, presetId: PrimaryPresetId ) => void;
 };
@@ -87,10 +78,10 @@ export type ReportDateFilters = {
 /**
  * Parse search-param dates into a picker range, dropping unparseable values to
  * `undefined`. The picker reads these straight from the URL, so a malformed
- * `from`/`to` (e.g. a hand-edited or under-encoded deep link where the `+`
- * offset decoded to a space) must not become an invalid Date: the picker's
- * `formatToTimezoneNaiveString` throws on one and would white-screen the page,
- * and the trigger label would read "Invalid date".
+ * `from`/`to` (e.g. a hand-edited deep link with an offset that does not exist)
+ * must not become an invalid Date: the picker's `formatToTimezoneNaiveString`
+ * throws on one and would white-screen the page, and the trigger label would
+ * read "Invalid date".
  *
  * @param from     - The `from` search param.
  * @param to       - The `to` search param.
@@ -122,7 +113,7 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 		TFrom
 	>( { from } );
 
-	const timeZone = siteTimeZone();
+	const timeZone = reportingTimeZone();
 
 	const presetId = useMemo( () => effective.preset ?? undefined, [ effective.preset ] );
 	const range = useMemo(
@@ -137,8 +128,18 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 	);
 
 	const onChange = useCallback(
-		( nextRange?: DateRange, nextPresetId?: PrimaryPresetId ) => {
-			const patch = buildRangePatch( { nextRange, nextPresetId, effective } );
+		(
+			nextRange?: DateRange,
+			nextPresetId?: PrimaryPresetId,
+			options?: { exactRange?: boolean }
+		) => {
+			const patch = buildRangePatch( {
+				nextRange,
+				nextPresetId,
+				exactRange: options?.exactRange,
+				resetIntervalOnPresetChange: true,
+				effective,
+			} );
 
 			if ( patch ) {
 				stage( patch );
@@ -147,19 +148,18 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 		[ stage, effective ]
 	);
 
+	// Gated like the applied pair below: a link carrying `compare_preset` with no
+	// window compares nothing, and must not paint the control active.
 	const comparisonPresetId = useMemo(
-		() => effective.compare_preset ?? undefined,
-		[ effective.compare_preset ]
+		() =>
+			hasComparisonEnabled( effective ) ? ( effective.compare_preset ?? undefined ) : undefined,
+		[ effective ]
 	);
 
 	/*
-	 * The applied comparison, for surfaces that describe what the widgets are
-	 * actually showing rather than what the picker is drafting. A comparison
-	 * change normally commits on its own, but it rides along uncommitted when a
-	 * primary edit is already staged, so this cannot read `effective`.
-	 *
-	 * Gated on the same predicate the report params run through, so a surface
-	 * can never announce a comparison the widgets did not request.
+	 * Applied, not staged: a comparison commits on its own but can ride
+	 * uncommitted alongside a staged primary edit, so this can't read `effective`.
+	 * Gated like the report params, so it never shows an unrequested comparison.
 	 */
 	const { appliedComparisonPresetId, appliedComparisonRange } = useMemo( () => {
 		if ( ! hasComparisonEnabled( committed ) ) {
@@ -178,56 +178,30 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 		};
 	}, [ committed, timeZone ] );
 
-	/*
-	 * Whether the primary picker holds an un-applied edit. The comparison and
-	 * interval controls commit on their own, so both check this first rather
-	 * than committing a range draft along with their own change.
-	 */
-	const hasPrimaryDraft =
-		effective.from !== committed.from ||
-		effective.to !== committed.to ||
-		effective.preset !== committed.preset;
+	const hasPrimaryDraft = hasPrimaryDateDraft( committed, effective );
 
-	/*
-	 * The buckets the interval control lists, and the one it checks. Both read
-	 * the applied range: the control sits outside the picker, so a range being
-	 * drafted must not reshape the menu, and resolving the value through the
-	 * same range that produced the options keeps the checked item a listed one.
-	 */
+	// Listed and checked against the range being edited — see
+	// `getAllowedIntervalsForPreset` for why the draft and not the applied window.
 	const intervalOptions = useMemo(
-		() => getAllowedIntervalsForPreset( appliedPresetId, committed.from ?? '', committed.to ?? '' ),
-		[ appliedPresetId, committed.from, committed.to ]
+		() => getAllowedIntervalsForPreset( presetId, effective.from ?? '', effective.to ?? '' ),
+		[ presetId, effective.from, effective.to ]
 	);
 
-	const appliedInterval = useMemo(
-		() =>
-			resolveIntervalForRange(
-				appliedPresetId,
-				committed.from ?? '',
-				committed.to ?? '',
-				committed.interval
-			),
-		[ appliedPresetId, committed.from, committed.to, committed.interval ]
-	);
-
-	// The staged value, so the check mark moves on the click that stages it even
-	// when a primary draft keeps that click from committing.
 	const interval = useMemo(
 		() =>
 			resolveIntervalForRange(
-				appliedPresetId,
-				committed.from ?? '',
-				committed.to ?? '',
+				presetId,
+				effective.from ?? '',
+				effective.to ?? '',
 				effective.interval
 			),
-		[ appliedPresetId, committed.from, committed.to, effective.interval ]
+		[ presetId, effective.from, effective.to, effective.interval ]
 	);
 
 	/**
-	 * Comparison changes commit immediately — but only when the primary date
-	 * isn't mid-edit. If a primary edit is staged but not yet applied, the
-	 * comparison change rides along and commits together on Apply, so tweaking
-	 * the comparison never commits an un-applied primary draft.
+	 * Comparison changes commit immediately, unless a primary edit is staged —
+	 * then it rides along and commits with it on Apply, so a comparison tweak
+	 * never commits an un-applied primary draft.
 	 */
 	const onComparisonChange = useCallback(
 		( nextComparisonRange: DateRange | undefined, nextComparisonPresetId?: ComparisonPresetId ) => {
@@ -251,43 +225,18 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 	 */
 	const onIntervalChange = useCallback(
 		( nextInterval: IntervalType ) => {
+			// Re-picking the shown bucket would push an identical history entry.
+			if ( nextInterval === interval ) {
+				return;
+			}
+
 			stage( { interval: nextInterval } );
 
 			if ( ! hasPrimaryDraft ) {
 				commit();
 			}
 		},
-		[ stage, commit, hasPrimaryDraft ]
-	);
-
-	/*
-	 * Commits on click and pushes a history entry, so Back undoes the step and
-	 * the stepped window survives a reload as real URL state.
-	 *
-	 * Steps the applied range, not the staged one: the arrows sit outside the
-	 * picker, so stepping is not the gesture that applies someone's open draft.
-	 */
-	const onStep = useCallback(
-		( direction: StepDirection ) => {
-			const stepped = stepDateRange( appliedRange, direction );
-
-			if ( ! stepped ) {
-				return;
-			}
-
-			const patch = buildRangePatch( {
-				nextRange: stepped,
-				nextPresetId: PRESET_CUSTOM,
-				exactRange: true,
-				effective,
-			} );
-
-			if ( patch ) {
-				stage( patch );
-				commit();
-			}
-		},
-		[ appliedRange, commit, effective, stage ]
+		[ interval, stage, commit, hasPrimaryDraft ]
 	);
 
 	const onApply = useCallback( () => commit(), [ commit ] );
@@ -318,12 +267,10 @@ export function useReportDateFilters< TFrom extends string >( from: TFrom ): Rep
 		appliedComparisonPresetId,
 		appliedComparisonRange,
 		interval,
-		appliedInterval,
 		intervalOptions,
 		onChange,
 		onComparisonChange,
 		onIntervalChange,
-		onStep,
 		onApply,
 		onCancel,
 		canApply: isDirty,

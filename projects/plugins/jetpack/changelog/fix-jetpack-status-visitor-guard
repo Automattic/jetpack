@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Jetpack AI: Keep the editor working when another plugin loads an older copy of the Status package.

@@ -5,6 +5,7 @@ import { Stack, Text } from '@wordpress/ui';
 import { useEffect } from 'react';
 import { useTrackEvent } from '../../data/use-track-event';
 import type { RenderModalProps } from '@wordpress/dataviews';
+import type { JSX } from 'react';
 
 const codeBlockStyle = {
 	backgroundColor: 'var(--wpds-color-background-surface-neutral-weak, #f6f7f7)',

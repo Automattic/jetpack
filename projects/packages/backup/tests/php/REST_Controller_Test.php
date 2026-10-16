@@ -11,11 +11,15 @@
 // are installed, or in some other cases).
 namespace Automattic\Jetpack\Backup\V0005;
 
+use Automattic\Jetpack\Backup\V0005\REST\Wpcom_Request_Mock;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use Automattic\Jetpack\Connection\Utils as Connection_Utils;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Posts as WorDBless_Posts;
 use WorDBless\Users as WorDBless_Users;
+use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
@@ -23,13 +27,20 @@ use function add_action;
 use function add_filter;
 use function do_action;
 use function remove_filter;
+use function wp_cache_get;
+use function wp_cache_set;
 use function wp_delete_file;
 use function wp_insert_post;
 use function wp_insert_user;
 use function wp_json_encode;
 use function wp_set_current_user;
+use function wp_using_ext_object_cache;
+
+require_once __DIR__ . '/trait-wpcom-request-mock.php';
 
 class REST_Controller_Test extends TestCase {
+
+	use Wpcom_Request_Mock;
 
 	/**
 	 * REST Server object.
@@ -44,6 +55,20 @@ class REST_Controller_Test extends TestCase {
 	 * @var int
 	 */
 	private $admin_id;
+
+	/**
+	 * The object cache in place before a test swapped in a stub drop-in.
+	 *
+	 * @var \WP_Object_Cache
+	 */
+	private $real_object_cache;
+
+	/**
+	 * Whether the site reported a persistent object cache before a test flipped it.
+	 *
+	 * @var bool|null
+	 */
+	private $was_using_ext_object_cache;
 
 	/**
 	 * Setting up the test.
@@ -63,6 +88,9 @@ class REST_Controller_Test extends TestCase {
 		);
 		wp_set_current_user( 0 );
 
+		$this->real_object_cache          = $GLOBALS['wp_object_cache'];
+		$this->was_using_ext_object_cache = wp_using_ext_object_cache();
+
 		// Register REST routes.
 		add_action( 'rest_api_init', array( 'Automattic\\Jetpack\\Backup\\V0005\\REST_Controller', 'register_rest_routes' ) );
 
@@ -74,6 +102,7 @@ class REST_Controller_Test extends TestCase {
 	 */
 	public function tearDown(): void {
 		parent::tearDown();
+		$this->reset_wpcom_request_mock();
 		wp_set_current_user( 0 );
 
 		unset(
@@ -85,6 +114,11 @@ class REST_Controller_Test extends TestCase {
 			$_GET['signature'],
 			$_SERVER['REQUEST_METHOD']
 		);
+
+		$GLOBALS['wp_object_cache'] = $this->real_object_cache;
+
+		// Cast: passing null would read the flag rather than restore it.
+		wp_using_ext_object_cache( (bool) $this->was_using_ext_object_cache );
 
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Posts::init()->clear_all_posts();
@@ -538,5 +572,262 @@ class REST_Controller_Test extends TestCase {
 		$response = $this->dispatch_request_signed_with_blog_token( $request );
 
 		$this->assertEquals( 403, $response->get_status() );
+	}
+
+	/**
+	 * Sign in and have WordPress.com answer, with the constants a signed
+	 * request needs already in place.
+	 *
+	 * `Client::validate_args_for_wpcom_json_api_request()` reads
+	 * `JETPACK__WPCOM_JSON_API_BASE` before `build_signed_request()` installs
+	 * the filter that supplies its default, so without this the first signed
+	 * request of the process is built against a host-less URL and refused
+	 * before the wire — which would make these tests pass or fail on where
+	 * they land in the run order. Plugins prime the constants at bootstrap;
+	 * tests have to do it themselves.
+	 *
+	 * @param string     $body   Raw body WordPress.com should answer with.
+	 * @param int|string $status HTTP status WordPress.com should answer with.
+	 */
+	private function arrange_signed_wpcom( $body, $status ) {
+		Connection_Utils::init_default_constants();
+		$this->arrange_wpcom_raw( $body, $status );
+	}
+
+	/**
+	 * Preflight reads a success code reported as a string.
+	 *
+	 * `wp_remote_retrieve_response_code()` hands back whatever the transport
+	 * put there, and this route was the one place in the package that then
+	 * forwarded the status it had just read straight into `data.status`.
+	 * Uncast, `'200'` failed the comparison and the error envelope was served
+	 * as HTTP 200 — `WP_HTTP_Response::set_status()` runs the value through
+	 * `absint()` — so `apiFetch` resolves, nothing throws, and a failure
+	 * arrives at the caller looking like a successful preflight.
+	 *
+	 * The decoded payload is asserted rather than the absence of an error,
+	 * and that is the point: the bug served a *success* status, so a test
+	 * that only checked for "not a failure status" would have passed on it.
+	 */
+	public function test_preflight_treats_a_string_status_as_its_number() {
+		$this->arrange_signed_wpcom( '{"ok":true,"score":42}', '200' );
+
+		$response = REST_Controller::get_site_backup_preflight();
+
+		$this->assertNotInstanceOf( WP_Error::class, $response );
+		$this->assertSame( 42, $response->get_data()['score'] );
+	}
+
+	/**
+	 * A real failure status still travels, which is what the route is for.
+	 *
+	 * Guards the clamp below from being "fixed" into a flat 500: the reason
+	 * this route forwards the status at all is that 403 and 503 mean
+	 * different things to whoever is reading. 403 rather than 500, because
+	 * 500 is also what the clamp falls back to.
+	 */
+	public function test_preflight_forwards_a_genuine_failure_status() {
+		$this->arrange_signed_wpcom( '{}', 403 );
+
+		$data = REST_Controller::get_site_backup_preflight()->get_error_data();
+
+		$this->assertSame( 403, $data['status'] );
+	}
+
+	/**
+	 * A status outside the failure range never reaches `data.status`.
+	 *
+	 * The cast alone does not make the forward safe. `(int)` is total, so an
+	 * absent code becomes `0` and `'2 Bad'` becomes `2`; `status_header()`
+	 * emits an invalid status line for either. A 3xx is servable and still
+	 * wrong — an error envelope under a redirect code, with no `Location`.
+	 *
+	 * @param string $label    What this response carries.
+	 * @param mixed  $upstream The status code the transport reports.
+	 * @dataProvider provide_preflight_statuses_that_are_not_failures
+	 */
+	#[DataProvider( 'provide_preflight_statuses_that_are_not_failures' )]
+	public function test_preflight_never_forwards_a_status_it_cannot_serve( $label, $upstream ) {
+		$this->arrange_signed_wpcom( '{}', $upstream );
+
+		$data = REST_Controller::get_site_backup_preflight()->get_error_data();
+
+		$this->assertSame( 500, $data['status'], $label );
+	}
+
+	/**
+	 * Statuses the preflight route must not forward as its own.
+	 *
+	 * @return array
+	 */
+	public static function provide_preflight_statuses_that_are_not_failures() {
+		return array(
+			'a 3xx'                    => array( 'a 3xx', 302 ),
+			'a status with a suffix'   => array( 'a status with a suffix', '2 Bad' ),
+			'no status at all'         => array( 'no status at all', '' ),
+			'a status above the range' => array( 'a status above the range', 600 ),
+		);
+	}
+
+	/**
+	 * The undo-event route reads a success code reported as a string.
+	 *
+	 * Uncast, a `'200'` discarded a perfectly good activity page and the
+	 * route answered `null` — which it also answers when the site genuinely
+	 * has nothing to undo, so the caller cannot tell the two apart.
+	 *
+	 * The fixture needs two rewindable events: the first that is not itself a
+	 * backup becomes `last_rewindable_event`, and the next one after it
+	 * supplies the `rewind_id` to undo to. With only one, the route returns
+	 * `null` for a reason that has nothing to do with the status.
+	 */
+	public function test_undo_event_treats_a_string_status_as_its_number() {
+		$this->arrange_signed_wpcom(
+			'{"current":{"orderedItems":['
+				. '{"name":"plugin__updated","is_rewindable":true,"rewind_id":"1786663613.94"},'
+				. '{"name":"rewind__backup_complete_full","is_rewindable":true,"rewind_id":"1786600000.11"}'
+				. ']}}',
+			'200'
+		);
+
+		$response = REST_Controller::get_site_backup_undo_event();
+
+		$this->assertNotNull( $response );
+		$data = $response->get_data();
+		$this->assertSame( 'plugin__updated', $data['last_rewindable_event']['name'] );
+		$this->assertSame( '1786600000.11', $data['undo_backup_id'] );
+	}
+
+	/**
+	 * The flush route is site-level only, like the rest of this controller.
+	 *
+	 * An administrator's own session is not a blog token, so widening the
+	 * callback to reach it would hand every admin a site-wide cache flush.
+	 */
+	public function test_flush_object_cache_rejects_an_administrator() {
+		wp_set_current_user( $this->admin_id );
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'POST', '/jetpack/v4/site/cache/flush' ) );
+
+		$this->assertEquals( 403, $response->get_status() );
+		$this->assertEquals( 'You are not allowed to perform this action.', $response->get_data()['message'] );
+	}
+
+	/**
+	 * Without a persistent cache there is nothing stale to bust, so the route
+	 * skips the flush and says why.
+	 */
+	public function test_flush_object_cache_skips_a_site_without_a_persistent_cache() {
+		wp_using_ext_object_cache( false );
+		wp_cache_set( 'jetpack_2546', 'survives' );
+
+		$response = $this->dispatch_flush();
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertSame(
+			array(
+				'flushed' => false,
+				'reason'  => 'no_ext_object_cache',
+			),
+			$response->get_data()
+		);
+		$this->assertSame( 'survives', wp_cache_get( 'jetpack_2546' ), 'The cache should have been left alone.' );
+	}
+
+	/**
+	 * With a persistent cache the route empties it, rather than merely saying so.
+	 *
+	 * The witness key is the point: without it this passes just as happily
+	 * against a route that reports success and flushes nothing.
+	 */
+	public function test_flush_object_cache_empties_a_persistent_cache() {
+		wp_using_ext_object_cache( true );
+		wp_cache_set( 'jetpack_2546', 'stale' );
+
+		$response = $this->dispatch_flush();
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertSame( array( 'flushed' => true ), $response->get_data() );
+		$this->assertFalse( wp_cache_get( 'jetpack_2546' ), 'The cache should have been emptied.' );
+	}
+
+	/**
+	 * A drop-in that declines to flush is reported as a failure, with a reason.
+	 *
+	 * Shared Memcached setups sometimes disable flushing so one site cannot
+	 * empty its neighbours', and that refusal is invisible to WordPress.com
+	 * unless the route forwards it.
+	 */
+	public function test_flush_object_cache_reports_a_drop_in_that_declines() {
+		wp_using_ext_object_cache( true );
+		$this->arrange_object_cache_drop_in( false );
+
+		$response = $this->dispatch_flush();
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertSame(
+			array(
+				'flushed' => false,
+				'reason'  => 'flush_failed',
+			),
+			$response->get_data()
+		);
+	}
+
+	/**
+	 * A drop-in whose flush() returns nothing counts as a success.
+	 *
+	 * Core documents false as the only failure signal, so casting the return
+	 * to bool would report a working flush as a failed one.
+	 */
+	public function test_flush_object_cache_treats_a_void_drop_in_return_as_success() {
+		wp_using_ext_object_cache( true );
+		$this->arrange_object_cache_drop_in( null );
+
+		$response = $this->dispatch_flush();
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertSame( array( 'flushed' => true ), $response->get_data() );
+	}
+
+	/**
+	 * Dispatch a flush request signed with the blog token.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	private function dispatch_flush() {
+		return $this->dispatch_request_signed_with_blog_token( new WP_REST_Request( 'POST', '/jetpack/v4/site/cache/flush' ) );
+	}
+
+	/**
+	 * Stand a drop-in in for the object cache, so its flush() answer can be chosen.
+	 *
+	 * Subclassed rather than faked outright: the signed dispatch reads and
+	 * writes the cache on its way to the callback.
+	 *
+	 * @param mixed $result What the drop-in's flush() hands back.
+	 */
+	private function arrange_object_cache_drop_in( $result ) {
+		$cache = new class() extends \WP_Object_Cache {
+			/**
+			 * What flush() hands back.
+			 *
+			 * @var mixed
+			 */
+			public $flush_result;
+
+			/**
+			 * Stand in for a drop-in's flush().
+			 *
+			 * @return mixed
+			 */
+			public function flush() {
+				return $this->flush_result;
+			}
+		};
+
+		$cache->flush_result = $result;
+
+		$GLOBALS['wp_object_cache'] = $cache;
 	}
 }

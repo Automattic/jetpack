@@ -19,14 +19,25 @@ export type PlaylistEntry = {
 export type PlaylistLiveMetadata = {
 	title?: string;
 	poster?: string;
+	// The video is private and its thumbnail could not be authorized for this
+	// viewer; the entry shows the lock placeholder instead.
+	isPrivateLocked?: boolean;
 };
 
 export type PlaylistLayout = 'side-rail' | 'grid' | 'strip';
 
-export type PlaylistAttributes = {
-	videos: PlaylistEntry[];
+// What clicking an entry does while the player is hidden.
+export type PlaylistEntryClickAction = 'new-tab' | 'show-player';
+
+/**
+ * The display and playback options shared by every playlist-style block;
+ * each block adds its own source of entries on top.
+ */
+export type PlaylistDisplayAttributes = {
 	layout: PlaylistLayout;
 	darkPlayer: boolean;
+	showPlayer: boolean;
+	entryClickAction: PlaylistEntryClickAction;
 	autoplayNext: boolean;
 	muteByDefault: boolean;
 	loopPlaylist: boolean;
@@ -43,3 +54,24 @@ export type PlaylistAttributes = {
 	 */
 	entryTitleFontFamily: string;
 };
+
+export type PlaylistAttributes = PlaylistDisplayAttributes & {
+	/*
+	 * Key of this playlist in the site's playlist index; assigned once the
+	 * block is inserted, and unique among the playlist blocks of a post.
+	 */
+	playlistId: string;
+	playlistTitle: string;
+	playlistDescription: string;
+	// Renders the title as a Heading inner block above the playlist.
+	showPlaylistTitle: boolean;
+	videos: PlaylistEntry[];
+	/*
+	 * Where the videos come from: the block's own list, the playlist a channel
+	 * page is showing, or an indexed playlist ( sourcePlaylistId, empty = latest ).
+	 */
+	source?: PlaylistSource;
+	sourcePlaylistId?: string;
+};
+
+export type PlaylistSource = 'own' | 'queried' | 'index';

@@ -202,6 +202,11 @@ class Scan extends Module_Product {
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
+		// The Protect page lists Scan's threats.
+		if ( Protect::has_protect_page() ) {
+			return admin_url( 'admin.php?page=jetpack-protect' );
+		}
+
 		return Redirect::get_url( 'my-jetpack-manage-scan' );
 	}
 
@@ -210,7 +215,7 @@ class Scan extends Module_Product {
 	 */
 	public static function get_post_checkout_url() {
 		if ( static::is_jetpack_plugin_active() ) {
-			return 'admin.php?page=jetpack#/recommendations';
+			return static::get_manage_url();
 		}
 
 		// If Jetpack is not active, it means that the user has another standalone plugin active

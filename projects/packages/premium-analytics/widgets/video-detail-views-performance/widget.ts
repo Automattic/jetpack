@@ -1,51 +1,49 @@
 /**
  * WordPress dependencies
  */
-import { seen } from '@wordpress/icons';
+import { __ } from '@wordpress/i18n';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
  * Internal dependencies
  */
 import {
-	chartTypeAttributeField,
+	CHART_TYPE_ELEMENTS,
 	type ChartDisplayChartType,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
- * How the views series is drawn. The shared chart-display list keeps every
+ * How the selected metric is drawn. The shared chart-display list keeps every
  * chart widget's dropdown identical and ties it to the toolkit's own union.
  */
 export type VideoDetailViewsPerformanceChartType = ChartDisplayChartType;
 
 /**
- * Configurable attributes for the Views performance widget. The video scope
- * and report params reach it through WidgetRoot: the detail page seeds
- * `post_id` into the URL, and the dashboard date picker owns the range.
+ * `post_id` (video scope) and report params reach the widget via WidgetRoot.
  *
- * @property chartType - How to draw the views series. Defaults to `line`.
+ * @property chartType - How to draw the selected metric. Defaults to `bar`.
  */
 export type VideoDetailViewsPerformanceAttributes = {
 	chartType?: VideoDetailViewsPerformanceChartType;
 };
 
 /**
- * Widget type definition.
- *
- * The video detail page's view-trend card: the scoped video's views over the
- * dashboard date range, with the window total as the metric headline. The
- * series comes from the `stats/video/{id}` daily history, bucketed client-side
- * at the page's chart interval; the `chartType` attribute
- * (`relevance: 'high'`) is rendered by the widget host.
+ * Series come from the `stats/video/{id}` `statType=all` daily history,
+ * bucketed client-side at the page's chart interval.
  */
 export default {
-	icon: seen,
 	attributes: [
-		chartTypeAttributeField(),
+		{
+			id: 'chartType',
+			label: __( 'Chart type', 'jetpack-premium-analytics-pkg' ),
+			type: 'jpa/toggle-group',
+			elements: CHART_TYPE_ELEMENTS,
+			relevance: 'high',
+		},
 	] as WidgetAttributeField< VideoDetailViewsPerformanceAttributes >[],
 	example: {
 		attributes: {
-			chartType: 'line',
+			chartType: 'bar',
 		},
 	},
 };

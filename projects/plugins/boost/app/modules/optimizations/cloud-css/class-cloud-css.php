@@ -10,7 +10,6 @@ use Automattic\Jetpack_Boost\Contracts\Needs_To_Be_Ready;
 use Automattic\Jetpack_Boost\Contracts\Needs_Website_To_Be_Public;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
 use Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Utils;
-use Automattic\Jetpack_Boost\Lib\Critical_CSS\Admin_Bar_Compatibility;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Invalidator;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
@@ -133,22 +132,13 @@ class Cloud_CSS implements Feature, Has_Activate, Has_Always_Available_Endpoints
 			// If Cloud CSS is still generating and the user is logged in, render the status information in a comment.
 			if ( $pending && is_user_logged_in() ) {
 				$display = new Display_Critical_CSS( '/* ' . __( 'Jetpack Boost is currently generating critical css for this page', 'jetpack-boost' ) . ' */' );
-				add_action( 'wp_head', array( $display, 'display_critical_css' ), 0 );
+				add_action( 'wp_head', array( $display, 'display_critical_css' ), Display_Critical_CSS::HEAD_PRIORITY );
 			}
 			return;
 		}
 
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG === true ) {
-			$critical_css = "/* Critical CSS Key: {$this->paths->get_current_critical_css_key()} */\n" . $critical_css;
-		}
-
-		$display = new Display_Critical_CSS( $critical_css );
-		add_action( 'wp_head', array( $display, 'display_critical_css' ), 0 );
-		add_filter( 'style_loader_tag', array( $display, 'asynchronize_stylesheets' ), 10, 4 );
-		add_action( 'wp_footer', array( $display, 'onload_flip_stylesheets' ) );
-
-		// Ensure admin bar compatibility.
-		Admin_Bar_Compatibility::init();
+		$display = new Display_Critical_CSS( $critical_css, $this->paths->get_current_critical_css_key() );
+		$display->register_hooks();
 	}
 
 	/**
