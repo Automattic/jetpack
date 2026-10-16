@@ -97,6 +97,7 @@ function PostViewsInner( { chartType }: PostViewsInnerProps ) {
 					dataFormat={ DATA_FORMAT }
 					chartType={ chartType }
 					empty={ <ChartEmptyState /> }
+					hideSingleMetricLabel
 				/>
 			</WidgetState>
 		</div>

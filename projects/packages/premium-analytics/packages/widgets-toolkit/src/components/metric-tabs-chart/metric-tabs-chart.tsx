@@ -171,6 +171,8 @@ export interface MetricTabsChartProps {
 	controls?: ReactNode;
 	/** Accessible label for the metric tab list. */
 	groupLabel?: string;
+	/** Visually hide the label in the static single-metric headline. */
+	hideSingleMetricLabel?: boolean;
 	/**
 	 * The series' bucket size, declared to the x-axis so tick formats follow the
 	 * known granularity rather than being inferred from point spacing.
@@ -452,12 +454,14 @@ function MetricTabContent( {
 	dataFormat,
 	fontSize,
 	withDescription = false,
+	hideLabelFromVision = false,
 	exact = false,
 }: {
 	metric: MetricTab;
 	dataFormat: DataFormat;
 	fontSize?: ComponentProps< typeof MetricWithComparison >[ 'fontSize' ];
 	withDescription?: boolean;
+	hideLabelFromVision?: boolean;
 	/** Spell the value out in full, for a layout with room for it. */
 	exact?: boolean;
 } ) {
@@ -472,7 +476,11 @@ function MetricTabContent( {
 
 	return (
 		<span className={ styles.tabContent }>
-			<Text className={ styles.tabLabel }>{ metric.label }</Text>
+			{ hideLabelFromVision ? (
+				<VisuallyHidden>{ metric.label }</VisuallyHidden>
+			) : (
+				<Text className={ styles.tabLabel }>{ metric.label }</Text>
+			) }
 			{ metric.unavailable ? (
 				// Sized off the same token as the value it stands in for: the tab and
 				// trigger layouts ask for different ones, so a fixed size misreads in one.
@@ -521,6 +529,7 @@ export function MetricTabsChart( {
 	onMetricChange,
 	controls,
 	groupLabel = __( 'Select metric', 'jetpack-premium-analytics-pkg' ),
+	hideSingleMetricLabel = false,
 	tickResolution,
 	onDatumClick,
 	tooltipMetrics = 'active',
@@ -613,6 +622,7 @@ export function MetricTabsChart( {
 								dataFormat={ dataFormat }
 								fontSize="2xl"
 								withDescription
+								hideLabelFromVision={ hideSingleMetricLabel }
 							/>
 						</div>
 					</div>

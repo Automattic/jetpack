@@ -176,12 +176,34 @@ describe( 'MetricTabsChart', () => {
 
 		render( <MetricTabsChart metrics={ [ describedMetric ] } dataFormat={ DATA_FORMAT } /> );
 
-		expect( screen.getByText( 'Views' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Views' ) ).not.toHaveClass( /visually-hidden/ );
 		expect( screen.getByText( describedMetric.description ) ).toBeInTheDocument();
 		expect( screen.queryByTitle( describedMetric.description ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'tablist' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'tab' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'visually hides an opted-in single metric label without un-naming its series', () => {
+		render(
+			<MetricTabsChart metrics={ [ METRIC ] } dataFormat={ DATA_FORMAT } hideSingleMetricLabel />
+		);
+
+		expect( screen.getByText( 'Views' ) ).toHaveClass( /visually-hidden/ );
+		expect( recordedSeries( mockLineSpy )[ 0 ].label ).toBe( 'Views' );
+	} );
+
+	it( 'keeps labels visible when the opt-in is passed to multiple metrics', () => {
+		render(
+			<MetricTabsChart
+				metrics={ [ VIEWS, VISITORS ] }
+				dataFormat={ DATA_FORMAT }
+				hideSingleMetricLabel
+			/>
+		);
+
+		expect( screen.getByText( 'Views' ) ).not.toHaveClass( /visually-hidden/ );
+		expect( screen.getByText( 'Visitors' ) ).not.toHaveClass( /visually-hidden/ );
 	} );
 
 	it.each( [
