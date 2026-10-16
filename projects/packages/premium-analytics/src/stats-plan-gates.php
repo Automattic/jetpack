@@ -292,7 +292,7 @@ function get_stats_feature_copy( $feature ) {
 			);
 		case 'long-date-presets':
 			return array(
-				'description' => __( 'See your stats beyond the last 30 days.', 'jetpack-premium-analytics-pkg' ),
+				'description' => __( 'See periods beyond the last 30 days in one click.', 'jetpack-premium-analytics-pkg' ),
 				'support_url' => '',
 			);
 		default:
