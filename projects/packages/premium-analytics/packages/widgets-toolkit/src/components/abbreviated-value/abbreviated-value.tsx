@@ -17,24 +17,21 @@ export type AbbreviatedTextProps = {
 	display: string;
 	/** The full text restored in a tooltip and for assistive tech, e.g. `'18,432'`. */
 	exact: string;
-	/**
-	 * Restored in place of `exact`, e.g. `'18,432 opens'`. A unit the display
-	 * omits keeps the tooltip even when nothing was shortened.
-	 */
+	/** Restored in place of `exact` when the display was shortened, e.g. `'18,432 opens'`. */
 	restored?: string;
 	className?: string;
 };
 
 /**
  * Shows the shortened text and restores the full one in a tooltip and for
- * assistive tech; a plain span when the two agree.
+ * assistive tech; a plain span when nothing was shortened.
  */
 export function AbbreviatedText( { display, exact, restored, className }: AbbreviatedTextProps ) {
-	const full = restored ?? exact;
-
-	if ( display === full ) {
+	if ( display === exact ) {
 		return <span className={ className }>{ display }</span>;
 	}
+
+	const full = restored ?? exact;
 
 	// Out of the tab order: assistive tech reads the exact figure below, and a
 	// focusable span would nest inside leaderboard row buttons and metric tabs.
@@ -62,10 +59,7 @@ export type AbbreviatedValueProps = {
 	 */
 	currencyCode?: string;
 
-	/**
-	 * Restored in place of the exact figure, e.g. `'18,432 opens'`. A unit the
-	 * display omits keeps the tooltip even when nothing was shortened.
-	 */
+	/** Restored in place of the exact figure when it was shortened, e.g. `'18,432 opens'`. */
 	restored?: string;
 
 	className?: string;

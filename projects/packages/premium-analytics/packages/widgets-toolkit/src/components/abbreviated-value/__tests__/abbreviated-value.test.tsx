@@ -77,11 +77,11 @@ describe( 'AbbreviatedValue', () => {
 		).resolves.toHaveTextContent( '18,432 opens' );
 	} );
 
-	it( 'keeps the tooltip when a label is the only thing the display omits', () => {
+	it( 'renders a plain value even with a label when nothing was shortened', () => {
 		render( <AbbreviatedValue value={ 432 } dataFormat={ COMPACT } restored="432 opens" /> );
 
-		expect( screen.getByText( '432' ) ).toHaveAttribute( 'aria-hidden', 'true' );
-		expect( screen.getByText( '432 opens' ) ).toBeInTheDocument();
+		expect( screen.getByText( '432' ) ).not.toHaveAttribute( 'aria-hidden' );
+		expect( screen.queryByText( '432 opens' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'reads the currency from the data format when no prop overrides it', () => {

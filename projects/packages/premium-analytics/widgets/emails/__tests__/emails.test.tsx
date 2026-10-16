@@ -79,19 +79,15 @@ describe( 'EmailsList', () => {
 	} );
 
 	it.each( [
-		[ 'opens', '420', '420 opens', '42%', '420 opens, 42% open rate' ],
-		[ 'clicks', '75', '75 clicks', '7%', '75 clicks, 7% click rate' ],
-	] as const )(
-		'shows the %s count beside its rate',
-		( metric, count, label, rate, description ) => {
-			renderEmailsList( metric );
+		[ 'opens', '420', '42%', '420 opens, 42% open rate' ],
+		[ 'clicks', '75', '7%', '75 clicks, 7% click rate' ],
+	] as const )( 'shows the %s count beside its rate', ( metric, count, rate, description ) => {
+		renderEmailsList( metric );
 
-			expect( screen.getByText( count ) ).toBeInTheDocument();
-			expect( screen.getByText( label ) ).toBeInTheDocument();
-			expect( screen.getByText( rate ) ).toBeInTheDocument();
-			expect( screen.getByText( description ) ).toBeInTheDocument();
-		}
-	);
+		expect( screen.getByText( count ) ).toBeInTheDocument();
+		expect( screen.getByText( rate ) ).toBeInTheDocument();
+		expect( screen.getByText( description ) ).toBeInTheDocument();
+	} );
 
 	it( 'keeps rows in the same order for either metric', () => {
 		const orderRows = [
