@@ -3900,18 +3900,24 @@ importers:
       jest:
         specifier: 30.5.1
         version: 30.5.1
+      jest-extended:
+        specifier: 7.0.0
+        version: 7.0.0(jest@30.5.1)(typescript@6.0.3)
       postcss:
         specifier: 8.5.23
         version: 8.5.23
       postcss-loader:
         specifier: 8.2.0
-        version: 8.2.0(postcss@8.5.23)(webpack@5.111.1)
+        version: 8.2.0(postcss@8.5.23)(typescript@6.0.3)(webpack@5.111.1)
       sass-embedded:
         specifier: 1.97.3
         version: 1.97.3
       sass-loader:
         specifier: 16.0.5
         version: 16.0.5(sass-embedded@1.97.3)(webpack@5.111.1)
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
 
   projects/packages/plans: {}
 
