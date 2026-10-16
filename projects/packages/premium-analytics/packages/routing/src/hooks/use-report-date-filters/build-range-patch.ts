@@ -4,12 +4,12 @@
 import {
 	resolveIntervalForPresetChange,
 	resolveIntervalForRange,
+	type LockableInterval,
 	type ReportParams,
 } from '@jetpack-premium-analytics/data';
 import {
 	type ComparisonPresetId,
 	type DateRange,
-	type IntervalType,
 	type PrimaryPresetId,
 } from '@jetpack-premium-analytics/datetime';
 /**
@@ -56,7 +56,7 @@ type BuildRangePatchArgs = {
 	 */
 	effective: ReportQuerySearchParams;
 
-	lockedIntervals?: readonly IntervalType[];
+	lockedIntervals?: readonly LockableInterval[];
 };
 
 /**

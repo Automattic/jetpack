@@ -22,30 +22,46 @@ import {
  * Internal dependencies
  */
 import { getDefaultPreset } from '../defaults/reports';
-import { resolveIntervalForRange } from './interval';
+import { resolveIntervalForRange, type LockableInterval } from './interval';
 import { isStatsFeatureLocked, type StatsFeatureKey } from './plan-gates';
 import { computeDateRangeFromPreset } from './preset-date-range';
-import {
-	hasComparisonEnabled,
-	type IntervalType,
-	type PresetType,
-	type ReportParams,
-} from './search';
+import { hasComparisonEnabled, type PresetType, type ReportParams } from './search';
 import { withoutComparison } from './without-comparison';
 
 export type DateLimitFeature = Extract< StatsFeatureKey, 'recent-7-days' | 'long-date-presets' >;
 
-/** What the site's plan lets the date controls offer. */
-export type StatsDatePolicy = {
-	/** The lock whose upsell explains the limit; unset when no date is limited. */
-	feature?: DateLimitFeature;
-	earliestDate?: Date;
-	lockedPresetIds: readonly QuickSurfacePresetId[];
-	/** Where a locked or too-early window lands. */
-	fallbackPresetId?: typeof PRESET_LAST_7_DAYS | typeof PRESET_LAST_30_DAYS;
-	lockedIntervals: readonly IntervalType[];
-	offersComparison: boolean;
+type OpenDatePolicy = {
+	feature?: undefined;
+	earliestDate?: undefined;
+	lockedPresetIds: readonly [];
+	fallbackPresetId?: undefined;
+	lockedIntervals: readonly LockableInterval[];
+	offersComparison: true;
 };
+
+type RecentDaysPolicy = {
+	feature: Extract< DateLimitFeature, 'recent-7-days' >;
+	earliestDate: Date;
+	lockedPresetIds: readonly QuickSurfacePresetId[];
+	fallbackPresetId: typeof PRESET_LAST_7_DAYS;
+	lockedIntervals: readonly LockableInterval[];
+	offersComparison: false;
+};
+
+type LongDatePresetsPolicy = {
+	feature: Extract< DateLimitFeature, 'long-date-presets' >;
+	earliestDate?: undefined;
+	lockedPresetIds: readonly QuickSurfacePresetId[];
+	fallbackPresetId: typeof PRESET_LAST_30_DAYS;
+	lockedIntervals: readonly LockableInterval[];
+	offersComparison: true;
+};
+
+/**
+ * What the site's plan lets the date controls offer. `feature` names the lock whose upsell
+ * explains the limit, and `fallbackPresetId` is where a locked or too-early window lands.
+ */
+export type StatsDatePolicy = OpenDatePolicy | RecentDaysPolicy | LongDatePresetsPolicy;
 
 // Classic Stats' basic plan locks these shortcuts, not ranges past 30 days.
 const LONG_DATE_PRESETS: readonly QuickSurfacePresetId[] = [
@@ -57,7 +73,7 @@ const LONG_DATE_PRESETS: readonly QuickSurfacePresetId[] = [
 	PRESET_ALL_TIME,
 ];
 
-const LOCKABLE_INTERVALS: readonly IntervalType[] = [ 'week', 'month', 'year' ];
+const LOCKABLE_INTERVALS: readonly LockableInterval[] = [ 'week', 'month', 'year' ];
 
 export const OPEN_DATE_POLICY: StatsDatePolicy = {
 	lockedPresetIds: [],
@@ -78,16 +94,19 @@ export function deriveStatsDatePolicy(
 ): StatsDatePolicy {
 	const lockedIntervals = isLocked( 'intervals' ) ? LOCKABLE_INTERVALS : [];
 
-	if ( isLocked( 'recent-7-days' ) ) {
-		const earliestDate = computePrimaryRange( PRESET_LAST_7_DAYS, timeZone )?.from;
+	const lastSevenDays = isLocked( 'recent-7-days' )
+		? computePrimaryRange( PRESET_LAST_7_DAYS, timeZone )
+		: undefined;
+
+	if ( lastSevenDays ) {
+		const earliestDate = lastSevenDays.from;
 
 		return {
 			feature: 'recent-7-days',
 			earliestDate,
-			// All time resolves no start without one, so it counts as starting too early.
 			lockedPresetIds: MENU_SURFACE_PRESETS_WITH_ALL_TIME.filter( id => {
 				const from = computePrimaryRange( id, timeZone )?.from;
-				return ! from || ! earliestDate || from < earliestDate;
+				return ! from || from < earliestDate;
 			} ),
 			fallbackPresetId: PRESET_LAST_7_DAYS,
 			lockedIntervals,
@@ -135,7 +154,7 @@ export function isPresetLockedByPolicy(
 
 	// A single year is longer than either limit allows.
 	if ( isYearPresetId( presetId ) ) {
-		return policy.lockedPresetIds.length > 0;
+		return !! policy.feature;
 	}
 
 	return ( policy.lockedPresetIds as readonly string[] ).includes( presetId );
@@ -152,7 +171,7 @@ export function getPolicyDefaultPreset(
 	policy: StatsDatePolicy,
 	defaultPreset: PresetType = getDefaultPreset()
 ): PresetType {
-	return isPresetLockedByPolicy( defaultPreset, policy ) && policy.fallbackPresetId
+	return policy.feature && isPresetLockedByPolicy( defaultPreset, policy )
 		? policy.fallbackPresetId
 		: defaultPreset;
 }
@@ -180,8 +199,8 @@ export function applyStatsDatePolicy(
 	const from = parseSiteDateTime( params.from );
 	const startsTooEarly = !! policy.earliestDate && ( ! from || from < policy.earliestDate );
 
-	const landing = landingPresetId ?? policy.fallbackPresetId;
-	if ( landing && ( startsTooEarly || isPresetLockedByPolicy( params.preset, policy ) ) ) {
+	if ( policy.feature && ( startsTooEarly || isPresetLockedByPolicy( params.preset, policy ) ) ) {
+		const landing = landingPresetId ?? policy.fallbackPresetId;
 		const range = computeDateRangeFromPreset( landing );
 		if ( range ) {
 			next = {

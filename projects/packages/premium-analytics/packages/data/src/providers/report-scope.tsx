@@ -6,13 +6,13 @@ import { createContext, useContext, useMemo, type ReactNode } from 'react';
 /**
  * Internal dependencies
  */
-import type { IntervalType } from '../utils/search';
+import type { LockableInterval } from '../utils/interval';
 
 /** Date options the site's plan withholds, for the controls to show as locked. */
 export type DateLimits = {
 	lockedPresetIds: readonly QuickSurfacePresetId[];
 	earliestDate?: Date;
-	lockedIntervals: readonly IntervalType[];
+	lockedIntervals: readonly LockableInterval[];
 	upsell?: { description: string; supportUrl: string; upgradeUrl: string };
 	onUpgradeClick?: () => void;
 };

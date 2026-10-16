@@ -86,7 +86,7 @@ Normalizes and validates report parameters, providing defaults when needed.
 
 - `search`: Optional partial parameters object, as read off the URL
 - `defaultPreset`: `PresetType | undefined` - Preset to open on when `search` names no dates; defaults to `getDefaultPreset()`
-- `lockedIntervals`: `readonly IntervalType[]` - Buckets the site's plan locks; the interval falls back to an open one
+- `lockedIntervals`: `readonly LockableInterval[]` - Buckets the site's plan locks; the interval falls back to an open one
 
 **Returns:** `ReportParams` with normalized parameters
 
@@ -125,7 +125,7 @@ allowed; otherwise returns the range default.
 - `from`: `string`
 - `to`: `string`
 - `current`: `string | undefined` - Candidate interval to keep when still allowed
-- `locked`: `readonly IntervalType[]` - Buckets the site's plan locks; `day` when none is left
+- `locked`: `readonly LockableInterval[]` - Buckets the site's plan locks; `day` when none is left
 
 **Returns:** `IntervalType`
 
@@ -143,7 +143,7 @@ allowed.
 - `from`: `string`
 - `to`: `string`
 - `currentInterval`: `string | undefined` - Candidate interval to keep when still allowed
-- `locked`: `readonly IntervalType[]` - Buckets the site's plan locks
+- `locked`: `readonly LockableInterval[]` - Buckets the site's plan locks
 
 **Returns:** `IntervalType`
 
@@ -155,7 +155,7 @@ for the range (`from` / `to` / `interval` missing, or `interval` not allowed).
 **Parameters:**
 
 - `search`: date-window fields from unnormalized report params (`from`, `to`, `interval`, `preset`)
-- `lockedIntervals`: `readonly IntervalType[] | undefined` - Buckets the site's plan locks, so a locked `interval` needs a seed
+- `lockedIntervals`: `readonly LockableInterval[] | undefined` - Buckets the site's plan locks, so a locked `interval` needs a seed
 
 **Returns:** `boolean`
 

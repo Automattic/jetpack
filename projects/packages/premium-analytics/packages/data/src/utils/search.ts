@@ -15,7 +15,7 @@ import {
  * Internal dependencies
  */
 import { getDefaultQueryParams } from '../defaults';
-import { resolveIntervalForRange, type IntervalType } from './interval';
+import { resolveIntervalForRange, type IntervalType, type LockableInterval } from './interval';
 import { computeDateRangeFromPreset } from './preset-date-range';
 import { toAuthorId, toPostId } from './to-post-id';
 import type { DateType } from './types';
@@ -95,7 +95,7 @@ function canonicalTimestamp< T extends string | undefined >( value: T ): T {
 export function normalizeReportParams(
 	search?: NormalizeReportParamsArgType,
 	defaultPreset?: PresetType,
-	{ lockedIntervals = [] }: { lockedIntervals?: readonly IntervalType[] } = {}
+	{ lockedIntervals = [] }: { lockedIntervals?: readonly LockableInterval[] } = {}
 ): ReportParams {
 	const defaults = getDefaultQueryParams( false, defaultPreset );
 
@@ -166,7 +166,7 @@ export function normalizeReportParams(
  */
 export function needsReportDateParamsSeed(
 	search?: ReportDateWindowSearch,
-	lockedIntervals?: readonly IntervalType[]
+	lockedIntervals?: readonly LockableInterval[]
 ): boolean {
 	if ( ! search?.from || ! search?.to || ! search?.interval ) {
 		return true;

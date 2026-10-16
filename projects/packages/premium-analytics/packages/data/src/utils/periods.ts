@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { getAllowedIntervalsForPreset } from './interval';
+import { getAllowedIntervalsForPreset, type LockableInterval } from './interval';
 import { getStatsPeriodFromInterval, type StatsPeriod } from './stats-params';
 import type { ReportParams } from './search';
 import type { IntervalType } from '@jetpack-premium-analytics/datetime';
@@ -99,7 +99,7 @@ export function drawableIntervals< P extends StatsPeriod >(
 export function chartInterval< P extends StatsPeriod >(
 	params: Pick< ReportParams, 'preset' | 'from' | 'to' | 'interval' >,
 	periods: readonly [ P, ...P[] ],
-	locked?: readonly IntervalType[]
+	locked?: readonly LockableInterval[]
 ): P {
 	// Both inputs are total, so the list is never empty.
 	const [ first, ...rest ] = drawableIntervals(
