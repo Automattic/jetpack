@@ -76,6 +76,55 @@ class Backup_Product_Test extends TestCase {
 	}
 
 	/**
+	 * On the Jetpack plugin, Manage opens the wp-admin dashboard once the plan opens it, before it has loaded.
+	 *
+	 * @dataProvider provide_manage_urls
+	 *
+	 * @param array $features  The site's active features.
+	 * @param bool  $dashboard Whether a host leaves the bundled dashboard on.
+	 * @param bool  $in_admin  Whether Manage should open wp-admin.
+	 */
+	#[DataProvider( 'provide_manage_urls' )]
+	public function test_manage_url_follows_the_plan( $features, $dashboard, $in_admin ) {
+		( new Tokens() )->update_blog_token( 'test.test.1' );
+		( new Tokens() )->update_user_token( self::$user_id, 'test.test.' . self::$user_id, true );
+		Jetpack_Options::update_option( 'id', 123 );
+		activate_plugins( 'jetpack/jetpack.php' );
+		deactivate_plugins( Backup::get_installed_plugin_filename() );
+		set_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY, array(), HOUR_IN_SECONDS );
+		set_transient(
+			Product::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY,
+			array(
+				'active'    => $features,
+				'available' => array(),
+			),
+			HOUR_IN_SECONDS
+		);
+		$dashboard || add_filter( 'jetpack_backup_dashboard_enabled', '__return_false' );
+
+		try {
+			$this->assertSame( $in_admin, admin_url( 'admin.php?page=jetpack-backup' ) === Backup::get_manage_url() );
+		} finally {
+			remove_filter( 'jetpack_backup_dashboard_enabled', '__return_false' );
+			delete_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY );
+			delete_transient( Product::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY );
+		}
+	}
+
+	/**
+	 * Data provider for test_manage_url_follows_the_plan.
+	 *
+	 * @return array
+	 */
+	public static function provide_manage_urls() {
+		return array(
+			'a Backup plan'                   => array( array( 'backups' ), true, true ),
+			'no plan'                         => array( array(), true, false ),
+			'a host turned the dashboard off' => array( array( 'backups' ), false, false ),
+		);
+	}
+
+	/**
 	 * The stored plan and products answer whether the site has, or had, Backup.
 	 *
 	 * @dataProvider provide_stored_plans

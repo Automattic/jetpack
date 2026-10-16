@@ -149,7 +149,6 @@ class Main_Features {
 				'product'          => 'backup',
 				// The plan decides it, whichever plugin delivers it, so its card has no switch.
 				'plan_driven'      => true,
-				'admin_page'       => 'jetpack-backup',
 				'interstitial'     => '/add-backup',
 				'setup_note'       => __( 'Backups start once you add a paid plan.', 'jetpack-my-jetpack' ),
 				'paid_highlights'  => array(
@@ -1038,7 +1037,6 @@ class Main_Features {
 				'manage_url'       => self::get_feature_manage_url( $definition, $product_class, $local ),
 				'essential'        => ! empty( $definition['essential'] ),
 				'plan_driven'      => ! empty( $definition['plan_driven'] ),
-				'admin_page'       => $definition['admin_page'] ?? '',
 				'in_jetpack'       => $delivery['jetpack'] ?? false,
 				'plugin'           => $plugin,
 				'plugin_name'      => $plugin ? ( $delivery['plugin_name'] ?? $definition['name'] ) : '',

@@ -1,4 +1,4 @@
-import { act, renderHook, screen, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { onSwitchWritten } from '../../../../data/switch-written';
 import { useSidebarSync } from '../use-sidebar-sync';
 
@@ -62,30 +62,6 @@ describe( 'useSidebarSync', () => {
 			'stats',
 		] );
 	} );
-
-	it.each( [
-		[ 'refreshes', page( 'my-jetpack' ), 1 ],
-		[ 'leaves alone', page( 'my-jetpack', 'jetpack-backup' ), 0 ],
-	] )(
-		'%s a sidebar drawn before or after a paid plan-driven feature reached the site',
-		async ( _case, sidebar, fetches ) => {
-			document.body.innerHTML = sidebar;
-			fetchMock.mockReturnValue( respond( page( 'my-jetpack', 'jetpack-backup' ) ) );
-			const backup = {
-				...feature( 'backup' ),
-				plan_driven: true,
-				included: true,
-				admin_page: 'jetpack-backup',
-			} as MainFeature;
-
-			renderHook( () => useSidebarSync( [ backup ] ) );
-
-			await waitFor( () =>
-				expect( screen.getAllByRole( 'link', { name: 'jetpack-backup' } ) ).toHaveLength( 1 )
-			);
-			expect( fetchMock ).toHaveBeenCalledTimes( fetches );
-		}
-	);
 
 	it( 'points at every item a refresh added', async () => {
 		fetchMock.mockReturnValue( respond( page( 'my-jetpack', 'stats', 'blaze' ) ) );

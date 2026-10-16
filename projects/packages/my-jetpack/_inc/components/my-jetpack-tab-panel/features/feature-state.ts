@@ -21,7 +21,7 @@ import type { ProductCamelCase } from '../../../data/types';
 import type { JetpackModuleSlug, MyJetpackModule } from '../../../types';
 
 // A running product reports these rather than `active` once its plan needs attention or nears expiry.
-const RUNNING_ON_PLAN_STATUSES: string[] = [
+export const RUNNING_ON_PLAN_STATUSES: string[] = [
 	PRODUCT_STATUSES.ACTIVE,
 	PRODUCT_STATUSES.NEEDS_ATTENTION__WARNING,
 	PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR,

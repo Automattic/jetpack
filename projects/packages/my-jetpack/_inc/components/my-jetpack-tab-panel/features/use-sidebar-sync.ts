@@ -20,6 +20,48 @@ export type MenuPointerTarget = {
 };
 
 /**
+ * Fetch a fresh sidebar and merge it into the one on screen, retrying once.
+ *
+ * @param live    - The `#adminmenu` on screen.
+ * @param signal  - Aborts the refresh when a newer one supersedes it.
+ * @param retries - Retries left.
+ * @return The menu items the refresh added.
+ */
+export function refreshSidebar(
+	live: Element,
+	signal: AbortSignal,
+	retries = 1
+): Promise< HTMLElement[] > {
+	// Rendering any admin page runs `admin_init`, where plugins do deferred activation
+	// work, so no switch may be written while it is out. A retry comes later, when a
+	// switch may already be out, so it queues behind it instead.
+	return ( retries > 0 ? holdActivationQueue : queueActivationRequest )( () =>
+		// Tools is the cheapest admin page to render, and every page carries the same menu.
+		fetchAdminMenu( getAdminUrl( 'tools.php' ), signal )
+	)
+		.then( fresh => {
+			if ( ! fresh ) {
+				throw new Error( 'The admin page had no menu.' );
+			}
+
+			const added = syncAdminMenu( live, fresh );
+
+			slideIn( added );
+
+			return added;
+		} )
+		.catch( error => {
+			// Retried once: a switched-off feature's item would otherwise stay clickable
+			// until the next page load.
+			if ( retries > 0 && ! signal.aborted ) {
+				return refreshSidebar( live, signal, retries - 1 );
+			}
+
+			throw error;
+		} );
+}
+
+/**
  * Keep the wp-admin sidebar in step with the features switched on this tab.
  *
  * Each switch written on the server refreshes the sidebar in place, and the menu items it
@@ -31,7 +73,6 @@ export type MenuPointerTarget = {
 export function useSidebarSync( features: MainFeature[] ) {
 	const [ pointer, setPointer ] = useState< MenuPointerTarget | null >( null );
 	const latest = useRef( features );
-	const requestRefresh = useRef< ( () => void ) | undefined >( undefined );
 
 	latest.current = features;
 
@@ -44,71 +85,24 @@ export function useSidebarSync( features: MainFeature[] ) {
 
 		let controller: AbortController | undefined;
 
-		const refresh = ( signal: AbortSignal, retries: number ) =>
-			// Rendering any admin page runs `admin_init`, where plugins do deferred activation
-			// work, so no switch may be written while it is out. A retry comes later, when a
-			// switch may already be out, so it queues behind it instead.
-			( retries > 0 ? holdActivationQueue : queueActivationRequest )( () =>
-				// Tools is the cheapest admin page to render, and every page carries the same menu.
-				fetchAdminMenu( getAdminUrl( 'tools.php' ), signal )
-			)
-				.then( fresh => {
-					if ( ! fresh ) {
-						throw new Error( 'The admin page had no menu.' );
-					}
-
-					const added = syncAdminMenu( live, fresh );
-
-					slideIn( added );
-
-					// A refresh that only removes retires the pointer, which may mark an item
-					// this one just took away.
-					setPointer( added.length ? pickPointer( added, latest.current ) : null );
-				} )
-				.catch( () => {
-					// Retried once: a switched-off feature's item would otherwise stay clickable
-					// until the next page load.
-					if ( retries > 0 && ! signal.aborted ) {
-						refresh( signal, retries - 1 );
-					}
-				} );
-
-		requestRefresh.current = () => {
-			// A newer request supersedes the refresh in flight, which could otherwise land last.
+		const unsubscribe = onSwitchWritten( () => {
+			// A newer write supersedes the refresh in flight, which could otherwise land last.
 			controller?.abort();
 			controller = new AbortController();
-			refresh( controller.signal, 1 );
-		};
-
-		const unsubscribe = onSwitchWritten( () => requestRefresh.current?.() );
+			refreshSidebar( live, controller.signal )
+				.then( added =>
+					// A refresh that only removes retires the pointer, which may mark an item
+					// this one just took away.
+					setPointer( added.length ? pickPointer( added, latest.current ) : null )
+				)
+				.catch( () => {} );
+		} );
 
 		return () => {
 			unsubscribe();
 			controller?.abort();
-			requestRefresh.current = undefined;
 		};
 	}, [] );
-
-	// A plan-driven feature has no switch to write, so a plan that reached the site after this
-	// page drew its sidebar, as on landing back from checkout, refreshes it here instead.
-	const paidPages = features
-		.filter( feature => feature.plan_driven && feature.included && feature.admin_page )
-		.map( feature => feature.admin_page )
-		.join( ',' );
-
-	useEffect( () => {
-		const items = Array.from( document.querySelectorAll( '#adminmenu li' ) );
-		const missing = paidPages
-			.split( ',' )
-			.some(
-				slug =>
-					slug && ! items.some( item => linksTo( item, getAdminUrl( `admin.php?page=${ slug }` ) ) )
-			);
-
-		if ( missing ) {
-			requestRefresh.current?.();
-		}
-	}, [ paidPages ] );
 
 	const dismissPointer = useCallback( () => setPointer( null ), [] );
 

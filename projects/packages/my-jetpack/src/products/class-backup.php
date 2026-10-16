@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
@@ -463,13 +464,35 @@ class Backup extends Hybrid_Product {
 			return admin_url( 'admin.php?page=jetpack-backup' );
 			// otherwise, check for the main Jetpack plugin
 		} elseif ( static::is_jetpack_plugin_active() ) {
-			// The Jetpack plugin hosts the dashboard wherever it initialized the package.
-			if ( did_action( 'jetpack_backup_initialized' ) ) {
+			// The Jetpack plugin hosts the dashboard wherever it initialized the package, or will on
+			// the next request when this one learned of the plan after Jetpack checked for it.
+			if ( did_action( 'jetpack_backup_initialized' ) || static::plan_opens_jetpack_dashboard() ) {
 				return admin_url( 'admin.php?page=jetpack-backup' );
 			}
 
 			return Redirect::get_url( 'my-jetpack-manage-backup' );
 		}
+	}
+
+	/**
+	 * Whether the Jetpack plugin opens its Backup dashboard for this site's plan.
+	 *
+	 * Follows Jetpack::configure_backup_package(), but also asks WordPress.com, since the stored plan
+	 * it reads can trail a purchase by a request.
+	 *
+	 * @return bool
+	 */
+	private static function plan_opens_jetpack_dashboard() {
+		if ( is_multisite() || ! ( new Connection_Manager() )->has_connected_owner() ) {
+			return false;
+		}
+
+		/** This filter is documented in projects/plugins/jetpack/class.jetpack.php */
+		if ( ! apply_filters( 'jetpack_backup_dashboard_enabled', true ) ) {
+			return false;
+		}
+
+		return static::has_plan_on_record() || static::has_paid_plan_for_product();
 	}
 
 	/**

@@ -513,8 +513,6 @@ type MainFeature = {
 	essential: boolean;
 	// Its plan, not a switch, decides whether it runs, whichever plugin delivers it.
 	plan_driven?: boolean;
-	// The wp-admin page its plan adds to the sidebar, such as `jetpack-backup`.
-	admin_page?: string;
 	in_jetpack: boolean;
 	plugin: string;
 	plugin_name: string;
