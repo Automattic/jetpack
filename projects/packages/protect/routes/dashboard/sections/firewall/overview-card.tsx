@@ -4,8 +4,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/el
 import { __ } from '@wordpress/i18n';
 import { Icon, caution, check, closeSmall, info, shield } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
-import { Button, Notice, Stack, Text } from '@wordpress/ui';
+import { Button, Stack, Text } from '@wordpress/ui';
 import { CardRow, ProtectCard, Stat } from '../../components/card';
+import SettingsErrorRow from '../../components/settings/settings-error-row';
 import TabLink from '../../components/tab-link';
 import isModuleActive from '../../data/is-module-active';
 import {
@@ -288,14 +289,7 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 					onOpenChange={ setDetailsOpen }
 				/>
 			) }
-			{ settings.error && (
-				<CardRow>
-					<Notice.Root intent="error">
-						<Notice.Description>{ settings.error }</Notice.Description>
-						<Notice.CloseIconButton onClick={ settings.dismissError } />
-					</Notice.Root>
-				</CardRow>
-			) }
+			<SettingsErrorRow settings={ settings } />
 			{ ! active && (
 				<CardRow>
 					<FirewallToggle data={ settings } />
