@@ -474,55 +474,57 @@ function Dashboard(): JSX.Element {
 										</SectionHeader>
 
 										{ activeSection === section.slug ? (
-											<div className={ styles.body }>
-												{ /* A checkout return holds the plan limit notice back for the
-												     whole load, even once dismissed. */ }
-												{ ! editMode &&
-													( hasPurchaseSuccess() ? (
-														<PurchaseSuccessNotice />
-													) : (
-														<PlanLimitNotice />
-													) ) }
+											<DashboardSectionProvider section={ section.slug }>
+												<div className={ styles.body }>
+													{ /* A checkout return holds the plan limit notice back for the
+													     whole load, even once dismissed. */ }
+													{ ! editMode &&
+														( hasPurchaseSuccess() ? (
+															<PurchaseSuccessNotice />
+														) : (
+															<PlanLimitNotice />
+														) ) }
 
-												{ /* Behind the onboarding journey: it introduces the tabs
-												     the banner asks about. */ }
-												<FeedbackBanner
-													enabled={
-														canSendFeedback() &&
-														! editMode &&
-														section.slug === defaultSection &&
-														onboarding.phase === 'closed'
-													}
-												/>
-
-												{ isSectionAwaitingSync( section, isSyncFinished ) && ! isSyncComplete ? (
-													<SectionSyncNotice
-														canRunSync={ canRunSync }
-														percentage={ syncStatus?.percentage ?? 0 }
-														hasError={ !! syncError }
-														onRetry={ retrySync }
-														isRetrying={ isRetryingSync }
+													{ /* Behind the onboarding journey: it introduces the tabs
+													     the banner asks about. */ }
+													<FeedbackBanner
+														enabled={
+															canSendFeedback() &&
+															! editMode &&
+															section.slug === defaultSection &&
+															onboarding.phase === 'closed'
+														}
 													/>
-												) : (
-													section.notice && <SectionNotice message={ section.notice } />
-												) }
 
-												<WidgetDashboard.NoWidgetsState />
-												<div ref={ setWidgetsFrame }>
-													<DashboardSectionProvider section={ section.slug }>
+													{ isSectionAwaitingSync( section, isSyncFinished ) && ! isSyncComplete ? (
+														<SectionSyncNotice
+															canRunSync={ canRunSync }
+															percentage={ syncStatus?.percentage ?? 0 }
+															hasError={ !! syncError }
+															onRetry={ retrySync }
+															isRetrying={ isRetryingSync }
+														/>
+													) : (
+														section.notice && <SectionNotice message={ section.notice } />
+													) }
+
+													<WidgetDashboard.NoWidgetsState />
+													<div ref={ setWidgetsFrame }>
 														<WidgetDashboard.Widgets className={ styles.widgets } />
-													</DashboardSectionProvider>
+													</div>
 												</div>
-											</div>
+											</DashboardSectionProvider>
 										) : null }
 									</SectionTabPanel>
 								) ) }
 
 								{ hasSettingsTab && (
 									<SectionTabPanel value={ SETTINGS_SECTION } className={ styles.content }>
-										<div className={ styles.body }>
-											<StatsSettingsPanel />
-										</div>
+										<DashboardSectionProvider section={ SETTINGS_SECTION }>
+											<div className={ styles.body }>
+												<StatsSettingsPanel />
+											</div>
+										</DashboardSectionProvider>
 									</SectionTabPanel>
 								) }
 							</DashboardSections>

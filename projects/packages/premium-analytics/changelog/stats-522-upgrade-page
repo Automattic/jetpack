@@ -1,4 +1,4 @@
-Significance: patch
+Significance: minor
 Type: added
-Comment: Part of the Stats upgrade page stack (the page, not linked yet); the entry lands with its last PR.
 
+Add an upgrade page with a pricing slider to pick a Stats tier, and open it from the upgrade links on Jetpack sites.
