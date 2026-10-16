@@ -321,7 +321,8 @@ Likes on, since the legacy button still shows there.
 
 **Never resolve a template inside a callback** (see `Hooked_Blocks`):
 `get_block_template()`, `Environment::single_template_editor_url()`,
-`page_template_editor_url()` and the sections' `state()` all recurse from there.
+`Environment::page_template_editor_url()` and the sections' `state()` all
+recurse from there.
 
 **Order after the content: Sharing Buttons, Like, then Newsletter's Subscribe**,
 as the legacy buttons and Subscribe's classic-theme fallback have it. Filters on

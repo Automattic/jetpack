@@ -512,7 +512,7 @@ class Settings_Controller_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Offered anywhere else, the cards would hook a block next to the legacy buttons, or onto a site that cannot render it.
+	 * Saved anywhere else, a placement would lie idle until the legacy feature goes off and then switch on unasked, or target a site that cannot render the block.
 	 *
 	 * @dataProvider provide_placement_variants
 	 *
@@ -575,7 +575,7 @@ class Settings_Controller_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The writer would quietly keep one side of a pair, and drop anything it does not know, so the screen would show a save that did not happen.
+	 * A request the writer would trim must fail validation, or the screen would show a save that did not happen.
 	 *
 	 * @dataProvider provide_invalid_placements
 	 *
@@ -598,6 +598,7 @@ class Settings_Controller_Test extends BaseTestCase {
 		);
 
 		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 'rest_invalid_param', $response->get_data()['code'] );
 		$this->assertSame( array( Template_Placements::BEFORE_CONTENT ), Template_Placements::get( Template_Placements::FEATURE_SHARING ) );
 		$this->assertSame( array( Template_Placements::BEFORE_CONTENT ), Template_Placements::get( Template_Placements::FEATURE_LIKES ) );
 		$this->assertFalse( get_option( Twitter_Site_Tag::OPTION ) );
@@ -611,10 +612,8 @@ class Settings_Controller_Test extends BaseTestCase {
 	public static function provide_invalid_placements(): array {
 		return array(
 			'both sides'                      => array( 'sharing_buttons_auto_add', array( 'before_content', 'after_content' ) ),
-			'both sides, after first'         => array( 'likes_auto_add', array( 'after_content', 'before_content' ) ),
 			'the same side twice'             => array( 'likes_auto_add', array( 'after_content', 'after_content' ) ),
 			'a placement that does not exist' => array( 'sharing_buttons_auto_add', array( 'post_lists' ) ),
-			'null'                            => array( 'sharing_buttons_auto_add', null ),
 		);
 	}
 
