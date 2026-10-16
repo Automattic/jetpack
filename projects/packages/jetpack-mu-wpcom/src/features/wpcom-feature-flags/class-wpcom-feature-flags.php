@@ -20,7 +20,9 @@
  * Two properties are load-bearing:
  *
  * - The *screen* is Automattician-only and fails closed. Without the wpcom
- *   platform primitives that identify an Automattician, nobody sees it.
+ *   platform primitives that identify an Automattician, nobody sees it. On
+ *   Atomic, saving additionally needs a positive "not a support session"
+ *   verdict; the screen offers a way to get one.
  * - The *overrides* are site-wide and are NOT re-gated on the Automattician
  *   check. That is the point: an override has to change what the site actually
  *   does, logged-out visitors included, or it cannot be used to test a flag
@@ -81,6 +83,16 @@ class Wpcom_Feature_Flags {
 	const CAPABILITY = 'manage_options';
 
 	/**
+	 * Save blocked: no support session verdict is stored for this browser.
+	 */
+	const SAVE_BLOCKED_UNVERIFIED = 'unverified';
+
+	/**
+	 * Save blocked: this request is probably a support session.
+	 */
+	const SAVE_BLOCKED_SUPPORT_SESSION = 'support-session';
+
+	/**
 	 * Cache of one blog's sanitized override map; valid only for $overrides_blog_id.
 	 *
 	 * Keyed by blog rather than dropped on `switch_blog`: WordPress.com's public API
@@ -109,25 +121,16 @@ class Wpcom_Feature_Flags {
 	}
 
 	/**
-	 * Whether the current visitor is an Automattician.
+	 * Whether the current visitor is an Automattician, which is what shows the screen.
 	 *
-	 * Mirrors the platform split already used by do_not_track_a11ns() in
-	 * wpcom-wpadmin-page-view.php: on Simple the platform's own
-	 * is_automattician() is authoritative, and on Atomic the a8c proxy is what
-	 * identifies us. Both branches fail closed when their primitive is missing.
+	 * Mirrors do_not_track_a11ns() in wpcom-wpadmin-page-view.php: on Simple the
+	 * platform's is_automattician() is authoritative, on Atomic the a8c proxy is.
+	 * Both fail closed when their primitive is missing. This matches the
+	 * "PROXIED V2" banner, so the menu entry shows whenever that banner does;
+	 * writes are held to the stricter current_user_can_save().
 	 *
-	 * A support session reaches an Atomic site through the same proxy, but it is
-	 * a Happiness Engineer acting on the site owner's behalf rather than an
-	 * Automattician testing unreleased work, so it is excluded. That exclusion
-	 * fails closed too — see is_support_session() for why it cannot just ask
-	 * wpcomsh and believe the answer.
-	 *
-	 * AT_PROXIED_REQUEST is read through Constants rather than defined() — which
-	 * is what the neighbouring code uses — so the Atomic branch is reachable from
-	 * tests at all. That is safe here because Constants::set_constant() is only
-	 * callable by code already executing in this process, which by then can do
-	 * anything this gate protects, and because manage_options is required on top.
-	 * Do not lean on this gate alone for anything stronger.
+	 * AT_PROXIED_REQUEST is read through Constants so tests can reach the Atomic
+	 * branch; manage_options is required on top.
 	 *
 	 * @return bool Whether the current visitor is an Automattician.
 	 */
@@ -136,20 +139,81 @@ class Wpcom_Feature_Flags {
 			return function_exists( 'is_automattician' ) && (bool) is_automattician();
 		}
 
-		if ( ! Constants::is_true( 'AT_PROXIED_REQUEST' ) ) {
-			return false;
-		}
-
-		return ! self::is_support_session();
+		return Constants::is_true( 'AT_PROXIED_REQUEST' );
 	}
 
 	/**
-	 * Whether the current user may read and change this site's flag overrides.
+	 * Whether the current user may see this site's flag overrides.
 	 *
-	 * @return bool Whether the current user may manage flag overrides.
+	 * @return bool Whether the current user may view the screen.
 	 */
 	public static function current_user_can_manage() {
 		return self::is_a11n() && current_user_can( self::CAPABILITY );
+	}
+
+	/**
+	 * Whether the current user may change this site's flag overrides.
+	 *
+	 * @return bool Whether the current user may save overrides.
+	 */
+	public static function current_user_can_save() {
+		return self::current_user_can_manage() && '' === self::get_save_block_reason();
+	}
+
+	/**
+	 * Why saving is blocked for this request, beyond the view gate.
+	 *
+	 * @return string '' when nothing blocks it, SAVE_BLOCKED_UNVERIFIED when
+	 *                no support session verdict is available, or
+	 *                SAVE_BLOCKED_SUPPORT_SESSION during a support session.
+	 */
+	public static function get_save_block_reason() {
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return '';
+		}
+
+		// The detector ships in wpcomsh; without it a support session cannot be ruled out.
+		if ( ! class_exists( 'WPCOMSH_Support_Session_Detect' ) ) {
+			return self::SAVE_BLOCKED_UNVERIFIED;
+		}
+
+		// wpcomsh reads a missing cookie as "not a support session", which is too weak for a write gate.
+		if ( ! WPCOMSH_Support_Session_Detect::has_detection_result() ) {
+			return self::SAVE_BLOCKED_UNVERIFIED;
+		}
+
+		return WPCOMSH_Support_Session_Detect::is_probably_support_session() ? self::SAVE_BLOCKED_SUPPORT_SESSION : '';
+	}
+
+	/**
+	 * URL that runs wpcomsh's support session detection and lands back on the screen.
+	 *
+	 * The detector only accepts a /wp-login.php return path, and wp-login.php
+	 * forwards an already logged-in user straight to redirect_to.
+	 *
+	 * @return string The URL, or '' when detection is unavailable on this request.
+	 */
+	public static function get_verification_url() {
+		if ( ! class_exists( 'WPCOMSH_Support_Session_Detect' ) || WPCOMSH_Support_Session_Detect::has_detection_result() ) {
+			return '';
+		}
+
+		$return_to = add_query_arg(
+			array(
+				WPCOMSH_Support_Session_Detect::QUERY_PARAM_TO_SHORT_CIRCUIT => '',
+				'redirect_to' => rawurlencode( admin_url( 'tools.php?page=' . self::PAGE_SLUG ) ),
+			),
+			WPCOMSH_Support_Session_Detect::LOGIN_PATH
+		);
+
+		return add_query_arg(
+			array(
+				'redirect' => rawurlencode( $return_to ),
+				'nonce'    => wp_create_nonce( WPCOMSH_Support_Session_Detect::NONCE_ACTION ),
+			),
+			// Relative, so the cookie is set on the host serving wp-admin.
+			WPCOMSH_Support_Session_Detect::DETECTION_URI
+		);
 	}
 
 	/**
@@ -351,8 +415,8 @@ class Wpcom_Feature_Flags {
 	/**
 	 * Apply a submitted override form.
 	 *
-	 * Re-checks the Automattician gate, the capability, and the nonce: the
-	 * screen's absence from the menu is not authorization on its own.
+	 * Re-checks the save gate, the capability, and the nonce: the screen's
+	 * absence from the menu is not authorization on its own.
 	 *
 	 * The submitted map replaces the stored one wholesale, so two Automatticians
 	 * saving the same site concurrently is last-write-wins. Every form carries
@@ -364,7 +428,7 @@ class Wpcom_Feature_Flags {
 	 * @return bool Whether the overrides were saved.
 	 */
 	public static function handle_save( array $request ) {
-		if ( ! self::current_user_can_manage() ) {
+		if ( ! self::current_user_can_save() ) {
 			return false;
 		}
 
@@ -401,7 +465,7 @@ class Wpcom_Feature_Flags {
 			? sanitize_key( wp_unslash( $_GET['flags-notice'] ) )
 			: '';
 
-		self::print_screen( self::get_rows(), self::get_overrides(), $notice );
+		self::print_screen( self::get_rows(), self::get_overrides(), $notice, self::get_save_block_reason() );
 	}
 
 	/**
@@ -410,9 +474,10 @@ class Wpcom_Feature_Flags {
 	 * @param array<string, array>   $rows      Flags to list, keyed by flag name.
 	 * @param array<array-key, bool> $overrides The overrides currently in force.
 	 * @param string                 $notice    'saved', 'rejected', or '' for a plain load.
+	 * @param string                 $blocked   A get_save_block_reason() value.
 	 * @return void
 	 */
-	private static function print_screen( array $rows, array $overrides, $notice = '' ) {
+	private static function print_screen( array $rows, array $overrides, $notice = '', $blocked = '' ) {
 		$states = array(
 			'default' => 'Default',
 			'on'      => 'Force on',
@@ -435,6 +500,32 @@ class Wpcom_Feature_Flags {
 						<strong>Your changes were not saved.</strong> The form&#8217;s security token had
 						expired, or this session no longer passes the Automattician check. Reload the
 						screen and try again — the states below are what is actually stored.
+					</p>
+				</div>
+			<?php endif; ?>
+
+			<?php if ( self::SAVE_BLOCKED_SUPPORT_SESSION === $blocked ) : ?>
+				<div class="notice notice-error">
+					<p>
+						<strong>Saving is disabled during a support session.</strong> This screen is for
+						Automatticians testing their own work, not for changing a customer&#8217;s site.
+					</p>
+				</div>
+			<?php elseif ( self::SAVE_BLOCKED_UNVERIFIED === $blocked ) : ?>
+				<?php $verification_url = self::get_verification_url(); ?>
+				<div class="notice notice-info">
+					<p>
+						<strong>Saving is disabled until this browser is checked for a support session.</strong>
+						The check stores its answer in a cookie, which is missing here — it expires, and
+						is only set when you log in through WordPress.com.
+					</p>
+					<p>
+						<?php if ( '' !== $verification_url ) : ?>
+							<a class="button button-primary" href="<?php echo esc_url( $verification_url ); ?>">Verify this session</a>
+							It takes a few seconds and brings you back here.
+						<?php else : ?>
+							Log out, then log back in with WordPress.com, and return to this screen.
+						<?php endif; ?>
 					</p>
 				</div>
 			<?php endif; ?>
@@ -549,51 +640,10 @@ class Wpcom_Feature_Flags {
 					</tbody>
 				</table>
 
-				<?php submit_button( 'Save overrides' ); ?>
+				<?php submit_button( 'Save overrides', 'primary', 'submit', true, '' === $blocked ? '' : array( 'disabled' => 'disabled' ) ); ?>
 			</form>
 		</div>
 		<?php
-	}
-
-	/**
-	 * Whether this request has to be treated as a wpcomsh support session.
-	 *
-	 * Fails closed: anything short of a positive "not a support session" answer
-	 * counts as one.
-	 *
-	 * The detector keeps its verdict in a client-side cookie and reports a
-	 * missing cookie as "not a support session"
-	 * (WPCOMSH_Support_Session_Detect::is_probably_support_session()). That
-	 * default is right for the thing it was written for — suppressing a Tracks
-	 * event — and wrong for an authorization gate, because the cookie is absent
-	 * in cases nobody intended: it carries whatever lifetime wpcom passed as
-	 * `expires`, so it can lapse while the login session lives on, and it is set
-	 * SameSite=Strict, so a cross-site navigation into wp-admin does not send it
-	 * on the first request. It can also simply be deleted; httponly stops page
-	 * script from touching it, not a person with devtools open.
-	 *
-	 * So require has_detection_result() before trusting the verdict. The cost is
-	 * that an Automattician whose browser holds no detection result does not see
-	 * the screen until they log in through WordPress.com SSO again, which is what
-	 * sets the cookie. Losing the screen for one navigation is the cheaper
-	 * failure.
-	 *
-	 * Guarded with class_exists because the detector ships in wpcomsh, so it only
-	 * exists on Atomic. Its absence counts as a support session for the same
-	 * reason: with no detector there is no way to rule one out.
-	 *
-	 * @return bool Whether this request has to be treated as a support session.
-	 */
-	private static function is_support_session() {
-		if ( ! class_exists( 'WPCOMSH_Support_Session_Detect' ) ) {
-			return true;
-		}
-
-		if ( ! WPCOMSH_Support_Session_Detect::has_detection_result() ) {
-			return true;
-		}
-
-		return WPCOMSH_Support_Session_Detect::is_probably_support_session();
 	}
 
 	/**
