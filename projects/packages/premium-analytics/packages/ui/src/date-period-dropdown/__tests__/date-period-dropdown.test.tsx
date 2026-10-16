@@ -443,8 +443,21 @@ describe( 'DatePeriodDropdown attention', () => {
 		expect( onSelect ).not.toHaveBeenCalled();
 		expect( locked ).toHaveAttribute( 'aria-disabled', 'true' );
 		expect( locked ).toHaveAccessibleDescription( 'Upgrade to see more.' );
+		expect(
+			screen.getByRole( 'menuitemradio', { name: 'Last 7 days' } )
+		).not.toHaveAccessibleDescription();
 		expect( screen.getByRole( 'menu', { name: 'Period' } ) ).not.toContainElement(
 			screen.getByText( 'Upgrade to see more.' )
+		);
+	} );
+
+	it( 'points a locked preset at no description when there is no lock notice', async () => {
+		const user = userEvent.setup();
+		renderDropdown( { lockedPresetIds: [ 'last-30-days' ] } );
+		await openMenu( user, 'Last 30 days' );
+
+		expect( screen.getByRole( 'menuitemradio', { name: 'Last 30 days' } ) ).not.toHaveAttribute(
+			'aria-describedby'
 		);
 	} );
 } );
