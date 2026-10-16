@@ -1,6 +1,5 @@
 import { useCallback, useMemo } from 'react';
 import useAnalytics from '../../../hooks/use-analytics';
-import type { WizardStep } from './lib';
 
 /*
  * Every name here has to match Tracks' own
@@ -140,15 +139,4 @@ export function useWizardTracks( stepId: string ) {
 		},
 		[ recordEvent, flow, stepId ]
 	);
-}
-
-/**
- * The slug of a step, for the `step` property.
- *
- * @param steps - The steps, in order.
- * @param step  - Which one.
- * @return Its id, or 'unknown' for an index the steps do not have.
- */
-export function stepSlug( steps: Array< { id: string } >, step: WizardStep ): string {
-	return steps[ step ]?.id ?? 'unknown';
 }
