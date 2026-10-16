@@ -26,6 +26,7 @@ import {
 	SITE_TYPE_OTHER,
 	siteTypeAnswer,
 	settleOnboarding,
+	tallyResults,
 	TOTAL_STEPS,
 	wizardSteps,
 	type SettleOutcome,
@@ -39,7 +40,7 @@ import { FeaturesStep } from './steps/features-step';
 import { FinishStep } from './steps/finish-step';
 import { StartStep } from './steps/start-step';
 import styles from './styles.module.scss';
-import { WIZARD_EVENTS, forgetFlowId, lengthBucket, stepSlug, useWizardTracks } from './telemetry';
+import { WIZARD_EVENTS, forgetFlowId, lengthBucket, useWizardTracks } from './telemetry';
 import { useConnectionKnown } from './use-connection-known';
 import { useJustConnected } from './use-just-connected';
 import { readSavedRun, useSavedRun } from './use-saved-run';
@@ -192,7 +193,8 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 	const [ moduleResults, setModuleResults ] = useState< SetupModuleResult[] >( [] );
 
 	// Bound to the step's slug, which is what every event carries; see telemetry.ts.
-	const slug = stepSlug( steps, step );
+	const meta = steps[ step ];
+	const slug = meta.id;
 	const track = useWizardTracks( slug );
 
 	const handleModuleChange = useCallback(
@@ -347,12 +349,11 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 				setModuleResults( results );
 				// Counts, not a list: which module failed is its own toggle event, and
 				// a property holding a list cannot be grouped on.
+				const { on, failed } = tallyResults( results );
 				track( WIZARD_EVENTS.applyResult, {
 					offered: results.length,
-					// Only what this run switched on: an untouched row that was already on is not one.
-					switched_on: results.filter( result => result.changed && result.wanted && result.ok )
-						.length,
-					failed: results.filter( result => ! result.ok ).length,
+					switched_on: on,
+					failed,
 					request_failed: false,
 				} );
 			} )
@@ -384,7 +385,6 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 		[ furthestStep, firstStep, busy ]
 	);
 
-	const meta = steps[ step ];
 	const isStart = meta.kind === 'start';
 
 	/*

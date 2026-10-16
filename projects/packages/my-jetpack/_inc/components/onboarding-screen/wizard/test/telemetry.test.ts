@@ -1,5 +1,4 @@
-import { WIZARD_EVENTS, lengthBucket, stepSlug } from '../telemetry';
-import type { WizardStep } from '../lib';
+import { WIZARD_EVENTS, lengthBucket } from '../telemetry';
 
 /*
  * Tracks' own name rule, copied from Jetpack_Tracks_Event::EVENT_NAME_REGEX in
@@ -71,22 +70,5 @@ describe( 'The free-text bucket', () => {
 	// Two people who wrote different things of the same length are the same row.
 	it( 'says the same thing about different text of the same length', () => {
 		expect( lengthBucket( 'my band site' ) ).toBe( lengthBucket( 'jane@mail.com' ) );
-	} );
-} );
-
-describe( 'The step property', () => {
-	const steps = [ { id: 'start' }, { id: 'site-type' }, { id: 'features' }, { id: 'done' } ];
-
-	/*
-	 * Slugs, not indexes. A connected site opens on the second step, so an index
-	 * is not the same number for everyone looking at the same screen.
-	 */
-	it( 'is the step’s own slug', () => {
-		expect( stepSlug( steps, 0 as WizardStep ) ).toBe( 'start' );
-		expect( stepSlug( steps, 2 as WizardStep ) ).toBe( 'features' );
-	} );
-
-	it( 'says unknown rather than throwing on a step that is not there', () => {
-		expect( stepSlug( steps, 9 as WizardStep ) ).toBe( 'unknown' );
 	} );
 } );
