@@ -330,18 +330,18 @@ class WPCOM_REST_API_V2_Endpoint_Email_Editor_Bootstrap_Test extends Jetpack_RES
 	 * Without this the stripping below is unreachable, and the only thing standing between a
 	 * hand-edited `post_id` and WordPress.com is a capability check made against another blog.
 	 */
-	public function test_off_simple_the_read_is_proxied_through_the_capability_check() {
+	public function test_off_simple_every_method_is_proxied_through_the_capability_check() {
 		$this->register_routes_as_non_simple();
 
 		$callbacks = array();
 
 		foreach ( $this->server->get_routes()[ static::$path ] as $handler ) {
-			if ( isset( $handler['methods'][ Requests::GET ] ) ) {
-				$callbacks[] = $handler['callback'][1];
-			}
+			$callbacks[] = $handler['callback'][1];
 		}
 
-		$this->assertSame( array( 'proxy_read_to_wpcom' ), $callbacks );
+		// The write means nothing by `post_id` today, but the proxy forwards every query arg
+		// regardless of which route declared it.
+		$this->assertSame( array( 'proxy_to_wpcom', 'proxy_to_wpcom' ), $callbacks );
 	}
 
 	/**
@@ -424,6 +424,25 @@ class WPCOM_REST_API_V2_Endpoint_Email_Editor_Bootstrap_Test extends Jetpack_RES
 		$forwarded = $this->drop_unauthorized_post_id( $request );
 
 		$this->assertSame( array( 'template_slug' => 'wpcom-new-post' ), json_decode( (string) $forwarded->get_body(), true ) );
+	}
+
+	/**
+	 * Test that dropping the post out of a body leaves a design document intact.
+	 *
+	 * An associative decode turns the empty objects a design carries into empty arrays, so a
+	 * re-encode would send `[]` where the editor sent `{}`.
+	 */
+	public function test_dropping_the_post_from_a_body_does_not_reshape_a_design() {
+		$post_id = self::factory()->post->create( array( 'post_author' => static::$user_id_editor ) );
+		$request = new WP_REST_Request( Requests::POST, static::$path );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body( '{"design":{"styles":{"color":{}},"settings":{}},"post_id":' . $post_id . '}' );
+
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'author' ) ) );
+
+		$forwarded = $this->drop_unauthorized_post_id( $request );
+
+		$this->assertSame( '{"design":{"styles":{"color":{}},"settings":{}}}', (string) $forwarded->get_body() );
 	}
 
 	/**

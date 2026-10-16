@@ -65,7 +65,7 @@ class WPCOM_REST_API_V2_Endpoint_Email_Editor_Bootstrap extends WP_REST_Controll
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => $is_simple
 						? array( $this, 'get_bootstrap_data' )
-						: array( $this, 'proxy_read_to_wpcom' ),
+						: array( $this, 'proxy_to_wpcom' ),
 					'permission_callback' => array( $this, 'permissions_check' ),
 					'args'                => array(
 						'template_slug' => array(
@@ -86,7 +86,7 @@ class WPCOM_REST_API_V2_Endpoint_Email_Editor_Bootstrap extends WP_REST_Controll
 					'methods'             => WP_REST_Server::EDITABLE,
 					'callback'            => $is_simple
 						? array( $this, 'save_design' )
-						: array( $this, 'proxy_request_to_wpcom_as_user' ),
+						: array( $this, 'proxy_to_wpcom' ),
 					'permission_callback' => array( $this, 'permissions_check' ),
 					'args'                => array(
 						'design' => array(
@@ -169,18 +169,22 @@ class WPCOM_REST_API_V2_Endpoint_Email_Editor_Bootstrap extends WP_REST_Controll
 	}
 
 	/**
-	 * Proxies the read, minus a `post_id` the current user may not edit here.
+	 * Proxies the request, minus a `post_id` the current user may not edit here.
 	 *
 	 * Off Simple only: WordPress.com checks `edit_post` against the shadow blog rather than against
 	 * this site, so the same check has to happen locally too. On Simple its check is this check on
-	 * the same blog, which is why that path has none. The two agree on ids because Jetpack Sync
+	 * the same blog, which is why those paths have none. The two agree on ids because Jetpack Sync
 	 * preserves them, as the email preview endpoint next door already relies on.
+	 *
+	 * Both methods, though only the read means anything by `post_id` today: the proxy forwards
+	 * every query arg whether this route declares it or not, so gating one method would leave the
+	 * check somewhere a later reader has to notice.
 	 *
 	 * @param WP_REST_Request $request Full data about the request.
 	 *
 	 * @return mixed|WP_Error Response from WordPress.com, or an error.
 	 */
-	public function proxy_read_to_wpcom( $request ) {
+	public function proxy_to_wpcom( $request ) {
 		return $this->proxy_request_to_wpcom_as_user( $this->drop_unauthorized_post_id( $request ) );
 	}
 
@@ -210,10 +214,13 @@ class WPCOM_REST_API_V2_Endpoint_Email_Editor_Bootstrap extends WP_REST_Controll
 		// Both have to go: the proxy forwards the body verbatim beside the query args, and on a
 		// GET a JSON body outranks the query string in `get_param()` -- so an id moved there would
 		// be read by the check above and then sent anyway.
-		$body = json_decode( (string) $request->get_body(), true );
+		//
+		// Decoded as objects, not arrays: a design document's empty objects come back from an
+		// associative decode as empty arrays, and re-encoding would send `[]` where it had `{}`.
+		$body = json_decode( (string) $request->get_body() );
 
-		if ( is_array( $body ) && array_key_exists( 'post_id', $body ) ) {
-			unset( $body['post_id'] );
+		if ( $body instanceof stdClass && property_exists( $body, 'post_id' ) ) {
+			unset( $body->post_id );
 
 			$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
 		}
