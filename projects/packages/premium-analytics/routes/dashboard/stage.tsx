@@ -217,9 +217,11 @@ function Dashboard(): JSX.Element {
 	};
 	// A step without its anchor is left out, so the counter counts what is on the page.
 	const tourStepsFor = ( flow: OnboardingFlow ) =>
-		onboardingTourSteps( tourAnchors, { withFeedback: canSendFeedback(), flow } ).filter(
-			step => step.anchor
-		);
+		onboardingTourSteps( tourAnchors, {
+			withFeedback: canSendFeedback(),
+			flow,
+			withCustomize: ! isSectionLocked,
+		} ).filter( step => step.anchor );
 	// Built every render rather than memoized: the anchors are looked up fresh, since the
 	// first widget mounts after its frame.
 	const tourStepsByFlow: Record< OnboardingFlow, OnboardingTourStep[] > = {
