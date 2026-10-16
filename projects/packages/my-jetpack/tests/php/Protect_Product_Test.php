@@ -93,7 +93,7 @@ class Protect_Product_Test extends TestCase {
 	 *
 	 * @return array[]
 	 */
-	public static function provide_standalone_install_states() {
+	public static function provide_standalone_plugin_states() {
 		return array(
 			'Jetpack plugin offers the page' => array( true, array( 'protect', 'protect-dashboard' ), false ),
 			'page not on offer'              => array( true, array( 'protect' ), true ),
@@ -102,13 +102,13 @@ class Protect_Product_Test extends TestCase {
 	}
 
 	/**
-	 * @dataProvider provide_standalone_install_states
+	 * @dataProvider provide_standalone_plugin_states
 	 *
 	 * @param bool     $jetpack   Whether the Jetpack plugin is active.
 	 * @param string[] $available Modules on offer.
 	 * @param bool     $expected  Whether activation uses the standalone plugin.
 	 */
-	#[DataProvider( 'provide_standalone_install_states' )]
+	#[DataProvider( 'provide_standalone_plugin_states' )]
 	public function test_activation_uses_the_standalone_plugin_only_without_the_protect_page( $jetpack, $available, $expected ) {
 		if ( $jetpack ) {
 			$this->activate_jetpack_plugin();
