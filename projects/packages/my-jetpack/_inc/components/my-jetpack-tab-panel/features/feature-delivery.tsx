@@ -91,7 +91,7 @@ function getNote( state: FeatureState, pluginName: string ): string {
 			const jetpackConnectNote = sprintf(
 				/* translators: %s is a feature name, such as "Activity Log". */
 				__(
-					'%s is part of the Jetpack plugin. Installing Jetpack also connects your WordPress.com account; then turn it on here if it’s still off. You won’t be charged.',
+					'%s is part of the Jetpack plugin. After installing Jetpack you’ll connect your WordPress.com account, then you can turn it on here if it’s still off. You won’t be charged.',
 					'jetpack-my-jetpack'
 				),
 				feature.name
