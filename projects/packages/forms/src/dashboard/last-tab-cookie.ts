@@ -1,8 +1,10 @@
 /**
  * Remembers which top tab the user last chose, so the dashboard reopens on it.
+ *
+ * A cookie rather than `localStorage` so tabs remembered before the root route existed still apply.
  */
 
-import { TOP_TABS, type TopTab } from './constants.ts';
+import { isTopTab, type TopTab } from './top-tabs.ts';
 
 export const LAST_TAB_COOKIE = 'jetpack_forms_last_tab';
 
@@ -33,5 +35,5 @@ export function getLastTab(): TopTab | null {
 		.find( pair => pair.startsWith( `${ LAST_TAB_COOKIE }=` ) )
 		?.slice( LAST_TAB_COOKIE.length + 1 );
 
-	return ( TOP_TABS as readonly string[] ).includes( value ?? '' ) ? ( value as TopTab ) : null;
+	return isTopTab( value ) ? value : null;
 }

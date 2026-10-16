@@ -5,12 +5,13 @@
 import { afterEach, describe, expect, it, jest } from '@jest/globals';
 import { LAST_TAB_COOKIE, getLastTab, saveLastTab } from '../../../src/dashboard/last-tab-cookie';
 
-describe( 'saveLastTab', () => {
-	afterEach( () => {
-		document.cookie = `${ LAST_TAB_COOKIE }=; path=/wp-admin/; max-age=0`;
-		jest.restoreAllMocks();
-	} );
+afterEach( () => {
+	document.cookie = `${ LAST_TAB_COOKIE }=; path=/wp-admin/; max-age=0`;
+	document.cookie = `x${ LAST_TAB_COOKIE }=; path=/wp-admin/; max-age=0`;
+	jest.restoreAllMocks();
+} );
 
+describe( 'saveLastTab', () => {
 	it.each( [ 'forms', 'responses' ] )( 'stores the chosen tab (%s)', tab => {
 		saveLastTab( tab );
 
@@ -29,11 +30,6 @@ describe( 'saveLastTab', () => {
 } );
 
 describe( 'getLastTab', () => {
-	afterEach( () => {
-		document.cookie = `${ LAST_TAB_COOKIE }=; path=/wp-admin/; max-age=0`;
-		document.cookie = `x${ LAST_TAB_COOKIE }=; path=/wp-admin/; max-age=0`;
-	} );
-
 	it.each( [
 		[ 'a saved tab', () => saveLastTab( 'responses' ), 'responses' ],
 		[ 'no cookie', () => {}, null ],
