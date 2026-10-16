@@ -6,7 +6,6 @@ import type { LoginProtectionState } from '../types';
 
 const on = { available: true, active: true };
 const off = { available: true, active: false };
-const unavailable = { available: false, active: false };
 
 const renderCard = (
 	state: Partial< LoginProtectionState > = {},
@@ -25,45 +24,51 @@ const renderCard = (
 					...state,
 				} as LoginProtectionState
 			}
-			settings={ { settings } as ProtectSettingsData }
+			settings={
+				{
+					settings,
+					error: null,
+					isSaving: () => false,
+					save: jest.fn(),
+				} as unknown as ProtectSettingsData
+			}
 			openTab={ openTab }
 		/>
 	);
 
 describe( 'LoginProtectionCard', () => {
 	it.each( [
-		[ 'every method is on', {}, null, '3 of 3 on', true ],
-		[ 'one method is off', { sso: off }, null, '2 of 3 on', true ],
-		[ 'a method is unavailable', { sso: unavailable }, null, '2 of 2 on', true ],
-		[ 'brute force protection is off', { bruteForce: off }, null, '2 of 3 on', false ],
-		[ 'a method was turned off since page load', {}, { protect: false }, '2 of 3 on', false ],
-		[ 'a method was turned on since page load', { sso: off }, { sso: true }, '3 of 3 on', true ],
-		[ 'WordPress.com login is set but can’t run', { ssoUsable: false }, null, '2 of 2 on', true ],
-		[
-			'an unavailable method is still set',
-			{ sso: unavailable },
-			{ sso: true },
-			'2 of 2 on',
-			true,
-		],
-	] )( 'counts the methods that are on when %s', ( _name, state, settings, badge, hasCount ) => {
-		renderCard( state, settings );
+		[ 'on', {}, null, true ],
+		[ 'off', { bruteForce: off }, null, false ],
+		[ 'turned off since page load', {}, { protect: false }, false ],
+		[ 'turned on since page load', { bruteForce: off }, { protect: true }, true ],
+	] )(
+		'shows blocked logins only while brute force protection is %s',
+		( _name, state, settings, isOn ) => {
+			renderCard( state, settings );
 
-		expect( screen.getByText( badge ) ).toBeInTheDocument();
-		expect( screen.queryByText( '1,234' ) !== null ).toBe( hasCount );
+			expect( screen.queryByText( '1,234' ) !== null ).toBe( isOn );
+			expect(
+				screen.queryByRole( 'checkbox', { name: 'Enable Brute Force Protection' } ) === null
+			).toBe( isOn );
+		}
+	);
+
+	it( 'shows the page-load state before the settings load', () => {
+		renderCard( { accountProtection: on, sso: off } );
+
+		expect( screen.getByRole( 'checkbox', { name: 'Enable Account protection' } ) ).toBeChecked();
+		expect( screen.getByRole( 'checkbox', { name: 'Enable Secure Sign On' } ) ).not.toBeChecked();
 	} );
 
 	it.each( [
-		[ 'on', { sso: on }, { On: 1, Off: 2, Unavailable: 0 } ],
-		[ 'off', { sso: off }, { On: 0, Off: 3, Unavailable: 0 } ],
-		[ 'unavailable', { sso: unavailable }, { On: 0, Off: 2, Unavailable: 1 } ],
-		[ 'on but unable to run', { sso: on, ssoUsable: false }, { On: 0, Off: 2, Unavailable: 1 } ],
-	] )( 'badges a method that is %s', ( _name, state, badges ) => {
-		renderCard( { bruteForce: off, accountProtection: off, ...state } );
+		[ 'on', {}, true ],
+		[ 'off', { sso: off }, false ],
+		[ 'on but unable to run', { ssoUsable: false }, false ],
+	] )( 'links to WordPress.com login settings only while it is %s', ( _name, state, hasLink ) => {
+		renderCard( state );
 
-		Object.entries( badges ).forEach( ( [ text, count ] ) =>
-			expect( screen.queryAllByText( text ) ).toHaveLength( count )
-		);
+		expect( screen.queryByRole( 'link', { name: 'Configure' } ) !== null ).toBe( hasLink );
 	} );
 
 	it( 'renders nothing when PHP registered no section', () => {
@@ -84,7 +89,7 @@ describe( 'LoginProtectionCard', () => {
 
 		await userEvent
 			.setup()
-			.click( screen.getByRole( 'link', { name: 'Configure login protection' } ) );
+			.click( screen.getByRole( 'link', { name: 'Configure Brute Force Protection' } ) );
 
 		expect( openTab ).toHaveBeenCalledWith( 'settings', undefined );
 	} );

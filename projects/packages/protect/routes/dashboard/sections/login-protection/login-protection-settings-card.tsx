@@ -1,11 +1,11 @@
 import { ToggleControl } from '@wordpress/components';
-import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { lock } from '@wordpress/icons';
-import { AlertDialog, Stack, Text } from '@wordpress/ui';
+import { key } from '@wordpress/icons';
+import { Stack, Text } from '@wordpress/ui';
 import { CardRow, ProtectCard } from '../../components/card';
 import IpListField from '../../components/settings/ip-list-field';
 import SettingToggle from '../../components/settings/setting-toggle';
+import SsoToggle from './sso-toggle';
 import type { LoginProtectionContext, LoginProtectionState } from './types';
 import type { ProtectSettingsData } from '../../data/use-protect-settings';
 
@@ -59,31 +59,6 @@ function SsoOptionToggle( {
 }
 
 /**
- * What the WordPress.com login toggle says under it: what it does, or why it can't be changed.
- *
- * @param login - This section's state from PHP.
- * @return The help text.
- */
-function getSsoHelp( login: LoginProtectionState | undefined ): string {
-	if ( login && ! login.sso.available ) {
-		return __( 'WordPress.com login isn’t available on this site.', 'jetpack-protect-pkg' );
-	}
-	if ( login?.isOffline ) {
-		return __( 'WordPress.com login isn’t available in offline mode.', 'jetpack-protect-pkg' );
-	}
-	if ( ! login?.ssoUsable ) {
-		return __(
-			'Needs the site owner’s WordPress.com account to be connected.',
-			'jetpack-protect-pkg'
-		);
-	}
-	return __(
-		'If you have several sites with this on, you can log in to all of them with the same credentials.',
-		'jetpack-protect-pkg'
-	);
-}
-
-/**
  * The Login protection settings: brute force protection, account protection and WordPress.com login.
  *
  * @param props          - The dashboard context.
@@ -98,22 +73,10 @@ export default function LoginProtectionSettingsCard( {
 	const settings = data.settings ?? {};
 	const ssoLocks = login?.ssoLocks ?? NO_LOCKS;
 	const ssoEffective = login?.ssoEffective ?? NO_LOCKS;
-	const ssoUsable = login?.ssoUsable ?? false;
 	const ssoOn = Boolean( settings.sso );
-	const { save } = data;
-
-	const [ confirmingSsoOff, setConfirmingSsoOff ] = useState( false );
-	const onSsoChange = useCallback(
-		( value: boolean ) => ( value ? save( { sso: true } ) : setConfirmingSsoOff( true ) ),
-		[ save ]
-	);
-	// `save()` resolves to whether it worked; the dialog only needs to know it's done, then closes.
-	const disableSso = useCallback( async () => {
-		await save( { sso: false } );
-	}, [ save ] );
 
 	return (
-		<ProtectCard icon={ lock } title={ __( 'Login protection', 'jetpack-protect-pkg' ) }>
+		<ProtectCard icon={ key } title={ __( 'Login protection', 'jetpack-protect-pkg' ) }>
 			<CardRow>
 				<Stack direction="column" gap="md">
 					<Text variant="body-lg" render={ <h3 /> } className="jp-protect-card__subheading">
@@ -172,17 +135,17 @@ export default function LoginProtectionSettingsCard( {
 					<Text variant="body-lg" render={ <h3 /> } className="jp-protect-card__subheading">
 						{ __( 'WordPress.com login', 'jetpack-protect-pkg' ) }
 					</Text>
-					<ToggleControl
-						__nextHasNoMarginBottom
+					<SsoToggle
+						data={ data }
+						login={ login }
 						label={ __(
 							'Allow users to log in with their WordPress.com account',
 							'jetpack-protect-pkg'
 						) }
-						help={ getSsoHelp( login ) }
-						checked={ ssoOn }
-						// Mirrors Jetpack Settings, which locks the toggle without a connected owner.
-						disabled={ ! login?.sso.available || ! ssoUsable || data.isSaving( 'sso' ) }
-						onChange={ onSsoChange }
+						help={ __(
+							'If you have several sites with this on, you can log in to all of them with the same credentials.',
+							'jetpack-protect-pkg'
+						) }
 					/>
 					<SsoOptionToggle
 						data={ data }
@@ -210,20 +173,6 @@ export default function LoginProtectionSettingsCard( {
 					/>
 				</Stack>
 			</CardRow>
-			<AlertDialog.Root
-				open={ confirmingSsoOff }
-				onOpenChange={ setConfirmingSsoOff }
-				onConfirm={ disableSso }
-			>
-				<AlertDialog.Popup
-					title={ __( 'Turn off WordPress.com login?', 'jetpack-protect-pkg' ) }
-					description={ __(
-						'Users will have to log in with their username and password on this site instead.',
-						'jetpack-protect-pkg'
-					) }
-					confirmButtonText={ __( 'Turn off', 'jetpack-protect-pkg' ) }
-				/>
-			</AlertDialog.Root>
 		</ProtectCard>
 	);
 }

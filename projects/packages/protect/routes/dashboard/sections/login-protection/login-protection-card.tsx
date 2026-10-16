@@ -1,73 +1,22 @@
-import { __, sprintf } from '@wordpress/i18n';
-import { lock } from '@wordpress/icons';
-import { Badge, Stack, Text } from '@wordpress/ui';
+import { useMemo } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { key } from '@wordpress/icons';
+import { Notice, Stack } from '@wordpress/ui';
 import { CardRow, ProtectCard, Stat } from '../../components/card';
+import SettingToggle from '../../components/settings/setting-toggle';
 import TabLink from '../../components/tab-link';
 import isModuleActive from '../../data/is-module-active';
-import type { LoginProtectionContext, ModuleState } from './types';
-import type { CardStatus } from '../../components/card';
+import SsoToggle from './sso-toggle';
+import type { LoginProtectionContext } from './types';
+import './style.scss';
 
 /**
- * One way of protecting logins, with whether it's on.
- *
- * @param props             - Component props.
- * @param props.name        - The method's name.
- * @param props.description - What it does.
- * @param props.state       - Its module's live state.
- * @return The row.
- */
-function Method( {
-	name,
-	description,
-	state,
-}: {
-	name: string;
-	description: string;
-	state: ModuleState;
-} ) {
-	let badge = <Badge intent="draft">{ __( 'Off', 'jetpack-protect-pkg' ) }</Badge>;
-	if ( ! state.available ) {
-		badge = <Badge intent="none">{ __( 'Unavailable', 'jetpack-protect-pkg' ) }</Badge>;
-	} else if ( state.active ) {
-		badge = <Badge intent="stable">{ __( 'On', 'jetpack-protect-pkg' ) }</Badge>;
-	}
-
-	return (
-		<CardRow>
-			<Stack direction="row" gap="md" align="center" justify="space-between">
-				<Stack direction="column" gap="xs">
-					<Text variant="body-lg">{ name }</Text>
-					<Text variant="body-md" className="jp-protect-card__muted">
-						{ description }
-					</Text>
-				</Stack>
-				{ badge }
-			</Stack>
-		</CardRow>
-	);
-}
-
-/**
- * The card badge's intent: neutral when no method is available.
- *
- * @param on        - How many methods are on.
- * @param available - How many methods are available.
- * @return The intent.
- */
-function getStatusIntent( on: number, available: number ): CardStatus[ 'intent' ] {
-	if ( available === 0 ) {
-		return 'none';
-	}
-	return on === available ? 'stable' : 'medium';
-}
-
-/**
- * The Login protection card: brute force protection, account protection and WordPress.com login.
+ * The Login protection card: blocked logins, and toggles for account protection and WordPress.com login.
  *
  * @param props          - The dashboard context.
  * @param props.state    - This section's state from PHP.
  * @param props.settings - Jetpack settings, for live module state.
- * @param props.openTab  - Switches dashboard tabs, for the link to Settings.
+ * @param props.openTab  - Switches dashboard tabs, for the links to Settings.
  * @return The card, or nothing without the section's state.
  */
 export default function LoginProtectionCard( {
@@ -75,73 +24,95 @@ export default function LoginProtectionCard( {
 	settings,
 	openTab,
 }: LoginProtectionContext ) {
-	if ( ! login ) {
+	// Settings load on the Settings tab; until then the toggles show the page-load state.
+	const data = useMemo(
+		() =>
+			login && {
+				...settings,
+				settings: {
+					protect: login.bruteForce.active,
+					'account-protection': login.accountProtection.active,
+					sso: login.sso.active,
+					...settings.settings,
+				},
+			},
+		[ settings, login ]
+	);
+
+	if ( ! login || ! data ) {
 		return null;
 	}
 
-	const live = ( module: string, initial: ModuleState ): ModuleState => ( {
-		available: initial.available,
-		active: isModuleActive( settings.settings, module, initial.active ),
-	} );
-	const bruteForce = live( 'protect', login.bruteForce );
-	const accountProtection = live( 'account-protection', login.accountProtection );
-	// The module can stay active after the owner disconnects, but WordPress.com login doesn't run then.
-	const sso = live( 'sso', { ...login.sso, available: login.sso.available && login.ssoUsable } );
-
-	const methods = [ bruteForce, accountProtection, sso ];
-	const on = methods.filter( method => method.available && method.active ).length;
-	const available = methods.filter( method => method.available ).length;
+	const bruteForceOn = isModuleActive( settings.settings, 'protect', login.bruteForce.active );
+	const ssoOn = Boolean( data.settings.sso ) && login.sso.available && login.ssoUsable;
 
 	return (
 		<ProtectCard
-			icon={ lock }
+			icon={ key }
 			title={ __( 'Login protection', 'jetpack-protect-pkg' ) }
-			status={ {
-				label: sprintf(
-					/* translators: %1$d is how many login protections are on, %2$d how many there are. */
-					__( '%1$d of %2$d on', 'jetpack-protect-pkg' ),
-					on,
-					available
-				),
-				intent: getStatusIntent( on, available ),
-			} }
+			description={ __(
+				'Blocks password-guessing attacks and protects accounts with weak passwords.',
+				'jetpack-protect-pkg'
+			) }
 		>
-			{ bruteForce.active && (
+			{ settings.error && (
 				<CardRow>
-					<Stat
-						label={ __( 'All-time blocked login attempts', 'jetpack-protect-pkg' ) }
-						value={ login.blockedCount }
-					/>
+					<Notice.Root intent="error">
+						<Notice.Description>{ settings.error }</Notice.Description>
+						<Notice.CloseIconButton onClick={ settings.dismissError } />
+					</Notice.Root>
 				</CardRow>
 			) }
-			<Method
-				name={ __( 'Brute force protection', 'jetpack-protect-pkg' ) }
-				description={ __(
-					'Blocks IP addresses that keep failing to log in.',
-					'jetpack-protect-pkg'
-				) }
-				state={ bruteForce }
-			/>
-			<Method
-				name={ __( 'Account protection', 'jetpack-protect-pkg' ) }
-				description={ __(
-					'Asks users with a weak or leaked password to verify their identity and choose a new one.',
-					'jetpack-protect-pkg'
-				) }
-				state={ accountProtection }
-			/>
-			<Method
-				name={ __( 'WordPress.com login', 'jetpack-protect-pkg' ) }
-				description={ __(
-					'Lets users log in with their WordPress.com account, with optional two-step authentication.',
-					'jetpack-protect-pkg'
-				) }
-				state={ sso }
-			/>
 			<CardRow>
-				<TabLink tab="settings" onOpen={ openTab }>
-					{ __( 'Configure login protection', 'jetpack-protect-pkg' ) }
-				</TabLink>
+				{ bruteForceOn ? (
+					<Stack direction="column" gap="md" align="start">
+						<Stat
+							label={ __( 'All-time blocked login attempts', 'jetpack-protect-pkg' ) }
+							value={ login.blockedCount }
+						/>
+						<TabLink tab="settings" onOpen={ openTab }>
+							{ __( 'Configure Brute Force Protection', 'jetpack-protect-pkg' ) }
+						</TabLink>
+					</Stack>
+				) : (
+					<SettingToggle
+						data={ data }
+						name="protect"
+						disabled={ ! login.bruteForce.available }
+						label={ __( 'Enable Brute Force Protection', 'jetpack-protect-pkg' ) }
+						help={ __( 'Block IP addresses that keep failing to log in.', 'jetpack-protect-pkg' ) }
+					/>
+				) }
+			</CardRow>
+			<CardRow className="jp-protect-login-protection__split">
+				<div>
+					<SettingToggle
+						data={ data }
+						name="account-protection"
+						disabled={ ! login.accountProtection.available }
+						label={ __( 'Enable Account protection', 'jetpack-protect-pkg' ) }
+						help={ __(
+							'Keep administrator and editor accounts out of attackers’ hands.',
+							'jetpack-protect-pkg'
+						) }
+					/>
+				</div>
+				<Stack direction="column" gap="md" align="start">
+					<SsoToggle
+						data={ data }
+						login={ login }
+						label={ __( 'Enable Secure Sign On', 'jetpack-protect-pkg' ) }
+						help={ __(
+							'Log in with WordPress.com and its two-step authentication.',
+							'jetpack-protect-pkg'
+						) }
+					/>
+					{ ssoOn && (
+						<TabLink tab="settings" onOpen={ openTab }>
+							{ __( 'Configure', 'jetpack-protect-pkg' ) }
+						</TabLink>
+					) }
+				</Stack>
 			</CardRow>
 		</ProtectCard>
 	);
