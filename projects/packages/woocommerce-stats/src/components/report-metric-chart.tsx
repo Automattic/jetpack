@@ -93,6 +93,7 @@ export function ReportMetricChart( {
 					dataFormat={ dataFormat }
 					chartType={ chartType }
 					empty={ <ChartEmptyState /> }
+					hideSingleMetricLabel
 				/>
 			</WidgetState>
 		</div>
