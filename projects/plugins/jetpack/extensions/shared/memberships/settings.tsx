@@ -69,7 +69,12 @@ export function useSetAccess(): ( value: string ) => void {
 	};
 }
 
-export function useSetTier(): ( value: number | string ) => void {
+/**
+ * Returns a setter for the post's newsletter tier. `null` clears it, sending to all paid subscribers.
+ *
+ * @return {Function} Tier setter.
+ */
+export function useSetTier(): ( value: number | string | null ) => void {
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const [ metas, setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 	return value => {
@@ -87,10 +92,34 @@ interface NewsletterTierProduct {
 	interval: string;
 }
 
+const ALL_TIERS_VALUE = 'all';
+
+/**
+ * Appends a subscriber count to a label when one is available.
+ *
+ * @param {string} label - Option label.
+ * @param {number} count - Subscriber count, if known.
+ * @return {string} The label, with the count in parentheses when known.
+ */
+function withCount( label: string, count?: number | null ): string {
+	return typeof count === 'number' ? `${ label } (${ formatNumberCompact( count ) })` : label;
+}
+
 function TierSelector() {
 	// TODO: figure out how to handle different currencies
-	const tierProducts: NewsletterTierProduct[] = useSelect( select =>
-		select( membershipProductsStore ).getNewsletterTierProducts()
+	const { tierProducts, countsLoaded, paidSubscribers, paidSubscribersByTier } = useSelect(
+		select => {
+			const store = select( membershipProductsStore );
+			const counts = store.getSubscriberCounts();
+			return {
+				tierProducts: store.getNewsletterTierProducts() as NewsletterTierProduct[],
+				countsLoaded: counts.paidSubscribers != null,
+				paidSubscribers: ( counts.paidNewsletterSubscribers ?? counts.paidSubscribers ) as
+					number | null,
+				paidSubscribersByTier: counts.paidSubscribersByTier as Record< string, number > | null,
+			};
+		},
+		[]
 	);
 	const products = tierProducts
 		.filter( product => product.interval === '1 month' )
@@ -106,10 +135,37 @@ function TierSelector() {
 	);
 	const setTier = useSetTier();
 
-	// Tiers don't apply if less than 2 products (this is called here because
-	// the hooks have to run before any early returns)
-	if ( products.length < 2 ) {
+	// With no tiers there is nothing to narrow down to.
+	if ( products.length < 1 ) {
 		return null;
+	}
+
+	// Hide a lone tier that have same subscribers count as "All"; show it if counts differ.
+	if ( products.length === 1 && ! tierId ) {
+		const tierCount = paidSubscribersByTier?.[ String( products[ 0 ].id ) ];
+		if ( ! countsLoaded || tierCount === paidSubscribers ) {
+			return null;
+		}
+	}
+
+	const options = [
+		{
+			label: withCount( __( 'All paid subscribers', 'jetpack' ), paidSubscribers ),
+			value: ALL_TIERS_VALUE,
+		},
+		...products.map( product => ( {
+			label: withCount( product.title, paidSubscribersByTier?.[ String( product.id ) ] ),
+			value: String( product.id ),
+		} ) ),
+	];
+
+	// A post can still point at a tier that is no longer offered; keep it visible
+	// rather than showing "All", since emails are still limited to that tier.
+	if ( tierId && ! products.some( product => String( product.id ) === String( tierId ) ) ) {
+		options.push( {
+			label: __( 'Unavailable tier', 'jetpack' ),
+			value: String( tierId ),
+		} );
 	}
 
 	return (
@@ -117,12 +173,9 @@ function TierSelector() {
 			<RadioControl
 				label={ __( 'Choose Newsletter Tier', 'jetpack' ) }
 				hideLabelFromVision={ true }
-				selected={ String( tierId ) }
-				options={ products.map( product => ( {
-					label: product.title,
-					value: String( product.id ),
-				} ) ) }
-				onChange={ value => setTier( Number( value ) ) }
+				selected={ tierId ? String( tierId ) : ALL_TIERS_VALUE }
+				options={ options }
+				onChange={ value => setTier( value === ALL_TIERS_VALUE ? null : Number( value ) ) }
 			/>
 		</div>
 	);
@@ -225,7 +278,7 @@ export function NewsletterAccessRadioButtons( {
 	explainPaywallConstraint = true,
 }: NewsletterAccessRadioButtonsProps ) {
 	const isStripeConnected = stripeConnectUrl === null;
-	const { totalSubscribers, paidSubscribers } = useSelect( select =>
+	const { totalSubscribers, paidSubscribers, paidNewsletterSubscribers } = useSelect( select =>
 		select( membershipProductsStore ).getSubscriberCounts()
 	);
 
@@ -260,16 +313,24 @@ export function NewsletterAccessRadioButtons( {
 	// deliberately not forwarded here: it would switch the paid count to the email
 	// reach, making both options report the same total on a post with a paywall block.
 	// Who receives the email is stated in the Newsletter overview instead.
-	const subscribersReach = getReachForAccessLevelKey( {
-		accessLevel: accessOptions.subscribers.key,
-		subscribers: totalSubscribers,
-		paidSubscribers,
-	} );
-	const paidSubscribersReach = getReachForAccessLevelKey( {
-		accessLevel: accessOptions.paid_subscribers.key,
-		subscribers: totalSubscribers,
-		paidSubscribers,
-	} );
+	// Counts are null until loaded; leave them off the labels rather than showing 0.
+	const subscribersReach =
+		totalSubscribers == null
+			? null
+			: getReachForAccessLevelKey( {
+					accessLevel: accessOptions.subscribers.key,
+					subscribers: totalSubscribers,
+					paidSubscribers,
+				} );
+	const paidCount = paidNewsletterSubscribers ?? paidSubscribers;
+	const paidSubscribersReach =
+		paidCount == null
+			? null
+			: getReachForAccessLevelKey( {
+					accessLevel: accessOptions.paid_subscribers.key,
+					subscribers: totalSubscribers,
+					paidSubscribers: paidCount,
+				} );
 
 	const instanceId = useInstanceId( NewsletterAccessRadioButtons, 'jetpack-newsletter-access' );
 	const groupName = `${ instanceId }-group`;
@@ -290,13 +351,11 @@ export function NewsletterAccessRadioButtons( {
 		},
 		{
 			value: accessOptions.subscribers.key,
-			label: `${ accessOptions.subscribers.label } (${ formatNumberCompact( subscribersReach ) })`,
+			label: withCount( accessOptions.subscribers.label, subscribersReach ),
 		},
 		{
 			value: accessOptions.paid_subscribers.key,
-			label: `${ accessOptions.paid_subscribers.label } (${ formatNumberCompact(
-				paidSubscribersReach
-			) })`,
+			label: withCount( accessOptions.paid_subscribers.label, paidSubscribersReach ),
 			disabled: showPaidAsDisabled,
 			describedBy: showPaidAsDisabled ? setupLinkId : undefined,
 		},
