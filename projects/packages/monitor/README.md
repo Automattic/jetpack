@@ -4,14 +4,6 @@ Downtime monitoring for Jetpack-connected sites. WordPress.com checks a site eve
 
 Call `\Automattic\Jetpack\Monitor\Monitor::init()` early. It makes `monitor` a module a standalone plugin can switch on, subscribes whoever turns it on to the alerts, and forgets saved choices when a user unlinks or the site disconnects.
 
-## How to install monitor
-
-### Installation From Git Repo
-
-## Contribute
-
-## Get Help
-
 ## Using this package in your WordPress plugin
 
 If you plan on using this package in your WordPress plugin, we would recommend that you use [Jetpack Autoloader](https://packagist.org/packages/automattic/jetpack-autoloader) as your autoloader. This will allow for maximum interoperability with other plugins that use this package as well.
