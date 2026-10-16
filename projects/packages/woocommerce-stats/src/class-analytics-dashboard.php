@@ -122,8 +122,19 @@ class Analytics_Dashboard {
 	const BOOKINGS_WIDGET_CATEGORIES = array( 'bookings' );
 
 	/**
-	 * Hook both registrants on the dashboard's registry actions, the reports proxy on REST
-	 * requests, and the store currency on the script data.
+	 * The module that offers the Bookings metric to Store performance.
+	 */
+	const STORE_PERFORMANCE_BOOKINGS_MODULE = '@jetpack-woocommerce-stats/store-performance-bookings';
+
+	/**
+	 * Action the dashboard page fires as it enqueues its scripts: its menu slug,
+	 * `Analytics::MENU_PAGE_SLUG`, under wp-build's `_init` suffix.
+	 */
+	const DASHBOARD_PAGE_INIT_ACTION = 'jetpack-premium-analytics-wp-admin_init';
+
+	/**
+	 * Hook both registrants on the dashboard's registry actions, the Bookings metric on the dashboard
+	 * page, the reports proxy on REST requests, and the store currency on the script data.
 	 *
 	 * Priority 20, after the dashboard package's own registrants: an older package that still
 	 * registers the section itself is found by slug and left alone.
@@ -133,6 +144,7 @@ class Analytics_Dashboard {
 	public static function init() {
 		add_action( self::REGISTER_SECTIONS_ACTION, array( __CLASS__, 'register_section' ), 20 );
 		add_action( self::REGISTER_WIDGET_TYPES_ACTION, array( __CLASS__, 'register_widget_types' ), 20 );
+		add_action( self::DASHBOARD_PAGE_INIT_ACTION, array( __CLASS__, 'enqueue_store_performance_bookings' ) );
 
 		add_action( 'rest_api_init', array( Api_Proxy_Controller::class, 'init' ) );
 		add_filter( 'jetpack_stats_transient_cleanup_prefixes', array( Api_Proxy_Controller::class, 'register_transient_cleanup_prefix' ) );
@@ -229,6 +241,29 @@ class Analytics_Dashboard {
 			get_dashboard_default_widget_instance( 'default-sessions-by-device-widget-instance', self::SESSIONS_BY_DEVICE_TYPE, 160, 1, 2 ),
 			get_dashboard_default_widget_instance( 'default-sales-by-device-widget-instance', self::SALES_BY_DEVICE_TYPE, 170, 1, 2 ),
 		);
+	}
+
+	/**
+	 * Load the Bookings metric with the dashboard on a store running the Bookings extension.
+	 *
+	 * Enqueued as a module of its own: the page's boot runs only the init modules its build names,
+	 * and a boot dependency is preloaded, not run. The build's own registrant hooks
+	 * `wp_default_scripts`, already fired on this page hook, so it runs here.
+	 *
+	 * @return void
+	 */
+	public static function enqueue_store_performance_bookings() {
+		if ( ! self::is_bookings_plugin_active() || ! self::supports_widget_contract() || ! self::is_woocommerce_available() || ! self::current_user_can_view_store_reports() ) {
+			return;
+		}
+
+		self::load_build();
+		if ( ! function_exists( 'jetpack_woocommerce_stats_register_script_modules' ) ) {
+			return;
+		}
+		jetpack_woocommerce_stats_register_script_modules();
+
+		wp_enqueue_script_module( self::STORE_PERFORMANCE_BOOKINGS_MODULE );
 	}
 
 	/**
@@ -362,6 +397,15 @@ class Analytics_Dashboard {
 	 * @return bool
 	 */
 	private static function supports_widget_contract() {
+		// The dashboard loads the file naming its contract when its widget registry is first read,
+		// which has not happened yet when the dashboard page enqueues its scripts.
+		if (
+			! defined( 'Automattic\\Jetpack\\PremiumAnalytics\\WIDGET_API_VERSION' )
+			&& function_exists( 'Automattic\\Jetpack\\PremiumAnalytics\\ensure_widget_registry_ready' )
+		) {
+			\Automattic\Jetpack\PremiumAnalytics\ensure_widget_registry_ready();
+		}
+
 		if ( ! defined( 'Automattic\\Jetpack\\PremiumAnalytics\\WIDGET_API_VERSION' ) ) {
 			return false;
 		}

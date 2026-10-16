@@ -11,6 +11,8 @@ use Automattic\Jetpack\PremiumAnalytics\Dashboard_Section_Registry;
 use Automattic\Jetpack\PremiumAnalytics\Enablement_Setting;
 use Automattic\Jetpack\PremiumAnalytics\Widget_Type_Registry;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
 use function Automattic\Jetpack\PremiumAnalytics\get_registered_dashboard_section;
 use function Automattic\Jetpack\PremiumAnalytics\register_dashboard_section;
@@ -22,7 +24,7 @@ require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/c
 require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/dashboard-policy.php';
 require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/dashboard-sections.php';
 require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/default-dashboard-sections.php';
-require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/widget-types.php';
+require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/widget-modules.php';
 
 /**
  * The package registers the section and its widget types when the dashboard hydrates.
@@ -41,6 +43,10 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		remove_action( 'rest_api_init', array( Api_Proxy_Controller::class, 'init' ) );
 		remove_filter( 'jetpack_stats_transient_cleanup_prefixes', array( Api_Proxy_Controller::class, 'register_transient_cleanup_prefix' ) );
 		remove_filter( 'jetpack_admin_js_script_data', array( Store_Currency::class, 'add_script_data' ), 20 );
+		remove_action( Analytics_Dashboard::DASHBOARD_PAGE_INIT_ACTION, array( Analytics_Dashboard::class, 'enqueue_store_performance_bookings' ) );
+		delete_option( 'active_plugins' );
+		wp_dequeue_script_module( Analytics_Dashboard::STORE_PERFORMANCE_BOOKINGS_MODULE );
+		wp_deregister_script_module( Analytics_Dashboard::STORE_PERFORMANCE_BOOKINGS_MODULE );
 
 		foreach ( array( Dashboard_Section_Registry::class, Widget_Type_Registry::class ) as $class ) {
 			$instance = new \ReflectionProperty( $class, 'instance' );
@@ -160,6 +166,61 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 			$this->assertContains( $type, $built );
 			$this->assertNotContains( $type, $placed );
 		}
+	}
+
+	/**
+	 * Without the Bookings extension the dashboard page loads no Bookings metric.
+	 */
+	public function test_leaves_the_bookings_metric_off_the_dashboard_without_the_extension() {
+		$this->enable_store();
+
+		Analytics_Dashboard::enqueue_store_performance_bookings();
+
+		$this->assertNotContains( Analytics_Dashboard::STORE_PERFORMANCE_BOOKINGS_MODULE, wp_script_modules()->get_queue() );
+	}
+
+	/**
+	 * With the extension the Bookings metric loads with the dashboard, registered before it is named.
+	 */
+	public function test_loads_the_bookings_metric_with_the_dashboard_with_the_extension() {
+		$this->enable_store();
+		$this->activate_bookings();
+
+		Analytics_Dashboard::enqueue_store_performance_bookings();
+
+		$this->assertNotNull( wp_script_modules()->get_registered( Analytics_Dashboard::STORE_PERFORMANCE_BOOKINGS_MODULE ) );
+		$this->assertContains( Analytics_Dashboard::STORE_PERFORMANCE_BOOKINGS_MODULE, wp_script_modules()->get_queue() );
+	}
+
+	/**
+	 * The dashboard page enqueues its scripts before anything reads the widget registry, so the
+	 * contract constant is not loaded yet; the Bookings metric must load all the same.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_loads_the_bookings_metric_before_the_widget_registry_is_read() {
+		$this->assertFalse( defined( 'Automattic\\Jetpack\\PremiumAnalytics\\WIDGET_API_VERSION' ), 'The contract file must be unloaded, as on the dashboard page.' );
+		$this->enable_store();
+		$this->activate_bookings();
+
+		Analytics_Dashboard::enqueue_store_performance_bookings();
+
+		$this->assertContains( Analytics_Dashboard::STORE_PERFORMANCE_BOOKINGS_MODULE, wp_script_modules()->get_queue() );
+	}
+
+	/**
+	 * A reader who cannot see store reports gets no Bookings metric either, extension or not.
+	 */
+	public function test_leaves_the_bookings_metric_off_the_dashboard_without_the_store_reports_capability() {
+		add_filter( Analytics_Dashboard::WOOCOMMERCE_AVAILABLE_FILTER, '__return_true' );
+		$this->activate_bookings();
+
+		Analytics_Dashboard::enqueue_store_performance_bookings();
+
+		$this->assertNotContains( Analytics_Dashboard::STORE_PERFORMANCE_BOOKINGS_MODULE, wp_script_modules()->get_queue() );
 	}
 
 	/**
@@ -296,6 +357,14 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		Analytics_Dashboard::register_widget_types( $registry );
 
 		$this->assertSame( array(), $registry->get_all_registered() );
+	}
+
+	/**
+	 * The WooCommerce Bookings extension is listed as active, which `is_plugin_active()` reads.
+	 */
+	private function activate_bookings() {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		update_option( 'active_plugins', array( 'woocommerce-bookings/woocommerce-bookings.php' ) );
 	}
 
 	/**

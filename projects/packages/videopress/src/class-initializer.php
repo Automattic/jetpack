@@ -914,6 +914,7 @@ class Initializer {
 		$show_number    = $enabled( 'showPositionNumber', false );
 		$show_runtime   = $enabled( 'showTotalRuntime' );
 		$muted          = $enabled( 'muteByDefault', false );
+		$list_key       = isset( $block_attributes['videopressListKey'] ) && is_string( $block_attributes['videopressListKey'] ) ? sanitize_key( $block_attributes['videopressListKey'] ) : '';
 		$current_guid   = Channel::is_enabled() ? Channel::queried_guid() : '';
 
 		$classes = array( 'videopress-playlist', 'is-layout-' . $layout );
@@ -1024,8 +1025,11 @@ class Initializer {
 				 * @param string $url  The video's page on videopress.com.
 				 * @param string $guid The video GUID.
 				 */
-				$entry_url  = apply_filters( 'videopress_playlist_entry_url', 'https://videopress.com/v/' . $entry['guid'], $entry['guid'] );
-				$on_site    = Channel::is_site_url( $entry_url );
+				$entry_url = apply_filters( 'videopress_playlist_entry_url', 'https://videopress.com/v/' . $entry['guid'], $entry['guid'] );
+				$on_site   = Channel::is_site_url( $entry_url );
+				if ( $on_site && '' !== $list_key ) {
+					$entry_url = add_query_arg( Channel::LIST_VAR, $list_key, $entry_url );
+				}
 				$is_current = '' !== $current_guid && $entry['guid'] === $current_guid;
 				$entry_open = sprintf(
 					'<a class="videopress-playlist__select%1$s" href="%2$s"%3$s%4$s data-guid="%5$s" data-title="%6$s" data-position="%7$s" data-details="%8$s">',

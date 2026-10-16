@@ -67,11 +67,11 @@ export type PlaylistAttributes = PlaylistDisplayAttributes & {
 	showPlaylistTitle: boolean;
 	videos: PlaylistEntry[];
 	/*
-	 * Where the videos come from: the block's own list, or an indexed
-	 * playlist ( sourcePlaylistId, empty = latest ).
+	 * Where the videos come from: the block's own list, the playlist a channel
+	 * page is showing, or an indexed playlist ( sourcePlaylistId, empty = latest ).
 	 */
 	source?: PlaylistSource;
 	sourcePlaylistId?: string;
 };
 
-export type PlaylistSource = 'own' | 'index';
+export type PlaylistSource = 'own' | 'queried' | 'index';
