@@ -259,7 +259,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 				<# } #>
 				<tr class="jetpack-module<# if ( ++i % 2 ) { #> alternate<# } #><# if ( item.activated ) { #> active<# } #><# if ( ! item.available ) { #> unavailable<# } #>" id="{{{ item.module }}}">
 					<th scope="row" class="check-column">
-						<# if ( item.available && ! item.protect_page_url ) { #><input type="checkbox" name="modules[]" value="{{{ item.module }}}" {{{ item.disabled }}} /><# } #>
+						<# if ( item.available && item.protect_page_url ) { #><input type="checkbox" disabled /><# } else if ( item.available ) { #><input type="checkbox" name="modules[]" value="{{{ item.module }}}" {{{ item.disabled }}} /><# } #>
 					</th>
 					<td class="name column-name">
 						<div class="jetpack-module__body">
@@ -502,7 +502,10 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		echo '<tr class="jetpack-module' . esc_attr( $row_class ) . '" id="' . esc_attr( $item['module'] ) . '">';
 
 		echo '<th scope="row" class="check-column">';
-		if ( $available && empty( $item['protect_page_url'] ) ) {
+		// Disabled, not dropped, so the row's name stays in line with the others.
+		if ( $available && ! empty( $item['protect_page_url'] ) ) {
+			echo '<input type="checkbox" disabled />';
+		} elseif ( $available ) {
 			printf( '<input type="checkbox" name="modules[]" value="%s" />', esc_attr( $item['module'] ) );
 		}
 		echo '</th>';
