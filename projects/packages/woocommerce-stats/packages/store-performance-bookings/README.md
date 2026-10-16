@@ -1,6 +1,6 @@
 # Store performance: the Bookings metric
 
-A script module that offers the Bookings metric to the Store performance widget, through the `jetpack.woocommerceStats.storePerformance.metrics` filter. The package enqueues it on the dashboard page on a store running the WooCommerce Bookings extension.
+A script module that offers the Bookings metric to the Store performance widget, through the `jetpack.woocommerceStats.storePerformance.metrics` filter. The package enqueues it on the dashboard page on a store running the WooCommerce Bookings extension, until the extension offers the metric itself.
 
 It imports nothing from the package's `src/`, on purpose: it is written as WooCommerce Bookings would ship it, against three contracts only.
 

@@ -50,7 +50,7 @@ A metric registered later shows on every widget until the user unticks it: the `
 
 ## Reference registrant
 
-`packages/store-performance-bookings/` adds Bookings after Orders (`order: 25`). It is a wp-build script module the package enqueues only on a store running WooCommerce Bookings; it waits for its translation catalog before registering, and it imports nothing from `src/`, so it reads as a third-party registrant would.
+`packages/store-performance-bookings/` adds Bookings after Orders (`order: 25`): a script module the package enqueues on a store running WooCommerce Bookings, which registers once its translation catalog is in. Its README says what it is written against.
 
 ## Files
 

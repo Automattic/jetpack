@@ -8,8 +8,7 @@ import { loadI18nCatalogs } from '@automattic/jetpack-wp-build-polyfills/src/js/
 import { registerBookingsMetric } from './bookings-metric';
 
 // Registered once this bundle's catalog is in, so the metric's strings are translated; Store
-// performance reads the filter again when it is added. The package loads this module on a store
-// running WooCommerce Bookings, until the extension offers the metric itself.
+// performance reads the filter again when it is added.
 loadI18nCatalogs( 'jetpack-woocommerce-stats-pkg', import.meta.url ).finally(
 	registerBookingsMetric
 );

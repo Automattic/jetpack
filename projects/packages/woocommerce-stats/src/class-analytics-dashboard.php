@@ -110,8 +110,7 @@ class Analytics_Dashboard {
 	const BOOKINGS_WIDGET_CATEGORIES = array( 'bookings' );
 
 	/**
-	 * The module that offers the Bookings metric to Store performance, loaded with the dashboard
-	 * on a store running the Bookings extension until the extension offers the metric itself.
+	 * The module that offers the Bookings metric to Store performance.
 	 */
 	const STORE_PERFORMANCE_BOOKINGS_MODULE = '@jetpack-woocommerce-stats/store-performance-bookings';
 
