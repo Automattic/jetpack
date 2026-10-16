@@ -108,7 +108,7 @@ function wpcom_render_ai_assistant_banner() {
 			<div class="wpcom-ai-assistant-banner__body">
 				<div class="wpcom-ai-assistant-banner__text">
 					<strong><?php esc_html_e( 'Build and manage your site with AI.', 'jetpack-mu-wpcom' ); ?></strong><br>
-					<?php esc_html_e( 'Use ChatGPT, Claude, or the WordPress Agent to edit posts, update your design, and handle everyday site tasks.', 'jetpack-mu-wpcom' ); ?>
+					<?php esc_html_e( 'Use ChatGPT, Claude, or the WordPress Agent to edit, design, and handle everyday site tasks.', 'jetpack-mu-wpcom' ); ?>
 				</div>
 				<a href="<?php echo esc_url( $cta_url ); ?>" class="button-secondary">
 					<?php esc_html_e( 'Set up AI tools', 'jetpack-mu-wpcom' ); ?>
