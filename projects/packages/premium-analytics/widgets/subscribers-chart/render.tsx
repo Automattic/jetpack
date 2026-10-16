@@ -7,7 +7,6 @@ import {
 	useStatsSubscribersCounts,
 } from '@jetpack-premium-analytics/data';
 import {
-	ChartEmptyState,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
 	WidgetRoot,
@@ -128,6 +127,7 @@ function SubscribersChartInner( { chartType }: SubscribersChartInnerProps ) {
 				// refetch failure keeps the chart visible; only surface the error
 				// when there is nothing to show.
 				isError={ state.current.length === 0 && state.isError }
+				isEmpty={ isChartEmpty }
 				error={ {
 					description: __(
 						"We couldn't load subscriber data. Please try again in a moment.",
@@ -137,6 +137,21 @@ function SubscribersChartInner( { chartType }: SubscribersChartInnerProps ) {
 						{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: state.refetch },
 					],
 				} }
+				empty={
+					hasNoSubscribers
+						? {
+								description: __(
+									'You don’t have subscribers yet. Newsletter can help you turn readers into an audience.',
+									'jetpack-premium-analytics-pkg'
+								),
+								action: {
+									label: __( 'Learn more', 'jetpack-premium-analytics-pkg' ),
+									href: 'https://jetpack.com/support/newsletter/',
+									openInNewTab: true,
+								},
+							}
+						: undefined
+				}
 				renderLoading={ <MetricTabsChartSkeleton /> }
 			>
 				<MetricTabsChart
@@ -146,23 +161,6 @@ function SubscribersChartInner( { chartType }: SubscribersChartInnerProps ) {
 					groupLabel={ groupLabel }
 					baseline="padded"
 					chartTitle={ __( 'Subscriber summary', 'jetpack-premium-analytics-pkg' ) }
-					empty={
-						hasNoSubscribers ? (
-							<ChartEmptyState
-								text={ __(
-									'You don’t have subscribers yet. Newsletter can help you turn readers into an audience.',
-									'jetpack-premium-analytics-pkg'
-								) }
-								action={ {
-									label: __( 'Learn more', 'jetpack-premium-analytics-pkg' ),
-									href: 'https://jetpack.com/support/newsletter/',
-									openInNewTab: true,
-								} }
-							/>
-						) : (
-							<ChartEmptyState />
-						)
-					}
 				/>
 			</WidgetState>
 		</div>

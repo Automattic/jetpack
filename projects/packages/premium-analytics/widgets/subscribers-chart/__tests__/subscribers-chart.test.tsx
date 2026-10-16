@@ -116,7 +116,7 @@ describe( 'SubscribersChartWidget', () => {
 		expect( chart ).toHaveAttribute( 'data-headline', '5' );
 	} );
 
-	it( 'keeps the chart for a period without rows, handing it the no-results message', async () => {
+	it( 'drops the tabs for a period without rows, showing the no-results message', async () => {
 		mockUseStatsSubscribersReport.mockReturnValue( reportWith( [] ) );
 
 		render(
@@ -126,7 +126,7 @@ describe( 'SubscribersChartWidget', () => {
 		await expect(
 			screen.findByText( 'We couldn’t find results for this time period.' )
 		).resolves.toBeInTheDocument();
-		expect( screen.getByTestId( 'metric-tabs-chart' ) ).toBeInTheDocument();
+		expect( screen.queryByTestId( 'metric-tabs-chart' ) ).not.toBeInTheDocument();
 	} );
 
 	describe( 'empty chart', () => {
@@ -146,7 +146,7 @@ describe( 'SubscribersChartWidget', () => {
 				false,
 			],
 			[ 'the subscriber total could not be read', undefined, NO_RESULTS, false ],
-		] )( 'describes an empty chart when %s', async ( _case, data, message, hasLearnMore ) => {
+		] )( 'describes an empty chart when %s', async ( _case, data, message, hasNoSubscribers ) => {
 			mockUseStatsSubscribersReport.mockReturnValue( reportWith( emptyRange ) );
 			mockUseStatsSubscribersCounts.mockReturnValue( { data, isLoading: false } );
 
@@ -155,7 +155,8 @@ describe( 'SubscribersChartWidget', () => {
 			);
 
 			await expect( screen.findByText( message ) ).resolves.toBeInTheDocument();
-			expect( !! screen.queryByRole( 'link', { name: /Learn more/ } ) ).toBe( hasLearnMore );
+			expect( !! screen.queryByRole( 'link', { name: /Learn more/ } ) ).toBe( hasNoSubscribers );
+			expect( screen.queryByTestId( 'metric-tabs-chart' ) ).not.toBeInTheDocument();
 		} );
 
 		it( 'links an empty chart to the Newsletter guide in a new tab', async () => {
