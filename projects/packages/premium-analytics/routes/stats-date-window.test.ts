@@ -22,7 +22,7 @@ const LOCKED = { description: 'Compare.', support_url: '', upgrade_url: '' };
  * @return The queued feature, or undefined.
  */
 const noticeOn = ( search: Record< string, unknown > | undefined ) =>
-	takeDateWindowNotice( dateWindowKey( search ?? {} ) );
+	takeDateWindowNotice( dateWindowKey( search ?? {}, '/' ) );
 
 /**
  * Publish plan gates that lock the given features.
@@ -66,7 +66,7 @@ describe( 'limitStatsDateSearch', () => {
 		};
 		const requested = { from: '2026-10-10', to: '2026-10-14' };
 
-		const limited = limitStatsDateSearch( seeded, requested );
+		const limited = limitStatsDateSearch( seeded, { pathname: '/', requested } );
 
 		expect( limited ).toMatchObject( { preset: 'last-7-days' } );
 		expect( noticeOn( limited ) ).toBeUndefined();

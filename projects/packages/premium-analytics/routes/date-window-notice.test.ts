@@ -48,11 +48,11 @@ describe( 'useDateWindowNotice', () => {
 			'Your plan doesn’t include that period, so this page shows the last 30 days.',
 		],
 	] as const )( 'shows the %s notice once the page shows the window', ( feature, message ) => {
-		queueDateWindowNotice( feature, LIMITED );
+		queueDateWindowNotice( feature, LIMITED, '/post/42' );
 		// The page's search can carry params the window does not name.
 		mockSearch = { ...LIMITED, ref: 'utm' };
 
-		const { rerender } = renderHook( () => useDateWindowNotice() );
+		const { rerender } = renderHook( () => useDateWindowNotice( '/post/42' ) );
 		rerender();
 
 		expect( dispatch ).toHaveBeenCalledWith( 'core/notices' );
@@ -64,10 +64,10 @@ describe( 'useDateWindowNotice', () => {
 	} );
 
 	it( 'drops a notice queued for a window the page never shows', () => {
-		queueDateWindowNotice( 'recent-7-days', LIMITED );
+		queueDateWindowNotice( 'recent-7-days', LIMITED, '/' );
 		mockSearch = { ...LIMITED, preset: 'yesterday' };
 
-		const { rerender } = renderHook( () => useDateWindowNotice() );
+		const { rerender } = renderHook( () => useDateWindowNotice( '/' ) );
 		mockSearch = LIMITED;
 		rerender();
 
@@ -85,15 +85,15 @@ it( 'hands a held notice from one bundled copy of the module to another', () => 
 		takeFrom = jest.requireActual( './date-window-notice' ).takeDateWindowNotice;
 	} );
 
-	queueFrom( 'recent-7-days', LIMITED );
+	queueFrom( 'recent-7-days', LIMITED, '/' );
 
-	expect( takeFrom( dateWindowKey( LIMITED ) ) ).toBe( 'recent-7-days' );
+	expect( takeFrom( dateWindowKey( LIMITED, '/' ) ) ).toBe( 'recent-7-days' );
 } );
 
 describe( 'dateWindowKey', () => {
 	it( 'reads a comparison flag the router parsed as a number like the one it was given', () => {
-		expect( dateWindowKey( { ...LIMITED, comp: 1 } ) ).toBe(
-			dateWindowKey( { ...LIMITED, comp: '1' } )
+		expect( dateWindowKey( { ...LIMITED, comp: 1 }, '/' ) ).toBe(
+			dateWindowKey( { ...LIMITED, comp: '1' }, '/' )
 		);
 	} );
 } );

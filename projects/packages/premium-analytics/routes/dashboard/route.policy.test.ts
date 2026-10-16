@@ -3,15 +3,18 @@
  */
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { DASHBOARD_PREFERENCES_SCOPE } from '@jetpack-premium-analytics/data';
+import { renderHook } from '@testing-library/react';
 import { dispatch } from '@wordpress/data';
 import { getSettings, setSettings } from '@wordpress/date';
 import { store as preferencesStore } from '@wordpress/preferences';
 /**
  * Internal dependencies
  */
-import { dateWindowKey, takeDateWindowNotice } from '../date-window-notice';
+import { dateWindowKey, takeDateWindowNotice, useDateWindowNotice } from '../date-window-notice';
 import { route as postRoute } from '../post-detail/route';
+import { DATE_FILTER_RANGE, type DashboardSection } from './config';
 import { route } from './route';
+import { dateWindowForSectionSwitch } from './section-date-window';
 
 jest.mock(
 	'@automattic/jetpack-script-data',
@@ -34,8 +37,11 @@ jest.mock( '../site-readiness', () => ( {
 } ) );
 jest.mock( '../reports/registry', () => ( { getReportDefinition: () => ( {} ) } ) );
 jest.mock( '../post-detail/config', () => ( { resolveTabId: ( section: string ) => section } ) );
+let mockSearch: Record< string, unknown > = {};
+const mockCreateInfoNotice = jest.fn();
 jest.mock( '@wordpress/route', () => ( {
 	redirect: ( options: object ) => ( { isRedirect: true, ...options } ),
+	useSearch: () => mockSearch,
 } ) );
 jest.mock( '@wordpress/data', () => {
 	const actual = () => jest.requireActual( '@wordpress/data' );
@@ -46,7 +52,7 @@ jest.mock( '@wordpress/data', () => {
 				name === 'dispatch'
 					? ( store: unknown ) =>
 							store === 'core/notices'
-								? { createInfoNotice: jest.fn() }
+								? { createInfoNotice: mockCreateInfoNotice }
 								: actual().dispatch( store )
 					: actual()[ name as string ],
 		}
@@ -108,10 +114,12 @@ beforeEach( () => {
 /**
  * The notice the page shows on landing on a search, if any.
  *
- * @param search - The search the page shows.
+ * @param search   - The search the page shows.
+ * @param pathname - Its pathname.
  * @return The queued feature, or undefined.
  */
-const noticeOn = ( search: Search ) => takeDateWindowNotice( dateWindowKey( search ) );
+const noticeOn = ( search: Search, pathname = '/' ) =>
+	takeDateWindowNotice( dateWindowKey( search, pathname ) );
 
 afterEach( () => {
 	jest.useRealTimers();
@@ -177,12 +185,17 @@ describe( 'the date-limit notice on a free site', () => {
 		expect( noticeOn( settled.search ) ).toBe( 'recent-7-days' );
 	} );
 
-	it( 'is dropped when a hovered link preloads but the page keeps its window', async () => {
-		const current = ( await settle( { section: 'traffic', preset: 'yesterday' } ) ).search;
+	it( 'stays quiet when a hovered post link preloads and the page then shows that window', async () => {
+		mockSearch = ( await settle( { preset: 'yesterday' } ) ).search;
+		const { rerender } = renderHook( () => useDateWindowNotice( '/' ) );
 
-		await settle( { ...current, from: '2025-01-01', to: '2025-01-31', preset: undefined } );
+		await settle( { from: '2025-01-01', to: '2025-01-31', interval: 'day', post_id: '42' }, next =>
+			postRoute.beforeLoad( { params: { postId: '42' }, search: next } as never )
+		);
+		mockSearch = ( await settle( { preset: 'last-7-days' } ) ).search;
+		rerender();
 
-		expect( noticeOn( current ) ).toBeUndefined();
+		expect( mockCreateInfoNotice ).not.toHaveBeenCalled();
 	} );
 
 	it( 'stays quiet when a post opens on its own window', async () => {
@@ -193,7 +206,7 @@ describe( 'the date-limit notice on a free site', () => {
 
 		expect( settled.hops ).toBeLessThanOrEqual( 2 );
 		expect( settled.search ).toMatchObject( { preset: 'last-7-days', post_id: '42' } );
-		expect( noticeOn( settled.search ) ).toBeUndefined();
+		expect( noticeOn( settled.search, '/post/42' ) ).toBeUndefined();
 	} );
 } );
 
@@ -239,6 +252,53 @@ const ALL_TIME = { preset: 'all-time', from: '2005-01-01', to: '2026-10-15' };
 const YEAR_2024 = { preset: 'year-2024', from: '2024-01-01', to: '2024-12-31' };
 
 const YEAR_2025 = { preset: 'year-2025', from: '2025-01-01', to: '2025-12-31' };
+
+const TRAFFIC = {
+	id: 'traffic',
+	slug: 'traffic',
+	label: 'Traffic',
+	order: 0,
+	date_filter: DATE_FILTER_RANGE,
+	default_layout: [],
+} as DashboardSection;
+
+it.each( [
+	[
+		'year to date',
+		{
+			preset: 'year-to-date',
+			from: '2026-01-01T00:00:00',
+			to: '2026-10-15T23:59:59',
+			interval: 'month',
+		},
+	],
+	[
+		'a compared yesterday',
+		{
+			preset: 'yesterday',
+			from: '2026-10-14T00:00:00',
+			to: '2026-10-14T23:59:59',
+			interval: 'hour',
+			comp: '1',
+			compare_from: '2026-10-13T00:00:00',
+			compare_to: '2026-10-13T23:59:59',
+			compare_preset: 'previous-period',
+		},
+	],
+] )(
+	'switches a free site from Store on %s to Traffic without a redirect',
+	async ( _name, store ) => {
+		setLocks( ...FREE_LOCKS );
+
+		const settled = await settle( {
+			...store,
+			...dateWindowForSectionSwitch( 'traffic', TRAFFIC, { ...store, section: 'store' } ),
+			section: 'traffic',
+		} );
+
+		expect( settled.hops ).toBe( 0 );
+	}
+);
 
 it.each( [
 	[

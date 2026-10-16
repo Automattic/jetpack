@@ -14,6 +14,7 @@ import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
+import { routePathname } from '../date-window-notice';
 import { seedDetailDateParams } from '../detail-date-seed';
 import { redirectIfReportLocked } from '../reports/redirect-if-locked';
 import { getReportDefinition } from '../reports/registry';
@@ -68,6 +69,7 @@ export const route = {
 		}
 
 		const currentSearch = ( search ?? {} ) as VideoDetailSearch;
+		const pathname = routePathname( '/video/$videoId', { videoId } );
 		const needsDateSeed = needsReportDateParamsSeed(
 			currentSearch,
 			getStatsDatePolicy().lockedIntervals
@@ -108,12 +110,14 @@ export const route = {
 				replace: true,
 				viewTransition: false,
 				// An arrival seeds all time, not a window the reader asked for, so it gets no notice.
-				search: ( limitStatsDateSearch( seeded, needsPostSeed ? {} : currentSearch ) ??
-					seeded ) as unknown as never,
+				search: ( limitStatsDateSearch( seeded, {
+					pathname,
+					requested: needsPostSeed ? {} : currentSearch,
+				} ) ?? seeded ) as unknown as never,
 			} );
 		}
 
-		const limited = limitStatsDateSearch( currentSearch );
+		const limited = limitStatsDateSearch( currentSearch, { pathname } );
 		if ( limited ) {
 			throw redirect( {
 				to: '/video/$videoId',

@@ -55,13 +55,15 @@ export function adjustsStatsDateWindow( search: Search, policy: StatsDatePolicy 
 /**
  * The search with the plan's date limits applied, or undefined when it already complies.
  *
- * @param search    - The search the route would load.
- * @param requested - The search the reader asked for: `search` before a seed, or `{}` for none.
+ * @param search             - The search the route would load.
+ * @param location           - Where the route loads it.
+ * @param location.pathname  - The pathname, from `routePathname`.
+ * @param location.requested - The search the reader asked for: `search` before a seed, or `{}` for none.
  * @return The limited search, or undefined.
  */
 export function limitStatsDateSearch< T extends Search >(
 	search: T,
-	requested: Search = search
+	{ pathname, requested = search }: { pathname: string; requested?: Search }
 ): T | undefined {
 	const policy = getStatsDatePolicy();
 	if ( ! policy.feature && ! policy.lockedIntervals.length ) {
@@ -93,7 +95,7 @@ export function limitStatsDateSearch< T extends Search >(
 	}
 
 	if ( isWindowAdjusted && policy.feature && isRequested ) {
-		queueDateWindowNotice( policy.feature, limited );
+		queueDateWindowNotice( policy.feature, limited, pathname );
 	}
 
 	return limited as T;

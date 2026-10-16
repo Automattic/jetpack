@@ -12,6 +12,7 @@ import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
+import { routePathname } from '../date-window-notice';
 import { redirectIfReportLocked } from '../reports/redirect-if-locked';
 import { getReportDefinition } from '../reports/registry';
 import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
@@ -61,6 +62,7 @@ export const route = {
 		}
 
 		const currentSearch = ( search ?? {} ) as AuthorDetailSearch;
+		const pathname = routePathname( '/author/$authorId', { authorId } );
 		const needsDateSeed = needsReportDateParamsSeed(
 			currentSearch,
 			getStatsDatePolicy().lockedIntervals
@@ -92,12 +94,14 @@ export const route = {
 				replace: true,
 				viewTransition: false,
 				// An arrival carries the linking page's window, not one the reader asked of this page.
-				search: ( limitStatsDateSearch( seeded, needsAuthorSeed ? {} : currentSearch ) ??
-					seeded ) as unknown as never,
+				search: ( limitStatsDateSearch( seeded, {
+					pathname,
+					requested: needsAuthorSeed ? {} : currentSearch,
+				} ) ?? seeded ) as unknown as never,
 			} );
 		}
 
-		const limited = limitStatsDateSearch( currentSearch );
+		const limited = limitStatsDateSearch( currentSearch, { pathname } );
 		if ( limited ) {
 			throw redirect( {
 				to: '/author/$authorId',

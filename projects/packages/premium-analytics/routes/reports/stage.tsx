@@ -14,7 +14,7 @@ import { useParams } from '@wordpress/route';
 /**
  * Internal dependencies
  */
-import { useDateWindowNotice } from '../date-window-notice';
+import { routePathname, useDateWindowNotice } from '../date-window-notice';
 import { PLAN_DATE_LIMITED_SECTIONS } from '../stats-date-window';
 import { useStatsDateLimits } from '../use-stats-date-limits';
 import { LockedReportPage } from './locked-report-page';
@@ -91,7 +91,7 @@ function ReportProviders( { children }: { children: ReactNode } ): JSX.Element {
 	const { dateLimits } = useStatsDateLimits(
 		!! definition && PLAN_DATE_LIMITED_SECTIONS.includes( definition.dashboardSection )
 	);
-	useDateWindowNotice();
+	useDateWindowNotice( routePathname( ROUTE_FROM, { report } ) );
 
 	return (
 		<AnalyticsQueryClientProvider>

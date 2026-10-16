@@ -66,7 +66,7 @@ export const route = {
 			} );
 		}
 
-		const limited = policy ? limitStatsDateSearch( params ) : undefined;
+		const limited = policy ? limitStatsDateSearch( params, { pathname: '/' } ) : undefined;
 		if ( limited ) {
 			throw redirect( {
 				to: '/',

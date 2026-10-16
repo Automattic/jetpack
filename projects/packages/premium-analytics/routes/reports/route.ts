@@ -12,6 +12,7 @@ import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
+import { routePathname } from '../date-window-notice';
 import { seedSiteDateParams } from '../site-date-seed';
 import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
 import { limitStatsDateSearch, PLAN_DATE_LIMITED_SECTIONS } from '../stats-date-window';
@@ -48,6 +49,7 @@ export const route = {
 		const reportId = report as string;
 
 		const currentSearch = ( search ?? {} ) as ReportRouteSearch;
+		const pathname = routePathname( '/reports/$report', { report: reportId } );
 		// A `section` from a link may not belong to this report (e.g. forwarded from a
 		// dashboard widget); resolve it so a shareable URL never persists a bogus section.
 		const resolvedSection =
@@ -99,12 +101,13 @@ export const route = {
 				params: { report: reportId } as unknown as never,
 				replace: true,
 				viewTransition: false,
-				search: ( ( policy && limitStatsDateSearch( seeded, currentSearch ) ) ||
+				search: ( ( policy &&
+					limitStatsDateSearch( seeded, { pathname, requested: currentSearch } ) ) ||
 					seeded ) as unknown as never,
 			} );
 		}
 
-		const limited = policy ? limitStatsDateSearch( currentSearch ) : undefined;
+		const limited = policy ? limitStatsDateSearch( currentSearch, { pathname } ) : undefined;
 		if ( limited ) {
 			throw redirect( {
 				to: '/reports/$report',

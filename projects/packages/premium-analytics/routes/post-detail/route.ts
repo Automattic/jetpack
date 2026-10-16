@@ -14,6 +14,7 @@ import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
+import { routePathname } from '../date-window-notice';
 import { seedDetailDateParams } from '../detail-date-seed';
 import { getReportDefinition } from '../reports/registry';
 import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
@@ -62,6 +63,7 @@ export const route = {
 		}
 
 		const currentSearch = ( search ?? {} ) as PostDetailSearch;
+		const pathname = routePathname( '/post/$postId', { postId } );
 		// A `section` from an inbound link may not be a valid post-detail tab, so
 		// resolve it rather than persist a bogus tab in a shareable URL.
 		const resolvedSection = currentSearch.section
@@ -109,12 +111,14 @@ export const route = {
 				replace: true,
 				viewTransition: false,
 				// An arrival seeds all time, not a window the reader asked for, so it gets no notice.
-				search: ( limitStatsDateSearch( seeded, needsPostSeed ? {} : currentSearch ) ??
-					seeded ) as unknown as never,
+				search: ( limitStatsDateSearch( seeded, {
+					pathname,
+					requested: needsPostSeed ? {} : currentSearch,
+				} ) ?? seeded ) as unknown as never,
 			} );
 		}
 
-		const limited = limitStatsDateSearch( currentSearch );
+		const limited = limitStatsDateSearch( currentSearch, { pathname } );
 		if ( limited ) {
 			throw redirect( {
 				to: '/post/$postId',

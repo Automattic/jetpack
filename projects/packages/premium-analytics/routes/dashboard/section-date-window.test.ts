@@ -4,6 +4,7 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { DASHBOARD_PREFERENCES_SCOPE } from '@jetpack-premium-analytics/data';
 import { dispatch } from '@wordpress/data';
+import { getSettings, setSettings } from '@wordpress/date';
 import { store as preferencesStore } from '@wordpress/preferences';
 /**
  * Internal dependencies
@@ -28,6 +29,7 @@ const SECTIONS = Object.fromEntries(
 ) as Record< string, DashboardSection >;
 
 const LOCKED = { description: '', support_url: '', upgrade_url: '' };
+const DATE_SETTINGS = getSettings();
 const FREE = [ 'recent-7-days', 'long-date-presets', 'intervals' ];
 const LEGACY_BASIC = [ 'long-date-presets', 'intervals' ];
 
@@ -47,7 +49,7 @@ const YESTERDAY = {
 	preset: 'yesterday',
 	from: '2026-10-14T00:00:00',
 	to: '2026-10-14T23:59:59',
-	interval: 'day',
+	interval: 'hour',
 };
 const LAST_30_DAYS = {
 	preset: 'last-30-days',
@@ -64,6 +66,7 @@ beforeEach( () => {
 
 afterEach( () => {
 	jest.useRealTimers();
+	setSettings( DATE_SETTINGS );
 	dispatch( preferencesStore ).set( DASHBOARD_PREFERENCES_SCOPE, 'datePreset', undefined );
 } );
 
@@ -99,6 +102,26 @@ describe( 'dateWindowForSectionSwitch', () => {
 			{ ...LAST_30_DAYS, ...COMPARED },
 			undefined,
 		],
+		[
+			'free carries a compared yesterday into Traffic',
+			FREE,
+			'traffic',
+			{ ...YESTERDAY, ...COMPARED },
+			expect.objectContaining( {
+				...YESTERDAY,
+				comp: undefined,
+				compare_from: undefined,
+				compare_to: undefined,
+				compare_preset: undefined,
+			} ),
+		],
+		[
+			'legacy basic carries weeks into Traffic',
+			LEGACY_BASIC,
+			'traffic',
+			{ ...LAST_30_DAYS, interval: 'week' },
+			expect.objectContaining( { interval: 'day' } ),
+		],
 		[ 'free carries year to date into Store', FREE, 'store', YEAR_TO_DATE, undefined ],
 		[
 			'an open plan carries a range into Insights',
@@ -107,7 +130,22 @@ describe( 'dateWindowForSectionSwitch', () => {
 			YESTERDAY,
 			expect.objectContaining( { preset: 'all-time', interval: 'month' } ),
 		],
-	] )( 'when %s', ( _case, features, section, search, expected ) => {
+		[
+			'an open plan carries a range into Insights on a site already in tomorrow',
+			[],
+			'insights',
+			YESTERDAY,
+			expect.objectContaining( { to: '2026-10-16T23:59:59.999+13:00' } ),
+			13,
+		],
+		// Rest, not optional: jest hands `done` to a callback with more params than the row.
+	] )( 'when %s', ( _case, features, section, search, expected, ...[ offset ]: number[] ) => {
+		if ( offset !== undefined ) {
+			setSettings( {
+				...DATE_SETTINGS,
+				timezone: { string: '', offset, offsetFormatted: String( offset ), abbr: '' },
+			} );
+		}
 		( getScriptData as jest.Mock ).mockReturnValue( {
 			premium_analytics: {
 				sections: [ 'traffic', 'store', 'insights' ],

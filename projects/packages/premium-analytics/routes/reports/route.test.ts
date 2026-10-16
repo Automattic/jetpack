@@ -157,7 +157,10 @@ describe( 'report route.beforeLoad', () => {
 	const longPreset = { preset: 'last-90-days' };
 
 	it.each( [
-		[ 'posts', [ [ expect.any( Object ), longPreset ] ] ],
+		[
+			'posts',
+			[ [ expect.any( Object ), { pathname: '/reports/posts', requested: longPreset } ] ],
+		],
 		[ 'earnings', [] ],
 	] )( 'limits the seed of the %s report only when it is on Traffic', async ( report, calls ) => {
 		( needsReportDateParamsSeed as jest.Mock ).mockReturnValueOnce( true );

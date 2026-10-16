@@ -270,7 +270,7 @@ function Dashboard(): JSX.Element {
 	const { dateLimits, offersComparison: planOffersComparison } = useStatsDateLimits(
 		isPlanDateLimitedSection( widgetSection )
 	);
-	useDateWindowNotice();
+	useDateWindowNotice( '/' );
 
 	/*
 	 * Date-range state lives in the URL search params; the controller stages edits
@@ -327,7 +327,12 @@ function Dashboard(): JSX.Element {
 			comparisonPresetId: dateFilters.comparisonPresetId,
 			appliedComparisonRange: dateFilters.appliedComparisonRange,
 		},
-		{ surface: 'dashboard', section: widgetSection, offersComparison }
+		{
+			surface: 'dashboard',
+			section: widgetSection,
+			offersComparison,
+			lockedIntervals: dateLimits?.lockedIntervals,
+		}
 	);
 	const {
 		onChange: rememberOnChange,

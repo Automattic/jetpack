@@ -170,7 +170,8 @@ describe( 'dashboard route.beforeLoad', () => {
 			viewTransition: false,
 		} );
 		expect( limitStatsDateSearch ).toHaveBeenCalledWith( expect.any( Object ), {
-			preset: 'last-90-days',
+			pathname: '/',
+			requested: { preset: 'last-90-days' },
 		} );
 	} );
 } );

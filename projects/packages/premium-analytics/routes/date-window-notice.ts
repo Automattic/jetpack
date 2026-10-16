@@ -31,26 +31,46 @@ const PENDING_SLOT = Symbol.for( 'jetpack-premium-analytics/date-window-notice' 
 const slot = globalThis as typeof globalThis & { [ PENDING_SLOT ]?: Pending };
 
 /**
- * What identifies a search's date window, alike for a redirect target and the search the page reads back.
+ * A route's path with its params filled in, such as `/post/42` for `/post/$postId`.
  *
- * @param search - The search.
+ * @param path   - The route path.
+ * @param params - The route params.
+ * @return The pathname.
+ */
+export function routePathname( path: string, params: Record< string, unknown > = {} ): string {
+	return path.replace( /\$(\w+)/g, ( match, name: string ) =>
+		params[ name ] === undefined ? match : String( params[ name ] )
+	);
+}
+
+/**
+ * What identifies a page's date window, alike for a redirect target and the page that renders it.
+ *
+ * @param search   - The search.
+ * @param pathname - The page's pathname, from `routePathname`.
  * @return The key.
  */
-export function dateWindowKey( search: Search ): string {
+export function dateWindowKey( search: Search, pathname: string ): string {
 	// The router hands values back JSON-parsed, so `comp: '1'` returns as the number 1.
-	return JSON.stringify(
-		WINDOW_KEYS.map( key => ( search[ key ] === undefined ? null : String( search[ key ] ) ) )
-	);
+	return JSON.stringify( [
+		pathname,
+		...WINDOW_KEYS.map( key => ( search[ key ] === undefined ? null : String( search[ key ] ) ) ),
+	] );
 }
 
 /**
  * Hold a notice for the page that lands on a limited search.
  *
- * @param feature - The locked feature that sets the limit.
- * @param search  - The search the route redirects to.
+ * @param feature  - The locked feature that sets the limit.
+ * @param search   - The search the route redirects to.
+ * @param pathname - The pathname it redirects to.
  */
-export function queueDateWindowNotice( feature: DateLimitFeature, search: Search ): void {
-	slot[ PENDING_SLOT ] = { feature, key: dateWindowKey( search ) };
+export function queueDateWindowNotice(
+	feature: DateLimitFeature,
+	search: Search,
+	pathname: string
+): void {
+	slot[ PENDING_SLOT ] = { feature, key: dateWindowKey( search, pathname ) };
 }
 
 /**
@@ -93,10 +113,15 @@ function announceDateWindowLimit( feature: DateLimitFeature ) {
  * Show the notice a route held for the window this page shows.
  *
  * A route's `beforeLoad` also runs to preload a hovered link, so it holds the notice
- * rather than showing it, and a page that never lands on that window drops it.
+ * rather than showing it, and the next page this renders drops it unless it is that page.
+ *
+ * @param pathname - The page's pathname, from `routePathname`.
  */
-export function useDateWindowNotice(): void {
-	const key = dateWindowKey( ( useSearch( { strict: false } ) as Search | undefined ) ?? {} );
+export function useDateWindowNotice( pathname: string ): void {
+	const key = dateWindowKey(
+		( useSearch( { strict: false } ) as Search | undefined ) ?? {},
+		pathname
+	);
 
 	useEffect( () => {
 		const feature = takeDateWindowNotice( key );

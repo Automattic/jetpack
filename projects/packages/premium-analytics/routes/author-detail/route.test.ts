@@ -147,10 +147,10 @@ describe( 'author detail route.beforeLoad', () => {
 			replace: true,
 			viewTransition: false,
 		} );
-		expect( limitStatsDateSearch ).toHaveBeenCalledWith(
-			expect.any( Object ),
-			isRequested ? search : {}
-		);
+		expect( limitStatsDateSearch ).toHaveBeenCalledWith( expect.any( Object ), {
+			pathname: '/author/7',
+			requested: isRequested ? search : {},
+		} );
 	} );
 
 	it( 'redirects a settled URL the plan does not allow', async () => {

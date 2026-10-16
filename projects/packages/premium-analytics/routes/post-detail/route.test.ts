@@ -210,10 +210,10 @@ describe( 'post detail route report origin', () => {
 		await expect( route.beforeLoad( { params: { postId: '42' }, search } ) ).rejects.toMatchObject(
 			{ to: '/post/$postId', viewTransition: false }
 		);
-		expect( limitStatsDateSearch ).toHaveBeenCalledWith(
-			expect.any( Object ),
-			isRequested ? search : {}
-		);
+		expect( limitStatsDateSearch ).toHaveBeenCalledWith( expect.any( Object ), {
+			pathname: '/post/42',
+			requested: isRequested ? search : {},
+		} );
 	} );
 
 	it( 'redirects a settled URL the plan does not allow', async () => {

@@ -172,10 +172,10 @@ describe( 'video detail route.beforeLoad', () => {
 			replace: true,
 			viewTransition: false,
 		} );
-		expect( limitStatsDateSearch ).toHaveBeenCalledWith(
-			expect.any( Object ),
-			isRequested ? search : {}
-		);
+		expect( limitStatsDateSearch ).toHaveBeenCalledWith( expect.any( Object ), {
+			pathname: '/video/42',
+			requested: isRequested ? search : {},
+		} );
 	} );
 
 	it( 'passes through comparison params without redirecting on a settled URL', async () => {
