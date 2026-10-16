@@ -36,8 +36,16 @@ jest.mock( '@wordpress/block-editor', () => {
 	};
 } );
 
-const newsletter = { name: 'Newsletter', forced: false };
-const forms = { name: 'Forms', forced: false };
+const newsletter = { module: 'subscriptions', module_name: 'Newsletter', forced: false };
+const forms = { module: 'contact-form', module_name: 'Forms', forced: false };
+
+// What a block's bail-out reports through Jetpack's existing availability data.
+( window as unknown as { Jetpack_Editor_Initial_State: unknown } ).Jetpack_Editor_Initial_State = {
+	available_blocks: {
+		subscriptions: { available: false, unavailable_reason: 'missing_module', details: newsletter },
+		wordads: { available: false, unavailable_reason: 'missing_module', details: {} },
+	},
+};
 
 const makeData = ( overrides: Partial< UnavailableBlocksData > = {} ): UnavailableBlocksData => ( {
 	reason: null,
@@ -64,21 +72,22 @@ it.each( [
 	[
 		'Blocks off outranks the feature',
 		'jetpack/subscriptions',
-		{ reason: 'blocks_module', features: { 'jetpack/subscriptions': newsletter } },
+		{ reason: 'blocks_module' },
 		{ type: 'blocks_module' },
 	],
 	[
-		'feature off',
+		'feature off, as the block reported it',
 		'jetpack/subscriptions',
-		{ features: { 'jetpack/subscriptions': newsletter } },
-		{ type: 'feature', ...newsletter },
+		{},
+		{ type: 'feature', name: 'Newsletter', forced: false },
 	],
+	[ 'a block that bailed out without naming a module', 'jetpack/wordads', {}, null ],
 	[ 'a form is not blamed on Blocks', 'jetpack/contact-form', { reason: 'blocks_module' }, null ],
 	[
 		'a form with Blocks and Forms off is blamed on Forms',
 		'jetpack/contact-form',
 		{ reason: 'blocks_module', features: { 'jetpack/contact-form': forms } },
-		{ type: 'feature', ...forms },
+		{ type: 'feature', name: 'Forms', forced: false },
 	],
 	[
 		'a form on a disconnected site, even with Forms off',
@@ -124,14 +133,14 @@ it.each( [
 	[ 'disabled, admin', { type: 'disabled' }, {}, /Jetpack blocks are disabled on this site/, null ],
 	[
 		'feature off, admin',
-		{ type: 'feature', ...newsletter },
+		{ type: 'feature', name: 'Newsletter', forced: false },
 		{},
 		/the Newsletter feature is turned off\. Reload this page after turning it on\.$/,
 		'jetpack_modules',
 	],
 	[
 		'feature off, editor',
-		{ type: 'feature', ...newsletter },
+		{ type: 'feature', name: 'Newsletter', forced: false },
 		{ canManageModules: false },
 		/Newsletter feature is turned off\. Ask a site administrator/,
 		null,

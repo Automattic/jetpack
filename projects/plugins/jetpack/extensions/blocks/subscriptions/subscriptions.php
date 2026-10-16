@@ -53,6 +53,7 @@ function register_block() {
 	 * Do not proceed if the newsletter feature (Subscriptions module) is not enabled
 	 */
 	if ( ! ( new Modules() )->is_active( 'subscriptions' ) ) {
+		Jetpack_Gutenberg::set_extension_unavailable_for_module( 'subscriptions', 'subscriptions' );
 		return;
 	}
 

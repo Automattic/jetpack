@@ -1191,6 +1191,13 @@ class Jetpack {
 
 		if ( ( new Modules() )->is_active( 'podcast' ) ) {
 			Podcast::init();
+		} else {
+			add_action(
+				'jetpack_register_gutenberg_extensions',
+				static function () {
+					Jetpack_Gutenberg::set_extension_unavailable_for_module( 'podcast-episode', 'podcast' );
+				}
+			);
 		}
 
 		/*

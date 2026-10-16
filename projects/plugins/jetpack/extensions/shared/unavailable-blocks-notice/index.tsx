@@ -7,13 +7,9 @@ import type { UnavailableBlocksData } from './get-unavailable-cause';
 /**
  * Replace core's missing-block warning on Jetpack blocks whose absence Jetpack can explain.
  *
- * @param {UnavailableBlocksData} [data] - What the server knows about unavailable blocks.
+ * @param {Function} getData - Returns what the server knows about unavailable blocks.
  */
-export default function registerUnavailableBlocksNotice( data?: UnavailableBlocksData ) {
-	if ( ! data ) {
-		return;
-	}
-
+export default function registerUnavailableBlocksNotice( getData: () => UnavailableBlocksData ) {
 	const withUnavailableBlockNotice = createHigherOrderComponent( BlockEdit => {
 		return props => {
 			// Runs for every block on every render: keep the common path to one comparison.
@@ -21,6 +17,7 @@ export default function registerUnavailableBlocksNotice( data?: UnavailableBlock
 				return <BlockEdit { ...props } />;
 			}
 
+			const data = getData();
 			const cause = getUnavailableCause( props.attributes?.originalName, data );
 			if ( ! cause ) {
 				return <BlockEdit { ...props } />;

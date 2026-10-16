@@ -8,10 +8,10 @@
 namespace Automattic\Jetpack\Plugin;
 
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 use Jetpack;
 use Jetpack_Gutenberg;
 use Jetpack_Modules_Overrides;
@@ -23,21 +23,6 @@ use Jetpack_Modules_Overrides;
 class Unavailable_Blocks {
 
 	const SCRIPT_HANDLE = 'jetpack-unavailable-blocks-notice';
-
-	/**
-	 * Top-level blocks that are not registered while their module is inactive.
-	 *
-	 * Child blocks are left out: an unregistered parent swallows them into one missing block.
-	 * `jetpack/wordads` is left out because a plan gates it as well.
-	 */
-	const FEATURE_BLOCKS = array(
-		'subscriptions' => array( 'jetpack/subscriptions', 'jetpack/subscriber-login', 'jetpack/paywall' ),
-		'stats'         => array( 'jetpack/blog-stats', 'jetpack/top-posts' ),
-		'related-posts' => array( 'jetpack/related-posts' ),
-		'contact-form'  => array( 'jetpack/contact-form' ),
-		'podcast'       => array( 'jetpack/podcast-episode' ),
-		'videopress'    => array( 'videopress/all-playlists', 'videopress/latest-videos-playlist', 'videopress/playlist' ),
-	);
 
 	/**
 	 * Blocks that stay registered in the editor while the Blocks module is inactive.
@@ -105,11 +90,11 @@ class Unavailable_Blocks {
 	}
 
 	/**
-	 * Get what the editor needs to explain an unavailable Jetpack block.
+	 * Get what the standalone notice needs when no Jetpack block from the Blocks module is registered.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return array|null Null when there is nothing the editor should explain.
+	 * @return array|null Null when there is nothing site-wide to explain.
 	 */
 	public static function get_editor_data() {
 		// The mobile apps fetch editor assets over REST, where wp-admin links are no use.
@@ -117,14 +102,21 @@ class Unavailable_Blocks {
 			return null;
 		}
 
-		$reason   = self::get_site_wide_reason();
-		$features = self::get_inactive_feature_blocks();
-
-		if ( null === $reason && empty( $features ) ) {
+		$reason = self::get_site_wide_reason();
+		if ( null === $reason ) {
 			return null;
 		}
 
 		$is_disconnected = 'not_connected' === $reason;
+		$features        = array();
+
+		// The form registers without the Blocks module, so Forms itself can be the cause.
+		if ( ! ( new Modules() )->is_active( 'contact-form' ) ) {
+			$forms = self::get_inactive_module_details( 'contact-form' );
+			if ( $forms ) {
+				$features['jetpack/contact-form'] = $forms;
+			}
+		}
 
 		return array(
 			'reason'           => $reason,
@@ -134,7 +126,7 @@ class Unavailable_Blocks {
 			'canManageModules' => current_user_can( 'jetpack_manage_modules' ),
 			'modulesUrl'       => admin_url( 'admin.php?page=jetpack_modules' ),
 			'independent'      => self::INDEPENDENT_BLOCKS,
-			'shipped'          => null === $reason ? array() : self::get_shipped_blocks(),
+			'shipped'          => self::get_shipped_blocks(),
 		);
 	}
 
@@ -164,41 +156,32 @@ class Unavailable_Blocks {
 	}
 
 	/**
-	 * Get the blocks that are unregistered because their own module is inactive.
+	 * Describe an inactive module for the editor's explanation of a block that needs it.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return array Block name => array( 'name' => module name, 'forced' => bool ).
+	 * @param string $module Module slug.
+	 * @return array Module slug, name, and whether it is forced off; empty when the editor should not name it.
 	 */
-	public static function get_inactive_feature_blocks() {
-		// Offline mode drops connection-dependent blocks whatever their module's state.
-		if ( ( new Status() )->is_offline_mode() ) {
+	public static function get_inactive_module_details( $module ) {
+		$info = Jetpack::get_module( $module );
+		if ( ! is_array( $info ) || ( new Host() )->is_wpcom_simple() ) {
 			return array();
 		}
 
-		$modules = new Modules();
-		$blocks  = array();
-
-		foreach ( self::FEATURE_BLOCKS as $module => $block_names ) {
-			if ( $modules->is_active( $module ) ) {
-				continue;
-			}
-
-			// The Stats blocks also need a connected owner, so the module may not be the cause.
-			if ( 'stats' === $module && ! ( new Connection_Manager( 'jetpack' ) )->has_connected_owner() ) {
-				continue;
-			}
-
-			$feature = array(
-				'name'   => self::get_module_name( $module ),
-				'forced' => self::is_forced_off( $module ),
-			);
-			foreach ( $block_names as $block_name ) {
-				$blocks[ $block_name ] = $feature;
-			}
+		// Offline mode keeps connection-dependent modules off, so their toggle would not help.
+		if ( ! empty( $info['requires_connection'] ) && ( new Status() )->is_offline_mode() ) {
+			return array();
 		}
 
-		return $blocks;
+		// Jetpack::get_module() returns the untranslated file header.
+		$i18n = function_exists( 'jetpack_get_module_i18n' ) ? jetpack_get_module_i18n( $module ) : array();
+
+		return array(
+			'module'      => $module,
+			'module_name' => ! empty( $i18n['name'] ) ? $i18n['name'] : ( ! empty( $info['name'] ) ? $info['name'] : $module ),
+			'forced'      => self::is_forced_off( $module ),
+		);
 	}
 
 	/**
@@ -231,22 +214,5 @@ class Unavailable_Blocks {
 	 */
 	private static function is_forced_off( $module ) {
 		return 'inactive' === Jetpack_Modules_Overrides::instance()->get_module_override( $module );
-	}
-
-	/**
-	 * Get a module's translated name.
-	 *
-	 * @param string $module Module slug.
-	 * @return string
-	 */
-	private static function get_module_name( $module ) {
-		// Jetpack::get_module() returns the untranslated file header.
-		$i18n = function_exists( 'jetpack_get_module_i18n' ) ? jetpack_get_module_i18n( $module ) : array();
-		if ( ! empty( $i18n['name'] ) ) {
-			return $i18n['name'];
-		}
-
-		$info = Jetpack::get_module( $module );
-		return is_array( $info ) && ! empty( $info['name'] ) ? $info['name'] : $module;
 	}
 }

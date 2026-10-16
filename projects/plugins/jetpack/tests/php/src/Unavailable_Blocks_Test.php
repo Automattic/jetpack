@@ -92,33 +92,8 @@ class Unavailable_Blocks_Test extends WP_UnitTestCase {
 		$this->assertSame( 'disabled', Unavailable_Blocks::get_site_wide_reason() );
 	}
 
-	public function test_feature_blocks_follow_their_module() {
-		Jetpack_Options::update_option( 'active_modules', array( 'blocks', 'contact-form' ) );
-
-		$blocks = Unavailable_Blocks::get_inactive_feature_blocks();
-
-		$this->assertArrayHasKey( 'jetpack/subscriptions', $blocks );
-		$this->assertArrayHasKey( 'jetpack/paywall', $blocks );
-		$this->assertFalse( $blocks['jetpack/subscriptions']['forced'] );
-		$this->assertArrayNotHasKey( 'jetpack/contact-form', $blocks );
-	}
-
-	public function test_stats_blocks_need_a_connected_owner_before_blaming_the_module() {
-		Jetpack_Options::update_option( 'active_modules', array( 'blocks' ) );
-
-		$this->assertArrayNotHasKey( 'jetpack/blog-stats', Unavailable_Blocks::get_inactive_feature_blocks() );
-	}
-
-	public function test_offline_mode_does_not_blame_feature_modules() {
-		remove_all_filters( 'jetpack_offline_mode' );
-		add_filter( 'jetpack_offline_mode', '__return_true', 1000 );
-		\Automattic\Jetpack\Status\Cache::clear();
-
-		$this->assertSame( array(), Unavailable_Blocks::get_inactive_feature_blocks() );
-	}
-
-	public function test_forced_off_feature_is_flagged() {
-		Jetpack_Options::update_option( 'active_modules', array( 'blocks', 'subscriptions' ) );
+	public function test_module_details_name_the_module_and_whether_it_is_forced_off() {
+		Jetpack_Options::update_option( 'active_modules', array( 'subscriptions' ) );
 		add_filter(
 			'jetpack_active_modules',
 			function ( $modules ) {
@@ -127,7 +102,45 @@ class Unavailable_Blocks_Test extends WP_UnitTestCase {
 		);
 		Jetpack_Modules_Overrides::instance()->clear_cache();
 
-		$this->assertTrue( Unavailable_Blocks::get_inactive_feature_blocks()['jetpack/subscriptions']['forced'] );
+		$this->assertSame(
+			array(
+				'module'      => 'subscriptions',
+				'module_name' => 'Newsletter',
+				'forced'      => true,
+			),
+			Unavailable_Blocks::get_inactive_module_details( 'subscriptions' )
+		);
+	}
+
+	public function test_offline_mode_only_withholds_modules_that_need_a_connection() {
+		remove_all_filters( 'jetpack_offline_mode' );
+		add_filter( 'jetpack_offline_mode', '__return_true', 1000 );
+		\Automattic\Jetpack\Status\Cache::clear();
+
+		$this->assertSame( array(), Unavailable_Blocks::get_inactive_module_details( 'subscriptions' ) );
+		$this->assertSame( 'contact-form', Unavailable_Blocks::get_inactive_module_details( 'contact-form' )['module'] );
+	}
+
+	public function test_a_block_bailing_out_reports_its_inactive_module() {
+		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/subscriptions/subscriptions.php';
+		Jetpack_Options::update_option( 'active_modules', array( 'blocks' ) );
+		add_filter( 'jetpack_gutenberg', '__return_true' );
+		$extensions = static function () {
+			return array( 'subscriptions' );
+		};
+		add_filter( 'jetpack_set_available_extensions', $extensions );
+		Jetpack_Gutenberg::reset();
+
+		try {
+			\Automattic\Jetpack\Extensions\Subscriptions\register_block();
+			$availability = Jetpack_Gutenberg::get_availability();
+		} finally {
+			remove_filter( 'jetpack_set_available_extensions', $extensions );
+			Jetpack_Gutenberg::reset();
+		}
+
+		$this->assertSame( 'missing_module', $availability['subscriptions']['unavailable_reason'] );
+		$this->assertSame( 'subscriptions', $availability['subscriptions']['details']['module'] );
 	}
 
 	/**
@@ -160,10 +173,16 @@ class Unavailable_Blocks_Test extends WP_UnitTestCase {
 		$this->assertStringEndsWith( 'admin.php?page=jetpack#/writing', $data['fixUrl'] );
 	}
 
-	public function test_editor_data_is_null_when_nothing_is_unavailable() {
-		Jetpack_Options::update_option( 'active_modules', array_merge( array( 'blocks' ), array_keys( Unavailable_Blocks::FEATURE_BLOCKS ) ) );
+	public function test_editor_data_is_null_without_a_site_wide_cause() {
+		Jetpack_Options::update_option( 'active_modules', array( 'blocks' ) );
 
 		$this->assertNull( Unavailable_Blocks::get_editor_data() );
+	}
+
+	public function test_editor_data_names_forms_when_blocks_and_forms_are_off() {
+		Jetpack_Options::update_option( 'active_modules', array() );
+
+		$this->assertSame( 'contact-form', Unavailable_Blocks::get_editor_data()['features']['jetpack/contact-form']['module'] );
 	}
 
 	public function test_editor_data_is_withheld_from_rest_requests() {

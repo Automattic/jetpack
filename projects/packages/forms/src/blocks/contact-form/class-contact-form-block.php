@@ -52,6 +52,10 @@ class Contact_Form_Block {
 		 * However, since non-admins cannot activate modules, we do not display the empty block for them.
 		 */
 		if ( ! self::can_manage_block() ) {
+			// Lets the editor say why, when the Jetpack plugin is new enough to support it.
+			if ( method_exists( 'Jetpack_Gutenberg', 'set_extension_unavailable_for_module' ) ) {
+				\Jetpack_Gutenberg::set_extension_unavailable_for_module( 'contact-form', 'contact-form' );
+			}
 			return;
 		}
 
