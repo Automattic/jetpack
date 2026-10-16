@@ -195,8 +195,12 @@ export default function MonitorCard( { state: monitor, settings, openTab }: Moni
 									{ uptimePercent !== null && (
 										<Text variant="heading-md">
 											{ formatNumber( uptimePercent / 100, PERCENT ) }
-											{ uptimePercent === 100 && <span aria-hidden="true"> 🎉</span> }
 										</Text>
+									) }
+									{ uptimePercent === 100 && (
+										<Badge intent="stable" className="jp-protect-uptime__perfect">
+											{ __( 'Perfect uptime', 'jetpack-protect-pkg' ) }
+										</Badge>
 									) }
 								</Stack>
 							) : (
