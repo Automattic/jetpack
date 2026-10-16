@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Replace the dashboard with a redesigned one, where you can browse each backup's files, restore or download a backup, and change when backups run and how long they are kept.
