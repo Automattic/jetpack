@@ -1,0 +1,24 @@
+.card {
+	margin-block-start: var(--wpds-dimension-gap-lg);
+}
+
+.root {
+	padding-block: var(--wpds-dimension-padding-2xl);
+}
+
+// Centred as a block, read as a list: the rows keep a common start edge.
+.features {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-sm);
+	margin-block: 0;
+	margin-inline: auto;
+	padding: 0;
+	list-style: none;
+	text-align: start;
+}
+
+.check {
+	flex-shrink: 0;
+	fill: var(--wpds-color-foreground-interactive-brand);
+}
