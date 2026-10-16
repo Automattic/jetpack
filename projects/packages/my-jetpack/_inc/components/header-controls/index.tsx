@@ -1,5 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/triple-slash-reference -- Same as header-data.ts: a package entry point.
 /// <reference path="../../../global.d.ts" />
+import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import ConnectionControl from './connection-control';
 import type { FC, ReactNode } from 'react';
 
@@ -16,6 +17,6 @@ const HeaderControls: FC = () => <ConnectionControl />;
  * @return The controls, or null.
  */
 export const getHeaderControls = (): ReactNode =>
-	window.myJetpackInitialState?.myJetpackFlags?.headerControls ? <HeaderControls /> : null;
+	getMyJetpackWindowInitialState( 'myJetpackFlags' ).headerControls ? <HeaderControls /> : null;
 
 export default HeaderControls;

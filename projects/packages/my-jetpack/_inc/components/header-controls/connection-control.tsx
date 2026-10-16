@@ -24,6 +24,9 @@ import type { Purchase } from '../../data/types';
 import type { ConnectionState } from '../../hooks/use-connection-state';
 import type { FC } from 'react';
 
+// Tells the plan links' Tracks events apart from the same links on the Overview.
+const HEADER_TRACKS_PROPERTIES = { location: 'header' };
+
 const STATUS_INTENTS = {
 	success: 'stable',
 	neutral: 'none',
@@ -61,9 +64,8 @@ const PlanSummary: FC< { purchases: Purchase[] | null } > = ( { purchases } ) =>
 		return null;
 	}
 
-	const hasComplete = purchases.some( purchase =>
-		purchase.product_slug?.startsWith( 'jetpack_complete' )
-	);
+	const hasComplete =
+		!! getMyJetpackWindowInitialState( 'products' )?.items?.complete?.has_paid_plan_for_product;
 
 	return (
 		<Stack direction="column" gap="sm">
@@ -88,7 +90,11 @@ const PlanSummary: FC< { purchases: Purchase[] | null } > = ( { purchases } ) =>
 				</Stack>
 			) }
 			{ !! getMyJetpackWindowInitialState( 'userIsAdmin' ) && (
-				<PlanSectionFooter numberOfPurchases={ purchases.length } hasComplete={ hasComplete } />
+				<PlanSectionFooter
+					numberOfPurchases={ purchases.length }
+					hasComplete={ hasComplete }
+					tracksProperties={ HEADER_TRACKS_PROPERTIES }
+				/>
 			) }
 		</Stack>
 	);
@@ -166,7 +172,7 @@ const ConnectionControl: FC = () => {
 	const [ isOpen, setIsOpen ] = useState( false );
 	const [ isDialogOpen, setIsDialogOpen ] = useState( false );
 	// Held here, not in the popup: its content unmounts on close and would refetch on every open.
-	const { purchases } = useSitePurchases( isOpen && isSiteConnected );
+	const purchases = useSitePurchases( isOpen && isSiteConnected );
 
 	// The dialog cannot open on top of the popover: close it first and hand focus over.
 	const openManageDialog = useCallback( () => {

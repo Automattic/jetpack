@@ -10,7 +10,7 @@ import { QUERY_PURCHASES_KEY, REST_API_SITE_PURCHASES_ENDPOINT } from '../../dat
 import useProduct from '../../data/products/use-product';
 import useSimpleQuery from '../../data/use-simple-query';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
-import useAnalytics from '../../hooks/use-analytics';
+import useAnalytics, { type TracksProperties } from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import getManageYourPlanUrl from '../../utils/get-manage-your-plan-url';
 import getPurchasePlanUrl from '../../utils/get-purchase-plan-url';
@@ -29,6 +29,8 @@ interface PlanSectionHeaderAndFooterProps {
 
 interface PlanSectionFooterProps extends PlanSectionHeaderAndFooterProps {
 	hasComplete: boolean;
+	/** Added to each link's Tracks event, e.g. where the links are shown. */
+	tracksProperties?: TracksProperties;
 }
 
 export const PlanSection: FC< PlanSectionProps > = ( { purchase } ) => {
@@ -192,6 +194,7 @@ function hasIncludedFeatures(): boolean {
 export const PlanSectionFooter: FC< PlanSectionFooterProps > = ( {
 	numberOfPurchases,
 	hasComplete,
+	tracksProperties,
 } ) => {
 	const { recordEvent } = useAnalytics();
 	const { isUserConnected } = useMyJetpackConnection();
@@ -206,20 +209,20 @@ export const PlanSectionFooter: FC< PlanSectionFooterProps > = ( {
 	const planPurchaseDescription = __( 'Purchase a plan', 'jetpack-my-jetpack' );
 
 	const planManageClickHandler = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_plans_manage_click' );
-	}, [ recordEvent ] );
+		recordEvent( 'jetpack_myjetpack_plans_manage_click', tracksProperties );
+	}, [ recordEvent, tracksProperties ] );
 
 	const viewIncludedFeaturesClickHandler = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_plans_view_included_features_click' );
-	}, [ recordEvent ] );
+		recordEvent( 'jetpack_myjetpack_plans_view_included_features_click', tracksProperties );
+	}, [ recordEvent, tracksProperties ] );
 
 	const planPurchaseClickHandler = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_plans_purchase_click' );
-	}, [ recordEvent ] );
+		recordEvent( 'jetpack_myjetpack_plans_purchase_click', tracksProperties );
+	}, [ recordEvent, tracksProperties ] );
 
 	const activateLicenseClickHandler = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_activate_license_click' );
-	}, [ recordEvent ] );
+		recordEvent( 'jetpack_myjetpack_activate_license_click', tracksProperties );
+	}, [ recordEvent, tracksProperties ] );
 
 	/*
 	 * Avoid ternary as code minification will break translation function. :(
