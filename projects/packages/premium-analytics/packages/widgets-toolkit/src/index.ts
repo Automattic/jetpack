@@ -55,6 +55,7 @@ export {
 	Locations,
 	Columns,
 	type LegendLabels,
+	type LeaderboardColumns,
 	LeaderboardLabel,
 	type LeaderboardLabelProps,
 	LeaderboardRow,
