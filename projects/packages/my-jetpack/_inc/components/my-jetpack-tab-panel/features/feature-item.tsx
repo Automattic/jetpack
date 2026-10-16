@@ -87,7 +87,12 @@ export function FeatureItem( {
 	// A card with details keeps its manage link in the modal; the stretched title would cover one here.
 	// A migration notice says the legacy settings no longer apply, so it gets no link either.
 	const settingsUrl =
-		! onOpen && ! migration && isActive && ! state.isSwitching && state.control.kind === 'module'
+		! onOpen &&
+		! migration &&
+		isActive &&
+		! unavailable &&
+		! state.isSwitching &&
+		state.control.kind === 'module'
 			? getModuleSettingsUrl( state.control.module )
 			: undefined;
 
