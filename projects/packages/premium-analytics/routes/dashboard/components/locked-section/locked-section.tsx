@@ -52,9 +52,18 @@ export function LockedSection( { section }: { section: string } ) {
 		return null;
 	}
 
-	const features = isExpanded
-		? locked.features
-		: locked.features.slice( 0, COLLAPSED_FEATURE_COUNT );
+	const mainFeatures = locked.features.slice( 0, COLLAPSED_FEATURE_COUNT );
+	const moreFeatures = locked.features.slice( COLLAPSED_FEATURE_COUNT );
+	const featureList = ( features: string[] ) => (
+		<Stack render={ <ul /> } direction="column" gap="sm" className={ styles.features }>
+			{ features.map( feature => (
+				<Stack key={ feature } render={ <li /> } direction="row" align="center" gap="sm">
+					<Icon icon={ check } size={ 20 } className={ styles.check } />
+					<Text variant="body-md">{ feature }</Text>
+				</Stack>
+			) ) }
+		</Stack>
+	);
 
 	return (
 		<Card.Root className={ styles.card }>
@@ -69,15 +78,19 @@ export function LockedSection( { section }: { section: string } ) {
 							{ locked.description }
 						</Text>
 					</Stack>
-					<Stack render={ <ul /> } direction="column" gap="sm" className={ styles.features }>
-						{ features.map( feature => (
-							<Stack key={ feature } render={ <li /> } direction="row" align="center" gap="sm">
-								<Icon icon={ check } size={ 20 } className={ styles.check } />
-								<Text variant="body-md">{ feature }</Text>
-							</Stack>
-						) ) }
+					{ featureList( mainFeatures ) }
+					<Stack direction="row" gap="sm" wrap="wrap">
+						{ locked.upgrade_url && (
+							<ButtonLink href={ locked.upgrade_url } onClick={ trackUpgrade }>
+								{ locked.upgrade_label }
+							</ButtonLink>
+						) }
+						<ButtonLink href={ locked.support_url } variant="outline" openInNewTab>
+							{ __( 'Learn more', 'jetpack-premium-analytics-pkg' ) }
+						</ButtonLink>
 					</Stack>
-					{ locked.features.length > COLLAPSED_FEATURE_COUNT && (
+					{ /* Below the buttons, as in classic Stats, so expanding never moves them. */ }
+					{ moreFeatures.length > 0 && (
 						<Button
 							variant="minimal"
 							size="compact"
@@ -90,16 +103,7 @@ export function LockedSection( { section }: { section: string } ) {
 							<Button.Icon icon={ isExpanded ? chevronUp : chevronDown } />
 						</Button>
 					) }
-					<Stack direction="row" gap="sm" wrap="wrap">
-						{ locked.upgrade_url && (
-							<ButtonLink href={ locked.upgrade_url } onClick={ trackUpgrade }>
-								{ locked.upgrade_label }
-							</ButtonLink>
-						) }
-						<ButtonLink href={ locked.support_url } variant="outline" openInNewTab>
-							{ __( 'Learn more', 'jetpack-premium-analytics-pkg' ) }
-						</ButtonLink>
-					</Stack>
+					{ isExpanded && featureList( moreFeatures ) }
 				</Stack>
 				<div className={ styles.visual }>
 					<WidgetGridAnimation />

@@ -6,15 +6,16 @@
 .content {
 	display: grid;
 	gap: var(--wpds-dimension-gap-2xl);
-	align-items: center;
+	align-items: start;
+	justify-content: center;
 	padding: var(--wpds-dimension-padding-2xl);
 }
 
-// Side by side, as in classic Stats, once the copy keeps a readable measure.
+// Side by side, as in classic Stats, kept together in a wide card.
 @container (min-width: 720px) {
 
 	.content {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
+		grid-template-columns: repeat(2, minmax(0, 480px));
 	}
 }
 
@@ -38,7 +39,6 @@
 }
 
 .visual {
-	justify-self: center;
 	inline-size: 100%;
 	max-inline-size: 480px;
 	overflow: hidden;
