@@ -79,9 +79,10 @@ const useExpiringPlansNotice: NoticeHookType = ( redBubbleAlerts, isLoading ) =>
 				: 'jetpack_my_jetpack_plan_expiring_soon_notice_primary_cta_click',
 			{
 				product_slug: productSlug,
+				...wpcomPlanNotice?.track_props,
 			}
 		);
-	}, [ isExpiredAlert, manageUrl, productSlug, recordEvent ] );
+	}, [ isExpiredAlert, manageUrl, productSlug, recordEvent, wpcomPlanNotice ] );
 
 	const onSecondaryCtaClick = useCallback( () => {
 		window.open( learnMoreUrl );
@@ -91,9 +92,10 @@ const useExpiringPlansNotice: NoticeHookType = ( redBubbleAlerts, isLoading ) =>
 				: 'jetpack_my_jetpack_plan_expiring_soon_notice_secondary_cta_click',
 			{
 				product_slug: productSlug,
+				...wpcomPlanNotice?.track_props,
 			}
 		);
-	}, [ learnMoreUrl, isExpiredAlert, productSlug, recordEvent ] );
+	}, [ learnMoreUrl, isExpiredAlert, productSlug, recordEvent, wpcomPlanNotice ] );
 
 	useEffect( () => {
 		if ( ! alertToDisplay ) {
@@ -126,6 +128,7 @@ const useExpiringPlansNotice: NoticeHookType = ( redBubbleAlerts, isLoading ) =>
 					],
 			onClose: onCloseClick,
 			hideCloseButton: wpcomPlanNotice ? ! wpcomPlanNotice.is_dismissible : false,
+			tracksArgs: wpcomPlanNotice?.track_props,
 			priority: NOTICE_PRIORITY_MEDIUM,
 		};
 

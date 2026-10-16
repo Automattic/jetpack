@@ -289,6 +289,8 @@ type PlanExpirationAlert = {
 		actions: { label: string; url: string }[];
 		is_dismissible: boolean;
 		level: 'warning' | 'error';
+		// Matches the WordPress.com expiry notices' own Tracks events.
+		track_props: Record< Lowercase< string >, string | number >;
 	};
 };
 

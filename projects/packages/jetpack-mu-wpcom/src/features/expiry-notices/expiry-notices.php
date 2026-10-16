@@ -597,6 +597,7 @@ function wpcom_expiry_notices_my_jetpack_plan_alerts( $alerts ) {
 		'actions'        => $actions,
 		'is_dismissible' => $data['is_dismissible'],
 		'level'          => $data['is_early_warning'] ? 'warning' : 'error',
+		'track_props'    => wpcom_expiry_notices_track_props( $state, $data['is_owner'], 'my_jetpack' ),
 	);
 	// Filed under this state, so My Jetpack's notice id and Tracks events match the copy.
 	$alerts[ Expiry_Data::STATE_APPROACHING === $state['state'] ? $expiring_key : $expired_key ] = $alert;

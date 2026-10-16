@@ -389,6 +389,7 @@ class Expiry_Notices_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( '5 days', $notice['title'] );
 		$this->assertSame( 'Renew now', $notice['actions'][0]['label'] );
 		$this->assertStringContainsString( rawurlencode( 'page=my-jetpack' ), $notice['actions'][0]['url'] );
+		$this->assertSame( 'my_jetpack', $notice['track_props']['surface'] );
 		$this->assertArrayNotHasKey( 'wpcom_plan_notice', $filtered['jetpack_backup_t1_yearly--plan_expired'] );
 
 		$this->set_purchase( -5 );
