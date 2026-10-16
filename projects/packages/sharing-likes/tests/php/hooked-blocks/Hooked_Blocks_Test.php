@@ -226,7 +226,7 @@ class Hooked_Blocks_Test extends BaseTestCase {
 			'untyped pattern, a product'                 => array( $untyped_pattern, 'product', false ),
 			'single template, a product'                 => array( self::template( 'single' ), 'product', false ),
 			'singular template, an attachment'           => array( self::template( 'singular' ), 'attachment', false ),
-			'custom template, a post'                    => array( self::template( 'wp-custom-template-wide' ), 'post', true ),
+			'custom template, a post'                    => array( self::template( 'wp-custom-template-wide' ), 'post', false ),
 			'pattern for single posts, a post'           => array( array( 'templateTypes' => array( 'single' ) ), 'post', true ),
 			'pattern for archives and posts, an archive' => array( array( 'templateTypes' => array( 'archive', 'single' ) ), '', false ),
 		);

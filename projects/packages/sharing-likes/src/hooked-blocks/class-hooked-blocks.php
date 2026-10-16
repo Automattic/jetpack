@@ -145,8 +145,8 @@ final class Hooked_Blocks {
 	}
 
 	/**
-	 * Whether a context shows a single view of one of the post types: a template or pattern by the
-	 * template types it serves, else by the current request, which never holds in the Site Editor's REST requests.
+	 * Whether a context shows a single view of one of the post types: a template by the post types it serves,
+	 * a pattern by its template types, else by the current request, which never holds in the Site Editor's REST requests.
 	 *
 	 * @param mixed    $context    Template, template part, pattern array or post.
 	 * @param string[] $post_types Post types that get the blocks.
@@ -170,12 +170,8 @@ final class Hooked_Blocks {
 				return true;
 			}
 
-			if ( is_array( $context->post_types ) && $context->post_types ) {
-				return (bool) array_intersect( $post_types, $context->post_types );
-			}
-
-			// A custom template that declares no post types can be assigned to any post.
-			return $context->is_custom && is_singular( $post_types );
+			// A custom template that declares no post types gets nothing, as with Newsletter's Subscribe block (see AGENTS.md).
+			return is_array( $context->post_types ) && (bool) array_intersect( $post_types, $context->post_types );
 		}
 
 		if ( is_array( $context ) ) {
