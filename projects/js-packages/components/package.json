@@ -58,6 +58,11 @@
 			"types": "./build/components/jitm-slot/index.d.ts",
 			"default": "./build/components/jitm-slot/index.js"
 		},
+		"./placement-card": {
+			"jetpack:src": "./components/placement-card/index.tsx",
+			"types": "./build/components/placement-card/index.d.ts",
+			"default": "./build/components/placement-card/index.js"
+		},
 		"./pricing-table": {
 			"jetpack:src": "./components/pricing-table/index.tsx",
 			"types": "./build/components/pricing-table/index.d.ts",

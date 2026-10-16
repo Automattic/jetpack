@@ -2,6 +2,7 @@
  * External dependencies
  */
 import analytics from '@automattic/jetpack-analytics';
+import PlacementCard, { PlacementCardGrid } from '@automattic/jetpack-components/placement-card';
 import { getAdminUrl, getSiteType, isSimpleSite } from '@automattic/jetpack-script-data';
 import { ToggleControl } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
@@ -13,7 +14,6 @@ import { addQueryArgs } from '@wordpress/url';
  */
 import { SUBSCRIPTIONS_SECTION_ID } from '../anchors';
 import { getNewsletterScriptData } from '../script-data';
-import { PlacementCard } from './placement-card';
 import {
 	OverlayIllustration,
 	PopupIllustration,
@@ -246,7 +246,7 @@ export function SubscriptionsSection( {
 								<Text variant="heading-sm" render={ <h3 /> }>
 									{ __( 'Homepage and posts', 'jetpack-newsletter' ) }
 								</Text>
-								<div className="jetpack-newsletter-placements-grid">
+								<PlacementCardGrid>
 									{ placements.map( placement => {
 										// Surface "Preview and edit" only when the placement is
 										// enabled in the SAVED state AND still shown as checked —
@@ -273,7 +273,7 @@ export function SubscriptionsSection( {
 											/>
 										);
 									} ) }
-								</div>
+								</PlacementCardGrid>
 							</Stack>
 
 							<Stack gap="sm" direction="column">
