@@ -514,18 +514,19 @@ class Plan_Matrix_Test extends TestCase {
 	 * @param string $class Product class name.
 	 */
 	private function activate_module( string $class ) {
-		if ( ! $class::$module_name ) {
+		$module_name = $class::get_module_name();
+		if ( ! $module_name ) {
 			return;
 		}
 
 		$active = Jetpack_Options::get_option( 'active_modules', array() );
-		if ( ! in_array( $class::$module_name, $active, true ) ) {
-			$active[] = $class::$module_name;
+		if ( ! in_array( $module_name, $active, true ) ) {
+			$active[] = $module_name;
 		}
 		Jetpack_Options::update_option( 'active_modules', $active );
 
 		// @phan-suppress-next-line PhanUndeclaredStaticProperty -- Declared on the mock in ./assets/jetpack-mock-plugin.txt
-		\Jetpack::$active_modules[] = $class::$module_name;
+		\Jetpack::$active_modules[] = $module_name;
 	}
 
 	/**
