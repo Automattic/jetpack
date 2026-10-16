@@ -14,6 +14,7 @@ import { MenuPointer } from './menu-pointer';
 import { MoreFeatures } from './more-features';
 import styles from './styles.module.scss';
 import { Toolbar } from './toolbar';
+import { useAllJetpackModules } from './use-all-jetpack-modules';
 import { getFeatureFilters, isFeatureFilter, matchesFilter } from './use-feature-filter';
 import { useFeatureSearch } from './use-feature-search';
 import { useFeatureSelection } from './use-feature-selection';
@@ -84,6 +85,7 @@ export function FeaturesContent() {
  */
 function FeaturesTabContent() {
 	const mainFeatures = useMainFeatures();
+	const { hasLoaded: modulesLoaded } = useAllJetpackModules();
 	const { states, isLoading } = useFeatureStates( mainFeatures );
 	const { pointer, dismissPointer } = useSidebarSync( mainFeatures.features );
 	const moreFeatures = useMoreFeatures( mainFeatures );
@@ -321,16 +323,16 @@ function FeaturesTabContent() {
 	const stepOrder = useStepOrder( visible, openSlug, `${ filter }|${ search }|${ isLoading }` );
 	const openIndex = stepOrder.findIndex( feature => feature.slug === openSlug );
 
-	// Neither read has anything to say yet: a seed-only catalog is not a failure to load
-	// one, and features whose modules are still in flight all read inactive, which would
-	// otherwise announce "nothing is active" on a site with plenty on.
-	// Only the status filters wait on the modules: a search or a plan filter is already
-	// a settled answer once the catalog is here, and an unreachable module read would
-	// otherwise leave those two with no message at all.
-	const onStatus = filter === 'active' || filter === 'inactive';
+	// Hold back "no matches" until module data arrives: before then every feature reads as
+	// inactive and unavailable, so Active and Available can wrongly come up empty. A search ignores the filter.
+	// Available stops waiting once the module request ends, so a failed request still ends in a message.
+	const onModules =
+		filter === 'active' ||
+		filter === 'inactive' ||
+		( filter === 'available' && ! search.trim() && ! modulesLoaded );
 	const settling =
 		( mainFeatures.isPlaceholderData && mainFeatures.features.length === 0 ) ||
-		( onStatus && states.some( state => state.pending ) );
+		( onModules && states.some( state => state.pending ) );
 
 	return (
 		<section className={ styles.content }>
