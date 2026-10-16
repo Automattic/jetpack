@@ -380,6 +380,11 @@ class Analytics {
 		}
 		configure_dashboard_first_visit();
 
+		if ( ! function_exists( __NAMESPACE__ . '\\configure_assets_url' ) ) {
+			require_once __DIR__ . '/assets-url.php';
+		}
+		configure_assets_url();
+
 		// Temporary: carries a default layout move into layouts readers customized before it.
 		Stored_Layout_Move::register();
 	}
