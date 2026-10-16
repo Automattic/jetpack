@@ -77,14 +77,11 @@ $uptime-none: var(--wpds-color-background-track-neutral);
 	}
 
 	// CSS, not text, so core's wp-emoji can't swap it for a Twemoji image.
-	&__perfect {
-		gap: 4px;
-
-		&::before {
-			content: "🥳" / "";
-			font-size: 1.3em;
-			line-height: 1;
-		}
+	&__perfect::before {
+		content: "🥳" / "";
+		margin-inline-end: 6px;
+		font-size: 1.3em;
+		line-height: 1;
 	}
 
 	&__skeleton {
