@@ -23,20 +23,20 @@ describe( 'DashboardNav', () => {
 		isGated.mockReturnValue( false );
 	} );
 
-	it( 'labels the AI-route tab "GEO" (not "AI")', () => {
+	it( 'labels the /geo tab "GEO" (not "AI")', () => {
 		render( <DashboardNav active="overview">content</DashboardNav> );
 
 		expect( screen.getByRole( 'tab', { name: 'GEO' } ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'tab', { name: 'AI' } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'navigates to /ai when the GEO tab is selected', () => {
+	it( 'navigates to /geo when the GEO tab is selected', () => {
 		render( <DashboardNav active="overview">content</DashboardNav> );
 
 		// eslint-disable-next-line testing-library/prefer-user-event -- fireEvent keeps this off the @testing-library/user-event devDep (avoids lockfile churn), matching the sibling enable-seo-card test.
 		fireEvent.click( screen.getByRole( 'tab', { name: 'GEO' } ) );
 
-		expect( navigate ).toHaveBeenCalledWith( { href: '/ai' } );
+		expect( navigate ).toHaveBeenCalledWith( { href: '/geo' } );
 	} );
 
 	it( 'shows all four tabs when the dashboard is not gated', () => {

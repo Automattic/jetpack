@@ -63,8 +63,8 @@ $default_matrix_vars = array(
 	// {int|null} Total number of numbered splits, for `split-num`.
 	'split-total'         => null,
 
-	// {string|null} Project slug to run alone, with all CPUs.
-	'split-project'       => null,
+	// {string[]|null} Groups to run under one worker with all CPUs.
+	'split-groups'        => null,
 
 	// {string[]} Project slugs a `split-num` job skips, as they have their own job.
 	'split-exclude'       => array(),
@@ -125,15 +125,17 @@ $to_split[] = array(
 	'timeout'      => 30, // 2026-09-14: Runs are at around 15 minutes each.
 	'coverage'     => true,
 	'split_config' => array(
-		'projects' => array( 'plugins/jetpack' ),
-		'generic'  => 1,
+		'groups'  => array( 'jetpack' => 'plugins/jetpack' ),
+		'generic' => 1,
 	),
 );
 
 // Add JS tests and coverage
 $js_split_config = array(
-	'projects' => array( 'packages/premium-analytics', 'plugins/jetpack' ),
-	'generic'  => 2,
+	'groups'  => array(
+		'slow' => array( 'packages/premium-analytics', 'plugins/jetpack' ),
+	),
+	'generic' => 2,
 );
 foreach ( array( 'test-js', 'test-js-coverage' ) as $script ) {
 	$is_cov     = $script === 'test-js-coverage';
@@ -147,26 +149,33 @@ foreach ( array( 'test-js', 'test-js-coverage' ) as $script ) {
 }
 
 /*
- * Split jobs: one job for each of `split_config.projects`, then `split_config.generic` jobs to round-robin everything else.
- * For example, this config gives "Test name (jetpack)", "Test name (1 of 2)", and "Test name (2 of 2)":
+ * Split jobs: one job for each group in `split_config.groups`, then `split_config.generic` jobs to round-robin everything else.
+ * Groups are keyed by job name, with a project slug or an array of slugs as the value.
+ * For example, this config gives "Test name (jetpack)", "Test name (backup)", "Test name (1 of 2)", and "Test name (2 of 2)":
  *
  * array(
  *   'name'         => 'Test name (%s)',
  *   'split_config' => array(
- *     'projects' => array( 'plugins/jetpack' ),
- *     'generic'  => 2,
+ *     'groups'  => array(
+ *       'jetpack' => 'plugins/jetpack',
+ *       'backup'  => array( 'packages/backup', 'plugins/backup' ),
+ *     ),
+ *     'generic' => 2,
  *   ),
  * )
  */
 foreach ( $to_split as $m ) {
 	$split = $m['split_config'];
 	unset( $m['split_config'] );
-	foreach ( $split['projects'] as $slug ) {
+	$exclude = array();
+	foreach ( $split['groups'] as $group => $slugs ) {
+		$slugs    = array_values( (array) $slugs );
+		$exclude  = array_merge( $exclude, $slugs );
 		$matrix[] = array_merge(
 			$m,
 			array(
-				'name'          => sprintf( $m['name'], basename( $slug ) ),
-				'split-project' => $slug,
+				'name'         => sprintf( $m['name'], $group ),
+				'split-groups' => $slugs,
 			)
 		);
 	}
@@ -177,7 +186,7 @@ foreach ( $to_split as $m ) {
 				'name'          => sprintf( $m['name'], "$i of {$split['generic']}" ),
 				'split-num'     => $i,
 				'split-total'   => $split['generic'],
-				'split-exclude' => $split['projects'],
+				'split-exclude' => $exclude,
 			)
 		);
 	}
@@ -325,9 +334,13 @@ foreach ( $matrix as &$m ) {
 		}
 	}
 
-	// Either use number or project.
-	if ( $m['split-num'] !== null && $m['split-project'] !== null ) {
-		error( "Keys `split-num` and `split-project` cannot both be set!\n%s", $orig );
+	if ( $m['split-groups'] !== null && ( ! is_array( $m['split-groups'] ) || ! $m['split-groups'] ) ) {
+		error( "Key `split-groups` must be a non-empty array or null!\n%s", $orig );
+	}
+
+	// Either use number or projects.
+	if ( $m['split-num'] !== null && $m['split-groups'] !== null ) {
+		error( "Keys `split-num` and `split-groups` cannot both be set!\n%s", $orig );
 	}
 
 	// Make sure `split_config` isn't in a normal `$matrix` entry instead of `$to_split`.

@@ -485,20 +485,6 @@ class Protected_Owner_Test extends TestCase {
 	}
 
 	/**
-	 * The same chokepoint refuses a consumer that locked ownership through the filter, with no
-	 * anchor involved.
-	 */
-	public function test_a_consumer_locking_ownership_refuses_a_transfer() {
-		add_filter( 'jetpack_connection_ownership_transferable', '__return_false' );
-
-		$manager = $this->transfer_manager( $this->owner_id, $this->never() );
-		$result  = $manager->update_connection_owner( $this->candidate() );
-
-		$this->assertInstanceOf( 'WP_Error', $result );
-		$this->assertSame( 'ownership_locked', $result->get_error_code() );
-	}
-
-	/**
 	 * Refused before the candidate is validated, so a locked site never reports a problem with
 	 * the requested user and invites a retry that cannot work.
 	 */
@@ -584,19 +570,15 @@ class Protected_Owner_Test extends TestCase {
 	}
 
 	/**
-	 * A consumer locking ownership through the filter is a separate refusal, and it still applies
-	 * to the anchored owner.
+	 * A plugin cannot lock the anchored owner out of their own site through the deprecated filter.
 	 */
-	public function test_a_consumer_locking_ownership_also_refuses_the_anchored_owner() {
+	public function test_the_deprecated_filter_cannot_refuse_the_anchored_owner() {
 		$this->act_as_confirmed_owner();
 		add_filter( 'jetpack_connection_ownership_transferable', '__return_false' );
 
-		$manager = $this->transfer_manager( $this->owner_id, $this->never() );
-		$result  = $manager->update_connection_owner( $this->candidate() );
+		$manager = $this->transfer_manager( $this->owner_id, $this->once() );
 
-		$this->assertInstanceOf( 'WP_Error', $result );
-		$this->assertSame( 'ownership_locked', $result->get_error_code() );
-		$this->assertNotNull( Protected_Owner::get_locked(), 'The anchor should survive.' );
+		$this->assertTrue( $manager->update_connection_owner( $this->candidate() ) );
 	}
 
 	/**

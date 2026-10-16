@@ -65,6 +65,9 @@ export {
 	type LeaderboardStatus,
 } from './leaderboard';
 export { Donut, type DonutProps, type DonutSegmentInput } from './donut';
+export { Funnel, type FunnelProps, type FunnelStepInput } from './funnel';
+export { Columns, type ColumnsProps, type ColumnInput } from './columns';
+export { Locations } from './locations';
 export {
 	BarChart,
 	BarChartSkeleton,
@@ -114,6 +117,7 @@ export { InfoTip, type InfoTipProps } from './info-tip';
 export { InternalLink } from './internal-link';
 export { PostTitleLink, POST_URL_SEARCH_PARAM, type PostTitleLinkProps } from './post-title-link';
 export { PostDetailLink, type PostDetailLinkProps } from './post-detail-link';
+export { AuthorDetailLink, authorDetailLinkProps } from './author-detail-link';
 export {
 	HighlightField,
 	HighlightGroup,
@@ -179,6 +183,7 @@ export {
 	type DetailPageShellProps,
 } from './detail-page';
 export { PageEmptyState } from './page-empty-state';
+export { LockedPage, LockedWidget } from './locked-widget';
 export { PageNotice, type PageNoticeProps } from './page-notice';
 export {
 	canSendFeedback,

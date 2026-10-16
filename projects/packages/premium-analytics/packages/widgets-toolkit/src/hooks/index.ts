@@ -7,7 +7,7 @@ export { useElementSize, type ElementSize } from './use-element-size';
 export { useLockedPrimaryLegendItems } from './use-locked-primary-legend-items';
 export { useNormalizedReportParams } from './use-normalized-report-params';
 export { useWidgetNavigationSearch } from './use-widget-navigation-search';
-export { useSegmentStyles } from '../widgets/common';
+export { useSegmentStyles } from './use-segment-styles';
 export { useSeriesStyles } from './use-series-styles';
 export { useStoredDetailLayout } from './use-stored-detail-layout';
 export { useTrackCustomize, useTrackEvent, useTrackedDateRangeApply } from './use-track-event';

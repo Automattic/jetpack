@@ -49,7 +49,9 @@ interface AnalyticsDateRange {
 	to: string;
 }
 
-type AnalyticsDashboardSection = 'traffic' | 'insights' | 'subscribers' | 'woocommerce';
+// `settings` is offered only to `manage_options`, so link to it from admin-only screens.
+type AnalyticsDashboardSection =
+	'traffic' | 'insights' | 'subscribers' | 'woocommerce' | 'settings';
 type AnalyticsPostSection = 'traffic' | 'email-opens' | 'email-clicks';
 
 /**
@@ -75,6 +77,7 @@ const DASHBOARD_SECTIONS: readonly string[] = [
 	'insights',
 	'subscribers',
 	'woocommerce',
+	'settings',
 ];
 
 /** Callers say `traffic`; the tab layout registry calls it `post-traffic`. */

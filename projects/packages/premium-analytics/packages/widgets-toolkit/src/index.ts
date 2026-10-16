@@ -51,6 +51,9 @@ export {
 	Donut,
 	type DonutProps,
 	type DonutSegmentInput,
+	Funnel,
+	Locations,
+	Columns,
 	type LegendLabels,
 	LeaderboardLabel,
 	type LeaderboardLabelProps,
@@ -103,6 +106,8 @@ export {
 	type PostTitleLinkProps,
 	PostDetailLink,
 	type PostDetailLinkProps,
+	AuthorDetailLink,
+	authorDetailLinkProps,
 	HighlightField,
 	HighlightGroup,
 	type HighlightFieldProps,
@@ -140,6 +145,8 @@ export {
 	FeedbackModal,
 	type FeedbackSource,
 	PageEmptyState,
+	LockedPage,
+	LockedWidget,
 	PageNotice,
 	type PageNoticeProps,
 	PageOptionsMenu,
@@ -224,6 +231,7 @@ export {
 	getArchiveGroupLabel,
 	getArchiveTypeLabel,
 	getAuthorName,
+	getAuthorPostsQueryParams,
 	getAuthorsReportQueryParams,
 	getLocationColumnLabel,
 	getLocationsReportQueryParams,
@@ -280,7 +288,6 @@ export type { ReportParamsFieldAttributes } from './fields';
 export {
 	calculateDelta,
 	flagUrl,
-	BOOKINGS_FILTER,
 	formatLegendLabels,
 	formatDisplayLabel,
 	buildCsv,
@@ -346,21 +353,6 @@ export {
 	useTrackedDateRangeApply,
 	useWidgetDrillDown,
 } from './hooks';
-
-/**
- * Widget components
- */
-export {
-	BookingsRevenueByCustomerTypeWidget,
-	BookingConversionRateWidget,
-	ConversionRateWidget,
-	RevenueByCustomerTypeWidget,
-	SalesByCouponWidget,
-	TotalReturnsWidget,
-	VisitorsByLocationWidget,
-	SalesByDeviceWidget,
-	SessionsByDeviceWidget,
-} from './widgets';
 
 /**
  * Types

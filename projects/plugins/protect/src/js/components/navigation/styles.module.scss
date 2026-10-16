@@ -34,7 +34,7 @@
 		}
 
 		.navigation-item-icon {
-			fill: var(--jp-white);
+			color: var(--jp-white);
 		}
 
 		.navigation-item-badge {
@@ -80,11 +80,11 @@
 	}
 
 	&-check-badge {
-		fill: var(--jp-green-50);
+		color: var(--jp-green-50);
 	}
 
 	&-info-badge {
-		fill: var(--jp-gray-20);
+		color: var(--jp-gray-20);
 	}
 }
 

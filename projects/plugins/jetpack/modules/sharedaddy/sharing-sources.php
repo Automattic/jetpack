@@ -2753,6 +2753,29 @@ class Share_Pinterest extends Sharing_Source {
 	}
 
 	/**
+	 * AMP display for Pinterest.
+	 *
+	 * AMP's Pinterest share has no default image, so without data-param-media
+	 * Pinterest asks the visitor to upload one. Pass the same image the
+	 * non-AMP button uses.
+	 *
+	 * @param \WP_Post|null $post The current post being viewed.
+	 *
+	 * @return bool|string
+	 */
+	public function get_amp_display( $post ) {
+		if ( empty( $post ) ) {
+			return false;
+		}
+
+		return $this->build_amp_markup(
+			array(
+				'data-param-media' => $this->get_image( $post ),
+			)
+		);
+	}
+
+	/**
 	 * Get the markup of the sharing button.
 	 *
 	 * @param WP_Post $post Post object.

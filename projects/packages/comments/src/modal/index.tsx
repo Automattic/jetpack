@@ -157,6 +157,7 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 
 	const logIn = async () => {
 		setSignInStatus( 'pending' );
+		const started = Date.now();
 
 		// Cancel closes the popup, which settles this as cancelled.
 		const result = await signIn( opened => {
@@ -175,6 +176,8 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 			result: outcome,
 			error: 'error' in result ? result.error : '',
 			posting,
+			// An instant cancel is a popup cut off from this page, not a reader closing it.
+			duration_ms: Date.now() - started,
 		} );
 
 		if ( 'error' in result ) {

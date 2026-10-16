@@ -36,7 +36,6 @@ function AverageItemsPerOrder( { chartType }: { chartType?: ChartDisplayChartTyp
 			field="avg_items"
 			label={ __( 'Average items per order', 'jetpack-woocommerce-stats-pkg' ) }
 			dataFormat={ { type: 'average' } }
-			emptyText={ __( 'No orders in this period.', 'jetpack-woocommerce-stats-pkg' ) }
 			errorText={ __(
 				"We couldn't load average items per order. Please try again in a moment.",
 				'jetpack-woocommerce-stats-pkg'

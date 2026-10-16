@@ -30,6 +30,7 @@ import '@wordpress/format-library';
 import { unregisterFormatType } from '@wordpress/rich-text';
 import { registerEmbedBlock } from './embed';
 import { history } from './history';
+import { registerImageBlock } from './image';
 import { BlockToolbar } from './toolbar';
 import type { BoundaryProps, EditorProps, WritingAreaProps } from './types';
 import type { KeyboardEvent, MouseEvent } from 'react';
@@ -144,9 +145,11 @@ const Editor = ( {
 		return { past: [], present: { blocks, markup: serialize( blocks ) }, future: [], editedAt: 0 };
 	} );
 	const { blocks, markup } = present;
-	const isEmpty = blocks.every(
-		( { name, attributes } ) =>
-			name === 'core/paragraph' && ! String( attributes.content ?? '' ).trim()
+	// An image or embed still waiting for its URL saves nothing, so the server would post an empty comment.
+	const isEmpty = blocks.every( ( { name, attributes } ) =>
+		name === 'core/paragraph'
+			? ! String( attributes.content ?? '' ).trim()
+			: ( name === 'core/image' || name === 'core/embed' ) && ! attributes.url
 	);
 
 	// Here, not in the handlers below, so an undo reaches the form too.
@@ -224,6 +227,7 @@ const Editor = ( {
  */
 export const mountEditor = ( container: HTMLElement, props: EditorProps ) => {
 	registerEmbedBlock( props.labels, props.previewEmbeds ?? true );
+	registerImageBlock( props.labels, props.previewEmbeds ?? true );
 	createRoot( container ).render(
 		<Boundary onError={ props.onError }>
 			<Editor { ...props } />
