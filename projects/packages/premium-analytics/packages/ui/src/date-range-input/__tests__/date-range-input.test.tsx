@@ -29,7 +29,7 @@ describe( 'DateRangeInput', () => {
 		expect( screen.getByLabelText( 'To' ) ).toHaveValue( '2026-07-10' );
 	} );
 
-	it( 'refuses a start before the earliest day', async () => {
+	it( 'refuses a start before the earliest day and restores the input on blur', async () => {
 		const user = userEvent.setup();
 		const onChange = jest.fn();
 		render(
@@ -47,7 +47,9 @@ describe( 'DateRangeInput', () => {
 		const from = screen.getByLabelText( 'From' );
 		await user.clear( from );
 		await user.type( from, '2026-07-01' );
+		await user.tab();
 
 		expect( onChange ).not.toHaveBeenCalled();
+		expect( from ).toHaveValue( '2026-07-12' );
 	} );
 } );

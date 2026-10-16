@@ -65,6 +65,12 @@ function DateInput( { label, date, onChange, timeZone, min }: DateInputProps ) {
 		[ onChange, timeZone ]
 	);
 
+	// A typed date the range refused would otherwise stay in the box, unlike the range it shows.
+	const onBlur = useCallback(
+		() => setValue( formatToString( date, timeZone ) ),
+		[ date, timeZone ]
+	);
+
 	const onClick = useCallback( ( e: React.MouseEvent ) => {
 		// Prevents the date input from opening the browser date picker,
 		// as we want to use a custom date picker elsewhere.
@@ -79,6 +85,7 @@ function DateInput( { label, date, onChange, timeZone, min }: DateInputProps ) {
 				value={ value }
 				min={ min }
 				onChange={ onInputChange }
+				onBlur={ onBlur }
 				onClick={ onClick }
 			/>
 		</FormField.Root>
