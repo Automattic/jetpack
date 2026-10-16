@@ -1286,14 +1286,16 @@ $rail-row-min-height: 40px;
 .layout--finish {
 
 	/*
-	 * The finish screen replaces the sheet rather than sitting in it, so it does
-	 * not take the reading column every other step is measured in. `.finish` is
-	 * what clips the wash discs, and inside a 470px column it clipped them to a
-	 * 470px band down the middle of the page. The reading measure is kept by
-	 * `.finish-column` inside it, where it belongs.
+	 * The finish screen replaces the sheet: no reading column (`.finish`
+	 * clips the wash discs to it), no step offset, and the whole pane to
+	 * centre in, since `.finish`'s `min-block-size: 100%` meets auto.
 	 */
 	.panel-content {
 		max-inline-size: none;
+		flex-grow: 1;
+		min-block-size: 0;
+		margin-block: 0;
+		padding-block-start: 0;
 	}
 
 	.canvas {
@@ -1304,19 +1306,6 @@ $rail-row-min-height: 40px;
 		// rendered the canvas fell into it and was sized by its content: the
 		// celebration sat at the top with a slab of dark under it.
 		grid-row: 1 / -1;
-	}
-
-	/*
-	 * The celebration centres itself in the pane, so it wants no step-column
-	 * offset and it wants the whole pane to centre in: .finish's own
-	 * `min-block-size: 100%` is a percentage, and against an auto-height column
-	 * it resolves to the content and never centres anything.
-	 */
-	.panel-content {
-		flex-grow: 1;
-		min-block-size: 0;
-		margin-block: 0;
-		padding-block-start: 0;
 	}
 }
 
@@ -1555,17 +1544,12 @@ $rail-row-min-height: 40px;
 
 /* ------------------------------------------------- connected notice */
 
+// Arrives with `.wave`.
 .connected {
 	display: flex;
 	align-items: center;
 	gap: var(--wpds-dimension-gap-sm);
 	margin-block-end: var(--wpds-dimension-gap-xl);
-	animation: step-enter $appear-duration $appear-easing both;
-
-	@media (prefers-reduced-motion: reduce) {
-		animation-name: fade-in;
-		animation-duration: $appear-reduced-duration;
-	}
 }
 
 .connected__mark {

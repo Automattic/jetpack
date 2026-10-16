@@ -17,7 +17,7 @@ export function ConnectedNotice() {
 	const reduced = useReducedMotion();
 
 	return (
-		<div className={ styles.connected } role="status">
+		<div className={ clsx( styles.connected, styles.wave ) } role="status">
 			<span className={ styles.connected__mark }>
 				{ /*
 				 * Not rendered at all under reduced motion; see `.finish-wash` in

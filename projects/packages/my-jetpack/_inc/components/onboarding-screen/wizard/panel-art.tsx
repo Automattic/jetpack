@@ -73,14 +73,6 @@ const DRAW_DELAY_STEP_S = 0.08;
 // The artwork's own coordinate space, from Layer_1.svg.
 const ART_VIEW_BOX = '0 0 660 689';
 
-type PanelArtProps = {
-	/*
-	 * Draw the paths in, one after another. True on the start step only, which
-	 * is what the prototype does: its other panels render the art complete.
-	 */
-	animate?: boolean;
-};
-
 /**
  * The brand panel's artwork.
  *
@@ -89,18 +81,12 @@ type PanelArtProps = {
  * it only for presentation attributes, so a stylesheet's dasharray stays in user
  * units and the whole bolt draws as a 1px dotted line.
  *
- * @param props         - The component props.
- * @param props.animate - Whether the paths draw themselves in.
  * @return The rendered artwork.
  */
-export function PanelArt( { animate = false }: PanelArtProps ) {
+export function PanelArt() {
 	const svgRef = useRef< SVGSVGElement >( null );
 
 	useLayoutEffect( () => {
-		if ( ! animate ) {
-			return;
-		}
-
 		const paths = Array.from( svgRef.current?.querySelectorAll( 'path' ) ?? [] );
 
 		// Chrome rasterises a dashed hairline at far lower coverage than a plain one,
@@ -117,15 +103,10 @@ export function PanelArt( { animate = false }: PanelArtProps ) {
 		} );
 
 		return () => paths.forEach( path => path.removeEventListener( 'animationend', clearDash ) );
-	}, [ animate ] );
+	}, [] );
 
 	return (
-		<div
-			className={ clsx(
-				styles[ 'brand-panel__art' ],
-				animate && styles[ 'brand-panel__art--drawing' ]
-			) }
-		>
+		<div className={ clsx( styles[ 'brand-panel__art' ], styles[ 'brand-panel__art--drawing' ] ) }>
 			<svg
 				ref={ svgRef }
 				viewBox={ ART_VIEW_BOX }
@@ -146,14 +127,8 @@ export function PanelArt( { animate = false }: PanelArtProps ) {
 						 * the dash lengths into screen pixels, which is the same trap as
 						 * pathLength above by another route.
 						 */
-						{ ...( animate
-							? {
-									className: styles[ 'brand-panel__art-path' ],
-									style: {
-										animationDelay: `${ DRAW_DELAY_BASE_S + index * DRAW_DELAY_STEP_S }s`,
-									},
-								}
-							: {} ) }
+						className={ styles[ 'brand-panel__art-path' ] }
+						style={ { animationDelay: `${ DRAW_DELAY_BASE_S + index * DRAW_DELAY_STEP_S }s` } }
 					/>
 				) ) }
 			</svg>

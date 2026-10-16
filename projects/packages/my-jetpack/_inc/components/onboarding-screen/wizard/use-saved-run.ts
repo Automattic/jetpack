@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef } from 'react';
 import { clampStep, TOTAL_STEPS } from './lib';
 import type { WizardState, WizardStep } from './lib';
 
@@ -80,28 +80,25 @@ export function readSavedRun(): SavedRun | null {
  * @return A writer, and a way to throw the run away once it is over.
  */
 export function useSavedRun() {
-	// Held so a save and a clear in the same render cannot race to the wrong order.
-	const [ done, setDone ] = useState( false );
+	// A ref, so a save racing the clear in the same render still sees it.
+	const done = useRef( false );
 
-	const save = useCallback(
-		( run: SavedRun ) => {
-			if ( done ) {
-				return;
-			}
+	const save = useCallback( ( run: SavedRun ) => {
+		if ( done.current ) {
+			return;
+		}
 
-			try {
-				window.sessionStorage.setItem( KEY, JSON.stringify( run ) );
-			} catch {
-				// Nothing to do: the flow works without it.
-			}
-		},
-		[ done ]
-	);
+		try {
+			window.sessionStorage.setItem( KEY, JSON.stringify( run ) );
+		} catch {
+			// Nothing to do: the flow works without it.
+		}
+	}, [] );
 
 	// Called when the wizard is left for good, so the next visit is not handed a
 	// finished run to resume.
 	const forget = useCallback( () => {
-		setDone( true );
+		done.current = true;
 
 		try {
 			window.sessionStorage.removeItem( KEY );

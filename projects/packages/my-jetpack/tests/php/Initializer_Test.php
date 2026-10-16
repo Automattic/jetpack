@@ -488,15 +488,23 @@ class Initializer_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Everything the wizard needs on a self-hosted site: the flag and the Jetpack plugin.
+	 */
+	private function enable_wizard() {
+		$this->enable_wizard_flag();
+		$this->run_jetpack_plugin();
+	}
+
+	/**
 	 * Data provider for the wizard with and without the Jetpack plugin.
 	 *
 	 * @return array
 	 */
 	public static function provide_jetpack_plugin_cases() {
 		return array(
-			'with the Jetpack plugin' => array( true, true ),
+			'with the Jetpack plugin' => array( true ),
 			// Its features step switches modules only the Jetpack plugin has.
-			'standalone plugins only' => array( false, false ),
+			'standalone plugins only' => array( false ),
 		);
 	}
 
@@ -507,20 +515,19 @@ class Initializer_Test extends BaseTestCase {
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 *
-	 * @param bool $with_jetpack Whether the Jetpack plugin is active.
-	 * @param bool $expected     Whether the wizard should be enabled.
+	 * @param bool $with_jetpack Whether the Jetpack plugin is active, and so whether the wizard runs.
 	 */
 	#[DataProvider( 'provide_jetpack_plugin_cases' )]
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_the_wizard_needs_the_jetpack_plugin( $with_jetpack, $expected ) {
+	public function test_the_wizard_needs_the_jetpack_plugin( $with_jetpack ) {
 		$this->enable_wizard_flag();
 		if ( $with_jetpack ) {
 			$this->run_jetpack_plugin();
 		}
 
-		$this->assertSame( $expected, Initializer::is_onboarding_wizard_enabled() );
-		$this->assertSame( $expected, null !== Initializer::get_onboarding_wizard_state() );
+		$this->assertSame( $with_jetpack, Initializer::is_onboarding_wizard_enabled() );
+		$this->assertSame( $with_jetpack, null !== Initializer::get_onboarding_wizard_state() );
 	}
 
 	/**
@@ -851,8 +858,7 @@ class Initializer_Test extends BaseTestCase {
 	public function test_admin_init_keeps_a_connected_user_on_the_wizard() {
 		$user_id = $this->log_in_as_admin();
 		$this->connect_owner( $user_id );
-		$this->enable_wizard_flag();
-		$this->run_jetpack_plugin();
+		$this->enable_wizard();
 		$_GET['step'] = 'onboarding';
 
 		$this->assertNull( $this->capture_onboarding_redirect() );
@@ -955,8 +961,7 @@ class Initializer_Test extends BaseTestCase {
 		$this->assertArrayHasKey( '/my-jetpack/v1/site/onboarding/settled', $this->capture_rest_routes() );
 		$this->assertFalse( REST_Onboarding::permissions_callback() );
 
-		$this->enable_wizard_flag();
-		$this->run_jetpack_plugin();
+		$this->enable_wizard();
 
 		$this->assertTrue( REST_Onboarding::permissions_callback() );
 	}
@@ -1095,8 +1100,7 @@ class Initializer_Test extends BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_the_wizard_runs_for_a_standalone_plugin_user() {
-		$this->enable_wizard_flag();
-		$this->run_jetpack_plugin();
+		$this->enable_wizard();
 		// A blog ID with no token: registered by a standalone plugin, not connected now.
 		Jetpack_Options::update_option( 'id', 1234 );
 		( new Connection_Manager() )->reset_connection_status();
@@ -1115,8 +1119,7 @@ class Initializer_Test extends BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_a_previous_jetpack_registration_closes_the_wizard() {
-		$this->enable_wizard_flag();
-		$this->run_jetpack_plugin();
+		$this->enable_wizard();
 		Jetpack_Options::update_option( 'unique_registrations', 2 );
 
 		$this->assertFalse( Initializer::has_never_registered_jetpack() );
@@ -1138,8 +1141,7 @@ class Initializer_Test extends BaseTestCase {
 	#[PreserveGlobalState( false )]
 	public function test_connecting_mid_run_does_not_close_the_wizard() {
 		$user_id = $this->log_in_as_admin();
-		$this->enable_wizard_flag();
-		$this->run_jetpack_plugin();
+		$this->enable_wizard();
 		$this->connect_owner( $user_id );
 		Jetpack_Options::update_option( 'unique_registrations', 1 );
 
@@ -1161,8 +1163,7 @@ class Initializer_Test extends BaseTestCase {
 	#[PreserveGlobalState( false )]
 	public function test_admin_init_sends_a_site_only_connection_back_into_setup() {
 		$this->log_in_as_admin();
-		$this->enable_wizard_flag();
-		$this->run_jetpack_plugin();
+		$this->enable_wizard();
 		$this->connect_site_only();
 
 		$this->assertTrue( ( new Connection_Manager() )->is_connected() );
@@ -1201,8 +1202,7 @@ class Initializer_Test extends BaseTestCase {
 	#[PreserveGlobalState( false )]
 	public function test_a_skip_needs_the_site_connection( $site_connected, $expect_redirect ) {
 		$user_id = $this->log_in_as_admin();
-		$this->enable_wizard_flag();
-		$this->run_jetpack_plugin();
+		$this->enable_wizard();
 		if ( $site_connected ) {
 			$this->connect_site_only();
 		}

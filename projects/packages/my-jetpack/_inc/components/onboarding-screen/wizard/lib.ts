@@ -12,6 +12,7 @@ import {
 	shield,
 	store,
 } from '@wordpress/icons';
+import type { SetupModuleResult } from './use-setup-modules';
 
 /**
  * One choice offered by a step.
@@ -315,6 +316,20 @@ export function settleOnboarding( outcome: SettleOutcome ): Promise< unknown > {
 		method: 'POST',
 		data: { outcome },
 	} );
+}
+
+/**
+ * What a run did: switched on, switched off, and failed.
+ *
+ * @param results - What became of each module.
+ * @return The three counts.
+ */
+export function tallyResults( results: SetupModuleResult[] ) {
+	return {
+		on: results.filter( result => result.changed && result.wanted && result.ok ).length,
+		off: results.filter( result => result.changed && ! result.wanted && result.ok ).length,
+		failed: results.filter( result => ! result.ok ).length,
+	};
 }
 
 /**

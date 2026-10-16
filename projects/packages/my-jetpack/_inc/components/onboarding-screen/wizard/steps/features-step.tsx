@@ -5,6 +5,7 @@ import clsx from 'clsx';
 import { useCallback, useId } from 'react';
 import { isWanted } from '../lib';
 import styles from '../styles.module.scss';
+import { StepHeading } from './step-heading';
 import type { SetupModule } from '../use-setup-modules';
 import type { ChangeEvent } from 'react';
 
@@ -141,23 +142,7 @@ export function FeaturesStep( {
 }: FeaturesStepProps ) {
 	return (
 		<Stack direction="column" gap="2xl" className={ styles[ 'step-body' ] }>
-			<Stack direction="column" gap="sm">
-				<Text
-					variant="heading-2xl"
-					id={ titleId }
-					render={ <h1 /> }
-					className={ clsx( styles[ 'step-title' ], styles.wave, styles[ 'wave-1' ] ) }
-				>
-					{ title }
-				</Text>
-				<Text
-					variant="body-lg"
-					render={ <p /> }
-					className={ clsx( styles[ 'step-description' ], styles.wave, styles[ 'wave-2' ] ) }
-				>
-					{ description }
-				</Text>
-			</Stack>
+			<StepHeading titleId={ titleId } title={ title } description={ description } />
 
 			{ /*
 			 * A heading promising a list needs a list under it. Neither of these is a

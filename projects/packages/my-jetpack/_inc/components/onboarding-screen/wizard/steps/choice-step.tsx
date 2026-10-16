@@ -4,6 +4,7 @@ import { Icon, InputControl, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useEffect, useRef, useId } from 'react';
 import styles from '../styles.module.scss';
+import { StepHeading } from './step-heading';
 import type { WizardStepOption } from '../lib';
 import type { ChangeEvent, KeyboardEvent, MouseEvent } from 'react';
 
@@ -181,23 +182,7 @@ export function ChoiceStep( {
 
 	return (
 		<Stack direction="column" gap="2xl" className={ styles[ 'step-body' ] }>
-			<Stack direction="column" gap="sm">
-				<Text
-					variant="heading-2xl"
-					id={ titleId }
-					render={ <h1 /> }
-					className={ clsx( styles[ 'step-title' ], styles.wave, styles[ 'wave-1' ] ) }
-				>
-					{ title }
-				</Text>
-				<Text
-					variant="body-lg"
-					render={ <p /> }
-					className={ clsx( styles[ 'step-description' ], styles.wave, styles[ 'wave-2' ] ) }
-				>
-					{ description }
-				</Text>
-			</Stack>
+			<StepHeading titleId={ titleId } title={ title } description={ description } />
 
 			{ options.length > 0 && (
 				<div className={ styles[ 'step-answer' ] }>
