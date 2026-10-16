@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0b7b352995458de91b799092b1589b6e",
+    "content-hash": "634a5c50ae0ba991515a1cdb7415d776",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -2546,6 +2546,70 @@
             }
         },
         {
+            "name": "automattic/jetpack-monitor",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/monitor",
+                "reference": "35ee9d7fa1a5baea3703e9ef09b2d2c954c0e473"
+            },
+            "require": {
+                "automattic/jetpack-connection": "@dev",
+                "php": ">=7.4"
+            },
+            "require-dev": {
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^4.0.0"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                },
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-monitor/compare/v${old}...v${new}"
+                },
+                "mirror-repo": "Automattic/jetpack-monitor",
+                "textdomain": "jetpack-monitor",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-monitor.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "build-development": [
+                    "echo 'Add your build step to composer.json, please!'"
+                ],
+                "build-production": [
+                    "echo 'Add your build step to composer.json, please!'"
+                ],
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "test-php-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Downtime monitoring for connected sites: the module's email alerts and status from WordPress.com.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/jetpack-my-jetpack",
             "version": "dev-trunk",
             "dist": {
@@ -3293,13 +3357,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/protect",
-                "reference": "e014c4a14ac2b4b6eef3d4086439204ec46859a9"
+                "reference": "156c11a3a9d4ea1de9e2d9fdcff6db7a4d4e4277"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-ip": "@dev",
                 "automattic/jetpack-menu-badges": "@dev",
+                "automattic/jetpack-monitor": "@dev",
                 "automattic/jetpack-protect-models": "@dev",
                 "automattic/jetpack-protect-status": "@dev",
                 "automattic/jetpack-status": "@dev",
@@ -6796,6 +6861,7 @@
         "automattic/jetpack-logo": 20,
         "automattic/jetpack-masterbar": 20,
         "automattic/jetpack-menu-badges": 20,
+        "automattic/jetpack-monitor": 20,
         "automattic/jetpack-my-jetpack": 20,
         "automattic/jetpack-newsletter": 20,
         "automattic/jetpack-paypal-payments": 20,
