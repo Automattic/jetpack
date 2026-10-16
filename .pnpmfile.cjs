@@ -1,3 +1,6 @@
+// CI hack.
+const withReactVersion = undefined;
+
 /**
  * Fix package dependencies.
  *
@@ -281,6 +284,22 @@ async function readPackage( pkg, context ) {
 	if ( pkg.name ) {
 		pkg = await fixDeps( pkg, context );
 		pkg = fixPeerDeps( pkg, context );
+
+		// CI hack.
+		if ( withReactVersion ) {
+			for ( const field of [
+				'dependencies',
+				'devDependencies',
+				'optionalDependencies',
+				'peerDependencies',
+			] ) {
+				for ( const dep of [ 'react', 'react-dom' ] ) {
+					if ( pkg[ field ]?.[ dep ] ) {
+						pkg[ field ][ dep ] = '^' + withReactVersion;
+					}
+				}
+			}
+		}
 	}
 	return pkg;
 }
@@ -331,10 +350,11 @@ function afterAllResolved( lockfile ) {
 
 		// Now that we've moved to React 19, prevent React 18 from being re-installed.
 		if (
-			k.startsWith( 'react@18.' ) ||
-			k.startsWith( 'react-dom@18.' ) ||
-			k.startsWith( '@types/react@18.' ) ||
-			k.startsWith( '@types/react-dom@18.' )
+			! withReactVersion &&
+			( k.startsWith( 'react@18.' ) ||
+				k.startsWith( 'react-dom@18.' ) ||
+				k.startsWith( '@types/react@18.' ) ||
+				k.startsWith( '@types/react-dom@18.' ) )
 		) {
 			throw new Error(
 				// prettier-ignore
