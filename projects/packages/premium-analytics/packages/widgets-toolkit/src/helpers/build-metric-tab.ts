@@ -38,19 +38,24 @@ export type BuildMetricTabOptions< TReport extends MetricReport > = {
 	 * a reading: the source has not counted it yet.
 	 */
 	pendingLabel?: string;
+	/**
+	 * What the card and the chart say in place of a value when the summary reads null for the
+	 * field: a ratio or average over a period with nothing to divide by. Omit to show 0.
+	 */
+	noDataLabel?: string;
 };
 
 /**
  * Read a field's total from a report's summary. Reports carry dynamic WPCOM
- * keys, so the field is looked up rather than typed. Deliberately does not use
- * `summaryCount`: a chart headline needs a number to render, not an absence.
+ * keys, so the field is looked up rather than typed.
  *
  * @param report - The normalized report, or undefined while loading.
  * @param field  - The metric field to read.
- * @return The summary total, or 0 when the report is empty.
+ * @return The summary total, 0 when the report is empty, or null when the summary has no reading.
  */
-function total( report: MetricReport | undefined, field: string ): number {
-	return Number( report?.summary?.[ field ] ?? 0 );
+function total( report: MetricReport | undefined, field: string ): number | null {
+	const value = report?.summary?.[ field ];
+	return value === null ? null : Number( value ?? 0 );
 }
 
 /**
@@ -103,19 +108,22 @@ export function buildMetricTab< TReport extends MetricReport >(
 		countLabel,
 		zone,
 		pendingLabel,
+		noDataLabel,
 	} = options;
 	// The comparison period ends before today, so it has no uncounted day.
 	const previous = hasComparison ? toPoints( comparison, field, zone ) : undefined;
 	const hasPrevious = !! previous?.length;
+	const value = total( primary, field );
 
 	return {
 		key: field,
 		label,
-		value: total( primary, field ),
+		value: value ?? 0,
 		previousValue: hasPrevious ? total( comparison, field ) : undefined,
 		current: toPoints( primary, field, zone, pendingLabel ),
 		previous: hasPrevious ? previous : undefined,
 		dataFormat,
 		countLabel,
+		...( value === null && noDataLabel ? { unavailable: noDataLabel } : {} ),
 	};
 }

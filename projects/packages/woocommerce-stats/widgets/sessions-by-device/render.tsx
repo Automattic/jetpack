@@ -66,6 +66,8 @@ function SessionsByDevice() {
 			} ) }
 			variant="half-ring"
 			chartTitle={ __( 'Sessions by device', 'jetpack-woocommerce-stats-pkg' ) }
+			total={ primary.data?.summary.total_sessions }
+			previousTotal={ comparison.data?.summary.total_sessions }
 		/>
 	);
 }

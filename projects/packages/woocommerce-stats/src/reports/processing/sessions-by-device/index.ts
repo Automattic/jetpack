@@ -31,10 +31,12 @@ function sanitizeSessionsByDeviceItem( item: SessionsByDeviceItem ): SanitizedSe
 export const sanitizeReportSessionsByDeviceResponse = (
 	response: ReportsSessionsByDeviceResponse
 ): SanitizedSessionsByDeviceResponse => {
-	const items = response?.data ?? [];
-	const data = items.filter( item => item.device_type ).map( sanitizeSessionsByDeviceItem );
-
-	const totalSessions = data.reduce( ( acc, item ) => acc + item.active_sessions, 0 );
+	const data = ( response?.data ?? [] ).map( sanitizeSessionsByDeviceItem );
+	// The report's own count: the device rows can add up to more than it.
+	const summarySessions = parseInt( response?.summary?.active_sessions ?? '', 10 );
+	const totalSessions = Number.isNaN( summarySessions )
+		? data.reduce( ( acc, item ) => acc + item.active_sessions, 0 )
+		: summarySessions;
 
 	return {
 		summary: {

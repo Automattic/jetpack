@@ -97,6 +97,9 @@ export type DonutProps = {
 	withTotal?: boolean;
 	// What the chart shows, such as the widget title; the chart is named "Chart: <title>".
 	chartTitle?: string;
+	// The total the report states, for segments that need not add up to it. Omit to sum them.
+	total?: number;
+	previousTotal?: number;
 };
 
 // Funnels: steps as counts in, with the rate of the whole, the shares and the states handled.

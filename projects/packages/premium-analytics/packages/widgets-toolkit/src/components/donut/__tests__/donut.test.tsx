@@ -39,6 +39,13 @@ describe( 'Donut', () => {
 		}
 	);
 
+	it( 'draws the stated total over the sum of the segments', () => {
+		renderDonut( <Donut segments={ SEGMENTS } status={ READY } total={ 4900 } /> );
+
+		expect( screen.getByText( '4.9K' ) ).toBeInTheDocument();
+		expect( screen.queryByText( '5K' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'draws no total for shares', () => {
 		renderDonut(
 			<Donut
