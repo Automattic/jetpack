@@ -205,7 +205,7 @@ export const EmailBreakdownLeaderboard = ( {
 						withOverlayLabel
 						showLegend={ false }
 						dataFormat={ DATA_FORMAT }
-						columns={ { label: viewLabel( view ), metric } }
+						columns={ { label: viewLabel( view ), metric: view === 'links' ? 'clicks' : metric } }
 					/>
 					{ renderMap && (
 						<div className={ styles.map } data-testid="email-breakdown-map">

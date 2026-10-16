@@ -220,6 +220,8 @@ describe( 'EmailBreakdownWidget', () => {
 		const otherRow = screen.getByText( 'Other' );
 		expect( otherRow ).toBeInTheDocument();
 		expect( screen.getByText( '900' ) ).toBeInTheDocument();
+		// The links view always counts clicks, whatever the metric attribute says.
+		expect( screen.getByText( 'Clicks' ) ).toBeInTheDocument();
 
 		// The catch-all row stays pinned last despite holding the highest value.
 		// Separate rows, so the position mask is exactly PRECEDING or FOLLOWING.
