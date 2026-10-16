@@ -13,7 +13,6 @@ use function Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Unified_Admin_Page_View\w
  * @return void
  */
 function wpcom_dashboard_tracks_enqueue() {
-	// The network admin dashboard uses the same hook.
 	$screen = get_current_screen();
 	if ( ! $screen || 'dashboard' !== $screen->id ) {
 		return;
@@ -38,4 +37,4 @@ function wpcom_dashboard_tracks_enqueue() {
 	wp_add_inline_script( $handle, "var wpcomDashboardTracks = $data;", 'before' );
 }
 
-add_action( 'admin_print_scripts-index.php', 'wpcom_dashboard_tracks_enqueue' );
+add_action( 'admin_enqueue_scripts', 'wpcom_dashboard_tracks_enqueue' );
