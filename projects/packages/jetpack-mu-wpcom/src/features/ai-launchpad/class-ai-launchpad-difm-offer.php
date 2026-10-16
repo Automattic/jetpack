@@ -85,7 +85,7 @@ class AI_Launchpad_Difm_Offer {
 
 		return array(
 			'variation' => $variation,
-			'image_url' => plugins_url( 'images/difm-offer-illustration.svg', __FILE__ ),
+			'image_url' => plugins_url( 'images/difm-offer-illustration.webp', __FILE__ ),
 			'cta_url'   => self::get_cta_url(),
 		);
 	}

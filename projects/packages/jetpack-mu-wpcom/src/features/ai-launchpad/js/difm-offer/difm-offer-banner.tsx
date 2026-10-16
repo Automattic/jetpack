@@ -176,10 +176,12 @@ export function DifmOfferBanner( { offer, onDismiss }: Props ) {
 
 	return (
 		<div className="ai-launchpad-difm-offer" ref={ ref }>
-			<img className="ai-launchpad-difm-offer__image" src={ offer.image_url } alt="" />
-			<div className="ai-launchpad-difm-offer__body">
-				<h2 className="ai-launchpad-difm-offer__title">{ copy.title }</h2>
-				<p className="ai-launchpad-difm-offer__description">{ copy.description }</p>
+			<div className="ai-launchpad-difm-offer__content">
+				<img className="ai-launchpad-difm-offer__image" src={ offer.image_url } alt="" />
+				<div className="ai-launchpad-difm-offer__body">
+					<h2 className="ai-launchpad-difm-offer__title">{ copy.title }</h2>
+					<p className="ai-launchpad-difm-offer__description">{ copy.description }</p>
+				</div>
 				<ButtonLink
 					className="ai-launchpad-difm-offer__cta"
 					variant="outline"

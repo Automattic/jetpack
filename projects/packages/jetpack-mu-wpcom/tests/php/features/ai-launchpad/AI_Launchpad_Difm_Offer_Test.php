@@ -138,7 +138,7 @@ class AI_Launchpad_Difm_Offer_Test extends \WorDBless\BaseTestCase {
 		$offer = AI_Launchpad_Difm_Offer::get_offer( self::NOW );
 
 		$this->assertSame( $arm, $offer['variation'] );
-		$this->assertStringEndsWith( '/images/difm-offer-illustration.svg', $offer['image_url'] );
+		$this->assertStringEndsWith( '/images/difm-offer-illustration.webp', $offer['image_url'] );
 	}
 
 	/**
