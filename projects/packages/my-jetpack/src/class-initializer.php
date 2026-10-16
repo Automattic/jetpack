@@ -47,12 +47,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '6.6.0';
-
-	/**
-	 * Feature flag that swaps the My Jetpack Products tab for a Features tab.
-	 */
-	const FEATURES_TAB_FEATURE_FLAG = 'my-jetpack-features-tab';
+	const PACKAGE_VERSION = '6.10.0';
 
 	/**
 	 * Handle for the classic script that carries the React initial state.
@@ -91,6 +86,13 @@ class Initializer {
 	private const MY_JETPACK_SITE_INFO_TRANSIENT_KEY = 'my-jetpack-site-info';
 
 	/**
+	 * Feature flag for the shared header's global controls.
+	 *
+	 * @var string
+	 */
+	public const HEADER_CONTROLS_FLAG = 'my-jetpack-header-controls';
+
+	/**
 	 * Holds info/data about the site (from the /sites/%d endpoint)
 	 *
 	 * @var object
@@ -110,7 +112,6 @@ class Initializer {
 	 * @return void
 	 */
 	public static function init() {
-		// Before the gate, so the flag stays listed while diagnosing why My Jetpack is off.
 		self::register_feature_flags();
 
 		// Before the gate: the Jetpack plugin renders this package's connection screen and footer
@@ -118,6 +119,18 @@ class Initializer {
 		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_admin_script_data' ) );
 
 		if ( ! self::should_initialize() || did_action( 'my_jetpack_init' ) ) {
+			return;
+		}
+
+		if ( self::is_offline_features_enabled() ) {
+			add_filter( 'jetpack_my_jetpack_should_enable_add_license_screen', '__return_false' );
+			Connection_Rest_Authentication::init();
+			add_filter( 'rest_request_before_callbacks', array( __CLASS__, 'use_local_module_options' ), 10, 3 );
+			add_filter( 'rest_request_after_callbacks', array( __CLASS__, 'restore_module_options' ), 10, 3 );
+			add_action( 'rest_api_init', array( __CLASS__, 'register_rest_endpoints' ) );
+			add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
+			add_action( 'admin_menu', array( __CLASS__, 'add_my_jetpack_menu_item' ) );
+			do_action( 'my_jetpack_init' );
 			return;
 		}
 
@@ -170,6 +183,40 @@ class Initializer {
 	}
 
 	/**
+	 * Keep uncached module-list options local on the offline route.
+	 *
+	 * @since 6.10.0
+	 * @param mixed            $response Response before the callback.
+	 * @param array            $handler  Route handler.
+	 * @param \WP_REST_Request $request  REST request.
+	 * @return mixed
+	 */
+	public static function use_local_module_options( $response, $handler, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- WordPress REST filter signature.
+		if ( '/jetpack/v4/module/all' === $request->get_route() ) {
+			add_filter( 'default_option_monitor_receive_notifications', '__return_false' );
+			add_filter( 'default_option_post_by_email_address' . get_current_user_id(), '__return_false' );
+		}
+		return $response;
+	}
+
+	/**
+	 * Restore normal option reads after the offline module-list callback.
+	 *
+	 * @since 6.10.0
+	 * @param mixed            $response Response after the callback.
+	 * @param array            $handler  Route handler.
+	 * @param \WP_REST_Request $request  REST request.
+	 * @return mixed
+	 */
+	public static function restore_module_options( $response, $handler, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- WordPress REST filter signature.
+		if ( '/jetpack/v4/module/all' === $request->get_route() ) {
+			remove_filter( 'default_option_monitor_receive_notifications', '__return_false' );
+			remove_filter( 'default_option_post_by_email_address' . get_current_user_id(), '__return_false' );
+		}
+		return $response;
+	}
+
+	/**
 	 * Acts as a feature flag, returning a boolean for whether we should show the licensing UI.
 	 *
 	 * @since 1.2.0
@@ -208,6 +255,11 @@ class Initializer {
 	 * @return void
 	 */
 	public static function add_my_jetpack_menu_item() {
+		if ( self::is_offline_features_enabled() && ! self::current_user_can_access_page() ) {
+			return;
+		}
+
+		$position    = defined( Admin_Menu::class . '::POSITION_FIRST' ) ? Admin_Menu::POSITION_FIRST : -10;
 		$menu_slug   = 'my-jetpack';
 		$page_suffix = Admin_Menu::add_menu(
 			__( 'My Jetpack', 'jetpack-my-jetpack' ),
@@ -215,11 +267,22 @@ class Initializer {
 			'edit_posts',
 			$menu_slug,
 			array( __CLASS__, 'admin_page' ),
-			Admin_Menu::POSITION_FIRST
+			$position
 		);
 		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
 		// Users who can edit posts but have no Jetpack menu get an admin_page_ hook instead.
 		add_action( 'load-admin_page_' . $menu_slug, array( __CLASS__, 'admin_init' ) );
+	}
+
+	/**
+	 * Whether the current user may access the page selected by My Jetpack.
+	 *
+	 * @since 6.10.0
+	 * @return bool
+	 */
+	public static function current_user_can_access_page() {
+		return current_user_can( 'edit_posts' )
+			&& ( ! self::is_offline_features_enabled() || REST_Main_Features::permissions_callback() );
 	}
 
 	/**
@@ -228,6 +291,14 @@ class Initializer {
 	 * @return void
 	 */
 	public static function admin_init() {
+		if ( self::is_offline_features_enabled() ) {
+			if ( ! self::current_user_can_access_page() ) {
+				wp_die( esc_html__( 'Sorry, you are not allowed to access this page.', 'jetpack-my-jetpack' ), 403 );
+			}
+			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
+			return;
+		}
+
 		$connection = new Connection_Manager();
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No nonce needed for redirect flow control
@@ -274,6 +345,9 @@ class Initializer {
 	 * @return bool
 	 */
 	public static function is_onboarding_available() {
+		if ( self::is_offline_features_enabled() ) {
+			return false;
+		}
 		return ! ( new Status_Host() )->is_wpcom_simple() && null === self::get_partner_coupon_screen();
 	}
 
@@ -288,7 +362,8 @@ class Initializer {
 	 */
 	public static function get_partner_coupon_screen() {
 		if (
-			! self::should_initialize()
+			self::is_offline_features_enabled()
+			|| ! self::should_initialize()
 			|| ! current_user_can( 'manage_options' )
 			|| ! Jetpack_Constants::is_defined( 'JETPACK__PLUGIN_FILE' )
 		) {
@@ -360,55 +435,6 @@ class Initializer {
 		$tracking   = new Tracking( 'jetpack', $connection );
 
 		return $tracking->should_enable_tracking( new Terms_Of_Service(), $status );
-	}
-
-	/**
-	 * Register the package's feature flags.
-	 *
-	 * @since 6.3.0
-	 *
-	 * @return void
-	 */
-	public static function register_feature_flags() {
-		Feature_Flags::register(
-			self::FEATURES_TAB_FEATURE_FLAG,
-			array(
-				'default'     => true,
-				'description' => 'Replace the My Jetpack Products tab with a Features tab.',
-				'owner'       => 'my-jetpack',
-			)
-		);
-	}
-
-	/**
-	 * Whether the dashboard shows a Features tab in place of the Products tab.
-	 *
-	 * @since 6.4.0
-	 *
-	 * @return bool
-	 */
-	public static function is_features_tab_enabled() {
-		return Feature_Flags::is_enabled( self::FEATURES_TAB_FEATURE_FLAG );
-	}
-
-	/**
-	 * Get the slug and label that replace the Products tab, for links to it.
-	 *
-	 * Null while the tab is unchanged, so links keep their own translated "Products" label.
-	 *
-	 * @since 6.4.0
-	 *
-	 * @return array{slug: string, label: string}|null
-	 */
-	public static function get_products_section() {
-		if ( ! self::is_features_tab_enabled() ) {
-			return null;
-		}
-
-		return array(
-			'slug'  => 'features',
-			'label' => _x( 'Features', 'Navigation item', 'jetpack-my-jetpack' ),
-		);
 	}
 
 	/**
@@ -594,6 +620,38 @@ class Initializer {
 	 * @return void
 	 */
 	public static function enqueue_scripts() {
+		if ( self::is_offline_features_enabled() ) {
+			$data_handle = self::DATA_SCRIPT_HANDLE;
+			wp_register_script( $data_handle, false, array(), self::PACKAGE_VERSION, true );
+			wp_enqueue_script( $data_handle );
+			add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_script_data' ) );
+			wp_localize_script(
+				$data_handle,
+				'myJetpackInitialState',
+				array(
+					'isOfflineFeatures'     => true,
+					'products'              => array( 'items' => array() ),
+					'adminUrl'              => esc_url( admin_url() ),
+					'assetsUrl'             => self::get_assets_url(),
+					'isJetpackPluginActive' => class_exists( 'Jetpack' ),
+					'hiddenFeatures'        => Feature_Visibility::get_hidden(),
+					'myJetpackFlags'        => self::get_my_jetpack_flags(),
+				)
+			);
+			wp_localize_script(
+				$data_handle,
+				'myJetpackRest',
+				array(
+					'apiRoot'  => esc_url_raw( rest_url() ),
+					'apiNonce' => wp_create_nonce( 'wp_rest' ),
+				)
+			);
+			if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
+				wp_enqueue_script( 'wp-jp-i18n-loader' );
+			}
+			return;
+		}
+
 		/**
 		 * Fires after the My Jetpack page is initialized.
 		 * Allows for enqueuing additional scripts only on the My Jetpack page.
@@ -642,8 +700,6 @@ class Initializer {
 			$sandboxed_domain = defined( 'JETPACK__SANDBOX_DOMAIN' ) ? JETPACK__SANDBOX_DOMAIN : '';
 		}
 
-		$features_tab_enabled = self::is_features_tab_enabled();
-
 		wp_localize_script(
 			$data_handle,
 			'myJetpackInitialState',
@@ -651,8 +707,9 @@ class Initializer {
 				'products'               => array(
 					'items' => Products::get_products(),
 				),
-				'mainFeatures'           => $features_tab_enabled ? Main_Features::get_state() : null,
-				'featuresBanner'         => $features_tab_enabled ? array( 'isDismissed' => REST_Main_Features::is_banner_dismissed() ) : null,
+				'mainFeatures'           => Main_Features::get_state(),
+				'featuresBanner'         => array( 'isDismissed' => REST_Main_Features::is_banner_dismissed() ),
+				'header'                 => self::get_header_state(),
 				'plugins'                => Plugins_Installer::get_plugins(),
 				'themes'                 => Sync_Functions::get_themes(),
 				'myJetpackUrl'           => admin_url( 'admin.php?page=my-jetpack' ),
@@ -714,13 +771,27 @@ class Initializer {
 	}
 
 	/**
+	 * What the shared header needs beyond the rest of the state, so it renders without a request.
+	 *
+	 * @since 6.10.0
+	 *
+	 * @return array{connectorsUrl: string|null} The state.
+	 */
+	public static function get_header_state() {
+		return array(
+			// The same probe the connection package uses: the core screen ships with WordPress 7.0.
+			'connectorsUrl' => file_exists( ABSPATH . 'wp-admin/options-connectors.php' ) ? admin_url( 'options-connectors.php' ) : null,
+		);
+	}
+
+	/**
 	 * Add My Jetpack data to the unified script data object.
 	 *
 	 * @param array $data The script data.
 	 * @return array
 	 */
 	public static function add_script_data( $data ) {
-		$block_availability = class_exists( '\Jetpack_Gutenberg' )
+		$block_availability = ! self::is_offline_features_enabled() && class_exists( '\Jetpack_Gutenberg' )
 			? \Jetpack_Gutenberg::get_cached_availability()
 			: array();
 
@@ -737,10 +808,27 @@ class Initializer {
 	}
 
 	/**
-	 * Add My Jetpack availability, image base URL, and products tab to admin script data.
+	 * Get the slug and label of the Features tab, for footer links to it.
+	 *
+	 * Kept for footers built before the Products tab was removed: Jetpack 16.3 calls this, and
+	 * older JS footers read it from script data. Without it they link to "Products".
+	 *
+	 * @since 6.4.0
+	 *
+	 * @return array{slug: string, label: string}
+	 */
+	public static function get_products_section() {
+		return array(
+			'slug'  => 'features',
+			'label' => _x( 'Features', 'Navigation item', 'jetpack-my-jetpack' ),
+		);
+	}
+
+	/**
+	 * Add My Jetpack's availability, image base URL and link targets to admin script data.
 	 *
 	 * Printed on every admin page by Script_Data, so the connection screen can resolve its
-	 * illustrations and Jetpack footers can link to the products tab off the My Jetpack page.
+	 * illustrations and Jetpack footers know whether to link to My Jetpack.
 	 *
 	 * @since 6.3.0
 	 *
@@ -752,7 +840,47 @@ class Initializer {
 		$data['myJetpack']['assetsUrl']       = self::get_assets_url();
 		$data['myJetpack']['productsSection'] = self::get_products_section();
 
+		// Only administrators can open the pages this points at, so spare everyone else the lookup.
+		if ( current_user_can( 'manage_options' ) ) {
+			$data['myJetpack']['aiManageUrl'] = esc_url_raw( Products\Jetpack_Ai::get_manage_url() );
+		}
+
+		if (
+			self::is_my_jetpack_admin_request()
+			&& self::is_offline_features_enabled()
+			&& self::should_initialize()
+			&& REST_Main_Features::permissions_callback()
+		) {
+			$data['myJetpack']['offlineFeatures'] = array(
+				'mainFeatures' => Main_Features::get_state( true ),
+				'plugins'      => Plugins_Installer::get_plugins(),
+			);
+			$data['myJetpack']['offlineFeatures']['mainFeatures']['available_admin_pages'] = self::get_registered_admin_page_slugs();
+		}
+
 		return $data;
+	}
+
+	/**
+	 * Get the slugs of registered admin pages.
+	 *
+	 * Skip hooks containing `?`: they are `edit.php?post_type=...` style pages, not page slugs.
+	 *
+	 * @return string[]
+	 */
+	private static function get_registered_admin_page_slugs() {
+		global $_registered_pages;
+
+		$hooks = array_filter(
+			array_keys( $_registered_pages ?? array() ),
+			static fn( $hook ) => false !== strpos( $hook, '_page_' ) && false === strpos( $hook, '?' )
+		);
+
+		return array_values(
+			array_unique(
+				array_map( static fn( $hook ) => substr( $hook, strpos( $hook, '_page_' ) + 6 ), $hooks )
+			)
+		);
 	}
 
 	/**
@@ -867,6 +995,24 @@ class Initializer {
 	}
 
 	/**
+	 * Register My Jetpack's feature flags.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function register_feature_flags() {
+		Feature_Flags::register(
+			self::HEADER_CONTROLS_FLAG,
+			array(
+				'default'     => false,
+				'description' => 'Show the global controls in the shared header of My Jetpack and Boost.',
+				'owner'       => 'my-jetpack',
+			)
+		);
+	}
+
+	/**
 	 *  Build flags for My Jetpack UI
 	 *
 	 *  @return array
@@ -879,9 +1025,27 @@ class Initializer {
 			// caches its report and wants a `force_refresh` hint the dashboard does not.
 			'premiumAnalyticsEnabled'  => Products\Stats::is_premium_analytics_enabled(),
 			'showAiModuleToggle'       => Products\Jetpack_Ai::is_feature_ui_enabled(),
+			'headerControls'           => Feature_Flags::is_enabled( self::HEADER_CONTROLS_FLAG ),
+			'overviewV1'               => self::is_overview_v1_enabled(),
 		);
 
 		return $flags;
+	}
+
+	/**
+	 * Whether My Jetpack shows Overview v1.
+	 *
+	 * @since 6.10.0
+	 * @return bool
+	 */
+	public static function is_overview_v1_enabled() {
+		/**
+		 * Filters whether My Jetpack shows Overview v1.
+		 *
+		 * @since 6.10.0
+		 * @param bool $enabled Whether to show Overview v1. Default false.
+		 */
+		return (bool) apply_filters( 'jetpack_my_jetpack_overview_v1', false );
 	}
 
 	/**
@@ -896,7 +1060,7 @@ class Initializer {
 	 *   real availability switch and the same one the SEO package gates its own surface behind);
 	 * - the site is self-hosted — WordPress.com (Simple + Atomic) decides its own SEO surface, so
 	 *   the opt-in card is for self-hosted installs only;
-	 * - the install hasn't opted in yet — `jetpack_seo_surface_visible` is still false. On wpcom
+	 * - the install hasn't opted in yet — the SEO surface isn't visible. On wpcom
 	 *   the SEO package's `is_seo_surface_visible()` short-circuits to `true`, so the
 	 *   "not visible yet" check also doubles as the self-hosted guard, but we check the platform
 	 *   explicitly for clarity.
@@ -948,15 +1112,17 @@ class Initializer {
 	 * @return void
 	 */
 	public static function register_rest_endpoints() {
+		if ( self::is_offline_features_enabled() ) {
+			( new REST_Main_Features() )->register_rest_routes();
+			return;
+		}
+
 		new REST_Products();
 		new REST_Purchases();
-		new REST_Zendesk_Chat();
 		( new REST_Jetpack_AI_JWT() )->register_rest_route();
 		new REST_Recommendations_Evaluation();
 
-		if ( self::is_features_tab_enabled() ) {
-			( new REST_Main_Features() )->register_rest_routes();
-		}
+		( new REST_Main_Features() )->register_rest_routes();
 
 		Products::register_product_endpoints();
 		Historically_Active_Modules::register_rest_endpoints();
@@ -1002,19 +1168,46 @@ class Initializer {
 	public static function should_initialize() {
 		$should = true;
 
-		// All options presented in My Jetpack require a connection to WordPress.com.
 		if ( ( new Status() )->is_offline_mode() ) {
-			$should = false;
+			$should = self::is_offline_features_enabled();
 		}
 
 		/**
 		 * Allows filtering whether My Jetpack should be initialized.
+		 * Outside REST requests, once the user is set, this cannot enable offline Features for a user without access.
 		 *
 		 * @since 0.5.0-alpha
 		 *
 		 * @param bool $shoud_initialize Should we initialize My Jetpack?
 		 */
-		return apply_filters( 'jetpack_my_jetpack_should_initialize', $should );
+		$should = apply_filters( 'jetpack_my_jetpack_should_initialize', $should );
+
+		// REST authenticates after route registration; its permission callbacks check access.
+		if ( self::is_offline_features_enabled() && ! Jetpack_Constants::is_true( 'REST_REQUEST' ) && function_exists( 'wp_get_current_user' ) && did_action( 'set_current_user' ) && ! self::current_user_can_access_page() ) {
+			return false;
+		}
+
+		return $should;
+	}
+
+	/**
+	 * Whether the site uses the local Features entry instead of the connected dashboard.
+	 *
+	 * @since 6.10.0
+	 * @return bool
+	 */
+	public static function is_offline_features_enabled() {
+		if ( ! ( new Status() )->is_offline_mode() ) {
+			return false;
+		}
+
+		/**
+		 * Enable local Features data and entry in offline mode.
+		 *
+		 * @since 6.10.0
+		 * @param bool $enabled Whether to enable offline Features. Default false.
+		 */
+		return (bool) apply_filters( 'jetpack_my_jetpack_offline_features', false );
 	}
 
 	/**
@@ -1258,12 +1451,9 @@ class Initializer {
 			);
 		}
 
+		$counted_elsewhere = self::get_alerts_counted_elsewhere();
 		foreach ( array_keys( $red_bubble_alerts ) as $slug ) {
-			// Protect reports its own count directly to the registry, but only when its
-			// standalone plugin is active (see class-jetpack-protect.php::admin_page_init()).
-			// If the standalone plugin isn't active, nobody else registers this count, so we
-			// must not skip it here or the alert silently disappears from the menu total.
-			if ( 'protect_has_threats' === $slug && Products\Protect::is_standalone_plugin_active() ) {
+			if ( in_array( $slug, $counted_elsewhere, true ) ) {
 				continue;
 			}
 			// The missing-connection slug and a connection error describe the same broken
@@ -1300,6 +1490,18 @@ class Initializer {
 	}
 
 	/**
+	 * Alerts left out of the My Jetpack badge because another menu item already counts them.
+	 *
+	 * The Protect page reports its own count, from the standalone plugin (class-jetpack-protect.php::admin_page_init())
+	 * or the Protect package's dashboard; without either, nobody else counts the threats, so they must stay.
+	 *
+	 * @return string[] Alert slugs.
+	 */
+	private static function get_alerts_counted_elsewhere() {
+		return Products\Protect::has_protect_page() ? array( 'protect_has_threats' ) : array();
+	}
+
+	/**
 	 * Enqueue the notification bubble script.
 	 * Fetches fresh alert data via REST API without blocking page load.
 	 *
@@ -1314,6 +1516,11 @@ class Initializer {
 				'enqueue'   => true,
 				'in_footer' => true,
 			)
+		);
+		wp_localize_script(
+			'my-jetpack-notification-bubble',
+			'myJetpackNotificationBubble',
+			array( 'excludedAlerts' => self::get_alerts_counted_elsewhere() )
 		);
 	}
 

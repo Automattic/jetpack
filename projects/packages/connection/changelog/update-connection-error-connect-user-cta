@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Let users without admin access restore their own broken account connection through the reconnect endpoint, without touching the site connection.

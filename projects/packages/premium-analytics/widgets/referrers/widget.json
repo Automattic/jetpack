@@ -1,9 +1,10 @@
 {
 	"name": "jpa/referrers",
+	"icon": "jpa/globe",
 	"title": "Top referrers",
 	"description": "Websites and search engines referring visitors to your site.",
 	"help": {
-		"content": "The sources that sent the most visitors to your site, sorted by clicks.",
+		"content": "The sources that sent the most visitors to your site, sorted by views.",
 		"links": [
 			{
 				"label": "Learn more",

@@ -1,6 +1,7 @@
-import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
+import { useDispatch } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 import { FREE_TIER_AT_LIMIT_MESSAGE } from '../components/free-tier-notice';
 import {
 	INVALID_FILE_NOTICE_ID,
@@ -12,20 +13,17 @@ import { useUpload } from './use-upload';
 import { useVideoPressUpgrade } from './use-videopress-upgrade';
 
 /**
- * The shared multi-file upload entry point behind every "give me your files"
- * surface — the Library's DropZone, its header "Upload video" picker, and the
- * welcome modal's primary CTA. Enforces the free-tier cap up front so no
- * surface can sneak past the limit, and raises the same notices from all of
- * them.
+ * Validate selected videos against the plan limit and enqueue accepted files.
  *
- * @return A callback that plans and starts uploads for a picked or dropped
- * file set, returning how many uploads it actually started — 0 when the whole
- * selection was refused (with the refusal already surfaced as a notice).
+ * @param onStarted - Receives temporary IDs for the accepted uploads.
+ * @return File intake callback, returning the accepted count.
  */
-export function useUploadIntake(): ( files: File[] ) => number {
+export function useUploadIntake(
+	onStarted?: ( ids: string[] ) => void
+): ( files: File[] ) => number {
 	const { isFree, isUnlimited, limit, videoCount } = useFreeTier();
 	const { startUpload } = useUpload();
-	const { createErrorNotice } = useGlobalNotices();
+	const { createErrorNotice } = useDispatch( noticesStore );
 	const runUpgrade = useVideoPressUpgrade();
 
 	return useCallback(
@@ -38,18 +36,23 @@ export function useUploadIntake(): ( files: File[] ) => number {
 			} );
 
 			if ( decision.kind === 'no-videos' ) {
-				createErrorNotice( NOT_A_VIDEO_MESSAGE, { id: INVALID_FILE_NOTICE_ID } );
+				createErrorNotice( NOT_A_VIDEO_MESSAGE, {
+					id: INVALID_FILE_NOTICE_ID,
+					type: 'snackbar',
+				} );
 				return 0;
 			}
 
 			if ( decision.kind === 'at-limit' ) {
 				createErrorNotice( FREE_TIER_AT_LIMIT_MESSAGE, {
 					actions: [ { label: __( 'Upgrade', 'jetpack-videopress-pkg' ), onClick: runUpgrade } ],
+					type: 'snackbar',
 				} );
 				return 0;
 			}
 
-			decision.toUpload.forEach( file => startUpload( file ) );
+			const ids = decision.toUpload.map( file => startUpload( file ) );
+			onStarted?.( ids );
 
 			if ( decision.skipped > 0 ) {
 				createErrorNotice(
@@ -62,12 +65,22 @@ export function useUploadIntake(): ( files: File[] ) => number {
 							'jetpack-videopress-pkg'
 						),
 						decision.skipped
-					)
+					),
+					{ type: 'snackbar' }
 				);
 			}
 
 			return decision.toUpload.length;
 		},
-		[ isFree, isUnlimited, limit, videoCount, startUpload, createErrorNotice, runUpgrade ]
+		[
+			isFree,
+			isUnlimited,
+			limit,
+			videoCount,
+			startUpload,
+			createErrorNotice,
+			runUpgrade,
+			onStarted,
+		]
 	);
 }

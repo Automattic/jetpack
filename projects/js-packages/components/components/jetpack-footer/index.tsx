@@ -32,13 +32,10 @@ const JetpackFooter: FC< JetpackFooterProps > = ( { className, menu, ...otherPro
 		! isWpcomPlatformSite() &&
 		! window?.JetpackNetworkAdminData
 	) {
-		// Published by My Jetpack, whose products tab can be renamed Features.
-		const productsSection = getScriptData()?.myJetpack?.productsSection;
-
 		items = [
 			{
-				label: productsSection?.label ?? __( 'Products', 'jetpack-components' ),
-				href: getAdminUrl( `admin.php?page=my-jetpack#/${ productsSection?.slug ?? 'products' }` ),
+				label: __( 'Features', 'jetpack-components' ),
+				href: getAdminUrl( 'admin.php?page=my-jetpack#/features' ),
 			},
 			{
 				label: __( 'Help', 'jetpack-components' ),

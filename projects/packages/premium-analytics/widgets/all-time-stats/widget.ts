@@ -2,7 +2,6 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { backup } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
@@ -28,7 +27,6 @@ export type AllTimeStatsAttributes = Record< never, never >;
  * Ported from the Jetpack Stats "All-time stats" card.
  */
 export default {
-	icon: backup,
 	attributes: [] as WidgetAttributeField< AllTimeStatsAttributes >[],
 	example: {
 		attributes: {},

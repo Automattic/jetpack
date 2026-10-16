@@ -8,6 +8,7 @@ import clsx from 'clsx';
  */
 import { SkeletonRoot } from '../widget-skeleton';
 import styles from './leaderboard-skeleton.module.scss';
+import type { LeaderboardVariant } from './leaderboard-variant';
 
 const DEFAULT_ROW_COUNT = 5;
 
@@ -18,11 +19,9 @@ const DEFAULT_ROW_COUNT = 5;
 const ALL_ROWS_COUNT = 12;
 
 /**
- * Which of the design's two leaderboard shapes to draw. `list` matches a chart drawn
- * `withOverlayLabel`, whose label sits on the bar; `bars` matches the plain chart,
- * whose label sits above it.
+ * The look the skeleton stands in for, see `LeaderboardVariant`.
  */
-export type LeaderboardSkeletonVariant = 'list' | 'bars';
+export type LeaderboardSkeletonVariant = LeaderboardVariant;
 
 export interface LeaderboardSkeletonProps {
 	/** Rows to draw; pass the widget's own row count so the shape matches the list that will load. */

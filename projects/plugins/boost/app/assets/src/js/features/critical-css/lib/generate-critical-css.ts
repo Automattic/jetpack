@@ -274,7 +274,12 @@ async function generateForKeys(
 			let providerFailed: unknown | Error | null = null;
 
 			try {
-				await callbacks.setProviderCss( key, css );
+				const result = await callbacks.setProviderCss( key, css );
+				if ( result === false ) {
+					// The server already recorded the provider error; keep it and exclude rejected bytes.
+					stepsFailed++;
+					continue;
+				}
 
 				totalSize += css.length;
 				maxSize = css.length > maxSize ? css.length : maxSize;

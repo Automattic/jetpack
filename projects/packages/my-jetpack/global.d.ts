@@ -282,6 +282,16 @@ type PlanExpirationAlert = {
 	expiry_message?: string;
 	manage_url?: string;
 	products_effected?: JetpackProductName[];
+	// WordPress.com's own notice for its plans, replacing the generated one.
+	wpcom_plan_notice?: {
+		title: string;
+		message: string;
+		actions: { label: string; url: string }[];
+		is_dismissible: boolean;
+		level: 'warning' | 'error';
+		// Matches the WordPress.com expiry notices' own Tracks events.
+		track_props: Record< Lowercase< string >, string | number >;
+	};
 };
 
 type PlanExpiredAlerts = Record< `${ JetpackPlanSlug }--plan_expired`, PlanExpirationAlert >;
@@ -469,12 +479,29 @@ type MainFeaturesState = {
 	features: MainFeature[];
 	// Optional: a plugin carrying an older copy of this package sends none.
 	module_groups?: MainFeatureModuleGroup[];
+	hidden_modules?: string[];
+	available_admin_pages?: string[];
+	plugin_installs?: MainFeatureInstallAccess;
+};
+
+type OfflineFeaturesSeed = {
+	mainFeatures: Omit< MainFeaturesState, 'features' > & {
+		features: Array< Omit< MainFeature, 'upgrade' > & { upgrade: null } >;
+	};
+	plugins: Record< string, { active: boolean; [ key: string ]: unknown } >;
+};
+
+type OfflineFeaturesScriptData = import( '@automattic/jetpack-script-data' ).MyJetpackScriptData & {
+	offlineFeatures?: OfflineFeaturesSeed;
 };
 
 type MainFeatureModuleGroup = {
 	label: string;
 	modules: string[];
 };
+
+// Whether the current user may install plugins here: not while file changes are off site-wide, or not with their role.
+type MainFeatureInstallAccess = 'allowed' | 'disabled' | 'not_permitted';
 
 type MainFeature = {
 	slug: string;
@@ -493,10 +520,16 @@ type MainFeature = {
 	plugin_override: '' | 'active' | 'inactive';
 	free_highlights: string[];
 	paid_highlights: string[];
+	pricing_notes?: string[];
 	// The My Jetpack route that sells the feature, such as `/add-akismet`, and the product it sells.
 	upgrade: { path: string; name: string };
+	// Whether the site already pays for the feature, directly or through a bundle.
+	included?: boolean;
+	// What to expect after turning it on, such as picking a plan.
+	setup_note?: string;
 	screenshot: string;
-	plans: Array< { slug: string; name: string } >;
+	// `owned` is per plan: a site on Growth owns that one and can still buy Complete.
+	plans: Array< { slug: string; name: string; owned?: boolean } >;
 	info_url: string;
 	docs_url: string;
 	product: string;
@@ -505,8 +538,13 @@ type MainFeature = {
 
 interface Window {
 	myJetpackInitialState?: {
+		isOfflineFeatures?: boolean | '1';
 		mainFeatures: MainFeaturesState | null;
 		featuresBanner: { isDismissed: boolean } | null;
+		// Optional: a plugin carrying an older copy of this package sends none.
+		header?: {
+			connectorsUrl: string | null;
+		};
 		siteSuffix: string;
 		siteUrl: string;
 		latestBoostSpeedScores: {
@@ -535,6 +573,8 @@ interface Window {
 		loadAddLicenseScreen: string;
 		myJetpackCheckoutUri: string;
 		myJetpackFlags: {
+			headerControls?: boolean;
+			overviewV1: boolean;
 			showAiModuleToggle: boolean;
 			showFullJetpackStatsCard: boolean;
 			videoPressStats: boolean;
@@ -583,11 +623,11 @@ interface Window {
 					has_free_offering: boolean;
 					feature_identifying_paid_plan: string;
 					has_paid_plan_for_product: boolean;
-					features_by_tier: Array< string >;
+					has_protect_page?: boolean;
+					scan_results_url?: string;
 					is_bundle: boolean;
 					is_feature: boolean;
 					is_plugin_active: boolean;
-					is_tiered_pricing: boolean;
 					is_upgradable: boolean;
 					is_upgradable_by_bundle: string[];
 					long_description: string;
@@ -733,5 +773,9 @@ interface Window {
 	/** Shared client for live-updating Jetpack admin-menu notification badges (automattic/jetpack-menu-badges). */
 	jetpackMenuBadges?: {
 		setCount: ( menuSlug: string, count: number ) => void;
+	};
+	/** Alerts another menu item already counts, so the async My Jetpack badge skips them. */
+	myJetpackNotificationBubble?: {
+		excludedAlerts: string[];
 	};
 }

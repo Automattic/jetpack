@@ -672,6 +672,43 @@ class PayPal_API_Client_Test extends TestCase {
 	}
 
 	/**
+	 * PayPal's debug ID is kept on the error and quoted in the message, so the
+	 * merchant can hand it to PayPal support.
+	 */
+	public function test_error_carries_paypal_debug_id() {
+		$this->set_up_connected_state();
+
+		$this->mock_http_response(
+			500,
+			array(
+				'name'     => 'INTERNAL_SERVER_ERROR',
+				'message'  => 'An internal server error has occurred.',
+				'debug_id' => 'abc123def456',
+			)
+		);
+
+		$result = PayPal_API_Client::create_resource( array( 'type' => 'BUY_NOW' ) );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'abc123def456', $result->get_error_data()['paypal_debug_id'] );
+		$this->assertStringEndsWith( 'PayPal debug ID: abc123def456.', $result->get_error_message() );
+	}
+
+	/**
+	 * A PayPal error without a debug ID leaves the message alone.
+	 */
+	public function test_error_without_debug_id_adds_nothing() {
+		$this->set_up_connected_state();
+
+		$this->mock_http_response( 500, array( 'name' => 'INTERNAL_SERVER_ERROR' ) );
+
+		$result = PayPal_API_Client::create_resource( array( 'type' => 'BUY_NOW' ) );
+
+		$this->assertSame( '', $result->get_error_data()['paypal_debug_id'] );
+		$this->assertStringNotContainsString( 'debug ID', $result->get_error_message() );
+	}
+
+	/**
 	 * Test that a 429 error returns a rate limit message.
 	 */
 	public function test_error_429_rate_limit() {

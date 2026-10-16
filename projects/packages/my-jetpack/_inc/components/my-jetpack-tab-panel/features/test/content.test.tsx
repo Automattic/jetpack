@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router';
+import { MemoryRouter, useLocation } from 'react-router';
 import { FeaturesContent } from '../content';
 import { getModuleFeatureState } from '../use-more-features';
 import type { MyJetpackModule } from '../../../../types';
@@ -28,9 +28,22 @@ let mockMainFeatures: Record< string, unknown > = {
 	isPlaceholderData: false,
 };
 
+let mockModulesLoaded = true;
+jest.mock( '../use-all-jetpack-modules', () => ( {
+	useAllJetpackModules: () => ( { modules: {}, isLoading: false, hasLoaded: mockModulesLoaded } ),
+} ) );
+
 jest.mock( '../use-main-features', () => ( { useMainFeatures: () => mockMainFeatures } ) );
 
 let mockIsLoading = false;
+
+// The tab mounts its tracking provider, which would otherwise reach the connection and
+// analytics packages for a test about which layout renders.
+jest.mock( '../../../../hooks/use-analytics', () => ( {
+	__esModule: true,
+	default: () => ( { recordEvent: jest.fn() } ),
+} ) );
+
 jest.mock( '../feature-state', () => ( {
 	useFeatureStates: () => ( { states: mockStates, isLoading: mockIsLoading } ),
 } ) );
@@ -53,9 +66,12 @@ jest.mock( '../use-more-features', () => ( {
 } ) );
 jest.mock( '../features-banner', () => ( { FeaturesBanner: () => null } ) );
 
+const RouteState = () => <output data-testid="route">{ useLocation().search }</output>;
+
 const tree = ( url: string, client: QueryClient ) => (
 	<QueryClientProvider client={ client }>
 		<MemoryRouter initialEntries={ [ url ] }>
+			<RouteState />
 			<FeaturesContent />
 		</MemoryRouter>
 	</QueryClientProvider>
@@ -71,12 +87,37 @@ describe( 'FeaturesContent', () => {
 	beforeEach( () => {
 		mockStates = [ activeStats ];
 		mockIsLoading = false;
+		mockModulesLoaded = true;
 		mockGroups = [];
 		mockMainFeatures = {
 			jetpack: 'active',
 			features: [ { slug: 'stats' } ],
 			isPlaceholderData: false,
 		};
+	} );
+
+	it( 'restores the available filter and search from the route after a remount', async () => {
+		const view = renderAt( '/features?view=list' );
+		await userEvent.click( screen.getByRole( 'button', { name: /^Available/ } ) );
+		await userEvent.type( screen.getByRole( 'searchbox', { name: 'Search features' } ), 'monitor' );
+		const saved = screen.getByTestId( 'route' ).textContent;
+		expect( new URLSearchParams( saved || '' ).get( 'filter' ) ).toBe( 'available' );
+		expect( new URLSearchParams( saved || '' ).get( 'search' ) ).toBe( 'monitor' );
+		view.unmount();
+		renderAt( `/features${ saved }` );
+		expect( screen.getByRole( 'button', { name: /^Available/ } ) ).toHaveAttribute(
+			'aria-pressed',
+			'false'
+		);
+		expect( screen.getByRole( 'searchbox', { name: 'Search features' } ) ).toHaveValue( 'monitor' );
+		expect(
+			new URLSearchParams( screen.getByTestId( 'route' ).textContent || '' ).get( 'filter' )
+		).toBe( 'available' );
+		await userEvent.clear( screen.getByRole( 'searchbox', { name: 'Search features' } ) );
+		expect( screen.getByRole( 'button', { name: /^Available/ } ) ).toHaveAttribute(
+			'aria-pressed',
+			'true'
+		);
 	} );
 
 	it( 'names the filter that matched nothing and switches back from the empty state', async () => {
@@ -106,12 +147,42 @@ describe( 'FeaturesContent', () => {
 		expect( screen.queryByRole( 'heading' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'still answers a search that matched nothing while modules are in flight', () => {
+	it.each( [ 'all', 'available' ] )(
+		'still answers a search that matched nothing while modules are in flight (filter: %s)',
+		filter => {
+			mockStates = [ { ...activeStats, pending: true, status: 'inactive' } as FeatureState ];
+
+			renderAt( `/features?filter=${ filter }&search=zzzz` );
+
+			expect( screen.getByRole( 'heading' ) ).toHaveTextContent( 'No features match “zzzz”.' );
+		}
+	);
+
+	it( 'waits for modules before reporting an empty Available filter after a reload', () => {
+		mockIsLoading = true;
+		mockModulesLoaded = false;
+		mockStates = [ { ...activeStats, pending: true } as FeatureState ];
+		const { rerenderAt } = renderAt( '/features?filter=available' );
+
+		expect( screen.queryByText( 'No features found.' ) ).not.toBeInTheDocument();
+
+		mockIsLoading = false;
+		mockModulesLoaded = true;
+		mockStates = [ activeStats ];
+		rerenderAt();
+		expect( screen.getByText( 'grid card' ) ).toBeInTheDocument();
+
+		mockStates = [ { ...activeStats, unavailableReason: 'Unavailable' } ];
+		rerenderAt();
+		expect( screen.getByText( 'No features found.' ) ).toBeInTheDocument();
+	} );
+
+	it( 'stops holding Available back once a failed module request has ended', () => {
 		mockStates = [ { ...activeStats, pending: true, status: 'inactive' } as FeatureState ];
 
-		renderAt( '/features?search=zzzz' );
+		renderAt( '/features?filter=available' );
 
-		expect( screen.getByRole( 'heading' ) ).toHaveTextContent( 'No features match “zzzz”.' );
+		expect( screen.getByRole( 'heading', { name: 'No features found.' } ) ).toBeVisible();
 	} );
 
 	it( 'reports an empty catalog as a failure rather than a site with no features', () => {
@@ -123,6 +194,56 @@ describe( 'FeaturesContent', () => {
 		expect(
 			screen.getByRole( 'heading', { name: 'We couldn’t load your features.' } )
 		).toBeVisible();
+	} );
+
+	it( 'leaves every filter pill unpressed while a search covers all features', () => {
+		renderAt( '/features?filter=growth&search=stats' );
+
+		const pills = within( screen.getByRole( 'group', { name: 'Filter features' } ) );
+
+		expect( pills.getByRole( 'button', { name: /^Growth/ } ) ).toBeInTheDocument();
+		expect( pills.queryAllByRole( 'button', { pressed: true } ) ).toHaveLength( 0 );
+	} );
+
+	it( 'drops the category pills for a visit that arrived on Included in plan, until it leaves the tab', async () => {
+		const { unmount } = renderAt( '/features?filter=included' );
+
+		const pillNames = () =>
+			within( screen.getByRole( 'group', { name: 'Filter features' } ) )
+				.getAllByRole( 'button' )
+				.map( pill => pill.textContent?.replace( /\d+$/, '' ) );
+
+		expect( pillNames() ).toEqual( [
+			'All',
+			'Available',
+			'Active',
+			'Inactive',
+			'Included in plan',
+		] );
+
+		await userEvent.click( screen.getByRole( 'button', { name: /^All/ } ) );
+
+		expect( pillNames() ).toEqual( [
+			'All',
+			'Available',
+			'Active',
+			'Inactive',
+			'Included in plan',
+		] );
+
+		// A fresh mount is a new visit to the tab, which offers the usual pills again.
+		unmount();
+		renderAt( '/features' );
+
+		expect( pillNames() ).toEqual( [
+			'All',
+			'Available',
+			'Active',
+			'Inactive',
+			'Essential',
+			'Security',
+			'Growth',
+		] );
 	} );
 
 	it( 'shows the grid by default and switches to the list from the toolbar', async () => {

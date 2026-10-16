@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Loads `build/build.php` for the admin page that renders a wp-build route.
  *
- * @since $$next-version$$
+ * @since 16.3
  */
 class Jetpack_WP_Build_Page {
 

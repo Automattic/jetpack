@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Dashboard: Stop the modernized dashboard from logging a console error about missing Jetpack configuration.

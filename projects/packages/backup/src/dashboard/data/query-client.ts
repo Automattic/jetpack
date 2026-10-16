@@ -53,6 +53,8 @@ export const keys = {
 	// registered `/jetpack/v4/backups`. Polled while a backup runs, so it
 	// deliberately does not share the activity-log family's key.
 	backups: () => [ 'backup', 'backups' ] as const,
+	// Client-only: the pending "Back up now" request. Never fetched.
+	enqueueRequested: () => [ 'backup', 'enqueue-requested' ] as const,
 	siteSize: () => [ 'backup', 'site-size' ] as const,
 	// The site's retention and storage policies. Separate from
 	// `siteSize` because it is a separate route with a much flatter
@@ -79,6 +81,8 @@ export const keys = {
 	// descending are different rows.
 	activityLogPage: ( page: number, pageSize: number, sortOrder: ActivitySortOrder ) =>
 		[ 'backup', 'activity-log', { page, pageSize, sortOrder } ] as const,
+	// Every loaded page of backup sizes, as one infinite query.
+	backupSizes: () => [ 'backup', 'sizes' ] as const,
 	fileTree: ( rewindId: string, folderPath: string | null ) =>
 		[ 'backup', 'file-tree', rewindId, folderPath ] as const,
 	fileContents: ( rewindId: string, path: string ) =>
@@ -93,9 +97,4 @@ export const keys = {
 	restoreStatus: ( restoreId: number ) => [ 'backup', 'restore-status', restoreId ] as const,
 	// The site's recent restores, not one restore's status; see `useRecentRestores`.
 	recentRestores: () => [ 'backup', 'recent-restores' ] as const,
-	// Whether one review prompt has been dismissed. Keyed on the reason
-	// because the two prompts are dismissed independently — declining to
-	// review after a restore must not also spend the backups prompt — and
-	// the server stores them under separate options for the same reason.
-	reviewDismissal: ( reason: string ) => [ 'backup', 'review-dismissal', reason ] as const,
 };

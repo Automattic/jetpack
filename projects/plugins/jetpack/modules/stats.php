@@ -83,14 +83,14 @@ function jetpack_is_dnt_enabled() {
 /**
  * Prevent sparkline img requests being redirected to upgrade.php.
  *
- * @deprecated $$next-version$$
+ * @deprecated 16.3
  *
  * @access public
  * @param mixed $version Version.
  * @return string $version.
  */
 function stats_ignore_db_version( $version ) {
-	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats_Admin\Admin_Bar::ignore_db_version' );
+	_deprecated_function( __FUNCTION__, 'jetpack-16.3', 'Automattic\Jetpack\Stats_Admin\Admin_Bar::ignore_db_version' );
 	return Stats_Admin_Bar::ignore_db_version( $version );
 }
 
@@ -726,27 +726,27 @@ function stats_hide_smile_css() {
 /**
  * Stats Admin Bar Head.
  *
- * @deprecated $$next-version$$
+ * @deprecated 16.3
  *
  * @access public
  * @return void
  */
 function stats_admin_bar_head() {
-	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats_Admin\Admin_Bar::maybe_add_chart' );
+	_deprecated_function( __FUNCTION__, 'jetpack-16.3', 'Automattic\Jetpack\Stats_Admin\Admin_Bar::maybe_add_chart' );
 	Stats_Admin_Bar::maybe_add_chart();
 }
 
 /**
  * Gets the image source of the given stats chart.
  *
- * @deprecated $$next-version$$
+ * @deprecated 16.3
  *
  * @param string $chart Name of the chart.
  * @param array  $args Extra list of argument to use in the image source.
  * @return string An image source.
  */
 function stats_get_image_chart_src( $chart, $args = array() ) {
-	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats_Admin\Admin_Bar::get_chart_src' );
+	_deprecated_function( __FUNCTION__, 'jetpack-16.3', 'Automattic\Jetpack\Stats_Admin\Admin_Bar::get_chart_src' );
 
 	$url = add_query_arg( 'page', 'stats', admin_url( 'admin.php' ) );
 
@@ -766,27 +766,27 @@ function stats_get_image_chart_src( $chart, $args = array() ) {
 /**
  * Stats AdminBar.
  *
- * @deprecated $$next-version$$
+ * @deprecated 16.3
  *
  * @access public
  * @param mixed $wp_admin_bar WPAdminBar.
  * @return void
  */
 function stats_admin_bar_menu( &$wp_admin_bar ) {
-	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats_Admin\Admin_Bar::add_chart_node' );
+	_deprecated_function( __FUNCTION__, 'jetpack-16.3', 'Automattic\Jetpack\Stats_Admin\Admin_Bar::add_chart_node' );
 	Stats_Admin_Bar::add_chart_node( $wp_admin_bar );
 }
 
 /**
  * Adds a Stats link to the site-name admin bar submenu, alongside Dashboard.
  *
- * @deprecated $$next-version$$
+ * @deprecated 16.3
  *
  * @access public
  * @return void
  */
 function stats_add_link_to_admin_bar_site_menu() {
-	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats_Admin\Admin_Bar::add_site_menu_link' );
+	_deprecated_function( __FUNCTION__, 'jetpack-16.3', 'Automattic\Jetpack\Stats_Admin\Admin_Bar::add_site_menu_link' );
 	Stats_Admin_Bar::add_site_menu_link();
 }
 

@@ -37,24 +37,17 @@ Each button also generates a shareable payment link URL you can use in emails, s
 #### Step 2: Connect in the Block Editor
 
 1. Add a **Pay with PayPal** block to any post or page. The block itself only says it needs a PayPal business account; the connection happens in the block settings sidebar
-2. The sidebar shows **Connect your PayPal account**, with a sandbox toggle and a **Connect PayPal** button that opens PayPal's own sign-up or log-in. Sites that cannot use it get the credentials wizard instead:
+2. The sidebar shows **Connect your PayPal account**, with a **Connect PayPal** button that opens PayPal's own sign-up or log-in. Sites that cannot use it get the credentials wizard instead:
    - **Dashboard** — Follow the link to the PayPal Developer Dashboard to get your credentials
    - **Credentials** — Paste your Client ID and Client Secret
 3. The plugin validates your credentials with PayPal
 4. Once connected, you'll see the product creation form
 
-The plugin defaults to **Production** mode — you can accept real payments right away.
+The plugin connects to **Production** — you can accept real payments right away.
 
 #### Testing with Sandbox
 
-To test without processing real payments:
-
-1. In the PayPal Developer Dashboard, select the **Sandbox** tab under Apps & Credentials
-2. Create a Sandbox app and copy its Client ID and Client Secret
-3. In the block editor credentials step, click **"Use Sandbox for testing"** at the bottom
-4. Enter your Sandbox credentials
-
-When you're ready for real payments, disconnect and reconnect with your Live (Production) credentials.
+The connection wizard does not offer PayPal's sandbox. Developers can turn it on with the `paypal-payments-sandbox` feature flag (see `DEVELOPMENT.md`); a site connected to the sandbox that way stays connected until it disconnects, after which the wizard connects to Production again.
 
 ### Creating a Button
 
@@ -82,8 +75,8 @@ A live preview appears showing exactly how your button will look on the publishe
 Once a block has a saved link, selecting it opens the block settings sidebar on the link's details: its name and price, then when it was created, its Hosted ID, how many published posts use it, and the maximum quantity when buyers can pick one.
 
 - **Edit:** Open the menu beside the link's name and choose **Edit** to get the product form. Update the details, then update or publish the post. **Edit Button** at the top of the form goes back; a link with something to fix opens on the form instead
-- **Manage all links:** Once a block has a saved link, the PayPal Connection panel in the block settings sidebar has a "Manage PayPal Payment Links" link. It opens the PayPal Payment Links admin page in a new tab, so the post you are editing stays where it is
-- **Delete:** Click "Delete payment link" in the block toolbar or the PayPal Connection panel, or use the Delete action on the PayPal Payment Links admin page
+- **Manage all links:** Open the menu beside "PayPal Payment Button" at the top of the block settings sidebar and choose **Manage all links and buttons**. It opens the PayPal Payment Links admin page in a new tab, so the post you are editing stays where it is
+- **Delete:** Click "Delete payment link" in the block toolbar, choose **Delete** in the menu beside the link's name, or use the Delete action on the PayPal Payment Links admin page
 
 #### Deleting is permanent
 
@@ -120,13 +113,13 @@ USD, EUR, GBP, CAD, AUD, JPY, CHF, SEK, NOK, DKK, NZD, SGD, HKD, MXN, BRL, PLN, 
 
 ### Disconnecting
 
-Disconnect PayPal from the block sidebar at any time. Your stored credentials and cached token are removed. Published payment buttons continue to work — the payment links are hosted by PayPal and don't depend on the plugin connection.
+Disconnect PayPal at any time: open the menu beside "PayPal Payment Button" at the top of the block settings sidebar, choose **Log out**, and confirm. Your stored credentials and cached token are removed. Published payment buttons continue to work — the payment links are hosted by PayPal and don't depend on the plugin connection.
 
 ### Troubleshooting
 
 | Issue | Solution |
 |-------|----------|
-| "Client ID or Client Secret is incorrect" | Verify you're using credentials from the correct environment tab (Live vs. Sandbox) in the PayPal Developer Dashboard |
+| "Client ID or Client Secret is incorrect" | Verify you're using credentials from the **Live** tab in the PayPal Developer Dashboard |
 | "Not authorized for Payment Links & Buttons" | Your PayPal app needs the Payment Links & Buttons feature enabled. Check your app settings or create a new app |
 | "Could not connect to PayPal" | Your hosting may block outgoing HTTPS requests. Ask your host to whitelist `api.paypal.com` |
 | "PayPal is temporarily unavailable" | PayPal may be experiencing an outage. The plugin retries automatically — try again in a few minutes |

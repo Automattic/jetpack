@@ -1,6 +1,6 @@
 import { TZDate } from '@date-fns/tz';
 import { ReportScopeProvider } from '@jetpack-premium-analytics/data';
-import { DETAIL_SURFACE_PRESETS } from '@jetpack-premium-analytics/datetime';
+import { MENU_SURFACE_PRESETS_WITH_ALL_TIME } from '@jetpack-premium-analytics/datetime';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { DateFiltersPanel } from '../date-filters-panel';
@@ -94,7 +94,7 @@ describe( 'DateFiltersPanel', () => {
 	it( 'renders the detail surface: every period, plus all time and a custom range', async () => {
 		const user = userEvent.setup();
 		renderPanel( {
-			presetIds: DETAIL_SURFACE_PRESETS,
+			presetIds: MENU_SURFACE_PRESETS_WITH_ALL_TIME,
 			appliedPresetId: 'all-time',
 		} );
 
@@ -148,6 +148,47 @@ describe( 'DateFiltersPanel', () => {
 			},
 			'previous-period'
 		);
+	} );
+
+	describe( 'with Last 30 days spanning a whole month', () => {
+		const openPicker = async ( user: ReturnType< typeof userEvent.setup > ) => {
+			const last30Days = {
+				from: new TZDate( '2026-04-01T00:00:00.000Z', 'UTC' ),
+				to: new TZDate( '2026-04-30T23:59:59.999Z', 'UTC' ),
+			};
+			renderPanel( {
+				appliedPresetId: 'last-30-days',
+				range: last30Days,
+				appliedRange: last30Days,
+				comparisonPresetId: 'previous-period',
+			} );
+
+			await user.click( screen.getByRole( 'button', { name: 'Last 30 days' } ) );
+		};
+
+		it( 'keeps naming the applied comparison while the period picker opens', async () => {
+			const user = userEvent.setup();
+			await openPicker( user );
+
+			expect( screen.getByRole( 'button', { name: 'Previous 30 days' } ) ).toBeInTheDocument();
+		} );
+
+		// The mocked `onChange` leaves the range as applied, so only the preset differs.
+		it( 'previews a custom draft of the same dates as a custom range', async () => {
+			const user = userEvent.setup();
+			await openPicker( user );
+			await user.click( screen.getByRole( 'menuitemradio', { name: 'Custom range' } ) );
+
+			const days = within( screen.getByRole( 'grid' ) )
+				.getAllByRole( 'button' )
+				.filter( day => ! day.hasAttribute( 'disabled' ) );
+			await user.click( days[ 0 ] );
+			await user.click( days[ 4 ] );
+
+			expect(
+				screen.getByRole( 'button', { name: 'Previous month', expanded: false } )
+			).toBeInTheDocument();
+		} );
 	} );
 
 	it( 'greys every control out while disabled', () => {

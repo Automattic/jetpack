@@ -6,9 +6,10 @@ import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/format
 import {
 	compareOptionalNumbers,
 	formatEmailRate,
+	getClicksRateSignals,
 	getKnownEmailRate,
+	getOpensRateSignals,
 	PostDetailLink,
-	type EmailRateSignals,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 /**
@@ -39,30 +40,6 @@ function formatSentDate( value: unknown ): string {
 
 	return date ? formatDate( date ) : '—';
 }
-
-/**
- * The counts behind a summary row's open rate.
- *
- * @param item - The email summary row.
- * @return The open rate's signals.
- */
-export const getOpensRateSignals = ( item: StatsEmailSummaryItem ): EmailRateSignals => ( {
-	total: item.opens,
-	unique: item.unique_opens,
-	sends: item.total_sends,
-} );
-
-/**
- * The counts behind a summary row's click rate.
- *
- * @param item - The email summary row.
- * @return The click rate's signals.
- */
-export const getClicksRateSignals = ( item: StatsEmailSummaryItem ): EmailRateSignals => ( {
-	total: item.clicks,
-	unique: item.unique_clicks,
-	sends: item.total_sends,
-} );
 
 /**
  * The display title for an email summary row, tolerating a non-string label.

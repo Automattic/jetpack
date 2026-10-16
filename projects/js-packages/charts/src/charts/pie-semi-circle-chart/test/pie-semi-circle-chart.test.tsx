@@ -96,7 +96,7 @@ describe( 'PieSemiCircleChart', () => {
 
 		await user.hover( firstSegment );
 
-		// Wait for tooltip to be visible - it should show in the BaseTooltip component
+		// Wait for tooltip to be visible - it should show the default label: value content
 		const tooltip = await screen.findByRole( 'tooltip' );
 		expect( tooltip ).toHaveTextContent( 'MacOS' );
 
@@ -360,6 +360,60 @@ describe( 'PieSemiCircleChart', () => {
 			const segments = screen.getAllByTestId( 'pie-segment' );
 			expect( segments ).toHaveLength( 2 );
 		} );
+	} );
+} );
+
+describe( 'PieSemiCircleChart keyboard navigation', () => {
+	it( 'names the focusable chart', () => {
+		renderPieChart( { data: mockData } );
+		expect( screen.getByRole( 'application', { name: 'Semi-circle chart' } ) ).toHaveAttribute(
+			'tabindex',
+			'0'
+		);
+	} );
+
+	it( 'starts at the leftmost segment, which is the largest value', async () => {
+		const user = userEvent.setup();
+		renderPieChart( { data: mockData, withTooltips: true } );
+
+		await user.tab();
+		await user.keyboard( '{ArrowRight}' );
+
+		await expect( screen.findByTestId( 'chart-tooltip-0' ) ).resolves.toHaveTextContent(
+			'Category B'
+		);
+		expect( screen.getByTestId( 'pie-selected-ring' ) ).toHaveAttribute(
+			'd',
+			screen.getAllByTestId( 'pie-segment' )[ 1 ].getAttribute( 'd' )
+		);
+	} );
+
+	it( 'clears the selection when new values reorder the segments', async () => {
+		const user = userEvent.setup();
+		const { rerender } = renderPieChart( { data: mockData, withTooltips: true } );
+
+		await user.tab();
+		await user.keyboard( '{ArrowRight}' );
+		await expect( screen.findByTestId( 'chart-tooltip-0' ) ).resolves.toHaveTextContent(
+			'Category B'
+		);
+
+		rerender(
+			<GlobalChartsProvider>
+				<PieSemiCircleChart
+					data={ [
+						{ ...mockData[ 0 ], value: 70 },
+						{ ...mockData[ 1 ], value: 30 },
+					] }
+					withTooltips
+				/>
+			</GlobalChartsProvider>
+		);
+
+		await waitFor( () =>
+			expect( screen.queryByTestId( 'pie-selected-ring' ) ).not.toBeInTheDocument()
+		);
+		expect( screen.queryByTestId( 'chart-tooltip-0' ) ).not.toBeInTheDocument();
 	} );
 } );
 

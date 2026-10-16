@@ -8,10 +8,12 @@ import {
 } from '../../../providers';
 import { formatPercentage } from '../../../utils';
 import type {
+	ComparisonItemLabel,
 	SeriesData,
 	DataPointDate,
 	DataPointPercentageCalculated,
 	LegendShape,
+	SeriesChartLegendConfig,
 } from '../../../types';
 import type { BaseLegendItem } from '../types';
 import type { GlyphProps } from '@visx/xychart';
@@ -36,7 +38,9 @@ export interface ChartLegendOptions {
 	 * `options.type === 'comparison'`. Skipped when that series already has its own
 	 * item. Pass a string to replace the default label.
 	 */
-	comparisonItem?: boolean | string;
+	comparisonItem?: SeriesChartLegendConfig[ 'comparisonItem' ];
+	/** One static item per comparison series instead; see `SeriesChartLegendConfig`. */
+	comparisonSeriesItems?: SeriesChartLegendConfig[ 'comparisonSeriesItems' ];
 }
 
 /**
@@ -277,6 +281,48 @@ function buildComparisonLegendItem(
 }
 
 /**
+ * Builds one static item per comparison series folded into another series' item, named after
+ * that item and styled like the comparison series itself.
+ * @param seriesData       - The series data to search for comparison series
+ * @param items            - The legend items already built from the series
+ * @param formatLabel      - Names an item after the label of the item it was folded into
+ * @param getElementStyles - Function to get element styles
+ * @param legendShape      - The shape type for legend items (string literal or React component)
+ * @return The legend items, in series order
+ */
+function buildPerSeriesComparisonItems(
+	seriesData: SeriesData[],
+	items: BaseLegendItem[],
+	formatLabel: ComparisonItemLabel,
+	getElementStyles: ( params: GetElementStylesParams ) => ElementStyles,
+	legendShape?: LegendShape< SeriesData[], number >
+): BaseLegendItem[] {
+	return seriesData.flatMap( ( series, index ) => {
+		const owner = items.find( item => item.seriesLabels?.includes( series.label ) );
+
+		if (
+			series.options?.type !== 'comparison' ||
+			! owner ||
+			owner.seriesLabels?.[ 0 ] === series.label
+		) {
+			return [];
+		}
+
+		const { color, shapeStyles } = getElementStyles( { data: series, index, legendShape } );
+
+		return [
+			{
+				label: formatLabel( owner.label ),
+				color,
+				shapeStyle: shapeStyles,
+				interactive: false,
+				describesSeries: series.label,
+			},
+		];
+	} );
+}
+
+/**
  * Processes point data into legend items
  * @param pointData          - The point data to process
  * @param getElementStyles   - Function to get element styles
@@ -339,6 +385,7 @@ export function useChartLegendItems<
 		glyphSize = 8,
 		collapseGroups = false,
 		comparisonItem = false,
+		comparisonSeriesItems,
 		renderGlyph,
 	} = options;
 	const { getElementStyles } = useGlobalChartsContext();
@@ -361,6 +408,20 @@ export function useChartLegendItems<
 				renderGlyph,
 				legendShape
 			);
+
+			if ( comparisonSeriesItems ) {
+				return [
+					...items,
+					...buildPerSeriesComparisonItems(
+						seriesData,
+						items,
+						comparisonSeriesItems,
+						getElementStyles,
+						legendShape
+					),
+				];
+			}
+
 			const comparison = comparisonItem
 				? buildComparisonLegendItem(
 						seriesData,
@@ -396,6 +457,7 @@ export function useChartLegendItems<
 		glyphSize,
 		collapseGroups,
 		comparisonItem,
+		comparisonSeriesItems,
 		renderGlyph,
 		legendShape,
 	] );

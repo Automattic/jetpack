@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { envelope } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
@@ -40,7 +39,6 @@ export type EmailTopRowAttributes = {
  * comparison rows, so there are never period-over-period deltas.
  */
 export default {
-	icon: envelope,
 	attributes: [] as WidgetAttributeField< EmailTopRowAttributes >[],
 	example: {
 		attributes: {

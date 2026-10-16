@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Map block: Clean up unused attributes and provide fallback for invalid color values.

@@ -238,7 +238,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 * @since 1.4
 	 *
 	 * @param string $avatar  Current avatar URL.
-	 * @param string $comment Comment for the avatar.
+	 * @param mixed  $comment Comment, user, or email the avatar is for.
 	 * @param int    $size    Size of the avatar.
 	 *
 	 * @return string New avatar

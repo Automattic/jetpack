@@ -71,10 +71,10 @@ function parseAvatar( avatar?: string | null ) {
 	return `${ avatarBaseUrl }?d=mm`;
 }
 
+// Never falls back to `ID`: for WordPress.com subscribers that is the user id, so a link
+// built from it would open the wrong subscriber.
 function getSubscriptionId( item: StatsFollowersRawItem ) {
-	return (
-		item.email_subscription_id || item.subscription_id || item.wpcom_subscription_id || item.ID
-	);
+	return item.email_subscription_id || item.subscription_id || item.wpcom_subscription_id;
 }
 
 // `parseISO`, not `Date.parse`: the row's date label is parsed the same way, so
@@ -99,7 +99,7 @@ export function sanitizeStatsFollowersResponse(
 		query?.max
 	);
 	const items = subscribers.map( item => ( {
-		id: getSubscriptionId( item ),
+		id: getSubscriptionId( item ) || item.ID,
 		label: decodeHtmlText( item.label ?? item.display_name ?? item.name ?? item.email ?? '' ),
 		value: {
 			type: 'relative-date' as const,

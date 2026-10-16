@@ -50,7 +50,7 @@ const isDisabled = ( name: string ) => button( name ).getAttribute( 'aria-disabl
 
 beforeEach( () => {
 	mockRun.mockReset();
-	mockRun.mockResolvedValue( [] );
+	mockRun.mockResolvedValue( { attempted: 0, failed: [] } );
 } );
 
 describe( 'FeatureList with the shared selection', () => {
@@ -121,6 +121,16 @@ describe( 'FeatureList with the shared selection', () => {
 		await waitFor( () => expect( checkbox( 'Select akismet' ) ).not.toBeChecked() );
 	} );
 
+	it( 'clears picked rows the action had nothing to do for, too', async () => {
+		render( <SelectionHarness states={ [ akismet, boost ] } /> );
+
+		await userEvent.click( checkbox( 'Select all features' ) );
+		await userEvent.click( button( 'Activate' ) );
+
+		expect( mockRun ).toHaveBeenCalledWith( [ akismet ], true );
+		await waitFor( () => expect( checkbox( 'Select boost' ) ).not.toBeChecked() );
+	} );
+
 	it( 'holds the bar while any row still has a switch in flight', async () => {
 		render( <SelectionHarness states={ [ akismet, { ...boost, isSwitching: true } ] } /> );
 
@@ -131,7 +141,7 @@ describe( 'FeatureList with the shared selection', () => {
 	} );
 
 	it( 'keeps the features that failed selected, for a retry', async () => {
-		mockRun.mockResolvedValue( [ 'akismet' ] );
+		mockRun.mockResolvedValue( { attempted: 1, failed: [ 'akismet' ] } );
 		render(
 			<SelectionHarness states={ [ akismet, pluginState( 'jetpack-search', 'inactive' ) ] } />
 		);

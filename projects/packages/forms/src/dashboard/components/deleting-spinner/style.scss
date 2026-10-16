@@ -1,0 +1,19 @@
+// Centre in the 24px icon slot buttons and snackbars reserve, and follow the
+// text colour: the brand arc vanishes on primary or dark surfaces.
+.components-button .jp-forms-deleting-spinner,
+.components-snackbar .jp-forms-deleting-spinner {
+	display: block;
+	box-sizing: border-box;
+	width: 24px;
+	height: 24px;
+	padding: 4px;
+
+	circle {
+		stroke: currentColor;
+		opacity: 0.3;
+	}
+
+	path {
+		stroke: currentColor;
+	}
+}

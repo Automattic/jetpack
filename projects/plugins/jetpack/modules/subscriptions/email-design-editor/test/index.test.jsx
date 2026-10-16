@@ -398,6 +398,40 @@ describe( 'Email design editor entry point', () => {
 			expect( mockApiFetch.mock.calls[ 0 ][ 0 ].path ).toContain( 'template_slug=wpcom-digest' );
 		} );
 
+		// The previewer's link carries the post the reader was looking at, so the canvas previews
+		// it rather than the sample post. NL-1051.
+		it( 'passes on the post to preview when the page names one', async () => {
+			window.JetpackEmailDesignEditor = pageData( { postId: 4242 } );
+
+			await loadEntryPoint();
+
+			expect( mockApiFetch.mock.calls[ 0 ][ 0 ].path ).toContain( 'post_id=4242' );
+		} );
+
+		it( 'passes on both the template and the post together', async () => {
+			window.JetpackEmailDesignEditor = pageData( {
+				templateSlug: 'wpcom-digest',
+				postId: 4242,
+			} );
+
+			await loadEntryPoint();
+
+			const path = mockApiFetch.mock.calls[ 0 ][ 0 ].path;
+
+			expect( path ).toContain( 'template_slug=wpcom-digest' );
+			expect( path ).toContain( 'post_id=4242' );
+		} );
+
+		it( 'asks for no particular post when the page names none', async () => {
+			window.JetpackEmailDesignEditor = pageData( { postId: null } );
+
+			await loadEntryPoint();
+
+			expect( mockApiFetch ).toHaveBeenCalledWith( {
+				path: '/wpcom/v2/email-editor-bootstrap',
+			} );
+		} );
+
 		it( 'takes the template id from the bundle rather than deriving one', async () => {
 			// The id is namespaced by whichever theme served it, so a site computing it
 			// locally is right on Simple and wrong on Atomic and self-hosted.
@@ -1085,6 +1119,7 @@ describe( 'Email design editor entry point', () => {
 			openStylesSidebar,
 			openStylesSidebarOnLoad,
 			registerEditorPlugin,
+			screenControls,
 			showStylesSidebar,
 		} = jest.requireActual( '../src/index' );
 
@@ -1371,6 +1406,186 @@ describe( 'Email design editor entry point', () => {
 				await userEvent.click( screen.getByRole( 'button', { name: 'Edit email styles' } ) );
 
 				expect( mockEnabledAreas ).toEqual( [ [ 'core', 'null/email-styles-sidebar' ] ] );
+			} );
+
+			// The panels reset one screen at a time, which leaves a creator who has changed several
+			// with no way back to the design WordPress.com derived from their site. NL-970.
+			describe( 'the way back to the defaults', () => {
+				// A record of its own per case: a failed reset leaves its edits behind, and core-data
+				// holds them for the rest of the run.
+				let ourId = 424242;
+
+				const storeDesign = design => {
+					dispatch( coreStore ).receiveEntityRecords( 'root', 'globalStyles', [
+						{ id: ourId, ...design },
+					] );
+
+					// Resolution is cached across cases, so without this whichever runs first
+					// fetches the record and the rest read what that answered. The screen itself
+					// has it preloaded.
+					[ 'getEntityRecord', 'getEditedEntityRecord' ].forEach( selectorName =>
+						dispatch( coreStore ).finishResolution( selectorName, [
+							'root',
+							'globalStyles',
+							ourId,
+						] )
+					);
+				};
+
+				const writes = () =>
+					mockApiFetch.mock.calls.filter( ( [ options ] ) => 'PUT' === options.method );
+
+				/**
+				 * Mount the panel as the editor's plugin area would, for a given record.
+				 *
+				 * @param {number|null} id - The global-styles id the bundle named.
+				 * @return {void}
+				 */
+				const renderPanelFor = id => {
+					mockRegisterPlugin.mockClear();
+					registerEditorPlugin( id );
+
+					const [ , settings ] = mockRegisterPlugin.mock.calls[ 0 ];
+
+					render( <settings.render /> );
+				};
+
+				const resetButton = () => screen.getByRole( 'button', { name: 'Reset to defaults' } );
+
+				let mockReload;
+
+				beforeEach( () => {
+					ourId += 1;
+					mockReload = jest.spyOn( screenControls, 'reload' ).mockImplementation( () => {} );
+
+					// `fluid: false` on purpose: it is a value the creator set, not an empty half.
+					storeDesign( {
+						styles: { color: { background: '#c0ffee' } },
+						settings: { typography: { fluid: false } },
+					} );
+				} );
+
+				afterEach( () => mockReload.mockRestore() );
+
+				it( 'offers the control to a creator who has changed the design', () => {
+					renderPanelFor( ourId );
+
+					expect( resetButton() ).toBeEnabled();
+				} );
+
+				// An empty layer already is the default design, so there is nothing to put back.
+				it( 'has nothing to put back for a design that was never changed', () => {
+					storeDesign( { styles: {}, settings: {} } );
+
+					renderPanelFor( ourId );
+
+					expect( resetButton() ).toHaveAttribute( 'aria-disabled', 'true' );
+				} );
+
+				// Sanitizing on the WordPress.com side can drop a value and leave the branch that held
+				// it, which a key count reads as a design.
+				it( 'has nothing to put back for a half holding only empty branches', () => {
+					storeDesign( { styles: { color: {} }, settings: [] } );
+
+					renderPanelFor( ourId );
+
+					expect( resetButton() ).toHaveAttribute( 'aria-disabled', 'true' );
+				} );
+
+				it( 'offers nothing when the bundle named no record to clear', () => {
+					renderPanelFor( null );
+
+					expect(
+						screen.queryByRole( 'button', { name: 'Reset to defaults' } )
+					).not.toBeInTheDocument();
+				} );
+
+				it( 'hands the panel the id from the bundle rather than the one the page carries', async () => {
+					window.JetpackEmailDesignEditor = pageData();
+
+					await loadEntryPoint();
+
+					// The last registration, not the first: this block registers one of its own.
+					const [ , settings ] = mockRegisterPlugin.mock.calls.at( -1 );
+
+					// Called rather than rendered: the isolated module carries its own React, whose
+					// hooks are not the ones this registry's renderer would run.
+					expect( settings.render().props.id ).toBe( 999999999 );
+				} );
+
+				it( 'asks before it throws the design away', async () => {
+					renderPanelFor( ourId );
+
+					await userEvent.click( resetButton() );
+
+					// Named, or a screen reader announces only "dialog" — and this one is destructive.
+					expect( screen.getByRole( 'dialog', { name: 'Reset email design' } ) ).toBeVisible();
+					expect( writes() ).toEqual( [] );
+				} );
+
+				it( 'leaves the design alone when the creator backs out', async () => {
+					renderPanelFor( ourId );
+
+					await userEvent.click( resetButton() );
+					await userEvent.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
+
+					expect( writes() ).toEqual( [] );
+					expect(
+						select( coreStore ).getEditedEntityRecord( 'root', 'globalStyles', ourId ).styles
+					).toEqual( { color: { background: '#c0ffee' } } );
+				} );
+
+				it( 'clears both halves, rather than writing today’s defaults into them', async () => {
+					mockApiFetch.mockResolvedValue( { id: ourId, styles: {}, settings: {} } );
+					renderPanelFor( ourId );
+
+					await userEvent.click( resetButton() );
+					await userEvent.click( screen.getByRole( 'button', { name: 'Reset' } ) );
+
+					// Defaults written in would outlive a later change to the site they derive from,
+					// and the canvas draws this layer over them anyway.
+					expect( writes() ).toHaveLength( 1 );
+
+					const [ [ write ] ] = writes();
+
+					expect( write.path ).toBe( `/wp/v2/global-styles/${ ourId }` );
+
+					// Each half exactly, rather than the pair as a subset: an empty object is a
+					// subset of any object, so a half full of defaults would satisfy that.
+					expect( write.data.styles ).toEqual( {} );
+					expect( write.data.settings ).toEqual( {} );
+				} );
+
+				// The canvas draws previews WordPress.com rendered against the stored design and sent
+				// once, at mount, so the reset one only appears on a fresh fetch.
+				it( 'fetches the canvas again, rather than leaving the old design on screen', async () => {
+					mockApiFetch.mockResolvedValue( { id: ourId, styles: {}, settings: {} } );
+					renderPanelFor( ourId );
+
+					await userEvent.click( resetButton() );
+					await userEvent.click( screen.getByRole( 'button', { name: 'Reset' } ) );
+
+					expect( mockReload ).toHaveBeenCalled();
+				} );
+
+				it( 'says so rather than going quiet when the reset does not reach WordPress.com', async () => {
+					mockApiFetch.mockRejectedValue( new Error( 'no' ) );
+					renderPanelFor( ourId );
+
+					await userEvent.click( resetButton() );
+					await userEvent.click( screen.getByRole( 'button', { name: 'Reset' } ) );
+
+					expect( select( noticesStore ).getNotices() ).toEqual( [
+						expect.objectContaining( {
+							status: 'error',
+							content: expect.stringContaining( 'could not be reset' ),
+							type: 'snackbar',
+						} ),
+					] );
+
+					// A reload would replace the notice with the screen the reset did not change.
+					expect( mockReload ).not.toHaveBeenCalled();
+				} );
 			} );
 		} );
 	} );
@@ -1794,6 +2009,38 @@ describe( 'Email design editor entry point', () => {
 			} );
 		} );
 
+		// The canvas previews that post, so a test email rendering a different one would show the
+		// creator a design change against content they are not looking at. NL-1051.
+		it( 'sends the post the canvas previews, where the previewer named one', async () => {
+			await createTestSendMiddleware( ourId, 4242 )( sendRequest, jest.fn() );
+
+			expect( mockApiFetch ).toHaveBeenCalledWith( {
+				path: '/wpcom/v2/send-email-preview',
+				method: 'POST',
+				data: { id: 4242, email: 'creator@example.com' },
+			} );
+		} );
+
+		it( 'does not look a post up when the previewer named one', async () => {
+			await createTestSendMiddleware( ourId, 4242 )( sendRequest, jest.fn() );
+
+			const paths = mockApiFetch.mock.calls.map( ( [ options ] ) => options.path );
+
+			expect( paths.some( path => path.startsWith( '/wp/v2/posts' ) ) ).toBe( false );
+		} );
+
+		it( 'still sends a named post on a blog with nothing published', async () => {
+			arrangeSend( [] );
+
+			await createTestSendMiddleware( ourId, 4242 )( sendRequest, jest.fn() );
+
+			expect( mockApiFetch ).toHaveBeenCalledWith( {
+				path: '/wpcom/v2/send-email-preview',
+				method: 'POST',
+				data: { id: 4242, email: 'creator@example.com' },
+			} );
+		} );
+
 		it( 'asks for the newest published post, which is what the send renders', async () => {
 			await createTestSendMiddleware( ourId )( sendRequest, jest.fn() );
 
@@ -1959,6 +2206,35 @@ describe( 'Email design editor entry point', () => {
 					'Manage the fonts and typography used on links.'
 				)
 			).toContain( 'Links inside your post' );
+		} );
+
+		it( 'keeps colour off the screens that have no colour control', () => {
+			// Only Default text carries a Color panel; for the rest colour lives in the separate
+			// Colors section, so naming it here describes a control that is not on screen. NL-1052.
+			const described = source => relabelStylesSidebar( source, source );
+
+			expect( described( 'Manage the fonts and typography used on links.' ) ).not.toContain(
+				'color'
+			);
+			expect( described( 'Manage the fonts and typography used on buttons.' ) ).not.toContain(
+				'color'
+			);
+			expect( described( 'Manage the fonts and typography used on headings.' ) ).not.toContain(
+				'color'
+			);
+		} );
+
+		it( 'says that the byline and footer take only the default colour', () => {
+			const described = relabelStylesSidebar(
+				'Manage the fonts and typography used on text.',
+				'Manage the fonts and typography used on text.'
+			);
+
+			// Colour is all of this screen that reaches the byline, and all that reaches the
+			// footer bar its copyright line, whose font is the one wpcom leaves unpinned. NL-1052.
+			expect( described ).toContain( 'The byline and footer follow its color' );
+			expect( described ).toContain( 'copyright line follows its font' );
+			expect( described ).not.toContain( 'the whole email' );
 		} );
 
 		it( 'says which heading level moves the post title and which the site title', () => {

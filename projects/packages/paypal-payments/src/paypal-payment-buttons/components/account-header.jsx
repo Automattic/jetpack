@@ -5,10 +5,11 @@
  * @package
  */
 
-import { DropdownMenu, MenuGroup, MenuItem } from '@wordpress/components';
+import { getAdminUrl } from '@automattic/jetpack-script-data';
+import { DropdownMenu, MenuGroup, MenuItem, VisuallyHidden } from '@wordpress/components';
 import { createPortal } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import { external, login, moreVertical } from '@wordpress/icons';
+import { __, sprintf } from '@wordpress/i18n';
+import { external, home, login, moreVertical } from '@wordpress/icons';
 import { useBlockCardNode } from '../hooks/use-block-card-node';
 import PayPalIcon from '../icon';
 
@@ -24,6 +25,13 @@ const TRANSACTIONS_URL = {
 	sandbox: 'https://www.sandbox.paypal.com/unifiedtransactions/',
 	production: 'https://www.paypal.com/unifiedtransactions/',
 };
+
+// PayPal's help article on issuing refunds. The block does not refund through the API,
+// so PayPal's certification asks that sellers be pointed at how to do it themselves.
+const REFUND_HELP_URL = 'https://www.paypal.com/us/cshelp/article/how-do-i-issue-a-refund-help101';
+
+// The admin page that lists every payment link on the site.
+const MANAGE_LINKS_PATH = 'admin.php?page=paypal-payment-links';
 
 /**
  * The PayPal account header: the block's name and the account menu.
@@ -43,6 +51,29 @@ export default function PayPalAccountHeader( { isSelected, environment, accountE
 
 	if ( ! blockCard ) {
 		return null;
+	}
+
+	// Screen reader text for the items that open in a new tab.
+	const opensInNewTab = (
+		<VisuallyHidden as="span">
+			{
+				/* translators: accessibility text */
+				__( '(opens in a new tab)', 'jetpack-paypal-payments' )
+			}
+		</VisuallyHidden>
+	);
+
+	// The line under Log out: the email, with "Sandbox" in front for a sandbox account.
+	let logOutInfo = accountEmail || undefined;
+	if ( environment === 'sandbox' ) {
+		logOutInfo = accountEmail
+			? sprintf(
+					/* translators: %s: the connected PayPal account's email. Sandbox is PayPal's test environment. */
+					__( 'Sandbox • %s', 'jetpack-paypal-payments' ),
+					accountEmail
+				)
+			: /* translators: PayPal's test environment */
+				__( 'Sandbox', 'jetpack-paypal-payments' );
 	}
 
 	return createPortal(
@@ -72,6 +103,7 @@ export default function PayPalAccountHeader( { isSelected, environment, accountE
 								onClick={ onClose }
 							>
 								{ __( 'Customize checkout settings', 'jetpack-paypal-payments' ) }
+								{ opensInNewTab }
 							</MenuItem>
 							<MenuItem
 								icon={ external }
@@ -82,6 +114,29 @@ export default function PayPalAccountHeader( { isSelected, environment, accountE
 								onClick={ onClose }
 							>
 								{ __( 'View transactions', 'jetpack-paypal-payments' ) }
+								{ opensInNewTab }
+							</MenuItem>
+							<MenuItem
+								icon={ external }
+								iconPosition="left"
+								href={ REFUND_HELP_URL }
+								target="_blank"
+								rel="noopener noreferrer"
+								onClick={ onClose }
+							>
+								{ __( 'How to issue a refund', 'jetpack-paypal-payments' ) }
+								{ opensInNewTab }
+							</MenuItem>
+							<MenuItem
+								icon={ home }
+								iconPosition="left"
+								href={ getAdminUrl( MANAGE_LINKS_PATH ) }
+								target="_blank"
+								rel="noopener noreferrer"
+								onClick={ onClose }
+							>
+								{ __( 'Manage all links and buttons', 'jetpack-paypal-payments' ) }
+								{ opensInNewTab }
 							</MenuItem>
 						</MenuGroup>
 						{ /* A second group, so MenuGroup draws the divider the design has here. */ }
@@ -90,7 +145,7 @@ export default function PayPalAccountHeader( { isSelected, environment, accountE
 								isDestructive
 								icon={ login }
 								iconPosition="left"
-								info={ accountEmail || undefined }
+								info={ logOutInfo }
 								onClick={ () => {
 									onClose();
 									onLogOut();

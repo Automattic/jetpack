@@ -29,22 +29,19 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Edits_Test extends BaseTestCase {
 	/** @var array Captured outbound requests. */
 	private $requests = array();
 
-	/** @var int Attachment owner ID. */
-	private $owner_id;
-
 	/**
 	 * Set up the connected owner, video, and REST server.
 	 */
 	public function setUp(): void {
 		parent::setUp();
 		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
-		$this->owner_id = $this->login_as( 'author' );
-		$post_id        = wp_insert_post(
+		$owner_id = $this->login_as( 'author' );
+		$post_id  = wp_insert_post(
 			array(
 				'post_type'      => 'attachment',
 				'post_status'    => 'inherit',
 				'post_mime_type' => 'video/videopress',
-				'post_author'    => $this->owner_id,
+				'post_author'    => $owner_id,
 			)
 		);
 		// WorDBless does not emulate the resolver's meta query.
@@ -191,6 +188,16 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Edits_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Without a connected owner the proxy refuses before contacting WordPress.com.
+	 */
+	public function test_missing_owner_connection_is_rejected_before_proxying() {
+		\Jetpack_Options::delete_option( 'user_tokens' );
+		( new Connection_Manager() )->reset_connection_status();
+		$this->assertSame( 403, $this->dispatch()->get_status() );
+		$this->assertEmpty( $this->requests );
+	}
+
+	/**
 	 * Test owners can read their video and obtain storyboard data.
 	 */
 	public function test_owner_can_read_edits_and_storyboard() {
@@ -228,72 +235,6 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Edits_Test extends BaseTestCase {
 		$this->dispatch( 'DELETE' );
 		$this->assertSame( 'POST', $this->requests[0]['args']['method'] );
 		$this->assertStringContainsString( '/rest/v1.1/videos/AbCd1234/edits/delete', $this->requests[0]['url'] );
-	}
-
-	/**
-	 * Copy requests forward the idempotency key without unrelated parameters.
-	 */
-	public function test_copy_forwards_request_and_status_routes() {
-		$request_id                                  = 'a1b2c3d4-1234-4567-890a-b1c2d3e4f567';
-		$body                                        = array(
-			'base_revision' => 2,
-			'operations'    => array(),
-			'request_id'    => $request_id,
-			'title'         => 'A new video',
-		);
-		$this->upstream_response['response']['code'] = 202;
-		$this->assertSame( 202, $this->dispatch( 'POST', $body + array( 'unrelated' => 'ignored' ), 'edits/copy' )->get_status() );
-		$this->assertSame( $body, json_decode( $this->requests[0]['args']['body'], true ) );
-		$this->assertStringContainsString( '/rest/v1.1/videos/AbCd1234/edits/copy', $this->requests[0]['url'] );
-		$this->assertStringContainsString( 'token="key:1:' . $this->owner_id . '"', $this->requests[0]['args']['headers']['Authorization'] );
-		$this->dispatch( 'GET', null, 'edits/copy/' . $request_id );
-		$this->assertStringContainsString( '/rest/v1.1/videos/AbCd1234/edits/copy/' . $request_id, $this->requests[1]['url'] );
-		$this->assertStringContainsString( 'token="asdasd:1:0"', $this->requests[1]['args']['headers']['Authorization'] );
-	}
-
-	/** A missing creator connection cannot fall back to the blog token for a copy. */
-	public function test_copy_requires_the_initiating_users_token() {
-		\Jetpack_Options::delete_option( 'user_tokens' );
-		( new Connection_Manager() )->reset_connection_status();
-		$response = $this->dispatch(
-			'POST',
-			array(
-				'base_revision' => 0,
-				'operations'    => array(),
-				'request_id'    => 'a1b2c3d4-1234-4567-890a-b1c2d3e4f567',
-			),
-			'edits/copy'
-		);
-		$this->assertSame( 403, $response->get_status() );
-		$this->assertEmpty( $this->requests );
-	}
-
-	/**
-	 * Invalid idempotency keys fail before contacting WordPress.com.
-	 */
-	public function test_copy_requires_a_valid_request_uuid() {
-		$body = array(
-			'base_revision' => 0,
-			'operations'    => array(),
-			'request_id'    => 'invalid',
-		);
-		$this->assertSame( 400, $this->dispatch( 'POST', $body, 'edits/copy' )->get_status() );
-		$this->assertEmpty( $this->requests );
-	}
-
-	/**
-	 * Copy endpoints use the same per-video authorization as updates.
-	 */
-	public function test_copy_rejects_other_authors() {
-		$this->login_as( 'author' );
-		$body = array(
-			'base_revision' => 0,
-			'operations'    => array(),
-			'request_id'    => 'a1b2c3d4-1234-4567-890a-b1c2d3e4f567',
-		);
-		$this->assertSame( 403, $this->dispatch( 'POST', $body, 'edits/copy' )->get_status() );
-		$this->assertSame( 403, $this->dispatch( 'GET', null, 'edits/copy/' . $body['request_id'] )->get_status() );
-		$this->assertEmpty( $this->requests );
 	}
 
 	/**
@@ -425,8 +366,8 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Edits_Test extends BaseTestCase {
 				)
 			);
 			$token = \Mockery::mock( 'alias:' . VideoPressToken::class );
-			$token->shouldReceive( 'videopress_onetime_upload_token' )->times( 6 )->andReturn( 'wpcom-test-token' );
-			$token->shouldReceive( 'blog_id' )->times( 6 )->andReturn( get_current_blog_id() );
+			$token->shouldReceive( 'videopress_onetime_upload_token' )->times( 4 )->andReturn( 'wpcom-test-token' );
+			$token->shouldReceive( 'blog_id' )->times( 4 )->andReturn( get_current_blog_id() );
 			remove_filter( 'jetpack_videopress_trim_cut', '__return_true' );
 			$this->register_routes();
 			$body   = array(
@@ -438,15 +379,12 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Edits_Test extends BaseTestCase {
 						'end_ms'   => 5000,
 					),
 				),
-				'request_id'    => 'a1b2c3d4-1234-4567-890a-b1c2d3e4f567',
 			);
 			$routes = array(
 				array( 'GET', 'edits', 'edits' ),
 				array( 'GET', 'storyboard', 'storyboard' ),
 				array( 'POST', 'edits', 'edits' ),
 				array( 'DELETE', 'edits', 'edits/delete' ),
-				array( 'POST', 'edits/copy', 'edits/copy' ),
-				array( 'GET', 'edits/copy/' . $body['request_id'], 'edits/copy/' . $body['request_id'] ),
 			);
 			foreach ( $routes as $index => $route ) {
 				$this->assertSame( 200, $this->dispatch( $route[0], 'POST' === $route[0] ? $body : null, $route[1] )->get_status() );
@@ -456,7 +394,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Edits_Test extends BaseTestCase {
 				$this->assertSame( 'X_UPLOAD_TOKEN token="wpcom-test-token" blog_id="' . get_current_blog_id() . '"', $request['args']['headers']['Authorization'] );
 				$this->assertSame( 0, $request['args']['redirection'] );
 			}
-			$this->assertSame( $body, json_decode( $this->requests[4]['args']['body'], true ) );
+			$this->assertSame( $body, json_decode( $this->requests[2]['args']['body'], true ) );
 		} finally {
 			\Brain\Monkey\tearDown();
 		}

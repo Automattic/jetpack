@@ -13,7 +13,8 @@ import {
 	pluginSwitchKey,
 	setRequestedSwitch,
 } from '../../../data/requested-switch-state';
-import { getModuleStatus } from '../../modules-list/utils';
+import { syncPageStateWithFeatures } from '../../../data/utils/page-state-products';
+import { getModuleStatus } from './module-availability';
 import { QUERY_KEY } from './use-main-features';
 import type { FeatureState } from './feature-state';
 
@@ -58,10 +59,18 @@ function getSwitch( state: FeatureState ): { type: 'module' | 'plugin'; slug: st
 		: { type: 'plugin', slug: control.kind === 'plugin' ? control.plugin : '' };
 }
 
+/** What a bulk run came back with, counted against what it actually sent. */
+export type BulkOutcome = {
+	// Rows already in the asked-for state are dropped before the request, so this is not
+	// how many were selected.
+	attempted: number;
+	failed: string[];
+};
+
 /**
  * Switch many features on or off at once, in one request, with one notice for the lot.
  *
- * @return The handler, which resolves to the slugs of the features that failed, and whether a bulk switch is running.
+ * @return The handler, which resolves to what the run attempted and what failed, and whether a bulk switch is running.
  */
 export function useBulkFeatureSwitch() {
 	const queryClient = useQueryClient();
@@ -70,13 +79,13 @@ export function useBulkFeatureSwitch() {
 	const [ isRunning, setIsRunning ] = useState( false );
 
 	const run = useCallback(
-		async ( states: FeatureState[], active: boolean ): Promise< string[] > => {
+		async ( states: FeatureState[], active: boolean ): Promise< BulkOutcome > => {
 			const targets = states.filter(
 				state => isBulkSwitchable( state ) && ( state.status === 'active' ) !== active
 			);
 
 			if ( ! targets.length ) {
-				return [];
+				return { attempted: 0, failed: [] };
 			}
 
 			const switches = targets.map( getSwitch );
@@ -106,6 +115,7 @@ export function useBulkFeatureSwitch() {
 				);
 
 				queryClient.setQueryData( QUERY_KEY, state );
+				syncPageStateWithFeatures( state );
 				// Modules are read from their own store, which has to catch up before the rows
 				// let go of the asked-for value, or they flicker back to the old one first.
 				await fetchModules();
@@ -168,7 +178,7 @@ export function useBulkFeatureSwitch() {
 				setIsRunning( false );
 			}
 
-			return failedSlugs;
+			return { attempted: targets.length, failed: failedSlugs };
 		},
 		[ createErrorNotice, createSuccessNotice, fetchModules, queryClient ]
 	);

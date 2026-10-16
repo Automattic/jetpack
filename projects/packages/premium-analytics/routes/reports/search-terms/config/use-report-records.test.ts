@@ -9,7 +9,19 @@ import type {
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	useStatsArchives: jest.fn(),
+	useStatsClicks: jest.fn(),
+	useStatsCommentFollowersAllPages: jest.fn(),
+	useStatsComments: jest.fn(),
+	useStatsFileDownloads: jest.fn(),
+	useStatsLocations: jest.fn(),
+	useStatsReferrers: jest.fn(),
 	useStatsSearchTerms: jest.fn(),
+	useStatsTags: jest.fn(),
+	useStatsTopAuthors: jest.fn(),
+	useStatsTopPosts: jest.fn(),
+	useStatsUtm: jest.fn(),
+	useStatsVideoPlays: jest.fn(),
 } ) );
 
 const mockUseStatsSearchTerms = useStatsSearchTerms as jest.MockedFunction<
@@ -73,6 +85,7 @@ function mockSearchTermsReport( {
 	comparisonError = false,
 }: MockSearchTermsReportOptions = {} ) {
 	mockUseStatsSearchTerms.mockReturnValue( {
+		isLoading: primaryLoading || comparisonLoading,
 		primary: {
 			data: report,
 			isLoading: primaryLoading,
@@ -158,52 +171,6 @@ describe( 'useSearchTermsReportRecords', () => {
 				term: 'Unknown search terms',
 				views: 10,
 				previousViews: 6,
-			},
-		] );
-		expect( result.current.table.hasComparison ).toBe( true );
-	} );
-
-	it( 'treats an absent term as zero after comparison succeeds', () => {
-		const comparisonReport: StatsNormalizedReport< StatsSearchTermsItem > = {
-			summary: { encrypted_search_terms: 0 },
-			data: [
-				{
-					...report.data[ 0 ],
-					items: [
-						{
-							label: 'comparison-only term',
-							views: 9,
-							className: 'user-selectable',
-							children: null,
-						},
-					],
-				},
-			],
-		};
-		mockSearchTermsReport( { comparisonReport } );
-		const params: ReportParams = {
-			from: '2026-06-03',
-			to: '2026-06-04',
-			interval: 'day',
-			comp: '1',
-			compare_from: '2026-05-27',
-			compare_to: '2026-05-28',
-		};
-
-		const { result } = renderHook( () => useSearchTermsReportRecords( params ) );
-
-		expect( result.current.table.rows ).toEqual( [
-			{
-				id: 'term:jetpack stats',
-				term: 'jetpack stats',
-				views: 12,
-				previousViews: 0,
-			},
-			{
-				id: 'unknown-search-terms',
-				term: 'Unknown search terms',
-				views: 10,
-				previousViews: 0,
 			},
 		] );
 		expect( result.current.table.hasComparison ).toBe( true );

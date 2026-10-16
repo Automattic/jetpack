@@ -9,6 +9,7 @@ import useConnectionErrorNotice, {
 import { useCallback } from '@wordpress/element';
 import { useNavigate } from '@wordpress/route';
 import { Stack, Tabs } from '@wordpress/ui';
+import { useUploadUnloadGuard } from '../../hooks/use-upload-unload-guard';
 import DashboardTabs, { TAB_PATHS, type DashboardTab } from '../dashboard-tabs';
 import OnboardingModal from '../onboarding-modal';
 import PageSubTitle from '../page-subtitle';
@@ -29,7 +30,9 @@ const TAB_VALUES: DashboardTab[] = [ 'library', 'stats', 'settings' ];
  * `AdminPage` (with header + JetpackFooter) and a `Tabs.Root` containing
  * the strip and one `Tabs.Panel` per tab so the `@wordpress/ui` Tabs
  * Tab/Panel pairing validator stays happy. Tab navigation between
- * sibling routes happens via `@wordpress/route`'s useNavigate.
+ * sibling routes happens via `@wordpress/route`'s useNavigate. Also arms the
+ * beforeunload guard for in-flight uploads (Library, Overview, Settings);
+ * the video details and editor routes arm it themselves.
  *
  * @param props            - Component props.
  * @param props.activeTab  - Currently active tab.
@@ -43,6 +46,7 @@ const TAB_VALUES: DashboardTab[] = [ 'library', 'stats', 'settings' ];
 export default function DashboardLayout( { activeTab, children, actions, hideFooter }: Props ) {
 	const navigate = useNavigate();
 	const { hasConnectionError } = useConnectionErrorNotice();
+	useUploadUnloadGuard();
 
 	const onValueChange = useCallback(
 		( next: string ) => {

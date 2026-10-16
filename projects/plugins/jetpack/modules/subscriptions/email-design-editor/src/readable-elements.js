@@ -1,0 +1,236 @@
+/**
+ * Keep the element colors a blog inherits readable on the background the creator picked.
+ *
+ * WordPress.com applies the same rules at render, but only against a background already saved, so
+ * its answer goes stale the moment the creator picks another one. A failing link or heading keeps
+ * its own hue and changes only its lightness, so a link stays the site's accent and stays distinct
+ * from the text. Button text is the exception: a label on a filled shape, so it takes the text
+ * rule against the button's own background instead of keeping its hue. See NL-959 and NL-942.
+ */
+
+import {
+	colorToStore,
+	contrastRatio,
+	isNeutral,
+	isSameColor,
+	MINIMUM_CONTRAST,
+	readableOn,
+	textFor,
+} from './text-color';
+
+// Content links, and headings including the post title (`h1`) and the header's site title (`h2`).
+// A button is managed too, but by the text rule rather than these, so it is not in the list.
+export const MANAGED = [ 'link', 'heading', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6' ];
+
+/**
+ * The design's `elements` with the colors the new backgrounds call for.
+ *
+ * @param {object} styles            - The design's `styles`.
+ * @param {*}      before            - The email background before the change.
+ * @param {*}      after             - The email background after it.
+ * @param {object} inherited         - The colors the site gives each element, keyed by element.
+ * @param {object} buttonBackgrounds - The button's own background, keyed by `before` and `after`.
+ * @return {object|null} The new `elements`, or null when nothing changes.
+ */
+export function nextElements( styles, before, after, inherited, buttonBackgrounds = {} ) {
+	const elements = JSON.parse( JSON.stringify( styles?.elements ?? {} ) );
+	let changed = false;
+
+	MANAGED.forEach( element => {
+		const original = inherited?.[ element ];
+		const stored = elements[ element ]?.color?.text;
+		const ours = isOurs( stored, readableFor, original, before );
+
+		if ( ours ) {
+			changed =
+				setPath(
+					elements,
+					[ element, 'color', 'text' ],
+					colorToStore( readableFor, original, after )
+				) || changed;
+		}
+
+		changed = nextUnderline( elements, element, original, before, after, ours ) || changed;
+	} );
+
+	changed = nextButtonText( elements, inherited?.button, buttonBackgrounds ) || changed;
+
+	return changed ? prune( elements ) : null;
+}
+
+/**
+ * Whether a stored color is this module's to replace, rather than one the creator chose.
+ *
+ * Judged with the same rule that would have written it: a color derived for the previous
+ * background is ours to re-derive, and anything else is the creator's to keep.
+ *
+ * @param {*}        stored     - The color the record holds.
+ * @param {Function} rule       - The renderer's rule the color would have come from.
+ * @param {*}        original   - The color the site supplies.
+ * @param {*}        background - The background the stored color was derived against.
+ * @return {boolean} True when the color is absent or is what this module wrote.
+ */
+function isOurs( stored, rule, original, background ) {
+	return (
+		undefined === stored ||
+		null === stored ||
+		isSameColor( stored, colorToStore( rule, original, background ) )
+	);
+}
+
+/**
+ * Keep the button's text readable on the button's own background, which is left as it is.
+ *
+ * @param {object} elements    - The design's `elements`, modified in place.
+ * @param {*}      original    - The button text color the site supplies.
+ * @param {object} backgrounds - The button's own background, keyed by `before` and `after`.
+ * @return {boolean} True when the tree changed.
+ */
+function nextButtonText( elements, original, backgrounds ) {
+	const stored = elements.button?.color?.text;
+
+	if ( ! isOurs( stored, textFor, original, backgrounds.before ) ) {
+		return false;
+	}
+
+	return setPath(
+		elements,
+		[ 'button', 'color', 'text' ],
+		colorToStore( textFor, original, backgrounds.after )
+	);
+}
+
+/**
+ * Underline a link with no hue to keep, and take that underline back off with the color.
+ *
+ * Owned by the same test the color uses, applied to the decoration itself — so one the creator
+ * set on a link this never underlined survives, and one this wrote does not outlive the creator
+ * taking the color over.
+ *
+ * @param {object}  elements   - The design's `elements`, modified in place.
+ * @param {string}  element    - The element being written.
+ * @param {*}       original   - The color the site gives the element.
+ * @param {*}       before     - The background before the change.
+ * @param {*}       background - The background after it.
+ * @param {boolean} ours       - Whether the link's color is this module's to set.
+ * @return {boolean} True when the tree changed.
+ */
+function nextUnderline( elements, element, original, before, background, ours ) {
+	const stored = elements[ element ]?.typography?.textDecoration;
+
+	if (
+		undefined !== stored &&
+		null !== stored &&
+		stored !== underlineFor( element, original, before )
+	) {
+		return false;
+	}
+
+	return setPath(
+		elements,
+		[ element, 'typography', 'textDecoration' ],
+		ours ? underlineFor( element, original, background ) : null
+	);
+}
+
+/**
+ * Whether an element comes out gray on a background, and so is underlined rather than recolored.
+ *
+ * Only a link is: a heading that loses its hue is left to read as a heading.
+ *
+ * @param {string} element    - The element.
+ * @param {*}      original   - The color the site gives it.
+ * @param {*}      background - The background it sits on.
+ * @return {string|null} `'underline'`, or null when nothing should be underlined.
+ */
+export function underlineFor( element, original, background ) {
+	if ( 'link' !== element ) {
+		return null;
+	}
+
+	const readable = readableFor( original, background );
+
+	return null !== readable && isNeutral( readable ) ? 'underline' : null;
+}
+
+/**
+ * The color an element should take on a background.
+ *
+ * @param {*} original   - The color the site gives the element, before anything made it readable.
+ * @param {*} background - The background it sits on.
+ * @return {string|null} The readable color, or null to leave the site's own alone.
+ */
+export function readableFor( original, background ) {
+	const ratio = contrastRatio( original, background );
+
+	// A color that cannot be judged is left as it was: contrast against an unknown is not a number.
+	if ( null === ratio || ratio >= MINIMUM_CONTRAST ) {
+		return null;
+	}
+
+	return readableOn( original, background );
+}
+
+/**
+ * Write a value into a nested path, or remove what is there when it is null.
+ *
+ * @param {object}   tree  - The tree to write into, modified in place.
+ * @param {string[]} path  - The keys to walk.
+ * @param {*}        value - The value, or null to remove the key.
+ * @return {boolean} True when the tree changed.
+ */
+function setPath( tree, path, value ) {
+	const last = path[ path.length - 1 ];
+	let at = tree;
+
+	for ( const key of path.slice( 0, -1 ) ) {
+		if ( null === value && ! at[ key ] ) {
+			return false;
+		}
+
+		at[ key ] = at[ key ] ?? {};
+		at = at[ key ];
+	}
+
+	if ( ( at[ last ] ?? null ) === value ) {
+		return false;
+	}
+
+	if ( null === value ) {
+		delete at[ last ];
+	} else {
+		at[ last ] = value;
+	}
+
+	return true;
+}
+
+/**
+ * Drop the branches a removal emptied, so no element is left holding nothing.
+ *
+ * @param {object} elements - The design's `elements`, modified in place.
+ * @return {object} The same `elements`.
+ */
+function prune( elements ) {
+	Object.keys( elements ).forEach( element => {
+		const entry = elements[ element ];
+
+		if ( ! entry || 'object' !== typeof entry ) {
+			return;
+		}
+
+		Object.keys( entry ).forEach( group => {
+			const value = entry[ group ];
+
+			if ( value && 'object' === typeof value && 0 === Object.keys( value ).length ) {
+				delete entry[ group ];
+			}
+		} );
+
+		if ( 0 === Object.keys( entry ).length ) {
+			delete elements[ element ];
+		}
+	} );
+
+	return elements;
+}

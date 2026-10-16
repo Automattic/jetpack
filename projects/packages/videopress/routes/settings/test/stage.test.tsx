@@ -35,9 +35,29 @@ jest.mock( '@automattic/jetpack-components/admin-page', () => ( {
 	),
 } ) );
 
+jest.mock( '../../../src/dashboard/components/dashboard-layout', () => ( {
+	__esModule: true,
+	default: ( { actions, children }: { actions?: ReactNode; children?: ReactNode } ) => (
+		<div>
+			<div>{ actions }</div>
+			{ children }
+		</div>
+	),
+} ) );
+
 const mockErrorNotice = jest.fn();
-jest.mock( '@automattic/jetpack-components/global-notices', () => ( {
-	useGlobalNotices: () => ( {
+jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
+jest.mock( '@wordpress/data', () => ( {
+	combineReducers: jest.fn( reducers => reducers ),
+	createReduxStore: jest.fn( () => ( { name: 'mock-store' } ) ),
+	createSelector: jest.fn( selector => selector ),
+	keyedReducer: jest.fn( ( _key, reducer ) => reducer ),
+	register: jest.fn(),
+	select: jest.fn( () => ( {} ) ),
+	dispatch: jest.fn( () => ( {} ) ),
+	useSelect: jest.fn( () => ( {} ) ),
+	useRegistry: jest.fn( () => ( { select: jest.fn(), dispatch: jest.fn() } ) ),
+	useDispatch: () => ( {
 		createErrorNotice: mockErrorNotice,
 	} ),
 } ) );
@@ -67,6 +87,7 @@ jest.mock( '../../../src/dashboard/hooks/use-settings', () => ( {
 			videoPressAutoSubtitlesDisabled: false,
 			videoPressPlayerPreloadDisabled: false,
 			videoPressInlinePlayerEnabled: false,
+			videoPressShareMenuDisabled: false,
 		},
 		isLoading: false,
 	} ),
@@ -155,6 +176,22 @@ describe( 'Settings stage', () => {
 
 		expect( mockMutate ).toHaveBeenCalledWith(
 			{ videoPressInlinePlayerEnabled: true },
+			expect.objectContaining( { onError: expect.any( Function ) } )
+		);
+	} );
+
+	it( 'turns sharing off for every video when its toggle is switched off', async () => {
+		mockedUseFreeTier.mockReturnValue( freeTierState() );
+
+		render( <Stage /> );
+
+		const toggle = screen.getByLabelText( 'Allow sharing' );
+		expect( toggle ).toBeChecked();
+
+		await userEvent.click( toggle );
+
+		expect( mockMutate ).toHaveBeenCalledWith(
+			{ videoPressShareMenuDisabled: true },
 			expect.objectContaining( { onError: expect.any( Function ) } )
 		);
 	} );

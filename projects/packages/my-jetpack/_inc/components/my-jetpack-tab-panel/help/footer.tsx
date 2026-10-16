@@ -3,7 +3,6 @@ import { __ } from '@wordpress/i18n';
 import { Link, Text } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { isJetpackPluginActive } from '../../../utils/is-jetpack-plugin-active';
-import { getModulesListPath } from '../utils';
 import styles from './styles.module.scss';
 import { useHelpTracking } from './use-help-tracking';
 
@@ -27,8 +26,6 @@ export function HelpFooter() {
 		trackHelpRequest( 'documentation', 'clicked_debug_information_link' );
 	}, [ trackHelpRequest ] );
 
-	// The modules list and the Debugger need the Jetpack plugin and manage_options (the Help tab
-	// also shows to editors), and neither exists on WordPress.com Simple.
 	const showUsefulLinks =
 		isJetpackPluginActive() && currentUserCan( 'manage_options' ) && ! isSimpleSite();
 
@@ -62,7 +59,7 @@ export function HelpFooter() {
 							<ul>
 								<li>
 									<Link
-										href={ getAdminUrl( getModulesListPath() ) }
+										href={ getAdminUrl( 'admin.php?page=jetpack_modules' ) }
 										onClick={ handleAllModulesClick }
 									>
 										{ __( 'All Jetpack modules', 'jetpack-my-jetpack' ) }

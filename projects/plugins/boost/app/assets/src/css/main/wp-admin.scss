@@ -137,6 +137,13 @@ p {
 	);
 }
 
+// Undo the bare `p` rule above, which otherwise overrides design-system
+// text such as notices.
+:where(.jb-modern-settings, .jb-modern-settings-popovers) p {
+	font-size: inherit;
+	color: inherit;
+}
+
 // Reset WP-Admin styles for boost dashboard
 .jetpack_page_jetpack-boost #jb-admin-settings {
 	background: #fff;

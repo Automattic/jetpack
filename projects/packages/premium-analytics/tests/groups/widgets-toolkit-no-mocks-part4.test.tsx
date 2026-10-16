@@ -8,3 +8,5 @@ import '../../packages/widgets-toolkit/src/helpers/__tests__/summary-count.test'
 import '../../packages/widgets-toolkit/src/helpers/__tests__/to-day.test';
 import '../../packages/widgets-toolkit/src/stories/mocks/data/email-timeline.test';
 import '../../packages/widgets-toolkit/src/stories/mocks/register-stats-mocks.test';
+import '../../packages/widgets-toolkit/src/helpers/__tests__/fixed-y-axis.test';
+import '../../packages/widgets-toolkit/src/helpers/__tests__/format-email-rate.test';

@@ -11,12 +11,14 @@ describe( 'Stats comment followers normalizer', () => {
 				label: 'All Posts',
 				followers: 20,
 				value: 20,
+				link: null,
 			} ),
 			expect.objectContaining( {
 				id: 41,
 				label: 'Hello world',
 				followers: 10,
 				value: 10,
+				link: 'https://example.com/hello/',
 				labelIcon: 'external',
 			} ),
 		] );

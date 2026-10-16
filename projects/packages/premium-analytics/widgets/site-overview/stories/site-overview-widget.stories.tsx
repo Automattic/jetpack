@@ -153,9 +153,7 @@ export const Error: Story = {
 
 /**
  * Resolved with every metric at zero: the summary endpoint returns a flat totals
- * object even for idle periods, so the widget derives its empty state ("No stats
- * recorded for this period." under the neutral globe glyph) from all-zero
- * visible metrics.
+ * object even for idle periods, and the tiles show those zeros.
  */
 export const Empty: Story = {
 	render: () => renderSiteOverviewOnPreset( 'last-365-days' ),

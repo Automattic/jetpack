@@ -13,18 +13,19 @@ namespace Automattic\Jetpack\Newsletter;
 class Urls {
 
 	/**
-	 * Get the newsletter settings URL.
+	 * Get the URL of the Settings tab of the Newsletter page.
 	 *
-	 * @return string The newsletter settings URL.
+	 * @return string The Settings tab URL.
 	 */
 	public static function get_newsletter_settings_url() {
-		return admin_url( 'admin.php?page=jetpack-newsletter' );
+		// The page's router reads its route and search only from `p`; a top-level `tab` is ignored.
+		return admin_url( 'admin.php?page=' . Settings::ADMIN_PAGE_SLUG . '&p=' . rawurlencode( '/?tab=settings' ) );
 	}
 
 	/**
 	 * Get the URL of the Subscribers tab of the Newsletter page.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.17.0
 	 *
 	 * @return string The Subscribers tab URL.
 	 */

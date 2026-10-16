@@ -3,7 +3,9 @@
  */
 import { Popover, Tooltip, VisuallyHidden } from '@jetpack-premium-analytics/externals';
 import {
+	useCallback,
 	useId,
+	useRef,
 	type KeyboardEventHandler,
 	type MouseEventHandler,
 	type ReactElement,
@@ -52,6 +54,19 @@ export function DateControlPopover( {
 	children,
 }: DateControlPopoverProps ) {
 	const descriptionId = useId();
+	const popupRef = useRef< HTMLDivElement >( null );
+
+	// Opens on the applied option, the way a native select does, else on the first. A touch
+	// open keeps the default of focusing the popup itself, which this callback replaces.
+	const focusAppliedOption = useCallback(
+		( interactionType: string ) =>
+			( interactionType === 'touch'
+				? popupRef.current
+				: popupRef.current?.querySelector< HTMLElement >(
+						'[role="menuitemradio"][aria-checked="true"]'
+					) ) ?? true,
+		[]
+	);
 
 	return (
 		<Popover.Root open={ open } onOpenChange={ onOpenChange }>
@@ -66,7 +81,9 @@ export function DateControlPopover( {
 			</Tooltip.Root>
 			{ tooltip && <VisuallyHidden id={ descriptionId }>{ tooltip }</VisuallyHidden> }
 			<Popover.Popup
+				ref={ popupRef }
 				className="date-control-popover"
+				initialFocus={ focusAppliedOption }
 				positioner={ <Popover.Positioner side="bottom" align={ align } /> }
 			>
 				<VisuallyHidden render={ <Popover.Title /> }>{ title }</VisuallyHidden>

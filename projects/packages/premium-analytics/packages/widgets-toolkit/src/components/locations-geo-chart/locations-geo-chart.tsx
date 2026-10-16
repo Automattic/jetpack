@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { useViewerCountry } from '@jetpack-premium-analytics/data';
 import { GeoChart, type GeoChartError } from '@jetpack-premium-analytics/externals';
 import { useCallback, useMemo, useState } from 'react';
 /**
@@ -33,13 +34,15 @@ export interface LocationsGeoChartProps {
 	focusCountry?: LocationsGeoFocusCountry;
 	/** Debounce for the chart's own resize observer, in milliseconds. */
 	resizeDebounceTime?: number;
+	/** What the figure is, as the tooltip names it. Defaults to Views. */
+	valueLabel?: string;
 }
 
 /**
  * The shared Stats locations map: a Google GeoChart of views by location.
  *
- * A focused country is drawn as a provinces map where Google has one, and falls
- * back to the world map where it does not.
+ * Cities are drawn as markers. A focused country is drawn as a provinces map
+ * where Google has one, and falls back to the world map where it does not. Disputed borders follow the viewer's country.
  *
  * @param {LocationsGeoChartProps} props - The component props.
  * @return The locations map.
@@ -49,18 +52,20 @@ export function LocationsGeoChart( {
 	mode,
 	focusCountry,
 	resizeDebounceTime = RESIZE_DEBOUNCE_MS,
+	valueLabel,
 }: LocationsGeoChartProps ) {
 	const [ unsupportedProvinceMapCountries, setUnsupportedProvinceMapCountries ] = useState<
 		Set< string >
 	>( () => new Set( runtimeUnsupportedProvinceMapCountries ) );
 
+	const { data: viewerCountry, isPending: isViewerCountryPending } = useViewerCountry();
 	const focusCountryCode = focusCountry?.code.toUpperCase();
 	const provinceMapSupported = focusCountryCode
 		? ! unsupportedProvinceMapCountries.has( focusCountryCode )
 		: true;
-	const { data, region, resolution } = useMemo(
-		() => buildLocationsGeoChart( { rows, mode, focusCountry, provinceMapSupported } ),
-		[ focusCountry, mode, provinceMapSupported, rows ]
+	const { data, region, resolution, displayMode } = useMemo(
+		() => buildLocationsGeoChart( { rows, mode, focusCountry, provinceMapSupported, valueLabel } ),
+		[ focusCountry, mode, provinceMapSupported, rows, valueLabel ]
 	);
 	const useProvinceMap = resolution === 'provinces';
 
@@ -98,12 +103,20 @@ export function LocationsGeoChart( {
 		[ focusCountryCode, mode, useProvinceMap ]
 	);
 
+	// Drawing before the country is known would paint Google's default borders
+	// first and then redraw them, which is visible for a disputed border.
+	if ( isViewerCountryPending ) {
+		return null;
+	}
+
 	return (
 		<GeoChart
 			data={ data }
 			resizeDebounceTime={ resizeDebounceTime }
 			region={ region }
 			resolution={ resolution }
+			displayMode={ displayMode }
+			domain={ viewerCountry ?? undefined }
 			onError={ handleError }
 		/>
 	);

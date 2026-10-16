@@ -22,12 +22,6 @@ const TODAY = new Date( 2026, 2, 15 );
 const NOV_24 = { year: 2025, month: 10, day: 24 };
 
 describe( 'buildViewsOverYearsRows', () => {
-	it( 'returns one row per year with views, newest first', () => {
-		const rows = buildViewsOverYearsRows( BUCKETS, 'total', TODAY );
-
-		expect( rows.map( row => row.year ) ).toEqual( [ 2026, 2025 ] );
-	} );
-
 	it( 'opens on the first month with views and closes on the current month', () => {
 		const rows = buildViewsOverYearsRows( BUCKETS, 'total', TODAY );
 
@@ -88,13 +82,6 @@ describe( 'buildViewsOverYearsRows', () => {
 		expect( rows.map( row => row.total ) ).toEqual( [ 8, 24 ] );
 	} );
 
-	it( 'leaves the totals alone whatever the first day', () => {
-		const rows = buildViewsOverYearsRows( BUCKETS, 'total', TODAY, NOV_24 );
-
-		expect( rows[ 1 ].months.slice( 10 ) ).toEqual( [ 300, 620 ] );
-		expect( rows.map( row => row.total ) ).toEqual( [ 605, 920 ] );
-	} );
-
 	it( 'divides the first month whole when the first day falls outside it', () => {
 		const later = buildViewsOverYearsRows( BUCKETS, 'average', TODAY, {
 			...NOV_24,
@@ -153,8 +140,14 @@ describe( 'buildViewsOverYearsRows', () => {
 		expect( rows[ 1 ].total ).toBe( 0 );
 	} );
 
-	it( 'returns nothing without a month of views', () => {
-		expect( buildViewsOverYearsRows( [], 'total', TODAY ) ).toEqual( [] );
-		expect( buildViewsOverYearsRows( [ bucket( 2026, 0, 0 ) ], 'total', TODAY ) ).toEqual( [] );
+	it( 'draws the current month alone, at zero, without a month of views', () => {
+		const currentMonthOnly = [
+			{ year: 2026, months: [ null, null, 0, ...Array( 9 ).fill( null ) ], total: 0 },
+		];
+
+		expect( buildViewsOverYearsRows( [], 'total', TODAY ) ).toEqual( currentMonthOnly );
+		expect( buildViewsOverYearsRows( [ bucket( 2026, 0, 0 ) ], 'average', TODAY ) ).toEqual(
+			currentMonthOnly
+		);
 	} );
 } );

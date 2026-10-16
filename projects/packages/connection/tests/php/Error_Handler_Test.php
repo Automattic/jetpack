@@ -54,7 +54,6 @@ class Error_Handler_Test extends BaseTestCase {
 		remove_all_filters( 'jetpack_connection_get_verified_errors' );
 		remove_all_filters( 'jetpack_connection_error_notice_message' );
 		remove_all_filters( 'jetpack_connection_bypass_error_reporting_gate' );
-		remove_all_filters( 'jetpack_connection_ownership_transferable' );
 		remove_all_filters( 'user_has_cap' );
 		remove_all_filters( 'map_meta_cap' );
 
@@ -63,6 +62,7 @@ class Error_Handler_Test extends BaseTestCase {
 		\Jetpack_Options::delete_option( 'master_user' );
 		\Jetpack_Options::delete_option( 'id' );
 		\Jetpack_Options::delete_option( 'user_tokens' );
+		\Jetpack_Options::delete_option( Protected_Owner::OPTION );
 
 		// Manager memoizes the connection owner, which jetpack_connect_user maps on.
 		( new Manager() )->reset_connection_status();
@@ -132,6 +132,32 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->assertEquals( 'incoming', $error_data['error_direction'] );
 		$this->assertArrayHasKey( 'nonce', $error_data );
 		$this->assertArrayHasKey( 'timestamp', $error_data );
+	}
+
+	/**
+	 * A user-token write clears the stored owner error, mirroring an owner re-authorization:
+	 * update_user_token() fires jetpack_updated_user_token, which delete_all_errors() listens on.
+	 */
+	public function test_user_token_write_clears_stored_owner_error() {
+		// WorDBless restores a $wp_filter snapshot taken before the singleton was first built,
+		// dropping its constructor-registered hooks. Rebuild it so the production wiring is live.
+		( new \ReflectionProperty( Error_Handler::class, 'instance' ) )->setValue( null, null );
+		$this->error_handler = Error_Handler::get_instance();
+
+		$this->assertNotFalse(
+			has_action( 'jetpack_updated_user_token', array( $this->error_handler, 'delete_all_errors' ) ),
+			'Error_Handler must listen on jetpack_updated_user_token for this wiring to hold.'
+		);
+
+		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
+		$this->error_handler->report_error(
+			$this->get_sample_error( 'invalid_connection_owner', 1, Error_Handler::ERROR_TYPE_LOCAL_STATE )
+		);
+		$this->assertArrayHasKey( 'invalid_connection_owner', $this->error_handler->get_stored_errors() );
+
+		( new Tokens() )->update_user_token( 1, 'secret.1', true );
+
+		$this->assertSame( array(), $this->error_handler->get_stored_errors() );
 	}
 
 	/**
@@ -3536,7 +3562,7 @@ class Error_Handler_Test extends BaseTestCase {
 		wp_set_current_user( $admin_id );
 
 		// Lock ownership.
-		add_filter( 'jetpack_connection_ownership_transferable', '__return_false' );
+		Protected_Owner::set( 12345, $owner_id );
 
 		$error = array(
 			'error_code'    => 'no_valid_user_token',
@@ -3853,7 +3879,7 @@ class Error_Handler_Test extends BaseTestCase {
 		wp_set_current_user( $admin_id );
 
 		// Lock ownership.
-		add_filter( 'jetpack_connection_ownership_transferable', '__return_false' );
+		Protected_Owner::set( 12345, $owner_id );
 
 		// Report the error exactly the way Manager::get_connection_owner() does:
 		// empty token, explicit user_id in the error data, locally verified.

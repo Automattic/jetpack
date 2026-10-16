@@ -1,4 +1,5 @@
-import { render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { makeLibraryItem } from '../../../src/dashboard/test-utils/library-item';
 import { makeVideoFile } from '../../../src/dashboard/test-utils/video-file';
 import { stage as Stage } from '../stage';
@@ -77,6 +78,8 @@ let mockQueue: Array< {
 	progress: number;
 	file: File;
 	mediaId?: string;
+	detailsError?: boolean;
+	isSavingDetails?: boolean;
 } > = [];
 const mockStartUpload = jest.fn();
 jest.mock( '../../../src/dashboard/hooks/use-upload', () => ( {
@@ -115,8 +118,23 @@ jest.mock( '../../../src/dashboard/hooks/use-videopress-upgrade', () => ( {
 jest.mock( '../../../src/dashboard/hooks/use-persisted-view', () => ( {
 	usePersistedView: ( fallback: unknown ) => [ fallback, jest.fn() ],
 } ) );
-jest.mock( '@automattic/jetpack-components/global-notices', () => ( {
-	useGlobalNotices: () => ( {
+jest.mock( '@automattic/jetpack-connection/use-connection-error-notice', () => ( {
+	__esModule: true,
+	default: () => ( { hasConnectionError: false } ),
+	ConnectionError: () => null,
+} ) );
+
+jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
+jest.mock( '@wordpress/data', () => ( {
+	combineReducers: jest.fn( reducers => reducers ),
+	createReduxStore: jest.fn( () => ( { name: 'mock-store' } ) ),
+	createSelector: jest.fn( selector => selector ),
+	register: jest.fn(),
+	select: jest.fn( () => ( {} ) ),
+	dispatch: jest.fn( () => ( {} ) ),
+	useSelect: jest.fn( () => ( {} ) ),
+	useRegistry: jest.fn( () => ( { select: jest.fn(), dispatch: jest.fn() } ) ),
+	useDispatch: () => ( {
 		createSuccessNotice: jest.fn(),
 		createErrorNotice: jest.fn(),
 		createInfoNotice: jest.fn(),
@@ -255,6 +273,51 @@ describe( 'library stage upload hand-off', () => {
 		mockItems = [ makeLibraryItem( { id: '7' } ) ];
 		mockQueue = [];
 		mockFreeTier = { isAtLimit: false, isFree: false, isUnlimited: true, videoCount: 0, limit: 1 };
+	} );
+
+	it.each( [ 1, 2 ] )(
+		'handles a selection of %d videos without stealing focus for a batch',
+		async count => {
+			mockStartUpload.mockImplementation( ( file: File ) => `upload-${ file.name }` );
+			render( <Stage /> );
+			const files = Array.from( { length: count }, ( _, index ) =>
+				makeVideoFile( `${ index }.mp4` )
+			);
+			await userEvent.upload( screen.getByLabelText( 'Choose videos' ), files );
+			expect( mockStartUpload ).toHaveBeenCalledTimes( count );
+			expect( mockNavigate.mock.calls ).toEqual(
+				count === 1 ? [ [ { href: '/video/upload-0.mp4' } ] ] : []
+			);
+		}
+	);
+
+	it( 'queues every video dropped onto an empty library without navigating away', async () => {
+		mockLibraryTotal = 0;
+		mockItems = [];
+		render( <Stage /> );
+		const files = [ makeVideoFile( 'a.mp4' ), makeVideoFile( 'b.mp4' ) ];
+		fireEvent.drop( screen.getByText( 'Drag and drop your videos here' ), {
+			dataTransfer: { files },
+		} );
+		await waitFor( () => expect( mockStartUpload ).toHaveBeenCalledTimes( 2 ) );
+		expect( mockStartUpload.mock.calls ).toEqual( [ [ files[ 0 ] ], [ files[ 1 ] ] ] );
+		expect( mockNavigate ).not.toHaveBeenCalled();
+	} );
+
+	it( 'keeps a details-save failure visible when the attachment reaches the library', () => {
+		mockQueue = [
+			{
+				id: 'upload-draft',
+				status: 'success',
+				progress: 1,
+				mediaId: '101',
+				file: makeVideoFile( 'a.mp4' ),
+				detailsError: true,
+			},
+		];
+		mockItems = [ makeLibraryItem( { id: '101' } ) ];
+		render( <Stage /> );
+		expect( renderedRowIds() ).toEqual( [ 'upload-draft' ] );
 	} );
 
 	it.each( [

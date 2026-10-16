@@ -217,3 +217,26 @@ it( 'shows a processing placeholder without fetching the original, then loads it
 	rerender( <StudioEditorPreviewPlayer { ...defaultProps } processing={ false } /> );
 	expect( getVideo() ).toHaveAttribute( 'src', defaultProps.video.originalUrl );
 } );
+
+it( 'stops before a trailing cut and restarts the retained video on play', async () => {
+	jest.useFakeTimers();
+	try {
+		const { ref } = renderPlayer( {
+			session: {
+				...createEditSession( 60000 ),
+				cuts: [ { id: 'tail', startMs: 25000, endMs: 60000 } ],
+			},
+		} );
+		await act( async () => ref.current?.play() );
+		getVideo().currentTime = 27;
+		act( () => jest.advanceTimersByTime( 20 ) );
+		expect( getVideo().paused ).toBe( true );
+		expect( getVideo().currentTime ).toBe( 24.999 );
+		await act( async () => ref.current?.play() );
+		expect( getVideo().currentTime ).toBe( 0 );
+		expect( getVideo().paused ).toBe( false );
+		act( () => ref.current?.pause() );
+	} finally {
+		jest.useRealTimers();
+	}
+} );

@@ -12,6 +12,7 @@ import { BylinePreview } from '../components/byline-preview';
 import { Toggle } from '../components/toggle';
 import { getNewsletterScriptData } from '../script-data';
 import type { NewsletterSettings } from '../types';
+import type { JSX } from 'react';
 
 interface EmailBylineSectionProps {
 	data: NewsletterSettings;

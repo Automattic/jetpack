@@ -942,6 +942,7 @@ class Jetpack_Gutenberg {
 					'sm_enabled'                        => (bool) get_option( 'sm_enabled', false ),
 					'jetpack_subscribe_overlay_enabled' => (bool) get_option( 'jetpack_subscribe_overlay_enabled', false ),
 					'jetpack_subscribe_floating_button_enabled' => (bool) get_option( 'jetpack_subscribe_floating_button_enabled', false ),
+					'wpcom_action_bar'                  => ( new Host() )->is_wpcom_simple() && ! get_option( 'wpcom_hide_action_bar' ),
 				) : null,
 				// this is the equivalent of JP initial state siteData.showMyJetpack (class-jetpack-redux-state-helper)
 				// used to determine if we can link to My Jetpack from the block editor
@@ -1581,6 +1582,14 @@ class Jetpack_Gutenberg {
 
 		// Bail early if we cannot find a host.
 		if ( empty( $url_components['host'] ) ) {
+			return false;
+		}
+
+		// Only http and https URLs are valid.
+		if (
+			isset( $url_components['scheme'] )
+			&& ! in_array( strtolower( $url_components['scheme'] ), array( 'http', 'https' ), true )
+		) {
 			return false;
 		}
 

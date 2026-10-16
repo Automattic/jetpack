@@ -175,14 +175,19 @@ export function useActivityLog( { page, pageSize, sortOrder }: Args ): Result {
  * @param page      - The page currently shown in the list.
  * @param pageSize  - The per-page setting currently shown in the list.
  * @param sortOrder - The sort direction currently shown in the list.
- * @return The matching item or null, whether the list's page query has answered, and its failure if it did.
+ * @return The matching item or null, whether the list's page query has answered, its failure if it did, and whether it is fetching now (false when paused or disabled).
  */
 export function useActivityById(
 	id: string | null,
 	page: number,
 	pageSize: number,
 	sortOrder: ActivitySortOrder
-): { item: ActivityItem | null; hasAnswered: boolean; error: Error | null } {
+): {
+	item: ActivityItem | null;
+	hasAnswered: boolean;
+	error: Error | null;
+	isFetching: boolean;
+} {
 	// Follows the list's `sortOrder`: it is part of the cache key, so pinning it
 	// here would open a second query for rows already on screen.
 	const query = useActivityPageQuery( page, pageSize, sortOrder );
@@ -225,6 +230,7 @@ export function useActivityById(
 		item,
 		hasAnswered: isRestore ? restores.isSuccess : query.isSuccess,
 		error: isRestore ? restores.error : query.error,
+		isFetching: isRestore ? restores.isFetching : query.isFetching,
 	};
 }
 

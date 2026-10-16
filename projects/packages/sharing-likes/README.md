@@ -3,16 +3,61 @@
 Sharing buttons and Like buttons for your posts.
 
 Today the package ships the wp-admin **Settings > Sharing** screen, under
-`src/settings/`. A host plugin registers it:
+`src/settings/`, and the same settings over REST, under `wpcom/v2/sharing-likes/`,
+for the React version of the screen. A host plugin sets both up with one call,
+on every request rather than in an `is_admin()` branch, since REST requests are
+not admin requests, and Calypso's sidebar is built in one:
 
 ```php
-\Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::init();
-\Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler::init();
+\Automattic\Jetpack\Sharing_Likes\Initializer::init();
 ```
 
-Both calls belong in an `is_admin()` branch, and neither depends on a module
-being active: the screen and every section on it exist whatever the site is
-running.
+Neither depends on a module being active: the screen and every section on it
+exist whichever modules are on, on any site that is Simple, connected, or in
+offline mode.
+
+The same call hooks the Sharing Buttons and Like blocks into block themes' single
+post and page templates, before or after the post content, wherever the
+`jetpack_sharing_buttons_auto_add` and `jetpack_likes_auto_add` options ask for
+them and the legacy buttons are off. No screen sets them yet; to try it:
+
+	wp option update jetpack_sharing_buttons_auto_add '["after_content"]' --format=json
+	wp option update jetpack_likes_auto_add '["before_content"]' --format=json
+
+Single posts and pages get them by default. To add another post type's single views:
+
+```php
+add_filter(
+	'jetpack_sharing_likes_template_placement_post_types',
+	function ( $post_types ) {
+		$post_types[] = 'product';
+		return $post_types;
+	}
+);
+```
+
+It also ships the per-post Likes and Sharing switches the block editor shows, as
+REST fields on every public post type. `Initializer::init()` leaves these out:
+each belongs to the feature that reads it, so call it wherever that feature
+loads (Likes or Comment Likes, and Sharing), outside any `is_admin()` branch:
+
+```php
+\Automattic\Jetpack\Sharing_Likes\Post_Likes_Switch::init();
+\Automattic\Jetpack\Sharing_Likes\Post_Sharing_Switch::init();
+```
+
+Calling either more than once is harmless.
+
+## React screen (preview)
+
+Settings > Sharing has a React version, off by default. To try it:
+
+	add_filter( 'rsm_jetpack_ui_modernization_sharing_likes', '__return_true' );
+
+Add it before `admin_menu` runs, for example from a plugin or mu-plugin: the filter is
+read on `admin_menu` at priority 1, so adding it on `admin_init` silently does nothing.
+
+Build it with `pnpm run build` (or `jp build packages/sharing-likes`).
 
 ## How to install sharing-likes
 

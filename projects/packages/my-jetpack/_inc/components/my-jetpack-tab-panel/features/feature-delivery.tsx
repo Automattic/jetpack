@@ -2,7 +2,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { info } from '@wordpress/icons';
 import { Icon, Stack, Text } from '@wordpress/ui';
-import { getForcedReason } from './feature-state';
+import { getForcedReason, getInstallBlockReason, getModuleUnavailableNote } from './feature-state';
 import styles from './styles.module.scss';
 import type { FeatureState } from './feature-state';
 
@@ -20,12 +20,18 @@ type FeatureDeliveryProps = {
 function getNote( state: FeatureState, pluginName: string ): string {
 	const { feature, control } = state;
 
+	// A blocked install has no button to describe, so the note says why instead.
+	const blockedReason = getInstallBlockReason( state );
+	if ( blockedReason ) {
+		return blockedReason;
+	}
+
 	switch ( control.kind ) {
 		case 'install-plugin':
 			return sprintf(
 				/* translators: %s is a plugin name. Keep the <plugin> tags around it. */
 				__(
-					'Installing adds the <plugin>%s</plugin> plugin and turns it on. It does not buy anything.',
+					'Installing adds the free <plugin>%s</plugin> plugin and turns it on. You won’t be charged.',
 					'jetpack-my-jetpack'
 				),
 				pluginName
@@ -43,7 +49,7 @@ function getNote( state: FeatureState, pluginName: string ): string {
 
 		case 'module':
 			return __(
-				'Built into Jetpack. Activating turns it on, with nothing to install or buy.',
+				'Built into Jetpack, so there is nothing to install. Activating turns it on.',
 				'jetpack-my-jetpack'
 			);
 
@@ -51,7 +57,7 @@ function getNote( state: FeatureState, pluginName: string ): string {
 			return sprintf(
 				/* translators: %s is a feature name, such as "Stats". */
 				__(
-					'%s is part of the Jetpack plugin. Installing Jetpack turns it on; it does not buy anything.',
+					'%s is part of the Jetpack plugin. Installing Jetpack turns it on. You won’t be charged.',
 					'jetpack-my-jetpack'
 				),
 				feature.name
@@ -63,7 +69,7 @@ function getNote( state: FeatureState, pluginName: string ): string {
 }
 
 /**
- * What the button beside an inactive feature's name will do to turn it on.
+ * The module limitation and the action's setup note in the feature details.
  *
  * @param {FeatureDeliveryProps} props       - The component props.
  * @param {FeatureState}         props.state - Live state for the feature.
@@ -72,30 +78,40 @@ function getNote( state: FeatureState, pluginName: string ): string {
 export function FeatureDelivery( { state }: FeatureDeliveryProps ) {
 	const { feature } = state;
 
-	// Once it runs, how it arrived is no longer the question; forced off, the header badge says why.
+	const moduleNote = getModuleUnavailableNote( state );
+	// An active plugin does not remove its module's limitation.
 	if ( state.status === 'active' || getForcedReason( state ) ) {
-		return null;
+		return moduleNote ? <Text variant="body-sm">{ moduleNote }</Text> : null;
 	}
 
 	const pluginName = feature.plugin_name || feature.name;
 	const note = getNote( state, pluginName );
+	// A blocked install never reaches the next step, so naming it would only mislead.
+	const setupNote = getInstallBlockReason( state ) ? '' : feature.setup_note;
 
-	if ( ! note ) {
+	if ( ! note && ! setupNote ) {
 		return null;
 	}
 
 	return (
 		<Stack direction="row" align="start" gap="sm" className={ styles[ 'delivery-note' ] }>
 			<Icon icon={ info } size={ 20 } className={ styles[ 'inline-icon' ] } />
-			<Text variant="body-sm">
-				{ createInterpolateElement( note, {
-					plugin: feature.plugin_url ? (
-						<a href={ feature.plugin_url } target="_blank" rel="noreferrer" />
-					) : (
-						<span />
-					),
-				} ) }
-			</Text>
+			{ /* Separate sentences rather than a joined string: not every script spaces them. */ }
+			<Stack direction="column" gap="xs">
+				{ moduleNote ? <Text variant="body-sm">{ moduleNote }</Text> : null }
+				{ note ? (
+					<Text variant="body-sm">
+						{ createInterpolateElement( note, {
+							plugin: feature.plugin_url ? (
+								<a href={ feature.plugin_url } target="_blank" rel="noreferrer" />
+							) : (
+								<span />
+							),
+						} ) }
+					</Text>
+				) : null }
+				{ setupNote ? <Text variant="body-sm">{ setupNote }</Text> : null }
+			</Stack>
 		</Stack>
 	);
 }

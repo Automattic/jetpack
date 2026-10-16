@@ -134,8 +134,8 @@ class Jetpack_Blog_Stats_Widget extends WP_Widget {
 	 */
 	public function update( $new_instance, $old_instance ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$instance          = array();
-		$instance['title'] = wp_kses( $new_instance['title'], array() );
-		$instance['hits']  = wp_kses( $new_instance['hits'], array() );
+		$instance['title'] = wp_kses( $new_instance['title'] ?? '', array() );
+		$instance['hits']  = wp_kses( $new_instance['hits'] ?? '', array() );
 
 		return $instance;
 	}

@@ -12,7 +12,7 @@ export type VideoRating = 'G' | 'PG-13' | 'R';
 export type VideoOrientation = 'landscape' | 'portrait' | null;
 
 // Why an upload failed, in the only terms the row has space to say it.
-export type UploadFailureReason = 'connection' | 'other';
+export type UploadFailureReason = 'connection' | 'details' | 'other';
 
 export interface UploadState {
 	status: UploadStatus;
@@ -47,6 +47,7 @@ export interface LibraryItem {
 	// browsers can't decode. Undefined until the transcode ladder is ready.
 	playbackUrl?: string;
 	isProcessing: boolean;
+	conversionFailed?: boolean;
 	orientation: VideoOrientation;
 	tracks: VideoTextTrack[];
 }

@@ -136,8 +136,6 @@ class Site_Health {
 			'test__check_if_connected'             => __( 'WordPress.com Connection', 'jetpack-connection' ),
 			'test__master_user_exists_on_site'     => __( 'Connection Owner', 'jetpack-connection' ),
 			'test__master_user_can_manage_options' => __( 'Connection Owner Permissions', 'jetpack-connection' ),
-			'test__outbound_http'                  => __( 'Outbound HTTP Requests', 'jetpack-connection' ),
-			'test__outbound_https'                 => __( 'Outbound HTTPS Requests', 'jetpack-connection' ),
 			'test__identity_crisis'                => __( 'Site Address', 'jetpack-connection' ),
 			'test__connection_token_health'        => __( 'Connection Tokens', 'jetpack-connection' ),
 			'test__wpcom_connection_test'          => __( 'Requests from WordPress.com', 'jetpack-connection' ),

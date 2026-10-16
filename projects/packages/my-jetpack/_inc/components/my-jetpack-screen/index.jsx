@@ -23,11 +23,12 @@ import useIsJetpackUserNew from '../../hooks/use-is-jetpack-user-new';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useNotificationWatcher from '../../hooks/use-notification-watcher';
 import { useQueryParameter } from '../../hooks/use-query-parameter';
+import { useReplayPendingNotice } from '../../utils/pending-notice';
 import EvaluationRecommendations from '../evaluation-recommendations';
+import { getHeaderControls } from '../header-controls';
 import IDCModal from '../idc-modal';
 import { MyJetpackTabPanel } from '../my-jetpack-tab-panel';
-import { useReplayPendingNotice } from '../my-jetpack-tab-panel/products/pending-notice';
-import { getModulesListPath, resolveMyJetpackSection } from '../my-jetpack-tab-panel/utils';
+import { resolveMyJetpackSection } from '../my-jetpack-tab-panel/utils';
 import OnboardingTour from '../onboarding-tour';
 import buildOptionalMenuItems from './build-optional-menu-items';
 import styles from './styles.module.scss';
@@ -65,7 +66,7 @@ export const GlobalNotice = ( { message, title, options } ) => {
 				{ actionButtons && actionButtons.length > 0 && (
 					<Notice.Actions>{ actionButtons }</Notice.Actions>
 				) }
-				{ ! hideCloseButton && <Notice.CloseIcon onClick={ options.onClose } /> }
+				{ ! hideCloseButton && <Notice.CloseIconButton onClick={ options.onClose } /> }
 			</Notice.Root>
 		</div>
 	);
@@ -171,7 +172,6 @@ export default function MyJetpackScreen() {
 		isSiteConnected,
 		isJetpackPluginActive,
 		isSimpleSite: isSimpleSite(),
-		modulesListPath: getModulesListPath(),
 		onModulesClick: () => recordEvent( 'jetpack_myjetpack_footer_link_click', { link: 'modules' } ),
 		onResetClick: () => resetJetpackOptions(),
 		onResetKeyDown: e => onKeyDownCallback( e, () => resetJetpackOptions() ),
@@ -184,6 +184,7 @@ export default function MyJetpackScreen() {
 			apiRoot={ apiRoot }
 			apiNonce={ apiNonce }
 			title="Jetpack"
+			globalControls={ getHeaderControls() }
 			optionalMenuItems={ optionalMenuItems }
 			className={ styles[ 'my-jetpack-screen' ] }
 			showBottomBorder={ false }

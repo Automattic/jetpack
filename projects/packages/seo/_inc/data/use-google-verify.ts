@@ -160,9 +160,9 @@ export function useGoogleVerify( {
 					}
 					savedToken = status.token;
 					return apiFetch( {
-						path: '/jetpack/v4/settings',
+						path: '/wp/v2/settings',
 						method: 'POST',
-						data: { google: status.token },
+						data: { verification_services_codes: { google: status.token } },
 					} );
 				} )
 				.then( () => {

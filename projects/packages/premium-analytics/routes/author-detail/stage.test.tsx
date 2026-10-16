@@ -1,12 +1,15 @@
 import { useReportScope } from '@jetpack-premium-analytics/data';
+import { PRESET_ALL_TIME, computePrimaryRange } from '@jetpack-premium-analytics/datetime';
 import { useStoredDetailLayout } from '@jetpack-premium-analytics/widgets-toolkit';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useAuthorSummary } from './hooks';
+import { getNoticeAnnouncement, getNoticeText } from '../../tests/js/notice-test-utils';
+import { useAuthorAllTimeStart, useAuthorSummary } from './hooks';
 import { stage } from './stage';
 import type { ReactNode } from 'react';
 
 let mockSearch: Record< string, unknown > = {};
+let mockDateFilterOverrides: Record< string, unknown > = {};
 
 // The dashboard props the stage handed to the (mocked) WidgetDashboard.
 let mockDashboardProps: {
@@ -19,7 +22,6 @@ let mockDashboardProps: {
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
 	AnalyticsQueryClientProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
-	GlobalErrorProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/routing', () => ( {
@@ -28,17 +30,22 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/routing' ),
 	useDashboardLink: () => '/?from=2026-06-01&to=2026-06-16',
 	useReportDateFilters: () => ( {
-		appliedRange: { from: new Date( 2026, 5, 1 ), to: new Date( 2026, 5, 16 ) },
+		appliedRange: {
+			from: new Date( Date.UTC( 2026, 5, 1 ) ),
+			to: new Date( Date.UTC( 2026, 5, 16 ) ),
+		},
 		replaceRange: () => {},
 		timeZone: 'UTC',
 		interval: 'day',
 		intervalOptions: [ 'day', 'week' ],
+		...mockDateFilterOverrides,
 	} ),
 } ) );
 
 // Avoid loading DataViews while keeping the real breadcrumbs for these assertions.
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	DateFiltersPanel: () => <div>Date filters</div>,
+	PeriodChangeStatus: () => null,
 	SectionHeader: jest.requireActual( '../../packages/ui/src/section-header' ).SectionHeader,
 	StatsBreadcrumbs: jest.requireActual( '../../packages/ui/src/stats-breadcrumbs' )
 		.StatsBreadcrumbs,
@@ -152,16 +159,20 @@ jest.mock( '@wordpress/route', () => {
 
 	return {
 		Link: mockWordPressRoute.Link,
+		useNavigate: () => jest.fn(),
 		useParams: () => ( { authorId: '7' } ),
 		useSearch: () => mockSearch,
 	};
 } );
 
 jest.mock( './hooks', () => ( {
+	authorDisplayName: jest.requireActual( './hooks/use-author-summary' ).authorDisplayName,
 	useAuthorSummary: jest.fn(),
+	useAuthorAllTimeStart: jest.fn(),
 } ) );
 
 const mockUseAuthorSummary = useAuthorSummary as jest.Mock;
+const mockUseAuthorAllTimeStart = useAuthorAllTimeStart as jest.Mock;
 const refetch = jest.fn();
 
 /**
@@ -187,7 +198,7 @@ function mockSummary( overrides: Record< string, unknown > = {} ) {
 }
 
 describe( 'author detail stage', () => {
-	// The Authors report behind the crumb reads the preview scope off script data;
+	// The Authors report behind the crumb reads the available tabs off script data;
 	// the page options menu reads the reader's capabilities off it too.
 	beforeAll( () => {
 		Object.defineProperty( window, 'JetpackScriptData', {
@@ -200,6 +211,13 @@ describe( 'author detail stage', () => {
 		jest.clearAllMocks();
 		mockDashboardLayouts.length = 0;
 		mockSearch = { from: '2026-06-01', to: '2026-06-16', author_id: '7' };
+		mockUseAuthorAllTimeStart.mockReturnValue( {
+			allTimeStart: '2023-07-04T10:00:00Z',
+			isPending: false,
+			isError: false,
+			error: null,
+			refetch,
+		} );
 	} );
 
 	afterAll( () => {
@@ -217,7 +235,7 @@ describe( 'author detail stage', () => {
 		return screen.getByRole( 'heading', { level: 2, name } );
 	}
 
-	it( 'renders the fixed Stats / All authors / Author trail with date-preserving links', () => {
+	it( 'renders the Stats / All authors / name trail with date-preserving links', () => {
 		mockSummary();
 
 		render( stage() );
@@ -226,7 +244,7 @@ describe( 'author detail stage', () => {
 		expect( breadcrumbs.getAllByRole( 'listitem' ).map( crumb => crumb.textContent ) ).toEqual( [
 			'Stats',
 			'All authors',
-			'Author',
+			'Priya Patel',
 		] );
 		expect( breadcrumbs.getByRole( 'link', { name: 'Stats' } ) ).toHaveAttribute(
 			'href',
@@ -236,7 +254,9 @@ describe( 'author detail stage', () => {
 			'href',
 			'/reports/authors?from=2026-06-01&to=2026-06-16'
 		);
-		expect( breadcrumbs.getByRole( 'heading', { level: 1, name: 'Author' } ) ).toBeInTheDocument();
+		expect(
+			breadcrumbs.getByRole( 'heading', { level: 1, name: 'Priya Patel' } )
+		).toBeInTheDocument();
 	} );
 
 	it( 'shows the author identity in the header and renders the widgets', () => {
@@ -285,7 +305,10 @@ describe( 'author detail stage', () => {
 
 		render( stage() );
 
-		expect( screen.getByText( "We couldn't find this author." ) ).toBeInTheDocument();
+		expect( getNoticeText( "We couldn't find this author." ) ).toBeInTheDocument();
+		expect(
+			getNoticeAnnouncement( "We couldn't find this author.", 'polite' )
+		).toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: 'Back to Authors' } ) ).toHaveAttribute(
 			'href',
 			'/reports/authors?from=2026-06-01&to=2026-06-16'
@@ -296,16 +319,23 @@ describe( 'author detail stage', () => {
 
 	it( 'offers Retry when the summary fails, keeping the trail and date controls', async () => {
 		const user = userEvent.setup();
-		mockSummary( { isError: true, name: undefined } );
+		// A failed refetch keeps the cached name, which must not reach the trail.
+		mockSummary( { isError: true } );
 
 		render( stage() );
 
 		expect( getSummaryHeading( 'Author unavailable' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Date filters' ) ).toBeInTheDocument();
 		const breadcrumbs = within( screen.getByRole( 'navigation', { name: 'Breadcrumbs' } ) );
-		expect( breadcrumbs.getAllByRole( 'listitem' ) ).toHaveLength( 3 );
+		expect( breadcrumbs.getByRole( 'heading', { level: 1, name: 'Author' } ) ).toBeInTheDocument();
 
 		expect( screen.queryByText( 'Author widgets' ) ).not.toBeInTheDocument();
+		expect(
+			getNoticeAnnouncement(
+				"We couldn't load this author. Please try again in a moment.",
+				'assertive'
+			)
+		).toBeInTheDocument();
 
 		await user.click( screen.getByRole( 'button', { name: 'Retry' } ) );
 		expect( refetch ).toHaveBeenCalledTimes( 1 );
@@ -320,20 +350,10 @@ describe( 'author detail stage', () => {
 
 		render( stage() );
 
-		expect( screen.getByText( "You don't have access to this data." ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'names a hidden users endpoint without offering Retry', () => {
-		mockSummary( {
-			isError: true,
-			error: { code: 'rest_no_route', data: { status: 404 } },
-			name: undefined,
-		} );
-
-		render( stage() );
-
-		expect( screen.getByText( "This site doesn't share author profiles." ) ).toBeInTheDocument();
+		expect( getNoticeText( "You don't have access to this data." ) ).toBeInTheDocument();
+		expect(
+			getNoticeAnnouncement( "You don't have access to this data.", 'assertive' )
+		).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
 	} );
 
@@ -376,6 +396,7 @@ describe( 'author detail stage', () => {
 			'jpa/popular-post--author',
 			'jpa/latest-post--author',
 			'jpa/author-top-posts',
+			'jpa/views-over-years--author',
 		] );
 	} );
 
@@ -401,5 +422,99 @@ describe( 'author detail stage', () => {
 
 		act( () => mockDashboardProps.onEditChange?.( false ) );
 		expect( mockDashboardProps.editMode ).toBe( false );
+	} );
+} );
+
+describe( 'author detail stage on the provisional all-time window', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		mockSearch = { author_id: '7' };
+		mockSummary();
+		mockDateFilterOverrides = {
+			appliedPresetId: PRESET_ALL_TIME,
+			appliedRange: computePrimaryRange( PRESET_ALL_TIME, 'UTC' ),
+		};
+	} );
+
+	afterEach( () => {
+		mockDateFilterOverrides = {};
+	} );
+
+	it( 'holds the widgets until all time anchors on the first content', () => {
+		mockUseAuthorAllTimeStart.mockReturnValue( {
+			allTimeStart: undefined,
+			isPending: true,
+			isError: false,
+			error: null,
+			refetch,
+		} );
+
+		render( stage() );
+
+		expect( mockUseStoredLayout ).toHaveBeenLastCalledWith( expect.anything(), 'author', [] );
+	} );
+
+	it( 'holds the widgets on a start carried over from another author until this one’s is known', () => {
+		mockDateFilterOverrides = {
+			appliedPresetId: PRESET_ALL_TIME,
+			appliedRange: {
+				from: new Date( Date.UTC( 2025, 0, 1 ) ),
+				to: new Date( Date.UTC( 2026, 5, 16 ) ),
+			},
+		};
+		mockUseAuthorAllTimeStart.mockReturnValue( {
+			allTimeStart: undefined,
+			isPending: true,
+			isError: true,
+			error: { status: 503 },
+			refetch,
+		} );
+
+		render( stage() );
+
+		expect( mockUseStoredLayout ).toHaveBeenLastCalledWith( expect.anything(), 'author', [] );
+		expect(
+			getNoticeAnnouncement(
+				"We couldn't load this author's stats. Please try again in a moment.",
+				'assertive'
+			)
+		).toBeInTheDocument();
+	} );
+
+	it( 'says an unknown author is not found, without a Retry that cannot help', () => {
+		mockSummary( { isNotFound: true } );
+		mockUseAuthorAllTimeStart.mockReturnValue( {
+			allTimeStart: undefined,
+			isPending: true,
+			isError: true,
+			error: { error: 'unknown_author', status: 404 },
+			refetch,
+		} );
+
+		render( stage() );
+
+		expect( getNoticeText( "We couldn't find this author." ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'offers Retry in place of the widgets when the first content date cannot load', async () => {
+		mockUseAuthorAllTimeStart.mockReturnValue( {
+			allTimeStart: undefined,
+			isPending: true,
+			isError: true,
+			error: { status: 503 },
+			refetch,
+		} );
+
+		render( stage() );
+
+		expect(
+			getNoticeAnnouncement(
+				"We couldn't load this author's stats. Please try again in a moment.",
+				'assertive'
+			)
+		).toBeInTheDocument();
+		await userEvent.click( screen.getByRole( 'button', { name: 'Retry' } ) );
+		expect( refetch ).toHaveBeenCalledTimes( 1 );
 	} );
 } );

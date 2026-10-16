@@ -48,7 +48,10 @@ jest.mock( '@wordpress/components', () => ( {
 	),
 	Spinner: () => <span className="components-spinner" />,
 } ) );
-jest.mock( '../lib/dom', () => ( { acceptSectionSuggestion: jest.fn() } ) );
+jest.mock( '../lib/dom', () => ( {
+	...jest.requireActual( '../lib/dom' ),
+	acceptSectionSuggestion: jest.fn(),
+} ) );
 jest.mock( '../lib/tracks', () => ( { recordGuidelinesEvent: jest.fn() } ) );
 
 const clearSuggestion = jest.fn();
@@ -105,6 +108,20 @@ describe( 'SuggestionActions', () => {
 		} );
 		expect( clearSuggestion ).toHaveBeenCalledWith( 'copy' );
 		expect( acceptSectionSuggestion ).not.toHaveBeenCalled();
+	} );
+
+	it.each( [
+		[ 'right-aligned with Accept last', true, [ 'Dismiss', 'Accept suggestion' ] ],
+		[ 'left-aligned with Accept first', false, [ 'Accept suggestion', 'Dismiss' ] ],
+	] )( 'orders Accept/Dismiss %s to match the Save row', ( _, isSaveLast, expected ) => {
+		setup( { suggestion: 'newguideline' } );
+
+		render( <SuggestionActions slug="copy" isSaveLast={ isSaveLast } /> );
+
+		const names = screen
+			.getAllByRole( 'button', { name: /^(Accept suggestion|Dismiss)$/ } )
+			.map( button => button.textContent );
+		expect( names ).toEqual( expected );
 	} );
 
 	it( 'captures the current section draft as the diff baseline and flags the form', async () => {

@@ -22,7 +22,7 @@ type Result = {
  * @param manifestPath - The raw manifest path.
  * @return Base64-encoded path.
  */
-function encodeManifestPath( manifestPath: string ): string {
+export function encodeManifestPath( manifestPath: string ): string {
 	const bytes = new TextEncoder().encode( manifestPath );
 	let binary = '';
 	for ( const byte of bytes ) {

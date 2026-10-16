@@ -18,6 +18,7 @@ import useFormStatusCounts from '../../../hooks/use-form-status-counts.ts';
 import { saveLastTab } from '../../../last-tab-cookie.ts';
 import { store as dashboardStore } from '../../../store/index.js';
 import InboxStatusToggle from '../inbox-status-toggle';
+import type { JSX } from 'react';
 import './style.scss';
 
 type StatusTab = 'inbox' | 'spam' | 'trash';
