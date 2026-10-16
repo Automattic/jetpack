@@ -231,7 +231,6 @@ class WPCOM_Backup extends WPCOM_WP_Build_Page {
 		require_lib( 'atomic' );
 
 		if ( function_exists( '\A8C\Atomic\has_site_pending_automated_transfer' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only; pending addition to stub-defs.php.
 			if ( \A8C\Atomic\has_site_pending_automated_transfer( $blog_id ) ) {
 				return true;
 			}
@@ -239,7 +238,6 @@ class WPCOM_Backup extends WPCOM_WP_Build_Page {
 
 		if ( function_exists( '\A8C\Atomic\is_wpcom_atomic' ) ) {
 			// Second argument includes pending/active/provisioned transfers.
-			// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only; pending addition to stub-defs.php.
 			return (bool) \A8C\Atomic\is_wpcom_atomic( $blog_id, true );
 		}
 
@@ -266,7 +264,6 @@ class WPCOM_Backup extends WPCOM_WP_Build_Page {
 			return null;
 		}
 
-		// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only; pending addition to stub-defs.php.
 		$transfer = woa_get_latest_transfer( $blog_id );
 
 		if ( is_wp_error( $transfer ) || ! is_object( $transfer ) || ! isset( $transfer->status ) ) {
@@ -302,7 +299,6 @@ class WPCOM_Backup extends WPCOM_WP_Build_Page {
 			return null;
 		}
 
-		// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only; pending addition to stub-defs.php.
 		return \A8C\Atomic\Eligibility\get_status_for_site( $blog_id, $user_id );
 	}
 
