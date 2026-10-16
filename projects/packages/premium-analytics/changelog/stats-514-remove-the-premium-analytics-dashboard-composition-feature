@@ -1,4 +1,4 @@
-Significance: patch
+Significance: minor
 Type: removed
 
 Dashboard: Remove the feature flag that gated adding and removing widgets, which is now always offered.
