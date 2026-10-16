@@ -398,6 +398,40 @@ describe( 'Email design editor entry point', () => {
 			expect( mockApiFetch.mock.calls[ 0 ][ 0 ].path ).toContain( 'template_slug=wpcom-digest' );
 		} );
 
+		// The previewer's link carries the post the reader was looking at, so the canvas previews
+		// it rather than the sample post. NL-1051.
+		it( 'passes on the post to preview when the page names one', async () => {
+			window.JetpackEmailDesignEditor = pageData( { postId: 4242 } );
+
+			await loadEntryPoint();
+
+			expect( mockApiFetch.mock.calls[ 0 ][ 0 ].path ).toContain( 'post_id=4242' );
+		} );
+
+		it( 'passes on both the template and the post together', async () => {
+			window.JetpackEmailDesignEditor = pageData( {
+				templateSlug: 'wpcom-digest',
+				postId: 4242,
+			} );
+
+			await loadEntryPoint();
+
+			const path = mockApiFetch.mock.calls[ 0 ][ 0 ].path;
+
+			expect( path ).toContain( 'template_slug=wpcom-digest' );
+			expect( path ).toContain( 'post_id=4242' );
+		} );
+
+		it( 'asks for no particular post when the page names none', async () => {
+			window.JetpackEmailDesignEditor = pageData( { postId: null } );
+
+			await loadEntryPoint();
+
+			expect( mockApiFetch ).toHaveBeenCalledWith( {
+				path: '/wpcom/v2/email-editor-bootstrap',
+			} );
+		} );
+
 		it( 'takes the template id from the bundle rather than deriving one', async () => {
 			// The id is namespaced by whichever theme served it, so a site computing it
 			// locally is right on Simple and wrong on Atomic and self-hosted.
@@ -1972,6 +2006,38 @@ describe( 'Email design editor entry point', () => {
 				path: '/wpcom/v2/send-email-preview',
 				method: 'POST',
 				data: { id: 42, email: 'creator@example.com' },
+			} );
+		} );
+
+		// The canvas previews that post, so a test email rendering a different one would show the
+		// creator a design change against content they are not looking at. NL-1051.
+		it( 'sends the post the canvas previews, where the previewer named one', async () => {
+			await createTestSendMiddleware( ourId, 4242 )( sendRequest, jest.fn() );
+
+			expect( mockApiFetch ).toHaveBeenCalledWith( {
+				path: '/wpcom/v2/send-email-preview',
+				method: 'POST',
+				data: { id: 4242, email: 'creator@example.com' },
+			} );
+		} );
+
+		it( 'does not look a post up when the previewer named one', async () => {
+			await createTestSendMiddleware( ourId, 4242 )( sendRequest, jest.fn() );
+
+			const paths = mockApiFetch.mock.calls.map( ( [ options ] ) => options.path );
+
+			expect( paths.some( path => path.startsWith( '/wp/v2/posts' ) ) ).toBe( false );
+		} );
+
+		it( 'still sends a named post on a blog with nothing published', async () => {
+			arrangeSend( [] );
+
+			await createTestSendMiddleware( ourId, 4242 )( sendRequest, jest.fn() );
+
+			expect( mockApiFetch ).toHaveBeenCalledWith( {
+				path: '/wpcom/v2/send-email-preview',
+				method: 'POST',
+				data: { id: 4242, email: 'creator@example.com' },
 			} );
 		} );
 
