@@ -62,39 +62,11 @@ require_once __DIR__ . '/reader-chat/class-jetpack-reader-chat.php';
 Jetpack_Reader_Chat::init();
 
 /**
- * Register the `jetpack_ai_agents_enabled` site option.
- *
- * Backs the AI Agent Access toggle in the Jetpack Search dashboard, which
- * lets site owners opt in to AI assistants answering reader questions using
- * their blog's content.
- *
- * @since 15.9
- *
- * @return void
- */
-function register_ai_agents_setting() {
-	$show_in_rest = ! ( new Host() )->is_wpcom_simple();
-
-	register_setting(
-		'jetpack_search',
-		'jetpack_ai_agents_enabled',
-		array(
-			'type'              => 'boolean',
-			'description'       => __( 'Whether AI Agent Access is enabled on this site.', 'jetpack' ),
-			'sanitize_callback' => 'rest_sanitize_boolean',
-			'show_in_rest'      => $show_in_rest,
-			'default'           => false,
-		)
-	);
-}
-add_action( 'init', __NAMESPACE__ . '\register_ai_agents_setting' );
-
-/**
  * Add the AI Agent Access setting to Jetpack Sync's option whitelist.
  *
- * Atomic and self-hosted Jetpack sites write `jetpack_ai_agents_enabled`
- * locally via /wp/v2/settings. Syncing the option keeps connected sites and
- * the WP.com-hosted ability permission gate aligned.
+ * Jetpack no longer exposes a control for `jetpack_ai_agents_enabled`, but
+ * sites that opted in earlier still hold a value. Syncing the option keeps the
+ * WP.com-hosted ability permission gate aligned with it.
  *
  * @since 15.9
  *
