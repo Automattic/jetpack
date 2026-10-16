@@ -93,6 +93,13 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
 				$setting = class_exists( 'Jetpack_Options' ) ? Jetpack_Options::get_option_and_ensure_autoload( self::OPTION_NAME, '0' ) : '0'; // @phan-suppress-current-line PhanUndeclaredClassMethod -- We check if the class exists first.
 			}
 
+			// Refresh the rewrite rules on the next request whenever the option is
+			// added or updated. These hooks are registered before the early return
+			// below so they are also in place when the post type is not currently
+			// registered, e.g. when the option is about to be enabled.
+			add_action( sprintf( 'add_option_%s', self::OPTION_NAME ), array( $this, 'flush_rules_on_option_change' ) );
+			add_action( sprintf( 'update_option_%s', self::OPTION_NAME ), array( $this, 'flush_rules_on_option_change' ) );
+
 			// Bail early if Portfolio option is not set and the theme doesn't declare support.
 			if ( empty( $setting ) && ! $this->site_supports_custom_post_type() ) {
 				return;
@@ -103,8 +110,6 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
 			if ( ! post_type_exists( self::CUSTOM_POST_TYPE ) ) {
 				return;
 			}
-			add_action( sprintf( 'add_option_%s', self::OPTION_NAME ), array( $this, 'flush_rules_on_enable' ), 10 );
-			add_action( sprintf( 'update_option_%s', self::OPTION_NAME ), array( $this, 'flush_rules_on_enable' ), 10 );
 			add_action( sprintf( 'publish_%s', self::CUSTOM_POST_TYPE ), array( $this, 'flush_rules_on_first_project' ) );
 			add_action( 'after_switch_theme', array( $this, 'flush_rules_on_switch' ) );
 
@@ -319,6 +324,21 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
 		 */
 		public function flush_rules_on_enable() {
 			flush_rewrite_rules();
+		}
+
+		/**
+		 * Refresh the rewrite rules on the next request after the option is added or changed.
+		 *
+		 * The post type is registered (or not) early in the request based on the
+		 * option value at that time, so flushing the rewrite rules immediately
+		 * when the option is saved would persist stale rules. Deleting the
+		 * `rewrite_rules` option defers their regeneration to the next request,
+		 * when the post type matches the new option value — freeing the slug for
+		 * existing pages when the post type is disabled, and reserving it again
+		 * when it is enabled.
+		 */
+		public function flush_rules_on_option_change() {
+			delete_option( 'rewrite_rules' );
 		}
 
 		/**
