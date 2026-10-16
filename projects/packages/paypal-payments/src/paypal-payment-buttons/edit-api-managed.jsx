@@ -57,7 +57,6 @@ import VariantBuilder, {
 	validateCustomerNotes,
 	validateVariants,
 } from './components/variant-builder';
-import PayPalInspectorControls from './controls';
 import { useExistingLinks } from './hooks/use-existing-links';
 import { broadcastConnectionChange, usePayPalConnection } from './hooks/use-paypal-connection';
 import { usePayPalResource } from './hooks/use-paypal-resource';
@@ -355,7 +354,6 @@ export default function ApiManagedEdit( {
 
 	// Confirmation dialog state for destructive actions.
 	const [ showDeleteConfirm, setShowDeleteConfirm ] = useState( false );
-	const [ showDisconnectConfirm, setShowDisconnectConfirm ] = useState( false );
 	const [ showLogOutConfirm, setShowLogOutConfirm ] = useState( false );
 
 	// Inline validation state — track which fields have been touched.
@@ -477,19 +475,9 @@ export default function ApiManagedEdit( {
 	} );
 
 	/**
-	 * Handle PayPal disconnect with confirmation.
-	 * Triggers a ConfirmDialog — actual disconnect runs in executeDisconnect().
-	 */
-	const handleDisconnect = useCallback( () => {
-		setShowDisconnectConfirm( true );
-	}, [] );
-
-	/**
 	 * Execute the PayPal disconnect after the user confirms.
 	 */
 	const executeDisconnect = useCallback( () => {
-		setShowDisconnectConfirm( false );
-
 		const doDisconnect = () => {
 			setIsConnected( false );
 			setWizardStep( 'welcome' );
@@ -888,7 +876,6 @@ export default function ApiManagedEdit( {
 				/>
 				<InspectorControls>
 					<ConnectionWizard
-						setIsConnected={ setIsConnected }
 						environment={ environment }
 						setEnvironment={ setEnvironment }
 						showReconnect={ showReconnect }
@@ -947,26 +934,11 @@ export default function ApiManagedEdit( {
 		/>
 	) : null;
 
-	// The connection panel sits last in the sidebar, under whichever view is showing.
-	const connectionPanel = (
-		<PayPalInspectorControls
-			isConnected={ isConnected }
-			environment={ environment }
-			setShowReconnect={ setShowReconnect }
-			isBusy={ isBusy }
-			handleDeleteButton={ handleDeleteButton }
-			handleDisconnect={ handleDisconnect }
-			hasButton={ hasButton }
-		/>
-	);
-
 	// Shared confirmation dialogs — extracted so they render regardless of which return branch is active.
 	const confirmDialogs = (
 		<ConfirmDialogs
 			showDeleteConfirm={ showDeleteConfirm }
 			setShowDeleteConfirm={ setShowDeleteConfirm }
-			showDisconnectConfirm={ showDisconnectConfirm }
-			setShowDisconnectConfirm={ setShowDisconnectConfirm }
 			showLogOutConfirm={ showLogOutConfirm }
 			setShowLogOutConfirm={ setShowLogOutConfirm }
 			executeDeleteButton={ executeDeleteButton }
@@ -1068,6 +1040,8 @@ export default function ApiManagedEdit( {
 				onEdit={ () => setIsEditing( true ) }
 				onChangeLink={ () => setIsSwitching( true ) }
 				canChangeLink={ canChangeLink }
+				onDelete={ handleDeleteButton }
+				canDelete={ isConnected && ! isBusy }
 			/>
 			{ /* The style controls show with the link details only. */ }
 			<PayPalFormatControls
@@ -1632,10 +1606,7 @@ export default function ApiManagedEdit( {
 			{ /* One fill for the sidebar panels, so they show in source order.
 			     Separate fills portal into the same container and show in the
 			     order they mounted. */ }
-			<InspectorControls>
-				{ sidebar }
-				{ connectionPanel }
-			</InspectorControls>
+			<InspectorControls>{ sidebar }</InspectorControls>
 			{ accountHeader }
 
 			{ /* The inspector only mounts when the block is selected, so these notices go

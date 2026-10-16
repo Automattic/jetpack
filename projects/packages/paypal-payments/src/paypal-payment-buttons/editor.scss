@@ -208,8 +208,7 @@
 
 .jetpack-paypal-wizard__welcome,
 .jetpack-paypal-wizard__dashboard,
-.jetpack-paypal-wizard__credentials,
-.jetpack-paypal-wizard__success {
+.jetpack-paypal-wizard__credentials {
 
 	h3 {
 		margin-top: 0;
@@ -311,23 +310,6 @@
 	.components-button.is-link {
 		font-size: 12px;
 	}
-}
-
-.jetpack-paypal-wizard__success {
-	text-align: center;
-}
-
-.jetpack-paypal-wizard__success-icon {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 48px;
-	height: 48px;
-	border-radius: 50%;
-	background: #00a32a;
-	color: #fff;
-	font-size: 24px;
-	margin-bottom: 12px;
 }
 
 // Field warning (soft validation — yellow instead of red).
@@ -728,18 +710,6 @@
 	}
 }
 
-.jetpack-paypal-payment-buttons__destructive-actions {
-	display: flex;
-	gap: 8px;
-	margin-top: 12px;
-}
-
-.jetpack-paypal-payment-buttons__manage-links {
-	margin-block: 16px 0;
-	padding-block-start: 16px;
-	border-block-start: 1px solid #ddd;
-}
-
 .jetpack-paypal-onboarding-frame {
 	position: fixed;
 	inset: 0;
@@ -793,28 +763,6 @@
 	justify-content: flex-end;
 	gap: 8px;
 	margin-block-start: 24px;
-}
-
-.jetpack-paypal-payment-buttons__confirm-body {
-
-	p {
-		margin: 0 0 12px;
-	}
-
-	ul {
-		margin: 0;
-		padding-inline-start: 20px;
-		list-style: disc;
-	}
-
-	li {
-		margin-bottom: 6px;
-		color: #757575;
-
-		&:last-child {
-			margin-bottom: 0;
-		}
-	}
 }
 
 // Checkout options.
