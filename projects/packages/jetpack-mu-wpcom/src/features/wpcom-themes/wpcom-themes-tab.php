@@ -261,7 +261,7 @@ function wpcom_themes_tab_add_subscription( $theme ) {
  * How a partner theme is sold, and whether this site has already bought it.
  *
  * @param string $slug Theme slug.
- * @return array{product: string, owned: bool} Empty when the store does not sell it.
+ * @return array{product: string, owned: bool}|array{} Empty when the store does not sell it.
  */
 function wpcom_themes_tab_subscription( string $slug ) {
 	if ( '' === $slug ) {
