@@ -19,6 +19,7 @@ import {
 	flagUrl,
 	getCombinedPeriodMax,
 	getLocationsReportSection,
+	getLocationsSectionLabel,
 	locationsCsvExporter,
 	sharePercentage,
 	useWidgetDrillDown,
@@ -67,17 +68,6 @@ function getLevelMode( depth: number, geoGranularity: GeoGranularity ): GeoMode 
 	return depth === 0 ? geoGranularity : ( [ 'region', 'city' ] as const )[ depth - 1 ];
 }
 
-function getLevelLabel( mode: GeoMode ): string {
-	switch ( mode ) {
-		case 'region':
-			return __( 'Regions', 'jetpack-premium-analytics-pkg' );
-		case 'city':
-			return __( 'Cities', 'jetpack-premium-analytics-pkg' );
-		default:
-			return __( 'Countries', 'jetpack-premium-analytics-pkg' );
-	}
-}
-
 /**
  * Locations widget inner component. Reads report params from WidgetRoot
  * context. Attributes arrive already normalized by the outer component, so
@@ -123,7 +113,9 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 		isHeld,
 		drillDepth: shownDepth,
 	} = useHeldLevel( { ...views, drillDepth, reportParams } );
-	const rowsLabel = getLevelLabel( getLevelMode( shownDepth, geoGranularity ) );
+	const rowsLabel = getLocationsSectionLabel(
+		getLocationsReportSection( getLevelMode( shownDepth, geoGranularity ) )
+	);
 	const emptyState = useNoViewsEmptyState(
 		{ isLoading: isLoading && ! isHeld, isError, isEmpty: data.length === 0 },
 		__( 'You don’t have locations recorded yet.', 'jetpack-premium-analytics-pkg' )
