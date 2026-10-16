@@ -6229,6 +6229,9 @@ importers:
       '@wordpress/date':
         specifier: 5.57.0
         version: 5.57.0
+      '@wordpress/dom':
+        specifier: 4.57.0
+        version: 4.57.0
       '@wordpress/edit-post':
         specifier: 8.57.0
         version: 8.57.0(@date-fns/tz@1.5.0)(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)

@@ -80,6 +80,7 @@
 		"@wordpress/data": "10.57.0",
 		"@wordpress/dataviews": "20.0.0",
 		"@wordpress/date": "5.57.0",
+		"@wordpress/dom": "4.57.0",
 		"@wordpress/edit-post": "8.57.0",
 		"@wordpress/element": "9.0.0",
 		"@wordpress/hooks": "4.57.0",
