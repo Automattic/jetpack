@@ -397,7 +397,9 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 				return '1405-07-20';
 			}
 		);
-		$requests = $this->filter_wpcom_stats( self::overview_responses() );
+		$responses = self::overview_responses();
+		$responses['get_streak']['streak']['current']['end'] = $today;
+		$requests = $this->filter_wpcom_stats( $responses );
 
 		$result = Stats_Abilities::get_site_overview();
 
@@ -443,6 +445,37 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		);
 		$this->assertFalse( $result['partial'] );
 		$this->assertArrayNotHasKey( 'errors', $result );
+	}
+
+	/**
+	 * Last day of the latest posting streak, relative to the site's today, and whether it is still current.
+	 *
+	 * @return array<string, array{0: string, 1: bool}>
+	 */
+	public static function provide_streak_ends(): array {
+		return array(
+			'ended yesterday'    => array( '-1 day', true ),
+			'ended two days ago' => array( '-2 days', false ),
+			'ended months ago'   => array( '-90 days', false ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_streak_ends
+	 *
+	 * @param string $ago     Offset from today to the streak's last day.
+	 * @param bool   $current Whether the streak still counts as current.
+	 */
+	#[DataProvider( 'provide_streak_ends' )]
+	public function test_get_site_overview_counts_a_streak_only_while_it_lasts( string $ago, bool $current ): void {
+		$responses = self::overview_responses();
+		$responses['get_streak']['streak']['current']['end'] = gmdate( 'Y-m-d', strtotime( current_time( 'Y-m-d' ) . ' ' . $ago ) );
+		$this->filter_wpcom_stats( $responses );
+
+		$streak = Stats_Abilities::get_site_overview()['streak'];
+
+		$this->assertSame( $current ? 3 : 0, $streak['current_length'] );
+		$this->assertSame( 12, $streak['longest_length'] );
 	}
 
 	/**
@@ -590,9 +623,83 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		);
 
 		$this->assertSame( 90, $requests[ $method ]['num'] );
+		$this->assertSame( 'day', $requests[ $method ]['period'] );
+		$this->assertSame( current_time( 'Y-m-d' ), $requests[ $method ]['date'] );
 		$this->assertSame( 1, $requests[ $method ]['summarize'] );
 		$this->assertSame( 'Across the range', $result['items'][0]['label'] );
 		$this->assertSame( 70, $result['items'][0]['value'] );
+	}
+
+	/**
+	 * Periods and an end date, and the days WPCOM is asked to total.
+	 *
+	 * @return array<string, array{0: string, 1: int, 2: string, 3: string, 4: int}>
+	 */
+	public static function provide_summary_windows(): array {
+		return array(
+			// February 1 to April 30, 2026.
+			'past months'          => array( 'month', 3, '2026-04-23', '2026-04-30', 28 + 31 + 30 ),
+			// Monday March 30 to Sunday April 26, 2026.
+			'past weeks'           => array( 'week', 4, '2026-04-23', '2026-04-26', 28 ),
+			// January 1, 2024 to December 31, 2025.
+			'past years'           => array( 'year', 2, '2025-06-01', '2025-12-31', 366 + 365 ),
+			'days end on the date' => array( 'day', 7, '2026-04-23', '2026-04-23', 7 ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_summary_windows
+	 *
+	 * @param string $period   Requested period.
+	 * @param int    $num      Requested number of periods.
+	 * @param string $date     Requested date.
+	 * @param string $end      Expected last day sent to WPCOM.
+	 * @param int    $days     Expected number of days sent to WPCOM.
+	 */
+	#[DataProvider( 'provide_summary_windows' )]
+	public function test_get_top_content_asks_for_the_days_the_periods_cover( string $period, int $num, string $date, string $end, int $days ): void {
+		$requests = $this->filter_wpcom_stats( array( 'get_top_posts' => array( 'summary' => array( 'postviews' => array() ) ) ) );
+
+		$result = Stats_Abilities::get_top_content(
+			array(
+				'type'   => 'posts',
+				'period' => $period,
+				'num'    => $num,
+				'date'   => $date,
+			)
+		);
+
+		$this->assertSame(
+			array(
+				'period'    => 'day',
+				'date'      => $end,
+				'max'       => 20,
+				'num'       => $days,
+				'summarize' => 1,
+			),
+			$requests['get_top_posts']
+		);
+		$this->assertSame( $period, $result['period'] );
+		$this->assertSame( $num, $result['num'] );
+		$this->assertSame( $date, $result['date'] );
+	}
+
+	public function test_get_top_content_does_not_count_days_after_today(): void {
+		$today    = current_time( 'Y-m-d' );
+		$requests = $this->filter_wpcom_stats( array( 'get_top_posts' => array( 'summary' => array( 'postviews' => array() ) ) ) );
+
+		Stats_Abilities::get_top_content(
+			array(
+				'type'   => 'posts',
+				'period' => 'year',
+				'num'    => 2,
+				'date'   => $today,
+			)
+		);
+
+		$first = ( (int) substr( $today, 0, 4 ) - 1 ) . '-01-01';
+		$this->assertSame( $today, $requests['get_top_posts']['date'] );
+		$this->assertSame( (int) ( new \DateTimeImmutable( $first ) )->diff( new \DateTimeImmutable( $today ) )->days + 1, $requests['get_top_posts']['num'] );
 	}
 
 	public function test_get_top_content_search_terms_uniform_shape(): void {
