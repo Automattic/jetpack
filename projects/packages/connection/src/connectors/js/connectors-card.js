@@ -23,8 +23,8 @@ import {
 	ProtectedOwnerRelease,
 	TransferConnectionOwnership,
 } from '@automattic/jetpack-connection';
-// Namespace imports: a missing named export would fail the whole module before the fallbacks run.
 import * as components from '@wordpress/components';
+// Namespace import: a missing named export would fail the whole module before the fallbacks run.
 // eslint-disable-next-line import/no-unresolved -- resolved via WP import map at runtime.
 import * as connectors from '@wordpress/connectors';
 import {
@@ -637,7 +637,7 @@ function ReleaseOwnershipSection( { isBusy = false } ) {
 			},
 			__( 'Release ownership', 'jetpack-connection' )
 		),
-		isReleaseOpen
+		isReleaseOpen && ProtectedOwnerRelease
 			? createElement( ProtectedOwnerRelease, {
 					isOpen: true,
 					apiRoot,
@@ -758,7 +758,7 @@ function ProtectedOwnerSection() {
 		{ spacing: 3, className: 'jetpack-connector__section' },
 		createElement( SectionHeading, { title, showShield: true } ),
 		body,
-		isConfirmOpen
+		isConfirmOpen && ProtectedOwnerConfirmation
 			? createElement( ProtectedOwnerConfirmation, {
 					isOpen: true,
 					apiRoot,
