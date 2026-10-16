@@ -51,7 +51,7 @@ describe( 'PlacementCard', () => {
 		expect( onChange ).not.toHaveBeenCalled();
 	} );
 
-	// Catches a link that opens an empty preview for a placement the parent has not saved.
+	// Catches the link rendering without a `previewUrl`, or going missing when one is passed.
 	it.each( [
 		[ 'shows', 'https://example.com/wp-admin/site-editor.php', 1 ],
 		[ 'hides', undefined, 0 ],
