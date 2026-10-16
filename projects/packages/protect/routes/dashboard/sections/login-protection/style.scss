@@ -1,0 +1,29 @@
+// Two cells split by a rule; each cell takes the row's padding,
+// so the rule runs edge to edge.
+.jp-protect-card__row.jp-protect-login-protection__split {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	padding: 0;
+
+	> * {
+		box-sizing: border-box;
+		padding: 16px var(--wp-ui-card-padding);
+	}
+
+	> * + * {
+		border-inline-start:
+			var(--wpds-border-width-xs) solid
+			var(--wpds-color-stroke-surface-neutral);
+	}
+
+	@media (max-width: 600px) {
+		grid-template-columns: 1fr;
+
+		> * + * {
+			border-inline-start: 0;
+			border-block-start:
+				var(--wpds-border-width-xs) solid
+				var(--wpds-color-stroke-surface-neutral);
+		}
+	}
+}
