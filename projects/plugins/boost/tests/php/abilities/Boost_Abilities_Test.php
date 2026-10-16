@@ -601,6 +601,25 @@ class Boost_Abilities_Test extends BaseTestCase {
 		delete_option( $option_name );
 	}
 
+	public function test_set_module_status_runs_page_cache_setup_and_reports_its_failure(): void {
+		$option_name = 'jetpack_boost_status_page-cache';
+		delete_option( $option_name );
+		// Setup refuses plain permalinks before it writes any file.
+		update_option( 'permalink_structure', '' );
+
+		$result = Boost_Abilities::set_module_status(
+			array(
+				'slug'   => 'page_cache',
+				'active' => true,
+			)
+		);
+
+		delete_option( $option_name );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'jetpack_boost_page_cache_setup_failed', $result->get_error_code() );
+	}
+
 	public function test_set_module_status_returns_error_when_update_option_fails(): void {
 		$slug        = 'minify_css';
 		$option_name = 'jetpack_boost_status_minify-css';
