@@ -16,7 +16,6 @@ use function Automattic\Jetpack\PremiumAnalytics\get_registered_dashboard_sectio
 use function Automattic\Jetpack\PremiumAnalytics\register_dashboard_section;
 use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_NAME;
 use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_STORE_SECTION_FLAG;
-use const Automattic\Jetpack\PremiumAnalytics\WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER;
 
 require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/class-capabilities.php';
 require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/class-enablement-setting.php';
@@ -106,27 +105,23 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		$this->assertSame(
 			array(
 				Analytics_Dashboard::STORE_PERFORMANCE_TYPE,
-				Analytics_Dashboard::NET_SALES_OVER_TIME_TYPE,
-				Analytics_Dashboard::TOTAL_SALES_OVER_TIME_TYPE,
-				Analytics_Dashboard::GROSS_SALES_OVER_TIME_TYPE,
-				Analytics_Dashboard::ORDERS_OVER_TIME_TYPE,
+				Analytics_Dashboard::TOP_PERFORMING_PRODUCTS_TYPE,
 				Analytics_Dashboard::AVERAGE_ORDER_VALUE_TYPE,
 				Analytics_Dashboard::AVERAGE_ITEMS_PER_ORDER_TYPE,
-				Analytics_Dashboard::VISITORS_OVER_TIME_TYPE,
 				Analytics_Dashboard::CONVERSION_RATE_TYPE,
+				Analytics_Dashboard::VISITORS_BY_LOCATION_TYPE,
 				Analytics_Dashboard::NEW_VS_RETURNING_CUSTOMER_TYPE,
-				Analytics_Dashboard::PAYMENT_STATUS_TYPE,
-				Analytics_Dashboard::ORDERS_FULFILLMENT_TYPE,
-				Analytics_Dashboard::COUPON_USAGE_OVER_TIME_TYPE,
-				Analytics_Dashboard::SESSIONS_BY_DEVICE_TYPE,
-				Analytics_Dashboard::TOP_PERFORMING_PRODUCTS_TYPE,
-				Analytics_Dashboard::SALES_BY_UTM_SOURCE_TYPE,
-				Analytics_Dashboard::SALES_BY_UTM_CHANNEL_TYPE,
-				Analytics_Dashboard::SALES_BY_UTM_CAMPAIGN_TYPE,
 				Analytics_Dashboard::REVENUE_BY_CUSTOMER_TYPE_TYPE,
-				Analytics_Dashboard::SALES_BY_DEVICE_TYPE,
 				Analytics_Dashboard::TOTAL_RETURNS_TYPE,
+				Analytics_Dashboard::SALES_BY_UTM_CHANNEL_TYPE,
+				Analytics_Dashboard::SALES_BY_UTM_SOURCE_TYPE,
+				Analytics_Dashboard::SALES_BY_UTM_CAMPAIGN_TYPE,
+				Analytics_Dashboard::ORDERS_FULFILLMENT_TYPE,
 				Analytics_Dashboard::SALES_BY_COUPON_TYPE,
+				Analytics_Dashboard::COUPON_USAGE_OVER_TIME_TYPE,
+				Analytics_Dashboard::PAYMENT_STATUS_TYPE,
+				Analytics_Dashboard::SESSIONS_BY_DEVICE_TYPE,
+				Analytics_Dashboard::SALES_BY_DEVICE_TYPE,
 			),
 			array_column( $section->get_default_layout(), 'type' )
 		);
@@ -148,7 +143,7 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 	 */
 	public function test_section_stays_unavailable_without_woocommerce() {
 		wp_set_current_user( $this->create_admin() );
-		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
+		add_filter( Analytics_Dashboard::WOOCOMMERCE_AVAILABLE_FILTER, '__return_false' );
 		Analytics_Dashboard::init();
 
 		$section = get_registered_dashboard_section( DASHBOARD_NAME, Analytics_Dashboard::SECTION_ID );
@@ -217,6 +212,7 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 	 * The manifest types register with the package's text domain and catalog location.
 	 */
 	public function test_registers_the_widget_types_from_the_manifest_with_the_catalog_location() {
+		$this->enable_store();
 		$registry = new Widget_Type_Registry();
 
 		Analytics_Dashboard::register_widget_types( $registry );
@@ -232,6 +228,7 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 	 * The bookings widgets are built but stay out of the registry, so neither a layout nor the inserter reaches them.
 	 */
 	public function test_holds_the_bookings_widget_types_back() {
+		$this->enable_store();
 		$registry = new Widget_Type_Registry();
 
 		Analytics_Dashboard::register_widget_types( $registry );
@@ -244,11 +241,45 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Without WooCommerce no type registers, so neither a layout nor the inserter reaches them.
+	 */
+	public function test_registers_no_widget_types_without_woocommerce() {
+		wp_set_current_user( $this->create_admin() );
+		add_filter( Analytics_Dashboard::WOOCOMMERCE_AVAILABLE_FILTER, '__return_false' );
+		$registry = new Widget_Type_Registry();
+
+		Analytics_Dashboard::register_widget_types( $registry );
+
+		$this->assertSame( array(), $registry->get_all_registered() );
+	}
+
+	/**
+	 * A reader who cannot see store reports gets no type either: the widgets would only collect 403s.
+	 */
+	public function test_registers_no_widget_types_without_the_store_reports_capability() {
+		add_filter( Analytics_Dashboard::WOOCOMMERCE_AVAILABLE_FILTER, '__return_true' );
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'store_reader_' . wp_rand(),
+					'user_pass'  => 'password',
+					'role'       => 'editor',
+				)
+			)
+		);
+		$registry = new Widget_Type_Registry();
+
+		Analytics_Dashboard::register_widget_types( $registry );
+
+		$this->assertSame( array(), $registry->get_all_registered() );
+	}
+
+	/**
 	 * WooCommerce is treated as present, and the current user can read store reports.
 	 */
 	private function enable_store() {
 		wp_set_current_user( $this->create_admin() );
-		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
+		add_filter( Analytics_Dashboard::WOOCOMMERCE_AVAILABLE_FILTER, '__return_true' );
 	}
 
 	/**

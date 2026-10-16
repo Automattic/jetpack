@@ -10,7 +10,7 @@ export type EditorProps = {
 	/** The caret's offset into the text, or -1 for the end. Left out, the editor takes no focus. */
 	focus?: () => number;
 	placeholder: string;
-	/** Fetch and draw provider previews. Off on the edit-comment screen, where the URL is enough. */
+	/** Draw embeds and images. Off on the edit-comment screen, where the URL is enough. */
 	previewEmbeds?: boolean;
 	onChange: ( content: string ) => void;
 	/** The editor broke; the caller brings its textarea back. */
@@ -26,7 +26,11 @@ export type IconType = ComponentProps< typeof DropdownMenu >[ 'icon' ];
 export type EmbedAttributes = { url?: string };
 
 /** What the preview route answers: core's proxy shape, less the scripts it never fills. */
-export type EmbedPreview = { html?: string };
+export type EmbedPreview = {
+	html?: string;
+	/** The html is the package's own card, not a provider's player. */
+	card?: boolean;
+};
 
 /** What a lookup settled on: data, a URL the site will not embed, or a failure worth retrying. */
 export type EmbedLookup = EmbedPreview | 'unsupported' | null;
@@ -34,6 +38,10 @@ export type EmbedLookup = EmbedPreview | 'unsupported' | null;
 export type EmbedEditProps = BlockEditProps< EmbedAttributes > & {
 	onReplace: ( blocks: Block | Block[] ) => void;
 };
+
+export type ImageAttributes = { url?: string };
+
+export type ImageEditProps = BlockEditProps< ImageAttributes >;
 
 type HistoryStep = { blocks: Block[]; markup: string };
 

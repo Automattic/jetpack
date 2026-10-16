@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Button, EmptyState, Icon, LinkButton } from '@jetpack-premium-analytics/externals';
+import { Button, EmptyState, Icon, ButtonLink } from '@jetpack-premium-analytics/externals';
 import { search } from '@jetpack-premium-analytics/icons';
 import { __ } from '@wordpress/i18n';
 /**
@@ -14,9 +14,9 @@ export type EmptyStateAction =
 
 export type ChartEmptyStateProps = {
 	/**
-	 * Defaults to the `search` magnifier when omitted; pass `null` to render no icon.
+	 * Defaults to the `search` magnifier when omitted.
 	 */
-	icon?: React.ComponentProps< typeof Icon >[ 'icon' ] | null;
+	icon?: React.ComponentProps< typeof Icon >[ 'icon' ];
 
 	/**
 	 * @default "We couldn’t find results for this time period."
@@ -35,24 +35,26 @@ export function ChartEmptyState( {
 	action,
 }: ChartEmptyStateProps ) {
 	return (
-		<EmptyState.Root className={ styles.container }>
-			{ /* 40px matches the error state's glyph so adjacent widgets showing
-			     different states keep the same vertical rhythm. */ }
-			{ icon && <Icon size={ 40 } className={ styles.icon } icon={ icon } /> }
-			<EmptyState.Description>{ text }</EmptyState.Description>
-			{ action && (
-				<EmptyState.Actions>
-					{ 'href' in action ? (
-						<LinkButton variant="outline" size="compact" href={ action.href }>
-							{ action.label }
-						</LinkButton>
-					) : (
-						<Button variant="outline" size="compact" onClick={ action.onClick }>
-							{ action.label }
-						</Button>
-					) }
-				</EmptyState.Actions>
-			) }
-		</EmptyState.Root>
+		<div className={ styles.root }>
+			<EmptyState.Root className={ styles.container }>
+				<EmptyState.Visual className={ styles.icon }>
+					<Icon size={ 40 } icon={ icon } />
+				</EmptyState.Visual>
+				<EmptyState.Description>{ text }</EmptyState.Description>
+				{ action && (
+					<EmptyState.Actions>
+						{ 'href' in action ? (
+							<ButtonLink variant="outline" size="compact" href={ action.href }>
+								{ action.label }
+							</ButtonLink>
+						) : (
+							<Button variant="outline" size="compact" onClick={ action.onClick }>
+								{ action.label }
+							</Button>
+						) }
+					</EmptyState.Actions>
+				) }
+			</EmptyState.Root>
+		</div>
 	);
 }

@@ -1,16 +1,17 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { errorCode } from '../data/api/_helpers';
+import { ApiError, errorCode } from '../data/api/_helpers';
 import { fetchDownloadStatus, initiateDownload, initiateFileDownload } from '../data/api/download';
 import { keys } from '../data/query-client';
+import { RECONNECT_AFTER_FAILURES, usePollFailures } from './use-poll-failures';
 import type { FailureReference, ReferenceId } from '../types/failure-reference';
 import type { RestoreItems } from '../types/restore';
 
 type DownloadState =
 	| { phase: 'idle' }
 	| { phase: 'submitting' }
-	| { phase: 'progress'; percent: number }
+	| { phase: 'progress'; percent: number; reconnecting?: boolean }
 	| { phase: 'success'; downloadUrl: string; validUntil: string }
 	| { phase: 'error'; message: string; reference: FailureReference };
 
@@ -26,6 +27,57 @@ type Result = {
 };
 
 const POLL_INTERVAL_MS = 1500;
+const POLL_MAX_INTERVAL_MS = 15_000;
+// Slower interval once this many polls have run: ~1 minute at the base, ~5 minutes in all.
+const POLL_BACKOFF_STEPS = [
+	{ afterPolls: 40, intervalMs: 5000 },
+	{ afterPolls: 88, intervalMs: POLL_MAX_INTERVAL_MS },
+];
+
+/**
+ * The poll interval after `polls` status requests, whatever their outcome.
+ *
+ * @param polls - Polls so far, failed ones included.
+ * @return Milliseconds until the next poll.
+ */
+function pollInterval( polls: number ): number {
+	let interval = POLL_INTERVAL_MS;
+	for ( const step of POLL_BACKOFF_STEPS ) {
+		if ( polls >= step.afterPolls ) {
+			interval = step.intervalMs;
+		}
+	}
+	return interval;
+}
+
+/**
+ * Whether a failed poll is a refusal that retrying cannot fix.
+ *
+ * The bridge forwards an upstream 4xx as-is in `data.status`. Network
+ * errors and 5xx stay temporary, as do 408 and 429.
+ *
+ * @param error - The rejection from the status poll.
+ * @return True for a 4xx other than 408 and 429.
+ */
+function isPermanentPollError( error: unknown ): boolean {
+	const status = error instanceof ApiError ? ( error.data as { status?: unknown } )?.status : null;
+	return (
+		typeof status === 'number' && status >= 400 && status < 500 && status !== 408 && status !== 429
+	);
+}
+
+type PollState = { data?: { status?: string }; error: unknown };
+
+/**
+ * Whether the download still needs status reads: no permanent error, and not yet finished.
+ *
+ * @param state - The status query state.
+ * @return True while polling should go on.
+ */
+function isWaiting( state: PollState ): boolean {
+	const status = state.data?.status;
+	return ! isPermanentPollError( state.error ) && ( status === undefined || status === 'running' );
+}
 
 /**
  * Real `useDownload` driving the modernized Download screen via the
@@ -73,8 +125,15 @@ export function useDownload( rewindId: string, enabled = true ): Result {
 		queryKey: keys.downloadStatus( rewindId, effectiveDownloadId ),
 		queryFn: () => fetchDownloadStatus( rewindId, effectiveDownloadId ),
 		enabled: downloadId !== null && enabled,
-		refetchInterval: query => ( query.state.data?.status === 'running' ? POLL_INTERVAL_MS : false ),
+		// Backed-off polls skip hidden tabs, so refetch on refocus instead of waiting up to 15s.
+		refetchOnWindowFocus: query => ( isWaiting( query.state ) ? 'always' : false ),
+		// No reading yet is not a reason to stop: the first poll may simply have failed.
+		refetchInterval: query =>
+			isWaiting( query.state )
+				? pollInterval( query.state.dataUpdateCount + query.state.errorUpdateCount )
+				: false,
 	} );
+	const failedPolls = usePollFailures( statusQuery.errorUpdatedAt, statusQuery.dataUpdatedAt );
 
 	const submit = useCallback(
 		( items: RestoreItems ) => mutateInitiate( { items } ),
@@ -130,13 +189,11 @@ export function useDownload( rewindId: string, enabled = true ): Result {
 			// Upstream reports this one in prose only, so there is no code to quote.
 			reference: { code: null, id: referenceId },
 		};
-	} else if ( downloadId !== null && statusQuery.error ) {
-		// Network/HTTP failure mid-poll: surface so the UI doesn't sit
-		// in `progress` at the last known percent with no way out.
+	} else if ( downloadId !== null && isPermanentPollError( statusQuery.error ) ) {
 		state = {
 			phase: 'error',
 			message:
-				statusQuery.error.message ||
+				statusQuery.error?.message ||
 				__( 'Lost connection while preparing download.', 'jetpack-backup-pkg' ),
 			reference: { code: errorCode( statusQuery.error ), id: referenceId },
 		};
@@ -148,6 +205,8 @@ export function useDownload( rewindId: string, enabled = true ): Result {
 			// first poll answers, which is the bar's 0% opening frame.
 			phase: 'progress',
 			percent: statusQuery.data?.progress ?? 0,
+			// A failed poll mid-download is temporary; say so only once it keeps failing.
+			...( failedPolls >= RECONNECT_AFTER_FAILURES && { reconnecting: true } ),
 		};
 	} else if ( isInitiating ) {
 		state = { phase: 'submitting' };

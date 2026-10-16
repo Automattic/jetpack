@@ -1,4 +1,0 @@
-Significance: patch
-Type: removed
-
-Podcasting: remove the at-pressable-podcasting bridge now that the jetpack-podcast package owns the experience on every WoA site.

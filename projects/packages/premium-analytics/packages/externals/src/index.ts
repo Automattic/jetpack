@@ -73,7 +73,7 @@ export {
 	Card,
 	Dialog,
 	EmptyState,
-	LinkButton,
+	ButtonLink,
 	Field as FormField,
 	Fieldset,
 	Icon,

@@ -13,7 +13,12 @@ class Jetpack_Sync_Module_Protect_Test extends Jetpack_Sync_TestBase {
 	public function set_up() {
 		parent::set_up();
 
-		// Ensure the Brute Force Protection module is loaded
+		// Rebuild the singleton: its constructor registers the hooks, which each test resets.
+		$instance = new ReflectionProperty( Brute_Force_Protection::class, 'instance' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$instance->setAccessible( true );
+		}
+		$instance->setValue( null, null );
 		Brute_Force_Protection::instance();
 	}
 

@@ -553,13 +553,18 @@ class REST_Connector {
 		$status     = new Status();
 		$connection = new Manager();
 
+		// The REST route is public and the initial state reaches the block editor, while the
+		// stored failure quotes server and transport errors verbatim: only people who can
+		// connect the site get to see it.
+		$registration_failure = current_user_can( 'jetpack_connect' ) ? $connection->get_registration_failure() : null;
+
 		$connection_status = array(
-			'isActive'          => $connection->has_connected_owner(), // TODO deprecate this.
-			'isStaging'         => $status->in_safe_mode(), // TODO deprecate this.
-			'isRegistered'      => $connection->is_connected(),
-			'isUserConnected'   => $connection->is_user_connected(),
-			'hasConnectedOwner' => $connection->has_connected_owner(),
-			'offlineMode'       => array(
+			'isActive'            => $connection->has_connected_owner(), // TODO deprecate this.
+			'isStaging'           => $status->in_safe_mode(), // TODO deprecate this.
+			'isRegistered'        => $connection->is_connected(),
+			'isUserConnected'     => $connection->is_user_connected(),
+			'hasConnectedOwner'   => $connection->has_connected_owner(),
+			'offlineMode'         => array(
 				'isActive'        => $status->is_offline_mode(),
 				'constant'        => defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG,
 				'url'             => $status->is_local_site(),
@@ -568,7 +573,15 @@ class REST_Connector {
 				'wpLocalConstant' => defined( 'WP_LOCAL_DEV' ) && WP_LOCAL_DEV,
 				'option'          => (bool) get_option( 'jetpack_offline_mode' ),
 			),
-			'isPublic'          => '1' == get_option( 'blog_public' ), // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+			'isPublic'            => '1' == get_option( 'blog_public' ), // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+			'registrationFailure' => null === $registration_failure ? null : array(
+				'code'            => $registration_failure['error_code'],
+				'message'         => $registration_failure['error_message'],
+				'needsSiteChange' => (bool) $registration_failure['terminal'],
+				'attempts'        => (int) $registration_failure['attempts'],
+				'lastAttemptAt'   => (int) $registration_failure['last_attempt_at'],
+				'nextRetryAfter'  => (int) $registration_failure['next_retry_after'],
+			),
 		);
 
 		/**
@@ -905,7 +918,7 @@ class REST_Connector {
 			}
 		}
 
-		$result = $this->connection->try_registration();
+		$result = $this->connection->try_registration( true, true );
 
 		if ( is_wp_error( $result ) ) {
 			return $result;
@@ -1126,7 +1139,7 @@ class REST_Connector {
 	 * Filtered by what `Manager::update_connection_owner()` requires of a new owner, so the
 	 * list cannot offer someone the change would then refuse.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.11.0
 	 *
 	 * @return \WP_REST_Response
 	 */
@@ -1150,6 +1163,13 @@ class REST_Connector {
 				'login'       => $user->user_login,
 				'displayName' => $user->display_name,
 				'email'       => $user->user_email,
+				'avatar'      => get_avatar_url(
+					$user->ID,
+					array(
+						'size'    => 48,
+						'default' => 'mysteryman',
+					)
+				),
 			);
 		}
 
@@ -1162,7 +1182,7 @@ class REST_Connector {
 	 * Same capability as changing the owner: seeing the candidates and acting on them go
 	 * together, and the list carries logins and email addresses.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.11.0
 	 *
 	 * @return true|WP_Error
 	 */

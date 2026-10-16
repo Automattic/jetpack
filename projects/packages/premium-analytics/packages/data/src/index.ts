@@ -51,7 +51,6 @@ export type {
 } from './processing/stats';
 export type { StatsEmailSummaryItem } from './processing/stats';
 export type { StatsDeviceProperty } from './queries/stats-devices-query';
-export { prefetchReport } from './prefetch';
 export {
 	normalizeReportParams,
 	needsReportDateParamsSeed,
@@ -62,7 +61,6 @@ export {
 } from './utils/search';
 export {
 	ensureCoreSettingsReady,
-	hasProductFilters,
 	isSelectablePreset,
 	computeDateRangeFromPreset,
 	getApiErrorCode,
@@ -78,11 +76,6 @@ export {
 	useSiteHomeUrl,
 	withoutComparison,
 } from './utils';
-export type { ReportDataMap } from './types';
-export type { ReportQueryParams } from './api';
-export type { FilterCondition } from './types/filter-condition';
-export type { ProductType } from './types/product-type';
-export { ORDER_ATTRIBUTION_VIEWS } from './api/report-order-attribution-summary-fetch';
 export {
 	getAllowedIntervalsForPreset,
 	getDefaultIntervalForPeriod,
@@ -92,10 +85,17 @@ export {
 export type { IntervalType } from './utils/interval';
 export { chartInterval, defaultPeriodForInterval, drawableIntervals } from './utils/periods';
 export {
+	getLockedFeature,
+	getLockedWidgetFeature,
+	isStatsFeatureLocked,
+	type StatsFeatureKey,
+} from './utils/plan-gates';
+export {
 	DASHBOARD_PREFERENCES_SCOPE,
 	getDefaultPreset,
 	getDefaultQueryParams,
 	getDefaultReportParams,
+	rememberComparison,
 	rememberPreset,
 	withDefaultComparison,
 } from './defaults';

@@ -35,7 +35,7 @@ class Jetpack_Shortcodes_Dailymotion_Test extends WP_UnitTestCase {
 	public function test_shortcodes_dailymotion() {
 		$content = '[dailymotion]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertNotEquals( $content, $shortcode_content );
 	}
@@ -48,7 +48,7 @@ class Jetpack_Shortcodes_Dailymotion_Test extends WP_UnitTestCase {
 		$id      = 'x8oma9';
 		$content = '[dailymotion id=' . $id . ']';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringContainsString( $id, $shortcode_content );
 	}
@@ -60,7 +60,7 @@ class Jetpack_Shortcodes_Dailymotion_Test extends WP_UnitTestCase {
 	public function test_shortcodes_dailymotion_missing_id() {
 		$content = '[dailymotion]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertEquals( '<!--Dailymotion error: bad or missing ID-->', $shortcode_content );
 	}
@@ -74,7 +74,7 @@ class Jetpack_Shortcodes_Dailymotion_Test extends WP_UnitTestCase {
 		$title   = '2';
 		$content = '[dailymotion id=' . $id . ' title=' . $title . ']';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringContainsString( $id, $shortcode_content );
 	}
@@ -88,7 +88,7 @@ class Jetpack_Shortcodes_Dailymotion_Test extends WP_UnitTestCase {
 		$user    = '3';
 		$content = '[dailymotion id=' . $id . ' user=' . $user . ']';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringContainsString( $id, $shortcode_content );
 	}
@@ -102,7 +102,7 @@ class Jetpack_Shortcodes_Dailymotion_Test extends WP_UnitTestCase {
 		$video   = '4';
 		$content = '[dailymotion id=' . $id . ' video=' . $video . ']';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringContainsString( $id, $shortcode_content );
 	}
@@ -117,7 +117,7 @@ class Jetpack_Shortcodes_Dailymotion_Test extends WP_UnitTestCase {
 		$height   = '500';
 		$content  = '[dailymotion id=' . $video_id . ' width=' . $width . ' height=' . $height . ']';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringContainsString( $video_id, $shortcode_content );
 		$this->assertStringContainsString( 'width="' . $width . '"', $shortcode_content );
@@ -135,7 +135,7 @@ class Jetpack_Shortcodes_Dailymotion_Test extends WP_UnitTestCase {
 			. $video_id
 			. ' autoplay=1 endscreen-enable=0 mute=1 sharing-enable=0 start=45 subtitles-default=en ui-highlight=ffcc33 ui-logo=0 ui-start-screen-info=0 ui-theme=dark]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringContainsString( $video_id, $shortcode_content );
 		$this->assertStringContainsString( 'autoplay=1', $shortcode_content );
@@ -211,7 +211,7 @@ class Jetpack_Shortcodes_Dailymotion_Test extends WP_UnitTestCase {
 		$content_width = self::CONTENT_WIDTH;
 
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
-		$this->assertEquals( $expected, do_shortcode( $shortcode_content ) );
+		$this->assertEquals( $expected, apply_shortcodes( $shortcode_content ) );
 	}
 
 	/**
@@ -227,6 +227,6 @@ class Jetpack_Shortcodes_Dailymotion_Test extends WP_UnitTestCase {
 	// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- PHPUnit 12.2 requires methods with data providers to have an exact param count match
 	public function test_shortcodes_dailymotion_non_amp( $shortcode_content, $expected ) {
 		add_filter( 'jetpack_is_amp_request', '__return_false' );
-		$this->assertStringNotContainsString( 'amp-dailymotion', do_shortcode( $shortcode_content ) );
+		$this->assertStringNotContainsString( 'amp-dailymotion', apply_shortcodes( $shortcode_content ) );
 	}
 }

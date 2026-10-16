@@ -104,7 +104,7 @@ class Dashboard_Data {
 		return array(
 			'overview' => array( __CLASS__, 'get_overview_data' ),
 			'settings' => array( __CLASS__, 'get_settings_data' ),
-			'ai'       => array( __CLASS__, 'get_ai_data' ),
+			'geo'      => array( __CLASS__, 'get_geo_data' ),
 			'content'  => array( __CLASS__, 'get_content_data' ),
 		);
 	}
@@ -938,13 +938,18 @@ class Dashboard_Data {
 	 * Switch a module and report a failure instead of saving a duplicate option.
 	 *
 	 * Module state is the source of truth; there is no second option to write or roll
-	 * back, and a platform without the module cannot honor this switch.
+	 * back. Simple has no modules, so its canonical switch is {@see Canonical_Urls::OPTION}.
 	 *
 	 * @param string $module  Module slug.
 	 * @param bool   $enabled Requested state.
 	 * @return true|WP_Error
 	 */
 	private static function apply_module_setting( $module, $enabled ) {
+		if ( 'canonical-urls' === $module && ( new Host() )->is_wpcom_simple() ) {
+			update_option( Canonical_Urls::OPTION, $enabled ? 1 : 0 );
+			return true;
+		}
+
 		if ( ! self::has_module( $module ) ) {
 			return new WP_Error(
 				'jetpack_seo_module_unavailable',
@@ -1077,6 +1082,7 @@ class Dashboard_Data {
 		}
 
 		$sitemap_active = $modules->is_active( 'sitemaps' );
+		$simple         = ( new Host() )->is_wpcom_simple();
 
 		return array(
 			'search_engines_visible'     => (int) get_option( 'blog_public', 1 ) === 1,
@@ -1089,8 +1095,9 @@ class Dashboard_Data {
 			// it's on + the site is public), or '' when sitemaps are off, so the Settings
 			// tab shows the "View sitemap" link exactly when there's a sitemap to view.
 			'sitemap_url'                => self::get_reachable_sitemap_url( $sitemap_active ),
-			'canonical_active'           => $modules->is_active( 'canonical-urls' ),
-			'canonical_switchable'       => self::has_module( 'canonical-urls' ),
+			// Simple reports every module active, so read its own switch ({@see Canonical_Urls}).
+			'canonical_active'           => $simple ? Canonical_Urls::is_enabled() : $modules->is_active( 'canonical-urls' ),
+			'canonical_switchable'       => $simple || self::has_module( 'canonical-urls' ),
 			// Cast to object so an empty format set serializes as `{}`, not `[]`.
 			'title_formats'              => (object) $title_formats,
 			// Separator WordPress joins default document-title parts with. A page type
@@ -1148,7 +1155,7 @@ class Dashboard_Data {
 	}
 
 	/**
-	 * Build the AI tab's initial state.
+	 * Build the GEO tab's initial state.
 	 *
 	 * The AI SEO Enhancer auto-generates SEO titles/descriptions/alt-text in the
 	 * editor (the generation itself is wpcom/AI-Assistant side); this exposes only
@@ -1165,7 +1172,7 @@ class Dashboard_Data {
 	 *
 	 * @return array
 	 */
-	public static function get_ai_data() {
+	public static function get_geo_data() {
 		$filter_on = (bool) apply_filters( 'ai_seo_enhancer_enabled', true );
 
 		// Jetpack_AI_Settings lives in plugins/jetpack, which bundles this package; guarded

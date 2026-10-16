@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Social: Fix low-contrast placeholder chips in the share message help text and the available placeholders list.

@@ -19,7 +19,7 @@ use Automattic\Jetpack\WordAds\Analytics_Dashboard;
  * Whether the site's plan includes WordAds, the site has it on, and the package that owns the
  * section is here.
  *
- * @since $$next-version$$
+ * @since 6.11.0
  *
  * @return bool
  */
@@ -35,7 +35,7 @@ function wpcom_premium_analytics_site_has_wordads() {
  * approval stickers on Simple, the WordAds module on Atomic. A plan that could use WordAds
  * is not a site that does.
  *
- * @since $$next-version$$
+ * @since 6.11.0
  *
  * @return bool
  */
@@ -55,7 +55,7 @@ function wpcom_premium_analytics_wordads_is_enabled() {
 /**
  * Register the Ads section on a site whose plan includes WordAds and that has it on.
  *
- * @since $$next-version$$
+ * @since 6.11.0
  *
  * @param \Automattic\Jetpack\PremiumAnalytics\Dashboard_Section_Registry $registry The registry being hydrated.
  * @return void
@@ -71,7 +71,7 @@ function wpcom_premium_analytics_register_wordads_section( $registry ) {
 /**
  * Register the Ads widget types on a site whose plan includes WordAds and that has it on.
  *
- * @since $$next-version$$
+ * @since 6.11.0
  *
  * @param \Automattic\Jetpack\PremiumAnalytics\Widget_Type_Registry $registry The registry being hydrated.
  * @return void
