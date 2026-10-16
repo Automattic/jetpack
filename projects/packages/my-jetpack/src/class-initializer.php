@@ -821,12 +821,11 @@ class Initializer {
 		$enabled = apply_filters( 'rest_enabled', true );
 		$user    = wp_get_current_user();
 		$auth    = false;
+		// Restore the signed-in user if an authentication filter clears it.
 		try {
 			/** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
-			// Keep the signed-in user when checking without a REST nonce.
 			$auth = apply_filters( 'rest_authentication_errors', true );
 		} finally {
-			// Authentication filters can clear the user; later admin checks still need it.
 			wp_set_current_user( $user->ID );
 		}
 		return $enabled && ! is_wp_error( $enabled ) && false !== $auth && ! is_wp_error( $auth );
