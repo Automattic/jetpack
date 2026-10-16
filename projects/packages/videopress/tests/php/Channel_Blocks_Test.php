@@ -185,6 +185,18 @@ class Channel_Blocks_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Make this request the video page of a video, optionally within a playlist.
+	 *
+	 * @param string $guid     The video.
+	 * @param string $list_key The playlist, if any.
+	 */
+	private function view_video( $guid, $list_key = '' ) {
+		set_query_var( Channel::QUERY_VAR, 1 );
+		set_query_var( Channel::LIST_VAR, $list_key );
+		$GLOBALS['post'] = get_post( $this->videos[ $guid ] ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+	}
+
+	/**
 	 * Inline and list layouts, skipping items whose value is unknown.
 	 */
 	public function test_channel_details() {
@@ -209,6 +221,35 @@ class Channel_Blocks_Test extends BaseTestCase {
 		$this->assertStringContainsString( '<div class="videopress-channel-details__item is-views"><dt>Total views</dt><dd>1.5K</dd></div>', $list );
 		$this->assertStringNotContainsString( 'is-subscribers', $list );
 		$this->assertStringNotContainsString( 'bogus', $list );
+	}
+
+	/**
+	 * On a video page within a playlist: episode number in the playlist, VideoPress
+	 * title and description, full view count and the playlist chip.
+	 */
+	public function test_video_details() {
+		$this->assertSame( '', Channel_Blocks::render_video_details( array() ) );
+
+		$this->view_video( 'ccccccc3', 'dungeons' );
+		$markup = Channel_Blocks::render_video_details( array() );
+
+		$this->assertStringContainsString( '<span class="videopress-video-details__eyebrow">Episode 2 · Classic dungeons</span>', $markup );
+		$this->assertStringContainsString( '<h1 class="videopress-video-details__title">Deadmines episode</h1>', $markup );
+		$this->assertStringContainsString( '<div class="videopress-video-details__meta">1,500 views · ', $markup );
+		$this->assertStringContainsString( '<p>About Deadmines.</p>', $markup );
+		$this->assertStringContainsString(
+			'<a class="videopress-video-details__chip" href="' . esc_url( Channel::playlist_url( 'dungeons' ) ) . '">Playlist: Classic dungeons</a>',
+			$markup
+		);
+
+		// Outside the playlist, the episode number follows upload order.
+		$this->view_video( 'aaaaaaa1' );
+		$this->assertStringContainsString( '>Episode 1<', Channel_Blocks::render_video_details( array( 'showTitle' => false ) ) );
+
+		// The newest upload, anywhere, with a linked title.
+		set_query_var( Channel::QUERY_VAR, 0 );
+		$latest = Channel_Blocks::render_video_details( array( 'source' => 'latest' ) );
+		$this->assertStringContainsString( '<h2 class="videopress-video-details__title"><a href="' . esc_url( Channel::video_url( $this->videos['ccccccc3'] ) ) . '">Deadmines episode</a></h2>', $latest );
 	}
 
 	/**
