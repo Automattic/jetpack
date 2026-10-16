@@ -23,10 +23,12 @@ import {
 	useActiveSection,
 	useDashboardPolicy,
 	useDashboardSections,
+	useLockedSectionLayout,
 	useOnboarding,
 	useSectionDateFilter,
 } from './hooks';
 import { stage as Dashboard } from './stage';
+import type { LockedSectionGate } from '@jetpack-premium-analytics/data';
 import type { SyncStatus } from '@jetpack-premium-analytics/site-sync';
 import type { ForwardedRef, ReactNode } from 'react';
 
@@ -265,6 +267,8 @@ const MockAttentionProbe = ( { attentionId }: { attentionId?: number } ) => (
 
 // What the stand-in's Done commits, so a test can name the layout the stage was handed.
 const mockCommittedLayout = [ { uuid: 'moved', type: 'jpa/moved' } ];
+// The layout and save handler the stage last handed the dashboard.
+let mockDashboardProps: { layout?: unknown; onLayoutChange?: unknown } = {};
 
 jest.mock( '@wordpress/widget-dashboard', () => {
 	const React = jest.requireActual( 'react' );
@@ -279,13 +283,16 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 		editMode = false,
 		onEditChange = () => {},
 		onLayoutChange = () => {},
+		layout,
 		children,
 	}: {
 		editMode?: boolean;
 		onEditChange?: ( next: boolean ) => void;
 		onLayoutChange?: ( layout: unknown ) => void;
+		layout?: unknown;
 		children: ReactNode;
 	} ) => {
+		mockDashboardProps = { layout, onLayoutChange };
 		const value = React.useMemo(
 			() => ( { editMode, onEditChange, onLayoutChange } ),
 			[ editMode, onEditChange, onLayoutChange ]
@@ -330,12 +337,12 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 		);
 	}
 	WidgetDashboard.Actions = Actions;
-	WidgetDashboard.NoWidgetsState = () => null;
+	WidgetDashboard.NoWidgetsState = () => <div data-testid="no-widgets-state" />;
 	WidgetDashboard.Widgets = () => (
-		<>
+		<div data-testid="widgets">
 			<MockScopeProbe />
 			<MockOriginProbe />
-		</>
+		</div>
 	);
 	WidgetDashboard.Commands = () => null;
 	WidgetDashboard.Policy = ( {
@@ -380,6 +387,9 @@ jest.mock( './components', () => ( {
 	// here: which section the stage offers it on, and when.
 	FeedbackBanner: ( { enabled }: { enabled: boolean } ) =>
 		enabled ? <div data-testid="feedback-banner" /> : null,
+	LockedSection: ( { section }: { section: string } ) => (
+		<div data-testid="locked-section">{ section }</div>
+	),
 	OnboardingTour: () => <div data-testid="onboarding-tour" />,
 	onboardingTourSteps: () => [],
 	PlanLimitNotice: () => <div data-testid="plan-limit-notice" />,
@@ -439,6 +449,7 @@ jest.mock( './hooks', () => ( {
 	useDashboardPolicy: jest.fn( () => () => true ),
 	useDashboardSectionLayout: () => [ [], jest.fn(), mockResetLayout ],
 	useDashboardSections: jest.fn(),
+	useLockedSectionLayout: jest.fn(),
 	useOnboarding: jest.fn(),
 	useRememberAppliedPreset: jest.requireActual( './hooks/use-remember-applied-preset' )
 		.useRememberAppliedPreset,
@@ -455,6 +466,8 @@ beforeEach( () => {
 	mockMountedSectionSlugs = null;
 	mockTriggerSync.mockImplementation( () => Promise.resolve() );
 	useOnboardingMock.mockReturnValue( closedOnboarding );
+	useLockedSectionLayoutMock.mockImplementation( passThroughLockedLayout );
+	mockDashboardProps = {};
 } );
 
 const useDashboardSectionsMock = jest.mocked( useDashboardSections );
@@ -462,6 +475,25 @@ const useSectionDateFilterMock = jest.mocked( useSectionDateFilter );
 const useActiveSectionMock = jest.mocked( useActiveSection );
 const useDashboardPolicyMock = jest.mocked( useDashboardPolicy );
 const useOnboardingMock = jest.mocked( useOnboarding );
+const useLockedSectionLayoutMock = jest.mocked( useLockedSectionLayout );
+
+/**
+ * What the hook returns for a section the plan leaves open.
+ *
+ * @param _section       - The section slug.
+ * @param layout         - The stored layout.
+ * @param onLayoutChange - Stores a layout.
+ * @return The open section's layout and save handler, unchanged.
+ */
+const passThroughLockedLayout: typeof useLockedSectionLayout = (
+	_section,
+	layout,
+	onLayoutChange
+) => ( {
+	lockedSection: undefined,
+	visibleLayout: layout,
+	onVisibleLayoutChange: onLayoutChange,
+} );
 
 const closedOnboarding = {
 	phase: 'closed' as const,
@@ -1320,6 +1352,88 @@ describe( 'Dashboard Settings tab', () => {
 		expect( screen.getByTestId( 'dashboard-policy' ) ).toHaveAttribute(
 			'data-can-customize',
 			'false'
+		);
+	} );
+} );
+
+describe( 'Dashboard locked section', () => {
+	const visibleLayout = [ { uuid: 'chart', type: 'jpa/traffic-chart' } ];
+	const onVisibleLayoutChange = jest.fn();
+
+	beforeEach( () => {
+		jest.clearAllMocks();
+		mockSection();
+		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );
+		mockActiveSectionSlug = 'insights';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_YEAR );
+		useLockedSectionLayoutMock.mockImplementation( ( section, layout, onLayoutChange ) =>
+			section === 'insights'
+				? {
+						lockedSection: { title: 'Unlock site insights' } as LockedSectionGate,
+						visibleLayout: visibleLayout as typeof layout,
+						onVisibleLayoutChange,
+					}
+				: passThroughLockedLayout( section, layout, onLayoutChange )
+		);
+	} );
+
+	it( 'shows the upgrade card after the open widgets, without the empty state', () => {
+		render( <Dashboard /> );
+
+		expect( screen.getByTestId( 'locked-section' ) ).toHaveTextContent( 'insights' );
+		// Matches come back in document order.
+		expect(
+			screen.getAllByTestId( /^(widgets|locked-section)$/ ).map( el => el.dataset.testid )
+		).toEqual( [ 'widgets', 'locked-section' ] );
+		expect( screen.queryByTestId( 'no-widgets-state' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'hands the dashboard only the open widgets, and saves through the lock', () => {
+		render( <Dashboard /> );
+
+		expect( mockDashboardProps.layout ).toBe( visibleLayout );
+		expect( mockDashboardProps.onLayoutChange ).toBe( onVisibleLayoutChange );
+	} );
+
+	it( 'offers no Customize on a locked section', () => {
+		render( <Dashboard /> );
+
+		expect(
+			within( screen.getByTestId( 'page-options-menu' ) ).queryByRole( 'button', {
+				name: 'Customize',
+			} )
+		).not.toBeInTheDocument();
+		expect( screen.getByTestId( 'dashboard-policy' ) ).toHaveAttribute(
+			'data-can-customize',
+			'false'
+		);
+	} );
+
+	it( 'leaves an open section as it was', () => {
+		mockSection( { slug: 'subscribers' } );
+		useActiveSectionMock.mockReturnValue( [ 'subscribers', jest.fn() ] );
+		mockActiveSectionSlug = 'subscribers';
+
+		render( <Dashboard /> );
+
+		expect( screen.queryByTestId( 'locked-section' ) ).not.toBeInTheDocument();
+		expect( screen.getByTestId( 'no-widgets-state' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Customize' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'locks the layout behind the Settings tab by the section it belongs to', () => {
+		window.JetpackScriptData = {
+			premium_analytics: { stats_settings: { roles: [], features_url: null } },
+		} as typeof window.JetpackScriptData;
+		useActiveSectionMock.mockReturnValue( [ 'settings', jest.fn() ] );
+		mockActiveSectionSlug = 'settings';
+
+		render( <Dashboard /> );
+
+		expect( useLockedSectionLayoutMock ).toHaveBeenCalledWith(
+			'insights',
+			expect.anything(),
+			expect.anything()
 		);
 	} );
 } );

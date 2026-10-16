@@ -39,6 +39,7 @@ import {
 	OnboardingTour,
 	onboardingTourSteps,
 	hasPurchaseSuccess,
+	LockedSection,
 	PlanLimitNotice,
 	PurchaseSuccessNotice,
 	RefreshFailureNotice,
@@ -63,6 +64,7 @@ import {
 	useDashboardPolicy,
 	useDashboardSectionLayout,
 	useDashboardSections,
+	useLockedSectionLayout,
 	useOnboarding,
 	useRememberAppliedPreset,
 	useSectionDateFilter,
@@ -121,14 +123,6 @@ function Dashboard(): JSX.Element {
 		[ activeSectionRecord ]
 	);
 	const dashboardPolicy = useDashboardPolicy( { insertableWidgetTypes } );
-	// Settings has no layout to customize, and `WidgetDashboard` opens Customize over an empty one.
-	const canPerform = useMemo< typeof dashboardPolicy >(
-		() =>
-			isSettingsActive
-				? request => request.operation !== 'customize' && dashboardPolicy( request )
-				: dashboardPolicy,
-		[ dashboardPolicy, isSettingsActive ]
-	);
 
 	/*
 	 * The watcher runs at the dashboard level, not inside the notice below, so the
@@ -187,6 +181,21 @@ function Dashboard(): JSX.Element {
 			setLayout( nextLayout );
 		},
 		[ layout, setLayout, trackCustomize ]
+	);
+	const { lockedSection, visibleLayout, onVisibleLayoutChange } = useLockedSectionLayout(
+		widgetSection,
+		layout,
+		onLayoutChange
+	);
+	const isSectionLocked = !! lockedSection;
+	// Settings has no layout to customize, and `WidgetDashboard` opens Customize over an empty one.
+	// A locked section has nothing to add, and its visible layout is often empty.
+	const canPerform = useMemo< typeof dashboardPolicy >(
+		() =>
+			isSettingsActive || isSectionLocked
+				? request => request.operation !== 'customize' && dashboardPolicy( request )
+				: dashboardPolicy,
+		[ dashboardPolicy, isSettingsActive, isSectionLocked ]
 	);
 	const resetToDefault = useCallback( () => {
 		trackCustomize.reset();
@@ -421,8 +430,8 @@ function Dashboard(): JSX.Element {
 						widgetTypes={ widgetTypes }
 						isResolvingWidgetTypes={ isResolvingWidgetTypes }
 						resolveWidgetModule={ resolveWidgetModule }
-						layout={ layout }
-						onLayoutChange={ onLayoutChange }
+						layout={ visibleLayout }
+						onLayoutChange={ onVisibleLayoutChange }
 						onLayoutReset={ resetLayout }
 						gridSettings={ gridSettings }
 						editMode={ editMode }
@@ -442,7 +451,11 @@ function Dashboard(): JSX.Element {
 									) }
 									<Stack ref={ setOptionsMenuFrame } direction="row">
 										<PageOptionsMenu
-											onCustomize={ editMode || isSettingsActive ? undefined : startCustomizing }
+											onCustomize={
+												editMode || isSettingsActive || isSectionLocked
+													? undefined
+													: startCustomizing
+											}
 										/>
 									</Stack>
 								</Stack>
@@ -507,12 +520,13 @@ function Dashboard(): JSX.Element {
 													section.notice && <SectionNotice message={ section.notice } />
 												) }
 
-												<WidgetDashboard.NoWidgetsState />
+												{ ! isSectionLocked && <WidgetDashboard.NoWidgetsState /> }
 												<div ref={ setWidgetsFrame }>
 													<DashboardSectionProvider section={ section.slug }>
 														<WidgetDashboard.Widgets className={ styles.widgets } />
 													</DashboardSectionProvider>
 												</div>
+												{ isSectionLocked && <LockedSection section={ section.slug } /> }
 											</div>
 										) : null }
 									</SectionTabPanel>
