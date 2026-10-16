@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { toAuthorId } from '@jetpack-premium-analytics/data';
-import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	ExporterCsvDownloadButton,
 	LeaderboardChart,
@@ -88,7 +87,6 @@ function AuthorTopPostsInner() {
 					empty={
 						authorId <= 0
 							? {
-									icon: reports,
 									description: __(
 										'Open an author to see their top posts here.',
 										'jetpack-premium-analytics-pkg'
@@ -103,6 +101,7 @@ function AuthorTopPostsInner() {
 						withOverlayLabel
 						showLegend={ false }
 						dataFormat={ DATA_FORMAT }
+						columns={ { label: __( 'Posts', 'jetpack-premium-analytics-pkg' ), metric: 'views' } }
 					/>
 				</WidgetState>
 			</div>

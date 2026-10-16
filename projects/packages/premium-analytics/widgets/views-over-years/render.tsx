@@ -3,7 +3,6 @@
  */
 import { toAuthorId, useReportScope } from '@jetpack-premium-analytics/data';
 import { reportingTimeZone } from '@jetpack-premium-analytics/datetime';
-import { reports } from '@jetpack-premium-analytics/icons';
 import { useOpenSectionRange } from '@jetpack-premium-analytics/routing';
 import {
 	HeatmapSkeleton,
@@ -81,7 +80,6 @@ function ViewsOverYearsInner( { metric, authorScoped }: ViewsOverYearsInnerProps
 				isError={ false }
 				isEmpty
 				empty={ {
-					icon: reports,
 					description: __(
 						'Open an author to see their all-time traffic here.',
 						'jetpack-premium-analytics-pkg'

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Metric tabs: Spread the cards evenly over their rows, scale the values with the card width, and show full figures when the cards collapse into a dropdown.

@@ -8,6 +8,7 @@
 
 use Automattic\Jetpack\SEO\Initializer as Jetpack_SEO_Initializer;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * @covers \Jetpack
@@ -63,5 +64,31 @@ class SEO_Visibility_Cohort_Test extends WP_UnitTestCase {
 		Jetpack::seed_seo_visibility_cohort( '14.0:1700000000', '13.9:1690000000' );
 
 		$this->assertTrue( (bool) get_option( $this->option ) );
+	}
+
+	/**
+	 * An upgrading install is re-seeded hidden whatever the superseded key held, and that key is dropped.
+	 *
+	 * @dataProvider provide_superseded_values
+	 * @param bool $superseded_value The superseded key's stored value.
+	 */
+	#[DataProvider( 'provide_superseded_values' )]
+	public function test_upgrade_reseeds_hidden_and_drops_superseded_key( $superseded_value ) {
+		add_option( 'jetpack_seo_surface_visible', $superseded_value );
+
+		Jetpack::seed_seo_visibility_cohort( '14.0:1700000000', '13.9:1690000000' );
+
+		$this->assertFalse( (bool) get_option( $this->option ) );
+		$this->assertNull( get_option( 'jetpack_seo_surface_visible', null ) );
+	}
+
+	/**
+	 * @return array Values the superseded key was seeded with.
+	 */
+	public static function provide_superseded_values() {
+		return array(
+			'seeded visible' => array( true ),
+			'seeded hidden'  => array( false ),
+		);
 	}
 }

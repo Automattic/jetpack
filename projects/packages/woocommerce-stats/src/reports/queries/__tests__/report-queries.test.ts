@@ -5,6 +5,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
+import { productImagesQuery } from '../product-images-query';
 import { reportOrderAttributionSummaryQuery } from '../report-order-attribution-summary-query';
 import { reportVisitorsQuery } from '../report-visitors-query';
 
@@ -72,5 +73,24 @@ describe( 'reportOrderAttributionSummaryQuery', () => {
 		expect( paths ).toHaveLength( 2 );
 		expect( paths[ 0 ] ).toContain( '/order-attribution-by-product/device/summary' );
 		expect( paths[ 1 ] ).toContain( '/order-attribution-by-product/device/summary' );
+	} );
+} );
+
+describe( 'productImagesQuery', () => {
+	it( 'keys the query by the products listed, in id order, and stays idle without any', async () => {
+		mockApiFetch.mockResolvedValue( [
+			{ id: 7, name: 'Hat', images: [ { src: 'hat.jpg', alt: '' } ] },
+		] );
+
+		expect( productImagesQuery( [] ) ).toMatchObject( { enabled: false } );
+
+		const query = productImagesQuery( [ 9, 7 ] );
+		const queryFn = query.queryFn as () => Promise< unknown >;
+
+		expect( query.queryKey ).toEqual( [ 'products', 'images', [ 7, 9 ] ] );
+		await expect( queryFn() ).resolves.toEqual( { 7: { url: 'hat.jpg', alt: 'Hat' } } );
+		expect( ( mockApiFetch.mock.calls[ 0 ][ 0 ] as { path: string } ).path ).toContain(
+			'include=7%2C9'
+		);
 	} );
 } );

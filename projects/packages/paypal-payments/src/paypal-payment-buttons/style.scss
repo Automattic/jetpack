@@ -10,7 +10,7 @@
  *
  * The checkout button uses the `wp-element-button` class to inherit
  * the active theme's button styles (colors, typography, border-radius),
- * unless the Styles tab overrides them with an inline style. No PayPal
+ * unless the style controls override them with an inline style. No PayPal
  * branding on the button itself — the hosted payment page handles
  * payment method selection. "Powered by PayPal" shows below the button
  * by default.
@@ -121,8 +121,8 @@ $paypal-blue: #0070ba;
 // 1px like extensions/blocks/button/view.scss, and inside the width, so an
 // Outline button is as wide as a Fill one. No padding override, so the
 // theme keeps sizing it. currentColor stops the theme's filled-button text
-// color leaving the label invisible; a color set in the Styles tab comes
-// through inline and wins.
+// color leaving the label invisible. A color set in the style controls
+// comes through inline and wins.
 // The hover/focus/active copies stop the theme repainting the background.
 .jetpack-paypal-button__checkout-link.is-style-outline {
 

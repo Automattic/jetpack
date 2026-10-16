@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Threats data views: Stop requesting two stylesheets that do not exist on pages built with wp-build.

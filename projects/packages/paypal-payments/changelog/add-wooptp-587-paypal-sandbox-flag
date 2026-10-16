@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Add a feature flag that hides the PayPal sandbox option in the connection wizard; off, the wizard connects to production only.

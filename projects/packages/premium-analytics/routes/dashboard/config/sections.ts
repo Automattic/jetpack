@@ -62,6 +62,12 @@ export type DashboardSection = {
 	requires_sync?: boolean;
 
 	/**
+	 * Message the registration puts above the section's widgets, e.g. a store with no
+	 * orders yet. Optional for the same reason as `date_filter` above; absent means none.
+	 */
+	notice?: string | null;
+
+	/**
 	 * Bundled default widget layout, consumed by the reset action.
 	 */
 	default_layout: DashboardWidget[];
@@ -102,19 +108,40 @@ export function isSectionAwaitingSync(
 }
 
 /**
+ * Whether the dashboard shows the WooCommerce tab, under its slug or the `store` slug an older
+ * WooCommerce Stats package still registers.
+ *
+ * @param sections - The available sections.
+ * @return Whether one of them is the WooCommerce tab.
+ */
+export function hasStoreSection( sections: DashboardSection[] ): boolean {
+	return sections.some( section => section.slug === 'woocommerce' || section.slug === 'store' );
+}
+
+/**
+ * The Settings tab's slug. The stage renders that tab itself, after the registered sections.
+ */
+export const SETTINGS_SECTION = 'settings';
+
+/**
  * Narrow a candidate slug to an available section, falling back to the first
  * section by order. A miss is a stale slug or a section unavailable now
  * (`?section=woocommerce` with WooCommerce off).
  *
- * @param value    - The candidate section slug (e.g. from the URL).
- * @param sections - The available sections, in order.
+ * @param value      - The candidate section slug (e.g. from the URL).
+ * @param sections   - The available sections, in order.
+ * @param stageSlugs - Slugs of the tabs the stage renders itself.
  * @return The resolved section slug, or an empty string when no sections exist.
  */
 export function resolveSectionId(
 	value: string | undefined,
-	sections: DashboardSection[]
+	sections: DashboardSection[],
+	stageSlugs: readonly string[] = []
 ): DashboardSectionId {
-	if ( value && sections.some( section => section.slug === value ) ) {
+	if (
+		value &&
+		( stageSlugs.includes( value ) || sections.some( section => section.slug === value ) )
+	) {
 		return value;
 	}
 

@@ -37,6 +37,16 @@ export interface SharingLikesScriptData {
 	settings: Settings;
 	placement_choices: PlacementChoice[];
 	multibyte_supported: boolean;
+	private_site: boolean;
+}
+
+/** The two rows of enabled services: shown as buttons, or behind "More". */
+export type ServiceRow = 'visible' | 'hidden';
+
+export interface CustomServiceFields {
+	name: string;
+	url: string;
+	icon: string;
 }
 
 export interface Service {

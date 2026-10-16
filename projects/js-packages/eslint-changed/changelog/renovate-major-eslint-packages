@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Remove obsolete test, eslint 10 dropped the feature. Also remove removed `nodeType` field in test expectations.
-
-

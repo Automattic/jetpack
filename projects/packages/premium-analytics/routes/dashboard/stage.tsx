@@ -1,4 +1,4 @@
-import { currentUserCan } from '@automattic/jetpack-script-data';
+import { currentUserCan, getScriptData } from '@automattic/jetpack-script-data';
 import {
 	PeriodChangeSignalProvider,
 	queryClient,
@@ -38,17 +38,24 @@ import {
 	FeedbackBanner,
 	OnboardingTour,
 	onboardingTourSteps,
+	hasPurchaseSuccess,
+	PlanLimitNotice,
+	PurchaseSuccessNotice,
 	RefreshFailureNotice,
+	SectionNotice,
 	SectionSyncNotice,
+	StatsSettingsPanel,
 } from './components';
 import {
 	buildWidgetTypeRenames,
 	DATE_FILTER_YEAR,
 	getInsertableWidgetTypeNames,
+	hasStoreSection,
 	isSectionAwaitingSync,
 	offersDateComparison,
 	resolveSectionHeading,
 	resolveSectionId,
+	SETTINGS_SECTION,
 } from './config';
 import {
 	useActiveSection,
@@ -62,9 +69,14 @@ import {
 } from './hooks';
 import './overlay-focus-ring.scss';
 import styles from './stage.module.scss';
+import type { OnboardingTourStep } from './components/onboarding-tour';
+import type { OnboardingFlow } from './hooks/use-onboarding';
 import type { DateRange, YearSurfacePresetId } from '@jetpack-premium-analytics/datetime';
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
 import type { JSX } from 'react';
+
+const SETTINGS_TAB_SLUGS = [ SETTINGS_SECTION ];
+const NO_TAB_SLUGS: string[] = [];
 
 /**
  * Premium Analytics dashboard page stage component.
@@ -73,20 +85,31 @@ import type { JSX } from 'react';
  */
 function Dashboard(): JSX.Element {
 	const { sections, hasResolved: hasResolvedSections } = useDashboardSections();
-	const [ activeSection, setActiveSection ] = useActiveSection( sections );
+	const [ editMode, setEditMode ] = useState( false );
+	// Present only for users who can manage the settings, on sites where the dashboard owns them.
+	const hasSettingsTab = !! getScriptData()?.premium_analytics?.stats_settings;
+	// Disabled while customizing, since a layout is arranged on a widget section.
+	const [ activeSection, setActiveSection ] = useActiveSection(
+		sections,
+		hasSettingsTab && ! editMode ? SETTINGS_TAB_SLUGS : NO_TAB_SLUGS
+	);
+	const isSettingsActive = activeSection === SETTINGS_SECTION;
+	// The Settings tab has no layout of its own, and `WidgetDashboard` opens Customize over an
+	// empty one, so the first section's layout and date state stay in place behind it.
+	const widgetSection = isSettingsActive ? resolveSectionId( undefined, sections ) : activeSection;
 	const widgetModules = useWidgetModules();
 	const widgetTypeRenames = useMemo(
 		() => buildWidgetTypeRenames( widgetModules ),
 		[ widgetModules ]
 	);
 	const [ layout, setLayout, resetLayout ] = useDashboardSectionLayout(
-		activeSection,
+		widgetSection,
 		sections,
 		widgetTypeRenames
 	);
 	const [ gridSettings ] = useDashboardGridSettings();
 
-	const activeSectionRecord = sections.find( section => section.slug === activeSection );
+	const activeSectionRecord = sections.find( section => section.slug === widgetSection );
 
 	/**
 	 * The widget types the inserter offers, for now, are:
@@ -97,7 +120,15 @@ function Dashboard(): JSX.Element {
 		() => getInsertableWidgetTypeNames( activeSectionRecord ? [ activeSectionRecord ] : [] ),
 		[ activeSectionRecord ]
 	);
-	const canPerform = useDashboardPolicy( { insertableWidgetTypes } );
+	const dashboardPolicy = useDashboardPolicy( { insertableWidgetTypes } );
+	// Settings has no layout to customize, and `WidgetDashboard` opens Customize over an empty one.
+	const canPerform = useMemo< typeof dashboardPolicy >(
+		() =>
+			isSettingsActive
+				? request => request.operation !== 'customize' && dashboardPolicy( request )
+				: dashboardPolicy,
+		[ dashboardPolicy, isSettingsActive ]
+	);
 
 	/*
 	 * The watcher runs at the dashboard level, not inside the notice below, so the
@@ -135,8 +166,7 @@ function Dashboard(): JSX.Element {
 
 	const resolveWidgetModule = useWidgetModuleResolver( widgetModules );
 
-	const [ editMode, setEditMode ] = useState( false );
-	const trackCustomize = useTrackCustomize( 'dashboard', activeSection );
+	const trackCustomize = useTrackCustomize( 'dashboard', widgetSection );
 	// Every way into and out of edit mode arrives here: the menu below, the command
 	// palette, an empty layout, and the dashboard's own Cancel and Done.
 	const onEditChange = useCallback(
@@ -168,16 +198,26 @@ function Dashboard(): JSX.Element {
 	const [ optionsMenuFrame, setOptionsMenuFrame ] = useState< HTMLDivElement | null >( null );
 	const [ controlsAnchor, setControlsAnchor ] = useState< HTMLDivElement | null >( null );
 	const [ widgetsFrame, setWidgetsFrame ] = useState< HTMLDivElement | null >( null );
+	const [ tabListFrame, setTabListFrame ] = useState< HTMLDivElement | null >( null );
+	const tourAnchors = {
+		// Every tile is a section; the grid draws them in layout order.
+		firstWidget: widgetsFrame?.querySelector( 'section' ) ?? null,
+		dateControls: controlsAnchor,
+		optionsMenu: optionsMenuFrame?.querySelector( 'button' ) ?? null,
+		sectionTabs: tabListFrame?.querySelector( '[role="tablist"]' ) ?? null,
+	};
 	// A step without its anchor is left out, so the counter counts what is on the page.
-	const tourSteps = onboardingTourSteps(
-		{
-			// Every tile is a section; the grid draws them in layout order.
-			firstWidget: widgetsFrame?.querySelector( 'section' ) ?? null,
-			dateControls: controlsAnchor,
-			optionsMenu: optionsMenuFrame?.querySelector( 'button' ) ?? null,
-		},
-		{ withFeedback: canSendFeedback() }
-	).filter( step => step.anchor );
+	const tourStepsFor = ( flow: OnboardingFlow ) =>
+		onboardingTourSteps( tourAnchors, { withFeedback: canSendFeedback(), flow } ).filter(
+			step => step.anchor
+		);
+	// Built every render rather than memoized: the anchors are looked up fresh, since the
+	// first widget mounts after its frame.
+	const tourStepsByFlow: Record< OnboardingFlow, OnboardingTourStep[] > = {
+		stats: tourStepsFor( 'stats' ),
+		store: tourStepsFor( 'store' ),
+		'stats-and-store': tourStepsFor( 'stats-and-store' ),
+	};
 
 	const defaultSection = resolveSectionId( undefined, sections );
 
@@ -185,8 +225,14 @@ function Dashboard(): JSX.Element {
 	// not while the reader is already customizing.
 	const onboarding = useOnboarding( {
 		enabled: hasResolvedSections && ! editMode && activeSection === defaultSection,
-		stepCount: tourSteps.length,
+		hasStoreSection: hasStoreSection( sections ),
+		stepCounts: {
+			stats: tourStepsByFlow.stats.length,
+			store: tourStepsByFlow.store.length,
+			'stats-and-store': tourStepsByFlow[ 'stats-and-store' ].length,
+		},
 	} );
+	const tourSteps = tourStepsByFlow[ onboarding.flow ];
 
 	// Only the widgets this section renders need metadata at boot; the full registry
 	// waits for edit mode. `null` until sections resolve, since the layout is empty until then.
@@ -222,14 +268,21 @@ function Dashboard(): JSX.Element {
 	// A widget can set the period, here or on another section (WOOA7S-2036); once
 	// the section shows the period control, it draws attention to the new period.
 	const showsPeriodControl =
-		showHeaderDateControl && ! editMode && dateFilterSurface !== DATE_FILTER_YEAR;
+		showHeaderDateControl &&
+		! editMode &&
+		! isSettingsActive &&
+		dateFilterSurface !== DATE_FILTER_YEAR;
 	const { openPeriod, attentionId } = usePeriodHost(
-		activeSection,
+		widgetSection,
 		dateFilters.appliedRange,
 		showsPeriodControl
 	);
 
-	const { onChange: changeDateRange, onApply: applyDateRange } = dateFilters;
+	const {
+		onChange: changeDateRange,
+		onComparisonChange: changeComparison,
+		onApply: applyDateRange,
+	} = dateFilters;
 	const { trackedOnChange, trackedOnApply } = useTrackedDateRangeApply(
 		{
 			presetId: dateFilters.presetId,
@@ -238,9 +291,13 @@ function Dashboard(): JSX.Element {
 			comparisonPresetId: dateFilters.comparisonPresetId,
 			appliedComparisonRange: dateFilters.appliedComparisonRange,
 		},
-		{ surface: 'dashboard', section: activeSection, offersComparison: showComparison }
+		{ surface: 'dashboard', section: widgetSection, offersComparison: showComparison }
 	);
-	const { onChange: rememberOnChange, onApply: rememberOnApply } = useRememberAppliedPreset();
+	const {
+		onChange: rememberOnChange,
+		onComparisonChange: rememberOnComparisonChange,
+		onApply: rememberOnApply,
+	} = useRememberAppliedPreset();
 	const onDateChange = useCallback< typeof changeDateRange >(
 		( ...args ) => {
 			changeDateRange( ...args );
@@ -254,6 +311,13 @@ function Dashboard(): JSX.Element {
 		trackedOnApply();
 		rememberOnApply();
 	}, [ applyDateRange, trackedOnApply, rememberOnApply ] );
+	const onComparisonChange = useCallback< typeof changeComparison >(
+		( range, presetId ) => {
+			changeComparison( range, presetId );
+			rememberOnComparisonChange( range, presetId );
+		},
+		[ changeComparison, rememberOnComparisonChange ]
+	);
 
 	/*
 	 * The year surface applies on click — no Apply step of its own — so stage and
@@ -331,6 +395,7 @@ function Dashboard(): JSX.Element {
 				<DateFiltersPanel
 					{ ...dateFilters }
 					onChange={ onDateChange }
+					onComparisonChange={ onComparisonChange }
 					onApply={ onDateApply }
 					withIntervalControl={ showHeaderIntervalControl }
 					attentionId={ attentionId }
@@ -376,7 +441,9 @@ function Dashboard(): JSX.Element {
 										</>
 									) }
 									<Stack ref={ setOptionsMenuFrame } direction="row">
-										<PageOptionsMenu onCustomize={ editMode ? undefined : startCustomizing } />
+										<PageOptionsMenu
+											onCustomize={ editMode || isSettingsActive ? undefined : startCustomizing }
+										/>
 									</Stack>
 								</Stack>
 							}
@@ -384,8 +451,11 @@ function Dashboard(): JSX.Element {
 						>
 							<DashboardSections
 								sections={ sections }
+								withSettingsTab={ hasSettingsTab }
+								isSettingsTabDisabled={ editMode }
 								value={ activeSection }
 								onChange={ setActiveSection }
+								tabListRef={ setTabListFrame }
 							>
 								{ sections.map( section => (
 									<SectionTabPanel
@@ -405,6 +475,15 @@ function Dashboard(): JSX.Element {
 
 										{ activeSection === section.slug ? (
 											<div className={ styles.body }>
+												{ /* A checkout return holds the plan limit notice back for the
+												     whole load, even once dismissed. */ }
+												{ ! editMode &&
+													( hasPurchaseSuccess() ? (
+														<PurchaseSuccessNotice />
+													) : (
+														<PlanLimitNotice />
+													) ) }
+
 												{ /* Behind the onboarding journey: it introduces the tabs
 												     the banner asks about. */ }
 												<FeedbackBanner
@@ -424,7 +503,9 @@ function Dashboard(): JSX.Element {
 														onRetry={ retrySync }
 														isRetrying={ isRetryingSync }
 													/>
-												) : null }
+												) : (
+													section.notice && <SectionNotice message={ section.notice } />
+												) }
 
 												<WidgetDashboard.NoWidgetsState />
 												<div ref={ setWidgetsFrame }>
@@ -436,12 +517,21 @@ function Dashboard(): JSX.Element {
 										) : null }
 									</SectionTabPanel>
 								) ) }
+
+								{ hasSettingsTab && (
+									<SectionTabPanel value={ SETTINGS_SECTION } className={ styles.content }>
+										<div className={ styles.body }>
+											<StatsSettingsPanel />
+										</div>
+									</SectionTabPanel>
+								) }
 							</DashboardSections>
 
 							<WidgetDashboard.Commands />
 
 							<OnboardingWelcomeModal
 								open={ onboarding.phase === 'modal' }
+								variant={ onboarding.flow }
 								onStart={ onboarding.start }
 								onDismiss={ onboarding.dismiss }
 							/>

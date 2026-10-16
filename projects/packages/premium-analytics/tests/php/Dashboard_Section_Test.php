@@ -93,7 +93,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		remove_all_filters( 'doing_it_wrong_trigger_error' );
 		remove_all_actions( 'doing_it_wrong_run' );
-		remove_all_filters( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER );
 		remove_all_filters( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER );
 		remove_all_filters( 'jetpack_feature_flag_enabled_' . DASHBOARD_STORE_SECTION_FLAG );
 		remove_all_filters( 'jetpack_admin_js_script_data' );
@@ -158,7 +157,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 */
 	private function enable_every_section() {
 		$this->set_admin_user();
-		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
 	}
 
 	/**
@@ -584,6 +582,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 				'date_filter',
 				'date_filter_options',
 				'requires_sync',
+				'notice',
 				'default_layout',
 			),
 			array_keys( $schema['properties'] )
@@ -662,6 +661,18 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->assertInstanceOf( Dashboard_Section::class, $first );
 		$this->assertFalse( $second );
 		$this->assertNull( get_registered_dashboard_section( 'slug_dashboard', 'analytics/ads' ) );
+		$this->assertSame( array( Dashboard_Section_Registry::class . '::register' ), $this->doing_it_wrong );
+	}
+
+	/**
+	 * The dashboard stage draws its own Settings tab at the `settings` slug.
+	 */
+	public function test_register_rejects_the_settings_slug() {
+		$this->capture_doing_it_wrong();
+
+		$section = register_dashboard_section( 'slug_dashboard', 'example/settings', array( 'label' => 'Settings' ) );
+
+		$this->assertFalse( $section );
 		$this->assertSame( array( Dashboard_Section_Registry::class . '::register' ), $this->doing_it_wrong );
 	}
 
@@ -787,6 +798,34 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A notice may be a string or a callback, resolved per request; anything else is none.
+	 *
+	 * @dataProvider provide_notices
+	 *
+	 * @param mixed       $notice   The registered notice.
+	 * @param string|null $expected The notice the section serves.
+	 */
+	#[DataProvider( 'provide_notices' )]
+	public function test_section_serves_its_notice( $notice, $expected ) {
+		$section = new Dashboard_Section( 'jetpack_premium_analytics', 'analytics/store', array( 'notice' => $notice ) );
+
+		$this->assertSame( $expected, $section->to_array()['notice'] );
+	}
+
+	/**
+	 * @return array[]
+	 */
+	public static function provide_notices() {
+		return array(
+			'a string'                => array( 'No orders yet.', 'No orders yet.' ),
+			'a callback'              => array( static fn() => 'No orders yet.', 'No orders yet.' ),
+			'a callback with nothing' => array( static fn() => null, null ),
+			'an empty string'         => array( '', null ),
+			'a non-string'            => array( 42, null ),
+		);
+	}
+
+	/**
 	 * Section to_array() carries its default layout.
 	 */
 	public function test_to_array_includes_default_layout() {
@@ -838,6 +877,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 						'with_header_interval_control' => true,
 					),
 					'requires_sync'       => false,
+					'notice'              => null,
 					'default_layout'      => array(),
 				),
 			),
@@ -945,7 +985,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 */
 	public function test_registers_built_in_dashboard_sections() {
 		$this->set_admin_user();
-		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
 
 		register_default_dashboard_sections();
 
@@ -964,6 +1003,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 						'with_header_interval_control' => false,
 					),
 					'requires_sync'       => false,
+					'notice'              => null,
 				),
 				array(
 					'id'                  => 'analytics/insights',
@@ -978,6 +1018,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 						'with_header_interval_control' => true,
 					),
 					'requires_sync'       => false,
+					'notice'              => null,
 				),
 				array(
 					'id'                  => 'analytics/subscribers',
@@ -992,6 +1033,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 						'with_header_interval_control' => true,
 					),
 					'requires_sync'       => false,
+					'notice'              => null,
 				),
 			),
 			array_map(
@@ -1012,7 +1054,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 * The WooCommerce section registers from the WooCommerce stats package, not from here.
 	 */
 	public function test_does_not_register_the_woocommerce_section() {
-		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
 		$this->set_admin_user();
 
 		register_default_dashboard_sections();
@@ -1558,6 +1599,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 						'with_header_interval_control' => true,
 					),
 					'requires_sync'       => false,
+					'notice'              => null,
 					'default_layout'      => array(),
 				),
 				array(
@@ -1573,6 +1615,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 						'with_header_interval_control' => true,
 					),
 					'requires_sync'       => false,
+					'notice'              => null,
 					'default_layout'      => array(),
 				),
 			),
@@ -1621,6 +1664,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 						'with_header_interval_control' => true,
 					),
 					'requires_sync'       => false,
+					'notice'              => null,
 					'default_layout'      => array(
 						array(
 							'uuid' => 'default-route-widget',

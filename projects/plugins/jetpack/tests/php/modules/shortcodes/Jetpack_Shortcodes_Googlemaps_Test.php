@@ -68,7 +68,7 @@ class Jetpack_Shortcodes_Googlemaps_Test extends WP_UnitTestCase {
 			add_filter( 'jetpack_is_amp_request', '__return_true' );
 		}
 
-		$actual = preg_replace( '/\s+/', ' ', do_shortcode( $shortcode ) );
+		$actual = preg_replace( '/\s+/', ' ', apply_shortcodes( $shortcode ) );
 		$actual = preg_replace( '/(?<=>)\s+(?=<)/', '', trim( $actual ) );
 
 		$this->assertEquals( $expected, $actual );
@@ -82,7 +82,7 @@ class Jetpack_Shortcodes_Googlemaps_Test extends WP_UnitTestCase {
 	 */
 	public function test_shortcodes_googlemaps_preserves_encoded_ampersand_in_value() {
 		$shortcode = '[googlemaps https://maps.google.com/maps?q=The%20Westin%20Doha%20Hotel%20%26%20Spa]';
-		$rendered  = do_shortcode( $shortcode );
+		$rendered  = apply_shortcodes( $shortcode );
 
 		$this->assertStringContainsString(
 			'src="https://maps.google.com/maps?q=The%20Westin%20Doha%20Hotel%20%26%20Spa"',
@@ -101,7 +101,7 @@ class Jetpack_Shortcodes_Googlemaps_Test extends WP_UnitTestCase {
 	 */
 	public function test_shortcodes_googlemaps_preserves_entity_encoded_ampersand_in_value() {
 		$shortcode = '[googlemaps https://maps.google.com/maps?q=Hotel%20&amp;%20Spa]';
-		$rendered  = do_shortcode( $shortcode );
+		$rendered  = apply_shortcodes( $shortcode );
 
 		$this->assertStringContainsString(
 			'src="https://maps.google.com/maps?q=Hotel%20%26%20Spa"',
@@ -118,7 +118,7 @@ class Jetpack_Shortcodes_Googlemaps_Test extends WP_UnitTestCase {
 	 */
 	public function test_shortcodes_googlemaps_preserves_encoded_hash_in_value() {
 		$shortcode = '[googlemaps https://maps.google.com/maps?q=Schmidt%27s%20%231%20Pizza]';
-		$rendered  = do_shortcode( $shortcode );
+		$rendered  = apply_shortcodes( $shortcode );
 
 		$this->assertStringContainsString(
 			'src="https://maps.google.com/maps?q=Schmidt%27s%20%231%20Pizza"',
@@ -135,7 +135,7 @@ class Jetpack_Shortcodes_Googlemaps_Test extends WP_UnitTestCase {
 	 */
 	public function test_shortcodes_googlemaps_preserves_encoded_percent_in_value() {
 		$shortcode = '[googlemaps https://maps.google.com/maps?q=50%25%20off%20deals]';
-		$rendered  = do_shortcode( $shortcode );
+		$rendered  = apply_shortcodes( $shortcode );
 
 		$this->assertStringContainsString(
 			'src="https://maps.google.com/maps?q=50%25%20off%20deals"',
@@ -153,7 +153,7 @@ class Jetpack_Shortcodes_Googlemaps_Test extends WP_UnitTestCase {
 	 */
 	public function test_shortcodes_googlemaps_distinguishes_plus_and_encoded_plus() {
 		$shortcode = '[googlemaps https://maps.google.com/maps?q=C%2B%2B+Conference]';
-		$rendered  = do_shortcode( $shortcode );
+		$rendered  = apply_shortcodes( $shortcode );
 
 		// The two literal `+` chars must remain encoded as `%2B`, and the
 		// space (`+` in form-urlencoded) must be encoded as `%20` or stay `+`.
@@ -172,7 +172,7 @@ class Jetpack_Shortcodes_Googlemaps_Test extends WP_UnitTestCase {
 	 */
 	public function test_shortcodes_googlemaps_preserves_dot_in_value() {
 		$shortcode = '[googlemaps https://mapsengine.google.com/map/embed?mid=zbBhkou4wwtE.kUmp8K6QJ7SA]';
-		$rendered  = do_shortcode( $shortcode );
+		$rendered  = apply_shortcodes( $shortcode );
 
 		$this->assertStringContainsString(
 			'src="https://mapsengine.google.com/map/embed?mid=zbBhkou4wwtE.kUmp8K6QJ7SA"',

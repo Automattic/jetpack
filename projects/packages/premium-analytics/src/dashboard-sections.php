@@ -260,6 +260,12 @@ function get_dashboard_section_schema() {
 				'default'     => false,
 				'readonly'    => true,
 			),
+			'notice'              => array(
+				'description' => __( 'Message shown above the section widgets, or null when there is none.', 'jetpack-premium-analytics-pkg' ),
+				'type'        => array( 'string', 'null' ),
+				'default'     => null,
+				'readonly'    => true,
+			),
 			'default_layout'      => array(
 				'description' => __( 'Bundled default widget layout.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => 'array',

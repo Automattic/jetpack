@@ -21,9 +21,10 @@ import { Button, Link, Stack } from '@wordpress/ui';
 
 const MCP_SERVER_NAME = 'wpcom-mcp';
 const MCP_SERVER_URL = 'https://public-api.wordpress.com/wpcom/v2/mcp/v1';
-// Each resolves to the client's WordPress.com connector or plugin page.
+// Each resolves to the client's connector or plugin page.
 const CLAUDE_CONNECTOR_REDIRECT_SOURCE = 'jetpack-ai-hub-mcp-setup-claude';
 const CHATGPT_CONNECTOR_REDIRECT_SOURCE = 'jetpack-ai-hub-mcp-setup-chatgpt';
+const CHATGPT_SELF_HOSTED_REDIRECT_SOURCE = 'jetpack-ai-hub-mcp-setup-chatgpt-self-hosted';
 const CURSOR_PLUGIN_REDIRECT_SOURCE = 'jetpack-ai-hub-mcp-setup-cursor';
 
 const CLIENT_OPTIONS = [
@@ -90,6 +91,7 @@ export default function McpSetup() {
 	const [ copyStatus, setCopyStatus ] = useState( 'idle' );
 
 	const configText = JSON.stringify( generateMcpConfig( selectedClient ), null, 2 );
+	const isJetpackConnector = window?.jetpackAiSettings?.chatgptConnector === 'jetpack';
 
 	// Read-only textarea requires a no-op onChange to satisfy the controlled input contract.
 	const handleConfigChange = useCallback( () => {}, [] );
@@ -222,10 +224,16 @@ export default function McpSetup() {
 												{
 													ChatGptConnector: (
 														<Link
-															href={ getRedirectUrl( CHATGPT_CONNECTOR_REDIRECT_SOURCE ) }
+															href={ getRedirectUrl(
+																isJetpackConnector
+																	? CHATGPT_SELF_HOSTED_REDIRECT_SOURCE
+																	: CHATGPT_CONNECTOR_REDIRECT_SOURCE
+															) }
 															openInNewTab
 														>
-															{ __( 'WordPress.com connector', 'jetpack' ) }
+															{ isJetpackConnector
+																? __( 'Jetpack plugin', 'jetpack' )
+																: __( 'WordPress.com plugin', 'jetpack' ) }
 														</Link>
 													),
 												}

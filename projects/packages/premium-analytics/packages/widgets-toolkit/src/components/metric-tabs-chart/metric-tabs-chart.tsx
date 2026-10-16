@@ -6,20 +6,29 @@ import {
 	Tabs,
 	Text,
 	VisuallyHidden,
+	mixHexColors,
+	useGlobalChartsContext,
 	type TickResolution,
 } from '@jetpack-premium-analytics/externals';
 import { useResizeObserver } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useId, useMemo, useRef, useState } from 'react';
 /**
  * Internal dependencies
  */
-import { formatComparisonSeriesLabel, isEmptyChartData, type ChartBaseline } from '../../helpers';
+import {
+	formatComparisonSeriesLabel,
+	getComparisonPeriodLabel,
+	isEmptyChartData,
+	type ChartBaseline,
+} from '../../helpers';
 import { useSeriesStyles } from '../../hooks';
 import { ComparativeBarChart } from '../chart-comparative-bar';
 import { ComparativeLineChart } from '../chart-comparative-line';
+import { exactFormatOf } from '../chart-tooltip/utils';
 import { MetricWithComparison } from '../metric-with-comparison';
+import { WidgetRootContext } from '../widget-root/context';
 import styles from './metric-tabs-chart.module.scss';
 import type { CountLabel, DataFormat } from '../../types';
 import type {
@@ -34,11 +43,20 @@ import type { ComponentProps, CSSProperties, ReactNode } from 'react';
  */
 const MIN_TAB_WIDTH = 120;
 
+/** Narrowest card (px) before the cards wrap; keep in step with `.tabs` in the stylesheet. */
+const MIN_CARD_WIDTH = 160;
+
+/** The gap (px) between cards, `--wpds-dimension-gap-sm`. */
+const CARD_GAP = 8;
+
 /**
  * How far (px) the pointer may travel between down and up and still count as a
  * click. Above it the gesture is a drag and must not drill the dashboard.
  */
 const CLICK_DRAG_TOLERANCE_PX = 6;
+
+/** How far a counterpart's color moves from the accent toward black; interim until UNI-847 settles the shades. */
+const DARK_SHADE_BLEND = 0.5;
 
 /** The pointer-event payload both comparative charts report. */
 type ChartPointerParams = Parameters<
@@ -110,6 +128,19 @@ export interface MetricTab {
 }
 
 /**
+ * How many card columns to lay out, spreading the cards evenly over the fewest
+ * rows so a last row is never left with a lone card (six cards: 3 + 3, not 4 + 2).
+ *
+ * @param count - The number of cards.
+ * @param width - The width (px) the cards share.
+ * @return The column count.
+ */
+function getBalancedColumns( count: number, width: number ): number {
+	const fit = Math.max( 1, Math.floor( ( width + CARD_GAP ) / ( MIN_CARD_WIDTH + CARD_GAP ) ) );
+	return Math.ceil( count / Math.ceil( count / fit ) );
+}
+
+/**
  * Whether a metric has a series the chart can draw.
  *
  * @param metric - The metric to check.
@@ -174,14 +205,22 @@ export interface MetricTabsChartProps {
  *
  * @param metric    - The metric to draw.
  * @param chartType - How the metric is drawn.
+ * @param stroke    - The color of both periods.
  * @return The chart series.
  */
 function buildSeries(
 	metric: MetricTab,
-	chartType: MetricTabsChartType
+	chartType: MetricTabsChartType,
+	stroke: string
 ): ComparativeLineChartSeries[] {
 	const series: ComparativeLineChartSeries[] = [
-		{ label: metric.label, group: metric.key, data: metric.current, countLabel: metric.countLabel },
+		{
+			label: metric.label,
+			group: metric.key,
+			data: metric.current,
+			countLabel: metric.countLabel,
+			options: { stroke },
+		},
 	];
 
 	if ( metric.previous?.length ) {
@@ -191,9 +230,10 @@ function buildSeries(
 			data: metric.previous,
 			options:
 				chartType === 'bar'
-					? { type: 'comparison' }
+					? { type: 'comparison', stroke }
 					: {
 							type: 'comparison',
+							stroke,
 							gradient: {
 								from: 'transparent',
 								to: 'transparent',
@@ -225,6 +265,7 @@ function MetricChart( {
 	tickResolution,
 	onDatumClick,
 	baseline,
+	comparisonLabel,
 	empty,
 }: {
 	metric: MetricTab;
@@ -237,6 +278,7 @@ function MetricChart( {
 	chartId: string;
 	tickResolution?: TickResolution;
 	onDatumClick?: ( date: Date ) => void;
+	comparisonLabel?: string;
 	empty?: ReactNode;
 } ) {
 	// Every other metric's current period, each in its own format. A counterpart
@@ -263,19 +305,26 @@ function MetricChart( {
 		return tooltipMetrics === 'all' || all.length ? all : undefined;
 	}, [ otherMetricExtras, metric.tooltipExtras, tooltipMetrics ] );
 
+	// The first palette color is the admin accent.
+	const { getElementStyles } = useGlobalChartsContext();
+	const shades = useMemo( () => {
+		const accent = getElementStyles( { index: 0 } ).color;
+		return { accent, dark: mixHexColors( accent, '#000000', DARK_SHADE_BLEND ) };
+	}, [ getElementStyles ] );
+
 	const { series, defaultHiddenSeries } = useMemo( () => {
-		const active = buildSeries( metric, chartType );
+		const active = buildSeries( metric, chartType, shades.accent );
 
 		if ( ! counterpart ) {
 			return { series: active, defaultHiddenSeries: undefined };
 		}
 
-		const paired = buildSeries( counterpart, chartType );
+		const paired = buildSeries( counterpart, chartType, shades.dark );
 		return {
 			series: [ ...active, ...paired ],
 			defaultHiddenSeries: metric.counterpartHidden ? paired.map( item => item.label ) : undefined,
 		};
-	}, [ metric, counterpart, chartType ] );
+	}, [ metric, counterpart, chartType, shades ] );
 
 	const pointerDownRef = useRef< { x: number; y: number } | null >( null );
 
@@ -368,6 +417,7 @@ function MetricChart( {
 			dataFormat={ resolvedDataFormat }
 			defaultHiddenSeries={ defaultHiddenSeries }
 			legendInteractive={ legendInteractive }
+			comparisonLabel={ comparisonLabel }
 			tickResolution={ tickResolution }
 			tooltipExtras={ tooltipExtras }
 			compactWhenShort
@@ -381,6 +431,7 @@ function MetricChart( {
 			dataFormat={ resolvedDataFormat }
 			defaultHiddenSeries={ defaultHiddenSeries }
 			legendInteractive={ legendInteractive }
+			comparisonLabel={ comparisonLabel }
 			tickResolution={ tickResolution }
 			tooltipExtras={ tooltipExtras }
 			baseline={ baseline }
@@ -401,12 +452,20 @@ function MetricTabContent( {
 	dataFormat,
 	fontSize,
 	withDescription = false,
+	exact = false,
 }: {
 	metric: MetricTab;
 	dataFormat: DataFormat;
 	fontSize?: ComponentProps< typeof MetricWithComparison >[ 'fontSize' ];
 	withDescription?: boolean;
+	/** Spell the value out in full, for a layout with room for it. */
+	exact?: boolean;
 } ) {
+	const format = metric.dataFormat ?? dataFormat;
+	const valueFormat = useMemo(
+		() => ( exact ? exactFormatOf( format ) : format ),
+		[ exact, format ]
+	);
 	// The description is opt-in: a tab already carries it on `title`, and in the
 	// dropdown trigger a hidden node would join the button's accessible name.
 	const note = metric.unavailable ?? ( withDescription ? metric.description : undefined );
@@ -435,7 +494,7 @@ function MetricTabContent( {
 					className={ styles.metricComparison }
 					value={ metric.value }
 					previousValue={ metric.previousValue }
-					dataFormat={ metric.dataFormat ?? dataFormat }
+					dataFormat={ valueFormat }
 					fontSize={ fontSize }
 					direction="row"
 					align="flex-end"
@@ -469,6 +528,11 @@ export function MetricTabsChart( {
 	empty,
 }: MetricTabsChartProps ) {
 	const [ selectedKey, setSelectedKey ] = useState( defaultMetricKey ?? metrics[ 0 ]?.key );
+	const reportParams = useContext( WidgetRootContext )?.reportParams;
+	const comparisonLabel = useMemo(
+		() => reportParams && getComparisonPeriodLabel( reportParams ),
+		[ reportParams ]
+	);
 
 	// The chart seeds its hidden series once per chart ID, so a stable ID would leave
 	// the chart showing the previous selection's hidden set.
@@ -517,6 +581,9 @@ export function MetricTabsChart( {
 	} );
 	useEffect( () => () => clearTimeout( flipTimerRef.current ), [] );
 	const useDropdown = width !== undefined && width < metrics.length * MIN_TAB_WIDTH;
+	// Controls share the header row, so the measured width is not the cards' alone.
+	const columns =
+		width !== undefined && ! controls ? getBalancedColumns( metrics.length, width ) : undefined;
 
 	const activeMetric = metrics.find( metric => metric.key === selectedKey ) ?? metrics[ 0 ];
 
@@ -563,6 +630,7 @@ export function MetricTabsChart( {
 						chartId={ chartIdFor( activeMetric ) }
 						tickResolution={ tickResolution }
 						onDatumClick={ onDatumClick }
+						comparisonLabel={ comparisonLabel }
 						empty={ empty }
 					/>
 				</div>
@@ -616,7 +684,7 @@ export function MetricTabsChart( {
 							} }
 							triggerContent={
 								activeMetric && (
-									<MetricTabContent metric={ activeMetric } dataFormat={ dataFormat } />
+									<MetricTabContent metric={ activeMetric } dataFormat={ dataFormat } exact />
 								)
 							}
 						/>
@@ -636,6 +704,7 @@ export function MetricTabsChart( {
 							chartId={ chartIdFor( activeMetric ) }
 							tickResolution={ tickResolution }
 							onDatumClick={ onDatumClick }
+							comparisonLabel={ comparisonLabel }
 							empty={ empty }
 						/>
 					) }
@@ -652,7 +721,14 @@ export function MetricTabsChart( {
 			className={ styles.root }
 		>
 			<div className={ styles.header }>
-				<Tabs.List variant="minimal" className={ styles.tabs } aria-label={ groupLabel }>
+				<Tabs.List
+					variant="minimal"
+					className={ styles.tabs }
+					style={
+						columns ? ( { '--jpa-metric-tabs-columns': columns } as CSSProperties ) : undefined
+					}
+					aria-label={ groupLabel }
+				>
 					{ metrics.map( metric => (
 						<Tabs.Tab
 							key={ metric.key }
@@ -685,6 +761,7 @@ export function MetricTabsChart( {
 						chartId={ chartIdFor( metric ) }
 						tickResolution={ tickResolution }
 						onDatumClick={ onDatumClick }
+						comparisonLabel={ comparisonLabel }
 						empty={ empty }
 					/>
 				</Tabs.Panel>

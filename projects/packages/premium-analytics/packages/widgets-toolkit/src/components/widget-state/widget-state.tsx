@@ -7,12 +7,13 @@ import { useLayoutEffect, useRef } from 'react';
 /**
  * Internal dependencies
  */
-// Avoid pulling the `widgets/common` graph in through the hooks barrel.
+// Imported directly: the hooks barrel pulls the charts context in.
 import { useDelayedLoading } from '../../hooks/use-delayed-loading';
 import { ChartEmptyState } from '../chart-empty-state';
 import { GenericSkeleton } from '../widget-skeleton';
 import { errorStateIcon } from './error-state-icon';
 import styles from './widget-state.module.scss';
+import type { EmptyStateAction } from '../chart-empty-state/chart-empty-state';
 import type { ComponentProps, FocusEvent, ReactNode } from 'react';
 
 export interface WidgetStateError {
@@ -23,10 +24,12 @@ export interface WidgetStateError {
 
 /** A widget's own empty state, for a case the generic "no results for this time period" state does not describe, such as a scope prompt or a fixed window. */
 export interface WidgetStateEmpty {
-	/** No icon when omitted: the generic magnifier belongs to the generic copy. */
+	/** Defaults to the generic magnifier when omitted. */
 	icon?: ComponentProps< typeof Icon >[ 'icon' ];
 	/** Defaults to the generic "We couldn’t find results for this time period." when omitted. */
 	description?: string;
+	/** One action under the description. */
+	action?: EmptyStateAction;
 }
 
 export interface WidgetStateProps {
@@ -150,10 +153,7 @@ export function WidgetState( {
 		body = <div className={ styles.loading }>{ skeleton }</div>;
 	} else if ( isEmpty ) {
 		body = (
-			<ChartEmptyState
-				icon={ empty ? ( empty.icon ?? null ) : undefined }
-				text={ empty?.description }
-			/>
+			<ChartEmptyState icon={ empty?.icon } text={ empty?.description } action={ empty?.action } />
 		);
 	} else {
 		body = <div className={ styles.content }>{ children }</div>;

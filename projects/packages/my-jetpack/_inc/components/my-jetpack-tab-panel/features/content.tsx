@@ -1,6 +1,7 @@
 import { _n, sprintf } from '@wordpress/i18n';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
+import { isOfflineFeatures } from '../../../data/utils/offline-features';
 import { BulkBar } from './bulk-bar';
 import { FeaturesEmptyState } from './empty-state';
 import { FeatureItem } from './feature-item';
@@ -13,6 +14,7 @@ import { MenuPointer } from './menu-pointer';
 import { MoreFeatures } from './more-features';
 import styles from './styles.module.scss';
 import { Toolbar } from './toolbar';
+import { useAllJetpackModules } from './use-all-jetpack-modules';
 import { getFeatureFilters, isFeatureFilter, matchesFilter } from './use-feature-filter';
 import { useFeatureSearch } from './use-feature-search';
 import { useFeatureSelection } from './use-feature-selection';
@@ -54,13 +56,17 @@ function useFeaturesParams(): {
 /**
  * The Features content component.
  *
- * Wraps the tab in its tracking, which needs the grid's state to report what a click was
- * made against — so the state is read here and the content below reads it again.
+ * Online tracking needs the grid's state here to report what a click was made against;
+ * offline content omits the tracking provider.
  *
  * @return The rendered component.
  */
 export function FeaturesContent() {
 	const { filter, search, view } = useFeaturesParams();
+
+	if ( isOfflineFeatures() ) {
+		return <FeaturesTabContent />;
+	}
 
 	return (
 		<FeaturesTrackingProvider filter={ filter } search={ search } view={ view }>
@@ -79,6 +85,7 @@ export function FeaturesContent() {
  */
 function FeaturesTabContent() {
 	const mainFeatures = useMainFeatures();
+	const { hasLoaded: modulesLoaded } = useAllJetpackModules();
 	const { states, isLoading } = useFeatureStates( mainFeatures );
 	const { pointer, dismissPointer } = useSidebarSync( mainFeatures.features );
 	const moreFeatures = useMoreFeatures( mainFeatures );
@@ -316,20 +323,20 @@ function FeaturesTabContent() {
 	const stepOrder = useStepOrder( visible, openSlug, `${ filter }|${ search }|${ isLoading }` );
 	const openIndex = stepOrder.findIndex( feature => feature.slug === openSlug );
 
-	// Neither read has anything to say yet: a seed-only catalog is not a failure to load
-	// one, and features whose modules are still in flight all read inactive, which would
-	// otherwise announce "nothing is active" on a site with plenty on.
-	// Only the status filters wait on the modules: a search or a plan filter is already
-	// a settled answer once the catalog is here, and an unreachable module read would
-	// otherwise leave those two with no message at all.
-	const onStatus = filter === 'active' || filter === 'inactive';
+	// Hold back "no matches" until module data arrives: before then every feature reads as
+	// inactive and unavailable, so Active and Available can wrongly come up empty. A search ignores the filter.
+	// Available stops waiting once the module request ends, so a failed request still ends in a message.
+	const onModules =
+		filter === 'active' ||
+		filter === 'inactive' ||
+		( filter === 'available' && ! search.trim() && ! modulesLoaded );
 	const settling =
 		( mainFeatures.isPlaceholderData && mainFeatures.features.length === 0 ) ||
-		( onStatus && states.some( state => state.pending ) );
+		( onModules && states.some( state => state.pending ) );
 
 	return (
 		<section className={ styles.content }>
-			<FeaturesBanner />
+			{ ! isOfflineFeatures() && <FeaturesBanner /> }
 
 			<Toolbar
 				view={ view }

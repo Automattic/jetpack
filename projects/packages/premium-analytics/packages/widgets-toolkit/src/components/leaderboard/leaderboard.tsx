@@ -11,7 +11,11 @@ import { WIDGET_ROW_LIMIT } from '../../constants/rows';
 import { formatLegendLabels } from '../../helpers/format-legend-labels';
 import { useWidgetDrillDown } from '../../hooks/use-widget-drill-down';
 import { useWidgetNavigationSearch } from '../../hooks/use-widget-navigation-search';
-import { LeaderboardChart, type LegendLabels } from '../chart-leaderboard/leaderboard-chart';
+import {
+	LeaderboardChart,
+	type LeaderboardColumns,
+	type LegendLabels,
+} from '../chart-leaderboard/leaderboard-chart';
 import { LeaderboardSkeleton } from '../chart-leaderboard/leaderboard-skeleton';
 import { WidgetBackLink } from '../widget-back-link';
 import { WidgetFooter } from '../widget-footer';
@@ -93,6 +97,10 @@ export type LeaderboardProps = {
 	 */
 	legend?: LegendLabels;
 	/**
+	 * Names the rows and the metric in a header, and the unit in the exact-value tooltip.
+	 */
+	columns?: LeaderboardColumns;
+	/**
 	 * Lets rows with `children` drill down into them. A widget whose rows change under a
 	 * control of its own resets the selection by giving the leaderboard a `key`.
 	 */
@@ -130,6 +138,7 @@ export function Leaderboard( {
 	format = DEFAULT_FORMAT,
 	variant = 'list',
 	legend,
+	columns,
 	drillDown,
 	navigation,
 	footer,
@@ -239,6 +248,7 @@ export function Leaderboard( {
 						showLegend={ !! legendLabels }
 						legendLabels={ legendLabels }
 						dataFormat={ format }
+						columns={ columns }
 					/>
 				</WidgetState>
 			</Stack>

@@ -9,6 +9,7 @@ import { useMemo, type JSX } from 'react';
 import { useChartRoleColor, useSegmentStyles } from '../../hooks';
 import { DonutChart } from '../chart-donut/donut-chart';
 import { DonutChartSkeleton } from '../chart-donut/donut-chart-skeleton';
+import { SemiCircleChart } from '../chart-semi-circle/semi-circle-chart';
 import {
 	WidgetState,
 	resolveWidgetStateError,
@@ -18,6 +19,12 @@ import {
 import { buildDonutChartData, type DonutSegmentInput } from './build-donut-chart-data';
 import styles from './donut.module.scss';
 import type { DataFormat, WidgetStatus } from '../../types';
+
+/**
+ * The two looks of the breakdown: `ring` is the full donut with the total in its center,
+ * `half-ring` the semi-circle with the total under the arc.
+ */
+type DonutVariant = 'ring' | 'half-ring';
 
 export type DonutProps = {
 	/**
@@ -42,6 +49,16 @@ export type DonutProps = {
 	 * Format of the segment values and the total. Defaults to compact integers.
 	 */
 	format?: DataFormat;
+	/**
+	 * How the breakdown draws: `ring` is the full donut with the total in its center,
+	 * `half-ring` the semi-circle with the total under the arc. Defaults to `ring`.
+	 */
+	variant?: DonutVariant;
+	/**
+	 * Whether the total of the segments shows in the chart. Off for shares that add up to one.
+	 * Defaults to on.
+	 */
+	withTotal?: boolean;
 };
 
 const DEFAULT_FORMAT: DataFormat = {
@@ -53,8 +70,8 @@ const DEFAULT_FORMAT: DataFormat = {
 const MUTED_FALLBACK = '#f4f4f4';
 
 /**
- * A breakdown widget body: the donut chart with the total in the center, the legend with a
- * value and delta per segment, and the loading, error and empty states. Renders inside
+ * A breakdown widget body: the chart with the total, as a ring or a half ring, the legend with
+ * a value and delta per segment, and the loading, error and empty states. Renders inside
  * `WidgetRoot`, whose charts provider colors the segments.
  *
  * @param {DonutProps} props - The props for the Donut component.
@@ -66,6 +83,8 @@ export function Donut( {
 	error,
 	empty,
 	format = DEFAULT_FORMAT,
+	variant = 'ring',
+	withTotal = true,
 }: DonutProps ): JSX.Element {
 	const { isLoading, isFetching, isError, refetch } = status;
 	const hasComparison = !! status.hasComparison;
@@ -104,15 +123,30 @@ export function Donut( {
 				align="center"
 				justify="center"
 			>
-				<DonutChart
-					chartData={ chartData }
-					value={ total }
-					comparisonValue={ previousTotal }
-					dataFormat={ format }
-					legendData={ legendData }
-					maxSize={ null }
-					withTooltips
-				/>
+				{ variant === 'half-ring' ? (
+					<div className={ styles.halfRing }>
+						<SemiCircleChart
+							chartData={ chartData }
+							value={ total }
+							showMetric={ withTotal }
+							comparisonValue={ previousTotal }
+							dataFormat={ format }
+							legendData={ legendData }
+							withTooltips
+						/>
+					</div>
+				) : (
+					<DonutChart
+						chartData={ chartData }
+						value={ total }
+						showMetric={ withTotal }
+						comparisonValue={ previousTotal }
+						dataFormat={ format }
+						legendData={ legendData }
+						maxSize={ null }
+						withTooltips
+					/>
+				) }
 			</Stack>
 		</WidgetState>
 	);
