@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Protect_Status\Status as Protect_Status;
@@ -86,11 +87,20 @@ class Protect extends Hybrid_Product {
 	public static $slug = 'protect';
 
 	/**
-	 * The Jetpack module name
+	 * The Jetpack module name, used where the `protect-dashboard` module is not on offer.
+	 *
+	 * The `protect` module is Brute force protection, one of several features Protect covers.
 	 *
 	 * @var string
 	 */
 	public static $module_name = 'protect';
+
+	/**
+	 * The module that loads the Protect page.
+	 *
+	 * @var string
+	 */
+	const DASHBOARD_MODULE_NAME = 'protect-dashboard';
 
 	/**
 	 * The filename (id) of the plugin associated with this product.
@@ -109,6 +119,20 @@ class Protect extends Hybrid_Product {
 	 * @var string
 	 */
 	public static $plugin_slug = 'jetpack-protect';
+
+	/**
+	 * Get the module that switches Protect on: the Protect page's, wherever the Jetpack plugin offers it.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string
+	 */
+	public static function get_module_name() {
+		if ( in_array( self::DASHBOARD_MODULE_NAME, (array) ( new Modules() )->get_available(), true ) ) {
+			return self::DASHBOARD_MODULE_NAME;
+		}
+		return static::$module_name;
+	}
 
 	/**
 	 * Activate local product steps without scheduling connected modules offline.

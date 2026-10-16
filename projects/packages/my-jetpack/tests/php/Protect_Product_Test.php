@@ -24,6 +24,46 @@ class Protect_Product_Test extends TestCase {
 	}
 
 	/**
+	 * Modules on offer, modules switched on, and whether Protect then counts as switched on.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_module_states() {
+		return array(
+			'page on offer, login protection off' => array( array( 'protect', 'protect-dashboard' ), array( 'protect-dashboard' ), true ),
+			'page on offer and off'               => array( array( 'protect', 'protect-dashboard' ), array( 'protect' ), false ),
+			'page not on offer'                   => array( array( 'protect' ), array( 'protect' ), true ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_module_states
+	 *
+	 * @param string[] $available Modules on offer.
+	 * @param string[] $active    Modules switched on.
+	 * @param bool     $expected  Whether Protect counts as switched on.
+	 */
+	#[DataProvider( 'provide_module_states' )]
+	public function test_protect_follows_the_protect_page_module_when_offered( $available, $active, $expected ) {
+		$offer         = static function () use ( $available ) {
+			return $available;
+		};
+		$jetpack_offer = static function () use ( $available ) {
+			return array_fill_keys( $available, '1.0' );
+		};
+		add_filter( 'jetpack_get_available_standalone_modules', $offer );
+		add_filter( 'jetpack_get_available_modules', $jetpack_offer, PHP_INT_MAX );
+		\Jetpack_Options::update_option( 'active_modules', $active );
+
+		$is_active = Protect::is_module_active();
+
+		remove_filter( 'jetpack_get_available_standalone_modules', $offer );
+		remove_filter( 'jetpack_get_available_modules', $jetpack_offer, PHP_INT_MAX );
+		\Jetpack_Options::delete_option( 'active_modules' );
+		$this->assertSame( $expected, $is_active );
+	}
+
+	/**
 	 * Whether the Protect package's dashboard has loaded.
 	 *
 	 * @return array[]

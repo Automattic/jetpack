@@ -906,7 +906,7 @@ abstract class Product {
 			}
 			// Check specifically for inactive modules, which will prevent a product from being active
 			// Bundles have no module of their own, so they fall through to the plan checks below.
-		} elseif ( static::$module_name && ! static::is_bundle_product() && ! static::is_module_active() ) {
+		} elseif ( static::get_module_name() && ! static::is_bundle_product() && ! static::is_module_active() ) {
 			$status = Products::STATUS_MODULE_DISABLED;
 			// If there is not a plan associated with the disabled module, encourage a plan first
 			// Getting a plan set up should help resolve any connection issues
@@ -995,10 +995,22 @@ abstract class Product {
 	 * @return bool
 	 */
 	public static function is_module_active() {
-		if ( static::$module_name ) {
-			return ( new Modules() )->is_active( static::$module_name );
+		$module_name = static::get_module_name();
+		if ( $module_name ) {
+			return ( new Modules() )->is_active( $module_name );
 		}
 		return true;
+	}
+
+	/**
+	 * Get the Jetpack module that switches the product on, if any.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return ?string
+	 */
+	public static function get_module_name() {
+		return static::$module_name;
 	}
 
 	/**
