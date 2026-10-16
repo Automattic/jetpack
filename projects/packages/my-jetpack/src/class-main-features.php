@@ -926,7 +926,7 @@ class Main_Features {
 			$names = array_filter( array( $slug, $definition['product'] ?? '', $definition['module'] ?? '' ) );
 			if ( array_intersect( $names, $hidden ) ) {
 				$product_class = isset( $definition['product'] ) ? Products::get_product_class( $definition['product'] ) : null;
-				$hidden[]      = $definition['module'] ?? ( $product_class ? $product_class::$module_name : '' );
+				$hidden[]      = $definition['module'] ?? ( $product_class ? $product_class::get_module_name() : '' );
 			}
 		}
 

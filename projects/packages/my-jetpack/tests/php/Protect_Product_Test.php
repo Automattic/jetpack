@@ -21,30 +21,36 @@ class Protect_Product_Test extends TestCase {
 		parent::tearDown();
 
 		unset( $GLOBALS['wp_actions']['jetpack_protect_dashboard_initialized'] );
+		deactivate_plugins( Protect::$plugin_filename );
 	}
 
 	/**
-	 * Modules on offer, modules switched on, and whether Protect then counts as switched on.
+	 * Modules on offer, modules switched on, whether the standalone plugin is active, and whether Protect then counts as switched on.
 	 *
 	 * @return array[]
 	 */
 	public static function provide_module_states() {
 		return array(
-			'page on offer, login protection off' => array( array( 'protect', 'protect-dashboard' ), array( 'protect-dashboard' ), true ),
-			'page on offer and off'               => array( array( 'protect', 'protect-dashboard' ), array( 'protect' ), false ),
-			'page not on offer'                   => array( array( 'protect' ), array( 'protect' ), true ),
+			'page on offer, login protection off' => array( array( 'protect', 'protect-dashboard' ), array( 'protect-dashboard' ), false, true ),
+			'page on offer and off'               => array( array( 'protect', 'protect-dashboard' ), array( 'protect' ), false, false ),
+			'page not on offer'                   => array( array( 'protect' ), array( 'protect' ), false, true ),
+			'page on offer, standalone plugin'    => array( array( 'protect', 'protect-dashboard' ), array( 'protect' ), true, true ),
 		);
 	}
 
 	/**
 	 * @dataProvider provide_module_states
 	 *
-	 * @param string[] $available Modules on offer.
-	 * @param string[] $active    Modules switched on.
-	 * @param bool     $expected  Whether Protect counts as switched on.
+	 * @param string[] $available  Modules on offer.
+	 * @param string[] $active     Modules switched on.
+	 * @param bool     $standalone Whether the standalone plugin is active.
+	 * @param bool     $expected   Whether Protect counts as switched on.
 	 */
 	#[DataProvider( 'provide_module_states' )]
-	public function test_protect_follows_the_protect_page_module_when_offered( $available, $active, $expected ) {
+	public function test_protect_follows_the_protect_page_module_when_offered( $available, $active, $standalone, $expected ) {
+		if ( $standalone ) {
+			$this->activate_standalone_plugin();
+		}
 		$offer         = static function () use ( $available ) {
 			return $available;
 		};
@@ -61,6 +67,19 @@ class Protect_Product_Test extends TestCase {
 		remove_filter( 'jetpack_get_available_modules', $jetpack_offer, PHP_INT_MAX );
 		\Jetpack_Options::delete_option( 'active_modules' );
 		$this->assertSame( $expected, $is_active );
+	}
+
+	/**
+	 * Install and activate a mock of the standalone Protect plugin.
+	 */
+	private function activate_standalone_plugin() {
+		$plugin_dir = WP_PLUGIN_DIR . '/' . Protect::$plugin_slug;
+		if ( ! file_exists( $plugin_dir ) ) {
+			mkdir( $plugin_dir, 0777, true );
+		}
+		copy( __DIR__ . '/assets/protect-mock-plugin.txt', $plugin_dir . '/jetpack-protect.php' );
+		wp_cache_delete( 'plugins', 'plugins' );
+		activate_plugins( Protect::$plugin_slug . '/jetpack-protect.php' );
 	}
 
 	/**

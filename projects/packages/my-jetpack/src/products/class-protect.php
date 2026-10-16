@@ -123,12 +123,14 @@ class Protect extends Hybrid_Product {
 	/**
 	 * Get the module that switches Protect on: the Protect page's, wherever the Jetpack plugin offers it.
 	 *
+	 * Not with the standalone plugin active: the page module would take over that plugin's dashboard.
+	 *
 	 * @since $$next-version$$
 	 *
 	 * @return string
 	 */
 	public static function get_module_name() {
-		if ( in_array( self::DASHBOARD_MODULE_NAME, (array) ( new Modules() )->get_available(), true ) ) {
+		if ( ! static::is_standalone_plugin_active() && in_array( self::DASHBOARD_MODULE_NAME, (array) ( new Modules() )->get_available(), true ) ) {
 			return self::DASHBOARD_MODULE_NAME;
 		}
 		return static::$module_name;
