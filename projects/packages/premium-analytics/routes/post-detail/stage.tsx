@@ -31,9 +31,11 @@ import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useParams } from '@wordpress/route';
 import { WidgetDashboard, type DashboardWidget } from '@wordpress/widget-dashboard';
+import { routePathname, useDateWindowNotice } from '../date-window-notice';
 import { DETAIL_GRID } from '../grid';
 import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
 import { useDetailDateControls } from '../use-detail-date-controls';
+import { useStatsDateLimits } from '../use-stats-date-limits';
 import { useWidgetModules } from '../use-widget-modules';
 import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { withWidgetTypeAliases } from '../widget-type-aliases';
@@ -65,11 +67,14 @@ function PostDetail(): JSX.Element {
 	const postId = Number( postIdParam );
 
 	const summary = usePostSummary( postId );
+	const { dateLimits } = useStatsDateLimits( true );
+	useDateWindowNotice( routePathname( ROUTE_FROM, { postId: postIdParam } ) );
+	const lockedIntervals = dateLimits?.lockedIntervals;
 
 	const publicUrl = safeHttpUrl( summary.url );
 
 	// The resource, date range, and comparison all live in the URL search params.
-	const dateFilters = useReportDateFilters( ROUTE_FROM );
+	const dateFilters = useReportDateFilters( ROUTE_FROM, { lockedIntervals } );
 	const { dateControls, isAnchoringAllTime } = useDetailDateControls(
 		summary.publishedDate,
 		dateFilters,
@@ -84,7 +89,11 @@ function PostDetail(): JSX.Element {
 			comparisonPresetId: dateFilters.comparisonPresetId,
 			appliedComparisonRange: dateFilters.appliedComparisonRange,
 		},
-		{ surface: 'post_detail', offersComparison: false }
+		{
+			surface: 'post_detail',
+			offersComparison: false,
+			lockedIntervals,
+		}
 	);
 	const onDateChange = useCallback< typeof changeDateRange >(
 		( ...args ) => {
@@ -169,7 +178,8 @@ function PostDetail(): JSX.Element {
 	const { openPeriod, attentionId } = usePeriodHost(
 		postSurface( postId ),
 		dateFilters.appliedRange,
-		! isEmailTab
+		! isEmailTab,
+		lockedIntervals
 	);
 
 	// The email tabs are pinned to the send window, so the filter would only
@@ -209,7 +219,7 @@ function PostDetail(): JSX.Element {
 				appliedPresetId={ dateFilters.appliedPresetId }
 				appliedRange={ dateFilters.appliedRange }
 			/>
-			<ReportScopeProvider openPeriod={ openPeriod }>
+			<ReportScopeProvider openPeriod={ openPeriod } dateLimits={ dateLimits }>
 				<WidgetDashboard.Policy canPerform={ canPerform }>
 					<WidgetDashboard
 						widgetTypes={ pageWidgetTypes }

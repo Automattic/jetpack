@@ -3,6 +3,7 @@
  */
 import {
 	ensureCoreSettingsReady,
+	getStatsDatePolicy,
 	needsReportDateParamsSeed,
 } from '@jetpack-premium-analytics/data';
 import {
@@ -13,9 +14,11 @@ import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
+import { routePathname } from '../date-window-notice';
 import { seedDetailDateParams } from '../detail-date-seed';
 import { getReportDefinition } from '../reports/registry';
 import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
+import { limitStatsDateSearch } from '../stats-date-window';
 import { resolveTabId } from './config';
 
 type PostDetailParams = { postId?: string };
@@ -60,12 +63,14 @@ export const route = {
 		}
 
 		const currentSearch = ( search ?? {} ) as PostDetailSearch;
+		const pathname = routePathname( '/post/$postId', { postId } );
 		// A `section` from an inbound link may not be a valid post-detail tab, so
 		// resolve it rather than persist a bogus tab in a shareable URL.
 		const resolvedSection = currentSearch.section
 			? resolveTabId( currentSearch.section )
 			: undefined;
-		const needsDateSeed = needsReportDateParamsSeed( currentSearch );
+		const { lockedIntervals } = getStatsDatePolicy();
+		const needsDateSeed = needsReportDateParamsSeed( currentSearch, lockedIntervals );
 		const needsPostSeed = currentSearch.post_id !== postId;
 		const needsSectionSeed = !! currentSearch.section && resolvedSection !== currentSearch.section;
 
@@ -83,7 +88,7 @@ export const route = {
 
 			// Allowlist this page's own params instead of spreading `currentSearch`
 			// wholesale; the report origin stays so the breadcrumb survives.
-			const reportParams = seedDetailDateParams( currentSearch, postId );
+			const reportParams = seedDetailDateParams( currentSearch, postId, lockedIntervals );
 			delete reportParams.author_id;
 			const seeded: Record< string, unknown > = {
 				...reportParams,
@@ -102,7 +107,23 @@ export const route = {
 				 */
 				params: { postId } as unknown as never,
 				replace: true,
-				search: seeded as unknown as never,
+				viewTransition: false,
+				// An arrival seeds all time, not a window the reader asked for, so it gets no notice.
+				search: ( limitStatsDateSearch( seeded, {
+					pathname,
+					requested: needsPostSeed ? {} : currentSearch,
+				} ) ?? seeded ) as unknown as never,
+			} );
+		}
+
+		const limited = limitStatsDateSearch( currentSearch, { pathname } );
+		if ( limited ) {
+			throw redirect( {
+				to: '/post/$postId',
+				params: { postId } as unknown as never,
+				replace: true,
+				viewTransition: false,
+				search: limited as unknown as never,
 			} );
 		}
 	},

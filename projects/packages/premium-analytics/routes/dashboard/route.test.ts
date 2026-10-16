@@ -3,10 +3,14 @@ import {
 	isPremiumAnalyticsInitialSyncFinished,
 	isPremiumAnalyticsSiteConnected,
 } from '../site-readiness';
+import { limitStatsDateSearch } from '../stats-date-window';
 import { route } from './route';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	ensureCoreSettingsReady: jest.fn( () => Promise.resolve() ),
+	getPolicyDefaultPreset: jest.fn( () => undefined ),
+	getStatsDatePolicy: () => ( { lockedIntervals: [] } ),
+	isPresetLockedByPolicy: () => true,
 	needsReportDateParamsSeed: jest.fn( () => false ),
 	normalizeReportParams: jest.fn( ( search: Record< string, string | undefined > ) => ( {
 		from: '2026-06-01T00:00:00',
@@ -40,6 +44,12 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 jest.mock( '../site-readiness', () => ( {
 	isPremiumAnalyticsSiteConnected: jest.fn( () => true ),
 	isPremiumAnalyticsInitialSyncFinished: jest.fn( () => true ),
+} ) );
+
+jest.mock( '../stats-date-window', () => ( {
+	PLAN_DATE_LIMITED_SECTIONS: [ 'traffic' ],
+	isPlanDateLimitedSection: jest.fn( ( section?: string ) => section !== 'store' ),
+	limitStatsDateSearch: jest.fn( () => undefined ),
 } ) );
 
 jest.mock( '@wordpress/route', () => ( {
@@ -136,5 +146,32 @@ describe( 'dashboard route.beforeLoad', () => {
 		} );
 
 		expect( search ).toMatchObject( { comp: '1', compare_preset: 'previous-period' } );
+	} );
+
+	it( 'redirects a settled URL the plan does not allow', async () => {
+		( limitStatsDateSearch as jest.Mock ).mockReturnValueOnce( {
+			...settledSearch,
+			preset: 'last-7-days',
+		} );
+
+		await expect( beforeLoad( settledSearch ) ).rejects.toMatchObject( {
+			to: '/',
+			replace: true,
+			viewTransition: false,
+			search: expect.objectContaining( { preset: 'last-7-days' } ),
+		} );
+	} );
+
+	it( 'limits the seed against the preset the reader asked for', async () => {
+		( needsReportDateParamsSeed as jest.Mock ).mockReturnValueOnce( true );
+
+		await expect( beforeLoad( { preset: 'last-90-days' } ) ).rejects.toMatchObject( {
+			to: '/',
+			viewTransition: false,
+		} );
+		expect( limitStatsDateSearch ).toHaveBeenCalledWith( expect.any( Object ), {
+			pathname: '/',
+			requested: { preset: 'last-90-days' },
+		} );
 	} );
 } );

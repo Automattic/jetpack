@@ -3,6 +3,7 @@
  */
 import {
 	ensureCoreSettingsReady,
+	getStatsDatePolicy,
 	needsReportDateParamsSeed,
 } from '@jetpack-premium-analytics/data';
 import {
@@ -13,10 +14,12 @@ import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
+import { routePathname } from '../date-window-notice';
 import { seedDetailDateParams } from '../detail-date-seed';
 import { redirectIfReportLocked } from '../reports/redirect-if-locked';
 import { getReportDefinition } from '../reports/registry';
 import { isPremiumAnalyticsSiteConnected, isVideoPressAvailable } from '../site-readiness';
+import { limitStatsDateSearch } from '../stats-date-window';
 
 type VideoDetailParams = { videoId?: string };
 type VideoDetailSearch = Record< string, string | undefined >;
@@ -66,7 +69,9 @@ export const route = {
 		}
 
 		const currentSearch = ( search ?? {} ) as VideoDetailSearch;
-		const needsDateSeed = needsReportDateParamsSeed( currentSearch );
+		const pathname = routePathname( '/video/$videoId', { videoId } );
+		const { lockedIntervals } = getStatsDatePolicy();
+		const needsDateSeed = needsReportDateParamsSeed( currentSearch, lockedIntervals );
 		const needsPostSeed = currentSearch.post_id !== videoId;
 
 		if ( needsDateSeed || needsPostSeed ) {
@@ -83,7 +88,7 @@ export const route = {
 
 			// The report origin joins the allowlist below so the breadcrumb keeps
 			// its link back to the referring report across this seed.
-			const reportParams = seedDetailDateParams( currentSearch, videoId );
+			const reportParams = seedDetailDateParams( currentSearch, videoId, lockedIntervals );
 			delete reportParams.author_id;
 			const seeded: Record< string, unknown > = {
 				...reportParams,
@@ -101,7 +106,23 @@ export const route = {
 				 */
 				params: { videoId } as unknown as never,
 				replace: true,
-				search: seeded as unknown as never,
+				viewTransition: false,
+				// An arrival seeds all time, not a window the reader asked for, so it gets no notice.
+				search: ( limitStatsDateSearch( seeded, {
+					pathname,
+					requested: needsPostSeed ? {} : currentSearch,
+				} ) ?? seeded ) as unknown as never,
+			} );
+		}
+
+		const limited = limitStatsDateSearch( currentSearch, { pathname } );
+		if ( limited ) {
+			throw redirect( {
+				to: '/video/$videoId',
+				params: { videoId } as unknown as never,
+				replace: true,
+				viewTransition: false,
+				search: limited as unknown as never,
 			} );
 		}
 	},

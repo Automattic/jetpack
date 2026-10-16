@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Limit the dates the dashboard offers to what the site's plan includes, such as the last 7 days on a free plan, and hide Stats CSV exports on plans without them.

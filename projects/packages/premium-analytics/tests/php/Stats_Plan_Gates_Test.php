@@ -84,6 +84,7 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 			array( 'name' => 'jpa/devices' ),
 			array( 'name' => 'jpa/locations' ),
 			array( 'name' => 'jpa/referrers' ),
+			array( 'name' => 'jpa/post-all-time-traffic' ),
 			array( 'name' => 'jpa/open-to-all' ),
 		);
 		add_action( Widget_Type_Registry::REGISTER_ACTION, array( $this, 'register_plugin_widget_type' ), 20 );
@@ -344,10 +345,11 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 			'free locks the whole widget'      => array(
 				STATS_TIER_FREE,
 				array(
-					'jpa/devices'       => 'devices',
-					'jpa/locations'     => 'countries',
-					'jpa/referrers'     => 'referrers',
-					'plugin/top-videos' => 'videos',
+					'jpa/devices'               => 'devices',
+					'jpa/locations'             => 'countries',
+					'jpa/post-all-time-traffic' => 'recent-7-days',
+					'jpa/referrers'             => 'referrers',
+					'plugin/top-videos'         => 'videos',
 				),
 			),
 		);

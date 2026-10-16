@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { toAuthorId, useReportScope } from '@jetpack-premium-analytics/data';
+import { getStatsDatePolicy, toAuthorId, useReportScope } from '@jetpack-premium-analytics/data';
 import { reportingTimeZone } from '@jetpack-premium-analytics/datetime';
 import { useOpenSectionRange } from '@jetpack-premium-analytics/routing';
 import {
@@ -20,7 +20,7 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
  */
@@ -47,7 +47,9 @@ function ViewsOverYearsInner( { metric, authorScoped }: ViewsOverYearsInnerProps
 		metric,
 		authorId
 	);
-	const openSectionRange = useOpenSectionRange();
+	// The Traffic section follows the plan's date limits, so the range it opens avoids their buckets.
+	const trafficLocks = useMemo( () => getStatsDatePolicy().lockedIntervals, [] );
+	const openSectionRange = useOpenSectionRange( trafficLocks );
 	const { openPeriod } = useReportScope();
 	const timeZone = reportingTimeZone();
 

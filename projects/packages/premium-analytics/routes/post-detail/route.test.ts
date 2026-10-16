@@ -1,6 +1,7 @@
 import { ensureCoreSettingsReady } from '@jetpack-premium-analytics/data';
 import { redirect } from '@wordpress/route';
 import { isDashboardSectionAvailable, isPremiumAnalyticsSiteConnected } from '../site-readiness';
+import { limitStatsDateSearch } from '../stats-date-window';
 import { route } from './route';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
@@ -14,6 +15,11 @@ jest.mock( '@wordpress/route', () => ( {
 jest.mock( '../site-readiness', () => ( {
 	isPremiumAnalyticsSiteConnected: jest.fn( () => true ),
 	isDashboardSectionAvailable: jest.fn( () => true ),
+} ) );
+jest.mock( '../stats-date-window', () => ( {
+	PLAN_DATE_LIMITED_SECTIONS: [ 'traffic' ],
+	isPlanDateLimitedSection: jest.fn( ( section?: string ) => section !== 'store' ),
+	limitStatsDateSearch: jest.fn( () => undefined ),
 } ) );
 jest.mock( './config', () => ( {
 	resolveTabId: ( section: string ) => section,
@@ -191,5 +197,36 @@ describe( 'post detail route report origin', () => {
 		).resolves.toBeUndefined();
 
 		expect( mockRedirect ).not.toHaveBeenCalled();
+	} );
+
+	it.each( [
+		[
+			'an arrival as asked for nothing',
+			{ from: '2025-01-01', to: '2025-01-31', interval: 'day' },
+			false,
+		],
+		[ 'a reload as asked for its own window', { ...seededSearch, interval: undefined }, true ],
+	] )( 'limits the seed of %s', async ( _name, search, isRequested ) => {
+		await expect( route.beforeLoad( { params: { postId: '42' }, search } ) ).rejects.toMatchObject(
+			{ to: '/post/$postId', viewTransition: false }
+		);
+		expect( limitStatsDateSearch ).toHaveBeenCalledWith( expect.any( Object ), {
+			pathname: '/post/42',
+			requested: isRequested ? search : {},
+		} );
+	} );
+
+	it( 'redirects a settled URL the plan does not allow', async () => {
+		( limitStatsDateSearch as jest.Mock ).mockReturnValueOnce( { preset: 'last-7-days' } );
+
+		await expect(
+			route.beforeLoad( { params: { postId: '42' }, search: seededSearch } )
+		).rejects.toMatchObject( {
+			to: '/post/$postId',
+			params: { postId: '42' },
+			replace: true,
+			viewTransition: false,
+			search: { preset: 'last-7-days' },
+		} );
 	} );
 } );

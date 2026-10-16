@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { type ReportScope } from '@jetpack-premium-analytics/data';
+import { type DateLimits } from '@jetpack-premium-analytics/data';
 import { ButtonLink } from '@jetpack-premium-analytics/externals';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
@@ -13,7 +13,7 @@ import { Fragment } from 'react';
 import styles from './date-limit-upsell.module.scss';
 
 type DateLimitUpsellProps = {
-	upsell: NonNullable< NonNullable< ReportScope[ 'dateLimits' ] >[ 'upsell' ] >;
+	upsell: NonNullable< DateLimits[ 'upsell' ] >;
 	onUpgradeClick?: () => void;
 };
 

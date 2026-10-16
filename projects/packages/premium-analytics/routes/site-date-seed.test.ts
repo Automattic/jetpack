@@ -94,6 +94,16 @@ describe( 'seedSiteDateParams', () => {
 		expect( seeded.compare_from ).toBeUndefined();
 	} );
 
+	it( 'opens a fresh load on the default preset it is given, compared', () => {
+		remember( 'datePreset', 'last-12-months' );
+
+		expect( seedSiteDateParams( { section: 'traffic' }, 'last-30-days' ) ).toMatchObject( {
+			preset: 'last-30-days',
+			comp: '1',
+			compare_preset: 'previous-period',
+		} );
+	} );
+
 	it( 'keeps the comparison a fresh URL already carries', () => {
 		const seeded = seedSiteDateParams( {
 			comp: '1',

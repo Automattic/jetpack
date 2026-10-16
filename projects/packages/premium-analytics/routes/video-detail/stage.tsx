@@ -30,6 +30,7 @@ import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import { DETAIL_GRID } from '../grid';
 import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
 import { useDetailDateControls } from '../use-detail-date-controls';
+import { useStatsDateLimits } from '../use-stats-date-limits';
 import { useWidgetModules } from '../use-widget-modules';
 import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { videoHeaderSlots } from './components';
@@ -66,7 +67,10 @@ function VideoDetail(): JSX.Element {
 	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules );
 
 	// The applied report date range lives in the URL search params.
-	const dateFilters = useReportDateFilters( ROUTE_FROM );
+	// The route already clamps the dates, so only the interval follows the plan's locks here.
+	const { dateLimits } = useStatsDateLimits( true );
+	const lockedIntervals = dateLimits?.lockedIntervals;
+	const dateFilters = useReportDateFilters( ROUTE_FROM, { lockedIntervals } );
 	const { dateControls, isAnchoringAllTime } = useDetailDateControls(
 		summary.publishedDate,
 		dateFilters,
@@ -81,7 +85,7 @@ function VideoDetail(): JSX.Element {
 			comparisonPresetId: dateFilters.comparisonPresetId,
 			appliedComparisonRange: dateFilters.appliedComparisonRange,
 		},
-		{ surface: 'video_detail', offersComparison: false }
+		{ surface: 'video_detail', offersComparison: false, lockedIntervals }
 	);
 	const onDateChange = useCallback< typeof changeDateRange >(
 		( ...args ) => {

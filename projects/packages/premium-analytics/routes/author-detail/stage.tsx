@@ -41,6 +41,7 @@ import { WidgetDashboard } from '@wordpress/widget-dashboard';
  */
 import { DETAIL_GRID } from '../grid';
 import { useDetailDateControls } from '../use-detail-date-controls';
+import { useStatsDateLimits } from '../use-stats-date-limits';
 import { useWidgetModules } from '../use-widget-modules';
 import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { toWidgetTypeBaseNames, withWidgetTypeAliases } from '../widget-type-aliases';
@@ -71,7 +72,10 @@ function AuthorDetail(): JSX.Element {
 
 	const anchor = useAuthorAllTimeStart( authorId );
 
-	const dateFilters = useReportDateFilters( ROUTE_FROM );
+	// The route already clamps the dates, so only the interval follows the plan's locks here.
+	const { dateLimits } = useStatsDateLimits( true );
+	const lockedIntervals = dateLimits?.lockedIntervals;
+	const dateFilters = useReportDateFilters( ROUTE_FROM, { lockedIntervals } );
 	const { dateControls, isAnchoringAllTime: isAnchoringProvisional } = useDetailDateControls(
 		anchor.allTimeStart,
 		dateFilters,
@@ -113,7 +117,7 @@ function AuthorDetail(): JSX.Element {
 			comparisonPresetId: dateFilters.comparisonPresetId,
 			appliedComparisonRange: dateFilters.appliedComparisonRange,
 		},
-		{ surface: 'author_detail', offersComparison: false }
+		{ surface: 'author_detail', offersComparison: false, lockedIntervals }
 	);
 	const onDateChange = useCallback< typeof changeDateRange >(
 		( ...args ) => {
@@ -138,7 +142,8 @@ function AuthorDetail(): JSX.Element {
 	const { openPeriod, attentionId } = usePeriodHost(
 		`author:${ authorId }`,
 		dateFilters.appliedRange,
-		true
+		true,
+		lockedIntervals
 	);
 
 	// Without cards there is nothing to arrange, and a refetch that fails
