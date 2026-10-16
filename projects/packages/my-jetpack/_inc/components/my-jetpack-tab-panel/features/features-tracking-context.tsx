@@ -6,6 +6,8 @@ import type { FeatureFilter } from './use-feature-filter';
 import type { ReactNode } from 'react';
 
 export type FeatureActionType = 'install' | 'activate' | 'deactivate';
+/** What sent the visitor to connect an account: an install that finished, or Connect itself. */
+export type ConnectionStartAction = 'install' | 'connect';
 export type BulkActionType = 'activate' | 'deactivate';
 
 /** What emptied the grid, in the order the empty states are checked. */
@@ -54,7 +56,7 @@ type FeaturesTrackingContextType = {
 	trackConnectionStart: (
 		state: FeatureState,
 		origin: FeatureActionOrigin,
-		action: FeatureActionType
+		action: ConnectionStartAction
 	) => void;
 	trackPlanClick: ( state: FeatureState, plan: string ) => void;
 	trackFeatureAction: ( params: FeatureActionParams ) => void;
@@ -204,10 +206,10 @@ export function FeaturesTrackingProvider( {
 		[ context, recordEvent ]
 	);
 
-	// Recorded as the page leaves to connect an account, after the action the click asked for:
-	// it says an account connection started, not that the feature is now on.
+	// Recorded as the page leaves to connect an account: it says a connection started, not that
+	// the feature is now on.
 	const trackConnectionStart = useCallback(
-		( state: FeatureState, origin: FeatureActionOrigin, action: FeatureActionType ) => {
+		( state: FeatureState, origin: FeatureActionOrigin, action: ConnectionStartAction ) => {
 			recordEvent( 'jetpack_myjetpack_feature_connection_start', {
 				action,
 				origin,

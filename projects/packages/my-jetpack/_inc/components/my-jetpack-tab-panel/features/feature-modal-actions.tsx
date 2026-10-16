@@ -3,9 +3,9 @@ import { Badge, Button, ButtonLink, Stack } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { useModuleActivation } from '../../module-toggle';
 import { getSwitchLabel } from '../utils';
-import { InstallButton, JetpackButton, useAccountConnection } from './feature-action';
+import { ConnectButton, InstallButton, JetpackButton } from './feature-action';
 import { UpgradeButton } from './feature-paid';
-import { getFeatureManageUrl, getForcedReason } from './feature-state';
+import { getFeatureManageUrl, getForcedReason, offersConnect } from './feature-state';
 import { useFeaturesTracking } from './features-tracking-context';
 import { getFeatureUnavailableReason } from './module-availability';
 import { useFeaturePlugin } from './use-main-features';
@@ -66,19 +66,14 @@ function ModuleSwitch( { state, module: $module, name }: ModuleSwitchProps ) {
 		reload: false,
 	} );
 	const tracking = useFeaturesTracking();
-	const connectAccount = useAccountConnection();
 	const onClick = useCallback( () => {
 		tracking?.trackFeatureAction( {
 			state,
 			action: isActive ? 'deactivate' : 'activate',
 			origin: 'modal',
 		} );
-		if ( ! isActive && state.accountNeeded ) {
-			connectAccount( state, 'modal', 'activate' );
-			return;
-		}
 		setModuleActive( ! isActive );
-	}, [ connectAccount, isActive, setModuleActive, state, tracking ] );
+	}, [ isActive, setModuleActive, state, tracking ] );
 
 	return (
 		<SwitchButton
@@ -110,19 +105,14 @@ type PluginSwitchProps = {
 function PluginSwitch( { state, plugin, isOn, name }: PluginSwitchProps ) {
 	const { run, isBusy } = useFeaturePlugin( plugin, name );
 	const tracking = useFeaturesTracking();
-	const connectAccount = useAccountConnection();
 	const onClick = useCallback( () => {
 		tracking?.trackFeatureAction( {
 			state,
 			action: isOn ? 'deactivate' : 'activate',
 			origin: 'modal',
 		} );
-		run( isOn ? 'deactivate' : 'activate' ).then( done => {
-			if ( done && ! isOn && state.accountNeeded ) {
-				connectAccount( state, 'modal', 'activate' );
-			}
-		} );
-	}, [ connectAccount, isOn, run, state, tracking ] );
+		run( isOn ? 'deactivate' : 'activate' );
+	}, [ isOn, run, state, tracking ] );
 
 	return <SwitchButton isOn={ isOn } name={ name } disabled={ isBusy } onClick={ onClick } />;
 }
@@ -146,6 +136,9 @@ export function FeatureModalActions( { state }: FeatureModalActionsProps ) {
 	const pluginName = feature.plugin_name || feature.name;
 	const forcedReason = getForcedReason( state );
 	const unavailable = getFeatureUnavailableReason( state );
+	const connectFirst = offersConnect( state );
+	// Waiting for an account, the switch only stays to turn off a feature already on.
+	const showSwitch = ! forcedReason && ( ! connectFirst || isActive );
 	const tracking = useFeaturesTracking();
 
 	// Leaves for the feature's own screen, so the event has to be away before it does.
@@ -171,11 +164,13 @@ export function FeatureModalActions( { state }: FeatureModalActionsProps ) {
 				</Stack>
 			) : null }
 
-			{ control.kind === 'module' && ! forcedReason ? (
+			{ connectFirst ? <ConnectButton state={ state } origin="modal" /> : null }
+
+			{ control.kind === 'module' && showSwitch ? (
 				<ModuleSwitch state={ state } module={ control.module } name={ feature.name } />
 			) : null }
 
-			{ control.kind === 'plugin' && ! forcedReason ? (
+			{ control.kind === 'plugin' && showSwitch ? (
 				<PluginSwitch
 					state={ state }
 					plugin={ control.plugin }

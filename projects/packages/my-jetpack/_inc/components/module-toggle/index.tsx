@@ -21,8 +21,6 @@ export type ModuleToggleProps = {
 	reloadAfterToggle?: boolean;
 	/** Called with what the click asked for, for surfaces that record their own events. */
 	onSwitch?: ( active: boolean ) => void;
-	/** Called before switching on; returning true means the surface handled the click and the module stays off. */
-	interceptActivation?: () => boolean;
 };
 
 // Modules that register a server-rendered wp-admin sidebar item. Toggling them
@@ -143,7 +141,6 @@ export function ModuleToggle( {
 	describedby,
 	reloadAfterToggle = true,
 	onSwitch,
-	interceptActivation,
 }: ModuleToggleProps ) {
 	const { setModuleActive, isUpdating, isActive } = useModuleActivation( $module, {
 		reload: reloadAfterToggle,
@@ -152,14 +149,10 @@ export function ModuleToggle( {
 
 	const onChange = useCallback(
 		( event: ChangeEvent< HTMLInputElement > ) => {
-			const active = event.target.checked;
-			onSwitch?.( active );
-			if ( active && interceptActivation?.() ) {
-				return;
-			}
-			setModuleActive( active );
+			onSwitch?.( event.target.checked );
+			setModuleActive( event.target.checked );
 		},
-		[ interceptActivation, onSwitch, setModuleActive ]
+		[ onSwitch, setModuleActive ]
 	);
 	const deactivateModule = useCallback( () => {
 		onSwitch?.( false );

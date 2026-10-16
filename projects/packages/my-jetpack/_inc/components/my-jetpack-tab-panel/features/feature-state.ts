@@ -441,10 +441,24 @@ export function useFeaturesNeedsAccount(): boolean {
 }
 
 /**
- * Keep the feature's own control while it waits for an account, and say so instead of calling it unavailable.
+ * Whether the card offers Connect: the feature waits for an account and nothing else is missing.
+ *
+ * A missing plugin keeps Install, which connects once the plugin is on.
+ *
+ * @param state - Live state for the feature.
+ * @return Whether Connect is the feature's action.
+ */
+export function offersConnect( state: FeatureState ): boolean {
+	return Boolean(
+		state.accountNeeded && ( state.control.kind === 'module' || state.control.kind === 'plugin' )
+	);
+}
+
+/**
+ * Mark a feature that waits for an account, without calling it unavailable.
  *
  * Jetpack reports a module needing an account as unavailable on a site without one; the badge
- * says that instead, so the switch stays and shows what is saved.
+ * says that instead, and one saved as on can still be switched off from its details.
  *
  * @param state         - The feature's resolved state.
  * @param accountModule - The module behind it, if Jetpack is active.

@@ -43,16 +43,11 @@ jest.mock( '../use-main-features', () => ( {
 
 // The real switch calls this; that it does is covered by the module-toggle tests, so here
 // it is held onto and called directly.
-type MockModuleSwitch = {
-	onSwitch?: ( active: boolean ) => void;
-	interceptActivation?: () => boolean;
-};
-const mockModuleSwitch: MockModuleSwitch = {};
+const mockModuleSwitch: { onSwitch?: ( active: boolean ) => void } = {};
 
 jest.mock( '../../../module-toggle', () => ( {
-	ModuleToggle: ( { onSwitch, interceptActivation }: MockModuleSwitch ) => {
+	ModuleToggle: ( { onSwitch }: { onSwitch?: ( active: boolean ) => void } ) => {
 		mockModuleSwitch.onSwitch = onSwitch;
-		mockModuleSwitch.interceptActivation = interceptActivation;
 
 		// ds-allow: input -- stands in for the real ModuleToggle, which reaches the modules store.
 		return <input type="checkbox" aria-label="Module toggle" readOnly />;
@@ -96,6 +91,7 @@ jest.mock( '../feature-state', () => ( {
 	// Nothing here is forced by a host, which is what leaves the switches on show.
 	getForcedReason: () => null,
 	getFeatureManageUrl: ( state: FeatureState ) => state.feature.manage_url || '',
+	offersConnect: jest.requireActual( '../feature-state' ).offersConnect,
 } ) );
 
 // The card's own click target is covered elsewhere; here the handler is held onto.
@@ -344,53 +340,45 @@ describe( 'Features tab modal tracking', () => {
 
 describe( 'Feature action tracking', () => {
 	it.each( [
-		[ 'an install from the card', 'card', 'install', false ],
-		[ 'an install from the modal', 'modal', 'install', false ],
-		[ 'a module switched on', 'more_features', 'activate', true ],
-	] as const )(
-		'records %s, then one connection start rather than a success',
-		async ( _, origin, action, isModule ) => {
-			const state = buildState(
-				isModule
-					? { kind: 'module', module: { module: 'monitor', activated: false } as never }
-					: { kind: 'install-plugin', plugin: 'jetpack-boost' },
-				{ accountNeeded: true }
-			);
-			state.feature.product = 'boost';
-			renderTracked(
-				origin === 'modal' ? (
-					<FeatureModalActions state={ state } />
-				) : (
-					<FeatureAction state={ state } origin={ origin } />
-				)
-			);
+		[ 'an install from the card, then one connection start', 'card', 'install' ],
+		[ 'an install from the modal, then one connection start', 'modal', 'install' ],
+		[ 'Connect as a connection start alone', 'more_features', 'connect' ],
+	] as const )( 'records %s, never an activation', async ( _, origin, action ) => {
+		const state = buildState(
+			action === 'connect'
+				? { kind: 'module', module: { module: 'monitor', activated: false } as never }
+				: { kind: 'install-plugin', plugin: 'jetpack-boost' },
+			{ accountNeeded: true }
+		);
+		state.feature.product = 'boost';
+		renderTracked(
+			origin === 'modal' ? (
+				<FeatureModalActions state={ state } />
+			) : (
+				<FeatureAction state={ state } origin={ origin } />
+			)
+		);
 
-			if ( isModule ) {
-				act( () => {
-					mockModuleSwitch.onSwitch?.( true );
-					mockModuleSwitch.interceptActivation?.();
-				} );
-			} else {
-				await userEvent.click( screen.getByRole( 'button', { name: 'Install' } ) );
-			}
+		await userEvent.click(
+			screen.getByRole( 'button', { name: action === 'connect' ? /^Connect account/ : 'Install' } )
+		);
 
-			await waitFor( () => expect( leavePageFor ).toHaveBeenCalledTimes( 1 ) );
-			expect( recordEvent.mock.calls.map( ( [ name ] ) => name ) ).toEqual( [
-				'jetpack_myjetpack_feature_action',
-				'jetpack_myjetpack_feature_connection_start',
-			] );
-			expect( lastEvent( 'jetpack_myjetpack_feature_connection_start' ) ).toMatchObject( {
-				action,
-				origin,
-				product: 'boost',
-				feature_slug: 'boost',
-				account_needed: true,
-				current_filter: 'all',
-				view: 'grid',
-				event_version: 1,
-			} );
-		}
-	);
+		await waitFor( () => expect( leavePageFor ).toHaveBeenCalledTimes( 1 ) );
+		expect( recordEvent.mock.calls.map( ( [ name ] ) => name ) ).toEqual( [
+			...( action === 'install' ? [ 'jetpack_myjetpack_feature_action' ] : [] ),
+			'jetpack_myjetpack_feature_connection_start',
+		] );
+		expect( lastEvent( 'jetpack_myjetpack_feature_connection_start' ) ).toMatchObject( {
+			action,
+			origin,
+			product: 'boost',
+			feature_slug: 'boost',
+			account_needed: true,
+			current_filter: 'all',
+			view: 'grid',
+			event_version: 1,
+		} );
+	} );
 
 	it( 'records an install from the card, and says it came from the card', async () => {
 		renderTracked(

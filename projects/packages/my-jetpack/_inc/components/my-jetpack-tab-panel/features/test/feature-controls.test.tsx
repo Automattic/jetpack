@@ -12,7 +12,6 @@ import type { FeatureState } from '../feature-state';
 
 const mockRun = jest.fn< Promise< boolean >, [ unknown ] >( () => Promise.resolve( true ) );
 const mockSetModuleActive = jest.fn();
-let mockToggleProps: { interceptActivation?: () => boolean } = {};
 
 jest.mock( '../../../../utils/reload-page', () => ( { leavePageFor: jest.fn() } ) );
 
@@ -36,10 +35,7 @@ jest.mock( '../use-main-features', () => ( {
 
 jest.mock( '../../../module-toggle', () => ( {
 	// ds-allow: input -- stands in for the real ModuleToggle, which reaches the modules store.
-	ModuleToggle: ( props: typeof mockToggleProps ) => {
-		mockToggleProps = props;
-		return <input type="checkbox" aria-label="Module toggle" readOnly />;
-	},
+	ModuleToggle: () => <input type="checkbox" aria-label="Module toggle" readOnly />,
 	// Mirrors the hook: `isActive` is the value the switch shows, asked-for or stored.
 	useModuleActivation: ( $module: { activated: boolean } ) => ( {
 		setModuleActive: mockSetModuleActive,
@@ -74,7 +70,6 @@ beforeEach( () => {
 	mockSetModuleActive.mockClear();
 	( leavePageFor as jest.Mock ).mockClear();
 	( getUserConnectionUrl as jest.Mock ).mockClear();
-	mockToggleProps = {};
 	mockAskedFor = null;
 	mockBusy = false;
 	mockInstallError = null;
@@ -608,105 +603,103 @@ describe( 'features waiting for an account', () => {
 	};
 
 	it.each( [
-		[ 'a module', accountModule( false ), 'checkbox', 'Module toggle' ],
-		[ 'a missing plugin', accountPlugin( 'not-installed' ), 'button', 'Install' ],
-		[
-			'a plugin turned off',
-			accountPlugin( 'inactive' ),
-			'checkbox',
-			'Activate Jetpack VaultPress Backup',
-		],
+		[ 'a module that is off', accountModule( false ), 'Connect account for Activity Log' ],
+		[ 'a module saved as on', accountModule( true ), 'Connect account for Activity Log' ],
+		[ 'a plugin that is off', accountPlugin( 'inactive' ), 'Connect account for Backup' ],
+		[ 'a plugin that is on', accountPlugin( 'active' ), 'Connect account for Backup' ],
+		[ 'a missing plugin', accountPlugin( 'not-installed' ), 'Install' ],
 	] as const )(
-		'keeps the usual control for %s, with the account badge and no account sentence',
-		( _, state, role, name ) => {
+		'offers only what is missing on the card for %s, with the account badge and no account sentence',
+		( _, state, name ) => {
 			render( <FeatureItem state={ state } onOpen={ jest.fn() } /> );
+			expect( screen.getByRole( 'button', { name } ) ).toHaveAccessibleDescription(
+				name === 'Install' ? '' : 'Needs user account'
+			);
 			expect( screen.getByText( 'Needs user account' ) ).toBeInTheDocument();
-			expect( screen.getByRole( role, { name } ) ).toBeInTheDocument();
+			expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
 			expect(
 				screen.queryByText( /Requires a connected WordPress.com account/ )
 			).not.toBeInTheDocument();
-			expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
 		}
 	);
 
-	it( 'starts the connection from a module switched on, without switching it on', async () => {
-		render( <FeatureModalActions state={ accountModule( false ) } /> );
-		await userEvent.click( screen.getByRole( 'button', { name: 'Activate Activity Log' } ) );
+	it.each( [
+		[ 'card', 'a module', accountModule( false ) ],
+		[ 'card', 'a module saved as on', accountModule( true ) ],
+		[ 'card', 'a plugin', accountPlugin( 'inactive' ) ],
+		[ 'details', 'a module', accountModule( false ) ],
+		[ 'details', 'a plugin that is on', accountPlugin( 'active' ) ],
+	] as const )(
+		'connects from the %s for %s and changes nothing on the feature',
+		async ( where, _, state ) => {
+			render(
+				where === 'card' ? (
+					<FeatureAction state={ state } />
+				) : (
+					<FeatureModalActions state={ state } />
+				)
+			);
+			await userEvent.click( screen.getByRole( 'button', { name: /^Connect account for / } ) );
 
-		expect( mockSetModuleActive ).not.toHaveBeenCalled();
-		expect( getUserConnectionUrl ).toHaveBeenCalledWith( {
-			redirect_url: expect.stringContaining( '#/features' ),
-		} );
-		expect( leavePageFor ).toHaveBeenCalledWith( connectionUrl );
-	} );
+			expect( getUserConnectionUrl ).toHaveBeenCalledWith( {
+				redirect_url: expect.stringContaining( '#/features' ),
+			} );
+			expect( leavePageFor ).toHaveBeenCalledWith( connectionUrl );
+			expect( mockRun ).not.toHaveBeenCalled();
+			expect( mockSetModuleActive ).not.toHaveBeenCalled();
+		}
+	);
 
 	it.each( [
-		[ 'a module needing an account', accountModule( false ), true ],
-		[ 'a module that can switch on now', buildState( { kind: 'module', module: $module } ), false ],
-	] )( 'takes over the card switch only for %s', ( _, state, intercepted ) => {
-		render( <FeatureAction state={ state } /> );
-		expect( mockToggleProps.interceptActivation?.() ).toBe( intercepted );
-		expect( leavePageFor ).toHaveBeenCalledTimes( intercepted ? 1 : 0 );
-	} );
-
-	it.each( [
-		[
-			'starts the connection after an install',
-			'not-installed',
-			'button',
-			'Install',
-			'install',
-			true,
-			1,
-		],
-		[
-			'does not start the connection after a failed install',
-			'not-installed',
-			'button',
-			'Install',
-			'install',
-			false,
-			0,
-		],
-		[
-			'starts the connection after activating the plugin',
-			'inactive',
-			'checkbox',
-			'Activate Jetpack VaultPress Backup',
-			'activate',
-			true,
-			1,
-		],
-		[
-			'never starts the connection when turning the plugin off',
-			'active',
-			'checkbox',
-			'Deactivate Jetpack VaultPress Backup',
-			'deactivate',
-			true,
-			0,
-		],
-	] as const )( '%s', async ( _, pluginStatus, role, name, action, succeeds, connections ) => {
+		[ 'starts the connection after an install', true, 1 ],
+		[ 'does not start the connection after a failed install', false, 0 ],
+	] )( '%s', async ( _, succeeds, connections ) => {
 		mockRun.mockReturnValueOnce( Promise.resolve( succeeds ) );
-		render( <FeatureAction state={ accountPlugin( pluginStatus ) } /> );
+		render( <FeatureAction state={ accountPlugin( 'not-installed' ) } /> );
 
-		await userEvent.click( screen.getByRole( role, { name } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Install' } ) );
 		await settle();
 
-		expect( mockRun ).toHaveBeenCalledWith( expect.objectContaining( { action } ) );
+		expect( mockRun ).toHaveBeenCalledWith( expect.objectContaining( { action: 'install' } ) );
 		expect( leavePageFor ).toHaveBeenCalledTimes( connections );
 	} );
 
-	it( 'switches off a module waiting for an account without starting the connection', async () => {
-		render( <FeatureModalActions state={ accountModule( true ) } /> );
-		await userEvent.click( screen.getByRole( 'button', { name: 'Deactivate Activity Log' } ) );
+	it.each( [
+		[ 'a module saved as on', accountModule( true ), 'Deactivate Activity Log', [ false ] ],
+		[
+			'a plugin that is on',
+			accountPlugin( 'active' ),
+			'Deactivate Jetpack VaultPress Backup',
+			[ { plugin: 'jetpack-backup', name: 'Jetpack VaultPress Backup', action: 'deactivate' } ],
+		],
+	] )(
+		'keeps Deactivate beside Connect in the details of %s, without connecting',
+		async ( _, state, name, request ) => {
+			render( <FeatureModalActions state={ state } /> );
+			expect( screen.getByRole( 'button', { name: /^Connect account for / } ) ).toBeVisible();
 
-		expect( mockSetModuleActive ).toHaveBeenCalledWith( false );
-		expect( leavePageFor ).not.toHaveBeenCalled();
-	} );
+			await userEvent.click( screen.getByRole( 'button', { name } ) );
+
+			expect( [ ...mockSetModuleActive.mock.calls, ...mockRun.mock.calls ] ).toEqual( [ request ] );
+			expect( leavePageFor ).not.toHaveBeenCalled();
+		}
+	);
+
+	it.each( [ accountModule( false ), accountPlugin( 'inactive' ) ] )(
+		'offers no Activate in the details while the account is missing',
+		state => {
+			render( <FeatureModalActions state={ state } /> );
+			expect( screen.queryByRole( 'button', { name: /^Activate / } ) ).not.toBeInTheDocument();
+		}
+	);
 
 	it.each( [
-		[ 'a module', accountModule( false ), /After connecting, switch it on if it’s still off\./ ],
+		[ 'a module', accountModule( false ), /then turn it on here if it’s still off\./ ],
+		[
+			'a plugin',
+			accountPlugin( 'inactive' ),
+			/Connect your WordPress.com account, then turn it on here\./,
+		],
 		[
 			'a missing plugin',
 			accountPlugin( 'not-installed' ),
