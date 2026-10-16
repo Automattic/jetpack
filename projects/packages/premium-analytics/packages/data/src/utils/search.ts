@@ -91,11 +91,18 @@ function canonicalTimestamp< T extends string | undefined >( value: T ): T {
 		: value;
 }
 
+/** How a surface normalizes its params: the preset it opens on, and the buckets its plan locks. */
+export type NormalizeReportParamsOptions = {
+	/** The preset a search without dates opens on; defaults to the reader's. */
+	defaultPreset?: PresetType;
+	/** Required, so a caller that forgets the plan fails typecheck instead of unlocking it. */
+	lockedIntervals: readonly LockableInterval[];
+};
+
 /** Returns normalized report params, falling back to the defaults for anything absent. */
 export function normalizeReportParams(
-	search?: NormalizeReportParamsArgType,
-	defaultPreset?: PresetType,
-	{ lockedIntervals = [] }: { lockedIntervals?: readonly LockableInterval[] } = {}
+	search: NormalizeReportParamsArgType | undefined,
+	{ defaultPreset, lockedIntervals }: NormalizeReportParamsOptions
 ): ReportParams {
 	const defaults = getDefaultQueryParams( false, defaultPreset );
 
@@ -165,8 +172,8 @@ export function normalizeReportParams(
  * Whether report date params are incomplete or the interval is invalid for the range.
  */
 export function needsReportDateParamsSeed(
-	search?: ReportDateWindowSearch,
-	lockedIntervals?: readonly LockableInterval[]
+	search: ReportDateWindowSearch | undefined,
+	lockedIntervals: readonly LockableInterval[]
 ): boolean {
 	if ( ! search?.from || ! search?.to || ! search?.interval ) {
 		return true;

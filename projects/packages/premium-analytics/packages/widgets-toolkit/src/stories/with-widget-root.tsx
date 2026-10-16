@@ -1,4 +1,8 @@
-import { getDefaultQueryParams, normalizeReportParams } from '@jetpack-premium-analytics/data';
+import {
+	getDefaultQueryParams,
+	normalizeReportParams,
+	NO_LOCKED_INTERVALS,
+} from '@jetpack-premium-analytics/data';
 import { WidgetRoot } from '../components/widget-root/widget-root';
 import { applyFixtureSiteSettings } from './fixture-site';
 import { registerReportMocks } from './mocks/register-report-mocks';
@@ -30,7 +34,13 @@ registerReportMocks();
 export const withWidgetRoot =
 	( reportParams = getDefaultQueryParams() ): Decorator =>
 	Story => (
-		<WidgetRoot attributes={ { reportParams: normalizeReportParams( reportParams ) } }>
+		<WidgetRoot
+			attributes={ {
+				reportParams: normalizeReportParams( reportParams, {
+					lockedIntervals: NO_LOCKED_INTERVALS,
+				} ),
+			} }
+		>
 			<Story />
 		</WidgetRoot>
 	);

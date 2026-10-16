@@ -6,6 +6,7 @@ import { MENU_SURFACE_PRESETS_WITH_ALL_TIME } from '@jetpack-premium-analytics/d
 /**
  * Internal dependencies
  */
+import { NO_LOCKED_INTERVALS } from '../interval';
 import { normalizeReportParams } from '../search';
 import {
 	applyStatsDatePolicy,
@@ -115,7 +116,10 @@ describe( 'applyStatsDatePolicy', () => {
 		[ 'a locked preset', free, { preset: 'last-30-days' }, 'last-7-days' ],
 		[ 'a long preset', basic, { preset: 'last-90-days' }, 'last-30-days' ],
 	] )( 'replaces %s with the fallback', ( _name, policy, search, preset ) => {
-		const result = applyStatsDatePolicy( normalizeReportParams( search as never ), policy() );
+		const result = applyStatsDatePolicy(
+			normalizeReportParams( search as never, { lockedIntervals: NO_LOCKED_INTERVALS } ),
+			policy()
+		);
 
 		expect( result.isWindowAdjusted ).toBe( true );
 		expect( result.params.preset ).toBe( preset );
@@ -126,7 +130,9 @@ describe( 'applyStatsDatePolicy', () => {
 		[ 'a range starting on the earliest day', free, { from: '2026-10-09', to: '2026-10-14' } ],
 		[ 'a long custom range on legacy basic', basic, { from: '2026-01-01', to: '2026-06-30' } ],
 	] )( 'keeps %s', ( _name, policy, search ) => {
-		const params = normalizeReportParams( search as never );
+		const params = normalizeReportParams( search as never, {
+			lockedIntervals: NO_LOCKED_INTERVALS,
+		} );
 
 		expect( applyStatsDatePolicy( params, policy() ) ).toEqual( {
 			params,
@@ -136,18 +142,23 @@ describe( 'applyStatsDatePolicy', () => {
 	} );
 
 	it( 'lands a replaced window on the preset it is given', () => {
-		const params = normalizeReportParams( { preset: 'last-30-days' } as never );
+		const params = normalizeReportParams( { preset: 'last-30-days' } as never, {
+			lockedIntervals: NO_LOCKED_INTERVALS,
+		} );
 
 		expect( applyStatsDatePolicy( params, free(), 'yesterday' ).params.preset ).toBe( 'yesterday' );
 	} );
 
 	it( 'drops the comparison of a window the policy replaced', () => {
-		const params = normalizeReportParams( {
-			preset: 'last-90-days',
-			comp: '1',
-			compare_from: '2026-04-01',
-			compare_to: '2026-06-30',
-		} as never );
+		const params = normalizeReportParams(
+			{
+				preset: 'last-90-days',
+				comp: '1',
+				compare_from: '2026-04-01',
+				compare_to: '2026-06-30',
+			} as never,
+			{ lockedIntervals: NO_LOCKED_INTERVALS }
+		);
 
 		const result = applyStatsDatePolicy( params, basic() );
 
@@ -157,12 +168,15 @@ describe( 'applyStatsDatePolicy', () => {
 	} );
 
 	it( 'drops the comparison when the window has no room for it', () => {
-		const params = normalizeReportParams( {
-			preset: 'last-7-days',
-			comp: '1',
-			compare_from: '2026-10-01',
-			compare_to: '2026-10-07',
-		} as never );
+		const params = normalizeReportParams(
+			{
+				preset: 'last-7-days',
+				comp: '1',
+				compare_from: '2026-10-01',
+				compare_to: '2026-10-07',
+			} as never,
+			{ lockedIntervals: NO_LOCKED_INTERVALS }
+		);
 
 		const result = applyStatsDatePolicy( params, free() );
 

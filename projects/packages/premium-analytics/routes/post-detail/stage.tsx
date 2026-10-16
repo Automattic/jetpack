@@ -3,6 +3,7 @@ import {
 	PeriodChangeSignalProvider,
 	postSurface,
 	ReportScopeProvider,
+	NO_LOCKED_INTERVALS,
 } from '@jetpack-premium-analytics/data';
 import { ButtonLink } from '@jetpack-premium-analytics/externals';
 import { usePeriodHost, useReportDateFilters } from '@jetpack-premium-analytics/routing';
@@ -69,7 +70,7 @@ function PostDetail(): JSX.Element {
 	const publicUrl = safeHttpUrl( summary.url );
 
 	// The resource, date range, and comparison all live in the URL search params.
-	const dateFilters = useReportDateFilters( ROUTE_FROM );
+	const dateFilters = useReportDateFilters( ROUTE_FROM, { lockedIntervals: NO_LOCKED_INTERVALS } );
 	const { dateControls, isAnchoringAllTime } = useDetailDateControls(
 		summary.publishedDate,
 		dateFilters,
@@ -169,7 +170,8 @@ function PostDetail(): JSX.Element {
 	const { openPeriod, attentionId } = usePeriodHost(
 		postSurface( postId ),
 		dateFilters.appliedRange,
-		! isEmailTab
+		! isEmailTab,
+		NO_LOCKED_INTERVALS
 	);
 
 	// The email tabs are pinned to the send window, so the filter would only

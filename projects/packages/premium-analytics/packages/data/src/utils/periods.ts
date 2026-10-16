@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { getAllowedIntervalsForPreset, type LockableInterval } from './interval';
+import { getAllowedIntervalsForPreset, NO_LOCKED_INTERVALS } from './interval';
 import { getStatsPeriodFromInterval, type StatsPeriod } from './stats-params';
 import type { ReportParams } from './search';
 import type { IntervalType } from '@jetpack-premium-analytics/datetime';
@@ -93,17 +93,20 @@ export function drawableIntervals< P extends StatsPeriod >(
  *
  * @param params  - The report params the chart reads.
  * @param periods - The periods this widget offers, in any order.
- * @param locked  - The buckets the plan locks.
  * @return The bucket the chart draws.
  */
 export function chartInterval< P extends StatsPeriod >(
 	params: Pick< ReportParams, 'preset' | 'from' | 'to' | 'interval' >,
-	periods: readonly [ P, ...P[] ],
-	locked?: readonly LockableInterval[]
+	periods: readonly [ P, ...P[] ]
 ): P {
 	// Both inputs are total, so the list is never empty.
 	const [ first, ...rest ] = drawableIntervals(
-		getAllowedIntervalsForPreset( params.preset, params.from ?? '', params.to ?? '', locked ),
+		getAllowedIntervalsForPreset(
+			params.preset,
+			params.from ?? '',
+			params.to ?? '',
+			NO_LOCKED_INTERVALS
+		),
 		periods
 	);
 

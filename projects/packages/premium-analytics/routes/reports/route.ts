@@ -4,6 +4,7 @@
 import {
 	ensureCoreSettingsReady,
 	needsReportDateParamsSeed,
+	NO_LOCKED_INTERVALS,
 } from '@jetpack-premium-analytics/data';
 import { pickDashboardOriginParams } from '@jetpack-premium-analytics/routing';
 import { redirect } from '@wordpress/route';
@@ -51,7 +52,7 @@ export const route = {
 			currentSearch.section && definition.resolveSection
 				? definition.resolveSection( currentSearch.section )
 				: undefined;
-		const needsDateSeed = needsReportDateParamsSeed( currentSearch );
+		const needsDateSeed = needsReportDateParamsSeed( currentSearch, NO_LOCKED_INTERVALS );
 		const needsSectionSeed =
 			!! currentSearch.section &&
 			!! definition.resolveSection &&

@@ -7,6 +7,7 @@ import {
 	getDefaultIntervalForPeriod,
 	resolveIntervalForPresetChange,
 	resolveIntervalForRange,
+	NO_LOCKED_INTERVALS,
 } from '../interval';
 import { needsReportDateParamsSeed } from '../search';
 
@@ -35,29 +36,55 @@ describe( 'getDaysBetweenInclusive', () => {
 
 describe( 'resolveIntervalForRange', () => {
 	it( 'keeps the current interval when it is still allowed', () => {
-		expect( resolveIntervalForRange( 'last-30-days', '2026-06-01', '2026-06-30', 'week' ) ).toBe(
-			'week'
-		);
+		expect(
+			resolveIntervalForRange(
+				'last-30-days',
+				'2026-06-01',
+				'2026-06-30',
+				'week',
+				NO_LOCKED_INTERVALS
+			)
+		).toBe( 'week' );
 	} );
 
 	it( 'falls back to the default when the current interval is not allowed', () => {
-		expect( resolveIntervalForRange( 'last-7-days', '2026-06-01', '2026-06-07', 'week' ) ).toBe(
-			'day'
-		);
-		expect( resolveIntervalForRange( 'last-24-hours', '2026-06-01', '2026-06-02', 'month' ) ).toBe(
-			'hour'
-		);
+		expect(
+			resolveIntervalForRange(
+				'last-7-days',
+				'2026-06-01',
+				'2026-06-07',
+				'week',
+				NO_LOCKED_INTERVALS
+			)
+		).toBe( 'day' );
+		expect(
+			resolveIntervalForRange(
+				'last-24-hours',
+				'2026-06-01',
+				'2026-06-02',
+				'month',
+				NO_LOCKED_INTERVALS
+			)
+		).toBe( 'hour' );
 	} );
 
 	// A day-long window allows no `day` bucket: it would draw as a single bar.
 	it( 'coerces a day-scale interval onto a day-long window', () => {
-		expect( resolveIntervalForRange( 'last-24-hours', '2026-06-01', '2026-06-02', 'day' ) ).toBe(
-			'hour'
-		);
-		expect( resolveIntervalForRange( 'today', '2026-06-01', '2026-06-01', 'day' ) ).toBe( 'hour' );
-		expect( resolveIntervalForRange( 'yesterday', '2026-05-31', '2026-05-31', 'day' ) ).toBe(
-			'hour'
-		);
+		expect(
+			resolveIntervalForRange(
+				'last-24-hours',
+				'2026-06-01',
+				'2026-06-02',
+				'day',
+				NO_LOCKED_INTERVALS
+			)
+		).toBe( 'hour' );
+		expect(
+			resolveIntervalForRange( 'today', '2026-06-01', '2026-06-01', 'day', NO_LOCKED_INTERVALS )
+		).toBe( 'hour' );
+		expect(
+			resolveIntervalForRange( 'yesterday', '2026-05-31', '2026-05-31', 'day', NO_LOCKED_INTERVALS )
+		).toBe( 'hour' );
 	} );
 
 	// A stepped window carries no preset, so the same rule has to hold on the
@@ -68,7 +95,8 @@ describe( 'resolveIntervalForRange', () => {
 				'custom',
 				'2026-06-01T00:00:00.000Z',
 				'2026-06-01T23:59:59.999Z',
-				'day'
+				'day',
+				NO_LOCKED_INTERVALS
 			)
 		).toBe( 'hour' );
 	} );
@@ -81,10 +109,19 @@ describe( 'resolveIntervalForRange', () => {
 		const from = '2026-06-01T00:00:00.000Z';
 		const to = '2026-06-04T23:59:59.999Z';
 
-		expect( getAllowedIntervalsForPreset( 'custom', from, to ) ).toEqual( [ 'day', 'hour' ] );
-		expect( resolveIntervalForRange( 'custom', from, to ) ).toBe( 'day' );
-		expect( resolveIntervalForRange( 'custom', from, to, 'hour' ) ).toBe( 'hour' );
-		expect( resolveIntervalForRange( 'custom', from, to, 'day' ) ).toBe( 'day' );
+		expect( getAllowedIntervalsForPreset( 'custom', from, to, NO_LOCKED_INTERVALS ) ).toEqual( [
+			'day',
+			'hour',
+		] );
+		expect( resolveIntervalForRange( 'custom', from, to, undefined, NO_LOCKED_INTERVALS ) ).toBe(
+			'day'
+		);
+		expect( resolveIntervalForRange( 'custom', from, to, 'hour', NO_LOCKED_INTERVALS ) ).toBe(
+			'hour'
+		);
+		expect( resolveIntervalForRange( 'custom', from, to, 'day', NO_LOCKED_INTERVALS ) ).toBe(
+			'day'
+		);
 	} );
 
 	// A deep link with an unencoded `+` reaches the router as a space. Two days
@@ -93,15 +130,22 @@ describe( 'resolveIntervalForRange', () => {
 		const from = '2026-08-01T00:00:00.000 00:00';
 		const to = '2026-08-02T23:59:59.999 00:00';
 
-		expect( getAllowedIntervalsForPreset( undefined, from, to ) ).toEqual( [ 'day', 'hour' ] );
-		expect( resolveIntervalForRange( undefined, from, to, 'hour' ) ).toBe( 'hour' );
+		expect( getAllowedIntervalsForPreset( undefined, from, to, NO_LOCKED_INTERVALS ) ).toEqual( [
+			'day',
+			'hour',
+		] );
+		expect( resolveIntervalForRange( undefined, from, to, 'hour', NO_LOCKED_INTERVALS ) ).toBe(
+			'hour'
+		);
 	} );
 
 	it( 'defaults an unreadable range to days rather than hours', () => {
-		expect( getAllowedIntervalsForPreset( undefined, 'not a date', 'either' ) ).toEqual( [
-			'day',
-		] );
-		expect( resolveIntervalForRange( undefined, 'not a date', 'either', 'hour' ) ).toBe( 'day' );
+		expect(
+			getAllowedIntervalsForPreset( undefined, 'not a date', 'either', NO_LOCKED_INTERVALS )
+		).toEqual( [ 'day' ] );
+		expect(
+			resolveIntervalForRange( undefined, 'not a date', 'either', 'hour', NO_LOCKED_INTERVALS )
+		).toBe( 'day' );
 	} );
 
 	it( 'drops hours from a week upward', () => {
@@ -109,7 +153,8 @@ describe( 'resolveIntervalForRange', () => {
 			getAllowedIntervalsForPreset(
 				'custom',
 				'2026-06-01T00:00:00.000Z',
-				'2026-06-07T23:59:59.999Z'
+				'2026-06-07T23:59:59.999Z',
+				NO_LOCKED_INTERVALS
 			)
 		).toEqual( [ 'day' ] );
 	} );
@@ -119,19 +164,23 @@ describe( 'resolveIntervalForRange', () => {
 			getAllowedIntervalsForPreset(
 				'last-12-months',
 				'2025-07-01T00:00:00.000Z',
-				'2026-06-30T23:59:59.999Z'
+				'2026-06-30T23:59:59.999Z',
+				NO_LOCKED_INTERVALS
 			)
 		).toEqual( [ 'month', 'week' ] );
-		expect( getAllowedIntervalsForPreset( 'last-365-days', 'a', 'b' ) ).toEqual( [
+		expect(
+			getAllowedIntervalsForPreset( 'last-365-days', 'a', 'b', NO_LOCKED_INTERVALS )
+		).toEqual( [ 'month', 'week' ] );
+		expect( getAllowedIntervalsForPreset( 'last-year', 'a', 'b', NO_LOCKED_INTERVALS ) ).toEqual( [
 			'month',
 			'week',
 		] );
-		expect( getAllowedIntervalsForPreset( 'last-year', 'a', 'b' ) ).toEqual( [ 'month', 'week' ] );
 		expect(
 			getAllowedIntervalsForPreset(
 				'all-time',
 				'2020-01-01T00:00:00.000Z',
-				'2026-06-30T23:59:59.999Z'
+				'2026-06-30T23:59:59.999Z',
+				NO_LOCKED_INTERVALS
 			)
 		).toEqual( [ 'month', 'year' ] );
 	} );
@@ -143,14 +192,16 @@ describe( 'resolveIntervalForRange', () => {
 			getAllowedIntervalsForPreset(
 				'year-2025',
 				'2025-01-01T00:00:00.000Z',
-				'2025-12-31T23:59:59.999Z'
+				'2025-12-31T23:59:59.999Z',
+				NO_LOCKED_INTERVALS
 			)
 		).toEqual( [ 'month', 'week' ] );
 		expect(
 			getAllowedIntervalsForPreset(
 				'year-2024',
 				'2024-01-01T00:00:00.000Z',
-				'2024-12-31T23:59:59.999Z'
+				'2024-12-31T23:59:59.999Z',
+				NO_LOCKED_INTERVALS
 			)
 		).toEqual( [ 'month', 'week' ] );
 		expect(
@@ -158,7 +209,8 @@ describe( 'resolveIntervalForRange', () => {
 				'year-2025',
 				'2025-01-01T00:00:00.000Z',
 				'2025-12-31T23:59:59.999Z',
-				'quarter'
+				'quarter',
+				NO_LOCKED_INTERVALS
 			)
 		).toBe( 'month' );
 	} );
@@ -166,83 +218,118 @@ describe( 'resolveIntervalForRange', () => {
 	it( 'flips the default from weeks to months where a range reaches a year', () => {
 		const from = '2025-01-01T00:00:00.000Z';
 
-		expect( getAllowedIntervalsForPreset( 'custom', from, '2025-12-30T23:59:59.999Z' ) ).toEqual( [
-			'week',
-			'month',
-		] );
-		expect( getAllowedIntervalsForPreset( 'custom', from, '2025-12-31T23:59:59.999Z' ) ).toEqual( [
-			'month',
-			'week',
-		] );
+		expect(
+			getAllowedIntervalsForPreset(
+				'custom',
+				from,
+				'2025-12-30T23:59:59.999Z',
+				NO_LOCKED_INTERVALS
+			)
+		).toEqual( [ 'week', 'month' ] );
+		expect(
+			getAllowedIntervalsForPreset(
+				'custom',
+				from,
+				'2025-12-31T23:59:59.999Z',
+				NO_LOCKED_INTERVALS
+			)
+		).toEqual( [ 'month', 'week' ] );
 	} );
 
 	it( 'drops weeks once a range outgrows a year', () => {
 		const from = '2025-01-01T00:00:00.000Z';
 		const to = '2026-01-02T23:59:59.999Z';
 
-		expect( getAllowedIntervalsForPreset( 'custom', from, to ) ).toEqual( [ 'month' ] );
-		expect( resolveIntervalForRange( 'custom', from, to, 'week' ) ).toBe( 'month' );
+		expect( getAllowedIntervalsForPreset( 'custom', from, to, NO_LOCKED_INTERVALS ) ).toEqual( [
+			'month',
+		] );
+		expect( resolveIntervalForRange( 'custom', from, to, 'week', NO_LOCKED_INTERVALS ) ).toBe(
+			'month'
+		);
 	} );
 
 	it( 'coerces a stored quarter onto the range default', () => {
 		expect(
-			resolveIntervalForRange( 'last-12-months', '2025-07-01', '2026-06-30', 'quarter' )
+			resolveIntervalForRange(
+				'last-12-months',
+				'2025-07-01',
+				'2026-06-30',
+				'quarter',
+				NO_LOCKED_INTERVALS
+			)
 		).toBe( 'month' );
 	} );
 
 	it( 'defaults when no current interval is provided', () => {
 		expect( getDefaultIntervalForPeriod( 'last-30-days', 'a', 'b' ) ).toBe( 'day' );
-		expect( resolveIntervalForRange( 'last-30-days', 'a', 'b' ) ).toBe( 'day' );
+		expect(
+			resolveIntervalForRange( 'last-30-days', 'a', 'b', undefined, NO_LOCKED_INTERVALS )
+		).toBe( 'day' );
 	} );
 } );
 
 describe( 'needsReportDateParamsSeed', () => {
 	it( 'seeds when from, to, or interval is missing', () => {
-		expect( needsReportDateParamsSeed( {} ) ).toBe( true );
+		expect( needsReportDateParamsSeed( {}, NO_LOCKED_INTERVALS ) ).toBe( true );
 		expect(
-			needsReportDateParamsSeed( {
-				from: '2026-06-01',
-				to: '2026-06-30',
-			} )
+			needsReportDateParamsSeed(
+				{
+					from: '2026-06-01',
+					to: '2026-06-30',
+				},
+				NO_LOCKED_INTERVALS
+			)
 		).toBe( true );
 	} );
 
 	it( 'seeds when a date lost the plus of its offset to the querystring', () => {
 		expect(
-			needsReportDateParamsSeed( {
-				from: '2026-06-01T00:00:00.000 00:00',
-				to: '2026-06-07T23:59:59.999+00:00',
-				interval: 'day',
-			} )
+			needsReportDateParamsSeed(
+				{
+					from: '2026-06-01T00:00:00.000 00:00',
+					to: '2026-06-07T23:59:59.999+00:00',
+					interval: 'day',
+				},
+				NO_LOCKED_INTERVALS
+			)
 		).toBe( true );
 		expect(
-			needsReportDateParamsSeed( {
-				from: '2026-06-01T00:00:00.000+00:00',
-				to: '2026-06-07T23:59:59.999+00:00',
-				interval: 'day',
-			} )
+			needsReportDateParamsSeed(
+				{
+					from: '2026-06-01T00:00:00.000+00:00',
+					to: '2026-06-07T23:59:59.999+00:00',
+					interval: 'day',
+				},
+				NO_LOCKED_INTERVALS
+			)
 		).toBe( false );
 	} );
 
 	it( 'seeds when the interval is not allowed for the preset', () => {
 		expect(
-			needsReportDateParamsSeed( {
-				from: '2026-06-01',
-				to: '2026-06-07',
-				preset: 'last-7-days',
-				interval: 'week',
-			} )
+			needsReportDateParamsSeed(
+				{
+					from: '2026-06-01',
+					to: '2026-06-07',
+					preset: 'last-7-days',
+					interval: 'week',
+				},
+				NO_LOCKED_INTERVALS
+			)
 		).toBe( true );
 	} );
 
 	it( 'does not seed when the interval is still allowed', () => {
 		expect(
-			needsReportDateParamsSeed( {
-				from: '2026-06-01',
-				to: '2026-06-30',
-				preset: 'last-30-days',
-				interval: 'week',
-			} )
+			needsReportDateParamsSeed(
+				{
+					from: '2026-06-01',
+					to: '2026-06-30',
+					preset: 'last-30-days',
+					interval: 'week',
+				},
+				NO_LOCKED_INTERVALS
+			)
 		).toBe( false );
 	} );
 
@@ -250,20 +337,26 @@ describe( 'needsReportDateParamsSeed', () => {
 		// `normalizeReportParams` keeps only selectable presets, so these must
 		// resolve from the range on both sides or the seed check would loop.
 		expect(
-			needsReportDateParamsSeed( {
-				from: '2020-01-01T00:00:00.000Z',
-				to: '2026-06-30T23:59:59.999Z',
-				preset: 'all-time',
-				interval: 'year',
-			} )
+			needsReportDateParamsSeed(
+				{
+					from: '2020-01-01T00:00:00.000Z',
+					to: '2026-06-30T23:59:59.999Z',
+					preset: 'all-time',
+					interval: 'year',
+				},
+				NO_LOCKED_INTERVALS
+			)
 		).toBe( false );
 		expect(
-			needsReportDateParamsSeed( {
-				from: '2026-06-01T00:00:00.000Z',
-				to: '2026-06-07T23:59:59.999Z',
-				preset: 'custom',
-				interval: 'month',
-			} )
+			needsReportDateParamsSeed(
+				{
+					from: '2026-06-01T00:00:00.000Z',
+					to: '2026-06-07T23:59:59.999Z',
+					preset: 'custom',
+					interval: 'month',
+				},
+				NO_LOCKED_INTERVALS
+			)
 		).toBe( true );
 	} );
 } );
@@ -276,7 +369,8 @@ describe( 'resolveIntervalForPresetChange', () => {
 				'last-30-days',
 				'2026-06-01',
 				'2026-06-30',
-				'week'
+				'week',
+				NO_LOCKED_INTERVALS
 			)
 		).toBe( 'day' );
 	} );
@@ -288,7 +382,8 @@ describe( 'resolveIntervalForPresetChange', () => {
 				'last-30-days',
 				'2026-06-01',
 				'2026-06-30',
-				'week'
+				'week',
+				NO_LOCKED_INTERVALS
 			)
 		).toBe( 'week' );
 	} );
@@ -296,14 +391,28 @@ describe( 'resolveIntervalForPresetChange', () => {
 	it( 'carries the interval into a custom range or a range with no preset', () => {
 		for ( const next of [ 'custom', undefined ] as const ) {
 			expect(
-				resolveIntervalForPresetChange( 'last-30-days', next, '2026-06-01', '2026-06-30', 'week' )
+				resolveIntervalForPresetChange(
+					'last-30-days',
+					next,
+					'2026-06-01',
+					'2026-06-30',
+					'week',
+					NO_LOCKED_INTERVALS
+				)
 			).toBe( 'week' );
 		}
 	} );
 
 	it( 'still coerces a carried interval the new range disallows', () => {
 		expect(
-			resolveIntervalForPresetChange( 'last-30-days', 'custom', '2026-06-01', '2026-06-07', 'week' )
+			resolveIntervalForPresetChange(
+				'last-30-days',
+				'custom',
+				'2026-06-01',
+				'2026-06-07',
+				'week',
+				NO_LOCKED_INTERVALS
+			)
 		).toBe( 'day' );
 	} );
 } );

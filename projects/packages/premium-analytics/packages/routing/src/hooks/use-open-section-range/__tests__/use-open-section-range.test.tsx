@@ -14,7 +14,11 @@ jest.mock( '@wordpress/route', () => ( {
  * External dependencies
  */
 import { TZDate } from '@date-fns/tz';
-import { PeriodChangeSignalProvider, useSettlePeriodChange } from '@jetpack-premium-analytics/data';
+import {
+	PeriodChangeSignalProvider,
+	useSettlePeriodChange,
+	NO_LOCKED_INTERVALS,
+} from '@jetpack-premium-analytics/data';
 import { act, renderHook } from '@testing-library/react';
 import { getSettings, setSettings } from '@wordpress/date';
 /**
@@ -49,7 +53,7 @@ describe( 'useOpenSectionRange', () => {
 
 	it( 'commits the section and the range together, as one history entry', () => {
 		mockSearch = { section: 'insights', preset: 'year-2026', from: 'x', to: 'y' };
-		const { result } = renderHook( () => useOpenSectionRange() );
+		const { result } = renderHook( () => useOpenSectionRange( NO_LOCKED_INTERVALS ) );
 
 		act( () => result.current( 'traffic', NOVEMBER ) );
 
@@ -71,7 +75,7 @@ describe( 'useOpenSectionRange', () => {
 		);
 		const { result } = renderHook(
 			() => ( {
-				open: useOpenSectionRange(),
+				open: useOpenSectionRange( NO_LOCKED_INTERVALS ),
 				traffic: useSettlePeriodChange( 'traffic', NOVEMBER, true ),
 			} ),
 			{ wrapper }
@@ -82,10 +86,24 @@ describe( 'useOpenSectionRange', () => {
 		expect( result.current.traffic ).toEqual( expect.any( Number ) );
 	} );
 
+	it( 'opens a long range on days when the plan locks the longer buckets', () => {
+		mockSearch = {};
+		const { result } = renderHook( () => useOpenSectionRange( [ 'week', 'month', 'year' ] ) );
+
+		act( () =>
+			result.current( 'traffic', {
+				from: new TZDate( '2025-01-01T00:00:00.000+00:00', 'UTC' ),
+				to: new TZDate( '2025-12-31T23:59:59.999+00:00', 'UTC' ),
+			} )
+		);
+
+		expect( mockSearch.interval ).toBe( 'day' );
+	} );
+
 	it( 'keeps the range ends exactly as given', () => {
 		mockSearch = {};
 		const to = new TZDate( '2026-03-15T12:00:00.000+00:00', 'UTC' );
-		const { result } = renderHook( () => useOpenSectionRange() );
+		const { result } = renderHook( () => useOpenSectionRange( NO_LOCKED_INTERVALS ) );
 
 		act( () => result.current( 'traffic', { from: NOVEMBER.from, to } ) );
 

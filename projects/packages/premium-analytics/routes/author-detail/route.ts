@@ -5,6 +5,7 @@ import {
 	ensureCoreSettingsReady,
 	needsReportDateParamsSeed,
 	normalizeReportParams,
+	NO_LOCKED_INTERVALS,
 } from '@jetpack-premium-analytics/data';
 import { pickDashboardOriginParams } from '@jetpack-premium-analytics/routing';
 import { redirect } from '@wordpress/route';
@@ -59,7 +60,7 @@ export const route = {
 		}
 
 		const currentSearch = ( search ?? {} ) as AuthorDetailSearch;
-		const needsDateSeed = needsReportDateParamsSeed( currentSearch );
+		const needsDateSeed = needsReportDateParamsSeed( currentSearch, NO_LOCKED_INTERVALS );
 		const needsAuthorSeed = currentSearch.author_id !== authorId;
 
 		// The seed mirrors post-detail/route.ts, which explains each step; this
@@ -72,7 +73,8 @@ export const route = {
 			}
 
 			const reportParams = normalizeReportParams(
-				currentSearch as Parameters< typeof normalizeReportParams >[ 0 ]
+				currentSearch as Parameters< typeof normalizeReportParams >[ 0 ],
+				{ lockedIntervals: NO_LOCKED_INTERVALS }
 			);
 			delete reportParams.post_id;
 			const seeded: Record< string, unknown > = {

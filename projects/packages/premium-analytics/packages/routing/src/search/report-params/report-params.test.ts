@@ -1,4 +1,4 @@
-import { normalizeReportParams } from '@jetpack-premium-analytics/data';
+import { normalizeReportParams, NO_LOCKED_INTERVALS } from '@jetpack-premium-analytics/data';
 import { deriveComparisonRange } from '../comparison';
 import {
 	buildDashboardLink,
@@ -113,7 +113,10 @@ describe( 'origin window params', () => {
 
 	it( 'stores a named range as its preset alone', () => {
 		const stored = toReportOriginWindowParams( {
-			...normalizeReportParams( { preset: 'last-7-days' } ),
+			...normalizeReportParams(
+				{ preset: 'last-7-days' },
+				{ lockedIntervals: NO_LOCKED_INTERVALS }
+			),
 			post_id: '7',
 		} );
 
@@ -126,7 +129,10 @@ describe( 'origin window params', () => {
 	it( 'keeps an interval the preset would not default to', () => {
 		expect(
 			toReportOriginWindowParams( {
-				...normalizeReportParams( { preset: 'last-30-days' } ),
+				...normalizeReportParams(
+					{ preset: 'last-30-days' },
+					{ lockedIntervals: NO_LOCKED_INTERVALS }
+				),
 				interval: 'week',
 			} )
 		).toEqual( { ref_preset: 'last-30-days', ref_interval: 'week' } );
@@ -139,7 +145,10 @@ describe( 'origin window params', () => {
 	} );
 
 	it( 'stores a named comparison as its preset alone', () => {
-		const window = normalizeReportParams( { preset: 'last-7-days' } );
+		const window = normalizeReportParams(
+			{ preset: 'last-7-days' },
+			{ lockedIntervals: NO_LOCKED_INTERVALS }
+		);
 
 		expect(
 			toReportOriginWindowParams( {
@@ -153,7 +162,10 @@ describe( 'origin window params', () => {
 	it( 'returns a custom comparison by its dates', () => {
 		const comparison = { compare_from: '2025-01-01', compare_to: '2025-01-07' };
 		const stored = toReportOriginWindowParams( {
-			...normalizeReportParams( { preset: 'last-7-days' } ),
+			...normalizeReportParams(
+				{ preset: 'last-7-days' },
+				{ lockedIntervals: NO_LOCKED_INTERVALS }
+			),
 			...comparison,
 			comp: '1',
 		} );
@@ -178,7 +190,10 @@ describe( 'origin window params', () => {
 	} );
 
 	it( 'returns a detail page to its linking window, leaving the dates to the seed', () => {
-		const window = normalizeReportParams( { preset: 'last-30-days' } );
+		const window = normalizeReportParams(
+			{ preset: 'last-30-days' },
+			{ lockedIntervals: NO_LOCKED_INTERVALS }
+		);
 		const linked = {
 			...window,
 			interval: 'week',

@@ -4,6 +4,7 @@
 import {
 	ensureCoreSettingsReady,
 	needsReportDateParamsSeed,
+	NO_LOCKED_INTERVALS,
 } from '@jetpack-premium-analytics/data';
 import {
 	pickDashboardOriginParams,
@@ -65,7 +66,7 @@ export const route = {
 		const resolvedSection = currentSearch.section
 			? resolveTabId( currentSearch.section )
 			: undefined;
-		const needsDateSeed = needsReportDateParamsSeed( currentSearch );
+		const needsDateSeed = needsReportDateParamsSeed( currentSearch, NO_LOCKED_INTERVALS );
 		const needsPostSeed = currentSearch.post_id !== postId;
 		const needsSectionSeed = !! currentSearch.section && resolvedSection !== currentSearch.section;
 

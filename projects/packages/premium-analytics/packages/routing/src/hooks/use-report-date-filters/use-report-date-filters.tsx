@@ -5,7 +5,6 @@ import {
 	getAllowedIntervalsForPreset,
 	hasComparisonEnabled,
 	resolveIntervalForRange,
-	useReportScope,
 	type LockableInterval,
 } from '@jetpack-premium-analytics/data';
 import { reportingTimeZone } from '@jetpack-premium-analytics/datetime';
@@ -97,8 +96,6 @@ function toPickerRange( from: string | undefined, to: string | undefined, timeZo
 	};
 }
 
-const NO_LOCKED_INTERVALS: readonly LockableInterval[] = [];
-
 /**
  * Controller for the date-range and comparison filters, backed by the URL
  * search params on a given route.
@@ -110,21 +107,18 @@ const NO_LOCKED_INTERVALS: readonly LockableInterval[] = [];
  *
  * @param from                          - The route path the search params are bound to (e.g. `/`).
  * @param filterOptions                 - Hook options.
- * @param filterOptions.lockedIntervals - The buckets the plan locks; defaults to the report scope's.
+ * @param filterOptions.lockedIntervals - The buckets the plan locks; required, so a page cannot forget its plan.
  * @return Props for `DateFiltersPanel`.
  */
 export function useReportDateFilters< TFrom extends string >(
 	from: TFrom,
-	filterOptions: { lockedIntervals?: readonly LockableInterval[] } = {}
+	filterOptions: { lockedIntervals: readonly LockableInterval[] }
 ): ReportDateFilters {
+	const { lockedIntervals } = filterOptions;
 	const { committed, effective, stage, commit, revert, isDirty } = useStagedSearch<
 		ReportQuerySearchParams,
 		TFrom
 	>( { from } );
-
-	// Report pages render inside their scope; the dashboard and detail stages sit above it and pass locks in.
-	const scopedLocks = useReportScope().dateLimits?.lockedIntervals;
-	const lockedIntervals = filterOptions.lockedIntervals ?? scopedLocks ?? NO_LOCKED_INTERVALS;
 
 	const timeZone = reportingTimeZone();
 
