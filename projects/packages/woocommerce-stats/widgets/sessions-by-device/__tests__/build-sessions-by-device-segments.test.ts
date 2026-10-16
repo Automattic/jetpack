@@ -23,10 +23,19 @@ describe( 'buildSessionsByDeviceSegments', () => {
 		] );
 	} );
 
-	it( 'labels sessions with no recorded device as Unknown', () => {
-		expect( buildSessionsByDeviceSegments( report( [ [ '', 3 ] ] ), undefined ) ).toEqual( [
-			{ label: 'Unknown', value: 3, previousValue: undefined },
-		] );
+	it( 'merges the rows with no recorded device into one Unknown segment in each period', () => {
+		const segments = buildSessionsByDeviceSegments(
+			report( [
+				[ '', 3 ],
+				[ '', 4 ],
+			] ),
+			report( [
+				[ '', 2 ],
+				[ '', 5 ],
+			] )
+		);
+
+		expect( segments ).toEqual( [ { label: 'Unknown', value: 7, previousValue: 7 } ] );
 	} );
 
 	it( 'reads a device missing from the comparison period as zero there', () => {

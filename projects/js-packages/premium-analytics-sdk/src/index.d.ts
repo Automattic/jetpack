@@ -136,8 +136,8 @@ export type ColumnInput = {
 	label: string;
 	// Figure for the selected period.
 	value: number;
-	// Figure for the comparison period; undefined draws as 0 there.
-	previousValue?: number;
+	// Figure for the comparison period; undefined draws as 0 there, and null, no figure, draws no bar.
+	previousValue?: number | null;
 };
 export type ColumnsProps = {
 	// The columns in order; each one draws once per period.

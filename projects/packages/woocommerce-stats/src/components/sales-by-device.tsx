@@ -45,7 +45,7 @@ export function SalesByDevice( { filters, chartTitle }: SalesByDeviceProps ) {
 			( primary.data?.data ?? [] ).map( item => ( {
 				label: item.item || __( 'Unassigned', 'jetpack-woocommerce-stats-pkg' ),
 				value: item.current_period?.value ?? 0,
-				previousValue: item.previous_period?.value ?? undefined,
+				previousValue: item.previous_period?.value,
 			} ) ),
 		[ primary.data ]
 	);
