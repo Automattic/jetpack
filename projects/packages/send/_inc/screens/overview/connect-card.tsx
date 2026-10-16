@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { Card, LinkButton, Stack, Text } from '@wordpress/ui';
+import { Card, ButtonLink, Stack, Text } from '@wordpress/ui';
 
 const ConnectCard = ( { connectUrl }: { connectUrl: string } ) => (
 	<Card.Root>
@@ -16,9 +16,9 @@ const ConnectCard = ( { connectUrl }: { connectUrl: string } ) => (
 				</Text>
 				{ connectUrl ? (
 					<div>
-						<LinkButton href={ connectUrl }>
+						<ButtonLink href={ connectUrl }>
 							{ __( 'Connect Jetpack', 'jetpack-send-pkg' ) }
-						</LinkButton>
+						</ButtonLink>
 					</div>
 				) : (
 					<Text variant="body-md" render={ <p /> }>
