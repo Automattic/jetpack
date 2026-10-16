@@ -1,19 +1,21 @@
 /**
  * External dependencies
  */
-import { type DateRange, type QuickSurfacePresetId } from '@jetpack-premium-analytics/datetime';
+import { type DateRange } from '@jetpack-premium-analytics/datetime';
 import { createContext, useContext, useMemo, type ReactNode } from 'react';
 /**
  * Internal dependencies
  */
-import type { LockableInterval } from '../utils/interval';
+import type { StatsDatePolicy } from '../utils/stats-date-policy';
 
 /** Date options the site's plan withholds, for the controls to show as locked. */
-export type DateLimits = {
-	lockedPresetIds: readonly QuickSurfacePresetId[];
-	earliestDate?: Date;
-	lockedIntervals: readonly LockableInterval[];
+export type DateLimits = Pick<
+	StatsDatePolicy,
+	'lockedPresetIds' | 'earliestDate' | 'lockedIntervals'
+> & {
+	/** The copy and links of the upsell beside the locked options. */
 	upsell?: { description: string; supportUrl: string; upgradeUrl: string };
+	/** Called when the reader follows the upsell's upgrade link. */
 	onUpgradeClick?: () => void;
 };
 
@@ -28,6 +30,7 @@ export type ReportScope = {
 	 * control's attention to it. Absent where the host offers none.
 	 */
 	openPeriod?: ( range: Required< DateRange > ) => void;
+	/** The date options the site's plan locks; absent where the host applies no limits. */
 	dateLimits?: DateLimits;
 };
 

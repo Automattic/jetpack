@@ -15,14 +15,16 @@ import {
 	PRESET_LAST_YEAR,
 	PRESET_YEAR_TO_DATE,
 	reportingTimeZone,
+	toLocalTZ,
 	type PrimaryPresetId,
 	type QuickSurfacePresetId,
 } from '@jetpack-premium-analytics/datetime';
+import { startOfDay } from 'date-fns';
 /**
  * Internal dependencies
  */
 import { getDefaultPreset } from '../defaults/reports';
-import { resolveIntervalForRange, type LockableInterval } from './interval';
+import { NO_LOCKED_INTERVALS, resolveIntervalForRange, type LockableInterval } from './interval';
 import { isStatsFeatureLocked, type StatsFeatureKey } from './plan-gates';
 import { computeDateRangeFromPreset } from './preset-date-range';
 import { hasComparisonEnabled, type PresetType, type ReportParams } from './search';
@@ -41,6 +43,7 @@ type OpenDatePolicy = {
 
 type RecentDaysPolicy = {
 	feature: Extract< DateLimitFeature, 'recent-7-days' >;
+	/** The first day the plan shows, at its start in the site's timezone; earlier ranges are locked. */
 	earliestDate: Date;
 	lockedPresetIds: readonly QuickSurfacePresetId[];
 	fallbackPresetId: typeof PRESET_LAST_7_DAYS;
@@ -77,7 +80,7 @@ const LOCKABLE_INTERVALS: readonly LockableInterval[] = [ 'week', 'month', 'year
 
 export const OPEN_DATE_POLICY: StatsDatePolicy = {
 	lockedPresetIds: [],
-	lockedIntervals: [],
+	lockedIntervals: NO_LOCKED_INTERVALS,
 	offersComparison: true,
 };
 
@@ -92,14 +95,13 @@ export function deriveStatsDatePolicy(
 	isLocked: ( feature: StatsFeatureKey ) => boolean,
 	timeZone: string
 ): StatsDatePolicy {
-	const lockedIntervals = isLocked( 'intervals' ) ? LOCKABLE_INTERVALS : [];
+	const lockedIntervals = isLocked( 'intervals' ) ? LOCKABLE_INTERVALS : NO_LOCKED_INTERVALS;
 
-	const lastSevenDays = isLocked( 'recent-7-days' )
-		? computePrimaryRange( PRESET_LAST_7_DAYS, timeZone )
-		: undefined;
-
-	if ( lastSevenDays ) {
-		const earliestDate = lastSevenDays.from;
+	if ( isLocked( 'recent-7-days' ) ) {
+		// An unreadable window fails closed, to today, rather than opening every date.
+		const earliestDate =
+			computePrimaryRange( PRESET_LAST_7_DAYS, timeZone )?.from ??
+			startOfDay( toLocalTZ( undefined, timeZone ) );
 
 		return {
 			feature: 'recent-7-days',
@@ -152,7 +154,7 @@ export function isPresetLockedByPolicy(
 		return false;
 	}
 
-	// A single year is longer than either limit allows.
+	// Single years belong to the Insights surface, which a limited plan locks whole.
 	if ( isYearPresetId( presetId ) ) {
 		return !! policy.feature;
 	}
@@ -200,23 +202,26 @@ export function applyStatsDatePolicy(
 	const startsTooEarly = !! policy.earliestDate && ( ! from || from < policy.earliestDate );
 
 	if ( policy.feature && ( startsTooEarly || isPresetLockedByPolicy( params.preset, policy ) ) ) {
-		const landing = landingPresetId ?? policy.fallbackPresetId;
+		const landing = landingPresetId
+			? getPolicyDefaultPreset( policy, landingPresetId )
+			: policy.fallbackPresetId;
 		const range = computeDateRangeFromPreset( landing );
 		if ( range ) {
-			next = {
-				...next,
-				...range,
-				preset: landing,
-				interval: resolveIntervalForRange(
-					landing,
-					range.from,
-					range.to,
-					next.interval,
-					policy.lockedIntervals
-				),
-			};
+			next = { ...next, ...range, preset: landing };
 			isWindowAdjusted = true;
 		}
+	}
+
+	// Even a kept window may carry a bucket the plan locks, when its params were normalized without them.
+	const interval = resolveIntervalForRange(
+		next.preset,
+		next.from,
+		next.to,
+		next.interval,
+		policy.lockedIntervals
+	);
+	if ( interval !== next.interval ) {
+		next = { ...next, interval };
 	}
 
 	// A comparison set up for the replaced window no longer describes the shown one.
