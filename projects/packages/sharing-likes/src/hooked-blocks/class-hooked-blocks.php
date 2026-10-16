@@ -10,6 +10,8 @@ declare( strict_types = 1 );
 namespace Automattic\Jetpack\Sharing_Likes\Hooked_Blocks;
 
 use Automattic\Jetpack\Sharing_Likes\Block_Names;
+use Automattic\Jetpack\Sharing_Likes\Post_Likes_Switch;
+use Automattic\Jetpack\Sharing_Likes\Post_Sharing_Switch;
 use Automattic\Jetpack\Sharing_Likes\Settings\Environment;
 
 /**
@@ -34,7 +36,12 @@ final class Hooked_Blocks {
 	);
 
 	/**
-	 * Hook everything up. Callers make sure it runs once.
+	 * Alignments `core/group` shares with `core/post-content`.
+	 */
+	private const ALIGNMENTS = array( 'wide', 'full' );
+
+	/**
+	 * Hook everything up. Safe to call more than once: a hook keeps one copy of a callback per priority.
 	 */
 	public static function init(): void {
 		// Ahead of Newsletter's Subscribe block at 10, whichever registers first.
@@ -74,6 +81,7 @@ final class Hooked_Blocks {
 		foreach ( $wanted as $block ) {
 			if (
 				self::legacy_buttons_absent( $block )
+				&& ! self::viewed_post_declines( $block )
 				&& ! self::already_placed( $block, $context )
 				&& ! in_array( $block, $hooked_block_types, true )
 			) {
@@ -148,8 +156,8 @@ final class Hooked_Blocks {
 			return false;
 		}
 
-		// `single`, `singular` and custom templates also serve other post types, so a request for one of those has the last word.
-		if ( is_singular() && ! is_singular( $post_types ) ) {
+		// Once the front end picks a template, its request has the last word: templates and typed patterns serve other views too.
+		if ( ( is_singular() || did_action( 'template_redirect' ) ) && ! is_singular( $post_types ) ) {
 			return false;
 		}
 
@@ -207,18 +215,21 @@ final class Hooked_Blocks {
 			return (bool) $single_types;
 		}
 
-		foreach ( $single_types as $post_type ) {
-			if ( 'single-' . $post_type === $slug ) {
-				return true;
-			}
+		if ( ! str_starts_with( $slug, 'single-' ) ) {
+			return false;
+		}
 
-			// `single-{type}-{slug}` is one post's template, unless it belongs to a post type named `{type}-…`.
-			if ( str_starts_with( $slug, 'single-' . $post_type . '-' ) && ! post_type_exists( substr( $slug, strlen( 'single-' ) ) ) ) {
-				return true;
+		// `single-{type}` or one post's `single-{type}-{slug}`; post type names can hold hyphens, so the longest that fits owns it.
+		$rest  = substr( $slug, strlen( 'single-' ) );
+		$owner = '';
+
+		foreach ( array_unique( array_merge( array_values( get_post_types() ), $single_types ) ) as $post_type ) {
+			if ( strlen( $post_type ) > strlen( $owner ) && ( $rest === $post_type || str_starts_with( $rest, $post_type . '-' ) ) ) {
+				$owner = $post_type;
 			}
 		}
 
-		return false;
+		return in_array( $owner, $single_types, true );
 	}
 
 	/**
@@ -228,9 +239,9 @@ final class Hooked_Blocks {
 	 * @param mixed  $context Template or pattern array, its content not yet hooked.
 	 */
 	private static function already_placed( string $block, $context ): bool {
-		$post = is_singular() ? get_queried_object() : null;
+		$post = self::viewed_post();
 
-		if ( $post instanceof \WP_Post && has_block( $block, $post->post_content ) ) {
+		if ( $post && has_block( $block, $post->post_content ) ) {
 			return true;
 		}
 
@@ -247,6 +258,45 @@ final class Hooked_Blocks {
 		}
 
 		return is_string( $content ) && has_block( $block, $content );
+	}
+
+	/**
+	 * Whether the post being viewed keeps the block out, as it would the legacy buttons.
+	 *
+	 * Its own switch can turn either off, Likes skip password-protected posts, and on Simple a post
+	 * that switched Likes on keeps the legacy button.
+	 *
+	 * @param string $block Block type.
+	 */
+	private static function viewed_post_declines( string $block ): bool {
+		$post = self::viewed_post();
+
+		if ( ! $post || ! $post->ID ) {
+			return false;
+		}
+
+		if ( Block_Names::SHARING_BUTTONS === $block ) {
+			return (bool) get_post_meta( $post->ID, Post_Sharing_Switch::META_KEY, false );
+		}
+
+		if ( '' !== $post->post_password ) {
+			return true;
+		}
+
+		// Legacy Likes ignore a switch stored as an array.
+		$switched = get_post_meta( $post->ID, Post_Likes_Switch::META_KEY, true );
+		$switched = is_scalar( $switched ) ? (string) $switched : '';
+
+		return '0' === $switched || ( '' !== $switched && Environment::is_simple_site() );
+	}
+
+	/**
+	 * The post a front-end singular request shows, if any.
+	 */
+	private static function viewed_post(): ?\WP_Post {
+		$post = is_singular() ? get_queried_object() : null;
+
+		return $post instanceof \WP_Post ? $post : null;
 	}
 
 	/**
@@ -286,7 +336,7 @@ final class Hooked_Blocks {
 	}
 
 	/**
-	 * Wrap a block in a `core/group` with the anchor's layout, so it lines up with the post content.
+	 * Wrap a block in a `core/group` with the anchor's alignment and layout, so it lines up with the post content.
 	 *
 	 * @param array $block               The hooked block.
 	 * @param array $parsed_anchor_block The anchor block.
@@ -294,7 +344,15 @@ final class Hooked_Blocks {
 	 */
 	private static function wrap_in_group( array $block, array $parsed_anchor_block ): array {
 		$attrs  = array();
+		$class  = 'wp-block-group';
+		$align  = $parsed_anchor_block['attrs']['align'] ?? null;
 		$layout = $parsed_anchor_block['attrs']['layout'] ?? null;
+
+		// The group saves its alignment class, as its editor save output does.
+		if ( in_array( $align, self::ALIGNMENTS, true ) ) {
+			$attrs['align'] = $align;
+			$class         .= ' align' . $align;
+		}
 
 		if ( is_array( $layout ) && $layout ) {
 			$attrs['layout'] = $layout;
@@ -304,8 +362,8 @@ final class Hooked_Blocks {
 			'blockName'    => 'core/group',
 			'attrs'        => $attrs,
 			'innerBlocks'  => array( $block ),
-			'innerHTML'    => '<div class="wp-block-group"></div>',
-			'innerContent' => array( '<div class="wp-block-group">', null, '</div>' ),
+			'innerHTML'    => '<div class="' . $class . '"></div>',
+			'innerContent' => array( '<div class="' . $class . '">', null, '</div>' ),
 		);
 	}
 }

@@ -11,6 +11,8 @@ namespace Automattic\Jetpack\Sharing_Likes\Hooked_Blocks;
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Sharing_Likes\Block_Names;
+use Automattic\Jetpack\Sharing_Likes\Post_Likes_Switch;
+use Automattic\Jetpack\Sharing_Likes\Post_Sharing_Switch;
 use Automattic\Jetpack\Sharing_Likes\Settings\Section_Environment;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -35,6 +37,8 @@ class Hooked_Blocks_Test extends BaseTestCase {
 
 	private const PLACED  = array( 'core/post-title', 'core/post-content', Block_Names::SHARING_BUTTONS, Block_Names::LIKE );
 	private const NOTHING = array( 'core/post-title', 'core/post-content' );
+
+	private const POST_ID = 4242;
 
 	/**
 	 * The main query, put back after cases that fake a singular request.
@@ -74,6 +78,10 @@ class Hooked_Blocks_Test extends BaseTestCase {
 			delete_option( $option );
 		}
 
+		delete_post_meta( self::POST_ID, Post_Sharing_Switch::META_KEY );
+		delete_post_meta( self::POST_ID, Post_Likes_Switch::META_KEY );
+		unset( $GLOBALS['wp_actions']['template_redirect'] );
+
 		$GLOBALS['wp_query'] = $this->main_query;
 		Constants::clear_constants();
 		$this->tear_down_site();
@@ -100,16 +108,20 @@ class Hooked_Blocks_Test extends BaseTestCase {
 	/**
 	 * Fake a front-end request for a single post.
 	 *
-	 * @param string $post_type    Post type of the post being viewed.
-	 * @param string $post_content Its content.
+	 * @param string               $post_type    Post type of the post being viewed.
+	 * @param string               $post_content Its content.
+	 * @param array<string, mixed> $fields       Other post fields.
 	 */
-	private static function view( string $post_type, string $post_content = '' ): void {
+	private static function view( string $post_type, string $post_content = '', array $fields = array() ): void {
 		$query                 = new WP_Query();
 		$query->is_singular    = true;
 		$query->queried_object = new WP_Post(
-			(object) array(
-				'post_type'    => $post_type,
-				'post_content' => $post_content,
+			(object) array_merge(
+				array(
+					'post_type'    => $post_type,
+					'post_content' => $post_content,
+				),
+				$fields
 			)
 		);
 		$GLOBALS['wp_query']   = $query;
@@ -173,6 +185,7 @@ class Hooked_Blocks_Test extends BaseTestCase {
 			'custom post type template'                 => array( self::template( 'single-product' ), false ),
 			'post type template starting with post'     => array( self::template( 'single-postcard' ), false ),
 			'template for a post type named post-card'  => array( self::template( 'single-post-card' ), false ),
+			'template for one post-card'                => array( self::template( 'single-post-card-blue' ), false ),
 			'index template'                            => array( self::template( 'index' ), false ),
 			'archive template'                          => array( self::template( 'archive' ), false ),
 			'template part'                             => array( self::template( 'single', 'wp_template_part' ), false ),
@@ -206,12 +219,14 @@ class Hooked_Blocks_Test extends BaseTestCase {
 		$untyped_pattern = array( 'name' => 'theme/content' );
 
 		return array(
-			'untyped pattern, a post'          => array( $untyped_pattern, 'post', true ),
-			'untyped pattern, a page'          => array( $untyped_pattern, 'page', true ),
-			'untyped pattern, a product'       => array( $untyped_pattern, 'product', false ),
-			'single template, a product'       => array( self::template( 'single' ), 'product', false ),
-			'singular template, an attachment' => array( self::template( 'singular' ), 'attachment', false ),
-			'custom template, a post'          => array( self::template( 'wp-custom-template-wide' ), 'post', true ),
+			'untyped pattern, a post'                    => array( $untyped_pattern, 'post', true ),
+			'untyped pattern, a page'                    => array( $untyped_pattern, 'page', true ),
+			'untyped pattern, a product'                 => array( $untyped_pattern, 'product', false ),
+			'single template, a product'                 => array( self::template( 'single' ), 'product', false ),
+			'singular template, an attachment'           => array( self::template( 'singular' ), 'attachment', false ),
+			'custom template, a post'                    => array( self::template( 'wp-custom-template-wide' ), 'post', true ),
+			'pattern for single posts, a post'           => array( array( 'templateTypes' => array( 'single' ) ), 'post', true ),
+			'pattern for archives and posts, an archive' => array( array( 'templateTypes' => array( 'archive', 'single' ) ), '', false ),
 		);
 	}
 
@@ -219,12 +234,17 @@ class Hooked_Blocks_Test extends BaseTestCase {
 	 * @dataProvider provide_singular_requests
 	 *
 	 * @param mixed  $context   Where the anchor sits.
-	 * @param string $post_type Post type of the post being viewed.
+	 * @param string $post_type Post type of the post being viewed, or empty for an archive.
 	 * @param bool   $placed    Whether the blocks are placed.
 	 */
 	#[DataProvider( 'provide_singular_requests' )]
 	public function test_places_the_blocks_only_while_viewing_a_post_or_page( $context, string $post_type, bool $placed ): void {
-		self::view( $post_type );
+		if ( '' === $post_type ) {
+			$GLOBALS['wp_query'] = new WP_Query();
+		} else {
+			self::view( $post_type );
+		}
+		$GLOBALS['wp_actions']['template_redirect'] = 1;
 
 		$this->assertSame( $placed ? self::PLACED : self::NOTHING, $this->placed_blocks( $context ) );
 	}
@@ -247,7 +267,7 @@ class Hooked_Blocks_Test extends BaseTestCase {
 			'pages only: page template'                 => array( array( 'page' ), self::template( 'page' ), '', true ),
 			'pages only: singular template, a post'     => array( array( 'page' ), self::template( 'singular' ), 'post', false ),
 			'no post types: singular template'          => array( array(), self::template( 'singular' ), '', false ),
-			'not a list: falls back to posts and pages' => array( 'product', self::template( 'single-product' ), '', false ),
+			'not a list: falls back to posts and pages' => array( 'product', self::template( 'single' ), '', true ),
 		);
 	}
 
@@ -429,6 +449,52 @@ class Hooked_Blocks_Test extends BaseTestCase {
 	}
 
 	/**
+	 * @return array<string, array{0: array<string, int>, 1: array<string, string>, 2: bool, 3: string[]}>
+	 */
+	public static function provide_post_switches(): array {
+		return array(
+			'sharing switched off'                 => array( array( Post_Sharing_Switch::META_KEY => 1 ), array(), false, array( Block_Names::LIKE ) ),
+			'likes switched off'                   => array( array( Post_Likes_Switch::META_KEY => 0 ), array(), false, array( Block_Names::SHARING_BUTTONS ) ),
+			'likes switched on'                    => array( array( Post_Likes_Switch::META_KEY => 1 ), array(), false, array( Block_Names::SHARING_BUTTONS, Block_Names::LIKE ) ),
+			'password protected'                   => array( array(), array( 'post_password' => 'secret' ), false, array( Block_Names::SHARING_BUTTONS ) ),
+			// The legacy Like button still shows on a post that opted in, after Likes went off sitewide.
+			'Simple, likes switched on'            => array( array( Post_Likes_Switch::META_KEY => 1 ), array(), true, array( Block_Names::SHARING_BUTTONS ) ),
+			'Simple, following the sitewide likes' => array( array(), array(), true, array( Block_Names::SHARING_BUTTONS, Block_Names::LIKE ) ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_post_switches
+	 *
+	 * @param array<string, int>    $meta     Post meta to store.
+	 * @param array<string, string> $fields   Post fields.
+	 * @param bool                  $simple   Whether this is a Simple site with both features switched to the blocks.
+	 * @param string[]              $expected Blocks placed after the content.
+	 */
+	#[DataProvider( 'provide_post_switches' )]
+	public function test_leaves_out_a_block_the_viewed_post_keeps_out( array $meta, array $fields, bool $simple, array $expected ): void {
+		foreach ( $meta as $key => $value ) {
+			update_post_meta( self::POST_ID, $key, $value );
+		}
+		if ( $simple ) {
+			update_option(
+				'sharing-services',
+				array(
+					'visible' => array(),
+					'hidden'  => array(),
+				)
+			);
+			update_option( 'disabled_likes', 1 );
+			update_option( 'disabled_reblogs', 1 );
+			$this->given_connection( false );
+			Constants::set_constant( 'IS_WPCOM', true );
+		}
+		self::view( 'post', '', array_merge( array( 'ID' => self::POST_ID ), $fields ) );
+
+		$this->assertSame( array_merge( self::NOTHING, $expected ), $this->placed_blocks( self::template( 'single' ) ) );
+	}
+
+	/**
 	 * The hooked block's markup must match what the editor saves, or the Site Editor flags it as invalid.
 	 */
 	public function test_builds_sharing_buttons_the_editor_saves_the_same_way(): void {
@@ -449,12 +515,43 @@ class Hooked_Blocks_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Without a layout to copy, the group gets none rather than an invalid one.
+	 * @return array<string, array{0: string, 1: array<string, mixed>, 2: string}>
 	 */
-	public function test_wraps_the_blocks_in_a_plain_group_when_the_post_content_has_no_layout(): void {
-		$blocks = parse_blocks( apply_block_hooks_to_content( '<!-- wp:post-content /-->', self::template( 'single' ), 'insert_hooked_blocks' ) );
+	public static function provide_post_content_layouts(): array {
+		return array(
+			'no layout'         => array( '<!-- wp:post-content /-->', array(), 'wp-block-group' ),
+			'wide, constrained' => array(
+				'<!-- wp:post-content {"align":"wide","layout":{"type":"constrained","justifyContent":"left"}} /-->',
+				array(
+					'align'  => 'wide',
+					'layout' => array(
+						'type'           => 'constrained',
+						'justifyContent' => 'left',
+					),
+				),
+				'wp-block-group alignwide',
+			),
+		);
+	}
 
-		$this->assertSame( array(), $blocks[1]['attrs'] );
+	/**
+	 * @dataProvider provide_post_content_layouts
+	 *
+	 * @param string               $content Serialized post content block.
+	 * @param array<string, mixed> $attrs   Expected attributes of each group.
+	 * @param string               $class   Expected class of each group, as its save output has it.
+	 */
+	#[DataProvider( 'provide_post_content_layouts' )]
+	public function test_wraps_each_block_in_a_group_lined_up_with_the_post_content( string $content, array $attrs, string $class ): void {
+		$groups = array_slice( parse_blocks( apply_block_hooks_to_content( $content, self::template( 'single' ), 'insert_hooked_blocks' ) ), 1 );
+
+		$this->assertCount( 2, $groups );
+		foreach ( $groups as $group ) {
+			$this->assertSame(
+				array( 'core/group', $attrs, '<div class="' . $class . '">' ),
+				array( $group['blockName'], $group['attrs'], $group['innerContent'][0] )
+			);
+		}
 	}
 
 	/**
@@ -485,6 +582,16 @@ class Hooked_Blocks_Test extends BaseTestCase {
 					'bluesky'  => 'Bluesky',
 				),
 				'icon',
+			),
+			'X under its old name'            => array(
+				array(
+					'sharing-services' => array(
+						'visible' => array( 'twitter' ),
+						'hidden'  => array(),
+					),
+				),
+				array( 'x' => 'X' ),
+				null,
 			),
 			'nothing the block offers'        => array(
 				array(

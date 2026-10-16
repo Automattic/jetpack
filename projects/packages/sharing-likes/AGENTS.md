@@ -297,7 +297,10 @@ outside the list gets nothing. That only holds while the template comes from the
 theme: once the owner saves it in the Site Editor, the blocks are ordinary
 blocks in it and show on every post type it serves. A block the owner already
 placed by hand in the template, the pattern or the post being viewed is not
-added again; one in a template part or synced pattern is not seen.
+added again; one in a template part or synced pattern is not seen. The post being
+viewed also keeps out what it keeps out of the legacy buttons: its own Sharing or
+Likes switch, a Like on a password-protected post, and on Simple a Like on a post
+that switched Likes on, since the legacy button still shows there.
 
 **Never resolve a template inside a callback** (see `Hooked_Blocks`):
 `get_block_template()`, `Environment::single_template_editor_url()` and the
@@ -309,7 +312,8 @@ one priority run in registration order, and Simple sets this package up on
 `init:10`, after Subscribe's `init:9`, so `hooked_block_types` runs at 5.
 
 **Patterns.** A pattern counts when its `templateTypes` include a post or page
-template, as a template's slug would. Otherwise it falls back to `is_singular()`
+template, as a template's slug would, unless a front-end request for anything
+but those post types is rendering it. Otherwise it falls back to `is_singular()`
 for the listed post types, as do custom templates that declare no post types,
 which is never true in the Site Editor's REST requests. So on a theme that puts
 `core/post-content` in an untyped pattern, the blocks show on the front end but
