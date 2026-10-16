@@ -42,8 +42,13 @@ const PRICE_TIERS = [ 10000, 100000, 250000 ].map( ( maximum_units, index ) => (
  *
  * @param purchases - The site's purchases.
  * @param failing   - A path fragment whose request fails.
+ * @param usage     - The plan usage reply.
  */
-function mockEndpoints( purchases: object[] = [], failing?: string ) {
+function mockEndpoints(
+	purchases: object[] = [],
+	failing?: string,
+	usage: object = { views_limit: null, billable_monthly_views: 0, current_usage: {} }
+) {
 	mockApiFetch.mockImplementation( ( { path }: { path: string } ) => {
 		if ( failing && path.includes( failing ) ) {
 			return Promise.reject( { code: 'api_error', data: { status: 502 } } );
@@ -58,7 +63,7 @@ function mockEndpoints( purchases: object[] = [], failing?: string ) {
 			} );
 		}
 		if ( path.includes( 'jetpack-stats/usage' ) ) {
-			return Promise.resolve( { views_limit: null, billable_monthly_views: 0, current_usage: {} } );
+			return Promise.resolve( usage );
 		}
 		if ( path.includes( 'upgrades' ) ) {
 			return Promise.resolve( purchases );
@@ -162,4 +167,23 @@ describe( 'UpgradePage', () => {
 			).not.toBeInTheDocument();
 		}
 	);
+
+	it( 'tells a site past the limit of its paid tier that the upgrade is credited, instead of pitching the benefits', async () => {
+		setScriptData( true );
+		mockEndpoints(
+			[ { product_slug: 'jetpack_stats_yearly', is_jetpack_stats_product: true } ],
+			undefined,
+			{
+				views_limit: 10000,
+				billable_monthly_views: 12000,
+				current_tier: { minimum_price: 10000, limit: 10000 },
+				current_usage: { views_count: 12000 },
+			}
+		);
+		await renderPage();
+
+		expect( screen.getByText( /will be credited towards the upgrade/ ) ).toBeInTheDocument();
+		expect( screen.getByText( /Your site has reached its views limit/ ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Real-time data on visitors' ) ).not.toBeInTheDocument();
+	} );
 } );
