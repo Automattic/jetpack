@@ -27,13 +27,41 @@ describe( 'matchesFilter', () => {
 		}
 	);
 
-	it.each< [ string, FeatureState[ 'control' ] ] >( [
-		[ 'module', { kind: 'module', module: { available: true, override: 'inactive' } as never } ],
-		[ 'installed plugin', { kind: 'plugin', plugin: 'jetpack-search', override: 'inactive' } ],
-	] )( 'excludes a host-forced-off %s from Available but keeps it under All', ( _, control ) => {
+	it.each< [ string, FeatureState[ 'control' ], boolean ] >( [
+		[
+			'module',
+			{ kind: 'module', module: { available: true, override: 'inactive' } as never },
+			false,
+		],
+		[
+			'installed plugin',
+			{ kind: 'plugin', plugin: 'jetpack-search', override: 'inactive' },
+			false,
+		],
+		[
+			'plugin install',
+			{ kind: 'install-plugin', plugin: 'jetpack-search', blocked: 'disabled' },
+			false,
+		],
+		[
+			'Jetpack install',
+			{ kind: 'install-jetpack', installed: false, blocked: 'disabled' },
+			false,
+		],
+		[
+			'paid product running without its plugin',
+			{
+				kind: 'install-plugin',
+				plugin: 'jetpack-search',
+				blocked: 'disabled',
+				runsWithoutPlugin: true,
+			},
+			true,
+		],
+	] )( 'filters a blocked %s by whether it can already run', ( _, control, available ) => {
 		const state = buildState( { plugin: 'jetpack-search', plugin_status: 'inactive' } );
 		state.control = control;
-		expect( matchesFilter( state, 'available' ) ).toBe( false );
+		expect( matchesFilter( state, 'available' ) ).toBe( available );
 		expect( matchesFilter( state, 'all' ) ).toBe( true );
 	} );
 

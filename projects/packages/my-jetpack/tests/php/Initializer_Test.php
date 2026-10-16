@@ -761,19 +761,36 @@ class Initializer_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The header's placeholder controls stay hidden unless the flag is turned on.
+	 * Each flagged part of the page stays off unless its flag is turned on.
+	 *
+	 * @dataProvider page_feature_flags
+	 * @param string $key  The page's name for the flag.
+	 * @param string $flag The registered flag.
 	 */
-	public function test_my_jetpack_flags_show_header_controls_only_when_the_flag_is_on() {
+	#[DataProvider( 'page_feature_flags' )]
+	public function test_my_jetpack_flags_pass_each_flag_only_when_it_is_on( $key, $flag ) {
 		Initializer::register_feature_flags();
-		$this->assertFalse( Initializer::get_my_jetpack_flags()['headerControls'] );
+		$this->assertFalse( Initializer::get_my_jetpack_flags()[ $key ] );
 
-		add_filter( 'jetpack_feature_flag_enabled_' . Initializer::HEADER_CONTROLS_FLAG, '__return_true' );
+		add_filter( 'jetpack_feature_flag_enabled_' . $flag, '__return_true' );
 		try {
-			$this->assertTrue( Initializer::get_my_jetpack_flags()['headerControls'] );
+			$this->assertTrue( Initializer::get_my_jetpack_flags()[ $key ] );
 		} finally {
-			remove_filter( 'jetpack_feature_flag_enabled_' . Initializer::HEADER_CONTROLS_FLAG, '__return_true' );
+			remove_filter( 'jetpack_feature_flag_enabled_' . $flag, '__return_true' );
 			Feature_Flags::reset();
 		}
+	}
+
+	/**
+	 * The flags the page reads, by the name it reads them under.
+	 *
+	 * @return array<string, array{string, string}>
+	 */
+	public static function page_feature_flags() {
+		return array(
+			'header controls' => array( 'headerControls', Initializer::HEADER_CONTROLS_FLAG ),
+			'account connect' => array( 'accountConnect', Initializer::ACCOUNT_CONNECT_FLAG ),
+		);
 	}
 
 	/**

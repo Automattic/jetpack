@@ -86,6 +86,13 @@ class Initializer {
 	private const MY_JETPACK_SITE_INFO_TRANSIENT_KEY = 'my-jetpack-site-info';
 
 	/**
+	 * Feature flag for connecting the WordPress.com account from a Features card that needs one.
+	 *
+	 * @var string
+	 */
+	public const ACCOUNT_CONNECT_FLAG = 'my-jetpack-account-connect';
+
+	/**
 	 * Feature flag for the shared header's global controls.
 	 *
 	 * @var string
@@ -1172,6 +1179,14 @@ class Initializer {
 	 */
 	public static function register_feature_flags() {
 		Feature_Flags::register(
+			self::ACCOUNT_CONNECT_FLAG,
+			array(
+				'default'     => false,
+				'description' => 'Show Needs user account on Features cards, and connect the account from their Install or Connect button.',
+				'owner'       => 'my-jetpack',
+			)
+		);
+		Feature_Flags::register(
 			self::HEADER_CONTROLS_FLAG,
 			array(
 				'default'     => false,
@@ -1203,6 +1218,7 @@ class Initializer {
 			'premiumAnalyticsEnabled'  => Products\Stats::is_premium_analytics_enabled(),
 			'showAiModuleToggle'       => Products\Jetpack_Ai::is_feature_ui_enabled(),
 			'headerControls'           => Feature_Flags::is_enabled( self::HEADER_CONTROLS_FLAG ),
+			'accountConnect'           => Feature_Flags::is_enabled( self::ACCOUNT_CONNECT_FLAG ),
 			'overviewV1'               => self::is_overview_v1_enabled(),
 		);
 
