@@ -84,7 +84,8 @@ function wpcom_add_launch_button_to_admin_bar( WP_Admin_Bar $admin_bar ) {
 			'group'  => null,
 			'title'  => '<span class="ab-icon">' . $icon . '</span><span class="ab-label">' . __( 'Launch site', 'jetpack-mu-wpcom' ) . '</span>',
 			// The JS button reuses this href, so the launch URL is built only here.
-			'href'   => Common\wpcom_get_launch_site_url( array( 'back_to' => Common\wpcom_get_launch_site_back_to() ) ),
+			// The Omnibar fetches this node over REST, where the request URL is no page to go back to.
+			'href'   => Common\wpcom_get_launch_site_url( defined( 'REST_REQUEST' ) && REST_REQUEST ? array() : array( 'back_to' => Common\wpcom_get_launch_site_back_to() ) ),
 			'meta'   => array(
 				// Use `admin-color-modern` to keep the button always in blueberry (modern scheme).
 				'class' => 'launch-site admin-color-modern',

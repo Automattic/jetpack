@@ -145,8 +145,6 @@
 		 */
 		function goToLaunch() {
 			if ( config.launchUrl ) {
-				// Back returns to this post, without the marker that would reopen the overlay.
-				cleanMarkerFromUrl();
 				const launchUrl = new URL( config.launchUrl );
 				launchUrl.searchParams.set( 'back_to', window.location.href );
 				window.location.href = launchUrl.href;
