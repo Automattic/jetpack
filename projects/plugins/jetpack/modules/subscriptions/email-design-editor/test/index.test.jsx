@@ -2208,6 +2208,35 @@ describe( 'Email design editor entry point', () => {
 			).toContain( 'Links inside your post' );
 		} );
 
+		it( 'keeps colour off the screens that have no colour control', () => {
+			// Only Default text carries a Color panel; for the rest colour lives in the separate
+			// Colors section, so naming it here describes a control that is not on screen. NL-1052.
+			const described = source => relabelStylesSidebar( source, source );
+
+			expect( described( 'Manage the fonts and typography used on links.' ) ).not.toContain(
+				'color'
+			);
+			expect( described( 'Manage the fonts and typography used on buttons.' ) ).not.toContain(
+				'color'
+			);
+			expect( described( 'Manage the fonts and typography used on headings.' ) ).not.toContain(
+				'color'
+			);
+		} );
+
+		it( 'says that the byline and footer take only the default colour', () => {
+			const described = relabelStylesSidebar(
+				'Manage the fonts and typography used on text.',
+				'Manage the fonts and typography used on text.'
+			);
+
+			// Colour is all of this screen that reaches the byline, and all that reaches the
+			// footer bar its copyright line, whose font is the one wpcom leaves unpinned. NL-1052.
+			expect( described ).toContain( 'The byline and footer follow its color' );
+			expect( described ).toContain( 'copyright line follows its font' );
+			expect( described ).not.toContain( 'the whole email' );
+		} );
+
 		it( 'says which heading level moves the post title and which the site title', () => {
 			const described = relabelStylesSidebar(
 				'Manage the fonts and typography used on headings.',
