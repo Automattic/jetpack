@@ -100,6 +100,18 @@ class Analytics_Dashboard {
 	const SECTION_ORDER = 5;
 
 	/**
+	 * Widget types the tab offers in the inserter on top of its default layout: the over-time
+	 * charts a store owner may prefer over Store performance.
+	 */
+	const INSERTABLE_WIDGET_TYPES = array(
+		self::NET_SALES_OVER_TIME_TYPE,
+		self::TOTAL_SALES_OVER_TIME_TYPE,
+		self::GROSS_SALES_OVER_TIME_TYPE,
+		self::ORDERS_OVER_TIME_TYPE,
+		self::VISITORS_OVER_TIME_TYPE,
+	);
+
+	/**
 	 * Filter through which WooCommerce detection is resolved, for hosts and tests without the plugin.
 	 */
 	const WOOCOMMERCE_AVAILABLE_FILTER = 'jetpack_woocommerce_stats_woocommerce_available';
@@ -143,13 +155,14 @@ class Analytics_Dashboard {
 			DASHBOARD_NAME,
 			self::SECTION_ID,
 			array(
-				'label'          => __( 'WooCommerce', 'jetpack-woocommerce-stats-pkg' ),
-				'order'          => self::SECTION_ORDER,
-				'is_available'   => array( __CLASS__, 'is_section_available' ),
+				'label'                   => __( 'WooCommerce', 'jetpack-woocommerce-stats-pkg' ),
+				'order'                   => self::SECTION_ORDER,
+				'is_available'            => array( __CLASS__, 'is_section_available' ),
 				// Nothing backfills historical orders to WordPress.com but the analytics full sync.
-				'requires_sync'  => true,
-				'notice'         => array( __CLASS__, 'get_no_orders_notice' ),
-				'default_layout' => array( __CLASS__, 'get_default_layout' ),
+				'requires_sync'           => true,
+				'notice'                  => array( __CLASS__, 'get_no_orders_notice' ),
+				'default_layout'          => array( __CLASS__, 'get_default_layout' ),
+				'insertable_widget_types' => self::INSERTABLE_WIDGET_TYPES,
 			)
 		);
 	}
@@ -182,7 +195,8 @@ class Analytics_Dashboard {
 	}
 
 	/**
-	 * The default layout of the WooCommerce tab, which is also what the inserter offers there.
+	 * The default layout of the WooCommerce tab; the inserter offers its types plus
+	 * `INSERTABLE_WIDGET_TYPES`.
 	 *
 	 * Each group below fills one row of the dashboard grid.
 	 *
