@@ -112,6 +112,22 @@ class Unavailable_Blocks_Test extends WP_UnitTestCase {
 		);
 	}
 
+	public function test_editor_availability_names_the_module_a_block_reported() {
+		$availability = Unavailable_Blocks::describe_inactive_modules(
+			array(
+				'subscriptions' => array(
+					'available'          => false,
+					'unavailable_reason' => 'missing_module',
+					'details'            => array( 'module' => 'subscriptions' ),
+				),
+				'map'           => array( 'available' => true ),
+			)
+		);
+
+		$this->assertSame( 'Newsletter', $availability['subscriptions']['details']['module_name'] );
+		$this->assertSame( array( 'available' => true ), $availability['map'] );
+	}
+
 	public function test_offline_mode_only_withholds_modules_that_need_a_connection() {
 		remove_all_filters( 'jetpack_offline_mode' );
 		add_filter( 'jetpack_offline_mode', '__return_true', 1000 );

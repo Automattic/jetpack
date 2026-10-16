@@ -338,20 +338,6 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
-	 * Mark an extension unavailable because a Jetpack module it needs is inactive.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param string $slug   Slug of the block or plugin.
-	 * @param string $module Slug of the inactive module.
-	 */
-	public static function set_extension_unavailable_for_module( $slug, $module ) {
-		// WordPress.com Simple can load block files without the plugin's autoloaded classes.
-		$details = class_exists( Unavailable_Blocks::class ) ? Unavailable_Blocks::get_inactive_module_details( $module ) : array();
-		self::set_extension_unavailable( $slug, 'missing_module', $details );
-	}
-
-	/**
 	 * Used to initialize the class, no longer in use.
 	 *
 	 * @return void
@@ -931,9 +917,14 @@ class Jetpack_Gutenberg {
 			$modules              = $module_list_endpoint->get_modules();
 		}
 
+		// WordPress.com Simple can load this class without the plugin's autoloaded classes.
+		$available_blocks = class_exists( Unavailable_Blocks::class )
+			? Unavailable_Blocks::describe_inactive_modules( self::get_availability() )
+			: self::get_availability();
+
 		$jetpack_plan  = Jetpack_Plan::get();
 		$initial_state = array(
-			'available_blocks' => self::get_availability(),
+			'available_blocks' => $available_blocks,
 			'blocks_variation' => $blocks_variation,
 			'modules'          => $modules,
 			'jetpack'          => array(

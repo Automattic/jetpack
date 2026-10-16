@@ -1195,7 +1195,7 @@ class Jetpack {
 			add_action(
 				'jetpack_register_gutenberg_extensions',
 				static function () {
-					Jetpack_Gutenberg::set_extension_unavailable_for_module( 'podcast-episode', 'podcast' );
+					Jetpack_Gutenberg::set_extension_unavailable( 'podcast-episode', 'missing_module', array( 'module' => 'podcast' ) );
 				}
 			);
 		}

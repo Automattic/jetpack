@@ -31,7 +31,7 @@ require_once __DIR__ . '/class-jetpack-subscription-site.php';
  */
 function register_block() {
 	if ( ! Jetpack::is_module_active( 'subscriptions' ) ) {
-		Jetpack_Gutenberg::set_extension_unavailable_for_module( 'subscriber-login', 'subscriptions' );
+		Jetpack_Gutenberg::set_extension_unavailable( 'subscriber-login', 'missing_module', array( 'module' => 'subscriptions' ) );
 		return;
 	}
 

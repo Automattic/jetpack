@@ -156,6 +156,24 @@ class Unavailable_Blocks {
 	}
 
 	/**
+	 * Add each inactive module's name and forced state to blocks that reported one when they bailed out.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $availability Block availability, as from Jetpack_Gutenberg::get_availability().
+	 * @return array The same availability, with module details filled in or dropped.
+	 */
+	public static function describe_inactive_modules( $availability ) {
+		foreach ( (array) $availability as $slug => $entry ) {
+			if ( isset( $entry['details']['module'] ) && is_string( $entry['details']['module'] ) ) {
+				$availability[ $slug ]['details'] = self::get_inactive_module_details( $entry['details']['module'] );
+			}
+		}
+
+		return $availability;
+	}
+
+	/**
 	 * Describe an inactive module for the editor's explanation of a block that needs it.
 	 *
 	 * @since $$next-version$$
@@ -164,8 +182,12 @@ class Unavailable_Blocks {
 	 * @return array Module slug, name, and whether it is forced off; empty when the editor should not name it.
 	 */
 	public static function get_inactive_module_details( $module ) {
-		$info = Jetpack::get_module( $module );
-		if ( ! is_array( $info ) || ( new Host() )->is_wpcom_simple() ) {
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return array();
+		}
+
+		$info = ( new Modules() )->get( $module );
+		if ( ! is_array( $info ) ) {
 			return array();
 		}
 
@@ -174,7 +196,7 @@ class Unavailable_Blocks {
 			return array();
 		}
 
-		// Jetpack::get_module() returns the untranslated file header.
+		// Modules::get() returns the untranslated file header.
 		$i18n = function_exists( 'jetpack_get_module_i18n' ) ? jetpack_get_module_i18n( $module ) : array();
 
 		return array(
