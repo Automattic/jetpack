@@ -17,6 +17,13 @@ export interface BannerSettings {
 	mcpSettingsApi?: McpSettingsApi;
 }
 
+/**
+ * The part of the banner element showBanner reads and changes.
+ */
+export interface Banner {
+	hidden: boolean;
+}
+
 type Track = ( eventName: string, eventProperties: Record< string, string > ) => void;
 type FetchSettings = ( path: string ) => Promise< unknown >;
 
@@ -53,7 +60,7 @@ export function isMcpEnabled( data: unknown, format: McpSettingsApi[ 'format' ] 
  * @param fetchSettings - Reads the MCP settings endpoint.
  */
 export async function showBanner(
-	banner: { hidden: boolean },
+	banner: Banner,
 	settings: BannerSettings = {},
 	track: Track,
 	fetchSettings: FetchSettings = path => apiFetch( { path } )
