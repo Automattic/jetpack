@@ -821,7 +821,7 @@ class Initializer {
 		$enabled = apply_filters( 'rest_enabled', true );
 		$user    = wp_get_current_user();
 		$auth    = false;
-		// Restore the signed-in user if an authentication filter clears it.
+		// Passing true skips WordPress's nonce check, which would sign the user out; restore the user if another filter clears it.
 		try {
 			/** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
 			$auth = apply_filters( 'rest_authentication_errors', true );
