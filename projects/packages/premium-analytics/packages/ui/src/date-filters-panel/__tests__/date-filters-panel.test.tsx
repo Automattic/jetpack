@@ -191,13 +191,14 @@ describe( 'DateFiltersPanel', () => {
 		} );
 	} );
 
-	it( 'locks the periods the scope withholds and wires the upsell', async () => {
+	it( 'locks the periods and days the scope withholds and wires the upsell', async () => {
 		const user = userEvent.setup();
 		const onUpgradeClick = jest.fn();
 		render(
 			<ReportScopeProvider
 				dateLimits={ {
 					lockedPresetIds: [ 'last-30-days' ],
+					earliestDate: new TZDate( '2026-07-10T00:00:00.000Z', 'UTC' ),
 					lockedIntervals: [],
 					upsell: {
 						description: 'Upgrade to see more.',
@@ -225,6 +226,13 @@ describe( 'DateFiltersPanel', () => {
 		await user.click( upgrade );
 
 		expect( onUpgradeClick ).toHaveBeenCalledTimes( 1 );
+
+		await user.click( screen.getByRole( 'menuitemradio', { name: 'Custom range' } ) );
+		const day = ( name: string ) =>
+			within( screen.getByRole( 'grid' ) ).getByRole( 'button', { name: new RegExp( name ) } );
+
+		expect( day( 'July 9, 2026' ) ).toBeDisabled();
+		expect( day( 'July 10, 2026' ) ).toBeEnabled();
 	} );
 
 	it( 'greys every control out while disabled', () => {

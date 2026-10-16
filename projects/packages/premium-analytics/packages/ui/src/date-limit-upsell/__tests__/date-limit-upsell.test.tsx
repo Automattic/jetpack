@@ -18,4 +18,18 @@ describe( 'DateLimitUpsell', () => {
 			LINKS.upgradeUrl
 		);
 	} );
+
+	it.each( [
+		{ emptied: 'supportUrl', kept: /^Upgrade$/ },
+		{ emptied: 'upgradeUrl', kept: /what is included/ },
+	] )( 'keeps the copy but drops the link of an empty $emptied', ( { emptied, kept } ) => {
+		render(
+			<DateLimitUpsell
+				upsell={ { description: 'See <link>what is included</link>.', ...LINKS, [ emptied ]: '' } }
+			/>
+		);
+
+		expect( screen.getByText( /what is included/ ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'link' ) ).toHaveAccessibleName( kept );
+	} );
 } );
