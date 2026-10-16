@@ -86,6 +86,6 @@ describe( 'LoginProtectionCard', () => {
 			.setup()
 			.click( screen.getByRole( 'link', { name: 'Configure login protection' } ) );
 
-		expect( openTab ).toHaveBeenCalledWith( 'settings', undefined );
+		expect( openTab ).toHaveBeenCalledWith( 'settings', { section: 'loginProtection' } );
 	} );
 } );

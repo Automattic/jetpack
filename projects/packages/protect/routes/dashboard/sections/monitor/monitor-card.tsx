@@ -14,6 +14,9 @@ import './style.scss';
 const UPTIME_PATH = '/jetpack/v4/protect-dashboard/uptime';
 const CONNECT_URL = 'admin.php?page=my-jetpack#/connection';
 
+/** Opens the Settings tab at this section's card. */
+const SETTINGS_PARAMS = { section: 'monitor' };
+
 /**
  * Text for one day's bar.
  *
@@ -234,7 +237,7 @@ export default function MonitorCard( { state: monitor, settings, openTab }: Moni
 			</CardRow>
 			{ available && (
 				<CardRow>
-					<TabLink tab="settings" onOpen={ openTab }>
+					<TabLink tab="settings" params={ SETTINGS_PARAMS } onOpen={ openTab }>
 						{ active
 							? __( 'Configure Downtime Monitoring', 'jetpack-protect-pkg' )
 							: __( 'Turn on in Settings', 'jetpack-protect-pkg' ) }
