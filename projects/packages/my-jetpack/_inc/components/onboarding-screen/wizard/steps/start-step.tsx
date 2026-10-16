@@ -14,6 +14,7 @@ import {
 	startBenefits,
 } from '../lib';
 import styles from '../styles.module.scss';
+import { markConnecting } from '../use-just-connected';
 import { useRestoredConnection } from '../use-restored-connection';
 
 type StartStepProps = {
@@ -26,17 +27,10 @@ type StartStepProps = {
 /**
  * The start screen: what Jetpack does for the site, and the way in.
  *
- * "Get started" registers the site and then hands the browser to WordPress.com to
- * create or sign in to an account, because the features this wizard turns on need
- * an owner: Newsletter keeps its subscribers behind a user token, and Activity
- * Log's permission callback requires one outright. `redirectUri` brings them back
- * to the wizard, which resumes past this step from the connection itself.
- *
- * `skipPricingPage` is what makes that return actually happen. Without it
- * WordPress.com shows its plans page after the authorization, and that page does
- * not carry `redirect_after_auth`, so the user lands on My Jetpack and the wizard
- * is over. Every one of the six features this wizard offers is free, so there is
- * nothing to choose there anyway.
+ * "Get started" registers the site and hands the browser to WordPress.com for an
+ * account, which the features need an owner for. `skipPricingPage` is what makes
+ * the return happen: the plans page does not carry `redirect_after_auth`, so
+ * without it the user lands on My Jetpack and the wizard is over.
  *
  * @param props             - The component props.
  * @param props.titleId     - The id the panel region is labelled by.
@@ -83,6 +77,10 @@ export function StartStep( { titleId, title, description }: StartStepProps ) {
 		}
 		inFlight.current = true;
 		setHandoffError( null );
+
+		// Set before we leave, read once on the way back: it is how the step we
+		// return to knows to say the connection worked.
+		markConnecting();
 
 		// The name the single-screen flow already reports, so the two are one funnel.
 		recordEvent( 'jetpack_my_jetpack_onboarding_click', { flow: 'wizard' } );
