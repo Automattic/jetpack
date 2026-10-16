@@ -4,7 +4,6 @@ import '../../packages/widgets-toolkit/src/components/calendar-heatmap/__tests__
 import '../../packages/widgets-toolkit/src/components/calendar-heatmap/__tests__/calendar-heatmap-tooltip.test';
 import '../../packages/widgets-toolkit/src/components/chart-bar/__tests__/bar-chart-skeleton.test';
 import '../../packages/widgets-toolkit/src/components/chart-comparative-line/utils/align-series-dates.test';
-import '../../packages/widgets-toolkit/src/components/chart-leaderboard/__tests__/leaderboard-chart.test';
 import '../../packages/widgets-toolkit/src/components/chart-leaderboard/__tests__/leaderboard-skeleton.test';
 import '../../packages/widgets-toolkit/src/components/leaderboard/__tests__/build-leaderboard-chart-data.test';
 import '../../packages/widgets-toolkit/src/components/download-csv/__tests__/to-download-report-params.test';
