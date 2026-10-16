@@ -1020,14 +1020,17 @@ class Initializer {
 	}
 
 	/**
-	 * Whether the shared header shows its controls: the flag is on and My Jetpack runs.
+	 * Whether the shared header shows its controls: the flag is on, My Jetpack runs, and not in offline Features.
 	 *
 	 * Boost's dashboard gets My Jetpack's page state even where My Jetpack is off, hence the second check.
+	 * Offline Features prints no connection state for the controls to read, and has no connection to show.
 	 *
 	 * @return bool
 	 */
 	private static function is_header_controls_enabled() {
-		return Feature_Flags::is_enabled( self::HEADER_CONTROLS_FLAG ) && self::should_initialize();
+		return Feature_Flags::is_enabled( self::HEADER_CONTROLS_FLAG )
+			&& self::should_initialize()
+			&& ! self::is_offline_features_enabled();
 	}
 
 	/**
