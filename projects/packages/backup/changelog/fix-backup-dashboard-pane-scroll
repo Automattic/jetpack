@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Keep the Backup dashboard's activity list footer in view by letting each pane scroll inside itself.
