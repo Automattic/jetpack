@@ -110,3 +110,54 @@ describe( 'bookingsReportQuery', () => {
 		} );
 	} );
 } );
+
+describe( 'bookingsReportQuery fetch', () => {
+	// A fetch `Response`, as far as the report reads one.
+	const response = ( status: number, json: () => Promise< unknown > ) => ( { status, json } );
+	const fetchReport = () => bookingsReportQuery( PERIOD ).queryFn?.();
+
+	it( 'asks apiFetch for the raw response', async () => {
+		mockApiFetch.mockResolvedValue( { summary: {}, data: [] } );
+
+		await fetchReport();
+
+		expect( mockApiFetch.mock.calls[ 0 ][ 0 ].parse ).toBe( false );
+	} );
+
+	it.each( [
+		[
+			'an error WordPress.com passed through',
+			response( 403, async () => ( { error: 'unauthorized', message: 'No access.' } ) ),
+			{ error: 'unauthorized', message: 'No access.', status: 403 },
+		],
+		[
+			'an error whose body is not JSON',
+			response( 502, async () => {
+				throw new SyntaxError( 'Unexpected token <' );
+			} ),
+			{ code: 'invalid_json', status: 502 },
+		],
+	] )( 'keeps the status of %s', async ( _case, rejected, thrown ) => {
+		mockApiFetch.mockRejectedValue( rejected );
+
+		await expect( fetchReport() ).rejects.toMatchObject( thrown );
+	} );
+
+	it( 'lets apiFetch refresh a stale nonce and replay the request', async () => {
+		mockApiFetch
+			.mockRejectedValueOnce(
+				response( 403, async () => ( { code: 'rest_cookie_invalid_nonce', message: 'Expired.' } ) )
+			)
+			.mockResolvedValueOnce( { summary: {}, data: [] } );
+
+		await expect( fetchReport() ).resolves.toEqual( { summary: expect.anything(), data: [] } );
+		expect( mockApiFetch.mock.calls[ 1 ][ 0 ] ).not.toHaveProperty( 'parse' );
+	} );
+
+	it( 'rethrows an error that carries no response', async () => {
+		const offline = new TypeError( 'Failed to fetch' );
+		mockApiFetch.mockRejectedValue( offline );
+
+		await expect( fetchReport() ).rejects.toBe( offline );
+	} );
+} );
