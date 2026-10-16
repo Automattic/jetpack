@@ -5,6 +5,7 @@ import { Badge, Icon, Link, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback } from 'react';
 import { getBlockThemeMigration } from '../../../utils/block-theme-migration';
+import { getProtectPageUrl } from '../../../utils/protect-page';
 import { getActivationStatusLabel } from '../utils';
 import { FeatureAction } from './feature-action';
 import { FeatureIcon } from './feature-icon';
@@ -27,6 +28,11 @@ import type { ReactNode } from 'react';
 export function getModuleSettingsUrl( $module: MyJetpackModule ): string | undefined {
 	// Deprecated modules are offered only to be switched off; the widgets link opens no widgets panel on a block theme.
 	if ( $module.available === false || getDeprecatedModules().includes( $module.module ) ) {
+		return undefined;
+	}
+
+	// The Protect page link already stands in for the switch.
+	if ( getProtectPageUrl( $module.module ) ) {
 		return undefined;
 	}
 
