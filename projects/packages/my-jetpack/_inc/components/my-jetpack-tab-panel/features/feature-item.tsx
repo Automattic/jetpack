@@ -8,7 +8,7 @@ import { getBlockThemeMigration } from '../../../utils/block-theme-migration';
 import { FeatureAction } from './feature-action';
 import { FeatureIcon } from './feature-icon';
 import { FeatureInstallNotice } from './feature-install-notice';
-import { getModuleUnavailableNote } from './feature-state';
+import { getModuleUnavailableNote, offersConnect } from './feature-state';
 import { getFeatureStatusLabel, getFeatureUnavailableReason } from './module-availability';
 import styles from './styles.module.scss';
 import { getDeprecatedModules } from './use-more-features';
@@ -100,6 +100,7 @@ export function FeatureItem( {
 		<div
 			className={ clsx( styles[ 'feature-item' ], className, {
 				[ styles[ 'feature-item--static' ] ]: ! onOpen,
+				[ styles[ 'feature-item--connect' ] ]: ! state.pending && offersConnect( state ),
 			} ) }
 			data-feature={ feature.slug }
 		>
