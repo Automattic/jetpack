@@ -23,6 +23,7 @@ import {
 	clampStep,
 	featuresDescription,
 	openingStep,
+	SITE_TYPE_OTHER,
 	siteTypeAnswer,
 	settleOnboarding,
 	TOTAL_STEPS,
@@ -38,6 +39,7 @@ import { FeaturesStep } from './steps/features-step';
 import { FinishStep } from './steps/finish-step';
 import { StartStep } from './steps/start-step';
 import styles from './styles.module.scss';
+import { WIZARD_EVENTS, forgetFlowId, lengthBucket, stepSlug, useWizardTracks } from './telemetry';
 import { useConnectionKnown } from './use-connection-known';
 import { useJustConnected } from './use-just-connected';
 import { readSavedRun, useSavedRun } from './use-saved-run';
@@ -189,10 +191,16 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 	);
 	const [ moduleResults, setModuleResults ] = useState< SetupModuleResult[] >( [] );
 
+	// Bound to the step's slug, which is what every event carries; see telemetry.ts.
+	const slug = stepSlug( steps, step );
+	const track = useWizardTracks( slug );
+
 	const handleModuleChange = useCallback(
-		( slug: string, want: boolean ) =>
-			setWantedModules( current => ( { ...current, [ slug ]: want } ) ),
-		[]
+		( moduleSlug: string, want: boolean ) => {
+			setWantedModules( current => ( { ...current, [ moduleSlug ]: want } ) );
+			track( WIZARD_EVENTS.moduleToggle, { module: moduleSlug, enabled: want } );
+		},
+		[ track ]
 	);
 
 	const justConnected = useJustConnected();
@@ -232,9 +240,18 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 		} );
 	}, [ saveRun, step, furthestStep, choices, siteTypeDetail, wantedModules ] );
 
+	// Keyed on the slug rather than the index, so the step a connected user opens on
+	// is reported once and the same screen is never two different numbers.
+	useEffect( () => {
+		track( WIZARD_EVENTS.stepView );
+	}, [ track ] );
+
 	const handleChoice = useCallback(
-		( value: string ) => setChoices( current => ( { ...current, [ step ]: value } ) ),
-		[ step ]
+		( value: string ) => {
+			setChoices( current => ( { ...current, [ step ]: value } ) );
+			track( WIZARD_EVENTS.siteTypeSelect, { site_type: value } );
+		},
+		[ step, track ]
 	);
 
 	/*
@@ -271,6 +288,13 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 
 			// The run is over, so it must not be waiting on the next visit.
 			forgetRun();
+			forgetFlowId();
+
+			// Reported before the navigation, not after: the page is about to go.
+			track(
+				outcome === 'skipped' ? WIZARD_EVENTS.skip : WIZARD_EVENTS.complete,
+				outcome === 'skipped' ? {} : { site_type: siteType ?? 'none' }
+			);
 
 			// Nothing settles before the site is connected, so leaving then is only leaving.
 			if ( ! isRegistered ) {
@@ -283,16 +307,27 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 				() => assignLocation( isUserConnected ? destination : dashboardUrl )
 			);
 		},
-		[ exitUrl, dashboardUrl, forgetRun, busy, isRegistered, isUserConnected ]
+		[ exitUrl, dashboardUrl, forgetRun, busy, isRegistered, isUserConnected, track, siteType ]
 	);
 
 	const handleBack = useCallback( () => setStep( clampStep( step - 1 ) ), [ step ] );
 
 	const handleNext = useCallback( () => {
+		track( WIZARD_EVENTS.stepComplete );
+
+		/*
+		 * On Continue rather than from an effect, so restoring a run on reload cannot send
+		 * it again. Never the words, which could carry a name or an address: a length
+		 * bucket answers whether the field gets used. Continue needs text, so it always has some.
+		 */
+		if ( slug === 'site-type' && siteType === SITE_TYPE_OTHER ) {
+			track( WIZARD_EVENTS.siteTypeDetail, { length_bucket: lengthBucket( siteTypeDetail ) } );
+		}
+
 		const next = clampStep( step + 1 );
 		setStep( next );
 		setFurthestStep( current => ( next > current ? next : current ) );
-	}, [ step ] );
+	}, [ step, track, slug, siteType, siteTypeDetail ] );
 
 	/*
 	 * Leaving the feature step is what switches the modules; the switches above only
@@ -308,14 +343,34 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 		panelRef.current?.focus();
 
 		apply( modules, wantedModules )
-			.then( setModuleResults )
+			.then( results => {
+				setModuleResults( results );
+				// Counts, not a list: which module failed is its own toggle event, and
+				// a property holding a list cannot be grouped on.
+				track( WIZARD_EVENTS.applyResult, {
+					offered: results.length,
+					// Only what this run switched on: an untouched row that was already on is not one.
+					switched_on: results.filter( result => result.changed && result.wanted && result.ok )
+						.length,
+					failed: results.filter( result => ! result.ok ).length,
+					request_failed: false,
+				} );
+			} )
 			/*
 			 * apply() reports each switch's failure itself and does not reject. This only
 			 * keeps an unexpected throw from leaving the step on a spinner for ever.
 			 */
-			.catch( () => setModuleResults( [] ) )
+			.catch( () => {
+				setModuleResults( [] );
+				track( WIZARD_EVENTS.applyResult, {
+					offered: modules.length,
+					switched_on: 0,
+					failed: 0,
+					request_failed: true,
+				} );
+			} )
 			.finally( handleNext );
-	}, [ apply, modules, wantedModules, handleNext ] );
+	}, [ apply, modules, wantedModules, handleNext, track ] );
 
 	// The rail's rows are aria-disabled rather than disabled, so they stay focusable
 	// and keep announcing themselves. That makes swallowing the click our job.

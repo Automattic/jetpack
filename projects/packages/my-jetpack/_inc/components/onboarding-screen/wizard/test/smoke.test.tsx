@@ -313,11 +313,16 @@ describe( 'Wizard start screen', () => {
 
 		expect( mockConnection.handleRegisterSite ).toHaveBeenCalledTimes( 1 );
 		// One name across both onboarding flows, told apart by the flow property.
-		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_my_jetpack_onboarding_click', {
-			flow: 'wizard',
-		} );
-		// And nothing on the way out: the hand-off resolving is not a connection.
-		expect( mockRecordEvent ).toHaveBeenCalledTimes( 1 );
+		expect( mockRecordEvent ).toHaveBeenCalledWith(
+			'jetpack_my_jetpack_onboarding_click',
+			expect.objectContaining( { flow: 'wizard', step: 'start' } )
+		);
+		// The whole list, so the hand-off resolving cannot add an event back:
+		// it is not the same thing as anyone having connected.
+		expect( mockRecordEvent.mock.calls.map( ( [ name ] ) => name ) ).toEqual( [
+			'jetpack_my_jetpack_onboarding_wizard_step_view',
+			'jetpack_my_jetpack_onboarding_click',
+		] );
 		// The browser is on its way to WordPress.com; the step does not move here.
 		expect( heading() ).toHaveTextContent( 'Start with Jetpack for free' );
 	} );
@@ -374,7 +379,7 @@ describe( 'Wizard start screen', () => {
 		await waitFor( () =>
 			expect( mockRecordEvent ).toHaveBeenCalledWith(
 				'jetpack_my_jetpack_onboarding_connect_error',
-				{ error_code: 'site_inaccessible' }
+				expect.objectContaining( { error_code: 'site_inaccessible' } )
 			)
 		);
 
@@ -411,9 +416,10 @@ describe( 'Wizard start screen', () => {
 		).resolves.toBeInTheDocument();
 		// No message to show, so the code stands in for it.
 		expect( screen.getByText( 'JsonParseError' ) ).toBeInTheDocument();
-		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_my_jetpack_onboarding_connect_error', {
-			error_code: 'JsonParseError',
-		} );
+		expect( mockRecordEvent ).toHaveBeenCalledWith(
+			'jetpack_my_jetpack_onboarding_connect_error',
+			expect.objectContaining( { error_code: 'JsonParseError' } )
+		);
 	} );
 
 	it( 'names what Jetpack does, one free feature group per row', () => {
@@ -1251,6 +1257,143 @@ describe( 'What the finish screen claims', () => {
 			screen.findByText( 'Setup switched off 2 features.' )
 		).resolves.toBeInTheDocument();
 		expect( screen.queryByText( /switched on/ ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'What the wizard reports', () => {
+	/*
+	 * The one thing that must never leave the browser. Asserted over every call
+	 * rather than over the one event that handles it, because the guarantee is
+	 * about the whole flow and a future event could carry it by accident.
+	 */
+	it( 'never sends what the user typed about their own site', async () => {
+		const secret = 'Smith family wiki at smith-family.example';
+		const { user } = setupWizard( { isUserConnected: true } );
+
+		await user.click( screen.getByRole( 'radio', { name: 'Something else…' } ) );
+		await user.type( screen.getByRole( 'textbox' ), secret );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		const sent = JSON.stringify( mockRecordEvent.mock.calls );
+
+		expect( sent ).not.toContain( 'Smith' );
+		expect( sent ).not.toContain( 'example' );
+		expect( sent ).toContain( 'length_bucket' );
+	} );
+
+	it( 'reports the site type as a slug, and the run as one id', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+
+		await user.click( screen.getByRole( 'radio', { name: 'An online store' } ) );
+
+		expect( mockRecordEvent ).toHaveBeenCalledWith(
+			'jetpack_my_jetpack_onboarding_wizard_site_type_select',
+			expect.objectContaining( { site_type: 'store', step: 'site-type' } )
+		);
+
+		// One id for the whole run, or the two halves of a connection cannot be joined.
+		const ids = new Set( mockRecordEvent.mock.calls.map( ( [ , props ] ) => props?.flow_id ) );
+
+		expect( ids.size ).toBe( 1 );
+	} );
+
+	// The run is restored on reload, and a second report would double-count the field.
+	it( 'reports the typed answer once, even across a reload', async () => {
+		const { user, unmount } = setupWizard( { isUserConnected: true } );
+		await user.click( screen.getByRole( 'radio', { name: 'Something else…' } ) );
+		await user.type( screen.getByRole( 'textbox' ), 'A wiki' );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		unmount();
+		setupWizard( { isUserConnected: true } );
+
+		const detail = mockRecordEvent.mock.calls.filter(
+			( [ name ] ) => name === 'jetpack_my_jetpack_onboarding_wizard_site_type_detail'
+		);
+		expect( detail ).toHaveLength( 1 );
+	} );
+
+	// Two of the four mock modules ship on; leaving them on is not switching them on.
+	it( 'counts only what the run switched on, and says when the request failed', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+		await user.click( screen.getByRole( 'radio', { name: 'A blog or publication' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+		await user.click( screen.getByRole( 'checkbox', { name: 'Downtime Monitor' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		await waitFor( () =>
+			expect( mockRecordEvent ).toHaveBeenCalledWith(
+				'jetpack_my_jetpack_onboarding_wizard_apply_result',
+				expect.objectContaining( { offered: 4, switched_on: 1, request_failed: false } )
+			)
+		);
+	} );
+
+	it( 'tells a failed request apart from an empty list', async () => {
+		mockApply.mockRejectedValueOnce( new Error( 'nope' ) );
+		const { user } = setupWizard( { isUserConnected: true } );
+		await user.click( screen.getByRole( 'radio', { name: 'A blog or publication' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		await waitFor( () =>
+			expect( mockRecordEvent ).toHaveBeenCalledWith(
+				'jetpack_my_jetpack_onboarding_wizard_apply_result',
+				expect.objectContaining( { offered: 4, request_failed: true } )
+			)
+		);
+	} );
+
+	// A double click, or the finish link then the rail's, must not report and settle twice.
+	it( 'records one exit per run, and ends its id', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+		await advance( user, 2 );
+
+		await user.click( screen.getByRole( 'link', { name: 'Go to My Jetpack' } ) );
+		await user.click( screen.getByRole( 'link', { name: 'Back to your WordPress site' } ) );
+
+		const exits = mockRecordEvent.mock.calls.filter( ( [ name ] ) =>
+			/_wizard_(complete|skip)$/.test( name )
+		);
+		expect( exits ).toHaveLength( 1 );
+		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
+		expect( window.sessionStorage.getItem( 'jetpack-onboarding-flow-id' ) ).toBeNull();
+	} );
+
+	// randomUUID() exists only in secure contexts, and wp-admin can be plain HTTP.
+	it( 'still gives the run an id where randomUUID is missing', () => {
+		const randomUUID = window.crypto.randomUUID;
+		Object.defineProperty( window.crypto, 'randomUUID', { value: undefined, configurable: true } );
+
+		try {
+			setupWizard( { isUserConnected: true } );
+		} finally {
+			Object.defineProperty( window.crypto, 'randomUUID', {
+				value: randomUUID,
+				configurable: true,
+			} );
+		}
+
+		expect( mockRecordEvent ).toHaveBeenCalledWith(
+			expect.any( String ),
+			expect.objectContaining( { flow_id: expect.stringMatching( /^[0-9a-f]{32}$/ ) } )
+		);
+	} );
+
+	// The field is left open by one option only, and the text survives switching
+	// away from it, so a run that typed and changed its mind used no field.
+	it( 'says nothing about the field when the answer was not the one that opens it', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+
+		await user.click( screen.getByRole( 'radio', { name: 'Something else…' } ) );
+		await user.type( screen.getByRole( 'textbox' ), 'A wiki' );
+		await user.click( screen.getByRole( 'radio', { name: 'A blog or publication' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		expect( mockRecordEvent ).not.toHaveBeenCalledWith(
+			'jetpack_my_jetpack_onboarding_wizard_site_type_detail',
+			expect.anything()
+		);
 	} );
 } );
 
