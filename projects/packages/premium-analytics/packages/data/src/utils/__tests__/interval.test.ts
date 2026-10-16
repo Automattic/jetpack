@@ -282,6 +282,13 @@ describe( 'needsReportDateParamsSeed', () => {
 		).toBe( true );
 	} );
 
+	it( 'accepts days on a long range only where the plan locks the longer buckets', () => {
+		const search = { from: '2026-01-01', to: '2026-06-29', interval: 'day' };
+
+		expect( needsReportDateParamsSeed( search, NO_LOCKED_INTERVALS ) ).toBe( true );
+		expect( needsReportDateParamsSeed( search, [ 'week', 'month', 'year' ] ) ).toBe( false );
+	} );
+
 	it( 'seeds when a date lost the plus of its offset to the querystring', () => {
 		expect(
 			needsReportDateParamsSeed(

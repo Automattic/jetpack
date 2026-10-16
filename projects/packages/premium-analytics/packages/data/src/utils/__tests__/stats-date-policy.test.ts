@@ -2,7 +2,11 @@
  * External dependencies
  */
 import { getScriptData } from '@automattic/jetpack-script-data';
-import { MENU_SURFACE_PRESETS_WITH_ALL_TIME } from '@jetpack-premium-analytics/datetime';
+import {
+	computePrimaryRange,
+	MENU_SURFACE_PRESETS_WITH_ALL_TIME,
+} from '@jetpack-premium-analytics/datetime';
+import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
@@ -28,7 +32,18 @@ const lockOnly =
 	( feature: StatsFeatureKey ) =>
 		features.includes( feature );
 const free = () => deriveStatsDatePolicy( lockOnly( 'recent-7-days' ), 'UTC' );
-const basic = () => deriveStatsDatePolicy( lockOnly( 'long-date-presets' ), 'UTC' );
+// Legacy Basic, as `stats-plan-gates.php` defines it.
+const basic = () => deriveStatsDatePolicy( lockOnly( 'long-date-presets', 'intervals' ), 'UTC' );
+
+const originalSettings = getSettings();
+
+// `applyStatsDatePolicy` reads the site zone from the WordPress date settings.
+beforeAll( () => {
+	setSettings( {
+		...originalSettings,
+		timezone: { string: 'UTC', offset: 0, offsetFormatted: '0', abbr: 'UTC' },
+	} );
+} );
 
 beforeEach( () => {
 	jest.useFakeTimers().setSystemTime( new Date( '2026-10-15T12:00:00Z' ) );
@@ -36,6 +51,10 @@ beforeEach( () => {
 
 afterEach( () => {
 	jest.useRealTimers();
+} );
+
+afterAll( () => {
+	setSettings( originalSettings );
 } );
 
 describe( 'deriveStatsDatePolicy', () => {
@@ -53,26 +72,42 @@ describe( 'deriveStatsDatePolicy', () => {
 				fallbackPresetId: 'last-7-days',
 				offersComparison: false,
 			} );
+			expect( policy.earliestDate ).toEqual( computePrimaryRange( 'last-7-days', timeZone )?.from );
 		}
 	);
 
 	it.each( [
-		[ 'long-date-presets', lockOnly( 'long-date-presets' ), 'last-30-days', true, [] ],
-		[ 'intervals only', lockOnly( 'intervals' ), undefined, true, [ 'week', 'month', 'year' ] ],
-		[ 'nothing', lockOnly(), undefined, true, [] ],
+		[
+			'legacy basic',
+			lockOnly( 'long-date-presets', 'intervals' ),
+			'last-30-days',
+			true,
+			[ 'week', 'month', 'year' ],
+			undefined,
+		],
+		[
+			'intervals only',
+			lockOnly( 'intervals' ),
+			undefined,
+			true,
+			[ 'week', 'month', 'year' ],
+			undefined,
+		],
+		[ 'nothing', lockOnly(), undefined, true, [], undefined ],
 		[
 			'recent-7-days with intervals',
 			lockOnly( 'recent-7-days', 'intervals' ),
 			'last-7-days',
 			false,
 			[ 'week', 'month', 'year' ],
+			new Date( '2026-10-09T00:00:00Z' ),
 		],
 	] )(
 		'derives the %s policy',
-		( _name, isLocked, fallbackPresetId, offersComparison, lockedIntervals ) => {
+		( _name, isLocked, fallbackPresetId, offersComparison, lockedIntervals, earliestDate ) => {
 			const policy = deriveStatsDatePolicy( isLocked, 'UTC' );
 
-			expect( policy.earliestDate === undefined ).toBe( offersComparison );
+			expect( policy.earliestDate ).toEqual( earliestDate );
 			expect( policy.fallbackPresetId ).toBe( fallbackPresetId );
 			expect( policy.offersComparison ).toBe( offersComparison );
 			expect( policy.lockedIntervals ).toEqual( lockedIntervals );
@@ -86,11 +121,32 @@ describe( 'deriveStatsDatePolicy', () => {
 		expect( isPresetLockedByPolicy( 'last-30-days', longPresets ) ).toBe( false );
 		expect( isPresetLockedByPolicy( 'year-2025', OPEN_DATE_POLICY ) ).toBe( false );
 	} );
+} );
 
-	it( 'opens everything when the server published no gates', () => {
-		( getScriptData as jest.Mock ).mockReturnValue( { premium_analytics: {} } );
+describe( 'getStatsDatePolicy', () => {
+	afterEach( () => {
+		( getScriptData as jest.Mock ).mockReset();
+	} );
 
-		expect( getStatsDatePolicy() ).toEqual( OPEN_DATE_POLICY );
+	it.each( [
+		[ 'opens everything when the server published no gates', {}, undefined ],
+		[
+			'reads the week lock the server published',
+			{
+				plan_gates: {
+					tier: 'free',
+					locked_features: {
+						'recent-7-days': { description: '', support_url: '', upgrade_url: '' },
+					},
+					locked_widget_types: {},
+				},
+			},
+			'recent-7-days',
+		],
+	] )( '%s', ( _name, premiumAnalytics, feature ) => {
+		( getScriptData as jest.Mock ).mockReturnValue( { premium_analytics: premiumAnalytics } );
+
+		expect( getStatsDatePolicy().feature ).toBe( feature );
 	} );
 } );
 
@@ -115,6 +171,13 @@ describe( 'applyStatsDatePolicy', () => {
 		],
 		[ 'a locked preset', free, { preset: 'last-30-days' }, 'last-7-days' ],
 		[ 'a long preset', basic, { preset: 'last-90-days' }, 'last-30-days' ],
+		// Last 30 days allows weeks, so only the plan's locks bring this one back to days.
+		[
+			'a long preset in weeks',
+			basic,
+			{ preset: 'last-90-days', interval: 'week' },
+			'last-30-days',
+		],
 	] )( 'replaces %s with the fallback', ( _name, policy, search, preset ) => {
 		const result = applyStatsDatePolicy(
 			normalizeReportParams( search as never, { lockedIntervals: NO_LOCKED_INTERVALS } ),
@@ -123,6 +186,7 @@ describe( 'applyStatsDatePolicy', () => {
 
 		expect( result.isWindowAdjusted ).toBe( true );
 		expect( result.params.preset ).toBe( preset );
+		expect( result.params.interval ).toBe( 'day' );
 	} );
 
 	it.each( [
@@ -131,7 +195,7 @@ describe( 'applyStatsDatePolicy', () => {
 		[ 'a long custom range on legacy basic', basic, { from: '2026-01-01', to: '2026-06-30' } ],
 	] )( 'keeps %s', ( _name, policy, search ) => {
 		const params = normalizeReportParams( search as never, {
-			lockedIntervals: NO_LOCKED_INTERVALS,
+			lockedIntervals: policy().lockedIntervals,
 		} );
 
 		expect( applyStatsDatePolicy( params, policy() ) ).toEqual( {
