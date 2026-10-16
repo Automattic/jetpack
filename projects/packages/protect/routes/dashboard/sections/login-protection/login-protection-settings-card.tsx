@@ -133,7 +133,7 @@ export default function LoginProtectionSettingsCard( {
 			<CardRow>
 				<Stack direction="column" gap="md">
 					<Text variant="body-lg" render={ <h3 /> } className="jp-protect-card__subheading">
-						{ __( 'WordPress.com login', 'jetpack-protect-pkg' ) }
+						{ __( 'WordPress.com login (SSO)', 'jetpack-protect-pkg' ) }
 					</Text>
 					<SsoToggle
 						data={ data }

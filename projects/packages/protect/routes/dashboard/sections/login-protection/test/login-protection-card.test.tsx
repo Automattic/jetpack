@@ -51,7 +51,7 @@ describe( 'LoginProtectionCard', () => {
 
 			expect( screen.queryByText( '1,234' ) !== null ).toBe( isOn );
 			expect(
-				screen.queryByRole( 'checkbox', { name: 'Enable Brute Force Protection' } ) === null
+				screen.queryByRole( 'checkbox', { name: 'Enable brute force protection' } ) === null
 			).toBe( isOn );
 		}
 	);
@@ -59,13 +59,15 @@ describe( 'LoginProtectionCard', () => {
 	it( 'shows the page-load state before the settings load', () => {
 		render( card( { accountProtection: on, sso: off } ) );
 
-		expect( screen.getByRole( 'checkbox', { name: 'Enable Account protection' } ) ).toBeChecked();
-		expect( screen.getByRole( 'checkbox', { name: 'Enable Secure Sign On' } ) ).not.toBeChecked();
+		expect( screen.getByRole( 'checkbox', { name: 'Enable account protection' } ) ).toBeChecked();
+		expect(
+			screen.getByRole( 'checkbox', { name: 'Enable WordPress.com login (SSO)' } )
+		).not.toBeChecked();
 	} );
 
 	it.each( [
-		[ 'Enable Brute Force Protection', { bruteForce: off }, { protect: true } ],
-		[ 'Enable Account protection', { accountProtection: off }, { 'account-protection': true } ],
+		[ 'Enable brute force protection', { bruteForce: off }, { protect: true } ],
+		[ 'Enable account protection', { accountProtection: off }, { 'account-protection': true } ],
 	] )( 'saves “%s” when it is switched on', async ( name, state, patch ) => {
 		const save = jest.fn();
 		render( card( state, { save } ) );
@@ -76,8 +78,8 @@ describe( 'LoginProtectionCard', () => {
 	} );
 
 	it.each( [
-		[ 'Enable Brute Force Protection', { bruteForce: unavailable }, 'Brute force protection' ],
-		[ 'Enable Account protection', { accountProtection: unavailable }, 'Account protection' ],
+		[ 'Enable brute force protection', { bruteForce: unavailable }, 'Brute force protection' ],
+		[ 'Enable account protection', { accountProtection: unavailable }, 'Account protection' ],
 	] )( 'says why “%s” is disabled when unavailable', ( name, state, feature ) => {
 		render( card( state ) );
 
@@ -89,12 +91,12 @@ describe( 'LoginProtectionCard', () => {
 		const { rerender } = render( card( { bruteForce: off } ) );
 		await userEvent
 			.setup()
-			.click( screen.getByRole( 'checkbox', { name: 'Enable Brute Force Protection' } ) );
+			.click( screen.getByRole( 'checkbox', { name: 'Enable brute force protection' } ) );
 
 		rerender( card( { bruteForce: off }, { settings: { protect: true } } ) );
 
 		expect(
-			screen.getByRole( 'link', { name: 'Configure Brute Force Protection' } )
+			screen.getByRole( 'link', { name: 'Configure brute force protection' } )
 		).toHaveFocus();
 	} );
 
@@ -115,9 +117,9 @@ describe( 'LoginProtectionCard', () => {
 	] )( 'links to WordPress.com login settings only while it is %s', ( _name, state, hasLink ) => {
 		render( card( state ) );
 
-		expect( screen.queryByRole( 'link', { name: 'Configure Secure Sign On' } ) !== null ).toBe(
-			hasLink
-		);
+		expect(
+			screen.queryByRole( 'link', { name: 'Configure WordPress.com login (SSO)' } ) !== null
+		).toBe( hasLink );
 	} );
 
 	it( 'renders nothing when PHP registered no section', () => {
@@ -138,7 +140,7 @@ describe( 'LoginProtectionCard', () => {
 
 		await userEvent
 			.setup()
-			.click( screen.getByRole( 'link', { name: 'Configure Brute Force Protection' } ) );
+			.click( screen.getByRole( 'link', { name: 'Configure brute force protection' } ) );
 
 		expect( openTab ).toHaveBeenCalledWith( 'settings', { section: 'loginProtection' } );
 	} );
