@@ -27,7 +27,7 @@ import { useStandaloneScopeClass } from '../../providers/chart-scope';
 import { formatMetricValue, formatPercentage } from '../../utils';
 import styles from './conversion-funnel-chart.module.scss';
 import { useFunnelSelection, useRovingStepFocus } from './private';
-import type { FunnelStep, ConversionFunnelChartProps } from './types';
+import type { FunnelStep, FunnelTooltipContent, ConversionFunnelChartProps } from './types';
 
 /** Chart height (px) below which the funnel tightens its gaps so the bars keep their room. */
 const SHORT_CHART_HEIGHT = 180;
@@ -39,36 +39,55 @@ const formatStepCount = ( count: number ) =>
 		formatMetricValue( count )
 	);
 
-const getDefaultStepDescription = ( step: FunnelStep ) =>
-	step.count === undefined
-		? formatPercentage( step.rate )
-		: sprintf(
-				/* translators: 1: Conversion rate of a funnel step, e.g. 71.1%. 2: Its item count, e.g. "7,110 items". */
+const getDefaultTooltipContent = ( step: FunnelStep ): FunnelTooltipContent => ( {
+	value: step.count === undefined ? undefined : formatStepCount( step.count ),
+	rows: [
+		{ label: __( 'Conversion rate', 'jetpack-charts' ), value: formatPercentage( step.rate ) },
+	],
+} );
+
+const describeTooltipContent = ( { value, rows = [] }: FunnelTooltipContent ) => {
+	const lines = rows.map( row =>
+		sprintf(
+			/* translators: 1: Label of a funnel tooltip line, e.g. "Conversion rate". 2: Its value, e.g. "71.1%". */
+			__( '%1$s %2$s', 'jetpack-charts' ),
+			row.label,
+			row.value
+		)
+	);
+	const [ first = '', ...rest ] = value ? [ value, ...lines ] : lines;
+	return rest.reduce(
+		( sentence, line ) =>
+			sprintf(
+				/* translators: Joins two lines of a funnel step's tooltip that a screen reader reads as one sentence. 1: The lines so far. 2: The next line. */
 				__( '%1$s, %2$s', 'jetpack-charts' ),
-				formatPercentage( step.rate ),
-				formatStepCount( step.count )
-			);
+				sentence,
+				line
+			),
+		first
+	);
+};
 
 /**
  * Internal ConversionFunnelChart component with chart registration
  *
- * @param props                    - Component props
- * @param props.chartId            - Optional unique identifier for the chart
- * @param props.mainRate           - Main conversion rate to highlight
- * @param props.changeIndicator    - Change indicator (e.g., +2%, -1.5%)
- * @param props.steps              - Array of funnel steps
- * @param props.loading            - Whether the chart is in loading state
- * @param props.animation          - Whether to show chart animation on initial render or not
- * @param props.className          - Additional CSS class name
- * @param props.ariaLabel          - Accessible name for the chart group
- * @param props.height             - Height of the chart container. Falls back to style.height if set, otherwise defaults to "100%".
- * @param props.style              - Custom styling
- * @param props.renderStepLabel    - Custom render function for step labels
- * @param props.renderStepRate     - Custom render function for step rates
- * @param props.renderMainMetric   - Custom render function for the entire main metric section
- * @param props.renderTooltip      - Custom render function for tooltip content
- * @param props.tooltipStyle       - Inline styles merged over the tooltip box defaults
- * @param props.getStepDescription - Plain text screen readers read after each step's name, matching its tooltip
+ * @param props                   - Component props
+ * @param props.chartId           - Optional unique identifier for the chart
+ * @param props.mainRate          - Main conversion rate to highlight
+ * @param props.changeIndicator   - Change indicator (e.g., +2%, -1.5%)
+ * @param props.steps             - Array of funnel steps
+ * @param props.loading           - Whether the chart is in loading state
+ * @param props.animation         - Whether to show chart animation on initial render or not
+ * @param props.className         - Additional CSS class name
+ * @param props.ariaLabel         - Accessible name for the chart group
+ * @param props.height            - Height of the chart container. Falls back to style.height if set, otherwise defaults to "100%".
+ * @param props.style             - Custom styling
+ * @param props.renderStepLabel   - Custom render function for step labels
+ * @param props.renderStepRate    - Custom render function for step rates
+ * @param props.renderMainMetric  - Custom render function for the entire main metric section
+ * @param props.renderTooltip     - Custom render function for tooltip content
+ * @param props.tooltipStyle      - Inline styles merged over the tooltip box defaults
+ * @param props.getTooltipContent - What each step's tooltip shows, which screen readers also read
  * @return JSX element representing the conversion funnel chart
  */
 const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
@@ -87,7 +106,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 	renderMainMetric,
 	renderTooltip,
 	tooltipStyle,
-	getStepDescription = getDefaultStepDescription,
+	getTooltipContent = getDefaultTooltipContent,
 } ) => {
 	const chartId = useChartId( providedChartId );
 	const { getElementStyles, isColorPaletteResolved } = useGlobalChartsContext();
@@ -307,14 +326,18 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 		</>
 	);
 
-	// Default tooltip rendering function
-	const renderDefaultTooltip = ( step: FunnelStep ) => (
-		<Stack direction="column" align="flex-start" gap="xs">
-			<div className={ styles[ 'tooltip-title' ] }>{ step.label }</div>
-			<div className={ styles[ 'tooltip-content' ] }>
-				{ formatPercentage( step.rate ) }
-				{ step.count !== undefined && ` • ${ formatStepCount( step.count ) }` }
-			</div>
+	const renderDefaultTooltip = ( step: FunnelStep, { value, rows = [] }: FunnelTooltipContent ) => (
+		<Stack direction="column" gap="xs">
+			<Stack direction="row" justify="space-between" align="baseline" gap="sm">
+				<span className={ styles[ 'tooltip-title' ] }>{ step.label }</span>
+				{ value && <span className={ styles[ 'tooltip-value' ] }>{ value }</span> }
+			</Stack>
+			{ rows.map( row => (
+				<Stack key={ row.label } direction="row" justify="space-between" align="baseline" gap="sm">
+					<span className={ styles[ 'tooltip-label' ] }>{ row.label }</span>
+					<span className={ styles[ 'tooltip-value' ] }>{ row.value }</span>
+				</Stack>
+			) ) }
 		</Stack>
 	);
 
@@ -371,14 +394,11 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 	const tooltipStep = tooltipOpen ? ( tooltipData as FunnelStep | undefined ) : undefined;
 	let tooltipContent: React.ReactNode = null;
 	if ( tooltipStep ) {
+		const index = steps.findIndex( s => s.id === tooltipStep.id );
+		const content = getTooltipContent( tooltipStep, index );
 		tooltipContent = renderTooltip
-			? renderTooltip( {
-					step: tooltipStep,
-					index: steps.findIndex( s => s.id === tooltipStep.id ),
-					top: tooltipTop,
-					left: tooltipLeft,
-				} )
-			: renderDefaultTooltip( tooltipStep );
+			? renderTooltip( { step: tooltipStep, index, content, top: tooltipTop, left: tooltipLeft } )
+			: renderDefaultTooltip( tooltipStep, content );
 	}
 
 	return (
@@ -425,7 +445,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 						const barHeight = ( step.rate / maxRate ) * 100;
 						const { isClicked, isBlurred } = getStepState( step.id );
 						const handlers = stepHandlers.get( step.id );
-						const description = getStepDescription( step, index );
+						const description = describeTooltipContent( getTooltipContent( step, index ) );
 						const descriptionId = `${ descriptionIdPrefix }-${ index }`;
 
 						return (

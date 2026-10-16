@@ -185,13 +185,17 @@ Full control over component rendering with custom render functions:
 				)}
 			</div>
 		)}
-		renderTooltip={({ step }) => (
+		renderTooltip={({ step, content }) => (
 			<div style={{ minWidth: '200px' }}>
 				<div>{step.label}</div>
-				<div style={{ fontSize: '18px', fontWeight: 'bold' }}>
-					{step.rate.toFixed(1)}%
-					{step.count && <span> • {step.count.toLocaleString()} items</span>}
-				</div>
+				{content.value && (
+					<div style={{ fontSize: '18px', fontWeight: 'bold' }}>{content.value}</div>
+				)}
+				{content.rows?.map(row => (
+					<div key={row.label}>
+						{row.label}: <strong>{row.value}</strong>
+					</div>
+				))}
 			</div>
 		)}
 		tooltipStyle={{
@@ -208,7 +212,8 @@ Full control over component rendering with custom render functions:
 - **`renderMainMetric`**: Customize the main conversion rate display
 - **`renderStepLabel`**: Customize individual step labels
 - **`renderStepRate`**: Customize individual step rate displays
-- **`renderTooltip`**: Customize tooltip content. It sits inside the dark tooltip box, so let it inherit the box colors.
+- **`getTooltipContent`**: Set what each step's tooltip shows: a `value` beside the step's name and labeled `rows` below it. Screen readers read the same content, so the two cannot drift.
+- **`renderTooltip`**: Customize the tooltip's layout. Render the `content` it receives, which is what screen readers read. It sits inside the dark tooltip box, so let it inherit the box colors.
 - **`tooltipStyle`**: Restyle the tooltip box itself, such as its background, radius or padding. Set `color` with any background change.
 
 ### Disabling Components
@@ -399,7 +404,7 @@ The steps form a [toolbar](https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/) wi
 - **ARIA Roles**: The steps sit in a `role="toolbar"` labeled "Funnel steps", and each step uses `role="button"`
 - **ARIA Labels**: Each step has `aria-label` with the step name
 - **Selection State**: The selected step has `aria-pressed="true"`, the others `aria-pressed="false"`
-- **Descriptions**: Each step has an `aria-describedby` description with what its tooltip shows, by default the rate and count ("71.1%, 7,110 items"). With a custom `renderTooltip`, pass `getStepDescription` with the same content, so screen readers hear what the tooltip shows. The tooltip itself is visual only.
+- **Descriptions**: Each step has an `aria-describedby` description built from the same `getTooltipContent` as its tooltip, by default "7,110 items, Conversion rate 71.1%". The tooltip itself is visual only.
 - **Alternative Text**: Step labels and rates are accessible to screen readers
 - **Loading States**: Loading and empty states provide appropriate text content
 
