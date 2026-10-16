@@ -6,6 +6,7 @@ use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\My_Jetpack\Products\Backup;
 use Automattic\Jetpack\Redirect;
 use Jetpack_Options;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
@@ -72,6 +73,63 @@ class Backup_Product_Test extends TestCase {
 		$modules[] = 'backup';
 
 		return array_values( array_unique( $modules ) );
+	}
+
+	/**
+	 * The stored plan and products answer whether the site has, or had, Backup.
+	 *
+	 * @dataProvider provide_stored_plans
+	 *
+	 * @param array $plan     The stored plan.
+	 * @param array $products The stored products.
+	 * @param bool  $expected Whether a Backup plan is on record.
+	 */
+	#[DataProvider( 'provide_stored_plans' )]
+	public function test_has_plan_on_record( $plan, $products, $expected ) {
+		update_option( 'jetpack_active_plan', $plan );
+		update_option( 'jetpack_site_products', $products );
+
+		$this->assertSame( $expected, Backup::has_plan_on_record() );
+	}
+
+	/**
+	 * Data provider for test_has_plan_on_record.
+	 *
+	 * @return array
+	 */
+	public static function provide_stored_plans() {
+		$free = array(
+			'product_slug' => 'jetpack_free',
+			'features'     => array( 'active' => array() ),
+		);
+
+		return array(
+			'nothing'                     => array( $free, array(), false ),
+			'a feature of a current plan' => array( array( 'features' => array( 'active' => array( 'backups' ) ) ), array(), true ),
+			'an expired Backup product'   => array(
+				$free,
+				array(
+					array(
+						'product_slug' => 'jetpack_backup_t1_yearly',
+						'expired'      => true,
+					),
+				),
+				true,
+			),
+			'an expired bundle'           => array(
+				array(
+					'product_slug' => 'jetpack_security_t1_yearly',
+					'expired'      => true,
+					'features'     => array(
+						'active'    => array(),
+						'available' => array( 'backups' => array( 'jetpack_security_t1_yearly' ) ),
+					),
+				),
+				array(),
+				true,
+			),
+			'another product'             => array( $free, array( array( 'product_slug' => 'jetpack_scan' ) ), false ),
+		);
 	}
 
 	/**

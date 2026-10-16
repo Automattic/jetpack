@@ -841,6 +841,18 @@ class Jetpack {
 	}
 
 	/**
+	 * Whether the site has, or had, a plan that includes Backup; see Backup::has_plan_on_record().
+	 *
+	 * @return bool
+	 */
+	private static function has_backup_plan_on_record() {
+		$backup = 'Automattic\\Jetpack\\My_Jetpack\\Products\\Backup';
+
+		// Another plugin may have loaded an older My Jetpack without it, which leaves the module as the only gate.
+		return ! method_exists( $backup, 'has_plan_on_record' ) || $backup::has_plan_on_record();
+	}
+
+	/**
 	 * Enable the bundled Backup dashboard.
 	 *
 	 * The standalone plugin initializes the package first, so with both active this is a no-op.
@@ -854,7 +866,7 @@ class Jetpack {
 			return;
 		}
 
-		if ( ! self::is_module_active( 'backup' ) ) {
+		if ( ! self::is_module_active( 'backup' ) || ! self::has_backup_plan_on_record() ) {
 			return;
 		}
 

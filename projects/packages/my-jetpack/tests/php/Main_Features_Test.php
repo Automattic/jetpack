@@ -539,12 +539,13 @@ class Main_Features_Test extends TestCase {
 	 * Fakes the site's purchases, so ownership is read without a request to WordPress.com.
 	 *
 	 * @param string[] $product_slugs The WordPress.com product slugs the site pays for.
+	 * @param string   $expiry_status The purchases' expiry status.
 	 */
-	private function own( array $product_slugs ) {
+	private function own( array $product_slugs, $expiry_status = 'active' ) {
 		$purchases = array_map(
 			fn( $slug ) => (object) array(
 				'product_slug'  => $slug,
-				'expiry_status' => 'active',
+				'expiry_status' => $expiry_status,
 				'expiry_date'   => gmdate( 'Y-m-d H:i:s', strtotime( '+1 year' ) ),
 			),
 			$product_slugs
@@ -574,6 +575,94 @@ class Main_Features_Test extends TestCase {
 		foreach ( array( 'activity-log', 'podcast', 'jetpack-forms', 'newsletter', 'anti-spam' ) as $slug ) {
 			$this->assertSame( '', $upgrades[ $slug ]['path'], "Feature {$slug} still offers an upgrade to a Complete site." );
 		}
+	}
+
+	/**
+	 * A host's upgrade URL reaches only a site that has something to buy, and only as a web address.
+	 *
+	 * @dataProvider provide_host_upgrade_urls
+	 *
+	 * @param string[]    $owned    The products the site pays for.
+	 * @param string      $url      The URL the host sends.
+	 * @param string|null $expected The URL the feature carries, or null for none.
+	 */
+	#[DataProvider( 'provide_host_upgrade_urls' )]
+	public function test_host_upgrade_url( $owned, $url, $expected ) {
+		$this->own( $owned );
+		$send_to_host = static function ( $upgrade ) use ( $url ) {
+			return array_merge( $upgrade, array( 'url' => $url ) );
+		};
+		add_filter( 'jetpack_my_jetpack_feature_upgrade', $send_to_host );
+
+		$upgrades = array_column( Main_Features::get_features(), 'upgrade', 'slug' );
+		remove_filter( 'jetpack_my_jetpack_feature_upgrade', $send_to_host );
+
+		$this->assertSame( $expected, $upgrades['backup']['url'] ?? null );
+	}
+
+	/**
+	 * Data provider for test_host_upgrade_url.
+	 *
+	 * @return array
+	 */
+	public static function provide_host_upgrade_urls() {
+		return array(
+			'no plan'         => array( array(), 'https://example.com/plans', 'https://example.com/plans' ),
+			'owns Complete'   => array( array( 'jetpack_complete' ), 'https://example.com/plans', null ),
+			'javascript: URL' => array( array(), 'javascript:alert(1)', '' ),
+		);
+	}
+
+	/**
+	 * A filter that returns something other than an array leaves the upgrade as it was.
+	 */
+	public function test_non_array_upgrade_filter_keeps_the_upgrade() {
+		$before = array_column( Main_Features::get_features(), 'upgrade', 'slug' );
+		add_filter( 'jetpack_my_jetpack_feature_upgrade', '__return_empty_string' );
+
+		$after = array_column( Main_Features::get_features(), 'upgrade', 'slug' );
+		remove_filter( 'jetpack_my_jetpack_feature_upgrade', '__return_empty_string' );
+
+		$this->assertSame( $before, $after );
+	}
+
+	/**
+	 * Only Backup follows its plan, which is what keeps a switch off its card whichever plugin delivers it.
+	 */
+	public function test_only_backup_is_plan_driven() {
+		$plan_driven = array_keys( array_filter( array_column( Main_Features::get_features(), 'plan_driven', 'slug' ) ) );
+
+		$this->assertSame( array( 'backup' ), $plan_driven );
+	}
+
+	/**
+	 * An expired Backup plan is sold again rather than counted as included.
+	 *
+	 * @dataProvider provide_backup_expiry
+	 *
+	 * @param string $expiry_status The purchase's expiry status.
+	 * @param bool   $included      Whether Backup should count as included.
+	 */
+	#[DataProvider( 'provide_backup_expiry' )]
+	public function test_expired_backup_plan_is_not_included( $expiry_status, $included ) {
+		$this->own( array( 'jetpack_backup_t1_yearly' ), $expiry_status );
+
+		$backup = array_column( Main_Features::get_features(), null, 'slug' )['backup'];
+
+		$this->assertSame( $included, $backup['included'] );
+		$this->assertSame( ! $included, '' !== $backup['upgrade']['path'] );
+	}
+
+	/**
+	 * Data provider for test_expired_backup_plan_is_not_included.
+	 *
+	 * @return array
+	 */
+	public static function provide_backup_expiry() {
+		return array(
+			'active'  => array( 'active', true ),
+			'expired' => array( 'expired', false ),
+		);
 	}
 
 	/**

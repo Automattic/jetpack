@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Redirect;
@@ -481,6 +482,40 @@ class Backup extends Hybrid_Product {
 			'jetpack_backup_t0_yearly',
 			'jetpack_backup_t0_monthly',
 		);
+	}
+
+	/**
+	 * Whether the site's stored plan or products include Backup, current or expired, without asking WordPress.com.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function has_plan_on_record() {
+		$feature = static::$feature_identifying_paid_plan;
+		$plan    = (array) get_option( Current_Plan::PLAN_OPTION, array() );
+
+		// The stored plan lists the features of every current purchase, standalone products included.
+		if ( in_array( $feature, (array) ( $plan['features']['active'] ?? array() ), true ) ) {
+			return true;
+		}
+
+		// An expired bundle has no active features, so match its slug against the bundles that include Backup.
+		if ( ! empty( $plan['expired'] ) && in_array( $plan['product_slug'] ?? '', (array) ( $plan['features']['available'][ $feature ] ?? array() ), true ) ) {
+			return true;
+		}
+
+		foreach ( (array) Current_Plan::get_products() as $product ) {
+			$slug = (string) ( ( (array) $product )['product_slug'] ?? '' );
+
+			foreach ( static::get_paid_plan_product_slugs() as $paid_slug ) {
+				if ( false !== strpos( $slug, $paid_slug ) ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 
 	/**

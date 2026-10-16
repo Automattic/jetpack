@@ -5,6 +5,7 @@ import { Button, ButtonLink } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { ModuleToggle } from '../../module-toggle';
 import { getSwitchLabel } from '../utils';
+import { UpgradeButton } from './feature-paid';
 import { getFeatureManageUrl, getForcedReason } from './feature-state';
 import { useFeaturesTracking } from './features-tracking-context';
 import styles from './styles.module.scss';
@@ -151,6 +152,28 @@ export function FeatureAction( { state, describedby, origin = 'card' }: FeatureA
 	}
 
 	switch ( control.kind ) {
+		case 'plan':
+			if ( state.status === 'active' ) {
+				return null;
+			}
+
+			// Paid for, with its plugin off: activating it is all that is left to do.
+			if ( control.activatePlugin && state.feature.included ) {
+				return (
+					<InstallButton
+						state={ state }
+						origin={ origin }
+						plugin={ control.activatePlugin }
+						name={ pluginName }
+						label={ __( 'Activate', 'jetpack-my-jetpack' ) }
+						action="activate"
+					/>
+				);
+			}
+
+			// Otherwise there is a sale to offer instead of a switch; buying it sets the plugin up.
+			return <UpgradeButton state={ state } />;
+
 		case 'module': {
 			if ( getForcedReason( state ) ) {
 				return null;
