@@ -3,6 +3,7 @@ import {
 	computePrimaryRange,
 } from '@jetpack-premium-analytics/datetime';
 import { useState, type ReactNode } from 'react';
+import { DateLimitUpsell } from '../../date-limit-upsell';
 import { DatePeriodDropdown } from '../date-period-dropdown';
 import type {
 	DateRange,
@@ -42,12 +43,15 @@ const TIME_ZONE = 'America/New_York';
 // calendar month there, which is the point of the story.
 const CUSTOM_RANGE: DateRange = computePrimaryRange( 'last-month', TIME_ZONE )!;
 
+const LAST_7_DAYS: DateRange = computePrimaryRange( 'last-7-days', TIME_ZONE )!;
+
 function DatePeriodDropdownWithState( {
 	initialPresetId = 'last-30-days',
 	initialRange,
 	presetIds,
 	allTimeStart,
 	lockedPresetIds,
+	earliestDate,
 	lockNotice,
 }: {
 	initialPresetId?: PrimaryPresetId;
@@ -55,6 +59,7 @@ function DatePeriodDropdownWithState( {
 	presetIds?: readonly QuickSurfacePresetId[];
 	allTimeStart?: Date;
 	lockedPresetIds?: readonly QuickSurfacePresetId[];
+	earliestDate?: Date;
 	lockNotice?: ReactNode;
 } ) {
 	const [ appliedPresetId, setAppliedPresetId ] = useState< PrimaryPresetId | undefined >(
@@ -78,6 +83,7 @@ function DatePeriodDropdownWithState( {
 			presetIds={ presetIds }
 			allTimeStart={ allTimeStart }
 			lockedPresetIds={ lockedPresetIds }
+			earliestDate={ earliestDate }
 			lockNotice={ lockNotice }
 			timeZone={ TIME_ZONE }
 			canApply={ range !== appliedRange }
@@ -139,6 +145,8 @@ export const PlanLimited: Story = {
 	render: () => (
 		<DatePeriodDropdownWithState
 			initialPresetId="last-7-days"
+			initialRange={ LAST_7_DAYS }
+			earliestDate={ LAST_7_DAYS.from }
 			lockedPresetIds={ [
 				'last-30-days',
 				'month-to-date',
@@ -147,7 +155,15 @@ export const PlanLimited: Story = {
 				'last-12-months',
 				'all-time',
 			] }
-			lockNotice={ <p>Your plan includes the last 7 days. Upgrade to see more.</p> }
+			lockNotice={
+				<DateLimitUpsell
+					upsell={ {
+						description: 'See more than the last 7 days of your stats.',
+						supportUrl: '',
+						upgradeUrl: 'https://example.com/plans',
+					} }
+				/>
+			}
 		/>
 	),
 };
