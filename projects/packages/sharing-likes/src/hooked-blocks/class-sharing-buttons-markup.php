@@ -27,6 +27,11 @@ final class Sharing_Buttons_Markup {
 	private const LIST_CLOSE = '</ul>';
 
 	/**
+	 * The legacy services Simple had when it removed them all to switch to the block.
+	 */
+	public const SAVED_SERVICES_OPTION = 'jetpack_sharing_buttons_legacy_services';
+
+	/**
 	 * Buttons when the site has no legacy service the block offers.
 	 */
 	private const DEFAULT_SERVICES = array( 'facebook', 'x', 'mastodon' );
@@ -87,25 +92,47 @@ final class Sharing_Buttons_Markup {
 	}
 
 	/**
-	 * The block's services for the legacy buttons the site shows, those behind "More" when none
-	 * are visible, or the defaults.
+	 * The block's services for the legacy buttons the site shows, or showed before Simple removed
+	 * them all; those behind "More" when none are visible; or the defaults.
 	 *
 	 * Reads the option rather than `Sharing_Service`, which may not be loaded, and saves defaults on read.
 	 *
 	 * @return string[]
 	 */
 	public static function services(): array {
-		$stored = get_option( 'sharing-services' );
+		foreach ( array( get_option( 'sharing-services' ), get_option( self::SAVED_SERVICES_OPTION ) ) as $stored ) {
+			foreach ( array( 'visible', 'hidden' ) as $list ) {
+				$services = is_array( $stored ) && isset( $stored[ $list ] ) && is_array( $stored[ $list ] ) ? self::block_services( $stored[ $list ] ) : array();
 
-		foreach ( array( 'visible', 'hidden' ) as $list ) {
-			$services = is_array( $stored ) && isset( $stored[ $list ] ) && is_array( $stored[ $list ] ) ? self::block_services( $stored[ $list ] ) : array();
-
-			if ( $services ) {
-				return $services;
+				if ( $services ) {
+					return $services;
+				}
 			}
 		}
 
 		return self::DEFAULT_SERVICES;
+	}
+
+	/**
+	 * Keep the legacy services for the block before they are all removed. The one writer for the copy.
+	 *
+	 * A site that never saved any keeps no copy, so the block gets its own defaults.
+	 */
+	public static function remember_legacy_services(): void {
+		$stored = get_option( 'sharing-services' );
+
+		if ( ! is_array( $stored ) || ( empty( $stored['visible'] ) && empty( $stored['hidden'] ) ) ) {
+			return;
+		}
+
+		update_option(
+			self::SAVED_SERVICES_OPTION,
+			array(
+				'visible' => is_array( $stored['visible'] ?? null ) ? $stored['visible'] : array(),
+				'hidden'  => is_array( $stored['hidden'] ?? null ) ? $stored['hidden'] : array(),
+			),
+			false
+		);
 	}
 
 	/**

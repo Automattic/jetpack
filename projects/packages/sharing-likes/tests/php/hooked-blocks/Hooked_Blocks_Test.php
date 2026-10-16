@@ -13,6 +13,8 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Sharing_Likes\Block_Names;
 use Automattic\Jetpack\Sharing_Likes\Post_Likes_Switch;
 use Automattic\Jetpack\Sharing_Likes\Post_Sharing_Switch;
+use Automattic\Jetpack\Sharing_Likes\Settings\Feature_Actions;
+use Automattic\Jetpack\Sharing_Likes\Settings\Placement_Section;
 use Automattic\Jetpack\Sharing_Likes\Settings\Section_Environment;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -74,7 +76,7 @@ class Hooked_Blocks_Test extends BaseTestCase {
 		remove_all_filters( 'jetpack_sharing_likes_template_placement_post_types' );
 		unregister_post_type( 'post-card' );
 
-		foreach ( array_merge( Template_Placements::OPTIONS, array( 'sharing-services', 'sharing-options', 'disabled_likes', 'disabled_reblogs' ) ) as $option ) {
+		foreach ( array_merge( Template_Placements::OPTIONS, array( 'sharing-services', Sharing_Buttons_Markup::SAVED_SERVICES_OPTION, 'sharing-options', 'disabled_likes', 'disabled_reblogs' ) ) as $option ) {
 			delete_option( $option );
 		}
 
@@ -652,6 +654,28 @@ class Hooked_Blocks_Test extends BaseTestCase {
 		);
 		$this->assertSame( $style_type, $block['attrs']['styleType'] ?? null );
 		$this->assertCount( count( $buttons ) + 2, $block['innerContent'] );
+	}
+
+	/**
+	 * Simple switches to the block by removing every legacy service, so the block reads the copy kept then.
+	 */
+	public function test_carries_simple_services_over_after_the_switch_to_the_block(): void {
+		update_option(
+			'sharing-services',
+			array(
+				'visible' => array( 'linkedin' ),
+				'hidden'  => array( 'reddit' ),
+			)
+		);
+		$this->given_connection( false );
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		Feature_Actions::switch_to_block( Placement_Section::FEATURE_SHARING );
+
+		$this->assertSame(
+			array( 'linkedin' => 'LinkedIn' ),
+			array_column( array_column( $this->placed_sharing_buttons()['innerBlocks'], 'attrs' ), 'label', 'service' )
+		);
 	}
 
 	/**

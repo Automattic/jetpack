@@ -121,7 +121,9 @@ Atomic only.
 The "Switch to the … block" buttons still work on Simple, through settings
 rather than modules: `Feature_Actions` empties `sharing-services`, or sets
 `disabled_likes` and `disabled_reblogs` (the legacy widget renders for either
-button). `Environment::legacy_sharing_switched_off()` and
+button). It keeps a copy of the services it removes, which the template
+placements read so the hooked block keeps the site's buttons (see
+`Sharing_Buttons_Markup::remember_legacy_services()`). `Environment::legacy_sharing_switched_off()` and
 `legacy_likes_switched_off()` read them back, and `Section_State` treats that as
 off wherever the block is a route, so the section lands on `BLOCK_CALL_TO_ACTION`
 with no way back, as a deactivated module does. The same holds on Jetpack for an
