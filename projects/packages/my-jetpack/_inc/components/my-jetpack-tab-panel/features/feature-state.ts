@@ -45,7 +45,6 @@ export type FeatureControl =
 	| { kind: 'install-jetpack'; installed: boolean; blocked?: InstallBlock }
 	| { kind: 'none'; override?: 'active' | 'inactive' };
 
-// What Features reads from the connection package's store.
 type ConnectionStore = {
 	getConnectionStatus?: () => {
 		isRegistered: boolean;

@@ -54,8 +54,9 @@ jest.mock( '../use-main-features', () => ( {
 	} ),
 } ) );
 jest.mock( '../../../module-toggle', () => ( {
-	useModuleActivation: ( $module: MyJetpackModule ) => ( {
-		setModuleActive: ( active: boolean ) => mockSetModuleActive( $module.module, active ),
+	// Records the reload option too: Activity Log reloads the page after switching unless it is false.
+	useModuleActivation: ( $module: MyJetpackModule, options?: { reload?: boolean } ) => ( {
+		setModuleActive: ( active: boolean ) => mockSetModuleActive( $module.module, active, options ),
 	} ),
 } ) );
 
@@ -658,7 +659,7 @@ describe( 'FeaturesContent after connecting the account', () => {
 	afterEach( () => nowSpy?.mockRestore() );
 
 	it.each( [
-		[ 'a module that is off', [ monitor ], 'monitor', [ [ 'monitor', true ] ] ],
+		[ 'a module that is off', [ monitor ], 'monitor', [ [ 'monitor', true, { reload: false } ] ] ],
 		[ 'a plugin that is off', [ social ], 'social', [ [ 'jetpack-social', 'activate' ] ] ],
 	] as const )( 'turns on once, after the return, %s', ( _, states, slug, expected ) => {
 		mockStates = [ ...states ] as FeatureState[];
@@ -740,10 +741,20 @@ describe( 'FeaturesContent after connecting the account', () => {
 		render( <ConnectResume state={ target } /> ).unmount();
 		render( <ConnectResume state={ target } /> );
 
-		expect( requests() ).toEqual( [ [ 'monitor', true ] ] );
+		expect( requests() ).toEqual( [ [ 'monitor', true, { reload: false } ] ] );
 	} );
 
-	it( 'checks the feature again when a mount claims it, and sends nothing if it went on meanwhile', () => {
+	it.each( [
+		[ 'it went on meanwhile', () => ( { ...monitor, status: 'active' } ) as FeatureState ],
+		[
+			'the hour ran out meanwhile',
+			() => {
+				const at = Date.now();
+				nowSpy = jest.spyOn( Date, 'now' ).mockReturnValue( at + 60 * 60 * 1000 );
+				return monitor;
+			},
+		],
+	] )( 'checks the feature again when a mount claims it, and sends nothing if %s', ( _, later ) => {
 		const id = rememberConnectIntent( 'monitor' );
 		const wrapper = ( { children }: { children: React.ReactNode } ) => (
 			<MemoryRouter initialEntries={ [ `/features?connect_intent=${ id }` ] }>
@@ -752,7 +763,21 @@ describe( 'FeaturesContent after connecting the account', () => {
 		);
 		renderHook( () => useConnectResume( [ monitor ], true ), { wrapper } ).unmount();
 
-		render( <ConnectResume state={ { ...monitor, status: 'active' } } /> );
+		render( <ConnectResume state={ later() } /> );
+
+		expect( requests() ).toEqual( [] );
+	} );
+
+	it( 'does nothing when the hour runs out before the feature rows load', () => {
+		mockIsLoading = true;
+		mockStates = [ monitor ];
+		const id = rememberConnectIntent( 'monitor' );
+		const view = renderAt( `/features?connect_intent=${ id }` );
+
+		const at = Date.now();
+		nowSpy = jest.spyOn( Date, 'now' ).mockReturnValue( at + 60 * 60 * 1000 );
+		mockIsLoading = false;
+		view.rerenderAt();
 
 		expect( requests() ).toEqual( [] );
 	} );
@@ -773,6 +798,6 @@ describe( 'FeaturesContent after connecting the account', () => {
 		resetConnectIntentForTests();
 		renderAt( `/features?connect_intent=${ id }` );
 
-		expect( requests() ).toEqual( [ [ 'monitor', true ] ] );
+		expect( requests() ).toEqual( [ [ 'monitor', true, { reload: false } ] ] );
 	} );
 } );

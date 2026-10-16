@@ -55,12 +55,24 @@ export function rememberConnectIntent( feature: string ): string | null {
 	}
 }
 
+type Click = Pick< ConnectIntent, 'feature' | 'at' >;
+
 // Kept per page load rather than per mount: Features can mount several times while the page
 // loads, and a mount that goes away must not lose the click or turn the feature on twice.
-// The feature this load came back for: unread, a slug, or null once decided.
-let taken: string | null | undefined;
-// The feature decided on, until a mount starts turning it on.
-let turnOn: string | null = null;
+// The click this load came back for: unread, the click, or null once decided.
+let taken: Click | null | undefined;
+// The click decided on, until a mount starts turning its feature on.
+let turnOn: Click | null = null;
+
+/**
+ * Whether the click is still within its time limit, checked again at each step since the rows can load late.
+ *
+ * @param click - The click.
+ * @return Whether it can still turn its feature on.
+ */
+function isFresh( click: Click ): boolean {
+	return Date.now() - click.at < MAX_AGE_MS;
+}
 
 /**
  * Read and forget the remembered click, once per page load, whichever Features mount asks first.
@@ -81,8 +93,8 @@ function takeConnectIntent( returnId: string | null ) {
 	forgetConnectIntent();
 
 	taken =
-		intent && returnId && intent.id === returnId && Date.now() - intent.at < MAX_AGE_MS
-			? intent.feature
+		intent && returnId && intent.id === returnId && isFresh( intent )
+			? { feature: intent.feature, at: intent.at }
 			: null;
 }
 
@@ -138,18 +150,20 @@ export function useConnectResume( states: FeatureState[], ready: boolean ): Feat
 		if ( ! enabled || ! ready || ! taken ) {
 			return;
 		}
-		const state = states.find( item => item.feature.slug === taken );
+		const click = taken;
+		const state = states.find( item => item.feature.slug === click.feature );
 		if ( state?.pending ) {
 			return;
 		}
-		if ( state && connected && canTurnOn( state ) ) {
+		if ( state && connected && isFresh( click ) && canTurnOn( state ) ) {
 			turnOn = taken;
 			setDecided( true );
 		}
 		taken = null;
 	}, [ connected, enabled, ready, states ] );
 
-	return ( turnOn && states.find( item => item.feature.slug === turnOn ) ) || null;
+	const decided = turnOn;
+	return ( decided && states.find( item => item.feature.slug === decided.feature ) ) || null;
 }
 
 /**
@@ -159,15 +173,16 @@ export function useConnectResume( states: FeatureState[], ready: boolean ): Feat
  * @return Whether this caller should turn it on.
  */
 function claimTurnOn( state: FeatureState ): boolean {
-	if ( turnOn !== state.feature.slug ) {
+	const click = turnOn;
+	if ( click?.feature !== state.feature.slug ) {
 		return false;
 	}
 	turnOn = null;
-	return canTurnOn( state );
+	return isFresh( click ) && canTurnOn( state );
 }
 
 /**
- * Turn a module on with its switch's request and notices; no Tracks event fires, since nobody clicked.
+ * Turn a module on with its switch's request and notices.
  *
  * @param {object}          props        - The component props.
  * @param {FeatureState}    props.state  - The feature's live state.
@@ -193,7 +208,7 @@ function TurnOnModule( {
 }
 
 /**
- * Turn a standalone plugin on with its switch's request and notices; no Tracks event fires, since nobody clicked.
+ * Turn a standalone plugin on with its switch's request and notices.
  *
  * @param {object}       props        - The component props.
  * @param {FeatureState} props.state  - The feature's live state.
@@ -222,7 +237,7 @@ function TurnOnPlugin( {
 }
 
 /**
- * Turn on the feature the account was connected for.
+ * Turn on the feature the account was connected for; no Tracks event fires, since nobody clicked.
  *
  * @param {object}       props       - The component props.
  * @param {FeatureState} props.state - The feature's live state.
