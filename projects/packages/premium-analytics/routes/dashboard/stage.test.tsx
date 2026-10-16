@@ -466,6 +466,7 @@ const useOnboardingMock = jest.mocked( useOnboarding );
 const closedOnboarding = {
 	phase: 'closed' as const,
 	step: 0,
+	flow: 'stats' as const,
 	start: jest.fn(),
 	next: jest.fn(),
 	dismiss: jest.fn(),
