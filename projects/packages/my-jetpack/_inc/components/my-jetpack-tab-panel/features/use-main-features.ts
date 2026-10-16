@@ -203,8 +203,8 @@ export function useFeaturePlugin( plugin: string, name: string ) {
 	// The asked-for value also covers a bulk switch, which skips this mutation.
 	const isAsked = useRequestedSwitch( pluginSwitchKey( plugin ) ) !== null;
 	const isBusy = useIsMutating( { mutationKey } ) > 0 || isAsked;
-	// The promise rather than mutate's own callbacks: an install swaps the Install button for a
-	// switch, and a callback passed by the unmounted button would never run.
+	// Use the promise because installation can unmount the Install button; mutation callbacks
+	// passed by that button would not run.
 	const run = useCallback(
 		( action: PluginAction, { leavesPage = false } = {} ): Promise< boolean > =>
 			mutateAsync( { action, leavesPage } ).then(

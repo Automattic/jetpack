@@ -451,7 +451,7 @@ export function useFeaturesNeedsAccount(): boolean {
 }
 
 /**
- * Whether the card offers Connect: the feature waits for an account and nothing else is missing.
+ * Whether the card offers Connect for a module or installed plugin waiting for an account.
  *
  * A missing plugin keeps Install, which connects once the plugin is on.
  *
