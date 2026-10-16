@@ -232,7 +232,7 @@ describe( 'getManageConnection', () => {
 			user: { current_user: { capabilities: { manage_options: true } } },
 		} as typeof global.JetpackScriptData;
 		window.myJetpackInitialState = {
-			header: { connectorsUrl },
+			header: { activeModules: [], connectorsUrl },
 		} as unknown as typeof window.myJetpackInitialState;
 
 		expect( getManageConnection() ).toEqual( expected );
