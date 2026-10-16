@@ -75,6 +75,7 @@ class Configuration_Test extends TestCase {
 		$this->assertSame( PHP_INT_MAX, has_filter( 'jetpack_sync_modules', array( $configuration, 'remove_duplicate_woocommerce_analytics_module' ) ) );
 		$this->assertSame( 10, has_filter( 'jetpack_full_sync_config', array( $configuration, 'expand_full_sync_config' ) ) );
 		$this->assertSame( 10, has_filter( 'jetpack_sync_post_meta_whitelist', array( $configuration, 'add_meta_to_sync_post_meta_whitelist' ) ) );
+		$this->assertTrue( has_action( Lookup_Data_Backfill::START_HOOK ) );
 
 		$data_settings = ( new Data_Settings() )->get_data_settings();
 		$this->assertContains( WooCommerce_Analytics::class, $data_settings['jetpack_sync_modules'] );
