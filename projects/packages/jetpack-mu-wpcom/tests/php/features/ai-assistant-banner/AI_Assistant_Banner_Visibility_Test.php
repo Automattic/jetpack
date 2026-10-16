@@ -1,6 +1,7 @@
 <?php
 /**
- * Tests for the endpoint the AI Assistant banner reads to check MCP access.
+ * Tests for what decides whether the AI Assistant banner shows: the WordPress Agent
+ * check, and the endpoint its script reads to check MCP access.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -16,16 +17,27 @@ require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/expiry-notices/expiry-not
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-assistant-banner/ai-assistant-banner.php';
 
 /**
- * Test class for the AI Assistant banner MCP settings endpoint.
+ * Test class for the AI Assistant banner visibility helpers.
  */
-class AI_Assistant_Banner_Mcp_Settings_Api_Test extends \WorDBless\BaseTestCase {
+class AI_Assistant_Banner_Visibility_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Tear down.
 	 */
 	public function tear_down() {
 		Constants::clear_constants();
+		delete_option( 'big_sky_enable' );
 		parent::tear_down();
+	}
+
+	/**
+	 * Without the Big Sky plugin or the big-sky-enabled sticker, the Agent counts as off,
+	 * whatever the leftover option says.
+	 */
+	public function test_agent_is_off_without_big_sky() {
+		update_option( 'big_sky_enable', '1' );
+
+		$this->assertFalse( wpcom_ai_assistant_banner_is_agent_enabled() );
 	}
 
 	/**
@@ -56,5 +68,17 @@ class AI_Assistant_Banner_Mcp_Settings_Api_Test extends \WorDBless\BaseTestCase 
 			),
 			wpcom_ai_assistant_banner_mcp_settings_api()
 		);
+	}
+
+	/**
+	 * The script gets the Tracks props and the MCP endpoint together.
+	 */
+	public function test_script_data_carries_track_props_and_mcp_endpoint() {
+		Constants::set_constant( 'IS_WPCOM', false );
+
+		$data = wpcom_ai_assistant_banner_script_data( 'dashboard' );
+
+		$this->assertSame( wpcom_ai_assistant_banner_tracks_props( 'dashboard' ), $data['trackProps'] );
+		$this->assertSame( wpcom_ai_assistant_banner_mcp_settings_api(), $data['mcpSettingsApi'] );
 	}
 }

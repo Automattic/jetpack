@@ -91,6 +91,19 @@ function wpcom_ai_assistant_banner_mcp_settings_api() {
 }
 
 /**
+ * Data for the banner's script: Tracks props, and the endpoint for checking MCP access.
+ *
+ * @param string $screen_id The current admin screen id.
+ * @return array{trackProps: array<string,string>, mcpSettingsApi: array{path: string, format: string}}
+ */
+function wpcom_ai_assistant_banner_script_data( $screen_id ) {
+	return array(
+		'trackProps'     => wpcom_ai_assistant_banner_tracks_props( $screen_id ),
+		'mcpSettingsApi' => wpcom_ai_assistant_banner_mcp_settings_api(),
+	);
+}
+
+/**
  * Tracks props shared by the banner's three events, per the AI events standard.
  *
  * @param string $screen_id The current admin screen id.
@@ -234,10 +247,7 @@ function wpcom_maybe_add_ai_assistant_banner() {
 	wp_localize_script(
 		$asset_handle,
 		'wpcomAiAssistantBanner',
-		array(
-			'trackProps'     => wpcom_ai_assistant_banner_tracks_props( $screen->id ),
-			'mcpSettingsApi' => wpcom_ai_assistant_banner_mcp_settings_api(),
-		)
+		wpcom_ai_assistant_banner_script_data( $screen->id )
 	);
 }
 add_action( 'current_screen', 'wpcom_maybe_add_ai_assistant_banner' );
