@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Comments;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Status\Host;
 use WP_Error;
 
 /**
@@ -170,7 +171,7 @@ class Checkpoint {
 	 * Redeem a code with WordPress.com.
 	 *
 	 * @param string $code The code the popup handed back.
-	 * @return array|WP_Error site_commenter_id, name, email, avatar.
+	 * @return array|WP_Error site_commenter_id, name, email, avatar, user_id.
 	 */
 	public static function exchange( $code ) {
 		// The client stops verifying certificates for good on a host whose first request failed to.
@@ -209,6 +210,8 @@ class Checkpoint {
 				'name'              => sanitize_text_field( (string) ( $body['name'] ?? '' ) ),
 				'email'             => sanitize_email( (string) ( $body['email'] ?? '' ) ),
 				'avatar'            => esc_url_raw( (string) ( $body['avatar'] ?? '' ) ),
+				// Sent to Simple sites only.
+				'user_id'           => absint( $body['user_id'] ?? 0 ),
 			);
 		}
 
@@ -387,8 +390,13 @@ class Checkpoint {
 		$commentdata['comment_author']       = $this->identity['name'];
 		$commentdata['comment_author_email'] = $this->identity['email'];
 		$commentdata['comment_author_url']   = '';
-		$commentdata['user_id']              = 0;
-		$commentdata['user_ID']              = 0;
+
+		// The WordPress.com account, as Verbum attributed it. Elsewhere that id would name some local user.
+		$user_id = ( new Host() )->is_wpcom_simple() ? absint( $this->identity['user_id'] ?? 0 ) : 0;
+		$user_id = $user_id && get_userdata( $user_id ) ? $user_id : 0;
+
+		$commentdata['user_id'] = $user_id;
+		$commentdata['user_ID'] = $user_id;
 
 		return $commentdata;
 	}
