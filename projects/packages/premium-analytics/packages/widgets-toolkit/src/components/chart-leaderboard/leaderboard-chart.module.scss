@@ -20,7 +20,11 @@
 	flex-shrink: 0;
 	justify-content: space-between;
 	gap: var(--wpds-dimension-gap-lg);
-	padding-inline: var(--wpds-dimension-padding-sm);
+
+	/* Match the row text: the focus-ring row inset, plus the label padding. */
+	padding-inline:
+		calc(var(--wpds-border-width-focus) + var(--wpds-dimension-padding-sm))
+		var(--wpds-border-width-focus);
 	color: var(--wpds-color-foreground-content-neutral-weak);
 	font-size: var(--wpds-typography-font-size-xs);
 	line-height: var(--wpds-typography-line-height-xs);
