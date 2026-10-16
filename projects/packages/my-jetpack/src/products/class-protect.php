@@ -135,13 +135,13 @@ class Protect extends Hybrid_Product {
 	}
 
 	/**
-	 * Skip installing the standalone plugin where the Jetpack plugin already delivers the Protect page.
+	 * Leave the standalone plugin alone where the Jetpack plugin already delivers the Protect page.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @return bool
 	 */
-	public static function should_install_standalone_plugin() {
+	public static function should_use_standalone_plugin() {
 		return ! ( static::is_jetpack_plugin_active() && self::is_dashboard_module_available() );
 	}
 

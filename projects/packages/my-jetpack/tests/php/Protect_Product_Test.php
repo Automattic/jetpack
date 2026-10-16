@@ -89,7 +89,7 @@ class Protect_Product_Test extends TestCase {
 	}
 
 	/**
-	 * Whether the Jetpack plugin is active, the modules on offer, and whether activating Protect then installs the standalone plugin.
+	 * Whether the Jetpack plugin is active, the modules on offer, and whether activating Protect then uses the standalone plugin.
 	 *
 	 * @return array[]
 	 */
@@ -97,7 +97,7 @@ class Protect_Product_Test extends TestCase {
 		return array(
 			'Jetpack plugin offers the page' => array( true, array( 'protect', 'protect-dashboard' ), false ),
 			'page not on offer'              => array( true, array( 'protect' ), true ),
-			'no Jetpack plugin'              => array( false, array(), true ),
+			'no Jetpack plugin'              => array( false, array( 'protect', 'protect-dashboard' ), true ),
 		);
 	}
 
@@ -106,23 +106,46 @@ class Protect_Product_Test extends TestCase {
 	 *
 	 * @param bool     $jetpack   Whether the Jetpack plugin is active.
 	 * @param string[] $available Modules on offer.
-	 * @param bool     $expected  Whether activation installs the standalone plugin.
+	 * @param bool     $expected  Whether activation uses the standalone plugin.
 	 */
 	#[DataProvider( 'provide_standalone_install_states' )]
-	public function test_activation_installs_the_standalone_plugin_only_without_the_protect_page( $jetpack, $available, $expected ) {
+	public function test_activation_uses_the_standalone_plugin_only_without_the_protect_page( $jetpack, $available, $expected ) {
 		if ( $jetpack ) {
-			if ( ! file_exists( WP_PLUGIN_DIR . '/jetpack' ) ) {
-				mkdir( WP_PLUGIN_DIR . '/jetpack', 0777, true );
-			}
-			copy( __DIR__ . '/assets/jetpack-mock-plugin.txt', WP_PLUGIN_DIR . '/jetpack/jetpack.php' );
-			wp_cache_delete( 'plugins', 'plugins' );
-			update_option( 'active_plugins', array( 'jetpack/jetpack.php' ) );
+			$this->activate_jetpack_plugin();
 		}
 		$this->available_modules = $available;
 		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'offer_modules' ) );
 		add_filter( 'jetpack_get_available_modules', array( $this, 'offer_jetpack_modules' ), PHP_INT_MAX );
 
-		$this->assertSame( $expected, Protect::should_install_standalone_plugin() );
+		$this->assertSame( $expected, Protect::should_use_standalone_plugin() );
+	}
+
+	/**
+	 * An installed but inactive standalone plugin stays off when the Jetpack plugin offers the Protect page.
+	 */
+	public function test_activate_plugin_leaves_an_inactive_standalone_plugin_off_with_the_protect_page() {
+		$this->activate_jetpack_plugin();
+		$this->activate_standalone_plugin();
+		deactivate_plugins( Protect::$plugin_filename );
+		$this->available_modules = array( 'protect', 'protect-dashboard' );
+		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'offer_modules' ) );
+		add_filter( 'jetpack_get_available_modules', array( $this, 'offer_jetpack_modules' ), PHP_INT_MAX );
+
+		Protect::activate_plugin();
+
+		$this->assertFalse( Protect::is_standalone_plugin_active() );
+	}
+
+	/**
+	 * Install and activate a mock of the Jetpack plugin without loading it.
+	 */
+	private function activate_jetpack_plugin() {
+		if ( ! file_exists( WP_PLUGIN_DIR . '/jetpack' ) ) {
+			mkdir( WP_PLUGIN_DIR . '/jetpack', 0777, true );
+		}
+		copy( __DIR__ . '/assets/jetpack-mock-plugin.txt', WP_PLUGIN_DIR . '/jetpack/jetpack.php' );
+		wp_cache_delete( 'plugins', 'plugins' );
+		update_option( 'active_plugins', array( 'jetpack/jetpack.php' ) );
 	}
 
 	/**

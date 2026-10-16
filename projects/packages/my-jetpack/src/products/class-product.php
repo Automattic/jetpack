@@ -1033,7 +1033,7 @@ abstract class Product {
 		}
 
 		// Default to installing the standalone plugin for the product
-		if ( ! self::is_plugin_installed() && static::should_install_standalone_plugin() ) {
+		if ( ! self::is_plugin_installed() && static::should_use_standalone_plugin() ) {
 			$installed = Plugins_Installer::install_plugin( static::get_plugin_slug() );
 			if ( is_wp_error( $installed ) ) {
 				return $installed;
@@ -1053,13 +1053,13 @@ abstract class Product {
 	}
 
 	/**
-	 * Whether activating the product installs its standalone plugin when that plugin is missing.
+	 * Whether activating the product installs and activates its standalone plugin, rather than relying on the Jetpack plugin.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @return bool
 	 */
-	public static function should_install_standalone_plugin() {
+	public static function should_use_standalone_plugin() {
 		return true;
 	}
 

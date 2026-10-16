@@ -84,7 +84,7 @@ abstract class Hybrid_Product extends Product {
 		/*
 		 * Activate self-installed plugin if it's installed.
 		 */
-		if ( parent::is_plugin_installed() ) {
+		if ( parent::is_plugin_installed() && static::should_use_standalone_plugin() ) {
 			return activate_plugin( static::get_installed_plugin_filename() );
 		}
 
