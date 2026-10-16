@@ -289,8 +289,6 @@ function get_stats_feature_copy( $feature ) {
 
 /**
  * Locales with translated WordPress.com support articles: Calypso's `supportSiteLocales`, which classic Stats links with.
- *
- * Not `localized_wpcom_url()`'s list: it adds `hi`, whose support site has no Stats articles.
  */
 const WPCOM_SUPPORT_LOCALES = array( 'ar', 'de', 'es', 'fr', 'he', 'id', 'it', 'ja', 'ko', 'nl', 'pt-br', 'ru', 'sv', 'tr', 'zh-cn', 'zh-tw' );
 
