@@ -382,9 +382,10 @@ function localize_stats_support_url( $url ) {
  *
  * @param string $feature Feature key.
  * @param string $tier    One of the STATS_TIER_* values.
+ * @param string $from    Where the purchase started, for the Odyssey purchase flow.
  * @return string The URL, or an empty string when there is nowhere to buy it.
  */
-function get_stats_upgrade_url( $feature, $tier ) {
+function get_stats_upgrade_url( $feature, $tier, $from = 'jetpack-premium-analytics' ) {
 	$return_path = 'admin.php?page=' . Analytics::MENU_PAGE_SLUG;
 
 	if ( STATS_TIER_JETPACK_FREE === $tier ) {
@@ -396,7 +397,7 @@ function get_stats_upgrade_url( $feature, $tier ) {
 
 		$query = http_build_query(
 			array(
-				'from'         => 'jetpack-premium-analytics',
+				'from'         => $from,
 				'productType'  => 'commercial',
 				'redirect_uri' => $return_path,
 			),
@@ -485,11 +486,14 @@ function inject_stats_plan_gates_script_data( array $data ): array {
 
 	// Objects, so an empty map reaches JS as `{}` rather than `[]`.
 	$data['premium_analytics']['plan_gates'] = array(
-		'tier'                     => $gates['tier'],
-		'locked_features'          => (object) $gates['locked_features'],
-		'locked_widget_types'      => (object) $gates['locked_widget_types'],
-		'has_stats_product'        => has_jetpack_stats_product(),
-		'offers_free_site_upgrade' => offers_free_site_upgrade( $gates['tier'] ),
+		'tier'                => $gates['tier'],
+		'locked_features'     => (object) $gates['locked_features'],
+		'locked_widget_types' => (object) $gates['locked_widget_types'],
+		'has_stats_product'   => has_jetpack_stats_product(),
+		// The banner sells the commercial features, so `utm` picks the plan that unlocks them.
+		'free_site_upgrade'   => offers_free_site_upgrade( $gates['tier'] )
+			? array( 'upgrade_url' => get_stats_upgrade_url( 'utm', $gates['tier'], 'jetpack-premium-analytics-free-site-upgrade-notice' ) )
+			: null,
 	);
 
 	return $data;

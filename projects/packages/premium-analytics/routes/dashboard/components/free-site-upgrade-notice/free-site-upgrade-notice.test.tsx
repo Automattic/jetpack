@@ -25,8 +25,11 @@ jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 const recordEvent = jest.mocked( analytics.tracks.recordEvent );
 
+const UPGRADE_URL = 'https://wordpress.com/checkout/example.com/premium?redirect_to=back';
+
 type Site = {
 	offered?: boolean;
+	upgradeUrl?: string;
 	hasStatsProduct?: boolean;
 	purchaseSuccess?: 'paid' | 'free';
 };
@@ -38,10 +41,16 @@ let notices = createNoticesRegistry();
  *
  * @param site                 - The site to seed.
  * @param site.offered         - Whether the server offers the site a paid plan.
+ * @param site.upgradeUrl      - Where the server sends the upgrade, empty when there is nowhere to buy it.
  * @param site.hasStatsProduct - Whether the site has a Jetpack Stats product.
  * @param site.purchaseSuccess - The checkout this load returned from, if any.
  */
-function setSite( { offered = true, hasStatsProduct = false, purchaseSuccess }: Site = {} ) {
+function setSite( {
+	offered = true,
+	upgradeUrl = UPGRADE_URL,
+	hasStatsProduct = false,
+	purchaseSuccess,
+}: Site = {} ) {
 	window.JetpackScriptData = {
 		site: {
 			admin_url: 'https://example.com/wp-admin/',
@@ -54,7 +63,7 @@ function setSite( { offered = true, hasStatsProduct = false, purchaseSuccess }: 
 				locked_features: {},
 				locked_widget_types: {},
 				has_stats_product: hasStatsProduct,
-				offers_free_site_upgrade: offered,
+				free_site_upgrade: offered ? { upgrade_url: upgradeUrl } : null,
 			},
 			purchase_success: purchaseSuccess ? { type: purchaseSuccess } : undefined,
 		},
@@ -127,10 +136,18 @@ describe( 'FreeSiteUpgradeNotice', () => {
 		expect( container ).toHaveTextContent( 'Unlock more Stats with a paid plan' );
 		expect( screen.getByRole( 'link', { name: 'Upgrade' } ) ).toHaveAttribute(
 			'href',
-			expect.stringContaining(
-				'admin.php?page=stats#!/stats/purchase/123456789?from=jetpack-premium-analytics-free-site-upgrade-notice'
-			)
+			UPGRADE_URL
 		);
+	} );
+
+	it( 'keeps only Learn more when the server has nowhere to sell the plan', async () => {
+		setSite( { upgradeUrl: '' } );
+		mockEndpoints();
+
+		await renderNotices();
+
+		expect( screen.queryByText( 'Upgrade' ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: /Learn more/ } ) ).toBeInTheDocument();
 	} );
 
 	it( 'asks a site on the free Stats product whether it wants more', async () => {

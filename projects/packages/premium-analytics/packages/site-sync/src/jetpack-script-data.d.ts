@@ -28,8 +28,8 @@ declare module '@automattic/jetpack-script-data' {
 				locked_widget_types: Record< string, string >;
 				// Whether a self-hosted site has any Jetpack Stats product, the free one included.
 				has_stats_product?: boolean;
-				// Whether the site has no paid Stats and first opened the dashboard over 30 days ago.
-				offers_free_site_upgrade?: boolean;
+				// The paid plan offer to a site without paid Stats that first opened the dashboard over 30 days ago; the URL is empty when there is nowhere to buy it.
+				free_site_upgrade?: { upgrade_url: string } | null;
 			};
 			// Slugs of the tabs the dashboard exposes. Absent until the section registry is hydrated.
 			sections?: string[];

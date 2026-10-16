@@ -15,7 +15,6 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { getPlanUpgradeUrl } from '../stats-settings/plan-usage';
 import styles from './free-site-upgrade-notice.module.scss';
 import type { JSX } from 'react';
 
@@ -59,7 +58,7 @@ function isVisible( notices: StatsAppNotices ): boolean {
  * @return `undefined` while the dismissal state loads, otherwise whether it shows.
  */
 export function useFreeSiteUpgradeNoticeVisibility(): boolean | undefined {
-	const eligible = !! getScriptData()?.premium_analytics?.plan_gates?.offers_free_site_upgrade;
+	const eligible = !! getScriptData()?.premium_analytics?.plan_gates?.free_site_upgrade;
 	const { data: notices, isError } = useStatsAppNotices( undefined, { enabled: eligible } );
 
 	if ( ! eligible || isError ) {
@@ -108,8 +107,9 @@ export function FreeSiteUpgradeNotice(): JSX.Element {
 		trackEvent( 'jetpack_premium_analytics_free_site_upgrade_notice_learn_more_click' );
 	}, [ trackEvent ] );
 
-	const hasStatsProduct = !! getScriptData()?.premium_analytics?.plan_gates?.has_stats_product;
-	const upgradeHref = getPlanUpgradeUrl( 'jetpack-premium-analytics-free-site-upgrade-notice' );
+	const planGates = getScriptData()?.premium_analytics?.plan_gates;
+	const hasStatsProduct = !! planGates?.has_stats_product;
+	const upgradeHref = planGates?.free_site_upgrade?.upgrade_url;
 
 	return (
 		<Notice.Root intent="info" className={ styles.notice }>
