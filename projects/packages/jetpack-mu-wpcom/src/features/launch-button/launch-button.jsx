@@ -28,7 +28,7 @@ const launchButtonData = typeof window === 'object' ? window.JETPACK_LAUNCH_BUTT
 /**
  * The LaunchButton component.
  * @param {object} props           - Component props.
- * @param {string} props.launchUrl - The launch-flow URL the server rendered on the admin bar node.
+ * @param {string} props.launchUrl - The admin bar node's launch-flow URL, `back_to` set to this page.
  * @return {React.ReactNode} The LaunchButton component.
  */
 export function LaunchButton( { launchUrl } ) {
