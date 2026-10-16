@@ -180,6 +180,32 @@ describe( 'buildMetricTab', () => {
 		}
 	);
 
+	it( 'draws a null bucket at 0, flagged missing, when the metric has a no-data label', () => {
+		const tab = buildMetricTab( {
+			primary: {
+				summary: { aov: 270.5 },
+				data: [
+					{ date_start: '2026-05-01', aov: null },
+					{ date_start: '2026-05-02', aov: 270.5 },
+				],
+			},
+			comparison: { summary: { aov: null }, data: [ { date_start: '2026-04-01', aov: null } ] },
+			hasComparison: true,
+			field: 'aov',
+			label: 'Average order value',
+			zone: 'UTC',
+			noDataLabel: 'No orders in this period.',
+		} );
+
+		expect(
+			[ ...tab.current, ...( tab.previous ?? [] ) ].map( point => [ point.value, point.missing ] )
+		).toEqual( [
+			[ 0, true ],
+			[ 270.5, undefined ],
+			[ 0, true ],
+		] );
+	} );
+
 	it( 'omits previous when comparison is off', () => {
 		const tab = buildMetricTab( {
 			primary: { summary: { views: 30 }, data: [ { date_start: '2026-05-01', views: 30 } ] },

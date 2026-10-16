@@ -76,6 +76,8 @@ export interface MetricTabDatum {
 	value: number | null;
 	/** Read out by the tooltip in place of the missing reading, e.g. why it is missing. */
 	note?: string;
+	/** A bucket with no reading drawn at its `value` to keep the line whole; the tooltip reads no value. */
+	missing?: boolean;
 }
 
 /**
