@@ -8,37 +8,12 @@
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Plugin\Unavailable_Blocks;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * @covers \Automattic\Jetpack\Plugin\Unavailable_Blocks
- * @covers \Automattic\Jetpack\Extensions\Subscriptions\register_block
- * @covers \Automattic\Jetpack\Extensions\Paywall\register_block
- * @covers \Automattic\Jetpack\Extensions\Subscriber_Login\register_block
- * @covers \Automattic\Jetpack\Extensions\Blog_Stats\register_block
- * @covers \Automattic\Jetpack\Extensions\Top_Posts\register_block
- * @covers \Automattic\Jetpack\Extensions\RelatedPosts\register_block
- * @covers ::Automattic\Jetpack\Extensions\Blog_Stats\register_block
- * @covers ::Automattic\Jetpack\Extensions\Paywall\register_block
- * @covers ::Automattic\Jetpack\Extensions\RelatedPosts\register_block
- * @covers ::Automattic\Jetpack\Extensions\Subscriber_Login\register_block
- * @covers ::Automattic\Jetpack\Extensions\Subscriptions\register_block
- * @covers ::Automattic\Jetpack\Extensions\Top_Posts\register_block
  */
 #[CoversClass( Unavailable_Blocks::class )]
-#[CoversFunction( 'Automattic\Jetpack\Extensions\Subscriptions\register_block' )]
-#[CoversFunction( 'Automattic\Jetpack\Extensions\Paywall\register_block' )]
-#[CoversFunction( 'Automattic\Jetpack\Extensions\Subscriber_Login\register_block' )]
-#[CoversFunction( 'Automattic\Jetpack\Extensions\Blog_Stats\register_block' )]
-#[CoversFunction( 'Automattic\Jetpack\Extensions\Top_Posts\register_block' )]
-#[CoversFunction( 'Automattic\Jetpack\Extensions\RelatedPosts\register_block' )]
-#[CoversClass( Automattic\Jetpack\Extensions\Blog_Stats\register_block::class )]
-#[CoversClass( Automattic\Jetpack\Extensions\Paywall\register_block::class )]
-#[CoversClass( Automattic\Jetpack\Extensions\RelatedPosts\register_block::class )]
-#[CoversClass( Automattic\Jetpack\Extensions\Subscriber_Login\register_block::class )]
-#[CoversClass( Automattic\Jetpack\Extensions\Subscriptions\register_block::class )]
-#[CoversClass( Automattic\Jetpack\Extensions\Top_Posts\register_block::class )]
 class Unavailable_Blocks_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
