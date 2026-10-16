@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fields: Read the options of a checkbox list again when its menu opens, so an option registered after the field mounted is listed.
