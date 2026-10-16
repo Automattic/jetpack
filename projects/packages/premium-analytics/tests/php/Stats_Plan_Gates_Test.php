@@ -29,6 +29,8 @@ require_once ABSPATH . 'wp-admin/includes/plugin.php';
  * @covers ::Automattic\Jetpack\PremiumAnalytics\has_jetpack_stats_commercial_purchase
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_locked_stats_features
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_stats_feature_copy
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\get_locked_stats_sections
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\get_stats_section_copy
  * @covers ::Automattic\Jetpack\PremiumAnalytics\localize_stats_support_url
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_stats_upgrade_url
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_stats_plan_gates
@@ -44,6 +46,8 @@ require_once ABSPATH . 'wp-admin/includes/plugin.php';
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\has_jetpack_stats_commercial_purchase' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_locked_stats_features' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_stats_feature_copy' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_locked_stats_sections' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_stats_section_copy' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\localize_stats_support_url' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_stats_upgrade_url' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_stats_plan_gates' )]
@@ -452,6 +456,62 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Only a free site loses whole sections, as classic Stats replaces its Insights and Traffic pages.
+	 *
+	 * @dataProvider provide_locked_sections
+	 *
+	 * @param string   $tier     Tier.
+	 * @param string[] $expected Locked sections.
+	 */
+	#[DataProvider( 'provide_locked_sections' )]
+	public function test_each_tier_locks_classic_stats_sections( $tier, $expected ) {
+		$this->assertSame( $expected, get_locked_stats_sections( $tier ) );
+	}
+
+	/**
+	 * Tiers and their locked sections.
+	 *
+	 * @return array
+	 */
+	public static function provide_locked_sections() {
+		return array(
+			'free'         => array( STATS_TIER_FREE, array( 'traffic', 'insights' ) ),
+			'paid'         => array( STATS_TIER_PAID, array() ),
+			'commercial'   => array( STATS_TIER_COMMERCIAL, array() ),
+			'legacy free'  => array( STATS_TIER_LEGACY_FREE, array() ),
+			'legacy basic' => array( STATS_TIER_LEGACY_BASIC, array() ),
+			'jetpack free' => array( STATS_TIER_JETPACK_FREE, array() ),
+			'unknown'      => array( STATS_TIER_UNKNOWN, array() ),
+		);
+	}
+
+	/**
+	 * Each locked section carries classic Stats' upsell copy and the Personal checkout.
+	 */
+	public function test_locked_sections_carry_v1_copy() {
+		$this->set_wpcom_platform( 'simple' );
+		add_filter( STATS_PLAN_TIER_FILTER, static fn() => STATS_TIER_FREE );
+		$sections = get_stats_plan_gates()['locked_sections'];
+
+		$this->assertSame( array( 'traffic', 'insights' ), array_keys( $sections ) );
+		$this->assertSame( 'Unlock site growth analytics', $sections['traffic']['title'] );
+		$this->assertSame( 'Unlock site insights', $sections['insights']['title'] );
+		$this->assertSame( 'View trends and data from any time period', $sections['traffic']['features'][0] );
+		$this->assertSame( 'Monitor your posting activity', $sections['insights']['features'][0] );
+		$this->assertSame( array( 'jpa/traffic-chart' ), $sections['traffic']['open_widget_types'] );
+		$this->assertSame( array(), $sections['insights']['open_widget_types'] );
+
+		foreach ( $sections as $section ) {
+			$this->assertCount( 11, $section['features'] );
+			$this->assertSame( 'Get detailed insights into your site’s performance with a Personal plan.', $section['description'] );
+			$this->assertSame( 'Upgrade to Personal', $section['upgrade_label'] );
+			$this->assertSame( 'Show all Personal features', $section['expand_label'] );
+			$this->assertSame( 'https://wordpress.com/support/stats/', $section['support_url'] );
+			$this->assertStringContainsString( '/personal?redirect_to=', $section['upgrade_url'] );
+		}
+	}
+
+	/**
 	 * Only a WordPress.com support URL moves, and only to a language its support site has.
 	 *
 	 * @dataProvider provide_support_url_localization
@@ -498,6 +558,7 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		$this->assertTrue( $data['premium_analytics']['has_videopress'] );
 		$this->assertSame( STATS_TIER_COMMERCIAL, $data['premium_analytics']['plan_gates']['tier'] );
 		$this->assertSame( '{}', wp_json_encode( $data['premium_analytics']['plan_gates']['locked_features'], JSON_UNESCAPED_SLASHES ) );
+		$this->assertSame( '{}', wp_json_encode( $data['premium_analytics']['plan_gates']['locked_sections'], JSON_UNESCAPED_SLASHES ) );
 	}
 
 	/**

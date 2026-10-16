@@ -39,6 +39,7 @@ import {
 	OnboardingTour,
 	onboardingTourSteps,
 	hasPurchaseSuccess,
+	LockedSection,
 	PlanLimitNotice,
 	PurchaseSuccessNotice,
 	RefreshFailureNotice,
@@ -63,6 +64,7 @@ import {
 	useDashboardPolicy,
 	useDashboardSectionLayout,
 	useDashboardSections,
+	useLockedSectionLayout,
 	useOnboarding,
 	useRememberAppliedPreset,
 	useSectionDateFilter,
@@ -117,14 +119,6 @@ function Dashboard(): JSX.Element {
 		[ activeSectionRecord ]
 	);
 	const dashboardPolicy = useDashboardPolicy( { insertableWidgetTypes } );
-	// Settings has no layout to customize, and `WidgetDashboard` opens Customize over an empty one.
-	const canPerform = useMemo< typeof dashboardPolicy >(
-		() =>
-			isSettingsActive
-				? request => request.operation !== 'customize' && dashboardPolicy( request )
-				: dashboardPolicy,
-		[ dashboardPolicy, isSettingsActive ]
-	);
 
 	/*
 	 * The watcher runs at the dashboard level, not inside the notice below, so the
@@ -184,6 +178,21 @@ function Dashboard(): JSX.Element {
 		},
 		[ layout, setLayout, trackCustomize ]
 	);
+	const { lockedSection, visibleLayout, onVisibleLayoutChange } = useLockedSectionLayout(
+		widgetSection,
+		layout,
+		onLayoutChange
+	);
+	const isSectionLocked = !! lockedSection;
+	// Settings has no layout to customize, and `WidgetDashboard` opens Customize over an empty one.
+	// A locked section has nothing to add, and its visible layout is often empty.
+	const canPerform = useMemo< typeof dashboardPolicy >(
+		() =>
+			isSettingsActive || isSectionLocked
+				? request => request.operation !== 'customize' && dashboardPolicy( request )
+				: dashboardPolicy,
+		[ dashboardPolicy, isSettingsActive, isSectionLocked ]
+	);
 	const resetToDefault = useCallback( () => {
 		trackCustomize.reset();
 		resetLayout();
@@ -204,9 +213,11 @@ function Dashboard(): JSX.Element {
 	};
 	// A step without its anchor is left out, so the counter counts what is on the page.
 	const tourStepsFor = ( flow: OnboardingFlow ) =>
-		onboardingTourSteps( tourAnchors, { withFeedback: canSendFeedback(), flow } ).filter(
-			step => step.anchor
-		);
+		onboardingTourSteps( tourAnchors, {
+			withFeedback: canSendFeedback(),
+			flow,
+			withCustomize: ! isSectionLocked,
+		} ).filter( step => step.anchor );
 	// Built every render rather than memoized: the anchors are looked up fresh, since the
 	// first widget mounts after its frame.
 	const tourStepsByFlow: Record< OnboardingFlow, OnboardingTourStep[] > = {
@@ -233,7 +244,7 @@ function Dashboard(): JSX.Element {
 	// Only the widgets this section renders need metadata at boot; the full registry
 	// waits for edit mode. `null` until sections resolve, since the layout is empty until then.
 	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules, {
-		visibleNames: hasResolvedSections ? layout.map( widget => widget.type ) : null,
+		visibleNames: hasResolvedSections ? visibleLayout.map( widget => widget.type ) : null,
 		includeAll: editMode,
 	} );
 
@@ -417,8 +428,8 @@ function Dashboard(): JSX.Element {
 						widgetTypes={ widgetTypes }
 						isResolvingWidgetTypes={ isResolvingWidgetTypes }
 						resolveWidgetModule={ resolveWidgetModule }
-						layout={ layout }
-						onLayoutChange={ onLayoutChange }
+						layout={ visibleLayout }
+						onLayoutChange={ onVisibleLayoutChange }
 						onLayoutReset={ resetLayout }
 						gridSettings={ gridSettings }
 						editMode={ editMode }
@@ -438,7 +449,11 @@ function Dashboard(): JSX.Element {
 									) }
 									<Stack ref={ setOptionsMenuFrame } direction="row">
 										<PageOptionsMenu
-											onCustomize={ editMode || isSettingsActive ? undefined : startCustomizing }
+											onCustomize={
+												editMode || isSettingsActive || isSectionLocked
+													? undefined
+													: startCustomizing
+											}
 										/>
 									</Stack>
 								</Stack>
@@ -503,12 +518,13 @@ function Dashboard(): JSX.Element {
 													section.notice && <SectionNotice message={ section.notice } />
 												) }
 
-												<WidgetDashboard.NoWidgetsState />
+												{ ! isSectionLocked && <WidgetDashboard.NoWidgetsState /> }
 												<div ref={ setWidgetsFrame }>
 													<DashboardSectionProvider section={ section.slug }>
 														<WidgetDashboard.Widgets className={ styles.widgets } />
 													</DashboardSectionProvider>
 												</div>
+												{ isSectionLocked && <LockedSection section={ section.slug } /> }
 											</div>
 										) : null }
 									</SectionTabPanel>

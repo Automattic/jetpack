@@ -35,6 +35,20 @@ declare module '@automattic/jetpack-script-data' {
 					{ description: string; support_url: string; upgrade_url: string }
 				>;
 				locked_widget_types: Record< string, string >;
+				// Absent from servers that predate section gates.
+				locked_sections?: Record<
+					string,
+					{
+						title: string;
+						description: string;
+						features: string[];
+						upgrade_label: string;
+						expand_label: string;
+						support_url: string;
+						upgrade_url: string;
+						open_widget_types: string[];
+					}
+				>;
 			};
 			// The Stats purchase this page load returned from checkout with; absent on every other load.
 			purchase_success?: { type: 'paid' | 'free' };
