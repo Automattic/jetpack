@@ -4,15 +4,9 @@ import styles from './styles.module.scss';
 
 /**
  * The brand artwork's own geometry: 14 hairline strokes making the isometric
- * Jetpack bolt inside two organic circles.
- *
- * Copied verbatim from the prototype's `components/onboarding/panel-art.tsx`,
- * which inlined it from Layer_1.svg. It is hand-drawn brand art: the path data
- * and the two stroke widths are not to be redrawn, rounded or simplified.
- *
- * The stroke colour is not here. The prototype writes `#48FF50` on every path;
- * that value is `$brand-gradient-green-bright` in styles.module.scss, so the
- * paths take `currentColor` and the stylesheet is the one place it lives.
+ * Jetpack bolt inside two organic circles. Hand-drawn brand art, copied
+ * verbatim — not to be redrawn, rounded or simplified. The colour is not here:
+ * the paths take `currentColor` so the stylesheet is the one place it lives.
  */
 const ART_PATHS: { d: string; width: number }[] = [
 	{
@@ -90,11 +84,10 @@ type PanelArtProps = {
 /**
  * The brand panel's artwork.
  *
- * Each path's own length is measured and published as `--draw-length`, which the
- * dash rules read. `pathLength` would be tidier, but Chrome only normalises
- * against it for presentation attributes: a `stroke-dasharray` coming from a
- * stylesheet stays in user units, so the whole bolt draws as a 1px dotted line
- * at a third of a pixel wide and nothing appears on screen.
+ * Each path's length is measured and published as `--draw-length`, which the
+ * dash rules read. `pathLength` would be tidier, but Chrome normalises against
+ * it only for presentation attributes, so a stylesheet's dasharray stays in user
+ * units and the whole bolt draws as a 1px dotted line.
  *
  * @param props         - The component props.
  * @param props.animate - Whether the paths draw themselves in.

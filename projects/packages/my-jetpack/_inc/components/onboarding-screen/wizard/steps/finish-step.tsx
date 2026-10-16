@@ -1,0 +1,281 @@
+import { JetpackLogo } from '@automattic/jetpack-components';
+import { useReducedMotion } from '@wordpress/compose';
+import { __, _n, sprintf } from '@wordpress/i18n';
+import { check, lineSolid } from '@wordpress/icons';
+import { ButtonLink, Icon, Text } from '@wordpress/ui';
+import clsx from 'clsx';
+import styles from '../styles.module.scss';
+import type { SetupModuleResult } from '../use-setup-modules';
+import type { MouseEvent } from 'react';
+
+type FinishStepProps = {
+	// Owned by the wizard so the region can be labelled by the heading.
+	titleId: string;
+	// Null until the feature step has run, which only happens by going through it.
+	results: SetupModuleResult[] | null;
+	// Where the two ways out lead.
+	dashboardUrl: string;
+	exitUrl: string;
+	// Records that setup is finished.
+	onLeave: ( event: MouseEvent< HTMLElement > ) => void;
+};
+
+/**
+ * What the screen says, given what actually happened.
+ *
+ * "You're all set" is a claim, so it has to be true. A run that switched nothing
+ * on says so, and anything that failed is named rather than folded into a total.
+ *
+ * @param results - What became of each module.
+ * @return The heading and the line under it.
+ */
+function summarise( results: SetupModuleResult[] ) {
+	const failed = results.filter( result => ! result.ok );
+
+	if ( failed.length ) {
+		return {
+			title: __( 'Some features need another look', 'jetpack-my-jetpack' ),
+			description: __(
+				'The rest are ready. You can try the others again in Jetpack settings.',
+				'jetpack-my-jetpack'
+			),
+		};
+	}
+
+	// Only when the run moved nothing and nothing runs: switching modules off is a change.
+	if ( ! results.some( result => result.changed || result.wanted ) ) {
+		return {
+			title: __( 'Nothing changed on your site', 'jetpack-my-jetpack' ),
+			description: __(
+				'Everything stays as it was. You can switch these on any time in Jetpack settings.',
+				'jetpack-my-jetpack'
+			),
+		};
+	}
+
+	return {
+		title: __( "You're all set", 'jetpack-my-jetpack' ),
+		description: __(
+			"That's the important stuff done. Everything here can be changed in Jetpack settings.",
+			'jetpack-my-jetpack'
+		),
+	};
+}
+
+/**
+ * A number of features, with the word for them.
+ *
+ * Its own string so that each number in the tally agrees with its own noun: one
+ * `_n()` over the whole sentence can only decline on one of the two.
+ *
+ * @param count - How many features.
+ * @return The count and its noun.
+ */
+function featureCount( count: number ): string {
+	return sprintf(
+		/* translators: %d: a number of Jetpack features. */
+		_n( '%d feature', '%d features', count, 'jetpack-my-jetpack' ),
+		count
+	);
+}
+
+/**
+ * What this run actually did, as a sentence.
+ *
+ * Only what changed: five of the six ship on, so most runs send no request at
+ * all. Each line names setup, because the rows show end state and a bare count
+ * reads as their total.
+ *
+ * @param results - What became of each module.
+ * @return The line above the list.
+ */
+function sessionTally( results: SetupModuleResult[] ): string {
+	const on = results.filter( result => result.changed && result.wanted && result.ok ).length;
+	const off = results.filter( result => result.changed && ! result.wanted && result.ok ).length;
+
+	if ( ! on && ! off ) {
+		return __( 'Nothing needed changing on this site.', 'jetpack-my-jetpack' );
+	}
+
+	if ( on && off ) {
+		return sprintf(
+			/* translators: 1: a number of features switched on, e.g. "2 features". 2: a number switched off, e.g. "1 feature". */
+			__( 'Setup switched on %1$s and switched off %2$s.', 'jetpack-my-jetpack' ),
+			featureCount( on ),
+			featureCount( off )
+		);
+	}
+
+	if ( on ) {
+		return sprintf(
+			/* translators: %s: a number of features switched on, e.g. "2 features". */
+			__( 'Setup switched on %s.', 'jetpack-my-jetpack' ),
+			featureCount( on )
+		);
+	}
+
+	return sprintf(
+		/* translators: %s: a number of features switched off, e.g. "2 features". */
+		__( 'Setup switched off %s.', 'jetpack-my-jetpack' ),
+		featureCount( off )
+	);
+}
+
+/**
+ * What one row says on the right.
+ *
+ * @param result - What became of the module.
+ * @return The status word.
+ */
+function statusLabel( result: SetupModuleResult ) {
+	if ( ! result.ok ) {
+		return __( 'Not changed', 'jetpack-my-jetpack' );
+	}
+
+	return result.wanted ? __( 'On', 'jetpack-my-jetpack' ) : __( 'Off', 'jetpack-my-jetpack' );
+}
+
+/**
+ * The finish screen: the mark arriving, what happened, and the way out.
+ *
+ * It takes the whole sheet rather than sitting in the question column, because
+ * there is nothing left to navigate. The rail counts steps that are all behind
+ * you and the panel sells a flow you have just finished.
+ *
+ * @param props              - The component props.
+ * @param props.titleId      - The id the region is labelled by.
+ * @param props.results      - What became of each module, or null if the step was never run.
+ * @param props.dashboardUrl - Back to wp-admin.
+ * @param props.exitUrl      - On to My Jetpack.
+ * @param props.onLeave      - Records the finish, then follows the link.
+ * @return The rendered step.
+ */
+export function FinishStep( {
+	titleId,
+	results,
+	dashboardUrl,
+	exitUrl,
+	onLeave,
+}: FinishStepProps ) {
+	const reduced = useReducedMotion();
+	const rows = results ?? [];
+	const summary = summarise( rows );
+	const tally = sessionTally( rows );
+
+	return (
+		<div className={ styles.finish }>
+			{ /*
+			 * A plain element rather than Stack: Stack's own spacing is layered and
+			 * beats a class of ours, so the gaps below would silently collapse to
+			 * nothing. This screen wants four different gaps, so it owns them.
+			 */ }
+			<div className={ styles[ 'finish-column' ] }>
+				{ /*
+				 * The mark springs in over three discs washing outward, each sized in the
+				 * stylesheet as a share of the window's long side so the wash clears the
+				 * page edge at any size.
+				 *
+				 * Under reduced motion the discs are not rendered at all; see
+				 * `.finish-wash` in the stylesheet.
+				 */ }
+				<div className={ styles[ 'finish-badge' ] }>
+					{ ! reduced && (
+						<>
+							<span aria-hidden="true" className={ styles[ 'finish-wash' ] } />
+							<span
+								aria-hidden="true"
+								className={ clsx( styles[ 'finish-wash' ], styles[ 'finish-wash--2' ] ) }
+							/>
+							<span
+								aria-hidden="true"
+								className={ clsx( styles[ 'finish-wash' ], styles[ 'finish-wash--3' ] ) }
+							/>
+						</>
+					) }
+
+					<span className={ styles[ 'finish-mark' ] }>
+						<JetpackLogo showText={ false } height={ 64 } />
+					</span>
+				</div>
+
+				<div className={ styles[ 'finish-head' ] }>
+					<Text
+						variant="heading-2xl"
+						id={ titleId }
+						render={ <h1 /> }
+						className={ clsx( styles[ 'finish-title' ], styles.wave, styles[ 'wave-1' ] ) }
+					>
+						{ summary.title }
+					</Text>
+
+					<Text
+						variant="body-lg"
+						render={ <p /> }
+						className={ clsx( styles[ 'finish-lede' ], styles.wave, styles[ 'wave-2' ] ) }
+					>
+						{ summary.description }
+					</Text>
+				</div>
+
+				{ rows.length > 0 && (
+					<div className={ styles[ 'finish-summary' ] }>
+						<Text
+							variant="body-md"
+							render={ <p /> }
+							className={ clsx( styles[ 'finish-note' ], styles.wave, styles[ 'wave-3' ] ) }
+						>
+							{ tally }
+						</Text>
+
+						{ /* Safari drops the list role off a `list-style: none` list, so the count goes unsaid. */ }
+						<ul
+							role="list"
+							className={ clsx( styles[ 'finish-card' ], styles.wave, styles[ 'wave-3' ] ) }
+						>
+							{ rows.map( result => (
+								<li key={ result.slug } className={ styles[ 'finish-row' ] }>
+									<span
+										aria-hidden="true"
+										className={ clsx(
+											styles[ 'finish-row__glyph' ],
+											result.ok && result.wanted && styles[ 'finish-row__glyph--on' ]
+										) }
+									>
+										<Icon icon={ result.ok && result.wanted ? check : lineSolid } />
+									</span>
+									<Text variant="body-md" className={ styles[ 'finish-row__name' ] }>
+										{ result.name }
+									</Text>
+									<Text variant="body-md" className={ styles[ 'finish-row__state' ] }>
+										{ statusLabel( result ) }
+									</Text>
+								</li>
+							) ) }
+						</ul>
+					</div>
+				) }
+
+				<div className={ clsx( styles[ 'finish-actions' ], styles.wave, styles[ 'wave-4' ] ) }>
+					<ButtonLink
+						variant="solid"
+						href={ exitUrl }
+						onClick={ onLeave }
+						className={ clsx( styles[ 'primary-green' ], styles[ 'finish-primary' ] ) }
+					>
+						{ __( 'Go to My Jetpack', 'jetpack-my-jetpack' ) }
+					</ButtonLink>
+
+					<ButtonLink
+						variant="minimal"
+						tone="neutral"
+						href={ dashboardUrl }
+						onClick={ onLeave }
+						className={ styles[ 'finish-secondary' ] }
+					>
+						{ __( 'Back to your WordPress site', 'jetpack-my-jetpack' ) }
+					</ButtonLink>
+				</div>
+			</div>
+		</div>
+	);
+}
