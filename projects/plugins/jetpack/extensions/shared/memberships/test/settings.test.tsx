@@ -15,6 +15,22 @@ import {
 	NewsletterAccessRadioButtons,
 	NewsletterEmailDocumentSettings,
 } from '../settings';
+import type { ComponentProps, ReactNode } from 'react';
+
+type MockStore = unknown;
+type Selector = ( select: ( store: MockStore ) => object ) => unknown;
+
+interface TierProduct {
+	id: number;
+	title: string;
+	price: number;
+	interval: string;
+}
+
+interface Block {
+	name: string;
+	clientId: string;
+}
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	...jest.requireActual( '@automattic/jetpack-script-data' ),
@@ -30,8 +46,8 @@ jest.mock( '@wordpress/core-data', () => {
 	const actual = jest.requireActual( '@wordpress/core-data' );
 	return {
 		...actual,
-		useEntityProp: jest.fn( ( ...args ) => mockUseEntityProp( ...args ) ),
-		useEntityId: jest.fn( ( ...args ) => mockUseEntityId( ...args ) ),
+		useEntityProp: jest.fn( ( ...args: unknown[] ) => mockUseEntityProp( ...args ) ),
+		useEntityId: jest.fn( ( ...args: unknown[] ) => mockUseEntityId( ...args ) ),
 	};
 } );
 
@@ -39,14 +55,17 @@ jest.mock( '@wordpress/editor', () => {
 	const actual = jest.requireActual( '@wordpress/editor' );
 	return {
 		...actual,
-		PostVisibilityCheck: ( { render: renderProp } ) =>
-			renderProp ? renderProp( { canEdit: true } ) : null,
+		PostVisibilityCheck: ( {
+			render: renderProp,
+		}: {
+			render?: ( args: { canEdit: boolean } ) => ReactNode;
+		} ) => ( renderProp ? renderProp( { canEdit: true } ) : null ),
 	};
 } );
 
 jest.mock( '@wordpress/date', () => ( {
-	dateI18n: jest.fn( ( format, date ) => ( date ? '2024-03-15' : '' ) ),
-	getDate: jest.fn( x => ( x ? new Date( x ) : new Date( 0 ) ) ),
+	dateI18n: jest.fn( ( _format: string, date?: string ) => ( date ? '2024-03-15' : '' ) ),
+	getDate: jest.fn( ( x?: string ) => ( x ? new Date( x ) : new Date( 0 ) ) ),
 	getSettings: jest.fn( () => ( {
 		formats: { date: 'F j, Y' },
 		l10n: { startOfWeek: 0 },
@@ -101,6 +120,7 @@ describe( 'getReachForAccessLevelKey', () => {
 		expect(
 			getReachForAccessLevelKey( {
 				accessLevel: 'subscribers',
+				// @ts-expect-error -- Counts are null until they load.
 				subscribers: null,
 				paidSubscribers: undefined,
 			} )
@@ -121,15 +141,34 @@ describe( 'getReachForAccessLevelKey', () => {
 describe( 'NewsletterAccessRadioButtons', () => {
 	const mockSetPostMeta = jest.fn();
 
+	interface MockSelectOptions {
+		totalSubscribers?: number;
+		paidSubscribers?: number;
+		paidNewsletterSubscribers?: number;
+		paidSubscribersByTier?: Record< string, number >;
+		tierProducts?: TierProduct[];
+	}
+
 	const createMockSelect =
-		( { totalSubscribers = 120, paidSubscribers = 8, tierProducts = [] } = {} ) =>
-		store => {
+		( {
+			totalSubscribers = 120,
+			paidSubscribers = 8,
+			paidNewsletterSubscribers,
+			paidSubscribersByTier,
+			tierProducts = [],
+		}: MockSelectOptions = {} ) =>
+		( store: MockStore ) => {
 			if ( store === editorStore ) {
 				return { getCurrentPostType: () => 'post' };
 			}
 			if ( store === membershipProductsStore ) {
 				return {
-					getSubscriberCounts: () => ( { totalSubscribers, paidSubscribers } ),
+					getSubscriberCounts: () => ( {
+						totalSubscribers,
+						paidSubscribers,
+						paidNewsletterSubscribers,
+						paidSubscribersByTier,
+					} ),
 					getNewsletterTierProducts: () => tierProducts,
 				};
 			}
@@ -140,8 +179,13 @@ describe( 'NewsletterAccessRadioButtons', () => {
 	const CONNECTED = null;
 	const NOT_CONNECTED = 'https://connect.stripe.example/oauth';
 
-	const renderPanel = ( props = {}, selectOptions = {} ) => {
-		mockUseSelect.mockImplementation( selector => selector( createMockSelect( selectOptions ) ) );
+	const renderPanel = (
+		props: Partial< ComponentProps< typeof NewsletterAccessRadioButtons > > = {},
+		selectOptions: MockSelectOptions = {}
+	) => {
+		mockUseSelect.mockImplementation( ( selector: Selector ) =>
+			selector( createMockSelect( selectOptions ) )
+		);
 		return render(
 			<NewsletterAccessRadioButtons
 				accessLevel="everybody"
@@ -298,10 +342,54 @@ describe( 'NewsletterAccessRadioButtons', () => {
 				expect.objectContaining( { [ META_NAME_FOR_POST_TIER_ID_SETTINGS ]: 1 } )
 			);
 		} );
+
+		test( 'clears the saved tier when all paid subscribers is chosen', async () => {
+			const user = userEvent.setup();
+			const tierProducts = [
+				{ id: 1, title: 'Basic', price: 5, interval: '1 month' },
+				{ id: 2, title: 'Premium', price: 10, interval: '1 month' },
+			];
+			mockUseEntityProp.mockReturnValue( [
+				{ [ META_NAME_FOR_POST_TIER_ID_SETTINGS ]: 2 },
+				mockSetPostMeta,
+			] );
+
+			renderPanel( { accessLevel: 'paid_subscribers' }, { tierProducts } );
+			await user.click( screen.getByRole( 'radio', { name: /^All paid subscribers/ } ) );
+
+			expect( mockSetPostMeta ).toHaveBeenCalledWith(
+				expect.objectContaining( { [ META_NAME_FOR_POST_TIER_ID_SETTINGS ]: null } )
+			);
+		} );
+
+		test.each< [ string, string, number, boolean ] >( [
+			[ 'shows', 'its count differs from all paid subscribers', 5, true ],
+			[ 'hides', 'it reaches the same people as all paid subscribers', 1, false ],
+		] )( '%s a lone tier when %s', ( _verb, _reason, paidNewsletterSubscribers, isShown ) => {
+			renderPanel(
+				{ accessLevel: 'paid_subscribers' },
+				{
+					tierProducts: [ { id: 1, title: 'Basic', price: 5, interval: '1 month' } ],
+					paidNewsletterSubscribers,
+					paidSubscribersByTier: { 1: 1 },
+				}
+			);
+
+			expect( screen.queryByRole( 'radio', { name: 'Basic (1)' } ) !== null ).toBe( isShown );
+		} );
+
+		test( 'counts only newsletter subscribers next to the paid option', () => {
+			renderPanel( {}, { paidSubscribers: 472, paidNewsletterSubscribers: 8 } );
+
+			expect( screen.getByRole( 'radio', { name: 'Paid subscribers (8)' } ) ).toBeInTheDocument();
+		} );
 	} );
 
 	describe( 'when the post has a paywall block', () => {
-		const renderPaywalled = ( props = {}, selectOptions = {} ) =>
+		const renderPaywalled = (
+			props: Partial< ComponentProps< typeof NewsletterAccessRadioButtons > > = {},
+			selectOptions: MockSelectOptions = {}
+		) =>
 			renderPanel(
 				{ postHasPaywallBlock: true, accessLevel: 'subscribers', ...props },
 				selectOptions
@@ -444,8 +532,8 @@ describe( 'NewsletterAccessDocumentSettings', () => {
 	const PAYWALL_BLOCK = { name: 'jetpack/paywall', clientId: 'paywall-1' };
 
 	const createMockSelect =
-		( { blocks = [] } = {} ) =>
-		store => {
+		( { blocks = [] }: { blocks?: Block[] } = {} ) =>
+		( store: MockStore ) => {
 			if ( store === membershipProductsStore ) {
 				return {
 					isApiStateLoading: () => false,
@@ -466,8 +554,13 @@ describe( 'NewsletterAccessDocumentSettings', () => {
 			return {};
 		};
 
-	const renderSettings = ( { blocks = [], accessLevel = 'subscribers' } = {} ) => {
-		mockUseSelect.mockImplementation( selector => selector( createMockSelect( { blocks } ) ) );
+	const renderSettings = ( {
+		blocks = [],
+		accessLevel = 'subscribers',
+	}: { blocks?: Block[]; accessLevel?: string } = {} ) => {
+		mockUseSelect.mockImplementation( ( selector: Selector ) =>
+			selector( createMockSelect( { blocks } ) )
+		);
 		return render( <NewsletterAccessDocumentSettings accessLevel={ accessLevel } /> );
 	};
 
@@ -506,13 +599,18 @@ describe( 'NewsletterAccessDocumentSettings', () => {
 	} );
 } );
 
+interface PostEmailSentState {
+	email_sent_at: number | null;
+	stats_on_send: null;
+}
+
 describe( 'NewsletterEmailDocumentSettings', () => {
-	const createMockSelect = postEmailSentState => store => {
+	const createMockSelect = ( postEmailSentState: PostEmailSentState ) => ( store: MockStore ) => {
 		if ( store === editorStore ) {
 			return {
 				isCurrentPostPublished: () => false,
 				getCurrentPostType: () => 'post',
-				getEditedPostAttribute: attr => ( attr === 'meta' ? {} : undefined ),
+				getEditedPostAttribute: ( attr: string ) => ( attr === 'meta' ? {} : undefined ),
 			};
 		}
 		if ( store === membershipProductsStore ) {
@@ -540,7 +638,7 @@ describe( 'NewsletterEmailDocumentSettings', () => {
 	} );
 
 	test( 'returns null when post is already sent (postEmailSentState has email_sent_at)', () => {
-		mockUseSelect.mockImplementation( selector =>
+		mockUseSelect.mockImplementation( ( selector: Selector ) =>
 			selector( createMockSelect( { email_sent_at: 1234567890, stats_on_send: null } ) )
 		);
 
@@ -549,7 +647,7 @@ describe( 'NewsletterEmailDocumentSettings', () => {
 	} );
 
 	test( 'renders toggle when post is not already sent', async () => {
-		mockUseSelect.mockImplementation( selector =>
+		mockUseSelect.mockImplementation( ( selector: Selector ) =>
 			selector( createMockSelect( { email_sent_at: null, stats_on_send: null } ) )
 		);
 
@@ -563,7 +661,7 @@ describe( 'NewsletterEmailDocumentSettings', () => {
 		const user = userEvent.setup();
 		const setPostMeta = jest.fn();
 		mockUseEntityProp.mockReturnValue( [ {}, setPostMeta ] );
-		mockUseSelect.mockImplementation( selector =>
+		mockUseSelect.mockImplementation( ( selector: Selector ) =>
 			selector( createMockSelect( { email_sent_at: null, stats_on_send: null } ) )
 		);
 
