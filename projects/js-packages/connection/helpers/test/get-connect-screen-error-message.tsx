@@ -240,31 +240,18 @@ describe( 'getRegistrationErrorDisplay', () => {
 		).toBe( 'cURL error 6: Could not resolve host.' );
 	} );
 
-	it( 'keeps only the bracketed cause of a WordPress.com transport error', () => {
-		const result = display(
-			'request_timeout',
-			'The Jetpack server was unable to communicate with your site https://example.com [REST http_request_failed: cURL error 28: Operation timed out]'
-		);
-		expect( result.message ).toContain( 'WordPress.com couldn’t reach your site' );
-		expect( result.detail ).toBe( 'REST http_request_failed: cURL error 28: Operation timed out' );
-		expect( display( 'connection_refused', 'Connection refused' ).detail ).toBe(
-			'Connection refused'
-		);
-	} );
-
-	it( 'stops the cause at its closing bracket and drops a bare HTTP status', () => {
+	it( 'shows only our copy for a WordPress.com transport error', () => {
+		const text =
+			'The Jetpack server was unable to communicate with your site https://example.com [REST http_request_failed: cURL error 28: Operation timed out]';
+		expect( display( 'request_timeout', text ) ).toEqual( {
+			message: getConnectScreenErrorMessage( 'request_timeout' ),
+		} );
 		expect(
 			display(
-				'request_timeout',
-				'The Jetpack server timed out communicating with your site https://example.com [HTTP 408].  Ask your web host to check the site’s logs.'
+				'ssl_error',
+				'Invalid SSL response [IXR -32300: transport error - SSL_ERROR_SYSCALL]'
 			)
-		).toEqual( { message: getConnectScreenErrorMessage( 'request_timeout' ) } );
-		expect(
-			display( 'ssl_error', 'Text [SSL certificate problem]. More text [other]' ).detail
-		).toBe( 'SSL certificate problem' );
-		expect( display( 'request_timeout', 'Cut before it closes [cURL error 28' ).detail ).toBe(
-			'cURL error 28'
-		);
+		).toEqual( { message: getConnectScreenErrorMessage( 'ssl_error' ) } );
 	} );
 
 	it( 'names the URL WordPress.com tried for an HTTP status from the site, in one message', () => {
@@ -292,15 +279,6 @@ describe( 'getRegistrationErrorDisplay', () => {
 		expect( display( 'site_inaccessible_503', 'Unexpected text.' ) ).toEqual( {
 			message: getConnectScreenErrorMessage( 'site_inaccessible_503' ),
 		} );
-	} );
-
-	it( 'leaves transport errors without the URL', () => {
-		expect(
-			display(
-				'request_timeout',
-				'The Jetpack server was unable to communicate with your site https://example.com [REST http_request_failed: cURL error 28]'
-			).message
-		).toBe( getConnectScreenErrorMessage( 'request_timeout' ) );
 	} );
 
 	it( 'shows nothing extra for a status-only message', () => {

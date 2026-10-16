@@ -92,36 +92,6 @@ export type RegistrationErrorDisplay = {
 	detail?: string;
 };
 
-// WordPress.com codes for failing to reach the site; their text ends with the cause in brackets.
-const WPCOM_TRANSPORT_CODES = new Set( [
-	'site_inaccessible',
-	'request_timeout',
-	'connection_timeout',
-	'connection_refused',
-	'connection_reset',
-	'bad_redirect_url',
-	'ssl_error',
-	'host_lookup_fail',
-] );
-
-/**
- * The underlying cause from a WordPress.com transport error: the first bracketed part of its text.
- *
- * @param {string} description - The site's cleaned explanation of the error.
- * @return {string|undefined} The cause, the whole description when it has no bracketed part, or undefined when the brackets only hold an HTTP status.
- */
-const getTransportCause = ( description: string ): string | undefined => {
-	const start = description.indexOf( '[' );
-	if ( start === -1 ) {
-		return description;
-	}
-	// The text can go on after the bracket (e.g. for HTTP 408), or be cut before it closes.
-	const end = description.indexOf( ']', start );
-	const cause = description.slice( start + 1, end === -1 ? undefined : end ).trim();
-	// A bare status adds nothing to our message.
-	return /^HTTP \d+$/.test( cause ) ? undefined : cause || undefined;
-};
-
 /**
  * The site URL WordPress.com quotes in its text, e.g. "…unable to communicate with your site https://example.com [HTTP 503]".
  *
@@ -154,10 +124,6 @@ export const getRegistrationErrorDisplay = (
 	}
 	if ( code === 'register_http_request_failed' ) {
 		return { message, detail: description };
-	}
-	if ( code && WPCOM_TRANSPORT_CODES.has( code ) ) {
-		const detail = getTransportCause( description );
-		return detail ? { message, detail } : { message };
 	}
 	if ( code && /^site_inaccessible_\d{3}$/.test( code ) ) {
 		return {
