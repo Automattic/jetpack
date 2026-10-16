@@ -295,7 +295,7 @@ export function DateFiltersPanel( {
 						attentionId={ attentionId }
 						lockedPresetIds={ dateLimits?.lockedPresetIds }
 						earliestDate={ dateLimits?.earliestDate }
-						menuFooter={
+						lockNotice={
 							dateLimits?.upsell && (
 								<DateLimitUpsell
 									upsell={ dateLimits.upsell }
