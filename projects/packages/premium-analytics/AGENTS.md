@@ -88,7 +88,9 @@ there; the callback receives the registry being hydrated, for lookups such as
 REST, and fires that action once; `src/default-dashboard-sections.php` registers the package's own sections the same
 way. A section declares its default layout in the registration; the
 `jetpack_premium_analytics_dashboard_default_layout` filter lets another plugin add an instance to
-any section by id. `docs/dashboard-sections.md` walks through the whole path with diagrams.
+any section by id. The inserter offers the default layout's types plus the section's
+`insertable_widget_types`, which the `jetpack_premium_analytics_dashboard_insertable_widget_types`
+filter extends the same way. `docs/dashboard-sections.md` walks through the whole path with diagrams.
 
 Add widget types from another plugin: hook `jetpack_premium_analytics_register_widget_types`,
 compare `WIDGET_API_VERSION`, and call `register_widget_types_from_manifest()` there with the manifest

@@ -131,6 +131,16 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 			),
 			array_column( $section->get_default_layout(), 'type' )
 		);
+		$this->assertSame(
+			array(
+				Analytics_Dashboard::NET_SALES_OVER_TIME_TYPE,
+				Analytics_Dashboard::TOTAL_SALES_OVER_TIME_TYPE,
+				Analytics_Dashboard::GROSS_SALES_OVER_TIME_TYPE,
+				Analytics_Dashboard::ORDERS_OVER_TIME_TYPE,
+				Analytics_Dashboard::VISITORS_OVER_TIME_TYPE,
+			),
+			$section->get_insertable_widget_types()
+		);
 	}
 
 	/**
@@ -141,6 +151,20 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 
 		foreach ( Analytics_Dashboard::get_default_layout() as $instance ) {
 			$this->assertContains( $instance['type'], $built );
+		}
+	}
+
+	/**
+	 * An insertable type the package does not build is never offered, so a typo hides the widget
+	 * silently; one the default layout places is offered without the list.
+	 */
+	public function test_the_insertable_widget_types_are_built_and_outside_the_default_layout() {
+		$built  = array_column( jetpack_woocommerce_stats_get_registered_widget_modules(), 'name' );
+		$placed = array_column( Analytics_Dashboard::get_default_layout(), 'type' );
+
+		foreach ( Analytics_Dashboard::INSERTABLE_WIDGET_TYPES as $type ) {
+			$this->assertContains( $type, $built );
+			$this->assertNotContains( $type, $placed );
 		}
 	}
 
