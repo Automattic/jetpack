@@ -82,7 +82,7 @@ class InitializerTest extends TestCase {
 	 * The surface visibility contract remains available on Initializer.
 	 */
 	public function test_cross_plugin_contract_is_kept_on_initializer() {
-		$this->assertSame( 'jetpack_seo_surface_visible', Initializer::VISIBILITY_OPTION );
+		$this->assertSame( 'jetpack_seo_surface_visible_v2', Initializer::VISIBILITY_OPTION );
 
 		$this->assertTrue( method_exists( Initializer::class, 'is_available' ) );
 		$this->assertTrue( method_exists( Initializer::class, 'is_optin_available' ) );

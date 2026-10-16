@@ -46,6 +46,7 @@ export {
 	type LeaderboardChartData,
 	type LeaderboardSkeletonProps,
 	type LegendLabels,
+	type LeaderboardColumns,
 	LeaderboardLabel,
 	type LeaderboardLabelProps,
 	LeaderboardRow,

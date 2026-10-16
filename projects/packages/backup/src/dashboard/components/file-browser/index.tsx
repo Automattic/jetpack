@@ -511,6 +511,7 @@ export default function FileBrowser( {
 					error={ rootsError }
 					referenceId={ { kind: 'backup', value: rewindId } }
 					onRetry={ refetchRoots }
+					withSupportLink
 					isRetrying={ rootsFetching }
 					returnFocusTo={ panelRef }
 				/>

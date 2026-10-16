@@ -90,6 +90,10 @@ function MostCommentedPostsInner() {
 						withOverlayLabel
 						showLegend={ false }
 						dataFormat={ DATA_FORMAT }
+						columns={ {
+							label: __( 'Posts', 'jetpack-premium-analytics-pkg' ),
+							metric: 'comments',
+						} }
 					/>
 				</WidgetState>
 			</div>

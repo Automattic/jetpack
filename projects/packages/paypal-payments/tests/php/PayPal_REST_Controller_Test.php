@@ -1350,7 +1350,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 		$data = PayPal_REST_Controller::handle_update_button( $request )->get_data();
 
 		$this->assertCount( 1, $requests );
-		// The echo has no `id`, so mapping it would blank the block's resourceId.
+		// The echo has no code_snippets, so mapping it would blank a stacked block's scriptSrc.
 		$this->assertArrayNotHasKey( 'attributes', $data );
 	}
 

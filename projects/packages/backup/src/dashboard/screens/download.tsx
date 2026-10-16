@@ -1,3 +1,4 @@
+import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
 import { ProgressBar, VisuallyHidden } from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __, isRTL, sprintf } from '@wordpress/i18n';
@@ -10,13 +11,23 @@ import {
 	error as errorIcon,
 } from '@wordpress/icons';
 import { Link, useParams, useSearch } from '@wordpress/route';
-import { Button, Card, EmptyState, ButtonLink, Spinner, Stack, Text } from '@wordpress/ui';
+import {
+	Button,
+	Card,
+	EmptyState,
+	Link as ExternalLink,
+	ButtonLink,
+	Spinner,
+	Stack,
+	Text,
+} from '@wordpress/ui';
 import DashboardLayout from '../components/dashboard-layout';
 import ErrorReference from '../components/error-reference';
 import InvalidRewindId from '../components/invalid-rewind-id';
 import RestoreItemsChecklist from '../components/restore-items-checklist';
 import { splitFileSelection } from '../data/api/download';
 import { formatDateTime } from '../data/date-format';
+import { useSiteSuffix } from '../hooks/use-connection';
 import { useDownload } from '../hooks/use-download';
 import { useGateState } from '../hooks/use-gate-state';
 import { useStepFocus } from '../hooks/use-step-focus';
@@ -52,6 +63,7 @@ type DownloadSearch = Record< string, unknown > & { files?: string };
 export default function DownloadScreen() {
 	const { rewindId } = useParams( { from: '/download/$rewindId' } );
 	const gate = useGateState();
+	const siteSuffix = useSiteSuffix();
 	// `strict: false` is the unvalidated read, and it is the whole option:
 	// passing `from` as well would send it down the route-id lookup that
 	// throws on a mismatch, which is the opposite of what is wanted for a
@@ -312,6 +324,15 @@ export default function DownloadScreen() {
 								</EmptyState.Title>
 								<EmptyState.Description>{ state.message }</EmptyState.Description>
 								<ErrorReference { ...state.reference } />
+								<ExternalLink
+									openInNewTab
+									href={ getRedirectUrl(
+										'jetpack-contact-support',
+										siteSuffix ? { site: siteSuffix } : {}
+									) }
+								>
+									{ __( 'Contact support', 'jetpack-backup-pkg' ) }
+								</ExternalLink>
 								<EmptyState.Actions>
 									<Button variant="solid" onClick={ handleRetry }>
 										{ __( 'Try again', 'jetpack-backup-pkg' ) }

@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -227,7 +228,7 @@ function get_stats_feature_copy( $feature ) {
 		case 'top-posts':
 			return array(
 				'description' => __( 'Discover your <link>post and pages</link> traffic in detail and learn what content resonates the most.', 'jetpack-premium-analytics-pkg' ),
-				'support_url' => $traffic_support . '#analyzing-popular-posts-and-pages',
+				'support_url' => $traffic_support . '#analyzing-popular-posts-pages-and-archives',
 			);
 		case 'referrers':
 			return array(
@@ -237,12 +238,12 @@ function get_stats_feature_copy( $feature ) {
 		case 'countries':
 			return array(
 				'description' => __( 'Discover where your <link>visitors are located</link> and identify where your traffic is coming from.', 'jetpack-premium-analytics-pkg' ),
-				'support_url' => $traffic_support . '#countries',
+				'support_url' => $traffic_support . '#views-by-locations',
 			);
 		case 'regions-cities':
 			return array(
 				'description' => __( 'Access to <link>region and city stats</link> for more accurate analysis.', 'jetpack-premium-analytics-pkg' ),
-				'support_url' => $traffic_support . '#countries',
+				'support_url' => $traffic_support . '#regions-and-cities',
 			);
 		case 'clicks':
 			return array(
@@ -252,7 +253,7 @@ function get_stats_feature_copy( $feature ) {
 		case 'file-downloads':
 			return array(
 				'description' => __( 'Discover the most <link>downloaded files</link> by your visitors.', 'jetpack-premium-analytics-pkg' ),
-				'support_url' => 'https://wordpress.com/support/stats/understand-your-sites-traffic/#file-downloads',
+				'support_url' => 'https://wordpress.com/support/stats/analyze-content-performance/#track-file-downloads',
 			);
 		case 'authors':
 			return array(
@@ -293,6 +294,38 @@ function get_stats_feature_copy( $feature ) {
 }
 
 /**
+ * Locales with translated WordPress.com support articles: Calypso's `supportSiteLocales`, which classic Stats links with.
+ */
+const WPCOM_SUPPORT_LOCALES = array( 'ar', 'de', 'es', 'fr', 'he', 'id', 'it', 'ja', 'ko', 'nl', 'pt-br', 'ru', 'sv', 'tr', 'zh-cn', 'zh-tw' );
+
+/**
+ * A WordPress.com support URL in the current user's language, where that support site has one.
+ *
+ * Leaves jetpack.com URLs in English: its localized support docs are missing for most locales.
+ *
+ * @since $$next-version$$
+ *
+ * @param string $url Support URL, in English.
+ * @return string
+ */
+function localize_stats_support_url( $url ) {
+	$prefix = 'https://wordpress.com/support/';
+	if ( ! str_starts_with( $url, $prefix ) ) {
+		return $url;
+	}
+
+	$locale = strtolower( str_replace( '_', '-', get_user_locale() ) );
+	if ( ! in_array( $locale, WPCOM_SUPPORT_LOCALES, true ) ) {
+		$locale = strtok( $locale, '-' );
+	}
+	if ( ! in_array( $locale, WPCOM_SUPPORT_LOCALES, true ) ) {
+		return $url;
+	}
+
+	return 'https://wordpress.com/' . $locale . '/support/' . substr( $url, strlen( $prefix ) );
+}
+
+/**
  * Where to buy a locked feature: classic Stats' purchase destinations.
  *
  * @since $$next-version$$
@@ -302,7 +335,7 @@ function get_stats_feature_copy( $feature ) {
  * @return string The URL, or an empty string when there is nowhere to buy it.
  */
 function get_stats_upgrade_url( $feature, $tier ) {
-	$return_path = 'admin.php?page=' . Analytics::MENU_PAGE_SLUG . '&jpa_purchased=1';
+	$return_path = 'admin.php?page=' . Analytics::MENU_PAGE_SLUG;
 
 	if ( STATS_TIER_JETPACK_FREE === $tier ) {
 		// The purchase flow lives in Odyssey Stats; with it off, `page=stats` shows only an opt-in notice.
@@ -344,7 +377,9 @@ function get_stats_plan_gates() {
 
 	$locked_features = array();
 	foreach ( $features as $feature ) {
-		$locked_features[ $feature ] = get_stats_feature_copy( $feature ) + array( 'upgrade_url' => get_stats_upgrade_url( $feature, $tier ) );
+		$copy                        = get_stats_feature_copy( $feature );
+		$copy['support_url']         = localize_stats_support_url( $copy['support_url'] );
+		$locked_features[ $feature ] = $copy + array( 'upgrade_url' => get_stats_upgrade_url( $feature, $tier ) );
 	}
 
 	$locked_widget_types = array();
@@ -375,6 +410,7 @@ function get_stats_plan_gates() {
 function configure_stats_plan_gates() {
 	add_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_stats_plan_gates_script_data', 20 );
 	add_action( 'admin_init', __NAMESPACE__ . '\\maybe_refresh_jetpack_plan' );
+	add_action( 'admin_init', __NAMESPACE__ . '\\maybe_invalidate_stats_caches' );
 }
 
 /**
@@ -418,6 +454,34 @@ const EMPTY_PLAN_REFRESH_TRANSIENT = 'jetpack_premium_analytics_empty_plan_refre
 const PURCHASE_PLAN_REFRESH_TRANSIENT = 'jetpack_premium_analytics_purchase_plan_refresh';
 
 /**
+ * Transient throttling the cache invalidation after a purchase.
+ */
+const PURCHASE_CACHE_INVALIDATION_TRANSIENT = 'jetpack_premium_analytics_purchase_cache_invalidation';
+
+/**
+ * Drops the cached Stats replies a checkout made stale, before the dashboard it returns to asks for them.
+ *
+ * @since $$next-version$$
+ *
+ * @return void
+ */
+function maybe_invalidate_stats_caches() {
+	// Simple serves the dashboard from WordPress.com, with neither cache.
+	if ( ! Analytics::is_dashboard_request() || '' === get_stats_purchase_success_type() || ( new Host() )->is_wpcom_simple() ) {
+		return;
+	}
+
+	// The marker is a plain GET parameter, so a crafted link could otherwise drop the caches on every visit.
+	if ( get_transient( PURCHASE_CACHE_INVALIDATION_TRANSIENT ) ) {
+		return;
+	}
+	set_transient( PURCHASE_CACHE_INVALIDATION_TRANSIENT, 1, MINUTE_IN_SECONDS );
+
+	Api_Proxy_Controller::invalidate_cache();
+	delete_transient( Notices::NOTICES_CACHE_KEY );
+}
+
+/**
  * Refreshes a self-hosted site's cached plan on the dashboard when it is empty or a checkout just returned.
  *
  * Script data is final once printed, so the gates can only change before it.
@@ -431,8 +495,7 @@ function maybe_refresh_jetpack_plan() {
 		return;
 	}
 
-	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only trigger: it only re-reads the site's own plan.
-	if ( ! empty( $_GET['jpa_purchased'] ) ) {
+	if ( '' !== get_stats_purchase_success_type() ) {
 		$transient = PURCHASE_PLAN_REFRESH_TRANSIENT;
 		$ttl       = MINUTE_IN_SECONDS;
 	} elseif ( ! has_cached_jetpack_plan() ) {

@@ -12,6 +12,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-backup/wpcom-backup.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-admin-menu/wpcom-admin-menu.php';
 
 /**
@@ -78,7 +79,7 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Tear down each test.
 	 *
-	 * Undo the platform constants, Host cache and modernization filter the rollout
+	 * Undo the platform constants, Host cache and modernization filters the rollout
 	 * tests set, so they don't leak into the next case. (`jetpack_options['id']` is
 	 * stored in the WorDBless DB, which is reset between tests.)
 	 */
@@ -86,6 +87,7 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 		Constants::clear_single_constant( 'IS_WPCOM' );
 		Status_Cache::clear();
 		remove_all_filters( 'rsm_jetpack_ui_modernization_newsletter' );
+		remove_all_filters( 'rsm_jetpack_ui_modernization_backup' );
 		delete_option( 'wpcom_admin_interface' );
 		delete_option( 'wpcom_ai_launchpad_no_guidance' );
 		delete_option( 'wpcom_ai_launchpad_enabled' );
@@ -404,34 +406,53 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The Jetpack plugin's `jetpack-backup` page is hidden from the sidebar but stays registered.
+	 * Exactly one Backup entry shows: wp-admin's once the flag is on and the page exists, else Calypso's.
+	 *
+	 * @dataProvider provide_backup_entry_cases
+	 *
+	 * @param bool   $flag_on         Whether the filter turns the flag on, rather than leaving the default.
+	 * @param bool   $page_registered Whether something registered the `jetpack-backup` page.
+	 * @param string $expected        The visible entry: 'calypso' or 'wp-admin'.
 	 */
-	public function test_jetpack_submenu_hides_the_wp_admin_backup_page() {
+	#[DataProvider( 'provide_backup_entry_cases' )]
+	public function test_jetpack_submenu_shows_one_backup_entry( $flag_on, $page_registered, $expected ) {
 		global $submenu;
 
 		\Jetpack_Options::update_option( 'id', 200 );
-		$submenu['jetpack'][] = array( 'VaultPress Backup', 'manage_options', 'jetpack-backup', 'Jetpack VaultPress Backup' );
+		if ( $flag_on ) {
+			add_filter( 'rsm_jetpack_ui_modernization_backup', '__return_true' );
+		}
+		if ( $page_registered ) {
+			$submenu['jetpack'][] = array( 'Backup', 'manage_options', 'jetpack-backup', 'Jetpack VaultPress Backup' );
+		}
 
 		wpcom_add_jetpack_submenu();
 
-		$item = $this->get_jetpack_submenu_item( 'jetpack-backup' );
+		$entries = array(
+			'calypso'  => 'https://wordpress.com/backup/' . self::$domain,
+			'wp-admin' => 'jetpack-backup',
+		);
+		$visible = array();
+		foreach ( $submenu['jetpack'] as $item ) {
+			if ( in_array( $item[2], $entries, true ) && ! str_contains( $item[4] ?? '', 'hide-if-js' ) ) {
+				$visible[] = $item[2];
+			}
+		}
 
-		$this->assertNotNull( $item );
-		$this->assertStringContainsString( 'hide-if-js', $item[4] ?? '' );
+		$this->assertSame( array( $entries[ $expected ] ), $visible );
 	}
 
 	/**
-	 * The Calypso Backup link stays visible.
+	 * Flag value, page registration and the entry that should show.
+	 *
+	 * @return array[]
 	 */
-	public function test_jetpack_submenu_keeps_the_calypso_backup_link_visible() {
-		\Jetpack_Options::update_option( 'id', 200 );
-
-		wpcom_add_jetpack_submenu();
-
-		$item = $this->get_jetpack_submenu_item( 'https://wordpress.com/backup/' . self::$domain );
-
-		$this->assertNotNull( $item );
-		$this->assertStringNotContainsString( 'hide-if-js', $item[4] ?? '' );
+	public static function provide_backup_entry_cases() {
+		return array(
+			'default, page registered'    => array( false, true, 'calypso' ),
+			'on, page registered'         => array( true, true, 'wp-admin' ),
+			'on, nothing serves the slug' => array( true, false, 'calypso' ),
+		);
 	}
 
 	/**

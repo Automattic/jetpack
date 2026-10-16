@@ -36,6 +36,8 @@ declare module '@automattic/jetpack-script-data' {
 				>;
 				locked_widget_types: Record< string, string >;
 			};
+			// The Stats purchase this page load returned from checkout with; absent on every other load.
+			purchase_success?: { type: 'paid' | 'free' };
 		};
 		newsletter?: {
 			// The Newsletter page's Subscribers tab; null when this user cannot open it.

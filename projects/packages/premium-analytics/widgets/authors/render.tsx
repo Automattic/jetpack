@@ -189,6 +189,12 @@ export function AuthorsLeaderboard( {
 						type: 'number',
 						options: { useMultipliers: true, decimals: 0 },
 					} }
+					columns={ {
+						label: isDrilled
+							? __( 'Posts', 'jetpack-premium-analytics-pkg' )
+							: __( 'Authors', 'jetpack-premium-analytics-pkg' ),
+						metric: 'views',
+					} }
 				/>
 			</WidgetState>
 		</div>

@@ -11,6 +11,7 @@ import ScanButton from './scan-button';
 import ScanningState from './scanning-state';
 import { SCAN_PATH, mergeScan, setScan, useScan } from './store';
 import { loadIgnored } from './threat-actions';
+import threatsIcon from './threats-icon';
 import ThreatsList from './threats-list';
 import type { DashboardContext } from '../types';
 import type { ScanState } from './types';
@@ -209,7 +210,7 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 
 	return (
 		<ProtectCard
-			icon={ shield }
+			icon={ hasThreats ? threatsIcon : shield }
 			title={ __( 'Scan', 'jetpack-protect-pkg' ) }
 			description={
 				scan.hasPlan

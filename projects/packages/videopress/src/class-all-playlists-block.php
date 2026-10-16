@@ -35,7 +35,7 @@ class All_Playlists_Block {
 	 *
 	 * @var string[]
 	 */
-	const ORDERS = array( 'newest', 'oldest', 'title' );
+	const ORDERS = array( 'newest', 'oldest', 'title', 'updated' );
 
 	/**
 	 * Supported pagination styles, the first being the default.
@@ -108,7 +108,7 @@ class All_Playlists_Block {
 	 *
 	 * @param mixed $block_attributes Block attributes; anything but an array counts as none.
 	 *
-	 * @return array{layout: string, columns: int, per_page: int, order_by: string, show_description: bool, show_video_count: bool, pagination: string}
+	 * @return array{layout: string, columns: int, per_page: int, order_by: string, show_description: bool, show_video_count: bool, pagination: string, show_updated: bool}
 	 */
 	public static function settings( $block_attributes ) {
 		$block_attributes = is_array( $block_attributes ) ? $block_attributes : array();
@@ -135,6 +135,7 @@ class All_Playlists_Block {
 			'show_description' => $flag( 'showDescription', true ),
 			'show_video_count' => $flag( 'showVideoCount', true ),
 			'pagination'       => $pick( 'pagination', self::PAGINATIONS ),
+			'show_updated'     => $flag( 'showUpdated', false ),
 		);
 	}
 
@@ -186,9 +187,12 @@ class All_Playlists_Block {
 				}
 			);
 		} else {
-			// Newest first by the source post's publish date; playlists without a post go last.
-			$date_of = function ( $playlist ) {
-				return $playlist['post'] ? $playlist['post']->post_date_gmt : '';
+			// By the source post's publish ( or, for "updated", modified ) date; playlists without a post go last.
+			$date_of = function ( $playlist ) use ( $order_by ) {
+				if ( ! $playlist['post'] ) {
+					return '';
+				}
+				return 'updated' === $order_by ? $playlist['post']->post_modified_gmt : $playlist['post']->post_date_gmt;
 			};
 			usort(
 				$playlists,
@@ -198,7 +202,7 @@ class All_Playlists_Block {
 					if ( '' === $date_a || '' === $date_b ) {
 						$result = strcmp( $date_b, $date_a );
 					} else {
-						$result = 'newest' === $order_by ? strcmp( $date_b, $date_a ) : strcmp( $date_a, $date_b );
+						$result = 'oldest' === $order_by ? strcmp( $date_a, $date_b ) : strcmp( $date_b, $date_a );
 					}
 					return 0 !== $result ? $result : strcmp( $a['key'], $b['key'] );
 				}
@@ -473,6 +477,12 @@ class All_Playlists_Block {
 		if ( $settings['show_description'] && '' !== $playlist['description'] ) {
 			$body .= sprintf( '<p class="videopress-all-playlists__description">%s</p>', esc_html( $playlist['description'] ) );
 		}
+		if ( $settings['show_updated'] ) {
+			$meta = self::updated_meta( $playlist );
+			if ( '' !== $meta ) {
+				$body .= sprintf( '<span class="videopress-all-playlists__meta">%s</span>', esc_html( $meta ) );
+			}
+		}
 		$body .= sprintf(
 			'<span class="videopress-all-playlists__poster-note">%s</span>',
 			esc_html__( 'First video is private or was deleted.', 'jetpack-videopress-pkg' )
@@ -494,6 +504,33 @@ class All_Playlists_Block {
 			$poster,
 			$body
 		);
+	}
+
+	/**
+	 * "Updated 2 weeks ago · 1 hr 12 min" for a card.
+	 *
+	 * @param array $playlist A record from ordered_playlists().
+	 *
+	 * @return string
+	 */
+	public static function updated_meta( $playlist ) {
+		$parts = array();
+		if ( $playlist['post'] instanceof WP_Post ) {
+			$ago = Channel_Data::ago( (int) strtotime( $playlist['post']->post_modified_gmt . ' UTC' ) );
+			if ( '' !== $ago ) {
+				/* translators: %s: how long ago, e.g. "2 weeks ago". */
+				$parts[] = sprintf( __( 'Updated %s', 'jetpack-videopress-pkg' ), $ago );
+			}
+		}
+		$total_ms = 0;
+		foreach ( Initializer::sanitize_playlist_entries( $playlist['videos'] ) as $entry ) {
+			$total_ms += $entry['durationMs'];
+		}
+		$runtime = Initializer::playlist_runtime_label( $total_ms );
+		if ( '' !== $runtime ) {
+			$parts[] = $runtime;
+		}
+		return implode( ' · ', $parts );
 	}
 
 	/**

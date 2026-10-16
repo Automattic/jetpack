@@ -186,6 +186,7 @@ export function ClicksLeaderboard( {
 			withOverlayLabel
 			showLegend={ false }
 			dataFormat={ DATA_FORMAT }
+			columns={ { label: __( 'Links', 'jetpack-premium-analytics-pkg' ), metric: 'clicks' } }
 		/>
 	);
 }

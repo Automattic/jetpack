@@ -1163,6 +1163,13 @@ class REST_Connector {
 				'login'       => $user->user_login,
 				'displayName' => $user->display_name,
 				'email'       => $user->user_email,
+				'avatar'      => get_avatar_url(
+					$user->ID,
+					array(
+						'size'    => 48,
+						'default' => 'mysteryman',
+					)
+				),
 			);
 		}
 

@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { getScriptData } from '@automattic/jetpack-script-data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Link, Notice, Stack, Text } from '@wordpress/ui';
@@ -12,10 +11,13 @@ import { Link, Notice, Stack, Text } from '@wordpress/ui';
 import { AvatarBadge } from './candidate-identity';
 import './style.scss';
 import type { ConnectionOwnerCandidate } from './use-ownership-transfer';
+import type { ConnectionOwner } from '../../types';
 
 export interface TransferConfirmStepProps {
 	/** The administrator about to become the owner. */
 	candidate: ConnectionOwnerCandidate;
+	/** The administrator handing ownership over. */
+	currentOwner?: ConnectionOwner | null;
 	/** Whether the current owner is also this connection's protected owner. */
 	isProtectedOwner?: boolean;
 	/** A failed transfer's message, if any. */
@@ -30,10 +32,13 @@ export interface TransferConfirmStepProps {
  */
 const TransferConfirmStep = ( {
 	candidate,
+	currentOwner,
 	isProtectedOwner,
 	error,
 }: TransferConfirmStepProps ) => {
-	const currentOwnerName = getScriptData()?.user?.current_user?.display_name ?? '';
+	// A third party can blank an avatar URL through the get_avatar_url filter, and half a
+	// handover reads as broken: show both faces or neither.
+	const showHandover = Boolean( currentOwner?.avatar && candidate.avatar );
 
 	return (
 		<Stack direction="column" gap="lg" className="jp-connection__transfer-ownership">
@@ -43,15 +48,15 @@ const TransferConfirmStep = ( {
 				gap="md"
 				className="jp-connection__transfer-ownership__handover"
 			>
-				{ currentOwnerName && (
+				{ showHandover && (
 					<>
-						<AvatarBadge name={ currentOwnerName } />
+						<AvatarBadge avatar={ currentOwner?.avatar } />
 						<span className="jp-connection__transfer-ownership__arrow" aria-hidden="true">
 							&rarr;
 						</span>
+						<AvatarBadge avatar={ candidate.avatar } />
 					</>
 				) }
-				<AvatarBadge name={ candidate.displayName } isIncoming />
 				<Text>
 					{ createInterpolateElement(
 						/* translators: <name/> is replaced with the display name of the administrator taking over. */
