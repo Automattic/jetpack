@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Tests: keep a WordPress trunk callback out of a Sync test that passes invalid post arguments.
+
+

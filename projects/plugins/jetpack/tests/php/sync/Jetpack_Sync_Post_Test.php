@@ -1477,6 +1477,8 @@ That was a cool video.';
 		remove_action( 'wp_after_insert_post', 'wp_random_content_flush_rewrite_rules_for_post' );
 
 		$this->server_event_storage->reset();
+		// Only the Sync listener is under test; core's typed callback throws on these invalid arguments.
+		remove_action( 'wp_after_insert_post', 'wp_random_content_flush_rewrite_rules_for_post' );
 		do_action( 'wp_after_insert_post', $post_ID, $post, false, null );
 
 		$this->sender->do_sync();

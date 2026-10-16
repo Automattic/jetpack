@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\VideoPress\Channel;
+use Automattic\Jetpack\VideoPress\Channel_Data;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use WorDBless\BaseTestCase;
@@ -396,6 +397,42 @@ class Channel_Test extends BaseTestCase {
 		$this->assertSame( array(), $block( array( 'source' => 'queried' ) )['videos'] );
 		set_query_var( Channel::PLAYLIST_QUERY_VAR, 1 );
 		$this->assertSame( 'mc', $block( array( 'source' => 'queried' ) )['videopressListKey'] );
+	}
+
+	/**
+	 * With `showMeta`, a sourced playlist's entries carry their plays and upload
+	 * time; entries without a local attachment get zeros.
+	 */
+	public function test_playlist_source_block_entry_meta() {
+		$this->index_playlists();
+		$id = $this->video( 'abcDEF12' );
+		Channel_Data::reset();
+		add_filter(
+			'videopress_channel_video_views',
+			function () use ( $id ) {
+				return array( $id => 42 );
+			}
+		);
+		$videos = function ( $attrs ) {
+			return Channel::playlist_source_block(
+				array(
+					'blockName' => 'videopress/playlist',
+					'attrs'     => $attrs + array(
+						'source'           => 'index',
+						'sourcePlaylistId' => 'mc',
+					),
+				)
+			)['attrs']['videos'];
+		};
+
+		$with_meta = $videos( array( 'showMeta' => true ) );
+		$this->assertSame( 42, $with_meta[0]['views'] );
+		$this->assertSame( strtotime( get_post( $id )->post_date_gmt . ' UTC' ), $with_meta[0]['publishedAt'] );
+		$this->assertSame( 1000, $with_meta[0]['durationMs'] );
+		$this->assertSame( 0, $with_meta[1]['views'] );
+		$this->assertSame( 0, $with_meta[1]['publishedAt'] );
+
+		$this->assertArrayNotHasKey( 'views', $videos( array() )[0] );
 	}
 
 	/**
