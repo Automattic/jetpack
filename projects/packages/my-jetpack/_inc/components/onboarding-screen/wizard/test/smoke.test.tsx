@@ -480,11 +480,8 @@ describe( 'Wizard resume after connecting', () => {
 		expect( railGlyph( 'Finish' ) ).toBe( 'upcoming' );
 	} );
 
-	/*
-	 * The connection is fetched, so the first render of a connected site says it
-	 * is not. Left alone, useState keeps that first answer and the user sits on
-	 * the one screen whose button would register the site again.
-	 */
+	// A connection that changes after mount must still move the user off the connect
+	// screen, whose only button would register the site again.
 	it( 'moves off the connect screen when the connection answers late', () => {
 		const { refresh } = setupWizard( { isUserConnected: false } );
 
@@ -888,6 +885,25 @@ describe( 'The site-type question', () => {
 } );
 
 describe( 'Leaving setup', () => {
+	// A slow settle must not be sent twice, and no step may move after the exit was recorded.
+	it( 'holds every control once an exit is under way', async () => {
+		mockApiFetch.mockReturnValueOnce( new Promise( () => {} ) );
+		const { user } = setupWizard( { isUserConnected: true } );
+
+		await user.click( screen.getByRole( 'link', { name: 'Skip setup' } ) );
+		await user.click( screen.getByRole( 'link', { name: 'Skip setup' } ) );
+
+		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
+		expect( screen.getByRole( 'link', { name: 'Skip setup' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+		expect( screen.getByRole( 'button', { name: 'Continue' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+	} );
+
 	// Leaving mid-apply would abandon the module requests still queued.
 	it.each( [ 'Skip setup', 'Back to your WordPress site' ] )(
 		'ignores %s while modules are being switched',

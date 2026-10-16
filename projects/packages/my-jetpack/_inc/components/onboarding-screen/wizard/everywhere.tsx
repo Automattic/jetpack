@@ -1,3 +1,4 @@
+import { useMediaQuery, useReducedMotion } from '@wordpress/compose';
 import { useEffect, useRef } from 'react';
 import { everywhereArt } from './everywhere-art';
 import styles from './styles.module.scss';
@@ -19,6 +20,13 @@ export function EverywhereArt() {
 	const hostRef = useRef< HTMLDivElement >( null );
 
 	/*
+	 * Touch fires one hover on tap and then nothing, which would leave the cards stuck
+	 * off centre for good. Reduced motion opts out entirely. Both can change while open.
+	 */
+	const fine = useMediaQuery( '(hover: hover) and (pointer: fine)' );
+	const reduced = useReducedMotion();
+
+	/*
 	 * The pointer parallax. It ships with the composition — five `.ev-par` layers
 	 * carrying their own `--depth` — but it needs a listener, so it is wired here
 	 * rather than inside the SVG.
@@ -30,14 +38,13 @@ export function EverywhereArt() {
 		const scene = hostRef.current?.querySelector< SVGSVGElement >( '#ev-scene' );
 		const layers = Array.from( scene?.querySelectorAll< SVGGElement >( '.ev-par' ) ?? [] );
 
-		if ( ! scene || ! layers.length ) {
+		if ( ! scene || ! layers.length || ! fine || reduced ) {
 			return;
 		}
 
-		// Touch fires one hover on tap and then nothing, which would leave the
-		// cards stuck off centre for good. Reduced motion opts out entirely.
-		const fine = window.matchMedia( '(hover: hover) and (pointer: fine)' );
-		const still = window.matchMedia( '(prefers-reduced-motion: reduce)' );
+		const depths = layers.map(
+			layer => parseFloat( layer.style.getPropertyValue( '--depth' ) ) || 1
+		);
 
 		let frame = 0;
 		let tx = 0;
@@ -45,10 +52,9 @@ export function EverywhereArt() {
 
 		const apply = () => {
 			frame = 0;
-			layers.forEach( layer => {
-				const depth = parseFloat( layer.style.getPropertyValue( '--depth' ) ) || 1;
-				layer.style.transform = `translate(${ ( tx * depth ).toFixed( 2 ) }px, ${ (
-					ty * depth
+			layers.forEach( ( layer, index ) => {
+				layer.style.transform = `translate(${ ( tx * depths[ index ] ).toFixed( 2 ) }px, ${ (
+					ty * depths[ index ]
 				).toFixed( 2 ) }px)`;
 			} );
 		};
@@ -82,44 +88,21 @@ export function EverywhereArt() {
 			schedule();
 		};
 
-		const enable = () => {
-			if ( ! fine.matches || still.matches ) {
-				reset();
-				return;
-			}
-
-			scene.addEventListener( 'pointermove', onMove );
-			scene.addEventListener( 'pointerleave', reset );
-		};
-
-		const disable = () => {
-			scene.removeEventListener( 'pointermove', onMove );
-			scene.removeEventListener( 'pointerleave', reset );
-			reset();
-		};
-
-		const requery = () => {
-			disable();
-			enable();
-		};
-
-		enable();
-
-		// Both can change while the page is open: a mouse pairing, or the setting
-		// being turned on in another window.
-		fine.addEventListener( 'change', requery );
-		still.addEventListener( 'change', requery );
+		scene.addEventListener( 'pointermove', onMove );
+		scene.addEventListener( 'pointerleave', reset );
 
 		return () => {
 			if ( frame ) {
 				cancelAnimationFrame( frame );
 			}
 
-			disable();
-			fine.removeEventListener( 'change', requery );
-			still.removeEventListener( 'change', requery );
+			scene.removeEventListener( 'pointermove', onMove );
+			scene.removeEventListener( 'pointerleave', reset );
+			layers.forEach( layer => {
+				layer.style.transform = '';
+			} );
 		};
-	}, [] );
+	}, [ fine, reduced ] );
 
 	return (
 		<div

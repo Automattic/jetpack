@@ -99,7 +99,7 @@ function PanelArtwork( { kind }: { kind: WizardStepKind } ) {
 		return <DataInArt />;
 	}
 
-	return <PanelArt animate />;
+	return <PanelArt />;
 }
 
 type WizardProps = {
@@ -143,11 +143,24 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 	const [ saved ] = useState( readSavedRun );
 	const { save: saveRun, forget: forgetRun } = useSavedRun();
 
-	const [ step, setStep ] = useState< WizardStep >( saved?.step ?? firstStep );
+	/*
+	 * Kept as asked for, and held to what is reachable on every render: a connected user
+	 * is kept past the connect screen, whose only button would register the site again,
+	 * and a saved run that outlived the connection is kept on it.
+	 */
+	const connectionKnown = useConnectionKnown();
+	const lastReachable =
+		connectionKnown && ! isUserConnected ? firstStep : clampStep( TOTAL_STEPS - 1 );
+	const reachable = ( index: number ) =>
+		clampStep( Math.min( Math.max( index, firstStep ), lastReachable ) );
+
+	const [ askedStep, setStep ] = useState< WizardStep >( saved?.step ?? firstStep );
 	// The rail only lets the user back into ground already covered.
-	const [ furthestStep, setFurthestStep ] = useState< WizardStep >(
+	const [ askedFurthest, setFurthestStep ] = useState< WizardStep >(
 		saved?.furthestStep ?? firstStep
 	);
+	const step = reachable( askedStep );
+	const furthestStep = reachable( askedFurthest );
 	const [ choices, setChoices ] = useState< WizardState[ 'choices' ] >( saved?.choices ?? {} );
 	/*
 	 * Held apart from `choices`, which is a set of fixed values the wizard will
@@ -155,42 +168,26 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 	 */
 	const [ siteTypeDetail, setSiteTypeDetail ] = useState( saved?.freeText ?? '' );
 
-	/*
-	 * The connection is fetched, not carried on the page, so it answers false
-	 * before it answers at all and the floor can rise after the first render.
-	 * Without this a connected user is left on the connect screen — the one
-	 * screen whose only button would register the site a second time.
-	 */
-	useEffect( () => {
-		const raise = ( current: WizardStep ) => ( current < firstStep ? firstStep : current );
-
-		setStep( raise );
-		setFurthestStep( raise );
-	}, [ firstStep ] );
-
-	/*
-	 * And back down. A saved run can outlive the connection (a disconnect in this tab,
-	 * another admin in the same browser), and every step past the first needs one.
-	 */
-	const connectionKnown = useConnectionKnown();
-	useEffect( () => {
-		if ( connectionKnown && ! isUserConnected ) {
-			setStep( firstStep );
-			setFurthestStep( firstStep );
-		}
-	}, [ connectionKnown, isUserConnected, firstStep ] );
-
 	// Ordered by what the site is for: the same six, with the ones that matter to
 	// this kind of site at the top.
 	const siteType = siteTypeAnswer( { choices, freeText: siteTypeDetail } );
-	const { modules, isLoading: modulesLoading } = useSetupModules( siteType );
+	const { modules, isLoading: modulesLoading } = useSetupModules( siteType, isUserConnected );
 	const { apply, isApplying } = useApplySetupModules();
+
+	/*
+	 * Busy while modules apply or the wizard is on its way out, so every control waits:
+	 * nothing settles twice, and no step moves after the exit has been recorded.
+	 */
+	const [ isLeaving, setIsLeaving ] = useState( false );
+	// Catches a second click in the same tick, before `isLeaving` has rendered.
+	const leaving = useRef( false );
+	const busy = isApplying || isLeaving;
 	// Missing entries mean "leave it as the site has it", which for five of the six
 	// is already on. Written only when the user moves a switch.
 	const [ wantedModules, setWantedModules ] = useState< Record< string, boolean > >(
 		saved?.wanted ?? {}
 	);
-	const [ moduleResults, setModuleResults ] = useState< SetupModuleResult[] | null >( null );
+	const [ moduleResults, setModuleResults ] = useState< SetupModuleResult[] >( [] );
 
 	const handleModuleChange = useCallback(
 		( slug: string, want: boolean ) =>
@@ -205,7 +202,10 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 	const panelRef = useRef< HTMLElement >( null );
 	const hasChangedStep = useRef( false );
 
-	// Opts the page into the wizard's window-sized takeover styles, before the first paint.
+	/*
+	 * Opts the page into the wizard's window-sized takeover styles, before the first paint.
+	 * Set here, not by the server, so a fallback showing the single screen never gets them.
+	 */
 	useLayoutEffect( () => {
 		document.body.classList.add( 'jetpack-onboarding-wizard' );
 		return () => document.body.classList.remove( 'jetpack-onboarding-wizard' );
@@ -261,10 +261,11 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 
 			event.preventDefault();
 
-			// Leaving now would abandon the module requests still queued.
-			if ( isApplying ) {
+			if ( busy || leaving.current ) {
 				return;
 			}
+			leaving.current = true;
+			setIsLeaving( true );
 
 			const destination = event.currentTarget.getAttribute( 'href' ) || exitUrl;
 
@@ -282,13 +283,10 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 				() => assignLocation( isUserConnected ? destination : dashboardUrl )
 			);
 		},
-		[ exitUrl, dashboardUrl, forgetRun, isApplying, isRegistered, isUserConnected ]
+		[ exitUrl, dashboardUrl, forgetRun, busy, isRegistered, isUserConnected ]
 	);
 
-	const handleBack = useCallback(
-		() => setStep( clampStep( Math.max( step - 1, firstStep ) ) ),
-		[ step, firstStep ]
-	);
+	const handleBack = useCallback( () => setStep( clampStep( step - 1 ) ), [ step ] );
 
 	const handleNext = useCallback( () => {
 		const next = clampStep( step + 1 );
@@ -312,9 +310,8 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 		apply( modules, wantedModules )
 			.then( setModuleResults )
 			/*
-			 * Every switch already reports its own success or failure, so a rejection
-			 * here is the request layer itself giving out. The finish screen says
-			 * nothing changed rather than the step sitting on a spinner for ever.
+			 * apply() reports each switch's failure itself and does not reject. This only
+			 * keeps an unexpected throw from leaving the step on a spinner for ever.
 			 */
 			.catch( () => setModuleResults( [] ) )
 			.finally( handleNext );
@@ -325,12 +322,11 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 	const handleRailClick = useCallback(
 		( event: MouseEvent< HTMLElement > ) => {
 			const index = clampStep( Number( ( event.currentTarget as HTMLButtonElement ).value ) );
-			// While modules apply, the finish step is about to replace whatever was clicked.
-			if ( ! isApplying && index <= furthestStep && index >= firstStep ) {
+			if ( ! busy && index <= furthestStep && index >= firstStep ) {
 				setStep( index );
 			}
 		},
-		[ furthestStep, firstStep, isApplying ]
+		[ furthestStep, firstStep, busy ]
 	);
 
 	const meta = steps[ step ];
@@ -376,6 +372,7 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 		() => ( { choices, freeText: siteTypeDetail } ),
 		[ choices, siteTypeDetail ]
 	);
+	const canAdvance = canContinue( step, state );
 
 	const wizardTitle = __( 'Set up Jetpack', 'jetpack-my-jetpack' );
 
@@ -399,6 +396,7 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 				dashboardUrl={ dashboardUrl }
 				exitUrl={ exitUrl }
 				onLeave={ handleExit( 'completed' ) }
+				isLeaving={ isLeaving }
 			/>
 		),
 		question: (
@@ -411,7 +409,7 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 				onChange={ handleChoice }
 				freeText={ siteTypeDetail }
 				onFreeTextChange={ setSiteTypeDetail }
-				onCommit={ canContinue( step, state ) && ! isApplying ? handleNext : undefined }
+				onCommit={ canAdvance && ! busy ? handleNext : undefined }
 			/>
 		),
 	}[ meta.kind ];
@@ -457,7 +455,7 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 								size="compact"
 								href={ dashboardUrl }
 								onClick={ handleExit( 'skipped' ) }
-								aria-disabled={ isApplying || undefined }
+								aria-disabled={ busy || undefined }
 								className={ styles.exit }
 							>
 								<ButtonLink.Icon icon={ wordpress } />
@@ -489,9 +487,7 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 										type="button"
 										value={ index }
 										aria-current={ index === step ? 'true' : undefined }
-										aria-disabled={
-											index > furthestStep || index < firstStep || isApplying || undefined
-										}
+										aria-disabled={ index > furthestStep || index < firstStep || busy || undefined }
 										className={ styles[ 'rail-step' ] }
 										onClick={ handleRailClick }
 									>
@@ -538,7 +534,7 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 											tone="neutral"
 											href={ exitUrl }
 											onClick={ handleExit( 'skipped' ) }
-											aria-disabled={ isApplying || undefined }
+											aria-disabled={ busy || undefined }
 										>
 											{ __( 'Skip setup', 'jetpack-my-jetpack' ) }
 										</ButtonLink>
@@ -552,7 +548,7 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 													variant="minimal"
 													tone="neutral"
 													onClick={ handleBack }
-													disabled={ isApplying }
+													disabled={ busy }
 												>
 													<Button.Icon icon={ chevronLeft } />
 													{ __( 'Back', 'jetpack-my-jetpack' ) }
@@ -563,11 +559,7 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 												className={ styles[ 'primary-green' ] }
 												onClick={ handleContinue }
 												// The features step offers no options, so it is the list arriving that it waits on.
-												disabled={
-													! canContinue( step, state ) ||
-													isApplying ||
-													( isFeatures && modulesLoading )
-												}
+												disabled={ ! canAdvance || busy || ( isFeatures && modulesLoading ) }
 												loading={ isApplying }
 												loadingAnnouncement={ __( 'Setting up your site…', 'jetpack-my-jetpack' ) }
 											>

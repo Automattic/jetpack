@@ -24,6 +24,9 @@ export const SETUP_MODULES = [
 
 export type SetupModuleSlug = ( typeof SETUP_MODULES )[ number ];
 
+// Stable, so a disabled read doesn't hand back a new object each render.
+const NO_MODULES: Record< string, MyJetpackModule > = {};
+
 /*
  * The order the six are read in, by what the site is for. Every site is still
  * offered all six: the answer changes what is at the top of the list, not what
@@ -110,20 +113,31 @@ export type SetupModuleResult = {
  * The six modules the wizard offers, with whatever the site says about them.
  *
  * @param siteType - What the site is for, which sets the order they are read in.
+ * @param enabled  - Whether to read them yet: only a connected user reaches the step that lists them.
  * @return The modules in order, and whether their state is still being read.
  */
-export function useSetupModules( siteType?: string ): {
+export function useSetupModules(
+	siteType?: string,
+	enabled = true
+): {
 	modules: SetupModule[];
 	isLoading: boolean;
 } {
-	const { modules, isLoading } = useSelect( select => {
-		const store = select( modulesStore ) as {
-			getJetpackModules: () => Record< string, MyJetpackModule >;
-			areModulesLoading: () => boolean;
-		};
+	const { modules, isLoading } = useSelect(
+		select => {
+			if ( ! enabled ) {
+				return { modules: NO_MODULES, isLoading: true };
+			}
 
-		return { modules: store.getJetpackModules(), isLoading: store.areModulesLoading() };
-	}, [] );
+			const store = select( modulesStore ) as {
+				getJetpackModules: () => Record< string, MyJetpackModule >;
+				areModulesLoading: () => boolean;
+			};
+
+			return { modules: store.getJetpackModules(), isLoading: store.areModulesLoading() };
+		},
+		[ enabled ]
+	);
 
 	return useMemo(
 		() => ( {
