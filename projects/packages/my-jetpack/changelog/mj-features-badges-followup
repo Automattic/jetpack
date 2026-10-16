@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Features: Behind the `my-jetpack-account-connect` flag, drop the Active, Inactive and Needs user account badges where the switch or button already shows the state.

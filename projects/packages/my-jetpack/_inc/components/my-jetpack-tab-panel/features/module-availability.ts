@@ -2,6 +2,7 @@ import { getScriptData } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { MyJetpackModule } from '../../../types';
 import { getActivationStatusLabel } from '../utils';
+import { isAccountConnectEnabled } from './mappings';
 import type { FeatureState } from './feature-state';
 
 export const JETPACK_MODULES_NOT_FOR_MULTISITE = [ 'backup', 'waf', 'wordads' ];
@@ -84,18 +85,26 @@ export function getFeatureUnavailableReason( state: FeatureState ): string | und
 }
 
 /**
- * The status badge text on the feature card and in its details dialog: Needs user account, Unavailable, Active or Inactive.
+ * The status badge text on the feature card and in its details dialog: Unavailable, Active or Inactive.
+ *
+ * With the account-connect flag on, Active and Inactive show only on a feature with no switch,
+ * button or host note to say whether it runs, such as Jetpack AI while its switch is gated.
  *
  * @param state - The feature's live state.
- * @return The status label.
+ * @return The status label, or null when the feature's own control already says it.
  */
-export function getFeatureStatusLabel( state: FeatureState ): string {
+export function getFeatureStatusLabel( state: FeatureState ): string | null {
+	// Connect or Install says what is missing; a feature with neither says it under its description.
 	if ( state.accountNeeded ) {
-		return __( 'Needs user account', 'jetpack-my-jetpack' );
+		return null;
 	}
-	return getFeatureUnavailableReason( state )
-		? __( 'Unavailable', 'jetpack-my-jetpack' )
-		: getActivationStatusLabel( state.status === 'active' );
+	if ( getFeatureUnavailableReason( state ) ) {
+		return __( 'Unavailable', 'jetpack-my-jetpack' );
+	}
+	if ( isAccountConnectEnabled() && ( state.control.kind !== 'none' || state.control.override ) ) {
+		return null;
+	}
+	return getActivationStatusLabel( state.status === 'active' );
 }
 
 /**

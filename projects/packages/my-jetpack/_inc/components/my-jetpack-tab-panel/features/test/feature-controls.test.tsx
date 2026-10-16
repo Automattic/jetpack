@@ -66,7 +66,14 @@ const forcedModule = {
 	override: 'active',
 } as MyJetpackModule;
 
+const setAccountConnect = ( accountConnect: boolean ) => {
+	window.myJetpackInitialState.myJetpackFlags = {
+		accountConnect,
+	} as typeof window.myJetpackInitialState.myJetpackFlags;
+};
+
 beforeEach( () => {
+	setAccountConnect( false );
 	mockRun.mockClear();
 	mockSetModuleActive.mockClear();
 	( leavePageFor as jest.Mock ).mockClear();
@@ -466,34 +473,27 @@ describe( 'FeatureItem', () => {
 		}
 	);
 
-	it( 'shows only the status for a module a host forced on: no switch, no note', () => {
-		const state = buildState(
-			{ kind: 'module', module: forcedModule },
-			{
-				status: 'active',
-				feature: buildFeature( { slug: 'stats', name: 'Stats', description: 'See who visits.' } ),
-			}
-		);
+	it.each( [
+		[ 'a module a host forced on', false, 'Active', null ],
+		[ 'a module a host forced on', true, null, 'Enabled by your host or site administrator' ],
+		[ 'a plugin a host forced off', false, 'Inactive', null ],
+		[ 'a plugin a host forced off', true, null, 'Disabled by your host or site administrator' ],
+	] as const )(
+		'shows no switch for %s (flag on: %s), with badge %s and host note %s',
+		( name, flagOn, badge, note ) => {
+			setAccountConnect( flagOn );
+			const state = name.startsWith( 'a module' )
+				? buildState( { kind: 'module', module: forcedModule }, { status: 'active' } )
+				: buildState( { kind: 'plugin', plugin: 'jetpack-boost', override: 'inactive' } );
 
-		render( <FeatureItem state={ state } onOpen={ jest.fn() } /> );
+			render( <FeatureItem state={ state } onOpen={ jest.fn() } /> );
 
-		expect( screen.getByText( 'Active' ) ).toBeInTheDocument();
-		expect( screen.queryByText( /by your host or site administrator/ ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'shows only the status for a plugin a host forced off: no switch, no note', () => {
-		render(
-			<FeatureItem
-				state={ buildState( { kind: 'plugin', plugin: 'jetpack-boost', override: 'inactive' } ) }
-				onOpen={ jest.fn() }
-			/>
-		);
-
-		expect( screen.getByText( 'Inactive' ) ).toBeInTheDocument();
-		expect( screen.queryByText( /by your host or site administrator/ ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
-	} );
+			const shown = ( text: RegExp ) => screen.queryByText( text )?.textContent ?? null;
+			expect( shown( /^(Active|Inactive)$/ ) ).toBe( badge );
+			expect( shown( /by your host or site administrator/ ) ).toBe( note );
+			expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+		}
+	);
 } );
 
 describe( 'FeatureItem install notice', () => {
@@ -554,6 +554,8 @@ describe( 'FeatureItem install notice', () => {
 } );
 
 describe( 'features waiting for an account', () => {
+	beforeEach( () => setAccountConnect( true ) );
+
 	const connectionUrl = '/wp-admin/admin.php?connect_url_redirect=1';
 	const accountModule = ( activated: boolean ) =>
 		resolveFeatureState(
@@ -611,19 +613,53 @@ describe( 'features waiting for an account', () => {
 		[ 'a plugin that is on', accountPlugin( 'active' ), 'Connect account for Backup' ],
 		[ 'a missing plugin', accountPlugin( 'not-installed' ), 'Install' ],
 	] as const )(
-		'offers only what is missing on the card for %s, with the account badge and no account sentence',
+		'offers only what is missing on the card for %s, with no badge and no account sentence',
 		( _, state, name ) => {
 			render( <FeatureItem state={ state } onOpen={ jest.fn() } /> );
-			expect( screen.getByRole( 'button', { name } ) ).toHaveAccessibleDescription(
-				name === 'Install' ? '' : 'Needs user account'
-			);
-			expect( screen.getByText( 'Needs user account' ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name } ) ).toHaveAccessibleDescription( '' );
+			expect( screen.queryByText( 'Needs user account' ) ).not.toBeInTheDocument();
 			expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
 			expect(
 				screen.queryByText( /Requires a connected WordPress.com account/ )
 			).not.toBeInTheDocument();
 		}
 	);
+
+	it( 'says Jetpack AI needs an account, on its card and in its details, while it has no Connect', () => {
+		const ai = resolveFeatureState(
+			buildFeature( {
+				slug: 'jetpack-ai',
+				name: 'Jetpack AI',
+				product: 'jetpack-ai',
+				in_jetpack: true,
+				plugin: '',
+				needs_account: true,
+			} ),
+			'active',
+			undefined,
+			{
+				ai: {
+					module: 'ai',
+					available: false,
+					unavailable_reason: 'Requires a connected WordPress.com account',
+					requires_user_connection: true,
+					activated: false,
+				} as MyJetpackModule,
+			},
+			{},
+			false,
+			true
+		);
+		const { rerender } = render( <FeatureItem state={ ai } onOpen={ jest.fn() } /> );
+		expect( screen.getByText( 'Requires a connected WordPress.com account' ) ).toBeVisible();
+		expect(
+			screen.queryByText( /^(Active|Inactive|Needs user account)$/ )
+		).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: /^Connect/ } ) ).not.toBeInTheDocument();
+
+		rerender( <FeatureModalActions state={ ai } /> );
+		expect( screen.getByText( 'Requires a connected WordPress.com account' ) ).toBeVisible();
+	} );
 
 	it.each( [
 		[ 'card', 'a module', accountModule( false ) ],

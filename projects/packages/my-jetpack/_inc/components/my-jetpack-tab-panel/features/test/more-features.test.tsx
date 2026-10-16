@@ -296,7 +296,7 @@ describe( 'MoreFeatures', () => {
 
 		render( <FeatureItem state={ getModuleFeatureState( waiting, {}, true ) } /> );
 
-		expect( screen.getByText( 'Needs user account' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: /^Connect account for / } ) ).toBeVisible();
 		expect( screen.queryByRole( 'link', { name: /^Configure / } ) ).not.toBeInTheDocument();
 	} );
 
