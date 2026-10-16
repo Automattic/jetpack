@@ -34,7 +34,7 @@ export const STORE_PERFORMANCE_METRICS: StorePerformanceMetric[] = [
 			'jetpack-woocommerce-stats-pkg'
 		),
 		field: 'orders_value_net',
-		dataFormat: { type: 'currency' },
+		dataFormat: { type: 'currency', options: { useMultipliers: true } },
 		useReport: useReportOrders,
 	},
 	{
@@ -46,7 +46,7 @@ export const STORE_PERFORMANCE_METRICS: StorePerformanceMetric[] = [
 			'jetpack-woocommerce-stats-pkg'
 		),
 		field: 'orders_no',
-		dataFormat: { type: 'number' },
+		dataFormat: COUNT_FORMAT,
 		countLabel: count =>
 			/* translators: %s: number of orders. */
 			_n( '%s Order', '%s Orders', count, 'jetpack-woocommerce-stats-pkg' ),
