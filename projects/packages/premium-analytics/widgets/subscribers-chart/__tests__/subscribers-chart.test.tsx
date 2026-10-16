@@ -138,10 +138,15 @@ describe( 'SubscribersChartWidget', () => {
 		];
 
 		it.each( [
-			[ 'the site has no subscribers at all', { total_subscribers: 0 }, NO_SUBSCRIBERS ],
-			[ 'the site has subscribers outside the range', { total_subscribers: 12 }, NO_RESULTS ],
-			[ 'the subscriber total could not be read', undefined, NO_RESULTS ],
-		] )( 'describes an empty chart when %s', async ( _case, data, message ) => {
+			[ 'the site has no subscribers at all', { total_subscribers: 0 }, NO_SUBSCRIBERS, true ],
+			[
+				'the site has subscribers outside the range',
+				{ total_subscribers: 12 },
+				NO_RESULTS,
+				false,
+			],
+			[ 'the subscriber total could not be read', undefined, NO_RESULTS, false ],
+		] )( 'describes an empty chart when %s', async ( _case, data, message, hasLearnMore ) => {
 			mockUseStatsSubscribersReport.mockReturnValue( reportWith( emptyRange ) );
 			mockUseStatsSubscribersCounts.mockReturnValue( { data, isLoading: false } );
 
@@ -150,10 +155,15 @@ describe( 'SubscribersChartWidget', () => {
 			);
 
 			await expect( screen.findByText( message ) ).resolves.toBeInTheDocument();
+			expect( !! screen.queryByRole( 'link', { name: /Learn more/ } ) ).toBe( hasLearnMore );
 		} );
 
 		it( 'links an empty chart to the Newsletter guide in a new tab', async () => {
 			mockUseStatsSubscribersReport.mockReturnValue( reportWith( emptyRange ) );
+			mockUseStatsSubscribersCounts.mockReturnValue( {
+				data: { total_subscribers: 0 },
+				isLoading: false,
+			} );
 
 			render(
 				<SubscribersChartWidget attributes={ { reportParams: getDefaultQueryParams( false ) } } />

@@ -146,21 +146,21 @@ function SubscribersChartInner( { chartType }: SubscribersChartInnerProps ) {
 					groupLabel={ groupLabel }
 					baseline="padded"
 					empty={
-						<ChartEmptyState
-							text={
-								hasNoSubscribers
-									? __(
-											'You don’t have subscribers yet. Newsletter can help you turn readers into an audience.',
-											'jetpack-premium-analytics-pkg'
-										)
-									: undefined
-							}
-							action={ {
-								label: __( 'Learn more', 'jetpack-premium-analytics-pkg' ),
-								href: 'https://jetpack.com/support/newsletter/',
-								openInNewTab: true,
-							} }
-						/>
+						hasNoSubscribers ? (
+							<ChartEmptyState
+								text={ __(
+									'You don’t have subscribers yet. Newsletter can help you turn readers into an audience.',
+									'jetpack-premium-analytics-pkg'
+								) }
+								action={ {
+									label: __( 'Learn more', 'jetpack-premium-analytics-pkg' ),
+									href: 'https://jetpack.com/support/newsletter/',
+									openInNewTab: true,
+								} }
+							/>
+						) : (
+							<ChartEmptyState />
+						)
 					}
 				/>
 			</WidgetState>
