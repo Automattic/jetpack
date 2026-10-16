@@ -7,6 +7,7 @@ import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import {
 	AbbreviatedValue,
 	formatEmailRate,
+	formatListMetricCount,
 	isEmailRateKnown,
 	LeaderboardSkeleton,
 	MetricList,
@@ -77,22 +78,6 @@ type EmailsListProps = {
 	metric?: EmailMetric;
 };
 
-function labelOpens( opens: number, exactOpens: string ): string {
-	return sprintf(
-		/* translators: %s: number of email opens, e.g. "1,287". */
-		_n( '%s open', '%s opens', opens, 'jetpack-premium-analytics-pkg' ),
-		exactOpens
-	);
-}
-
-function labelClicks( clicks: number, exactClicks: string ): string {
-	return sprintf(
-		/* translators: %s: number of email link clicks, e.g. "190". */
-		_n( '%s click', '%s clicks', clicks, 'jetpack-premium-analytics-pkg' ),
-		exactClicks
-	);
-}
-
 function describeOpens( opens: number, exactOpens: string, rate: string, isRateKnown: boolean ) {
 	if ( ! isRateKnown ) {
 		return sprintf(
@@ -155,7 +140,7 @@ function metricValues( row: EmailRow, metric: EmailMetric ) {
 		return {
 			count: row.clicks,
 			rate,
-			label: labelClicks( row.clicks, exact ),
+			label: formatListMetricCount( 'clicks', row.clicks, exact ),
 			description: describeClicks( row.clicks, exact, rate, isEmailRateKnown( signals ) ),
 		};
 	}
@@ -166,7 +151,7 @@ function metricValues( row: EmailRow, metric: EmailMetric ) {
 	return {
 		count: row.opens,
 		rate,
-		label: labelOpens( row.opens, exact ),
+		label: formatListMetricCount( 'opens', row.opens, exact ),
 		description: describeOpens( row.opens, exact, rate, isEmailRateKnown( signals ) ),
 	};
 }
