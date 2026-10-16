@@ -55,6 +55,10 @@ describe( 'PlanUsageCard', () => {
 
 		await expect( screen.findByText( '6,200 / 10,000 views' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'Restarts in 12 days' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'meter', { name: 'Billable views' } ) ).toHaveAttribute(
+			'aria-valuetext',
+			'6,200 of 10,000 views used'
+		);
 		expect( mockApiFetch.mock.calls[ 0 ][ 0 ].path ).toContain( '/proxy/v2/jetpack-stats/usage' );
 	} );
 

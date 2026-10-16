@@ -39,20 +39,29 @@ function UsageMeter( {
 	usage?: number;
 	daysToReset?: number;
 } ): JSX.Element {
+	const usageText = formatMetricValue( usage, 'number', { decimals: 0 } );
+	const limitText = formatMetricValue( limit, 'number', { decimals: 0 } );
 	const label = sprintf(
 		/* translators: 1: views used in the current cycle, 2: the plan's views limit. */
 		__( '%1$s / %2$s views', 'jetpack-premium-analytics-pkg' ),
-		formatMetricValue( usage, 'number', { decimals: 0 } ),
-		formatMetricValue( limit, 'number', { decimals: 0 } )
+		usageText,
+		limitText
+	);
+	const spokenLabel = sprintf(
+		/* translators: Read by screen readers. 1: views used in the current cycle, 2: the plan's views limit. */
+		__( '%1$s of %2$s views used', 'jetpack-premium-analytics-pkg' ),
+		usageText,
+		limitText
 	);
 	const formatLabel = useCallback( () => label, [ label ] );
+	const formatSpokenLabel = useCallback( () => spokenLabel, [ spokenLabel ] );
 
 	return (
 		<Meter.Root
 			value={ usage }
 			max={ limit }
 			aria-label={ __( 'Billable views', 'jetpack-premium-analytics-pkg' ) }
-			getAriaValueText={ formatLabel }
+			getAriaValueText={ formatSpokenLabel }
 		>
 			<Stack direction="row" justify="space-between" align="baseline" gap="md">
 				<Meter.Value className={ styles.usageCount }>{ formatLabel }</Meter.Value>
