@@ -482,18 +482,6 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Writes to the active modules can't switch Backup off.
-	 */
-	public function test_backup_module_cannot_be_switched_off() {
-		Jetpack_Options::update_option( 'active_modules', array( 'backup' ) );
-
-		Jetpack::deactivate_module( 'backup' );
-		Jetpack::delete_active_modules();
-
-		$this->assertContains( 'backup', Jetpack_Options::get_option( 'active_modules', array() ) );
-	}
-
-	/**
 	 * Updating Jetpack switches the backup module back on for a site that had it off.
 	 */
 	public function test_update_switches_the_backup_module_on() {

@@ -259,7 +259,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 				<# } #>
 				<tr class="jetpack-module<# if ( ++i % 2 ) { #> alternate<# } #><# if ( item.activated ) { #> active<# } #><# if ( ! item.available ) { #> unavailable<# } #>" id="{{{ item.module }}}">
 					<th scope="row" class="check-column">
-						<# if ( item.available ) { #><input type="checkbox" name="modules[]" value="{{{ item.module }}}" {{{ item.disabled }}} /><# } #>
+						<# if ( item.available && ! item.deactivation_note ) { #><input type="checkbox" name="modules[]" value="{{{ item.module }}}" {{{ item.disabled }}} /><# } #>
 					</th>
 					<td class="name column-name">
 						<div class="jetpack-module__body">
@@ -279,7 +279,9 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 										<span class="configure">{{{ item.configurable }}}</span>
 									<# } #>
 									<# if ( item.available ) { #>
-										<# if ( item.activated ) { #>
+										<# if ( item.deactivation_note ) { #>
+											<span class="jetpack-module__note">{{ item.deactivation_note }}</span>
+										<# } else if ( item.activated ) { #>
 											<a class="jetpack-module__toggle is-active" role="switch" aria-checked="true" href="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>?page=jetpack&#038;action=deactivate&#038;module={{{ item.module }}}&#038;_wpnonce={{{ item.deactivate_nonce }}}"><span class="jetpack-module__toggle-track"><span class="jetpack-module__toggle-thumb"></span></span><span class="screen-reader-text"><?php esc_html_e( 'Deactivate', 'jetpack' ); ?></span></a>
 										<# } else { #>
 											<a class="jetpack-module__toggle" role="switch" aria-checked="false" href="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>?page=jetpack&#038;action=activate&#038;module={{{ item.module }}}&#038;_wpnonce={{{ item.activate_nonce }}}"><span class="jetpack-module__toggle-track"><span class="jetpack-module__toggle-thumb"></span></span><span class="screen-reader-text"><?php esc_html_e( 'Activate', 'jetpack' ); ?></span></a>
@@ -499,8 +501,11 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 
 		echo '<tr class="jetpack-module' . esc_attr( $row_class ) . '" id="' . esc_attr( $item['module'] ) . '">';
 
+		// Switching it changes nothing, so the row offers no switch.
+		$no_switch = ! empty( $item['deactivation_note'] );
+
 		echo '<th scope="row" class="check-column">';
-		if ( $available ) {
+		if ( $available && ! $no_switch ) {
 			printf( '<input type="checkbox" name="modules[]" value="%s" />', esc_attr( $item['module'] ) );
 		}
 		echo '</th>';
@@ -541,7 +546,9 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		if ( ! empty( $item['configurable'] ) ) {
 			echo '<span class="configure">' . wp_kses_post( $item['configurable'] ) . '</span>';
 		}
-		if ( $available ) {
+		if ( $available && $no_switch ) {
+			echo '<span class="jetpack-module__note">' . esc_html( $item['deactivation_note'] ) . '</span>';
+		} elseif ( $available ) {
 			echo $this->get_module_toggle_html( $item ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
 		} elseif ( ! empty( $item['unavailable_reason'] ) ) {
 			echo '<span class="jetpack-module__unavailable">' . wp_kses_post( $item['unavailable_reason'] ) . '</span>';

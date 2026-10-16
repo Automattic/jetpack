@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\My_Jetpack\Products\Backup;
 use Automattic\Jetpack\Redirect;
 use Jetpack_Options;
@@ -76,39 +77,52 @@ class Backup_Product_Test extends TestCase {
 	}
 
 	/**
-	 * On the Jetpack plugin, Manage opens the wp-admin dashboard once the plan opens it, before it has loaded.
+	 * On the Jetpack plugin, Manage opens the wp-admin dashboard only once the stored plan registers it.
 	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 * @dataProvider provide_manage_urls
 	 *
-	 * @param array $features  The site's active features.
+	 * @param array $stored    The stored plan's active features.
+	 * @param array $wpcom     The active features WordPress.com reports.
+	 * @param array $refreshed The active features a refresh of the stored plan brings.
 	 * @param bool  $dashboard Whether a host leaves the bundled dashboard on.
 	 * @param bool  $in_admin  Whether Manage should open wp-admin.
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	#[DataProvider( 'provide_manage_urls' )]
-	public function test_manage_url_follows_the_plan( $features, $dashboard, $in_admin ) {
-		( new Tokens() )->update_blog_token( 'test.test.1' );
+	public function test_manage_url_follows_the_plan( $stored, $wpcom, $refreshed, $dashboard, $in_admin ) {
+		( new Tokens() )->update_blog_token( 'key.secret' );
 		( new Tokens() )->update_user_token( self::$user_id, 'test.test.' . self::$user_id, true );
 		Jetpack_Options::update_option( 'id', 123 );
 		activate_plugins( 'jetpack/jetpack.php' );
 		deactivate_plugins( Backup::get_installed_plugin_filename() );
+		update_option( 'jetpack_active_plan', array( 'features' => array( 'active' => $stored ) ) );
 		set_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY, array(), HOUR_IN_SECONDS );
 		set_transient(
 			Product::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY,
 			array(
-				'active'    => $features,
+				'active'    => $wpcom,
 				'available' => array(),
 			),
 			HOUR_IN_SECONDS
 		);
+		// Signing the refresh needs an absolute API base.
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		Constants::set_constant( 'JETPACK__API_VERSION', 1 );
+		add_filter(
+			'pre_http_request',
+			static function () use ( $refreshed ) {
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => wp_json_encode( array( 'plan' => array( 'features' => array( 'active' => $refreshed ) ) ), JSON_UNESCAPED_SLASHES ),
+				);
+			}
+		);
 		$dashboard || add_filter( 'jetpack_backup_dashboard_enabled', '__return_false' );
 
-		try {
-			$this->assertSame( $in_admin, admin_url( 'admin.php?page=jetpack-backup' ) === Backup::get_manage_url() );
-		} finally {
-			remove_filter( 'jetpack_backup_dashboard_enabled', '__return_false' );
-			delete_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY );
-			delete_transient( Product::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY );
-		}
+		$this->assertSame( $in_admin, admin_url( 'admin.php?page=jetpack-backup' ) === Backup::get_manage_url() );
 	}
 
 	/**
@@ -118,9 +132,11 @@ class Backup_Product_Test extends TestCase {
 	 */
 	public static function provide_manage_urls() {
 		return array(
-			'a Backup plan'                   => array( array( 'backups' ), true, true ),
-			'no plan'                         => array( array(), true, false ),
-			'a host turned the dashboard off' => array( array( 'backups' ), false, false ),
+			'a stored Backup plan'                   => array( array( 'backups' ), array(), array(), true, true ),
+			'a purchase the stored plan catches up'  => array( array(), array( 'backups' ), array( 'backups' ), true, true ),
+			'a purchase the stored plan lacks still' => array( array(), array( 'backups' ), array(), true, false ),
+			'no plan'                                => array( array(), array(), array(), true, false ),
+			'a host turned the dashboard off'        => array( array( 'backups' ), array(), array(), false, false ),
 		);
 	}
 

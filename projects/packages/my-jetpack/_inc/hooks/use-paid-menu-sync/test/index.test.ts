@@ -12,11 +12,11 @@ const sidebar = ( ...pages: string[] ) =>
 		.map( slug => `<li><a href="admin.php?page=${ slug }">${ slug }</a></li>` )
 		.join( '' ) }</ul></li></ul>`;
 
-const backup = ( hasPaidPlanForProduct: boolean ) => ( {
-	backup: {
+const paidProduct = ( slug: string, page: string, hasPaidPlanForProduct = true ) => ( {
+	[ slug ]: {
 		hasPaidPlanForProduct,
 		status: 'active',
-		manageUrl: 'https://example.com/wp-admin/admin.php?page=jetpack-backup',
+		manageUrl: `https://example.com/wp-admin/admin.php?page=${ page }`,
 	},
 } );
 
@@ -24,6 +24,9 @@ describe( 'usePaidMenuSync', () => {
 	let fetchMock: jest.Mock;
 
 	beforeEach( () => {
+		window.myJetpackInitialState = {
+			mainFeatures: { features: [ { product: 'backup', plan_driven: true } ] },
+		} as never;
 		fetchMock = jest.fn().mockResolvedValue( {
 			ok: true,
 			text: async () => sidebar( 'my-jetpack', 'jetpack-backup' ),
@@ -32,17 +35,33 @@ describe( 'usePaidMenuSync', () => {
 	} );
 
 	it.each( [
-		[ 'refreshes a sidebar drawn before the plan arrived', true, sidebar( 'my-jetpack' ), 1 ],
+		[
+			'refreshes a sidebar drawn before the plan arrived',
+			paidProduct( 'backup', 'jetpack-backup' ),
+			sidebar( 'my-jetpack' ),
+			1,
+		],
 		[
 			'leaves a sidebar that already has the page',
-			true,
+			paidProduct( 'backup', 'jetpack-backup' ),
 			sidebar( 'my-jetpack', 'jetpack-backup' ),
 			0,
 		],
-		[ 'ignores a product without a plan', false, sidebar( 'my-jetpack' ), 0 ],
-	] )( '%s', async ( _case, paid, html, fetches ) => {
+		[
+			'ignores a product without a plan',
+			paidProduct( 'backup', 'jetpack-backup', false ),
+			sidebar( 'my-jetpack' ),
+			0,
+		],
+		[
+			'ignores a paid product no plan-driven feature names',
+			paidProduct( 'boost', 'jetpack-boost' ),
+			sidebar( 'my-jetpack' ),
+			0,
+		],
+	] )( '%s', async ( _case, products, html, fetches ) => {
 		document.body.innerHTML = html;
-		jest.mocked( useAllProducts ).mockReturnValue( { data: backup( paid ) } as never );
+		jest.mocked( useAllProducts ).mockReturnValue( { data: products } as never );
 
 		const { rerender } = renderHook( () => usePaidMenuSync() );
 		await waitFor( () => expect( fetchMock ).toHaveBeenCalledTimes( fetches ) );

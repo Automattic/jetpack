@@ -610,23 +610,24 @@ class Jetpack_CLI extends WP_CLI_Command {
 				break;
 			case 'deactivate':
 				$module = Jetpack::get_module( $module_slug );
-				$locked = Jetpack::get_module_locked_on_reason( $module_slug );
-				if ( $locked && Jetpack::is_module_active( $module_slug ) ) {
-					WP_CLI::error( $locked );
-				}
 				Jetpack::log( 'deactivate', $module_slug );
 				Jetpack::deactivate_module( $module_slug );
 				if ( Jetpack::is_module_active( $module_slug ) ) {
 					/* translators: %s is the name of a Jetpack module */
 					WP_CLI::error( sprintf( __( '%s is enabled by your host or site administrator, so it stays on.', 'jetpack' ), $module['name'] ) );
 				}
+				$note = Jetpack::get_module_deactivation_note( $module_slug );
+				if ( $note ) {
+					WP_CLI::warning( $note );
+				}
 				/* translators: %s is the name of a Jetpack module */
 				WP_CLI::success( sprintf( __( '%s has been deactivated.', 'jetpack' ), $module['name'] ) );
 				break;
 			case 'deactivate_all':
+				$notes = array_filter( array_map( array( 'Jetpack', 'get_module_deactivation_note' ), Jetpack::get_active_modules() ) );
 				Jetpack::delete_active_modules();
-				if ( Jetpack::is_module_active( 'backup' ) ) {
-					WP_CLI::warning( Jetpack::get_module_locked_on_reason( 'backup' ) );
+				foreach ( array_unique( $notes ) as $note ) {
+					WP_CLI::warning( $note );
 				}
 				WP_CLI::success( __( 'All modules deactivated!', 'jetpack' ) );
 				break;

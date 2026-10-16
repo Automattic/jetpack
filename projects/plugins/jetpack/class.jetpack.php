@@ -709,7 +709,6 @@ class Jetpack {
 
 		add_filter( 'profile_update', array( 'Jetpack', 'user_meta_cleanup' ) );
 
-		add_filter( 'pre_update_option_jetpack_active_modules', array( __CLASS__, 'keep_backup_module_on' ), 10, 2 );
 		add_filter( 'jetpack_get_default_modules', array( $this, 'filter_default_modules' ) );
 		add_filter( 'jetpack_get_default_modules', array( $this, 'handle_deprecated_modules' ), 99 );
 
@@ -842,33 +841,7 @@ class Jetpack {
 	}
 
 	/**
-	 * Keep a write to the active modules from switching the backup module off.
-	 *
-	 * The plan decides Backup, so off would change nothing, and it must not mean "paused" once pausing ships.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param mixed $value     The modules about to be saved.
-	 * @param mixed $old_value The modules saved now.
-	 * @return mixed
-	 */
-	public static function keep_backup_module_on( $value, $old_value ) {
-		if (
-			! is_array( $value )
-			|| ! is_array( $old_value )
-			|| ! in_array( 'backup', $old_value, true )
-			|| in_array( 'backup', $value, true )
-		) {
-			return $value;
-		}
-
-		$value[] = 'backup';
-
-		return $value;
-	}
-
-	/**
-	 * Switch the backup module on for an existing site, so none keeps an off state from before it was locked.
+	 * Switch the backup module back on for an existing site with each Jetpack update.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -877,7 +850,7 @@ class Jetpack {
 	 * @return void
 	 */
 	public static function activate_backup_module_for_existing_sites( $version, $old_version ) {
-		// Fresh installs get it from "Auto Activate: Yes", and once on it stays on, so later updates do nothing.
+		// Fresh installs get it from "Auto Activate: Yes".
 		if ( ! $old_version || ! self::is_connection_ready() || self::is_module_active( 'backup' ) ) {
 			return;
 		}
@@ -886,49 +859,34 @@ class Jetpack {
 	}
 
 	/**
-	 * Why a module can't be switched off by hand, or an empty string when it can.
+	 * What switching a module off leaves unchanged, for interfaces that still offer it; empty when nothing.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @param string $module Module slug.
 	 * @return string
 	 */
-	public static function get_module_locked_on_reason( $module ) {
+	public static function get_module_deactivation_note( $module ) {
 		return 'backup' === $module
-			? __( 'Backup follows your site’s plan, so it can’t be switched off.', 'jetpack' )
+			? __( 'Backups are not affected: your site’s plan, not the Backup module, decides whether they run.', 'jetpack' )
 			: '';
 	}
 
 	/**
-	 * Whether the site has, or had, a plan that includes Backup; see Backup::has_plan_on_record().
+	 * Whether to offer the bundled Backup dashboard; Backup::offers_jetpack_dashboard() decides.
 	 *
 	 * @return bool
 	 */
-	private static function has_backup_plan_on_record() {
-		$backup = 'Automattic\\Jetpack\\My_Jetpack\\Products\\Backup';
+	private static function offers_backup_dashboard() {
+		$product = 'Automattic\\Jetpack\\My_Jetpack\\Products\\Backup';
 
-		// Another plugin may have loaded an older My Jetpack without it.
-		return method_exists( $backup, 'has_plan_on_record' )
-			? $backup::has_plan_on_record()
-			: self::is_module_active( 'backup' );
-	}
-
-	/**
-	 * Enable the bundled Backup dashboard.
-	 *
-	 * The standalone plugin initializes the package first, so with both active this is a no-op.
-	 *
-	 * @return void
-	 */
-	public static function configure_backup_package() {
-		// Not offered on multisite, which the Backup package does not support, or without a
-		// connected owner, since buying and managing backups needs a linked account.
-		if ( is_multisite() || ! self::is_connection_ready() || ! self::connection()->has_connected_owner() ) {
-			return;
+		if ( method_exists( $product, 'offers_jetpack_dashboard' ) ) {
+			return $product::offers_jetpack_dashboard();
 		}
 
-		if ( ! self::has_backup_plan_on_record() ) {
-			return;
+		// Another plugin may have loaded an older My Jetpack without it: the same gates, on the current plan only.
+		if ( is_multisite() || ! self::is_connection_ready() || ! self::connection()->has_connected_owner() || ! Jetpack_Plan::supports( 'backups' ) ) {
+			return false;
 		}
 
 		/**
@@ -940,7 +898,18 @@ class Jetpack {
 		 *
 		 * @param bool $enabled Whether to initialize the bundled Backup dashboard. Default true.
 		 */
-		if ( ! apply_filters( 'jetpack_backup_dashboard_enabled', true ) ) {
+		return (bool) apply_filters( 'jetpack_backup_dashboard_enabled', true );
+	}
+
+	/**
+	 * Enable the bundled Backup dashboard.
+	 *
+	 * The standalone plugin initializes the package first, so with both active this is a no-op.
+	 *
+	 * @return void
+	 */
+	public static function configure_backup_package() {
+		if ( ! self::offers_backup_dashboard() ) {
 			return;
 		}
 

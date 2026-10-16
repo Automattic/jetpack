@@ -281,6 +281,7 @@ class Jetpack_Admin {
 				$module_array['configure_url']      = Jetpack::module_configuration_url( $module );
 				$module_array['override']           = $overrides->get_module_override( $module );
 				$module_array['disabled']           = $is_available ? '' : 'disabled="disabled"';
+				$module_array['deactivation_note']  = Jetpack::get_module_deactivation_note( $module );
 
 				ob_start();
 				/**

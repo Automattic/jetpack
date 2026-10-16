@@ -81,18 +81,6 @@ class Jetpack_Core_Api_Module_Toggle_Endpoint_Test extends WP_UnitTestCase {
 		$this->assertTrue( Jetpack::is_module_active( self::MODULE ) );
 	}
 
-	/**
-	 * Backup follows the plan, so the endpoint refuses to switch it off.
-	 */
-	public function test_deactivating_backup_reports_that_the_plan_keeps_it_on() {
-		$this->forced_on = array( 'backup' );
-
-		$result = $this->endpoint()->deactivate_module( 'backup' );
-
-		$this->assertWPError( $result );
-		$this->assertSame( 'module_locked_on', $result->get_error_code() );
-	}
-
 	public function test_switching_a_module_nobody_forced_still_succeeds() {
 		$this->assertNotWPError( $this->endpoint()->activate_module( self::MODULE ) );
 		$this->assertTrue( Jetpack::is_module_active( self::MODULE ) );

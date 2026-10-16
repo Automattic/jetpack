@@ -3,6 +3,7 @@ import { useEffect, useRef } from 'react';
 import { RUNNING_ON_PLAN_STATUSES } from '../../components/my-jetpack-tab-panel/features/feature-state';
 import { refreshSidebar } from '../../components/my-jetpack-tab-panel/features/use-sidebar-sync';
 import { useAllProducts } from '../../data/products/use-all-products';
+import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import { linksTo } from '../../utils/admin-menu-sync';
 
 /**
@@ -16,16 +17,33 @@ function adminPageOf( url: string | undefined ): string {
 		return '';
 	}
 
-	const link = new URL( url, window.location.href );
-	const adminPage = new URL( getAdminUrl( 'admin.php' ), window.location.href );
+	try {
+		const link = new URL( url, window.location.href );
+		const adminPage = new URL( getAdminUrl( 'admin.php' ), window.location.href );
 
-	return link.origin === adminPage.origin && link.pathname === adminPage.pathname
-		? ( link.searchParams.get( 'page' ) ?? '' )
-		: '';
+		return link.origin === adminPage.origin && link.pathname === adminPage.pathname
+			? ( link.searchParams.get( 'page' ) ?? '' )
+			: '';
+	} catch {
+		return '';
+	}
 }
 
 /**
- * Refresh the sidebar once when a plan reached the site after this page drew it.
+ * The products behind features whose plan, not a switch, adds their page to the sidebar.
+ *
+ * @return Product slugs.
+ */
+function getPlanDrivenProducts(): string[] {
+	const features = getMyJetpackWindowInitialState( 'mainFeatures' )?.features;
+
+	return Array.isArray( features )
+		? features.filter( feature => feature.plan_driven ).map( feature => feature.product )
+		: [];
+}
+
+/**
+ * Refresh the sidebar once when a plan-driven feature's plan reached the site after this page drew it.
  *
  * Landing back from checkout, My Jetpack can know about a purchase before the sidebar,
  * rendered earlier in the same request, shows the page that purchase adds.
@@ -34,10 +52,11 @@ export function usePaidMenuSync() {
 	const { data: products } = useAllProducts();
 	const refreshed = useRef( false );
 
-	const paidPages = Object.values( products )
+	const paidPages = getPlanDrivenProducts()
+		.map( slug => products[ slug ] )
 		.filter(
 			product =>
-				product.hasPaidPlanForProduct && RUNNING_ON_PLAN_STATUSES.includes( product.status )
+				product?.hasPaidPlanForProduct && RUNNING_ON_PLAN_STATUSES.includes( product.status )
 		)
 		.map( product => adminPageOf( product.manageUrl ) )
 		.filter( Boolean )

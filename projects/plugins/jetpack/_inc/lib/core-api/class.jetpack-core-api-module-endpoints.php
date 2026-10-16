@@ -162,11 +162,6 @@ class Jetpack_Core_API_Module_Toggle_Endpoint extends Jetpack_Core_API_XMLRPC_Co
 			);
 		}
 
-		$locked = Jetpack::get_module_locked_on_reason( $module_slug );
-		if ( $locked ) {
-			return new WP_Error( 'module_locked_on', esc_html( $locked ), array( 'status' => 409 ) );
-		}
-
 		$deactivated = Jetpack::deactivate_module( $module_slug );
 
 		// A module that was never saved as active leaves nothing to change, so check the outcome.
@@ -182,7 +177,7 @@ class Jetpack_Core_API_Module_Toggle_Endpoint extends Jetpack_Core_API_XMLRPC_Co
 			return rest_ensure_response(
 				array(
 					'code'    => 'success',
-					'message' => esc_html__( 'The requested Jetpack module was deactivated.', 'jetpack' ),
+					'message' => esc_html( trim( __( 'The requested Jetpack module was deactivated.', 'jetpack' ) . ' ' . Jetpack::get_module_deactivation_note( $module_slug ) ) ),
 				)
 			);
 		}
