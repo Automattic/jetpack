@@ -2,6 +2,7 @@
  * Internal dependencies
  */
 import { fetchReportSessionsByDevice } from '../../api/report-sessions-by-device-fetch';
+import { safeParseInt } from '../../utils/parsing';
 
 type ReportsSessionsByDeviceResponse = Awaited< ReturnType< typeof fetchReportSessionsByDevice > >;
 
@@ -24,7 +25,7 @@ type SanitizedSessionsByDeviceResponse = {
 function sanitizeSessionsByDeviceItem( item: SessionsByDeviceItem ): SanitizedSessionsByDeviceItem {
 	return {
 		device_type: item.device_type || '',
-		active_sessions: parseInt( item.active_sessions, 10 ) || 0,
+		active_sessions: safeParseInt( item.active_sessions ),
 	};
 }
 
@@ -33,10 +34,10 @@ export const sanitizeReportSessionsByDeviceResponse = (
 ): SanitizedSessionsByDeviceResponse => {
 	const data = ( response?.data ?? [] ).map( sanitizeSessionsByDeviceItem );
 	// The report's own count: the device rows can add up to more than it.
-	const summarySessions = parseInt( response?.summary?.active_sessions ?? '', 10 );
-	const totalSessions = Number.isNaN( summarySessions )
-		? data.reduce( ( acc, item ) => acc + item.active_sessions, 0 )
-		: summarySessions;
+	const totalSessions = safeParseInt(
+		response?.summary?.active_sessions,
+		data.reduce( ( acc, item ) => acc + item.active_sessions, 0 )
+	);
 
 	return {
 		summary: {

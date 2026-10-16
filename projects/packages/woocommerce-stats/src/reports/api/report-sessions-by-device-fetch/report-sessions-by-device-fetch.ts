@@ -7,7 +7,7 @@ import type { BaseReportParams } from '../../utils/types';
 type SessionsByDeviceItem = {
 	/** Empty, or null, for sessions with no recorded device. */
 	device_type: string | null;
-	active_sessions: string;
+	active_sessions: string | null;
 };
 
 type SessionsByDeviceSummary = {

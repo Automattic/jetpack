@@ -22,12 +22,14 @@ describe( 'sanitizeReportOrdersResponse', () => {
 		[ 'reads null for a period with no orders', '0', null, null ],
 		[ 'has a null order count', null, '0', null ],
 		[ 'has orders', '2', '270.5', 270.5 ],
-	] )( 'averages a row whose API %s', ( _, ordersNo, average, expected ) => {
-		const { summary } = sanitizeReportOrdersResponse(
-			{ summary: row( ordersNo, average ), data: [] },
+	] )( 'averages a summary and a bucket whose API %s', ( _, ordersNo, average, expected ) => {
+		const { summary, data } = sanitizeReportOrdersResponse(
+			{ summary: row( ordersNo, average ), data: [ row( ordersNo, average ) ] },
 			'UTC'
 		);
 
-		expect( [ summary.average_order_value, summary.avg_items ] ).toEqual( [ expected, expected ] );
+		expect(
+			[ summary, data[ 0 ] ].flatMap( item => [ item.average_order_value, item.avg_items ] )
+		).toEqual( [ expected, expected, expected, expected ] );
 	} );
 } );
