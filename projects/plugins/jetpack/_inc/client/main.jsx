@@ -18,6 +18,7 @@ import SettingsAdminPage from 'components/settings-admin-page';
 import SettingsNavTabs from 'components/settings-nav-tabs';
 import Tracker from 'components/tracker';
 import analytics from 'lib/analytics';
+import { getProtectSettingsUrl } from 'security/protect-page';
 import SearchableSettings from 'settings/index.jsx';
 import {
 	getSiteConnectionStatus,
@@ -46,6 +47,7 @@ import {
 	getPluginBaseUrl,
 	userIsSubscriber,
 } from 'state/initial-state';
+import { hasProtectPage } from 'state/modules';
 import { getRewindStatus } from 'state/rewind';
 import { getSearchTerm } from 'state/search';
 import { areThereUnsavedSettings, clearUnsavedSettingsFlag } from 'state/settings';
@@ -126,6 +128,7 @@ class Main extends Component {
 			nextProps.location.pathname !== this.props.location.pathname ||
 			nextProps.searchTerm !== this.props.searchTerm ||
 			nextProps.rewindStatus !== this.props.rewindStatus ||
+			nextProps.hasProtectPage !== this.props.hasProtectPage ||
 			nextProps.areThereUnsavedSettings !== this.props.areThereUnsavedSettings ||
 			nextProps.isReconnectingSite !== this.props.isReconnectingSite
 		);
@@ -236,8 +239,13 @@ class Main extends Component {
 			case '/newsletter':
 				window.location.href = `${ this.props.siteAdminUrl }admin.php?page=jetpack-newsletter`;
 				break;
-			case '/settings':
 			case '/security':
+				if ( this.props.hasProtectPage && this.props.userCanManageModules ) {
+					window.location.replace( getProtectSettingsUrl( this.props.siteAdminUrl ) );
+					break;
+				}
+			// Falls through.
+			case '/settings':
 			case '/performance':
 			case '/writing':
 			case '/sharing':
@@ -408,6 +416,7 @@ export default connect(
 			connectingUserFeatureLabel: getConnectingUserFeatureLabel( state ),
 			connectingUserFrom: getConnectingUserFrom( state ),
 			isSubscriber: userIsSubscriber( state ),
+			hasProtectPage: hasProtectPage( state ),
 		};
 	},
 	dispatch => ( {
