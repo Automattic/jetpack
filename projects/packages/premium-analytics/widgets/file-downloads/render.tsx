@@ -130,6 +130,7 @@ export function FileDownloadsLeaderboard( {
 			withOverlayLabel
 			showLegend={ false }
 			dataFormat={ DATA_FORMAT }
+			columns={ { label: __( 'Files', 'jetpack-premium-analytics-pkg' ), metric: 'downloads' } }
 		/>
 	);
 }

@@ -43,12 +43,10 @@ const getVideoPressEmbedUrl = ( guid: string, isPrivate: boolean, playbackToken?
  * @return The player element, or null when there is nothing playable yet.
  */
 export default function PreviewPlayer( { video }: Props ): ReactElement | null {
-	const { guid, isPrivate } = video;
+	const { guid, isPrivate, conversionFailed } = video;
 	// null = token fetch pending, '' = failed or not needed, string = minted token.
-	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- Hook must run unconditionally (Rules of Hooks); its value is only read after the early return below.
 	const [ playbackToken, setPlaybackToken ] = useState< string | null >( null );
 	const previousVideo = useRef( video );
-	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- The hook must run even before a player is available.
 	const [ embedRevision, setEmbedRevision ] = useState( 0 );
 
 	useEffect( () => {
@@ -70,7 +68,7 @@ export default function PreviewPlayer( { video }: Props ): ReactElement | null {
 	 * needed; if minting fails, fall back to the tokenless embed.
 	 */
 	useEffect( () => {
-		if ( ! isPrivate || ! guid ) {
+		if ( ! isPrivate || ! guid || conversionFailed ) {
 			return;
 		}
 
@@ -90,7 +88,18 @@ export default function PreviewPlayer( { video }: Props ): ReactElement | null {
 		return () => {
 			isCurrent = false;
 		};
-	}, [ guid, isPrivate ] );
+	}, [ guid, isPrivate, conversionFailed ] );
+
+	if ( conversionFailed ) {
+		return (
+			<p className="vp-video-details__conversion-failed" role="status">
+				{ __(
+					'Conversion failed. Delete this video and upload it again.',
+					'jetpack-videopress-pkg'
+				) }
+			</p>
+		);
+	}
 
 	if ( ! guid ) {
 		if ( ! video.sourceUrl ) {

@@ -89,6 +89,24 @@ describe( 'groupMoreFeatures', () => {
 		expect( monitor.isSwitching ).toBe( true );
 	} );
 
+	it.each( [ false, true ] )(
+		'excludes the helper-owned custom content types module (active: %s)',
+		activated => {
+			const groupedWithCpt = groupMoreFeatures(
+				[],
+				[ { label: 'Writing', modules: [ 'custom-content-types', 'monitor' ] } ],
+				{
+					'custom-content-types': mod( 'custom-content-types', { activated } ),
+					monitor: mod( 'monitor' ),
+				},
+				{},
+				{}
+			);
+
+			expect( slugsOf( groupedWithCpt ) ).toEqual( [ [ 'Writing', [ 'monitor' ] ] ] );
+		}
+	);
+
 	it( 'filters by status and hides modules under plan and essential filters', () => {
 		const filtered = ( filter: Parameters< typeof filterMoreFeatures >[ 1 ] ) =>
 			filterMoreFeatures( grouped, filter, '' ).flatMap( group =>

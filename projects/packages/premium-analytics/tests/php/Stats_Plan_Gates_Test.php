@@ -16,6 +16,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 require_once __DIR__ . '/../../src/stats-plan-gates.php';
+require_once __DIR__ . '/../../src/purchase-success.php';
 require_once __DIR__ . '/fixtures/widget-modules-manifest.php';
 require_once __DIR__ . '/traits/trait-widget-manifest-fixture.php';
 require_once ABSPATH . 'wp-admin/includes/plugin.php';
@@ -34,6 +35,7 @@ require_once ABSPATH . 'wp-admin/includes/plugin.php';
  * @covers ::Automattic\Jetpack\PremiumAnalytics\configure_stats_plan_gates
  * @covers ::Automattic\Jetpack\PremiumAnalytics\inject_stats_plan_gates_script_data
  * @covers ::Automattic\Jetpack\PremiumAnalytics\maybe_refresh_jetpack_plan
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\maybe_invalidate_stats_caches
  */
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_stats_plan_tier' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_wpcom_stats_plan_tier' )]
@@ -48,6 +50,7 @@ require_once ABSPATH . 'wp-admin/includes/plugin.php';
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\configure_stats_plan_gates' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\inject_stats_plan_gates_script_data' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\maybe_refresh_jetpack_plan' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\maybe_invalidate_stats_caches' )]
 class Stats_Plan_Gates_Test extends BaseTestCase {
 	use Widget_Manifest_Fixture_Trait;
 
@@ -119,10 +122,13 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		remove_all_filters( 'doing_it_wrong_trigger_error' );
 		remove_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_stats_plan_gates_script_data', 20 );
 		remove_action( 'admin_init', __NAMESPACE__ . '\\maybe_refresh_jetpack_plan' );
+		remove_action( 'admin_init', __NAMESPACE__ . '\\maybe_invalidate_stats_caches' );
+		delete_transient( Notices::NOTICES_CACHE_KEY );
 		remove_all_filters( 'pre_http_request' );
-		unset( $_GET['jpa_purchased'], $_GET['page'], $GLOBALS['current_screen'], $GLOBALS['_parent_pages']['stats'] );
+		unset( $_GET['statsPurchaseSuccess'], $_GET['page'], $GLOBALS['current_screen'], $GLOBALS['_parent_pages']['stats'] );
 		delete_transient( EMPTY_PLAN_REFRESH_TRANSIENT );
 		delete_transient( PURCHASE_PLAN_REFRESH_TRANSIENT );
+		delete_transient( PURCHASE_CACHE_INVALIDATION_TRANSIENT );
 		\Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
 		Stats_Options::set_option( 'enable_odyssey_stats', true );
 		remove_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_fixture_widget_manifest' ) );
@@ -374,14 +380,14 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		$this->assertStringContainsString( '/personal?', get_stats_upgrade_url( 'referrers', STATS_TIER_FREE ) );
 	}
 
-	public function test_jetpack_upgrade_url_returns_with_the_purchase_flag() {
+	public function test_jetpack_upgrade_url_returns_to_the_dashboard() {
 		$GLOBALS['_parent_pages']['stats'] = false;
 		\Jetpack_Options::update_option( 'id', 1234 );
 		$url = get_stats_upgrade_url( 'utm', STATS_TIER_JETPACK_FREE );
 
 		$this->assertStringContainsString( 'page=stats#!/stats/purchase/1234?', $url );
 		$this->assertStringContainsString( 'productType=commercial', $url );
-		$this->assertStringContainsString( rawurlencode( 'jpa_purchased=1' ), $url );
+		$this->assertStringContainsString( 'redirect_uri=' . rawurlencode( 'admin.php?page=' . Analytics::MENU_PAGE_SLUG ), $url );
 	}
 
 	public function test_jetpack_upgrade_url_is_empty_with_odyssey_stats_off() {
@@ -584,7 +590,7 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		maybe_refresh_jetpack_plan();
 		$this->assertSame( 1, $this->plan_requests, 'A cached plan is left alone.' );
 
-		$_GET['jpa_purchased'] = '1';
+		$_GET['statsPurchaseSuccess'] = 'paid';
 		maybe_refresh_jetpack_plan();
 		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- The second load is the throttle under test.
 		maybe_refresh_jetpack_plan();
@@ -604,9 +610,62 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		$this->assertSame( 0, $this->plan_requests );
 	}
 
-	public function test_configure_hooks_the_refresh() {
+	public function test_purchase_return_drops_the_cached_stats_replies() {
+		$_GET['page'] = Analytics::MENU_PAGE_SLUG;
+		set_current_screen( 'toplevel_page_' . Analytics::MENU_PAGE_SLUG );
+		set_transient( Notices::NOTICES_CACHE_KEY, '{}', MINUTE_IN_SECONDS );
+
+		maybe_invalidate_stats_caches();
+		$this->assertNotFalse( get_transient( Notices::NOTICES_CACHE_KEY ), 'A plain dashboard load keeps the caches.' );
+		$this->assertFalse( get_option( 'jetpack_premium_analytics_proxy_cache_generations' ) );
+
+		$_GET['statsPurchaseSuccess'] = 'free';
+		maybe_invalidate_stats_caches();
+		$this->assertFalse( get_transient( Notices::NOTICES_CACHE_KEY ) );
+		$this->assertSame( array( '*' => 1 ), get_option( 'jetpack_premium_analytics_proxy_cache_generations' ) );
+
+		set_transient( Notices::NOTICES_CACHE_KEY, '{}', MINUTE_IN_SECONDS );
+		maybe_invalidate_stats_caches();
+		$this->assertNotFalse( get_transient( Notices::NOTICES_CACHE_KEY ), 'A second return within the window keeps the caches.' );
+		$this->assertSame( array( '*' => 1 ), get_option( 'jetpack_premium_analytics_proxy_cache_generations' ) );
+	}
+
+	/**
+	 * @dataProvider provide_purchase_returns_that_keep_the_caches
+	 *
+	 * @param string      $page     The admin page loaded.
+	 * @param string|null $platform `simple`, or null for a self-hosted site.
+	 */
+	#[DataProvider( 'provide_purchase_returns_that_keep_the_caches' )]
+	public function test_purchase_return_keeps_the_caches_off_the_dashboard_or_on_simple( $page, $platform ) {
+		$_GET['page']                 = $page;
+		$_GET['statsPurchaseSuccess'] = 'paid';
+		set_current_screen( 'toplevel_page_' . $page );
+		if ( $platform ) {
+			$this->set_wpcom_platform( $platform );
+		}
+		set_transient( Notices::NOTICES_CACHE_KEY, '{}', MINUTE_IN_SECONDS );
+
+		maybe_invalidate_stats_caches();
+
+		$this->assertNotFalse( get_transient( Notices::NOTICES_CACHE_KEY ) );
+		$this->assertFalse( get_option( 'jetpack_premium_analytics_proxy_cache_generations' ) );
+	}
+
+	/**
+	 * @return array<string, array{0: string, 1: string|null}>
+	 */
+	public static function provide_purchase_returns_that_keep_the_caches() {
+		return array(
+			'off the dashboard' => array( 'jetpack', null ),
+			'on Simple'         => array( Analytics::MENU_PAGE_SLUG, 'simple' ),
+		);
+	}
+
+	public function test_configure_hooks_the_purchase_return() {
 		configure_stats_plan_gates();
 
 		$this->assertNotFalse( has_action( 'admin_init', __NAMESPACE__ . '\\maybe_refresh_jetpack_plan' ) );
+		$this->assertNotFalse( has_action( 'admin_init', __NAMESPACE__ . '\\maybe_invalidate_stats_caches' ) );
 	}
 }

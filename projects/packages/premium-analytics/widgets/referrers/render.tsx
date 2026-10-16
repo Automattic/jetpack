@@ -160,6 +160,7 @@ export function ReferrersLeaderboard( {
 			withOverlayLabel
 			showLegend={ false }
 			dataFormat={ DATA_FORMAT }
+			columns={ { label: __( 'Referrers', 'jetpack-premium-analytics-pkg' ), metric: 'views' } }
 		/>
 	);
 }
