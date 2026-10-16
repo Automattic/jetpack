@@ -227,7 +227,7 @@ function get_stats_feature_copy( $feature ) {
 		case 'top-posts':
 			return array(
 				'description' => __( 'Discover your <link>post and pages</link> traffic in detail and learn what content resonates the most.', 'jetpack-premium-analytics-pkg' ),
-				'support_url' => $traffic_support . '#analyzing-popular-posts-and-pages',
+				'support_url' => $traffic_support . '#analyzing-popular-posts-pages-and-archives',
 			);
 		case 'referrers':
 			return array(
@@ -237,12 +237,12 @@ function get_stats_feature_copy( $feature ) {
 		case 'countries':
 			return array(
 				'description' => __( 'Discover where your <link>visitors are located</link> and identify where your traffic is coming from.', 'jetpack-premium-analytics-pkg' ),
-				'support_url' => $traffic_support . '#countries',
+				'support_url' => $traffic_support . '#views-by-locations',
 			);
 		case 'regions-cities':
 			return array(
 				'description' => __( 'Access to <link>region and city stats</link> for more accurate analysis.', 'jetpack-premium-analytics-pkg' ),
-				'support_url' => $traffic_support . '#countries',
+				'support_url' => $traffic_support . '#regions-and-cities',
 			);
 		case 'clicks':
 			return array(
@@ -252,7 +252,7 @@ function get_stats_feature_copy( $feature ) {
 		case 'file-downloads':
 			return array(
 				'description' => __( 'Discover the most <link>downloaded files</link> by your visitors.', 'jetpack-premium-analytics-pkg' ),
-				'support_url' => 'https://wordpress.com/support/stats/understand-your-sites-traffic/#file-downloads',
+				'support_url' => 'https://wordpress.com/support/stats/analyze-content-performance/#track-file-downloads',
 			);
 		case 'authors':
 			return array(
@@ -290,6 +290,38 @@ function get_stats_feature_copy( $feature ) {
 				'support_url' => '',
 			);
 	}
+}
+
+/**
+ * Locales with translated WordPress.com support articles: Calypso's `supportSiteLocales`, which classic Stats links with.
+ */
+const WPCOM_SUPPORT_LOCALES = array( 'ar', 'de', 'es', 'fr', 'he', 'id', 'it', 'ja', 'ko', 'nl', 'pt-br', 'ru', 'sv', 'tr', 'zh-cn', 'zh-tw' );
+
+/**
+ * A WordPress.com support URL in the current user's language, where that support site has one.
+ *
+ * Leaves jetpack.com URLs in English: its localized support docs are missing for most locales.
+ *
+ * @since $$next-version$$
+ *
+ * @param string $url Support URL, in English.
+ * @return string
+ */
+function localize_stats_support_url( $url ) {
+	$prefix = 'https://wordpress.com/support/';
+	if ( ! str_starts_with( $url, $prefix ) ) {
+		return $url;
+	}
+
+	$locale = strtolower( str_replace( '_', '-', get_user_locale() ) );
+	if ( ! in_array( $locale, WPCOM_SUPPORT_LOCALES, true ) ) {
+		$locale = strtok( $locale, '-' );
+	}
+	if ( ! in_array( $locale, WPCOM_SUPPORT_LOCALES, true ) ) {
+		return $url;
+	}
+
+	return 'https://wordpress.com/' . $locale . '/support/' . substr( $url, strlen( $prefix ) );
 }
 
 /**
@@ -344,7 +376,9 @@ function get_stats_plan_gates() {
 
 	$locked_features = array();
 	foreach ( $features as $feature ) {
-		$locked_features[ $feature ] = get_stats_feature_copy( $feature ) + array( 'upgrade_url' => get_stats_upgrade_url( $feature, $tier ) );
+		$copy                        = get_stats_feature_copy( $feature );
+		$copy['support_url']         = localize_stats_support_url( $copy['support_url'] );
+		$locked_features[ $feature ] = $copy + array( 'upgrade_url' => get_stats_upgrade_url( $feature, $tier ) );
 	}
 
 	$locked_widget_types = array();
