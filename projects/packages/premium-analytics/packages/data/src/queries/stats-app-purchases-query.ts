@@ -1,7 +1,6 @@
 /**
  * Internal dependencies
  */
-import { checkoutReturnParams } from '../utils/checkout-return';
 import { statsAppProxyQuery } from './stats-app-query';
 
 export type StatsAppPurchasesParams = {
@@ -55,7 +54,7 @@ export const statsAppPurchasesQuery = ( params: StatsAppPurchasesParams = {} ) =
 		name: 'purchases',
 		version: '1.2',
 		endpoint: 'upgrades',
-		params: { ...params, ...checkoutReturnParams() },
+		params,
 		// `upgrades` is a global (non-site-scoped) public-api endpoint on Simple.
 		global: true,
 	} );
