@@ -62,6 +62,12 @@ export type DashboardSection = {
 	requires_sync?: boolean;
 
 	/**
+	 * Message the registration puts above the section's widgets, e.g. a store with no
+	 * orders yet. Optional for the same reason as `date_filter` above; absent means none.
+	 */
+	notice?: string | null;
+
+	/**
 	 * Bundled default widget layout, consumed by the reset action.
 	 */
 	default_layout: DashboardWidget[];
