@@ -79,15 +79,26 @@ describe( 'EmailsList', () => {
 	} );
 
 	it.each( [
-		[ 'opens', '420', '42%', '420 opens, 42% open rate' ],
-		[ 'clicks', '75', '7%', '75 clicks, 7% click rate' ],
-	] as const )( 'shows the %s count beside its rate', ( metric, count, rate, description ) => {
-		renderEmailsList( metric );
+		[ 'opens', '420', '42%', '420 opens, 42% open rate', 'Opens', 'Open rate' ],
+		[ 'clicks', '75', '7%', '75 clicks, 7% click rate', 'Clicks', 'Click rate' ],
+	] as const )(
+		'shows the %s count beside its rate, under their headings',
+		( metric, count, rate, description, countHeading, rateHeading ) => {
+			renderEmailsList( metric );
 
-		expect( screen.getByText( count ) ).toBeInTheDocument();
-		expect( screen.getByText( rate ) ).toBeInTheDocument();
-		expect( screen.getByText( description ) ).toBeInTheDocument();
-	} );
+			expect( screen.getByText( count ) ).toBeInTheDocument();
+			expect( screen.getByText( rate ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Emails' ) ).toBeInTheDocument();
+			expect( screen.getByText( countHeading ) ).toBeInTheDocument();
+			expect( screen.getByText( rateHeading ) ).toBeInTheDocument();
+			// Screen readers hear one sentence per row, so it must stay out of the hidden figures.
+			expect(
+				screen.getByText( description, {
+					ignore: '[aria-hidden="true"], [aria-hidden="true"] *',
+				} )
+			).toBeInTheDocument();
+		}
+	);
 
 	it( 'keeps rows in the same order for either metric', () => {
 		const orderRows = [
