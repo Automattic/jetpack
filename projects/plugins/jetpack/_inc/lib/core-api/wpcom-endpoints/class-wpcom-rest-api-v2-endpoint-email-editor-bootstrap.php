@@ -194,15 +194,28 @@ class WPCOM_REST_API_V2_Endpoint_Email_Editor_Bootstrap extends WP_REST_Controll
 	 *
 	 * @return WP_REST_Request The request to forward.
 	 */
-	public function drop_unauthorized_post_id( $request ) {
+	private function drop_unauthorized_post_id( $request ) {
 		$post_id = (int) $request->get_param( 'post_id' );
 
-		if ( $post_id > 0 && ! current_user_can( 'edit_post', $post_id ) ) {
-			$query_params = $request->get_query_params();
+		if ( $post_id <= 0 || current_user_can( 'edit_post', $post_id ) ) {
+			return $request;
+		}
 
-			unset( $query_params['post_id'] );
+		$query_params = $request->get_query_params();
 
-			$request->set_query_params( $query_params );
+		unset( $query_params['post_id'] );
+
+		$request->set_query_params( $query_params );
+
+		// Both have to go: the proxy forwards the body verbatim beside the query args, and on a
+		// GET a JSON body outranks the query string in `get_param()` -- so an id moved there would
+		// be read by the check above and then sent anyway.
+		$body = json_decode( (string) $request->get_body(), true );
+
+		if ( is_array( $body ) && array_key_exists( 'post_id', $body ) ) {
+			unset( $body['post_id'] );
+
+			$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
 		}
 
 		return $request;

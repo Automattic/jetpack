@@ -2009,6 +2009,38 @@ describe( 'Email design editor entry point', () => {
 			} );
 		} );
 
+		// The canvas previews that post, so a test email rendering a different one would show the
+		// creator a design change against content they are not looking at. NL-1051.
+		it( 'sends the post the canvas previews, where the previewer named one', async () => {
+			await createTestSendMiddleware( ourId, 4242 )( sendRequest, jest.fn() );
+
+			expect( mockApiFetch ).toHaveBeenCalledWith( {
+				path: '/wpcom/v2/send-email-preview',
+				method: 'POST',
+				data: { id: 4242, email: 'creator@example.com' },
+			} );
+		} );
+
+		it( 'does not look a post up when the previewer named one', async () => {
+			await createTestSendMiddleware( ourId, 4242 )( sendRequest, jest.fn() );
+
+			const paths = mockApiFetch.mock.calls.map( ( [ options ] ) => options.path );
+
+			expect( paths.some( path => path.startsWith( '/wp/v2/posts' ) ) ).toBe( false );
+		} );
+
+		it( 'still sends a named post on a blog with nothing published', async () => {
+			arrangeSend( [] );
+
+			await createTestSendMiddleware( ourId, 4242 )( sendRequest, jest.fn() );
+
+			expect( mockApiFetch ).toHaveBeenCalledWith( {
+				path: '/wpcom/v2/send-email-preview',
+				method: 'POST',
+				data: { id: 4242, email: 'creator@example.com' },
+			} );
+		} );
+
 		it( 'asks for the newest published post, which is what the send renders', async () => {
 			await createTestSendMiddleware( ourId )( sendRequest, jest.fn() );
 

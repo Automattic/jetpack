@@ -945,11 +945,11 @@ async function flushDesign( id ) {
 }
 
 /**
- * The post the test send renders.
+ * The post the test send falls back to.
  *
- * This screen edits a design rather than a post, so there is nothing here to send and the newest
- * published post stands in. Both platforms seed one at install, so a blog with none is a creator
- * who deleted it.
+ * Entered from Appearance this screen edits a design rather than a post, so there is nothing here
+ * to send and the newest published post stands in. Both platforms seed one at install, so a blog
+ * with none is a creator who deleted it.
  *
  * @return {Promise<number|null>} The post's id, or null when the blog has published nothing.
  */
@@ -975,9 +975,10 @@ async function newestPublishedPostId() {
  * email a subscriber gets rather than WooCommerce's own render of it. See NL-953.
  *
  * @param {number|null} globalStylesPostId - The global-styles id the bundle named.
+ * @param {number|null} previewPostId      - The post the canvas previews, where one was named.
  * @return {Function} An `apiFetch` middleware.
  */
-export function createTestSendMiddleware( globalStylesPostId ) {
+export function createTestSendMiddleware( globalStylesPostId, previewPostId = null ) {
 	return async ( options, next ) => {
 		const path = 'string' === typeof options.path ? options.path.split( '?' )[ 0 ] : '';
 		const method = ( options.method || 'GET' ).toUpperCase();
@@ -989,7 +990,8 @@ export function createTestSendMiddleware( globalStylesPostId ) {
 		try {
 			await flushDesign( globalStylesPostId );
 
-			const id = await newestPublishedPostId();
+			// The post on the canvas, so the test lands in an inbox showing what the screen shows.
+			const id = previewPostId || ( await newestPublishedPostId() );
 
 			if ( ! id ) {
 				throw new TestSendError(
@@ -1138,7 +1140,7 @@ export async function mountEmailDesignEditor() {
 			apiFetch.use( createDesignSaveMiddleware( config.globalStylesPostId ) );
 		}
 
-		apiFetch.use( createTestSendMiddleware( config.globalStylesPostId ) );
+		apiFetch.use( createTestSendMiddleware( config.globalStylesPostId, data.postId ?? null ) );
 
 		if ( preload ) {
 			// Registered last so it runs first: api-fetch applies middlewares right to

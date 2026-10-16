@@ -142,6 +142,24 @@ class WPCOM_REST_API_V2_Endpoint_Email_Editor_Bootstrap_Test extends Jetpack_RES
 	}
 
 	/**
+	 * Run the request through the endpoint's private capability check.
+	 *
+	 * @param WP_REST_Request $request The request to rewrite.
+	 *
+	 * @return WP_REST_Request The request the proxy would forward.
+	 */
+	private function drop_unauthorized_post_id( $request ) {
+		$reflected = new ReflectionMethod( WPCOM_REST_API_V2_Endpoint_Email_Editor_Bootstrap::class, 'drop_unauthorized_post_id' );
+
+		// Required on the 7.4 run, a no-op since 8.1, and deprecated as of 8.5.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$reflected->setAccessible( true );
+		}
+
+		return $reflected->invoke( $this->endpoint(), $request );
+	}
+
+	/**
 	 * A design document, in the shape the editor saves.
 	 *
 	 * @return array
@@ -334,7 +352,7 @@ class WPCOM_REST_API_V2_Endpoint_Email_Editor_Bootstrap_Test extends Jetpack_RES
 		$request = new WP_REST_Request( Requests::GET, static::$path );
 		$request->set_query_params( array( 'post_id' => $post_id ) );
 
-		$forwarded = $this->endpoint()->drop_unauthorized_post_id( $request );
+		$forwarded = $this->drop_unauthorized_post_id( $request );
 
 		$this->assertSame( array( 'post_id' => $post_id ), $forwarded->get_query_params() );
 	}
@@ -357,10 +375,55 @@ class WPCOM_REST_API_V2_Endpoint_Email_Editor_Bootstrap_Test extends Jetpack_RES
 
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'author' ) ) );
 
-		$forwarded = $this->endpoint()->drop_unauthorized_post_id( $request );
+		$forwarded = $this->drop_unauthorized_post_id( $request );
 
 		// The rest of the request still goes, so dropping the post does not also drop the template.
 		$this->assertSame( array( 'template_slug' => 'wpcom-new-post' ), $forwarded->get_query_params() );
+	}
+
+	/**
+	 * Test that moving the id into a JSON body does not get it past the check.
+	 *
+	 * The proxy forwards the body beside the query args, and on a GET a JSON body outranks the
+	 * query string in `get_param()` -- so dropping only the query arg would check the id and send
+	 * it anyway.
+	 */
+	public function test_a_post_the_user_cannot_edit_is_dropped_from_a_json_body_too() {
+		$post_id = self::factory()->post->create( array( 'post_author' => static::$user_id_editor ) );
+		$request = new WP_REST_Request( Requests::GET, static::$path );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'post_id' => $post_id ), JSON_UNESCAPED_SLASHES ) );
+
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'author' ) ) );
+
+		$forwarded = $this->drop_unauthorized_post_id( $request );
+
+		$this->assertStringNotContainsString( 'post_id', (string) $forwarded->get_body() );
+		$this->assertNull( $forwarded->get_param( 'post_id' ) );
+	}
+
+	/**
+	 * Test that a body carrying anything else survives having the post dropped out of it.
+	 */
+	public function test_dropping_the_post_from_a_body_keeps_the_rest_of_it() {
+		$post_id = self::factory()->post->create( array( 'post_author' => static::$user_id_editor ) );
+		$request = new WP_REST_Request( Requests::GET, static::$path );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body(
+			wp_json_encode(
+				array(
+					'post_id'       => $post_id,
+					'template_slug' => 'wpcom-new-post',
+				),
+				JSON_UNESCAPED_SLASHES
+			)
+		);
+
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'author' ) ) );
+
+		$forwarded = $this->drop_unauthorized_post_id( $request );
+
+		$this->assertSame( array( 'template_slug' => 'wpcom-new-post' ), json_decode( (string) $forwarded->get_body(), true ) );
 	}
 
 	/**

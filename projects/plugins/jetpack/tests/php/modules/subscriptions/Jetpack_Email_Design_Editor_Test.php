@@ -500,6 +500,20 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * `absint()` folds the sign rather than rejecting it, so what a negative id names is a real
+	 * post that `edit_post` then has the final word on. The REST route refuses one outright
+	 * (`minimum: 1`); this path does not, and that difference is deliberate.
+	 */
+	public function test_a_negative_post_id_names_the_post_absint_folds_it_to() {
+		$post_id         = self::factory()->post->create();
+		$_GET['post_id'] = '-' . $post_id;
+
+		$data = $this->call_private( 'get_screen_data' );
+
+		$this->assertSame( $post_id, $data['postId'] );
+	}
+
+	/**
 	 * @return array[]
 	 */
 	public static function provide_unusable_preview_posts() {
@@ -507,7 +521,6 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 			'no arg at all'       => array( null ),
 			'not a number'        => array( 'abc' ),
 			'zero'                => array( '0' ),
-			'negative'            => array( '-5' ),
 			'empty'               => array( '' ),
 			'a post that is gone' => array( '999999' ),
 		);
