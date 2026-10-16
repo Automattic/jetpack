@@ -112,7 +112,7 @@ describe( 'UpgradePage', () => {
 		delete window.JetpackScriptData;
 	} );
 
-	it( 'links checkout to the tier picked on the slider, returning to refresh the plan', async () => {
+	it( 'links checkout to the tier picked on the slider', async () => {
 		setScriptData( true );
 		mockEndpoints();
 		await renderPage();
@@ -124,7 +124,6 @@ describe( 'UpgradePage', () => {
 			screen.getByRole( 'link', { name: 'Upgrade now and continue' } ).getAttribute( 'href' ) ?? ''
 		);
 		expect( checkout.pathname ).toBe( '/checkout/123/jetpack_stats_yearly:-q-100000' );
-		expect( checkout.searchParams.get( 'redirect_to' ) ).toContain( 'jpa_purchased=1' );
 	} );
 
 	it( 'asks a site that holds a Stats plan to connect the user before upgrading', async () => {

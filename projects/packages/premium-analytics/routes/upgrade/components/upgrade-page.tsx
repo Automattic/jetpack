@@ -108,8 +108,7 @@ export function UpgradePage(): JSX.Element {
 					blogId: site.wpcom.blog_id,
 					isUserConnected,
 					isUpgrade: hasAnyStatsPlan,
-					// `jpa_purchased` makes the dashboard re-read the site's plan, so the new tier unlocks at once.
-					redirectPath: `${ DASHBOARD_PATH }&jpa_purchased=1`,
+					redirectPath: DASHBOARD_PATH,
 					backPath: `${ DASHBOARD_PATH }&p=${ encodeURIComponent( '/upgrade' ) }`,
 				} )
 			: undefined;
