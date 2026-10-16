@@ -21,9 +21,11 @@ type DateRangeInputProps = Pick<
 	'range' | 'onChange'
 > & {
 	timeZone: string;
+	earliestDate?: Date;
 };
 
 type DateInputProps = Pick< DateRangeInputProps, 'timeZone' > & {
+	min?: string;
 	label: string;
 	date?: TZDate;
 	onChange: ( date?: TZDate ) => void;
@@ -40,7 +42,7 @@ function parseFromString( dateString: string, timeZone: string ) {
 	return ! isNaN( parsedDate.getTime() ) ? parsedDate : undefined;
 }
 
-function DateInput( { label, date, onChange, timeZone }: DateInputProps ) {
+function DateInput( { label, date, onChange, timeZone, min }: DateInputProps ) {
 	const [ value, setValue ] = useState( formatToString( date, timeZone ) );
 
 	useEffect( () => {
@@ -72,13 +74,21 @@ function DateInput( { label, date, onChange, timeZone }: DateInputProps ) {
 	return (
 		<FormField.Root className="input-date-control">
 			<FormField.Label>{ label }</FormField.Label>
-			<Input type="date" value={ value } onChange={ onInputChange } onClick={ onClick } />
+			<Input
+				type="date"
+				value={ value }
+				min={ min }
+				onChange={ onInputChange }
+				onClick={ onClick }
+			/>
 		</FormField.Root>
 	);
 }
 
-export function DateRangeInput( { range, onChange, timeZone }: DateRangeInputProps ) {
+export function DateRangeInput( { range, onChange, timeZone, earliestDate }: DateRangeInputProps ) {
 	const { from, to } = range;
+	const isBeforeEarliest = ( date: Date ) => !! earliestDate && date < earliestDate;
+	const min = earliestDate ? formatToString( earliestDate, timeZone ) : undefined;
 
 	return (
 		<Stack gap="sm" justify="space-between">
@@ -86,8 +96,9 @@ export function DateRangeInput( { range, onChange, timeZone }: DateRangeInputPro
 				label={ __( 'From', 'jetpack-premium-analytics-pkg' ) }
 				date={ from }
 				timeZone={ timeZone }
+				min={ min }
 				onChange={ nextFrom => {
-					if ( nextFrom && to && nextFrom <= to ) {
+					if ( nextFrom && to && nextFrom <= to && ! isBeforeEarliest( nextFrom ) ) {
 						onChange( { from: nextFrom, to } );
 					}
 				} }
@@ -97,8 +108,9 @@ export function DateRangeInput( { range, onChange, timeZone }: DateRangeInputPro
 				label={ __( 'To', 'jetpack-premium-analytics-pkg' ) }
 				date={ to }
 				timeZone={ timeZone }
+				min={ min }
 				onChange={ nextTo => {
-					if ( nextTo && from && from <= nextTo ) {
+					if ( nextTo && from && from <= nextTo && ! isBeforeEarliest( nextTo ) ) {
 						onChange( { from, to: nextTo } );
 					}
 				} }

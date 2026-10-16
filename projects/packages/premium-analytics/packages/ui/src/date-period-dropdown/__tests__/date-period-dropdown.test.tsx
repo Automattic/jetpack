@@ -428,4 +428,23 @@ describe( 'DatePeriodDropdown attention', () => {
 
 		expect( screen.getByRole( 'menu', { name: 'Period' } ) ).toBeInTheDocument();
 	} );
+
+	it( 'shows a locked preset that cannot be picked, explained by the footer', async () => {
+		const user = userEvent.setup();
+		const { onSelect } = renderDropdown( {
+			lockedPresetIds: [ 'last-30-days' ],
+			menuFooter: <p>Upgrade to see more.</p>,
+		} );
+		await openMenu( user, 'Last 30 days' );
+
+		const locked = screen.getByRole( 'menuitemradio', { name: 'Last 30 days' } );
+		await user.click( locked );
+
+		expect( onSelect ).not.toHaveBeenCalled();
+		expect( locked ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( locked ).toHaveAccessibleDescription( 'Upgrade to see more.' );
+		expect( screen.getByRole( 'menu', { name: 'Period' } ) ).not.toContainElement(
+			screen.getByText( 'Upgrade to see more.' )
+		);
+	} );
 } );

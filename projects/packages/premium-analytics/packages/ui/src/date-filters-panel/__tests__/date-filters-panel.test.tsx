@@ -191,6 +191,42 @@ describe( 'DateFiltersPanel', () => {
 		} );
 	} );
 
+	it( 'locks the periods the scope withholds and wires the upsell', async () => {
+		const user = userEvent.setup();
+		const onUpgradeClick = jest.fn();
+		render(
+			<ReportScopeProvider
+				dateLimits={ {
+					lockedPresetIds: [ 'last-30-days' ],
+					lockedIntervals: [],
+					upsell: {
+						description: 'Upgrade to see more.',
+						supportUrl: 'https://example.com/help',
+						upgradeUrl: 'https://example.com/plans',
+					},
+					onUpgradeClick,
+				} }
+			>
+				{ panel( { appliedPresetId: 'last-7-days' } ) }
+			</ReportScopeProvider>
+		);
+
+		await user.click( screen.getByRole( 'button', { name: 'Last 7 days' } ) );
+
+		expect( screen.getByRole( 'menuitemradio', { name: 'Last 30 days' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+		expect( screen.getByText( 'Upgrade to see more.' ) ).toBeInTheDocument();
+
+		const upgrade = screen.getByRole( 'link', { name: 'Upgrade' } );
+		// jsdom cannot navigate, and logs an error if the click tries.
+		upgrade.addEventListener( 'click', event => event.preventDefault() );
+		await user.click( upgrade );
+
+		expect( onUpgradeClick ).toHaveBeenCalledTimes( 1 );
+	} );
+
 	it( 'greys every control out while disabled', () => {
 		renderPanel( {
 			disabled: true,

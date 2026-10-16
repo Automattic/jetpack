@@ -2,7 +2,7 @@ import {
 	MENU_SURFACE_PRESETS_WITH_ALL_TIME,
 	computePrimaryRange,
 } from '@jetpack-premium-analytics/datetime';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { DatePeriodDropdown } from '../date-period-dropdown';
 import type {
 	DateRange,
@@ -47,11 +47,15 @@ function DatePeriodDropdownWithState( {
 	initialRange,
 	presetIds,
 	allTimeStart,
+	lockedPresetIds,
+	menuFooter,
 }: {
 	initialPresetId?: PrimaryPresetId;
 	initialRange?: DateRange;
 	presetIds?: readonly QuickSurfacePresetId[];
 	allTimeStart?: Date;
+	lockedPresetIds?: readonly QuickSurfacePresetId[];
+	menuFooter?: ReactNode;
 } ) {
 	const [ appliedPresetId, setAppliedPresetId ] = useState< PrimaryPresetId | undefined >(
 		initialPresetId
@@ -73,6 +77,8 @@ function DatePeriodDropdownWithState( {
 			range={ range }
 			presetIds={ presetIds }
 			allTimeStart={ allTimeStart }
+			lockedPresetIds={ lockedPresetIds }
+			menuFooter={ menuFooter }
 			timeZone={ TIME_ZONE }
 			canApply={ range !== appliedRange }
 			onSelect={ ( nextRange, nextPresetId ) => {
@@ -121,6 +127,27 @@ export const DetailSurface: Story = {
 		<DatePeriodDropdownWithState
 			presetIds={ MENU_SURFACE_PRESETS_WITH_ALL_TIME }
 			allTimeStart={ new Date( '2024-03-01T00:00:00.000Z' ) }
+		/>
+	),
+};
+
+/**
+ * A plan that leaves out everything past the last 7 days: those periods show a
+ * lock and cannot be picked, and the footer says why.
+ */
+export const PlanLimited: Story = {
+	render: () => (
+		<DatePeriodDropdownWithState
+			initialPresetId="last-7-days"
+			lockedPresetIds={ [
+				'last-30-days',
+				'month-to-date',
+				'last-month',
+				'year-to-date',
+				'last-12-months',
+				'all-time',
+			] }
+			menuFooter={ <p>Your plan includes the last 7 days. Upgrade to see more.</p> }
 		/>
 	),
 };
