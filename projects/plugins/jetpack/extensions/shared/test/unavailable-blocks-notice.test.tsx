@@ -1,6 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { registerBlockType, unregisterBlockType } from '@wordpress/blocks';
+import { applyFilters } from '@wordpress/hooks';
+import registerUnavailableBlocksNotice from '../unavailable-blocks-notice';
 import getUnavailableCause from '../unavailable-blocks-notice/get-unavailable-cause';
 import UnavailableBlockEdit from '../unavailable-blocks-notice/unavailable-block-edit';
 import type {
@@ -210,5 +212,42 @@ describe( 'Keep as HTML', () => {
 			'abc',
 			expect.objectContaining( { name: 'core/html', [ key ]: expected } )
 		);
+	} );
+} );
+
+describe( 'registerUnavailableBlocksNotice', () => {
+	const OriginalEdit = () => <p>original edit</p>;
+
+	beforeAll( () => {
+		registerUnavailableBlocksNotice( () => makeData( { reason: 'blocks_module' } ) );
+	} );
+
+	it.each( [
+		[
+			'replaces an explained missing block',
+			'core/missing',
+			'jetpack/map',
+			/Jetpack Blocks is turned off/,
+		],
+		[
+			'leaves other plugins’ missing blocks to core',
+			'core/missing',
+			'acme/thing',
+			'original edit',
+		],
+		[ 'leaves registered blocks alone', 'core/paragraph', undefined, 'original edit' ],
+	] as const )( '%s', ( _label, name, originalName, expected ) => {
+		const Edit = applyFilters( 'editor.BlockEdit', OriginalEdit ) as typeof OriginalEdit;
+
+		render(
+			<Edit
+				{ ...( { name, clientId: 'abc', attributes: { originalName } } as Record<
+					string,
+					unknown
+				> ) }
+			/>
+		);
+
+		expect( screen.getByText( expected ) ).toBeInTheDocument();
 	} );
 } );
