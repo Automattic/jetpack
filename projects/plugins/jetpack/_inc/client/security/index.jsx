@@ -6,7 +6,7 @@ import QuerySite from 'components/data/query-site';
 import { getVaultPressData } from 'state/at-a-glance';
 import { isOfflineMode, isUnavailableInOfflineMode, hasConnectedOwner } from 'state/connection';
 import { getSiteId } from 'state/initial-state';
-import { getModule } from 'state/modules';
+import { getModule, hasProtectPage } from 'state/modules';
 import { isModuleFound } from 'state/search';
 import { getSettings } from 'state/settings';
 import { siteHasFeature } from 'state/site';
@@ -17,7 +17,9 @@ import Antispam from './antispam';
 import BackupsScan from './backups-scan';
 import { JetpackBackup } from './jetpack-backup';
 import { Monitor } from './monitor';
+import { MovedToProtect } from './moved-to-protect';
 import { Protect } from './protect';
+import { PROTECT_PAGE_MODULES } from './protect-page';
 import { SSO } from './sso';
 import Waf from './waf';
 
@@ -70,6 +72,12 @@ export class Security extends Component {
 
 		if ( ! isSearchTerm && ! this.props.active ) {
 			return null;
+		}
+
+		if ( this.props.hasProtectPage ) {
+			return isSearchTerm && PROTECT_PAGE_MODULES.some( this.props.isModuleFound ) ? (
+				<MovedToProtect siteAdminUrl={ this.props.siteAdminUrl } />
+			) : null;
 		}
 
 		const foundProtect = this.props.isModuleFound( 'protect' ),
@@ -145,5 +153,6 @@ export default connect( state => {
 		vaultPressData: getVaultPressData( state ),
 		hasConnectedOwner: hasConnectedOwner( state ),
 		blogID: getSiteId( state ),
+		hasProtectPage: hasProtectPage( state ),
 	};
 } )( Security );
