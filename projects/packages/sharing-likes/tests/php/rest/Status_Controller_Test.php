@@ -15,6 +15,7 @@ use Automattic\Jetpack\Sharing_Likes\Settings\Section_Environment;
 use Automattic\Jetpack\Sharing_Likes\Settings\Section_State;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 require_once __DIR__ . '/../lib/class-sharing-service.php';
@@ -51,6 +52,7 @@ class Status_Controller_Test extends BaseTestCase {
 			delete_option( $option );
 		}
 
+		remove_all_filters( 'get_block_template' );
 		$this->tear_down_rest();
 		$this->tear_down_site();
 		Constants::clear_constants();
@@ -123,6 +125,51 @@ class Status_Controller_Test extends BaseTestCase {
 		$this->given_block_routes();
 
 		$this->assertStringContainsString( 'site-editor.php', $this->request( 'GET', 'status' )->get_data()['site_editor_url'] );
+	}
+
+	/**
+	 * A link reusing the single template's lookup would send "change pages on their own" to the post template,
+	 * and one built without checking would 404 on a theme with no `page` template.
+	 *
+	 * @dataProvider provide_page_templates
+	 *
+	 * @param string $site     `block_theme`, `no_page_template` or `classic_theme`.
+	 * @param string $expected Query string of the link, or empty for none.
+	 */
+	#[DataProvider( 'provide_page_templates' )]
+	public function test_status_links_the_page_template_where_the_theme_has_one( string $site, string $expected ): void {
+		if ( 'classic_theme' !== $site ) {
+			$this->given_block_routes();
+		}
+		if ( 'no_page_template' === $site ) {
+			// `pre_get_block_template` returning null does not short-circuit the lookup.
+			add_filter(
+				'get_block_template',
+				static function ( $template, string $id ) {
+					return '//page' === substr( $id, -6 ) ? null : $template;
+				},
+				10,
+				2
+			);
+		}
+
+		$data = $this->request( 'GET', 'status' )->get_data();
+
+		$this->assertSame( '' === $expected ? '' : admin_url( 'site-editor.php' ) . $expected, $data['page_template_editor_url'] );
+		$this->assertSame( 'classic_theme' !== $site, '' !== $data['site_editor_url'], 'The single template link follows its own template.' );
+	}
+
+	/**
+	 * Sites with and without a page template.
+	 *
+	 * @return array<string, array{string, string}>
+	 */
+	public static function provide_page_templates(): array {
+		return array(
+			'the fixture theme ships page.html' => array( 'block_theme', '?p=%2Fwp_template%2Fblock-theme%2F%2Fpage&canvas=edit' ),
+			'a block theme without page.html'   => array( 'no_page_template', '' ),
+			'a classic theme'                   => array( 'classic_theme', '' ),
+		);
 	}
 
 	public function test_switching_to_the_block_turns_off_only_that_feature(): void {
