@@ -15,6 +15,13 @@ use PHPUnit\Framework\TestCase;
 class Protect_Product_Test extends TestCase {
 
 	/**
+	 * Modules a test puts on offer.
+	 *
+	 * @var string[]
+	 */
+	private $available_modules = array();
+
+	/**
 	 * Returning the environment into its initial state.
 	 */
 	public function tearDown(): void {
@@ -22,6 +29,28 @@ class Protect_Product_Test extends TestCase {
 
 		unset( $GLOBALS['wp_actions']['jetpack_protect_dashboard_initialized'] );
 		deactivate_plugins( Protect::$plugin_filename );
+		remove_filter( 'jetpack_get_available_standalone_modules', array( $this, 'offer_modules' ) );
+		remove_filter( 'jetpack_get_available_modules', array( $this, 'offer_jetpack_modules' ), PHP_INT_MAX );
+		\Jetpack_Options::delete_option( 'active_modules' );
+		delete_option( 'active_plugins' );
+	}
+
+	/**
+	 * Offer the test's modules without the Jetpack plugin.
+	 *
+	 * @return string[]
+	 */
+	public function offer_modules() {
+		return $this->available_modules;
+	}
+
+	/**
+	 * Offer the test's modules with the Jetpack plugin.
+	 *
+	 * @return array Available modules: slug => version.
+	 */
+	public function offer_jetpack_modules() {
+		return array_fill_keys( $this->available_modules, '1.0' );
 	}
 
 	/**
@@ -51,22 +80,49 @@ class Protect_Product_Test extends TestCase {
 		if ( $standalone ) {
 			$this->activate_standalone_plugin();
 		}
-		$offer         = static function () use ( $available ) {
-			return $available;
-		};
-		$jetpack_offer = static function () use ( $available ) {
-			return array_fill_keys( $available, '1.0' );
-		};
-		add_filter( 'jetpack_get_available_standalone_modules', $offer );
-		add_filter( 'jetpack_get_available_modules', $jetpack_offer, PHP_INT_MAX );
+		$this->available_modules = $available;
+		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'offer_modules' ) );
+		add_filter( 'jetpack_get_available_modules', array( $this, 'offer_jetpack_modules' ), PHP_INT_MAX );
 		\Jetpack_Options::update_option( 'active_modules', $active );
 
-		$is_active = Protect::is_module_active();
+		$this->assertSame( $expected, Protect::is_module_active() );
+	}
 
-		remove_filter( 'jetpack_get_available_standalone_modules', $offer );
-		remove_filter( 'jetpack_get_available_modules', $jetpack_offer, PHP_INT_MAX );
-		\Jetpack_Options::delete_option( 'active_modules' );
-		$this->assertSame( $expected, $is_active );
+	/**
+	 * Whether the Jetpack plugin is active, the modules on offer, and whether activating Protect then installs the standalone plugin.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_standalone_install_states() {
+		return array(
+			'Jetpack plugin offers the page' => array( true, array( 'protect', 'protect-dashboard' ), false ),
+			'page not on offer'              => array( true, array( 'protect' ), true ),
+			'no Jetpack plugin'              => array( false, array(), true ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_standalone_install_states
+	 *
+	 * @param bool     $jetpack   Whether the Jetpack plugin is active.
+	 * @param string[] $available Modules on offer.
+	 * @param bool     $expected  Whether activation installs the standalone plugin.
+	 */
+	#[DataProvider( 'provide_standalone_install_states' )]
+	public function test_activation_installs_the_standalone_plugin_only_without_the_protect_page( $jetpack, $available, $expected ) {
+		if ( $jetpack ) {
+			if ( ! file_exists( WP_PLUGIN_DIR . '/jetpack' ) ) {
+				mkdir( WP_PLUGIN_DIR . '/jetpack', 0777, true );
+			}
+			copy( __DIR__ . '/assets/jetpack-mock-plugin.txt', WP_PLUGIN_DIR . '/jetpack/jetpack.php' );
+			wp_cache_delete( 'plugins', 'plugins' );
+			update_option( 'active_plugins', array( 'jetpack/jetpack.php' ) );
+		}
+		$this->available_modules = $available;
+		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'offer_modules' ) );
+		add_filter( 'jetpack_get_available_modules', array( $this, 'offer_jetpack_modules' ), PHP_INT_MAX );
+
+		$this->assertSame( $expected, Protect::should_install_standalone_plugin() );
 	}
 
 	/**

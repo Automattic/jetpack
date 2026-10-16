@@ -89,8 +89,6 @@ class Protect extends Hybrid_Product {
 	/**
 	 * The Jetpack module name, used where the `protect-dashboard` module is not on offer.
 	 *
-	 * The `protect` module is Brute force protection, one of several features Protect covers.
-	 *
 	 * @var string
 	 */
 	public static $module_name = 'protect';
@@ -130,10 +128,30 @@ class Protect extends Hybrid_Product {
 	 * @return string
 	 */
 	public static function get_module_name() {
-		if ( ! static::is_standalone_plugin_active() && in_array( self::DASHBOARD_MODULE_NAME, (array) ( new Modules() )->get_available(), true ) ) {
+		if ( ! static::is_standalone_plugin_active() && self::is_dashboard_module_available() ) {
 			return self::DASHBOARD_MODULE_NAME;
 		}
 		return static::$module_name;
+	}
+
+	/**
+	 * Skip installing the standalone plugin where the Jetpack plugin already delivers the Protect page.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function should_install_standalone_plugin() {
+		return ! ( static::is_jetpack_plugin_active() && self::is_dashboard_module_available() );
+	}
+
+	/**
+	 * Whether the Jetpack plugin offers the module that loads the Protect page.
+	 *
+	 * @return bool
+	 */
+	private static function is_dashboard_module_available() {
+		return in_array( self::DASHBOARD_MODULE_NAME, (array) ( new Modules() )->get_available(), true );
 	}
 
 	/**

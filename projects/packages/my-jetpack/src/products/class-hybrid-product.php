@@ -157,10 +157,11 @@ abstract class Hybrid_Product extends Product {
 	 *                       WP_Error if the module deactivation failed.
 	 */
 	public static function deactivate() {
+		// Before the parent call: deactivating the standalone plugin can change which module the product reads.
+		$module_name          = static::get_module_name();
 		$result               = parent::deactivate();
 		$modules              = new Modules();
 		$saved_active_modules = (array) \Jetpack_Options::get_option( 'active_modules', array() );
-		$module_name          = static::get_module_name();
 
 		// Modules::deactivate() can't remove a module only a plugin's filter forces on, nor a saved one that is unavailable.
 		if (

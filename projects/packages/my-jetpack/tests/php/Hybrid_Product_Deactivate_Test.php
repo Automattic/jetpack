@@ -133,6 +133,18 @@ class Hybrid_Product_Deactivate_Test extends TestCase {
 	}
 
 	/**
+	 * Install and activate a mock of the standalone Protect plugin.
+	 */
+	private function activate_standalone_protect_plugin() {
+		if ( ! file_exists( WP_PLUGIN_DIR . '/jetpack-protect' ) ) {
+			mkdir( WP_PLUGIN_DIR . '/jetpack-protect', 0777, true );
+		}
+		copy( __DIR__ . '/assets/protect-mock-plugin.txt', WP_PLUGIN_DIR . '/jetpack-protect/jetpack-protect.php' );
+		wp_cache_delete( 'plugins', 'plugins' );
+		activate_plugins( 'jetpack-protect/jetpack-protect.php' );
+	}
+
+	/**
 	 * Registers the modules the Hybrid_Product subclasses declare as available.
 	 *
 	 * @param array $modules Available modules: slug => version.
@@ -171,16 +183,17 @@ class Hybrid_Product_Deactivate_Test extends TestCase {
 	 * $module_name. Guards against future subclasses (or overrides) that
 	 * could silently drop the module-deactivation contract.
 	 *
-	 * @return array<string, array{0: class-string, 1: string, 2?: string[]}>
+	 * @return array<string, array{0: class-string, 1: string, 2?: string[], 3?: bool}>
 	 */
 	public static function provide_hybrid_subclasses_with_modules() {
 		return array(
-			'backup'       => array( Backup::class, 'backup' ),
-			'videopress'   => array( Videopress::class, 'videopress' ),
-			'search'       => array( Search::class, 'search' ),
-			'protect'      => array( Protect::class, 'protect' ),
-			'protect page' => array( Protect::class, 'protect-dashboard', array( 'protect-dashboard' ) ),
-			'social'       => array( Social::class, 'publicize' ),
+			'backup'                                => array( Backup::class, 'backup' ),
+			'videopress'                            => array( Videopress::class, 'videopress' ),
+			'search'                                => array( Search::class, 'search' ),
+			'protect'                               => array( Protect::class, 'protect' ),
+			'protect page'                          => array( Protect::class, 'protect-dashboard', array( 'protect-dashboard' ) ),
+			'protect plugin with the page on offer' => array( Protect::class, 'protect', array( 'protect-dashboard' ), true ),
+			'social'                                => array( Social::class, 'publicize' ),
 		);
 	}
 
@@ -191,11 +204,15 @@ class Hybrid_Product_Deactivate_Test extends TestCase {
 	 * @param class-string $class   Hybrid_Product subclass under test.
 	 * @param string       $module  Jetpack module slug for the subclass.
 	 * @param string[]     $offered Modules to add to the available list.
+	 * @param bool         $standalone Whether the standalone Protect plugin is active.
 	 * @dataProvider provide_hybrid_subclasses_with_modules
 	 */
 	#[DataProvider( 'provide_hybrid_subclasses_with_modules' )]
-	public function test_deactivate_turns_off_active_module( $class, $module, $offered = array() ) {
+	public function test_deactivate_turns_off_active_module( $class, $module, $offered = array(), $standalone = false ) {
 		$this->extra_available_modules = $offered;
+		if ( $standalone ) {
+			$this->activate_standalone_protect_plugin();
+		}
 		$this->set_module_active( $module );
 		$this->assertTrue( ( new Modules() )->is_active( $module ) );
 

@@ -1033,7 +1033,7 @@ abstract class Product {
 		}
 
 		// Default to installing the standalone plugin for the product
-		if ( ! self::is_plugin_installed() ) {
+		if ( ! self::is_plugin_installed() && static::should_install_standalone_plugin() ) {
 			$installed = Plugins_Installer::install_plugin( static::get_plugin_slug() );
 			if ( is_wp_error( $installed ) ) {
 				return $installed;
@@ -1049,6 +1049,17 @@ abstract class Product {
 			return $result;
 		}
 
+		return true;
+	}
+
+	/**
+	 * Whether activating the product installs its standalone plugin when that plugin is missing.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function should_install_standalone_plugin() {
 		return true;
 	}
 
