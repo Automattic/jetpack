@@ -94,6 +94,8 @@ jest.mock( '../use-location-views', () => ( {
 
 describe( 'LocationsWidget', () => {
 	beforeEach( () => {
+		// A query a previous test left retrying would settle mid-test and re-render this one.
+		queryClient.clear();
 		mockUseLocationViews.mockReset();
 		mockUseLocationViews.mockReturnValue( LOADING_STATE );
 	} );
@@ -101,7 +103,6 @@ describe( 'LocationsWidget', () => {
 	// The map waits for the country, so the lookup has to be under way before the
 	// rows arrive or it delays the map.
 	it( "starts the viewer's country lookup while the rows are still loading", () => {
-		queryClient.clear();
 		// jsdom has no `fetch`, so there is nothing for `jest.spyOn()` to wrap.
 		// eslint-disable-next-line jest/prefer-spy-on
 		globalThis.fetch = jest.fn( () => new Promise< Response >( () => {} ) );
@@ -392,15 +393,19 @@ describe( 'LocationsWidget', () => {
 		} );
 
 		it( 'keeps the previous level dimmed and inert while the next loads, and moves the map on', async () => {
-			// `placeholderData` hands back the previous level's rows until the new ones arrive.
+			// `placeholderData` hands back the previous level's rows until the new ones arrive,
+			// while the countries already fetched stay settled.
 			let isPending = false;
-			mockUseLocationViews.mockImplementation( ( ( { geoMode }: { geoMode: string } ) => ( {
-				...LOADING_STATE,
-				data: ROWS_BY_MODE[ isPending ? 'country' : geoMode ],
-				isLoading: isPending,
-				isFetching: isPending,
-				hasData: true,
-			} ) ) as unknown as () => LocationViewsState );
+			mockUseLocationViews.mockImplementation( ( ( { geoMode }: { geoMode: string } ) => {
+				const isLevelPending = isPending && geoMode !== 'country';
+				return {
+					...LOADING_STATE,
+					data: ROWS_BY_MODE[ isLevelPending ? 'country' : geoMode ],
+					isLoading: isLevelPending,
+					isFetching: isLevelPending,
+					hasData: true,
+				};
+			} ) as unknown as () => LocationViewsState );
 			const { rerender } = render(
 				<LocationsWidget attributes={ { geoGranularity: 'country' } } />
 			);
