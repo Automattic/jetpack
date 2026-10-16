@@ -915,6 +915,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 
 			// Purchases — site-less path (view_stats).
 			'purchases'            => array( 'upgrades', $stats, false, '/upgrades?site=%d' ),
+			'jetpack products'     => array( 'products', $stats, false, '/sites/%d/products?type=jetpack' ),
 
 			// Public post interactions — the only `posts` sub-paths the pattern exposes (view_stats).
 			'post likes'           => array( 'posts/123/likes', $stats, false, '/sites/%d/posts/123/likes' ),

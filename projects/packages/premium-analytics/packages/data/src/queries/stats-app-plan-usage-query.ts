@@ -1,6 +1,7 @@
 /**
  * Internal dependencies
  */
+import { checkoutReturnParams } from '../utils/checkout-return';
 import { statsAppProxyQuery } from './stats-app-query';
 
 export const statsAppPlanUsageQuery = < TData = unknown >() =>
@@ -8,4 +9,5 @@ export const statsAppPlanUsageQuery = < TData = unknown >() =>
 		name: 'plan-usage',
 		version: '2',
 		endpoint: 'jetpack-stats/usage',
+		params: checkoutReturnParams(),
 	} );
