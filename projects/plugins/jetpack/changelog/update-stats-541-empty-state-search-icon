@@ -1,4 +1,4 @@
 Significance: patch
-Type: enhancement
+Type: other
+Comment: Match the empty-state magnifier to the design prototype.
 
-Premium Analytics: Show an "x" in the empty-state magnifier when there are no results.
