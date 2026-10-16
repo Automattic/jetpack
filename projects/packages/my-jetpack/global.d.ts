@@ -524,6 +524,8 @@ type MainFeature = {
 	docs_url: string;
 	product: string;
 	module: string;
+	// Whether the feature needs a connected WordPress.com user account.
+	needs_account?: boolean;
 };
 
 interface Window {
@@ -564,6 +566,7 @@ interface Window {
 		loadAddLicenseScreen: string;
 		myJetpackCheckoutUri: string;
 		myJetpackFlags: {
+			accountConnect?: boolean;
 			headerControls?: boolean;
 			overviewV1: boolean;
 			showAiModuleToggle: boolean;

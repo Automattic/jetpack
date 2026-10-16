@@ -1,4 +1,3 @@
-Significance: minor
-Type: enhancement
-
-My Jetpack: Show which features need a WordPress.com account and connect one from Connect, or from Install when the plugin is missing.
+Significance: patch
+Type: other
+Comment: Add a default-off My Jetpack flag for connecting an account from Features; nothing changes until it is on.

@@ -1,4 +1,5 @@
 import CONNECTION_STORE from '@automattic/jetpack-connection/state/store-id';
+import useConnectionErrorNotice from '@automattic/jetpack-connection/use-connection-error-notice';
 import { useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { getQueryArg } from '@wordpress/url';
@@ -12,7 +13,7 @@ import {
 } from '../../../data/requested-switch-state';
 import { getOfflineFeaturesSeed, isOfflineFeatures } from '../../../data/utils/offline-features';
 import { linksTo } from '../../../utils/admin-menu-sync';
-import { getProductModules, PRODUCT_MODULES } from './mappings';
+import { getProductModules, isAccountConnectEnabled, PRODUCT_MODULES } from './mappings';
 import {
 	getFeatureUnavailableReason,
 	getModuleAvailability,
@@ -237,10 +238,9 @@ export function resolveFeatureState(
 		needsAccount &&
 		connectionCanHelp &&
 		Boolean(
+			feature.needs_account ||
 			$module?.requires_user_connection ||
-			gatedModule?.requires_user_connection ||
-			feature.product === 'social' ||
-			feature.product === 'backup'
+			gatedModule?.requires_user_connection
 		);
 	const resolved = resolveMechanism( feature, jetpack, product, $module, gatedModule );
 
@@ -418,10 +418,12 @@ export function useFeatureStates( state: MainFeaturesState ): {
  * @return Whether account-dependent features need a connection action.
  */
 export function useFeaturesNeedsAccount(): boolean {
-	const offline = isOfflineFeatures();
-	return useSelect(
+	const off = isOfflineFeatures() || ! isAccountConnectEnabled();
+	// A broken connection gets Repair in the header and Overview; a new account could not fix it.
+	const { hasConnectionError } = useConnectionErrorNotice();
+	const waiting = useSelect(
 		select => {
-			if ( offline ) {
+			if ( off ) {
 				return false;
 			}
 			// Read the connection store directly: useMyJetpackConnection needs page data that the offline Features page does not load.
@@ -442,8 +444,10 @@ export function useFeaturesNeedsAccount(): boolean {
 				! store.getIsOfflineMode?.()
 			);
 		},
-		[ offline ]
+		[ off ]
 	);
+
+	return waiting && ! hasConnectionError;
 }
 
 /**
@@ -461,10 +465,10 @@ export function offersConnect( state: FeatureState ): boolean {
 }
 
 /**
- * Mark a feature that waits for an account, without calling it unavailable.
+ * Mark a feature that waits for an account, which Available and bulk actions then leave out.
  *
  * Jetpack reports a module needing an account as unavailable on a site without one; the badge
- * says that instead, and one saved as on can still be switched off from its details.
+ * says Needs user account instead, and one saved as on can still be switched off from its details.
  *
  * @param state         - The feature's resolved state.
  * @param accountModule - The module behind it, if Jetpack is active.

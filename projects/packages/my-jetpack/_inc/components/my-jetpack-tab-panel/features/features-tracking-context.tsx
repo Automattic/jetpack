@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useMemo } from 'react';
 import useAnalytics from '../../../hooks/use-analytics';
+import { isAccountConnectEnabled } from './mappings';
 import type { FeatureState } from './feature-state';
 import type { FeaturesView } from './toolbar';
 import type { FeatureFilter } from './use-feature-filter';
@@ -86,7 +87,7 @@ function featureProps( state: FeatureState ) {
 		feature_status: state.status,
 		control_kind: state.control.kind,
 		is_essential: Boolean( feature.essential ),
-		account_needed: Boolean( state.accountNeeded ),
+		...( isAccountConnectEnabled() && { account_needed: Boolean( state.accountNeeded ) } ),
 		...when( 'plugin', feature.plugin || '' ),
 		...when( 'plugin_status', feature.plugin_status || '' ),
 	};

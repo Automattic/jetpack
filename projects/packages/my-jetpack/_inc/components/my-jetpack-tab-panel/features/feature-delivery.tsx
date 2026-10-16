@@ -79,8 +79,8 @@ function getNote( state: FeatureState, pluginName: string ): string {
 			return state.accountNeeded ? connectFirstNote : moduleNote;
 		}
 
-		case 'install-jetpack':
-			return sprintf(
+		case 'install-jetpack': {
+			const jetpackNote = sprintf(
 				/* translators: %s is a feature name, such as "Stats". */
 				__(
 					'%s is part of the Jetpack plugin. Installing Jetpack turns it on. You won’t be charged.',
@@ -88,6 +88,16 @@ function getNote( state: FeatureState, pluginName: string ): string {
 				),
 				feature.name
 			);
+			const jetpackConnectNote = sprintf(
+				/* translators: %s is a feature name, such as "Activity Log". */
+				__(
+					'%s is part of the Jetpack plugin. Installing Jetpack also connects your WordPress.com account; then turn it on here if it’s still off. You won’t be charged.',
+					'jetpack-my-jetpack'
+				),
+				feature.name
+			);
+			return state.accountNeeded ? jetpackConnectNote : jetpackNote;
+		}
 
 		default:
 			return '';

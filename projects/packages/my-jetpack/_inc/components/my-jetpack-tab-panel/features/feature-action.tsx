@@ -110,8 +110,9 @@ export function InstallButton( {
 	const connectAccount = useAccountConnection();
 	const onClick = useCallback( () => {
 		tracking?.trackFeatureAction( { state, action, origin } );
-		run( action ).then( done => {
-			if ( done && state?.accountNeeded ) {
+		const connectAfter = Boolean( state?.accountNeeded );
+		run( action, { leavesPage: connectAfter } ).then( done => {
+			if ( done && connectAfter ) {
 				connectAccount( state, origin, 'install' );
 			}
 		} );
@@ -143,8 +144,9 @@ type FeatureActionProps = {
 /**
  * The card's control, as the feature map decides it.
  *
- * Nothing here reloads the page, so several features can be flipped in a row; the
- * wp-admin sidebar is refreshed in place after each switch (see `use-sidebar-sync.ts`).
+ * A switch answers in place, so several features can be flipped in a row; the wp-admin sidebar
+ * is refreshed after each (see `use-sidebar-sync.ts`). Installing Jetpack reloads the page, and
+ * connecting an account leaves it.
  *
  * @param {FeatureActionProps} props             - The component props.
  * @param {FeatureState}       props.state       - Live state for the feature.

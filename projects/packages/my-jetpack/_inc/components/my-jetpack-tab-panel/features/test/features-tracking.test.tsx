@@ -196,6 +196,12 @@ const eventNames = () => recordEvent.mock.calls.map( ( [ name ] ) => name );
 const lastEvent = ( name: string ) =>
 	recordEvent.mock.calls.filter( ( [ event ] ) => event === name ).at( -1 )?.[ 1 ];
 
+const setAccountConnectFlag = ( accountConnect: boolean ) => {
+	window.myJetpackInitialState.myJetpackFlags = {
+		accountConnect,
+	} as typeof window.myJetpackInitialState.myJetpackFlags;
+};
+
 beforeEach( () => {
 	jest.clearAllMocks();
 	mockMoreFeatures = [];
@@ -204,6 +210,7 @@ beforeEach( () => {
 	mockModal.onStep = undefined;
 	mockGrid.onOpen = undefined;
 	mockUseAnalytics.mockReturnValue( { recordEvent } );
+	setAccountConnectFlag( false );
 } );
 
 describe( 'Features tab toolbar tracking', () => {
@@ -339,6 +346,8 @@ describe( 'Features tab modal tracking', () => {
 } );
 
 describe( 'Feature action tracking', () => {
+	beforeEach( () => setAccountConnectFlag( true ) );
+
 	it.each( [
 		[ 'an install from the card, then one connection start', 'card', 'install' ],
 		[ 'an install from the modal, then one connection start', 'modal', 'install' ],
@@ -568,6 +577,20 @@ describe( 'The grid every event is measured against', () => {
 			search_term: 'boo',
 			view: 'list',
 		} );
+	} );
+
+	it.each( [
+		[ 'sends', true, false ],
+		[ 'leaves out', false, undefined ],
+	] )( '%s account_needed as the account-connect flag says', async ( _, flagOn, sent ) => {
+		setAccountConnectFlag( flagOn );
+		renderTracked(
+			<FeatureAction state={ buildState( { kind: 'install-plugin', plugin: 'jetpack-boost' } ) } />
+		);
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Install' } ) );
+
+		expect( lastEvent( 'jetpack_myjetpack_feature_action' )?.account_needed ).toBe( sent );
 	} );
 
 	it( 'leaves out a search term there is none of, rather than sending it empty', async () => {

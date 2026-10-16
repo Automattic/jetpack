@@ -27,7 +27,8 @@ let mockInstallError: string | null = null;
 
 jest.mock( '../use-main-features', () => ( {
 	useFeaturePlugin: ( plugin: string, name: string ) => ( {
-		run: ( action: string ) => mockRun( { plugin, name, action } ),
+		run: ( action: string, options?: { leavesPage?: boolean } ) =>
+			mockRun( { plugin, name, action, ...( options?.leavesPage && { leavesPage: true } ) } ),
 		isBusy: mockBusy,
 	} ),
 	useInstallError: ( plugin: string ) => ( plugin ? mockInstallError : null ),
@@ -588,6 +589,7 @@ describe( 'features waiting for an account', () => {
 				plugin: 'jetpack-backup',
 				plugin_name: 'Jetpack VaultPress Backup',
 				plugin_status,
+				needs_account: true,
 				setup_note: 'Backups start once you add a paid plan.',
 			} ),
 			'not-installed',
@@ -650,19 +652,45 @@ describe( 'features waiting for an account', () => {
 		}
 	);
 
+	const accountJetpack = ( jetpack: MainFeaturePluginStatus ) =>
+		resolveFeatureState(
+			buildFeature( {
+				slug: 'activity-log',
+				name: 'Activity Log',
+				in_jetpack: true,
+				module: 'activity-log',
+				plugin: '',
+				needs_account: true,
+			} ),
+			jetpack,
+			undefined,
+			undefined,
+			{},
+			false,
+			true
+		);
+
 	it.each( [
-		[ 'starts the connection after an install', true, 1 ],
-		[ 'does not start the connection after a failed install', false, 0 ],
-	] )( '%s', async ( _, succeeds, connections ) => {
-		mockRun.mockReturnValueOnce( Promise.resolve( succeeds ) );
-		render( <FeatureAction state={ accountPlugin( 'not-installed' ) } /> );
+		[ 'Install', true, 'install', accountPlugin( 'not-installed' ), 1 ],
+		[ 'Install', false, 'install', accountPlugin( 'not-installed' ), 0 ],
+		[ 'Install Jetpack', true, 'install', accountJetpack( 'not-installed' ), 1 ],
+		[ 'Activate Jetpack', true, 'activate', accountJetpack( 'inactive' ), 1 ],
+		[ 'Install Jetpack', false, 'install', accountJetpack( 'not-installed' ), 0 ],
+	] as const )(
+		'connects after %s only once it succeeds (succeeds: %s), and asks Jetpack not to reload',
+		async ( name, succeeds, action, state, connections ) => {
+			mockRun.mockReturnValueOnce( Promise.resolve( succeeds ) );
+			render( <FeatureAction state={ state } /> );
 
-		await userEvent.click( screen.getByRole( 'button', { name: 'Install' } ) );
-		await settle();
+			await userEvent.click( screen.getByRole( 'button', { name } ) );
+			await settle();
 
-		expect( mockRun ).toHaveBeenCalledWith( expect.objectContaining( { action: 'install' } ) );
-		expect( leavePageFor ).toHaveBeenCalledTimes( connections );
-	} );
+			expect( mockRun ).toHaveBeenCalledWith(
+				expect.objectContaining( { action, leavesPage: true } )
+			);
+			expect( leavePageFor ).toHaveBeenCalledTimes( connections );
+		}
+	);
 
 	it.each( [
 		[ 'a module saved as on', accountModule( true ), 'Deactivate Activity Log', [ false ] ],

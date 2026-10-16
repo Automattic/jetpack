@@ -47,9 +47,10 @@ export function getFeatureCheckoutReturnUrl( hash = window.location.hash ) {
 		: '';
 }
 
-// What an account connection started from Features brings back: the open feature, layout, search and tag.
-// The status filter is left behind, since connecting can move the feature out of it.
-const CONNECT_RETURN_PARAMS = [ 'feature', 'view', 'search', 'module_tag' ];
+// What an account connection started from Features brings back: the open feature, layout, search, tag
+// and filter. A status filter is left behind, since connecting can move the feature out of it.
+const CONNECT_RETURN_PARAMS = [ 'feature', 'view', 'search', 'module_tag', 'filter' ];
+const STATUS_FILTERS = [ 'available', 'active', 'inactive' ];
 
 /**
  * Where an account connection started from Features returns to.
@@ -64,7 +65,7 @@ export function getFeatureConnectReturnUrl( hash = window.location.hash ) {
 	const kept = new URLSearchParams();
 	CONNECT_RETURN_PARAMS.forEach( key => {
 		const value = current.get( key );
-		if ( value ) {
+		if ( value && ! ( key === 'filter' && STATUS_FILTERS.includes( value ) ) ) {
 			kept.set( key, value );
 		}
 	} );

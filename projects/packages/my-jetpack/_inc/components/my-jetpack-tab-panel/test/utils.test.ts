@@ -126,9 +126,16 @@ it.each( [
 		'#/features?filter=inactive&feature=newsletter&view=list&search=mail&module_tag=Writing',
 		'admin.php?page=my-jetpack#/features?feature=newsletter&view=list&search=mail&module_tag=Writing',
 	],
+	[ '#/features?filter=available', 'admin.php?page=my-jetpack#/features' ],
+	[ '#/features?filter=active', 'admin.php?page=my-jetpack#/features' ],
+	[
+		'#/features?filter=essential&view=list',
+		'admin.php?page=my-jetpack#/features?view=list&filter=essential',
+	],
+	[ '#/features?filter=growth', 'admin.php?page=my-jetpack#/features?filter=growth' ],
 	[ '#/features', 'admin.php?page=my-jetpack#/features' ],
 ] )(
-	'returns from connecting an account to the same Features view, under All: %s',
+	'returns from connecting an account to the same Features view, without a status filter: %s',
 	( hash, url ) => {
 		expect( getFeatureConnectReturnUrl( hash ) ).toBe( url );
 	}

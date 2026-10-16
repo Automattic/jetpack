@@ -6,11 +6,13 @@ import {
 	pluginSwitchKey,
 	setRequestedSwitch,
 } from '../../../../data/requested-switch-state';
+import { reloadPage } from '../../../../utils/reload-page';
 import { useFeatureStates } from '../feature-state';
 import { useFeaturePlugin, useInstallError, useMainFeatures } from '../use-main-features';
 import type { ReactNode } from 'react';
 
 jest.mock( '@wordpress/api-fetch' );
+jest.mock( '../../../../utils/reload-page', () => ( { reloadPage: jest.fn() } ) );
 
 const mockCreateErrorNotice = jest.fn();
 
@@ -23,6 +25,10 @@ jest.mock( '@automattic/jetpack-components', () => ( {
 
 jest.mock( '@automattic/jetpack-shared-stores', () => ( { store: 'modules-store' } ) );
 jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
+
+jest.mock( '@automattic/jetpack-connection/use-connection-error-notice', () => () => ( {
+	hasConnectionError: false,
+} ) );
 
 jest.mock( '@wordpress/data', () => ( {
 	useDispatch: () => ( { invalidateResolution: jest.fn() } ),
@@ -275,6 +281,28 @@ describe( 'useFeaturePlugin', () => {
 			);
 		}
 	);
+
+	it.each( [
+		[ 'reloads the page', false, 1 ],
+		[ 'leaves the page to a caller that navigates away', true, 0 ],
+	] )( '%s once Jetpack is on', async ( _, leavesPage, reloads ) => {
+		( reloadPage as jest.Mock ).mockClear();
+		mockApiFetch.mockImplementation( ( { method }: { method?: string } ) =>
+			method === 'POST' ? Promise.resolve( pageState ) : new Promise( () => undefined )
+		);
+		const client = new QueryClient( { defaultOptions: { mutations: { retry: false } } } );
+		const { result } = renderHook( () => useFeaturePlugin( 'jetpack', 'Jetpack' ), {
+			wrapper: wrapper( client ),
+		} );
+
+		let done: boolean | undefined;
+		await act( async () => {
+			done = await result.current.run( 'activate', { leavesPage } );
+		} );
+
+		expect( done ).toBe( true );
+		expect( reloadPage ).toHaveBeenCalledTimes( reloads );
+	} );
 
 	it( 'looks busy while another caller, such as a bulk switch, has asked for the plugin', () => {
 		mockApiFetch.mockImplementation( () => new Promise( () => undefined ) );

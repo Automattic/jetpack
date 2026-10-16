@@ -1,4 +1,4 @@
-Significance: minor
+Significance: patch
 Type: added
 
-Features: Show which features need a WordPress.com account and connect one from Connect, or from Install when the plugin is missing.
+Features: Add the default-off `my-jetpack-account-connect` flag, which shows Needs user account on features that need a WordPress.com account and starts the account connection from their Install or Connect button.

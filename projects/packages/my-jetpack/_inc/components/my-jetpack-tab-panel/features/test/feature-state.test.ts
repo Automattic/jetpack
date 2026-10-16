@@ -461,7 +461,7 @@ describe( 'account-dependent features', () => {
 		[ 'post-by-email', 'post-by-email', '', {}, 'module' ],
 		[ 'sso', 'sso', '', {}, 'module' ],
 	] )(
-		'keeps the %s switch, badge only while the AI switch is gated, and keeps it out of Active',
+		'marks %s (module %s) as waiting for an account, out of Active and Available, with no manage link',
 		( slug, module, product, productModules, kind ) => {
 			const state = resolveFeatureState(
 				buildFeature( {
@@ -469,6 +469,7 @@ describe( 'account-dependent features', () => {
 					product,
 					in_jetpack: true,
 					module: product === 'jetpack-ai' ? '' : module,
+					manage_url: '/wp-admin/admin.php?page=manage',
 				} ),
 				'active',
 				undefined,
@@ -584,6 +585,46 @@ describe( 'account-dependent features', () => {
 			} finally {
 				window.JetpackScriptData = previousData;
 			}
+		}
+	);
+} );
+
+describe( 'account-dependent features without an active Jetpack', () => {
+	const activityLog = buildFeature( {
+		slug: 'activity-log',
+		in_jetpack: true,
+		module: 'activity-log',
+		plugin: '',
+		needs_account: true,
+	} );
+	const newsletter = buildFeature( {
+		slug: 'newsletter',
+		in_jetpack: true,
+		module: 'subscriptions',
+		product: 'newsletter',
+		plugin: '',
+		needs_account: true,
+	} );
+	const search = buildFeature( {
+		slug: 'search',
+		in_jetpack: true,
+		module: 'search',
+		product: 'search',
+		plugin: '',
+	} );
+
+	it.each( [
+		[ 'Activity Log', 'not-installed', activityLog, true ],
+		[ 'Activity Log', 'inactive', activityLog, true ],
+		[ 'Newsletter', 'not-installed', newsletter, true ],
+		[ 'Search', 'not-installed', search, undefined ],
+	] as const )(
+		'reads whether %s waits for an account from the catalog with Jetpack %s',
+		( _name, jetpack, feature, accountNeeded ) => {
+			const state = resolveFeatureState( feature, jetpack, undefined, undefined, {}, false, true );
+
+			expect( state.control.kind ).toBe( 'install-jetpack' );
+			expect( state.accountNeeded ).toBe( accountNeeded );
 		}
 	);
 } );

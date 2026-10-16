@@ -8,6 +8,11 @@ import { useFeatureStates } from '../feature-state';
 
 const mockModules = jest.fn();
 const mockConnection = jest.fn();
+let mockHasConnectionError = false;
+
+jest.mock( '@automattic/jetpack-connection/use-connection-error-notice', () => () => ( {
+	hasConnectionError: mockHasConnectionError,
+} ) );
 
 jest.mock( '@wordpress/data', () => ( {
 	useSelect: ( callback: ( select: unknown ) => unknown ) =>
@@ -24,6 +29,10 @@ beforeEach( () => {
 		isOfflineMode: false,
 	} );
 	window.myJetpackInitialState.isOfflineFeatures = false;
+	window.myJetpackInitialState.myJetpackFlags = {
+		accountConnect: true,
+	} as typeof window.myJetpackInitialState.myJetpackFlags;
+	mockHasConnectionError = false;
 } );
 
 jest.mock( '../use-all-jetpack-modules', () => ( {
@@ -44,6 +53,7 @@ const social = {
 	plugin_status: 'not-installed',
 	product: 'social',
 	module: '',
+	needs_account: true,
 } as MainFeature;
 
 const state = ( jetpack: MainFeaturePluginStatus ) =>
@@ -186,4 +196,21 @@ describe( 'Features account connection gate', () => {
 			expect( Boolean( result.current.states[ 0 ].accountNeeded ) ).toBe( accountNeeded );
 		}
 	);
+
+	it.each( [
+		[ 'the account-connect flag is off', false, false ],
+		[ 'the connection reports an error', true, true ],
+	] )( 'asks for no account on a site without an owner when %s', ( _, flagOn, hasError ) => {
+		mockConnection.mockReturnValue( { isRegistered: true, hasConnectedOwner: false } );
+		window.myJetpackInitialState.myJetpackFlags = {
+			accountConnect: flagOn,
+		} as typeof window.myJetpackInitialState.myJetpackFlags;
+		mockHasConnectionError = hasError;
+		mockModules.mockReturnValue( { modules: {} } );
+
+		const { result } = renderHook( () => useFeatureStates( state( 'not-installed' ) ) );
+
+		expect( result.current.states[ 0 ].control.kind ).toBe( 'install-plugin' );
+		expect( result.current.states[ 0 ].accountNeeded ).toBeUndefined();
+	} );
 } );

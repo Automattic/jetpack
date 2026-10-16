@@ -90,7 +90,7 @@ export function FeatureItem( {
 		! onOpen &&
 		! migration &&
 		isActive &&
-		! unavailable &&
+		! state.accountNeeded &&
 		! state.isSwitching &&
 		state.control.kind === 'module'
 			? getModuleSettingsUrl( state.control.module )
