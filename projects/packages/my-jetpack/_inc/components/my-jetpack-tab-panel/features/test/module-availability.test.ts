@@ -94,6 +94,12 @@ describe( 'getFeatureStatusLabel', () => {
 			'Inactive',
 			build( { kind: 'none' }, { status: 'inactive' } ),
 		],
+		[
+			'a feature still loading',
+			'Inactive',
+			null,
+			build( { kind: 'none' }, { pending: true, status: 'inactive' } ),
+		],
 	] )( 'labels %s %s with the flag off and %s with it on', ( _, flagOff, flagOn, state ) => {
 		expect( getFeatureStatusLabel( state ) ).toBe( flagOff );
 		window.myJetpackInitialState.myJetpackFlags = {

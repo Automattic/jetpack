@@ -142,7 +142,7 @@ export function FeatureModalActions( { state }: FeatureModalActionsProps ) {
 	const forcedReason = getForcedReason( state );
 	const unavailable = getFeatureUnavailableReason( state );
 	const connectFirst = offersConnect( state );
-	const accountReason = needsAccountWithoutConnect( state ) ? unavailable : undefined;
+	const needsAccountNote = needsAccountWithoutConnect( state );
 	// Waiting for an account, the switch only stays to turn off a feature already on, and
 	// until that request lands, so the button being pressed does not vanish under the click.
 	const showSwitch =
@@ -174,7 +174,7 @@ export function FeatureModalActions( { state }: FeatureModalActionsProps ) {
 				</ButtonLink>
 			) : null }
 
-			{ forcedReason || accountReason ? (
+			{ forcedReason || needsAccountNote ? (
 				<Stack direction="column" align="start" gap="xs">
 					{ unavailable && unavailable !== forcedReason ? (
 						<Badge intent="medium">{ unavailable }</Badge>

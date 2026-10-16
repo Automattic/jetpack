@@ -637,39 +637,50 @@ describe( 'features waiting for an account', () => {
 		}
 	);
 
-	it( 'says Jetpack AI needs an account, on its card and in its details, while it has no Connect', () => {
-		const ai = resolveFeatureState(
-			buildFeature( {
-				slug: 'jetpack-ai',
-				name: 'Jetpack AI',
-				product: 'jetpack-ai',
-				in_jetpack: true,
-				plugin: '',
-				needs_account: true,
-			} ),
-			'active',
-			undefined,
-			{
-				ai: {
-					module: 'ai',
-					available: false,
-					unavailable_reason: 'Requires a connected WordPress.com account',
-					requires_user_connection: true,
-					activated: false,
-				} as MyJetpackModule,
-			},
-			{},
-			false,
-			true
-		);
-		const { rerender } = render( <FeatureItem state={ ai } onOpen={ jest.fn() } /> );
+	const accountAi = resolveFeatureState(
+		buildFeature( {
+			slug: 'jetpack-ai',
+			name: 'Jetpack AI',
+			product: 'jetpack-ai',
+			in_jetpack: true,
+			plugin: '',
+			needs_account: true,
+		} ),
+		'active',
+		undefined,
+		{
+			ai: {
+				module: 'ai',
+				available: false,
+				unavailable_reason: 'Requires a connected WordPress.com account',
+				requires_user_connection: true,
+				activated: false,
+			} as MyJetpackModule,
+		},
+		{},
+		false,
+		true
+	);
+	const missingPlugin = accountPlugin( 'not-installed' );
+	const blockedInstall = {
+		...missingPlugin,
+		control: { ...missingPlugin.control, blocked: 'not_permitted' },
+	} as FeatureState;
+
+	it.each( [
+		[ 'Jetpack AI while its switch is gated', accountAi ],
+		[ 'an install the user cannot make', blockedInstall ],
+	] )( 'says an account is needed on the card and in the details for %s', ( _, state ) => {
+		const { rerender } = render( <FeatureItem state={ state } onOpen={ jest.fn() } /> );
 		expect( screen.getByText( 'Requires a connected WordPress.com account' ) ).toBeVisible();
 		expect(
 			screen.queryByText( /^(Active|Inactive|Needs user account)$/ )
 		).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: /^Connect/ } ) ).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'button', { name: /^(Connect|Install)/ } )
+		).not.toBeInTheDocument();
 
-		rerender( <FeatureModalActions state={ ai } /> );
+		rerender( <FeatureModalActions state={ state } /> );
 		expect( screen.getByText( 'Requires a connected WordPress.com account' ) ).toBeVisible();
 	} );
 

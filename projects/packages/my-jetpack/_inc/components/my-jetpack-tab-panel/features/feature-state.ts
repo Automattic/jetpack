@@ -465,14 +465,16 @@ export function offersConnect( state: FeatureState ): boolean {
 }
 
 /**
- * Whether a feature waits for an account with no Connect or Install to start it, as Jetpack AI
- * does while its switch is gated, so its card and details say so in words instead.
+ * Whether a feature waits for an account with no control on its card, as Jetpack AI does while its
+ * switch is gated or an install the user can't make, so its card and details say so in words instead.
  *
  * @param state - Live state for the feature.
  * @return Whether only a note can say the account is missing.
  */
 export function needsAccountWithoutConnect( state: FeatureState ): boolean {
-	return Boolean( state.accountNeeded && state.control.kind === 'none' );
+	return Boolean(
+		state.accountNeeded && ( state.control.kind === 'none' || getInstallBlockReason( state ) )
+	);
 }
 
 /**
