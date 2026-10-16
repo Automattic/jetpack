@@ -1,4 +1,4 @@
 Significance: patch
-Type: added
-Comment: Add a purchases hook that works outside My Jetpack's providers, for the shared header. No visible change.
+Type: changed
+Comment: Move the site purchases query into one shared hook. No visible change.
 
