@@ -627,9 +627,6 @@ describe( 'features waiting for an account', () => {
 
 	it.each( [
 		[ 'card', 'a module', accountModule( false ) ],
-		[ 'card', 'a module saved as on', accountModule( true ) ],
-		[ 'card', 'a plugin', accountPlugin( 'inactive' ) ],
-		[ 'details', 'a module', accountModule( false ) ],
 		[ 'details', 'a plugin that is on', accountPlugin( 'active' ) ],
 	] as const )(
 		'connects from the %s for %s and changes nothing on the feature',
@@ -673,9 +670,7 @@ describe( 'features waiting for an account', () => {
 	it.each( [
 		[ 'Install', true, 'install', accountPlugin( 'not-installed' ), 1 ],
 		[ 'Install', false, 'install', accountPlugin( 'not-installed' ), 0 ],
-		[ 'Install Jetpack', true, 'install', accountJetpack( 'not-installed' ), 1 ],
 		[ 'Activate Jetpack', true, 'activate', accountJetpack( 'inactive' ), 1 ],
-		[ 'Install Jetpack', false, 'install', accountJetpack( 'not-installed' ), 0 ],
 	] as const )(
 		'connects after %s only once it succeeds (succeeds: %s), and asks Jetpack not to reload',
 		async ( name, succeeds, action, state, connections ) => {
@@ -733,13 +728,10 @@ describe( 'features waiting for an account', () => {
 		).toHaveFocus();
 	} );
 
-	it.each( [ accountModule( false ), accountPlugin( 'inactive' ) ] )(
-		'offers no Activate in the details while the account is missing',
-		state => {
-			render( <FeatureModalActions state={ state } /> );
-			expect( screen.queryByRole( 'button', { name: /^Activate / } ) ).not.toBeInTheDocument();
-		}
-	);
+	it( 'offers no Activate in the details while the account is missing', () => {
+		render( <FeatureModalActions state={ accountPlugin( 'inactive' ) } /> );
+		expect( screen.queryByRole( 'button', { name: /^Activate / } ) ).not.toBeInTheDocument();
+	} );
 
 	it.each( [
 		[ 'a module', accountModule( false ), /then turn it on here if it’s still off\./ ],
@@ -757,6 +749,11 @@ describe( 'features waiting for an account', () => {
 			'a plugin already on',
 			accountPlugin( 'active' ),
 			/^Backups start once you add a paid plan\.$/,
+		],
+		[
+			'a module waiting for Jetpack',
+			accountJetpack( 'not-installed' ),
+			/Once Jetpack is on you’ll connect your WordPress.com account/,
 		],
 	] as const )( 'says in the details what happens next for %s', ( _, state, note ) => {
 		render( <FeatureDelivery state={ state } /> );

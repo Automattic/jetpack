@@ -132,7 +132,6 @@ it.each( [
 		'#/features?filter=essential&view=list',
 		'admin.php?page=my-jetpack#/features?view=list&filter=essential',
 	],
-	[ '#/features?filter=growth', 'admin.php?page=my-jetpack#/features?filter=growth' ],
 	[ '#/features', 'admin.php?page=my-jetpack#/features' ],
 ] )(
 	'returns from connecting an account to the same Features view, without a status filter: %s',

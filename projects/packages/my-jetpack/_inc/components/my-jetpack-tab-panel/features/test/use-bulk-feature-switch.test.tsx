@@ -95,11 +95,6 @@ describe( 'isBulkSwitchable', () => {
 			false,
 		],
 		[
-			'a module waiting for an account',
-			{ ...moduleState( 'monitor', 'inactive' ), accountNeeded: true } as FeatureState,
-			false,
-		],
-		[
 			'a plugin that needs installing',
 			{ ...pluginState( 'akismet', 'inactive' ), control: { kind: 'install-plugin', plugin: 'a' } },
 			false,

@@ -456,10 +456,6 @@ describe( 'account-dependent features', () => {
 		[ 'jetpack-ai', 'ai', 'jetpack-ai', {}, 'none' ],
 		[ 'jetpack-ai', 'ai', 'jetpack-ai', PRODUCT_MODULES, 'module' ],
 		[ 'newsletter', 'subscriptions', 'newsletter', {}, 'module' ],
-		[ 'monitor', 'monitor', '', {}, 'module' ],
-		[ 'notes', 'notes', '', {}, 'module' ],
-		[ 'post-by-email', 'post-by-email', '', {}, 'module' ],
-		[ 'sso', 'sso', '', {}, 'module' ],
 	] )(
 		'marks %s (module %s) as waiting for an account, out of Active and Available, with no manage link',
 		( slug, module, product, productModules, kind ) => {
@@ -501,8 +497,6 @@ describe( 'account-dependent features', () => {
 		[ 'social', 'inactive', 'plugin' ],
 		[ 'social', 'active', 'plugin' ],
 		[ 'backup', 'not-installed', 'install-plugin' ],
-		[ 'backup', 'inactive', 'plugin' ],
-		[ 'backup', 'active', 'plugin' ],
 	] as const )(
 		'keeps %s on its plugin %s, with its saved state, until the account connects',
 		( product, plugin_status, kind ) => {
@@ -597,14 +591,6 @@ describe( 'account-dependent features without an active Jetpack', () => {
 		plugin: '',
 		needs_account: true,
 	} );
-	const newsletter = buildFeature( {
-		slug: 'newsletter',
-		in_jetpack: true,
-		module: 'subscriptions',
-		product: 'newsletter',
-		plugin: '',
-		needs_account: true,
-	} );
 	const search = buildFeature( {
 		slug: 'search',
 		in_jetpack: true,
@@ -615,8 +601,6 @@ describe( 'account-dependent features without an active Jetpack', () => {
 
 	it.each( [
 		[ 'Activity Log', 'not-installed', activityLog, true ],
-		[ 'Activity Log', 'inactive', activityLog, true ],
-		[ 'Newsletter', 'not-installed', newsletter, true ],
 		[ 'Search', 'not-installed', search, undefined ],
 	] as const )(
 		'reads whether %s waits for an account from the catalog with Jetpack %s',

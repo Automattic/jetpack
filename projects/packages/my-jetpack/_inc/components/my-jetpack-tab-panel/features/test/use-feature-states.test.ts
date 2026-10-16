@@ -164,7 +164,7 @@ describe( 'Features account connection gate', () => {
 		[ 'offline mode', true, false, false, true, false, false ],
 		[ 'offline Features', true, false, false, false, true, false ],
 	] )(
-		'%s keeps the module switch and decides whether it waits for an account',
+		'%s decides whether a module waits for an account',
 		(
 			name,
 			isRegistered,

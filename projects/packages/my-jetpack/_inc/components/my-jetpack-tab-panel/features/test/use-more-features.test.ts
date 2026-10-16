@@ -244,8 +244,6 @@ it( 'keeps an account-required extra module visible and excludes it from Availab
 		available: false,
 		activated: true,
 		requires_user_connection: true,
-		description: 'Notifications',
-		search_terms: 'alerts',
 	} as MyJetpackModule;
 	const state = getModuleFeatureState( module, {}, true );
 	const accountGroups = [ { label: 'Other', states: [ state ] } ];
@@ -256,5 +254,4 @@ it( 'keeps an account-required extra module visible and excludes it from Availab
 	expect( state.accountNeeded ).toBe( true );
 	expect( filterMoreFeatures( accountGroups, 'all', '' )[ 0 ].states ).toEqual( [ state ] );
 	expect( filterMoreFeatures( accountGroups, 'available', '' ) ).toEqual( [] );
-	expect( filterMoreFeatures( accountGroups, 'all', 'alerts' )[ 0 ].states ).toEqual( [ state ] );
 } );

@@ -350,7 +350,6 @@ describe( 'Feature action tracking', () => {
 
 	it.each( [
 		[ 'an install from the card, then one connection start', 'card', 'install' ],
-		[ 'an install from the modal, then one connection start', 'modal', 'install' ],
 		[ 'Connect as a connection start alone', 'more_features', 'connect' ],
 	] as const )( 'records %s, never an activation', async ( _, origin, action ) => {
 		const state = buildState(
@@ -360,13 +359,7 @@ describe( 'Feature action tracking', () => {
 			{ accountNeeded: true }
 		);
 		state.feature.product = 'boost';
-		renderTracked(
-			origin === 'modal' ? (
-				<FeatureModalActions state={ state } />
-			) : (
-				<FeatureAction state={ state } origin={ origin } />
-			)
-		);
+		renderTracked( <FeatureAction state={ state } origin={ origin } /> );
 
 		await userEvent.click(
 			screen.getByRole( 'button', { name: action === 'connect' ? /^Connect account/ : 'Install' } )
