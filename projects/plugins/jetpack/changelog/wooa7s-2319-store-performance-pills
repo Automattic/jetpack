@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Premium Analytics: Keep long figures in the metric cards above the charts from being cut off, and spread the cards evenly over their rows.

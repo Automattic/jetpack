@@ -184,6 +184,24 @@ describe( 'MetricTabsChart', () => {
 		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
 	} );
 
+	it.each( [
+		[ 'spreads six cards over two even rows', 999, '3' ],
+		[ 'keeps six cards on one row when they fit', 1000, '6' ],
+	] )( '%s', ( _case, width, columns ) => {
+		setMockChartWidth( width );
+		const metrics = [ 'a', 'b', 'c', 'd', 'e', 'f' ].map( key => ( {
+			...METRIC,
+			key,
+			label: key,
+		} ) );
+
+		render( <MetricTabsChart metrics={ metrics } dataFormat={ DATA_FORMAT } /> );
+
+		expect(
+			screen.getByRole( 'tablist' ).style.getPropertyValue( '--jpa-metric-tabs-columns' )
+		).toBe( columns );
+	} );
+
 	it( 'draws a bar chart when chartType is bar', () => {
 		render( <MetricTabsChart metrics={ [ METRIC ] } dataFormat={ DATA_FORMAT } chartType="bar" /> );
 

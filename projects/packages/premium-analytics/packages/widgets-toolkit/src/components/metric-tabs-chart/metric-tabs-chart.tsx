@@ -42,6 +42,12 @@ import type { ComponentProps, CSSProperties, ReactNode } from 'react';
  */
 const MIN_TAB_WIDTH = 120;
 
+/** Narrowest card (px) before the cards wrap; keep in step with `.tabs` in the stylesheet. */
+const MIN_CARD_WIDTH = 160;
+
+/** The gap (px) between cards, `--wpds-dimension-gap-sm`. */
+const CARD_GAP = 8;
+
 /**
  * How far (px) the pointer may travel between down and up and still count as a
  * click. Above it the gesture is a drag and must not drill the dashboard.
@@ -118,6 +124,19 @@ export interface MetricTab {
 	 * value: a total the endpoint serves, but not at this bucket size.
 	 */
 	seriesUnavailable?: string;
+}
+
+/**
+ * How many card columns to lay out, spreading the cards evenly over the fewest
+ * rows so a last row is never left with a lone card (six cards: 3 + 3, not 4 + 2).
+ *
+ * @param count - The number of cards.
+ * @param width - The width (px) the cards share.
+ * @return The column count.
+ */
+function getBalancedColumns( count: number, width: number ): number {
+	const fit = Math.max( 1, Math.floor( ( width + CARD_GAP ) / ( MIN_CARD_WIDTH + CARD_GAP ) ) );
+	return Math.ceil( count / Math.ceil( count / fit ) );
 }
 
 /**
@@ -553,6 +572,9 @@ export function MetricTabsChart( {
 	} );
 	useEffect( () => () => clearTimeout( flipTimerRef.current ), [] );
 	const useDropdown = width !== undefined && width < metrics.length * MIN_TAB_WIDTH;
+	// Controls share the header row, so the measured width is not the cards' alone.
+	const columns =
+		width !== undefined && ! controls ? getBalancedColumns( metrics.length, width ) : undefined;
 
 	const activeMetric = metrics.find( metric => metric.key === selectedKey ) ?? metrics[ 0 ];
 
@@ -690,7 +712,14 @@ export function MetricTabsChart( {
 			className={ styles.root }
 		>
 			<div className={ styles.header }>
-				<Tabs.List variant="minimal" className={ styles.tabs } aria-label={ groupLabel }>
+				<Tabs.List
+					variant="minimal"
+					className={ styles.tabs }
+					style={
+						columns ? ( { '--jpa-metric-tabs-columns': columns } as CSSProperties ) : undefined
+					}
+					aria-label={ groupLabel }
+				>
 					{ metrics.map( metric => (
 						<Tabs.Tab
 							key={ metric.key }
