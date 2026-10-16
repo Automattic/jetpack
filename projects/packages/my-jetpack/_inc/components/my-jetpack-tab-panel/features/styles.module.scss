@@ -348,8 +348,13 @@ $band-ground: #f8f8f8;
 	text-decoration: underline;
 }
 
+// The toolbar's own bottom margin already spaces this row from it.
 .modules-navigation {
-	margin-block: var(--wpds-dimension-gap-md);
+	margin-block-end: var(--wpds-dimension-gap-md);
+}
+
+.classic-link {
+	margin-inline-start: auto;
 }
 
 // Jetpack's other modules, under their group headings.

@@ -1,6 +1,6 @@
 import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { Link } from '@wordpress/ui';
+import { Link, Stack } from '@wordpress/ui';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { isOfflineFeatures } from '../../../data/utils/offline-features';
@@ -393,27 +393,38 @@ function FeaturesTabContent() {
 				bulk={ view === 'list' && shownCount > 0 ? <BulkBar selection={ selection } /> : null }
 			/>
 
-			{ hasModulesFallback && (
-				<div className={ styles[ 'modules-navigation' ] }>
-					<Link href={ classicUrl }>{ __( 'Classic Modules list', 'jetpack-my-jetpack' ) }</Link>
-				</div>
-			) }
-
-			{ moduleTag && (
-				<div className={ styles[ 'modules-navigation' ] }>
-					{ sprintf(
-						/* translators: %s is a module tag name from the classic Modules screen, such as "Writing". */
-						__( 'Tag: %s', 'jetpack-my-jetpack' ),
-						moduleTag
-					) }{ ' ' }
-					<Link
-						className={ styles[ 'link-button' ] }
-						render={ <button type="button" /> }
-						onClick={ clearModuleTag }
-					>
-						{ __( 'Clear tag', 'jetpack-my-jetpack' ) }
-					</Link>
-				</div>
+			{ ( moduleTag || hasModulesFallback ) && (
+				<Stack
+					direction="row"
+					align="center"
+					gap="md"
+					wrap="wrap"
+					className={ styles[ 'modules-navigation' ] }
+				>
+					{ moduleTag && (
+						<>
+							<span>
+								{ sprintf(
+									/* translators: %s is a module tag name from the classic Modules screen, such as "Writing". */
+									__( 'Tag: %s', 'jetpack-my-jetpack' ),
+									moduleTag
+								) }
+							</span>
+							<Link
+								className={ styles[ 'link-button' ] }
+								render={ <button type="button" /> }
+								onClick={ clearModuleTag }
+							>
+								{ __( 'Clear tag', 'jetpack-my-jetpack' ) }
+							</Link>
+						</>
+					) }
+					{ hasModulesFallback && (
+						<Link href={ classicUrl } className={ styles[ 'classic-link' ] }>
+							{ __( 'Classic Modules list', 'jetpack-my-jetpack' ) }
+						</Link>
+					) }
+				</Stack>
 			) }
 
 			{ /* Always rendered, so a screen reader is listening before the count changes. */ }
