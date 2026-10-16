@@ -1207,6 +1207,21 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$this->assertSame( 2, $reads, 'the write clears the read cached under the new generation' );
 	}
 
+	public function test_cache_keys_gain_the_all_scopes_generation_only_once_invalidated() {
+		$generation = function ( ?string $scope ) {
+			// @phan-suppress-next-line PhanUndeclaredMethod -- rebound to the controller via Closure::call() below.
+			return $this->cache_generation( $scope );
+		};
+
+		$this->assertSame( '', $generation->call( $this->controller, null ) );
+		$this->assertSame( 'stats/referrers:0', $generation->call( $this->controller, 'stats/referrers' ) );
+
+		Api_Proxy_Controller::invalidate_cache();
+
+		$this->assertSame( '*:1', $generation->call( $this->controller, null ) );
+		$this->assertSame( '*:1|stats/referrers:0', $generation->call( $this->controller, 'stats/referrers' ) );
+	}
+
 	public function test_bust_is_scoped_to_the_written_path_and_version() {
 		// An unrelated path, and the same path at a different version, must survive a bust.
 		$other_path    = $this->read_cache_key( 'stats/top-posts', '1.1' );

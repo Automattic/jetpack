@@ -420,18 +420,6 @@ const EMPTY_PLAN_REFRESH_TRANSIENT = 'jetpack_premium_analytics_empty_plan_refre
 const PURCHASE_PLAN_REFRESH_TRANSIENT = 'jetpack_premium_analytics_purchase_plan_refresh';
 
 /**
- * Whether this request returns from the Stats purchase flow, which marks its return with `statsPurchaseSuccess`.
- *
- * @since $$next-version$$
- *
- * @return bool
- */
-function is_stats_purchase_return() {
-	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Presence-only flag: its value is never used, and it only triggers a refresh of the site's own data.
-	return isset( $_GET['statsPurchaseSuccess'] );
-}
-
-/**
  * Drops the cached Stats replies a checkout made stale, before the dashboard it returns to asks for them.
  *
  * @since $$next-version$$
@@ -440,7 +428,7 @@ function is_stats_purchase_return() {
  */
 function maybe_invalidate_stats_caches() {
 	// Simple serves the dashboard from WordPress.com, with neither cache.
-	if ( ! Analytics::is_dashboard_request() || ! is_stats_purchase_return() || ( new Host() )->is_wpcom_simple() ) {
+	if ( ! Analytics::is_dashboard_request() || '' === get_stats_purchase_success_type() || ( new Host() )->is_wpcom_simple() ) {
 		return;
 	}
 
@@ -462,7 +450,7 @@ function maybe_refresh_jetpack_plan() {
 		return;
 	}
 
-	if ( is_stats_purchase_return() ) {
+	if ( '' !== get_stats_purchase_success_type() ) {
 		$transient = PURCHASE_PLAN_REFRESH_TRANSIENT;
 		$ttl       = MINUTE_IN_SECONDS;
 	} elseif ( ! has_cached_jetpack_plan() ) {

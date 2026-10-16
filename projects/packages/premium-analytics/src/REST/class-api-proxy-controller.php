@@ -556,15 +556,25 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * The generations a read's cache key carries: every read's, then its scope's, or '' when neither applies.
+	 * The stored generation of each cache scope, keyed by scope.
+	 *
+	 * @return array<string, int>
+	 */
+	private static function cache_generations(): array {
+		$generations = get_option( self::CACHE_GENERATIONS_OPTION, array() );
+
+		return is_array( $generations ) ? $generations : array();
+	}
+
+	/**
+	 * The cache-key suffix: the all-scopes generation once bumped, then the read's scope generation, or '' when neither applies.
 	 *
 	 * @param string|null $scope The `invalidates` entry covering the read.
 	 *
 	 * @return string
 	 */
 	private function cache_generation( ?string $scope ): string {
-		$generations = get_option( self::CACHE_GENERATIONS_OPTION, array() );
-		$generations = is_array( $generations ) ? $generations : array();
+		$generations = self::cache_generations();
 
 		$parts = array();
 		// Left out until first bumped, so keys cached before it existed stay valid.
@@ -587,8 +597,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 */
 	private static function bump_cache_generation( string $scope ): void {
 		$scope       = strtolower( $scope );
-		$generations = get_option( self::CACHE_GENERATIONS_OPTION, array() );
-		$generations = is_array( $generations ) ? $generations : array();
+		$generations = self::cache_generations();
 
 		$generations[ $scope ] = (int) ( $generations[ $scope ] ?? 0 ) + 1;
 		update_option( self::CACHE_GENERATIONS_OPTION, $generations, false );

@@ -16,6 +16,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 require_once __DIR__ . '/../../src/stats-plan-gates.php';
+require_once __DIR__ . '/../../src/purchase-success.php';
 require_once __DIR__ . '/fixtures/widget-modules-manifest.php';
 require_once __DIR__ . '/traits/trait-widget-manifest-fixture.php';
 require_once ABSPATH . 'wp-admin/includes/plugin.php';
@@ -33,7 +34,6 @@ require_once ABSPATH . 'wp-admin/includes/plugin.php';
  * @covers ::Automattic\Jetpack\PremiumAnalytics\configure_stats_plan_gates
  * @covers ::Automattic\Jetpack\PremiumAnalytics\inject_stats_plan_gates_script_data
  * @covers ::Automattic\Jetpack\PremiumAnalytics\maybe_refresh_jetpack_plan
- * @covers ::Automattic\Jetpack\PremiumAnalytics\is_stats_purchase_return
  * @covers ::Automattic\Jetpack\PremiumAnalytics\maybe_invalidate_stats_caches
  */
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_stats_plan_tier' )]
@@ -48,7 +48,6 @@ require_once ABSPATH . 'wp-admin/includes/plugin.php';
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\configure_stats_plan_gates' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\inject_stats_plan_gates_script_data' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\maybe_refresh_jetpack_plan' )]
-#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\is_stats_purchase_return' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\maybe_invalidate_stats_caches' )]
 class Stats_Plan_Gates_Test extends BaseTestCase {
 	use Widget_Manifest_Fixture_Trait;
