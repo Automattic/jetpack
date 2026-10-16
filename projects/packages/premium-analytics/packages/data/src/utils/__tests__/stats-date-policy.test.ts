@@ -42,9 +42,10 @@ describe( 'deriveStatsDatePolicy', () => {
 		'keeps only the presets inside the last 7 days open in %s',
 		timeZone => {
 			const policy = deriveStatsDatePolicy( lockOnly( 'recent-7-days' ), timeZone );
+			const lockedPresetIds: readonly string[] = policy.lockedPresetIds;
 
 			expect(
-				MENU_SURFACE_PRESETS_WITH_ALL_TIME.filter( id => ! policy.lockedPresetIds.includes( id ) )
+				MENU_SURFACE_PRESETS_WITH_ALL_TIME.filter( id => ! lockedPresetIds.includes( id ) )
 			).toEqual( [ 'today', 'yesterday', 'last-24-hours', 'last-7-days' ] );
 			expect( policy ).toMatchObject( {
 				feature: 'recent-7-days',

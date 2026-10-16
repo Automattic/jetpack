@@ -6,6 +6,7 @@ import {
 	hasComparisonEnabled,
 	resolveIntervalForRange,
 	useReportScope,
+	type LockableInterval,
 } from '@jetpack-premium-analytics/data';
 import { reportingTimeZone } from '@jetpack-premium-analytics/datetime';
 import { useCallback, useMemo } from 'react';
@@ -96,7 +97,7 @@ function toPickerRange( from: string | undefined, to: string | undefined, timeZo
 	};
 }
 
-const NO_LOCKED_INTERVALS: readonly IntervalType[] = [];
+const NO_LOCKED_INTERVALS: readonly LockableInterval[] = [];
 
 /**
  * Controller for the date-range and comparison filters, backed by the URL
@@ -114,7 +115,7 @@ const NO_LOCKED_INTERVALS: readonly IntervalType[] = [];
  */
 export function useReportDateFilters< TFrom extends string >(
 	from: TFrom,
-	filterOptions: { lockedIntervals?: readonly IntervalType[] } = {}
+	filterOptions: { lockedIntervals?: readonly LockableInterval[] } = {}
 ): ReportDateFilters {
 	const { committed, effective, stage, commit, revert, isDirty } = useStagedSearch<
 		ReportQuerySearchParams,
