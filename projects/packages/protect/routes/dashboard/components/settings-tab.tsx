@@ -39,6 +39,9 @@ export default function SettingsTab( {
 			return;
 		}
 		scrolledTo.current = section;
+		// Stop below the sticky tab strip, at the body's 24px padding, or the strip covers the card's title.
+		const strip = document.querySelector< HTMLElement >( '.jp-admin-page-tabs' );
+		card.style.scrollMarginBlockStart = `${ ( strip?.offsetHeight ?? 0 ) + 24 }px`;
 		card.scrollIntoView( { block: 'start' } );
 		// The heading names the card for screen readers; -1 makes it focusable without a tab stop.
 		heading.tabIndex = -1;
