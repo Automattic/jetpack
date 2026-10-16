@@ -2,15 +2,8 @@
  * External dependencies
  */
 import { getLockedSection } from '@jetpack-premium-analytics/data';
-import {
-	Button,
-	ButtonLink,
-	Card,
-	EmptyState,
-	Icon,
-	Stack,
-	Text,
-} from '@jetpack-premium-analytics/externals';
+import { Button, ButtonLink, Card, Icon, Stack, Text } from '@jetpack-premium-analytics/externals';
+import { WidgetGridAnimation } from '@jetpack-premium-analytics/ui';
 import { useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { check, chevronDown, chevronUp, lock } from '@wordpress/icons';
@@ -65,19 +58,25 @@ export function LockedSection( { section }: { section: string } ) {
 
 	return (
 		<Card.Root className={ styles.card }>
-			<Card.Content>
-				<EmptyState.Root className={ styles.root }>
-					<EmptyState.Icon icon={ lock } />
-					<EmptyState.Title>{ locked.title }</EmptyState.Title>
-					<EmptyState.Description>{ locked.description }</EmptyState.Description>
-					<ul className={ styles.features }>
+			<Card.Content className={ styles.content }>
+				<Stack direction="column" align="start" gap="lg" className={ styles.copy }>
+					<Icon icon={ lock } size={ 32 } />
+					<Stack direction="column" gap="sm">
+						<Text variant="heading-xl" render={ <h2 /> }>
+							{ locked.title }
+						</Text>
+						<Text variant="body-lg" className={ styles.description }>
+							{ locked.description }
+						</Text>
+					</Stack>
+					<Stack render={ <ul /> } direction="column" gap="sm" className={ styles.features }>
 						{ features.map( feature => (
 							<Stack key={ feature } render={ <li /> } direction="row" align="center" gap="sm">
 								<Icon icon={ check } size={ 20 } className={ styles.check } />
 								<Text variant="body-md">{ feature }</Text>
 							</Stack>
 						) ) }
-					</ul>
+					</Stack>
 					{ locked.features.length > COLLAPSED_FEATURE_COUNT && (
 						<Button
 							variant="minimal"
@@ -91,7 +90,7 @@ export function LockedSection( { section }: { section: string } ) {
 							<Button.Icon icon={ isExpanded ? chevronUp : chevronDown } />
 						</Button>
 					) }
-					<EmptyState.Actions>
+					<Stack direction="row" gap="sm" wrap="wrap">
 						{ locked.upgrade_url && (
 							<ButtonLink href={ locked.upgrade_url } onClick={ trackUpgrade }>
 								{ locked.upgrade_label }
@@ -100,8 +99,11 @@ export function LockedSection( { section }: { section: string } ) {
 						<ButtonLink href={ locked.support_url } variant="outline" openInNewTab>
 							{ __( 'Learn more', 'jetpack-premium-analytics-pkg' ) }
 						</ButtonLink>
-					</EmptyState.Actions>
-				</EmptyState.Root>
+					</Stack>
+				</Stack>
+				<div className={ styles.visual }>
+					<WidgetGridAnimation />
+				</div>
 			</Card.Content>
 		</Card.Root>
 	);

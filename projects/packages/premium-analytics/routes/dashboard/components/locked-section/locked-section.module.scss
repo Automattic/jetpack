@@ -1,25 +1,46 @@
 .card {
 	margin-block-start: var(--wpds-dimension-gap-lg);
+	container-type: inline-size;
 }
 
-.root {
-	margin-inline: auto;
-	padding-block: var(--wpds-dimension-padding-2xl);
+.content {
+	display: grid;
+	gap: var(--wpds-dimension-gap-2xl);
+	align-items: center;
+	padding: var(--wpds-dimension-padding-2xl);
 }
 
-// Centred as a block, read as a list: the rows keep a common start edge.
+// Side by side, as in classic Stats, once the copy keeps a readable measure.
+@container (min-width: 720px) {
+
+	.content {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+.copy {
+	max-inline-size: 480px;
+}
+
+.description {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
 .features {
-	display: flex;
-	flex-direction: column;
-	gap: var(--wpds-dimension-gap-sm);
-	margin-block: 0;
-	margin-inline: auto;
+	margin: 0;
 	padding: 0;
 	list-style: none;
-	text-align: start;
 }
 
 .check {
 	flex-shrink: 0;
 	fill: var(--wpds-color-foreground-interactive-brand);
+}
+
+.visual {
+	justify-self: center;
+	inline-size: 100%;
+	max-inline-size: 480px;
+	overflow: hidden;
+	border-radius: var(--wpds-border-radius-lg);
 }
