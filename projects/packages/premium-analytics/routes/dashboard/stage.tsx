@@ -271,14 +271,13 @@ function Dashboard(): JSX.Element {
 		isPlanDateLimitedSection( widgetSection )
 	);
 	useDateWindowNotice( '/' );
+	const lockedIntervals = dateLimits?.lockedIntervals;
 
 	/*
 	 * Date-range state lives in the URL search params; the controller stages edits
 	 * locally and commits on Apply, so widgets re-fetch only on commit.
 	 */
-	const dateFilters = useReportDateFilters( '/', {
-		lockedIntervals: dateLimits?.lockedIntervals,
-	} );
+	const dateFilters = useReportDateFilters( '/', { lockedIntervals } );
 
 	/*
 	 * Also reconciles the preset in the URL with the resolved surface, so a section
@@ -311,7 +310,8 @@ function Dashboard(): JSX.Element {
 	const { openPeriod, attentionId } = usePeriodHost(
 		widgetSection,
 		dateFilters.appliedRange,
-		showsPeriodControl
+		showsPeriodControl,
+		lockedIntervals
 	);
 
 	const {
@@ -331,7 +331,7 @@ function Dashboard(): JSX.Element {
 			surface: 'dashboard',
 			section: widgetSection,
 			offersComparison,
-			lockedIntervals: dateLimits?.lockedIntervals,
+			lockedIntervals,
 		}
 	);
 	const {

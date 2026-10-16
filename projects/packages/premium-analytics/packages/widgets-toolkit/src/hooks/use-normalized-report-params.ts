@@ -4,7 +4,7 @@
 import {
 	getDefaultPreset,
 	normalizeReportParams,
-	useReportScope,
+	useScopeLockedIntervals,
 	type ReportParams,
 } from '@jetpack-premium-analytics/data';
 import { useSearch } from '@wordpress/route';
@@ -38,7 +38,7 @@ export function useNormalizedReportParams(
 	const rawReportParams = hasReportParams ? attributes.reportParams : search;
 
 	const defaultPreset = getDefaultPreset();
-	const lockedIntervals = useReportScope().dateLimits?.lockedIntervals;
+	const lockedIntervals = useScopeLockedIntervals();
 
 	return useMemo(
 		() => normalizeReportParams( rawReportParams, defaultPreset, { lockedIntervals } ),

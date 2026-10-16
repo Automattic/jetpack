@@ -69,10 +69,8 @@ export const route = {
 		const resolvedSection = currentSearch.section
 			? resolveTabId( currentSearch.section )
 			: undefined;
-		const needsDateSeed = needsReportDateParamsSeed(
-			currentSearch,
-			getStatsDatePolicy().lockedIntervals
-		);
+		const { lockedIntervals } = getStatsDatePolicy();
+		const needsDateSeed = needsReportDateParamsSeed( currentSearch, lockedIntervals );
 		const needsPostSeed = currentSearch.post_id !== postId;
 		const needsSectionSeed = !! currentSearch.section && resolvedSection !== currentSearch.section;
 
@@ -90,7 +88,7 @@ export const route = {
 
 			// Allowlist this page's own params instead of spreading `currentSearch`
 			// wholesale; the report origin stays so the breadcrumb survives.
-			const reportParams = seedDetailDateParams( currentSearch, postId );
+			const reportParams = seedDetailDateParams( currentSearch, postId, lockedIntervals );
 			delete reportParams.author_id;
 			const seeded: Record< string, unknown > = {
 				...reportParams,

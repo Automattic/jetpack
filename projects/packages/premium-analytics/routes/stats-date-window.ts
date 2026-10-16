@@ -48,8 +48,12 @@ export function adjustsStatsDateWindow( search: Search, policy: StatsDatePolicy 
 		return false;
 	}
 
-	return applyStatsDatePolicy( normalizeReportParams( search as NormalizeInput ), policy )
-		.isWindowAdjusted;
+	return applyStatsDatePolicy(
+		normalizeReportParams( search as NormalizeInput, undefined, {
+			lockedIntervals: policy.lockedIntervals,
+		} ),
+		policy
+	).isWindowAdjusted;
 }
 
 /**

@@ -82,7 +82,8 @@ export const route = {
 			const seeded: Record< string, unknown > = {
 				...seedSiteDateParams(
 					currentSearch,
-					policy ? getPolicyDefaultPreset( policy ) : undefined
+					policy ? getPolicyDefaultPreset( policy ) : undefined,
+					{ lockedIntervals }
 				),
 				...pickDashboardOriginParams( currentSearch ),
 				...( resolvedSection ? { section: resolvedSection } : {} ),

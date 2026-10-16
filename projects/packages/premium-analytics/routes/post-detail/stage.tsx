@@ -69,13 +69,12 @@ function PostDetail(): JSX.Element {
 	const summary = usePostSummary( postId );
 	const { dateLimits } = useStatsDateLimits( true );
 	useDateWindowNotice( routePathname( ROUTE_FROM, { postId: postIdParam } ) );
+	const lockedIntervals = dateLimits?.lockedIntervals;
 
 	const publicUrl = safeHttpUrl( summary.url );
 
 	// The resource, date range, and comparison all live in the URL search params.
-	const dateFilters = useReportDateFilters( ROUTE_FROM, {
-		lockedIntervals: dateLimits?.lockedIntervals,
-	} );
+	const dateFilters = useReportDateFilters( ROUTE_FROM, { lockedIntervals } );
 	const { dateControls, isAnchoringAllTime } = useDetailDateControls(
 		summary.publishedDate,
 		dateFilters,
@@ -93,7 +92,7 @@ function PostDetail(): JSX.Element {
 		{
 			surface: 'post_detail',
 			offersComparison: false,
-			lockedIntervals: dateLimits?.lockedIntervals,
+			lockedIntervals,
 		}
 	);
 	const onDateChange = useCallback< typeof changeDateRange >(
@@ -179,7 +178,8 @@ function PostDetail(): JSX.Element {
 	const { openPeriod, attentionId } = usePeriodHost(
 		postSurface( postId ),
 		dateFilters.appliedRange,
-		! isEmailTab
+		! isEmailTab,
+		lockedIntervals
 	);
 
 	// The email tabs are pinned to the send window, so the filter would only

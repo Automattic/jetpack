@@ -2,7 +2,11 @@
  * External dependencies
  */
 import { getAdminUrl } from '@automattic/jetpack-script-data';
-import { chartInterval, useReportScope } from '@jetpack-premium-analytics/data';
+import {
+	chartInterval,
+	useReportScope,
+	useScopeLockedIntervals,
+} from '@jetpack-premium-analytics/data';
 import { parseSiteDateTime, reportingTimeZone } from '@jetpack-premium-analytics/datetime';
 import {
 	bucketRange,
@@ -59,11 +63,12 @@ type TrafficChartInnerProps = {
 function TrafficChartInner( { chartType, interval }: TrafficChartInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	// A host without a period to set leaves the bars inert.
-	const { openPeriod, dateLimits } = useReportScope();
+	const { openPeriod } = useReportScope();
+	const lockedIntervals = useScopeLockedIntervals();
 	const period: TrafficChartGranularity = chartInterval(
 		{ ...reportParams, interval },
 		TRAFFIC_PERIODS,
-		dateLimits?.lockedIntervals
+		lockedIntervals
 	);
 
 	// Names the bucket size drawn, not the saved one: the range may clamp it,

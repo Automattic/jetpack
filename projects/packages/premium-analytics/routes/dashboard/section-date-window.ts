@@ -38,7 +38,8 @@ export function seedDashboardDateSearch(
 	// Seeded inside the plan, so the default comparison is not dropped with a replaced window.
 	const normalized = seedSiteDateParams(
 		params,
-		policy ? getPolicyDefaultPreset( policy ) : undefined
+		policy ? getPolicyDefaultPreset( policy ) : undefined,
+		{ lockedIntervals: policy?.lockedIntervals }
 	);
 
 	/*

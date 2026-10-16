@@ -70,10 +70,8 @@ export const route = {
 
 		const currentSearch = ( search ?? {} ) as VideoDetailSearch;
 		const pathname = routePathname( '/video/$videoId', { videoId } );
-		const needsDateSeed = needsReportDateParamsSeed(
-			currentSearch,
-			getStatsDatePolicy().lockedIntervals
-		);
+		const { lockedIntervals } = getStatsDatePolicy();
+		const needsDateSeed = needsReportDateParamsSeed( currentSearch, lockedIntervals );
 		const needsPostSeed = currentSearch.post_id !== videoId;
 
 		if ( needsDateSeed || needsPostSeed ) {
@@ -90,7 +88,7 @@ export const route = {
 
 			// The report origin joins the allowlist below so the breadcrumb keeps
 			// its link back to the referring report across this seed.
-			const reportParams = seedDetailDateParams( currentSearch, videoId );
+			const reportParams = seedDetailDateParams( currentSearch, videoId, lockedIntervals );
 			delete reportParams.author_id;
 			const seeded: Record< string, unknown > = {
 				...reportParams,

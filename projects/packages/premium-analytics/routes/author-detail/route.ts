@@ -63,10 +63,8 @@ export const route = {
 
 		const currentSearch = ( search ?? {} ) as AuthorDetailSearch;
 		const pathname = routePathname( '/author/$authorId', { authorId } );
-		const needsDateSeed = needsReportDateParamsSeed(
-			currentSearch,
-			getStatsDatePolicy().lockedIntervals
-		);
+		const { lockedIntervals } = getStatsDatePolicy();
+		const needsDateSeed = needsReportDateParamsSeed( currentSearch, lockedIntervals );
 		const needsAuthorSeed = currentSearch.author_id !== authorId;
 
 		// The seed mirrors post-detail/route.ts, which explains each step; this
@@ -79,7 +77,9 @@ export const route = {
 			}
 
 			const reportParams = normalizeReportParams(
-				currentSearch as Parameters< typeof normalizeReportParams >[ 0 ]
+				currentSearch as Parameters< typeof normalizeReportParams >[ 0 ],
+				undefined,
+				{ lockedIntervals }
 			);
 			delete reportParams.post_id;
 			const seeded: Record< string, unknown > = {
