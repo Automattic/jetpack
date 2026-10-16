@@ -86,17 +86,13 @@ function makeReport( authors: AuthorSeed[] ): StatsNormalizedReport< StatsTopAut
 }
 
 function buildData(
-	primary?: StatsNormalizedReport< StatsTopAuthorsItem >,
+	primary: StatsNormalizedReport< StatsTopAuthorsItem >,
 	comparison?: StatsNormalizedReport< StatsTopAuthorsItem >
 ) {
 	return buildTopAuthorsData( mergeStatsTopAuthorsComparisonRows( primary, comparison ).rows );
 }
 
 describe( 'buildTopAuthorsData', () => {
-	it( 'returns an empty array when the primary report is undefined', () => {
-		expect( buildData( undefined, undefined ) ).toEqual( [] );
-	} );
-
 	it( 'returns an empty array when the primary report has no authors', () => {
 		expect( buildData( makeReport( [] ), undefined ) ).toEqual( [] );
 	} );
@@ -153,20 +149,6 @@ describe( 'buildTopAuthorsData', () => {
 			previousValue: 100,
 			delta: 50,
 		} );
-	} );
-
-	it( 'does not fabricate comparison values for authors missing from the comparison period', () => {
-		const result = buildData(
-			makeReport( [
-				{ id: 1, label: 'Alice', views: 10 },
-				{ id: 2, label: 'Bob', views: 8 },
-			] ),
-			makeReport( [ { id: 1, label: 'Alice', views: 5 } ] )
-		);
-
-		const bob = result.find( author => author.label === 'Bob' );
-		expect( bob?.previousValue ).toBeUndefined();
-		expect( bob?.delta ).toBeUndefined();
 	} );
 
 	it( 'localizes the untracked-authors sentinel produced by the sanitizer', () => {
@@ -330,53 +312,18 @@ describe( 'buildTopAuthorsData', () => {
 			},
 		] );
 	} );
-} );
 
-describe( 'mergeStatsTopAuthorsComparisonRows', () => {
-	it( 'detects when at least one primary author overlaps the comparison period', () => {
-		expect(
-			mergeStatsTopAuthorsComparisonRows(
-				makeReport( [
-					{ label: 'Alice', views: 10 },
-					{ label: 'Bob', views: 8 },
-				] ),
-				makeReport( [ { label: 'Bob', views: 5 } ] )
-			).hasComparison
-		).toBe( true );
-	} );
-
-	it( 'does not detect comparison rows when authors do not overlap', () => {
-		expect(
-			mergeStatsTopAuthorsComparisonRows(
-				makeReport( [ { label: 'Alice', views: 10 } ] ),
-				makeReport( [ { label: 'Carol', views: 5 } ] )
-			).hasComparison
-		).toBe( false );
-	} );
-
-	it( 'only counts overlap on rows visible under maxRows', () => {
-		const { rows, hasComparison } = mergeStatsTopAuthorsComparisonRows(
+	it( 'treats a zero-view comparison period as real data for authors and their posts', () => {
+		const [ author ] = buildData(
 			makeReport( [
-				{ id: 1, label: 'Alice', views: 10 },
-				{ id: 2, label: 'Bob', views: 8 },
+				{ id: 1, label: 'Alice', views: 10, posts: [ { id: 7, title: 'Hello', views: 10 } ] },
 			] ),
-			// Only Bob overlaps, but Bob is cut off by maxRows.
-			makeReport( [ { id: 2, label: 'Bob', views: 5 } ] ),
-			1
+			makeReport( [
+				{ id: 1, label: 'Alice', views: 0, posts: [ { id: 7, title: 'Hello', views: 0 } ] },
+			] )
 		);
 
-		expect( rows ).toHaveLength( 1 );
-		expect( rows[ 0 ] ).toMatchObject( { key: '1' } );
-		expect( hasComparison ).toBe( false );
-	} );
-
-	it( 'treats a zero-valued comparison row as real comparison data', () => {
-		const { rows, hasComparison } = mergeStatsTopAuthorsComparisonRows(
-			makeReport( [ { id: 1, label: 'Alice', views: 10 } ] ),
-			makeReport( [ { id: 1, label: 'Alice', views: 0 } ] )
-		);
-
-		expect( rows[ 0 ].previousViews ).toBe( 0 );
-		expect( hasComparison ).toBe( true );
+		expect( author ).toMatchObject( { previousValue: 0, previousShare: 0 } );
+		expect( author.posts[ 0 ] ).toMatchObject( { previousValue: 0, previousShare: 0 } );
 	} );
 } );

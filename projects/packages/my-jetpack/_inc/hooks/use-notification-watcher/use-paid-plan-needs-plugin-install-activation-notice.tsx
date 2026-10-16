@@ -4,12 +4,10 @@ import { Link } from '@wordpress/ui';
 import { useContext, useEffect, useMemo, useCallback } from 'react';
 import { NOTICE_PRIORITY_MEDIUM } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
-import { QUERY_PURCHASES_KEY, REST_API_SITE_PURCHASES_ENDPOINT } from '../../data/constants';
 import useActivatePlugins from '../../data/products/use-activate-plugins';
 import useInstallPlugins from '../../data/products/use-install-plugins';
-import useSimpleQuery from '../../data/use-simple-query';
+import useSitePurchases from '../../data/use-site-purchases';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
-import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import createCookie from '../../utils/create-cookie';
 import useAnalytics from '../use-analytics';
 import { useGetPaidPlanNeedsPluginsContent } from './get-paid-plan-needs-plugins-content';
@@ -23,12 +21,7 @@ const usePaidPlanNeedsPluginInstallActivationNotice: NoticeHookType = (
 	const { setNotice, resetNotice } = useContext( NoticeContext );
 	const { recordEvent } = useAnalytics();
 
-	const { isSiteConnected } = useMyJetpackConnection();
-	const response = useSimpleQuery< Purchase[] >( {
-		name: QUERY_PURCHASES_KEY,
-		query: { path: REST_API_SITE_PURCHASES_ENDPOINT },
-		options: { enabled: isSiteConnected },
-	} );
+	const response = useSitePurchases();
 
 	const { isLoading: isLoadingPurchases, isError } = response;
 	const purchases = response.data;
@@ -59,8 +52,6 @@ const usePaidPlanNeedsPluginInstallActivationNotice: NoticeHookType = (
 
 	const planName = planPurchase && planPurchase.product_name;
 	const { needs_installed, needs_activated_only } = alert || {};
-	const numPluginsNeedingAction =
-		( needs_installed?.length ?? 0 ) + ( needs_activated_only?.length ?? 0 );
 
 	const {
 		products: { items: products },
@@ -120,10 +111,13 @@ const usePaidPlanNeedsPluginInstallActivationNotice: NoticeHookType = (
 		);
 	}, [ getPluginInfo, needs_activated_only, needs_installed ] );
 
+	const numPluginsNeedingAction = pluginsList?.length ?? 0;
+
 	const { noticeTitle, noticeMessage, buttonLabel } = useGetPaidPlanNeedsPluginsContent( {
 		alert,
 		planName,
 		planPurchaseId: String( planPurchase?.ID ),
+		numPluginsNeedingAction,
 	} );
 
 	const prepareProductsArray = useCallback(
@@ -230,6 +224,36 @@ const usePaidPlanNeedsPluginInstallActivationNotice: NoticeHookType = (
 			return;
 		}
 
+		const loadingTextsSingular = {
+			activate: __( 'Activating plugin…', 'jetpack-my-jetpack' ),
+			install: __( 'Installing and activating plugin…', 'jetpack-my-jetpack' ),
+		};
+
+		const loadingTextsPlural = {
+			activate: sprintf(
+				/* translators: %d is the number of plugins. */
+				_n(
+					'Activating %d plugin…',
+					'Activating %d plugins…',
+					numPluginsNeedingAction,
+					'jetpack-my-jetpack'
+				),
+				numPluginsNeedingAction
+			),
+			install: sprintf(
+				/* translators: %d is the number of plugins. */
+				_n(
+					'Installing and activating %d plugin…',
+					'Installing and activating %d plugins…',
+					numPluginsNeedingAction,
+					'jetpack-my-jetpack'
+				),
+				numPluginsNeedingAction
+			),
+		};
+
+		const loadingTexts = numPluginsNeedingAction === 1 ? loadingTextsSingular : loadingTextsPlural;
+
 		const actionNounMap = {
 			install: __( 'Needs installation and activation', 'jetpack-my-jetpack' ),
 			activate: __( 'Needs activation', 'jetpack-my-jetpack' ),
@@ -272,18 +296,7 @@ const usePaidPlanNeedsPluginInstallActivationNotice: NoticeHookType = (
 					label: buttonLabel,
 					onClick: handleInstallActivateInOneClick,
 					isLoading: isInstallingOrActivating,
-					loadingText:
-						actionType === 'activate'
-							? sprintf(
-									/* translators: %s is the singular or plural "plugin" or "plugins". */
-									__( 'Activating %s…', 'jetpack-my-jetpack' ),
-									_n( 'plugin', 'plugins', numPluginsNeedingAction, 'jetpack-my-jetpack' )
-								)
-							: sprintf(
-									/* translators: %s is the singular or plural "plugin" or "plugins". */
-									__( 'Installing and activating %s…', 'jetpack-my-jetpack' ),
-									_n( 'plugin', 'plugins', numPluginsNeedingAction, 'jetpack-my-jetpack' )
-								),
+					loadingText: actionType === 'activate' ? loadingTexts.activate : loadingTexts.install,
 					noDefaultClasses: true,
 				},
 			],

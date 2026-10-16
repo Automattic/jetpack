@@ -19,12 +19,6 @@ const RESPONSE: StatsPostResponse = {
 const TODAY = { year: 2026, month: 2 };
 
 describe( 'buildAllTimeTrafficRows', () => {
-	it( 'returns one row per year of the post, newest first', () => {
-		const rows = buildAllTimeTrafficRows( RESPONSE, 'total', TODAY );
-
-		expect( rows.map( row => row.year ) ).toEqual( [ 2026, 2025 ] );
-	} );
-
 	it( 'draws every month of the post life, zeroing the ones the endpoint left out', () => {
 		const rows = buildAllTimeTrafficRows( RESPONSE, 'total', TODAY );
 

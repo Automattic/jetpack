@@ -14,7 +14,6 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { seen } from '@wordpress/icons';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -76,7 +75,8 @@ function TotalViewsMetric() {
 				// `placeholderData` keeps the prior rows on a transient refetch failure,
 				// so only surface the error when there is nothing left to show.
 				isError={ isError && points.length === 0 }
-				isEmpty={ points.length === 0 }
+				// `stats/visits` zero-fills every bucket of an idle window.
+				isEmpty={ ! points.some( value => value > 0 ) }
 				error={ describeError( error, {
 					retryDescription: __(
 						"We couldn't load your views. Please try again in a moment.",
@@ -84,10 +84,6 @@ function TotalViewsMetric() {
 					),
 					onRetry: refetch,
 				} ) }
-				empty={ {
-					icon: seen,
-					description: __( 'No views in this period.', 'jetpack-premium-analytics-pkg' ),
-				} }
 				renderLoading={ <MetricSparklineSkeleton /> }
 			>
 				<div className={ styles.body }>

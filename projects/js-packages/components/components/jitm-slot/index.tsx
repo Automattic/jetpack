@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import { useLayoutEffect, useRef } from 'react';
 import './style.scss';
 import type { JitmSlotProps } from './types.ts';
-import type { FC } from 'react';
+import type { JSX, FC } from 'react';
 
 const NOTICES_ID = 'jp-admin-notices';
 

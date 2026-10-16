@@ -33,6 +33,7 @@ export declare global {
 				// rendered before the gates existed still typecheck.
 				features?: {
 					chaptersEditor: boolean;
+					trimCut?: boolean;
 				};
 				// Authoritative accepted-upload map (extension => mimetype) from the
 				// server's `Admin_UI::get_allowed_video_extensions()`.

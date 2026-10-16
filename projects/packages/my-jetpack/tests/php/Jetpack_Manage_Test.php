@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Tokens;
@@ -215,6 +216,25 @@ class Jetpack_Manage_Test extends BaseTestCase {
 		$this->store_partner_type( $this->admin_id, 'agency' );
 
 		$this->assertIsString( Jetpack_Manage::add_submenu_jetpack() );
+	}
+
+	/**
+	 * An older admin-ui without the named position tiers still gets the external slot.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_add_submenu_jetpack_registers_without_position_constants() {
+		require_once __DIR__ . '/stubs/older-admin-ui/class-admin-menu.php';
+		$this->connect_user( $this->admin_id );
+		$this->prime_site_count( $this->admin_id, 2 );
+		$this->store_partner_type( $this->admin_id, 'agency' );
+
+		$this->assertIsString( Jetpack_Manage::add_submenu_jetpack() );
+		// @phan-suppress-next-line PhanUndeclaredStaticProperty -- Declared by the stub, which Phan excludes.
+		$this->assertSame( array( 100 ), array_values( Admin_Menu::$positions ) );
 	}
 
 	/**

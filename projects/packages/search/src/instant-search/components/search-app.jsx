@@ -21,7 +21,6 @@ import {
 } from '../lib/tracks';
 import {
 	clearQueryValues,
-	disableQueryStringIntegration,
 	initializeQueryValues,
 	makeSearchRequest,
 	setFilter,
@@ -87,12 +86,6 @@ class SearchApp extends Component {
 		this.aiExtendedController = null;
 		this.getAiAnswer = debounce( this.getAiAnswer, 500 );
 		this.props.enableAnalytics ? this.initializeAnalytics() : disableAnalytics();
-
-		if ( this.props.shouldIntegrateWithDom ) {
-			this.props.initializeQueryValues();
-		} else {
-			this.props.disableQueryStringIntegration();
-		}
 	}
 
 	static getDerivedStateFromProps( props, state ) {
@@ -113,12 +106,32 @@ class SearchApp extends Component {
 			this.getResults();
 		}
 
-		if ( this.props.hasActiveQuery && this.props.overlayOptions.enableFilteringOpensOverlay ) {
-			this.showResults();
-		}
+		// The store is seeded from the URL before mount, so diff against its empty state.
+		// getResults is debounced, so the Customizer branch above still sends one request.
+		this.handleQueryValuesChange( {
+			searchQuery: null,
+			sort: getSort( {}, this.props.overlayOptions.defaultSort ),
+			filters: {},
+			staticFilters: {},
+		} );
 	}
 
 	componentDidUpdate( prevProps, prevState ) {
+		this.handleQueryValuesChange( prevProps );
+
+		// These conditions can only occur in the Gutenberg preview context.
+		if ( prevState.overlayOptions.defaultSort !== this.state.overlayOptions.defaultSort ) {
+			this.props.setSort( this.state.overlayOptions.defaultSort );
+		}
+		if (
+			stringify( prevState.overlayOptions.excludedPostTypes ) !==
+			stringify( this.state.overlayOptions.excludedPostTypes )
+		) {
+			this.getResults();
+		}
+	}
+
+	handleQueryValuesChange( prevProps ) {
 		if (
 			prevProps.searchQuery !== this.props.searchQuery ||
 			prevProps.sort !== this.props.sort ||
@@ -131,17 +144,6 @@ class SearchApp extends Component {
 
 		if ( prevProps.searchQuery !== this.props.searchQuery ) {
 			this.getAiAnswer();
-		}
-
-		// These conditions can only occur in the Gutenberg preview context.
-		if ( prevState.overlayOptions.defaultSort !== this.state.overlayOptions.defaultSort ) {
-			this.props.setSort( this.state.overlayOptions.defaultSort );
-		}
-		if (
-			stringify( prevState.overlayOptions.excludedPostTypes ) !==
-			stringify( this.state.overlayOptions.excludedPostTypes )
-		) {
-			this.getResults();
 		}
 	}
 
@@ -723,7 +725,6 @@ export default connect(
 	} ),
 	{
 		clearQueryValues,
-		disableQueryStringIntegration,
 		initializeQueryValues,
 		makeSearchRequest,
 		setStaticFilter,

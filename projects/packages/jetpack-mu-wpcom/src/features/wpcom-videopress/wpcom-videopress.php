@@ -19,6 +19,22 @@
 use Automattic\Jetpack\Status\Host;
 
 /**
+ * Enable trim and cut for the Simple-site testing cohort.
+ *
+ * @return bool Whether the current site or user is included in the rollout.
+ */
+function wpcom_videopress_trim_cut_enabled() {
+	if (
+		function_exists( 'wpcom_has_blog_sticker' ) && function_exists( 'get_wpcom_blog_id' )
+		&& wpcom_has_blog_sticker( 'videopress-studio-edits', get_wpcom_blog_id() )
+	) {
+		return true;
+	}
+
+	return function_exists( 'is_automattician' ) && is_automattician( get_current_user_id() );
+}
+
+/**
  * Initialize the VideoPress Admin UI on WordPress.com Simple sites.
  *
  * Guarded on Simple because on Atomic and standalone Jetpack the VideoPress package
@@ -34,16 +50,16 @@ function wpcom_videopress_init_admin_ui() {
 		return;
 	}
 
+	add_filter( 'jetpack_videopress_trim_cut', 'wpcom_videopress_trim_cut_enabled' );
+
 	if ( ! class_exists( '\Automattic\Jetpack\VideoPress\Admin_UI' ) ) {
 		return;
 	}
 
-	// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by the sibling autoloader (bundled Jetpack on Simple).
 	\Automattic\Jetpack\VideoPress\Admin_UI::init();
 
 	// Emit the JPVIDEOPRESS_INITIAL_STATE boot payload the wp-build dashboard hydrates from.
 	if ( class_exists( '\Automattic\Jetpack\VideoPress\Initial_State' ) ) {
-		// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by the sibling autoloader (bundled Jetpack on Simple).
 		\Automattic\Jetpack\VideoPress\Initial_State::init();
 	}
 }

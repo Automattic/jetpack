@@ -2,6 +2,7 @@ import { Fragment } from 'react';
 import parseFilename from './parse-filename.ts';
 import parsePatch from './parse-patch.ts';
 import styles from './styles.module.scss';
+import type { JSX } from 'react';
 
 const filename = ( {
 	oldFileName,

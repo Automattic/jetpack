@@ -52,9 +52,11 @@ export const hexToRgba = ( hex: string, alpha: number ): string => {
 };
 
 /**
- * Calculate the perceptual distance between two HSL colors
- * @param hsl1 - first color in HSL format [h, s, l]
- * @param hsl2 - second color in HSL format [h, s, l]
+ * Weighted Euclidean distance between two HSL colors.
+ *
+ * @deprecated Not perceptual and blind to color vision deficiency, so charts no longer use it; it will be removed in a future major version.
+ * @param      hsl1 - first color in HSL format [h, s, l]
+ * @param      hsl2 - second color in HSL format [h, s, l]
  * @return distance value (0-100+, lower means more similar)
  */
 export const getColorDistance = (
@@ -260,7 +262,8 @@ export const relativeLuminance = ( hex: string ): number => {
  * Whether light text reads better than dark text on the given background, using the W3C
  * luminance threshold (0.179) that maximizes contrast against black vs white.
  *
- * @param backgroundHex - Hex background color
+ * @deprecated Assumes black and white text, so it ignores label role overrides and cannot guarantee AA; charts no longer use it, and it will be removed in a future major version.
+ * @param      backgroundHex - Hex background color
  * @return true if light text should be used; false (dark text) for malformed colors
  */
 export const prefersLightText = ( backgroundHex: string ): boolean => {

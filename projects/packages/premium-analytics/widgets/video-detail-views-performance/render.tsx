@@ -3,6 +3,7 @@
  */
 import { STATS_CHART_BUCKET_PERIODS, toPostId } from '@jetpack-premium-analytics/data';
 import {
+	ChartEmptyState,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
 	WidgetRoot,
@@ -13,7 +14,6 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { video } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -66,7 +66,6 @@ function VideoDetailViewsPerformanceInner( { chartType }: VideoDetailViewsPerfor
 					onRetry: refetch,
 				} ) }
 				empty={ {
-					icon: video,
 					description: __(
 						'Open a video report to see its performance here.',
 						'jetpack-premium-analytics-pkg'
@@ -81,6 +80,7 @@ function VideoDetailViewsPerformanceInner( { chartType }: VideoDetailViewsPerfor
 					dataFormat={ COUNT_FORMAT }
 					chartType={ chartType }
 					groupLabel={ groupLabel }
+					empty={ <ChartEmptyState /> }
 				/>
 			</WidgetState>
 		</div>

@@ -1,5 +1,8 @@
 import { render, screen } from '@testing-library/react';
+import { speak } from '@wordpress/a11y';
 import PageNotice, { getPageNoticeState } from '../index';
+
+jest.mock( '@wordpress/a11y', () => ( { speak: jest.fn() } ) );
 
 jest.mock( '@automattic/jetpack-connection', () => ( {
 	ConnectionError: () => <div data-testid="connection-error" />,
@@ -170,7 +173,7 @@ describe( 'PageNotice', () => {
 			<PageNotice
 				state={ state }
 				userConnectionUrl="admin.php?page=my-jetpack#/connection"
-				manageUrl="admin.php?page=my-jetpack#/products"
+				manageUrl="admin.php?page=my-jetpack#/features"
 				hasMyJetpack={ true }
 				{ ...overrides }
 			/>
@@ -274,6 +277,14 @@ describe( 'PageNotice', () => {
 		);
 	} );
 
+	it( 'announces the title and description, leaving the action out', () => {
+		renderNotice( { state: 'site-disconnected' } );
+		expect( speak ).toHaveBeenCalledWith(
+			'This site is not connected to WordPress.com. Your feature settings are saved and will apply again once the site is connected.',
+			'polite'
+		);
+	} );
+
 	it( 'survives swapping from one state to another while mounted', () => {
 		const { rerender } = renderNotice( { state: 'host-off' } );
 		expect(
@@ -284,7 +295,7 @@ describe( 'PageNotice', () => {
 			<PageNotice
 				state="master-off"
 				userConnectionUrl="admin.php?page=my-jetpack#/connection"
-				manageUrl="admin.php?page=my-jetpack#/products"
+				manageUrl="admin.php?page=my-jetpack#/features"
 				hasMyJetpack={ true }
 			/>
 		);
@@ -304,6 +315,46 @@ describe( 'PageNotice', () => {
 			'href',
 			'admin.php?page=my-jetpack#/connection'
 		);
+	} );
+
+	describe( 'the connect capability', () => {
+		it( 'offers a doc, not a connect link, when the user cannot connect the site', () => {
+			renderNotice( { state: 'site-disconnected', canConnectSite: false } );
+			expect( screen.queryByRole( 'link', { name: 'Connect Jetpack' } ) ).not.toBeInTheDocument();
+			const learnMore = screen.getByRole( 'link', { name: /Learn more/ } );
+			expect( learnMore ).toHaveAttribute(
+				'href',
+				expect.stringContaining( 'source=jetpack-ai-hub-notice-site-disconnected-cannot-connect' )
+			);
+			expect( learnMore ).toHaveAttribute( 'target', '_blank' );
+		} );
+
+		// `hasMyJetpack` is false wherever My Jetpack is filtered off; it says nothing
+		// about whether this user may connect.
+		it( 'keeps the connect link on a host that merely lacks My Jetpack', () => {
+			renderNotice( {
+				state: 'site-disconnected',
+				hasMyJetpack: false,
+				userConnectionUrl: 'admin.php?page=jetpack#/connect-user',
+			} );
+			expect( screen.getByRole( 'link', { name: 'Connect Jetpack' } ) ).toHaveAttribute(
+				'href',
+				'admin.php?page=jetpack#/connect-user'
+			);
+			expect( screen.queryByRole( 'link', { name: /Learn more/ } ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'still offers the account link to a user who cannot connect the site', () => {
+			renderNotice( {
+				state: 'user-unlinked',
+				canConnectSite: false,
+				userConnectionUrl: 'admin.php?page=jetpack#/connect-user',
+			} );
+			expect( screen.getByRole( 'link', { name: 'Connect account' } ) ).toHaveAttribute(
+				'href',
+				'admin.php?page=jetpack#/connect-user'
+			);
+		} );
 	} );
 
 	it( 'sends an unlinked account to the URL page data gave it', () => {
@@ -330,7 +381,7 @@ describe( 'PageNotice', () => {
 			).toBeInTheDocument();
 			expect( screen.getByRole( 'link', { name: 'Manage in My Jetpack' } ) ).toHaveAttribute(
 				'href',
-				'admin.php?page=my-jetpack#/products'
+				'admin.php?page=my-jetpack#/features'
 			);
 		} );
 

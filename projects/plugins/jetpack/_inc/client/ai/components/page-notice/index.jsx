@@ -1,5 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ConnectionError } from '@automattic/jetpack-connection';
+import { speak } from '@wordpress/a11y';
+import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
 import { GATED_VIEWS } from '../../constants';
@@ -85,6 +87,8 @@ export function getPageNoticeState( {
 
 const HOST_OFF_SLUG = 'jetpack-ai-hub-notice-host-off';
 const OFFLINE_SLUG = 'jetpack-support-development-mode';
+const SITE_DISCONNECTED_CANNOT_CONNECT_SLUG =
+	'jetpack-ai-hub-notice-site-disconnected-cannot-connect';
 
 // Custom code reaches the same state by more than one route, and each route has
 // its own documentation page. VIP documents the filter as its own off switch.
@@ -93,6 +97,31 @@ const FORCED_OFF_SLUGS = {
 	'filter-vip': 'jetpack-ai-hub-notice-forced-off-filter-vip',
 	modules: 'jetpack-ai-hub-notice-forced-off-modules',
 };
+
+/**
+ * The action for a site with no connection owner.
+ *
+ * Hosts that manage the connection themselves, VIP among them, refuse
+ * `jetpack_connect`, as does a multisite sub-site; the link would only mislead.
+ *
+ * @param {object} pageData - Page data the states link to; see PageNotice's props.
+ * @return {object} `{ href, label, openInNewTab }`.
+ */
+function getSiteDisconnectedAction( pageData ) {
+	// Strict false: older page data (undefined) must not read as refused.
+	if ( pageData.canConnectSite === false ) {
+		return {
+			href: getRedirectUrl( SITE_DISCONNECTED_CANNOT_CONNECT_SLUG ),
+			label: __( 'Learn more', 'jetpack' ),
+			openInNewTab: true,
+		};
+	}
+
+	return {
+		href: pageData.userConnectionUrl,
+		label: __( 'Connect Jetpack', 'jetpack' ),
+	};
+}
 
 /**
  * Title, body and action for one state, as plain data.
@@ -143,10 +172,7 @@ function getNoticeContent( state, pageData ) {
 					'Your feature settings are saved and will apply again once the site is connected.',
 					'jetpack'
 				),
-				action: {
-					href: pageData.userConnectionUrl,
-					label: __( 'Connect Jetpack', 'jetpack' ),
-				},
+				action: getSiteDisconnectedAction( pageData ),
 			};
 
 		case PAGE_NOTICE_STATES.USER_UNLINKED:
@@ -188,10 +214,23 @@ function getNoticeContent( state, pageData ) {
  * @param {string}      [props.userConnectionUrl] - Where this host links an account.
  * @param {string}      [props.manageUrl]         - Where this host manages the AI module.
  * @param {boolean}     [props.hasMyJetpack]      - Whether My Jetpack is loaded on this host.
+ * @param {boolean}     [props.canConnectSite]    - Whether this user may connect the site.
  * @return {object|null} Component markup.
  */
 export default function PageNotice( props ) {
 	const { state } = props;
+	const content = getNoticeContent( state, props );
+	// Not static: the state follows the view and the connection store, so each
+	// new message is announced.
+	const message = content
+		? [ content.title, content.description ].filter( Boolean ).join( ' ' )
+		: '';
+
+	useEffect( () => {
+		if ( message ) {
+			speak( message, 'polite' );
+		}
+	}, [ message ] );
 
 	// The shared notice brings no page spacing of its own.
 	if ( state === PAGE_NOTICE_STATES.CONNECTION_ERROR ) {
@@ -202,22 +241,14 @@ export default function PageNotice( props ) {
 		);
 	}
 
-	const content = getNoticeContent( state, props );
-
 	if ( ! content ) {
 		return null;
 	}
 
 	const { title, description, action } = content;
 
-	// Announce a plain string: the default serializes children mid-render, which
-	// corrupts the Notice's own hook order when the children change shape.
 	return (
-		<Notice.Root
-			intent="warning"
-			className="jetpack-ai-admin__page-notice"
-			spokenMessage={ [ title, description ].filter( Boolean ).join( ' ' ) }
-		>
+		<Notice.Root intent="warning" className="jetpack-ai-admin__page-notice">
 			{ title && <Notice.Title>{ title }</Notice.Title> }
 			{ description && <Notice.Description>{ description }</Notice.Description> }
 			{ action && (

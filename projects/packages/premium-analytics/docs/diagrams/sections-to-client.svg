@@ -37,8 +37,8 @@
   <text class="muted" x="125" y="135" text-anchor="middle">section</text>
   <rect class="box" x="245" y="70" width="250" height="90" rx="4"/>
   <text class="title" x="370" y="95" text-anchor="middle">get_available_dashboard_sections()</text>
-  <text class="muted" x="370" y="111" text-anchor="middle">preview scope, then</text>
-  <text class="muted" x="370" y="127" text-anchor="middle">the section's own is_available(),</text>
+  <text class="muted" x="370" y="111" text-anchor="middle">the section's own</text>
+  <text class="muted" x="370" y="127" text-anchor="middle">is_available(),</text>
   <text class="muted" x="370" y="143" text-anchor="middle">sorted by order</text>
   <rect class="box" x="520" y="70" width="220" height="90" rx="4"/>
   <text class="title" x="630" y="95" text-anchor="middle">to_array()</text>
@@ -52,7 +52,7 @@
   <text class="mono" x="840" y="143" text-anchor="middle">sections</text>
   <rect class="box" x="940" y="70" width="150" height="90" rx="4"/>
   <text class="title" x="1015" y="95" text-anchor="middle">script data</text>
-  <text class="mono" x="1015" y="111" text-anchor="middle">preview_sections</text>
+  <text class="mono" x="1015" y="111" text-anchor="middle">sections</text>
   <text class="muted" x="1015" y="127" text-anchor="middle">slugs only, inline</text>
   <text class="muted" x="1015" y="143" text-anchor="middle">JetpackScriptData</text>
   <polyline class="edge" points="220,115 245,115" marker-end="url(#arrow)"/>
@@ -79,7 +79,7 @@
   <rect class="box" x="940" y="290" width="150" height="100" rx="4"/>
   <text class="title" x="1015" y="320" text-anchor="middle">report routes</text>
   <text class="mono" x="1015" y="336" text-anchor="middle">isDashboardSection</text>
-  <text class="mono" x="1015" y="352" text-anchor="middle">InPreviewScope()</text>
+  <text class="mono" x="1015" y="352" text-anchor="middle">Available()</text>
   <text class="muted" x="1015" y="368" text-anchor="middle">redirect if hidden</text>
   <line class="edge edge-dashed" x1="15" y1="230" x2="1105" y2="230"/>
   <text class="muted" x="25" y="226" text-anchor="start">HTTP</text>

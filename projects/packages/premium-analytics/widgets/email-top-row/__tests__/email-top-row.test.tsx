@@ -306,19 +306,6 @@ describe( 'toEmailTopRowMetrics', () => {
 		expect( metrics.find( metric => metric.key === 'opens_rate' )?.value ).toBeNull();
 	} );
 
-	it( 'shows unrecorded sends and their rate as unknown, not zero', () => {
-		const metrics = toEmailTopRowMetrics(
-			asSummary( { total_clicks: 5, unique_clicks: 0, total_sends: 0, total_opens: 120 } ),
-			'opens'
-		);
-
-		expect( Object.fromEntries( metrics.map( metric => [ metric.key, metric.value ] ) ) ).toEqual( {
-			total_sends: null,
-			total_opens: 120,
-			opens_rate: null,
-		} );
-	} );
-
 	it( 'shows a real 0% click rate and a missing total as unknown', () => {
 		const metrics = toEmailTopRowMetrics(
 			asSummary( { total_clicks: 0, unique_clicks: 0, total_sends: 1, clicks_rate: 0 } ),

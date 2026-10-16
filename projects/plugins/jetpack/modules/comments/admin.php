@@ -5,6 +5,9 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Comments\Block_Editor;
+use Automattic\Jetpack\Comments\Comments;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
@@ -30,13 +33,6 @@ class Jetpack_Comments_Settings {
 	 * @var string
 	 */
 	public $default_greeting = ''; // Set in constructor.
-
-	/**
-	 * The default comment form color scheme - an empty array to start with
-	 *
-	 * @var array
-	 */
-	public $color_schemes = array();
 
 	/**
 	 * Initialize class
@@ -74,13 +70,6 @@ class Jetpack_Comments_Settings {
 	protected function setup_globals() {
 		// Default option values.
 		$this->default_greeting = __( 'Leave a Reply', 'jetpack' );
-
-		// Possible color schemes.
-		$this->color_schemes = array(
-			'light'       => __( 'Light', 'jetpack' ),
-			'dark'        => __( 'Dark', 'jetpack' ),
-			'transparent' => __( 'Transparent', 'jetpack' ),
-		);
 	}
 
 	/** Settings ************************************************************* */
@@ -117,22 +106,48 @@ class Jetpack_Comments_Settings {
 			array( $this, 'comment_form_greeting_sanitize' )
 		);
 
-		/**
-		 * Color Scheme
-		 */
+		// The rebuilt comment form is what offers blocks; the package may lag this file on a staged deploy.
+		if ( ! class_exists( Block_Editor::class ) || ! Comments::is_enabled() ) {
+			return;
+		}
+
 		add_settings_field(
-			'jetpack_comment_form_color_scheme',
-			__( 'Color Scheme', 'jetpack' ),
-			array( $this, 'comment_form_color_scheme_setting' ),
+			'enable_blocks_comments',
+			__( 'Allow Blocks', 'jetpack' ),
+			array( $this, 'allow_blocks_field' ),
 			'discussion',
 			'jetpack_comment_form'
 		);
 
 		register_setting(
 			'discussion',
-			'jetpack_comment_form_color_scheme',
-			array( $this, 'comment_form_color_scheme_sanitize' )
+			'enable_blocks_comments',
+			array( $this, 'allow_blocks_sanitize' )
 		);
+	}
+
+	/**
+	 * Blocks in comments setting.
+	 */
+	public function allow_blocks_field() {
+		?>
+
+		<label>
+			<input name="enable_blocks_comments" type="checkbox" value="1" <?php checked( (bool) get_option( 'enable_blocks_comments', true ) ); ?>>
+			<?php esc_html_e( 'Enable blocks in comments', 'jetpack' ); ?>
+		</label>
+
+		<?php
+	}
+
+	/**
+	 * Sanitize the blocks in comments setting.
+	 *
+	 * @param mixed $val The submitted value.
+	 * @return string
+	 */
+	public function allow_blocks_sanitize( $val ) {
+		return $val ? '1' : '0';
 	}
 
 	/**
@@ -143,7 +158,7 @@ class Jetpack_Comments_Settings {
 	public function comment_form_settings_section() {
 		?>
 
-		<p id="jetpack-comments-settings"><?php esc_html_e( 'Adjust your Comments form with a clever greeting and color-scheme.', 'jetpack' ); ?></p>
+		<p id="jetpack-comments-settings"><?php esc_html_e( 'Adjust your Comments form with a clever greeting.', 'jetpack' ); ?></p>
 
 		<?php
 	}
@@ -181,57 +196,6 @@ class Jetpack_Comments_Settings {
 		}
 
 		return wp_kses( $val, array() );
-	}
-
-	/**
-	 * Comment Form Color Scheme Setting
-	 *
-	 * @since 1.4
-	 */
-	public function comment_form_color_scheme_setting() {
-
-		// The color scheme.
-		$scheme = get_option( 'jetpack_comment_form_color_scheme', $this->jetpack_comments->default_color_scheme );
-		?>
-
-		<fieldset>
-			<legend class="screen-reader-text"><?php esc_html_e( 'Color Scheme', 'jetpack' ); ?></legend>
-
-			<?php foreach ( $this->color_schemes as $key => $label ) : ?>
-
-				<label>
-					<input type="radio" name="jetpack_comment_form_color_scheme" id="jetpack-comment-form-color-scheme" value="<?php echo esc_attr( $key ); ?>" <?php checked( $scheme, $key ); ?>>
-					<?php echo esc_attr( $label ); ?>
-				</label>
-				<br />
-
-			<?php endforeach; ?>
-
-		</fieldset>
-
-		<?php
-	}
-
-	/**
-	 * Sanitize the color scheme
-	 *
-	 * @since 1.4
-	 * @param string $val The color scheme string.
-	 * @return string
-	 */
-	public function comment_form_color_scheme_sanitize( $val ) {
-
-		// Delete the option if it's unknown, or the default.
-		if (
-			empty( $val ) || ! array_key_exists( $val, $this->color_schemes )
-		||
-			$val === $this->jetpack_comments->default_color_scheme
-		) {
-			delete_option( 'jetpack_comment_form_color_scheme' );
-			return false;
-		}
-
-		return $val;
 	}
 }
 

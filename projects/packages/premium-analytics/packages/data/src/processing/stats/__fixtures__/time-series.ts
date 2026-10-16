@@ -92,14 +92,3 @@ export const emailOpensHourlyTimeSeriesFixture = {
 		],
 	},
 };
-
-export const emailClicksHourlyTimeSeriesFixture = {
-	timeline: {
-		unit: 'hour',
-		fields: [ 'date', 'hour', 'clicks_count' ],
-		data: [
-			[ '2026-06-15', 9, 4 ],
-			[ '2026-06-15', 10, 7 ],
-		],
-	},
-};

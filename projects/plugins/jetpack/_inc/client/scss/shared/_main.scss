@@ -28,7 +28,7 @@
 }
 
 .jetpack-pagestyles #wpcontent {
-	padding-left: 0;
+	padding-inline-start: 0;
 }
 
 .jetpack-pagestyles {
@@ -39,7 +39,7 @@
 	text-decoration: none;
 
 	&.components-external-link .components-external-link__icon {
-		margin-left: 5px;
+		margin-inline-start: 5px;
 	}
 }
 
@@ -65,7 +65,7 @@
 // restyled the arrow to match our gray
 .toplevel_page_jetpack ul#adminmenu a.wp-has-current-submenu::after,
 .jetpack_page_jetpack-settings:not(.network-admin) ul#adminmenu a.wp-has-current-submenu::after {
-	border-right-color: colors.$gray-light;
+	border-inline-end-color: colors.$gray-light;
 }
 
 .jp-top {
@@ -84,7 +84,7 @@
 
 .jp-lower {
 	margin: 32px auto 0;
-	text-align: left;
+	text-align: start;
 	max-width: rem.convert(1040px);
 
 	&.jp-licensing-screen {

@@ -88,6 +88,45 @@ describe( 'AiFeatures rendering', () => {
 		expect( toggle ).toBeEnabled();
 	} );
 
+	describe( 'Search settings link', () => {
+		const originalSettings = window.jetpackAiSettings;
+
+		afterEach( () => {
+			window.jetpackAiSettings = originalSettings;
+		} );
+
+		test.each( [ '', undefined ] )(
+			'keeps the toggle and shows Learn more when the server provides %j',
+			searchSettingsUrl => {
+				window.jetpackAiSettings = { searchSettingsUrl };
+				renderFeatures( { features: { ai_search: { enabled: true } } } );
+
+				expect( screen.getByRole( 'checkbox', { name: /AI Answers/ } ) ).toBeChecked();
+				expect(
+					screen.queryByRole( 'link', { name: 'Open Search Settings' } )
+				).not.toBeInTheDocument();
+				const learnMore = screen.getByRole( 'link', { name: /Learn more/ } );
+				expect( learnMore ).toHaveAttribute(
+					'href',
+					expect.stringContaining( 'jetpack-ai-settings-search-learn-more' )
+				);
+				expect( learnMore ).toHaveAttribute( 'target', '_blank' );
+			}
+		);
+
+		test( 'uses the server-provided target when the page is registered', () => {
+			window.jetpackAiSettings = {
+				searchSettingsUrl: 'https://example.com/wp-admin/admin.php?page=jetpack-search#/ai-answers',
+			};
+			renderFeatures( { features: { ai_search: { enabled: true } } } );
+
+			expect( screen.getByRole( 'link', { name: 'Open Search Settings' } ) ).toHaveAttribute(
+				'href',
+				'https://example.com/wp-admin/admin.php?page=jetpack-search#/ai-answers'
+			);
+		} );
+	} );
+
 	describe( 'SEO settings link', () => {
 		const originalSettings = window.jetpackAiSettings;
 
@@ -259,6 +298,29 @@ describe( 'AiFeatures rendering', () => {
 		expect( toggle ).toBeDisabled();
 
 		expect( screen.queryByText( 'Learn more' ) ).not.toBeInTheDocument();
+	} );
+
+	test( 'forced off by code: toggles disable, links hidden as with master off', () => {
+		render(
+			<AiFeatures
+				settings={ {
+					master_enabled: true,
+					is_connected: true,
+					features: {
+						writing_assistant: { enabled: true },
+						image_editor: { enabled: true },
+					},
+				} }
+				masterForcedOff="constant"
+				savingKeys={ new Set() }
+				onUpdate={ jest.fn() }
+			/>
+		);
+
+		const toggle = screen.getByRole( 'checkbox', { name: /Image Editor/ } );
+		expect( toggle ).toBeChecked();
+		expect( toggle ).toBeDisabled();
+		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'not connected: toggles keep saved values but disable, links and badge hidden', () => {
@@ -472,6 +534,8 @@ describe( 'AiFeatures rendering', () => {
 	} );
 
 	test( 'action links target each feature surface', () => {
+		const originalSettings = window.jetpackAiSettings;
+		window.jetpackAiSettings = { searchSettingsUrl: 'admin.php?page=jetpack-search#/ai-answers' };
 		render(
 			<AiFeatures
 				settings={ {
@@ -508,5 +572,6 @@ describe( 'AiFeatures rendering', () => {
 			'href',
 			'admin.php?page=jetpack-search#/ai-answers'
 		);
+		window.jetpackAiSettings = originalSettings;
 	} );
 } );

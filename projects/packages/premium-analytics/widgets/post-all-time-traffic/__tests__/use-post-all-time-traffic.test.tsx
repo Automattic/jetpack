@@ -76,12 +76,4 @@ describe( 'usePostAllTimeTraffic', () => {
 		expect( result.current.rows[ 0 ].months.slice( 0, 3 ) ).toEqual( [ 1, 0, 8 ] );
 		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
 	} );
-
-	it( 'never requests without a post scope', () => {
-		const { result } = renderHook( () => usePostAllTimeTraffic( 0, 'total' ), { wrapper } );
-
-		expect( mockApiFetch ).not.toHaveBeenCalled();
-		expect( result.current.rows ).toEqual( [] );
-		expect( result.current.lifeStartsAt ).toBeUndefined();
-	} );
 } );

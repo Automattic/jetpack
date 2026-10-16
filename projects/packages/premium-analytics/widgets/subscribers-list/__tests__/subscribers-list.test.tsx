@@ -49,6 +49,7 @@ function setNewsletterSubscribersUrl( url: string | null ) {
 
 describe( 'SubscribersListWidget', () => {
 	beforeEach( () => {
+		jest.useFakeTimers();
 		// The data package's query client is a module-level singleton; drop its
 		// cache so each test starts from a fresh fetch.
 		queryClient.clear();
@@ -57,6 +58,7 @@ describe( 'SubscribersListWidget', () => {
 	} );
 
 	afterEach( () => {
+		jest.useRealTimers();
 		window.JetpackScriptData = originalScriptData;
 	} );
 
@@ -71,15 +73,32 @@ describe( 'SubscribersListWidget', () => {
 		);
 	} );
 
-	it( 'links the name to Jetpack Cloud everywhere else', async () => {
+	it( 'links the name to Jetpack Cloud in a new tab everywhere else', async () => {
 		setSiteData( false, 'example.com' );
 
 		render( <SubscribersListWidget attributes={ {} } /> );
 
-		await expect( screen.findByRole( 'link', { name: /Ada Lovelace/ } ) ).resolves.toHaveAttribute(
+		const link = await screen.findByRole( 'link', { name: /Ada Lovelace/ } );
+		expect( link ).toHaveAttribute(
 			'href',
 			'https://cloud.jetpack.com/subscribers/example.com/4242'
 		);
+		expect( link ).toHaveAttribute( 'target', '_blank' );
+	} );
+
+	it( 'opens the subscriber on the wp-admin Subscribers tab in the same tab when it is available', async () => {
+		setNewsletterSubscribersUrl(
+			'https://example.com/wp-admin/admin.php?page=jetpack-newsletter&p=%2F%3Ftab%3Dsubscribers'
+		);
+
+		render( <SubscribersListWidget attributes={ {} } /> );
+
+		const link = await screen.findByRole( 'link', { name: /Ada Lovelace/ } );
+		const url = new URL( link.getAttribute( 'href' ) ?? '' );
+		expect( url.pathname ).toBe( '/wp-admin/admin.php' );
+		expect( url.searchParams.get( 'page' ) ).toBe( 'jetpack-newsletter' );
+		expect( url.searchParams.get( 'p' ) ).toBe( '/?tab=subscribers&subscriber=4242' );
+		expect( link ).not.toHaveAttribute( 'target' );
 	} );
 
 	it( 'renders the name as plain text when there is no details page to link to', async () => {
@@ -93,7 +112,7 @@ describe( 'SubscribersListWidget', () => {
 
 	it( 'renders rows without a subscription id as plain-text names', async () => {
 		setSiteData( false, 'example.com' );
-		// No `ID` or `*_subscription_id`, so `subscription_id` stays undefined.
+		// No `*_subscription_id`, so `subscription_id` stays undefined.
 		mockApiFetch.mockResolvedValue( {
 			total: 2,
 			subscribers: [

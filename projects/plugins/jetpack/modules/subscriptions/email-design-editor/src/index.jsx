@@ -10,19 +10,33 @@
  * `window.JetpackEmailDesignEditor` lands separately; until then nothing enqueues
  * this bundle and the mount below returns. See NL-848 and NL-851.
  */
+
+// Imported ahead of the package deliberately: it resolves its screens' titles and descriptions at
+// module scope, and a filter added any later never sees them.
+// eslint-disable-next-line import/order
+import { STYLES_SIDEBAR_ID } from './styles-sidebar-labels';
 import { ExperimentalEmailEditor } from '@woocommerce/email-editor';
 import apiFetch from '@wordpress/api-fetch';
 import { useBlockProps } from '@wordpress/block-editor';
 import { getBlockType, registerBlockType } from '@wordpress/blocks';
-import { Button, Disabled, Notice } from '@wordpress/components';
+import {
+	Button,
+	Disabled,
+	Notice,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalConfirmDialog as ConfirmDialog,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalVStack as VStack,
+} from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
-import { dispatch, select, subscribe } from '@wordpress/data';
+import { dispatch, select, subscribe, useSelect } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/editor';
-import { createRoot, RawHTML, StrictMode } from '@wordpress/element';
+import { createRoot, RawHTML, StrictMode, useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { registerPlugin } from '@wordpress/plugins';
 import { addQueryArgs } from '@wordpress/url';
+import { watchDerivedTextColor } from './derived-text-color';
 
 // Declared by the Jetpack plugin on every platform, answered by WordPress.com, so
 // the browser calls one local URL everywhere.
@@ -54,9 +68,6 @@ const SIDEBAR_SCOPE = 'core';
 // `PluginArea`, so the plugin name the interface store keys it under is literally `null`.
 // Re-check on a package bump, alongside the private-API note in the screen's PHP.
 const STYLES_SIDEBAR = 'null/email-styles-sidebar';
-
-// The panel's own container, which `ComplementaryArea` ids after the identifier.
-const STYLES_SIDEBAR_ID = STYLES_SIDEBAR.replace( '/', ':' );
 
 // Frames to wait for a panel React has not committed yet — far more than the one or two it takes,
 // and bounded so a panel that never arrives stops the search rather than polling forever.
@@ -232,6 +243,22 @@ export function buildPreloadMap( bundle, templateId ) {
 	};
 
 	return Object.keys( map ).length > 0 ? map : null;
+}
+
+/**
+ * The colors the site gives text, links, headings and buttons, before WordPress.com made any
+ * readable.
+ *
+ * A bundle from before WordPress.com reported these omits the key, and the watcher then leaves
+ * links and headings to WordPress.com — which is what every blog saw before.
+ *
+ * @param {object} bundle - The response from the bootstrap route.
+ * @return {object} The inherited colors, keyed by element.
+ */
+export function inheritedColors( bundle ) {
+	const colors = bundle?.inherited_colors;
+
+	return colors && 'object' === typeof colors ? colors : {};
 }
 
 /**
@@ -594,23 +621,167 @@ export function showStylesSidebar() {
 	focusStylesSidebar();
 }
 
+// Wrapped so a test can watch for it: jsdom defines `location.reload` as neither writable nor
+// configurable, which leaves it impossible to stub or spy on directly.
+export const screenControls = { reload: () => window.location.reload() };
+
+/**
+ * Whether a value holds a set property, however deeply nested.
+ *
+ * Sanitizing can drop a value and leave the branch that held it, so a shallow key count reports a
+ * design for `{ color: {} }`, which is nothing.
+ *
+ * @param {*} value - A design, one half of one, or any part of either.
+ * @return {boolean} True when some leaf holds a value.
+ */
+function hasLeaf( value ) {
+	if ( null === value || undefined === value ) {
+		return false;
+	}
+
+	// `false` and `0` are values a creator set, so only containers are looked into.
+	return 'object' === typeof value ? Object.values( value ).some( hasLeaf ) : true;
+}
+
+/**
+ * Whether a design holds anything of the creator's own.
+ *
+ * @param {object} design - A record or a submission, with `styles` and `settings`.
+ * @return {boolean} True when either half holds something.
+ */
+function hasAnyDesign( design ) {
+	return hasLeaf( design?.styles ) || hasLeaf( design?.settings );
+}
+
+/**
+ * Put the design back to the one WordPress.com derives from the site.
+ *
+ * Clears the creator's layer rather than writing the defaults into it: the canvas draws that
+ * layer over the theme, so an empty one already *is* the default design.
+ *
+ * @param {number} id - The global-styles id the bundle named.
+ * @return {Promise<void>} Resolves once WordPress.com has stored the cleared design.
+ */
+async function resetDesign( id ) {
+	dispatch( coreStore ).editEntityRecord( 'root', 'globalStyles', id, {
+		styles: {},
+		settings: {},
+	} );
+
+	await dispatch( coreStore ).saveEditedEntityRecord( 'root', 'globalStyles', id, {
+		throwOnError: true,
+	} );
+}
+
+/**
+ * A way back to the design WordPress.com derived from the site.
+ *
+ * The panels reset one screen at a time, which leaves a creator who has changed several with no
+ * way back to where they started. See NL-970.
+ *
+ * @param {object} props    - Component props.
+ * @param {number} props.id - The global-styles id the bundle named.
+ * @return {import('react').ReactElement} The control.
+ */
+function ResetDesignControl( { id } ) {
+	const [ isConfirming, setIsConfirming ] = useState( false );
+	const [ isResetting, setIsResetting ] = useState( false );
+
+	// The creator's own layer, pending edits and all: an empty one already is the default design,
+	// so there is nothing for this to put back.
+	const hasDesign = useSelect(
+		selectFrom =>
+			hasAnyDesign( selectFrom( coreStore ).getEditedEntityRecord( 'root', 'globalStyles', id ) ),
+		[ id ]
+	);
+
+	const openConfirmation = useCallback( () => setIsConfirming( true ), [] );
+	const cancelConfirmation = useCallback( () => setIsConfirming( false ), [] );
+
+	/**
+	 * Clear the design, then fetch the canvas again.
+	 *
+	 * @return {Promise<void>} Resolves once the reload is under way, or the creator has been told.
+	 */
+	const confirmReset = useCallback( async () => {
+		setIsConfirming( false );
+		setIsResetting( true );
+
+		try {
+			await resetDesign( id );
+
+			// The canvas draws the block previews WordPress.com rendered, fetched once when the
+			// screen mounted and inline-styled for email clients, so it goes on showing the design
+			// that was stored then. Fetching them again is what shows the reset one. NL-970.
+			screenControls.reload();
+		} catch ( error ) {
+			// The notice deliberately does not name what failed; this does.
+			// eslint-disable-next-line no-console
+			console.error( 'Jetpack email design reset:', error );
+
+			dispatch( noticesStore ).createNotice(
+				'error',
+				__( 'Your email design could not be reset. Please try again.', 'jetpack' ),
+				{ type: 'snackbar', isDismissible: true }
+			);
+
+			// Only here: the success path keeps the control busy until the reload takes the page.
+			setIsResetting( false );
+		}
+	}, [ id ] );
+
+	return (
+		<>
+			<Button
+				variant="secondary"
+				disabled={ ! hasDesign || isResetting }
+				accessibleWhenDisabled
+				isBusy={ isResetting }
+				onClick={ openConfirmation }
+			>
+				{ __( 'Reset to defaults', 'jetpack' ) }
+			</Button>
+			<ConfirmDialog
+				title={ __( 'Reset email design', 'jetpack' ) }
+				isOpen={ isConfirming }
+				onCancel={ cancelConfirmation }
+				onConfirm={ confirmReset }
+				confirmButtonText={ __( 'Reset', 'jetpack' ) }
+				size="medium"
+			>
+				{ __(
+					'Are you sure you want to reset your email design? It will go back to the one based on your site, and the changes you made will be lost.',
+					'jetpack'
+				) }
+			</ConfirmDialog>
+		</>
+	);
+}
+
 /**
  * A labelled way into the Styles panel, for a creator who closed it.
  *
  * The panel's own affordance is an unlabelled icon in the top right, and the Template tab this
  * lands in has nothing else to offer while block editing is off. See NL-948.
  *
+ * @param {object}      props    - Component props.
+ * @param {number|null} props.id - The global-styles id the bundle named.
  * @return {import('react').ReactElement} The panel.
  */
-function StylesPanelLink() {
+function StylesPanelLink( { id } ) {
 	return (
 		<PluginDocumentSettingPanel
 			name={ STYLES_PANEL_NAME }
 			title={ __( 'Email styles', 'jetpack' ) }
 		>
-			<Button variant="secondary" onClick={ showStylesSidebar }>
-				{ __( 'Edit email styles', 'jetpack' ) }
-			</Button>
+			<VStack alignment="left">
+				<Button variant="secondary" onClick={ showStylesSidebar }>
+					{ __( 'Edit email styles', 'jetpack' ) }
+				</Button>
+				{ /* Without an id there is no record to clear, and nothing installed to carry the
+				     clearing to WordPress.com. */ }
+				{ !! id && <ResetDesignControl id={ id } /> }
+			</VStack>
 		</PluginDocumentSettingPanel>
 	);
 }
@@ -650,10 +821,14 @@ export function expandStylesPanelOnce() {
 /**
  * Register the fills the editor renders through its own plugin area.
  *
+ * @param {number|null} [globalStylesPostId] - The global-styles id the bundle named.
  * @return {void}
  */
-export function registerEditorPlugin() {
-	registerPlugin( PLUGIN_NAME, { scope: PLUGIN_SCOPE, render: StylesPanelLink } );
+export function registerEditorPlugin( globalStylesPostId = null ) {
+	registerPlugin( PLUGIN_NAME, {
+		scope: PLUGIN_SCOPE,
+		render: () => <StylesPanelLink id={ globalStylesPostId } />,
+	} );
 }
 
 /**
@@ -770,11 +945,11 @@ async function flushDesign( id ) {
 }
 
 /**
- * The post the test send renders.
+ * The post the test send falls back to.
  *
- * This screen edits a design rather than a post, so there is nothing here to send and the newest
- * published post stands in. Both platforms seed one at install, so a blog with none is a creator
- * who deleted it.
+ * Entered from Appearance this screen edits a design rather than a post, so there is nothing here
+ * to send and the newest published post stands in. Both platforms seed one at install, so a blog
+ * with none is a creator who deleted it.
  *
  * @return {Promise<number|null>} The post's id, or null when the blog has published nothing.
  */
@@ -800,9 +975,10 @@ async function newestPublishedPostId() {
  * email a subscriber gets rather than WooCommerce's own render of it. See NL-953.
  *
  * @param {number|null} globalStylesPostId - The global-styles id the bundle named.
+ * @param {number|null} previewPostId      - The post the canvas previews, where one was named.
  * @return {Function} An `apiFetch` middleware.
  */
-export function createTestSendMiddleware( globalStylesPostId ) {
+export function createTestSendMiddleware( globalStylesPostId, previewPostId = null ) {
 	return async ( options, next ) => {
 		const path = 'string' === typeof options.path ? options.path.split( '?' )[ 0 ] : '';
 		const method = ( options.method || 'GET' ).toUpperCase();
@@ -814,7 +990,8 @@ export function createTestSendMiddleware( globalStylesPostId ) {
 		try {
 			await flushDesign( globalStylesPostId );
 
-			const id = await newestPublishedPostId();
+			// The post on the canvas, so the test lands in an inbox showing what the screen shows.
+			const id = previewPostId || ( await newestPublishedPostId() );
 
 			if ( ! id ) {
 				throw new TestSendError(
@@ -893,6 +1070,29 @@ function LoadError() {
 }
 
 /**
+ * The bootstrap route, with whatever this entry point narrows the bundle to.
+ *
+ * `post_id` is the post the canvas should preview, which the previewer's link carries; entering
+ * from Appearance or Newsletter settings sends none and WordPress.com picks the default. NL-1051.
+ *
+ * @param {object} data - The value of `window.JetpackEmailDesignEditor`.
+ * @return {string} The path to fetch.
+ */
+function bootstrapPath( data ) {
+	const args = {};
+
+	if ( data.templateSlug ) {
+		args.template_slug = data.templateSlug;
+	}
+
+	if ( data.postId ) {
+		args.post_id = data.postId;
+	}
+
+	return Object.keys( args ).length ? addQueryArgs( BOOTSTRAP_PATH, args ) : BOOTSTRAP_PATH;
+}
+
+/**
  * Fetch the bootstrap bundle and mount the editor into the page's container.
  *
  * @return {Promise<void>} Resolves once the editor or an error has rendered.
@@ -913,13 +1113,10 @@ export async function mountEmailDesignEditor() {
 
 	const root = createRoot( container );
 	let stopWatchingSidebar = null;
+	let stopDerivingTextColor = null;
 
 	try {
-		const bundle = await apiFetch( {
-			path: data.templateSlug
-				? addQueryArgs( BOOTSTRAP_PATH, { template_slug: data.templateSlug } )
-				: BOOTSTRAP_PATH,
-		} );
+		const bundle = await apiFetch( { path: bootstrapPath( data ) } );
 
 		const config = buildEditorConfig( bundle, data );
 
@@ -932,7 +1129,7 @@ export async function mountEmailDesignEditor() {
 
 		// Everything that leads to the Styles panel, only for a creator the package will give one.
 		if ( canEditDesign( bundle ) ) {
-			registerEditorPlugin();
+			registerEditorPlugin( config.globalStylesPostId );
 			expandStylesPanelOnce();
 		}
 
@@ -943,7 +1140,7 @@ export async function mountEmailDesignEditor() {
 			apiFetch.use( createDesignSaveMiddleware( config.globalStylesPostId ) );
 		}
 
-		apiFetch.use( createTestSendMiddleware( config.globalStylesPostId ) );
+		apiFetch.use( createTestSendMiddleware( config.globalStylesPostId, data.postId ?? null ) );
 
 		if ( preload ) {
 			// Registered last so it runs first: api-fetch applies middlewares right to
@@ -957,6 +1154,10 @@ export async function mountEmailDesignEditor() {
 		// error screen.
 		if ( canEditDesign( bundle ) ) {
 			stopWatchingSidebar = openStylesSidebarOnLoad();
+			stopDerivingTextColor = watchDerivedTextColor(
+				config.globalStylesPostId,
+				inheritedColors( bundle )
+			);
 		}
 
 		root.render(
@@ -970,6 +1171,7 @@ export async function mountEmailDesignEditor() {
 		);
 	} catch ( error ) {
 		stopWatchingSidebar?.();
+		stopDerivingTextColor?.();
 
 		// The notice deliberately does not name which half failed; this does.
 		// eslint-disable-next-line no-console

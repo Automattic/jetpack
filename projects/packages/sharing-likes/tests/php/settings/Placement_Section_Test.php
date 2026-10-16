@@ -124,6 +124,38 @@ class Placement_Section_Test extends BaseTestCase {
 	}
 
 	/**
+	 * @return array<string, array{0: string, 1: string[], 2: string}>
+	 */
+	public static function provide_summaries(): array {
+		return array(
+			'sharing somewhere'       => array( Placement_Section::FEATURE_SHARING, array( 'post' ), 'Sharing buttons currently appear on: Posts.' ),
+			'sharing nowhere'         => array( Placement_Section::FEATURE_SHARING, array(), 'Sharing buttons are currently not shown anywhere.' ),
+			'likes somewhere'         => array( Placement_Section::FEATURE_LIKES, array( 'post' ), 'Like buttons currently appear on: Posts.' ),
+			'likes nowhere'           => array( Placement_Section::FEATURE_LIKES, array(), 'Like buttons are currently not shown anywhere.' ),
+			'comment likes somewhere' => array( Placement_Section::FEATURE_COMMENT_LIKES, array( 'post' ), 'Comment Likes currently appear on comments on: Posts.' ),
+			'comment likes nowhere'   => array( Placement_Section::FEATURE_COMMENT_LIKES, array(), 'Comment Likes are currently not shown anywhere.' ),
+		);
+	}
+
+	/**
+	 * A feature missing from the summary tables silently falls back to the sharing sentence.
+	 *
+	 * @param string   $feature  One of the FEATURE_* constants.
+	 * @param string[] $shown    Stored placement.
+	 * @param string   $expected Sentence the feature's section states.
+	 * @dataProvider provide_summaries
+	 */
+	#[DataProvider( 'provide_summaries' )]
+	public function test_summarises_placement_in_each_features_own_words( string $feature, array $shown, string $expected ): void {
+		update_option( 'sharing-options', array( 'global' => array( 'show' => $shown ) ) );
+
+		ob_start();
+		Placement_Section::render_summary( $feature );
+
+		$this->assertStringContainsString( $expected, (string) ob_get_clean() );
+	}
+
+	/**
 	 * The legacy keyword has to survive a round trip through the option, which
 	 * is the path a services save takes.
 	 */

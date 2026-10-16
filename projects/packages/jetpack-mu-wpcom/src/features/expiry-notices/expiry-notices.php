@@ -111,7 +111,7 @@ function wpcom_expiry_notices_is_enabled_for_site(): bool {
 	/**
 	 * Filters whether the new expiry notices are enabled for this site.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.11.0
 	 *
 	 * @param bool $enabled    Whether the site is on the new expiry notices.
 	 * @param int  $percentage Always 100 now the rollout is done; kept so two-argument callbacks keep working.
@@ -423,8 +423,9 @@ function wpcom_expiry_notices_banner_heading( array $state ): string {
 			: sprintf( _n( 'Your %1$s plan has %2$d day remaining', 'Your %1$s plan has %2$d days remaining', $days, 'jetpack-mu-wpcom' ), $plan, $days );
 	}
 
-	// Never "expired" while the day of expiry is still running.
-	if ( 0 === $days ) {
+	// Never "expired" while billing's day of expiry is still running, even where
+	// the site's calendar has already moved past the date shown.
+	if ( $days <= 0 ) {
 		return '' === $plan
 			? __( 'Your plan expires today', 'jetpack-mu-wpcom' )
 			/* translators: %s is the plan name (e.g. Business). */
@@ -477,7 +478,7 @@ function wpcom_expiry_notices_banner_body( array $state, bool $is_owner ): strin
 		/* translators: %d is a number of gigabytes of storage. */
 		$with_storage    = __( 'If renewal doesn’t go through, your site will move to the Free plan, and you’ll lose access to plugins, custom themes, and %d GB of storage.', 'jetpack-mu-wpcom' );
 		$without_storage = __( 'If renewal doesn’t go through, your site will move to the Free plan, and you’ll lose access to plugins, custom themes, and additional storage.', 'jetpack-mu-wpcom' );
-	} elseif ( 0 === $days ) {
+	} elseif ( $days <= 0 ) {
 		/* translators: %d is a number of gigabytes of storage. */
 		$with_storage    = __( 'Unless you renew your plan, your site will move to the Free plan, and you’ll lose plugins, custom themes, and %d GB of storage. Renew now to keep everything in place.', 'jetpack-mu-wpcom' );
 		$without_storage = __( 'Unless you renew your plan, your site will move to the Free plan, and you’ll lose plugins, custom themes, and additional storage. Renew now to keep everything in place.', 'jetpack-mu-wpcom' );
@@ -500,7 +501,9 @@ function wpcom_expiry_notices_banner_body( array $state, bool $is_owner ): strin
  * @param int|null            $storage_gb Storage the plan includes, or null when unknown.
  */
 function wpcom_expiry_notices_early_warning_body( array $state, ?int $storage_gb ): string {
-	$expiry_date = (string) wp_date( (string) get_option( 'date_format' ), (int) $state['expiry_ts'] );
+	// The start of billing's UTC day in the site's timezone, as the Purchases
+	// pages show it: west of UTC that is the day before, never a day too late.
+	$expiry_date = (string) wp_date( (string) get_option( 'date_format' ), Expiry_Data::start_of_utc_day( (int) $state['expiry_ts'] ) );
 
 	if ( '' === $expiry_date ) {
 		return null === $storage_gb
@@ -550,6 +553,58 @@ function wpcom_expiry_notices_maybe_load_surfaces() {
 	}
 }
 add_action( 'init', 'wpcom_expiry_notices_maybe_load_surfaces' ); // @codeCoverageIgnore
+
+/**
+ * Give My Jetpack's own alert for the site's plan the content of these notices,
+ * or drop it when none of them is due.
+ *
+ * @param array $alerts My Jetpack's red bubble alerts, keyed `{product_slug}--{alert}`.
+ * @return array
+ */
+function wpcom_expiry_notices_my_jetpack_plan_alerts( $alerts ) {
+	// Non-admins never get these notices, and dropping their alert would also empty the admins' cached menu badge.
+	if ( ! is_array( $alerts ) || ! current_user_can( 'manage_options' ) || ! wpcom_expiry_notices_is_enabled_for_site() ) {
+		return $alerts;
+	}
+	$plan         = Expiry_Data::pick_primary_plan_purchase( wpcom_expiry_get_purchases() );
+	$slug         = $plan->product_slug ?? '';
+	$expiring_key = "{$slug}--plan_expiring_soon";
+	$expired_key  = "{$slug}--plan_expired";
+	$alert        = $alerts[ $expired_key ] ?? $alerts[ $expiring_key ] ?? null;
+	if ( '' === $slug || null === $alert ) {
+		return $alerts;
+	}
+	unset( $alerts[ $expiring_key ], $alerts[ $expired_key ] );
+
+	$data = wpcom_expiry_notices_banner_data();
+	if ( null === $data ) {
+		return $alerts;
+	}
+
+	$state   = $data['state'];
+	$actions = array();
+	if ( $data['is_owner'] ) {
+		// Built in a REST request, so checkout is pointed back at My Jetpack explicitly.
+		$urls      = wpcom_expiry_notices_banner_urls( $state, admin_url( 'admin.php?page=my-jetpack' ) );
+		$actions[] = $urls['primary'];
+		if ( Expiry_Data::STATE_EXPIRED_GRACE === $state['state'] ) {
+			$actions[] = $urls['secondary'];
+		}
+	}
+	$alert['wpcom_plan_notice'] = array(
+		'title'          => wpcom_expiry_notices_banner_heading( $state ),
+		'message'        => wpcom_expiry_notices_banner_body( $state, $data['is_owner'] ),
+		'actions'        => $actions,
+		'is_dismissible' => $data['is_dismissible'],
+		'level'          => $data['is_early_warning'] ? 'warning' : 'error',
+		'track_props'    => wpcom_expiry_notices_track_props( $state, $data['is_owner'], 'my_jetpack' ),
+	);
+	// Filed under this state, so My Jetpack's notice id and Tracks events match the copy.
+	$alerts[ Expiry_Data::STATE_APPROACHING === $state['state'] ? $expiring_key : $expired_key ] = $alert;
+	return $alerts;
+}
+// After My Jetpack adds its alerts at the default priority.
+add_filter( 'my_jetpack_red_bubble_notification_slugs', 'wpcom_expiry_notices_my_jetpack_plan_alerts', 20 ); // @codeCoverageIgnore
 
 /**
  * Whether the front-end banner will render on this request.

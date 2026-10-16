@@ -15,10 +15,15 @@ export type JetpackModuleSlug = ( typeof JETPACK_MODULES )[ number ];
 
 export type MyJetpackModule = {
 	available: boolean;
+	unavailable_reason?: string | false;
 	module: string;
 	name: string;
 	activated: boolean;
 	override?: false | 'active' | 'inactive';
+	// Jetpack's settings search for the module unless the module points somewhere of its own.
+	configure_url?: string;
+	// Keyed by option name; PHP sends an empty array when the module has none.
+	options?: Record< string, unknown > | unknown[];
 	description: string;
 	long_description: string;
 	search_terms: string;

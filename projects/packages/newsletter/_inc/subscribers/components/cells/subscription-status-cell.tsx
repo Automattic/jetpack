@@ -4,6 +4,7 @@ import {
 	getSubscriptionStatusReasonLabel,
 } from '../../lib/subscription-status';
 import type { SubscriptionStatus, SubscriptionStatusReason } from '../../data/types';
+import type { JSX } from 'react';
 import './subscription-status-cell.scss';
 
 type Props = {

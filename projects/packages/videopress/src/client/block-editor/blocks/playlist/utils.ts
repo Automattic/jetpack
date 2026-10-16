@@ -134,6 +134,17 @@ export function playlistEmbedUrl( guid: string, autoplay: boolean, muted = false
 }
 
 /**
+ * Build the VideoPress page URL a playlist entry links to when the block
+ * has no player.
+ *
+ * @param guid - Video GUID.
+ * @return Video page URL.
+ */
+export function playlistVideoUrl( guid: string ): string {
+	return `https://videopress.com/v/${ encodeURIComponent( guid ) }`;
+}
+
+/**
  * Append a metadata token to a VideoPress file URL: private videos' files —
  * posters included — are served from videos.files.wordpress.com only when the
  * request carries a valid token.
@@ -159,6 +170,7 @@ export function playlistWrapperClasses( attributes: PlaylistDisplayAttributes ):
 		'videopress-playlist',
 		`is-layout-${ attributes.layout }`,
 		attributes.darkPlayer ? 'is-dark' : '',
+		attributes.showPlayer ? '' : 'hide-player',
 		attributes.showThumbnail ? '' : 'hide-thumbnails',
 		attributes.showTitle ? '' : 'hide-titles',
 		attributes.showResolution ? '' : 'hide-resolutions',

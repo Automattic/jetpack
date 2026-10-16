@@ -1,3 +1,5 @@
+import { __, sprintf } from '@wordpress/i18n';
+import { getQueryArg } from '@wordpress/url';
 import { useMemo } from 'react';
 import { PRODUCT_STATUSES } from '../../../constants';
 import { useAllProducts } from '../../../data/products/use-all-products';
@@ -6,11 +8,25 @@ import {
 	pluginSwitchKey,
 	useRequestedSwitches,
 } from '../../../data/requested-switch-state';
-import { getModuleStatus, getOverrideReason } from '../../modules-list/utils';
-import { getProductModules } from '../products/mappings';
-import { useAllJetpackModules } from '../products/use-all-jetpack-modules';
+import { getOfflineFeaturesSeed, isOfflineFeatures } from '../../../data/utils/offline-features';
+import { linksTo } from '../../../utils/admin-menu-sync';
+import { getProductModules, PRODUCT_MODULES } from './mappings';
+import {
+	getFeatureUnavailableReason,
+	getModuleStatus,
+	getOverrideReason,
+} from './module-availability';
+import { useAllJetpackModules } from './use-all-jetpack-modules';
 import type { ProductCamelCase } from '../../../data/types';
 import type { JetpackModuleSlug, MyJetpackModule } from '../../../types';
+
+// A running product reports these rather than `active` once its plan needs attention or nears expiry.
+const RUNNING_ON_PLAN_STATUSES: string[] = [
+	PRODUCT_STATUSES.ACTIVE,
+	PRODUCT_STATUSES.NEEDS_ATTENTION__WARNING,
+	PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR,
+	PRODUCT_STATUSES.EXPIRING_SOON,
+];
 
 /**
  * What a feature's card offers, decided by the feature map and what is on the site.
@@ -21,9 +37,12 @@ import type { JetpackModuleSlug, MyJetpackModule } from '../../../types';
 export type FeatureControl =
 	| { kind: 'module'; module: MyJetpackModule }
 	| { kind: 'plugin'; plugin: string; override?: 'active' | 'inactive' }
-	| { kind: 'install-plugin'; plugin: string }
-	| { kind: 'install-jetpack'; installed: boolean }
-	| { kind: 'none' };
+	| { kind: 'install-plugin'; plugin: string; runsWithoutPlugin?: true; blocked?: InstallBlock }
+	| { kind: 'install-jetpack'; installed: boolean; blocked?: InstallBlock }
+	| { kind: 'none'; override?: 'active' | 'inactive' };
+
+// Why the current user can't make an install the card would otherwise offer.
+export type InstallBlock = Exclude< MainFeatureInstallAccess, 'allowed' >;
 
 export type FeatureState = {
 	feature: MainFeature;
@@ -38,7 +57,51 @@ export type FeatureState = {
 	control: FeatureControl;
 	// The product behind the feature, for the modal's copy.
 	product?: ProductCamelCase;
+	unavailableReason?: string;
+	moduleUnavailableReason?: string;
 };
+
+/**
+ * The Open link, or empty when the feature is unavailable or its offline page isn't registered.
+ *
+ * @param state - The feature state.
+ * @return A management URL, or an empty string.
+ */
+export function getFeatureManageUrl( state: FeatureState ): string {
+	if ( getFeatureUnavailableReason( state ) ) {
+		return '';
+	}
+
+	const url = state.feature.manage_url || '';
+	if ( ! isOfflineFeatures() || ! url ) {
+		return url;
+	}
+
+	const page = getQueryArg( url, 'page' );
+	const registered =
+		! page ||
+		getOfflineFeaturesSeed()?.mainFeatures.available_admin_pages?.includes( String( page ) );
+	const inSidebar = Array.from( document.querySelectorAll( '#adminmenu li' ) ).some( item =>
+		linksTo( item, url )
+	);
+	return registered || inSidebar ? url : '';
+}
+
+/**
+ * The module's limitation when the standalone plugin remains available.
+ *
+ * @param state - The feature's live state.
+ * @return The inline note, or undefined.
+ */
+export function getModuleUnavailableNote( state: FeatureState ): string | undefined {
+	return state.moduleUnavailableReason
+		? sprintf(
+				/* translators: %s is why the Jetpack module is unavailable; its standalone plugin remains available. */
+				__( 'Jetpack module: %s', 'jetpack-my-jetpack' ),
+				state.moduleUnavailableReason
+			)
+		: undefined;
+}
 
 /**
  * Why a feature can't be switched here: a host forced its module or plugin on or off, or
@@ -58,19 +121,55 @@ export function getForcedReason( state: FeatureState ): string | null {
 		}
 	}
 
-	if ( control.kind === 'plugin' && control.override ) {
+	if ( ( control.kind === 'plugin' || control.kind === 'none' ) && control.override ) {
 		return getOverrideReason( control.override );
 	}
 
-	return null;
+	return state.unavailableReason ?? null;
+}
+
+/**
+ * Why the current user can't install what a feature needs, and what to do instead.
+ *
+ * @param state - The feature's live state.
+ * @return The reason, or null when nothing blocks the install.
+ */
+export function getInstallBlockReason( state: FeatureState ): string | null {
+	const { control, feature } = state;
+
+	if (
+		( control.kind !== 'install-plugin' && control.kind !== 'install-jetpack' ) ||
+		! control.blocked ||
+		// Already running on the plan, so there is nothing to ask anyone to install.
+		( control.kind === 'install-plugin' && control.runsWithoutPlugin )
+	) {
+		return null;
+	}
+
+	const pluginName =
+		control.kind === 'install-jetpack' ? 'Jetpack' : feature.plugin_name || feature.name;
+
+	return control.blocked === 'disabled'
+		? sprintf(
+				/* translators: %s is a plugin name, such as "Jetpack Boost". */
+				__(
+					'Plugin installs are turned off on this site. Ask your host or site administrator to install %s.',
+					'jetpack-my-jetpack'
+				),
+				pluginName
+			)
+		: sprintf(
+				/* translators: %s is a plugin name, such as "Jetpack Boost". */
+				__(
+					'Your account can’t install plugins. Ask a site administrator to install %s.',
+					'jetpack-my-jetpack'
+				),
+				pluginName
+			);
 }
 
 /**
  * The Jetpack module behind a feature, if any.
- *
- * A product's module is rarely named after it (Social runs 'publicize'). Resolved the way
- * the Products tab builds its cards, which also keeps the pre-release gate on Jetpack AI:
- * with the flag off that map drops AI, so no module resolves.
  *
  * @param feature        - The feature, from the map-backed catalog.
  * @param productModules - Product slug to module slug, where the two differ.
@@ -109,6 +208,22 @@ export function resolveFeatureState(
 	const $module =
 		moduleSlug && jetpack === 'active' ? modules?.[ moduleSlug as JetpackModuleSlug ] : undefined;
 
+	// The AI gate hides the switch, not the reason the module cannot run.
+	const ungatedSlug = PRODUCT_MODULES[ feature.product as keyof typeof PRODUCT_MODULES ];
+	const gatedModule =
+		jetpack === 'active' && ungatedSlug && ! productModules[ feature.product ]
+			? modules?.[ ungatedSlug ]
+			: undefined;
+	if ( gatedModule?.available === false ) {
+		return {
+			feature,
+			product,
+			status: 'inactive',
+			control: { kind: 'none', override: gatedModule.override || undefined },
+			unavailableReason: getModuleStatus( { ...gatedModule, override: false } ).reason,
+		};
+	}
+
 	if ( feature.in_jetpack && jetpack === 'active' ) {
 		// Answering from an empty module list would offer to install a plugin for a
 		// feature Jetpack is already running.
@@ -116,11 +231,23 @@ export function resolveFeatureState(
 			return { feature, product, pending: true, status: 'inactive', control: { kind: 'none' } };
 		}
 
-		if ( $module?.available ) {
+		const moduleStatus = $module && getModuleStatus( $module );
+		// A host's override decides the module whatever the plan, so it explains itself
+		// rather than falling through to the standalone plugin.
+		if (
+			$module &&
+			( moduleStatus?.isAvailable ||
+				moduleStatus?.isMultisiteBlocked ||
+				$module.override ||
+				! feature.plugin )
+		) {
 			return {
 				feature,
 				product,
-				status: $module.activated ? 'active' : 'inactive',
+				status:
+					( moduleStatus?.isAvailable || $module.override ) && $module.activated
+						? 'active'
+						: 'inactive',
 				control: { kind: 'module', module: $module },
 			};
 		}
@@ -130,14 +257,28 @@ export function resolveFeatureState(
 		// Read for status even where a plugin is the switch: the wp-admin sidebar counts a
 		// Hybrid product as on when either its plugin or its module is, and a card that
 		// disagreed with the sidebar would be wrong on any Jetpack site running the module.
-		const moduleIsOn = Boolean( $module?.available && $module.activated );
+		const moduleStatus = $module && getModuleStatus( $module );
+		const moduleIsOn = Boolean( moduleStatus?.isAvailable && $module?.activated );
+		const moduleUnavailableReason =
+			$module && getModuleStatus( { ...$module, override: false } ).reason;
 
 		if ( feature.plugin_status === 'not-installed' ) {
+			// A plan runs Backup and Scan in the cloud with no plugin. Shim until JETPACK-2620,
+			// JETPACK-2805 and JETPACK-2806 settle where those land.
+			const runsWithoutPlugin =
+				Boolean( product?.hasPaidPlanForProduct ) &&
+				RUNNING_ON_PLAN_STATUSES.includes( product?.status ?? '' );
+
 			return {
 				feature,
 				product,
-				status: moduleIsOn ? 'active' : 'inactive',
-				control: { kind: 'install-plugin', plugin: feature.plugin },
+				status: moduleIsOn || runsWithoutPlugin ? 'active' : 'inactive',
+				moduleUnavailableReason,
+				control: {
+					kind: 'install-plugin',
+					plugin: feature.plugin,
+					...( runsWithoutPlugin && { runsWithoutPlugin: true as const } ),
+				},
 			};
 		}
 
@@ -145,6 +286,7 @@ export function resolveFeatureState(
 			feature,
 			product,
 			status: feature.plugin_status === 'active' || moduleIsOn ? 'active' : 'inactive',
+			moduleUnavailableReason,
 			control: {
 				kind: 'plugin',
 				plugin: feature.plugin,
@@ -212,6 +354,7 @@ export function useFeatureStates( state: MainFeaturesState ): {
 					)
 				)
 				.map( resolved => applyRequestedModule( resolved, requested ) )
+				.map( resolved => applyInstallAccess( resolved, state.plugin_installs ) )
 				.map( resolved =>
 					requested[ pluginSwitchKey( resolved.feature.plugin ) ] === undefined
 						? resolved
@@ -222,6 +365,33 @@ export function useFeatureStates( state: MainFeaturesState ): {
 	);
 
 	return { states, isLoading: isLoadingModules };
+}
+
+/**
+ * Mark an install the current user can't make, so the card says why rather than offering it.
+ *
+ * @param state  - The feature's resolved state.
+ * @param access - Whether the current user may install plugins here.
+ * @return The state, with the reason on its install control where one applies.
+ */
+function applyInstallAccess(
+	state: FeatureState,
+	access: MainFeaturesState[ 'plugin_installs' ]
+): FeatureState {
+	const { control } = state;
+
+	if ( ! access || access === 'allowed' ) {
+		return state;
+	}
+
+	if (
+		control.kind === 'install-plugin' ||
+		( control.kind === 'install-jetpack' && ! control.installed )
+	) {
+		return { ...state, control: { ...control, blocked: access } };
+	}
+
+	return state;
 }
 
 /**
@@ -249,9 +419,8 @@ function applyRequestedModule(
 /**
  * Show the plugin status a switch asked for, before resolving what the card offers.
  *
- * Applied to the feature rather than to the resolved state, because the plugin's status
- * decides which control the card gets: an install that has been asked for should offer
- * the switch it is about to become, not the Install button it no longer is.
+ * Applied to the feature rather than to the resolved state, because resolving reads the
+ * plugin's status. An install never asks for one: it says "Installing…" until it lands.
  *
  * @param feature   - The feature, as the site last reported it.
  * @param requested - Switch key to the value asked of it.

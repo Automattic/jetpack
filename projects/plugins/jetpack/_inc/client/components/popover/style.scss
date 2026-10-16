@@ -134,8 +134,8 @@
 	&.is-bottom-left,
 	&.is-top-right,
 	&.is-bottom-right {
-		padding-right: 0;
-		padding-left: 0;
+		padding-inline-end: 0;
+		padding-inline-start: 0;
 	}
 
 	&.is-top-left .dops-popover__arrow,
@@ -197,7 +197,7 @@
 	font-weight: 400;
 	margin: 0;
 	padding: 8px 16px;
-	text-align: left;
+	text-align: start;
 	transition: all 0.05s ease-in-out;
 
 	&:first-child {
@@ -232,14 +232,14 @@
 
 	// Menu Items with Icons
 	&.has-icon {
-		padding-left: 42px;
+		padding-inline-start: 42px;
 	}
 
 	// with gridicons
 	.gridicon {
 		color: color.adjust(calypso-colors.$gray, $lightness: 10%);
 		vertical-align: bottom;
-		margin-right: 8px;
+		margin-inline-end: 8px;
 	}
 }
 

@@ -186,13 +186,7 @@ Full control over component rendering with custom render functions:
 			</div>
 		)}
 		renderTooltip={({ step }) => (
-			<div style={{
-				background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-				borderRadius: '12px',
-				padding: '16px 20px',
-				color: 'white',
-				minWidth: '200px'
-			}}>
+			<div style={{ minWidth: '200px' }}>
 				<div>{step.label}</div>
 				<div style={{ fontSize: '18px', fontWeight: 'bold' }}>
 					{step.rate.toFixed(1)}%
@@ -200,6 +194,12 @@ Full control over component rendering with custom render functions:
 				</div>
 			</div>
 		)}
+		tooltipStyle={{
+			background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+			borderRadius: '12px',
+			padding: '16px 20px',
+			color: 'white'
+		}}
 	/>` }
 />
 
@@ -208,7 +208,8 @@ Full control over component rendering with custom render functions:
 - **`renderMainMetric`**: Customize the main conversion rate display
 - **`renderStepLabel`**: Customize individual step labels
 - **`renderStepRate`**: Customize individual step rate displays
-- **`renderTooltip`**: Customize tooltip content and styling
+- **`renderTooltip`**: Customize tooltip content. It sits inside the dark tooltip box, so let it inherit the box colors.
+- **`tooltipStyle`**: Restyle the tooltip box itself, such as its background, radius or padding. Set `color` with any background change.
 
 ### Disabling Components
 
@@ -299,6 +300,10 @@ By default, the chart fills its parent container's height (`height="100%"`), con
 	/>` }
 />
 
+Below 180px of height the chart tightens the spacing between the rate, the step labels and the bars, so the bars keep their room in a short container:
+
+<Canvas of={ ConversionFunnelChartStories.ShortHeight } />
+
 For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
 
 ## Animation
@@ -387,6 +392,7 @@ Measure content consumption funnel from page views to conversions.
 
 ### Screen Reader Support
 
+- Set `ariaLabel` to name the chart. See [Accessible names](./?path=/docs/js-packages-charts-library-introduction--docs#accessible-names).
 - **ARIA Roles**: Each funnel step uses `role="button"` for proper semantic meaning
 - **ARIA Labels**: Each step has `aria-label` with the step name
 - **Alternative Text**: Step labels and rates are accessible to screen readers

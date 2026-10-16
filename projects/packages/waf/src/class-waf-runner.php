@@ -261,6 +261,9 @@ class Waf_Runner {
 			// phpcs:ignore
 			$waf = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators() );
 
+			// Before the rules, which stop at the IP allow list without saying why.
+			Waf_Self_Check::maybe_block( $waf );
+
 			// execute waf rules.
 			$rules_file_path = self::get_waf_file_path( JETPACK_WAF_ENTRYPOINT );
 			if ( file_exists( $rules_file_path ) ) {

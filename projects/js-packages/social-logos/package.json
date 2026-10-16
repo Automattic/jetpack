@@ -1,6 +1,6 @@
 {
 	"name": "social-logos",
-	"version": "3.3.19",
+	"version": "3.4.0",
 	"description": "A repository of all the social logos used on WordPress.com.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/social-logos/",
 	"author": "Automattic",
@@ -17,7 +17,10 @@
 			"jetpack:src": "./src/react/index.ts",
 			"default": "./build/react/index.js"
 		},
-		"./colors.css": "./src/social-logo-colors.css",
+		"./colors.css": {
+			"jetpack:src": "./src/social-logo-colors.css",
+			"default": "./build/css/social-logo-colors.css"
+		},
 		"./font/*": {
 			"default": "./build/font/*"
 		},
@@ -49,7 +52,7 @@
 		"xml2js": "^0.6.2"
 	},
 	"peerDependencies": {
-		"react": "^18.0.0",
-		"react-dom": "^18.0.0"
+		"react": "^18.0.0 || ^19.0.0",
+		"react-dom": "^18.0.0 || ^19.0.0"
 	}
 }

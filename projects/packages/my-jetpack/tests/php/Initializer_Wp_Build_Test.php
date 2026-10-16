@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
-use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
@@ -18,56 +17,13 @@ use WorDBless\BaseTestCase;
 class Initializer_Wp_Build_Test extends BaseTestCase {
 
 	/**
-	 * Per-flag filter that forces the Features tab flag.
-	 */
-	const FEATURES_TAB_FLAG_FILTER = 'jetpack_feature_flag_enabled_' . Initializer::FEATURES_TAB_FEATURE_FLAG;
-
-	/**
 	 * Reset the request between tests.
 	 *
 	 * @return void
 	 */
 	public function tear_down() {
 		unset( $_GET['page'], $_GET['step'], $GLOBALS['current_screen'] );
-		remove_all_filters( self::FEATURES_TAB_FLAG_FILTER );
 		remove_all_filters( 'jetpack_my_jetpack_should_initialize' );
-		Feature_Flags::reset();
-	}
-
-	/**
-	 * The Features tab is off unless its flag is on.
-	 *
-	 * @return void
-	 */
-	public function test_features_tab_follows_its_flag() {
-		Initializer::register_feature_flags();
-
-		$this->assertFalse( Initializer::is_features_tab_enabled() );
-		$this->assertNull( Initializer::get_products_section() );
-
-		add_filter( self::FEATURES_TAB_FLAG_FILTER, '__return_true' );
-		$this->assertTrue( Initializer::is_features_tab_enabled() );
-		$this->assertSame(
-			array(
-				'slug'  => 'features',
-				'label' => 'Features',
-			),
-			Initializer::get_products_section()
-		);
-	}
-
-	/**
-	 * The flag is registered even where My Jetpack itself is off, so it stays listed.
-	 *
-	 * @return void
-	 */
-	public function test_init_registers_the_flag_where_my_jetpack_is_off() {
-		add_filter( 'jetpack_my_jetpack_should_initialize', '__return_false' );
-
-		Initializer::init();
-
-		$this->assertFalse( Initializer::should_initialize() );
-		$this->assertNotNull( Feature_Flags::get( Initializer::FEATURES_TAB_FEATURE_FLAG ) );
 	}
 
 	/**

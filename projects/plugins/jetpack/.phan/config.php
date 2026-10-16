@@ -13,7 +13,7 @@ require __DIR__ . '/../../../../.phan/config.base.php';
 $config = make_phan_config(
 	dirname( __DIR__ ),
 	array(
-		'+stubs'                          => array( 'akismet', 'amp', 'full-site-editing', 'woocommerce', 'woocommerce-internal', 'woocommerce-packages', 'wpcom', 'zero-bs-crm' ),
+		'+stubs'                          => array( 'akismet', 'amp', 'full-site-editing', 'gutenberg', 'woocommerce', 'woocommerce-internal', 'woocommerce-packages', 'wpcom', 'zero-bs-crm' ),
 		// CI analyses an unbuilt checkout, so the generated wp-build PHP is absent there.
 		// Exclude it locally too, or the `function_exists()` guards that reference it read as
 		// unused suppressions on a built checkout only.
@@ -31,6 +31,7 @@ $config = make_phan_config(
 			'tests/php/lib/class-wpcom-features.php',
 			'tests/php/lib/class-email-verification.php',
 			'tests/php/lib/mock-functions.php',
+			'tests/php/files/mock-wpcomsh-site-sticker.php',
 			'tests/php/extensions/blocks/premium-content/mocks/class-blog-subscriber.php',
 			'tests/php/extensions/blocks/premium-content/mocks/class-blog-subscription.php',
 			'tests/php/extensions/blocks/premium-content/mocks/wpcom-subs-is-subscribed.php',

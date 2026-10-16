@@ -27,6 +27,11 @@ class Jetpack_Ai extends Module_Product {
 	const UPGRADED_TIER_SLUG = 'upgraded';
 
 	/**
+	 * How many requests a site gets before it has to upgrade.
+	 */
+	const FREE_REQUESTS = 20;
+
+	/**
 	 * The product slug
 	 *
 	 * @var string
@@ -116,16 +121,21 @@ class Jetpack_Ai extends Module_Product {
 	/**
 	 * Get the internationalized comparison of free vs upgraded features
 	 *
-	 * @return array[] Protect features comparison
+	 * @deprecated 6.10.0
+	 *
+	 * @return array[] Jetpack AI features comparison
 	 */
 	public static function get_features_by_tier() {
+		_deprecated_function( __METHOD__, 'jetpack-my-jetpack-6.10.0' );
+
 		if ( ! self::are_tier_plans_enabled() ) {
-			return parent::get_features_by_tier();
+			return array();
 		}
 
 		$current_tier        = self::get_current_usage_tier();
 		$current_description = 0 === $current_tier
-			? __( 'Up to 20 requests', 'jetpack-my-jetpack' )
+			/* translators: %d is the number of free requests, such as 20. */
+			? sprintf( _n( 'Up to %d request', 'Up to %d requests', self::FREE_REQUESTS, 'jetpack-my-jetpack' ), self::FREE_REQUESTS )
 			/* translators: number of requests */
 			: sprintf( __( 'Up to %d requests per month', 'jetpack-my-jetpack' ), $current_tier );
 		$next_tier        = self::get_next_usage_tier();
@@ -551,7 +561,7 @@ class Jetpack_Ai extends Module_Product {
 	/**
 	 * Get the URL where the user manages the product.
 	 *
-	 * @return ?string
+	 * @return string
 	 */
 	public static function get_manage_url() {
 		if ( self::is_feature_ui_enabled() ) {

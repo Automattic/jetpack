@@ -179,7 +179,7 @@ class Cookie_Consent {
 	 * stored consent logs, CCPA page content, and options intact so a later
 	 * reactivation can resume without data loss.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.1.0
 	 */
 	public static function deactivate() {
 		// These mirror the full set of hooks init() can register across every
@@ -223,7 +223,7 @@ class Cookie_Consent {
 	 * are retained by default because they may be compliance records; pass true
 	 * only when the consuming plugin has decided uninstall should delete them.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.1.0
 	 *
 	 * @param bool $delete_consent_logs Whether to drop the consent-log table.
 	 */
@@ -931,7 +931,7 @@ class Cookie_Consent {
 	 * cause undefined-index access. An empty (the default) $config reads the already
 	 * resolved and stashed get_config() instead of re-resolving from scratch.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.1.0
 	 *
 	 * @param array $config Configuration array, which may lack a normalized `copy` group.
 	 * @return array Copy with every key present.
@@ -950,7 +950,7 @@ class Cookie_Consent {
 	 * An empty (the default) $config reads the already resolved and stashed
 	 * get_config() instead of re-resolving from scratch.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.1.0
 	 *
 	 * @param array $config Configuration array.
 	 * @return array Normalized consent categories.
@@ -966,7 +966,7 @@ class Cookie_Consent {
 	/**
 	 * Get the active configured consent category registry.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.1.0
 	 *
 	 * @return array Normalized configured consent categories.
 	 */
@@ -978,7 +978,7 @@ class Cookie_Consent {
 	/**
 	 * Get the frontend preference key for a registry category key.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.1.0
 	 *
 	 * @param string $key Registry category key.
 	 * @return string Frontend preference key.
@@ -998,7 +998,7 @@ class Cookie_Consent {
 	/**
 	 * Get the Interactivity API category context object.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.1.0
 	 *
 	 * @param array $categories Normalized category registry.
 	 * @return array Category choices keyed by frontend preference key.
@@ -1017,7 +1017,7 @@ class Cookie_Consent {
 	/**
 	 * Convert normalized categories to the frontend config shape.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.1.0
 	 *
 	 * @param array $categories Normalized category registry.
 	 * @return array Frontend category registry.
@@ -1073,7 +1073,7 @@ class Cookie_Consent {
 		/**
 		 * Filters the resolved Cookie Consent configuration.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.1.0
 		 *
 		 * @param array $resolved The fully resolved configuration array.
 		 */

@@ -291,6 +291,10 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 							'description' => __( 'If videos should render an inline player from one shared script instead of one frame per video', 'jetpack-videopress-pkg' ),
 							'type'        => 'boolean',
 						),
+						'videopress_share_menu_disabled'   => array(
+							'description' => __( 'If the share menu should be hidden on every video, overriding each video’s own setting', 'jetpack-videopress-pkg' ),
+							'type'        => 'boolean',
+						),
 					),
 				),
 			)
@@ -364,6 +368,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 		$auto_subtitles_disabled = $request->get_param( 'videopress_auto_subtitles_disabled' );
 		$player_preload_disabled = $request->get_param( 'videopress_player_preload_disabled' );
 		$inline_player_enabled   = $request->get_param( 'videopress_inline_player_enabled' );
+		$share_menu_disabled     = $request->get_param( 'videopress_share_menu_disabled' );
 
 		$ignored = array();
 
@@ -392,6 +397,10 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 
 		if ( null !== $inline_player_enabled ) {
 			update_option( 'videopress_inline_player_enabled', $inline_player_enabled );
+		}
+
+		if ( null !== $share_menu_disabled ) {
+			update_option( 'videopress_share_menu_disabled', $share_menu_disabled );
 		}
 
 		$response = array(
@@ -752,14 +761,14 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 	/**
 	 * Resolve a VideoPress guid to its local attachment id on the current site.
 	 *
-	 * Used to authorize poster reads/writes against the specific video. Returns
-	 * 0 when the guid cannot be resolved to an attachment on this site, so the
-	 * capability check that consumes it fails closed.
+	 * Returns 0 when the GUID does not belong to the current site.
+	 *
+	 * @internal
 	 *
 	 * @param string $video_guid The VideoPress GUID.
 	 * @return int The attachment/post id, or 0 if it cannot be resolved.
 	 */
-	private static function get_video_attachment_id( $video_guid ) {
+	public static function get_video_attachment_id( $video_guid ) {
 		if ( empty( $video_guid ) ) {
 			return 0;
 		}
@@ -964,6 +973,11 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 	public function videopress_block_update_meta( $request ) {
 		$json_params = $request->get_json_params();
 		$post_id     = $json_params['id'];
+
+		// The site setting overrides every video, so drop attempts to turn sharing on and keep the stored value.
+		if ( ! empty( $json_params['display_embed'] ) && Data::get_videopress_share_menu_disabled() ) {
+			unset( $json_params['display_embed'] );
+		}
 
 		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
 			$guid = get_post_meta( $post_id, 'videopress_guid', true );

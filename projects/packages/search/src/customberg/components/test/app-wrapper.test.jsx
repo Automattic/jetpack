@@ -76,4 +76,31 @@ describe( 'AppWrapper AI Answers preview gating', () => {
 
 		expect( searchAppOptions().aiAnswersEnabled ).toBe( true );
 	} );
+
+	it.each( [ false, true ] )(
+		'keeps the server AI Answers value %s when the settings API returns null',
+		isEnabled => {
+			window.JetpackInstantSearchOptions = makeServerObject( {
+				aiMasterEnabled: true,
+				aiAnswersEnabled: isEnabled,
+			} );
+			useSearchOptions.mockReturnValue( { aiAnswersEnabled: null } );
+
+			render( <AppWrapper /> );
+
+			expect( searchAppOptions().aiAnswersEnabled ).toBe( isEnabled );
+		}
+	);
+
+	it( 'lets an explicit sidebar off value override the saved on value', () => {
+		window.JetpackInstantSearchOptions = makeServerObject( {
+			aiMasterEnabled: true,
+			aiAnswersEnabled: true,
+		} );
+		useSearchOptions.mockReturnValue( { aiAnswersEnabled: false } );
+
+		render( <AppWrapper /> );
+
+		expect( searchAppOptions().aiAnswersEnabled ).toBe( false );
+	} );
 } );

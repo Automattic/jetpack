@@ -13,12 +13,13 @@ import {
 	WidgetState,
 	describeError,
 	sharePercentage,
+	ExporterCsvDownloadButton,
+	commentsPostsCsvExporter,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { commentContent } from '@wordpress/icons';
 import { Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
@@ -77,9 +78,8 @@ function MostCommentedPostsInner() {
 						onRetry: refetch,
 					} ) }
 					empty={ {
-						icon: commentContent,
 						description: __(
-							'None of your posts or pages have comments yet.',
+							'You don’t have comments recorded yet.',
 							'jetpack-premium-analytics-pkg'
 						),
 					} }
@@ -90,6 +90,10 @@ function MostCommentedPostsInner() {
 						withOverlayLabel
 						showLegend={ false }
 						dataFormat={ DATA_FORMAT }
+						columns={ {
+							label: __( 'Posts', 'jetpack-premium-analytics-pkg' ),
+							metric: 'comments',
+						} }
 					/>
 				</WidgetState>
 			</div>
@@ -98,6 +102,11 @@ function MostCommentedPostsInner() {
 					report="comments"
 					section="posts"
 					ariaLabel={ __( 'See the commented posts report', 'jetpack-premium-analytics-pkg' ) }
+				/>
+				<ExporterCsvDownloadButton
+					exporter={ commentsPostsCsvExporter }
+					status={ { isLoading, isFetching, isError } }
+					rowCount={ rows.length }
 				/>
 			</WidgetFooter>
 		</Stack>

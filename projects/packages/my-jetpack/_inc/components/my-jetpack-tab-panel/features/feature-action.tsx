@@ -1,16 +1,20 @@
 import { LoadingPlaceholder } from '@automattic/jetpack-components';
 import { FormToggle } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Button } from '@wordpress/ui';
+import { Button, ButtonLink } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { ModuleToggle } from '../../module-toggle';
 import { getSwitchLabel } from '../utils';
-import { getForcedReason } from './feature-state';
+import { getFeatureManageUrl, getForcedReason } from './feature-state';
+import { useFeaturesTracking } from './features-tracking-context';
 import styles from './styles.module.scss';
 import { useFeaturePlugin } from './use-main-features';
 import type { FeatureState } from './feature-state';
+import type { FeatureActionOrigin } from './features-tracking-context';
 
 type PluginToggleProps = {
+	state: FeatureState;
+	origin: FeatureActionOrigin;
 	plugin: string;
 	isOn: boolean;
 	name: string;
@@ -21,15 +25,25 @@ type PluginToggleProps = {
  * The card switch for a feature switched by its standalone plugin.
  *
  * @param {PluginToggleProps} props             - The component props.
+ * @param {FeatureState}      props.state       - Live state for the feature.
+ * @param {string}            props.origin      - Which list this control sits in.
  * @param {string}            props.plugin      - The plugin's slug.
  * @param {boolean}           props.isOn        - Whether the plugin is active.
  * @param {string}            props.name        - The feature's name, for the label and notice.
  * @param {string}            props.describedby - Id of the element stating whether it is on.
  * @return The rendered component.
  */
-function PluginToggle( { plugin, isOn, name, describedby }: PluginToggleProps ) {
+function PluginToggle( { state, origin, plugin, isOn, name, describedby }: PluginToggleProps ) {
 	const { run, isBusy } = useFeaturePlugin( plugin, name );
-	const onChange = useCallback( () => run( isOn ? 'deactivate' : 'activate' ), [ isOn, run ] );
+	const tracking = useFeaturesTracking();
+	const onChange = useCallback( () => {
+		tracking?.trackFeatureAction( {
+			state,
+			action: isOn ? 'deactivate' : 'activate',
+			origin,
+		} );
+		run( isOn ? 'deactivate' : 'activate' );
+	}, [ isOn, origin, run, state, tracking ] );
 
 	return (
 		<FormToggle
@@ -43,6 +57,8 @@ function PluginToggle( { plugin, isOn, name, describedby }: PluginToggleProps ) 
 }
 
 type InstallButtonProps = {
+	state?: FeatureState;
+	origin: FeatureActionOrigin;
 	plugin: string;
 	name: string;
 	label: string;
@@ -53,19 +69,42 @@ type InstallButtonProps = {
  * A compact button that installs, or activates, the plugin a feature is waiting on.
  *
  * @param {InstallButtonProps} props        - The component props.
+ * @param {FeatureState}       props.state  - Live state for the feature, where it is one feature's.
+ * @param {string}             props.origin - Whether the button is the card's or the modal's.
  * @param {string}             props.plugin - The plugin's slug, or `jetpack`.
  * @param {string}             props.name   - What to call it in the notice.
  * @param {string}             props.label  - The button's text.
  * @param {string}             props.action - Install when missing, activate when installed.
  * @return The rendered component.
  */
-export function InstallButton( { plugin, name, label, action }: InstallButtonProps ) {
+export function InstallButton( {
+	state,
+	origin,
+	plugin,
+	name,
+	label,
+	action,
+}: InstallButtonProps ) {
 	const { run, isBusy } = useFeaturePlugin( plugin, name );
-	const onClick = useCallback( () => run( action ), [ action, run ] );
+	const tracking = useFeaturesTracking();
+	const onClick = useCallback( () => {
+		tracking?.trackFeatureAction( { state, action, origin } );
+		run( action );
+	}, [ action, origin, run, state, tracking ] );
+	const busyLabel =
+		action === 'install'
+			? __( 'Installing…', 'jetpack-my-jetpack' )
+			: __( 'Activating…', 'jetpack-my-jetpack' );
 
 	return (
-		<Button variant="outline" size="compact" disabled={ isBusy } onClick={ onClick }>
-			{ label }
+		<Button
+			variant="outline"
+			size="compact"
+			disabled={ isBusy }
+			aria-busy={ isBusy || undefined }
+			onClick={ onClick }
+		>
+			{ isBusy ? busyLabel : label }
 		</Button>
 	);
 }
@@ -73,23 +112,36 @@ export function InstallButton( { plugin, name, label, action }: InstallButtonPro
 type FeatureActionProps = {
 	state: FeatureState;
 	describedby?: string;
+	origin?: FeatureActionOrigin;
 };
 
 /**
  * The card's control, as the feature map decides it.
  *
- * Nothing here reloads the page, unlike the Products tab's switches, so several features
- * can be flipped in a row; the wp-admin sidebar is refreshed in place after each switch
- * (see `use-sidebar-sync.ts`).
+ * Nothing here reloads the page, so several features can be flipped in a row; the
+ * wp-admin sidebar is refreshed in place after each switch (see `use-sidebar-sync.ts`).
  *
  * @param {FeatureActionProps} props             - The component props.
  * @param {FeatureState}       props.state       - Live state for the feature.
  * @param {string}             props.describedby - Id of the element stating whether it is on.
+ * @param {string}             props.origin      - Which list this control sits in.
  * @return The rendered component, or null when nothing here can switch the feature.
  */
-export function FeatureAction( { state, describedby }: FeatureActionProps ) {
+export function FeatureAction( { state, describedby, origin = 'card' }: FeatureActionProps ) {
 	const { control, feature } = state;
+	const manageUrl = getFeatureManageUrl( state );
 	const pluginName = feature.plugin_name || feature.name;
+	const tracking = useFeaturesTracking();
+
+	const onModuleSwitch = useCallback(
+		( active: boolean ) =>
+			tracking?.trackFeatureAction( {
+				state,
+				action: active ? 'activate' : 'deactivate',
+				origin,
+			} ),
+		[ origin, state, tracking ]
+	);
 
 	if ( state.pending ) {
 		return (
@@ -100,7 +152,6 @@ export function FeatureAction( { state, describedby }: FeatureActionProps ) {
 
 	switch ( control.kind ) {
 		case 'module': {
-			// FeatureItem shows why, under the description: this slot does not shrink.
 			if ( getForcedReason( state ) ) {
 				return null;
 			}
@@ -110,6 +161,7 @@ export function FeatureAction( { state, describedby }: FeatureActionProps ) {
 					module={ control.module }
 					reloadAfterToggle={ false }
 					describedby={ describedby }
+					onSwitch={ onModuleSwitch }
 				/>
 			);
 		}
@@ -121,6 +173,8 @@ export function FeatureAction( { state, describedby }: FeatureActionProps ) {
 
 			return (
 				<PluginToggle
+					state={ state }
+					origin={ origin }
 					plugin={ control.plugin }
 					isOn={ state.status === 'active' }
 					name={ pluginName }
@@ -129,8 +183,24 @@ export function FeatureAction( { state, describedby }: FeatureActionProps ) {
 			);
 
 		case 'install-plugin':
+			// Already running on the plan, so the card opens it; Install stays in the modal.
+			if ( control.runsWithoutPlugin && manageUrl ) {
+				return (
+					<ButtonLink href={ manageUrl } variant="outline" size="compact">
+						{ __( 'Open', 'jetpack-my-jetpack' ) }
+					</ButtonLink>
+				);
+			}
+
+			// FeatureInstallNotice says why, under the description.
+			if ( control.blocked ) {
+				return null;
+			}
+
 			return (
 				<InstallButton
+					state={ state }
+					origin={ origin }
 					plugin={ control.plugin }
 					name={ pluginName }
 					label={ __( 'Install', 'jetpack-my-jetpack' ) }
@@ -139,7 +209,11 @@ export function FeatureAction( { state, describedby }: FeatureActionProps ) {
 			);
 
 		case 'install-jetpack':
-			return <JetpackButton installed={ control.installed } />;
+			if ( control.blocked ) {
+				return null;
+			}
+
+			return <JetpackButton state={ state } origin={ origin } installed={ control.installed } />;
 
 		default:
 			return null;
@@ -147,6 +221,8 @@ export function FeatureAction( { state, describedby }: FeatureActionProps ) {
 }
 
 type JetpackButtonProps = {
+	state?: FeatureState;
+	origin?: FeatureActionOrigin;
 	installed: boolean;
 };
 
@@ -154,15 +230,23 @@ type JetpackButtonProps = {
  * Install, or activate, the Jetpack plugin for a feature only Jetpack ships.
  *
  * @param {JetpackButtonProps} props           - The component props.
+ * @param {FeatureState}       props.state     - Live state for the feature, where it is one feature's.
+ * @param {string}             props.origin    - Which control this is; the More Features section's by default.
  * @param {boolean}            props.installed - Whether Jetpack is installed but inactive.
  * @return The rendered component.
  */
-export function JetpackButton( { installed }: JetpackButtonProps ) {
+export function JetpackButton( {
+	state,
+	origin = 'more_features',
+	installed,
+}: JetpackButtonProps ) {
 	const activateLabel = __( 'Activate Jetpack', 'jetpack-my-jetpack' );
 	const installLabel = __( 'Install Jetpack', 'jetpack-my-jetpack' );
 
 	return (
 		<InstallButton
+			state={ state }
+			origin={ origin }
 			plugin="jetpack"
 			name="Jetpack"
 			label={ installed ? activateLabel : installLabel }

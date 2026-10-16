@@ -21,10 +21,17 @@ final class Dashboard_Section_Registry {
 	/**
 	 * Action through which sections are registered, fired once on the first read.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 * @var string
 	 */
 	const REGISTER_ACTION = 'jetpack_premium_analytics_register_dashboard_sections';
+
+	/**
+	 * Slugs the dashboard stage uses for its own tabs, which a section may not take.
+	 *
+	 * @var string[]
+	 */
+	private const RESERVED_SLUGS = array( 'settings' );
 
 	/**
 	 * Registered sections, as `$dashboard_name => $id => $section` pairs.
@@ -101,7 +108,14 @@ final class Dashboard_Section_Registry {
 				$holder->id
 			);
 			// One line: tools/replace-next-version-tag.sh only rewrites the token in a single-line call.
-			_doing_it_wrong( __METHOD__, esc_html( $message ), 'jetpack-premium-analytics-$$next-version$$' );
+			_doing_it_wrong( __METHOD__, esc_html( $message ), 'jetpack-premium-analytics-0.9.0' );
+			return false;
+		}
+
+		if ( in_array( $section->slug, self::RESERVED_SLUGS, true ) ) {
+			/* translators: %s: Section slug. */
+			$message = sprintf( __( 'Dashboard section slug "%s" is reserved for the dashboard.', 'jetpack-premium-analytics-pkg' ), $section->slug );
+			_doing_it_wrong( __METHOD__, esc_html( $message ), 'jetpack-premium-analytics-0.12.0' );
 			return false;
 		}
 
@@ -134,7 +148,7 @@ final class Dashboard_Section_Registry {
 	/**
 	 * Retrieves a registered section by its URL-facing slug.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @param string $dashboard_name Dashboard identifier.
 	 * @param string $slug           Section slug, e.g. `ads`.
@@ -234,7 +248,7 @@ final class Dashboard_Section_Registry {
 		if ( ! did_action( 'init' ) ) {
 			$message = __( 'Dashboard sections are read after init. A read before it does not hydrate the registry and answers only what was registered directly.', 'jetpack-premium-analytics-pkg' );
 			// One line: tools/replace-next-version-tag.sh only rewrites the token in a single-line call.
-			_doing_it_wrong( __METHOD__, esc_html( $message ), 'jetpack-premium-analytics-$$next-version$$' );
+			_doing_it_wrong( __METHOD__, esc_html( $message ), 'jetpack-premium-analytics-0.9.0' );
 			return;
 		}
 
@@ -248,7 +262,7 @@ final class Dashboard_Section_Registry {
 		 * from REST, and each path loads it at a different moment. A registrant that may run
 		 * twice guards with `is_registered()`.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.9.0
 		 *
 		 * @param Dashboard_Section_Registry $registry The registry being hydrated.
 		 */

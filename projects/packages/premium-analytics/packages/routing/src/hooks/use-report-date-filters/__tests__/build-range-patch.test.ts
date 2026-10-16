@@ -77,6 +77,23 @@ describe( 'buildRangePatch', () => {
 		expect( patch?.interval ).toBe( 'day' );
 	} );
 
+	it.each( [
+		[ true, 'day' ],
+		[ false, 'week' ],
+	] )(
+		'resets the interval on a preset change only when asked (reset: %s)',
+		( resetIntervalOnPresetChange, expected ) => {
+			const patch = buildRangePatch( {
+				nextRange: { from, to: wideTo },
+				nextPresetId: 'last-30-days',
+				resetIntervalOnPresetChange,
+				effective: { preset: 'year-to-date', interval: 'week' },
+			} );
+
+			expect( patch?.interval ).toBe( expected );
+		}
+	);
+
 	// A day bucket on a day-long window draws the whole range as one bar.
 	it( 'coerces a day bucket when switching to a day-long preset', () => {
 		for ( const preset of [ 'last-7-days', 'last-30-days' ] as const ) {

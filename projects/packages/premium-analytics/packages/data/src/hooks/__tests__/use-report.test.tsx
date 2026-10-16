@@ -23,6 +23,14 @@ function wrapper( { children }: { children: ReactNode } ) {
 }
 
 describe( 'useReport', () => {
+	beforeEach( () => {
+		jest.useFakeTimers();
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
 	it( 'keeps endpoint-specific params and overrides only comparison dates', () => {
 		const calls: Array< { params: ReportParams; queryType: string } > = [];
 		const queryFactory = (

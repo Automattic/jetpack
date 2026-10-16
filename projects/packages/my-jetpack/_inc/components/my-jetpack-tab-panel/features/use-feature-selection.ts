@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
+import { useFeaturesTracking } from './features-tracking-context';
 import { isBulkSwitchable, useBulkFeatureSwitch } from './use-bulk-feature-switch';
 import type { FeatureState } from './feature-state';
 
@@ -33,6 +34,7 @@ export function useFeatureSelection(
 ): FeatureSelection {
 	const [ selected, setSelected ] = useState< Set< string > >( () => new Set() );
 	const { run, isRunning } = useBulkFeatureSwitch();
+	const tracking = useFeaturesTracking();
 	// Rows in flight also count, so a run started before the view last changed still holds the bar.
 	const isBusy = isRunning || states.some( state => state.isSwitching );
 
@@ -77,18 +79,26 @@ export function useFeatureSelection(
 		[ picked, canDeactivatePlugins ]
 	);
 
-	// Clears only what was sent, so a row picked mid-run survives, and keeps failures for a retry.
+	// Clears what was picked when the run began, so a row picked mid-run survives, and keeps
+	// failures for a retry.
 	const switchStates = useCallback(
-		async ( targets: FeatureState[], active: boolean ) => {
-			const failed = await run( targets, active );
+		async ( targets: FeatureState[], active: boolean, sent: FeatureState[] ) => {
+			const { attempted, failed } = await run( targets, active );
+
+			tracking?.trackBulkAction( {
+				action: active ? 'activate' : 'deactivate',
+				attempted,
+				failed,
+			} );
+
 			setSelected( previous => {
 				const next = new Set( previous );
-				targets.forEach( state => next.delete( state.feature.slug ) );
+				sent.forEach( state => next.delete( state.feature.slug ) );
 				failed.forEach( slug => next.add( slug ) );
 				return next;
 			} );
 		},
-		[ run ]
+		[ run, tracking ]
 	);
 
 	return {
@@ -105,11 +115,14 @@ export function useFeatureSelection(
 			! canDeactivatePlugins &&
 			picked.some( state => state.status === 'active' && state.control.kind === 'plugin' ),
 
-		onActivate: useCallback( () => switchStates( toActivate, true ), [ switchStates, toActivate ] ),
+		onActivate: useCallback(
+			() => switchStates( toActivate, true, picked ),
+			[ picked, switchStates, toActivate ]
+		),
 
 		onDeactivate: useCallback(
-			() => switchStates( toDeactivate, false ),
-			[ switchStates, toDeactivate ]
+			() => switchStates( toDeactivate, false, picked ),
+			[ picked, switchStates, toDeactivate ]
 		),
 	};
 }

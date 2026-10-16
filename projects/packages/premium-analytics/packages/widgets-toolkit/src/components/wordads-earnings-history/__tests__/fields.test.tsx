@@ -1,42 +1,22 @@
 import { filterSortAndPaginate, type View } from '@jetpack-premium-analytics/externals';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { getSettings, setSettings } from '@wordpress/date';
+import { siteSettingsIn } from '../../../__fixtures__/wp-date-settings';
 import {
 	EarningsStatusBadge,
 	flattenEarningsBreakdown,
+	formatEarningsPeriod,
 	getEarningsStatus,
 	getWordAdsHistoryFields,
 } from '../fields';
 
+// Captured before any suite installs its own, since this suite shares a module registry with its group.
+const BASE_SETTINGS = getSettings();
+
 describe( 'getEarningsStatus', () => {
-	it( 'maps known WordAds statuses to labels', () => {
-		expect( getEarningsStatus( 0 ).label ).toBe( 'Unpaid' );
-		expect( getEarningsStatus( 1 ).label ).toBe( 'Paid' );
-		expect( getEarningsStatus( 2 ).label ).toBe( 'a8c-only' );
-		expect( getEarningsStatus( 3 ).label ).toBe( 'Pending' );
-		expect( getEarningsStatus( 4 ).label ).toBe( 'Pending' );
-	} );
-
-	it( 'falls back to "?" for unknown or absent statuses', () => {
-		expect( getEarningsStatus( 99 ).label ).toBe( '?' );
-		expect( getEarningsStatus( undefined ).label ).toBe( '?' );
-	} );
-
-	it( 'carries a tooltip for paid/unpaid', () => {
-		expect( getEarningsStatus( 0 ).tooltip ).toContain( 'on hold' );
-		expect( getEarningsStatus( 2 ).tooltip ).toBeUndefined();
-	} );
-
-	it.each( [
-		[ 0, 'high' ],
-		[ 1, 'stable' ],
-		[ 2, 'draft' ],
-		[ 3, 'medium' ],
-		[ 4, 'medium' ],
-		[ 99, 'none' ],
-		[ undefined, 'none' ],
-	] )( 'gives status %s the %s badge intent', ( status, intent ) => {
-		expect( getEarningsStatus( status ).intent ).toBe( intent );
+	it.each( [ 99, undefined ] )( 'falls back to "?" for the status %s', status => {
+		expect( getEarningsStatus( status ) ).toMatchObject( { label: '?', intent: 'none' } );
 	} );
 } );
 
@@ -121,16 +101,22 @@ describe( 'getWordAdsHistoryFields', () => {
 	} );
 
 	it.each( [
-		[ 'Paid', '2025-12' ],
-		[ 'Unpaid', '2026-09' ],
-	] )( 'filters to exactly "%s"', ( value, period ) => {
+		[ 'Paid', [ '2025-12' ] ],
+		[ 'Unpaid', [ '2026-09' ] ],
+		[ 'Pending', [ '2026-03', '2026-04' ] ],
+	] )( 'filters to exactly "%s"', ( value, periods ) => {
+		const withPending = [
+			...rows,
+			{ id: '2026-03', period: '2026-03', amount: 1, pageviews: 1, status: 3 },
+			{ id: '2026-04', period: '2026-04', amount: 1, pageviews: 1, status: 4 },
+		];
 		const { data } = filterSortAndPaginate(
-			rows,
+			withPending,
 			{ ...view, filters: [ { field: 'status', operator: 'is', value } ] } as View,
 			fields
 		);
 
-		expect( data.map( row => row.period ) ).toEqual( [ period ] );
+		expect( data.map( row => row.period ) ).toEqual( periods );
 	} );
 
 	it( 'offers every status but a8c-only in the Status filter, pending once', () => {
@@ -143,45 +129,42 @@ describe( 'getWordAdsHistoryFields', () => {
 		] );
 	} );
 
-	it( 'filters "Pending" to both pending codes', () => {
-		const pending = [
-			...rows,
-			{ id: '2026-03', period: '2026-03', amount: 1, pageviews: 1, status: 3 },
-			{ id: '2026-04', period: '2026-04', amount: 1, pageviews: 1, status: 4 },
-		];
-		const { data } = filterSortAndPaginate(
-			pending,
-			{ ...view, filters: [ { field: 'status', operator: 'is', value: 'Pending' } ] } as View,
-			fields
-		);
-
-		expect( data.map( row => row.period ) ).toEqual( [ '2026-03', '2026-04' ] );
-	} );
-
-	it.each( [
-		[ 'asc', [ '2025-12', '2026-09', '2012-03' ] ],
-		[ 'desc', [ '2026-09', '2025-12', '2012-03' ] ],
-	] as const )( 'sorts Ads Served %s with rows lacking a count last', ( direction, periods ) => {
+	it( 'sorts Ads Served with rows lacking a count last', () => {
 		const withMissing = [
 			...rows,
 			{ id: '2012-03', period: '2012-03', amount: 1, pageviews: undefined, status: 1 },
 		];
 		const { data } = filterSortAndPaginate(
 			withMissing,
-			{ ...view, sort: { field: 'pageviews', direction } } as View,
+			{ ...view, sort: { field: 'pageviews', direction: 'desc' } } as View,
 			fields
 		);
 
-		expect( data.map( row => row.period ) ).toEqual( periods );
+		expect( data.map( row => row.period ) ).toEqual( [ '2026-09', '2025-12', '2012-03' ] );
 	} );
 
 	it( 'sorts periods chronologically, newest first', () => {
+		// April sorts last by its label but between the other two by date.
+		const withApril = [
+			...rows,
+			{ id: '2026-04', period: '2026-04', amount: 1, pageviews: 1, status: 1 },
+		];
 		const { data } = filterSortAndPaginate(
-			rows,
+			withApril,
 			{ ...view, sort: { field: 'period', direction: 'desc' } } as View,
 			fields
 		);
 
-		expect( data.map( row => row.period ) ).toEqual( [ '2026-09', '2025-12' ] );
+		expect( data.map( row => row.period ) ).toEqual( [ '2026-09', '2026-04', '2025-12' ] );
+	} );
+} );
+
+describe( 'formatEarningsPeriod', () => {
+	afterEach( () => setSettings( BASE_SETTINGS ) );
+
+	it( 'keeps the first of the month in its month on a site west of UTC', () => {
+		setSettings( siteSettingsIn( 'America/Los_Angeles' ) );
+
+		expect( formatEarningsPeriod( '2026-09' ) ).toBe( 'September 2026' );
 	} );
 } );

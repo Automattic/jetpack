@@ -1,7 +1,6 @@
 import { makeBaseConfig, defineConfig, javascriptFiles } from 'jetpack-js-tools/eslintrc/base.mjs';
-import svelteConfig from 'jetpack-js-tools/eslintrc/svelte.mjs';
 
-export default defineConfig( makeBaseConfig( import.meta.url ), svelteConfig, {
+export default defineConfig( makeBaseConfig( import.meta.url ), {
 	files: javascriptFiles,
 	rules: {
 		'space-in-parens': 'off',

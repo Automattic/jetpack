@@ -15,6 +15,28 @@ describe( 'matchesFilter', () => {
 		expect( matchesFilter( buildState( {} ), 'all' ) ).toBe( true );
 	} );
 
+	it.each( [ true, false ] )(
+		'filters host-forced-on modules by whether the site can run them (available: %s)',
+		available => {
+			const state = buildState( {}, 'active' );
+			state.control = { kind: 'module', module: { available, override: 'active' } as never };
+			expect( matchesFilter( state, 'available' ) ).toBe( available );
+			expect( matchesFilter( state, 'active' ) ).toBe( available );
+			expect( matchesFilter( state, 'inactive' ) ).toBe( ! available );
+			expect( matchesFilter( state, 'all' ) ).toBe( true );
+		}
+	);
+
+	it.each< [ string, FeatureState[ 'control' ] ] >( [
+		[ 'module', { kind: 'module', module: { available: true, override: 'inactive' } as never } ],
+		[ 'installed plugin', { kind: 'plugin', plugin: 'jetpack-search', override: 'inactive' } ],
+	] )( 'excludes a host-forced-off %s from Available but keeps it under All', ( _, control ) => {
+		const state = buildState( { plugin: 'jetpack-search', plugin_status: 'inactive' } );
+		state.control = control;
+		expect( matchesFilter( state, 'available' ) ).toBe( false );
+		expect( matchesFilter( state, 'all' ) ).toBe( true );
+	} );
+
 	it( 'splits Active and Inactive on the live status, not the catalog', () => {
 		const on = buildState( {}, 'active' );
 		const off = buildState( {} );
@@ -36,6 +58,11 @@ describe( 'matchesFilter', () => {
 		expect( matchesFilter( state, 'growth' ) ).toBe( false );
 	} );
 
+	it( 'matches Included in plan on what the site already pays for', () => {
+		expect( matchesFilter( buildState( { included: true } ), 'included' ) ).toBe( true );
+		expect( matchesFilter( buildState( { plans: [ security ] } ), 'included' ) ).toBe( false );
+	} );
+
 	it( 'matches Essential on the feature, not on a plan', () => {
 		expect( matchesFilter( buildState( { essential: true } ), 'essential' ) ).toBe( true );
 		expect( matchesFilter( buildState( { plans: [ security ] } ), 'essential' ) ).toBe( false );
@@ -47,9 +74,44 @@ describe( 'getFeatureFilters', () => {
 		expect( getFeatureFilters().every( ( { value } ) => isFeatureFilter( value ) ) ).toBe( true );
 	} );
 
-	it( 'keeps Complete selectable without giving it a pill', () => {
-		expect( isFeatureFilter( 'complete' ) ).toBe( true );
+	it( 'no longer knows Complete, which only the old plan badge could select', () => {
+		expect( isFeatureFilter( 'complete' ) ).toBe( false );
 		expect( getFeatureFilters().map( ( { value } ) => value ) ).not.toContain( 'complete' );
+	} );
+
+	it( 'swaps the category pills for Included in plan only on a visit that arrived on it', () => {
+		const values = ( ...args: Parameters< typeof getFeatureFilters > ) =>
+			getFeatureFilters( ...args ).map( ( { value } ) => value );
+
+		expect( values( 'all' ) ).toEqual( [
+			'all',
+			'available',
+			'active',
+			'inactive',
+			'essential',
+			'security',
+			'growth',
+		] );
+		expect( values( 'all', true ) ).toEqual( [
+			'all',
+			'available',
+			'active',
+			'inactive',
+			'included',
+		] );
+	} );
+
+	it( 'still gives Included in plan a pill when a link selects it mid-visit', () => {
+		expect( getFeatureFilters( 'included' ).map( ( { value } ) => value ) ).toEqual( [
+			'all',
+			'available',
+			'active',
+			'inactive',
+			'included',
+			'essential',
+			'security',
+			'growth',
+		] );
 	} );
 
 	it( 'rejects a filter the grid does not know', () => {

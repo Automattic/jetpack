@@ -214,16 +214,22 @@ describe( 'useViewsOverYears', () => {
 		expect( result.current.rows[ 1 ].months.slice( 10 ) ).toEqual( [ 43, 20 ] );
 	} );
 
-	it( 'has no rows before the response arrives or without views', async () => {
-		mockApiFetch.mockResolvedValue( { ...VISITS_RESPONSE, data: [ [ '2026-03', 0 ] ] } );
+	it( 'has no rows before the response arrives, so a failed first load is not drawn as a site without views', () => {
+		mockApiFetch.mockReturnValue( new Promise( () => {} ) );
 		const { result } = renderHook( () => useViewsOverYears( 'total' ), { wrapper } );
 
 		expect( result.current.rows ).toEqual( [] );
 		expect( result.current.isLoading ).toBe( true );
+	} );
+
+	it( 'draws only the current month, at zero, for a site without views', async () => {
+		mockApiFetch.mockResolvedValue( { ...VISITS_RESPONSE, data: [ [ '2026-03', 0 ] ] } );
+		const { result } = renderHook( () => useViewsOverYears( 'total' ), { wrapper } );
 
 		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
 
-		expect( result.current.rows ).toEqual( [] );
+		expect( result.current.rows ).toHaveLength( 1 );
+		expect( result.current.rows[ 0 ].total ).toBe( 0 );
 		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
 	} );
 } );

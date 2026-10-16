@@ -1,5 +1,6 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { createRef } from '@wordpress/element';
+import getMediaToken from '../../../lib/get-media-token';
 import CaptionPreviewPlayer from '../caption-preview-player';
 import type { CaptionPreviewPlayerHandle, CueRange } from '../caption-preview-player';
 
@@ -11,6 +12,7 @@ jest.mock( '@wordpress/i18n', () => ( {
 	__: ( text: string ) => text,
 } ) );
 jest.mock( '@wordpress/components', () => ( {
+	Notice: ( { children }: { children: string } ) => <div role="alert">{ children }</div>,
 	CheckboxControl: ( {
 		label,
 		checked,
@@ -167,6 +169,38 @@ describe( 'CaptionPreviewPlayer', () => {
 			} );
 
 			expect( screen.queryByText( 'First cue' ) ).not.toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'when the playback token request fails', () => {
+		const mockedGetMediaToken = getMediaToken as jest.Mock;
+
+		beforeEach( () => {
+			mockedGetMediaToken.mockClear();
+			mockedGetMediaToken.mockRejectedValue( new Error( 'token error' ) );
+		} );
+
+		afterEach( () => {
+			mockedGetMediaToken.mockResolvedValue( { token: 'playback-token' } );
+		} );
+
+		it( 'warns above the tokenless embed for a private video', async () => {
+			render( <CaptionPreviewPlayer guid="abc123" isPrivate /> );
+
+			const notice = await screen.findByRole( 'alert' );
+			expect( notice ).toHaveTextContent(
+				'This private video may not play because its access token could not be loaded.'
+			);
+			expect( screen.getByTitle( 'Video preview' ) ).toBeInTheDocument();
+		} );
+
+		it( 'keeps the tokenless embed for a public video', async () => {
+			render( <CaptionPreviewPlayer guid="abc123" /> );
+
+			const iframe = await screen.findByTitle( 'Video preview' );
+			expect( iframe ).toBeInTheDocument();
+			expect( screen.queryByRole( 'alert' ) ).not.toBeInTheDocument();
+			expect( mockedGetMediaToken ).not.toHaveBeenCalled();
 		} );
 	} );
 } );

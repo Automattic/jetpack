@@ -8,9 +8,12 @@
  * @package
  */
 
+import jetpackAnalytics from '@automattic/jetpack-analytics';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { doActionAsync, removeAction, removeFilter } from '@wordpress/hooks';
+import { renderToStaticMarkup } from 'react-dom/server';
 import {
 	validateCustomerNotes,
 	validateVariants,
@@ -18,7 +21,9 @@ import {
 } from '../../../src/paypal-payment-buttons/components/variant-builder';
 import Edit from '../../../src/paypal-payment-buttons/edit';
 import { broadcastConnectionChange } from '../../../src/paypal-payment-buttons/hooks/use-paypal-connection';
+import PayPalIcon from '../../../src/paypal-payment-buttons/icon';
 import { forgetExistingLinks } from '../../../src/paypal-payment-buttons/utils/existing-links';
+import { forgetMerchantStatus } from '../../../src/paypal-payment-buttons/utils/merchant-status';
 import {
 	forgetPostSaves,
 	registerSaveSync,
@@ -30,8 +35,8 @@ import {
 	syncBlocksBeforeSave,
 } from '../../../src/paypal-payment-buttons/utils/sync-on-save';
 import {
-	ADVISORY_ERROR_KEYS,
 	getValidationErrors,
+	ADDRESS_REQUIRED_ERROR,
 	REQUIRED_FIELD_ERROR,
 } from '../../../src/paypal-payment-buttons/utils/validation';
 // apiFetch mock — controls what the component receives from the REST API.
@@ -46,6 +51,12 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 
 jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
 	hasFeatureFlag: () => true,
+	useAnalytics: jest.fn( () => ( { tracks: {} } ) ),
+} ) );
+
+jest.mock( '@automattic/jetpack-analytics', () => ( {
+	__esModule: true,
+	default: { tracks: { recordEvent: jest.fn() } },
 } ) );
 
 // The paste-code editor has its own suite; keep its imports out of this one.
@@ -82,7 +93,9 @@ jest.mock( '@wordpress/i18n', () => ( {
 	isRTL: () => false,
 	sprintf: ( format, ...args ) => {
 		let i = 0;
-		return format.replace( /%[ds]/g, () => args[ i++ ] );
+		return format.replace( /%(?:(\d+)\$)?[ds]/g, ( _match, position ) =>
+			position ? args[ position - 1 ] : args[ i++ ]
+		);
 	},
 } ) );
 
@@ -120,12 +133,18 @@ const postSaved = ( options = {} ) =>
 const mockSavePost = jest.fn( () => postSaved() );
 // Whether core/editor is saving. Set per test.
 let mockIsSavingPost = false;
+// Whether the block renders in an inserter or pattern preview. Set per test.
+let mockIsPreviewMode = false;
 jest.mock( '@wordpress/data', () => ( {
 	useDispatch: () => ( {
 		__unstableMarkNextChangeAsNotPersistent: mockMarkNotPersistent,
 		savePost: mockSavePost,
 	} ),
-	useSelect: mapSelect => mapSelect( () => ( { isSavingPost: () => mockIsSavingPost } ) ),
+	useSelect: mapSelect =>
+		mapSelect( () => ( {
+			isSavingPost: () => mockIsSavingPost,
+			getSettings: () => ( { isPreviewMode: mockIsPreviewMode } ),
+		} ) ),
 } ) );
 jest.mock( '@wordpress/editor', () => ( { store: 'core/editor' } ) );
 
@@ -135,10 +154,6 @@ const mockToast = jest.fn();
 jest.mock( '../../../src/paypal-payment-buttons/utils/toast', () => ( {
 	toast: ( ...args ) => mockToast( ...args ),
 } ) );
-
-// What the media library hands back. jsdom has none, so the MediaUpload mock
-// passes this to onSelect.
-const mockSelectedMedia = { url: 'https://example.com/chosen.png', id: 42 };
 
 // Mock WordPress block-editor.
 jest.mock( '@wordpress/block-editor', () => ( {
@@ -215,10 +230,6 @@ jest.mock( '@wordpress/block-editor', () => ( {
 			{ values || 'radius' }
 		</button>
 	),
-	// open() calls onSelect straight away so the block's handler runs.
-	MediaUpload: ( { onSelect, render: renderProp } ) =>
-		renderProp( { open: () => onSelect( mockSelectedMedia ) } ),
-	MediaUploadCheck: ( { children } ) => <>{ children }</>,
 	// Like TextControl, className and help sit on the BaseControl wrapper, not the input.
 	// URLInput takes no onBlur - the form catches that on a wrapper of its own. The testid
 	// differs from `control-` so a test can tell a URL field from a text field. Ids by
@@ -302,6 +313,7 @@ jest.mock( '@wordpress/components', () => ( {
 				children,
 				onClick,
 				disabled,
+				accessibleWhenDisabled,
 				variant,
 				isBusy,
 				isDestructive,
@@ -315,10 +327,12 @@ jest.mock( '@wordpress/components', () => ( {
 			},
 			ref
 		) => (
+			// Like the real one, accessibleWhenDisabled keeps a disabled button focusable.
 			<button
 				ref={ ref }
-				onClick={ onClick }
-				disabled={ disabled }
+				onClick={ disabled ? undefined : onClick }
+				disabled={ disabled && ! accessibleWhenDisabled }
+				aria-disabled={ disabled && accessibleWhenDisabled ? true : undefined }
 				data-variant={ variant }
 				data-busy={ isBusy }
 				data-size={ size }
@@ -362,17 +376,6 @@ jest.mock( '@wordpress/components', () => ( {
 			</button>
 		</div>
 	),
-	__experimentalConfirmDialog: ( { children, title, confirmButtonText, onConfirm, onCancel } ) => (
-		<div data-testid="confirm-dialog" role="dialog" aria-label={ title }>
-			<div>{ children }</div>
-			<button data-testid="confirm-dialog-confirm" onClick={ onConfirm }>
-				{ confirmButtonText || 'OK' }
-			</button>
-			<button data-testid="confirm-dialog-cancel" onClick={ onCancel }>
-				Cancel
-			</button>
-		</div>
-	),
 	MenuGroup: ( { children } ) => <div role="group">{ children }</div>,
 	// isDestructive and the icon props belong to MenuItem, so they stay off the DOM node.
 	MenuItem: ( { children, info, href, onClick, icon, iconPosition, isDestructive, ...rest } ) =>
@@ -386,11 +389,12 @@ jest.mock( '@wordpress/components', () => ( {
 				{ info && <span>{ info }</span> }
 			</button>
 		),
+	VisuallyHidden: ( { children } ) => <span>{ children }</span>,
 	// The block icon is built from these two.
 	SVG: ( { children, ...rest } ) => <svg { ...rest }>{ children }</svg>,
 	Path: props => <path { ...props } />,
 	Notice: ( { children, status, isDismissible, onDismiss, actions } ) => (
-		<div data-testid="notice" data-status={ status }>
+		<div data-testid="notice" data-status={ status } data-dismissible={ isDismissible }>
 			{ children }
 			{ actions?.map( action => (
 				<button key={ action.label } onClick={ action.onClick }>
@@ -409,6 +413,17 @@ jest.mock( '@wordpress/components', () => ( {
 	PanelBody: ( { children, title, initialOpen } ) => (
 		<div data-testid="panel-body" data-title={ title } data-initial-open={ !! initialOpen }>
 			{ children }
+		</div>
+	),
+	// Like the real Placeholder, icon and label share one row, with children below.
+	// Drops instructions, so copy passed there fails the copy assertions.
+	Placeholder: ( { icon, label, className, children } ) => (
+		<div data-testid="placeholder" className={ className }>
+			<div>
+				{ icon }
+				{ label }
+			</div>
+			<div>{ children }</div>
 		</div>
 	),
 	// Like TextControl, the real SelectControl hands className and help to the
@@ -433,32 +448,48 @@ jest.mock( '@wordpress/components', () => ( {
 	),
 	// Takes and returns whole options and falls back to the first for an unknown value,
 	// like the real one. The hint rides on `data-hint` - an <option> cannot hold the span
-	// core draws it in.
-	CustomSelectControl: ( { label, value, options, onChange, disabled, className } ) => (
-		<div
-			data-testid={ `control-${ label }` }
-			className={ className }
-			// What the caller passed, ahead of the fallback below, so a test can tell the
-			// block's fallback from this mock's.
-			data-value={ value?.key ?? '' }
-		>
-			<select
-				aria-label={ label }
-				value={ ( options?.find( o => o.key === value?.key ) ?? options?.[ 0 ] )?.key ?? '' }
-				disabled={ disabled }
-				onChange={ e =>
-					onChange( { selectedItem: options.find( o => o.key === e.target.value ) } )
-				}
+	// core draws it in. `describedBy` replaces the "Currently selected" text, like the real one.
+	CustomSelectControl: ( {
+		label,
+		value,
+		options,
+		onChange,
+		disabled,
+		className,
+		describedBy,
+	} ) => {
+		const descriptionId = `description-${ mockReact.useId() }`;
+		const selected = options?.find( o => o.key === value?.key ) ?? options?.[ 0 ];
+		return (
+			<div
+				data-testid={ `control-${ label }` }
+				className={ className }
+				// What the caller passed, ahead of the fallback below, so a test can tell the
+				// block's fallback from this mock's.
+				data-value={ value?.key ?? '' }
 			>
-				{ options &&
-					options.map( opt => (
-						<option key={ opt.key } value={ opt.key } data-hint={ opt.hint }>
-							{ opt.name }
-						</option>
-					) ) }
-			</select>
-		</div>
-	),
+				<select
+					aria-label={ label }
+					aria-describedby={ descriptionId }
+					value={ selected?.key ?? '' }
+					disabled={ disabled }
+					onChange={ e =>
+						onChange( { selectedItem: options.find( o => o.key === e.target.value ) } )
+					}
+				>
+					{ options &&
+						options.map( opt => (
+							<option key={ opt.key } value={ opt.key } data-hint={ opt.hint }>
+								{ opt.name }
+							</option>
+						) ) }
+				</select>
+				<span id={ descriptionId }>
+					{ describedBy || `Currently selected: ${ selected?.name }` }
+				</span>
+			</div>
+		);
+	},
 	Spinner: () => <div data-testid="spinner">Loading...</div>,
 	SearchControl: ( { label, value, onChange, placeholder } ) => (
 		<input
@@ -470,6 +501,7 @@ jest.mock( '@wordpress/components', () => ( {
 		/>
 	),
 	// Ids per instance - the notes repeat the 'Required' label.
+	// The prefix tells a checkbox from a toggle.
 	CheckboxControl: ( { label, checked, onChange, help, disabled } ) => {
 		const id = `checkbox-${ mockReact.useId() }`;
 		return (
@@ -621,6 +653,7 @@ jest.mock( '../../../src/paypal-payment-buttons/components/paypal-button-preview
 				data-product-name={ props.productName }
 				data-format={ props.format }
 				data-sdk-url={ props.resource?.sdk_url }
+				data-disabled={ props.isDisabled }
 			>
 				Preview: { props.productName } - { props.price } { props.currencyCode }
 			</div>
@@ -635,6 +668,25 @@ afterAll( () => {
 	removeAction( 'editor.savePost', 'jetpack/paypal-payment-buttons/saved-snackbar' );
 	removeAction( 'editor.savePost', 'jetpack/paypal-payment-buttons/post-saves' );
 } );
+
+// PayPal's required wording, as /onboarding/status returns it for a sandbox account...
+const EMAIL_NOTICE =
+	'Attention: Please confirm your email address on https://www.sandbox.paypal.com/businessprofile/settings in order to receive payments! You currently cannot receive payments.';
+// ...and for a production one.
+const PRODUCTION_EMAIL_NOTICE =
+	'Attention: Please confirm your email address on https://www.paypal.com/businessprofile/settings in order to receive payments! You currently cannot receive payments.';
+const PRODUCTION_PAYMENTS_NOTICE =
+	'Attention: You currently cannot receive payments due to restriction on your PayPal account. Please reach out to PayPal Customer Support or connect to https://www.paypal.com for more information.';
+
+/**
+ * Get the account status warnings on the canvas, one per block.
+ *
+ * @return {HTMLElement[]} The warnings.
+ */
+const accountStatusNotices = () =>
+	screen
+		.queryAllByTestId( 'notice' )
+		.filter( notice => notice.textContent.startsWith( 'Attention:' ) );
 
 describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 	const setAttributes = jest.fn();
@@ -660,6 +712,23 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		screen.getByText( ( _text, element ) =>
 			element?.classList?.contains( 'jetpack-paypal-payment-buttons__field-hint' )
 		);
+
+	/**
+	 * The address error right after a select. Checks it is above the hint too.
+	 *
+	 * @param {string} testId - The select's test id.
+	 * @return {Element} The error element.
+	 */
+	const addressErrorUnder = testId => {
+		const error = screen.getByText( ( _text, element ) =>
+			element?.matches( `[data-testid="${ testId }"] + *` )
+		);
+
+		expect( error ).toHaveTextContent( ADDRESS_REQUIRED_ERROR );
+		expect( error ).toAppearBefore( fieldHint() );
+
+		return error;
+	};
 
 	/**
 	 * The control a message has to appear inside for the fix to mean anything.
@@ -699,6 +768,39 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			/>
 		);
 
+	let cardRoot = null;
+	let cardRendered = null;
+
+	/**
+	 * Put the block card in the document, the way the open sidebar does.
+	 */
+	const openSidebar = () => {
+		cardRoot = document.createElement( 'div' );
+		cardRoot.className = 'block-editor-block-inspector';
+		cardRoot.innerHTML = '<div class="block-editor-block-card"></div>';
+		document.body.appendChild( cardRoot );
+	};
+
+	afterEach( () => {
+		// Unmount first, so the account header stops watching the sidebar before it goes.
+		cardRendered?.unmount();
+		cardRendered = null;
+		cardRoot?.remove();
+		cardRoot = null;
+	} );
+
+	/**
+	 * Log out from the account menu and confirm.
+	 *
+	 * @param {object} user - userEvent instance.
+	 */
+	const logOut = async user => {
+		// The DropdownMenu mock lays its items out flat.
+		await user.click( await screen.findByRole( 'menuitem', { name: /Log out/ } ) );
+		const dialog = screen.getByRole( 'dialog', { name: 'Log out from PayPal' } );
+		await user.click( within( dialog ).getByRole( 'button', { name: 'Log out' } ) );
+	};
+
 	/**
 	 * Wait for a saved link's sidebar and open its form.
 	 *
@@ -723,6 +825,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		jest.clearAllMocks();
 		forgetPostSaves();
 		mockIsSavingPost = false;
+		mockIsPreviewMode = false;
 		// One test runs on fake timers; leaving them on hangs every test after it.
 		jest.useRealTimers();
 		mockCopiedText.last = null;
@@ -730,6 +833,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		window.localStorage.removeItem( 'jetpack-paypal-wizard-step' );
 		// Clear the links list every block shares, so each test reads its own.
 		forgetExistingLinks();
+		// Clear the account status too, so each test reads it again.
+		forgetMerchantStatus();
 		// Default: connection check returns not connected.
 		apiFetch.mockReset();
 		apiFetch.mockResolvedValue( { connected: false, environment: 'sandbox' } );
@@ -744,6 +849,16 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			expect( screen.getByTestId( 'spinner' ) ).toBeInTheDocument();
 			expect( screen.getByText( /Checking PayPal connection/ ) ).toBeInTheDocument();
+		} );
+
+		// useAnalytics() runs above the early returns, so each screen's events include the user.
+		it( 'calls useAnalytics while the connection check loads', () => {
+			apiFetch.mockReturnValue( new Promise( () => {} ) );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			expect( screen.getByTestId( 'spinner' ) ).toBeInTheDocument();
+			expect( useAnalytics ).toHaveBeenCalled();
 		} );
 	} );
 
@@ -773,12 +888,20 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		it( 'puts the wizard in the sidebar and a placeholder on the canvas', async () => {
 			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
 
-			await expect(
-				screen.findByRole( 'heading', { name: 'PayPal Payment Button', level: 4 } )
-			).resolves.toBeInTheDocument();
+			const title = await screen.findByText( 'PayPal Payment Button' );
+			// The label row shows the logo, then the title.
+			expect( title.innerHTML ).toBe(
+				renderToStaticMarkup( <>{ PayPalIcon }PayPal Payment Button</> )
+			);
 			expect(
-				screen.getByText( 'Log in to or create a PayPal business account to use payment buttons' )
+				screen.queryByRole( 'heading', { name: 'PayPal Payment Button' } )
+			).not.toBeInTheDocument();
+			expect(
+				screen.getByText( 'Connect your PayPal business account to accept payments via PayPal.' )
 			).toBeInTheDocument();
+			expect( screen.getByTestId( 'placeholder' ) ).toHaveClass(
+				'jetpack-paypal-payment-buttons__placeholder'
+			);
 
 			const sidebar = within( screen.getByTestId( 'inspector-controls' ) );
 			expect(
@@ -810,6 +933,101 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			expect( screen.getByRole( 'button', { name: /^Connect$/i } ) ).toBeDisabled();
 		} );
+
+		it( 'records connection_attempted with method manual when Connect sends the credentials', async () => {
+			const user = userEvent.setup();
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			await navigateToCredentialsStep( user );
+			await user.type( screen.getByLabelText( 'Client ID' ), 'AbcdefghijklmnopqrstuvwxyZ' );
+			await user.type( screen.getByLabelText( 'Client Secret' ), 'secret' );
+
+			await user.click( screen.getByRole( 'button', { name: /^Connect$/i } ) );
+
+			expect( apiFetch ).toHaveBeenCalledWith(
+				expect.objectContaining( { path: expect.stringMatching( /\/connect$/ ), method: 'POST' } )
+			);
+			expect( jetpackAnalytics.tracks.recordEvent.mock.calls ).toEqual( [
+				[
+					'jetpack_paypal_wizard_started',
+					{ environment: 'sandbox', partner_referrals_available: false },
+				],
+				[ 'jetpack_paypal_wizard_credentials_reached', { environment: 'sandbox' } ],
+				[ 'jetpack_paypal_connection_attempted', { environment: 'sandbox', method: 'manual' } ],
+			] );
+		} );
+
+		it( 'records wizard_started when Open PayPal Dashboard is clicked', async () => {
+			const user = userEvent.setup();
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await user.click( await screen.findByRole( 'button', { name: /Open PayPal Dashboard/i } ) );
+
+			expect( jetpackAnalytics.tracks.recordEvent.mock.calls ).toEqual( [
+				[
+					'jetpack_paypal_wizard_started',
+					{ environment: 'sandbox', partner_referrals_available: false },
+				],
+			] );
+		} );
+
+		it( 'records wizard_credentials_reached on each Next and wizard_started once', async () => {
+			const user = userEvent.setup();
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			await navigateToCredentialsStep( user );
+
+			await user.click( screen.getByRole( 'button', { name: /Back/i } ) );
+			await navigateToCredentialsStep( user );
+
+			expect( jetpackAnalytics.tracks.recordEvent.mock.calls ).toEqual( [
+				[
+					'jetpack_paypal_wizard_started',
+					{ environment: 'sandbox', partner_referrals_available: false },
+				],
+				[ 'jetpack_paypal_wizard_credentials_reached', { environment: 'sandbox' } ],
+				[ 'jetpack_paypal_wizard_credentials_reached', { environment: 'sandbox' } ],
+			] );
+		} );
+
+		it( 'records wizard_credentials_reached with the toggled environment, and only on Next', async () => {
+			const user = userEvent.setup();
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			await navigateToCredentialsStep( user );
+
+			await user.click( screen.getByRole( 'button', { name: /Switch to Production/i } ) );
+			await user.click( screen.getByRole( 'button', { name: /Back/i } ) );
+			await navigateToCredentialsStep( user );
+			await user.click( screen.getByRole( 'button', { name: /Use Sandbox for testing/i } ) );
+
+			expect( jetpackAnalytics.tracks.recordEvent.mock.calls ).toEqual( [
+				[
+					'jetpack_paypal_wizard_started',
+					{ environment: 'sandbox', partner_referrals_available: false },
+				],
+				[ 'jetpack_paypal_wizard_credentials_reached', { environment: 'sandbox' } ],
+				[ 'jetpack_paypal_wizard_credentials_reached', { environment: 'production' } ],
+			] );
+		} );
+
+		it( 'shows the first wizard step when another block logs out after connecting', async () => {
+			apiFetch.mockImplementation( ( { path } ) =>
+				Promise.resolve(
+					path.endsWith( '/connect' )
+						? { connected: true, environment: 'sandbox' }
+						: { connected: false, environment: 'sandbox' }
+				)
+			);
+			const user = userEvent.setup();
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			await navigateToCredentialsStep( user );
+			await user.type( screen.getByLabelText( 'Client ID' ), 'AbcdefghijklmnopqrstuvwxyZ' );
+			await user.type( screen.getByLabelText( 'Client Secret' ), 'secret' );
+			await user.click( screen.getByRole( 'button', { name: /^Connect$/i } ) );
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+
+			await act( async () => broadcastConnectionChange( false ) );
+
+			await expect( screen.findByText( /Get Your API Credentials/ ) ).resolves.toBeInTheDocument();
+		} );
 	} );
 
 	describe( 'Connect PayPal (Partner Referrals)', () => {
@@ -817,7 +1035,10 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		 * Reply to the connection check with platform mode, so the welcome step
 		 * with the "Connect PayPal" flow renders.
 		 *
-		 * @param {object} signupResponse - What the signup-link route returns, or { reject } to fail it.
+		 * The completion route answers "no seller yet" unless a test says the seller
+		 * finished, since closing the overlay now asks it quietly.
+		 *
+		 * @param {object} signupResponse - What the signup-link route returns, or { reject } to fail it; `complete` is what the completion route returns, `status` what the account status read returns.
 		 */
 		function mockPlatformMode( signupResponse ) {
 			apiFetch.mockImplementation( ( { path } ) => {
@@ -832,6 +1053,17 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					return signupResponse?.reject
 						? Promise.reject( signupResponse.reject )
 						: Promise.resolve( signupResponse );
+				}
+				if ( path.endsWith( '/onboarding/complete' ) ) {
+					return signupResponse?.complete
+						? Promise.resolve( signupResponse.complete )
+						: Promise.reject( {
+								code: 'paypal_merchant_not_found',
+								message: 'PayPal has no seller for this onboarding session yet.',
+							} );
+				}
+				if ( path.endsWith( '/onboarding/status' ) ) {
+					return Promise.resolve( signupResponse?.status ?? {} );
 				}
 				return Promise.resolve( {} );
 			} );
@@ -965,11 +1197,15 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		 * first takes the cached branch every time; 'buys the referral on a click
 		 * that has none' covers the other one.
 		 *
+		 * @param {object}  options            - Options.
+		 * @param {boolean} options.isSelected - Render the block selected, so the account header mounts in the block card.
 		 * @return {Promise<HTMLIFrameElement>} The frame, with the overlay up.
 		 */
-		async function openActiveOverlay() {
+		async function openActiveOverlay( { isSelected } = {} ) {
 			const user = userEvent.setup();
-			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			cardRendered = render(
+				<Edit attributes={ {} } setAttributes={ setAttributes } isSelected={ isSelected } />
+			);
 			const frame = blockFrameNavigation( await screen.findByTitle( 'PayPal onboarding' ) );
 			await settlePartnerScript( frame );
 			const click = jest.spyOn( await findConnectLink( frame ), 'click' );
@@ -1016,6 +1252,39 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				} );
 
 			return click;
+		}
+
+		/**
+		 * Give every frame realm an open() with a fixed answer, from before the
+		 * hook wraps it.
+		 *
+		 * jsdom has no open() of its own. Patched through the contentWindow
+		 * getter like watchAnchorClicks, so it is in place by the time the hook
+		 * reads the realm.
+		 *
+		 * @param {*} result - What open() hands back: null for a blocked popup.
+		 * @return {jest.Mock} The open() PayPal's SDK would call.
+		 */
+		function stubPopups( result ) {
+			const open = jest.fn( () => result );
+			const patched = new WeakSet();
+			const realGetter = Object.getOwnPropertyDescriptor(
+				window.HTMLIFrameElement.prototype,
+				'contentWindow'
+			).get;
+
+			jest
+				.spyOn( window.HTMLIFrameElement.prototype, 'contentWindow', 'get' )
+				.mockImplementation( function () {
+					const frameWindow = realGetter.call( this );
+					if ( frameWindow && ! patched.has( frameWindow ) ) {
+						patched.add( frameWindow );
+						frameWindow.open = open;
+					}
+					return frameWindow;
+				} );
+
+			return open;
 		}
 
 		/**
@@ -1073,7 +1342,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				sidebar.getByRole( 'heading', { name: 'Connect your PayPal account' } )
 			).toBeInTheDocument();
 			expect(
-				sidebar.getByText( 'Create a link or button directly in the editor - no code required' )
+				sidebar.getByText( 'Create a link or button directly in the editor - no code required.' )
 			).toBeInTheDocument();
 			expect( sidebar.getByLabelText( 'Use sandbox (testing)' ) ).toBeInTheDocument();
 		} );
@@ -1275,6 +1544,81 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( frame ).toHaveClass( 'jetpack-paypal-onboarding-frame--active' );
 		} );
 
+		it( 'records connection_attempted with method partner_referrals when Connect PayPal opens PayPal', async () => {
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			await openActiveOverlay();
+
+			expect( jetpackAnalytics.tracks.recordEvent.mock.calls ).toEqual( [
+				[
+					'jetpack_paypal_wizard_started',
+					{ environment: 'sandbox', partner_referrals_available: true },
+				],
+				[
+					'jetpack_paypal_connection_attempted',
+					{ environment: 'sandbox', method: 'partner_referrals' },
+				],
+			] );
+		} );
+
+		it( 'records only wizard_started on a click that fetches the missing referral', async () => {
+			const user = userEvent.setup();
+			mockPlatformMode( { reject: new Error( 'Could not create a PayPal onboarding link.' ) } );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			await expect(
+				screen.findByText( /Could not create a PayPal onboarding link/ )
+			).resolves.toBeInTheDocument();
+			await user.click( screen.getByRole( 'button', { name: /Connect PayPal/i } ) );
+
+			await waitFor( () => expect( signupLinkCalls() ).toHaveLength( 2 ) );
+			expect( jetpackAnalytics.tracks.recordEvent.mock.calls ).toEqual( [
+				[
+					'jetpack_paypal_wizard_started',
+					{ environment: 'sandbox', partner_referrals_available: true },
+				],
+			] );
+		} );
+
+		it( 'records wizard_started once across two wizard clicks', async () => {
+			const user = userEvent.setup();
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await user.click(
+				await screen.findByRole( 'button', { name: /enter your API credentials manually/i } )
+			);
+
+			expect( jetpackAnalytics.tracks.recordEvent.mock.calls ).toEqual( [
+				[
+					'jetpack_paypal_wizard_started',
+					{ environment: 'sandbox', partner_referrals_available: true },
+				],
+			] );
+
+			await user.click( screen.getByRole( 'button', { name: /Open PayPal Dashboard/i } ) );
+
+			expect( jetpackAnalytics.tracks.recordEvent.mock.calls ).toEqual( [
+				[
+					'jetpack_paypal_wizard_started',
+					{ environment: 'sandbox', partner_referrals_available: true },
+				],
+			] );
+		} );
+
+		it( 'records nothing when the welcome step or a restored credentials step renders', async () => {
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+			const { unmount } = render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			await expect( screen.findByTitle( 'PayPal onboarding' ) ).resolves.toBeInTheDocument();
+			unmount();
+
+			window.localStorage.setItem( 'jetpack-paypal-wizard-step', 'credentials' );
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			await expect( screen.findByLabelText( 'Client ID' ) ).resolves.toBeInTheDocument();
+
+			expect( jetpackAnalytics.tracks.recordEvent ).not.toHaveBeenCalled();
+		} );
+
 		it( 'does not open PayPal when the script loads without the SDK', async () => {
 			const user = userEvent.setup();
 			const click = watchAnchorClicks();
@@ -1362,7 +1706,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			// The merchant clicked and nothing has opened yet, so the button has
 			// to show it heard them.
 			const connect = screen.getByRole( 'button', { name: /Connecting/i } );
-			expect( connect ).toBeDisabled();
+			expect( connect ).toHaveAttribute( 'aria-disabled', 'true' );
 			expect( connect ).toHaveAttribute( 'data-busy', 'true' );
 		} );
 
@@ -1397,7 +1741,10 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		} );
 
 		it( 'swaps the wizard for the connected view when the SDK reports completion', async () => {
-			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+			mockPlatformMode( {
+				action_url: 'https://www.sandbox.paypal.com/merchantsignup/x',
+				complete: { connected: true },
+			} );
 
 			await openActiveOverlay();
 
@@ -1413,15 +1760,15 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		} );
 
 		/**
-		 * Onboard, then disconnect — the only route back to the wizard once the
-		 * SDK has reported completion. Disconnect leaves signupUrl and the
-		 * overlay flag alone, so whatever completion left behind is what the
-		 * merchant comes back to.
+		 * Onboard, then log out, the way back to the wizard after the SDK
+		 * reports completion. Log out keeps signupUrl and the overlay flag, so
+		 * the merchant comes back to whatever completion left.
 		 *
 		 * @param {object} user - userEvent instance.
 		 */
-		async function onboardThenDisconnect( user ) {
-			await openActiveOverlay();
+		async function onboardThenLogOut( user ) {
+			openSidebar();
+			await openActiveOverlay( { isSelected: true } );
 
 			await act( async () => {
 				window.jetpackPayPalOnboardComplete( 'AUTH_CODE_1', 'SHARED_ID_1' );
@@ -1429,8 +1776,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
 
-			await user.click( screen.getByRole( 'button', { name: /Disconnect PayPal/i } ) );
-			await user.click( screen.getByTestId( 'confirm-dialog-confirm' ) );
+			await logOut( user );
 
 			await expect(
 				screen.findByRole( 'button', { name: /Connect PayPal/i } )
@@ -1439,18 +1785,24 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 		it( 'reports the disconnect in the snackbar', async () => {
 			const user = userEvent.setup();
-			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+			mockPlatformMode( {
+				action_url: 'https://www.sandbox.paypal.com/merchantsignup/x',
+				complete: { connected: true },
+			} );
 
-			await onboardThenDisconnect( user );
+			await onboardThenLogOut( user );
 
 			expect( mockToast ).toHaveBeenCalledWith( 'success', 'PayPal account disconnected.' );
 		} );
 
 		it( 'drops the spent referral link when onboarding completes', async () => {
 			const user = userEvent.setup();
-			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+			mockPlatformMode( {
+				action_url: 'https://www.sandbox.paypal.com/merchantsignup/x',
+				complete: { connected: true },
+			} );
 
-			await onboardThenDisconnect( user );
+			await onboardThenLogOut( user );
 
 			// A referral that has been through onboarding cannot be reopened, and
 			// only an empty signupUrl lets the prefetch ask for a fresh one. Wait
@@ -1461,14 +1813,45 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 		it( 'leaves the overlay down when the wizard comes back', async () => {
 			const user = userEvent.setup();
-			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+			mockPlatformMode( {
+				action_url: 'https://www.sandbox.paypal.com/merchantsignup/x',
+				complete: { connected: true },
+			} );
 
-			await onboardThenDisconnect( user );
+			await onboardThenLogOut( user );
 
 			// The prefetch remounts the frame. It must come back closed rather
 			// than covering the welcome step with nothing in it.
 			const frame = await screen.findByTitle( 'PayPal onboarding' );
 			expect( frame ).not.toHaveClass( 'jetpack-paypal-onboarding-frame--active' );
+		} );
+
+		it( 'drops the blocked-window notice when another block logs out after onboarding', async () => {
+			stubPopups( null );
+			mockPlatformMode( {
+				action_url: 'https://www.sandbox.paypal.com/merchantsignup/x',
+				complete: { connected: true },
+			} );
+
+			const frame = await openActiveOverlay();
+			act( () => {
+				frame.contentWindow.open( 'https://www.sandbox.paypal.com/merchantsignup/x', 'PPFrame' );
+			} );
+			await expect( screen.findByText( /blocked PayPal’s window/ ) ).resolves.toBeInTheDocument();
+
+			await act( async () => {
+				window.jetpackPayPalOnboardComplete();
+			} );
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+
+			await act( async () => broadcastConnectionChange( false ) );
+
+			await expect(
+				screen.findByRole( 'button', { name: /Connect PayPal/i } )
+			).resolves.toBeVisible();
+			expect( screen.queryByText( /blocked PayPal’s window/ ) ).not.toBeInTheDocument();
+			// A notice left over also stops the prefetch, so Connect would need two clicks.
+			await waitFor( () => expect( signupLinkCalls() ).toHaveLength( 2 ) );
 		} );
 
 		it( 'closes the frame when the exchange fails, so the error is not hidden behind it', async () => {
@@ -1550,8 +1933,11 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( click ).toHaveBeenCalledTimes( 2 );
 		} );
 
-		it( 'exchanges the auth code the SDK hands to the frame realm', async () => {
-			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+		it( 'completes onboarding when the SDK calls back into the frame realm', async () => {
+			mockPlatformMode( {
+				action_url: 'https://www.sandbox.paypal.com/merchantsignup/x',
+				complete: { connected: true },
+			} );
 
 			const frame = await openActiveOverlay();
 
@@ -1562,7 +1948,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			 * actually takes.
 			 */
 			await act( async () => {
-				frame.contentWindow.jetpackPayPalOnboardComplete( 'AUTH_CODE_2', 'SHARED_ID_2' );
+				frame.contentWindow.jetpackPayPalOnboardComplete();
 			} );
 
 			await waitFor( () =>
@@ -1570,10 +1956,6 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					expect.objectContaining( {
 						path: expect.stringContaining( '/onboarding/complete' ),
 						method: 'POST',
-						data: expect.objectContaining( {
-							auth_code: 'AUTH_CODE_2',
-							shared_id: 'SHARED_ID_2',
-						} ),
 					} )
 				)
 			);
@@ -1581,6 +1963,29 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			// Then the wizard gives way to the connected view.
 			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
 			expect( screen.queryByTitle( 'PayPal onboarding' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'reads the account status and shows its warning once the seller finishes connecting', async () => {
+			mockPlatformMode( {
+				action_url: 'https://www.sandbox.paypal.com/merchantsignup/x',
+				complete: { connected: true, method: 'partner_referrals' },
+				status: { notices: [ EMAIL_NOTICE ] },
+			} );
+
+			await openActiveOverlay();
+
+			// The status read waits for the connection.
+			expect(
+				apiFetch.mock.calls.some( ( [ { path } ] ) => path.endsWith( '/onboarding/status' ) )
+			).toBe( false );
+
+			await act( async () => {
+				window.jetpackPayPalOnboardComplete();
+			} );
+
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+			await waitFor( () => expect( accountStatusNotices() ).toHaveLength( 1 ) );
+			expect( accountStatusNotices()[ 0 ] ).toHaveTextContent( EMAIL_NOTICE );
 		} );
 
 		it( 'closes the overlay on Escape', async () => {
@@ -1613,6 +2018,71 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await expect( screen.findByTitle( 'PayPal onboarding' ) ).resolves.not.toHaveClass(
 				'jetpack-paypal-onboarding-frame--active'
 			);
+		} );
+
+		it( 'moves focus to the close button when the overlay opens', async () => {
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			await openActiveOverlay();
+
+			expect( screen.getByRole( 'button', { name: 'Close PayPal onboarding' } ) ).toHaveFocus();
+		} );
+
+		it( 'sends focus back to the close button when it leaves the overlay', async () => {
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			await openActiveOverlay();
+
+			// Tab out of the overlay lands on the editor behind PayPal's window.
+			act( () => screen.getByRole( 'button', { name: /Connect PayPal/i } ).focus() );
+
+			expect( screen.getByRole( 'button', { name: 'Close PayPal onboarding' } ) ).toHaveFocus();
+		} );
+
+		it( 'returns focus to the Connect button when the overlay closes', async () => {
+			const user = userEvent.setup();
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			await openActiveOverlay();
+			await user.keyboard( '{Escape}' );
+
+			await waitFor( () =>
+				expect( screen.getByRole( 'button', { name: /Connect PayPal/i } ) ).toHaveFocus()
+			);
+		} );
+
+		it( 'announces the overlay as a dialog only while it is up', async () => {
+			const user = userEvent.setup();
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			await openActiveOverlay();
+			expect( screen.getByRole( 'dialog', { name: 'PayPal onboarding' } ) ).toBeInTheDocument();
+
+			await user.keyboard( '{Escape}' );
+
+			// The frame is mounted hidden the rest of the time; an empty dialog
+			// there is announced with nothing in it.
+			await expect( screen.findByTitle( 'PayPal onboarding' ) ).resolves.toBeInTheDocument();
+			expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'hides the close button once the seller is done, while onboarding is being completed', async () => {
+			mockPlatformMode( {
+				action_url: 'https://www.sandbox.paypal.com/merchantsignup/x',
+				complete: new Promise( () => {} ),
+			} );
+
+			const frame = await openActiveOverlay();
+
+			await act( async () => {
+				window.jetpackPayPalOnboardComplete();
+			} );
+
+			// A Close left up here cancels a signup the seller just finished.
+			expect( frame ).toBeInTheDocument();
+			expect(
+				screen.queryByRole( 'button', { name: 'Close PayPal onboarding' } )
+			).not.toBeInTheDocument();
 		} );
 
 		it( 'shows the close button only while the overlay is up', async () => {
@@ -1712,6 +2182,49 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( editor ).toHaveBeenCalled();
 		} );
 
+		it( 'tells the merchant when the browser blocks PayPal’s window, and keeps the referral', async () => {
+			const user = userEvent.setup();
+			const open = stubPopups( null );
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			const frame = await openActiveOverlay();
+
+			// What PayPal's SDK does with the click: open its mini-browser.
+			act( () => {
+				frame.contentWindow.open( 'https://www.sandbox.paypal.com/merchantsignup/x', 'PPFrame' );
+			} );
+
+			expect( open ).toHaveBeenCalled();
+			await waitFor( () =>
+				expect( frame ).not.toHaveClass( 'jetpack-paypal-onboarding-frame--active' )
+			);
+			expect( screen.getByText( /blocked PayPal’s window/ ) ).toBeInTheDocument();
+			// PayPal never opened, so the link is unspent: same frame, no new referral.
+			expect( frame ).toBeInTheDocument();
+			expect( signupLinkCalls() ).toHaveLength( 1 );
+
+			// The next click opens it straight away, and the notice goes with the attempt.
+			await user.click( screen.getByRole( 'button', { name: /Connect PayPal/i } ) );
+
+			expect( frame ).toHaveClass( 'jetpack-paypal-onboarding-frame--active' );
+			expect( screen.queryByText( /blocked PayPal’s window/ ) ).not.toBeInTheDocument();
+			expect( signupLinkCalls() ).toHaveLength( 1 );
+		} );
+
+		it( 'leaves the overlay up when PayPal’s window opens', async () => {
+			stubPopups( { focus: () => {} } );
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			const frame = await openActiveOverlay();
+
+			act( () => {
+				frame.contentWindow.open( 'https://www.sandbox.paypal.com/merchantsignup/x', 'PPFrame' );
+			} );
+
+			expect( frame ).toHaveClass( 'jetpack-paypal-onboarding-frame--active' );
+			expect( screen.queryByText( /blocked PayPal’s window/ ) ).not.toBeInTheDocument();
+		} );
+
 		it( 'leaves the overlay up for keys that are not Escape', async () => {
 			const user = userEvent.setup();
 			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
@@ -1758,7 +2271,169 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( typeof window.jetpackPayPalOnboardComplete ).toBe( 'function' );
 		} );
 
-		it( 'exchanges the auth code when the SDK reports completion', async () => {
+		it( 'asks the server to record the seller when the SDK reports completion', async () => {
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			await expect(
+				screen.findByRole( 'button', { name: /Connect PayPal/i } )
+			).resolves.toBeVisible();
+
+			// PayPal's third-party flow hands the callback nothing that identifies
+			// the seller; the server finds them through the referral it created.
+			await act( async () => {
+				window.jetpackPayPalOnboardComplete();
+			} );
+
+			await waitFor( () =>
+				expect( apiFetch ).toHaveBeenCalledWith(
+					expect.objectContaining( {
+						path: expect.stringContaining( '/onboarding/complete' ),
+						method: 'POST',
+						data: { merchant_id_in_paypal: '', quiet: false },
+					} )
+				)
+			);
+		} );
+
+		it( 'asks PayPal to send the seller back to the plugin return page, not the editor', async () => {
+			window.jetpackPayPalPayments = {
+				onboardingReturnUrl:
+					'http://localhost/wp-admin/admin-post.php?action=jetpack_paypal_return',
+			};
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			// A referral whose return URL is the editor loads the editor inside
+			// the onboarding frame once PayPal navigates to it.
+			await waitFor( () =>
+				expect( apiFetch ).toHaveBeenCalledWith(
+					expect.objectContaining( {
+						path: expect.stringContaining( '/onboarding/signup-link' ),
+						data: expect.objectContaining( {
+							return_url: 'http://localhost/wp-admin/admin-post.php?action=jetpack_paypal_return',
+						} ),
+					} )
+				)
+			);
+
+			delete window.jetpackPayPalPayments;
+		} );
+
+		it( 'records the seller when the return page reports back', async () => {
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			await openActiveOverlay();
+
+			// PayPal's third-party flow never calls the SDK callback; it navigates
+			// to the return page, which posts what PayPal appended to its URL.
+			await act( async () => {
+				window.dispatchEvent(
+					new MessageEvent( 'message', {
+						origin: window.location.origin,
+						data: {
+							type: 'jetpack-paypal-onboarding-return',
+							merchantIdInPayPal: 'MERCHANT1',
+							permissionsGranted: 'true',
+						},
+					} )
+				);
+			} );
+
+			await waitFor( () =>
+				expect( apiFetch ).toHaveBeenCalledWith(
+					expect.objectContaining( {
+						path: expect.stringContaining( '/onboarding/complete' ),
+						method: 'POST',
+						data: { merchant_id_in_paypal: 'MERCHANT1', quiet: false },
+					} )
+				)
+			);
+		} );
+
+		it( 'ignores a return message from another origin', async () => {
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			await openActiveOverlay();
+
+			await act( async () => {
+				window.dispatchEvent(
+					new MessageEvent( 'message', {
+						origin: 'https://evil.example',
+						data: {
+							type: 'jetpack-paypal-onboarding-return',
+							merchantIdInPayPal: 'MERCHANT1',
+						},
+					} )
+				);
+			} );
+
+			expect(
+				apiFetch.mock.calls.some( ( [ { path } ] ) => path.endsWith( '/onboarding/complete' ) )
+			).toBe( false );
+		} );
+
+		/**
+		 * Stand in for BroadcastChannel, which jsdom does not provide.
+		 *
+		 * @return {Function} Restores the real global.
+		 */
+		function fakeBroadcastChannel() {
+			class FakeChannel {
+				constructor( name ) {
+					this.name = name;
+					FakeChannel.instances.push( this );
+				}
+				postMessage() {}
+				close() {}
+			}
+			FakeChannel.instances = [];
+			const previous = window.BroadcastChannel;
+			window.BroadcastChannel = FakeChannel;
+
+			return {
+				last: name => FakeChannel.instances.filter( c => c.name === name ).at( -1 ),
+				restore: () => {
+					window.BroadcastChannel = previous;
+				},
+			};
+		}
+
+		it( 'records the seller when the return page reports on the broadcast channel', async () => {
+			const channels = fakeBroadcastChannel();
+			mockPlatformMode( {
+				action_url: 'https://www.sandbox.paypal.com/merchantsignup/x',
+				complete: { connected: true, account_email: 'junior@sports.com' },
+			} );
+
+			await openActiveOverlay();
+
+			// The editor is cross-origin isolated, so PayPal's popup comes back
+			// with no opener and postMessage has nobody to reach; the channel does.
+			const channel = channels.last( 'jetpack-paypal-onboarding-return' );
+			expect( channel ).toBeDefined();
+			await act( async () => {
+				channel.onmessage( {
+					data: { type: 'jetpack-paypal-onboarding-return', merchantIdInPayPal: 'MERCHANT1' },
+				} );
+			} );
+
+			await waitFor( () =>
+				expect( apiFetch ).toHaveBeenCalledWith(
+					expect.objectContaining( {
+						path: expect.stringContaining( '/onboarding/complete' ),
+						data: { merchant_id_in_paypal: 'MERCHANT1', quiet: false },
+					} )
+				)
+			);
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+
+			channels.restore();
+		} );
+
+		it( 'leaves a return to the block that opened PayPal', async () => {
+			const channels = fakeBroadcastChannel();
 			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
 
 			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
@@ -1767,21 +2442,123 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			).resolves.toBeVisible();
 
 			await act( async () => {
-				window.jetpackPayPalOnboardComplete( 'AUTH_CODE_1', 'SHARED_ID_1' );
+				channels.last( 'jetpack-paypal-onboarding-return' ).onmessage( {
+					data: { type: 'jetpack-paypal-onboarding-return', merchantIdInPayPal: 'MERCHANT1' },
+				} );
 			} );
 
+			expect(
+				apiFetch.mock.calls.some( ( [ { path } ] ) => path.endsWith( '/onboarding/complete' ) )
+			).toBe( false );
+
+			channels.restore();
+		} );
+
+		it( 'finishes once when the return arrives on the channel and by message', async () => {
+			const channels = fakeBroadcastChannel();
+			mockPlatformMode( {
+				action_url: 'https://www.sandbox.paypal.com/merchantsignup/x',
+				complete: { connected: true },
+			} );
+
+			await openActiveOverlay();
+
+			const data = { type: 'jetpack-paypal-onboarding-return', merchantIdInPayPal: 'MERCHANT1' };
+			await act( async () => {
+				channels.last( 'jetpack-paypal-onboarding-return' ).onmessage( { data } );
+				window.dispatchEvent(
+					new MessageEvent( 'message', { origin: window.location.origin, data } )
+				);
+			} );
+
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+			expect(
+				apiFetch.mock.calls.filter( ( [ { path } ] ) => path.endsWith( '/onboarding/complete' ) )
+			).toHaveLength( 1 );
+
+			channels.restore();
+		} );
+
+		it( 'tears the frame down once PayPal has taken it cross-origin', async () => {
+			mockPlatformMode( {
+				action_url: 'https://www.sandbox.paypal.com/merchantsignup/x',
+				complete: { connected: true },
+			} );
+
+			const frame = await openActiveOverlay();
+
+			// What a frame on paypal.com does to every call we make on it.
+			const frameWindow = frame.contentWindow;
+			const refuse = () => {
+				throw new DOMException(
+					'Blocked a frame from accessing a cross-origin frame.',
+					'SecurityError'
+				);
+			};
+			frameWindow.removeEventListener = refuse;
+			frameWindow.clearTimeout = refuse;
+			Object.defineProperty( frameWindow, 'jetpackPayPalOnboardComplete', {
+				value: () => {},
+				configurable: false,
+			} );
+
+			await act( async () => {
+				window.jetpackPayPalOnboardComplete();
+			} );
+
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+		} );
+
+		it( 'asks quietly whether the seller finished when the overlay is closed', async () => {
+			const user = userEvent.setup();
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			await openActiveOverlay();
+			await user.keyboard( '{Escape}' );
+
+			// The return page may never reach us, so a close with PayPal open
+			// checks with the server. "No seller yet" is a plain cancel, not an error.
 			await waitFor( () =>
 				expect( apiFetch ).toHaveBeenCalledWith(
 					expect.objectContaining( {
 						path: expect.stringContaining( '/onboarding/complete' ),
-						method: 'POST',
-						data: expect.objectContaining( {
-							auth_code: 'AUTH_CODE_1',
-							shared_id: 'SHARED_ID_1',
-						} ),
+						data: { merchant_id_in_paypal: '', quiet: true },
 					} )
 				)
 			);
+			await expect(
+				screen.findByRole( 'button', { name: /Connect PayPal/i } )
+			).resolves.toBeVisible();
+			expect(
+				screen.queryByText( /no seller for this onboarding session/ )
+			).not.toBeInTheDocument();
+		} );
+
+		it( 'connects on close when the seller had finished without the return page reaching us', async () => {
+			const user = userEvent.setup();
+			mockPlatformMode( {
+				action_url: 'https://www.sandbox.paypal.com/merchantsignup/x',
+				complete: { connected: true },
+			} );
+
+			await openActiveOverlay();
+			await user.click( screen.getByRole( 'button', { name: 'Close PayPal onboarding' } ) );
+
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+		} );
+
+		it( 'does not ask the server on a close with the overlay down', async () => {
+			const user = userEvent.setup();
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			await settlePartnerScript( await screen.findByTitle( 'PayPal onboarding' ) );
+
+			await user.keyboard( '{Escape}' );
+
+			expect(
+				apiFetch.mock.calls.some( ( [ { path } ] ) => path.endsWith( '/onboarding/complete' ) )
+			).toBe( false );
 		} );
 
 		it( 'shows the failure when the signup link cannot be generated', async () => {
@@ -1908,7 +2685,24 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( screen.getByLabelText( 'Price' ) ).toBeInTheDocument();
 			expect( screen.getByLabelText( 'Currency' ) ).toBeInTheDocument();
 			expect( screen.getByLabelText( /Description/ ) ).toBeInTheDocument();
-			expect( screen.getByText( 'Product Image (optional)' ) ).toBeInTheDocument();
+		} );
+
+		it( 'has no PayPal Connection panel or Disconnect button', async () => {
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+			expect( panel( 'PayPal Connection' ) ).toBeUndefined();
+			expect(
+				screen.queryByRole( 'button', { name: 'Disconnect PayPal' } )
+			).not.toBeInTheDocument();
+		} );
+
+		it( 'records no wizard events on a connected site', async () => {
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+
+			expect( jetpackAnalytics.tracks.recordEvent ).not.toHaveBeenCalled();
 		} );
 
 		it( 'calls setAttributes when product name changes', async () => {
@@ -2181,7 +2975,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			);
 		} );
 
-		it( 'hides the styles group on the picker', async () => {
+		it( 'hides the style controls on the picker', async () => {
 			mockLinks( [ resource( 'PLB-A1', 'Croissant' ) ] );
 
 			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
@@ -2189,7 +2983,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await expect(
 				screen.findByRole( 'button', { name: 'Create new' } )
 			).resolves.toBeInTheDocument();
-			expect( screen.queryByTestId( 'inspector-controls-styles' ) ).not.toBeInTheDocument();
+			expect( screen.queryByLabelText( 'Embed as' ) ).not.toBeInTheDocument();
 		} );
 
 		it( 'reports a failed link pick in the snackbar', async () => {
@@ -3796,6 +4590,27 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			).toHaveClass( 'jetpack-paypal-payment-buttons__shared-link-note' );
 		} );
 
+		it( 'tells the merchant when the read fails for any reason but a deleted payment', async () => {
+			apiFetch.mockImplementation( ( { path } ) => {
+				if ( path.endsWith( '/connection' ) ) {
+					return Promise.resolve( { connected: true, environment: 'sandbox' } );
+				}
+				return Promise.reject( {
+					code: 'paypal_api_error',
+					message: 'PayPal authentication failed (HTTP 401): Client Authentication failed',
+					data: { status: 401 },
+				} );
+			} );
+
+			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
+
+			const notice = await screen.findByText(
+				'This payment link could not be loaded from PayPal: PayPal authentication failed (HTTP 401): Client Authentication failed Changes to it will not be saved until it loads. Reload the post to try again.'
+			);
+			expect( notice ).toHaveAttribute( 'data-status', 'error' );
+			expect( setAttributes ).not.toHaveBeenCalled();
+		} );
+
 		it( 'does not read the payment while PayPal is disconnected', async () => {
 			apiFetch.mockResolvedValue( { connected: false, environment: 'sandbox' } );
 
@@ -4114,11 +4929,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		// specific rate picks PERCENTAGE, and going to profile clears the rate so the next
 		// read-back agrees with the payment.
 		it.each( [
-			[
-				'profile',
-				'PERCENTAGE',
-				{ taxType: 'PREFERENCE', taxValue: '', collectShippingAddress: true },
-			],
+			[ 'profile', 'PERCENTAGE', { taxType: 'PREFERENCE', taxValue: '' } ],
 			[ 'specific', 'PREFERENCE', { taxType: 'PERCENTAGE' } ],
 		] )( 'writes the PayPal tax type for the %s mode', async ( mode, from, written ) => {
 			const user = userEvent.setup();
@@ -4126,7 +4937,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			render(
 				<Edit
-					attributes={ { ...attributes, taxType: from } }
+					attributes={ { ...attributes, taxType: from, collectShippingAddress: true } }
 					setAttributes={ setAttributes }
 					clientId="a"
 				/>
@@ -4303,7 +5114,12 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			render(
 				<Edit
-					attributes={ { ...attributes, taxType: 'PREFERENCE', taxValue: '' } }
+					attributes={ {
+						...attributes,
+						taxType: 'PREFERENCE',
+						taxValue: '',
+						collectShippingAddress: true,
+					} }
 					setAttributes={ setAttributes }
 					clientId="a"
 				/>
@@ -4331,7 +5147,12 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			render(
 				<Edit
-					attributes={ { ...attributes, taxType: 'PREFERENCE', taxValue: '' } }
+					attributes={ {
+						...attributes,
+						taxType: 'PREFERENCE',
+						taxValue: '',
+						collectShippingAddress: true,
+					} }
 					setAttributes={ setAttributes }
 					clientId="a"
 				/>
@@ -4432,7 +5253,12 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			render(
 				<Edit
-					attributes={ { ...attributes, taxType: 'PREFERENCE', taxValue: '' } }
+					attributes={ {
+						...attributes,
+						taxType: 'PREFERENCE',
+						taxValue: '',
+						collectShippingAddress: true,
+					} }
 					setAttributes={ setAttributes }
 					clientId="a"
 				/>
@@ -4647,30 +5473,44 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await openSavedForm();
 		}
 
-		it( 'shows the toggle alone while shipping is off', async () => {
+		it( 'shows the address and fees toggles alone while shipping fees are off', async () => {
 			await renderShipping( { shippingEnabled: false, shippingValue: '' } );
 
-			expect( screen.getByLabelText( 'Add shipping' ) ).not.toBeChecked();
+			expect( screen.getByLabelText( 'Shipping fees' ) ).not.toBeChecked();
+			expect(
+				screen.getByText( 'Set the shipping fee, including free shipping' )
+			).toBeInTheDocument();
 			expect( screen.queryByLabelText( 'Shipping fee' ) ).not.toBeInTheDocument();
-			expect( screen.queryByLabelText( 'Collect shipping address' ) ).not.toBeInTheDocument();
+
+			const toggle = screen.getByLabelText( 'Shipping address' );
+
+			expect( toggle ).not.toBeChecked();
+			expect( toggle ).toBeEnabled();
 			expect( screen.queryByText( REQUIRED_FIELD_ERROR ) ).not.toBeInTheDocument();
 		} );
 
-		// The checkbox sits under the toggle, so every mode shows it.
-		it.each( [ 'PROFILE', 'QUANTITY', 'FLAT', 'FREE' ] )(
-			'offers the address checkbox in %s mode',
-			async shippingMode => {
-				await renderShipping( { shippingMode } );
+		// The ToggleControl mock renders a checkbox.
+		it( 'puts the address toggle above the fees toggle, with shipping fees off', async () => {
+			await renderShipping( { shippingEnabled: false } );
 
-				expect( screen.getByLabelText( 'Collect shipping address' ) ).toBeInTheDocument();
-			}
-		);
+			const toggles = within( panel( 'Checkout Options' ) ).getAllByRole( 'checkbox' );
+
+			expect( toggles.map( toggle => toggle.labels[ 0 ].textContent ) ).toEqual( [
+				'Add customer note',
+				'Let customers set quantity',
+				'Add tax',
+				'Shipping address',
+				'Shipping fees',
+				'Add handling fee',
+				'Add discount',
+			] );
+		} );
 
 		it.each( [
 			[ 'PROFILE', 'Use shipping from my PayPal settings' ],
 			[ 'FREE', 'Free shipping' ],
 		] )( 'asks for no amount in %s mode', async ( shippingMode, label ) => {
-			await renderShipping( { shippingMode, shippingValue: '' } );
+			await renderShipping( { shippingMode, shippingValue: '', collectShippingAddress: true } );
 
 			// PROFILE is the first option, so the mock's fallback reaches it too -
 			// data-value is what tells a real value from that fallback.
@@ -4685,7 +5525,11 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		} );
 
 		it( 'links to PayPal in profile mode', async () => {
-			await renderShipping( { shippingMode: 'PROFILE', shippingValue: '' } );
+			await renderShipping( {
+				shippingMode: 'PROFILE',
+				shippingValue: '',
+				collectShippingAddress: true,
+			} );
 
 			expect(
 				screen.getByRole( 'link', { name: 'Set up or manage shipping settings' } )
@@ -4708,7 +5552,10 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 		// An unreported environment points at production, keeping a live merchant off the sandbox.
 		it( 'falls back to the production settings page', async () => {
-			await renderShipping( { shippingMode: 'PROFILE', shippingValue: '' }, null );
+			await renderShipping(
+				{ shippingMode: 'PROFILE', shippingValue: '', collectShippingAddress: true },
+				null
+			);
 
 			expect(
 				screen.getByRole( 'link', { name: 'Set up or manage shipping settings' } )
@@ -4771,7 +5618,11 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		} );
 
 		it( 'renders the shipping profile hint beside the select', async () => {
-			await renderShipping( { shippingMode: 'PROFILE', shippingValue: '' } );
+			await renderShipping( {
+				shippingMode: 'PROFILE',
+				shippingValue: '',
+				collectShippingAddress: true,
+			} );
 			const hint = fieldHint();
 
 			expect( hint ).toContainElement( screen.getByTestId( 'link' ) );
@@ -4832,11 +5683,11 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			} );
 		} );
 
-		it( 'turns shipping on and leaves the rest alone', async () => {
+		it( 'turns shipping fees on and leaves the rest alone', async () => {
 			const user = userEvent.setup();
 			await renderShipping( { shippingEnabled: false, shippingValue: '' } );
 
-			await user.click( screen.getByLabelText( 'Add shipping' ) );
+			await user.click( screen.getByLabelText( 'Shipping fees' ) );
 
 			expect( setAttributes ).toHaveBeenCalledWith( { shippingEnabled: true } );
 		} );
@@ -4916,9 +5767,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( setAttributes ).toHaveBeenCalledWith( expected );
 		} );
 
-		// The toggle resets the mode and both amounts. The address checkbox it also hides
-		// stays put, since PayPal stores that one whether or not shipping is on.
-		it( 'resets the mode and both fees when shipping goes off', async () => {
+		it( 'resets the mode and both fees and keeps the address when shipping fees go off', async () => {
 			const user = userEvent.setup();
 			await renderShipping( {
 				shippingMode: 'QUANTITY',
@@ -4926,7 +5775,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				collectShippingAddress: true,
 			} );
 
-			await user.click( screen.getByLabelText( 'Add shipping' ) );
+			await user.click( screen.getByLabelText( 'Shipping fees' ) );
 
 			expect( setAttributes ).toHaveBeenCalledWith( {
 				shippingEnabled: false,
@@ -4936,43 +5785,83 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			} );
 		} );
 
-		// PayPal answers 422 with "Shipping address collection is needed when tax type is
-		// PREFERENCE", so the form keeps that combination out of reach.
-		it( 'locks the address on while the tax comes from the PayPal profile', async () => {
+		// PayPal rejects a profile tax without the address.
+		it( 'shows the address error under the tax field for a profile tax, with shipping fees off', async () => {
 			await renderShipping( {
+				shippingEnabled: false,
 				taxEnabled: true,
 				taxType: 'PREFERENCE',
 				collectShippingAddress: false,
 			} );
 
-			const box = screen.getByLabelText( 'Collect shipping address' );
+			const toggle = screen.getByLabelText( 'Shipping address' );
 
-			expect( box ).toBeChecked();
-			expect( box ).toBeDisabled();
-			expect(
-				screen.getByText( 'Required while the tax comes from your PayPal settings.' )
-			).toBeInTheDocument();
-		} );
-
-		it( 'turns the address on with the profile tax', async () => {
-			const user = userEvent.setup();
-			await renderShipping( { taxEnabled: true, taxType: 'PERCENTAGE', taxValue: '7.5' } );
-
-			await user.selectOptions( screen.getByLabelText( 'Tax type' ), 'profile' );
-
-			expect( setAttributes ).toHaveBeenCalledWith(
-				expect.objectContaining( { taxType: 'PREFERENCE', collectShippingAddress: true } )
+			expect( toggle ).not.toBeChecked();
+			expect( toggle ).toBeEnabled();
+			expect( screen.getByText( 'Collect during checkout' ) ).toBeInTheDocument();
+			expect( addressErrorUnder( 'control-Tax type' ) ).toHaveClass(
+				'jetpack-paypal-payment-buttons__field-error'
 			);
 		} );
 
-		it( 'writes the address preference when the box is ticked', async () => {
-			const user = userEvent.setup();
-			await renderShipping();
+		it( 'shows the address error under the shipping field in PROFILE mode', async () => {
+			await renderShipping( {
+				shippingMode: 'PROFILE',
+				shippingValue: '',
+				collectShippingAddress: false,
+			} );
 
-			await user.click( screen.getByLabelText( 'Collect shipping address' ) );
-
-			expect( setAttributes ).toHaveBeenCalledWith( { collectShippingAddress: true } );
+			expect( addressErrorUnder( 'control-Shipping fee' ) ).toHaveClass(
+				'jetpack-paypal-payment-buttons__field-error'
+			);
+			expect( screen.getByLabelText( 'Shipping address' ) ).toBeEnabled();
 		} );
+
+		it.each( [
+			[
+				'Tax type',
+				'off',
+				{ taxEnabled: true, taxType: 'PREFERENCE', taxValue: '' },
+				`Currently selected: Use tax from my PayPal settings. ${ ADDRESS_REQUIRED_ERROR }`,
+			],
+			[
+				'Shipping fee',
+				'off',
+				{ shippingMode: 'PROFILE', shippingValue: '' },
+				`Currently selected: Use shipping from my PayPal settings. ${ ADDRESS_REQUIRED_ERROR }`,
+			],
+			[
+				'Shipping fee',
+				'on',
+				{ shippingMode: 'PROFILE', shippingValue: '' },
+				'Currently selected: Use shipping from my PayPal settings',
+			],
+		] )(
+			'describes the %s select with the address %s',
+			async ( label, address, overrides, description ) => {
+				await renderShipping( { ...overrides, collectShippingAddress: 'on' === address } );
+
+				expect( screen.getByLabelText( label ) ).toHaveAccessibleDescription( description );
+			}
+		);
+
+		it.each( [
+			[ 'on', 'on', true, false ],
+			[ 'on', 'off', false, false ],
+			[ 'off', 'off', false, true ],
+		] )(
+			'writes the address preference when the toggle is turned %s, with shipping fees %s',
+			async ( _toggle, _fees, shippingEnabled, collectShippingAddress ) => {
+				const user = userEvent.setup();
+				await renderShipping( { shippingEnabled, collectShippingAddress } );
+
+				await user.click( screen.getByLabelText( 'Shipping address' ) );
+
+				expect( setAttributes ).toHaveBeenCalledWith( {
+					collectShippingAddress: ! collectShippingAddress,
+				} );
+			}
+		);
 
 		it.each( [
 			[ 'Enter shipping fee', 'FLAT', 'shippingValue' ],
@@ -5671,7 +6560,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 	describe( 'Return URL', () => {
 		const label = 'Return URL (optional)';
-		const httpsOnly = 'Return URL must use HTTPS (e.g., https://example.com/thank-you).';
+		const invalidUrl = 'Return URL must be a valid URL (e.g., https://example.com/thank-you).';
 		const helpLine = 'Redirect customers here after payment.';
 
 		beforeEach( () => {
@@ -5726,48 +6615,48 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( setAttributes ).toHaveBeenCalledWith( { returnUrl: 'h' } );
 		} );
 
+		it( 'trims spaces from a pasted URL', async () => {
+			const user = userEvent.setup();
+			renderWith( '' );
+
+			await user.click( await screen.findByLabelText( label ) );
+			await user.paste( ' https://example.com/thanks ' );
+
+			expect( setAttributes ).toHaveBeenCalledWith( { returnUrl: 'https://example.com/thanks' } );
+		} );
+
 		// People paste into this field, so a URL that is still being typed is not yet
 		// wrong. Nothing is said until the merchant leaves the field.
-		it( 'says nothing about HTTPS until the field is left', async () => {
-			renderWith( 'http://example.com' );
+		it( 'keeps the help line on a bad URL until the field is left', async () => {
+			renderWith( 'example.com' );
 
 			await expect( screen.findByLabelText( label ) ).resolves.toBeInTheDocument();
-			expect( screen.queryByText( httpsOnly ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( invalidUrl ) ).not.toBeInTheDocument();
 			expect( urlControl().getByText( helpLine ) ).toBeInTheDocument();
 		} );
 
-		it( 'asks for HTTPS once the field is left', async () => {
+		it( 'shows the URL error once the field is left', async () => {
 			const user = userEvent.setup();
-			renderWith( 'http://example.com' );
+			renderWith( 'example.com' );
 
 			await visit( user, await screen.findByLabelText( label ) );
 
-			expect( urlControl().getByText( httpsOnly ) ).toBeInTheDocument();
+			expect( urlControl().getByText( invalidUrl ) ).toBeInTheDocument();
 			expect( screen.queryByText( helpLine ) ).not.toBeInTheDocument();
 		} );
 
-		it( 'accepts an HTTPS URL', async () => {
-			const user = userEvent.setup();
-			renderWith( 'https://example.com/thanks' );
+		it.each( [ 'http://example.com/thanks', 'https://example.com/thanks' ] )(
+			'accepts %s',
+			async url => {
+				const user = userEvent.setup();
+				renderWith( url );
 
-			await visit( user, await screen.findByLabelText( label ) );
+				await visit( user, await screen.findByLabelText( label ) );
 
-			expect( screen.queryByText( httpsOnly ) ).not.toBeInTheDocument();
-			expect( urlControl().getByText( helpLine ) ).toBeInTheDocument();
-		} );
-
-		// A bad URL warns, it has never blocked saving. A blocking message would render
-		// in the error class instead.
-		it( 'still sends the payment with a bad URL', async () => {
-			const user = userEvent.setup();
-			renderWith( 'http://example.com' );
-
-			await visit( user, await screen.findByLabelText( label ) );
-
-			const message = urlControl().getByText( httpsOnly );
-			expect( message ).toHaveClass( 'components-base-control__help' );
-			expect( message ).not.toHaveClass( 'jetpack-paypal-payment-buttons__field-error' );
-		} );
+				expect( screen.queryByText( invalidUrl ) ).not.toBeInTheDocument();
+				expect( urlControl().getByText( helpLine ) ).toBeInTheDocument();
+			}
+		);
 	} );
 
 	describe( 'Product details', () => {
@@ -5865,46 +6754,6 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				'jetpack-paypal-payment-buttons__has-error'
 			);
 		} );
-
-		it( 'saves the image the merchant chooses', async () => {
-			const user = userEvent.setup();
-			renderForm( {} );
-
-			await user.click( await screen.findByText( 'Upload Image' ) );
-
-			expect( setAttributes ).toHaveBeenCalledWith( {
-				imageUrl: 'https://example.com/chosen.png',
-				imageId: 42,
-			} );
-		} );
-
-		it( 'saves the replacement image', async () => {
-			const user = userEvent.setup();
-			renderForm( { imageUrl: 'https://example.com/previous.png', imageId: 7 } );
-
-			await user.click( await screen.findByText( 'Replace' ) );
-
-			expect( setAttributes ).toHaveBeenCalledWith( {
-				imageUrl: 'https://example.com/chosen.png',
-				imageId: 42,
-			} );
-		} );
-
-		it( 'clears the image the merchant removes', async () => {
-			const user = userEvent.setup();
-			renderForm( { imageUrl: 'https://example.com/previous.png', imageId: 7 } );
-			await formIsUp();
-
-			// Customer notes and option groups have Remove buttons of their own.
-			await user.click( details().getByText( 'Remove' ) );
-
-			// toStrictEqual, because an assertion that only calls for undefined
-			// values would be met by setAttributes( {} ) too.
-			expect( setAttributes.mock.lastCall[ 0 ] ).toStrictEqual( {
-				imageUrl: undefined,
-				imageId: undefined,
-			} );
-		} );
 	} );
 
 	// A key of validationErrors has to reach both the save gate and a control's `help`,
@@ -5917,12 +6766,11 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 		// getValidationErrors() reports every key on every call, so any input enumerates them.
 		const errorKeys = Object.keys( getValidationErrors( {} ) );
-		const blockingKeys = errorKeys.filter( key => ! ADVISORY_ERROR_KEYS.includes( key ) );
 
-		// Per key: the block state that triggers it, the control its message has to be
-		// inside, the field to leave first where the form waits for a visit, and the class
-		// editor.scss reddens it through - an amount field uses its own span, the rest the
-		// help slot.
+		// Per key: the block state that shows the error, the control the message must be in,
+		// the field to blur first when the form waits for a visit, and the error's CSS class.
+		// Amount fields and selects use a field-error element, the rest the help slot.
+		// A select's error comes right after it, so `locate` looks there.
 		const cases = {
 			productName: {
 				attributes: { productName: '' },
@@ -5986,10 +6834,33 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				message: REQUIRED_FIELD_ERROR,
 				carrier: 'jetpack-paypal-payment-buttons__field-error',
 			},
+			taxType: {
+				attributes: {
+					taxEnabled: true,
+					taxType: 'PREFERENCE',
+					taxValue: '',
+					collectShippingAddress: false,
+				},
+				testId: 'control-Tax type',
+				message: ADDRESS_REQUIRED_ERROR,
+				carrier: 'jetpack-paypal-payment-buttons__field-error',
+				locate: addressErrorUnder,
+			},
+			shippingMode: {
+				attributes: {
+					shippingEnabled: true,
+					shippingMode: 'PROFILE',
+					collectShippingAddress: false,
+				},
+				testId: 'control-Shipping fee',
+				message: ADDRESS_REQUIRED_ERROR,
+				carrier: 'jetpack-paypal-payment-buttons__field-error',
+				locate: addressErrorUnder,
+			},
 			returnUrl: {
-				attributes: { returnUrl: 'http://example.com/thanks' },
+				attributes: { returnUrl: 'example.com/thanks' },
 				testId: 'url-input-Return URL (optional)',
-				message: 'Return URL must use HTTPS (e.g., https://example.com/thank-you).',
+				message: 'Return URL must be a valid URL (e.g., https://example.com/thank-you).',
 				carrier: 'components-base-control__help',
 				visit: 'Return URL (optional)',
 			},
@@ -5997,14 +6868,14 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 		/**
 		 * Render the form in the state one error describes, and hand back the control
-		 * that error's message has to appear inside.
+		 * that error's message has to appear inside - or, with `locate`, the error itself.
 		 *
 		 * @param {string} key - The validationErrors key under test.
-		 * @return {Element} The control that has to be carrying the message.
+		 * @return {Element} Where the message should show.
 		 */
 		const showError = async key => {
 			const user = userEvent.setup();
-			const { attributes, testId, visit: visitLabel } = cases[ key ];
+			const { attributes, testId, visit: visitLabel, locate } = cases[ key ];
 
 			renderForm( attributes );
 			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
@@ -6013,18 +6884,12 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				await visit( user, within( screen.getByTestId( testId ) ).getByLabelText( visitLabel ) );
 			}
 
-			return screen.getByTestId( testId );
+			return locate ? locate( testId ) : screen.getByTestId( testId );
 		};
 
 		// A new validation key fails here until it gets a case.
 		it( 'has a case for every error the form can report', () => {
 			expect( errorKeys.slice().sort() ).toEqual( Object.keys( cases ).sort() );
-		} );
-
-		// Nothing downstream can check which keys are advisory, so the list is spelled out
-		// here - adding a key lets a payment go to PayPal with that error on it.
-		it( 'treats the return URL as the only advisory error', () => {
-			expect( ADVISORY_ERROR_KEYS ).toEqual( [ 'returnUrl' ] );
 		} );
 
 		/**
@@ -6045,8 +6910,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		/**
 		 * Whether a save over a block in this state sends the payment to PayPal.
 		 *
-		 * The test above covers the list itself; this covers the save reading it, rather
-		 * than only the form's own copy of the rule.
+		 * Runs the real save, so the test checks what the save sends.
 		 *
 		 * @param {string} key - The validationErrors key under test.
 		 * @return {Promise<boolean>} True when the save sent a request.
@@ -6081,7 +6945,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			return requests.length > 0;
 		};
 
-		it.each( blockingKeys )( 'says what is wrong when %s blocks the save', async key => {
+		it.each( errorKeys )( 'says what is wrong when %s blocks the save', async key => {
 			const field = await showError( key );
 
 			expectStyledError( field, key );
@@ -6094,16 +6958,13 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				'data-initial-open',
 				String( checkoutOptions.contains( field ) )
 			);
+			const urlRedirect = panel( 'URL Redirect' );
+			expect( urlRedirect ).toHaveAttribute(
+				'data-initial-open',
+				String( urlRedirect.contains( field ) )
+			);
 
 			await expect( savesWith( key ) ).resolves.toBe( false );
-		} );
-
-		// The other half of the split: these warn and the merchant can still save.
-		it.each( ADVISORY_ERROR_KEYS )( 'warns about %s and still saves', async key => {
-			const field = await showError( key );
-
-			expectStyledError( field, key );
-			await expect( savesWith( key ) ).resolves.toBe( true );
 		} );
 	} );
 
@@ -6164,43 +7025,6 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		} );
 	} );
 
-	describe( 'Manage PayPal Payment Links', () => {
-		const saved = {
-			isApiManaged: true,
-			resourceId: 'PLB-MANAGE1',
-			paymentLink: 'https://www.paypal.com/ncp/payment/PLB-MANAGE1',
-		};
-
-		it( 'links to the admin page from the connection panel once the block has a saved link', async () => {
-			apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
-			renderForm( saved );
-
-			const connectionPanel = ( await screen.findAllByTestId( 'panel-body' ) ).find(
-				body => body.dataset.title === 'PayPal Connection'
-			);
-			const link = within( connectionPanel ).getByRole( 'link', {
-				name: 'Manage PayPal Payment Links',
-			} );
-
-			expect( link ).toHaveAttribute(
-				'href',
-				'https://example.test/wp-admin/admin.php?page=paypal-payment-links'
-			);
-			// A new tab, so the post being edited is not left behind.
-			expect( link ).toHaveAttribute( 'target', '_blank' );
-		} );
-
-		it( 'has nothing to manage before the link exists', async () => {
-			apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
-			renderForm();
-
-			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
-			expect(
-				screen.queryByRole( 'link', { name: 'Manage PayPal Payment Links' } )
-			).not.toBeInTheDocument();
-		} );
-	} );
-
 	describe( 'Deleted link', () => {
 		const saved = {
 			isApiManaged: true,
@@ -6257,9 +7081,10 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			renderForm( { ...saved, format: 'LINK' } );
 
 			await expect( screen.findByText( notice ) ).resolves.toBeInTheDocument();
-			const styles = screen.getByTestId( 'inspector-controls-styles' );
-			expect( within( styles ).queryByLabelText( 'URL' ) ).not.toBeInTheDocument();
-			expect( within( styles ).queryByText( 'Copy' ) ).not.toBeInTheDocument();
+			await expect( screen.findByLabelText( 'Embed as' ) ).resolves.toBeInTheDocument();
+			const inspector = screen.getByTestId( 'inspector-controls' );
+			expect( within( inspector ).queryByLabelText( 'URL' ) ).not.toBeInTheDocument();
+			expect( within( inspector ).queryByText( 'Copy' ) ).not.toBeInTheDocument();
 		} );
 
 		it( 'swaps the QR code for its placeholder once PayPal has deleted the link', async () => {
@@ -6267,10 +7092,12 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			renderForm( { ...saved, format: 'QR' } );
 
 			await expect( screen.findByText( notice ) ).resolves.toBeInTheDocument();
-			const styles = screen.getByTestId( 'inspector-controls-styles' );
-			expect( within( styles ).queryByText( 'Download' ) ).not.toBeInTheDocument();
+			const inspector = screen.getByTestId( 'inspector-controls' );
+			expect( within( inspector ).queryByText( 'Download' ) ).not.toBeInTheDocument();
 			expect(
-				within( styles ).getByRole( 'img', { name: 'The QR code appears once the post is saved.' } )
+				within( inspector ).getByRole( 'img', {
+					name: 'The QR code appears once the post is saved.',
+				} )
 			).toBeInTheDocument();
 		} );
 
@@ -6295,19 +7122,6 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			paymentLink: 'https://www.paypal.com/ncp/payment/PLB-LOGOUT1',
 		};
 
-		let inspector = null;
-		let rendered = null;
-
-		/**
-		 * Put the block card in the document, the way the open sidebar does.
-		 */
-		const openSidebar = () => {
-			inspector = document.createElement( 'div' );
-			inspector.className = 'block-editor-block-inspector';
-			inspector.innerHTML = '<div class="block-editor-block-card"></div>';
-			document.body.appendChild( inspector );
-		};
-
 		/**
 		 * Answer the connection check, and everything else with an empty response.
 		 *
@@ -6328,22 +7142,16 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		const disconnectRequests = () =>
 			apiFetch.mock.calls.filter( ( [ request ] ) => request.path.endsWith( '/disconnect' ) );
 
-		afterEach( () => {
-			// Unmount first, so the header stops watching before its sidebar goes.
-			rendered?.unmount();
-			rendered = null;
-			inspector?.remove();
-			inspector = null;
-		} );
-
 		/**
 		 * Render the selected block, which is the only one that takes the card.
 		 *
 		 * @return {object} Testing Library render result.
 		 */
 		const renderSelected = () => {
-			rendered = render( <Edit attributes={ saved } setAttributes={ setAttributes } isSelected /> );
-			return rendered;
+			cardRendered = render(
+				<Edit attributes={ saved } setAttributes={ setAttributes } isSelected />
+			);
+			return cardRendered;
 		};
 
 		it( 'leaves the block card alone while PayPal is disconnected', async () => {
@@ -6358,18 +7166,14 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( screen.queryByText( 'PayPal Payment Button' ) ).not.toBeInTheDocument();
 		} );
 
-		it( 'logs out through the same disconnect the connection panel runs', async () => {
+		it( 'logs out through the disconnect endpoint', async () => {
 			const user = userEvent.setup();
 			mockRoutes( true );
 			openSidebar();
 			renderSelected();
 
 			await expect( screen.findByText( 'PayPal Payment Button' ) ).resolves.toBeInTheDocument();
-			// The DropdownMenu mock lays its items out flat, so there is nothing to open.
-			await user.click( screen.getByRole( 'menuitem', { name: /Log out/ } ) );
-
-			const dialog = screen.getByRole( 'dialog', { name: 'Log out from PayPal' } );
-			await user.click( within( dialog ).getByRole( 'button', { name: 'Log out' } ) );
+			await logOut( user );
 
 			await waitFor( () => expect( disconnectRequests() ).toHaveLength( 1 ) );
 			expect( disconnectRequests()[ 0 ][ 0 ].method ).toBe( 'POST' );
@@ -6399,6 +7203,22 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				screen.queryByRole( 'dialog', { name: 'Log out from PayPal' } )
 			).not.toBeInTheDocument();
 			expect( disconnectRequests() ).toHaveLength( 0 );
+		} );
+
+		it( 'shows Manage all links and buttons before the block has a saved link', async () => {
+			mockRoutes( true );
+			openSidebar();
+
+			cardRendered = render(
+				<Edit attributes={ {} } setAttributes={ setAttributes } isSelected />
+			);
+
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+			await expect(
+				screen.findByRole( 'menuitem', {
+					name: 'Manage all links and buttons(opens in a new tab)',
+				} )
+			).resolves.toBeInTheDocument();
 		} );
 	} );
 
@@ -6532,6 +7352,35 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( screen.getByLabelText( 'I understand this cannot be undone.' ) ).not.toBeChecked();
 			expect( screen.getByRole( 'button', { name: 'Delete permanently' } ) ).toBeDisabled();
 		} );
+
+		it( 'deletes from the details menu through the same dialog', async () => {
+			const user = userEvent.setup();
+			mockConnectedRoutes();
+			renderForm( saved );
+
+			// The DropdownMenu mock lays its items out flat. The exact name skips the
+			// toolbar's "Delete payment link" button.
+			const deleteItem = await screen.findByRole( 'button', { name: 'Delete' } );
+			// Disabled until the connection check comes back.
+			await waitFor( () => expect( deleteItem ).toBeEnabled() );
+			await user.click( deleteItem );
+			const dialog = screen.getByRole( 'dialog', { name: 'Delete payment link' } );
+			await user.click( within( dialog ).getByLabelText( 'I understand this cannot be undone.' ) );
+			await user.click( within( dialog ).getByRole( 'button', { name: 'Delete permanently' } ) );
+
+			await waitFor( () => expect( deleteRequests() ).toHaveLength( 1 ) );
+			expect( deleteRequests()[ 0 ][ 0 ].path ).toContain( '/buttons/PLB-DELETE1' );
+		} );
+
+		it( 'disables Delete in the details menu while PayPal is disconnected', async () => {
+			apiFetch.mockResolvedValue( { connected: false, environment: 'sandbox' } );
+			renderForm( saved );
+
+			await expect(
+				screen.findByText( /PayPal account is disconnected/ )
+			).resolves.toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: 'Delete' } ) ).toBeDisabled();
+		} );
 	} );
 
 	describe( 'Changed at PayPal', () => {
@@ -6593,11 +7442,12 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			mockPayment( { ...carried, integrationMode: 'LINK' } );
 			renderForm( saved );
 
-			await expect( screen.findByText( 'PayPal Connected' ) ).resolves.toBeInTheDocument();
-			expect( screen.queryByText( notice ) ).not.toBeInTheDocument();
-			expect( setAttributes ).toHaveBeenCalledWith(
-				expect.objectContaining( { integrationMode: 'LINK' } )
+			await waitFor( () =>
+				expect( setAttributes ).toHaveBeenCalledWith(
+					expect.objectContaining( { integrationMode: 'LINK' } )
+				)
 			);
+			expect( screen.queryByText( notice ) ).not.toBeInTheDocument();
 		} );
 
 		// The mode belongs to the payment, not the block: a sibling block going stacked
@@ -6606,11 +7456,12 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			mockPayment( { ...carried, integrationMode: 'BUTTON' } );
 			renderForm( { ...saved, integrationMode: 'LINK' } );
 
-			await expect( screen.findByText( 'PayPal Connected' ) ).resolves.toBeInTheDocument();
-			expect( screen.queryByText( notice ) ).not.toBeInTheDocument();
-			expect( setAttributes ).toHaveBeenCalledWith(
-				expect.objectContaining( { integrationMode: 'BUTTON' } )
+			await waitFor( () =>
+				expect( setAttributes ).toHaveBeenCalledWith(
+					expect.objectContaining( { integrationMode: 'BUTTON' } )
+				)
 			);
+			expect( screen.queryByText( notice ) ).not.toBeInTheDocument();
 		} );
 
 		// Only a stacked block draws with the SDK URL, so losing it is worth saying out loud.
@@ -6736,8 +7587,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			renderForm( saved );
 
-			// Match on the copy - the canvas carries other warnings too, and the sidebar
-			// has its own Reconnect button, so scope the click.
+			// Match on the copy - the canvas carries other warnings too, so scope the click.
 			const disconnected = ( await screen.findAllByTestId( 'notice' ) ).find( body =>
 				body.textContent.includes( 'Your PayPal account is disconnected' )
 			);
@@ -6747,42 +7597,225 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			await expect( screen.findByText( /Get Your API Credentials/ ) ).resolves.toBeInTheDocument();
 			expect( screen.queryByTestId( 'paypal-button-preview' ) ).not.toBeInTheDocument();
+			expect(
+				screen.getByText( 'Connect your PayPal business account to accept payments via PayPal.' )
+			).toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'PayPal account status', () => {
+		/**
+		 * Answer the connection check and the status read.
+		 *
+		 * @param {object} options            - Options.
+		 * @param {object} options.connection - The connection check's answer, or { reject } to fail it.
+		 * @param {object} options.status     - The status read's answer, or { reject } to fail it.
+		 */
+		const mockStatus = ( {
+			connection = {
+				connected: true,
+				environment: 'sandbox',
+				onboarding_method: 'partner_referrals',
+			},
+			status = { notices: [ EMAIL_NOTICE ] },
+		} = {} ) => {
+			const answer = response =>
+				response.reject ? Promise.reject( response.reject ) : Promise.resolve( response );
+			apiFetch.mockImplementation( ( { path } ) => {
+				if ( path.endsWith( '/connection' ) ) {
+					return answer( connection );
+				}
+				if ( path.endsWith( '/onboarding/status' ) ) {
+					return answer( status );
+				}
+				return Promise.resolve( {} );
+			} );
+		};
+
+		const statusCalls = () =>
+			apiFetch.mock.calls.filter( ( [ { path } ] ) => path.endsWith( '/onboarding/status' ) );
+
+		it( 'shows the account status warning on the block canvas, outside the sidebar', async () => {
+			mockStatus();
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await waitFor( () => expect( accountStatusNotices() ).toHaveLength( 1 ) );
+			const notice = accountStatusNotices()[ 0 ];
+			expect( notice ).toHaveAttribute( 'data-status', 'warning' );
+			expect( notice ).toHaveTextContent( EMAIL_NOTICE );
+			expect(
+				within( screen.getByTestId( 'inspector-controls' ) ).queryByText( /Attention:/ )
+			).not.toBeInTheDocument();
+			expect( notice ).toHaveAttribute( 'data-dismissible', 'false' );
+			expect( statusCalls() ).toEqual( [ [ { path: '/wpcom/v2/paypal/onboarding/status' } ] ] );
+		} );
+
+		it( 'links the PayPal address in the warning, opening in a new tab', async () => {
+			mockStatus();
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await waitFor( () => expect( accountStatusNotices() ).toHaveLength( 1 ) );
+			const link = within( accountStatusNotices()[ 0 ] ).getByRole( 'link' );
+			expect( link ).toHaveAttribute(
+				'href',
+				'https://www.sandbox.paypal.com/businessprofile/settings'
+			);
+			expect( link ).toHaveTextContent( 'https://www.sandbox.paypal.com/businessprofile/settings' );
+			expect( link ).toHaveAttribute( 'target', '_blank' );
+		} );
+
+		it( 'shows both notices in one warning, each address linked', async () => {
+			mockStatus( {
+				connection: {
+					connected: true,
+					environment: 'production',
+					onboarding_method: 'partner_referrals',
+				},
+				status: { notices: [ PRODUCTION_EMAIL_NOTICE, PRODUCTION_PAYMENTS_NOTICE ] },
+			} );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await waitFor( () => expect( accountStatusNotices() ).toHaveLength( 1 ) );
+			expect( accountStatusNotices()[ 0 ] ).toHaveTextContent(
+				`${ PRODUCTION_EMAIL_NOTICE } ${ PRODUCTION_PAYMENTS_NOTICE }`
+			);
+			expect(
+				within( accountStatusNotices()[ 0 ] )
+					.getAllByRole( 'link' )
+					.map( link => link.getAttribute( 'href' ) )
+			).toEqual( [ 'https://www.paypal.com/businessprofile/settings', 'https://www.paypal.com' ] );
+		} );
+
+		it( 'reads the status once and shows the warning on every block in the post', async () => {
+			mockStatus();
+
+			render(
+				<>
+					<Edit attributes={ {} } setAttributes={ setAttributes } />
+					<Edit attributes={ {} } setAttributes={ setAttributes } />
+					<Edit attributes={ {} } setAttributes={ setAttributes } />
+				</>
+			);
+
+			await waitFor( () => expect( screen.getAllByLabelText( 'Product Name' ) ).toHaveLength( 3 ) );
+			await waitFor( () => expect( accountStatusNotices() ).toHaveLength( 3 ) );
+			expect( statusCalls() ).toHaveLength( 1 );
+		} );
+
+		it( 'skips the warning for an account in good standing', async () => {
+			mockStatus( { status: { notices: [] } } );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+			await waitFor( () => expect( statusCalls() ).toHaveLength( 1 ) );
+			expect( accountStatusNotices() ).toHaveLength( 0 );
+		} );
+
+		it.each( [
+			[ '5xx', { code: 'paypal_api_error', message: 'Unavailable', data: { status: 503 } } ],
+			[ 'network', new TypeError( 'Failed to fetch' ) ],
+			[ '403', { code: 'paypal_merchant_not_for_site', data: { status: 403 } } ],
+		] )( 'stays connected and skips the warning when the read fails (%s)', async ( _, error ) => {
+			mockStatus( { status: { reject: error } } );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await waitFor( () => expect( statusCalls() ).toHaveLength( 1 ) );
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+			expect( mockToast ).not.toHaveBeenCalled();
+			expect( screen.queryByTestId( 'notice' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'takes the warning down on Log out', async () => {
+			const user = userEvent.setup();
+			mockStatus();
+			openSidebar();
+
+			cardRendered = render(
+				<Edit attributes={ {} } setAttributes={ setAttributes } isSelected />
+			);
+
+			await waitFor( () => expect( accountStatusNotices() ).toHaveLength( 1 ) );
+			await logOut( user );
+
+			await waitFor( () => expect( accountStatusNotices() ).toHaveLength( 0 ) );
+		} );
+
+		// The inserter previews block.json's example in any post.
+		it( 'skips the status read in a block preview', async () => {
+			mockIsPreviewMode = true;
+			mockStatus();
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+			expect( statusCalls() ).toHaveLength( 0 );
+			expect( accountStatusNotices() ).toHaveLength( 0 );
+		} );
+
+		it( 'shows the warning on the post’s block and leaves it out of a block preview', async () => {
+			mockStatus();
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			await waitFor( () => expect( accountStatusNotices() ).toHaveLength( 1 ) );
+
+			mockIsPreviewMode = true;
+			const { container: preview } = render(
+				<Edit attributes={ {} } setAttributes={ setAttributes } />
+			);
+
+			await expect(
+				within( preview ).findByLabelText( 'Product Name' )
+			).resolves.toBeInTheDocument();
+			expect( within( preview ).queryAllByTestId( 'notice' ) ).toHaveLength( 0 );
+			expect( statusCalls() ).toHaveLength( 1 );
+		} );
+
+		it( 'skips the status read while the site is disconnected', async () => {
+			mockStatus( {
+				connection: {
+					connected: false,
+					environment: 'sandbox',
+					onboarding_method: 'partner_referrals',
+				},
+			} );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await expect( screen.findByText( /Get Your API Credentials/ ) ).resolves.toBeInTheDocument();
+			expect( statusCalls() ).toHaveLength( 0 );
+		} );
+
+		// The connection check sends onboarding_method for Partner Referrals merchants only.
+		it( 'skips the status read for pasted credentials', async () => {
+			mockStatus( {
+				connection: { connected: true, environment: 'sandbox' },
+			} );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+			expect( statusCalls() ).toHaveLength( 0 );
+		} );
+
+		it( 'skips the status read when the connection check is refused', async () => {
+			mockStatus( {
+				connection: { reject: { code: 'rest_forbidden', data: { status: 403 } } },
+			} );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await expect( screen.findByText( /Get Your API Credentials/ ) ).resolves.toBeInTheDocument();
+			expect( statusCalls() ).toHaveLength( 0 );
 		} );
 	} );
 
 	describe( 'Saved Button (connected, has button)', () => {
 		beforeEach( () => {
 			apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
-		} );
-
-		it( 'shows PayPal Connected status', async () => {
-			render(
-				<Edit
-					attributes={ {
-						isApiManaged: true,
-						resourceId: 'PLB-TEST123',
-						paymentLink: 'https://www.paypal.com/paymentpage/PLB-TEST123',
-					} }
-					setAttributes={ setAttributes }
-				/>
-			);
-
-			await expect( screen.findByText( 'PayPal Connected' ) ).resolves.toBeInTheDocument();
-		} );
-
-		it( 'shows sandbox badge when in sandbox mode', async () => {
-			render(
-				<Edit
-					attributes={ {
-						isApiManaged: true,
-						resourceId: 'PLB-TEST123',
-						paymentLink: 'https://www.paypal.com/paymentpage/PLB-TEST123',
-					} }
-					setAttributes={ setAttributes }
-				/>
-			);
-
-			await expect( screen.findByText( 'Sandbox' ) ).resolves.toBeInTheDocument();
 		} );
 
 		it( 'shows button preview when API-managed button exists', async () => {
@@ -6829,15 +7862,13 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				'BUTTON'
 			);
 
-			// Embed as is a dropdown in the Styles tab.
 			await user.selectOptions( screen.getByLabelText( 'Embed as' ), 'QR' );
 
 			expect( setAttributes ).toHaveBeenCalledWith( { format: 'QR' } );
 		} );
 
-		// The Styles tab — the panel set changes per format and, for QR, per the
-		// caption toggle.
-		describe( 'the Styles tab', () => {
+		// The panel set changes per format and, for QR, per the caption toggle.
+		describe( 'the style controls', () => {
 			const qrAttributes = {
 				isApiManaged: true,
 				resourceId: 'PLB-TEST123',
@@ -6848,11 +7879,39 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				format: 'QR',
 			};
 
-			it( 'puts the format controls in the styles group, which is what draws the tab bar', async () => {
+			// A `group="styles"` fill would draw the editor's tab bar.
+			it( 'renders the style controls in the default sidebar fill', async () => {
 				render( <Edit attributes={ qrAttributes } setAttributes={ setAttributes } /> );
-				await expect(
-					screen.findByTestId( 'inspector-controls-styles' )
-				).resolves.toBeInTheDocument();
+
+				const embedAs = await screen.findByLabelText( 'Embed as' );
+				expect( screen.getByTestId( 'inspector-controls' ) ).toContainElement( embedAs );
+				expect( screen.queryByTestId( 'inspector-controls-styles' ) ).not.toBeInTheDocument();
+			} );
+
+			// One fill, so the panels show in source order.
+			it( 'puts the style controls under the link details', async () => {
+				render(
+					<Edit
+						attributes={ { ...qrAttributes, format: 'BUTTON' } }
+						setAttributes={ setAttributes }
+					/>
+				);
+
+				const embedAs = await screen.findByLabelText( 'Embed as' );
+				expect( screen.getAllByTestId( 'inspector-controls' ) ).toHaveLength( 1 );
+				expect( screen.getByText( 'Link used on' ) ).toAppearBefore( embedAs );
+			} );
+
+			it( 'offers the four formats in order', async () => {
+				render( <Edit attributes={ qrAttributes } setAttributes={ setAttributes } /> );
+
+				const embedAs = await screen.findByLabelText( 'Embed as' );
+				expect( [ ...embedAs.options ].map( o => [ o.value, o.textContent ] ) ).toEqual( [
+					[ 'BUTTON', 'Single button' ],
+					[ 'STACKED', 'Stacked buttons' ],
+					[ 'QR', 'QR code' ],
+					[ 'LINK', 'Link' ],
+				] );
 			} );
 
 			it( 'offers Download beside the inspector QR code', async () => {
@@ -6860,11 +7919,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				await expect( screen.findByText( 'Download' ) ).resolves.toBeInTheDocument();
 			} );
 
-			// Button text goes under Embed as so it follows the format, rather than
-			// in the Settings tab where QR and Link merchants saw a field that did
-			// nothing. Scoped to the styles fill: both fills render into one body,
-			// so an unscoped query passes wherever the control actually lives.
-			it( 'writes the button text from the styles tab', async () => {
+			it( 'writes the button text', async () => {
 				const user = userEvent.setup();
 				render(
 					<Edit
@@ -6873,21 +7928,21 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					/>
 				);
 
-				const styles = await screen.findByTestId( 'inspector-controls-styles' );
-				await user.type( within( styles ).getByLabelText( 'Button text' ), 'B' );
+				const inspector = await screen.findByTestId( 'inspector-controls' );
+				await user.type( within( inspector ).getByLabelText( 'Button text' ), 'B' );
 
 				expect( setAttributes ).toHaveBeenCalledWith( { buttonText: 'B' } );
 			} );
 
-			it( 'hides the styles group before a link exists', async () => {
+			it( 'hides the style controls before a link exists', async () => {
 				apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
 				renderForm( { format: 'BUTTON' } );
 
 				await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
-				expect( screen.queryByTestId( 'inspector-controls-styles' ) ).not.toBeInTheDocument();
+				expect( screen.queryByLabelText( 'Embed as' ) ).not.toBeInTheDocument();
 			} );
 
-			it( 'draws the styles group once the save writes the link', async () => {
+			it( 'shows the style controls once the save writes the link', async () => {
 				apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
 				const form = {
 					productName: 'Test Widget',
@@ -6899,7 +7954,11 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				const { rerender } = render( <Edit attributes={ form } setAttributes={ setAttributes } /> );
 
 				await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
-				expect( screen.queryByTestId( 'inspector-controls-styles' ) ).not.toBeInTheDocument();
+				expect( screen.queryByLabelText( 'Embed as' ) ).not.toBeInTheDocument();
+				expect( screen.getByTestId( 'paypal-button-preview' ) ).toHaveAttribute(
+					'data-disabled',
+					'true'
+				);
 
 				rerender(
 					<Edit
@@ -6913,35 +7972,47 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					/>
 				);
 
-				const styles = await screen.findByTestId( 'inspector-controls-styles' );
-				expect( within( styles ).getByLabelText( 'URL' ) ).toHaveValue( link );
+				const inspector = await screen.findByTestId( 'inspector-controls' );
+				expect( within( inspector ).getByLabelText( 'URL' ) ).toHaveValue( link );
+				expect( screen.getByTestId( 'paypal-button-preview' ) ).toHaveAttribute(
+					'data-disabled',
+					'false'
+				);
 			} );
 
 			// A saved button still works while disconnected, so it stays stylable.
-			it( 'keeps the styles group while PayPal is disconnected', async () => {
+			it( 'keeps the style controls while PayPal is disconnected', async () => {
 				apiFetch.mockResolvedValue( { connected: false, environment: 'sandbox' } );
 				render( <Edit attributes={ qrAttributes } setAttributes={ setAttributes } /> );
 
 				await expect(
 					screen.findByText( /PayPal account is disconnected/ )
 				).resolves.toBeInTheDocument();
-				expect( screen.getByTestId( 'inspector-controls-styles' ) ).toBeInTheDocument();
+				expect(
+					within( screen.getByTestId( 'inspector-controls' ) ).getByLabelText( 'Embed as' )
+				).toBeInTheDocument();
 			} );
 
-			it( 'leaves no button text field in the settings tab', async () => {
+			// The form edits the link itself, so the style controls stay with the details.
+			it( 'hides the style controls while editing the link and shows them again on return', async () => {
+				const user = userEvent.setup();
 				render(
 					<Edit
 						attributes={ { ...qrAttributes, format: 'BUTTON' } }
 						setAttributes={ setAttributes }
 					/>
 				);
+				await expect( screen.findByLabelText( 'Embed as' ) ).resolves.toBeInTheDocument();
 
-				// The form and the connection panel are both ungrouped fills, so the
-				// settings tab is more than one node.
-				const settings = await screen.findAllByTestId( 'inspector-controls' );
-				settings.forEach( fill =>
-					expect( within( fill ).queryByLabelText( 'Button text' ) ).not.toBeInTheDocument()
-				);
+				await user.click( screen.getByRole( 'button', { name: 'Edit' } ) );
+
+				expect( screen.getByLabelText( 'Product Name' ) ).toBeInTheDocument();
+				expect( screen.queryByLabelText( 'Embed as' ) ).not.toBeInTheDocument();
+				expect( screen.queryByLabelText( 'Button text' ) ).not.toBeInTheDocument();
+
+				await user.click( screen.getByRole( 'button', { name: 'Edit Button' } ) );
+
+				expect( screen.getByLabelText( 'Embed as' ) ).toBeInTheDocument();
 			} );
 
 			// Document-wide, not scoped: a QR merchant must not see the field
@@ -6951,8 +8022,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					<Edit attributes={ qrAttributes } setAttributes={ setAttributes } />
 				);
 
-				let styles = await screen.findByTestId( 'inspector-controls-styles' );
-				expect( within( styles ).getByLabelText( 'Embed as' ) ).toHaveValue( 'QR' );
+				let inspector = await screen.findByTestId( 'inspector-controls' );
+				expect( within( inspector ).getByLabelText( 'Embed as' ) ).toHaveValue( 'QR' );
 				expect( screen.queryByLabelText( 'Button text' ) ).not.toBeInTheDocument();
 
 				rerender(
@@ -6962,8 +8033,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					/>
 				);
 
-				styles = await screen.findByTestId( 'inspector-controls-styles' );
-				expect( within( styles ).getByLabelText( 'Embed as' ) ).toHaveValue( 'LINK' );
+				inspector = await screen.findByTestId( 'inspector-controls' );
+				expect( within( inspector ).getByLabelText( 'Embed as' ) ).toHaveValue( 'LINK' );
 				expect( screen.queryByLabelText( 'Button text' ) ).not.toBeInTheDocument();
 			} );
 
@@ -6977,11 +8048,11 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					/>
 				);
 
-				const styles = await screen.findByTestId( 'inspector-controls-styles' );
+				const inspector = await screen.findByTestId( 'inspector-controls' );
 				// The connection is a sandbox one, so the link stays on the sandbox
 				// dashboard.
 				expect(
-					within( styles ).getByRole( 'link', { name: /Edit default settings in PayPal/ } )
+					within( inspector ).getByRole( 'link', { name: /Edit default settings in PayPal/ } )
 				).toHaveAttribute(
 					'href',
 					'https://www.sandbox.paypal.com/ncp/settings?initial_tab=stackedButtons'
@@ -6993,7 +8064,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					);
 					// Check the format changed before checking the link, so a stale
 					// render cannot pass.
-					const rendered = await screen.findByTestId( 'inspector-controls-styles' );
+					const rendered = await screen.findByTestId( 'inspector-controls' );
 					expect( within( rendered ).getByLabelText( 'Embed as' ) ).toHaveValue( format );
 					expect( screen.queryByText( 'Edit default settings in PayPal' ) ).not.toBeInTheDocument();
 				}
@@ -7013,9 +8084,9 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					/>
 				);
 
-				const styles = await screen.findByTestId( 'inspector-controls-styles' );
+				const inspector = await screen.findByTestId( 'inspector-controls' );
 				expect(
-					within( styles ).getByRole( 'link', { name: /Edit default settings in PayPal/ } )
+					within( inspector ).getByRole( 'link', { name: /Edit default settings in PayPal/ } )
 				).toHaveAttribute(
 					'href',
 					'https://www.paypal.com/ncp/settings?initial_tab=stackedButtons'
@@ -7032,8 +8103,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					/>
 				);
 
-				const styles = await screen.findByTestId( 'inspector-controls-styles' );
-				expect( within( styles ).getByLabelText( 'Button text' ) ).toBeInTheDocument();
+				const inspector = await screen.findByTestId( 'inspector-controls' );
+				expect( within( inspector ).getByLabelText( 'Button text' ) ).toBeInTheDocument();
 				expect( screen.queryByLabelText( 'Show QR code' ) ).not.toBeInTheDocument();
 			} );
 
@@ -7112,9 +8183,9 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					/>
 				);
 
-				let styles = await screen.findByTestId( 'inspector-controls-styles' );
-				expect( within( styles ).getByTestId( 'color-Background' ) ).toBeInTheDocument();
-				expect( within( styles ).getByTestId( 'contrast-checker' ) ).toBeInTheDocument();
+				let inspector = await screen.findByTestId( 'inspector-controls' );
+				expect( within( inspector ).getByTestId( 'color-Background' ) ).toBeInTheDocument();
+				expect( within( inspector ).getByTestId( 'contrast-checker' ) ).toBeInTheDocument();
 
 				rerender(
 					<Edit
@@ -7123,10 +8194,10 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					/>
 				);
 
-				styles = await screen.findByTestId( 'inspector-controls-styles' );
-				expect( within( styles ).getByTestId( 'color-Text' ) ).toBeInTheDocument();
-				expect( within( styles ).queryByTestId( 'color-Background' ) ).not.toBeInTheDocument();
-				expect( within( styles ).queryByTestId( 'contrast-checker' ) ).not.toBeInTheDocument();
+				inspector = await screen.findByTestId( 'inspector-controls' );
+				expect( within( inspector ).getByTestId( 'color-Text' ) ).toBeInTheDocument();
+				expect( within( inspector ).queryByTestId( 'color-Background' ) ).not.toBeInTheDocument();
+				expect( within( inspector ).queryByTestId( 'contrast-checker' ) ).not.toBeInTheDocument();
 			} );
 
 			// The row is hidden under Outline, but the value behind it is not — Reset
@@ -7216,8 +8287,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					/>
 				);
 
-				const styles = await screen.findByTestId( 'inspector-controls-styles' );
-				const toggle = within( styles ).getByTestId( 'toggle-group-Styles' );
+				const inspector = await screen.findByTestId( 'inspector-controls' );
+				const toggle = within( inspector ).getByTestId( 'toggle-group-Styles' );
 				expect( toggle ).toHaveAttribute( 'data-value', 'fill' );
 
 				await user.click( within( toggle ).getByText( 'Outline' ) );
@@ -7231,9 +8302,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				const { rerender } = render(
 					<Edit attributes={ qrAttributes } setAttributes={ setAttributes } />
 				);
-				await expect(
-					screen.findByTestId( 'inspector-controls-styles' )
-				).resolves.toBeInTheDocument();
+				await expect( screen.findByLabelText( 'Embed as' ) ).resolves.toBeInTheDocument();
 				expect( screen.queryByTestId( 'toggle-group-Styles' ) ).not.toBeInTheDocument();
 
 				rerender(
@@ -7255,8 +8324,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					/>
 				);
 
-				const styles = await screen.findByTestId( 'inspector-controls-styles' );
-				const checkbox = within( styles ).getByLabelText( 'Show "Powered by PayPal"' );
+				const inspector = await screen.findByTestId( 'inspector-controls' );
+				const checkbox = within( inspector ).getByLabelText( 'Show "Powered by PayPal"' );
 				expect( checkbox ).toBeChecked();
 
 				await user.click( checkbox );
@@ -7270,9 +8339,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				const { rerender } = render(
 					<Edit attributes={ qrAttributes } setAttributes={ setAttributes } />
 				);
-				await expect(
-					screen.findByTestId( 'inspector-controls-styles' )
-				).resolves.toBeInTheDocument();
+				await expect( screen.findByLabelText( 'Embed as' ) ).resolves.toBeInTheDocument();
 				expect( screen.queryByLabelText( 'Show "Powered by PayPal"' ) ).not.toBeInTheDocument();
 
 				rerender(
@@ -7284,9 +8351,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				expect( screen.queryByLabelText( 'Show "Powered by PayPal"' ) ).not.toBeInTheDocument();
 			} );
 
-			// The button puts Width Settings between Color and Typography; QR does
-			// not, so one shared Color+Typography component cannot draw both.
-			it( 'orders the button panels Color, Styles, Width, Typography, Border', async () => {
+			it( 'shows the button panels', async () => {
 				render(
 					<Edit
 						attributes={ { ...qrAttributes, format: 'BUTTON' } }
@@ -7294,25 +8359,17 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					/>
 				);
 
-				const styles = await screen.findByTestId( 'inspector-controls-styles' );
-				// Both testids in one query, so the result comes back in document
-				// order. Only PanelBody has a title; the Color panel is a
-				// ToolsPanel and is named by its testid.
-				const titles = within( styles )
-					.getAllByTestId( /^(tools-panel-Color|panel-body)$/ )
-					.map( node =>
-						node.dataset.testid === 'tools-panel-Color'
-							? 'Color'
-							: node.getAttribute( 'data-title' )
-					);
+				const inspector = await screen.findByTestId( 'inspector-controls' );
+				const titles = within( inspector )
+					.getAllByTestId( 'panel-body' )
+					.map( body => body.getAttribute( 'data-title' ) );
 
-				expect( titles ).toEqual( [
-					'Color',
-					'Styles',
-					'Width Settings',
-					'Typography',
-					'Border Settings',
-				] );
+				// The Color panel is a ToolsPanel, so it is found by testid.
+				expect( within( inspector ).getByTestId( 'tools-panel-Color' ) ).toBeInTheDocument();
+				expect( titles ).toEqual(
+					expect.arrayContaining( [ 'Styles', 'Width Settings', 'Typography', 'Border Settings' ] )
+				);
+				expect( titles ).not.toContain( 'PayPal Connection' );
 			} );
 
 			// The Light / Auto / Dark preset only ever changed the editor — the
@@ -7325,15 +8382,12 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					/>
 				);
 
-				// Scoped to the Settings fills, where the preset used to live —
-				// unscoped, this would pass just as well if the tab stopped
-				// rendering for some unrelated reason.
-				const settings = await screen.findAllByTestId( 'inspector-controls' );
-				settings.forEach( fill => {
-					expect( within( fill ).queryByText( 'Light' ) ).not.toBeInTheDocument();
-					expect( within( fill ).queryByText( 'Auto' ) ).not.toBeInTheDocument();
-					expect( within( fill ).queryByText( 'Dark' ) ).not.toBeInTheDocument();
-				} );
+				// Positive control: Embed as is there.
+				await expect( screen.findByLabelText( 'Embed as' ) ).resolves.toBeInTheDocument();
+				const sidebar = within( screen.getByTestId( 'inspector-controls' ) );
+				expect( sidebar.queryByText( 'Light' ) ).not.toBeInTheDocument();
+				expect( sidebar.queryByText( 'Auto' ) ).not.toBeInTheDocument();
+				expect( sidebar.queryByText( 'Dark' ) ).not.toBeInTheDocument();
 			} );
 
 			// The inspector's copy shows the caption too, so the merchant sees what
@@ -7346,7 +8400,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					/>
 				);
 
-				let inspector = await screen.findByTestId( 'inspector-controls-styles' );
+				let inspector = await screen.findByTestId( 'inspector-controls' );
 				expect( within( inspector ).getByText( 'Scan to pay' ) ).toBeInTheDocument();
 
 				rerender(
@@ -7356,7 +8410,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					/>
 				);
 
-				inspector = await screen.findByTestId( 'inspector-controls-styles' );
+				inspector = await screen.findByTestId( 'inspector-controls' );
 				expect( within( inspector ).getByText( 'Download' ) ).toBeInTheDocument();
 				expect( within( inspector ).queryByText( 'Scan to pay' ) ).not.toBeInTheDocument();
 			} );
@@ -7364,10 +8418,10 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			// A fresh QR block draws a bare code; the caption is opt-in.
 			it( 'starts with the caption off', async () => {
 				render( <Edit attributes={ qrAttributes } setAttributes={ setAttributes } /> );
-				const styles = await screen.findByTestId( 'inspector-controls-styles' );
+				const inspector = await screen.findByTestId( 'inspector-controls' );
 
-				expect( within( styles ).getByLabelText( 'Show text under QR code' ) ).not.toBeChecked();
-				expect( within( styles ).queryByLabelText( 'Caption' ) ).not.toBeInTheDocument();
+				expect( within( inspector ).getByLabelText( 'Show text under QR code' ) ).not.toBeChecked();
+				expect( within( inspector ).queryByLabelText( 'Caption' ) ).not.toBeInTheDocument();
 			} );
 
 			it( 'toggles the caption off', async () => {
@@ -7378,9 +8432,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 						setAttributes={ setAttributes }
 					/>
 				);
-				await expect(
-					screen.findByTestId( 'inspector-controls-styles' )
-				).resolves.toBeInTheDocument();
+				await expect( screen.findByLabelText( 'Embed as' ) ).resolves.toBeInTheDocument();
 
 				await user.click( screen.getByLabelText( 'Show text under QR code' ) );
 
@@ -7394,9 +8446,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 						setAttributes={ setAttributes }
 					/>
 				);
-				await expect(
-					screen.findByTestId( 'inspector-controls-styles' )
-				).resolves.toBeInTheDocument();
+				await expect( screen.findByLabelText( 'Embed as' ) ).resolves.toBeInTheDocument();
 
 				expect( screen.queryByTestId( 'tools-panel-Color' ) ).not.toBeInTheDocument();
 				expect( screen.queryByTestId( 'color-dropdown' ) ).not.toBeInTheDocument();
@@ -7473,9 +8523,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 						setAttributes={ setAttributes }
 					/>
 				);
-				await expect(
-					screen.findByTestId( 'inspector-controls-styles' )
-				).resolves.toBeInTheDocument();
+				await expect( screen.findByLabelText( 'Embed as' ) ).resolves.toBeInTheDocument();
 				expect( panel( 'Border Settings' ) ).toBeInTheDocument();
 				expect( screen.queryByTestId( 'spacing-Margin' ) ).not.toBeInTheDocument();
 				// Radius and stroke still belong to the button.
@@ -7483,7 +8531,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				expect( screen.getByTestId( 'border-Stroke' ) ).toBeInTheDocument();
 			} );
 
-			it( 'writes the link text from the styles tab', async () => {
+			it( 'writes the link text', async () => {
 				const user = userEvent.setup();
 				render(
 					<Edit
@@ -7492,8 +8540,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					/>
 				);
 
-				const styles = await screen.findByTestId( 'inspector-controls-styles' );
-				await user.type( within( styles ).getByLabelText( 'Link text' ), 'B' );
+				const inspector = await screen.findByTestId( 'inspector-controls' );
+				await user.type( within( inspector ).getByLabelText( 'Link text' ), 'B' );
 
 				expect( setAttributes ).toHaveBeenCalledWith( { linkText: 'B' } );
 			} );
@@ -7514,16 +8562,16 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					/>
 				);
 
-				const styles = await screen.findByTestId( 'inspector-controls-styles' );
+				const inspector = await screen.findByTestId( 'inspector-controls' );
 				// The BN code has to be on it: a merchant shares this link
 				// directly, so it must attribute the same way the anchor does.
 				await waitFor( () =>
-					expect( within( styles ).getByLabelText( 'URL' ).value ).toContain( 'at_code=BN-TEST' )
+					expect( within( inspector ).getByLabelText( 'URL' ).value ).toContain( 'at_code=BN-TEST' )
 				);
-				expect( within( styles ).getByLabelText( 'URL' ).value ).toContain(
+				expect( within( inspector ).getByLabelText( 'URL' ).value ).toContain(
 					'paypal.com/paymentpage/PLB-TEST123'
 				);
-				expect( within( styles ).getByText( 'Copy' ) ).toBeInTheDocument();
+				expect( within( inspector ).getByText( 'Copy' ) ).toBeInTheDocument();
 			} );
 
 			it( 'copies the attributed URL and goes back to Copy', async () => {
@@ -7541,22 +8589,22 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					/>
 				);
 
-				const styles = await screen.findByTestId( 'inspector-controls-styles' );
+				const inspector = await screen.findByTestId( 'inspector-controls' );
 				await waitFor( () =>
-					expect( within( styles ).getByLabelText( 'URL' ).value ).toContain( 'at_code=BN-TEST' )
+					expect( within( inspector ).getByLabelText( 'URL' ).value ).toContain( 'at_code=BN-TEST' )
 				);
 
-				await user.click( within( styles ).getByText( 'Copy' ) );
+				await user.click( within( inspector ).getByText( 'Copy' ) );
 
 				// The clipboard gets the same attributed URL the field shows.
-				expect( mockCopiedText.last ).toBe( within( styles ).getByLabelText( 'URL' ).value );
-				expect( within( styles ).getByText( 'Copied!' ) ).toBeInTheDocument();
+				expect( mockCopiedText.last ).toBe( within( inspector ).getByLabelText( 'URL' ).value );
+				expect( within( inspector ).getByText( 'Copied!' ) ).toBeInTheDocument();
 
 				// The label goes back on its own rather than sticking at "Copied!".
 				await act( async () => {
 					jest.advanceTimersByTime( 2000 );
 				} );
-				expect( within( styles ).getByText( 'Copy' ) ).toBeInTheDocument();
+				expect( within( inspector ).getByText( 'Copy' ) ).toBeInTheDocument();
 			} );
 
 			it( 'restarts the confirmation when Copy is clicked twice', async () => {
@@ -7569,30 +8617,30 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					/>
 				);
 
-				const styles = await screen.findByTestId( 'inspector-controls-styles' );
-				await user.click( within( styles ).getByText( 'Copy' ) );
+				const inspector = await screen.findByTestId( 'inspector-controls' );
+				await user.click( within( inspector ).getByText( 'Copy' ) );
 
 				// Most of the way through the first window, then copy again.
 				await act( async () => {
 					jest.advanceTimersByTime( 1500 );
 				} );
-				await user.click( within( styles ).getByText( 'Copied!' ) );
+				await user.click( within( inspector ).getByText( 'Copied!' ) );
 
 				// The first timer would have fired by now; the second one has not.
 				await act( async () => {
 					jest.advanceTimersByTime( 1000 );
 				} );
-				expect( within( styles ).getByText( 'Copied!' ) ).toBeInTheDocument();
+				expect( within( inspector ).getByText( 'Copied!' ) ).toBeInTheDocument();
 
 				await act( async () => {
 					jest.advanceTimersByTime( 1000 );
 				} );
-				expect( within( styles ).getByText( 'Copy' ) ).toBeInTheDocument();
+				expect( within( inspector ).getByText( 'Copy' ) ).toBeInTheDocument();
 			} );
 
 			// The panels are shared with the QR caption, so the thing worth
-			// asserting is which attributes they write — wiring LINK to the
-			// caption's would draw an identical tab.
+			// asserting is which attributes they write - wiring LINK to the
+			// caption's would draw identical controls.
 			it( 'stores the link color, and clears it', async () => {
 				const user = userEvent.setup();
 				render(
@@ -7635,13 +8683,12 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					/>
 				);
 
-				const styles = await screen.findByTestId( 'inspector-controls-styles' );
-				// Positive control: the link's own field is there, so the case
-				// covers the wrong field being dropped rather than the whole tab.
-				expect( within( styles ).getByLabelText( 'Link text' ) ).toBeInTheDocument();
-				expect( within( styles ).queryByLabelText( 'Button text' ) ).not.toBeInTheDocument();
+				const inspector = await screen.findByTestId( 'inspector-controls' );
+				// Positive control: the link's own field is there.
+				expect( within( inspector ).getByLabelText( 'Link text' ) ).toBeInTheDocument();
+				expect( within( inspector ).queryByLabelText( 'Button text' ) ).not.toBeInTheDocument();
 				expect(
-					within( styles ).queryByLabelText( 'Show text under QR code' )
+					within( inspector ).queryByLabelText( 'Show text under QR code' )
 				).not.toBeInTheDocument();
 			} );
 
@@ -7652,28 +8699,23 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 						setAttributes={ setAttributes }
 					/>
 				);
-				await expect(
-					screen.findByTestId( 'inspector-controls-styles' )
-				).resolves.toBeInTheDocument();
+				await expect( screen.findByLabelText( 'Embed as' ) ).resolves.toBeInTheDocument();
 
-				// Positive control: Typography still draws, so an empty styles tab
-				// cannot pass this.
+				// Positive control: Typography still draws.
 				expect( panel( 'Typography' ) ).toBeInTheDocument();
 				expect( panel( 'Width Settings' ) ).toBeUndefined();
 				expect( panel( 'Border Settings' ) ).toBeUndefined();
 			} );
 
-			// Both controls take the same busy flag, so a request in flight locks
-			// the format and its label together.
 			/**
-			 * Put a block into the busy state and hand back its styles fill.
+			 * Put a block into the busy state and hand back its sidebar fill.
 			 *
 			 * Hangs the delete so the busy flag is still on when it is checked.
 			 *
 			 * @param {object} attributes - Attributes on top of qrAttributes.
-			 * @return {Element} The styles fill, once the controls have locked.
+			 * @return {Element} The sidebar fill, once the controls have locked.
 			 */
-			const lockedStylesTab = async attributes => {
+			const lockedControls = async attributes => {
 				const user = userEvent.setup();
 				apiFetch.mockImplementation( ( { method } ) =>
 					'DELETE' === method
@@ -7684,48 +8726,46 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					<Edit attributes={ { ...qrAttributes, ...attributes } } setAttributes={ setAttributes } />
 				);
 
-				const styles = await screen.findByTestId( 'inspector-controls-styles' );
-				expect( within( styles ).getByLabelText( 'Embed as' ) ).toBeEnabled();
+				const inspector = await screen.findByTestId( 'inspector-controls' );
+				expect( within( inspector ).getByLabelText( 'Embed as' ) ).toBeEnabled();
 
 				await user.click( await screen.findByTestId( 'toolbar-Delete payment link' ) );
 				await user.click( screen.getByLabelText( 'I understand this cannot be undone.' ) );
 				await user.click( screen.getByRole( 'button', { name: 'Delete permanently' } ) );
 
 				await waitFor( () => {
-					expect( within( styles ).getByLabelText( 'Embed as' ) ).toBeDisabled();
+					expect( within( inspector ).getByLabelText( 'Embed as' ) ).toBeDisabled();
 				} );
 
-				return styles;
+				return inspector;
 			};
 
-			// Every control in the tab takes the same busy flag, so a request in
-			// flight locks the format and the text that goes with it.
+			// Embed as and the per-format fields share one busy flag, so a request
+			// in flight locks them all.
 			it( 'locks embed as and button text while a request is in flight', async () => {
-				const styles = await lockedStylesTab( { format: 'BUTTON' } );
+				const inspector = await lockedControls( { format: 'BUTTON' } );
 
-				expect( within( styles ).getByLabelText( 'Button text' ) ).toBeDisabled();
+				expect( within( inspector ).getByLabelText( 'Button text' ) ).toBeDisabled();
 			} );
 
 			it( 'locks the link text and Copy while a request is in flight', async () => {
-				const styles = await lockedStylesTab( { format: 'LINK' } );
+				const inspector = await lockedControls( { format: 'LINK' } );
 
-				expect( within( styles ).getByLabelText( 'Link text' ) ).toBeDisabled();
-				expect( within( styles ).getByText( 'Copy' ) ).toBeDisabled();
+				expect( within( inspector ).getByLabelText( 'Link text' ) ).toBeDisabled();
+				expect( within( inspector ).getByText( 'Copy' ) ).toBeDisabled();
 			} );
 
 			it( 'locks the caption controls while a request is in flight', async () => {
-				const styles = await lockedStylesTab( { format: 'QR', qrShowCaption: true } );
+				const inspector = await lockedControls( { format: 'QR', qrShowCaption: true } );
 
-				expect( within( styles ).getByLabelText( 'Show text under QR code' ) ).toBeDisabled();
-				expect( within( styles ).getByLabelText( 'Caption' ) ).toBeDisabled();
+				expect( within( inspector ).getByLabelText( 'Show text under QR code' ) ).toBeDisabled();
+				expect( within( inspector ).getByLabelText( 'Caption' ) ).toBeDisabled();
 			} );
 
 			it( 'stores a width preset', async () => {
 				const user = userEvent.setup();
 				render( <Edit attributes={ qrAttributes } setAttributes={ setAttributes } /> );
-				await expect(
-					screen.findByTestId( 'inspector-controls-styles' )
-				).resolves.toBeInTheDocument();
+				await expect( screen.findByLabelText( 'Embed as' ) ).resolves.toBeInTheDocument();
 
 				await user.click( screen.getByText( '50%' ) );
 
@@ -8015,29 +9055,20 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( screen.queryByRole( 'button', { name: 'Edit Button' } ) ).not.toBeInTheDocument();
 		} );
 
-		// Two fills into one slot order by which mounted last, not by source, so the whole
-		// Settings tab is one fill and the connection panel stays last.
-		it( 'keeps the PayPal Connection panel last when the form opens', async () => {
+		it( 'has no PayPal Connection panel in the details or the form', async () => {
 			mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
 
 			render( <Edit attributes={ saved } setAttributes={ setAttributes } clientId="a" /> );
 
 			await expect( screen.findByText( 'Hosted ID' ) ).resolves.toBeInTheDocument();
-			expect( screen.getAllByTestId( 'inspector-controls' ) ).toHaveLength( 1 );
-
+			expect( panel( 'PayPal Connection' ) ).toBeUndefined();
 			await userEvent.setup().click( screen.getByRole( 'button', { name: 'Edit' } ) );
 
-			expect( screen.getAllByTestId( 'inspector-controls' ) ).toHaveLength( 1 );
-			const titles = within( screen.getByTestId( 'inspector-controls' ) )
-				.getAllByTestId( 'panel-body' )
-				.map( node => node.getAttribute( 'data-title' ) );
-			expect( titles ).toEqual( [
-				'Details',
-				'Product Options',
-				'Checkout Options',
-				'URL Redirect',
-				'PayPal Connection',
-			] );
+			expect( panel( 'Details' ) ).toBeInTheDocument();
+			expect( panel( 'Product Options' ) ).toBeInTheDocument();
+			expect( panel( 'Checkout Options' ) ).toBeInTheDocument();
+			expect( panel( 'URL Redirect' ) ).toBeInTheDocument();
+			expect( panel( 'PayPal Connection' ) ).toBeUndefined();
 		} );
 
 		// The form was open for the link that has just been replaced, so it closes with it.
@@ -8163,11 +9194,14 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				expect( setAttributes ).not.toHaveBeenCalled();
 			} );
 
-			// A required field emptied still leaves, but only by discarding.
-			it( 'offers Don’t save alone while the form is invalid', async () => {
+			// A form with an error still leaves, but only by discarding.
+			it.each( [
+				[ 'an emptied product name', { productName: '' } ],
+				[ 'a malformed return URL', { returnUrl: 'example.com/thanks' } ],
+			] )( 'offers Don’t save alone while the form has %s', async ( _label, change ) => {
 				const user = userEvent.setup();
 				mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
-				await editForm( user, { ...saved, productName: '' } );
+				await editForm( user, { ...saved, ...change } );
 
 				expect( back() ).toBeEnabled();
 				await user.click( back() );
@@ -8334,17 +9368,6 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				expect( screen.getByText( 'Hosted ID' ) ).toBeInTheDocument();
 				expect( mockSavePost ).not.toHaveBeenCalled();
 			} );
-		} );
-
-		it( 'drops the id from the connection panel, which the details carry now', async () => {
-			mockResource( { id: 'PLB-DETAIL1', embeds: 0, attributes: saved } );
-
-			render( <Edit attributes={ saved } setAttributes={ setAttributes } clientId="a" /> );
-
-			await expect( screen.findByText( 'Hosted ID' ) ).resolves.toBeInTheDocument();
-			// The PanelBody mock renders closed panels too, so a second copy of the id would show.
-			expect( screen.getByText( 'Environment:' ) ).toBeInTheDocument();
-			expect( screen.getAllByText( 'DETAIL1' ) ).toHaveLength( 1 );
 		} );
 	} );
 
@@ -8516,17 +9539,18 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( listRequests() ).toHaveLength( 2 );
 		} );
 
-		it( 'keeps the styles group while picking another link', async () => {
+		it( 'hides the style controls while picking another link', async () => {
 			const user = userEvent.setup();
 			mockLinks( [ resource( 'PLB-A1', 'Croissant' ), resource( 'PLB-B2', 'Baguette' ) ] );
 
 			renderSelected();
 
 			await waitFor( () => expect( changeItem() ).toBeEnabled() );
+			expect( screen.getByLabelText( 'Embed as' ) ).toBeInTheDocument();
 			await user.click( changeItem() );
 
 			expect( screen.getByText( 'Choose a button to change' ) ).toBeInTheDocument();
-			expect( screen.getByTestId( 'inspector-controls-styles' ) ).toBeInTheDocument();
+			expect( screen.queryByLabelText( 'Embed as' ) ).not.toBeInTheDocument();
 		} );
 
 		it( 'switches the block to the picked link, with what PayPal holds for it, and keeps the image', async () => {

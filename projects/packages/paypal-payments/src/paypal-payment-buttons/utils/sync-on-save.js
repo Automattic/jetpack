@@ -145,8 +145,8 @@ function recordPaymentsWritten( written, reportSaved ) {
 /**
  * Why a block's form cannot be sent to PayPal yet, if it cannot.
  *
- * The same check the editor shows the merchant - a blocking field error, an option
- * group error or a customer note error.
+ * The same check the editor shows the merchant - a field error, an option group
+ * error or a customer note error.
  *
  * @param {object} attributes - Block attributes.
  * @return {string|null} The first thing to fix, or null when the payment can go.
@@ -224,10 +224,11 @@ async function createPayment( request, clientId, attributes, body ) {
 /**
  * What a create or update response says should change on the block.
  *
- * The server attaches `attributes` only when it read the resource back: a PUT echo has
- * no `id`, and mapping one would blank the block's resourceId. Diffing runs through the
- * same helper as the mount read-back, so variants compare the same way and an unchanged
- * block comes back empty.
+ * The server attaches `attributes` to a create, and to an update only when it read the
+ * payment back. A PUT echo is what the block sent plus `id`, with no code_snippets, so
+ * mapping one would blank a stacked block's scriptSrc. Diffing runs through the same
+ * helper as the mount read-back, so variants compare the same way and an unchanged block
+ * comes back empty.
  *
  * @param {object} attributes - The block's current attributes.
  * @param {object} response   - The API response.
@@ -357,7 +358,11 @@ async function syncBlock(
 				// Gone from PayPal, or deleted from the admin page: give the block a new one, in
 				// its own mode — a fresh payment is the block's alone, with no sibling to match.
 				removeExistingLink( resourceId );
-				result = await createPayment( request, clientId, attributes, ownBody );
+				result = await createPayment( request, clientId, attributes, {
+					...ownBody,
+					// Tracked as a replacement for the payment PayPal lost.
+					recreated: true,
+				} );
 			}
 		} else {
 			result = await createPayment( request, clientId, attributes, ownBody );

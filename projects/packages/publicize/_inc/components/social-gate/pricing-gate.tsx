@@ -5,10 +5,11 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { Icon, check } from '@wordpress/icons';
-import { Button, Card, LinkButton, Stack, Text } from '@wordpress/ui';
+import { Button, Card, ButtonLink, Stack, Text } from '@wordpress/ui';
 import useProductInfo from '../../hooks/use-product-info';
 import { store as socialStore } from '../../social-store';
 import { getRefreshPlanQuery, getSocialScriptData } from '../../utils';
+import type { JSX } from 'react';
 
 const PAID_FEATURES = [
 	__( 'Schedule posts in advance', 'jetpack-publicize-pkg' ),
@@ -134,9 +135,9 @@ export default function PricingGate( { onDismiss }: { onDismiss: VoidFunction } 
 						) ) }
 					</Stack>
 					<Stack className="jetpack-social-gate__actions" direction="row" justify="center" gap="md">
-						<LinkButton variant="solid" href={ getSocialUrl }>
+						<ButtonLink variant="solid" href={ getSocialUrl }>
 							{ __( 'Get Social', 'jetpack-publicize-pkg' ) }
-						</LinkButton>
+						</ButtonLink>
 						<Button
 							variant="outline"
 							onClick={ onStartForFree }

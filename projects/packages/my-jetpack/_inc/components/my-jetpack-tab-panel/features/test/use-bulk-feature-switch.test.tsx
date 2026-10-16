@@ -4,6 +4,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { useRequestedSwitches } from '../../../../data/requested-switch-state';
 import { isBulkSwitchable, useBulkFeatureSwitch } from '../use-bulk-feature-switch';
 import type { FeatureState } from '../feature-state';
+import type { BulkOutcome } from '../use-bulk-feature-switch';
 import type { ReactNode } from 'react';
 
 const mockSuccess = jest.fn();
@@ -17,6 +18,7 @@ jest.mock( '@automattic/jetpack-components', () => ( {
 } ) );
 
 jest.mock( '@automattic/jetpack-shared-stores', () => ( { store: 'modules-store' } ) );
+jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
 
 jest.mock( '@wordpress/data', () => ( {
 	useDispatch: () => ( { fetchModules: mockFetchModules } ),
@@ -54,7 +56,8 @@ const renderBulk = () => {
 	);
 };
 
-const settled = ( failed: unknown[] = [] ) => Promise.resolve( { state: {}, failed } );
+const settled = ( failed: unknown[] = [] ) =>
+	Promise.resolve( { state: { features: [] }, failed } );
 
 beforeEach( () => {
 	jest.clearAllMocks();
@@ -66,6 +69,7 @@ describe( 'isBulkSwitchable', () => {
 	it.each( [
 		[ 'a module with a plain switch', moduleState( 'stats', 'inactive' ), true ],
 		[ 'a plugin switch', pluginState( 'akismet', 'active' ), true ],
+		[ 'an unavailable module', moduleState( 'stats', 'inactive', { available: false } ), false ],
 		[ 'a forced module', moduleState( 'stats', 'active', { override: 'active' } ), false ],
 		[
 			'a forced plugin',
@@ -125,6 +129,25 @@ describe( 'useBulkFeatureSwitch', () => {
 		expect( mockError ).not.toHaveBeenCalled();
 	} );
 
+	it( 'records the plugins the batch switched on in the page state, for readers outside the Features tab', async () => {
+		window.myJetpackInitialState = {
+			products: { items: { videopress: { is_plugin_active: false } } },
+		} as unknown as Window[ 'myJetpackInitialState' ];
+		mockApiFetch.mockImplementation( () =>
+			Promise.resolve( {
+				state: { features: [ { product: 'videopress', plugin_status: 'active' } ] },
+				failed: [],
+			} )
+		);
+		const { result } = renderBulk();
+
+		await act( () =>
+			result.current.bulk.run( [ pluginState( 'jetpack-videopress', 'inactive' ) ], true )
+		);
+
+		expect( window.myJetpackInitialState.products.items.videopress.is_plugin_active ).toBe( true );
+	} );
+
 	it( 'holds every row at the asked-for value until the batch and the modules have landed', async () => {
 		let answer: ( value: unknown ) => void = () => undefined;
 		let refreshed: ( value: boolean ) => void = () => undefined;
@@ -133,10 +156,14 @@ describe( 'useBulkFeatureSwitch', () => {
 
 		const { result } = renderBulk();
 
-		let run: Promise< string[] > = Promise.resolve( [] );
+		let run: Promise< BulkOutcome > = Promise.resolve( { attempted: 0, failed: [] } );
 		act( () => {
 			run = result.current.bulk.run(
-				[ moduleState( 'stats', 'active' ), pluginState( 'akismet', 'active' ) ],
+				[
+					moduleState( 'stats', 'active' ),
+					pluginState( 'akismet', 'active' ),
+					moduleState( 'monitor', 'active', { available: false } ),
+				],
 				false
 			);
 		} );
@@ -147,7 +174,7 @@ describe( 'useBulkFeatureSwitch', () => {
 		expect( result.current.bulk.isRunning ).toBe( true );
 
 		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalled() );
-		await act( async () => answer( { state: {}, failed: [] } ) );
+		await act( async () => answer( { state: { features: [] }, failed: [] } ) );
 
 		// The response is in, but the modules store has not caught up yet.
 		expect( result.current.requested ).toEqual( bothHeld );
@@ -186,15 +213,21 @@ describe( 'useBulkFeatureSwitch', () => {
 
 		const { result } = renderBulk();
 
-		let failed: string[] = [];
+		let outcome: BulkOutcome = { attempted: 0, failed: [] };
 		await act( async () => {
-			failed = await result.current.bulk.run(
+			outcome = await result.current.bulk.run(
 				[ moduleState( 'stats', 'active' ), pluginState( 'akismet', 'active' ) ],
 				false
 			);
 		} );
 
-		expect( failed ).toEqual( [ 'akismet' ] );
+		// Both were sent, so the one that came back failed leaves one that did not.
+		expect( outcome ).toEqual( { attempted: 2, failed: [ 'akismet' ] } );
+		expect( mockApiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				data: { active: false, modules: [ 'stats' ], plugins: [ 'akismet' ] },
+			} )
+		);
 	} );
 
 	it( 'gives features held back for the same reason one notice between them', async () => {

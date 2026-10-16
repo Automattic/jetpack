@@ -44,12 +44,12 @@ final class Settings_Form {
 	public const SECTION_SHARING = 'sharing';
 
 	/**
-	 * The Like buttons settings.
+	 * The Like buttons settings, or just their sitewide default when `Comment_Likes_Section` renders it.
 	 */
 	public const SECTION_LIKES = 'likes';
 
 	/**
-	 * Comment Likes alone, once a Simple site's post Likes moved to the block.
+	 * Comment Likes, which save on their own whatever the Like buttons are doing.
 	 */
 	public const SECTION_COMMENT_LIKES = 'comment-likes';
 

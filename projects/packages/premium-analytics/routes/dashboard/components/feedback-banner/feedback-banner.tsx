@@ -3,12 +3,15 @@
  */
 import { Notice } from '@jetpack-premium-analytics/externals';
 import { FeedbackModal } from '@jetpack-premium-analytics/widgets-toolkit';
+import { speak } from '@wordpress/a11y';
 import { __ } from '@wordpress/i18n';
+import { useEffect } from 'react';
 /**
  * Internal dependencies
  */
 import { useFeedbackBanner } from '../../hooks/use-feedback-banner';
 import styles from './feedback-banner.module.scss';
+import type { JSX } from 'react';
 
 type FeedbackBannerProps = {
 	/**
@@ -34,12 +37,18 @@ export function FeedbackBanner( { enabled }: FeedbackBannerProps ): JSX.Element 
 		'jetpack-premium-analytics-pkg'
 	);
 
+	// The sentence alone: the notice as rendered would trail the button and the
+	// dismiss label after it, which is not what the notice has to say.
+	useEffect( () => {
+		if ( isVisible ) {
+			speak( message, 'polite' );
+		}
+	}, [ isVisible, message ] );
+
 	return (
 		<>
 			{ isVisible && (
-				// The sentence alone: the default would trail the button and the
-				// dismiss label after it, which is not what the notice has to say.
-				<Notice.Root intent="info" spokenMessage={ message } className={ styles.banner }>
+				<Notice.Root intent="info" className={ styles.banner }>
 					<Notice.Description>{ message }</Notice.Description>
 
 					<Notice.Actions>
@@ -48,7 +57,7 @@ export function FeedbackBanner( { enabled }: FeedbackBannerProps ): JSX.Element 
 						</Notice.ActionButton>
 					</Notice.Actions>
 
-					<Notice.CloseIcon
+					<Notice.CloseIconButton
 						label={ __( 'Dismiss', 'jetpack-premium-analytics-pkg' ) }
 						onClick={ dismiss }
 					/>

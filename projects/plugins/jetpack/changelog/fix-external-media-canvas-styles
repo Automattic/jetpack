@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-External Media: Fix the width of the Select Media button in narrow block placeholders, such as the Media & Text block.

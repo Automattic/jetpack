@@ -22,7 +22,7 @@ use Jetpack_Tracks_Client;
  */
 class Settings {
 
-	const PACKAGE_VERSION = '0.16.0';
+	const PACKAGE_VERSION = '0.18.0';
 
 	const ADMIN_PAGE_SLUG = 'jetpack-newsletter';
 
@@ -41,6 +41,11 @@ class Settings {
 
 	/**
 	 * Feature flag for the Newsletter Overview tab.
+	 *
+	 * Also gates the Stats tab and its REST endpoints: Stats is a temporary,
+	 * standalone page that eases development of the Overview dashboard's
+	 * eventual stats section -- it ships and retires with the same flag rather
+	 * than getting an independent one.
 	 */
 	const OVERVIEW_FEATURE_FLAG = 'newsletter-overview';
 
@@ -67,11 +72,13 @@ class Settings {
 		Feature_Flags::register(
 			self::OVERVIEW_FEATURE_FLAG,
 			array(
-				'default'     => false,
-				'description' => 'Enable the Newsletter Overview tab.',
+				'default'     => true,
+				'description' => 'Enable the Newsletter Overview and Stats tabs.',
 				'owner'       => 'jetpack-newsletter',
 			)
 		);
+
+		Subscriber_Stats_Controller::register();
 	}
 
 	/**
@@ -653,7 +660,7 @@ class Settings {
 	/**
 	 * Publish the Subscribers tab URL so other dashboards can link to it.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.17.0
 	 *
 	 * @param array $data The existing script data.
 	 * @return array The script data, with `newsletter.subscribersUrl` set to null when the current user cannot open the tab.

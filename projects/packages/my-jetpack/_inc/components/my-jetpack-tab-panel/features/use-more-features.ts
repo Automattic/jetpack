@@ -1,16 +1,20 @@
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import { moduleSwitchKey, useRequestedSwitches } from '../../../data/requested-switch-state';
-import { PRODUCT_MODULES } from '../products/mappings';
-import { useAllJetpackModules } from '../products/use-all-jetpack-modules';
+import { getHiddenFeatures } from '../../../data/utils/get-my-jetpack-window-state';
+import { getFeatureModuleSlug } from './feature-state';
+import { PRODUCT_MODULES } from './mappings';
+import { getFeatureUnavailableReason } from './module-availability';
 import {
-	filterAndSortModules,
+	LEGACY_MODULES_VISIBLE_ONLY_WHEN_ACTIVE,
+	compareModulesByName,
 	hasSearch,
 	moduleFields,
 	rankBy,
 	searchTerms,
-} from '../products/utils';
-import { getFeatureModuleSlug } from './feature-state';
+} from './search';
+import { useAllJetpackModules } from './use-all-jetpack-modules';
 import { matchesFilter } from './use-feature-filter';
 import type { FeatureState } from './feature-state';
 import type { FeatureFilter } from './use-feature-filter';
@@ -37,7 +41,7 @@ export function getModuleFeatureState(
 ): FeatureState {
 	const asked = requested[ moduleSwitchKey( $module.module ) ];
 
-	return {
+	const state: FeatureState = {
 		feature: {
 			slug: $module.module,
 			name: $module.name,
@@ -49,6 +53,7 @@ export function getModuleFeatureState(
 		isSwitching: asked !== undefined,
 		control: { kind: 'module', module: $module },
 	};
+	return getFeatureUnavailableReason( state ) ? { ...state, status: 'inactive' } : state;
 }
 
 /**
@@ -65,51 +70,61 @@ function getStateModule( state: FeatureState ): MyJetpackModule | null {
  * Sort the modules the feature list leaves out under their headings.
  *
  * @param features       - The main features, whose modules are already on the tab.
- * @param groups         - The headings, each naming its modules in display order.
+ * @param groups         - The headings, each naming its modules.
  * @param modules        - Every Jetpack module on the site.
  * @param productModules - Product slug to module slug, where the two differ. Ungated, unlike
  *                       the map the cards resolve from: a module a pre-release gate hides on
  *                       its own card is still that card's, and must not surface here instead.
  * @param requested      - Switch key to the value asked of it.
- * @return Non-empty groups in order, with every leftover module under Other, by name.
+ * @param hidden         - Modules that do not apply to the site, left out entirely.
+ * @return Non-empty groups by label, each sorted by name, with eligible ungrouped modules under Other, last.
  */
 export function groupMoreFeatures(
 	features: MainFeature[],
 	groups: MainFeatureModuleGroup[],
 	modules: Record< string, MyJetpackModule >,
 	productModules: Record< string, string >,
-	requested: Record< string, boolean >
+	requested: Record< string, boolean >,
+	hidden: ReadonlySet< string > = new Set()
 ): MoreFeaturesGroup[] {
+	const groupOf = new Map(
+		groups.flatMap( ( group, index ) => group.modules.map( slug => [ slug, index ] as const ) )
+	);
 	const covered = new Set(
 		features.map( feature => getFeatureModuleSlug( feature, productModules ) )
 	);
-	// Sorted by name, with the legacy modules dropped, the way the Products tab lists them.
-	const remaining = new Map(
-		filterAndSortModules( Object.values( modules ) )
-			.filter( $module => $module.available && ! covered.has( $module.module ) )
-			.map( $module => [ $module.module, getModuleFeatureState( $module, requested ) ] )
+	const grouped = groups.map( group => ( { label: group.label, states: [] as FeatureState[] } ) );
+	const other: FeatureState[] = [];
+
+	// One pass over the name-sorted modules, so every group reads A to Z.
+	for ( const $module of Object.values( modules ).sort( compareModulesByName ) ) {
+		// The Modules screen hides these legacy features too.
+		if (
+			$module.module === 'vaultpress' ||
+			$module.module === 'custom-content-types' ||
+			covered.has( $module.module ) ||
+			hidden.has( $module.module )
+		) {
+			continue;
+		}
+
+		const index = groupOf.get( $module.module );
+		( index === undefined ? other : grouped[ index ].states ).push(
+			getModuleFeatureState( $module, requested )
+		);
+	}
+	// Sorted on the translated label, so the order holds in every locale.
+	grouped.sort( ( a, b ) => a.label.localeCompare( b.label ) );
+
+	return [ ...grouped, { label: __( 'Other', 'jetpack-my-jetpack' ), states: other } ].filter(
+		group => group.states.length > 0
 	);
-
-	const grouped = groups.map( group => ( {
-		label: group.label,
-		states: group.modules.flatMap( slug => {
-			const state = remaining.get( slug );
-			remaining.delete( slug );
-			return state ? [ state ] : [];
-		} ),
-	} ) );
-
-	return [
-		...grouped,
-		{ label: __( 'Other', 'jetpack-my-jetpack' ), states: [ ...remaining.values() ] },
-	].filter( group => group.states.length > 0 );
 }
 
 /**
  * Narrow the groups to what the filter or search shows, dropping any left empty.
  *
- * A search replaces the filter, as it does for the main features, and ranks modules the way
- * the Products tab ranks them.
+ * A search replaces the filter and ranks the modules, as it does for the main features.
  *
  * @param groups - The grouped modules.
  * @param filter - The active filter.
@@ -123,19 +138,63 @@ export function filterMoreFeatures(
 ): MoreFeaturesGroup[] {
 	const terms = hasSearch( search ) ? searchTerms( search ) : null;
 
+	if ( terms ) {
+		const states = rankBy(
+			groups.flatMap( group => group.states ),
+			terms,
+			state => {
+				const $module = getStateModule( state );
+
+				return $module ? moduleFields( $module ) : [ { value: state.feature.name, weight: 3 } ];
+			}
+		).map( ( { item } ) => item );
+
+		return states.length ? [ { label: '', states } ] : [];
+	}
+
 	return groups
 		.map( group => ( {
 			...group,
-			states: terms
-				? rankBy( group.states, terms, state => {
-						const $module = getStateModule( state );
-
-						return $module ? moduleFields( $module ) : [ { value: state.feature.name, weight: 3 } ];
-					} ).map( ( { item } ) => item )
-				: // A module being switched stays put, for the reason the main list keeps its card.
-					group.states.filter( state => matchesFilter( state, filter ) || state.isSwitching ),
+			// A module being switched stays put, for the reason the main list keeps its card.
+			states: group.states.filter( state => matchesFilter( state, filter ) || state.isSwitching ),
 		} ) )
 		.filter( group => group.states.length > 0 );
+}
+
+/**
+ * Classic-theme modules: a block theme has no widget areas for them to act on.
+ */
+const WIDGET_MODULES = [ 'widgets', 'widget-visibility' ];
+
+/**
+ * Modules on their way out, offered only to a site already running them.
+ *
+ * @return The slugs.
+ */
+export function getDeprecatedModules(): string[] {
+	const isBlockTheme = Boolean( getScriptData()?.myJetpack?.siteEditor?.isBlockTheme );
+
+	return [ ...LEGACY_MODULES_VISIBLE_ONLY_WHEN_ACTIVE, ...( isBlockTheme ? WIDGET_MODULES : [] ) ];
+}
+
+// Module-scoped so a module switched off here keeps its row, and its switch back on, until a reload.
+let deprecatedActiveOnLoad: ReadonlySet< string > | null = null;
+
+/**
+ * The deprecated modules to leave out: those that were off when the modules first loaded.
+ *
+ * @param modules - Every Jetpack module on the site.
+ * @return The slugs to leave out.
+ */
+export function getHiddenModules( modules: Record< string, MyJetpackModule > ): Set< string > {
+	// The store starts out as `{}`, not undefined: taking that as the page-load state would hide
+	// a module the moment it is switched off.
+	const deprecated = getDeprecatedModules();
+	if ( ! deprecatedActiveOnLoad && Object.keys( modules ).length ) {
+		deprecatedActiveOnLoad = new Set( deprecated.filter( slug => modules[ slug ]?.activated ) );
+	}
+
+	return new Set( deprecated.filter( slug => ! deprecatedActiveOnLoad?.has( slug ) ) );
 }
 
 /**
@@ -159,7 +218,11 @@ export function useMoreFeatures( state: MainFeaturesState ): MoreFeaturesGroup[]
 						state.module_groups,
 						modules,
 						PRODUCT_MODULES,
-						requested
+						requested,
+						new Set( [
+							...getHiddenModules( modules ),
+							...( state.hidden_modules ?? getHiddenFeatures() ),
+						] )
 					)
 				: [],
 		[ state, modules, requested ]

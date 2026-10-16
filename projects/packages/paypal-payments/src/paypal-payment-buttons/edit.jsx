@@ -59,24 +59,22 @@ function ApiManagedReadOnly( { attributes } ) {
 					'jetpack-paypal-payments'
 				) }
 			</Notice>
-			<div className="jetpack-paypal-payment-buttons__preview">
-				<PayPalButtonPreview
-					format={ format }
-					productName={ productName }
-					price={ price }
-					currencyCode={ currencyCode }
-					productDescription={ productDescription }
-					paymentLink={ paymentLink }
-					variantsEnabled={ variantsEnabled }
-					variants={ variants }
-					imageUrl={ imageUrl }
-					buttonText={ buttonText }
-					linkText={ linkText }
-					qrShowCaption={ qrShowCaption }
-					qrCaption={ qrCaption }
-					attributes={ attributes }
-				/>
-			</div>
+			<PayPalButtonPreview
+				format={ format }
+				productName={ productName }
+				price={ price }
+				currencyCode={ currencyCode }
+				productDescription={ productDescription }
+				paymentLink={ paymentLink }
+				variantsEnabled={ variantsEnabled }
+				variants={ variants }
+				imageUrl={ imageUrl }
+				buttonText={ buttonText }
+				linkText={ linkText }
+				qrShowCaption={ qrShowCaption }
+				qrCaption={ qrCaption }
+				attributes={ attributes }
+			/>
 		</div>
 	);
 }
