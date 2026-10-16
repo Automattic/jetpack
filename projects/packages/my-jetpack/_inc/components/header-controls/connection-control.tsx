@@ -11,6 +11,7 @@ import clsx from 'clsx';
 import { useCallback, useState } from 'react';
 import { connectionStatusEmptyAvatar as emptyAvatar } from '../../assets/inline-svgs';
 import { MyJetpackRoutes } from '../../constants';
+import useSitePurchases from '../../data/use-site-purchases';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import { useConnectionState } from '../../hooks/use-connection-state';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
@@ -19,7 +20,6 @@ import { ConnectionOwnerInfo } from '../connection-status-card/connection-owner-
 import { ConnectionStatus } from '../connection-status-card/connection-status';
 import { PlanLogo, PlanSection, PlanSectionFooter } from '../plans-section';
 import styles from './style.module.scss';
-import useSitePurchases from './use-site-purchases';
 import type { Purchase } from '../../data/types';
 import type { ConnectionState } from '../../hooks/use-connection-state';
 import type { FC } from 'react';

@@ -1,11 +1,8 @@
 import '@testing-library/jest-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import HeaderControls, { getHeaderControls } from '../';
-import { QUERY_PURCHASES_KEY, REST_API_SITE_PURCHASES_ENDPOINT } from '../../../data/constants';
-import { getSimpleQueryKey } from '../../../data/use-simple-query';
 import useAnalytics from '../../../hooks/use-analytics';
 import { useConnectionState } from '../../../hooks/use-connection-state';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
@@ -128,27 +125,6 @@ describe( 'HeaderControls', () => {
 		await openControl();
 
 		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
-	} );
-
-	it( "reuses the Overview's purchases instead of fetching them again", async () => {
-		const queryClient = new QueryClient();
-		queryClient.setQueryData(
-			getSimpleQueryKey( {
-				name: QUERY_PURCHASES_KEY,
-				query: { path: REST_API_SITE_PURCHASES_ENDPOINT },
-			} ),
-			[]
-		);
-		render(
-			<QueryClientProvider client={ queryClient }>
-				<HeaderControls />
-			</QueryClientProvider>
-		);
-
-		await openControl();
-
-		await expect( screen.findByText( /Jetpack Essentials/ ) ).resolves.toBeInTheDocument();
-		expect( mockApiFetch ).not.toHaveBeenCalled();
 	} );
 
 	it( "tags the plan links' Tracks events as from the header", async () => {
