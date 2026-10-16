@@ -40,6 +40,7 @@
 		"automattic/jetpack-import": "@dev",
 		"automattic/jetpack-ip": "@dev",
 		"automattic/jetpack-jitm": "@dev",
+		"automattic/jetpack-knowledge": "@dev",
 		"automattic/jetpack-licensing": "@dev",
 		"automattic/jetpack-logo": "@dev",
 		"automattic/jetpack-masterbar": "@dev",

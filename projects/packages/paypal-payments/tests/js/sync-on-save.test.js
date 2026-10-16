@@ -785,7 +785,7 @@ describe( 'syncBlocksBeforeSave', () => {
 
 			/**
 			 * Answer a PUT the way the server does: the payment for a caller that asked
-			 * for the snippets, PayPal's empty echo for everyone else.
+			 * for the snippets, and no `attributes` for everyone else.
 			 *
 			 * @param {object} options - The request.
 			 * @return {Promise<object>} The response.
@@ -1177,8 +1177,8 @@ describe( 'syncBlocksBeforeSave', () => {
 
 		// The save created this payment, so the next save can update it straight away.
 		it( 'updates a payment the previous save created', async () => {
-			// PayPal echoes back what it was sent. Answering with the old price instead
-			// would hide a read-back that reverts the merchant's edit.
+			// Answer with the sent price, like a read-back after the PUT, so the block keeps the
+			// merchant's edit.
 			const deps = fakeDeps( options =>
 				Promise.resolve( {
 					id: 'PLB-NEW1',

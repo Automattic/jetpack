@@ -56,6 +56,7 @@ function SearchTermsInner() {
 	return (
 		<Leaderboard
 			rows={ rows }
+			columns={ { label: __( 'Search terms', 'jetpack-premium-analytics-pkg' ), metric: 'views' } }
 			status={ {
 				isLoading: emptyState.isLoading,
 				isFetching,
