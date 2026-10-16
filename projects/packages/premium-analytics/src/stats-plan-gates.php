@@ -213,6 +213,63 @@ function get_locked_stats_features( $tier ) {
 }
 
 /**
+ * The dashboard sections a tier replaces with one upgrade card, as classic Stats replaces its Insights and Traffic pages.
+ *
+ * @since $$next-version$$
+ *
+ * @param string $tier One of the STATS_TIER_* values.
+ * @return string[] Section slugs.
+ */
+function get_locked_stats_sections( $tier ) {
+	return STATS_TIER_FREE === $tier ? array( 'traffic', 'insights' ) : array();
+}
+
+/**
+ * What a locked section's upgrade card says: classic Stats' upsell, without its price.
+ *
+ * @since $$next-version$$
+ *
+ * @param string $section Section slug.
+ * @return array{title:string, description:string, features:string[], upgrade_label:string, expand_label:string, support_url:string} The copy.
+ */
+function get_stats_section_copy( $section ) {
+	$plan_features = array(
+		__( 'Keep your data private and GDPR-compliant', 'jetpack-premium-analytics-pkg' ),
+		__( '14-day money-back guarantee', 'jetpack-premium-analytics-pkg' ),
+		__( '6 GB storage', 'jetpack-premium-analytics-pkg' ),
+		__( 'Unlimited pages, posts, users, and visitors', 'jetpack-premium-analytics-pkg' ),
+		__( 'Free domain for one year', 'jetpack-premium-analytics-pkg' ),
+		__( 'Ad-free browsing experience for your visitors', 'jetpack-premium-analytics-pkg' ),
+		__( 'All premium themes', 'jetpack-premium-analytics-pkg' ),
+		__( 'Fast support from our expert team', 'jetpack-premium-analytics-pkg' ),
+		__( 'Customize fonts and colors sitewide', 'jetpack-premium-analytics-pkg' ),
+	);
+
+	if ( 'insights' === $section ) {
+		$title    = __( 'Unlock site insights', 'jetpack-premium-analytics-pkg' );
+		$features = array(
+			__( 'Monitor your posting activity', 'jetpack-premium-analytics-pkg' ),
+			__( 'Track your all-time highlights and insights', 'jetpack-premium-analytics-pkg' ),
+		);
+	} else {
+		$title    = __( 'Unlock site growth analytics', 'jetpack-premium-analytics-pkg' );
+		$features = array(
+			__( 'View trends and data from any time period', 'jetpack-premium-analytics-pkg' ),
+			__( 'Detailed stats about posts, referrers, clicks and more', 'jetpack-premium-analytics-pkg' ),
+		);
+	}
+
+	return array(
+		'title'         => $title,
+		'description'   => __( 'Get detailed insights into your site’s performance with a Personal plan.', 'jetpack-premium-analytics-pkg' ),
+		'features'      => array_merge( $features, $plan_features ),
+		'upgrade_label' => __( 'Upgrade to Personal', 'jetpack-premium-analytics-pkg' ),
+		'expand_label'  => __( 'Show all Personal features', 'jetpack-premium-analytics-pkg' ),
+		'support_url'   => 'https://wordpress.com/support/stats/',
+	);
+}
+
+/**
  * What a locked feature says, worded as classic Stats' upsell; `<link>` wraps the words its support page explains.
  *
  * @since $$next-version$$
@@ -368,7 +425,7 @@ function get_stats_upgrade_url( $feature, $tier ) {
  *
  * @since $$next-version$$
  *
- * @return array{tier:string, locked_features:array<string,array{description:string, support_url:string, upgrade_url:string}>, locked_widget_types:array<string,string>}
+ * @return array{tier:string, locked_features:array<string,array{description:string, support_url:string, upgrade_url:string}>, locked_widget_types:array<string,string>, locked_sections:array<string,array>}
  */
 function get_stats_plan_gates() {
 	$tier     = get_stats_plan_tier();
@@ -392,10 +449,18 @@ function get_stats_plan_gates() {
 		}
 	}
 
+	$locked_sections = array();
+	foreach ( get_locked_stats_sections( $tier ) as $section ) {
+		$copy                        = get_stats_section_copy( $section );
+		$copy['support_url']         = localize_stats_support_url( $copy['support_url'] );
+		$locked_sections[ $section ] = $copy + array( 'upgrade_url' => get_stats_upgrade_url( $section, $tier ) );
+	}
+
 	return array(
 		'tier'                => $tier,
 		'locked_features'     => $locked_features,
 		'locked_widget_types' => $locked_widget_types,
+		'locked_sections'     => $locked_sections,
 	);
 }
 
@@ -436,6 +501,7 @@ function inject_stats_plan_gates_script_data( array $data ): array {
 		'tier'                => $gates['tier'],
 		'locked_features'     => (object) $gates['locked_features'],
 		'locked_widget_types' => (object) $gates['locked_widget_types'],
+		'locked_sections'     => (object) $gates['locked_sections'],
 	);
 
 	return $data;
