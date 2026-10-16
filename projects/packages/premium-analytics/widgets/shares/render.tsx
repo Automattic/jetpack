@@ -83,6 +83,10 @@ function SharesInner() {
 							type: 'number',
 							options: { useMultipliers: true, decimals: 0 },
 						} }
+						columns={ {
+							label: __( 'Platforms', 'jetpack-premium-analytics-pkg' ),
+							metric: 'shares',
+						} }
 					/>
 				</WidgetState>
 			</div>

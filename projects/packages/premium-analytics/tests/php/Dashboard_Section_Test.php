@@ -582,6 +582,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 				'date_filter',
 				'date_filter_options',
 				'requires_sync',
+				'notice',
 				'default_layout',
 			),
 			array_keys( $schema['properties'] )
@@ -797,6 +798,34 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A notice may be a string or a callback, resolved per request; anything else is none.
+	 *
+	 * @dataProvider provide_notices
+	 *
+	 * @param mixed       $notice   The registered notice.
+	 * @param string|null $expected The notice the section serves.
+	 */
+	#[DataProvider( 'provide_notices' )]
+	public function test_section_serves_its_notice( $notice, $expected ) {
+		$section = new Dashboard_Section( 'jetpack_premium_analytics', 'analytics/store', array( 'notice' => $notice ) );
+
+		$this->assertSame( $expected, $section->to_array()['notice'] );
+	}
+
+	/**
+	 * @return array[]
+	 */
+	public static function provide_notices() {
+		return array(
+			'a string'                => array( 'No orders yet.', 'No orders yet.' ),
+			'a callback'              => array( static fn() => 'No orders yet.', 'No orders yet.' ),
+			'a callback with nothing' => array( static fn() => null, null ),
+			'an empty string'         => array( '', null ),
+			'a non-string'            => array( 42, null ),
+		);
+	}
+
+	/**
 	 * Section to_array() carries its default layout.
 	 */
 	public function test_to_array_includes_default_layout() {
@@ -848,6 +877,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 						'with_header_interval_control' => true,
 					),
 					'requires_sync'       => false,
+					'notice'              => null,
 					'default_layout'      => array(),
 				),
 			),
@@ -973,6 +1003,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 						'with_header_interval_control' => false,
 					),
 					'requires_sync'       => false,
+					'notice'              => null,
 				),
 				array(
 					'id'                  => 'analytics/insights',
@@ -987,6 +1018,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 						'with_header_interval_control' => true,
 					),
 					'requires_sync'       => false,
+					'notice'              => null,
 				),
 				array(
 					'id'                  => 'analytics/subscribers',
@@ -1001,6 +1033,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 						'with_header_interval_control' => true,
 					),
 					'requires_sync'       => false,
+					'notice'              => null,
 				),
 			),
 			array_map(
@@ -1566,6 +1599,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 						'with_header_interval_control' => true,
 					),
 					'requires_sync'       => false,
+					'notice'              => null,
 					'default_layout'      => array(),
 				),
 				array(
@@ -1581,6 +1615,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 						'with_header_interval_control' => true,
 					),
 					'requires_sync'       => false,
+					'notice'              => null,
 					'default_layout'      => array(),
 				),
 			),
@@ -1629,6 +1664,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 						'with_header_interval_control' => true,
 					),
 					'requires_sync'       => false,
+					'notice'              => null,
 					'default_layout'      => array(
 						array(
 							'uuid' => 'default-route-widget',

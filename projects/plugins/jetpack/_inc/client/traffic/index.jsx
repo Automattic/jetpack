@@ -21,6 +21,7 @@ import Blaze from './blaze';
 import { GoogleAnalytics } from './google-analytics';
 import { RelatedPosts } from './related-posts';
 import SEO from './seo';
+import SeoOptInBanner from './seo-optin-banner';
 import Shortlinks from './shortlinks';
 import { SiteStats } from './site-stats';
 import Sitemaps from './sitemaps';
@@ -65,9 +66,8 @@ export class Traffic extends Component {
 		// new page. Existing self-hosted installs that haven't opted in keep them
 		// (JETPACK-1682).
 		const seoMovedToDashboard = getScriptData()?.seo?.surface_visible === true;
-		// The pointer notice stands in for every section we hide, so show it whenever
-		// any of them would have rendered — including a settings search for "sitemap"
-		// or "verification" that matches even when the SEO section itself does not.
+		// The opt-in and pointer notices cover every section that moves, so show them for any of
+		// those, including a "sitemap" or "verification" search that misses the SEO section.
 		const foundMovedToDashboard =
 			foundSeo || foundCanonicalUrls || foundSitemaps || foundVerification;
 
@@ -98,6 +98,7 @@ export class Traffic extends Component {
 							) }
 				</h2>
 				{ foundRelated && <RelatedPosts { ...commonProps } /> }
+				{ foundMovedToDashboard && <SeoOptInBanner /> }
 				{ ! seoMovedToDashboard && ( foundSeo || foundCanonicalUrls ) && (
 					<SEO
 						{ ...commonProps }

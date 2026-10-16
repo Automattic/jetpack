@@ -19,6 +19,7 @@ use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authent
 use Automattic\Jetpack\Connection\REST_Jetpack_AI_JWT;
 use Automattic\Jetpack\Constants as Jetpack_Constants;
 use Automattic\Jetpack\ExPlat;
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Menu_Badges\Menu_Badges;
@@ -85,6 +86,13 @@ class Initializer {
 	private const MY_JETPACK_SITE_INFO_TRANSIENT_KEY = 'my-jetpack-site-info';
 
 	/**
+	 * Feature flag for the shared header's global controls.
+	 *
+	 * @var string
+	 */
+	public const HEADER_CONTROLS_FLAG = 'my-jetpack-header-controls';
+
+	/**
 	 * Holds info/data about the site (from the /sites/%d endpoint)
 	 *
 	 * @var object
@@ -104,6 +112,8 @@ class Initializer {
 	 * @return void
 	 */
 	public static function init() {
+		self::register_feature_flags();
+
 		// Before the gate: the Jetpack plugin renders this package's connection screen and footer
 		// links even where My Jetpack is off, and `myJetpackInitialState` only exists on its own page.
 		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_admin_script_data' ) );
@@ -1147,6 +1157,24 @@ class Initializer {
 	}
 
 	/**
+	 * Register My Jetpack's feature flags.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function register_feature_flags() {
+		Feature_Flags::register(
+			self::HEADER_CONTROLS_FLAG,
+			array(
+				'default'     => false,
+				'description' => 'Show the global controls in the shared header of My Jetpack and Boost.',
+				'owner'       => 'my-jetpack',
+			)
+		);
+	}
+
+	/**
 	 *  Build flags for My Jetpack UI
 	 *
 	 *  @return array
@@ -1159,6 +1187,7 @@ class Initializer {
 			// caches its report and wants a `force_refresh` hint the dashboard does not.
 			'premiumAnalyticsEnabled'  => Products\Stats::is_premium_analytics_enabled(),
 			'showAiModuleToggle'       => Products\Jetpack_Ai::is_feature_ui_enabled(),
+			'headerControls'           => Feature_Flags::is_enabled( self::HEADER_CONTROLS_FLAG ),
 			'overviewV1'               => self::is_overview_v1_enabled(),
 		);
 
@@ -1193,7 +1222,7 @@ class Initializer {
 	 *   real availability switch and the same one the SEO package gates its own surface behind);
 	 * - the site is self-hosted — WordPress.com (Simple + Atomic) decides its own SEO surface, so
 	 *   the opt-in card is for self-hosted installs only;
-	 * - the install hasn't opted in yet — `jetpack_seo_surface_visible` is still false. On wpcom
+	 * - the install hasn't opted in yet — the SEO surface isn't visible. On wpcom
 	 *   the SEO package's `is_seo_surface_visible()` short-circuits to `true`, so the
 	 *   "not visible yet" check also doubles as the self-hosted guard, but we check the platform
 	 *   explicitly for clarity.
@@ -1584,12 +1613,9 @@ class Initializer {
 			);
 		}
 
+		$counted_elsewhere = self::get_alerts_counted_elsewhere();
 		foreach ( array_keys( $red_bubble_alerts ) as $slug ) {
-			// Protect reports its own count directly to the registry, but only when its
-			// standalone plugin is active (see class-jetpack-protect.php::admin_page_init()).
-			// If the standalone plugin isn't active, nobody else registers this count, so we
-			// must not skip it here or the alert silently disappears from the menu total.
-			if ( 'protect_has_threats' === $slug && Products\Protect::is_standalone_plugin_active() ) {
+			if ( in_array( $slug, $counted_elsewhere, true ) ) {
 				continue;
 			}
 			// The missing-connection slug and a connection error describe the same broken
@@ -1626,6 +1652,18 @@ class Initializer {
 	}
 
 	/**
+	 * Alerts left out of the My Jetpack badge because another menu item already counts them.
+	 *
+	 * The Protect page reports its own count, from the standalone plugin (class-jetpack-protect.php::admin_page_init())
+	 * or the Protect package's dashboard; without either, nobody else counts the threats, so they must stay.
+	 *
+	 * @return string[] Alert slugs.
+	 */
+	private static function get_alerts_counted_elsewhere() {
+		return Products\Protect::has_protect_page() ? array( 'protect_has_threats' ) : array();
+	}
+
+	/**
 	 * Enqueue the notification bubble script.
 	 * Fetches fresh alert data via REST API without blocking page load.
 	 *
@@ -1640,6 +1678,11 @@ class Initializer {
 				'enqueue'   => true,
 				'in_footer' => true,
 			)
+		);
+		wp_localize_script(
+			'my-jetpack-notification-bubble',
+			'myJetpackNotificationBubble',
+			array( 'excludedAlerts' => self::get_alerts_counted_elsewhere() )
 		);
 	}
 

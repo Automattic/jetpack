@@ -16,10 +16,6 @@ export type StatsFault = {
 	message: string;
 };
 
-// The welcome dialog marks everything behind it inert, so specs start with onboarding done.
-const ONBOARDED_PREFERENCES =
-	'{"jetpack-premium-analytics/dashboard":{"onboardingCompletedAt":"2026-01-01T00:00:00.000Z"},"_modified":"2026-01-01T00:00:00.000Z"}';
-
 // The rest of wp-admin fails loudly under a fake connection, so only the dashboard's own scripts and routes count.
 const OWN_URL_PARTS = [
 	'jetpack-premium-analytics',
@@ -42,45 +38,13 @@ export const routeParam = ( url: URL, name: string ) =>
  * @param state     - Opt-in option, the modules that gate sections, and the site timezone (UTC by default).
  */
 export async function setSiteState( testUtils: TestUtils, state: SiteState ) {
-	await testUtils.executeWpCommand( [
-		'option',
-		'update',
-		'timezone_string',
-		state.timezone ?? 'UTC',
-	] );
-	await testUtils.executeWpCommand( [
-		'eval',
-		"delete_option( 'e2e_pa_stats_fault' ); delete_option( 'e2e_pa_nonce_life' );",
-	] );
-	await testUtils.executeWpCommand(
-		`option update jetpack_premium_analytics_enabled ${ state.enabled ? 1 : 0 }`
-	);
-	await testUtils.executeWpCommand( [
-		'user',
-		'meta',
-		'update',
-		'1',
-		'wp_persisted_preferences',
-		ONBOARDED_PREFERENCES,
-		'--format=json',
-	] );
-	await testUtils.activateModule( 'stats' );
-	if ( state.subscriptions ) {
-		await testUtils.activateModule( 'subscriptions' );
-	} else {
-		await testUtils.deactivateModule( 'subscriptions' );
-	}
-	// WordAds only activates on a plan that includes it, and the mocked plan lands on the next refresh.
+	// Do not reorder: the helper's plan refresh reads the mocked plan.
 	await testUtils.setMockPlanData( state.wordads ? 'jetpack_complete' : 'jetpack_free' );
-	await testUtils.executeWpCommand( [
-		'eval',
-		'Automattic\\Jetpack\\Current_Plan::refresh_from_wpcom();',
-	] );
-	if ( state.wordads ) {
-		await testUtils.activateModule( 'wordads' );
-	} else {
-		await testUtils.deactivateModule( 'wordads' );
-	}
+	await testUtils.requestUtils.rest( {
+		method: 'POST',
+		path: '/e2e-premium-analytics/v1/site-state',
+		data: { ...state, timezone: state.timezone ?? 'UTC' },
+	} );
 }
 
 /**

@@ -1,3 +1,4 @@
+import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { info } from '@wordpress/icons';
@@ -6,15 +7,6 @@ import { useAnalytics } from '../../hooks/use-analytics';
 import { useSiteSuffix } from '../../hooks/use-connection';
 import { useStorageAddonOffer } from '../../hooks/use-storage-addon-offer';
 import { storageAddonCheckoutUrl } from './checkout-url';
-
-/**
- * Where "reducing the backup size" goes.
- *
- * A literal URL rather than a redirect slug: the redirect service has no slug pointing
- * at this fragment.
- */
-const REDUCE_SIZE_URL =
-	'https://jetpack.com/support/backup/jetpack-vaultpress-backup-storage-and-retention/#reduce-storage-size';
 
 type Props = {
 	forecastInDays: number;
@@ -117,7 +109,13 @@ export default function StorageHelpPopover( { forecastInDays, storageUsed, stora
 					</Popover.Description>
 					<Text variant="body-sm">
 						{ createInterpolateElement( advice, {
-							link: <Link openInNewTab href={ REDUCE_SIZE_URL } />,
+							link: (
+								<Link
+									openInNewTab
+									// Omitted rather than passed as undefined — see `useSiteSuffix`.
+									href={ getRedirectUrl( 'jetpack-backup-storage-reduce', site ? { site } : {} ) }
+								/>
+							),
 						} ) }
 					</Text>
 					{ href && (

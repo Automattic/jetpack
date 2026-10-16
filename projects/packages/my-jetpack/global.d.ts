@@ -564,6 +564,7 @@ interface Window {
 		loadAddLicenseScreen: string;
 		myJetpackCheckoutUri: string;
 		myJetpackFlags: {
+			headerControls?: boolean;
 			overviewV1: boolean;
 			showAiModuleToggle: boolean;
 			showFullJetpackStatsCard: boolean;
@@ -613,6 +614,8 @@ interface Window {
 					has_free_offering: boolean;
 					feature_identifying_paid_plan: string;
 					has_paid_plan_for_product: boolean;
+					has_protect_page?: boolean;
+					scan_results_url?: string;
 					is_bundle: boolean;
 					is_feature: boolean;
 					is_plugin_active: boolean;
@@ -761,5 +764,9 @@ interface Window {
 	/** Shared client for live-updating Jetpack admin-menu notification badges (automattic/jetpack-menu-badges). */
 	jetpackMenuBadges?: {
 		setCount: ( menuSlug: string, count: number ) => void;
+	};
+	/** Alerts another menu item already counts, so the async My Jetpack badge skips them. */
+	myJetpackNotificationBubble?: {
+		excludedAlerts: string[];
 	};
 }

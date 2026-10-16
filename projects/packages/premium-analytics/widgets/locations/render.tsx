@@ -19,6 +19,7 @@ import {
 	flagUrl,
 	getCombinedPeriodMax,
 	getLocationsReportSection,
+	getLocationsSectionLabel,
 	locationsCsvExporter,
 	sharePercentage,
 	useWidgetDrillDown,
@@ -62,6 +63,11 @@ type LocationsInnerProps = {
 	geoGranularity: NonNullable< LocationsAttributes[ 'geoGranularity' ] >;
 };
 
+/** The level a drill-down depth lists: depth 1 is a country's regions, depth 2 a region's cities. */
+function getLevelMode( depth: number, geoGranularity: GeoGranularity ): GeoMode {
+	return depth === 0 ? geoGranularity : ( [ 'region', 'city' ] as const )[ depth - 1 ];
+}
+
 /**
  * Locations widget inner component. Reads report params from WidgetRoot
  * context. Attributes arrive already normalized by the outer component, so
@@ -79,12 +85,11 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 	} = useWidgetDrillDown< LocationsDrillDown >();
 
 	const focusCountry = drillDownPath?.country;
-	let geoMode: GeoMode = geoGranularity;
 	let drillDepth = 0;
 	if ( drillDownPath ) {
-		geoMode = drillDownPath.region ? 'city' : 'region';
 		drillDepth = drillDownPath.region ? 2 : 1;
 	}
+	const geoMode = getLevelMode( drillDepth, geoGranularity );
 
 	const scope = useMemo(
 		(): LocationsScope | undefined =>
@@ -102,7 +107,15 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 	} );
 
 	const { isLoading, isFetching, isError, refetch } = views;
-	const { data, hasComparison, isHeld } = useHeldLevel( { ...views, drillDepth, reportParams } );
+	const {
+		data,
+		hasComparison,
+		isHeld,
+		drillDepth: shownDepth,
+	} = useHeldLevel( { ...views, drillDepth, reportParams } );
+	const rowsLabel = getLocationsSectionLabel(
+		getLocationsReportSection( getLevelMode( shownDepth, geoGranularity ) )
+	);
 	const emptyState = useNoViewsEmptyState(
 		{ isLoading: isLoading && ! isHeld, isError, isEmpty: data.length === 0 },
 		__( 'You don’t have locations recorded yet.', 'jetpack-premium-analytics-pkg' )
@@ -270,6 +283,7 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 									withOverlayLabel
 									withComparison={ hasComparison }
 									showLegend={ false }
+									columns={ { label: rowsLabel, metric: 'views' } }
 									dataFormat={ {
 										type: 'number',
 										options: { useMultipliers: true, decimals: 0 },

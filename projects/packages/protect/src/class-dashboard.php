@@ -85,6 +85,7 @@ class Dashboard {
 		// Before Admin_Menu registers its items at 1000, and after the Protect plugin adds its own on `_admin_menu`.
 		add_action( 'admin_menu', array( __CLASS__, 'add_menu' ), 999 );
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
+		Threat_Count::init();
 
 		self::load_sections( __DIR__ . '/sections' );
 
@@ -359,6 +360,8 @@ class Dashboard {
 			null,
 			array_merge( array( 'key' => self::MENU_SLUG ), self::$menu_options )
 		);
+
+		Threat_Count::register_menu_badge();
 	}
 
 	/**

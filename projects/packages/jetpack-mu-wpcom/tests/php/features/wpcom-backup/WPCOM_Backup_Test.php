@@ -8,6 +8,8 @@
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Backup;
+use Brain\Monkey;
+use Brain\Monkey\Functions;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-backup/wpcom-backup.php';
@@ -24,13 +26,35 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 	const SCREEN_ID = 'jetpack_page_jetpack-backup';
 
 	/**
-	 * An environment that cannot prove the site has backups must not offer to
-	 * activate them.
+	 * Activation needs the plan's hosting platform as well as its backups, as in Calypso.
+	 *
+	 * @dataProvider provide_features_and_states
+	 *
+	 * @param string[] $features Features the site's plan includes.
+	 * @param string   $expected Expected state.
 	 */
-	public function test_state_defaults_to_upgrade_without_wpcom_libraries() {
-		$this->assertSame(
-			WPCOM_Backup::STATE_UPGRADE,
-			WPCOM_Backup::get_state( 1 )
+	#[DataProvider( 'provide_features_and_states' )]
+	public function test_state_follows_the_plan_features( array $features, $expected ) {
+		Functions\when( 'wpcom_site_has_feature' )->alias(
+			static function ( $feature ) use ( $features ) {
+				return in_array( $feature, $features, true );
+			}
+		);
+
+		$this->assertSame( $expected, WPCOM_Backup::get_state( 1 ) );
+	}
+
+	/**
+	 * Feature sets and the state each one resolves to.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_features_and_states() {
+		return array(
+			'neither'            => array( array(), WPCOM_Backup::STATE_UPGRADE ),
+			'backups only'       => array( array( 'backups-self-serve' ), WPCOM_Backup::STATE_UPGRADE ),
+			'atomic only'        => array( array( 'atomic' ), WPCOM_Backup::STATE_UPGRADE ),
+			'atomic and backups' => array( array( 'atomic', 'backups-self-serve' ), WPCOM_Backup::STATE_ACTIVATE ),
 		);
 	}
 
@@ -217,6 +241,19 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Start every test on a site whose plan has no features.
+	 *
+	 * Mocked rather than left absent: a stub Brain Monkey left behind throws when called unmocked.
+	 *
+	 * @return void
+	 */
+	public function set_up() {
+		parent::set_up();
+		Monkey\setUp();
+		Functions\when( 'wpcom_site_has_feature' )->justReturn( false );
+	}
+
+	/**
 	 * Leave the admin globals as they were found.
 	 *
 	 * @return void
@@ -230,6 +267,7 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 		);
 		Constants::clear_constants();
 		WPCOM_Backup::reset();
+		Monkey\tearDown();
 
 		parent::tear_down();
 	}
