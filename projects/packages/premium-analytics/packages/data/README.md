@@ -78,15 +78,15 @@ Runs a report's primary query, and its comparison query when `params` carry
 
 **Returns:** `{ primary, comparison, hasComparison, isLoading, isFetching, hasData, isError, error, refetch }`
 
-### `normalizeReportParams( search, { defaultPreset?, lockedIntervals } )`
+### `normalizeReportParams( search?, defaultPreset?, { lockedIntervals }? )`
 
 Normalizes and validates report parameters, providing defaults when needed.
 
 **Parameters:**
 
-- `search`: Partial parameters object, as read off the URL, or `undefined`
+- `search`: Optional partial parameters object, as read off the URL
 - `defaultPreset`: `PresetType | undefined` - Preset to open on when `search` names no dates; defaults to `getDefaultPreset()`
-- `lockedIntervals`: `readonly LockableInterval[]` - Required. Buckets the site's plan locks; the interval falls back to an open one. Pass `NO_LOCKED_INTERVALS` where the plan sets no limits
+- `lockedIntervals`: `readonly LockableInterval[]` - Buckets the site's plan locks; the interval falls back to an open one
 
 **Returns:** `ReportParams` with normalized parameters
 
@@ -114,7 +114,7 @@ import { getDefaultIntervalForPeriod } from '@jetpack-premium-analytics/data';
 const interval = getDefaultIntervalForPeriod( 'last-7-days', from, to ); // 'day'
 ```
 
-### `resolveIntervalForRange( preset, from, to, current, locked )`
+### `resolveIntervalForRange( preset, from, to, current?, locked? )`
 
 Returns a valid interval for a date range. Keeps `current` when it is still
 allowed; otherwise returns the range default.
@@ -125,11 +125,11 @@ allowed; otherwise returns the range default.
 - `from`: `string`
 - `to`: `string`
 - `current`: `string | undefined` - Candidate interval to keep when still allowed
-- `locked`: `readonly LockableInterval[]` - Required. Buckets the site's plan locks; `day` when none is left
+- `locked`: `readonly LockableInterval[]` - Buckets the site's plan locks; `day` when none is left
 
 **Returns:** `IntervalType`
 
-### `resolveIntervalForPresetChange( currentPreset, nextPreset, from, to, currentInterval, locked )`
+### `resolveIntervalForPresetChange( currentPreset, nextPreset, from, to, currentInterval?, locked? )`
 
 Returns a valid interval for a range picked while `currentPreset` was active.
 Switching to a different named preset returns that preset's default; any other
@@ -143,11 +143,11 @@ allowed.
 - `from`: `string`
 - `to`: `string`
 - `currentInterval`: `string | undefined` - Candidate interval to keep when still allowed
-- `locked`: `readonly LockableInterval[]` - Required. Buckets the site's plan locks
+- `locked`: `readonly LockableInterval[]` - Buckets the site's plan locks
 
 **Returns:** `IntervalType`
 
-### `needsReportDateParamsSeed( search, lockedIntervals )`
+### `needsReportDateParamsSeed( search?, lockedIntervals? )`
 
 Returns whether report date params are incomplete or the interval is invalid
 for the range (`from` / `to` / `interval` missing, or `interval` not allowed).
@@ -155,7 +155,7 @@ for the range (`from` / `to` / `interval` missing, or `interval` not allowed).
 **Parameters:**
 
 - `search`: date-window fields from unnormalized report params (`from`, `to`, `interval`, `preset`)
-- `lockedIntervals`: `readonly LockableInterval[]` - Required. Buckets the site's plan locks, so a locked `interval` needs a seed
+- `lockedIntervals`: `readonly LockableInterval[] | undefined` - Buckets the site's plan locks, so a locked `interval` needs a seed
 
 **Returns:** `boolean`
 
@@ -234,10 +234,6 @@ This package exports the following public API:
 ### Core Settings
 
 - `ensureCoreSettingsReady` - Ensure core settings records are resolved
-
-### Constants
-
-- `NO_LOCKED_INTERVALS` - The interval locks of a surface whose plan sets no limits
 
 ### Types
 

@@ -1,11 +1,7 @@
 /**
  * External dependencies
  */
-import {
-	computeDateRangeFromPreset,
-	normalizeReportParams,
-	NO_LOCKED_INTERVALS,
-} from '@jetpack-premium-analytics/data';
+import { computeDateRangeFromPreset, normalizeReportParams } from '@jetpack-premium-analytics/data';
 import { PRESET_ALL_TIME } from '@jetpack-premium-analytics/datetime';
 import {
 	REPORT_DATE_PARAM_KEYS,
@@ -32,9 +28,7 @@ export function seedDetailDateParams(
 ): Record< string, unknown > {
 	if ( search.post_id === resourceId ) {
 		return {
-			...normalizeReportParams( search as NormalizeInput, {
-				lockedIntervals: NO_LOCKED_INTERVALS,
-			} ),
+			...normalizeReportParams( search as NormalizeInput ),
 			...pickReportOriginWindowParams( search ),
 		};
 	}
@@ -46,15 +40,12 @@ export function seedDetailDateParams(
 	const allTime = computeDateRangeFromPreset( PRESET_ALL_TIME );
 
 	return {
-		...normalizeReportParams(
-			{
-				...withoutWindow,
-				preset: PRESET_ALL_TIME,
-				from: allTime?.from,
-				to: allTime?.to,
-			} as NormalizeInput,
-			{ lockedIntervals: NO_LOCKED_INTERVALS }
-		),
+		...normalizeReportParams( {
+			...withoutWindow,
+			preset: PRESET_ALL_TIME,
+			from: allTime?.from,
+			to: allTime?.to,
+		} as NormalizeInput ),
 		...toReportOriginWindowParams( search ),
 	};
 }

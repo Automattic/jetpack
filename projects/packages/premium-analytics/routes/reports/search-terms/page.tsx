@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { NO_LOCKED_INTERVALS } from '@jetpack-premium-analytics/data';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
@@ -58,7 +57,7 @@ export default function SearchTermsReportPage(): JSX.Element {
 		() => getSearchTermsFields( records.table.hasComparison ),
 		[ records.table.hasComparison ]
 	);
-	const dateFilters = useReportDateFilters( ROUTE_FROM, { lockedIntervals: NO_LOCKED_INTERVALS } );
+	const dateFilters = useReportDateFilters( ROUTE_FROM );
 
 	const { getLabel } = REPORTS[ 'search-terms' ];
 

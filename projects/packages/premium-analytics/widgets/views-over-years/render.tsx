@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { toAuthorId, useReportScope, NO_LOCKED_INTERVALS } from '@jetpack-premium-analytics/data';
+import { toAuthorId, useReportScope } from '@jetpack-premium-analytics/data';
 import { reportingTimeZone } from '@jetpack-premium-analytics/datetime';
 import { useOpenSectionRange } from '@jetpack-premium-analytics/routing';
 import {
@@ -47,7 +47,7 @@ function ViewsOverYearsInner( { metric, authorScoped }: ViewsOverYearsInnerProps
 		metric,
 		authorId
 	);
-	const openSectionRange = useOpenSectionRange( NO_LOCKED_INTERVALS );
+	const openSectionRange = useOpenSectionRange();
 	const { openPeriod } = useReportScope();
 	const timeZone = reportingTimeZone();
 

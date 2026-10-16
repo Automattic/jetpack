@@ -11,7 +11,6 @@ import {
 	hasComparisonEnabled,
 	normalizeReportParams,
 	type StatsPeriod,
-	NO_LOCKED_INTERVALS,
 } from '@jetpack-premium-analytics/data';
 import {
 	type ComparisonPresetId,
@@ -190,10 +189,7 @@ function ReportParamsControl( {
 
 	const defaultPreset = getDefaultPreset();
 
-	const reportParams = normalizeReportParams( stagedReportParams, {
-		defaultPreset,
-		lockedIntervals: NO_LOCKED_INTERVALS,
-	} );
+	const reportParams = normalizeReportParams( stagedReportParams, defaultPreset );
 
 	const range = {
 		from: decodeDateSearchParam( reportParams.from ),
@@ -202,10 +198,7 @@ function ReportParamsControl( {
 
 	// What the widget is actually showing. Without it an open draft clears the
 	// preset, and the pill row reports no selection at all.
-	const appliedParams = normalizeReportParams( committed, {
-		defaultPreset,
-		lockedIntervals: NO_LOCKED_INTERVALS,
-	} );
+	const appliedParams = normalizeReportParams( committed, defaultPreset );
 
 	const appliedRange = {
 		from: decodeDateSearchParam( appliedParams.from ),
@@ -307,8 +300,7 @@ function ReportParamsControl( {
 		const allowed = getAllowedIntervalsForPreset(
 			reportParams.preset,
 			reportParams.from ?? '',
-			reportParams.to ?? '',
-			NO_LOCKED_INTERVALS
+			reportParams.to ?? ''
 		);
 
 		return periods ? drawableIntervals( allowed, periods ) : allowed;

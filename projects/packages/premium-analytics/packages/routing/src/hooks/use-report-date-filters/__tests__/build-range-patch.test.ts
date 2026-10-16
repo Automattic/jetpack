@@ -11,7 +11,6 @@ jest.mock( '@jetpack-premium-analytics/datetime', () => ( {
  * External dependencies
  */
 import { TZDate } from '@date-fns/tz';
-import { NO_LOCKED_INTERVALS } from '@jetpack-premium-analytics/data';
 /**
  * Internal dependencies
  */
@@ -28,19 +27,12 @@ describe( 'buildRangePatch', () => {
 	const wideTo = new TZDate( '2026-07-19T14:30:00.000+00:00', 'UTC' );
 
 	it( 'returns null when there is nothing to stage', () => {
-		expect( buildRangePatch( { lockedIntervals: NO_LOCKED_INTERVALS, effective: {} } ) ).toBeNull();
-		expect(
-			buildRangePatch( {
-				lockedIntervals: NO_LOCKED_INTERVALS,
-				nextRange: { from, to: undefined },
-				effective: {},
-			} )
-		).toBeNull();
+		expect( buildRangePatch( { effective: {} } ) ).toBeNull();
+		expect( buildRangePatch( { nextRange: { from, to: undefined }, effective: {} } ) ).toBeNull();
 	} );
 
 	it( 'keeps a preset range `to` untouched instead of extending it to the end of the day', () => {
 		const patch = buildRangePatch( {
-			lockedIntervals: NO_LOCKED_INTERVALS,
 			nextRange: { from, to },
 			nextPresetId: 'last-24-hours',
 			effective: {},
@@ -56,7 +48,6 @@ describe( 'buildRangePatch', () => {
 
 	it( 'keeps the current interval when the preset is unchanged and still allows it', () => {
 		const patch = buildRangePatch( {
-			lockedIntervals: NO_LOCKED_INTERVALS,
 			nextRange: { from, to: wideTo },
 			nextPresetId: 'last-30-days',
 			effective: { preset: 'last-30-days', interval: 'week' },
@@ -67,7 +58,6 @@ describe( 'buildRangePatch', () => {
 
 	it( 'clamps an unsupported interval to the range default', () => {
 		const patch = buildRangePatch( {
-			lockedIntervals: NO_LOCKED_INTERVALS,
 			nextRange: { from, to },
 			nextPresetId: 'last-24-hours',
 			effective: { preset: 'last-24-hours', interval: 'month' },
@@ -78,7 +68,6 @@ describe( 'buildRangePatch', () => {
 
 	it( 'carries a still-allowed interval across a preset change', () => {
 		const patch = buildRangePatch( {
-			lockedIntervals: NO_LOCKED_INTERVALS,
 			nextRange: { from, to: wideTo },
 			nextPresetId: 'last-30-days',
 			effective: { preset: 'last-7-days', interval: 'day' },
@@ -95,7 +84,6 @@ describe( 'buildRangePatch', () => {
 		'resets the interval on a preset change only when asked (reset: %s)',
 		( resetIntervalOnPresetChange, expected ) => {
 			const patch = buildRangePatch( {
-				lockedIntervals: NO_LOCKED_INTERVALS,
 				nextRange: { from, to: wideTo },
 				nextPresetId: 'last-30-days',
 				resetIntervalOnPresetChange,
@@ -110,7 +98,6 @@ describe( 'buildRangePatch', () => {
 	it( 'coerces a day bucket when switching to a day-long preset', () => {
 		for ( const preset of [ 'last-7-days', 'last-30-days' ] as const ) {
 			const patch = buildRangePatch( {
-				lockedIntervals: NO_LOCKED_INTERVALS,
 				nextRange: { from, to },
 				nextPresetId: 'last-24-hours',
 				effective: { preset, interval: 'day' },
@@ -122,7 +109,6 @@ describe( 'buildRangePatch', () => {
 
 	it( 'coerces an interval the new preset disallows', () => {
 		const patch = buildRangePatch( {
-			lockedIntervals: NO_LOCKED_INTERVALS,
 			nextRange: { from, to },
 			nextPresetId: 'last-24-hours',
 			effective: { preset: 'last-30-days', interval: 'week' },
@@ -133,7 +119,6 @@ describe( 'buildRangePatch', () => {
 
 	it( 'carries the interval through a manual edit that leaves a preset', () => {
 		const patch = buildRangePatch( {
-			lockedIntervals: NO_LOCKED_INTERVALS,
 			nextRange: { from, to: wideTo },
 			nextPresetId: 'custom',
 			effective: { preset: 'last-7-days', interval: 'day' },
@@ -146,7 +131,6 @@ describe( 'buildRangePatch', () => {
 	// through the range length rather than through the preset table.
 	it( 'coerces a day bucket on a day-long custom range', () => {
 		const patch = buildRangePatch( {
-			lockedIntervals: NO_LOCKED_INTERVALS,
 			nextRange: { from, to },
 			nextPresetId: 'custom',
 			effective: { preset: 'last-7-days', interval: 'day' },
@@ -161,16 +145,11 @@ describe( 'buildRangePatch', () => {
 		const expected = new TZDate( '2026-07-10T23:59:59.999+00:00', 'UTC' ).getTime();
 
 		const custom = buildRangePatch( {
-			lockedIntervals: NO_LOCKED_INTERVALS,
 			nextRange: { from, to },
 			nextPresetId: 'custom',
 			effective: {},
 		} );
-		const manual = buildRangePatch( {
-			lockedIntervals: NO_LOCKED_INTERVALS,
-			nextRange: { from, to },
-			effective: {},
-		} );
+		const manual = buildRangePatch( { nextRange: { from, to }, effective: {} } );
 
 		expect( new Date( custom?.to ?? '' ).getTime() ).toBe( expected );
 		expect( new Date( manual?.to ?? '' ).getTime() ).toBe( expected );
@@ -179,7 +158,6 @@ describe( 'buildRangePatch', () => {
 
 	it( 'keeps an exact range untouched even when it leaves a preset', () => {
 		const patch = buildRangePatch( {
-			lockedIntervals: NO_LOCKED_INTERVALS,
 			nextRange: { from, to },
 			nextPresetId: 'custom',
 			exactRange: true,
@@ -192,7 +170,6 @@ describe( 'buildRangePatch', () => {
 
 	it( 're-derives the comparison range from the new primary range when enabled', () => {
 		const patch = buildRangePatch( {
-			lockedIntervals: NO_LOCKED_INTERVALS,
 			nextRange: { from, to },
 			nextPresetId: 'last-24-hours',
 			effective: { comp: '1', compare_preset: 'previous-period' },
@@ -209,7 +186,6 @@ describe( 'buildRangePatch', () => {
 	// offers is staged as the previous period rather than left stranded.
 	it( 'falls back to the previous period when the new range drops the preset', () => {
 		const patch = buildRangePatch( {
-			lockedIntervals: NO_LOCKED_INTERVALS,
 			nextRange: {
 				from: new TZDate( '2026-08-01T00:00:00.000+00:00', 'UTC' ),
 				to: new TZDate( '2026-08-30T23:59:59.999+00:00', 'UTC' ),
@@ -227,7 +203,6 @@ describe( 'buildRangePatch', () => {
 
 	it( 'does not derive a comparison range when comparison is disabled', () => {
 		const patch = buildRangePatch( {
-			lockedIntervals: NO_LOCKED_INTERVALS,
 			nextRange: { from, to },
 			nextPresetId: 'last-24-hours',
 			effective: { compare_preset: 'previous-period' },
@@ -238,13 +213,7 @@ describe( 'buildRangePatch', () => {
 	} );
 
 	it( 'stages only the preset when the range is absent', () => {
-		expect(
-			buildRangePatch( {
-				lockedIntervals: NO_LOCKED_INTERVALS,
-				nextPresetId: 'last-7-days',
-				effective: {},
-			} )
-		).toEqual( {
+		expect( buildRangePatch( { nextPresetId: 'last-7-days', effective: {} } ) ).toEqual( {
 			preset: 'last-7-days',
 		} );
 	} );
@@ -254,7 +223,6 @@ describe( 'buildRangePatch', () => {
 		// Measured as the 7-day preset would be, the previous period starts on
 		// 12 September; as the to-date preset, twelve months back on the first.
 		const patch = buildRangePatch( {
-			lockedIntervals: NO_LOCKED_INTERVALS,
 			nextRange: {
 				from: new TZDate( '2025-09-01T00:00:00.000Z', 'UTC' ),
 				to: new TZDate( '2026-08-20T23:59:59.999Z', 'UTC' ),

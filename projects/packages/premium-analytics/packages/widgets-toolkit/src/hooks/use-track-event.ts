@@ -3,10 +3,7 @@
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { getScriptData } from '@automattic/jetpack-script-data';
-import {
-	resolveIntervalForPresetChange,
-	NO_LOCKED_INTERVALS,
-} from '@jetpack-premium-analytics/data';
+import { resolveIntervalForPresetChange } from '@jetpack-premium-analytics/data';
 import { PRESET_CUSTOM } from '@jetpack-premium-analytics/datetime';
 import {
 	deriveComparisonRange,
@@ -233,14 +230,7 @@ export function useTrackedDateRangeApply(
 			...( section ? { section } : {} ),
 			range_type: isCustom ? 'custom' : 'preset',
 			...( isCustom ? {} : { preset: appliedPresetId } ),
-			interval: resolveIntervalForPresetChange(
-				presetId,
-				appliedPresetId,
-				from,
-				to,
-				interval,
-				NO_LOCKED_INTERVALS
-			),
+			interval: resolveIntervalForPresetChange( presetId, appliedPresetId, from, to, interval ),
 			comparison: comparison ?? 'none',
 		} );
 	}, [

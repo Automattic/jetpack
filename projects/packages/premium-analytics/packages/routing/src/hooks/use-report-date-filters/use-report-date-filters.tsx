@@ -107,12 +107,12 @@ function toPickerRange( from: string | undefined, to: string | undefined, timeZo
  *
  * @param from                          - The route path the search params are bound to (e.g. `/`).
  * @param filterOptions                 - Hook options.
- * @param filterOptions.lockedIntervals - The buckets the plan locks; required, so a page cannot forget its plan.
+ * @param filterOptions.lockedIntervals - The buckets the plan locks; none when omitted.
  * @return Props for `DateFiltersPanel`.
  */
 export function useReportDateFilters< TFrom extends string >(
 	from: TFrom,
-	filterOptions: { lockedIntervals: readonly LockableInterval[] }
+	filterOptions: { lockedIntervals?: readonly LockableInterval[] } = {}
 ): ReportDateFilters {
 	const { lockedIntervals } = filterOptions;
 	const { committed, effective, stage, commit, revert, isDirty } = useStagedSearch<

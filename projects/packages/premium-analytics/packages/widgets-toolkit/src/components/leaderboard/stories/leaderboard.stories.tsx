@@ -1,11 +1,7 @@
 /**
  * External dependencies
  */
-import {
-	getDefaultQueryParams,
-	normalizeReportParams,
-	NO_LOCKED_INTERVALS,
-} from '@jetpack-premium-analytics/data';
+import { getDefaultQueryParams, normalizeReportParams } from '@jetpack-premium-analytics/data';
 /**
  * Internal dependencies
  */
@@ -36,8 +32,7 @@ const withWidgetRoot: Decorator = ( Story, context ) => (
 	<WidgetRoot
 		attributes={ {
 			reportParams: normalizeReportParams(
-				context.parameters.reportParams ?? getDefaultQueryParams(),
-				{ lockedIntervals: NO_LOCKED_INTERVALS }
+				context.parameters.reportParams ?? getDefaultQueryParams()
 			),
 		} }
 	>

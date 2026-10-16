@@ -207,8 +207,7 @@ describe( 'video detail route.beforeLoad', () => {
 		} );
 		await expect( redirect ).rejects.not.toHaveProperty( 'search.ref_from' );
 		expect( normalizeReportParams ).toHaveBeenCalledWith(
-			expect.objectContaining( { preset: 'all-time', from: '2021-01-01T00:00:00' } ),
-			expect.anything()
+			expect.objectContaining( { preset: 'all-time', from: '2021-01-01T00:00:00' } )
 		);
 	} );
 } );

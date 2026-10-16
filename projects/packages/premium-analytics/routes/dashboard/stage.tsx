@@ -3,7 +3,6 @@ import {
 	PeriodChangeSignalProvider,
 	queryClient,
 	ReportScopeProvider,
-	NO_LOCKED_INTERVALS,
 } from '@jetpack-premium-analytics/data';
 import { Stack } from '@jetpack-premium-analytics/externals';
 import { usePeriodHost, useReportDateFilters } from '@jetpack-premium-analytics/routing';
@@ -246,7 +245,7 @@ function Dashboard(): JSX.Element {
 	 * Date-range state lives in the URL search params; the controller stages edits
 	 * locally and commits on Apply, so widgets re-fetch only on commit.
 	 */
-	const dateFilters = useReportDateFilters( '/', { lockedIntervals: NO_LOCKED_INTERVALS } );
+	const dateFilters = useReportDateFilters( '/' );
 
 	/*
 	 * Also reconciles the preset in the URL with the resolved surface, so a section
@@ -276,8 +275,7 @@ function Dashboard(): JSX.Element {
 	const { openPeriod, attentionId } = usePeriodHost(
 		widgetSection,
 		dateFilters.appliedRange,
-		showsPeriodControl,
-		NO_LOCKED_INTERVALS
+		showsPeriodControl
 	);
 
 	const {

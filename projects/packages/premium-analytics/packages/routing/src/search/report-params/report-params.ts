@@ -1,11 +1,7 @@
 /**
  * External dependencies
  */
-import {
-	hasComparisonEnabled,
-	normalizeReportParams,
-	NO_LOCKED_INTERVALS,
-} from '@jetpack-premium-analytics/data';
+import { hasComparisonEnabled, normalizeReportParams } from '@jetpack-premium-analytics/data';
 import {
 	PRESET_ALL_TIME,
 	isComparisonPresetId,
@@ -92,9 +88,7 @@ export function toReportOriginWindowParams(
 					...( linked.preset === PRESET_ALL_TIME ? { preset: PRESET_ALL_TIME } : {} ),
 				};
 
-	const rebuilt = normalizeReportParams( origin as NormalizeInput, {
-		lockedIntervals: NO_LOCKED_INTERVALS,
-	} );
+	const rebuilt = normalizeReportParams( origin as NormalizeInput );
 	if ( linked.interval !== undefined && linked.interval !== rebuilt.interval ) {
 		origin.interval = linked.interval;
 	}
@@ -133,7 +127,7 @@ function expandOriginWindow( origin: Record< string, unknown > ): Record< string
 	}
 
 	const comparison = deriveComparisonRange( {
-		...normalizeReportParams( origin as NormalizeInput, { lockedIntervals: NO_LOCKED_INTERVALS } ),
+		...normalizeReportParams( origin as NormalizeInput ),
 		comp: '1',
 		compare_preset: origin.compare_preset,
 	} as NormalizeInput );

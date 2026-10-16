@@ -79,7 +79,6 @@ export {
 export {
 	getAllowedIntervalsForPreset,
 	getDefaultIntervalForPeriod,
-	NO_LOCKED_INTERVALS,
 	resolveIntervalForPresetChange,
 	resolveIntervalForRange,
 } from './utils/interval';
