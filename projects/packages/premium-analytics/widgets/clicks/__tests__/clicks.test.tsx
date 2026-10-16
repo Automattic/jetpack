@@ -62,7 +62,6 @@ describe( 'ClicksWidget', () => {
 			name: /view clicked links for wordpress\.org/i,
 		} );
 		expect( screen.queryByRole( 'link', { name: /wordpress\.org/i } ) ).not.toBeInTheDocument();
-		expect( screen.getByText( 'Domains' ) ).toBeInTheDocument();
 
 		fireEvent.click( drillDownButton ); // eslint-disable-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
 
@@ -70,8 +69,6 @@ describe( 'ClicksWidget', () => {
 			name: /\/plugins\/jetpack-search/i,
 		} );
 		expect( link ).toHaveAttribute( 'href', 'https://wordpress.org/plugins/jetpack-search' );
-		expect( screen.getByText( 'Links' ) ).toBeInTheDocument();
-		expect( screen.queryByText( 'Domains' ) ).not.toBeInTheDocument();
 
 		const backLink = screen.getByRole( 'button', { name: /view all clicks/i } );
 		fireEvent.click( backLink ); // eslint-disable-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.

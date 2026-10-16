@@ -62,15 +62,17 @@ type LocationsInnerProps = {
 	geoGranularity: NonNullable< LocationsAttributes[ 'geoGranularity' ] >;
 };
 
-/** Names the rows at a drill-down depth: depth 1 lists a country's regions, depth 2 a region's cities. */
-function getLevelLabel( depth: number, geoGranularity: GeoGranularity ): string {
-	const level = depth === 0 ? geoGranularity : ( [ 'region', 'city' ] as const )[ depth - 1 ];
-	switch ( level ) {
+/** The level a drill-down depth lists: depth 1 is a country's regions, depth 2 a region's cities. */
+function getLevelMode( depth: number, geoGranularity: GeoGranularity ): GeoMode {
+	return depth === 0 ? geoGranularity : ( [ 'region', 'city' ] as const )[ depth - 1 ];
+}
+
+function getLevelLabel( mode: GeoMode ): string {
+	switch ( mode ) {
 		case 'region':
 			return __( 'Regions', 'jetpack-premium-analytics-pkg' );
 		case 'city':
 			return __( 'Cities', 'jetpack-premium-analytics-pkg' );
-		case 'country':
 		default:
 			return __( 'Countries', 'jetpack-premium-analytics-pkg' );
 	}
@@ -93,12 +95,11 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 	} = useWidgetDrillDown< LocationsDrillDown >();
 
 	const focusCountry = drillDownPath?.country;
-	let geoMode: GeoMode = geoGranularity;
 	let drillDepth = 0;
 	if ( drillDownPath ) {
-		geoMode = drillDownPath.region ? 'city' : 'region';
 		drillDepth = drillDownPath.region ? 2 : 1;
 	}
+	const geoMode = getLevelMode( drillDepth, geoGranularity );
 
 	const scope = useMemo(
 		(): LocationsScope | undefined =>
@@ -122,7 +123,7 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 		isHeld,
 		drillDepth: shownDepth,
 	} = useHeldLevel( { ...views, drillDepth, reportParams } );
-	const rowsLabel = getLevelLabel( shownDepth, geoGranularity );
+	const rowsLabel = getLevelLabel( getLevelMode( shownDepth, geoGranularity ) );
 	const emptyState = useNoViewsEmptyState(
 		{ isLoading: isLoading && ! isHeld, isError, isEmpty: data.length === 0 },
 		__( 'You don’t have locations recorded yet.', 'jetpack-premium-analytics-pkg' )
