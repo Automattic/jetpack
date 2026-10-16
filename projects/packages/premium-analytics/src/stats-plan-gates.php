@@ -420,6 +420,11 @@ const EMPTY_PLAN_REFRESH_TRANSIENT = 'jetpack_premium_analytics_empty_plan_refre
 const PURCHASE_PLAN_REFRESH_TRANSIENT = 'jetpack_premium_analytics_purchase_plan_refresh';
 
 /**
+ * Transient throttling the cache invalidation after a purchase.
+ */
+const PURCHASE_CACHE_INVALIDATION_TRANSIENT = 'jetpack_premium_analytics_purchase_cache_invalidation';
+
+/**
  * Drops the cached Stats replies a checkout made stale, before the dashboard it returns to asks for them.
  *
  * @since $$next-version$$
@@ -431,6 +436,12 @@ function maybe_invalidate_stats_caches() {
 	if ( ! Analytics::is_dashboard_request() || '' === get_stats_purchase_success_type() || ( new Host() )->is_wpcom_simple() ) {
 		return;
 	}
+
+	// The marker is a plain GET parameter, so a crafted link could otherwise drop the caches on every visit.
+	if ( get_transient( PURCHASE_CACHE_INVALIDATION_TRANSIENT ) ) {
+		return;
+	}
+	set_transient( PURCHASE_CACHE_INVALIDATION_TRANSIENT, 1, MINUTE_IN_SECONDS );
 
 	Api_Proxy_Controller::invalidate_cache();
 	delete_transient( Notices::NOTICES_CACHE_KEY );

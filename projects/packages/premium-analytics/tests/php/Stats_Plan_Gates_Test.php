@@ -125,6 +125,7 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		unset( $_GET['statsPurchaseSuccess'], $_GET['page'], $GLOBALS['current_screen'], $GLOBALS['_parent_pages']['stats'] );
 		delete_transient( EMPTY_PLAN_REFRESH_TRANSIENT );
 		delete_transient( PURCHASE_PLAN_REFRESH_TRANSIENT );
+		delete_transient( PURCHASE_CACHE_INVALIDATION_TRANSIENT );
 		\Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
 		Stats_Options::set_option( 'enable_odyssey_stats', true );
 		remove_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_fixture_widget_manifest' ) );
@@ -571,6 +572,11 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		$_GET['statsPurchaseSuccess'] = 'free';
 		maybe_invalidate_stats_caches();
 		$this->assertFalse( get_transient( Notices::NOTICES_CACHE_KEY ) );
+		$this->assertSame( array( '*' => 1 ), get_option( 'jetpack_premium_analytics_proxy_cache_generations' ) );
+
+		set_transient( Notices::NOTICES_CACHE_KEY, '{}', MINUTE_IN_SECONDS );
+		maybe_invalidate_stats_caches();
+		$this->assertNotFalse( get_transient( Notices::NOTICES_CACHE_KEY ), 'A second return within the window keeps the caches.' );
 		$this->assertSame( array( '*' => 1 ), get_option( 'jetpack_premium_analytics_proxy_cache_generations' ) );
 	}
 
