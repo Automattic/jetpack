@@ -45,6 +45,42 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 	);
 
 	/**
+	 * A partner theme as the tier listing returns it, sold by the month and by the year.
+	 *
+	 * @var array
+	 */
+	private const PARTNER_THEMES = array(
+		'themes' => array(
+			array(
+				'id'              => 'organic-stax',
+				'product_details' => array(
+					array( 'product_slug' => 'theme_stax_monthly' ),
+					array( 'product_slug' => 'theme_stax_yearly' ),
+				),
+			),
+		),
+	);
+
+	/**
+	 * Those two products, as the store returns them.
+	 *
+	 * @var array
+	 */
+	private const STORE_PRODUCTS = array(
+		'theme_stax_monthly' => array(
+			'product_type'         => 'marketplace_theme',
+			'product_term'         => 'month',
+			'billing_product_slug' => 'theme-stax',
+		),
+		'theme_stax_yearly'  => array(
+			'product_type'           => 'marketplace_theme',
+			'product_term'           => 'year',
+			'billing_product_slug'   => 'theme-stax',
+			'cost_per_month_display' => '$7.20',
+		),
+	);
+
+	/**
 	 * Every URL requested during a test, in order.
 	 *
 	 * @var string[]
@@ -83,6 +119,8 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 
 		// The shared reader caches in the object cache.
 		wp_cache_flush();
+
+		unset( $GLOBALS['wpcom_get_site_purchases_test_value'] );
 
 		\Jetpack_Options::delete_option( 'blog_token' );
 		\Jetpack_Options::delete_option( 'id' );
@@ -136,6 +174,58 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 			},
 			10,
 			3
+		);
+	}
+
+	/**
+	 * Answers matching requests with a JSON body, and anything unmatched with a 404.
+	 *
+	 * @param array<string, array> $routes URL fragment to response body.
+	 * @return void
+	 */
+	private function answer_wpcom( array $routes ) {
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) use ( $routes ) {
+				$this->requests[] = $url;
+
+				foreach ( $routes as $fragment => $body ) {
+					if ( str_contains( $url, $fragment ) ) {
+						return array(
+							'response' => array(
+								'code'    => 200,
+								'message' => 'OK',
+							),
+							'body'     => wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
+						);
+					}
+				}
+
+				return array(
+					'response' => array(
+						'code'    => 404,
+						'message' => 'Not Found',
+					),
+					'body'     => '{}',
+				);
+			},
+			10,
+			3
+		);
+	}
+
+	/**
+	 * Answers the two reads that pricing a partner theme takes.
+	 *
+	 * @param array|null $store Store products, or null for the ones both fixtures share.
+	 * @return void
+	 */
+	private function answer_with_partner_prices( ?array $store = null ) {
+		$this->answer_wpcom(
+			array(
+				'tier=partner' => array( 'body' => self::PARTNER_THEMES ),
+				'/products'    => $store ?? self::STORE_PRODUCTS,
+			)
 		);
 	}
 
@@ -431,17 +521,69 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * A partner theme says nothing: a plan alone never settles whether the site may install one.
+	 * A partner theme names the product to price it by, and sells itself rather than a plan.
 	 */
-	public function test_a_partner_theme_claims_nothing() {
-		$theme = wpcom_themes_tab_add_plan(
+	public function test_a_partner_theme_is_priced_and_sold() {
+		$this->answer_with_partner_prices();
+
+		$theme = $this->add_plan_to_partner_theme();
+
+		// The theme lists its monthly product first, and the one to quote is still the yearly one.
+		$this->assertSame( 'theme_stax_yearly', $theme->price_product );
+		$this->assertStringContainsString( 'theme_stax_yearly', $theme->purchase_url );
+		$this->assertStringContainsString(
+			'redirect_to=' . rawurlencode( admin_url( 'theme-install.php?theme=organic-stax' ) ),
+			$theme->purchase_url
+		);
+	}
+
+	/**
+	 * A site that needs the plan as well buys both at once, which checkout splits on the comma.
+	 */
+	public function test_checkout_can_charge_for_a_plan_and_a_theme_together() {
+		$url = wpcom_themes_tab_checkout_url( array( 'personal-bundle', 'theme_stax_yearly' ), 'organic-stax' );
+
+		$this->assertStringContainsString( '/checkout/example.org/personal-bundle,theme_stax_yearly?', $url );
+	}
+
+	/**
+	 * A theme the site already subscribes to is core's to install, so it is not sold again.
+	 */
+	public function test_a_subscribed_partner_theme_claims_nothing() {
+		$this->answer_with_partner_prices();
+		// Matched on the billing slug, so the monthly subscription answers for the yearly product.
+		$GLOBALS['wpcom_get_site_purchases_test_value'] = array( (object) array( 'billing_product_slug' => 'theme-stax' ) );
+
+		$theme = $this->add_plan_to_partner_theme();
+
+		$this->assertFalse( isset( $theme->price_product ) );
+		$this->assertFalse( isset( $theme->purchase_url ) );
+	}
+
+	/**
+	 * A partner theme the store has no product for says nothing rather than a price we do not have.
+	 */
+	public function test_an_unsold_partner_theme_claims_nothing() {
+		$this->answer_with_partner_prices( array() );
+
+		$theme = $this->add_plan_to_partner_theme();
+
+		$this->assertFalse( isset( $theme->price_product ) );
+		$this->assertFalse( isset( $theme->purchase_url ) );
+	}
+
+	/**
+	 * The partner theme the fixtures price, as the grid hands it over.
+	 *
+	 * @return stdClass
+	 */
+	private function add_plan_to_partner_theme() {
+		return wpcom_themes_tab_add_plan(
 			(object) array(
-				'slug'       => 'example',
+				'slug'       => 'organic-stax',
+				'name'       => 'STAX',
 				'theme_tier' => 'partner',
 			)
 		);
-
-		$this->assertFalse( isset( $theme->plan_badge ) );
-		$this->assertFalse( isset( $theme->upgrade_url ) );
 	}
 }

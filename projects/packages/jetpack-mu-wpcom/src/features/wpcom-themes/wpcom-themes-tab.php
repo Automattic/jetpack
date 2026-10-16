@@ -7,6 +7,26 @@
 
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 
+// @codeCoverageIgnoreStart -- shadowed by the test stub in tests/lib/functions-wordpress.php.
+if ( ! function_exists( 'wpcom_themes_get_purchases' ) ) {
+	/**
+	 * Source of purchase data for the themes tab, pre-definable by a test as
+	 * wpcom_expiry_get_purchases() is, and for the reason given there.
+	 *
+	 * @return array
+	 *
+	 * @phan-suppress PhanRedefineFunction -- phan sees both this and the test stub as definitions even though only one loads at runtime.
+	 */
+	function wpcom_themes_get_purchases() {
+		if ( function_exists( 'wpcom_get_site_purchases' ) ) {
+			return wpcom_get_site_purchases();
+		}
+
+		return array();
+	}
+}
+// @codeCoverageIgnoreEnd
+
 /**
  * The tab's `data-sort` value, which core's theme.js sends to themes_api() as `browse`.
  */
@@ -77,11 +97,19 @@ function wpcom_themes_tab_enqueue_script() {
 		'wpcom-themes-tab',
 		'wpcomThemesTab',
 		array(
-			'sort'         => WPCOM_THEMES_TAB,
-			'label'        => _x( 'Marketplace', 'Theme Installer', 'jetpack-mu-wpcom' ),
-			'upgrade'      => __( 'Upgrade', 'jetpack-mu-wpcom' ),
+			'sort'           => WPCOM_THEMES_TAB,
+			'label'          => _x( 'Marketplace', 'Theme Installer', 'jetpack-mu-wpcom' ),
+			'upgrade'        => __( 'Upgrade', 'jetpack-mu-wpcom' ),
 			/* translators: %s: Theme name. */
-			'upgradeLabel' => __( 'Upgrade for %s', 'jetpack-mu-wpcom' ),
+			'upgradeLabel'   => __( 'Upgrade for %s', 'jetpack-mu-wpcom' ),
+			'subscribe'      => __( 'Subscribe', 'jetpack-mu-wpcom' ),
+			/* translators: %s: Theme name. */
+			'subscribeLabel' => __( 'Subscribe to %s', 'jetpack-mu-wpcom' ),
+			'products'       => WPCom_Themes_Store::PRODUCTS_URL,
+			/* translators: %s: Price per month, for example $7.20. */
+			'price'          => __( '%s/mo, billed annually', 'jetpack-mu-wpcom' ),
+			/* translators: 1: Price per month, for example $7.20. 2: Plan name, for example Personal plan. */
+			'priceWithPlan'  => __( '%1$s/mo, billed annually + %2$s', 'jetpack-mu-wpcom' ),
 		)
 	);
 	wp_enqueue_style(
@@ -141,15 +169,16 @@ function wpcom_themes_tab_url() {
  * Checkout returns to the theme itself, where the plan now allows an install, and back out to
  * the tab if it is abandoned instead.
  *
- * @param string $plan Plan slug.
- * @param string $slug Theme slug.
+ * @param string|array $products One product slug, or the several checkout should charge for at once.
+ * @param string       $slug     Theme slug.
  * @return string
  */
-function wpcom_themes_tab_checkout_url( string $plan, string $slug ) {
+function wpcom_themes_tab_checkout_url( $products, string $slug ) {
 	$url = sprintf(
 		'https://wordpress.com/checkout/%s/%s',
 		rawurlencode( (string) wp_parse_url( home_url(), PHP_URL_HOST ) ),
-		rawurlencode( $plan )
+		// Checkout splits this segment on commas, so each slug is encoded but the separator is not.
+		implode( ',', array_map( 'rawurlencode', (array) $products ) )
 	);
 
 	// Checkout honours these on the site's own host, and add_query_arg() does not encode values.
@@ -174,10 +203,9 @@ function wpcom_themes_tab_checkout_url( string $plan, string $slug ) {
 function wpcom_themes_tab_add_plan( $theme ) {
 	$tier = isset( $theme->theme_tier ) ? (string) $theme->theme_tier : '';
 
-	// A partner theme needs a subscription of its own that no plan reports, so neither badge can
-	// tell the truth about one. DOTCOM-18722.
+	// A partner theme is sold rather than granted, so its badge is a price and not a plan.
 	if ( WPCom_Themes_Tiers::PARTNER === $tier ) {
-		return $theme;
+		return wpcom_themes_tab_add_subscription( $theme );
 	}
 
 	$plan = WPCom_Themes_Tiers::plan_for( $tier );
@@ -195,6 +223,72 @@ function wpcom_themes_tab_add_plan( $theme ) {
 }
 
 /**
+ * Offers the subscription a partner theme needs, which no plan includes.
+ *
+ * The badge is left for the browser to write, because the store prices a request where it comes
+ * from: read here it would quote the web server's currency rather than the reader's.
+ *
+ * @param stdClass $theme A theme in the themes API shape.
+ * @return stdClass The theme, carrying what to price and where to buy it.
+ */
+function wpcom_themes_tab_add_subscription( $theme ) {
+	$slug         = (string) ( $theme->slug ?? '' );
+	$subscription = wpcom_themes_tab_subscription( $slug );
+
+	// A theme already paid for is core's to install, and one the store does not sell is not ours
+	// to sell. Both are left to core's own button, which a partner theme still defeats. DOTCOM-18722.
+	if ( array() === $subscription || $subscription['owned'] ) {
+		return $theme;
+	}
+
+	// Every paid plan grants the tier, so this is only ever the cheapest one.
+	$plan = WPCom_Themes_Tiers::site_can_use( WPCom_Themes_Tiers::PARTNER )
+		? ''
+		: WPCom_Themes_Tiers::plan_for( WPCom_Themes_Tiers::PARTNER );
+
+	$theme->price_product = $subscription['product'];
+	$theme->price_plan    = '' === $plan ? '' : WPCom_Themes_Tiers::plan_name_for( WPCom_Themes_Tiers::PARTNER );
+	// Checkout charges for the plan and the theme together, so one purchase is enough to install.
+	$theme->purchase_url = wpcom_themes_tab_checkout_url(
+		'' === $plan ? $subscription['product'] : array( $plan, $subscription['product'] ),
+		$slug
+	);
+
+	return $theme;
+}
+
+/**
+ * How a partner theme is sold, and whether this site has already bought it.
+ *
+ * @param string $slug Theme slug.
+ * @return array{product: string, owned: bool} Empty when the store does not sell it.
+ */
+function wpcom_themes_tab_subscription( string $slug ) {
+	if ( '' === $slug ) {
+		return array();
+	}
+
+	$store    = wpcom_themes_tab_store();
+	$products = $store->products();
+
+	foreach ( wpcom_themes_tab_api()->fetch_partner_products()[ $slug ] ?? array() as $sold_as ) {
+		$product_slug = (string) ( $sold_as->product_slug ?? '' );
+		$product      = $products[ $product_slug ] ?? null;
+
+		if ( null === $product || WPCom_Themes_Store::TERM !== $product['term'] ) {
+			continue;
+		}
+
+		return array(
+			'product' => $product_slug,
+			'owned'   => in_array( $product['billing_slug'], $store->subscriptions(), true ),
+		);
+	}
+
+	return array();
+}
+
+/**
  * The shared WordPress.com themes reader, which wpcomsh also uses for core's own tabs.
  *
  * @return WPCom_Themes_Api
@@ -206,6 +300,20 @@ function wpcom_themes_tab_api() {
 	}
 
 	return $api;
+}
+
+/**
+ * The store reader, which prices the themes no plan includes.
+ *
+ * @return WPCom_Themes_Store
+ */
+function wpcom_themes_tab_store() {
+	static $store;
+	if ( ! $store ) {
+		$store = new WPCom_Themes_Store( new WPCom_Themes_Cache() );
+	}
+
+	return $store;
 }
 
 /**
