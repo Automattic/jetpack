@@ -45,7 +45,7 @@ export const PRODUCT_MODULES: {
  *
  * Remove the AI pre-release gate when its settings page goes public.
  *
- * @return The map, without the AI entry while the gate is on.
+ * @return The map, without the AI entry while the control is gated.
  */
 export function getProductModules() {
 	const { showAiModuleToggle = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );

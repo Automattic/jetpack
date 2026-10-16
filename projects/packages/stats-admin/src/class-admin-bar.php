@@ -142,7 +142,7 @@ class Admin_Bar {
 		 * `$args['view']` names the page the link opens: `dashboard`, or `post` with the post in `$args['id']`.
 		 * Return `$url` unchanged for a view the dashboard has no page for.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.39.0
 		 *
 		 * @param string $url  The Stats URL.
 		 * @param array  $args The page the link opens.

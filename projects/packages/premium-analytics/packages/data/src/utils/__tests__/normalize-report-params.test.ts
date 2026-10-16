@@ -94,6 +94,26 @@ describe( 'normalizeReportParams', () => {
 		expect( result.preset ).toBeUndefined();
 	} );
 
+	// An unencoded `+` in a pasted link reaches the router as a space.
+	it( 'restores the plus a querystring decoded away from explicit dates', () => {
+		const result = normalizeReportParams( {
+			from: '2026-01-20T00:00:00.000 05:00',
+			to: '2026-02-18T23:59:59.999 05:00',
+			interval: 'day',
+			comp: '1',
+			compare_from: '2025-12-21T00:00:00.000 05:00',
+			compare_to: '2026-01-19T23:59:59.999 05:00',
+		} );
+
+		expect( result ).toMatchObject( {
+			from: '2026-01-20T00:00:00.000+05:00',
+			to: '2026-02-18T23:59:59.999+05:00',
+			interval: 'day',
+			compare_from: '2025-12-21T00:00:00.000+05:00',
+			compare_to: '2026-01-19T23:59:59.999+05:00',
+		} );
+	} );
+
 	it( 'uses explicit dates as-is when preset is custom', () => {
 		const customFrom = '2026-01-01T00:00:00.000-05:00';
 		const customTo = '2026-01-31T23:59:59.999-05:00';
@@ -198,19 +218,6 @@ describe( 'normalizeReportParams', () => {
 	} );
 
 	/*
-	 * Edge case – date_type is preserved from search.
-	 */
-	it( 'preserves date_type from search', () => {
-		const result = normalizeReportParams( {
-			from: FRESH_FROM,
-			to: FRESH_TO,
-			date_type: 'paid',
-		} );
-
-		expect( result.date_type ).toBe( 'paid' );
-	} );
-
-	/*
 	 * Edge case – chart period is preserved from search.
 	 */
 	it( 'preserves period from search', () => {
@@ -223,16 +230,14 @@ describe( 'normalizeReportParams', () => {
 		expect( result.period ).toBe( 'week' );
 	} );
 
-	/*
-	 * Edge case – date_type defaults to "created".
-	 */
-	it( 'defaults date_type to created', () => {
+	it( 'drops date_type, even when search has one', () => {
 		const result = normalizeReportParams( {
 			from: FRESH_FROM,
 			to: FRESH_TO,
+			date_type: 'created',
 		} );
 
-		expect( result.date_type ).toBe( 'created' );
+		expect( result ).not.toHaveProperty( 'date_type' );
 	} );
 
 	/*

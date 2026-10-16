@@ -11,6 +11,7 @@ import { useCallback, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import PayPalIcon from '../icon';
 import { ONBOARDING_SANDBOX } from '../utils/paypal-partner-sdk';
+import { isSandboxAllowed } from '../utils/sandbox-flag';
 
 const labelConnect = __( 'Connect', 'jetpack-paypal-payments' );
 const labelConnecting = __( 'Connecting\u2026', 'jetpack-paypal-payments' );
@@ -145,7 +146,6 @@ export function OnboardingFrame( {
  * The guided PayPal connection wizard, shown in the block sidebar while the site has no connection.
  *
  * @param {object}   props                           - Component props.
- * @param {Function} props.setIsConnected            - Setter for the connection state.
  * @param {string}   props.environment               - 'production' or 'sandbox'.
  * @param {Function} props.setEnvironment            - Setter for the environment.
  * @param {boolean}  props.showReconnect             - Whether the merchant asked to reconnect.
@@ -175,7 +175,6 @@ export function OnboardingFrame( {
  * @return {Element} The connection wizard.
  */
 export default function ConnectionWizard( {
-	setIsConnected,
 	environment,
 	setEnvironment,
 	showReconnect,
@@ -218,6 +217,11 @@ export default function ConnectionWizard( {
 	const visibleStep =
 		wizardStep === 'welcome' && ! partnerReferralsAvailable ? 'dashboard' : wizardStep;
 
+	// Flag off, the wizard connects to production only: no toggle on the welcome
+	// step, no sandbox link under the credentials. The way back out of a sandbox
+	// a merchant was already in stays.
+	const sandboxAllowed = isSandboxAllowed();
+
 	return (
 		<div className="jetpack-paypal-payment-buttons__connect">
 			{ /* Reconnecting from a block that still holds a button — let the
@@ -231,7 +235,7 @@ export default function ConnectionWizard( {
 			) }
 
 			{ /* Step indicator */ }
-			{ visibleStep !== 'welcome' && visibleStep !== 'success' && (
+			{ visibleStep !== 'welcome' && (
 				<div
 					className="jetpack-paypal-wizard__step-indicator"
 					role="list"
@@ -256,14 +260,10 @@ export default function ConnectionWizard( {
 					>
 						{ '2' }
 					</span>
-					<span className="jetpack-paypal-wizard__step-line" aria-hidden="true" />
-					<span role="listitem" className="jetpack-paypal-wizard__step">
-						{ '3' }
-					</span>
 				</div>
 			) }
 
-			{ /* Step 1: Welcome — Partner Referrals primary, manual credentials secondary */ }
+			{ /* Welcome — Partner Referrals primary, manual credentials secondary */ }
 			{ visibleStep === 'welcome' && (
 				<div className="jetpack-paypal-wizard__welcome">
 					<h3>{ __( 'Connect your PayPal account', 'jetpack-paypal-payments' ) }</h3>
@@ -274,13 +274,15 @@ export default function ConnectionWizard( {
 							'jetpack-paypal-payments'
 						) }
 					</p>
-					<div className="jetpack-paypal-wizard__env-toggle">
-						<ToggleControl
-							label={ __( 'Use sandbox (testing)', 'jetpack-paypal-payments' ) }
-							checked={ environment === 'sandbox' }
-							onChange={ checked => setEnvironment( checked ? 'sandbox' : 'production' ) }
-						/>
-					</div>
+					{ sandboxAllowed && (
+						<div className="jetpack-paypal-wizard__env-toggle">
+							<ToggleControl
+								label={ __( 'Use sandbox (testing)', 'jetpack-paypal-payments' ) }
+								checked={ environment === 'sandbox' }
+								onChange={ checked => setEnvironment( checked ? 'sandbox' : 'production' ) }
+							/>
+						</div>
+					) }
 					<div className="jetpack-paypal-wizard__actions">
 						<Button
 							variant="primary"
@@ -335,10 +337,10 @@ export default function ConnectionWizard( {
 				</div>
 			) }
 
-			{ /* Step 2: Open PayPal Dashboard */ }
+			{ /* Dashboard — get the API credentials */ }
 			{ visibleStep === 'dashboard' && (
 				<div className="jetpack-paypal-wizard__dashboard">
-					<h3>{ __( 'Step 1 of 3: Get Your API Credentials', 'jetpack-paypal-payments' ) }</h3>
+					<h3>{ __( 'Step 1 of 2: Get Your API Credentials', 'jetpack-paypal-payments' ) }</h3>
 					<ol className="jetpack-paypal-wizard__instructions">
 						<li>
 							{ __(
@@ -398,10 +400,10 @@ export default function ConnectionWizard( {
 				</div>
 			) }
 
-			{ /* Step 3: Enter Credentials */ }
+			{ /* Credentials — enter the API credentials */ }
 			{ visibleStep === 'credentials' && (
 				<div className="jetpack-paypal-wizard__credentials">
-					<h3>{ __( 'Step 2 of 3: Enter Credentials', 'jetpack-paypal-payments' ) }</h3>
+					<h3>{ __( 'Step 2 of 2: Enter Credentials', 'jetpack-paypal-payments' ) }</h3>
 					<p className="jetpack-paypal-wizard__subtitle">
 						{ __(
 							'Enter the API credentials from your PayPal account:',
@@ -484,45 +486,28 @@ export default function ConnectionWizard( {
 						</Button>
 					</div>
 
-					<p className="jetpack-paypal-wizard__env-toggle">
-						{ environment === 'production' ? (
-							<Button variant="link" onClick={ () => setEnvironment( 'sandbox' ) }>
-								{ __( 'Use Sandbox for testing', 'jetpack-paypal-payments' ) }
-							</Button>
-						) : (
-							<>
-								<Button variant="link" onClick={ () => setEnvironment( 'production' ) }>
-									{ __( 'Switch to Production (Live)', 'jetpack-paypal-payments' ) }
+					{ ( sandboxAllowed || environment === 'sandbox' ) && (
+						<p className="jetpack-paypal-wizard__env-toggle">
+							{ environment === 'production' ? (
+								<Button variant="link" onClick={ () => setEnvironment( 'sandbox' ) }>
+									{ __( 'Use Sandbox for testing', 'jetpack-paypal-payments' ) }
 								</Button>
-								<br />
-								<span className="jetpack-paypal-wizard__env-hint">
-									{ __(
-										'Sandbox creates test buttons that do not process real payments.',
-										'jetpack-paypal-payments'
-									) }
-								</span>
-							</>
-						) }
-					</p>
-				</div>
-			) }
-
-			{ /* Step 4: Success */ }
-			{ visibleStep === 'success' && (
-				<div className="jetpack-paypal-wizard__success">
-					<div className="jetpack-paypal-wizard__success-icon" aria-hidden="true">
-						<span>&#10003;</span>
-					</div>
-					<h3>{ __( 'PayPal account connected!', 'jetpack-paypal-payments' ) }</h3>
-					<p>
-						{ __(
-							"You're ready to create payment buttons and links. Fill in your product details and we'll create both an embeddable PayPal button and a shareable payment link.",
-							'jetpack-paypal-payments'
-						) }
-					</p>
-					<Button variant="primary" onClick={ () => setIsConnected( true ) }>
-						{ __( 'Create Your First Button', 'jetpack-paypal-payments' ) }
-					</Button>
+							) : (
+								<>
+									<Button variant="link" onClick={ () => setEnvironment( 'production' ) }>
+										{ __( 'Switch to Production (Live)', 'jetpack-paypal-payments' ) }
+									</Button>
+									<br />
+									<span className="jetpack-paypal-wizard__env-hint">
+										{ __(
+											'Sandbox creates test buttons that do not process real payments.',
+											'jetpack-paypal-payments'
+										) }
+									</span>
+								</>
+							) }
+						</p>
+					) }
 				</div>
 			) }
 		</div>

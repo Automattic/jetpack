@@ -25,9 +25,10 @@ if ( textarea && labels ) {
 	import( /* webpackChunkName: "editor" */ '.' )
 		.then( ( { mountEditor } ) =>
 			mountEditor( container, {
-				initialContent: textarea.value,
+				initialContent: window.jetpackCommentsEditorContent ?? textarea.value,
 				labels,
 				placeholder: '',
+				previewEmbeds: false,
 				onChange: content => ( textarea.value = content ),
 				onError: fallBack,
 			} )

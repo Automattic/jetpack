@@ -34,6 +34,7 @@ import {
 	waitForAnchorBinding,
 	watchForBlockedPopup,
 } from '../utils/paypal-partner-sdk';
+import { isSandboxAllowed } from '../utils/sandbox-flag';
 import { getUserFriendlyError } from '../utils/validation';
 
 /**
@@ -138,12 +139,12 @@ export function usePayPalConnection() {
 	const onboardingRequestedRef = useRef( onboardingRequested );
 	onboardingRequestedRef.current = onboardingRequested;
 
-	// Wizard step state: 'welcome' | 'dashboard' | 'credentials' | 'success'
+	// Wizard step state: 'welcome' | 'dashboard' | 'credentials'
 	// Persisted in localStorage so navigating away and back doesn't reset the wizard.
 	const [ wizardStep, setWizardStep ] = useState( () => {
 		try {
 			const saved = window.localStorage.getItem( 'jetpack-paypal-wizard-step' );
-			if ( saved && [ 'welcome', 'dashboard', 'credentials', 'success' ].includes( saved ) ) {
+			if ( saved && [ 'welcome', 'dashboard', 'credentials' ].includes( saved ) ) {
 				return saved;
 			}
 		} catch {
@@ -156,7 +157,7 @@ export function usePayPalConnection() {
 	// Persist wizard step changes to localStorage.
 	useEffect( () => {
 		try {
-			if ( wizardStep === 'success' || isConnected ) {
+			if ( isConnected ) {
 				window.localStorage.removeItem( 'jetpack-paypal-wizard-step' );
 			} else {
 				window.localStorage.setItem( 'jetpack-paypal-wizard-step', wizardStep );
@@ -221,6 +222,9 @@ export function usePayPalConnection() {
 	/**
 	 * Follow the site-wide connection state when another block changes it.
 	 *
+	 * A disconnect sends the wizard back to its first step and clears any
+	 * connect error.
+	 *
 	 * Block attributes are deliberately left alone: the payment links they hold
 	 * keep working for buyers after a disconnect, they just can't be edited
 	 * until the merchant reconnects.
@@ -230,6 +234,9 @@ export function usePayPalConnection() {
 			setIsConnected( !! event.detail?.connected );
 			if ( event.detail?.connected ) {
 				setShowReconnect( false );
+			} else {
+				setWizardStep( 'welcome' );
+				setConnectError( null );
 			}
 		};
 
@@ -307,7 +314,6 @@ export function usePayPalConnection() {
 				setClientId( '' );
 				setClientSecret( '' );
 				setShowReconnect( false );
-				setWizardStep( 'success' );
 				broadcastConnectionChange( response.connected );
 			} )
 			.catch( err => {
@@ -369,7 +375,6 @@ export function usePayPalConnection() {
 				setOnboardingRequested( false );
 				setIsConnected( true );
 				setShowReconnect( false );
-				setWizardStep( 'success' );
 				setAccountEmail( response?.account_email || '' );
 				broadcastConnectionChange( true );
 				loadMerchantStatus();
@@ -491,6 +496,18 @@ export function usePayPalConnection() {
 				setIsGeneratingSignupLink( false );
 			} );
 	}, [ environment ] );
+
+	/**
+	 * Without the sandbox flag, a disconnected site connects to production only.
+	 *
+	 * The environment option outlives a disconnect, so a site that once used the
+	 * sandbox would otherwise reconnect to it with no control left to say otherwise.
+	 */
+	useEffect( () => {
+		if ( ! isConnected && environment === 'sandbox' && ! isSandboxAllowed() ) {
+			setEnvironment( 'production' );
+		}
+	}, [ isConnected, environment ] );
 
 	/**
 	 * A different environment needs a different referral link.

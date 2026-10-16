@@ -33,7 +33,7 @@ class Jetpack_Shortcodes_Soundcloud_Test extends WP_UnitTestCase {
 	public function test_shortcodes_soundcloud() {
 		$content = '[soundcloud]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertNotEquals( $content, $shortcode_content );
 	}
@@ -41,7 +41,7 @@ class Jetpack_Shortcodes_Soundcloud_Test extends WP_UnitTestCase {
 	public function test_shortcodes_soundcloud_html() {
 		$content = '[soundcloud url="https://api.soundcloud.com/tracks/156661852" params="auto_play=false&amp;hide_related=false&amp;visual=true" width="100%" height="450" iframe="true" /]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringContainsString( '<iframe width="100%" height="450"', $shortcode_content );
 		$this->assertStringContainsString( 'w.soundcloud.com/player/?url=https%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F156661852&#038;auto_play=false&#038;hide_related=false&#038;visual=true', $shortcode_content );
@@ -50,7 +50,7 @@ class Jetpack_Shortcodes_Soundcloud_Test extends WP_UnitTestCase {
 	public function test_shortcodes_implicit_non_visual() {
 		$content = '[soundcloud url="https://api.soundcloud.com/tracks/156661852" params="auto_play=false&amp;hide_related=false" width="100%" height="450" iframe="true" /]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringContainsString( '<iframe width="100%" height="450"', $shortcode_content );
 		$this->assertStringContainsString( 'w.soundcloud.com/player/?url=https%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F156661852&#038;auto_play=false&#038;hide_related=false', $shortcode_content );
@@ -59,7 +59,7 @@ class Jetpack_Shortcodes_Soundcloud_Test extends WP_UnitTestCase {
 	public function test_shortcodes_explicit_non_visual() {
 		$content = '[soundcloud url="https://api.soundcloud.com/tracks/156661852" params="auto_play=false&amp;hide_related=false&amp;visual=false" width="100%" height="450" iframe="true" /]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringContainsString( '<iframe width="100%" height="450"', $shortcode_content );
 		$this->assertStringContainsString( 'w.soundcloud.com/player/?url=https%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F156661852&#038;auto_play=false&#038;hide_related=false', $shortcode_content );
@@ -73,7 +73,7 @@ class Jetpack_Shortcodes_Soundcloud_Test extends WP_UnitTestCase {
 	public function tests_shortcodes_soundcloud_single_track_no_height() {
 		$content = '[soundcloud url="https://soundcloud.com/closetorgan/paul-is-dead"]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringContainsString( '<iframe width="100%" height="166"', $shortcode_content );
 		$this->assertStringContainsString( 'w.soundcloud.com/player/?url=https%3A%2F%2Fsoundcloud.com%2Fclosetorgan%2Fpaul-is-dead&#038;width=false&#038;height=false&#038;auto_play=false&#038;hide_related=false&#038;visual=false&#038;show_comments=false&#038;color=false&#038;show_user=false&#038;show_reposts=false', $shortcode_content );
@@ -87,7 +87,7 @@ class Jetpack_Shortcodes_Soundcloud_Test extends WP_UnitTestCase {
 	public function tests_shortcodes_soundcloud_album_no_height() {
 		$content = '[soundcloud url="https://soundcloud.com/closetorgan/sets/smells-like-lynx-africa-private"]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringContainsString( '<iframe width="100%" height="450"', $shortcode_content );
 		$this->assertStringContainsString( 'w.soundcloud.com/player/?url=https%3A%2F%2Fsoundcloud.com%2Fclosetorgan%2Fsets%2Fsmells-like-lynx-africa-private&#038;width=false&#038;height=false&#038;auto_play=false&#038;hide_related=false&#038;visual=false&#038;show_comments=false&#038;color=false&#038;show_user=false&#038;show_reposts=false', $shortcode_content );
@@ -101,7 +101,7 @@ class Jetpack_Shortcodes_Soundcloud_Test extends WP_UnitTestCase {
 	public function tests_shortcodes_soundcloud_album_custom_color() {
 		$content = '[soundcloud url="https://soundcloud.com/closetorgan/sets/smells-like-lynx-africa-private" color="00cc11"]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringContainsString( '<iframe width="100%" height="450"', $shortcode_content );
 		$this->assertStringContainsString( 'w.soundcloud.com/player/?url=https%3A%2F%2Fsoundcloud.com%2Fclosetorgan%2Fsets%2Fsmells-like-lynx-africa-private&#038;width=false&#038;height=false&#038;auto_play=false&#038;hide_related=false&#038;visual=false&#038;show_comments=false&#038;show_user=false&#038;show_reposts=false&#038;color=00cc11', $shortcode_content );
@@ -165,13 +165,13 @@ class Jetpack_Shortcodes_Soundcloud_Test extends WP_UnitTestCase {
 		$content_with_empty_url = '[soundcloud url=""]';
 
 		// If the URL is empty, the AMP logic should not run.
-		$this->assertStringNotContainsString( $oembed_markup, do_shortcode( $content_with_empty_url ) );
+		$this->assertStringNotContainsString( $oembed_markup, apply_shortcodes( $content_with_empty_url ) );
 
 		// This is still not an AMP endpoint, so the AMP logic should not run.
-		$this->assertStringNotContainsString( $oembed_markup, do_shortcode( $content_with_url ) );
+		$this->assertStringNotContainsString( $oembed_markup, apply_shortcodes( $content_with_url ) );
 
 		// Now that this is an AMP endpoint with a URL value, the AMP logic should run.
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
-		$this->assertEquals( $oembed_markup, do_shortcode( $content_with_url ) );
+		$this->assertEquals( $oembed_markup, apply_shortcodes( $content_with_url ) );
 	}
 }

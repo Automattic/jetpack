@@ -1,0 +1,42 @@
+$uptime-down: var(--wpds-color-stroke-surface-error-strong);
+$uptime-down-bg: var(--wpds-color-background-surface-error);
+
+.jp-protect-uptime {
+	display: flex;
+	align-items: flex-end;
+	gap: 4px;
+	block-size: 40px;
+
+	&__bar {
+		flex: 1;
+		min-inline-size: 2px;
+		block-size: 40%;
+		border-radius: 2px;
+		background: var(--wpds-color-background-track-neutral);
+
+		&.is-up {
+			block-size: 100%;
+			background: var(--wpds-color-stroke-surface-success-strong);
+		}
+
+		// Stripes, so down days don't rely on color alone.
+		&.is-down {
+			block-size: 100%;
+			background: repeating-linear-gradient(45deg, $uptime-down 0 3px, $uptime-down-bg 3px 5px);
+		}
+
+		// Forced colors drop solid backgrounds, leaving only down days visible.
+		@media (forced-colors: active) {
+			border: 1px solid CanvasText;
+
+			&.is-up {
+				background: CanvasText;
+				forced-color-adjust: none;
+			}
+		}
+	}
+
+	&__skeleton {
+		block-size: 40px;
+	}
+}

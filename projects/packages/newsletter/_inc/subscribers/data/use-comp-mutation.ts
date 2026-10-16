@@ -5,7 +5,8 @@ import { store as noticesStore } from '@wordpress/notices';
 import { addComp, removeComp } from './api';
 
 type CompPayload = {
-	user_id: number;
+	user_id?: number;
+	email?: string;
 	plan_id: number;
 	no_expiration?: boolean;
 	planTitle?: string;
@@ -24,10 +25,15 @@ export function useCompMutation() {
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 
 	return useMutation< unknown, Error, CompPayload >( {
-		mutationFn: ( { user_id, plan_id, no_expiration } ) =>
-			addComp( { user_id, plan_id, no_expiration } ),
+		// Send only the identifier we have: a `user_id` of 0 would read upstream as "comp user 0",
+		// not as "no user id given".
+		mutationFn: ( { user_id, email, plan_id, no_expiration } ) =>
+			addComp( user_id ? { user_id, plan_id, no_expiration } : { email, plan_id, no_expiration } ),
 		onSuccess: ( _result, variables ) => {
 			queryClient.invalidateQueries( { queryKey: [ 'subscribers' ] } );
+			// Comping by email links a wpcom account to the row, so the cached detail payload is
+			// stale on its `user_id` as well as its plans.
+			queryClient.invalidateQueries( { queryKey: [ 'subscriber-details' ] } );
 			createSuccessNotice(
 				variables.subscriberName && variables.planTitle
 					? sprintf(

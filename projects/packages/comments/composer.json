@@ -8,7 +8,8 @@
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-image-cdn": "@dev",
 		"automattic/jetpack-connection": "@dev",
-		"automattic/jetpack-ip": "@dev"
+		"automattic/jetpack-ip": "@dev",
+		"automattic/jetpack-status": "@dev"
 	},
 	"suggest": {
 		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -41,7 +42,7 @@
 	"extra": {
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "0.4.x-dev"
+			"dev-trunk": "0.6.x-dev"
 		},
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-comments/compare/v${old}...v${new}"

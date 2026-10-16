@@ -131,7 +131,7 @@ describe( 'MostPopularTimeWidget', () => {
 		render( <MostPopularTimeWidget attributes={ {} } /> );
 
 		await expect(
-			screen.findByText( 'Not enough data to determine your most popular time yet.' )
+			screen.findByText( 'Your busiest day and hour will show here once visitors start arriving.' )
 		).resolves.toBeInTheDocument();
 	} );
 

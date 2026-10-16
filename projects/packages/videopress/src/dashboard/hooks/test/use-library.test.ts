@@ -586,3 +586,24 @@ describe( 'on WordPress.com Simple', () => {
 		} );
 	} );
 } );
+
+describe( 'terminal conversion failure', () => {
+	it( 'stops processing and keeps the uploaded item deletable after reload', () => {
+		const item = toLibraryItem(
+			{
+				id: 91,
+				mime_type: 'video/videopress',
+				media_details: {
+					file_statuses: { mp4: 'ERROR', ogg: 'DONE' },
+					videopress: { finished: true },
+				},
+			},
+			false
+		);
+		expect( item ).toMatchObject( {
+			conversionFailed: true,
+			isProcessing: false,
+			upload: { status: 'idle' },
+		} );
+	} );
+} );

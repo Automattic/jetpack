@@ -23,6 +23,7 @@ import {
 /**
  * Internal dependencies
  */
+import { useNoViewsEmptyState } from '../use-no-views-empty-state';
 import styles from './style.module.css';
 import usePlatformViews from './use-platform-views';
 import { type TopPlatformsAttributes } from './widget';
@@ -56,6 +57,11 @@ function TopPlatformsInner( { platformDimension }: TopPlatformsInnerProps ) {
 		}
 	);
 
+	const emptyState = useNoViewsEmptyState(
+		{ isLoading, isError, isEmpty: data.length === 0 },
+		__( 'You don’t have platforms recorded yet.', 'jetpack-premium-analytics-pkg' )
+	);
+
 	const maxViews = getCombinedPeriodMax(
 		data.map( item => item.views ),
 		hasComparison ? data.map( item => item.previousViews ) : []
@@ -87,7 +93,7 @@ function TopPlatformsInner( { platformDimension }: TopPlatformsInnerProps ) {
 	return (
 		<div className={ styles.content }>
 			<WidgetState
-				isLoading={ isLoading }
+				isLoading={ emptyState.isLoading }
 				isFetching={ isFetching }
 				isError={ isError }
 				isEmpty={ data.length === 0 }
@@ -98,6 +104,7 @@ function TopPlatformsInner( { platformDimension }: TopPlatformsInnerProps ) {
 					),
 					onRetry: refetch,
 				} ) }
+				empty={ emptyState.empty }
 				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 			>
 				<LeaderboardChart
@@ -106,6 +113,13 @@ function TopPlatformsInner( { platformDimension }: TopPlatformsInnerProps ) {
 					withOverlayLabel
 					showLegend={ false }
 					dataFormat={ DATA_FORMAT }
+					columns={ {
+						label:
+							platformDimension === 'platform'
+								? __( 'Operating systems', 'jetpack-premium-analytics-pkg' )
+								: __( 'Browsers', 'jetpack-premium-analytics-pkg' ),
+						metric: 'views',
+					} }
 				/>
 			</WidgetState>
 		</div>

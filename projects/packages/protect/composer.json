@@ -6,12 +6,19 @@
 	"require": {
 		"php": ">=7.4",
 		"automattic/jetpack-admin-ui": "@dev",
+		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-ip": "@dev",
+		"automattic/jetpack-menu-badges": "@dev",
+		"automattic/jetpack-protect-models": "@dev",
+		"automattic/jetpack-protect-status": "@dev",
+		"automattic/jetpack-status": "@dev",
 		"automattic/jetpack-wp-build-polyfills": "@dev"
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "@dev",
 		"yoast/phpunit-polyfills": "^4.0.0",
 		"automattic/jetpack-test-environment": "@dev",
+		"automattic/jetpack-waf": "@dev",
 		"automattic/phpunit-select-config": "@dev"
 	},
 	"suggest": {
@@ -41,6 +48,12 @@
 		],
 		"test-php-coverage": [
 			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+		],
+		"test-js": [
+			"pnpm run test"
+		],
+		"test-js-coverage": [
+			"pnpm run test-coverage"
 		]
 	},
 	"repositories": [

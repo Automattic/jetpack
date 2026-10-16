@@ -348,9 +348,7 @@ export function getDefaultDateRangePresets( timeZone: string ): DateRangePreset[
  */
 export type QuickSurfaceOptions = AllTimeRangeOptions & {
 	/**
-	 * The presets to render, in display order. Defaults to the rolling windows
-	 * of `QUICK_SURFACE_PRESETS`; a detail page passes `DETAIL_SURFACE_PRESETS`
-	 * to lead with all time.
+	 * The presets to render, in display order. Defaults to `QUICK_SURFACE_PRESETS`.
 	 */
 	presetIds?: readonly QuickSurfacePresetId[];
 };

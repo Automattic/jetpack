@@ -52,6 +52,10 @@ class Block_Editor {
 		add_filter( 'wp_kses_allowed_html', array( $this, 'allowed_html' ), 10, 2 );
 		// Ahead of wpautop at 30.
 		add_filter( 'comment_text', array( __CLASS__, 'render' ), 5, 2 );
+		add_filter( 'render_block_core/image', array( Images::class, 'render_core' ), 10, 2 );
+		// Core writes the stored content into its comment emails; WordPress.com has its own templates.
+		add_filter( 'comment_notification_text', array( __CLASS__, 'render_in_email' ), 10, 2 );
+		add_filter( 'comment_moderation_text', array( __CLASS__, 'render_in_email' ), 10, 2 );
 		// The edit-comment screen, for a comment that holds blocks.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin' ) );
 	}
@@ -86,7 +90,7 @@ class Block_Editor {
 			}
 
 			// Core translates block titles in PHP, so they are in its .mo, not the script files.
-			foreach ( array( 'Paragraph', 'List', 'List Item', 'Quote', 'Code', 'Embed' ) as $title ) {
+			foreach ( array( 'Paragraph', 'List', 'List Item', 'Quote', 'Code', 'Embed', 'Image' ) as $title ) {
 				// phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText, WordPress.WP.I18n.TextDomainMismatch -- Core's own strings.
 				$messages[ "block title\u{0004}$title" ] = array( _x( $title, 'block title', 'default' ) );
 			}
@@ -138,10 +142,8 @@ class Block_Editor {
 	 * @return string
 	 */
 	public function forget_blocks( $content ) {
-		if ( $this->has_blocks && has_block( 'core/embed', $content ) ) {
-			// Core's own kses pass over block attributes wrote & as &amp; in each embed's URL.
-			// Put it back, or the editor's save no longer matches the markup when the comment is edited.
-			$content = wp_slash( serialize_blocks( self::restore_urls( parse_blocks( wp_unslash( $content ) ) ) ) );
+		if ( $this->has_blocks && ( has_block( 'core/embed', $content ) || has_block( 'core/image', $content ) ) ) {
+			$content = wp_slash( serialize_blocks( self::restore( parse_blocks( wp_unslash( $content ) ) ) ) );
 		}
 
 		$this->has_blocks = false;
@@ -150,22 +152,28 @@ class Block_Editor {
 	}
 
 	/**
-	 * The embed URLs as they were before kses, at every depth.
+	 * Undo kses at every depth: the embed and image URLs as they were.
 	 *
 	 * @param array $blocks Parsed blocks.
+	 * @param int   $images Images kept so far.
 	 * @return array
 	 */
-	private static function restore_urls( array $blocks ) {
-		foreach ( $blocks as &$block ) {
+	private static function restore( array $blocks, &$images = 0 ) {
+		foreach ( $blocks as $i => $block ) {
+			// Core's kses pass over block attributes wrote & as &amp; in each embed's URL. Put it back,
+			// or the editor's save no longer matches the markup when the comment is edited.
 			if ( 'core/embed' === $block['blockName'] && isset( $block['attrs']['url'] ) && is_string( $block['attrs']['url'] ) ) {
-				$block['attrs']['url'] = html_entity_decode( $block['attrs']['url'], ENT_QUOTES );
+				$blocks[ $i ]['attrs']['url'] = html_entity_decode( $block['attrs']['url'], ENT_QUOTES );
+			}
+
+			if ( 'core/image' === $block['blockName'] ) {
+				$blocks[ $i ] = Images::block( $block, null, $images ) ?? $block;
 			}
 
 			if ( $block['innerBlocks'] ) {
-				$block['innerBlocks'] = self::restore_urls( $block['innerBlocks'] );
+				$blocks[ $i ]['innerBlocks'] = self::restore( $block['innerBlocks'], $images );
 			}
 		}
-		unset( $block );
 
 		return $blocks;
 	}
@@ -195,8 +203,13 @@ class Block_Editor {
 				),
 				'pre'        => array( 'class' => array( 'values' => array( 'wp-block-code' ) ) ),
 				'ul'         => array( 'class' => array( 'values' => array( 'wp-block-list' ) ) ),
-				'ol'         => array( 'class' => array( 'values' => array( 'wp-block-list' ) ) ),
-				'figure'     => array( 'class' => array( 'values' => array( 'wp-block-embed' ) ) ),
+				// Verbum's lists could also start elsewhere, or count down.
+				'ol'         => array(
+					'class'    => array( 'values' => array( 'wp-block-list' ) ),
+					'start'    => true,
+					'reversed' => true,
+				),
+				'figure'     => array( 'class' => array( 'values' => array( 'wp-block-embed', 'wp-block-image' ) ) ),
 				'div'        => array( 'class' => array( 'values' => array( 'wp-block-embed__wrapper' ) ) ),
 			)
 		);
@@ -214,7 +227,7 @@ class Block_Editor {
 			return $content;
 		}
 
-		// Only an approved comment on the front end draws a provider's embed; the rest show its link.
+		// Only an approved comment on the front end draws an embed or image; the rest show the link.
 		$embed = $comment instanceof \WP_Comment && '1' === (string) $comment->comment_approved && ! is_admin();
 
 		// With their attributes cleared, what is left of the delimiters is this shape alone.
@@ -222,22 +235,121 @@ class Block_Editor {
 	}
 
 	/**
-	 * Whether the edit-comment screen is open on a comment that holds blocks, and the
-	 * block editor is on.
+	 * Core's comment email, with the comment's block markup replaced by the text it draws.
 	 *
-	 * @return bool
+	 * @param string $message    The email body.
+	 * @param int    $comment_id The comment the email is about.
+	 * @return string
 	 */
-	private static function is_editing_blocks() {
+	public static function render_in_email( $message, $comment_id ) {
+		$comment = get_comment( $comment_id );
+
+		if ( ! $comment instanceof \WP_Comment || ! has_blocks( $comment->comment_content ) ) {
+			return $message;
+		}
+
+		// The exact string core wrote, so a body another filter rewrote is left alone, not half replaced.
+		$raw = wp_specialchars_decode( $comment->comment_content );
+
+		// Pruned as if saving, which keeps how a list counts and leaves an embed as its URL, fetching nothing.
+		$text = self::blocks_to_text( self::allowed( parse_blocks( $comment->comment_content ) ) );
+
+		return str_replace( $raw, $text, $message );
+	}
+
+	/**
+	 * The comment's blocks as the plain text core's email body holds.
+	 *
+	 * @param array $blocks Parsed blocks, pruned to the ones the editor offers.
+	 * @param int   $depth  How far inside nested lists these blocks sit.
+	 * @return string
+	 */
+	private static function blocks_to_text( array $blocks, $depth = 0 ) {
+		$parts = array();
+
+		foreach ( $blocks as $block ) {
+			if ( 'core/list' === $block['blockName'] ) {
+				$parts[] = self::list_to_text( $block, $depth );
+				continue;
+			}
+
+			if ( 'core/image' === $block['blockName'] ) {
+				$parts[] = $block['attrs']['url'];
+				continue;
+			}
+
+			if ( 'core/quote' === $block['blockName'] ) {
+				// The marker WordPress.com's own comment emails use, so a quote still reads as one.
+				$lines   = explode( "\n", self::blocks_to_text( $block['innerBlocks'], $depth ) );
+				$parts[] = implode( "\n", array_map( fn( $line ) => rtrim( '> ' . $line ), $lines ) );
+				continue;
+			}
+
+			$text = self::inline_to_text( $block['innerHTML'] );
+
+			if ( '' !== $text ) {
+				$parts[] = $text;
+			}
+		}
+
+		return implode( "\n\n", $parts );
+	}
+
+	/**
+	 * A list's items, each marked the way the list is set to count.
+	 *
+	 * @param array $list  A core/list block.
+	 * @param int   $depth How far inside nested lists this list sits.
+	 * @return string
+	 */
+	private static function list_to_text( array $list, $depth ) {
+		$attrs    = is_array( $list['attrs'] ) ? $list['attrs'] : array();
+		$items    = $list['innerBlocks'];
+		$ordered  = ! empty( $attrs['ordered'] );
+		$reversed = $ordered && ! empty( $attrs['reversed'] );
+		$first    = isset( $attrs['start'] ) ? (int) $attrs['start'] : ( $reversed ? count( $items ) : 1 );
+		$indent   = str_repeat( '  ', $depth );
+		$lines    = array();
+
+		foreach ( $items as $i => $item ) {
+			$marker = $ordered ? ( $first + $i * ( $reversed ? -1 : 1 ) ) . '. ' : '* ';
+			$nested = self::blocks_to_text( $item['innerBlocks'], $depth + 1 );
+			$line   = $indent . $marker . self::inline_to_text( $item['innerHTML'] );
+
+			$lines[] = '' === $nested ? $line : $line . "\n" . $nested;
+		}
+
+		return implode( "\n", $lines );
+	}
+
+	/**
+	 * One block's markup as the text it reads like.
+	 *
+	 * @param string $html The block's inner HTML.
+	 * @return string
+	 */
+	private static function inline_to_text( $html ) {
+		$html = (string) preg_replace( '#<br\s*/?>#i', "\n", $html );
+
+		return trim( html_entity_decode( wp_strip_all_tags( $html ), ENT_QUOTES, 'UTF-8' ) );
+	}
+
+	/**
+	 * The comment the edit-comment screen is open on, where it holds blocks and the block editor is on.
+	 *
+	 * @return \WP_Comment|null
+	 */
+	private static function comment_to_edit() {
 		global $pagenow;
 
 		if ( ! self::is_enabled() ) {
-			return false;
+			return null;
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- which comment the screen shows, read only.
 		$comment = 'comment.php' === $pagenow && isset( $_GET['c'] ) ? get_comment( absint( $_GET['c'] ) ) : null;
 
-		return $comment instanceof \WP_Comment && has_blocks( $comment->comment_content );
+		return $comment instanceof \WP_Comment && has_blocks( $comment->comment_content ) ? $comment : null;
 	}
 
 	/**
@@ -246,7 +358,12 @@ class Block_Editor {
 	 * @return void
 	 */
 	public static function enqueue_admin() {
-		if ( ! self::is_editing_blocks() ) {
+		$comment = self::comment_to_edit();
+		// The comment as this editor writes it, so blocks from Verbum's editor open as blocks it knows.
+		$content = $comment ? serialize_blocks( self::allowed( parse_blocks( $comment->comment_content ) ) ) : '';
+
+		// With nothing left, the editor would save the comment empty; the raw markup is safer to edit.
+		if ( ! has_blocks( $content ) ) {
 			return;
 		}
 
@@ -264,13 +381,14 @@ class Block_Editor {
 		wp_add_inline_script(
 			'jetpack-comments-admin',
 			'window.jetpackCommentsEditorLocale = ' . wp_json_encode( self::locale_data(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';'
-				. 'window.jetpackCommentsEditorLabels = ' . wp_json_encode( self::labels(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
+				. 'window.jetpackCommentsEditorLabels = ' . wp_json_encode( self::labels(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';'
+				. 'window.jetpackCommentsEditorContent = ' . wp_json_encode( $content, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
 			'before'
 		);
 	}
 
 	/**
-	 * What the editor needs from PHP: its own accessible names, and the embed route.
+	 * What the editor needs from PHP: its own strings, the embed route, and whether it offers images.
 	 *
 	 * @return array
 	 */
@@ -279,6 +397,8 @@ class Block_Editor {
 			'blockTools' => __( 'Block tools', 'jetpack-comments' ),
 			'addBlock'   => __( 'Add block', 'jetpack-comments' ),
 			'embedUrl'   => Embeds::is_enabled() ? Checkpoint_Endpoint::route_url( Embeds::ROUTE ) : '',
+			'images'     => Images::is_enabled(),
+			'imageError' => __( 'This image could not be loaded. Check its URL and try again.', 'jetpack-comments' ),
 		);
 	}
 
@@ -286,17 +406,33 @@ class Block_Editor {
 	 * The allowed blocks, at every depth.
 	 *
 	 * @param array     $blocks Parsed blocks.
-	 * @param bool|null $render Null while saving; at render, whether embeds may draw.
+	 * @param bool|null $render Null while saving; at render, whether embeds and images may draw.
+	 * @param int       $images Images kept so far.
 	 * @return array
 	 */
-	private static function allowed( array $blocks, $render = null ) {
+	private static function allowed( array $blocks, $render = null, &$images = 0 ) {
 		$kept = array();
 
 		foreach ( $blocks as $block ) {
-			if ( 'core/embed' === $block['blockName'] ) {
-				$block = Embeds::block( $block, $render );
-				if ( $block ) {
-					$kept[] = $block;
+			// Verbum's editor also offered captions on both; this one keeps their text.
+			if ( 'core/image' === $block['blockName'] || 'core/embed' === $block['blockName'] ) {
+				$media = 'core/embed' === $block['blockName'] ? Embeds::block( $block, $render ) : Images::block( $block, $render, $images );
+
+				if ( $media ) {
+					$kept[] = $media;
+				}
+
+				if ( preg_match( '#<figcaption[^>]*>(.*?)</figcaption>#s', $block['innerHTML'], $caption ) && '' !== trim( $caption[1] ) ) {
+					$kept[] = self::paragraph( trim( $caption[1] ) );
+				}
+
+				continue;
+			}
+
+			// Verbum kept headings where the site's comment tags allowed them; this editor has none.
+			if ( 'core/heading' === $block['blockName'] ) {
+				if ( preg_match( '#<h([1-6])[^>]*>(.*?)</h\1>#s', $block['innerHTML'], $heading ) && '' !== trim( $heading[2] ) ) {
+					$kept[] = self::paragraph( '<strong>' . trim( $heading[2] ) . '</strong>' );
 				}
 				continue;
 			}
@@ -306,8 +442,9 @@ class Block_Editor {
 				continue;
 			}
 
-			// The markup carries everything these blocks draw; attributes only matter to the editor.
-			$block['attrs'] = array();
+			// The markup carries everything these blocks draw, but the editor reads a list's kind, start, and
+			// direction from its attributes alone. Rendering strips delimiters that carry none.
+			$block['attrs'] = null === $render && 'core/list' === $block['blockName'] ? array_intersect_key( $block['attrs'], array_flip( array( 'ordered', 'start', 'reversed' ) ) ) : array();
 
 			$inner                 = $block['innerBlocks'];
 			$content               = $block['innerContent'];
@@ -321,9 +458,9 @@ class Block_Editor {
 					continue;
 				}
 
-				$child = self::allowed( array( array_shift( $inner ) ), $render );
-				if ( $child ) {
-					$block['innerBlocks'][]  = $child[0];
+				// An image or embed in a quote can come back as more than one block.
+				foreach ( self::allowed( array( array_shift( $inner ) ), $render, $images ) as $child ) {
+					$block['innerBlocks'][]  = $child;
 					$block['innerContent'][] = null;
 				}
 			}
@@ -332,5 +469,23 @@ class Block_Editor {
 		}
 
 		return $kept;
+	}
+
+	/**
+	 * A paragraph block holding the given HTML.
+	 *
+	 * @param string $html Inline HTML.
+	 * @return array
+	 */
+	public static function paragraph( $html ) {
+		$html = "\n<p>$html</p>\n";
+
+		return array(
+			'blockName'    => 'core/paragraph',
+			'attrs'        => array(),
+			'innerBlocks'  => array(),
+			'innerHTML'    => $html,
+			'innerContent' => array( $html ),
+		);
 	}
 }

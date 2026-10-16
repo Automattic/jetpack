@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { Badge, Button, LinkButton } from '@wordpress/ui';
+import { Badge, Button, ButtonLink, Stack } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { useModuleActivation } from '../../module-toggle';
 import { getSwitchLabel } from '../utils';
@@ -7,6 +7,7 @@ import { InstallButton, JetpackButton } from './feature-action';
 import { UpgradeButton } from './feature-paid';
 import { getFeatureManageUrl, getForcedReason } from './feature-state';
 import { useFeaturesTracking } from './features-tracking-context';
+import { getFeatureUnavailableReason } from './module-availability';
 import { useFeaturePlugin } from './use-main-features';
 import type { FeatureState } from './feature-state';
 import type { MyJetpackModule } from '../../../types';
@@ -134,6 +135,7 @@ export function FeatureModalActions( { state }: FeatureModalActionsProps ) {
 	const isActive = state.status === 'active';
 	const pluginName = feature.plugin_name || feature.name;
 	const forcedReason = getForcedReason( state );
+	const unavailable = getFeatureUnavailableReason( state );
 	const tracking = useFeaturesTracking();
 
 	// Leaves for the feature's own screen, so the event has to be away before it does.
@@ -145,12 +147,19 @@ export function FeatureModalActions( { state }: FeatureModalActionsProps ) {
 	return (
 		<>
 			{ isActive && manageUrl ? (
-				<LinkButton href={ manageUrl } variant="solid" size="compact" onClick={ onManageClick }>
+				<ButtonLink href={ manageUrl } variant="solid" size="compact" onClick={ onManageClick }>
 					{ __( 'Open', 'jetpack-my-jetpack' ) }
-				</LinkButton>
+				</ButtonLink>
 			) : null }
 
-			{ forcedReason ? <Badge intent="medium">{ forcedReason }</Badge> : null }
+			{ forcedReason ? (
+				<Stack direction="column" align="start" gap="xs">
+					{ unavailable && unavailable !== forcedReason ? (
+						<Badge intent="medium">{ unavailable }</Badge>
+					) : null }
+					<Badge intent="medium">{ forcedReason }</Badge>
+				</Stack>
+			) : null }
 
 			{ control.kind === 'module' && ! forcedReason ? (
 				<ModuleSwitch state={ state } module={ control.module } name={ feature.name } />

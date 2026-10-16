@@ -22,7 +22,7 @@ import { useCallback, useId, useMemo, useState } from 'react';
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
 import { isEmptyChartData, getFixedYAxis, formatBucketTooltipDate } from '../../helpers';
 import { resolvePrimarySeriesByGroup } from '../../helpers/resolve-series-names';
-import { useLockedPrimaryLegendItems } from '../../hooks/use-locked-primary-legend-items';
+import { useComparativeLegend } from '../../hooks/use-comparative-legend';
 import { alignSeriesDates } from '../chart-comparative-line/utils';
 import { DatedTooltip, buildDatedTooltipModel } from '../chart-tooltip';
 import styles from './comparative-bar-chart.module.scss';
@@ -97,6 +97,12 @@ export type ComparativeBarChartProps = {
 	legendInteractive?: boolean;
 
 	/**
+	 * Names the comparison in each metric's previous-period legend item, e.g.
+	 * "Prev. 30 days". Defaults to "Previous period".
+	 */
+	comparisonLabel?: string;
+
+	/**
 	 * Series the tooltip reads out but the chart does not draw; see
 	 * `TooltipExtraSeries` for what listing one changes about the rows.
 	 */
@@ -131,6 +137,7 @@ export function ComparativeBarChart( {
 	maxWidth = Infinity,
 	defaultHiddenSeries,
 	legendInteractive = false,
+	comparisonLabel,
 	tooltipExtras,
 	onPointerDown,
 	onPointerUp,
@@ -177,7 +184,10 @@ export function ComparativeBarChart( {
 	// Multipliers keep the tick labels short.
 	const yTickFormat = useMemo(
 		() => ( value: number ) =>
-			formatMetricValue( value, dataFormat.type, { useMultipliers: true } ),
+			formatMetricValue( value, dataFormat.type, {
+				useMultipliers: true,
+				currencyCode: dataFormat.options?.currencyCode,
+			} ),
 		[ dataFormat ]
 	);
 
@@ -189,13 +199,11 @@ export function ComparativeBarChart( {
 	);
 
 	const primarySeriesByGroup = useMemo( () => resolvePrimarySeriesByGroup( series ), [ series ] );
-	// A legend item names a metric; the solid mark against its previous-period twin
-	// is what tells the periods apart, so a metric's two periods always collapse.
-	const legendConfig = useMemo(
-		() => ( { collapseGroups: true, interactive: legendInteractive } ),
-		[ legendInteractive ]
+	const { config: legendConfig, items: legendItems } = useComparativeLegend(
+		alignedSeries,
+		legendInteractive,
+		comparisonLabel
 	);
-	const legendItems = useLockedPrimaryLegendItems( alignedSeries, legendConfig );
 
 	const formatTooltipBucket = useCallback(
 		( point: ComparativeDatePointDate ) => formatBucketTooltipDate( point, displayResolution ),
@@ -333,7 +341,6 @@ export function ComparativeBarChart( {
 				onPointerUp={ onPointerUp }
 				onDatumActivate={ onDatumActivate }
 			>
-				{ /* Square swatches only name the metrics; the chart itself tells the periods apart. */ }
 				{ ! isCompact && (
 					<BarChart.Legend
 						items={ legendItems }

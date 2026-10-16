@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { calendar } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
@@ -21,7 +20,6 @@ export type PostTrafficActivityAttributes = Record< never, never >;
  * traffic stay blank cells, per the design, while the grid stays complete.
  */
 export default {
-	icon: calendar,
 	attributes: [] as WidgetAttributeField< PostTrafficActivityAttributes >[],
 	example: {
 		attributes: {},

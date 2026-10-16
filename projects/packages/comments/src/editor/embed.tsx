@@ -1,13 +1,7 @@
 /* @jsxImportSource react */
 import { BlockControls, BlockIcon, useBlockProps } from '@wordpress/block-editor';
 import { embedContentIcon } from '@wordpress/block-library/build-module/embed/icons.mjs';
-import {
-	createBlock,
-	getBlockType,
-	registerBlockType,
-	type Block,
-	type BlockEditProps,
-} from '@wordpress/blocks';
+import { createBlock, getBlockType, registerBlockType } from '@wordpress/blocks';
 import {
 	Button,
 	Placeholder,
@@ -17,23 +11,24 @@ import {
 	ToolbarGroup,
 	VisuallyHidden,
 } from '@wordpress/components';
-import { renderToString, useCallback, useEffect, useRef, useState } from '@wordpress/element';
+import {
+	RawHTML,
+	renderToString,
+	useCallback,
+	useEffect,
+	useRef,
+	useState,
+} from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
+import type { EmbedAttributes, EmbedEditProps, EmbedLookup, EmbedPreview } from './types';
 import type { EditorLabels } from '../shared/types';
 import type { ChangeEvent, FormEvent } from 'react';
 
 const NAME = 'core/embed';
 
-type Attributes = { url?: string };
-/** What the preview route answers: core's proxy shape. */
-type Preview = { html?: string; scripts?: string[] };
-/** What a lookup settled on: data, a URL the site will not embed, or a failure worth retrying. */
-type Lookup = Preview | 'unsupported' | null;
-type EditProps = BlockEditProps< Attributes > & {
-	onReplace: ( blocks: Block | Block[] ) => void;
-};
-
 let labels: EditorLabels;
+// Off on the edit-comment screen, where a provider's markup would share wp-admin's origin and the URL is enough.
+let previewEmbeds = true;
 
 // Module scope, where Terser cannot fold the two calls into one `_x( failed ? … : … )`.
 const embedLabel = _x( 'Embed', 'button label', 'default' );
@@ -48,13 +43,20 @@ const hostOf = ( url: string ) => {
 	}
 };
 
+// The pointer meets the overlay; this keeps Tab off the card's link too, which would leave the form mid-comment.
+const unfocusLinks = ( node: HTMLDivElement | null ) => {
+	node?.querySelectorAll( 'a' ).forEach( link => {
+		link.tabIndex = -1;
+	} );
+};
+
 const toParagraph = ( url: string ) =>
 	createBlock( 'core/paragraph', { content: renderToString( <a href={ url }>{ url }</a> ) } );
 
-const Edit = ( { attributes: { url }, setAttributes, isSelected, onReplace }: EditProps ) => {
+const Edit = ( { attributes: { url }, setAttributes, isSelected, onReplace }: EmbedEditProps ) => {
 	const [ draft, setDraft ] = useState( url ?? '' );
 	const [ editing, setEditing ] = useState( ! url );
-	const [ preview, setPreview ] = useState< Preview | null >( null );
+	const [ preview, setPreview ] = useState< EmbedPreview | null >( null );
 	const [ failed, setFailed ] = useState( false );
 	const [ attempt, setAttempt ] = useState( 0 );
 	const [ interactive, setInteractive ] = useState( false );
@@ -66,7 +68,7 @@ const Edit = ( { attributes: { url }, setAttributes, isSelected, onReplace }: Ed
 	// A URL the site will not embed, or a route it closes, becomes a link, with no fuss: most links in
 	// a comment are just links. A rate limit or a dropped request keeps the block so the reader can retry.
 	useEffect( () => {
-		if ( ! url ) {
+		if ( ! url || ! previewEmbeds ) {
 			return;
 		}
 
@@ -76,13 +78,13 @@ const Edit = ( { attributes: { url }, setAttributes, isSelected, onReplace }: Ed
 		const target = new URL( labels.embedUrl, window.location.href );
 		target.searchParams.set( 'url', url );
 		fetch( target.toString(), { credentials: 'omit' } )
-			.then( ( response ): Promise< Lookup > | Lookup => {
+			.then( ( response ): Promise< EmbedLookup > | EmbedLookup => {
 				if ( response.status >= 400 && response.status < 500 && response.status !== 429 ) {
 					return 'unsupported';
 				}
-				return response.ok ? ( response.json() as Promise< Preview > ) : null;
+				return response.ok ? ( response.json() as Promise< EmbedPreview > ) : null;
 			} )
-			.catch( (): Lookup => null )
+			.catch( (): EmbedLookup => null )
 			.then( data => {
 				if ( stale ) {
 					return;
@@ -155,6 +157,25 @@ const Edit = ( { attributes: { url }, setAttributes, isSelected, onReplace }: Ed
 		);
 	}
 
+	const controls = (
+		<BlockControls>
+			<ToolbarGroup>
+				<ToolbarButton onClick={ onEdit }>{ __( 'Edit URL', 'default' ) }</ToolbarButton>
+			</ToolbarGroup>
+		</BlockControls>
+	);
+
+	if ( ! previewEmbeds ) {
+		return (
+			<>
+				{ controls }
+				<figure { ...blockProps }>
+					<div className="wp-block-embed__wrapper">{ url }</div>
+				</figure>
+			</>
+		);
+	}
+
 	if ( ! preview ) {
 		return (
 			<div { ...blockProps } aria-busy="true">
@@ -166,27 +187,29 @@ const Edit = ( { attributes: { url }, setAttributes, isSelected, onReplace }: Ed
 
 	return (
 		<>
-			<BlockControls>
-				<ToolbarGroup>
-					<ToolbarButton onClick={ onEdit }>{ __( 'Edit URL', 'default' ) }</ToolbarButton>
-				</ToolbarGroup>
-			</BlockControls>
+			{ controls }
 			<figure { ...blockProps }>
 				<div className="wp-block-embed__wrapper">
-					{ /* Same-origin, as core previews embeds: a trusted provider's script runs in the page once posted anyway. */ }
-					<SandBox
-						allowSameOrigin
-						html={ preview.html }
-						scripts={ preview.scripts }
-						title={ sprintf(
-							/* translators: %s: host providing embed content e.g: www.youtube.com */
-							__( 'Embedded content from %s', 'default' ),
-							hostOf( url )
-						) }
-						onFocus={ onInteract }
-					/>
-					{ /* Catches the first click, so the block is selected before the frame gets the pointer. */ }
-					{ ! interactive && (
+					{ preview.card ? (
+						// The route builds the card from escaped text alone, as the comment will show it.
+						<div ref={ unfocusLinks }>
+							<RawHTML>{ preview.html }</RawHTML>
+						</div>
+					) : (
+						// Same-origin, as core previews embeds, for the Referer YouTube wants. The route sanitizes the provider's HTML, so the frame holds markup alone.
+						<SandBox
+							allowSameOrigin
+							html={ preview.html }
+							title={ sprintf(
+								/* translators: %s: host providing embed content e.g: www.youtube.com */
+								__( 'Embedded content from %s', 'default' ),
+								hostOf( url )
+							) }
+							onFocus={ onInteract }
+						/>
+					) }
+					{ /* Catches the first click, so the block is selected before the frame gets the pointer. A card's link stays covered. */ }
+					{ ( preview.card || ! interactive ) && (
 						// eslint-disable-next-line jsx-a11y/no-static-element-interactions
 						<div className="jetpack-comments__embed-overlay" onMouseUp={ onInteract } />
 					) }
@@ -201,15 +224,18 @@ const Edit = ( { attributes: { url }, setAttributes, isSelected, onReplace }: Ed
  * this package's own. Nothing registers without the preview route.
  *
  * @param editorLabels - The editor's labels, with the route.
+ * @param preview      - Whether to fetch and draw provider previews. Off, the block shows its URL.
  */
-export const registerEmbedBlock = ( editorLabels: EditorLabels ) => {
+export const registerEmbedBlock = ( editorLabels: EditorLabels, preview = true ) => {
 	labels = editorLabels;
+	previewEmbeds = preview;
 
 	if ( ! labels.embedUrl || getBlockType( NAME ) ) {
 		return;
 	}
 
-	registerBlockType< Attributes >( NAME, {
+	registerBlockType< EmbedAttributes >( NAME, {
+		apiVersion: 3,
 		title: _x( 'Embed', 'block title', 'default' ),
 		category: 'embed',
 		icon: embedContentIcon,
@@ -234,7 +260,7 @@ export const registerEmbedBlock = ( editorLabels: EditorLabels ) => {
 				{
 					type: 'block',
 					blocks: [ 'core/paragraph' ],
-					transform: ( { url }: Attributes ) => toParagraph( url ?? '' ),
+					transform: ( { url }: EmbedAttributes ) => toParagraph( url ?? '' ),
 				},
 			],
 		},

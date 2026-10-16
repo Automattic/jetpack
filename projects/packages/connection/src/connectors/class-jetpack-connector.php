@@ -39,6 +39,15 @@ class Jetpack_Connector {
 	const MODULE_ID = '@automattic/jetpack-connection-connectors';
 
 	/**
+	 * Path of the card's built script module relative to this file, without the extension.
+	 *
+	 * @since 9.11.0
+	 *
+	 * @var string
+	 */
+	const MODULE_FILE = '../../dist/connectors/connectors-card';
+
+	/**
 	 * Screen ID assigned by WordPress to the Gutenberg plugin's connectors submenu page.
 	 *
 	 * @var string
@@ -94,7 +103,10 @@ class Jetpack_Connector {
 	/**
 	 * Enqueue the connectors card script module on the Settings > Connectors page.
 	 *
+	 * Skips the card when its built files are missing.
+	 *
 	 * @since 8.2.0
+	 * @since 9.11.0 Loads the webpack build from dist/, with its dependencies and version from the asset file.
 	 */
 	public static function enqueue_script_module() {
 		$screen = get_current_screen();
@@ -107,6 +119,12 @@ class Jetpack_Connector {
 			return;
 		}
 
+		// The built files are missing in a checkout that hasn't run the build, or mid-deploy.
+		$asset = static::get_module_asset( __DIR__ . '/' . static::MODULE_FILE );
+		if ( null === $asset ) {
+			return;
+		}
+
 		$css_path = __DIR__ . '/css/connectors-card.css';
 		wp_enqueue_style(
 			'jetpack-connector-card',
@@ -115,21 +133,26 @@ class Jetpack_Connector {
 			(string) @filemtime( $css_path ) // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- fallback to empty string if file is missing.
 		);
 
-		$js_path = __DIR__ . '/js/connectors-card.js';
 		wp_register_script_module(
 			static::MODULE_ID,
-			plugins_url( 'js/connectors-card.js', __FILE__ ),
-			array(
-				array(
-					'id'     => '@wordpress/connectors',
-					'import' => 'static',
-				),
-			),
-			(string) @filemtime( $js_path ) // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- fallback to empty string if file is missing.
+			// Resolve the '..' so core finds translations under the file's real path, as Assets::register_script() does.
+			Assets::normalize_path( plugins_url( static::MODULE_FILE . '.js', __FILE__ ) ),
+			$asset['module_dependencies'] ?? array(),
+			$asset['version'] ?? false
 		);
+		// WP 7.0+; the Gutenberg plugin's Connectors screen can run on older cores.
+		if ( function_exists( 'wp_set_script_module_translations' ) ) {
+			wp_set_script_module_translations( static::MODULE_ID, 'jetpack-connection' );
+		}
 		wp_enqueue_script_module( static::MODULE_ID );
 
+		// A script module can't depend on classic scripts, so the card's globals are enqueued beside it.
 		// Assets::enqueue_script also loads the stylesheet registered with the handle.
+		foreach ( $asset['dependencies'] ?? array() as $handle ) {
+			Assets::enqueue_script( $handle );
+		}
+
+		// The card reads these dialogs from window.JetpackConnection, so the asset file does not list the script.
 		if ( static::should_enqueue_protected_owner_dialogs( new Manager() ) ) {
 			Assets::enqueue_script( 'jetpack-connection' );
 		}
@@ -138,6 +161,25 @@ class Jetpack_Connector {
 			'script_module_data_' . static::MODULE_ID,
 			array( static::class, 'get_connector_data' )
 		);
+	}
+
+	/**
+	 * Read the asset file the build emits beside the card's script module.
+	 *
+	 * @since 9.11.0
+	 *
+	 * @param string $module_path Path of the built module, without the extension.
+	 * @return array|null Asset data, or null if the module or its asset file is missing, or the asset is invalid.
+	 */
+	private static function get_module_asset( $module_path ) {
+		$asset_path = $module_path . '.asset.php';
+		if ( ! file_exists( $module_path . '.js' ) || ! file_exists( $asset_path ) ) {
+			return null;
+		}
+
+		$asset = require $asset_path;
+
+		return is_array( $asset ) ? $asset : null;
 	}
 
 	/**
@@ -181,8 +223,9 @@ class Jetpack_Connector {
 		}
 
 		if ( $is_connected ) {
-			$data['currentUser']     = static::get_current_user_data( $manager );
-			$data['connectionOwner'] = static::get_connection_owner_data( $manager );
+			$data['currentUser']       = static::get_current_user_data( $manager );
+			$data['connectionOwner']   = static::get_connection_owner_data( $manager );
+			$data['connectedUsersUrl'] = Users_Connection_Admin::get_connected_view_url();
 		}
 
 		$protected_owner = static::get_protected_owner_card_state( $manager );
@@ -342,6 +385,9 @@ class Jetpack_Connector {
 	/**
 	 * Get the connection owner details for the script module.
 	 *
+	 * Local fields only: another administrator is named as this site knows them, and resolving
+	 * their WordPress.com identity would cost a signed request on every Connectors screen load.
+	 *
 	 * @param Manager $manager Connection manager instance.
 	 * @return array|null Owner data or null if unavailable.
 	 */
@@ -352,7 +398,7 @@ class Jetpack_Connector {
 			return null;
 		}
 
-		$fields = static::resolve_user_fields( $owner, $manager->get_connected_user_data( $owner->ID ) );
+		$fields = static::resolve_user_fields( $owner, false );
 
 		$fields['localLogin'] = $owner->user_login;
 
@@ -362,8 +408,8 @@ class Jetpack_Connector {
 	/**
 	 * Merge local WP user fields with WordPress.com user data.
 	 *
-	 * WPCOM values take precedence when available. Returns the common
-	 * user shape used by both currentUser and connectionOwner.
+	 * WPCOM values take precedence when the caller passes them. Returns the common user shape
+	 * used by both currentUser and connectionOwner; only currentUser resolves against WPCOM.
 	 *
 	 * @param \WP_User|false $wp_user        Local WordPress user object (false if unavailable).
 	 * @param array|false    $wpcom_user_data WPCOM user data from the connection manager.

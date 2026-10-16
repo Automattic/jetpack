@@ -134,6 +134,7 @@ function MyWidget( { series } ) {
 | `chartId`             | `string`                       | No       | Identity the charts provider keys visibility on; generated when omitted. Change it whenever `defaultHiddenSeries` should be applied again |
 | `defaultHiddenSeries` | `readonly string[]`            | No       | Labels of series hidden until revealed from the legend. Applied once per `chartId`, so only useful with `legendInteractive`               |
 | `legendInteractive`   | `boolean`                      | No       | Let the reader click legend items to show and hide series; the first item stays locked. Defaults to `false`                               |
+| `comparisonLabel`     | `string`                       | No       | Names the comparison in each metric's previous-period legend item, e.g. "Prev. 30 days". Defaults to "Previous period"                    |
 | `baseline`            | `'zero' \| 'padded'`           | No       | Where the Y-axis starts. `zero` (default) for a per-period metric; `padded` for a cumulative count, see below                             |
 
 ## SeriesStyle Type
