@@ -49,7 +49,7 @@ class Dashboard_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		$this->reset_wp_build_polyfills();
-		unset( $_GET['page'], $_GET['p'], $_COOKIE[ Dashboard::LAST_TAB_COOKIE ] );
+		unset( $_GET['page'], $_GET['p'] );
 
 		// Tests that call set_current_screen() would otherwise leave it set for whatever
 		// runs next, which decides is_admin() and is_jetpack_forms_admin_page().

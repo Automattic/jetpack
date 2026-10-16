@@ -102,20 +102,9 @@ class Dashboard {
 	const FORMS_WPBUILD_ADMIN_SLUG = 'jetpack-forms-responses-wp-admin';
 
 	/**
-	 * Cookie holding the top tab the user last chose.
-	 *
-	 * Written by src/dashboard/last-tab-cookie.ts; the two names have to stay in step.
+	 * Cookie holding the top tab the user last chose, written by src/dashboard/last-tab-cookie.ts.
 	 */
 	const LAST_TAB_COOKIE = 'jetpack_forms_last_tab';
-
-	/**
-	 * Top tabs the dashboard can reopen on.
-	 *
-	 * Mirrored by TOP_TABS in src/dashboard/constants.ts.
-	 *
-	 * @var string[]
-	 */
-	private const TOP_TABS = array( 'forms', 'responses' );
 
 	/**
 	 * Priority for the dashboard menu.
@@ -592,7 +581,7 @@ class Dashboard {
 
 		$remembered = sanitize_key( wp_unslash( $_COOKIE[ self::LAST_TAB_COOKIE ] ?? '' ) );
 
-		return in_array( $remembered, self::TOP_TABS, true ) ? $remembered : 'forms';
+		return in_array( $remembered, array( 'forms', 'responses' ), true ) ? $remembered : 'forms';
 	}
 
 	/**
