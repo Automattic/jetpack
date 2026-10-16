@@ -243,6 +243,17 @@ class Dashboard {
 	}
 
 	/**
+	 * Each security module's card on the Settings tab, for screens that link here instead of offering the setting.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array<string, string> Settings URLs keyed by module slug.
+	 */
+	public static function get_module_settings_urls() {
+		return array_map( array( __CLASS__, 'get_settings_url' ), self::MODULE_SECTIONS );
+	}
+
+	/**
 	 * Point a security module's Configure link at its card on the Settings tab.
 	 *
 	 * @since $$next-version$$
@@ -252,8 +263,9 @@ class Dashboard {
 	 */
 	public static function filter_module_configuration_url( $url ) {
 		$module = substr( current_filter(), strlen( self::CONFIGURATION_URL_FILTER ) );
+		$urls   = self::get_module_settings_urls();
 
-		return isset( self::MODULE_SECTIONS[ $module ] ) ? self::get_settings_url( self::MODULE_SECTIONS[ $module ] ) : $url;
+		return $urls[ $module ] ?? $url;
 	}
 
 	/**
