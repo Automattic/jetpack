@@ -6,6 +6,7 @@ import {
 	hasComparisonEnabled,
 	needsReportDateParamsSeed,
 	withoutComparison,
+	NO_LOCKED_INTERVALS,
 } from '@jetpack-premium-analytics/data';
 import { redirect } from '@wordpress/route';
 /**
@@ -28,7 +29,7 @@ export const route = {
 		}
 
 		const params = ( search ?? {} ) as DashboardSearch;
-		if ( needsReportDateParamsSeed( params ) ) {
+		if ( needsReportDateParamsSeed( params, NO_LOCKED_INTERVALS ) ) {
 			/*
 			 * Warm the core `site` record for `useSiteHomeUrl()`; a rejection should
 			 * not error the page since the seed's own dates don't depend on it.

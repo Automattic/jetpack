@@ -26,6 +26,9 @@ export type { IntervalType };
 /** A bucket a plan can lock; days stay open so a range always has one. */
 export type LockableInterval = Extract< IntervalType, 'week' | 'month' | 'year' >;
 
+/** The locks of a surface whose plan sets no interval limits. */
+export const NO_LOCKED_INTERVALS: readonly LockableInterval[] = [];
+
 export function getDaysBetweenInclusive( from: string, to: string ): number {
 	// Callers may pass a full offset-bearing ISO datetime rather than a bare
 	// `yyyy-MM-dd`, so take the calendar day first.
@@ -94,12 +97,8 @@ function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] 
  */
 export function withoutLockedIntervals(
 	intervals: IntervalType[],
-	locked: readonly LockableInterval[] = []
+	locked: readonly LockableInterval[]
 ): IntervalType[] {
-	if ( ! locked.length ) {
-		return intervals;
-	}
-
 	const open = intervals.filter( interval => ! locked.some( bucket => bucket === interval ) );
 	return open.length ? open : [ 'day' ];
 }
@@ -115,7 +114,7 @@ export function getAllowedIntervalsForPreset(
 	preset: PrimaryPresetId | undefined,
 	from: string,
 	to: string,
-	locked: readonly LockableInterval[] = []
+	locked: readonly LockableInterval[]
 ): IntervalType[] {
 	return withoutLockedIntervals( allowedIntervalsForPreset( preset, from, to ), locked );
 }
@@ -161,8 +160,8 @@ export function resolveIntervalForRange(
 	preset: PrimaryPresetId | undefined,
 	from: string,
 	to: string,
-	current?: string,
-	locked: readonly LockableInterval[] = []
+	current: string | undefined,
+	locked: readonly LockableInterval[]
 ): IntervalType {
 	const allowed = getAllowedIntervalsForPreset( preset, from, to, locked );
 
@@ -184,8 +183,8 @@ export function resolveIntervalForPresetChange(
 	nextPreset: PrimaryPresetId | undefined,
 	from: string,
 	to: string,
-	currentInterval?: string,
-	locked: readonly LockableInterval[] = []
+	currentInterval: string | undefined,
+	locked: readonly LockableInterval[]
 ): IntervalType {
 	const switchesNamedPreset =
 		!! nextPreset && nextPreset !== PRESET_CUSTOM && nextPreset !== currentPreset;
@@ -205,5 +204,5 @@ export function getDefaultIntervalForPeriod(
 	from: string,
 	to: string
 ): IntervalType {
-	return resolveIntervalForRange( preset, from, to );
+	return resolveIntervalForRange( preset, from, to, undefined, NO_LOCKED_INTERVALS );
 }

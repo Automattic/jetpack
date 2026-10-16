@@ -56,7 +56,8 @@ type BuildRangePatchArgs = {
 	 */
 	effective: ReportQuerySearchParams;
 
-	lockedIntervals?: readonly LockableInterval[];
+	/** The buckets the plan locks; the next range's interval avoids them. */
+	lockedIntervals: readonly LockableInterval[];
 };
 
 /**

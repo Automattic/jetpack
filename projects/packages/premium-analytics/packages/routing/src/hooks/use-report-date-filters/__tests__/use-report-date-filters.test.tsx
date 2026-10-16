@@ -21,9 +21,9 @@ jest.mock( '@wordpress/route', () => ( {
 import { TZDate } from '@date-fns/tz';
 import {
 	PeriodChangeSignalProvider,
-	ReportScopeProvider,
 	useRaisePeriodChange,
 	useSettlePeriodChange,
+	NO_LOCKED_INTERVALS,
 } from '@jetpack-premium-analytics/data';
 import { act, renderHook } from '@testing-library/react';
 import { getSettings, setSettings } from '@wordpress/date';
@@ -42,17 +42,9 @@ setSettings( {
 
 const LOCKED_INTERVALS = [ 'week', 'month', 'year' ] as const;
 
-function scopeWithLocks( { children }: { children: ReactNode } ) {
-	return (
-		<ReportScopeProvider dateLimits={ { lockedPresetIds: [], lockedIntervals: LOCKED_INTERVALS } }>
-			{ children }
-		</ReportScopeProvider>
-	);
-}
-
 function renderDateFilters( search: Record< string, unknown > = {} ) {
 	mockSearch = search;
-	return renderHook( () => useReportDateFilters( '/' ) );
+	return renderHook( () => useReportDateFilters( '/', { lockedIntervals: NO_LOCKED_INTERVALS } ) );
 }
 
 describe( 'useReportDateFilters', () => {
@@ -524,7 +516,7 @@ describe( 'useReportDateFilters', () => {
 		mockSearch = { preset: 'last-30-days' };
 		const { result, rerender } = renderHook(
 			() => {
-				const filters = useReportDateFilters( '/' );
+				const filters = useReportDateFilters( '/', { lockedIntervals: NO_LOCKED_INTERVALS } );
 				return {
 					filters,
 					raise: useRaisePeriodChange(),
@@ -554,27 +546,23 @@ describe( 'useReportDateFilters', () => {
 		expect( mockUseSearch ).toHaveBeenLastCalledWith( { from: '/' } );
 	} );
 
-	it.each( [
-		[ 'passed in', { lockedIntervals: LOCKED_INTERVALS }, undefined ],
-		[ 'declared by the report scope', undefined, scopeWithLocks ],
-	] )(
-		'offers and stages only the buckets the plan leaves open, with locks %s',
-		( _name, options, wrapper ) => {
-			mockSearch = { preset: 'last-30-days' };
-			const { result } = renderHook( () => useReportDateFilters( '/', options ), { wrapper } );
+	it( 'offers and stages only the buckets the plan leaves open', () => {
+		mockSearch = { preset: 'last-30-days' };
+		const { result } = renderHook( () =>
+			useReportDateFilters( '/', { lockedIntervals: LOCKED_INTERVALS } )
+		);
 
-			expect( result.current.intervalOptions ).toEqual( [ 'day' ] );
+		expect( result.current.intervalOptions ).toEqual( [ 'day' ] );
 
-			act( () => {
-				result.current.onChange(
-					{ from: new TZDate( 2026, 0, 1, 'UTC' ), to: new TZDate( 2026, 5, 30, 'UTC' ) },
-					'custom'
-				);
-			} );
-			act( () => result.current.onApply() );
+		act( () => {
+			result.current.onChange(
+				{ from: new TZDate( 2026, 0, 1, 'UTC' ), to: new TZDate( 2026, 5, 30, 'UTC' ) },
+				'custom'
+			);
+		} );
+		act( () => result.current.onApply() );
 
-			expect( mockNavigate ).toHaveBeenCalledTimes( 1 );
-			expect( mockSearch ).toMatchObject( { interval: 'day' } );
-		}
-	);
+		expect( mockNavigate ).toHaveBeenCalledTimes( 1 );
+		expect( mockSearch ).toMatchObject( { interval: 'day' } );
+	} );
 } );

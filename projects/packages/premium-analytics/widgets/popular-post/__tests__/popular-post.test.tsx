@@ -5,6 +5,7 @@ import {
 	getDefaultQueryParams,
 	needsReportDateParamsSeed,
 	queryClient,
+	NO_LOCKED_INTERVALS,
 } from '@jetpack-premium-analytics/data';
 import { DashboardSectionProvider } from '@jetpack-premium-analytics/widgets-toolkit';
 import { act, render, screen, waitFor } from '@testing-library/react';
@@ -338,12 +339,15 @@ describe( 'PopularPostWidget', () => {
 		// redirect also fires on the `post_id` a link cannot carry — so what this
 		// pins is the window that survives, not whether the redirect happens.)
 		expect(
-			needsReportDateParamsSeed( {
-				from: search.get( 'from' ) ?? undefined,
-				to: search.get( 'to' ) ?? undefined,
-				interval: search.get( 'interval' ) ?? undefined,
-				preset: search.get( 'preset' ) as 'last-12-months',
-			} )
+			needsReportDateParamsSeed(
+				{
+					from: search.get( 'from' ) ?? undefined,
+					to: search.get( 'to' ) ?? undefined,
+					interval: search.get( 'interval' ) ?? undefined,
+					preset: search.get( 'preset' ) as 'last-12-months',
+				},
+				NO_LOCKED_INTERVALS
+			)
 		).toBe( false );
 	} );
 

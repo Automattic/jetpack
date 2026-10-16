@@ -4,6 +4,7 @@
 import {
 	usePostThumbnails,
 	type StatsTopPostsComparisonItem,
+	NO_LOCKED_INTERVALS,
 } from '@jetpack-premium-analytics/data';
 import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
@@ -146,7 +147,7 @@ function PostsReport(): JSX.Element {
 
 	// Date-range state lives in the URL search params, staged and committed by
 	// the shared date-filter controller — same model as the dashboard.
-	const dateFilters = useReportDateFilters( ROUTE_FROM );
+	const dateFilters = useReportDateFilters( ROUTE_FROM, { lockedIntervals: NO_LOCKED_INTERVALS } );
 
 	/*
 	 * Keyed by tab so the table's internal view state (sort, search, page)

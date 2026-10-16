@@ -8,6 +8,7 @@ import {
 	getDefaultPreset,
 	normalizeReportParams,
 	type StatsPeriod,
+	NO_LOCKED_INTERVALS,
 } from '@jetpack-premium-analytics/data';
 import { INTERVAL_TYPES } from '@jetpack-premium-analytics/datetime';
 import { DateIntervalDropdown, getIntervalLabel } from '@jetpack-premium-analytics/ui';
@@ -53,11 +54,15 @@ function ChartIntervalControl( {
 			elements?.length ? elements.map( ( { value: period } ) => period ) : INTERVAL_TYPES
 		) as [ StatsPeriod, ...StatsPeriod[] ];
 		// Like the chart: a widget that owns its range reads it before the page's.
-		const params = normalizeReportParams( ownRange ?? search, getDefaultPreset() );
+		const params = normalizeReportParams( ownRange ?? search, {
+			defaultPreset: getDefaultPreset(),
+			lockedIntervals: NO_LOCKED_INTERVALS,
+		} );
 		const allowed = getAllowedIntervalsForPreset(
 			params.preset,
 			params.from ?? '',
-			params.to ?? ''
+			params.to ?? '',
+			NO_LOCKED_INTERVALS
 		);
 
 		return {
