@@ -35,7 +35,7 @@ const STATUS_INTENTS = {
 } as const;
 
 /**
- * The badge's words: Eder's short "Connected" and "Not connected" where they apply, else the state's label.
+ * The badge text: a short "Connected" or "Not connected" for the plain connection states, else the state's own label.
  *
  * @param state - The connection state.
  * @return The badge text.
