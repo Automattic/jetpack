@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Dialog, Notice, Spinner } from '@wordpress/ui';
+import { Dialog, Notice, Spinner, getWpCompatOverlaySlot } from '@wordpress/ui';
 import ErrorNotice from '../../components/error-notice';
 import { errorMessage, fetchLogEntry } from '../../data/api';
 import StatusBadge, { logDate } from './status-badge';
@@ -122,7 +122,12 @@ const EmailPreview = ( { row, open, onClose }: Props ) => {
 
 	return (
 		<Dialog.Root open={ open } onOpenChange={ onOpenChange }>
-			<Dialog.Popup size="large" className="jetpack-send-email">
+			<Dialog.Popup
+				size="large"
+				className="jetpack-send-email"
+				// Dialogs don't use the overlay slot by default; without it the wp-admin menu covers this one.
+				portal={ <Dialog.Portal container={ getWpCompatOverlaySlot() } /> }
+			>
 				{ row && (
 					<>
 						<Dialog.Header>
@@ -132,7 +137,7 @@ const EmailPreview = ( { row, open, onClose }: Props ) => {
 								</Dialog.Title>
 								<StatusBadge status={ row.status } />
 							</div>
-							<Dialog.CloseIcon />
+							<Dialog.CloseIconButton />
 						</Dialog.Header>
 						<Dialog.Content>
 							<div className="jetpack-send-email__content">

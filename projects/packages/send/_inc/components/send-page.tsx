@@ -39,7 +39,7 @@ type Props = {
  * @return The Send page.
  */
 const SendPage = ( { active, showTabs, showFooter = true, flush = false, children }: Props ) => {
-	// Stacks @wordpress/ui overlays above the wp-admin menu, which otherwise covers wide dialogs.
+	// Opts into the overlay slot that stacks @wordpress/ui overlays above the wp-admin menu.
 	useEnableWpCompatOverlaySlot();
 	const navigate = useNavigate();
 	const site = getSiteData();
