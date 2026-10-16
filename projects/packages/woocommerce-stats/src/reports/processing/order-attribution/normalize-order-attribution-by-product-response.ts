@@ -25,10 +25,12 @@ export function normalizeOrderAttributionByProductResponse(
 	const normalizedData = currentResponse.data.map( currentItem => {
 		const previousItem = previousDataMap.get( currentItem.item );
 
-		// If no previous response provided (no comparison), use current data for both periods
-		// This matches the behavior of the existing API when compare_from/to equal from/to
-		const previousValue = previousItem?.value || currentItem.value;
-		const previousIntervals = previousItem?.intervals || currentItem.intervals;
+		// Without a comparison both periods read the current one, as the regular API does when
+		// compare_from/to equal from/to. With one, an item outside its top 5 has no figure there.
+		const previousValue = previousResponse ? ( previousItem?.value ?? null ) : currentItem.value;
+		const previousIntervals = previousResponse
+			? ( previousItem?.intervals ?? [] )
+			: currentItem.intervals;
 
 		return {
 			item: currentItem.item,

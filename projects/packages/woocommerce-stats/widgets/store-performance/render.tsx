@@ -163,6 +163,7 @@ function StorePerformance( { hiddenMetricIds }: StorePerformanceProps ) {
 							label: metric.label,
 							dataFormat: metric.dataFormat,
 							countLabel: metric.countLabel,
+							noDataLabel: metric.noDataLabel,
 							zone: report.timezone,
 						} ),
 						key: metric.id,

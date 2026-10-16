@@ -37,6 +37,8 @@ type ReportMetricChartProps = {
 	/** How the series is drawn. `MetricTabsChart` owns the default. */
 	chartType?: ChartDisplayChartType;
 	errorText: string;
+	/** Shown in place of the value when the summary has no reading, e.g. an average over no orders. */
+	noDataLabel?: string;
 };
 
 /**
@@ -53,6 +55,7 @@ export function ReportMetricChart( {
 	dataFormat,
 	chartType,
 	errorText,
+	noDataLabel,
 }: ReportMetricChartProps ) {
 	const primary = report.primary.data;
 	const comparison = report.comparison.data;
@@ -67,10 +70,11 @@ export function ReportMetricChart( {
 				field,
 				label,
 				countLabel,
+				noDataLabel,
 				zone: timezone,
 			} ),
 		],
-		[ primary, comparison, hasComparison, field, label, countLabel, timezone ]
+		[ primary, comparison, hasComparison, field, label, countLabel, noDataLabel, timezone ]
 	);
 
 	return (

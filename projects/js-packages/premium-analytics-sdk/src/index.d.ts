@@ -94,6 +94,9 @@ export type DonutProps = {
 	variant?: 'ring' | 'half-ring';
 	// Whether the total of the segments shows; off for shares that add up to one. Defaults to on.
 	withTotal?: boolean;
+	// The total the report states, for segments that need not add up to it. Omit to sum them.
+	total?: number;
+	previousTotal?: number;
 };
 
 // Funnels: steps as counts in, with the rate of the whole, the shares and the states handled.

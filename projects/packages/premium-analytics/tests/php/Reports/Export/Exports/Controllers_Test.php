@@ -170,7 +170,7 @@ class Controllers_Test extends TestCase {
 		$this->assertSame( '66.67%', $row['store_conversion_rate'] );
 
 		$row = $c->format_row_for_csv( array( 'active_sessions' => 0 ) );
-		$this->assertSame( '0.00%', $row['store_conversion_rate'] );
+		$this->assertSame( '', $row['store_conversion_rate'] );
 	}
 
 	public function test_bookings_over_time_metadata_and_filter() {

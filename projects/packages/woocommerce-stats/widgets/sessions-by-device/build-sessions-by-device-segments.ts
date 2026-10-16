@@ -20,7 +20,9 @@ const DEVICE_LABELS: Record< string, string > = {
 };
 
 const getDeviceLabel = ( deviceType: string ): string =>
-	DEVICE_LABELS[ deviceType.toLowerCase() ] || deviceType;
+	DEVICE_LABELS[ deviceType.toLowerCase() ] ||
+	deviceType ||
+	__( 'Unknown', 'jetpack-woocommerce-stats-pkg' );
 
 const deviceKey = ( row: SessionsByDeviceRow ): string => row.device_type.toLowerCase();
 
