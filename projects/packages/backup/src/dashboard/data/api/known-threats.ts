@@ -7,7 +7,8 @@ export type KnownThreat = {
 	id: number;
 	state: 'open' | 'fixed';
 	kind: KnownThreatKind;
-	signature: string;
+	/** Null for a database threat with no stored name. */
+	signature: string | null;
 	path_kind?: string;
 	type?: string;
 	target?: string;
@@ -15,6 +16,7 @@ export type KnownThreat = {
 	slug?: string;
 	version?: string;
 	status?: string;
+	/** UTC, usually `YYYY-MM-DD HH:MM:SS` with no zone. */
 	reported_on?: string;
 	fixed_on?: string | null;
 };

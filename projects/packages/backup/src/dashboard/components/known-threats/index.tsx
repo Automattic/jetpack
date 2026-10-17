@@ -3,7 +3,8 @@ import { useInstanceId } from '@wordpress/compose';
 import { useCallback, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Button, Notice, Stack, Text } from '@wordpress/ui';
-import { formatDate } from '../../data/date-format';
+import { parseRestoreWhen } from '../../data/api/restore';
+import { formatBrowserDate } from '../../data/date-format';
 import './style.scss';
 import type { KnownThreat, KnownThreats } from '../../data/api/known-threats';
 
@@ -13,6 +14,32 @@ type Props = {
 	acknowledged: boolean;
 	onAcknowledge: ( next: boolean ) => void;
 };
+
+/**
+ * A threat date in the browser's local calendar, as Scan shows it elsewhere.
+ *
+ * @param value - A UTC timestamp; one with no zone is read as UTC, not local time.
+ * @return The formatted date, or an empty string when it cannot be read.
+ */
+function localDate( value: string | null | undefined ): string {
+	const ms = value ? parseRestoreWhen( value ) : null;
+	return ms === null ? '' : formatBrowserDate( ms );
+}
+
+/**
+ * What to call a threat: its signature, else its kind.
+ *
+ * @param threat - The threat.
+ * @return The label.
+ */
+function threatName( threat: KnownThreat ): string {
+	if ( threat.signature ) {
+		return threat.signature;
+	}
+	return threat.kind === 'database'
+		? __( 'Database threat', 'jetpack-backup-pkg' )
+		: __( 'Malware', 'jetpack-backup-pkg' );
+}
 
 /**
  * Where a threat lives: `slug@version` for a plugin or theme, else its path, else its target.
@@ -35,11 +62,12 @@ function where( threat: KnownThreat ): string {
  */
 function statusNow( threat: KnownThreat ): string {
 	if ( threat.state === 'fixed' ) {
-		return threat.fixed_on
+		const fixedOn = localDate( threat.fixed_on );
+		return fixedOn
 			? sprintf(
 					/* translators: %s: the date the threat was fixed. */
 					__( 'Fixed %s', 'jetpack-backup-pkg' ),
-					formatDate( threat.fixed_on )
+					fixedOn
 				)
 			: __( 'Fixed', 'jetpack-backup-pkg' );
 	}
@@ -122,11 +150,11 @@ export default function KnownThreatsWarning( { threats, acknowledged, onAcknowle
 							<tbody>
 								{ rows.map( threat => (
 									<tr key={ threat.id }>
-										<td>{ threat.signature }</td>
+										<td>{ threatName( threat ) }</td>
 										<td>
 											<bdi>{ where( threat ) }</bdi>
 										</td>
-										<td>{ threat.reported_on ? formatDate( threat.reported_on ) : '' }</td>
+										<td>{ localDate( threat.reported_on ) }</td>
 										<td>{ statusNow( threat ) }</td>
 									</tr>
 								) ) }

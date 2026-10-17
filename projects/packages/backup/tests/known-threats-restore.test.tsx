@@ -46,20 +46,21 @@ const FLAGGED = {
 			target: '/srv/htdocs/wp-content/uploads/x.php',
 			path: 'wp-content/uploads/x.php',
 			status: 'current',
-			reported_on: '2026-08-01T12:00:00+00:00',
+			// UTC with no zone, as WordPress.com sends it: still the 16th in the browser's GMT-3.
+			reported_on: '2026-10-17 01:30:00',
 			fixed_on: null,
 		},
 		{
 			id: 12,
 			state: 'fixed',
 			kind: 'database',
-			signature: 'Database.Injection',
+			signature: null,
 			path_kind: 'database',
 			type: 'database',
 			target: 'wp_options',
 			status: 'fixed',
-			reported_on: '2026-08-02T12:00:00+00:00',
-			fixed_on: '2026-08-05T12:00:00+00:00',
+			reported_on: '2026-10-17 12:00:00',
+			fixed_on: '2026-10-18 02:00:00',
 		},
 		{
 			id: 13,
@@ -180,8 +181,8 @@ describe( 'known threats on the Restore screen', () => {
 		const rows = within( view.getByRole( 'table' ) ).getAllByRole( 'row' );
 		expect( rows.map( row => row.textContent ) ).toEqual( [
 			expect.stringMatching( /Threat.*Where.*First detected.*Status now/ ),
-			expect.stringMatching( /PHP\.Backdoor\.Generic.*wp-content\/uploads\/x\.php.*Open/ ),
-			expect.stringMatching( /Database\.Injection.*wp_options.*Fixed/ ),
+			'PHP.Backdoor.Generic' + 'wp-content/uploads/x.php' + 'October 16, 2026' + 'Open',
+			'Database threat' + 'wp_options' + 'October 17, 2026' + 'Fixed October 17, 2026',
 		] );
 		expect( view.getByText( 'Also: 1 vulnerable plugin or theme version.' ) ).toBeInTheDocument();
 		expect( view.getByText( 'Showing the first 3 threats.' ) ).toBeInTheDocument();

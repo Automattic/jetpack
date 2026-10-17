@@ -27,6 +27,22 @@ export function formatDate( value: DateInput ): string {
 }
 
 /**
+ * A date in the site's own format, on the browser's calendar rather than the site's.
+ *
+ * @param ms - The instant, in milliseconds since the epoch.
+ * @return The formatted date.
+ */
+export function formatBrowserDate( ms: number ): string {
+	const minutes = -new Date( ms ).getTimezoneOffset();
+	const abs = Math.abs( minutes );
+	const offset = `${ minutes < 0 ? '-' : '+' }${ String( Math.floor( abs / 60 ) ).padStart(
+		2,
+		'0'
+	) }${ String( abs % 60 ).padStart( 2, '0' ) }`;
+	return dateI18n( getSettings().formats.date, ms, offset );
+}
+
+/**
  * The site's time-of-day format string.
  *
  * @return The format, in PHP date syntax.
