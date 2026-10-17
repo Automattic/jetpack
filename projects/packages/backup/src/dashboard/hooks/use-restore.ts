@@ -24,7 +24,10 @@ type Result = {
 	state: RestoreState;
 	submit: ( items: RestoreItems, acknowledgeThreats?: boolean ) => void;
 	reset: () => void;
-	/** Set when WordPress.com refused the restore over known threats nobody acknowledged. */
+	/**
+	 * Set on a server-side refusal over unacknowledged known threats. An edge case: the
+	 * acknowledgement normally happens on this screen, and WordPress.com lets plugin restores through.
+	 */
 	threatsRefused: boolean;
 	/**
 	 * Set when the restore on screen was already running before this
@@ -364,7 +367,8 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 			}
 		},
 		onError: ( err: Error ) => {
-			// Nothing started, so the screen goes back to the confirm step to ask for the acknowledgement.
+			// The edge case where the server refused over known threats: nothing started, so go back
+			// to the confirm step and ask for the acknowledgement there.
 			if ( err instanceof ApiError && err.code === 'threats_not_acknowledged' ) {
 				setThreatsRefused( true );
 				return;

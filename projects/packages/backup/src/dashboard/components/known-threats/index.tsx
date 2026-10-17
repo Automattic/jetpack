@@ -52,8 +52,8 @@ function statusNow( threat: KnownThreat ): string {
 /**
  * The known-threats warning, its threat list and the acknowledgement checkbox.
  *
- * Rendered when the backup is flagged, or when WordPress.com refused the restore
- * over threats this screen did not know about; `threats` is null in that case.
+ * This screen is where the acknowledgement happens. Also rendered after the edge case of a
+ * server-side refusal over threats the screen did not know about, when `threats` may be null.
  *
  * @param props               - Component props.
  * @param props.threats       - What the screen knows about the backup's threats.
@@ -67,6 +67,8 @@ export default function KnownThreatsWarning( { threats, acknowledged, onAcknowle
 	const tableId = `jpb-known-threats-${ useInstanceId( KnownThreatsWarning ) }`;
 	const flagged = threats?.summary.flagged ?? 0;
 	const vulnerable = threats?.summary.vulnerable ?? 0;
+	const listed = threats?.threats.length ?? 0;
+	const truncated = !! threats && ( threats.truncated || threats.count > listed );
 	const rows = ( threats?.threats ?? [] ).filter(
 		threat => threat.kind === 'malware' || threat.kind === 'database'
 	);
@@ -130,6 +132,20 @@ export default function KnownThreatsWarning( { threats, acknowledged, onAcknowle
 								) ) }
 							</tbody>
 						</table>
+					) }
+					{ truncated && (
+						<Text variant="body-sm" render={ <p /> }>
+							{ sprintf(
+								/* translators: %d: number of threats listed above. */
+								_n(
+									'Showing the first %d threat.',
+									'Showing the first %d threats.',
+									listed,
+									'jetpack-backup-pkg'
+								),
+								listed
+							) }
+						</Text>
 					) }
 					{ vulnerable > 0 && (
 						<Text variant="body-sm" render={ <p /> }>

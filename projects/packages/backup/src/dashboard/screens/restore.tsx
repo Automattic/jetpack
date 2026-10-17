@@ -71,11 +71,13 @@ export default function RestoreScreen() {
 		rewindId,
 		gate.status === 'ready'
 	);
-	// Fails open: no Scan, or no answer, means no warning and a restore exactly as before.
-	const { data: knownThreats = null, refetch: refetchKnownThreats } = useKnownThreats(
-		rewindId,
-		gate.status === 'ready' && isValidRewindId( rewindId )
-	);
+	// The only gate for a flagged backup, so Confirm waits for it. No Scan, an error or a timeout
+	// means no warning and a restore exactly as before.
+	const {
+		data: knownThreats = null,
+		refetch: refetchKnownThreats,
+		isLoading: checkingThreats,
+	} = useKnownThreats( rewindId, gate.status === 'ready' && isValidRewindId( rewindId ) );
 	const [ acknowledged, setAcknowledged ] = useState( false );
 	const needsAcknowledgement = threatsRefused || ( knownThreats?.summary.flagged ?? 0 ) > 0;
 	// A refusal means the screen's picture was stale: untick, and fetch the threats again.
@@ -101,6 +103,8 @@ export default function RestoreScreen() {
 	let confirmHint = '';
 	if ( ! hasSelection ) {
 		confirmHint = __( 'Select at least one item to restore.', 'jetpack-backup-pkg' );
+	} else if ( checkingThreats ) {
+		confirmHint = __( 'Checking this backup for known threats…', 'jetpack-backup-pkg' );
 	} else if ( awaitingAcknowledgement ) {
 		confirmHint = __(
 			'To restore this backup, confirm above that you understand it contains known threats.',
@@ -250,7 +254,10 @@ export default function RestoreScreen() {
 									className="jpb-restore__confirm"
 									variant="solid"
 									disabled={
-										! hasSelection || awaitingAcknowledgement || state.phase === 'submitting'
+										! hasSelection ||
+										checkingThreats ||
+										awaitingAcknowledgement ||
+										state.phase === 'submitting'
 									}
 									aria-describedby={ SELECTION_HINT_ID }
 									onClick={ handleConfirm }

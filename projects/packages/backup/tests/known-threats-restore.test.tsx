@@ -13,8 +13,9 @@ jest.mock( '@wordpress/route', () => ( {
 } ) );
 
 // Imports must come after the jest.mock factories above.
-import { render, waitFor, within } from '@testing-library/react';
+import { act, render, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { KNOWN_THREATS_TIMEOUT_MS } from '../src/dashboard/data/api/known-threats';
 import { queryClient } from '../src/dashboard/data/query-client';
 import QueryClientProvider from '../src/dashboard/providers/query-client-provider';
 import RestoreScreen from '../src/dashboard/screens/restore';
@@ -27,6 +28,7 @@ const ACKNOWLEDGE =
 	'I understand this backup contains known threats and want to restore it anyway.';
 const WARNING =
 	'This backup is known to contain 2 security threats. Restoring it may bring malware back to your site.';
+const CHECKING = /Checking this backup for known threats/;
 const REFUSAL = 'This backup is known to contain security threats. Acknowledge them to restore it.';
 
 const FLAGGED = {
@@ -136,6 +138,17 @@ function renderScreen(): HTMLElement {
 	return container;
 }
 
+/**
+ * Wait until Confirm can be pressed.
+ *
+ * @param confirm - The Confirm button.
+ * @return The same button.
+ */
+async function enabled( confirm: HTMLElement ): Promise< HTMLElement > {
+	await waitFor( () => expect( confirm ).not.toHaveAttribute( 'aria-disabled', 'true' ) );
+	return confirm;
+}
+
 beforeEach( () => {
 	queryClient.clear();
 	queryClient.setDefaultOptions( { queries: { retry: false } } );
@@ -148,10 +161,16 @@ beforeEach( () => {
 
 describe( 'known threats on the Restore screen', () => {
 	it( 'shows the warning and requires the checkbox for a flagged backup', async () => {
-		arrange( () => Promise.resolve( FLAGGED ) );
+		let answer: ( value: unknown ) => void = () => {};
+		arrange( () => new Promise( resolve => ( answer = resolve ) ) );
 		const user = userEvent.setup();
 		const view = within( renderScreen() );
 
+		const pending = await view.findByRole( 'button', { name: CONFIRM } );
+		expect( pending ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( pending ).toHaveAccessibleDescription( CHECKING );
+
+		await act( async () => answer( { ...FLAGGED, count: 5, truncated: true } ) );
 		await expect( view.findByText( WARNING ) ).resolves.toBeInTheDocument();
 		const confirm = view.getByRole( 'button', { name: CONFIRM } );
 		expect( confirm ).toHaveAttribute( 'aria-disabled', 'true' );
@@ -165,6 +184,7 @@ describe( 'known threats on the Restore screen', () => {
 			expect.stringMatching( /Database\.Injection.*wp_options.*Fixed/ ),
 		] );
 		expect( view.getByText( 'Also: 1 vulnerable plugin or theme version.' ) ).toBeInTheDocument();
+		expect( view.getByText( 'Showing the first 3 threats.' ) ).toBeInTheDocument();
 
 		await user.click( view.getByRole( 'checkbox', { name: ACKNOWLEDGE } ) );
 		expect( confirm ).not.toHaveAttribute( 'aria-disabled', 'true' );
@@ -188,21 +208,37 @@ describe( 'known threats on the Restore screen', () => {
 		if ( ticked ) {
 			await user.click( await view.findByRole( 'checkbox', { name: ACKNOWLEDGE } ) );
 		}
-		await user.click( await view.findByRole( 'button', { name: CONFIRM } ) );
+		await user.click( await enabled( await view.findByRole( 'button', { name: CONFIRM } ) ) );
 
 		await waitFor( () => expect( postedBodies() ).toHaveLength( 1 ) );
-		expect( 'acknowledge_threats' in postedBodies()[ 0 ] ).toBe( ticked );
-		expect( postedBodies()[ 0 ].acknowledge_threats ).toBe( ticked || undefined );
+		expect( postedBodies()[ 0 ] ).toEqual( {
+			types: expect.any( Object ),
+			...( ticked ? { acknowledge_threats: true } : {} ),
+		} );
 	} );
 
-	it( 'restores normally when threats are unavailable', async () => {
-		arrange( () =>
-			Promise.reject( {
-				code: 'threats_unavailable',
-				message: 'Known threats are not available for this site.',
-				data: { status: 404 },
-			} )
-		);
+	it.each( [
+		[
+			'threats_unavailable',
+			() =>
+				Promise.reject( {
+					code: 'threats_unavailable',
+					message: 'Known threats are not available for this site.',
+					data: { status: 404 },
+				} ),
+		],
+		[
+			'a 500',
+			() =>
+				Promise.reject( {
+					code: 'known_threats_fetch_failed',
+					message: 'Could not fetch the known threats for this backup.',
+					data: { status: 500 },
+				} ),
+		],
+		[ 'a body without a summary', () => Promise.resolve( { threats: [] } ) ],
+	] )( 'restores normally when threats are unavailable: %s', async ( _label, threats ) => {
+		arrange( threats );
 		const user = userEvent.setup();
 		const view = within( renderScreen() );
 
@@ -212,8 +248,8 @@ describe( 'known threats on the Restore screen', () => {
 			)
 		);
 		expect( view.queryByText( /known to contain/ ) ).not.toBeInTheDocument();
+		await user.click( await enabled( await view.findByRole( 'button', { name: CONFIRM } ) ) );
 		expect( view.queryByRole( 'checkbox', { name: ACKNOWLEDGE } ) ).not.toBeInTheDocument();
-		await user.click( await view.findByRole( 'button', { name: CONFIRM } ) );
 
 		await waitFor( () => expect( postedBodies() ).toHaveLength( 1 ) );
 		expect( postedBodies()[ 0 ] ).not.toHaveProperty( 'acknowledge_threats' );
@@ -240,7 +276,7 @@ describe( 'known threats on the Restore screen', () => {
 		const user = userEvent.setup();
 		const view = within( renderScreen() );
 
-		await user.click( await view.findByRole( 'button', { name: CONFIRM } ) );
+		await user.click( await enabled( await view.findByRole( 'button', { name: CONFIRM } ) ) );
 
 		await expect( view.findByText( REFUSAL ) ).resolves.toBeInTheDocument();
 		expect( view.queryByText( /Restore failed/ ) ).not.toBeInTheDocument();
@@ -255,5 +291,33 @@ describe( 'known threats on the Restore screen', () => {
 		await user.click( view.getByRole( 'button', { name: CONFIRM } ) );
 		await waitFor( () => expect( postedBodies() ).toHaveLength( 2 ) );
 		expect( postedBodies()[ 1 ].acknowledge_threats ).toBe( true );
+	} );
+
+	describe( 'when the check never answers', () => {
+		beforeEach( () => {
+			jest.useFakeTimers();
+		} );
+
+		afterEach( () => {
+			jest.useRealTimers();
+		} );
+
+		it( 'enables Confirm after the timeout and restores without the flag', async () => {
+			arrange( () => new Promise( () => {} ) );
+			const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+			const view = within( renderScreen() );
+
+			const confirm = await view.findByRole( 'button', { name: CONFIRM } );
+			expect( confirm ).toHaveAttribute( 'aria-disabled', 'true' );
+			expect( confirm ).toHaveAccessibleDescription( CHECKING );
+
+			await act( async () => {
+				await jest.advanceTimersByTimeAsync( KNOWN_THREATS_TIMEOUT_MS );
+			} );
+			await user.click( await enabled( await view.findByRole( 'button', { name: CONFIRM } ) ) );
+
+			await waitFor( () => expect( postedBodies() ).toHaveLength( 1 ) );
+			expect( postedBodies()[ 0 ] ).not.toHaveProperty( 'acknowledge_threats' );
+		} );
 	} );
 } );

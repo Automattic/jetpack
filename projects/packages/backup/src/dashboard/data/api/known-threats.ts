@@ -38,16 +38,16 @@ export type KnownThreats = {
 	truncated: boolean;
 };
 
+/** How long Confirm waits for the check before restoring without it; apiFetch has no timeout. */
+export const KNOWN_THREATS_TIMEOUT_MS = 12000;
+
 /**
- * The known Scan threats in a backup, or null when they cannot be read.
- *
- * Fails open: a site without Scan (`threats_unavailable`), an outage or an
- * unreadable body all resolve to null, and the screen restores as it always has.
+ * Read the known threats, or null when they cannot be read.
  *
  * @param rewindId - The backup's rewind id, in full.
  * @return The known threats, or null.
  */
-export async function fetchKnownThreats( rewindId: string ): Promise< KnownThreats | null > {
+async function readKnownThreats( rewindId: string ): Promise< KnownThreats | null > {
 	try {
 		const data = await apiCall< KnownThreats >( {
 			path: apiPath( `/rewind/backups/${ rewindId }/threats` ),
@@ -58,5 +58,27 @@ export async function fetchKnownThreats( rewindId: string ): Promise< KnownThrea
 		return { ...data, threats: Array.isArray( data.threats ) ? data.threats : [] };
 	} catch {
 		return null;
+	}
+}
+
+/**
+ * The known Scan threats in a backup, or null when they cannot be read.
+ *
+ * Fails open and never rejects: a site without Scan (`threats_unavailable`), an
+ * outage, an unreadable body or no answer within `KNOWN_THREATS_TIMEOUT_MS` all
+ * resolve to null, and the screen restores as it always has.
+ *
+ * @param rewindId - The backup's rewind id, in full.
+ * @return The known threats, or null.
+ */
+export async function fetchKnownThreats( rewindId: string ): Promise< KnownThreats | null > {
+	let timer: ReturnType< typeof setTimeout > | undefined;
+	const timeout = new Promise< null >( resolve => {
+		timer = setTimeout( () => resolve( null ), KNOWN_THREATS_TIMEOUT_MS );
+	} );
+	try {
+		return await Promise.race( [ readKnownThreats( rewindId ), timeout ] );
+	} finally {
+		clearTimeout( timer );
 	}
 }
