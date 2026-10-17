@@ -28,10 +28,12 @@ import {
 import DashboardLayout from '../components/dashboard-layout';
 import ErrorReference from '../components/error-reference';
 import InvalidRewindId from '../components/invalid-rewind-id';
+import KnownThreatsWarning from '../components/known-threats';
 import RestoreItemsChecklist from '../components/restore-items-checklist';
 import { formatDate, formatDateTime } from '../data/date-format';
 import { useSiteSuffix } from '../hooks/use-connection';
 import { useGateState } from '../hooks/use-gate-state';
+import { useKnownThreats } from '../hooks/use-known-threats';
 import { useRestore } from '../hooks/use-restore';
 import { useStepFocus } from '../hooks/use-step-focus';
 import { DEFAULT_RESTORE_ITEMS, hasSelectedItems } from '../types/restore';
@@ -65,12 +67,29 @@ export default function RestoreScreen() {
 	const siteSuffix = useSiteSuffix();
 	const [ items, setItems ] = useState( DEFAULT_RESTORE_ITEMS );
 
-	const { state, submit, reset, adopted } = useRestore( rewindId, gate.status === 'ready' );
+	const { state, submit, reset, adopted, threatsRefused } = useRestore(
+		rewindId,
+		gate.status === 'ready'
+	);
+	// Fails open: no Scan, or no answer, means no warning and a restore exactly as before.
+	const { data: knownThreats = null, refetch: refetchKnownThreats } = useKnownThreats(
+		rewindId,
+		gate.status === 'ready' && isValidRewindId( rewindId )
+	);
+	const [ acknowledged, setAcknowledged ] = useState( false );
+	const needsAcknowledgement = threatsRefused || ( knownThreats?.summary.flagged ?? 0 ) > 0;
+	// A refusal means the screen's picture was stale: untick, and fetch the threats again.
+	useEffect( () => {
+		if ( threatsRefused ) {
+			setAcknowledged( false );
+			refetchKnownThreats();
+		}
+	}, [ threatsRefused, refetchKnownThreats ] );
 	const { ref: stepHeadingRef, arm: armStepFocus } = useStepFocus( state.phase );
 	const handleConfirm = useCallback( () => {
 		armStepFocus();
-		submit( items );
-	}, [ armStepFocus, submit, items ] );
+		submit( items, needsAcknowledgement && acknowledged );
+	}, [ armStepFocus, submit, items, needsAcknowledgement, acknowledged ] );
 	const handleRetry = useCallback( () => {
 		armStepFocus();
 		reset();
@@ -78,6 +97,16 @@ export default function RestoreScreen() {
 	// An empty checklist would restore *everything* rather than nothing —
 	// see `hasSelectedItems`. On this screen that is unrecoverable.
 	const hasSelection = hasSelectedItems( items );
+	const awaitingAcknowledgement = needsAcknowledgement && ! acknowledged;
+	let confirmHint = '';
+	if ( ! hasSelection ) {
+		confirmHint = __( 'Select at least one item to restore.', 'jetpack-backup-pkg' );
+	} else if ( awaitingAcknowledgement ) {
+		confirmHint = __(
+			'To restore this backup, confirm above that you understand it contains known threats.',
+			'jetpack-backup-pkg'
+		);
+	}
 
 	const lostTrack = __(
 		"We've lost track of this restore. It may still be running — you'll get an email when it finishes.",
@@ -185,6 +214,13 @@ export default function RestoreScreen() {
 									value={ items }
 									onChange={ setItems }
 								/>
+								{ needsAcknowledgement && (
+									<KnownThreatsWarning
+										threats={ knownThreats }
+										acknowledged={ acknowledged }
+										onAcknowledge={ setAcknowledged }
+									/>
+								) }
 								{ /*
 								 * The live region is mounted unconditionally and only its text
 								 * changes. A region that appears together with its first message
@@ -206,16 +242,16 @@ export default function RestoreScreen() {
 									id={ SELECTION_HINT_ID }
 									variant="body-sm"
 									role="status"
-									className={ hasSelection ? 'jpb-visually-hidden' : undefined }
+									className={ confirmHint ? undefined : 'jpb-visually-hidden' }
 								>
-									{ hasSelection
-										? ''
-										: __( 'Select at least one item to restore.', 'jetpack-backup-pkg' ) }
+									{ confirmHint }
 								</Text>
 								<Button
 									className="jpb-restore__confirm"
 									variant="solid"
-									disabled={ ! hasSelection || state.phase === 'submitting' }
+									disabled={
+										! hasSelection || awaitingAcknowledgement || state.phase === 'submitting'
+									}
 									aria-describedby={ SELECTION_HINT_ID }
 									onClick={ handleConfirm }
 								>

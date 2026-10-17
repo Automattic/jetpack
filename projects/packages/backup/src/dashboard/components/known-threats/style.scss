@@ -1,0 +1,32 @@
+.jpb-known-threats {
+
+	&__toggle {
+		align-self: flex-start;
+	}
+
+	&__table-wrap {
+		overflow-x: auto;
+	}
+
+	&__table {
+		inline-size: 100%;
+		border-collapse: collapse;
+		font-size: 13px;
+
+		th,
+		td {
+			padding-block: 4px;
+			padding-inline: 0 12px;
+			text-align: start;
+			vertical-align: top;
+		}
+
+		th {
+			font-weight: 600;
+		}
+
+		td:nth-child(2) {
+			overflow-wrap: anywhere;
+		}
+	}
+}

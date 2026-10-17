@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { errorCode, isAmbiguousFailure } from '../data/api/_helpers';
+import { ApiError, errorCode, isAmbiguousFailure } from '../data/api/_helpers';
 import {
 	fetchRecentRestores,
 	fetchRestoreStatus,
@@ -22,8 +22,10 @@ import type { RestoreItems, RestoreState } from '../types/restore';
 
 type Result = {
 	state: RestoreState;
-	submit: ( items: RestoreItems ) => void;
+	submit: ( items: RestoreItems, acknowledgeThreats?: boolean ) => void;
 	reset: () => void;
+	/** Set when WordPress.com refused the restore over known threats nobody acknowledged. */
+	threatsRefused: boolean;
 	/**
 	 * Set when the restore on screen was already running before this
 	 * screen opened, rather than started here. Carries the backup it is
@@ -288,6 +290,7 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 	// Set once the restore is accepted, whether or not it came with an id.
 	// Distinguishes "queued, id unknown" from "not started".
 	const [ startedRewindId, setStartedRewindId ] = useState< string | null >( null );
+	const [ threatsRefused, setThreatsRefused ] = useState( false );
 	// When we last had a recognisable sign of life, and whether the
 	// deadline measured from it has passed.
 	//
@@ -315,7 +318,13 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 		reset: resetMutation,
 		isPending,
 	} = useMutation( {
-		mutationFn: async ( items: RestoreItems ) => {
+		mutationFn: async ( {
+			items,
+			acknowledgeThreats,
+		}: {
+			items: RestoreItems;
+			acknowledgeThreats?: boolean;
+		} ) => {
 			// The mount lookup answered once, possibly a long time ago. A
 			// screen left open while a colleague started a restore from
 			// Calypso is the very scenario this hook exists for, just
@@ -330,7 +339,9 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 			if ( running !== null ) {
 				return { adopt: running } as const;
 			}
-			return { started: await initiateRestore( rewindId, items ) } as const;
+			return {
+				started: await initiateRestore( rewindId, items, acknowledgeThreats ),
+			} as const;
 		},
 		onSuccess: outcome => {
 			setFailureCode( null );
@@ -353,6 +364,11 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 			}
 		},
 		onError: ( err: Error ) => {
+			// Nothing started, so the screen goes back to the confirm step to ask for the acknowledgement.
+			if ( err instanceof ApiError && err.code === 'threats_not_acknowledged' ) {
+				setThreatsRefused( true );
+				return;
+			}
 			setFailureCode( errorCode( err ) );
 			// We never saw an answer, so the restore may be running. Enter
 			// the same recovery the no-id case uses and let it decide:
@@ -520,7 +536,11 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 		return () => clearTimeout( timer );
 	}, [ aliveAt, lostTrack, settled ] );
 
-	const submit = useCallback( ( items: RestoreItems ) => kickOff( items ), [ kickOff ] );
+	const submit = useCallback(
+		( items: RestoreItems, acknowledgeThreats?: boolean ) =>
+			kickOff( { items, acknowledgeThreats } ),
+		[ kickOff ]
+	);
 	const reset = useCallback( () => {
 		setAdopted( null );
 		setSubmittedId( null );
@@ -528,6 +548,7 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 		setFailureCode( null );
 		setUnconfirmed( null );
 		setStartedRewindId( null );
+		setThreatsRefused( false );
 		setAliveAt( null );
 		setLostTrack( false );
 		setRestoresRead( false );
@@ -559,6 +580,7 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 		state,
 		submit,
 		reset,
+		threatsRefused,
 		adopted: adopted && ! hasOwnSubmission ? { rewindId: adopted.rewindId } : null,
 	};
 }
