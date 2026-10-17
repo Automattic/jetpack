@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Restore: forward the known-threats acknowledgement and expose a backup's known threats.

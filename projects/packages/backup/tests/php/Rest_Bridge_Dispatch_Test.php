@@ -268,6 +268,32 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 					'message'    => 'Restoring uploads',
 				),
 			),
+			'/jetpack/v4/rewind/backups/(?P<rewind_id>[0-9.]+)/threats' => array(
+				'GET',
+				'/jetpack/v4/rewind/backups/1748888135.123/threats',
+				array(),
+				array( array( 'body' => '{"backup_id":"1748888135.123","summary":{"malware":1,"database":0,"vulnerable":0,"ignored":0,"flagged":1,"fixed":0},"threats":[{"id":3,"state":"open","kind":"malware"}],"count":1,"truncated":false}' ) ),
+				array(
+					'backup_id' => '1748888135.123',
+					'summary'   => array(
+						'malware'    => 1,
+						'database'   => 0,
+						'vulnerable' => 0,
+						'ignored'    => 0,
+						'flagged'    => 1,
+						'fixed'      => 0,
+					),
+					'threats'   => array(
+						array(
+							'id'    => 3,
+							'state' => 'open',
+							'kind'  => 'malware',
+						),
+					),
+					'count'     => 1,
+					'truncated' => false,
+				),
+			),
 			'/jetpack/v4/site/backup/schedule'            => array(
 				'POST',
 				'/jetpack/v4/site/backup/schedule',

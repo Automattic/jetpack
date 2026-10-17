@@ -659,4 +659,166 @@ class Rest_Restore_Bridge_Test extends TestCase {
 		// client say something better than "could not fetch progress".
 		$this->assertSame( 'rewind_error', $response->get_error_data()['wpcom']['code'] );
 	}
+
+	/**
+	 * A ticked acknowledgement travels to WordPress.com; the arg schema coerces the string form.
+	 */
+	public function test_initiate_restore_forwards_acknowledge_threats() {
+		$this->arrange_wpcom(
+			array(
+				'ok'         => true,
+				'restore_id' => 5,
+			)
+		);
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/rewind/to/123' );
+		$request->set_param( 'types', array( 'plugins' => true ) );
+		$request->set_param( 'acknowledge_threats', 'true' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertTrue( ( (array) $this->captured_body )['acknowledge_threats'] );
+	}
+
+	/**
+	 * Without an acknowledgement the flag is left out, so restores of clean backups are unchanged.
+	 *
+	 * @param mixed $acknowledge The `acknowledge_threats` param, or null for none.
+	 * @dataProvider provide_unacknowledged
+	 */
+	#[DataProvider( 'provide_unacknowledged' )]
+	public function test_initiate_restore_omits_acknowledge_threats_by_default( $acknowledge ) {
+		$this->arrange_wpcom(
+			array(
+				'ok'         => true,
+				'restore_id' => 5,
+			)
+		);
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/rewind/to/123' );
+		$request->set_param( 'rewind_id', '123' );
+		if ( null !== $acknowledge ) {
+			$request->set_param( 'acknowledge_threats', $acknowledge );
+		}
+		Restore_Bridge::initiate_restore( $request );
+
+		$this->assertArrayNotHasKey( 'acknowledge_threats', (array) $this->captured_body );
+	}
+
+	/**
+	 * Requests that do not acknowledge known threats.
+	 *
+	 * @return array<string, array{0: mixed}>
+	 */
+	public static function provide_unacknowledged() {
+		return array(
+			'absent' => array( null ),
+			'false'  => array( false ),
+		);
+	}
+
+	/**
+	 * A refusal over known threats keeps its own code and status so the screen can ask again.
+	 */
+	public function test_initiate_restore_maps_threats_not_acknowledged_to_409() {
+		$known_threats = array(
+			'malware'  => 2,
+			'database' => 0,
+		);
+		$this->arrange_wpcom(
+			array(
+				'code'    => 'threats_not_acknowledged',
+				'message' => 'Upstream wording.',
+				'data'    => array(
+					'status'        => 409,
+					'known_threats' => $known_threats,
+					'backup_period' => '1786663613',
+				),
+			),
+			409
+		);
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/rewind/to/1786663613' );
+		$request->set_param( 'rewind_id', '1786663613' );
+		$response = Restore_Bridge::initiate_restore( $request );
+
+		$this->assertInstanceOf( WP_Error::class, $response );
+		$this->assertSame( 'threats_not_acknowledged', $response->get_error_code() );
+		$this->assertSame( 'This backup is known to contain security threats. Acknowledge them to restore it.', $response->get_error_message() );
+		$this->assertSame( 409, $response->get_error_data()['status'] );
+		$this->assertSame( $known_threats, $response->get_error_data()['known_threats'] );
+	}
+
+	/**
+	 * The known-threats route proxies the v2 endpoint for the full rewind id and returns its body.
+	 */
+	public function test_known_threats_route_proxies_wpcom() {
+		$body = array(
+			'backup_id' => '1786663613.9425',
+			'cutoff'    => '2026-10-01T00:00:00+00:00',
+			'summary'   => array(
+				'malware'    => 1,
+				'database'   => 0,
+				'vulnerable' => 0,
+				'ignored'    => 0,
+				'flagged'    => 1,
+				'fixed'      => 0,
+			),
+			'threats'   => array(
+				array(
+					'id'        => 7,
+					'state'     => 'open',
+					'kind'      => 'malware',
+					'signature' => 'php_generic_backdoor',
+					'path'      => 'wp-content/uploads/x.php',
+				),
+			),
+			'count'     => 1,
+			'truncated' => false,
+		);
+		$this->arrange_wpcom( $body );
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'GET', '/jetpack/v4/rewind/backups/1786663613.9425/threats' ) );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertStringContainsString( '/sites/999/rewind/backups/1786663613.9425/threats', $this->captured_url );
+		$this->assertSame( $body, $response->get_data() );
+	}
+
+	/**
+	 * A site without Scan gets a 403 upstream, reported as "unavailable" so the screen restores as before.
+	 */
+	public function test_known_threats_route_maps_403_to_unavailable() {
+		$this->arrange_wpcom(
+			array(
+				'code'    => 'scan_required',
+				'message' => 'Scan is required.',
+			),
+			403
+		);
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'GET', '/jetpack/v4/rewind/backups/123/threats' ) );
+
+		$this->assertSame( 404, $response->get_status() );
+		$this->assertSame( 'threats_unavailable', $response->get_data()['code'] );
+	}
+
+	/**
+	 * The known-threats route is gated like every other bridge route.
+	 */
+	public function test_known_threats_route_requires_permission() {
+		$subscriber_id = wp_insert_user(
+			array(
+				'user_login' => 'subscriber_user',
+				'user_pass'  => 'dummy_pass',
+				'role'       => 'subscriber',
+			)
+		);
+		wp_set_current_user( $subscriber_id );
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'GET', '/jetpack/v4/rewind/backups/123/threats' ) );
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( '', $this->captured_url );
+	}
 }
