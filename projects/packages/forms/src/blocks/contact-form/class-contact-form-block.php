@@ -216,10 +216,8 @@ class Contact_Form_Block {
 	/**
 	 * Lightweight bootstrap default for the `central-form-management` feature flag.
 	 *
-	 * Registered from Util::init() so that callers of
-	 * Contact_Form_Plugin::has_editor_feature_flag() running before the WP `init` hook
-	 * see the correct flag value. Kept separate from register_feature() so the early-boot
-	 * code path avoids the Current_Plan::supports() calls used by the paid-plan flags.
+	 * Registered early from Util::init(), which says why; kept apart from register_feature()
+	 * so that path skips the Current_Plan::supports() calls of the paid-plan flags.
 	 *
 	 * @param array $features - the features array.
 	 *
