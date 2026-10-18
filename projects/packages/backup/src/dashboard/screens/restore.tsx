@@ -1,7 +1,7 @@
 import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
 import { speak } from '@wordpress/a11y';
 import { ProgressBar, VisuallyHidden } from '@wordpress/components';
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, isRTL, sprintf } from '@wordpress/i18n';
 import {
 	Icon,
@@ -97,6 +97,31 @@ export default function RestoreScreen() {
 		armStepFocus();
 		submit( items, needsAcknowledgement && acknowledged );
 	}, [ armStepFocus, submit, items, needsAcknowledgement, acknowledged ] );
+	// A new backup, opened from "Restore … backup instead": its warning (and the link that was
+	// focused) may be gone, so put focus on the heading and drop the old acknowledgement.
+	const headingNode = useRef< HTMLElement | null >( null );
+	const focusedRewindId = useRef( rewindId );
+	useEffect( () => {
+		if ( focusedRewindId.current === rewindId ) {
+			return;
+		}
+		focusedRewindId.current = rewindId;
+		setAcknowledged( false );
+		headingNode.current?.focus();
+	}, [ rewindId ] );
+	// Said once when the check that held Confirm back finds nothing.
+	const wasChecking = useRef( false );
+	useEffect( () => {
+		if ( checkingThreats ) {
+			wasChecking.current = true;
+		} else if ( wasChecking.current ) {
+			wasChecking.current = false;
+			if ( ! needsAcknowledgement ) {
+				speak( __( 'No known threats found in this backup.', 'jetpack-backup-pkg' ), 'polite' );
+			}
+		}
+	}, [ checkingThreats, needsAcknowledgement ] );
+
 	const handleRetry = useCallback( () => {
 		armStepFocus();
 		reset();
@@ -112,7 +137,7 @@ export default function RestoreScreen() {
 		confirmHint = __( 'Checking this backup for known threats…', 'jetpack-backup-pkg' );
 	} else if ( awaitingAcknowledgement ) {
 		confirmHint = __(
-			'To restore this backup, confirm above that you understand it contains known threats.',
+			'To restore this backup, confirm that you understand it contains known threats.',
 			'jetpack-backup-pkg'
 		);
 	}
@@ -177,7 +202,12 @@ export default function RestoreScreen() {
 								<Text
 									variant="body-lg"
 									render={ <h2 /> }
-									ref={ isFormStep ? stepHeadingRef : undefined }
+									ref={ ( node: HTMLElement | null ) => {
+										headingNode.current = node;
+										if ( isFormStep ) {
+											stepHeadingRef( node );
+										}
+									} }
 									tabIndex={ -1 }
 								>
 									{ __( 'Restore backup', 'jetpack-backup-pkg' ) }
