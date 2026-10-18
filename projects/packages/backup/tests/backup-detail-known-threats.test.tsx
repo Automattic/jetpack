@@ -111,6 +111,9 @@ describe( 'Backup detail for a backup with known threats', () => {
 		expect(
 			screen.getByRole( 'link', { name: 'Restore Oct 17, 2026 at 1:22 AM backup instead' } )
 		).toHaveAttribute( 'href', '/restore/1792200135.5' );
+		expect(
+			screen.getByRole( 'link', { name: 'Restore Oct 17, 2026 at 1:22 AM backup instead' } )
+		).toHaveAccessibleDescription( "It's the most recent backup with no known security threats." );
 
 		await user.click( checkbox );
 

@@ -5,7 +5,7 @@ import { useCallback, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Icon, cautionFilled } from '@wordpress/icons';
 import { Link as RouterLink } from '@wordpress/route';
-import { Link, Text } from '@wordpress/ui';
+import { Link, Text, Tooltip, VisuallyHidden } from '@wordpress/ui';
 import { parseRestoreWhen } from '../../data/api/restore';
 import { formatBrowserDate } from '../../data/date-format';
 import { KnownThreatsToggle } from './badge';
@@ -110,7 +110,13 @@ export default function KnownThreatsWarning( {
 }: Props ) {
 	const [ open, setOpen ] = useState( false );
 	const toggle = useCallback( () => setOpen( previous => ! previous ), [] );
-	const tableId = `jpb-known-threats-${ useInstanceId( KnownThreatsWarning ) }`;
+	const instanceId = useInstanceId( KnownThreatsWarning );
+	const tableId = `jpb-known-threats-${ instanceId }`;
+	const restoreInsteadHintId = `jpb-known-threats-restore-instead-${ instanceId }`;
+	const restoreInsteadHint = __(
+		"It's the most recent backup with no known security threats.",
+		'jetpack-backup-pkg'
+	);
 	const flagged = threats?.summary.flagged ?? 0;
 	const vulnerable = threats?.summary.vulnerable ?? 0;
 	const listed = threats?.threats.length ?? 0;
@@ -216,25 +222,38 @@ export default function KnownThreatsWarning( {
 				</div>
 			) }
 			{ showRestoreInstead && (
-				<Link
-					className="jpb-known-threats__restore-instead"
-					render={
-						<RouterLink to={ `/restore/${ restoreInsteadRewindId ?? restoreInsteadPeriod }` } />
-					}
-				>
-					{ restoreInsteadRewindId
-						? sprintf(
-								/* translators: %s: a backup's date and time, e.g. "Oct 17, 2026 at 2:30 PM". */
-								__( 'Restore %s backup instead', 'jetpack-backup-pkg' ),
-								dateI18n(
-									/* translators: date and time format, see https://www.php.net/manual/datetime.format.php */
-									__( 'M j, Y \\a\\t g:i A', 'jetpack-backup-pkg' ),
-									new Date( Number( restoreInsteadRewindId ) * 1000 ),
-									undefined
-								)
-							)
-						: __( 'Restore this backup instead', 'jetpack-backup-pkg' ) }
-				</Link>
+				// The tooltip gives the link no accessible description, so the hidden text does.
+				<Tooltip.Root>
+					<Tooltip.Trigger render={ <span className="jpb-known-threats__restore-instead-wrap" /> }>
+						<Link
+							className="jpb-known-threats__restore-instead"
+							aria-describedby={ restoreInsteadHintId }
+							render={
+								<RouterLink to={ `/restore/${ restoreInsteadRewindId ?? restoreInsteadPeriod }` } />
+							}
+						>
+							{ restoreInsteadRewindId
+								? sprintf(
+										/* translators: %s: a backup's date and time, e.g. "Oct 17, 2026 at 2:30 PM". */
+										__( 'Restore %s backup instead', 'jetpack-backup-pkg' ),
+										dateI18n(
+											/* translators: date and time format, see https://www.php.net/manual/datetime.format.php */
+											__( 'M j, Y \\a\\t g:i A', 'jetpack-backup-pkg' ),
+											new Date( Number( restoreInsteadRewindId ) * 1000 ),
+											undefined
+										)
+									)
+								: __(
+										'Restore the latest backup without known threats instead',
+										'jetpack-backup-pkg'
+									) }
+						</Link>
+						<VisuallyHidden id={ restoreInsteadHintId } render={ <span /> }>
+							{ restoreInsteadHint }
+						</VisuallyHidden>
+					</Tooltip.Trigger>
+					<Tooltip.Popup>{ restoreInsteadHint }</Tooltip.Popup>
+				</Tooltip.Root>
 			) }
 			{ onAcknowledge && (
 				<CheckboxControl
