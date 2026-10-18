@@ -298,6 +298,7 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 						),
 					),
 					'latest_without_known_threats' => 1748880000,
+					'latest_without_known_threats_rewind_id' => null,
 				),
 			),
 			'/jetpack/v4/rewind/backups/(?P<rewind_id>[0-9.]+)/threats' => array(

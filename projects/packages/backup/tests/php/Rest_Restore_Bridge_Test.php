@@ -850,10 +850,10 @@ class Rest_Restore_Bridge_Test extends TestCase {
 		$response = $this->server->dispatch( new WP_REST_Request( 'GET', '/jetpack/v4/rewind/backups/known-threats' ) );
 
 		$this->assertSame( 200, $response->get_status() );
-		$this->assertStringContainsString( '/wpcom/v3/sites/999/rewind/backups?number=100&page=1', $this->captured_url );
+		$this->assertStringContainsString( '/wpcom/v3/sites/999/rewind/backups?number=100&page=1', $this->captured_urls[0] );
 		$this->assertSame(
 			array(
-				'backups'                      => array(
+				'backups'                                => array(
 					array(
 						'period'        => 1792247305,
 						'known_threats' => array_merge(
@@ -873,10 +873,57 @@ class Rest_Restore_Bridge_Test extends TestCase {
 						'known_threats' => null,
 					),
 				),
-				'latest_without_known_threats' => 1792247305,
+				'latest_without_known_threats'           => 1792247305,
+				'latest_without_known_threats_rewind_id' => null,
 			),
 			$response->get_data()
 		);
+	}
+
+	public function test_backups_known_threats_names_the_clean_backups_completion() {
+		$this->arrange_woa_site();
+		$this->arrange_wpcom_answers(
+			array(
+				array(
+					'body' => wp_json_encode(
+						array(
+							'latest_without_known_threats' => 1792247305,
+							'backups'                      => array(
+								array( 'object' => array( 'backup_period' => '1792301539' ) ),
+								array( 'object' => array( 'backup_period' => '1792247305' ) ),
+							),
+						),
+						JSON_UNESCAPED_SLASHES
+					),
+				),
+				array(
+					'body' => wp_json_encode(
+						array(
+							'current' => array(
+								'orderedItems' => array(
+									array(
+										'name'      => 'rewind__backup_complete_full',
+										'rewind_id' => '1792247404.817',
+									),
+								),
+							),
+						),
+						JSON_UNESCAPED_SLASHES
+					),
+				),
+			)
+		);
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'GET', '/jetpack/v4/rewind/backups/known-threats' ) );
+
+		$this->assertSame( '1792247404.817', $response->get_data()['latest_without_known_threats_rewind_id'] );
+		$this->assertCount( 2, $this->captured_urls );
+		$activity = urldecode( $this->captured_urls[1] );
+		$this->assertStringContainsString( '/sites/999/activity/rewindable?', $activity );
+		$this->assertStringContainsString( 'name[0]=rewind__backup_complete_full', $activity );
+		$this->assertStringContainsString( 'after=2026-10-17T14:28:25+00:00', $activity );
+		// Before the next backup period, so a later backup's entry never matches.
+		$this->assertStringContainsString( 'before=2026-10-18T05:32:19+00:00', $activity );
 	}
 
 	public function test_backups_known_threats_are_unavailable_off_wow() {

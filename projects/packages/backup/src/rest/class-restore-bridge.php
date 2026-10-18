@@ -355,13 +355,70 @@ class Restore_Bridge {
 		}
 
 		$latest_clean = $body['latest_without_known_threats'] ?? null;
+		$latest_clean = is_numeric( $latest_clean ) ? (int) $latest_clean : null;
 
 		return rest_ensure_response(
 			array(
-				'backups'                      => $backups,
-				'latest_without_known_threats' => is_numeric( $latest_clean ) ? (int) $latest_clean : null,
+				'backups'                                => $backups,
+				'latest_without_known_threats'           => $latest_clean,
+				'latest_without_known_threats_rewind_id' => null === $latest_clean
+					? null
+					: self::backup_complete_rewind_id( $blog_id, $latest_clean, array_column( $backups, 'period' ) ),
 			)
 		);
+	}
+
+	/**
+	 * The rewind id of a backup's "Backup complete" Activity Log entry: when it finished, the time
+	 * the backup lists show. A backup's period is when it started.
+	 *
+	 * @param int   $blog_id The site's WordPress.com blog id.
+	 * @param int   $period  The backup period.
+	 * @param int[] $periods The other known backup periods; the next one bounds the search.
+	 * @return string|null The rewind id, or null when it can't be found.
+	 */
+	private static function backup_complete_rewind_id( $blog_id, $period, array $periods ) {
+		$next = DAY_IN_SECONDS + $period;
+		foreach ( $periods as $candidate ) {
+			if ( $candidate > $period && $candidate < $next ) {
+				$next = $candidate;
+			}
+		}
+
+		$query = http_build_query(
+			array(
+				'name'       => array(
+					'rewind__backup_complete_full',
+					'rewind__backup_complete_initial',
+					'rewind__backup_only_complete_full',
+					'rewind__backup_only_complete_initial',
+				),
+				'after'      => gmdate( 'c', $period ),
+				'before'     => gmdate( 'c', $next ),
+				'sort_order' => 'asc',
+				'number'     => 10,
+			)
+		);
+
+		$response = Client::wpcom_json_api_request_as_user(
+			sprintf( '/sites/%d/activity/rewindable?%s', $blog_id, $query ),
+			'v2',
+			array(),
+			null,
+			'wpcom'
+		);
+		if ( is_wp_error( $response ) || 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
+			return null;
+		}
+
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+		foreach ( (array) ( $body['current']['orderedItems'] ?? array() ) as $item ) {
+			$rewind_id = $item['rewind_id'] ?? null;
+			if ( is_numeric( $rewind_id ) && (int) floor( (float) $rewind_id ) >= $period ) {
+				return (string) $rewind_id;
+			}
+		}
+		return null;
 	}
 
 	/**
