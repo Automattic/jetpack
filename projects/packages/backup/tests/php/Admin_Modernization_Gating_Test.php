@@ -18,6 +18,7 @@ use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WP_Error;
 use function add_filter;
+use function admin_url;
 use function delete_transient;
 use function do_action;
 use function get_current_screen;
@@ -103,6 +104,19 @@ class Admin_Modernization_Gating_Test extends TestCase {
 
 	public function test_is_modernized_defaults_to_false() {
 		$this->assertFalse( Jetpack_Backup::is_modernized() );
+	}
+
+	public function test_activity_log_restore_url_keeps_the_given_template_when_not_modernized() {
+		$this->assertSame( '', Jetpack_Backup::activity_log_restore_url_template( '' ) );
+	}
+
+	public function test_activity_log_restore_url_points_at_the_restore_screen_when_modernized() {
+		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
+
+		$this->assertSame(
+			admin_url( 'admin.php?page=jetpack-backup&p=%2Frestore%2F{rewindId}' ),
+			Jetpack_Backup::activity_log_restore_url_template( '' )
+		);
 	}
 
 	public function test_is_modernized_follows_the_filter() {

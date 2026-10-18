@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Activity_Log;
 use Automattic\Jetpack\Status;
 use Jetpack_Options;
 use function admin_url;
+use function apply_filters;
 use function esc_url_raw;
 use function get_bloginfo;
 use function get_locale;
@@ -35,7 +36,16 @@ class Initial_State {
 
 		return array(
 			'jetpackStatus' => array(
-				'calypsoSlug' => ( new Status() )->get_site_suffix(),
+				'calypsoSlug'        => ( new Status() )->get_site_suffix(),
+				/**
+				 * Filters the in-admin address "Restore backup" opens, with `{rewindId}` as the placeholder.
+				 * Empty keeps the Jetpack Cloud restore flow.
+				 *
+				 * @since $$next-version$$
+				 *
+				 * @param string $template Restore URL template, or an empty string.
+				 */
+				'restoreUrlTemplate' => (string) apply_filters( 'jetpack_activity_log_restore_url_template', '' ),
 			),
 			'siteData'      => array(
 				'id'                    => Jetpack_Options::get_option( 'id' ),
