@@ -87,16 +87,16 @@ const backupUrlTemplate: string =
 		? JPACTIVITYLOG_INITIAL_STATE?.jetpackStatus?.backupUrlTemplate
 		: undefined ) ?? '';
 
+const REWIND_ID = /^\d+(\.\d+)?$/;
+
 // A backup token opens that backup in the Backup dashboard, when there is one to open it in.
 const BackupLink: BlockRenderer = ( { content, children } ) => {
-	if ( ! backupUrlTemplate || ! content.rewindId ) {
+	if ( ! backupUrlTemplate || ! REWIND_ID.test( content.rewindId ?? '' ) ) {
 		return <Fragment>{ children }</Fragment>;
 	}
-	return (
-		<a href={ backupUrlTemplate.replace( '{rewindId}', encodeURIComponent( content.rewindId ) ) }>
-			{ children }
-		</a>
-	);
+	// Encoded twice: the template puts the id inside the already-encoded `p` query arg.
+	const rewindId = encodeURIComponent( encodeURIComponent( content.rewindId as string ) );
+	return <a href={ backupUrlTemplate.replace( '{rewindId}', rewindId ) }>{ children }</a>;
 };
 
 // Resolve a token's wp-admin destination (if any). Entities without a
