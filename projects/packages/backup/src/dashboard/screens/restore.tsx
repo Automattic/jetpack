@@ -24,6 +24,7 @@ import {
 	Spinner,
 	Stack,
 	Text,
+	Tooltip,
 } from '@wordpress/ui';
 import DashboardLayout from '../components/dashboard-layout';
 import ErrorReference from '../components/error-reference';
@@ -141,6 +142,7 @@ export default function RestoreScreen() {
 	const hasSelection = hasSelectedItems( items );
 	const awaitingAcknowledgement = needsAcknowledgement && ! acknowledged;
 	let confirmHint = '';
+	let hintInTooltip = false;
 	if ( ! hasSelection ) {
 		confirmHint = __( 'Select at least one item to restore.', 'jetpack-backup-pkg' );
 	} else if ( checkingThreats ) {
@@ -150,6 +152,7 @@ export default function RestoreScreen() {
 			'To restore this backup, confirm that you understand it contains known threats.',
 			'jetpack-backup-pkg'
 		);
+		hintInTooltip = true;
 	}
 
 	const lostTrack = __(
@@ -295,25 +298,33 @@ export default function RestoreScreen() {
 									id={ SELECTION_HINT_ID }
 									variant="body-sm"
 									role="status"
-									className={ confirmHint ? undefined : 'jpb-visually-hidden' }
+									className={ confirmHint && ! hintInTooltip ? undefined : 'jpb-visually-hidden' }
 								>
 									{ confirmHint }
 								</Text>
-								<Button
-									className="jpb-restore__confirm"
-									variant="solid"
-									disabled={
-										! hasSelection ||
-										checkingThreats ||
-										awaitingAcknowledgement ||
-										state.phase === 'submitting'
-									}
-									aria-describedby={ SELECTION_HINT_ID }
-									onClick={ handleConfirm }
-								>
-									{ state.phase === 'submitting' && <Spinner /> }
-									{ __( 'Confirm restore', 'jetpack-backup-pkg' ) }
-								</Button>
+								{ /* The acknowledgement hint shows on hover and focus, like the other restore buttons. */ }
+								<Tooltip.Root disabled={ ! hintInTooltip }>
+									<Tooltip.Trigger
+										render={
+											<Button
+												className="jpb-restore__confirm"
+												variant="solid"
+												disabled={
+													! hasSelection ||
+													checkingThreats ||
+													awaitingAcknowledgement ||
+													state.phase === 'submitting'
+												}
+												aria-describedby={ SELECTION_HINT_ID }
+												onClick={ handleConfirm }
+											/>
+										}
+									>
+										{ state.phase === 'submitting' && <Spinner /> }
+										{ __( 'Confirm restore', 'jetpack-backup-pkg' ) }
+									</Tooltip.Trigger>
+									<Tooltip.Popup>{ confirmHint }</Tooltip.Popup>
+								</Tooltip.Root>
 							</>
 						) }
 						{ /*
