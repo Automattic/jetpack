@@ -1,4 +1,5 @@
 const mockApiFetch = jest.fn();
+let mockRewindId = '1786663613.9425';
 
 jest.mock( '@wordpress/api-fetch', () => ( {
 	__esModule: true,
@@ -8,7 +9,7 @@ jest.mock( '@wordpress/api-fetch', () => ( {
 jest.mock( '@wordpress/route', () => ( {
 	useSearch: () => ( {} ),
 	useNavigate: () => () => {},
-	useParams: () => ( { rewindId: REWIND_ID } ),
+	useParams: () => ( { rewindId: mockRewindId } ),
 	Link: ( { children, ...rest }: { children: React.ReactNode } ) => <a { ...rest }>{ children }</a>,
 } ) );
 
@@ -177,8 +178,13 @@ describe( 'known threats on the Restore screen', () => {
 		expect( confirm ).toHaveAttribute( 'aria-disabled', 'true' );
 		expect( confirm ).toHaveAccessibleDescription( /known threats/ );
 
-		await user.click( view.getByRole( 'button', { name: /show threats/i } ) );
-		const rows = within( view.getByRole( 'table' ) ).getAllByRole( 'row' );
+		const toggle = view.getByRole( 'button', { name: 'Known threats (2)' } );
+		expect( toggle ).toHaveAttribute( 'aria-expanded', 'false' );
+		await user.click( toggle );
+		expect( toggle ).toHaveAttribute( 'aria-expanded', 'true' );
+		const rows = within(
+			view.getByRole( 'table', { name: 'Known threats in this backup' } )
+		).getAllByRole( 'row' );
 		expect( rows.map( row => row.textContent ) ).toEqual( [
 			expect.stringMatching( /Threat.*Where.*First detected.*Status now/ ),
 			'PHP.Backdoor.Generic' + 'wp-content/uploads/x.php' + 'October 16, 2026' + 'Open',
@@ -320,5 +326,44 @@ describe( 'known threats on the Restore screen', () => {
 			await waitFor( () => expect( postedBodies() ).toHaveLength( 1 ) );
 			expect( postedBodies()[ 0 ] ).not.toHaveProperty( 'acknowledge_threats' );
 		} );
+	} );
+} );
+
+describe( 'opening another backup from the Restore screen', () => {
+	afterEach( () => {
+		mockRewindId = REWIND_ID;
+	} );
+
+	it( 'moves focus to the heading and drops the old acknowledgement', async () => {
+		mockApiFetch.mockImplementation( ( options: Options ) => {
+			const path = options?.path ?? '';
+			if ( path.includes( '/site/capabilities' ) ) {
+				return Promise.resolve( { hasBackupPlan: true, hasScan: true } );
+			}
+			if ( path.includes( '/threats' ) ) {
+				return Promise.resolve( path.includes( REWIND_ID ) ? FLAGGED : CLEAN );
+			}
+			return Promise.resolve( {} );
+		} );
+		const user = userEvent.setup();
+		const { container, rerender } = render(
+			<QueryClientProvider>
+				<RestoreScreen />
+			</QueryClientProvider>
+		);
+		const view = within( container );
+		await user.click( await view.findByRole( 'checkbox', { name: ACKNOWLEDGE } ) );
+
+		mockRewindId = '1786600000.1';
+		rerender(
+			<QueryClientProvider>
+				<RestoreScreen />
+			</QueryClientProvider>
+		);
+
+		await waitFor( () =>
+			expect( view.getByRole( 'heading', { name: 'Restore backup' } ) ).toHaveFocus()
+		);
+		await waitFor( () => expect( view.queryByText( WARNING ) ).not.toBeInTheDocument() );
 	} );
 } );

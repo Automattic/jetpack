@@ -95,15 +95,21 @@ describe( 'Backup detail for a backup with known threats', () => {
 		);
 
 		// aria-controls only once the list it names is in the page.
-		const toggle = screen.getByRole( 'button', { name: 'Known threats (3), show threats' } );
+		const toggle = screen.getByRole( 'button', { name: 'Known threats (3)' } );
+		expect( toggle ).toHaveAttribute( 'aria-expanded', 'false' );
+		// The clean-backup link sits below the Known threats toggle, as on WordPress.com.
+		expect(
+			toggle.compareDocumentPosition(
+				screen.getByRole( 'link', { name: /^Restore .+ backup instead$/ } )
+			)
+		).toBe( Node.DOCUMENT_POSITION_FOLLOWING );
 		expect( toggle ).not.toHaveAttribute( 'aria-controls' );
 		await user.click( toggle );
-		expect(
-			screen.getByRole( 'button', { name: 'Known threats (3), hide threats' } )
-		).toHaveAttribute( 'aria-controls' );
+		expect( toggle ).toHaveAttribute( 'aria-expanded', 'true' );
+		expect( toggle ).toHaveAttribute( 'aria-controls' );
 		expect( screen.getByRole( 'table' ) ).toBeVisible();
 		expect(
-			screen.getByRole( 'link', { name: 'Restore Oct 17, 2026 - 1:22 AM backup instead' } )
+			screen.getByRole( 'link', { name: 'Restore Oct 17, 2026 at 1:22 AM backup instead' } )
 		).toHaveAttribute( 'href', '/restore/1792200135.5' );
 
 		await user.click( checkbox );

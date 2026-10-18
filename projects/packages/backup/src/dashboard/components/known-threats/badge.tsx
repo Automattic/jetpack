@@ -31,7 +31,8 @@ type ToggleProps = {
 };
 
 /**
- * The badge as a button that shows and hides the list of threats.
+ * The badge as a button that shows and hides the list of threats. Its name is the badge's
+ * text; `aria-expanded` says whether the list is shown.
  *
  * @param props          - Component props.
  * @param props.count    - Number of malware and database threats in the backup.
@@ -41,31 +42,13 @@ type ToggleProps = {
  * @return The toggle.
  */
 export function KnownThreatsToggle( { count, open, onToggle, controls }: ToggleProps ) {
-	const label = open
-		? sprintf(
-				/* translators: %d: number of known security threats in a backup; the button hides the list of threats. */
-				__( 'Known threats (%d), hide threats', 'jetpack-backup-pkg' ),
-				count
-			)
-		: sprintf(
-				/* translators: %d: number of known security threats in a backup; the button shows the list of threats. */
-				__( 'Known threats (%d), show threats', 'jetpack-backup-pkg' ),
-				count
-			);
-
 	return (
 		<button
 			type="button"
 			className="jpb-known-threats-toggle"
-			aria-label={ label }
 			aria-expanded={ open }
 			// Only while the list is in the page; it is not rendered while hidden.
 			aria-controls={ open ? controls : undefined }
-			title={
-				open
-					? __( 'Hide threats', 'jetpack-backup-pkg' )
-					: __( 'Show threats', 'jetpack-backup-pkg' )
-			}
 			onClick={ onToggle }
 		>
 			<KnownThreatsBadge count={ count } />

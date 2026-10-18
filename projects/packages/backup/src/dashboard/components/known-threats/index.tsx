@@ -148,26 +148,6 @@ export default function KnownThreatsWarning( {
 							) }
 				</span>
 			</p>
-			{ showRestoreInstead && (
-				<Link
-					className="jpb-known-threats__restore-instead"
-					render={
-						<RouterLink to={ `/restore/${ restoreInsteadRewindId ?? restoreInsteadPeriod }` } />
-					}
-				>
-					{ restoreInsteadRewindId
-						? sprintf(
-								/* translators: %s: a backup's date and time, e.g. "Oct 17, 2026 - 2:30 PM". */
-								__( 'Restore %s backup instead', 'jetpack-backup-pkg' ),
-								dateI18n(
-									'M j, Y - g:i A',
-									new Date( Number( restoreInsteadRewindId ) * 1000 ),
-									undefined
-								)
-							)
-						: __( 'Restore this backup instead', 'jetpack-backup-pkg' ) }
-				</Link>
-			) }
 			{ flagged > 0 && ( rows.length > 0 || vulnerable > 0 ) && (
 				<KnownThreatsToggle
 					count={ flagged }
@@ -179,7 +159,10 @@ export default function KnownThreatsWarning( {
 			{ open && (
 				<div id={ tableId } className="jpb-known-threats__table-wrap">
 					{ rows.length > 0 && (
-						<table className="jpb-known-threats__table">
+						<table
+							className="jpb-known-threats__table"
+							aria-label={ __( 'Known threats in this backup', 'jetpack-backup-pkg' ) }
+						>
 							<thead>
 								<tr>
 									<th scope="col">{ __( 'Threat', 'jetpack-backup-pkg' ) }</th>
@@ -231,6 +214,27 @@ export default function KnownThreatsWarning( {
 						</Text>
 					) }
 				</div>
+			) }
+			{ showRestoreInstead && (
+				<Link
+					className="jpb-known-threats__restore-instead"
+					render={
+						<RouterLink to={ `/restore/${ restoreInsteadRewindId ?? restoreInsteadPeriod }` } />
+					}
+				>
+					{ restoreInsteadRewindId
+						? sprintf(
+								/* translators: %s: a backup's date and time, e.g. "Oct 17, 2026 at 2:30 PM". */
+								__( 'Restore %s backup instead', 'jetpack-backup-pkg' ),
+								dateI18n(
+									/* translators: date and time format, see https://www.php.net/manual/datetime.format.php */
+									__( 'M j, Y \\a\\t g:i A', 'jetpack-backup-pkg' ),
+									new Date( Number( restoreInsteadRewindId ) * 1000 ),
+									undefined
+								)
+							)
+						: __( 'Restore this backup instead', 'jetpack-backup-pkg' ) }
+				</Link>
 			) }
 			{ onAcknowledge && (
 				<CheckboxControl
