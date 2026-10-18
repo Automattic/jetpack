@@ -62,10 +62,12 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 	 * Check the Scan toolbar's offline policy.
 	 *
 	 * @dataProvider scan_toolbar_offline_modes
-	 * @param bool $offline Whether the site is offline.
+	 * @param string $offline_filter Offline-mode filter callback.
+	 * @param bool   $expected       Whether the toolbar or refresh is enabled.
+	 * @param bool   $load_helpers   Whether to load through the Scan entry point.
 	 */
 	#[DataProvider( 'scan_toolbar_offline_modes' )]
-	public function test_scan_toolbar_respects_offline_mode( $offline ) {
+	public function test_scan_toolbar_respects_offline_mode( $offline_filter, $expected, $load_helpers = false ) {
 		if ( is_multisite() ) {
 			$this->markTestSkipped( 'Jetpack Scan is currently not supported on multisite.' );
 		}
@@ -73,7 +75,6 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 		require_once JETPACK__PLUGIN_DIR . 'modules/scan/class-admin-bar-notice.php';
 		require_once ABSPATH . WPINC . '/class-wp-admin-bar.php';
 
-		$offline_filter = $offline ? '__return_true' : '__return_false';
 		add_filter( 'jetpack_offline_mode', $offline_filter, 1000 );
 		update_option( 'jetpack_offline_mode', false );
 		StatusCache::clear();
@@ -91,15 +92,20 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 
 		try {
 			$this->assertTrue( Jetpack::is_connection_ready() );
-			Admin_Bar_Notice::instance();
+			if ( $load_helpers ) {
+				require JETPACK__PLUGIN_DIR . 'modules/scan/scan.php';
+				$this->assertInstanceOf( Admin_Bar_Notice::class, $instance->getValue() );
+			} else {
+				Admin_Bar_Notice::instance();
+			}
 			foreach ( array( 'wp_enqueue_scripts', 'admin_enqueue_scripts' ) as $hook ) {
 				wp_dequeue_script( Admin_Bar_Notice::SCRIPT_NAME );
 				do_action( $hook );
-				$this->assertSame( ! $offline, wp_script_is( Admin_Bar_Notice::SCRIPT_NAME, 'enqueued' ) );
+				$this->assertSame( $expected, wp_script_is( Admin_Bar_Notice::SCRIPT_NAME, 'enqueued' ) );
 			}
 			$bar = new WP_Admin_Bar();
 			do_action( 'admin_bar_menu', $bar );
-			$this->assertSame( ! $offline, null !== $bar->get_node( 'jetpack-scan-notice' ) );
+			$this->assertSame( $expected, null !== $bar->get_node( 'jetpack-scan-notice' ) );
 		} finally {
 			$instance->setValue( null, $previous );
 			wp_dequeue_script( Admin_Bar_Notice::SCRIPT_NAME );
@@ -115,8 +121,8 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 	 */
 	public static function scan_toolbar_offline_modes() {
 		return array(
-			'offline'              => array( true ),
-			'connected cold cache' => array( false ),
+			'offline'              => array( '__return_true', false ),
+			'connected cold cache' => array( '__return_false', true ),
 		);
 	}
 
@@ -124,12 +130,12 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 	 * Check the Scan sidebar refresh's offline policy.
 	 *
 	 * @dataProvider scan_toolbar_offline_modes
-	 * @param bool $offline Whether the site is offline.
+	 * @param string $offline_filter Offline-mode filter callback.
+	 * @param bool   $expected       Whether the toolbar or refresh is enabled.
 	 */
 	#[DataProvider( 'scan_toolbar_offline_modes' )]
-	public function test_scan_sidebar_refresh_respects_offline_mode( $offline ) {
+	public function test_scan_sidebar_refresh_respects_offline_mode( $offline_filter, $expected ) {
 		require_once JETPACK__PLUGIN_DIR . 'modules/scan/class-admin-sidebar-link.php';
-		$offline_filter = $offline ? '__return_true' : '__return_false';
 		add_filter( 'jetpack_offline_mode', $offline_filter, 1000 );
 		update_option( 'jetpack_offline_mode', false );
 		StatusCache::clear();
@@ -144,12 +150,20 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 		try {
 			$this->assertTrue( Jetpack::is_connection_ready() );
 			$refresh->invoke( new Admin_Sidebar_Link() );
-			$this->assertSame( ! $offline, false !== wp_next_scheduled( Admin_Sidebar_Link::SCHEDULE_ACTION_HOOK ) );
+			$this->assertSame( $expected, false !== wp_next_scheduled( Admin_Sidebar_Link::SCHEDULE_ACTION_HOOK ) );
 		} finally {
 			wp_clear_scheduled_hook( Admin_Sidebar_Link::SCHEDULE_ACTION_HOOK );
 			remove_filter( 'jetpack_offline_mode', $offline_filter, 1000 );
 			StatusCache::clear();
 		}
+	}
+
+	/**
+	 * The Scan loader respects the same offline policy as the toolbar helper.
+	 */
+	public function test_scan_loader_offline() {
+		add_filter( 'jetpack_disable_scan', '__return_false' );
+		$this->test_scan_toolbar_respects_offline_mode( '__return_true', false, true );
 	}
 
 	/**
