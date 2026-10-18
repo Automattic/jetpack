@@ -59,7 +59,8 @@ export function KnownThreatsToggle( { count, open, onToggle, controls }: ToggleP
 			className="jpb-known-threats-toggle"
 			aria-label={ label }
 			aria-expanded={ open }
-			aria-controls={ controls }
+			// Only while the list is in the page; it is not rendered while hidden.
+			aria-controls={ open ? controls : undefined }
 			title={
 				open
 					? __( 'Hide threats', 'jetpack-backup-pkg' )
