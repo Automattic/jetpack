@@ -1,5 +1,10 @@
 import { PRODUCT_STATUSES } from '../../../../constants';
-import { getFeatureManageUrl, getForcedReason, resolveFeatureState } from '../feature-state';
+import {
+	getFeatureManageUrl,
+	getForcedReason,
+	offersConnect,
+	resolveFeatureState,
+} from '../feature-state';
 import { PRODUCT_MODULES } from '../mappings';
 import { getFeatureUnavailableReason, isFeatureAvailable } from '../module-availability';
 import { matchesFilter } from '../use-feature-filter';
@@ -214,6 +219,43 @@ describe( 'resolveFeatureState, for a product the module map has dropped', () =>
 			'inactive'
 		);
 	} );
+
+	it.each( [
+		[ 'the account is all AI lacks', true, true, 'module', true ],
+		[ 'AI lacks more than the account', false, true, 'none', false ],
+		[ 'the account is not missing', true, false, 'none', false ],
+	] as const )(
+		'offers Connect on gated AI only when %s',
+		( _, waitingForAccount, needsAccount, kind, connect ) => {
+			const previousInitial = window.myJetpackInitialState;
+			window.myJetpackInitialState = {
+				myJetpackFlags: { showAiModuleToggleOnceConnected: waitingForAccount },
+			} as unknown as typeof previousInitial;
+			try {
+				const modules = {
+					ai: buildModule( {
+						module: 'ai',
+						requires_user_connection: true,
+						available: false,
+						unavailable_reason: 'Requires a connected WordPress.com account',
+					} ),
+				};
+				const state = resolveFeatureState(
+					{ ...ai, needs_account: true },
+					'active',
+					undefined,
+					modules,
+					gated,
+					false,
+					needsAccount
+				);
+				expect( state.control.kind ).toBe( kind );
+				expect( offersConnect( state ) ).toBe( connect );
+			} finally {
+				window.myJetpackInitialState = previousInitial;
+			}
+		}
+	);
 
 	it( 'uses the mapped module for a product the gate left alone', () => {
 		const social = buildFeature( { in_jetpack: true, product: 'social' } );

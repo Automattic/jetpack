@@ -1222,6 +1222,10 @@ class Initializer {
 			'overviewV1'               => self::is_overview_v1_enabled(),
 		);
 
+		if ( $flags['accountConnect'] ) {
+			$flags['showAiModuleToggleOnceConnected'] = Products\Jetpack_Ai::is_feature_ui_enabled_once_connected();
+		}
+
 		return $flags;
 	}
 

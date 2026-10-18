@@ -5,9 +5,11 @@ namespace Automattic\Jetpack\My_Jetpack;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\My_Jetpack\Products\Jetpack_Ai;
 use Automattic\Jetpack\Status\Cache as StatusCache;
 use Jetpack_Options;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
@@ -346,6 +348,61 @@ class Jetpack_Ai_Product_Test extends TestCase {
 	public function test_manage_url_stays_on_the_my_jetpack_product_page_without_the_jetpack_plugin() {
 		$this->assertFalse( Jetpack_Ai::is_plugin_active(), 'Precondition: the Jetpack plugin is not active.' );
 		$this->assertSame( admin_url( 'admin.php?page=my-jetpack#/jetpack-ai' ), Jetpack_Ai::get_manage_url() );
+	}
+
+	/**
+	 * With the account-connect flag on, the page learns AI would show once the owner connects, only when that is all it lacks.
+	 *
+	 * @dataProvider feature_ui_once_connected_cases
+	 * @param string    $site     What the site has.
+	 * @param bool      $flag_on  Whether the account-connect flag is on.
+	 * @param bool|null $expected The value passed to the page, or null when it is left out.
+	 */
+	#[DataProvider( 'feature_ui_once_connected_cases' )]
+	public function test_flags_say_whether_the_feature_ui_waits_only_for_the_owner( $site, $flag_on, $expected ) {
+		Initializer::register_feature_flags();
+		if ( $flag_on ) {
+			add_filter( 'jetpack_feature_flag_enabled_' . Initializer::ACCOUNT_CONNECT_FLAG, '__return_true' );
+		}
+		if ( 'atomic' === $site ) {
+			$this->set_atomic_site();
+		} elseif ( 'simple' === $site ) {
+			Constants::set_constant( 'IS_WPCOM', true );
+		} elseif ( 'no ai module' === $site ) {
+			// @phan-suppress-next-line PhanUndeclaredStaticProperty -- Declared on the mock in ./assets/jetpack-mock-plugin.txt
+			\Jetpack::$available_modules = array();
+		}
+		activate_plugins( 'jetpack/jetpack.php' );
+		if ( 'owner connected' === $site ) {
+			$this->connect_site_and_owner();
+		} elseif ( 'not registered' !== $site ) {
+			( new Tokens() )->update_blog_token( 'test.test.1' );
+			Jetpack_Options::update_option( 'id', 123 );
+		}
+
+		try {
+			$this->assertSame( $expected, Initializer::get_my_jetpack_flags()['showAiModuleToggleOnceConnected'] ?? null );
+		} finally {
+			remove_all_filters( 'jetpack_feature_flag_enabled_' . Initializer::ACCOUNT_CONNECT_FLAG );
+			Feature_Flags::reset();
+		}
+	}
+
+	/**
+	 * Sites by what they have, whether the flag is on, and what the page is told.
+	 *
+	 * @return array<string, array{string, bool, bool|null}>
+	 */
+	public static function feature_ui_once_connected_cases() {
+		return array(
+			'only the owner missing' => array( 'registered', true, true ),
+			'flag off'               => array( 'registered', false, null ),
+			'owner connected'        => array( 'owner connected', true, false ),
+			'site not registered'    => array( 'not registered', true, false ),
+			'atomic'                 => array( 'atomic', true, false ),
+			'simple'                 => array( 'simple', true, false ),
+			'no ai module'           => array( 'no ai module', true, false ),
+		);
 	}
 
 	/**

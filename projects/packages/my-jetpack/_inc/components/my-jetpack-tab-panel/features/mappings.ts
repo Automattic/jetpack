@@ -66,3 +66,14 @@ export function getProductModules() {
 export function isAccountConnectEnabled(): boolean {
 	return Boolean( getMyJetpackWindowInitialState( 'myJetpackFlags' ).accountConnect );
 }
+
+/**
+ * Whether Jetpack AI's switch would show once the site owner connects an account, with nothing else missing.
+ *
+ * @return Whether the AI card can offer Connect like the other account features.
+ */
+export function isAiToggleWaitingForAccount(): boolean {
+	return Boolean(
+		getMyJetpackWindowInitialState( 'myJetpackFlags' ).showAiModuleToggleOnceConnected
+	);
+}

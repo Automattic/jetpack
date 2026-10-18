@@ -570,6 +570,7 @@ interface Window {
 			headerControls?: boolean;
 			overviewV1: boolean;
 			showAiModuleToggle: boolean;
+			showAiModuleToggleOnceConnected?: boolean;
 			showFullJetpackStatsCard: boolean;
 			videoPressStats: boolean;
 		};

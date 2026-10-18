@@ -533,18 +533,34 @@ class Jetpack_Ai extends Module_Product {
 	 * @return bool
 	 */
 	public static function is_feature_ui_enabled() {
+		return ( new Connection_Manager() )->has_connected_owner() && self::is_feature_ui_ready();
+	}
+
+	/**
+	 * Whether My Jetpack would surface the AI feature controls once the site's owner connects an account.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool True only when the missing account is all that hides them.
+	 */
+	public static function is_feature_ui_enabled_once_connected() {
+		return ! ( new Connection_Manager() )->has_connected_owner() && self::is_feature_ui_ready();
+	}
+
+	/**
+	 * Whether the AI feature controls could show on this site, leaving out whether its owner is connected.
+	 *
+	 * @return bool
+	 */
+	private static function is_feature_ui_ready() {
 		if (
 			! self::is_plugin_active()
 			|| ! method_exists( '\\Jetpack', 'is_module' )
 			|| ! \Jetpack::is_module( 'ai' )
 			// @phan-suppress-next-line PhanUndeclaredClassReference -- Supplied by the optional Jetpack plugin.
 			|| ! method_exists( '\\Jetpack_AI_Settings', 'is_feature_enabled' )
+			|| ! ( new Connection_Manager() )->is_connected()
 		) {
-			return false;
-		}
-
-		$connection = new Connection_Manager();
-		if ( ! $connection->is_connected() || ! $connection->has_connected_owner() ) {
 			return false;
 		}
 
