@@ -136,7 +136,7 @@ class Known_Threats_Route_Test extends TestCase {
 			$result->get_data()
 		);
 		$this->assertCount( 1, $this->captured_urls );
-		$this->assertStringContainsString( '/wpcom/v3/sites/' . self::BLOG_ID . '/rewind/backups?number=100&page=1', $this->captured_urls[0] );
+		$this->assertStringContainsString( '/wpcom/v3/sites/' . self::BLOG_ID . '/rewind/backups?number=100&page=1&known_threats_only=true', $this->captured_urls[0] );
 	}
 
 	public function test_known_threats_are_unavailable_without_scan() {

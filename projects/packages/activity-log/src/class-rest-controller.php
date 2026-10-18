@@ -433,7 +433,7 @@ class REST_Controller {
 		}
 
 		$response = Client::wpcom_json_api_request_as_user(
-			sprintf( '/sites/%d/rewind/backups?number=100&page=1', $blog_id ),
+			sprintf( '/sites/%d/rewind/backups?number=100&page=1&known_threats_only=true', $blog_id ),
 			'3',
 			array( 'method' => 'GET' ),
 			null,
