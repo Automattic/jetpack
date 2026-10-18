@@ -84,3 +84,50 @@ export async function fetchKnownThreats( rewindId: string ): Promise< KnownThrea
 		clearTimeout( timer );
 	}
 }
+
+/** Known-threat counts for the newest 100 backups, newest first, and the newest backup without any. */
+export type BackupsKnownThreats = {
+	backups: Array< { period: number; known_threats: KnownThreatsSummary | null } >;
+	latest_without_known_threats: number | null;
+};
+
+/**
+ * Known-threat counts for the newest 100 backups, or null when they cannot be read.
+ *
+ * @return The counts, or null.
+ */
+export async function fetchBackupsKnownThreats(): Promise< BackupsKnownThreats | null > {
+	try {
+		const data = await apiCall< BackupsKnownThreats >( {
+			path: apiPath( '/rewind/backups/known-threats' ),
+		} );
+		if ( ! Array.isArray( data?.backups ) ) {
+			return null;
+		}
+		return {
+			backups: [ ...data.backups ].sort( ( a, b ) => b.period - a.period ),
+			latest_without_known_threats: data.latest_without_known_threats ?? null,
+		};
+	} catch {
+		return null;
+	}
+}
+
+/**
+ * The backup a rewind point belongs to: the newest backup at or before it.
+ *
+ * @param data     - Counts from `fetchBackupsKnownThreats()`.
+ * @param rewindId - A rewind id, e.g. "1792244435.274".
+ * @return The backup's period and counts, or null.
+ */
+export function containingBackup(
+	data: BackupsKnownThreats | null | undefined,
+	rewindId: string | undefined
+): { period: number; knownThreats: KnownThreatsSummary | null } | null {
+	if ( ! data || ! rewindId ) {
+		return null;
+	}
+	const point = Math.floor( Number( rewindId ) );
+	const backup = data.backups.find( candidate => candidate.period <= point );
+	return backup ? { period: backup.period, knownThreats: backup.known_threats } : null;
+}

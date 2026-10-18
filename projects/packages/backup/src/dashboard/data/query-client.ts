@@ -98,4 +98,5 @@ export const keys = {
 	// The site's recent restores, not one restore's status; see `useRecentRestores`.
 	recentRestores: () => [ 'backup', 'recent-restores' ] as const,
 	knownThreats: ( rewindId: string ) => [ 'backup', 'known-threats', rewindId ] as const,
+	backupsKnownThreats: () => [ 'backup', 'known-threats', 'backups' ] as const,
 };

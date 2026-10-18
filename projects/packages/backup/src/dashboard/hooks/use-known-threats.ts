@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { fetchKnownThreats } from '../data/api/known-threats';
+import { fetchBackupsKnownThreats, fetchKnownThreats } from '../data/api/known-threats';
 import { keys } from '../data/query-client';
 import type { KnownThreats } from '../data/api/known-threats';
 
@@ -21,5 +21,18 @@ export function useKnownThreats( rewindId: string, enabled = true ) {
 			client.getQueryData< KnownThreats | null >( keys.knownThreats( rewindId ) ) ??
 			null,
 		enabled,
+	} );
+}
+
+/**
+ * Known-threat counts for the newest 100 backups; `data` is null when they are unavailable.
+ *
+ * @return The query.
+ */
+export function useBackupsKnownThreats() {
+	return useQuery( {
+		queryKey: keys.backupsKnownThreats(),
+		queryFn: fetchBackupsKnownThreats,
+		staleTime: 5 * 60_000,
 	} );
 }
