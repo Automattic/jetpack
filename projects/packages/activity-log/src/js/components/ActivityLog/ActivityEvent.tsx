@@ -1,6 +1,7 @@
 import { __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Icon, caution } from '@wordpress/icons';
+import { VisuallyHidden } from '@wordpress/ui';
 import { useBackupKnownThreats } from '../../hooks/use-known-threats';
 import { buildObjectAdminLink } from './admin-links';
 import { renderFormattedContent } from './formatted-block';
@@ -76,7 +77,7 @@ export function KnownThreatsBadge( { activity }: { activity: Activity } ) {
 	);
 	// Same pill as the Backup dashboard and WordPress.com.
 	return (
-		<span className="site-activity-logs__event-badge" title={ description }>
+		<span className="site-activity-logs__event-badge">
 			<span className="site-activity-logs__known-threats-badge">
 				<Icon icon={ caution } size={ 16 } aria-hidden="true" />
 				{ sprintf(
@@ -85,6 +86,7 @@ export function KnownThreatsBadge( { activity }: { activity: Activity } ) {
 					knownThreats.flagged
 				) }
 			</span>
+			<VisuallyHidden>{ description }</VisuallyHidden>
 		</span>
 	);
 }
