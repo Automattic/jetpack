@@ -96,12 +96,18 @@ export type BackupsKnownThreats = {
 /**
  * Known-threat counts for the newest 100 backups, or null when they cannot be read.
  *
+ * @param withCleanRewindId - Also find when the newest clean backup finished, which costs a second upstream request.
  * @return The counts, or null.
  */
-export async function fetchBackupsKnownThreats(): Promise< BackupsKnownThreats | null > {
+export async function fetchBackupsKnownThreats(
+	withCleanRewindId = false
+): Promise< BackupsKnownThreats | null > {
 	try {
 		const data = await apiCall< BackupsKnownThreats >( {
-			path: apiPath( '/rewind/backups/known-threats' ),
+			path: apiPath(
+				'/rewind/backups/known-threats',
+				withCleanRewindId ? { with_clean_rewind_id: true } : undefined
+			),
 		} );
 		if ( ! Array.isArray( data?.backups ) ) {
 			return null;

@@ -61,7 +61,9 @@ beforeEach( () => {
 			return Promise.resolve( {
 				backups: [ { period: 1792244301, known_threats: SUMMARY } ],
 				latest_without_known_threats: 1792200000,
-				latest_without_known_threats_rewind_id: '1792200135.5',
+				latest_without_known_threats_rewind_id: path.includes( 'with_clean_rewind_id=true' )
+					? '1792200135.5'
+					: null,
 			} );
 		}
 		if ( path.includes( '/threats' ) ) {

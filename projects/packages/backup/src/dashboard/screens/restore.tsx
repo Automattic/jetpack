@@ -78,13 +78,16 @@ export default function RestoreScreen() {
 		refetch: refetchKnownThreats,
 		isLoading: checkingThreats,
 	} = useKnownThreats( rewindId, gate.status === 'ready' && isValidRewindId( rewindId ) );
-	const { data: backupsKnownThreats } = useBackupsKnownThreats();
 	// Ticked already when the overview's own checkbox sent the reader here.
 	const search = useSearch( { strict: false } ) as { acknowledged?: boolean | string };
 	const [ acknowledged, setAcknowledged ] = useState(
 		search.acknowledged === true || search.acknowledged === 'true'
 	);
 	const needsAcknowledgement = threatsRefused || ( knownThreats?.summary.flagged ?? 0 ) > 0;
+	const { data: backupsKnownThreats } = useBackupsKnownThreats( {
+		withCleanRewindId: true,
+		enabled: needsAcknowledgement,
+	} );
 	// A refusal means the screen's picture was stale: untick, and fetch the threats again.
 	useEffect( () => {
 		if ( threatsRefused ) {

@@ -296,13 +296,18 @@ function useBackupKnownThreats( rewindId: string ) {
 	const { data: backups } = useBackupsKnownThreats();
 	const flagged = ( containingBackup( backups, rewindId )?.knownThreats?.flagged ?? 0 ) > 0;
 	const { data: threats } = useKnownThreats( rewindId, flagged );
+	const warns = flagged && !! threats && threats.summary.flagged > 0;
+	const { data: withCleanRewindId } = useBackupsKnownThreats( {
+		withCleanRewindId: true,
+		enabled: warns,
+	} );
 
-	if ( ! flagged || ! threats || threats.summary.flagged === 0 ) {
+	if ( ! warns || ! threats ) {
 		return null;
 	}
 	return {
 		threats,
 		latestClean: backups?.latest_without_known_threats ?? null,
-		latestCleanRewindId: backups?.latest_without_known_threats_rewind_id ?? null,
+		latestCleanRewindId: withCleanRewindId?.latest_without_known_threats_rewind_id ?? null,
 	};
 }

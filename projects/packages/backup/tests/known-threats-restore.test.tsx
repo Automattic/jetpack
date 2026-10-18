@@ -101,6 +101,15 @@ function arrange(
 		if ( path.includes( '/site/capabilities' ) ) {
 			return Promise.resolve( { hasBackupPlan: true, hasScan: true } );
 		}
+		if ( path.includes( '/rewind/backups/known-threats' ) ) {
+			return Promise.resolve( {
+				backups: [],
+				latest_without_known_threats: 1792200000,
+				latest_without_known_threats_rewind_id: path.includes( 'with_clean_rewind_id=true' )
+					? '1792200135.5'
+					: null,
+			} );
+		}
 		if ( path.includes( '/threats' ) ) {
 			return threats();
 		}
@@ -192,6 +201,10 @@ describe( 'known threats on the Restore screen', () => {
 		] );
 		expect( view.getByText( 'Also: 1 vulnerable plugin or theme version.' ) ).toBeInTheDocument();
 		expect( view.getByText( 'Showing the first 3 threats.' ) ).toBeInTheDocument();
+		// Named by when the clean backup finished, which the restore screen asks the list for.
+		await expect(
+			view.findByText( 'Restore Oct 17, 2026 at 1:22 AM backup instead' )
+		).resolves.toBeInTheDocument();
 
 		await user.click( view.getByRole( 'checkbox', { name: ACKNOWLEDGE } ) );
 		expect( confirm ).not.toHaveAttribute( 'aria-disabled', 'true' );

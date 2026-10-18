@@ -27,12 +27,19 @@ export function useKnownThreats( rewindId: string, enabled = true ) {
 /**
  * Known-threat counts for the newest 100 backups; `data` is null when they are unavailable.
  *
+ * @param options                   - Query options.
+ * @param options.withCleanRewindId - Also name when the newest clean backup finished; only a warning that links to it needs this.
+ * @param options.enabled           - False to leave the query idle.
  * @return The query.
  */
-export function useBackupsKnownThreats() {
+export function useBackupsKnownThreats( {
+	withCleanRewindId = false,
+	enabled = true,
+}: { withCleanRewindId?: boolean; enabled?: boolean } = {} ) {
 	return useQuery( {
-		queryKey: keys.backupsKnownThreats(),
-		queryFn: fetchBackupsKnownThreats,
+		queryKey: keys.backupsKnownThreats( withCleanRewindId ),
+		queryFn: () => fetchBackupsKnownThreats( withCleanRewindId ),
 		staleTime: 5 * 60_000,
+		enabled,
 	} );
 }
