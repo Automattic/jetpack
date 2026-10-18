@@ -13,6 +13,7 @@ namespace Automattic\Jetpack\Activity_Log;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Status\Visitor;
 use Jetpack_Options;
 use WP_Error;
@@ -217,6 +218,16 @@ class REST_Controller {
 
 		register_rest_route(
 			self::REST_NAMESPACE,
+			'/activity-log/known-threats',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( __CLASS__, 'get_known_threats' ),
+				'permission_callback' => array( __CLASS__, 'permissions_callback' ),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
 			'/activity-log/actors',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
@@ -399,6 +410,67 @@ class REST_Controller {
 	 */
 	public static function get_activity_log_actors( WP_REST_Request $request ) {
 		return self::proxy_get( '/activity/actors', $request, array_keys( self::actors_args() ) );
+	}
+
+	/**
+	 * Known Scan threat counts for the site's newest 100 backups, flagged backups only.
+	 *
+	 * Only WoW sites are checked for now. Elsewhere, and when the site has no Scan, the answer is
+	 * `threats_unavailable` (404) so the log shows no badges.
+	 *
+	 * @return \WP_REST_Response|WP_Error
+	 */
+	public static function get_known_threats() {
+		$unavailable = new WP_Error(
+			'threats_unavailable',
+			esc_html__( 'Known threats are not available for this site.', 'jetpack-activity-log' ),
+			array( 'status' => 404 )
+		);
+
+		$blog_id = (int) Jetpack_Options::get_option( 'id' );
+		if ( ! $blog_id || ! ( new Host() )->is_woa_site() ) {
+			return $unavailable;
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			sprintf( '/sites/%d/rewind/backups?number=100&page=1', $blog_id ),
+			'3',
+			array( 'method' => 'GET' ),
+			null,
+			'wpcom'
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return new WP_Error( 'known_threats_request_failed', $response->get_error_message(), array( 'status' => 502 ) );
+		}
+
+		$status = (int) wp_remote_retrieve_response_code( $response );
+		if ( 403 === $status ) {
+			return $unavailable;
+		}
+
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( 200 !== $status || ! is_array( $body ) ) {
+			return new WP_Error(
+				'known_threats_request_failed',
+				esc_html__( 'Unable to fetch the known threats.', 'jetpack-activity-log' ),
+				array( 'status' => 502 )
+			);
+		}
+
+		$backups = array();
+		foreach ( (array) ( $body['backups'] ?? array() ) as $backup ) {
+			$known_threats = $backup['object']['known_threats'] ?? null;
+			if ( ! is_array( $known_threats ) || empty( $known_threats['flagged'] ) || ! isset( $backup['object']['backup_period'] ) ) {
+				continue;
+			}
+			$backups[] = array(
+				'period'        => (int) $backup['object']['backup_period'],
+				'known_threats' => $known_threats,
+			);
+		}
+
+		return rest_ensure_response( array( 'backups' => $backups ) );
 	}
 
 	/**
