@@ -5,10 +5,9 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\PreserveGlobalState;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 /**
  * Tests the Module Override functionality.
@@ -42,6 +41,7 @@ class Jetpack_Modules_Overrides_Test extends WP_UnitTestCase {
 		remove_all_filters( 'jetpack_active_modules' );
 		remove_all_filters( 'jetpack_feature_policy' );
 		\Automattic\Jetpack\Feature_Policy::reset();
+		Constants::clear_single_constant( 'JETPACK_VIDEOPRESS_ROOT_FILE' );
 		$this->instance->clear_cache();
 		parent::tear_down();
 	}
@@ -186,6 +186,7 @@ class Jetpack_Modules_Overrides_Test extends WP_UnitTestCase {
 	public function test_offline_module_refresh_drops_inactive_videopress_override() {
 		$force_active = array( \Automattic\Jetpack\VideoPress\Module_Control::class, 'add_videopress_to_array' );
 		add_filter( 'jetpack_active_modules', $force_active );
+		add_filter( 'jetpack_active_modules', array( $this, 'force_active_modules' ) );
 		$this->instance->clear_cache();
 		$this->assertFalse( \Automattic\Jetpack\My_Jetpack\Products\Videopress::is_standalone_plugin_active() );
 		$this->assertSame( 'active', $this->instance->get_module_override( 'videopress' ) );
@@ -194,6 +195,7 @@ class Jetpack_Modules_Overrides_Test extends WP_UnitTestCase {
 		try {
 			\Automattic\Jetpack\My_Jetpack\Initializer::use_local_module_options( null, array(), $request );
 			$this->assertFalse( $this->instance->get_module_override( 'videopress' ) );
+			$this->assertSame( 'active', $this->instance->get_module_override( 'photon' ) );
 		} finally {
 			\Automattic\Jetpack\My_Jetpack\Initializer::restore_module_options( null, array(), $request );
 		}
@@ -201,15 +203,11 @@ class Jetpack_Modules_Overrides_Test extends WP_UnitTestCase {
 
 	/**
 	 * @dataProvider active_videopress_plugins
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
 	 * @param array       $active_plugins Active plugin filenames.
 	 * @param string|null $root_file      Running plugin's main file, if defined.
 	 * @param bool        $found_by_name  Whether folder lookup recognizes the plugin.
 	 */
 	#[DataProvider( 'active_videopress_plugins' )]
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_offline_module_refresh_keeps_active_videopress_override( $active_plugins, $root_file, $found_by_name ) {
 		add_filter(
 			'all_plugins',
@@ -219,7 +217,7 @@ class Jetpack_Modules_Overrides_Test extends WP_UnitTestCase {
 		);
 		update_option( 'active_plugins', $active_plugins );
 		if ( null !== $root_file ) {
-			define( 'JETPACK_VIDEOPRESS_ROOT_FILE', $root_file );
+			Constants::set_constant( 'JETPACK_VIDEOPRESS_ROOT_FILE', $root_file );
 		}
 		$force_active = array( \Automattic\Jetpack\VideoPress\Module_Control::class, 'add_videopress_to_array' );
 		add_filter( 'jetpack_active_modules', $force_active );
