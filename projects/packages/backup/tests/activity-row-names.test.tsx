@@ -12,6 +12,7 @@ jest.mock( '@wordpress/api-fetch', () => ( {
 // Imports must come after the jest.mock factory above.
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import ActivityList from '../src/dashboard/components/activity-list';
 import { INITIAL_VIEW } from '../src/dashboard/screens/overview';
 
@@ -42,14 +43,18 @@ const PAGE = {
 /** No-op selection handler; these tests never act on a choice. */
 function noop() {}
 
-/** Render the list with its real starting view. */
-function renderList() {
+/**
+ * Render the list with its real starting view.
+ *
+ * @param onSelect - Called with the id of the row the user selects.
+ */
+function renderList( onSelect: ( id: string ) => void = noop ) {
 	const client = new QueryClient( { defaultOptions: { queries: { retry: false } } } );
 	render(
 		<QueryClientProvider client={ client }>
 			<ActivityList
 				selectedId={ null }
-				onSelect={ noop }
+				onSelect={ onSelect }
 				view={ INITIAL_VIEW }
 				onChangeView={ noop }
 			/>
@@ -85,7 +90,8 @@ it( 'no longer answers to the summary alone, which every row shares', async () =
 	expect( screen.queryByRole( 'button', { name: SUMMARY } ) ).not.toBeInTheDocument();
 } );
 
-it( 'describes a backup with known threats by its badge and warning', async () => {
+/** Answer the known-threats request with the earlier backup flagged. */
+function arrangeFlaggedBackup() {
 	const flagged = { malware: 3, database: 0, vulnerable: 0, ignored: 0, flagged: 3, fixed: 0 };
 	mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
 		Promise.resolve(
@@ -100,6 +106,10 @@ it( 'describes a backup with known threats by its badge and warning', async () =
 				: PAGE
 		)
 	);
+}
+
+it( 'describes a backup with known threats by its badge and warning', async () => {
+	arrangeFlaggedBackup();
 	renderList();
 
 	const button = await screen.findByRole( 'button', { name: /Aug 20, 2026, 10:00 AM/ } );
@@ -110,4 +120,14 @@ it( 'describes a backup with known threats by its badge and warning', async () =
 	expect(
 		screen.getByRole( 'button', { name: /Aug 20, 2026, 10:01 AM/ } )
 	).not.toHaveAccessibleDescription( /Known threats/ );
+} );
+
+it( 'selects the row when its Known threats badge is clicked', async () => {
+	arrangeFlaggedBackup();
+	const onSelect = jest.fn();
+	renderList( onSelect );
+
+	await userEvent.click( await screen.findByText( 'Known threats (3)' ) );
+
+	expect( onSelect ).toHaveBeenCalledWith( expect.stringContaining( '1786600000' ) );
 } );
