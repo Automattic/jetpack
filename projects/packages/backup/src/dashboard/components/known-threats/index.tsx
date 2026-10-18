@@ -1,4 +1,3 @@
-import { speak } from '@wordpress/a11y';
 import { CheckboxControl } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { dateI18n } from '@wordpress/date';
@@ -7,6 +6,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { Icon, cautionFilled } from '@wordpress/icons';
 import { Link as RouterLink } from '@wordpress/route';
 import { Link, Text, Tooltip, VisuallyHidden } from '@wordpress/ui';
+import { announce, cancelAnnouncement } from '../../data/announce';
 import { parseRestoreWhen } from '../../data/api/restore';
 import { formatBrowserDate } from '../../data/date-format';
 import { KnownThreatsToggle } from './badge';
@@ -145,10 +145,13 @@ export default function KnownThreatsWarning( {
 			: '';
 
 	// The warning arrives after the page has rendered, so screen readers would otherwise miss it.
+	// Queued with `announce()` so a message spoken at the same moment doesn't cut it off.
 	useEffect( () => {
-		if ( warning ) {
-			speak( warning );
+		if ( ! warning ) {
+			return;
 		}
+		announce( warning, 'polite', KnownThreatsWarning );
+		return () => cancelAnnouncement( KnownThreatsWarning );
 	}, [ warning ] );
 
 	return (

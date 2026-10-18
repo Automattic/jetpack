@@ -31,9 +31,10 @@ jest.mock( '@wordpress/route', () => ( {
 } ) );
 
 // Imports must come after the jest.mock factories above.
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import BackupDetail from '../src/dashboard/components/backup-detail';
+import { resetAnnouncerForTesting } from '../src/dashboard/data/announce';
 import { queryClient } from '../src/dashboard/data/query-client';
 import QueryClientProvider from '../src/dashboard/providers/query-client-provider';
 import type { BackupActivityItem } from '../src/dashboard/types/activity';
@@ -52,6 +53,8 @@ const ITEM: BackupActivityItem = {
 const SUMMARY = { malware: 3, database: 0, vulnerable: 1, ignored: 0, flagged: 3, fixed: 3 };
 
 beforeEach( () => {
+	resetAnnouncerForTesting();
+	mockSpeak.mockReset();
 	queryClient.clear();
 	queryClient.setDefaultOptions( { queries: { retry: false } } );
 	mockApiFetch.mockReset();
@@ -96,8 +99,11 @@ describe( 'Backup detail for a backup with known threats', () => {
 			name: 'I understand this backup contains known threats and want to restore it anyway.',
 		} );
 		// Announced when it appears, as on WordPress.com.
-		expect( mockSpeak ).toHaveBeenCalledWith(
-			'This backup is known to contain 3 security threats. Restoring it may bring malware back to your site.'
+		await waitFor( () =>
+			expect( mockSpeak ).toHaveBeenCalledWith(
+				'This backup is known to contain 3 security threats. Restoring it may bring malware back to your site.',
+				'polite'
+			)
 		);
 		const restore = screen.getByRole( 'button', { name: /Restore to this point/ } );
 		expect( restore ).toHaveAttribute( 'aria-disabled', 'true' );
