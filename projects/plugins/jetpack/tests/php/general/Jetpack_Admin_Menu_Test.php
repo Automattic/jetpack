@@ -187,7 +187,7 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 		delete_transient( 'jetpack_rewind_state' );
 		$requests   = array();
 		$block_http = function ( $response, $args, $url ) use ( &$requests ) {
-			$this->assertStringStartsWith( 'X_JETPACK ', $args['headers']['Authorization'] );
+			$this->assertStringStartsWith( 'X_JETPACK ', $args['headers']['Authorization'] ?? '' );
 			$requests[] = wp_parse_url( $url, PHP_URL_PATH );
 			return new WP_Error( 'blocked_for_test' );
 		};
