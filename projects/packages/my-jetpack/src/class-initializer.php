@@ -395,27 +395,8 @@ class Initializer {
 	 */
 	public static function maybe_redirect_to_onboarding() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No nonce needed for redirect flow control
-		$step = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : '';
-
-		$wizard_enabled = self::is_onboarding_wizard_enabled();
-		$connection     = new Connection_Manager();
-
-		// Only the wizard connects a user, so only it may count a site-only connection as
-		// unfinished setup. The single screen can only register the site, so asking it for
-		// an owner leaves that site on a screen with no way back out.
-		$connection_done = $wizard_enabled ? $connection->has_connected_owner() : $connection->is_connected();
-
-		// Onboarding's only action is the connect request, which answers a user
-		// without `jetpack_connect` with a 403.
-		$redirect_args = self::get_onboarding_redirect_args(
-			$step,
-			$connection_done,
-			self::is_onboarding_available() && current_user_can( 'jetpack_connect' ),
-			$wizard_enabled,
-			// Only the wizard records a settled run, and only a registered site may act on one:
-			// My Jetpack requires the site connection that accepting the terms creates.
-			$wizard_enabled && $connection->is_connected() && self::is_onboarding_settled()
-		);
+		$step          = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : '';
+		$redirect_args = self::get_onboarding_redirect_args_for_step( $step );
 
 		if ( null === $redirect_args ) {
 			return;
@@ -428,6 +409,34 @@ class Initializer {
 		wp_safe_redirect( $location );
 
 		exit( 0 );
+	}
+
+	/**
+	 * Get the setup redirect for the current user and site at the requested step.
+	 *
+	 * @param string $step The requested setup step, or empty for the dashboard.
+	 * @return array|null Query args for the redirect, or null to stay on the page.
+	 */
+	private static function get_onboarding_redirect_args_for_step( $step ) {
+		$wizard_enabled = self::is_onboarding_wizard_enabled();
+		$connection     = new Connection_Manager();
+
+		// Only the wizard connects a user, so only it may count a site-only connection as
+		// unfinished setup. The single screen can only register the site, so asking it for
+		// an owner leaves that site on a screen with no way back out.
+		$connection_done = $wizard_enabled ? $connection->has_connected_owner() : $connection->is_connected();
+
+		// Onboarding's only action is the connect request, which answers a user
+		// without `jetpack_connect` with a 403.
+		return self::get_onboarding_redirect_args(
+			$step,
+			$connection_done,
+			self::is_onboarding_available() && current_user_can( 'jetpack_connect' ),
+			$wizard_enabled,
+			// Only the wizard records a settled run, and only a registered site may act on one:
+			// My Jetpack requires the site connection that accepting the terms creates.
+			$wizard_enabled && $connection->is_connected() && self::is_onboarding_settled()
+		);
 	}
 
 	/**
@@ -1091,6 +1100,7 @@ class Initializer {
 			|| ! self::should_initialize()
 			|| ! ( new Connection_Manager() )->is_connected()
 			|| null !== self::get_partner_coupon_screen()
+			|| null !== self::get_onboarding_redirect_args_for_step( '' )
 			|| ! self::is_modules_rest_api_enabled()
 		) {
 			return $classic;

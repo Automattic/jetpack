@@ -54,6 +54,59 @@ class Initializer_Test extends BaseTestCase {
 		);
 	}
 
+	/**
+	 * @dataProvider modules_onboarding_cases
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 * @param bool $wizard_enabled Whether the wizard flag is enabled.
+	 * @param bool $has_owner Whether the site has a connected owner.
+	 * @param bool $skipped Whether this user has skipped setup.
+	 * @param bool $expect_features Whether the link should open Features.
+	 */
+	#[DataProvider( 'modules_onboarding_cases' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_modules_links_avoid_the_onboarding_redirect( $wizard_enabled, $has_owner, $skipped, $expect_features ) {
+		if ( ! is_dir( WP_PLUGIN_DIR . '/jetpack' ) ) {
+			mkdir( WP_PLUGIN_DIR . '/jetpack', 0777, true );
+		}
+		copy( __DIR__ . '/assets/jetpack-mock-plugin.txt', WP_PLUGIN_DIR . '/jetpack/jetpack.php' );
+		require_once WP_PLUGIN_DIR . '/jetpack/jetpack.php';
+		wp_cache_delete( 'plugins', 'plugins' );
+		update_option( 'active_plugins', array( 'jetpack/jetpack.php' ) );
+		$user_id = $this->log_in_as_admin();
+		wp_get_current_user()->add_cap( 'jetpack_manage_modules' );
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+		add_filter( 'jetpack_feature_flag_enabled_my-jetpack-modules-to-features', '__return_true' );
+		if ( $wizard_enabled ) {
+			$this->enable_wizard_flag();
+		}
+		if ( $has_owner ) {
+			$this->connect_owner( $user_id );
+		} else {
+			$this->connect_site_only();
+		}
+		if ( $skipped ) {
+			update_user_option( $user_id, Initializer::ONBOARDING_DISMISSED_USER_OPTION, true );
+		}
+
+		$eligible = null;
+		$expected = $expect_features
+			? admin_url( 'admin.php?page=my-jetpack&modules_fallback=1#/features' )
+			: admin_url( 'admin.php?page=jetpack_modules' );
+		$this->assertSame( $expected, Initializer::get_modules_management_url( array(), $eligible ) );
+		$this->assertSame( $expect_features, $eligible );
+	}
+
+	public static function modules_onboarding_cases() {
+		return array(
+			'wizard needs an owner' => array( true, false, false, false ),
+			'wizard disabled'       => array( false, false, false, true ),
+			'owner connected'       => array( true, true, false, true ),
+			'setup skipped'         => array( true, false, true, true ),
+		);
+	}
+
 	public function test_rest_probe_preserves_the_admin_cookie_user_without_a_rest_nonce() {
 		global $wp_rest_auth_cookie;
 		$original_cookie = $wp_rest_auth_cookie;
