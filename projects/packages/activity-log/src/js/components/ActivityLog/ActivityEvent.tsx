@@ -46,12 +46,7 @@ export function ActivityEventTitle( { activity }: { activity: Activity } ) {
 	// non-span element — keeps the `> span { color: grey }` rule on the
 	// enclosing `.site-activity-logs__event-content` from dimming the
 	// title in the Table layout.
-	return (
-		<>
-			<strong className="site-activity-logs__event-title">{ activity.activityTitle }</strong>
-			<KnownThreatsBadge activity={ activity } />
-		</>
-	);
+	return <strong className="site-activity-logs__event-title">{ activity.activityTitle }</strong>;
 }
 
 /**
@@ -62,9 +57,11 @@ export function ActivityEventTitle( { activity }: { activity: Activity } ) {
  * @return The badge, or null when the row isn't a flagged backup.
  */
 export function KnownThreatsBadge( { activity }: { activity: Activity } ) {
-	const knownThreats = useBackupKnownThreats(
-		activity.activityIsRewindable ? activity.rewindId : undefined
-	);
+	// Only the backup's own row is marked, not every restore point after it.
+	const isBackupRow =
+		activity.activityIsRewindable &&
+		/^rewind__backup(_only)?_complete/.test( activity.activityName ?? '' );
+	const knownThreats = useBackupKnownThreats( isBackupRow ? activity.rewindId : undefined );
 	if ( ! knownThreats?.flagged ) {
 		return null;
 	}
@@ -79,7 +76,7 @@ export function KnownThreatsBadge( { activity }: { activity: Activity } ) {
 		knownThreats.flagged
 	);
 	return (
-		<span className="site-activity-logs__known-threats" title={ description }>
+		<span className="site-activity-logs__event-badge" title={ description }>
 			<Badge intent="high">{ __( 'Known threats', 'jetpack-activity-log' ) }</Badge>
 		</span>
 	);
@@ -108,7 +105,10 @@ export function ActivityEventDescription( { activity }: { activity: Activity } )
 		return null;
 	}
 	return (
-		<span>{ objectHref ? <a href={ objectHref }>{ formattedContent }</a> : formattedContent }</span>
+		<span>
+			{ objectHref ? <a href={ objectHref }>{ formattedContent }</a> : formattedContent }
+			<KnownThreatsBadge activity={ activity } />
+		</span>
 	);
 }
 
