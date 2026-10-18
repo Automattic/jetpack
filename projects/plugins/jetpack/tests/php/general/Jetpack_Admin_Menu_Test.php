@@ -162,39 +162,55 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 	 * The Scan loader respects the same offline policy as the toolbar helper.
 	 */
 	public function test_scan_loader_offline() {
-		add_filter( 'jetpack_disable_scan', '__return_false' );
 		$this->test_scan_toolbar_respects_offline_mode( '__return_true', false, true );
 	}
 
 	/**
-	 * A refresh queued online must not send requests after the site goes offline.
+	 * A queued refresh sends its signed requests only while connected.
+	 *
+	 * @dataProvider queued_scan_refresh_modes
+	 * @param string $offline_filter    Offline-mode filter callback.
+	 * @param array  $expected_requests Expected outgoing request paths.
 	 */
-	public function test_queued_scan_refresh_does_not_send_requests_offline() {
+	#[DataProvider( 'queued_scan_refresh_modes' )]
+	public function test_queued_scan_refresh_respects_offline_mode( $offline_filter, $expected_requests ) {
 		require_once JETPACK__PLUGIN_DIR . 'modules/scan/class-admin-sidebar-link.php';
 		$sidebar = new Admin_Sidebar_Link();
 		$sidebar->init_hooks();
 		wp_schedule_single_event( time() - 1, Admin_Sidebar_Link::SCHEDULE_ACTION_HOOK );
 		$event = wp_get_scheduled_event( Admin_Sidebar_Link::SCHEDULE_ACTION_HOOK );
 		$this->assertNotFalse( $event );
-		add_filter( 'jetpack_offline_mode', '__return_true', 1000 );
+		add_filter( 'jetpack_offline_mode', $offline_filter, 1000 );
+		update_option( 'jetpack_offline_mode', false );
 		StatusCache::clear();
 		delete_transient( 'jetpack_scan_state' );
 		delete_transient( 'jetpack_rewind_state' );
 		$requests   = array();
-		$block_http = static function ( $response, $args, $url ) use ( &$requests ) {
-			$requests[] = $url;
+		$block_http = function ( $response, $args, $url ) use ( &$requests ) {
+			$this->assertStringStartsWith( 'X_JETPACK ', $args['headers']['Authorization'] );
+			$requests[] = wp_parse_url( $url, PHP_URL_PATH );
 			return new WP_Error( 'blocked_for_test' );
 		};
 		add_filter( 'pre_http_request', $block_http, 10, 3 );
 		try {
 			do_action_ref_array( $event->hook, $event->args );
-			$this->assertSame( array(), $requests );
+			$this->assertSame( $expected_requests, $requests );
 		} finally {
 			remove_filter( 'pre_http_request', $block_http );
-			remove_filter( 'jetpack_offline_mode', '__return_true', 1000 );
+			remove_filter( 'jetpack_offline_mode', $offline_filter, 1000 );
 			wp_clear_scheduled_hook( Admin_Sidebar_Link::SCHEDULE_ACTION_HOOK );
 			StatusCache::clear();
 		}
+	}
+
+	/**
+	 * @return array Offline and connected queued refresh expectations.
+	 */
+	public static function queued_scan_refresh_modes() {
+		return array(
+			'offline'   => array( '__return_true', array() ),
+			'connected' => array( '__return_false', array( '/wpcom/v2/sites/1234/scan', '/wpcom/v2/sites/1234/rewind' ) ),
+		);
 	}
 
 	/**
