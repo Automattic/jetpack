@@ -8,6 +8,8 @@
 namespace Automattic\Jetpack\Backup\V0005\REST;
 
 use Automattic\Jetpack\Backup\V0005\Jetpack_Backup;
+use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -82,6 +84,12 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
 		add_action( 'rest_api_init', array( Rest_Controller::class, 'register_routes' ) );
 		do_action( 'rest_api_init' );
+
+		// A WoW site, so the known-threats route reaches WordPress.com.
+		Constants::set_constant( 'ATOMIC_SITE_ID', 1 );
+		Constants::set_constant( 'ATOMIC_CLIENT_ID', 2 );
+		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', '/wpcomsh/wpcomsh.php' );
+		Status_Cache::clear();
 	}
 
 	/**
@@ -90,6 +98,8 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 	public function tearDown(): void {
 		remove_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
 		$this->reset_wpcom_request_mock();
+		Constants::clear_constants();
+		Status_Cache::clear();
 
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();

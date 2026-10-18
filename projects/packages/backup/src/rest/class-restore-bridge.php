@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Backup\V0005\REST;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Status\Host;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Server;
@@ -275,16 +276,36 @@ class Restore_Bridge {
 	}
 
 	/**
+	 * The answer for a site whose known threats can't be read, so the screen restores as before.
+	 *
+	 * @return WP_Error
+	 */
+	private static function threats_unavailable() {
+		return new WP_Error(
+			'threats_unavailable',
+			__( 'Known threats are not available for this site.', 'jetpack-backup-pkg' ),
+			array( 'status' => 404 )
+		);
+	}
+
+	/**
 	 * Known Scan threats in a backup.
 	 *
 	 * Proxies GET wpcom/v2 /sites/{blog_id}/rewind/backups/{rewind_id}/threats. A site
 	 * without Scan gets a 403 upstream, answered here as a 404 `threats_unavailable`
 	 * so the screen can restore as it always has.
 	 *
+	 * Only WoW sites are checked for now; every other site gets the same
+	 * `threats_unavailable` without a request to WordPress.com.
+	 *
 	 * @param WP_REST_Request $request The REST request.
 	 * @return \WP_REST_Response|WP_Error
 	 */
 	public static function get_known_threats( WP_REST_Request $request ) {
+		if ( ! ( new Host() )->is_woa_site() ) {
+			return self::threats_unavailable();
+		}
+
 		$blog_id = Rest_Controller::get_blog_id_or_error();
 		if ( is_wp_error( $blog_id ) ) {
 			return $blog_id;
@@ -304,11 +325,7 @@ class Restore_Bridge {
 
 		$status_code = (int) wp_remote_retrieve_response_code( $response );
 		if ( 403 === $status_code ) {
-			return new WP_Error(
-				'threats_unavailable',
-				__( 'Known threats are not available for this site.', 'jetpack-backup-pkg' ),
-				array( 'status' => 404 )
-			);
+			return self::threats_unavailable();
 		}
 		if ( 200 !== $status_code ) {
 			return Rest_Controller::upstream_error(

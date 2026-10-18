@@ -8,6 +8,8 @@
 namespace Automattic\Jetpack\Backup\V0005\REST;
 
 use Automattic\Jetpack\Backup\V0005\Jetpack_Backup;
+use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -63,6 +65,8 @@ class Rest_Restore_Bridge_Test extends TestCase {
 	public function tearDown(): void {
 		remove_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
 		$this->reset_wpcom_request_mock();
+		Constants::clear_constants();
+		Status_Cache::clear();
 
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
@@ -776,6 +780,7 @@ class Rest_Restore_Bridge_Test extends TestCase {
 			'count'     => 1,
 			'truncated' => false,
 		);
+		$this->arrange_woa_site();
 		$this->arrange_wpcom( $body );
 
 		$response = $this->server->dispatch( new WP_REST_Request( 'GET', '/jetpack/v4/rewind/backups/1786663613.9425/threats' ) );
@@ -789,6 +794,7 @@ class Rest_Restore_Bridge_Test extends TestCase {
 	 * A site without Scan gets a 403 upstream, reported as "unavailable" so the screen restores as before.
 	 */
 	public function test_known_threats_route_maps_403_to_unavailable() {
+		$this->arrange_woa_site();
 		$this->arrange_wpcom(
 			array(
 				'code'    => 'scan_required',
@@ -801,6 +807,20 @@ class Rest_Restore_Bridge_Test extends TestCase {
 
 		$this->assertSame( 404, $response->get_status() );
 		$this->assertSame( 'threats_unavailable', $response->get_data()['code'] );
+	}
+
+	/**
+	 * Known threats are a WoW-only check for now: elsewhere the route answers "unavailable"
+	 * without asking WordPress.com, so the screen restores as it always has.
+	 */
+	public function test_known_threats_route_is_unavailable_off_wow() {
+		$this->arrange_wpcom( array( 'summary' => array( 'flagged' => 1 ) ) );
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'GET', '/jetpack/v4/rewind/backups/123/threats' ) );
+
+		$this->assertSame( 404, $response->get_status() );
+		$this->assertSame( 'threats_unavailable', $response->get_data()['code'] );
+		$this->assertSame( '', $this->captured_url );
 	}
 
 	/**
@@ -820,5 +840,15 @@ class Rest_Restore_Bridge_Test extends TestCase {
 
 		$this->assertSame( 403, $response->get_status() );
 		$this->assertSame( '', $this->captured_url );
+	}
+
+	/**
+	 * Makes the site look like a WoW site to `Host::is_woa_site()`.
+	 */
+	private function arrange_woa_site() {
+		Constants::set_constant( 'ATOMIC_SITE_ID', 1 );
+		Constants::set_constant( 'ATOMIC_CLIENT_ID', 2 );
+		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', '/wpcomsh/wpcomsh.php' );
+		Status_Cache::clear();
 	}
 }

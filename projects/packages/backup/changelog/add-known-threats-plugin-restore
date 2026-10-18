@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Restore: Warn about known security threats in a backup and ask for confirmation before restoring it.
+Restore: On sites hosted on WordPress.com, warn about known security threats in a backup and ask for confirmation before restoring it.
