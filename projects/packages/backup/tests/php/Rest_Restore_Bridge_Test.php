@@ -21,6 +21,7 @@ use WP_REST_Server;
 use function add_action;
 use function add_filter;
 use function do_action;
+use function get_option;
 use function remove_filter;
 use function wp_insert_user;
 use function wp_set_current_user;
@@ -850,7 +851,9 @@ class Rest_Restore_Bridge_Test extends TestCase {
 		$response = $this->server->dispatch( new WP_REST_Request( 'GET', '/jetpack/v4/rewind/backups/known-threats' ) );
 
 		$this->assertSame( 200, $response->get_status() );
-		$this->assertStringContainsString( '/wpcom/v3/sites/999/rewind/backups?number=100&page=1', $this->captured_urls[0] );
+		$this->assertStringContainsString( '/wpcom/v3/sites/999/rewind/backups?number=100&page=1&known_threats_only=true', $this->captured_urls[0] );
+		// The clean backup's completion is looked up only when asked for.
+		$this->assertCount( 1, $this->captured_urls );
 		$this->assertSame(
 			array(
 				'backups'                                => array(
@@ -914,7 +917,7 @@ class Rest_Restore_Bridge_Test extends TestCase {
 			)
 		);
 
-		$response = $this->server->dispatch( new WP_REST_Request( 'GET', '/jetpack/v4/rewind/backups/known-threats' ) );
+		$response = $this->server->dispatch( $this->backups_known_threats_request_with_clean_rewind_id() );
 
 		$this->assertSame( '1792247404.817', $response->get_data()['latest_without_known_threats_rewind_id'] );
 		$this->assertCount( 2, $this->captured_urls );
@@ -924,6 +927,57 @@ class Rest_Restore_Bridge_Test extends TestCase {
 		$this->assertStringContainsString( 'after=2026-10-17T14:28:25+00:00', $activity );
 		// Before the next backup period, so a later backup's entry never matches.
 		$this->assertStringContainsString( 'before=2026-10-18T05:32:19+00:00', $activity );
+	}
+
+	public function test_backups_known_threats_remember_the_clean_backups_completion() {
+		$list = array(
+			'body' => wp_json_encode(
+				array(
+					'latest_without_known_threats' => 1792247305,
+					'backups'                      => array( array( 'object' => array( 'backup_period' => '1792247305' ) ) ),
+				),
+				JSON_UNESCAPED_SLASHES
+			),
+		);
+		$this->arrange_woa_site();
+		$this->arrange_wpcom_answers(
+			array(
+				$list,
+				array( 'body' => wp_json_encode( array( 'current' => array( 'orderedItems' => array( array( 'rewind_id' => '1792247404.817' ) ) ) ), JSON_UNESCAPED_SLASHES ) ),
+				$list,
+			)
+		);
+
+		$this->server->dispatch( $this->backups_known_threats_request_with_clean_rewind_id() );
+		$response = $this->server->dispatch( $this->backups_known_threats_request_with_clean_rewind_id() );
+
+		$this->assertSame( '1792247404.817', $response->get_data()['latest_without_known_threats_rewind_id'] );
+		$this->assertCount( 3, $this->captured_urls );
+	}
+
+	public function test_backups_known_threats_remember_a_missing_completion_only_briefly() {
+		$this->arrange_woa_site();
+		$this->arrange_wpcom_answers(
+			array(
+				array(
+					'body' => wp_json_encode(
+						array(
+							'latest_without_known_threats' => 1792247305,
+							'backups'                      => array(),
+						),
+						JSON_UNESCAPED_SLASHES
+					),
+				),
+				array( 'body' => wp_json_encode( array( 'current' => array( 'orderedItems' => array() ) ), JSON_UNESCAPED_SLASHES ) ),
+			)
+		);
+
+		$response = $this->server->dispatch( $this->backups_known_threats_request_with_clean_rewind_id() );
+
+		$this->assertNull( $response->get_data()['latest_without_known_threats_rewind_id'] );
+		$expires = (int) get_option( '_transient_timeout_jetpack_backup_complete_rewind_id_999_1792247305' );
+		$this->assertGreaterThan( time(), $expires );
+		$this->assertLessThanOrEqual( time() + 5 * MINUTE_IN_SECONDS, $expires );
 	}
 
 	public function test_backups_known_threats_are_unavailable_off_wow() {
@@ -967,6 +1021,17 @@ class Rest_Restore_Bridge_Test extends TestCase {
 
 		$this->assertSame( 403, $response->get_status() );
 		$this->assertSame( '', $this->captured_url );
+	}
+
+	/**
+	 * A known-threats list request that asks when the clean backup finished, as the restore screen does.
+	 *
+	 * @return WP_REST_Request
+	 */
+	private function backups_known_threats_request_with_clean_rewind_id() {
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/rewind/backups/known-threats' );
+		$request->set_param( 'with_clean_rewind_id', 'true' );
+		return $request;
 	}
 
 	/**

@@ -65,6 +65,12 @@ class Restore_Bridge {
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( __CLASS__, 'get_backups_known_threats' ),
 				'permission_callback' => array( Rest_Controller::class, 'permission_check' ),
+				'args'                => array(
+					'with_clean_rewind_id' => array(
+						'type'    => 'boolean',
+						'default' => false,
+					),
+				),
 			)
 		);
 
@@ -303,9 +309,10 @@ class Restore_Bridge {
 	 * Only WoW sites are checked for now; elsewhere, and without Scan, the answer is
 	 * `threats_unavailable` so the dashboard shows no badges.
 	 *
+	 * @param WP_REST_Request $request The REST request; `with_clean_rewind_id` also finds when the clean backup finished.
 	 * @return \WP_REST_Response|WP_Error
 	 */
-	public static function get_backups_known_threats() {
+	public static function get_backups_known_threats( WP_REST_Request $request ) {
 		if ( ! ( new Host() )->is_woa_site() ) {
 			return self::threats_unavailable();
 		}
@@ -316,7 +323,7 @@ class Restore_Bridge {
 		}
 
 		$response = Client::wpcom_json_api_request_as_user(
-			sprintf( '/sites/%d/rewind/backups?number=100&page=1', $blog_id ),
+			sprintf( '/sites/%d/rewind/backups?number=100&page=1&known_threats_only=true', $blog_id ),
 			'3',
 			array(),
 			null,
@@ -355,13 +362,16 @@ class Restore_Bridge {
 		$latest_clean = $body['latest_without_known_threats'] ?? null;
 		$latest_clean = is_numeric( $latest_clean ) ? (int) $latest_clean : null;
 
+		$latest_clean_rewind_id = null;
+		if ( null !== $latest_clean && true === rest_sanitize_boolean( $request->get_param( 'with_clean_rewind_id' ) ) ) {
+			$latest_clean_rewind_id = self::backup_complete_rewind_id( $blog_id, $latest_clean, array_column( $backups, 'period' ) );
+		}
+
 		return rest_ensure_response(
 			array(
 				'backups'                                => $backups,
 				'latest_without_known_threats'           => $latest_clean,
-				'latest_without_known_threats_rewind_id' => null === $latest_clean
-					? null
-					: self::backup_complete_rewind_id( $blog_id, $latest_clean, array_column( $backups, 'period' ) ),
+				'latest_without_known_threats_rewind_id' => $latest_clean_rewind_id,
 			)
 		);
 	}
@@ -376,6 +386,13 @@ class Restore_Bridge {
 	 * @return string|null The rewind id, or null when it can't be found.
 	 */
 	private static function backup_complete_rewind_id( $blog_id, $period, array $periods ) {
+		// A finished backup's entry never changes; "not found yet" is kept only briefly.
+		$cache_key = sprintf( 'jetpack_backup_complete_rewind_id_%d_%d', $blog_id, $period );
+		$cached    = get_transient( $cache_key );
+		if ( is_string( $cached ) ) {
+			return '' === $cached ? null : $cached;
+		}
+
 		$next = DAY_IN_SECONDS + $period;
 		foreach ( $periods as $candidate ) {
 			if ( $candidate > $period && $candidate < $next ) {
@@ -413,9 +430,11 @@ class Restore_Bridge {
 		foreach ( (array) ( $body['current']['orderedItems'] ?? array() ) as $item ) {
 			$rewind_id = $item['rewind_id'] ?? null;
 			if ( is_numeric( $rewind_id ) && (int) floor( (float) $rewind_id ) >= $period ) {
+				set_transient( $cache_key, (string) $rewind_id, MONTH_IN_SECONDS );
 				return (string) $rewind_id;
 			}
 		}
+		set_transient( $cache_key, '', 5 * MINUTE_IN_SECONDS );
 		return null;
 	}
 
