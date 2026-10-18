@@ -1024,6 +1024,148 @@ class Rest_Restore_Bridge_Test extends TestCase {
 	}
 
 	/**
+	 * Only a threats refusal keeps its own code; any other 409 is a failed restore.
+	 */
+	public function test_initiate_restore_reports_another_409_as_a_failure() {
+		$this->arrange_wpcom(
+			array(
+				'code'    => 'restore_in_progress',
+				'message' => 'Another restore is running.',
+			),
+			409
+		);
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/rewind/to/1786663613' );
+		$request->set_param( 'rewind_id', '1786663613' );
+		$response = Restore_Bridge::initiate_restore( $request );
+
+		$this->assertInstanceOf( WP_Error::class, $response );
+		$this->assertSame( 'restore_initiate_failed', $response->get_error_code() );
+		$this->assertSame( 409, $response->get_error_data()['status'] );
+	}
+
+	/**
+	 * Neither known-threats route asks WordPress.com before the site is connected.
+	 *
+	 * @dataProvider provide_known_threats_routes
+	 */
+	#[DataProvider( 'provide_known_threats_routes' )]
+	public function test_known_threats_routes_need_a_connected_site( $method ) {
+		$this->arrange_woa_site();
+
+		$response = Restore_Bridge::$method( $this->known_threats_request() );
+
+		$this->assertInstanceOf( WP_Error::class, $response );
+		$this->assertSame( 'not_connected', $response->get_error_code() );
+		$this->assertSame( array(), $this->captured_urls );
+	}
+
+	/**
+	 * The known-threats routes.
+	 *
+	 * @return array
+	 */
+	public static function provide_known_threats_routes() {
+		return array(
+			'counts for the list' => array( 'get_backups_known_threats' ),
+			'one backup'          => array( 'get_known_threats' ),
+		);
+	}
+
+	/**
+	 * Failures other than a missing Scan plan are reported as failures, not as "unavailable".
+	 *
+	 * @dataProvider provide_known_threats_failures
+	 */
+	#[DataProvider( 'provide_known_threats_failures' )]
+	public function test_known_threats_routes_report_upstream_failures( $method, $failure, $expected_status ) {
+		$this->arrange_woa_site();
+		if ( 'unreachable' === $failure ) {
+			$this->arrange_wpcom_unreachable();
+		} elseif ( 'unreadable' === $failure ) {
+			$this->arrange_wpcom_raw( '<html>Bad gateway</html>' );
+		} else {
+			$this->arrange_wpcom( array( 'code' => 'internal_error' ), 500 );
+		}
+
+		$response = Restore_Bridge::$method( $this->known_threats_request() );
+
+		$this->assertInstanceOf( WP_Error::class, $response );
+		$this->assertSame( 'known_threats_fetch_failed', $response->get_error_code() );
+		$this->assertSame( $expected_status, $response->get_error_data()['status'] );
+	}
+
+	/**
+	 * Upstream failures for each known-threats route, with the status each reports.
+	 *
+	 * @return array
+	 */
+	public static function provide_known_threats_failures() {
+		return array(
+			'list, unreachable'      => array( 'get_backups_known_threats', 'unreachable', 502 ),
+			'list, server error'     => array( 'get_backups_known_threats', 'server error', 500 ),
+			'list, unreadable 200'   => array( 'get_backups_known_threats', 'unreadable', 500 ),
+			'backup, unreachable'    => array( 'get_known_threats', 'unreachable', 502 ),
+			'backup, server error'   => array( 'get_known_threats', 'server error', 500 ),
+			'backup, unreadable 200' => array( 'get_known_threats', 'unreadable', 502 ),
+		);
+	}
+
+	public function test_backups_known_threats_skip_rows_without_a_backup_period() {
+		$this->arrange_woa_site();
+		$this->arrange_wpcom(
+			array(
+				'backups' => array(
+					array( 'object' => array() ),
+					array( 'object' => array( 'backup_period' => 'soon' ) ),
+					array( 'object' => array( 'backup_period' => '1792247305' ) ),
+				),
+			)
+		);
+
+		$response = Restore_Bridge::get_backups_known_threats( $this->known_threats_request() );
+
+		$this->assertSame( array( 1792247305 ), array_column( $response->get_data()['backups'], 'period' ) );
+	}
+
+	public function test_backups_known_threats_do_not_remember_a_failed_completion_lookup() {
+		$this->arrange_woa_site();
+		$this->arrange_wpcom_answers(
+			array(
+				array(
+					'body' => wp_json_encode(
+						array(
+							'latest_without_known_threats' => 1792247305,
+							'backups'                      => array(),
+						),
+						JSON_UNESCAPED_SLASHES
+					),
+				),
+				array(
+					'body'   => '{}',
+					'status' => 500,
+				),
+			)
+		);
+
+		$response = $this->server->dispatch( $this->backups_known_threats_request_with_clean_rewind_id() );
+
+		$this->assertNull( $response->get_data()['latest_without_known_threats_rewind_id'] );
+		$this->assertFalse( get_option( '_transient_jetpack_backup_complete_rewind_id_999_1792247305' ) );
+	}
+
+	/**
+	 * A request for either known-threats route, called directly.
+	 *
+	 * @return WP_REST_Request
+	 */
+	private function known_threats_request() {
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/rewind/backups/1792247305/threats' );
+		$request->set_param( 'rewind_id', '1792247305' );
+		return $request;
+	}
+
+	/**
 	 * A known-threats list request that asks when the clean backup finished, as the restore screen does.
 	 *
 	 * @return WP_REST_Request
