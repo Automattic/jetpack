@@ -11,7 +11,16 @@ import {
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Icon, cloud, download as downloadIcon, rotateLeft } from '@wordpress/icons';
 import { Link as RouterLink } from '@wordpress/route';
-import { Button, Card, Link, ButtonLink, Stack, Text, VisuallyHidden } from '@wordpress/ui';
+import {
+	Button,
+	Card,
+	Link,
+	ButtonLink,
+	Stack,
+	Text,
+	Tooltip,
+	VisuallyHidden,
+} from '@wordpress/ui';
 import { containingBackup } from '../../data/api/known-threats';
 import { formatDuration } from '../../data/durations';
 import { formatStorageSize } from '../../data/storage-units';
@@ -110,6 +119,10 @@ export default function BackupDetail( { item }: Props ) {
 	useEffect( () => setAcknowledged( false ), [ item.rewindId ] );
 	const restoreBlocked = !! knownThreats && ! acknowledged;
 	const restoreHintId = `jpb-backup-detail-restore-hint-${ useInstanceId( BackupDetail ) }`;
+	const restoreHint = __(
+		'To restore this backup, confirm that you understand it contains known threats.',
+		'jetpack-backup-pkg'
+	);
 
 	// FileBrowser rebuilds the array on every recompute, so a plain
 	// setter would re-render this subtree on selections that changed
@@ -207,18 +220,21 @@ export default function BackupDetail( { item }: Props ) {
 						 */ }
 						{ restoreBlocked ? (
 							<>
-								<Button variant="solid" disabled aria-describedby={ restoreHintId }>
-									<Button.Icon icon={ rotateLeft } />
-									<Text variant="body-md">
-										{ __( 'Restore to this point', 'jetpack-backup-pkg' ) }
-									</Text>
-								</Button>
-								<VisuallyHidden id={ restoreHintId }>
-									{ __(
-										'To restore this backup, confirm that you understand it contains known threats.',
-										'jetpack-backup-pkg'
-									) }
-								</VisuallyHidden>
+								{ /* The tooltip shows the hint on hover and focus; screen readers get it from the description. */ }
+								<Tooltip.Root>
+									<Tooltip.Trigger
+										render={
+											<Button variant="solid" disabled aria-describedby={ restoreHintId } />
+										}
+									>
+										<Button.Icon icon={ rotateLeft } />
+										<Text variant="body-md">
+											{ __( 'Restore to this point', 'jetpack-backup-pkg' ) }
+										</Text>
+									</Tooltip.Trigger>
+									<Tooltip.Popup>{ restoreHint }</Tooltip.Popup>
+								</Tooltip.Root>
+								<VisuallyHidden id={ restoreHintId }>{ restoreHint }</VisuallyHidden>
 							</>
 						) : (
 							<ButtonLink

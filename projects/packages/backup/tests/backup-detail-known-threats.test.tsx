@@ -110,6 +110,22 @@ describe( 'Backup detail for a backup with known threats', () => {
 		expect( restore ).toHaveAccessibleDescription(
 			'To restore this backup, confirm that you understand it contains known threats.'
 		);
+		// Mouse users see the same hint as a tooltip.
+		// One copy is the description; the tooltip adds a second.
+		await user.hover( restore );
+		await waitFor(
+			() =>
+				expect(
+					screen.getAllByText(
+						'To restore this backup, confirm that you understand it contains known threats.'
+					)
+				).toHaveLength( 2 ),
+			{ timeout: 2000 }
+		);
+		expect( restore ).toHaveAccessibleDescription(
+			'To restore this backup, confirm that you understand it contains known threats.'
+		);
+		await user.unhover( restore );
 
 		// aria-controls only once the list it names is in the page.
 		const toggle = screen.getByRole( 'button', { name: 'Known threats (3)' } );
