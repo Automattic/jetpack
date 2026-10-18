@@ -15,7 +15,6 @@ use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
 use WP_Error;
-use WP_REST_Request;
 
 /**
  * Covers REST_Controller::get_known_threats().
@@ -63,7 +62,7 @@ class Known_Threats_Route_Test extends TestCase {
 	public function test_known_threats_are_unavailable_off_wow() {
 		$this->arrange_wpcom( array( 'backups' => array() ) );
 
-		$result = REST_Controller::get_known_threats( new WP_REST_Request( 'GET', '/jetpack/v4/activity-log/known-threats' ) );
+		$result = REST_Controller::get_known_threats();
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 'threats_unavailable', $result->get_error_code() );
@@ -108,7 +107,7 @@ class Known_Threats_Route_Test extends TestCase {
 			)
 		);
 
-		$result = REST_Controller::get_known_threats( new WP_REST_Request( 'GET', '/jetpack/v4/activity-log/known-threats' ) );
+		$result = REST_Controller::get_known_threats();
 
 		$this->assertSame(
 			array(
@@ -143,7 +142,7 @@ class Known_Threats_Route_Test extends TestCase {
 		$this->arrange_woa_site();
 		$this->arrange_wpcom( array( 'code' => 'scan_required' ), 403 );
 
-		$result = REST_Controller::get_known_threats( new WP_REST_Request( 'GET', '/jetpack/v4/activity-log/known-threats' ) );
+		$result = REST_Controller::get_known_threats();
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 'threats_unavailable', $result->get_error_code() );
