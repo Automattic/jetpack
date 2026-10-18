@@ -36,7 +36,7 @@ async function openDay( dashboard: Dashboard ) {
 
 	await dashboard.clickInWidget(
 		dashboard.page
-			.getByRole( 'application', { name: 'Bar chart' } )
+			.getByRole( 'application', { name: 'Chart: Traffic summary' } )
 			.locator( 'rect.visx-bar' )
 			.nth( 2 )
 	);
