@@ -46,6 +46,15 @@ class Initial_State {
 				 * @param string $template Restore URL template, or an empty string.
 				 */
 				'restoreUrlTemplate' => (string) apply_filters( 'jetpack_activity_log_restore_url_template', '' ),
+				/**
+				 * Filters the in-admin address a link to a backup opens, with `{rewindId}` as the placeholder.
+				 * Empty leaves such links as plain text.
+				 *
+				 * @since $$next-version$$
+				 *
+				 * @param string $template Backup URL template, or an empty string.
+				 */
+				'backupUrlTemplate'  => (string) apply_filters( 'jetpack_activity_log_backup_url_template', '' ),
 			),
 			'siteData'      => array(
 				'id'                    => Jetpack_Options::get_option( 'id' ),
