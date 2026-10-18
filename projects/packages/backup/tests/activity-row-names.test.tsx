@@ -84,3 +84,30 @@ it( 'no longer answers to the summary alone, which every row shares', async () =
 
 	expect( screen.queryByRole( 'button', { name: SUMMARY } ) ).not.toBeInTheDocument();
 } );
+
+it( 'describes a backup with known threats by its badge and warning', async () => {
+	const flagged = { malware: 3, database: 0, vulnerable: 0, ignored: 0, flagged: 3, fixed: 0 };
+	mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
+		Promise.resolve(
+			path.includes( '/rewind/backups/known-threats' )
+				? {
+						backups: [
+							{ period: 1786600060, known_threats: null },
+							{ period: 1786600000, known_threats: flagged },
+						],
+						latest_without_known_threats: null,
+					}
+				: PAGE
+		)
+	);
+	renderList();
+
+	const button = await screen.findByRole( 'button', { name: /Aug 20, 2026, 10:00 AM/ } );
+	await expect( screen.findByText( 'Known threats (3)' ) ).resolves.toBeInTheDocument();
+	expect( button ).toHaveAccessibleDescription(
+		/Known threats \(3\).*This backup is known to contain 3 security threats\./
+	);
+	expect(
+		screen.getByRole( 'button', { name: /Aug 20, 2026, 10:01 AM/ } )
+	).not.toHaveAccessibleDescription( /Known threats/ );
+} );

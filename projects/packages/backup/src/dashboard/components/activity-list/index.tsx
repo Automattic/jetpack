@@ -205,11 +205,7 @@ function selectRow( event: MouseEvent< HTMLElement > ) {
 function DescriptionCell( { item }: { item: ActivityItem } ) {
 	const runFor = useContext( BackupRunsContext );
 	const run = isBackupItem( item ) ? runFor( item ) : null;
-	const { data: knownThreats } = useBackupsKnownThreats();
-	const flagged = isBackupItem( item )
-		? ( containingBackup( knownThreats, item.rewindId )?.knownThreats?.flagged ?? 0 )
-		: 0;
-	const description = (
+	return (
 		<Stack direction="row" align="center" gap="md" className="jpb-activity-list__description">
 			<Text variant="body-sm" className="jpb-text-muted jpb-activity-list__date">
 				{ rowDate( item ) }
@@ -231,22 +227,31 @@ function DescriptionCell( { item }: { item: ActivityItem } ) {
 			) }
 		</Stack>
 	);
+}
+
+/**
+ * Known-threats cell — the badge for a backup with known threats. A field of its own, below the
+ * description: DataViews describes each row's button with its fields, so screen readers hear it.
+ *
+ * @param props      - Component props.
+ * @param props.item - The activity item.
+ * @return The badge, or null when the backup has none.
+ */
+function KnownThreatsCell( { item }: { item: ActivityItem } ) {
+	const { data: knownThreats } = useBackupsKnownThreats();
+	const flagged = isBackupItem( item )
+		? ( containingBackup( knownThreats, item.rewindId )?.knownThreats?.flagged ?? 0 )
+		: 0;
 	if ( flagged === 0 ) {
-		return description;
+		return null;
 	}
-	// Its own line: the description truncates to one.
 	return (
-		<Stack direction="column" align="flex-start" gap="xs">
-			{ description }
-			{ /*
-			 * Lifted above the row's full-size select button so the tooltip can be hovered; a
-			 * click on it still selects the row. Keyboard users select with that button itself.
-			 */ }
-			{ /* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */ }
-			<span className="jpb-activity-list__known-threats" onClick={ selectRow }>
-				<KnownThreatsBadgeWithWarning count={ flagged } />
-			</span>
-		</Stack>
+		// Lifted above the row's full-size select button so the tooltip can be hovered; a click
+		// on it still selects the row. Keyboard users select with that button itself.
+		// eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+		<span className="jpb-activity-list__known-threats" onClick={ selectRow }>
+			<KnownThreatsBadgeWithWarning count={ flagged } />
+		</span>
 	);
 }
 
@@ -395,6 +400,15 @@ export default function ActivityList( {
 				getValue: ( { item } ) =>
 					`${ rowDate( item ) }${ item.summary ? ` ${ item.summary }` : '' }`,
 				enableHiding: false,
+				filterBy: false,
+			},
+			{
+				id: 'knownThreats',
+				// Read before the badge, and hidden with it on rows without one.
+				label: __( 'Warning', 'jetpack-backup-pkg' ),
+				render: KnownThreatsCell,
+				enableHiding: false,
+				enableSorting: false,
 				filterBy: false,
 			},
 		],
