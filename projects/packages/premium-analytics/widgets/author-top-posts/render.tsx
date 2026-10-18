@@ -97,6 +97,7 @@ function AuthorTopPostsInner() {
 					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
 					<LeaderboardChart
+						chartTitle={ __( 'Top viewed posts', 'jetpack-premium-analytics-pkg' ) }
 						data={ chartData }
 						withOverlayLabel
 						showLegend={ false }

@@ -113,6 +113,8 @@ export type LeaderboardProps = {
 	 * Rendered in the widget footer, typically a `ReportLink`.
 	 */
 	footer?: ReactNode;
+	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
+	chartTitle?: string;
 };
 
 const DEFAULT_FORMAT: DataFormat = {
@@ -142,6 +144,7 @@ export function Leaderboard( {
 	drillDown,
 	navigation,
 	footer,
+	chartTitle,
 }: LeaderboardProps ): JSX.Element {
 	const { reportParams } = useWidgetRootContext();
 	const detailSearch = useWidgetNavigationSearch( navigation );
@@ -249,6 +252,7 @@ export function Leaderboard( {
 						legendLabels={ legendLabels }
 						dataFormat={ format }
 						columns={ columns }
+						chartTitle={ chartTitle }
 					/>
 				</WidgetState>
 			</Stack>

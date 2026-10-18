@@ -94,6 +94,8 @@ export type DonutProps = {
 	variant?: 'ring' | 'half-ring';
 	// Whether the total of the segments shows; off for shares that add up to one. Defaults to on.
 	withTotal?: boolean;
+	// What the chart shows, such as the widget title; the chart is named "Chart: <title>".
+	chartTitle?: string;
 };
 
 // Funnels: steps as counts in, with the rate of the whole, the shares and the states handled.
@@ -118,6 +120,8 @@ export type FunnelProps = {
 	empty?: WidgetStateEmpty;
 	// Format of the step counts, in the tooltip. Defaults to compact integers.
 	format?: DataFormat;
+	// What the chart shows, such as the widget title; the chart is named "Chart: <title>".
+	chartTitle?: string;
 };
 
 // Columns: a few categories compared across the periods as vertical bars, with the series per
@@ -141,6 +145,8 @@ export type ColumnsProps = {
 	empty?: WidgetStateEmpty;
 	// Format of the figures, on the y axis and in the tooltip. Defaults to compact integers.
 	format?: DataFormat;
+	// What the chart shows, such as the widget title; the chart is named "Chart: <title>".
+	chartTitle?: string;
 };
 
 // Locations: a ranking of places in, the list with flags beside the map that draws them, the
@@ -172,6 +178,8 @@ export type LocationsProps = {
 	country?: { code: string; name: string };
 	// Rows the list shows. Defaults to the widget row limit.
 	maxRows?: number;
+	// What the widget shows, such as its title; the list is named "Chart: <title>" and the map "Map: <title>".
+	chartTitle?: string;
 };
 
 // Widget attributes. The chart type is not one: a widget declares it as a `jpa/toggle-group` field.

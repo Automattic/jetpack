@@ -256,6 +256,34 @@ describe( 'MetricTabsChart', () => {
 		);
 	} );
 
+	it.each( [
+		[ 'single-metric', 'line', mockLineSpy, [ METRIC ] ],
+		[ 'single-metric', 'bar', mockBarSpy, [ METRIC ] ],
+		[ 'tabbed', 'line', mockLineSpy, [ METRIC, VISITORS ] ],
+		[ 'tabbed', 'bar', mockBarSpy, [ METRIC, VISITORS ] ],
+		[ 'dropdown', 'line', mockLineSpy, [ METRIC, VISITORS ] ],
+		[ 'dropdown', 'bar', mockBarSpy, [ METRIC, VISITORS ] ],
+	] as const )( 'passes chartTitle to the %s %s chart', ( layout, type, spy, metrics ) => {
+		if ( layout === 'dropdown' ) {
+			setMockChartWidth( 100 );
+		}
+
+		render(
+			<MetricTabsChart
+				metrics={ [ ...metrics ] }
+				dataFormat={ DATA_FORMAT }
+				chartType={ type }
+				chartTitle="Traffic summary"
+			/>
+		);
+
+		expect( screen.queryByRole( 'tablist' ) !== null ).toBe( layout === 'tabbed' );
+		expect( screen.queryByRole( 'combobox' ) !== null ).toBe( layout === 'dropdown' );
+		expect( spy ).toHaveBeenLastCalledWith(
+			expect.objectContaining( { chartTitle: 'Traffic summary' } )
+		);
+	} );
+
 	it( 'keeps the previous period as a same-group comparison series in both chart types', () => {
 		render( <MetricTabsChart metrics={ [ METRIC ] } dataFormat={ DATA_FORMAT } /> );
 		render( <MetricTabsChart metrics={ [ METRIC ] } dataFormat={ DATA_FORMAT } chartType="bar" /> );
