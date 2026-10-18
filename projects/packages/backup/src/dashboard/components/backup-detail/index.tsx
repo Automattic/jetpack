@@ -1,3 +1,4 @@
+import { speak } from '@wordpress/a11y';
 import { useInstanceId } from '@wordpress/compose';
 import { dateI18n } from '@wordpress/date';
 import {
@@ -113,6 +114,19 @@ export default function BackupDetail( { item }: Props ) {
 	// FileBrowser rebuilds the array on every recompute, so a plain
 	// setter would re-render this subtree on selections that changed
 	// nothing. Returning `prev` unchanged lets React bail out instead.
+	// Focus stays on the checkbox, below Restore in the header; say where the restore it was blocking is.
+	const handleAcknowledge = useCallback( ( next: boolean ) => {
+		setAcknowledged( next );
+		if ( next ) {
+			speak(
+				__(
+					'You can now restore this backup with "Restore to this point", at the top of this panel.',
+					'jetpack-backup-pkg'
+				),
+				'polite'
+			);
+		}
+	}, [] );
 	const handleSelectionIdsChange = useCallback( ( next: string[] ) => {
 		setSelectedIds( prev =>
 			prev.length === next.length && prev.every( ( id, index ) => id === next[ index ] )
@@ -256,7 +270,7 @@ export default function BackupDetail( { item }: Props ) {
 					<KnownThreatsWarning
 						threats={ knownThreats.threats }
 						acknowledged={ acknowledged }
-						onAcknowledge={ setAcknowledged }
+						onAcknowledge={ handleAcknowledge }
 						restoreInsteadPeriod={ knownThreats.latestClean }
 						restoreInsteadRewindId={ knownThreats.latestCleanRewindId }
 					/>

@@ -122,6 +122,13 @@ export default function RestoreScreen() {
 		}
 	}, [ checkingThreats, needsAcknowledgement ] );
 
+	// Focus stays on the checkbox; say that the restore it was blocking is open.
+	const handleAcknowledge = useCallback( ( next: boolean ) => {
+		setAcknowledged( next );
+		if ( next ) {
+			speak( __( 'You can now restore this backup.', 'jetpack-backup-pkg' ), 'polite' );
+		}
+	}, [] );
 	const handleRetry = useCallback( () => {
 		armStepFocus();
 		reset();
@@ -257,7 +264,7 @@ export default function RestoreScreen() {
 									<KnownThreatsWarning
 										threats={ knownThreats }
 										acknowledged={ acknowledged }
-										onAcknowledge={ setAcknowledged }
+										onAcknowledge={ handleAcknowledge }
 										restoreInsteadPeriod={ backupsKnownThreats?.latest_without_known_threats }
 										restoreInsteadRewindId={
 											backupsKnownThreats?.latest_without_known_threats_rewind_id
