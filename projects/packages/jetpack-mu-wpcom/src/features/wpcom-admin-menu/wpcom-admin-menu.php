@@ -310,6 +310,7 @@ function wpcom_reorder_submenu( $menu_slug, $desired_order ) {
 /**
  * Whether the host replaces My Jetpack with Stats.
  *
+ * @since $$next-version$$
  * @return bool
  */
 function jetpack_mu_wpcom_redirects_my_jetpack_to_stats() {
