@@ -193,8 +193,9 @@ class Initializer {
 	 */
 	public static function use_local_module_options( $response, $handler, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- WordPress REST filter signature.
 		if ( '/jetpack/v4/module/all' === $request->get_route() ) {
-			// An inactive plugin's loaded class can leave its forcing filter attached.
-			if ( ! Products\Videopress::is_standalone_plugin_active()
+			// Keep module activation editable when the standalone plugin is not running.
+			if ( ! defined( 'JETPACK_VIDEOPRESS_ROOT_FILE' )
+				&& ! Products\Videopress::is_standalone_plugin_active()
 				&& remove_filter( 'jetpack_active_modules', array( \Automattic\Jetpack\VideoPress\Module_Control::class, 'add_videopress_to_array' ) )
 				&& class_exists( 'Jetpack_Modules_Overrides', false )
 			) {

@@ -1,5 +1,5 @@
 Significance: patch
 Type: other
-Comment: Test stale VideoPress module overrides after offline refresh.
+Comment: Test inactive and running standalone VideoPress module overrides after offline refresh.
 
 
