@@ -5,6 +5,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Sharing_Likes\Settings\Sharing_Options;
 use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Shared_Functions;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -866,13 +867,18 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 					break;
 				case 'jetpack_protect_whitelist':
-					if ( class_exists( 'Brute_Force_Protection_Shared_Functions' ) ) {
-						$result = Brute_Force_Protection_Shared_Functions::save_allow_list( $value );
-						if ( is_wp_error( $result ) ) {
-							return $result;
-						}
-						$updated[ $key ] = Brute_Force_Protection_Shared_Functions::format_allow_list();
+					// The GET response nests the site's list under `local`, so accept that shape back.
+					if ( isset( $value['local'] ) && is_array( $value['local'] ) ) {
+						$value = $value['local'];
 					}
+					if ( is_array( $value ) && array_filter( $value, 'is_array' ) ) {
+						return new WP_Error( 'invalid_input', __( 'Each allowed IP address must be a string.', 'jetpack' ), 400 );
+					}
+					$result = Brute_Force_Protection_Shared_Functions::save_allow_list( $value );
+					if ( is_wp_error( $result ) ) {
+						return $result;
+					}
+					$updated[ $key ] = Brute_Force_Protection_Shared_Functions::format_allow_list();
 					break;
 				case 'jetpack_sync_non_public_post_stati':
 					Jetpack_Options::update_option( 'sync_non_public_post_stati', $value );
@@ -954,7 +960,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$sharing_options[ preg_replace( '/^sharing_/', '', $key ) ] = $value;
 					break;
 				case 'sharing_label':
-					$sharing_options[ $key ] = $value;
+					$sharing_options[ $key ] = $raw_value;
 					break;
 
 				// Keyring token option.
@@ -1523,20 +1529,29 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		if ( ! empty( $sharing_options ) && class_exists( 'Sharing_Service' ) ) {
-			$ss = new Sharing_Service();
-
-			/*
-			 * Merge current values with updated, since Sharing_Service expects
-			 * all values to be included when updating
-			 */
-			$current_sharing_options = $ss->get_global_options();
-			foreach ( $current_sharing_options as $key => $val ) {
-				if ( ! isset( $sharing_options[ $key ] ) ) {
-					$sharing_options[ $key ] = $val;
+			if ( method_exists( Sharing_Options::class, 'update' ) ) {
+				$changes = $sharing_options;
+				if ( isset( $changes['sharing_label'] ) ) {
+					$changes['sharing_label'] = wp_slash( $changes['sharing_label'] );
 				}
-			}
 
-			$updated_social_options = $ss->set_global_options( $sharing_options );
+				$updated_social_options = Sharing_Options::update( $changes );
+			} else {
+				$ss = new Sharing_Service();
+
+				/*
+				 * Merge current values with updated, since Sharing_Service expects
+				 * all values to be included when updating
+				 */
+				$current_sharing_options = $ss->get_global_options();
+				foreach ( $current_sharing_options as $key => $val ) {
+					if ( ! isset( $sharing_options[ $key ] ) ) {
+						$sharing_options[ $key ] = $val;
+					}
+				}
+
+				$updated_social_options = $ss->set_global_options( $sharing_options );
+			}
 
 			if ( isset( $input['sharing_button_style'] ) ) {
 				$updated['sharing_button_style'] = (string) $updated_social_options['button_style'];
@@ -1546,7 +1561,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$updated['sharing_label'] = (string) $sharing_options['sharing_label'];
 			}
 			if ( isset( $input['sharing_show'] ) ) {
-				$updated['sharing_show'] = (array) $updated_social_options['show'];
+				$updated['sharing_show'] = (array) ( $updated_social_options['show'] ?? array() );
 			}
 			if ( isset( $input['sharing_open_links'] ) ) {
 				$updated['sharing_open_links'] = (string) $updated_social_options['open_links'];

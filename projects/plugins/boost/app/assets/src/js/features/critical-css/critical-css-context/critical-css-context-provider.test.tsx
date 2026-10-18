@@ -1,7 +1,7 @@
 /* No jest-dom in this project. */
 /* eslint-disable jest-dom/prefer-in-document, jest-dom/prefer-to-have-text-content */
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { DataSyncError } from '@automattic/jetpack-react-data-sync-client';
+import { DataSyncError, useDataSyncAction } from '@automattic/jetpack-react-data-sync-client';
 import { ModuleSurfaceProvider } from '$features/module/surface';
 import CriticalCssProvider from './critical-css-context-provider';
 import CriticalCssMeta from '../critical-css-meta/critical-css-meta';
@@ -12,12 +12,17 @@ let mockCssState: CriticalCssState;
 const mockSetCssState = jest.fn();
 const mockRegenerate = jest.fn();
 const mockSetProviderErrors = jest.fn();
+const mockSetProviderCss = jest.fn();
 
+jest.mock( '@automattic/jetpack-react-data-sync-client', () => ( {
+	...jest.requireActual( '@automattic/jetpack-react-data-sync-client' ),
+	useDataSyncAction: jest.fn(),
+} ) );
 jest.mock( '../lib/stores/critical-css-state', () => ( {
 	...jest.requireActual( '../lib/stores/critical-css-state' ),
 	useCriticalCssState: () => [ mockCssState, mockSetCssState ],
 	useProxyNonce: () => 'proxy-nonce',
-	useSetProviderCssAction: () => ( { mutateAsync: jest.fn() } ),
+	useSetProviderCssAction: () => ( { mutateAsync: mockSetProviderCss } ),
 	useSetProviderErrorsAction: () => ( { mutateAsync: mockSetProviderErrors } ),
 	useRegenerateCriticalCssAction: () => ( { mutate: mockRegenerate } ),
 } ) );
@@ -85,6 +90,36 @@ describe( 'Local Critical CSS generator failures', () => {
 		mockCssState = pendingState( 100 );
 		mockRunLocalGenerator.mockReturnValue( new AbortController() );
 	} );
+
+	it( 'preserves the provider error state returned with a rejected CSS save', () => {
+		const { useSetProviderCssAction } = jest.requireActual( '../lib/stores/critical-css-state' );
+		useSetProviderCssAction();
+		const { callbacks } = ( useDataSyncAction as jest.Mock ).mock.calls.at( -1 )[ 0 ];
+		const state = {
+			...mockCssState,
+			providers: mockCssState.providers.map( provider => ( {
+				...provider,
+				status: 'error',
+				errors: [ { url: '/', type: 'PayloadTooLargeError', message: 'Too large', meta: {} } ],
+			} ) ),
+		};
+		expect( callbacks.onResult( { success: false, state }, mockCssState ) ).toBe( state );
+	} );
+
+	it.each( [ 'success', 'error' ] )(
+		'reports a %s provider save to the generator',
+		async status => {
+			mountMeta();
+			const state = {
+				...mockCssState,
+				providers: mockCssState.providers.map( provider => ( { ...provider, status } ) ),
+			};
+			mockSetProviderCss.mockResolvedValueOnce( state );
+			await expect(
+				lastRunCallbacks().setProviderCss( 'core_front_page', '.top{color:red}' )
+			).resolves.toBe( status === 'success' );
+		}
+	);
 
 	it( 'does not restart a failed run when its error save rolls the state back', async () => {
 		const showState = mountMeta();

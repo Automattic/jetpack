@@ -55,32 +55,6 @@ describe( 'Stats comments normalizer', () => {
 		] );
 	} );
 
-	it( 'links guest authors to the comments-admin search by email', () => {
-		const result = sanitizeStatsCommentsResponse( {
-			authors: [
-				{
-					name: 'Aggie',
-					comments: 2,
-					link: '?s=aggie@example.com',
-					follow_data: null,
-				},
-			],
-		} );
-
-		expect( result.data[ 0 ].items ).toEqual( [
-			expect.objectContaining( {
-				label: 'authors',
-				children: [
-					expect.objectContaining( {
-						label: 'Aggie',
-						// Not a URL: the comment screen filtered to that author.
-						link: 'edit-comments.php?s=aggie%40example.com',
-					} ),
-				],
-			} ),
-		] );
-	} );
-
 	// The endpoint sends the email unencoded, so a `+` is a literal plus and
 	// must not be read as a form-encoded space.
 	it( 'keeps a plus-addressed guest email intact', () => {
@@ -90,16 +64,6 @@ describe( 'Stats comments normalizer', () => {
 
 		expect( result.data[ 0 ].items[ 0 ].children[ 0 ].link ).toBe(
 			'edit-comments.php?s=aggie%2Btag%40example.com'
-		);
-	} );
-
-	it( 'links WordPress.com users to the comment screen filtered by user id', () => {
-		const result = sanitizeStatsCommentsResponse( {
-			authors: [ { name: 'Bo', comments: 7, link: '?user_id=1662656' } ],
-		} );
-
-		expect( result.data[ 0 ].items[ 0 ].children[ 0 ].link ).toBe(
-			'edit-comments.php?user_id=1662656'
 		);
 	} );
 

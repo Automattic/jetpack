@@ -1,5 +1,3 @@
-import { sprintf } from 'sprintf-js';
-
 /**
  * A function to format a duration as h:m:s.
  *
@@ -16,13 +14,14 @@ export default function formatDuration( duration ) {
 
 	return (
 		n +
-		// eslint-disable-next-line @wordpress/valid-sprintf -- This isn't WordPress's i18n sprintf.
-		sprintf(
-			'%d:%02d:%02d.%03d',
-			Math.floor( duration / 3600000 ), // https://github.com/alexei/sprintf.js/issues/103
-			Math.floor( duration / 60000 ) % 60,
-			Math.floor( duration / 1000 ) % 60,
-			duration % 1000
+		(
+			Math.floor( duration / 3600000 ) +
+			':' +
+			String( Math.floor( duration / 60000 ) % 60 ).padStart( 2, '0' ) +
+			':' +
+			String( Math.floor( duration / 1000 ) % 60 ).padStart( 2, '0' ) +
+			'.' +
+			String( duration % 1000 ).padStart( 3, '0' )
 		).replace( /^[0:]+(?!\.)/, '' )
 	);
 }

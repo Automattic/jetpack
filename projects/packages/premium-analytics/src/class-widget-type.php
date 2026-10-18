@@ -148,7 +148,7 @@ class Widget_Type {
 	/**
 	 * Text domain the widget's metadata strings and built bundles are registered under.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @var string|null
 	 */
@@ -159,11 +159,31 @@ class Widget_Type {
 	 * load their translation catalogs from. Empty for a build whose init module runs on the
 	 * dashboard page, which is the package's own.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @var string|null
 	 */
 	public $i18n_manifest = null;
+
+	/**
+	 * Names this widget type registered under before the current one, so a layout persisted
+	 * with an old name keeps rendering it. Null when the type was never renamed.
+	 *
+	 * @since 0.11.0
+	 *
+	 * @var string[]|null
+	 */
+	public $former_names = null;
+
+	/**
+	 * Plan feature the widget cannot show anything without, such as `videos`. A plan that lacks
+	 * it shows the widget locked. Null when every plan includes the widget.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var string|null
+	 */
+	public $plan_feature = null;
 
 	/**
 	 * Constructor.

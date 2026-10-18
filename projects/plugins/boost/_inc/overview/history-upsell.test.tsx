@@ -48,7 +48,7 @@ test( 'shows a collapsed one-line notice with the upgrade slot and no chart', ()
 	expect( screen.getByTestId( 'upgrade-cta' ) ).toBeInTheDocument();
 	expect( screen.getByRole( 'button', showPreview ) ).toHaveAttribute( 'aria-expanded', 'false' );
 	expect( screen.queryByRole( 'img', { name: /sample data/ } ) ).not.toBeInTheDocument();
-	expect( screen.queryByRole( 'grid' ) ).not.toBeInTheDocument();
+	expect( screen.queryByRole( 'application' ) ).not.toBeInTheDocument();
 } );
 
 test( 'expands a non-interactive sample chart and remembers it for the session', () => {

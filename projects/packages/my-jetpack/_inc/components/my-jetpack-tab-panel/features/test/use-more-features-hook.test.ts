@@ -1,9 +1,9 @@
 import { renderHook } from '@testing-library/react';
-import { useAllJetpackModules } from '../../products/use-all-jetpack-modules';
+import { useAllJetpackModules } from '../use-all-jetpack-modules';
 import { useMoreFeatures } from '../use-more-features';
 import type { MyJetpackModule } from '../../../../types';
 
-jest.mock( '../../products/use-all-jetpack-modules', () => ( {
+jest.mock( '../use-all-jetpack-modules', () => ( {
 	useAllJetpackModules: jest.fn(),
 } ) );
 jest.mock( '../../../../data/requested-switch-state', () => ( {
@@ -41,5 +41,28 @@ describe( 'useMoreFeatures', () => {
 		mocked.mockReturnValue( { modules: googleFonts( false ), isLoading: false } as never );
 		rerender();
 		expect( labels( result.current ) ).toEqual( [ 'Design' ] );
+	} );
+	it( 'does not resurrect host-hidden main or generated modules', () => {
+		const modules = Object.fromEntries(
+			[ 'stats', 'publicize', 'monitor', 'sso' ].map( slug => [
+				slug,
+				{
+					module: slug,
+					name: slug,
+					available: false,
+					activated: false,
+				} as MyJetpackModule,
+			] )
+		);
+		jest.mocked( useAllJetpackModules ).mockReturnValue( { modules, isLoading: false } as never );
+		const { result } = renderHook( () =>
+			useMoreFeatures( {
+				...state,
+				hidden_modules: [ 'stats', 'publicize', 'monitor' ],
+			} )
+		);
+		expect(
+			result.current.flatMap( group => group.states.map( item => item.feature.slug ) )
+		).toEqual( [ 'sso' ] );
 	} );
 } );

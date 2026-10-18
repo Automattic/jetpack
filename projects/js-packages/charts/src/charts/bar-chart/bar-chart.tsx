@@ -4,7 +4,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useContext, useState, useRef, useMemo } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
-import { AccessibleTooltip, useKeyboardNavigation } from '../../components/tooltip';
+import { XYChartTooltip, useKeyboardNavigation } from '../../components/tooltip';
 import {
 	useXYChartTheme,
 	useChartDataTransform,
@@ -100,6 +100,7 @@ const renderTooltipRow = ( label: string | undefined, value: string ) => (
 
 const BarChartInternal: FC< BarChartProps > = ( {
 	data,
+	ariaLabel,
 	chartId: providedChartId,
 	width,
 	height,
@@ -138,6 +139,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const legendInteractive = legend.interactive ?? false;
 	const legendCollapseGroups = legend.collapseGroups ?? false;
 	const legendComparisonItem = legend.comparisonItem ?? false;
+	const legendComparisonSeriesItems = legend.comparisonSeriesItems;
 	const horizontal = orientation === 'horizontal';
 	const chartId = useChartId( providedChartId );
 	const hiddenSeries = useDefaultHiddenSeries( chartId, defaultHiddenSeries );
@@ -158,8 +160,12 @@ const BarChartInternal: FC< BarChartProps > = ( {
 
 	// Create legend items using the reusable hook
 	const legendOptions = useMemo(
-		() => ( { collapseGroups: legendCollapseGroups, comparisonItem: legendComparisonItem } ),
-		[ legendCollapseGroups, legendComparisonItem ]
+		() => ( {
+			collapseGroups: legendCollapseGroups,
+			comparisonItem: legendComparisonItem,
+			comparisonSeriesItems: legendComparisonSeriesItems,
+		} ),
+		[ legendCollapseGroups, legendComparisonItem, legendComparisonSeriesItems ]
 	);
 	const legendItems = useChartLegendItems( dataSorted, legendOptions );
 
@@ -242,7 +248,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	);
 
 	// The keyboard-navigation index space and the highlight CSS both stride over primary
-	// bars only; the accessible tooltip must use the same list, or its datum diverges from
+	// bars only; `XYChartTooltip` must use the same list, or its datum diverges from
 	// the highlighted bar once a comparison series shifts the indices.
 	const primarySeries = useMemo(
 		() => primaryEntries.map( ( { series } ) => series ),
@@ -272,16 +278,27 @@ const BarChartInternal: FC< BarChartProps > = ( {
 
 	const visibleSeriesKey = useMemo( () => JSON.stringify( primaryKeys ), [ primaryKeys ] );
 
-	const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
-		selectedIndex,
-		setSelectedIndex,
-		isNavigating,
-		setIsNavigating,
-		chartRef,
-		totalPoints,
-		onActivate: activateSelectedBar,
-		visibleSeriesKey,
-	} );
+	const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown, onChartPointerMove } =
+		useKeyboardNavigation( {
+			selectedIndex,
+			setSelectedIndex,
+			isNavigating,
+			setIsNavigating,
+			chartRef,
+			totalPoints,
+			onActivate: activateSelectedBar,
+			visibleSeriesKey,
+		} );
+
+	const handlePointerMove = useCallback(
+		( { key, index }: { key: string; index: number } ) => {
+			const seriesIndex = primaryKeys.indexOf( key );
+			if ( seriesIndex >= 0 ) {
+				onChartPointerMove( index * primaryKeys.length + seriesIndex );
+			}
+		},
+		[ primaryKeys, onChartPointerMove ]
+	);
 
 	const comparisonEntries = useMemo( () => {
 		const primaryByGroup = new Map< string | undefined, { label: string; index: number } >(
@@ -463,7 +480,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			// so a patterned shadow gets the same outline as its primary bar.
 			return `
 			.visx-bar[fill="url(#${ patternId })"],
-			.bar-chart__comparison-bars rect[fill="url(#${ patternId })"] {
+			.bar-chart__comparison-bar[fill="url(#${ patternId })"] {
 				stroke: ${ color };
 				stroke-width: 1;
 				}
@@ -592,10 +609,11 @@ const BarChartInternal: FC< BarChartProps > = ( {
 					const chartHeight = contentHeight > 0 ? contentHeight : height;
 
 					return (
+						// eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- the application role hands arrow keys to the chart's point navigation.
 						<div
-							role="grid"
+							role="application"
 							ref={ chartRef }
-							aria-label={ __( 'Bar chart', 'jetpack-charts' ) }
+							aria-label={ ariaLabel ?? __( 'Bar chart', 'jetpack-charts' ) }
 							tabIndex={ 0 }
 							onKeyDown={ onChartKeyDown }
 							onFocus={ onChartFocus }
@@ -604,6 +622,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 							{ chartHeight > 0 && (
 								<div className={ plotStyles[ 'xy-plot' ] }>
 									<XYChart
+										accessibilityLabel=""
 										theme={ theme }
 										width={ width }
 										height={ chartHeight }
@@ -745,6 +764,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 												withTooltips={ withTooltips }
 												onPointerDown={ onPointerDown }
 												onPointerUp={ onPointerUp }
+												onPointerMove={ handlePointerMove }
 											/>
 										) }
 
@@ -755,23 +775,29 @@ const BarChartInternal: FC< BarChartProps > = ( {
 											<WholeNumberTicks { ...wholeNumberTicksProps }>
 												{ valueTicks => (
 													<>
-														<Axis
-															{ ...chartOptions.axis.x }
-															{ ...( horizontal && valueTicks ? { tickValues: valueTicks } : {} ) }
-														/>
-														<Axis
-															{ ...chartOptions.axis.y }
-															{ ...( ! horizontal && valueTicks
-																? { tickValues: valueTicks }
-																: {} ) }
-														/>
+														{ chartOptions.axis.x.display !== false && (
+															<Axis
+																{ ...chartOptions.axis.x }
+																{ ...( horizontal && valueTicks
+																	? { tickValues: valueTicks }
+																	: {} ) }
+															/>
+														) }
+														{ chartOptions.axis.y.display !== false && (
+															<Axis
+																{ ...chartOptions.axis.y }
+																{ ...( ! horizontal && valueTicks
+																	? { tickValues: valueTicks }
+																	: {} ) }
+															/>
+														) }
 													</>
 												) }
 											</WholeNumberTicks>
 										) }
 
 										{ withTooltips && (
-											<AccessibleTooltip
+											<XYChartTooltip
 												tooltipPlacement={ tooltipPlacement }
 												tooltipAnchorTop={ tooltipAnchorTop }
 												style={ tooltipStyle }

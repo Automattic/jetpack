@@ -272,6 +272,8 @@ class PayPal_Email_Sender {
 			);
 		}
 
+		PayPal_Tracks::record_event( 'jetpack_paypal_email_sent', array( 'environment' => PayPal_OAuth::get_environment() ) );
+
 		return true;
 	}
 

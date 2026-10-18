@@ -31,12 +31,7 @@ jest.mock( '@wordpress/components', () => {
 				const iframe = host.ownerDocument.createElement( 'iframe' );
 				iframe.className = 'components-sandbox';
 
-				if ( allowSameOrigin ) {
-					Object.defineProperty( iframe, 'contentWindow', {
-						value: globalThis,
-						configurable: true,
-					} );
-				} else {
+				if ( ! allowSameOrigin ) {
 					const throwSecurity = () => {
 						throw new DOMException(
 							'Blocked a frame with origin "https://sandbox.invalid" from accessing a cross-origin frame.',

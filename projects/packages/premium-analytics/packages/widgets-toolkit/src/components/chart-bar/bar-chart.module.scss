@@ -1,11 +1,4 @@
 .chart {
-	// Override visx-bar default styles that break the layout
-	// Todo: address upstream in Charts package.
-	:global(.visx-bar) {
-		// All corners rounded to handle both positive and negative bar
-		// values consistently.
-		clip-path: inset(0 round 4px);
-	}
 
 	.legend {
 		width: 100%;

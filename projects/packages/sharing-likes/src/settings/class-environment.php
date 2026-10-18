@@ -11,6 +11,7 @@ namespace Automattic\Jetpack\Sharing_Likes\Settings;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Sharing_Likes\Block_Names;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -74,7 +75,7 @@ final class Environment {
 	 * sharedaddy from `post-flair.php` without either.
 	 */
 	public static function legacy_sharing_supported(): bool {
-		return self::is_simple_site() || self::is_connected() || ( new Status() )->is_offline_mode();
+		return self::is_simple_site() || self::is_connected() || self::is_offline_mode();
 	}
 
 	/**
@@ -89,14 +90,31 @@ final class Environment {
 	}
 
 	/**
+	 * Whether Jetpack's blocks load on this site, as `Jetpack_Gutenberg::should_load()` decides:
+	 * a ready connection or offline mode, then the Blocks module, which its `jetpack_gutenberg` filter can override.
+	 *
+	 * True on Simple without asking for modules or a connection, both of which it lacks.
+	 */
+	public static function jetpack_blocks_load(): bool {
+		if ( ! self::is_simple_site() && ! self::is_connection_ready() && ! self::is_offline_mode() ) {
+			return false;
+		}
+
+		/** This filter is documented in projects/plugins/jetpack/class.jetpack-gutenberg.php */
+		return (bool) apply_filters( 'jetpack_gutenberg', self::module_active( 'blocks' ) );
+	}
+
+	/**
 	 * Whether this site can have Like buttons at all.
 	 *
 	 * The Likes module declares `Requires Connection: Yes`, so without a
 	 * WordPress.com connection it cannot be activated and its buttons cannot
 	 * render: the widget is keyed on the blog ID a connection provides.
+	 * Offline mode keeps a connected site's tokens, but `Jetpack::load_modules()`
+	 * skips every module that requires a connection until it ends.
 	 */
 	public static function likes_supported(): bool {
-		return self::is_simple_site() || self::is_connected();
+		return self::is_simple_site() || ( self::is_connected() && ! self::is_offline_mode() );
 	}
 
 	/**
@@ -104,6 +122,25 @@ final class Environment {
 	 */
 	private static function is_connected(): bool {
 		return ( new Connection_Manager( 'jetpack' ) )->is_connected();
+	}
+
+	/**
+	 * Whether the connection is ready for Jetpack's modules and blocks, as `Jetpack::is_connection_ready()` decides.
+	 *
+	 * WordPress.com's Atomic hosting filters it off on a site whose connection has no owner.
+	 */
+	private static function is_connection_ready(): bool {
+		$manager = new Connection_Manager( 'jetpack' );
+
+		/** This filter is documented in projects/plugins/jetpack/class.jetpack.php */
+		return (bool) apply_filters( 'jetpack_is_connection_ready', $manager->is_connected(), $manager );
+	}
+
+	/**
+	 * Whether the site is in offline mode, where it cannot connect to WordPress.com either.
+	 */
+	public static function is_offline_mode(): bool {
+		return ( new Status() )->is_offline_mode();
 	}
 
 	/**
@@ -117,12 +154,15 @@ final class Environment {
 	}
 
 	/**
-	 * Whether posts show neither a Like nor a Reblog button, bar those that opted in individually.
+	 * Whether Simple's posts show neither a Like nor a Reblog button, bar those that opted in individually.
 	 *
-	 * Both count because the legacy widget renders for either.
+	 * Both count because the legacy widget renders for either. Jetpack and Atomic never
+	 * render Reblog, and switch to the block by turning the module off instead.
 	 */
 	public static function legacy_likes_switched_off(): bool {
-		return ! Likes_Options::likes_enabled_sitewide() && ! Likes_Options::reblogs_enabled_sitewide();
+		return self::is_simple_site()
+			&& ! Likes_Options::likes_enabled_sitewide()
+			&& ! Likes_Options::reblogs_enabled_sitewide();
 	}
 
 	/**
@@ -137,12 +177,27 @@ final class Environment {
 	}
 
 	/**
+	 * Whether Comment Likes are switched on for this site.
+	 *
+	 * - On WordPress.com Simple, which has no modules: the `jetpack_comment_likes_enabled` option.
+	 * - On Atomic and self-hosted Jetpack sites: the Comment Likes module, which never reads that option.
+	 */
+	public static function comment_likes_enabled(): bool {
+		return self::is_simple_site() ? Likes_Options::comment_likes_enabled() : self::comment_likes_module_running();
+	}
+
+	/**
+	 * Whether Comment Likes read the Likes settings: the sitewide default and placement. Simple's do not.
+	 */
+	public static function comment_likes_follow_likes_settings(): bool {
+		return ! self::is_simple_site() && self::comment_likes_module_running();
+	}
+
+	/**
 	 * Whether anything on this site still reads the Likes settings.
 	 *
 	 * Both features are gated on `disabled_likes` and the shared placement, so
-	 * either one keeps those controls worth showing. Switching the buttons off
-	 * for every post does not end that: posts still opt in one by one, and
-	 * Comment Likes reads the same settings either way.
+	 * either one running makes the Likes placement defaults the ones that apply.
 	 */
 	public static function likes_settings_in_use(): bool {
 		return self::likes_module_running() || self::comment_likes_module_running();
@@ -175,14 +230,14 @@ final class Environment {
 	 * Whether the Sharing Buttons block is available to offer as an alternative.
 	 */
 	public static function sharing_block_registered(): bool {
-		return self::block_is_registered( 'jetpack/sharing-buttons' );
+		return self::block_is_registered( Block_Names::SHARING_BUTTONS );
 	}
 
 	/**
 	 * Whether the Like block is available to offer as an alternative.
 	 */
 	public static function like_block_registered(): bool {
-		return self::block_is_registered( 'jetpack/like' );
+		return self::block_is_registered( Block_Names::LIKE );
 	}
 
 	/**

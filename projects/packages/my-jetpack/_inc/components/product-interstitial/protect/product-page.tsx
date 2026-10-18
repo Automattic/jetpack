@@ -22,7 +22,6 @@ import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../../hooks/use-my-jetpack-navigate';
 import GoBackLink from '../../go-back-link';
 import LoadingBlock from '../../loading-block';
-import { getProductsSectionPath } from '../../my-jetpack-tab-panel/utils';
 import styles from './style.module.scss';
 
 /**
@@ -35,7 +34,7 @@ import styles from './style.module.scss';
  * @return {object} React component for the product page
  */
 export default function ProtectProductPage() {
-	const { onClickGoBack } = useGoBack( { slug: 'protect', fallback: getProductsSectionPath() } );
+	const { onClickGoBack } = useGoBack( { slug: 'protect', fallback: MyJetpackRoutes.Features } );
 	const { detail, isLoading: isLoadingProduct } = useProduct( 'protect' );
 	const { isSiteConnected } = useMyJetpackConnection();
 	const { recordEvent } = useAnalytics();
@@ -76,7 +75,8 @@ export default function ProtectProductPage() {
 		navigateToUpgrade();
 	}, [ recordEvent, navigateToUpgrade ] );
 
-	const cloudScanUrl = getRedirectUrl( 'my-jetpack-manage-scan' );
+	const hasProtectPage = !! detail?.hasProtectPage;
+	const scanResultsUrl = detail?.scanResultsUrl || getRedirectUrl( 'my-jetpack-manage-scan' );
 	const scanVsProtectUrl = getRedirectUrl( 'jetpack-protect-support', {
 		anchor: 'jetpack-protect-jetpack-scan-and-wpscan-understand-the-difference',
 	} );
@@ -88,7 +88,7 @@ export default function ProtectProductPage() {
 			breadcrumbs={
 				<GoBackLink
 					onClick={ onClickGoBack }
-					to={ getProductsSectionPath() }
+					to={ MyJetpackRoutes.Features }
 					label={ __( 'My Jetpack', 'jetpack-my-jetpack' ) }
 				/>
 			}
@@ -119,8 +119,10 @@ export default function ProtectProductPage() {
 								</Button>
 							) }
 							{ hasPaidPlan && (
-								<Button variant="primary" href={ cloudScanUrl }>
-									{ __( 'View scan results on Jetpack Cloud', 'jetpack-my-jetpack' ) }
+								<Button variant="primary" href={ scanResultsUrl }>
+									{ hasProtectPage
+										? __( 'View scan results', 'jetpack-my-jetpack' )
+										: __( 'View scan results on Jetpack Cloud', 'jetpack-my-jetpack' ) }
 								</Button>
 							) }
 						</div>

@@ -1,4 +1,3 @@
-import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Button, Notice, Text } from '@wordpress/ui';
@@ -11,16 +10,11 @@ import { useVideo } from '../../hooks/use-video';
 import VideoLayout from '../video-layout';
 import { videoTabPath } from '../video-nav';
 import ConfirmDialog from './confirm-dialog';
-import CopyStatusBanner from './copy-status-banner';
-import { createCopyRequestId } from './create-copy-request-id';
 import HeaderActions from './header-actions';
 import PreviewPlayer from './preview/preview-player';
-import SaveVideoDialog from './save-dialog';
 import { sessionEditsEqual } from './state/edit-session';
-import { sessionToOperations } from './state/serialize';
 import StatusBanner from './status-banner';
 import Timeline from './timeline/timeline';
-import { useCopySession } from './use-copy-session';
 import { useEditSession } from './use-edit-session';
 import './style.scss';
 import type { EditorTool } from '../../../../routes/video-editor/operations-panel';
@@ -39,16 +33,13 @@ type ConfirmAction = 'save' | 'discard' | 'restore' | 'reload';
  * @return The trim and cut editing screen.
  */
 export default function TrimCutEditor( { video, onSelectTool }: Props ) {
-	const copySession = useCopySession( video.guid );
-	const editor = useEditSession( video, copySession.request );
-	const { createSuccessNotice } = useGlobalNotices();
-	const completedCopyRef = useRef< string | null >( null );
+	const editor = useEditSession( video );
 	const transport = usePreviewTransport();
 	const navigate = useNavigate();
 	const [ sourceReady, setSourceReady ] = useState( false );
 	const [ sourceDuration, setSourceDuration ] = useState( 0 );
 	const [ confirm, setConfirm ] = useState< ConfirmAction | null >( null );
-	const hasUnsavedChanges = editor.hasUnsavedChanges && ! copySession.saved;
+	const { hasUnsavedChanges } = editor;
 	const dirtyRef = useRef( hasUnsavedChanges );
 	dirtyRef.current = hasUnsavedChanges;
 	const jobStatus = editor.edits?.job?.status;
@@ -65,13 +56,7 @@ export default function TrimCutEditor( { video, onSelectTool }: Props ) {
 		Math.abs( sourceDuration - editor.edits.original_duration_ms ) > 1000
 	);
 	const locked =
-		waitingForVideo ||
-		editor.locked ||
-		copySession.locked ||
-		editor.conflict ||
-		copySession.conflict ||
-		! sourceReady ||
-		durationMismatch;
+		waitingForVideo || editor.locked || editor.conflict || ! sourceReady || durationMismatch;
 	const confirmNavigation = useCallback(
 		() =>
 			! dirtyRef.current ||
@@ -103,24 +88,6 @@ export default function TrimCutEditor( { video, onSelectTool }: Props ) {
 		};
 	}, [ hasUnsavedChanges, confirmNavigation, navigate, video.id ] );
 
-	useEffect( () => {
-		const result = copySession.status.data;
-		if (
-			result?.job?.status !== 'complete' ||
-			! result.attachment_id ||
-			completedCopyRef.current === result.request_id
-		) {
-			return;
-		}
-		completedCopyRef.current = result.request_id;
-		dirtyRef.current = false;
-		editor.discard();
-		createSuccessNotice(
-			__( 'New video created. The original video is unchanged.', 'jetpack-videopress-pkg' )
-		);
-		navigate( { href: videoTabPath( String( result.attachment_id ), 'details' ) } );
-	}, [ copySession.status.data, editor.discard, createSuccessNotice, navigate ] );
-
 	const guardLink = ( event: MouseEvent< HTMLDivElement > ) => {
 		if (
 			event.defaultPrevented ||
@@ -142,10 +109,15 @@ export default function TrimCutEditor( { video, onSelectTool }: Props ) {
 		}
 	};
 
-	const copy: Record<
-		Exclude< ConfirmAction, 'save' >,
-		{ title: string; message: string; label: string }
-	> = {
+	const copy: Record< ConfirmAction, { title: string; message: string; label: string } > = {
+		save: {
+			title: __( 'Update video?', 'jetpack-videopress-pkg' ),
+			message: __(
+				'Viewers will see the edited video. Your original is kept and can be restored. Existing chapters may need to be adjusted after the video finishes processing.',
+				'jetpack-videopress-pkg'
+			),
+			label: __( 'Update video', 'jetpack-videopress-pkg' ),
+		},
 		discard: {
 			title: __( 'Discard changes?', 'jetpack-videopress-pkg' ),
 			message: __(
@@ -172,12 +144,17 @@ export default function TrimCutEditor( { video, onSelectTool }: Props ) {
 		},
 	};
 	const onConfirm = () => {
-		if ( confirm === 'restore' ) {
+		if ( confirm === 'save' ) {
+			// The session only guards its own lock; source readiness is checked here.
+			if ( locked ) {
+				return;
+			}
+			void editor.submit();
+		} else if ( confirm === 'restore' ) {
 			void editor.submit( true );
 		} else if ( confirm === 'discard' ) {
 			editor.discard();
 		} else if ( confirm === 'reload' ) {
-			copySession.clear();
 			void editor.reload();
 		}
 		setConfirm( null );
@@ -196,22 +173,15 @@ export default function TrimCutEditor( { video, onSelectTool }: Props ) {
 						canRedo={ ! locked && canRedo( editor.history ) }
 						onUndo={ () => editor.dispatch( { type: 'UNDO' } ) }
 						onRedo={ () => editor.dispatch( { type: 'REDO' } ) }
-						canDiscard={ editor.dirty && ! editor.locked && ! copySession.locked }
+						canDiscard={ editor.dirty && ! editor.locked }
 						onDiscard={ () => setConfirm( 'discard' ) }
 						canSave={ editor.dirty && ! locked }
-						onSave={ () => {
-							if ( copySession.failed || copySession.rejected ) {
-								copySession.clear();
-							}
-							setConfirm( 'save' );
-						} }
+						onSave={ () => setConfirm( 'save' ) }
 						canRestoreOriginal={
 							Boolean( editor.edits?.can_restore_original ) &&
 							! waitingForVideo &&
 							! editor.locked &&
-							! editor.conflict &&
-							! copySession.conflict &&
-							! copySession.locked
+							! editor.conflict
 						}
 						onRestoreOriginal={ () => setConfirm( 'restore' ) }
 					/>
@@ -228,29 +198,16 @@ export default function TrimCutEditor( { video, onSelectTool }: Props ) {
 							</Notice.Description>
 						</Notice.Root>
 					) }
-					<CopyStatusBanner
-						session={ copySession }
-						onReload={ () => setConfirm( 'reload' ) }
-						onOpenVideo={ href => {
-							if ( confirmNavigation() ) {
-								navigate( { href } );
-							}
-						} }
-					/>
 					<StatusBanner
 						job={ editor.edits?.job }
 						conflict={ editor.conflict }
-						onRetry={
-							editor.canRetry && ! copySession.locked
-								? () => void editor.retryProcessing()
-								: undefined
-						}
+						onRetry={ editor.canRetry ? () => void editor.retryProcessing() : undefined }
 						onReloadLatest={ () => setConfirm( 'reload' ) }
 					/>
 					<div className="vp-video-editor__body">
 						<EditorOperationsPanel
 							activeTool="trim"
-							disabled={ waitingForVideo || editor.locked || copySession.locked }
+							disabled={ waitingForVideo || editor.locked }
 							onSelect={ tool => {
 								if ( tool !== 'trim' && confirmNavigation() ) {
 									onSelectTool( tool );
@@ -287,7 +244,7 @@ export default function TrimCutEditor( { video, onSelectTool }: Props ) {
 									<fieldset
 										disabled={ waitingForVideo }
 										className="vp-video-editor__timeline-section"
-										aria-busy={ editor.locked || copySession.locked || undefined }
+										aria-busy={ editor.locked || undefined }
 									>
 										<Timeline
 											session={ editor.session }
@@ -312,36 +269,13 @@ export default function TrimCutEditor( { video, onSelectTool }: Props ) {
 						</div>
 					</div>
 				</div>
-				{ confirm === 'save' && (
-					<SaveVideoDialog
-						title={ video.title }
-						isBusy={ locked }
-						onCancel={ () => setConfirm( null ) }
-						onSave={ ( mode, title ) => {
-							if ( locked || ! editor.baseline ) {
-								return;
-							}
-							setConfirm( null );
-							if ( mode === 'update' ) {
-								void editor.submit();
-							} else {
-								void copySession.submit( {
-									guid: video.guid,
-									baseRevision: editor.baseline.revision,
-									operations: sessionToOperations( editor.session, editor.session.durationMs ),
-									requestId: createCopyRequestId(),
-									title,
-								} );
-							}
-						} }
-					/>
-				) }
-				{ confirm && confirm !== 'save' && (
+				{ confirm && (
 					<ConfirmDialog
 						isOpen
 						title={ copy[ confirm ].title }
 						message={ copy[ confirm ].message }
 						confirmLabel={ copy[ confirm ].label }
+						isBusy={ confirm === 'save' && locked }
 						onConfirm={ onConfirm }
 						onCancel={ () => setConfirm( null ) }
 					/>

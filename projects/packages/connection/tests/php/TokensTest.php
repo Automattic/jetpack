@@ -397,6 +397,23 @@ class TokensTest extends TestCase {
 	}
 
 	/**
+	 * A user-token write fires jetpack_updated_user_token with the id and token.
+	 */
+	public function test_update_user_token_fires_action() {
+		$fired = array();
+		$spy   = static function ( $user_id, $token ) use ( &$fired ) {
+			$fired[] = array( $user_id, $token );
+		};
+		add_action( 'jetpack_updated_user_token', $spy, 10, 2 );
+
+		( new Tokens() )->update_user_token( 5, 'secret.5', false );
+
+		remove_action( 'jetpack_updated_user_token', $spy, 10 );
+
+		$this->assertSame( array( array( 5, 'secret.5' ) ), $fired );
+	}
+
+	/**
 	 * Filter to get the current site URL.
 	 *
 	 * @return string

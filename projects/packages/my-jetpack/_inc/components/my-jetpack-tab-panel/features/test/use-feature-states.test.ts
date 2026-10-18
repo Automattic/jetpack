@@ -8,7 +8,7 @@ import { useFeatureStates } from '../feature-state';
 
 const mockModules = jest.fn();
 
-jest.mock( '../../products/use-all-jetpack-modules', () => ( {
+jest.mock( '../use-all-jetpack-modules', () => ( {
 	useAllJetpackModules: () => mockModules(),
 } ) );
 

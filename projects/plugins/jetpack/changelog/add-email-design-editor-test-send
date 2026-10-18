@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Newsletter: send the email design screen's test email through the newsletter renderer.

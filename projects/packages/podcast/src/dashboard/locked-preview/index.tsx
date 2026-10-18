@@ -3,7 +3,7 @@
 
 import { useId } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { LinkButton } from '@wordpress/ui';
+import { ButtonLink } from '@wordpress/ui';
 import { buildUpgradeCheckoutUrl, getUpgradePlanName } from '../upgrade';
 import './style.scss';
 
@@ -131,7 +131,7 @@ const LockedPreview = ( { variant }: LockedPreviewProps ) => {
 						{ title }
 					</h2>
 					<p className="podcast-locked-preview__description">{ description }</p>
-					<LinkButton
+					<ButtonLink
 						variant="solid"
 						href={ checkoutUrl }
 						className="podcast-locked-preview__cta"
@@ -143,7 +143,7 @@ const LockedPreview = ( { variant }: LockedPreviewProps ) => {
 							__( 'Upgrade to %s', 'jetpack-podcast' ),
 							planName
 						) }
-					</LinkButton>
+					</ButtonLink>
 				</div>
 			</div>
 		</div>

@@ -44,7 +44,8 @@ if ( ! apply_filters( 'jetpack_disable_canonical_urls', false ) ) {
  * @return bool Whether canonical URL output should be disabled.
  */
 function jetpack_canonical_urls_check_conflicts( $disabled ) {
-	if ( $disabled ) {
+	// WordPress.com Simple's stub Jetpack class lacks this method, and Simple runs no plugins.
+	if ( $disabled || ! method_exists( 'Jetpack', 'is_plugin_active' ) ) {
 		return $disabled;
 	}
 

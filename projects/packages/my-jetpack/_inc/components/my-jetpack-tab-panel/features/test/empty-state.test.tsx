@@ -1,9 +1,9 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { reloadPage } from '../../products/reload-page';
+import { reloadPage } from '../../../../utils/reload-page';
 import { FeaturesEmptyState } from '../empty-state';
 
-jest.mock( '../../products/reload-page', () => ( { reloadPage: jest.fn() } ) );
+jest.mock( '../../../../utils/reload-page', () => ( { reloadPage: jest.fn() } ) );
 
 const props = {
 	search: '',
@@ -59,6 +59,18 @@ describe( 'FeaturesEmptyState', () => {
 		expect( props.onFilterChange ).toHaveBeenCalledWith( 'all' );
 	} );
 
+	it( 'says a plan covers nothing yet, rather than blaming the list', async () => {
+		render( <FeaturesEmptyState { ...props } filter="included" /> );
+
+		expect( screen.getByRole( 'heading' ) ).toHaveTextContent(
+			'Your plan doesn’t include any of these yet.'
+		);
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Explore all' } ) );
+
+		expect( props.onFilterChange ).toHaveBeenCalledWith( 'all' );
+	} );
+
 	it( 'reports a catalog that never arrived as a failure, not as an empty site', async () => {
 		render( <FeaturesEmptyState { ...props } hasCatalog={ false } /> );
 
@@ -66,7 +78,8 @@ describe( 'FeaturesEmptyState', () => {
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Reload' } ) );
 
-		expect( reloadPage ).toHaveBeenCalled();
+		// Deferred a beat, so the click's Tracks pixel is not cancelled by the reload.
+		await waitFor( () => expect( reloadPage ).toHaveBeenCalled() );
 	} );
 
 	it( 'blames the missing catalog, not the search term, when both are in play', () => {

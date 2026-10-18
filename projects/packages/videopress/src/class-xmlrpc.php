@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
-use WP_Error;
 use WP_User;
 
 /**
@@ -67,50 +66,12 @@ class XMLRPC {
 			$this->current_user = $user;
 		}
 
-		$methods['jetpack.createMediaItem']             = array( $this, 'create_media_item' );
-		$methods['jetpack.createVideoPressCopy']        = array( $this, 'create_videopress_copy' );
-		$methods['jetpack.authorizeVideoPressCopy']     = array( $this, 'authorize_videopress_copy' );
-		$methods['jetpack.updateVideoPressMediaItem']   = array( $this, 'update_videopress_media_item' );
-		$methods['jetpack.updateVideoPressPosterImage'] = array( $this, 'update_poster_image' );
+		$methods['jetpack.createMediaItem']                = array( $this, 'create_media_item' );
+		$methods['jetpack.updateVideoPressMediaItem']      = array( $this, 'update_videopress_media_item' );
+		$methods['jetpack.updateVideoPressMediaItemError'] = array( $this, 'update_videopress_media_item' );
+		$methods['jetpack.updateVideoPressPosterImage']    = array( $this, 'update_poster_image' );
 
 		return $methods;
-	}
-
-	/**
-	 * Check permissions on the real attachment before WordPress.com copies its retained master.
-	 *
-	 * @since $$next-version$$
-	 * @param string $guid The source VideoPress GUID.
-	 * @return array Permission acknowledgement or an error response.
-	 */
-	public function authorize_videopress_copy( $guid ) {
-		$this->authenticate_user();
-		if ( ! is_string( $guid ) || ! preg_match( '/^[A-Za-z0-9]{8}$/D', $guid )
-			|| ! $this->current_user || ! $this->current_user->exists() || ! current_user_can( 'upload_files' ) ) {
-			return array( 'errors' => array( 'videopress_copy_forbidden' => __( 'You cannot copy this video.', 'jetpack-videopress-pkg' ) ) );
-		}
-		$post_id = WPCOM_REST_API_V2_Endpoint_VideoPress::get_video_attachment_id( $guid );
-		if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) ) {
-			return array( 'errors' => array( 'videopress_copy_forbidden' => __( 'You cannot copy this video.', 'jetpack-videopress-pkg' ) ) );
-		}
-		return array(
-			'authorized' => true,
-			'guid'       => $guid,
-		);
-	}
-
-	/**
-	 * Create one idempotent copy attachment; older clients reject this method before inserting a row.
-	 *
-	 * @since $$next-version$$
-	 * @param array $media A single media item carrying its copy request identifier.
-	 * @return array The attachment or an error response.
-	 */
-	public function create_videopress_copy( $media ) {
-		if ( ! is_array( $media ) || count( $media ) !== 1 || ! isset( $media[0] ) || ! is_array( $media[0] ) || ! array_key_exists( 'videopress_copy_request_id', $media[0] ) ) {
-			return array( 'errors' => array( 'videopress_copy_invalid_request' => __( 'Invalid video copy request.', 'jetpack-videopress-pkg' ) ) );
-		}
-		return $this->create_media_item( $media );
 	}
 
 	/**
@@ -133,16 +94,6 @@ class XMLRPC {
 				? sanitize_text_field( $media_item['title'] )
 				: sanitize_title( basename( $url ) );
 			$guid  = $media['guid'] ?? null;
-
-			if ( array_key_exists( 'videopress_copy_request_id', $media_item ) ) {
-				$media_id = $this->create_copy_attachment( $title, $media_item['videopress_copy_request_id'] );
-				if ( is_wp_error( $media_id ) ) {
-					return array( 'errors' => array( $media_id->get_error_code() => $media_id->get_error_message() ) );
-				}
-				$media_item['post']                           = get_post( $media_id );
-				$media_item['videopress_copy_request_id_ack'] = $media_item['videopress_copy_request_id'];
-				continue;
-			}
 
 			$media_id = videopress_create_new_media_item( $title, $guid );
 
@@ -174,45 +125,6 @@ class XMLRPC {
 	}
 
 	/**
-	 * Reserve a copy request before inserting its attachment so retries cannot create duplicates.
-	 *
-	 * @param string $title Attachment title.
-	 * @param mixed  $request_id Source GUID and copy request UUID.
-	 * @return int|WP_Error The existing or newly created attachment ID.
-	 */
-	private function create_copy_attachment( $title, $request_id ) {
-		if ( ! is_string( $request_id ) || ! preg_match( '/^[A-Za-z0-9]{8}:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/D', $request_id ) ) {
-			return new WP_Error( 'videopress_copy_invalid_request', __( 'Invalid video copy request identifier.', 'jetpack-videopress-pkg' ) );
-		}
-		if ( ! $this->current_user || ! $this->current_user->exists() || ! current_user_can( 'upload_files' ) ) {
-			return new WP_Error( 'videopress_copy_forbidden', __( 'You cannot create a video copy.', 'jetpack-videopress-pkg' ) );
-		}
-
-		$option = 'videopress_copy_attachment_' . hash( 'sha256', $request_id );
-		if ( ! add_option( $option, 0, '', false ) ) {
-			$attachment_id = (int) get_option( $option, 0 );
-			if ( ! $attachment_id ) {
-				return new WP_Error( 'videopress_copy_attachment_pending', __( 'The video copy attachment is still being created.', 'jetpack-videopress-pkg' ) );
-			}
-			if ( 'attachment' !== get_post_type( $attachment_id ) || get_post_meta( $attachment_id, '_videopress_copy_request_id', true ) !== $request_id ) {
-				return new WP_Error( 'videopress_copy_attachment_unavailable', __( 'The video copy attachment is unavailable.', 'jetpack-videopress-pkg' ) );
-			}
-			return $attachment_id;
-		}
-
-		// A pending reservation never expires: a timed-out insert may already have created the attachment.
-		$attachment_id = videopress_create_new_media_item( $title );
-		if ( is_wp_error( $attachment_id ) || ! $attachment_id ) {
-			return new WP_Error( 'videopress_copy_attachment_failed', __( 'The video copy attachment could not be created.', 'jetpack-videopress-pkg' ) );
-		}
-		wp_update_attachment_metadata( $attachment_id, array( 'original' => array( 'url' => '' ) ) );
-		if ( ! add_post_meta( $attachment_id, '_videopress_copy_request_id', $request_id, true ) || ! update_option( $option, $attachment_id, false ) ) {
-			return new WP_Error( 'videopress_copy_attachment_failed', __( 'The video copy attachment could not be recorded.', 'jetpack-videopress-pkg' ) );
-		}
-		return $attachment_id;
-	}
-
-	/**
 	 * Update VideoPress metadata for a media item.
 	 *
 	 * @param array $request Media item to update.
@@ -241,6 +153,9 @@ class XMLRPC {
 		update_post_meta( $id, 'videopress_guid', $info['guid'] );
 
 		$meta = wp_get_attachment_metadata( $id );
+		if ( ! is_array( $meta ) ) {
+			$meta = array();
+		}
 
 		$meta['width']             = $info['width'];
 		$meta['height']            = $info['height'];
@@ -253,7 +168,7 @@ class XMLRPC {
 			$meta['file_statuses'][ $format ] = $status;
 		}
 
-		if ( ! get_post_meta( $id, '_thumbnail_id', true ) ) {
+		if ( ! empty( $info['poster'] ) && ! get_post_meta( $id, '_thumbnail_id', true ) ) {
 			// Update the poster in the VideoPress info.
 			$thumbnail_id = videopress_download_poster_image( $info['poster'], $id );
 
@@ -266,8 +181,9 @@ class XMLRPC {
 
 		videopress_update_meta_data( $id );
 
-		// update the meta to tell us that we're processing or complete
-		update_post_meta( $id, 'videopress_status', videopress_is_finished_processing( $id ) ? 'complete' : 'processing' );
+		// A later auxiliary-format callback must not erase an MP4 failure.
+		$failed = 'ERROR' === ( $meta['file_statuses']['mp4'] ?? '' );
+		update_post_meta( $id, 'videopress_status', $failed ? 'failed' : ( videopress_is_finished_processing( $id ) ? 'complete' : 'processing' ) );
 
 		return true;
 	}

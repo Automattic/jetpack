@@ -4,7 +4,7 @@ Tags: agency, dashboard, management, sites, monitoring
 Requires at least: 7.0
 Requires PHP: 7.4
 Tested up to: 7.1
-Stable tag: 0.9.0
+Stable tag: 0.10.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -44,13 +44,20 @@ Once connected, your site will display within Automattic for Agencies.
 1. Manage your connection to the agency dashboard from the Settings screen in your WordPress dashboard.
 
 == Changelog ==
-### 0.9.0 - 2026-08-14
+### 0.10.0 - 2026-10-14
+#### Added
+- Connection: Add a Connected view to the Users page listing users with a linked WordPress.com account.
+
 #### Changed
-- Components: Use Link from `@wordpress/ui` instead of ExternalLink.
-- General: Update minimum WordPress version to 6.9.
-- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency.
-- Remove unneeded development and documentation files from the published plugin.
-- Replace deprecated jetpack-components Spinner with WordPress Core Spinner.
-- Tested up to WordPress 7.0.
-- Updated package dependencies.
+- General: Update minimum WordPress version to 7.0.
+- Tested up to WordPress 7.1.
+- Update package dependencies.
+
+#### Removed
+- Updated PHP version requirements to PHP 7.4 or newer.
+
+#### Fixed
+- Connection: Fix a stale connection error state that could persist on healthy sites.
+- Connection: Translate the Connectors card's text on sites that don't use English.
+- Status: Detect a site served on any 127.0.0.0/8 loopback address, or on 0.0.0.0, as a local site.
 

@@ -2,8 +2,7 @@
  * External dependencies
  */
 import {
-	findAuthorRow,
-	useStatsTopAuthors,
+	useStatsAuthor,
 	type ReportParams,
 	type StatsChartBucketPeriod,
 } from '@jetpack-premium-analytics/data';
@@ -20,6 +19,10 @@ export type AuthorPerformancePoint = {
 
 export interface AuthorPerformanceState {
 	current: AuthorPerformancePoint[];
+	views: number;
+	/** Window totals; `null` until loaded or when the endpoint has none. */
+	likes: number | null;
+	comments: number | null;
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
@@ -29,53 +32,49 @@ export interface AuthorPerformanceState {
 }
 
 /**
- * Fetch the author's views per chart bucket over the report window. The endpoint
- * has no author filter, so the author is read out of each bucket's ranking and
- * counts as zero where absent (see `useStatsTopAuthors` for the ranking cap).
+ * Fetch the author's views per chart bucket, and their likes and comments, over
+ * the report window.
  *
  * @param authorId     - The author's user ID; `0` disables the request.
  * @param reportParams - The page's report params.
  * @param period       - The chart bucket the endpoint groups by.
- * @return The view series and request state.
+ * @return The view series, the window totals and request state.
  */
 export default function useAuthorPerformance(
 	authorId: number,
 	reportParams: ReportParams,
 	period: StatsChartBucketPeriod
 ): AuthorPerformanceState {
-	const statsParams = useMemo(
-		() => ( { ...reportParams, period, summarize: 0, max: 0 } ),
-		[ reportParams, period ]
+	const params = useMemo(
+		() => ( { from: reportParams.from, to: reportParams.to, period } ),
+		[ reportParams.from, reportParams.to, period ]
 	);
 
-	const { primary, isLoading, isFetching, isError, error, refetch } = useStatsTopAuthors(
-		statsParams,
-		{ enabled: authorId > 0 }
+	const { data, isLoading, isFetching, isError, error, refetch } = useStatsAuthor(
+		authorId,
+		params
 	);
 
-	const current = useMemo( () => {
-		const points = primary.data?.data ?? [];
+	const current = useMemo(
+		() =>
+			( data?.data ?? [] ).flatMap( point => {
+				const date = parseSiteDateTime( point.period );
 
-		return points
-			.flatMap( point => {
-				const date = parseSiteDateTime( point.time_interval );
-				if ( ! date ) {
-					return [];
-				}
-				const author = findAuthorRow( point.items, authorId );
-
-				return [ { date, value: author?.views ?? 0 } ];
-			} )
-			.sort( ( a, b ) => a.date.getTime() - b.date.getTime() );
-	}, [ primary.data, authorId ] );
+				return date ? [ { date, value: point.views } ] : [];
+			} ),
+		[ data ]
+	);
 
 	return {
 		current,
+		views: data?.views ?? 0,
+		likes: data?.likes ?? null,
+		comments: data?.comments ?? null,
 		isLoading,
 		isFetching,
 		isError,
 		error,
-		hasData: !! primary.data,
+		hasData: !! data,
 		refetch,
 	};
 }

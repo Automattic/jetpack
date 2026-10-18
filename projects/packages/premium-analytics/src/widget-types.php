@@ -43,9 +43,9 @@ const WIDGET_TYPES_FILTER = 'jetpack_premium_analytics_widget_types';
  * built against the previous contract stops working, the minor when a consumer can rely on
  * something new; a consumer compares it before registering.
  *
- * @since $$next-version$$
+ * @since 0.9.0
  */
-const WIDGET_API_VERSION = '1.0.0';
+const WIDGET_API_VERSION = '1.12.0';
 
 /**
  * Returns the i18n schema describing which widget metadata fields are
@@ -288,7 +288,7 @@ function sanitize_widget_icon( $icon ) {
  * its own build generates. Each candidate that survives REGISTRABLE_WIDGET_TYPES_FILTER is
  * translated, sanitized and registered; one already registered, or without a name, is skipped.
  *
- * @since $$next-version$$
+ * @since 0.9.0
  *
  * @param array                     $widgets  Manifest entries, as the generated `<prefix>_get_registered_widget_modules()` returns them.
  * @param array                     $args     {
@@ -296,6 +296,8 @@ function sanitize_widget_icon( $icon ) {
  *
  *     @type string $textdomain    Text domain for the metadata strings of a candidate that declares none.
  *     @type string $i18n_manifest URL of the build's i18n manifest, for a candidate that declares none.
+ *     @type array  $former_names  Map of widget type name to the names it registered under before, for a candidate that declares none.
+ *     @type array  $plan_features Map of widget type name to its plan feature, for a candidate that declares none.
  * }
  * @param Widget_Type_Registry|null $registry Optional. The registry to write into. Defaults to the main instance.
  * @return void
@@ -328,6 +330,12 @@ function register_widget_types_from_manifest( array $widgets, array $args = arra
 		if ( empty( $widget['i18n_manifest'] ) && ! empty( $args['i18n_manifest'] ) ) {
 			$widget['i18n_manifest'] = $args['i18n_manifest'];
 		}
+		if ( empty( $widget['former_names'] ) && ! empty( $args['former_names'][ $widget['name'] ] ) ) {
+			$widget['former_names'] = $args['former_names'][ $widget['name'] ];
+		}
+		if ( empty( $widget['plan_feature'] ) && ! empty( $args['plan_features'][ $widget['name'] ] ) ) {
+			$widget['plan_feature'] = $args['plan_features'][ $widget['name'] ];
+		}
 
 		$widget = translate_widget_metadata( $widget );
 
@@ -346,10 +354,45 @@ function register_widget_types_from_manifest( array $widgets, array $args = arra
 				'keywords'      => $widget['keywords'] ?? null,
 				'textdomain'    => $widget['textdomain'] ?? null,
 				'i18n_manifest' => $widget['i18n_manifest'] ?? null,
+				'former_names'  => $widget['former_names'] ?? null,
+				'plan_feature'  => $widget['plan_feature'] ?? null,
 			)
 		);
 	}
 }
+
+/**
+ * The plan feature each of the package's own widget types shows, for the plan gates to lock.
+ * Locations needs only countries: regions and cities lock inside the widget.
+ */
+const WIDGET_TYPE_PLAN_FEATURES = array(
+	'jpa/stats-top-posts'                => 'top-posts',
+	'jpa/referrers'                      => 'referrers',
+	'jpa/locations'                      => 'countries',
+	'jpa/clicks'                         => 'clicks',
+	'jpa/file-downloads'                 => 'file-downloads',
+	'jpa/authors'                        => 'authors',
+	'jpa/author-top-posts'               => 'authors',
+	'jpa/author-performance'             => 'authors',
+	'jpa/search-terms'                   => 'search-terms',
+	'jpa/video-detail-views-performance' => 'videos',
+	'jpa/video-detail-embeds'            => 'videos',
+	'jpa/utm-insights'                   => 'utm',
+	'jpa/devices'                        => 'devices',
+	'jpa/top-platforms'                  => 'devices',
+	'jpa/annual-highlights'              => 'insights',
+	'jpa/all-time-stats'                 => 'insights',
+	'jpa/most-popular-time'              => 'insights',
+	'jpa/most-popular-day'               => 'insights',
+	'jpa/popular-post'                   => 'insights',
+	'jpa/latest-post'                    => 'insights',
+	'jpa/posting-activity'               => 'insights',
+	'jpa/views-over-years'               => 'insights',
+	'jpa/most-commented-posts'           => 'insights',
+	'jpa/most-commented-authors'         => 'insights',
+	'jpa/shares'                         => 'insights',
+	'jpa/tags'                           => 'tags',
+);
 
 /**
  * Registers the package's own widget types from its build manifest.
@@ -370,7 +413,10 @@ function register_widget_types( $registry = null ) {
 	// No manifest URL: the page's boot init module loads the package's own catalogs.
 	register_widget_types_from_manifest(
 		jpa_get_registered_widget_modules(),
-		array( 'textdomain' => 'jetpack-premium-analytics-pkg' ),
+		array(
+			'textdomain'    => 'jetpack-premium-analytics-pkg',
+			'plan_features' => WIDGET_TYPE_PLAN_FEATURES,
+		),
 		$registry
 	);
 }
@@ -385,7 +431,7 @@ add_action( Widget_Type_Registry::REGISTER_ACTION, __NAMESPACE__ . '\\register_w
  * translated and in shape, as a section's label does; a build manifest goes
  * through register_widget_types_from_manifest() instead.
  *
- * @since $$next-version$$
+ * @since 0.9.0
  *
  * @param string $name Widget type name including namespace, `<namespace>/<name>`.
  * @param array  $args Optional. Widget type arguments, any public property of Widget_Type.

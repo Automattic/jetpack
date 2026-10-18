@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { isAmbiguousFailure } from '../data/api/_helpers';
+import { errorCode, isAmbiguousFailure } from '../data/api/_helpers';
 import {
 	fetchRecentRestores,
 	fetchRestoreStatus,
@@ -14,8 +14,10 @@ import {
 } from '../data/api/restore';
 import { keys } from '../data/query-client';
 import { useAdoptedRestore } from './use-adopted-restore';
+import { RECONNECT_AFTER_FAILURES, usePollFailures } from './use-poll-failures';
 import type { AdoptedRestore } from './use-adopted-restore';
 import type { RestoreStatusResponse } from '../data/api/restore';
+import type { ReferenceId } from '../types/failure-reference';
 import type { RestoreItems, RestoreState } from '../types/restore';
 
 type Result = {
@@ -40,7 +42,7 @@ type Result = {
  * no responsiveness and costs a WordPress.com round trip per tick for its
  * whole duration.
  */
-const POLL_INTERVAL_MS = 5000;
+export const POLL_INTERVAL_MS = 5000;
 
 /**
  * How long the screen will go without a recognisable sign of life before
@@ -59,17 +61,25 @@ const POLL_INTERVAL_MS = 5000;
 const QUIET_TIMEOUT_MS = 5 * 60 * 1000;
 
 type DeriveInput = {
+	/** What a reference names: the restore once known, else the backup. */
+	referenceId: ReferenceId;
 	errorMessage: string | null;
+	/** The code of the submission's failure, ambiguous or not. */
+	failureCode: string | null;
 	isPending: boolean;
 	isChecking: boolean;
 	unconfirmed: string | null;
 	startedRewindId: string | null;
 	restoreId: number | null;
 	/** Our restore, found already over in the collection; null when no row matches. */
-	settledOutcome: 'succeeded' | 'failed' | null;
+	settledOutcome: { succeeded: boolean; restoreId: number } | null;
 	statusError: Error | null;
+	/** Consecutive failed status polls since the last good one. */
+	pollFailures: number;
 	data: RestoreStatusResponse | undefined;
 	lostTrack: boolean;
+	/** Whether the restores collection has been read successfully since submitting. */
+	restoresRead: boolean;
 };
 
 /**
@@ -86,7 +96,9 @@ type DeriveInput = {
  */
 function deriveState( input: DeriveInput ): RestoreState {
 	const {
+		referenceId,
 		errorMessage,
+		failureCode,
 		isPending,
 		isChecking,
 		unconfirmed,
@@ -94,12 +106,18 @@ function deriveState( input: DeriveInput ): RestoreState {
 		restoreId,
 		settledOutcome,
 		statusError,
+		pollFailures,
 		data,
 		lostTrack,
+		restoresRead,
 	} = input;
 
 	if ( errorMessage ) {
-		return { phase: 'error', message: errorMessage };
+		return {
+			phase: 'error',
+			message: errorMessage,
+			reference: { code: failureCode, id: referenceId },
+		};
 	}
 	// `startedRewindId` is read before `isPending`: React Query never reattaches a
 	// MutationObserver detached mid-flight, so a remount latches `isPending` true
@@ -124,9 +142,21 @@ function deriveState( input: DeriveInput ): RestoreState {
 		// Answered as soon as it is found rather than after the deadline,
 		// whose message would deny the restore ever ran.
 		if ( settledOutcome !== null ) {
-			return settledOutcome === 'succeeded'
+			return settledOutcome.succeeded
 				? { phase: 'success' }
-				: { phase: 'error', message: __( 'Restore failed.', 'jetpack-backup-pkg' ) };
+				: {
+						phase: 'error',
+						message: __( 'Restore failed.', 'jetpack-backup-pkg' ),
+						reference: { code: null, id: { kind: 'restore', value: settledOutcome.restoreId } },
+					};
+		}
+		// A collection we could not read has not shown that nothing started.
+		if ( lostTrack && ! restoresRead ) {
+			return {
+				phase: 'lost-track',
+				detail: unconfirmed,
+				reference: { code: failureCode, id: referenceId },
+			};
 		}
 		if ( lostTrack ) {
 			return {
@@ -135,6 +165,7 @@ function deriveState( input: DeriveInput ): RestoreState {
 					"Your restore didn't start, so nothing on your site has changed.",
 					'jetpack-backup-pkg'
 				),
+				reference: { code: failureCode, id: referenceId },
 			};
 		}
 		return { phase: 'unconfirmed', detail: unconfirmed };
@@ -146,29 +177,45 @@ function deriveState( input: DeriveInput ): RestoreState {
 	// likely still running — we just cannot watch it any more. Reporting
 	// that as an error offers a retry, which upstream refuses as a bare
 	// failure rather than as anything the reader can act on.
-	if ( restoreId !== null && statusError ) {
-		return { phase: 'lost-track', detail: statusError.message || null };
+	//
+	// Unless the last reading showed the restore alive, or there is no reading
+	// yet: then a failed poll is temporary, and the silence deadline decides.
+	if (
+		restoreId !== null &&
+		statusError &&
+		( lostTrack || ( data !== undefined && ! isSignOfLife( data.status ) ) )
+	) {
+		return {
+			phase: 'lost-track',
+			detail: statusError.message || null,
+			reference: { code: errorCode( statusError ), id: referenceId },
+		};
 	}
 
 	switch ( data?.status ) {
 		case 'finished':
 			return { phase: 'success' };
 		case 'finished-with-errors':
-			return { phase: 'success-with-errors', message: data.message };
+			return {
+				phase: 'success-with-errors',
+				message: data.message,
+				reference: { code: data.error_code || null, id: referenceId },
+			};
 		case 'failed':
 		case 'aborted':
-			// `error_code` is a machine identifier (e.g.
-			// `checksum_mismatch`) — never surface it; fall through to
-			// the translated generic when `message` is empty.
+			// `error_code` is a machine identifier (e.g. `checksum_mismatch`):
+			// quoted in the reference, never used as the message.
 			return {
 				phase: 'error',
 				message: data.message || __( 'Restore failed.', 'jetpack-backup-pkg' ),
+				reference: { code: data.error_code || null, id: referenceId },
 			};
 		case 'running':
 			return {
 				phase: 'progress',
 				percent: Math.round( data.progress ?? 0 ),
 				message: data.message,
+				...( pollFailures >= RECONNECT_AFTER_FAILURES && { reconnecting: true } ),
 			};
 		default:
 			// `queued`, `not-found`, `unknown`, or nothing yet. All the
@@ -180,7 +227,11 @@ function deriveState( input: DeriveInput ): RestoreState {
 			// concurrent one. The copy lives on the screen, like every
 			// other phase's.
 			if ( lostTrack && ! isSignOfLife( data?.status ) ) {
-				return { phase: 'lost-track', detail: null };
+				return {
+					phase: 'lost-track',
+					detail: null,
+					reference: { code: null, id: referenceId },
+				};
 			}
 			return { phase: 'queued' };
 	}
@@ -229,6 +280,7 @@ function deriveState( input: DeriveInput ): RestoreState {
 export function useRestore( rewindId: string, enabled = true ): Result {
 	const [ submittedId, setSubmittedId ] = useState< number | null >( null );
 	const [ errorMessage, setErrorMessage ] = useState< string | null >( null );
+	const [ failureCode, setFailureCode ] = useState< string | null >( null );
 	// Non-null while a submission's outcome is unknown, holding the
 	// transport's own text. Distinct from `errorMessage`, which means
 	// WordPress.com answered and said no.
@@ -281,6 +333,7 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 			return { started: await initiateRestore( rewindId, items ) } as const;
 		},
 		onSuccess: outcome => {
+			setFailureCode( null );
 			if ( 'adopt' in outcome ) {
 				setErrorMessage( null );
 				setAdopted( { id: outcome.adopt.restore_id, rewindId: outcome.adopt.rewind_id } );
@@ -300,6 +353,7 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 			}
 		},
 		onError: ( err: Error ) => {
+			setFailureCode( errorCode( err ) );
 			// We never saw an answer, so the restore may be running. Enter
 			// the same recovery the no-id case uses and let it decide:
 			// finding one adopts it, finding none for the whole silence
@@ -361,6 +415,16 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 		refetchInterval: recovering ? POLL_INTERVAL_MS : false,
 	} );
 
+	// Latched: a later unreadable read must not take back an earlier good one.
+	const [ restoresRead, setRestoresRead ] = useState( false );
+	const restoresData = restoresQuery.data;
+	const restoresUpdatedAt = restoresQuery.dataUpdatedAt;
+	useEffect( () => {
+		if ( aliveAt !== null && Array.isArray( restoresData ) && restoresUpdatedAt >= aliveAt ) {
+			setRestoresRead( true );
+		}
+	}, [ aliveAt, restoresData, restoresUpdatedAt ] );
+
 	const recoveredId = useMemo( () => {
 		if ( ! needsId || startedRewindId === null ) {
 			return null;
@@ -393,7 +457,7 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 		if ( ! row ) {
 			return null;
 		}
-		return row.succeeded ? ( 'succeeded' as const ) : ( 'failed' as const );
+		return { succeeded: row.succeeded, restoreId: row.restore_id };
 	}, [ needsId, restoresQuery.data, startedRewindId ] );
 
 	// An adoption stands in for a submission on both counts: it names the
@@ -430,6 +494,7 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 	// Clearing `lostTrack` is what makes it mean "nothing heard lately"
 	// rather than "there was once a five-minute gap". Without it the flag
 	// latches on the first gap and no later evidence can undo it.
+	const pollFailures = usePollFailures( statusQuery.errorUpdatedAt, statusQuery.dataUpdatedAt );
 	const observedStatus = statusQuery.data?.status;
 	const statusUpdatedAt = statusQuery.dataUpdatedAt;
 	useEffect( () => {
@@ -460,16 +525,23 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 		setAdopted( null );
 		setSubmittedId( null );
 		setErrorMessage( null );
+		setFailureCode( null );
 		setUnconfirmed( null );
 		setStartedRewindId( null );
 		setAliveAt( null );
 		setLostTrack( false );
+		setRestoresRead( false );
 		lastSeenUpdateAt.current = 0;
 		resetMutation();
 	}, [ resetMutation ] );
 
 	const state = deriveState( {
+		referenceId:
+			restoreId !== null
+				? { kind: 'restore', value: restoreId }
+				: { kind: 'backup', value: activeRewindId ?? rewindId },
 		errorMessage,
+		failureCode,
 		isPending,
 		isChecking,
 		unconfirmed,
@@ -477,8 +549,10 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 		restoreId,
 		settledOutcome,
 		statusError: statusQuery.error,
+		pollFailures,
 		data: statusQuery.data,
 		lostTrack,
+		restoresRead,
 	} );
 
 	return {

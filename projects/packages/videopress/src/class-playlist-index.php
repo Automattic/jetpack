@@ -289,7 +289,12 @@ class Playlist_Index {
 			}
 
 			if ( self::BLOCK_NAME === ( $block['blockName'] ?? null ) ) {
-				$found[] = isset( $block['attrs'] ) && is_array( $block['attrs'] ) ? $block['attrs'] : array();
+				$attrs = isset( $block['attrs'] ) && is_array( $block['attrs'] ) ? $block['attrs'] : array();
+				// A block that shows another playlist ( any `source` but own ) is not one itself.
+				if ( isset( $attrs['source'] ) && 'own' !== $attrs['source'] ) {
+					continue;
+				}
+				$found[] = $attrs;
 			}
 
 			if ( ! empty( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ) {

@@ -1053,4 +1053,217 @@ class Feedback_Data_Integrity_Test extends BaseTestCase {
 		$this->assertIsArray( Feedback::process_file_field_value( array( null ) ) );
 		$this->assertIsArray( Feedback::process_file_field_value( array( 42 ) ) );
 	}
+
+	/**
+	 * A value with invalid UTF-8 is kept, not blanked, by the encoder.
+	 */
+	public function test_encode_special_chars_keeps_invalid_utf8() {
+		$encoded = Feedback::encode_special_chars( "keep \xff this" );
+
+		$this->assertNotSame( '', $encoded );
+		$this->assertStringContainsString( 'keep', $encoded );
+		$this->assertStringContainsString( 'this', $encoded );
+	}
+
+	/**
+	 * Characters that may follow a less-than sign in submitted text.
+	 *
+	 * @return array
+	 */
+	public static function provide_separators() {
+		return array(
+			'none'            => array( '' ),
+			'backslash'       => array( '\\' ),
+			'space'           => array( ' ' ),
+			'tab'             => array( "\t" ),
+			'line tabulation' => array( "\x0b" ),
+			'form feed'       => array( "\x0c" ),
+		);
+	}
+
+	/**
+	 * Text, multi-value and "Other" answers reach the submit payload as plain text.
+	 *
+	 * @dataProvider provide_separators
+	 *
+	 * @param string $sep Character after the less-than sign.
+	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provide_separators' )]
+	public function test_submit_payload_holds_plain_text( $sep ) {
+		$optionsdata = Contact_Form::esc_shortcode_val(
+			wp_json_encode(
+				array(
+					array( 'label' => 'Red' ),
+					array(
+						'label'   => 'Other',
+						'isOther' => true,
+					),
+				),
+				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
+			)
+		);
+		$_post_data  = Utility::get_post_request(
+			array(
+				'message'          => "<{$sep}!-- note --> one",
+				'pick'             => array( "<{$sep}a href=\"#\">two", "<{$sep}img alt=\"\"> three" ),
+				'color'            => 'Other',
+				'color-other-text' => "<{$sep}b>four",
+			),
+			'g' . Utility::get_form_id()
+		);
+		$form        = new Contact_Form(
+			array(),
+			"[contact-field label='Message' type='textarea'/]"
+			. "[contact-field label='Pick' type='checkbox-multiple' options='A,B'/]"
+			. "[contact-field label='Color' type='radio' allowOther='1' options='Red,Other' optionsdata='{$optionsdata}'/]"
+		);
+
+		$response = Feedback::from_submission( $_post_data, $form );
+		$saved    = Feedback::get( $response->save() );
+
+		foreach ( array( $response, $saved ) as $feedback ) {
+			$payload = Contact_Form_Plugin::strip_tags( $feedback->get_all_values( 'submit' ) );
+			$this->assert_plain_text( $payload, array( 'one', 'two', 'three', 'four' ) );
+		}
+	}
+
+	/**
+	 * Image choices and file details reach the submit payload as plain text.
+	 *
+	 * @dataProvider provide_separators
+	 *
+	 * @param string $sep Character after the less-than sign.
+	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provide_separators' )]
+	public function test_structured_values_hold_plain_text( $sep ) {
+		$choice = array(
+			'selected' => 'A',
+			'label'    => "<{$sep}!-- note --> one",
+			'image'    => array( 'src' => "<{$sep}img alt=\"\"> two" ),
+		);
+		$file   = array(
+			'file_id' => '1',
+			'name'    => "<{$sep}a href=\"#\">three",
+			'size'    => 1,
+			'type'    => "<{$sep}b>four",
+		);
+
+		// Posted values arrive slashed, which is what the processors undo.
+		$payload = Contact_Form_Plugin::strip_tags(
+			array(
+				Feedback::process_image_select_field_value( array( addslashes( wp_json_encode( $choice, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) ) ) ),
+				Feedback::process_file_field_value( array( addslashes( wp_json_encode( $file, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) ) ) ),
+			)
+		);
+
+		$this->assert_plain_text( $payload, array( 'one', 'two', 'three', 'four' ) );
+	}
+
+	/**
+	 * An answer comparing numbers keeps both sides.
+	 */
+	public function test_submit_payload_keeps_comparison_text() {
+		$_post_data = Utility::get_post_request( array( 'message' => 'x < 5 and y > 3' ), 'g' . Utility::get_form_id() );
+		$form       = new Contact_Form( array(), "[contact-field label='Message' type='textarea'/]" );
+		$payload    = Contact_Form_Plugin::strip_tags( Feedback::from_submission( $_post_data, $form )->get_all_values( 'submit' ) );
+
+		$this->assertSame( 'x &lt; 5 and y &gt; 3', $payload['1_Message'] );
+	}
+
+	/**
+	 * A stored answer reads back as the text that was typed.
+	 *
+	 * @dataProvider provide_separators
+	 *
+	 * @param string $sep Character after the less-than sign.
+	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provide_separators' )]
+	public function test_stored_text_reads_back_as_typed( $sep ) {
+		$typed      = "<{$sep}!-- note --> one";
+		$_post_data = Utility::get_post_request( array( 'message' => wp_slash( $typed ) ), 'g' . Utility::get_form_id() );
+		$form       = new Contact_Form( array(), "[contact-field label='Message' type='textarea'/]" );
+		$saved      = Feedback::get( Feedback::from_submission( $_post_data, $form )->save() );
+		$fields     = $saved->get_fields();
+
+		$this->assertSame( $typed, Feedback::decode_special_chars( array_shift( $fields )->get_value() ) );
+	}
+
+	/**
+	 * Values whose round-trip only works because `&` is encoded too.
+	 *
+	 * @return array
+	 */
+	public static function provide_entity_and_ampersand_values() {
+		return array(
+			'literal less-than entity' => array( 'He wrote &lt;div&gt; in chat' ),
+			'bare ampersands'          => array( 'Tom & Jerry, R&D' ),
+			'literal amp entity'       => array( 'weird &amp;lt; input' ),
+			'mixed comparison'         => array( 'x < 5 & y > 3' ),
+		);
+	}
+
+	/**
+	 * A literally-typed entity or ampersand reads back unchanged.
+	 *
+	 * These would corrupt if only `<` were encoded: the decode could not tell an encoded `<`
+	 * (`&lt;`) from a typed `&lt;`. Encoding `&` as well keeps the round-trip lossless.
+	 *
+	 * @dataProvider provide_entity_and_ampersand_values
+	 *
+	 * @param string $typed The submitted message.
+	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provide_entity_and_ampersand_values' )]
+	public function test_entities_and_ampersands_read_back_as_typed( $typed ) {
+		$_post_data = Utility::get_post_request( array( 'message' => wp_slash( $typed ) ), 'g' . Utility::get_form_id() );
+		$form       = new Contact_Form( array(), "[contact-field label='Message' type='textarea'/]" );
+		$saved      = Feedback::get( Feedback::from_submission( $_post_data, $form )->save() );
+		$fields     = $saved->get_fields();
+		$stored     = array_shift( $fields )->get_value();
+
+		$this->assertStringNotContainsString( '<', $stored, 'The stored value holds no less-than sign.' );
+		$this->assertSame( $typed, Feedback::decode_special_chars( $stored ) );
+	}
+
+	/**
+	 * An exported answer reads as the text that was typed.
+	 *
+	 * @dataProvider provide_separators
+	 *
+	 * @param string $sep Character after the less-than sign.
+	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provide_separators' )]
+	public function test_exported_text_reads_as_typed( $sep ) {
+		$typed      = "one <{$sep}!-- note --> two";
+		$_post_data = Utility::get_post_request( array( 'message' => wp_slash( $typed ) ), 'g' . Utility::get_form_id() );
+		$form       = new Contact_Form( array(), "[contact-field label='Message' type='textarea'/]" );
+		$post_id    = get_post( Feedback::from_submission( $_post_data, $form )->save() )->ID;
+
+		$export = Contact_Form_Plugin::init()->get_export_feedback_data( array( $post_id ) );
+
+		$this->assertSame( array( $typed ), $export['Message'] );
+	}
+
+	/**
+	 * Assert a payload keeps the expected words and holds no less-than sign.
+	 *
+	 * @param array    $payload  The filtered payload.
+	 * @param string[] $expected Words that must survive.
+	 */
+	private function assert_plain_text( $payload, $expected ) {
+		$strings = array();
+		array_walk_recursive(
+			$payload,
+			function ( $value ) use ( &$strings ) {
+				if ( is_string( $value ) ) {
+					$strings[] = $value;
+				}
+			}
+		);
+		$text = implode( ' ', $strings );
+
+		$this->assertStringNotContainsString( '<', $text );
+		foreach ( $expected as $word ) {
+			$this->assertStringContainsString( $word, $text );
+		}
+	}
 }

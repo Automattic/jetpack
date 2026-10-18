@@ -1,8 +1,9 @@
 import { describe, expect, it, jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 /**
- * The panel is loaded through a lazy boundary, so that a site with the feature off never
+ * The panel is loaded through a lazy boundary, so that a site without the plan never
  * fetches, parses or runs any of it.
  *
  * That boundary is invisible to every other test here: panel.test.jsx imports the panel
@@ -11,8 +12,19 @@ import { render, screen } from '@testing-library/react';
  * the browser and a green suite -- which is how two earlier defects on this feature survived.
  */
 
+const mockHasFeatureFlag = jest.fn( () => true );
+
 await jest.unstable_mockModule( '@automattic/jetpack-shared-extension-utils', () => ( {
-	hasFeatureFlag: () => true,
+	hasFeatureFlag: mockHasFeatureFlag,
+	useUpgradeFlow: () => [ 'https://example.com/checkout', () => {}, false ],
+} ) );
+
+await jest.unstable_mockModule( '@automattic/jetpack-shared-extension-utils/components', () => ( {
+	Nudge: ( { title, description } ) => (
+		<p>
+			{ title } { description }
+		</p>
+	),
 } ) );
 
 await jest.unstable_mockModule( '../../../../../src/blocks/contact-form/child-blocks.js', () => ( {
@@ -68,13 +80,13 @@ const noop = () => {};
 const BlockEdit = ( { name } ) => <div>edit: { name }</div>;
 const WrappedBlockEdit = withConditionalLogic( BlockEdit );
 
-const renderBlock = ( name, isSelected = true ) =>
+const renderBlock = ( name, isSelected = true, attributes = {} ) =>
 	render(
 		<WrappedBlockEdit
 			name={ name }
 			isSelected={ isSelected }
 			clientId="abc"
-			attributes={ {} }
+			attributes={ attributes }
 			setAttributes={ noop }
 		/>
 	);
@@ -101,6 +113,32 @@ describe( 'withConditionalLogic', () => {
 
 		expect( screen.getByText( 'edit: jetpack/field-text' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Conditional logic' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'offers an upgrade instead of the builder when the plan lacks the feature', async () => {
+		mockHasFeatureFlag.mockReturnValueOnce( false );
+		const user = userEvent.setup();
+		renderBlock( 'jetpack/field-text' );
+
+		await user.click( await screen.findByRole( 'button', { name: 'Add conditional logic' } ) );
+
+		expect( screen.getByText( /Upgrade to use conditional logic\./ ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Add conditions' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( "tells the author when the plan no longer applies a field's saved conditions", async () => {
+		mockHasFeatureFlag.mockReturnValueOnce( false );
+		renderBlock( 'jetpack/field-text', true, {
+			conditionalLogic: {
+				enabled: true,
+				action: 'show',
+				groups: [ { rules: [ { field: 'field_1', operator: 'is', value: 'yes' } ] } ],
+			},
+		} );
+
+		await expect(
+			screen.findByText( /conditions are not applied on your current plan/ )
+		).resolves.toBeInTheDocument();
 	} );
 
 	it( 'renders a non-field block untouched, without loading the panel', () => {

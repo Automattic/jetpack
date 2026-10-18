@@ -1,5 +1,6 @@
 {
 	"name": "jpa/posting-activity",
+	"icon": "jpa/verse",
 	"title": "Monthly posting activity",
 	"description": "How often you publish — a calendar heatmap of posts per day.",
 	"help": {

@@ -219,6 +219,52 @@ class Latest_Videos_Playlist_Block_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Browse controls and numbered pagination render around the requested page,
+	 * and an empty result keeps the controls.
+	 */
+	public function test_render_browse_controls_and_pagination() {
+		\Automattic\Jetpack\VideoPress\Channel_Data::reset();
+		$this->create_video( 'oldest01', '2024-01-01 10:00:00', 60000 );
+		$this->create_video( 'middle02', '2024-02-01 10:00:00', 120000 );
+		$this->create_video( 'newest03', '2024-03-01 10:00:00', 180000 );
+		$_GET = array(
+			'videos-sort' => 'oldest',
+			'videos-page' => '2',
+			'keep'        => 'me',
+		);
+
+		$markup = VideoPress_Initializer::render_videopress_latest_videos_playlist_block(
+			array(
+				'count'              => 2,
+				'showPlayer'         => false,
+				'showBrowseControls' => true,
+				'pagination'         => 'numbered',
+			)
+		);
+
+		$this->assertStringContainsString( '<form class="videopress-video-browser" method="get"', $markup );
+		$this->assertStringContainsString( '<input type="hidden" name="keep" value="me" />', $markup );
+		$this->assertStringContainsString( 'class="videopress-video-browser__sort is-current" name="videos-sort" value="oldest" aria-pressed="true"', $markup );
+		$this->assertStringContainsString( '<p class="videopress-video-browser__summary">Showing 3–3 of 3 videos</p>', $markup );
+		$this->assertStringContainsString( 'data-guid="newest03"', $markup );
+		$this->assertStringNotContainsString( 'data-guid="oldest01"', $markup );
+		$this->assertStringContainsString( '<span class="videopress-video-browser__page videopress-video-browser__page--number is-current" aria-current="page">2</span>', $markup );
+		$this->assertStringContainsString( 'videopress-video-browser__page--next is-disabled', $markup );
+		$this->assertStringNotContainsString( 'videopress-playlist__entry-stats', $markup );
+
+		$_GET   = array( 'videos-length' => 'long' );
+		$markup = VideoPress_Initializer::render_videopress_latest_videos_playlist_block(
+			array(
+				'count'              => 2,
+				'showBrowseControls' => true,
+			)
+		);
+		$this->assertStringContainsString( '<form class="videopress-video-browser"', $markup );
+		$this->assertStringContainsString( 'No videos match these filters.', $markup );
+		$_GET = array();
+	}
+
+	/**
 	 * The newest VideoPress videos come back first, capped at the count, with
 	 * only the numeric metadata; other attachments are ignored.
 	 */
@@ -251,6 +297,36 @@ class Latest_Videos_Playlist_Block_Test extends BaseTestCase {
 		$this->assertSame( 2, $this->captured_query->get( 'posts_per_page' ) );
 
 		$this->assertCount( 3, Data::get_latest_videopress_playlist_entries( 10 ) );
+	}
+
+	/**
+	 * Without the media endpoint ( WordPress.com Simple page renders ) the
+	 * entries come straight from the attachments, in the same order and shape.
+	 */
+	public function test_latest_entries_without_the_media_endpoint() {
+		$this->create_video( 'oldest01', '2024-01-01 10:00:00', 60000, 720 );
+		$this->create_video( 'newest03', '2024-03-01 10:00:00', 180000, 2160 );
+		$this->create_attachment( 'video/mp4', '2024-04-01 10:00:00' );
+		$no_route = function () {
+			return new \WP_Error( 'rest_no_route', 'No route was found matching the URL and request method.', array( 'status' => 404 ) );
+		};
+		add_filter( 'rest_pre_dispatch', $no_route );
+
+		$entries = Data::get_latest_videopress_playlist_entries( 1 );
+		remove_filter( 'rest_pre_dispatch', $no_route );
+
+		$this->assertSame(
+			array(
+				array(
+					'guid'       => 'newest03',
+					'durationMs' => 180000,
+					'height'     => 2160,
+				),
+			),
+			$entries
+		);
+		$this->assertSame( 'video/videopress', $this->captured_query->get( 'post_mime_type' ) );
+		$this->assertSame( 1, $this->captured_query->get( 'posts_per_page' ) );
 	}
 
 	/**
@@ -305,6 +381,32 @@ class Latest_Videos_Playlist_Block_Test extends BaseTestCase {
 			strpos( $markup, 'data-guid="oldest01"' ),
 			strpos( $markup, 'data-guid="newest02"' )
 		);
+	}
+
+	/**
+	 * The player settings reach the shared renderer: hidden with new-tab links,
+	 * or hidden until a click reveals it.
+	 */
+	public function test_render_honors_the_player_settings() {
+		$this->create_video( 'newest02', '2024-02-01 10:00:00', 120000, 1080 );
+
+		$links = VideoPress_Initializer::render_videopress_latest_videos_playlist_block(
+			array( 'showPlayer' => false )
+		);
+		$this->assertStringContainsString( 'hide-player', $links );
+		$this->assertStringNotContainsString( 'videopress-playlist__stage', $links );
+		$this->assertStringContainsString( 'href="https://videopress.com/v/newest02" target="_blank"', $links );
+
+		$reveal = VideoPress_Initializer::render_videopress_latest_videos_playlist_block(
+			array(
+				'showPlayer'       => false,
+				'entryClickAction' => 'show-player',
+			)
+		);
+		$this->assertStringContainsString( 'hide-player', $reveal );
+		$this->assertStringContainsString( '<div class="videopress-playlist__stage" hidden>', $reveal );
+		$this->assertStringContainsString( 'data-embed-url="https://videopress.com/embed/newest02', $reveal );
+		$this->assertStringNotContainsString( 'target="_blank"', $reveal );
 	}
 
 	/**
@@ -373,6 +475,26 @@ class Latest_Videos_Playlist_Block_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'data-guid="library1"', $markup );
 		$this->assertStringNotContainsString( 'injected1', $markup );
 		$this->assertStringNotContainsString( 'is-layout-grid', $markup );
+	}
+
+	/**
+	 * A dynamic playlist has no title, so no heading renders even when one is
+	 * stored or passed in.
+	 */
+	public function test_render_has_no_title_heading() {
+		$this->create_video( 'library1', '2024-01-01 10:00:00' );
+
+		$markup = VideoPress_Initializer::render_videopress_latest_videos_playlist_block(
+			array(
+				'playlistTitle'     => 'Injected',
+				'showPlaylistTitle' => true,
+			),
+			'<h2 class="wp-block-heading">Injected</h2>'
+		);
+
+		$this->assertStringContainsString( 'data-guid="library1"', $markup );
+		$this->assertStringNotContainsString( 'videopress-playlist__heading', $markup );
+		$this->assertStringNotContainsString( 'Injected', $markup );
 	}
 
 	/**

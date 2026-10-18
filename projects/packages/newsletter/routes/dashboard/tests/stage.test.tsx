@@ -36,6 +36,11 @@ jest.mock( '@automattic/jetpack-connection/use-connection', () => ( {
 	default: () => mockConnection(),
 } ) );
 
+jest.mock( '@automattic/jetpack-connection/get-user-connection-url', () => ( {
+	getUserConnectionUrl: ( options: { from?: string; redirect_url?: string } ) =>
+		`https://example.com/wp-admin/admin.php?connect_from=${ options.from }&redirect_url=${ options.redirect_url }`,
+} ) );
+
 jest.mock( '@wordpress/route', () => ( {
 	useSearch: () => mockSearch(),
 } ) );
@@ -82,17 +87,21 @@ jest.mock( '../../../_inc/subscribers/lib/query-client', () => ( {
 } ) );
 
 jest.mock( '../../../src/settings/newsletter-settings', () => ( {
-	NewsletterSettingsBody: () => null,
+	NewsletterSettingsBody: ( {
+		hasConnectedOwner,
+		connectUrl,
+	}: {
+		hasConnectedOwner?: boolean;
+		connectUrl?: string;
+	} ) =>
+		hasConnectedOwner === false ? (
+			<div data-testid="settings-owner-warning" data-connect-url={ connectUrl } />
+		) : null,
 } ) );
 
 jest.mock( '../components/overview-body', () => ( {
 	__esModule: true,
-	default: () => null,
-} ) );
-
-jest.mock( '../components/subscriber-stats-chart', () => ( {
-	__esModule: true,
-	default: () => <div data-testid="subscriber-stats-chart" />,
+	default: () => <div data-testid="overview-body" />,
 } ) );
 
 jest.mock( '../../../src/settings/script-data', () => ( {
@@ -201,6 +210,19 @@ describe( 'Newsletter dashboard Stage analytics', () => {
 		expect( mockRecordEvent ).toHaveBeenLastCalledWith( 'jetpack_newsletter_tab_view', {
 			site_type: 'jetpack',
 			tab: 'settings',
+			previous_tab: 'overview',
+		} );
+	} );
+
+	it( 'records an old ?tab=stats link as the Overview tab', () => {
+		mockSearch.mockReturnValue( { tab: 'stats' } );
+
+		render( <Stage /> );
+
+		expect( mockRecordEvent ).toHaveBeenCalledTimes( 1 );
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_newsletter_tab_view', {
+			site_type: 'jetpack',
+			tab: 'overview',
 		} );
 	} );
 
@@ -267,6 +289,39 @@ describe( 'Newsletter dashboard Stage connection gate', () => {
 	} );
 } );
 
+describe( 'Newsletter dashboard Stage Settings owner warning', () => {
+	it( 'passes hasConnectedOwner and connectUrl so the Settings tab can warn a disconnected owner', () => {
+		mockSearch.mockReturnValue( { tab: 'settings' } );
+
+		render( <Stage /> );
+
+		const warning = screen.getByTestId( 'settings-owner-warning' );
+		expect( warning ).toBeInTheDocument();
+		expect( warning ).toHaveAttribute(
+			'data-connect-url',
+			'https://example.com/wp-admin/admin.php?connect_from=jetpack-newsletter&redirect_url=https://example.com/wp-admin/admin.php?page=jetpack-newsletter'
+		);
+	} );
+
+	it( 'does not warn when the owner is connected', () => {
+		mockConnection.mockReturnValue( connected );
+		mockSearch.mockReturnValue( { tab: 'settings' } );
+
+		render( <Stage /> );
+
+		expect( screen.queryByTestId( 'settings-owner-warning' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'does not warn on a Simple site even without a Jetpack connection', () => {
+		mockIsSimpleSite.mockReturnValue( true );
+		mockSearch.mockReturnValue( { tab: 'settings' } );
+
+		render( <Stage /> );
+
+		expect( screen.queryByTestId( 'settings-owner-warning' ) ).not.toBeInTheDocument();
+	} );
+} );
+
 describe( 'Newsletter dashboard Stage import-poll gating', () => {
 	// The import-completion poll lives in the always-mounted SubscribersBody. It must run only for a
 	// visitor who can actually import AND is on the Subscribers tab, so it doesn't hit the WP.com
@@ -297,34 +352,22 @@ describe( 'Newsletter dashboard Stage import-poll gating', () => {
 	} );
 } );
 
-describe( 'Newsletter dashboard Stage Stats tab gating', () => {
-	// Stats exposes real subscriber/email data over REST, so it must stay
-	// unreachable — not just hidden from nav — while the shared Overview flag
-	// that also gates it is off. Stats is a temporary standalone page that
-	// shares Overview's flag rather than getting its own.
-	it( 'does not render the Stats panel when overviewEnabled is false, even via ?tab=stats', () => {
+describe( 'Newsletter dashboard Stage old Stats links', () => {
+	// Stats now lives in the Overview tab, which exposes real subscriber data, so an old ?tab=stats
+	// link must stay behind the Overview flag.
+	it.each( [
+		[ 'opens the Overview', true, true ],
+		[ 'does not open the Overview while its flag is off', false, false ],
+	] )( '%s for ?tab=stats', ( _, overviewEnabled, shown ) => {
 		mockGetNewsletterScriptData.mockReturnValue( {
 			subscriberManagementEnabled: true,
-			overviewEnabled: false,
+			overviewEnabled,
 			tracksUserData: { userid: 1, username: 'tester' },
 		} );
 		mockSearch.mockReturnValue( { tab: 'stats' } );
 
 		render( <Stage /> );
 
-		expect( screen.queryByTestId( 'subscriber-stats-chart' ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'renders the Stats panel when overviewEnabled is true and the route deep-links to ?tab=stats', () => {
-		mockGetNewsletterScriptData.mockReturnValue( {
-			subscriberManagementEnabled: true,
-			overviewEnabled: true,
-			tracksUserData: { userid: 1, username: 'tester' },
-		} );
-		mockSearch.mockReturnValue( { tab: 'stats' } );
-
-		render( <Stage /> );
-
-		expect( screen.getByTestId( 'subscriber-stats-chart' ) ).toBeInTheDocument();
+		expect( screen.queryByTestId( 'overview-body' ) !== null ).toBe( shown );
 	} );
 } );

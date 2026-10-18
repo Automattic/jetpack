@@ -1,5 +1,12 @@
 import apiFetch from '@wordpress/api-fetch';
-import { ApiError, apiCall, isAmbiguousFailure, requireTypes, toIntRewindId } from '../_helpers';
+import {
+	ApiError,
+	apiCall,
+	errorCode,
+	isAmbiguousFailure,
+	requireTypes,
+	toIntRewindId,
+} from '../_helpers';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
 // `__` prefixes a sentinel rather than returning its input, so a message that
@@ -257,6 +264,25 @@ describe( 'apiCall', () => {
 			code: 'fetch_error',
 			message: 'Network down.',
 		} );
+	} );
+} );
+
+describe( 'errorCode', () => {
+	it.each( [
+		[
+			"WordPress.com's code over the bridge's",
+			new ApiError( 'backup_ls_fetch_failed', 'm', { wpcom: { code: 'rewind_error' } } ),
+			'rewind_error',
+		],
+		[
+			"the bridge's code when upstream gave none",
+			new ApiError( 'invalid_json', 'm' ),
+			'invalid_json',
+		],
+		[ "nothing for apiCall's stand-in code", new ApiError( 'unknown', 'm' ), null ],
+		[ 'nothing for an error that is not an ApiError', new Error( 'm' ), null ],
+	] )( 'quotes %s', ( _label, error, expected ) => {
+		expect( errorCode( error ) ).toBe( expected );
 	} );
 } );
 

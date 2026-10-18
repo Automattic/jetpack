@@ -1,6 +1,9 @@
+import { useCallback } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { Button, Link, Stack, Text } from '@wordpress/ui';
 import { formatMetric, formatRate } from '../../../../_inc/subscribers/lib/format-metric';
+import { recordStatsEvent, useStatsStateView } from '../stats-tracks';
+import type { JSX } from 'react';
 import './style.scss';
 
 export type RecentPost = {
@@ -30,17 +33,72 @@ const formatDate = ( date: string ): string =>
 type RecentPostsContentProps = Pick<
 	Props,
 	'posts' | 'isLoading' | 'isError' | 'createPostUrl' | 'onRetry'
->;
+> & {
+	onCreatePostClick: () => void;
+};
+
+/**
+ * Recent-post row link. Records the click without the title or URL.
+ *
+ * @param props          - Link props.
+ * @param props.post     - Post to link.
+ * @param props.position - 1-based row in the recent-posts list.
+ * @return The post link.
+ */
+function RecentPostLink( { post, position }: { post: RecentPost; position: number } ): JSX.Element {
+	const recordClick = useCallback( () => {
+		recordStatsEvent( 'jetpack_newsletter_stats_post_click', {
+			post_id: post.id,
+			post_status: post.status,
+			position,
+		} );
+	}, [ post.id, post.status, position ] );
+
+	return (
+		<Link
+			className="jetpack-newsletter-recent-posts__link"
+			href={ post.url }
+			aria-label={ post.title }
+			variant="unstyled"
+			onClick={ recordClick }
+		>
+			{ post.image ? (
+				<img
+					className="jetpack-newsletter-recent-posts__thumbnail"
+					src={ post.image }
+					alt=""
+					data-testid="post-image"
+				/>
+			) : (
+				<span
+					className="jetpack-newsletter-recent-posts__placeholder"
+					aria-hidden="true"
+					data-testid="post-image-placeholder"
+				/>
+			) }
+			<Stack
+				direction="column"
+				gap="xs"
+				render={ <span /> }
+				className="jetpack-newsletter-recent-posts__details"
+			>
+				<strong>{ post.title }</strong>
+				{ post.status === 'publish' ? <span>{ formatDate( post.date ) }</span> : null }
+			</Stack>
+		</Link>
+	);
+}
 
 /**
  * Render the loading, error, empty, or table state for the recent posts list.
  *
- * @param props               - Content props.
- * @param props.posts         - Recent posts to display.
- * @param props.isLoading     - Whether posts are loading.
- * @param props.isError       - Whether loading posts failed.
- * @param props.createPostUrl - URL for creating a post.
- * @param props.onRetry       - Retry the posts request.
+ * @param props                   - Content props.
+ * @param props.posts             - Recent posts to display.
+ * @param props.isLoading         - Whether posts are loading.
+ * @param props.isError           - Whether loading posts failed.
+ * @param props.createPostUrl     - URL for creating a post.
+ * @param props.onRetry           - Retry the posts request.
+ * @param props.onCreatePostClick - Record the empty-state create-post click.
  * @return The content for the current state.
  */
 function getRecentPostsContent( {
@@ -49,6 +107,7 @@ function getRecentPostsContent( {
 	isError,
 	createPostUrl,
 	onRetry,
+	onCreatePostClick,
 }: RecentPostsContentProps ): JSX.Element {
 	if ( isLoading ) {
 		return (
@@ -91,7 +150,9 @@ function getRecentPostsContent( {
 				className="jetpack-newsletter-recent-posts__state"
 			>
 				<Text render={ <p /> }>{ __( 'No posts yet.', 'jetpack-newsletter' ) }</Text>
-				<Link href={ createPostUrl }>{ __( 'Create a post', 'jetpack-newsletter' ) }</Link>
+				<Link href={ createPostUrl } onClick={ onCreatePostClick }>
+					{ __( 'Create a post', 'jetpack-newsletter' ) }
+				</Link>
 			</Stack>
 		);
 	}
@@ -119,39 +180,10 @@ function getRecentPostsContent( {
 					</tr>
 				</thead>
 				<tbody>
-					{ posts.map( post => (
+					{ posts.map( ( post, index ) => (
 						<tr key={ post.id }>
 							<td>
-								<Link
-									className="jetpack-newsletter-recent-posts__link"
-									href={ post.url }
-									aria-label={ post.title }
-									variant="unstyled"
-								>
-									{ post.image ? (
-										<img
-											className="jetpack-newsletter-recent-posts__thumbnail"
-											src={ post.image }
-											alt=""
-											data-testid="post-image"
-										/>
-									) : (
-										<span
-											className="jetpack-newsletter-recent-posts__placeholder"
-											aria-hidden="true"
-											data-testid="post-image-placeholder"
-										/>
-									) }
-									<Stack
-										direction="column"
-										gap="xs"
-										render={ <span /> }
-										className="jetpack-newsletter-recent-posts__details"
-									>
-										<strong>{ post.title }</strong>
-										{ post.status === 'publish' ? <span>{ formatDate( post.date ) }</span> : null }
-									</Stack>
-								</Link>
+								<RecentPostLink post={ post } position={ index + 1 } />
 							</td>
 							<td>
 								<span className="jetpack-newsletter-recent-posts__status">
@@ -197,7 +229,33 @@ export default function RecentPosts( {
 	isError,
 	onRetry,
 }: Props ): JSX.Element {
-	const content = getRecentPostsContent( { posts, isLoading, isError, createPostUrl, onRetry } );
+	let postsState: 'empty' | 'error' | null = null;
+	if ( ! isLoading ) {
+		if ( isError ) {
+			postsState = 'error';
+		} else if ( posts.length === 0 ) {
+			postsState = 'empty';
+		}
+	}
+	useStatsStateView( 'recent_posts', postsState );
+	const recordViewAllClick = useCallback( () => {
+		recordStatsEvent( 'jetpack_newsletter_stats_view_all_click' );
+	}, [] );
+	const recordCreatePostClick = useCallback( () => {
+		recordStatsEvent( 'jetpack_newsletter_stats_create_post_click' );
+	}, [] );
+	const recordRetry = useCallback( () => {
+		recordStatsEvent( 'jetpack_newsletter_stats_retry_click', { area: 'recent_posts' } );
+		onRetry();
+	}, [ onRetry ] );
+	const content = getRecentPostsContent( {
+		posts,
+		isLoading,
+		isError,
+		createPostUrl,
+		onRetry: recordRetry,
+		onCreatePostClick: recordCreatePostClick,
+	} );
 
 	return (
 		<section className="jetpack-newsletter-recent-posts">
@@ -211,7 +269,7 @@ export default function RecentPosts( {
 					{ __( 'Recent Posts', 'jetpack-newsletter' ) }
 				</Text>
 				{ viewAllUrl ? (
-					<Link href={ viewAllUrl } tone="neutral">
+					<Link href={ viewAllUrl } tone="neutral" onClick={ recordViewAllClick }>
 						{ __( 'View all', 'jetpack-newsletter' ) }
 					</Link>
 				) : null }

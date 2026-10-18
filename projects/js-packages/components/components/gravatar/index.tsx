@@ -8,6 +8,7 @@ import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { sha256 } from 'js-sha256';
 import './style.scss';
+import type { JSX } from 'react';
 
 /**
  * Gravatar `defaultImage` styles, mirroring https://docs.gravatar.com/sdk/images/#default-image

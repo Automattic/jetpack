@@ -21,12 +21,10 @@ require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-admin-pag
  *
  * @covers Akismet_Admin_Chrome
  * @covers Jetpack_Admin_Page::wrap_ui
- * @covers Automattic\Jetpack\Plugin\Footer_Links::get_my_jetpack_products_section
  * @covers Automattic\Jetpack\Plugin\Footer_Links::is_my_jetpack_available
  */
 #[CoversClass( Akismet_Admin_Chrome::class )]
 #[CoversMethod( Jetpack_Admin_Page::class, 'wrap_ui' )]
-#[CoversMethod( Footer_Links::class, 'get_my_jetpack_products_section' )]
 #[CoversMethod( Footer_Links::class, 'is_my_jetpack_available' )]
 class Akismet_Admin_Chrome_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
@@ -56,7 +54,6 @@ class Akismet_Admin_Chrome_Test extends WP_UnitTestCase {
 	 * Undo the constant and cached status the individual tests set.
 	 */
 	public function tear_down() {
-		remove_all_filters( 'jetpack_feature_flag_enabled_my-jetpack-features-tab' );
 		Constants::clear_single_constant( 'IS_WPCOM' );
 		Status_Cache::clear();
 		global $_registered_pages, $wp_actions;
@@ -152,16 +149,16 @@ class Akismet_Admin_Chrome_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * My Jetpack does not exist on WordPress.com, so the Products and Help links have to be
+	 * My Jetpack does not exist on WordPress.com, so the Features and Help links have to be
 	 * dropped there rather than pointing at a page the site has no menu entry for.
 	 */
-	public function test_render_footer_hides_the_products_and_help_links_on_wpcom() {
+	public function test_render_footer_hides_the_features_and_help_links_on_wpcom() {
 		$chrome = new Akismet_Admin_Chrome();
 
 		$self_hosted = $this->render( array( $chrome, 'render_footer' ) );
 
 		$this->assertStringContainsString( 'class="jp-akismet-footer__menu"', $self_hosted );
-		$this->assertStringContainsString( 'page=my-jetpack#/products', $self_hosted );
+		$this->assertStringContainsString( 'page=my-jetpack#/features', $self_hosted );
 
 		Constants::set_constant( 'IS_WPCOM', true );
 		Status_Cache::clear();
@@ -237,11 +234,9 @@ class Akismet_Admin_Chrome_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * With My Jetpack's Features tab on, the footer links to it under its new name.
+	 * The footer links to My Jetpack's Features tab, not the retired Products tab.
 	 */
-	public function test_render_footer_links_to_the_features_tab_when_it_replaces_products() {
-		add_filter( 'jetpack_feature_flag_enabled_my-jetpack-features-tab', '__return_true' );
-
+	public function test_render_footer_links_to_the_features_tab() {
 		$footer = $this->render( array( new Akismet_Admin_Chrome(), 'render_footer' ) );
 
 		$this->assertStringContainsString( 'page=my-jetpack#/features', $footer );

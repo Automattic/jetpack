@@ -11,6 +11,7 @@ import { useMemo } from 'react';
  * Internal dependencies
  */
 import { useWidgetRootContext } from '../components/widget-root';
+import { useDashboardOriginSearch } from './use-dashboard-origin-search';
 
 type WidgetNavigationSearchOptions = {
 	/**
@@ -35,13 +36,15 @@ export function useWidgetNavigationSearch( {
 	const { reportParams, navigationParams = reportParams } = useWidgetRootContext();
 	const originReport = origin?.report;
 	const originSection = origin?.section;
+	const dashboardOrigin = useDashboardOriginSearch();
 
 	return useMemo(
 		() => ( {
 			...pickReportDateParams( navigationParams ),
+			...dashboardOrigin,
 			...( section ? { section } : {} ),
 			...( originReport ? createReportOriginSearch( originReport, originSection ) : {} ),
 		} ),
-		[ navigationParams, section, originReport, originSection ]
+		[ navigationParams, dashboardOrigin, section, originReport, originSection ]
 	);
 }

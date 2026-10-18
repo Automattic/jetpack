@@ -8,9 +8,13 @@ import { getBlockThemeMigration } from '../../../utils/block-theme-migration';
 import { getActivationStatusLabel } from '../utils';
 import { FeatureAction } from './feature-action';
 import { FeatureIcon } from './feature-icon';
+import { FeatureInstallNotice } from './feature-install-notice';
+import { getModuleUnavailableNote } from './feature-state';
+import { getFeatureUnavailableReason } from './module-availability';
 import styles from './styles.module.scss';
 import { getDeprecatedModules } from './use-more-features';
 import type { FeatureState } from './feature-state';
+import type { FeatureActionOrigin } from './features-tracking-context';
 import type { MyJetpackModule } from '../../../types';
 import type { ReactNode } from 'react';
 
@@ -22,7 +26,7 @@ import type { ReactNode } from 'react';
  */
 export function getModuleSettingsUrl( $module: MyJetpackModule ): string | undefined {
 	// Deprecated modules are offered only to be switched off; the widgets link opens no widgets panel on a block theme.
-	if ( getDeprecatedModules().includes( $module.module ) ) {
+	if ( $module.available === false || getDeprecatedModules().includes( $module.module ) ) {
 		return undefined;
 	}
 
@@ -39,6 +43,7 @@ type FeatureItemProps = {
 	leading?: ReactNode;
 	className?: string;
 	showIcon?: boolean;
+	origin?: FeatureActionOrigin;
 };
 
 /**
@@ -54,6 +59,7 @@ type FeatureItemProps = {
  * @param {ReactNode}        props.leading   - A control before the icon, raised above the click target.
  * @param {string}           props.className - Extra class for the card.
  * @param {boolean}          props.showIcon  - False drops the icon tile.
+ * @param {string}           props.origin    - Which list this card sits in.
  * @return The rendered component.
  */
 export function FeatureItem( {
@@ -62,11 +68,14 @@ export function FeatureItem( {
 	leading,
 	className,
 	showIcon = true,
+	origin,
 }: FeatureItemProps ) {
 	const { feature } = state;
 	const isActive = state.status === 'active';
 	const chevron = isRTL() ? chevronLeft : chevronRight;
 	const onClick = useCallback( () => onOpen?.( feature.slug ), [ feature.slug, onOpen ] );
+	const unavailable = getFeatureUnavailableReason( state );
+	const reason = unavailable || getModuleUnavailableNote( state );
 	const statusId = `feature-status-${ feature.slug }`;
 	// Only while the state is first being read. A switch answers its own click, so
 	// mid-request the badge has a value to show and should show it.
@@ -137,8 +146,10 @@ export function FeatureItem( {
 					) }
 
 					{ ! isSettling && ! migration && (
-						<Badge id={ statusId } intent={ isActive ? 'stable' : 'none' }>
-							{ getActivationStatusLabel( isActive ) }
+						<Badge id={ statusId } intent={ isActive && ! unavailable ? 'stable' : 'none' }>
+							{ unavailable
+								? __( 'Unavailable', 'jetpack-my-jetpack' )
+								: getActivationStatusLabel( isActive ) }
 						</Badge>
 					) }
 
@@ -151,23 +162,33 @@ export function FeatureItem( {
 					{ migration?.notice ?? feature.description }
 				</Text>
 
-				{ settingsUrl && (
-					<Link
-						href={ settingsUrl }
-						className={ styles[ 'feature-item__settings' ] }
-						aria-label={ sprintf(
-							/* translators: %s is the feature name. */
-							__( '%s settings', 'jetpack-my-jetpack' ),
-							feature.name
-						) }
-					>
-						{ __( 'Settings', 'jetpack-my-jetpack' ) }
-					</Link>
+				{ reason && (
+					<Text variant="body-sm" className={ styles[ 'install-notice' ] }>
+						{ reason }
+					</Text>
 				) }
+
+				<FeatureInstallNotice state={ state } />
 			</span>
 
 			<span className={ styles[ 'feature-action-slot' ] }>
-				<FeatureAction state={ state } describedby={ migration ? undefined : statusId } />
+				{ settingsUrl && (
+					<Link
+						href={ settingsUrl }
+						aria-label={ sprintf(
+							/* translators: %s is the feature name. */
+							__( 'Configure %s', 'jetpack-my-jetpack' ),
+							feature.name
+						) }
+					>
+						{ __( 'Configure', 'jetpack-my-jetpack' ) }
+					</Link>
+				) }
+				<FeatureAction
+					state={ state }
+					origin={ origin }
+					describedby={ migration ? undefined : statusId }
+				/>
 			</span>
 
 			{ /* Left under the stretched title on purpose: it points at the card's own

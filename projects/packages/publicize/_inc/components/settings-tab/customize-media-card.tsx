@@ -5,6 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { Button, Card, Stack } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
 import TemplatePickerModal from '../social-image-generator/template-picker/modal';
+import type { JSX } from 'react';
 
 /**
  * Customize media card — Social Image Generator toggle + template picker.

@@ -24,7 +24,7 @@ describe( 'CornerstonePagesCard', () => {
 	it( 'describes the feature without a duplicate heading', () => {
 		render( <CornerstonePagesCard /> );
 
-		expect( screen.queryByRole( 'heading', { name: 'Cornerstone pages' } ) ).toBeNull();
+		expect( screen.queryByRole( 'heading', { name: 'Cornerstone Pages' } ) ).toBeNull();
 		expect( screen.getByText( 'description' ).tagName ).toBe( 'P' );
 		expect( screen.getByRole( 'button', { name: /Customize pages list/ } ) ).toBeTruthy();
 		expect(
@@ -71,6 +71,7 @@ describe( 'CornerstonePagesCard', () => {
 		fireEvent.click( screen.getByRole( 'button', { name: /Customize pages list/ } ) );
 
 		expect( recordBoostEvent ).toHaveBeenCalledWith( 'cornerstone_pages_panel_toggle', {
+			panel_scope: 'editor',
 			status: 'open',
 		} );
 	} );

@@ -5,6 +5,7 @@
 		"./src/client",
 		"./src/dashboard",
 		"routes/**/*",
+		"widgets/**/*",
 		"./declarations.d.ts",
 		"./wordpress-augmentations.d.ts"
 	],

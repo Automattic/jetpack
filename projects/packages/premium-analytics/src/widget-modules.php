@@ -81,6 +81,7 @@ function get_widget_modules_response() {
 			'keywords'      => $widget_type->keywords,
 			'textdomain'    => $widget_type->textdomain,
 			'i18n_manifest' => $widget_type->i18n_manifest,
+			'former_names'  => $widget_type->former_names,
 		);
 	}
 

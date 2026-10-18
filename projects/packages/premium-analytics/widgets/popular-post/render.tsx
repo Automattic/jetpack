@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { toAuthorId } from '@jetpack-premium-analytics/data';
 import { createReportOriginSearch } from '@jetpack-premium-analytics/routing';
 import {
@@ -11,14 +12,15 @@ import {
 	WidgetRoot,
 	WidgetState,
 	describeError,
+	useDashboardOriginSearch,
 	useWidgetRootContext,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { trendingUp } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
 import { usePopularPost } from './use-popular-post';
+import { useNoPublishedPosts } from '../use-no-published-posts';
 import type { PopularPostAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
@@ -52,7 +54,6 @@ function PopularPostReport( { authorScoped }: { authorScoped: boolean } ) {
 				isError={ false }
 				isEmpty
 				empty={ {
-					icon: trendingUp,
 					description: __(
 						'Open an author to see their most viewed post here.',
 						'jetpack-premium-analytics-pkg'
@@ -69,8 +70,12 @@ function PopularPostReport( { authorScoped }: { authorScoped: boolean } ) {
 
 function PopularPostCard( { authorId }: { authorId: number } ) {
 	const { reportParams } = useWidgetRootContext();
+	const dashboardOrigin = useDashboardOriginSearch();
 	const { post, range, isLoading, isFetching, isError, error, refetch } = usePopularPost(
 		authorId ? { authorId, reportParams } : undefined
+	);
+	const { noPublishedPosts, isChecking } = useNoPublishedPosts(
+		! authorId && ! isLoading && ! isError && ! post
 	);
 
 	const metrics: PostHighlightCardMetric[] = post
@@ -96,6 +101,7 @@ function PopularPostCard( { authorId }: { authorId: number } ) {
 	// Ranked over this card's window, not the host's.
 	const detailSearch = {
 		...range,
+		...dashboardOrigin,
 		...createReportOriginSearch(
 			authorId ? 'authors' : 'posts',
 			authorId ? undefined : 'posts-pages'
@@ -104,7 +110,7 @@ function PopularPostCard( { authorId }: { authorId: number } ) {
 
 	return (
 		<WidgetState
-			isLoading={ isLoading }
+			isLoading={ isLoading || isChecking }
 			isFetching={ isFetching }
 			isError={ isError }
 			isEmpty={ ! post }
@@ -115,15 +121,25 @@ function PopularPostCard( { authorId }: { authorId: number } ) {
 				),
 				onRetry: refetch,
 			} ) }
-			empty={ {
-				icon: trendingUp,
-				description: authorId
-					? __(
-							'No views recorded for this author’s posts in this period.',
-							'jetpack-premium-analytics-pkg'
-						)
-					: __( 'No post views in the last 12 months.', 'jetpack-premium-analytics-pkg' ),
-			} }
+			// The site-wide card ranks over a pinned window, not the selected period, so the generic "this time period" copy would point at the wrong range.
+			empty={
+				authorId
+					? undefined
+					: {
+							description: noPublishedPosts
+								? __(
+										"Your most-read post will show here once you've published one.",
+										'jetpack-premium-analytics-pkg'
+									)
+								: __( 'No post views in the last 12 months.', 'jetpack-premium-analytics-pkg' ),
+							action: noPublishedPosts
+								? {
+										label: __( 'Create post', 'jetpack-premium-analytics-pkg' ),
+										href: getAdminUrl( 'post-new.php' ),
+									}
+								: undefined,
+						}
+			}
 			renderLoading={ <PostHighlightCardSkeleton /> }
 		>
 			{ post && (

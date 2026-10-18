@@ -12,6 +12,7 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Rest_Authentication;
 use Automattic\Jetpack\My_Jetpack\Products\Search as Search_Product;
 use Automattic\Jetpack\My_Jetpack\Products\Search_Stats as Search_Product_Stats;
+use Automattic\Jetpack\Status;
 use Jetpack_Options;
 use WP_Error;
 use WP_REST_Request;
@@ -183,6 +184,22 @@ class REST_Controller {
 		);
 		register_rest_route(
 			static::$namespace,
+			'/search/plan/activate-free',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'activate_free_plan' ),
+				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
+				'args'                => array(
+					'source' => array(
+						'type'              => 'string',
+						'required'          => false,
+						'sanitize_callback' => 'sanitize_key',
+					),
+				),
+			)
+		);
+		register_rest_route(
+			static::$namespace,
 			'/search/plan/deactivate',
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
@@ -261,11 +278,17 @@ class REST_Controller {
 	}
 
 	/**
-	 * Proxy the request to WPCOM and return the response.
+	 * Return the stored plan offline, or refresh it from WPCOM online.
 	 *
 	 * GET `jetpack/v4/search/plan`
 	 */
 	public function get_search_plan() {
+		if ( ( new Status() )->is_offline_mode() ) {
+			$plan_info = ( new Plan() )->get_plan_info();
+			return false === $plan_info
+				? new WP_Error( 'site_offline', 'Site is in offline mode.', array( 'status' => 503 ) )
+				: $plan_info;
+		}
 		$response = ( new Plan() )->get_plan_info_from_wpcom();
 		return $this->make_proper_response( $response );
 	}
@@ -613,6 +636,42 @@ class REST_Controller {
 				'code' => 'success',
 			)
 		);
+	}
+
+	/**
+	 * Grant the free Search product to this site instead of sending the user to a $0 checkout.
+	 *
+	 * POST `jetpack/v4/search/plan/activate-free`
+	 *
+	 * @since 8.3.0
+	 *
+	 * @param WP_REST_Request $request - REST request.
+	 * @return WP_REST_Response|WP_Error Errors carry `checkout_fallback`, which the dashboard
+	 *                                   branches on to decide whether to fall back to checkout.
+	 */
+	public function activate_free_plan( $request ) {
+		/*
+		 * Another plugin can load an older My Jetpack before this package's copy registers, and
+		 * that copy has no such method. Degrade to the checkout the dashboard still has.
+		 */
+		if ( ! method_exists( Search_Product::class, 'activate_free_product' ) ) {
+			return new WP_Error(
+				'jetpack_search_free_activation_unavailable',
+				__( 'Jetpack Search Free could not be activated for this site.', 'jetpack-search-pkg' ),
+				array(
+					'status'            => 501,
+					'checkout_fallback' => true,
+				)
+			);
+		}
+
+		$source = $request->get_param( 'source' );
+		$result = Search_Product::activate_free_product( $source ? $source : 'search-dashboard' );
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return rest_ensure_response( $result );
 	}
 
 	/**

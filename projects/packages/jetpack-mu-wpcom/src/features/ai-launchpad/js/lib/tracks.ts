@@ -20,6 +20,9 @@ declare global {
 /** The screens the Site Setup page can open on. */
 export type ViewedStep = 'goal' | 'site_details' | 'launchpad';
 
+/** How far a tailoring run had got: waiting on the AI call, or saving the result. */
+export type TailoringStage = 'ai' | 'saving';
+
 /** The wizard steps that can be completed or skipped. */
 export type WizardStepName = 'goal' | 'site_details';
 
@@ -294,4 +297,85 @@ export function trackTaskCtaClicked( props: { task_id: string } ): void {
  */
 export function trackTaskSkipped( props: { task_id: string } ): void {
 	record( 'jetpack_ai_launchpad_task_skipped', props );
+}
+
+/**
+ * Records a failed `PUT /tailored` write, once per failed attempt: each automatic retry and each
+ * "Try again" click included, for the AI output's write and then the fallback's. Without it a site
+ * whose writes keep failing leaves nothing behind, since the `tailored` Logstash record is only
+ * written on success.
+ *
+ * @param props               - The event properties.
+ * @param props.failed_write  - Which write failed: the AI output or the deterministic fallback. Not
+ *                            `source`, which is a standard prop with its own meaning.
+ * @param props.retry         - Which attempt at that write failed, from 0 (the first).
+ * @param props.http_status   - The response status, or 0 when there was no response (e.g. offline).
+ * @param props.error_code    - The WP error code, or a thrown Error's name, reduced to [a-z0-9_]; else 'unknown'.
+ * @param props.ai_session_id - The id of the tailoring run whose write failed, or 'none'.
+ */
+export function trackTailoringSaveFailed( props: {
+	failed_write: TailorSource;
+	retry: number;
+	http_status: number;
+	error_code: string;
+	ai_session_id: string;
+} ): void {
+	record( 'jetpack_ai_launchpad_tailoring_save_failed', props );
+}
+
+/** How saving a tailoring run's list ended, before any "Try again". */
+export type SaveOutcome = 'saved' | 'error_shown' | 'fallback_saved';
+
+/**
+ * Records how saving a tailoring run's list ended, once per run: the AI list saved, the fallback
+ * saved in place of an AI list the server rejected (or of an AI call that failed), or neither, so
+ * the save error was shown. Nothing is recorded for a run the user left, which the abandoned event
+ * covers. Not `outcome`: that is a standard prop with its own meaning.
+ *
+ * @param props               - The event properties.
+ * @param props.save_outcome  - How the save ended.
+ * @param props.ai_session_id - The id of the tailoring run, or 'none'.
+ */
+export function trackTailoringSaveOutcome( props: {
+	save_outcome: SaveOutcome;
+	ai_session_id: string;
+} ): void {
+	record( 'jetpack_ai_launchpad_tailoring_save_outcome', props );
+}
+
+/**
+ * Records a click on the save error's "Try again" button, with whether that attempt saved the list.
+ *
+ * @param props               - The event properties.
+ * @param props.failed_write  - Which list the button re-sent: the AI output or the fallback.
+ * @param props.result        - Whether the re-sent list was saved.
+ * @param props.ai_session_id - The id of the tailoring run, or 'none'.
+ */
+export function trackTailoringSaveRetryClicked( props: {
+	failed_write: TailorSource;
+	result: 'saved' | 'failed';
+	ai_session_id: string;
+} ): void {
+	record( 'jetpack_ai_launchpad_tailoring_save_retry_clicked', props );
+}
+
+/**
+ * Records the user leaving the page while a tailoring run is still in progress, so the list it was
+ * producing was never saved.
+ *
+ * Sent with `use_beacon`: the Tracks transport (stats.wp.com/w.js) then sends the event with
+ * `fetch( …, { keepalive: true } )` instead of an image pixel, so the request outlives the page that
+ * is unloading. The flag also goes out as an event property, as it does for every other caller of it.
+ *
+ * @param props               - The event properties.
+ * @param props.stage         - Whether the run was still waiting on the AI call or already saving.
+ * @param props.elapsed_ms    - How long the run had been going, in milliseconds.
+ * @param props.ai_session_id - The id of the abandoned tailoring run, or 'none'.
+ */
+export function trackTailoringAbandoned( props: {
+	stage: TailoringStage;
+	elapsed_ms: number;
+	ai_session_id: string;
+} ): void {
+	record( 'jetpack_ai_launchpad_tailoring_abandoned', { ...props, use_beacon: true } );
 }

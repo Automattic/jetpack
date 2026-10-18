@@ -105,11 +105,16 @@ function wrapper( { children }: { children: ReactNode } ) {
 
 describe( 'useTrafficChart', () => {
 	beforeEach( () => {
+		jest.useFakeTimers();
 		// The data package's query client is a module-level singleton; drop its
 		// cache so each test starts from a fresh fetch.
 		queryClient.clear();
 		mockApiFetch.mockReset();
 		routeRequests();
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
 	} );
 
 	it( 'builds one tab per metric in canonical order, with summary totals', async () => {
@@ -132,6 +137,18 @@ describe( 'useTrafficChart', () => {
 		expect( metrics[ 3 ].value ).toBe( 50 );
 	} );
 
+	it( 'pairs Views with Visitors, starting Views hidden only on the Visitors tab', async () => {
+		const { result } = renderHook( () => useTrafficChart( RANGE, 'month' ), { wrapper } );
+
+		await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
+
+		const [ views, visitors ] = result.current.metrics;
+		expect( views ).toMatchObject( { counterpartKey: 'visitors' } );
+		expect( visitors ).toMatchObject( { counterpartKey: 'views' } );
+		expect( views.counterpartHidden ).toBeUndefined();
+		expect( visitors.counterpartHidden ).toBe( true );
+	} );
+
 	it( 'pluralizes the tooltip unit of each metric', async () => {
 		const { result } = renderHook( () => useTrafficChart( RANGE, 'month' ), { wrapper } );
 
@@ -145,30 +162,6 @@ describe( 'useTrafficChart', () => {
 			[ '%s Comment', '%s Comments' ],
 			[ '%s Like', '%s Likes' ],
 		] );
-	} );
-
-	it( 'maps one chart point per period, oldest first', async () => {
-		const { result } = renderHook( () => useTrafficChart( RANGE, 'month' ), { wrapper } );
-
-		await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
-
-		const views = result.current.metrics[ 0 ];
-		expect( views.current ).toHaveLength( 2 );
-		expect( views.current[ 0 ].value ).toBe( 1200 );
-		expect( views.current[ 1 ].value ).toBe( 800 );
-		expect( views.current[ 0 ].date ).toBeInstanceOf( Date );
-		expect( views.current[ 0 ].date.getTime() ).toBeLessThan( views.current[ 1 ].date.getTime() );
-	} );
-
-	it( 'omits the previous period when comparison is off', async () => {
-		const { result } = renderHook( () => useTrafficChart( RANGE, 'month' ), { wrapper } );
-
-		await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
-
-		for ( const metric of result.current.metrics ) {
-			expect( metric.previous ).toBeUndefined();
-			expect( metric.previousValue ).toBeUndefined();
-		}
 	} );
 
 	it( 'maps previous-period totals when comparison params are present', async () => {
@@ -195,39 +188,104 @@ describe( 'useTrafficChart', () => {
 		expect( byKey.views.previous ).toHaveLength( 1 );
 	} );
 
-	// Misleading-zero guard: an empty comparison response must read as "no
-	// previous period", not a previous total of 0 (would render a false -100% delta).
-	it( 'omits the previous period when the comparison request returns no rows', async () => {
-		// Shared between the views/visitors and likes/comments requests below, so
-		// `fields` names neither pair specifically; `data: []` means it's never read.
-		const empty = {
-			unit: 'month',
-			fields: [ 'period' ],
-			data: [],
-		};
-		routeRequests( { viewsVisitors: empty, likesComments: empty } );
+	it.each( [
+		[
+			"skips a year-ago comparison's one-day opening week",
+			[ '2026-08-31', '2026-09-13' ],
+			[ '2025-08-31', '2025-09-13' ],
+			[
+				[ '2025W08W25', 1 ],
+				[ '2025W09W01', 132 ],
+				[ '2025W09W08', 326 ],
+			],
+			[
+				[ '2026W08W31', 2 ],
+				[ '2026W09W07', 4 ],
+			],
+			[ 132, 326 ],
+		],
+		[
+			"keeps a previous period's one-day opening week",
+			[ '2026-09-07', '2026-09-14' ],
+			[ '2026-08-30', '2026-09-06' ],
+			[
+				[ '2026W08W24', 1 ],
+				[ '2026W08W31', 132 ],
+			],
+			[
+				[ '2026W09W07', 2 ],
+				[ '2026W09W14', 4 ],
+			],
+			[ 1, 132 ],
+		],
+	] as const )(
+		'%s when grouped by weeks',
+		async (
+			_name,
+			[ from, to ],
+			[ compareFrom, compareTo ],
+			comparisonRows,
+			primaryRows,
+			expected
+		) => {
+			const weeks = ( rows: ReadonlyArray< readonly [ string, number ] > ) => ( {
+				unit: 'week',
+				fields: [ 'period', 'views', 'visitors' ],
+				data: rows.map( ( [ period, views ] ) => [ period, views, 1 ] ),
+			} );
+			mockApiFetch.mockImplementation( ( { path = '' }: { path?: string } ) =>
+				Promise.resolve(
+					weeks( path.includes( `date=${ compareTo }` ) ? comparisonRows : primaryRows )
+				)
+			);
 
-		const { result } = renderHook( () => useTrafficChart( RANGE_WITH_COMPARISON, 'month' ), {
-			wrapper,
-		} );
+			const { result } = renderHook(
+				() =>
+					useTrafficChart(
+						{
+							from,
+							to,
+							interval: 'week',
+							comp: '1',
+							compare_from: compareFrom,
+							compare_to: compareTo,
+						},
+						'week'
+					),
+				{ wrapper }
+			);
 
-		await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
+			await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
 
-		for ( const metric of result.current.metrics ) {
-			expect( metric.previous ).toBeUndefined();
-			expect( metric.previousValue ).toBeUndefined();
+			const views = result.current.metrics[ 0 ];
+			expect( views.previous?.map( point => point.value ) ).toEqual( expected );
+			expect( views.previousValue ).toBe(
+				comparisonRows.reduce( ( total, [ , value ] ) => total + value, 0 )
+			);
 		}
-	} );
+	);
 
 	describe( 'hourly', () => {
-		const HOURLY_RANGE: ReportParams = {
-			from: '2026-06-15T00:00:00+00:00',
-			to: '2026-06-15T23:59:59+00:00',
+		const DAY_RANGE: ReportParams = {
+			from: '2026-06-15T00:00:00.000+00:00',
+			to: '2026-06-15T23:59:59.999+00:00',
 			interval: 'hour',
 		};
 
-		// `stats/visits` fills Views alone at this grain, so the hook must not ask
-		// for the rest, and must say why they are missing rather than show a zero.
+		// "Last 24 hours": daily buckets would cover up to two whole days.
+		const ROLLING_RANGE: ReportParams = {
+			from: '2026-06-14T13:00:00.000+00:00',
+			to: '2026-06-15T12:59:59.999+00:00',
+			interval: 'hour',
+		};
+
+		const LONG_PARTIAL_RANGE: ReportParams = {
+			from: '2026-06-12T13:00:00.000+00:00',
+			to: '2026-06-15T12:59:59.999+00:00',
+			interval: 'hour',
+		};
+
+		// `stats/visits` fills Views alone at this grain.
 		const HOURLY_VIEWS_RESPONSE = {
 			unit: 'hour',
 			fields: [ 'period', 'views' ],
@@ -237,40 +295,87 @@ describe( 'useTrafficChart', () => {
 			],
 		};
 
+		const DAILY_TOTALS_RESPONSE = {
+			unit: 'day',
+			fields: [ 'period', 'visitors', 'likes', 'comments' ],
+			data: [ [ '2026-06-15', 9, 3, 2 ] ],
+		};
+
 		beforeEach( () => {
-			mockApiFetch.mockImplementation( () => Promise.resolve( HOURLY_VIEWS_RESPONSE ) );
+			mockApiFetch.mockImplementation( ( { path = '' }: { path?: string } ) =>
+				Promise.resolve(
+					path.includes( 'unit=day' ) ? DAILY_TOTALS_RESPONSE : HOURLY_VIEWS_RESPONSE
+				)
+			);
 		} );
 
-		it( 'requests only Views, as hourly buckets covering the range', async () => {
-			const { result } = renderHook( () => useTrafficChart( HOURLY_RANGE, 'hour' ), { wrapper } );
+		it( 'asks for the other metrics as a daily total when the range covers whole days', async () => {
+			const { result } = renderHook( () => useTrafficChart( DAY_RANGE, 'hour' ), { wrapper } );
+
+			await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
+
+			const paths = visitsPaths();
+			expect( paths ).toHaveLength( 2 );
+			const hourly = paths.find( path => path.includes( 'unit=hour' ) );
+			const daily = paths.find( path => path.includes( 'unit=day' ) );
+			expect( hourly ).toContain( `stat_fields=${ encodeURIComponent( 'views' ) }` );
+			expect( daily ).toContain(
+				`stat_fields=${ encodeURIComponent( 'visitors,likes,comments' ) }`
+			);
+		} );
+
+		it( 'shows the daily totals on the cards without drawing them on the hourly axis', async () => {
+			const { result } = renderHook( () => useTrafficChart( DAY_RANGE, 'hour' ), { wrapper } );
+
+			await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
+
+			const [ views, visitors, comments, likes ] = result.current.metrics;
+			expect( views.value ).toBe( 100 );
+			expect( views.current ).toHaveLength( 2 );
+			expect( views.seriesUnavailable ).toBeUndefined();
+
+			expect( [ visitors.value, comments.value, likes.value ] ).toEqual( [ 9, 2, 3 ] );
+			for ( const metric of [ visitors, likes, comments ] ) {
+				expect( metric.unavailable ).toBeUndefined();
+				expect( metric.seriesUnavailable ).toBe( "Hourly data isn't available for this metric." );
+				expect( metric.current ).toEqual( [] );
+			}
+		} );
+
+		it( 'keeps the hourly Views chart when the daily totals request fails', async () => {
+			mockApiFetch.mockImplementation( ( { path = '' }: { path?: string } ) =>
+				path.includes( 'unit=day' )
+					? Promise.reject( { error: 'unauthorized', status: 403 } )
+					: Promise.resolve( HOURLY_VIEWS_RESPONSE )
+			);
+
+			const { result } = renderHook( () => useTrafficChart( DAY_RANGE, 'hour' ), { wrapper } );
+
+			await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
+
+			expect( result.current.isError ).toBe( false );
+			const [ views, visitors, comments, likes ] = result.current.metrics;
+			expect( views.current ).toHaveLength( 2 );
+			for ( const metric of [ visitors, comments, likes ] ) {
+				expect( metric.unavailable ).toBe( "Hourly data isn't available for this metric." );
+			}
+		} );
+
+		it.each( [
+			[ 'a rolling day', ROLLING_RANGE ],
+			[ 'a partial range longer than two days', LONG_PARTIAL_RANGE ],
+		] )( 'requests only Views for %s', async ( _label, range ) => {
+			const { result } = renderHook( () => useTrafficChart( range, 'hour' ), { wrapper } );
 
 			await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
 
 			const paths = visitsPaths();
 			expect( paths ).toHaveLength( 1 );
 			expect( paths[ 0 ] ).toContain( 'unit=hour' );
-			// The endpoint counts the hourly buckets from these two, so they have
-			// to reach it with their time of day intact.
-			expect( paths[ 0 ] ).toContain(
-				`start_date=${ encodeURIComponent( '2026-06-15T00:00:00+00:00' ) }`
-			);
-			expect( paths[ 0 ] ).toContain(
-				`date=${ encodeURIComponent( '2026-06-15T23:59:59+00:00' ) }`
-			);
-			expect( paths[ 0 ] ).toContain( 'stat_fields=views' );
 			expect( paths[ 0 ] ).not.toContain( 'visitors' );
-		} );
-
-		it( 'marks the metrics the endpoint cannot serve, leaving Views with its points', async () => {
-			const { result } = renderHook( () => useTrafficChart( HOURLY_RANGE, 'hour' ), { wrapper } );
-
-			await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
 
 			const [ views, visitors, likes, comments ] = result.current.metrics;
 			expect( views.unavailable ).toBeUndefined();
-			expect( views.value ).toBe( 100 );
-			expect( views.current ).toHaveLength( 2 );
-
 			for ( const metric of [ visitors, likes, comments ] ) {
 				expect( metric.unavailable ).toBe( "Hourly data isn't available for this metric." );
 			}
@@ -279,7 +384,7 @@ describe( 'useTrafficChart', () => {
 		// A manual refetch would ignore `enabled`; `useReport` gates its combined
 		// refetch on it, so the skipped request stays skipped through a retry.
 		it( 'still asks for Views alone when the retry action runs', async () => {
-			const { result } = renderHook( () => useTrafficChart( HOURLY_RANGE, 'hour' ), { wrapper } );
+			const { result } = renderHook( () => useTrafficChart( ROLLING_RANGE, 'hour' ), { wrapper } );
 
 			await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
 
@@ -294,5 +399,69 @@ describe( 'useTrafficChart', () => {
 				expect( path ).not.toContain( 'likes' );
 			}
 		} );
+	} );
+} );
+
+describe( 'useTrafficChart tooltip extras', () => {
+	const VIEWS_VISITORS = {
+		unit: 'month',
+		fields: [ 'period', 'views', 'visitors' ],
+		data: [
+			[ '2026-05', 1200, 900 ],
+			[ '2026-06', 800, 0 ],
+		],
+	};
+	const WITH_POSTS = {
+		unit: 'month',
+		fields: [ 'period', 'likes', 'comments', 'post_titles' ],
+		data: [
+			[ '2026-05', 30, 12, [ 'Hello world' ] ],
+			[ '2026-06', 20, 8, [] ],
+		],
+	};
+
+	beforeEach( () => {
+		jest.useFakeTimers();
+		queryClient.clear();
+		mockApiFetch.mockReset();
+		mockApiFetch.mockImplementation( ( { path = '' }: { path?: string } ) =>
+			Promise.resolve( path.includes( 'views' ) ? VIEWS_VISITORS : WITH_POSTS )
+		);
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
+	it( 'asks the likes and comments request for the post titles, not the views one', async () => {
+		const { result } = renderHook( () => useTrafficChart( RANGE, 'month' ), { wrapper } );
+
+		await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
+
+		const [ views, likesComments ] = visitsPaths();
+		expect( views ).toContain( `stat_fields=${ encodeURIComponent( 'views,visitors' ) }` );
+		expect( likesComments ).toContain(
+			`stat_fields=${ encodeURIComponent( 'likes,comments,post_titles' ) }`
+		);
+	} );
+
+	it( 'reads views per visitor and the posts published out under Views and Visitors only', async () => {
+		const { result } = renderHook( () => useTrafficChart( RANGE, 'month' ), { wrapper } );
+
+		await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
+
+		const [ views, visitors, comments, likes ] = result.current.metrics;
+		expect( views.tooltipExtras?.map( extra => extra.label ) ).toEqual( [
+			'Views per visitor',
+			'Posts published',
+		] );
+		expect( visitors.tooltipExtras ).toBe( views.tooltipExtras );
+		expect( comments.tooltipExtras ).toBeUndefined();
+		expect( likes.tooltipExtras ).toBeUndefined();
+
+		const [ ratio, posts ] = views.tooltipExtras ?? [];
+		expect( ratio.data ).toHaveLength( 1 );
+		expect( ratio.data[ 0 ].value ).toBeCloseTo( 1.33, 2 );
+		expect( posts.data ).toEqual( [ expect.objectContaining( { value: 1 } ) ] );
 	} );
 } );

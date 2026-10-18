@@ -5,6 +5,8 @@
 	@include mixins.settings-well( $padding: null );
 
 	margin-block-end: var(--wpds-dimension-gap-md);
+	font-size: var(--wpds-typography-font-size-md);
+	line-height: var(--wpds-typography-line-height-md);
 
 	.toggle {
 		display: flex;

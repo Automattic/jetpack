@@ -1,9 +1,10 @@
 import { useTooltip } from '@visx/tooltip';
+import { __ } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { type FC, useRef, useMemo, useEffect, useState, useCallback, useContext } from 'react';
 import { BoundedTooltip } from '../../components/tooltip/private/bounded-tooltip';
-import { usePrefersReducedMotion } from '../../hooks';
+import { useElementSize, usePrefersReducedMotion } from '../../hooks';
 import {
 	GlobalChartsProvider,
 	GlobalChartsContext,
@@ -19,6 +20,9 @@ import styles from './conversion-funnel-chart.module.scss';
 import { useFunnelSelection } from './private';
 import type { FunnelStep, ConversionFunnelChartProps } from './types';
 
+/** Chart height (px) below which the funnel tightens its gaps so the bars keep their room. */
+const SHORT_CHART_HEIGHT = 180;
+
 /**
  * Internal ConversionFunnelChart component with chart registration
  *
@@ -30,12 +34,14 @@ import type { FunnelStep, ConversionFunnelChartProps } from './types';
  * @param props.loading          - Whether the chart is in loading state
  * @param props.animation        - Whether to show chart animation on initial render or not
  * @param props.className        - Additional CSS class name
+ * @param props.ariaLabel        - Accessible name for the chart group
  * @param props.height           - Height of the chart container. Falls back to style.height if set, otherwise defaults to "100%".
  * @param props.style            - Custom styling
  * @param props.renderStepLabel  - Custom render function for step labels
  * @param props.renderStepRate   - Custom render function for step rates
  * @param props.renderMainMetric - Custom render function for the entire main metric section
  * @param props.renderTooltip    - Custom render function for tooltip content
+ * @param props.tooltipStyle     - Inline styles merged over the tooltip box defaults
  * @return JSX element representing the conversion funnel chart
  */
 const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
@@ -45,6 +51,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 	loading = false,
 	animation,
 	className,
+	ariaLabel,
 	chartId: providedChartId,
 	height,
 	style,
@@ -52,6 +59,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 	renderStepRate,
 	renderMainMetric,
 	renderTooltip,
+	tooltipStyle,
 } ) => {
 	const chartId = useChartId( providedChartId );
 	const { getElementStyles, isColorPaletteResolved } = useGlobalChartsContext();
@@ -67,11 +75,19 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 	const { handleBarClick, handleBarKeyDown, clearSelection, getStepState } =
 		useFunnelSelection( hideTooltip );
 	const standaloneScopeClass = useStandaloneScopeClass();
+	const [ measureChartRef, , chartHeight ] = useElementSize< HTMLDivElement >();
+	// A zero height is an unmeasured or hidden chart, not a short one.
+	const isShort = chartHeight > 0 && chartHeight < SHORT_CHART_HEIGHT;
+	const gap = isShort ? 'sm' : 'xl';
 	// Stable identity so React doesn't detach/reattach (and re-render the scope context) on every commit. Keep it firing on unmount (node === null).
-	const setChartRef = useCallback( ( node: HTMLDivElement | null ) => {
-		chartRef.current = node;
-		setScopeNode( node );
-	}, [] );
+	const setChartRef = useCallback(
+		( node: HTMLDivElement | null ) => {
+			chartRef.current = node;
+			setScopeNode( node );
+			measureChartRef( node );
+		},
+		[ measureChartRef ]
+	);
 
 	// Wrapper to clear selectedBarRef after clearing selection
 	const clearSelectionAndRef = useCallback( () => {
@@ -307,8 +323,10 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 	return (
 		<Stack
 			direction="column"
-			gap="xl"
+			gap={ gap }
 			data-testid="conversion-funnel-chart"
+			role="group"
+			aria-label={ ariaLabel ?? __( 'Conversion funnel chart', 'jetpack-charts' ) }
 			ref={ setChartRef }
 			className={ clsx(
 				'conversion-funnel-chart',
@@ -349,7 +367,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 									isColorPaletteResolved && styles[ 'funnel-step--animated' ],
 									isBlurred && styles[ 'funnel-step--blurred' ]
 								) }
-								gap="xl"
+								gap={ gap }
 							>
 								{ /* Step Label and Rate */ }
 								<Stack direction="column" gap="xs">
@@ -412,7 +430,6 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 								index: steps.findIndex( s => s.id === ( tooltipData as FunnelStep ).id ),
 								top: tooltipTop,
 								left: tooltipLeft,
-								className: styles[ 'tooltip-wrapper' ],
 							} )
 						: renderDefaultTooltip( tooltipData as FunnelStep );
 
@@ -423,9 +440,10 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 						<BoundedTooltip
 							top={ tooltipTop }
 							left={ tooltipLeft }
-							className={ clsx( standaloneScopeClass, styles[ 'tooltip-wrapper' ] ) }
+							className={ standaloneScopeClass }
+							style={ tooltipStyle }
 						>
-							{ tooltipContent }
+							<div role="tooltip">{ tooltipContent }</div>
 						</BoundedTooltip>
 					);
 				} )() }

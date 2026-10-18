@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Time series widgets: Hide metric labels that repeat the widget title.

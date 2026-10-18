@@ -66,6 +66,7 @@ class WebsiteSchemaNodeTest extends TestCase {
 				'pre_option_blogdescription',
 				'home_url',
 				'locale',
+				'gettext',
 			) as $hook
 		) {
 			remove_all_filters( $hook );
@@ -116,7 +117,16 @@ class WebsiteSchemaNodeTest extends TestCase {
 	 * emitted empty.
 	 */
 	public function test_optional_fields_omitted_when_empty() {
-		$this->set_site_identity( 'Acme Co', '', 'https://acme.test/', '' );
+		$this->set_site_identity( 'Acme Co', '', 'https://acme.test/' );
+		// WordPress 7.2 ignores an empty `locale` filter, so blank the language tag's translation instead.
+		add_filter(
+			'gettext',
+			static function ( $translation, $text ) {
+				return 'html_lang_attribute' === $text ? '' : $translation;
+			},
+			10,
+			2
+		);
 		$node = Website_Schema_Node::build();
 
 		$this->assertArrayNotHasKey( 'description', $node );

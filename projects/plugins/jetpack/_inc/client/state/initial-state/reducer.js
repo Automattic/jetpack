@@ -399,6 +399,16 @@ export function getApiRootUrl( state ) {
 }
 
 /**
+ * Return the data the plugins page needs to send the deactivation survey.
+ *
+ * @param {object} state - Global state tree
+ * @return {object|undefined} The site ID and whether any user is connected.
+ */
+export function getPluginDeactivationData( state ) {
+	return state.jetpack.initialState?.pluginDeactivation;
+}
+
+/**
  * Returns the registration nonce.
  *
  * @deprecated since 14.5
@@ -756,6 +766,16 @@ export function isSharingBlockAvailable( state ) {
  */
 export function isLikeBlockAvailable( state ) {
 	return !! state.jetpack.initialState.siteData.isLikeBlockAvailable;
+}
+
+/**
+ * Check if the comment form can offer the block editor.
+ *
+ * @param {object} state - Global state tree.
+ * @return {boolean} True if the comment form can offer the block editor.
+ */
+export function isCommentBlocksAvailable( state ) {
+	return !! state.jetpack.initialState.siteData?.isCommentBlocksAvailable;
 }
 
 /**

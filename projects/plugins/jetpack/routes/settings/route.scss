@@ -1,12 +1,7 @@
-// The stylesheet the webpack page loads as style.min.css.
+// Also built as style.min.css for the PHP-rendered pages.
 @use "../../_inc/client/scss/style";
 
 body.jetpack_page_jetpack-settings:not(.network-admin) {
-
-	// wp-admin's body color, not the #1e1e1e that boot's stage sets.
-	:is(.boot-layout__stage, [class*="__stage"]) {
-		color: #3c434a;
-	}
 
 	// Legacy 100vh overflows boot's shorter stage, adding an empty scroll.
 	#jp-plugin-container {

@@ -3,8 +3,6 @@
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-import { getScriptData } from '@automattic/jetpack-script-data';
 import { Modal } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useState } from 'react';
@@ -12,6 +10,7 @@ import useRestApiInit from '../../hooks/use-rest-api-init';
 import DisconnectActionFooter from '../shared/disconnect-action-footer';
 import ManageConnectionActionCard from '../shared/manage-connection-action-card';
 import './style.scss';
+import type { MouseEvent } from 'react';
 
 interface OwnerDisconnectDialogProps {
 	/** Whether the dialog is open. */
@@ -26,6 +25,8 @@ interface OwnerDisconnectDialogProps {
 	onDisconnected?: () => void;
 	/** Callback after user is unlinked. */
 	onUnlinked?: () => void;
+	/** Opens the ownership transfer flow. Omit to hide that action. */
+	onTransferOwnership?: () => void;
 }
 
 /**
@@ -41,6 +42,7 @@ const OwnerDisconnectDialog = ( {
 	apiNonce,
 	onDisconnected,
 	onUnlinked,
+	onTransferOwnership,
 }: OwnerDisconnectDialogProps ) => {
 	// Add state for disconnect status and error
 	const [ isDisconnecting, setIsDisconnecting ] = useState( false );
@@ -52,6 +54,14 @@ const OwnerDisconnectDialog = ( {
 
 	// Initialize the REST API
 	useRestApiInit( apiRoot, apiNonce );
+
+	const handleTransferClick = useCallback(
+		( e?: MouseEvent< HTMLElement > ) => {
+			e?.preventDefault();
+			onTransferOwnership?.();
+		},
+		[ onTransferOwnership ]
+	);
 
 	const handleStayConnected = useCallback( () => {
 		onClose();
@@ -110,23 +120,17 @@ const OwnerDisconnectDialog = ( {
 					</h1>
 					<p className="jp-connection__disconnect-dialog__large-text">
 						{ __(
-							'Disconnecting the owner account will remove the Jetpack connection for all users on this site. The site will remain connected.',
+							'Disconnecting the owner account without choosing a new owner will remove the Jetpack connection for all users on this site. The site will remain connected.',
 							'jetpack-connection-js'
 						) }
 					</p>
-					<ManageConnectionActionCard
-						title={ __( 'Transfer ownership to another admin', 'jetpack-connection-js' ) }
-						link={ getRedirectUrl( 'calypso-settings-manage-connection', {
-							site: getScriptData()?.site?.suffix,
-						} ) }
-						isExternal={ true }
-						action="transfer"
-					/>
-					<ManageConnectionActionCard
-						title={ __( 'View other connected accounts', 'jetpack-connection-js' ) }
-						link="users.php"
-						action="check-users"
-					/>
+					{ onTransferOwnership && (
+						<ManageConnectionActionCard
+							title={ __( 'Transfer ownership to another admin', 'jetpack-connection-js' ) }
+							onClick={ handleTransferClick }
+							action="transfer"
+						/>
+					) }
 				</div>
 				<DisconnectActionFooter
 					stayLabel={ __( 'Stay connected', 'jetpack-connection-js' ) }

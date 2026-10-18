@@ -1,4 +1,5 @@
 import ThreatsDataViews from '../index.tsx';
+import '@wordpress/dataviews/build-style/style.css';
 
 export default {
 	title: 'JS Packages/Scan/Threats Data Views',

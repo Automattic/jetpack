@@ -137,7 +137,7 @@ class Config {
 	 * A bundled copy of the package predating `is_admin_page_available()` can only report
 	 * whether My Jetpack initialized, not whether this user can reach its page.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.8.0
 	 *
 	 * @return bool True if My Jetpack is reachable by the current user, false otherwise.
 	 */

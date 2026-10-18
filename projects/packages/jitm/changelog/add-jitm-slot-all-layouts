@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add a helper that clears admin notices from a screen while keeping Jetpack in-dashboard messages.

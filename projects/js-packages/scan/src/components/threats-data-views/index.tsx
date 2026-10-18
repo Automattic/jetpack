@@ -20,6 +20,7 @@ import {
 	useMemo,
 	useRef,
 	useState,
+	type JSX,
 	type ReactElement,
 	type ReactNode,
 } from 'react';

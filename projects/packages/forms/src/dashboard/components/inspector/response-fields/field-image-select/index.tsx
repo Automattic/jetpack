@@ -4,6 +4,7 @@ import { Icon, Card, CardMedia, CardBody } from '@wordpress/components';
 import { image as imageIcon } from '@wordpress/icons';
 import { Stack, Text } from '@wordpress/ui';
 import photon from 'photon';
+import { htmlspecialcharsDecode } from '../../utils.ts';
 import './style.scss';
 
 /**
@@ -29,7 +30,9 @@ function photonSafeUrl( url: string = '' ): string | null {
 }
 
 const ImageSelectButton = ( { choice, handleFilePreview } ) => {
-	const label = choice.label ? `${ choice.selected }: ${ choice.label }` : choice.selected;
+	const selected = htmlspecialcharsDecode( String( choice.selected ?? '' ) );
+	const choiceLabel = choice.label ? htmlspecialcharsDecode( String( choice.label ) ) : '';
+	const label = choiceLabel ? `${ selected }: ${ choiceLabel }` : selected;
 	const hasImage = choice.image?.src;
 	return (
 		<Card
@@ -51,7 +54,7 @@ const ImageSelectButton = ( { choice, handleFilePreview } ) => {
 							className="jp-forms__image-select-preview-image"
 							width={ 138 }
 							height={ 144 }
-							alt={ choice.selected }
+							alt={ selected }
 							loading="lazy"
 							src={ photonSafeUrl( choice.image.src ) ?? undefined }
 						/>
@@ -76,9 +79,9 @@ const ImageSelectButton = ( { choice, handleFilePreview } ) => {
 					gap="sm"
 					justify="flex-start"
 				>
-					<Text className="jp-forms__image-select-preview-selected">{ choice.selected }</Text>
-					<Text title={ choice.label } className="jp-forms__image-select-preview-label">
-						{ choice.label }
+					<Text className="jp-forms__image-select-preview-selected">{ selected }</Text>
+					<Text title={ choiceLabel } className="jp-forms__image-select-preview-label">
+						{ choiceLabel }
 					</Text>
 				</Stack>
 			</CardBody>
