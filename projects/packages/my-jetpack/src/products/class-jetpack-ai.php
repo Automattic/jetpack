@@ -533,7 +533,7 @@ class Jetpack_Ai extends Module_Product {
 	 * @return bool
 	 */
 	public static function is_feature_ui_enabled() {
-		return ( new Connection_Manager() )->has_connected_owner() && self::is_feature_ui_ready();
+		return self::is_feature_ui_ready() && ( new Connection_Manager() )->has_connected_owner();
 	}
 
 	/**
@@ -541,10 +541,11 @@ class Jetpack_Ai extends Module_Product {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return bool True only when the missing account is all that hides them.
+	 * @return bool True when Jetpack is active with its AI module and settings, the site is registered,
+	 *              the host allows the controls, and no owner is connected yet.
 	 */
 	public static function is_feature_ui_enabled_once_connected() {
-		return ! ( new Connection_Manager() )->has_connected_owner() && self::is_feature_ui_ready();
+		return self::is_feature_ui_ready() && ! ( new Connection_Manager() )->has_connected_owner();
 	}
 
 	/**
@@ -559,7 +560,7 @@ class Jetpack_Ai extends Module_Product {
 			|| ! \Jetpack::is_module( 'ai' )
 			// @phan-suppress-next-line PhanUndeclaredClassReference -- Supplied by the optional Jetpack plugin.
 			|| ! method_exists( '\\Jetpack_AI_Settings', 'is_feature_enabled' )
-			|| ! ( new Connection_Manager() )->is_connected()
+			|| ! self::is_site_connected()
 		) {
 			return false;
 		}

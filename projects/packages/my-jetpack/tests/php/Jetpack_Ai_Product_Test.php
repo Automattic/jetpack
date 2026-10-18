@@ -366,6 +366,9 @@ class Jetpack_Ai_Product_Test extends TestCase {
 		}
 		if ( 'atomic' === $site ) {
 			$this->set_atomic_site();
+		} elseif ( 'atomic internal testing' === $site ) {
+			$this->set_atomic_site();
+			$GLOBALS['jetpack_mock_internal_testing_environment'] = true;
 		} elseif ( 'simple' === $site ) {
 			Constants::set_constant( 'IS_WPCOM', true );
 		} elseif ( 'no ai module' === $site ) {
@@ -395,13 +398,14 @@ class Jetpack_Ai_Product_Test extends TestCase {
 	 */
 	public static function feature_ui_once_connected_cases() {
 		return array(
-			'only the owner missing' => array( 'registered', true, true ),
-			'flag off'               => array( 'registered', false, null ),
-			'owner connected'        => array( 'owner connected', true, false ),
-			'site not registered'    => array( 'not registered', true, false ),
-			'atomic'                 => array( 'atomic', true, false ),
-			'simple'                 => array( 'simple', true, false ),
-			'no ai module'           => array( 'no ai module', true, false ),
+			'only the owner missing'  => array( 'registered', true, true ),
+			'flag off'                => array( 'registered', false, null ),
+			'owner connected'         => array( 'owner connected', true, false ),
+			'site not registered'     => array( 'not registered', true, false ),
+			'atomic'                  => array( 'atomic', true, false ),
+			'atomic internal testing' => array( 'atomic internal testing', true, true ),
+			'simple'                  => array( 'simple', true, false ),
+			'no ai module'            => array( 'no ai module', true, false ),
 		);
 	}
 
