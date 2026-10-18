@@ -19,11 +19,14 @@ import {
 	rotateLeft,
 } from '@wordpress/icons';
 import { Badge, Card, Link, Stack, Text } from '@wordpress/ui';
+import { containingBackup } from '../../data/api/known-threats';
 import { formatDuration } from '../../data/durations';
 import { formatStorageSize } from '../../data/storage-units';
 import { ACTIVITY_LOG_DEFAULT_PER_PAGE, useActivityLog } from '../../hooks/use-activity-log';
 import { useBackupRuns, type BackupRunLookup } from '../../hooks/use-backup-runs';
+import { useBackupsKnownThreats } from '../../hooks/use-known-threats';
 import { isBackupItem } from '../../types/activity';
+import { KnownThreatsBadge } from '../known-threats/badge';
 import QueryError from '../query-error';
 import { formatRowDate } from './row-date';
 import { useNewBackupRow } from './use-new-backup-row';
@@ -179,7 +182,11 @@ function runMeta( run: NonNullable< ReturnType< BackupRunLookup > > ): string {
 function DescriptionCell( { item }: { item: ActivityItem } ) {
 	const runFor = useContext( BackupRunsContext );
 	const run = isBackupItem( item ) ? runFor( item ) : null;
-	return (
+	const { data: knownThreats } = useBackupsKnownThreats();
+	const flagged = isBackupItem( item )
+		? ( containingBackup( knownThreats, item.rewindId )?.knownThreats?.flagged ?? 0 )
+		: 0;
+	const description = (
 		<Stack direction="row" align="center" gap="md" className="jpb-activity-list__description">
 			<Text variant="body-sm" className="jpb-text-muted jpb-activity-list__date">
 				{ rowDate( item ) }
@@ -199,6 +206,16 @@ function DescriptionCell( { item }: { item: ActivityItem } ) {
 					{ item.summary }
 				</Text>
 			) }
+		</Stack>
+	);
+	if ( flagged === 0 ) {
+		return description;
+	}
+	// Its own line: the description truncates to one.
+	return (
+		<Stack direction="column" align="flex-start" gap="xs">
+			{ description }
+			<KnownThreatsBadge count={ flagged } />
 		</Stack>
 	);
 }

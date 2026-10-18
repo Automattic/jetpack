@@ -1,13 +1,22 @@
 import { dateI18n } from '@wordpress/date';
-import { createInterpolateElement, useCallback, useMemo, useState } from '@wordpress/element';
+import {
+	createInterpolateElement,
+	useCallback,
+	useEffect,
+	useMemo,
+	useState,
+} from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Icon, cloud, download as downloadIcon, rotateLeft } from '@wordpress/icons';
 import { Link as RouterLink } from '@wordpress/route';
-import { Card, Link, ButtonLink, Stack, Text } from '@wordpress/ui';
+import { Button, Card, Link, ButtonLink, Stack, Text } from '@wordpress/ui';
+import { containingBackup } from '../../data/api/known-threats';
 import { formatDuration } from '../../data/durations';
 import { formatStorageSize } from '../../data/storage-units';
 import { useBackupRuns } from '../../hooks/use-backup-runs';
+import { useBackupsKnownThreats, useKnownThreats } from '../../hooks/use-known-threats';
 import FileBrowser, { EMPTY_FILE_SELECTION } from '../file-browser';
+import KnownThreatsWarning from '../known-threats';
 import './style.scss';
 import type { BackupRun } from '../../data/normalize/backup-runs';
 import type { BackupActivityItem } from '../../types/activity';
@@ -93,6 +102,11 @@ export default function BackupDetail( { item }: Props ) {
 	// would promise a scoped download over a link carrying nothing.
 	const [ selectedIds, setSelectedIds ] = useState< string[] >( [] );
 	const run = useBackupRuns( [ item ] )( item );
+	const knownThreats = useBackupKnownThreats( item.rewindId );
+	const [ acknowledged, setAcknowledged ] = useState( false );
+	// A different restore point needs its own acknowledgement.
+	useEffect( () => setAcknowledged( false ), [ item.rewindId ] );
+	const restoreBlocked = !! knownThreats && ! acknowledged;
 
 	// FileBrowser rebuilds the array on every recompute, so a plain
 	// setter would re-render this subtree on selections that changed
@@ -175,14 +189,31 @@ export default function BackupDetail( { item }: Props ) {
 						 * items" confirms a full-site restore believing it is
 						 * scoped.
 						 */ }
-						<ButtonLink
-							variant="solid"
-							render={ <RouterLink to={ `/restore/${ item.rewindId }` } /> }
-						>
-							<ButtonLink.Icon icon={ rotateLeft } />
-							{ /* Same size and line height as the button; only the weight drops, to Download's. */ }
-							<Text variant="body-md">{ __( 'Restore to this point', 'jetpack-backup-pkg' ) }</Text>
-						</ButtonLink>
+						{ restoreBlocked ? (
+							<Button variant="solid" disabled>
+								<Button.Icon icon={ rotateLeft } />
+								<Text variant="body-md">
+									{ __( 'Restore to this point', 'jetpack-backup-pkg' ) }
+								</Text>
+							</Button>
+						) : (
+							<ButtonLink
+								variant="solid"
+								render={
+									<RouterLink
+										to={ `/restore/${ item.rewindId }` }
+										// Untyped route tree; see the download link above.
+										{ ...( knownThreats ? { search: { acknowledged: true } as never } : {} ) }
+									/>
+								}
+							>
+								<ButtonLink.Icon icon={ rotateLeft } />
+								{ /* Same size and line height as the button; only the weight drops, to Download's. */ }
+								<Text variant="body-md">
+									{ __( 'Restore to this point', 'jetpack-backup-pkg' ) }
+								</Text>
+							</ButtonLink>
+						) }
 					</Stack>
 				</Stack>
 			</Card.Header>
@@ -211,6 +242,14 @@ export default function BackupDetail( { item }: Props ) {
 						{ runText( run ) }
 					</Text>
 				) }
+				{ knownThreats && (
+					<KnownThreatsWarning
+						threats={ knownThreats.threats }
+						acknowledged={ acknowledged }
+						onAcknowledge={ setAcknowledged }
+						restoreInsteadPeriod={ knownThreats.latestClean }
+					/>
+				) }
 				<FileBrowser
 					rewindId={ item.rewindId }
 					selection={ selection }
@@ -220,4 +259,21 @@ export default function BackupDetail( { item }: Props ) {
 			</Card.Content>
 		</Card.Root>
 	);
+}
+
+/**
+ * The known threats of the backup a restore point belongs to, or null when it has none.
+ *
+ * @param rewindId - The restore point's rewind id.
+ * @return The threats and the newest clean backup, or null.
+ */
+function useBackupKnownThreats( rewindId: string ) {
+	const { data: backups } = useBackupsKnownThreats();
+	const flagged = ( containingBackup( backups, rewindId )?.knownThreats?.flagged ?? 0 ) > 0;
+	const { data: threats } = useKnownThreats( rewindId, flagged );
+
+	if ( ! flagged || ! threats || threats.summary.flagged === 0 ) {
+		return null;
+	}
+	return { threats, latestClean: backups?.latest_without_known_threats ?? null };
 }
