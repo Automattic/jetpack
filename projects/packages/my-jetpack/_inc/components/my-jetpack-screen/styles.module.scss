@@ -31,6 +31,8 @@
 }
 
 .notice {
+	// The same space the JITM card leaves below it.
+	margin-block-end: var(--wpds-dimension-gap-xl);
 
 	> div {
 		position: relative;

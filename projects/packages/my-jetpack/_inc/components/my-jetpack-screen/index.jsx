@@ -1,7 +1,7 @@
 /*
  * External dependencies
  */
-import { ActionButton, AdminPage, Col, Container } from '@automattic/jetpack-components';
+import { ActionButton, AdminPage } from '@automattic/jetpack-components';
 import JitmSlot from '@automattic/jetpack-components/jitm-slot';
 import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
@@ -199,23 +199,13 @@ export default function MyJetpackScreen() {
 			<MyJetpackTabPanel
 				beforeContent={
 					<>
-						{ ! isNewUser && (
-							<Container horizontalSpacing={ 0 }>
-								<Col>
-									<JitmSlot />
-								</Col>
-							</Container>
-						) }
+						{ ! isNewUser && <JitmSlot /> }
 						{ noticeMessage && (
-							<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-								<Col>
-									<GlobalNotice
-										message={ noticeMessage }
-										title={ noticeTitle }
-										options={ noticeOptions }
-									/>
-								</Col>
-							</Container>
+							<GlobalNotice
+								message={ noticeMessage }
+								title={ noticeTitle }
+								options={ noticeOptions }
+							/>
 						) }
 					</>
 				}
