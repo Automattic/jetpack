@@ -11,10 +11,12 @@ use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
 use WP_Error;
+use WP_REST_Server;
 
 /**
  * Covers REST_Controller::get_known_threats().
@@ -148,6 +150,74 @@ class Known_Threats_Route_Test extends TestCase {
 		$this->assertSame( 'threats_unavailable', $result->get_error_code() );
 	}
 
+	public function test_known_threats_route_is_registered() {
+		global $wp_rest_server;
+		$wp_rest_server = new WP_REST_Server();
+		add_action( 'rest_api_init', array( REST_Controller::class, 'register_rest_routes' ) );
+		do_action( 'rest_api_init', $wp_rest_server );
+		remove_action( 'rest_api_init', array( REST_Controller::class, 'register_rest_routes' ) );
+
+		$this->assertArrayHasKey( '/jetpack/v4/activity-log/known-threats', $wp_rest_server->get_routes() );
+	}
+
+	/**
+	 * Failures other than a missing Scan plan are reported as failures, not as "unavailable".
+	 *
+	 * @dataProvider provide_upstream_failures
+	 */
+	#[DataProvider( 'provide_upstream_failures' )]
+	public function test_known_threats_report_upstream_failures( $failure ) {
+		$this->arrange_woa_site();
+		if ( 'unreachable' === $failure ) {
+			add_filter(
+				'pre_http_request',
+				static function () {
+					return new WP_Error( 'http_request_failed', 'cURL error 28: Operation timed out' );
+				}
+			);
+		} elseif ( 'unreadable' === $failure ) {
+			$this->arrange_wpcom( '<html>Bad gateway</html>' );
+		} else {
+			$this->arrange_wpcom( array( 'code' => 'internal_error' ), 500 );
+		}
+
+		$result = REST_Controller::get_known_threats();
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'known_threats_request_failed', $result->get_error_code() );
+		$this->assertSame( 502, $result->get_error_data()['status'] );
+	}
+
+	/**
+	 * Ways WordPress.com can fail to answer.
+	 *
+	 * @return array
+	 */
+	public static function provide_upstream_failures() {
+		return array(
+			'unreachable'    => array( 'unreachable' ),
+			'server error'   => array( 'server error' ),
+			'unreadable 200' => array( 'unreadable' ),
+		);
+	}
+
+	public function test_known_threats_skip_rows_without_a_backup_period() {
+		$this->arrange_woa_site();
+		$this->arrange_wpcom(
+			array(
+				'backups' => array(
+					array( 'object' => array() ),
+					array( 'object' => array( 'backup_period' => 'soon' ) ),
+					array( 'object' => array( 'backup_period' => '1792247305' ) ),
+				),
+			)
+		);
+
+		$result = REST_Controller::get_known_threats();
+
+		$this->assertSame( array( 1792247305 ), array_column( $result->get_data()['backups'], 'period' ) );
+	}
+
 	/**
 	 * Makes the site look like a WoW site to `Host::is_woa_site()`.
 	 */
@@ -161,17 +231,17 @@ class Known_Threats_Route_Test extends TestCase {
 	/**
 	 * Has WordPress.com answer every request with the given body and status.
 	 *
-	 * @param array $body   Response body.
-	 * @param int   $status Response status.
+	 * @param array|string $body   Response body; a string is sent as is.
+	 * @param int          $status Response status.
 	 */
-	private function arrange_wpcom( array $body, $status = 200 ) {
+	private function arrange_wpcom( $body, $status = 200 ) {
 		add_filter(
 			'pre_http_request',
 			function ( $preempt, $args, $url ) use ( $body, $status ) {
 				$this->captured_urls[] = (string) $url;
 				return array(
 					'response' => array( 'code' => $status ),
-					'body'     => wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
+					'body'     => is_string( $body ) ? $body : wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
 				);
 			},
 			10,
