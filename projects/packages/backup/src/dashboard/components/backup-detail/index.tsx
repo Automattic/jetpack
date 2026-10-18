@@ -1,3 +1,4 @@
+import { useInstanceId } from '@wordpress/compose';
 import { dateI18n } from '@wordpress/date';
 import {
 	createInterpolateElement,
@@ -9,7 +10,7 @@ import {
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Icon, cloud, download as downloadIcon, rotateLeft } from '@wordpress/icons';
 import { Link as RouterLink } from '@wordpress/route';
-import { Button, Card, Link, ButtonLink, Stack, Text } from '@wordpress/ui';
+import { Button, Card, Link, ButtonLink, Stack, Text, VisuallyHidden } from '@wordpress/ui';
 import { containingBackup } from '../../data/api/known-threats';
 import { formatDuration } from '../../data/durations';
 import { formatStorageSize } from '../../data/storage-units';
@@ -107,6 +108,7 @@ export default function BackupDetail( { item }: Props ) {
 	// A different restore point needs its own acknowledgement.
 	useEffect( () => setAcknowledged( false ), [ item.rewindId ] );
 	const restoreBlocked = !! knownThreats && ! acknowledged;
+	const restoreHintId = `jpb-backup-detail-restore-hint-${ useInstanceId( BackupDetail ) }`;
 
 	// FileBrowser rebuilds the array on every recompute, so a plain
 	// setter would re-render this subtree on selections that changed
@@ -190,12 +192,20 @@ export default function BackupDetail( { item }: Props ) {
 						 * scoped.
 						 */ }
 						{ restoreBlocked ? (
-							<Button variant="solid" disabled>
-								<Button.Icon icon={ rotateLeft } />
-								<Text variant="body-md">
-									{ __( 'Restore to this point', 'jetpack-backup-pkg' ) }
-								</Text>
-							</Button>
+							<>
+								<Button variant="solid" disabled aria-describedby={ restoreHintId }>
+									<Button.Icon icon={ rotateLeft } />
+									<Text variant="body-md">
+										{ __( 'Restore to this point', 'jetpack-backup-pkg' ) }
+									</Text>
+								</Button>
+								<VisuallyHidden id={ restoreHintId }>
+									{ __(
+										'To restore this backup, confirm that you understand it contains known threats.',
+										'jetpack-backup-pkg'
+									) }
+								</VisuallyHidden>
+							</>
 						) : (
 							<ButtonLink
 								variant="solid"
@@ -248,6 +258,7 @@ export default function BackupDetail( { item }: Props ) {
 						acknowledged={ acknowledged }
 						onAcknowledge={ setAcknowledged }
 						restoreInsteadPeriod={ knownThreats.latestClean }
+						restoreInsteadRewindId={ knownThreats.latestCleanRewindId }
 					/>
 				) }
 				<FileBrowser
@@ -275,5 +286,9 @@ function useBackupKnownThreats( rewindId: string ) {
 	if ( ! flagged || ! threats || threats.summary.flagged === 0 ) {
 		return null;
 	}
-	return { threats, latestClean: backups?.latest_without_known_threats ?? null };
+	return {
+		threats,
+		latestClean: backups?.latest_without_known_threats ?? null,
+		latestCleanRewindId: backups?.latest_without_known_threats_rewind_id ?? null,
+	};
 }

@@ -56,6 +56,7 @@ beforeEach( () => {
 			return Promise.resolve( {
 				backups: [ { period: 1792244301, known_threats: SUMMARY } ],
 				latest_without_known_threats: 1792200000,
+				latest_without_known_threats_rewind_id: '1792200135.5',
 			} );
 		}
 		if ( path.includes( '/threats' ) ) {
@@ -87,14 +88,23 @@ describe( 'Backup detail for a backup with known threats', () => {
 		const checkbox = await screen.findByRole( 'checkbox', {
 			name: 'I understand this backup contains known threats and want to restore it anyway.',
 		} );
-		expect( screen.getByRole( 'button', { name: /Restore to this point/ } ) ).toHaveAttribute(
-			'aria-disabled',
-			'true'
+		const restore = screen.getByRole( 'button', { name: /Restore to this point/ } );
+		expect( restore ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( restore ).toHaveAccessibleDescription(
+			'To restore this backup, confirm that you understand it contains known threats.'
 		);
-		expect( screen.getByRole( 'link', { name: 'Restore this backup instead' } ) ).toHaveAttribute(
-			'href',
-			'/restore/1792200000'
-		);
+
+		// aria-controls only once the list it names is in the page.
+		const toggle = screen.getByRole( 'button', { name: 'Known threats (3), show threats' } );
+		expect( toggle ).not.toHaveAttribute( 'aria-controls' );
+		await user.click( toggle );
+		expect(
+			screen.getByRole( 'button', { name: 'Known threats (3), hide threats' } )
+		).toHaveAttribute( 'aria-controls' );
+		expect( screen.getByRole( 'table' ) ).toBeVisible();
+		expect(
+			screen.getByRole( 'link', { name: 'Restore Oct 17, 2026 - 1:22 AM backup instead' } )
+		).toHaveAttribute( 'href', '/restore/1792200135.5' );
 
 		await user.click( checkbox );
 

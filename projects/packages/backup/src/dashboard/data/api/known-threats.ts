@@ -89,6 +89,8 @@ export async function fetchKnownThreats( rewindId: string ): Promise< KnownThrea
 export type BackupsKnownThreats = {
 	backups: Array< { period: number; known_threats: KnownThreatsSummary | null } >;
 	latest_without_known_threats: number | null;
+	/** The "Backup complete" rewind id of that backup: when it finished. */
+	latest_without_known_threats_rewind_id?: string | null;
 };
 
 /**
@@ -107,6 +109,7 @@ export async function fetchBackupsKnownThreats(): Promise< BackupsKnownThreats |
 		return {
 			backups: [ ...data.backups ].sort( ( a, b ) => b.period - a.period ),
 			latest_without_known_threats: data.latest_without_known_threats ?? null,
+			latest_without_known_threats_rewind_id: data.latest_without_known_threats_rewind_id ?? null,
 		};
 	} catch {
 		return null;

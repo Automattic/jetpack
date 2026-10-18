@@ -1,5 +1,6 @@
 import { CheckboxControl } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
+import { dateI18n } from '@wordpress/date';
 import { useCallback, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Icon, cautionFilled } from '@wordpress/icons';
@@ -17,8 +18,10 @@ type Props = {
 	/** Omit, with `onAcknowledge`, to show the warning without the checkbox. */
 	acknowledged?: boolean;
 	onAcknowledge?: ( next: boolean ) => void;
-	/** Period of the newest backup without known threats, for "Restore this backup instead". */
+	/** Period of the newest backup without known threats, for the "Restore … instead" link. */
 	restoreInsteadPeriod?: number | null;
+	/** That backup's "Backup complete" rewind id, which names it and is restored instead. */
+	restoreInsteadRewindId?: string | null;
 };
 
 /**
@@ -90,11 +93,12 @@ function statusNow( threat: KnownThreat ): string {
  * Also rendered after the edge case of a server-side refusal over threats the screen did not
  * know about, when `threats` may be null.
  *
- * @param props                      - Component props.
- * @param props.threats              - What the screen knows about the backup's threats.
- * @param props.acknowledged         - Whether the checkbox is ticked.
- * @param props.onAcknowledge        - Called with the checkbox's new value.
- * @param props.restoreInsteadPeriod - Period of the newest backup without known threats.
+ * @param props                        - Component props.
+ * @param props.threats                - What the screen knows about the backup's threats.
+ * @param props.acknowledged           - Whether the checkbox is ticked.
+ * @param props.onAcknowledge          - Called with the checkbox's new value.
+ * @param props.restoreInsteadPeriod   - Period of the newest backup without known threats.
+ * @param props.restoreInsteadRewindId - That backup's "Backup complete" rewind id.
  * @return The rendered warning.
  */
 export default function KnownThreatsWarning( {
@@ -102,6 +106,7 @@ export default function KnownThreatsWarning( {
 	acknowledged = false,
 	onAcknowledge,
 	restoreInsteadPeriod,
+	restoreInsteadRewindId,
 }: Props ) {
 	const [ open, setOpen ] = useState( false );
 	const toggle = useCallback( () => setOpen( previous => ! previous ), [] );
@@ -146,9 +151,21 @@ export default function KnownThreatsWarning( {
 			{ showRestoreInstead && (
 				<Link
 					className="jpb-known-threats__restore-instead"
-					render={ <RouterLink to={ `/restore/${ restoreInsteadPeriod }` } /> }
+					render={
+						<RouterLink to={ `/restore/${ restoreInsteadRewindId ?? restoreInsteadPeriod }` } />
+					}
 				>
-					{ __( 'Restore this backup instead', 'jetpack-backup-pkg' ) }
+					{ restoreInsteadRewindId
+						? sprintf(
+								/* translators: %s: a backup's date and time, e.g. "Oct 17, 2026 - 2:30 PM". */
+								__( 'Restore %s backup instead', 'jetpack-backup-pkg' ),
+								dateI18n(
+									'M j, Y - g:i A',
+									new Date( Number( restoreInsteadRewindId ) * 1000 ),
+									undefined
+								)
+							)
+						: __( 'Restore this backup instead', 'jetpack-backup-pkg' ) }
 				</Link>
 			) }
 			{ flagged > 0 && ( rows.length > 0 || vulnerable > 0 ) && (

@@ -229,6 +229,9 @@ export default function RestoreScreen() {
 										acknowledged={ acknowledged }
 										onAcknowledge={ setAcknowledged }
 										restoreInsteadPeriod={ backupsKnownThreats?.latest_without_known_threats }
+										restoreInsteadRewindId={
+											backupsKnownThreats?.latest_without_known_threats_rewind_id
+										}
 									/>
 								) }
 								{ /*
