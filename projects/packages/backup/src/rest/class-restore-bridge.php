@@ -168,10 +168,8 @@ class Restore_Bridge {
 			$request_body['types'] = $named_types;
 		}
 
-		// Sent only when ticked, so a restore of a clean backup is the same request as before.
-		if ( true === rest_sanitize_boolean( $request->get_param( 'acknowledge_threats' ) ) ) {
-			$request_body['acknowledge_threats'] = true;
-		}
+		// Always sent: WordPress.com skips the known-threats check for signed restores that omit it.
+		$request_body['acknowledge_threats'] = true === rest_sanitize_boolean( $request->get_param( 'acknowledge_threats' ) );
 
 		$response = Client::wpcom_json_api_request_as_user(
 			sprintf( '/sites/%d/rewind/restores', $blog_id ),

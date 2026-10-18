@@ -685,13 +685,13 @@ class Rest_Restore_Bridge_Test extends TestCase {
 	}
 
 	/**
-	 * Without an acknowledgement the flag is left out, so restores of clean backups are unchanged.
+	 * Without an acknowledgement the flag is sent as false, so WordPress.com still checks the backup.
 	 *
 	 * @param mixed $acknowledge The `acknowledge_threats` param, or null for none.
 	 * @dataProvider provide_unacknowledged
 	 */
 	#[DataProvider( 'provide_unacknowledged' )]
-	public function test_initiate_restore_omits_acknowledge_threats_by_default( $acknowledge ) {
+	public function test_initiate_restore_sends_false_without_an_acknowledgement( $acknowledge ) {
 		$this->arrange_wpcom(
 			array(
 				'ok'         => true,
@@ -706,7 +706,7 @@ class Rest_Restore_Bridge_Test extends TestCase {
 		}
 		Restore_Bridge::initiate_restore( $request );
 
-		$this->assertArrayNotHasKey( 'acknowledge_threats', (array) $this->captured_body );
+		$this->assertFalse( ( (array) $this->captured_body )['acknowledge_threats'] );
 	}
 
 	/**
