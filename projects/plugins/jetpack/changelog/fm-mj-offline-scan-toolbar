@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Scan: Stop contacting WordPress.com for Scan status while the site is in offline mode.
+Scan: Stop toolbar status requests and sidebar Scan and Rewind cache refreshes while the site is in offline mode.

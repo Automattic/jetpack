@@ -106,6 +106,10 @@ class Admin_Sidebar_Link {
 	 * Jetpack_Core_Json_Api_Endpoints::rewind_data() serves it from that cache.
 	 */
 	public function refresh_state_cache() {
+		if ( ( new Status() )->is_offline_mode() ) {
+			return;
+		}
+
 		Jetpack_Core_Json_Api_Endpoints::get_scan_state();
 		Jetpack_Core_Json_Api_Endpoints::get_rewind_data();
 	}

@@ -153,6 +153,37 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A refresh queued online must not send requests after the site goes offline.
+	 */
+	public function test_queued_scan_refresh_does_not_send_requests_offline() {
+		require_once JETPACK__PLUGIN_DIR . 'modules/scan/class-admin-sidebar-link.php';
+		$sidebar = new Admin_Sidebar_Link();
+		$sidebar->init_hooks();
+		wp_schedule_single_event( time() - 1, Admin_Sidebar_Link::SCHEDULE_ACTION_HOOK );
+		$event = wp_get_scheduled_event( Admin_Sidebar_Link::SCHEDULE_ACTION_HOOK );
+		$this->assertNotFalse( $event );
+		add_filter( 'jetpack_offline_mode', '__return_true', 1000 );
+		StatusCache::clear();
+		delete_transient( 'jetpack_scan_state' );
+		delete_transient( 'jetpack_rewind_state' );
+		$requests   = array();
+		$block_http = static function ( $response, $args, $url ) use ( &$requests ) {
+			$requests[] = $url;
+			return new WP_Error( 'blocked_for_test' );
+		};
+		add_filter( 'pre_http_request', $block_http, 10, 3 );
+		try {
+			do_action_ref_array( $event->hook, $event->args );
+			$this->assertSame( array(), $requests );
+		} finally {
+			remove_filter( 'pre_http_request', $block_http );
+			remove_filter( 'jetpack_offline_mode', '__return_true', 1000 );
+			wp_clear_scheduled_hook( Admin_Sidebar_Link::SCHEDULE_ACTION_HOOK );
+			StatusCache::clear();
+		}
+	}
+
+	/**
 	 * Clears Admin_Menu's static state and the menu globals between renders.
 	 */
 	private function reset_admin_menu() {
