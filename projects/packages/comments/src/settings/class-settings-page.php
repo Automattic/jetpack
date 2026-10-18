@@ -111,7 +111,7 @@ class Settings_Page {
 	 */
 	public static function render() {
 		if ( function_exists( self::RENDER_FUNCTION ) ) {
-			call_user_func( self::RENDER_FUNCTION );
+			call_user_func( self::RENDER_FUNCTION ); // @phan-suppress-current-line PhanUndeclaredFunctionInCallable -- Checked with function_exists(); defined in the generated build, which Phan excludes.
 			return;
 		}
 
@@ -161,7 +161,7 @@ class Settings_Page {
 
 		// The generated file registers these on `wp_default_scripts`, which has already fired by `admin_menu`.
 		if ( function_exists( self::MODULES_FUNCTION ) ) {
-			call_user_func( self::MODULES_FUNCTION );
+			call_user_func( self::MODULES_FUNCTION ); // @phan-suppress-current-line PhanUndeclaredFunctionInCallable -- Checked with function_exists(); defined in the generated build, which Phan excludes.
 		}
 
 		remove_action( 'admin_init', self::INTERCEPT_FUNCTION );
