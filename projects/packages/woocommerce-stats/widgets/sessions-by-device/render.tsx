@@ -65,6 +65,7 @@ function SessionsByDevice() {
 				onRetry: refetch,
 			} ) }
 			variant="half-ring"
+			chartTitle={ __( 'Sessions by device', 'jetpack-woocommerce-stats-pkg' ) }
 		/>
 	);
 }

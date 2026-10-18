@@ -173,6 +173,8 @@ export interface MetricTabsChartProps {
 	groupLabel?: string;
 	/** Visually hide the label in the static single-metric headline. */
 	hideSingleMetricLabel?: boolean;
+	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
+	chartTitle?: string;
 	/**
 	 * The series' bucket size, declared to the x-axis so tick formats follow the
 	 * known granularity rather than being inferred from point spacing.
@@ -264,6 +266,7 @@ function MetricChart( {
 	dataFormat,
 	chartType,
 	chartId,
+	chartTitle,
 	tickResolution,
 	onDatumClick,
 	baseline,
@@ -278,6 +281,7 @@ function MetricChart( {
 	chartType: MetricTabsChartType;
 	baseline?: ChartBaseline;
 	chartId: string;
+	chartTitle?: string;
 	tickResolution?: TickResolution;
 	onDatumClick?: ( date: Date ) => void;
 	comparisonLabel?: string;
@@ -415,6 +419,7 @@ function MetricChart( {
 	return chartType === 'bar' ? (
 		<ComparativeBarChart
 			chartId={ chartId }
+			chartTitle={ chartTitle }
 			series={ series }
 			dataFormat={ resolvedDataFormat }
 			defaultHiddenSeries={ defaultHiddenSeries }
@@ -428,6 +433,7 @@ function MetricChart( {
 	) : (
 		<ComparativeLineChart
 			chartId={ chartId }
+			chartTitle={ chartTitle }
 			series={ series }
 			styles={ seriesStyles }
 			dataFormat={ resolvedDataFormat }
@@ -530,6 +536,7 @@ export function MetricTabsChart( {
 	controls,
 	groupLabel = __( 'Select metric', 'jetpack-premium-analytics-pkg' ),
 	hideSingleMetricLabel = false,
+	chartTitle,
 	tickResolution,
 	onDatumClick,
 	tooltipMetrics = 'active',
@@ -638,6 +645,7 @@ export function MetricTabsChart( {
 						dataFormat={ dataFormat }
 						chartType={ chartType }
 						chartId={ chartIdFor( activeMetric ) }
+						chartTitle={ chartTitle }
 						tickResolution={ tickResolution }
 						onDatumClick={ onDatumClick }
 						comparisonLabel={ comparisonLabel }
@@ -712,6 +720,7 @@ export function MetricTabsChart( {
 							dataFormat={ dataFormat }
 							chartType={ chartType }
 							chartId={ chartIdFor( activeMetric ) }
+							chartTitle={ chartTitle }
 							tickResolution={ tickResolution }
 							onDatumClick={ onDatumClick }
 							comparisonLabel={ comparisonLabel }
@@ -769,6 +778,7 @@ export function MetricTabsChart( {
 						dataFormat={ dataFormat }
 						chartType={ chartType }
 						chartId={ chartIdFor( metric ) }
+						chartTitle={ chartTitle }
 						tickResolution={ tickResolution }
 						onDatumClick={ onDatumClick }
 						comparisonLabel={ comparisonLabel }

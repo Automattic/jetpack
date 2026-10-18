@@ -15,6 +15,7 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
+import { formatChartName } from '../../helpers/format-chart-name';
 import {
 	formatListMetricCount,
 	getListMetricLabel,
@@ -79,6 +80,9 @@ export type LeaderboardChartProps = {
 
 	/** Names the rows and the metric above them, and the unit in the exact-value tooltip. */
 	columns?: LeaderboardColumns;
+
+	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
+	chartTitle?: string;
 };
 
 /**
@@ -102,6 +106,7 @@ export function LeaderboardChart( {
 	style,
 	fitRows = true,
 	columns,
+	chartTitle,
 }: LeaderboardChartProps ) {
 	const { getElementStyles } = useGlobalChartsContext();
 
@@ -150,6 +155,7 @@ export function LeaderboardChart( {
 			) }
 			<BaseLeaderboardChart
 				data={ data }
+				ariaLabel={ formatChartName( chartTitle ) }
 				loading={ loading }
 				withComparison={ withComparison }
 				valueFormatter={ valueFormatter }
