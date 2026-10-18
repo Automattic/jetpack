@@ -15,7 +15,7 @@ import type { ReactNode } from 'react';
  * My Jetpack Tab panel component.
  *
  * @param {object}    root0               - Component props.
- * @param {ReactNode} root0.beforeContent - Notices to render above the tab content, inside its padded area.
+ * @param {ReactNode} root0.beforeContent - Notices passed through to TabContent.
  * @return The rendered component.
  */
 export function MyJetpackTabPanel( { beforeContent }: { beforeContent?: ReactNode } ) {
