@@ -87,7 +87,7 @@ export function KnownThreatsBadge( { activity }: { activity: Activity } ) {
 						knownThreats.flagged
 					) }
 				</span>
-				<VisuallyHidden>{ description }</VisuallyHidden>
+				<VisuallyHidden render={ <span /> }>{ description }</VisuallyHidden>
 			</Tooltip.Trigger>
 			<Tooltip.Popup>{ description }</Tooltip.Popup>
 		</Tooltip.Root>
