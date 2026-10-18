@@ -1,5 +1,8 @@
 import { __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
+import { Badge } from '@wordpress/ui';
+import { useBackupKnownThreats } from '../../hooks/use-known-threats';
 import { buildObjectAdminLink } from './admin-links';
 import { renderFormattedContent } from './formatted-block';
 import { gridiconToWordPressIcon } from './gridicons';
@@ -43,7 +46,43 @@ export function ActivityEventTitle( { activity }: { activity: Activity } ) {
 	// non-span element — keeps the `> span { color: grey }` rule on the
 	// enclosing `.site-activity-logs__event-content` from dimming the
 	// title in the Table layout.
-	return <strong className="site-activity-logs__event-title">{ activity.activityTitle }</strong>;
+	return (
+		<>
+			<strong className="site-activity-logs__event-title">{ activity.activityTitle }</strong>
+			<KnownThreatsBadge activity={ activity } />
+		</>
+	);
+}
+
+/**
+ * "Known threats" badge for a backup Scan knew to contain threats when it ran.
+ *
+ * @param props          - Component props.
+ * @param props.activity - Normalized Activity for the current log row.
+ * @return The badge, or null when the row isn't a flagged backup.
+ */
+export function KnownThreatsBadge( { activity }: { activity: Activity } ) {
+	const knownThreats = useBackupKnownThreats(
+		activity.activityIsRewindable ? activity.rewindId : undefined
+	);
+	if ( ! knownThreats?.flagged ) {
+		return null;
+	}
+	const description = sprintf(
+		/* translators: %d: number of malware and database threats in the backup. */
+		_n(
+			'This backup is known to contain %d security threat. Restoring it may bring malware back to your site.',
+			'This backup is known to contain %d security threats. Restoring it may bring malware back to your site.',
+			knownThreats.flagged,
+			'jetpack-activity-log'
+		),
+		knownThreats.flagged
+	);
+	return (
+		<span className="site-activity-logs__known-threats" title={ description }>
+			<Badge intent="high">{ __( 'Known threats', 'jetpack-activity-log' ) }</Badge>
+		</span>
+	);
 }
 
 /**
