@@ -351,7 +351,7 @@ class Jetpack_Ai_Product_Test extends TestCase {
 	}
 
 	/**
-	 * With the account-connect flag on, the page learns AI would show once the owner connects, only when that is all it lacks.
+	 * The page learns AI would show once the owner connects only with the account-connect flag on, and only when that is all it lacks.
 	 *
 	 * @dataProvider feature_ui_once_connected_cases
 	 * @param string    $site     What the site has.
@@ -360,30 +360,30 @@ class Jetpack_Ai_Product_Test extends TestCase {
 	 */
 	#[DataProvider( 'feature_ui_once_connected_cases' )]
 	public function test_flags_say_whether_the_feature_ui_waits_only_for_the_owner( $site, $flag_on, $expected ) {
-		Initializer::register_feature_flags();
-		if ( $flag_on ) {
-			add_filter( 'jetpack_feature_flag_enabled_' . Initializer::ACCOUNT_CONNECT_FLAG, '__return_true' );
-		}
-		if ( 'atomic' === $site ) {
-			$this->set_atomic_site();
-		} elseif ( 'atomic internal testing' === $site ) {
-			$this->set_atomic_site();
-			$GLOBALS['jetpack_mock_internal_testing_environment'] = true;
-		} elseif ( 'simple' === $site ) {
-			Constants::set_constant( 'IS_WPCOM', true );
-		} elseif ( 'no ai module' === $site ) {
-			// @phan-suppress-next-line PhanUndeclaredStaticProperty -- Declared on the mock in ./assets/jetpack-mock-plugin.txt
-			\Jetpack::$available_modules = array();
-		}
-		activate_plugins( 'jetpack/jetpack.php' );
-		if ( 'owner connected' === $site ) {
-			$this->connect_site_and_owner();
-		} elseif ( 'not registered' !== $site ) {
-			( new Tokens() )->update_blog_token( 'test.test.1' );
-			Jetpack_Options::update_option( 'id', 123 );
-		}
-
 		try {
+			Initializer::register_feature_flags();
+			if ( $flag_on ) {
+				add_filter( 'jetpack_feature_flag_enabled_' . Initializer::ACCOUNT_CONNECT_FLAG, '__return_true' );
+			}
+			if ( 'atomic' === $site ) {
+				$this->set_atomic_site();
+			} elseif ( 'atomic internal testing' === $site ) {
+				$this->set_atomic_site();
+				$GLOBALS['jetpack_mock_internal_testing_environment'] = true;
+			} elseif ( 'simple' === $site ) {
+				Constants::set_constant( 'IS_WPCOM', true );
+			} elseif ( 'no ai module' === $site ) {
+				// @phan-suppress-next-line PhanUndeclaredStaticProperty -- Declared on the mock in ./assets/jetpack-mock-plugin.txt
+				\Jetpack::$available_modules = array();
+			}
+			activate_plugins( 'jetpack/jetpack.php' );
+			if ( 'owner connected' === $site ) {
+				$this->connect_site_and_owner();
+			} elseif ( 'not registered' !== $site ) {
+				( new Tokens() )->update_blog_token( 'test.test.1' );
+				Jetpack_Options::update_option( 'id', 123 );
+			}
+
 			$this->assertSame( $expected, Initializer::get_my_jetpack_flags()['showAiModuleToggleOnceConnected'] ?? null );
 		} finally {
 			remove_all_filters( 'jetpack_feature_flag_enabled_' . Initializer::ACCOUNT_CONNECT_FLAG );

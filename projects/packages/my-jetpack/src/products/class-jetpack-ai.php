@@ -539,10 +539,12 @@ class Jetpack_Ai extends Module_Product {
 	/**
 	 * Whether My Jetpack would surface the AI feature controls once the site's owner connects an account.
 	 *
+	 * False once an owner is connected; is_feature_ui_enabled() answers from then on.
+	 *
 	 * @since $$next-version$$
 	 *
 	 * @return bool True when Jetpack is active with its AI module and settings, the site is registered,
-	 *              the host allows the controls, and no owner is connected yet.
+	 *              it is self-hosted or an Atomic internal testing environment, and no owner is connected yet.
 	 */
 	public static function is_feature_ui_enabled_once_connected() {
 		return self::is_feature_ui_ready() && ! ( new Connection_Manager() )->has_connected_owner();
