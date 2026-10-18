@@ -2,17 +2,23 @@ import { CheckboxControl } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { useCallback, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { Button, Notice, Stack, Text } from '@wordpress/ui';
+import { Icon, cautionFilled } from '@wordpress/icons';
+import { Link as RouterLink } from '@wordpress/route';
+import { Link, Text } from '@wordpress/ui';
 import { parseRestoreWhen } from '../../data/api/restore';
 import { formatBrowserDate } from '../../data/date-format';
+import { KnownThreatsToggle } from './badge';
 import './style.scss';
 import type { KnownThreat, KnownThreats } from '../../data/api/known-threats';
 
 type Props = {
 	/** What the screen knows about the backup's threats; null when unavailable. */
 	threats: KnownThreats | null;
-	acknowledged: boolean;
-	onAcknowledge: ( next: boolean ) => void;
+	/** Omit, with `onAcknowledge`, to show the warning without the checkbox. */
+	acknowledged?: boolean;
+	onAcknowledge?: ( next: boolean ) => void;
+	/** Period of the newest backup without known threats, for "Restore this backup instead". */
+	restoreInsteadPeriod?: number | null;
 };
 
 /**
@@ -78,18 +84,25 @@ function statusNow( threat: KnownThreat ): string {
 }
 
 /**
- * The known-threats warning, its threat list and the acknowledgement checkbox.
+ * The known-threats warning as WordPress.com shows it: the sentence, a link to the newest clean
+ * backup, the "Known threats (N)" toggle with its list, and, on the restore screen, the checkbox.
  *
- * This screen is where the acknowledgement happens. Also rendered after the edge case of a
- * server-side refusal over threats the screen did not know about, when `threats` may be null.
+ * Also rendered after the edge case of a server-side refusal over threats the screen did not
+ * know about, when `threats` may be null.
  *
- * @param props               - Component props.
- * @param props.threats       - What the screen knows about the backup's threats.
- * @param props.acknowledged  - Whether the checkbox is ticked.
- * @param props.onAcknowledge - Called with the checkbox's new value.
+ * @param props                      - Component props.
+ * @param props.threats              - What the screen knows about the backup's threats.
+ * @param props.acknowledged         - Whether the checkbox is ticked.
+ * @param props.onAcknowledge        - Called with the checkbox's new value.
+ * @param props.restoreInsteadPeriod - Period of the newest backup without known threats.
  * @return The rendered warning.
  */
-export default function KnownThreatsWarning( { threats, acknowledged, onAcknowledge }: Props ) {
+export default function KnownThreatsWarning( {
+	threats,
+	acknowledged = false,
+	onAcknowledge,
+	restoreInsteadPeriod,
+}: Props ) {
 	const [ open, setOpen ] = useState( false );
 	const toggle = useCallback( () => setOpen( previous => ! previous ), [] );
 	const tableId = `jpb-known-threats-${ useInstanceId( KnownThreatsWarning ) }`;
@@ -100,11 +113,19 @@ export default function KnownThreatsWarning( { threats, acknowledged, onAcknowle
 	const rows = ( threats?.threats ?? [] ).filter(
 		threat => threat.kind === 'malware' || threat.kind === 'database'
 	);
+	const currentPeriod = threats ? Math.floor( Number( threats.backup_id ) ) : null;
+	const showRestoreInstead =
+		restoreInsteadPeriod !== null &&
+		restoreInsteadPeriod !== undefined &&
+		restoreInsteadPeriod !== currentPeriod;
 
 	return (
-		<Stack direction="column" gap="sm" className="jpb-known-threats">
-			<Notice.Root intent="warning">
-				<Notice.Description>
+		<div className="jpb-known-threats">
+			<p className="jpb-known-threats__message">
+				<span className="jpb-known-threats__icon">
+					<Icon icon={ cautionFilled } size={ 24 } />
+				</span>
+				<span>
 					{ flagged > 0
 						? sprintf(
 								/* translators: %d: number of known security threats in the backup. */
@@ -120,20 +141,23 @@ export default function KnownThreatsWarning( { threats, acknowledged, onAcknowle
 								'This backup is known to contain security threats. Acknowledge them to restore it.',
 								'jetpack-backup-pkg'
 							) }
-				</Notice.Description>
-			</Notice.Root>
-			{ ( rows.length > 0 || vulnerable > 0 ) && (
-				<Button
-					className="jpb-known-threats__toggle"
-					variant="minimal"
-					aria-expanded={ open }
-					aria-controls={ tableId }
-					onClick={ toggle }
+				</span>
+			</p>
+			{ showRestoreInstead && (
+				<Link
+					className="jpb-known-threats__restore-instead"
+					render={ <RouterLink to={ `/restore/${ restoreInsteadPeriod }` } /> }
 				>
-					{ open
-						? __( 'Hide threats', 'jetpack-backup-pkg' )
-						: __( 'Show threats', 'jetpack-backup-pkg' ) }
-				</Button>
+					{ __( 'Restore this backup instead', 'jetpack-backup-pkg' ) }
+				</Link>
+			) }
+			{ flagged > 0 && ( rows.length > 0 || vulnerable > 0 ) && (
+				<KnownThreatsToggle
+					count={ flagged }
+					open={ open }
+					onToggle={ toggle }
+					controls={ tableId }
+				/>
 			) }
 			{ open && (
 				<div id={ tableId } className="jpb-known-threats__table-wrap">
@@ -191,15 +215,17 @@ export default function KnownThreatsWarning( { threats, acknowledged, onAcknowle
 					) }
 				</div>
 			) }
-			<CheckboxControl
-				__nextHasNoMarginBottom
-				label={ __(
-					'I understand this backup contains known threats and want to restore it anyway.',
-					'jetpack-backup-pkg'
-				) }
-				checked={ acknowledged }
-				onChange={ onAcknowledge }
-			/>
-		</Stack>
+			{ onAcknowledge && (
+				<CheckboxControl
+					__nextHasNoMarginBottom
+					label={ __(
+						'I understand this backup contains known threats and want to restore it anyway.',
+						'jetpack-backup-pkg'
+					) }
+					checked={ acknowledged }
+					onChange={ onAcknowledge }
+				/>
+			) }
+		</div>
 	);
 }

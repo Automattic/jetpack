@@ -1,0 +1,36 @@
+// Same pill as WordPress.com's known-threats badge (same tokens).
+.jpb-known-threats-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-xs);
+	padding-block: var(--wpds-dimension-padding-xs);
+	padding-inline: var(--wpds-dimension-padding-sm);
+	border-radius: var(--wpds-border-radius-lg);
+	background-color: var(--wpds-color-background-surface-warning);
+	color: var(--wpds-color-foreground-content-warning);
+	font-family: var(--wpds-typography-font-family-body);
+	font-size: var(--wpds-typography-font-size-sm);
+	font-weight: var(--wpds-typography-font-weight-default);
+	line-height: var(--wpds-typography-line-height-xs);
+	white-space: nowrap;
+
+	svg {
+		flex-shrink: 0;
+		fill: currentColor;
+	}
+}
+
+// Visually just the pill.
+.jpb-known-threats-toggle {
+	padding: 0;
+	border: 0;
+	border-radius: var(--wpds-border-radius-lg);
+	background: transparent;
+	color: inherit;
+	cursor: pointer;
+
+	&:focus-visible {
+		outline: 2px solid var(--wp-admin-theme-color, #3858e9);
+		outline-offset: 1px;
+	}
+}

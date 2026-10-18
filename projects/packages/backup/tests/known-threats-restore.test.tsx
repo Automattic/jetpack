@@ -177,7 +177,7 @@ describe( 'known threats on the Restore screen', () => {
 		expect( confirm ).toHaveAttribute( 'aria-disabled', 'true' );
 		expect( confirm ).toHaveAccessibleDescription( /known threats/ );
 
-		await user.click( view.getByRole( 'button', { name: 'Show threats' } ) );
+		await user.click( view.getByRole( 'button', { name: /show threats/i } ) );
 		const rows = within( view.getByRole( 'table' ) ).getAllByRole( 'row' );
 		expect( rows.map( row => row.textContent ) ).toEqual( [
 			expect.stringMatching( /Threat.*Where.*First detected.*Status now/ ),

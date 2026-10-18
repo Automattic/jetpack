@@ -13,7 +13,7 @@ import {
 	check,
 	error as errorIcon,
 } from '@wordpress/icons';
-import { Link, useParams } from '@wordpress/route';
+import { Link, useParams, useSearch } from '@wordpress/route';
 import {
 	Button,
 	Card,
@@ -33,7 +33,7 @@ import RestoreItemsChecklist from '../components/restore-items-checklist';
 import { formatDate, formatDateTime } from '../data/date-format';
 import { useSiteSuffix } from '../hooks/use-connection';
 import { useGateState } from '../hooks/use-gate-state';
-import { useKnownThreats } from '../hooks/use-known-threats';
+import { useBackupsKnownThreats, useKnownThreats } from '../hooks/use-known-threats';
 import { useRestore } from '../hooks/use-restore';
 import { useStepFocus } from '../hooks/use-step-focus';
 import { DEFAULT_RESTORE_ITEMS, hasSelectedItems } from '../types/restore';
@@ -78,7 +78,12 @@ export default function RestoreScreen() {
 		refetch: refetchKnownThreats,
 		isLoading: checkingThreats,
 	} = useKnownThreats( rewindId, gate.status === 'ready' && isValidRewindId( rewindId ) );
-	const [ acknowledged, setAcknowledged ] = useState( false );
+	const { data: backupsKnownThreats } = useBackupsKnownThreats();
+	// Ticked already when the overview's own checkbox sent the reader here.
+	const search = useSearch( { strict: false } ) as { acknowledged?: boolean | string };
+	const [ acknowledged, setAcknowledged ] = useState(
+		search.acknowledged === true || search.acknowledged === 'true'
+	);
 	const needsAcknowledgement = threatsRefused || ( knownThreats?.summary.flagged ?? 0 ) > 0;
 	// A refusal means the screen's picture was stale: untick, and fetch the threats again.
 	useEffect( () => {
@@ -223,6 +228,7 @@ export default function RestoreScreen() {
 										threats={ knownThreats }
 										acknowledged={ acknowledged }
 										onAcknowledge={ setAcknowledged }
+										restoreInsteadPeriod={ backupsKnownThreats?.latest_without_known_threats }
 									/>
 								) }
 								{ /*

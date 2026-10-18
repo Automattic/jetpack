@@ -1,22 +1,45 @@
+// The warning box of WordPress.com's restore page: a 4% wash of the
+// warning colour.
 .jpb-known-threats {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 8px;
+	padding: 16px;
+	border-radius: 4px;
+	background-color: color-mix(in srgb, #e68b28 4%, transparent);
 
-	&__toggle {
-		align-self: flex-start;
+	&__message {
+		display: flex;
+		gap: 5px;
+		margin: 0;
+	}
+
+	// The icon is drawn in currentColor.
+	&__icon {
+		display: inline-flex;
+		flex-shrink: 0;
+		color: #d67709;
+	}
+
+	&__restore-instead {
+		font-size: 13px;
 	}
 
 	&__table-wrap {
+		align-self: stretch;
 		overflow-x: auto;
 	}
 
 	&__table {
 		inline-size: 100%;
 		border-collapse: collapse;
-		font-size: 13px;
 
 		th,
 		td {
-			padding-block: 4px;
+			padding-block: 8px;
 			padding-inline: 0 12px;
+			border-block-end: 1px solid #dcdcde;
 			text-align: start;
 			vertical-align: top;
 		}
