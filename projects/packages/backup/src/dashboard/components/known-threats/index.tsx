@@ -1,7 +1,8 @@
+import { speak } from '@wordpress/a11y';
 import { CheckboxControl } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { dateI18n } from '@wordpress/date';
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Icon, cautionFilled } from '@wordpress/icons';
 import { Link as RouterLink } from '@wordpress/route';
@@ -129,6 +130,26 @@ export default function KnownThreatsWarning( {
 		restoreInsteadPeriod !== null &&
 		restoreInsteadPeriod !== undefined &&
 		restoreInsteadPeriod !== currentPeriod;
+	const warning =
+		flagged > 0
+			? sprintf(
+					/* translators: %d: number of known security threats in the backup. */
+					_n(
+						'This backup is known to contain %d security threat. Restoring it may bring malware back to your site.',
+						'This backup is known to contain %d security threats. Restoring it may bring malware back to your site.',
+						flagged,
+						'jetpack-backup-pkg'
+					),
+					flagged
+				)
+			: '';
+
+	// The warning arrives after the page has rendered, so screen readers would otherwise miss it.
+	useEffect( () => {
+		if ( warning ) {
+			speak( warning );
+		}
+	}, [ warning ] );
 
 	return (
 		<div className="jpb-known-threats">
@@ -137,21 +158,11 @@ export default function KnownThreatsWarning( {
 					<Icon icon={ cautionFilled } size={ 24 } />
 				</span>
 				<span>
-					{ flagged > 0
-						? sprintf(
-								/* translators: %d: number of known security threats in the backup. */
-								_n(
-									'This backup is known to contain %d security threat. Restoring it may bring malware back to your site.',
-									'This backup is known to contain %d security threats. Restoring it may bring malware back to your site.',
-									flagged,
-									'jetpack-backup-pkg'
-								),
-								flagged
-							)
-						: __(
-								'This backup is known to contain security threats. Acknowledge them to restore it.',
-								'jetpack-backup-pkg'
-							) }
+					{ warning ||
+						__(
+							'This backup is known to contain security threats. Acknowledge them to restore it.',
+							'jetpack-backup-pkg'
+						) }
 				</span>
 			</p>
 			{ flagged > 0 && ( rows.length > 0 || vulnerable > 0 ) && (

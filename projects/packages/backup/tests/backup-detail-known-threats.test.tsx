@@ -95,6 +95,10 @@ describe( 'Backup detail for a backup with known threats', () => {
 		const checkbox = await screen.findByRole( 'checkbox', {
 			name: 'I understand this backup contains known threats and want to restore it anyway.',
 		} );
+		// Announced when it appears, as on WordPress.com.
+		expect( mockSpeak ).toHaveBeenCalledWith(
+			'This backup is known to contain 3 security threats. Restoring it may bring malware back to your site.'
+		);
 		const restore = screen.getByRole( 'button', { name: /Restore to this point/ } );
 		expect( restore ).toHaveAttribute( 'aria-disabled', 'true' );
 		expect( restore ).toHaveAccessibleDescription(
