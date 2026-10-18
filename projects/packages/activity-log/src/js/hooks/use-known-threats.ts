@@ -12,29 +12,27 @@ export type BackupKnownThreats = {
 	fixed: number;
 };
 
-type KnownThreatsResponse = {
-	backups?: Array< { period: number; known_threats: BackupKnownThreats } >;
-};
+type BackupPeriod = { period: number; known_threats: BackupKnownThreats | null };
+
+type KnownThreatsResponse = { backups?: BackupPeriod[] };
 
 /**
- * Flagged backups of the newest 100, keyed by backup period. Empty when the site
- * has no Scan, isn't a WoW site, or the request fails: the log then shows no badges.
+ * The newest 100 backups with their known-threat counts, newest first. Empty when the
+ * site has no Scan, isn't a WoW site, or the request fails: the log then shows no badges.
  *
  * @return `queryOptions` ready to pass to `useQuery`.
  */
 export function knownThreatsQuery() {
 	return queryOptions( {
 		queryKey: [ 'jetpack-activity-log', 'known-threats' ],
-		queryFn: async (): Promise< Map< number, BackupKnownThreats > > => {
+		queryFn: async (): Promise< BackupPeriod[] > => {
 			try {
 				const response = await apiFetch< KnownThreatsResponse >( {
 					path: '/jetpack/v4/activity-log/known-threats',
 				} );
-				return new Map(
-					( response?.backups ?? [] ).map( backup => [ backup.period, backup.known_threats ] )
-				);
+				return [ ...( response?.backups ?? [] ) ].sort( ( a, b ) => b.period - a.period );
 			} catch {
-				return new Map();
+				return [];
 			}
 		},
 		staleTime: 5 * 60 * 1000,
@@ -43,7 +41,7 @@ export function knownThreatsQuery() {
 }
 
 /**
- * The known threats of the backup a row's rewind point is, if it is a flagged backup.
+ * The known threats of the backup a rewind point belongs to: the newest backup at or before it.
  *
  * @param rewindId - The row's rewind id, e.g. "1792244435.274".
  * @return The backup's counts, or undefined.
@@ -53,5 +51,6 @@ export function useBackupKnownThreats( rewindId?: string ): BackupKnownThreats |
 	if ( ! rewindId || ! data ) {
 		return undefined;
 	}
-	return data.get( Math.floor( Number( rewindId ) ) );
+	const point = Math.floor( Number( rewindId ) );
+	return data.find( backup => backup.period <= point )?.known_threats ?? undefined;
 }

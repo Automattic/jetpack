@@ -71,7 +71,7 @@ class Known_Threats_Route_Test extends TestCase {
 		$this->assertSame( array(), $this->captured_urls );
 	}
 
-	public function test_known_threats_list_only_flagged_backups() {
+	public function test_known_threats_list_every_backup_with_its_counts() {
 		$flagged = array(
 			'malware'    => 3,
 			'database'   => 0,
@@ -116,6 +116,20 @@ class Known_Threats_Route_Test extends TestCase {
 					array(
 						'period'        => 1792244435,
 						'known_threats' => $flagged,
+					),
+					array(
+						'period'        => 1792248001,
+						'known_threats' => array_merge(
+							$flagged,
+							array(
+								'malware' => 0,
+								'flagged' => 0,
+							)
+						),
+					),
+					array(
+						'period'        => 1792300000,
+						'known_threats' => null,
 					),
 				),
 			),

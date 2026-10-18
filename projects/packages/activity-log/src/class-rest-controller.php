@@ -413,7 +413,7 @@ class REST_Controller {
 	}
 
 	/**
-	 * Known Scan threat counts for the site's newest 100 backups, flagged backups only.
+	 * Known Scan threat counts for the site's newest 100 backups, by backup period.
 	 *
 	 * Only WoW sites are checked for now. Elsewhere, and when the site has no Scan, the answer is
 	 * `threats_unavailable` (404) so the log shows no badges.
@@ -458,15 +458,16 @@ class REST_Controller {
 			);
 		}
 
+		// Every period is kept: a row belongs to the newest backup at or before its rewind id.
 		$backups = array();
 		foreach ( (array) ( $body['backups'] ?? array() ) as $backup ) {
-			$known_threats = $backup['object']['known_threats'] ?? null;
-			if ( ! is_array( $known_threats ) || empty( $known_threats['flagged'] ) || ! isset( $backup['object']['backup_period'] ) ) {
+			if ( ! isset( $backup['object']['backup_period'] ) || ! is_numeric( $backup['object']['backup_period'] ) ) {
 				continue;
 			}
-			$backups[] = array(
+			$known_threats = $backup['object']['known_threats'] ?? null;
+			$backups[]     = array(
 				'period'        => (int) $backup['object']['backup_period'],
-				'known_threats' => $known_threats,
+				'known_threats' => is_array( $known_threats ) ? $known_threats : null,
 			);
 		}
 
