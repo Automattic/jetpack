@@ -256,15 +256,17 @@ export default function KnownThreatsWarning( {
 				</Tooltip.Root>
 			) }
 			{ onAcknowledge && (
-				<CheckboxControl
-					__nextHasNoMarginBottom
-					label={ __(
-						'I understand this backup contains known threats and want to restore it anyway.',
-						'jetpack-backup-pkg'
-					) }
-					checked={ acknowledged }
-					onChange={ onAcknowledge }
-				/>
+				<div className="jpb-known-threats__acknowledgement">
+					<CheckboxControl
+						__nextHasNoMarginBottom
+						label={ __(
+							'I understand this backup contains known threats and want to restore it anyway.',
+							'jetpack-backup-pkg'
+						) }
+						checked={ acknowledged }
+						onChange={ onAcknowledge }
+					/>
+				</div>
 			) }
 		</div>
 	);

@@ -26,6 +26,19 @@
 		font-size: 13px;
 	}
 
+	// The acknowledgement is the decision the warning asks for, so it gets its own
+	// section below a rule, away from the clean-backup link above it.
+	&__acknowledgement {
+		align-self: stretch;
+		margin-block-start: 4px;
+		padding-block-start: 16px;
+		border-block-start: 1px solid #e1bc7c;
+
+		.components-checkbox-control__label {
+			font-weight: 600;
+		}
+	}
+
 	&__table-wrap {
 		align-self: stretch;
 		overflow-x: auto;
