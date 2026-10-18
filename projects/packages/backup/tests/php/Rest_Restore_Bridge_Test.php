@@ -809,6 +809,86 @@ class Rest_Restore_Bridge_Test extends TestCase {
 		$this->assertSame( 'threats_unavailable', $response->get_data()['code'] );
 	}
 
+	public function test_backups_known_threats_lists_periods_and_the_latest_clean_backup() {
+		$flagged = array(
+			'malware'    => 3,
+			'database'   => 0,
+			'vulnerable' => 1,
+			'ignored'    => 0,
+			'flagged'    => 3,
+			'fixed'      => 3,
+		);
+		$this->arrange_woa_site();
+		$this->arrange_wpcom(
+			array(
+				'totalPages'                   => 1,
+				'latest_without_known_threats' => 1792247305,
+				'backups'                      => array(
+					array(
+						'object' => array(
+							'backup_period' => '1792247305',
+							'known_threats' => array_merge(
+								$flagged,
+								array(
+									'malware' => 0,
+									'flagged' => 0,
+								)
+							),
+						),
+					),
+					array(
+						'object' => array(
+							'backup_period' => '1792244301',
+							'known_threats' => $flagged,
+						),
+					),
+					array( 'object' => array( 'backup_period' => '1792212685' ) ),
+				),
+			)
+		);
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'GET', '/jetpack/v4/rewind/backups/known-threats' ) );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertStringContainsString( '/wpcom/v3/sites/999/rewind/backups?number=100&page=1', $this->captured_url );
+		$this->assertSame(
+			array(
+				'backups'                      => array(
+					array(
+						'period'        => 1792247305,
+						'known_threats' => array_merge(
+							$flagged,
+							array(
+								'malware' => 0,
+								'flagged' => 0,
+							)
+						),
+					),
+					array(
+						'period'        => 1792244301,
+						'known_threats' => $flagged,
+					),
+					array(
+						'period'        => 1792212685,
+						'known_threats' => null,
+					),
+				),
+				'latest_without_known_threats' => 1792247305,
+			),
+			$response->get_data()
+		);
+	}
+
+	public function test_backups_known_threats_are_unavailable_off_wow() {
+		$this->arrange_wpcom( array( 'backups' => array() ) );
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'GET', '/jetpack/v4/rewind/backups/known-threats' ) );
+
+		$this->assertSame( 404, $response->get_status() );
+		$this->assertSame( 'threats_unavailable', $response->get_data()['code'] );
+		$this->assertSame( '', $this->captured_url );
+	}
+
 	/**
 	 * Known threats are a WoW-only check for now: elsewhere the route answers "unavailable"
 	 * without asking WordPress.com, so the screen restores as it always has.

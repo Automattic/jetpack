@@ -60,6 +60,16 @@ class Restore_Bridge {
 
 		register_rest_route(
 			'jetpack/v4',
+			'/rewind/backups/known-threats',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( __CLASS__, 'get_backups_known_threats' ),
+				'permission_callback' => array( Rest_Controller::class, 'permission_check' ),
+			)
+		);
+
+		register_rest_route(
+			'jetpack/v4',
 			'/rewind/backups/(?P<rewind_id>[0-9.]+)/threats',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
@@ -285,6 +295,72 @@ class Restore_Bridge {
 			'threats_unavailable',
 			__( 'Known threats are not available for this site.', 'jetpack-backup-pkg' ),
 			array( 'status' => 404 )
+		);
+	}
+
+	/**
+	 * Known Scan threat counts for the newest 100 backups, by backup period, and the newest
+	 * backup without known threats. Proxies GET wpcom/v3 /sites/{blog_id}/rewind/backups.
+	 *
+	 * Only WoW sites are checked for now; elsewhere, and without Scan, the answer is
+	 * `threats_unavailable` so the dashboard shows no badges.
+	 *
+	 * @return \WP_REST_Response|WP_Error
+	 */
+	public static function get_backups_known_threats() {
+		if ( ! ( new Host() )->is_woa_site() ) {
+			return self::threats_unavailable();
+		}
+
+		$blog_id = Rest_Controller::get_blog_id_or_error();
+		if ( is_wp_error( $blog_id ) ) {
+			return $blog_id;
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			sprintf( '/sites/%d/rewind/backups?number=100&page=1', $blog_id ),
+			'3',
+			array(),
+			null,
+			'wpcom'
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return Rest_Controller::transport_error( $response, 'known_threats_fetch_failed' );
+		}
+
+		$status_code = (int) wp_remote_retrieve_response_code( $response );
+		if ( 403 === $status_code ) {
+			return self::threats_unavailable();
+		}
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( 200 !== $status_code || ! is_array( $body ) ) {
+			return Rest_Controller::upstream_error(
+				$response,
+				'known_threats_fetch_failed',
+				__( 'Could not fetch the known threats for this backup.', 'jetpack-backup-pkg' )
+			);
+		}
+
+		$backups = array();
+		foreach ( (array) ( $body['backups'] ?? array() ) as $backup ) {
+			if ( ! isset( $backup['object']['backup_period'] ) || ! is_numeric( $backup['object']['backup_period'] ) ) {
+				continue;
+			}
+			$known_threats = $backup['object']['known_threats'] ?? null;
+			$backups[]     = array(
+				'period'        => (int) $backup['object']['backup_period'],
+				'known_threats' => is_array( $known_threats ) ? $known_threats : null,
+			);
+		}
+
+		$latest_clean = $body['latest_without_known_threats'] ?? null;
+
+		return rest_ensure_response(
+			array(
+				'backups'                      => $backups,
+				'latest_without_known_threats' => is_numeric( $latest_clean ) ? (int) $latest_clean : null,
+			)
 		);
 	}
 
