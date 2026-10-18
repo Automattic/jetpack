@@ -28,7 +28,6 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 	/**
 	 * Add page action.
 	 *
-	 * @since $$next-version$$
 	 * @param string $hook Hook of current page.
 	 * @return void
 	 */
@@ -39,7 +38,6 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 	/**
 	 * On the classic Modules screen, send the browser to the matching Features view, with the same search and tag, when the site can manage modules there.
 	 *
-	 * @since $$next-version$$
 	 * @return void
 	 */
 	public function maybe_redirect_to_features() {
