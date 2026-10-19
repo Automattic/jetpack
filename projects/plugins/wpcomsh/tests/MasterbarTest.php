@@ -44,6 +44,9 @@ class MasterbarTest extends WP_UnitTestCase {
 	 */
 	#[DataProvider( 'provide_admin_interface_styles' )]
 	public function test_wpcom_admin_interface_default( $saved, $passed_default, $expected ) {
+		// A style in the persistent data store wins over the option, and the WP Cloud test site has one.
+		remove_filter( 'pre_option_wpcom_admin_interface', 'wpcomsh_get_wpcom_admin_interface_option' );
+
 		// Added rather than updated, so the change doesn't go out to WordPress.com.
 		if ( null !== $saved ) {
 			add_option( 'wpcom_admin_interface', $saved );
