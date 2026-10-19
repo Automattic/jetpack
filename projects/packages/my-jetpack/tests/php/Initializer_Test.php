@@ -134,6 +134,7 @@ class Initializer_Test extends BaseTestCase {
 	}
 
 	public function test_marked_links_have_a_scoped_classic_fallback_with_preserved_arguments() {
+		add_filter( 'jetpack_feature_flag_enabled_my-jetpack-modules-to-features', '__return_true' );
 		$user = wp_insert_user(
 			array(
 				'user_login' => 'modules-fallback',
@@ -174,6 +175,32 @@ class Initializer_Test extends BaseTestCase {
 		Initializer::print_modules_fallback();
 		$this->assertSame( '', ob_get_clean() );
 		$_GET = array();
+	}
+
+	public function test_marked_links_print_no_fallback_when_the_flag_is_off() {
+		$this->log_in_as_admin();
+		wp_get_current_user()->add_cap( 'jetpack_manage_modules' );
+		update_option( 'active_plugins', array( 'jetpack/jetpack.php' ) );
+		add_filter( 'jetpack_feature_flag_enabled_my-jetpack-modules-to-features', '__return_false' );
+		$_GET   = array(
+			'page'             => 'my-jetpack',
+			'modules_fallback' => '1',
+		);
+		$probes = 0;
+		$probe  = static function () use ( &$probes ) {
+			++$probes;
+			return false;
+		};
+		add_filter( 'rest_enabled', $probe );
+		try {
+			ob_start();
+			Initializer::print_modules_fallback();
+			$this->assertSame( '', ob_get_clean() );
+			$this->assertSame( 0, $probes );
+		} finally {
+			remove_filter( 'rest_enabled', $probe );
+			$_GET = array();
+		}
 	}
 
 	public function test_offline_feature_list_respects_opt_in_and_host_hidden_modules() {
@@ -543,6 +570,7 @@ class Initializer_Test extends BaseTestCase {
 		remove_all_filters( 'jetpack_my_jetpack_should_initialize' );
 		remove_all_filters( 'jetpack_offline_mode' );
 		remove_all_filters( 'jetpack_feature_flag_enabled_my-jetpack-onboarding-wizard' );
+		remove_all_filters( 'jetpack_feature_flag_enabled_my-jetpack-modules-to-features' );
 		remove_all_filters( 'jetpack_my_jetpack_offline_features' );
 
 		// Connection_Manager memoizes is_connected() in a process-wide static that
