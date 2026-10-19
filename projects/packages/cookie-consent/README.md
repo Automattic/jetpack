@@ -92,7 +92,18 @@ Cookie_Consent::init(
 );
 ```
 
-Turning `tracks` off stops every request the package makes to Automattic for usage stats: the cookie-based Tracks events (which also need analytics consent) and the identity-free aggregate stats sent on banner view, accept, reject, customize, preferences open, and CCPA opt-out (`pixel.wp.com/g.gif`, carrying the site's hostname).
+Turning `tracks` off stops every request the package makes to Automattic for usage stats:
+
+- The cookie-based Tracks events (`stats.wp.com/w.js`), which also need analytics consent.
+- The identity-free aggregate stats (`pixel.wp.com/g.gif`, carrying the site's hostname), sent when:
+  - the banner is shown, including in preview mode;
+  - the visitor saves preferences without analytics ("Accept all" and a save that allows analytics send a Tracks event instead);
+  - the visitor clicks "Reject all";
+  - the visitor clicks "Customize";
+  - the visitor opens "Manage Privacy Preferences" with no stored choice, or with a stored choice that does not allow analytics (otherwise a Tracks event);
+  - the visitor clicks the CCPA opt-out button.
+
+It does not stop the geolocation request to `public-api.wordpress.com/geo/`; turn `geo` off for that.
 
 Turning `geo` off stops resolving a visitor's region and excluding the geo cookies from Jetpack Boost's cache key, but the frontend module still receives a `geo` config sub-object (with `geoEnabled: false`) rather than none at all, since the module dereferences it unconditionally.
 
