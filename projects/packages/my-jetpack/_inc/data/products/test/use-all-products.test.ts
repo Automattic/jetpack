@@ -4,7 +4,7 @@ import { useAllProducts } from '../use-all-products';
 
 jest.mock( '../../use-simple-query' );
 
-it( 'uses prelaunch routing while refreshing a previously loaded Pro offer', () => {
+it( 'retains launched routing while refreshing a previously loaded Pro offer', () => {
 	const pro = { is_bundle: true, pricing_for_ui: { available: true, catalog_available: true } };
 	window.myJetpackInitialState = {
 		products: { items: { pro } },
@@ -17,7 +17,7 @@ it( 'uses prelaunch routing while refreshing a previously loaded Pro offer', () 
 		refetch: jest.fn(),
 	} as unknown as ReturnType< typeof useSimpleQuery > );
 	const { result } = renderHook( useAllProducts );
-	expect( result.current.data.pro.pricingForUi.catalogAvailable ).toBe( false );
+	expect( result.current.data.pro.pricingForUi.catalogAvailable ).toBe( true );
 	expect( result.current.data.pro.pricingForUi.available ).toBe( true );
 } );
 
@@ -93,6 +93,7 @@ it( 'withdraws cached offers after an API error while retaining paid-plan manage
 		},
 	} as unknown as Window[ 'myJetpackInitialState' ];
 	jest.mocked( useSimpleQuery ).mockReturnValue( {
+		data: window.myJetpackInitialState.products.items,
 		isLoading: false,
 		isError: true,
 		refetch: jest.fn(),

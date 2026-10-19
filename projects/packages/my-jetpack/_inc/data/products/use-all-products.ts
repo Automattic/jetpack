@@ -42,10 +42,7 @@ export const useAllProducts = () => {
 					key === 'pro' &&
 					prepared.pricingForUi &&
 					! isOffline &&
-					( isLoading ||
-						isRefetching ||
-						isError ||
-						fetchedProduct?.pricing_for_ui?.catalog_available !== true )
+					( isLoading || isError || fetchedProduct?.pricing_for_ui?.catalog_available !== true )
 				) {
 					prepared.pricingForUi.catalogAvailable = false;
 				}
