@@ -139,6 +139,29 @@ export function getStatsDatePolicy(): StatsDatePolicy {
 	return deriveStatsDatePolicy( isStatsFeatureLocked, reportingTimeZone() );
 }
 
+// Insights is a year surface and stays out.
+const PLAN_DATE_LIMITED_SECTIONS: readonly string[] = [ 'traffic' ];
+
+/**
+ * Whether a dashboard section's dates follow the plan.
+ *
+ * @param section - The section slug.
+ * @return Whether its window is limited.
+ */
+export function isPlanDateLimitedSection( section: string | undefined ): boolean {
+	return !! section && PLAN_DATE_LIMITED_SECTIONS.includes( section );
+}
+
+/**
+ * The policy a dashboard section, or a page under it, follows.
+ *
+ * @param section - The section slug.
+ * @return The site's policy for a limited section, else `OPEN_DATE_POLICY`.
+ */
+export function getSectionDatePolicy( section: string | undefined ): StatsDatePolicy {
+	return isPlanDateLimitedSection( section ) ? getStatsDatePolicy() : OPEN_DATE_POLICY;
+}
+
 /**
  * Whether the policy locks a preset.
  *

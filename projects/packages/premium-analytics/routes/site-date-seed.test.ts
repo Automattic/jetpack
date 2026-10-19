@@ -1,7 +1,7 @@
 import { dispatch } from '@wordpress/data';
 import { getSettings, setSettings } from '@wordpress/date';
 import { store as preferencesStore } from '@wordpress/preferences';
-import { DASHBOARD_PREFERENCES_SCOPE } from '@jetpack-premium-analytics/data';
+import { DASHBOARD_PREFERENCES_SCOPE, type StatsDatePolicy } from '@jetpack-premium-analytics/data';
 import { seedSiteDateParams } from './site-date-seed';
 
 type PreferencesActions = { set: ( scope: string, name: string, value: unknown ) => void };
@@ -92,6 +92,23 @@ describe( 'seedSiteDateParams', () => {
 
 		expect( seeded.comp ).toBeUndefined();
 		expect( seeded.compare_from ).toBeUndefined();
+	} );
+
+	it( "opens a fresh load on the plan's default preset, compared", () => {
+		const policy: StatsDatePolicy = {
+			feature: 'long-date-presets',
+			lockedPresetIds: [ 'last-12-months' ],
+			fallbackPresetId: 'last-30-days',
+			lockedIntervals: [],
+			offersComparison: true,
+		};
+		remember( 'datePreset', 'last-12-months' );
+
+		expect( seedSiteDateParams( { section: 'traffic' }, policy ) ).toMatchObject( {
+			preset: 'last-30-days',
+			comp: '1',
+			compare_preset: 'previous-period',
+		} );
 	} );
 
 	it( 'keeps the comparison a fresh URL already carries', () => {

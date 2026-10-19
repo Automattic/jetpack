@@ -18,6 +18,7 @@ import { useCallback } from 'react';
 /**
  * Internal dependencies
  */
+import { useStatsDateLimits } from '../use-stats-date-limits';
 import { useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { DATE_FILTER_RANGE, DATE_FILTER_YEAR } from './config';
 import {
@@ -58,6 +59,10 @@ let mockDateFiltersPanelProps: {
 	onApply: () => void;
 };
 const mockTriggerSync = jest.fn( () => Promise.resolve() );
+const mockUseTrackedDateRangeApply = jest.fn<
+	{ trackedOnChange: () => void; trackedOnApply: () => void },
+	unknown[]
+>( () => ( { trackedOnChange: () => {}, trackedOnApply: () => {} } ) );
 
 jest.mock( '@jetpack-premium-analytics/site-sync', () => ( {
 	useSyncStatus: ( options: typeof mockSyncOptions ) => {
@@ -189,7 +194,11 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			Reset to default
 		</button>
 	),
-	useTrackedDateRangeApply: () => ( { trackedOnChange: () => {}, trackedOnApply: () => {} } ),
+	useTrackedDateRangeApply: ( ...args: unknown[] ) => mockUseTrackedDateRangeApply( ...args ),
+} ) );
+
+jest.mock( '../use-stats-date-limits', () => ( {
+	useStatsDateLimits: jest.fn( () => ( { offersComparison: true } ) ),
 } ) );
 
 jest.mock( '@wordpress/admin-ui', () => ( {
@@ -241,7 +250,7 @@ function MockOriginProbe() {
  * @return The declared scope, as text.
  */
 function MockScopeProbe() {
-	const { offersComparison, openPeriod } = useReportScope();
+	const { offersComparison, openPeriod, dateLimits } = useReportScope();
 	const raisePeriodChange = useRaisePeriodChange();
 	const openJuly = useCallback(
 		() => raisePeriodChange( 'traffic', JULY_2026 ),
@@ -252,6 +261,7 @@ function MockScopeProbe() {
 	return (
 		<>
 			<span>{ offersComparison ? 'offers comparison' : 'no comparison' }</span>
+			<span>locked: { dateLimits?.lockedPresetIds.join( ', ' ) || 'none' }</span>
 			<button type="button" onClick={ openJuly }>
 				Open July from a widget
 			</button>
@@ -528,10 +538,14 @@ function mockSection( overrides: Record< string, unknown > = {} ) {
 	} as unknown as ReturnType< typeof useDashboardSections > );
 }
 
+beforeEach( () => {
+	jest.mocked( useStatsDateLimits ).mockReturnValue( { offersComparison: true } );
+} );
+
 describe( 'Dashboard report scope', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
-		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );
+		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn(), true ] );
 		mockActiveSectionSlug = 'insights';
 	} );
 
@@ -585,24 +599,89 @@ describe( 'Dashboard report scope', () => {
 			],
 			hasResolved: true,
 		} as unknown as ReturnType< typeof useDashboardSections > );
-		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn(), true ] );
 		mockActiveSectionSlug = 'traffic';
 		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
 		const { rerender } = render( <Dashboard /> );
 
 		expect( screen.getByText( 'offers comparison' ) ).toBeInTheDocument();
 
-		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );
+		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn(), true ] );
 		mockActiveSectionSlug = 'insights';
 		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_YEAR );
 		rerender( <Dashboard /> );
 		expect( screen.getByText( 'no comparison' ) ).toBeInTheDocument();
 
-		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn(), true ] );
 		mockActiveSectionSlug = 'traffic';
 		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
 		rerender( <Dashboard /> );
 		expect( screen.getByText( 'offers comparison' ) ).toBeInTheDocument();
+	} );
+
+	it( 'offers and tracks no comparison where the plan rules one out, though the section allows it', () => {
+		mockSection( { slug: 'traffic', date_filter: DATE_FILTER_RANGE } );
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn(), true ] );
+		mockActiveSectionSlug = 'traffic';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
+		jest.mocked( useStatsDateLimits ).mockReturnValue( { offersComparison: false } );
+
+		render( <Dashboard /> );
+
+		expect( screen.getByText( 'no comparison' ) ).toBeInTheDocument();
+		expect( mockUseTrackedDateRangeApply ).toHaveBeenLastCalledWith(
+			expect.any( Object ),
+			expect.objectContaining( { offersComparison: false } )
+		);
+	} );
+
+	it( "declares the plan's date limits to the widgets and the date tracking", () => {
+		mockSection( { slug: 'traffic', date_filter: DATE_FILTER_RANGE } );
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn(), true ] );
+		mockActiveSectionSlug = 'traffic';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
+		jest.mocked( useStatsDateLimits ).mockReturnValue( {
+			offersComparison: false,
+			dateLimits: { lockedPresetIds: [ 'last-30-days' ], lockedIntervals: [ 'week' ] },
+		} );
+
+		render( <Dashboard /> );
+
+		expect( screen.getByText( 'locked: last-30-days' ) ).toBeInTheDocument();
+		expect( mockUseTrackedDateRangeApply ).toHaveBeenLastCalledWith(
+			expect.any( Object ),
+			expect.objectContaining( { lockedIntervals: [ 'week' ] } )
+		);
+	} );
+
+	it.each( [
+		[ 'traffic', DATE_FILTER_RANGE, true ],
+		[ 'insights', DATE_FILTER_YEAR, false ],
+	] as const )( 'applies the plan date limits on %s: %p', ( slug, dateFilter, isLimited ) => {
+		mockSection( { slug, date_filter: dateFilter } );
+		useActiveSectionMock.mockReturnValue( [ slug, jest.fn(), true ] );
+		mockActiveSectionSlug = slug;
+		useSectionDateFilterMock.mockReturnValue( dateFilter );
+
+		render( <Dashboard /> );
+
+		expect( useStatsDateLimits ).toHaveBeenLastCalledWith( isLimited );
+	} );
+
+	it( 'holds the next tab’s widgets until the URL carries the switch', () => {
+		mockSection( { slug: 'traffic', date_filter: DATE_FILTER_RANGE } );
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn(), false ] );
+		mockActiveSectionSlug = 'traffic';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
+
+		render( <Dashboard /> );
+
+		expect( screen.queryByText( 'offers comparison' ) ).not.toBeInTheDocument();
+		expect( useSectionDateFilterMock ).toHaveBeenLastCalledWith(
+			expect.anything(),
+			expect.anything(),
+			false
+		);
 	} );
 
 	it( 'names the active tab to the widgets, so their links can return to it', () => {
@@ -618,13 +697,13 @@ describe( 'Dashboard report scope', () => {
 			],
 			hasResolved: true,
 		} as unknown as ReturnType< typeof useDashboardSections > );
-		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn(), true ] );
 		mockActiveSectionSlug = 'traffic';
 		const { rerender } = render( <Dashboard /> );
 
 		expect( screen.getByText( 'origin: traffic' ) ).toBeInTheDocument();
 
-		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );
+		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn(), true ] );
 		mockActiveSectionSlug = 'insights';
 		rerender( <Dashboard /> );
 		expect( screen.getByText( 'origin: insights' ) ).toBeInTheDocument();
@@ -648,7 +727,7 @@ describe( 'Dashboard period change signal', () => {
 			sections,
 			hasResolved: true,
 		} as unknown as ReturnType< typeof useDashboardSections > );
-		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );
+		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn(), true ] );
 		mockActiveSectionSlug = 'insights';
 		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_YEAR );
 		mockAppliedRange = { from: undefined, to: undefined };
@@ -662,7 +741,7 @@ describe( 'Dashboard period change signal', () => {
 
 		await user.click( screen.getByRole( 'button', { name: 'Open July from a widget' } ) );
 
-		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn(), true ] );
 		mockActiveSectionSlug = 'traffic';
 		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
 		mockAppliedRange = JULY_2026;
@@ -682,7 +761,7 @@ describe( 'Dashboard period change signal', () => {
 	} );
 
 	it( 'draws attention to a period a widget set on the section it sits in', async () => {
-		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn(), true ] );
 		mockActiveSectionSlug = 'traffic';
 		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
 		const user = userEvent.setup();
@@ -703,11 +782,11 @@ describe( 'Dashboard period change signal', () => {
 
 		await user.click( screen.getByRole( 'button', { name: 'Open July from a widget' } ) );
 
-		useActiveSectionMock.mockReturnValue( [ 'store', jest.fn() ] );
+		useActiveSectionMock.mockReturnValue( [ 'store', jest.fn(), true ] );
 		mockActiveSectionSlug = 'store';
 		rerender( <Dashboard /> );
 
-		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn(), true ] );
 		mockActiveSectionSlug = 'traffic';
 		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
 		mockAppliedRange = JULY_2026;
@@ -721,7 +800,7 @@ describe( 'Dashboard period change signal', () => {
 describe( 'Dashboard refresh-failure notice', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
-		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn(), true ] );
 		mockActiveSectionSlug = 'traffic';
 		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
 	} );
@@ -750,7 +829,7 @@ describe( 'Dashboard refresh-failure notice', () => {
 describe( 'Dashboard feedback banner', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
-		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn(), true ] );
 		mockActiveSectionSlug = 'traffic';
 		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
 		mockSection( { slug: 'traffic', date_filter: DATE_FILTER_RANGE } );
@@ -782,7 +861,7 @@ describe( 'Dashboard feedback banner', () => {
 			],
 			hasResolved: true,
 		} as unknown as ReturnType< typeof useDashboardSections > );
-		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );
+		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn(), true ] );
 		mockActiveSectionSlug = 'insights';
 		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_YEAR );
 
@@ -832,7 +911,7 @@ describe( 'Dashboard feedback banner', () => {
 describe( 'Dashboard options menu', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
-		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn(), true ] );
 		mockActiveSectionSlug = 'traffic';
 		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
 	} );
@@ -895,7 +974,7 @@ describe( 'Dashboard options menu', () => {
 describe( 'Dashboard onboarding', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
-		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn(), true ] );
 		mockActiveSectionSlug = 'traffic';
 		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
 		useOnboardingMock.mockReturnValue( closedOnboarding );
@@ -911,7 +990,7 @@ describe( 'Dashboard onboarding', () => {
 	} );
 
 	it( 'holds the journey while another section is active', () => {
-		useActiveSectionMock.mockReturnValue( [ 'store', jest.fn() ] );
+		useActiveSectionMock.mockReturnValue( [ 'store', jest.fn(), true ] );
 		mockActiveSectionSlug = 'store';
 
 		render( <Dashboard /> );
@@ -942,7 +1021,7 @@ describe( 'Dashboard onboarding', () => {
 
 describe( 'Dashboard sync notice', () => {
 	beforeEach( () => {
-		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );
+		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn(), true ] );
 		mockActiveSectionSlug = 'insights';
 		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_YEAR );
 	} );
@@ -1045,7 +1124,7 @@ describe( 'Dashboard sync notice', () => {
 describe( 'Dashboard header date control', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
-		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );
+		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn(), true ] );
 		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
 	} );
 
@@ -1170,7 +1249,7 @@ describe( 'Dashboard header date control', () => {
 			],
 			hasResolved: true,
 		} as unknown as ReturnType< typeof useDashboardSections > );
-		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn(), true ] );
 		mockActiveSectionSlug = 'traffic';
 		mockMountedSectionSlugs = [ 'traffic' ];
 		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
@@ -1178,7 +1257,7 @@ describe( 'Dashboard header date control', () => {
 
 		// Tabs.Panel mounts the incoming panel a frame before the outgoing one
 		// unmounts. Model that overlap, then the leave, or the null never fires.
-		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );
+		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn(), true ] );
 		mockActiveSectionSlug = 'insights';
 		mockMountedSectionSlugs = [ 'traffic', 'insights' ];
 		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_YEAR );
@@ -1195,7 +1274,7 @@ describe( 'Dashboard header date control', () => {
 describe( 'Dashboard inserter', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
-		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn(), true ] );
 		mockActiveSectionSlug = 'traffic';
 		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
 		useDashboardSectionsMock.mockReturnValue( {
@@ -1225,7 +1304,7 @@ describe( 'Dashboard inserter', () => {
 			insertableWidgetTypes: new Set( [ 'jpa/traffic-chart', 'jpa/devices' ] ),
 		} );
 
-		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );
+		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn(), true ] );
 		mockActiveSectionSlug = 'insights';
 		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_YEAR );
 		rerender( <Dashboard /> );
@@ -1249,7 +1328,7 @@ describe( 'Dashboard inserter', () => {
 describe( 'Dashboard customizing', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
-		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn(), true ] );
 		mockActiveSectionSlug = 'traffic';
 		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
 		mockSection( { slug: 'traffic', date_filter: DATE_FILTER_RANGE } );
@@ -1267,7 +1346,7 @@ describe( 'Dashboard customizing', () => {
 	} );
 
 	it( 'hides the year surface too', async () => {
-		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );
+		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn(), true ] );
 		mockActiveSectionSlug = 'insights';
 		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_YEAR );
 		mockSection();
@@ -1324,7 +1403,7 @@ describe( 'Dashboard Settings tab', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		mockSection( { slug: 'traffic', date_filter: DATE_FILTER_RANGE } );
-		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn(), true ] );
 		mockActiveSectionSlug = 'traffic';
 		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
 		window.JetpackScriptData = {
@@ -1345,11 +1424,15 @@ describe( 'Dashboard Settings tab', () => {
 
 		expect( sectionsBar ).toHaveAttribute( 'data-settings-tab', 'disabled' );
 		// Without the slug, an edit mode entered on the Settings tab resolves to a widget section.
-		expect( useActiveSectionMock ).toHaveBeenLastCalledWith( expect.anything(), [] );
+		expect( useActiveSectionMock ).toHaveBeenLastCalledWith(
+			expect.anything(),
+			[],
+			expect.anything()
+		);
 	} );
 
 	it( 'does not open Customize over an empty first section behind the Settings tab', () => {
-		useActiveSectionMock.mockReturnValue( [ 'settings', jest.fn() ] );
+		useActiveSectionMock.mockReturnValue( [ 'settings', jest.fn(), true ] );
 		mockActiveSectionSlug = 'settings';
 
 		render( <Dashboard /> );
@@ -1368,7 +1451,7 @@ describe( 'Dashboard locked section', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		mockSection();
-		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );
+		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn(), true ] );
 		mockActiveSectionSlug = 'insights';
 		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_YEAR );
 		useLockedSectionLayoutMock.mockImplementation( ( section, layout, onLayoutChange ) =>
@@ -1422,14 +1505,14 @@ describe( 'Dashboard locked section', () => {
 
 	it( 'leaves edit mode on arriving from a section being customized', async () => {
 		mockSection( { slug: 'subscribers' } );
-		useActiveSectionMock.mockReturnValue( [ 'subscribers', jest.fn() ] );
+		useActiveSectionMock.mockReturnValue( [ 'subscribers', jest.fn(), true ] );
 		mockActiveSectionSlug = 'subscribers';
 		const { rerender } = render( <Dashboard /> );
 		await userEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
 		expect( screen.getByRole( 'button', { name: 'Done' } ) ).toBeInTheDocument();
 
 		mockSection();
-		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );
+		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn(), true ] );
 		mockActiveSectionSlug = 'insights';
 		rerender( <Dashboard /> );
 
@@ -1461,7 +1544,7 @@ describe( 'Dashboard locked section', () => {
 
 	it( 'leaves an open section as it was', () => {
 		mockSection( { slug: 'subscribers' } );
-		useActiveSectionMock.mockReturnValue( [ 'subscribers', jest.fn() ] );
+		useActiveSectionMock.mockReturnValue( [ 'subscribers', jest.fn(), true ] );
 		mockActiveSectionSlug = 'subscribers';
 
 		render( <Dashboard /> );
@@ -1475,7 +1558,7 @@ describe( 'Dashboard locked section', () => {
 		window.JetpackScriptData = {
 			premium_analytics: { stats_settings: { roles: [], features_url: null } },
 		} as typeof window.JetpackScriptData;
-		useActiveSectionMock.mockReturnValue( [ 'settings', jest.fn() ] );
+		useActiveSectionMock.mockReturnValue( [ 'settings', jest.fn(), true ] );
 		mockActiveSectionSlug = 'settings';
 
 		render( <Dashboard /> );

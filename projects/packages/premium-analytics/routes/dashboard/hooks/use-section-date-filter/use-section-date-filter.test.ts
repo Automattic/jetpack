@@ -1,11 +1,15 @@
 /**
  * External dependencies
  */
+import { DASHBOARD_PREFERENCES_SCOPE } from '@jetpack-premium-analytics/data';
 import { PRESET_ALL_TIME, toYearPresetId } from '@jetpack-premium-analytics/datetime';
 import { renderHook } from '@testing-library/react';
+import { dispatch } from '@wordpress/data';
+import { store as preferencesStore } from '@wordpress/preferences';
 /**
  * Internal dependencies
  */
+import { planGatesScriptData } from '../../../../tests/js/plan-gates-test-utils';
 import {
 	DATE_FILTER_RANGE,
 	DATE_FILTER_YEAR,
@@ -15,15 +19,19 @@ import {
 import { useSectionDateFilter } from './use-section-date-filter';
 import type { ReportDateFilters } from '@jetpack-premium-analytics/routing';
 
+const originalScriptData = window.JetpackScriptData;
+
 /**
  * Build a section registered with a given date filter.
  *
  * @param dateFilter - The section's `date_filter` value.
+ * @param slug       - The section's slug.
  * @return A dashboard section.
  */
-function section( dateFilter?: DateFilterSurface | string ): DashboardSection {
-	const slug = dateFilter ?? 'unset';
-
+function section(
+	dateFilter?: DateFilterSurface | string,
+	slug = dateFilter ?? 'unset'
+): DashboardSection {
 	return {
 		id: `analytics/${ slug }`,
 		slug,
@@ -78,6 +86,11 @@ function statefulDateFilters( presetId?: ReportDateFilters[ 'presetId' ] ) {
 }
 
 describe( 'useSectionDateFilter', () => {
+	afterEach( () => {
+		window.JetpackScriptData = originalScriptData;
+		dispatch( preferencesStore ).set( DASHBOARD_PREFERENCES_SCOPE, 'datePreset', undefined );
+	} );
+
 	it( 'returns the surface the active section was registered with', () => {
 		const { filters } = dateFilters( PRESET_ALL_TIME );
 
@@ -131,6 +144,33 @@ describe( 'useSectionDateFilter', () => {
 
 		expect( replaceRange ).toHaveBeenCalledTimes( 1 );
 		expect( replaceRange.mock.calls[ 0 ][ 1 ] ).toBe( 'last-7-days' );
+	} );
+
+	it( 'moves a year preset on a plan-limited tab onto the plan fallback, not a locked default', () => {
+		window.JetpackScriptData = planGatesScriptData( [
+			'recent-7-days',
+		] ) as unknown as typeof window.JetpackScriptData;
+		dispatch( preferencesStore ).set( DASHBOARD_PREFERENCES_SCOPE, 'datePreset', 'last-30-days' );
+		const { filters, replaceRange } = dateFilters( toYearPresetId( 2024 ) );
+
+		renderHook( () => useSectionDateFilter( section( 'range', 'traffic' ), filters ) );
+
+		expect( replaceRange.mock.calls[ 0 ][ 1 ] ).toBe( 'last-7-days' );
+	} );
+
+	it( 'waits for a section switch to commit before reconciling', () => {
+		const { filters, replaceRange } = dateFilters( toYearPresetId( 2024 ) );
+		const { rerender } = renderHook(
+			( { isCommitted }: { isCommitted: boolean } ) =>
+				useSectionDateFilter( section( 'range' ), filters, isCommitted ),
+			{ initialProps: { isCommitted: false } }
+		);
+
+		expect( replaceRange ).not.toHaveBeenCalled();
+
+		rerender( { isCommitted: true } );
+
+		expect( replaceRange ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it( 'waits for the sections to resolve before reconciling', () => {

@@ -12,6 +12,7 @@ import {
 	applyStatsDatePolicy,
 	deriveStatsDatePolicy,
 	getPolicyDefaultPreset,
+	getSectionDatePolicy,
 	getStatsDatePolicy,
 	isPresetLockedByPolicy,
 	OPEN_DATE_POLICY,
@@ -158,6 +159,28 @@ describe( 'getStatsDatePolicy', () => {
 		( getScriptData as jest.Mock ).mockReturnValue( { premium_analytics: premiumAnalytics } );
 
 		expect( getStatsDatePolicy().feature ).toBe( feature );
+	} );
+} );
+
+describe( 'getSectionDatePolicy', () => {
+	it.each( [
+		[ 'traffic', 'recent-7-days' ],
+		[ 'insights', undefined ],
+		[ 'store', undefined ],
+		[ undefined, undefined ],
+	] )( 'gives %p the plan limit %p', ( section, feature ) => {
+		( getScriptData as jest.Mock ).mockReturnValue( {
+			premium_analytics: {
+				plan_gates: {
+					locked_features: {
+						'recent-7-days': { description: '', support_url: '', upgrade_url: '' },
+					},
+					locked_widget_types: {},
+				},
+			},
+		} );
+
+		expect( getSectionDatePolicy( section ).feature ).toBe( feature );
 	} );
 } );
 
