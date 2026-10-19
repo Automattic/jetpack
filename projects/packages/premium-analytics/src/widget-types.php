@@ -263,10 +263,7 @@ function sanitize_widget_actions( $actions ) {
 }
 
 /**
- * Sanitizes a widget attribute schema. An entry is a DataViews field in its
- * JSON form, `isValid` without `custom`, plus the keys the dashboard reads on
- * top of a field (`relevance`, so far); an element names its `icon` by
- * reference (`collection/icon-name`). A malformed or empty key drops, never
+ * Sanitizes a widget attribute schema. A malformed or empty key drops, never
  * the entry; an entry without a unique string `id` drops.
  *
  * @param mixed $attributes Attribute schema from the build manifest.
