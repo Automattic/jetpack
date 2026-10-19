@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Premium Analytics: Fix product names, SKUs and types missing from store reports after the dashboard is turned on.

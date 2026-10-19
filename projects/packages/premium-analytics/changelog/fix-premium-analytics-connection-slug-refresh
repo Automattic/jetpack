@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix WooCommerce product names, SKUs and types missing from reports when the dashboard is turned on inside Jetpack.

@@ -7,7 +7,9 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use Automattic\Jetpack\Connection\Plugin_Storage;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 use WP_REST_Request;
 use WP_REST_Server;
@@ -56,6 +58,9 @@ class Enablement_Setting_Test extends BaseTestCase {
 		remove_action( 'rest_api_init', array( Enablement_Setting::class, 'register' ) );
 		remove_action( 'rest_api_init', array( $this, 'register_core_settings_route' ), 99 );
 		remove_action( 'update_option_' . Enablement_Setting::ENABLED_OPTION, array( Enablement_Setting::class, 'reset_onboarding_on_reactivation' ) );
+		remove_all_actions( 'add_option_' . Enablement_Setting::ENABLED_OPTION );
+		remove_all_actions( 'update_option_' . Enablement_Setting::ENABLED_OPTION );
+		delete_transient( Plugin_Storage::ACTIVE_PLUGINS_REFRESH_FLAG );
 		wp_set_current_user( 0 );
 
 		parent::tear_down();
@@ -294,6 +299,47 @@ class Enablement_Setting_Test extends BaseTestCase {
 
 		$this->assertSame( $this->seen_onboarding_preferences(), get_user_meta( $other_id, $wpdb->get_blog_prefix() . 'persisted_preferences', true ) );
 		$this->assertSame( $meta_key, $wpdb->get_blog_prefix() . 'persisted_preferences' );
+	}
+
+	/**
+	 * @dataProvider provide_opt_in_changes
+	 * @param int|null $before Stored opt-in before the write; null when never stored.
+	 * @param bool     $after  Value written.
+	 */
+	#[DataProvider( 'provide_opt_in_changes' )]
+	public function test_changing_the_opt_in_asks_for_the_connected_plugins_refresh( $before, bool $after ) {
+		$this->log_in_as_admin();
+		if ( null !== $before ) {
+			update_option( Enablement_Setting::ENABLED_OPTION, $before );
+			delete_transient( Plugin_Storage::ACTIVE_PLUGINS_REFRESH_FLAG );
+		}
+
+		$this->post_enabled( $after );
+
+		$this->assertNotFalse( get_transient( Plugin_Storage::ACTIVE_PLUGINS_REFRESH_FLAG ) );
+	}
+
+	/**
+	 * Opt-in changes that add or drop the connection slug.
+	 *
+	 * @return array
+	 */
+	public static function provide_opt_in_changes() {
+		return array(
+			'first enable' => array( null, true ),
+			'enable again' => array( 0, true ),
+			'disable'      => array( 1, false ),
+		);
+	}
+
+	public function test_an_unchanged_opt_in_leaves_the_connected_plugins_alone() {
+		$this->log_in_as_admin();
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
+		delete_transient( Plugin_Storage::ACTIVE_PLUGINS_REFRESH_FLAG );
+
+		$this->post_enabled( true );
+
+		$this->assertFalse( get_transient( Plugin_Storage::ACTIVE_PLUGINS_REFRESH_FLAG ) );
 	}
 
 	/**

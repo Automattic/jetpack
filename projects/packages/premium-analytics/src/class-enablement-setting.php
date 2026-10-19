@@ -78,6 +78,9 @@ class Enablement_Setting {
 			)
 		);
 		add_action( 'update_option_' . self::ENABLED_OPTION, array( __CLASS__, 'reset_onboarding_on_reactivation' ), 10, 2 );
+		// Turning the dashboard on or off adds or drops its connection slug, which WordPress.com reads.
+		add_action( 'add_option_' . self::ENABLED_OPTION, array( Connection_Configuration::class, 'refresh_stored_slugs' ) );
+		add_action( 'update_option_' . self::ENABLED_OPTION, array( Connection_Configuration::class, 'refresh_stored_slugs' ) );
 	}
 
 	/**
