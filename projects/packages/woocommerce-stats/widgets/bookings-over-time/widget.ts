@@ -2,11 +2,9 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { chartBar } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import { chartLine } from '../../src/icons/chart-line';
 import type { ChartDisplayChartType } from '@automattic/jetpack-premium-analytics-sdk';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
@@ -18,8 +16,16 @@ export type BookingsOverTimeAttributes = {
 };
 
 const CHART_TYPES = [
-	{ value: 'line', label: __( 'Line chart', 'jetpack-woocommerce-stats-pkg' ), icon: chartLine },
-	{ value: 'bar', label: __( 'Bar chart', 'jetpack-woocommerce-stats-pkg' ), icon: chartBar },
+	{
+		value: 'line',
+		label: __( 'Line chart', 'jetpack-woocommerce-stats-pkg' ),
+		icon: 'jpa/chart-line',
+	},
+	{
+		value: 'bar',
+		label: __( 'Bar chart', 'jetpack-woocommerce-stats-pkg' ),
+		icon: 'jpa/chart-bar',
+	},
 ];
 
 export default {
