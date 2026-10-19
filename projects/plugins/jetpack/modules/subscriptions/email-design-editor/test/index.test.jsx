@@ -1858,6 +1858,41 @@ describe( 'Email design editor entry point', () => {
 			] );
 		} );
 
+		it( 'tells the creator when the save kept only part of it', async () => {
+			mockApiFetch.mockResolvedValueOnce( {
+				blog_id: 1,
+				design: { styles: { color: { text: '#003300' } }, settings: {} },
+				discarded: false,
+				partial: true,
+			} );
+
+			const result = await createDesignSaveMiddleware( ourId )(
+				{
+					path: `/wp/v2/global-styles/${ ourId }`,
+					method: 'PUT',
+					data: {
+						styles: {
+							color: { text: '#003300', background: 'color-mix(in srgb, #f00 50%, #00f)' },
+						},
+						settings: {},
+					},
+				},
+				jest.fn()
+			);
+
+			expect( select( noticesStore ).getNotices() ).toEqual( [
+				expect.objectContaining( {
+					status: 'warning',
+					content: expect.stringContaining( 'Some of your changes' ),
+					type: 'snackbar',
+				} ),
+			] );
+
+			// The read-back is what reverts the dropped control, so the notice has to arrive with it
+			// rather than instead of it.
+			expect( result.styles ).toEqual( { color: { text: '#003300' } } );
+		} );
+
 		it( 'stays quiet when the design was kept', async () => {
 			mockApiFetch.mockResolvedValueOnce( {
 				blog_id: 1,

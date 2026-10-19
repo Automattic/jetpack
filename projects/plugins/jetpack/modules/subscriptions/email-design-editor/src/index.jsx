@@ -879,7 +879,7 @@ export function createDesignSaveMiddleware( id ) {
 			data: { design: submitted },
 		} );
 
-		// The route answers with an envelope — `{ blog_id, design, discarded }` — around a read-back
+		// The route answers with an envelope — `{ blog_id, design, discarded, partial }` — around a read-back
 		// of what was stored, since sanitizing drops anything outside the theme.json schema. Unwrap
 		// it: core-data takes what comes back as the record itself, and the canvas is drawn by
 		// merging that record's `styles` and `settings` over the theme, so handing back the envelope
@@ -893,6 +893,16 @@ export function createDesignSaveMiddleware( id ) {
 			dispatch( noticesStore ).createNotice(
 				'error',
 				__( 'Those changes could not be saved to your email design.', 'jetpack' ),
+				{ type: 'snackbar', isDismissible: true }
+			);
+		} else if ( saved?.partial ) {
+			// `partial` means some of it survived and some did not, so the read-back below reverts
+			// only the controls that were dropped. Which ones is deliberately not in the response:
+			// WordPress.com logs them, and there is no map here from theme.json paths to the labels
+			// the panel shows. A WordPress.com without this field is a design that was kept whole.
+			dispatch( noticesStore ).createNotice(
+				'warning',
+				__( 'Some of your changes could not be saved to your email design.', 'jetpack' ),
 				{ type: 'snackbar', isDismissible: true }
 			);
 		}
