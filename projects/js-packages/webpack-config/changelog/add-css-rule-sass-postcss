@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+CssRule: Add `sass` and `postcss` options that include sass-loader and postcss-loader with the standard Jetpack configuration.

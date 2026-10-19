@@ -18,9 +18,32 @@ const CssLoader = options => ( {
 	},
 } );
 
+const SassLoader = options => ( {
+	loader: require.resolve( 'sass-loader' ),
+	options: { api: 'modern-compiler', ...options },
+} );
+
+const PostcssLoader = ( { postcssOptions = {}, ...options } = {} ) => ( {
+	loader: require.resolve( 'postcss-loader' ),
+	options: {
+		...options,
+		// An explicit `config` or `plugins` replaces the standard plugins rather than adding to them.
+		postcssOptions:
+			postcssOptions.config || postcssOptions.plugins
+				? postcssOptions
+				: { plugins: require( '../postcss-plugins' )(), ...postcssOptions },
+	},
+} );
+
 const CssRule = ( options = {} ) => {
-	const exts = options.extensions || [ 'css' ];
-	const extraLoaders = options.extraLoaders || [];
+	const exts = options.extensions || ( options.sass ? [ 'css', 'sass', 'scss' ] : [ 'css' ] );
+	const extraLoaders = [
+		...( options.postcss
+			? [ PostcssLoader( options.postcss === true ? {} : options.postcss ) ]
+			: [] ),
+		...( options.sass ? [ SassLoader( options.sass === true ? {} : options.sass ) ] : [] ),
+		...( options.extraLoaders || [] ),
+	];
 
 	return {
 		test: new RegExp(
@@ -42,5 +65,7 @@ const CssRule = ( options = {} ) => {
 };
 CssRule.MiniCssExtractLoader = MiniCssExtractLoader;
 CssRule.CssLoader = CssLoader;
+CssRule.SassLoader = SassLoader;
+CssRule.PostcssLoader = PostcssLoader;
 
 module.exports = CssRule;

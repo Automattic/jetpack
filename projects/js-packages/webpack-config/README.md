@@ -316,16 +316,18 @@ Options are:
 
 Handles CSS using [mini-css-extract-plugin](https://www.npmjs.com/package/mini-css-extract-plugin) and [css-loader](https://www.npmjs.com/package/css-loader)
 
-Note we intentionally don't supply [sass-loader](https://www.npmjs.com/package/sass-loader) or [postcss-loader](https://www.npmjs.com/package/postcss-loader). These need extra dependencies and configuration making it better to let you include them yourself (e.g. via the `extraLoaders` option) if you need them.
+[sass-loader](https://www.npmjs.com/package/sass-loader) and [postcss-loader](https://www.npmjs.com/package/postcss-loader) are available via the `sass` and `postcss` options below. For anything else, use `extraLoaders`.
 
 Options are:
 - `extensions`: Array of extensions to handle. Default is to only handle `css`.
-  You'll likely need to set this if you use `extraLoaders` to include [sass-loader](https://www.npmjs.com/package/sass-loader) or something like that.
+  Defaults to `[ 'css', 'sass', 'scss' ]` when `sass` is set. You'll likely need to set this if you use `extraLoaders` to include some other preprocessor.
+- `sass`: Truthy to add `sass-loader` (with `api: 'modern-compiler'`). An object is merged into its options, e.g. `{ sassOptions: { style: 'expanded' } }`.
+- `postcss`: Truthy to add `postcss-loader` with the standard plugins (WPDS token fallbacks, then autoprefixer). An object is passed as the loader options; setting `postcssOptions.config` or `postcssOptions.plugins` replaces the standard plugins. The standard plugins are also available as `@automattic/jetpack-webpack-config/postcss`, usable as a `postcss.config.js` by tools outside webpack.
 - `MiniCssExtractLoader`: Options for `mini-css-extract-plugin`'s loader. The default options set `chunkFilename` to `[name].css?minify=false&ver=[contenthash]` as a cache buster.
 - `CssLoader`: Options for `css-loader`. Note its `importLoaders` option is handled automatically based on the length of `extraLoaders`.
 - `extraLoaders`: An array of additional loaders, to run before the provided loaders.
 
-The individual loaders may be created via `CssRule.MiniCssExtractLoader( options )` and `CssRule.CssLoader( options )`, in case you'd rather construct a CSS-handling rule manually while still using the bundled versions of these dependencies.
+The individual loaders may be created via `CssRule.MiniCssExtractLoader( options )` and `CssRule.CssLoader( options )`, `CssRule.SassLoader( options )` and `CssRule.PostcssLoader( options )`, in case you'd rather construct a CSS-handling rule manually while still using the bundled versions of these dependencies.
 
 ##### `FileRule( options )`
 

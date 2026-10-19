@@ -33,10 +33,7 @@ module.exports = {
 				includeNodeModules: [ '@automattic/jetpack-' ],
 			} ),
 			...jetpackWebpackConfig.BundledWpPkgsTranspileRules(),
-			jetpackWebpackConfig.CssRule( {
-				extensions: [ 'css', 'sass', 'scss' ],
-				extraLoaders: [ { loader: 'sass-loader', options: { api: 'modern-compiler' } } ],
-			} ),
+			jetpackWebpackConfig.CssRule( { sass: true } ),
 			jetpackWebpackConfig.FileRule(),
 		],
 	},
