@@ -48,6 +48,7 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
+		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-yoast-promo",
 		"changelogger": {
 			"link-template": "https://github.com/automattic/jetpack-yoast-promo/compare/v${old}...v${new}"

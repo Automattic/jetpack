@@ -20,6 +20,10 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"mirror-repo": "Automattic/jetpack-storybook"
+		"autotagger": true,
+		"mirror-repo": "Automattic/jetpack-storybook",
+		"changelogger": {
+			"link-template": "https://github.com/automattic/jetpack-storybook/compare/v${old}...v${new}"
+		}
 	}
 }
