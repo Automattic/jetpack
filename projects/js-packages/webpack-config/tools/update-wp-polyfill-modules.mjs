@@ -7,17 +7,14 @@
  * of each supported WordPress release contains.
  */
 
-import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 
 const VERSIONS_FILE = path.resolve( import.meta.dirname, '../../../../.github/versions.sh' );
 const OUTPUT_FILE = path.resolve( import.meta.dirname, '../src/babel/wp-polyfill-modules.json' );
+const KNOWN_RELEASES_FILE = path.resolve( import.meta.dirname, './known-releases.json' );
 
-// How core-js modules install a polyfill. Every such call in a bundle must come from a matched module.
-const INSTALL_CALLS =
-	/\$\(\{ ?(?:global|target)[^\n]*|exportTypedArray(?:Static)?Method\('[^']+'|defineBuiltInAccessor\([^,()]+, '[^']+'/g;
+const knownReleases = JSON.parse( fs.readFileSync( KNOWN_RELEASES_FILE, 'utf8' ) );
 
 const debug = process.argv.includes( '--debug' );
 
@@ -65,114 +62,105 @@ async function getSupportedReleases() {
 }
 
 /**
- * Download and unpack a core-js release.
+ * Look up release polyfill info in `known-releases.json`.
  *
- * @param {string} version - Version, e.g. `3.39.0`.
- * @param {string} tmpDir  - Directory to unpack it in.
- * @return {Promise<string>} Path of its `modules` directory.
+ * @param {string} version - WordPress version, e.g. `'7.0.7'`.
+ * @return {{corejs: string, modules: string[]}|undefined} Release info, if known.
  */
-async function getCoreJsModules( version, tmpDir ) {
-	const response = await fetch( `https://registry.npmjs.org/core-js/-/core-js-${ version }.tgz` );
-	if ( ! response.ok ) {
-		throw new Error( `core-js ${ version }: HTTP ${ response.status }` );
-	}
-	const dir = path.join( tmpDir, `core-js-${ version }` );
-	fs.mkdirSync( dir );
-	const tarball = path.join( dir, 'package.tgz' );
-	fs.writeFileSync( tarball, Buffer.from( await response.arrayBuffer() ) );
-	execFileSync( 'tar', [ '-xzf', tarball, '-C', dir ] );
-	return path.join( dir, 'package', 'modules' );
+function getKnownRelease( version ) {
+	// Assume polyfills remain unchanged within each minor version.
+	const [ major, minor ] = version.split( '.' );
+	return knownReleases[ [ major, minor ].join( '.' ) ] ?? undefined;
 }
 
 /**
- * Normalize code so a core-js module's source can be found inside a bundle built from it.
+ * Parse the module list from the `modules:` comment in a core-js bundle's header.
  *
- * @param {string} code - Code.
- * @return {string} Normalized code.
+ * @param {string} bundle - Bundle source.
+ * @return {string[]} Module names, e.g. `[ 'es.promise.try', 'web.url.parse' ]`.
  */
-function normalize( code ) {
-	// The bundle turns each `require( … )` into a `__webpack_require__( N )`.
-	return code
-		.replace(
-			/__webpack_require__\(\s*(?:\/\*[^*]*\*\/\s*)?\d+\s*\)|require\('[^']+'\)/g,
-			'REQUIRE'
-		)
-		.replace( /^'use strict';\n/m, '' )
-		.replace( /\s+/g, ' ' )
+function parseModulesFromComment( bundle ) {
+	const startMarker = '* modules:';
+	const start = bundle.indexOf( startMarker );
+	const end = bundle.indexOf( '*/', start );
+	if ( start === -1 || end === -1 ) {
+		throw new Error( 'No modules comment found in bundle' );
+	}
+	return bundle
+		.slice( start + startMarker.length, end )
+		.split( '\n' )
+		.map( line => line.trim() )
+		.map( line => ( line.startsWith( '*' ) ? line.slice( 1 ).trim() : line ) )
+		.filter( line => line !== '' );
+}
+
+/**
+ * Parse the core-js version from the header comment of a core-js bundle.
+ *
+ * @param {string} bundle - Bundle source.
+ * @return {string} Version, e.g. `'3.39.0'`.
+ */
+function parseCoreJsVersionFromComment( bundle ) {
+	const startMarker = '* core-js ';
+	const start = bundle.indexOf( startMarker );
+	if ( start === -1 ) {
+		throw new Error( 'No core-js version found in bundle' );
+	}
+	return bundle
+		.slice( start + startMarker.length )
+		.split( '\n' )[ 0 ]
 		.trim();
 }
 
 /**
- * Find the core-js modules a `wp-polyfill` bundle contains.
+ * Get a release's polyfill info from its `wp-polyfill.js` bundle.
  *
- * @param {string} bundle     - Bundle source.
- * @param {string} modulesDir - Path of the matching core-js release's `modules` directory.
- * @return {string[]} Module names.
+ * @param {string} version - WordPress version, e.g. `'7.0.7'`.
+ * @return {Promise<{corejs: string, modules: string[]}>} Release info.
  */
-function findModules( bundle, modulesDir ) {
-	const normalizedBundle = normalize( bundle );
-	const found = fs
-		.readdirSync( modulesDir )
-		.filter( file => /^(es|web)\./.test( file ) )
-		.filter( file =>
-			normalizedBundle.includes(
-				normalize( fs.readFileSync( path.join( modulesDir, file ), 'utf8' ) )
-			)
-		);
+async function getReleaseInfo( version ) {
+	const bundle = await fetchText(
+		`https://core.svn.wordpress.org/tags/${ version }/wp-includes/js/dist/vendor/wp-polyfill.js`
+	);
 
-	// Look for any polyfills that didn't show up in our matching.
-	const unaccounted = bundle.match( INSTALL_CALLS ) ?? [];
-	for ( const file of found ) {
-		const source = fs.readFileSync( path.join( modulesDir, file ), 'utf8' );
-		for ( const call of source.match( INSTALL_CALLS ) ?? [] ) {
-			unaccounted.splice( unaccounted.indexOf( call ), 1 );
-		}
-	}
-	// Abort if we have anything unaccounted for, since that could mean accidentally
-	// dropping polyfills we need.
-	if ( unaccounted.length ) {
-		throw new Error( `Polyfills not matched to a core-js module:\n${ unaccounted.join( '\n' ) }` );
-	}
-	return found.map( file => path.basename( file, '.js' ) ).sort();
+	return {
+		corejs: parseCoreJsVersionFromComment( bundle ),
+		modules: parseModulesFromComment( bundle ),
+	};
 }
 
-const tmpDir = fs.mkdtempSync( path.join( os.tmpdir(), 'wp-polyfill-modules-' ) );
-try {
-	const { min, releases } = await getSupportedReleases();
-	const coreJsByVersion = new Map();
-	const modulesByRelease = {};
-	for ( const release of releases ) {
-		const bundle = await fetchText(
-			`https://core.svn.wordpress.org/tags/${ release }/wp-includes/js/dist/vendor/wp-polyfill.js`
-		);
-		const coreJsVersion = bundle.match( /core-js (\d+\.\d+\.\d+)/ )?.[ 1 ];
-		if ( ! coreJsVersion ) {
-			throw new Error( `WordPress ${ release }: no core-js version in wp-polyfill.js` );
-		}
-		if ( ! coreJsByVersion.has( coreJsVersion ) ) {
-			coreJsByVersion.set( coreJsVersion, await getCoreJsModules( coreJsVersion, tmpDir ) );
-		}
-		modulesByRelease[ release ] = findModules( bundle, coreJsByVersion.get( coreJsVersion ) );
-		console.log(
-			`WordPress ${ release } (core-js ${ coreJsVersion }): ${ modulesByRelease[ release ].length } modules`
-		);
+const { min, releases } = await getSupportedReleases();
+const modulesByRelease = {};
+for ( const version of releases ) {
+	let coreJsVersion;
+
+	const knownRelease = getKnownRelease( version );
+	if ( knownRelease ) {
+		modulesByRelease[ version ] = knownRelease.modules;
+		coreJsVersion = knownRelease.corejs;
+	} else {
+		const { corejs, modules } = await getReleaseInfo( version );
+		modulesByRelease[ version ] = modules;
+		coreJsVersion = corejs;
 	}
 
-	const modules = [ ...new Set( Object.values( modulesByRelease ).flat() ) ].sort();
-	fs.writeFileSync(
-		OUTPUT_FILE,
-		JSON.stringify( { minWordPressVersion: min, modules }, null, '\t' ) + '\n'
-	);
 	console.log(
-		`Wrote ${ modules.length } modules to ${ path.relative( process.cwd(), OUTPUT_FILE ) }`
+		`WordPress ${ version } (core-js ${ coreJsVersion }): ${ modulesByRelease[ version ].length } modules`
 	);
+}
 
-	if ( debug ) {
-		console.log( '\nModules included per release:\n' );
-		Object.entries( modulesByRelease ).forEach( ( [ rel, mod ] ) => {
-			console.log( `${ rel }: ${ ( mod || [] ).join( ', ' ) }\n` );
-		} );
-	}
-} finally {
-	fs.rmSync( tmpDir, { recursive: true, force: true } );
+const modules = [ ...new Set( Object.values( modulesByRelease ).flat() ) ].sort();
+fs.writeFileSync(
+	OUTPUT_FILE,
+	JSON.stringify( { minWordPressVersion: min, modules }, null, '\t' ) + '\n'
+);
+console.log(
+	`Wrote ${ modules.length } modules to ${ path.relative( process.cwd(), OUTPUT_FILE ) }`
+);
+
+if ( debug ) {
+	console.log( '\nModules included per release:\n' );
+	Object.entries( modulesByRelease ).forEach( ( [ rel, mod ] ) => {
+		console.log( `${ rel }: ${ ( mod || [] ).join( ', ' ) }\n` );
+	} );
 }
