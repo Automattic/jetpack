@@ -392,51 +392,101 @@ describe( 'useSettingsForm', () => {
 		} );
 	} );
 
-	it( 'a form save that finishes after saveVerification keeps the adopted code', async () => {
-		let finishSave: ( response: unknown ) => void = () => undefined;
-		mockApiFetch.mockImplementation( options =>
-			JSON.stringify( options ).includes( 'advanced_seo_front_page_description' )
-				? new Promise( resolve => {
-						finishSave = resolve;
-					} )
-				: Promise.resolve( {} )
-		);
-		const { result } = renderHook( () => useSettingsForm() );
-		act( () => result.current.setField( { front_page_description: 'New description.' } ) );
-		act( () => result.current.commitFields( [ 'front_page_description' ] ) );
-
-		await act( () => result.current.saveVerification( 'google', 'tok' ) );
-		await act( async () => finishSave( {} ) );
-		await waitFor( () => expect( result.current.isSaving ).toBe( false ) );
-
-		expect( result.current.isDirty( [ 'verification' ] ) ).toBe( false );
-		expect( setSettings ).toHaveBeenLastCalledWith(
-			expect.objectContaining( { verification: { ...SEED.verification, google: 'tok' } } )
-		);
+	const CODE_POST = expect.objectContaining( {
+		data: { verification_services_codes: { google: 'tok' } },
 	} );
+	const SETTINGS_READ = expect.objectContaining( { path: '/jetpack/v4/seo/settings' } );
+	const STALE_READ = { ...SEED, verification: { ...SEED.verification, bing: 'abc' } };
 
-	it( 'a verification save that finishes after saveVerification keeps the adopted code, even when the re-read fails', async () => {
+	it( 'saveVerification waits for a form save in flight, then locks the form while it saves', async () => {
 		let finishSave: ( response: unknown ) => void = () => undefined;
+		let finishCode: ( response: unknown ) => void = () => undefined;
 		mockApiFetch.mockImplementation( options => {
-			const { path, data } = options as { path: string; data?: unknown };
-			if ( JSON.stringify( data ?? {} ).includes( '"bing"' ) ) {
+			const request = JSON.stringify( options );
+			if ( request.includes( 'advanced_seo_front_page_description' ) ) {
 				return new Promise( resolve => {
 					finishSave = resolve;
 				} );
 			}
-			return path === '/jetpack/v4/seo/settings'
-				? Promise.reject( { message: 'Offline.' } )
-				: Promise.resolve( {} );
+			if ( request.includes( '"google"' ) ) {
+				return new Promise( resolve => {
+					finishCode = resolve;
+				} );
+			}
+			return Promise.resolve( {} );
 		} );
+		const { result } = renderHook( () => useSettingsForm() );
+		act( () => result.current.setField( { front_page_description: 'New description.' } ) );
+		act( () => result.current.commitFields( [ 'front_page_description' ] ) );
+
+		let saved: Promise< void > = Promise.resolve();
+		act( () => {
+			saved = result.current.saveVerification( 'google', 'tok' );
+		} );
+		await act( async () => undefined );
+		expect( mockApiFetch ).not.toHaveBeenCalledWith( CODE_POST );
+
+		await act( async () => finishSave( {} ) );
+		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalledWith( CODE_POST ) );
+		expect( result.current.isSaving ).toBe( true );
+
+		await act( async () => {
+			finishCode( {} );
+			await saved;
+		} );
+		expect( result.current.isSaving ).toBe( false );
+		expect( result.current.isDirty( [ 'verification' ] ) ).toBe( false );
+		expect( storeState.verification.google ).toBe( 'tok' );
+	} );
+
+	it( 'a re-read that returns after saveVerification was called does not roll back the code', async () => {
+		let finishRead: ( response: unknown ) => void = () => undefined;
+		mockApiFetch.mockImplementation( options =>
+			( options as { path: string } ).path === '/jetpack/v4/seo/settings'
+				? new Promise( resolve => {
+						finishRead = resolve;
+					} )
+				: Promise.resolve( {} )
+		);
 		const { result } = renderHook( () => useSettingsForm() );
 		act( () => result.current.setVerification( 'bing', 'abc' ) );
 		act( () => result.current.commitFields( [ 'verification' ] ) );
+		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalledWith( SETTINGS_READ ) );
 
-		await act( () => result.current.saveVerification( 'google', 'tok' ) );
-		await act( async () => finishSave( {} ) );
-		await waitFor( () => expect( result.current.isSaving ).toBe( false ) );
+		let saved: Promise< void > = Promise.resolve();
+		act( () => {
+			saved = result.current.saveVerification( 'google', 'tok' );
+		} );
+		await act( async () => {
+			finishRead( STALE_READ );
+			await saved;
+		} );
 
+		const expected = { ...SEED.verification, google: 'tok', bing: 'abc' };
+		expect( result.current.local?.verification ).toEqual( expected );
 		expect( result.current.isDirty( [ 'verification' ] ) ).toBe( false );
+		expect( storeState.verification ).toEqual( expected );
+	} );
+
+	it( 'a re-read from a form that was left does not roll back a code a newer form adopted', async () => {
+		let finishRead: ( response: unknown ) => void = () => undefined;
+		mockApiFetch.mockImplementation( options =>
+			( options as { path: string } ).path === '/jetpack/v4/seo/settings'
+				? new Promise( resolve => {
+						finishRead = resolve;
+					} )
+				: Promise.resolve( {} )
+		);
+		const { result: leftForm } = renderHook( () => useSettingsForm() );
+		act( () => leftForm.current.setVerification( 'bing', 'abc' ) );
+		act( () => leftForm.current.commitFields( [ 'verification' ] ) );
+		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalledWith( SETTINGS_READ ) );
+		const { result: newForm } = renderHook( () => useSettingsForm() );
+
+		await act( () => newForm.current.saveVerification( 'google', 'tok' ) );
+		await act( async () => finishRead( STALE_READ ) );
+		await waitFor( () => expect( leftForm.current.isSaving ).toBe( false ) );
+
 		expect( storeState.verification ).toEqual( {
 			...SEED.verification,
 			google: 'tok',

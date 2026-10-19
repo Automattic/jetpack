@@ -96,29 +96,29 @@ function withVerification< T extends SettingsResponse | null >(
 }
 
 /**
- * Apply what a save sent, taking only the verification codes it changed.
+ * Apply a patch, taking from its verification map only the given codes: the others
+ * may be older than a code another save has adopted since.
  *
- * @param state    - Values to update, or null before they load.
- * @param baseline - The baseline the save started from.
- * @param values   - The values the save sent.
- * @param touched  - The fields that differ between the two.
+ * @param state - Values to update, or null before they load.
+ * @param patch - The fields to apply.
+ * @param codes - The verification codes the patch owns.
  * @return The updated values.
  */
-function withSent< T extends SettingsResponse | null >(
+function withPatch< T extends SettingsResponse | null >(
 	state: T,
-	baseline: SettingsResponse,
-	values: SettingsResponse,
-	touched: Array< keyof SettingsResponse >
+	patch: Partial< SettingsResponse >,
+	codes: VerificationKey[]
 ): T {
 	if ( ! state ) {
 		return state;
 	}
-	const next: SettingsResponse = { ...state };
-	touched.forEach( field => {
-		( next as unknown as Record< string, unknown > )[ field ] = values[ field ];
-	} );
-	if ( touched.includes( 'verification' ) ) {
-		next.verification = { ...state.verification, ...changedCodes( baseline, values ) };
+	const next: SettingsResponse = { ...state, ...patch };
+	const verification = patch.verification;
+	if ( verification ) {
+		next.verification = {
+			...state.verification,
+			...Object.fromEntries( codes.map( key => [ key, verification[ key ] ] ) ),
+		};
 	}
 	return next as T;
 }
@@ -219,6 +219,8 @@ export function useSettingsForm(): SettingsForm {
 	// Refs so `commit()` reads the freshest values without stale closures and
 	// without re-creating the callback on every keystroke.
 	const baselineRef = useRef< SettingsResponse | null >( initial );
+	// The save in flight, which `saveVerification()` waits for.
+	const inFlightRef = useRef< Promise< unknown > >( Promise.resolve() );
 	const localRef = useRef< SettingsResponse | null >( initial );
 	useEffect( () => {
 		localRef.current = local;
@@ -231,7 +233,11 @@ export function useSettingsForm(): SettingsForm {
 	// save can fail after its first request already committed. `sitemap_url` comes
 	// along because it's read-only and recomputed by the sitemap toggle.
 	const adoptServerState = useCallback(
-		( touched: Array< keyof SettingsResponse >, savedTitlePage?: string ) =>
+		(
+			touched: Array< keyof SettingsResponse >,
+			savedTitlePage?: string,
+			codes: VerificationKey[] = []
+		) =>
 			new Promise< void >( resolve => {
 				// Always settles: on the response, on an error, or on the timeout that
 				// aborts a request which never came back.
@@ -273,10 +279,10 @@ export function useSettingsForm(): SettingsForm {
 							localPatch.title_formats = titleFormats;
 						}
 
-						localRef.current = { ...current, ...localPatch };
-						baselineRef.current = { ...baseline, ...patch };
+						localRef.current = withPatch( current, localPatch, codes );
+						baselineRef.current = withPatch( baseline, patch, codes );
 						setLocal( localRef.current );
-						patchStore( saved => ( { ...saved, ...patch } ) );
+						patchStore( saved => withPatch( saved, patch, codes ) );
 					} )
 					.catch( () => {
 						// Nothing better to show than what's already on screen; the next load
@@ -305,6 +311,10 @@ export function useSettingsForm(): SettingsForm {
 			const touched = ( Object.keys( values ) as Array< keyof SettingsResponse > ).filter(
 				field => JSON.stringify( values[ field ] ) !== JSON.stringify( baseline[ field ] )
 			);
+			const sent: Partial< SettingsResponse > = Object.fromEntries(
+				touched.map( field => [ field, values[ field ] ] )
+			);
+			const codes = Object.keys( changedCodes( baseline, values ) ) as VerificationKey[];
 			const settings = sentSettings( baseline, values );
 			// What landed: core's settings write reports what it stored, and the module
 			// route lists what it applied, even when it fails partway.
@@ -337,7 +347,7 @@ export function useSettingsForm(): SettingsForm {
 			// be refused, and the re-read below has to see a settled server state to
 			// reconcile against. Overlapping the two would race that read, and a failure
 			// in one would leave the client unable to say what the other had landed.
-			Promise.resolve()
+			inFlightRef.current = Promise.resolve()
 				.then( () =>
 					Object.keys( corePayload ).length > 0
 						? apiFetch( { path: CORE_SETTINGS_PATH, method: 'POST', data: corePayload } )
@@ -360,13 +370,8 @@ export function useSettingsForm(): SettingsForm {
 					// wherever the server reports something else. Skipped on failure, where
 					// only the server knows what landed. Only what this save changed, so a
 					// code `saveVerification()` adopted meanwhile isn't rolled back.
-					baselineRef.current = withSent(
-						baselineRef.current ?? baseline,
-						baseline,
-						values,
-						touched
-					);
-					patchStore( saved => withSent( saved, baseline, values, touched ) );
+					baselineRef.current = withPatch( baselineRef.current ?? baseline, sent, codes );
+					patchStore( saved => withPatch( saved, sent, codes ) );
 					createSuccessNotice( __( 'Settings saved.', 'jetpack-seo' ), {
 						id: SAVE_NOTICE_ID,
 						type: 'snackbar',
@@ -399,7 +404,7 @@ export function useSettingsForm(): SettingsForm {
 				// Either way — including a save that failed with its first request already
 				// committed — the form is reconciled with the server before the controls
 				// unlock, so `isSaving` also serializes this against the next save.
-				.then( () => adoptServerState( touched, savedTitlePage ) )
+				.then( () => adoptServerState( touched, savedTitlePage, codes ) )
 				.finally( () => setIsSaving( false ) );
 		},
 		[ createInfoNotice, createSuccessNotice, createErrorNotice, patchStore, adoptServerState ]
@@ -424,30 +429,38 @@ export function useSettingsForm(): SettingsForm {
 				verification_service: key,
 				setting_value: value ? 'set' : 'cleared',
 			};
-			// As in `sentSettings()`, a retry that saves the code already stored records nothing.
-			const changed = baselineRef.current?.verification[ key ] !== value;
-
-			return apiFetch( {
-				path: CORE_SETTINGS_PATH,
-				method: 'POST',
-				data: { verification_services_codes: { [ key ]: value } },
-			} ).then(
-				() => {
-					if ( changed ) {
-						recordSeoEvent( 'jetpack_seo_setting_updated', 'settings', props );
-					}
-					baselineRef.current = withVerification( baselineRef.current, key, value );
-					localRef.current = withVerification( localRef.current, key, value );
-					setLocal( state => withVerification( state, key, value ) );
-					patchStore( saved => withVerification( saved, key, value ) );
-				},
-				( error: unknown ) => {
-					if ( changed ) {
-						recordSeoEvent( 'jetpack_seo_setting_update_failed', 'settings', props );
-					}
-					throw error;
-				}
-			);
+			// After any save in flight, re-read included, and locking the form meanwhile: the
+			// server merges codes without a lock, so an overlapping save could drop this one.
+			const run = inFlightRef.current
+				.then( () => {
+					setIsSaving( true );
+					// As in `sentSettings()`, a retry that saves the code already stored records nothing.
+					const changed = baselineRef.current?.verification[ key ] !== value;
+					return apiFetch( {
+						path: CORE_SETTINGS_PATH,
+						method: 'POST',
+						data: { verification_services_codes: { [ key ]: value } },
+					} ).then(
+						() => {
+							if ( changed ) {
+								recordSeoEvent( 'jetpack_seo_setting_updated', 'settings', props );
+							}
+							baselineRef.current = withVerification( baselineRef.current, key, value );
+							localRef.current = withVerification( localRef.current, key, value );
+							setLocal( state => withVerification( state, key, value ) );
+							patchStore( saved => withVerification( saved, key, value ) );
+						},
+						( error: unknown ) => {
+							if ( changed ) {
+								recordSeoEvent( 'jetpack_seo_setting_update_failed', 'settings', props );
+							}
+							throw error;
+						}
+					);
+				} )
+				.finally( () => setIsSaving( false ) );
+			inFlightRef.current = run.catch( () => undefined );
+			return run;
 		},
 		[ patchStore ]
 	);
