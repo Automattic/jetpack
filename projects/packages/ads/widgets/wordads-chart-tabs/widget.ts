@@ -10,9 +10,11 @@ import {
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
+import { chartBar } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
+import { chartLine } from './chart-line';
 import { defaultReportParams } from './default-report-params';
 import { WORDADS_GRAIN } from './grain';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
@@ -34,8 +36,8 @@ export type WordAdsChartTabsAttributes = Partial< ReportParamsFieldAttributes > 
  * size follows the selected window, so the date field offers the window alone.
  */
 const CHART_TYPES = [
-	{ value: 'line', label: __( 'Line chart', 'jetpack-ads-pkg' ), icon: 'jpa/chart-line' },
-	{ value: 'bar', label: __( 'Bar chart', 'jetpack-ads-pkg' ), icon: 'jpa/chart-bar' },
+	{ value: 'line', label: __( 'Line chart', 'jetpack-ads-pkg' ), icon: chartLine },
+	{ value: 'bar', label: __( 'Bar chart', 'jetpack-ads-pkg' ), icon: chartBar },
 ];
 
 export default {
