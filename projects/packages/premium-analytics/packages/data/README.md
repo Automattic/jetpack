@@ -147,6 +147,32 @@ allowed.
 
 **Returns:** `IntervalType`
 
+### `getLockedIntervalsForPreset( preset, from, to, locked )`
+
+Returns the buckets the range could draw but `locked` withholds, for an interval menu to list as
+locked.
+
+**Parameters:**
+
+- `preset`: `PrimaryPresetId | undefined`
+- `from`: `string`
+- `to`: `string`
+- `locked`: `readonly LockableInterval[]` - Buckets the site's plan locks
+
+**Returns:** `LockableInterval[]` - In the range's order
+
+### `lockedDrawableIntervals( params, locked, periods? )`
+
+`getLockedIntervalsForPreset`, narrowed to the buckets a widget's chart draws.
+
+**Parameters:**
+
+- `params`: `Pick< ReportParams, 'preset' | 'from' | 'to' >`
+- `locked`: `readonly LockableInterval[]` - Buckets the site's plan locks
+- `periods`: `readonly StatsPeriod[] | undefined` - The periods the chart draws; every bucket when omitted
+
+**Returns:** `LockableInterval[]`
+
 ### `needsReportDateParamsSeed( search?, lockedIntervals? )`
 
 Returns whether report date params are incomplete or the interval is invalid
@@ -216,14 +242,6 @@ The date options the surface's plan locks, as `DateLimits`: the policy's `locked
 `earliestDate` and `lockedIntervals`, plus the `upsell` for locked periods and the
 `intervalUpsell` for locked chart intervals, each copy carrying its own `onUpgradeClick`.
 The date controls read it through `useReportScope()`; absent where the host applies no limits.
-
-### `getLockedIntervalsForPreset( preset, from, to, locked )`
-
-Returns the buckets the range could draw but `locked` withholds, for an interval menu to list as
-locked. `lockedDrawableIntervals( params, locked, periods )` narrows them to what a widget's chart
-draws.
-
-**Returns:** `IntervalType[]`
 
 ## Architecture
 
@@ -295,6 +313,8 @@ This package exports the following public API:
 - `getDefaultIntervalForPeriod` - Default interval for a preset / range
 - `resolveIntervalForRange` - Keep a still-valid candidate interval, else the range default
 - `resolveIntervalForPresetChange` - Reset to the preset default on a named-preset switch, else keep a still-valid interval
+- `getLockedIntervalsForPreset` - The buckets a range could draw that the plan locks
+- `lockedDrawableIntervals` - Those locked buckets a widget's chart draws
 - `needsReportDateParamsSeed` - Whether report date params are incomplete or the interval is invalid for the range
 - `getStatsDatePolicy` - The date limits the site's plan sets
 - `getSectionDatePolicy` - The date limits a dashboard section follows
@@ -320,3 +340,4 @@ This package exports the following public API:
 - `StatsDatePolicy` - The date limits a plan sets: open, the last 7 days, or no long presets
 - `DateLimitFeature` - The Stats gate a date limit comes from
 - `DateLimits` - The date limits a report scope declares to its controls
+- `DateLimitUpsellCopy` - The copy, links and upgrade callback of an upsell beside locked date options

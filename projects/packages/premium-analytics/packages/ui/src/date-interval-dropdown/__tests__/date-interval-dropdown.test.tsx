@@ -2,6 +2,12 @@ import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { DateIntervalDropdown } from '../date-interval-dropdown';
 
+const LOCK_UPSELL = {
+	description: 'Upgrade to group by week.',
+	supportUrl: '',
+	upgradeUrl: 'https://example.com/plans',
+};
+
 describe( 'DateIntervalDropdown', () => {
 	it( 'lists the buckets it was given and reports the pick', async () => {
 		const onChange = jest.fn();
@@ -82,7 +88,7 @@ describe( 'DateIntervalDropdown', () => {
 			<DateIntervalDropdown
 				options={ [ 'day' ] }
 				lockedOptions={ [ 'week' ] }
-				lockNotice="Upgrade to group by week."
+				lockUpsell={ LOCK_UPSELL }
 				value="day"
 				onChange={ onChange }
 			/>
@@ -96,10 +102,29 @@ describe( 'DateIntervalDropdown', () => {
 		] );
 		const locked = screen.getByRole( 'menuitemradio', { name: 'By weeks' } );
 		expect( locked ).toHaveAttribute( 'aria-disabled', 'true' );
-		expect( locked ).toHaveAccessibleDescription( 'Upgrade to group by week.' );
+		expect( locked ).toHaveAccessibleDescription( LOCK_UPSELL.description );
+		expect( screen.getByRole( 'link', { name: 'Upgrade' } ) ).toBeVisible();
 
 		await user.click( locked );
 		expect( onChange ).not.toHaveBeenCalled();
+	} );
+
+	it( 'shows no upsell when the range has nothing the plan locks', async () => {
+		const user = userEvent.setup();
+
+		render(
+			<DateIntervalDropdown
+				options={ [ 'day', 'week' ] }
+				lockedOptions={ [] }
+				lockUpsell={ LOCK_UPSELL }
+				value="day"
+				onChange={ jest.fn() }
+			/>
+		);
+
+		await user.click( screen.getByRole( 'button', { name: 'Chart interval: By days' } ) );
+
+		expect( screen.queryByText( LOCK_UPSELL.description ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'names the trigger without a bucket when there is no active one', () => {

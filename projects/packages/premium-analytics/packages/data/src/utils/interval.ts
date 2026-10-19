@@ -88,6 +88,13 @@ function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] 
 	return [ 'hour' ];
 }
 
+function isLockedInterval(
+	interval: IntervalType,
+	locked: readonly LockableInterval[]
+): interval is LockableInterval {
+	return locked.some( bucket => bucket === interval );
+}
+
 /**
  * Drop the buckets the plan locks, landing on days when none is left.
  *
@@ -99,7 +106,7 @@ function withoutLockedIntervals(
 	intervals: IntervalType[],
 	locked: readonly LockableInterval[]
 ): IntervalType[] {
-	const open = intervals.filter( interval => ! locked.some( bucket => bucket === interval ) );
+	const open = intervals.filter( interval => ! isLockedInterval( interval, locked ) );
 	return open.length ? open : [ 'day' ];
 }
 
@@ -133,9 +140,9 @@ export function getLockedIntervalsForPreset(
 	from: string,
 	to: string,
 	locked: readonly LockableInterval[]
-): IntervalType[] {
+): LockableInterval[] {
 	return allowedIntervalsForPreset( preset, from, to ).filter( interval =>
-		locked.some( bucket => bucket === interval )
+		isLockedInterval( interval, locked )
 	);
 }
 

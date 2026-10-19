@@ -130,7 +130,7 @@ export function lockedDrawableIntervals(
 	params: Pick< ReportParams, 'preset' | 'from' | 'to' >,
 	locked: readonly LockableInterval[],
 	periods?: readonly StatsPeriod[]
-): IntervalType[] {
+): LockableInterval[] {
 	const lockedByRange = getLockedIntervalsForPreset(
 		params.preset,
 		params.from ?? '',

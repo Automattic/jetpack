@@ -53,7 +53,7 @@ export type ReportDateFilters = {
 	intervalOptions: IntervalType[];
 
 	/** The intervals the range would allow but the plan locks, for the control to show as locked. */
-	lockedIntervalOptions: IntervalType[];
+	lockedIntervalOptions: LockableInterval[];
 
 	/**
 	 * Stage a primary range edit. `exactRange` stores the ends as given rather

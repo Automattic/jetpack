@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { DateLimitUpsell } from '../../date-limit-upsell';
 import { DateIntervalDropdown } from '../date-interval-dropdown';
 import type { IntervalType } from '@jetpack-premium-analytics/datetime';
 import type { Meta, StoryObj } from '@storybook/react';
@@ -79,15 +78,11 @@ export const LockedBuckets: Story = {
 		<DateIntervalDropdownWithState
 			options={ [ 'day' ] }
 			lockedOptions={ [ 'week', 'month' ] }
-			lockNotice={
-				<DateLimitUpsell
-					upsell={ {
-						description: 'Group your charts by week, month or year.',
-						supportUrl: '',
-						upgradeUrl: 'https://wordpress.com/plans',
-					} }
-				/>
-			}
+			lockUpsell={ {
+				description: 'Group your charts by week, month or year.',
+				supportUrl: '',
+				upgradeUrl: 'https://wordpress.com/plans',
+			} }
 			initialValue="day"
 			withLabel
 		/>

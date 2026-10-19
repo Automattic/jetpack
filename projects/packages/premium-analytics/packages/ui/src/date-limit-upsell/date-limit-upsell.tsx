@@ -14,19 +14,21 @@ import styles from './date-limit-upsell.module.scss';
 
 type DateLimitUpsellProps = {
 	upsell: DateLimitUpsellCopy;
+	descriptionId?: string;
 };
 
 /**
  * Why some date options are locked, and where to unlock them.
  *
- * @param props        - Component props.
- * @param props.upsell - The server's copy, where `<link>` wraps the support link, and URLs; an empty URL omits its link.
+ * @param props               - Component props.
+ * @param props.upsell        - The server's copy, where `<link>` wraps the support link, and URLs; an empty URL omits its link.
+ * @param props.descriptionId - Ids the copy alone, to describe locked options without the Upgrade button.
  * @return The upsell.
  */
-export function DateLimitUpsell( { upsell }: DateLimitUpsellProps ) {
+export function DateLimitUpsell( { upsell, descriptionId }: DateLimitUpsellProps ) {
 	return (
 		<div className={ styles.root }>
-			<p className={ styles.description }>
+			<p id={ descriptionId } className={ styles.description }>
 				{ createInterpolateElement( upsell.description, {
 					link: upsell.supportUrl ? (
 						<ExternalLink href={ upsell.supportUrl }>{ null }</ExternalLink>

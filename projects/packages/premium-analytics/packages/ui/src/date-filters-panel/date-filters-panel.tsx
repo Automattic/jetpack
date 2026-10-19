@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useReportScope } from '@jetpack-premium-analytics/data';
+import { useReportScope, type LockableInterval } from '@jetpack-premium-analytics/data';
 import {
 	isComparisonPresetId,
 	isPrimaryPreset,
@@ -92,7 +92,7 @@ export type DateFiltersPanelProps = {
 	intervalOptions?: readonly IntervalType[];
 
 	/** The buckets the range would allow but the plan locks, listed with a lock. */
-	lockedIntervalOptions?: readonly IntervalType[];
+	lockedIntervalOptions?: readonly LockableInterval[];
 
 	onChange: DatePeriodDropdownProps[ 'onChange' ];
 
@@ -259,9 +259,7 @@ export function DateFiltersPanel( {
 				<DateIntervalDropdown
 					options={ intervalOptions }
 					lockedOptions={ lockedIntervalOptions }
-					lockNotice={
-						dateLimits?.intervalUpsell && <DateLimitUpsell upsell={ dateLimits.intervalUpsell } />
-					}
+					lockUpsell={ dateLimits?.intervalUpsell }
 					value={ interval }
 					disabled={ disabled }
 					triggerProps={ triggerProps }

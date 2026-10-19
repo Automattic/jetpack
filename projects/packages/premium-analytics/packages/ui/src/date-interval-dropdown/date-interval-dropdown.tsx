@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { type DateLimitUpsellCopy, type LockableInterval } from '@jetpack-premium-analytics/data';
 import { type IntervalType } from '@jetpack-premium-analytics/datetime';
 import { Button, Icon, IconButton } from '@jetpack-premium-analytics/externals';
 import { MenuGroup, MenuItem, NavigableMenu } from '@wordpress/components';
@@ -8,11 +9,12 @@ import { useInstanceId } from '@wordpress/compose';
 import { __, sprintf } from '@wordpress/i18n';
 import { chartBar, check, chevronDown, lock } from '@wordpress/icons';
 import clsx from 'clsx';
-import { useState, type ReactNode } from 'react';
+import { useState } from 'react';
 /**
  * Internal dependencies
  */
 import { DateControlPopover } from '../date-control-popover';
+import { DateLimitUpsell } from '../date-limit-upsell';
 import {
 	DATE_CONTROL_TRIGGER_DEFAULTS,
 	openOnArrowDown,
@@ -28,10 +30,10 @@ type DateIntervalDropdownProps = {
 	options: readonly IntervalType[];
 
 	/** Buckets listed after `options` with a lock, which cannot be picked. */
-	lockedOptions?: readonly IntervalType[];
+	lockedOptions?: readonly LockableInterval[];
 
-	/** Why the locked buckets are locked, shown under the menu and read as each one's description. */
-	lockNotice?: ReactNode;
+	/** Why the locked buckets are locked, shown under the menu; its description is read as each one's. */
+	lockUpsell?: DateLimitUpsellCopy;
 
 	/**
 	 * The bucket the widgets are currently drawing.
@@ -107,7 +109,7 @@ function getTriggerLabel( value?: IntervalType ): string {
 export function DateIntervalDropdown( {
 	options,
 	lockedOptions = [],
-	lockNotice,
+	lockUpsell,
 	value,
 	label,
 	withLabel = false,
@@ -118,8 +120,10 @@ export function DateIntervalDropdown( {
 	const triggerLabel = label ?? getTriggerLabel( value );
 	const [ isOpen, setIsOpen ] = useState( false );
 	const onKeyDown = openOnArrowDown( { isOpen, onToggle: () => setIsOpen( true ), disabled } );
-	const lockNoticeId = useInstanceId( DateIntervalDropdown, 'date-interval-dropdown__lock-notice' );
-	const describesLocked = lockNotice ? lockNoticeId : undefined;
+	const lockDescriptionId = useInstanceId(
+		DateIntervalDropdown,
+		'date-interval-dropdown__lock-description'
+	);
 
 	// The trigger's own Button, so the lone bucket sits where the menu's trigger would.
 	if (
@@ -202,7 +206,7 @@ export function DateIntervalDropdown( {
 							isSelected={ false }
 							icon={ lock }
 							disabled
-							aria-describedby={ describesLocked }
+							aria-describedby={ lockUpsell ? lockDescriptionId : undefined }
 						>
 							{ getIntervalLabel( option ) }
 						</MenuItem>
@@ -210,9 +214,9 @@ export function DateIntervalDropdown( {
 				</MenuGroup>
 			</NavigableMenu>
 
-			{ lockedOptions.length > 0 && lockNotice && (
-				<div id={ lockNoticeId } className="date-interval-dropdown__lock-notice">
-					{ lockNotice }
+			{ lockedOptions.length > 0 && lockUpsell && (
+				<div className="date-interval-dropdown__lock-notice">
+					<DateLimitUpsell upsell={ lockUpsell } descriptionId={ lockDescriptionId } />
 				</div>
 			) }
 		</DateControlPopover>

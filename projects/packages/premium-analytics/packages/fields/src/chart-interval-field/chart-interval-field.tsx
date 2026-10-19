@@ -13,11 +13,7 @@ import {
 	type StatsPeriod,
 } from '@jetpack-premium-analytics/data';
 import { INTERVAL_TYPES } from '@jetpack-premium-analytics/datetime';
-import {
-	DateIntervalDropdown,
-	DateLimitUpsell,
-	getIntervalLabel,
-} from '@jetpack-premium-analytics/ui';
+import { DateIntervalDropdown, getIntervalLabel } from '@jetpack-premium-analytics/ui';
 import { __ } from '@wordpress/i18n';
 import { useSearch } from '@wordpress/route';
 import { useMemo } from 'react';
@@ -81,7 +77,7 @@ function ChartIntervalControl( {
 		<DateIntervalDropdown
 			options={ options }
 			lockedOptions={ lockedOptions }
-			lockNotice={ intervalUpsell && <DateLimitUpsell upsell={ intervalUpsell } /> }
+			lockUpsell={ intervalUpsell }
 			value={ value }
 			withLabel
 			triggerProps={ WIDGET_HEADER_TRIGGER_PROPS }

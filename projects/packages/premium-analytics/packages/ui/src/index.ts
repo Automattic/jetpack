@@ -8,7 +8,6 @@ export {
 } from './dataviews-drilldown-native';
 export { DateFiltersPanel, type DateFiltersPanelProps } from './date-filters-panel';
 export { DateIntervalDropdown, getIntervalLabel } from './date-interval-dropdown';
-export { DateLimitUpsell } from './date-limit-upsell';
 export { DatePeriodDropdown } from './date-period-dropdown';
 export type { DateControlTriggerProps } from './utils/date-control-trigger';
 export { PeriodChangeStatus } from './period-change-status';

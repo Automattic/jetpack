@@ -235,6 +235,45 @@ describe( 'DateFiltersPanel', () => {
 		expect( day( 'July 10, 2026' ) ).toBeEnabled();
 	} );
 
+	it( 'locks the chart intervals the scope withholds and wires their own upsell', async () => {
+		const user = userEvent.setup();
+		const onUpgradeClick = jest.fn();
+		render(
+			<ReportScopeProvider
+				dateLimits={ {
+					lockedPresetIds: [],
+					lockedIntervals: [ 'week' ],
+					intervalUpsell: {
+						description: 'Group your charts by week.',
+						supportUrl: '',
+						upgradeUrl: 'https://example.com/plans',
+						onUpgradeClick,
+					},
+				} }
+			>
+				{ panel( {
+					withIntervalControl: true,
+					intervalOptions: [ 'day' ],
+					lockedIntervalOptions: [ 'week' ],
+					interval: 'day',
+					onIntervalChange: jest.fn(),
+				} ) }
+			</ReportScopeProvider>
+		);
+
+		await user.click( screen.getByRole( 'button', { name: 'Chart interval: By days' } ) );
+
+		expect( screen.getByRole( 'menuitemradio', { name: 'By weeks' } ) ).toHaveAccessibleDescription(
+			'Group your charts by week.'
+		);
+
+		const upgrade = screen.getByRole( 'link', { name: 'Upgrade' } );
+		upgrade.addEventListener( 'click', event => event.preventDefault() );
+		await user.click( upgrade );
+
+		expect( onUpgradeClick ).toHaveBeenCalledTimes( 1 );
+	} );
+
 	it( 'greys every control out while disabled', () => {
 		renderPanel( {
 			disabled: true,

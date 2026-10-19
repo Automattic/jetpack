@@ -113,9 +113,10 @@ describe( 'chartIntervalField', () => {
 
 		await user.click( screen.getByRole( 'button', { name: 'By days' } ) );
 
-		const locked = screen.getByRole( 'menuitemradio', { name: 'By weeks' } );
-		expect( locked ).toHaveAttribute( 'aria-disabled', 'true' );
-		expect( locked ).toHaveAccessibleDescription( /Group your charts by week\./ );
+		expect( screen.getByRole( 'menuitemradio', { name: 'By days' } ) ).toBeChecked();
+		expect( screen.getByRole( 'menuitemradio', { name: 'By weeks' } ) ).toHaveAccessibleDescription(
+			intervalUpsell.description
+		);
 	} );
 
 	it( "reads a widget's own range before the page's", () => {
