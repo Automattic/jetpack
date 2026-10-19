@@ -34,6 +34,7 @@ export default {
 	entry: {
 		comments: path.join( __dirname, 'src/form/index.tsx' ),
 		admin: path.join( __dirname, 'src/editor/admin.ts' ),
+		standalone: path.join( __dirname, 'src/editor/standalone.ts' ),
 	},
 	output: {
 		...jetpackWebpackConfig.output,

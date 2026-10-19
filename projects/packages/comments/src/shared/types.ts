@@ -109,6 +109,18 @@ export type Strings = {
 	signInRateLimited: string;
 };
 
+/** What build/standalone.js hands a host that is not the comment form. */
+export type StandaloneEditor = {
+	/**
+	 * Fetch the editor. `locale` is core's translations of its strings, set before the chunk
+	 * loads; `assetsUrl` is the build directory, for a host whose script URL cannot be read.
+	 */
+	load: ( options?: {
+		locale?: LocaleData;
+		assetsUrl?: string;
+	} ) => Promise< typeof import( '../editor' ) >;
+};
+
 export type Settings = {
 	/** The package version that rendered the page, checked against the bundle's before it takes over. */
 	version: string;
@@ -149,6 +161,8 @@ declare global {
 		jetpackCommentsEditorLabels?: EditorLabels;
 		/** The comment on the edit-comment screen, as the editor writes it. */
 		jetpackCommentsEditorContent?: string;
+		/** The standalone entry, for a host that loads build/standalone.js. */
+		JetpackCommentsEditor?: StandaloneEditor;
 		/** The Tracks queue, which w.js drains. */
 		_tkq?: unknown[];
 	}
