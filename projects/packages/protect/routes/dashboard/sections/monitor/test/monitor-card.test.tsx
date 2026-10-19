@@ -18,7 +18,8 @@ const days: UptimeDay[] = [
 
 const renderCard = (
 	settings: Partial< ProtectSettingsData > = {},
-	state: Partial< MonitorState > = {}
+	state: Partial< MonitorState > = {},
+	openTab = jest.fn()
 ) =>
 	render(
 		<MonitorCard
@@ -31,7 +32,7 @@ const renderCard = (
 					...settings,
 				} as ProtectSettingsData
 			}
-			openTab={ jest.fn() }
+			openTab={ openTab }
 		/>
 	);
 
@@ -142,5 +143,17 @@ describe( 'MonitorCard', () => {
 		renderCard( { settings: { monitor: true }, isSaving: key => key === 'monitor' } );
 
 		expect( mockApiFetch ).not.toHaveBeenCalled();
+	} );
+
+	it( 'opens the Settings tab at its own card', async () => {
+		mockApiFetch.mockResolvedValue( { days, isUp: true } );
+		const openTab = jest.fn();
+		renderCard( {}, {}, openTab );
+
+		await userEvent
+			.setup()
+			.click( screen.getByRole( 'link', { name: 'Configure downtime monitoring' } ) );
+
+		expect( openTab ).toHaveBeenCalledWith( 'settings', { section: 'monitor' } );
 	} );
 } );
