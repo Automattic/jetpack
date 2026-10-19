@@ -121,11 +121,15 @@ class Jetpack_Ai extends Module_Product {
 	/**
 	 * Get the internationalized comparison of free vs upgraded features
 	 *
-	 * @return array[] Protect features comparison
+	 * @deprecated 6.10.0
+	 *
+	 * @return array[] Jetpack AI features comparison
 	 */
 	public static function get_features_by_tier() {
+		_deprecated_function( __METHOD__, 'jetpack-my-jetpack-6.10.0' );
+
 		if ( ! self::are_tier_plans_enabled() ) {
-			return parent::get_features_by_tier();
+			return array();
 		}
 
 		$current_tier        = self::get_current_usage_tier();
@@ -557,7 +561,7 @@ class Jetpack_Ai extends Module_Product {
 	/**
 	 * Get the URL where the user manages the product.
 	 *
-	 * @return ?string
+	 * @return string
 	 */
 	public static function get_manage_url() {
 		if ( self::is_feature_ui_enabled() ) {

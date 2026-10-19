@@ -16,14 +16,16 @@ export default function SettingsTab( props: Omit< DashboardContext, 'state' > ) 
 
 	if ( ! isLoaded ) {
 		return error ? (
-			<Notice.Root intent="error">
-				<Notice.Description>{ error }</Notice.Description>
-				<Notice.Actions>
-					<Notice.ActionButton onClick={ load }>
-						{ __( 'Try again', 'jetpack-protect-pkg' ) }
-					</Notice.ActionButton>
-				</Notice.Actions>
-			</Notice.Root>
+			<div className="jp-protect-dashboard__cards jp-protect-dashboard__cards--settings">
+				<Notice.Root intent="error">
+					<Notice.Description>{ error }</Notice.Description>
+					<Notice.Actions>
+						<Notice.ActionButton onClick={ load }>
+							{ __( 'Try again', 'jetpack-protect-pkg' ) }
+						</Notice.ActionButton>
+					</Notice.Actions>
+				</Notice.Root>
+			</div>
 		) : (
 			<Stack direction="row" justify="center">
 				<Spinner />
@@ -32,11 +34,11 @@ export default function SettingsTab( props: Omit< DashboardContext, 'state' > ) 
 	}
 
 	return (
-		<div className="jp-protect-dashboard__cards">
+		<div className="jp-protect-dashboard__cards jp-protect-dashboard__cards--settings">
 			{ error && (
 				<Notice.Root intent="error">
 					<Notice.Description>{ error }</Notice.Description>
-					<Notice.CloseIcon onClick={ dismissError } />
+					<Notice.CloseIconButton onClick={ dismissError } />
 				</Notice.Root>
 			) }
 			{ cards.length ? (

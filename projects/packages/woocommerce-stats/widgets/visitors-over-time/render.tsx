@@ -37,11 +37,11 @@ function VisitorsOverTime( { chartType }: { chartType?: ChartDisplayChartType } 
 		<ReportMetricChart
 			report={ useReportVisitors( reportParams ) }
 			chartType={ chartType }
+			chartTitle={ __( 'Store visitors over time', 'jetpack-woocommerce-stats-pkg' ) }
 			field="visitors"
 			label={ __( 'Store visitors', 'jetpack-woocommerce-stats-pkg' ) }
 			countLabel={ countLabel }
 			dataFormat={ { type: 'number', options: { useMultipliers: true, decimals: 0 } } }
-			emptyText={ __( 'No store visitors in this period.', 'jetpack-woocommerce-stats-pkg' ) }
 			errorText={ __(
 				"We couldn't load store visitors. Please try again in a moment.",
 				'jetpack-woocommerce-stats-pkg'

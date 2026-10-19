@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Settings: Remove the legacy Settings page and its jetpack-settings-wp-build feature flag.

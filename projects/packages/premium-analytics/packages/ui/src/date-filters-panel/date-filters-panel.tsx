@@ -18,6 +18,7 @@ import { useMemo, useCallback, useState } from 'react';
  */
 import { DateComparisonDropdown } from '../date-comparison-dropdown';
 import { DateIntervalDropdown } from '../date-interval-dropdown';
+import { DateLimitUpsell } from '../date-limit-upsell';
 import { DatePeriodDropdown } from '../date-period-dropdown';
 import { useComparisonDatePresets } from '../use-comparison-date-presets';
 import type { DateControlTriggerProps } from '../utils/date-control-trigger';
@@ -51,8 +52,8 @@ export type DateFiltersPanelProps = {
 
 	/**
 	 * The periods the menu offers. Defaults to every selectable preset; a detail
-	 * page adds all time (`DETAIL_SURFACE_PRESETS`). The menu keeps its own
-	 * order whatever order they arrive in, so its grouping by scale holds.
+	 * or report page adds all time (`MENU_SURFACE_PRESETS_WITH_ALL_TIME`). The menu keeps
+	 * its own order whatever order they arrive in, so its grouping by scale holds.
 	 */
 	presetIds?: readonly QuickSurfacePresetId[];
 
@@ -61,6 +62,9 @@ export type DateFiltersPanelProps = {
 	 * `presetIds` includes it.
 	 */
 	allTimeStart?: Date;
+
+	/** Whether WPCOM picks where all time starts; see `DatePeriodDropdown`. */
+	allTimeStartsOnServer?: boolean;
 
 	/**
 	 * Whether to offer Custom range at the end of the menu. On by default; a
@@ -140,6 +144,7 @@ export function DateFiltersPanel( {
 	comparisonPresetId,
 	presetIds,
 	allTimeStart,
+	allTimeStartsOnServer,
 	withCustomRange = true,
 	withIntervalControl = false,
 	interval,
@@ -167,7 +172,7 @@ export function DateFiltersPanel( {
 	 * Read rather than a prop, so this and the widgets share one declaration —
 	 * a header can never offer a comparison the widgets below aren't fetching.
 	 */
-	const { offersComparison } = useReportScope();
+	const { offersComparison, dateLimits } = useReportScope();
 
 	// Unknown values (e.g. garbage from the URL) become undefined, which the
 	// dropdown reads as the custom preset.
@@ -285,8 +290,19 @@ export function DateFiltersPanel( {
 						onOpenChange={ clearDraft }
 						presetIds={ presetIds }
 						allTimeStart={ allTimeStart }
+						allTimeStartsOnServer={ allTimeStartsOnServer }
 						withCustomRange={ withCustomRange }
 						attentionId={ attentionId }
+						lockedPresetIds={ dateLimits?.lockedPresetIds }
+						earliestDate={ dateLimits?.earliestDate }
+						lockNotice={
+							dateLimits?.upsell && (
+								<DateLimitUpsell
+									upsell={ dateLimits.upsell }
+									onUpgradeClick={ dateLimits.onUpgradeClick }
+								/>
+							)
+						}
 					/>
 				</BaseControl>
 

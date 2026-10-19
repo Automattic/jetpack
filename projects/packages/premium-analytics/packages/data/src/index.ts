@@ -1,5 +1,10 @@
 export { AnalyticsQueryClientProvider, queryClient } from './providers/query-client-provider';
-export { ReportScopeProvider, useReportScope, type ReportScope } from './providers/report-scope';
+export {
+	ReportScopeProvider,
+	useReportScope,
+	useScopeLockedIntervals,
+	type ReportScope,
+} from './providers/report-scope';
 export {
 	PERIOD_CHANGE_ATTENTION_MS,
 	PeriodChangeSignalProvider,
@@ -11,13 +16,8 @@ export * from './hooks';
 export { ensureDashboardEntities } from './entities/dashboard-entities';
 export { latestPostQuery, postContentQuery, postsContentQuery } from './queries/latest-post-query';
 export type { LatestPost, LatestPostResponse } from './processing/latest-post';
-export { authorSummaryQuery } from './queries/author-summary-query';
 export { authorPostsQuery } from './queries/author-posts-query';
-export type {
-	AuthorPostsRecord,
-	AuthorSummaryRecord,
-	AuthorSummaryResponse,
-} from './processing/author';
+export type { AuthorPostsRecord } from './processing/author';
 export { statsInsightsQuery } from './queries/stats-insights-query';
 export {
 	fetchStatsArchivesRows,
@@ -56,7 +56,6 @@ export type {
 } from './processing/stats';
 export type { StatsEmailSummaryItem } from './processing/stats';
 export type { StatsDeviceProperty } from './queries/stats-devices-query';
-export { prefetchReport } from './prefetch';
 export {
 	normalizeReportParams,
 	needsReportDateParamsSeed,
@@ -67,7 +66,6 @@ export {
 } from './utils/search';
 export {
 	ensureCoreSettingsReady,
-	hasProductFilters,
 	isSelectablePreset,
 	computeDateRangeFromPreset,
 	getApiErrorCode,
@@ -83,24 +81,26 @@ export {
 	useSiteHomeUrl,
 	withoutComparison,
 } from './utils';
-export type { ReportDataMap } from './types';
-export type { ReportQueryParams } from './api';
-export type { FilterCondition } from './types/filter-condition';
-export type { ProductType } from './types/product-type';
-export { ORDER_ATTRIBUTION_VIEWS } from './api/report-order-attribution-summary-fetch';
 export {
 	getAllowedIntervalsForPreset,
 	getDefaultIntervalForPeriod,
 	resolveIntervalForPresetChange,
 	resolveIntervalForRange,
 } from './utils/interval';
-export type { IntervalType } from './utils/interval';
+export type { IntervalType, LockableInterval } from './utils/interval';
 export { chartInterval, defaultPeriodForInterval, drawableIntervals } from './utils/periods';
+export {
+	getLockedFeature,
+	getLockedWidgetFeature,
+	isStatsFeatureLocked,
+	type StatsFeatureKey,
+} from './utils/plan-gates';
 export {
 	DASHBOARD_PREFERENCES_SCOPE,
 	getDefaultPreset,
 	getDefaultQueryParams,
 	getDefaultReportParams,
+	rememberComparison,
 	rememberPreset,
 	withDefaultComparison,
 } from './defaults';

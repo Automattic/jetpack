@@ -319,7 +319,7 @@ export default function () {
 											</Button>
 										</Notice.Actions>
 									) }
-									<Notice.CloseIcon onClick={ onNoticeClose } />
+									<Notice.CloseIconButton onClick={ onNoticeClose } />
 								</Notice.Root>
 							</div>
 						) }

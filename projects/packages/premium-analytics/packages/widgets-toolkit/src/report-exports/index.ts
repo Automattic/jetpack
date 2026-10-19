@@ -20,6 +20,7 @@ export {
 	authorPostsCsvExporter,
 	authorsCsvExporter,
 	getAuthorName,
+	getAuthorPostsQueryParams,
 	getAuthorsReportQueryParams,
 	type AuthorRow,
 } from './authors';
@@ -38,8 +39,10 @@ export {
 	LOCATIONS_GEO_MODES,
 	buildLocationRows,
 	getLocationColumnLabel,
+	getLocationsGeoModeOptions,
 	getLocationsReportQueryParams,
 	getLocationsReportSection,
+	getLocationsSectionLabel,
 	getLocationsScopeParams,
 	locationsCsvExporter,
 	supportsLocationsCountryFilter,

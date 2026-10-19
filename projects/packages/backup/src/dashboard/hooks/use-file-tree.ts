@@ -94,22 +94,32 @@ export function toFileNode( name: string, raw: WpcomFileNode, parentPath: string
 	};
 }
 
+type Options = {
+	enabled?: boolean;
+};
+
 /**
  * Hook returning the children of a folder inside a backup.
  *
  * Passing `null` for `folderPath` is the "ask for the root tree" idiom;
  * the hook treats it as a query for `/`.
  *
- * @param rewindId   - The backup's rewind id (decimal-suffix-safe).
- * @param folderPath - Folder to load, or null for the root.
+ * @param rewindId        - The backup's rewind id (decimal-suffix-safe).
+ * @param folderPath      - Folder to load, or null for the root.
+ * @param options         - Query options.
+ * @param options.enabled - False never fetches and only reads the cache, for a closed folder or a file row. Defaults to true.
  * @return Children list, loading flag, error, refetch.
  */
-export function useFileTree( rewindId: string, folderPath: string | null ): Result {
+export function useFileTree(
+	rewindId: string,
+	folderPath: string | null,
+	{ enabled = true }: Options = {}
+): Result {
 	const path = folderPath ?? BASE_FOLDER_PATH;
 	const query = useQuery( {
 		queryKey: keys.fileTree( rewindId, path ),
 		queryFn: () => fetchFileTree( rewindId, path ),
-		enabled: Boolean( rewindId ),
+		enabled: enabled && Boolean( rewindId ),
 	} );
 	const { refetch } = query;
 

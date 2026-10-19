@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Backup: Stop the Get VaultPress Backup button from staying busy when setup fails.

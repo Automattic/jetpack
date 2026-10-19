@@ -201,6 +201,40 @@ describe( 'PayPalButtonPreview', () => {
 		).not.toHaveClass( 'is-style-outline' );
 	} );
 
+	it( 'grays the button before the link exists', () => {
+		render( <PayPalButtonPreview { ...defaultProps } isDisabled /> );
+		expect(
+			document.querySelector( '.jetpack-paypal-button-preview__checkout-button' )
+		).toHaveClass( 'is-disabled' );
+	} );
+
+	it( 'drops the gray once the link exists', () => {
+		render( <PayPalButtonPreview { ...defaultProps } /> );
+		expect(
+			document.querySelector( '.jetpack-paypal-button-preview__checkout-button' )
+		).not.toHaveClass( 'is-disabled' );
+	} );
+
+	// Create new keeps the block's Styles attributes. Their inline colors and
+	// outline class would override the gray.
+	it( 'drops the button Styles settings while gray', () => {
+		render(
+			<PayPalButtonPreview
+				{ ...defaultProps }
+				isDisabled
+				attributes={ {
+					buttonStyle: 'outline',
+					buttonTextColor: '#1e1e1e',
+					buttonBackgroundColor: '#ffd140',
+				} }
+			/>
+		);
+
+		const button = document.querySelector( '.jetpack-paypal-button-preview__checkout-button' );
+		expect( button ).not.toHaveClass( 'is-style-outline' );
+		expect( button ).not.toHaveAttribute( 'style' );
+	} );
+
 	// Border stays on the button, since the card has no background for a radius
 	// to round.
 	it( 'sizes the card and borders the button', () => {

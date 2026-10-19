@@ -10,6 +10,6 @@ import type { StatsTagsParams } from '../queries/stats-tags-query';
 export type StatsTagsResponse = StatsNormalizedReport< StatsTagsItem >;
 export type { StatsTagsParams } from '../queries/stats-tags-query';
 
-export function useStatsTags( params: StatsTagsParams = {}, options?: UseStatsOptions ) {
+export function useStatsTags( params: StatsTagsParams, options?: UseStatsOptions ) {
 	return useStatsQuery< StatsTagsResponse >( statsTagsQuery( params ), options );
 }

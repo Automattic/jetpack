@@ -24,7 +24,7 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
  */
 class Analytics {
 
-	const PACKAGE_VERSION = '0.11.0';
+	const PACKAGE_VERSION = '0.12.0';
 
 	/**
 	 * Whether the class has been initialized.
@@ -292,15 +292,16 @@ class Analytics {
 	}
 
 	/**
-	 * Register the site-served REST API: the WPCOM data proxy and notices.
+	 * Register the site-served REST API: the WPCOM data proxy, notices and the Stats settings.
 	 *
-	 * Both self-gate on their own rest_api_init hooks.
+	 * Each self-gates on its own rest_api_init hook.
 	 *
 	 * @return void
 	 */
 	private static function register_local_api() {
 		Api_Proxy_Controller::register();
 		Notices_Controller::register();
+		Stats_Settings::configure();
 	}
 
 	/**
@@ -361,9 +362,20 @@ class Analytics {
 		}
 		configure_videopress_availability();
 
-		// The composition flag's answer, read by the dashboard policy; the file is
-		// already loaded by boot_shared_services().
-		configure_dashboard_policy();
+		// The plan's locked Stats features, for the client's locked states.
+		if ( ! function_exists( __NAMESPACE__ . '\\configure_stats_plan_gates' ) ) {
+			require_once __DIR__ . '/stats-plan-gates.php';
+		}
+		configure_stats_plan_gates();
+
+		// The purchase a Stats checkout returned with, for the thank-you notice.
+		if ( ! function_exists( __NAMESPACE__ . '\\configure_purchase_success' ) ) {
+			require_once __DIR__ . '/purchase-success.php';
+		}
+		configure_purchase_success();
+
+		// Temporary: carries a default layout move into layouts readers customized before it.
+		Stored_Layout_Move::register();
 	}
 
 	/**

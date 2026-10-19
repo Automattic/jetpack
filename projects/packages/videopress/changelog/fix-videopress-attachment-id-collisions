@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Prevent new uploads from reusing attachment IDs retained by VideoPress after a site restore.

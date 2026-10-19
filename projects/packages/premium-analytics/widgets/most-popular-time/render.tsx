@@ -16,7 +16,6 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
-import { scheduled } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -92,9 +91,8 @@ function MostPopularTimeReport() {
 						: null
 				}
 				empty={ {
-					icon: scheduled,
 					description: __(
-						'Not enough data to determine your most popular time yet.',
+						'Your busiest day and hour will show here once visitors start arriving.',
 						'jetpack-premium-analytics-pkg'
 					),
 				} }

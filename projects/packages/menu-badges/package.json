@@ -7,6 +7,6 @@
 		"test-js": "jest"
 	},
 	"devDependencies": {
-		"jest": "30.5.1"
+		"jest": "30.5.2"
 	}
 }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Let the sidebar sync tests settle the refresh before asserting, so a stalled CI runner cannot fail them.
+
