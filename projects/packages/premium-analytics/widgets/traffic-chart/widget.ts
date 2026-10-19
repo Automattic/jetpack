@@ -108,13 +108,6 @@ const chartIntervalAttribute = {
 	elements: chartIntervalElements( TRAFFIC_PERIODS ),
 };
 
-// The switch must show what the chart draws, and the default depends on Stats v1; the rest of
-// the attribute is in widget.json, which also orders it after the interval.
-const chartTypeAttribute = {
-	id: 'chartType',
-	getValue: ( { item }: { item: TrafficChartAttributes } ) => item.chartType ?? defaultChartType(),
-};
-
 /**
  * Ported from the Jetpack Stats `stats-chart-tabs` card in wp-calypso. Date
  * range and comparison come from `reportParams`; the plotted metric is the
@@ -123,7 +116,11 @@ const chartTypeAttribute = {
 export default {
 	attributes: [
 		chartIntervalAttribute,
-		chartTypeAttribute,
+		{
+			id: 'chartType',
+			getValue: ( { item }: { item: TrafficChartAttributes } ) =>
+				item.chartType ?? defaultChartType(),
+		},
 	] as WidgetAttributeField< TrafficChartAttributes >[],
 	example: {
 		attributes: {},
