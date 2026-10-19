@@ -10,7 +10,7 @@ namespace Automattic\Jetpack\Comments;
 use Automattic\Jetpack\Assets;
 
 /**
- * The form's stylesheet, the theme's tokens, and core's discussion options for the settings preview.
+ * The form's stylesheet, the theme's tokens, and the signed-in commenter for the settings preview.
  */
 class Form_Preview {
 
@@ -23,15 +23,13 @@ class Form_Preview {
 		$css = dirname( __DIR__ ) . '/build/comments.css';
 
 		return array(
-			'styleUrl'      => file_exists( $css ) ? add_query_arg( 'ver', (string) filemtime( $css ), Assets::normalize_path( plugins_url( '../build/comments.css', __FILE__ ) ) ) : '',
-			'theme'         => self::theme_styles(),
-			'defaultAvatar' => Avatars::default_url( 80 ),
-			'discussion'    => array(
-				'url'                 => admin_url( 'options-discussion.php' ),
-				'requireNameEmail'    => (bool) get_option( 'require_name_email' ),
-				'commentRegistration' => (bool) get_option( 'comment_registration' ),
-				'showAvatars'         => (bool) get_option( 'show_avatars' ),
-				'cookiesOptIn'        => (bool) get_option( 'show_comments_cookies_opt_in' ),
+			'styleUrl'    => file_exists( $css ) ? add_query_arg( 'ver', (string) filemtime( $css ), Assets::normalize_path( plugins_url( '../build/comments.css', __FILE__ ) ) ) : '',
+			'theme'       => self::theme_styles(),
+			'showAvatars' => (bool) get_option( 'show_avatars' ),
+			// The preview shows the form as the admin viewing it would see it, signed in.
+			'user'        => array(
+				'name'   => wp_get_current_user()->display_name,
+				'avatar' => (string) get_avatar_url( get_current_user_id(), array( 'size' => 80 ) ),
 			),
 		);
 	}

@@ -31,15 +31,15 @@ function Toolbar() {
 }
 
 /**
- * Jetpack's box as a reader first sees it, in the real form's markup so its stylesheet applies.
+ * Jetpack's box as the signed-in admin sees it, in the real form's markup so its stylesheet applies.
  *
- * @param {object}  props               - Props.
- * @param {boolean} props.hasBlocks     - Whether the editor's toolbar shows.
- * @param {object}  props.discussion    - Core's discussion settings.
- * @param {string}  props.defaultAvatar - Avatar URL.
+ * @param {object}  props             - Props.
+ * @param {boolean} props.hasBlocks   - Whether the editor's toolbar shows.
+ * @param {boolean} props.showAvatars - Whether the site shows avatars.
+ * @param {object}  props.user        - The current user's name and avatar.
  * @return {object} Form.
  */
-function JetpackForm( { hasBlocks, discussion, defaultAvatar } ) {
+function JetpackForm( { hasBlocks, showAvatars, user } ) {
 	return (
 		<div className="jetpack-comments is-mounted">
 			<div className={ hasBlocks ? 'jetpack-comments__box is-open' : 'jetpack-comments__box' }>
@@ -60,20 +60,23 @@ function JetpackForm( { hasBlocks, discussion, defaultAvatar } ) {
 						/>
 					</span>
 					<span className="jetpack-comments__identity">
-						{ discussion.showAvatars && (
+						{ showAvatars && user.avatar && (
 							<img
 								className="jetpack-comments__avatar avatar"
-								src={ defaultAvatar }
+								src={ user.avatar }
 								alt=""
 								width="40"
 								height="40"
 							/>
 						) }
-						<a href="#preview">
-							{ discussion.commentRegistration
-								? __( 'Log in with WordPress.com', 'jetpack' )
-								: __( 'Add your name', 'jetpack' ) }
-						</a>
+						<span className="jetpack-comments__profile">
+							<a className="jetpack-comments__name" href="#preview">
+								{ user.name }
+							</a>
+							<a className="jetpack-comments__link" href="#preview">
+								{ __( 'Log out', 'jetpack' ) }
+							</a>
+						</span>
 					</span>
 				</div>
 			</div>
@@ -82,28 +85,20 @@ function JetpackForm( { hasBlocks, discussion, defaultAvatar } ) {
 }
 
 /**
- * A field of core's plain form.
+ * The comment field of core's plain form.
  *
- * @param {object}  props          - Props.
- * @param {string}  props.label    - Label.
- * @param {boolean} props.required - Whether core marks it required.
- * @param {boolean} props.long     - A textarea rather than a line.
  * @return {object} Field.
  */
-function CoreField( { label, required = false, long = false } ) {
+function CoreCommentField() {
 	const id = useId();
 
 	return (
 		<p>
 			<label htmlFor={ id }>
-				{ label }
-				{ required && <span aria-hidden="true"> *</span> }
+				{ _x( 'Comment', 'noun', 'jetpack' ) }
+				<span aria-hidden="true"> *</span>
 			</label>
-			{ long ? (
-				<textarea id={ id } rows={ 5 } readOnly tabIndex={ -1 } />
-			) : (
-				<input id={ id } type="text" readOnly tabIndex={ -1 } />
-			) }
+			<textarea id={ id } rows={ 5 } readOnly tabIndex={ -1 } />
 		</p>
 	);
 }
@@ -127,47 +122,26 @@ function CoreCheckbox( { label } ) {
 }
 
 /**
- * Core's comment form as WordPress draws it for a visitor, which the theme styles on the site.
+ * Core's comment form as WordPress draws it for a signed-in user, which the theme styles on the site.
  *
  * @param {object} props            - Props.
- * @param {object} props.discussion - Core's discussion settings.
+ * @param {object} props.user       - The current user's name.
  * @param {object} props.newsletter - Which subscribe checkboxes Jetpack adds.
  * @return {object} Form.
  */
-function CoreForm( { discussion, newsletter } ) {
-	if ( discussion.commentRegistration ) {
-		return (
-			<div className="preview__core">
-				<p>
-					{ createInterpolateElement(
-						__( 'You must be <a>logged in</a> to post a comment.', 'jetpack' ),
-						{ a: <a href="#preview" /> }
-					) }
-				</p>
-			</div>
-		);
-	}
-
-	const required = discussion.requireNameEmail;
-
+function CoreForm( { user, newsletter } ) {
 	return (
 		<div className="preview__core">
 			<p className="preview__note">
-				{ __( 'Your email address will not be published.', 'jetpack' ) }
-				{ required && ` ${ __( 'Required fields are marked *', 'jetpack' ) }` }
-			</p>
-			<CoreField label={ _x( 'Comment', 'noun', 'jetpack' ) } required long />
-			<CoreField label={ __( 'Name', 'jetpack' ) } required={ required } />
-			<CoreField label={ __( 'Email', 'jetpack' ) } required={ required } />
-			<CoreField label={ __( 'Website', 'jetpack' ) } />
-			{ discussion.cookiesOptIn && (
-				<CoreCheckbox
-					label={ __(
-						'Save my name, email, and website in this browser for the next time I comment.',
+				{ createInterpolateElement(
+					__(
+						'Logged in as <name />. <a>Edit your profile</a>. <a>Log out?</a> Required fields are marked *',
 						'jetpack'
-					) }
-				/>
-			) }
+					),
+					{ name: <a href="#preview">{ user.name }</a>, a: <a href="#preview" /> }
+				) }
+			</p>
+			<CoreCommentField />
 			{ newsletter.subscribeReplies && (
 				<CoreCheckbox label={ __( 'Notify me of follow-up comments by email.', 'jetpack' ) } />
 			) }
@@ -188,14 +162,14 @@ function CoreForm( { discussion, newsletter } ) {
 }
 
 /**
- * The comment form a reader would see with the current settings, in the theme's type and colors.
+ * The comment form the current user would see with the current settings, in the theme's type and colors.
  *
  * @param {object}  props               - Props.
  * @param {boolean} props.isJetpackForm - Whether the Comments module replaces core's form.
  * @param {boolean} props.hasBlocks     - Whether readers write in blocks.
  * @param {string}  props.prompt        - The heading, or empty for the theme's.
  * @param {object}  props.newsletter    - Which subscribe checkboxes the Newsletter adds.
- * @param {object}  props.preview       - Theme tokens, the form's stylesheet, and core's discussion options.
+ * @param {object}  props.preview       - Theme tokens, the form's stylesheet, and the current user.
  * @return {object} Preview.
  */
 export default function CommentFormPreview( {
@@ -222,11 +196,11 @@ export default function CommentFormPreview( {
 				{ isJetpackForm ? (
 					<JetpackForm
 						hasBlocks={ hasBlocks }
-						discussion={ preview.discussion }
-						defaultAvatar={ preview.defaultAvatar }
+						showAvatars={ preview.showAvatars }
+						user={ preview.user }
 					/>
 				) : (
-					<CoreForm discussion={ preview.discussion } newsletter={ newsletter } />
+					<CoreForm user={ preview.user } newsletter={ newsletter } />
 				) }
 			</div>
 		</Shadow>

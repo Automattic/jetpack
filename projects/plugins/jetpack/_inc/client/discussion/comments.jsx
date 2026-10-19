@@ -1,6 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ToggleControl } from '@wordpress/components';
-import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Component } from 'react';
 import { FormFieldset, FormLabel } from 'components/forms';
@@ -53,13 +52,7 @@ class CommentsComponent extends Component {
 							'Your theme does not share its styles, so the preview uses plain fonts and colors.',
 							'jetpack'
 						) } ` }
-					{ createInterpolateElement(
-						__(
-							'Name, email, and sign-in requirements follow your <a>Discussion settings</a>.',
-							'jetpack'
-						),
-						{ a: <a href={ preview.discussion.url } /> }
-					) }
+					{ __( 'The preview shows the form as you see it while logged in.', 'jetpack' ) }
 				</p>
 			</SettingsGroup>
 		);
