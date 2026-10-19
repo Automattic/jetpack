@@ -1,7 +1,7 @@
 // The "Site menu ad" card from the Launchpad Figma frames: a neutral surface
-// with an illustration, the copy, and the call to action. A wide banner puts
-// the call to action at the end of the row; a narrow one stacks it full width
-// under the copy.
+// with an illustration, the copy, and the call to action. The call to action
+// sits under the copy at every width, like the WordPress Notice component, so
+// it stays clear of the dismiss button.
 .ai-launchpad-difm-offer {
 	position: relative;
 	// The query is on the banner's own width: the task column can be narrow
@@ -77,28 +77,22 @@
 		inset-inline-end: 8px;
 	}
 
-	// The wide layout: thumbnail, copy, and the call to action at the end of
-	// one row. It comes last so it wins over the narrow rules above. The query
-	// measures the content box: about 550px in a 1280px window with the preview
-	// column beside the task list, and 324px in the 380px mobile banner.
+	// A wide banner has room for a larger, landscape illustration. It keeps the
+	// 320x224 ratio and matches the height of the copy and the call to action.
+	// The query measures the content box: about 550px in a 1280px window with
+	// the preview column beside the task list, and 324px in the 380px mobile
+	// banner.
 	@container ( min-width: 480px ) {
 
 		&__content {
-			grid-template-columns: auto minmax(0, 1fr) auto;
-			grid-template-areas: "image body cta";
-			align-items: center;
 			// 16px of banner padding plus 8px: the 24px start inset of the
 			// wide design.
 			margin-inline-start: 8px;
 		}
 
 		&__image {
-			width: 80px;
-			height: 56px;
-		}
-
-		&__cta {
-			margin-block-start: 0;
+			width: 120px;
+			height: 84px;
 		}
 	}
 }
