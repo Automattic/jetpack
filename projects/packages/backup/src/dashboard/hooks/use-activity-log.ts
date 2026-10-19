@@ -1,5 +1,5 @@
 import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useMemo } from '@wordpress/element';
+import { useCallback, useMemo, useRef } from '@wordpress/element';
 import {
 	fetchActivityLog,
 	type ActivitySortOrder,
@@ -24,8 +24,9 @@ type Result = {
 	items: ActivityItem[];
 	totalItems: number;
 	/**
-	 * Null until the feed has answered: DataViews leaves the page alone while
-	 * the total is unknown, but clamps it to 1 when handed a fallback count.
+	 * Null until the feed has answered, then the last answer's, even if a later page fails:
+	 * DataViews leaves the page alone while the total is unknown, but clamps it to 1 when
+	 * handed a fallback count.
 	 */
 	totalPages: number | null;
 	isLoading: boolean;
@@ -124,10 +125,15 @@ export function useActivityLog( { page, pageSize, sortOrder }: Args ): Result {
 
 	// The server's own count, not the merged one: restore rows land on a single
 	// page, so counting them would misreport how many pages there are.
-	const totalItems = query.data?.totalItems ?? entries.length;
-	const totalPages = query.data
-		? ( query.data.totalPages ?? Math.max( 1, Math.ceil( entries.length / pageSize ) ) )
-		: null;
+	const answer = query.data && {
+		totalItems: query.data.totalItems ?? entries.length,
+		totalPages: query.data.totalPages ?? Math.max( 1, Math.ceil( entries.length / pageSize ) ),
+	};
+	// Kept past a failed page: DataViews hides its pager at zero items, which strands the reader there.
+	const lastAnswer = useRef( answer );
+	lastAnswer.current = answer ?? lastAnswer.current;
+	const totalItems = lastAnswer.current?.totalItems ?? 0;
+	const totalPages = lastAnswer.current?.totalPages ?? null;
 
 	// Only once the feed has answered: a failed page holds no rows, and merged
 	// restores would fill it, hiding the failure the list's `empty` slot reports.

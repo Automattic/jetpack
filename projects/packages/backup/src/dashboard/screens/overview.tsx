@@ -21,6 +21,7 @@ import {
 	ACTIVITY_LOG_DEFAULT_PER_PAGE,
 	ACTIVITY_LOG_NEWEST_FIRST,
 	useActivityById,
+	useActivityLog,
 	useDefaultBackupRewindId,
 	useHasRestorePoints,
 } from '../hooks/use-activity-log';
@@ -246,6 +247,10 @@ function OverviewBody() {
 		isPaused: restorePointsPaused,
 	} = useHasRestorePoints();
 
+	// The list reads the same cache entry. Only a log that never answered has no list to keep.
+	const activity = useActivityLog( { page, pageSize, sortOrder } );
+	const activityFailed = activity.error !== null && activity.totalPages === null;
+
 	const overviewRef = useRef< HTMLDivElement >( null );
 	const revealDetail = useRevealDetail( overviewRef, selectedId );
 	const storageRef = useRef< HTMLElement >( null );
@@ -373,30 +378,43 @@ function OverviewBody() {
 				}
 			/>
 			{ /*
-			 * Where focus goes once the empty state or the backup-status error unmounts,
+			 * Where focus goes once the empty state or either error unmounts,
 			 * so the next Tab reaches the list rather than the top of the page.
 			 */ }
 			<div
-				className="jpb-overview"
+				className={ `jpb-overview${ activityFailed ? ' jpb-overview--failed' : '' }` }
 				ref={ overviewRef }
 				tabIndex={ -1 }
 				role="group"
 				aria-label={ __( 'Backup activity', 'jetpack-backup-pkg' ) }
 			>
-				<ActivityList
-					selectedId={ selectedId }
-					onSelect={ setSelected }
-					view={ view }
-					onChangeView={ rememberView }
-					finishedRuns={ finishedRuns }
-				/>
-				<RightPane
-					selectedId={ selectedId }
-					page={ page }
-					pageSize={ pageSize }
-					sortOrder={ sortOrder }
-					onClearSelected={ clearSelected }
-				/>
+				{ activityFailed ? (
+					<QueryError
+						className="jpb-query-error--standalone"
+						title={ __( "We couldn't load your site's activity.", 'jetpack-backup-pkg' ) }
+						error={ activity.error }
+						onRetry={ activity.refetch }
+						isRetrying={ activity.isFetching }
+						returnFocusTo={ overviewRef }
+					/>
+				) : (
+					<>
+						<ActivityList
+							selectedId={ selectedId }
+							onSelect={ setSelected }
+							view={ view }
+							onChangeView={ rememberView }
+							finishedRuns={ finishedRuns }
+						/>
+						<RightPane
+							selectedId={ selectedId }
+							page={ page }
+							pageSize={ pageSize }
+							sortOrder={ sortOrder }
+							onClearSelected={ clearSelected }
+						/>
+					</>
+				) }
 			</div>
 		</>
 	);

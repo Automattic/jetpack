@@ -137,6 +137,38 @@ describe( 'activity list', () => {
 		expect( screen.getByText( 'Service unavailable' ) ).toBeInTheDocument();
 		// The regression: a 5xx telling the reader their site has no activity.
 		expect( screen.queryByText( 'No results' ) ).not.toBeInTheDocument();
+		// The notice stands in for the list card instead of sitting inside a narrow one.
+		expect( screen.queryByRole( 'heading', { name: 'Latest backups' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'keeps the list layout and a way back when a later page fails', async () => {
+		mockApiFetch.mockImplementation( ( options: { path?: string } ) => {
+			const path = options?.path ?? '';
+			if ( path.includes( '/site/capabilities' ) ) {
+				return Promise.resolve( CAPABILITIES );
+			}
+			if ( path.includes( '/site/rewindable-activity' ) ) {
+				return path.includes( 'page=2' )
+					? Promise.reject( { code: 'activity_log_fetch_failed', message: 'Service unavailable' } )
+					: Promise.resolve( {
+							current: { orderedItems: [ backupActivityEntry() ] },
+							totalItems: 2,
+							totalPages: 2,
+						} );
+			}
+			return Promise.resolve( {} );
+		} );
+
+		render( <OverviewStage /> );
+		await userEvent.click( await screen.findByRole( 'button', { name: 'Next page' } ) );
+
+		await expect(
+			screen.findByText( "We couldn't load your site's activity." )
+		).resolves.toBeInTheDocument();
+		expect( screen.getByRole( 'heading', { name: 'Latest backups' } ) ).toBeInTheDocument();
+		// The pager is what gets the reader back; DataViews hides it when the page has no rows.
+		await userEvent.click( screen.getByRole( 'button', { name: 'Previous page' } ) );
+		await expect( screen.findAllByText( 'Backup complete' ) ).resolves.not.toHaveLength( 0 );
 	} );
 
 	it( 'still shows the plain empty state when the request simply returns nothing', async () => {
