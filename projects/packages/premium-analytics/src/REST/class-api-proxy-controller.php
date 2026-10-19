@@ -547,7 +547,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	/**
 	 * Make every cached read stale, as when a purchase changes what WPCOM returns.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.13.0
 	 *
 	 * @return void
 	 */

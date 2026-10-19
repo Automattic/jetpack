@@ -48,7 +48,7 @@ const JETPACK_STATS_COMMERCIAL_PLAN_PREFIXES = array( 'jetpack_business', 'jetpa
 /**
  * The Stats plan tier the dashboard is gated by.
  *
- * @since $$next-version$$
+ * @since 0.13.0
  *
  * @return string One of the STATS_TIER_* values.
  */
@@ -66,7 +66,7 @@ function get_stats_plan_tier() {
 	/**
 	 * Filters the Stats plan tier Premium Analytics gates the dashboard by.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.13.0
 	 *
 	 * @param string $tier One of `commercial`, `legacy-free`, `paid`, `legacy-basic`, `free`, `jetpack-free` or
 	 *                     `unknown`, which locks nothing. Any other value is ignored.
@@ -76,7 +76,7 @@ function get_stats_plan_tier() {
 	// A misspelled tier would otherwise fall through to `unknown` and unlock every paid feature.
 	if ( ! in_array( $filtered, STATS_TIERS, true ) ) {
 		// One line: tools/replace-next-version-tag.sh only rewrites the token in a single-line call.
-		_doing_it_wrong( __FUNCTION__, esc_html( sprintf( /* translators: %s: Filter name. */ __( 'The %s filter must return one of the STATS_TIER_* values.', 'jetpack-premium-analytics-pkg' ), STATS_PLAN_TIER_FILTER ) ), 'jetpack-premium-analytics-$$next-version$$' );
+		_doing_it_wrong( __FUNCTION__, esc_html( sprintf( /* translators: %s: Filter name. */ __( 'The %s filter must return one of the STATS_TIER_* values.', 'jetpack-premium-analytics-pkg' ), STATS_PLAN_TIER_FILTER ) ), 'jetpack-premium-analytics-0.13.0' );
 		return $tier;
 	}
 
@@ -86,7 +86,7 @@ function get_stats_plan_tier() {
 /**
  * The tier of a WordPress.com site, from its stats feature.
  *
- * @since $$next-version$$
+ * @since 0.13.0
  *
  * @param bool $is_atomic Whether the site is Atomic.
  * @return string One of the STATS_TIER_* values.
@@ -120,7 +120,7 @@ function get_wpcom_stats_plan_tier( $is_atomic ) {
 /**
  * The tier of a self-hosted site, from its cached plan.
  *
- * @since $$next-version$$
+ * @since 0.13.0
  *
  * @return string One of the STATS_TIER_* values.
  */
@@ -135,7 +135,7 @@ function get_jetpack_stats_plan_tier() {
 /**
  * Whether the plan cache holds a plan. An empty one cannot tell a paid site from a free one (STATS-475).
  *
- * @since $$next-version$$
+ * @since 0.13.0
  *
  * @return bool
  */
@@ -148,7 +148,7 @@ function has_cached_jetpack_plan() {
 /**
  * Whether a self-hosted site's cached plan or products support commercial use.
  *
- * @since $$next-version$$
+ * @since 0.13.0
  *
  * @return bool
  */
@@ -189,7 +189,7 @@ const STATS_ADVANCED_FEATURES = array( 'utm', 'devices', 'regions-cities' );
 /**
  * The features a tier locks.
  *
- * @since $$next-version$$
+ * @since 0.13.0
  *
  * @param string $tier One of the STATS_TIER_* values.
  * @return string[] Feature keys.
@@ -216,7 +216,7 @@ function get_locked_stats_features( $tier ) {
 /**
  * What a locked feature says, worded as classic Stats' upsell; `<link>` wraps the words its support page explains.
  *
- * @since $$next-version$$
+ * @since 0.13.0
  *
  * @param string $feature Feature key.
  * @return array{description:string, support_url:string} The copy, generic for a feature without its own.
@@ -313,7 +313,7 @@ const WPCOM_SUPPORT_LOCALES = array( 'ar', 'de', 'es', 'fr', 'he', 'id', 'it', '
  *
  * Leaves jetpack.com URLs in English: its localized support docs are missing for most locales.
  *
- * @since $$next-version$$
+ * @since 0.13.0
  *
  * @param string $url Support URL, in English.
  * @return string
@@ -338,7 +338,7 @@ function localize_stats_support_url( $url ) {
 /**
  * Where to buy a locked feature: classic Stats' purchase destinations.
  *
- * @since $$next-version$$
+ * @since 0.13.0
  *
  * @param string $feature Feature key.
  * @param string $tier    One of the STATS_TIER_* values.
@@ -377,7 +377,7 @@ function get_stats_upgrade_url( $feature, $tier ) {
 /**
  * The gates the client applies: each locked feature's copy and upgrade URL, and the feature of each widget type it locks.
  *
- * @since $$next-version$$
+ * @since 0.13.0
  *
  * @return array{tier:string, locked_features:array<string,array{description:string, support_url:string, upgrade_url:string}>, locked_widget_types:array<string,string>}
  */
@@ -413,7 +413,7 @@ function get_stats_plan_gates() {
 /**
  * Configures the plan gates script data.
  *
- * @since $$next-version$$
+ * @since 0.13.0
  *
  * @return void
  */
@@ -426,7 +426,7 @@ function configure_stats_plan_gates() {
 /**
  * Injects the plan gates into JetpackScriptData.
  *
- * @since $$next-version$$
+ * @since 0.13.0
  *
  * @param array $data The script data passed by the assets package.
  * @return array
@@ -471,7 +471,7 @@ const PURCHASE_CACHE_INVALIDATION_TRANSIENT = 'jetpack_premium_analytics_purchas
 /**
  * Drops the cached Stats replies a checkout made stale, before the dashboard it returns to asks for them.
  *
- * @since $$next-version$$
+ * @since 0.13.0
  *
  * @return void
  */
@@ -496,7 +496,7 @@ function maybe_invalidate_stats_caches() {
  *
  * Script data is final once printed, so the gates can only change before it.
  *
- * @since $$next-version$$
+ * @since 0.13.0
  *
  * @return void
  */
