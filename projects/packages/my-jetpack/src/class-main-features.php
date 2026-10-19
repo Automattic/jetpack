@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
-use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Status\Host;
 
@@ -365,7 +364,7 @@ class Main_Features {
 				'icon'             => 'shield',
 				'product'          => 'protect',
 				// Not `protect`: that module is Brute Force Protection, which has its own row.
-				'module'           => 'protect-dashboard',
+				'module'           => Products\Protect::DASHBOARD_MODULE_NAME,
 				'essential'        => true,
 				'interstitial'     => '/add-protect',
 				'free_highlights'  => array(
@@ -379,9 +378,8 @@ class Main_Features {
 					__( 'Instant email alerts when a threat is found', 'jetpack-my-jetpack' ),
 				),
 				'delivery'         => array(
-					// Only while the Jetpack plugin offers its flag-gated `protect-dashboard` module, and never on
-					// WordPress.com Simple, whose partial bootstrap skips the flag. Not is_module(): it passes any slug.
-					'jetpack'     => ! ( new Host() )->is_wpcom_simple() && in_array( 'protect-dashboard', (array) ( new Modules() )->get_available(), true ),
+					// Never on WordPress.com Simple, whose partial bootstrap skips the module's flag.
+					'jetpack'     => ! ( new Host() )->is_wpcom_simple() && Products\Protect::is_dashboard_module_available(),
 					'plugin'      => 'jetpack-protect',
 					'plugin_name' => __( 'Jetpack Protect', 'jetpack-my-jetpack' ),
 					'plugin_url'  => 'https://wordpress.org/plugins/jetpack-protect/',
@@ -925,7 +923,7 @@ class Main_Features {
 			$names = array_filter( array( $slug, $definition['product'] ?? '', $definition['module'] ?? '' ) );
 			if ( array_intersect( $names, $hidden ) ) {
 				$product_class = isset( $definition['product'] ) ? Products::get_product_class( $definition['product'] ) : null;
-				$hidden[]      = $definition['module'] ?? ( $product_class ? $product_class::$module_name : '' );
+				$hidden[]      = $definition['module'] ?? ( $product_class ? $product_class::get_module_name() : '' );
 			}
 		}
 		return array_values( array_unique( array_filter( $hidden ) ) );

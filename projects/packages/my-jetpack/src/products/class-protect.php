@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Protect_Status\Status as Protect_Status;
@@ -86,11 +87,18 @@ class Protect extends Hybrid_Product {
 	public static $slug = 'protect';
 
 	/**
-	 * The Jetpack module name
+	 * The Jetpack module name, used where the `protect-dashboard` module is not on offer.
 	 *
 	 * @var string
 	 */
 	public static $module_name = 'protect';
+
+	/**
+	 * The module that loads the Protect page.
+	 *
+	 * @var string
+	 */
+	const DASHBOARD_MODULE_NAME = 'protect-dashboard';
 
 	/**
 	 * The filename (id) of the plugin associated with this product.
@@ -109,6 +117,46 @@ class Protect extends Hybrid_Product {
 	 * @var string
 	 */
 	public static $plugin_slug = 'jetpack-protect';
+
+	/**
+	 * Get the module that switches Protect on: the Protect page's, wherever the Jetpack plugin offers it.
+	 *
+	 * Not with the standalone plugin active: the page module would take over that plugin's dashboard (see JETPACK-3062).
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string
+	 */
+	public static function get_module_name() {
+		if ( ! static::is_standalone_plugin_active() && self::is_dashboard_module_available() ) {
+			return self::DASHBOARD_MODULE_NAME;
+		}
+		return static::$module_name;
+	}
+
+	/**
+	 * Leave the standalone plugin alone where the Jetpack plugin already delivers the Protect page.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function should_use_standalone_plugin() {
+		return ! ( static::is_jetpack_plugin_active() && self::is_dashboard_module_available() );
+	}
+
+	/**
+	 * Whether the Jetpack plugin offers the module that loads the Protect page, which only happens while its flag is on.
+	 *
+	 * Not Modules::is_module(): it passes any slug.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_dashboard_module_available() {
+		return in_array( self::DASHBOARD_MODULE_NAME, (array) ( new Modules() )->get_available(), true );
+	}
 
 	/**
 	 * Activate local product steps without scheduling connected modules offline.
