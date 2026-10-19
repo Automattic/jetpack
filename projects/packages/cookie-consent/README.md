@@ -61,11 +61,11 @@ Cookie_Consent::uninstall( true );
 
 ### Init ownership
 
-The package runs one instance per request, and the first `init()` call owns it: a later `init()` from any consumer is a no-op, and a disabled first `init()` keeps the package off for the request. A consumer that shares a site with another one (for example two plugins bundling the package) can detect this instead of having its config silently ignored:
+The package runs one instance per request, and the first enabled `init()` call owns it: a later `init()` from any consumer is a no-op. A disabled `init()` (`enabled` false) does not claim the package, so a consumer that bundles the package but keeps it off does not block another consumer's enabled `init()` later in the same request. A consumer that shares a site with another one (for example two plugins bundling the package) can detect an owner instead of having its config silently ignored:
 
-- `Cookie_Consent::is_initialized()` returns whether `init()` already ran in this request.
-- `Cookie_Consent::get_active_config()` returns the resolved config the first `init()` latched (with `enabled` false for a disabled init), or `null` before `init()`.
-- The `jetpack_cookie_consent_initialized` action fires once, when the first `init()` latches, with that resolved config. It fires after `init()` has registered every runtime hook, so a listener that calls `deactivate()` leaves the package fully inactive.
+- `Cookie_Consent::is_initialized()` returns whether an enabled `init()` booted the package in this request. It stays false after a disabled `init()`.
+- `Cookie_Consent::get_active_config()` returns the stable part of the config the package booted with, or `null` when no enabled `init()` ran. Only two keys are returned: `enabled` (always `true`) and `features` (every `features.*` toggle, resolved). The rest of the resolved config is internal.
+- The `jetpack_cookie_consent_initialized` action fires once, when an enabled `init()` boots the package, with the same array `get_active_config()` returns. It does not fire for a disabled `init()`. It fires after `init()` has registered every runtime hook, so a listener that calls `deactivate()` leaves the package fully inactive.
 
 ```php
 if ( Cookie_Consent::is_initialized() ) {
@@ -82,7 +82,7 @@ Cookie_Consent::init( $my_config );
 
 #### Master switch
 
-Set `enabled` to `false` to make `init()` a no-op — no hooks are registered at all, including the consent-log REST controller:
+Set `enabled` to `false` to make `init()` a no-op — no hooks are registered at all, including the consent-log REST controller. A disabled `init()` does not claim the package, so another consumer's enabled `init()` later in the request still boots it (see [Init ownership](#init-ownership)):
 
 ```php
 Cookie_Consent::init(

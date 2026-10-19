@@ -36,29 +36,64 @@ class Init_Ownership_Test extends TestCase {
 		$this->assertNull( Cookie_Consent::get_active_config() );
 	}
 
-	public function test_init_reports_the_resolved_config() {
-		Cookie_Consent::init( array( 'event_prefix' => 'first_consumer' ) );
+	public function test_init_reports_the_stable_part_of_the_config() {
+		Cookie_Consent::init(
+			array(
+				'event_prefix' => 'first_consumer',
+				'features'     => array( 'geo' => false ),
+			)
+		);
 
 		$this->assertTrue( Cookie_Consent::is_initialized() );
-		$this->assertSame( 'first_consumer', Cookie_Consent::get_active_config()['event_prefix'] );
-		$this->assertTrue( Cookie_Consent::get_active_config()['enabled'] );
+		$active = Cookie_Consent::get_active_config();
+		$this->assertSame( array( 'enabled', 'features' ), array_keys( $active ) );
+		$this->assertTrue( $active['enabled'] );
+		$this->assertFalse( $active['features']['geo'] );
+		$this->assertTrue( $active['features']['banner'] );
 	}
 
-	public function test_second_init_keeps_the_first_config() {
-		Cookie_Consent::init( array( 'event_prefix' => 'first_consumer' ) );
+	public function test_two_enabled_inits_keep_the_first_config() {
+		Cookie_Consent::init( array( 'features' => array( 'geo' => false ) ) );
+		Cookie_Consent::init( array( 'features' => array( 'geo' => true ) ) );
+
+		$this->assertFalse( Cookie_Consent::get_active_config()['features']['geo'] );
+		$this->assertFalse( Cookie_Consent::get_config()['features']['geo'] );
+	}
+
+	public function test_disabled_init_alone_boots_nothing() {
+		Cookie_Consent::init( array( 'enabled' => false ) );
+
+		$this->assertFalse( Cookie_Consent::is_initialized() );
+		$this->assertNull( Cookie_Consent::get_active_config() );
+		$this->assertFalse( has_action( 'wp_enqueue_scripts', array( Cookie_Consent::class, 'enqueue_assets' ) ) );
+		$this->assertFalse( has_action( 'wp_footer', array( Cookie_Consent::class, 'render_banner' ) ) );
+		$this->assertFalse( has_action( 'wp_footer', array( Cookie_Consent::class, 'maybe_render_footer_links_fallback' ) ) );
+		$this->assertFalse( has_filter( 'hooked_block_types', array( Cookie_Consent::class, 'register_footer_navigation_links' ) ) );
+	}
+
+	public function test_enabled_init_after_a_disabled_init_boots_the_banner() {
+		// A consumer that bundles the package but keeps it off, early on `init`.
+		Cookie_Consent::init( array( 'enabled' => false ) );
+		// Another consumer, later in the same request.
 		Cookie_Consent::init( array( 'event_prefix' => 'second_consumer' ) );
 
-		$this->assertSame( 'first_consumer', Cookie_Consent::get_active_config()['event_prefix'] );
+		$this->assertTrue( Cookie_Consent::is_initialized() );
+		$this->assertTrue( Cookie_Consent::get_active_config()['enabled'] );
+		$this->assertSame( 'second_consumer', Cookie_Consent::get_config()['event_prefix'] );
+		$this->assertNotFalse( has_action( 'wp_enqueue_scripts', array( Cookie_Consent::class, 'enqueue_assets' ) ) );
+		$this->assertNotFalse( has_action( 'wp_footer', array( Cookie_Consent::class, 'render_banner' ) ) );
 	}
 
-	public function test_disabled_init_is_reported() {
+	public function test_disabled_init_after_an_enabled_init_is_a_no_op() {
+		Cookie_Consent::init();
 		Cookie_Consent::init( array( 'enabled' => false ) );
 
 		$this->assertTrue( Cookie_Consent::is_initialized() );
-		$this->assertFalse( Cookie_Consent::get_active_config()['enabled'] );
+		$this->assertTrue( Cookie_Consent::get_config()['enabled'] );
+		$this->assertNotFalse( has_action( 'wp_footer', array( Cookie_Consent::class, 'render_banner' ) ) );
 	}
 
-	public function test_initialized_action_fires_once_with_the_resolved_config() {
+	public function test_initialized_action_fires_once_with_the_active_config() {
 		$received = array();
 		add_action(
 			'jetpack_cookie_consent_initialized',
@@ -67,15 +102,15 @@ class Init_Ownership_Test extends TestCase {
 			}
 		);
 
-		Cookie_Consent::init( array( 'event_prefix' => 'first_consumer' ) );
-		Cookie_Consent::init( array( 'event_prefix' => 'second_consumer' ) );
+		Cookie_Consent::init( array( 'features' => array( 'geo' => false ) ) );
+		Cookie_Consent::init( array( 'features' => array( 'geo' => true ) ) );
 
 		$this->assertCount( 1, $received );
-		$this->assertSame( 'first_consumer', $received[0]['event_prefix'] );
+		$this->assertFalse( $received[0]['features']['geo'] );
 		$this->assertSame( Cookie_Consent::get_active_config(), $received[0] );
 	}
 
-	public function test_initialized_action_fires_for_a_disabled_init() {
+	public function test_initialized_action_does_not_fire_for_a_disabled_init() {
 		$received = array();
 		add_action(
 			'jetpack_cookie_consent_initialized',
@@ -86,8 +121,12 @@ class Init_Ownership_Test extends TestCase {
 
 		Cookie_Consent::init( array( 'enabled' => false ) );
 
+		$this->assertCount( 0, $received );
+
+		Cookie_Consent::init();
+
 		$this->assertCount( 1, $received );
-		$this->assertFalse( $received[0]['enabled'] );
+		$this->assertTrue( $received[0]['enabled'] );
 	}
 
 	public function test_initialized_action_fires_after_the_runtime_hooks_are_registered() {

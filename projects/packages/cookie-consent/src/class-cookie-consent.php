@@ -88,9 +88,11 @@ class Cookie_Consent {
 	 * and stashes the configuration, bails entirely when `enabled` is false, and
 	 * otherwise registers each hook slice only when its `features.*` toggle is on.
 	 *
-	 * The first call latches, including when `enabled` is false: a disabled init is a
-	 * sticky no-op, so a later caller cannot re-enable the feature within the same
-	 * request. Only deactivate() clears the latch.
+	 * The first enabled call boots the package and latches: a later call, from the same
+	 * or another consumer, is a no-op until deactivate() clears the latch. A disabled
+	 * call (`enabled` false after the `jetpack_cookie_consent_config` filter) registers
+	 * nothing and does not latch, so a consumer that bundles the package but keeps it
+	 * off does not block another consumer's enabled init() in the same request.
 	 *
 	 * @param array $config Partial consumer config, resolved via Config_Schema.
 	 */
@@ -98,27 +100,29 @@ class Cookie_Consent {
 		if ( self::$initialized ) {
 			return;
 		}
-		self::$initialized = true;
-		$resolved          = self::resolve_config( $config );
-		self::$config      = $resolved;
+		$resolved     = self::resolve_config( $config );
+		self::$config = $resolved;
 
-		if ( ! empty( $resolved['enabled'] ) ) {
-			self::register_runtime_hooks( $resolved );
+		if ( empty( $resolved['enabled'] ) ) {
+			return;
 		}
 
+		self::$initialized = true;
+		self::register_runtime_hooks( $resolved );
+
 		/**
-		 * Fires once, when the first init() call of the request latches the package.
+		 * Fires once, when an enabled init() call boots the package.
 		 *
-		 * Fires for a disabled config too, so another consumer can tell that the package
-		 * is already owned and that its own init() call would be ignored. Fires after every
-		 * runtime hook is registered, so a listener that calls deactivate() leaves the
+		 * Does not fire for a disabled init(), which does not boot the package. Fires after
+		 * every runtime hook is registered, so a listener that calls deactivate() leaves the
 		 * package fully inactive.
 		 *
 		 * @since $$next-version$$
 		 *
-		 * @param array $resolved The resolved configuration the package runs with.
+		 * @param array $active_config The stable part of the configuration the package runs
+		 *                             with: `enabled` and `features`. See get_active_config().
 		 */
-		do_action( 'jetpack_cookie_consent_initialized', $resolved );
+		do_action( 'jetpack_cookie_consent_initialized', self::get_active_config() );
 	}
 
 	/**
@@ -205,11 +209,12 @@ class Cookie_Consent {
 	}
 
 	/**
-	 * Whether init() has already run in this request.
+	 * Whether an enabled init() call has booted the package in this request.
 	 *
-	 * The first init() call wins: a later call, from the same or another consumer, is a
-	 * no-op. Check this before calling init() to detect that another consumer owns the
-	 * package, then read get_active_config() to see what it runs with.
+	 * The first enabled init() wins: a later call, from the same or another consumer, is a
+	 * no-op. A disabled init() does not count and leaves this false. Check this before
+	 * calling init() to detect that another consumer owns the package, then read
+	 * get_active_config() to see what it runs with.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -220,20 +225,26 @@ class Cookie_Consent {
 	}
 
 	/**
-	 * The configuration the first init() call resolved, or null before init().
+	 * The stable part of the configuration the package booted with, or null when no
+	 * enabled init() has run.
 	 *
-	 * A disabled init() still counts: the returned config then has `enabled` set to false.
+	 * Only `enabled` (always true here) and `features` (every `features.*` toggle,
+	 * resolved) are returned. The rest of the resolved config is internal and may change
+	 * without notice.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return array|null
+	 * @return array{enabled: bool, features: array<string, bool>}|null
 	 */
 	public static function get_active_config() {
-		if ( ! self::$initialized ) {
+		if ( ! self::$initialized || ! is_array( self::$config ) ) {
 			return null;
 		}
 
-		return self::$config;
+		return array(
+			'enabled'  => (bool) self::$config['enabled'],
+			'features' => self::$config['features'],
+		);
 	}
 
 	/**

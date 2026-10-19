@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+A disabled `init()` no longer claims the package for the request, so a later enabled `init()` from another consumer boots it.
