@@ -18,7 +18,7 @@ The relevant class is `Automattic\Jetpack\Connection\Jetpack_Connector`.
 
 Depending on connection state, the card surfaces:
 
-- **Connection / registration status** — whether the site is registered (has a blog token) and connected (registered *and* has a connected owner), and whether it is in offline mode.
+- **Connection / registration status** — whether the site is registered (has a blog token) and connected (registered _and_ has a connected owner), and whether it is in offline mode.
 - **Site details** — blog ID, site URL, and home URL once registered.
 - **Your account** — the viewer's WordPress.com name, login, email, and avatar, and whether they own the connection.
 - **Connection owner** — name and avatar, linked to their profile when the viewer can edit that user.
@@ -34,14 +34,14 @@ Connect and disconnect actions performed from the card go through the package's 
 
 The card reads connection state from the `jetpack-connection` store, which `Initial_State` fills, so it shows the same facts as the package's own components on the screen (the transfer and protected-owner dialogs):
 
-| Card shows | Store source |
-| --- | --- |
-| Registered / connected | `getConnectionStatus()` — `isRegistered`, `hasConnectedOwner` |
-| Offline mode | `getIsOfflineMode()` |
-| Blog ID, first connection | `getBlogId()`, with `isRegistered` |
-| Your account | `getUserConnectionData().currentUser`, with `isUserConnected` from the status |
-| Connection owner | `getConnectionOwner()` — only for users with `jetpack_connect`. It comes from the `master_user` option, so the card shows it, and your account, only while the owner's token works (`hasConnectedOwner`) |
-| Connected plugins | `getConnectedPlugins()` |
+| Card shows                | Store source                                                                                                                                                                                             |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Registered / connected    | `getConnectionStatus()` — `isRegistered`, `hasConnectedOwner`                                                                                                                                            |
+| Offline mode              | `getIsOfflineMode()`                                                                                                                                                                                     |
+| Blog ID, first connection | `getBlogId()`, with `isRegistered`                                                                                                                                                                       |
+| Your account              | `getUserConnectionData().currentUser`, with `isUserConnected` from the status                                                                                                                            |
+| Connection owner          | `getConnectionOwner()` — only for users with `jetpack_connect`. It comes from the `master_user` option, so the card shows it, and your account, only while the owner's token works (`hasConnectedOwner`) |
+| Connected plugins         | `getConnectedPlugins()`                                                                                                                                                                                  |
 
 Everything else is card-only and comes from `Jetpack_Connector::get_connector_data()` through the `script_module_data_@automattic/jetpack-connection-connectors` filter. Some of it stays there because the store has no equivalent:
 
