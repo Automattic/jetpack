@@ -121,7 +121,7 @@ class Protect extends Hybrid_Product {
 	/**
 	 * Get the module that switches Protect on: the Protect page's, wherever the Jetpack plugin offers it.
 	 *
-	 * Not with the standalone plugin active: the page module would take over that plugin's dashboard.
+	 * Not with the standalone plugin active: the page module would take over that plugin's dashboard (see JETPACK-3062).
 	 *
 	 * @since $$next-version$$
 	 *
@@ -146,11 +146,15 @@ class Protect extends Hybrid_Product {
 	}
 
 	/**
-	 * Whether the Jetpack plugin offers the module that loads the Protect page.
+	 * Whether the Jetpack plugin offers the module that loads the Protect page, which only happens while its flag is on.
+	 *
+	 * Not Modules::is_module(): it passes any slug.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @return bool
 	 */
-	private static function is_dashboard_module_available() {
+	public static function is_dashboard_module_available() {
 		return in_array( self::DASHBOARD_MODULE_NAME, (array) ( new Modules() )->get_available(), true );
 	}
 
