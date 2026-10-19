@@ -161,6 +161,23 @@ class Backup_Product_Test extends TestCase {
 	}
 
 	/**
+	 * A stored plan for an expired bundle, which lists only the other plans that include Backup.
+	 *
+	 * @param string $slug The bundle's product slug.
+	 * @return array
+	 */
+	private static function expired_bundle( $slug ) {
+		return array(
+			'product_slug' => $slug,
+			'expired'      => true,
+			'features'     => array(
+				'active'    => array(),
+				'available' => array( 'backups' => array( 'jetpack_complete' ) ),
+			),
+		);
+	}
+
+	/**
 	 * Data provider for test_has_plan_on_record.
 	 *
 	 * @return array
@@ -184,18 +201,9 @@ class Backup_Product_Test extends TestCase {
 				),
 				true,
 			),
-			'an expired bundle'           => array(
-				array(
-					'product_slug' => 'jetpack_security_t1_yearly',
-					'expired'      => true,
-					'features'     => array(
-						'active'    => array(),
-						'available' => array( 'backups' => array( 'jetpack_security_t1_yearly' ) ),
-					),
-				),
-				array(),
-				true,
-			),
+			'an expired Security bundle'  => array( self::expired_bundle( 'jetpack_security_t1_yearly' ), array(), true ),
+			'an expired Starter bundle'   => array( self::expired_bundle( 'jetpack_starter_yearly' ), array(), true ),
+			'an expired Growth bundle'    => array( self::expired_bundle( 'jetpack_growth_yearly' ), array(), false ),
 			'another product'             => array( $free, array( array( 'product_slug' => 'jetpack_scan' ) ), false ),
 		);
 	}

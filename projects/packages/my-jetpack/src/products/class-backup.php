@@ -585,9 +585,11 @@ class Backup extends Hybrid_Product {
 			return true;
 		}
 
-		// An expired bundle has no active features, so match its slug against the bundles that include Backup.
-		if ( ! empty( $plan['expired'] ) && in_array( $plan['product_slug'] ?? '', (array) ( $plan['features']['available'][ $feature ] ?? array() ), true ) ) {
-			return true;
+		// An expired bundle stays the stored plan without listing its features, so match it by slug.
+		foreach ( array( Starter::class, Security::class, Complete::class ) as $bundle ) {
+			if ( in_array( $plan['product_slug'] ?? '', $bundle::get_paid_plan_product_slugs(), true ) ) {
+				return true;
+			}
 		}
 
 		foreach ( (array) Current_Plan::get_products() as $product ) {
