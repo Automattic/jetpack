@@ -69,9 +69,14 @@ function SharesInner() {
 					} }
 					empty={ {
 						description: __(
-							'Learn where your content has been shared the most.',
+							'You don’t have shares recorded yet. Social can help you reach readers where they already are.',
 							'jetpack-premium-analytics-pkg'
 						),
+						action: {
+							label: __( 'Learn more', 'jetpack-premium-analytics-pkg' ),
+							href: 'https://jetpack.com/social/',
+							openInNewTab: true,
+						},
 					} }
 					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
