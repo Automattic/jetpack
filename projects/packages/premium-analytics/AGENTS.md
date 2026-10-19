@@ -88,7 +88,9 @@ there; the callback receives the registry being hydrated, for lookups such as
 REST, and fires that action once; `src/default-dashboard-sections.php` registers the package's own sections the same
 way. A section declares its default layout in the registration; the
 `jetpack_premium_analytics_dashboard_default_layout` filter lets another plugin add an instance to
-any section by id. `docs/dashboard-sections.md` walks through the whole path with diagrams.
+any section by id. The inserter offers the default layout's types plus the section's
+`insertable_widget_types`, which the `jetpack_premium_analytics_dashboard_insertable_widget_types`
+filter extends the same way. `docs/dashboard-sections.md` walks through the whole path with diagrams.
 
 Add widget types from another plugin: hook `jetpack_premium_analytics_register_widget_types`,
 compare `WIDGET_API_VERSION`, and call `register_widget_types_from_manifest()` there with the manifest
@@ -146,8 +148,9 @@ Two local REST surfaces; almost all data comes from WordPress.com via one agnost
 
 `manage_options` is always accepted too. `POST` is rejected (`405 rest_read_only`) outside the
 Writes column. Query params pass through except control params (`endpoint`, `version`,
-`force_refresh`) and `site`. Successful `GET`s are cached 5 min (key: path+version+params); add
-`force_refresh` to bypass. `x-wp-total` / `x-wp-totalpages` are forwarded back. Errors:
+`force_refresh`) and `site`. Successful `GET`s are cached 5 min (key: path+version+params+generation);
+add `force_refresh` to bypass. A dashboard load returning from a Stats checkout (`statsPurchaseSuccess`)
+also drops every cached read and the cached notices, at most once a minute. `x-wp-total` / `x-wp-totalpages` are forwarded back. Errors:
 `403 no_connection`, `500`/`502 api_error`, `405 rest_read_only`, `401`/`403` on a failed cap.
 
 The `jetpack-stats` write is the one body the proxy rewrites: it gains the submitting user's

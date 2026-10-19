@@ -71,6 +71,7 @@ function OrdersFulfillment() {
 	return (
 		<Donut
 			segments={ segments }
+			chartTitle={ __( 'Orders fulfillment', 'jetpack-woocommerce-stats-pkg' ) }
 			status={ {
 				isLoading: fulfilled.isLoading || unfulfilled.isLoading,
 				isFetching: fulfilled.isFetching || unfulfilled.isFetching,

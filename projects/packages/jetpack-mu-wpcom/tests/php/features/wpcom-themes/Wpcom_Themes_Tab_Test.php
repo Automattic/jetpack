@@ -41,7 +41,7 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 		'block_theme' => true,
 		'date_added'  => '2023-02-01',
 		'taxonomies'  => array(),
-		'theme_tier'  => array( 'slug' => 'partner' ),
+		'theme_tier'  => array( 'slug' => 'personal' ),
 	);
 
 	/**
@@ -215,7 +215,7 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 		}
 		$this->assertArrayHasKey( 'display_name', $theme->author );
 		$this->assertObjectHasProperty( 'installed', $theme );
-		$this->assertSame( 'partner', $theme->theme_tier );
+		$this->assertSame( 'personal', $theme->theme_tier );
 	}
 
 	/**
@@ -397,5 +397,51 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 		add_filter( self::FLAG_FILTER, '__return_true' );
 
 		$this->assertFalse( wpcom_themes_tab_enabled() );
+	}
+
+	/**
+	 * Checkout returns to the theme once bought, and back to the tab when it is abandoned.
+	 *
+	 * Both are query values rather than paths, so both are encoded.
+	 */
+	public function test_checkout_returns_to_the_theme_it_was_bought_for() {
+		$url = wpcom_themes_tab_checkout_url( 'example-bundle', 'example' );
+
+		$this->assertStringContainsString( 'https://wordpress.com/checkout/example.org/example-bundle', $url );
+		$this->assertStringContainsString( 'checkoutBackUrl=' . rawurlencode( wpcom_themes_tab_url() ), $url );
+		$this->assertStringContainsString(
+			'redirect_to=' . rawurlencode( admin_url( 'theme-install.php?theme=example' ) ),
+			$url
+		);
+	}
+
+	/**
+	 * A theme needing no plan is badged as included, and keeps the install core would run.
+	 */
+	public function test_a_theme_needing_no_plan_is_included() {
+		$theme = wpcom_themes_tab_add_plan(
+			(object) array(
+				'slug'       => 'example',
+				'theme_tier' => 'free',
+			)
+		);
+
+		$this->assertSame( 'Included with plan', $theme->plan_badge );
+		$this->assertFalse( isset( $theme->upgrade_url ) );
+	}
+
+	/**
+	 * A partner theme says nothing: a plan alone never settles whether the site may install one.
+	 */
+	public function test_a_partner_theme_claims_nothing() {
+		$theme = wpcom_themes_tab_add_plan(
+			(object) array(
+				'slug'       => 'example',
+				'theme_tier' => 'partner',
+			)
+		);
+
+		$this->assertFalse( isset( $theme->plan_badge ) );
+		$this->assertFalse( isset( $theme->upgrade_url ) );
 	}
 }

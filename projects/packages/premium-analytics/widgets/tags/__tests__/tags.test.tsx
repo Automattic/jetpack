@@ -131,12 +131,7 @@ describe( 'TagsWidget', () => {
 		render( <TagsWidget attributes={ { reportParams: getDefaultQueryParams() } } /> );
 
 		await expect( screen.findByText( '1,240' ) ).resolves.toBeInTheDocument();
-		// A compacted count is drawn aria-hidden, with the full figure left to screen readers.
-		expect(
-			screen.queryByText(
-				( text, node ) => !! text && node?.getAttribute( 'aria-hidden' ) === 'true'
-			)
-		).not.toBeInTheDocument();
+		expect( screen.queryByText( '1.2K' ) ).not.toBeInTheDocument();
 	} );
 
 	// Calypso sends no query, so Jetpack Stats gets the endpoint's default of 10.

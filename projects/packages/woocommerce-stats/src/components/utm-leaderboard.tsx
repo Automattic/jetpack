@@ -23,6 +23,8 @@ const CURRENCY_FORMAT: DataFormat = { type: 'currency', options: { useMultiplier
 type UtmLeaderboardProps = {
 	/** The order attribution dimension the sales split by. */
 	view: OrderAttributionView;
+	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
+	chartTitle: string;
 };
 
 /**
@@ -33,7 +35,7 @@ type UtmLeaderboardProps = {
  * @param {UtmLeaderboardProps} props - The component props.
  * @return {JSX.Element} The leaderboard, or the loading, error or empty state of its report.
  */
-export function UtmLeaderboard( { view }: UtmLeaderboardProps ) {
+export function UtmLeaderboard( { view, chartTitle }: UtmLeaderboardProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const params = useMemo( () => ( { ...reportParams, view } ), [ reportParams, view ] );
 	const { primary, hasComparison, isLoading, isFetching, hasData, isError, error, refetch } =
@@ -52,6 +54,7 @@ export function UtmLeaderboard( { view }: UtmLeaderboardProps ) {
 
 	return (
 		<Leaderboard
+			chartTitle={ chartTitle }
 			rows={ rows }
 			status={ {
 				isLoading,

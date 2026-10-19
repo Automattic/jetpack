@@ -1,5 +1,10 @@
 export { AnalyticsQueryClientProvider, queryClient } from './providers/query-client-provider';
-export { ReportScopeProvider, useReportScope, type ReportScope } from './providers/report-scope';
+export {
+	ReportScopeProvider,
+	useReportScope,
+	useScopeLockedIntervals,
+	type ReportScope,
+} from './providers/report-scope';
 export {
 	PERIOD_CHANGE_ATTENTION_MS,
 	PeriodChangeSignalProvider,
@@ -82,7 +87,7 @@ export {
 	resolveIntervalForPresetChange,
 	resolveIntervalForRange,
 } from './utils/interval';
-export type { IntervalType } from './utils/interval';
+export type { IntervalType, LockableInterval } from './utils/interval';
 export { chartInterval, defaultPeriodForInterval, drawableIntervals } from './utils/periods';
 export {
 	getLockedFeature,

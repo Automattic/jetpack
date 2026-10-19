@@ -76,12 +76,17 @@ function SharesInner() {
 					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
 					<LeaderboardChart
+						chartTitle={ __( 'All-time top social media shares', 'jetpack-premium-analytics-pkg' ) }
 						data={ leaderboardData }
 						withOverlayLabel
 						showLegend={ false }
 						dataFormat={ {
 							type: 'number',
 							options: { useMultipliers: true, decimals: 0 },
+						} }
+						columns={ {
+							label: __( 'Platforms', 'jetpack-premium-analytics-pkg' ),
+							metric: 'shares',
 						} }
 					/>
 				</WidgetState>

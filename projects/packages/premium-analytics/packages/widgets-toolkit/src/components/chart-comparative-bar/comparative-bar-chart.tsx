@@ -20,7 +20,12 @@ import { useCallback, useId, useMemo, useState } from 'react';
  * Internal dependencies
  */
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
-import { isEmptyChartData, getFixedYAxis, formatBucketTooltipDate } from '../../helpers';
+import {
+	isEmptyChartData,
+	formatChartName,
+	getFixedYAxis,
+	formatBucketTooltipDate,
+} from '../../helpers';
 import { resolvePrimarySeriesByGroup } from '../../helpers/resolve-series-names';
 import { useComparativeLegend } from '../../hooks/use-comparative-legend';
 import { alignSeriesDates } from '../chart-comparative-line/utils';
@@ -54,6 +59,9 @@ export type ComparativeBarChartProps = {
 	series: ComparativeBarChartSeries[];
 
 	className?: string;
+
+	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
+	chartTitle?: string;
 
 	/** Format for chart values: y-axis ticks and tooltips. */
 	dataFormat: DataFormat;
@@ -130,6 +138,7 @@ export function ComparativeBarChart( {
 	series,
 	className,
 	chartId: providedChartId,
+	chartTitle,
 	dataFormat,
 	tickFormat: xTickFormatType,
 	tickResolution,
@@ -322,6 +331,7 @@ export function ComparativeBarChart( {
 		<Stack ref={ measureRef } direction="column" className={ clsx( styles.chart, className ) }>
 			<BarChart
 				chartId={ chartId }
+				ariaLabel={ formatChartName( chartTitle ) }
 				className={ styles.chartContent }
 				data={ alignedSeries }
 				options={ chartOptions }

@@ -37,6 +37,7 @@ function BookingsOverTime( { chartType }: { chartType?: ChartDisplayChartType } 
 		<ReportMetricChart
 			report={ useReportOrders( { ...reportParams, filters: [ BOOKINGS_FILTER ] } ) }
 			chartType={ chartType }
+			chartTitle={ __( 'Bookings over time', 'jetpack-woocommerce-stats-pkg' ) }
 			field="orders_no"
 			label={ __( 'Bookings', 'jetpack-woocommerce-stats-pkg' ) }
 			countLabel={ countLabel }

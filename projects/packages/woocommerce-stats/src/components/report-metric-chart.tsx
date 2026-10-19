@@ -36,6 +36,8 @@ type ReportMetricChartProps = {
 	dataFormat: DataFormat;
 	/** How the series is drawn. `MetricTabsChart` owns the default. */
 	chartType?: ChartDisplayChartType;
+	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
+	chartTitle: string;
 	errorText: string;
 };
 
@@ -52,6 +54,7 @@ export function ReportMetricChart( {
 	countLabel,
 	dataFormat,
 	chartType,
+	chartTitle,
 	errorText,
 }: ReportMetricChartProps ) {
 	const primary = report.primary.data;
@@ -93,6 +96,8 @@ export function ReportMetricChart( {
 					dataFormat={ dataFormat }
 					chartType={ chartType }
 					empty={ <ChartEmptyState /> }
+					hideSingleMetricLabel
+					chartTitle={ chartTitle }
 				/>
 			</WidgetState>
 		</div>

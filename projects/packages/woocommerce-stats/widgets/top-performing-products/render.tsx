@@ -29,6 +29,7 @@ export default function TopPerformingProductsRender( {
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<ProductLeaderboard
+				chartTitle={ __( 'Top performing products', 'jetpack-woocommerce-stats-pkg' ) }
 				filter={ PHYSICAL_PRODUCTS_FILTER }
 				errorText={ __(
 					"We couldn't load product data. Please try again in a moment.",

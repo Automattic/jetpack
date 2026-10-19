@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -341,6 +342,16 @@ function get_stats_feature_copy( $feature ) {
 				'description' => __( 'Track the most viewed <link>tags & categories</link>.', 'jetpack-premium-analytics-pkg' ),
 				'support_url' => 'https://wordpress.com/support/stats/learn-insights-about-your-website/#all-time-insights',
 			);
+		case 'recent-7-days':
+			return array(
+				'description' => __( 'See more than the last 7 days of your stats.', 'jetpack-premium-analytics-pkg' ),
+				'support_url' => '',
+			);
+		case 'long-date-presets':
+			return array(
+				'description' => __( 'See periods beyond the last 30 days in one click.', 'jetpack-premium-analytics-pkg' ),
+				'support_url' => '',
+			);
 		default:
 			return array(
 				'description' => __( 'Upgrade your plan to unlock Jetpack Stats.', 'jetpack-premium-analytics-pkg' ),
@@ -391,7 +402,7 @@ function localize_stats_support_url( $url ) {
  * @return string The URL, or an empty string when there is nowhere to buy it.
  */
 function get_stats_upgrade_url( $feature, $tier ) {
-	$return_path = 'admin.php?page=' . Analytics::MENU_PAGE_SLUG . '&jpa_purchased=1';
+	$return_path = 'admin.php?page=' . Analytics::MENU_PAGE_SLUG;
 
 	if ( STATS_TIER_JETPACK_FREE === $tier ) {
 		// The purchase flow lives in Odyssey Stats; with it off, `page=stats` shows only an opt-in notice.
@@ -478,6 +489,7 @@ function get_stats_plan_gates() {
 function configure_stats_plan_gates() {
 	add_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_stats_plan_gates_script_data', 20 );
 	add_action( 'admin_init', __NAMESPACE__ . '\\maybe_refresh_jetpack_plan' );
+	add_action( 'admin_init', __NAMESPACE__ . '\\maybe_invalidate_stats_caches' );
 }
 
 /**
@@ -522,6 +534,34 @@ const EMPTY_PLAN_REFRESH_TRANSIENT = 'jetpack_premium_analytics_empty_plan_refre
 const PURCHASE_PLAN_REFRESH_TRANSIENT = 'jetpack_premium_analytics_purchase_plan_refresh';
 
 /**
+ * Transient throttling the cache invalidation after a purchase.
+ */
+const PURCHASE_CACHE_INVALIDATION_TRANSIENT = 'jetpack_premium_analytics_purchase_cache_invalidation';
+
+/**
+ * Drops the cached Stats replies a checkout made stale, before the dashboard it returns to asks for them.
+ *
+ * @since $$next-version$$
+ *
+ * @return void
+ */
+function maybe_invalidate_stats_caches() {
+	// Simple serves the dashboard from WordPress.com, with neither cache.
+	if ( ! Analytics::is_dashboard_request() || '' === get_stats_purchase_success_type() || ( new Host() )->is_wpcom_simple() ) {
+		return;
+	}
+
+	// The marker is a plain GET parameter, so a crafted link could otherwise drop the caches on every visit.
+	if ( get_transient( PURCHASE_CACHE_INVALIDATION_TRANSIENT ) ) {
+		return;
+	}
+	set_transient( PURCHASE_CACHE_INVALIDATION_TRANSIENT, 1, MINUTE_IN_SECONDS );
+
+	Api_Proxy_Controller::invalidate_cache();
+	delete_transient( Notices::NOTICES_CACHE_KEY );
+}
+
+/**
  * Refreshes a self-hosted site's cached plan on the dashboard when it is empty or a checkout just returned.
  *
  * Script data is final once printed, so the gates can only change before it.
@@ -535,8 +575,7 @@ function maybe_refresh_jetpack_plan() {
 		return;
 	}
 
-	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only trigger: it only re-reads the site's own plan.
-	if ( ! empty( $_GET['jpa_purchased'] ) ) {
+	if ( '' !== get_stats_purchase_success_type() ) {
 		$transient = PURCHASE_PLAN_REFRESH_TRANSIENT;
 		$ttl       = MINUTE_IN_SECONDS;
 	} elseif ( ! has_cached_jetpack_plan() ) {

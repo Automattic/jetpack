@@ -59,6 +59,8 @@ export type DonutProps = {
 	 * Defaults to on.
 	 */
 	withTotal?: boolean;
+	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
+	chartTitle?: string;
 };
 
 const DEFAULT_FORMAT: DataFormat = {
@@ -85,6 +87,7 @@ export function Donut( {
 	format = DEFAULT_FORMAT,
 	variant = 'ring',
 	withTotal = true,
+	chartTitle,
 }: DonutProps ): JSX.Element {
 	const { isLoading, isFetching, isError, refetch } = status;
 	const hasComparison = !! status.hasComparison;
@@ -132,6 +135,7 @@ export function Donut( {
 							comparisonValue={ previousTotal }
 							dataFormat={ format }
 							legendData={ legendData }
+							chartTitle={ chartTitle }
 							withTooltips
 						/>
 					</div>
@@ -143,6 +147,7 @@ export function Donut( {
 						comparisonValue={ previousTotal }
 						dataFormat={ format }
 						legendData={ legendData }
+						chartTitle={ chartTitle }
 						maxSize={ null }
 						withTooltips
 					/>

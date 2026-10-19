@@ -147,6 +147,24 @@ describe( 'getInsertableWidgetTypeNames', () => {
 		expect( getInsertableWidgetTypeNames( [ TRAFFIC ] ).has( 'jpa/latest-post' ) ).toBe( false );
 	} );
 
+	it( 'adds the types a section declares insertable after its default ones, each one once', () => {
+		const STORE_WITH_EXTRAS: DashboardSection = {
+			...STORE,
+			default_layout: [
+				{ uuid: 'default-store-performance', type: 'woocommerce-analytics/store-performance' },
+			],
+			insertable_widget_types: [
+				'woocommerce-analytics/net-sales-over-time',
+				'woocommerce-analytics/store-performance',
+			],
+		};
+
+		expect( [ ...getInsertableWidgetTypeNames( [ STORE_WITH_EXTRAS ] ) ] ).toEqual( [
+			'woocommerce-analytics/store-performance',
+			'woocommerce-analytics/net-sales-over-time',
+		] );
+	} );
+
 	it( 'is empty when no section places a widget', () => {
 		expect( getInsertableWidgetTypeNames( SECTIONS ).size ).toBe( 0 );
 		expect( getInsertableWidgetTypeNames( [] ).size ).toBe( 0 );
