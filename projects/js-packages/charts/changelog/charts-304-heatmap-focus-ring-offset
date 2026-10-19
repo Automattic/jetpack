@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Heatmap chart: Offset the grid's focus ring by the design system focus width.

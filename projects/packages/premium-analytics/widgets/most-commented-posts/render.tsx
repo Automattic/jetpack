@@ -86,10 +86,15 @@ function MostCommentedPostsInner() {
 					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
 					<LeaderboardChart
+						chartTitle={ __( 'All-time most commented posts', 'jetpack-premium-analytics-pkg' ) }
 						data={ leaderboardData }
 						withOverlayLabel
 						showLegend={ false }
 						dataFormat={ DATA_FORMAT }
+						columns={ {
+							label: __( 'Posts', 'jetpack-premium-analytics-pkg' ),
+							metric: 'comments',
+						} }
 					/>
 				</WidgetState>
 			</div>

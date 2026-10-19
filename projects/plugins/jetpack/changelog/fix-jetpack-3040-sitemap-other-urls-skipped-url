@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Sitemaps: Fix one URL from the other URLs filter being skipped after every 50.

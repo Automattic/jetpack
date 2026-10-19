@@ -1,5 +1,6 @@
 export {
 	getInsertableWidgetTypeNames,
+	hasStoreSection,
 	isSectionAwaitingSync,
 	resolveSectionHeading,
 	resolveSectionId,

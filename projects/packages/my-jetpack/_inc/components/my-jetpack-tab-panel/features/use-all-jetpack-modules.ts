@@ -51,19 +51,21 @@ export function withoutPluginForcedOverrides(
 export function useAllJetpackModules(): {
 	modules: Record< JetpackModuleSlug, MyJetpackModule >;
 	isLoading: boolean;
+	hasLoaded: boolean;
 } {
 	// The gate the callers use, so both agree on whether modules are coming.
 	const state = useMainFeatures();
 	const isJetpackActive = state.jetpack === 'active';
-	const { modules, isLoading } = useSelect(
+	const { modules, isLoading, hasLoaded } = useSelect(
 		select => {
 			if ( ! isJetpackActive ) {
-				return { modules: NO_MODULES, isLoading: false };
+				return { modules: NO_MODULES, isLoading: false, hasLoaded: true };
 			}
 
 			return {
 				modules: select( modulesStore ).getJetpackModules(),
 				isLoading: select( modulesStore ).areModulesLoading(),
+				hasLoaded: select( modulesStore ).hasFinishedResolution( 'getJetpackModules' ),
 			};
 		},
 		[ isJetpackActive ]
@@ -91,7 +93,8 @@ export function useAllJetpackModules(): {
 					: products
 			) as Record< JetpackModuleSlug, MyJetpackModule >,
 			isLoading,
+			hasLoaded,
 		} ),
-		[ modules, products, localFeatures, isLoading ]
+		[ modules, products, localFeatures, isLoading, hasLoaded ]
 	);
 }

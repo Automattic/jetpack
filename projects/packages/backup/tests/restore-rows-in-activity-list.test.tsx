@@ -28,8 +28,8 @@ const BACKUP_REWIND_ID = '1786644531.100';
 const RESTORE_ROW_ID = 'restore-912682';
 // 14:11 UTC; read as local time on the GMT-3 runner it would render three hours late.
 const RESTORE_WHEN = '2026-09-03 14:11:00';
-const RESTORE_RENDERED_AT = 'Sep 3, 2026, 2:11 PM';
-const RESTORE_READ_AS_LOCAL = 'Sep 3, 2026, 5:11 PM';
+const RESTORE_RENDERED_AT = 'September 3, 2026 2:11 pm';
+const RESTORE_READ_AS_LOCAL = 'September 3, 2026 5:11 pm';
 
 const NOT_ON_THIS_PAGE =
 	"That item isn't on this page of the activity log. It may be on another page, or no longer available.";

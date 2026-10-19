@@ -20,6 +20,8 @@ const CURRENCY_FORMAT: DataFormat = { type: 'currency', options: { useMultiplier
 type SalesByDeviceProps = {
 	/** The product types the sales count; every type when omitted. */
 	filters?: FilterCondition[];
+	/** The widget title; the chart is named "Chart: <title>". */
+	chartTitle: string;
 };
 
 /**
@@ -29,7 +31,7 @@ type SalesByDeviceProps = {
  * @param {SalesByDeviceProps} props - The component props.
  * @return {JSX.Element} The columns, or the loading, error or empty state of their report.
  */
-export function SalesByDevice( { filters }: SalesByDeviceProps ) {
+export function SalesByDevice( { filters, chartTitle }: SalesByDeviceProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const params = useMemo(
 		() => ( { ...reportParams, view: 'device' as const, ...( filters && { filters } ) } ),
@@ -67,6 +69,7 @@ export function SalesByDevice( { filters }: SalesByDeviceProps ) {
 				onRetry: refetch,
 			} ) }
 			format={ CURRENCY_FORMAT }
+			chartTitle={ chartTitle }
 		/>
 	);
 }
