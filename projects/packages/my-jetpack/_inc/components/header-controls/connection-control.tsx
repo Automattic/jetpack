@@ -1,17 +1,14 @@
 import {
 	ConnectionErrorDetails,
 	getReconnectErrorMessage,
-	getUserConnectionUrl,
 	ManageConnectionDialog,
 	useConnectionErrorNotice,
 } from '@automattic/jetpack-connection';
-import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
-import { __, _n, sprintf } from '@wordpress/i18n';
-import { Badge, Button, Link, Popover, Stack, Text } from '@wordpress/ui';
+import { __, sprintf } from '@wordpress/i18n';
+import { Badge, Link, Popover, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { connectionStatusEmptyAvatar as emptyAvatar } from '../../assets/inline-svgs';
-import { MyJetpackRoutes } from '../../constants';
 import useSitePurchases from '../../data/use-site-purchases';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import { useConnectionState } from '../../hooks/use-connection-state';
@@ -19,14 +16,11 @@ import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import { assignLocation } from '../../hooks/use-notification-watcher/assignLocation';
 import { ConnectionOwnerInfo } from '../connection-status-card/connection-owner-info';
 import { ConnectionStatus } from '../connection-status-card/connection-status';
-import { PlanLogo, PlanSection, PlanSectionFooter } from '../plans-section';
+import PlanSummary from './plan-summary';
+import PrimaryAction from './primary-action';
 import styles from './style.module.scss';
-import type { Purchase } from '../../data/types';
 import type { ConnectionState } from '../../hooks/use-connection-state';
 import type { FC } from 'react';
-
-// Tells the plan links' Tracks events apart from the same links on the Overview.
-const HEADER_TRACKS_PROPERTIES = { location: 'header' };
 
 const STATUS_INTENTS = {
 	success: 'stable',
@@ -52,106 +46,6 @@ function getBadgeLabel( state: ConnectionState ): string {
 
 	return state.label;
 }
-
-/**
- * The site's plans, laid out like the Overview's Plan section.
- *
- * @param props           - Component props.
- * @param props.purchases - The site's purchases, or null until they load.
- * @return The plans and their links, or nothing until they load.
- */
-const PlanSummary: FC< { purchases: Purchase[] | null } > = ( { purchases } ) => {
-	if ( ! purchases ) {
-		return null;
-	}
-
-	const hasComplete =
-		!! getMyJetpackWindowInitialState( 'products' )?.items?.complete?.has_paid_plan_for_product;
-
-	return (
-		<Stack direction="column" gap="sm">
-			<Text variant="heading-md">
-				{ _n( 'Your plan', 'Your plans', purchases.length || 1, 'jetpack-my-jetpack' ) }
-			</Text>
-			{ purchases.length ? (
-				purchases.map( purchase => (
-					<Stack key={ purchase.ID } direction="row" gap="sm" align="start">
-						<PlanLogo />
-						<PlanSection purchase={ purchase } />
-					</Stack>
-				) )
-			) : (
-				<Stack direction="row" gap="sm" align="start">
-					<PlanLogo />
-					<Text variant="body-md">
-						{ __( 'Jetpack Essentials', 'jetpack-my-jetpack' ) }
-						<br />
-						{ __( 'Free', 'jetpack-my-jetpack' ) }
-					</Text>
-				</Stack>
-			) }
-			{ !! getMyJetpackWindowInitialState( 'userIsAdmin' ) && (
-				<PlanSectionFooter
-					numberOfPurchases={ purchases.length }
-					hasComplete={ hasComplete }
-					tracksProperties={ HEADER_TRACKS_PROPERTIES }
-				/>
-			) }
-		</Stack>
-	);
-};
-
-/**
- * The state's one action, as the Overview's connection card offers it.
- *
- * @param props               - Component props.
- * @param props.action        - The action from the connection state.
- * @param props.repairActions - The connection package's own fixes for a live error.
- * @return The action, or null when the state has none the header can run.
- */
-const PrimaryAction: FC< {
-	action: ConnectionState[ 'action' ];
-	repairActions: ReturnType< typeof useConnectionErrorNotice >[ 'actions' ];
-} > = ( { action, repairActions } ) => {
-	if ( action === 'CONNECT_USER' ) {
-		return (
-			<Link href={ getUserConnectionUrl() }>
-				{ __( 'Connect my account', 'jetpack-my-jetpack' ) }
-			</Link>
-		);
-	}
-
-	if ( action === 'CONNECT_SITE' ) {
-		return (
-			<Link href={ getMyJetpackUrl( `#${ MyJetpackRoutes.Connection }` ) }>
-				{ __( 'Connect site', 'jetpack-my-jetpack' ) }
-			</Link>
-		);
-	}
-
-	if ( action === 'REPAIR' ) {
-		return (
-			<Stack direction="row" wrap="wrap" gap="sm">
-				{ repairActions.map( ( errorAction, index ) => (
-					<Button
-						key={ errorAction.label }
-						variant={ index === 0 ? 'solid' : 'outline' }
-						size="compact"
-						onClick={ errorAction.onClick }
-						loading={ errorAction.isLoading }
-						loadingAnnouncement={
-							errorAction.loadingText || __( 'Loading…', 'jetpack-my-jetpack' )
-						}
-					>
-						{ errorAction.label }
-					</Button>
-				) ) }
-			</Stack>
-		);
-	}
-
-	return null;
-};
 
 /**
  * The shared header's connection control: the viewer's avatar opening today's Overview Connection and Plan sections.
