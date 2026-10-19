@@ -185,6 +185,75 @@ class Channel_Blocks_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Inline and list layouts, skipping items whose value is unknown.
+	 */
+	public function test_channel_details() {
+		add_filter( 'videopress_channel_handle', fn() => '@jtf' );
+		add_filter( 'videopress_channel_subscriber_count', fn() => 48210 );
+
+		$inline = Channel_Blocks::render_channel_details( array() );
+		$this->assertStringContainsString( 'videopress-channel-details is-layout-inline"', $inline );
+		$this->assertStringContainsString(
+			'<span class="videopress-channel-details__item is-handle">@jtf</span><span class="videopress-channel-details__item is-subscribers">48K subscribers</span><span class="videopress-channel-details__item is-videos">3 videos</span><span class="videopress-channel-details__item is-playlists">1 playlist</span>',
+			$inline
+		);
+
+		add_filter( 'videopress_channel_subscriber_count', '__return_null', 20 );
+		$list = Channel_Blocks::render_channel_details(
+			array(
+				'items'  => array( 'subscribers', 'views', 'bogus' ),
+				'layout' => 'list',
+			)
+		);
+		$this->assertStringStartsWith( '<dl ', $list );
+		$this->assertStringContainsString( '<div class="videopress-channel-details__item is-views"><dt>Total views</dt><dd>1.5K</dd></div>', $list );
+		$this->assertStringNotContainsString( 'is-subscribers', $list );
+		$this->assertStringNotContainsString( 'bogus', $list );
+	}
+
+	/**
+	 * The join date shows in the site's date format, and an unknown date leaves no empty block.
+	 */
+	public function test_channel_details_joined() {
+		update_option( 'date_format', 'F j, Y' );
+		$attributes = array( 'items' => array( 'joined' ) );
+
+		add_filter( 'videopress_channel_joined', '__return_zero' );
+		$this->assertSame( '', Channel_Blocks::render_channel_details( $attributes ) );
+
+		add_filter( 'videopress_channel_joined', fn() => gmmktime( 12, 0, 0, 3, 5, 2024 ), 20 );
+		$this->assertStringContainsString( '<span class="videopress-channel-details__item is-joined">Joined March 5, 2024</span>', Channel_Blocks::render_channel_details( $attributes ) );
+		$this->assertStringContainsString( '<dt>Joined</dt><dd>March 5, 2024</dd>', Channel_Blocks::render_channel_details( $attributes + array( 'layout' => 'list' ) ) );
+	}
+
+	/**
+	 * Each block registers from its block.json in the build, rendered by Channel_Blocks, only where
+	 * the channel feature is enabled.
+	 */
+	public function test_register_registers_the_blocks_where_the_channel_is_enabled() {
+		$build    = get_temp_dir() . uniqid( 'videopress-channel-blocks-' );
+		$metadata = json_decode( (string) file_get_contents( __DIR__ . '/../../src/client/block-editor/blocks/channel-details/block.json' ), true );
+		unset( $metadata['editorScript'] ); // The built script isn't there to register.
+		mkdir( $build . '/channel-details', 0777, true );
+		file_put_contents( $build . '/channel-details/block.json', wp_json_encode( $metadata, JSON_UNESCAPED_SLASHES ) );
+
+		register_block_type( 'videopress/playlist', array() );
+		remove_all_filters( 'videopress_channel_enabled' );
+		Channel_Blocks::register( $build );
+		$this->assertFalse( \WP_Block_Type_Registry::get_instance()->is_registered( 'videopress/channel-details' ) );
+
+		add_filter( 'videopress_channel_enabled', '__return_true' );
+		Channel_Blocks::register( $build );
+		unlink( $build . '/channel-details/block.json' );
+		rmdir( $build . '/channel-details' );
+		rmdir( $build );
+
+		$block = \WP_Block_Type_Registry::get_instance()->get_registered( 'videopress/channel-details' );
+		$this->assertInstanceOf( \WP_Block_Type::class, $block );
+		$this->assertSame( array( Channel_Blocks::class, 'render_channel_details' ), $block->render_callback );
+	}
+
+	/**
 	 * The editor gets the playlists ( key, title and videos ) for the pickers and the canvas
 	 * previews, before the playlist block's script.
 	 */
