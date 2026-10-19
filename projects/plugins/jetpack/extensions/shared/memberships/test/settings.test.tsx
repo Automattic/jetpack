@@ -362,20 +362,27 @@ describe( 'NewsletterAccessRadioButtons', () => {
 			);
 		} );
 
-		test.each< [ string, string, number, boolean ] >( [
-			[ 'shows', 'its count differs from all paid subscribers', 5, true ],
-			[ 'hides', 'it reaches the same people as all paid subscribers', 1, false ],
-		] )( '%s a lone tier when %s', ( _verb, _reason, paidNewsletterSubscribers, isShown ) => {
+		// One tier with 1 subscriber; only the "All paid subscribers" count varies.
+		const renderSingleTier = ( allPaidSubscribers: number ) =>
 			renderPanel(
 				{ accessLevel: 'paid_subscribers' },
 				{
 					tierProducts: [ { id: 1, title: 'Basic', price: 5, interval: '1 month' } ],
-					paidNewsletterSubscribers,
+					paidNewsletterSubscribers: allPaidSubscribers,
 					paidSubscribersByTier: { 1: 1 },
 				}
 			);
 
-			expect( screen.queryByRole( 'radio', { name: 'Basic (1)' } ) !== null ).toBe( isShown );
+		test( 'shows a lone tier when it reaches fewer people than all paid subscribers', () => {
+			renderSingleTier( 5 );
+
+			expect( screen.getByRole( 'radio', { name: 'Basic (1)' } ) ).toBeInTheDocument();
+		} );
+
+		test( 'hides a lone tier when it reaches the same people as all paid subscribers', () => {
+			renderSingleTier( 1 );
+
+			expect( screen.queryByRole( 'radio', { name: 'Basic (1)' } ) ).not.toBeInTheDocument();
 		} );
 
 		test( 'counts only newsletter subscribers next to the paid option', () => {
