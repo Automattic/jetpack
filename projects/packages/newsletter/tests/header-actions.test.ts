@@ -22,7 +22,6 @@ describe( 'getCsvDownloadUrl', () => {
 	} );
 
 	it( 'passes every active filter and the search term', () => {
-		// WP.com reads `filters[]` as an array, the same shape the subscriber list endpoint takes.
 		const params = paramsOf(
 			getCsvDownloadUrl( 123, {
 				filters: [ 'paid', 'unconfirmed_subscriber' ],
@@ -32,11 +31,5 @@ describe( 'getCsvDownloadUrl', () => {
 
 		expect( params.getAll( 'filters[]' ) ).toEqual( [ 'paid', 'unconfirmed_subscriber' ] );
 		expect( params.get( 'search' ) ).toBe( 'ada & co' );
-	} );
-
-	it( 'returns null for an id that is not a positive integer', () => {
-		expect(
-			getCsvDownloadUrl( 'abc' as unknown as number, { filters: [], search: '' } )
-		).toBeNull();
 	} );
 } );

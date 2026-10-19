@@ -18,10 +18,8 @@ type Props = {
 };
 
 /**
- * Build the Calypso-equivalent CSV export URL for a given blog id. The endpoint streams a CSV
- * download for the blog's subscribers and is what Calypso links to from its "Download as CSV"
- * menu item. WP.com applies the filters and search the same way the subscriber list does, so the
- * file holds the people the table shows.
+ * Build the WP.com CSV export URL for a blog, carrying the table's filters and search so the file
+ * holds the rows the table shows.
  *
  * @param blogId        - WP.com blog id (coerced to a positive integer before injection).
  * @param query         - The table's current filters and search.
@@ -43,6 +41,7 @@ export function getCsvDownloadUrl(
 		blog_subscribers: 'csv',
 		type: 'all',
 	} );
+	// WP.com reads `filters[]` as an array, the same shape the subscriber list endpoint takes.
 	filters.forEach( filter => params.append( 'filters[]', filter ) );
 	if ( search ) {
 		params.set( 'search', search );
