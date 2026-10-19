@@ -11,7 +11,7 @@ type Failure = { message: string; keys: string[] };
 const NO_KEYS: string[] = [];
 
 /**
- * A readable message for the firewall's error codes, whose server messages are meant for developers.
+ * A readable message for the firewall's error codes, which it returns after storing the options.
  *
  * @param code - The REST error code.
  * @return The message, or undefined for any other code.
@@ -25,6 +25,8 @@ function getWafErrorMessage( code: unknown ): string | undefined {
 				'The latest automatic firewall rules couldn’t be retrieved.',
 				'jetpack-protect-pkg'
 			);
+		case 'waf_error':
+			return __( 'The firewall couldn’t finish applying your change.', 'jetpack-protect-pkg' );
 		default:
 			return undefined;
 	}
@@ -149,8 +151,15 @@ export default function useProtectSettings(): ProtectSettingsData {
 			} catch ( e ) {
 				const { code, message } = ( e ?? {} ) as { code?: unknown; message?: string };
 				const wafMessage = getWafErrorMessage( code );
+				setFailure( {
+					message:
+						wafMessage ||
+						message ||
+						__( 'Your change couldn’t be saved. Try again.', 'jetpack-protect-pkg' ),
+					keys,
+				} );
 				if ( wafMessage ) {
-					// The firewall stores the options before it rebuilds its files, so show what it stored.
+					// The change was stored, so show the server's values rather than roll back.
 					await refresh( keys );
 				} else {
 					const rolledBack = { ...settingsRef.current };
@@ -168,13 +177,6 @@ export default function useProtectSettings(): ProtectSettingsData {
 					} );
 					setSettings( rolledBack );
 				}
-				setFailure( {
-					message:
-						wafMessage ||
-						message ||
-						__( 'Your change couldn’t be saved. Try again.', 'jetpack-protect-pkg' ),
-					keys,
-				} );
 				saved = false;
 			} finally {
 				// One entry per save in flight, so an overlapping save of the same key keeps it busy.

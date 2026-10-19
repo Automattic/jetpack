@@ -89,7 +89,6 @@ describe( 'useProtectSettings', () => {
 		expect( result.current.isSaving( 'list' ) ).toBe( false );
 	} );
 
-	// The firewall saves its options before failing on these, so the server's value wins over a rollback.
 	it.each( [
 		[
 			'file_system_error',
@@ -101,6 +100,7 @@ describe( 'useProtectSettings', () => {
 			'The latest automatic firewall rules couldn’t be retrieved.',
 			{ list: 'stored' },
 		],
+		[ 'waf_error', 'The firewall couldn’t finish applying your change.', { list: 'stored' } ],
 		[ 'other_error', 'Raw server text', {} ],
 	] )(
 		'a failed save with the code %s shows "%s" and leaves %j',
