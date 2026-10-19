@@ -59,7 +59,7 @@
 	},
 	"devDependencies": {
 		"@babel/core": "7.29.7",
-		"@jest/globals": "30.5.1",
+		"@jest/globals": "30.5.2",
 		"@testing-library/dom": "10.4.2",
 		"@testing-library/jest-dom": "6.9.1",
 		"@testing-library/react": "16.3.3",
@@ -73,7 +73,7 @@
 		"@wordpress/build": "0.25.0",
 		"@wordpress/theme": "2.3.0",
 		"browserslist": "^4.24.0",
-		"jest": "30.5.1",
+		"jest": "30.5.2",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
 		"sass-embedded": "1.97.3",

@@ -22,6 +22,6 @@
 		"test-coverage": "pnpm run test --coverage"
 	},
 	"devDependencies": {
-		"jest": "30.5.1"
+		"jest": "30.5.2"
 	}
 }
