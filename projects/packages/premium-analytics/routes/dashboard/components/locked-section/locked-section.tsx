@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { getLockedSection } from '@jetpack-premium-analytics/data';
-import { Button, ButtonLink, Card, Icon, Stack, Text } from '@jetpack-premium-analytics/externals';
+import { Button, ButtonLink, Icon, Stack, Text } from '@jetpack-premium-analytics/externals';
 import { WidgetGridAnimation } from '@jetpack-premium-analytics/ui';
 import { useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
@@ -66,8 +66,8 @@ export function LockedSection( { section }: { section: string } ) {
 	);
 
 	return (
-		<Card.Root className={ styles.card }>
-			<Card.Content className={ styles.content }>
+		<div className={ styles.root }>
+			<div className={ styles.content }>
 				<Stack direction="column" align="start" gap="lg" className={ styles.copy }>
 					<Icon icon={ lock } size={ 32 } />
 					<Stack direction="column" gap="sm">
@@ -108,7 +108,7 @@ export function LockedSection( { section }: { section: string } ) {
 				<div className={ styles.visual }>
 					<WidgetGridAnimation />
 				</div>
-			</Card.Content>
-		</Card.Root>
+			</div>
+		</div>
 	);
 }

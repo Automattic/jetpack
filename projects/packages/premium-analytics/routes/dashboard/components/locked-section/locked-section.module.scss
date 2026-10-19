@@ -1,4 +1,5 @@
-.card {
+// No card surface: a wide dashboard stretches it into a mostly empty card.
+.root {
 	margin-block-start: var(--wpds-dimension-gap-lg);
 	container-type: inline-size;
 }
@@ -11,7 +12,7 @@
 	padding: var(--wpds-dimension-padding-2xl);
 }
 
-// Side by side, as in classic Stats, kept together in a wide card.
+// Side by side, as in classic Stats, kept together on a wide dashboard.
 @container (min-width: 720px) {
 
 	.content {
