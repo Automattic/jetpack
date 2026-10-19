@@ -1289,7 +1289,23 @@ class Initializer_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The header's placeholder controls stay hidden unless the flag is turned on.
+	 * Overview v1 shows only with its flag on.
+	 */
+	public function test_my_jetpack_flags_show_overview_v1_only_when_the_flag_is_on() {
+		Initializer::register_feature_flags();
+		$this->assertFalse( Initializer::get_my_jetpack_flags()['overviewV1'] );
+
+		add_filter( 'jetpack_feature_flag_enabled_' . Initializer::OVERVIEW_V1_FLAG, '__return_true' );
+		try {
+			$this->assertTrue( Initializer::get_my_jetpack_flags()['overviewV1'] );
+		} finally {
+			remove_filter( 'jetpack_feature_flag_enabled_' . Initializer::OVERVIEW_V1_FLAG, '__return_true' );
+			Feature_Flags::reset();
+		}
+	}
+
+	/**
+	 * The header's controls show only with the flag on, My Jetpack running, and offline Features off.
 	 */
 	public function test_my_jetpack_flags_show_header_controls_only_when_the_flag_is_on() {
 		Initializer::register_feature_flags();
@@ -1298,7 +1314,31 @@ class Initializer_Test extends BaseTestCase {
 		add_filter( 'jetpack_feature_flag_enabled_' . Initializer::HEADER_CONTROLS_FLAG, '__return_true' );
 		try {
 			$this->assertTrue( Initializer::get_my_jetpack_flags()['headerControls'] );
+
+			wp_set_current_user(
+				wp_insert_user(
+					array(
+						'user_login' => 'header-controls-admin',
+						'user_pass'  => 'password',
+						'role'       => 'administrator',
+					)
+				)
+			);
+			add_filter( 'jetpack_offline_mode', '__return_true' );
+			add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
+			StatusCache::clear();
+			$this->assertTrue( Initializer::should_initialize() );
+			$this->assertFalse( Initializer::get_my_jetpack_flags()['headerControls'] );
+			remove_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
+			remove_filter( 'jetpack_offline_mode', '__return_true' );
+			StatusCache::clear();
+
+			add_filter( 'jetpack_my_jetpack_should_initialize', '__return_false' );
+			$this->assertFalse( Initializer::get_my_jetpack_flags()['headerControls'] );
 		} finally {
+			remove_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
+			remove_filter( 'jetpack_offline_mode', '__return_true' );
+			remove_filter( 'jetpack_my_jetpack_should_initialize', '__return_false' );
 			remove_filter( 'jetpack_feature_flag_enabled_' . Initializer::HEADER_CONTROLS_FLAG, '__return_true' );
 			Feature_Flags::reset();
 		}

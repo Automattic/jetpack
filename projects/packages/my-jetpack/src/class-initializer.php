@@ -88,6 +88,11 @@ class Initializer {
 	const ONBOARDING_SCRIPT_HANDLE = 'my_jetpack_onboarding';
 
 	/**
+	 * Handle for the webpack bundle that gives dashboards outside My Jetpack the shared header's controls.
+	 */
+	const HEADER_CONTROLS_SCRIPT_HANDLE = 'my-jetpack-header-controls';
+
+	/**
 	 * The wp-build page ID, which the generated enqueue check expects as the screen ID.
 	 */
 	const WP_BUILD_PAGE_ID = 'my-jetpack-dashboard';
@@ -117,6 +122,13 @@ class Initializer {
 	 * @var string
 	 */
 	public const HEADER_CONTROLS_FLAG = 'my-jetpack-header-controls';
+
+	/**
+	 * Feature flag for Overview v1.
+	 *
+	 * @var string
+	 */
+	public const OVERVIEW_V1_FLAG = 'my-jetpack-overview-v1';
 
 	/**
 	 * Holds info/data about the site (from the /sites/%d endpoint)
@@ -854,6 +866,7 @@ class Initializer {
 			if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
 				wp_enqueue_script( 'wp-jp-i18n-loader' );
 			}
+			self::maybe_enqueue_header_controls_script();
 			return;
 		}
 
@@ -870,6 +883,7 @@ class Initializer {
 		$data_handle = self::DATA_SCRIPT_HANDLE;
 		wp_register_script( $data_handle, false, array(), self::PACKAGE_VERSION, true );
 		wp_enqueue_script( $data_handle );
+		self::maybe_enqueue_header_controls_script();
 
 		if ( self::is_my_jetpack_admin_request() && self::is_onboarding_takeover() ) {
 			Assets::register_script(
@@ -1216,6 +1230,53 @@ class Initializer {
 				'owner'       => 'my-jetpack',
 			)
 		);
+		Feature_Flags::register(
+			self::OVERVIEW_V1_FLAG,
+			array(
+				'default'     => false,
+				'description' => 'Show Overview v1 in My Jetpack.',
+				'owner'       => 'my-jetpack',
+			)
+		);
+	}
+
+	/**
+	 * Whether the shared header shows its controls: the flag is on, My Jetpack runs, and not in offline Features.
+	 *
+	 * Boost's dashboard gets My Jetpack's page state even where My Jetpack is off, hence the second check.
+	 * Offline Features prints no connection state for the controls to read, and has no connection to show.
+	 *
+	 * @return bool
+	 */
+	private static function is_header_controls_enabled() {
+		return Feature_Flags::is_enabled( self::HEADER_CONTROLS_FLAG )
+			&& self::should_initialize()
+			&& ! self::is_offline_features_enabled();
+	}
+
+	/**
+	 * Give dashboards outside My Jetpack, such as Boost's, the header's controls as a shared script.
+	 *
+	 * Bundling them instead would ship a second copy of the connection package next to the page's own.
+	 *
+	 * @return void
+	 */
+	private static function maybe_enqueue_header_controls_script() {
+		if ( self::is_my_jetpack_admin_request() || ! self::is_header_controls_enabled() ) {
+			return;
+		}
+
+		Assets::register_script(
+			self::HEADER_CONTROLS_SCRIPT_HANDLE,
+			'../build/header-controls.js',
+			__FILE__,
+			array(
+				'dependencies' => array( self::DATA_SCRIPT_HANDLE ),
+				'enqueue'      => true,
+				'in_footer'    => true,
+				'textdomain'   => 'jetpack-my-jetpack',
+			)
+		);
 	}
 
 	/**
@@ -1231,7 +1292,7 @@ class Initializer {
 			// caches its report and wants a `force_refresh` hint the dashboard does not.
 			'premiumAnalyticsEnabled'  => Products\Stats::is_premium_analytics_enabled(),
 			'showAiModuleToggle'       => Products\Jetpack_Ai::is_feature_ui_enabled(),
-			'headerControls'           => Feature_Flags::is_enabled( self::HEADER_CONTROLS_FLAG ),
+			'headerControls'           => self::is_header_controls_enabled(),
 			'overviewV1'               => self::is_overview_v1_enabled(),
 		);
 
@@ -1245,13 +1306,7 @@ class Initializer {
 	 * @return bool
 	 */
 	public static function is_overview_v1_enabled() {
-		/**
-		 * Filters whether My Jetpack shows Overview v1.
-		 *
-		 * @since 6.10.0
-		 * @param bool $enabled Whether to show Overview v1. Default false.
-		 */
-		return (bool) apply_filters( 'jetpack_my_jetpack_overview_v1', false );
+		return Feature_Flags::is_enabled( self::OVERVIEW_V1_FLAG );
 	}
 
 	/**
