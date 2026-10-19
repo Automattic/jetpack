@@ -94,6 +94,8 @@ Cookie_Consent::init(
 
 Turning `geo` off stops resolving a visitor's region and excluding the geo cookies from Jetpack Boost's cache key, but the frontend module still receives a `geo` config sub-object (with `geoEnabled: false`) rather than none at all, since the module dereferences it unconditionally.
 
+With `geo` off, every visitor gets the opt-in consent model, so when the banner or the footer links are on the package also declares `optin` to the WP Consent API on the server (`wp_get_consent_type`, priority 20). PHP `wp_has_consent()` then returns false until the visitor allows a category, matching the browser. A consent type another tool declared at a lower priority is kept. With `geo` on, the consent model depends on the visitor's region, which only the browser resolves, so the server-side type is left alone.
+
 The `banner`, `ccpa_page`, and `footer_links` toggles surface interactive consent UI that shares runtime resources, so each resource is gated on _every_ feature that needs it — not on `banner` alone:
 
 - **Frontend module** (the Interactivity runtime and config) is enqueued when **any** of `banner`, `ccpa_page`, or `footer_links` is on. The CCPA opt-out button and the footer "Manage Privacy Preferences" link both depend on it, so disabling `banner` no longer breaks them.
@@ -280,7 +282,7 @@ The token-defining rule uses `:where()` (zero specificity), so any of these mech
 
 The following are implementation details. They may change or be removed in any release without notice, and consumers must not depend on them:
 
-- The block-hook and Interactivity callbacks on `Cookie_Consent` (`register_footer_navigation_links`, `set_footer_navigation_link_attributes`, `add_ccpa_*`, `add_gdpr_manage_preferences_directives`, `mark_footer_links_injected`, `maybe_render_footer_links_fallback`, `maybe_suppress_privacy_policy_link`, etc.). These are `public` only because WordPress hooks require a public callable.
+- The block-hook and Interactivity callbacks on `Cookie_Consent` (`register_footer_navigation_links`, `set_footer_navigation_link_attributes`, `add_ccpa_*`, `add_gdpr_manage_preferences_directives`, `mark_footer_links_injected`, `maybe_render_footer_links_fallback`, `maybe_suppress_privacy_policy_link`, `declare_optin_consent_type`, etc.). These are `public` only because WordPress hooks require a public callable.
 - Config accessors and helpers such as `get_config()`, `get_copy()`, `get_consent_categories()`, and the other `get_*` methods.
 - The `wp_consent_type_defined` JS event.
 - The consent-log database table, its schema, and the `jetpack_cookie_consent_consent_log_db_version` / `jetpack_cookie_consent_ccpa_page_*` option keys.

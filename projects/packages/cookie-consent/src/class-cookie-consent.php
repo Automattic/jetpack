@@ -123,6 +123,16 @@ class Cookie_Consent {
 			// Also rendered for footer-links-only sites so the manage-preferences link can
 			// reopen the modal; it only auto-shows when the banner feature is on (view.ts).
 			add_action( 'wp_footer', array( __CLASS__, 'render_banner' ), 999 );
+
+			if ( ! $features['geo'] ) {
+				// With geo off the banner flow treats every visitor as opt-in (view.ts), but it
+				// only tells the browser. Declare the same type on the server so the WP Consent
+				// API's PHP wp_has_consent() stops answering true for visitors who refused or
+				// have not chosen yet. With geo on the type depends on the visitor's region,
+				// which only the browser resolves, so the server keeps its default. Priority 20
+				// lets a consent type another tool declared at the default priority win.
+				add_filter( 'wp_get_consent_type', array( __CLASS__, 'declare_optin_consent_type' ), 20 );
+			}
 		}
 
 		if ( $features['footer_links'] ) {
@@ -207,6 +217,7 @@ class Cookie_Consent {
 		remove_filter( 'get_pages', array( __CLASS__, 'exclude_ccpa_from_get_pages' ), 10 );
 		remove_action( 'rest_api_init', array( __CLASS__, 'register_ccpa_page_setting' ) );
 		remove_filter( 'jetpack_boost_ignore_cookies', array( __CLASS__, 'ignore_geo_cookies_in_page_cache' ), 10 );
+		remove_filter( 'wp_get_consent_type', array( __CLASS__, 'declare_optin_consent_type' ), 20 );
 
 		if ( function_exists( 'unregister_setting' ) ) {
 			unregister_setting( 'general', self::CCPA_PAGE_ID_OPTION );
@@ -214,6 +225,25 @@ class Cookie_Consent {
 
 		Consent_Log_Controller::deactivate();
 		self::$initialized = false;
+	}
+
+	/**
+	 * Declare the opt-in consent type to the WP Consent API on the server.
+	 *
+	 * Hooked to `wp_get_consent_type` when the banner flow runs with geo off. A type
+	 * another consent tool already declared is kept.
+	 *
+	 * @internal Public only because WordPress hooks require a public callable.
+	 *
+	 * @param mixed $consent_type Consent type declared so far, if any.
+	 * @return string
+	 */
+	public static function declare_optin_consent_type( $consent_type ) {
+		if ( is_string( $consent_type ) && '' !== $consent_type ) {
+			return $consent_type;
+		}
+
+		return 'optin';
 	}
 
 	/**
