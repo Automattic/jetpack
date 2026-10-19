@@ -62,7 +62,7 @@ type Props = {
  * @param props.onViewSubscriber     - Callback fired when the View row action is invoked.
  * @param props.onSubscribersRemoved - Callback fired with the rows that were actually removed.
  * @param props.onSelfOnlyChange     - Reports whether the viewer is the only subscriber, for the header's nudge.
- * @param props.onQueryChange        - Reports the active filters and search, for the header's CSV download.
+ * @param props.onQueryChange        - Reports the active filters, search and sort, for the header's CSV download.
  * @return The DataViews component bound to the subscribers query.
  */
 export default function SubscribersDataViews( {
@@ -92,8 +92,10 @@ export default function SubscribersDataViews( {
 		onQueryChange( {
 			filters: apiFilters.filter( filter => filter !== 'all' ),
 			search: view.search ?? '',
+			sort: ( view.sort?.field as SubscribersSortField ) ?? 'date_subscribed',
+			sortOrder: ( view.sort?.direction ?? 'desc' ) as 'asc' | 'desc',
 		} );
-	}, [ apiFilters, view.search, onQueryChange ] );
+	}, [ apiFilters, view.search, view.sort?.field, view.sort?.direction, onQueryChange ] );
 
 	const queryParams = useMemo(
 		() => ( {

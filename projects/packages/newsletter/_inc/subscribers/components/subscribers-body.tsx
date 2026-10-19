@@ -72,6 +72,8 @@ export default function SubscribersBody( {
 	const [ exportQuery, setExportQuery ] = useState< SubscribersExportQuery >( {
 		filters: [],
 		search: '',
+		sort: 'date_subscribed',
+		sortOrder: 'desc',
 	} );
 
 	const [ isAddOpen, setAddOpen ] = useState( false );

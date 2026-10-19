@@ -93,11 +93,13 @@ export type SubscribersQueryParams = {
 };
 
 /**
- * The table's filters and search, which the CSV download sends so the file matches the table.
+ * The table's filters, search and sort, which the CSV download sends so the file matches the table.
  */
 export type SubscribersExportQuery = {
 	filters: SubscribersFilter[];
 	search: string;
+	sort: SubscribersSortField;
+	sortOrder: SubscribersSortOrder;
 };
 
 export type RemoveSubscriberPayload = {
