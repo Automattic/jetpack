@@ -268,6 +268,20 @@ export function makeBaseConfig( configurl, opts = {} ) {
 			rules: {
 				'@wordpress/use-recommended-components': [ 'error', { allowUseWithCaution: true } ],
 
+				// Not yet denied by @wordpress/use-recommended-components.
+				'no-restricted-imports': [
+					'error',
+					{
+						paths: [
+							{
+								name: '@wordpress/components',
+								importNames: [ 'SelectControl' ],
+								message: 'Use `SelectControl` from `@wordpress/ui` instead.',
+							},
+						],
+					},
+				],
+
 				// Set domain from opts, with a bogus default in case it's omitted.
 				'@wordpress/i18n-text-domain': [
 					'error',
