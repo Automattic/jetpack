@@ -11,6 +11,7 @@ import { useSyncStatus } from '@jetpack-premium-analytics/site-sync';
 import {
 	DateFiltersPanel,
 	DateIntervalDropdown,
+	DateLimitUpsell,
 	DateYearFilter,
 	OnboardingWelcomeModal,
 	PeriodChangeStatus,
@@ -437,6 +438,12 @@ function Dashboard(): JSX.Element {
 					{ showHeaderIntervalControl && (
 						<DateIntervalDropdown
 							options={ dateFilters.intervalOptions }
+							lockedOptions={ dateFilters.lockedIntervalOptions }
+							lockNotice={
+								dateLimits?.intervalUpsell && (
+									<DateLimitUpsell upsell={ dateLimits.intervalUpsell } />
+								)
+							}
 							value={ dateFilters.interval }
 							onChange={ dateFilters.onIntervalChange }
 						/>

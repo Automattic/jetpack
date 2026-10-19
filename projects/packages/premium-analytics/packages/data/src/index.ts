@@ -4,6 +4,7 @@ export {
 	useReportScope,
 	useScopeLockedIntervals,
 	type DateLimits,
+	type DateLimitUpsellCopy,
 	type ReportScope,
 } from './providers/report-scope';
 export {
@@ -85,11 +86,17 @@ export {
 export {
 	getAllowedIntervalsForPreset,
 	getDefaultIntervalForPeriod,
+	getLockedIntervalsForPreset,
 	resolveIntervalForPresetChange,
 	resolveIntervalForRange,
 } from './utils/interval';
 export type { IntervalType, LockableInterval } from './utils/interval';
-export { chartInterval, defaultPeriodForInterval, drawableIntervals } from './utils/periods';
+export {
+	chartInterval,
+	defaultPeriodForInterval,
+	drawableIntervals,
+	lockedDrawableIntervals,
+} from './utils/periods';
 export {
 	getLockedFeature,
 	getLockedSection,

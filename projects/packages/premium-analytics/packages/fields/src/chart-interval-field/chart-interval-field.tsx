@@ -6,12 +6,18 @@ import {
 	drawableIntervals,
 	getAllowedIntervalsForPreset,
 	getDefaultPreset,
+	lockedDrawableIntervals,
 	normalizeReportParams,
+	useReportScope,
 	useScopeLockedIntervals,
 	type StatsPeriod,
 } from '@jetpack-premium-analytics/data';
 import { INTERVAL_TYPES } from '@jetpack-premium-analytics/datetime';
-import { DateIntervalDropdown, getIntervalLabel } from '@jetpack-premium-analytics/ui';
+import {
+	DateIntervalDropdown,
+	DateLimitUpsell,
+	getIntervalLabel,
+} from '@jetpack-premium-analytics/ui';
 import { __ } from '@wordpress/i18n';
 import { useSearch } from '@wordpress/route';
 import { useMemo } from 'react';
@@ -48,9 +54,10 @@ function ChartIntervalControl( {
 		data.reportParams && Object.keys( data.reportParams ).length > 0 ? data.reportParams : null;
 	const elements = field.elements;
 	const lockedIntervals = useScopeLockedIntervals();
+	const intervalUpsell = useReportScope().dateLimits?.intervalUpsell;
 
 	// Clamp, don't rewrite: the saved bucket shows again once the range allows it.
-	const { options, value } = useMemo( () => {
+	const { options, lockedOptions, value } = useMemo( () => {
 		const periods = (
 			elements?.length ? elements.map( ( { value: period } ) => period ) : INTERVAL_TYPES
 		) as [ StatsPeriod, ...StatsPeriod[] ];
@@ -65,6 +72,7 @@ function ChartIntervalControl( {
 
 		return {
 			options: drawableIntervals( allowed, periods ),
+			lockedOptions: lockedDrawableIntervals( params, lockedIntervals, periods ),
 			value: chartInterval( { ...params, interval: data.chartInterval }, periods, lockedIntervals ),
 		};
 	}, [ elements, ownRange, search, data.chartInterval, lockedIntervals ] );
@@ -72,6 +80,8 @@ function ChartIntervalControl( {
 	return (
 		<DateIntervalDropdown
 			options={ options }
+			lockedOptions={ lockedOptions }
+			lockNotice={ intervalUpsell && <DateLimitUpsell upsell={ intervalUpsell } /> }
 			value={ value }
 			withLabel
 			triggerProps={ WIDGET_HEADER_TRIGGER_PROPS }

@@ -74,6 +74,34 @@ describe( 'DateIntervalDropdown', () => {
 		expect( screen.getByRole( 'menuitemradio', { name: 'By years' } ) ).not.toBeChecked();
 	} );
 
+	it( 'lists the buckets the plan locks after the open ones, unpickable and explained', async () => {
+		const onChange = jest.fn();
+		const user = userEvent.setup();
+
+		render(
+			<DateIntervalDropdown
+				options={ [ 'day' ] }
+				lockedOptions={ [ 'week' ] }
+				lockNotice="Upgrade to group by week."
+				value="day"
+				onChange={ onChange }
+			/>
+		);
+
+		await user.click( screen.getByRole( 'button', { name: 'Chart interval: By days' } ) );
+
+		expect( screen.getAllByRole( 'menuitemradio' ).map( item => item.textContent ) ).toEqual( [
+			'By days',
+			'By weeks',
+		] );
+		const locked = screen.getByRole( 'menuitemradio', { name: 'By weeks' } );
+		expect( locked ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( locked ).toHaveAccessibleDescription( 'Upgrade to group by week.' );
+
+		await user.click( locked );
+		expect( onChange ).not.toHaveBeenCalled();
+	} );
+
 	it( 'names the trigger without a bucket when there is no active one', () => {
 		render( <DateIntervalDropdown options={ [ 'day', 'week' ] } onChange={ jest.fn() } /> );
 
@@ -135,6 +163,23 @@ describe( 'DateIntervalDropdown', () => {
 			await user.click( screen.getByRole( 'menuitemradio', { name: 'By weeks' } ) );
 
 			expect( onChange ).toHaveBeenCalledWith( 'week' );
+		} );
+
+		it( 'opens a menu on a lone open bucket when the plan locks others', async () => {
+			const user = userEvent.setup();
+			render(
+				<DateIntervalDropdown
+					options={ [ 'day' ] }
+					lockedOptions={ [ 'week' ] }
+					value="day"
+					withLabel
+					onChange={ jest.fn() }
+				/>
+			);
+
+			await user.click( screen.getByRole( 'button', { name: 'By days' } ) );
+
+			expect( screen.getByRole( 'menuitemradio', { name: 'By weeks' } ) ).toBeVisible();
 		} );
 
 		it( 'shows a lone bucket without a menu, still in the tab order', async () => {

@@ -4,10 +4,11 @@
 import { type IntervalType } from '@jetpack-premium-analytics/datetime';
 import { Button, Icon, IconButton } from '@jetpack-premium-analytics/externals';
 import { MenuGroup, MenuItem, NavigableMenu } from '@wordpress/components';
+import { useInstanceId } from '@wordpress/compose';
 import { __, sprintf } from '@wordpress/i18n';
-import { chartBar, check, chevronDown } from '@wordpress/icons';
+import { chartBar, check, chevronDown, lock } from '@wordpress/icons';
 import clsx from 'clsx';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 /**
  * Internal dependencies
  */
@@ -25,6 +26,12 @@ type DateIntervalDropdownProps = {
 	 * a widget that owns its control, from what its chart draws.
 	 */
 	options: readonly IntervalType[];
+
+	/** Buckets listed after `options` with a lock, which cannot be picked. */
+	lockedOptions?: readonly IntervalType[];
+
+	/** Why the locked buckets are locked, shown under the menu and read as each one's description. */
+	lockNotice?: ReactNode;
 
 	/**
 	 * The bucket the widgets are currently drawing.
@@ -94,10 +101,13 @@ function getTriggerLabel( value?: IntervalType ): string {
  * The chart bucket-size control: a menu of what the active range allows.
  *
  * The glyph trigger (not a clock: it buckets the charts, doesn't narrow the period) opens
- * even with one option. With `withLabel` it names the bucket, and is disabled with one.
+ * even with one option. With `withLabel` it names the bucket, and is disabled with one
+ * option and none locked.
  */
 export function DateIntervalDropdown( {
 	options,
+	lockedOptions = [],
+	lockNotice,
 	value,
 	label,
 	withLabel = false,
@@ -108,9 +118,17 @@ export function DateIntervalDropdown( {
 	const triggerLabel = label ?? getTriggerLabel( value );
 	const [ isOpen, setIsOpen ] = useState( false );
 	const onKeyDown = openOnArrowDown( { isOpen, onToggle: () => setIsOpen( true ), disabled } );
+	const lockNoticeId = useInstanceId( DateIntervalDropdown, 'date-interval-dropdown__lock-notice' );
+	const describesLocked = lockNotice ? lockNoticeId : undefined;
 
 	// The trigger's own Button, so the lone bucket sits where the menu's trigger would.
-	if ( withLabel && value && options.length === 1 && options[ 0 ] === value ) {
+	if (
+		withLabel &&
+		value &&
+		options.length === 1 &&
+		options[ 0 ] === value &&
+		! lockedOptions.length
+	) {
 		return (
 			<Button
 				variant="minimal"
@@ -177,8 +195,27 @@ export function DateIntervalDropdown( {
 							</MenuItem>
 						);
 					} ) }
+					{ lockedOptions.map( option => (
+						<MenuItem
+							key={ option }
+							role="menuitemradio"
+							isSelected={ false }
+							icon={ lock }
+							disabled
+							aria-describedby={ describesLocked }
+						>
+							{ getIntervalLabel( option ) }
+						</MenuItem>
+					) ) }
 				</MenuGroup>
 			</NavigableMenu>
+
+			{ /* A menu may hold only menu items, so the lock notice sits below it. */ }
+			{ lockedOptions.length > 0 && lockNotice && (
+				<div id={ lockNoticeId } className="date-interval-dropdown__lock-notice">
+					{ lockNotice }
+				</div>
+			) }
 		</DateControlPopover>
 	);
 }

@@ -213,8 +213,17 @@ sets none.
 ### `ReportScopeProvider`'s `dateLimits`
 
 The date options the surface's plan locks, as `DateLimits`: the policy's `lockedPresetIds`,
-`earliestDate` and `lockedIntervals`, plus the `upsell` copy and an `onUpgradeClick` callback.
+`earliestDate` and `lockedIntervals`, plus the `upsell` for locked periods and the
+`intervalUpsell` for locked chart intervals, each copy carrying its own `onUpgradeClick`.
 The date controls read it through `useReportScope()`; absent where the host applies no limits.
+
+### `getLockedIntervalsForPreset( preset, from, to, locked )`
+
+Returns the buckets the range could draw but `locked` withholds, for an interval menu to list as
+locked. `lockedDrawableIntervals( params, locked, periods )` narrows them to what a widget's chart
+draws.
+
+**Returns:** `IntervalType[]`
 
 ## Architecture
 

@@ -352,6 +352,11 @@ function get_stats_feature_copy( $feature ) {
 				'description' => __( 'See periods beyond the last 30 days in one click.', 'jetpack-premium-analytics-pkg' ),
 				'support_url' => '',
 			);
+		case 'intervals':
+			return array(
+				'description' => __( 'Group your charts by week, month or year.', 'jetpack-premium-analytics-pkg' ),
+				'support_url' => '',
+			);
 		default:
 			return array(
 				'description' => __( 'Upgrade your plan to unlock Jetpack Stats.', 'jetpack-premium-analytics-pkg' ),

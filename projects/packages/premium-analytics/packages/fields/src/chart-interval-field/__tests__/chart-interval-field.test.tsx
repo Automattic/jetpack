@@ -92,7 +92,8 @@ describe( 'chartIntervalField', () => {
 		expect( onChange ).not.toHaveBeenCalled();
 	} );
 
-	it( 'shows a saved bucket the plan locks as the nearest open one', () => {
+	it( 'shows a saved bucket the plan locks as the nearest open one, and lists it locked', async () => {
+		const user = userEvent.setup();
 		render(
 			<ReportScopeProvider dateLimits={ { lockedPresetIds: [], lockedIntervals: [ 'week' ] } }>
 				<Control
@@ -103,7 +104,9 @@ describe( 'chartIntervalField', () => {
 			</ReportScopeProvider>
 		);
 
-		expect( screen.getByRole( 'button', { name: 'Chart interval: By days' } ) ).toHaveAttribute(
+		await user.click( screen.getByRole( 'button', { name: 'By days' } ) );
+
+		expect( screen.getByRole( 'menuitemradio', { name: 'By weeks' } ) ).toHaveAttribute(
 			'aria-disabled',
 			'true'
 		);

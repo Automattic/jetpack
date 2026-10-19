@@ -3,6 +3,7 @@
  */
 import {
 	getAllowedIntervalsForPreset,
+	getLockedIntervalsForPreset,
 	NO_LOCKED_INTERVALS,
 	type LockableInterval,
 } from './interval';
@@ -114,4 +115,30 @@ export function chartInterval< P extends StatsPeriod >(
 	// No stored bucket means the range default, which leads the list without
 	// being its finest: a year-long range defaults to months over weeks.
 	return defaultPeriodForInterval( params.interval ?? first, [ first, ...rest ] );
+}
+
+/**
+ * The buckets a widget's interval menu lists as locked: what the range could draw, the plan
+ * locks, and the chart offers.
+ *
+ * @param params  - The report params the menu reads.
+ * @param locked  - The buckets the plan locks.
+ * @param periods - The periods the chart draws; every bucket when the widget declares none.
+ * @return The locked buckets, in the range's order.
+ */
+export function lockedDrawableIntervals(
+	params: Pick< ReportParams, 'preset' | 'from' | 'to' >,
+	locked: readonly LockableInterval[],
+	periods?: readonly StatsPeriod[]
+): IntervalType[] {
+	const lockedByRange = getLockedIntervalsForPreset(
+		params.preset,
+		params.from ?? '',
+		params.to ?? '',
+		locked
+	);
+
+	return periods
+		? lockedByRange.filter( interval => ( periods as readonly string[] ).includes( interval ) )
+		: lockedByRange;
 }

@@ -3,6 +3,7 @@
  */
 import {
 	getAllowedIntervalsForPreset,
+	getLockedIntervalsForPreset,
 	hasComparisonEnabled,
 	resolveIntervalForRange,
 	useScopeLockedIntervals,
@@ -50,6 +51,9 @@ export type ReportDateFilters = {
 	 * control lists.
 	 */
 	intervalOptions: IntervalType[];
+
+	/** The intervals the range would allow but the plan locks, for the control to show as locked. */
+	lockedIntervalOptions: IntervalType[];
 
 	/**
 	 * Stage a primary range edit. `exactRange` stores the ends as given rather
@@ -205,6 +209,17 @@ export function useReportDateFilters< TFrom extends string >(
 		[ presetId, effective.from, effective.to, lockedIntervals ]
 	);
 
+	const lockedIntervalOptions = useMemo(
+		() =>
+			getLockedIntervalsForPreset(
+				presetId,
+				effective.from ?? '',
+				effective.to ?? '',
+				lockedIntervals
+			),
+		[ presetId, effective.from, effective.to, lockedIntervals ]
+	);
+
 	const interval = useMemo(
 		() =>
 			resolveIntervalForRange(
@@ -287,6 +302,7 @@ export function useReportDateFilters< TFrom extends string >(
 		appliedComparisonRange,
 		interval,
 		intervalOptions,
+		lockedIntervalOptions,
 		onChange,
 		onComparisonChange,
 		onIntervalChange,

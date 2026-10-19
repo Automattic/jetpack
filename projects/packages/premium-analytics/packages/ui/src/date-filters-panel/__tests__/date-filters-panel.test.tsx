@@ -204,8 +204,8 @@ describe( 'DateFiltersPanel', () => {
 						description: 'Upgrade to see more.',
 						supportUrl: 'https://example.com/help',
 						upgradeUrl: 'https://example.com/plans',
+						onUpgradeClick,
 					},
-					onUpgradeClick,
 				} }
 			>
 				{ panel( { appliedPresetId: 'last-7-days' } ) }

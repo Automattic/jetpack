@@ -119,6 +119,26 @@ export function getAllowedIntervalsForPreset(
 	return withoutLockedIntervals( allowedIntervalsForPreset( preset, from, to ), locked );
 }
 
+/**
+ * The buckets the range could draw but the plan locks, for the control to show as locked.
+ *
+ * @param preset - The preset being edited.
+ * @param from   - The range start.
+ * @param to     - The range end.
+ * @param locked - The buckets the plan locks.
+ * @return The locked buckets, in the range's order.
+ */
+export function getLockedIntervalsForPreset(
+	preset: PrimaryPresetId | undefined,
+	from: string,
+	to: string,
+	locked: readonly LockableInterval[]
+): IntervalType[] {
+	return allowedIntervalsForPreset( preset, from, to ).filter( interval =>
+		locked.some( bucket => bucket === interval )
+	);
+}
+
 function allowedIntervalsForPreset(
 	preset: PrimaryPresetId | undefined,
 	from: string,

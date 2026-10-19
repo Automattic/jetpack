@@ -9,6 +9,7 @@ import {
 	getDefaultPreset,
 	getDefaultReportParams,
 	hasComparisonEnabled,
+	lockedDrawableIntervals,
 	normalizeReportParams,
 	useScopeLockedIntervals,
 	type StatsPeriod,
@@ -311,6 +312,16 @@ function ReportParamsControl( {
 		return periods ? drawableIntervals( allowed, periods ) : allowed;
 	}, [ reportParams.preset, reportParams.from, reportParams.to, periods, lockedIntervals ] );
 
+	const lockedIntervalOptions = useMemo(
+		() =>
+			lockedDrawableIntervals(
+				{ preset: reportParams.preset, from: reportParams.from, to: reportParams.to },
+				lockedIntervals,
+				periods
+			),
+		[ reportParams.preset, reportParams.from, reportParams.to, periods, lockedIntervals ]
+	);
+
 	// Check what the chart draws, through the call the chart itself makes: a
 	// stored bucket the widget clamps away is not what is on screen.
 	const interval = periods
@@ -349,6 +360,7 @@ function ReportParamsControl( {
 			withIntervalControl={ withIntervalControl }
 			interval={ interval }
 			intervalOptions={ intervalOptions }
+			lockedIntervalOptions={ lockedIntervalOptions }
 			onIntervalChange={ changeInterval }
 		/>
 	);

@@ -8,6 +8,8 @@ import {
 	isDateLimitedPolicy,
 	OPEN_DATE_POLICY,
 	type DateLimits,
+	type DateLimitUpsellCopy,
+	type StatsFeatureKey,
 } from '@jetpack-premium-analytics/data';
 import { useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
 /**
@@ -36,8 +38,22 @@ export function useStatsDateLimits( isLimited: boolean ): {
 			return { offersComparison: true };
 		}
 
-		const feature = policy.feature;
-		const locked = feature ? getLockedFeature( feature ) : undefined;
+		const upsellFor = ( feature: StatsFeatureKey ): DateLimitUpsellCopy | undefined => {
+			const locked = getLockedFeature( feature );
+
+			return (
+				locked && {
+					description: locked.description,
+					supportUrl: locked.support_url,
+					upgradeUrl: locked.upgrade_url,
+					onUpgradeClick: () =>
+						trackEvent( 'jetpack_premium_analytics_plan_upgrade_click', {
+							feature,
+							source: 'locked_date_control',
+						} ),
+				}
+			);
+		};
 
 		return {
 			offersComparison: policy.offersComparison,
@@ -45,16 +61,8 @@ export function useStatsDateLimits( isLimited: boolean ): {
 				lockedPresetIds: policy.lockedPresetIds,
 				earliestDate: policy.earliestDate,
 				lockedIntervals: policy.lockedIntervals,
-				upsell: locked && {
-					description: locked.description,
-					supportUrl: locked.support_url,
-					upgradeUrl: locked.upgrade_url,
-				},
-				onUpgradeClick: () =>
-					trackEvent( 'jetpack_premium_analytics_plan_upgrade_click', {
-						feature,
-						source: 'locked_date_control',
-					} ),
+				upsell: policy.feature && upsellFor( policy.feature ),
+				intervalUpsell: policy.lockedIntervals.length ? upsellFor( 'intervals' ) : undefined,
 			},
 		};
 	}, [ isLimited, trackEvent, siteDay ] );
