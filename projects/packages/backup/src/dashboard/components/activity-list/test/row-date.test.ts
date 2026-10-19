@@ -27,7 +27,7 @@ describe( 'formatRowDate', () => {
 		}
 	} );
 
-	test( 'follows the site time and date formats', () => {
+	test( 'uses the site time format and the locale date-time format', () => {
 		const original = getSettings();
 		setSettings( {
 			...original,

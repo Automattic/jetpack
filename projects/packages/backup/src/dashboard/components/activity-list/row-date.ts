@@ -28,12 +28,18 @@ export function formatRowDate( publishedAt: string, now: Date = new Date() ): st
 	const time = formatTime( publishedAt );
 
 	if ( day === today ) {
-		/* translators: %s: time of day, such as 7:00 am. */
-		return sprintf( __( 'Today, %s', 'jetpack-backup-pkg' ), time );
+		return sprintf(
+			/* translators: %s: time of day, such as 7:00 am. */
+			__( 'Today, %s', 'jetpack-backup-pkg' ),
+			time
+		);
 	}
 	if ( day === previousDay( today ) ) {
-		/* translators: %s: time of day, such as 7:00 am. */
-		return sprintf( __( 'Yesterday, %s', 'jetpack-backup-pkg' ), time );
+		return sprintf(
+			/* translators: %s: time of day, such as 7:00 am. */
+			__( 'Yesterday, %s', 'jetpack-backup-pkg' ),
+			time
+		);
 	}
 	return formatDateTime( publishedAt );
 }
