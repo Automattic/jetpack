@@ -23,6 +23,7 @@ import { DATE_FILTER_RANGE, DATE_FILTER_YEAR } from './config';
 import {
 	useActiveSection,
 	useDashboardPolicy,
+	useDashboardSectionLayout,
 	useDashboardSections,
 	useLockedSectionLayout,
 	useOnboarding,
@@ -448,7 +449,7 @@ jest.mock( './hooks', () => ( {
 	useActiveSection: jest.fn(),
 	useDashboardGridSettings: () => [ {} ],
 	useDashboardPolicy: jest.fn( () => () => true ),
-	useDashboardSectionLayout: () => [ [], jest.fn(), mockResetLayout ],
+	useDashboardSectionLayout: jest.fn( () => [ [], jest.fn(), mockResetLayout ] ),
 	useDashboardSections: jest.fn(),
 	useLockedSectionLayout: jest.fn(),
 	useOnboarding: jest.fn(),
@@ -468,6 +469,7 @@ beforeEach( () => {
 	mockTriggerSync.mockImplementation( () => Promise.resolve() );
 	useOnboardingMock.mockReturnValue( closedOnboarding );
 	useLockedSectionLayoutMock.mockImplementation( passThroughLockedLayout );
+	useDashboardSectionLayoutMock.mockImplementation( () => [ [], jest.fn(), mockResetLayout ] );
 	mockDashboardProps = {};
 } );
 
@@ -477,6 +479,7 @@ const useActiveSectionMock = jest.mocked( useActiveSection );
 const useDashboardPolicyMock = jest.mocked( useDashboardPolicy );
 const useOnboardingMock = jest.mocked( useOnboarding );
 const useLockedSectionLayoutMock = jest.mocked( useLockedSectionLayout );
+const useDashboardSectionLayoutMock = jest.mocked( useDashboardSectionLayout );
 
 /**
  * What the hook returns for a section the plan leaves open.
@@ -1378,7 +1381,7 @@ describe( 'Dashboard locked section', () => {
 		);
 	} );
 
-	it( 'shows the upgrade card after the open widgets, without the empty state', () => {
+	it( 'shows the upgrade prompt after the open widgets, without the empty state', () => {
 		render( <Dashboard /> );
 
 		expect( screen.getByTestId( 'locked-section' ) ).toHaveTextContent( 'insights' );
@@ -1389,11 +1392,47 @@ describe( 'Dashboard locked section', () => {
 		expect( screen.queryByTestId( 'no-widgets-state' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'hands the dashboard only the open widgets, and saves through the lock', () => {
-		render( <Dashboard /> );
+	it( 'hands the dashboard only the open widgets, and saves an inline edit with the rest kept', () => {
+		const chart = { uuid: 'chart', type: 'jpa/traffic-chart', attributes: { chartType: 'bar' } };
+		const hidden = { uuid: 'referrers', type: 'jpa/referrers' };
+		const setLayout = jest.fn();
+		useDashboardSectionLayoutMock.mockReturnValue( [
+			[ hidden, chart ],
+			setLayout,
+			mockResetLayout,
+		] as unknown as ReturnType< typeof useDashboardSectionLayout > );
+		useLockedSectionLayoutMock.mockImplementation(
+			jest.requireActual( './hooks/use-locked-section-layout' ).useLockedSectionLayout
+		);
+		window.JetpackScriptData = {
+			premium_analytics: {
+				plan_gates: { locked_sections: { insights: { open_widget_types: [ chart.type ] } } },
+			},
+		} as unknown as typeof window.JetpackScriptData;
 
-		expect( mockDashboardProps.layout ).toBe( visibleLayout );
-		expect( mockDashboardProps.onLayoutChange ).toBe( onVisibleLayoutChange );
+		render( <Dashboard /> );
+		expect( mockDashboardProps.layout ).toEqual( [ chart ] );
+
+		const edited = { ...chart, attributes: { chartType: 'line' } };
+		act( () => ( mockDashboardProps.onLayoutChange as ( next: unknown ) => void )( [ edited ] ) );
+
+		expect( setLayout ).toHaveBeenCalledWith( [ hidden, edited ] );
+	} );
+
+	it( 'leaves edit mode on arriving from a section being customized', async () => {
+		mockSection( { slug: 'subscribers' } );
+		useActiveSectionMock.mockReturnValue( [ 'subscribers', jest.fn() ] );
+		mockActiveSectionSlug = 'subscribers';
+		const { rerender } = render( <Dashboard /> );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
+		expect( screen.getByRole( 'button', { name: 'Done' } ) ).toBeInTheDocument();
+
+		mockSection();
+		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );
+		mockActiveSectionSlug = 'insights';
+		rerender( <Dashboard /> );
+
+		expect( screen.queryByRole( 'button', { name: 'Done' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'loads only the open widgets at boot', () => {

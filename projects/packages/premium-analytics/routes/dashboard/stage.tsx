@@ -188,6 +188,12 @@ function Dashboard(): JSX.Element {
 		onLayoutChange
 	);
 	const isSectionLocked = !! lockedSection;
+	// Edit mode survives a tab switch, so leave it on arriving at a section that cannot be arranged.
+	useEffect( () => {
+		if ( editMode && isSectionLocked ) {
+			onEditChange( false );
+		}
+	}, [ editMode, isSectionLocked, onEditChange ] );
 	// Settings has no layout to customize, and `WidgetDashboard` opens Customize over an empty one.
 	// A locked section has nothing to add, and its visible layout is often empty.
 	const canPerform = useMemo< typeof dashboardPolicy >(

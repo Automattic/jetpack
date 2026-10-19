@@ -7,35 +7,6 @@ import type { LockedSectionGate } from '@jetpack-premium-analytics/data';
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
 
 /**
- * Put the hidden widgets back around a layout the dashboard saved, each at its old index.
- *
- * @param full        - The stored layout, hidden widgets included.
- * @param nextVisible - The layout the dashboard saved.
- * @param isHidden    - Whether a stored widget was kept from the dashboard.
- * @return The layout to store.
- */
-export function restoreHiddenWidgets(
-	full: DashboardWidget[],
-	nextVisible: DashboardWidget[],
-	isHidden: ( widget: DashboardWidget ) => boolean
-): DashboardWidget[] {
-	const saved = new Map( nextVisible.map( widget => [ widget.uuid, widget ] ) );
-	const known = new Set( full.map( widget => widget.uuid ) );
-	const restored: DashboardWidget[] = [];
-
-	for ( const widget of full ) {
-		const next = saved.get( widget.uuid );
-		if ( next ) {
-			restored.push( next );
-		} else if ( isHidden( widget ) ) {
-			restored.push( widget );
-		}
-	}
-
-	return [ ...restored, ...nextVisible.filter( widget => ! known.has( widget.uuid ) ) ];
-}
-
-/**
  * The layout a section shows once its plan locks it: only open widgets, saved without losing the rest.
  *
  * @param section        - The section slug.
@@ -53,21 +24,27 @@ export function useLockedSectionLayout(
 	onVisibleLayoutChange: ( next: DashboardWidget[] ) => void;
 } {
 	const lockedSection = getLockedSection( section );
-	const isHidden = useCallback(
-		( widget: DashboardWidget ) => ! lockedSection?.open_widget_types.includes( widget.type ),
-		[ lockedSection ]
-	);
 
 	const visibleLayout = useMemo(
-		() => ( lockedSection ? layout.filter( widget => ! isHidden( widget ) ) : layout ),
-		[ lockedSection, layout, isHidden ]
+		() =>
+			lockedSection
+				? layout.filter( widget => lockedSection.open_widget_types.includes( widget.type ) )
+				: layout,
+		[ lockedSection, layout ]
 	);
 
-	// An inline attribute edit autosaves the layout the dashboard holds, which lacks the hidden widgets.
+	// A locked section never enters edit mode, so a save here is an inline attribute edit of the
+	// same widgets, which the stored layout takes over by uuid.
 	const onVisibleLayoutChange = useCallback(
-		( next: DashboardWidget[] ) =>
-			onLayoutChange( lockedSection ? restoreHiddenWidgets( layout, next, isHidden ) : next ),
-		[ lockedSection, layout, onLayoutChange, isHidden ]
+		( next: DashboardWidget[] ) => {
+			if ( ! lockedSection ) {
+				onLayoutChange( next );
+				return;
+			}
+			const saved = new Map( next.map( widget => [ widget.uuid, widget ] ) );
+			onLayoutChange( layout.map( widget => saved.get( widget.uuid ) ?? widget ) );
+		},
+		[ lockedSection, layout, onLayoutChange ]
 	);
 
 	return { lockedSection, visibleLayout, onVisibleLayoutChange };

@@ -1,1 +1,1 @@
-export { restoreHiddenWidgets, useLockedSectionLayout } from './use-locked-section-layout';
+export { useLockedSectionLayout } from './use-locked-section-layout';

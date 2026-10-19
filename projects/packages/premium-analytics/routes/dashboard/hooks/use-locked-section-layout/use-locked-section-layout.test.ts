@@ -6,7 +6,7 @@ import { renderHook } from '@testing-library/react';
 /**
  * Internal dependencies
  */
-import { restoreHiddenWidgets, useLockedSectionLayout } from './use-locked-section-layout';
+import { useLockedSectionLayout } from './use-locked-section-layout';
 import type { LockedSectionGate } from '@jetpack-premium-analytics/data';
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
 
@@ -84,27 +84,5 @@ describe( 'useLockedSectionLayout', () => {
 
 		result.current.onVisibleLayoutChange( next );
 		expect( onLayoutChange ).toHaveBeenCalledWith( next );
-	} );
-} );
-
-describe( 'restoreHiddenWidgets', () => {
-	const isHidden = ( item: DashboardWidget ) => item.uuid === 'hidden';
-
-	it( 'appends a widget the full layout does not have', () => {
-		const full = [ widget( 'a' ), widget( 'hidden' ) ];
-
-		expect(
-			restoreHiddenWidgets( full, [ widget( 'a' ), widget( 'new' ) ], isHidden ).map(
-				item => item.uuid
-			)
-		).toEqual( [ 'a', 'hidden', 'new' ] );
-	} );
-
-	it( 'drops a visible widget the saved layout left out', () => {
-		const full = [ widget( 'a' ), widget( 'hidden' ), widget( 'b' ) ];
-
-		expect(
-			restoreHiddenWidgets( full, [ widget( 'b' ) ], isHidden ).map( item => item.uuid )
-		).toEqual( [ 'hidden', 'b' ] );
 	} );
 } );
