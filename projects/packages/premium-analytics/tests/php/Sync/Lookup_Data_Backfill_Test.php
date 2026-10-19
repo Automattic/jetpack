@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics\Sync;
 
+use Automattic\Jetpack\PremiumAnalytics\Analytics;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\Before;
@@ -19,8 +20,13 @@ use PHPUnit\Framework\TestCase;
  * @covers \Automattic\Jetpack\PremiumAnalytics\Sync\Lookup_Data_Backfill
  */
 #[CoversClass( Lookup_Data_Backfill::class )]
-#[AllowMockObjectsWithoutExpectations /* Partial mocks stub the store and Jetpack checks; getStubBuilder() doesn't exist until PHPUnit 12.5. */]
+#[AllowMockObjectsWithoutExpectations /* Partial mocks stub the store, Jetpack and WordPress.com checks; getStubBuilder() doesn't exist until PHPUnit 12.5. */]
 class Lookup_Data_Backfill_Test extends TestCase {
+
+	private const OLDEST_ORDER = array(
+		'product_id'   => '7',
+		'date_created' => '2024-03-10 12:00:00',
+	);
 
 	/**
 	 * @before
@@ -28,18 +34,9 @@ class Lookup_Data_Backfill_Test extends TestCase {
 	#[Before]
 	public function set_up() {
 		\WorDBless\Options::init()->clear_options();
+		// update_option() skips a value the object cache still holds from an earlier test.
+		wp_cache_flush();
 		$GLOBALS['jpa_test_scheduled_actions'] = array();
-		// Raw options query $wpdb directly, which WorDBless doesn't back.
-		add_filter( 'jetpack_disabled_raw_options', array( $this, 'bypass_full_sync_status_raw_option' ) );
-	}
-
-	/**
-	 * @param array $options Raw options read through the Options API instead.
-	 * @return array
-	 */
-	public function bypass_full_sync_status_raw_option( $options ) {
-		$options['jetpack_sync_full_status'] = true;
-		return $options;
 	}
 
 	/**
@@ -47,32 +44,37 @@ class Lookup_Data_Backfill_Test extends TestCase {
 	 */
 	#[After]
 	public function tear_down() {
-		unset( $GLOBALS['jpa_test_scheduled_actions'] );
-		remove_all_filters( 'jetpack_disabled_raw_options' );
+		unset( $GLOBALS['jpa_test_scheduled_actions'], $GLOBALS['current_screen'], $_GET['page'] );
 		\WorDBless\Options::init()->clear_options();
 	}
 
 	/**
-	 * A backfill whose store, Jetpack and Sync checks pass unless overridden.
+	 * A backfill whose checks pass and whose WordPress.com report lacks the oldest order's product, unless overridden.
 	 *
-	 * @param array $results Return values by stubbed method name.
+	 * @param array $results Return values by stubbed method name; a closure computes one from the call's arguments.
 	 * @return Lookup_Data_Backfill&MockObject
 	 */
 	private function backfill( array $results = array() ) {
 		$results += array(
-			'has_orders'           => true,
-			'has_lookup_rows'      => true,
-			'is_jetpack_connected' => true,
-			'is_sync_allowed'      => true,
-			'is_full_sync_running' => false,
-			'start_full_sync'      => true,
+			'has_orders'                => true,
+			'has_lookup_rows'           => true,
+			'is_jetpack_connected'      => true,
+			'is_sync_allowed'           => true,
+			'is_full_sync_running'      => false,
+			'find_oldest_order_product' => self::OLDEST_ORDER,
+			'fetch_wpcom_products'      => array( array( 'product_id' => '8' ) ),
+			'start_full_sync'           => true,
 		);
 
 		$backfill = $this->getMockBuilder( Lookup_Data_Backfill::class )
 			->onlyMethods( array_keys( $results ) )
 			->getMock();
 		foreach ( $results as $method => $result ) {
-			$backfill->method( $method )->willReturn( $result );
+			if ( $result instanceof \Closure ) {
+				$backfill->method( $method )->willReturnCallback( $result );
+			} else {
+				$backfill->method( $method )->willReturn( $result );
+			}
 		}
 		return $backfill;
 	}
@@ -81,41 +83,63 @@ class Lookup_Data_Backfill_Test extends TestCase {
 		return array_column( $GLOBALS['jpa_test_scheduled_actions'], 'hook' );
 	}
 
-	/**
-	 * @dataProvider provide_earlier_analytics_full_sync
-	 * @param callable $record_earlier_sync Records a finished analytics full sync.
-	 */
-	#[DataProvider( 'provide_earlier_analytics_full_sync' )]
-	public function test_schedules_once_after_an_earlier_analytics_full_sync( callable $record_earlier_sync ) {
-		$record_earlier_sync();
+	private static function set_scheduled_state(): void {
+		update_option(
+			Lookup_Data_Backfill::STATE_OPTION,
+			array(
+				'scheduled_at' => 1730000000,
+				'started_at'   => 0,
+			)
+		);
+	}
+
+	public function test_schedules_once_after_an_earlier_analytics_full_sync() {
+		update_option( Sync_Status_Tracker::INITIAL_ANALYTICS_SYNC_OPTION, 1730000123 );
 		$backfill = $this->backfill();
 
 		$backfill->maybe_schedule();
-		$backfill->maybe_schedule(); // @phan-suppress-current-line PhanPluginDuplicateAdjacentStatement -- A second admin request must not schedule again.
+		$backfill->maybe_schedule(); // @phan-suppress-current-line PhanPluginDuplicateAdjacentStatement -- A second check must not schedule again.
 
 		$this->assertSame( array( Lookup_Data_Backfill::START_HOOK ), self::scheduled_hooks() );
 		$this->assertSame( 0, get_option( Lookup_Data_Backfill::STATE_OPTION )['started_at'] );
 	}
 
-	public static function provide_earlier_analytics_full_sync() {
+	/**
+	 * @dataProvider provide_trigger
+	 * @param callable $trigger  Runs the hook callback against a backfill.
+	 * @param bool     $schedule Whether it should schedule.
+	 */
+	#[DataProvider( 'provide_trigger' )]
+	public function test_checks_on_sync_status_and_dashboard_load_only( callable $trigger, bool $schedule ) {
+		update_option( Sync_Status_Tracker::INITIAL_ANALYTICS_SYNC_OPTION, 1730000123 );
+
+		$trigger( $this->backfill() );
+
+		$this->assertSame( $schedule ? array( Lookup_Data_Backfill::START_HOOK ) : array(), self::scheduled_hooks() );
+	}
+
+	public static function provide_trigger() {
+		$respond = static function ( string $route, int $status ) {
+			return static function ( Lookup_Data_Backfill $backfill ) use ( $route, $status ) {
+				$response = new \WP_REST_Response( array(), $status );
+				$result   = $backfill->on_sync_status_response( $response, null, new \WP_REST_Request( 'GET', $route ) );
+				\PHPUnit\Framework\Assert::assertSame( $response, $result );
+			};
+		};
+		$load    = static function ( string $page ) {
+			return static function ( Lookup_Data_Backfill $backfill ) use ( $page ) {
+				set_current_screen( 'toplevel_page_' . $page );
+				$_GET['page'] = $page;
+				$backfill->on_dashboard_screen();
+			};
+		};
+
 		return array(
-			'milestone'          => array(
-				static function () {
-					update_option( Sync_Status_Tracker::INITIAL_ANALYTICS_SYNC_OPTION, 1730000123 );
-				},
-			),
-			'stored full status' => array(
-				static function () {
-					\Jetpack_Options::update_raw_option(
-						'jetpack_sync_full_status',
-						array(
-							'started'  => 1730000000,
-							'finished' => 1730000123,
-							'progress' => array( 'woocommerce_analytics' => array( 'finished' => true ) ),
-						)
-					);
-				},
-			),
+			'sync status'       => array( $respond( Sync_Status_Tracker::SYNC_STATUS_ROUTE, 200 ), true ),
+			'sync status error' => array( $respond( Sync_Status_Tracker::SYNC_STATUS_ROUTE, 403 ), false ),
+			'other route'       => array( $respond( '/jetpack/v4/sync/full-sync', 200 ), false ),
+			'dashboard load'    => array( $load( Analytics::MENU_PAGE_SLUG ), true ),
+			'other admin page'  => array( $load( 'woocommerce' ), false ),
 		);
 	}
 
@@ -157,14 +181,49 @@ class Lookup_Data_Backfill_Test extends TestCase {
 		);
 	}
 
-	public function test_starts_the_full_sync() {
-		$backfill = $this->backfill();
+	public function test_asks_wordpress_com_about_the_oldest_order_and_starts_when_its_product_is_missing() {
+		self::set_scheduled_state();
+		$asked    = array(
+			'date_type' => '',
+			'from'      => '',
+			'to'        => '',
+		);
+		$backfill = $this->backfill(
+			array(
+				'fetch_wpcom_products' => static function ( array $args ) use ( &$asked ) {
+					$asked = $args;
+					return array( array( 'product_id' => '8' ) );
+				},
+			)
+		);
 		$backfill->expects( $this->once() )->method( 'start_full_sync' );
 
 		$backfill->start_backfill();
 
+		$this->assertSame( 'date_created', $asked['date_type'] );
+		$this->assertStringStartsWith( '2024-03-09T00:00:00', $asked['from'] );
+		$this->assertStringStartsWith( '2024-03-11T23:59:59', $asked['to'] );
 		$this->assertGreaterThan( 0, get_option( Lookup_Data_Backfill::STATE_OPTION )['started_at'] );
 		$this->assertSame( array(), self::scheduled_hooks() );
+	}
+
+	public function test_marks_done_when_wordpress_com_reports_the_oldest_order_product() {
+		self::set_scheduled_state();
+		$backfill = $this->backfill( array( 'fetch_wpcom_products' => array( array( 'product_id' => '7' ) ) ) );
+		$backfill->expects( $this->never() )->method( 'start_full_sync' );
+
+		$backfill->start_backfill();
+
+		$this->assertGreaterThan( 0, (int) get_option( Sync_Status_Tracker::LOOKUP_DATA_SYNCED_OPTION, 0 ) );
+		$this->assertSame( array(), self::scheduled_hooks() );
+	}
+
+	public function test_starts_without_a_completed_order_to_probe() {
+		$backfill = $this->backfill( array( 'find_oldest_order_product' => null ) );
+		$backfill->expects( $this->never() )->method( 'fetch_wpcom_products' );
+		$backfill->expects( $this->once() )->method( 'start_full_sync' );
+
+		$backfill->start_backfill();
 	}
 
 	public function test_second_action_for_the_same_run_does_nothing() {
@@ -180,6 +239,7 @@ class Lookup_Data_Backfill_Test extends TestCase {
 	public function test_action_does_nothing_once_backfilled() {
 		update_option( Sync_Status_Tracker::LOOKUP_DATA_SYNCED_OPTION, 1730000456 );
 		$backfill = $this->backfill();
+		$backfill->expects( $this->never() )->method( 'fetch_wpcom_products' );
 		$backfill->expects( $this->never() )->method( 'start_full_sync' );
 
 		$backfill->start_backfill();
@@ -188,35 +248,36 @@ class Lookup_Data_Backfill_Test extends TestCase {
 	}
 
 	/**
-	 * @dataProvider provide_full_sync_cannot_start
-	 * @param array $results Jetpack and Sync checks.
+	 * @dataProvider provide_cannot_start_yet
+	 * @param array $results Jetpack, Sync and WordPress.com checks.
 	 */
-	#[DataProvider( 'provide_full_sync_cannot_start' )]
-	public function test_retries_while_the_full_sync_cannot_start( array $results ) {
-		update_option(
-			Lookup_Data_Backfill::STATE_OPTION,
-			array(
-				'scheduled_at' => 1730000000,
-				'started_at'   => 0,
-			)
-		);
+	#[DataProvider( 'provide_cannot_start_yet' )]
+	public function test_retries_while_it_cannot_start_yet( array $results ) {
+		self::set_scheduled_state();
 		$first_attempt = time() - HOUR_IN_SECONDS;
-		$backfill      = $this->backfill( $results );
 
-		$backfill->start_backfill( $first_attempt );
+		$this->backfill( $results )->start_backfill( $first_attempt );
 
 		$this->assertSame( array( Lookup_Data_Backfill::START_HOOK ), self::scheduled_hooks() );
 		$this->assertSame( array( $first_attempt ), $GLOBALS['jpa_test_scheduled_actions'][0]['args'] );
 		$this->assertSame( 0, get_option( Lookup_Data_Backfill::STATE_OPTION )['started_at'] );
 	}
 
-	public static function provide_full_sync_cannot_start() {
+	public static function provide_cannot_start_yet() {
 		return array(
-			'full sync running'    => array( array( 'is_full_sync_running' => true ) ),
-			'Jetpack disconnected' => array( array( 'is_jetpack_connected' => false ) ),
-			'sync not allowed'     => array( array( 'is_sync_allowed' => false ) ),
-			'Jetpack refuses'      => array( array( 'start_full_sync' => false ) ),
+			'full sync running'           => array( array( 'is_full_sync_running' => true ) ),
+			'Jetpack disconnected'        => array( array( 'is_jetpack_connected' => false ) ),
+			'sync not allowed'            => array( array( 'is_sync_allowed' => false ) ),
+			'WordPress.com not answering' => array( array( 'fetch_wpcom_products' => null ) ),
+			'Jetpack refuses'             => array( array( 'start_full_sync' => false ) ),
 		);
+	}
+
+	public function test_starts_without_an_answer_once_the_retry_window_ends() {
+		$backfill = $this->backfill( array( 'fetch_wpcom_products' => null ) );
+		$backfill->expects( $this->once() )->method( 'start_full_sync' );
+
+		$backfill->start_backfill( time() - Lookup_Data_Backfill::RETRY_WINDOW );
 	}
 
 	public function test_stops_retrying_after_the_retry_window() {

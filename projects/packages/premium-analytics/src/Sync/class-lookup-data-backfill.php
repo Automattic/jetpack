@@ -7,9 +7,14 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics\Sync;
 
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\PremiumAnalytics\Analytics;
 use Automattic\Jetpack\Sync\Actions;
 use Automattic\Jetpack\Sync\Modules;
+use DateTimeImmutable;
+use Exception;
+use Jetpack_Options;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -38,7 +43,7 @@ class Lookup_Data_Backfill {
 	const FULL_SYNC_CONTEXT = 'premium_analytics_lookup_backfill';
 
 	/**
-	 * Seconds to wait before retrying while the full sync cannot start.
+	 * Seconds to wait before retrying while the full sync cannot start or WordPress.com does not answer.
 	 */
 	const RETRY_DELAY = 10 * MINUTE_IN_SECONDS;
 
@@ -58,8 +63,40 @@ class Lookup_Data_Backfill {
 	 * @return void
 	 */
 	public function register(): void {
-		add_action( 'admin_init', array( $this, 'maybe_schedule' ) );
+		// Priority 11: Sync_Status_Tracker sets the milestone from the stored full sync status at 10.
+		add_filter( 'rest_post_dispatch', array( $this, 'on_sync_status_response' ), 11, 3 );
+		add_action( 'current_screen', array( $this, 'on_dashboard_screen' ) );
 		add_action( self::START_HOOK, array( $this, 'start_backfill' ) );
+	}
+
+	/**
+	 * Check for a backfill when the dashboard polls GET /jetpack/v4/sync/status, which it does until the milestone is set.
+	 *
+	 * @param mixed $response Result to send to the client. Usually a WP_REST_Response.
+	 * @param mixed $server   The REST server instance (unused).
+	 * @param mixed $request  The request used to generate the response.
+	 * @return mixed The unchanged response.
+	 */
+	public function on_sync_status_response( $response, $server, $request ) {
+		if ( $request instanceof \WP_REST_Request
+			&& Sync_Status_Tracker::SYNC_STATUS_ROUTE === $request->get_route()
+			&& $response instanceof \WP_REST_Response
+			&& ! $response->is_error() ) {
+			$this->maybe_schedule();
+		}
+
+		return $response;
+	}
+
+	/**
+	 * Check for a backfill when the dashboard loads, which covers stores whose milestone was set before and no longer poll.
+	 *
+	 * @return void
+	 */
+	public function on_dashboard_screen(): void {
+		if ( Analytics::is_dashboard_request() ) {
+			$this->maybe_schedule();
+		}
 	}
 
 	/**
@@ -73,7 +110,7 @@ class Lookup_Data_Backfill {
 		}
 
 		// Wait for the first analytics full sync; if it runs under Premium Analytics, the tracker marks the data synced.
-		if ( ! $this->has_finished_analytics_full_sync() ) {
+		if ( (int) get_option( Sync_Status_Tracker::INITIAL_ANALYTICS_SYNC_OPTION, 0 ) <= 0 ) {
 			return;
 		}
 
@@ -97,7 +134,8 @@ class Lookup_Data_Backfill {
 	}
 
 	/**
-	 * Start the full sync, or retry later while Jetpack cannot sync or another full sync runs.
+	 * Start the full sync unless WordPress.com already holds the order history, or retry later while
+	 * Jetpack cannot sync, another full sync runs, or WordPress.com does not answer.
 	 *
 	 * @param mixed $first_attempt Time of the first attempt; 0 for this one.
 	 * @return void
@@ -107,6 +145,7 @@ class Lookup_Data_Backfill {
 		if ( 0 === $first_attempt ) {
 			$first_attempt = time();
 		}
+		$can_retry = time() < $first_attempt + self::RETRY_WINDOW;
 
 		$state = get_option( self::STATE_OPTION );
 		$state = is_array( $state ) ? $state : array( 'scheduled_at' => 0 );
@@ -115,21 +154,30 @@ class Lookup_Data_Backfill {
 		}
 
 		if ( $this->is_jetpack_connected() && $this->is_sync_allowed() && ! $this->is_full_sync_running() ) {
-			// Claim the run before starting it, so a concurrent action for it does nothing.
-			update_option( self::STATE_OPTION, array_merge( $state, array( 'started_at' => time() ) ) );
-			if ( $this->start_full_sync() ) {
+			$has_history = $this->wpcom_has_order_history();
+			if ( true === $has_history ) {
+				update_option( Sync_Status_Tracker::LOOKUP_DATA_SYNCED_OPTION, time() );
 				return;
 			}
-			update_option( self::STATE_OPTION, $state );
+
+			// Without an answer, start anyway once the retries run out: a needless full sync beats missing history.
+			if ( false === $has_history || ! $can_retry ) {
+				// Claim the run before starting it, so a concurrent action for it does nothing.
+				update_option( self::STATE_OPTION, array_merge( $state, array( 'started_at' => time() ) ) );
+				if ( $this->start_full_sync() ) {
+					return;
+				}
+				update_option( self::STATE_OPTION, $state );
+			}
 		}
 
-		if ( time() < $first_attempt + self::RETRY_WINDOW ) {
+		if ( $can_retry ) {
 			$this->schedule( time() + self::RETRY_DELAY, $first_attempt );
 		}
 	}
 
 	/**
-	 * Schedule the start action. When Action Scheduler cannot store it, forget the run so a later admin request schedules it again.
+	 * Schedule the start action. When Action Scheduler cannot store it, forget the run so a later check schedules it again.
 	 *
 	 * @param int $timestamp     When the action runs.
 	 * @param int $first_attempt Time of the first attempt; 0 when this schedules the first one.
@@ -142,23 +190,85 @@ class Lookup_Data_Backfill {
 	}
 
 	/**
-	 * Whether a full sync including woocommerce_analytics has finished, from the milestone or the stored full sync status.
+	 * Whether WordPress.com reports the product of the oldest completed order, which only its lookup rows provide.
 	 *
-	 * @return bool
+	 * Orders synced after Premium Analytics took over carry lookup rows, so only an old order tells whether the history arrived.
+	 *
+	 * @return bool|null Null when WordPress.com did not answer.
 	 */
-	private function has_finished_analytics_full_sync(): bool {
-		if ( (int) get_option( Sync_Status_Tracker::INITIAL_ANALYTICS_SYNC_OPTION, 0 ) > 0 ) {
-			return true;
-		}
-
-		$module = Modules::get_module( 'full-sync' );
-		if ( ! $module ) {
+	protected function wpcom_has_order_history(): ?bool {
+		$order = $this->find_oldest_order_product();
+		if ( null === $order ) {
 			return false;
 		}
-		'@phan-var \Automattic\Jetpack\Sync\Modules\Full_Sync_Immediately|\Automattic\Jetpack\Sync\Modules\Full_Sync $module';
 
-		$status = $module->get_status();
-		return ! empty( $status['finished'] ) && true === ( $status['progress']['woocommerce_analytics']['finished'] ?? false );
+		try {
+			$created = new DateTimeImmutable( $order['date_created'], wp_timezone() );
+		} catch ( Exception $e ) {
+			return false;
+		}
+
+		// A day either side absorbs any time zone difference between the stored date and the report.
+		$products = $this->fetch_wpcom_products(
+			array(
+				'from'      => $created->modify( '-1 day' )->setTime( 0, 0 )->format( 'Y-m-d\TH:i:sP' ),
+				'to'        => $created->modify( '+1 day' )->setTime( 23, 59, 59 )->format( 'Y-m-d\TH:i:sP' ),
+				'date_type' => 'date_created',
+				'limit'     => 100,
+			)
+		);
+		if ( null === $products ) {
+			return null;
+		}
+
+		return in_array( (int) $order['product_id'], array_map( 'intval', array_column( $products, 'product_id' ) ), true );
+	}
+
+	/**
+	 * The product and creation date of the oldest completed order with product lookup rows.
+	 *
+	 * Completed orders are never in WordPress.com's excluded report statuses.
+	 *
+	 * @return array{product_id: int|string, date_created: string}|null
+	 */
+	protected function find_oldest_order_product(): ?array {
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Runs once per store, from the backfill action.
+		$row = $wpdb->get_row(
+			"SELECT lookup.product_id, stats.date_created
+			FROM {$wpdb->prefix}wc_order_stats stats
+			INNER JOIN {$wpdb->prefix}wc_order_product_lookup lookup ON lookup.order_id = stats.order_id
+			WHERE stats.status = 'wc-completed' AND stats.parent_id = 0
+			ORDER BY stats.date_created ASC
+			LIMIT 1",
+			ARRAY_A
+		);
+
+		return is_array( $row ) ? $row : null;
+	}
+
+	/**
+	 * Fetch rows of the WordPress.com products report, signed as the blog.
+	 *
+	 * @param array $args Report query arguments.
+	 * @return array|null Product rows, or null when the request failed.
+	 */
+	protected function fetch_wpcom_products( array $args ): ?array {
+		$path = add_query_arg( $args, sprintf( '/sites/%d/analytics/reports/products', (int) Jetpack_Options::get_option( 'id' ) ) );
+
+		try {
+			$response = Client::wpcom_json_api_request_as_blog( $path, '2', array( 'timeout' => 15 ), null, 'wpcom' );
+		} catch ( Exception $e ) {
+			return null;
+		}
+
+		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return null;
+		}
+
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+		return is_array( $body ) && isset( $body['data'] ) && is_array( $body['data'] ) ? $body['data'] : null;
 	}
 
 	/**
