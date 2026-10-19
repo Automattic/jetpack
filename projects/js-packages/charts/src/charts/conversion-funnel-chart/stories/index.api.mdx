@@ -25,9 +25,9 @@ Main component for displaying conversion funnel visualizations.
 | `renderStepLabel` | `(props: StepLabelRenderProps) => ReactNode` | - | Custom render function for step labels |
 | `renderStepRate` | `(props: StepRateRenderProps) => ReactNode` | - | Custom render function for step rates |
 | `renderMainMetric` | `(props: MainMetricRenderProps) => ReactNode` | - | Custom render function for main metric section |
-| `renderTooltip` | `(props: TooltipRenderProps) => ReactNode` | - | Custom layout for the tooltip. Render `props.content`, which screen readers also read. |
+| `renderTooltip` | `(props: TooltipRenderProps) => ReactNode` | - | Custom layout for the tooltip. Render `props.content`. Screen readers read the whole rendered tooltip as the selected step's description. |
 | `tooltipStyle` | `CSSProperties` | - | Inline styles merged over the tooltip box defaults |
-| `getTooltipContent` | `(step: FunnelStep, index: number) => FunnelTooltipContent` | The count beside the name and a "Conversion rate" row | What each step's tooltip shows. Screen readers read the same content after the step's name, e.g. "7,110 items, Conversion rate 71.1%". |
+| `getTooltipContent` | `(step: FunnelStep, index: number) => FunnelTooltipContent` | The count beside the name and a "Conversion rate" row | What each step's tooltip shows. Screen readers read it after the selected step's name, e.g. "7,110 items Conversion rate 71.1%". |
 
 ## FunnelStep Type
 
@@ -75,7 +75,7 @@ interface FunnelTooltipContent {
 interface TooltipRenderProps {
 	step: FunnelStep;
 	index: number;
-	content: FunnelTooltipContent; // Render it: screen readers read the same content
+	content: FunnelTooltipContent; // Render it: screen readers read the rendered tooltip
 	top: number;
 	left: number;
 	/** @deprecated The tooltip box draws the package surface; this is no longer set. */

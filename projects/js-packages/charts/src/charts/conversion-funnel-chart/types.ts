@@ -66,7 +66,7 @@ export interface FunnelTooltipContent {
 export interface TooltipRenderProps {
 	step: FunnelStep;
 	index: number;
-	/** The step's tooltip content, which screen readers also read. Render it so the two match. */
+	/** The step's tooltip content. Screen readers read the whole rendered tooltip as the step's description. */
 	content: FunnelTooltipContent;
 	top: number;
 	left: number;

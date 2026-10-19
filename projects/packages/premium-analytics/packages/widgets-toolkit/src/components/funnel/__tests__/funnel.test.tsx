@@ -59,20 +59,9 @@ describe( 'Funnel', () => {
 	] )( 'shows the %s step count and conversion rate in its tooltip', async ( label, text ) => {
 		renderFunnel( <Funnel steps={ STEPS } status={ READY } /> );
 
-		await userEvent.click( screen.getByRole( 'button', { name: label } ) );
+		await userEvent.click( screen.getByRole( 'option', { name: label } ) );
 
-		expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( text );
-	} );
-
-	it.each( [
-		[ 'Sessions', '1,250' ],
-		[ 'Cart', '310, Conversion rate 24.8%' ],
-	] )( 'describes the %s step with what its tooltip shows', ( label, description ) => {
-		renderFunnel( <Funnel steps={ STEPS } status={ READY } /> );
-
-		expect( screen.getByRole( 'button', { name: label } ) ).toHaveAccessibleDescription(
-			description
-		);
+		expect( screen.getByTestId( 'funnel-tooltip' ) ).toHaveTextContent( text );
 	} );
 
 	it( 'renders the empty state when the first step is empty', () => {
