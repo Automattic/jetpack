@@ -19,6 +19,8 @@ const props = {
 		available: true,
 		active: true,
 		blockedCount: 1,
+		blockedToday: 1,
+		blockedLast30Days: 1,
 		recentBlocks: [],
 		hasScan: false,
 		currentIp: '192.0.2.44',
@@ -28,6 +30,7 @@ const props = {
 			jetpack_waf_ip_allow_list: '',
 			jetpack_waf_ip_allow_list_enabled: false,
 		},
+		rulesUpdatedAt: null,
 	},
 	settings: {
 		settings: null,
@@ -215,6 +218,42 @@ describe( 'FirewallOverviewCard', () => {
 		document.documentElement.lang = '';
 
 		expect( screen.getByText( /^1.?234$/ ) ).toBeInTheDocument();
+	} );
+
+	it( 'shows each block count under its own label, and when the rules were updated', () => {
+		render(
+			<FirewallOverviewCard
+				{ ...props }
+				state={ {
+					...props.state,
+					blockedToday: 3,
+					blockedLast30Days: 45,
+					blockedCount: 678,
+					rulesUpdatedAt: 1760000000,
+				} }
+			/>
+		);
+
+		// Each label's text runs straight into its value's.
+		expect( document.body ).toHaveTextContent(
+			'Blocked today3Blocked in the last 30 days45All-time blocked requests678'
+		);
+		expect( document.body ).toHaveTextContent( 'Rules last updatedOct 9, 2025' );
+	} );
+
+	it( 'drops the rules date once the Settings tab turns the rules off', () => {
+		render(
+			<FirewallOverviewCard
+				{ ...props }
+				state={ { ...props.state, rulesUpdatedAt: 1760000000 } }
+				settings={ {
+					...props.settings,
+					settings: { waf: true, jetpack_waf_automatic_rules: false },
+				} }
+			/>
+		);
+
+		expect( screen.queryByText( 'Rules last updated' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'opens the Settings tab at its own card', async () => {

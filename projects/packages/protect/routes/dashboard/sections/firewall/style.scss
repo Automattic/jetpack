@@ -111,6 +111,17 @@
 	}
 }
 
+.jp-protect-firewall-overview__stats {
+	display: grid;
+	inline-size: 100%;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 24px;
+
+	@media (max-width: 600px) {
+		grid-template-columns: 1fr;
+	}
+}
+
 .jp-protect-firewall-overview__columns {
 	display: grid;
 	grid-template-columns: 1fr 1fr;

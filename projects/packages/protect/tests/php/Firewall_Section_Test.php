@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Protect;
 use Automattic\Jetpack\Protect\Sections\Firewall;
 use Automattic\Jetpack\Waf\Waf_Blocklog_Manager;
 use Automattic\Jetpack\Waf\Waf_Constants;
+use Automattic\Jetpack\Waf\Waf_Rules_Manager;
 use Automattic\Jetpack\Waf\Waf_Runner;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -87,6 +88,38 @@ class Firewall_Section_Test extends BaseTestCase {
 				),
 				'',
 			),
+		);
+	}
+
+	/**
+	 * A date for rules the firewall isn't loading would claim protection the site doesn't have.
+	 *
+	 * @dataProvider provide_rules_states
+	 *
+	 * @param bool     $enabled   Whether the automatic rules are on.
+	 * @param int|null $timestamp The stored last-updated timestamp, or null for none.
+	 * @param int|null $expected  The timestamp the card gets.
+	 */
+	#[DataProvider( 'provide_rules_states' )]
+	public function test_rules_date_is_only_sent_while_the_rules_are_on( $enabled, $timestamp, $expected ) {
+		update_option( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME, $enabled );
+		if ( null !== $timestamp ) {
+			update_option( Waf_Rules_Manager::AUTOMATIC_RULES_LAST_UPDATED_OPTION_NAME, $timestamp );
+		}
+
+		$this->assertSame( $expected, Firewall::get_rules_updated_at() );
+	}
+
+	/**
+	 * Data provider for test_rules_date_is_only_sent_while_the_rules_are_on.
+	 *
+	 * @return array
+	 */
+	public static function provide_rules_states() {
+		return array(
+			'on and downloaded' => array( true, 1760000000, 1760000000 ),
+			'off'               => array( false, 1760000000, null ),
+			'on, never fetched' => array( true, null, null ),
 		);
 	}
 
