@@ -1,45 +1,21 @@
 <?php
 /**
- * Dashboard policy: the dashboard feature flags.
+ * Dashboard policy: the dashboard feature flags and the shims older copies of the package call.
  *
  * @package automattic/jetpack-premium-analytics
  */
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
-use Automattic\Jetpack\Feature_Flags\Feature_Flags;
-
 /**
- * Name of the feature flag that shows the Store section.
- */
-const DASHBOARD_STORE_SECTION_FLAG = 'premium-analytics-store-section';
-
-/**
- * Registers the dashboard feature flags.
+ * Registers the dashboard feature flags: none today.
  *
- * Runs on every request so the flag stays discoverable wherever flags are read or
- * toggled: REST, WP-CLI and the WordPress.com control screen included.
+ * Kept as the symbol the policy file is guarded on, and for older copies of the package that
+ * call it.
  *
  * @return void
  */
 function register_dashboard_feature_flags() {
-	Feature_Flags::register(
-		DASHBOARD_STORE_SECTION_FLAG,
-		array(
-			'default'     => false,
-			'description' => 'Show the Store tab on the analytics dashboard of sites running WooCommerce.',
-			'owner'       => 'jetpack-premium-analytics',
-		)
-	);
-}
-
-/**
- * Whether the dashboard shows the Store section.
- *
- * @return bool
- */
-function is_dashboard_store_section_enabled() {
-	return Feature_Flags::is_enabled( DASHBOARD_STORE_SECTION_FLAG );
 }
 
 /**
