@@ -296,7 +296,8 @@ class Checkpoint {
 		}
 
 		foreach ( array( 'HTTP_ORIGIN', 'HTTP_REFERER' ) as $header ) {
-			if ( empty( $_SERVER[ $header ] ) ) {
+			// A no-referrer policy posts Origin: null from this site's own pages too, so Sec-Fetch-Site decides.
+			if ( empty( $_SERVER[ $header ] ) || 'null' === $_SERVER[ $header ] ) {
 				continue;
 			}
 
