@@ -38,10 +38,26 @@ export function LockedSection( { section }: { section: string } ) {
 		}
 	}, [ isLocked, section, trackEvent ] );
 
-	const toggleExpanded = useCallback( () => setIsExpanded( expanded => ! expanded ), [] );
+	const toggleExpanded = useCallback( () => {
+		if ( ! isExpanded ) {
+			trackEvent( 'jetpack_premium_analytics_plan_upgrade_expand', {
+				section,
+				source: 'locked_section',
+			} );
+		}
+		setIsExpanded( ! isExpanded );
+	}, [ isExpanded, section, trackEvent ] );
 	const trackUpgrade = useCallback(
 		() =>
 			trackEvent( 'jetpack_premium_analytics_plan_upgrade_click', {
+				section,
+				source: 'locked_section',
+			} ),
+		[ section, trackEvent ]
+	);
+	const trackLearnMore = useCallback(
+		() =>
+			trackEvent( 'jetpack_premium_analytics_plan_upgrade_learn_more_click', {
 				section,
 				source: 'locked_section',
 			} ),
@@ -83,7 +99,12 @@ export function LockedSection( { section }: { section: string } ) {
 						<ButtonLink href={ locked.upgrade_url } onClick={ trackUpgrade }>
 							{ locked.upgrade_label }
 						</ButtonLink>
-						<ButtonLink href={ locked.support_url } variant="outline" openInNewTab>
+						<ButtonLink
+							href={ locked.support_url }
+							variant="outline"
+							openInNewTab
+							onClick={ trackLearnMore }
+						>
 							{ __( 'Learn more', 'jetpack-premium-analytics-pkg' ) }
 						</ButtonLink>
 					</Stack>

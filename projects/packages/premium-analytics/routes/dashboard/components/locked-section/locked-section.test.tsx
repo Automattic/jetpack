@@ -87,16 +87,25 @@ describe( 'LockedSection', () => {
 		expect( screen.getAllByRole( 'listitem' ) ).toHaveLength( 4 );
 	} );
 
-	it( 'records the view once and the upgrade click, naming the section', async () => {
+	it( 'records the view once, each expand but not the collapse, and both links, naming the section', async () => {
 		render( <LockedSection section="insights" /> );
-		// jsdom cannot follow the link.
-		document.addEventListener( 'click', event => event.preventDefault(), { once: true } );
+		// jsdom cannot follow the links.
+		const preventNavigation = ( event: MouseEvent ) => event.preventDefault();
+		document.addEventListener( 'click', preventNavigation );
 
+		await userEvent.click( screen.getByRole( 'button', { name: 'Show all Personal features' } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Show less' } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Show all Personal features' } ) );
+		await userEvent.click( screen.getByRole( 'link', { name: /Learn more/ } ) );
 		await userEvent.click( screen.getByRole( 'link', { name: 'Upgrade to Personal' } ) );
+		document.removeEventListener( 'click', preventNavigation );
 
 		const props = { section: 'insights', source: 'locked_section' };
 		expect( recordEvent.mock.calls ).toEqual( [
 			[ 'jetpack_premium_analytics_plan_upgrade_view', props ],
+			[ 'jetpack_premium_analytics_plan_upgrade_expand', props ],
+			[ 'jetpack_premium_analytics_plan_upgrade_expand', props ],
+			[ 'jetpack_premium_analytics_plan_upgrade_learn_more_click', props ],
 			[ 'jetpack_premium_analytics_plan_upgrade_click', props ],
 		] );
 	} );
