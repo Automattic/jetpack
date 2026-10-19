@@ -25,6 +25,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Backup extends Hybrid_Product {
 	public const BACKUP_STATUS_TRANSIENT_KEY = 'my-jetpack-backup-status';
 
+	public const PLAN_REFRESH_MISS_TRANSIENT_KEY = 'my-jetpack-backup-plan-refresh-miss';
+
 	/**
 	 * The product slug
 	 *
@@ -433,14 +435,31 @@ class Backup extends Hybrid_Product {
 	}
 
 	/**
-	 * Checks whether the backup module is active.
-	 *
-	 * The plan, not the module, decides Backup wherever a plugin can deliver it, so either plugin counts as on.
+	 * Whether a plugin that can deliver Backup is on, which is all that matters where the plan decides Backup.
 	 *
 	 * @return bool
 	 */
 	public static function is_module_active() {
+		if ( ! static::is_plan_driven() ) {
+			return parent::is_module_active();
+		}
+
 		return static::is_standalone_plugin_active() || static::is_jetpack_plugin_active();
+	}
+
+	/**
+	 * Whether the site's plan, not the backup module, decides Backup here.
+	 *
+	 * An older Jetpack plugin still opens its dashboard only while the module is on.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_plan_driven() {
+		return static::is_standalone_plugin_active()
+			|| ! class_exists( 'Jetpack', false )
+			|| defined( 'Jetpack::BACKUP_FOLLOWS_PLAN' );
 	}
 
 	/**
@@ -456,7 +475,7 @@ class Backup extends Hybrid_Product {
 		} elseif ( static::is_jetpack_plugin_active() ) {
 			// The Jetpack plugin hosts the dashboard wherever it initialized the package, or will on
 			// the next request when this one learned of the plan after Jetpack checked for it.
-			if ( did_action( 'jetpack_backup_initialized' ) || static::plan_opens_jetpack_dashboard() ) {
+			if ( did_action( 'jetpack_backup_initialized' ) || ( static::is_plan_driven() && static::plan_opens_jetpack_dashboard() ) ) {
 				return admin_url( 'admin.php?page=jetpack-backup' );
 			}
 
@@ -512,13 +531,20 @@ class Backup extends Hybrid_Product {
 
 		// Right after checkout WordPress.com knows of the plan before the stored copy does, so
 		// catch that up rather than link to a page the next request would not register.
-		if ( ! static::has_paid_plan_for_product() ) {
+		if ( get_transient( self::PLAN_REFRESH_MISS_TRANSIENT_KEY ) || ! static::has_paid_plan_for_product() ) {
 			return false;
 		}
 
 		Wpcom_Products::get_site_current_plan( true );
 
-		return static::has_plan_on_record();
+		if ( static::has_plan_on_record() ) {
+			return true;
+		}
+
+		// The two can keep disagreeing, so a miss holds off the next refresh.
+		set_transient( self::PLAN_REFRESH_MISS_TRANSIENT_KEY, true, 5 * MINUTE_IN_SECONDS );
+
+		return false;
 	}
 
 	/**

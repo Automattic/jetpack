@@ -82,6 +82,15 @@ require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.media.php';
  */
 class Jetpack {
 	/**
+	 * Marks a Jetpack plugin whose Backup dashboard follows the site's plan, not the backup module.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var bool
+	 */
+	const BACKUP_FOLLOWS_PLAN = true;
+
+	/**
 	 * XMLRPC server instance.
 	 *
 	 * @var null|Jetpack_XMLRPC_Server XMLRPC server used by Jetpack.

@@ -63,11 +63,34 @@ describe( 'usePaidMenuSync', () => {
 		document.body.innerHTML = html;
 		jest.mocked( useAllProducts ).mockReturnValue( { data: products } as never );
 
-		const { rerender } = renderHook( () => usePaidMenuSync() );
+		renderHook( () => usePaidMenuSync() );
 		await waitFor( () => expect( fetchMock ).toHaveBeenCalledTimes( fetches ) );
+	} );
 
-		// Once per page view, even if the menu never gains the page.
+	it( 'refreshes once per page view, even when another plan-driven page goes missing later', async () => {
+		document.body.innerHTML = sidebar( 'my-jetpack' );
+		jest
+			.mocked( useAllProducts )
+			.mockReturnValue( { data: paidProduct( 'backup', 'jetpack-backup' ) } as never );
+		const { rerender } = renderHook( () => usePaidMenuSync() );
+		await waitFor( () => expect( fetchMock ).toHaveBeenCalledTimes( 1 ) );
+
+		window.myJetpackInitialState = {
+			mainFeatures: {
+				features: [
+					{ product: 'backup', plan_driven: true },
+					{ product: 'scan', plan_driven: true },
+				],
+			},
+		} as never;
+		jest.mocked( useAllProducts ).mockReturnValue( {
+			data: {
+				...paidProduct( 'backup', 'jetpack-backup' ),
+				...paidProduct( 'scan', 'jetpack-scan' ),
+			},
+		} as never );
 		rerender();
-		expect( fetchMock ).toHaveBeenCalledTimes( fetches );
+
+		expect( fetchMock ).toHaveBeenCalledTimes( 1 );
 	} );
 } );

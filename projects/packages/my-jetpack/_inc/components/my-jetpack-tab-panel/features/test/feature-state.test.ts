@@ -386,12 +386,20 @@ describe( 'resolveFeatureState, for a feature its plan decides', () => {
 			{ kind: 'plugin', override: 'inactive' },
 		],
 		[
-			'a module a host forced off',
+			'Jetpack, with the module switched off',
+			'active',
+			'not-installed',
+			'',
+			{ backup: buildModule( { module: 'backup', activated: false } ) },
+			{ kind: 'plan' },
+		],
+		[
+			'Jetpack, with a host forcing the module off',
 			'active',
 			'not-installed',
 			'',
 			{ backup: buildModule( { module: 'backup', activated: false, override: 'inactive' } ) },
-			{ kind: 'module' },
+			{ kind: 'plan' },
 		],
 	] as const )(
 		'follows the plan when %s delivers it',
@@ -424,6 +432,25 @@ describe( 'resolveFeatureState, for a feature its plan decides', () => {
 
 	it( 'waits for the product before saying whether the plan runs it', () => {
 		expect( resolveFeatureState( backup, 'active', undefined, modules, {} ).pending ).toBe( true );
+	} );
+
+	it( 'leaves the standalone plugin its switch in offline Features mode, which loads no products', () => {
+		const previousInitial = window.myJetpackInitialState;
+		window.myJetpackInitialState = { isOfflineFeatures: true } as typeof previousInitial;
+		try {
+			const state = resolveFeatureState(
+				{ ...backup, plugin_status: 'active', plugin_override: '' },
+				'not-installed',
+				undefined,
+				{},
+				{}
+			);
+
+			expect( state.pending ).toBeFalsy();
+			expect( state.control.kind ).toBe( 'plugin' );
+		} finally {
+			window.myJetpackInitialState = previousInitial;
+		}
 	} );
 } );
 

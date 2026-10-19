@@ -453,6 +453,22 @@ describe( 'FeatureModalActions', () => {
 		expect( screen.getByText( /by your host or site administrator/ ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
 	} );
+
+	it.each( [ true, false ] )(
+		'offers Activate for Backup\u2019s installed plugin only when the site pays for it: %s',
+		included => {
+			const feature = buildFeature( { slug: 'backup', included } );
+			render(
+				<FeatureModalActions
+					state={ buildState( { kind: 'plan', activatePlugin: 'jetpack-backup' }, { feature } ) }
+				/>
+			);
+
+			expect( screen.queryAllByRole( 'button', { name: 'Activate' } ) ).toHaveLength(
+				included ? 1 : 0
+			);
+		}
+	);
 } );
 
 describe( 'FeatureItem', () => {

@@ -87,12 +87,13 @@ class Backup_Product_Test extends TestCase {
 	 * @param array $wpcom     The active features WordPress.com reports.
 	 * @param array $refreshed The active features a refresh of the stored plan brings.
 	 * @param bool  $dashboard Whether a host leaves the bundled dashboard on.
+	 * @param bool  $missed    Whether a refresh missed the plan moments ago.
 	 * @param bool  $in_admin  Whether Manage should open wp-admin.
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	#[DataProvider( 'provide_manage_urls' )]
-	public function test_manage_url_follows_the_plan( $stored, $wpcom, $refreshed, $dashboard, $in_admin ) {
+	public function test_manage_url_follows_the_plan( $stored, $wpcom, $refreshed, $dashboard, $missed, $in_admin ) {
 		( new Tokens() )->update_blog_token( 'key.secret' );
 		( new Tokens() )->update_user_token( self::$user_id, 'test.test.' . self::$user_id, true );
 		Jetpack_Options::update_option( 'id', 123 );
@@ -121,6 +122,7 @@ class Backup_Product_Test extends TestCase {
 			}
 		);
 		$dashboard || add_filter( 'jetpack_backup_dashboard_enabled', '__return_false' );
+		$missed && set_transient( Backup::PLAN_REFRESH_MISS_TRANSIENT_KEY, true, MINUTE_IN_SECONDS );
 
 		$this->assertSame( $in_admin, admin_url( 'admin.php?page=jetpack-backup' ) === Backup::get_manage_url() );
 	}
@@ -132,11 +134,12 @@ class Backup_Product_Test extends TestCase {
 	 */
 	public static function provide_manage_urls() {
 		return array(
-			'a stored Backup plan'                   => array( array( 'backups' ), array(), array(), true, true ),
-			'a purchase the stored plan catches up'  => array( array(), array( 'backups' ), array( 'backups' ), true, true ),
-			'a purchase the stored plan lacks still' => array( array(), array( 'backups' ), array(), true, false ),
-			'no plan'                                => array( array(), array(), array(), true, false ),
-			'a host turned the dashboard off'        => array( array( 'backups' ), array(), array(), false, false ),
+			'a stored Backup plan'                   => array( array( 'backups' ), array(), array(), true, false, true ),
+			'a purchase the stored plan catches up'  => array( array(), array( 'backups' ), array( 'backups' ), true, false, true ),
+			'a purchase the stored plan lacks still' => array( array(), array( 'backups' ), array(), true, false, false ),
+			'a recent miss holds off the refresh'    => array( array(), array( 'backups' ), array( 'backups' ), true, true, false ),
+			'no plan'                                => array( array(), array(), array(), true, false, false ),
+			'a host turned the dashboard off'        => array( array( 'backups' ), array(), array(), false, false, false ),
 		);
 	}
 
@@ -250,6 +253,29 @@ class Backup_Product_Test extends TestCase {
 		deactivate_plugins( 'jetpack/jetpack.php' );
 		deactivate_plugins( Backup::get_installed_plugin_filename() );
 		$this->assertFalse( Backup::is_active() );
+	}
+
+	/**
+	 * An older Jetpack plugin still opens its dashboard only with the module on, so the module decides.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_an_older_jetpack_leaves_the_module_in_charge() {
+		require_once __DIR__ . '/assets/older-jetpack-mock-plugin.txt';
+		( new Tokens() )->update_blog_token( 'key.secret' );
+		( new Tokens() )->update_user_token( self::$user_id, 'test.test.' . self::$user_id, true );
+		Jetpack_Options::update_option( 'id', 123 );
+		// Not activate_plugins(), which would load the current Jetpack mock alongside this one.
+		update_option( 'active_plugins', array( 'jetpack/jetpack.php' ) );
+		Jetpack_Options::update_option( 'active_modules', array() );
+		update_option( 'jetpack_active_plan', array( 'features' => array( 'active' => array( 'backups' ) ) ) );
+
+		$this->assertFalse( Backup::is_plan_driven() );
+		$this->assertFalse( Backup::is_module_active() );
+		$this->assertSame( Redirect::get_url( 'my-jetpack-manage-backup' ), Backup::get_manage_url() );
 	}
 
 	/**

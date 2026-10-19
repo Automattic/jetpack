@@ -253,12 +253,13 @@ export function resolveFeatureState(
 		};
 	}
 
-	// Delivered by Jetpack's module or the installed standalone plugin. A module or plugin that
-	// something else, such as a host or multisite, keeps off explains itself below instead.
+	// Delivered by Jetpack or the installed standalone plugin. A host forcing the module only
+	// flips a switch the plan ignores, so only multisite or a missing module explain themselves below.
 	const deliversPlan = $module
-		? ! getModuleStatus( $module ).reason
+		? ! getModuleStatus( { ...$module, override: false } ).reason
 		: feature.plugin_status !== 'not-installed' && feature.plugin_override !== 'inactive';
-	if ( feature.plan_driven && deliversPlan ) {
+	// Offline Features mode never loads products, so the plugin's own switch stands in.
+	if ( feature.plan_driven && deliversPlan && ( product || ! isOfflineFeatures() ) ) {
 		return {
 			feature,
 			product,
