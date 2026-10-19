@@ -76,6 +76,8 @@ export interface MetricTabDatum {
 	value: number | null;
 	/** Read out by the tooltip in place of the missing reading, e.g. why it is missing. */
 	note?: string;
+	/** A bucket with no reading drawn at its `value` to keep the line whole; the tooltip reads no value. */
+	missing?: boolean;
 }
 
 /**
@@ -86,8 +88,11 @@ export interface MetricTab {
 	/** Stable key; also the chart `group`, so a metric's current and previous lines share a colour. */
 	key: string;
 	label: string;
-	/** Headline value for the card (the consumer decides whether that's a sum, a latest total, …). */
-	value: number;
+	/**
+	 * Headline value for the card (the consumer decides whether that's a sum, a latest total, …);
+	 * null for a period with no reading, which the card shows as a placeholder without a delta.
+	 */
+	value: number | null;
 	/** Previous-period headline for the delta; omit/null to hide the delta. */
 	previousValue?: number | null;
 	/** Current-period chart points, oldest first. */
@@ -171,6 +176,10 @@ export interface MetricTabsChartProps {
 	controls?: ReactNode;
 	/** Accessible label for the metric tab list. */
 	groupLabel?: string;
+	/** Visually hide the label in the static single-metric headline. */
+	hideSingleMetricLabel?: boolean;
+	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
+	chartTitle?: string;
 	/**
 	 * The series' bucket size, declared to the x-axis so tick formats follow the
 	 * known granularity rather than being inferred from point spacing.
@@ -262,6 +271,7 @@ function MetricChart( {
 	dataFormat,
 	chartType,
 	chartId,
+	chartTitle,
 	tickResolution,
 	onDatumClick,
 	baseline,
@@ -276,6 +286,7 @@ function MetricChart( {
 	chartType: MetricTabsChartType;
 	baseline?: ChartBaseline;
 	chartId: string;
+	chartTitle?: string;
 	tickResolution?: TickResolution;
 	onDatumClick?: ( date: Date ) => void;
 	comparisonLabel?: string;
@@ -413,6 +424,7 @@ function MetricChart( {
 	return chartType === 'bar' ? (
 		<ComparativeBarChart
 			chartId={ chartId }
+			chartTitle={ chartTitle }
 			series={ series }
 			dataFormat={ resolvedDataFormat }
 			defaultHiddenSeries={ defaultHiddenSeries }
@@ -426,6 +438,7 @@ function MetricChart( {
 	) : (
 		<ComparativeLineChart
 			chartId={ chartId }
+			chartTitle={ chartTitle }
 			series={ series }
 			styles={ seriesStyles }
 			dataFormat={ resolvedDataFormat }
@@ -452,12 +465,14 @@ function MetricTabContent( {
 	dataFormat,
 	fontSize,
 	withDescription = false,
+	hideLabelFromVision = false,
 	exact = false,
 }: {
 	metric: MetricTab;
 	dataFormat: DataFormat;
 	fontSize?: ComponentProps< typeof MetricWithComparison >[ 'fontSize' ];
 	withDescription?: boolean;
+	hideLabelFromVision?: boolean;
 	/** Spell the value out in full, for a layout with room for it. */
 	exact?: boolean;
 } ) {
@@ -468,12 +483,19 @@ function MetricTabContent( {
 	);
 	// The description is opt-in: a tab already carries it on `title`, and in the
 	// dropdown trigger a hidden node would join the button's accessible name.
-	const note = metric.unavailable ?? ( withDescription ? metric.description : undefined );
+	const note =
+		metric.unavailable ??
+		( metric.value === null ? __( 'No data', 'jetpack-premium-analytics-pkg' ) : undefined ) ??
+		( withDescription ? metric.description : undefined );
 
 	return (
 		<span className={ styles.tabContent }>
-			<Text className={ styles.tabLabel }>{ metric.label }</Text>
-			{ metric.unavailable ? (
+			{ hideLabelFromVision ? (
+				<VisuallyHidden>{ metric.label }</VisuallyHidden>
+			) : (
+				<Text className={ styles.tabLabel }>{ metric.label }</Text>
+			) }
+			{ metric.unavailable || metric.value === null ? (
 				// Sized off the same token as the value it stands in for: the tab and
 				// trigger layouts ask for different ones, so a fixed size misreads in one.
 				<span
@@ -521,6 +543,8 @@ export function MetricTabsChart( {
 	onMetricChange,
 	controls,
 	groupLabel = __( 'Select metric', 'jetpack-premium-analytics-pkg' ),
+	hideSingleMetricLabel = false,
+	chartTitle,
 	tickResolution,
 	onDatumClick,
 	tooltipMetrics = 'active',
@@ -613,6 +637,7 @@ export function MetricTabsChart( {
 								dataFormat={ dataFormat }
 								fontSize="2xl"
 								withDescription
+								hideLabelFromVision={ hideSingleMetricLabel }
 							/>
 						</div>
 					</div>
@@ -628,6 +653,7 @@ export function MetricTabsChart( {
 						dataFormat={ dataFormat }
 						chartType={ chartType }
 						chartId={ chartIdFor( activeMetric ) }
+						chartTitle={ chartTitle }
 						tickResolution={ tickResolution }
 						onDatumClick={ onDatumClick }
 						comparisonLabel={ comparisonLabel }
@@ -702,6 +728,7 @@ export function MetricTabsChart( {
 							dataFormat={ dataFormat }
 							chartType={ chartType }
 							chartId={ chartIdFor( activeMetric ) }
+							chartTitle={ chartTitle }
 							tickResolution={ tickResolution }
 							onDatumClick={ onDatumClick }
 							comparisonLabel={ comparisonLabel }
@@ -759,6 +786,7 @@ export function MetricTabsChart( {
 						dataFormat={ dataFormat }
 						chartType={ chartType }
 						chartId={ chartIdFor( metric ) }
+						chartTitle={ chartTitle }
 						tickResolution={ tickResolution }
 						onDatumClick={ onDatumClick }
 						comparisonLabel={ comparisonLabel }

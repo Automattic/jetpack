@@ -72,6 +72,8 @@ export type PlaylistAttributes = PlaylistDisplayAttributes & {
 	 */
 	source?: PlaylistSource;
 	sourcePlaylistId?: string;
+	// "12K views · 3 days ago" under each entry, for sourced playlists.
+	showMeta?: boolean;
 };
 
 export type PlaylistSource = 'own' | 'queried' | 'index';

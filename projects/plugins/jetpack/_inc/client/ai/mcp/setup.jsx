@@ -23,6 +23,7 @@ const MCP_SERVER_NAME = 'wpcom-mcp';
 const MCP_SERVER_URL = 'https://public-api.wordpress.com/wpcom/v2/mcp/v1';
 // Each resolves to the client's connector or plugin page.
 const CLAUDE_CONNECTOR_REDIRECT_SOURCE = 'jetpack-ai-hub-mcp-setup-claude';
+const CLAUDE_SELF_HOSTED_REDIRECT_SOURCE = 'jetpack-ai-hub-mcp-setup-claude-self-hosted';
 const CHATGPT_CONNECTOR_REDIRECT_SOURCE = 'jetpack-ai-hub-mcp-setup-chatgpt';
 const CHATGPT_SELF_HOSTED_REDIRECT_SOURCE = 'jetpack-ai-hub-mcp-setup-chatgpt-self-hosted';
 const CURSOR_PLUGIN_REDIRECT_SOURCE = 'jetpack-ai-hub-mcp-setup-cursor';
@@ -91,7 +92,7 @@ export default function McpSetup() {
 	const [ copyStatus, setCopyStatus ] = useState( 'idle' );
 
 	const configText = JSON.stringify( generateMcpConfig( selectedClient ), null, 2 );
-	const isJetpackConnector = window?.jetpackAiSettings?.chatgptConnector === 'jetpack';
+	const isSelfHosted = window?.jetpackAiSettings?.isSelfHosted === true;
 
 	// Read-only textarea requires a no-op onChange to satisfy the controlled input contract.
 	const handleConfigChange = useCallback( () => {}, [] );
@@ -141,10 +142,16 @@ export default function McpSetup() {
 												{
 													ClaudeConnector: (
 														<Link
-															href={ getRedirectUrl( CLAUDE_CONNECTOR_REDIRECT_SOURCE ) }
+															href={ getRedirectUrl(
+																isSelfHosted
+																	? CLAUDE_SELF_HOSTED_REDIRECT_SOURCE
+																	: CLAUDE_CONNECTOR_REDIRECT_SOURCE
+															) }
 															openInNewTab
 														>
-															{ __( 'WordPress.com connector', 'jetpack' ) }
+															{ isSelfHosted
+																? __( 'Claude connector', 'jetpack' )
+																: __( 'WordPress.com connector', 'jetpack' ) }
 														</Link>
 													),
 												}
@@ -225,13 +232,13 @@ export default function McpSetup() {
 													ChatGptConnector: (
 														<Link
 															href={ getRedirectUrl(
-																isJetpackConnector
+																isSelfHosted
 																	? CHATGPT_SELF_HOSTED_REDIRECT_SOURCE
 																	: CHATGPT_CONNECTOR_REDIRECT_SOURCE
 															) }
 															openInNewTab
 														>
-															{ isJetpackConnector
+															{ isSelfHosted
 																? __( 'Jetpack plugin', 'jetpack' )
 																: __( 'WordPress.com plugin', 'jetpack' ) }
 														</Link>

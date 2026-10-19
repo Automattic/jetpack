@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Show locked periods and an upgrade footer in the date picker when given date limits.

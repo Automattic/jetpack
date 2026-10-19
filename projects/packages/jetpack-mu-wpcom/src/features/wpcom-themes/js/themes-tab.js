@@ -23,27 +23,84 @@
 	}
 
 	/**
-	 * Offers the plan a theme needs in place of the install core would otherwise run.
+	 * What a theme has to be bought with, if anything, before it can be installed.
+	 *
+	 * @param {object} theme - The theme being rendered.
+	 * @return {?object} Where to send the reader and what to call it, or null to leave core's button.
+	 */
+	const purchaseFor = theme => {
+		if ( theme.upgrade_url ) {
+			return { url: theme.upgrade_url, text: config.upgrade, label: config.upgradeLabel };
+		}
+
+		if ( theme.purchase_url ) {
+			return { url: theme.purchase_url, text: config.subscribe, label: config.subscribeLabel };
+		}
+
+		return null;
+	};
+
+	/**
+	 * Offers that purchase in place of the install core would otherwise run.
 	 *
 	 * The button is replaced rather than relabelled: core installs on a click anywhere in
 	 * `.theme-install`, and this theme is not one the site may install yet.
 	 *
-	 * @param {Element} button - Core's install or activate button.
-	 * @param {object}  theme  - The theme being rendered.
+	 * @param {Element} button   - Core's install or activate button.
+	 * @param {object}  theme    - The theme being rendered.
+	 * @param {object}  purchase - Where to send the reader and what to call it.
 	 * @return {void}
 	 */
-	const offerUpgrade = ( button, theme ) => {
-		const upgrade = document.createElement( 'a' );
-		upgrade.className = button.classList.contains( 'button-compact' )
+	const offerPurchase = ( button, theme, purchase ) => {
+		const link = document.createElement( 'a' );
+		link.className = button.classList.contains( 'button-compact' )
 			? 'button button-primary button-compact'
 			: 'button button-primary';
-		upgrade.href = theme.upgrade_url;
-		upgrade.textContent = config.upgrade;
+		link.href = purchase.url;
+		link.textContent = purchase.text;
 		// Core labels its own buttons per theme, which a grid of them needs.
-		if ( config.upgradeLabel ) {
-			upgrade.setAttribute( 'aria-label', config.upgradeLabel.replace( '%s', theme.name ) );
+		if ( purchase.label ) {
+			link.setAttribute( 'aria-label', purchase.label.replace( '%s', theme.name ) );
 		}
-		button.replaceWith( upgrade );
+		button.replaceWith( link );
+	};
+
+	let catalog;
+
+	/**
+	 * What the store charges this reader, which is priced where the request comes from.
+	 *
+	 * @return {Promise<object>} Products by slug, or an empty set if the store cannot be read.
+	 */
+	const products = () => {
+		catalog =
+			catalog ||
+			fetch( config.products )
+				.then( response => ( response.ok ? response.json() : {} ) )
+				.catch( () => ( {} ) );
+
+		return catalog;
+	};
+
+	/**
+	 * Says what a partner theme costs, once the store has answered.
+	 *
+	 * @param {Element} badge - The badge to fill in.
+	 * @param {object}  theme - The theme being rendered.
+	 * @return {void}
+	 */
+	const showPrice = ( badge, theme ) => {
+		products().then( catalogue => {
+			const price = catalogue[ theme.price_product ]?.cost_per_month_display;
+			if ( ! price ) {
+				return;
+			}
+
+			badge.textContent = theme.price_plan
+				? config.priceWithPlan.replace( '%1$s', price ).replace( '%2$s', theme.price_plan )
+				: config.price.replace( '%s', price );
+			badge.hidden = false;
+		} );
 	};
 
 	/**
@@ -56,7 +113,15 @@
 	const planBadge = ( theme, modifier ) => {
 		const badge = document.createElement( 'span' );
 		badge.className = modifier ? `wpcom-themes-tab__plan ${ modifier }` : 'wpcom-themes-tab__plan';
-		badge.textContent = theme.plan_badge;
+
+		if ( theme.price_product ) {
+			// Nothing to say until the store answers, and nothing at all if it does not.
+			badge.hidden = true;
+			showPrice( badge, theme );
+		} else {
+			badge.textContent = theme.plan_badge;
+		}
+
 		return badge;
 	};
 
@@ -69,15 +134,16 @@
 	 * @return {void}
 	 */
 	const showPlan = ( el, theme, badge ) => {
-		if ( ! el || ! theme || ! theme.plan_badge ) {
+		if ( ! el || ! theme || ( ! theme.plan_badge && ! theme.price_product ) ) {
 			return;
 		}
 
-		// Only a theme the plan excludes needs its install taken away.
-		if ( theme.upgrade_url ) {
+		// Only a theme the site cannot install yet needs its install taken away.
+		const purchase = purchaseFor( theme );
+		if ( purchase ) {
 			const button = el.querySelector( '.theme-install, .activate' );
 			if ( button ) {
-				offerUpgrade( button, theme );
+				offerPurchase( button, theme, purchase );
 			}
 		}
 
