@@ -99,6 +99,10 @@ function videopress_get_video_details( $guid ) {
  * @return int|mixed|object|WP_Error
  */
 function videopress_download_poster_image( $url, $attachment_id ) {
+	require_once ABSPATH . 'wp-admin/includes/file.php';
+	require_once ABSPATH . 'wp-admin/includes/media.php';
+	require_once ABSPATH . 'wp-admin/includes/image.php';
+
 	// Set variables for storage, fix file filename for query strings.
 	preg_match( '/[^\?]+\.(jpe?g|jpe|gif|png)\b/i', $url, $matches );
 	if ( ! $matches ) {
@@ -429,6 +433,38 @@ function videopress_update_meta_data( $post_id ) {
 
 	$response = json_decode( $result['body'], true );
 
+	if ( ! is_array( $response ) || ( $response['guid'] ?? '' ) !== $info->guid || 200 !== wp_remote_retrieve_response_code( $result ) ) {
+		return false;
+	}
+	// Attachment-first uploads must also work when status callbacks cannot reach the site.
+	if ( \Automattic\Jetpack\VideoPress\Upload_Session::get( $post_id ) ) {
+		if ( (int) ( $response['post_id'] ?? 0 ) !== (int) $post_id || (int) ( $response['blog_id'] ?? 0 ) !== (int) \Automattic\Jetpack\VideoPress\VideoPressToken::blog_id() ) {
+			return false;
+		}
+		$meta['width']           = (int) ( $response['width'] ?? 0 );
+		$meta['height']          = (int) ( $response['height'] ?? 0 );
+		$meta['original']['url'] = $response['original'] ?? '';
+		$statuses                = $response['files_status'] ?? array();
+		foreach ( array(
+			'std' => 'mp4',
+			'dvd' => 'dvd',
+			'hd'  => 'hd',
+		) as $format => $local ) {
+			if ( isset( $statuses[ $format ]['mp4'] ) ) {
+				$meta['file_statuses'][ $local ] = $statuses[ $format ]['mp4'];
+			}
+		}
+		$failed = 'ERROR' === ( $statuses['std']['mp4'] ?? '' );
+		$done   = 'DONE' === ( $statuses['std']['mp4'] ?? '' ) || 'DONE' === ( $statuses['dvd']['mp4'] ?? '' );
+		update_post_meta( $post_id, 'videopress_status', $failed ? 'failed' : ( $done ? 'complete' : 'processing' ) );
+		$response['finished'] = $done || $failed;
+		if ( ! empty( $response['poster'] ) && ! get_post_meta( $post_id, '_thumbnail_id', true ) ) {
+			$thumbnail_id = videopress_download_poster_image( $response['poster'], $post_id );
+			if ( is_int( $thumbnail_id ) ) {
+				update_post_meta( $post_id, '_thumbnail_id', $thumbnail_id );
+			}
+		}
+	}
 	// Update the attachment metadata.
 	$meta['videopress'] = $response;
 

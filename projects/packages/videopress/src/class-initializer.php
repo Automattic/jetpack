@@ -94,6 +94,10 @@ class Initializer {
 			require_once __DIR__ . '/utility-functions.php';
 		}
 
+		if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
+			add_filter( 'rest_post_dispatch', array( Upload_Session::class, 'refresh_media_response' ), 10, 3 );
+		}
+
 		// Set up package version hook.
 		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package_Version::send_package_version_to_tracker' );
 

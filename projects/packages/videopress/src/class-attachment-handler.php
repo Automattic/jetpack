@@ -395,6 +395,9 @@ class Attachment_Handler {
 				continue;
 			}
 
+			if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
+				Upload_Session::refresh_attachment( $id );
+			}
 			$status = get_post_meta( $id, 'videopress_status', true );
 			if ( $status ) {
 				$statuses[ $id ] = $status;

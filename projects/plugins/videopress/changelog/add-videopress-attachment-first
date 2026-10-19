@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Create video attachments before uploading and recover from attachment ID collisions.

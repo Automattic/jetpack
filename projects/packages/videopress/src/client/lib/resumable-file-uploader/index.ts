@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
 import * as tus from 'tus-js-client';
 /**
@@ -8,6 +9,7 @@ import * as tus from 'tus-js-client';
  */
 import { VideoGUID } from '../../block-editor/blocks/video/types';
 import getMediaToken from '../get-media-token';
+import { UploadTokenError } from './token-error';
 import { VideoMediaProps } from './types';
 import type { MediaTokenProps } from '../../lib/get-media-token/types';
 
@@ -45,7 +47,7 @@ type UploadVideoArguments = {
 	onProgress: ( bytesSent: number, bytesTotal: number ) => void;
 	onSuccess: ( media: VideoMediaProps, file: File ) => void;
 	onError: ( error ) => void;
-	tokenData: MediaTokenProps;
+	tokenData?: MediaTokenProps;
 };
 
 const getJwtKey = ( url: string ) => {
@@ -57,13 +59,25 @@ const getJwtKey = ( url: string ) => {
 
 const resumableFileUploader = ( {
 	file,
-	tokenData,
+	tokenData = { token: null, url: window.videopressUpload?.url },
 	onProgress,
 	onSuccess,
 	onError,
 }: UploadVideoArguments ) => {
+	let completed = false;
+	const reportError = error => {
+		let cause = error;
+		while ( cause?.causingError ) {
+			cause = cause.causingError;
+		}
+		if ( cause?.code ) {
+			error.code = cause.code;
+		}
+		error.attachmentId = tokenData.attachmentId;
+		onError( error );
+	};
 	const upload = new tus.Upload( file, {
-		onError,
+		onError: reportError,
 		onProgress,
 		endpoint: tokenData.url,
 		removeFingerprintOnSuccess: true,
@@ -78,7 +92,7 @@ const resumableFileUploader = ( {
 			const status = err.originalResponse ? err.originalResponse.getStatus() : 0;
 
 			// Only retry on transient errors (timeouts, upload locks, rate limits, server errors).
-			if ( status && ! RETRIABLE_STATUS_CODES.includes( status ) ) {
+			if ( status >= 400 && ! RETRIABLE_STATUS_CODES.includes( status ) ) {
 				debug( 'not retrying due to %d error', status );
 				localStorage.removeItem( upload._urlStorageKey );
 				return false;
@@ -107,11 +121,17 @@ const resumableFileUploader = ( {
 			} );
 
 			if ( 'POST' === method ) {
+				if ( ! tokenData.token ) {
+					tokenData = await getMediaToken( 'upload-jwt', {
+						filename: file.name,
+						attachmentId: tokenData.attachmentId,
+					} );
+				}
 				const hasJWT = !! tokenData.token;
 				if ( hasJWT ) {
 					req.setHeader( 'x-videopress-upload-token', tokenData.token );
 				} else {
-					throw 'should never happen';
+					throw new UploadTokenError();
 				}
 			}
 
@@ -144,7 +164,44 @@ const resumableFileUploader = ( {
 			const mediaId = res.getHeader( MEDIA_ID_HEADER );
 			const src = res.getHeader( SRC_URL_HEADER );
 
-			if ( guid && mediaId && src ) {
+			if ( guid && mediaId && src && ! completed ) {
+				if ( tokenData.attachmentId && Number( mediaId ) !== tokenData.attachmentId ) {
+					throw new Error(
+						__(
+							'The upload returned a different attachment. Please retry to check it.',
+							'jetpack-videopress-pkg'
+						)
+					);
+				}
+				if ( window.videopressUpload?.attachmentFirst ) {
+					const options: RequestInit = {
+						method: 'POST',
+						credentials: 'same-origin',
+						body: new URLSearchParams( {
+							action: 'videopress-complete-upload',
+							post_id: mediaId,
+							nonce: window.videopressUpload.nonce,
+						} ),
+					};
+					const url = window.videopressAjax.ajaxUrl;
+					const response =
+						window.GBKit && typeof ( window.wp as WpGlobal | undefined )?.apiFetch === 'function'
+							? await ( window.wp as Required< WpGlobal > ).apiFetch( {
+									url,
+									...options,
+									parse: false,
+								} )
+							: await fetch( url, options );
+					if ( ! response.ok || ! ( await response.json() ).success ) {
+						throw new Error(
+							__(
+								'The upload finished, but its attachment could not be updated. Please retry to check it.',
+								'jetpack-videopress-pkg'
+							)
+						);
+					}
+				}
+				completed = true;
 				onSuccess && onSuccess( { id: Number( mediaId ), guid, src }, file );
 				return;
 			}
@@ -170,13 +227,16 @@ const resumableFileUploader = ( {
 		},
 	} );
 
-	upload.findPreviousUploads().then( function ( previousUploads ) {
-		if ( previousUploads.length ) {
-			upload.resumeFromPreviousUpload( previousUploads[ 0 ] );
-		}
+	upload
+		.findPreviousUploads()
+		.then( function ( previousUploads ) {
+			if ( previousUploads.length ) {
+				upload.resumeFromPreviousUpload( previousUploads[ 0 ] );
+			}
 
-		upload.start();
-	} );
+			upload.start();
+		} )
+		.catch( reportError );
 
 	return upload;
 };

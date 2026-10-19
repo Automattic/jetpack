@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\VideoPress;
 
 use Jetpack_Options;
 use VideoPressUploader\File_Exception;
+use VideoPressUploader\Transient_Store;
 use VideoPressUploader\Tus_Client;
 
 /**
@@ -35,9 +36,16 @@ class Uploader {
 	/**
 	 * The Tus Client instance
 	 *
-	 * @var Tus_Client
+	 * @var Tus_Client|null
 	 */
 	protected $client = null;
+
+	/**
+	 * Token for the upload being started.
+	 *
+	 * @var string|null
+	 */
+	protected $upload_token = null;
 
 	/**
 	 * The attachment ID
@@ -135,7 +143,7 @@ class Uploader {
 	 * @return string
 	 */
 	public function get_upload_token() {
-		return VideoPressToken::videopress_upload_jwt();
+		return $this->upload_token ?? VideoPressToken::videopress_upload_jwt();
 	}
 
 	/**
@@ -200,7 +208,9 @@ class Uploader {
 	}
 
 	/**
-	 * Uploads a chunk of the file
+	 * Uploads a chunk of the file.
+	 *
+	 * @throws Upload_Exception Caught locally and returned as an error status.
 	 *
 	 * @return array With the status of the upload
 	 */
@@ -210,7 +220,28 @@ class Uploader {
 		}
 		try {
 			$attachment = get_post( $this->attachment_id );
-			$client     = $this->get_client();
+			$session    = array();
+			$pending_id = (int) get_post_meta( $this->attachment_id, Upload_Session::SOURCE_META_KEY, true );
+			$cache      = new Transient_Store( $this->get_key() );
+			if ( $pending_id && ! get_post( $pending_id ) ) {
+				$cache->delete( $this->get_key() );
+			}
+			$transport = $cache->get( $this->get_key() );
+			// An upload started by an older plugin must finish on its existing callback path.
+			if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) && ( $pending_id || empty( $transport['location'] ) ) ) {
+				$session = Upload_Session::start( $attachment->post_title, $this->attachment_id );
+				if ( is_wp_error( $session ) ) {
+					throw new Upload_Exception( $session->get_error_message() );
+				}
+				if ( ! empty( $session['complete'] ) ) {
+					$this->mark_as_uploaded( $session['post_id'] );
+					return $this->check_status();
+				}
+				$this->upload_token = $session['upload_token'];
+				$this->client       = null;
+			}
+
+			$client = $this->get_client();
 			$client->file( $this->get_file_path(), $this->get_file_name() );
 			$client->add_metadata( 'title', $attachment->post_title );
 			if ( '' !== $attachment->post_content ) {
@@ -223,7 +254,18 @@ class Uploader {
 			$bytes_uploaded = $client->upload( self::CHUNK_SIZE );
 
 			if ( $bytes_uploaded === $this->get_file_size() ) {
-				$this->mark_as_uploaded( $this->get_client()->get_uploaded_video_details()['media_id'] );
+				$details = $this->get_client()->get_uploaded_video_details();
+				$new_id  = (int) ( $details['media_id'] ?? 0 );
+				if ( ! $new_id || ( ! empty( $session['post_id'] ) && $new_id !== (int) $session['post_id'] ) ) {
+					throw new Upload_Exception( __( 'Unable to confirm the uploaded video.', 'jetpack-videopress-pkg' ) );
+				}
+				if ( Upload_Session::get( $new_id ) ) {
+					$completed = Upload_Session::complete( $new_id );
+					if ( is_wp_error( $completed ) ) {
+						throw new Upload_Exception( $completed->get_error_message() );
+					}
+				}
+				$this->mark_as_uploaded( $new_id );
 				return array(
 					'status'           => 'complete',
 					'bytes_uploaded'   => $bytes_uploaded,
@@ -254,7 +296,9 @@ class Uploader {
 	}
 
 	/**
-	 * Checks the status of the upload of this attachment
+	 * Checks the status of the upload of this attachment.
+	 *
+	 * @throws Upload_Exception Caught locally and returned as an error status.
 	 *
 	 * @return array
 	 */
@@ -273,11 +317,16 @@ class Uploader {
 			} else {
 				// VideoPress attachment is gone, allow user to upload it again.
 				$this->unmark_as_uploaded();
+				( new Transient_Store( $this->get_key() ) )->delete( $this->get_key() );
+				$this->client = null;
 			}
 		}
 
 		try {
 			$offset = $this->get_client()->get_offset();
+			if ( is_wp_error( $offset ) ) {
+				throw new Upload_Exception( $offset->get_error_message() );
+			}
 			$status = false !== $offset ? 'resume' : 'new';
 			$offset = false === $offset ? 0 : $offset;
 
