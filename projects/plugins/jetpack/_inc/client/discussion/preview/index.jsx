@@ -48,7 +48,7 @@ function JetpackForm( { hasBlocks, showAvatars, user } ) {
 					className="jetpack-comments__textarea"
 					readOnly
 					tabIndex={ -1 }
-					placeholder={ `${ __( 'Write a comment', 'jetpack' ) }...` }
+					placeholder={ __( 'Write a comment…', 'jetpack' ) }
 				/>
 				<div className="jetpack-comments__actions">
 					<span className="jetpack-comments__submit">
