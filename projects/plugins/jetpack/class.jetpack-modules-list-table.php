@@ -266,6 +266,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 							<div class="jetpack-module__info">
 								<# if ( item.learn_more_button ) { #><a class="jetpack-module__name" href="{{{ item.learn_more_button }}}" target="_blank" rel="noopener noreferrer">{{ item.name }}</a><# } else { #><span class="jetpack-module__name">{{ item.name }}</span><# } #>
 								<# if ( item.description ) { #><span class="jetpack-module__description">{{ item.description }}</span><# } #>
+								<# if ( item.available && item.deactivation_note ) { #><span class="jetpack-module__note">{{ item.deactivation_note }}</span><# } #>
 							</div>
 							<div class="jetpack-module__meta">
 								<span class="jetpack-module__badges">
@@ -278,15 +279,13 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 									<# if ( item.configurable ) { #>
 										<span class="configure">{{{ item.configurable }}}</span>
 									<# } #>
-									<# if ( item.available ) { #>
-										<# if ( item.deactivation_note ) { #>
-											<span class="jetpack-module__note">{{ item.deactivation_note }}</span>
-										<# } else if ( item.activated ) { #>
+									<# if ( item.available && ! item.deactivation_note ) { #>
+										<# if ( item.activated ) { #>
 											<a class="jetpack-module__toggle is-active" role="switch" aria-checked="true" href="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>?page=jetpack&#038;action=deactivate&#038;module={{{ item.module }}}&#038;_wpnonce={{{ item.deactivate_nonce }}}"><span class="jetpack-module__toggle-track"><span class="jetpack-module__toggle-thumb"></span></span><span class="screen-reader-text"><?php esc_html_e( 'Deactivate', 'jetpack' ); ?></span></a>
 										<# } else { #>
 											<a class="jetpack-module__toggle" role="switch" aria-checked="false" href="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>?page=jetpack&#038;action=activate&#038;module={{{ item.module }}}&#038;_wpnonce={{{ item.activate_nonce }}}"><span class="jetpack-module__toggle-track"><span class="jetpack-module__toggle-thumb"></span></span><span class="screen-reader-text"><?php esc_html_e( 'Activate', 'jetpack' ); ?></span></a>
 										<# } #>
-									<# } else { #>
+									<# } else if ( ! item.available ) { #>
 										<span class="jetpack-module__unavailable">{{ item.unavailable_reason }}</span>
 									<# } #>
 								</div>
@@ -526,6 +525,9 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		if ( ! empty( $item['description'] ) ) {
 			echo '<span class="jetpack-module__description">' . esc_html( wp_strip_all_tags( $item['description'] ) ) . '</span>';
 		}
+		if ( $available && $no_switch ) {
+			echo '<span class="jetpack-module__note">' . esc_html( $item['deactivation_note'] ) . '</span>';
+		}
 		echo '</div>';
 
 		echo '<div class="jetpack-module__meta">';
@@ -546,11 +548,9 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		if ( ! empty( $item['configurable'] ) ) {
 			echo '<span class="configure">' . wp_kses_post( $item['configurable'] ) . '</span>';
 		}
-		if ( $available && $no_switch ) {
-			echo '<span class="jetpack-module__note">' . esc_html( $item['deactivation_note'] ) . '</span>';
-		} elseif ( $available ) {
+		if ( $available && ! $no_switch ) {
 			echo $this->get_module_toggle_html( $item ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
-		} elseif ( ! empty( $item['unavailable_reason'] ) ) {
+		} elseif ( ! $available && ! empty( $item['unavailable_reason'] ) ) {
 			echo '<span class="jetpack-module__unavailable">' . wp_kses_post( $item['unavailable_reason'] ) . '</span>';
 		}
 		// Close .row-actions, .jetpack-module__meta, and .jetpack-module__body.
