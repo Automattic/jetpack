@@ -49,6 +49,11 @@ export type InitialState = {
 	warnings: TransferWarning[];
 	upgradeUrl: string;
 	activateUrl: string;
+	supportUrl: string;
+	/** Whether the site's last transfer was reverted, leaving a backup to download. Only in the `upgrade` state. */
+	hasRevertedTransfer: boolean;
+	/** Whether the site's last transfer failed. Only in the `activate` state. */
+	transferFailed: boolean;
 };
 
 declare global {

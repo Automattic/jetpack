@@ -1,17 +1,6 @@
-import { getScriptData } from '@automattic/jetpack-script-data';
 import { getLockedWidgetFeature } from '@jetpack-premium-analytics/data';
 import { useMemo } from 'react';
 import type { CanPerformDashboardOperation } from '@wordpress/widget-dashboard';
-
-/**
- * Whether the dashboard composition feature flag is on: adding and removing
- * widgets are for its holders only.
- *
- * @return The flag's answer, off when the script data carries none.
- */
-export function isDashboardCompositionEnabled(): boolean {
-	return getScriptData()?.premium_analytics?.dashboard_composition_enabled === true;
-}
 
 type UseDashboardPolicyParams = {
 	insertableWidgetTypes: Set< string >;
@@ -20,9 +9,8 @@ type UseDashboardPolicyParams = {
 /**
  * The application's answer to the dashboard policy seam.
  *
- * Customization is limited to moving and resizing widgets: adding and removing
- * sit behind the dashboard composition feature flag, whose answer the server
- * puts on the script data.
+ * Readers may move, resize, add and remove widgets, but only the insertable
+ * types can be added, and the dashboard's own Reset to default is withheld.
  *
  * @param {UseDashboardPolicyParams} props - The policy inputs.
  * @return The policy callback for `WidgetDashboard.Policy`.
@@ -30,25 +18,21 @@ type UseDashboardPolicyParams = {
 export function useDashboardPolicy( {
 	insertableWidgetTypes,
 }: UseDashboardPolicyParams ): CanPerformDashboardOperation {
-	return useMemo< CanPerformDashboardOperation >( () => {
-		const canCompose = isDashboardCompositionEnabled();
-
-		return request => {
+	return useMemo< CanPerformDashboardOperation >(
+		() => request => {
 			switch ( request.operation ) {
 				case 'reset':
 					return false;
 				case 'insert':
 					// Locked types stay out of the inserter, but keep `edit`: the frame hides header controls without it.
 					return (
-						canCompose &&
 						insertableWidgetTypes.has( request.widgetType.name ) &&
 						! getLockedWidgetFeature( request.widgetType.name )
 					);
-				case 'remove':
-					return canCompose;
 				default:
 					return true;
 			}
-		};
-	}, [ insertableWidgetTypes ] );
+		},
+		[ insertableWidgetTypes ]
+	);
 }

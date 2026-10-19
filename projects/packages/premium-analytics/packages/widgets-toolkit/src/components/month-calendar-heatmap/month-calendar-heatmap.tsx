@@ -14,6 +14,7 @@ import { useCallback, useLayoutEffect, useRef } from 'react';
 /**
  * Internal dependencies
  */
+import { formatChartName } from '../../helpers/format-chart-name';
 import { CalendarHeatmapTooltip } from '../calendar-heatmap';
 import styles from './month-calendar-heatmap.module.scss';
 
@@ -25,8 +26,8 @@ export type MonthCalendarHeatmapProps = {
 	 * days outside the range are faded filler with no tooltip.
 	 */
 	range: MonthCalendarHeatmapRange;
-	/** Accessible name of the grid. */
-	ariaLabel: string;
+	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
+	chartTitle: string;
 	/** Renders a non-null value in the tooltip, already pluralized. */
 	formatValue: ( value: number ) => string;
 	/** Shown in the tooltip in place of a value when there is none. */
@@ -45,7 +46,7 @@ export type MonthCalendarHeatmapProps = {
 export function MonthCalendarHeatmap( {
 	valueByDay,
 	range,
-	ariaLabel,
+	chartTitle,
 	formatValue,
 	emptyLabel,
 	icon,
@@ -106,7 +107,7 @@ export function MonthCalendarHeatmap( {
 				compact
 				fitCells
 				keyboardNavigation="calendar"
-				ariaLabel={ ariaLabel }
+				ariaLabel={ formatChartName( chartTitle ) }
 				primaryColor="var(--wp-admin-theme-color, #3858e9)"
 				withTooltips
 				renderTooltip={ renderTooltip }

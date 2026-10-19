@@ -472,6 +472,14 @@ type VideopressData = {
 	videoCount: number;
 };
 
+// The onboarding wizard's configuration, set only while its feature flag is on.
+type OnboardingWizardState = {
+	// Where skipping the wizard lands: the My Jetpack dashboard.
+	exitUrl: string;
+	// Where leaving Jetpack altogether lands: wp-admin's own dashboard.
+	dashboardUrl: string;
+};
+
 type MainFeaturePluginStatus = 'not-installed' | 'inactive' | 'active';
 
 type MainFeaturesState = {
@@ -541,6 +549,7 @@ interface Window {
 		isOfflineFeatures?: boolean | '1';
 		mainFeatures: MainFeaturesState | null;
 		featuresBanner: { isDismissed: boolean } | null;
+		onboardingWizard?: OnboardingWizardState;
 		// Optional: a plugin carrying an older copy of this package sends none.
 		header?: {
 			connectorsUrl: string | null;
@@ -569,6 +578,7 @@ interface Window {
 		isStatsModuleActive: string;
 		canUserViewStats: boolean;
 		hiddenFeatures?: Array< string >;
+		deprecatedModules?: Array< string >;
 		isUserFromKnownHost: string;
 		loadAddLicenseScreen: string;
 		myJetpackCheckoutUri: string;

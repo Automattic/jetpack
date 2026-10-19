@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Call a PayPal payment a payment button everywhere, and payment links and buttons where both are meant. The admin page is now PayPal Payment Buttons.

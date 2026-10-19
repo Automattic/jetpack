@@ -67,6 +67,7 @@ function PaymentStatus() {
 	return (
 		<Donut
 			segments={ segments }
+			chartTitle={ __( 'Payment status', 'jetpack-woocommerce-stats-pkg' ) }
 			status={ {
 				isLoading,
 				isFetching,
