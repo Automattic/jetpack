@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Protect dashboard: Without a Scan plan, the empty Scan card says no known vulnerabilities were found instead of calling the site safe.
