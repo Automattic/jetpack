@@ -17,15 +17,53 @@ jest.unstable_mockModule( '@automattic/jetpack-script-data', () => ( {
 	} ),
 } ) );
 jest.unstable_mockModule( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
+const createErrorNotice = jest.fn();
+
 jest.unstable_mockModule( '@wordpress/data', () => ( {
 	useDispatch: () => ( {
 		createInfoNotice: jest.fn(),
 		createSuccessNotice: jest.fn(),
-		createErrorNotice: jest.fn(),
+		createErrorNotice,
 	} ),
 } ) );
 
 const { useGoogleVerify } = await import( '../use-google-verify' );
+
+const VERIFY_POST = expect.objectContaining( {
+	path: '/jetpack/v4/verify-site/google',
+	method: 'POST',
+} );
+
+/**
+ * Answer the verify-site status reads, and acknowledge every POST.
+ *
+ * @param alreadyVerified - Whether Google already considers the site verified.
+ */
+function respond( alreadyVerified = false ) {
+	mockApiFetch.mockImplementation( ( { path, method } ) =>
+		Promise.resolve(
+			method === 'POST'
+				? {}
+				: {
+						verified: alreadyVerified && path.endsWith( '/7' ),
+						is_owner: true,
+						google_search_console_url: '',
+						token: 'tok',
+					}
+		)
+	);
+}
+
+/**
+ * Mount the hook and wait for its status read.
+ *
+ * @return The rendered hook.
+ */
+async function mountHook() {
+	const view = renderHook( () => useGoogleVerify( { saveCode } ) );
+	await waitFor( () => expect( view.result.current.state ).not.toBe( 'loading' ) );
+	return view;
+}
 
 describe( 'useGoogleVerify', () => {
 	beforeEach( () => {
@@ -37,27 +75,46 @@ describe( 'useGoogleVerify', () => {
 		[ 'saves the token through the settings form', false, [ [ 'tok' ] ] ],
 		[ 'saves nothing when the site is already verified', true, [] ],
 	] )( '%s', async ( _label, alreadyVerified, calls ) => {
-		mockApiFetch.mockImplementation( ( { path, method } ) =>
-			Promise.resolve(
-				method === 'POST'
-					? {}
-					: {
-							verified: alreadyVerified && path.endsWith( '/7' ),
-							is_owner: true,
-							google_search_console_url: '',
-							token: 'tok',
-						}
-			)
-		);
-		const { result } = renderHook( () => useGoogleVerify( { saveCode } ) );
-		await waitFor( () => expect( result.current.state ).not.toBe( 'loading' ) );
+		respond( alreadyVerified );
+		const { result } = await mountHook();
 
 		act( () => result.current.autoVerify() );
-
 		await waitFor( () => expect( result.current.isVerifying ).toBe( false ) );
 		expect( saveCode.mock.calls ).toEqual( calls );
 		expect( mockApiFetch ).not.toHaveBeenCalledWith(
 			expect.objectContaining( { path: '/wp/v2/settings' } )
 		);
+	} );
+
+	it( 'asks Google to verify only once the code is saved', async () => {
+		let finishSave: () => void = () => undefined;
+		saveCode.mockImplementation(
+			() =>
+				new Promise< void >( resolve => {
+					finishSave = resolve;
+				} )
+		);
+		respond();
+		const { result } = await mountHook();
+
+		act( () => result.current.autoVerify() );
+		await waitFor( () => expect( saveCode ).toHaveBeenCalled() );
+		expect( mockApiFetch ).not.toHaveBeenCalledWith( VERIFY_POST );
+
+		await act( async () => finishSave() );
+
+		await waitFor( () => expect( result.current.isVerifying ).toBe( false ) );
+		expect( mockApiFetch ).toHaveBeenCalledWith( VERIFY_POST );
+	} );
+
+	it( 'stops with an error when the code save fails', async () => {
+		saveCode.mockRejectedValue( { message: 'Nope.' } );
+		respond();
+		const { result } = await mountHook();
+
+		act( () => result.current.autoVerify() );
+		await waitFor( () => expect( result.current.isVerifying ).toBe( false ) );
+		expect( mockApiFetch ).not.toHaveBeenCalledWith( VERIFY_POST );
+		expect( createErrorNotice ).toHaveBeenCalledWith( 'Nope.', expect.anything() );
 	} );
 } );

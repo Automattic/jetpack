@@ -313,9 +313,11 @@ export function useSettingsForm(): SettingsForm {
 					modulesApplied = Object.keys( applied ?? {} );
 					// Adopt what we asked for; `adoptServerState()` below then corrects it
 					// wherever the server reports something else. Skipped on failure, where
-					// only the server knows what landed.
-					baselineRef.current = values;
-					setSettings( values );
+					// only the server knows what landed. Only the sent fields, so a code
+					// `saveVerification()` adopted meanwhile isn't rolled back.
+					const sent = Object.fromEntries( touched.map( field => [ field, values[ field ] ] ) );
+					baselineRef.current = { ...( baselineRef.current ?? baseline ), ...sent };
+					setSettings( baselineRef.current );
 					createSuccessNotice( __( 'Settings saved.', 'jetpack-seo' ), {
 						id: SAVE_NOTICE_ID,
 						type: 'snackbar',

@@ -368,7 +368,7 @@ describe( 'useSettingsForm', () => {
 		setting_value: 'set',
 	};
 
-	it( 'saveVerification saves one code and adopts it, so the next section save does not re-send it', async () => {
+	it( 'saveVerification saves one code and adopts it as saved in the form and the store', async () => {
 		const { result } = renderHook( () => useSettingsForm() );
 
 		await act( () => result.current.saveVerification( 'google', 'tok' ) );
@@ -384,6 +384,29 @@ describe( 'useSettingsForm', () => {
 			...SEED,
 			verification: { ...SEED.verification, google: 'tok' },
 		} );
+	} );
+
+	it( 'a form save that finishes after saveVerification keeps the adopted code', async () => {
+		let finishSave: ( response: unknown ) => void = () => undefined;
+		mockApiFetch.mockImplementation( options =>
+			JSON.stringify( options ).includes( 'advanced_seo_front_page_description' )
+				? new Promise( resolve => {
+						finishSave = resolve;
+					} )
+				: Promise.resolve( {} )
+		);
+		const { result } = renderHook( () => useSettingsForm() );
+		act( () => result.current.setField( { front_page_description: 'New description.' } ) );
+		act( () => result.current.commitFields( [ 'front_page_description' ] ) );
+
+		await act( () => result.current.saveVerification( 'google', 'tok' ) );
+		await act( async () => finishSave( {} ) );
+		await waitFor( () => expect( result.current.isSaving ).toBe( false ) );
+
+		expect( result.current.isDirty( [ 'verification' ] ) ).toBe( false );
+		expect( setSettings ).toHaveBeenLastCalledWith(
+			expect.objectContaining( { verification: { ...SEED.verification, google: 'tok' } } )
+		);
 	} );
 
 	it.each< [ string, () => void, unknown[][] ] >( [
