@@ -1313,12 +1313,7 @@ class Initializer {
 		 * @deprecated $$next-version$$ Use the `jetpack_feature_flag_enabled_my-jetpack-overview-v1` filter.
 		 * @param bool $enabled Whether to show Overview v1. Default false.
 		 */
-		return (bool) apply_filters_deprecated(
-			'jetpack_my_jetpack_overview_v1',
-			array( Feature_Flags::is_enabled( self::OVERVIEW_V1_FLAG ) ),
-			'package-$$next-version$$',
-			'jetpack_feature_flag_enabled_' . self::OVERVIEW_V1_FLAG
-		);
+		return (bool) apply_filters_deprecated( 'jetpack_my_jetpack_overview_v1', array( Feature_Flags::is_enabled( self::OVERVIEW_V1_FLAG ) ), 'package-$$next-version$$', 'jetpack_feature_flag_enabled_' . self::OVERVIEW_V1_FLAG );
 	}
 
 	/**
