@@ -5,12 +5,7 @@ import { useModuleActivation } from '../../module-toggle';
 import { getSwitchLabel } from '../utils';
 import { ConnectButton, InstallButton, JetpackButton } from './feature-action';
 import { UpgradeButton } from './feature-paid';
-import {
-	getFeatureManageUrl,
-	getForcedReason,
-	needsAccountWithoutConnect,
-	offersConnect,
-} from './feature-state';
+import { getFeatureManageUrl, getForcedReason, offersConnect } from './feature-state';
 import { useFeaturesTracking } from './features-tracking-context';
 import { getFeatureUnavailableReason } from './module-availability';
 import { useFeaturePlugin } from './use-main-features';
@@ -142,7 +137,6 @@ export function FeatureModalActions( { state }: FeatureModalActionsProps ) {
 	const forcedReason = getForcedReason( state );
 	const unavailable = getFeatureUnavailableReason( state );
 	const connectFirst = offersConnect( state );
-	const needsAccountNote = needsAccountWithoutConnect( state );
 	// Waiting for an account, the switch only stays to turn off a feature already on, and
 	// until that request lands, so the button being pressed does not vanish under the click.
 	const showSwitch =
@@ -174,12 +168,12 @@ export function FeatureModalActions( { state }: FeatureModalActionsProps ) {
 				</ButtonLink>
 			) : null }
 
-			{ forcedReason || needsAccountNote ? (
+			{ forcedReason ? (
 				<Stack direction="column" align="start" gap="xs">
 					{ unavailable && unavailable !== forcedReason ? (
 						<Badge intent="medium">{ unavailable }</Badge>
 					) : null }
-					{ forcedReason ? <Badge intent="medium">{ forcedReason }</Badge> : null }
+					<Badge intent="medium">{ forcedReason }</Badge>
 				</Stack>
 			) : null }
 

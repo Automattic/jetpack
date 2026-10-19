@@ -680,7 +680,7 @@ describe( 'features waiting for an account', () => {
 			screen.queryByRole( 'button', { name: /^(Connect|Install)/ } )
 		).not.toBeInTheDocument();
 
-		rerender( <FeatureModalActions state={ state } /> );
+		rerender( <FeatureDelivery state={ state } /> );
 		expect( screen.getByText( 'Requires a connected WordPress.com account' ) ).toBeVisible();
 	} );
 

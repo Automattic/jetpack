@@ -409,6 +409,59 @@ describe( 'FeatureModal Free column', () => {
 		}
 	} );
 
+	it( 'keeps the account reason out of the actions row so Upgrade still ends it', () => {
+		window.myJetpackInitialState.myJetpackFlags = {
+			accountConnect: true,
+		} as typeof window.myJetpackInitialState.myJetpackFlags;
+		try {
+			const state = resolveFeatureState(
+				{
+					...feature,
+					slug: 'jetpack-ai',
+					name: 'Jetpack AI',
+					product: 'jetpack-ai',
+					needs_account: true,
+					upgrade: { path: '/add-ai', name: 'Jetpack AI' },
+				},
+				'active',
+				undefined,
+				{
+					ai: {
+						module: 'ai',
+						available: false,
+						unavailable_reason: 'Requires a connected WordPress.com account',
+						requires_user_connection: true,
+						activated: false,
+					} as never,
+				},
+				{},
+				false,
+				true
+			);
+			render(
+				<QueryClientProvider client={ new QueryClient() }>
+					<FeatureModal
+						state={ state }
+						position={ 1 }
+						total={ 1 }
+						onStep={ jest.fn() }
+						onClose={ jest.fn() }
+					/>
+				</QueryClientProvider>
+			);
+			const reason = screen.getByText( 'Requires a connected WordPress.com account' );
+			const upgrade = screen.getByRole( 'link', { name: 'Upgrade to Jetpack AI' } );
+			// eslint-disable-next-line testing-library/no-node-access -- the actions row has no role to query.
+			const actions = upgrade.closest( '[data-feature-actions]' );
+			expect( reason ).toBeVisible();
+			expect( actions ).not.toContainElement( reason );
+			// eslint-disable-next-line testing-library/no-node-access -- the order of the row's buttons is the point.
+			expect( actions?.lastElementChild ).toBe( upgrade );
+		} finally {
+			window.myJetpackInitialState.myJetpackFlags = undefined;
+		}
+	} );
+
 	it( 'agrees with the card status for an unavailable feature with no standalone route', () => {
 		const state = moduleState( false, 'inactive' );
 		state.feature = { ...feature, plugin: '' };
