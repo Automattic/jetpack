@@ -70,7 +70,8 @@ const GoogleVerificationField: FC< Props > = ( {
 			onChange={ onChange }
 			onBlur={ onCommit }
 			help={ manualHelp }
-			disabled={ disabled }
+			// Locked during auto-verify: a code typed meanwhile would save after the token and replace it.
+			disabled={ disabled || isVerifying }
 			__next40pxDefaultSize
 			__nextHasNoMarginBottom
 		/>

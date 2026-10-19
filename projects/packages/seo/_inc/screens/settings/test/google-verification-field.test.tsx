@@ -56,6 +56,13 @@ describe( 'GoogleVerificationField', () => {
 		expect( screen.getByRole( 'button', { name: /Verify with Google/ } ) ).toBeInTheDocument();
 	} );
 
+	it( 'locks the manual code while auto-verify runs, so a typed code cannot overwrite the token', () => {
+		mockUseGoogleVerify.mockReturnValue( { ...googleVerifyDefaults, isVerifying: true } );
+		renderField( 'google-code' );
+
+		expect( screen.getByRole( 'textbox', { name: /Google verification code/ } ) ).toBeDisabled();
+	} );
+
 	it( 'reveals the manual field and removes the manual button', () => {
 		renderField();
 
