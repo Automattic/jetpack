@@ -42,21 +42,24 @@ describe( 'McpSetup: Cursor quick setup', () => {
 	} );
 } );
 
-describe( 'McpSetup: ChatGPT quick setup', () => {
+describe( 'McpSetup: ChatGPT and Claude quick setup', () => {
 	afterEach( () => {
 		delete window.jetpackAiSettings;
 	} );
 
 	test.each( [
-		[ 'jetpack', 'Jetpack plugin', 'jetpack-ai-hub-mcp-setup-chatgpt-self-hosted' ],
-		[ 'wpcom', 'WordPress.com plugin', 'jetpack-ai-hub-mcp-setup-chatgpt' ],
-		[ undefined, 'WordPress.com plugin', 'jetpack-ai-hub-mcp-setup-chatgpt' ],
-	] )( 'chatgptConnector %s links to the %s', async ( chatgptConnector, name, source ) => {
-		window.jetpackAiSettings = { chatgptConnector };
+		[ 'chatgpt', true, 'Jetpack plugin', 'jetpack-ai-hub-mcp-setup-chatgpt-self-hosted' ],
+		[ 'chatgpt', false, 'WordPress.com plugin', 'jetpack-ai-hub-mcp-setup-chatgpt' ],
+		[ 'chatgpt', undefined, 'WordPress.com plugin', 'jetpack-ai-hub-mcp-setup-chatgpt' ],
+		[ 'claude', true, 'Claude connector', 'jetpack-ai-hub-mcp-setup-claude-self-hosted' ],
+		[ 'claude', false, 'WordPress.com connector', 'jetpack-ai-hub-mcp-setup-claude' ],
+		[ 'claude', undefined, 'WordPress.com connector', 'jetpack-ai-hub-mcp-setup-claude' ],
+	] )( '%s with isSelfHosted %s links to the %s', async ( client, isSelfHosted, name, source ) => {
+		window.jetpackAiSettings = { isSelfHosted };
 		render( <McpSetup /> );
 		await userEvent.selectOptions(
 			screen.getByRole( 'combobox', { name: 'Choose your AI agent' } ),
-			'chatgpt'
+			client
 		);
 
 		expect( screen.getByRole( 'link', { name: new RegExp( name ) } ) ).toHaveAttribute(

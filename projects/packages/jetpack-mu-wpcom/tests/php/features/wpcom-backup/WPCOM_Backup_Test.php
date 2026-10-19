@@ -59,6 +59,53 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * The last-backup download and the failed-transfer notice each belong to one prompt.
+	 *
+	 * @dataProvider provide_transfer_statuses
+	 *
+	 * @param string[]    $features        Features the site's plan includes.
+	 * @param string|null $status          Latest transfer status, or null for no transfer.
+	 * @param bool        $has_reverted    Expected `hasRevertedTransfer`.
+	 * @param bool        $transfer_failed Expected `transferFailed`.
+	 */
+	#[DataProvider( 'provide_transfer_statuses' )]
+	public function test_transfer_flags_follow_the_latest_transfer( array $features, $status, $has_reverted, $transfer_failed ) {
+		Functions\when( 'wpcom_site_has_feature' )->alias(
+			static function ( $feature ) use ( $features ) {
+				return in_array( $feature, $features, true );
+			}
+		);
+		Functions\when( 'woa_get_latest_transfer' )->justReturn(
+			null === $status ? new \WP_Error( 'not_found' ) : (object) array( 'status' => $status )
+		);
+
+		$state = WPCOM_Backup::get_initial_state();
+
+		$this->assertSame(
+			array( $has_reverted, $transfer_failed ),
+			array( $state['hasRevertedTransfer'], $state['transferFailed'] )
+		);
+	}
+
+	/**
+	 * Plan features, latest transfer status, and the flags they produce.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_transfer_statuses() {
+		$plan = array( 'atomic', 'backups-self-serve' );
+
+		return array(
+			'no transfer'                 => array( array(), null, false, false ),
+			'reverted, upgrade prompt'    => array( array(), 'reverted', true, false ),
+			'reverted, activation prompt' => array( $plan, 'reverted', false, false ),
+			'lossless revert still going' => array( array(), 'reverting', false, false ),
+			'error, activation prompt'    => array( $plan, 'error', false, true ),
+			'error, upgrade prompt'       => array( array(), 'error', false, false ),
+		);
+	}
+
+	/**
 	 * A Simple site is never Atomic, so the page always has something to offer —
 	 * either the upgrade or the transfer that makes the plan's backups real.
 	 */
@@ -251,6 +298,7 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 		parent::set_up();
 		Monkey\setUp();
 		Functions\when( 'wpcom_site_has_feature' )->justReturn( false );
+		Functions\when( 'woa_get_latest_transfer' )->justReturn( new \WP_Error( 'not_found' ) );
 	}
 
 	/**
@@ -486,7 +534,7 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 		$payload = (array) $this->printed_initial_state();
 
 		$this->assertSame(
-			array( 'state', 'domain', 'isEligible', 'errors', 'warnings', 'upgradeUrl', 'activateUrl' ),
+			array( 'state', 'domain', 'isEligible', 'errors', 'warnings', 'upgradeUrl', 'activateUrl', 'supportUrl', 'hasRevertedTransfer', 'transferFailed' ),
 			array_keys( $payload )
 		);
 		$this->assertSame( WPCOM_Backup::STATE_UPGRADE, $payload['state'] );

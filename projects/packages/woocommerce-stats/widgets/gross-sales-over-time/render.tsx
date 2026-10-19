@@ -33,6 +33,7 @@ function GrossSalesOverTime( { chartType }: { chartType?: ChartDisplayChartType 
 		<ReportMetricChart
 			report={ useReportOrders( reportParams ) }
 			chartType={ chartType }
+			chartTitle={ __( 'Gross sales over time', 'jetpack-woocommerce-stats-pkg' ) }
 			field="orders_value_gross"
 			label={ __( 'Gross sales', 'jetpack-woocommerce-stats-pkg' ) }
 			dataFormat={ { type: 'currency' } }

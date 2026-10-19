@@ -33,6 +33,11 @@
 			"types": "./build/components/button/index.d.ts",
 			"default": "./build/components/button/index.js"
 		},
+		"./checkbox-card": {
+			"jetpack:src": "./components/checkbox-card/index.tsx",
+			"types": "./build/components/checkbox-card/index.d.ts",
+			"default": "./build/components/checkbox-card/index.js"
+		},
 		"./global-notices": {
 			"jetpack:src": "./components/global-notices/index.ts",
 			"types": "./build/components/global-notices/index.d.ts",

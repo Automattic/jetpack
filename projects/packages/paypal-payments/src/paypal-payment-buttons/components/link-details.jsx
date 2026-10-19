@@ -46,7 +46,7 @@ export default function LinkDetails( {
 	let usedOn = unknown;
 	if ( typeof resource?.embeds === 'number' ) {
 		usedOn = sprintf(
-			/* translators: %d: number of published posts embedding the payment link */
+			/* translators: %d: number of published posts embedding the payment button */
 			_n( '%d published post', '%d published posts', resource.embeds, 'jetpack-paypal-payments' ),
 			resource.embeds
 		);
@@ -58,7 +58,7 @@ export default function LinkDetails( {
 		// payment link's path. Plain text like its siblings: wp-admin gives every `code`
 		// a grey monospace box.
 		[ __( 'Hosted ID', 'jetpack-paypal-payments' ), ( resourceId || '' ).replace( /^PLB-/, '' ) ],
-		[ __( 'Link used on', 'jetpack-paypal-payments' ), usedOn ],
+		[ __( 'Used on', 'jetpack-paypal-payments' ), usedOn ],
 	];
 	if ( adjustableQuantity ) {
 		rows.push( [ __( 'Max quantity', 'jetpack-paypal-payments' ), maxQuantity ] );
@@ -73,7 +73,7 @@ export default function LinkDetails( {
 				</h2>
 				<DropdownMenu
 					icon={ moreVertical }
-					label={ __( 'Payment link options', 'jetpack-paypal-payments' ) }
+					label={ __( 'Payment button options', 'jetpack-paypal-payments' ) }
 					toggleProps={ { size: 'small' } }
 					controls={ [
 						{

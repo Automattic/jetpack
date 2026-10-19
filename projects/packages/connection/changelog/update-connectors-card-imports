@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Connectors: Load the card's dependencies from its asset file instead of reading them from globals.

@@ -239,13 +239,24 @@ Sharing, Likes and Comment Likes modules are active. Where the screen itself
 does not exist (`Environment::settings_screen_supported()`), every route
 answers 409.
 
-The routes offer what the PHP screen shows and nothing else. A setting whose
-section does not render it is missing from reads, and a write that includes it
-is refused before anything is saved. Each action is only accepted from the
-section variant that offers it. This is what stops the API from reopening the
-way back that `BLOCK_CALL_TO_ACTION` closes, so do not relax it for
-convenience. `sharing_admin_update` does not fire from REST, because its
+The routes offer what the section variants show and nothing else. A setting
+whose section variant does not show it is missing from reads, and a write that
+includes it is refused before anything is saved. Each action is only accepted
+from the section variant that offers it. This is what stops the API from
+reopening the way back that `BLOCK_CALL_TO_ACTION` closes, so do not relax it
+for convenience. `sharing_admin_update` does not fire from REST, because its
 consumers read `$_POST`.
+
+The template placements, `sharing_buttons_auto_add` and `likes_auto_add`, are
+the one pair of settings only the React screen shows; the PHP screen keeps its
+Site Editor link until it retires (CM-945). They are offered in
+`BLOCK_CALL_TO_ACTION` alone, so they place the block where the legacy feature
+is already off rather than reopening it, and `likes_auto_add` also needs
+`Environment::likes_supported()`, since offline mode reaches that variant with
+nothing to hook. Each holds one side of the content at most: a write with both
+is refused, not trimmed by `Template_Placements::update()`. `status` links the
+Site Editor to the single template (`site_editor_url`) and to the page template
+(`page_template_editor_url`), each empty when the theme has no such template.
 
 Comment Likes are one boolean, `comment_likes_enabled`, whatever the platform
 stores. They are offered wherever `Environment::likes_supported()` holds, like
@@ -309,8 +320,9 @@ Like on a password-protected post, and on Simple a Like on a post that switched
 Likes on, since the legacy button still shows there.
 
 **Never resolve a template inside a callback** (see `Hooked_Blocks`):
-`get_block_template()`, `Environment::single_template_editor_url()` and the
-sections' `state()` all recurse from there.
+`get_block_template()`, `Environment::single_template_editor_url()`,
+`Environment::page_template_editor_url()` and the sections' `state()` all
+recurse from there.
 
 **Order after the content: Sharing Buttons, Like, then Newsletter's Subscribe**,
 as the legacy buttons and Subscribe's classic-theme fallback have it. Filters on
@@ -365,7 +377,7 @@ be asserted without a bootstrapped site. Environment lookups belong in
 **A block theme is available to tests.** `tests/php/fixtures/themes/block-theme`
 ships `templates/single.html`, which is what makes `wp_is_block_theme()` true and
 gives `Environment::single_template_editor_url()` a real target, and `templates/page.html`
-for the template placements. The `Section_Environment`
+for the template placements and `page_template_editor_url()`. The `Section_Environment`
 trait registers the directory and pins the stylesheet to it; the suite's default
 theme is neither a block theme nor resolvable, so nothing reaches the block
 variants without that pin.

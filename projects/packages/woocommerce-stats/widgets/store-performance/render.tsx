@@ -163,6 +163,7 @@ function StorePerformance( { hiddenMetricIds }: StorePerformanceProps ) {
 							label: metric.label,
 							dataFormat: metric.dataFormat,
 							countLabel: metric.countLabel,
+							noDataLabel: metric.noDataLabel,
 							zone: report.timezone,
 						} ),
 						key: metric.id,
@@ -221,6 +222,7 @@ function StorePerformance( { hiddenMetricIds }: StorePerformanceProps ) {
 					metrics={ tabs }
 					dataFormat={ DEFAULT_DATA_FORMAT }
 					groupLabel={ __( 'Store metric', 'jetpack-woocommerce-stats-pkg' ) }
+					chartTitle={ __( 'Store performance', 'jetpack-woocommerce-stats-pkg' ) }
 					empty={ <ChartEmptyState /> }
 				/>
 			</WidgetState>
