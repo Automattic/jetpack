@@ -112,6 +112,23 @@ describe( 'page-options-menu', () => {
 			).not.toBeInTheDocument();
 		} );
 
+		it( 'offers no switching off where there is no classic Stats page to return to', async () => {
+			jest.mocked( getScriptData ).mockReturnValue( {
+				premium_analytics: { has_classic_stats_page: false },
+			} as ReturnType< typeof getScriptData > );
+			const user = setupUser();
+			render( <PageOptionsMenu /> );
+
+			await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+
+			await expect(
+				screen.findByRole( 'menuitem', { name: 'Any feedback?' } )
+			).resolves.toBeInTheDocument();
+			expect(
+				screen.queryByRole( 'menuitem', { name: 'Switch off the preview' } )
+			).not.toBeInTheDocument();
+		} );
+
 		it( 'puts Customize first where the page has a layout to arrange', async () => {
 			const user = setupUser();
 			const onCustomize = jest.fn();

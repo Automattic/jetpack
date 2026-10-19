@@ -138,6 +138,10 @@ function inject_dashboard_sections_script_data( array $data ): array {
 	// Surfaces outside any section, such as feedback, post to Stats endpoints.
 	$data['premium_analytics']['can_view_stats'] = Capabilities::current_user_can_view_stats();
 
+	// Switching the dashboard off sends the reader to classic Stats, so it is on offer only
+	// while a plugin still registers that menu page (core keys the top-level pages by slug).
+	$data['premium_analytics']['has_classic_stats_page'] = isset( $GLOBALS['admin_page_hooks']['stats'] );
+
 	$sections = get_available_dashboard_section_slugs();
 
 	if ( null !== $sections ) {

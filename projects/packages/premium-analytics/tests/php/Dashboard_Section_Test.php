@@ -1415,12 +1415,28 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		$this->assertSame(
 			array(
-				'has_videopress' => true,
-				'can_view_stats' => true,
-				'sections'       => array( 'traffic', 'insights', 'subscribers' ),
+				'has_videopress'         => true,
+				'can_view_stats'         => true,
+				'has_classic_stats_page' => false,
+				'sections'               => array( 'traffic', 'insights', 'subscribers' ),
 			),
 			$data['premium_analytics']
 		);
+	}
+
+	/**
+	 * Switching the dashboard off lands on classic Stats, so the client is told whether a
+	 * plugin still registers that top-level menu page.
+	 */
+	public function test_section_script_data_says_whether_a_classic_stats_page_is_registered() {
+		$this->assertFalse( inject_dashboard_sections_script_data( array() )['premium_analytics']['has_classic_stats_page'] );
+
+		$GLOBALS['admin_page_hooks']['stats'] = 'stats';
+		try {
+			$this->assertTrue( inject_dashboard_sections_script_data( array() )['premium_analytics']['has_classic_stats_page'] );
+		} finally {
+			unset( $GLOBALS['admin_page_hooks']['stats'] );
+		}
 	}
 
 	/**
