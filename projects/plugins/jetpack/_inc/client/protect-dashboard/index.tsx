@@ -7,11 +7,12 @@ import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
+import { readScan } from './data';
 import Overview from './overview';
-import ScanTab from './scan-tab';
+import { HistoryTab, ScannerTab, useDataViewsVariant } from './scan-tab';
 import type { FC } from 'react';
 
-const TABS = [ 'overview', 'scan' ] as const;
+const TABS = [ 'overview', 'scanner', 'history' ] as const;
 export type ProtectTab = ( typeof TABS )[ number ];
 
 /**
@@ -29,9 +30,11 @@ type Props = {
 
 const Page: FC< Props > = ( { activeTab } ) => {
 	const navigate = useNavigate();
+	// The DataViews variant of Scanner and History spans the full width.
+	const wide = useDataViewsVariant() && activeTab !== 'overview';
 	const { data: scan } = useQuery( { ...siteScanQuery(), retry: false } );
 	const canScan = !! scan && scan.state !== 'unavailable';
-	const scanning = scan?.state === 'enqueued' || scan?.state === 'running';
+	const { scanning } = readScan( scan );
 
 	const goTo = useCallback(
 		( next: string | null ) => {
@@ -59,14 +62,16 @@ const Page: FC< Props > = ( { activeTab } ) => {
 				<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
 					<Tabs.List variant="minimal">
 						<Tabs.Tab value="overview">{ __( 'Overview', 'jetpack' ) }</Tabs.Tab>
-						<Tabs.Tab value="scan">{ __( 'Scan results', 'jetpack' ) }</Tabs.Tab>
+						<Tabs.Tab value="scanner">{ __( 'Scanner', 'jetpack' ) }</Tabs.Tab>
+						<Tabs.Tab value="history">{ __( 'History', 'jetpack' ) }</Tabs.Tab>
 					</Tabs.List>
 				</div>
-				<div className="jp-protect-dashboard__panel">
+				<div className={ `jp-protect-dashboard__panel${ wide ? ' is-wide' : '' }` }>
 					<Tabs.Panel value="overview">
 						{ activeTab === 'overview' && <Overview onNavigate={ goTo } /> }
 					</Tabs.Panel>
-					<Tabs.Panel value="scan">{ activeTab === 'scan' && <ScanTab /> }</Tabs.Panel>
+					<Tabs.Panel value="scanner">{ activeTab === 'scanner' && <ScannerTab /> }</Tabs.Panel>
+					<Tabs.Panel value="history">{ activeTab === 'history' && <HistoryTab /> }</Tabs.Panel>
 				</div>
 			</Tabs.Root>
 		</AdminPage>
@@ -74,7 +79,7 @@ const Page: FC< Props > = ( { activeTab } ) => {
 };
 
 /**
- * The Protect dashboard: an Overview of every security feature, plus Scan results.
+ * The Protect dashboard: an Overview of every security feature, plus the Scanner and its History.
  *
  * @param props           - Component props.
  * @param props.activeTab - The tab from `?tab=`.

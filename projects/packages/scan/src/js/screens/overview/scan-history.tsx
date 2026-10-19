@@ -12,6 +12,11 @@ import { UnignoreThreatModal } from './unignore-threat-modal';
 import { ViewDetailsModal } from './view-details-modal';
 import type { FC } from 'react';
 
+type Props = {
+	/** DataViews layouts to offer; defaults to both table and list. */
+	layouts?: ( 'table' | 'list' )[];
+};
+
 /**
  * Scan history panel — lists past threats (fixed + ignored) from the
  * `/site/scan/history` bridge. Reuses `ThreatsDataViews` from
@@ -23,9 +28,11 @@ import type { FC } from 'react';
  * "no items" body so reviewers always see column headers + filter
  * controls.
  *
+ * @param root0         - Component props.
+ * @param root0.layouts - DataViews layouts to offer.
  * @return The history panel.
  */
-const ScanHistory: FC = () => {
+const ScanHistory: FC< Props > = ( { layouts } ) => {
 	const { data, isLoading, error } = useQuery( siteScanHistoryQuery() );
 	const trackEvent = useTrackEvent();
 
@@ -56,6 +63,7 @@ const ScanHistory: FC = () => {
 			RenderViewModal={ ViewDetailsModal }
 			showStatusFilter={ false }
 			persistKey="jetpack-scan:scan-history:view"
+			layouts={ layouts }
 			onTrackEvent={ onTrackDataViewsEvent }
 			empty={
 				<EmptyState

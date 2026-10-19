@@ -51,6 +51,8 @@ import {
 import styles from './styles.module.scss';
 import ThreatsStatusToggleGroupControl from './threats-status-toggle-group-control.tsx';
 
+export type ThreatsDataViewsLayout = 'table' | 'list';
+
 /**
  * DataViews component for displaying security threats.
  *
@@ -79,6 +81,7 @@ import ThreatsStatusToggleGroupControl from './threats-status-toggle-group-contr
  * @param {ReactNode} [props.empty]                     - Empty-state node forwarded to DataViews when `data` is empty. Defaults to DataViews' built-in "no items" body.
  * @param {boolean}   [props.showStatusFilter]          - Whether to render the active/historic status toggle above the table. Defaults to `true`. Set to `false` when the consumer already filters the dataset by status outside the component (e.g. page-level tabs).
  * @param {Function}  [props.onTrackEvent]              - Optional callback that receives DataViews-canonical event names (`view_change`, `filter_change`, `search`, `page_change`, `layout_changed`) on the matching view transitions. Consumers prefix and forward to their own analytics client.
+ * @param {Array}     [props.layouts]                   - DataViews layouts to offer, first one is the default. Defaults to `[ 'table', 'list' ]`.
  * @param {string}    [props.persistKey]                - Optional `localStorage` key. When set, the component hydrates its initial view state from `localStorage[persistKey]` and writes back on every change. Use stable, namespaced keys (e.g. `jetpack-scan:active-threats:view`) so consumer panels don't collide. Quietly no-ops when `localStorage` is unavailable.
  *
  * @return {JSX.Element} The ThreatsDataViews component.
@@ -101,6 +104,7 @@ export default function ThreatsDataViews( {
 	showStatusFilter = true,
 	onTrackEvent,
 	persistKey,
+	layouts = [ 'table', 'list' ],
 }: {
 	data: Threat[];
 	filters?: Filter[];
@@ -119,6 +123,7 @@ export default function ThreatsDataViews( {
 	showStatusFilter?: boolean;
 	onTrackEvent?: ( event: string, properties?: Record< string, unknown > ) => void;
 	persistKey?: string;
+	layouts?: ThreatsDataViewsLayout[];
 } ): JSX.Element {
 	const baseView = {
 		sort: {
@@ -138,7 +143,7 @@ export default function ThreatsDataViews( {
 	 *
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#defaultlayouts-record-string-view
 	 */
-	const defaultLayouts = {
+	const allLayouts = {
 		table: {
 			...baseView,
 			fields: [ THREAT_FIELD_SEVERITY, THREAT_FIELD_TYPE, THREAT_FIELD_AUTO_FIX ],
@@ -159,6 +164,9 @@ export default function ThreatsDataViews( {
 			showMedia: true,
 		},
 	};
+	const defaultLayouts = Object.fromEntries(
+		layouts.map( layout => [ layout, allLayouts[ layout ] ] )
+	) as Partial< typeof allLayouts >;
 
 	/**
 	 * DataView view object - configures how the dataset is visible to the user.
@@ -171,14 +179,16 @@ export default function ThreatsDataViews( {
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/#view-object
 	 */
 	const [ view, setView ] = useState< View >( () => {
-		const fallback: View = { type: 'table', ...defaultLayouts.table };
+		const fallback = { type: layouts[ 0 ], ...allLayouts[ layouts[ 0 ] ] } as View;
 		if ( ! persistKey || typeof window === 'undefined' ) {
 			return fallback;
 		}
 		try {
 			const stored = window.localStorage.getItem( persistKey );
 			if ( stored ) {
-				return JSON.parse( stored ) as View;
+				const parsed = JSON.parse( stored ) as View;
+				// A view saved in a layout this instance no longer offers would render nothing.
+				return layouts.includes( parsed.type as ThreatsDataViewsLayout ) ? parsed : fallback;
 			}
 		} catch {
 			// localStorage may be disabled (privacy mode, full disk) — no-op.
@@ -301,7 +311,10 @@ export default function ThreatsDataViews( {
 				render( { item }: { item: Threat } ) {
 					return (
 						<div className={ styles.threat__media }>
-							<Icon icon={ THREAT_ICONS[ getThreatType( item ) ] } size={ 20 } />
+							<Icon
+								icon={ THREAT_ICONS[ getThreatType( item ) ] ?? THREAT_ICONS.default }
+								size={ 20 }
+							/>
 						</div>
 					);
 				},

@@ -17,6 +17,11 @@ import { useThreatActions } from './use-threat-actions';
 import { ViewDetailsModal } from './view-details-modal';
 import type { FC } from 'react';
 
+type Props = {
+	/** DataViews layouts to offer; defaults to both table and list. */
+	layouts?: ( 'table' | 'list' )[];
+};
+
 /**
  * Active threats panel — lists the un-ignored, un-fixed threats from the
  * most recent scan. Wraps the existing `ThreatsDataViews` component from
@@ -30,9 +35,11 @@ import type { FC } from 'react';
  * "no items" body so reviewers always see column headers + filter
  * controls (Phase 1+ wires up search / sort persistence on top).
  *
+ * @param root0         - Component props.
+ * @param root0.layouts - DataViews layouts to offer.
  * @return The active threats panel.
  */
-const ActiveThreats: FC = () => {
+const ActiveThreats: FC< Props > = ( { layouts } ) => {
 	const { data, isLoading, error } = useQuery( siteScanQuery() );
 	const { onFixThreats } = useThreatActions();
 	const setHeaderActions = useSetHeaderActions();
@@ -109,6 +116,7 @@ const ActiveThreats: FC = () => {
 				RenderViewModal={ ViewDetailsModal }
 				showStatusFilter={ false }
 				persistKey="jetpack-scan:active-threats:view"
+				layouts={ layouts }
 				onTrackEvent={ onTrackDataViewsEvent }
 				empty={
 					<EmptyState

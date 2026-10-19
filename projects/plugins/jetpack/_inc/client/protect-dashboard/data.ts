@@ -172,3 +172,26 @@ export function useUpdateWaf() {
 		onSuccess: () => queryClient.invalidateQueries( { queryKey: [ 'jetpack', 'waf' ] } ),
 	} );
 }
+
+type RawScan = {
+	state?: string;
+	most_recent?: { timestamp?: string };
+	mostRecent?: { timestamp?: string };
+	current?: { progress?: number };
+};
+
+/**
+ * Read a `/site/scan` response. It is WordPress.com's payload passed through as-is, so the
+ * fields are snake_case and a running scan reports `scanning` or `provisioning`.
+ *
+ * @param data - The scan response.
+ * @return The last scan time, whether a scan is running, and its progress.
+ */
+export function readScan( data: unknown ) {
+	const scan = ( data ?? {} ) as RawScan;
+	return {
+		lastScan: scan.most_recent?.timestamp ?? scan.mostRecent?.timestamp ?? null,
+		scanning: [ 'scanning', 'provisioning', 'enqueued', 'running' ].includes( scan.state ?? '' ),
+		progress: scan.current?.progress ?? 0,
+	};
+}

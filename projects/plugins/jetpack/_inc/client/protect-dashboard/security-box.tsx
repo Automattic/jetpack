@@ -1,7 +1,4 @@
-import { Button, Icon, ToggleControl } from '@wordpress/components';
-import { useCallback, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import { chevronDown, chevronUp } from '@wordpress/icons';
+import { Icon, ToggleControl } from '@wordpress/components';
 import type { FC, ReactElement, ReactNode } from 'react';
 
 type BoxProps = {
@@ -9,56 +6,31 @@ type BoxProps = {
 	title: string;
 	badge?: ReactNode;
 	description?: ReactNode;
-	defaultOpen?: boolean;
 	children?: ReactNode;
 };
 
 /**
- * A collapsible feature box: header, one-line description, then divided rows.
+ * A feature box: header, one-line description, then divided rows.
  *
  * @param props             - Component props.
  * @param props.icon        - Header icon.
  * @param props.title       - Feature name.
  * @param props.badge       - Short status next to the title, e.g. "On".
  * @param props.description - What the feature does.
- * @param props.defaultOpen - Whether the box starts expanded.
  * @param props.children    - Rows.
  * @return The box.
  */
-export const SecurityBox: FC< BoxProps > = ( {
-	icon,
-	title,
-	badge,
-	description,
-	defaultOpen = true,
-	children,
-} ) => {
-	const [ open, setOpen ] = useState( defaultOpen );
-	const toggleOpen = useCallback( () => setOpen( value => ! value ), [] );
-
-	return (
-		<section className="jp-protect-box">
-			<header className="jp-protect-box__header">
-				<Icon icon={ icon } className="jp-protect-box__icon" />
-				<h2 className="jp-protect-box__title">{ title }</h2>
-				{ badge && <span className="jp-protect-box__badge">{ badge }</span> }
-				<Button
-					className="jp-protect-box__toggle"
-					icon={ open ? chevronUp : chevronDown }
-					label={ open ? __( 'Collapse', 'jetpack' ) : __( 'Expand', 'jetpack' ) }
-					aria-expanded={ open }
-					onClick={ toggleOpen }
-				/>
-			</header>
-			{ open && (
-				<>
-					{ description && <p className="jp-protect-box__description">{ description }</p> }
-					{ children }
-				</>
-			) }
-		</section>
-	);
-};
+export const SecurityBox: FC< BoxProps > = ( { icon, title, badge, description, children } ) => (
+	<section className="jp-protect-box">
+		<header className="jp-protect-box__header">
+			<Icon icon={ icon } className="jp-protect-box__icon" />
+			<h2 className="jp-protect-box__title">{ title }</h2>
+			{ badge && <span className="jp-protect-box__badge">{ badge }</span> }
+		</header>
+		{ description && <p className="jp-protect-box__description">{ description }</p> }
+		{ children }
+	</section>
+);
 
 type RowProps = {
 	children: ReactNode;

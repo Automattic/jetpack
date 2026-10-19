@@ -6,6 +6,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { key, lock, people, scheduled, search, shield } from '@wordpress/icons';
 import {
 	getFirewallBlocks,
+	readScan,
 	getSiteCounts,
 	moduleDataQuery,
 	modulesQuery,
@@ -16,6 +17,7 @@ import {
 	wafQuery,
 } from './data';
 import { BoxRow, SecurityBox, StatGrid, ToggleRow } from './security-box';
+import SiteStatus from './site-status';
 import type { WafConfig } from './data';
 import type { ProtectTab } from './index';
 import type { FC } from 'react';
@@ -46,7 +48,11 @@ function useModule( module: string ) {
 const ScanBox: FC< NavProps > = ( { onNavigate } ) => {
 	const { data, isLoading, isError } = useQuery( { ...siteScanQuery(), retry: false } );
 	const counts = getSiteCounts();
-	const goToScan = useCallback( () => onNavigate( 'scan' ), [ onNavigate ] );
+	const threats = data?.threats?.length ?? 0;
+	const goToScan = useCallback(
+		() => onNavigate( threats ? 'scanner' : 'history' ),
+		[ onNavigate, threats ]
+	);
 
 	if ( isLoading ) {
 		return (
@@ -59,9 +65,9 @@ const ScanBox: FC< NavProps > = ( { onNavigate } ) => {
 	}
 
 	const available = ! isError && !! data && data.state !== 'unavailable';
-	const threats = data?.threats?.length ?? 0;
-	const lastScan = data?.mostRecent?.timestamp
-		? new Date( data.mostRecent.timestamp ).toLocaleDateString( undefined, { dateStyle: 'medium' } )
+	const { lastScan: lastScanAt } = readScan( data );
+	const lastScan = lastScanAt
+		? new Date( lastScanAt ).toLocaleDateString( undefined, { dateStyle: 'medium' } )
 		: __( 'Not yet', 'jetpack' );
 
 	const covered = [
@@ -511,6 +517,7 @@ const Overview: FC< NavProps > = ( { onNavigate } ) => {
 
 	return (
 		<div className="jp-protect-dashboard__boxes">
+			<SiteStatus onNavigate={ onNavigate } />
 			<ScanBox onNavigate={ onNavigate } />
 			<FirewallBox />
 			<BruteForceBox />
