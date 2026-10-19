@@ -184,7 +184,8 @@ const ConnectionControl: FC = () => {
 		setIsDialogOpen( false );
 	}, [] );
 
-	// The dialog returns focus to the link that opened it, which left with the popover.
+	// Focus the trigger once the dialog closes: the "Manage connection" link the dialog
+	// would return focus to was in the popover, which is closed by then.
 	useEffect( () => {
 		if ( ! isDialogOpen && returnFocusRef.current ) {
 			returnFocusRef.current = false;
