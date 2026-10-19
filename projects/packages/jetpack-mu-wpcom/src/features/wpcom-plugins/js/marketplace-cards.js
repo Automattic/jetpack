@@ -6,6 +6,10 @@
  * the same way.
  */
 ( function () {
+	// Checkout takes any tab with an opener for a popup, whose Back only messages it instead of
+	// leaving. A tab opened by another page, like the sites dashboard's WP Admin action, has one.
+	window.opener = null;
+
 	/**
 	 * Swaps in every strip still waiting in a template, and tags its card.
 	 */
@@ -19,11 +23,22 @@
 				if ( strip ) {
 					strip.replaceChildren( template.content.cloneNode( true ) );
 
+					// Core hardcodes its dependency heading, and checkout installs what these need.
+					const heading = template.dataset.requiresLabel
+						? card.querySelector( '.plugin-dependencies-explainer-text strong' )
+						: null;
+					if ( heading ) {
+						heading.textContent = template.dataset.requiresLabel;
+					}
+
 					// What the tab's Tracks and kept details modals read off a card.
 					card.classList.add( 'wpcom-marketplace-card' );
 					Object.assign( card.dataset, template.dataset );
+					// Not a dependency's More Details link, which is about another plugin.
 					card.querySelectorAll( 'a.open-plugin-details-modal' ).forEach( function ( link ) {
-						link.dataset.wpcomMarketplaceTrack = 'details';
+						if ( ! link.closest( '.plugin-dependencies' ) ) {
+							link.dataset.wpcomMarketplaceTrack = 'details';
+						}
 					} );
 				}
 				template.remove();

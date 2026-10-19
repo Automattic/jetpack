@@ -1,11 +1,13 @@
 import { __ } from '@wordpress/i18n';
-import { Badge, Button, LinkButton } from '@wordpress/ui';
+import { Badge, Button, ButtonLink, Stack } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { useModuleActivation } from '../../module-toggle';
 import { getSwitchLabel } from '../utils';
 import { InstallButton, JetpackButton } from './feature-action';
-import { getForcedReason } from './feature-state';
+import { UpgradeButton } from './feature-paid';
+import { getFeatureManageUrl, getForcedReason } from './feature-state';
 import { useFeaturesTracking } from './features-tracking-context';
+import { getFeatureUnavailableReason } from './module-availability';
 import { useFeaturePlugin } from './use-main-features';
 import type { FeatureState } from './feature-state';
 import type { MyJetpackModule } from '../../../types';
@@ -120,8 +122,8 @@ type FeatureModalActionsProps = {
 };
 
 /**
- * What the modal offers to do with a feature: Open once it is running, and the button
- * that switches it, installs its plugin, or installs Jetpack.
+ * What the modal offers to do with a feature: Open once it is running, the button that
+ * switches it, installs its plugin, or installs Jetpack, and Upgrade where a plan sells more.
  *
  * @param {FeatureModalActionsProps} props       - The component props.
  * @param {FeatureState}             props.state - Live state for the feature.
@@ -129,9 +131,11 @@ type FeatureModalActionsProps = {
  */
 export function FeatureModalActions( { state }: FeatureModalActionsProps ) {
 	const { feature, control } = state;
+	const manageUrl = getFeatureManageUrl( state );
 	const isActive = state.status === 'active';
 	const pluginName = feature.plugin_name || feature.name;
 	const forcedReason = getForcedReason( state );
+	const unavailable = getFeatureUnavailableReason( state );
 	const tracking = useFeaturesTracking();
 
 	// Leaves for the feature's own screen, so the event has to be away before it does.
@@ -142,18 +146,20 @@ export function FeatureModalActions( { state }: FeatureModalActionsProps ) {
 
 	return (
 		<>
-			{ isActive && feature.manage_url ? (
-				<LinkButton
-					href={ feature.manage_url }
-					variant="solid"
-					size="compact"
-					onClick={ onManageClick }
-				>
+			{ isActive && manageUrl ? (
+				<ButtonLink href={ manageUrl } variant="solid" size="compact" onClick={ onManageClick }>
 					{ __( 'Open', 'jetpack-my-jetpack' ) }
-				</LinkButton>
+				</ButtonLink>
 			) : null }
 
-			{ forcedReason ? <Badge intent="medium">{ forcedReason }</Badge> : null }
+			{ forcedReason ? (
+				<Stack direction="column" align="start" gap="xs">
+					{ unavailable && unavailable !== forcedReason ? (
+						<Badge intent="medium">{ unavailable }</Badge>
+					) : null }
+					<Badge intent="medium">{ forcedReason }</Badge>
+				</Stack>
+			) : null }
 
 			{ control.kind === 'module' && ! forcedReason ? (
 				<ModuleSwitch state={ state } module={ control.module } name={ feature.name } />
@@ -182,6 +188,8 @@ export function FeatureModalActions( { state }: FeatureModalActionsProps ) {
 			{ control.kind === 'install-jetpack' && ! control.blocked ? (
 				<JetpackButton state={ state } origin="modal" installed={ control.installed } />
 			) : null }
+
+			<UpgradeButton state={ state } />
 		</>
 	);
 }

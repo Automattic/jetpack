@@ -1,5 +1,7 @@
 // See README.md before adding a suite to this group.
 
+import '../../widgets/all-time-stats/__tests__/all-time-stats.test';
+import '../../widgets/annual-highlights/__tests__/annual-highlights.test';
 import '../../widgets/most-popular-day/__tests__/most-popular-day.test';
 import '../../widgets/most-popular-time/__tests__/most-popular-time.test';
 import '../../widgets/popular-post/__tests__/popular-post.test';

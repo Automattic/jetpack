@@ -6,10 +6,25 @@
 
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import apiFetch from '@wordpress/api-fetch'; // eslint-disable-line import/no-unresolved
-import { useState, useEffect, useCallback, useMemo, useRef } from '@wordpress/element';
+import { store as blockEditorStore } from '@wordpress/block-editor';
+import { useSelect } from '@wordpress/data';
+import {
+	useState,
+	useEffect,
+	useCallback,
+	useMemo,
+	useRef,
+	useSyncExternalStore,
+} from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { API_BASE } from '../utils/api-base';
 import { forgetExistingLinks } from '../utils/existing-links';
+import {
+	forgetMerchantStatus,
+	getMerchantNotices,
+	loadMerchantStatus,
+	subscribeToMerchantStatus,
+} from '../utils/merchant-status';
 import {
 	ONBOARD_CALLBACK_NAME,
 	ONBOARDING_FRAME_SHELL,
@@ -17,7 +32,9 @@ import {
 	getOnboardingReturnUrl,
 	loadPartnerScript,
 	waitForAnchorBinding,
+	watchForBlockedPopup,
 } from '../utils/paypal-partner-sdk';
+import { isSandboxAllowed } from '../utils/sandbox-flag';
 import { getUserFriendlyError } from '../utils/validation';
 
 /**
@@ -58,6 +75,8 @@ export function broadcastConnectionChange( connected ) {
 	if ( connected ) {
 		forgetExistingLinks();
 	}
+	// Any connection change takes the old account's status warning down.
+	forgetMerchantStatus();
 	window.dispatchEvent( new CustomEvent( CONNECTION_CHANGED_EVENT, { detail: { connected } } ) );
 }
 
@@ -120,12 +139,12 @@ export function usePayPalConnection() {
 	const onboardingRequestedRef = useRef( onboardingRequested );
 	onboardingRequestedRef.current = onboardingRequested;
 
-	// Wizard step state: 'welcome' | 'dashboard' | 'credentials' | 'success'
+	// Wizard step state: 'welcome' | 'dashboard' | 'credentials'
 	// Persisted in localStorage so navigating away and back doesn't reset the wizard.
 	const [ wizardStep, setWizardStep ] = useState( () => {
 		try {
 			const saved = window.localStorage.getItem( 'jetpack-paypal-wizard-step' );
-			if ( saved && [ 'welcome', 'dashboard', 'credentials', 'success' ].includes( saved ) ) {
+			if ( saved && [ 'welcome', 'dashboard', 'credentials' ].includes( saved ) ) {
 				return saved;
 			}
 		} catch {
@@ -138,7 +157,7 @@ export function usePayPalConnection() {
 	// Persist wizard step changes to localStorage.
 	useEffect( () => {
 		try {
-			if ( wizardStep === 'success' || isConnected ) {
+			if ( isConnected ) {
 				window.localStorage.removeItem( 'jetpack-paypal-wizard-step' );
 			} else {
 				window.localStorage.setItem( 'jetpack-paypal-wizard-step', wizardStep );
@@ -161,6 +180,14 @@ export function usePayPalConnection() {
 	// Requires the site to be on WordPress.com or connected to it.
 	const [ partnerReferralsAvailable, setPartnerReferralsAvailable ] = useState( false );
 
+	// Block previews (the inserter's example, patterns) render in any post, so only
+	// blocks in the post itself read the account status.
+	const isPreviewMode = useSelect(
+		select => select( blockEditorStore ).getSettings().isPreviewMode,
+		[]
+	);
+	const merchantNotices = useSyncExternalStore( subscribeToMerchantStatus, getMerchantNotices );
+
 	/**
 	 * Check PayPal connection status on mount.
 	 */
@@ -172,6 +199,14 @@ export function usePayPalConnection() {
 				setPartnerReferralsAvailable( !! response.partner_referrals_available );
 				setPartnerAttributionId( response.partner_attribution_id || '' );
 				setAccountEmail( response.account_email || '' );
+				// PayPal reports the account's status only for merchants we referred.
+				if (
+					! isPreviewMode &&
+					response.connected &&
+					response.onboarding_method === 'partner_referrals'
+				) {
+					loadMerchantStatus();
+				}
 				if ( ! response.connected && ! response.partner_referrals_available ) {
 					setWizardStep( 'dashboard' );
 				}
@@ -182,10 +217,13 @@ export function usePayPalConnection() {
 			.finally( () => {
 				setConnectionLoading( false );
 			} );
-	}, [] );
+	}, [ isPreviewMode ] );
 
 	/**
 	 * Follow the site-wide connection state when another block changes it.
+	 *
+	 * A disconnect sends the wizard back to its first step and clears any
+	 * connect error.
 	 *
 	 * Block attributes are deliberately left alone: the payment links they hold
 	 * keep working for buyers after a disconnect, they just can't be edited
@@ -196,6 +234,9 @@ export function usePayPalConnection() {
 			setIsConnected( !! event.detail?.connected );
 			if ( event.detail?.connected ) {
 				setShowReconnect( false );
+			} else {
+				setWizardStep( 'welcome' );
+				setConnectError( null );
 			}
 		};
 
@@ -273,7 +314,6 @@ export function usePayPalConnection() {
 				setClientId( '' );
 				setClientSecret( '' );
 				setShowReconnect( false );
-				setWizardStep( 'success' );
 				broadcastConnectionChange( response.connected );
 			} )
 			.catch( err => {
@@ -335,9 +375,9 @@ export function usePayPalConnection() {
 				setOnboardingRequested( false );
 				setIsConnected( true );
 				setShowReconnect( false );
-				setWizardStep( 'success' );
 				setAccountEmail( response?.account_email || '' );
 				broadcastConnectionChange( true );
+				loadMerchantStatus();
 			} )
 			.catch( err => {
 				// A quiet attempt is one nobody asked for, made in case the seller
@@ -458,6 +498,18 @@ export function usePayPalConnection() {
 	}, [ environment ] );
 
 	/**
+	 * Without the sandbox flag, a disconnected site connects to production only.
+	 *
+	 * The environment option outlives a disconnect, so a site that once used the
+	 * sandbox would otherwise reconnect to it with no control left to say otherwise.
+	 */
+	useEffect( () => {
+		if ( ! isConnected && environment === 'sandbox' && ! isSandboxAllowed() ) {
+			setEnvironment( 'production' );
+		}
+	}, [ isConnected, environment ] );
+
+	/**
 	 * A different environment needs a different referral link.
 	 */
 	useEffect( () => {
@@ -528,6 +580,23 @@ export function usePayPalConnection() {
 		// The SDK resolves the callback by name against whichever realm it runs in.
 		frameWindow[ ONBOARD_CALLBACK_NAME ] = () => completeOnboarding();
 
+		// The referral is kept: PayPal never opened, so the link is unspent and
+		// the next click, with its own user activation, opens it at once.
+		const unwatchPopups = watchForBlockedPopup( frameWindow, () => {
+			if ( cancelled ) {
+				return;
+			}
+
+			setOnboardingRequested( false );
+			setConnectError(
+				__(
+					'Your browser blocked PayPal’s window. Allow pop-ups for this site, then click Connect PayPal again.',
+					'jetpack-paypal-payments'
+				)
+			);
+			setConnectErrorDismissed( false );
+		} );
+
 		/*
 		 * Left visible on purpose: render() skips hidden elements, so a hidden
 		 * anchor is never bound as a PayPal button and the click below does
@@ -596,6 +665,7 @@ export function usePayPalConnection() {
 			setIsSdkReady( false );
 			onboardingLinkRef.current = null;
 			releaseFrame( () => delete frameWindow[ ONBOARD_CALLBACK_NAME ] );
+			releaseFrame( unwatchPopups );
 		};
 	}, [ frameNode, signupUrl, environment, completeOnboarding ] );
 
@@ -672,6 +742,8 @@ export function usePayPalConnection() {
 		connectionLoading,
 		partnerAttributionId,
 		accountEmail,
+		// The post's blocks show the account status; previews get an empty list.
+		merchantNotices: isPreviewMode ? [] : merchantNotices,
 		showReconnect,
 		setShowReconnect,
 		signupUrl,

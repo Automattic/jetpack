@@ -10,7 +10,8 @@ import { ExternalLink, ProgressBar, VisuallyHidden } from '@wordpress/components
 import { useEffect } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 import { list } from '@wordpress/icons';
-import { Card, LinkButton, Notice, Skeleton, Stack, Text } from '@wordpress/ui';
+import { Card, ButtonLink, Notice, Skeleton, Stack, Text } from '@wordpress/ui';
+import { getActivityLogDescription, onActivityLogClick } from '../activity-log';
 import assetUrl from '../asset-url';
 import NavRow from '../components/nav-row';
 import { EVENTS, recordAiHubEvent } from '../tracks';
@@ -25,12 +26,14 @@ import './style.scss';
 const QUICK_START = [
 	{
 		slug: 'jetpack-ai-hub-overview-quick-start-chatgpt',
+		selfHostedSlug: 'jetpack-ai-hub-overview-quick-start-chatgpt-self-hosted',
 		title: __( 'Connect ChatGPT', 'jetpack' ),
-		description: __( 'Give ChatGPT access to your site by installing the connector.', 'jetpack' ),
+		description: __( 'Give ChatGPT access to your site by installing the plugin.', 'jetpack' ),
 		icon: chatGptIcon,
 	},
 	{
 		slug: 'jetpack-ai-hub-overview-quick-start-claude',
+		selfHostedSlug: 'jetpack-ai-hub-overview-quick-start-claude-self-hosted',
 		title: __( 'Connect Claude', 'jetpack' ),
 		description: __( 'Give Claude access to your site by installing the connector.', 'jetpack' ),
 		icon: claudeIcon,
@@ -310,9 +313,9 @@ function UsageCard( { upgradeUrl, planName } ) {
 						     bottom-anchored, exactly as in the standard card. */ }
 						<div className="jetpack-ai-overview__usage-cell">
 							<RequestsMeter usage={ usage } />
-							<LinkButton href={ upgradeUrl } className="jetpack-ai-overview__upsell-cta">
+							<ButtonLink href={ upgradeUrl } className="jetpack-ai-overview__upsell-cta">
 								{ __( 'Upgrade', 'jetpack' ) }
-							</LinkButton>
+							</ButtonLink>
 						</div>
 					</div>
 				) }
@@ -332,18 +335,19 @@ function UsageCard( { upgradeUrl, planName } ) {
 /**
  * Overview view.
  *
- * @param {object}  props                   - Component props.
- * @param {string}  [props.activityLogUrl]  - URL for the site's activity log; row hidden without it.
- * @param {string}  [props.upgradeUrl]      - Upgrade destination for the usage card.
- * @param {string}  [props.planName]        - Purchase name granting AI, from the page data.
- * @param {boolean} [props.showActivityLog] - Whether the activity-log row applies: the row's
- *                                          copy promises AI-agent actions, which need MCP.
- * @param {boolean} [props.canLoadUsage]    - Whether the usage endpoint can answer for this
- *                                          site; when it cannot, usage is neither shown nor asked for.
+ * @param {object}  props                       - Component props.
+ * @param {string}  [props.activityLogUrl]      - URL for the site's activity log; row hidden without it.
+ * @param {boolean} [props.activityLogFiltered] - Whether the activity-log link opens filtered to AI agent actions.
+ * @param {string}  [props.upgradeUrl]          - Upgrade destination for the usage card.
+ * @param {string}  [props.planName]            - Purchase name granting AI, from the page data.
+ * @param {boolean} [props.showActivityLog]     - Whether the activity-log row applies; it needs MCP.
+ * @param {boolean} [props.canLoadUsage]        - Whether the usage endpoint can answer for this
+ *                                              site; when it cannot, usage is neither shown nor asked for.
  * @return {object} Component markup.
  */
 export default function AiOverview( {
 	activityLogUrl,
+	activityLogFiltered = false,
 	upgradeUrl,
 	planName,
 	showActivityLog,
@@ -351,6 +355,7 @@ export default function AiOverview( {
 } ) {
 	const recordLinkClick = ( linkType, slug ) => () =>
 		recordAiHubEvent( EVENTS.LINK_CLICK, { link_type: linkType, link: slug } );
+	const isSelfHosted = window?.jetpackAiSettings?.isSelfHosted === true;
 	return (
 		<Stack direction="column" gap="3xl">
 			{ /* The banner and the usage card share a tighter rhythm than the
@@ -368,20 +373,23 @@ export default function AiOverview( {
 					{ __( 'Quick start', 'jetpack' ) }
 				</Text>
 				<div className="jetpack-ai-overview__quick-start-grid">
-					{ QUICK_START.map( ( { slug, title, description, icon } ) => (
-						<Card.Root key={ slug } className="jetpack-ai-overview__row-card">
-							<NavRow
-								icon={ icon }
-								iconSize={ 28 }
-								title={ title }
-								description={ description }
-								href={ getRedirectUrl( slug ) }
-								onClick={ recordLinkClick( 'quick_start', slug ) }
-								tone="neutral"
-								external
-							/>
-						</Card.Root>
-					) ) }
+					{ QUICK_START.map( ( { slug: wpcomSlug, selfHostedSlug, title, description, icon } ) => {
+						const slug = isSelfHosted ? selfHostedSlug : wpcomSlug;
+						return (
+							<Card.Root key={ slug } className="jetpack-ai-overview__row-card">
+								<NavRow
+									icon={ icon }
+									iconSize={ 28 }
+									title={ title }
+									description={ description }
+									href={ getRedirectUrl( slug ) }
+									onClick={ recordLinkClick( 'quick_start', wpcomSlug ) }
+									tone="neutral"
+									external
+								/>
+							</Card.Root>
+						);
+					} ) }
 				</div>
 			</Stack>
 
@@ -441,11 +449,9 @@ export default function AiOverview( {
 					<NavRow
 						icon={ list }
 						title={ __( 'Activity log', 'jetpack' ) }
-						description={ __(
-							'Review recent actions taken by AI agents on your site.',
-							'jetpack'
-						) }
+						description={ getActivityLogDescription( activityLogFiltered ) }
 						href={ activityLogUrl }
+						onClick={ onActivityLogClick( activityLogFiltered ) }
 						tone="neutral"
 					/>
 				</Card.Root>

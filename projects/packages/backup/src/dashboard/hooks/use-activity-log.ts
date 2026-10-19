@@ -1,5 +1,5 @@
 import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useMemo } from '@wordpress/element';
+import { useCallback, useMemo, useRef } from '@wordpress/element';
 import {
 	fetchActivityLog,
 	type ActivitySortOrder,
@@ -24,8 +24,9 @@ type Result = {
 	items: ActivityItem[];
 	totalItems: number;
 	/**
-	 * Null until the feed has answered: DataViews leaves the page alone while
-	 * the total is unknown, but clamps it to 1 when handed a fallback count.
+	 * Null until the feed has answered, then kept even if a later page fails:
+	 * DataViews leaves the page alone while the total is unknown, but clamps it to 1 when
+	 * handed a fallback count.
 	 */
 	totalPages: number | null;
 	isLoading: boolean;
@@ -124,20 +125,48 @@ export function useActivityLog( { page, pageSize, sortOrder }: Args ): Result {
 
 	// The server's own count, not the merged one: restore rows land on a single
 	// page, so counting them would misreport how many pages there are.
-	const totalItems = query.data?.totalItems ?? entries.length;
-	const totalPages = query.data
-		? ( query.data.totalPages ?? Math.max( 1, Math.ceil( entries.length / pageSize ) ) )
-		: null;
+	const answer = query.data && {
+		totalItems: query.data.totalItems ?? entries.length,
+		totalPages: query.data.totalPages ?? Math.max( 1, Math.ceil( entries.length / pageSize ) ),
+	};
+	// A failed page has no count of its own, and DataViews hides its pager at zero items,
+	// which strands the reader there. Overview keeps the page-1 query mounted, so it
+	// covers a hook that never saw an answer.
+	const queryClient = useQueryClient();
+	const firstPage = queryClient.getQueryData< WpcomActivityLogResponse >(
+		keys.activityLogPage( 1, ACTIVITY_LOG_DEFAULT_PER_PAGE, ACTIVITY_LOG_NEWEST_FIRST )
+	);
+	const lastAnswer = useRef< ( NonNullable< typeof answer > & { pageSize: number } ) | null >(
+		null
+	);
+	if ( answer && ! query.isPlaceholderData ) {
+		lastAnswer.current = { ...answer, pageSize };
+	}
+	const known =
+		lastAnswer.current ??
+		( firstPage?.totalItems !== undefined && firstPage.totalPages !== undefined
+			? { ...firstPage, pageSize: ACTIVITY_LOG_DEFAULT_PER_PAGE }
+			: null );
+	const totalItems = known?.totalItems ?? 0;
+	// Recounted when the page size changed since the answer, or a failed per-page change keeps the old count.
+	const recount = known && known.pageSize !== pageSize;
+	const knownPages = recount
+		? Math.max( 1, Math.ceil( known.totalItems / pageSize ) )
+		: known?.totalPages;
+	const totalPages = answer?.totalPages ?? knownPages ?? null;
 
+	// A retry has no rows of its own: `keepPreviousData` would stand in the last page's.
+	const showsPlaceholder = query.isPlaceholderData && error !== null;
 	// Only once the feed has answered: a failed page holds no rows, and merged
 	// restores would fill it, hiding the failure the list's `empty` slot reports.
-	const items = useMemo(
-		() =>
-			query.isSuccess && totalPages !== null
-				? mergeRestoreRows( entries, restores.data, { page, totalPages, sortOrder } )
-				: entries,
-		[ query.isSuccess, entries, restores.data, page, totalPages, sortOrder ]
-	);
+	const items = useMemo( () => {
+		if ( showsPlaceholder ) {
+			return [];
+		}
+		return query.isSuccess && totalPages !== null
+			? mergeRestoreRows( entries, restores.data, { page, totalPages, sortOrder } )
+			: entries;
+	}, [ showsPlaceholder, query.isSuccess, entries, restores.data, page, totalPages, sortOrder ] );
 
 	// Wrapped so callers can hand it straight to `onClick` without
 	// returning a floating promise from the event handler.
@@ -175,14 +204,19 @@ export function useActivityLog( { page, pageSize, sortOrder }: Args ): Result {
  * @param page      - The page currently shown in the list.
  * @param pageSize  - The per-page setting currently shown in the list.
  * @param sortOrder - The sort direction currently shown in the list.
- * @return The matching item or null, whether the list's page query has answered, and its failure if it did.
+ * @return The matching item or null, whether the list's page query has answered, its failure if it did, and whether it is fetching now (false when paused or disabled).
  */
 export function useActivityById(
 	id: string | null,
 	page: number,
 	pageSize: number,
 	sortOrder: ActivitySortOrder
-): { item: ActivityItem | null; hasAnswered: boolean; error: Error | null } {
+): {
+	item: ActivityItem | null;
+	hasAnswered: boolean;
+	error: Error | null;
+	isFetching: boolean;
+} {
 	// Follows the list's `sortOrder`: it is part of the cache key, so pinning it
 	// here would open a second query for rows already on screen.
 	const query = useActivityPageQuery( page, pageSize, sortOrder );
@@ -225,6 +259,7 @@ export function useActivityById(
 		item,
 		hasAnswered: isRestore ? restores.isSuccess : query.isSuccess,
 		error: isRestore ? restores.error : query.error,
+		isFetching: isRestore ? restores.isFetching : query.isFetching,
 	};
 }
 

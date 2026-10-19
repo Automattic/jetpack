@@ -28,7 +28,7 @@ PayPal Payment Buttons lets you accept payments on your WordPress site using Pay
 1. Connect your PayPal account using API credentials from the PayPal Developer Dashboard
 2. Add the PayPal Payment Buttons block to any post or page
 3. Enter your product details (name, price, currency, and optional description)
-4. Click "Create New" — the plugin creates a payment link via PayPal's API
+4. Click "Create New" — the plugin creates a payment button via PayPal's API
 5. Publish your post — visitors see a theme-native "Buy Now" button that links to checkout. The payment link URL is also available to share directly or embed in text links.
 
 == Installation ==
@@ -40,7 +40,7 @@ PayPal Payment Buttons lets you accept payments on your WordPress site using Pay
    b. Create a new app (or use an existing one) under **Apps & Credentials**. Select **Live** for your production app.
    c. Copy the **Client ID** and **Client Secret** from your Live app.
    d. Add a PayPal Payment Buttons block in the editor. Click **Connect PayPal** and paste your Client ID and Client Secret.
-   e. The plugin defaults to **Production** mode — you're ready to accept real payments. To test first, create a separate **Sandbox** app in the PayPal Developer Dashboard (under **Apps & Credentials** → **Sandbox** tab) and toggle **Sandbox** mode in the block editor sidebar.
+   e. The plugin connects to **Production** — you're ready to accept real payments.
 
 = Requirements =
 
@@ -54,13 +54,13 @@ PayPal Payment Buttons lets you accept payments on your WordPress site using Pay
 
 1. Log in to the [PayPal Developer Dashboard](https://developer.paypal.com/dashboard/applications/).
 2. Navigate to **Apps & Credentials**.
-3. Select **Sandbox** or **Live** depending on your needs.
+3. Select the **Live** tab.
 4. Click **Create App** or select an existing app.
 5. Copy the **Client ID** and **Client Secret**.
 
 = What's the difference between Sandbox and Production? =
 
-**Production** is the live environment where real customers make real purchases — this is the default. **Sandbox** is PayPal's testing environment where no real money changes hands. To test in Sandbox, create a separate Sandbox app in the [PayPal Developer Dashboard](https://developer.paypal.com/dashboard/applications/) and toggle Sandbox mode in the block editor sidebar. Switch back to Production with your live credentials when you're ready to accept payments.
+**Production** is the live environment where real customers make real purchases, and it is the only environment the plugin connects to. **Sandbox** is PayPal's testing environment where no real money changes hands; it is not offered in the block editor, so use credentials from your **Live** app.
 
 = Will my existing PayPal buttons still work after updating? =
 
@@ -80,11 +80,11 @@ Disconnecting removes your stored credentials and cached token. Existing publish
 
 = I'm seeing "not authorized for Payment Links & Buttons" — what do I do? =
 
-This means your PayPal app may not have the required permissions. In the PayPal Developer Dashboard, ensure your app has the **Payment Links & Buttons** feature enabled. If you're using a sandbox account, create a new sandbox business account with full permissions.
+This means your PayPal app may not have the required permissions. In the PayPal Developer Dashboard, ensure your app has the **Payment Links & Buttons** feature enabled.
 
-= Can I pause or deactivate a payment link instead of deleting it? =
+= Can I pause or deactivate a payment button instead of deleting it? =
 
-No. PayPal only supports deleting a payment link, and deletion is permanent. The link stops working everywhere it was shared, including emails and printed QR codes, and buyers who open it see a PayPal "not found" page. The plugin asks you to acknowledge this before it deletes anything. If you might need the link again, leave it in place.
+No. PayPal only supports deleting a payment button, and deletion is permanent. Its link stops working everywhere it was shared, including emails and printed QR codes, and buyers who open it see a PayPal "not found" page. The plugin asks you to acknowledge this before it deletes anything. If you might need the button again, leave it in place.
 
 = Can I use this with WooCommerce? =
 

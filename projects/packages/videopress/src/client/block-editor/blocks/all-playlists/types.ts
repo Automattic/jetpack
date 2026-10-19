@@ -1,5 +1,5 @@
 export type AllPlaylistsLayout = 'gallery' | 'list';
-export type AllPlaylistsOrder = 'newest' | 'oldest' | 'title';
+export type AllPlaylistsOrder = 'newest' | 'oldest' | 'title' | 'updated';
 export type AllPlaylistsPagination = 'numbered' | 'load-more';
 
 /**
@@ -24,6 +24,10 @@ export type AllPlaylistsAttributes = BlockStyleAttributes & {
 	showDescription: boolean;
 	showVideoCount: boolean;
 	pagination: AllPlaylistsPagination;
+	// Leave out the playlist a channel playlist page is showing.
+	excludeCurrent?: boolean;
+	// "Updated 2 weeks ago · 1 hr 12 min" under each card.
+	showUpdated?: boolean;
 };
 
 /**

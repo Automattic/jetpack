@@ -74,6 +74,14 @@
 			],
 		},
 		{
+			extends: [ 'packages:stylelint' ],
+			groupName: 'Stylelint packages',
+			matchPackageNames: [
+				// Add this too.
+				'@stylistic/stylelint-plugin',
+			],
+		},
+		{
 			extends: [ 'packages:jsUnitTest' ],
 			groupName: 'JS unit testing packages',
 			matchPackageNames: [ 'babel-jest' ],
@@ -148,17 +156,6 @@
 	},
 
 	customManagers: [
-		// Update the renovate-version in the action itself.
-		// See also https://github.com/renovatebot/github-action/issues/756
-		{
-			customType: 'regex',
-			managerFilePatterns: [ '.github/workflows/renovate.yml' ],
-			matchStrings: [ 'renovate-version: (?<currentValue>[^\\s]+)' ],
-			datasourceTemplate: 'docker',
-			depNameTemplate: 'renovate',
-			packageNameTemplate: 'ghcr.io/renovatebot/renovate',
-		},
-
 		// wpcomsh's wordpress/classic-editor-plugin fake-package.
 		{
 			customType: 'regex',

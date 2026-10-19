@@ -21,7 +21,7 @@ const PALETTES: Record< string, Palette > = {
 	crm: [ PEACH, MINT, SKY, 24, 26, 66, 24, 72, 90 ],
 	newsletter: [ SKY, LILAC, MINT, 30, 24, 72, 32, 60, 94 ],
 	podcast: [ PEACH, YELLOW, PERIWINKLE, 22, 22, 64, 26, 76, 90 ],
-	protect: [ MINT, SKY, YELLOW, 28, 28, 70, 20, 62, 96 ],
+	'protect-dashboard': [ MINT, SKY, YELLOW, 28, 28, 70, 20, 62, 96 ],
 	search: [ PERIWINKLE, SKY, MINT, 26, 20, 66, 30, 70, 92 ],
 	social: [ LILAC, PEACH, SKY, 30, 26, 72, 22, 64, 90 ],
 	stats: [ MINT, YELLOW, PERIWINKLE, 24, 30, 64, 24, 74, 94 ],

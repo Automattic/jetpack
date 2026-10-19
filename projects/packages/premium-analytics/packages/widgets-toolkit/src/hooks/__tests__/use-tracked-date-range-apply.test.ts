@@ -1,6 +1,8 @@
 /**
  * External dependencies
  */
+import analytics from '@automattic/jetpack-analytics';
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { computePrimaryRange, localTZDate } from '@jetpack-premium-analytics/datetime';
 import { act, renderHook } from '@testing-library/react';
 /**
@@ -8,19 +10,17 @@ import { act, renderHook } from '@testing-library/react';
  */
 import { resetTracksIdentityForTesting, useTrackedDateRangeApply } from '../use-track-event';
 
-const mockRecordEvent = jest.fn();
+jest.mock(
+	'@automattic/jetpack-analytics',
+	() => jest.requireActual( '../../../../../tests/js/analytics-test-utils' ).mockJetpackAnalytics
+);
+jest.mock(
+	'@automattic/jetpack-script-data',
+	() => jest.requireActual( '../../../../../tests/js/script-data-test-utils' ).mockJetpackScriptData
+);
+jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
-jest.mock( '@automattic/jetpack-analytics', () => ( {
-	__esModule: true,
-	default: {
-		setUser: jest.fn(),
-		identifyUser: jest.fn(),
-		assignSuperProps: jest.fn(),
-		tracks: { recordEvent: ( ...args: unknown[] ) => mockRecordEvent( ...args ) },
-	},
-} ) );
-
-jest.mock( '@automattic/jetpack-script-data', () => ( { getScriptData: () => ( {} ) } ) );
+const recordEvent = jest.mocked( analytics.tracks.recordEvent );
 
 type State = Parameters< typeof useTrackedDateRangeApply >[ 0 ];
 type Context = Parameters< typeof useTrackedDateRangeApply >[ 1 ];
@@ -46,14 +46,15 @@ function renderTracked( overrides: Partial< State > = {}, context: Context = DAS
 }
 
 function trackedProperties() {
-	expect( mockRecordEvent ).toHaveBeenCalledTimes( 1 );
-	return mockRecordEvent.mock.calls[ 0 ][ 1 ];
+	expect( recordEvent ).toHaveBeenCalledTimes( 1 );
+	return recordEvent.mock.calls[ 0 ][ 1 ];
 }
 
 describe( 'useTrackedDateRangeApply', () => {
 	beforeEach( () => {
-		mockRecordEvent.mockClear();
+		jest.clearAllMocks();
 		resetTracksIdentityForTesting();
+		jest.mocked( getScriptData ).mockReturnValue( {} as ReturnType< typeof getScriptData > );
 	} );
 
 	it( 'records a quick preset staged and applied in the same tick', () => {
@@ -65,7 +66,7 @@ describe( 'useTrackedDateRangeApply', () => {
 		} );
 
 		// Last 7 days allows days only, so the staged weeks coerce as `buildRangePatch` does.
-		expect( mockRecordEvent ).toHaveBeenCalledWith( EVENT, {
+		expect( recordEvent ).toHaveBeenCalledWith( EVENT, {
 			surface: 'dashboard',
 			section: 'traffic',
 			range_type: 'preset',
@@ -114,7 +115,7 @@ describe( 'useTrackedDateRangeApply', () => {
 			trackedOnChange( LAST_7_DAYS, 'last-7-days' );
 			trackedOnApply();
 		} );
-		mockRecordEvent.mockClear();
+		recordEvent.mockClear();
 		act( () => trackedOnApply() );
 
 		expect( trackedProperties() ).toMatchObject( { preset: 'last-30-days', interval: 'week' } );
@@ -173,7 +174,7 @@ describe( 'useTrackedDateRangeApply', () => {
 			trackedOnApply();
 		} );
 
-		expect( mockRecordEvent ).toHaveBeenCalledWith( EVENT, {
+		expect( recordEvent ).toHaveBeenCalledWith( EVENT, {
 			surface: 'post_detail',
 			range_type: 'preset',
 			preset: 'last-7-days',

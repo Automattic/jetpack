@@ -24,7 +24,7 @@ import {
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch } from '@wordpress/data';
 import { useEffect, useState, useCallback, useRef } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { caption as captionIcon } from '@wordpress/icons';
 import clsx from 'clsx';
 import debugFactory from 'debug';
@@ -54,6 +54,7 @@ import PosterPanel from './components/poster-panel';
 import PrivacyAndRatingPanel from './components/privacy-and-rating-panel';
 import ReplaceControl from './components/replace-control';
 import TracksControl from './components/tracks-control';
+import TrimCutControl from './components/trim-cut-control';
 import VideoPressUploaderRaw from './components/videopress-uploader';
 import { description, title } from '.';
 /**
@@ -167,6 +168,7 @@ export default function VideoPressEdit( {
 		caption,
 		isExample,
 		useQueriedVideo,
+		useLatestVideo,
 	} = attributes;
 
 	const videoPressUrl = getVideoPressUrl( guid, {
@@ -250,11 +252,19 @@ export default function VideoPressEdit( {
 		setAttributes( { videoRatio: ratio } );
 	}, [ videoRatio, previewWidth, previewHeight, setAttributes ] );
 
+	const [ playerRevision, setPlayerRevision ] = useState( 0 );
+
 	// Helper to invalidate the preview cache.
 	const invalidateResolution = useDispatch( coreStore ).invalidateResolution;
 	const invalidateCachedEmbedPreview = useCallback( () => {
 		invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
 	}, [ videoPressUrl, invalidateResolution ] );
+
+	const reloadProcessedVideo = useCallback( () => {
+		invalidateCachedEmbedPreview();
+		// The GUID and embed markup can stay unchanged after edits, so remount either player.
+		setPlayerRevision( revision => revision + 1 );
+	}, [ invalidateCachedEmbedPreview ] );
 
 	/*
 	 * Getting VideoPress preview.
@@ -413,21 +423,43 @@ export default function VideoPressEdit( {
 					checked={ !! useQueriedVideo }
 					onChange={ ( value: boolean ) => setAttributes( { useQueriedVideo: value } ) }
 				/>
+				<ToggleControl
+					__nextHasNoMarginBottom
+					label={ __( 'Show the newest upload', 'jetpack-videopress-pkg' ) }
+					help={ __(
+						'Renders the newest VideoPress video in your library, e.g. a featured video.',
+						'jetpack-videopress-pkg'
+					) }
+					checked={ !! useLatestVideo }
+					onChange={ ( value: boolean ) => setAttributes( { useLatestVideo: value } ) }
+				/>
 			</PanelBody>
 		</InspectorControls>
 	);
 
-	if ( useQueriedVideo ) {
+	if ( useQueriedVideo || useLatestVideo ) {
 		return (
 			<div { ...blockProps } className={ blockMainClassName }>
 				{ queriedVideoControls }
 				<Placeholder
 					icon={ VideoPressIcon }
-					label={ __( 'Video being viewed', 'jetpack-videopress-pkg' ) }
-					instructions={ __(
-						'On the site, this shows the VideoPress video of the page or list entry.',
-						'jetpack-videopress-pkg'
-					) }
+					label={
+						useQueriedVideo
+							? __( 'Video being viewed', 'jetpack-videopress-pkg' )
+							: _x( 'Newest upload', '', 'jetpack-videopress-pkg' )
+					}
+					instructions={
+						useQueriedVideo
+							? __(
+									'On the site, this shows the VideoPress video of the page or list entry.',
+									'jetpack-videopress-pkg'
+								)
+							: _x(
+									'On the site, this plays your newest VideoPress video.',
+									'',
+									'jetpack-videopress-pkg'
+								)
+					}
 				/>
 			</div>
 		);
@@ -600,6 +632,11 @@ export default function VideoPressEdit( {
 
 				<TracksControl attributes={ attributes } setAttributes={ setAttributes } />
 
+				<TrimCutControl
+					attributes={ attributes }
+					setAttributes={ setAttributes }
+					onProcessed={ reloadProcessedVideo }
+				/>
 				<ChaptersControl attributes={ attributes } setAttributes={ setAttributes } />
 			</BlockControls>
 
@@ -715,6 +752,7 @@ export default function VideoPressEdit( {
 			/>
 
 			<Player
+				key={ playerRevision }
 				showCaption={ showCaption }
 				html={ html }
 				isRequestingEmbedPreview={ isRequestingEmbedPreview }

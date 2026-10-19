@@ -20,6 +20,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 		metrics,
 		chartType,
 		empty,
+		hideSingleMetricLabel,
 	}: {
 		metrics: {
 			key: string;
@@ -30,6 +31,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 		}[];
 		chartType?: string;
 		empty?: ReactNode;
+		hideSingleMetricLabel?: boolean;
 	} ) => (
 		<div
 			data-testid="metric-tabs-chart"
@@ -40,6 +42,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			data-values={ metrics[ 0 ]?.current.map( point => point.value ).join( ',' ) }
 			data-days={ metrics[ 0 ]?.current.map( point => point.date.getDate() ).join( ',' ) }
 			data-chart-type={ String( chartType ) }
+			data-hide-single-metric-label={ String( hideSingleMetricLabel ) }
 		>
 			{ empty }
 		</div>
@@ -102,43 +105,30 @@ describe( 'EmailTimeSeriesWidget', () => {
 		expect( chart ).toHaveAttribute( 'data-values', '10,5,7' );
 		expect( chart ).toHaveAttribute( 'data-metric-total', '22' );
 		expect( chart ).toHaveAttribute( 'data-chart-type', 'line' );
+		expect( chart ).toHaveAttribute( 'data-hide-single-metric-label', 'true' );
 
 		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
 		expect( requestedPath ).toContain( 'stats/opens/emails/1234' );
 		expect( requestedPath ).toContain( 'stats_fields=timeline' );
 	} );
 
-	// Pinned west of UTC on purpose: under a UTC runner the site and runner
-	// readings coincide, so this would pass either way. `TZ` is not on the typed
-	// env shape, hence the cast.
+	// Passes under UTC either way; the `test-tz` pass west of UTC is what can fail it.
 	it( 'builds chart points on the bucket days the site names', async () => {
-		const env = process.env as Record< string, string | undefined >;
-		const runnerTimeZone = env.TZ;
-		env.TZ = 'America/Los_Angeles';
+		mockApiFetch.mockResolvedValue( OPENS_TIMELINE_RESPONSE );
 
-		try {
-			mockApiFetch.mockResolvedValue( OPENS_TIMELINE_RESPONSE );
+		render(
+			<EmailTimeSeriesWidget
+				attributes={ {
+					reportParams: { ...JULY_WEEK_PARAMS, post_id: 1234 },
+					metric: 'opens',
+				} }
+			/>
+		);
 
-			render(
-				<EmailTimeSeriesWidget
-					attributes={ {
-						reportParams: { ...JULY_WEEK_PARAMS, post_id: 1234 },
-						metric: 'opens',
-					} }
-				/>
-			);
-
-			const chart = await screen.findByTestId( 'metric-tabs-chart' );
-			// Reading these buckets in the runner's zone would report the previous
-			// day (3,4,5).
-			expect( chart ).toHaveAttribute( 'data-days', '4,5,6' );
-		} finally {
-			if ( runnerTimeZone === undefined ) {
-				delete env.TZ;
-			} else {
-				env.TZ = runnerTimeZone;
-			}
-		}
+		const chart = await screen.findByTestId( 'metric-tabs-chart' );
+		// Reading these buckets in the runner's zone would report the previous
+		// day (3,4,5).
+		expect( chart ).toHaveAttribute( 'data-days', '4,5,6' );
 	} );
 
 	it( 'reads the clicks endpoint when metric is clicks', async () => {

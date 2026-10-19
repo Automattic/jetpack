@@ -59,6 +59,7 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		\WP_Block_Supports::$block_to_render = null;
 
 		remove_all_filters( self::FLAG_FILTER );
+		remove_all_filters( self::SANDBOX_FLAG_FILTER );
 		remove_all_filters( PayPal_Payment_Buttons::SANDBOX_PARTNER_ATTRIBUTION_FILTER );
 		delete_option( PayPal_OAuth::ENVIRONMENT_OPTION_KEY );
 		wp_set_current_user( 0 );
@@ -93,6 +94,8 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	 * Per-flag filter that forces the API-managed buttons on.
 	 */
 	private const FLAG_FILTER = 'jetpack_feature_flag_enabled_' . PayPal_Payment_Buttons::API_MANAGED_BUTTONS_FLAG;
+
+	private const SANDBOX_FLAG_FILTER = 'jetpack_feature_flag_enabled_' . PayPal_Payment_Buttons::SANDBOX_FLAG;
 
 	/**
 	 * The three formats that draw styled text, and the attributes each one reads.
@@ -149,6 +152,18 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		$this->assertIsArray( $definition );
 		$this->assertFalse( $definition['default'] );
 		$this->assertFalse( PayPal_Payment_Buttons::is_api_managed_enabled() );
+
+		$sandbox = Feature_Flags::get( PayPal_Payment_Buttons::SANDBOX_FLAG );
+		$this->assertIsArray( $sandbox );
+		$this->assertFalse( $sandbox['default'] );
+		$this->assertFalse( PayPal_Payment_Buttons::is_sandbox_enabled() );
+	}
+
+	public function test_is_sandbox_enabled_honours_the_flag_filter() {
+		PayPal_Payment_Buttons::register_feature_flags();
+		add_filter( self::SANDBOX_FLAG_FILTER, '__return_true' );
+
+		$this->assertTrue( PayPal_Payment_Buttons::is_sandbox_enabled() );
 	}
 
 	public function test_is_api_managed_enabled_honours_the_flag_filter() {
@@ -164,16 +179,19 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		$flags = PayPal_Payment_Buttons::add_editor_feature_flags( array( 'other-flag' => true ) );
 		$this->assertSame(
 			array(
-				'other-flag' => true,
+				'other-flag'                         => true,
 				PayPal_Payment_Buttons::API_MANAGED_BUTTONS_FLAG => false,
+				PayPal_Payment_Buttons::SANDBOX_FLAG => false,
 			),
 			$flags
 		);
 
 		add_filter( self::FLAG_FILTER, '__return_true' );
+		add_filter( self::SANDBOX_FLAG_FILTER, '__return_true' );
 
 		$flags = PayPal_Payment_Buttons::add_editor_feature_flags( array() );
 		$this->assertTrue( $flags[ PayPal_Payment_Buttons::API_MANAGED_BUTTONS_FLAG ] );
+		$this->assertTrue( $flags[ PayPal_Payment_Buttons::SANDBOX_FLAG ] );
 	}
 
 	public function test_register_rest_routes_registers_nothing_while_the_flag_is_off() {
@@ -628,6 +646,20 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		// channel is the delivery that counts.
 		$this->assertStringContainsString( 'new BroadcastChannel( "' . PayPal_Payment_Buttons::ONBOARDING_RETURN_MESSAGE . '" )', $markup );
 		$this->assertStringNotContainsString( 'stored-client', $markup );
+	}
+
+	/**
+	 * The note is for a popup that cannot close itself; in the editor's frame it
+	 * shows over the post while onboarding is completed.
+	 */
+	public function test_onboarding_return_page_hides_its_note_inside_the_editor_frame() {
+		$markup = PayPal_Payment_Buttons::onboarding_return_markup();
+
+		$this->assertStringContainsString( '<p id="note">', $markup );
+		$this->assertMatchesRegularExpression(
+			'/if \( framed \) \{\s*(?:\/\/[^\n]*\n\s*)?document\.getElementById\( "note" \)\.hidden = true;/',
+			$markup
+		);
 	}
 
 	/**
@@ -1142,16 +1174,25 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 
 	/**
 	 * Test that buttonShowPoweredBy draws "Powered by" and the PayPal wordmark.
-	 *
-	 * The word PayPal stays as text for screen readers, and style.scss draws it
-	 * as the wordmark.
 	 */
 	public function test_render_button_shows_the_attribution_when_asked() {
 		$result = $this->render_button_format( array( 'buttonShowPoweredBy' => true ) );
 
-		$this->assertStringContainsString(
-			'<p class="jetpack-paypal-button__attribution">Powered by <span class="jetpack-paypal-button__logo">PayPal</span></p>',
+		$this->assertMatchesRegularExpression(
+			'#<p class="jetpack-paypal-button__attribution">Powered by <img class="jetpack-paypal-button__logo" src="[^"]+/paypal-payment-buttons/images/paypal-wordmark-color\.svg" alt="PayPal" width="42" height="15" /></p>#',
 			$result
+		);
+	}
+
+	/**
+	 * Test that the bundled wordmark is PayPal's file, unmodified.
+	 *
+	 * The hash is of https://www.paypalobjects.com/paypal-ui/logos/svg/paypal-wordmark-color.svg.
+	 */
+	public function test_bundled_wordmark_is_paypals_file() {
+		$this->assertSame(
+			'f766ba6d9471acc787c0808b8c30f38494d12b287ccfb2ff610fd617cfa2a432',
+			hash_file( 'sha256', dirname( __DIR__, 2 ) . '/src/paypal-payment-buttons/images/paypal-wordmark-color.svg' )
 		);
 	}
 

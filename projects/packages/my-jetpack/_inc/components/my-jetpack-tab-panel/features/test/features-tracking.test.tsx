@@ -3,7 +3,7 @@ import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import useAnalytics from '../../../../hooks/use-analytics';
-import { reloadPage } from '../../products/reload-page';
+import { reloadPage } from '../../../../utils/reload-page';
 import { FeaturesContent } from '../content';
 import { FeaturesEmptyState } from '../empty-state';
 import { FeatureAction } from '../feature-action';
@@ -20,7 +20,11 @@ const mockSetModuleActive = jest.fn();
 const recordEvent = jest.fn();
 
 jest.mock( '../../../../hooks/use-analytics' );
-jest.mock( '../../products/reload-page', () => ( { reloadPage: jest.fn() } ) );
+jest.mock( '../../../../utils/reload-page', () => ( { reloadPage: jest.fn() } ) );
+
+jest.mock( '../use-all-jetpack-modules', () => ( {
+	useAllJetpackModules: () => ( { modules: {}, isLoading: false, hasLoaded: true } ),
+} ) );
 
 jest.mock( '../use-main-features', () => ( {
 	useMainFeatures: () => ( {
@@ -83,6 +87,7 @@ jest.mock( '../feature-state', () => ( {
 	} ),
 	// Nothing here is forced by a host, which is what leaves the switches on show.
 	getForcedReason: () => null,
+	getFeatureManageUrl: ( state: FeatureState ) => state.feature.manage_url || '',
 } ) );
 
 // The card's own click target is covered elsewhere; here the handler is held onto.
@@ -107,23 +112,19 @@ jest.mock( '../use-more-features', () => ( {
 	...jest.requireActual( '../use-more-features' ),
 	useMoreFeatures: () => mockMoreFeatures,
 } ) );
-// The plan badges live inside the real modal; here the handler is held onto and called.
+// The real modal is not under test; its step handler is held onto and called.
 const mockModal: {
-	onFilterByPlan?: ( plan: string ) => void;
 	onStep?: ( slug: string ) => void;
 } = {};
 
 jest.mock( '../feature-modal', () => ( {
 	FeatureModal: ( {
 		onClose,
-		onFilterByPlan,
 		onStep,
 	}: {
 		onClose: () => void;
-		onFilterByPlan: ( plan: string ) => void;
 		onStep: ( slug: string ) => void;
 	} ) => {
-		mockModal.onFilterByPlan = onFilterByPlan;
 		mockModal.onStep = onStep;
 
 		// ds-allow: button -- stands in for the real modal, which is not under test.
@@ -196,7 +197,6 @@ beforeEach( () => {
 	mockMoreFeatures = [];
 	mockPending = false;
 	mockModuleSwitch.onSwitch = undefined;
-	mockModal.onFilterByPlan = undefined;
 	mockModal.onStep = undefined;
 	mockGrid.onOpen = undefined;
 	mockUseAnalytics.mockReturnValue( { recordEvent } );
@@ -620,6 +620,16 @@ describe( 'What is not worth an event', () => {
 		expect( eventNames() ).not.toContain( 'jetpack_myjetpack_features_filter_change' );
 	} );
 
+	it( 'reports that same pick while a search is running, which the search was hiding', async () => {
+		renderAt( '/features?filter=active&search=boost' );
+
+		await userEvent.click( screen.getByRole( 'button', { name: /^Active/ } ) );
+
+		expect( lastEvent( 'jetpack_myjetpack_features_filter_change' ) ).toMatchObject( {
+			filter: 'active',
+		} );
+	} );
+
 	it( 'says nothing when the layout already in play is picked again', async () => {
 		renderAt( '/features?view=list' );
 
@@ -669,26 +679,6 @@ describe( 'What is not worth an event', () => {
 } );
 
 describe( 'How many a filter would show', () => {
-	it( 'counts a plan the pills do not offer', async () => {
-		renderAt( '/features?feature=stats' );
-
-		await waitFor( () =>
-			expect( eventNames() ).toContain( 'jetpack_myjetpack_feature_modal_view' )
-		);
-		act( () => mockModal.onFilterByPlan?.( 'complete' ) );
-
-		// Both fixtures are on the Complete plan; `counts` never holds that filter unless it
-		// is already in play, which is what made this read as 0.
-		expect( lastEvent( 'jetpack_myjetpack_features_filter_change' ) ).toMatchObject( {
-			filter: 'complete',
-			count: 2,
-		} );
-		// The badge also steps out of the modal, which is a close.
-		expect( lastEvent( 'jetpack_myjetpack_feature_modal_close' ) ).toMatchObject( {
-			feature_slug: 'stats',
-		} );
-	} );
-
 	it( 'counts the More Features rows the pill counts, not the grid alone', async () => {
 		mockMoreFeatures = [ { label: 'Engagement', states: [ moduleRow( 'monitor', 'Monitor' ) ] } ];
 		renderAt( '/features' );

@@ -13,6 +13,10 @@ use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Jetpack_Options;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class Connection_Health_Tests contains all connection-specific health tests.
  *

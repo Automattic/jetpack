@@ -67,7 +67,7 @@ test.describe( 'Jetpack Backup modernized dashboard gates', () => {
 
 		await expect( page.locator( '.jpb-dashboard-layout' ) ).toBeVisible();
 		await expect(
-			page.getByRole( 'heading', { name: "This site doesn't have an active Backup plan" } )
+			page.getByRole( 'heading', { name: 'Add a Jetpack Backup plan' } )
 		).toBeVisible();
 
 		expect( await getInterceptCount( testUtils ) ).toBeGreaterThan( 0 );

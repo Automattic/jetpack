@@ -6,13 +6,13 @@ import {
 	type PostThumbnailUrls,
 	type StatsTopPostsComparisonItem,
 } from '@jetpack-premium-analytics/data';
-import { Link as UiLink } from '@jetpack-premium-analytics/externals';
 import {
 	createReportOriginSearch,
 	pickReportNavigationParams,
 } from '@jetpack-premium-analytics/routing';
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import {
+	ExternalLink,
 	MetricWithComparison,
 	PostTitleLink,
 	REPORT_TITLE_LINK_CLASS_NAMES,
@@ -146,18 +146,13 @@ export function getArchivesFields( withComparison = false ): Field< ArchiveRow >
 			enableHiding: false,
 			getValue: ( { item } ) => item.label,
 			render: ( { item } ) => {
-				const label = item.isGroup ? <strong>{ item.label }</strong> : <>{ item.label }</>;
 				const href = safeHttpUrl( item.link );
 
 				if ( ! href ) {
-					return label;
+					return <>{ item.label }</>;
 				}
 
-				return (
-					<UiLink href={ href } variant="unstyled" openInNewTab rel="noopener noreferrer">
-						{ label }
-					</UiLink>
-				);
+				return <ExternalLink href={ href }>{ item.label }</ExternalLink>;
 			},
 		},
 		{

@@ -102,7 +102,20 @@ describe( 'EmailBreakdownWidget', () => {
 		mockResizeObserverWidth = 1200;
 	} );
 
-	it( 'renders the opens-by-country breakdown for the selected email', async () => {
+	it.each( [
+		[
+			'renders the opens-by-country breakdown for the selected email',
+			{},
+			'stats/opens/emails/1234/country',
+			'Opens',
+		],
+		[
+			'reads the clicks endpoint for dimension views when metric is clicks',
+			{ metric: 'clicks' as const },
+			'stats/clicks/emails/1234/country',
+			'Clicks',
+		],
+	] )( '%s', async ( _title, metricAttributes, endpoint, metricHeading ) => {
 		mockApiFetch.mockResolvedValue( COUNTRY_RESPONSE );
 
 		render(
@@ -110,34 +123,18 @@ describe( 'EmailBreakdownWidget', () => {
 				attributes={ {
 					reportParams: { ...getDefaultQueryParams( false ), post_id: 1234 },
 					view: 'countries',
+					...metricAttributes,
 				} }
 			/>
 		);
 
 		await expect( screen.findByText( 'United States' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'United Kingdom' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Countries' ) ).toBeInTheDocument();
+		expect( screen.getByText( metricHeading ) ).toBeInTheDocument();
 
 		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
-		expect( requestedPath ).toContain( 'stats/opens/emails/1234/country' );
-	} );
-
-	it( 'reads the clicks endpoint for dimension views when metric is clicks', async () => {
-		mockApiFetch.mockResolvedValue( COUNTRY_RESPONSE );
-
-		render(
-			<EmailBreakdownWidget
-				attributes={ {
-					reportParams: { ...getDefaultQueryParams( false ), post_id: 1234 },
-					view: 'countries',
-					metric: 'clicks',
-				} }
-			/>
-		);
-
-		await expect( screen.findByText( 'United States' ) ).resolves.toBeInTheDocument();
-
-		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
-		expect( requestedPath ).toContain( 'stats/clicks/emails/1234/country' );
+		expect( requestedPath ).toContain( endpoint );
 	} );
 
 	it( 'renders the country map from all rows while capping the adjacent leaderboard', async () => {
@@ -223,6 +220,8 @@ describe( 'EmailBreakdownWidget', () => {
 		const otherRow = screen.getByText( 'Other' );
 		expect( otherRow ).toBeInTheDocument();
 		expect( screen.getByText( '900' ) ).toBeInTheDocument();
+		// The links view always counts clicks, whatever the metric attribute says.
+		expect( screen.getByText( 'Clicks' ) ).toBeInTheDocument();
 
 		// The catch-all row stays pinned last despite holding the highest value.
 		// Separate rows, so the position mask is exactly PRECEDING or FOLLOWING.

@@ -1,12 +1,7 @@
 /**
  * WordPress dependencies
  */
-import {
-	Modal,
-	Spinner,
-	Tip,
-	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
+import { Modal, Spinner, Tip } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
@@ -22,6 +17,7 @@ import FeedbackComments from '../../../src/dashboard/components/feedback-comment
 import PreviewFile from '../../../src/dashboard/components/inspector/preview-file';
 import ResponseFieldsIterator from '../../../src/dashboard/components/inspector/response-fields';
 import ResponseMeta from '../../../src/dashboard/components/inspector/response-meta';
+import MarkAsSpamConfirmationModal from '../../../src/dashboard/components/mark-as-spam-confirmation-modal';
 import useInboxData from '../../../src/dashboard/hooks/use-inbox-data.ts';
 import useMarkAsReadOnView from '../../../src/dashboard/hooks/use-mark-as-read-on-view';
 import { useMarkAsSpam } from '../../../src/dashboard/hooks/use-mark-as-spam.ts';
@@ -90,7 +86,6 @@ function SingleResponseView( {
 		onConfirmMarkAsSpam,
 		onCancelMarkAsSpam,
 		markAsSpamConfirmationMessage,
-		isSaving,
 	} = useMarkAsSpam( response as FormResponse | null, {
 		checkParameter: () => searchParams?.mark_as_spam === 1,
 		removeParameter: () => {
@@ -262,14 +257,12 @@ function SingleResponseView( {
 				</Modal>
 			) }
 
-			<ConfirmDialog
+			<MarkAsSpamConfirmationModal
 				isOpen={ isConfirmDialogOpen }
 				onConfirm={ onConfirmMarkAsSpam }
 				onCancel={ onCancelMarkAsSpam }
-				isBusy={ isSaving }
-			>
-				{ markAsSpamConfirmationMessage }
-			</ConfirmDialog>
+				message={ markAsSpamConfirmationMessage }
+			/>
 		</>
 	);
 }

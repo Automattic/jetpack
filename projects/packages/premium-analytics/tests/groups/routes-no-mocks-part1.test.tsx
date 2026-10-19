@@ -10,4 +10,3 @@ import '../../routes/dashboard/hooks/use-section-date-filter/use-section-date-fi
 import '../../routes/detail-header.test';
 import '../../routes/post-detail/components/post-header-slots/post-header-slots.test';
 import '../../routes/post-detail/config/tab-layouts.test';
-import '../../routes/post-detail/config/widget-variants.test';

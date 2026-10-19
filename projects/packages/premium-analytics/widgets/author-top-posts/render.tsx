@@ -2,8 +2,8 @@
  * External dependencies
  */
 import { toAuthorId } from '@jetpack-premium-analytics/data';
-import { reports } from '@jetpack-premium-analytics/icons';
 import {
+	ExporterCsvDownloadButton,
 	LeaderboardChart,
 	LeaderboardPostLabel,
 	LeaderboardSkeleton,
@@ -12,6 +12,7 @@ import {
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
+	authorPostsCsvExporter,
 	describeError,
 	useWidgetRootContext,
 	type LeaderboardChartData,
@@ -41,10 +42,12 @@ function AuthorTopPostsInner() {
 	const { reportParams } = useWidgetRootContext();
 	const authorId = toAuthorId( reportParams.author_id );
 
-	const { rows, isLoading, isFetching, isError, error, hasData, refetch } = useAuthorTopPosts(
-		authorId,
-		reportParams,
-		WIDGET_ROW_LIMIT
+	const { rows, authorName, isLoading, isFetching, isError, error, hasData, refetch } =
+		useAuthorTopPosts( authorId, reportParams, WIDGET_ROW_LIMIT );
+
+	const csvExporter = useMemo(
+		() => authorPostsCsvExporter( authorId, authorName ),
+		[ authorId, authorName ]
 	);
 
 	const chartData = useMemo< LeaderboardChartData >(
@@ -84,7 +87,6 @@ function AuthorTopPostsInner() {
 					empty={
 						authorId <= 0
 							? {
-									icon: reports,
 									description: __(
 										'Open an author to see their top posts here.',
 										'jetpack-premium-analytics-pkg'
@@ -95,15 +97,22 @@ function AuthorTopPostsInner() {
 					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
 					<LeaderboardChart
+						chartTitle={ __( 'Top viewed posts', 'jetpack-premium-analytics-pkg' ) }
 						data={ chartData }
 						withOverlayLabel
 						showLegend={ false }
 						dataFormat={ DATA_FORMAT }
+						columns={ { label: __( 'Posts', 'jetpack-premium-analytics-pkg' ), metric: 'views' } }
 					/>
 				</WidgetState>
 			</div>
 			<WidgetFooter>
 				<ReportLink report="authors" />
+				<ExporterCsvDownloadButton
+					exporter={ csvExporter }
+					status={ { isLoading, isFetching, isError: ! hasData && isError } }
+					rowCount={ rows.length }
+				/>
 			</WidgetFooter>
 		</>
 	);

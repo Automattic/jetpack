@@ -106,6 +106,33 @@ export function loadPartnerScript( environment, doc ) {
 }
 
 /**
+ * Report a popup the browser refuses to open from PayPal's frame.
+ *
+ * The mini-browser is a popup the SDK opens from the frame it runs in, so the
+ * popup blocker still applies, and it is silent: open() hands back null and
+ * nothing else happens.
+ *
+ * @param {Window}   realm     - The window PayPal's SDK runs in.
+ * @param {Function} onBlocked - Called when open() returns nothing.
+ * @return {Function} Puts the realm's own open() back.
+ */
+export function watchForBlockedPopup( realm, onBlocked ) {
+	const nativeOpen = realm.open;
+
+	realm.open = ( ...args ) => {
+		const popup = nativeOpen.apply( realm, args );
+		if ( ! popup ) {
+			onBlocked();
+		}
+		return popup;
+	};
+
+	return () => {
+		realm.open = nativeOpen;
+	};
+}
+
+/**
  * Wait for PayPal's SDK to finish binding the connect anchor.
  *
  * render() returns before the anchor is bound. Until it finishes, the anchor is

@@ -4,6 +4,8 @@
 import {
 	aggregateStatsDrilldownRows,
 	fetchStatsTopAuthorsRows,
+	findAuthorRow,
+	toAuthorId,
 	type ReportParams,
 	type StatsReportParams,
 	type StatsDrilldownItemContext,
@@ -16,9 +18,12 @@ import {
 	type StatsTopPostsItem,
 } from '@jetpack-premium-analytics/data';
 import { __ } from '@wordpress/i18n';
+import { cleanForSlug } from '@wordpress/url';
 /**
  * Internal dependencies
  */
+import { getPostsCsvColumns } from './posts';
+import { getReportWindowParams } from './query-params';
 import type { ReportCsvExporter } from './types';
 
 const UNTRACKED_AUTHORS_SENTINEL = 'Untracked Authors';
@@ -30,6 +35,8 @@ type AuthorDrilldownItem =
 	| StatsTopAuthorsPostComparisonItem;
 
 type AuthorDrilldownMetadata = {
+	/** The author's user ID, on author rows that have one. */
+	authorId?: string;
 	parentName?: string;
 	avatarUrl: string | null;
 	postId?: string;
@@ -113,9 +120,11 @@ function getAuthorDrilldownMetadata(
 
 	if ( context.depth === 0 ) {
 		const author = item as StatsTopAuthorsItem;
+		const authorId = toAuthorId( author.id ?? undefined );
 
 		return {
 			avatarUrl: author.icon,
+			...( authorId > 0 ? { authorId: String( authorId ) } : {} ),
 			...previousViews,
 		};
 	}
@@ -164,8 +173,16 @@ export function getAuthorName( name: string ): string {
 	return name;
 }
 
-/** The Authors report's query: `max: 0` returns every author, as Calypso's Authors report does. */
+/**
+ * The Authors report's query: `max: 0` returns every author, as Calypso's Authors report does.
+ * WPCOM caps all time at the three years classic Stats shows.
+ */
 export function getAuthorsReportQueryParams( reportParams: ReportParams ): StatsReportParams {
+	return { ...reportParams, max: 0, ...getReportWindowParams( reportParams ) };
+}
+
+/** One author's posts over the author page's own window, shared by its widget and its CSV. */
+export function getAuthorPostsQueryParams( reportParams: ReportParams ): StatsReportParams {
 	return { ...reportParams, max: 0 };
 }
 
@@ -193,9 +210,29 @@ export const authorsCsvExporter: ReportCsvExporter< AuthorRow, AuthorRow > = {
 	toCsvRows: items => items,
 	getColumns: () => [
 		{
-			label: __( 'Author / post', 'jetpack-premium-analytics-pkg' ),
+			label: __( 'Author', 'jetpack-premium-analytics-pkg' ),
 			getValue: getAuthorCsvLabel,
 		},
 		{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.views },
 	],
 };
+
+/** One author's posts from the Authors report, for the author page, which has no report of its own. */
+export function authorPostsCsvExporter(
+	authorId: number,
+	authorName: string
+): ReportCsvExporter< StatsTopAuthorsPostComparisonItem, StatsTopAuthorsPostComparisonItem > {
+	return {
+		// A name with only punctuation slugs to nothing; the id still names the file.
+		filenamePrefix: `author-${ cleanForSlug( authorName ) || authorId }-posts`,
+		hasDateRange: true,
+		datesAllTime: true,
+		fetchItems: async reportParams =>
+			findAuthorRow(
+				await fetchStatsTopAuthorsRows( getAuthorPostsQueryParams( reportParams ) ),
+				authorId
+			)?.children ?? [],
+		toCsvRows: items => items,
+		getColumns: () => getPostsCsvColumns< StatsTopAuthorsPostComparisonItem >(),
+	};
+}

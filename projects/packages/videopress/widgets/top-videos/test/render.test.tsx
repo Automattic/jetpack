@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { render, screen } from '@testing-library/react';
+import { video as videoIcon } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -13,6 +14,28 @@ const mockDownloadButton = jest.fn();
 const mockWidgetRoot = jest.fn();
 const mockUseStatsVideoPlays = jest.fn();
 const mockDescribeError = jest.fn();
+const mockUseEntityRecords = jest.fn();
+const mockCanUser = jest.fn();
+const mockHasFinishedResolution = jest.fn();
+const mockIsSimpleSite = jest.fn();
+
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	getAdminUrl: ( path: string ) => `https://example.com/blog/wp-admin/${ path }`,
+	isSimpleSite: () => mockIsSimpleSite(),
+} ) );
+
+jest.mock( '@wordpress/core-data', () => ( {
+	store: {},
+	useEntityRecords: ( ...args: unknown[] ) => mockUseEntityRecords( ...args ),
+} ) );
+
+jest.mock( '@wordpress/data', () => ( {
+	useSelect: ( selector: ( select: () => Record< string, jest.Mock > ) => unknown ) =>
+		selector( () => ( {
+			canUser: mockCanUser,
+			hasFinishedResolution: mockHasFinishedResolution,
+		} ) ),
+} ) );
 
 // The SDK has no implementation outside the dashboard, so the suite stands in for it.
 jest.mock( '@automattic/jetpack-premium-analytics-sdk', () => ( {
@@ -30,6 +53,7 @@ jest.mock( '@automattic/jetpack-premium-analytics-sdk', () => ( {
 		return children;
 	},
 	describeError: ( ...args: unknown[] ) => mockDescribeError( ...args ),
+	getVideoPosterUrl: ( poster?: string ) => poster && `${ poster }?resize=100%2C56`,
 	useStatsVideoPlays: ( ...args: unknown[] ) => mockUseStatsVideoPlays( ...args ),
 	useWidgetRootContext: () => ( { reportParams: { from: '2026-06-01', to: '2026-06-16' } } ),
 } ) );
@@ -46,6 +70,7 @@ const videoPlays = ( overrides: Record< string, unknown > = {} ) => ( {
 				link: 'https://example.com/a/',
 				plays: 100,
 				previousPlays: 80,
+				poster: 'https://i0.wp.com/v/a.jpg',
 			},
 			{ id: 102, label: 'Teaser', link: null, plays: 40 },
 		],
@@ -66,6 +91,11 @@ describe( 'Top videos widget', () => {
 		jest.clearAllMocks();
 		mockUseStatsVideoPlays.mockReturnValue( videoPlays() );
 		mockDescribeError.mockReturnValue( { description: 'Described.' } );
+		// What the hook returns while disabled.
+		mockUseEntityRecords.mockReturnValue( { records: [], hasResolved: false } );
+		mockCanUser.mockReturnValue( true );
+		mockHasFinishedResolution.mockReturnValue( true );
+		mockIsSimpleSite.mockReturnValue( false );
 	} );
 
 	it( 'requests its own number of videos for the dashboard window', () => {
@@ -95,6 +125,12 @@ describe( 'Top videos widget', () => {
 				label: 'Walkthrough',
 				value: 100,
 				previousValue: 80,
+				media: {
+					kind: 'thumbnail',
+					url: 'https://i0.wp.com/v/a.jpg?resize=100%2C56',
+					alt: '',
+					fallbackIcon: videoIcon,
+				},
 				action: { kind: 'videoLink', id: 101, href: 'https://example.com/a/' },
 			},
 			{
@@ -102,6 +138,12 @@ describe( 'Top videos widget', () => {
 				label: 'Teaser',
 				value: 40,
 				previousValue: undefined,
+				media: {
+					kind: 'thumbnail',
+					url: undefined,
+					alt: '',
+					fallbackIcon: videoIcon,
+				},
 				action: { kind: 'videoLink', id: 102, href: null },
 			},
 		] );
@@ -171,5 +213,113 @@ describe( 'Top videos widget', () => {
 			status: { isLoading: false, isFetching: false, isError: false },
 			rowCount: 2,
 		} );
+	} );
+
+	it( 'skips the media query while video plays are present', () => {
+		render( <TopVideos attributes={ {} } /> );
+
+		expect( mockUseEntityRecords ).toHaveBeenCalledWith(
+			'postType',
+			'attachment',
+			{ per_page: 1, _fields: 'id', videopress_has_guid: 1 },
+			{ enabled: false }
+		);
+		expect( mockCanUser ).not.toHaveBeenCalled();
+	} );
+
+	it( 'offers general media upload when no VideoPress media exists', () => {
+		mockUseStatsVideoPlays.mockReturnValue( videoPlays( { comparisonRows: { rows: [] } } ) );
+		mockUseEntityRecords.mockReturnValue( { records: [], hasResolved: true } );
+
+		render( <TopVideos attributes={ {} } /> );
+
+		expect( mockUseEntityRecords ).toHaveBeenCalledWith(
+			'postType',
+			'attachment',
+			{ per_page: 1, _fields: 'id', videopress_has_guid: 1 },
+			{ enabled: true }
+		);
+		expect( leaderboardProps().empty ).toMatchObject( {
+			description: 'You don’t have videos uploaded yet.',
+			action: {
+				label: 'Upload video',
+				href: 'https://example.com/blog/wp-admin/media-new.php',
+			},
+		} );
+	} );
+
+	it( 'keeps the widget loading while the empty library check is pending', () => {
+		mockUseStatsVideoPlays.mockReturnValue( videoPlays( { comparisonRows: { rows: [] } } ) );
+		mockUseEntityRecords.mockReturnValue( { records: null, hasResolved: false } );
+
+		render( <TopVideos attributes={ {} } /> );
+
+		expect( leaderboardProps().status.isLoading ).toBe( true );
+		expect( leaderboardProps().empty ).toBeUndefined();
+	} );
+
+	it( 'keeps the widget loading while upload permission is unresolved', () => {
+		mockUseStatsVideoPlays.mockReturnValue( videoPlays( { comparisonRows: { rows: [] } } ) );
+		mockCanUser.mockReturnValue( undefined );
+		mockHasFinishedResolution.mockReturnValue( false );
+
+		render( <TopVideos attributes={ {} } /> );
+
+		expect( leaderboardProps().status.isLoading ).toBe( true );
+		expect( mockUseEntityRecords ).toHaveBeenCalledWith(
+			'postType',
+			'attachment',
+			{ per_page: 1, _fields: 'id', videopress_has_guid: 1 },
+			{ enabled: false }
+		);
+	} );
+
+	it( 'uses the Simple-site video filter before concluding that the library is empty', () => {
+		mockUseStatsVideoPlays.mockReturnValue( videoPlays( { comparisonRows: { rows: [] } } ) );
+		mockIsSimpleSite.mockReturnValue( true );
+		mockUseEntityRecords.mockReturnValue( { records: [], hasResolved: true } );
+
+		render( <TopVideos attributes={ {} } /> );
+
+		expect( mockUseEntityRecords ).toHaveBeenCalledWith(
+			'postType',
+			'attachment',
+			{ per_page: 1, _fields: 'id', videopress_has_guid: 1, videopress_only_videos: 1 },
+			{ enabled: true }
+		);
+		expect( leaderboardProps().empty.description ).toBe( 'You don’t have videos uploaded yet.' );
+	} );
+
+	it.each( [
+		[ 'an existing video', { records: [ { id: 42 } ], hasResolved: true } ],
+		[ 'a failed media query', { records: null, hasResolved: true } ],
+	] )( 'keeps the generic empty state for %s', ( _, media ) => {
+		mockUseStatsVideoPlays.mockReturnValue( videoPlays( { comparisonRows: { rows: [] } } ) );
+		mockUseEntityRecords.mockReturnValue( media );
+
+		render( <TopVideos attributes={ {} } /> );
+
+		expect( leaderboardProps().status.isLoading ).toBe( false );
+		expect( leaderboardProps().empty ).toBeUndefined();
+	} );
+
+	it.each( [
+		[ 'the user cannot upload', false ],
+		[ 'the permission request fails', undefined ],
+	] )( 'keeps the generic empty state without querying media when %s', ( _, canUser ) => {
+		mockUseStatsVideoPlays.mockReturnValue( videoPlays( { comparisonRows: { rows: [] } } ) );
+		mockCanUser.mockReturnValue( canUser );
+
+		render( <TopVideos attributes={ {} } /> );
+
+		expect( leaderboardProps().status.isLoading ).toBe( false );
+
+		expect( mockUseEntityRecords ).toHaveBeenCalledWith(
+			'postType',
+			'attachment',
+			{ per_page: 1, _fields: 'id', videopress_has_guid: 1 },
+			{ enabled: false }
+		);
+		expect( leaderboardProps().empty ).toBeUndefined();
 	} );
 } );

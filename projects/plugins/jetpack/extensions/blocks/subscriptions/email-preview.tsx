@@ -1,6 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { getUserConnectionUrl, useConnection } from '@automattic/jetpack-connection';
-import { isSimpleSite } from '@automattic/jetpack-script-data';
+import { getScriptData, isSimpleSite } from '@automattic/jetpack-script-data';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import {
@@ -36,13 +36,25 @@ import {
 	people,
 	currencyDollar,
 	cautionFilled as warning,
+	styles,
 } from '@wordpress/icons';
-import { Link } from '@wordpress/ui';
+import { Link, VisuallyHidden } from '@wordpress/ui';
+import { addQueryArgs } from '@wordpress/url';
 import './email-preview.scss';
 import { accessOptions } from '../../shared/memberships/constants';
 import { useAccessLevel } from '../../shared/memberships/edit';
 import { SendIcon } from './icons';
 import type { JSX } from 'react';
+
+/*
+ * The newsletter package declares the same key for its own bundle (`settings/declarations.d.ts`);
+ * this is the plugin-side copy, because that type is internal to the package. Keep them in step.
+ */
+declare module '@automattic/jetpack-script-data' {
+	interface JetpackScriptData {
+		newsletter?: { emailDesignUrl?: string | null };
+	}
+}
 
 interface PreviewErrorInfo {
 	code?: string;
@@ -257,12 +269,12 @@ export function NewsletterTestEmailModal( { isOpen, onClose }: NewsletterTestEma
 								<Button
 									type="submit"
 									variant="primary"
+									icon={ SendIcon }
 									isBusy={ isEmailSending }
 									disabled={ shouldPromptForConnection }
 									__next40pxDefaultSize={ true }
 								>
 									{ __( 'Send', 'jetpack' ) }
-									<Icon icon={ SendIcon } />
 								</Button>
 							</Grid>
 						</form>
@@ -407,18 +419,76 @@ const PreviewAccessSelector = ( {
 	);
 };
 
-interface PreviewControlsProps extends PreviewAccessSelectorProps, PreviewDeviceSelectorProps {}
+/**
+ * Link out to the email design screen, for the creator who looks at the preview and wants the
+ * email to look different. A new tab, because this one holds an unsaved post.
+ *
+ * No `return` arg, unlike the settings card: it would send the design editor's Back button to
+ * `post.php` in the new tab, leaving the same post open in two editors with no lock warning
+ * between them -- `wp_check_post_lock()` reports nothing when both are the same user.
+ *
+ * The post travels as `post_id` so the design screen's canvas previews the post the reader was
+ * just looking at rather than the sample one. The design being edited stays site-wide. NL-1051.
+ *
+ * @param props        - Component props.
+ * @param props.postId - The post being previewed, for the canvas and the Tracks event.
+ * @return The link, or null on a site with no design screen.
+ */
+const EmailDesignLink = ( { postId }: { postId: number } ) => {
+	const { tracks } = useAnalytics();
+	const isBelowLarge = useViewportMatch( 'large', '<' );
+	const emailDesignUrl = getScriptData()?.newsletter?.emailDesignUrl;
+
+	const handleClick = useCallback( () => {
+		tracks.recordEvent( 'jetpack_newsletter_preview_modal_email_design_click', {
+			post_id: postId,
+		} );
+	}, [ tracks, postId ] );
+
+	if ( ! emailDesignUrl ) {
+		return null;
+	}
+
+	const label = __( 'Edit email design', 'jetpack' );
+	const href = postId > 0 ? addQueryArgs( emailDesignUrl, { post_id: postId } ) : emailDesignUrl;
+
+	// The icon carries at every size so it becomes familiar; below `large` it carries alone,
+	// because a label there clips the modal title on a site that also shows the audience toggle.
+	return (
+		<Link
+			openInNewTab
+			href={ href }
+			onClick={ handleClick }
+			className="jetpack-newsletter-preview-modal__design-link"
+			title={ isBelowLarge ? label : undefined }
+		>
+			<Icon icon={ styles } size={ 24 } />
+			{ /* Hidden rather than an `aria-label`, which would override the contents and take
+			     `Link`'s own "(opens in a new tab)" notice out of the accessible name with it. */ }
+			{ isBelowLarge ? (
+				<VisuallyHidden>{ label }</VisuallyHidden>
+			) : (
+				<span className="jetpack-newsletter-preview-modal__design-link-label">{ label }</span>
+			) }
+		</Link>
+	);
+};
+
+interface PreviewControlsProps extends PreviewAccessSelectorProps, PreviewDeviceSelectorProps {
+	postId: number;
+}
 
 const PreviewControls = ( {
 	selectedAccess,
 	setSelectedAccess,
 	selectedDevice,
 	setSelectedDevice,
+	postId,
 }: PreviewControlsProps ) => {
 	const isSmall = useViewportMatch( 'small', '<' );
 
 	return (
-		<HStack alignment="center" spacing={ isSmall ? 1 : 6 }>
+		<HStack alignment="center" spacing={ isSmall ? 2 : 6 }>
 			<PreviewDeviceSelector
 				selectedDevice={ selectedDevice }
 				setSelectedDevice={ setSelectedDevice }
@@ -427,6 +497,7 @@ const PreviewControls = ( {
 				selectedAccess={ selectedAccess }
 				setSelectedAccess={ setSelectedAccess }
 			/>
+			<EmailDesignLink postId={ postId } />
 		</HStack>
 	);
 };
@@ -555,6 +626,7 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId }: NewsletterP
 						setSelectedAccess={ setSelectedAccess }
 						selectedDevice={ selectedDevice }
 						setSelectedDevice={ setSelectedDevice }
+						postId={ postId }
 					/>
 				}
 				className="jetpack-newsletter-preview-modal"

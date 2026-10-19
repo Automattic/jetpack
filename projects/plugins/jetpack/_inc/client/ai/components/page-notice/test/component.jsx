@@ -1,5 +1,8 @@
 import { render, screen } from '@testing-library/react';
+import { speak } from '@wordpress/a11y';
 import PageNotice, { getPageNoticeState } from '../index';
+
+jest.mock( '@wordpress/a11y', () => ( { speak: jest.fn() } ) );
 
 jest.mock( '@automattic/jetpack-connection', () => ( {
 	ConnectionError: () => <div data-testid="connection-error" />,
@@ -170,7 +173,7 @@ describe( 'PageNotice', () => {
 			<PageNotice
 				state={ state }
 				userConnectionUrl="admin.php?page=my-jetpack#/connection"
-				manageUrl="admin.php?page=my-jetpack#/products"
+				manageUrl="admin.php?page=my-jetpack#/features"
 				hasMyJetpack={ true }
 				{ ...overrides }
 			/>
@@ -274,6 +277,14 @@ describe( 'PageNotice', () => {
 		);
 	} );
 
+	it( 'announces the title and description, leaving the action out', () => {
+		renderNotice( { state: 'site-disconnected' } );
+		expect( speak ).toHaveBeenCalledWith(
+			'This site is not connected to WordPress.com. Your feature settings are saved and will apply again once the site is connected.',
+			'polite'
+		);
+	} );
+
 	it( 'survives swapping from one state to another while mounted', () => {
 		const { rerender } = renderNotice( { state: 'host-off' } );
 		expect(
@@ -284,7 +295,7 @@ describe( 'PageNotice', () => {
 			<PageNotice
 				state="master-off"
 				userConnectionUrl="admin.php?page=my-jetpack#/connection"
-				manageUrl="admin.php?page=my-jetpack#/products"
+				manageUrl="admin.php?page=my-jetpack#/features"
 				hasMyJetpack={ true }
 			/>
 		);
@@ -370,7 +381,7 @@ describe( 'PageNotice', () => {
 			).toBeInTheDocument();
 			expect( screen.getByRole( 'link', { name: 'Manage in My Jetpack' } ) ).toHaveAttribute(
 				'href',
-				'admin.php?page=my-jetpack#/products'
+				'admin.php?page=my-jetpack#/features'
 			);
 		} );
 

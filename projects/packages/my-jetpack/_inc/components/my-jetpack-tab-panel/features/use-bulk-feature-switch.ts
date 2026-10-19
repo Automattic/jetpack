@@ -13,7 +13,8 @@ import {
 	pluginSwitchKey,
 	setRequestedSwitch,
 } from '../../../data/requested-switch-state';
-import { getModuleStatus } from '../../modules-list/utils';
+import { syncPageStateWithFeatures } from '../../../data/utils/page-state-products';
+import { getModuleStatus } from './module-availability';
 import { QUERY_KEY } from './use-main-features';
 import type { FeatureState } from './feature-state';
 
@@ -114,6 +115,7 @@ export function useBulkFeatureSwitch() {
 				);
 
 				queryClient.setQueryData( QUERY_KEY, state );
+				syncPageStateWithFeatures( state );
 				// Modules are read from their own store, which has to catch up before the rows
 				// let go of the asked-for value, or they flicker back to the old one first.
 				await fetchModules();

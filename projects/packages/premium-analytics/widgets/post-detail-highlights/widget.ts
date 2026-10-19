@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { chartBar } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
@@ -23,7 +22,6 @@ export type PostDetailHighlightsAttributes = Record< never, never >;
  * summary header, not repeated here.
  */
 export default {
-	icon: chartBar,
 	attributes: [] as WidgetAttributeField< PostDetailHighlightsAttributes >[],
 	example: {
 		attributes: {},

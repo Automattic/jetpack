@@ -1,44 +1,46 @@
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { starFilled } from '@wordpress/icons';
-import { Link, LinkButton, Stack, Text } from '@wordpress/ui';
+import { Link, ButtonLink, Text } from '@wordpress/ui';
 import { useCallback } from 'react';
+import { isOfflineFeatures } from '../../../data/utils/offline-features';
 import useAnalytics from '../../../hooks/use-analytics';
+import { getFeaturePricingHref } from '../utils';
 import { FeatureHighlights } from './feature-highlights';
-import { getForcedReason } from './feature-state';
+import { useFeaturesTracking } from './features-tracking-context';
+import { getModuleStatus } from './module-availability';
 import styles from './styles.module.scss';
 import type { FeatureState } from './feature-state';
-import type { FeatureFilter } from './use-feature-filter';
 
 type PlanLinkProps = {
-	plan: { slug: string; name: string };
-	onSelect: ( plan: FeatureFilter ) => void;
+	plan: { slug: string; name: string; owned?: boolean };
+	state: FeatureState;
 };
 
 /**
- * A plan name that filters the list to everything that plan includes.
+ * A plan name, linked to its pricing page unless the site is already on that plan.
  *
- * @param {PlanLinkProps} props          - The component props.
- * @param {object}        props.plan     - The plan's slug and display name.
- * @param {Function}      props.onSelect - Filters the list to one plan.
+ * @param {PlanLinkProps} props       - The component props.
+ * @param {object}        props.plan  - The plan's slug, display name, and whether the site has it.
+ * @param {FeatureState}  props.state - Live state for the feature whose details link here.
  * @return The rendered component.
  */
-function PlanLink( { plan, onSelect }: PlanLinkProps ) {
+function PlanLink( { plan, state }: PlanLinkProps ) {
+	const tracking = useFeaturesTracking();
 	const onClick = useCallback(
-		() => onSelect( plan.slug as FeatureFilter ),
-		[ onSelect, plan.slug ]
+		() => tracking?.trackPlanClick( state, plan.slug ),
+		[ plan.slug, state, tracking ]
 	);
+
+	// Nothing to sell a site the plan already covers, the same reason Upgrade is gone.
+	if ( plan.owned ) {
+		return <>{ plan.name }</>;
+	}
 
 	return (
 		<Link
-			render={ <button type="button" /> }
-			className={ styles[ 'plan-link' ] }
+			href={ getFeaturePricingHref( `/add-${ plan.slug }`, state.feature.slug ) }
 			onClick={ onClick }
-			title={ sprintf(
-				/* translators: %s is a plan name, such as "Jetpack Complete". */
-				__( 'Show everything in %s', 'jetpack-my-jetpack' ),
-				plan.name
-			) }
 		>
 			{ plan.name }
 		</Link>
@@ -63,30 +65,66 @@ function getIncludedIn( count: number ): string {
 	return __( 'Included in <plan0 />, <plan1 /> and <plan2 />', 'jetpack-my-jetpack' );
 }
 
-type FeaturePaidProps = {
+/**
+ * Whether host policy or multisite support blocks a purchase route.
+ *
+ * @param state - Live state for the feature.
+ * @return True when buying cannot remove the limitation.
+ */
+function isPurchaseBlocked( state: FeatureState ): boolean {
+	return (
+		( state.control.kind === 'module' &&
+			( state.control.module.override === 'inactive' ||
+				getModuleStatus( { ...state.control.module, override: false } ).isMultisiteBlocked ) ) ||
+		( ( state.control.kind === 'plugin' || state.control.kind === 'none' ) &&
+			state.control.override === 'inactive' )
+	);
+}
+
+/**
+ * The pricing route that sells a feature, or empty when there is nothing to sell.
+ *
+ * @param state - Live state for the feature.
+ * @return The My Jetpack route.
+ */
+function getUpgradePath( state: FeatureState ): string {
+	if ( isPurchaseBlocked( state ) ) {
+		return '';
+	}
+
+	// Empty when the site already pays for the feature; the catalog decides that, not the client.
+	return state.feature.upgrade?.path ?? '';
+}
+
+type UpgradeButtonProps = {
 	state: FeatureState;
-	onFilterByPlan: ( plan: FeatureFilter ) => void;
 };
 
 /**
- * What a paid plan adds, which plans include it, and the way to buy it.
+ * The button that opens the pricing page for a feature, kept in the header so it never scrolls away.
  *
- * @param {FeaturePaidProps} props                - The component props.
- * @param {FeatureState}     props.state          - Live state for the feature.
- * @param {Function}         props.onFilterByPlan - Filters the list to one plan.
- * @return The rendered component.
+ * @param {UpgradeButtonProps} props       - The component props.
+ * @param {FeatureState}       props.state - Live state for the feature.
+ * @return The rendered component, or null when there is nothing to sell.
  */
-export function FeaturePaid( { state, onFilterByPlan }: FeaturePaidProps ) {
+export function UpgradeButton( props: UpgradeButtonProps ) {
+	if ( isOfflineFeatures() ) {
+		return null;
+	}
+	return <TrackedUpgradeButton { ...props } />;
+}
+
+/**
+ * Render an upgrade with connected analytics.
+ *
+ * @param props       - The props.
+ * @param props.state - The feature state.
+ * @return The upgrade button.
+ */
+function TrackedUpgradeButton( { state }: UpgradeButtonProps ) {
 	const { feature } = state;
 	const { recordEvent } = useAnalytics();
-	const plans = feature.plans ?? [];
-	const highlights = feature.paid_highlights ?? [];
-	// A host that forced it off decides this, not a purchase.
-	const isForcedOff = state.status !== 'active' && !! getForcedReason( state );
-	const showPlans = ! isForcedOff && plans.length > 0;
-	// Empty when the site already pays for the feature; the catalog decides that, not the client.
-	const upgrade = feature.upgrade ?? { path: '', name: '' };
-	const upgradePath = isForcedOff ? '' : upgrade.path;
+	const upgradePath = getUpgradePath( state );
 	const onUpgrade = useCallback(
 		() =>
 			recordEvent( 'jetpack_myjetpack_features_upgrade_click', {
@@ -96,7 +134,47 @@ export function FeaturePaid( { state, onFilterByPlan }: FeaturePaidProps ) {
 		[ feature.slug, recordEvent, upgradePath ]
 	);
 
-	if ( ! highlights.length && ! showPlans && ! upgradePath ) {
+	if ( ! upgradePath ) {
+		return null;
+	}
+
+	return (
+		<ButtonLink
+			href={ getFeaturePricingHref( upgradePath, feature.slug ) }
+			onClick={ onUpgrade }
+			variant="outline"
+			size="compact"
+			// Upselling is not what the modal is open to reach, so focus skips it.
+			data-feature-upgrade
+			aria-label={ sprintf(
+				/* translators: %s is a product name, such as "Jetpack Akismet Anti-spam". */
+				__( 'Upgrade to %s', 'jetpack-my-jetpack' ),
+				feature.upgrade?.name || feature.name
+			) }
+		>
+			{ __( 'Upgrade', 'jetpack-my-jetpack' ) }
+		</ButtonLink>
+	);
+}
+
+type FeaturePaidProps = {
+	state: FeatureState;
+};
+
+/**
+ * What a paid plan adds, and which plans include it.
+ *
+ * @param {FeaturePaidProps} props       - The component props.
+ * @param {FeatureState}     props.state - Live state for the feature.
+ * @return The rendered component.
+ */
+export function FeaturePaid( { state }: FeaturePaidProps ) {
+	const { feature } = state;
+	const plans = feature.plans ?? [];
+	const highlights = feature.paid_highlights ?? [];
+	const showPlans = ! isPurchaseBlocked( state ) && plans.length > 0;
+
+	if ( ! highlights.length && ! showPlans ) {
 		return null;
 	}
 
@@ -108,38 +186,18 @@ export function FeaturePaid( { state, onFilterByPlan }: FeaturePaidProps ) {
 
 			{ highlights.length ? <FeatureHighlights items={ highlights } icon={ starFilled } /> : null }
 
-			{ showPlans || upgradePath ? (
-				<Stack direction="column" gap="sm" align="start" className={ styles[ 'paid-routes' ] }>
-					{ showPlans ? (
-						<Text variant="body-sm">
-							{ createInterpolateElement(
-								getIncludedIn( plans.length ),
-								Object.fromEntries(
-									plans.map( ( plan, index ) => [
-										`plan${ index }`,
-										<PlanLink key={ plan.slug } plan={ plan } onSelect={ onFilterByPlan } />,
-									] )
-								)
-							) }
-						</Text>
-					) : null }
-
-					{ upgradePath ? (
-						<LinkButton
-							href={ `#${ upgradePath }` }
-							onClick={ onUpgrade }
-							variant="outline"
-							size="compact"
-							aria-label={ sprintf(
-								/* translators: %s is a product name, such as "Jetpack Akismet Anti-spam". */
-								__( 'Upgrade to %s', 'jetpack-my-jetpack' ),
-								upgrade.name || feature.name
-							) }
-						>
-							{ __( 'Upgrade', 'jetpack-my-jetpack' ) }
-						</LinkButton>
-					) : null }
-				</Stack>
+			{ showPlans ? (
+				<Text variant="body-sm" className={ styles[ 'paid-routes' ] }>
+					{ createInterpolateElement(
+						getIncludedIn( plans.length ),
+						Object.fromEntries(
+							plans.map( ( plan, index ) => [
+								`plan${ index }`,
+								<PlanLink key={ plan.slug } plan={ plan } state={ state } />,
+							] )
+						)
+					) }
+				</Text>
 			) : null }
 		</section>
 	);

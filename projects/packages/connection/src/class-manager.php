@@ -129,6 +129,13 @@ class Manager {
 	private static $connection_invalidators_added = false;
 
 	/**
+	 * The raw HTTP response of the registration request currently being processed.
+	 *
+	 * @var array|WP_Error|null
+	 */
+	private $last_register_response = null;
+
+	/**
 	 * Initialize the object.
 	 * Make sure to call the "Configure" first.
 	 *
@@ -1315,14 +1322,13 @@ class Manager {
 	/**
 	 * Determines whether the connection ownership can be transferred to another user.
 	 *
-	 * The default Jetpack connection uses a transferable ownership model. A set protected owner
-	 * anchor locks it outright; otherwise a consumer can declare ownership locked by returning
-	 * `false` from the `jetpack_connection_ownership_transferable` filter. This is the single
-	 * chokepoint used both when deciding which connection-error CTA to surface and (eventually)
-	 * when performing an ownership change.
+	 * The default Jetpack connection uses a transferable ownership model; a set protected owner
+	 * anchor locks it. This is the single chokepoint used both when deciding which
+	 * connection-error CTA to surface and when performing an ownership change.
 	 *
 	 * @since 8.8.0
 	 * @since 9.3.0 A locked protected owner anchor makes ownership non-transferable.
+	 * @since 9.11.0 The `jetpack_connection_ownership_transferable` filter is deprecated.
 	 *
 	 * @return bool True if ownership can be transferred, false if it is locked.
 	 */
@@ -1336,13 +1342,15 @@ class Manager {
 		/**
 		 * Filters whether the Jetpack connection ownership can be transferred.
 		 *
-		 * Return `false` to lock ownership so it can never be taken over.
+		 * Return `false` to lock ownership on a site without a protected owner anchor. The
+		 * anchored owner may still transfer ownership despite this deprecated filter.
 		 *
 		 * @since 8.8.0
+		 * @deprecated 9.11.0 The protected owner anchor is the only supported ownership lock.
 		 *
 		 * @param bool $transferable Whether ownership can be transferred. Default true.
 		 */
-		return (bool) apply_filters( 'jetpack_connection_ownership_transferable', true );
+		return (bool) apply_filters_deprecated( 'jetpack_connection_ownership_transferable', array( true ), 'package-9.11.0', '', __( 'The protected owner anchor is the only ownership lock.', 'jetpack-connection' ) );
 	}
 
 	/**
@@ -1619,7 +1627,7 @@ class Manager {
 	 * network. The identity travels in the signature rather than the payload, so WordPress.com
 	 * decides whether the caller is the owner it holds.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.9.0
 	 *
 	 * @return array|null The record, or null when WordPress.com could not answer.
 	 */
@@ -1770,7 +1778,7 @@ class Manager {
 	 *
 	 * Leaves `master_user` alone: releasing the lock does not change who the owner is.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.9.0
 	 *
 	 * @return true|WP_Error True on success, WP_Error otherwise.
 	 */
@@ -1851,7 +1859,7 @@ class Manager {
 	/**
 	 * The refusal for a caller who is not the owner WordPress.com holds.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.9.0
 	 *
 	 * @return WP_Error
 	 */
@@ -1868,7 +1876,7 @@ class Manager {
 	 *
 	 * Zero means this user is not named yet, so it is not a conflict.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.9.0
 	 *
 	 * @param int $wpcom_user_id WordPress.com user the claim would anchor.
 	 * @return bool
@@ -1882,7 +1890,7 @@ class Manager {
 	/**
 	 * The support path for a site a different account already protects.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.9.0
 	 *
 	 * @return WP_Error
 	 */
@@ -2103,7 +2111,7 @@ class Manager {
 	 *
 	 * @since 1.29.0
 	 * @since 9.3.0 Refused while ownership is locked.
-	 * @since $$next-version$$ The anchored owner passes the lock, and moving the site off them
+	 * @since 9.9.0 The anchored owner passes the lock, and moving the site off them
 	 *                         releases the anchor.
 	 *
 	 * @param int $new_owner_id The ID of the user to become the connection owner.
@@ -2183,10 +2191,8 @@ class Manager {
 	 * the point — so there is no stronger identity to check. WordPress.com decides, marking a
 	 * switch `po_signed` only when the signing token belongs to the owner of record.
 	 *
-	 * A consumer locking ownership through the filter is a separate refusal that still applies to
-	 * everybody, so it is re-read here with the anchor out of the way.
-	 *
-	 * @since $$next-version$$
+	 * @since 9.9.0
+	 * @since 9.11.0 No longer refused by the deprecated `jetpack_connection_ownership_transferable` filter.
 	 *
 	 * @return bool
 	 */
@@ -2206,12 +2212,7 @@ class Manager {
 
 		// This user's own binding, never a search for whoever holds the anchored ID, which would
 		// hand the site to the first match.
-		if ( Utils::get_wpcom_user_id( $user_id ) !== (int) $anchor['wpcom_user_id'] ) {
-			return false;
-		}
-
-		/** This filter is documented in projects/packages/connection/src/class-manager.php */
-		return (bool) apply_filters( 'jetpack_connection_ownership_transferable', true );
+		return Utils::get_wpcom_user_id( $user_id ) === (int) $anchor['wpcom_user_id'];
 	}
 
 	/**
@@ -2221,7 +2222,7 @@ class Manager {
 	 * locks the site to nobody, and `reconcile_protected_owner()` returns before asking when
 	 * there is no local anchor left to repair it with. The reverse mistake costs nothing.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.9.0
 	 *
 	 * @param int        $new_owner_id The local user who now holds the connection.
 	 * @param true|array $accepted     What WordPress.com answered the switch with: a report of
@@ -2258,7 +2259,7 @@ class Manager {
 	 * Request to WPCOM to update the connection owner.
 	 *
 	 * @since 1.29.0
-	 * @since $$next-version$$ Returns what WordPress.com answered rather than casting it, so a
+	 * @since 9.9.0 Returns what WordPress.com answered rather than casting it, so a
 	 *                         report of what the switch did can be read. Still falsy on failure.
 	 *
 	 * @param int $new_owner_id The ID of the user to become the connection owner.
@@ -2343,10 +2344,41 @@ class Manager {
 	 * remain public because the call to action comes from the current site, not from
 	 * WordPress.com.
 	 *
+	 * Always attempts: the retry gate and the offline mode check live in
+	 * `try_registration()`, so unattended callers must go through that instead.
+	 *
 	 * @param string $api_endpoint (optional) an API endpoint to use, defaults to 'register'.
 	 * @return true|WP_Error The error object.
 	 */
 	public function register( $api_endpoint = 'register' ) {
+		$this->last_register_response = null;
+
+		$result = $this->do_register( $api_endpoint );
+
+		if ( is_wp_error( $result ) ) {
+			Registration_Failure::record(
+				$result,
+				$this->last_register_response,
+				$this->get_plugin_slug()
+			);
+		} else {
+			Registration_Failure::clear();
+		}
+
+		$this->last_register_response = null;
+
+		return $result;
+	}
+
+	/**
+	 * Perform the registration request and store the resulting connection data.
+	 *
+	 * @see Manager::register()
+	 *
+	 * @param string $api_endpoint An API endpoint to use.
+	 * @return true|WP_Error The error object.
+	 */
+	private function do_register( $api_endpoint ) {
 		// Clean-up leftover tokens just in-case.
 		// This fixes an edge case that was preventing users to register when the blog token was missing but
 		// there were still leftover user tokens present.
@@ -2412,7 +2444,7 @@ class Manager {
 					'jetpack_version'          => Constants::get_constant( 'JETPACK__VERSION' ),
 					'ABSPATH'                  => Constants::get_constant( 'ABSPATH' ),
 					'current_user_email'       => wp_get_current_user()->user_email,
-					'connect_plugin'           => $this->get_plugin() ? $this->get_plugin()->get_slug() : null,
+					'connect_plugin'           => $this->get_plugin_slug(),
 					'package_versions'         => $package_versions,
 					'active_connected_plugins' => $active_plugins_using_connection,
 				),
@@ -2437,6 +2469,10 @@ class Manager {
 			$args,
 			true
 		);
+
+		// Kept so that ::register() can read response headers such as `Retry-After`
+		// when recording the failure.
+		$this->last_register_response = $response;
 
 		// Make sure the response is valid and does not contain any Jetpack errors.
 		$registration_details = $this->validate_remote_register_response( $response );
@@ -2528,11 +2564,41 @@ class Manager {
 	/**
 	 * Attempts Jetpack registration.
 	 *
+	 * Automatic attempts are skipped in offline mode and held back while a previous
+	 * failure still stands. Pass `$force` for attempts a user or partner explicitly
+	 * asked for - those are never held back.
+	 *
+	 * @see Registration_Failure
+	 *
+	 * @since 9.11.0 Added the `$force` parameter, the offline mode check, and the retry backoff.
+	 *
 	 * @param bool $tos_agree Whether the user agreed to TOS.
+	 * @param bool $force     Whether this attempt was explicitly requested by a user.
 	 *
 	 * @return bool|WP_Error
 	 */
-	public function try_registration( $tos_agree = true ) {
+	public function try_registration( $tos_agree = true, $force = false ) {
+		if ( ! $force ) {
+			if ( ( new Status() )->is_offline_mode() ) {
+				return new WP_Error(
+					'offline_mode',
+					__( 'Site is in offline mode; WordPress.com registration is not attempted.', 'jetpack-connection' ),
+					array( 'status' => 400 )
+				);
+			}
+
+			$suppressed_error = Registration_Failure::get_suppressed_error();
+
+			if ( $suppressed_error ) {
+				Registration_Failure::record_suppressed_attempt(
+					$suppressed_error,
+					$this->get_plugin_slug()
+				);
+
+				return $suppressed_error;
+			}
+		}
+
 		if ( $tos_agree ) {
 			$terms_of_service = new Terms_Of_Service();
 			$terms_of_service->agree();
@@ -2551,8 +2617,8 @@ class Manager {
 
 		$tracking_data = array();
 
-		if ( null !== $this->get_plugin() ) {
-			$tracking_data['plugin_slug'] = $this->get_plugin()->get_slug();
+		if ( null !== $this->get_plugin_slug() ) {
+			$tracking_data['plugin_slug'] = $this->get_plugin_slug();
 		}
 
 		$tracking = new Tracking();
@@ -2570,6 +2636,49 @@ class Manager {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Get the reason the last registration attempt failed, if it still stands.
+	 *
+	 * Lets consuming plugins tell the user why the site is not connected - for
+	 * example that WordPress.com cannot reach a site on a private address - instead
+	 * of leaving the connection silently unavailable.
+	 *
+	 * @since 9.11.0
+	 *
+	 * @return array|null Failure details, or null if the last attempt did not fail or the site is connected.
+	 */
+	public function get_registration_failure() {
+		if ( $this->is_connected() ) {
+			return null;
+		}
+
+		return Registration_Failure::get();
+	}
+
+	/**
+	 * Forget the last registration failure, so the next automatic attempt is not
+	 * held back by it.
+	 *
+	 * For consumers that trigger registration through code that cannot pass the
+	 * `$force` flag to `try_registration()`.
+	 *
+	 * @since 9.11.0
+	 *
+	 * @return void
+	 */
+	public function clear_registration_failure() {
+		Registration_Failure::clear();
+	}
+
+	/**
+	 * Get the slug of the plugin this connection is for, if any.
+	 *
+	 * @return string|null
+	 */
+	private function get_plugin_slug() {
+		return $this->get_plugin() ? $this->get_plugin()->get_slug() : null;
 	}
 
 	/**
@@ -3430,6 +3539,9 @@ class Manager {
 
 		// Remove tracked package versions, since they depend on the Jetpack Connection.
 		delete_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION );
+
+		// A failure recorded before the site got connected some other way (a migration, a restore) no longer applies.
+		Registration_Failure::clear();
 
 		$jetpack_unique_connection = \Jetpack_Options::get_option( 'unique_connection' );
 		if ( $jetpack_unique_connection ) {

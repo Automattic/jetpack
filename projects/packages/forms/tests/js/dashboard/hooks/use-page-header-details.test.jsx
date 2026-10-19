@@ -21,7 +21,6 @@ await jest.unstable_mockModule( '@wordpress/admin-ui', () => ( {
 await jest.unstable_mockModule( '@wordpress/components', () => ( {
 	DropdownMenu: () => null,
 	Button: ( { children } ) => children,
-	__experimentalConfirmDialog: ( { children } ) => children,
 } ) );
 
 await jest.unstable_mockModule( '@wordpress/core-data', () => ( {
@@ -73,6 +72,10 @@ await jest.unstable_mockModule( '../../../../src/dashboard/components/create-for
 await jest.unstable_mockModule( '../../../../src/dashboard/components/edit-form-button', () => ( {
 	default: () => null,
 } ) );
+await jest.unstable_mockModule(
+	'../../../../src/dashboard/components/delete-form-confirmation-modal',
+	() => ( { default: () => null } )
+);
 await jest.unstable_mockModule( '../../../../src/dashboard/components/empty-spam-button', () => ( {
 	default: () => null,
 	labelForScope: () => 'Delete spam',
@@ -408,7 +411,7 @@ describe( 'usePageHeaderDetails', () => {
 				controls[ 1 ].onClick();
 			} );
 
-			// ConfirmDialog should now be rendered in actions
+			// The confirmation dialog should now be rendered in actions
 			const confirmDialog = result.current.actions.find(
 				a => a?.key === 'permanent-delete-confirm'
 			);

@@ -4,12 +4,12 @@ import '@automattic/social-previews/style.css';
 import './route.scss';
 
 /**
- * Boot stage for Jetpack Settings. The container id matches the webpack page's.
+ * Boot stage for Jetpack Settings. PHP-rendered pages style the same container id.
  *
  * @return The Settings app.
  */
 const Stage = () => (
-	<div id="jp-plugin-container" data-wp-build>
+	<div id="jp-plugin-container">
 		<SettingsRoot />
 	</div>
 );

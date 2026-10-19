@@ -13,6 +13,8 @@ export type VideoSummary = {
 	isLoading: boolean;
 	/** Whether the single-video request failed — the page must not present a fallback title as real data. */
 	isError: boolean;
+	/** The failed request's error, for `describeError` to tell access denied from a retryable failure. */
+	error: unknown;
 	/** Whether the resolved attachment is missing or is known not to be a video. */
 	isNotFound: boolean;
 	/** Re-runs the failed request, for the error state's Retry action. */
@@ -26,7 +28,7 @@ export type VideoSummary = {
  * @return The resolved video summary.
  */
 export function useVideoSummary( videoId: number ): VideoSummary {
-	const { data, isLoading, isPending, isPaused, isError, isSuccess, refetch } =
+	const { data, isLoading, isPending, isPaused, isError, error, isSuccess, refetch } =
 		useStatsSingleVideo( videoId );
 	const post = data?.post;
 	const hasValidId = Number.isInteger( post?.id ) && Number( post?.id ) > 0;
@@ -51,6 +53,7 @@ export function useVideoSummary( videoId: number ): VideoSummary {
 		// Counts a paused first load, as `usePostSummary` does.
 		isLoading: isLoading || ( isPending && isPaused ),
 		isError,
+		error,
 		isNotFound: isSuccess && ( ! hasValidId || ! isVideoMimeType ),
 		refetch: retry,
 	};

@@ -1,19 +1,13 @@
-import { Popover } from '@wordpress/components';
-import { useViewportMatch } from '@wordpress/compose';
-import { __ } from '@wordpress/i18n';
-import { Icon, info } from '@wordpress/icons';
-import clsx from 'clsx';
-import { useMemo, useState, useCallback, useRef } from 'react';
+import { __, _n, sprintf } from '@wordpress/i18n';
+import { useMemo } from 'react';
 import {
 	protectCardShieldOff as ShieldOff,
 	protectCardShieldPartial as ShieldPartial,
 	protectCardShieldSuccess as ShieldSuccess,
 } from '../../../assets/inline-svgs';
 import useProduct from '../../../data/products/use-product';
-import useAnalytics from '../../../hooks/use-analytics';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
-import { InfoTooltip } from '../../info-tooltip';
-import baseStyles from '../style.module.scss';
+import { ProtectInfoPopover } from './info-popover';
 import { useProtectTooltipCopy } from './use-protect-tooltip-copy';
 import type { FC } from 'react';
 
@@ -80,75 +74,39 @@ interface ThreatStatusProps {
 }
 
 const ThreatStatus: FC< ThreatStatusProps > = ( { data, numThreats, criticalThreatCount } ) => {
-	const { recordEvent } = useAnalytics();
-	const useTooltipRef = useRef< HTMLButtonElement >( undefined );
-	const isMobileViewport: boolean = useViewportMatch( 'medium', '<' );
-	const [ isPopoverVisible, setIsPopoverVisible ] = useState( false );
-
 	const tooltipContent = useProtectTooltipCopy( data );
 	const { scanThreatsTooltip } = tooltipContent;
-
-	const toggleTooltip = useCallback(
-		() =>
-			setIsPopoverVisible( prevState => {
-				if ( ! prevState === true ) {
-					recordEvent( 'jetpack_protect_card_tooltip_open', {
-						page: 'my-jetpack',
-						feature: 'jetpack-protect',
-						location: 'scan',
-						has_paid_plan: true,
-						threats: numThreats,
-					} );
-				}
-				return ! prevState;
-			} ),
-		[ numThreats, recordEvent ]
-	);
-	const hideTooltip = useCallback( () => {
-		// Don't hide the tooltip here if it's the tooltip button that was clicked (the button
-		// becoming the document's activeElement). Instead let toggleTooltip() handle the closing.
-		if (
-			useTooltipRef.current &&
-			! useTooltipRef.current.contains( useTooltipRef.current.ownerDocument.activeElement )
-		) {
-			setIsPopoverVisible( false );
-		}
-	}, [ setIsPopoverVisible, useTooltipRef ] );
 
 	if ( criticalThreatCount ) {
 		return (
 			<>
-				<div className={ clsx( baseStyles.valueSectionHeading, 'value-section__heading' ) }>
+				<div className="value-section__heading">
 					{ __( 'Threats', 'jetpack-my-jetpack' ) }
-					<div className="scan-threats__critical-threat-container">
-						<button
-							className="info-tooltip__button"
-							onClick={ toggleTooltip }
-							ref={ useTooltipRef }
-						>
-							<Icon className="scan_threats__icon-critical" icon={ info } size={ 14 } />
-							<span className="scan-threats__critical-threat-count">{ criticalThreatCount }</span>
-						</button>
-						{ isPopoverVisible && (
-							<Popover
-								placement={ isMobileViewport ? 'top-end' : 'right' }
-								noArrow={ false }
-								offset={ 10 }
-								focusOnMount="firstElement"
-								onClose={ hideTooltip }
-							>
-								<div className="info-tooltip__content">
-									<h3>{ scanThreatsTooltip.title }</h3>
-									<p>{ scanThreatsTooltip.text }</p>
-								</div>
-							</Popover>
+					<ProtectInfoPopover
+						label={ __( 'Threats', 'jetpack-my-jetpack' ) }
+						title={ scanThreatsTooltip.title }
+						text={ scanThreatsTooltip.text }
+						tracksEventProps={ {
+							location: 'scan',
+							has_paid_plan: true,
+							threats: numThreats,
+						} }
+						critical
+						triggerContent={ criticalThreatCount }
+						triggerLabel={ sprintf(
+							/* translators: %d is the number of critical threats found by the last scan. */
+							_n(
+								'%d critical threat. More about threats',
+								'%d critical threats. More about threats',
+								criticalThreatCount,
+								'jetpack-my-jetpack'
+							),
+							criticalThreatCount
 						) }
-					</div>
+					/>
 				</div>
 				<div className="value-section__data">
-					<div className="scan-threats__critical-threats">
-						<div className="scan-threats__threat-count">{ numThreats }</div>
-					</div>
+					<div className="scan-threats__threat-count">{ numThreats }</div>
 				</div>
 			</>
 		);
@@ -156,20 +114,18 @@ const ThreatStatus: FC< ThreatStatusProps > = ( { data, numThreats, criticalThre
 
 	return (
 		<>
-			<div className={ clsx( baseStyles.valueSectionHeading, 'value-section__heading' ) }>
+			<div className="value-section__heading">
 				{ __( 'Threats', 'jetpack-my-jetpack' ) }
-				<InfoTooltip
-					tracksEventName={ 'protect_card_tooltip_open' }
+				<ProtectInfoPopover
+					label={ __( 'Threats', 'jetpack-my-jetpack' ) }
+					title={ scanThreatsTooltip.title }
+					text={ scanThreatsTooltip.text }
 					tracksEventProps={ {
 						location: 'threats',
-						feature: 'jetpack-protect',
 						has_paid_plan: true,
 						threats: numThreats,
 					} }
-				>
-					<h3>{ scanThreatsTooltip.title }</h3>
-					<p>{ scanThreatsTooltip.text }</p>
-				</InfoTooltip>
+				/>
 			</div>
 			<div className="value-section__data">
 				<div className="scan-threats__threat-count">{ numThreats }</div>
@@ -190,9 +146,7 @@ const ScanStatus: FC< ScanStatusProps > = ( { data, status } ) => {
 	if ( status === 'success' ) {
 		return (
 			<>
-				<div className={ baseStyles.valueSectionHeading }>
-					{ __( 'Scan', 'jetpack-my-jetpack' ) }
-				</div>
+				<div className="value-section__heading">{ __( 'Scan', 'jetpack-my-jetpack' ) }</div>
 				<div className="value-section__data">
 					<div>
 						<img
@@ -209,21 +163,19 @@ const ScanStatus: FC< ScanStatusProps > = ( { data, status } ) => {
 	if ( status === 'partial' ) {
 		return (
 			<>
-				<div className={ clsx( baseStyles.valueSectionHeading, 'value-section__heading' ) }>
+				<div className="value-section__heading">
 					{ __( 'Scan', 'jetpack-my-jetpack' ) }
-					<InfoTooltip
-						tracksEventName={ 'protect_card_tooltip_open' }
+					<ProtectInfoPopover
+						label={ __( 'Scan', 'jetpack-my-jetpack' ) }
+						title={ scanThreatsTooltip.title }
+						text={ scanThreatsTooltip.text }
 						tracksEventProps={ {
 							location: 'scan',
 							status: status,
-							feature: 'jetpack-protect',
 							has_paid_plan: false,
 							threats: 0,
 						} }
-					>
-						<h3>{ scanThreatsTooltip.title }</h3>
-						<p>{ scanThreatsTooltip.text }</p>
-					</InfoTooltip>
+					/>
 				</div>
 				<div className="value-section__data">
 					<div>
@@ -242,7 +194,7 @@ const ScanStatus: FC< ScanStatusProps > = ( { data, status } ) => {
 	}
 	return (
 		<>
-			<div className={ baseStyles.valueSectionHeading }>{ __( 'Scan', 'jetpack-my-jetpack' ) }</div>
+			<div className="value-section__heading">{ __( 'Scan', 'jetpack-my-jetpack' ) }</div>
 			<div className="value-section__data">
 				<div>
 					<img

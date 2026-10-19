@@ -1,17 +1,19 @@
 /**
  * Internal dependencies
  */
-import { saveCsv } from '../../helpers/build-csv';
+import * as buildCsvModule from '../../helpers/build-csv';
 import { downloadReportCsv } from '../download-report-csv';
 import type { ReportCsvExporter } from '../types';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
 
-jest.mock( '../../helpers/build-csv', () => ( {
-	...jest.requireActual( '../../helpers/build-csv' ),
-	saveCsv: jest.fn(),
+jest.mock(
+	'@automattic/jetpack-script-data',
+	() => jest.requireActual( '../../../../../tests/js/script-data-test-utils' ).mockJetpackScriptData
+);
+jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	downloadReport: jest.fn(),
 } ) );
-
-const mockSaveCsv = jest.mocked( saveCsv );
 
 type Row = { name: string; count: number };
 
@@ -37,8 +39,15 @@ function buildExporter(
 const REPORT_PARAMS = { from: '2026-03-01', to: '2026-03-10', interval: 'day' } as ReportParams;
 
 describe( 'downloadReportCsv', () => {
+	let mockSaveCsv: jest.SpiedFunction< typeof buildCsvModule.saveCsv >;
+
 	beforeEach( () => {
 		jest.clearAllMocks();
+		mockSaveCsv = jest.spyOn( buildCsvModule, 'saveCsv' ).mockImplementation( () => {} );
+	} );
+
+	afterEach( () => {
+		mockSaveCsv.mockRestore();
 	} );
 
 	it( 'saves the fetched rows through the exporter, with a dated filename', async () => {
@@ -53,10 +62,24 @@ describe( 'downloadReportCsv', () => {
 		);
 	} );
 
-	it( 'leaves the date range out for all-time reports', async () => {
-		await downloadReportCsv( buildExporter( { hasDateRange: false } ), REPORT_PARAMS );
+	it.each( [
+		[ 'an undated report', { hasDateRange: false }, REPORT_PARAMS, 'things' ],
+		[
+			'a report on All time',
+			{},
+			{ ...REPORT_PARAMS, preset: 'all-time' } as ReportParams,
+			'things-all-time',
+		],
+		[
+			'an All time window with its own start',
+			{ datesAllTime: true },
+			{ ...REPORT_PARAMS, preset: 'all-time' } as ReportParams,
+			'things-2026-03-01_2026-03-10',
+		],
+	] )( 'names the file for %s', async ( _, overrides, params, filename ) => {
+		await downloadReportCsv( buildExporter( overrides ), params );
 
-		expect( mockSaveCsv ).toHaveBeenCalledWith( 'things', expect.any( String ) );
+		expect( mockSaveCsv ).toHaveBeenCalledWith( filename, expect.any( String ) );
 	} );
 
 	it( 'rejects instead of saving a header-only file when the fetch fails', async () => {

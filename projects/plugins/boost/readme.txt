@@ -5,7 +5,7 @@ Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 7.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 4.8.0
+Stable tag: 4.8.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -191,31 +191,9 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 4. Historical performance tracking with the upgraded plan.
 
 == Changelog ==
-### 4.8.0 - 2026-10-02
-#### Security
-- Critical CSS: Improve the security of Critical CSS generation.
-
-#### Added
-- Connection: Surface SSL certificate verification failures reported by WordPress.com as a connection error notice, and flag connection errors with a badge on the Jetpack menu.
-- Critical CSS: Explain when pages could not be optimized because they are only shown to logged-in visitors, and let each group of these pages be dismissed separately.
-
-#### Changed
-- Dashboard: Redesign the Overview around a "Your site speed" score card with score gain badges, a score history chart with day details that works with a keyboard and screen reader, and a "Run speed test" button.
-- Dashboard: Show the modernized dashboard by default. Add `add_filter( 'rsm_jetpack_ui_modernization_boost', '__return_false' );` to restore the previous dashboard.
-- My Jetpack: Show the dashboard in the new rounded admin page frame, with restyled notices and a Features tab in place of the Products tab.
-- Settings: Show performance scores and optimization settings together in collapsible sections with short descriptions and restyled notices, and make tooltips and toggles work with a keyboard and screen reader.
-- Update package dependencies.
-
+### 4.8.1 - 2026-10-08
 #### Fixed
-- Activity Log: Honor the module setting, so the page can be turned off, and stop the frame from flashing while loading.
-- Connection: Report a broken connection on the My Jetpack connection card instead of saying everything looks good, stop showing stale connection error notices, and let users without admin access reconnect their own account or find an administrator who can.
-- Critical CSS: Stop generation from logging administrators out on sites with login-protected pages, and stop it restarting on its own after a failed run.
-- Defer JS: Keep scripts that come before a script left in place in their original order, fixing hidden product images and unclickable tabs on some sites using Jetpack Likes.
-- Hide links to My Jetpack screens, including upgrade, license and footer links, when My Jetpack is unavailable.
-- My Jetpack: Fix the dashboard failing to load on WordPress.com-hosted sites.
-- My Jetpack: Show each notice once, respond to module switches immediately, and fix the connection screen layout for right-to-left languages.
-- Page Cache: Show the module as running, without contradictory setup errors, on WP Cloud hosts such as Pressable that already cache pages.
-- Performance history: Show the recorded decimal LCP, TBT, and CLS values in the history chart tooltips instead of whole numbers.
+- Page Cache: Improve cache key handling and URL purges for unusual request URIs and parameters. Clear old cached pages once after updating.
 
 --------
 

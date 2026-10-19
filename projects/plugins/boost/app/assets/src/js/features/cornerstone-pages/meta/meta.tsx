@@ -400,7 +400,7 @@ const List: FC< ListProps > = ( {
 } ) => {
 	const [ inputValue, setInputValue ] = useState( items );
 	const [ validationError, setValidationError ] = useState< Error | null >( null );
-	const inputInvalid = useMemo( () => validationError, [ validationError ] );
+	const inputInvalid = validationError !== null;
 
 	useEffect( () => {
 		setInputValue( items );

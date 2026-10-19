@@ -271,6 +271,7 @@
 		.cat-links,
 		.cat-links a,
 		.cat-links a:visited,
+		.tag-labels,
 		figcaption {
 			color: inherit;
 		}
@@ -429,7 +430,8 @@
 	&.has-text-align-center {
 		.cat-links,
 		.entry-meta,
-		.entry-sponsors {
+		.entry-sponsors,
+		.tag-labels {
 			justify-content: center;
 		}
 
@@ -444,7 +446,8 @@
 		.cat-links,
 		.entry-meta,
 		.entry-sponsors,
-		.sponsor-logos {
+		.sponsor-logos,
+		.tag-labels {
 			justify-content: flex-end;
 			text-align: right;
 		}
@@ -463,7 +466,12 @@
 	}
 
 	/* Article meta */
-	.cat-links {
+	// `.tag-labels` shares this rule rather than repeating it, so an edit to one
+	// cannot silently diverge from the other. The wrapper carries only
+	// `tag-labels`, which is what keeps a publisher's per-section `.cat-links a`
+	// rule from reaching a tag label; sharing layout here does not give that back.
+	.cat-links,
+	.tag-labels {
 		display: flex;
 		flex-wrap: wrap;
 		font-size: variables.$font__size-xxs;
@@ -516,7 +524,8 @@
 			.cat-links,
 			.entry-meta,
 			.entry-sponsors,
-			.sponsor-logos {
+			.sponsor-logos,
+			.tag-labels {
 				justify-content: flex-start;
 			}
 		}
@@ -525,7 +534,8 @@
 			.cat-links,
 			.entry-meta,
 			.entry-sponsors,
-			.sponsor-logos {
+			.sponsor-logos,
+			.tag-labels {
 				justify-content: flex-end;
 			}
 		}

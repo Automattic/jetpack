@@ -2,11 +2,9 @@
  * External dependencies
  */
 import {
-	mergeStatsClicksComparisonRows,
 	useStatsClicks,
 	type StatsClicksComparisonItem,
 	type StatsClicksItem,
-	type StatsNormalizedReport,
 	type StatsReportParams,
 } from '@jetpack-premium-analytics/data';
 import {
@@ -36,6 +34,7 @@ import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { useNoViewsEmptyState } from '../use-no-views-empty-state';
 import styles from './style.module.css';
 import { type ClicksAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -87,7 +86,11 @@ function getItemLabel( item: StatsClicksComparisonItem | StatsClicksItem ): stri
 	return item.link ?? '';
 }
 
-function toClickRow( item: StatsClicksComparisonItem ): ClickRow {
+/**
+ * Maps a merged data-layer row (comparison matching and the row cap happen in
+ * `mergeStatsClicksComparisonRows`) onto the widget's row shape.
+ */
+export function toClickRow( item: StatsClicksComparisonItem ): ClickRow {
 	const href = safeHttpUrl( item.link );
 
 	return {
@@ -99,36 +102,6 @@ function toClickRow( item: StatsClicksComparisonItem ): ClickRow {
 		children: item.children?.map( toClickRow ),
 		...( item.childrenHaveComparison ? { childrenHaveComparison: true } : {} ),
 	};
-}
-
-/**
- * Flattens a normalized clicks report into `ClickRow[]` and attaches matching
- * comparison values when a comparison report is present. Rows are capped
- * client-side by `max`; `max = 0` keeps all rows.
- */
-export function toClickRowsWithComparison(
-	report: StatsNormalizedReport< StatsClicksItem > | undefined,
-	comparisonReport: StatsNormalizedReport< StatsClicksItem > | undefined,
-	max: number
-): { rows: ClickRow[]; hasComparison: boolean } {
-	const { rows, hasComparison } = mergeStatsClicksComparisonRows( report, comparisonReport, max );
-	const clickRows = rows.map( toClickRow );
-
-	return {
-		rows: clickRows,
-		hasComparison,
-	};
-}
-
-/**
- * `toClickRowsWithComparison` without the `hasComparison` flag.
- */
-export function toClickRows(
-	report: StatsNormalizedReport< StatsClicksItem > | undefined,
-	comparisonReport: StatsNormalizedReport< StatsClicksItem > | undefined,
-	max: number
-): ClickRow[] {
-	return toClickRowsWithComparison( report, comparisonReport, max ).rows;
 }
 
 /**
@@ -208,11 +181,13 @@ export function ClicksLeaderboard( {
 }: ClicksLeaderboardProps ) {
 	return (
 		<LeaderboardChart
+			chartTitle={ __( 'Top links clicked', 'jetpack-premium-analytics-pkg' ) }
 			data={ buildLeaderboardData( rows, withComparison, onDrillDown ) }
 			withComparison={ withComparison }
 			withOverlayLabel
 			showLegend={ false }
 			dataFormat={ DATA_FORMAT }
+			columns={ { label: __( 'Links', 'jetpack-premium-analytics-pkg' ), metric: 'clicks' } }
 		/>
 	);
 }
@@ -256,6 +231,11 @@ function ClicksInner() {
 		}
 	}, [ selectedClickLabel, isDrillDown, isLoading, isFetching, isError, clearSelectedClick ] );
 
+	const emptyState = useNoViewsEmptyState(
+		{ isLoading, isError, isEmpty: rows.length === 0 },
+		__( 'You don’t have clicked links recorded yet.', 'jetpack-premium-analytics-pkg' )
+	);
+
 	const handleDrillDown = useCallback(
 		( row: ClickRow ) => {
 			selectClick( row.label );
@@ -276,7 +256,7 @@ function ClicksInner() {
 			<div className={ styles.content }>
 				{ backLink }
 				<WidgetState
-					isLoading={ isLoading }
+					isLoading={ emptyState.isLoading }
 					isFetching={ isFetching }
 					// `placeholderData` keeps the prior period's rows on screen while `isError`
 					// flips true, so a transient refetch failure should not replace them.
@@ -291,6 +271,7 @@ function ClicksInner() {
 							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
 						],
 					} }
+					empty={ emptyState.empty }
 					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
 					<ClicksLeaderboard

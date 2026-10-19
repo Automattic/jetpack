@@ -24,6 +24,19 @@ use WP_REST_Server;
  * @phan-constructor-used-for-side-effects
  */
 class REST_Connector {
+
+	/**
+	 * Site record options left out of the site data REST response.
+	 *
+	 * @since 9.9.1
+	 *
+	 * @var string[]
+	 */
+	const EXCLUDED_SITE_OPTIONS = array(
+		'frame_nonce',
+		'jetpack_frame_nonce',
+	);
+
 	/**
 	 * The Connection Manager.
 	 *
@@ -346,6 +359,17 @@ class REST_Connector {
 			)
 		);
 
+		// Users who could take over the connection, for the owner change above.
+		register_rest_route(
+			'jetpack/v4',
+			'/connection/owner/candidates',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( static::class, 'get_connection_owner_candidates' ),
+				'permission_callback' => array( static::class, 'get_connection_owner_candidates_permission_check' ),
+			)
+		);
+
 		// Confirm the current user as the protected owner. Not the connection-owner change above.
 		register_rest_route(
 			'jetpack/v4',
@@ -529,13 +553,18 @@ class REST_Connector {
 		$status     = new Status();
 		$connection = new Manager();
 
+		// The REST route is public and the initial state reaches the block editor, while the
+		// stored failure quotes server and transport errors verbatim: only people who can
+		// connect the site get to see it.
+		$registration_failure = current_user_can( 'jetpack_connect' ) ? $connection->get_registration_failure() : null;
+
 		$connection_status = array(
-			'isActive'          => $connection->has_connected_owner(), // TODO deprecate this.
-			'isStaging'         => $status->in_safe_mode(), // TODO deprecate this.
-			'isRegistered'      => $connection->is_connected(),
-			'isUserConnected'   => $connection->is_user_connected(),
-			'hasConnectedOwner' => $connection->has_connected_owner(),
-			'offlineMode'       => array(
+			'isActive'            => $connection->has_connected_owner(), // TODO deprecate this.
+			'isStaging'           => $status->in_safe_mode(), // TODO deprecate this.
+			'isRegistered'        => $connection->is_connected(),
+			'isUserConnected'     => $connection->is_user_connected(),
+			'hasConnectedOwner'   => $connection->has_connected_owner(),
+			'offlineMode'         => array(
 				'isActive'        => $status->is_offline_mode(),
 				'constant'        => defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG,
 				'url'             => $status->is_local_site(),
@@ -544,7 +573,15 @@ class REST_Connector {
 				'wpLocalConstant' => defined( 'WP_LOCAL_DEV' ) && WP_LOCAL_DEV,
 				'option'          => (bool) get_option( 'jetpack_offline_mode' ),
 			),
-			'isPublic'          => '1' == get_option( 'blog_public' ), // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+			'isPublic'            => '1' == get_option( 'blog_public' ), // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+			'registrationFailure' => null === $registration_failure ? null : array(
+				'code'            => $registration_failure['error_code'],
+				'message'         => $registration_failure['error_message'],
+				'needsSiteChange' => (bool) $registration_failure['terminal'],
+				'attempts'        => (int) $registration_failure['attempts'],
+				'lastAttemptAt'   => (int) $registration_failure['last_attempt_at'],
+				'nextRetryAfter'  => (int) $registration_failure['next_retry_after'],
+			),
 		);
 
 		/**
@@ -881,7 +918,7 @@ class REST_Connector {
 			}
 		}
 
-		$result = $this->connection->try_registration();
+		$result = $this->connection->try_registration( true, true );
 
 		if ( is_wp_error( $result ) ) {
 			return $result;
@@ -1097,11 +1134,76 @@ class REST_Connector {
 	}
 
 	/**
+	 * Users this connection's ownership could be handed to.
+	 *
+	 * Filtered by what `Manager::update_connection_owner()` requires of a new owner, so the
+	 * list cannot offer someone the change would then refuse.
+	 *
+	 * @since 9.11.0
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public static function get_connection_owner_candidates() {
+		$connection = new Manager();
+		$owner_id   = (int) $connection->get_connection_owner_id();
+		$admin_cap  = ( new Roles() )->translate_role_to_cap( 'administrator' );
+		$candidates = array();
+
+		if ( ! $admin_cap ) {
+			return rest_ensure_response( $candidates );
+		}
+
+		foreach ( $connection->get_connected_users( $admin_cap ) as $user ) {
+			if ( (int) $user->ID === $owner_id ) {
+				continue;
+			}
+
+			$candidates[] = array(
+				'id'          => (int) $user->ID,
+				'login'       => $user->user_login,
+				'displayName' => $user->display_name,
+				'email'       => $user->user_email,
+				'avatar'      => get_avatar_url(
+					$user->ID,
+					array(
+						'size'    => 48,
+						'default' => 'mysteryman',
+					)
+				),
+			);
+		}
+
+		return rest_ensure_response( $candidates );
+	}
+
+	/**
+	 * Whether the current user may list the users ownership could be handed to.
+	 *
+	 * Same capability as changing the owner: seeing the candidates and acting on them go
+	 * together, and the list carries logins and email addresses.
+	 *
+	 * @since 9.11.0
+	 *
+	 * @return true|WP_Error
+	 */
+	public static function get_connection_owner_candidates_permission_check() {
+		if ( current_user_can( 'jetpack_disconnect' ) ) {
+			return true;
+		}
+
+		return new WP_Error(
+			'invalid_user_permission_list_connection_owner_candidates',
+			self::get_user_permissions_error_msg(),
+			array( 'status' => rest_authorization_required_code() )
+		);
+	}
+
+	/**
 	 * Confirm the current user as the protected owner.
 	 *
 	 * The claim is always for the signed-in user. A caller cannot name someone else.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.9.0
 	 *
 	 * @return WP_REST_Response|WP_Error
 	 */
@@ -1130,7 +1232,7 @@ class REST_Connector {
 	 * long as it is on screen. One that flips to false between render and submit turns its own
 	 * link into a 403.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.9.0
 	 *
 	 * @return true|WP_Error
 	 */
@@ -1160,7 +1262,7 @@ class REST_Connector {
 	/**
 	 * Release the protected owner for this site.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.9.0
 	 *
 	 * @return WP_REST_Response|WP_Error
 	 */
@@ -1187,7 +1289,7 @@ class REST_Connector {
 	 * Deliberately not gated on `requires_protected_owner()`, unlike confirming: a consumer that
 	 * has stopped asking must not strand a site holding a lock it can no longer release.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.9.0
 	 *
 	 * @return true|WP_Error
 	 */
@@ -1333,6 +1435,8 @@ class REST_Connector {
 		$site_data = ( $connection ?? new Manager() )->get_connected_site_data();
 
 		if ( ! is_wp_error( $site_data ) ) {
+			$site_data = self::exclude_site_options( $site_data );
+
 			/**
 			 * Fires when the site data was successfully returned from the /sites/%d wpcom endpoint.
 			 *
@@ -1368,6 +1472,32 @@ class REST_Connector {
 				'api_http_code'  => empty( $error_data['api_http_code'] ) ? null : $error_data['api_http_code'],
 			)
 		);
+	}
+
+	/**
+	 * Removes EXCLUDED_SITE_OPTIONS from the site record before it is served to a REST caller.
+	 *
+	 * Works on a copy: a listener on 'jetpack_site_data_fetched', or any other internal
+	 * consumer holding the record, keeps seeing it whole.
+	 *
+	 * @since 9.9.1
+	 *
+	 * @param object $site_data The decoded site record.
+	 * @return object The record to serve, with EXCLUDED_SITE_OPTIONS removed.
+	 */
+	private static function exclude_site_options( $site_data ) {
+		if ( ! is_object( $site_data ) || ! isset( $site_data->options ) || ! is_object( $site_data->options ) ) {
+			return $site_data;
+		}
+
+		$site_data          = clone $site_data;
+		$site_data->options = clone $site_data->options;
+
+		foreach ( self::EXCLUDED_SITE_OPTIONS as $option ) {
+			unset( $site_data->options->$option );
+		}
+
+		return $site_data;
 	}
 
 	/**

@@ -2,6 +2,7 @@ import { BarChart, GlobalChartsProvider } from '@automattic/charts';
 import '@automattic/charts/style.css';
 import { getScoreLetter } from '@automattic/jetpack-boost-score-api';
 import { formatNumber } from '@automattic/number-formatters';
+import { speak } from '@wordpress/a11y';
 import { Spinner } from '@wordpress/components';
 import { dateI18n, getDate } from '@wordpress/date';
 import { __, isRTL, sprintf } from '@wordpress/i18n';
@@ -33,7 +34,12 @@ type Props = {
 };
 
 const emptyColor = 'var(--jetpack-boost-history-empty)';
-const tooltipStyle = { padding: 0, backgroundColor: 'transparent', boxShadow: 'none' };
+const tooltipStyle = {
+	padding: 0,
+	backgroundColor: 'transparent',
+	border: 'none',
+	boxShadow: 'none',
+};
 
 export function buildHistorySeries( days: HistoryDay[] ): SeriesData[] {
 	return ( [ 'desktop', 'mobile' ] as const ).map( device => ( {
@@ -296,6 +302,15 @@ export default function HistoryChartCard( {
 	}
 	const isBeforeHistory = ( day: HistoryDay ) =>
 		hasOlderHistory === false && ! days.some( slot => slot.period && slot.date < day.date );
+	const errorMessage =
+		isError && ! isLoading && isVisible
+			? __( 'Failed to load performance history', 'jetpack-boost' )
+			: '';
+	useEffect( () => {
+		if ( errorMessage ) {
+			speak( errorMessage, 'assertive' );
+		}
+	}, [ errorMessage ] );
 	let content;
 	let bodyClassName;
 	if ( isLoading && ! data?.periods.length ) {
@@ -308,12 +323,7 @@ export default function HistoryChartCard( {
 		);
 	} else if ( isError && ! isLoading ) {
 		content = (
-			<Notice.Root
-				intent="error"
-				spokenMessage={
-					isVisible ? __( 'Failed to load performance history', 'jetpack-boost' ) : ''
-				}
-			>
+			<Notice.Root intent="error">
 				<Notice.Title>{ __( 'Failed to load performance history', 'jetpack-boost' ) }</Notice.Title>
 				<Notice.Description>{ error?.message }</Notice.Description>
 				<Notice.Actions>

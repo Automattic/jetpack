@@ -5,6 +5,52 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [9.12.1] - 2026-10-19
+### Changed
+- Connectors: Load the card's dependencies from its asset file instead of reading them from globals. [#53713]
+
+## [9.12.0] - 2026-10-15
+### Added
+- Transfer connection ownership to another connected administrator from the Connectors page. [#53581]
+
+### Changed
+- Update package dependencies. [#53004]
+
+## [9.11.0] - 2026-10-14
+### Added
+- Add a REST endpoint listing the connected administrators who could take over the connection. [#53359]
+- Skip WordPress.com registration in offline mode, and hold back automatic retries after a failed attempt: daily for errors that describe the site's environment, on a backoff schedule otherwise, and never before a Retry-After window has elapsed. [#51177]
+
+### Deprecated
+- Deprecate the `jetpack_connection_ownership_transferable` filter, which can no longer stop the protected owner from transferring ownership. [#53465]
+
+### Fixed
+- Connectors: Translate the Connectors card's text on sites that don't use English. [#53179]
+
+## [9.10.0] - 2026-10-12
+### Added
+- Add a Connected view to the Users page, and a link to it from the Connectors card. [#53150]
+
+### Changed
+- SSO: When a site requires two-step authentication and the WordPress.com account doesn't have it, name the logged-in account and make setting up two-step authentication the main action on the login screen. [#52403]
+
+## [9.9.1] - 2026-10-06
+### Security
+- Limit the data returned by the site data endpoint. [#53240]
+
+## [9.9.0] - 2026-10-05
+### Added
+- Connectors: Show when the connection owner is protected or still needs confirming. [#52980] [#53025]
+- Connectors card: Let the confirmed owner release ownership, so another administrator can confirm it instead. [#53028]
+- Let a connected administrator confirm they are the protected owner from the Connectors card. [#52980]
+- Owner: Let the confirmed owner hand the site to another administrator, which releases the site's protected ownership. [#53028]
+
+### Changed
+- Update package dependencies. [#52999]
+
+### Fixed
+- Site Health: Stop reporting false connection failures, and stop prompting a reconnect when the WordPress.com connection test is inconclusive. [#52916]
+
 ## [9.8.1] - 2026-09-29
 ### Changed
 - Protected owner: Ask WordPress.com over the REST API rather than XML-RPC. [#52928]
@@ -2122,6 +2168,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[9.12.1]: https://github.com/Automattic/jetpack-connection/compare/v9.12.0...v9.12.1
+[9.12.0]: https://github.com/Automattic/jetpack-connection/compare/v9.11.0...v9.12.0
+[9.11.0]: https://github.com/Automattic/jetpack-connection/compare/v9.10.0...v9.11.0
+[9.10.0]: https://github.com/Automattic/jetpack-connection/compare/v9.9.1...v9.10.0
+[9.9.1]: https://github.com/Automattic/jetpack-connection/compare/v9.9.0...v9.9.1
+[9.9.0]: https://github.com/Automattic/jetpack-connection/compare/v9.8.1...v9.9.0
 [9.8.1]: https://github.com/Automattic/jetpack-connection/compare/v9.8.0...v9.8.1
 [9.8.0]: https://github.com/Automattic/jetpack-connection/compare/v9.7.0...v9.8.0
 [9.7.0]: https://github.com/Automattic/jetpack-connection/compare/v9.6.0...v9.7.0

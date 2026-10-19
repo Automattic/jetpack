@@ -1,24 +1,10 @@
-import { writable, derived, type Writable, type Readable } from 'svelte/store';
+import { commands, selectors } from './store.ts';
 import { MeasurableImage } from '../MeasurableImage.ts';
-import type { Dimensions, Weight } from '../MeasurableImage.ts';
 
-/**
- * Each measurable image has its own set of Svelte stores.
- *
- * This class relies on MeasurableImage to calculate the values
- * and stores them in multiple Svelte stores,
- * so that the dimensions are easily
- * accessible in the components.
- */
+/** Keep image nodes, source tracking and the weight cache outside reducer state. */
 export class MeasurableImageStore {
-	readonly fileSize: Writable< Dimensions >;
-	readonly fileWeight: Writable< Weight >;
-	readonly sizeOnPage: Writable< Dimensions >;
-	readonly potentialSavings: Readable< number | null >;
-	readonly expectedSize: Readable< Dimensions >;
-	readonly oversizedRatio: Readable< number >;
-	readonly url: Writable< string >;
-	readonly loading = writable( true );
+	readonly id: string;
+	private static nextId = 0;
 
 	readonly image: MeasurableImage;
 	readonly node: MeasurableImage[ 'node' ];
@@ -26,65 +12,51 @@ export class MeasurableImageStore {
 	private weightMap: Record< string, number > = {};
 
 	private currentSrc = '';
+	private consumers = 0;
 
 	constructor( measurableImage: MeasurableImage ) {
 		this.image = measurableImage;
 		this.node = measurableImage.node;
 
-		const initialFileSize: Dimensions = {
-			width: 0,
-			height: 0,
+		this.id = String( MeasurableImageStore.nextId++ );
+		commands.setImage( this.id, {
+			fileSize: { width: 0, height: 0 },
+			sizeOnPage: { width: 0, height: 0 },
+			fileWeight: { weight: -1 },
+			url: measurableImage.getURL(),
+			loading: true,
+		} );
+	}
+
+	/** Read current image facts and derived measurements without activating fetching. */
+	public getSnapshot() {
+		return {
+			...selectors.getImageFacts( this.id ),
+			expectedSize: selectors.getExpectedSize( this.id ),
+			oversizedRatio: selectors.getOversizedRatio( this.id ),
+			potentialSavings: selectors.getPotentialSavings( this.id ),
 		};
+	}
 
-		const initialSizeOnPage: Dimensions = {
-			width: 0,
-			height: 0,
+	/** Acquire weight measurements until the returned idempotent release is called. */
+	public acquire() {
+		if ( this.consumers++ === 0 ) this.maybeUpdateWeight();
+		let active = true;
+		return () => {
+			if ( ! active ) return;
+			active = false;
+			this.consumers--;
 		};
-
-		this.url = writable( measurableImage.getURL() );
-		this.fileSize = writable( initialFileSize );
-		this.fileWeight = writable( { weight: -1 }, () => {
-			this.maybeUpdateWeight();
-		} );
-		this.sizeOnPage = writable( initialSizeOnPage );
-		this.potentialSavings = this.derivePotentialSavings();
-		this.oversizedRatio = this.deriveOversizedRatio();
-		this.expectedSize = this.deriveExpectedSize();
-	}
-
-	private deriveOversizedRatio() {
-		return derived( [ this.fileSize, this.sizeOnPage ], ( [ fileSize, sizeOnPage ] ) => {
-			return this.image.getOversizedRatio( fileSize, sizeOnPage );
-		} );
-	}
-
-	private deriveExpectedSize() {
-		return derived( this.sizeOnPage, sizeOnPage => {
-			return this.image.getExpectedSize( sizeOnPage );
-		} );
-	}
-
-	private derivePotentialSavings() {
-		return derived(
-			[ this.fileSize, this.fileWeight, this.sizeOnPage ],
-			( [ fileSize, fileWeight, sizeOnPage ] ) => {
-				return this.image.getPotentialSavings( fileSize, fileWeight, sizeOnPage );
-			}
-		);
 	}
 
 	public async updateDimensions() {
 		const sizeOnPage = this.image.getSizeOnPage();
-		this.sizeOnPage.set( sizeOnPage );
+		commands.updateImage( this.id, { sizeOnPage } );
 		await this.updateFileDimensions();
 	}
 
 	private async updateFileDimensions() {
-		/**
-		 * Current source can change when resizing screen.
-		 * If the URL has changed since last update,
-		 * we need to update the weight.
-		 */
+		// The source can change on resize; subsequent weight activation must use the new URL.
 		if ( this.image.getURL() === this.currentSrc ) {
 			return;
 		}
@@ -101,26 +73,24 @@ export class MeasurableImageStore {
 			};
 		}
 
-		this.url.set( this.currentSrc );
-		this.fileSize.set( fileSize );
+		commands.updateImage( this.id, { url: this.currentSrc, fileSize } );
 	}
 
 	private async maybeUpdateWeight() {
 		const url = this.currentSrc;
 
 		if ( this.weightMap[ url ] !== undefined ) {
-			this.fileWeight.set( { weight: this.weightMap[ url ] } );
+			commands.updateImage( this.id, { fileWeight: { weight: this.weightMap[ url ] } } );
 			return;
 		}
 
-		this.loading.set( true );
+		commands.updateImage( this.id, { loading: true } );
 		try {
 			const weight = await this.image.getWeight( url );
 			this.weightMap[ url ] = weight;
-			this.fileWeight.set( { weight } );
+			commands.updateImage( this.id, { fileWeight: { weight }, loading: false } );
 		} catch {
-			this.fileWeight.set( { weight: -1 } );
+			commands.updateImage( this.id, { fileWeight: { weight: -1 }, loading: false } );
 		}
-		this.loading.set( false );
 	}
 }

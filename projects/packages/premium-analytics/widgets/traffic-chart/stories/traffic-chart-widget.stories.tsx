@@ -9,6 +9,7 @@ import {
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
+import { withStoryPeriodHost } from '../../stories/with-story-period-host';
 import { withStoryRouter } from '../../stories/with-story-router';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import {
@@ -18,8 +19,10 @@ import {
 } from '../../stories/with-site-time-zone';
 import {
 	registerReportMocks,
+	setReportMockResponse,
 	setReportMockState,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import { forceStatsMockState } from '../../stories/force-stats-mock-state';
 import TrafficChartRender from '../render';
 import widgetDefinition, { type TrafficChartType } from '../widget';
 import widgetManifest from '../widget.json';
@@ -71,9 +74,8 @@ const meta = {
 	title: 'Packages/Premium Analytics/Widgets/TrafficChart',
 	component: TrafficChartRender,
 	tags: [ 'autodocs' ],
-	// The widget reads the report window off the route to drill on a click, so it
-	// needs a router even in the close-up stories that mount it without a dashboard.
-	decorators: [ withStoryRouter, withSiteTimeZone ],
+	// A bar click sets the period through the page hosting the widget, stood in for here.
+	decorators: [ withStoryPeriodHost, withStoryRouter, withSiteTimeZone ],
 	argTypes: {
 		...siteTimeZoneArgTypes,
 		withComparison: { control: 'boolean' },
@@ -83,7 +85,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					"Traffic over the selected period as selectable metric tabs — Views, Visitors, Likes, and Comments — over a comparative chart. The date range, comparison, and bucket size come from the dashboard controls: the bucket is whatever the page's interval control resolves to, clamped to one the chart can draw. \"Chart type\" is the `chartType` attribute (`relevance: 'high'`, so the host renders it in the widget header). Which metric is plotted is the chart's own tab selection. When comparison is on, each tab shows its period-over-period delta and the previous period is overlaid — as a same-colour dashed line for `line`, or as the translucent shadow bar behind each bar for `bar`. Views/visitors and likes/comments are fetched as two parallel requests (mirroring Calypso) to keep latency down; at the hourly grain the second request asks for visitors, likes, and comments in daily buckets, so their cards still show the day totals (skipped for a window that does not cover whole days, such as `Last 24 hours`). Data comes from the `useStatsVisits` hook; in Storybook it is served by `registerReportMocks`.",
+					"Traffic over the selected period as selectable metric tabs — Views, Visitors, Likes, and Comments — over a comparative chart. The date range and comparison come from the dashboard controls. The bucket size is the widget's own `chartInterval` attribute, clamped to what the range allows. \"Chart type\" is the `chartType` attribute (`relevance: 'high'`, so the host renders it in the widget header). Which metric is plotted is the chart's own tab selection. When comparison is on, each tab shows its period-over-period delta and the previous period is overlaid — as a same-colour dashed line for `line`, or as the translucent shadow bar behind each bar for `bar`. Views/visitors and likes/comments are fetched as two parallel requests (mirroring Calypso) to keep latency down; at the hourly grain the second request asks for visitors, likes, and comments in daily buckets, so their cards still show the day totals (skipped for a window that does not cover whole days, such as `Last 24 hours`). Data comes from the `useStatsVisits` hook; in Storybook it is served by `registerReportMocks`.",
 			},
 		},
 	},
@@ -131,10 +133,10 @@ export const BarChartWithComparison: Story = {
 };
 
 /**
- * An hourly range (`Last 24 hours`), where the page's interval control resolves
- * to `hour`. `stats/visits` fills Views alone at that grain, so the other three
- * tabs show a placeholder and, when selected, the reason — rather than a `0`
- * they cannot back up. The likes and comments request is skipped entirely.
+ * An hourly range (`Last 24 hours`), where the chart draws hourly buckets.
+ * `stats/visits` fills Views alone at that grain, so the other three tabs show
+ * a placeholder and, when selected, the reason — rather than a `0` they cannot
+ * back up. The likes and comments request is skipped entirely.
  *
  * Mounted through the dashboard harness rather than the close-up canvas: hour
  * ticks are the point of the story, and the canvas is too narrow to draw an
@@ -189,7 +191,31 @@ export const Empty: Story = {
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => {
 		setReportMockState( 'stats/visits', 'empty' );
-		return () => setReportMockState( 'stats/visits', null );
+		setReportMockResponse( '/wp/v2/posts', [ { id: 1 } ] );
+		return () => {
+			setReportMockState( 'stats/visits', null );
+			setReportMockResponse( '/wp/v2/posts', null );
+		};
+	},
+};
+
+export const EmptyNoPosts: Story = {
+	render: () => renderTrafficChartOnPreset( 'last-365-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		const scriptData = window.JetpackScriptData;
+		window.JetpackScriptData = {
+			...scriptData,
+			site: { ...scriptData?.site, admin_url: 'https://example.com/blog/wp-admin/' },
+		} as typeof window.JetpackScriptData;
+		setReportMockState( 'stats/visits', 'empty' );
+		forceStatsMockState( '/wp/v2/posts', 'empty' );
+		return () => {
+			window.JetpackScriptData = scriptData;
+			setReportMockState( 'stats/visits', null );
+			forceStatsMockState( '/wp/v2/posts', null );
+		};
 	},
 };
 

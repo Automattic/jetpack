@@ -1101,6 +1101,132 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Provide unpublished embedding contexts and caller-selected subscription plans.
+	 *
+	 * @return array[] Test cases.
+	 */
+	public static function unpublished_playback_context_provider(): array {
+		return array(
+			'draft'                  => array( 'draft', 0 ),
+			'pending'                => array( 'pending', 0 ),
+			'draft with a plan ID'   => array( 'draft', 123 ),
+			'pending with a plan ID' => array( 'pending', 123 ),
+		);
+	}
+
+	/**
+	 * @param string $post_status          The embedding post's status.
+	 * @param int    $subscription_plan_id The caller-selected subscription plan.
+	 * @dataProvider unpublished_playback_context_provider
+	 */
+	#[DataProvider( 'unpublished_playback_context_provider' )]
+	public function test_playback_jwt_dispatch_rejects_unpublished_embed( $post_status, $subscription_plan_id ) {
+		$guid     = 'dRaFt001';
+		$owner_id = $this->login_as( 'administrator' );
+		$this->mock_connection( $owner_id );
+		$this->create_videopress_attachment( $guid, \VIDEOPRESS_PRIVACY::IS_PRIVATE, $owner_id );
+		$user_id = $this->login_as( 'contributor' );
+		$post_id = $this->create_playback_embedding_post( $guid, $user_id, $post_status );
+
+		$this->assertTrue( current_user_can( 'read_post', $post_id ) );
+		$this->assertTrue( current_user_can( 'edit_post', $post_id ) );
+		$this->assertFalse( current_user_can( 'upload_files' ) );
+		$this->assertSame( array( $guid ), Access_Control::build_and_cache_post_guids( $post_id ) );
+
+		list( $response, $request_count ) = $this->dispatch_playback_jwt_with_mocked_token( $guid, $post_id, $subscription_plan_id );
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'unauthorized', $response->get_data()['code'] );
+		$this->assertArrayNotHasKey( 'playback_token', $response->get_data() );
+		$this->assertSame( 0, $request_count, 'Denied playback must not request a token from WordPress.com.' );
+	}
+
+	public function test_playback_jwt_dispatch_allows_published_embed() {
+		$guid     = 'pUbLiS01';
+		$owner_id = $this->login_as( 'administrator' );
+		$this->mock_connection( $owner_id );
+		$this->create_videopress_attachment( $guid, \VIDEOPRESS_PRIVACY::IS_PRIVATE, $owner_id );
+		$post_id = $this->create_playback_embedding_post( $guid, $owner_id, 'publish' );
+		$this->login_as( 'subscriber' );
+
+		list( $response, $request_count ) = $this->dispatch_playback_jwt_with_mocked_token( $guid, $post_id );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( 'playback-token-fixture', $response->get_data()['playback_token'] );
+		$this->assertSame( 1, $request_count );
+	}
+
+	public function test_playback_jwt_dispatch_allows_uploader_draft_preview() {
+		$guid    = 'pReViE01';
+		$user_id = $this->login_as( 'author' );
+		$this->mock_connection( $user_id );
+		$this->create_videopress_attachment( $guid, \VIDEOPRESS_PRIVACY::IS_PRIVATE, $user_id );
+		$post_id = $this->create_playback_embedding_post( $guid, $user_id, 'draft' );
+
+		list( $response, $request_count ) = $this->dispatch_playback_jwt_with_mocked_token( $guid, $post_id );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( 'playback-token-fixture', $response->get_data()['playback_token'] );
+		$this->assertSame( 1, $request_count );
+	}
+
+	/**
+	 * Create a post containing the requested video block.
+	 *
+	 * @param string $guid        The video guid to embed.
+	 * @param int    $author_id   The post's author.
+	 * @param string $post_status The post's status.
+	 * @return int The post id.
+	 */
+	private function create_playback_embedding_post( $guid, $author_id, $post_status ) {
+		kses_remove_filters();
+
+		return (int) wp_insert_post(
+			array(
+				'post_title'   => 'Video embedding fixture',
+				'post_author'  => $author_id,
+				'post_status'  => $post_status,
+				'post_content' => '<!-- wp:videopress/video {"guid":"' . $guid . '"} /-->',
+			)
+		);
+	}
+
+	/**
+	 * Dispatch playback with a mocked token response and count outbound requests.
+	 *
+	 * @param string $guid                 The requested video guid.
+	 * @param int    $post_id              The embedding post id.
+	 * @param int    $subscription_plan_id The caller-selected subscription plan.
+	 * @return array The REST response and token request count.
+	 */
+	private function dispatch_playback_jwt_with_mocked_token( $guid, $post_id, $subscription_plan_id = 0 ) {
+		$request_count = 0;
+		$mock_token    = static function () use ( &$request_count ) {
+			++$request_count;
+			return array(
+				'headers'  => array(),
+				'body'     => wp_json_encode( array( 'metadata_token' => 'playback-token-fixture' ), JSON_UNESCAPED_SLASHES ),
+				'response' => array(
+					'code'    => 200,
+					'message' => 'OK',
+				),
+			);
+		};
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		add_filter( 'pre_http_request', $mock_token );
+		try {
+			$request = new \WP_REST_Request( 'POST', '/wpcom/v2/videopress/playback-jwt/' . $guid );
+			$request->set_param( 'post_id', $post_id );
+			$request->set_param( 'subscription_plan_id', $subscription_plan_id );
+			$response = rest_get_server()->dispatch( $request );
+			return array( $response, $request_count );
+		} finally {
+			remove_filter( 'pre_http_request', $mock_token );
+			Constants::clear_single_constant( 'JETPACK__WPCOM_JSON_API_BASE' );
+		}
+	}
+
+	/**
 	 * Create a VideoPress attachment with a given privacy setting.
 	 *
 	 * @param string   $guid            The VideoPress guid to associate.

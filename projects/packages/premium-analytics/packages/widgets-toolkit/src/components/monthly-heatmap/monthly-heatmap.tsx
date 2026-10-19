@@ -14,11 +14,10 @@ import { useCallback, useMemo, type KeyboardEvent, type MouseEvent } from 'react
 /**
  * Internal dependencies
  */
+import { formatChartName } from '../../helpers/format-chart-name';
 import { MONTHS_IN_YEAR } from '../../helpers/month-key';
 import { CalendarHeatmapTooltip } from '../calendar-heatmap';
 import styles from './monthly-heatmap.module.scss';
-
-const TOOLTIP_STYLE = { padding: 'var(--jpa-heatmap-tooltip-padding)' };
 
 export type MonthlyHeatmapRow = {
 	year: number;
@@ -49,6 +48,8 @@ export type MonthlyHeatmapProps = {
 	moreLabel: string;
 	/** Called on click, or Enter and Space on the keyboard-selected cell. */
 	onSelect?: ( target: MonthlyHeatmapTarget ) => void;
+	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
+	chartTitle?: string;
 };
 
 // Below the floors the grid scrolls rather than crushing its cells; the cap
@@ -71,6 +72,7 @@ export function MonthlyHeatmap( {
 	lessLabel,
 	moreLabel,
 	onSelect,
+	chartTitle,
 }: MonthlyHeatmapProps ) {
 	const rows = useMemo( () => [ ...givenRows ].sort( ( a, b ) => b.year - a.year ), [ givenRows ] );
 
@@ -184,13 +186,12 @@ export function MonthlyHeatmap( {
 			<HeatmapChart
 				data={ columns }
 				rowLabels={ rowLabels }
+				ariaLabel={ formatChartName( chartTitle ) }
 				minCellWidth={ MIN_CELL_WIDTH }
 				minCellHeight={ MIN_CELL_HEIGHT }
 				maxCellHeight={ MAX_CELL_HEIGHT }
 				primaryColor="var(--wp-admin-theme-color, #3858e9)"
 				withTooltips
-				tooltipVariant="dark"
-				tooltipStyle={ TOOLTIP_STYLE }
 				renderTooltip={ renderTooltip }
 				className={ styles.chart }
 			>

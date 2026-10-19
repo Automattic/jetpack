@@ -9,6 +9,10 @@ namespace Automattic\Jetpack\Publicize\REST_API;
 
 use Automattic\Jetpack\Connection\Traits\WPCOM_REST_API_Proxy_Request;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Helper class to make proxy requests to wpcom.
  */

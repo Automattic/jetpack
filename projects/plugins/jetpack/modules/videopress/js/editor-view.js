@@ -15,7 +15,6 @@
 			loop: false,
 			freedom: false,
 			autoplay: false,
-			flashonly: false,
 		},
 		coerce: wp.media.coerce,
 		template: wp.template( 'videopress_iframe_vnext' ),
@@ -143,7 +142,6 @@
 						vpEditorView.modal_labels.autoplay,
 						vpEditorView.modal_labels.loop,
 						vpEditorView.modal_labels.freedom,
-						vpEditorView.modal_labels.flashonly,
 					].includes( this.settings.items.text )
 				) {
 					this.classes.add( 'videopress-checkbox' );
@@ -219,12 +217,6 @@
 						name: 'freedom',
 						label: vpEditorView.modal_labels.freedom,
 						checked: named.freedom,
-					},
-					{
-						type: 'checkbox',
-						name: 'flashonly',
-						label: vpEditorView.modal_labels.flashonly,
-						checked: named.flashonly,
 					},
 				],
 				onsubmit: function ( e ) {

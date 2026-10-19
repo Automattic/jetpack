@@ -32,6 +32,18 @@ class PayPal_REST_Controller_Test extends TestCase {
 	use PayPal_Tracks_Events;
 
 	/**
+	 * Every OAuth scope a seller grants when they accept the referral.
+	 */
+	private const SCOPES = array(
+		'https://uri.paypal.com/services/payments/realtimepayment',
+		'https://uri.paypal.com/services/payments/partnerfee',
+		'https://uri.paypal.com/services/payments/refund',
+		'https://uri.paypal.com/services/customer/merchant-integrations/read',
+		'https://uri.paypal.com/services/payments/payment/authcapture',
+		'https://uri.paypal.com/services/checkout/payment-resources/readwrite',
+	);
+
+	/**
 	 * Clean up after each test.
 	 */
 	protected function tearDown(): void {
@@ -113,6 +125,22 @@ class PayPal_REST_Controller_Test extends TestCase {
 				'message' => 'OK',
 			),
 			'body'     => wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
+		);
+	}
+
+	/**
+	 * The OAuth integrations on a merchant integration record.
+	 *
+	 * @param array $scopes Scope URIs the seller granted.
+	 * @return array
+	 */
+	private function oauth_integrations( array $scopes = self::SCOPES ) {
+		return array(
+			array(
+				'oauth_third_party' => array(
+					array( 'scopes' => $scopes ),
+				),
+			),
 		);
 	}
 
@@ -703,9 +731,10 @@ class PayPal_REST_Controller_Test extends TestCase {
 				'/paypal/platform/merchant-integration' => $this->http_response(
 					200,
 					array(
-						'merchant_id'   => 'MERCHANT1',
-						'tracking_id'   => 'woo-ncps-1234-1',
-						'primary_email' => 'junior@sports.com',
+						'merchant_id'        => 'MERCHANT1',
+						'tracking_id'        => 'woo-ncps-1234-1',
+						'primary_email'      => 'junior@sports.com',
+						'oauth_integrations' => $this->oauth_integrations(),
 					)
 				),
 				'/paypal/platform/request'              => $this->http_response(
@@ -727,6 +756,61 @@ class PayPal_REST_Controller_Test extends TestCase {
 		$this->assertSame( 'MERCHANT1', $result->get_data()['merchant_id'] );
 		$this->assertSame( 'junior@sports.com', $result->get_data()['account_email'] );
 		$this->assertSame( 'partner_referrals', $result->get_data()['method'] );
+	}
+
+	/**
+	 * Test that empty scopes return the permissions error and record a failed connection.
+	 */
+	public function test_onboarding_complete_returns_the_permissions_error_for_empty_scopes() {
+		wp_set_current_user( self::factory_create_admin_user() );
+		$this->set_up_blog_connection();
+		PayPal_OAuth::set_environment( 'sandbox' );
+		set_transient( PayPal_Partner_Onboarding::TRACKING_ID_TRANSIENT_KEY, 'woo-ncps-1234-1', 1800 );
+		$this->mock_http_routes(
+			array(
+				'/paypal/platform/merchant-integration' => $this->http_response(
+					200,
+					array(
+						'merchant_id'        => 'MERCHANT1',
+						'tracking_id'        => 'woo-ncps-1234-1',
+						'oauth_integrations' => $this->oauth_integrations( array() ),
+					)
+				),
+				'/paypal/platform/request'              => $this->http_response(
+					200,
+					array(
+						'status' => 200,
+						'body'   => wp_json_encode( array( 'resources' => array() ), JSON_UNESCAPED_SLASHES ),
+					)
+				),
+			)
+		);
+
+		$result = PayPal_REST_Controller::handle_onboarding_complete(
+			new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/onboarding/complete' )
+		);
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'paypal_onboarding_missing_scopes', $result->get_error_code() );
+		$this->assertSame(
+			"PayPal didn't grant the permissions this block needs. Connect again and approve all permissions.",
+			$result->get_error_message()
+		);
+		$this->assertSame( 403, $result->get_error_data()['status'] );
+		$this->assertEmpty( PayPal_Partner_Onboarding::get_merchant_id() );
+		$this->assertSame(
+			array(
+				array(
+					'event_name' => 'jetpack_paypal_connection_failed',
+					'properties' => array(
+						'environment' => 'sandbox',
+						'method'      => 'partner_referrals',
+						'error_code'  => 'paypal_onboarding_missing_scopes',
+					),
+				),
+			),
+			$this->recorded_events()
+		);
 	}
 
 	/**
@@ -774,6 +858,49 @@ class PayPal_REST_Controller_Test extends TestCase {
 
 		$this->assertInstanceOf( \WP_Error::class, $result );
 		$this->assertEquals( 'paypal_no_merchant_info', $result->get_error_code() );
+	}
+
+	/**
+	 * Test that merchant status returns PayPal's notice for an unconfirmed email.
+	 */
+	public function test_merchant_status_returns_the_email_notice() {
+		wp_set_current_user( self::factory_create_admin_user() );
+		$this->set_up_blog_connection();
+		PayPal_OAuth::set_environment( 'sandbox' );
+		update_option( PayPal_Partner_Onboarding::MERCHANT_ID_OPTION_KEY, 'MERCHANT1', false );
+		update_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY, PayPal_Partner_Onboarding::ONBOARDING_METHOD, false );
+		$this->mock_http_routes(
+			array(
+				'/paypal/platform/merchant-integration' => $this->http_response(
+					200,
+					array(
+						'merchant_id'             => 'MERCHANT1',
+						'primary_email'           => 'junior@sports.com',
+						'payments_receivable'     => true,
+						'primary_email_confirmed' => false,
+						'products'                => array( array( 'name' => 'EXPRESS_CHECKOUT' ) ),
+						'oauth_integrations'      => $this->oauth_integrations(),
+					)
+				),
+			)
+		);
+		$this->register_paypal_routes();
+
+		$response = rest_get_server()->dispatch( new \WP_REST_Request( 'GET', '/wpcom/v2/paypal/onboarding/status' ) );
+
+		$this->assertSame( 200, $response->get_status(), wp_json_encode( $response->get_data(), JSON_UNESCAPED_SLASHES ) );
+		$this->assertSame(
+			array(
+				'merchant_id'             => 'MERCHANT1',
+				'payments_receivable'     => true,
+				'primary_email_confirmed' => false,
+				'products'                => array( array( 'name' => 'EXPRESS_CHECKOUT' ) ),
+				'notices'                 => array(
+					'Attention: Please confirm your email address on https://www.sandbox.paypal.com/businessprofile/settings in order to receive payments! You currently cannot receive payments.',
+				),
+			),
+			$response->get_data()
+		);
 	}
 
 	// --- Button read routes ---
@@ -1124,6 +1251,51 @@ class PayPal_REST_Controller_Test extends TestCase {
 		);
 	}
 
+	/**
+	 * The payment holding that line item, as a GET returns it.
+	 *
+	 * @return array
+	 */
+	private function one_line_item_payment() {
+		return array(
+			'id'               => 'PLB-42',
+			'status'           => 'ACTIVE',
+			'type'             => 'BUY_NOW',
+			'integration_mode' => 'LINK',
+			'reusable'         => 'MULTIPLE',
+			'line_items'       => $this->one_line_item(),
+		);
+	}
+
+	/**
+	 * Stand in for PayPal on an update: the GET hands back $current, the PUT answers 204.
+	 *
+	 * @param array $current  The payment as PayPal holds it.
+	 * @param array $requests Optional. Collected by reference as [ method, body ] pairs.
+	 */
+	private function mock_update_round_trip( array $current, &$requests = null ) {
+		$requests = array();
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) use ( $current, &$requests ) {
+				if ( false === strpos( $url, '/v1/checkout/payment-resources' ) ) {
+					return $preempt;
+				}
+				$method     = $args['method'] ?? '';
+				$requests[] = array(
+					'method' => $method,
+					'body'   => (array) json_decode( (string) ( $args['body'] ?? '' ), true ),
+				);
+				if ( 'PUT' === $method ) {
+					return $this->http_response( 204, array() );
+				}
+				return $this->http_response( 200, $current );
+			},
+			10,
+			3
+		);
+	}
+
 	public function test_create_button_returns_the_block_attributes_with_the_sdk_url() {
 		// Otherwise a new stacked block saves an empty scriptSrc and stays that way:
 		// the mount GET comes after the post is serialized.
@@ -1196,23 +1368,20 @@ class PayPal_REST_Controller_Test extends TestCase {
 	}
 
 	/**
-	 * Test that an update makes one round trip in either mode while the snippets flag
+	 * Test that an update skips the re-read in either mode while the snippets flag
 	 * is absent.
 	 *
 	 * A link or QR block sharing a stacked block's payment sends BUTTON too, and only ever
-	 * wants the echo. The flag alone buys the read.
+	 * wants the echo. The flag alone buys the re-read; the read before the write is not it.
 	 *
 	 * @param string $integration_mode The mode the update sends.
 	 * @dataProvider integration_modes_provider
 	 */
 	#[DataProvider( 'integration_modes_provider' )]
-	public function test_update_button_keeps_its_single_round_trip_without_the_snippets_flag( $integration_mode ) {
+	public function test_update_button_skips_the_re_read_without_the_snippets_flag( $integration_mode ) {
 		$this->set_up_connected_admin_state();
 		$requests = array();
-		$this->mock_http_routes(
-			array( '/v1/checkout/payment-resources' => $this->http_response( 204, array() ) ),
-			$requests
-		);
+		$this->mock_update_round_trip( $this->one_line_item_payment(), $requests );
 
 		$request = new \WP_REST_Request( 'PUT', '/wpcom/v2/paypal/buttons/PLB-43' );
 		$request->set_param( 'resource_id', 'PLB-43' );
@@ -1222,8 +1391,8 @@ class PayPal_REST_Controller_Test extends TestCase {
 
 		$data = PayPal_REST_Controller::handle_update_button( $request )->get_data();
 
-		$this->assertCount( 1, $requests );
-		// The echo has no `id`, so mapping it would blank the block's resourceId.
+		$this->assertSame( array( 'GET', 'PUT' ), array_column( $requests, 'method' ) );
+		// The echo has no code_snippets, so mapping it would blank a stacked block's scriptSrc.
 		$this->assertArrayNotHasKey( 'attributes', $data );
 	}
 
@@ -1249,6 +1418,10 @@ class PayPal_REST_Controller_Test extends TestCase {
 				if ( 'PUT' === ( $args['method'] ?? '' ) ) {
 					return $this->http_response( 204, array() );
 				}
+				// The read before the write succeeds; only the re-read fails.
+				if ( 1 === count( array_keys( $methods, 'GET', true ) ) ) {
+					return $this->http_response( 200, $this->one_line_item_payment() );
+				}
 				return new \WP_Error( 'http_request_failed', 'Connection timed out' );
 			},
 			10,
@@ -1269,10 +1442,89 @@ class PayPal_REST_Controller_Test extends TestCase {
 		$this->assertArrayNotHasKey( 'attributes', $result->get_data() );
 		// The save goes out once, whatever the re-read does.
 		$this->assertCount( 1, array_keys( $methods, 'PUT', true ) );
-		$this->assertNotEmpty(
-			array_keys( $methods, 'GET', true ),
+		$this->assertSame( array( 'GET', 'PUT' ), array_slice( $methods, 0, 2 ) );
+		$this->assertContains(
+			'GET',
+			array_slice( $methods, 2 ),
 			'The echo is the fallback -- the re-read still has to be attempted.'
 		);
+	}
+
+	/**
+	 * The PUT body is the block laid over a fresh read, not over the cached copy.
+	 *
+	 * A link made through PayPal's API can carry keys the block has no control for, and
+	 * the cached copy may predate a change made the same way.
+	 */
+	public function test_update_lays_the_block_over_a_fresh_read() {
+		$this->set_up_connected_admin_state();
+		set_transient(
+			'paypal_resource_plb-42',
+			array_merge( $this->one_line_item_payment(), array( 'from_cache' => true ) ),
+			300
+		);
+		$current                                   = $this->one_line_item_payment();
+		$current['future_field']                   = 'kept';
+		$current['line_items'][0]['future_detail'] = 'kept';
+		$current['line_items'][0]['taxes']         = array(
+			array(
+				'type'  => 'PERCENTAGE',
+				'value' => '7.5',
+			),
+		);
+		$requests                                  = array();
+		$this->mock_update_round_trip( $current, $requests );
+
+		$request = new \WP_REST_Request( 'PUT', '/wpcom/v2/paypal/buttons/PLB-42' );
+		$request->set_param( 'resource_id', 'PLB-42' );
+		$request->set_param( 'type', 'BUY_NOW' );
+		$request->set_param( 'integration_mode', 'LINK' );
+		$request->set_param( 'line_items', $this->one_line_item() );
+
+		$result = PayPal_REST_Controller::handle_update_button( $request );
+
+		$this->assertInstanceOf( \WP_REST_Response::class, $result );
+		$put = (array) $requests[1]['body'];
+		$this->assertSame( 'kept', $put['future_field'] );
+		$this->assertSame( 'kept', $put['line_items'][0]['future_detail'] );
+		$this->assertArrayNotHasKey( 'taxes', $put['line_items'][0], 'A tax the block turned off came back from the read.' );
+		$this->assertArrayNotHasKey( 'from_cache', $put, 'The merge used the cached copy instead of a fresh read.' );
+		$this->assertArrayNotHasKey( 'status', $put );
+	}
+
+	/**
+	 * A read that fails stops the save, so a PUT never goes out without the keys it would drop.
+	 */
+	public function test_update_sends_no_put_when_the_read_fails() {
+		$this->set_up_connected_admin_state();
+		$methods = array();
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args ) use ( &$methods ) {
+				$methods[] = $args['method'] ?? '';
+				return $this->http_response(
+					404,
+					array(
+						'name'    => 'RESOURCE_NOT_FOUND',
+						'message' => 'The specified resource does not exist.',
+					)
+				);
+			},
+			10,
+			3
+		);
+
+		$request = new \WP_REST_Request( 'PUT', '/wpcom/v2/paypal/buttons/PLB-42' );
+		$request->set_param( 'resource_id', 'PLB-42' );
+		$request->set_param( 'type', 'BUY_NOW' );
+		$request->set_param( 'integration_mode', 'LINK' );
+		$request->set_param( 'line_items', $this->one_line_item() );
+
+		$result = PayPal_REST_Controller::handle_update_button( $request );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 404, $result->get_error_data()['status'] );
+		$this->assertSame( array( 'GET' ), $methods );
 	}
 
 	/**
@@ -1283,7 +1535,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 	 */
 	public function test_update_keeps_an_unknown_amount_type() {
 		$this->set_up_connected_admin_state();
-		$this->mock_http_response( 204, '' );
+		$this->mock_update_round_trip( $this->one_line_item_payment() );
 
 		$request = new \WP_REST_Request( 'PUT', '/wpcom/v2/paypal/buttons/PLB-42' );
 		$request->set_param( 'resource_id', 'PLB-42' );
@@ -1330,7 +1582,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 	 */
 	public function test_update_keeps_fields_set_outside_the_form() {
 		$this->set_up_connected_admin_state();
-		$this->mock_http_response( 204, '' );
+		$this->mock_update_round_trip( $this->one_line_item_payment() );
 
 		$request = new \WP_REST_Request( 'PUT', '/wpcom/v2/paypal/buttons/PLB-42' );
 		$request->set_param( 'resource_id', 'PLB-42' );
@@ -1493,7 +1745,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 	 */
 	public function test_update_sends_address_collection_when_on() {
 		$this->set_up_connected_admin_state();
-		$this->mock_http_response( 204, '' );
+		$this->mock_update_round_trip( $this->one_line_item_payment() );
 
 		$request = new \WP_REST_Request( 'PUT', '/wpcom/v2/paypal/buttons/PLB-42' );
 		$request->set_param( 'resource_id', 'PLB-42' );
@@ -1524,7 +1776,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 	 */
 	public function test_update_drops_a_whitespace_only_product_id() {
 		$this->set_up_connected_admin_state();
-		$this->mock_http_response( 204, '' );
+		$this->mock_update_round_trip( $this->one_line_item_payment() );
 
 		$request = new \WP_REST_Request( 'PUT', '/wpcom/v2/paypal/buttons/PLB-42' );
 		$request->set_param( 'resource_id', 'PLB-42' );
@@ -1558,7 +1810,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 	 */
 	public function test_update_keeps_a_zero_amount() {
 		$this->set_up_connected_admin_state();
-		$this->mock_http_response( 204, '' );
+		$this->mock_update_round_trip( $this->one_line_item_payment() );
 
 		$request = new \WP_REST_Request( 'PUT', '/wpcom/v2/paypal/buttons/PLB-42' );
 		$request->set_param( 'resource_id', 'PLB-42' );
@@ -1600,7 +1852,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 	 */
 	public function test_update_keeps_a_tax_without_a_name() {
 		$this->set_up_connected_admin_state();
-		$this->mock_http_response( 204, '' );
+		$this->mock_update_round_trip( $this->one_line_item_payment() );
 
 		$request = new \WP_REST_Request( 'PUT', '/wpcom/v2/paypal/buttons/PLB-42' );
 		$request->set_param( 'resource_id', 'PLB-42' );
@@ -1647,7 +1899,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 	 */
 	public function test_update_keeps_a_tax_name_the_payment_already_has() {
 		$this->set_up_connected_admin_state();
-		$this->mock_http_response( 204, '' );
+		$this->mock_update_round_trip( $this->one_line_item_payment() );
 
 		$request = new \WP_REST_Request( 'PUT', '/wpcom/v2/paypal/buttons/PLB-42' );
 		$request->set_param( 'resource_id', 'PLB-42' );
@@ -1695,7 +1947,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 	 */
 	public function test_update_keeps_a_paypal_profile_tax_without_a_name() {
 		$this->set_up_connected_admin_state();
-		$this->mock_http_response( 204, '' );
+		$this->mock_update_round_trip( $this->one_line_item_payment() );
 
 		$request = new \WP_REST_Request( 'PUT', '/wpcom/v2/paypal/buttons/PLB-42' );
 		$request->set_param( 'resource_id', 'PLB-42' );
@@ -2230,8 +2482,9 @@ class PayPal_REST_Controller_Test extends TestCase {
 				'/paypal/platform/merchant-integration' => $this->http_response(
 					200,
 					array(
-						'merchant_id' => 'MERCHANT1',
-						'tracking_id' => 'woo-ncps-1234-1',
+						'merchant_id'        => 'MERCHANT1',
+						'tracking_id'        => 'woo-ncps-1234-1',
+						'oauth_integrations' => $this->oauth_integrations(),
 					)
 				),
 				'/paypal/platform/request'              => $this->http_response(
@@ -3156,7 +3409,15 @@ class PayPal_REST_Controller_Test extends TestCase {
 		);
 		$this->assertNotEmpty( $requests, 'No request was sent to PayPal.' );
 
-		$body = (array) json_decode( (string) $requests[0]['args']['body'], true );
+		$write = null;
+		foreach ( $requests as $sent ) {
+			if ( $method === ( $sent['args']['method'] ?? '' ) ) {
+				$write = $sent;
+			}
+		}
+		$this->assertNotNull( $write, 'No ' . $method . ' was sent to PayPal.' );
+
+		$body = (array) json_decode( (string) $write['args']['body'], true );
 		$this->assertArrayHasKey( 'line_items', $body );
 
 		$line_item = $body['line_items'][0];

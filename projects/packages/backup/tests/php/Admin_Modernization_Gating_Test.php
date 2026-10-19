@@ -9,32 +9,23 @@
 namespace Automattic\Jetpack\Backup\V0005;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
-use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
-use WP_Error;
 use function add_filter;
-use function delete_transient;
 use function do_action;
 use function get_current_screen;
-use function get_current_user_id;
 use function has_action;
 use function remove_action;
 use function remove_all_actions;
 use function remove_all_filters;
 use function set_current_screen;
-use function set_transient;
 use function wp_dequeue_script;
 use function wp_deregister_script;
-use function wp_insert_user;
-use function wp_rand;
 use function wp_script_is;
 use function wp_scripts;
-use function wp_set_current_user;
 
 require_once __DIR__ . '/mock-wp-build-render-page.php';
 require_once __DIR__ . '/mock-wpcomsh-site-sticker.php';
@@ -65,25 +56,28 @@ class Admin_Modernization_Gating_Test extends TestCase {
 	/** @var array The `admin_print_scripts` callback `maybe_load_wp_build()` adds. */
 	private const INITIAL_STATE_CALLBACK = array( Jetpack_Backup::class, 'render_connection_initial_state' );
 
+	/** @var array|null The `$_parent_pages` global as the test found it. */
+	private $original_parent_pages;
+
 	public function setUp(): void {
 		parent::setUp();
+
+		$this->original_parent_pages = $GLOBALS['_parent_pages'] ?? null;
+		$GLOBALS['_parent_pages']    = array();
 
 		$this->reset_scripts();
 		$this->set_admin_menu_items( array() );
 	}
 
 	public function tearDown(): void {
+		$GLOBALS['_parent_pages'] = $this->original_parent_pages;
 		remove_all_filters( Jetpack_Backup::MODERNIZATION_FILTER );
 		remove_all_filters( 'jetpack_offline_mode' );
-		remove_all_filters( 'pre_http_request' );
 		remove_all_actions( 'load-jetpack_page_jetpack-backup' );
 		remove_all_actions( 'jetpack_use_iframe_authorization_flow' );
 		$this->leave_backup_admin_request();
 
-		Constants::clear_single_constant( 'AT_PROXIED_REQUEST' );
-		Constants::clear_single_constant( 'JETPACK__WPCOM_JSON_API_BASE' );
 		unset( $GLOBALS['jetpack_backup_test_site_stickers'] );
-		wp_set_current_user( 0 );
 
 		$this->reset_scripts();
 		$this->set_admin_menu_items( array() );
@@ -94,78 +88,16 @@ class Admin_Modernization_Gating_Test extends TestCase {
 		parent::tearDown();
 	}
 
-	public function test_is_modernized_defaults_to_false() {
-		$this->assertFalse( Jetpack_Backup::is_modernized() );
+	public function test_is_modernized_defaults_to_true() {
+		$this->assertTrue( Jetpack_Backup::is_modernized() );
 	}
 
 	public function test_is_modernized_follows_the_filter() {
-		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
-		$this->assertTrue( Jetpack_Backup::is_modernized() );
-
-		remove_all_filters( Jetpack_Backup::MODERNIZATION_FILTER );
 		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_false' );
 		$this->assertFalse( Jetpack_Backup::is_modernized() );
 	}
 
-	/**
-	 * @dataProvider provide_automattician_emails
-	 *
-	 * @param string $email The connected WordPress.com account's email.
-	 */
-	#[DataProvider( 'provide_automattician_emails' )]
-	public function test_is_modernized_for_a_proxied_automattician_unless_the_filter_says_no( $email ) {
-		$this->arrange_connected_user( $email );
-		Constants::set_constant( 'AT_PROXIED_REQUEST', true );
-
-		$this->assertTrue( Jetpack_Backup::is_modernized() );
-
-		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_false' );
-		$this->assertFalse( Jetpack_Backup::is_modernized() );
-	}
-
-	/**
-	 * @return array<string, array{string}>
-	 */
-	public static function provide_automattician_emails() {
-		return array(
-			'automattic.com' => array( 'someone@automattic.com' ),
-			'a8c.com'        => array( 'someone@a8c.com' ),
-		);
-	}
-
-	public function test_is_modernized_ignores_an_automattician_without_the_proxy() {
-		$this->arrange_connected_user( 'someone@automattic.com' );
-
-		$this->assertFalse( Jetpack_Backup::is_modernized() );
-	}
-
-	/**
-	 * @dataProvider provide_non_automattician_emails
-	 *
-	 * @param string $email The connected WordPress.com account's email.
-	 */
-	#[DataProvider( 'provide_non_automattician_emails' )]
-	public function test_is_modernized_ignores_a_proxied_non_automattician( $email ) {
-		$this->arrange_connected_user( $email );
-		Constants::set_constant( 'AT_PROXIED_REQUEST', true );
-
-		$this->assertFalse( Jetpack_Backup::is_modernized() );
-	}
-
-	/**
-	 * @return array<string, array{string}>
-	 */
-	public static function provide_non_automattician_emails() {
-		return array(
-			'customer'          => array( 'someone@example.com' ),
-			'look-alike domain' => array( 'someone@notautomattic.com' ),
-			'look-alike a8c'    => array( 'someone@nota8c.com' ),
-		);
-	}
-
-	public function test_legacy_sticker_hands_a_proxied_automattician_back_to_the_filter() {
-		$this->arrange_connected_user( 'someone@automattic.com' );
-		Constants::set_constant( 'AT_PROXIED_REQUEST', true );
+	public function test_legacy_sticker_turns_off_the_default_but_not_the_filter() {
 		$GLOBALS['jetpack_backup_test_site_stickers'] = array( Jetpack_Backup::LEGACY_DASHBOARD_STICKER );
 
 		$this->assertFalse( Jetpack_Backup::is_modernized() );
@@ -174,31 +106,9 @@ class Admin_Modernization_Gating_Test extends TestCase {
 		$this->assertTrue( Jetpack_Backup::is_modernized() );
 	}
 
-	/** `is_modernized()` runs on every admin and REST request, so the remote lookup must stay behind the proxy check. */
-	public function test_is_modernized_looks_up_the_user_only_on_proxied_requests() {
-		$this->arrange_connected_user( 'someone@automattic.com' );
-		delete_transient( 'jetpack_connected_user_data_' . get_current_user_id() );
-		// Without it, the first signed request in the process has no host and fails before HTTP.
-		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
-
-		$http_requests = 0;
-		add_filter(
-			'pre_http_request',
-			function () use ( &$http_requests ) {
-				++$http_requests;
-				return new WP_Error( 'http_request_blocked' );
-			}
-		);
-
-		Jetpack_Backup::is_modernized();
-		$this->assertSame( 0, $http_requests );
-
-		Constants::set_constant( 'AT_PROXIED_REQUEST', true );
-		Jetpack_Backup::is_modernized();
-		$this->assertSame( 1, $http_requests );
-	}
-
 	public function test_enqueue_admin_scripts_registers_legacy_script_when_not_modernized() {
+		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_false' );
+
 		Jetpack_Backup::enqueue_admin_scripts();
 
 		$this->assertTrue( wp_script_is( 'jetpack-backup', 'registered' ) );
@@ -241,6 +151,8 @@ class Admin_Modernization_Gating_Test extends TestCase {
 	}
 
 	public function test_add_wp_admin_submenu_uses_legacy_callback_when_not_modernized() {
+		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_false' );
+
 		Jetpack_Backup::add_wp_admin_submenu();
 
 		$items = $this->get_admin_menu_items();
@@ -265,6 +177,8 @@ class Admin_Modernization_Gating_Test extends TestCase {
 	}
 
 	public function test_maybe_load_wp_build_does_nothing_when_not_modernized() {
+		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_false' );
+
 		$this->enter_backup_admin_request();
 
 		Jetpack_Backup::maybe_load_wp_build();
@@ -335,29 +249,44 @@ class Admin_Modernization_Gating_Test extends TestCase {
 		$this->assertStringContainsString( 'JP_CONNECTION_INITIAL_STATE', $output );
 	}
 
+	public function test_render_connection_initial_state_emits_a_null_activity_log_url_without_the_page() {
+		ob_start();
+		Jetpack_Backup::render_connection_initial_state();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'window.JPBACKUP_DASHBOARD_STATE={"activityLogUrl":null};', $output );
+	}
+
+	public function test_render_connection_initial_state_emits_the_activity_log_url_when_the_page_exists() {
+		$this->register_activity_log_page();
+
+		ob_start();
+		Jetpack_Backup::render_connection_initial_state();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( '"activityLogUrl":"http://example.org/wp-admin/admin.php?page=jetpack-activity-log"', $output );
+	}
+
+	public function test_activity_log_url_is_null_without_the_page_and_the_page_url_with_it() {
+		$this->assertNull( Jetpack_Backup::get_activity_log_url() );
+
+		$this->register_activity_log_page();
+		$this->assertStringEndsWith( 'admin.php?page=jetpack-activity-log', Jetpack_Backup::get_activity_log_url() );
+	}
+
+	/** Make `menu_page_url()` see the Activity Log page the way a built admin menu would. */
+	private function register_activity_log_page() {
+		$GLOBALS['_parent_pages'] = array(
+			'jetpack'              => false,
+			'jetpack-activity-log' => 'jetpack',
+		);
+	}
+
 	/** `can_use_analytics()` needs offline mode off and the terms of service agreed. */
 	private function allow_analytics() {
 		add_filter( 'jetpack_offline_mode', '__return_false' );
 		Status_Cache::clear();
 		Jetpack_Options::update_option( 'tos_agreed', true );
-	}
-
-	/**
-	 * Sign in a user whose WordPress.com account has the given email. The transient stands in for WordPress.com.
-	 *
-	 * @param string $email The connected WordPress.com account's email.
-	 */
-	private function arrange_connected_user( $email ) {
-		$user_id = wp_insert_user(
-			array(
-				'user_login' => 'user_' . wp_rand( 1, PHP_INT_MAX ),
-				'user_pass'  => 'dummy_pass',
-				'role'       => 'administrator',
-			)
-		);
-		wp_set_current_user( $user_id );
-		Jetpack_Options::update_option( 'user_tokens', array( $user_id => "token.secret.$user_id" ) );
-		set_transient( "jetpack_connected_user_data_$user_id", array( 'email' => $email ) );
 	}
 
 	/** `is_backup_admin_request()` reads `is_admin()` and `$_GET['page']`. */
