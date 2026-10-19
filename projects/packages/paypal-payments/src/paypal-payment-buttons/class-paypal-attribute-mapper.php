@@ -123,7 +123,7 @@ class PayPal_Attribute_Mapper {
 	 *
 	 * `payment_link` is this package's own copy of the HATEOAS link.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.13.0
 	 *
 	 * @var string[]
 	 */
@@ -143,7 +143,7 @@ class PayPal_Attribute_Mapper {
 	 * With OWNED_LINE_ITEM_KEYS, these are the keys api_response_to_attributes() reads
 	 * into editable attributes; change the three together.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.13.0
 	 *
 	 * @var string[]
 	 */
@@ -159,7 +159,7 @@ class PayPal_Attribute_Mapper {
 	 * `collect_shipping_address` is left off on purpose: PayPal turns address
 	 * collection on for a body without it, so it stays as PayPal had it when not sent.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.13.0
 	 *
 	 * @var string[]
 	 */
@@ -449,7 +449,7 @@ class PayPal_Attribute_Mapper {
 	 * the body has them, dropped when it does not, since leaving one out is how a PUT
 	 * clears it. Line items merge per index, so a second item PayPal holds survives.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.13.0
 	 *
 	 * @param array $current The payment as a GET returned it.
 	 * @param array $update  The body built from the block.

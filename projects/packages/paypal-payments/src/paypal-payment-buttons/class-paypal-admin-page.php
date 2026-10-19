@@ -50,7 +50,7 @@ class PayPal_Admin_Page {
 	/**
 	 * Posts listed per page in the Button Locations card.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.13.0
 	 *
 	 * @var int
 	 */
@@ -59,7 +59,7 @@ class PayPal_Admin_Page {
 	/**
 	 * AJAX action that returns the next page of the Button Locations card.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.13.0
 	 *
 	 * @var string
 	 */
@@ -172,7 +172,7 @@ class PayPal_Admin_Page {
 	 * than scanning every block post, so it can page past the scan cap.
 	 * Fetches one row past the page to learn whether there is a next one.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.13.0
 	 *
 	 * @param string $resource_id PayPal resource ID.
 	 * @param int    $page        1-based page number.
@@ -291,7 +291,7 @@ class PayPal_Admin_Page {
 	/**
 	 * Answer the Button Locations card's request for its next page of posts.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.13.0
 	 * @return void
 	 */
 	public static function handle_locations_request() {

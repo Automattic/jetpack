@@ -275,7 +275,7 @@ function videopress_build_url( $guid ) {
  * callback from the VideoPress servers.
  *
  * @since 4.4
- * @since $$next-version$$ Accepts a minimum attachment ID supplied by VideoPress.
+ * @since 0.58.0 Accepts a minimum attachment ID supplied by VideoPress.
  * @param string      $title The post_title.
  * @param string|null $guid Optional VideoPress guid.
  * @param int         $minimum_attachment_id Optional lowest attachment ID allowed by VideoPress.
