@@ -170,12 +170,6 @@ export const TASK_ANNOTATIONS: readonly TaskAnnotation[] = [
 		avoidWhen: 'domain_claim is available — a free domain beats a paid one.',
 	},
 	{
-		id: 'domain_customize',
-		what: 'Manages DNS and settings for a domain already connected to the site.',
-		pickWhen: 'the site already has a custom domain that needs configuring.',
-		avoidWhen: 'the site is still on a wordpress.com subdomain.',
-	},
-	{
 		id: 'verify_email',
 		what: "Confirms the account's email address.",
 		pickWhen: 'rarely — it is account housekeeping, not site building.',
@@ -252,13 +246,6 @@ export const TASK_ANNOTATIONS: readonly TaskAnnotation[] = [
 		id: 'woo_marketing',
 		what: 'Opens WooCommerce marketing tools for promoting the store.',
 		pickWhen: 'the store already has products and needs customers.',
-		goals: [ 'sell' ],
-	},
-	{
-		id: 'woo_add_domain',
-		what: 'Adds a custom domain to the store.',
-		pickWhen: 'the store needs its own address and no other domain task is on the list.',
-		avoidWhen: 'domain_claim or domain_upsell is already offered.',
 		goals: [ 'sell' ],
 	},
 	{
