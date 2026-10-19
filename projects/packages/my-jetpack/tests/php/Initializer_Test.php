@@ -278,7 +278,6 @@ class Initializer_Test extends BaseTestCase {
 		$this->load_jetpack_mock();
 		$this->log_in_as_admin();
 		wp_get_current_user()->add_cap( 'jetpack_manage_modules' );
-		add_filter( 'jetpack_feature_flag_enabled_my-jetpack-modules-to-features', '__return_false' );
 		$_GET   = array(
 			'page'             => 'my-jetpack',
 			'modules_fallback' => '1',

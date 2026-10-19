@@ -1084,7 +1084,7 @@ class Initializer {
 		 * @param bool $available True to allow the Features tab; false keeps the classic Modules screen, for a host where My Jetpack is not shown.
 		 */
 		$available = apply_filters( 'jetpack_my_jetpack_modules_management_available', true );
-		$available = $available && Feature_Flags::is_enabled( self::MODULES_TO_FEATURES_FLAG );
+		$available = $available && self::is_modules_to_features_enabled();
 		$classic   = add_query_arg( array_merge( urlencode_deep( $args ), array( 'page' => 'jetpack_modules' ) ), admin_url( 'admin.php' ) );
 		if (
 			! $available
@@ -1100,6 +1100,7 @@ class Initializer {
 			|| ! self::should_initialize()
 			|| ! ( new Connection_Manager() )->is_connected()
 			|| null !== self::get_partner_coupon_screen()
+			// Predict My Jetpack's setup redirect for a Features URL with no step; keep both decisions in sync.
 			|| null !== self::get_onboarding_redirect_args_for_step( '' )
 			|| ! self::is_modules_rest_api_enabled()
 		) {
@@ -1176,8 +1177,8 @@ class Initializer {
 	}
 
 	/**
-	 * On a My Jetpack page reached from a redirected Modules link (`modules_fallback=1`), send the browser back to the classic Modules screen:
-	 * always when JavaScript is off, and for everyone when the REST API is off or blocked.
+	 * With `my-jetpack-modules-to-features` on, send My Jetpack requests with `modules_fallback=1` back to classic Modules:
+	 * always without JavaScript, and for everyone when REST is unavailable.
 	 *
 	 * @since $$next-version$$
 	 * @return void
@@ -1185,7 +1186,7 @@ class Initializer {
 	public static function print_modules_fallback() {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only navigation fallback.
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- Only the exact allowlisted marker is accepted.
-		if ( ! Feature_Flags::is_enabled( self::MODULES_TO_FEATURES_FLAG ) || 'my-jetpack' !== ( $_GET['page'] ?? null ) || '1' !== ( $_GET['modules_fallback'] ?? null ) || ! class_exists( 'Jetpack' ) || ! current_user_can( 'jetpack_manage_modules' ) ) {
+		if ( ! self::is_modules_to_features_enabled() || 'my-jetpack' !== ( $_GET['page'] ?? null ) || '1' !== ( $_GET['modules_fallback'] ?? null ) || ! class_exists( 'Jetpack' ) || ! current_user_can( 'jetpack_manage_modules' ) ) {
 			return;
 		}
 		$args = array( 'page' => 'jetpack_modules' );
@@ -1494,6 +1495,15 @@ class Initializer {
 	 */
 	public static function is_overview_v1_enabled() {
 		return Feature_Flags::is_enabled( self::OVERVIEW_V1_FLAG );
+	}
+
+	/**
+	 * Whether Modules links may use Features.
+	 *
+	 * @return bool
+	 */
+	private static function is_modules_to_features_enabled() {
+		return Feature_Flags::is_enabled( self::MODULES_TO_FEATURES_FLAG );
 	}
 
 	/**
