@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Onboarding: Hide other plugins' notices while the setup screen is open, and stop the full-screen layout breaking when another plugin adds an admin body class first.

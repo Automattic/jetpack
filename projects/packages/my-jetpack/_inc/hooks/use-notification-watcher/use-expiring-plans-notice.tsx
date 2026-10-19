@@ -36,18 +36,27 @@ const useExpiringPlansNotice: NoticeHookType = ( redBubbleAlerts, isLoading ) =>
 		product_slug: productSlug,
 		product_name: productName,
 		expiry_date: expiryDate,
-		manage_url: manageUrl,
+		manage_url: alertManageUrl,
 		products_effected: productsEffected,
+		wpcom_plan_notice: wpcomPlanNotice,
 	} = redBubbleAlerts?.[ alertToDisplay ] || {};
 
-	const { noticeTitle, noticeMessage, learnMoreUrl } =
-		useGetExpiringNoticeContent( {
-			productSlug,
-			expiredAlertType,
-			productName,
-			expiryDate,
-			productsEffected,
-		} ) || {};
+	const {
+		noticeTitle: generatedTitle,
+		noticeMessage: generatedMessage,
+		learnMoreUrl: generatedLearnMoreUrl,
+	} = useGetExpiringNoticeContent( {
+		productSlug,
+		expiredAlertType,
+		productName,
+		expiryDate,
+		productsEffected,
+	} ) || {};
+	const [ wpcomPrimaryCta, wpcomSecondaryCta ] = wpcomPlanNotice?.actions ?? [];
+	const noticeTitle = wpcomPlanNotice?.title ?? generatedTitle;
+	const noticeMessage = wpcomPlanNotice?.message ?? generatedMessage;
+	const manageUrl = wpcomPrimaryCta?.url ?? alertManageUrl;
+	const learnMoreUrl = wpcomSecondaryCta?.url ?? generatedLearnMoreUrl;
 
 	const cookieKey = useMemo( () => {
 		return isExpiredAlert
@@ -70,9 +79,10 @@ const useExpiringPlansNotice: NoticeHookType = ( redBubbleAlerts, isLoading ) =>
 				: 'jetpack_my_jetpack_plan_expiring_soon_notice_primary_cta_click',
 			{
 				product_slug: productSlug,
+				...wpcomPlanNotice?.track_props,
 			}
 		);
-	}, [ isExpiredAlert, manageUrl, productSlug, recordEvent ] );
+	}, [ isExpiredAlert, manageUrl, productSlug, recordEvent, wpcomPlanNotice ] );
 
 	const onSecondaryCtaClick = useCallback( () => {
 		window.open( learnMoreUrl );
@@ -82,9 +92,10 @@ const useExpiringPlansNotice: NoticeHookType = ( redBubbleAlerts, isLoading ) =>
 				: 'jetpack_my_jetpack_plan_expiring_soon_notice_secondary_cta_click',
 			{
 				product_slug: productSlug,
+				...wpcomPlanNotice?.track_props,
 			}
 		);
-	}, [ learnMoreUrl, isExpiredAlert, productSlug, recordEvent ] );
+	}, [ learnMoreUrl, isExpiredAlert, productSlug, recordEvent, wpcomPlanNotice ] );
 
 	useEffect( () => {
 		if ( ! alertToDisplay ) {
@@ -96,21 +107,28 @@ const useExpiringPlansNotice: NoticeHookType = ( redBubbleAlerts, isLoading ) =>
 
 		const noticeOptions: NoticeOptions = {
 			id: isExpiredAlert ? 'plan-expired-notice' : 'plan-expiring-soon-notice',
-			level: isExpiredAlert ? 'error' : 'warning',
-			actions: [
-				{
-					label: isExpiredAlert ? resumePlanText : renewPlanText,
-					onClick: onPrimaryCtaClick,
-					noDefaultClasses: true,
-				},
-				{
-					label: __( 'Learn more', 'jetpack-my-jetpack' ),
-					onClick: onSecondaryCtaClick,
-					isExternalLink: true,
-				},
-			],
+			level: wpcomPlanNotice?.level ?? ( isExpiredAlert ? 'error' : 'warning' ),
+			actions: wpcomPlanNotice
+				? wpcomPlanNotice.actions.map( ( { label }, index ) => ( {
+						label,
+						onClick: index ? onSecondaryCtaClick : onPrimaryCtaClick,
+						isExternalLink: index > 0,
+					} ) )
+				: [
+						{
+							label: isExpiredAlert ? resumePlanText : renewPlanText,
+							onClick: onPrimaryCtaClick,
+							noDefaultClasses: true,
+						},
+						{
+							label: __( 'Learn more', 'jetpack-my-jetpack' ),
+							onClick: onSecondaryCtaClick,
+							isExternalLink: true,
+						},
+					],
 			onClose: onCloseClick,
-			hideCloseButton: false,
+			hideCloseButton: wpcomPlanNotice ? ! wpcomPlanNotice.is_dismissible : false,
+			tracksArgs: wpcomPlanNotice?.track_props,
 			priority: NOTICE_PRIORITY_MEDIUM,
 		};
 
@@ -127,6 +145,7 @@ const useExpiringPlansNotice: NoticeHookType = ( redBubbleAlerts, isLoading ) =>
 		recordEvent,
 		alertToDisplay,
 		onCloseClick,
+		wpcomPlanNotice,
 		onPrimaryCtaClick,
 		onSecondaryCtaClick,
 		noticeTitle,

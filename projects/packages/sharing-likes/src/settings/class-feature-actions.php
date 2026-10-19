@@ -10,6 +10,7 @@ declare( strict_types = 1 );
 namespace Automattic\Jetpack\Sharing_Likes\Settings;
 
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Sharing_Likes\Hooked_Blocks\Sharing_Buttons_Markup;
 
 /**
  * Actions that change which variant a feature section renders, rather than a setting.
@@ -69,9 +70,11 @@ final class Feature_Actions {
 	}
 
 	/**
-	 * Leave sharedaddy no services to render.
+	 * Leave sharedaddy no services to render, keeping a copy for the block's buttons.
 	 */
 	private static function remove_all_sharing_services(): void {
+		Sharing_Buttons_Markup::remember_legacy_services();
+
 		// Preferred over writing the option, because wpcom hooks the state change it announces.
 		if ( class_exists( 'Sharing_Service' ) ) {
 			( new \Sharing_Service() )->set_blog_services( array(), array() );

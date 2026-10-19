@@ -9,12 +9,14 @@ declare( strict_types = 1 );
 
 namespace Automattic\Jetpack\Sharing_Likes;
 
+use Automattic\Jetpack\Sharing_Likes\Hooked_Blocks\Hooked_Blocks;
 use Automattic\Jetpack\Sharing_Likes\REST\Endpoints;
 use Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler;
 use Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page;
 
 /**
- * Wires up Settings > Sharing and the REST routes behind it, even with the Sharing, Likes and Comment Likes modules off.
+ * Wires up Settings > Sharing, the REST routes behind it, and the Sharing Buttons and Like blocks'
+ * template placements, even with the Sharing, Likes and Comment Likes modules off.
  */
 final class Initializer {
 
@@ -43,5 +45,6 @@ final class Initializer {
 		Endpoints::init();
 		Settings_Page::init();
 		Post_Handler::init();
+		Hooked_Blocks::init();
 	}
 }

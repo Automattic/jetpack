@@ -68,6 +68,10 @@
 			"enum": [ "numbered", "load-more" ],
 			"default": "numbered"
 		},
+		"excludeCurrent": {
+			"type": "boolean",
+			"default": false
+		},
 		"showUpdated": {
 			"type": "boolean",
 			"default": false

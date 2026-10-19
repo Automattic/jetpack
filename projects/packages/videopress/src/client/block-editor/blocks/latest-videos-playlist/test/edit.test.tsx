@@ -202,6 +202,60 @@ describe( 'LatestVideosPlaylistEdit', () => {
 		expect( setAttributes ).toHaveBeenCalledWith( { showPlayer: false } );
 	} );
 
+	it.each( [
+		{ orderBy: 'popular' },
+		{ showBrowseControls: true },
+		{ pagination: 'numbered' },
+		{ excludeCurrent: true },
+		{ showMeta: true },
+	] as Partial< LatestVideosPlaylistAttributes >[] )(
+		'previews the site render for %o, which the canvas cannot show',
+		async overrides => {
+			const newest = apiFetchMock.getMockImplementation();
+			apiFetchMock.mockImplementation( ( { path }: { path: string } ) =>
+				path.startsWith( '/wp/v2/block-renderer/' )
+					? Promise.resolve( { rendered: '<p>Server render</p>' } )
+					: newest?.( { path } )
+			);
+			renderEdit( overrides );
+
+			await expect( screen.findByText( 'Server render' ) ).resolves.toBeInTheDocument();
+			expect( screen.getByTestId( 'inner-blocks' ) ).not.toBeVisible();
+		}
+	);
+
+	it( 'stores the browse settings and clamps the count when pages are turned off', async () => {
+		const setAttributes = jest.fn();
+		renderEdit( { pagination: 'numbered', count: 40 }, setAttributes );
+
+		await userEvent.selectOptions( screen.getByRole( 'combobox', { name: 'Order' } ), 'popular' );
+		expect( setAttributes ).toHaveBeenLastCalledWith( { orderBy: 'popular' } );
+
+		for ( const [ name, attribute ] of [
+			[ 'Search, sort and length filters', 'showBrowseControls' ],
+			[ 'Views and upload date', 'showMeta' ],
+			[ 'Hide the video being viewed', 'excludeCurrent' ],
+		] ) {
+			await userEvent.click( screen.getByRole( 'checkbox', { name } ) );
+			expect( setAttributes ).toHaveBeenLastCalledWith( { [ attribute ]: true } );
+		}
+
+		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Numbered pages' } ) );
+		expect( setAttributes ).toHaveBeenLastCalledWith( { pagination: 'none', count: 20 } );
+	} );
+
+	it( 'keeps the canvas for the newest videos', async () => {
+		renderEdit( { orderBy: 'newest' } );
+		await waitFor( () => expect( providedContext?.status ).toBe( 'ready' ) );
+
+		expect( screen.getByTestId( 'inner-blocks' ) ).toBeVisible();
+		expect(
+			apiFetchMock.mock.calls.some( ( [ { path } ] ) =>
+				path.startsWith( '/wp/v2/block-renderer/' )
+			)
+		).toBe( false );
+	} );
+
 	it( 'offers the click behavior with the player off and hands it to the canvas', async () => {
 		const setAttributes = jest.fn();
 		renderEdit( { showPlayer: false, entryClickAction: 'show-player' }, setAttributes );
