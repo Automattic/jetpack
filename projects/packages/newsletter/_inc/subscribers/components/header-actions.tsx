@@ -4,14 +4,14 @@ import { __ } from '@wordpress/i18n';
 import { moreVertical } from '@wordpress/icons';
 import { Button } from '@wordpress/ui';
 import { recordTracksEvent } from '../lib/tracks';
-import { readListQueryFromUrl } from '../lib/use-view-state';
 import SelfOnlyNudge from './self-only-nudge';
-import type { SubscribersFilter } from '../data/types';
+import type { SubscribersExportQuery } from '../data/types';
 import type { JetpackBlogId } from '../lib/site';
 import type { JSX } from 'react';
 
 type Props = {
 	blogId: JetpackBlogId | null;
+	exportQuery: SubscribersExportQuery;
 	onAddSubscribers: () => void;
 	showSelfOnlyNudge: boolean;
 	onDismissSelfOnlyNudge: () => void;
@@ -29,7 +29,7 @@ type Props = {
  */
 export function getCsvDownloadUrl(
 	blogId: JetpackBlogId,
-	{ filters, search }: { filters: SubscribersFilter[]; search: string }
+	{ filters, search }: SubscribersExportQuery
 ): string | null {
 	const safeId = Math.trunc( Number( blogId ) );
 	if ( ! Number.isFinite( safeId ) || safeId <= 0 ) {
@@ -55,6 +55,7 @@ export function getCsvDownloadUrl(
  *
  * @param props                        - Component props.
  * @param props.blogId                 - WP.com blog id, used to build the CSV download URL.
+ * @param props.exportQuery            - The table's filters and search, reported by the table, so the CSV matches it.
  * @param props.onAddSubscribers       - Callback to open the Add Subscribers modal (owned by the parent so the empty state can trigger it too).
  * @param props.showSelfOnlyNudge      - Whether to point the self-only nudge at the CTA.
  * @param props.onDismissSelfOnlyNudge - Called when the viewer closes the nudge; the parent owns
@@ -63,6 +64,7 @@ export function getCsvDownloadUrl(
  */
 export default function HeaderActions( {
 	blogId,
+	exportQuery,
 	onAddSubscribers,
 	showSelfOnlyNudge,
 	onDismissSelfOnlyNudge,
@@ -84,12 +86,11 @@ export default function HeaderActions( {
 					{
 						title: __( 'Download as CSV', 'jetpack-newsletter' ),
 						onClick: () => {
-							const query = readListQueryFromUrl();
-							const url = blogId ? getCsvDownloadUrl( blogId, query ) : null;
+							const url = blogId ? getCsvDownloadUrl( blogId, exportQuery ) : null;
 							if ( url ) {
 								recordTracksEvent( 'jetpack_subscribers_export_downloaded', {
-									filters: query.filters.join( ',' ) || 'all',
-									has_search: query.search ? 1 : 0,
+									filters: exportQuery.filters.join( ',' ) || 'all',
+									has_search: exportQuery.search ? 1 : 0,
 								} );
 								window.open( url, '_blank', 'noopener,noreferrer' );
 							}

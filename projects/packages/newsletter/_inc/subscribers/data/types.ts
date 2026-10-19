@@ -92,6 +92,14 @@ export type SubscribersQueryParams = {
 	filters: SubscribersFilter[];
 };
 
+/**
+ * The table's filters and search, which the CSV download sends so the file matches the table.
+ */
+export type SubscribersExportQuery = {
+	filters: SubscribersFilter[];
+	search: string;
+};
+
 export type RemoveSubscriberPayload = {
 	user_id?: number;
 	email_subscription_id?: number;
