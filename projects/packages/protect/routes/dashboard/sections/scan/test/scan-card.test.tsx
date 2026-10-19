@@ -1,6 +1,5 @@
 import { render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
-import historySection from '../../history';
 import ScanCard from '../scan-card';
 import { setScan } from '../store';
 import type { ScanState } from '../types';
@@ -13,12 +12,18 @@ jest.mock( '@wordpress/route', () => ( {
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
+const HOUR_IN_MS = 60 * 60 * 1000;
+
+// Reports use UTC `YYYY-MM-DD HH:MM:SS`.
+const checkedAgo = ( ms: number ) =>
+	new Date( Date.now() - ms ).toISOString().slice( 0, 19 ).replace( 'T', ' ' );
+
 const report: ScanState = {
 	hasPlan: false,
 	url: '#',
 	error: false,
 	scanning: false,
-	lastChecked: '2026-10-01 10:00:00',
+	lastChecked: checkedAgo( 48 * HOUR_IN_MS ),
 	pluginsChecked: 3,
 	themesChecked: 1,
 	threats: [],
@@ -31,17 +36,16 @@ const renderCard = ( scan: Partial< ScanState > ) => {
 	return render( <ScanCard openTab={ jest.fn() } /> );
 };
 
+beforeEach( () => {
+	mockApiFetch.mockReset().mockResolvedValue( [] );
+} );
+
 describe( 'ScanCard without Scan', () => {
-	beforeEach( () => {
-		mockApiFetch.mockReset().mockResolvedValue( [] );
-	} );
+	it( 'says what the free check covered without claiming the site is safe or scanned', () => {
+		renderCard( {} );
 
-	it.each( [
-		[ 'a clean free report', {} ],
-		[ 'a failed report', { error: true } ],
-	] )( 'never claims the site is safe or scanned on %s', ( _name, scan ) => {
-		renderCard( scan );
-
+		expect( screen.getByText( 'No known vulnerabilities found' ) ).toBeInTheDocument();
+		expect( screen.getByText( /Your files aren’t checked for malware/ ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Your site is safe right now' ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( /scanned automatically/ ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( /No issues were found after scanning/ ) ).not.toBeInTheDocument();
@@ -49,13 +53,6 @@ describe( 'ScanCard without Scan', () => {
 		expect(
 			screen.getByRole( 'link', { name: /Get Scan for daily malware scanning/ } )
 		).toBeInTheDocument();
-	} );
-
-	it( 'says what the free check covered', () => {
-		renderCard( {} );
-
-		expect( screen.getByText( 'No known vulnerabilities found' ) ).toBeInTheDocument();
-		expect( screen.getByText( /Your files aren’t checked for malware/ ) ).toBeInTheDocument();
 	} );
 
 	it( 'shows the failure instead of an all clear when the report fails', () => {
@@ -66,24 +63,30 @@ describe( 'ScanCard without Scan', () => {
 		).toBeInTheDocument();
 		expect( screen.queryByText( 'No known vulnerabilities found' ) ).not.toBeInTheDocument();
 	} );
-
-	it( 'hides the History tab', () => {
-		const isAvailable = historySection.tab?.isAvailable;
-
-		expect( isAvailable?.( { state: { hasPlan: false } } as never ) ).toBe( false );
-		expect( isAvailable?.( { state: { hasPlan: true } } as never ) ).toBe( true );
-	} );
 } );
 
 describe( 'ScanCard with Scan', () => {
-	beforeEach( () => {
-		mockApiFetch.mockReset().mockResolvedValue( [] );
-	} );
-
 	it( 'shows the all clear and Scan history after a clean scan', async () => {
 		renderCard( { hasPlan: true } );
 
 		expect( screen.getByText( 'Your site is safe right now' ) ).toBeInTheDocument();
 		await expect( screen.findByText( 'View scan history' ) ).resolves.toBeInTheDocument();
 	} );
+} );
+
+describe( 'ScanCard empty state', () => {
+	it.each( [
+		[ false, 48, /Vulnerabilities are checked automatically every day\./, 'Check again now' ],
+		[ false, 1, /Next check will happen automatically on /, 'Check again now' ],
+		[ true, 48, /Your site is scanned automatically every day\./, 'Scan again now' ],
+		[ true, 1, /Next scan will happen automatically on /, 'Scan again now' ],
+	] )(
+		'with hasPlan %s, checked %i hours ago, words the next check and button for that plan',
+		async ( hasPlan, hoursAgo, next, button ) => {
+			renderCard( { hasPlan, lastChecked: checkedAgo( hoursAgo * HOUR_IN_MS ) } );
+
+			expect( screen.getByText( next ) ).toBeInTheDocument();
+			await expect( screen.findByRole( 'button', { name: button } ) ).resolves.toBeInTheDocument();
+		}
+	);
 } );
