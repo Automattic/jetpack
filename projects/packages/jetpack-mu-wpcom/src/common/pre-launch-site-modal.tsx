@@ -27,7 +27,7 @@ interface Props {
  * A wrapper around the shared pre-launch modal used by the site-launch entry
  * points (Reading settings, the admin-bar button). Every value the modal needs
  * is already localized on the page, so — unlike Calypso — this wrapper fetches
- * nothing. On confirm it hands off to the same `/start/launch-site` URL the
+ * nothing. On confirm it hands off to the same `/setup/launch-site` URL the
  * entry point would have redirected to.
  *
  * @param  props            - Component props.

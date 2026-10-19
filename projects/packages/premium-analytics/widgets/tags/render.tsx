@@ -172,6 +172,7 @@ function TagsInner() {
 						<TagGroupMembers members={ selectedGroup.children } />
 					) : (
 						<LeaderboardChart
+							chartTitle={ __( 'Top tags & categories', 'jetpack-premium-analytics-pkg' ) }
 							data={ leaderboardData }
 							withOverlayLabel
 							showLegend={ false }
@@ -182,6 +183,10 @@ function TagsInner() {
 							dataFormat={ {
 								type: 'number',
 								options: { useMultipliers: false, decimals: 0 },
+							} }
+							columns={ {
+								label: __( 'Tags & categories', 'jetpack-premium-analytics-pkg' ),
+								metric: 'views',
 							} }
 						/>
 					) }

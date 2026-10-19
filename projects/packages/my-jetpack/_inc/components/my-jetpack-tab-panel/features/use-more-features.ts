@@ -1,4 +1,3 @@
-import { getScriptData } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import { moduleSwitchKey, useRequestedSwitches } from '../../../data/requested-switch-state';
@@ -6,14 +5,7 @@ import { getHiddenFeatures } from '../../../data/utils/get-my-jetpack-window-sta
 import { getFeatureModuleSlug } from './feature-state';
 import { PRODUCT_MODULES } from './mappings';
 import { getFeatureUnavailableReason } from './module-availability';
-import {
-	LEGACY_MODULES_VISIBLE_ONLY_WHEN_ACTIVE,
-	compareModulesByName,
-	hasSearch,
-	moduleFields,
-	rankBy,
-	searchTerms,
-} from './search';
+import { compareModulesByName, hasSearch, moduleFields, rankBy, searchTerms } from './search';
 import { useAllJetpackModules } from './use-all-jetpack-modules';
 import { matchesFilter } from './use-feature-filter';
 import type { FeatureState } from './feature-state';
@@ -77,7 +69,7 @@ function getStateModule( state: FeatureState ): MyJetpackModule | null {
  *                       its own card is still that card's, and must not surface here instead.
  * @param requested      - Switch key to the value asked of it.
  * @param hidden         - Modules that do not apply to the site, left out entirely.
- * @return Non-empty groups by label, each sorted by name, with every leftover module under Other, last.
+ * @return Non-empty groups by label, each sorted by name, with eligible ungrouped modules under Other, last.
  */
 export function groupMoreFeatures(
 	features: MainFeature[],
@@ -98,9 +90,10 @@ export function groupMoreFeatures(
 
 	// One pass over the name-sorted modules, so every group reads A to Z.
 	for ( const $module of Object.values( modules ).sort( compareModulesByName ) ) {
-		// The Modules screen hides the same legacy VaultPress stub.
+		// The Modules screen hides these legacy features too.
 		if (
 			$module.module === 'vaultpress' ||
+			$module.module === 'custom-content-types' ||
 			covered.has( $module.module ) ||
 			hidden.has( $module.module )
 		) {
@@ -125,15 +118,17 @@ export function groupMoreFeatures(
  *
  * A search replaces the filter and ranks the modules, as it does for the main features.
  *
- * @param groups - The grouped modules.
- * @param filter - The active filter.
- * @param search - The search term.
+ * @param groups   - The grouped modules.
+ * @param filter   - The active filter.
+ * @param search   - The search term.
+ * @param migrated - Whether the search came from a classic Modules screen link, which also matches long descriptions and tags.
  * @return The groups still showing something.
  */
 export function filterMoreFeatures(
 	groups: MoreFeaturesGroup[],
 	filter: FeatureFilter,
-	search: string
+	search: string,
+	migrated = false
 ): MoreFeaturesGroup[] {
 	const terms = hasSearch( search ) ? searchTerms( search ) : null;
 
@@ -144,7 +139,9 @@ export function filterMoreFeatures(
 			state => {
 				const $module = getStateModule( state );
 
-				return $module ? moduleFields( $module ) : [ { value: state.feature.name, weight: 3 } ];
+				return $module
+					? moduleFields( $module, migrated )
+					: [ { value: state.feature.name, weight: 3 } ];
 			}
 		).map( ( { item } ) => item );
 
@@ -161,19 +158,12 @@ export function filterMoreFeatures(
 }
 
 /**
- * Classic-theme modules: a block theme has no widget areas for them to act on.
- */
-const WIDGET_MODULES = [ 'widgets', 'widget-visibility' ];
-
-/**
  * Modules on their way out, offered only to a site already running them.
  *
  * @return The slugs.
  */
 export function getDeprecatedModules(): string[] {
-	const isBlockTheme = Boolean( getScriptData()?.myJetpack?.siteEditor?.isBlockTheme );
-
-	return [ ...LEGACY_MODULES_VISIBLE_ONLY_WHEN_ACTIVE, ...( isBlockTheme ? WIDGET_MODULES : [] ) ];
+	return window.myJetpackInitialState?.deprecatedModules ?? [];
 }
 
 // Module-scoped so a module switched off here keeps its row, and its switch back on, until a reload.

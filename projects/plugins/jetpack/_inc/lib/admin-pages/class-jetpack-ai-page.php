@@ -348,6 +348,8 @@ class Jetpack_AI_Page {
 					'path'   => '/wpcom/v2/jetpack-ai/mcp-settings',
 					'format' => 'jetpack',
 				),
+				// Self-hosted sites get the Hub's `-self-hosted` ChatGPT and Claude connect links.
+				'isSelfHosted'      => ! $host->is_wpcom_platform(),
 			)
 		);
 
@@ -432,6 +434,7 @@ class Jetpack_AI_Page {
 			// cache miss, so it shares the sender's guard.
 			'tracksUserData'      => $can_send_tracks ? self::get_tracks_user_data() : null,
 			'mcpSettingsApi'      => $config['mcpSettingsApi'] ?? array(),
+			'isSelfHosted'        => true === ( $config['isSelfHosted'] ?? false ),
 		);
 
 		wp_add_inline_script(

@@ -398,6 +398,40 @@ describe( 'Email design editor entry point', () => {
 			expect( mockApiFetch.mock.calls[ 0 ][ 0 ].path ).toContain( 'template_slug=wpcom-digest' );
 		} );
 
+		// The previewer's link carries the post the reader was looking at, so the canvas previews
+		// it rather than the sample post. NL-1051.
+		it( 'passes on the post to preview when the page names one', async () => {
+			window.JetpackEmailDesignEditor = pageData( { postId: 4242 } );
+
+			await loadEntryPoint();
+
+			expect( mockApiFetch.mock.calls[ 0 ][ 0 ].path ).toContain( 'post_id=4242' );
+		} );
+
+		it( 'passes on both the template and the post together', async () => {
+			window.JetpackEmailDesignEditor = pageData( {
+				templateSlug: 'wpcom-digest',
+				postId: 4242,
+			} );
+
+			await loadEntryPoint();
+
+			const path = mockApiFetch.mock.calls[ 0 ][ 0 ].path;
+
+			expect( path ).toContain( 'template_slug=wpcom-digest' );
+			expect( path ).toContain( 'post_id=4242' );
+		} );
+
+		it( 'asks for no particular post when the page names none', async () => {
+			window.JetpackEmailDesignEditor = pageData( { postId: null } );
+
+			await loadEntryPoint();
+
+			expect( mockApiFetch ).toHaveBeenCalledWith( {
+				path: '/wpcom/v2/email-editor-bootstrap',
+			} );
+		} );
+
 		it( 'takes the template id from the bundle rather than deriving one', async () => {
 			// The id is namespaced by whichever theme served it, so a site computing it
 			// locally is right on Simple and wrong on Atomic and self-hosted.
@@ -1975,6 +2009,38 @@ describe( 'Email design editor entry point', () => {
 			} );
 		} );
 
+		// The canvas previews that post, so a test email rendering a different one would show the
+		// creator a design change against content they are not looking at. NL-1051.
+		it( 'sends the post the canvas previews, where the previewer named one', async () => {
+			await createTestSendMiddleware( ourId, 4242 )( sendRequest, jest.fn() );
+
+			expect( mockApiFetch ).toHaveBeenCalledWith( {
+				path: '/wpcom/v2/send-email-preview',
+				method: 'POST',
+				data: { id: 4242, email: 'creator@example.com' },
+			} );
+		} );
+
+		it( 'does not look a post up when the previewer named one', async () => {
+			await createTestSendMiddleware( ourId, 4242 )( sendRequest, jest.fn() );
+
+			const paths = mockApiFetch.mock.calls.map( ( [ options ] ) => options.path );
+
+			expect( paths.some( path => path.startsWith( '/wp/v2/posts' ) ) ).toBe( false );
+		} );
+
+		it( 'still sends a named post on a blog with nothing published', async () => {
+			arrangeSend( [] );
+
+			await createTestSendMiddleware( ourId, 4242 )( sendRequest, jest.fn() );
+
+			expect( mockApiFetch ).toHaveBeenCalledWith( {
+				path: '/wpcom/v2/send-email-preview',
+				method: 'POST',
+				data: { id: 4242, email: 'creator@example.com' },
+			} );
+		} );
+
 		it( 'asks for the newest published post, which is what the send renders', async () => {
 			await createTestSendMiddleware( ourId )( sendRequest, jest.fn() );
 
@@ -2140,6 +2206,35 @@ describe( 'Email design editor entry point', () => {
 					'Manage the fonts and typography used on links.'
 				)
 			).toContain( 'Links inside your post' );
+		} );
+
+		it( 'keeps colour off the screens that have no colour control', () => {
+			// Only Default text carries a Color panel; for the rest colour lives in the separate
+			// Colors section, so naming it here describes a control that is not on screen. NL-1052.
+			const described = source => relabelStylesSidebar( source, source );
+
+			expect( described( 'Manage the fonts and typography used on links.' ) ).not.toContain(
+				'color'
+			);
+			expect( described( 'Manage the fonts and typography used on buttons.' ) ).not.toContain(
+				'color'
+			);
+			expect( described( 'Manage the fonts and typography used on headings.' ) ).not.toContain(
+				'color'
+			);
+		} );
+
+		it( 'says that the byline and footer take only the default colour', () => {
+			const described = relabelStylesSidebar(
+				'Manage the fonts and typography used on text.',
+				'Manage the fonts and typography used on text.'
+			);
+
+			// Colour is all of this screen that reaches the byline, and all that reaches the
+			// footer bar its copyright line, whose font is the one wpcom leaves unpinned. NL-1052.
+			expect( described ).toContain( 'The byline and footer follow its color' );
+			expect( described ).toContain( 'copyright line follows its font' );
+			expect( described ).not.toContain( 'the whole email' );
 		} );
 
 		it( 'says which heading level moves the post title and which the site title', () => {

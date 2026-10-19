@@ -9,6 +9,7 @@ declare( strict_types = 1 );
 
 namespace Automattic\Jetpack\Sharing_Likes\REST;
 
+use Automattic\Jetpack\Sharing_Likes\Hooked_Blocks\Template_Placements;
 use Automattic\Jetpack\Sharing_Likes\Settings\Comment_Likes_Section;
 use Automattic\Jetpack\Sharing_Likes\Settings\Environment;
 use Automattic\Jetpack\Sharing_Likes\Settings\Likes_Options;
@@ -36,6 +37,14 @@ final class Settings_Controller extends Controller {
 	 * The options `Sharing_Options::update()` saves together.
 	 */
 	private const SHARING_OPTIONS = array( 'button_style', 'sharing_label' );
+
+	/**
+	 * Each feature's template placements, by setting name.
+	 */
+	private const TEMPLATE_PLACEMENTS = array(
+		'sharing_buttons_auto_add' => Template_Placements::FEATURE_SHARING,
+		'likes_auto_add'           => Template_Placements::FEATURE_LIKES,
+	);
 
 	/**
 	 * Register the route.
@@ -148,6 +157,12 @@ final class Settings_Controller extends Controller {
 			Sharing_Resources::update( $sent['disable_resources'] );
 		}
 
+		foreach ( self::TEMPLATE_PLACEMENTS as $setting => $feature ) {
+			if ( isset( $sent[ $setting ] ) ) {
+				Template_Placements::update( $feature, $sent[ $setting ] );
+			}
+		}
+
 		return $this->get_item( $request );
 	}
 
@@ -193,6 +208,16 @@ final class Settings_Controller extends Controller {
 			$settings[] = 'disable_resources';
 		}
 
+		// Only the React screen shows these, and only where the legacy feature is off for good, so they cannot reopen it.
+		if ( Section_State::BLOCK_CALL_TO_ACTION === $sharing_state ) {
+			$settings[] = 'sharing_buttons_auto_add';
+		}
+
+		// Offline mode can reach this variant, but the screen then says a connection is needed, and the hooks add nothing.
+		if ( Section_State::BLOCK_CALL_TO_ACTION === $likes_state && Environment::likes_supported() ) {
+			$settings[] = 'likes_auto_add';
+		}
+
 		return $settings;
 	}
 
@@ -218,6 +243,10 @@ final class Settings_Controller extends Controller {
 		$values['twitter_site_tag']      = (string) get_option( Twitter_Site_Tag::OPTION, '' );
 		$values['disable_resources']     = (bool) get_option( Sharing_Resources::OPTION );
 
+		foreach ( self::TEMPLATE_PLACEMENTS as $setting => $feature ) {
+			$values[ $setting ] = Template_Placements::get( $feature );
+		}
+
 		return array_intersect_key( $values, array_flip( $settings ) );
 	}
 
@@ -236,43 +265,69 @@ final class Settings_Controller extends Controller {
 			'title'      => 'sharing-likes-settings',
 			'type'       => 'object',
 			'properties' => array(
-				'likes_enabled'         => array(
+				'likes_enabled'            => array(
 					'description' => __( 'Whether posts show Like buttons.', 'jetpack-sharing-likes' ),
 					'type'        => 'boolean',
 				),
-				'reblogs_enabled'       => array(
+				'reblogs_enabled'          => array(
 					'description' => __( 'Whether posts show Reblog buttons. WordPress.com Simple only.', 'jetpack-sharing-likes' ),
 					'type'        => 'boolean',
 				),
-				'comment_likes_enabled' => array(
+				'comment_likes_enabled'    => array(
 					'description' => __( 'Whether readers can like individual comments.', 'jetpack-sharing-likes' ),
 					'type'        => 'boolean',
 				),
-				'button_style'          => array(
+				'button_style'             => array(
 					'description' => __( 'How sharing buttons look.', 'jetpack-sharing-likes' ),
 					'type'        => 'string',
 					'enum'        => Sharing_Options::BUTTON_STYLES,
 				),
-				'sharing_label'         => array(
+				'sharing_label'            => array(
 					'description' => __( 'Text shown above the sharing buttons.', 'jetpack-sharing-likes' ),
 					'type'        => 'string',
 				),
-				'show'                  => array(
+				'show'                     => array(
 					'description' => __( 'Post types the buttons appear on, plus "index" for the front page, archives and search results.', 'jetpack-sharing-likes' ),
 					'type'        => 'array',
 					'items'       => array( 'type' => 'string' ),
 				),
-				'twitter_site_tag'      => array(
+				'twitter_site_tag'         => array(
 					'description' => __( 'X (Twitter) username of the site owner, without the @.', 'jetpack-sharing-likes' ),
 					'type'        => 'string',
 				),
-				'disable_resources'     => array(
+				'disable_resources'        => array(
 					'description' => __( 'Whether the sharing buttons skip their own CSS and JS.', 'jetpack-sharing-likes' ),
 					'type'        => 'boolean',
+				),
+				'sharing_buttons_auto_add' => self::template_placements_schema(
+					__( 'Where the Sharing Buttons block is added to single post and page templates: before the post content or after it.', 'jetpack-sharing-likes' )
+				),
+				'likes_auto_add'           => self::template_placements_schema(
+					__( 'Where the Like block is added to single post and page templates: before the post content or after it.', 'jetpack-sharing-likes' )
 				),
 			),
 		);
 
 		return $this->schema;
+	}
+
+	/**
+	 * One feature's template placements: one side of the post content, or none.
+	 *
+	 * Both sides are refused rather than trimmed to one, as `Template_Placements::update()` would.
+	 *
+	 * @param string $description Setting description.
+	 * @return array<string, mixed>
+	 */
+	private static function template_placements_schema( string $description ): array {
+		return array(
+			'description' => $description,
+			'type'        => 'array',
+			'items'       => array(
+				'type' => 'string',
+				'enum' => Template_Placements::PLACEMENTS,
+			),
+			'maxItems'    => 1,
+		);
 	}
 }

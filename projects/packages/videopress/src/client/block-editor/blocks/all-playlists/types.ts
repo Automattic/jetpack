@@ -24,6 +24,8 @@ export type AllPlaylistsAttributes = BlockStyleAttributes & {
 	showDescription: boolean;
 	showVideoCount: boolean;
 	pagination: AllPlaylistsPagination;
+	// Leave out the playlist a channel playlist page is showing.
+	excludeCurrent?: boolean;
 	// "Updated 2 weeks ago · 1 hr 12 min" under each card.
 	showUpdated?: boolean;
 };

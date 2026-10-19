@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
@@ -9,6 +9,7 @@ import userEvent from '@testing-library/user-event';
 import { AbbreviatedValue } from '../abbreviated-value';
 
 const COMPACT = { type: 'number' as const, options: { useMultipliers: true } };
+const withOpens = ( exact: string ) => `${ exact } opens`;
 
 describe( 'AbbreviatedValue', () => {
 	beforeEach( () => {
@@ -65,7 +66,9 @@ describe( 'AbbreviatedValue', () => {
 
 	it( 'restores a labelled figure in place of the bare one', async () => {
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
-		render( <AbbreviatedValue value={ 18432 } dataFormat={ COMPACT } restored="18,432 opens" /> );
+		render(
+			<AbbreviatedValue value={ 18432 } dataFormat={ COMPACT } formatRestored={ withOpens } />
+		);
 
 		expect( screen.getByText( '18,432 opens' ) ).toBeInTheDocument();
 		expect( screen.queryByText( '18,432' ) ).not.toBeInTheDocument();
@@ -77,11 +80,19 @@ describe( 'AbbreviatedValue', () => {
 		).resolves.toHaveTextContent( '18,432 opens' );
 	} );
 
-	it( 'keeps the tooltip when a label is the only thing the display omits', () => {
-		render( <AbbreviatedValue value={ 432 } dataFormat={ COMPACT } restored="432 opens" /> );
+	it( 'reads a label to assistive tech without a tooltip when nothing was shortened', async () => {
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		render(
+			<AbbreviatedValue value={ 432 } dataFormat={ COMPACT } formatRestored={ withOpens } />
+		);
 
 		expect( screen.getByText( '432' ) ).toHaveAttribute( 'aria-hidden', 'true' );
 		expect( screen.getByText( '432 opens' ) ).toBeInTheDocument();
+
+		await user.hover( screen.getByText( '432' ) );
+		act( () => jest.advanceTimersByTime( 3000 ) );
+
+		expect( screen.queryByRole( 'tooltip' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'reads the currency from the data format when no prop overrides it', () => {

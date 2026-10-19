@@ -651,6 +651,54 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Only sites off the WordPress.com platform count as self-hosted.
+	 *
+	 * @param string $host            Host to simulate: self-hosted, vip, woa or simple.
+	 * @param mixed  $filtered_value  Value a host filter sets, or null for no filter.
+	 * @param bool   $expected        Expected isSelfHosted setting.
+	 *
+	 * @dataProvider is_self_hosted_provider
+	 */
+	#[DataProvider( 'is_self_hosted_provider' )]
+	public function test_is_self_hosted_setting( $host, $filtered_value, $expected ) {
+		$this->given_woa( 'woa' === $host );
+		if ( 'vip' === $host ) {
+			Constants::set_constant( 'WPCOM_IS_VIP_ENV', true );
+		}
+		if ( 'simple' === $host ) {
+			Constants::set_constant( 'IS_WPCOM', true );
+		}
+		if ( null !== $filtered_value ) {
+			add_filter(
+				'jetpack_ai_admin_config',
+				function ( $config ) use ( $filtered_value ) {
+					$config['isSelfHosted'] = $filtered_value;
+
+					return $config;
+				}
+			);
+		}
+
+		$this->assertSame( $expected, $this->get_injected_settings()['isSelfHosted'] );
+	}
+
+	/**
+	 * Data provider for test_is_self_hosted_setting.
+	 *
+	 * @return array
+	 */
+	public static function is_self_hosted_provider() {
+		return array(
+			'self-hosted'                    => array( 'self-hosted', null, true ),
+			'VIP'                            => array( 'vip', null, true ),
+			'WoA'                            => array( 'woa', null, false ),
+			'Simple'                         => array( 'simple', null, false ),
+			'host switches to WordPress.com' => array( 'vip', false, false ),
+			'unknown filtered value'         => array( 'self-hosted', 'yes', false ),
+		);
+	}
+
+	/**
 	 * Hosts can replace the MCP endpoint contract without copying the page.
 	 */
 	public function test_admin_settings_can_be_filtered_by_the_host() {

@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-components",
-	"version": "4.0.3",
+	"version": "5.0.0",
 	"description": "Jetpack Components Package",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/components/#readme",
 	"bugs": {
@@ -32,6 +32,11 @@
 			"jetpack:src": "./components/button/index.tsx",
 			"types": "./build/components/button/index.d.ts",
 			"default": "./build/components/button/index.js"
+		},
+		"./checkbox-card": {
+			"jetpack:src": "./components/checkbox-card/index.tsx",
+			"types": "./build/components/checkbox-card/index.d.ts",
+			"default": "./build/components/checkbox-card/index.js"
 		},
 		"./global-notices": {
 			"jetpack:src": "./components/global-notices/index.ts",
@@ -118,17 +123,17 @@
 	"devDependencies": {
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@babel/core": "7.29.7",
-		"@jest/globals": "30.5.1",
+		"@jest/globals": "30.5.2",
 		"@storybook/addon-docs": "10.4.6",
 		"@storybook/react": "10.4.6",
 		"@testing-library/dom": "10.4.2",
 		"@testing-library/react": "16.3.3",
-		"@testing-library/user-event": "14.6.7",
+		"@testing-library/user-event": "14.6.8",
 		"@types/jest": "30.0.0",
 		"@types/react": "18.3.31",
 		"@types/react-dom": "18.3.7",
 		"@typescript/native-preview": "7.0.0-dev.20260707.2",
-		"jest": "30.5.1",
+		"jest": "30.5.2",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
 		"require-from-string": "2.0.2",

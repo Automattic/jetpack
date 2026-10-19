@@ -2531,7 +2531,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'sanitize_callback' => 'Jetpack_SEO_Titles::sanitize_title_formats',
 			),
 
-			// AI tab (Jetpack > SEO). Plain option the SEO package reads to serve
+			// GEO tab (Jetpack > SEO). Plain option the SEO package reads to serve
 			// /llms.txt. The front-end behavior is gated inside the package; this
 			// only round-trips the persisted state alongside the other seo-tools
 			// settings.
@@ -2543,7 +2543,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'seo-tools',
 			),
 
-			// AI tab (Jetpack > SEO). Sparse per-crawler override map the SEO
+			// GEO tab (Jetpack > SEO). Sparse per-crawler override map the SEO
 			// package reads to emit robots.txt directives for blocked AI crawlers.
 			// Stored as `slug => bool` (true = blocked); catalog validation and
 			// default-pruning happen in `Ai_Crawlers::get_overrides()`.

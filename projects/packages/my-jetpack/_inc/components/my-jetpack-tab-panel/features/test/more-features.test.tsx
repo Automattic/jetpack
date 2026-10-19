@@ -39,6 +39,14 @@ beforeEach( () => {
 } );
 
 const setSiteEditor = ( siteEditor: unknown ) => {
+	window.myJetpackInitialState = {
+		deprecatedModules: [
+			'google-fonts',
+			...( ( siteEditor as { isBlockTheme?: boolean } ).isBlockTheme
+				? [ 'widgets', 'widget-visibility' ]
+				: [] ),
+		],
+	} as Window[ 'myJetpackInitialState' ];
 	window.JetpackScriptData = {
 		site: { admin_url: 'https://example.com/wp-admin/' },
 		myJetpack: { siteEditor },

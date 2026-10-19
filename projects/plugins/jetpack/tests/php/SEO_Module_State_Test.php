@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\SEO\Dashboard_Data;
+use Automattic\Jetpack\SEO\Initializer as Jetpack_SEO_Initializer;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
@@ -30,7 +31,7 @@ class SEO_Module_State_Test extends WP_UnitTestCase {
 		update_option( 'jetpack_seo_canonical_urls_enabled', ! in_array( 'canonical-urls', $active_modules, true ) );
 		update_option( 'jetpack_seo_module_state_reconciled', true );
 		update_option( 'jetpack_seo_suppress_wp_sitemap', true );
-		update_option( 'jetpack_seo_surface_visible', true );
+		update_option( Jetpack_SEO_Initializer::VISIBILITY_OPTION, true );
 
 		$modules   = new Modules();
 		$sitemaps  = $modules->is_active( 'sitemaps' );
@@ -46,7 +47,7 @@ class SEO_Module_State_Test extends WP_UnitTestCase {
 			$this->assertSame( $sitemaps, $modules->is_active( 'sitemaps' ) );
 			$this->assertSame( $canonical, $modules->is_active( 'canonical-urls' ) );
 			$this->assertTrue( (bool) get_option( 'jetpack_seo_suppress_wp_sitemap' ) );
-			$this->assertTrue( (bool) get_option( 'jetpack_seo_surface_visible' ) );
+			$this->assertTrue( (bool) get_option( Jetpack_SEO_Initializer::VISIBILITY_OPTION ) );
 		}
 	}
 

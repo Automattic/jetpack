@@ -226,24 +226,16 @@ function ThumbnailReferrerField( { item }: DataViewRenderFieldProps< ReferrerRow
 	);
 }
 
-const archiveParentIds = new Set( archiveRows.map( row => row.parentId ).filter( Boolean ) );
-
 function ArchiveTitleField( { item }: DataViewRenderFieldProps< ArchiveRow > ): JSX.Element {
-	const label = archiveParentIds.has( item.id ) ? (
-		<strong>{ item.title }</strong>
-	) : (
-		<>{ item.title }</>
-	);
-
 	if ( item.href ) {
 		return (
 			<a href={ item.href } target="_blank" rel="noreferrer">
-				{ label }
+				{ item.title }
 			</a>
 		);
 	}
 
-	return label;
+	return <>{ item.title }</>;
 }
 
 function formatDate( value: string ): string {
@@ -491,6 +483,17 @@ export const Archives: ArchiveStory = {
 		getItemId: getArchiveItemId,
 		getItemParentId: getArchiveItemParentId,
 		initialView: archiveInitialView,
+		hideLevelMarkers: true,
+		collapsible: true,
+		defaultExpanded: 'none',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'The Posts & Pages › Archives tab: archive pages grouped under their type, folded like the other drilldown reports, every row at the title weight.',
+			},
+		},
 	},
 };
 
