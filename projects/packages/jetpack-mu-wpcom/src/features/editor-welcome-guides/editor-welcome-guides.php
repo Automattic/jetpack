@@ -78,7 +78,8 @@ function wpcom_editor_welcome_guides_filter_preferences( $value, $user_id, $meta
 		$preferences['_modified'] = gmdate( 'Y-m-d\TH:i:s.v\Z' );
 	}
 
-	// get_metadata_raw() returns the first element for single reads.
+	// get_user_meta( $user_id, $meta_key, true ) returns the first element of a filtered array,
+	// so without this wrap the editor would get $preferences[0], which does not exist.
 	return array( $preferences );
 }
 add_filter( 'get_user_metadata', 'wpcom_editor_welcome_guides_filter_preferences', 1, 3 );
