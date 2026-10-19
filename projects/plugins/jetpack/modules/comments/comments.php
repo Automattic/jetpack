@@ -6,6 +6,7 @@
  */
 
 require __DIR__ . '/base.php';
+use Automattic\Jetpack\Comments\Comments;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Status\Host;
 
@@ -125,25 +126,12 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	}
 
 	/**
-	 * Whether the rebuilt Jetpack Comments form has taken over from this one.
-	 *
-	 * Guarded because this file and the jetpack-comments package can land in
-	 * either order on a staged deploy.
-	 *
-	 * @return bool
-	 */
-	private static function new_comments_enabled() {
-		return class_exists( '\Automattic\Jetpack\Comments\Comments' )
-			&& \Automattic\Jetpack\Comments\Comments::is_enabled();
-	}
-
-	/**
 	 * Setup actions for methods in this class
 	 *
 	 * @since 1.4
 	 */
 	protected function setup_actions() {
-		if ( self::new_comments_enabled() ) {
+		if ( Comments::is_enabled() ) {
 			return;
 		}
 
@@ -170,7 +158,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 * @since 1.6.2
 	 */
 	protected function setup_filters() {
-		if ( self::new_comments_enabled() ) {
+		if ( Comments::is_enabled() ) {
 			return;
 		}
 
