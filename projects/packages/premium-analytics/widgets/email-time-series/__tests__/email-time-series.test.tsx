@@ -20,6 +20,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 		metrics,
 		chartType,
 		empty,
+		hideSingleMetricLabel,
 	}: {
 		metrics: {
 			key: string;
@@ -30,6 +31,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 		}[];
 		chartType?: string;
 		empty?: ReactNode;
+		hideSingleMetricLabel?: boolean;
 	} ) => (
 		<div
 			data-testid="metric-tabs-chart"
@@ -40,6 +42,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			data-values={ metrics[ 0 ]?.current.map( point => point.value ).join( ',' ) }
 			data-days={ metrics[ 0 ]?.current.map( point => point.date.getDate() ).join( ',' ) }
 			data-chart-type={ String( chartType ) }
+			data-hide-single-metric-label={ String( hideSingleMetricLabel ) }
 		>
 			{ empty }
 		</div>
@@ -102,6 +105,7 @@ describe( 'EmailTimeSeriesWidget', () => {
 		expect( chart ).toHaveAttribute( 'data-values', '10,5,7' );
 		expect( chart ).toHaveAttribute( 'data-metric-total', '22' );
 		expect( chart ).toHaveAttribute( 'data-chart-type', 'line' );
+		expect( chart ).toHaveAttribute( 'data-hide-single-metric-label', 'true' );
 
 		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
 		expect( requestedPath ).toContain( 'stats/opens/emails/1234' );

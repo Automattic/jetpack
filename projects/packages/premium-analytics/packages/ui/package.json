@@ -31,7 +31,7 @@
 		"@date-fns/tz": "1.5.0",
 		"@storybook/react": "10.4.6",
 		"@testing-library/react": "16.3.3",
-		"@testing-library/user-event": "14.6.7",
+		"@testing-library/user-event": "14.6.8",
 		"@wordpress/date": "5.57.0",
 		"date-fns": "4.4.0"
 	}

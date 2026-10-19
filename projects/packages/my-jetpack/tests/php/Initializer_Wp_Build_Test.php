@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
@@ -167,6 +168,7 @@ class Initializer_Wp_Build_Test extends BaseTestCase {
 	#[PreserveGlobalState( false )]
 	public function test_admin_page_renders_the_onboarding_container_for_the_takeover() {
 		require_once __DIR__ . '/stubs/wp-build-render-page.php';
+		$_GET['page'] = 'my-jetpack';
 		$_GET['step'] = 'onboarding';
 
 		$html = $this->render_admin_page();
@@ -329,5 +331,44 @@ class Initializer_Wp_Build_Test extends BaseTestCase {
 		$this->assertSame( 'my_jetpack_main_app', Initializer::DATA_SCRIPT_HANDLE );
 		$this->assert_state_is_on_the_data_handle();
 		$this->assertFalse( wp_script_is( Initializer::ONBOARDING_SCRIPT_HANDLE, 'registered' ) );
+	}
+
+	/**
+	 * Dashboards outside My Jetpack load the header's controls as a shared script, and only with the flag on.
+	 *
+	 * @dataProvider provide_header_controls_script_cases
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 *
+	 * @param string $page     The admin page.
+	 * @param bool   $flag     Whether the header controls flag is on.
+	 * @param bool   $expected Whether the script is enqueued.
+	 * @return void
+	 */
+	#[DataProvider( 'provide_header_controls_script_cases' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_enqueue_scripts_loads_the_header_controls_script( $page, $flag, $expected ) {
+		$_GET['page'] = $page;
+		require_once __DIR__ . '/stubs/wp-build-render-page.php';
+		add_filter( 'jetpack_my_jetpack_should_initialize', '__return_true' );
+		add_filter( 'jetpack_feature_flag_enabled_' . Initializer::HEADER_CONTROLS_FLAG, $flag ? '__return_true' : '__return_false' );
+
+		Initializer::enqueue_scripts();
+
+		$this->assertSame( $expected, wp_script_is( Initializer::HEADER_CONTROLS_SCRIPT_HANDLE, 'enqueued' ) );
+	}
+
+	/**
+	 * Data provider for test_enqueue_scripts_loads_the_header_controls_script.
+	 *
+	 * @return array<string, array{string, bool, bool}>
+	 */
+	public static function provide_header_controls_script_cases() {
+		return array(
+			'Boost, flag on'                          => array( 'jetpack-boost', true, true ),
+			'Boost, flag off'                         => array( 'jetpack-boost', false, false ),
+			'My Jetpack, which bundles them, flag on' => array( 'my-jetpack', true, false ),
+		);
 	}
 }

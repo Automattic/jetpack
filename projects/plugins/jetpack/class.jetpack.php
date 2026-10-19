@@ -672,6 +672,7 @@ class Jetpack {
 		 * a longer investigation to see if code is expecting the Gutenberg class to always be available.
 		 */
 		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-gutenberg.php';
+		\Automattic\Jetpack\Plugin\Unavailable_Blocks::init();
 		add_action( 'set_user_role', array( $this, 'maybe_clear_other_linked_admins_transient' ), 10, 3 );
 
 		add_action( 'jetpack_event_log', array( 'Jetpack', 'log' ), 10, 2 );
@@ -1223,6 +1224,13 @@ class Jetpack {
 
 		if ( ( new Modules() )->is_active( 'podcast' ) ) {
 			Podcast::init();
+		} else {
+			add_action(
+				'jetpack_register_gutenberg_extensions',
+				static function () {
+					Jetpack_Gutenberg::set_extension_unavailable( 'podcast-episode', 'missing_module', array( 'module' => 'podcast' ) );
+				}
+			);
 		}
 
 		/*

@@ -29,6 +29,11 @@ class WPCOM_Backup extends WPCOM_WP_Build_Page {
 	const MODERNIZATION_FILTER = 'rsm_jetpack_ui_modernization_backup';
 
 	/**
+	 * Blog sticker that puts a site back on the legacy Backup experience, shared with the Backup package.
+	 */
+	const LEGACY_DASHBOARD_STICKER = 'use-backup-legacy-dashboard';
+
+	/**
 	 * Page name for wp-build, as declared in routes/wpcom-backup/package.json.
 	 */
 	const WP_BUILD_PAGE = 'wpcom-backup';
@@ -100,12 +105,14 @@ class WPCOM_Backup extends WPCOM_WP_Build_Page {
 	/**
 	 * Whether Backup opens in wp-admin rather than Calypso.
 	 *
-	 * Defaults on for Automatticians only.
+	 * Defaults on unless the site has the legacy dashboard sticker, like the Backup package's dashboard.
 	 *
 	 * @return bool
 	 */
 	public static function is_modernized() {
-		return (bool) apply_filters( self::MODERNIZATION_FILTER, Wpcom_Feature_Flags::is_a11n() );
+		$has_legacy_sticker = wpcom_has_blog_sticker( self::LEGACY_DASHBOARD_STICKER, get_wpcom_blog_id() );
+
+		return (bool) apply_filters( self::MODERNIZATION_FILTER, ! $has_legacy_sticker );
 	}
 
 	/**
@@ -182,21 +189,26 @@ class WPCOM_Backup extends WPCOM_WP_Build_Page {
 
 		// Only the activation prompt reads eligibility, and both lists come from the
 		// same result, so resolve it once and only for that state.
-		$eligibility = self::STATE_ACTIVATE === $state
+		$eligibility     = self::STATE_ACTIVATE === $state
 			? self::get_eligibility( $blog_id, get_current_user_id() )
 			: null;
-		$warnings    = self::get_transfer_warnings( $eligibility );
+		$warnings        = self::get_transfer_warnings( $eligibility );
+		$transfer_status = self::STATE_IN_PROGRESS === $state ? null : self::get_latest_transfer_status( $blog_id );
 
 		return array(
-			'state'       => $state,
-			'domain'      => $domain,
+			'state'               => $state,
+			'domain'              => $domain,
 			// A null result means the library was unavailable, not that the site
 			// failed a check; let the transfer flow reject it instead.
-			'isEligible'  => null === $eligibility || ! empty( $eligibility['is_eligible'] ),
-			'errors'      => self::get_transfer_errors( $eligibility ),
-			'warnings'    => $warnings,
-			'upgradeUrl'  => self::get_upgrade_url( $domain ),
-			'activateUrl' => self::get_activate_url( $warnings ),
+			'isEligible'          => null === $eligibility || ! empty( $eligibility['is_eligible'] ),
+			'errors'              => self::get_transfer_errors( $eligibility ),
+			'warnings'            => $warnings,
+			'upgradeUrl'          => self::get_upgrade_url( $domain ),
+			'activateUrl'         => self::get_activate_url( $warnings ),
+			'supportUrl'          => self::get_support_url(),
+			// Each applies only to the prompt Calypso pairs it with.
+			'hasRevertedTransfer' => self::STATE_UPGRADE === $state && 'reverted' === $transfer_status,
+			'transferFailed'      => self::STATE_ACTIVATE === $state && 'error' === $transfer_status,
 		);
 	}
 
@@ -256,7 +268,6 @@ class WPCOM_Backup extends WPCOM_WP_Build_Page {
 		require_lib( 'atomic' );
 
 		if ( function_exists( '\A8C\Atomic\has_site_pending_automated_transfer' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only; pending addition to stub-defs.php.
 			if ( \A8C\Atomic\has_site_pending_automated_transfer( $blog_id ) ) {
 				return true;
 			}
@@ -264,11 +275,39 @@ class WPCOM_Backup extends WPCOM_WP_Build_Page {
 
 		if ( function_exists( '\A8C\Atomic\is_wpcom_atomic' ) ) {
 			// Second argument includes pending/active/provisioned transfers.
-			// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only; pending addition to stub-defs.php.
 			return (bool) \A8C\Atomic\is_wpcom_atomic( $blog_id, true );
 		}
 
 		return false;
+	}
+
+	/**
+	 * Status of the site's latest transfer to WoA, or null when it has none.
+	 *
+	 * @param int $blog_id Blog ID.
+	 * @return string|null A transfer record status, such as `reverted` or `error`.
+	 */
+	public static function get_latest_transfer_status( $blog_id ) {
+		// These checks are only relevant for simple sites.
+		if ( self::is_atomic() ) {
+			return null;
+		}
+
+		if ( function_exists( 'require_lib' ) ) {
+			require_lib( 'atomic' );
+		}
+
+		if ( ! function_exists( 'woa_get_latest_transfer' ) ) {
+			return null;
+		}
+
+		$transfer = woa_get_latest_transfer( $blog_id );
+
+		if ( is_wp_error( $transfer ) || ! is_object( $transfer ) || ! isset( $transfer->status ) ) {
+			return null;
+		}
+
+		return (string) $transfer->status;
 	}
 
 	/**
@@ -297,7 +336,6 @@ class WPCOM_Backup extends WPCOM_WP_Build_Page {
 			return null;
 		}
 
-		// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only; pending addition to stub-defs.php.
 		return \A8C\Atomic\Eligibility\get_status_for_site( $blog_id, $user_id );
 	}
 
@@ -393,6 +431,17 @@ class WPCOM_Backup extends WPCOM_WP_Build_Page {
 		}
 
 		return $warnings;
+	}
+
+	/**
+	 * Support's contact page, in the reader's language where WordPress.com has one.
+	 *
+	 * @return string
+	 */
+	public static function get_support_url() {
+		$url = 'https://wordpress.com/help/contact';
+
+		return function_exists( 'localized_wpcom_url' ) ? localized_wpcom_url( $url ) : $url;
 	}
 
 	/**

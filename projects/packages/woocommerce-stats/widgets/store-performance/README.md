@@ -30,14 +30,14 @@ addFilter(
 
 `refundsQuery( params, queryType )` returns the SDK's `ReportQuery` for one period: a query key and a fetcher. `useReport` runs it for the selected period and, when the dashboard compares, for the previous one.
 
-| Field                  | What it does                                                                                                                                                                                                                 |
-| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `id`                   | Keys the tab and names the metric in the `hiddenMetrics` attribute. Unique: a repeat is dropped.                                                                                                                             |
-| `order`                | Tab position, lowest first. The widget's own run 10 to 50. Absent, the tab goes after every placed one, in registration order.                                                                                               |
-| `label`, `description` | The tab and the text shown with it.                                                                                                                                                                                          |
-| `field`                | The key the chart reads from the report's summary and from each of its rows.                                                                                                                                                 |
-| `dataFormat`           | How values are formatted: `{ type: 'number' \| 'currency' \| 'percentage', options? }`.                                                                                                                                      |
-| `countLabel`           | Optional. The pill text for a count, as `_n( '%s Order', '%s Orders', count )`.                                                                                                                                              |
+| Field                  | What it does                                                                                                                                                                                                                                                                                  |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`                   | Keys the tab and names the metric in the `hiddenMetrics` attribute. Unique: a repeat is dropped.                                                                                                                                                                                              |
+| `order`                | Tab position, lowest first. The widget's own run 10 to 50. Absent, the tab goes after every placed one, in registration order.                                                                                                                                                                |
+| `label`, `description` | The tab and the text shown with it.                                                                                                                                                                                                                                                           |
+| `field`                | The key the chart reads from the report's summary and from each of its rows.                                                                                                                                                                                                                  |
+| `dataFormat`           | How values are formatted: `{ type: 'number' \| 'currency' \| 'percentage', options? }`.                                                                                                                                                                                                       |
+| `countLabel`           | Optional. The pill text for a count, as `_n( '%s Order', '%s Orders', count )`.                                                                                                                                                                                                               |
 | `useReport`            | A React hook. Takes the dashboard's `ReportParams` (`from`, `to`, `interval`, the comparison range) and returns the SDK's `ReportResult`: `primary` and `comparison`, `timezone`, the status flags and `refetch`. Build it on the SDK's `useReport`, so the dashboard's query client runs it. |
 
 An entry missing any of these, or with an `order` that is not a number, is dropped. A filter that returns no array is ignored.
@@ -47,6 +47,10 @@ An entry missing any of these, or with an `order` that is not a number, is dropp
 Whenever the module is ready. The widget reads the list again each time the filter gains or loses a registrant (`hookAdded`, `hookRemoved`), so the chart follows it live, and only the reports of the shown metrics run. `@wordpress/hooks` is externalized to the `wp.hooks` global, so a separate script module shares the registry with the widget.
 
 A metric registered later shows on every widget until the user unticks it: the `hiddenMetrics` attribute stores what was switched off, not what was picked.
+
+## Reference registrant
+
+`packages/store-performance-bookings/` adds Bookings after Orders (`order: 25`): a script module the package enqueues on a store running WooCommerce Bookings, which registers once its translation catalog is in. Its README says what it is written against.
 
 ## Files
 

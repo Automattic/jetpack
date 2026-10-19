@@ -763,7 +763,7 @@ export default function ApiManagedEdit( {
 					resourceId: link.id,
 					...linkAttributes,
 				} );
-				toast( 'success', __( 'Payment link updated.', 'jetpack-paypal-payments' ) );
+				toast( 'success', __( 'Payment button updated.', 'jetpack-paypal-payments' ) );
 			} ),
 		[ blockClientId, readLink, setAttributes ]
 	);
@@ -919,7 +919,7 @@ export default function ApiManagedEdit( {
 			<ToolbarGroup>
 				<ToolbarButton
 					icon="trash"
-					label={ __( 'Delete payment link', 'jetpack-paypal-payments' ) }
+					label={ __( 'Delete payment button', 'jetpack-paypal-payments' ) }
 					onClick={ handleDeleteButton }
 					disabled={ isBusy || ! isConnected }
 					isDestructive
@@ -968,7 +968,7 @@ export default function ApiManagedEdit( {
 			] }
 		>
 			{ __(
-				'Your PayPal account is disconnected. This payment link still works for buyers, but you need to reconnect before you can edit or delete it.',
+				'Your PayPal account is disconnected. This payment button still works for buyers, but you need to reconnect before you can edit or delete it.',
 				'jetpack-paypal-payments'
 			) }
 		</Notice>
@@ -986,7 +986,7 @@ export default function ApiManagedEdit( {
 	const sharedResourceNotice = hasButton ? (
 		<p className="jetpack-paypal-payment-buttons__shared-link-note">
 			{ __(
-				'Changes made will apply to all payment buttons with this link.',
+				'Changes made will apply to every block using this payment button.',
 				'jetpack-paypal-payments'
 			) }
 		</p>
@@ -997,7 +997,7 @@ export default function ApiManagedEdit( {
 	const paymentChangedNotice = paymentChanged ? (
 		<Notice status="warning" isDismissible={ false }>
 			{ __(
-				'This payment link was updated elsewhere and this block has been updated to match. Save the post so this page shows the change.',
+				'This payment button was updated elsewhere and this block has been updated to match. Save the post so this page shows the change.',
 				'jetpack-paypal-payments'
 			) }
 		</Notice>
@@ -1084,7 +1084,7 @@ export default function ApiManagedEdit( {
 							onClick={ returnToPicker }
 							className="jetpack-paypal-payment-buttons__back-to-details"
 						>
-							{ __( 'New payment link', 'jetpack-paypal-payments' ) }
+							{ __( 'New payment button', 'jetpack-paypal-payments' ) }
 						</Button>
 					) }
 					{ sharedResourceNotice }
@@ -1622,7 +1622,7 @@ export default function ApiManagedEdit( {
 			{ linkDeleted && (
 				<Notice status="warning" isDismissible={ false }>
 					{ __(
-						'This payment link was deleted from PayPal, so the published button shows nothing. Updating the post creates a new link with a new URL and QR code. Remove the block instead if you no longer sell this.',
+						'This payment button was deleted from PayPal, so the published block shows nothing. Updating the post creates a new payment button with a new link and QR code. Remove the block instead if you no longer sell this.',
 						'jetpack-paypal-payments'
 					) }
 				</Notice>
@@ -1633,7 +1633,7 @@ export default function ApiManagedEdit( {
 					{ sprintf(
 						/* translators: %s: the error message from PayPal. */
 						__(
-							'This payment link could not be loaded from PayPal: %s Changes to it will not be saved until it loads. Reload the post to try again.',
+							'This payment button could not be loaded from PayPal: %s Changes to it will not be saved until it loads. Reload the post to try again.',
 							'jetpack-paypal-payments'
 						),
 						readError
@@ -1644,7 +1644,7 @@ export default function ApiManagedEdit( {
 			{ showLinkStep ? (
 				<p className="jetpack-paypal-payment-buttons__links-hint">
 					{ __(
-						'Choose a payment link you already have, or create a new one, in the block settings.',
+						'Choose a payment button you already have, or create a new one, in the block settings.',
 						'jetpack-paypal-payments'
 					) }
 				</p>

@@ -9,6 +9,7 @@ type FakeNode = {
 	className?: string;
 	dataset: Record< string, string >;
 	textContent?: string;
+	hidden?: boolean;
 	children: FakeNode[];
 	appendChild: ( child: FakeNode ) => void;
 	prepend: ( child: FakeNode ) => void;
@@ -178,6 +179,99 @@ it( 'badges a theme the plan includes without taking its install away', () => {
 	assert.equal( screenshot.children[ 0 ].textContent, 'Included with plan' );
 	// Nothing replaced core's button, so its own install still runs.
 	assert.equal( install.children.length, 0 );
+} );
+
+/**
+ * Renders a partner theme's card against a store that answers however the test says.
+ *
+ * @param theme - The theme being rendered.
+ * @param fetch - Stands in for the browser's own, which the script prices the theme with.
+ * @return The badge's element and the buttons the card ended up with.
+ */
+async function priceCard( theme: Record< string, string >, fetch: () => Promise< unknown > ) {
+	const install = node( 'a' );
+	install.className = 'button button-primary button-compact theme-install';
+	const screenshot = node( 'div' );
+	const card = node( 'div' );
+	card.querySelector = selector => ( selector === '.theme-screenshot' ? screenshot : install );
+
+	const Theme = { prototype: { render: () => 'rendered' } };
+	const config = {
+		sort: 'wpcom',
+		label: 'Marketplace',
+		subscribe: 'Subscribe',
+		subscribeLabel: 'Subscribe to %s',
+		products: 'https://public-api.wordpress.com/rest/v1.1/products',
+		price: '%s/mo, billed annually',
+		priceWithPlan: '%1$s/mo, billed annually + %2$s',
+	};
+	const context = {
+		document: { querySelector: () => null, createElement: node },
+		window: { wpcomThemesTab: config, wp: { themes: { view: { Theme } } } },
+		wpcomThemesTab: config,
+		fetch,
+	};
+	const file = new URL( './themes-tab.js', import.meta.url ).pathname;
+	vm.createContext( context );
+	new vm.Script( readFileSync( file, 'utf8' ), { filename: file } ).runInContext( context );
+
+	Theme.prototype.render.call( { el: card, model: { toJSON: () => theme } } );
+	// The price arrives from the store rather than with the card.
+	await new Promise( resolve => setTimeout( resolve, 0 ) );
+
+	return { badge: screenshot.children[ 0 ], install };
+}
+
+const STORE = {
+	ok: true,
+	json: () => Promise.resolve( { theme_stax_yearly: { cost_per_month_display: '£7.42' } } ),
+};
+
+it( "prices a partner theme in the reader's own currency, and sells it", async () => {
+	const { badge, install } = await priceCard(
+		{
+			name: 'STAX',
+			price_product: 'theme_stax_yearly',
+			price_plan: '',
+			purchase_url: 'https://wordpress.com/checkout/example.org/theme_stax_yearly',
+		},
+		() => Promise.resolve( STORE )
+	);
+
+	assert.equal( badge.textContent, '£7.42/mo, billed annually' );
+	assert.equal( badge.hidden, false );
+	const [ subscribe ] = install.children;
+	assert.equal( subscribe.textContent, 'Subscribe' );
+	assert.equal( subscribe.attributes[ 'aria-label' ], 'Subscribe to STAX' );
+} );
+
+it( 'adds the plan a site still needs, so the price is not read as the whole cost', async () => {
+	const { badge } = await priceCard(
+		{
+			name: 'STAX',
+			price_product: 'theme_stax_yearly',
+			price_plan: 'Personal plan',
+			purchase_url: 'https://wordpress.com/checkout/example.org/personal-bundle,theme_stax_yearly',
+		},
+		() => Promise.resolve( STORE )
+	);
+
+	assert.equal( badge.textContent, '£7.42/mo, billed annually + Personal plan' );
+} );
+
+it( 'says nothing rather than nothing-in-particular when the store cannot be reached', async () => {
+	const { badge } = await priceCard(
+		{
+			name: 'STAX',
+			price_product: 'theme_stax_yearly',
+			price_plan: '',
+			purchase_url: 'https://wordpress.com/checkout/example.org/theme_stax_yearly',
+		},
+		() => Promise.reject( new Error( 'offline' ) )
+	);
+
+	assert.equal( badge.hidden, true );
+	assert.equal( badge.textContent, undefined );
 } );
 
 it( 'leaves a theme from WordPress.org to core', () => {

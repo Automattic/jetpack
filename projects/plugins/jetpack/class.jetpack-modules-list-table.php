@@ -259,7 +259,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 				<# } #>
 				<tr class="jetpack-module<# if ( ++i % 2 ) { #> alternate<# } #><# if ( item.activated ) { #> active<# } #><# if ( ! item.available ) { #> unavailable<# } #>" id="{{{ item.module }}}">
 					<th scope="row" class="check-column">
-						<# if ( item.available && ! item.deactivation_note ) { #><input type="checkbox" name="modules[]" value="{{{ item.module }}}" {{{ item.disabled }}} /><# } #>
+						<# if ( item.available && ( item.protect_page_url || item.deactivation_note ) ) { #><input type="checkbox" disabled /><# } else if ( item.available ) { #><input type="checkbox" name="modules[]" value="{{{ item.module }}}" {{{ item.disabled }}} /><# } #>
 					</th>
 					<td class="name column-name">
 						<div class="jetpack-module__body">
@@ -279,7 +279,9 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 									<# if ( item.configurable ) { #>
 										<span class="configure">{{{ item.configurable }}}</span>
 									<# } #>
-									<# if ( item.available && ! item.deactivation_note ) { #>
+									<# if ( item.available && item.protect_page_url ) { #>
+										<a class="button button-small jetpack-module__protect-link" href="{{ item.protect_page_url }}"><?php echo esc_html( _x( 'Manage in Protect', '"Protect" is a product name.', 'jetpack' ) ); ?></a>
+									<# } else if ( item.available && ! item.deactivation_note ) { #>
 										<# if ( item.activated ) { #>
 											<a class="jetpack-module__toggle is-active" role="switch" aria-checked="true" href="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>?page=jetpack&#038;action=deactivate&#038;module={{{ item.module }}}&#038;_wpnonce={{{ item.deactivate_nonce }}}"><span class="jetpack-module__toggle-track"><span class="jetpack-module__toggle-thumb"></span></span><span class="screen-reader-text"><?php esc_html_e( 'Deactivate', 'jetpack' ); ?></span></a>
 										<# } else { #>
@@ -504,7 +506,10 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		$no_switch = ! empty( $item['deactivation_note'] );
 
 		echo '<th scope="row" class="check-column">';
-		if ( $available && ! $no_switch ) {
+		// Disabled, not dropped, so the row's name stays in line with the others.
+		if ( $available && ( ! empty( $item['protect_page_url'] ) || $no_switch ) ) {
+			echo '<input type="checkbox" disabled />';
+		} elseif ( $available ) {
 			printf( '<input type="checkbox" name="modules[]" value="%s" />', esc_attr( $item['module'] ) );
 		}
 		echo '</th>';
@@ -548,7 +553,13 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		if ( ! empty( $item['configurable'] ) ) {
 			echo '<span class="configure">' . wp_kses_post( $item['configurable'] ) . '</span>';
 		}
-		if ( $available && ! $no_switch ) {
+		if ( $available && ! empty( $item['protect_page_url'] ) ) {
+			printf(
+				'<a class="button button-small jetpack-module__protect-link" href="%1$s">%2$s</a>',
+				esc_url( $item['protect_page_url'] ),
+				esc_html( _x( 'Manage in Protect', '"Protect" is a product name.', 'jetpack' ) )
+			);
+		} elseif ( $available && ! $no_switch ) {
 			echo $this->get_module_toggle_html( $item ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in helper.
 		} elseif ( ! $available && ! empty( $item['unavailable_reason'] ) ) {
 			echo '<span class="jetpack-module__unavailable">' . wp_kses_post( $item['unavailable_reason'] ) . '</span>';

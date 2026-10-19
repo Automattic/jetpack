@@ -376,6 +376,20 @@ class Playlist_Block_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Entries carrying views and an upload time get the meta line; stored entries do not.
+	 */
+	public function test_render_entry_stats() {
+		$videos                   = $this->attributes()['videos'];
+		$videos[0]['views']       = 12345;
+		$videos[0]['publishedAt'] = time() - 3 * DAY_IN_SECONDS;
+
+		$markup = VideoPress_Initializer::render_videopress_playlist_block( $this->attributes( array( 'videos' => $videos ) ) );
+
+		$this->assertStringContainsString( '<span class="videopress-playlist__entry-stats">12K views · 3 days ago</span>', $markup );
+		$this->assertSame( 1, substr_count( $markup, 'videopress-playlist__entry-stats' ) );
+	}
+
+	/**
 	 * A VideoPress attachment whose GUID lookup is pre-cached.
 	 *
 	 * @param string $guid VideoPress GUID.
