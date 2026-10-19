@@ -4,7 +4,9 @@
 import {
 	ensureCoreSettingsReady,
 	getSectionDatePolicy,
+	isStatsFeatureLocked,
 	needsReportDateParamsSeed,
+	OPEN_DATE_POLICY,
 } from '@jetpack-premium-analytics/data';
 import { pickDashboardOriginParams } from '@jetpack-premium-analytics/routing';
 import { redirect } from '@wordpress/route';
@@ -14,7 +16,7 @@ import { redirect } from '@wordpress/route';
 import { routePathname } from '../date-window-notice';
 import { seedSiteDateParams } from '../site-date-seed';
 import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
-import { limitStatsDateSearch } from '../stats-date-window';
+import { limitStatsDateSearch, withoutCarriedYearWindow } from '../stats-date-window';
 import { route as routeConfig } from './package.json';
 import { getReportDefinition } from './registry';
 
@@ -48,7 +50,12 @@ export const route = {
 		// returns a definition for one.
 		const reportId = report as string;
 
-		const currentSearch = ( search ?? {} ) as ReportRouteSearch;
+		// A locked report shows only its upsell, so it has no window to limit.
+		const policy =
+			definition.feature && isStatsFeatureLocked( definition.feature )
+				? OPEN_DATE_POLICY
+				: getSectionDatePolicy( definition.dashboardSection );
+		const currentSearch = withoutCarriedYearWindow( search ?? {}, policy ) as ReportRouteSearch;
 		const pathname = routePathname( routeConfig.path, { report: reportId } );
 		// A `section` from a link may not belong to this report (e.g. forwarded from a
 		// dashboard widget); resolve it so a shareable URL never persists a bogus section.
@@ -56,7 +63,6 @@ export const route = {
 			currentSearch.section && definition.resolveSection
 				? definition.resolveSection( currentSearch.section )
 				: undefined;
-		const policy = getSectionDatePolicy( definition.dashboardSection );
 		const needsDateSeed = needsReportDateParamsSeed( currentSearch, policy.lockedIntervals );
 		const needsSectionSeed =
 			!! currentSearch.section &&

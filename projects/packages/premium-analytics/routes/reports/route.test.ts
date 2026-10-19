@@ -12,6 +12,7 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	ensureCoreSettingsReady: jest.fn( () => Promise.resolve() ),
 	getPolicyDefaultPreset: jest.fn( () => undefined ),
 	getSectionDatePolicy: ( section?: string ) => ( { lockedIntervals: [], section } ),
+	isStatsFeatureLocked: () => false,
 	needsReportDateParamsSeed: jest.fn( () => false ),
 	// Carries incoming params through, as the real normalizer keeps the detail scopes.
 	normalizeReportParams: jest.fn( ( search: Record< string, string | undefined > ) => ( {
@@ -50,6 +51,7 @@ jest.mock( './registry', () => ( {
 
 jest.mock( '../stats-date-window', () => ( {
 	limitStatsDateSearch: jest.fn( () => undefined ),
+	withoutCarriedYearWindow: ( search: object ) => ( { ...search } ),
 } ) );
 
 jest.mock( '@wordpress/route', () => ( {
@@ -170,16 +172,19 @@ describe( 'report route.beforeLoad', () => {
 	);
 
 	it( 'redirects a settled report URL the plan does not allow', async () => {
+		const settled = { from: '2026-06-01', to: '2026-06-16' };
 		( limitStatsDateSearch as jest.Mock ).mockReturnValueOnce( { preset: 'last-7-days' } );
 
-		await expect(
-			beforeLoad( { report: 'posts' }, { from: '2026-06-01', to: '2026-06-16' } )
-		).rejects.toMatchObject( {
+		await expect( beforeLoad( { report: 'posts' }, settled ) ).rejects.toMatchObject( {
 			to: '/reports/$report',
 			params: { report: 'posts' },
 			replace: true,
 			viewTransition: false,
 			search: { preset: 'last-7-days' },
+		} );
+		expect( limitStatsDateSearch ).toHaveBeenCalledWith( settled, expect.any( Object ), {
+			pathname: '/reports/posts',
+			requested: settled,
 		} );
 	} );
 } );

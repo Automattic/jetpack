@@ -14,6 +14,7 @@ import { planGatesScriptData } from '../../tests/js/plan-gates-test-utils';
 import { DATE_WINDOW_NOTICE_STATE } from '../date-window-notice';
 import { dateWindowKey, takeDateWindowNotice, useDateWindowNotice } from '../date-window-notice';
 import { route as postRoute } from '../post-detail/route';
+import { route as reportRoute } from '../reports/route';
 import { DATE_FILTER_RANGE, type DashboardSection } from './config';
 import { route } from './route';
 import { dateWindowForSectionSwitch } from './section-date-window';
@@ -37,7 +38,13 @@ jest.mock( '../site-readiness', () => ( {
 	...jest.requireActual( '../site-readiness' ),
 	isPremiumAnalyticsSiteConnected: () => true,
 } ) );
-jest.mock( '../reports/registry', () => ( { getReportDefinition: () => ( {} ) } ) );
+jest.mock( '../reports/registry', () => ( {
+	getReportDefinition: ( id?: string ) =>
+		( {
+			posts: { dashboardSection: 'traffic', feature: 'top-posts' },
+			referrers: { dashboardSection: 'traffic', feature: 'referrers' },
+		} )[ id ?? '' ] ?? {},
+} ) );
 jest.mock( '../post-detail/config', () => ( { resolveTabId: ( section: string ) => section } ) );
 let mockSearch: Record< string, unknown > = {};
 const mockCreateInfoNotice = jest.fn();
@@ -186,10 +193,55 @@ describe( 'the date-limit notice on a free site', () => {
 			next => postRoute.beforeLoad( { params: { postId: '42' }, search: next } as never )
 		);
 
-		expect( settled.hops ).toBeLessThanOrEqual( 2 );
+		expect( settled.hops ).toBe( 1 );
 		expect( settled.search ).toMatchObject( { preset: 'last-7-days', post_id: '42' } );
 		expect( noticeOn( settled.search, '/post/42' ) ).toBeUndefined();
 	} );
+
+	it.each( [
+		[
+			'/post/42',
+			( next: Search ) =>
+				postRoute.beforeLoad( { params: { postId: '42' }, search: next } as never ),
+		],
+		[
+			'/reports/posts',
+			( next: Search ) =>
+				reportRoute.beforeLoad( { params: { report: 'posts' }, search: next } as never ),
+		],
+	] )(
+		'tells the reader why a shared link to %s moved to the last 7 days',
+		async ( pathname, load ) => {
+			const settled = await settle(
+				{ from: '2025-01-01', to: '2025-01-31', interval: 'day', post_id: '42' },
+				load
+			);
+
+			expect( settled.search ).toMatchObject( { preset: 'last-7-days' } );
+			expect( noticeOn( settled.search, pathname ) ).toBe( 'recent-7-days' );
+		}
+	);
+
+	it( 'stays quiet on a report the plan locks, since it shows no window', async () => {
+		setLocks( ...FREE_LOCKS, 'referrers' );
+
+		const settled = await settle( { from: '2025-01-01', to: '2025-01-31', interval: 'day' }, next =>
+			reportRoute.beforeLoad( { params: { report: 'referrers' }, search: next } as never )
+		);
+
+		expect( noticeOn( settled.search, '/reports/referrers' ) ).toBeUndefined();
+	} );
+} );
+
+it( 'opens a report on its default, without a notice, for a year carried over from Insights', async () => {
+	setLocks( ...LEGACY_BASIC_LOCKS );
+
+	const settled = await settle( { preset: 'year-2025', ds: 'insights' }, next =>
+		reportRoute.beforeLoad( { params: { report: 'posts' }, search: next } as never )
+	);
+
+	expect( settled.search ).not.toMatchObject( { preset: 'year-2025' } );
+	expect( noticeOn( settled.search, '/reports/posts' ) ).toBeUndefined();
 } );
 
 it.each( [

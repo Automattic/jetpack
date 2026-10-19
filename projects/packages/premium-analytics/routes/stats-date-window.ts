@@ -6,11 +6,18 @@ import {
 	applyStatsDatePolicy,
 	getPolicyDefaultPreset,
 	isDateLimitedPolicy,
+	isPresetLockedByPolicy,
 	normalizeReportParams,
 	withoutComparison,
 	type DateLimitFeature,
 	type StatsDatePolicy,
 } from '@jetpack-premium-analytics/data';
+import { isYearSurfacePresetId } from '@jetpack-premium-analytics/datetime';
+import { omitReportDateParams } from '@jetpack-premium-analytics/routing';
+/**
+ * Internal dependencies
+ */
+import { queueDateWindowNotice } from './date-window-notice';
 
 type Search = Record< string, unknown >;
 type NormalizeInput = Parameters< typeof normalizeReportParams >[ 0 ];
@@ -28,6 +35,21 @@ export function dashboardSectionOf( section: unknown ): string | undefined {
 	const active = isKnown ? section : slugs?.[ 0 ];
 
 	return typeof active === 'string' ? active : undefined;
+}
+
+/**
+ * The search without the dates when they name a year the plan locks.
+ *
+ * @param search - The search the route would load.
+ * @param policy - The date policy the page follows.
+ * @return The search, copied.
+ */
+export function withoutCarriedYearWindow( search: Search, policy: StatsDatePolicy ): Search {
+	// Only a year surface such as Insights offers a year or all time, so a locked one was carried
+	// over from it: drop the dates and open on the default, without a notice.
+	return isYearSurfacePresetId( search.preset ) && isPresetLockedByPolicy( search.preset, policy )
+		? omitReportDateParams( search )
+		: { ...search };
 }
 
 /**

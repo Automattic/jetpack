@@ -1,4 +1,8 @@
-import { PERIOD_CHANGE_ATTENTION_MS, useReportScope } from '@jetpack-premium-analytics/data';
+import {
+	PERIOD_CHANGE_ATTENTION_MS,
+	useReportScope,
+	useScopeLockedIntervals,
+} from '@jetpack-premium-analytics/data';
 import {
 	PRESET_ALL_TIME,
 	computePrimaryRange,
@@ -9,12 +13,15 @@ import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useCallback } from 'react';
 import { getNoticeAnnouncement, getNoticeText } from '../../tests/js/notice-test-utils';
+import { useDateWindowNotice } from '../date-window-notice';
+import { useStatsDateLimits } from '../use-stats-date-limits';
 import { usePostDetailTabs, usePostSummary } from './hooks';
 import { stage } from './stage';
 import type { ReactNode } from 'react';
 
 let mockSearch: Record< string, unknown > = {};
 let mockDateFilterOverrides: Record< string, unknown > = {};
+let mockDateFilterOptions: unknown;
 
 // The dashboard props the stage handed to the (mocked) WidgetDashboard.
 let mockDashboardProps: {
@@ -37,17 +44,20 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 	// `defineReportTabs`, still resolve now that the registry is not mocked.
 	...jest.requireActual( '@jetpack-premium-analytics/routing' ),
 	useDashboardLink: () => '/?from=2026-06-01&to=2026-06-16',
-	useReportDateFilters: () => ( {
-		appliedRange: {
-			from: new Date( Date.UTC( 2026, 5, 1 ) ),
-			to: new Date( Date.UTC( 2026, 5, 16 ) ),
-		},
-		replaceRange: () => {},
-		timeZone: 'UTC',
-		interval: 'day',
-		intervalOptions: [ 'day', 'week' ],
-		...mockDateFilterOverrides,
-	} ),
+	useReportDateFilters: ( _from: string, options?: unknown ) => {
+		mockDateFilterOptions = options;
+		return {
+			appliedRange: {
+				from: new Date( Date.UTC( 2026, 5, 1 ) ),
+				to: new Date( Date.UTC( 2026, 5, 16 ) ),
+			},
+			replaceRange: () => {},
+			timeZone: 'UTC',
+			interval: 'day',
+			intervalOptions: [ 'day', 'week' ],
+			...mockDateFilterOverrides,
+		};
+	},
 } ) );
 
 // Avoid loading DataViews while keeping the real breadcrumbs for these assertions.
@@ -75,6 +85,15 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 const mockGetEntityRecords = jest.fn( () => [] );
 
 jest.mock( '@wordpress/core-data', () => ( { store: {} } ) );
+
+jest.mock( '../use-stats-date-limits', () => ( {
+	useStatsDateLimits: jest.fn( () => ( { offersComparison: true } ) ),
+} ) );
+
+jest.mock( '../date-window-notice', () => ( {
+	...jest.requireActual( '../date-window-notice' ),
+	useDateWindowNotice: jest.fn(),
+} ) );
 
 // Proxies `@wordpress/data` lazily: `requireActual` at import time would
 // re-enter `@wordpress/rich-text`'s module init via `combineReducers`.
@@ -108,11 +127,13 @@ const JUNE_2026 = {
  */
 function MockScopeProbe() {
 	const { offersComparison, openPeriod } = useReportScope();
+	const lockedIntervals = useScopeLockedIntervals();
 	const openJune = useCallback( () => openPeriod?.( JUNE_2026 ), [ openPeriod ] );
 
 	return (
 		<div>
 			{ offersComparison ? 'Post widgets' : 'Post widgets without comparison' }
+			<span>{ `locked: ${ lockedIntervals.join( ',' ) || 'none' }` }</span>
 			<button type="button" onClick={ openJune }>
 				Open June from a card
 			</button>
@@ -312,6 +333,7 @@ function getBreadcrumbLabels(): ( string | null )[] {
 describe( 'post detail stage', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
+		jest.mocked( useStatsDateLimits ).mockReturnValue( { offersComparison: true } );
 		mockSearch = { from: '2026-06-01', to: '2026-06-16', post_id: '41' };
 		mockActiveTab = 'traffic';
 		mockEmailNotSent = false;
@@ -645,6 +667,20 @@ describe( 'post detail stage', () => {
 		render( stage() );
 
 		expect( screen.getByText( 'Post widgets without comparison' ) ).toBeInTheDocument();
+	} );
+
+	it( 'holds the page and its widgets to the plan’s date limits', () => {
+		mockSummary();
+		jest.mocked( useStatsDateLimits ).mockReturnValue( {
+			offersComparison: true,
+			dateLimits: { lockedPresetIds: [], lockedIntervals: [ 'week' ] },
+		} );
+
+		render( stage() );
+
+		expect( screen.getByText( 'locked: week' ) ).toBeInTheDocument();
+		expect( mockDateFilterOptions ).toEqual( { lockedIntervals: [ 'week' ] } );
+		expect( useDateWindowNotice ).toHaveBeenCalledWith( '/post/41' );
 	} );
 
 	it( 'keeps the two-crumb trail when no report origin is present', () => {

@@ -4,11 +4,8 @@
 import {
 	ensureCoreSettingsReady,
 	getSectionDatePolicy,
-	isPresetLockedByPolicy,
 	needsReportDateParamsSeed,
 } from '@jetpack-premium-analytics/data';
-import { isYearSurfacePresetId } from '@jetpack-premium-analytics/datetime';
-import { omitReportDateParams } from '@jetpack-premium-analytics/routing';
 import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
@@ -17,6 +14,16 @@ import { dateWindowNoticeState } from '../date-window-notice';
 import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
 import { dashboardSectionOf, dateWindowNotice, limitStatsDateSearch } from '../stats-date-window';
 import { seedDashboardDateSearch, type DashboardSearch } from './section-date-window';
+import {
+	dashboardSectionOf,
+	limitStatsDateSearch,
+	withoutCarriedYearWindow,
+} from '../stats-date-window';
+import {
+	DASHBOARD_PATHNAME,
+	seedDashboardDateSearch,
+	type DashboardSearch,
+} from './section-date-window';
 
 /**
  * Route lifecycle for the dashboard. The initial analytics sync is not a guard
@@ -31,12 +38,7 @@ export const route = {
 
 		const current: DashboardSearch = search ?? {};
 		const policy = getSectionDatePolicy( dashboardSectionOf( current.section ) );
-		// Only a year surface such as Insights offers a year or all time, so a locked one was carried
-		// over from it: drop the dates and open on the default, without a notice.
-		const params =
-			isYearSurfacePresetId( current.preset ) && isPresetLockedByPolicy( current.preset, policy )
-				? omitReportDateParams( current )
-				: { ...current };
+		const params = withoutCarriedYearWindow( current, policy );
 
 		let next: Record< string, unknown > | undefined;
 		// The seed check must read the same locks as the limit, or each undoes the other's interval.

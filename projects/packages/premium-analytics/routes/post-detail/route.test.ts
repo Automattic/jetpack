@@ -223,5 +223,9 @@ describe( 'post detail route report origin', () => {
 			params: { postId: '42' },
 			search: { preset: 'last-7-days' },
 		} );
+		expect( limitStatsDateSearch ).toHaveBeenCalledWith( seededSearch, expect.any( Object ), {
+			pathname: '/post/42',
+			requested: seededSearch,
+		} );
 	} );
 } );
