@@ -1,4 +1,4 @@
 Significance: major
 Type: removed
 
-Remove unused ProgressBar component.
+Remove ProgressBar component. Use Progress or Meter from @wordpress/ui instead.
