@@ -16,7 +16,7 @@ const NO_KEYS: string[] = [];
  * @param code - The REST error code.
  * @return The message, or undefined for any other code.
  */
-function getSaveErrorMessage( code: unknown ): string | undefined {
+function getWafErrorMessage( code: unknown ): string | undefined {
 	switch ( code ) {
 		case 'file_system_error':
 			return __( 'The firewall couldn’t update its files on your server.', 'jetpack-protect-pkg' );
@@ -113,6 +113,19 @@ export default function useProtectSettings(): ProtectSettingsData {
 			} );
 	}, [ setSettings ] );
 
+	const refresh = useCallback(
+		async ( keys: string[] ) => {
+			try {
+				const latest = await apiFetch< ProtectSettings >( { path: '/jetpack/v4/settings' } );
+				const fresh = keys.filter( key => key in latest ).map( key => [ key, latest[ key ] ] );
+				setSettings( { ...settingsRef.current, ...Object.fromEntries( fresh ) } );
+			} catch {
+				// Keep what we have; the next full load corrects it.
+			}
+		},
+		[ setSettings ]
+	);
+
 	const save = useCallback(
 		async ( patch: ProtectSettings, path = '/jetpack/v4/settings' ) => {
 			const keys = Object.keys( patch );
@@ -135,23 +148,29 @@ export default function useProtectSettings(): ProtectSettingsData {
 				);
 			} catch ( e ) {
 				const { code, message } = ( e ?? {} ) as { code?: unknown; message?: string };
-				const rolledBack = { ...settingsRef.current };
-				keys.forEach( key => {
-					// A later save of this key already replaced our value; keep it.
-					if ( rolledBack[ key ] !== patch[ key ] ) {
-						return;
-					}
-					savedKeys.current.delete( key );
-					if ( key in previous ) {
-						rolledBack[ key ] = previous[ key ];
-					} else {
-						delete rolledBack[ key ];
-					}
-				} );
-				setSettings( rolledBack );
+				const wafMessage = getWafErrorMessage( code );
+				if ( wafMessage ) {
+					// The firewall stores the options before it rebuilds its files, so show what it stored.
+					await refresh( keys );
+				} else {
+					const rolledBack = { ...settingsRef.current };
+					keys.forEach( key => {
+						// A later save of this key already replaced our value; keep it.
+						if ( rolledBack[ key ] !== patch[ key ] ) {
+							return;
+						}
+						savedKeys.current.delete( key );
+						if ( key in previous ) {
+							rolledBack[ key ] = previous[ key ];
+						} else {
+							delete rolledBack[ key ];
+						}
+					} );
+					setSettings( rolledBack );
+				}
 				setFailure( {
 					message:
-						getSaveErrorMessage( code ) ||
+						wafMessage ||
 						message ||
 						__( 'Your change couldn’t be saved. Try again.', 'jetpack-protect-pkg' ),
 					keys,
@@ -167,20 +186,7 @@ export default function useProtectSettings(): ProtectSettingsData {
 			}
 			return saved;
 		},
-		[ setSettings ]
-	);
-
-	const refresh = useCallback(
-		async ( keys: string[] ) => {
-			try {
-				const latest = await apiFetch< ProtectSettings >( { path: '/jetpack/v4/settings' } );
-				const fresh = keys.filter( key => key in latest ).map( key => [ key, latest[ key ] ] );
-				setSettings( { ...settingsRef.current, ...Object.fromEntries( fresh ) } );
-			} catch {
-				// Keep what we have; the next full load corrects it.
-			}
-		},
-		[ setSettings ]
+		[ setSettings, refresh ]
 	);
 
 	const isSaving = useCallback( ( key: string ) => saving.includes( key ), [ saving ] );

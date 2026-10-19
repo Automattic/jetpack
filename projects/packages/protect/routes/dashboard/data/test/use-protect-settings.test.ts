@@ -89,18 +89,34 @@ describe( 'useProtectSettings', () => {
 		expect( result.current.isSaving( 'list' ) ).toBe( false );
 	} );
 
+	// The firewall saves its options before failing on these, so the server's value wins over a rollback.
 	it.each( [
-		[ 'file_system_error', 'The firewall couldn’t update its files on your server.' ],
-		[ 'rules_api_error', 'The latest automatic firewall rules couldn’t be retrieved.' ],
-		[ 'other_error', 'Raw server text' ],
-	] )( 'a failed save with the code %s shows "%s"', async ( code, expected ) => {
-		respondWith( { post: Promise.reject( { code, message: 'Raw server text' } ) } );
-		const { result } = renderHook( () => useProtectSettings() );
+		[
+			'file_system_error',
+			'The firewall couldn’t update its files on your server.',
+			{ list: 'stored' },
+		],
+		[
+			'rules_api_error',
+			'The latest automatic firewall rules couldn’t be retrieved.',
+			{ list: 'stored' },
+		],
+		[ 'other_error', 'Raw server text', {} ],
+	] )(
+		'a failed save with the code %s shows "%s" and leaves %j',
+		async ( code, message, expected ) => {
+			respondWith( {
+				get: Promise.resolve( { list: 'stored', other: 1 } ),
+				post: Promise.reject( { code, message: 'Raw server text' } ),
+			} );
+			const { result } = renderHook( () => useProtectSettings() );
 
-		await act( () => result.current.save( { list: 'new' } ) );
+			await act( () => result.current.save( { list: 'new' } ) );
 
-		expect( result.current.error ).toBe( expected );
-	} );
+			expect( result.current.error ).toBe( message );
+			expect( result.current.settings ).toEqual( expected );
+		}
+	);
 
 	it( 'refresh takes only the requested keys from the server, even ones saved earlier', async () => {
 		respondWith( {
