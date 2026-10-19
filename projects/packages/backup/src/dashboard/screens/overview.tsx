@@ -31,6 +31,7 @@ import { useBackupRequested } from '../hooks/use-enqueue-backup';
 import { useRefreshActivityOnBackupComplete } from '../hooks/use-refresh-activity-on-backup-complete';
 import { useRevealDetail } from '../hooks/use-reveal-detail';
 import { isBackupItem } from '../types/activity';
+import { overviewState } from './overview-state';
 import type { ActivitySortOrder } from '../data/api/activity-log';
 import type { View } from '@wordpress/dataviews';
 
@@ -58,45 +59,6 @@ export const INITIAL_VIEW: View = {
 	// things shown per row.
 	fields: [],
 };
-
-/**
- * Whether this page load has already recorded its view.
- *
- * See the effect below for why this is module state rather than a ref.
- */
-let hasRecordedPageView = false;
-
-/**
- * Where the reader last was in the list, and which row they last chose.
- *
- * Module state for the same reason `hasRecordedPageView` is: a trip to Download or
- * Restore unmounts this screen, and a gate verdict change unmounts its body — so
- * anything held in the component is gone by the time the reader comes back.
- */
-let lastView: View = INITIAL_VIEW;
-let lastSelectedId: string | null = null;
-
-/**
- * Reset the page-view latch. Test-only.
- *
- * The latch is module state precisely so it outlives an unmount, which
- * also means one test's render would otherwise silence every later one
- * in the same file.
- */
-export function resetPageViewForTesting(): void {
-	hasRecordedPageView = false;
-}
-
-/**
- * Forget where the reader was. Test-only.
- *
- * Same hazard as the latch above: this state outlives an unmount, so one test's
- * paging would otherwise seed every later one in the same file.
- */
-export function resetListStateForTesting(): void {
-	lastView = INITIAL_VIEW;
-	lastSelectedId = null;
-}
 
 /**
  * Overview screen for the modernized Backup dashboard.
@@ -128,11 +90,11 @@ export default function OverviewScreen() {
 		// second view for the same visit, which is the over-counting this
 		// whole decision exists to avoid. Module scope also subsumes the
 		// StrictMode double-invocation a ref was reaching for.
-		if ( hasRecordedPageView ) {
+		if ( overviewState.hasRecordedPageView ) {
 			return;
 		}
 
-		hasRecordedPageView = true;
+		overviewState.hasRecordedPageView = true;
 		tracks.recordEvent( 'jetpack_backup_admin_page_view' );
 	}, [ tracks ] );
 
@@ -160,11 +122,11 @@ function OverviewBody() {
 	const navigate = useNavigate();
 	// View state lives here so RightPane's `useActivityById` can
 	// subscribe to the same paginated query the list reads from.
-	const [ view, setView ] = useState< View >( lastView );
+	const [ view, setView ] = useState< View >( overviewState.lastView ?? INITIAL_VIEW );
 	// Written on the way through, because the return trip has nothing to read it from:
 	// the back links on Download and Restore carry no search.
 	const rememberView = useCallback( ( next: View ) => {
-		lastView = next;
+		overviewState.lastView = next;
 		setView( next );
 	}, [] );
 	// Same derivation `<ActivityList>` uses, so the right pane reads the cache
@@ -180,13 +142,13 @@ function OverviewBody() {
 	// The remembered row stands in for a missing one only on mount, which is the return trip
 	// from Download or Restore. Back to the entry that had none means the newest backup again.
 	const [ returnTripId, setReturnTripId ] = useState( () =>
-		urlSelectedId ? null : lastSelectedId
+		urlSelectedId ? null : overviewState.lastSelectedId
 	);
 	const selectedId = urlSelectedId ?? returnTripId ?? defaultSelectedId;
 	// Only an explicit choice is remembered: `defaultSelectedId` moves as new backups
 	// land, and pinning the row it happened to name would outlive its own reason.
 	useEffect( () => {
-		lastSelectedId = urlSelectedId ?? returnTripId;
+		overviewState.lastSelectedId = urlSelectedId ?? returnTripId;
 	}, [ urlSelectedId, returnTripId ] );
 	// Puts the remembered row in the address, so `clearSelected` below always has a real
 	// change to make: without one, TanStack treats its navigate as a no-op and pushes no
