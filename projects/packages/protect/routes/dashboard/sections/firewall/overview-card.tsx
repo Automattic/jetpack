@@ -41,6 +41,9 @@ const UNAVAILABLE: FirewallState = {
 	ipRules: {},
 };
 
+// The only setting this card saves.
+const FIREWALL_KEYS = [ 'waf' ];
+
 // One id for the test's snackbars, so the result replaces "Testing the firewall…".
 const NOTICE_ID = 'jetpack-protect-firewall-test';
 
@@ -277,7 +280,7 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 					onOpenChange={ setDetailsOpen }
 				/>
 			) }
-			<SettingsErrorRow settings={ settings } />
+			<SettingsErrorRow settings={ settings } keys={ FIREWALL_KEYS } />
 			{ ! active && (
 				<CardRow>
 					<FirewallToggle data={ settings } />

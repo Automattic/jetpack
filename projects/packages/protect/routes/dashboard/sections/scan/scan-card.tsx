@@ -181,7 +181,7 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 		body = (
 			<>
 				{ hasThreats && (
-					<CardRow className="jp-protect-card__stats">
+					<CardRow className="jp-protect-card__cells jp-protect-card__stats">
 						<Stat
 							label={ __( 'All vulnerabilities found', 'jetpack-protect-pkg' ) }
 							value={ threats.length }

@@ -21,6 +21,9 @@ const PERCENT = { style: 'percent', maximumFractionDigits: 3 } as const;
 /** Opens the Settings tab at this section's card. */
 const SETTINGS_PARAMS = { section: 'monitor' };
 
+// The only setting this card saves.
+const MONITOR_KEYS = [ 'monitor' ];
+
 /**
  * A day's date, in the site's date format.
  *
@@ -176,7 +179,7 @@ export default function MonitorCard( { state: monitor, settings, openTab }: Moni
 				'jetpack-protect-pkg'
 			) }
 		>
-			<SettingsErrorRow settings={ settings } />
+			<SettingsErrorRow settings={ settings } keys={ MONITOR_KEYS } />
 			{ ! active && (
 				<CardRow>
 					<MonitorToggle data={ toggleData } available />

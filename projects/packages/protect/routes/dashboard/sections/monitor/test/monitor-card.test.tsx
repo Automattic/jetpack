@@ -131,7 +131,7 @@ describe( 'MonitorCard', () => {
 		render( <Card /> );
 
 		await expect(
-			screen.findByLabelText( 'Enable downtime monitoring' )
+			screen.findByRole( 'switch', { name: 'Enable downtime monitoring' } )
 		).resolves.not.toBeChecked();
 		expect( screen.queryByText( 'Configure downtime monitoring' ) ).not.toBeInTheDocument();
 		expect(
