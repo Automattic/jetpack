@@ -44,10 +44,13 @@ function renderAndScan( answer: () => Promise< unknown > ) {
 }
 
 describe( 'Scan now', () => {
-	it( 'shows the scan running once it starts', async () => {
-		await renderAndScan( () => Promise.resolve( { ...report, scanning: true } ) );
+	it( 'follows the report the scan request returns', async () => {
+		// Newer than the click, so only reading the response ends the optimistic "Scanning…".
+		const finished = new Date( Date.now() + 1000 ).toISOString().slice( 0, 19 ).replace( 'T', ' ' );
+		await renderAndScan( () => Promise.resolve( { ...report, lastChecked: finished } ) );
 
-		await expect( screen.findByText( 'Scanning…' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'Your site is safe right now' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'Scanning…' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'shows why the scan didn’t start, and stops showing it as running', async () => {
