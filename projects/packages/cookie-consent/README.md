@@ -65,7 +65,7 @@ The package runs one instance per request, and the first `init()` call owns it: 
 
 - `Cookie_Consent::is_initialized()` returns whether `init()` already ran in this request.
 - `Cookie_Consent::get_active_config()` returns the resolved config the first `init()` latched (with `enabled` false for a disabled init), or `null` before `init()`.
-- The `jetpack_cookie_consent_initialized` action fires once, when the first `init()` latches, with that resolved config.
+- The `jetpack_cookie_consent_initialized` action fires once, when the first `init()` latches, with that resolved config. It fires after `init()` has registered every runtime hook, so a listener that calls `deactivate()` leaves the package fully inactive.
 
 ```php
 if ( Cookie_Consent::is_initialized() ) {

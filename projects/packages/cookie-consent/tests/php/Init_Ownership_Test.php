@@ -90,6 +90,39 @@ class Init_Ownership_Test extends TestCase {
 		$this->assertFalse( $received[0]['enabled'] );
 	}
 
+	public function test_initialized_action_fires_after_the_runtime_hooks_are_registered() {
+		$hooked_when_fired = null;
+		add_action(
+			'jetpack_cookie_consent_initialized',
+			static function () use ( &$hooked_when_fired ) {
+				$hooked_when_fired = false !== has_action( 'wp_footer', array( Cookie_Consent::class, 'render_banner' ) );
+			}
+		);
+
+		Cookie_Consent::init();
+
+		$this->assertTrue( $hooked_when_fired );
+	}
+
+	public function test_deactivate_from_an_initialized_listener_leaves_the_package_inactive() {
+		add_action(
+			'jetpack_cookie_consent_initialized',
+			static function () {
+				Cookie_Consent::deactivate();
+			}
+		);
+
+		Cookie_Consent::init();
+
+		$this->assertFalse( Cookie_Consent::is_initialized() );
+		$this->assertFalse( has_action( 'wp_enqueue_scripts', array( Cookie_Consent::class, 'enqueue_assets' ) ) );
+		$this->assertFalse( has_action( 'wp_footer', array( Cookie_Consent::class, 'render_banner' ) ) );
+		$this->assertFalse( has_action( 'wp_footer', array( Cookie_Consent::class, 'maybe_render_footer_links_fallback' ) ) );
+		$this->assertFalse( has_filter( 'hooked_block_types', array( Cookie_Consent::class, 'register_footer_navigation_links' ) ) );
+		$this->assertFalse( has_action( 'init', array( Cookie_Consent::class, 'maybe_create_ccpa_page' ) ) );
+		$this->assertFalse( has_filter( 'jetpack_boost_ignore_cookies', array( Cookie_Consent::class, 'ignore_geo_cookies_in_page_cache' ) ) );
+	}
+
 	public function test_deactivate_clears_ownership() {
 		Cookie_Consent::init();
 		Cookie_Consent::deactivate();

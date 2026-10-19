@@ -102,22 +102,31 @@ class Cookie_Consent {
 		$resolved          = self::resolve_config( $config );
 		self::$config      = $resolved;
 
+		if ( ! empty( $resolved['enabled'] ) ) {
+			self::register_runtime_hooks( $resolved );
+		}
+
 		/**
 		 * Fires once, when the first init() call of the request latches the package.
 		 *
 		 * Fires for a disabled config too, so another consumer can tell that the package
-		 * is already owned and that its own init() call would be ignored.
+		 * is already owned and that its own init() call would be ignored. Fires after every
+		 * runtime hook is registered, so a listener that calls deactivate() leaves the
+		 * package fully inactive.
 		 *
 		 * @since $$next-version$$
 		 *
 		 * @param array $resolved The resolved configuration the package runs with.
 		 */
 		do_action( 'jetpack_cookie_consent_initialized', $resolved );
+	}
 
-		if ( empty( $resolved['enabled'] ) ) {
-			return;
-		}
-
+	/**
+	 * Register the runtime hooks of each enabled `features.*` toggle.
+	 *
+	 * @param array $resolved Resolved configuration with `enabled` true.
+	 */
+	private static function register_runtime_hooks( array $resolved ) {
 		$features = $resolved['features'];
 
 		// Gate each shared frontend resource on every feature that needs it, not on the
