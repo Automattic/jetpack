@@ -70,6 +70,14 @@ class Cookie_Consent {
 	private static $config = null;
 
 	/**
+	 * Whether an init() call is resolving its configuration, so a nested init()
+	 * from a `jetpack_cookie_consent_config` filter callback returns early.
+	 *
+	 * @var bool
+	 */
+	private static $resolving = false;
+
+	/**
 	 * Whether the required footer legal links were injected into a footer
 	 * navigation block (Block Hooks) for the current rendered response.
 	 *
@@ -82,25 +90,38 @@ class Cookie_Consent {
 	private static $footer_links_injected = false;
 
 	/**
-	 * Initialize the package. Idempotent; safe to call multiple times.
+	 * Initialize the package. Safe to call multiple times.
 	 *
 	 * Public entry point a consumer calls to activate cookie consent. Resolves
 	 * and stashes the configuration, bails entirely when `enabled` is false, and
 	 * otherwise registers each hook slice only when its `features.*` toggle is on.
 	 *
-	 * The first enabled call boots the package and latches: a later call, from the same
-	 * or another consumer, is a no-op until deactivate() clears the latch. A disabled
-	 * call (`enabled` false after the `jetpack_cookie_consent_config` filter) registers
-	 * nothing and does not latch, so a consumer that bundles the package but keeps it
-	 * off does not block another consumer's enabled init() in the same request.
+	 * Each call resolves the configuration until the first enabled one. That call boots
+	 * the package and latches: from then on init() is idempotent, and a later call, from
+	 * the same or another consumer, is a no-op until deactivate() clears the latch. A
+	 * disabled call (`enabled` false after the `jetpack_cookie_consent_config` filter)
+	 * registers nothing and does not latch, so a consumer that bundles the package but
+	 * keeps it off does not block another consumer's enabled init() in the same request.
+	 * An init() made from a `jetpack_cookie_consent_config` filter callback while a call
+	 * is resolving returns early.
+	 *
+	 * deactivate() clears the latch, so a listener of `jetpack_cookie_consent_initialized`
+	 * that calls it only stops the package until another consumer's enabled init(). To
+	 * keep the package off site-wide, return `enabled => false` from the
+	 * `jetpack_cookie_consent_config` filter instead.
 	 *
 	 * @param array $config Partial consumer config, resolved via Config_Schema.
 	 */
 	public static function init( array $config = array() ) {
-		if ( self::$initialized ) {
+		if ( self::$initialized || self::$resolving ) {
 			return;
 		}
-		$resolved     = self::resolve_config( $config );
+		self::$resolving = true;
+		try {
+			$resolved = self::resolve_config( $config );
+		} finally {
+			self::$resolving = false;
+		}
 		self::$config = $resolved;
 
 		if ( empty( $resolved['enabled'] ) ) {
@@ -115,7 +136,8 @@ class Cookie_Consent {
 		 *
 		 * Does not fire for a disabled init(), which does not boot the package. Fires after
 		 * every runtime hook is registered, so a listener that calls deactivate() leaves the
-		 * package fully inactive.
+		 * package fully inactive, until another consumer's enabled init() boots it again.
+		 * The site-wide switch is the `jetpack_cookie_consent_config` filter (`enabled` false).
 		 *
 		 * @since $$next-version$$
 		 *

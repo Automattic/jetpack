@@ -65,7 +65,7 @@ The package runs one instance per request, and the first enabled `init()` call o
 
 - `Cookie_Consent::is_initialized()` returns whether an enabled `init()` booted the package in this request. It stays false after a disabled `init()`.
 - `Cookie_Consent::get_active_config()` returns the stable part of the config the package booted with, or `null` when no enabled `init()` ran. Only two keys are returned: `enabled` (always `true`) and `features` (every `features.*` toggle, resolved). The rest of the resolved config is internal.
-- The `jetpack_cookie_consent_initialized` action fires once, when an enabled `init()` boots the package, with the same array `get_active_config()` returns. It does not fire for a disabled `init()`. It fires after `init()` has registered every runtime hook, so a listener that calls `deactivate()` leaves the package fully inactive.
+- The `jetpack_cookie_consent_initialized` action fires once, when an enabled `init()` boots the package, with the same array `get_active_config()` returns. It does not fire for a disabled `init()`. It fires after `init()` has registered every runtime hook, so a listener that calls `deactivate()` leaves the package fully inactive, but only until another consumer's enabled `init()` boots it again: `deactivate()` clears the ownership latch. To keep the package off site-wide, return `enabled => false` from the `jetpack_cookie_consent_config` filter instead.
 
 ```php
 if ( Cookie_Consent::is_initialized() ) {
@@ -76,9 +76,13 @@ if ( Cookie_Consent::is_initialized() ) {
 Cookie_Consent::init( $my_config );
 ```
 
+A consumer that boots the package after another one should call `init()` on the `init` action at a priority below 10, or earlier. With the `ccpa_page` feature on, `init()` adds the CCPA page creation to `init` at priority 10, so a later call misses it for that request. Premium Analytics calls `init()` on `init` at priority 0.
+
+An `init()` call from a `jetpack_cookie_consent_config` filter callback, while another `init()` is resolving its config, returns early instead of recursing.
+
 ### Configuration
 
-`Cookie_Consent::init( array $config = array() )` takes the whole configuration as a single argument. `$config` is partial — every key is optional and falls back to a package default — and is resolved once, on the first `init()` call, via `Config_Schema` (see `src/schema/class-config-schema.php` for the full shape). The consuming plugin should pass everything it needs up front here.
+`Cookie_Consent::init( array $config = array() )` takes the whole configuration as a single argument. `$config` is partial — every key is optional and falls back to a package default — and is resolved via `Config_Schema` on each `init()` call until the first enabled one; after that `init()` is idempotent and ignores later configs (see `src/schema/class-config-schema.php` for the full shape). The consuming plugin should pass everything it needs up front here.
 
 #### Master switch
 

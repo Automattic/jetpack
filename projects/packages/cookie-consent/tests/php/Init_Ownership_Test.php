@@ -17,6 +17,7 @@ class Init_Ownership_Test extends TestCase {
 
 	public function tearDown(): void {
 		remove_all_actions( 'jetpack_cookie_consent_initialized' );
+		remove_all_filters( 'jetpack_cookie_consent_config' );
 		Cookie_Consent::deactivate();
 		$this->reset_cookie_consent_config();
 		parent::tearDown();
@@ -168,5 +169,47 @@ class Init_Ownership_Test extends TestCase {
 
 		$this->assertFalse( Cookie_Consent::is_initialized() );
 		$this->assertNull( Cookie_Consent::get_active_config() );
+	}
+
+	public function test_init_from_a_config_filter_callback_does_not_recurse() {
+		$filter_calls = 0;
+		add_filter(
+			'jetpack_cookie_consent_config',
+			static function ( $config ) use ( &$filter_calls ) {
+				++$filter_calls;
+				if ( $filter_calls > 5 ) {
+					return $config;
+				}
+				Cookie_Consent::init( array( 'event_prefix' => 'nested_consumer' ) );
+				return $config;
+			}
+		);
+
+		Cookie_Consent::init( array( 'event_prefix' => 'outer_consumer' ) );
+
+		$this->assertSame( 1, $filter_calls );
+		$this->assertTrue( Cookie_Consent::is_initialized() );
+		$this->assertSame( 'outer_consumer', Cookie_Consent::get_config()['event_prefix'] );
+	}
+
+	public function test_init_after_a_throwing_config_filter_still_boots() {
+		add_filter(
+			'jetpack_cookie_consent_config',
+			static function () {
+				throw new \RuntimeException( 'filter failed' );
+			}
+		);
+
+		try {
+			Cookie_Consent::init();
+			$this->fail( 'Expected the filter exception to propagate.' );
+		} catch ( \RuntimeException $e ) {
+			$this->assertSame( 'filter failed', $e->getMessage() );
+		}
+
+		remove_all_filters( 'jetpack_cookie_consent_config' );
+		Cookie_Consent::init();
+
+		$this->assertTrue( Cookie_Consent::is_initialized() );
 	}
 }
