@@ -355,16 +355,26 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 	 * A renamed widget or a misspelled feature would silently unlock a paid widget.
 	 */
 	public function test_package_plan_features_name_real_widgets_and_lockable_features() {
-		$names = array();
-		foreach ( glob( dirname( __DIR__, 2 ) . '/widgets/*/widget.json' ) as $file ) {
-			$names[] = wp_json_file_decode( $file )->name;
-		}
+		$names    = $this->package_widget_names();
 		$lockable = get_locked_stats_features( STATS_TIER_FREE );
 
 		foreach ( WIDGET_TYPE_PLAN_FEATURES as $name => $feature ) {
 			$this->assertContains( $name, $names );
 			$this->assertContains( $feature, $lockable, $name );
 		}
+	}
+
+	/**
+	 * The names of the widgets this package ships.
+	 *
+	 * @return string[]
+	 */
+	private function package_widget_names() {
+		$names = array();
+		foreach ( glob( dirname( __DIR__, 2 ) . '/widgets/*/widget.json' ) as $file ) {
+			$names[] = wp_json_file_decode( $file )->name;
+		}
+		return $names;
 	}
 
 	/**
@@ -494,6 +504,8 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		$this->assertSame( 'Monitor your posting activity', $sections['insights']['features'][0] );
 		$this->assertSame( array( 'jpa/traffic-chart' ), $sections['traffic']['open_widget_types'] );
 		$this->assertSame( array(), $sections['insights']['open_widget_types'] );
+		// A renamed widget would otherwise hide the chart on every free site.
+		$this->assertContains( 'jpa/traffic-chart', $this->package_widget_names() );
 
 		foreach ( $sections as $section ) {
 			$this->assertCount( 11, $section['features'] );

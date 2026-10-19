@@ -213,7 +213,7 @@ function get_locked_stats_features( $tier ) {
 }
 
 /**
- * The dashboard sections a tier replaces with one upgrade card, as classic Stats replaces its Insights and Traffic pages.
+ * The dashboard sections a tier replaces with one upgrade prompt, as classic Stats replaces its Insights and Traffic pages.
  *
  * @since $$next-version$$
  *
@@ -225,7 +225,7 @@ function get_locked_stats_sections( $tier ) {
 }
 
 /**
- * What a locked section's upgrade card says: classic Stats' upsell, without its price.
+ * What a locked section's upgrade prompt says: classic Stats' upsell, without its price.
  *
  * @since $$next-version$$
  *
@@ -386,7 +386,7 @@ function localize_stats_support_url( $url ) {
  *
  * @since $$next-version$$
  *
- * @param string $feature Feature key.
+ * @param string $feature Feature key, or the slug of a locked section, which no commercial feature shares.
  * @param string $tier    One of the STATS_TIER_* values.
  * @return string The URL, or an empty string when there is nowhere to buy it.
  */
@@ -421,11 +421,11 @@ function get_stats_upgrade_url( $feature, $tier ) {
 }
 
 /**
- * The gates the client applies: each locked feature's copy and upgrade URL, and the feature of each widget type it locks.
+ * The gates the client applies: each locked feature's copy and upgrade URL, the feature of each widget type it locks, and each locked section's prompt.
  *
  * @since $$next-version$$
  *
- * @return array{tier:string, locked_features:array<string,array{description:string, support_url:string, upgrade_url:string}>, locked_widget_types:array<string,string>, locked_sections:array<string,array>}
+ * @return array{tier:string, locked_features:array<string,array{description:string, support_url:string, upgrade_url:string}>, locked_widget_types:array<string,string>, locked_sections:array<string,array{title:string, description:string, features:string[], upgrade_label:string, expand_label:string, support_url:string, upgrade_url:string, open_widget_types:string[]}>}
  */
 function get_stats_plan_gates() {
 	$tier     = get_stats_plan_tier();
@@ -455,7 +455,7 @@ function get_stats_plan_gates() {
 		$copy['support_url']         = localize_stats_support_url( $copy['support_url'] );
 		$locked_sections[ $section ] = $copy + array(
 			'upgrade_url'       => get_stats_upgrade_url( $section, $tier ),
-			// An allowlist, so a type no plan feature names, or one no longer registered, is hidden too.
+			// An allowlist, so a widget type no plan feature names is hidden too.
 			'open_widget_types' => 'traffic' === $section ? array( 'jpa/traffic-chart' ) : array(),
 		);
 	}
