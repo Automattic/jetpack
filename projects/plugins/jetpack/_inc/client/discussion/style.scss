@@ -34,3 +34,8 @@
 	margin-block-start: rem.convert(12px);
 	margin-inline-start: rem.convert(48px);
 }
+
+// Flush with the module toggle; only the options it enables nest under it.
+.jp-form-settings-group.jp-form-has-child > .jp-form-fieldset.jp-comments-blocks {
+	margin-inline-start: 0;
+}

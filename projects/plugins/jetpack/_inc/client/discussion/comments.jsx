@@ -123,7 +123,7 @@ class CommentsComponent extends Component {
 						<span className="jp-form-toggle-explanation">{ comments.description }</span>
 					</ModuleToggle>
 					{ this.props.hasBlockEditor && (
-						<FormFieldset>
+						<FormFieldset className="jp-comments-blocks">
 							<ToggleControl
 								checked={ !! this.props.getOptionValue( 'enable_blocks_comments', 'comments' ) }
 								disabled={
