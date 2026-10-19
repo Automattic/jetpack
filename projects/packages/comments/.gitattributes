@@ -9,6 +9,3 @@ src/**/*.scss    production-exclude
 src/**/*.tsx     production-exclude
 src/**/*.ts      production-exclude
 /tools/**        production-exclude
-packages/**      production-exclude
-routes/**        production-exclude
-/tsconfig.settings.json  production-exclude

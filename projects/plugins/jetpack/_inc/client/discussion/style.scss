@@ -15,3 +15,10 @@
 		}
 	}
 }
+
+.jp-comments-preview {
+	overflow: hidden;
+	margin-block-end: rem.convert(8px);
+	border: 1px solid var(--jp-gray-5, #dcdcde);
+	border-radius: rem.convert(2px);
+}

@@ -8,6 +8,7 @@
 
 use Automattic\Jetpack\Blaze;
 use Automattic\Jetpack\Comments\Comments;
+use Automattic\Jetpack\Comments\Form_Preview;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Connection\REST_Connector;
@@ -210,6 +211,7 @@ class Jetpack_Redux_State_Helper {
 				'isLikeBlockAvailable'       => isset( $block_availability['like'] )
 					&& $block_availability['like']['available'],
 				'isCommentBlocksAvailable'   => Comments::is_enabled(),
+				'commentFormPreview'         => method_exists( Form_Preview::class, 'get_data' ) && Comments::is_enabled() ? Form_Preview::get_data() : null,
 			),
 			'themeData'                            => array(
 				'name'         => $current_theme->get( 'Name' ),

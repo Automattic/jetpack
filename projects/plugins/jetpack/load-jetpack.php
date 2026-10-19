@@ -79,11 +79,6 @@ if ( is_admin() ) {
 
 	\Automattic\Jetpack\Newsletter\Writing_Prompt_Widget::init();
 
-	// Another plugin's autoloader can serve a jetpack-comments release from before the settings screen.
-	if ( class_exists( \Automattic\Jetpack\Comments\Settings_Page::class ) ) {
-		\Automattic\Jetpack\Comments\Settings_Page::init();
-	}
-
 	\Automattic\Jetpack\Plugin\Jetpack_Script_Data::configure();
 }
 

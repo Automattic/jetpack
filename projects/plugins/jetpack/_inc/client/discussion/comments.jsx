@@ -1,200 +1,152 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ToggleControl } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Component } from 'react';
-import { FormFieldset, FormLabel } from 'components/forms';
+import { FormFieldset, FormLabel, FormLegend } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import SupportInfo from 'components/support-info';
 import TextInput from 'components/text-input';
+import CommentFormPreview from './preview';
 
 import './style.scss';
 
 class CommentsComponent extends Component {
-	/**
-	 * If markdown module is inactive and this is toggling markdown for comments on, activate module.
-	 * If markdown for posts is off and this is toggling markdown for comments off, deactivate module.
-	 *
-	 * @param {string} module - the module slug.
-	 * @return {*}             the updated value
-	 */
-	updateFormStateByMarkdown = module => {
-		if ( this.props.getSettingCurrentValue( 'wpcom_publish_posts_with_markdown', module ) ) {
-			return this.props.updateFormStateModuleOption(
-				module,
-				'wpcom_publish_comments_with_markdown'
-			);
-		}
-		return this.props.updateFormStateModuleOption(
-			module,
-			'wpcom_publish_comments_with_markdown',
-			true
-		);
+	handleBlocksToggle = () => {
+		this.props.updateFormStateModuleOption( 'comments', 'enable_blocks_comments' );
 	};
 
-	handleMarkdownCommentsToggle = () => {
-		this.props.updateFormStateModuleOption( 'markdown', 'wpcom_publish_comments_with_markdown' );
-	};
+	renderPreview( isCommentsActive ) {
+		const { preview, getOptionValue } = this.props;
+		const newsletter = {
+			subscribeBlog: !! getOptionValue( 'stb_enabled', 'subscriptions' ),
+			subscribeReplies: !! getOptionValue( 'stc_enabled', 'subscriptions' ),
+		};
+
+		return (
+			<SettingsGroup>
+				<FormLegend>{ __( 'Preview', 'jetpack' ) }</FormLegend>
+				<div className="jp-comments-preview">
+					<CommentFormPreview
+						isJetpackForm={ isCommentsActive }
+						hasBlocks={
+							this.props.hasBlockEditor && !! getOptionValue( 'enable_blocks_comments', 'comments' )
+						}
+						prompt={ getOptionValue( 'highlander_comment_form_prompt' ) ?? '' }
+						newsletter={ newsletter }
+						preview={ preview }
+					/>
+				</div>
+				<p className="jp-form-setting-explanation">
+					{ isCommentsActive
+						? __( 'The Jetpack form takes your theme’s fonts and colors.', 'jetpack' )
+						: __(
+								'Your theme styles its own comment form, so it may look different on your site.',
+								'jetpack'
+							) }{ ' ' }
+					{ ! preview.theme &&
+						`${ __(
+							'Your theme does not share its styles, so the preview uses plain fonts and colors.',
+							'jetpack'
+						) } ` }
+					{ createInterpolateElement(
+						__(
+							'Name, email, and sign-in requirements follow your <a>Discussion settings</a>.',
+							'jetpack'
+						),
+						{ a: <a href={ preview.discussion.url } /> }
+					) }
+				</p>
+			</SettingsGroup>
+		);
+	}
 
 	render() {
-		const foundComments = this.props.isModuleFound( 'comments' ),
-			foundGravatar = this.props.isModuleFound( 'gravatar-hovercards' ),
-			foundMarkdown = this.props.isModuleFound( 'markdown' ),
-			foundCommentLikes = this.props.isModuleFound( 'comment-likes' );
-
-		if ( ! foundComments && ! foundGravatar && ! foundMarkdown && ! foundCommentLikes ) {
+		if ( ! this.props.isModuleFound( 'comments' ) ) {
 			return null;
 		}
 
-		const { isUnavailableInOfflineMode: isUnavailableInOfflineMode, getOptionValue } = this.props;
-
 		const comments = this.props.getModule( 'comments' ),
 			isCommentsActive = this.props.getOptionValue( 'comments' ),
-			commentsUnavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'comments' ),
-			gravatar = this.props.getModule( 'gravatar-hovercards' ),
-			markdown = this.props.getModule( 'markdown' ),
-			commentLikesUnavailable = isUnavailableInOfflineMode( 'comment-likes' ),
-			commentLikesActive = getOptionValue( 'comment-likes' );
+			commentsUnavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'comments' );
 
 		return (
 			<SettingsCard
 				{ ...this.props }
-				header={ __( 'Comments', 'jetpack' ) }
+				header={ __( 'Comment form', 'jetpack' ) }
 				module="comments"
-				saveDisabled={ this.props.isSavingAnyOption( [ 'highlander_comment_form_prompt' ] ) }
+				saveDisabled={ this.props.isSavingAnyOption( [
+					'highlander_comment_form_prompt',
+					'enable_blocks_comments',
+				] ) }
 			>
-				{ foundComments && (
-					<SettingsGroup
-						hasChild
-						disableInOfflineMode
-						module={ comments }
-						support={ {
-							text: __(
-								'Replaces the standard WordPress comment form with a new comment system that includes social media login options.',
-								'jetpack'
-							),
-							link: getRedirectUrl( 'jetpack-support-comments' ),
-							wpcomLink: 'https://wordpress.com/support/comments/',
-						} }
+				<SettingsGroup
+					hasChild
+					disableInOfflineMode
+					module={ comments }
+					support={ {
+						text: __(
+							'Replaces the standard WordPress comment form with a new comment system that includes social media login options.',
+							'jetpack'
+						),
+						link: getRedirectUrl( 'jetpack-support-comments' ),
+						wpcomLink: 'https://wordpress.com/support/comments/',
+					} }
+				>
+					<ModuleToggle
+						slug="comments"
+						compact
+						disabled={
+							commentsUnavailableInOfflineMode || this.props.isSavingAnyOption( 'comments' )
+						}
+						activated={ isCommentsActive }
+						toggleModule={ this.props.toggleModuleNow }
 					>
-						<ModuleToggle
-							slug="comments"
-							compact
-							disabled={
-								commentsUnavailableInOfflineMode || this.props.isSavingAnyOption( 'comments' )
-							}
-							activated={ this.props.getOptionValue( 'comments' ) }
-							toggleModule={ this.props.toggleModuleNow }
-						>
-							<span className="jp-form-toggle-explanation">{ comments.description }</span>
-						</ModuleToggle>
+						<span className="jp-form-toggle-explanation">{ comments.description }</span>
+					</ModuleToggle>
+					{ this.props.hasBlockEditor && (
 						<FormFieldset>
-							<FormLabel>
-								<span className="jp-form-label-wide">
-									{ __( 'Comment form introduction', 'jetpack' ) }
-								</span>
-								<TextInput
-									name={ 'highlander_comment_form_prompt' }
-									value={ this.props.getOptionValue( 'highlander_comment_form_prompt' ) }
-									disabled={
-										! isCommentsActive ||
-										commentsUnavailableInOfflineMode ||
-										this.props.isSavingAnyOption( 'highlander_comment_form_prompt' )
-									}
-									onChange={ this.props.onOptionChange }
-								/>
-							</FormLabel>
-							<span className="jp-form-setting-explanation">
-								{ __( 'A few catchy words to motivate your visitors to comment.', 'jetpack' ) }
-							</span>
+							<ToggleControl
+								checked={ !! this.props.getOptionValue( 'enable_blocks_comments', 'comments' ) }
+								disabled={
+									! isCommentsActive ||
+									commentsUnavailableInOfflineMode ||
+									this.props.isSavingAnyOption( [ 'comments', 'enable_blocks_comments' ] )
+								}
+								onChange={ this.handleBlocksToggle }
+								label={
+									<span className="jp-form-toggle-explanation">
+										{ __( 'Enable blocks in comments.', 'jetpack' ) }
+									</span>
+								}
+								__nextHasNoMarginBottom={ true }
+							/>
 						</FormFieldset>
-					</SettingsGroup>
-				) }
-				{ ( foundGravatar || foundMarkdown || foundCommentLikes ) && (
-					<SettingsGroup>
-						{ foundGravatar && (
-							<div className="jp-toggle-set">
-								<FormFieldset>
-									<ModuleToggle
-										slug="gravatar-hovercards"
-										compact
-										disabled={ this.props.isSavingAnyOption( 'gravatar-hovercards' ) }
-										activated={ this.props.getOptionValue( 'gravatar-hovercards' ) }
-										toggleModule={ this.props.toggleModuleNow }
-									>
-										<span className="jp-form-toggle-explanation">{ gravatar.description }</span>
-									</ModuleToggle>
-								</FormFieldset>
-								<SupportInfo
-									text={ __( 'Show Gravatar hovercards alongside comments.', 'jetpack' ) }
-									link={ gravatar.learn_more_button }
-									privacyLink={ gravatar.learn_more_button + '#privacy' }
-									wpcomLink="https://wordpress.com/support/gravatars/"
-								/>
-							</div>
-						) }
-						{ foundMarkdown && (
-							<div className="jp-toggle-set">
-								<FormFieldset>
-									<ToggleControl
-										checked={
-											!! this.props.getOptionValue(
-												'wpcom_publish_comments_with_markdown',
-												'markdown'
-											)
-										}
-										disabled={
-											this.props.isSavingAnyOption( [ 'markdown' ] ) ||
-											'inactive' === this.props.getModuleOverride( 'markdown' )
-										}
-										onChange={ this.handleMarkdownCommentsToggle }
-										label={
-											<span className="jp-form-toggle-explanation">
-												{ __( 'Enable Markdown use for comments.', 'jetpack' ) }
-											</span>
-										}
-										__nextHasNoMarginBottom={ true }
-									/>
-								</FormFieldset>
-								<SupportInfo
-									text={ __( 'Allow readers to use markdown in comments.', 'jetpack' ) }
-									link={ markdown.learn_more_button }
-									privacyLink={ markdown.learn_more_button + '#privacy' }
-									wpcomLink="https://wordpress.com/support/wordpress-editor/blocks/markdown-block/"
-								/>
-							</div>
-						) }
-						{ foundCommentLikes && (
-							<div className="jp-toggle-set">
-								<FormFieldset>
-									<ModuleToggle
-										slug="comment-likes"
-										compact
-										disabled={
-											commentLikesUnavailable || this.props.isSavingAnyOption( 'comment-likes' )
-										}
-										activated={ commentLikesActive }
-										toggleModule={ this.props.toggleModuleNow }
-									>
-										<span className="jp-form-toggle-explanation">
-											{ __( 'Enable comment Likes.', 'jetpack' ) }
-										</span>
-									</ModuleToggle>
-								</FormFieldset>
-								<SupportInfo
-									text={ __( 'Allow readers to like individual comments.', 'jetpack' ) }
-									link={ getRedirectUrl( 'jetpack-support-comment-likes' ) }
-									privacyLink={ getRedirectUrl( 'jetpack-support-comment-likes', {
-										anchor: 'privacy',
-									} ) }
-									wpcomLink="https://wordpress.com/support/comment-likes/"
-								/>
-							</div>
-						) }
-					</SettingsGroup>
-				) }
+					) }
+					<FormFieldset>
+						<FormLabel>
+							<span className="jp-form-label-wide">
+								{ __( 'Comment form introduction', 'jetpack' ) }
+							</span>
+							<TextInput
+								name={ 'highlander_comment_form_prompt' }
+								value={ this.props.getOptionValue( 'highlander_comment_form_prompt' ) }
+								disabled={
+									! isCommentsActive ||
+									commentsUnavailableInOfflineMode ||
+									this.props.isSavingAnyOption( 'highlander_comment_form_prompt' )
+								}
+								onChange={ this.props.onOptionChange }
+							/>
+						</FormLabel>
+						<span className="jp-form-setting-explanation">
+							{ __( 'A few catchy words to motivate your visitors to comment.', 'jetpack' ) }
+						</span>
+					</FormFieldset>
+				</SettingsGroup>
+				{ this.props.preview && this.renderPreview( isCommentsActive ) }
 			</SettingsCard>
 		);
 	}

@@ -1,6 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 use Automattic\Jetpack\Assets\Logo;
+use Automattic\Jetpack\Comments\Form_Preview;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 
@@ -93,6 +94,11 @@ JS;
 				exit( 0 );
 			}
 			return; // No need to handle the fallback redirection if we are not on the Jetpack page.
+		}
+
+		// The Discussion tab's comment form preview takes the theme's fonts and preset variables.
+		if ( method_exists( Form_Preview::class, 'print_theme_assets' ) ) {
+			add_action( 'admin_head', array( Form_Preview::class, 'print_theme_assets' ) );
 		}
 
 		// After the action handlers and the connection controller, which exit when they act.

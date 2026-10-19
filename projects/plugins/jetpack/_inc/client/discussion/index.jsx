@@ -1,8 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import Button from 'components/button';
-import Card from 'components/card';
 import QuerySite from 'components/data/query-site';
 import {
 	isOfflineMode,
@@ -14,10 +12,12 @@ import {
 	isOdysseyStatsEnabled,
 	getSiteAdminUrl,
 	isCommentBlocksAvailable,
+	getCommentFormPreview,
 } from 'state/initial-state';
 import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import { getSettings } from 'state/settings';
+import { CommentFeatures } from './comment-features';
 import { Comments } from './comments';
 
 export class Discussion extends Component {
@@ -55,30 +55,18 @@ export class Discussion extends Component {
 						? __( 'Discussion', 'jetpack' )
 						: __( 'Manage advanced comment settings.', 'jetpack' ) }
 				</h2>
-				{ /* Jetpack Comments has its own screen, Jetpack > Comments, which needs a connection. */ }
-				{ this.props.hasBlockEditor && ! this.props.isOfflineMode ? (
-					<Card>
-						<p>
-							{ __(
-								'Comments settings have moved to a new location. Access them via Jetpack → Comments.',
-								'jetpack'
-							) }
-						</p>
-						<Button
-							href={ `${ this.props.siteAdminUrl }admin.php?page=jetpack-comments` }
-							primary
-							rna
-						>
-							{ __( 'Go to Comments settings', 'jetpack' ) }
-						</Button>
-					</Card>
-				) : (
-					<Comments
-						{ ...commonProps }
-						isModuleFound={ this.props.isModuleFound }
-						getModuleOverride={ this.props.getModuleOverride }
-					/>
-				) }
+				<Comments
+					{ ...commonProps }
+					isModuleFound={ this.props.isModuleFound }
+					getModuleOverride={ this.props.getModuleOverride }
+					hasBlockEditor={ this.props.hasBlockEditor }
+					preview={ this.props.commentFormPreview }
+				/>
+				<CommentFeatures
+					{ ...commonProps }
+					isModuleFound={ this.props.isModuleFound }
+					getModuleOverride={ this.props.getModuleOverride }
+				/>
 			</div>
 		);
 	}
@@ -97,5 +85,6 @@ export default connect( state => {
 		isOdysseyStatsEnabled: isOdysseyStatsEnabled( state ),
 		siteAdminUrl: getSiteAdminUrl( state ),
 		hasBlockEditor: isCommentBlocksAvailable( state ),
+		commentFormPreview: getCommentFormPreview( state ),
 	};
 } )( Discussion );

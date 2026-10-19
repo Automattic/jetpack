@@ -779,6 +779,16 @@ export function isCommentBlocksAvailable( state ) {
 }
 
 /**
+ * Get what the comment form preview needs to look like the site.
+ *
+ * @param {object} state - Global state tree.
+ * @return {object|null} The form's stylesheet, theme tokens, and discussion options, or null without Jetpack Comments.
+ */
+export function getCommentFormPreview( state ) {
+	return state.jetpack.initialState.siteData?.commentFormPreview ?? null;
+}
+
+/**
  * Returns true if Subscription Site feature is enabled on the site.
  *
  * @param {object} state - Global state tree.
