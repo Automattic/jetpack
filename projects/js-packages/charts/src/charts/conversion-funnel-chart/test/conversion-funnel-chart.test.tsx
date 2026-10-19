@@ -1,4 +1,4 @@
-import { act, render, screen } from '@testing-library/react';
+import { act, isInaccessible, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ConversionFunnelChart from '../conversion-funnel-chart';
 import type { ConversionFunnelChartProps, FunnelStep } from '../types';
@@ -282,6 +282,13 @@ describe( 'ConversionFunnelChart', () => {
 			expect(
 				screen.getAllByRole( 'option' ).map( option => option.getAttribute( 'aria-label' ) )
 			).toEqual( mockSteps.map( step => step.label ) );
+		} );
+
+		it( 'hides the visible step labels and rates, so the listbox holds only its options', () => {
+			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
+
+			expect( isInaccessible( screen.getByText( 'Cart' ) ) ).toBe( true );
+			expect( isInaccessible( screen.getByText( '71.1%' ) ) ).toBe( true );
 		} );
 
 		it( 'describes the selected step with its tooltip, leaving out the name', () => {
