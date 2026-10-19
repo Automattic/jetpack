@@ -84,13 +84,15 @@ Cookie_Consent::init(
 			'ccpa_page'          => true,  // CCPA "Your Privacy Choices" opt-out page and directives.
 			'footer_links'       => true,  // Required footer legal links (Block Hooks + classic-theme fallback).
 			'consent_log'        => true,  // Consent-log REST controller (table, cron cleanup, routes) + frontend logging.
-			'tracks'             => true,  // Automattic Tracks (stats.wp.com/w.js) enqueue.
+			'tracks'             => true,  // Automattic usage stats: Tracks (stats.wp.com/w.js) and cookieless banner stats (pixel.wp.com/g.gif).
 			'geo'                => true,  // Geolocation-based consent model and Boost cache-key exclusion.
 			'page_deletion_lock' => false, // Reserved; not yet wired to a behavior.
 		),
 	)
 );
 ```
+
+Turning `tracks` off stops every request the package makes to Automattic for usage stats: the cookie-based Tracks events (which also need analytics consent) and the identity-free aggregate stats sent on banner view, accept, reject, customize, preferences open, and CCPA opt-out (`pixel.wp.com/g.gif`, carrying the site's hostname).
 
 Turning `geo` off stops resolving a visitor's region and excluding the geo cookies from Jetpack Boost's cache key, but the frontend module still receives a `geo` config sub-object (with `geoEnabled: false`) rather than none at all, since the module dereferences it unconditionally.
 
