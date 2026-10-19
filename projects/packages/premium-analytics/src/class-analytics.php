@@ -374,10 +374,6 @@ class Analytics {
 		}
 		configure_purchase_success();
 
-		// The composition flag's answer, read by the dashboard policy; the file is
-		// already loaded by boot_shared_services().
-		configure_dashboard_policy();
-
 		// Temporary: carries a default layout move into layouts readers customized before it.
 		Stored_Layout_Move::register();
 	}

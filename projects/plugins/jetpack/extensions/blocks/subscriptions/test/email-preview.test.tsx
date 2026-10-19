@@ -494,8 +494,18 @@ describe( 'Newsletter preview: email design link', () => {
 		const link = await screen.findByRole( 'link', { name: 'Edit email design' } );
 		await waitFor( () => expect( apiFetch ).toHaveBeenCalled() );
 
-		expect( link ).toHaveAttribute( 'href', DESIGN_URL );
+		// The post travels so the design canvas previews it rather than the sample post. NL-1051.
+		expect( link ).toHaveAttribute( 'href', `${ DESIGN_URL }&post_id=123` );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
+	} );
+
+	it( 'names no post before the one being previewed has an id', async () => {
+		mockEmailDesignUrl = DESIGN_URL;
+
+		render( <NewsletterPreviewModal isOpen postId={ 0 } onClose={ jest.fn() } /> );
+		const link = await screen.findByRole( 'link', { name: 'Edit email design' } );
+
+		expect( link ).toHaveAttribute( 'href', DESIGN_URL );
 	} );
 
 	it( 'drops to an icon where the header runs out of room', async () => {
@@ -506,7 +516,7 @@ describe( 'Newsletter preview: email design link', () => {
 		const link = await screen.findByRole( 'link', { name: 'Edit email design' } );
 		await waitFor( () => expect( apiFetch ).toHaveBeenCalled() );
 
-		expect( link ).toHaveAttribute( 'href', DESIGN_URL );
+		expect( link ).toHaveAttribute( 'href', `${ DESIGN_URL }&post_id=123` );
 		// The label is still the link's name, it is just not on screen beside the icon.
 		expect( screen.getByTestId( 'visually-hidden' ) ).toHaveTextContent( 'Edit email design' );
 		// An `aria-label` would override the contents and discard `Link`'s own new-tab notice.

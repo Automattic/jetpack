@@ -516,6 +516,29 @@ class Channel {
 	}
 
 	/**
+	 * Add views and upload time to playlist entries, for their meta line.
+	 *
+	 * @param array[] $entries Sanitized playlist entries.
+	 * @return array[]
+	 */
+	public static function entries_with_meta( array $entries ) {
+		$views = Channel_Data::video_views();
+		foreach ( $entries as &$entry ) {
+			$id    = self::attachment_id( $entry['guid'] );
+			$post  = $id ? get_post( $id ) : null;
+			$entry = array_merge(
+				$entry,
+				array(
+					'views'       => $views[ $id ] ?? 0,
+					'publishedAt' => $post instanceof WP_Post ? (int) strtotime( $post->post_date_gmt . ' UTC' ) : 0,
+				)
+			);
+		}
+		unset( $entry );
+		return $entries;
+	}
+
+	/**
 	 * A Video Playlist block whose `source` is `queried` or `index` shows that
 	 * playlist; its entries then open their video pages within the playlist.
 	 * Hooked by Channel_Blocks::register() on every site with the block, channel
@@ -540,7 +563,7 @@ class Channel {
 			return $parsed_block;
 		}
 
-		$parsed_block['attrs']['videos']              = $playlist['videos'];
+		$parsed_block['attrs']['videos']              = ! empty( $attrs['showMeta'] ) ? self::entries_with_meta( $playlist['videos'] ) : $playlist['videos'];
 		$parsed_block['attrs']['playlistTitle']       = $playlist['title'];
 		$parsed_block['attrs']['playlistDescription'] = $playlist['description'];
 		$parsed_block['attrs']['videopressListKey']   = $playlist['key'];

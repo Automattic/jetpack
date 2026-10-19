@@ -90,6 +90,7 @@ function TotalReturns() {
 				onRetry: refetch,
 			} ) }
 			format={ CURRENCY_FORMAT }
+			chartTitle={ __( 'Total returns', 'jetpack-woocommerce-stats-pkg' ) }
 		/>
 	);
 }
