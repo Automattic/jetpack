@@ -107,6 +107,34 @@ const BarLabel = ( { label }: { label: LeaderboardEntry[ 'label' ] } ) => (
 	<>{ typeof label === 'string' ? <Text className={ styles.label }>{ label }</Text> : label }</>
 );
 
+const Bar = ( {
+	share,
+	color,
+	animation,
+	isDiverging,
+}: {
+	share: number;
+	color: string;
+	animation?: boolean;
+	isDiverging?: boolean;
+} ) => {
+	const bar = (
+		<div
+			className={ clsx( styles.bar, {
+				[ styles[ 'bar--animated' ] ]: animation,
+				[ styles[ 'bar--negative' ] ]: share < 0,
+			} ) }
+			style={ {
+				width: getBarWidth( Math.abs( share ) ),
+				backgroundColor: color,
+			} }
+		></div>
+	);
+
+	// Each half of the track spans 100% of the share, so the zero line sits at its center.
+	return isDiverging ? <div className={ styles.barTrack }>{ bar }</div> : bar;
+};
+
 const BarWithLabel = ( {
 	entry,
 	withComparison,
@@ -114,6 +142,7 @@ const BarWithLabel = ( {
 	primaryColor,
 	secondaryColor,
 	animation,
+	isDiverging = false,
 	isPrimaryVisible = true,
 	isComparisonVisible = true,
 }: {
@@ -122,11 +151,34 @@ const BarWithLabel = ( {
 	withOverlayLabel?: boolean;
 	primaryColor: string;
 	secondaryColor: string;
+	isDiverging?: boolean;
 	isPrimaryVisible?: boolean;
 	isComparisonVisible?: boolean;
 	animation?: boolean;
 } ) => {
 	const showComparisonBar = withComparison && ! withOverlayLabel && isComparisonVisible;
+
+	const bars = (
+		<>
+			{ isPrimaryVisible && (
+				<Bar
+					share={ entry.currentShare }
+					color={ primaryColor }
+					animation={ animation }
+					isDiverging={ isDiverging }
+				/>
+			) }
+
+			{ showComparisonBar && hasPreviousValue( entry ) && (
+				<Bar
+					share={ entry.previousShare }
+					color={ secondaryColor }
+					animation={ animation }
+					isDiverging={ isDiverging }
+				/>
+			) }
+		</>
+	);
 
 	return (
 		<div
@@ -136,28 +188,12 @@ const BarWithLabel = ( {
 		>
 			<BarLabel label={ entry.label } />
 
-			{ isPrimaryVisible && (
-				<div
-					className={ clsx( styles.bar, {
-						[ styles[ 'bar--animated' ] ]: animation,
-					} ) }
-					style={ {
-						width: getBarWidth( entry.currentShare ),
-						backgroundColor: primaryColor,
-					} }
-				></div>
-			) }
-
-			{ showComparisonBar && hasPreviousValue( entry ) && (
-				<div
-					className={ clsx( styles.bar, {
-						[ styles[ 'bar--animated' ] ]: animation,
-					} ) }
-					style={ {
-						width: getBarWidth( entry.previousShare ),
-						backgroundColor: secondaryColor,
-					} }
-				></div>
+			{ isDiverging ? (
+				<div className={ styles.divergingBars } data-testid="leaderboard-chart-diverging-bars">
+					{ bars }
+				</div>
+			) : (
+				bars
 			) }
 		</div>
 	);
@@ -266,6 +302,17 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 		}
 		return ! isPrimaryVisible;
 	}, [ isPrimaryVisible, isComparisonVisible, withComparison, withOverlayLabel ] );
+
+	// One negative share puts every row on a shared zero line, so the bars stay comparable.
+	const isDiverging = useMemo(
+		() =>
+			( data ?? [] ).some(
+				entry =>
+					entry.currentShare < 0 ||
+					( withComparison && ! withOverlayLabel && ( entry.previousShare ?? 0 ) < 0 )
+			),
+		[ data, withComparison, withOverlayLabel ]
+	);
 
 	// Validate data
 	const isDataValid = Boolean( data && data.length > 0 );
@@ -426,6 +473,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 												withOverlayLabel={ withOverlayLabel }
 												primaryColor={ resolvedPrimaryColor }
 												secondaryColor={ resolvedSecondaryColor }
+												isDiverging={ isDiverging }
 												isPrimaryVisible={ isPrimaryVisible }
 												isComparisonVisible={ isComparisonVisible }
 												animation={ animation && ! loading && ! prefersReducedMotion }

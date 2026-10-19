@@ -74,6 +74,11 @@
 				var(--a8c-charts-motion-easing-entrance) both;
 		}
 
+		// Grows from the zero line, which sits on its inline-end edge.
+		&--negative {
+			transform-origin: right;
+		}
+
 		@keyframes stretch {
 
 			from {
@@ -83,6 +88,38 @@
 			to {
 				transform: scaleX(1);
 			}
+		}
+	}
+
+	.divergingBars {
+		position: relative;
+		display: grid;
+		row-gap: inherit;
+
+		// The zero line, drawn over the bars like the bar chart's zero grid line.
+		&::before {
+			content: "";
+			position: absolute;
+			inset-block: 0;
+			inset-inline-start: 50%;
+			width: var(--wpds-border-width-xs);
+			background: var(--a8c-charts-color-grid);
+			pointer-events: none;
+		}
+	}
+
+	.barTrack {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+
+		.bar {
+			grid-column: 2;
+			justify-self: start;
+		}
+
+		.bar--negative {
+			grid-column: 1;
+			justify-self: end;
 		}
 	}
 }
