@@ -295,6 +295,34 @@ class Channel_Blocks_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The queried playlist's cover, meta and actions; Play all opens the first video in the playlist.
+	 */
+	public function test_playlist_details() {
+		$this->assertSame( '', Channel_Blocks::render_playlist_details( array() ) );
+
+		set_query_var( Channel::PLAYLIST_QUERY_VAR, 1 );
+		set_query_var( Channel::LIST_VAR, 'dungeons' );
+		$markup = Channel_Blocks::render_playlist_details( array() );
+
+		$this->assertStringContainsString( '<img class="videopress-playlist-details__poster" src="https://videos.files.wordpress.com/bbbbbbb2/poster.jpg"', $markup );
+		$this->assertStringContainsString( '<span class="videopress-playlist-details__badge">2 videos</span>', $markup );
+		$this->assertStringContainsString( '<h1 class="videopress-playlist-details__title">Classic dungeons</h1>', $markup );
+		$this->assertStringContainsString( '<div class="videopress-playlist-details__meta">2 videos · Updated ', $markup );
+		$this->assertStringContainsString( ' · 20 min</div>', $markup );
+		$this->assertStringContainsString( 'videopress-playlist-details__play" href="' . esc_url( Channel::video_url( $this->videos['bbbbbbb2'], 'dungeons' ) ) . '"', $markup );
+		$this->assertStringContainsString( 'data-share-url="' . esc_url( Channel::playlist_url( 'dungeons' ) ) . '"', $markup );
+
+		$picked = Channel_Blocks::render_playlist_details(
+			array(
+				'source'    => 'index',
+				'showCover' => false,
+			)
+		);
+		$this->assertStringContainsString( '<h3 class="videopress-playlist-details__title"><a href=', $picked );
+		$this->assertStringNotContainsString( '__cover', $picked );
+	}
+
+	/**
 	 * The editor gets the playlists ( key, title and videos ) for the pickers and the canvas
 	 * previews, before the playlist block's script.
 	 */
