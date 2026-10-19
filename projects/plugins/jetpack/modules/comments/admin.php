@@ -105,7 +105,6 @@ class Jetpack_Comments_Settings {
 			array( $this, 'comment_form_greeting_sanitize' )
 		);
 
-		// The rebuilt comment form is what offers blocks.
 		if ( ! Comments::is_enabled() ) {
 			return;
 		}
