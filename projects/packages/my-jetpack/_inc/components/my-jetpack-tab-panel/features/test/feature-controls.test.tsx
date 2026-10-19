@@ -451,7 +451,10 @@ describe( 'FeatureItem', () => {
 		}
 	);
 
-	it( 'links to the Protect page, in place of a switch, for a module whose settings live there', () => {
+	it.each( [
+		[ 'a switch', false, 'Manage Firewall in Protect' ],
+		[ 'nothing, for a module a host forced on,', 'active' as const, 'Configure Firewall' ],
+	] )( 'links to the Protect page in place of %s', ( _, override, linkName ) => {
 		const previousInitial = window.myJetpackInitialState;
 		window.myJetpackInitialState = {
 			protectPageModuleUrls: { waf: 'admin.php?page=jetpack-protect&p=firewall' },
@@ -460,6 +463,7 @@ describe( 'FeatureItem', () => {
 			module: 'waf',
 			available: true,
 			activated: true,
+			override,
 			configure_url: 'admin.php?page=jetpack-protect&p=firewall',
 		} as MyJetpackModule;
 
@@ -476,7 +480,7 @@ describe( 'FeatureItem', () => {
 			window.myJetpackInitialState = previousInitial;
 		}
 
-		expect( screen.getByRole( 'link', { name: 'Manage Firewall in Protect' } ) ).toHaveAttribute(
+		expect( screen.getByRole( 'link', { name: linkName } ) ).toHaveAttribute(
 			'href',
 			'admin.php?page=jetpack-protect&p=firewall'
 		);

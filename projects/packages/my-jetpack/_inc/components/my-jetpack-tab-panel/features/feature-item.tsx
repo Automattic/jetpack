@@ -11,7 +11,7 @@ import { FeatureAction } from './feature-action';
 import { FeatureIcon } from './feature-icon';
 import { FeatureInstallNotice } from './feature-install-notice';
 import { getModuleUnavailableNote } from './feature-state';
-import { getFeatureUnavailableReason } from './module-availability';
+import { getFeatureUnavailableReason, getModuleStatus } from './module-availability';
 import styles from './styles.module.scss';
 import { getDeprecatedModules } from './use-more-features';
 import type { FeatureState } from './feature-state';
@@ -31,8 +31,8 @@ export function getModuleSettingsUrl( $module: MyJetpackModule ): string | undef
 		return undefined;
 	}
 
-	// The Protect page link already stands in for the switch.
-	if ( getProtectPageUrl( $module.module ) ) {
+	// The Protect page link already stands in for the switch; a forced module gets neither, so it keeps this one.
+	if ( getProtectPageUrl( $module.module ) && getModuleStatus( $module ).isAvailable ) {
 		return undefined;
 	}
 

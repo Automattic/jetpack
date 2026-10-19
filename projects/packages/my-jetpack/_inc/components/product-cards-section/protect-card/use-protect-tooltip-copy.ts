@@ -74,6 +74,16 @@ export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 		} );
 	}, [ recordEvent, firewallSettingsLink ] );
 
+	// Same location as the firewall link, as before, so only the path tells them apart.
+	const trackLoginSettingsLinkClick = useCallback( () => {
+		recordEvent( 'jetpack_protect_card_tooltip_content_link_click', {
+			page: 'my-jetpack',
+			feature: 'jetpack-protect',
+			location: 'auto-firewall-tooltip',
+			path: loginSettingsLink,
+		} );
+	}, [ recordEvent, loginSettingsLink ] );
+
 	const trackProtectDashboardLinkClick = useCallback( () => {
 		recordEvent( 'jetpack_protect_card_tooltip_content_link_click', {
 			page: 'my-jetpack',
@@ -101,7 +111,7 @@ export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 				text: loginSettingsLink
 					? createInterpolateElement(
 							sprintf(
-								/* translators: %s is the location/page where the settings are located. Either "firewall settings" or "Jetpack settings". */
+								/* translators: %s is the location/page where the settings are located: "Protect settings", "firewall settings" or "Jetpack settings". */
 								__(
 									'Brute Force Protection is disabled and not actively blocking malicious login attempts. Go to <a>%s</a> to activate it.',
 									'jetpack-my-jetpack'
@@ -111,7 +121,7 @@ export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 							{
 								a: createElement( 'a', {
 									href: loginSettingsLink,
-									onClick: trackFirewallSettingsLinkClick,
+									onClick: trackLoginSettingsLinkClick,
 								} ),
 							}
 						)
@@ -137,7 +147,7 @@ export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 				text: loginSettingsLink
 					? createInterpolateElement(
 							sprintf(
-								/* translators: %s is the location/page where the settings are located. Either "firewall settings" or "Jetpack settings". */
+								/* translators: %s is the location/page where the settings are located: "Protect settings", "firewall settings" or "Jetpack settings". */
 								__(
 									'Brute Force Protection is disabled and not actively blocking malicious login attempts. Go to <a>%s</a> to activate it.',
 									'jetpack-my-jetpack'
@@ -147,7 +157,7 @@ export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 							{
 								a: createElement( 'a', {
 									href: loginSettingsLink,
-									onClick: trackFirewallSettingsLinkClick,
+									onClick: trackLoginSettingsLinkClick,
 								} ),
 							}
 						)
@@ -163,7 +173,7 @@ export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 		isBruteForcePluginsActive,
 		loginSettingsLink,
 		loginSettingsName,
-		trackFirewallSettingsLinkClick,
+		trackLoginSettingsLinkClick,
 	] );
 
 	return {
