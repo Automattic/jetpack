@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Add recent Jetpack.com blog posts to the Overview, shown only when the `jetpack_my_jetpack_overview_v1` filter returns true.
+Add recent Jetpack.com blog posts to the Overview, shown only while the Overview v1 feature flag is on.
