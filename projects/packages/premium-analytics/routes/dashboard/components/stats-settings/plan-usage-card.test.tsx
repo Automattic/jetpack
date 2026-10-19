@@ -55,6 +55,10 @@ describe( 'PlanUsageCard', () => {
 
 		await expect( screen.findByText( '6,200 / 10,000 views' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'Restarts in 12 days' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'meter', { name: 'Billable views' } ) ).toHaveAttribute(
+			'aria-valuetext',
+			'6,200 of 10,000 views used'
+		);
 		expect( mockApiFetch.mock.calls[ 0 ][ 0 ].path ).toContain( '/proxy/v2/jetpack-stats/usage' );
 	} );
 
@@ -66,9 +70,8 @@ describe( 'PlanUsageCard', () => {
 
 		renderCard();
 
-		const meter = await screen.findByRole( 'progressbar' );
-		// eslint-disable-next-line jest-dom/prefer-to-have-value -- toHaveValue reads form controls only, not <progress>.
-		expect( meter ).toHaveAttribute( 'value', '100' );
+		const meter = await screen.findByRole( 'meter', { name: 'Billable views' } );
+		expect( meter ).toHaveValue( 10000 );
 	} );
 
 	it( 'links Upgrade to the Stats purchase screen for the connected site', async () => {

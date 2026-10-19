@@ -43,6 +43,11 @@ class Api_Proxy_Controller {
 	private const CACHE_TTL = 5 * MINUTE_IN_SECONDS;
 
 	/**
+	 * Option holding the cache generation, part of every cache key.
+	 */
+	private const CACHE_GENERATION_OPTION = 'jetpack_woocommerce_stats_proxy_cache_generation';
+
+	/**
 	 * Timeout of the request to WordPress.com, in seconds.
 	 */
 	private const API_TIMEOUT = 20;
@@ -73,6 +78,17 @@ class Api_Proxy_Controller {
 		}
 
 		return $prefixes;
+	}
+
+	/**
+	 * Drop every cached report, such as the empty ones WordPress.com answers with during the
+	 * store's initial sync. Bumps the generation instead of deleting, since an object cache can't
+	 * list transients by prefix.
+	 *
+	 * @return void
+	 */
+	public static function clear_cache() {
+		update_option( self::CACHE_GENERATION_OPTION, (int) get_option( self::CACHE_GENERATION_OPTION, 0 ) + 1, false );
 	}
 
 	/**
@@ -256,7 +272,7 @@ class Api_Proxy_Controller {
 	}
 
 	/**
-	 * Transient key of a path and its params, whatever their order.
+	 * Transient key of a path and its params, whatever their order, in the current cache generation.
 	 *
 	 * @param string $path   WordPress.com path, without the query string.
 	 * @param array  $params Forwarded query params.
@@ -265,6 +281,8 @@ class Api_Proxy_Controller {
 	private function get_cache_key( $path, array $params ) {
 		ksort( $params );
 
-		return self::CACHE_PREFIX . md5( $path . '|' . wp_json_encode( $params, JSON_UNESCAPED_SLASHES ) );
+		$generation = (int) get_option( self::CACHE_GENERATION_OPTION, 0 );
+
+		return self::CACHE_PREFIX . md5( $generation . '|' . $path . '|' . wp_json_encode( $params, JSON_UNESCAPED_SLASHES ) );
 	}
 }

@@ -88,7 +88,9 @@ there; the callback receives the registry being hydrated, for lookups such as
 REST, and fires that action once; `src/default-dashboard-sections.php` registers the package's own sections the same
 way. A section declares its default layout in the registration; the
 `jetpack_premium_analytics_dashboard_default_layout` filter lets another plugin add an instance to
-any section by id. `docs/dashboard-sections.md` walks through the whole path with diagrams.
+any section by id. The inserter offers the default layout's types plus the section's
+`insertable_widget_types`, which the `jetpack_premium_analytics_dashboard_insertable_widget_types`
+filter extends the same way. `docs/dashboard-sections.md` walks through the whole path with diagrams.
 
 Add widget types from another plugin: hook `jetpack_premium_analytics_register_widget_types`,
 compare `WIDGET_API_VERSION`, and call `register_widget_types_from_manifest()` there with the manifest
@@ -181,9 +183,8 @@ and reaches `public-api.wordpress.com` directly. `jetpack-mu-wpcom` boots the pa
 opt-in or the `jetpack-premium-analytics` blog sticker, whichever says yes. Both answer the
 shared `jetpack_premium_analytics_enabled` filter, as they do on the other platforms.
 
-Every section the site qualifies for is shown as a tab, whichever one says yes. On the site's own
-opt-in, the WooCommerce tab also needs the `premium-analytics-store-section` feature flag, off by default; see
-`docs/dashboard-sections.md`. The tab itself registers from the WooCommerce stats package.
+Every section the site qualifies for is shown as a tab, whichever one says yes; see
+`docs/dashboard-sections.md`. The WooCommerce tab registers from the WooCommerce stats package.
 
 The same list the tab bar gets over REST also reaches the client as
 `premium_analytics.sections` in the script data, which is what keeps `/reports/…` behind a hidden

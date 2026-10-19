@@ -111,11 +111,7 @@ function Dashboard(): JSX.Element {
 
 	const activeSectionRecord = sections.find( section => section.slug === widgetSection );
 
-	/**
-	 * The widget types the inserter offers, for now, are:
-	 * - those that are already in the layout
-	 * - those that are the active section's default layout
-	 */
+	// The inserter offers the active section's default layout types plus those it declares insertable.
 	const insertableWidgetTypes = useMemo(
 		() => getInsertableWidgetTypeNames( activeSectionRecord ? [ activeSectionRecord ] : [] ),
 		[ activeSectionRecord ]

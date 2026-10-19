@@ -58,7 +58,7 @@ function register_videopress_blocks( $playlist_metadata_file = null, $latest_vid
 		VideoPress_Pkg_Initializer::register_videopress_all_playlists_block();
 	}
 
-	// The channel blocks' shared pieces ( the playlist block's `source`, the editor data its picker reads ) also need the playlist block.
+	// The channel theme's blocks ( channel, video and playlist details, episode navigation ) and the playlist block's `source` also need the playlist block.
 	if ( method_exists( 'Automattic\Jetpack\VideoPress\Channel_Blocks', 'register' ) ) {
 		VideoPress_Pkg_Channel_Blocks::register();
 	}

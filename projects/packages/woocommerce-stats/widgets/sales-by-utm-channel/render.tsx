@@ -5,6 +5,7 @@ import {
 	WidgetRoot,
 	type ReportParamsFieldAttributes,
 } from '@automattic/jetpack-premium-analytics-sdk';
+import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -26,7 +27,10 @@ export default function SalesByUtmChannelRender( {
 }: WidgetRenderProps< SalesByUtmChannelRenderAttributes > ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<UtmLeaderboard view="channel" />
+			<UtmLeaderboard
+				view="channel"
+				chartTitle={ __( 'Sales by UTM channel', 'jetpack-woocommerce-stats-pkg' ) }
+			/>
 		</WidgetRoot>
 	);
 }
