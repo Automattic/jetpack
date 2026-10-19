@@ -38,6 +38,17 @@ export const useAllProducts = () => {
 			( acc, [ key, product ] ) => {
 				const fetchedProduct = fetchedProducts?.[ key ];
 				const prepared = prepareProductData( { ...product, ...fetchedProduct } );
+				if (
+					key === 'pro' &&
+					prepared.pricingForUi &&
+					! isOffline &&
+					( isLoading ||
+						isRefetching ||
+						isError ||
+						fetchedProduct?.pricing_for_ui?.catalog_available !== true )
+				) {
+					prepared.pricingForUi.catalogAvailable = false;
+				}
 				const missingAvailability =
 					! isOffline && ( isLoading || fetchedProduct?.pricing_for_ui?.available !== true );
 				if ( key === 'pro' && prepared.pricingForUi && ( isError || missingAvailability ) ) {

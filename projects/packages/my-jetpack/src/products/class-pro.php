@@ -112,10 +112,14 @@ class Pro extends Complete {
 		if ( ! method_exists( static::class, 'get_bundle_pricing' ) ) {
 			return array(
 				'available'          => false,
+				'catalog_available'  => false,
 				'wpcom_product_slug' => static::get_wpcom_product_slug(),
 			);
 		}
 		$pricing = static::get_bundle_pricing( array( 'jetpack_pro_yearly', 'jetpack_pro_bi_yearly' ) );
+		// Calypso's rollout follows yearly availability, independently of customer eligibility.
+		$catalog_product              = Wpcom_Products::get_product( static::get_wpcom_product_slug() );
+		$pricing['catalog_available'] = true === ( $catalog_product->available ?? false );
 		// Complete changes are support-assisted; recognition does not create a downgrade offer.
 		if ( Complete::has_paid_plan_for_product() || static::has_purchase_requiring_support() ) {
 			$pricing['requires_support'] = true;
