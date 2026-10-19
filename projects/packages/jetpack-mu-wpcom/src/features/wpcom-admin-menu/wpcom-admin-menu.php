@@ -308,6 +308,25 @@ function wpcom_reorder_submenu( $menu_slug, $desired_order ) {
 }
 
 /**
+ * Whether the host replaces My Jetpack with Stats.
+ *
+ * @return bool
+ */
+function jetpack_mu_wpcom_redirects_my_jetpack_to_stats() {
+	if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || ! class_exists( '\\Automattic\\Jetpack\\Current_Plan' ) ) {
+		return false;
+	}
+	$plan = \Automattic\Jetpack\Current_Plan::get();
+	return in_array( $plan['class'] ?? '', array( 'personal', 'premium' ), true );
+}
+add_filter(
+	'jetpack_my_jetpack_modules_management_available',
+	static function ( $available ) {
+		return $available && ! jetpack_mu_wpcom_redirects_my_jetpack_to_stats();
+	}
+);
+
+/**
  * Whether Jetpack > Backup opens the wp-admin Backup page rather than Calypso.
  *
  * Only meaningful once whatever serves the page has registered it; see WPCOM_WP_Build_Page::REGISTER_PRIORITY.
@@ -333,14 +352,7 @@ function wpcom_add_jetpack_submenu() {
 
 	// @codeCoverageIgnoreStart
 	// Hide certain Jetpack submenus for Atomic sites on Personal or Premium plans.
-	$is_personal_or_premium = false;
-	if ( class_exists( '\\Automattic\\Jetpack\\Current_Plan' ) ) {
-		$current_plan           = \Automattic\Jetpack\Current_Plan::get();
-		$plan_class             = $current_plan['class'] ?? '';
-		$is_personal_or_premium = in_array( $plan_class, array( 'personal', 'premium' ), true );
-	}
-
-	if ( ! $is_simple_site && $is_personal_or_premium ) {
+	if ( jetpack_mu_wpcom_redirects_my_jetpack_to_stats() ) {
 		// Jetpack > My Jetpack.
 		wpcom_hide_submenu_page( 'jetpack', 'my-jetpack' );
 

@@ -22,9 +22,3 @@
 .usageWarning {
 	font-weight: var(--wpds-typography-font-weight-emphasis);
 }
-
-// ProgressBar's own stylesheet loads later and wins a tie with a single
-// class, so its documented `className` sizing needs the extra one.
-.usageMeter .usageBar {
-	inline-size: 100%;
-}

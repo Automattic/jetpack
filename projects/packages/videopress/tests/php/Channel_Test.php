@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\VideoPress\Channel;
+use Automattic\Jetpack\VideoPress\Channel_Data;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use WorDBless\BaseTestCase;
@@ -399,6 +400,42 @@ class Channel_Test extends BaseTestCase {
 	}
 
 	/**
+	 * With `showMeta`, a sourced playlist's entries carry their plays and upload
+	 * time; entries without a local attachment get zeros.
+	 */
+	public function test_playlist_source_block_entry_meta() {
+		$this->index_playlists();
+		$id = $this->video( 'abcDEF12' );
+		Channel_Data::reset();
+		add_filter(
+			'videopress_channel_video_views',
+			function () use ( $id ) {
+				return array( $id => 42 );
+			}
+		);
+		$videos = function ( $attrs ) {
+			return Channel::playlist_source_block(
+				array(
+					'blockName' => 'videopress/playlist',
+					'attrs'     => $attrs + array(
+						'source'           => 'index',
+						'sourcePlaylistId' => 'mc',
+					),
+				)
+			)['attrs']['videos'];
+		};
+
+		$with_meta = $videos( array( 'showMeta' => true ) );
+		$this->assertSame( 42, $with_meta[0]['views'] );
+		$this->assertSame( strtotime( get_post( $id )->post_date_gmt . ' UTC' ), $with_meta[0]['publishedAt'] );
+		$this->assertSame( 1000, $with_meta[0]['durationMs'] );
+		$this->assertSame( 0, $with_meta[1]['views'] );
+		$this->assertSame( 0, $with_meta[1]['publishedAt'] );
+
+		$this->assertArrayNotHasKey( 'views', $videos( array() )[0] );
+	}
+
+	/**
 	 * Playlist records: only published playlists are listed, and lookups of
 	 * unknown keys or sources come back empty.
 	 */
@@ -443,7 +480,7 @@ class Channel_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Video URLs carry the playlist context.
+	 * Video URLs carry the playlist context, and playlist lookups find the playlists holding a video.
 	 */
 	public function test_playlist_urls_and_membership() {
 		$this->index_playlists();
@@ -452,6 +489,7 @@ class Channel_Test extends BaseTestCase {
 
 		$this->assertSame( $base . '?v=ghiJKL34&list=mc', Channel::video_url( $id, 'mc' ) );
 		$this->assertSame( $base . '?list=road', Channel::playlist_url( 'road' ) );
+		$this->assertSame( array( 'road', 'mc' ), array_column( Channel::playlists_with_video( 'ghiJKL34' ), 'key' ) );
 		$this->assertTrue( Channel::is_site_url( $base ) );
 		$this->assertFalse( Channel::is_site_url( 'https://videopress.com/v/ghiJKL34' ) );
 	}

@@ -252,6 +252,8 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 		</Stack>
 	) : null;
 
+	const chartTitle = __( 'Top locations', 'jetpack-premium-analytics-pkg' );
+
 	// The back link stays a sibling of <WidgetState> so users can drill back up
 	// from an empty or failed drilled view.
 	return (
@@ -289,10 +291,12 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 										options: { useMultipliers: true, decimals: 0 },
 									} }
 									className={ styles.leaderboard }
+									chartTitle={ chartTitle }
 								/>
 							</Disabled>
 							<div className={ styles.geoChart }>
 								<LocationsGeoChart
+									chartTitle={ chartTitle }
 									rows={ geoRows }
 									mode={ geoMode }
 									focusCountry={ focusCountry }
