@@ -105,7 +105,7 @@ export const route = {
 			next =
 				limitStatsDateSearch( seeded, policy, {
 					pathname,
-					requested: needsPostSeed ? {} : currentSearch,
+					requested: needsPostSeed ? undefined : currentSearch,
 				} ) ?? seeded;
 		} else {
 			next = limitStatsDateSearch( currentSearch, policy, { pathname, requested: currentSearch } );
