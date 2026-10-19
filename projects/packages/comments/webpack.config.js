@@ -34,7 +34,8 @@ export default {
 	entry: {
 		comments: path.join( __dirname, 'src/form/index.tsx' ),
 		admin: path.join( __dirname, 'src/editor/admin.ts' ),
-		standalone: path.join( __dirname, 'src/editor/standalone.ts' ),
+		// Not 'auto', whose runtime throws before any module runs when it finds no script URL.
+		standalone: { import: path.join( __dirname, 'src/editor/standalone.ts' ), publicPath: '' },
 	},
 	output: {
 		...jetpackWebpackConfig.output,

@@ -1,5 +1,5 @@
-// A module script or one a host inlined has no current script; webpack then keeps its own guess
-// at the last script tag, and load() takes an assetsUrl.
+// A module script or one a host inlined has no current script; the host then hands load() an
+// assetsUrl, or the chunk requests resolve against the page and the load() promise rejects.
 const script = document.currentScript;
 
 if ( script instanceof HTMLScriptElement && script.src ) {
