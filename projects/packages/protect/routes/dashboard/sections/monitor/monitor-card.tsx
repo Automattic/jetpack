@@ -18,6 +18,9 @@ const CONNECT_URL = 'admin.php?page=my-jetpack#/connection';
 const MINUTES_PER_DAY = 1440;
 const PERCENT = { style: 'percent', maximumFractionDigits: 3 } as const;
 
+/** Opens the Settings tab at this section's card. */
+const SETTINGS_PARAMS = { section: 'monitor' };
+
 /**
  * A day's date, in the site's date format.
  *
@@ -264,7 +267,7 @@ export default function MonitorCard( { state: monitor, settings, openTab }: Moni
 							</>
 						) }
 						<div>
-							<TabLink tab="settings" onOpen={ openTab }>
+							<TabLink tab="settings" params={ SETTINGS_PARAMS } onOpen={ openTab }>
 								{ __( 'Configure downtime monitoring', 'jetpack-protect-pkg' ) }
 							</TabLink>
 						</div>

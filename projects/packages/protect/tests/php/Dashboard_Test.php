@@ -42,6 +42,10 @@ class Dashboard_Test extends BaseTestCase {
 		remove_all_actions( 'doing_it_wrong_run' );
 		remove_all_filters( 'doing_it_wrong_trigger_error' );
 		remove_all_actions( 'admin_enqueue_scripts' );
+		foreach ( array_keys( Dashboard::MODULE_SECTIONS ) as $module ) {
+			remove_all_filters( Dashboard::CONFIGURATION_URL_FILTER . $module );
+			remove_all_filters( 'jetpack_module_configurable_' . $module );
+		}
 		foreach ( array( 'jetpack_page_', 'admin_page_' ) as $prefix ) {
 			remove_all_actions( 'load-' . $prefix . Dashboard::MENU_SLUG );
 			remove_all_actions( 'load-' . $prefix . Dashboard::MENU_SLUG . '-network' );
@@ -134,6 +138,36 @@ class Dashboard_Test extends BaseTestCase {
 		$this->assertIsArray( $item );
 		$this->assertSame( array( Dashboard::class, 'render' ), $item['function'] );
 		$this->assertFalse( Admin_Menu::remove_menu( Dashboard::MENU_SLUG ) );
+	}
+
+	/**
+	 * Each security module and the card its Configure link should open.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_security_modules() {
+		return array(
+			'Firewall'            => array( 'waf', 'firewall' ),
+			'Brute force'         => array( 'protect', 'loginProtection' ),
+			'Account protection'  => array( 'account-protection', 'loginProtection' ),
+			'WordPress.com login' => array( 'sso', 'loginProtection' ),
+			'Downtime monitoring' => array( 'monitor', 'monitor' ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_security_modules
+	 *
+	 * @param string $module  Module slug.
+	 * @param string $section The section whose card should open.
+	 */
+	#[DataProvider( 'provide_security_modules' )]
+	public function test_security_module_configure_links_open_their_settings_card( $module, $section ) {
+		$this->assertSame(
+			admin_url( 'admin.php?page=jetpack-protect&p=%2F%3Ftab%3Dsettings%26section%3D' . $section ),
+			apply_filters( 'jetpack_module_configuration_url_' . $module, 'https://example.com/default' )
+		);
+		$this->assertTrue( apply_filters( 'jetpack_module_configurable_' . $module, false ) );
 	}
 
 	public function test_init_announces_the_dashboard() {

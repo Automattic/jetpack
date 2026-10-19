@@ -216,4 +216,13 @@ describe( 'FirewallOverviewCard', () => {
 
 		expect( screen.getByText( /^1.?234$/ ) ).toBeInTheDocument();
 	} );
+
+	it( 'opens the Settings tab at its own card', async () => {
+		const openTab = jest.fn();
+		render( <FirewallOverviewCard { ...props } openTab={ openTab } /> );
+
+		await userEvent.setup().click( screen.getByRole( 'link', { name: 'Configure Firewall' } ) );
+
+		expect( openTab ).toHaveBeenCalledWith( 'settings', { section: 'firewall' } );
+	} );
 } );
