@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Add a PostCSS config that injects WPDS token fallbacks for local tooling.
+
