@@ -124,6 +124,13 @@ class Initializer {
 	public const HEADER_CONTROLS_FLAG = 'my-jetpack-header-controls';
 
 	/**
+	 * Feature flag for Overview v1.
+	 *
+	 * @var string
+	 */
+	public const OVERVIEW_V1_FLAG = 'my-jetpack-overview-v1';
+
+	/**
 	 * Holds info/data about the site (from the /sites/%d endpoint)
 	 *
 	 * @var object
@@ -1223,6 +1230,14 @@ class Initializer {
 				'owner'       => 'my-jetpack',
 			)
 		);
+		Feature_Flags::register(
+			self::OVERVIEW_V1_FLAG,
+			array(
+				'default'     => false,
+				'description' => 'Show Overview v1 in My Jetpack.',
+				'owner'       => 'my-jetpack',
+			)
+		);
 	}
 
 	/**
@@ -1291,13 +1306,7 @@ class Initializer {
 	 * @return bool
 	 */
 	public static function is_overview_v1_enabled() {
-		/**
-		 * Filters whether My Jetpack shows Overview v1.
-		 *
-		 * @since 6.10.0
-		 * @param bool $enabled Whether to show Overview v1. Default false.
-		 */
-		return (bool) apply_filters( 'jetpack_my_jetpack_overview_v1', false );
+		return Feature_Flags::is_enabled( self::OVERVIEW_V1_FLAG );
 	}
 
 	/**
