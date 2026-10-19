@@ -61,6 +61,10 @@ function getTooltipContent( step: FunnelStep, index: number ) {
 
 const getEmptyTooltipContent = () => ( {} );
 
+const renderNamedTooltip = ( { step }: { step: FunnelStep } ) => (
+	<span>Custom tooltip: { step.label }</span>
+);
+
 describe( 'ConversionFunnelChart', () => {
 	afterEach( () => {
 		mockChartHeight = 0;
@@ -174,55 +178,32 @@ describe( 'ConversionFunnelChart', () => {
 			const user = userEvent.setup();
 			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
 
-			const cartBar = screen.getByRole( 'button', { name: /cart/i } );
+			const cartBar = screen.getByRole( 'option', { name: /cart/i } );
 			await user.click( cartBar );
 
-			expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent(
+			expect( screen.getByTestId( 'funnel-tooltip' ) ).toHaveTextContent(
 				'Cart7,110 itemsConversion rate71.1%'
 			);
 		} );
 
-		it( 'handles keyboard navigation with Enter key', async () => {
-			const user = userEvent.setup();
+		it( 'selects a step and shows its tooltip when the step takes focus', () => {
 			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
 
-			const cartBar = screen.getByRole( 'button', { name: /cart/i } );
-			focus( cartBar );
-			await user.keyboard( '{Enter}' );
+			focus( screen.getByRole( 'option', { name: 'Cart' } ) );
 
-			// Check that component still works after keyboard interaction
-			// Keyboard navigation now shows tooltip, so label appears twice
-			expect( screen.getAllByText( 'Cart' ) ).toHaveLength( 2 );
+			expect( screen.getByRole( 'option', { name: 'Cart', selected: true } ) ).toBeInTheDocument();
+			expect( screen.getByTestId( 'funnel-tooltip' ) ).toHaveTextContent( 'Cart' );
 		} );
 
-		it( 'handles keyboard navigation with Space key', async () => {
+		it.each( [ '{Enter}', ' ' ] )( 'selects the focused step again with %s', async key => {
 			const user = userEvent.setup();
 			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
 
-			const cartBar = screen.getByRole( 'button', { name: /cart/i } );
-			focus( cartBar );
-			await user.keyboard( ' ' );
+			focus( screen.getByRole( 'option', { name: 'Cart' } ) );
+			await user.keyboard( `{Escape}${ key }` );
 
-			// Check that component still works after keyboard interaction
-			// Keyboard navigation now shows tooltip, so label appears twice
-			expect( screen.getAllByText( 'Cart' ) ).toHaveLength( 2 );
-		} );
-
-		it( 'maintains component state after bar interactions', async () => {
-			const user = userEvent.setup();
-			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
-
-			const cartBar = screen.getByRole( 'button', { name: /cart/i } );
-			await user.click( cartBar );
-
-			// Check that all bars are still accessible
-			const sessionsBar = screen.getByRole( 'button', { name: /sessions/i } );
-			const checkoutBar = screen.getByRole( 'button', { name: /checkout/i } );
-			const purchaseBar = screen.getByRole( 'button', { name: /purchase/i } );
-
-			expect( sessionsBar ).toBeInTheDocument();
-			expect( checkoutBar ).toBeInTheDocument();
-			expect( purchaseBar ).toBeInTheDocument();
+			expect( screen.getByRole( 'option', { name: 'Cart', selected: true } ) ).toBeInTheDocument();
+			expect( screen.getByTestId( 'funnel-tooltip' ) ).toBeInTheDocument();
 		} );
 
 		it( 'allows multiple bar interactions', async () => {
@@ -230,10 +211,10 @@ describe( 'ConversionFunnelChart', () => {
 			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
 
 			// Click on different bars in sequence
-			const cartBar = screen.getByRole( 'button', { name: /cart/i } );
+			const cartBar = screen.getByRole( 'option', { name: /cart/i } );
 			await user.click( cartBar );
 
-			const sessionsBar = screen.getByRole( 'button', { name: /sessions/i } );
+			const sessionsBar = screen.getByRole( 'option', { name: /sessions/i } );
 			await user.click( sessionsBar );
 
 			// Component should still render correctly
@@ -248,7 +229,7 @@ describe( 'ConversionFunnelChart', () => {
 			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
 
 			// First, click on a bar to select it
-			const cartBar = screen.getByRole( 'button', { name: /cart/i } );
+			const cartBar = screen.getByRole( 'option', { name: /cart/i } );
 			await user.click( cartBar );
 
 			// Verify the bar is selected (tooltip appears, so label appears twice)
@@ -266,7 +247,7 @@ describe( 'ConversionFunnelChart', () => {
 			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
 
 			// First, click on a bar to select it
-			const cartBar = screen.getByRole( 'button', { name: /cart/i } );
+			const cartBar = screen.getByRole( 'option', { name: /cart/i } );
 			await user.click( cartBar );
 
 			// Verify the bar is selected (tooltip appears, so label appears twice)
@@ -280,49 +261,30 @@ describe( 'ConversionFunnelChart', () => {
 			expect( screen.getAllByText( 'Cart' ) ).toHaveLength( 1 );
 		} );
 
-		it( 'toggles selection when clicking the same bar', async () => {
+		it( 'keeps the step selected when it is clicked again', async () => {
 			const user = userEvent.setup();
 			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
 
-			// First, click on a bar to select it
-			const cartBar = screen.getByRole( 'button', { name: /cart/i } );
+			const cartBar = screen.getByRole( 'option', { name: /cart/i } );
+			await user.click( cartBar );
 			await user.click( cartBar );
 
-			// Verify the bar is selected (tooltip appears, so label appears twice)
-			expect( screen.getAllByText( 'Cart' ) ).toHaveLength( 2 );
-
-			// Click the same bar again to deselect
-			await user.click( cartBar );
-
-			// Verify selection is cleared (tooltip disappears, so only one label remains)
-			expect( screen.getAllByText( 'Cart' ) ).toHaveLength( 1 );
+			expect( screen.getByRole( 'option', { name: 'Cart', selected: true } ) ).toBeInTheDocument();
 		} );
 	} );
 
 	describe( 'Accessibility', () => {
-		it( 'has proper ARIA roles for interactive elements', () => {
+		it( 'lists the steps as options of a horizontal listbox', () => {
 			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
 
-			// Should have 4 bars as interactive elements
-			const allButtons = screen.getAllByRole( 'button' );
-			expect( allButtons ).toHaveLength( 4 ); // 4 bars
-
-			// Each bar should have button role
-			mockSteps.forEach( step => {
-				const bar = screen.getByRole( 'button', { name: new RegExp( step.label, 'i' ) } );
-				expect( bar ).toBeInTheDocument();
-			} );
+			const listbox = screen.getByRole( 'listbox', { name: 'Funnel steps' } );
+			expect( listbox ).toHaveAttribute( 'aria-orientation', 'horizontal' );
+			expect(
+				screen.getAllByRole( 'option' ).map( option => option.getAttribute( 'aria-label' ) )
+			).toEqual( mockSteps.map( step => step.label ) );
 		} );
 
-		it( 'groups the steps in a toolbar', () => {
-			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
-
-			expect( screen.getByRole( 'toolbar', { name: 'Funnel steps' } ) ).toContainElement(
-				screen.getByRole( 'button', { name: 'Cart' } )
-			);
-		} );
-
-		it( 'describes each step with what its default tooltip shows', () => {
+		it( 'describes the selected step with its tooltip, leaving out the name', () => {
 			renderWithoutTheme(
 				<ConversionFunnelChart
 					mainRate={ 50 }
@@ -330,24 +292,26 @@ describe( 'ConversionFunnelChart', () => {
 				/>
 			);
 
-			expect( screen.getByRole( 'button', { name: 'Cart' } ) ).toHaveAccessibleDescription(
-				'7,110 items, Conversion rate 71.1%'
-			);
-			expect( screen.getByRole( 'button', { name: 'None' } ) ).toHaveAccessibleDescription(
-				'Conversion rate 50%'
-			);
+			const cart = screen.getByRole( 'option', { name: 'Cart' } );
+			focus( cart );
+			expect( cart ).toHaveAccessibleDescription( '7,110 items Conversion rate 71.1%' );
+
+			const none = screen.getByRole( 'option', { name: 'None' } );
+			focus( none );
+			expect( none ).toHaveAccessibleDescription( 'Conversion rate 50%' );
+			expect( cart ).not.toHaveAttribute( 'aria-describedby' );
 		} );
 
-		it( 'shows and describes each step with getTooltipContent when given', async () => {
-			const user = userEvent.setup();
+		it( 'shows and describes each step with getTooltipContent when given', () => {
 			renderWithoutTheme(
 				<ConversionFunnelChart { ...defaultProps } getTooltipContent={ getTooltipContent } />
 			);
 
-			const cart = screen.getByRole( 'button', { name: 'Cart' } );
-			expect( cart ).toHaveAccessibleDescription( '#1, Id cart' );
-			await user.click( cart );
-			expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'Cart#1Idcart' );
+			const cart = screen.getByRole( 'option', { name: 'Cart' } );
+			focus( cart );
+
+			expect( cart ).toHaveAccessibleDescription( '#1 Id cart' );
+			expect( screen.getByTestId( 'funnel-tooltip' ) ).toHaveTextContent( 'Cart#1Idcart' );
 		} );
 
 		it( 'leaves a step undescribed when its tooltip content is empty', () => {
@@ -355,19 +319,39 @@ describe( 'ConversionFunnelChart', () => {
 				<ConversionFunnelChart { ...defaultProps } getTooltipContent={ getEmptyTooltipContent } />
 			);
 
-			expect( screen.getByRole( 'button', { name: 'Cart' } ) ).not.toHaveAttribute(
-				'aria-describedby'
-			);
+			const cart = screen.getByRole( 'option', { name: 'Cart' } );
+			focus( cart );
+
+			expect( cart ).not.toHaveAttribute( 'aria-describedby' );
 		} );
 
-		it( 'marks only the selected step as pressed', async () => {
+		it( 'describes the selected step with the whole custom tooltip', () => {
+			renderWithoutTheme(
+				<ConversionFunnelChart { ...defaultProps } renderTooltip={ renderNamedTooltip } />
+			);
+
+			const cart = screen.getByRole( 'option', { name: 'Cart' } );
+			focus( cart );
+
+			expect( cart ).toHaveAccessibleDescription( 'Custom tooltip: Cart' );
+		} );
+
+		it( 'hides the tooltip itself from screen readers', () => {
+			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
+
+			focus( screen.getByRole( 'option', { name: 'Cart' } ) );
+
+			expect( screen.getByTestId( 'funnel-tooltip' ) ).toHaveAttribute( 'aria-hidden', 'true' );
+		} );
+
+		it( 'marks only the selected step as selected', async () => {
 			const user = userEvent.setup();
 			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
 
-			await user.click( screen.getByRole( 'button', { name: 'Cart' } ) );
+			await user.click( screen.getByRole( 'option', { name: 'Cart' } ) );
 
-			expect( screen.getByRole( 'button', { name: 'Cart', pressed: true } ) ).toBeInTheDocument();
-			expect( screen.getAllByRole( 'button', { pressed: false } ) ).toHaveLength( 3 );
+			expect( screen.getByRole( 'option', { name: 'Cart', selected: true } ) ).toBeInTheDocument();
+			expect( screen.getAllByRole( 'option', { selected: false } ) ).toHaveLength( 3 );
 		} );
 	} );
 
@@ -387,7 +371,7 @@ describe( 'ConversionFunnelChart', () => {
 
 			screen.getByRole( 'button', { name: 'Before' } ).focus();
 			await user.tab();
-			expect( screen.getByRole( 'button', { name: 'Sessions' } ) ).toHaveFocus();
+			expect( screen.getByRole( 'option', { name: 'Sessions' } ) ).toHaveFocus();
 
 			await user.tab();
 			expect( screen.getByRole( 'button', { name: 'After' } ) ).toHaveFocus();
@@ -397,25 +381,34 @@ describe( 'ConversionFunnelChart', () => {
 			const user = userEvent.setup();
 			renderBetweenButtons();
 
-			focus( screen.getByRole( 'button', { name: 'Sessions' } ) );
+			focus( screen.getByRole( 'option', { name: 'Sessions' } ) );
 			await user.keyboard( '{ArrowRight}{ArrowRight}' );
 			await user.tab();
 			await user.tab( { shift: true } );
 
-			expect( screen.getByRole( 'button', { name: 'Checkout' } ) ).toHaveFocus();
+			expect( screen.getByRole( 'option', { name: 'Checkout' } ) ).toHaveFocus();
 		} );
 
-		it( 'reaches every step with the arrow keys after a step is selected', async () => {
+		it( 'clears the selection when focus leaves the funnel', async () => {
+			const user = userEvent.setup();
+			renderBetweenButtons();
+
+			focus( screen.getByRole( 'option', { name: 'Cart' } ) );
+			await user.tab();
+
+			expect( screen.getAllByRole( 'option', { selected: false } ) ).toHaveLength( 4 );
+			expect( screen.queryByTestId( 'funnel-tooltip' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'moves the selection and its tooltip with the arrow keys', async () => {
 			const user = userEvent.setup();
 			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
 
-			focus( screen.getByRole( 'button', { name: 'Cart' } ) );
-			await user.keyboard( '{Enter}{ArrowRight}{ArrowRight}' );
-			expect( screen.getByRole( 'button', { name: 'Purchase' } ) ).toHaveFocus();
+			focus( screen.getByRole( 'option', { name: 'Cart' } ) );
+			await user.keyboard( '{ArrowRight}' );
 
-			await user.keyboard( '{ArrowLeft}{ArrowLeft}{ArrowLeft}' );
-			expect( screen.getByRole( 'button', { name: 'Sessions' } ) ).toHaveFocus();
-			expect( screen.getByRole( 'button', { name: 'Cart', pressed: true } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'option', { name: 'Checkout', selected: true } ) ).toHaveFocus();
+			expect( screen.getByTestId( 'funnel-tooltip' ) ).toHaveTextContent( 'Checkout' );
 		} );
 
 		it.each( [
@@ -427,10 +420,10 @@ describe( 'ConversionFunnelChart', () => {
 			const user = userEvent.setup();
 			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
 
-			focus( screen.getByRole( 'button', { name: from } ) );
+			focus( screen.getByRole( 'option', { name: from } ) );
 			await user.keyboard( keys );
 
-			expect( screen.getByRole( 'button', { name: to } ) ).toHaveFocus();
+			expect( screen.getByRole( 'option', { name: to } ) ).toHaveFocus();
 		} );
 
 		it( 'swaps Left and Right in a right-to-left layout', async () => {
@@ -439,22 +432,35 @@ describe( 'ConversionFunnelChart', () => {
 				<ConversionFunnelChart { ...defaultProps } style={ { direction: 'rtl' } } />
 			);
 
-			focus( screen.getByRole( 'button', { name: 'Sessions' } ) );
+			focus( screen.getByRole( 'option', { name: 'Sessions' } ) );
 			await user.keyboard( '{ArrowLeft}' );
 
-			expect( screen.getByRole( 'button', { name: 'Cart' } ) ).toHaveFocus();
+			expect( screen.getByRole( 'option', { name: 'Cart' } ) ).toHaveFocus();
 		} );
 
 		it( 'clears the selection on Escape and keeps focus on the step', async () => {
 			const user = userEvent.setup();
 			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
 
-			const cart = screen.getByRole( 'button', { name: 'Cart' } );
+			const cart = screen.getByRole( 'option', { name: 'Cart' } );
 			focus( cart );
-			await user.keyboard( '{Enter}{Escape}' );
+			await user.keyboard( '{Escape}' );
 
 			expect( cart ).toHaveFocus();
-			expect( screen.getAllByRole( 'button', { pressed: false } ) ).toHaveLength( 4 );
+			expect( screen.getAllByRole( 'option', { selected: false } ) ).toHaveLength( 4 );
+		} );
+
+		it( 'leaves Escape to the page when no step is selected', async () => {
+			const user = userEvent.setup();
+			const isPrevented = jest.fn( ( event: KeyboardEvent ) => event.defaultPrevented );
+			document.addEventListener( 'keydown', isPrevented );
+			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
+
+			focus( screen.getByRole( 'option', { name: 'Cart' } ) );
+			await user.keyboard( '{Escape}{Escape}' );
+			document.removeEventListener( 'keydown', isPrevented );
+
+			expect( isPrevented.mock.results.map( result => result.value ) ).toEqual( [ true, false ] );
 		} );
 	} );
 
@@ -482,10 +488,10 @@ describe( 'ConversionFunnelChart', () => {
 				<ConversionFunnelChart mainRate={ 50 } steps={ stepsWithLargeCounts } />
 			);
 
-			const bar = screen.getByRole( 'button', { name: /test/i } );
+			const bar = screen.getByRole( 'option', { name: /test/i } );
 			await user.click( bar );
 
-			expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( '1,234,567 items' );
+			expect( screen.getByTestId( 'funnel-tooltip' ) ).toHaveTextContent( '1,234,567 items' );
 		} );
 
 		it( 'handles steps without count in tooltip', async () => {
@@ -494,7 +500,7 @@ describe( 'ConversionFunnelChart', () => {
 
 			renderWithoutTheme( <ConversionFunnelChart mainRate={ 75 } steps={ stepsWithoutCount } /> );
 
-			const bar = screen.getByRole( 'button', { name: /test/i } );
+			const bar = screen.getByRole( 'option', { name: /test/i } );
 			await user.click( bar );
 
 			// Should show rate in tooltip, but we have multiple 75% (main + step)
@@ -581,7 +587,7 @@ describe( 'ConversionFunnelChart', () => {
 				<ConversionFunnelChart { ...defaultProps } renderTooltip={ customRenderTooltip } />
 			);
 
-			const cartBar = screen.getByRole( 'button', { name: /cart/i } );
+			const cartBar = screen.getByRole( 'option', { name: /cart/i } );
 			await user.click( cartBar );
 
 			expect( screen.getByTestId( 'custom-tooltip' ) ).toBeInTheDocument();
@@ -598,22 +604,13 @@ describe( 'ConversionFunnelChart', () => {
 			} );
 		} );
 
-		it( 'exposes the tooltip content with role="tooltip"', async () => {
-			const user = userEvent.setup();
-			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
-
-			await user.click( screen.getByRole( 'button', { name: /cart/i } ) );
-
-			expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'Cart' );
-		} );
-
 		it( 'merges tooltipStyle onto the tooltip box', async () => {
 			const user = userEvent.setup();
 			renderWithoutTheme(
 				<ConversionFunnelChart { ...defaultProps } tooltipStyle={ { background: 'purple' } } />
 			);
 
-			await user.click( screen.getByRole( 'button', { name: /cart/i } ) );
+			await user.click( screen.getByRole( 'option', { name: /cart/i } ) );
 
 			expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( { background: 'purple' } );
 		} );
@@ -626,11 +623,12 @@ describe( 'ConversionFunnelChart', () => {
 				<ConversionFunnelChart { ...defaultProps } renderTooltip={ customRenderTooltip } />
 			);
 
-			const cartBar = screen.getByRole( 'button', { name: /cart/i } );
+			const cartBar = screen.getByRole( 'option', { name: /cart/i } );
 			await user.click( cartBar );
 
 			// Should only have one 'Cart' text (header only, no tooltip)
 			expect( screen.getAllByText( 'Cart' ) ).toHaveLength( 1 );
+			expect( cartBar ).not.toHaveAttribute( 'aria-describedby' );
 			expect( customRenderTooltip ).toHaveBeenCalled();
 		} );
 
@@ -691,7 +689,7 @@ describe( 'ConversionFunnelChart tooltip position', () => {
 		const user = userEvent.setup();
 		renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
 
-		const bar = screen.getAllByRole( 'button' )[ 0 ];
+		const bar = screen.getAllByRole( 'option' )[ 0 ];
 		await user.pointer( [
 			{ target: bar, coords: { clientX: 180, clientY: 140 } },
 			{ keys: '[MouseLeft]', target: bar, coords: { clientX: 180, clientY: 140 } },

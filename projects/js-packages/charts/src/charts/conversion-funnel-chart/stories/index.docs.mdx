@@ -212,8 +212,8 @@ Full control over component rendering with custom render functions:
 - **`renderMainMetric`**: Customize the main conversion rate display
 - **`renderStepLabel`**: Customize individual step labels
 - **`renderStepRate`**: Customize individual step rate displays
-- **`getTooltipContent`**: Set what each step's tooltip shows: a `value` beside the step's name and labeled `rows` below it. Screen readers read the same content, so the two cannot drift.
-- **`renderTooltip`**: Customize the tooltip's layout. Render the `content` it receives, which is what screen readers read. It sits inside the dark tooltip box, so let it inherit the box colors.
+- **`getTooltipContent`**: Set what each step's tooltip shows: a `value` beside the step's name and labeled `rows` below it. Screen readers read the tooltip as the selected step's description, without the name.
+- **`renderTooltip`**: Customize the tooltip's layout. Render the `content` it receives. Screen readers read the whole rendered tooltip as the selected step's description, including the step's name if it shows one. It sits inside the dark tooltip box, so let it inherit the box colors.
 - **`tooltipStyle`**: Restyle the tooltip box itself, such as its background, radius or padding. Set `color` with any background change.
 
 ### Disabling Components
@@ -390,30 +390,30 @@ Measure content consumption funnel from page views to conversions.
 
 ### Keyboard Navigation
 
-The steps form a [toolbar](https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/) with one Tab stop.
+The steps form a single-select [listbox](https://www.w3.org/WAI/ARIA/apg/patterns/listbox/) where selection follows focus, with one Tab stop. A focused step is selected and shows its tooltip, just as a clicked one does.
 
-- **Tab**: Enters the funnel on the last focused step, else the selected step, else the first step. The next Tab leaves the funnel.
-- **Left/Right arrows**: Move focus to the previous or next step. They are swapped in a right-to-left layout and do not wrap.
-- **Home/End**: Move focus to the first or last step.
-- **Enter/Space**: Select or deselect the focused step and show its tooltip.
+- **Tab**: Enters the funnel on the last focused step, else the selected step, else the first step. The next Tab leaves the funnel and clears the selection.
+- **Left/Right arrows**: Move focus and the selection to the previous or next step. They are swapped in a right-to-left layout and do not wrap.
+- **Home/End**: Move focus and the selection to the first or last step.
 - **Escape**: Clear the selection and hide the tooltip. Focus stays on the step.
+- **Enter/Space**: Select the focused step again after Escape.
 
 ### Screen Reader Support
 
 - Set `ariaLabel` to name the chart. See [Accessible names](./?path=/docs/js-packages-charts-library-introduction--docs#accessible-names).
-- **ARIA Roles**: The steps sit in a `role="toolbar"` labeled "Funnel steps", and each step uses `role="button"`
+- **ARIA Roles**: The steps sit in a horizontal `role="listbox"` labeled "Funnel steps", and each step uses `role="option"`
 - **ARIA Labels**: Each step has `aria-label` with the step name
-- **Selection State**: The selected step has `aria-pressed="true"`, the others `aria-pressed="false"`
-- **Descriptions**: Each step has an `aria-describedby` description built from the same `getTooltipContent` as its tooltip, by default "7,110 items, Conversion rate 71.1%". The tooltip itself is visual only.
+- **Selection State**: The selected step has `aria-selected="true"`, the others `aria-selected="false"`
+- **Descriptions**: The selected step's `aria-describedby` points at its tooltip, leaving out the name line, so the default reads "7,110 items Conversion rate 71.1%". The tooltip itself is hidden from screen readers, so it is read only as the description.
 - **Alternative Text**: Step labels and rates are accessible to screen readers
 - **Loading States**: Loading and empty states provide appropriate text content
 
 ### Interactive Behavior
 
-- **Click/Touch**: Steps can be clicked or tapped to show detailed tooltips
-- **Keyboard Activation**: Enter and Space keys trigger the same interactions as clicks
+- **Click/Touch**: Clicking or tapping a step selects it and shows its tooltip at the pointer
+- **Focus**: Focusing a step from the keyboard selects it and shows its tooltip above the step
 - **Selection State**: Only one step can be selected at a time, with visual feedback
-- **Deselection**: Clicking the same step again or pressing Escape clears the selection
+- **Deselection**: Moving focus out of the funnel, clicking outside it or pressing Escape clears the selection
 
 ### Focus Management
 

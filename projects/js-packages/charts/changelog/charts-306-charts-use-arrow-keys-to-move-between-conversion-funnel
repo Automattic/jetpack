@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Conversion funnel chart: Move between steps with the arrow keys, keep every step reachable after one is selected, and announce each step's rate and count to screen readers.
+Conversion funnel chart: Select a step and show its tooltip when it takes keyboard focus, move between steps with the arrow keys, and have screen readers read the tooltip as the step's description.
