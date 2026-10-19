@@ -7,7 +7,7 @@ import { isUnavailableInOfflineMode } from 'state/connection';
 import { isCommentBlocksAvailable, getCommentFormPreview } from 'state/initial-state';
 import { fetchModules } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
-import { fetchSettings } from 'state/settings';
+import { clearUnsavedSettingsFlag, fetchSettings, setUnsavedSettingsFlag } from 'state/settings';
 import CommentFeatures from './comment-features';
 
 export class Discussion extends Component {
@@ -42,6 +42,7 @@ export class Discussion extends Component {
 						hasBlockEditor={ this.props.hasBlockEditor }
 						isUnavailable={ this.props.isUnavailableInOfflineMode( 'comments' ) }
 						onSave={ this.props.refreshSettings }
+						onDirtyChange={ this.props.setUnsaved }
 					/>
 				) }
 				<CommentFeatures />
@@ -63,5 +64,8 @@ export default connect(
 			dispatch( fetchSettings() );
 			dispatch( fetchModules() );
 		},
+		// Leaving the tab with unsaved changes asks first, as it does for the dashboard's own forms.
+		setUnsaved: isDirty =>
+			dispatch( isDirty ? setUnsavedSettingsFlag() : clearUnsavedSettingsFlag() ),
 	} )
 )( Discussion );

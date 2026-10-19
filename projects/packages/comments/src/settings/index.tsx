@@ -1,4 +1,5 @@
 /* @jsxImportSource react */
+import analytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
 import { useDispatch } from '@wordpress/data';
 import {
@@ -106,6 +107,8 @@ type CommentFormSettingsCardProps = {
 	isUnavailable?: boolean;
 	/** Called after a save, so the host can refresh what it holds. */
 	onSave?: () => void;
+	/** Called when the card gains or loses unsaved changes. */
+	onDirtyChange?: ( isDirty: boolean ) => void;
 };
 
 /**
@@ -119,6 +122,7 @@ export default function CommentFormSettingsCard( {
 	hasBlockEditor,
 	isUnavailable = false,
 	onSave,
+	onDirtyChange,
 }: CommentFormSettingsCardProps ) {
 	const [ saved, setSaved ] = useState< Settings | null >( null );
 	const [ data, setData ] = useState< Settings | null >( null );
@@ -151,10 +155,28 @@ export default function CommentFormSettingsCard( {
 	);
 	const hasChanges = Object.keys( changes ).length > 0;
 
-	const handleChange = useCallback(
-		( edits: DeepPartial< Settings > ) => setData( current => ( { ...current, ...edits } ) ),
-		[]
-	);
+	useEffect( () => {
+		onDirtyChange?.( hasChanges );
+	}, [ hasChanges, onDirtyChange ] );
+
+	const handleChange = useCallback( ( edits: DeepPartial< Settings > ) => {
+		// The same events the dashboard's toggles send.
+		for ( const [ setting, value ] of Object.entries( edits ) ) {
+			if ( 'comments' === setting ) {
+				analytics.tracks.recordEvent( 'jetpack_wpa_module_toggle', {
+					module: 'comments',
+					toggled: value ? 'on' : 'off',
+				} );
+			} else if ( 'boolean' === typeof value ) {
+				analytics.tracks.recordEvent( 'jetpack_wpa_settings_toggle', {
+					module: 'comments',
+					setting,
+					toggled: value ? 'on' : 'off',
+				} );
+			}
+		}
+		setData( current => ( { ...current, ...edits } ) );
+	}, [] );
 
 	const handleSave = useCallback( () => {
 		setIsSaving( true );

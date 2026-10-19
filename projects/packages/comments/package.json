@@ -29,6 +29,7 @@
 		"watch": "pnpm run build-js --watch"
 	},
 	"dependencies": {
+		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-api": "workspace:*",
 		"@preact/signals": "1.2.2",
 		"@wordpress/block-editor": "18.1.0",

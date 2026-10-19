@@ -106,7 +106,9 @@ export function CommentFeatures( props ) {
 
 			analytics.tracks.recordEvent(
 				module === id ? 'jetpack_wpa_module_toggle' : 'jetpack_wpa_settings_toggle',
-				{ module, setting: id, toggled: value ? 'on' : 'off' }
+				module === id
+					? { module, toggled: value ? 'on' : 'off' }
+					: { module, setting: id, toggled: value ? 'on' : 'off' }
 			);
 			// Markdown in comments needs the Markdown module, so turning it on turns that on too.
 			saveSettings(
