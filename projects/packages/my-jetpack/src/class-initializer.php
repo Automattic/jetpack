@@ -1090,7 +1090,8 @@ class Initializer {
 			! $available
 			|| array_diff( array_keys( $args ), array( 's', 'module_tag' ) )
 			|| array_filter( $args, 'is_string' ) !== $args
-			|| ! class_exists( 'Jetpack' )
+			// Keep links on Modules unless Features can show controls for this installation.
+			|| Main_Features::PLUGIN_ACTIVE !== Main_Features::get_plugin_status( Product::JETPACK_PLUGIN_SLUG )
 			|| ! current_user_can( 'jetpack_manage_modules' )
 			|| ! current_user_can( 'manage_options' )
 			|| ! self::current_user_can_access_page()
@@ -1186,7 +1187,7 @@ class Initializer {
 	public static function print_modules_fallback() {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only navigation fallback.
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- Only the exact allowlisted marker is accepted.
-		if ( ! self::is_modules_to_features_enabled() || 'my-jetpack' !== ( $_GET['page'] ?? null ) || '1' !== ( $_GET['modules_fallback'] ?? null ) || ! class_exists( 'Jetpack' ) || ! current_user_can( 'jetpack_manage_modules' ) ) {
+		if ( ! self::is_modules_to_features_enabled() || 'my-jetpack' !== ( $_GET['page'] ?? null ) || '1' !== ( $_GET['modules_fallback'] ?? null ) || Main_Features::PLUGIN_ACTIVE !== Main_Features::get_plugin_status( Product::JETPACK_PLUGIN_SLUG ) || ! current_user_can( 'jetpack_manage_modules' ) ) {
 			return;
 		}
 		$args = array( 'page' => 'jetpack_modules' );

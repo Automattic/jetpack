@@ -110,17 +110,19 @@ class Initializer_Test extends BaseTestCase {
 	 * @dataProvider modules_plugin_load_cases
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
-	 * @param bool   $loaded Whether the Jetpack plugin is loaded from its Beta directory.
+	 * @param bool   $loaded Whether the Jetpack class is loaded.
+	 * @param bool   $active Whether a recognized Jetpack plugin file is active.
 	 * @param string $disabled_filter Filter to force off for this case.
 	 */
 	#[DataProvider( 'modules_plugin_load_cases' )]
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_modules_links_require_the_loaded_jetpack_plugin( $loaded, $disabled_filter = '' ) {
+	public function test_modules_links_require_the_loaded_jetpack_plugin( $loaded, $active, $disabled_filter = '' ) {
 		if ( $loaded ) {
 			$this->load_jetpack_mock( 'jetpack-dev' );
-		} else {
-			update_option( 'active_plugins', array( 'jetpack/jetpack.php' ) );
+		}
+		if ( ! $active ) {
+			update_option( 'active_plugins', array() );
 		}
 		$this->assertSame( $loaded, class_exists( 'Jetpack' ) );
 		$this->log_in_as_admin();
@@ -132,7 +134,7 @@ class Initializer_Test extends BaseTestCase {
 			add_filter( $disabled_filter, '__return_false' );
 		}
 
-		$expect_features = $loaded && ! $disabled_filter;
+		$expect_features = $active && ! $disabled_filter;
 		$eligible        = null;
 		$expected        = $expect_features
 			? admin_url( 'admin.php?page=my-jetpack&modules_fallback=1#/features' )
@@ -145,16 +147,18 @@ class Initializer_Test extends BaseTestCase {
 	 * @dataProvider jetpack_plugin_load_cases
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
-	 * @param bool $loaded Whether the Jetpack plugin is loaded from its Beta directory.
+	 * @param bool $loaded Whether the Jetpack class is loaded.
+	 * @param bool $active Whether a recognized Jetpack plugin file is active.
 	 */
 	#[DataProvider( 'jetpack_plugin_load_cases' )]
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_modules_fallback_requires_the_loaded_jetpack_plugin( $loaded ) {
+	public function test_modules_fallback_requires_the_loaded_jetpack_plugin( $loaded, $active ) {
 		if ( $loaded ) {
 			$this->load_jetpack_mock( 'jetpack-dev' );
-		} else {
-			update_option( 'active_plugins', array( 'jetpack/jetpack.php' ) );
+		}
+		if ( ! $active ) {
+			update_option( 'active_plugins', array() );
 		}
 		$this->assertSame( $loaded, class_exists( 'Jetpack' ) );
 		$this->log_in_as_admin();
@@ -167,7 +171,7 @@ class Initializer_Test extends BaseTestCase {
 		ob_start();
 		Initializer::print_modules_fallback();
 		$html = ob_get_clean();
-		if ( $loaded ) {
+		if ( $active ) {
 			$this->assertStringStartsWith( '<noscript><meta', $html );
 			$this->assertSame( 1, substr_count( $html, '<meta ' ) );
 		} else {
@@ -177,8 +181,9 @@ class Initializer_Test extends BaseTestCase {
 
 	public static function jetpack_plugin_load_cases() {
 		return array(
-			'Beta plugin loaded' => array( true ),
-			'plugin not loaded'  => array( false ),
+			'Beta plugin loaded' => array( true, true ),
+			'must-use loaded'    => array( true, false ),
+			'plugin not loaded'  => array( false, false ),
 		);
 	}
 
@@ -186,9 +191,9 @@ class Initializer_Test extends BaseTestCase {
 		return array_merge(
 			self::jetpack_plugin_load_cases(),
 			array(
-				'My Jetpack disabled'       => array( true, 'jetpack_my_jetpack_should_initialize' ),
-				'host redirects My Jetpack' => array( true, 'jetpack_my_jetpack_modules_management_available' ),
-				'Modules flag off'          => array( true, 'jetpack_feature_flag_enabled_my-jetpack-modules-to-features' ),
+				'My Jetpack disabled'       => array( true, true, 'jetpack_my_jetpack_should_initialize' ),
+				'host redirects My Jetpack' => array( true, true, 'jetpack_my_jetpack_modules_management_available' ),
+				'Modules flag off'          => array( true, true, 'jetpack_feature_flag_enabled_my-jetpack-modules-to-features' ),
 			)
 		);
 	}
@@ -1812,6 +1817,12 @@ class Initializer_Test extends BaseTestCase {
 		copy( __DIR__ . '/assets/jetpack-mock-plugin.txt', $plugin_dir . '/jetpack.php' );
 		require_once $plugin_dir . '/jetpack.php';
 		wp_cache_delete( 'plugins', 'plugins' );
+		add_filter(
+			'all_plugins',
+			static function ( $plugins ) use ( $directory ) {
+				return array_intersect_key( $plugins, array( $directory . '/jetpack.php' => true ) );
+			}
+		);
 		update_option( 'active_plugins', array( $directory . '/jetpack.php' ) );
 	}
 
