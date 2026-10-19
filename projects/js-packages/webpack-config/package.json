@@ -18,6 +18,7 @@
 		".": "./src/index.js",
 		"./babel": "./src/babel.js",
 		"./babel/preset": "./src/babel-preset.js",
+		"./postcss": "./src/postcss.config.js",
 		"./targets": "./src/targets.js",
 		"./webpack": "./src/webpack.js"
 	},
@@ -40,6 +41,8 @@
 		"@pmmmwh/react-refresh-webpack-plugin": "0.6.3",
 		"@wordpress/browserslist-config": "6.57.0",
 		"@wordpress/dependency-extraction-webpack-plugin": "6.57.0",
+		"@wordpress/theme": "2.3.0",
+		"autoprefixer": "10.4.20",
 		"babel-loader": "10.0.0",
 		"babel-plugin-polyfill-corejs3": "0.14.0",
 		"browserslist": "4.28.9",
@@ -47,7 +50,11 @@
 		"css-loader": "6.11.0",
 		"css-minimizer-webpack-plugin": "8.0.0",
 		"mini-css-extract-plugin": "2.9.4",
+		"postcss": "8.5.23",
+		"postcss-loader": "8.2.0",
 		"react-refresh": "0.17.0",
+		"sass-embedded": "1.97.3",
+		"sass-loader": "16.0.5",
 		"terser-webpack-plugin": "5.3.17",
 		"thread-loader": "4.0.4"
 	},
