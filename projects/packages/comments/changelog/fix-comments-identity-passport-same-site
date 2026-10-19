@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Refuse a signed-in comment posted from another site, so that site cannot sign the reader out.
