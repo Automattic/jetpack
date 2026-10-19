@@ -38,7 +38,7 @@ body.toplevel_page_jetpack-protect {
 	// The row is full-bleed for its divider; the padding re-aligns its contents.
 	&__row {
 		box-sizing: border-box;
-		padding: 16px var(--wp-ui-card-padding);
+		padding: var(--wpds-dimension-padding-lg) var(--wpds-dimension-padding-2xl);
 		border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
 	}
 
@@ -53,7 +53,7 @@ body.toplevel_page_jetpack-protect {
 
 		> * {
 			box-sizing: border-box;
-			padding: 16px var(--wp-ui-card-padding);
+			padding: var(--wpds-dimension-padding-lg) var(--wpds-dimension-padding-2xl);
 		}
 
 		> * + * {

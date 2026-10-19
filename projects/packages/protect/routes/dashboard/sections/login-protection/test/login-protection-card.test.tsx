@@ -51,7 +51,7 @@ describe( 'LoginProtectionCard', () => {
 
 			expect( screen.queryByText( '1,234' ) !== null ).toBe( isOn );
 			expect(
-				screen.queryByRole( 'checkbox', { name: 'Enable brute force protection' } ) === null
+				screen.queryByRole( 'switch', { name: 'Enable brute force protection' } ) === null
 			).toBe( isOn );
 		}
 	);
@@ -59,9 +59,9 @@ describe( 'LoginProtectionCard', () => {
 	it( 'shows the page-load state before the settings load', () => {
 		render( card( { accountProtection: on, sso: off } ) );
 
-		expect( screen.getByRole( 'checkbox', { name: 'Enable account protection' } ) ).toBeChecked();
+		expect( screen.getByRole( 'switch', { name: 'Enable account protection' } ) ).toBeChecked();
 		expect(
-			screen.getByRole( 'checkbox', { name: 'Enable WordPress.com login (SSO)' } )
+			screen.getByRole( 'switch', { name: 'Enable WordPress.com login (SSO)' } )
 		).not.toBeChecked();
 	} );
 
@@ -72,7 +72,7 @@ describe( 'LoginProtectionCard', () => {
 		const save = jest.fn();
 		render( card( state, { save } ) );
 
-		await userEvent.setup().click( screen.getByRole( 'checkbox', { name } ) );
+		await userEvent.setup().click( screen.getByRole( 'switch', { name } ) );
 
 		expect( save ).toHaveBeenCalledWith( patch );
 	} );
@@ -83,7 +83,7 @@ describe( 'LoginProtectionCard', () => {
 	] )( 'says why “%s” is disabled when unavailable', ( name, state, feature ) => {
 		render( card( state ) );
 
-		expect( screen.getByRole( 'checkbox', { name } ) ).toBeDisabled();
+		expect( screen.getByRole( 'switch', { name } ) ).toHaveAttribute( 'aria-disabled', 'true' );
 		expect( screen.getByText( `${ feature } isn’t available on this site.` ) ).toBeInTheDocument();
 	} );
 
@@ -91,7 +91,7 @@ describe( 'LoginProtectionCard', () => {
 		const { rerender } = render( card( { bruteForce: off } ) );
 		await userEvent
 			.setup()
-			.click( screen.getByRole( 'checkbox', { name: 'Enable brute force protection' } ) );
+			.click( screen.getByRole( 'switch', { name: 'Enable brute force protection' } ) );
 
 		rerender( card( { bruteForce: off }, { settings: { protect: true } } ) );
 

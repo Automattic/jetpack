@@ -4,13 +4,13 @@
 		--jp-protect-cells: 3;
 
 		> * {
-			padding-block: 20px;
+			padding-block: var(--wpds-dimension-padding-xl);
 		}
 	}
 
 	// Full-bleed, so the threat list sets its own padding.
 	&__row.jp-protect-card__threats {
-		padding: 0 0 8px;
+		padding: 0 0 var(--wpds-dimension-padding-sm);
 	}
 }
 

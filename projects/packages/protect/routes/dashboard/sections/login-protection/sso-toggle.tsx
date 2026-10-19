@@ -1,7 +1,6 @@
-import { ToggleControl } from '@wordpress/components';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { AlertDialog } from '@wordpress/ui';
+import { AlertDialog, SwitchControl } from '@wordpress/ui';
 import type { LoginProtectionState } from './types';
 import type { ProtectSettingsData } from '../../data/use-protect-settings';
 
@@ -62,14 +61,13 @@ export default function SsoToggle( {
 
 	return (
 		<>
-			<ToggleControl
-				__nextHasNoMarginBottom
+			<SwitchControl
 				label={ label }
-				help={ blocker ?? help }
+				description={ blocker ?? help }
 				checked={ Boolean( data.settings?.sso ) }
 				// Mirrors Jetpack Settings, which locks the toggle without a connected owner.
 				disabled={ blocker !== null || data.isSaving( 'sso' ) }
-				onChange={ onChange }
+				onCheckedChange={ onChange }
 			/>
 			<AlertDialog.Root
 				open={ confirmingOff }

@@ -1,7 +1,6 @@
-import { ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { key } from '@wordpress/icons';
-import { Stack, Text } from '@wordpress/ui';
+import { Stack, SwitchControl, Text } from '@wordpress/ui';
 import { CardRow, ProtectCard } from '../../components/card';
 import IpListField from '../../components/settings/ip-list-field';
 import SettingToggle from '../../components/settings/setting-toggle';
@@ -9,7 +8,6 @@ import SsoToggle from './sso-toggle';
 import type { LoginProtectionContext, LoginProtectionState } from './types';
 import type { ProtectSettingsData } from '../../data/use-protect-settings';
 
-const noop = () => {};
 const NO_LOCKS: LoginProtectionState[ 'ssoLocks' ] = { matchByEmail: false, twoStep: false };
 
 /**
@@ -47,14 +45,7 @@ function SsoOptionToggle( {
 	}
 
 	return (
-		<ToggleControl
-			__nextHasNoMarginBottom
-			label={ label }
-			help={ lockedHelp }
-			checked={ effective }
-			disabled
-			onChange={ noop }
-		/>
+		<SwitchControl label={ label } description={ lockedHelp } checked={ effective } disabled />
 	);
 }
 

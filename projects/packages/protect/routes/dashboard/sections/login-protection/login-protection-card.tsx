@@ -9,6 +9,9 @@ import SsoToggle, { getSsoBlocker } from './sso-toggle';
 import type { LoginProtectionContext, LoginProtectionState } from './types';
 import type { ProtectSettingsData } from '../../data/use-protect-settings';
 
+/** Opens the Settings tab at this section's card. */
+const SETTINGS_PARAMS = { section: 'loginProtection' };
+
 // The settings this card saves.
 const LOGIN_KEYS = [ 'protect', 'account-protection', 'sso' ];
 
@@ -42,7 +45,7 @@ function BruteForceRow( {
 			isOn !== wasOn.current &&
 			row.ownerDocument.activeElement === row.ownerDocument.body
 		) {
-			row.querySelector< HTMLElement >( 'a, input' )?.focus();
+			row.querySelector< HTMLElement >( 'a, [role="switch"]' )?.focus();
 		}
 		wasOn.current = isOn;
 	}, [ isOn ] );
@@ -56,7 +59,7 @@ function BruteForceRow( {
 							label={ __( 'All-time blocked login attempts', 'jetpack-protect-pkg' ) }
 							value={ login.blockedCount }
 						/>
-						<TabLink tab="settings" onOpen={ openTab }>
+						<TabLink tab="settings" params={ SETTINGS_PARAMS } onOpen={ openTab }>
 							{ __( 'Configure brute force protection', 'jetpack-protect-pkg' ) }
 						</TabLink>
 					</Stack>
@@ -150,7 +153,7 @@ export default function LoginProtectionCard( {
 						) }
 					/>
 					{ ssoOn && (
-						<TabLink tab="settings" onOpen={ openTab }>
+						<TabLink tab="settings" params={ SETTINGS_PARAMS } onOpen={ openTab }>
 							{ __( 'Configure WordPress.com login (SSO)', 'jetpack-protect-pkg' ) }
 						</TabLink>
 					) }
