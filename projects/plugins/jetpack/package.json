@@ -51,6 +51,7 @@
 		"@automattic/jetpack-ai-client": "workspace:*",
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-api": "workspace:*",
+		"@automattic/jetpack-comments": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-connection": "workspace:*",
 		"@automattic/jetpack-my-jetpack": "workspace:*",

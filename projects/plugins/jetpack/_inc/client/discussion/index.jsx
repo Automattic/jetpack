@@ -1,37 +1,19 @@
+import CommentFormSettings from '@automattic/jetpack-comments/settings';
 import { __ } from '@wordpress/i18n';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import QuerySite from 'components/data/query-site';
-import {
-	isOfflineMode,
-	isUnavailableInOfflineMode,
-	isCurrentUserLinked,
-	getConnectUrl,
-} from 'state/connection';
-import {
-	isOdysseyStatsEnabled,
-	getSiteAdminUrl,
-	isCommentBlocksAvailable,
-	getCommentFormPreview,
-} from 'state/initial-state';
-import { getModule, getModuleOverride } from 'state/modules';
+import { isUnavailableInOfflineMode } from 'state/connection';
+import { isCommentBlocksAvailable, getCommentFormPreview } from 'state/initial-state';
+import { fetchModules } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
-import { getSettings } from 'state/settings';
-import { CommentFeatures, Comments } from './comments';
+import { fetchSettings } from 'state/settings';
+import CommentFeatures from './comment-features';
 
 export class Discussion extends Component {
 	static displayName = 'DiscussionSettings';
 
 	render() {
-		const commonProps = {
-			settings: this.props.settings,
-			getModule: this.props.module,
-			isOdysseyStatsEnabled: this.props.isOdysseyStatsEnabled,
-			isOfflineMode: this.props.isOfflineMode,
-			isUnavailableInOfflineMode: this.props.isUnavailableInOfflineMode,
-			siteAdminUrl: this.props.siteAdminUrl,
-		};
-
 		if ( ! this.props.searchTerm && ! this.props.active ) {
 			return null;
 		}
@@ -54,36 +36,32 @@ export class Discussion extends Component {
 						? __( 'Discussion', 'jetpack' )
 						: __( 'Manage advanced comment settings.', 'jetpack' ) }
 				</h2>
-				<Comments
-					{ ...commonProps }
-					isModuleFound={ this.props.isModuleFound }
-					getModuleOverride={ this.props.getModuleOverride }
-					hasBlockEditor={ this.props.hasBlockEditor }
-					preview={ this.props.commentFormPreview }
-				/>
-				<CommentFeatures
-					{ ...commonProps }
-					isModuleFound={ this.props.isModuleFound }
-					getModuleOverride={ this.props.getModuleOverride }
-				/>
+				{ foundComments && (
+					<CommentFormSettings
+						preview={ this.props.commentFormPreview }
+						hasBlockEditor={ this.props.hasBlockEditor }
+						isUnavailable={ this.props.isUnavailableInOfflineMode( 'comments' ) }
+						onSave={ this.props.refreshSettings }
+					/>
+				) }
+				<CommentFeatures />
 			</div>
 		);
 	}
 }
 
-export default connect( state => {
-	return {
-		module: module_name => getModule( state, module_name ),
-		settings: getSettings( state ),
-		isOfflineMode: isOfflineMode( state ),
+export default connect(
+	state => ( {
 		isUnavailableInOfflineMode: module_name => isUnavailableInOfflineMode( state, module_name ),
 		isModuleFound: module_name => _isModuleFound( state, module_name ),
-		connectUrl: getConnectUrl( state ),
-		isLinked: isCurrentUserLinked( state ),
-		getModuleOverride: module_name => getModuleOverride( state, module_name ),
-		isOdysseyStatsEnabled: isOdysseyStatsEnabled( state ),
-		siteAdminUrl: getSiteAdminUrl( state ),
 		hasBlockEditor: isCommentBlocksAvailable( state ),
 		commentFormPreview: getCommentFormPreview( state ),
-	};
-} )( Discussion );
+	} ),
+	dispatch => ( {
+		// The card saves through its own requests, so the dashboard's copies need a refresh.
+		refreshSettings: () => {
+			dispatch( fetchSettings() );
+			dispatch( fetchModules() );
+		},
+	} )
+)( Discussion );

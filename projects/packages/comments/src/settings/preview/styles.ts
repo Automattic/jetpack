@@ -1,5 +1,5 @@
 // The preview's own CSS, inside its shadow root. The form's real stylesheet is linked beside it; this
-// only paints what the theme would: type, colours, heading, button, and core's plain form.
+// only paints what the theme would: type, colors, heading, button, and core's plain form.
 export const PREVIEW_CSS = `
 :host {
 	all: initial;
