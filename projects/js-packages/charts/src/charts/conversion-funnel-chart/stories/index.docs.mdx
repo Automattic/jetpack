@@ -405,7 +405,7 @@ The steps form a single-select [listbox](https://www.w3.org/WAI/ARIA/apg/pattern
 - **ARIA Labels**: Each step has `aria-label` with the step name
 - **Selection State**: The selected step has `aria-selected="true"`, the others `aria-selected="false"`
 - **Descriptions**: The selected step's `aria-describedby` points at its tooltip, leaving out the name line, so the default reads "7,110 items Conversion rate 71.1%". The tooltip itself is hidden from screen readers, so it is read only as the description.
-- **Alternative Text**: Step labels and rates are accessible to screen readers
+- **Visible Text**: The step labels and rates above the bars are hidden from screen readers, so the listbox holds only its options. Each option's name and description carry the same information
 - **Loading States**: Loading and empty states provide appropriate text content
 
 ### Interactive Behavior

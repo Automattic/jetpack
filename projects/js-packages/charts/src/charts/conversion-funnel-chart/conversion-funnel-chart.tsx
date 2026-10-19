@@ -417,8 +417,13 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 								) }
 								gap={ gap }
 							>
-								{ /* Step Label and Rate */ }
-								<Stack direction="column" gap="xs" className={ styles[ 'step-text' ] }>
+								{ /* Step label and rate. The option's name and description carry them, and a listbox may hold only options. */ }
+								<Stack
+									direction="column"
+									gap="xs"
+									className={ styles[ 'step-text' ] }
+									aria-hidden="true"
+								>
 									{ renderStepLabel ? (
 										renderStepLabel( {
 											step,
