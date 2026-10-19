@@ -109,7 +109,7 @@ const chartIntervalAttribute = {
 };
 
 // The switch must show what the chart draws, and the default depends on Stats v1; the rest of
-// the attribute is in widget.json, merged with this entry by id.
+// the attribute is in widget.json, which also orders it after the interval.
 const chartTypeAttribute = {
 	id: 'chartType',
 	getValue: ( { item }: { item: TrafficChartAttributes } ) => item.chartType ?? defaultChartType(),
