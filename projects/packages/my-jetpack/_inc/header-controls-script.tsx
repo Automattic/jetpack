@@ -8,31 +8,35 @@ import { createRoot } from '@wordpress/element';
 import HeaderControls from './components/header-controls';
 import { HEADER_CONTROLS_CONTAINER_ID } from './components/header-controls/slot';
 import NoticeContextProvider from './context/notices/noticeContext';
-import type { Root } from 'react-dom/client';
 
-const queryClient = new QueryClient();
-let mounted: { container: HTMLElement; root: Root } | null = null;
-
-// The dashboard mounts the container after this script runs, and may replace it when it re-renders.
-const followContainer = () => {
-	const container = document.getElementById( HEADER_CONTROLS_CONTAINER_ID );
-	if ( container === ( mounted?.container ?? null ) ) {
-		return;
-	}
-
-	mounted?.root.unmount();
-	mounted = container ? { container, root: createRoot( container ) } : null;
-	mounted?.root.render(
+const renderInto = ( container: HTMLElement ) => {
+	createRoot( container ).render(
 		<NoticeContextProvider>
-			<QueryClientProvider client={ queryClient }>
+			<QueryClientProvider client={ new QueryClient() }>
 				<HeaderControls />
 			</QueryClientProvider>
 		</NoticeContextProvider>
 	);
 };
 
-followContainer();
-new MutationObserver( followContainer ).observe( document.body, {
-	childList: true,
-	subtree: true,
-} );
+// The dashboard mounts the container after this script runs; give up after 30s, as the JITM script does.
+const waitForContainer = () => {
+	const observer = new MutationObserver( () => {
+		const container = document.getElementById( HEADER_CONTROLS_CONTAINER_ID );
+		if ( container ) {
+			observer.disconnect();
+			clearTimeout( timeout );
+			renderInto( container );
+		}
+	} );
+	const timeout = setTimeout( () => observer.disconnect(), 30000 );
+
+	observer.observe( document.body, { childList: true, subtree: true } );
+};
+
+const mountedContainer = document.getElementById( HEADER_CONTROLS_CONTAINER_ID );
+if ( mountedContainer ) {
+	renderInto( mountedContainer );
+} else {
+	waitForContainer();
+}

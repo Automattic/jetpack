@@ -226,28 +226,12 @@ describe( 'HeaderControls', () => {
 } );
 
 describe( 'header controls script', () => {
-	const observe = jest.spyOn( MutationObserver.prototype, 'observe' );
-
-	// The script's observer outlives the test; left running, it fires during teardown, with no document.
-	afterAll( () => {
-		( observe.mock.contexts as MutationObserver[] ).forEach( observer => observer.disconnect() );
-		observe.mockRestore();
-	} );
-
-	it( 'renders into the container once it mounts, and follows a replacement', async () => {
+	it( 'renders into the container once the dashboard mounts it', async () => {
 		await import( '../../../header-controls-script' );
-		const mountContainer = () => {
-			const container = document.createElement( 'div' );
-			container.id = HEADER_CONTROLS_CONTAINER_ID;
-			document.body.append( container );
-			return container;
-		};
+		const container = document.createElement( 'div' );
+		container.id = HEADER_CONTROLS_CONTAINER_ID;
+		document.body.append( container );
 
-		const first = mountContainer();
-		await waitFor( () => expect( within( first ).getByRole( 'button' ) ).toBeInTheDocument() );
-		first.remove();
-		const second = mountContainer();
-
-		await waitFor( () => expect( within( second ).getByRole( 'button' ) ).toBeInTheDocument() );
+		await waitFor( () => expect( within( container ).getByRole( 'button' ) ).toBeInTheDocument() );
 	} );
 } );
