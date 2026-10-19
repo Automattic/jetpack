@@ -58,15 +58,46 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		Constants::clear_constants();
 		Jetpack_Options::delete_option( 'id' );
 		delete_site_transient( 'jetpack_activity_log_has_access_1234' );
-		// Current_Plan memoises the plan in a static that the DB rollback does not reset.
-		$plan_cache = new \ReflectionProperty( \Automattic\Jetpack\Current_Plan::class, 'active_plan_cache' );
-		// @todo Remove this call once we no longer need to support PHP <8.1.
-		if ( PHP_VERSION_ID < 80100 ) {
-			$plan_cache->setAccessible( true );
-		}
-		$plan_cache->setValue( null, null );
+		// Current_Plan memoises the plan in statics that the DB rollback does not reset.
+		$this->set_current_plan_cache( 'active_plan_cache', null );
+		$this->set_current_plan_cache( 'simple_site_specific_features', array() );
 
 		parent::tear_down();
+	}
+
+	/**
+	 * Overwrite one of Current_Plan's private static caches.
+	 *
+	 * @param string $property Static property name.
+	 * @param mixed  $value    Value to store.
+	 */
+	private function set_current_plan_cache( $property, $value ) {
+		$cache = new \ReflectionProperty( \Automattic\Jetpack\Current_Plan::class, $property );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$cache->setAccessible( true );
+		}
+		$cache->setValue( null, $value );
+	}
+
+	/**
+	 * Look like a Simple site with no site-specific features.
+	 *
+	 * Seeds the feature cache because the billing store that fills it exists only on WordPress.com.
+	 */
+	private function given_simple_site() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->set_current_plan_cache(
+			'simple_site_specific_features',
+			array(
+				get_current_blog_id() => array(
+					'full' => array(
+						'active'    => array(),
+						'available' => array(),
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -190,7 +221,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	 * Simple sites keep the Hub's own layout without the standalone base stylesheet.
 	 */
 	public function test_add_actions_skips_standalone_styles_on_simple() {
-		Constants::set_constant( 'IS_WPCOM', true );
+		$this->given_simple_site();
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
 		add_filter( 'jetpack_is_connection_ready', '__return_true', PHP_INT_MAX );
 
@@ -573,7 +604,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	 * The views remain hidden from Simple sites, including internal requests.
 	 */
 	public function test_features_view_flag_is_off_for_simple_site() {
-		Constants::set_constant( 'IS_WPCOM', true );
+		$this->given_simple_site();
 		$this->given_woa( false );
 		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
 
@@ -1195,7 +1226,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	 */
 	public function test_activity_log_url_filters_to_ai_agents_on_wpcom_for_simple() {
 		$this->skip_when_wpcomsh_is_active();
-		Constants::set_constant( 'IS_WPCOM', true );
+		$this->given_simple_site();
 		$this->given_active_modules( array( 'activity-log' ) );
 		$this->given_full_activity_log( true );
 
@@ -1210,7 +1241,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	 * A WordPress.com plan without the full Activity Log gets the plain link.
 	 */
 	public function test_activity_log_url_is_plain_on_wpcom_without_full_activity_log() {
-		Constants::set_constant( 'IS_WPCOM', true );
+		$this->given_simple_site();
 		$this->given_full_activity_log( false );
 
 		$settings = $this->get_injected_settings();
