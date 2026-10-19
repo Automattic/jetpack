@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add `Cookie_Consent::is_initialized()`, `Cookie_Consent::get_active_config()` and the `jetpack_cookie_consent_initialized` action, so a consumer can tell that another one already booted the package.

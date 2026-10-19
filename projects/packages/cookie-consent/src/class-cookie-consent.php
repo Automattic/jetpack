@@ -101,6 +101,19 @@ class Cookie_Consent {
 		self::$initialized = true;
 		$resolved          = self::resolve_config( $config );
 		self::$config      = $resolved;
+
+		/**
+		 * Fires once, when the first init() call of the request latches the package.
+		 *
+		 * Fires for a disabled config too, so another consumer can tell that the package
+		 * is already owned and that its own init() call would be ignored.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array $resolved The resolved configuration the package runs with.
+		 */
+		do_action( 'jetpack_cookie_consent_initialized', $resolved );
+
 		if ( empty( $resolved['enabled'] ) ) {
 			return;
 		}
@@ -180,6 +193,38 @@ class Cookie_Consent {
 			// Consent log REST controller: table, cron cleanup, routes.
 			Consent_Log_Controller::init( $resolved['log'] );
 		}
+	}
+
+	/**
+	 * Whether init() has already run in this request.
+	 *
+	 * The first init() call wins: a later call, from the same or another consumer, is a
+	 * no-op. Check this before calling init() to detect that another consumer owns the
+	 * package, then read get_active_config() to see what it runs with.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_initialized() {
+		return self::$initialized;
+	}
+
+	/**
+	 * The configuration the first init() call resolved, or null before init().
+	 *
+	 * A disabled init() still counts: the returned config then has `enabled` set to false.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array|null
+	 */
+	public static function get_active_config() {
+		if ( ! self::$initialized ) {
+			return null;
+		}
+
+		return self::$config;
 	}
 
 	/**

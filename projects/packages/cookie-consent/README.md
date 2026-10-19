@@ -37,6 +37,9 @@ These are the supported, stable entry points consumers may depend on. Everything
 | `Cookie_Consent::init( array $config = array() )`           | PHP static method     | Entry point                     |
 | `Cookie_Consent::deactivate()`                              | PHP static method     | Lifecycle                       |
 | `Cookie_Consent::uninstall( $delete_consent_logs = false )` | PHP static method     | Lifecycle                       |
+| `Cookie_Consent::is_initialized()`                          | PHP static method     | Init ownership                  |
+| `Cookie_Consent::get_active_config()`                       | PHP static method     | Init ownership                  |
+| `jetpack_cookie_consent_initialized`                        | WP action             | Init ownership                  |
 | `jetpack_cookie_consent_config`                             | WP filter             | Configuration                   |
 | `jetpack_cookie_consent_log_retention_days`                 | WP filter             | Configuration                   |
 | `POST jetpack/v4/cookie-consent/consent-log`                | REST route            | Consent logging                 |
@@ -54,6 +57,23 @@ These are the supported, stable entry points consumers may depend on. Everything
 
 ```php
 Cookie_Consent::uninstall( true );
+```
+
+### Init ownership
+
+The package runs one instance per request, and the first `init()` call owns it: a later `init()` from any consumer is a no-op, and a disabled first `init()` keeps the package off for the request. A consumer that shares a site with another one (for example two plugins bundling the package) can detect this instead of having its config silently ignored:
+
+- `Cookie_Consent::is_initialized()` returns whether `init()` already ran in this request.
+- `Cookie_Consent::get_active_config()` returns the resolved config the first `init()` latched (with `enabled` false for a disabled init), or `null` before `init()`.
+- The `jetpack_cookie_consent_initialized` action fires once, when the first `init()` latches, with that resolved config.
+
+```php
+if ( Cookie_Consent::is_initialized() ) {
+	$active = Cookie_Consent::get_active_config();
+	// Another consumer owns the package: step aside, or tell the site admin.
+	return;
+}
+Cookie_Consent::init( $my_config );
 ```
 
 ### Configuration
