@@ -52,6 +52,10 @@ class Contact_Form_Block {
 		 * However, since non-admins cannot activate modules, we do not display the empty block for them.
 		 */
 		if ( ! self::can_manage_block() ) {
+			// Lets the Jetpack plugin's editor say why.
+			if ( class_exists( 'Jetpack_Gutenberg' ) ) {
+				\Jetpack_Gutenberg::set_extension_unavailable( 'contact-form', 'missing_module', array( 'module' => 'contact-form' ) );
+			}
 			return;
 		}
 
@@ -206,9 +210,9 @@ class Contact_Form_Block {
 		$features['multistep-form'] = Current_Plan::supports( 'multistep-form' );
 		$features['form-webhooks']  = Current_Plan::supports( 'form-webhooks' );
 
-		// Bridges the jetpack-feature-flags registration to the editor, so JS `hasFeatureFlag()`
-		// and PHP `Feature_Flags::is_enabled()` answer from one source under one name.
-		$features[ Jetpack_Forms::CONDITIONAL_LOGIC_FLAG ] = Jetpack_Forms::is_conditional_logic_enabled();
+		// The same check the front end and submission handling use, so the editor never offers
+		// conditions the runtime would ignore.
+		$features[ Jetpack_Forms::CONDITIONAL_LOGIC_FEATURE ] = Jetpack_Forms::is_conditional_logic_enabled();
 
 		return self::register_central_form_management_default( $features );
 	}
@@ -1056,7 +1060,7 @@ class Contact_Form_Block {
 			$background_styles['backgroundPosition'] = '50% 50%';
 		}
 
-		// A step's styles are still ahead of the do_shortcode() pass in Contact_Form::parse(),
+		// A step's styles are still ahead of the apply_shortcodes() pass in Contact_Form::parse(),
 		// so percent-encode the brackets that would otherwise make this URL look like a
 		// shortcode: unencoded they are stripped out of the attribute, taking the background
 		// with them, and the shortcode's side effects run.
@@ -1272,7 +1276,7 @@ class Contact_Form_Block {
 		// - modules: the useModuleStatus hook reads this to decide whether to show the block
 		// or an "Activate Forms" placeholder.
 		// - feature_flags: hasFeatureFlag() reads this for central-form-management,
-		// form-webhooks, and multistep-form.
+		// form-webhooks, multistep-form, and form-conditional-logic.
 		wp_localize_script(
 			Shared_Stores_Assets::SCRIPT_HANDLE,
 			'Jetpack_Editor_Initial_State',

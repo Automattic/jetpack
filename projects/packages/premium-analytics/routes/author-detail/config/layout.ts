@@ -3,8 +3,8 @@ import type { DashboardWidget } from '@wordpress/widget-dashboard';
 
 /**
  * Fixed widget composition for the author detail page (WOOA7S-2124) on the
- * three-column detail grid. The remaining prototype cards wait on author-scoped
- * Stats endpoints (WOOA7S-2137).
+ * three-column detail grid. Top locations and Top commented posts still wait on
+ * author-scoped Stats endpoints (WOOA7S-2137).
  */
 export const AUTHOR_DETAIL_LAYOUT: DashboardWidget[] = [
 	{
@@ -29,5 +29,12 @@ export const AUTHOR_DETAIL_LAYOUT: DashboardWidget[] = [
 		uuid: 'author-top-posts',
 		type: 'jpa/author-top-posts',
 		placement: { width: PA_COLUMN_COUNT, height: 2, order: 4 },
+	},
+	{
+		uuid: 'author-all-time-traffic',
+		// Full width: the table lays twelve months out across its columns.
+		type: 'jpa/views-over-years--author',
+		attributes: { authorScoped: true },
+		placement: { width: PA_COLUMN_COUNT, height: 2, order: 5 },
 	},
 ];

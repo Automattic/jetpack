@@ -52,6 +52,7 @@
 # Tools owned by specific teams
 
 /tools/performance @Automattic/jetpack-performance 
+/tools/port-verification @CGastrell
 
 # Actions
 

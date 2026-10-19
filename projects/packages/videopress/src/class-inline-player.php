@@ -375,18 +375,31 @@ class Inline_Player {
 	/**
 	 * Stylesheet for the facade, printed inline so no extra request stands between the HTML and the poster.
 	 *
+	 * The play button, pre-play scrim and loading spinner copy the player's own chrome, so
+	 * nothing visibly changes when the player takes the facade's place.
+	 *
 	 * @return string CSS.
 	 */
 	private static function facade_css() {
+		$p = '.' . self::PLACEHOLDER_CLASS;
 		$f = '.' . self::FACADE_CLASS;
-		return '.' . self::PLACEHOLDER_CLASS . '.is-facade{background:#000}'
+		return $p . '.is-facade{background:#000;container-type:inline-size;--jetpack-videopress-play-size:min(max(calc(100vw / 8),60px),90px)}'
 			. $f . '{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;border:0;background:transparent;cursor:pointer;display:block;line-height:0}'
 			. $f . '-poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}'
-			. $f . '-play{position:absolute;top:50%;left:50%;width:72px;height:72px;transform:translate(-50%,-50%);border-radius:50%;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;transition:background .2s ease}'
-			. $f . ':hover ' . $f . '-play,' . $f . ':focus-visible ' . $f . '-play{background:rgba(0,0,0,.85)}'
-			. $f . '-play svg{width:32px;height:32px;fill:#fff;margin-inline-start:4px}'
+			. $f . '-scrim{position:absolute;inset:0;pointer-events:none;background:radial-gradient(50% 50% at 50% 50%,rgba(0,0,0,.14) 0%,rgba(0,0,0,.3) 100%)}'
+			. $f . '-play{position:absolute;top:50%;left:50%;width:var(--jetpack-videopress-play-size);height:var(--jetpack-videopress-play-size);transform:translate(-50%,-50%);display:block;transition:transform .25s cubic-bezier(.4,0,.6,1) .04s;will-change:transform}'
+			. $f . '-play svg{display:block;width:100%;height:100%;fill:#fff}'
+			. $p . '.is-facade:hover ' . $f . '-play{transform:translate(-50%,-50%) scale(1.08)}'
 			. $f . ':focus-visible{outline:2px solid #fff;outline-offset:-4px}'
-			. $f . '.is-loading ' . $f . '-play{opacity:.5}';
+			. $f . '-spinner{position:absolute;inset:0;z-index:2;display:none;align-items:center;justify-content:center;pointer-events:none}'
+			. $f . '-spinner span{display:flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:999px;background:rgba(18,18,18,.55);-webkit-backdrop-filter:blur(12px) saturate(1.2);backdrop-filter:blur(12px) saturate(1.2);box-shadow:0 4px 16px rgba(0,0,0,.35)}'
+			. $f . '-spinner span::after{content:"";box-sizing:border-box;width:24px;height:24px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:jetpack-videopress-spin 750ms linear infinite}'
+			. $p . '.is-loading ' . $f . '-play{display:none}'
+			. $p . '.is-loading ' . $f . '-spinner{display:flex}'
+			. '@keyframes jetpack-videopress-spin{to{transform:rotate(360deg)}}'
+			. '@container (max-width:250px){' . $f . '-spinner span{width:40px;height:40px}}'
+			. '@media screen and (max-width:200px){' . $p . '.is-facade{--jetpack-videopress-play-size:40px}' . $f . '-play{opacity:.75}}'
+			. '@media (prefers-reduced-motion:reduce){' . $f . '-play{transition:none}}';
 	}
 
 	/**
@@ -438,11 +451,14 @@ class Inline_Player {
 				);
 			}
 
+			// The glyph is the player's own large play icon.
 			$inner = sprintf(
-				'<button type="button" class="%1$s" aria-label="%2$s">%3$s<span class="%1$s-play" aria-hidden="true"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 5v14l11-7z"/></svg></span></button>',
+				'<button type="button" class="%1$s" aria-label="%2$s">%3$s<span class="%1$s-scrim" aria-hidden="true"></span><span class="%1$s-play" aria-hidden="true"><svg viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M6.25725 1.075C6.10279 0.977449 5.91041 0.974889 5.75365 1.06832C5.59689 1.16174 5.5 1.3367 5.5 1.52632V20.4737C5.5 20.6633 5.59689 20.8383 5.75365 20.9317C5.91041 21.0251 6.10279 21.0226 6.25725 20.925L21.2573 11.4513C21.4079 11.3562 21.5 11.1849 21.5 11C21.5 10.8151 21.4079 10.6438 21.2573 10.5487L6.25725 1.075Z"/></svg></span></button>'
+				. '<span class="%1$s-spinner" role="status" aria-live="polite" aria-label="%4$s"><span></span></span>',
 				esc_attr( self::FACADE_CLASS ),
 				esc_attr( $label ),
-				$poster
+				$poster,
+				esc_attr__( 'Loading…', 'jetpack-videopress-pkg' )
 			);
 		}
 

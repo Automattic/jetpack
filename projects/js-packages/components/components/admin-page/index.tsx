@@ -34,6 +34,7 @@ const AdminPage: FC< AdminPageProps > = ( {
 	subTitle,
 	logo,
 	actions,
+	globalControls,
 	breadcrumbs,
 	tabs,
 	showBottomBorder = true,
@@ -80,7 +81,23 @@ const AdminPage: FC< AdminPageProps > = ( {
 					breadcrumbs={ breadcrumbs }
 					title={ title }
 					subTitle={ subTitle }
-					actions={ actions }
+					actions={
+						globalControls ? (
+							<>
+								{ actions }
+								{ actions && (
+									<span
+										role="separator"
+										aria-orientation="vertical"
+										className={ styles[ 'global-controls-separator' ] }
+									/>
+								) }
+								{ globalControls }
+							</>
+						) : (
+							actions
+						)
+					}
 					showSidebarToggle={ false }
 				>
 					{ tabs }

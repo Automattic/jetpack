@@ -10,10 +10,11 @@ import {
 import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider } from '../../../providers';
 import { useGlobalChartsContext } from '../../../providers/chart-context/hooks/use-global-charts-context';
+import { steadyTrafficData } from '../../../stories/sample-data';
 import BarChart, { BarChartUnresponsive } from '../bar-chart';
 import { useBarChartOptions } from '../private';
 import type { GlobalChartsContextValue } from '../../../providers/chart-context/types';
-import type { SeriesData } from '../../../types';
+import type { DataPointDate, SeriesData } from '../../../types';
 
 // Mock useElementSize to return non-zero dimensions in jsdom so charts render
 const mockRefCallback = jest.fn();
@@ -41,12 +42,12 @@ describe( 'BarChart', () => {
 	// visx renders bars and grid lines without accessible roles or configurable test IDs.
 	const getBarRects = () => {
 		// eslint-disable-next-line testing-library/no-node-access -- See the visx node constraint above.
-		return screen.getByRole( 'grid' ).querySelectorAll( '.visx-bar-group rect' );
+		return screen.getByRole( 'application' ).querySelectorAll( '.visx-bar-group rect' );
 	};
 
 	const getGridLines = () => {
 		// eslint-disable-next-line testing-library/no-node-access -- visx grid lines cannot receive test IDs.
-		return screen.getByRole( 'grid' ).querySelectorAll( '.visx-rows line' );
+		return screen.getByRole( 'application' ).querySelectorAll( '.visx-rows line' );
 	};
 
 	const renderWithTheme = ( props = {}, children = undefined ) => {
@@ -58,6 +59,70 @@ describe( 'BarChart', () => {
 			</GlobalChartsProvider>
 		);
 	};
+
+	test.each(
+		[ 'vertical', 'horizontal' ].flatMap( orientation =>
+			[
+				[ 10, 20, 30 ],
+				[ -20, -10, -30 ],
+				[ -20, 10, 30 ],
+			].map( values => ( { orientation, values } ) )
+		)
+	)(
+		'adds datum classes without changing $orientation bar attributes for $values',
+		async ( { orientation, values } ) => {
+			const series = {
+				...defaultProps.data[ 0 ],
+				data: defaultProps.data[ 0 ].data.map( ( datum, index ) => ( {
+					...datum,
+					value: values[ index ],
+				} ) ),
+			};
+			const props = {
+				orientation,
+				data: [ series, { ...series, label: 'Series B' } ],
+			};
+			const view = renderWithTheme( props );
+			await waitFor( () => expect( getBarRects() ).toHaveLength( 6 ) );
+			const attributes = () =>
+				Array.from( getBarRects(), bar =>
+					[ 'x', 'y', 'width', 'height', 'fill', 'tabindex' ].map( attribute =>
+						bar.getAttribute( attribute )
+					)
+				);
+			const original = attributes();
+			view.unmount();
+			renderWithTheme( {
+				...props,
+				barClassName: ( datum: DataPointDate ) =>
+					datum.value === values[ 0 ] ? 'first-value' : undefined,
+			} );
+			await waitFor( () => expect( getBarRects() ).toHaveLength( 6 ) );
+			expect( attributes() ).toEqual( original );
+			expect( getBarRects()[ 0 ] ).toHaveClass( 'visx-bar', 'first-value' );
+			expect( getBarRects()[ 1 ] ).not.toHaveClass( 'first-value' );
+			expect( getBarRects()[ 3 ] ).toHaveClass( 'first-value' );
+		}
+	);
+
+	test( 'applies tooltip style overrides while keeping keyboard tooltip content', async () => {
+		const user = userEvent.setup();
+		renderWithTheme( {
+			withTooltips: true,
+			barClassName: () => 'styled-bar',
+			tooltipStyle: { padding: 0, backgroundColor: 'transparent', boxShadow: 'none' },
+		} );
+		await user.tab();
+		await user.keyboard( '{ArrowRight}' );
+		const tooltip = await screen.findByRole( 'tooltip' );
+		expect( tooltip ).toHaveTextContent( 'Jan 1' );
+		expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( {
+			padding: '0px',
+			// jsdom normalizes transparent in computed styles.
+			'background-color': 'rgba(0, 0, 0, 0)',
+			'box-shadow': 'none',
+		} );
+	} );
 
 	describe( 'pointer selection and focus return', () => {
 		const screenTransform = Object.getOwnPropertyDescriptor( SVGElement.prototype, 'getScreenCTM' );
@@ -86,20 +151,21 @@ describe( 'BarChart', () => {
 
 		const pointer = ( type: string, clientX: number, clientY: number ) => {
 			// visx owns the pointer capture rect and does not expose an attribute prop for it.
+			const chart = screen.getByRole( 'application' );
 			// eslint-disable-next-line testing-library/no-node-access
-			const target = screen.getByRole( 'grid' ).querySelector( 'svg > rect[fill="transparent"]' );
+			const target = chart.querySelector( 'svg > rect[fill="transparent"]' );
 			fireEvent( target, new MouseEvent( type, { bubbles: true, clientX, clientY } ) );
 		};
 
 		const hover = ( clientX: number, clientY: number ) =>
 			pointer( 'pointermove', clientX, clientY );
 
-		test( 'Escape returns focus to the grid without reopening either tooltip', async () => {
+		test( 'Escape returns focus to the chart without reopening either tooltip', async () => {
 			jest.useFakeTimers();
 			try {
 				const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 				renderWithTheme( { withTooltips: true } );
-				const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+				const chart = screen.getByRole( 'application', { name: /bar chart/i } );
 				await user.tab();
 				await user.keyboard( '{ArrowRight}' );
 				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
@@ -304,7 +370,7 @@ describe( 'BarChart', () => {
 			unmount();
 			renderWithTheme( { withBandHighlight: true, onBandHighlightChange } );
 			expect( warn ).toHaveBeenCalledTimes( 1 );
-			expect( screen.getByRole( 'grid' ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'application' ) ).toBeInTheDocument();
 			expect( warn ).toHaveBeenCalledWith(
 				'[Charts] BarChart: withBandHighlight and onBandHighlightChange require withTooltips.'
 			);
@@ -394,6 +460,115 @@ describe( 'BarChart', () => {
 		expect( lines ).toHaveLength( 3 );
 	} );
 
+	describe( 'Whole-number value ticks', () => {
+		const wholeNumberData: SeriesData[] = [
+			{
+				label: 'Series A',
+				data: [
+					{ label: 'Mon', value: 0 },
+					{ label: 'Tue', value: 1 },
+					{ label: 'Wed', value: 1 },
+				],
+			},
+		];
+
+		test( 'labels a whole-number range smaller than the tick count once per whole number', () => {
+			renderWithTheme( { data: wholeNumberData } );
+			const chart = screen.getByRole( 'application', { name: /bar chart/i } );
+			const ticks = within( chart )
+				.getAllByText( /^-?[\d.,]+$/ )
+				.map( el => el.textContent );
+			expect( ticks.sort() ).toEqual( [ '0', '1' ] );
+		} );
+
+		test( 'labels a horizontal whole-number range once per whole number', () => {
+			renderWithTheme( { data: wholeNumberData, orientation: 'horizontal' } );
+			const chart = screen.getByRole( 'application', { name: /bar chart/i } );
+			const ticks = within( chart )
+				.getAllByText( /^-?[\d.,]+$/ )
+				.map( el => el.textContent );
+			expect( ticks.sort() ).toEqual( [ '0', '1' ] );
+		} );
+
+		test( 'draws a flat series of ones on a 0 and 1 axis', () => {
+			renderWithTheme( {
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ label: 'Mon', value: 1 },
+							{ label: 'Tue', value: 1 },
+						],
+					},
+				],
+			} );
+			const chart = screen.getByRole( 'application', { name: /bar chart/i } );
+			const ticks = within( chart )
+				.getAllByText( /^-?[\d.,]+$/ )
+				.map( el => el.textContent );
+			expect( ticks.sort() ).toEqual( [ '0', '1' ] );
+		} );
+
+		test.each( [ 'vertical', 'horizontal' ] as const )(
+			'keeps every tick on a value domain the caller pinned (%s)',
+			orientation => {
+				const valueAxis = orientation === 'horizontal' ? 'x' : 'y';
+				renderWithTheme( {
+					orientation,
+					data: [
+						{
+							label: 'Series A',
+							data: [
+								{ label: 'Mon', value: 0 },
+								{ label: 'Tue', value: 0 },
+							],
+						},
+					],
+					options: {
+						[ `${ valueAxis }Scale` ]: { domain: [ 0, 1 ] },
+						axis: {
+							[ valueAxis ]: { tickFormat: ( value: number ) => `${ Math.round( value * 100 ) }%` },
+						},
+					},
+				} );
+				const chart = screen.getByRole( 'application', { name: /bar chart/i } );
+				expect( within( chart ).getAllByText( /^\d+%$/ ) ).toHaveLength( 6 );
+			}
+		);
+
+		test( "keeps a caller's value tickValues", () => {
+			renderWithTheme( {
+				data: wholeNumberData,
+				options: { axis: { y: { tickValues: [ 0, 0.5, 1 ] } } },
+			} );
+			const chart = screen.getByRole( 'application', { name: /bar chart/i } );
+			expect( within( chart ).getAllByText( /^-?[\d.,]+$/ ) ).toHaveLength( 3 );
+		} );
+	} );
+
+	test( 'draws category grid lines at the x axis numTicks', () => {
+		const data: SeriesData[] = [
+			{
+				label: 'Series A',
+				data: Array.from( { length: 30 }, ( _, i ) => ( { label: `Day ${ i + 1 }`, value: i } ) ),
+			},
+		];
+		const countColumns = ( numTicks: number ) => {
+			const { container, unmount } = renderWithTheme( {
+				data,
+				gridVisibility: 'y',
+				options: { axis: { x: { numTicks } } },
+			} );
+			// See the visx node constraint at getBarRects.
+			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+			const count = container.querySelectorAll( '.visx-columns line' ).length;
+			unmount();
+			return count;
+		};
+
+		expect( countColumns( 15 ) ).toBeGreaterThan( countColumns( 4 ) );
+	} );
+
 	describe( 'Data Validation', () => {
 		test( 'handles empty data array', () => {
 			renderWithTheme( { data: [] } );
@@ -410,7 +585,7 @@ describe( 'BarChart', () => {
 					},
 				],
 			} );
-			expect( screen.getByRole( 'grid', { name: /bar chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'application', { name: /bar chart/i } ) ).toBeInTheDocument();
 		} );
 
 		test( 'handles negative values', () => {
@@ -426,7 +601,7 @@ describe( 'BarChart', () => {
 					},
 				],
 			} );
-			expect( screen.getByRole( 'grid', { name: /bar chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'application', { name: /bar chart/i } ) ).toBeInTheDocument();
 		} );
 
 		test( 'renders a bucket with no reading instead of failing the whole chart', () => {
@@ -443,7 +618,7 @@ describe( 'BarChart', () => {
 				],
 			} );
 			expect( screen.queryByText( /invalid data/i ) ).not.toBeInTheDocument();
-			expect( screen.getByRole( 'grid', { name: /bar chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'application', { name: /bar chart/i } ) ).toBeInTheDocument();
 		} );
 
 		test( 'draws no bar for a bucket with no reading', () => {
@@ -562,29 +737,119 @@ describe( 'BarChart', () => {
 			expect( screen.getAllByTestId( 'legend-item' ) ).toHaveLength( 2 );
 			const html = document.body.innerHTML;
 			expect( html.indexOf( 'data-testid="legend-horizontal"' ) ).toBeLessThan(
-				html.indexOf( 'role="grid"' )
+				html.indexOf( 'role="application"' )
 			);
+		} );
+	} );
+
+	describe( 'Grid tick counts', () => {
+		const getPositions = ( selector: string, coordinate: string ) => {
+			// eslint-disable-next-line testing-library/no-node-access -- See the visx node constraint above.
+			const lines = screen.getByRole( 'application' ).querySelectorAll( selector );
+			return Array.from( lines, line => Number( line.getAttribute( coordinate ) ) );
+		};
+
+		test.each( [ 'x', 'y' ] )( 'aligns an explicit tick count with the %s axis', axis => {
+			renderWithTheme( {
+				data: [
+					{
+						label: 'Views',
+						data: Array.from( { length: 8 }, ( _, index ) => ( {
+							label: `Day ${ index + 1 }`,
+							value: ( index + 1 ) * 10,
+						} ) ),
+					},
+				],
+				gridVisibility: 'xy',
+				options: {
+					axis: { [ axis ]: { numTicks: 2, tickFormat: String, axisClassName: 'test-value-axis' } },
+				},
+			} );
+			const grid = getPositions(
+				axis === 'x' ? '.visx-columns line' : '.visx-rows line',
+				`${ axis }1`
+			);
+			const ticks = getPositions( '.test-value-axis .visx-axis-tick line', `${ axis }1` );
+			expect( ticks.length ).toBeGreaterThan( 0 );
+			expect( grid ).toEqual( ticks );
+		} );
+
+		test.each( [ false, true ] )(
+			'preserves the default tick count (horizontal=%s)',
+			horizontal => {
+				const axis = horizontal ? 'x' : 'y';
+				const positionsFor = ( axisOptions: object ) => {
+					const { unmount } = renderWithTheme( {
+						orientation: horizontal ? 'horizontal' : 'vertical',
+						gridVisibility: 'xy',
+						options: {
+							axis: { [ axis ]: { axisClassName: 'test-value-axis', ...axisOptions } },
+						},
+					} );
+					const positions = {
+						grid: getPositions(
+							horizontal ? '.visx-columns line' : '.visx-rows line',
+							`${ axis }1`
+						),
+						ticks: getPositions( '.test-value-axis .visx-axis-tick line', `${ axis }1` ),
+					};
+					unmount();
+					return positions;
+				};
+
+				const omitted = positionsFor( {} );
+				const explicit = positionsFor( { numTicks: 4 } );
+
+				expect( omitted.ticks.length ).toBeGreaterThan( 0 );
+				expect( omitted.grid ).toEqual( omitted.ticks );
+				expect( omitted.grid ).toEqual( explicit.grid );
+			}
+		);
+	} );
+
+	describe( 'Axis display', () => {
+		test.each( [
+			[ 'vertical', 'x', 'y' ],
+			[ 'vertical', 'y', 'x' ],
+			[ 'horizontal', 'x', 'y' ],
+			[ 'horizontal', 'y', 'x' ],
+		] )( 'skips a hidden axis (%s, hidden %s)', ( orientation, hidden, shown ) => {
+			renderWithTheme( {
+				orientation,
+				options: {
+					axis: {
+						[ hidden ]: { display: false, axisClassName: 'test-hidden-axis' },
+						[ shown ]: { axisClassName: 'test-shown-axis' },
+					},
+				},
+			} );
+			const chart = screen.getByRole( 'application' );
+
+			// eslint-disable-next-line testing-library/no-node-access -- See the visx node constraint above.
+			expect( chart.querySelector( '.test-hidden-axis' ) ).toBeNull();
+			// eslint-disable-next-line testing-library/no-node-access -- See the visx node constraint above.
+			expect( chart.querySelector( '.test-shown-axis' ) ).not.toBeNull();
 		} );
 	} );
 
 	describe( 'Grid Visibility', () => {
 		test( 'renders with different grid visibility options', () => {
 			const { rerender } = renderWithTheme( { gridVisibility: 'x' } );
-			expect( screen.getByRole( 'grid', { name: /bar chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'application', { name: /bar chart/i } ) ).toBeInTheDocument();
 
 			rerender(
 				<GlobalChartsProvider>
 					<BarChart { ...defaultProps } gridVisibility="y" />
 				</GlobalChartsProvider>
 			);
-			expect( screen.getByRole( 'grid', { name: /bar chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'application', { name: /bar chart/i } ) ).toBeInTheDocument();
 
 			rerender(
 				<GlobalChartsProvider>
 					<BarChart { ...defaultProps } gridVisibility="xy" />
 				</GlobalChartsProvider>
 			);
-			expect( screen.getByRole( 'grid', { name: /bar chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'application', { name: /bar chart/i } ) ).toBeInTheDocument();
 		} );
 	} );
 
@@ -666,7 +931,7 @@ describe( 'BarChart', () => {
 
 		// Scoped to the chart: @visx/text parks a measuring node on document.body,
 		// which a negative assertion would otherwise match.
-		const inChart = () => within( screen.getByRole( 'grid', { name: /bar chart/i } ) );
+		const inChart = () => within( screen.getByRole( 'application', { name: /bar chart/i } ) );
 
 		test( 'leaves tick values alone when a bucket is labelled rather than dated', () => {
 			// visx builds the band domain from `label || date`, so a labelled bucket
@@ -870,7 +1135,7 @@ describe( 'BarChart', () => {
 		// on document.body, which outlives RTL's cleanup still holding the last
 		// string measured. Query inside the chart so a previous test's measurement
 		// can't answer for this one's axis.
-		const inChart = () => within( screen.getByRole( 'grid', { name: /bar chart/i } ) );
+		const inChart = () => within( screen.getByRole( 'application', { name: /bar chart/i } ) );
 
 		test( 'renders distinct date ticks for daily buckets within a year', () => {
 			renderWithTheme( {
@@ -1306,7 +1571,7 @@ describe( 'BarChart', () => {
 				],
 			} );
 
-			screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+			screen.getByRole( 'application', { name: /bar chart/i } ).focus();
 			await user.keyboard( '{ArrowRight}' );
 
 			// The month tick reads "2024" here; the tooltip names the bucket itself.
@@ -1365,7 +1630,7 @@ describe( 'BarChart', () => {
 
 		test( 'renders with patterns', () => {
 			renderWithTheme( { withPatterns: true } );
-			expect( screen.getByRole( 'grid', { name: /bar chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'application', { name: /bar chart/i } ) ).toBeInTheDocument();
 
 			// Check that pattern definitions container is present
 			expect( screen.getByTestId( 'bar-chart-patterns' ) ).toBeInTheDocument();
@@ -1373,7 +1638,7 @@ describe( 'BarChart', () => {
 
 		test( 'renders without patterns by default', () => {
 			renderWithTheme( { withPatterns: false } );
-			expect( screen.getByRole( 'grid', { name: /bar chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'application', { name: /bar chart/i } ) ).toBeInTheDocument();
 
 			// Check that no pattern definitions container is present
 			expect( screen.queryByTestId( 'bar-chart-patterns' ) ).not.toBeInTheDocument();
@@ -1415,17 +1680,18 @@ describe( 'BarChart', () => {
 		describe( 'Chart Focus and Accessibility Attributes', () => {
 			test( 'chart container has proper accessibility attributes', () => {
 				renderWithTheme();
-				const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+				const chart = screen.getByRole( 'application', { name: /bar chart/i } );
 
 				expect( chart ).toHaveAttribute( 'tabIndex', '0' );
-				expect( chart ).toHaveAttribute( 'role', 'grid' );
+				expect( chart ).toHaveAttribute( 'role', 'application' );
 				expect( chart ).toHaveAttribute( 'aria-label', 'Bar chart' );
+				expect( screen.queryByLabelText( 'XYChart' ) ).not.toBeInTheDocument();
 			} );
 
 			test( 'chart container can receive focus', async () => {
 				const user = userEvent.setup();
 				renderWithTheme();
-				const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+				const chart = screen.getByRole( 'application', { name: /bar chart/i } );
 
 				await user.tab();
 				expect( chart ).toHaveFocus();
@@ -1455,7 +1721,7 @@ describe( 'BarChart', () => {
 				const onDatumActivate = jest.fn();
 				renderWithTheme( { withTooltips: true, data: [ SERIES_A ], onDatumActivate } );
 
-				screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+				screen.getByRole( 'application', { name: /bar chart/i } ).focus();
 				await user.keyboard( '{ArrowRight}{ArrowRight}{Enter}' );
 
 				expect( onDatumActivate ).toHaveBeenCalledTimes( 1 );
@@ -1471,7 +1737,7 @@ describe( 'BarChart', () => {
 				const onDatumActivate = jest.fn();
 				renderWithTheme( { withTooltips: true, data: [ SERIES_A ], onDatumActivate } );
 
-				screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+				screen.getByRole( 'application', { name: /bar chart/i } ).focus();
 				await user.keyboard( '{ArrowRight}[Space]' );
 
 				expect( onDatumActivate ).toHaveBeenCalledWith( {
@@ -1489,7 +1755,7 @@ describe( 'BarChart', () => {
 				const onDatumActivate = jest.fn();
 				renderWithTheme( { withTooltips: true, data: [ SERIES_A, SERIES_B ], onDatumActivate } );
 
-				screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+				screen.getByRole( 'application', { name: /bar chart/i } ).focus();
 				await user.keyboard( '{ArrowRight}{ArrowRight}{Enter}' );
 
 				expect( onDatumActivate ).toHaveBeenCalledWith( {
@@ -1504,7 +1770,7 @@ describe( 'BarChart', () => {
 				const onDatumActivate = jest.fn();
 				renderWithTheme( { withTooltips: true, data: [ SERIES_A ], onDatumActivate } );
 
-				screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+				screen.getByRole( 'application', { name: /bar chart/i } ).focus();
 				await user.keyboard( '{Enter}' );
 
 				expect( onDatumActivate ).not.toHaveBeenCalled();
@@ -1538,7 +1804,7 @@ describe( 'BarChart', () => {
 					],
 				} );
 
-				const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+				const chart = screen.getByRole( 'application', { name: /bar chart/i } );
 				chart.focus();
 
 				// Single tab should focus on the first tooltip.
@@ -1589,7 +1855,7 @@ describe( 'BarChart', () => {
 						],
 					} );
 
-					const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+					const chart = screen.getByRole( 'application', { name: /bar chart/i } );
 					chart.focus();
 
 					await user.keyboard( '{ArrowRight}' );
@@ -1638,7 +1904,7 @@ describe( 'BarChart', () => {
 					],
 				} );
 
-				const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+				const chart = screen.getByRole( 'application', { name: /bar chart/i } );
 				chart.focus();
 
 				// Right arrow key should focus on the first tooltip.
@@ -1661,7 +1927,7 @@ describe( 'BarChart', () => {
 			} );
 		} );
 
-		describe( 'ARIA grid boundaries', () => {
+		describe( 'Keyboard navigation boundaries', () => {
 			// Three points, so a clamp at a boundary lands on a different index than a wrap would.
 			const threePointData = [
 				{
@@ -1679,7 +1945,7 @@ describe( 'BarChart', () => {
 				const user = userEvent.setup();
 				renderWithTheme( { withTooltips: true, data: threePointData } );
 
-				const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+				const chart = screen.getByRole( 'application', { name: /bar chart/i } );
 				chart.focus();
 
 				// Move to the first, then on to the last (third) point.
@@ -1689,7 +1955,7 @@ describe( 'BarChart', () => {
 				expect( screen.getByTestId( 'chart-tooltip-2' ) ).toHaveFocus();
 
 				// Right arrow at the last point must not move focus: the highlighted
-				// bar/tooltip stays visible and focused (ARIA grid: focus does not move).
+				// bar/tooltip stays visible and focused (focus does not move).
 				await user.keyboard( '{ArrowRight}' );
 				expect( screen.getByTestId( 'chart-tooltip-2' ) ).toBeInTheDocument();
 				expect( screen.getByTestId( 'chart-tooltip-2' ) ).toHaveFocus();
@@ -1704,7 +1970,7 @@ describe( 'BarChart', () => {
 				const user = userEvent.setup();
 				renderWithTheme( { withTooltips: true, data: threePointData } );
 
-				screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+				screen.getByRole( 'application', { name: /bar chart/i } ).focus();
 				await user.keyboard( '{ArrowLeft}' );
 
 				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
@@ -1738,7 +2004,7 @@ describe( 'BarChart', () => {
 					],
 				} );
 
-				const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+				const chart = screen.getByRole( 'application', { name: /bar chart/i } );
 				chart.focus();
 
 				await user.keyboard( '{ArrowRight}' );
@@ -1773,7 +2039,7 @@ describe( 'BarChart', () => {
 					],
 				} );
 
-				const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+				const chart = screen.getByRole( 'application', { name: /bar chart/i } );
 				chart.focus();
 
 				// Slot 0 is the first primary bar (Mon); slot 1 must be the SECOND primary
@@ -1805,7 +2071,7 @@ describe( 'BarChart', () => {
 					],
 				} );
 
-				screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+				screen.getByRole( 'application', { name: /bar chart/i } ).focus();
 				await user.keyboard( '{ArrowRight}' );
 
 				const tooltip = screen.getByTestId( 'chart-tooltip-0' );
@@ -1838,7 +2104,7 @@ describe( 'BarChart', () => {
 					],
 				} );
 
-				screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+				screen.getByRole( 'application', { name: /bar chart/i } ).focus();
 				await user.keyboard( '{ArrowRight}' );
 
 				const tooltip = screen.getByTestId( 'chart-tooltip-0' );
@@ -1898,7 +2164,7 @@ describe( 'BarChart', () => {
 					],
 				} );
 
-				const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+				const chart = screen.getByRole( 'application', { name: /bar chart/i } );
 				chart.focus();
 
 				// Chart should be in focus.
@@ -1938,7 +2204,7 @@ describe( 'BarChart', () => {
 					],
 				} );
 
-				const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+				const chart = screen.getByRole( 'application', { name: /bar chart/i } );
 				chart.focus();
 
 				// Navigate to the first bar
@@ -1973,7 +2239,7 @@ describe( 'BarChart', () => {
 					],
 				} );
 
-				const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+				const chart = screen.getByRole( 'application', { name: /bar chart/i } );
 				chart.focus();
 
 				// Navigate to the first bar (Series A, Jan 1)
@@ -2005,7 +2271,7 @@ describe( 'BarChart', () => {
 					const user = userEvent.setup();
 					renderWithTheme( { withTooltips: true, data } );
 
-					screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+					screen.getByRole( 'application', { name: /bar chart/i } ).focus();
 					await user.keyboard( '{ArrowRight}' );
 
 					expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( 'No data' );
@@ -2016,7 +2282,7 @@ describe( 'BarChart', () => {
 					const user = userEvent.setup();
 					renderWithTheme( { withTooltips: true, data } );
 
-					screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+					screen.getByRole( 'application', { name: /bar chart/i } ).focus();
 					await user.keyboard( '{ArrowRight}{ArrowRight}' );
 
 					expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveTextContent( '20' );
@@ -2049,7 +2315,7 @@ describe( 'BarChart', () => {
 					];
 					renderWithTheme( { withTooltips: true, data: twoSeries } );
 
-					screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+					screen.getByRole( 'application', { name: /bar chart/i } ).focus();
 					await user.keyboard( '{ArrowRight}{ArrowRight}{ArrowRight}{ArrowRight}' );
 
 					expect( screen.getByTestId( 'chart-tooltip-3' ) ).toHaveTextContent( '15' );
@@ -2076,7 +2342,7 @@ describe( 'BarChart', () => {
 
 			renderWithTheme( { withTooltips: true, renderTooltip: customTooltipRenderer } );
 
-			const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+			const chart = screen.getByRole( 'application', { name: /bar chart/i } );
 			chart.focus();
 
 			// Click on right arrow key to focus on the first tooltip.
@@ -2108,7 +2374,9 @@ describe( 'BarChart', () => {
 				],
 			} );
 
-			const svgElement = screen.getByRole( 'grid', { name: /bar chart/i } ).querySelector( 'svg' );
+			const svgElement = screen
+				.getByRole( 'application', { name: /bar chart/i } )
+				.querySelector( 'svg' );
 			const bars = svgElement?.querySelectorAll( '.visx-bar-group rect' );
 
 			// Should have 2 bars
@@ -2135,7 +2403,9 @@ describe( 'BarChart', () => {
 				],
 			} );
 
-			const svgElement = screen.getByRole( 'grid', { name: /bar chart/i } ).querySelector( 'svg' );
+			const svgElement = screen
+				.getByRole( 'application', { name: /bar chart/i } )
+				.querySelector( 'svg' );
 			const bars = svgElement?.querySelectorAll( '.visx-bar-group rect' );
 
 			// Should have 2 bars
@@ -2168,7 +2438,9 @@ describe( 'BarChart', () => {
 				orientation: 'horizontal',
 			} );
 
-			const svgElement = screen.getByRole( 'grid', { name: /bar chart/i } ).querySelector( 'svg' );
+			const svgElement = screen
+				.getByRole( 'application', { name: /bar chart/i } )
+				.querySelector( 'svg' );
 			const bars = svgElement?.querySelectorAll( '.visx-bar-group rect' );
 
 			// Both bars should be visible in horizontal mode
@@ -2197,7 +2469,9 @@ describe( 'BarChart', () => {
 				],
 			} );
 
-			const svgElement = screen.getByRole( 'grid', { name: /bar chart/i } ).querySelector( 'svg' );
+			const svgElement = screen
+				.getByRole( 'application', { name: /bar chart/i } )
+				.querySelector( 'svg' );
 			const bars = svgElement?.querySelectorAll( '.visx-bar-group rect' );
 
 			expect( bars?.length ).toBe( 2 );
@@ -2237,7 +2511,7 @@ describe( 'BarChart', () => {
 				},
 			} );
 
-			expect( screen.getByRole( 'grid', { name: /bar chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'application', { name: /bar chart/i } ) ).toBeInTheDocument();
 		} );
 
 		test( 'truncates labels with CSS text-overflow ellipsis', () => {
@@ -2330,7 +2604,7 @@ describe( 'BarChart', () => {
 			} );
 
 			// Chart should still render without errors
-			expect( screen.getByRole( 'grid', { name: /bar chart/i } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'application', { name: /bar chart/i } ) ).toBeInTheDocument();
 
 			// Labels should still be present and have minimum width applied
 			const label = screen.getByText( /Very Long Category Label One/i );
@@ -2350,6 +2624,83 @@ describe( 'BarChart', () => {
 				// SVG text elements don't have textOverflow style
 				expect( label.tagName.toLowerCase() ).not.toBe( 'div' );
 			} );
+		} );
+	} );
+
+	describe( 'Value axis baseline', () => {
+		it( 'starts the value axis at zero in horizontal charts', () => {
+			const { result } = renderHook( () => useBarChartOptions( steadyTrafficData, true, {} ) );
+			const xScale = result.current.xScale as { domain?: number[] };
+			expect( xScale.domain ).toEqual( [ 0, 989 ] );
+		} );
+
+		it( 'lets a caller opt out of the zero baseline', () => {
+			const { result } = renderHook( () =>
+				useBarChartOptions( steadyTrafficData, false, { yScale: { zero: false } } )
+			);
+			const yScale = result.current.yScale as { domain?: number[] };
+			expect( yScale.domain ).toBeUndefined();
+		} );
+
+		it( 'reads the opt-out from the x scale of a horizontal chart', () => {
+			const { result } = renderHook( () =>
+				useBarChartOptions( steadyTrafficData, true, { xScale: { zero: false } } )
+			);
+			const xScale = result.current.xScale as { domain?: number[] };
+			expect( xScale.domain ).toBeUndefined();
+		} );
+
+		it( 'keeps an explicit domain as given', () => {
+			const { result } = renderHook( () =>
+				useBarChartOptions( steadyTrafficData, false, { yScale: { domain: [ 900, 1000 ] } } )
+			);
+			const yScale = result.current.yScale as { domain?: number[] };
+			expect( yScale.domain ).toEqual( [ 900, 1000 ] );
+		} );
+
+		it( 'renders an explicit domain without stretching it to zero', () => {
+			render(
+				<BarChart
+					data={ steadyTrafficData }
+					width={ 400 }
+					height={ 300 }
+					options={ { yScale: { domain: [ 900, 1000 ] } } }
+				/>
+			);
+			const heights = Array.from( getBarRects() ).map( bar =>
+				parseFloat( bar.getAttribute( 'height' ) || '0' )
+			);
+			// 921 sits at 21% of a 900–1000 axis; on a 0–1000 axis it would be 92%.
+			expect( Math.min( ...heights ) / Math.max( ...heights ) ).toBeLessThan( 0.5 );
+		} );
+
+		it( 'keeps zero in the domain when the caller opts out but a comparison series is present', () => {
+			const data = [
+				...steadyTrafficData,
+				{
+					label: 'Previous',
+					options: { type: 'comparison' as const },
+					data: steadyTrafficData[ 0 ].data.map( point => ( {
+						...point,
+						value: point.value - 10,
+					} ) ),
+				},
+			];
+			const { result } = renderHook( () =>
+				useBarChartOptions( data, false, { yScale: { zero: false } } )
+			);
+			const yScale = result.current.yScale as { domain?: number[] };
+			expect( yScale.domain ).toEqual( [ 0, 989 ] );
+		} );
+
+		it( 'renders every bar of steady traffic at most a few percent shorter than the tallest', () => {
+			render( <BarChart data={ steadyTrafficData } width={ 400 } height={ 300 } /> );
+			const heights = Array.from( getBarRects() ).map( bar =>
+				parseFloat( bar.getAttribute( 'height' ) || '0' )
+			);
+			expect( heights ).toHaveLength( 7 );
+			const tallest = Math.max( ...heights );
+			expect( Math.min( ...heights ) / tallest ).toBeGreaterThan( 0.9 );
 		} );
 	} );
 
@@ -2549,7 +2900,7 @@ describe( 'BarChart', () => {
 				</GlobalChartsProvider>
 			);
 
-			const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+			const chart = screen.getByRole( 'application', { name: /bar chart/i } );
 			chart.focus();
 
 			// Navigate through all 4 primary slots (2 series × 2 data points)
@@ -2835,8 +3186,9 @@ describe( 'BarChart', () => {
 				</GlobalChartsProvider>
 			);
 
+			const chart = screen.getByRole( 'application', { name: /bar chart/i } );
 			// eslint-disable-next-line testing-library/no-node-access
-			const svgElement = screen.getByRole( 'grid', { name: /bar chart/i } ).querySelector( 'svg' );
+			const svgElement = chart.querySelector( 'svg' );
 			// eslint-disable-next-line testing-library/no-node-access
 			expect( svgElement?.querySelectorAll( '.visx-bar-group rect' ) ).toHaveLength( 2 );
 
@@ -3041,7 +3393,7 @@ describe( 'BarChart', () => {
 			const user = userEvent.setup();
 			const toggle = mountWithVisibilityToggle();
 
-			screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+			screen.getByRole( 'application', { name: /bar chart/i } ).focus();
 			for ( let i = 0; i < 6; i++ ) {
 				await user.keyboard( '{ArrowRight}' );
 			}
@@ -3086,7 +3438,7 @@ describe( 'BarChart', () => {
 				],
 			} );
 
-			screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+			screen.getByRole( 'application', { name: /bar chart/i } ).focus();
 			for ( let i = 0; i < 6; i++ ) {
 				await user.keyboard( '{ArrowRight}' );
 			}
@@ -3143,12 +3495,12 @@ describe( 'BarChart', () => {
 				</GlobalChartsProvider>
 			);
 
-			screen.getByRole( 'grid', { name: /bar chart/i } ).focus();
+			screen.getByRole( 'application', { name: /bar chart/i } ).focus();
 			await user.keyboard( '{ArrowRight}{ArrowRight}' );
 			expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveTextContent( 'Series A' );
 
 			// Move focus out of the chart, then swap which series is hidden without changing the count.
-			screen.getByRole( 'grid', { name: /bar chart/i } ).blur();
+			screen.getByRole( 'application', { name: /bar chart/i } ).blur();
 			act( () => context.setChartHiddenSeries( 'test-equal-count-swap', [ 'Series A' ] ) );
 
 			expect( screen.queryAllByTestId( /^chart-tooltip-/ ) ).toHaveLength( 0 );
@@ -3187,7 +3539,7 @@ describe( 'BarChart', () => {
 
 			await user.click( screen.getByRole( 'button', { name: /Series B: visible/i } ) );
 
-			const chart = screen.getByRole( 'grid', { name: /bar chart/i } );
+			const chart = screen.getByRole( 'application', { name: /bar chart/i } );
 			chart.focus();
 
 			for ( let i = 0; i < 5; i++ ) {

@@ -476,7 +476,6 @@ class Jetpack_Carousel {
 				'comment'                         => __( 'Comment', 'jetpack' ),
 				'post_comment'                    => __( 'Post Comment', 'jetpack' ),
 				'write_comment'                   => __( 'Write a Comment...', 'jetpack' ),
-				'loading_comments'                => __( 'Loading Comments...', 'jetpack' ),
 				'image_label'                     => __( 'Open image in full-screen.', 'jetpack' ),
 				'download_original'               => sprintf(
 					/* translators: %1s is the full-size image width, and %2s is the height. */
@@ -502,6 +501,10 @@ class Jetpack_Carousel {
 				'blog_id'                         => (int) get_current_blog_id(),
 				'meta_data'                       => array( 'camera', 'aperture', 'shutter_speed', 'focal_length', 'copyright' ),
 			);
+
+			if ( $localize_strings['display_comments'] ) {
+				$localize_strings['loading_comments'] = __( 'Loading Comments...', 'jetpack' );
+			}
 
 			/**
 			 * Handle WP stats for images in full-screen.
@@ -697,7 +700,7 @@ class Jetpack_Carousel {
 						<div class="jp-carousel-comments-wrapper">
 							<?php if ( $localize_strings['display_comments'] ) : ?>
 								<div id="jp-carousel-comments-loading">
-									<span><?php echo esc_html( $localize_strings['loading_comments'] ); ?></span>
+									<span><?php echo esc_html( $localize_strings['loading_comments'] ?? __( 'Loading Comments...', 'jetpack' ) ); ?></span>
 								</div>
 								<div class="jp-carousel-comments"></div>
 								<div id="jp-carousel-comment-form-container">

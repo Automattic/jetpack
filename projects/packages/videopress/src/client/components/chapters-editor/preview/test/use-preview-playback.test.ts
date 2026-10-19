@@ -49,7 +49,7 @@ class FakeVideoElement implements PreviewVideoElement {
 		return count;
 	}
 
-	play(): undefined {
+	play(): Promise< void > | undefined {
 		this.playCalls++;
 		this.paused = false;
 		this.emit( 'play' );
@@ -140,6 +140,20 @@ function renderPlayback( options: UsePreviewPlaybackOptions = {} ) {
 
 describe( 'usePreviewPlayback', () => {
 	describe( 'initial state and metadata', () => {
+		it( 'recovers metadata when the browser omits the loadedmetadata event', () => {
+			jest.useFakeTimers();
+			try {
+				const { result, video, unmount } = renderPlayback( { fallbackDurationMs: 60000 } );
+				video.duration = 42;
+				act( () => jest.advanceTimersByTime( 250 ) );
+				expect( result.current.hasMetadata ).toBe( true );
+				expect( result.current.durationMs ).toBe( 42000 );
+				unmount();
+			} finally {
+				jest.useRealTimers();
+			}
+		} );
+
 		it( 'starts paused at zero with the fallback duration', () => {
 			const { result } = renderPlayback( { fallbackDurationMs: 60000 } );
 			expect( result.current.currentMs ).toBe( 0 );
@@ -173,6 +187,34 @@ describe( 'usePreviewPlayback', () => {
 	} );
 
 	describe( 'transport', () => {
+		it( 'reports a synchronous unsupported-format failure without starting playback', () => {
+			const { result, video } = renderPlayback();
+			jest.spyOn( video, 'play' ).mockImplementation( () => {
+				throw new DOMException( 'Unsupported source', 'NotSupportedError' );
+			} );
+			act( () => result.current.play() );
+			expect( result.current.playing ).toBe( false );
+			expect( result.current.playbackError ).toBe(
+				'This video format is not supported by the browser.'
+			);
+			expect( pendingFrames() ).toBe( 0 );
+		} );
+
+		it( 'reads newly available metadata when playback starts', () => {
+			const { result, video } = renderPlayback();
+			video.duration = 42;
+			act( () => result.current.play() );
+			expect( result.current.hasMetadata ).toBe( true );
+			expect( result.current.durationMs ).toBe( 42000 );
+		} );
+
+		it( 'does not play when resolving the restart position still produces an empty output', () => {
+			const { result, video } = renderPlayback( { resolvePlayback: () => ( { ended: true } ) } );
+			act( () => result.current.play() );
+			expect( video.playCalls ).toBe( 0 );
+			expect( result.current.playing ).toBe( false );
+		} );
+
 		it( 'play() starts the element and the frame loop', () => {
 			const { result, video } = renderPlayback();
 			act( () => result.current.play() );
@@ -244,6 +286,14 @@ describe( 'usePreviewPlayback', () => {
 	} );
 
 	describe( 'seeking', () => {
+		it.each( [ NaN, Infinity, -Infinity ] )( 'ignores a non-finite seek (%s)', invalidTime => {
+			const { result, video } = renderPlayback( { fallbackDurationMs: 60000 } );
+			act( () => result.current.seekTo( 1000 ) );
+			act( () => result.current.seekTo( invalidTime ) );
+			expect( result.current.currentMs ).toBe( 1000 );
+			expect( video.currentTime ).toBe( 1 );
+		} );
+
 		it( 'seekTo() moves the element and currentMs', () => {
 			const { result, video } = renderPlayback( { fallbackDurationMs: 60000 } );
 			act( () => result.current.seekTo( 12345 ) );
@@ -269,6 +319,110 @@ describe( 'usePreviewPlayback', () => {
 			} );
 			expect( result.current.currentMs ).toBe( 3000 );
 		} );
+	} );
+
+	describe( 'edited playback', () => {
+		const resolvePlayback = ( ms: number ) => {
+			if ( ms < 1000 ) {
+				return { seekTo: 1000 };
+			}
+			if ( ms >= 9000 ) {
+				return { ended: true, seekTo: 9000 };
+			}
+			if ( ms >= 3000 && ms < 5000 ) {
+				return { seekTo: 5000 };
+			}
+			return {};
+		};
+
+		it( 'applies edits on play and every frame, while preserving paused seeks', () => {
+			const { result, video } = renderPlayback( {
+				fallbackDurationMs: 10000,
+				restartMs: 1000,
+				resolvePlayback,
+			} );
+			act( () => result.current.seekTo( 500 ) );
+			expect( video.currentTime ).toBe( 0.5 );
+			act( () => result.current.play() );
+			expect( video.currentTime ).toBe( 1 );
+			video.advanceToMs( 3100 );
+			flushFrame();
+			expect( video.currentTime ).toBe( 5 );
+			video.advanceToMs( 9100 );
+			flushFrame();
+			expect( video.currentTime ).toBe( 9 );
+			expect( result.current.playing ).toBe( false );
+			act( () => result.current.play() );
+			expect( video.currentTime ).toBe( 1 );
+		} );
+
+		it( 'reads updated edits without reattaching the video', () => {
+			const { result, video, rerender } = renderPlayback( { resolvePlayback } );
+			act( () => result.current.play() );
+			rerender( { resolvePlayback: () => ( { seekTo: 7000 } ) } );
+			flushFrame();
+			expect( video.currentTime ).toBe( 7 );
+		} );
+	} );
+
+	describe( 'play requests', () => {
+		it( 'ignores a late play rejection after a scrub pauses playback', async () => {
+			const { result, video } = renderPlayback();
+			let reject: ( error: Error ) => void;
+			const request = new Promise< void >( ( _, rejectRequest ) => {
+				reject = rejectRequest;
+			} );
+			jest.spyOn( video, 'play' ).mockImplementation( () => request );
+			act( () => result.current.play() );
+			act( () => result.current.pause() );
+			await act( async () =>
+				reject( new Error( 'The play request was interrupted by pause().' ) )
+			);
+			expect( result.current.playbackError ).toBeNull();
+			expect( result.current.playing ).toBe( false );
+		} );
+
+		it( 'does not restore playing state when a paused request resolves', async () => {
+			const { result, video } = renderPlayback();
+			let resolve: () => void;
+			const request = new Promise< void >( resolveRequest => {
+				resolve = resolveRequest;
+			} );
+			jest.spyOn( video, 'play' ).mockImplementation( () => request );
+			act( () => result.current.play() );
+			act( () => result.current.pause() );
+			await act( async () => resolve() );
+			expect( result.current.playing ).toBe( false );
+			expect( pendingFrames() ).toBe( 0 );
+		} );
+
+		it( 'surfaces an active playback failure', async () => {
+			const { result, video } = renderPlayback();
+			jest.spyOn( video, 'play' ).mockImplementation( () => Promise.reject( new Error() ) );
+			await act( async () => result.current.play() );
+			expect( result.current.playbackError ).toBe( 'Playback could not be started.' );
+			expect( result.current.playing ).toBe( false );
+		} );
+	} );
+
+	it( 'recovers the intended video and its metadata when a ref handoff misses it', () => {
+		const intended = document.createElement( 'video' );
+		const sibling = document.createElement( 'video' );
+		intended.id = 'trim-preview-instance';
+		sibling.dataset.testid = 'chapters-preview-video';
+		Object.defineProperty( intended, 'duration', { value: 12.5 } );
+		document.body.append( sibling, intended );
+		try {
+			const { result } = renderHook( () => usePreviewPlayback( { videoElementId: intended.id } ) );
+			expect( result.current.hasMetadata ).toBe( true );
+			expect( result.current.durationMs ).toBe( 12500 );
+			act( () => result.current.seekTo( 3000 ) );
+			expect( intended.currentTime ).toBe( 3 );
+			expect( sibling.currentTime ).toBe( 0 );
+		} finally {
+			intended.remove();
+			sibling.remove();
+		}
 	} );
 
 	describe( 'cleanup', () => {

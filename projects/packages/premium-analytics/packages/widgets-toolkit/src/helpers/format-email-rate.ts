@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
+import type { StatsEmailSummaryItem } from '@jetpack-premium-analytics/data';
 
 export type EmailRateSignals = {
 	/** Total event count (opens or clicks). */
@@ -25,6 +26,18 @@ export function isEmailRateKnown( signals: EmailRateSignals ): boolean {
 }
 
 /**
+ * The rate as a sort and export value: `undefined` when unknown, so it neither ranks nor
+ * exports as a real 0%.
+ *
+ * @param rate    - The rate as the endpoint reports it.
+ * @param signals - The counts behind the rate.
+ * @return The rate, or undefined when it is unknown.
+ */
+export function getKnownEmailRate( rate: number, signals: EmailRateSignals ): number | undefined {
+	return isEmailRateKnown( signals ) ? rate : undefined;
+}
+
+/**
  * Format an email summary rate, which the endpoint reports as a 0–100 percentage.
  *
  * @param rate    - The 0–100 rate.
@@ -39,3 +52,15 @@ export function formatEmailRate( rate: number, signals: EmailRateSignals ): stri
 	// `percentage` defaults to `exceptZero`, which would print `+12%`.
 	return formatMetricValue( rate / 100, 'percentage', { decimals: 2, signDisplay: 'auto' } );
 }
+
+export const getOpensRateSignals = ( item: StatsEmailSummaryItem ): EmailRateSignals => ( {
+	total: item.opens,
+	unique: item.unique_opens,
+	sends: item.total_sends,
+} );
+
+export const getClicksRateSignals = ( item: StatsEmailSummaryItem ): EmailRateSignals => ( {
+	total: item.clicks,
+	unique: item.unique_clicks,
+	sends: item.total_sends,
+} );

@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Sync;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
@@ -104,7 +105,7 @@ class WooCommerce_Analytics_Module_Test extends BaseTestCase {
 
 	/**
 	 * The module name is a cross-repo contract (WPCOM dispatcher, Premium Analytics
-	 * tracker and JS, Woo AI). It must never change.
+	 * tracker and JS, the standalone WooCommerce Analytics plugin). It must never change.
 	 */
 	public function test_name_is_the_public_contract() {
 		$this->assertSame( 'woocommerce_analytics', $this->module->name() );
@@ -365,6 +366,381 @@ class WooCommerce_Analytics_Module_Test extends BaseTestCase {
 	 */
 	public function test_missing_order_item_has_no_cogs_value() {
 		$this->assertNull( $this->invoke_instance_helper( 'get_order_product_cogs_value', false ) );
+	}
+
+	/**
+	 * Refund lookup rows negate a COGS value and keep a missing one as null.
+	 *
+	 * @dataProvider provide_refund_cogs_cases
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 *
+	 * @param bool       $cogs_enabled Whether the COGS feature is enabled.
+	 * @param float|null $expected     Expected cogs_amount.
+	 */
+	#[DataProvider( 'provide_refund_cogs_cases' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_refund_lookup_rows_sign_cogs_amount( $cogs_enabled, $expected ) {
+		global $wpdb, $jetpack_sync_test_features, $jetpack_sync_test_order_items;
+
+		require_once __DIR__ . '/../stubs/class-featuresutil.php';
+		require_once __DIR__ . '/../stubs/class-wc-order-factory.php';
+
+		$jetpack_sync_test_features    = $cogs_enabled ? array( 'cost_of_goods_sold' ) : array();
+		$jetpack_sync_test_order_items = array(
+			55 => new class() {
+				/**
+				 * Get the item's COGS value.
+				 *
+				 * @return float
+				 */
+				public function get_cogs_value() {
+					return 12.5;
+				}
+			},
+		);
+
+		$original_wpdb = $wpdb;
+		$wpdb          = new class() {
+			/**
+			 * WordPress table prefix.
+			 *
+			 * @var string
+			 */
+			public $prefix = 'wp_';
+
+			/**
+			 * Return the order ID as the prepared query.
+			 *
+			 * @param string $query    Query template.
+			 * @param int    $order_id Order ID.
+			 * @return int
+			 */
+			public function prepare( $query, $order_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+				return $order_id;
+			}
+
+			/**
+			 * Return a refund's order-stats row and its refunded parent's.
+			 *
+			 * @param int    $order_id Prepared order ID.
+			 * @param string $output   Requested output format.
+			 * @return array|null
+			 */
+			public function get_row( $order_id, $output ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+				$rows = array(
+					101 => array( 'parent_id' => 202 ),
+					202 => array( 'status' => 'wc-refunded' ),
+				);
+
+				return $rows[ $order_id ] ?? null;
+			}
+
+			/**
+			 * Return the refund's product lookup row.
+			 *
+			 * @param int    $order_id Prepared order ID.
+			 * @param string $output   Requested output format.
+			 * @return array
+			 */
+			public function get_results( $order_id, $output ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+				return array(
+					array(
+						'order_id'              => $order_id,
+						'order_item_id'         => 55,
+						'product_id'            => 7,
+						'variation_id'          => 0,
+						'customer_id'           => 3,
+						'date_created'          => '2026-09-01 10:00:00',
+						'product_qty'           => -1,
+						'product_net_revenue'   => -10,
+						'product_gross_revenue' => -10,
+						'coupon_amount'         => 0,
+						'tax_amount'            => 0,
+						'shipping_amount'       => 0,
+						'shipping_tax_amount'   => 0,
+					),
+				);
+			}
+		};
+
+		$products = null;
+		try {
+			$products = $this->invoke_instance_helper( 'get_order_product_data_from_db', 101 );
+		} finally {
+			$wpdb = $original_wpdb;
+		}
+
+		$this->assertSame( $expected, $products[0]['cogs_amount'] );
+	}
+
+	/**
+	 * Data provider for test_refund_lookup_rows_sign_cogs_amount.
+	 *
+	 * @return array
+	 */
+	public static function provide_refund_cogs_cases() {
+		return array(
+			'COGS disabled' => array( false, null ),
+			'COGS enabled'  => array( true, -12.5 ),
+		);
+	}
+
+	/**
+	 * A plain order falls back to its lookup rows when WooCommerce Analytics' order class is unavailable.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_plain_order_without_analytics_class_falls_back_to_lookup_rows() {
+		global $wpdb;
+
+		require_once __DIR__ . '/../stubs/class-wc-order.php';
+
+		$order         = new \WC_Order();
+		$original_wpdb = $wpdb;
+		$wpdb          = new class() {
+			/**
+			 * WordPress table prefix.
+			 *
+			 * @var string
+			 */
+			public $prefix = 'wp_';
+
+			/**
+			 * Return the order ID as the prepared query.
+			 *
+			 * @param string $query    Query template.
+			 * @param int    $order_id Order ID.
+			 * @return int
+			 */
+			public function prepare( $query, $order_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+				return $order_id;
+			}
+
+			/**
+			 * Return the order's wc_order_stats row.
+			 *
+			 * @param int    $order_id Prepared order ID.
+			 * @param string $output   Requested output format.
+			 * @return array
+			 */
+			public function get_row( $order_id, $output ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+				return array(
+					'order_id'       => $order_id,
+					'status'         => 'wc-completed',
+					'date_created'   => '2026-09-01 10:00:00',
+					'date_completed' => null,
+					'date_paid'      => null,
+				);
+			}
+		};
+		$this->module  = new class() extends Modules\WooCommerce_Analytics {
+			/**
+			 * Stand in for the wc_order_product_lookup query.
+			 *
+			 * @param int $order_id Order ID.
+			 * @return array
+			 */
+			protected function get_order_product_data_from_db( $order_id ) {
+				return array( 'products_from_db' => $order_id );
+			}
+		};
+
+		$stats    = null;
+		$products = null;
+		try {
+			$stats    = $this->invoke_instance_helper( 'get_order_stats_data', $order );
+			$products = $this->invoke_instance_helper( 'get_order_product_data', $order );
+		} finally {
+			$wpdb = $original_wpdb;
+		}
+
+		$this->assertSame( 123, $stats['order_id'] );
+		$this->assertSame( 'wc-completed', $stats['status'] );
+		$this->assertSame( array( 'products_from_db' => 123 ), $products );
+	}
+
+	/**
+	 * A plain order, as loaded while WooCommerce Analytics is disabled, is reloaded as the Analytics order class.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_plain_order_is_reloaded_as_analytics_order() {
+		require_once __DIR__ . '/../stubs/overrides/class-order.php';
+
+		$analytics_order = $this->invoke_static_helper( 'get_analytics_order', new \WC_Order() );
+
+		$this->assertInstanceOf( \Automattic\WooCommerce\Admin\Overrides\Order::class, $analytics_order );
+		$this->assertSame( 123, $analytics_order->get_id() );
+	}
+
+	/**
+	 * An order that already has the report methods is used as is, and other order classes are not swapped.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_only_plain_orders_are_reloaded_as_analytics_orders() {
+		require_once __DIR__ . '/../stubs/overrides/class-order.php';
+
+		$analytics_order = new \Automattic\WooCommerce\Admin\Overrides\Order();
+		$order_subclass  = new class() extends \WC_Order {};
+
+		$this->assertSame( $analytics_order, $this->invoke_static_helper( 'get_analytics_order', $analytics_order ) );
+		$this->assertFalse( $this->invoke_static_helper( 'get_analytics_order', $order_subclass ) );
+		$this->assertFalse( $this->invoke_static_helper( 'get_analytics_order', false ) );
+	}
+
+	/**
+	 * A plain refund is reloaded as the Analytics refund class.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_plain_refund_is_reloaded_as_analytics_refund() {
+		require_once __DIR__ . '/../stubs/overrides/class-orderrefund.php';
+
+		$analytics_refund = $this->invoke_static_helper( 'get_analytics_order', new \WC_Order_Refund() );
+
+		$this->assertInstanceOf( \Automattic\WooCommerce\Admin\Overrides\OrderRefund::class, $analytics_refund );
+		$this->assertSame( 123, $analytics_refund->get_id() );
+	}
+
+	/**
+	 * Every report getter receives the same reloaded order.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_reports_data_reloads_a_plain_order_once() {
+		require_once __DIR__ . '/../stubs/overrides/class-order.php';
+
+		$this->module = new class() extends Modules\WooCommerce_Analytics {
+			/**
+			 * The order each getter received.
+			 *
+			 * @var array
+			 */
+			public $received = array();
+
+			/**
+			 * Record the order passed to a getter.
+			 *
+			 * @param object $order The order.
+			 * @return array
+			 */
+			private function record( $order ) {
+				$this->received[] = $order;
+				return array( 'data' );
+			}
+
+			/**
+			 * Record the order.
+			 *
+			 * @param object $order The order.
+			 * @return array
+			 */
+			protected function get_order_stats_data( $order ) {
+				return $this->record( $order );
+			}
+
+			/**
+			 * Record the order.
+			 *
+			 * @param object $order The order.
+			 * @return array
+			 */
+			protected function get_order_attribution_data( $order ) {
+				return $this->record( $order );
+			}
+
+			/**
+			 * Record the order.
+			 *
+			 * @param object $order The order.
+			 * @return array
+			 */
+			protected function get_order_product_data( $order ) {
+				return $this->record( $order );
+			}
+
+			/**
+			 * Record the order.
+			 *
+			 * @param object $order The order.
+			 * @return array
+			 */
+			protected function get_order_coupon_data( $order ) {
+				return $this->record( $order );
+			}
+
+			/**
+			 * Record the order.
+			 *
+			 * @param object $order The order.
+			 * @return array
+			 */
+			protected function get_order_tax_data( $order ) {
+				return $this->record( $order );
+			}
+		};
+
+		$this->invoke_instance_helper( 'build_woocommerce_analytics_reports_data', new \WC_Order() );
+
+		$this->assertCount( 5, $this->module->received );
+		$this->assertInstanceOf( \Automattic\WooCommerce\Admin\Overrides\Order::class, $this->module->received[0] );
+		$this->assertCount( 1, array_unique( array_map( 'spl_object_id', $this->module->received ) ) );
+	}
+
+	/**
+	 * Queried orders load as the Analytics class, and the filter added for it is removed afterwards.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_orders_are_queried_as_analytics_orders() {
+		require_once __DIR__ . '/../stubs/overrides/class-order.php';
+		require_once __DIR__ . '/../stubs/wc-get-orders.php';
+
+		$orders = $this->invoke_static_helper( 'get_analytics_orders', array( 'post__in' => array( 123 ) ) );
+
+		$this->assertInstanceOf( \Automattic\WooCommerce\Admin\Overrides\Order::class, $orders[0] );
+		$this->assertFalse( has_filter( 'woocommerce_order_class', array( \Automattic\WooCommerce\Admin\Overrides\Order::class, 'order_class_name' ) ) );
+	}
+
+	/**
+	 * The class filter WooCommerce adds while Analytics is enabled survives the query.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_querying_orders_keeps_woocommerce_analytics_filter() {
+		require_once __DIR__ . '/../stubs/overrides/class-order.php';
+		require_once __DIR__ . '/../stubs/wc-get-orders.php';
+
+		$callback = array( \Automattic\WooCommerce\Admin\Overrides\Order::class, 'order_class_name' );
+		add_filter( 'woocommerce_order_class', $callback, 10, 3 );
+
+		$this->invoke_static_helper( 'get_analytics_orders', array( 'post__in' => array( 123 ) ) );
+
+		$this->assertSame( 10, has_filter( 'woocommerce_order_class', $callback ) );
 	}
 
 	/**

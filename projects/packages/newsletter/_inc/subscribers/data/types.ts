@@ -13,6 +13,8 @@ export type SubscriptionStatus =
 	| 'Blocked'
 	| string;
 
+export type SubscriptionStatusReason = 'emails_paused' | 'bounced' | 'blocked';
+
 export type SubscriptionPlan = {
 	subscription_id?: number;
 	is_comp: boolean;
@@ -36,6 +38,7 @@ export type Subscriber = {
 	email_address: string;
 	avatar?: string;
 	subscription_status: SubscriptionStatus;
+	subscription_status_reason?: SubscriptionStatusReason | null;
 
 	// WP.com-side subscription (null when subscriber is email-only).
 	wpcom_subscription_id?: number;
@@ -47,6 +50,14 @@ export type Subscriber = {
 
 	// Paid / comp subscriptions, only present when `use_new_helper=true`.
 	plans?: SubscriptionPlan[];
+
+	bounce_retry?: BounceRetry | null;
+};
+
+// Bounce retry state, present when `subscription_status_reason` is `bounced`. Dates are ISO 8601 UTC.
+export type BounceRetry = {
+	can_retry: boolean;
+	sent_on: string | null;
 };
 
 export type SubscribersResponse = {
@@ -179,4 +190,9 @@ export type SubscriberStats = {
 	emails_sent: number;
 	unique_opens: number;
 	unique_clicks: number;
+};
+
+export type SendBounceConfirmationResponse = {
+	success: boolean;
+	bounce_retry?: BounceRetry | null;
 };

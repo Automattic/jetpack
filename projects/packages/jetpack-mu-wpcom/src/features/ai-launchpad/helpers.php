@@ -51,7 +51,7 @@ if ( ! function_exists( 'wpcom_ai_launchpad_resolve_goal' ) ) {
 	 * to install WooCommerce at GET.
 	 *
 	 * The payload is the fallback and only covers one race: the wizard PUT is fire-and-forget in
-	 * wizard/wizard.tsx, so a prewarmed tailor can land before the option is written. The output schema
+	 * wizard/wizard.tsx, so the tailor can land before the option is written. The output schema
 	 * has already validated the payload's goal against the same six slugs.
 	 *
 	 * @param array $payload The AI output payload — the persisted one on read, the incoming one at PUT.
@@ -237,7 +237,7 @@ if ( ! function_exists( 'wpcom_ai_launchpad_standard_props' ) ) {
 			// server-fired events fire inside REST requests, where $pagenow is index.php, and
 			// the two recorders have to report the same screen for the same user.
 			'screen'        => 'admin.php',
-			'ref'           => 'experiment_wpcom_launchpad_personalization_202607_v1',
+			'ref'           => 'ai_launchpad',
 			'site_type'     => ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_simple() ? 'simple' : 'atomic',
 			'agent_name'    => 'ai_launchpad',
 			'agent_version' => \Automattic\Jetpack\Jetpack_Mu_Wpcom::PACKAGE_VERSION,
@@ -396,6 +396,31 @@ if ( ! function_exists( 'wpcom_ai_launchpad_get_ai_task_ids' ) ) {
 	}
 }
 
+if ( ! function_exists( 'wpcom_ai_launchpad_site_locale' ) ) {
+	/**
+	 * The site's own language, as opposed to the language the current request is being read in.
+	 *
+	 * `get_locale()` is not it on WordPress.com Simple: there the locale follows the logged-in user
+	 * through wp-admin and the REST calls it makes, so a French site read by an Italian admin reports
+	 * Italian — and the pages we create, plus the language the AI is told to write in, would follow
+	 * the reader instead of the site. `get_blog_lang_code()` is the blog's own `lang_id` setting.
+	 * Same resolution the coming-soon page already uses for the same reason.
+	 *
+	 * @return string A WordPress locale, or a WordPress.com language code on Simple.
+	 */
+	function wpcom_ai_launchpad_site_locale() {
+		if ( function_exists( 'get_blog_lang_code' ) ) {
+			$code = get_blog_lang_code();
+			// Empty when the blog has no language set; fall through to the request's own.
+			if ( is_string( $code ) && '' !== $code ) {
+				return $code;
+			}
+		}
+
+		return get_locale();
+	}
+}
+
 if ( ! function_exists( 'wpcom_ai_launchpad_in_site_language' ) ) {
 	/**
 	 * Runs a callback with translations switched to the site language.
@@ -411,7 +436,7 @@ if ( ! function_exists( 'wpcom_ai_launchpad_in_site_language' ) ) {
 	 * @return mixed The callback's return value.
 	 */
 	function wpcom_ai_launchpad_in_site_language( $callback ) {
-		$site_locale = get_locale();
+		$site_locale = wpcom_ai_launchpad_site_locale();
 		$switched    = false;
 
 		if ( $site_locale !== determine_locale() ) {
@@ -474,53 +499,5 @@ if ( ! function_exists( 'wpcom_ai_launchpad_site_copy' ) ) {
 				);
 			}
 		);
-	}
-}
-
-if ( ! function_exists( 'wpcom_ai_launchpad_script_translations' ) ) {
-	/**
-	 * Inline JS that installs the translation catalogs of the page's wp-build bundles into `wp.i18n`.
-	 *
-	 * Core's `load_script_textdomain()` on a registered, never-enqueued handle per bundle picks up the
-	 * platform filters that point this package's catalogs at `languages/mu-plugins/`, which no URL
-	 * serves for the client-side loader the other wp-build dashboards use.
-	 *
-	 * @param string $manifest_file Path to the build's `i18n-manifest.json` (from `stamp-textdomains`).
-	 * @param string $build_url     URL of the build directory the bundles are served from.
-	 * @param string $route         The wp-build route whose bundles to cover, besides the shared modules and scripts.
-	 * @param string $domain        The text domain.
-	 * @return string|null The inline script, or null when no bundle has a catalog for this locale.
-	 */
-	function wpcom_ai_launchpad_script_translations( $manifest_file, $build_url, $route = 'site-setup', $domain = 'jetpack-mu-wpcom' ) {
-		if ( ! is_readable( $manifest_file ) ) {
-			return null;
-		}
-		$manifest = json_decode( (string) file_get_contents( $manifest_file ), true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local build artifact.
-		$bundles  = is_array( $manifest ) && isset( $manifest['bundles'] ) && is_array( $manifest['bundles'] ) ? $manifest['bundles'] : array();
-
-		$scripts = array();
-		foreach ( $bundles as $index => $bundle ) {
-			// The manifest lists paths under the build directory's own name, e.g. `build/routes/x/content.js`.
-			if ( ! is_string( $bundle ) || ! preg_match( '#^[^/]+/(routes/' . preg_quote( $route, '#' ) . '|scripts|modules)/#', $bundle ) ) {
-				continue;
-			}
-			$handle = 'wpcom-ai-launchpad-i18n-' . $index;
-			wp_register_script( $handle, trailingslashit( $build_url ) . substr( $bundle, strpos( $bundle, '/' ) + 1 ), array(), false, false ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.NoExplicitVersion -- Never printed; only registered so core can locate its catalog.
-			$json = load_script_textdomain( $handle, $domain );
-			wp_deregister_script( $handle );
-			if ( ! $json ) {
-				continue;
-			}
-
-			$data     = json_decode( $json, true );
-			$messages = $data['locale_data'][ $domain ] ?? $data['locale_data']['messages'] ?? null;
-			if ( ! is_array( $messages ) || array() === $messages ) {
-				continue;
-			}
-			// HEX_TAG keeps a literal "</script>" in a translation from closing the inline script tag.
-			$scripts[] = 'wp.i18n.setLocaleData( ' . wp_json_encode( $messages, JSON_HEX_TAG | JSON_HEX_AMP ) . ', ' . wp_json_encode( $domain, JSON_HEX_TAG | JSON_HEX_AMP ) . ' );';
-		}
-
-		return $scripts ? implode( "\n", $scripts ) : null;
 	}
 }

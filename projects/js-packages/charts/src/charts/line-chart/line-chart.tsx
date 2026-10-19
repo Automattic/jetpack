@@ -1,5 +1,6 @@
 import { formatNumberCompact } from '@automattic/number-formatters';
 import { LinearGradient } from '@visx/gradient';
+import { scaleCanBeZeroed } from '@visx/scale';
 import { XYChart, AreaSeries, Grid, Axis, DataContext } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
@@ -14,7 +15,7 @@ import {
 	useCallback,
 } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
-import { AccessibleTooltip, useKeyboardNavigation } from '../../components/tooltip';
+import { XYChartTooltip, useKeyboardNavigation } from '../../components/tooltip';
 import {
 	useXYChartTheme,
 	useChartDataTransform,
@@ -41,6 +42,7 @@ import { formatReading, isInvalidReading, isReading } from '../private/readings'
 import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
 import { getCurveType } from '../private/time-axis';
 import { buildTimeAxisOptions } from '../private/time-axis-options';
+import { hasOnlyWholeNumbers, WholeNumberTicks } from '../private/whole-number-ticks';
 import { withResponsive } from '../private/with-responsive';
 import { useXZoom, ZoomResetButton, ZoomSelectionRect, ZoomClip } from '../private/x-zoom';
 import plotStyles from '../private/xy-plot/xy-plot.module.scss';
@@ -64,7 +66,7 @@ import type { RenderTooltipParams } from '../../visx/types';
 import type { ResponsiveConfig } from '../private/with-responsive';
 import type { TickFormatter } from '@visx/axis';
 import type { GlyphProps } from '@visx/xychart';
-import type { CSSProperties, FC, Ref } from 'react';
+import type { FC, Ref } from 'react';
 
 const defaultRenderGlyph = < Datum extends object >( props: RenderLineGlyphProps< Datum > ) => {
 	return <DefaultGlyph { ...props } key={ props.key } />;
@@ -114,13 +116,11 @@ const TooltipDate: FC< { date?: Date; displayResolution: Exclude< TickResolution
  * one row per visible series (label + formatted value), sorted descending by
  * value. Reused by AreaChart, which has the same multi-series shape.
  *
- * @param params       - visx tooltip data and the chart's optional `bucketInfo`.
- * @param contentStyle - Explicit tooltip content color overrides.
+ * @param params - visx tooltip data and the chart's optional `bucketInfo`.
  * @return Tooltip JSX, or `null` when no datum is hovered.
  */
 export const renderDefaultTooltip = (
-	params: RenderTooltipParams< DataPointDate > & { bucketInfo?: BucketInfo },
-	contentStyle?: Pick< CSSProperties, 'color' | 'background' | 'backgroundColor' >
+	params: RenderTooltipParams< DataPointDate > & { bucketInfo?: BucketInfo }
 ) => {
 	const { tooltipData, bucketInfo } = params;
 	const nearestDatum = tooltipData?.nearestDatum?.datum;
@@ -139,11 +139,7 @@ export const renderDefaultTooltip = (
 		} );
 
 	return (
-		<div
-			className={ styles[ 'line-chart__tooltip' ] }
-			data-testid="line-chart-tooltip-content"
-			style={ contentStyle }
-		>
+		<div data-testid="line-chart-tooltip-content">
 			<div className={ styles[ 'line-chart__tooltip-date' ] }>
 				<TooltipDate
 					date={ nearestDatum.date }
@@ -151,13 +147,7 @@ export const renderDefaultTooltip = (
 				/>
 			</div>
 			{ tooltipPoints.map( point => (
-				<Stack
-					key={ point.key }
-					direction="row"
-					align="center"
-					justify="space-between"
-					className={ styles[ 'line-chart__tooltip-row' ] }
-				>
+				<Stack key={ point.key } direction="row" align="center" justify="space-between">
 					<span className={ styles[ 'line-chart__tooltip-label' ] }>{ point.key }:</span>
 					<span className={ styles[ 'line-chart__tooltip-value' ] }>
 						{ formatReading( point.value ) }
@@ -242,6 +232,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 	(
 		{
 			data,
+			ariaLabel,
 			chartId: providedChartId,
 			width,
 			height,
@@ -281,6 +272,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 		const legendInteractive = legend.interactive ?? false;
 		const legendCollapseGroups = legend.collapseGroups ?? false;
 		const legendComparisonItem = legend.comparisonItem ?? false;
+		const legendComparisonSeriesItems = legend.comparisonSeriesItems;
 		const legendShape = legend.shape ?? 'line';
 		const legendPosition = legend.position ?? 'bottom';
 
@@ -349,18 +341,23 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			return seriesWithVisibility.every( ( { isVisible } ) => ! isVisible );
 		}, [ seriesWithVisibility ] );
 
-		// When series visibility changes — via the interactive legend or programmatically —
-		// and rescaling is opted out, pin the value axis to the full data range so it stays
-		// put instead of visx rescaling the domain to whatever is currently visible and
-		// making the axis jump. Default is to rescale, matching the pre-existing behaviour
-		// and AreaChart's `rescaleYOnVisibilityChange`.
-		const stableYDomain = useMemo< [ number, number ] | undefined >( () => {
-			if ( rescaleYOnVisibilityChange ) {
+		// The value extent of the series visx will scale to. Pinning the axis
+		// (`rescaleYOnVisibilityChange: false`) measures hidden series too, so hiding
+		// one leaves the axis where it is.
+		const yDomain = useMemo< [ number, number ] | undefined >( () => {
+			// A log scale cannot hold zero; visx ignores the flag there, and so does this.
+			const includeZero =
+				options?.yScale?.zero === true &&
+				scaleCanBeZeroed( { type: options.yScale.type ?? 'linear' } );
+			if ( rescaleYOnVisibilityChange && ! includeZero ) {
 				return undefined;
 			}
 			let min = Infinity;
 			let max = -Infinity;
 			for ( const series of dataSorted ) {
+				if ( rescaleYOnVisibilityChange && ! isSeriesVisible( series.label ) ) {
+					continue;
+				}
 				for ( const point of series.data ?? [] ) {
 					const value = point?.value;
 					if ( isReading( value ) ) {
@@ -369,8 +366,17 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 					}
 				}
 			}
+			// Zero goes into the domain rather than through the scale's `zero` flag: visx
+			// applies `nice` before `zero`, which leaves the top of a zeroed axis unrounded.
+			if ( includeZero ) {
+				if ( min === Infinity ) {
+					return undefined;
+				}
+				// A series that is all zeros has no span, and d3 draws a spanless domain at mid-height.
+				return max === 0 && min === 0 ? [ 0, 1 ] : [ Math.min( 0, min ), Math.max( 0, max ) ];
+			}
 			return min < max ? [ min, max ] : undefined;
-		}, [ rescaleYOnVisibilityChange, dataSorted ] );
+		}, [ rescaleYOnVisibilityChange, dataSorted, isSeriesVisible, options?.yScale ] );
 
 		// Keyboard navigation steps through x positions, and the grouped tooltip
 		// reads every series at that position; the first series names the point.
@@ -417,6 +423,11 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			return min <= max ? [ min, max ] : undefined;
 		}, [ dataSorted, isSeriesVisible ] );
 
+		const hasWholeNumberValues = useMemo(
+			() => hasOnlyWholeNumbers( dataSorted.filter( series => isSeriesVisible( series.label ) ) ),
+			[ dataSorted, isSeriesVisible ]
+		);
+
 		const chartOptions = useMemo( () => {
 			const fallbackYDomain = getFallbackYDomain(
 				visibleReadingExtent,
@@ -453,7 +464,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 					nice: true,
 					zero: false,
 					...( fallbackYDomain ? { domain: fallbackYDomain } : {} ),
-					...( stableYDomain ? { domain: stableYDomain } : {} ),
+					...( yDomain ? { domain: yDomain } : {} ),
 					...options?.yScale,
 				},
 			};
@@ -462,7 +473,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			dataSorted,
 			width,
 			zoom.domain,
-			stableYDomain,
+			yDomain,
 			visibleReadingExtent,
 			formatting,
 			isSeriesVisible,
@@ -513,6 +524,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 				glyphSize: Math.max( 0, toNumber( glyphStyle?.radius ) ?? 4 ),
 				collapseGroups: legendCollapseGroups,
 				comparisonItem: legendComparisonItem,
+				comparisonSeriesItems: legendComparisonSeriesItems,
 				renderGlyph,
 			} ),
 			[
@@ -520,6 +532,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 				glyphStyle?.radius,
 				legendCollapseGroups,
 				legendComparisonItem,
+				legendComparisonSeriesItems,
 				renderGlyph,
 			]
 		);
@@ -556,32 +569,12 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			yAccessor: ( d: DataPointDate ) => d?.value,
 		};
 
-		const resolvedTooltipStyle = useMemo( () => {
-			if ( renderTooltip !== renderDefaultTooltip || ! tooltipStyle ) return tooltipStyle;
-			if ( ! tooltipStyle.color || tooltipStyle.background || tooltipStyle.backgroundColor ) {
-				return tooltipStyle;
-			}
-			return {
-				backgroundColor: 'var(--a8c-charts-color-tooltip-surface, rgb(0 0 0 / 85%))',
-				...tooltipStyle,
-			};
-		}, [ renderTooltip, tooltipStyle ] );
-
 		// Augments every renderTooltip call with the chart's bucket classification,
 		// default or custom, so a heading keyed on it can't disagree with the axis.
 		const tooltipRenderer = useMemo(
 			() => ( params: RenderTooltipParams< DataPointDate > ) =>
-				renderTooltip === renderDefaultTooltip
-					? renderDefaultTooltip(
-							{ ...params, bucketInfo },
-							{
-								color: tooltipStyle?.color,
-								background: tooltipStyle?.background,
-								backgroundColor: tooltipStyle?.backgroundColor,
-							}
-						)
-					: renderTooltip( { ...params, bucketInfo } ),
-			[ renderTooltip, bucketInfo, tooltipStyle ]
+				renderTooltip( { ...params, bucketInfo } ),
+			[ renderTooltip, bucketInfo ]
 		);
 
 		if ( error ) {
@@ -635,10 +628,11 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 						const chartHeight = contentHeight > 0 ? contentHeight : height;
 
 						return (
+							// eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- the application role hands arrow keys to the chart's point navigation.
 							<div
 								ref={ chartRef }
-								role="grid"
-								aria-label={ __( 'Line chart', 'jetpack-charts' ) }
+								role="application"
+								aria-label={ ariaLabel ?? __( 'Line chart', 'jetpack-charts' ) }
 								tabIndex={ 0 }
 								onKeyDown={ onChartKeyDown }
 								onFocus={ onChartFocus }
@@ -648,6 +642,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 									<div className={ plotStyles[ 'xy-plot' ] }>
 										{ zoomable && zoom.domain && <ZoomResetButton onClick={ zoom.reset } /> }
 										<XYChart
+											accessibilityLabel=""
 											theme={ theme }
 											width={ width }
 											height={ chartHeight }
@@ -664,15 +659,36 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 											{ /* With every series hidden there is no data to scale against, so the grid and
 											     axes are dropped while the empty state stands in — otherwise they render
 											     squished at the top. */ }
-											{ ! allSeriesHidden && gridVisibility !== 'none' && (
-												<Grid columns={ false } numTicks={ 4 } />
-											) }
-											{ ! allSeriesHidden && chartOptions.axis.x.display && (
-												<Axis { ...chartOptions.axis.x } />
-											) }
-											{ ! allSeriesHidden && chartOptions.axis.y.display && (
-												<Axis { ...chartOptions.axis.y } />
-											) }
+											<WholeNumberTicks
+												axis="y"
+												numTicks={ chartOptions.axis.y.numTicks }
+												enabled={
+													hasWholeNumberValues &&
+													! chartOptions.axis.y.tickValues &&
+													! options?.yScale?.domain
+												}
+											>
+												{ tickValues => (
+													<>
+														{ ! allSeriesHidden && gridVisibility !== 'none' && (
+															<Grid
+																columns={ false }
+																numTicks={ chartOptions.axis.y.numTicks }
+																{ ...{ tickValues: tickValues ?? chartOptions.axis.y.tickValues } }
+															/>
+														) }
+														{ ! allSeriesHidden && chartOptions.axis.x.display && (
+															<Axis { ...chartOptions.axis.x } />
+														) }
+														{ ! allSeriesHidden && chartOptions.axis.y.display && (
+															<Axis
+																{ ...chartOptions.axis.y }
+																{ ...( tickValues ? { tickValues } : {} ) }
+															/>
+														) }
+													</>
+												) }
+											</WholeNumberTicks>
 
 											{ allSeriesHidden ? (
 												<SvgEmptyState
@@ -774,11 +790,11 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 											</ZoomClip>
 
 											{ withTooltips && (
-												<AccessibleTooltip
+												<XYChartTooltip
 													detectBounds
 													snapTooltipToDatumX
 													tooltipPlacement={ tooltipPlacement }
-													style={ resolvedTooltipStyle }
+													style={ tooltipStyle }
 													snapTooltipToDatumY
 													showSeriesGlyphs
 													renderTooltip={ tooltipRenderer }

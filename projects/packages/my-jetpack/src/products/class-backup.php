@@ -49,6 +49,13 @@ class Backup extends Hybrid_Product {
 	public static $plugin_slug = 'jetpack-backup';
 
 	/**
+	 * The Jetpack module name
+	 *
+	 * @var string
+	 */
+	public static $module_name = 'backup';
+
+	/**
 	 * The category of the product
 	 *
 	 * @var string
@@ -424,6 +431,17 @@ class Backup extends Hybrid_Product {
 	}
 
 	/**
+	 * Checks whether the backup module is active.
+	 *
+	 * The standalone plugin draws its dashboard whatever the module says, so it counts as on.
+	 *
+	 * @return bool
+	 */
+	public static function is_module_active() {
+		return static::is_standalone_plugin_active() || parent::is_module_active();
+	}
+
+	/**
 	 * Get the URL where the user manages the product
 	 *
 	 * @return ?string
@@ -434,6 +452,11 @@ class Backup extends Hybrid_Product {
 			return admin_url( 'admin.php?page=jetpack-backup' );
 			// otherwise, check for the main Jetpack plugin
 		} elseif ( static::is_jetpack_plugin_active() ) {
+			// The Jetpack plugin hosts the dashboard wherever it initialized the package.
+			if ( did_action( 'jetpack_backup_initialized' ) ) {
+				return admin_url( 'admin.php?page=jetpack-backup' );
+			}
+
 			return Redirect::get_url( 'my-jetpack-manage-backup' );
 		}
 	}

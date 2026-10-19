@@ -5,6 +5,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.0] - 2026-10-19
+### Added
+- Dashboard: Record Tracks events for screen views, settings changes, the SEO tools switch and the GEO tab's llms.txt and AI crawler controls, on sites that allow tracking. [#50586]
+- Settings: Show a working Canonical URLs switch on WordPress.com Simple sites that adds canonical tags to archive pages. [#53569]
+
+### Changed
+- Update package dependencies. [#53004]
+- Update package dependencies. [#53806]
+
+### Fixed
+- Dashboard: Line up the Enable SEO tools card on the Settings, Content, and GEO tabs with the Overview tab. [#53623]
+- Fix saving SEO settings, clearing front-page descriptions, and switching sitemaps off on private sites. Preserve unsaved title structure edits when saving another row. Explain when sitemap generation is managed by the hosting platform. Hide unsupported canonical URL controls. [#51318]
+- Keep disabled GEO settings off after reloading. Detect static robots.txt and llms.txt files on supported managed hosting. Hide the Site visibility progress badge on private sites. [#51318]
+
+## [0.9.10] - 2026-10-12
+### Changed
+- Internal updates.
+
+## [0.9.9] - 2026-10-12
+### Changed
+- Update dependencies.
+
+## [0.9.8] - 2026-10-05
+### Changed
+- Update dependencies. [#52349]
+
+## [0.9.7] - 2026-09-29
+### Changed
+- Use core snackbar notice placement instead of overriding boot styles. [#52193]
+
+## [0.9.6] - 2026-09-28
+### Changed
+- Use the shared wp-build-polyfills helper to order the screen-ID alias around wp-build's generated enqueue check. [#52583]
+
+### Fixed
+- Footer: Hide the "Products" and "Help" links when My Jetpack is unavailable. [#52557]
+- Respect excerpt filters in generated `llms.txt` summaries. [#52414]
+- Settings: Fix Sitemap and Canonical URLs status to reflect the active modules. [#52516]
+
 ## [0.9.5] - 2026-09-21
 ### Changed
 - Exclude source map files from the distributed package. [#52304]
@@ -192,6 +231,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Create a Settings screen with site visibility, post title structure, front-page description, and site verification. [#49256]
 - Scaffold the new `jetpack-seo` package and mount its admin page. [#49203]
 
+[0.10.0]: https://github.com/Automattic/jetpack-seo/compare/0.9.10...0.10.0
+[0.9.10]: https://github.com/Automattic/jetpack-seo/compare/0.9.9...0.9.10
+[0.9.9]: https://github.com/Automattic/jetpack-seo/compare/0.9.8...0.9.9
+[0.9.8]: https://github.com/Automattic/jetpack-seo/compare/0.9.7...0.9.8
+[0.9.7]: https://github.com/Automattic/jetpack-seo/compare/0.9.6...0.9.7
+[0.9.6]: https://github.com/Automattic/jetpack-seo/compare/0.9.5...0.9.6
 [0.9.5]: https://github.com/Automattic/jetpack-seo/compare/0.9.4...0.9.5
 [0.9.4]: https://github.com/Automattic/jetpack-seo/compare/0.9.3...0.9.4
 [0.9.3]: https://github.com/Automattic/jetpack-seo/compare/0.9.2...0.9.3

@@ -230,6 +230,8 @@ Pair several metrics side by side, each with its own comparison overlay. With `l
 
 <Canvas of={ LineChartStories.ComparisonMulti } />
 
+To name each metric's comparison instead, pass `legend.comparisonSeriesItems` a function. Every comparison series then gets its own static item, labeled by calling the function with its metric's label (for example `` label => `${ label } (Prev. period)` ``), and the item is left out while its metric is hidden.
+
 ### Theme Integration
 
 Comparison styling can be set in your theme configuration:
@@ -521,10 +523,6 @@ Set `tooltipPlacement="below-axis"` to place the panel below the bottom x-axis l
 	<LineChart
 		data={ data }
 		tooltipPlacement="below-axis"
-		tooltipStyle={ {
-			background: 'var(--a8c-charts-color-tooltip-surface)',
-			color: 'var(--a8c-charts-color-label-inverse)',
-		} }
 		withTooltipCrosshairs={ {
 			showVertical: true,
 			verticalStyle: { strokeWidth: 40, strokeOpacity: 0.12 },
@@ -532,9 +530,9 @@ Set `tooltipPlacement="below-axis"` to place the panel below the bottom x-axis l
 	/>` }
 />
 
-Set `tooltipStyle` to customize the tooltip. With the default renderer, each supplied color or background changes only that content property. A color-only override retains the content's default `--a8c-charts-color-surface`; a background-only override retains its `--a8c-charts-color-label`, independently of the container's axis-label color. When both are supplied, both values are used. The below-axis pointer inherits the background. Choose colors with sufficient contrast. Non-color properties such as `boxShadow` retain the existing color defaults. A custom `renderTooltip` keeps control of its own content styles.
+To recolor one chart's tooltip, repoint `--a8c-charts-color-surface` and `--a8c-charts-color-label` in `tooltipStyle`; to recolor every tooltip, set `--a8c-charts-color-tooltip-surface`. The default content paints nothing of its own, so it follows the box, and the below-axis pointer inherits the box background. Other `tooltipStyle` properties, such as `boxShadow`, apply to the box directly. Choose colors with sufficient contrast. A custom `renderTooltip` keeps control of its own content styles: content that sets its own text color or background draws it on the dark box, so let it inherit instead.
 
-The public `AccessibleTooltip` component's `style` prop also merges with the computed box styles instead of replacing them. Use its `unstyled` prop to strip the box styles.
+`XYChartTooltip` is the tooltip LineChart renders, exported for a custom visx `XYChart`. Its `style` prop overrides the tooltip surface. Use its `unstyled` prop to strip the box styles.
 
 Use `withTooltipCrosshairs.verticalStyle` to turn the vertical guide into a broad translucent highlight, as shown above. Both `verticalStyle` and `horizontalStyle` accept paint properties (`stroke`, `strokeWidth`, `strokeOpacity`, `strokeDasharray`, `strokeLinecap`, and `opacity`), `className`, and a `style` object limited to those paint properties; their corresponding `showVertical` or `showHorizontal` option enables the guide.
 
@@ -709,6 +707,26 @@ Customize axes with formatting, orientation, and tick options:
 	/>` }
 />
 
+When every visible value is a whole number, the value axis places ticks only on whole numbers, instead of repeating a rounded label at fractional steps. Pass `options.axis.y.tickValues` to choose the ticks yourself. A y domain you pin with `options.yScale.domain` keeps every tick, so a percentage axis on `[ 0, 1 ]` still steps by 20%.
+
+<Canvas of={ LineChartStories.SmallWholeNumberRange } />
+
+### Value Axis Baseline
+
+By default the value axis fits the data, which makes a small change look large. Pass `yScale: { zero: true }` to start the axis at zero; the axis top is then rounded from zero rather than from the data's floor, so the line does not run into the top edge. The axis still rescales when a series is hidden through the legend. A log scale cannot hold zero, so it ignores the option.
+
+<Canvas of={ LineChartStories.ZeroBaseline } />
+
+<Source
+	language="jsx"
+	code={ `<LineChart
+		data={data}
+		options={{
+			yScale: { zero: true }
+		}}
+	/>` }
+/>
+
 ### Custom Margins
 
 Control chart layout with precise margin settings:
@@ -737,7 +755,8 @@ Control chart layout with precise margin settings:
 
 ### Screen Reader Support
 
-- Chart container has `role="grid"` with descriptive `aria-label`
+- Chart container has `role="application"`, so screen readers pass arrow keys through to the chart's point navigation.
+- Set `ariaLabel` to name the chart. See [Accessible names](./?path=/docs/js-packages-charts-library-introduction--docs#accessible-names).
 - Data points are navigable and announced with values
 - Interactive elements have appropriate ARIA attributes
 - Interactive legend items announce their current visibility state ("visible" or "hidden")

@@ -40,7 +40,7 @@ const COUNT_VIEW: View = {
  * @return Free-tier state.
  */
 export function useFreeTier(): FreeTierState {
-	const { paginationInfo } = useLibrary( COUNT_VIEW );
+	const { paginationInfo } = useLibrary( COUNT_VIEW, { poll: false } );
 	const { uploadQueue } = useUpload();
 	const siteData =
 		typeof JPVIDEOPRESS_INITIAL_STATE !== 'undefined'

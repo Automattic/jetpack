@@ -1,7 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { FeatureAction } from '../feature-action';
+import { FeatureItem } from '../feature-item';
 import { FeatureModalActions } from '../feature-modal-actions';
+import { resolveFeatureState } from '../feature-state';
 import type { MyJetpackModule } from '../../../../types';
 import type { FeatureState } from '../feature-state';
 
@@ -9,12 +11,15 @@ const mockRun = jest.fn();
 
 // What a click has asked of the module, when a test wants it to differ from the store.
 let mockAskedFor: boolean | null = null;
+let mockBusy = false;
+let mockInstallError: string | null = null;
 
 jest.mock( '../use-main-features', () => ( {
 	useFeaturePlugin: ( plugin: string, name: string ) => ( {
 		run: ( action: string ) => mockRun( { plugin, name, action } ),
-		isBusy: false,
+		isBusy: mockBusy,
 	} ),
+	useInstallError: ( plugin: string ) => ( plugin ? mockInstallError : null ),
 } ) );
 
 jest.mock( '../../../module-toggle', () => ( {
@@ -42,14 +47,55 @@ const buildState = ( control: FeatureState[ 'control' ], overrides = {} ): Featu
 	( { feature: buildFeature(), status: 'inactive', control, ...overrides } ) as FeatureState;
 
 const $module = { module: 'stats', available: true, activated: true } as MyJetpackModule;
+const forcedModule = {
+	module: 'activity-log',
+	available: true,
+	activated: true,
+	override: 'active',
+} as MyJetpackModule;
 
 beforeEach( () => {
 	mockRun.mockClear();
 	mockAskedFor = null;
+	mockBusy = false;
+	mockInstallError = null;
 } );
 
 const countControls = () =>
 	screen.queryAllByRole( 'checkbox' ).length + screen.queryAllByRole( 'button' ).length;
+
+it.each( [
+	[ 'details window', FeatureModalActions ],
+	[ 'card', FeatureAction ],
+] as const )( 'only opens registered admin pages offline from the %s', ( _, Component ) => {
+	const previousInitial = window.myJetpackInitialState;
+	const previousData = window.JetpackScriptData;
+	const registeredPages: string[] = [];
+	window.myJetpackInitialState = { isOfflineFeatures: true } as typeof previousInitial;
+	window.JetpackScriptData = {
+		myJetpack: { offlineFeatures: { mainFeatures: { available_admin_pages: registeredPages } } },
+	} as unknown as typeof previousData;
+	try {
+		const state = buildState(
+			{ kind: 'install-plugin', plugin: 'jetpack-backup', runsWithoutPlugin: true },
+			{
+				status: 'active',
+				feature: buildFeature( { manage_url: '/wp-admin/admin.php?page=stats' } ),
+			}
+		);
+		const { rerender } = render( <Component state={ state } /> );
+		expect( screen.queryByRole( 'link', { name: 'Open' } ) ).not.toBeInTheDocument();
+		registeredPages.push( 'stats' );
+		rerender( <Component state={ state } /> );
+		expect( screen.getByRole( 'link', { name: 'Open' } ) ).toHaveAttribute(
+			'href',
+			state.feature.manage_url
+		);
+	} finally {
+		window.myJetpackInitialState = previousInitial;
+		window.JetpackScriptData = previousData;
+	}
+} );
 
 describe( 'FeatureAction', () => {
 	it( 'offers Install, and no switch, for a feature whose plugin is missing', () => {
@@ -70,6 +116,26 @@ describe( 'FeatureAction', () => {
 
 		expect( screen.getByRole( 'checkbox', { name: 'Deactivate Jetpack Boost' } ) ).toBeChecked();
 		expect( countControls() ).toBe( 1 );
+	} );
+
+	it( 'opens, instead of offering Install, a feature a plan runs without its plugin', () => {
+		render(
+			<FeatureAction
+				state={ buildState(
+					{ kind: 'install-plugin', plugin: 'jetpack-backup', runsWithoutPlugin: true },
+					{
+						status: 'active',
+						feature: buildFeature( { manage_url: 'https://example.com/backup' } ),
+					}
+				) }
+			/>
+		);
+
+		expect( screen.getByRole( 'link', { name: 'Open' } ) ).toHaveAttribute(
+			'href',
+			'https://example.com/backup'
+		);
+		expect( countControls() ).toBe( 0 );
 	} );
 
 	it( 'installs the named plugin when its Install button is pressed', async () => {
@@ -104,6 +170,44 @@ describe( 'FeatureAction', () => {
 		expect( mockRun ).toHaveBeenCalledWith( expect.objectContaining( { action: 'activate' } ) );
 	} );
 
+	it( 'says Installing… on a disabled button while the install runs', () => {
+		mockBusy = true;
+
+		render(
+			<FeatureAction state={ buildState( { kind: 'install-plugin', plugin: 'jetpack-boost' } ) } />
+		);
+
+		expect( screen.getByRole( 'button', { name: 'Installing…' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'offers no Install to a user who cannot install plugins', () => {
+		const { container } = render(
+			<FeatureAction
+				state={ buildState( {
+					kind: 'install-plugin',
+					plugin: 'jetpack-boost',
+					blocked: 'not_permitted',
+				} ) }
+			/>
+		);
+
+		expect( container ).toBeEmptyDOMElement();
+	} );
+
+	it( 'offers no Install Jetpack where plugin installs are turned off', () => {
+		const { container } = render(
+			<FeatureAction
+				state={ buildState( { kind: 'install-jetpack', installed: false, blocked: 'disabled' } ) }
+			/>
+		);
+
+		expect( container ).toBeEmptyDOMElement();
+	} );
+
 	it( 'offers to install Jetpack for a feature only Jetpack ships', () => {
 		render(
 			<FeatureAction state={ buildState( { kind: 'install-jetpack', installed: false } ) } />
@@ -127,6 +231,27 @@ describe( 'FeatureAction', () => {
 		expect( countControls() ).toBe( 0 );
 	} );
 
+	it( 'leaves the switch slot empty for a module a host forced on', () => {
+		const { container } = render(
+			<FeatureAction state={ buildState( { kind: 'module', module: forcedModule } ) } />
+		);
+
+		expect( container ).toBeEmptyDOMElement();
+	} );
+
+	it( 'leaves the switch slot empty for a plugin a host forced on', () => {
+		const { container } = render(
+			<FeatureAction
+				state={ buildState(
+					{ kind: 'plugin', plugin: 'jetpack-boost', override: 'active' },
+					{ status: 'active' }
+				) }
+			/>
+		);
+
+		expect( container ).toBeEmptyDOMElement();
+	} );
+
 	it( 'renders nothing when this site cannot switch the feature', () => {
 		const { container } = render( <FeatureAction state={ buildState( { kind: 'none' } ) } /> );
 
@@ -135,6 +260,36 @@ describe( 'FeatureAction', () => {
 } );
 
 describe( 'FeatureModalActions', () => {
+	it( 'offers Upgrade in the header beside the switch', () => {
+		render(
+			<FeatureModalActions
+				state={ buildState(
+					{ kind: 'module', module: { ...$module, activated: false } },
+					{ feature: buildFeature( { upgrade: { path: '/add-boost', name: 'Jetpack Boost' } } ) }
+				) }
+			/>
+		);
+
+		expect( screen.getByRole( 'link', { name: 'Upgrade to Jetpack Boost' } ) ).toHaveAttribute(
+			'href',
+			'#/add-boost?return_feature=boost'
+		);
+	} );
+
+	it( 'offers no Install to a user who cannot install plugins', () => {
+		render(
+			<FeatureModalActions
+				state={ buildState( {
+					kind: 'install-plugin',
+					plugin: 'jetpack-boost',
+					blocked: 'not_permitted',
+				} ) }
+			/>
+		);
+
+		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'offers Install alone for a feature whose plugin is missing', () => {
 		render(
 			<FeatureModalActions
@@ -144,6 +299,23 @@ describe( 'FeatureModalActions', () => {
 
 		expect( screen.getByRole( 'button', { name: 'Install' } ) ).toBeInTheDocument();
 		expect( countControls() ).toBe( 1 );
+	} );
+
+	it( 'keeps Install beside Open for a feature a plan runs without its plugin', () => {
+		render(
+			<FeatureModalActions
+				state={ buildState(
+					{ kind: 'install-plugin', plugin: 'jetpack-backup', runsWithoutPlugin: true },
+					{
+						status: 'active',
+						feature: buildFeature( { manage_url: 'https://example.com/backup' } ),
+					}
+				) }
+			/>
+		);
+
+		expect( screen.getByRole( 'link', { name: 'Open' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Install' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'offers Open beside the switch once the feature is running', () => {
@@ -177,5 +349,228 @@ describe( 'FeatureModalActions', () => {
 
 		expect( screen.queryByRole( 'link', { name: 'Open' } ) ).not.toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Deactivate Boost' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'offers Open and says why there is no switch, for a module a host forced on', () => {
+		render(
+			<FeatureModalActions
+				state={ buildState(
+					{ kind: 'module', module: forcedModule },
+					{
+						status: 'active',
+						feature: buildFeature( { manage_url: '/wp-admin/admin.php?page=stats' } ),
+					}
+				) }
+			/>
+		);
+
+		expect( screen.getByRole( 'link', { name: 'Open' } ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Enabled by your host or site administrator' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'shows the note instead of Deactivate for a plugin a host forced on', () => {
+		render(
+			<FeatureModalActions
+				state={ buildState(
+					{ kind: 'plugin', plugin: 'jetpack-boost', override: 'active' },
+					{ status: 'active' }
+				) }
+			/>
+		);
+
+		expect( screen.getByText( 'Enabled by your host or site administrator' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'offers no Activate for a plugin a host forced off', () => {
+		render(
+			<FeatureModalActions
+				state={ buildState( { kind: 'plugin', plugin: 'jetpack-boost', override: 'inactive' } ) }
+			/>
+		);
+
+		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'says why a module forced off cannot be switched, in place of the switch', () => {
+		const forcedOff = {
+			...forcedModule,
+			activated: false,
+			override: 'inactive',
+		} as MyJetpackModule;
+
+		render( <FeatureModalActions state={ buildState( { kind: 'module', module: forcedOff } ) } /> );
+
+		expect( screen.getByText( /by your host or site administrator/ ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'FeatureItem', () => {
+	it.each( [
+		[ 'active', 'Requires a connected WordPress.com account', 'Enabled', false ],
+		[ 'active', 'Unavailable in Offline mode', 'Enabled', false ],
+		[ 'active', 'Unavailable in Offline mode', 'Enabled', true ],
+		[ 'inactive', 'Unavailable in Offline mode', 'Disabled', false ],
+		[ 'inactive', 'Unavailable in Offline mode', 'Disabled', true ],
+	] as const )(
+		'shows the module limitation before the host line in details for override %s: %s (%s, gated: %s)',
+		( override, unavailable_reason, hostLabel, gated ) => {
+			let state = buildState(
+				{
+					kind: 'module',
+					module: { ...forcedModule, override, available: false, unavailable_reason },
+				},
+				{ status: 'active' }
+			);
+			if ( gated ) {
+				state = resolveFeatureState(
+					{ ...state.feature, product: 'jetpack-ai', module: '', plugin: '' },
+					'active',
+					undefined,
+					{ ai: { ...forcedModule, module: 'ai', override, available: false, unavailable_reason } },
+					{}
+				);
+			}
+			expect( state.control.kind ).toBe( gated ? 'none' : 'module' );
+			const { rerender } = render( <FeatureItem state={ state } onOpen={ jest.fn() } /> );
+			expect( screen.getByText( 'Unavailable' ) ).toBeVisible();
+			expect( screen.getByText( unavailable_reason ) ).toBeVisible();
+			expect( screen.queryByText( /by your host or site administrator/ ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+			rerender( <FeatureModalActions state={ state } /> );
+			const moduleReason = screen.getByText( unavailable_reason );
+			const hostReason = screen.getByText( `${ hostLabel } by your host or site administrator` );
+			expect( moduleReason ).toBeVisible();
+			expect( hostReason ).toBeVisible();
+			expect( moduleReason.compareDocumentPosition( hostReason ) ).toBe(
+				Node.DOCUMENT_POSITION_FOLLOWING
+			);
+			expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+		}
+	);
+
+	it.each( [
+		[ 'a switch', false, 'Manage Firewall in Protect' ],
+		[ 'nothing, for a module a host forced on,', 'active' as const, 'Configure Firewall' ],
+	] )( 'links to the Protect page in place of %s', ( _, override, linkName ) => {
+		const previousInitial = window.myJetpackInitialState;
+		window.myJetpackInitialState = {
+			protectPageModuleUrls: { waf: 'admin.php?page=jetpack-protect&p=firewall' },
+		} as unknown as typeof previousInitial;
+		const waf = {
+			module: 'waf',
+			available: true,
+			activated: true,
+			override,
+			configure_url: 'admin.php?page=jetpack-protect&p=firewall',
+		} as MyJetpackModule;
+
+		try {
+			render(
+				<FeatureItem
+					state={ buildState(
+						{ kind: 'module', module: waf },
+						{ status: 'active', feature: buildFeature( { slug: 'waf', name: 'Firewall' } ) }
+					) }
+				/>
+			);
+		} finally {
+			window.myJetpackInitialState = previousInitial;
+		}
+
+		expect( screen.getByRole( 'link', { name: linkName } ) ).toHaveAttribute(
+			'href',
+			'admin.php?page=jetpack-protect&p=firewall'
+		);
+		expect( screen.getAllByRole( 'link' ) ).toHaveLength( 1 );
+		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'shows only the status for a module a host forced on: no switch, no note', () => {
+		const state = buildState(
+			{ kind: 'module', module: forcedModule },
+			{
+				status: 'active',
+				feature: buildFeature( { slug: 'stats', name: 'Stats', description: 'See who visits.' } ),
+			}
+		);
+
+		render( <FeatureItem state={ state } onOpen={ jest.fn() } /> );
+
+		expect( screen.getByText( 'Active' ) ).toBeInTheDocument();
+		expect( screen.queryByText( /by your host or site administrator/ ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'shows only the status for a plugin a host forced off: no switch, no note', () => {
+		render(
+			<FeatureItem
+				state={ buildState( { kind: 'plugin', plugin: 'jetpack-boost', override: 'inactive' } ) }
+				onOpen={ jest.fn() }
+			/>
+		);
+
+		expect( screen.getByText( 'Inactive' ) ).toBeInTheDocument();
+		expect( screen.queryByText( /by your host or site administrator/ ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'FeatureItem install notice', () => {
+	const install = ( blocked?: 'disabled' | 'not_permitted' ) =>
+		buildState( { kind: 'install-plugin', plugin: 'jetpack-boost', blocked } );
+
+	it( 'tells a user who cannot install plugins who can', () => {
+		render( <FeatureItem state={ install( 'not_permitted' ) } onOpen={ jest.fn() } /> );
+
+		expect(
+			screen.getByText(
+				'Your account can’t install plugins. Ask a site administrator to install Jetpack Boost.'
+			)
+		).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Install' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'says the site has installs turned off, rather than blaming the user', () => {
+		render( <FeatureItem state={ install( 'disabled' ) } onOpen={ jest.fn() } /> );
+
+		expect( screen.getByText( /Plugin installs are turned off on this site/ ) ).toBeInTheDocument();
+	} );
+
+	it( 'keeps the last failed install on the card, beside Install to try again', () => {
+		mockInstallError = 'The plugin could not be downloaded from WordPress.org.';
+
+		render( <FeatureItem state={ install() } onOpen={ jest.fn() } /> );
+
+		expect( screen.getByRole( 'alert' ) ).toHaveTextContent(
+			'The plugin could not be downloaded from WordPress.org.'
+		);
+		expect( screen.getByRole( 'button', { name: 'Install' } ) ).toBeEnabled();
+	} );
+
+	it( 'says nothing about blocked installs for a feature the plan already runs', () => {
+		render(
+			<FeatureItem
+				state={ buildState( {
+					kind: 'install-plugin',
+					plugin: 'jetpack-boost',
+					runsWithoutPlugin: true,
+					blocked: 'disabled',
+				} ) }
+				onOpen={ jest.fn() }
+			/>
+		);
+
+		expect( screen.queryByText( /Plugin installs are turned off/ ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Install' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'says nothing for an install that has not been tried, or one with nothing in the way', () => {
+		render( <FeatureItem state={ install() } onOpen={ jest.fn() } /> );
+
+		expect( screen.queryByRole( 'alert' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /install plugins/ ) ).not.toBeInTheDocument();
 	} );
 } );

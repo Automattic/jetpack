@@ -316,22 +316,14 @@ function isMissingCatalog( message: string ): boolean {
 }
 
 /**
- * Fetch the bundle list from the build's i18n manifest.
+ * Fetch the bundle list from a build's i18n manifest.
  *
- * @param moduleUrl - `import.meta.url` of the calling init module. wp-build
- *                  emits init bundles at `build/modules/<pkg>/index(.min).js`,
- *                  so the manifest is two levels up at
- *                  `build/i18n-manifest.json`.
+ * @param manifestUrl - Absolute URL of the manifest.
  * @return Package-relative paths of the string-bearing bundles.
  */
-async function fetchManifest( moduleUrl: string ): Promise< string[] > {
-	const manifestUrl = new URL( '../../i18n-manifest.json', moduleUrl );
-	// The module's query is its own content hash, which doesn't change when
-	// only the manifest does — so it can't act as a cache-buster on its own.
-	// Carry it over for CDN-side variance, and use `no-cache` so the browser
-	// revalidates against the server instead of trusting a long-lived cache.
-	manifestUrl.search = new URL( moduleUrl ).search;
-
+async function fetchManifest( manifestUrl: URL ): Promise< string[] > {
+	// `no-cache` so the browser revalidates against the server instead of
+	// trusting a long-lived cache: the manifest changes with every build.
 	const res = await fetch( manifestUrl, { cache: 'no-cache' } );
 	if ( ! res.ok ) {
 		throw new Error( `HTTP request failed: ${ res.status } ${ res.statusText }` );
@@ -340,6 +332,103 @@ async function fetchManifest( moduleUrl: string ): Promise< string[] > {
 	return Array.isArray( data?.bundles )
 		? data.bundles.filter( ( b ): b is string => typeof b === 'string' )
 		: [];
+}
+
+/**
+ * The manifest of the build an init module belongs to.
+ *
+ * @param moduleUrl - `import.meta.url` of the calling init module. wp-build
+ *                  emits init bundles at `build/modules/<pkg>/index(.min).js`,
+ *                  so the manifest is two levels up at
+ *                  `build/i18n-manifest.json`.
+ * @return Absolute URL of the manifest.
+ */
+function ownManifestUrl( moduleUrl: string ): URL {
+	const manifestUrl = new URL( '../../i18n-manifest.json', moduleUrl );
+	// The module's query is its own content hash, which doesn't change when
+	// only the manifest does — so it can't act as a cache-buster on its own.
+	// Carry it over for CDN-side variance.
+	manifestUrl.search = new URL( moduleUrl ).search;
+	return manifestUrl;
+}
+
+/**
+ * The cached bundle set of a domain, fetching the manifest on the first call.
+ *
+ * Fetched at most once per domain per page: the manifest is a static build
+ * artifact, and a repeat call must not be able to replace a good bundle set
+ * with the empty one a failed refetch yields — every widget loading after that
+ * would quietly skip its catalog. Published before it resolves, so an
+ * on-demand request never races the fetch.
+ *
+ * @param state       - The shared catalog state.
+ * @param domain      - The text domain the manifest belongs to.
+ * @param manifestUrl - Absolute URL of the manifest, used on the first call only.
+ * @return The bundle set; empty when the manifest is missing or malformed.
+ */
+function cachedManifest(
+	state: SharedCatalogState,
+	domain: string,
+	manifestUrl: URL
+): Promise< Set< string > > {
+	let manifest = state.manifests.get( domain );
+	if ( ! manifest ) {
+		// A missing manifest (dev watch build) 404s — expected, kept silent.
+		// Anything else is surfaced.
+		manifest = fetchManifest( manifestUrl )
+			.catch( ( error: unknown ) => {
+				const message = errorMessage( error );
+				if ( ! isMissingCatalog( message ) ) {
+					warn( `Failed to load the i18n manifest for "${ domain }": ${ message }` );
+				}
+				return [] as string[];
+			} )
+			.then( bundles => new Set( bundles ) );
+		state.manifests.set( domain, manifest );
+	}
+	return manifest;
+}
+
+/**
+ * Register the i18n manifest of a build whose init module never runs on this
+ * page, from the manifest's URL.
+ *
+ * For bundles another plugin serves — its widget modules, registered on the
+ * dashboard from that plugin's own build. Caches the bundle set under the
+ * domain, as `loadI18nCatalogs()` does for the page's own build, so
+ * `loadBundleI18nCatalog()` can then load those bundles' catalogs on demand.
+ * Downloads nothing itself. A domain already registered keeps its bundle set,
+ * whatever URL a later call names.
+ *
+ * Resolves once the manifest is cached, or immediately when nothing can be
+ * loaded (default locale, loader missing); never rejects.
+ *
+ * @param domain      - The text domain the build's catalogs are registered under.
+ * @param manifestUrl - URL of the build's `i18n-manifest.json`, absolute or page-relative.
+ * @return Resolves once the manifest is cached, or at once when nothing can be loaded.
+ */
+export function loadI18nManifest( domain: string, manifestUrl: string ): Promise< void > {
+	const loader = ( window as typeof window & { wp?: { jpI18nLoader?: JpI18nLoader } } ).wp
+		?.jpI18nLoader;
+
+	// Boot already warned about a missing loader; stay quiet here.
+	if ( ! loader || typeof loader.downloadI18n !== 'function' ) {
+		return Promise.resolve();
+	}
+
+	if ( loader.state?.locale === 'en_US' ) {
+		return Promise.resolve();
+	}
+
+	let url: URL;
+	try {
+		url = new URL( manifestUrl, window.location?.href );
+	} catch {
+		warn( `Invalid i18n manifest URL for "${ domain }": ${ manifestUrl }` );
+		return Promise.resolve();
+	}
+
+	return cachedManifest( sharedState(), domain, url ).then( () => undefined );
 }
 
 /**
@@ -379,27 +468,7 @@ export async function loadI18nCatalogs(
 	const state = sharedState();
 
 	const load = async () => {
-		// Fetched at most once per domain per page: the manifest is a static
-		// build artifact, and a repeat call must not be able to replace a good
-		// bundle set with the empty one a failed refetch yields — every widget
-		// loading after that would quietly skip its catalog.
-		let manifest = state.manifests.get( domain );
-		if ( ! manifest ) {
-			// A missing manifest (dev watch build) 404s — expected, kept silent.
-			// Anything else is surfaced.
-			manifest = fetchManifest( moduleUrl )
-				.catch( ( error: unknown ) => {
-					const message = errorMessage( error );
-					if ( ! isMissingCatalog( message ) ) {
-						warn( `Failed to load the i18n manifest for "${ domain }": ${ message }` );
-					}
-					return [] as string[];
-				} )
-				.then( bundles => new Set( bundles ) );
-			// Published for `loadBundleI18nCatalog()` before it resolves, so an
-			// on-demand request never races the manifest fetch.
-			state.manifests.set( domain, manifest );
-		}
+		const manifest = cachedManifest( state, domain, ownManifestUrl( moduleUrl ) );
 
 		const blocking: Promise< void >[] = [];
 		for ( const path of await manifest ) {
@@ -447,10 +516,10 @@ export async function loadI18nCatalogs(
  * The complement of `loadI18nCatalogs()` for lazy-loaded bundles: call it as
  * part of dynamically importing the bundle (e.g. a dashboard widget's render
  * module), so a catalog is only ever requested for a bundle actually being
- * loaded. Requires `loadI18nCatalogs()` to have run for the domain — that call
- * caches the build's manifest; without it (dev watch build, default locale,
- * loader missing) this resolves immediately and the bundle falls back to
- * English. Bundles the manifest doesn't list carry no strings and are skipped
+ * loaded. Requires the domain's manifest to be cached, by `loadI18nCatalogs()`
+ * for the page's own build or by `loadI18nManifest()` for another plugin's;
+ * without it (dev watch build, default locale, loader missing) this resolves
+ * immediately and the bundle falls back to English. Bundles the manifest doesn't list carry no strings and are skipped
  * without a request. Repeat calls for the same bundle reuse the first
  * download.
  *
@@ -482,8 +551,8 @@ export async function loadBundleI18nCatalog(
 	const state = sharedState();
 	const manifest = state.manifests.get( domain );
 	if ( ! manifest ) {
-		// `loadI18nCatalogs()` never ran for this domain (dev watch build, or
-		// called out of order) — the expected English fallback.
+		// Nothing cached a manifest for this domain (dev watch build, or called
+		// out of order) — the expected English fallback.
 		return;
 	}
 

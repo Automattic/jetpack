@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add a filterable grid of the main Jetpack features to the Features tab, with activation toggles and a details modal, behind the my-jetpack-features-tab feature flag.

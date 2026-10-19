@@ -26,6 +26,8 @@ class Dashboard_Wp_Build_Test extends Search_TestCase {
 	public function tearDown(): void {
 		wp_dequeue_script( Dashboard::DATA_SCRIPT_HANDLE );
 		wp_deregister_script( Dashboard::DATA_SCRIPT_HANDLE );
+		remove_all_actions( 'admin_enqueue_scripts' );
+		unset( $GLOBALS['jetpack_search_test_wp_build_check_screen_id'], $GLOBALS['current_screen'] );
 
 		parent::tearDown();
 	}
@@ -45,6 +47,62 @@ class Dashboard_Wp_Build_Test extends Search_TestCase {
 				return 'Automattic\\Jetpack\\Search\\Fixtures\\wp_build_render_page';
 			}
 		};
+	}
+
+	/**
+	 * A Dashboard on the Search page whose build-index seam points at the stub, so
+	 * maybe_load_wp_build() runs without the package being built.
+	 *
+	 * @return Dashboard
+	 */
+	private function dashboard_on_the_search_page() {
+		return new class() extends Dashboard {
+			/**
+			 * @return string
+			 */
+			protected function wp_build_index() {
+				return __DIR__ . '/fixtures/wp-build-index.php';
+			}
+
+			/**
+			 * @return bool
+			 */
+			protected function is_search_admin_request() {
+				return true;
+			}
+		};
+	}
+
+	/**
+	 * The generated enqueue check must see the aliased ID, and nothing hooked either
+	 * side of it may. Fails if a hook is dropped or the two are hooked out of order.
+	 */
+	public function test_maybe_load_wp_build_aliases_the_screen_only_for_the_generated_check() {
+		set_current_screen( 'jetpack_page_jetpack-search' );
+
+		$id_before = null;
+		add_action(
+			'admin_enqueue_scripts',
+			static function () use ( &$id_before ) {
+				$id_before = get_current_screen()->id;
+			}
+		);
+
+		$this->dashboard_on_the_search_page()->maybe_load_wp_build();
+
+		$id_after = null;
+		add_action(
+			'admin_enqueue_scripts',
+			static function () use ( &$id_after ) {
+				$id_after = get_current_screen()->id;
+			}
+		);
+
+		do_action( 'admin_enqueue_scripts', 'jetpack_page_jetpack-search' );
+
+		$this->assertSame( Dashboard::WP_BUILD_PAGE_ID, $GLOBALS['jetpack_search_test_wp_build_check_screen_id'] );
+		$this->assertSame( 'jetpack_page_jetpack-search', $id_before );
+		$this->assertSame( 'jetpack_page_jetpack-search', $id_after );
 	}
 
 	public function test_render_calls_the_generated_function_when_the_build_is_present() {

@@ -7,7 +7,6 @@ import { formatNumber } from '@automattic/number-formatters';
  * WordPress dependencies
  */
 import { useEvent, useViewportMatch } from '@wordpress/compose';
-import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
@@ -25,6 +24,7 @@ import IntegrationsModal from '../../src/blocks/contact-form/components/jetpack-
 import EmptyResponses from '../../src/dashboard/components/empty-responses';
 import TextWithFlag from '../../src/dashboard/components/text-with-flag/index.tsx';
 import { RESPONSES_PER_PAGE, getResponseStatusFilter } from '../../src/dashboard/constants.ts';
+import useFormRecord from '../../src/dashboard/hooks/use-form-record.ts';
 import useInboxData from '../../src/dashboard/hooks/use-inbox-data.ts';
 import useResponseFieldColumns from '../../src/dashboard/hooks/use-response-field-columns.ts';
 import { writeColumnPreference } from '../../src/dashboard/response-column-preferences.ts';
@@ -128,7 +128,7 @@ function styleUnreadValue( element: React.ReactNode, isUnread: boolean ): React.
 	}
 
 	// If element is already a React element, clone it and add the fontWeight style
-	if ( React.isValidElement( element ) ) {
+	if ( React.isValidElement< { style?: React.CSSProperties } >( element ) ) {
 		return React.cloneElement( element, {
 			style: { ...( element.props.style || {} ), fontWeight: 600 },
 		} as React.HTMLAttributes< HTMLElement > );
@@ -762,21 +762,8 @@ function StageInner() {
 
 	// On a single-form view, surface a persistent warning when the form isn't
 	// collecting its responses anywhere (email + saving off, no integration).
-	const isFormNotCollecting = useSelect(
-		select => {
-			if ( ! isSingleFormView ) {
-				return false;
-			}
-			const form = select( coreStore ).getEntityRecord(
-				'postType',
-				'jetpack_form',
-				sourceIdNumber,
-				{ context: 'edit' }
-			) as { is_collecting_responses?: boolean } | undefined;
-			return form ? form.is_collecting_responses === false : false;
-		},
-		[ isSingleFormView, sourceIdNumber ]
-	);
+	const singleForm = useFormRecord( isSingleFormView ? sourceIdNumber : null );
+	const isFormNotCollecting = singleForm?.is_collecting_responses === false;
 
 	// Link to the form editor, where the author can set up a response destination.
 	const formEditUrl = useMemo(

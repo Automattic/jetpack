@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { toPostId } from '@jetpack-premium-analytics/data';
-import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	CALENDAR_HEATMAP_CELL_GAP,
 	CALENDAR_HEATMAP_HEADER_HEIGHT,
@@ -13,6 +12,7 @@ import {
 	WidgetRoot,
 	WidgetState,
 	fitWeekColumns,
+	formatChartName,
 	formatViewCount,
 	toDay,
 	useCalendarHeatmapData,
@@ -170,7 +170,6 @@ function PostTrafficActivityInner() {
 					// A post with no traffic renders the all-blank grid (the sparse
 					// treatment), so the empty state only covers the missing scope.
 					empty={ {
-						icon: reports,
 						description: __(
 							'Open a post or page report to see its traffic activity here.',
 							'jetpack-premium-analytics-pkg'
@@ -191,9 +190,11 @@ function PostTrafficActivityInner() {
 								<HeatmapChartUnresponsive
 									data={ heatmapData }
 									rowLabels={ rowLabels }
+									ariaLabel={ formatChartName(
+										__( 'Traffic activity', 'jetpack-premium-analytics-pkg' )
+									) }
 									primaryColor="var(--wp-admin-theme-color, #3858e9)"
 									withTooltips
-									tooltipVariant="dark"
 									// The page span is already sized to the card, so width tracks
 									// never need to shrink below the design's 64px.
 									maxCellWidth={ 64 }

@@ -188,6 +188,40 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$this->assertFalse( get_transient( $this->cache_key( $request ) ) );
 	}
 
+	/**
+	 * @dataProvider data_read_statuses
+	 *
+	 * @param int   $status The WPCOM response status.
+	 * @param array $body   The WPCOM response body.
+	 * @param bool  $cached Whether the proxy should store it.
+	 */
+	#[DataProvider( 'data_read_statuses' )]
+	public function test_only_a_200_read_is_cached( int $status, array $body, bool $cached ) {
+		$request  = $this->build_request( 'reports/totals' );
+		$response = $this->cache_and_build_response(
+			array(
+				'response' => array( 'code' => $status ),
+				'body'     => wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
+				'headers'  => array(),
+			),
+			$this->cache_key( $request )
+		);
+
+		$this->assertSame( $status, $response->get_status() );
+		$this->assertSame( $cached, false !== get_transient( $this->cache_key( $request ) ) );
+	}
+
+	/**
+	 * @return array<string, array{0: int, 1: array, 2: bool}>
+	 */
+	public static function data_read_statuses(): array {
+		return array(
+			'200 is cached'     => array( 200, array( 'views' => 10 ), true ),
+			'403 is not cached' => array( 403, array( 'error' => 'some_error' ), false ),
+			'500 is not cached' => array( 500, array( 'error' => 'some_error' ), false ),
+		);
+	}
+
 	public function test_response_with_null_cache_key_is_not_cached() {
 		$response = $this->cache_and_build_response(
 			array(
@@ -1029,6 +1063,165 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		);
 	}
 
+	public function test_referrer_spam_write_makes_every_cached_referrers_read_stale() {
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		\Jetpack_Options::update_option( 'id', 4242 );
+		\Jetpack_Options::update_option( 'blog_token', 'blog_token.secret' );
+		( new Connection_Manager() )->reset_connection_status();
+
+		$calls = array();
+		add_filter(
+			'pre_http_request',
+			function ( $pre, $args, $url ) use ( &$calls ) {
+				wp_parse_str( (string) wp_parse_url( $url, PHP_URL_QUERY ), $query );
+				$calls[] = wp_parse_url( $url, PHP_URL_PATH ) . ( isset( $query['period'] ) ? '?period=' . $query['period'] : '' );
+
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => '{"success":true}',
+					'headers'  => array(),
+				);
+			},
+			10,
+			3
+		);
+
+		$read = function ( string $endpoint, array $params = array() ) {
+			$this->controller->handle_data_request( $this->build_data_request( 'GET', $endpoint, $params, '1.1' ) );
+		};
+
+		try {
+			$read( 'stats/referrers', array( 'period' => 'day' ) );
+			$read( 'stats/referrers', array( 'period' => 'week' ) );
+			$read( 'stats/top-posts' );
+			$read( 'stats/referrers/spam' );
+			$read( 'stats/referrers', array( 'period' => 'day' ) );
+			$this->assertCount( 4, $calls, 'a repeated read is served from the cache' );
+
+			$write = $this->build_data_request( 'POST', 'stats/referrers/spam/new', array( 'domain' => 'spam.example' ), '1.1' );
+			$write->set_body( '' );
+			$this->assertSame( 200, $this->controller->handle_data_request( $write )->get_status(), 'a bodiless write is signed without a body hash' );
+			$calls = array();
+
+			$read( 'stats/referrers', array( 'period' => 'day' ) );
+			$read( 'stats/referrers', array( 'period' => 'week' ) );
+			$read( 'stats/top-posts' );
+			$read( 'stats/referrers/spam' );
+		} finally {
+			remove_all_filters( 'pre_http_request' );
+			\Jetpack_Options::delete_option( 'blog_token' );
+			\Jetpack_Options::delete_option( 'id' );
+			( new Connection_Manager() )->reset_connection_status();
+			Constants::clear_single_constant( 'JETPACK__WPCOM_JSON_API_BASE' );
+		}
+
+		$this->assertSame(
+			array(
+				'/rest/v1.1/sites/4242/stats/referrers?period=day',
+				'/rest/v1.1/sites/4242/stats/referrers?period=week',
+				'/rest/v1.1/sites/4242/stats/referrers/spam',
+			),
+			$calls,
+			'every referrers read refetches, while an unrelated stats read stays cached'
+		);
+	}
+
+	/**
+	 * @dataProvider data_cached_reads
+	 *
+	 * @param string $endpoint The endpoint read.
+	 * @param string $version  The WPCOM API version.
+	 */
+	#[DataProvider( 'data_cached_reads' )]
+	public function test_invalidate_cache_makes_every_cached_read_stale( string $endpoint, string $version ) {
+		$request = $this->build_data_request( 'GET', $endpoint, array(), $version );
+		set_transient(
+			$this->read_cache_key( $endpoint, $version ),
+			array(
+				'data'    => 'stale',
+				'status'  => 200,
+				'headers' => array(),
+			),
+			MINUTE_IN_SECONDS
+		);
+		$this->assertSame( 200, $this->controller->handle_data_request( $request )->get_status(), 'served from the cache' );
+
+		Api_Proxy_Controller::invalidate_cache();
+
+		$this->assertSame( 'no_connection', $this->controller->handle_data_request( $request )->get_error_code(), 'the cached reply is skipped' );
+	}
+
+	/**
+	 * @return array<string, array{0: string, 1: string}>
+	 */
+	public static function data_cached_reads(): array {
+		return array(
+			'unscoped read' => array( 'analytics/reports/totals', '2' ),
+			'scoped read'   => array( 'stats/referrers', '1.1' ),
+		);
+	}
+
+	public function test_dashboard_write_still_busts_its_read_after_an_invalidation() {
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		\Jetpack_Options::update_option( 'id', 4242 );
+		\Jetpack_Options::update_option( 'blog_token', 'blog_token.secret' );
+		( new Connection_Manager() )->reset_connection_status();
+
+		$reads = 0;
+		add_filter(
+			'pre_http_request',
+			function ( $pre, $args ) use ( &$reads ) {
+				if ( 'GET' === $args['method'] ) {
+					++$reads;
+				}
+
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => '{"success":true}',
+					'headers'  => array(),
+				);
+			},
+			10,
+			2
+		);
+
+		$read = function () {
+			$this->controller->handle_data_request( $this->build_data_request( 'GET', 'jetpack-stats-dashboard/modules' ) );
+		};
+
+		try {
+			Api_Proxy_Controller::invalidate_cache();
+			$read();
+			$write = $this->build_data_request( 'POST', 'jetpack-stats-dashboard/modules' );
+			$write->set_body( '{}' );
+			$this->controller->handle_data_request( $write );
+			$read();
+		} finally {
+			remove_all_filters( 'pre_http_request' );
+			\Jetpack_Options::delete_option( 'blog_token' );
+			\Jetpack_Options::delete_option( 'id' );
+			( new Connection_Manager() )->reset_connection_status();
+			Constants::clear_single_constant( 'JETPACK__WPCOM_JSON_API_BASE' );
+		}
+
+		$this->assertSame( 2, $reads, 'the write clears the read cached under the new generation' );
+	}
+
+	public function test_cache_keys_gain_the_all_scopes_generation_only_once_invalidated() {
+		$generation = function ( ?string $scope ) {
+			// @phan-suppress-next-line PhanUndeclaredMethod -- rebound to the controller via Closure::call() below.
+			return $this->cache_generation( $scope );
+		};
+
+		$this->assertSame( '', $generation->call( $this->controller, null ) );
+		$this->assertSame( 'stats/referrers:0', $generation->call( $this->controller, 'stats/referrers' ) );
+
+		Api_Proxy_Controller::invalidate_cache();
+
+		$this->assertSame( '*:1', $generation->call( $this->controller, null ) );
+		$this->assertSame( '*:1|stats/referrers:0', $generation->call( $this->controller, 'stats/referrers' ) );
+	}
+
 	public function test_bust_is_scoped_to_the_written_path_and_version() {
 		// An unrelated path, and the same path at a different version, must survive a bust.
 		$other_path    = $this->read_cache_key( 'stats/top-posts', '1.1' );
@@ -1072,8 +1265,8 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The param-less read cache key for an endpoint at a given version (what a no-param GET caches
-	 * under, and what a successful write to it busts).
+	 * The param-less read cache key for an endpoint at a given version, under its `invalidates` scope if
+	 * any (what a no-param GET caches under, and what a successful write to it busts).
 	 *
 	 * @param string $endpoint The endpoint.
 	 * @param string $version  The WPCOM API version.
@@ -1083,7 +1276,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	private function read_cache_key( string $endpoint, string $version ): string {
 		$accessor = function ( string $e, string $v ) {
 			// @phan-suppress-next-line PhanUndeclaredMethod -- rebound to the controller via Closure::call().
-			return $this->cache_key_for( $this->build_data_path( $e ), $v, '2' === $v ? 'wpcom' : 'rest', array() );
+			return $this->cache_key_for( $this->build_data_path( $e ), $v, '2' === $v ? 'wpcom' : 'rest', array(), $this->cache_scope_for( $e ) );
 		};
 
 		return $accessor->call( $this->controller, $endpoint, $version );

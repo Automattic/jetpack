@@ -3,7 +3,8 @@ import { store as coreStore } from '@wordpress/core-data';
 import { createRegistrySelector, createSelector } from '@wordpress/data';
 import { REQUEST_TYPE_DEFAULT } from '../actions/constants';
 import { EMPTY_ARRAY } from '../constants';
-import type { Connection, ConnectionData, SocialStoreState } from '../types';
+import { getService } from './services';
+import type { Connection, ConnectionData, KeyringResult, SocialStoreState } from '../types';
 
 /**
  * Returns the connections list from the store.
@@ -147,6 +148,32 @@ export function getUpdatingConnections(
  */
 export function getReconnectingAccount( state: SocialStoreState ) {
 	return state.connectionData?.reconnectingAccount;
+}
+
+/**
+ * Whether the account being reconnected needs its Page or account picked again. A connection
+ * with none saved falls back to the owner's own account, which re-authing alone can't repair.
+ *
+ * @param state         - State object.
+ * @param keyringResult - The keyring result from the completed connect request.
+ * @return Whether the owner needs to select the account to share to.
+ */
+export function reconnectNeedsAccountSelection(
+	state: SocialStoreState,
+	keyringResult?: KeyringResult
+) {
+	const reconnectingAccount = getReconnectingAccount( state );
+
+	if ( ! reconnectingAccount || ! keyringResult?.ID ) {
+		return false;
+	}
+
+	const service = getService( state, reconnectingAccount.service_name );
+
+	return (
+		Boolean( service?.supports.additional_users_only ) &&
+		reconnectingAccount.external_id === String( keyringResult.external_ID )
+	);
 }
 
 /**

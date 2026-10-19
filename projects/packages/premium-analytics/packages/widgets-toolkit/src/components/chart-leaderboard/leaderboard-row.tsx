@@ -1,15 +1,20 @@
 /**
  * External dependencies
  */
-import { Link } from '@jetpack-premium-analytics/externals';
+import clsx from 'clsx';
 /**
  * Internal dependencies
  */
+import { ExternalLink } from '../external-link';
+import { InternalLink, type InternalLinkProps } from '../internal-link';
 import { PostTitleLink } from '../post-title-link';
 import { VideoTitleLink } from '../video-title-link';
 import { LeaderboardLabel, type LeaderboardRowMedia } from './leaderboard-label';
 import styles from './leaderboard-label.module.scss';
+import type { LeaderboardVariant } from './leaderboard-variant';
 import type { MouseEvent, ReactElement } from 'react';
+
+type LeaderboardRowLabelLink = Pick< InternalLinkProps, 'to' | 'params' | 'search' >;
 
 export type LeaderboardRowAction =
 	| { kind: 'link'; href: string }
@@ -43,12 +48,21 @@ export type LeaderboardRowAction =
 			kind: 'drillDown';
 			onClick: ( event: MouseEvent< HTMLButtonElement > ) => void;
 			/**
+			 * A dashboard page the label itself opens, while the rest of the row
+			 * still drills down.
+			 */
+			link?: LeaderboardRowLabelLink;
+			/**
 			 * Replaces the button name computed from its image alt and visible label.
 			 * Without this, screen readers can announce the row label twice.
 			 */
 			ariaLabel: string;
 	  }
-	| { kind: 'static' };
+	| {
+			kind: 'static';
+			/** A dashboard page the label opens. */
+			link?: LeaderboardRowLabelLink;
+	  };
 
 export type LeaderboardRowActionOptions = {
 	/** An external destination used only when the row has no children. */
@@ -66,14 +80,19 @@ export type LeaderboardRowProps = {
 	media: LeaderboardRowMedia;
 	/** The mutually exclusive action applied to this chart row. */
 	action: LeaderboardRowAction;
+	/** The look of the chart the row sits in. Only `list` insets the label and sizes the bar. */
+	variant?: LeaderboardVariant;
+};
+
+type LeaderboardRowButtonProps = {
+	label: ReactElement;
+	onClick: ( event: MouseEvent< HTMLButtonElement > ) => void;
+	ariaLabel: string;
 };
 
 export type LeaderboardRowChartProps =
-	| {
-			label: ReactElement;
-			onClick: ( event: MouseEvent< HTMLButtonElement > ) => void;
-			ariaLabel: string;
-	  }
+	| ( LeaderboardRowButtonProps & { hasInteractiveLabel?: false } )
+	| ( LeaderboardRowButtonProps & { hasInteractiveLabel: true } )
 	| { label: ReactElement; onClick?: never; ariaLabel?: never };
 
 /**
@@ -106,25 +125,50 @@ export function resolveLeaderboardRowAction(
  *
  * @return A single label element accepted by `LeaderboardEntry.label`.
  */
-export function LeaderboardRow( { label, media, action }: LeaderboardRowProps ): ReactElement {
-	// Title-link rows carry no media, so the row chrome goes on the title element.
+export function LeaderboardRow( {
+	label,
+	media,
+	action,
+	variant = 'list',
+}: LeaderboardRowProps ): ReactElement {
+	const rowClassName = clsx( styles.row, variant === 'bars' && styles.bars );
+	const rowLinkClassName = clsx( styles.rowLink, variant === 'bars' && styles.bars );
+
+	// Title-link rows put the row chrome on the link itself.
 	if ( action.kind === 'postLink' || action.kind === 'videoLink' ) {
 		const TitleLink = action.kind === 'postLink' ? PostTitleLink : VideoTitleLink;
+		const titleLinkProps = {
+			id: action.id,
+			label,
+			link: action.href,
+			search: action.search,
+			title: label,
+			classNames: {
+				internal: rowLinkClassName,
+				external: rowLinkClassName,
+				plain: rowClassName,
+				text: styles.label,
+			},
+		};
 
+		if ( action.kind === 'videoLink' && media.kind !== 'none' ) {
+			return (
+				<VideoTitleLink { ...titleLinkProps }>
+					<LeaderboardLabel label={ label } media={ media } decorativeMedia />
+				</VideoTitleLink>
+			);
+		}
+
+		return <TitleLink { ...titleLinkProps } />;
+	}
+
+	if ( ( action.kind === 'drillDown' || action.kind === 'static' ) && action.link ) {
 		return (
-			<TitleLink
-				id={ action.id }
-				label={ label }
-				link={ action.href }
-				search={ action.search }
-				title={ label }
-				classNames={ {
-					internal: styles.rowLink,
-					external: styles.rowLink,
-					plain: styles.row,
-					text: styles.label,
-				} }
-			/>
+			<span className={ styles.row } title={ label }>
+				<InternalLink { ...action.link } className={ styles.labelLink }>
+					<LeaderboardLabel label={ label } media={ media } decorativeMedia />
+				</InternalLink>
+			</span>
 		);
 	}
 
@@ -134,20 +178,14 @@ export function LeaderboardRow( { label, media, action }: LeaderboardRowProps ):
 
 	if ( action.kind === 'link' ) {
 		return (
-			<Link
-				className={ styles.rowLink }
-				href={ action.href }
-				variant="unstyled"
-				openInNewTab
-				title={ label }
-			>
+			<ExternalLink className={ rowLinkClassName } href={ action.href } title={ label }>
 				{ content }
-			</Link>
+			</ExternalLink>
 		);
 	}
 
 	return (
-		<span className={ styles.row } title={ label }>
+		<span className={ rowClassName } title={ label }>
 			{ content }
 		</span>
 	);
@@ -162,11 +200,9 @@ export function buildLeaderboardRow( props: LeaderboardRowProps ): LeaderboardRo
 	const label = <LeaderboardRow { ...props } />;
 
 	if ( props.action.kind === 'drillDown' ) {
-		return {
-			label,
-			onClick: props.action.onClick,
-			ariaLabel: props.action.ariaLabel,
-		};
+		const button = { label, onClick: props.action.onClick, ariaLabel: props.action.ariaLabel };
+
+		return props.action.link ? { ...button, hasInteractiveLabel: true } : button;
 	}
 
 	return { label };

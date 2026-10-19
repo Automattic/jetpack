@@ -1,5 +1,5 @@
-/* eslint-disable jest-dom/prefer-in-document -- The legacy Boost Jest project does not load jest-dom. */
-import { fireEvent, render, screen, within } from '@testing-library/react';
+/* eslint-disable jest-dom/prefer-in-document, jest-dom/prefer-to-have-attribute -- The legacy Boost Jest project does not load jest-dom. */
+import { fireEvent, render, screen } from '@testing-library/react';
 import { ModuleSurfaceProvider } from '$features/module/surface';
 import { MODERN_ROOT_ID } from '$lib/modern/mode';
 import CriticalCssModule from './critical-css-module';
@@ -39,21 +39,22 @@ jest.mock( '$lib/stores/pricing', () => ( { usePricing: () => null } ) );
 jest.mock( '$lib/stores/premium-features', () => ( { usePremiumFeatures: () => [] } ) );
 jest.mock( 'jetpackConfig', () => ( { consumer_slug: 'jetpack-boost' } ), { virtual: true } );
 
-test( 'shows one license link in the Critical CSS card with its premium tooltip open', () => {
+test( 'routes the modern Critical CSS notice to the upgrade page without inline license redemption', () => {
 	Object.assign( globalThis, {
-		Jetpack_Boost: { site: { online: true, myJetpack: true, addLicense: true, host: 'unknown' } },
-		myJetpackInitialState: { products: { items: { boost: { slug: 'boost', title: 'Boost' } } } },
-		JP_CONNECTION_INITIAL_STATE: {},
+		Jetpack_Boost: { site: { online: true, myJetpack: true, addLicense: true, host: 'other' } },
 	} );
 	render( <div id={ MODERN_ROOT_ID } data-testid="dashboard-root" /> );
-	render( <CriticalCssModule />, { container: screen.getByTestId( 'dashboard-root' ) } );
-
-	const card = screen.getByTestId( 'module-card' );
-	// eslint-disable-next-line testing-library/prefer-user-event -- The tooltip opens on mousedown, and this project does not provide user-event.
-	fireEvent.mouseDown( within( card ).getAllByRole( 'button' )[ 1 ] );
-
-	expect( within( card ).getByText( 'Manual Critical CSS regeneration' ) ).toBeTruthy();
-	expect( within( card ).getAllByRole( 'link', { name: 'Use license key' } ) ).toHaveLength( 1 );
+	render(
+		<ModuleSurfaceProvider value="row">
+			<CriticalCssModule />
+		</ModuleSurfaceProvider>,
+		{ container: screen.getByTestId( 'dashboard-root' ) }
+	);
+	expect( screen.getByRole( 'link', { name: 'Upgrade now' } ).getAttribute( 'href' ) ).toBe(
+		'admin.php?page=my-jetpack#/add-boost'
+	);
+	expect( screen.queryByRole( 'link', { name: 'Use license key' } ) ).toBeNull();
+	expect( screen.queryByRole( 'dialog' ) ).toBeNull();
 } );
 
 test.each( [ 'row', 'block' ] as const )(
@@ -62,6 +63,8 @@ test.each( [ 'row', 'block' ] as const )(
 		mockRegenerate.mockClear();
 		Object.assign( globalThis, {
 			Jetpack_Boost: { site: { online: true, myJetpack: true, host: 'unknown' } },
+			myJetpackInitialState: { products: { items: { boost: { slug: 'boost', title: 'Boost' } } } },
+			JP_CONNECTION_INITIAL_STATE: {},
 		} );
 		render(
 			<ModuleSurfaceProvider value={ surface }>

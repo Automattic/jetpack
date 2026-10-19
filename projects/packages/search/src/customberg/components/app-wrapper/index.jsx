@@ -8,10 +8,15 @@ import { SERVER_OBJECT_NAME } from 'instant-search/lib/constants';
 import { getThemeOptions } from 'instant-search/lib/dom';
 import { normalizeWidgets } from 'instant-search/lib/widgets';
 import store from 'instant-search/store';
+import { disableQueryStringIntegration } from 'instant-search/store/actions';
 import './styles.scss';
 
 // eslint-disable-next-line no-undef
 __webpack_public_path__ = window.JetpackInstantSearchOptions.webpackPublicPath;
+
+// Customberg never syncs to the query string. Dispatched here rather than from a
+// component so nothing writes to the store during the render phase.
+store.dispatch( disableQueryStringIntegration() );
 
 const widgets = normalizeWidgets( window[ SERVER_OBJECT_NAME ].widgets );
 const widgetsOutsideOverlay = normalizeWidgets(
@@ -72,12 +77,13 @@ export default function AppWrapper() {
 	// aiAnswersEnabled + searchSuggestionsEnabled live at the top level of the
 	// options object; overridden here so the preview reacts to the sidebar. While
 	// the master is off a saved choice persists unenforced — preview gets false.
-	const { aiMasterEnabled = true } = window[ SERVER_OBJECT_NAME ];
+	const { aiMasterEnabled = true, aiAnswersEnabled: savedAiAnswersEnabled } =
+		window[ SERVER_OBJECT_NAME ];
 	const options = {
 		...window[ SERVER_OBJECT_NAME ],
 		...Object.fromEntries(
 			Object.entries( {
-				aiAnswersEnabled: aiMasterEnabled ? aiAnswersEnabled : false,
+				aiAnswersEnabled: aiMasterEnabled ? ( aiAnswersEnabled ?? savedAiAnswersEnabled ) : false,
 				searchSuggestionsEnabled,
 			} ).filter( ( [ , v ] ) => typeof v !== 'undefined' )
 		),

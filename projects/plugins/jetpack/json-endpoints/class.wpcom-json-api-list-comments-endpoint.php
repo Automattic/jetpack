@@ -318,10 +318,6 @@ class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpo
 				}
 			}
 		}
-		if ( $args['hierarchical'] && $found > 5000 ) {
-			// Massive comment thread found; don't pre-load comment metadata to reduce memory used.
-			$query['update_comment_meta_cache'] = false;
-		}
 
 		if ( $post_id ) {
 			$post = get_post( $post_id );
@@ -338,6 +334,19 @@ class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpo
 				return new WP_Error( 'unknown_comment', 'Unknown comment', 404 );
 			}
 			$query['parent'] = $comment_id;
+		}
+
+		// A single post's count uses the comment_post_ID index; site-wide typed counts would not.
+		if ( -1 === $found && $post_id ) {
+			$count_query          = $query;
+			$count_query['count'] = true;
+			unset( $count_query['number'], $count_query['offset'] );
+			$found = (int) get_comments( $count_query );
+		}
+
+		if ( $args['hierarchical'] && $found > 5000 ) {
+			// Massive comment thread found; don't pre-load comment metadata to reduce memory used.
+			$query['update_comment_meta_cache'] = false;
 		}
 
 		$comments = get_comments( $query );

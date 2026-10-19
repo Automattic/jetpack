@@ -176,8 +176,7 @@ export const ErrorRetryable: StoryObj< TopPlatformsStoryControls > = {
 };
 
 /**
- * Resolved with no rows: the widget shows its empty state (the neutral device
- * glyph and "No platform data in this period.").
+ * Resolved with no rows: the widget shows the generic empty state.
  */
 export const Empty: StoryObj< TopPlatformsStoryControls > = {
 	render: () => renderTopPlatformsOnPreset( 'last-year' ),

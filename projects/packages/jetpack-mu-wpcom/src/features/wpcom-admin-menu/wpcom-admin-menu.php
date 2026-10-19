@@ -8,14 +8,14 @@
  */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Jetpack_Mu_Wpcom\Launchpad_Personalization_Experiment;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Backup;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Newsletter\Settings as Newsletter_Settings;
 use Automattic\Jetpack\Podcast\Admin_Page as Podcast_Admin_Page;
 use Automattic\Jetpack\Redirect;
 
 require_once __DIR__ . '/../../common/wpcom-callout.php';
-require_once __DIR__ . '/../../common/class-launchpad-personalization-experiment.php';
+require_once __DIR__ . '/../../common/launchpad-no-guidance.php';
 
 /**
  * Checks if the current user has a WordPress.com account connected.
@@ -95,19 +95,9 @@ function wpcom_add_my_home_menu() {
 		return;
 	}
 
-	// Site Setup (manage_options) replaces My Home only for users who can see it; others keep My Home.
-	if (
-		current_user_can( 'manage_options' )
-		&& function_exists( 'wpcom_ai_launchpad_is_eligible' )
-		&& wpcom_ai_launchpad_is_eligible()
-	) {
-		return;
-	}
-
-	// The no_guidance launchpad-personalization variation gets no My Home at all: these
-	// users work from the wp-admin dashboard. Removing the menu item here also removes it
-	// from the Calypso sidebar, which is built from this menu via the admin-menu endpoint.
-	if ( 'no_guidance' === Launchpad_Personalization_Experiment::get_variation() ) {
+	// My Home only goes with the legacy launchpad: AI Launchpad and no-guidance sites drop it for every user.
+	// Removing it here also drops it from the Calypso sidebar.
+	if ( get_option( 'wpcom_ai_launchpad_enabled' ) || wpcom_launchpad_is_no_guidance() ) {
 		return;
 	}
 
@@ -318,6 +308,36 @@ function wpcom_reorder_submenu( $menu_slug, $desired_order ) {
 }
 
 /**
+ * Whether the host replaces My Jetpack with Stats.
+ *
+ * @return bool
+ */
+function jetpack_mu_wpcom_redirects_my_jetpack_to_stats() {
+	if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || ! class_exists( '\\Automattic\\Jetpack\\Current_Plan' ) ) {
+		return false;
+	}
+	$plan = \Automattic\Jetpack\Current_Plan::get();
+	return in_array( $plan['class'] ?? '', array( 'personal', 'premium' ), true );
+}
+add_filter(
+	'jetpack_my_jetpack_modules_management_available',
+	static function ( $available ) {
+		return $available && ! jetpack_mu_wpcom_redirects_my_jetpack_to_stats();
+	}
+);
+
+/**
+ * Whether Jetpack > Backup opens the wp-admin Backup page rather than Calypso.
+ *
+ * Only meaningful once whatever serves the page has registered it; see WPCOM_WP_Build_Page::REGISTER_PRIORITY.
+ *
+ * @return bool
+ */
+function wpcom_backup_opens_in_wp_admin() {
+	return class_exists( WPCOM_Backup::class ) && WPCOM_Backup::slug_is_claimed() && WPCOM_Backup::is_modernized();
+}
+
+/**
  * Adds WordPress.com submenu items related to Jetpack under the Jetpack admin menu.
  */
 function wpcom_add_jetpack_submenu() {
@@ -332,14 +352,7 @@ function wpcom_add_jetpack_submenu() {
 
 	// @codeCoverageIgnoreStart
 	// Hide certain Jetpack submenus for Atomic sites on Personal or Premium plans.
-	$is_personal_or_premium = false;
-	if ( class_exists( '\\Automattic\\Jetpack\\Current_Plan' ) ) {
-		$current_plan           = \Automattic\Jetpack\Current_Plan::get();
-		$plan_class             = $current_plan['class'] ?? '';
-		$is_personal_or_premium = in_array( $plan_class, array( 'personal', 'premium' ), true );
-	}
-
-	if ( ! $is_simple_site && $is_personal_or_premium ) {
+	if ( jetpack_mu_wpcom_redirects_my_jetpack_to_stats() ) {
 		// Jetpack > My Jetpack.
 		wpcom_hide_submenu_page( 'jetpack', 'my-jetpack' );
 
@@ -353,7 +366,8 @@ function wpcom_add_jetpack_submenu() {
 			function () {
 				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No action taken, just checking page.
 				if ( isset( $_GET['page'] ) && 'my-jetpack' === $_GET['page'] ) {
-					wp_safe_redirect( admin_url( 'admin.php?page=stats' ) );
+					/** This filter is documented in projects/packages/stats-admin/src/class-admin-bar.php */
+					wp_safe_redirect( apply_filters( 'jetpack_stats_url', admin_url( 'admin.php?page=stats' ), array( 'view' => 'dashboard' ) ) );
 					exit;
 				}
 			}
@@ -385,17 +399,21 @@ function wpcom_add_jetpack_submenu() {
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 	);
 
-	// Jetpack > Backup.
+	// Jetpack > Backup. Until the wp-admin page takes over, Calypso owns the nav and `jetpack-backup`
+	// is hidden rather than removed, so links into it keep working.
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
-	add_submenu_page(
-		'jetpack',
-		/** "Backup" is a product name, do not translate. */
-		'Backup',
-		'Backup',
-		'manage_options',
-		'https://wordpress.com/backup/' . $domain,
-		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-	);
+	if ( ! wpcom_backup_opens_in_wp_admin() ) {
+		wpcom_hide_submenu_page( 'jetpack', 'jetpack-backup' );
+		add_submenu_page(
+			'jetpack',
+			/** "Backup" is a product name, do not translate. */
+			'Backup',
+			'Backup',
+			'manage_options',
+			'https://wordpress.com/backup/' . $domain,
+			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+		);
+	}
 
 	// Jetpack > Monetize.
 	add_submenu_page(
@@ -426,8 +444,8 @@ function wpcom_add_jetpack_submenu() {
 
 	// Atomic loads Podcast through the Jetpack module, which the owner can switch
 	// off, and this builder runs either way. is_active() is always true on Simple,
-	// where the package loads unconditionally.
-	if ( ( new Modules() )->is_active( 'podcast' ) ) {
+	// where the package loads unconditionally. The package ships with Jetpack, not this one.
+	if ( class_exists( Podcast_Admin_Page::class ) && ( new Modules() )->is_active( 'podcast' ) ) {
 		Podcast_Admin_Page::add_wp_admin_submenu();
 	}
 
@@ -454,7 +472,6 @@ function wpcom_add_jetpack_submenu() {
 			class_exists( '\WPCOM_Features' ) &&
 			wpcom_site_has_feature( \WPCOM_Features::VIDEOPRESS )
 		) {
-			// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by sibling autoloader.
 			\Automattic\Jetpack\VideoPress\Admin_UI::add_wp_admin_submenu();
 		}
 

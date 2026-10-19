@@ -1,37 +1,15 @@
-import { DataSyncProvider, queryClient } from '@automattic/jetpack-react-data-sync-client';
+import { queryClient } from '@automattic/jetpack-react-data-sync-client';
 import { createRoot } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import { Link } from '@wordpress/ui';
-import { observeLegacyModulesState } from '../../../../_inc/overview/lib/modules-state-bridge';
+import {
+	observeLegacyModulesState,
+	observeLegacyOnboarding,
+} from '../../../../_inc/overview/lib/modules-state-bridge';
 import { OVERVIEW_UPGRADE_EVENT } from '../../../../_inc/overview/lib/upgrade-bridge';
-import { licenseKeyHref, useCanRedeemLicenseKey } from './features/upgrade-cta/license-key-link';
-import './modern-overview-upgrade.scss';
-import { recordBoostEvent, recordBoostEventAndRedirect } from './lib/utils/analytics';
-import type { MouseEvent } from 'react';
+import ModernUpgradeLink from './features/upgrade-cta/modern-upgrade-link';
 import type { UpgradeSlotRequest } from '../../../../_inc/overview/lib/upgrade-bridge';
 
 observeLegacyModulesState( queryClient );
-
-async function handleUpgrade( event: MouseEvent< HTMLAnchorElement > ) {
-	const eventProperties = { identifier: 'historical-performance', destination: 'interstitial' };
-	if ( event.metaKey || event.ctrlKey || event.shiftKey || event.altKey ) {
-		recordBoostEvent( 'performance_history_upgrade_cta_click', eventProperties );
-		return;
-	}
-	event.preventDefault();
-	await recordBoostEventAndRedirect(
-		'admin.php?page=my-jetpack#/add-boost',
-		'performance_history_upgrade_cta_click',
-		eventProperties
-	);
-}
-
-function OverviewLicenseKeyLink() {
-	if ( ! useCanRedeemLicenseKey() ) {
-		return null;
-	}
-	return <Link href={ licenseKeyHref }>{ __( 'Use license key', 'jetpack-boost' ) }</Link>;
-}
+observeLegacyOnboarding( queryClient );
 
 window.addEventListener( OVERVIEW_UPGRADE_EVENT, ( event: Event ) => {
 	const request = ( event as CustomEvent< UpgradeSlotRequest > ).detail;
@@ -49,14 +27,13 @@ window.addEventListener( OVERVIEW_UPGRADE_EVENT, ( event: Event ) => {
 		}
 		root = createRoot( request.container );
 		root.render(
-			<DataSyncProvider>
-				<span className="jb-modern-upgrade-actions">
-					<Link href="admin.php?page=my-jetpack#/add-boost" onClick={ handleUpgrade }>
-						{ __( 'Upgrade now', 'jetpack-boost' ) }
-					</Link>
-					<OverviewLicenseKeyLink />
-				</span>
-			</DataSyncProvider>
+			<ModernUpgradeLink
+				eventName="performance_history_upgrade_cta_click"
+				eventProperties={ {
+					identifier: 'historical-performance',
+					destination: 'interstitial',
+				} }
+			/>
 		);
 	} );
 } );

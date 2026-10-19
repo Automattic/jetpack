@@ -2,13 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { envelope } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
-
-/**
- * Internal dependencies
- */
-import { SelectField } from '@jetpack-premium-analytics/fields';
 
 /** Which count and rate each row shows. Rows stay in newest-first order either way. */
 export type EmailMetric = 'opens' | 'clicks';
@@ -28,13 +22,11 @@ export type EmailsAttributes = {
  * comparison period.
  */
 export default {
-	icon: envelope,
 	attributes: [
 		{
 			id: 'metric',
 			label: __( 'View by', 'jetpack-premium-analytics-pkg' ),
-			type: 'text',
-			Edit: SelectField,
+			type: 'jpa/select',
 			elements: [
 				{
 					label: __( 'Opened', 'jetpack-premium-analytics-pkg' ),

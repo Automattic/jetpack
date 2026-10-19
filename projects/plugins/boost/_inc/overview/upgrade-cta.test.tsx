@@ -19,7 +19,7 @@ test( 'mounts the upgrade UI once and cleans up once when removed', () => {
 	window.addEventListener( OVERVIEW_UPGRADE_EVENT, handleMount );
 	try {
 		const { rerender, unmount } = render(
-			<Notice.Root intent="info" spokenMessage="Unlock historical performance">
+			<Notice.Root intent="info">
 				<Notice.Title>Unlock historical performance</Notice.Title>
 				<Notice.Actions>
 					<UpgradeCTA />
@@ -29,7 +29,7 @@ test( 'mounts the upgrade UI once and cleans up once when removed', () => {
 		expect( screen.getByText( 'Existing upgrade flow' ) ).toBeInTheDocument();
 		expect( handleMount ).toHaveBeenCalledTimes( 1 );
 		rerender(
-			<Notice.Root intent="success" spokenMessage="History is ready">
+			<Notice.Root intent="success">
 				<Notice.Title>History is ready</Notice.Title>
 			</Notice.Root>
 		);
@@ -41,6 +41,14 @@ test( 'mounts the upgrade UI once and cleans up once when removed', () => {
 	} finally {
 		window.removeEventListener( OVERVIEW_UPGRADE_EVENT, handleMount );
 	}
+} );
+
+test( 'falls back to an upgrade link when nothing mounts into the slot', () => {
+	render( <UpgradeCTA /> );
+	expect( screen.getByRole( 'link', { name: 'Upgrade now' } ) ).toHaveAttribute(
+		'href',
+		'admin.php?page=my-jetpack#/add-boost'
+	);
 } );
 
 test.each( [

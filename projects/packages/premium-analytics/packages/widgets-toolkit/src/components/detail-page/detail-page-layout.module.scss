@@ -2,10 +2,18 @@
 // the content while the resource header pins at its top. The scope is what
 // lets the header's pin marker reach the header beside it.
 .root {
+	display: flex;
+	flex-direction: column;
 	flex: 1 1 auto;
 	min-block-size: 0;
 	overflow-y: auto;
 	timeline-scope: --section-header-pin;
+
+	// A scroll container's flex items would otherwise shrink to fit it,
+	// collapsing the header's empty pin marker and the sections under it.
+	> * {
+		flex-shrink: 0;
+	}
 }
 
 .section {

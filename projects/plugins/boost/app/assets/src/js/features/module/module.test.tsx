@@ -1,15 +1,19 @@
 /* No jest-dom in this project. */
-/* eslint-disable jest-dom/prefer-in-document, jest-dom/prefer-to-have-text-content, jest-dom/prefer-checked, jest-dom/prefer-enabled-disabled, testing-library/no-container, testing-library/no-node-access */
-import { render, screen } from '@testing-library/react';
+/* eslint-disable jest-dom/prefer-in-document, testing-library/prefer-user-event, jest-dom/prefer-to-have-text-content, jest-dom/prefer-checked, jest-dom/prefer-enabled-disabled, testing-library/no-container, testing-library/no-node-access */
+import { fireEvent, render, screen } from '@testing-library/react';
 import Module from './module';
+import { recordBoostEvent } from '$lib/utils/analytics';
 import { ModuleSurfaceProvider } from './surface';
 
 jest.mock( './lib/stores', () => ( {
-	useSingleModuleState: () => [ mockState, jest.fn() ],
+	useSingleModuleState: () => [ mockState, mockSetStatus ],
 } ) );
 jest.mock( '$features/notice/context', () => ( {
 	useNotices: () => ( { setNotice: jest.fn() } ),
 } ) );
+
+jest.mock( '$lib/utils/analytics', () => ( { recordBoostEvent: jest.fn() } ) );
+const mockSetStatus = jest.fn();
 
 let mockState: { active: boolean; available: boolean } | undefined;
 
@@ -21,9 +25,35 @@ const renderModule = ( ui: React.ReactElement, row: boolean ) =>
 describe( 'Module', () => {
 	beforeEach( () => {
 		mockState = { active: true, available: true };
+		mockSetStatus.mockClear();
+		jest.mocked( recordBoostEvent ).mockClear();
 		boostGlobal.site.online = true;
 		boostGlobal.site.host = '';
 		( globalThis as unknown as { Jetpack_Boost: typeof boostGlobal } ).Jetpack_Boost = boostGlobal;
+	} );
+
+	it.each( [ false, true ] )( 'records each intentional module toggle on surface row=%s', row => {
+		const view = renderModule(
+			<Module slug="minify_js" title="Concatenate JS" description="Desc" />,
+			row
+		);
+		expect( recordBoostEvent ).not.toHaveBeenCalled();
+		fireEvent.click( screen.getByRole( 'checkbox' ) );
+		expect( recordBoostEvent ).toHaveBeenLastCalledWith( 'module_toggle_clicked', {
+			module: 'minify_js',
+			status: 'off',
+		} );
+		expect( mockSetStatus ).toHaveBeenLastCalledWith( false );
+		mockState = { active: false, available: true };
+		view.unmount();
+		renderModule( <Module slug="minify_js" title="Concatenate JS" description="Desc" />, row );
+		fireEvent.click( screen.getByRole( 'checkbox' ) );
+		expect( recordBoostEvent ).toHaveBeenLastCalledWith( 'module_toggle_clicked', {
+			module: 'minify_js',
+			status: 'on',
+		} );
+		expect( mockSetStatus ).toHaveBeenLastCalledWith( true );
+		expect( recordBoostEvent ).toHaveBeenCalledTimes( 2 );
 	} );
 
 	it( 'renders a block with a heading and an unlabelled toggle without a surface provider', () => {
@@ -148,7 +178,7 @@ describe( 'Module', () => {
 		);
 
 		expect( screen.getByText( 'Failed to load module' ) ).toBeTruthy();
-		expect( screen.getByRole( 'heading', { level: 3 } ).textContent ).toBe( 'Concatenate JS' );
+		expect( screen.getByRole( 'heading', { level: 4 } ).textContent ).toBe( 'Concatenate JS' );
 		expect( screen.getByText( 'Error: kaboom' ) ).toBeTruthy();
 	} );
 } );

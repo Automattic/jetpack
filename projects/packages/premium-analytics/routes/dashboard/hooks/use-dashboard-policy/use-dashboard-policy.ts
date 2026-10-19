@@ -1,43 +1,38 @@
-import { getScriptData } from '@automattic/jetpack-script-data';
+import { getLockedWidgetFeature } from '@jetpack-premium-analytics/data';
 import { useMemo } from 'react';
 import type { CanPerformDashboardOperation } from '@wordpress/widget-dashboard';
 
-/**
- * Whether the dashboard composition feature flag is on: adding and removing
- * widgets are for its holders only.
- *
- * @return The flag's answer, off when the script data carries none.
- */
-export function isDashboardCompositionEnabled(): boolean {
-	return getScriptData()?.premium_analytics?.dashboard_composition_enabled === true;
-}
+type UseDashboardPolicyParams = {
+	insertableWidgetTypes: Set< string >;
+};
 
 /**
  * The application's answer to the dashboard policy seam.
  *
- * Customization is limited to moving and resizing widgets: adding and removing
- * sit behind the dashboard composition feature flag, whose answer the server
- * puts on the script data. Attribute editing stays open: it is how widgets
- * expose their views, in and out of customize mode. `reset` is denied so the
- * toolkit's Reset to default button stands in for the dashboard's overflow
- * entry, dialog and command.
+ * Readers may move, resize, add and remove widgets, but only the insertable
+ * types can be added, and the dashboard's own Reset to default is withheld.
  *
+ * @param {UseDashboardPolicyParams} props - The policy inputs.
  * @return The policy callback for `WidgetDashboard.Policy`.
  */
-export function useDashboardPolicy(): CanPerformDashboardOperation {
-	return useMemo< CanPerformDashboardOperation >( () => {
-		const canCompose = isDashboardCompositionEnabled();
-
-		return request => {
+export function useDashboardPolicy( {
+	insertableWidgetTypes,
+}: UseDashboardPolicyParams ): CanPerformDashboardOperation {
+	return useMemo< CanPerformDashboardOperation >(
+		() => request => {
 			switch ( request.operation ) {
 				case 'reset':
 					return false;
 				case 'insert':
-				case 'remove':
-					return canCompose;
+					// Locked types stay out of the inserter, but keep `edit`: the frame hides header controls without it.
+					return (
+						insertableWidgetTypes.has( request.widgetType.name ) &&
+						! getLockedWidgetFeature( request.widgetType.name )
+					);
 				default:
 					return true;
 			}
-		};
-	}, [] );
+		},
+		[ insertableWidgetTypes ]
+	);
 }

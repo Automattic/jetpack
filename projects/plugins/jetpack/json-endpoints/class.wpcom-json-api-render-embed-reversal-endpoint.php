@@ -135,7 +135,7 @@ class WPCOM_JSON_API_Render_Embed_Reversal_Endpoint extends WPCOM_JSON_API_Rende
 	 */
 	public function render_shortcode_reversal( $args ) {
 		if ( $args['is_shortcode'] ) {
-			return $this->do_shortcode( $args['shortcode_reversal'] );
+			return $this->apply_shortcodes( $args['shortcode_reversal'] );
 		} elseif ( $args['is_embed'] ) {
 			return $this->do_embed( $args['shortcode_reversal'] );
 		}

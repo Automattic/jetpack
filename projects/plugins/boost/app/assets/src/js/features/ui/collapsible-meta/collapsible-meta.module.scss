@@ -29,6 +29,13 @@
 		}
 	}
 
+	// Icon-first buttons have no text baseline, so center them instead.
+	.row-actions {
+		display: flex;
+		align-items: center;
+		gap: var(--wpds-dimension-gap-xs);
+	}
+
 	.summary {
 		color: var(--gray-50);
 		font-size: 14px;

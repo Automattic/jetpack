@@ -42,6 +42,8 @@ await jest.unstable_mockModule( '../../../../src/dashboard/hooks/use-inbox-data'
 await jest.unstable_mockModule( '@wordpress/data', () => {
 	const mockDispatch = {
 		createSuccessNotice: jest.fn(),
+		createInfoNotice: jest.fn(),
+		removeNotice: jest.fn(),
 		createErrorNotice: jest.fn(),
 		invalidateResolutionForStoreSelector: jest.fn(),
 		invalidateCounts: jest.fn(),
@@ -52,6 +54,8 @@ await jest.unstable_mockModule( '@wordpress/data', () => {
 			if ( store === 'notices' ) {
 				return {
 					createSuccessNotice: mockDispatch.createSuccessNotice,
+					createInfoNotice: mockDispatch.createInfoNotice,
+					removeNotice: mockDispatch.removeNotice,
 					createErrorNotice: mockDispatch.createErrorNotice,
 				};
 			}
@@ -142,6 +146,7 @@ describe( 'useEmptyTrash', () => {
 			expect( apiFetchModule.default ).toHaveBeenCalledWith( {
 				method: 'DELETE',
 				path: '/wp/v2/feedback/trash',
+				data: { status: 'trash', limit: 500 },
 			} );
 		} );
 

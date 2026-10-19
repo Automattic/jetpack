@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { SelectField } from '@jetpack-premium-analytics/fields';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { __, _x } from '@wordpress/i18n';
 /**
@@ -44,9 +43,8 @@ export function monthlyHeatmapMetricAttributeField<
 	return {
 		id: 'metric',
 		label: _x( 'Metric', 'label for the views metric selector', 'jetpack-premium-analytics-pkg' ),
-		type: 'text',
+		type: 'jpa/select',
 		relevance: 'high',
-		Edit: SelectField,
 		elements: MONTHLY_HEATMAP_METRICS.map( ( { id, label } ) => ( { value: id, label } ) ),
 	} as WidgetAttributeField< Attributes >;
 }

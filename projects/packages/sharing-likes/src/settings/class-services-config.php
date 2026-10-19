@@ -280,14 +280,11 @@ final class Services_Config {
 	}
 
 	/**
-	 * The markup `sharing_global_options` produces.
-	 *
-	 * Leaves out `Jetpack_Likes_Settings::admin_settings_init()`, which Simple
-	 * hangs on the action until CM-913: the Likes section owns those options,
-	 * and a second set of the same radios would join the same form.
+	 * The rows that close the settings table: the screen's own, then whatever
+	 * `sharing_global_options` adds. `Post_Handler::save_global_options()` saves them.
 	 */
 	public static function global_options(): string {
-		$unhooked = self::unhook_legacy_likes_options();
+		$markup = Sharing_Resources::render() . Twitter_Site_Tag::render();
 
 		ob_start();
 
@@ -300,41 +297,9 @@ final class Services_Config {
 		 */
 		do_action( 'sharing_global_options' );
 
-		$markup = trim( (string) ob_get_clean() );
+		$markup .= (string) ob_get_clean();
 
-		foreach ( $unhooked as list( $callback, $priority ) ) {
-			add_action( 'sharing_global_options', $callback, $priority );
-		}
-
-		return $markup;
-	}
-
-	/**
-	 * Take the legacy Likes options off `sharing_global_options`.
-	 *
-	 * @return array<int, array{0: callable, 1: int}> Each callback removed, with its priority.
-	 */
-	private static function unhook_legacy_likes_options(): array {
-		global $wp_filter;
-
-		$unhooked = array();
-
-		if ( ! isset( $wp_filter['sharing_global_options'] ) ) {
-			return $unhooked;
-		}
-
-		foreach ( $wp_filter['sharing_global_options']->callbacks as $priority => $callbacks ) {
-			foreach ( $callbacks as $callback ) {
-				$function = $callback['function'];
-
-				if ( is_array( $function ) && 'admin_settings_init' === $function[1] && is_a( $function[0], 'Jetpack_Likes_Settings', true ) ) {
-					remove_action( 'sharing_global_options', $function, $priority );
-					$unhooked[] = array( $function, $priority );
-				}
-			}
-		}
-
-		return $unhooked;
+		return trim( $markup );
 	}
 
 	/**
@@ -409,19 +374,7 @@ final class Services_Config {
 			isset( $_POST['_wpnonce'] )
 			&& wp_verify_nonce( sanitize_key( wp_unslash( $_POST['_wpnonce'] ) ), 'sharing-options' )
 		) {
-			$sharer = new \Sharing_Service();
-
-			/*
-			 * set_global_options() rebuilds the whole global array from defaults, so a
-			 * payload with no `show` clears it. Placement is edited in its own section,
-			 * so carry the current placement through rather than losing it on every save.
-			 */
-			$data = $_POST; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- set_global_options() validates each field.
-			if ( ! isset( $data['show'] ) ) {
-				$data['show'] = Placement_Section::selected_post_types();
-			}
-
-			$sharer->set_global_options( $data );
+			Sharing_Options::update( $_POST ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- set_global_options() validates each field.
 			/**
 			 * Fires when updating sharing settings.
 			 *

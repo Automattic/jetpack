@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useStatsStreak } from '@jetpack-premium-analytics/data';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { getSettings, setSettings } from '@wordpress/date';
 /**
@@ -13,9 +13,20 @@ import type { ReportParams } from '@jetpack-premium-analytics/data';
 
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
+// Keep visx out of jsdom and make the series the widget passes assertable.
+jest.mock( '@jetpack-premium-analytics/externals', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/externals' ),
+	Sparkline: ( { data }: { data: number[] } ) => (
+		<div data-testid="sparkline" data-points={ data.join( ',' ) } />
+	),
+} ) );
+
+// Spread the real module: `WidgetRoot` and the toolkit helpers import from it too.
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	useStatsHourOfDay: jest.fn(),
 	useStatsStreak: jest.fn(),
+	useStatsVisits: jest.fn(),
 } ) );
 
 const mockUseStatsStreak = jest.mocked( useStatsStreak );
@@ -84,7 +95,9 @@ describe( 'PostingActivityWidget', () => {
 	it( 'draws those months as one calendar grid, current month last, weeks from Monday', () => {
 		renderWidget();
 
-		expect( screen.getByRole( 'grid', { name: 'Monthly posting activity' } ) ).toBeInTheDocument();
+		expect(
+			screen.getByRole( 'grid', { name: 'Chart: Monthly posting activity' } )
+		).toBeInTheDocument();
 		const months = screen.getAllByTestId( 'heatmap-group-label' ).map( el => el.textContent );
 		expect( months ).toHaveLength( 12 );
 		expect( months[ 0 ] ).toBe( 'Oct' );
@@ -92,25 +105,6 @@ describe( 'PostingActivityWidget', () => {
 		expect( screen.getByRole( 'gridcell', { name: 'Tue, Sep 15, 2026: 1' } ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'gridcell', { name: /Sep 16, 2026/ } ) ).not.toBeInTheDocument();
 		expect( screen.getByText( 'Fewer posts' ) ).toBeInTheDocument();
-	} );
-
-	it( 'steps the arrow keys day by day across a month boundary', async () => {
-		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
-		renderWidget();
-		const grid = screen.getByRole( 'grid', { name: 'Monthly posting activity' } );
-		const selectedName = () =>
-			within( grid )
-				.getAllByRole( 'gridcell' )
-				.find( cell => cell.id === grid.getAttribute( 'aria-activedescendant' ) )
-				?.getAttribute( 'aria-label' );
-
-		grid.focus();
-		await user.keyboard( '{ArrowRight}' );
-		expect( selectedName() ).toBe( 'Wed, Oct 1, 2025: No data' );
-		await user.keyboard( '{ArrowDown}{ArrowDown}{ArrowDown}{ArrowDown}{ArrowRight}{ArrowRight}' );
-		expect( selectedName() ).toBe( 'Fri, Oct 31, 2025: No data' );
-		await user.keyboard( '{ArrowRight}' );
-		expect( selectedName() ).toBe( 'Sat, Nov 1, 2025: No data' );
 	} );
 
 	it( 'keeps the post wording and titles the tooltip with the date', async () => {
@@ -127,12 +121,27 @@ describe( 'PostingActivityWidget', () => {
 		expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'Sat, Oct 4, 2025No posts' );
 	} );
 
-	it( 'shows the empty state when only days outside the window have posts', () => {
-		// A stale response for an older window must not suppress the empty state.
-		mockUseStatsStreak.mockReturnValue( streakResult( { data: { '2024-03-05': 2 } } ) );
+	it( 'draws the calendar, every day empty, for a year without posts', () => {
+		mockUseStatsStreak.mockReturnValue( streakResult( { data: {} } ) );
 		renderWidget();
 
-		expect( screen.getByText( 'No posts published in the last 12 months.' ) ).toBeInTheDocument();
+		expect(
+			screen.getByRole( 'grid', { name: 'Chart: Monthly posting activity' } )
+		).toBeInTheDocument();
+		expect(
+			screen.getByRole( 'gridcell', { name: 'Fri, Oct 3, 2025: No data' } )
+		).toBeInTheDocument();
+	} );
+
+	it( 'keeps the calendar when a refetch fails over a response', () => {
+		mockUseStatsStreak.mockReturnValue(
+			streakResult( { data: {}, isError: true, error: new Error( 'boom' ) } )
+		);
+		renderWidget();
+
+		expect(
+			screen.getByRole( 'grid', { name: 'Chart: Monthly posting activity' } )
+		).toBeInTheDocument();
 	} );
 
 	it( 'shows the month blocks while loading', () => {

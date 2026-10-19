@@ -25,7 +25,7 @@ jest.mock( '@wordpress/route', () => ( {
 } ) );
 
 // Imports must come after the jest.mock factories above.
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { stage as OverviewStage } from '../routes/dashboard/stage';
 import ErrorBoundary from '../src/dashboard/components/error-boundary';
@@ -104,6 +104,34 @@ function failFileTree( error: { code: string; message: string } ) {
 	} );
 }
 
+/**
+ * Serve a two-page activity log whose second page answers as `page2` says.
+ * `/jetpack/v4/backups` answers too, so no second notice is on screen.
+ *
+ * @param page2 - Produces the response for page 2.
+ */
+function mockTwoPages( page2: () => Promise< unknown > ) {
+	mockApiFetch.mockImplementation( ( options: { path?: string } ) => {
+		const path = options?.path ?? '';
+		if ( path.includes( '/site/capabilities' ) ) {
+			return Promise.resolve( CAPABILITIES );
+		}
+		if ( path === '/jetpack/v4/backups' ) {
+			return Promise.resolve( [] );
+		}
+		if ( path.includes( '/site/rewindable-activity' ) ) {
+			return path.includes( 'page=2' )
+				? page2()
+				: Promise.resolve( {
+						current: { orderedItems: [ backupActivityEntry() ] },
+						totalItems: 2,
+						totalPages: 2,
+					} );
+		}
+		return Promise.resolve( {} );
+	} );
+}
+
 beforeEach( () => {
 	queryClient.clear();
 	queryClient.setDefaultOptions( { queries: { retry: false } } );
@@ -137,6 +165,60 @@ describe( 'activity list', () => {
 		expect( screen.getByText( 'Service unavailable' ) ).toBeInTheDocument();
 		// The regression: a 5xx telling the reader their site has no activity.
 		expect( screen.queryByText( 'No results' ) ).not.toBeInTheDocument();
+		// The notice replaces the list card.
+		expect( screen.queryByRole( 'heading', { name: 'Latest backups' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'keeps the list layout and a way back when a later page fails', async () => {
+		mockTwoPages( () =>
+			Promise.reject( { code: 'activity_log_fetch_failed', message: 'Service unavailable' } )
+		);
+
+		render( <OverviewStage /> );
+		await userEvent.click( await screen.findByRole( 'button', { name: 'Next page' } ) );
+
+		await expect(
+			screen.findByText( "We couldn't load your site's activity." )
+		).resolves.toBeInTheDocument();
+		expect( screen.getByRole( 'heading', { name: 'Latest backups' } ) ).toBeInTheDocument();
+		// The pager is what gets the reader back.
+		await userEvent.click( screen.getByRole( 'button', { name: 'Previous page' } ) );
+		await expect( screen.findAllByText( 'Backup complete' ) ).resolves.not.toHaveLength( 0 );
+	} );
+
+	it( 'does not fill a failed page with the previous page while it retries', async () => {
+		let failPage2 = true;
+		let resolvePage2: ( value: unknown ) => void = () => {};
+		mockTwoPages( () =>
+			failPage2
+				? Promise.reject( { code: 'activity_log_fetch_failed', message: 'Service unavailable' } )
+				: new Promise( resolve => {
+						resolvePage2 = resolve;
+					} )
+		);
+
+		render( <OverviewStage /> );
+		await userEvent.click( await screen.findByRole( 'button', { name: 'Next page' } ) );
+		await expect(
+			screen.findByText( "We couldn't load your site's activity." )
+		).resolves.toBeInTheDocument();
+
+		// The detail pane keeps its heading; only the list rows are in question.
+		const before = screen.getAllByText( 'Backup complete' ).length;
+		failPage2 = false;
+		await userEvent.click( screen.getByRole( 'button', { name: 'Try again' } ) );
+
+		expect( screen.getAllByText( 'Backup complete' ) ).toHaveLength( before );
+		expect( screen.getByText( "We couldn't load your site's activity." ) ).toBeInTheDocument();
+
+		resolvePage2( {
+			current: { orderedItems: [ backupActivityEntry() ] },
+			totalItems: 2,
+			totalPages: 2,
+		} );
+		await waitFor( () =>
+			expect( screen.getByRole( 'heading', { name: 'Latest backups' } ) ).toHaveFocus()
+		);
 	} );
 
 	it( 'still shows the plain empty state when the request simply returns nothing', async () => {
@@ -176,6 +258,23 @@ describe( 'file browser', () => {
 		expect( screen.getByText( 'Backup storage unreachable' ) ).toBeInTheDocument();
 		// The regression: a selection summary over a tree that isn't there.
 		expect( screen.queryByText( /items? selected/ ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'offers Contact support beside the retry when the root tree fails', async () => {
+		window.JP_CONNECTION_INITIAL_STATE = {
+			...window.JP_CONNECTION_INITIAL_STATE,
+			siteSuffix: 'example.wordpress.com',
+		} as typeof window.JP_CONNECTION_INITIAL_STATE;
+		failFileTree( { code: 'file_tree_fetch_failed', message: 'Backup storage unreachable' } );
+
+		render( <OverviewStage /> );
+
+		const link = await screen.findByRole( 'link', { name: /^Contact support/ } );
+		expect( link ).toHaveAttribute(
+			'href',
+			'https://jetpack.com/redirect/?source=jetpack-contact-support&site=example.wordpress.com'
+		);
+		expect( link ).toHaveAttribute( 'target', '_blank' );
 	} );
 
 	it( 'says a folder could not be read rather than that it is empty', async () => {
@@ -234,7 +333,7 @@ describe( 'ErrorBoundary', () => {
 		expect( screen.getByText( 'Invalid time value' ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Reload the page' } ) ).toBeInTheDocument();
 		// React logs the caught error, and so does componentDidCatch —
-		// @wordpress/jest-console fails the test unless that is claimed.
+		// The `jetpack-js-tools` console guard fails the test unless that is claimed.
 		expect( console ).toHaveErrored();
 	} );
 

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Dashboard: Track Try again as a speed score refresh and keep keyboard focus on the page when a render failure removes the header button.

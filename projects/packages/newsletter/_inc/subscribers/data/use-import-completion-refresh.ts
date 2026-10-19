@@ -10,11 +10,7 @@ import type { ImportJob } from './types';
 type OutcomeNotice = { status: 'success' | 'error'; message: string };
 
 /**
- * Map a finished import job to the snackbar it should show, or null when it shouldn't show one
- * (e.g. a user-cancelled reset). WP.com returns no human-readable failure reason on the job — only
- * outcome counts — so the copy is built from those counts and points at the import confirmation
- * email for the per-address detail. Note that "already subscribed" is a successful no-op on WP.com's
- * side (status `imported`, not `failed`), so it gets its own success message rather than an error.
+ * Describes the outcome of an import job that has reached a terminal state, for display in a snackbar.
  *
  * @param job - The import job that just reached a terminal state.
  * @return The notice to show, or null for no notice.
@@ -24,7 +20,7 @@ export function describeImportOutcome( job: ImportJob ): OutcomeNotice | null {
 		return {
 			status: 'error',
 			message: __(
-				'We couldn’t import your subscribers. Check your import confirmation email for details, then try again.',
+				'We couldn’t import your subscribers. Check your confirmation email if you received one, or contact support for help.',
 				'jetpack-newsletter'
 			),
 		};
@@ -56,8 +52,8 @@ export function describeImportOutcome( job: ImportJob ): OutcomeNotice | null {
 			message: sprintf(
 				// translators: %1$d: subscribers imported. %2$d: email addresses that couldn't be added.
 				_n(
-					'Imported %1$d subscriber. %2$d couldn’t be added — check your import confirmation email for details.',
-					'Imported %1$d subscribers. %2$d couldn’t be added — check your import confirmation email for details.',
+					'Imported %1$d subscriber. %2$d couldn’t be added. Check your confirmation email if you received one, or contact support for help.',
+					'Imported %1$d subscribers. %2$d couldn’t be added. Check your confirmation email if you received one, or contact support for help.',
 					subscribed,
 					'jetpack-newsletter'
 				),

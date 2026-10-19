@@ -21,7 +21,6 @@ use WorDBless\Posts as WorDBless_Posts;
  * @covers \Automattic\Jetpack\Post_Media\Twitter_Cards::site_tag
  * @covers \Automattic\Jetpack\Post_Media\Twitter_Cards::twitter_cards_tags
  * @covers \Automattic\Jetpack\Post_Media\Twitter_Cards::init
- * @covers \Automattic\Jetpack\Post_Media\Twitter_Cards::sharing_global_options
  */
 #[CoversMethod( Twitter_Cards::class, 'sanitize_twitter_user' )]
 #[CoversMethod( Twitter_Cards::class, 'is_default_site_tag' )]
@@ -31,7 +30,6 @@ use WorDBless\Posts as WorDBless_Posts;
 #[CoversMethod( Twitter_Cards::class, 'site_tag' )]
 #[CoversMethod( Twitter_Cards::class, 'twitter_cards_tags' )]
 #[CoversMethod( Twitter_Cards::class, 'init' )]
-#[CoversMethod( Twitter_Cards::class, 'sharing_global_options' )]
 class Twitter_Cards_Test extends BaseTestCase {
 
 	/**
@@ -455,16 +453,13 @@ class Twitter_Cards_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that init() registers all expected filters and actions.
+	 * Test that init() registers all expected filters.
 	 */
-	public function test_init_registers_all_filters_and_actions() {
+	public function test_init_registers_all_filters() {
 		// Remove any existing hooks.
 		remove_all_filters( 'jetpack_open_graph_tags' );
 		remove_all_filters( 'jetpack_open_graph_output' );
 		remove_all_filters( 'jetpack_twitter_cards_site_tag' );
-		remove_all_actions( 'admin_init' );
-		remove_all_actions( 'sharing_global_options' );
-		remove_all_actions( 'sharing_admin_update' );
 
 		Twitter_Cards::init();
 
@@ -472,25 +467,16 @@ class Twitter_Cards_Test extends BaseTestCase {
 		$this->assertSame( 10, has_filter( 'jetpack_open_graph_output', array( Twitter_Cards::class, 'twitter_cards_output' ) ) );
 		$this->assertSame( -99, has_filter( 'jetpack_twitter_cards_site_tag', array( Twitter_Cards::class, 'site_tag' ) ) );
 		$this->assertSame( 99, has_filter( 'jetpack_twitter_cards_site_tag', array( Twitter_Cards::class, 'prioritize_creator_over_default_site' ) ) );
-		$this->assertSame( 10, has_action( 'admin_init', array( Twitter_Cards::class, 'settings_init' ) ) );
-		$this->assertSame( 10, has_action( 'sharing_global_options', array( Twitter_Cards::class, 'sharing_global_options' ) ) );
-		$this->assertSame( 10, has_action( 'sharing_admin_update', array( Twitter_Cards::class, 'settings_validate' ) ) );
 	}
 
 	/**
-	 * `do_settings_fields()` prints the fields and never the section title, so
-	 * a host that renders nothing else around them -- Settings > Sharing with
-	 * the Sharing module off -- leaves the field with nothing naming what it
-	 * configures.
+	 * Settings > Sharing renders and saves the Site Tag itself, on every screen that shows it.
 	 */
-	public function test_sharing_global_options_names_the_feature_it_configures() {
-		Twitter_Cards::settings_init();
+	public function test_init_leaves_the_site_tag_setting_to_the_sharing_screen() {
+		Twitter_Cards::init();
 
-		ob_start();
-		Twitter_Cards::sharing_global_options();
-		$markup = (string) ob_get_clean();
-
-		$this->assertStringContainsString( 'jetpack-twitter-cards-site-tag', $markup );
-		$this->assertStringContainsString( 'Twitter Cards', $markup );
+		$this->assertFalse( has_action( 'admin_init', array( Twitter_Cards::class, 'settings_init' ) ) );
+		$this->assertFalse( has_action( 'sharing_global_options', array( Twitter_Cards::class, 'sharing_global_options' ) ) );
+		$this->assertFalse( has_action( 'sharing_admin_update', array( Twitter_Cards::class, 'settings_validate' ) ) );
 	}
 }

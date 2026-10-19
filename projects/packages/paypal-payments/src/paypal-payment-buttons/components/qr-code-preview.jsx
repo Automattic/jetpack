@@ -27,15 +27,14 @@ const PENDING_LABEL = __(
 /**
  * QR code canvas.
  *
- * @param {object}  props                  - Component props.
- * @param {string}  props.url              - The URL to encode, with the attribution code already appended.
- * @param {string}  props.className        - Class names for the canvas element.
- * @param {boolean} props.showDownload     - Whether to draw the Download button under the code.
- * @param {boolean} props.showCaption      - Whether to caption the code. Off by default, matching render_api_managed_button().
- * @param {string}  props.caption          - The caption. Falls back to the shared default when blank.
- * @param {object}  props.captionStyle     - Inline style for the caption.
- * @param {object}  props.frameStyle       - Inline style for the frame — Width, stroke and radius.
- * @param {boolean} props.showPendingLabel - Whether to name the pending code for screen readers. Off for the second copy, or it is announced twice.
+ * @param {object}  props              - Component props.
+ * @param {string}  props.url          - The URL to encode, with the attribution code already appended.
+ * @param {string}  props.className    - Class names for the canvas element.
+ * @param {boolean} props.showDownload - Whether to draw the Download button under the code.
+ * @param {boolean} props.showCaption  - Whether to caption the code. Off by default, matching render_api_managed_button().
+ * @param {string}  props.caption      - The caption. Falls back to the shared default when blank.
+ * @param {object}  props.captionStyle - Inline style for the caption.
+ * @param {object}  props.frameStyle   - Inline style for the frame — Width, stroke and radius.
  * @return {Element} The framed QR canvas, blank until there is a link to encode.
  */
 export default function QrCodePreview( {
@@ -46,7 +45,6 @@ export default function QrCodePreview( {
 	caption,
 	captionStyle,
 	frameStyle,
-	showPendingLabel = true,
 } ) {
 	const canvasRef = useRef( null );
 
@@ -68,8 +66,8 @@ export default function QrCodePreview( {
 					className={ clsx( className, {
 						'jetpack-paypal-button__qr-canvas--pending': ! url,
 					} ) }
-					role={ ! url && showPendingLabel ? 'img' : undefined }
-					aria-label={ ! url && showPendingLabel ? PENDING_LABEL : undefined }
+					role={ ! url ? 'img' : undefined }
+					aria-label={ ! url ? PENDING_LABEL : undefined }
 				/>
 			</div>
 			{ showCaption && (

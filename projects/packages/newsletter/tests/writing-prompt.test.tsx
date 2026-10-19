@@ -482,7 +482,17 @@ describe( 'WritingPrompt widget analytics', () => {
 describe( 'WritingPrompt widget editor preference', () => {
 	// Written by the Write editor when someone leaves it for the Block editor.
 	// See projects/packages/jetpack-mu-wpcom/src/features/write/view.js.
-	const BLOCK_EDITOR_PREFERRED_STORAGE_KEY = 'wpcom-write-block-editor-preferred';
+	const BLOCK_EDITOR_PREFERRED_KEY = 'wpcom-write-block-editor-preferred';
+
+	const optOutOfWrite = () => {
+		document.cookie = `${ BLOCK_EDITOR_PREFERRED_KEY }=1; path=/`;
+	};
+
+	const clearOptOut = () => {
+		document.cookie = `${ BLOCK_EDITOR_PREFERRED_KEY }=; path=/; max-age=0`;
+		document.cookie = `${ BLOCK_EDITOR_PREFERRED_KEY }=yes; path=/; max-age=0`;
+		window.localStorage.clear();
+	};
 
 	beforeEach( () => {
 		mockApiFetch.mockReset();
@@ -500,16 +510,16 @@ describe( 'WritingPrompt widget editor preference', () => {
 		mockIsWpcomPlatformSite.mockReturnValue( true );
 		mockIsSimpleSite.mockReturnValue( false );
 
-		window.localStorage.clear();
+		clearOptOut();
 	} );
 
 	afterEach( () => {
-		window.localStorage.clear();
+		clearOptOut();
 		jest.restoreAllMocks();
 	} );
 
 	it( 'points Post your answer at the classic new-post screen once Write has been opted out of', async () => {
-		window.localStorage.setItem( BLOCK_EDITOR_PREFERRED_STORAGE_KEY, '1' );
+		optOutOfWrite();
 
 		render( <WritingPrompt /> );
 
@@ -518,7 +528,7 @@ describe( 'WritingPrompt widget editor preference', () => {
 	} );
 
 	it( 'records the Block editor as the destination once Write has been opted out of', async () => {
-		window.localStorage.setItem( BLOCK_EDITOR_PREFERRED_STORAGE_KEY, '1' );
+		optOutOfWrite();
 
 		render( <WritingPrompt /> );
 
@@ -533,10 +543,8 @@ describe( 'WritingPrompt widget editor preference', () => {
 	} );
 
 	it( 'sends an opted-out Simple site to the Calypso editor, which seeds the prompt there', async () => {
-		// post-new.php only seeds the prompt block via the Jetpack plugin's editor
-		// script, which Simple does not run: the tags land but the editor is empty.
 		mockIsSimpleSite.mockReturnValue( true );
-		window.localStorage.setItem( BLOCK_EDITOR_PREFERRED_STORAGE_KEY, '1' );
+		optOutOfWrite();
 
 		render( <WritingPrompt /> );
 
@@ -559,9 +567,55 @@ describe( 'WritingPrompt widget editor preference', () => {
 		);
 	} );
 
-	it( 'still offers Write when localStorage cannot be read', async () => {
-		// Safari's private mode and a cookie-blocking profile both throw here,
-		// and the widget renders during the same tick that reads the flag.
+	it( 'honours an opt-out left in localStorage when the cookie has expired', async () => {
+		window.localStorage.setItem( BLOCK_EDITOR_PREFERRED_KEY, '1' );
+
+		render( <WritingPrompt /> );
+
+		const postAnswerLink = await screen.findByRole( 'link', { name: 'Post your answer' } );
+		expect( postAnswerLink ).toHaveAttribute( 'href', 'post-new.php?answer_prompt=1' );
+	} );
+
+	it( 're-arms the expired cookie so write.php can see the opt-out again', async () => {
+		window.localStorage.setItem( BLOCK_EDITOR_PREFERRED_KEY, '1' );
+
+		render( <WritingPrompt /> );
+		const postAnswerLink = await screen.findByRole( 'link', { name: 'Post your answer' } );
+
+		expect( postAnswerLink ).toBeVisible();
+		expect( document.cookie ).toContain( `${ BLOCK_EDITOR_PREFERRED_KEY }=1` );
+	} );
+
+	it( 'honours a localStorage opt-out when the cookie jar cannot be read', async () => {
+		jest.spyOn( Document.prototype, 'cookie', 'get' ).mockImplementation( () => {
+			throw new Error( 'cookies disabled' );
+		} );
+		window.localStorage.setItem( BLOCK_EDITOR_PREFERRED_KEY, '1' );
+
+		render( <WritingPrompt /> );
+
+		const postAnswerLink = await screen.findByRole( 'link', { name: 'Post your answer' } );
+		expect( postAnswerLink ).toHaveAttribute( 'href', 'post-new.php?answer_prompt=1' );
+	} );
+
+	it( 'ignores a cookie set to anything other than the value Write writes', async () => {
+		document.cookie = `${ BLOCK_EDITOR_PREFERRED_KEY }=yes; path=/`;
+
+		render( <WritingPrompt /> );
+
+		const postAnswerLink = await screen.findByRole( 'link', { name: 'Post your answer' } );
+		expect( postAnswerLink ).toHaveAttribute(
+			'href',
+			'admin.php?page=write&answer_prompt=1&source=writing_prompt'
+		);
+	} );
+
+	it( 'still offers Write when neither store can be read', async () => {
+		// The getter throws only for an opaque origin, so the spy is the only way
+		// to reach the catch; a cookie-blocking profile returns an empty string.
+		jest.spyOn( Document.prototype, 'cookie', 'get' ).mockImplementation( () => {
+			throw new Error( 'cookies disabled' );
+		} );
 		jest.spyOn( Storage.prototype, 'getItem' ).mockImplementation( () => {
 			throw new Error( 'storage disabled' );
 		} );

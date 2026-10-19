@@ -5,6 +5,9 @@ namespace Automattic\Jetpack\My_Jetpack;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Current_Plan;
 use Jetpack_Options;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -12,8 +15,6 @@ use WP_REST_Request;
 use WP_REST_Server;
 
 class Main_Features_Rest_Test extends TestCase {
-
-	const FLAG_FILTER = 'jetpack_feature_flag_enabled_' . Initializer::FEATURES_TAB_FEATURE_FLAG;
 
 	const ROUTE = '/wpcom/v2/my-jetpack/site/features/plugin';
 
@@ -52,8 +53,6 @@ class Main_Features_Rest_Test extends TestCase {
 		( new Tokens() )->update_blog_token( 'test.test.1' );
 		Jetpack_Options::update_option( 'id', 123 );
 
-		add_filter( self::FLAG_FILTER, '__return_true' );
-
 		global $wp_rest_server;
 		$wp_rest_server = new WP_REST_Server();
 		$this->server   = $wp_rest_server;
@@ -75,7 +74,6 @@ class Main_Features_Rest_Test extends TestCase {
 	public function tearDown(): void {
 		parent::tearDown();
 
-		remove_all_filters( self::FLAG_FILTER );
 		remove_filter( 'user_has_cap', array( $this, 'grant_manage_modules' ) );
 		$this->withdraw_stats_module();
 		$this->remove_jetpack();
@@ -120,6 +118,26 @@ class Main_Features_Rest_Test extends TestCase {
 	}
 
 	/**
+	 * The grid refreshes from this route, so a hidden feature must stay out of it too.
+	 */
+	public function test_the_features_route_leaves_out_what_a_host_hid() {
+		$hide = function ( $states ) {
+			$states['search'] = 'hidden';
+			return $states;
+		};
+		add_filter( 'jetpack_my_jetpack_feature_visibility', $hide );
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'GET', '/wpcom/v2/my-jetpack/site/features' ) );
+
+		remove_filter( 'jetpack_my_jetpack_feature_visibility', $hide );
+
+		$this->assertSame( 200, $response->get_status() );
+		$slugs = array_column( $response->get_data()['features'], 'slug' );
+		$this->assertNotContains( 'search', $slugs );
+		$this->assertContains( 'boost', $slugs );
+	}
+
+	/**
 	 * The boost feature's plugin status in a response.
 	 *
 	 * @param \WP_REST_Response $response The response.
@@ -139,6 +157,177 @@ class Main_Features_Rest_Test extends TestCase {
 		$this->assertSame( Main_Features::PLUGIN_INACTIVE, $this->boost_status( $deactivated ) );
 	}
 
+	/**
+	 * @dataProvider offline_plugin_switches
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 * @param string $plugin Plugin slug.
+	 * @param bool   $bulk Whether to use the bulk route.
+	 */
+	#[DataProvider( 'offline_plugin_switches' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_offline_plugin_switch_returns_local_state_with_copied_credentials( $plugin, $bulk ) {
+		$file        = null;
+		$original    = null;
+		$created_dir = false;
+		if ( $plugin !== 'jetpack-boost' ) {
+			$folder      = WP_PLUGIN_DIR . '/' . $plugin;
+			$created_dir = ! is_dir( $folder );
+			if ( $created_dir ) {
+				mkdir( $folder );
+			}
+			$file     = $folder . '/' . $plugin . '.php';
+			$original = file_exists( $file ) ? file_get_contents( $file ) : null;
+			file_put_contents( $file, "<?php\n/** Plugin Name: Offline switch fixture */\n" );
+			wp_cache_delete( 'plugins', 'plugins' );
+		}
+		if ( $plugin === 'jetpack-boost' ) {
+			update_option( 'jb_get_started', true );
+		}
+		$standalone_modules = function ( $modules ) {
+			return array_merge( $modules, array( 'protect', 'publicize' ) );
+		};
+		add_filter( 'jetpack_get_available_standalone_modules', $standalone_modules, 10, 1 );
+		\Automattic\Jetpack\Connection\Utils::init_default_constants();
+		Jetpack_Options::update_option( 'blog_token', 'copiedkey.copiedsecret' );
+		\Automattic\Jetpack\Status\Cache::clear();
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
+		$attempts = array();
+		$tripwire = function ( $response, $args, $url ) use ( &$attempts ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- WordPress HTTP filter signature.
+			$attempts[] = $url;
+			return new \WP_Error( 'unexpected_http', 'Offline switch attempted HTTP.' );
+		};
+		add_filter( 'pre_http_request', $tripwire, 10, 3 );
+		try {
+			\Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog( '/sites/123', '1.1' );
+			$this->assertCount( 1, $attempts, 'The signed control must reach the tripwire.' );
+			$attempts  = array();
+			$activated = $bulk ? $this->send_bulk(
+				array(
+					'active'  => true,
+					'plugins' => array( $plugin ),
+				)
+			) : $this->send( $plugin, 'activate' );
+			$this->assertSame( 200, $activated->get_status() );
+			$state = $bulk ? $activated->get_data()['state'] : $activated->get_data();
+			$this->assertSame( Main_Features::get_state( true ), $state );
+			$this->assertSame( Main_Features::PLUGIN_ACTIVE, Main_Features::get_plugin_status( $plugin ) );
+			if ( $plugin === 'jetpack-boost' ) {
+				$this->assertFalse( get_option( 'jb_get_started', 'not_started' ) );
+			}
+			$this->assertSame( array(), $attempts );
+			$this->assertSame( array(), Jetpack_Options::get_option( 'active_modules', array() ) );
+		} finally {
+			if ( $file ) {
+				if ( null !== $original ) {
+					file_put_contents( $file, $original );
+				} else {
+					unlink( $file );
+				}
+				if ( $created_dir ) {
+					rmdir( dirname( $file ) );
+				}
+			}
+			remove_filter( 'pre_http_request', $tripwire, 10 );
+			remove_filter( 'jetpack_get_available_standalone_modules', $standalone_modules );
+			remove_all_filters( 'jetpack_my_jetpack_offline_features' );
+			remove_all_filters( 'jetpack_offline_mode' );
+			\Automattic\Jetpack\Status\Cache::clear();
+		}
+	}
+
+	/** @return array Offline plugin/route cases. */
+	public static function offline_plugin_switches() {
+		return array(
+			'Boost single'   => array( 'jetpack-boost', false ),
+			'Boost bulk'     => array( 'jetpack-boost', true ),
+			'Backup single'  => array( 'jetpack-backup', false ),
+			'Backup bulk'    => array( 'jetpack-backup', true ),
+			'Search single'  => array( 'jetpack-search', false ),
+			'Search bulk'    => array( 'jetpack-search', true ),
+			'Protect single' => array( 'jetpack-protect', false ),
+			'Social single'  => array( 'jetpack-social', false ),
+		);
+	}
+
+	/**
+	 * @dataProvider offline_module_routes
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 * @param bool   $plugin_route Whether to switch the Protect plugin or a module.
+	 * @param string $module Module slug.
+	 * @param bool   $active Whether the module should activate.
+	 */
+	#[DataProvider( 'offline_module_routes' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_offline_module_activation_respects_connection_requirement( $plugin_route, $module, $active ) {
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
+		\Automattic\Jetpack\Status\Cache::clear();
+		require __DIR__ . '/fixtures/offline-module-info.php';
+		\Automattic\Jetpack\Connection\Utils::init_default_constants();
+		Jetpack_Options::update_option( 'blog_token', 'copiedkey.copiedsecret' );
+		$available = function ( $modules ) {
+			return array_merge( $modules, array( 'protect', 'publicize', 'waf', 'markdown' ) );
+		};
+		add_filter( 'jetpack_get_available_standalone_modules', $available, 10, 1 );
+		$activation_attempts = array();
+		$record_activation   = function ( $slug ) use ( &$activation_attempts ) {
+			$activation_attempts[] = $slug;
+		};
+		add_action( 'jetpack_pre_activate_module', $record_activation );
+		$http_attempts = array();
+		$tripwire      = function ( $response, $args, $url ) use ( &$http_attempts ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- WordPress HTTP filter signature.
+			$http_attempts[] = $url;
+			return new \WP_Error( 'unexpected_http', 'Offline module switch attempted HTTP.' );
+		};
+		add_filter( 'pre_http_request', $tripwire, 10, 3 );
+		add_filter( 'user_has_cap', array( $this, 'grant_manage_modules' ) );
+		try {
+			\Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog( '/sites/123', '1.1' );
+			$this->assertCount( 1, $http_attempts, 'The signed control must reach the tripwire.' );
+			$http_attempts = array();
+			if ( $plugin_route ) {
+				add_option( 'jetpack-protect_activated', true );
+				Products\Protect::do_product_specific_activation( true, true );
+				$this->assertFalse( get_option( 'jetpack-protect_activated' ) );
+			} else {
+				$response = $this->send_bulk(
+					array(
+						'active'  => true,
+						'modules' => array( $module ),
+					)
+				);
+				if ( ! $active ) {
+					$this->assertSame( 'Could not be switched on: unavailable in Offline Mode.', $response->get_data()['failed'][0]['message'] );
+				}
+			}
+			$this->assertSame( $active, ( new \Automattic\Jetpack\Modules() )->is_active( $module ) );
+			$this->assertSame( $active ? array( $module ) : array(), $activation_attempts );
+			$this->assertSame( array(), $http_attempts );
+		} finally {
+			remove_filter( 'pre_http_request', $tripwire, 10 );
+			remove_filter( 'jetpack_get_available_standalone_modules', $available, 10 );
+			remove_action( 'jetpack_pre_activate_module', $record_activation );
+			remove_all_filters( 'jetpack_offline_mode' );
+			remove_all_filters( 'jetpack_my_jetpack_offline_features' );
+			\Automattic\Jetpack\Status\Cache::clear();
+		}
+	}
+
+	/** @return array Protect activation entry points. */
+	public static function offline_module_routes() {
+		return array(
+			'Protect product step' => array( true, 'protect', false ),
+			'Protect bulk module'  => array( false, 'protect', false ),
+			'WAF bulk module'      => array( false, 'waf', false ),
+			'Social bulk module'   => array( false, 'publicize', false ),
+			'local bulk module'    => array( false, 'markdown', true ),
+		);
+	}
 	/**
 	 * Switching a plugin on has to run the product's own activation step too, or a
 	 * product that needs more than its plugin comes up half on.
@@ -270,6 +459,73 @@ class Main_Features_Rest_Test extends TestCase {
 	}
 
 	/**
+	 * DISALLOW_FILE_MODS stops administrators too, so the refusal must not blame their role.
+	 */
+	public function test_says_installs_are_off_when_file_changes_are_disallowed() {
+		add_filter( 'file_mod_allowed', '__return_false' );
+
+		$response = $this->send( 'zero-bs-crm', 'install' );
+		$state    = $this->server->dispatch( new WP_REST_Request( 'GET', '/wpcom/v2/my-jetpack/site/features' ) );
+
+		remove_filter( 'file_mod_allowed', '__return_false' );
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'install_disabled', $response->get_data()['code'] );
+		$this->assertSame( Main_Features::INSTALLS_DISABLED, $state->get_data()['plugin_installs'] );
+	}
+
+	public function test_the_state_says_whether_the_user_may_install_plugins() {
+		$get = function () {
+			return $this->server->dispatch( new WP_REST_Request( 'GET', '/wpcom/v2/my-jetpack/site/features' ) )->get_data()['plugin_installs'];
+		};
+
+		$this->assertSame( Main_Features::INSTALLS_ALLOWED, $get() );
+
+		$deny = function ( $caps ) {
+			$caps['install_plugins'] = false;
+			return $caps;
+		};
+		add_filter( 'user_has_cap', $deny );
+		$denied = $get();
+		remove_filter( 'user_has_cap', $deny );
+
+		$this->assertSame( Main_Features::INSTALLS_NOT_PERMITTED, $denied );
+	}
+
+	public function test_explains_a_download_that_failed() {
+		$fail = function () {
+			return new \WP_Error( 'download_failed', 'Download failed.' );
+		};
+		add_filter( 'upgrader_pre_download', $fail );
+
+		$response = $this->send( 'zero-bs-crm', 'install' );
+
+		remove_filter( 'upgrader_pre_download', $fail );
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 'no_package', $response->get_data()['code'] );
+		$this->assertStringContainsString( 'reach WordPress.org', $response->get_data()['message'] );
+	}
+
+	/**
+	 * Without direct file access WordPress needs server credentials, which only the Plugins screen asks for.
+	 */
+	public function test_explains_a_filesystem_it_could_not_write_to() {
+		$ftp = function () {
+			return 'ftpext';
+		};
+		add_filter( 'filesystem_method', $ftp );
+
+		$response = $this->send( 'zero-bs-crm', 'install' );
+
+		remove_filter( 'filesystem_method', $ftp );
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertStringStartsWith( 'fs_', $response->get_data()['code'] );
+		$this->assertStringContainsString( 'Plugins screen', $response->get_data()['message'] );
+	}
+
+	/**
 	 * A module that refuses to switch on does not undo the plugin that is now active, so
 	 * the route reports the state rather than an error the caller would retry forever.
 	 */
@@ -355,6 +611,31 @@ class Main_Features_Rest_Test extends TestCase {
 	}
 
 	/**
+	 * A bulk action's fresh state must not hand back a feature a host hid.
+	 */
+	public function test_bulk_state_leaves_out_what_a_host_hid() {
+		$this->activate_jetpack();
+		$hide = function ( $states ) {
+			$states['search'] = 'hidden';
+			return $states;
+		};
+		add_filter( 'jetpack_my_jetpack_feature_visibility', $hide );
+
+		$response = $this->send_bulk(
+			array(
+				'active'  => true,
+				'plugins' => array( 'jetpack-boost' ),
+			)
+		);
+
+		remove_filter( 'jetpack_my_jetpack_feature_visibility', $hide );
+
+		$slugs = array_column( $response->get_data()['state']['features'], 'slug' );
+		$this->assertNotContains( 'search', $slugs );
+		$this->assertContains( 'boost', $slugs );
+	}
+
+	/**
 	 * One refusal must not stop the rest of the batch, and must say why it was refused.
 	 */
 	public function test_bulk_reports_a_refusal_and_carries_on() {
@@ -396,6 +677,30 @@ class Main_Features_Rest_Test extends TestCase {
 
 		$this->assertSame( array(), $response->get_data()['failed'] );
 		$this->assertNotContains( 'stats', Jetpack_Options::get_option( 'active_modules', array() ) );
+	}
+
+	/**
+	 * A module a host forces on is reported as staying on, not switched off.
+	 */
+	public function test_bulk_reports_a_module_a_host_forced_on() {
+		$this->offer_stats_module();
+		add_filter( 'user_has_cap', array( $this, 'grant_manage_modules' ) );
+		Jetpack_Options::update_option( 'active_modules', array( 'stats' ) );
+		$force = fn( $modules ) => array_values( array_unique( array_merge( $modules, array( 'stats' ) ) ) );
+		add_filter( 'jetpack_active_modules', $force );
+
+		$response = $this->send_bulk(
+			array(
+				'active'  => false,
+				'modules' => array( 'stats' ),
+			)
+		);
+
+		remove_filter( 'jetpack_active_modules', $force );
+
+		$failed = $response->get_data()['failed'];
+		$this->assertCount( 1, $failed );
+		$this->assertStringContainsString( 'enabled by your host or site administrator', $failed[0]['message'] );
 	}
 
 	/**

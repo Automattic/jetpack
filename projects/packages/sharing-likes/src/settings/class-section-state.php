@@ -75,13 +75,14 @@ final class Section_State {
 	/**
 	 * Whether the shared "Show buttons on" section renders.
 	 *
-	 * It only governs legacy output, so it is hidden once neither feature produces any.
+	 * It only governs legacy output, so it is hidden once nothing on the site reads it.
 	 *
-	 * @param string $sharing_state Variant the Sharing buttons section renders.
-	 * @param string $likes_state   Variant the Like buttons section renders.
+	 * @param string $sharing_state        Variant the Sharing buttons section renders.
+	 * @param string $likes_state          Variant the Like buttons section renders.
+	 * @param bool   $comment_likes_follow Whether Comment Likes read the placement too.
 	 * @return bool
 	 */
-	public static function shows_placement( string $sharing_state, string $likes_state ): bool {
-		return self::configures( $sharing_state ) || self::configures( $likes_state );
+	public static function shows_placement( string $sharing_state, string $likes_state, bool $comment_likes_follow = false ): bool {
+		return self::configures( $sharing_state ) || self::configures( $likes_state ) || $comment_likes_follow;
 	}
 }

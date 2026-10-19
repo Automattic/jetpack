@@ -85,6 +85,11 @@
 	background-color: var(--a8c-charts-color-surface-secondary);
 	position: relative;
 	cursor: pointer;
+
+	&:focus-visible {
+		outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
+		outline-offset: var(--wpds-border-width-focus);
+	}
 }
 
 .funnel-bar {
@@ -112,16 +117,6 @@
 			transform: scaleY(1);
 		}
 	}
-}
-
-.tooltip-wrapper {
-	background: var(--a8c-charts-color-surface);
-
-	// Override .visx-tooltip inline styles.
-	border-radius: var(--wpds-border-radius-md) !important;
-	padding: var(--wpds-dimension-padding-md) !important;
-	box-shadow: var(--a8c-charts-elevation-sm, 0 1px 2px 0 #0000000d, 0 2px 3px 0 #0000000a, 0 6px 6px 0 #00000008, 0 8px 8px 0 #00000005) !important;
-
 }
 
 .tooltip-title {

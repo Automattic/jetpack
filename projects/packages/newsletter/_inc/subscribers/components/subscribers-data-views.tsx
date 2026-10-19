@@ -3,8 +3,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/el
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
 import { useMembershipsProducts } from '../data/use-memberships-products';
+import { useSendBounceConfirmationMutation } from '../data/use-send-bounce-confirmation-mutation';
 import { useSubscriberRemoveMutation } from '../data/use-subscriber-remove-mutation';
 import { useSubscribers } from '../data/use-subscribers';
+import { canCompSubscriber } from '../lib/comp-eligibility';
 import { getSubscribedAt, getSubscriberRowId } from '../lib/subscriber-helpers';
 import { getSubscriptionType } from '../lib/subscription-plans';
 import { getSubscriptionStatusLabel } from '../lib/subscription-status';
@@ -19,6 +21,7 @@ import RemoveCompModal from './modals/remove-comp-modal';
 import UnsubscribeModal from './modals/unsubscribe-modal';
 import type { Subscriber, SubscribersFilter, SubscribersSortField } from '../data/types';
 import type { Action, Field, View } from '@wordpress/dataviews';
+import type { JSX } from 'react';
 
 const DEFAULT_PER_PAGE = 20;
 
@@ -91,6 +94,7 @@ export default function SubscribersDataViews( {
 
 	const { data, isLoading, isPlaceholderData, error } = useSubscribers( queryParams );
 	const removeMutation = useSubscriberRemoveMutation();
+	const { mutate: sendBounceConfirmation } = useSendBounceConfirmationMutation();
 
 	// Fetch the site's paid products once for the whole table (not per row) so the "Comp a
 	// subscription" action can be hidden when there's nothing to comp onto — otherwise it opens a
@@ -177,7 +181,10 @@ export default function SubscribersDataViews( {
 				getValue: ( { item }: { item: Subscriber } ) =>
 					getSubscriptionStatusLabel( item.subscription_status ),
 				render: ( { item }: { item: Subscriber } ) => (
-					<SubscriptionStatusCell status={ item.subscription_status } />
+					<SubscriptionStatusCell
+						status={ item.subscription_status }
+						reason={ item.subscription_status_reason }
+					/>
 				),
 				elements: [
 					{
@@ -193,7 +200,7 @@ export default function SubscribersDataViews( {
 						value: 'unconfirmed_subscriber',
 					},
 					{
-						label: __( 'Not sending', 'jetpack-newsletter' ),
+						label: __( 'Not sending (any reason)', 'jetpack-newsletter' ),
 						value: 'blocked_subscriber',
 					},
 				],
@@ -231,13 +238,13 @@ export default function SubscribersDataViews( {
 			{
 				id: 'comp',
 				label: __( 'Comp a subscription', 'jetpack-newsletter' ),
-				// Needs a wpcom user id to attach the comp to, plus a paid product to comp onto —
-				// otherwise the modal is a dead-end that only reports "no paid plans".
-				// `canShowCompAction` comes from a single table-level fetch (see above: true when
-				// products exist or the fetch errored, false while loading or on a genuinely empty
-				// site), so this stays cheap per row. The modal still handles the per-subscriber
-				// "already comped on every plan" edge case.
-				isEligible: ( subscriber: Subscriber ) => !! subscriber.user_id && canShowCompAction,
+				// Needs a paid product to comp onto, otherwise the modal is a dead-end that only
+				// reports "no paid plans". `canShowCompAction` comes from a single table-level fetch
+				// (see above: true when products exist or the fetch errored, false while loading or
+				// on a genuinely empty site), so this stays cheap per row. The modal still handles
+				// the per-subscriber "already comped on every plan" edge case.
+				isEligible: ( subscriber: Subscriber ) =>
+					canCompSubscriber( subscriber ) && canShowCompAction,
 				callback: ( items: Subscriber[] ) => {
 					const target = items[ 0 ];
 					if ( ! target ) {
@@ -270,6 +277,21 @@ export default function SubscribersDataViews( {
 				},
 			},
 			{
+				id: 'send-bounce-confirmation',
+				label: __( 'Send confirmation email', 'jetpack-newsletter' ),
+				isEligible: ( subscriber: Subscriber ) =>
+					subscriber.subscription_status_reason === 'bounced' &&
+					!! subscriber.bounce_retry?.can_retry &&
+					!! subscriber.email_address,
+				callback: ( items: Subscriber[] ) => {
+					const target = items[ 0 ];
+					if ( ! target?.email_address ) {
+						return;
+					}
+					sendBounceConfirmation( target.email_address );
+				},
+			},
+			{
 				id: 'remove',
 				label: __( 'Remove subscriber', 'jetpack-newsletter' ),
 				supportsBulk: true,
@@ -278,7 +300,7 @@ export default function SubscribersDataViews( {
 				},
 			},
 		],
-		[ onViewSubscriber, canShowCompAction ]
+		[ onViewSubscriber, canShowCompAction, sendBounceConfirmation ]
 	);
 
 	const handleConfirmRemoval = useCallback( async () => {

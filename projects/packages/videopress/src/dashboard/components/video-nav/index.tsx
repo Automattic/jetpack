@@ -25,6 +25,7 @@ type Props = {
 	videoId: string;
 	activeTab: VideoNavTab;
 	confirmNavigation?: () => boolean;
+	editorDisabled?: boolean;
 };
 
 /**
@@ -40,9 +41,15 @@ type Props = {
  * @param props.confirmNavigation - Optional guard invoked before navigating
  *                                away; return false to cancel (e.g. unsaved
  *                                changes). The active tab never prompts.
+ * @param props.editorDisabled    - Disable the editor until the upload has registered.
  * @return The sub-nav element.
  */
-export default function VideoNav( { videoId, activeTab, confirmNavigation }: Props ) {
+export default function VideoNav( {
+	videoId,
+	activeTab,
+	confirmNavigation,
+	editorDisabled,
+}: Props ) {
 	const navigate = useNavigate();
 
 	const onValueChange = useCallback(
@@ -63,7 +70,9 @@ export default function VideoNav( { videoId, activeTab, confirmNavigation }: Pro
 			<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
 				<Tabs.List variant="minimal">
 					<Tabs.Tab value="details">{ __( 'Details', 'jetpack-videopress-pkg' ) }</Tabs.Tab>
-					<Tabs.Tab value="editor">{ __( 'Editor', 'jetpack-videopress-pkg' ) }</Tabs.Tab>
+					<Tabs.Tab value="editor" disabled={ editorDisabled }>
+						{ __( 'Editor', 'jetpack-videopress-pkg' ) }
+					</Tabs.Tab>
 				</Tabs.List>
 			</div>
 			{ /* Each tab's real content is a sibling route, not a panel; these

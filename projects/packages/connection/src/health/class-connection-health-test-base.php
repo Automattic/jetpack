@@ -482,25 +482,6 @@ class Connection_Health_Test_Base {
 	}
 
 	/**
-	 * Gets translated text to enable outbound requests.
-	 *
-	 * @param string $protocol Either 'HTTP' or 'HTTPS'.
-	 *
-	 * @return string
-	 */
-	protected function helper_enable_outbound_requests( $protocol ) {
-		return sprintf(
-			/* translators: %1$s - request protocol, either http or https */
-			__(
-				'Your server did not successfully connect to WordPress.com using %1$s.
-				Please ask your hosting provider to confirm your server can make outbound requests to WordPress.com.',
-				'jetpack-connection'
-			),
-			$protocol
-		);
-	}
-
-	/**
 	 * Returns 30 for use with a filter to increase HTTP request timeout.
 	 *
 	 * @return int 30

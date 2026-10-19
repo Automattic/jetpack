@@ -3,6 +3,11 @@ import userEvent from '@testing-library/user-event';
 import ConversionFunnelChart from '../conversion-funnel-chart';
 import type { FunnelStep } from '../types';
 
+let mockChartHeight = 0;
+jest.mock( '../../../hooks/use-element-size', () => ( {
+	useElementSize: () => [ jest.fn(), 500, mockChartHeight ],
+} ) );
+
 // Mock data for testing
 const mockSteps: FunnelStep[] = [
 	{
@@ -42,6 +47,10 @@ const renderWithoutTheme = ( component: React.ReactElement ) => {
 };
 
 describe( 'ConversionFunnelChart', () => {
+	afterEach( () => {
+		mockChartHeight = 0;
+	} );
+
 	describe( 'Basic Rendering', () => {
 		it( 'renders the main conversion rate', () => {
 			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
@@ -115,6 +124,19 @@ describe( 'ConversionFunnelChart', () => {
 			expect( screen.getByTestId( 'conversion-funnel-chart' ) ).toHaveStyle( {
 				height: '250px',
 			} );
+		} );
+
+		it.each( [
+			[ 'unmeasured', 0, 'xl' ],
+			[ 'short', 120, 'sm' ],
+			[ 'tall', 320, 'xl' ],
+		] )( 'spaces a %s (%ipx) chart with the %s gap', ( _, height, gap ) => {
+			mockChartHeight = height;
+			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
+
+			expect( screen.getByTestId( 'conversion-funnel-chart' ).style.gap ).toContain(
+				`gap-${ gap }`
+			);
 		} );
 	} );
 
@@ -427,8 +449,27 @@ describe( 'ConversionFunnelChart', () => {
 				index: 1,
 				top: expect.any( Number ),
 				left: expect.any( Number ),
-				className: 'tooltip-wrapper',
 			} );
+		} );
+
+		it( 'exposes the tooltip content with role="tooltip"', async () => {
+			const user = userEvent.setup();
+			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } /> );
+
+			await user.click( screen.getByRole( 'button', { name: /cart/i } ) );
+
+			expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'Cart' );
+		} );
+
+		it( 'merges tooltipStyle onto the tooltip box', async () => {
+			const user = userEvent.setup();
+			renderWithoutTheme(
+				<ConversionFunnelChart { ...defaultProps } tooltipStyle={ { background: 'purple' } } />
+			);
+
+			await user.click( screen.getByRole( 'button', { name: /cart/i } ) );
+
+			expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( { background: 'purple' } );
 		} );
 
 		it( 'disables tooltip when renderTooltip returns null', async () => {

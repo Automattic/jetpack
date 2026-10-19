@@ -4,6 +4,17 @@ import { render, screen } from '@testing-library/react';
 import ModernSubpage from './modern-subpage';
 import type { Subpage } from '../../../../../../_inc/runtime-contract';
 
+let mockPendingNotice = false;
+const mockSetPendingNotice = jest.fn();
+jest.mock( '$features/critical-css/cloud-css-upgrade-notice', () => ( {
+	useCloudCssUpgradeNotice: () => [ { data: mockPendingNotice }, { mutate: mockSetPendingNotice } ],
+} ) );
+
+beforeEach( () => {
+	mockPendingNotice = false;
+	mockSetPendingNotice.mockClear();
+} );
+
 jest.mock( '../../pages/cache-debug-log/cache-debug-log-card', () => ( {
 	__esModule: true,
 	default: () => <div>cache debug log</div>,
@@ -16,6 +27,10 @@ jest.mock( './subpage-frame', () => ( {
 			{ children }
 		</div>
 	),
+} ) );
+jest.mock( './back-to-settings-link', () => ( {
+	__esModule: true,
+	default: () => <a href="#settings">back to settings</a>,
 } ) );
 jest.mock( '../../pages/critical-css-advanced/critical-css-advanced-cards', () => ( {
 	__esModule: true,
@@ -31,6 +46,16 @@ jest.mock( '../../pages/purchase-success/purchase-success', () => ( {
 } ) );
 
 describe( 'ModernSubpage', () => {
+	it.each( [ 'purchase-successful', 'getting-started' ] as const )(
+		'consumes the pending confirmation only on the modern success page: %s',
+		subpage => {
+			mockPendingNotice = true;
+			render( <ModernSubpage subpage={ subpage } /> );
+			expect( mockSetPendingNotice.mock.calls ).toEqual(
+				subpage === 'purchase-successful' ? [ [ false ] ] : []
+			);
+		}
+	);
 	it.each( [
 		[ 'cache-debug-log', 'cache debug log' ],
 		[ 'critical-css-advanced', 'critical css advanced' ],
@@ -49,6 +74,15 @@ describe( 'ModernSubpage', () => {
 		render( <ModernSubpage subpage={ subpage as Subpage } /> );
 
 		expect( screen.getByRole( 'heading', { level: 1 } ).textContent ).toBe( title );
+	} );
+
+	it.each( [
+		[ 'critical-css-advanced', 1 ],
+		[ 'cache-debug-log', 0 ],
+	] )( 'shows the back link on %s %d time(s)', ( subpage, count ) => {
+		render( <ModernSubpage subpage={ subpage as Subpage } /> );
+
+		expect( screen.queryAllByText( 'back to settings' ) ).toHaveLength( count );
 	} );
 
 	it( 'renders only the requested sub-page', () => {

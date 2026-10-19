@@ -37,7 +37,7 @@ jest.mock( '@wordpress/route', () => ( {
 } ) );
 
 // Imports must come after the jest.mock factories above.
-import { render, screen } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { stage as RestoreStage } from '../routes/restore/stage';
 import { queryClient } from '../src/dashboard/data/query-client';
@@ -86,31 +86,54 @@ beforeEach( () => {
 /**
  * Wait for the lost-track message.
  *
- * `findAllBy` rather than `findBy`: `Notice` mirrors its content into
- * `@wordpress/a11y`'s live region, so the text is legitimately in the
- * document twice and a single-match query throws.
+ * The notice itself, not its copy in `@wordpress/a11y`'s live region: the
+ * region outlives the render that spoke into it, so an earlier test's
+ * announcement would match before this restore has even started.
  */
 async function findMessage() {
 	await expect(
-		screen.findAllByText( /We've lost track of this restore/ )
-	).resolves.not.toHaveLength( 0 );
+		screen.findByText( /We've lost track of this restore/, { ignore: '.a11y-speak-region' } )
+	).resolves.toBeInTheDocument();
 }
 
 /**
  * Start a restore with the default six-of-six checklist.
  */
 async function startRestore() {
-	await userEvent.click( await screen.findByRole( 'button', { name: /Confirm restore/ } ) );
+	const fake = 'clock' in setTimeout;
+	const user = userEvent.setup( fake ? { advanceTimers: jest.advanceTimersByTime } : {} );
+	await user.click( await screen.findByRole( 'button', { name: /Confirm restore/ } ) );
+}
+
+/**
+ * Let every poll fail past the silence deadline, then wait for the message.
+ * A failed first poll is temporary, so only the deadline gives up.
+ */
+async function findMessageAfterDeadline() {
+	for ( let elapsed = 0; elapsed <= 6 * 60_000; elapsed += 5000 ) {
+		await act( async () => {
+			await jest.advanceTimersByTimeAsync( 5000 );
+		} );
+	}
+	await findMessage();
 }
 
 describe( 'a restore that has gone out of sight', () => {
+	beforeEach( () => {
+		jest.useFakeTimers();
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
 	it( 'offers a way out, not a way to start another one', async () => {
 		arrange( () => Promise.reject( new Error( 'Could not reach WordPress.com.' ) ) );
 		render( <RestoreStage /> );
 
 		await startRestore();
 
-		await findMessage();
+		await findMessageAfterDeadline();
 
 		// The whole point. Either control would start a second restore:
 		// "Try again" resets to an armed Confirm, and Confirm submits.
@@ -119,7 +142,7 @@ describe( 'a restore that has gone out of sight', () => {
 		// Not merely the button: the whole form is gone, so there is
 		// nothing left on screen that could submit.
 		expect(
-			screen.queryByRole( 'checkbox', { name: 'WordPress themes' } )
+			screen.queryByRole( 'checkbox', { name: /^WordPress themes/ } )
 		).not.toBeInTheDocument();
 
 		// Two: the back link that sits above the card on every phase, and
@@ -134,25 +157,26 @@ describe( 'a restore that has gone out of sight', () => {
 
 		await startRestore();
 
-		await findMessage();
+		await findMessageAfterDeadline();
 		expect( screen.getByText( 'Could not reach WordPress.com.' ) ).toBeInTheDocument();
 	} );
 
-	// Not an error notice: we have no evidence the restore failed, only
-	// that we cannot see it, and red would assert a failure we cannot
-	// observe. Asserted through the status label `Notice` renders
-	// visually-hidden — what a screen reader is actually told — rather
-	// than through its `is-warning` class, which is that package's
-	// implementation detail rather than a contract.
+	// Not an error: we cannot see the restore, not know it failed. A warning is
+	// spoken politely where an error would be assertive, so check the live regions.
 	it( 'warns rather than reporting a failure', async () => {
 		arrange( () => Promise.reject( new Error( 'Could not reach WordPress.com.' ) ) );
 		render( <RestoreStage /> );
 
 		await startRestore();
-		await findMessage();
+		await findMessageAfterDeadline();
 
-		expect( screen.getByText( 'Warning notice' ) ).toBeInTheDocument();
-		expect( screen.queryByText( 'Error notice' ) ).not.toBeInTheDocument();
+		// The notice plus its @wordpress/a11y live-region copy; tell them apart by `aria-live`.
+		const lives = () =>
+			screen
+				.getAllByText( /We've lost track of this restore/ )
+				.map( el => el.getAttribute( 'aria-live' ) );
+		await waitFor( () => expect( lives() ).toContain( 'polite' ) );
+		expect( lives() ).not.toContain( 'assertive' );
 	} );
 } );
 
@@ -178,6 +202,6 @@ describe( 'a restore that definitely is not running', () => {
 		// its text into the live region.
 		await expect( screen.findAllByText( 'Restore aborted.' ) ).resolves.not.toHaveLength( 0 );
 		expect( screen.getByRole( 'button', { name: /Try again/ } ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Error notice' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( /Restore failed.*Restore aborted\./ );
 	} );
 } );

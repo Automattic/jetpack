@@ -4,7 +4,6 @@
  */
 
 import { getSiteType } from '@automattic/jetpack-script-data';
-import { useEffect, useRef } from '@wordpress/element';
 import analytics from 'lib/analytics';
 
 export const EVENTS = {
@@ -41,17 +40,4 @@ export function recordAiHubEvent( eventName, props = {} ) {
 export function getTrackingSiteType() {
 	const type = getSiteType();
 	return type === 'woa' ? 'atomic' : type;
-}
-
-/**
- * Record an event once per mount, with the props as they were at mount.
- *
- * @param {string} eventName - Tracks event name.
- * @param {object} props     - Event properties.
- */
-export function useRecordOnce( eventName, props = {} ) {
-	const propsRef = useRef( props );
-	useEffect( () => {
-		recordAiHubEvent( eventName, propsRef.current );
-	}, [ eventName ] );
 }

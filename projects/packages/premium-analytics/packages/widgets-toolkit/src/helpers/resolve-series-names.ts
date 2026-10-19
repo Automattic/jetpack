@@ -3,13 +3,6 @@
  */
 import type { ComparativeLineChartSeries } from '../components/chart-comparative-line/types';
 
-export type ResolvedSeriesNames = {
-	/** The current-period label of each `group`, keyed by group. */
-	primaryByGroup: Map< string, string >;
-	/** The metric name to show for a series label, keyed by that label. */
-	seriesNames: Map< string, string >;
-};
-
 /**
  * Resolve each group's current-period series.
  *
@@ -35,31 +28,4 @@ export function resolvePrimarySeriesByGroup(
 	}
 
 	return primarySeriesByGroup;
-}
-
-/**
- * Resolve the metric name each series' tooltip row reads as its unit. A
- * comparison row is named after its group's current period, not its own label
- * ('Visitors', not 'Visitors · previous period').
- *
- * @param series - The series the chart was handed.
- * @return The group's primary labels and the per-label metric names.
- */
-export function resolveSeriesNames(
-	series: readonly ComparativeLineChartSeries[]
-): ResolvedSeriesNames {
-	const primarySeriesByGroup = resolvePrimarySeriesByGroup( series );
-	const primaryByGroup = new Map(
-		Array.from( primarySeriesByGroup, ( [ group, primary ] ) => [ group, primary.label ] )
-	);
-
-	const seriesNames = new Map< string, string >();
-	for ( const item of series ) {
-		seriesNames.set(
-			item.label,
-			( item.group !== undefined && primaryByGroup.get( item.group ) ) || item.label
-		);
-	}
-
-	return { primaryByGroup, seriesNames };
 }

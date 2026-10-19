@@ -1,7 +1,12 @@
 /**
  * External dependencies
  */
-import { resolveIntervalForRange, type ReportQueryParams } from '@jetpack-premium-analytics/data';
+import {
+	resolveIntervalForPresetChange,
+	resolveIntervalForRange,
+	type LockableInterval,
+	type ReportParams,
+} from '@jetpack-premium-analytics/data';
 import {
 	type ComparisonPresetId,
 	type DateRange,
@@ -17,7 +22,7 @@ import { encodeRangeToSearchParams } from '../../search/date-range';
  * The report search params the date filters read and stage.
  */
 export type ReportQuerySearchParams = Partial<
-	ReportQueryParams & {
+	Omit< ReportParams, 'preset' > & {
 		preset?: PrimaryPresetId;
 		compare_preset?: ComparisonPresetId;
 		comp?: '1';
@@ -40,10 +45,19 @@ type BuildRangePatchArgs = {
 	exactRange?: boolean;
 
 	/**
+	 * Start a different named preset from its own default interval, for a
+	 * preset the user picked.
+	 */
+	resetIntervalOnPresetChange?: boolean;
+
+	/**
 	 * The current effective search params, used to re-derive the comparison
 	 * range and to resolve the interval for the next range.
 	 */
 	effective: ReportQuerySearchParams;
+
+	/** The buckets the plan locks; the next range's interval avoids them. */
+	lockedIntervals?: readonly LockableInterval[];
 };
 
 /**
@@ -59,7 +73,9 @@ export function buildRangePatch( {
 	nextRange,
 	nextPresetId,
 	exactRange,
+	resetIntervalOnPresetChange,
 	effective,
+	lockedIntervals,
 }: BuildRangePatchArgs ): ReportQuerySearchParams | null {
 	const patch: ReportQuerySearchParams = {};
 
@@ -71,14 +87,23 @@ export function buildRangePatch( {
 		patch.from = rangeFrom;
 		patch.to = rangeTo;
 
-		// The interval carries across the change; the new range's rules decide
-		// whether it survives or coerces to the finest allowed.
-		patch.interval = resolveIntervalForRange(
-			nextPresetId,
-			rangeFrom,
-			rangeTo,
-			effective.interval
-		);
+		// Without the reset, the interval carries unless the new range disallows it.
+		patch.interval = resetIntervalOnPresetChange
+			? resolveIntervalForPresetChange(
+					effective.preset,
+					nextPresetId,
+					rangeFrom,
+					rangeTo,
+					effective.interval,
+					lockedIntervals
+				)
+			: resolveIntervalForRange(
+					nextPresetId,
+					rangeFrom,
+					rangeTo,
+					effective.interval,
+					lockedIntervals
+				);
 
 		// Loose `comp` check: an unquoted URL delivers number 1, not '1'. The
 		// preset being staged measures the new range, not the one it replaces.

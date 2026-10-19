@@ -4,6 +4,7 @@
 import { useStatsTopAuthors } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
+	authorDetailLinkProps,
 	LeaderboardSkeleton,
 	LeaderboardPostLabel,
 	ReportLink,
@@ -16,17 +17,20 @@ import {
 	formatLegendLabels,
 	useWidgetDrillDown,
 	useWidgetRootContext,
+	ExporterCsvDownloadButton,
+	authorsCsvExporter,
 	type LeaderboardChartData,
+	type WidgetStateEmpty,
 	type LegendLabels,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
 import { useEffect, useMemo } from 'react';
-import { postAuthor } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
 import { buildTopAuthorsData, type AuthorLeaderboardRow } from './build-top-authors-data';
+import { useNoViewsEmptyState } from '../use-no-views-empty-state';
 import styles from './style.module.css';
 import type { AuthorsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -45,6 +49,7 @@ export type AuthorsLeaderboardProps = {
 	refetch?: () => void;
 	withComparison?: boolean;
 	legendLabels?: LegendLabels;
+	empty?: WidgetStateEmpty;
 };
 
 /**
@@ -60,6 +65,7 @@ export function AuthorsLeaderboard( {
 	refetch,
 	withComparison = false,
 	legendLabels,
+	empty,
 }: AuthorsLeaderboardProps ) {
 	// Store only the id and resolve the row fresh, so a refetch that drops the
 	// author falls back to the top view instead of pinning a stale snapshot.
@@ -84,8 +90,7 @@ export function AuthorsLeaderboard( {
 	}, [ selectedAuthorId, selectedAuthor, isLoading, isFetching, clearSelectedAuthor ] );
 
 	const chartData: LeaderboardChartData = useMemo( () => {
-		// The data layer already aligned current/comparison values, including posts
-		// that only existed in the comparison period.
+		// The data layer already aligned current/comparison values.
 		if ( selectedAuthor ) {
 			return selectedAuthor.posts.map( post => ( {
 				id: post.id,
@@ -105,30 +110,36 @@ export function AuthorsLeaderboard( {
 			} ) );
 		}
 
-		return rows.map( row => ( {
-			id: row.id,
-			...buildLeaderboardRow( {
-				label: row.label,
-				media: { kind: 'avatar', url: row.avatarUrl ?? undefined, name: row.label },
-				action:
-					row.posts.length > 0
-						? {
-								kind: 'drillDown',
-								onClick: () => selectAuthor( row.id ),
-								ariaLabel: sprintf(
-									/* translators: %s is the author name */
-									__( 'View posts by %s', 'jetpack-premium-analytics-pkg' ),
-									row.label
-								),
-							}
-						: { kind: 'static' },
-			} ),
-			currentValue: row.currentValue,
-			previousValue: row.previousValue,
-			currentShare: row.currentShare,
-			previousShare: row.previousShare,
-			delta: row.delta,
-		} ) );
+		return rows.map( row => {
+			const authorLink = row.authorId ? authorDetailLinkProps( row.authorId ) : undefined;
+
+			return {
+				id: row.id,
+				...buildLeaderboardRow( {
+					label: row.label,
+					media: { kind: 'avatar', url: row.avatarUrl ?? undefined, name: row.label },
+					action:
+						row.posts.length > 0
+							? {
+									kind: 'drillDown',
+									onClick: () => selectAuthor( row.id ),
+									// The name opens the author's page; the rest of the row lists their posts.
+									link: authorLink,
+									ariaLabel: sprintf(
+										/* translators: %s is the author name */
+										__( 'View posts by %s', 'jetpack-premium-analytics-pkg' ),
+										row.label
+									),
+								}
+							: { kind: 'static', link: authorLink },
+				} ),
+				currentValue: row.currentValue,
+				previousValue: row.previousValue,
+				currentShare: row.currentShare,
+				previousShare: row.previousShare,
+				delta: row.delta,
+			};
+		} );
 	}, [ rows, selectedAuthor, selectAuthor ] );
 
 	const isDrilled = Boolean( selectedAuthor );
@@ -155,18 +166,21 @@ export function AuthorsLeaderboard( {
 						? [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ]
 						: undefined,
 				} }
-				empty={ {
-					icon: postAuthor,
-					description: isDrilled
-						? __(
-								'This author has no posts with views for the selected period.',
-								'jetpack-premium-analytics-pkg'
-							)
-						: __( 'No author views in this period.', 'jetpack-premium-analytics-pkg' ),
-				} }
+				// The author row the reader drilled from had views, so "no results" would contradict it; say where the views are missing instead.
+				empty={
+					isDrilled
+						? {
+								description: __(
+									'This author has no posts with views for the selected period.',
+									'jetpack-premium-analytics-pkg'
+								),
+							}
+						: empty
+				}
 				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 			>
 				<LeaderboardChart
+					chartTitle={ __( 'Popular authors', 'jetpack-premium-analytics-pkg' ) }
 					data={ chartData }
 					withComparison={ withComparison }
 					withOverlayLabel
@@ -175,6 +189,12 @@ export function AuthorsLeaderboard( {
 					dataFormat={ {
 						type: 'number',
 						options: { useMultipliers: true, decimals: 0 },
+					} }
+					columns={ {
+						label: isDrilled
+							? __( 'Posts', 'jetpack-premium-analytics-pkg' )
+							: __( 'Authors', 'jetpack-premium-analytics-pkg' ),
+						metric: 'views',
 					} }
 				/>
 			</WidgetState>
@@ -201,13 +221,18 @@ function AuthorsReport() {
 		[ comparisonRows ]
 	);
 
+	const emptyState = useNoViewsEmptyState(
+		{ isLoading: isInitialLoading, isError, isEmpty: rows.length === 0 },
+		__( 'You don’t have authors recorded yet.', 'jetpack-premium-analytics-pkg' )
+	);
+
 	const legendLabels = useMemo( () => formatLegendLabels( reportParams ), [ reportParams ] );
 
 	return (
 		<>
 			<AuthorsLeaderboard
 				rows={ rows }
-				isLoading={ isInitialLoading }
+				isLoading={ emptyState.isLoading }
 				isFetching={ isFetching }
 				// `placeholderData` keeps the prior period's rows on screen while `isError`
 				// flips true, so a transient refetch failure should not replace them.
@@ -215,9 +240,15 @@ function AuthorsReport() {
 				refetch={ refetch }
 				withComparison={ hasComparison }
 				legendLabels={ legendLabels }
+				empty={ emptyState.empty }
 			/>
 			<WidgetFooter>
 				<ReportLink report="authors" />
+				<ExporterCsvDownloadButton
+					exporter={ authorsCsvExporter }
+					status={ { isLoading: isInitialLoading, isFetching, isError: primary.isError } }
+					rowCount={ rows.length }
+				/>
 			</WidgetFooter>
 		</>
 	);

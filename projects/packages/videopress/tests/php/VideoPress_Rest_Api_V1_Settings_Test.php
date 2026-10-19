@@ -208,4 +208,21 @@ class VideoPress_Rest_Api_V1_Settings_Test extends BaseTestCase {
 
 		delete_option( 'videopress_inline_player_enabled' );
 	}
+
+	/**
+	 * Test that the share menu override round-trips through the endpoint.
+	 */
+	public function test_share_menu_disabled_setting_round_trips() {
+		delete_option( 'videopress_share_menu_disabled' );
+
+		$response = $this->update_settings( array( 'videopress_share_menu_disabled' => true ) );
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertTrue( boolval( get_option( 'videopress_share_menu_disabled' ) ) );
+
+		$request  = new WP_REST_Request( 'GET', '/videopress/v1/settings' );
+		$response = $this->server->dispatch( $request );
+		$this->assertTrue( $response->get_data()['videopress_share_menu_disabled'] );
+
+		delete_option( 'videopress_share_menu_disabled' );
+	}
 }

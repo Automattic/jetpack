@@ -482,14 +482,18 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 
 	/**
 	 * Test that an invalid return URL is rejected.
+	 *
+	 * @param string $return_url The invalid return URL to test.
+	 * @dataProvider invalid_return_url_provider
 	 */
-	public function test_validate_rejects_invalid_return_url() {
+	#[DataProvider( 'invalid_return_url_provider' )]
+	public function test_validate_rejects_invalid_return_url( $return_url ) {
 		$result = PayPal_Attribute_Mapper::validate_attributes(
 			array(
 				'productName'  => 'Widget',
 				'price'        => '10.00',
 				'currencyCode' => 'USD',
-				'returnUrl'    => 'javascript:alert(1)',
+				'returnUrl'    => $return_url,
 			)
 		);
 
@@ -498,10 +502,56 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	}
 
 	/**
-	 * PayPal's limit: a return URL of 127 characters passes, one more is rejected.
+	 * Data provider for invalid return URLs.
+	 *
+	 * @return array[] Test cases.
 	 */
-	public function test_validate_caps_the_return_url_at_127_characters() {
-		$at_limit   = str_pad( 'https://example.com/', 127, 'a' );
+	public static function invalid_return_url_provider(): array {
+		return array(
+			'javascript'      => array( 'javascript:alert(1)' ),
+			'ftp'             => array( 'ftp://example.com/thanks' ),
+			// wp_http_validate_url() accepts this one; the scheme check rejects it.
+			'scheme-relative' => array( '//example.com/thanks' ),
+		);
+	}
+
+	/**
+	 * Test that http and https return URLs are accepted.
+	 *
+	 * @param string $return_url The valid return URL to test.
+	 * @dataProvider valid_return_url_provider
+	 */
+	#[DataProvider( 'valid_return_url_provider' )]
+	public function test_validate_accepts_http_and_https_return_urls( $return_url ) {
+		$result = PayPal_Attribute_Mapper::validate_attributes(
+			array(
+				'productName'  => 'Widget',
+				'price'        => '10.00',
+				'currencyCode' => 'USD',
+				'returnUrl'    => $return_url,
+			)
+		);
+
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Data provider for valid return URLs.
+	 *
+	 * @return array[] Test cases.
+	 */
+	public static function valid_return_url_provider(): array {
+		return array(
+			'http'  => array( 'http://example.com/thanks' ),
+			'https' => array( 'https://example.com/thanks' ),
+		);
+	}
+
+	/**
+	 * PayPal's limit: a return URL of 1024 characters passes, one more is rejected.
+	 */
+	public function test_validate_caps_the_return_url_at_1024_characters() {
+		$at_limit   = str_pad( 'https://example.com/', 1024, 'a' );
 		$attributes = array(
 			'productName'  => 'Widget',
 			'price'        => '10.00',
@@ -598,6 +648,126 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	// --- api_response_to_attributes ---
 
 	/**
+	 * A payment's stacked snippets, as the live API returns them.
+	 *
+	 * @param string $head The HTML framework's head snippet.
+	 * @return array
+	 */
+	private function code_snippets( $head ) {
+		return array(
+			'stacked' => array(
+				array(
+					'framework'        => 'HTML',
+					'head'             => $head,
+					'button_placement' => 'BODY',
+				),
+				array(
+					'framework'        => 'REACT',
+					'head'             => '<PayPalScriptProvider options={{ clientId: "abc" }}>',
+					'button_placement' => 'BODY',
+				),
+			),
+		);
+	}
+
+	public function test_api_response_to_attributes_reads_the_stacked_script_src() {
+		// `&equals;` decodes only under ENT_HTML5. `&amp;` proves nothing on its own:
+		// the URL sanitizer unescapes that one itself.
+		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
+			array(
+				'id'               => 'PLB-STACKED',
+				'integration_mode' => 'BUTTON',
+				'code_snippets'    => $this->code_snippets(
+					// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- A fixture of PayPal's snippet, not an enqueue.
+					'<script src="https://www.paypal.com/sdk/js?client-id=abc&amp;components=hosted-buttons&amp;currency&equals;USD"></script>'
+				),
+			)
+		);
+
+		$this->assertSame( 'BUTTON', $attributes['integrationMode'] );
+		$this->assertSame(
+			'https://www.paypal.com/sdk/js?client-id=abc&components=hosted-buttons&currency=USD',
+			$attributes['scriptSrc']
+		);
+	}
+
+	public function test_api_response_to_attributes_leaves_the_script_src_empty_for_link_mode() {
+		// Only a BUTTON-mode payment has snippets, which is why nothing may
+		// downgrade the mode.
+		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
+			array(
+				'id'               => 'PLB-LINK',
+				'integration_mode' => 'LINK',
+			)
+		);
+
+		$this->assertSame( 'LINK', $attributes['integrationMode'] );
+		$this->assertSame( '', $attributes['scriptSrc'] );
+	}
+
+	public function test_api_response_to_attributes_ignores_a_snippet_for_another_framework() {
+		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
+			array(
+				'id'            => 'PLB-REACT',
+				'code_snippets' => array(
+					'stacked' => array(
+						array(
+							'framework' => 'REACT',
+							// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- A fixture of PayPal's snippet, not an enqueue.
+							'head'      => '<script src="https://www.paypal.com/sdk/js?client-id=abc"></script>',
+						),
+					),
+				),
+			)
+		);
+
+		$this->assertSame( '', $attributes['scriptSrc'] );
+	}
+
+	public function test_api_response_to_attributes_rejects_a_script_src_off_paypal() {
+		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
+			array(
+				'id'            => 'PLB-EVIL',
+				'code_snippets' => $this->code_snippets(
+					// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- A fixture of PayPal's snippet, not an enqueue.
+					'<script src="https://evil.example.com/sdk.js"></script>'
+				),
+			)
+		);
+
+		$this->assertSame( '', $attributes['scriptSrc'] );
+	}
+
+	public function test_api_response_to_attributes_takes_the_src_from_the_script_tag() {
+		// The snippet is PayPal's, so the first src= in it can belong to anything.
+		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
+			array(
+				'id'            => 'PLB-IMG',
+				'code_snippets' => $this->code_snippets(
+					'<img src="https://www.paypalobjects.com/pixel.gif" />' .
+					// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- A fixture of PayPal's snippet, not an enqueue.
+					'<script src="https://www.paypal.com/sdk/js?client-id=abc"></script>'
+				),
+			)
+		);
+
+		$this->assertSame( 'https://www.paypal.com/sdk/js?client-id=abc', $attributes['scriptSrc'] );
+	}
+
+	public function test_api_response_to_attributes_drops_an_integration_mode_outside_the_enum() {
+		// The REST argument allows LINK or BUTTON only, so storing a third value
+		// would 400 every later save with no way out from the editor.
+		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
+			array(
+				'id'               => 'PLB-WEIRD',
+				'integration_mode' => 'SOMETHING_NEW',
+			)
+		);
+
+		$this->assertSame( '', $attributes['integrationMode'] );
+	}
+
+	/**
 	 * Test that api_response_to_attributes extracts id and payment_link.
 	 */
 	public function test_api_response_to_attributes_extracts_id_and_link() {
@@ -692,9 +862,9 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	}
 
 	/**
-	 * The product image comes back from the payment, so the GET route can show it.
+	 * The product image stays on the site, so the mapper ignores image_url.
 	 */
-	public function test_api_response_to_attributes_reads_the_image_url() {
+	public function test_api_response_to_attributes_ignores_the_image_url() {
 		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
 			array(
 				'id'         => 'PLB-TEST123',
@@ -707,7 +877,8 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 			)
 		);
 
-		$this->assertSame( 'https://example.com/widget.png', $attributes['imageUrl'] );
+		$this->assertSame( 'Widget', $attributes['productName'] );
+		$this->assertArrayNotHasKey( 'imageUrl', $attributes );
 	}
 
 	/**
@@ -1677,6 +1848,146 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	}
 
 	// --- Constants ---
+
+	// --- merge_into_resource ---
+
+	/**
+	 * A payment as a GET returns it, with keys the block does not model.
+	 *
+	 * @return array
+	 */
+	private static function stored_payment() {
+		return array(
+			'id'               => 'PLB-42',
+			'payment_link'     => 'https://www.paypal.com/ncp/payment/PLB-42',
+			'links'            => array(
+				array(
+					'rel'  => 'payment_link',
+					'href' => 'https://www.paypal.com/ncp/payment/PLB-42',
+				),
+			),
+			'create_time'      => '2026-09-11T17:32:35Z',
+			'update_time'      => '2026-10-01T09:00:00Z',
+			'status'           => 'ACTIVE',
+			'code_snippets'    => array( 'single' => array( 'body' => '<a>' ) ),
+			'type'             => 'BUY_NOW',
+			'integration_mode' => 'LINK',
+			'reusable'         => 'MULTIPLE',
+			'return_url'       => 'https://example.com/thanks',
+			'future_field'     => 'kept',
+			'line_items'       => array(
+				array(
+					'name'                     => 'Old name',
+					'unit_amount'              => array(
+						'currency_code' => 'USD',
+						'value'         => '10.00',
+					),
+					'taxes'                    => array(
+						array(
+							'type'  => 'PERCENTAGE',
+							'value' => '7.5',
+						),
+					),
+					'shipping'                 => array(
+						array(
+							'type'  => 'FLAT',
+							'value' => '5.00',
+						),
+					),
+					'collect_shipping_address' => true,
+					'future_detail'            => 'kept',
+				),
+				array(
+					'name'        => 'Second item',
+					'unit_amount' => array(
+						'currency_code' => 'USD',
+						'value'         => '3.00',
+					),
+				),
+			),
+		);
+	}
+
+	/**
+	 * The body a block builds when every optional field is off.
+	 *
+	 * @return array
+	 */
+	private static function bare_update() {
+		return array(
+			'type'             => 'BUY_NOW',
+			'integration_mode' => 'LINK',
+			'reusable'         => 'MULTIPLE',
+			'line_items'       => array(
+				array(
+					'name'        => 'New name',
+					'unit_amount' => array(
+						'currency_code' => 'USD',
+						'value'         => '12.00',
+					),
+				),
+			),
+		);
+	}
+
+	public function test_merge_keeps_keys_the_block_does_not_own() {
+		$merged = PayPal_Attribute_Mapper::merge_into_resource( self::stored_payment(), self::bare_update() );
+
+		$this->assertSame( 'kept', $merged['future_field'] );
+		$this->assertSame( 'kept', $merged['line_items'][0]['future_detail'] );
+		$this->assertSame( 'Second item', $merged['line_items'][1]['name'] );
+	}
+
+	public function test_merge_drops_an_owned_key_the_block_left_out() {
+		$merged = PayPal_Attribute_Mapper::merge_into_resource( self::stored_payment(), self::bare_update() );
+
+		$this->assertArrayNotHasKey( 'return_url', $merged );
+		$this->assertArrayNotHasKey( 'taxes', $merged['line_items'][0] );
+		$this->assertArrayNotHasKey( 'shipping', $merged['line_items'][0] );
+		$this->assertSame( 'New name', $merged['line_items'][0]['name'] );
+		$this->assertSame( '12.00', $merged['line_items'][0]['unit_amount']['value'] );
+	}
+
+	public function test_merge_strips_read_only_keys() {
+		$merged = PayPal_Attribute_Mapper::merge_into_resource( self::stored_payment(), self::bare_update() );
+
+		foreach ( PayPal_Attribute_Mapper::READ_ONLY_RESOURCE_KEYS as $key ) {
+			$this->assertArrayNotHasKey( $key, $merged );
+		}
+	}
+
+	/**
+	 * The flag always goes out: the block's value when sent, PayPal's when not.
+	 *
+	 * @param array $line_item The block's line item.
+	 * @param bool  $expected  What goes to PayPal.
+	 * @dataProvider address_collection_provider
+	 */
+	#[DataProvider( 'address_collection_provider' )]
+	public function test_merge_always_sends_address_collection( array $line_item, $expected ) {
+		$update               = self::bare_update();
+		$update['line_items'] = array( $line_item );
+
+		$merged = PayPal_Attribute_Mapper::merge_into_resource( self::stored_payment(), $update );
+
+		$this->assertSame( $expected, $merged['line_items'][0]['collect_shipping_address'] );
+	}
+
+	/**
+	 * @return array<string, array{0: array, 1: bool}>
+	 */
+	public static function address_collection_provider() {
+		return array(
+			'not sent keeps PayPal\'s' => array( array( 'name' => 'Widget' ), true ),
+			'sent off turns it off'    => array(
+				array(
+					'name'                     => 'Widget',
+					'collect_shipping_address' => false,
+				),
+				false,
+			),
+		);
+	}
 
 	/**
 	 * Test that length constant values are set correctly.

@@ -70,9 +70,14 @@ The simplest bar chart requires only a `data` prop with categorical data:
 - **`resizeDebounceTime`**: Debounce delay for resize events in ms (default: `300`)
 
 **Visual Styling:**
+
+- **`barClassName`**: A callback returning an additional CSS class for each primary bar's datum, on top of `visx-bar`. Use it to style empty or zero-value marks independently of their fill color.
+- **`tooltipStyle`**: Inline style overrides for the tooltip box
 - **`orientation`**: Bar orientation (`'vertical'` or `'horizontal'`, defaults to `'vertical'`)
 - **`withPatterns`**: Use pattern fills instead of solid colors (`false` by default)
 - **`gridVisibility`**: Grid line visibility (`'x'`, `'y'`, `'xy'`, or `'none'`)
+
+<Canvas of={ BarChartStories.DatumClasses } />
 
 **Interactivity:**
 - **`withTooltips`**: Enable interactive tooltips (`false` by default)
@@ -197,7 +202,7 @@ It composes with grouped bars: pair each primary series with its own `type: 'com
 - Comparison values are included in the value-axis domain, so a previous period taller than the current one is never clipped.
 - Comparison series must reuse the primary series' category keys (the `label`/`date` of each point) so each shadow lines up with its primary bar.
 - The comparison shadow isn't a separate hover/keyboard target (the primary bar drives interaction), but the tooltip shows both the current and previous period values for the hovered category.
-- Each series gets its own legend item by default. Set `legend.collapseGroups` to render one item per group, labeled by its primary series; combined with `legend.interactive`, clicking that item toggles the primary and its previous-period series together. Pair it with `legend.comparisonItem` to append a static item explaining the comparison shadow once `collapseGroups` folds it away. When every series is hidden, the axes are dropped and only the empty state is shown.
+- Each series gets its own legend item by default. Set `legend.collapseGroups` to render one item per group, labeled by its primary series; combined with `legend.interactive`, clicking that item toggles the primary and its previous-period series together. Pair it with `legend.comparisonItem` to append a static item explaining the comparison shadow once `collapseGroups` folds it away. Use `legend.comparisonSeriesItems` instead to give each metric's comparison its own static item, labeled from the metric's label and left out while that metric is hidden. When every series is hidden, the axes are dropped and only the empty state is shown.
 - Collapsing the legend requires the primary and its comparison series to share a `group`. This is stricter than the bars themselves: rendering pairs a comparison with the sole primary even when `group` is omitted, but the legend has no single-primary fallback, so without a shared `group` the pair keeps separate legend items.
 - With pattern fills enabled (`withPatterns`), the comparison shadow reuses its primary bar's pattern at the same reduced opacity, so the pair reads as one series.
 - Styling comes from the theme at `barChart.barStyles.comparison`. `widthFactor` (default `1.5`) controls how much wider the comparison bar is than the primary — the primary is narrowed to `1 / widthFactor` of the slot — and `opacity` (default `0.5`) sets the shadow translucency.
@@ -224,6 +229,19 @@ Add visual accessibility and distinction with pattern fills instead of solid col
 - **Circles**: Circular dot patterns
 - **Waves**: Wave line patterns
 - **Hexagons**: Hexagonal patterns
+
+### Bar Radius
+
+Bars are square by default. Set the `--a8c-charts-border-radius-bar-chart` catalog role inside the provider tree to round their corners:
+
+<Canvas of={ BarChartStories.BarRadius } />
+
+<Source
+	language="css"
+	code={ `.a8c-charts-scope {
+		--a8c-charts-border-radius-bar-chart: var(--wpds-border-radius-sm);
+	}` }
+/>
 
 ### Smart Formatting
 
@@ -352,6 +370,8 @@ The chart gracefully handles various error states and edge cases:
 
 ### Tooltips
 
+Use `tooltipStyle` to override tooltip box styles, including padding, without CSS priority overrides.
+
 Enable rich interactive tooltips that display detailed information on hover:
 
 <Source
@@ -407,6 +427,7 @@ Charts are fully keyboard accessible:
 - **Arrow Keys**: Navigate between bars
 - **Enter/Space**: Activate tooltips
 - **Escape**: Close active tooltips and return focus to the chart
+- **Pointer**: Moving the pointer over the chart ends a keyboard selection; the next arrow key continues from the hovered bar
 
 ## Legends
 
@@ -544,7 +565,7 @@ Control chart layout with precise margin settings:
 
 ### Scale and Axis Configuration
 
-Advanced configuration for scales and axes:
+The value axis starts at zero, so a bar's length is proportional to its value and a run of similar values reads as flat rather than as swings between empty and full. Pass `zero: false` on the value scale (`yScale`, or `xScale` for a horizontal chart) to fit the axis to the data instead; comparison mode keeps the zero baseline regardless, and an explicit `domain` is used as given.
 
 <Source
 	language="jsx"
@@ -553,7 +574,7 @@ Advanced configuration for scales and axes:
 		options={{
 			yScale: {
 				type: 'linear',
-				zero: true,
+				zero: false,
 				nice: true
 			},
 			xScale: {
@@ -575,13 +596,18 @@ Advanced configuration for scales and axes:
 	/>` }
 />
 
+When every visible value is a whole number, the value axis places ticks only on whole numbers, instead of repeating a rounded label at fractional steps. Pass `options.axis.y.tickValues` to choose the ticks yourself (`axis.x` on a horizontal chart). A value domain you pin with `options.yScale.domain` (`xScale` on a horizontal chart) keeps every tick, so a percentage axis on `[ 0, 1 ]` still steps by 20%.
+
+<Canvas of={ BarChartStories.SmallWholeNumberRange } />
+
 ## Accessibility
 
 See [Keyboard Navigation](#keyboard-navigation) for supported keys and focus behavior.
 
 ### Screen Reader Support
 
-- Chart container has `role="grid"` with descriptive `aria-label`
+- Chart container has `role="application"`, so screen readers pass arrow keys through to the chart's point navigation.
+- Set `ariaLabel` to name the chart. See [Accessible names](./?path=/docs/js-packages-charts-library-introduction--docs#accessible-names).
 - Individual bars are navigable and announced with their values
 - Interactive elements have appropriate ARIA attributes
 - Color information is supplemented with patterns when `withPatterns` is enabled

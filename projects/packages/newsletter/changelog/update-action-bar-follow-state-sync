@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Action Bar: Reflect the subscribed state wpcom patches in after a cached page loads, and ignore a second run of the script.

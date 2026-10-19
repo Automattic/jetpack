@@ -6,7 +6,7 @@ import type {
 	SeriesVisibilityProps,
 } from '../../types';
 import type { RenderTooltipParams } from '../../visx/types';
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 
 export type BandHighlightSelection = {
 	datum: DataPointDate;
@@ -28,6 +28,10 @@ export interface BarChartProps extends BaseChartProps< SeriesData[] >, SeriesVis
 	tooltipPlacement?: 'auto' | 'beside';
 	/** Tooltip top anchor in SVG coordinates; negative offsets are supported. */
 	tooltipAnchorTop?: number;
+	/** Inline styles merged over the tooltip box defaults. */
+	tooltipStyle?: CSSProperties;
+	/** CSS class for each primary bar, in addition to visx-bar. */
+	barClassName?: ( datum: DataPointDate ) => string | undefined;
 	orientation?: 'horizontal' | 'vertical';
 	withPatterns?: boolean;
 	showZeroValues?: boolean;

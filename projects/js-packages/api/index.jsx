@@ -172,6 +172,18 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( parseJsonResponse );
 		},
 
+		fetchConnectionOwnerCandidates: () =>
+			getRequest( `${ apiRoot }jetpack/v4/connection/owner/candidates`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
+		setConnectionOwner: ownerId =>
+			postRequest( `${ apiRoot }jetpack/v4/connection/owner`, postParams, {
+				body: JSON.stringify( { owner: ownerId } ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
 		reconnect: () =>
 			postRequest( `${ apiRoot }jetpack/v4/connection/reconnect`, postParams )
 				.then( checkStatus )
@@ -451,6 +463,12 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( parseJsonResponse ),
 		fetchSearchPlanInfo: () =>
 			getRequest( `${ wpcomOriginApiUrl }jetpack/v4/search/plan`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+		activateSearchFreeProduct: source =>
+			postRequest( `${ wpcomOriginApiUrl }jetpack/v4/search/plan/activate-free`, postParams, {
+				body: JSON.stringify( source ? { source } : {} ),
+			} )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 		fetchSearchSettings: () =>

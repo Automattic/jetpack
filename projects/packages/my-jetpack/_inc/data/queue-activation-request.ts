@@ -1,6 +1,8 @@
 // The server read-modify-writes one option for active modules and another for active
 // plugins, so two requests in flight can each drop the other's change. Send one at a time.
 let pendingActivation: Promise< unknown > = Promise.resolve();
+// What a request waits on once its turn comes; see holdActivationQueue().
+let heldUntil: Promise< unknown > = Promise.resolve();
 
 // How long a caller waits before being told the request has not answered. The request
 // itself keeps going, and the queue keeps waiting for it. Installs are the slow case and
@@ -38,9 +40,11 @@ export function queueActivationRequest< T >( request: () => Promise< T > ): Prom
 	// Told to give up before its turn came, this request never goes out at all, so the
 	// error its caller was shown stays true. One already in flight cannot be recalled.
 	const run = () =>
-		abandoned
-			? Promise.reject( new Error( 'The request was abandoned before it was sent.' ) )
-			: request();
+		heldUntil.then( () =>
+			abandoned
+				? Promise.reject( new Error( 'The request was abandoned before it was sent.' ) )
+				: request()
+		);
 
 	const settled = pendingActivation.then( run, run );
 
@@ -53,4 +57,23 @@ export function queueActivationRequest< T >( request: () => Promise< T > ): Prom
 		abandoned = true;
 		throw error;
 	} );
+}
+
+/**
+ * Run a request now, and hold every request queued after it until it settles.
+ *
+ * For a request that writes nothing itself but runs `admin_init`, where plugins do deferred
+ * activation work: it must not overlap a switch, yet need not wait for the reads still
+ * finishing the switch that prompted it.
+ *
+ * @param request - The request to run.
+ * @return The request's result.
+ */
+export function holdActivationQueue< T >( request: () => Promise< T > ): Promise< T > {
+	const running = request();
+
+	// Read by each request as its turn comes, so one queued before this still waits for it.
+	heldUntil = Promise.all( [ heldUntil, running.catch( () => undefined ) ] );
+
+	return running;
 }

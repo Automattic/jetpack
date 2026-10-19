@@ -135,6 +135,20 @@ class Widget_Type {
 	public $actions = null;
 
 	/**
+	 * Attribute schema, one entry per setting of a widget instance: a DataViews
+	 * field in its JSON form, plus the keys the dashboard reads on top of a
+	 * field (`relevance`, so far). User-facing strings are translated at
+	 * registration time using the widget's text domain.
+	 *
+	 * Null when the widget did not declare the field.
+	 *
+	 * @since 0.13.0
+	 *
+	 * @var array|null
+	 */
+	public $attributes = null;
+
+	/**
 	 * Alternative terms used to match the widget type when searching,
 	 * e.g. "calendar" for an events widget. Translated at registration
 	 * time using the widget's text domain.
@@ -144,6 +158,46 @@ class Widget_Type {
 	 * @var string[]|null
 	 */
 	public $keywords = null;
+
+	/**
+	 * Text domain the widget's metadata strings and built bundles are registered under.
+	 *
+	 * @since 0.9.0
+	 *
+	 * @var string|null
+	 */
+	public $textdomain = null;
+
+	/**
+	 * URL of the i18n manifest of the build that serves the widget's modules, for the client to
+	 * load their translation catalogs from. Empty for a build whose init module runs on the
+	 * dashboard page, which is the package's own.
+	 *
+	 * @since 0.9.0
+	 *
+	 * @var string|null
+	 */
+	public $i18n_manifest = null;
+
+	/**
+	 * Names this widget type registered under before the current one, so a layout persisted
+	 * with an old name keeps rendering it. Null when the type was never renamed.
+	 *
+	 * @since 0.11.0
+	 *
+	 * @var string[]|null
+	 */
+	public $former_names = null;
+
+	/**
+	 * Plan feature the widget cannot show anything without, such as `videos`. A plan that lacks
+	 * it shows the widget locked. Null when every plan includes the widget.
+	 *
+	 * @since 0.13.0
+	 *
+	 * @var string|null
+	 */
+	public $plan_feature = null;
 
 	/**
 	 * Constructor.

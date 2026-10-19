@@ -142,8 +142,7 @@ export const ErrorRetryable: Story = {
 };
 
 /**
- * Resolved with no rows: the widget shows its empty state (the neutral megaphone
- * glyph and "No UTM data in this period.").
+ * Resolved with no rows: the widget offers Build URL and keeps View all available.
  */
 export const Empty: Story = {
 	render: () => renderUtmInsightsOnPreset( 'last-year' ),

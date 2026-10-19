@@ -2,6 +2,71 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [5.0.0] - 2026-10-19
+### Added
+- Add a CheckboxCard component. [#53733]
+- AdminPage: Add a `globalControls` slot for Jetpack-wide controls, shown after the page actions in the header. [#53631]
+
+### Changed
+- Gravatar: Use the WordPress Design System neutral surface color token for the placeholder background. [#53800]
+- Update package dependencies. [#53806]
+
+### Removed
+- Remove ProgressBar component. Use Progress or Meter from @wordpress/ui instead. [#53801]
+
+## [4.0.4] - 2026-10-15
+### Changed
+- Update package dependencies. [#53004]
+
+## [4.0.3] - 2026-10-14
+### Changed
+- Update dependencies.
+
+## [4.0.2] - 2026-10-12
+### Changed
+- Internal updates.
+
+## [4.0.1] - 2026-10-06
+### Changed
+- Jetpack Footer: Link to the My Jetpack Features tab instead of the retired Products tab. [#52778]
+
+## [4.0.0] - 2026-10-05
+### Changed
+- Update package dependencies. [#52999]
+
+### Removed
+- Remove the Notice component; use Notice from @wordpress/ui instead. [#52932]
+- Remove the unused ZendeskChat component. [#52074]
+
+## [3.3.0] - 2026-09-28
+### Added
+- Add a `JitmSlot` component that renders the Jetpack in-dashboard message slot and keeps the message across route changes. [#52641]
+- IconTooltip: Add a `label` prop to give the icon trigger an accessible name. [#52800]
+
+### Changed
+- IconTooltip: Keep focus on the trigger when a tooltip opens, and announce its content to screen readers. [#52736]
+- IconTooltip: Show the trigger's focus ring the way other WordPress buttons do. [#52736]
+- Use logical CSS properties so layouts mirror in right-to-left languages. [#52749]
+
+### Deprecated
+- Deprecate `GlobalNotices` and `useGlobalNotices`. Use `SnackbarNotices` from `@wordpress/notices` instead. [#52193]
+
+### Fixed
+- IconTooltip: Close a tooltip opened on hover when Escape is pressed, without moving focus. [#52799]
+
+## [3.2.0] - 2026-09-23
+### Added
+- IconTooltip: Add a `trigger` prop that renders a text trigger in place of the icon, and a `closeOnClickOutside` prop to keep a tooltip open while the visitor works elsewhere on the page. [#52704]
+
+### Fixed
+- Tooltips: Open info tooltips with Enter or Space, close them with Escape, and keep hover tooltips from taking focus. [#52661]
+- Tooltips: Resume tab order from the tooltip's trigger when focus leaves it. [#52661]
+
+## [3.1.2] - 2026-09-23
+### Fixed
+- DiffViewer: Fix some inefficient regular expressions. [#52582]
+- Footer: Hide Products and Help links when My Jetpack is unavailable. [#52557]
+
 ## [3.1.1] - 2026-09-21
 ### Changed
 - Update dependencies.
@@ -1950,6 +2015,15 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[5.0.0]: https://github.com/Automattic/jetpack-components/compare/4.0.4...5.0.0
+[4.0.4]: https://github.com/Automattic/jetpack-components/compare/4.0.3...4.0.4
+[4.0.3]: https://github.com/Automattic/jetpack-components/compare/4.0.2...4.0.3
+[4.0.2]: https://github.com/Automattic/jetpack-components/compare/4.0.1...4.0.2
+[4.0.1]: https://github.com/Automattic/jetpack-components/compare/4.0.0...4.0.1
+[4.0.0]: https://github.com/Automattic/jetpack-components/compare/3.3.0...4.0.0
+[3.3.0]: https://github.com/Automattic/jetpack-components/compare/3.2.0...3.3.0
+[3.2.0]: https://github.com/Automattic/jetpack-components/compare/3.1.2...3.2.0
+[3.1.2]: https://github.com/Automattic/jetpack-components/compare/3.1.1...3.1.2
 [3.1.1]: https://github.com/Automattic/jetpack-components/compare/3.1.0...3.1.1
 [3.1.0]: https://github.com/Automattic/jetpack-components/compare/3.0.3...3.1.0
 [3.0.3]: https://github.com/Automattic/jetpack-components/compare/3.0.2...3.0.3

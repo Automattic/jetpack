@@ -84,7 +84,7 @@ describe( 'SocialPage', () => {
 				<div />
 			</SocialPage>
 		);
-		const notices = screen.getByTestId( 'jetpack-social-jitm-card' );
+		const notices = screen.getByTestId( 'jp-jitm-slot' );
 
 		rerender(
 			<SocialPage activeTab="settings">
@@ -92,8 +92,7 @@ describe( 'SocialPage', () => {
 			</SocialPage>
 		);
 
-		expect( notices ).toHaveAttribute( 'id', 'jp-admin-notices' );
-		expect( screen.getByTestId( 'jetpack-social-jitm-card' ) ).toBe( notices );
+		expect( screen.getByTestId( 'jp-jitm-slot' ) ).toBe( notices );
 	} );
 
 	it( 'renders the JITM container without the tab chrome', () => {
@@ -105,9 +104,7 @@ describe( 'SocialPage', () => {
 			</SocialPage>
 		);
 
-		expect( screen.getByTestId( 'jetpack-social-jitm-card' ) ).toHaveAttribute(
-			'id',
-			'jp-admin-notices'
-		);
+		expect( screen.queryAllByRole( 'tab' ) ).toHaveLength( 0 );
+		expect( screen.getByTestId( 'jp-jitm-slot' ) ).toBeInTheDocument();
 	} );
 } );

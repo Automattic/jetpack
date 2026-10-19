@@ -4,11 +4,13 @@
 import {
 	GoogleDataTableColumnRoleType,
 	type GeoData,
+	type GeoDisplayMode,
 	type GoogleDataTableColumn,
 	type GoogleDataTableRow,
 } from '@jetpack-premium-analytics/externals';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import type { StatsLocationCoordinates } from '@jetpack-premium-analytics/data';
 
 /** One location plotted on the map. */
 export interface LocationsGeoRow {
@@ -16,6 +18,8 @@ export interface LocationsGeoRow {
 	value: number;
 	countryCode: string;
 	countryFull: string;
+	/** Where a city sits; the map draws a city without one nowhere. */
+	coordinates?: StatsLocationCoordinates;
 }
 
 /** The granularity of the rows handed to the map. */
@@ -33,12 +37,15 @@ export interface BuildLocationsGeoChartArgs {
 	focusCountry?: LocationsGeoFocusCountry;
 	/** Whether Google has a `provinces` map for the focused country. */
 	provinceMapSupported?: boolean;
+	/** What the figure is, as the tooltip names it. Defaults to Views. */
+	valueLabel?: string;
 }
 
 export interface LocationsGeoChartConfig {
 	data: GeoData;
 	region: string;
 	resolution: 'countries' | 'provinces';
+	displayMode: GeoDisplayMode;
 }
 
 type CountrySummary = {
@@ -90,10 +97,7 @@ function buildCountryTooltip( country: CountrySummary ): string {
 	return lines.join( '<br />' );
 }
 
-function summarizeByCountry(
-	rows: LocationsGeoRow[],
-	withLocations: boolean
-): [ string, CountrySummary ][] {
+function summarizeByCountry( rows: LocationsGeoRow[] ): [ string, CountrySummary ][] {
 	const countryRows = new Map< string, CountrySummary >();
 
 	rows.forEach( row => {
@@ -104,16 +108,13 @@ function summarizeByCountry(
 			countryRows.set( countryCode, {
 				countryFull: row.countryFull,
 				value: row.value,
-				locations: withLocations ? [ row ] : [],
+				locations: [ row ],
 			} );
 			return;
 		}
 
 		current.value += row.value;
-
-		if ( withLocations ) {
-			current.locations.push( row );
-		}
+		current.locations.push( row );
 	} );
 
 	return Array.from( countryRows.entries() );
@@ -122,21 +123,24 @@ function summarizeByCountry(
 /**
  * Build the GeoChart data and map scope for a set of location rows.
  *
- * Google GeoChart can only plot sub-country rows on a `provinces` map of a
- * single country, so every other case is summed back up to countries.
+ * Cities are drawn as markers at their coordinates. Google GeoChart can only
+ * shade regions on a `provinces` map of a single country, so every other
+ * region case is summed back up to countries.
  *
  * @param args                      - Named arguments.
  * @param args.rows                 - The locations to plot.
  * @param args.mode                 - Granularity of the rows.
  * @param args.focusCountry         - The country the map is scoped to, if any.
  * @param args.provinceMapSupported - Whether Google has a provinces map for it.
- * @return The GeoChart `data`, `region`, and `resolution`.
+ * @param args.valueLabel           - What the figure is, as the tooltip names it.
+ * @return The GeoChart `data`, `region`, `resolution`, and `displayMode`.
  */
 export function buildLocationsGeoChart( {
 	rows,
 	mode,
 	focusCountry: requestedFocusCountry,
 	provinceMapSupported = true,
+	valueLabel = __( 'Views', 'jetpack-premium-analytics-pkg' ),
 }: BuildLocationsGeoChartArgs ): LocationsGeoChartConfig {
 	// Country mode plots the countries themselves, so scoping the map to one of
 	// them would leave every other row with nowhere to sit.
@@ -145,11 +149,33 @@ export function buildLocationsGeoChart( {
 	// Recovery from a failed provinces draw leaves the country for the world map,
 	// as the Locations widget has always done.
 	const useCountryFallbackMap = mode === 'region' && !! focusCountry && ! useProvinceMap;
-	const useCountrySummaryMap = mode === 'city' || ( mode === 'region' && ! focusCountry );
+	const useCountrySummaryMap = mode === 'region' && ! focusCountry;
 	const scope = {
 		region: focusCountry && ! useCountryFallbackMap ? focusCountry.code.toUpperCase() : 'world',
-		resolution: ( useProvinceMap ? 'provinces' : 'countries' ) as 'countries' | 'provinces',
-	};
+		resolution: useProvinceMap ? 'provinces' : 'countries',
+		displayMode: mode === 'city' ? 'markers' : 'regions',
+	} satisfies Omit< LocationsGeoChartConfig, 'data' >;
+
+	if ( mode === 'city' ) {
+		return {
+			...scope,
+			data: [
+				// Typed, because Google infers types from the first data row and rejects
+				// an all-string header on a markers map when no city has coordinates.
+				[
+					{ type: 'number', label: __( 'Latitude', 'jetpack-premium-analytics-pkg' ) },
+					{ type: 'number', label: __( 'Longitude', 'jetpack-premium-analytics-pkg' ) },
+					{ type: 'string', label: __( 'Location', 'jetpack-premium-analytics-pkg' ) },
+					{ type: 'number', label: valueLabel },
+				],
+				...rows.flatMap( ( row ): GoogleDataTableRow[] =>
+					row.coordinates
+						? [ [ row.coordinates.latitude, row.coordinates.longitude, row.label, row.value ] ]
+						: []
+				),
+			],
+		};
+	}
 
 	// Only the provinces map plots sub-country rows; every other map is
 	// country-scoped, whatever the rows beside it list.
@@ -157,7 +183,7 @@ export function buildLocationsGeoChart( {
 		useProvinceMap
 			? __( 'Location', 'jetpack-premium-analytics-pkg' )
 			: __( 'Country', 'jetpack-premium-analytics-pkg' ),
-		__( 'Views', 'jetpack-premium-analytics-pkg' ),
+		valueLabel,
 	];
 
 	if ( useCountryFallbackMap && focusCountry ) {
@@ -174,29 +200,19 @@ export function buildLocationsGeoChart( {
 
 	if ( useCountrySummaryMap ) {
 		// A summed country no longer names the regions behind its value, so it
-		// carries them in a tooltip. Cities keep GeoChart's default tooltip.
-		const withTooltips = mode === 'region';
-		const summaryHeader: GoogleDataTableColumn[] = withTooltips
-			? [
-					...header,
-					{ type: 'string', role: GoogleDataTableColumnRoleType.tooltip, p: { html: true } },
-				]
-			: header;
-
+		// carries them in a tooltip.
 		return {
 			...scope,
 			data: [
-				summaryHeader,
-				...summarizeByCountry( rows, withTooltips ).map(
-					( [ countryCode, country ] ): GoogleDataTableRow => {
-						const row: GoogleDataTableRow = [
-							{ v: getGeoChartCountryId( countryCode ), f: country.countryFull },
-							country.value,
-						];
-
-						return withTooltips ? [ ...row, buildCountryTooltip( country ) ] : row;
-					}
-				),
+				[
+					...header,
+					{ type: 'string', role: GoogleDataTableColumnRoleType.tooltip, p: { html: true } },
+				],
+				...summarizeByCountry( rows ).map( ( [ countryCode, country ] ): GoogleDataTableRow => [
+					{ v: getGeoChartCountryId( countryCode ), f: country.countryFull },
+					country.value,
+					buildCountryTooltip( country ),
+				] ),
 			],
 		};
 	}

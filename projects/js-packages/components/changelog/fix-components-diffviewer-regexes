@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-DiffViewer: Fix some inefficient regular expressions.

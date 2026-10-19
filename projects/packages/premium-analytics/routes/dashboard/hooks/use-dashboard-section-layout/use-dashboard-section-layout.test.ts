@@ -9,7 +9,7 @@ import { store as preferencesStore } from '@wordpress/preferences';
  */
 import { DASHBOARD_PREFERENCES_SCOPE } from '../constants';
 import { useDashboardSectionLayout } from './use-dashboard-section-layout';
-import type { DashboardSection } from '../../config';
+import type { DashboardSection, WidgetTypeName } from '../../config';
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
 
 const PREFERENCES_KEY = 'dashboardSectionLayouts';
@@ -120,6 +120,44 @@ describe( 'useDashboardSectionLayout', () => {
 		act( () => result.current[ 2 ]() );
 
 		expect( storedLayouts() ).toBe( stored );
+	} );
+
+	it( 'renders a layout stored under a former widget type name as the current type', () => {
+		const stored = [ { uuid: 'videos', type: 'jpa/videopress', attributes: { view: 'plays' } } ];
+		dispatch( preferencesStore ).set( DASHBOARD_PREFERENCES_SCOPE, PREFERENCES_KEY, {
+			traffic: stored,
+		} );
+		const renames = new Map< string, WidgetTypeName >( [
+			[ 'jpa/videopress', 'videopress/top-videos' ],
+		] );
+
+		const { result } = renderHook( () =>
+			useDashboardSectionLayout( 'traffic', sections, renames )
+		);
+
+		expect( result.current[ 0 ] ).toEqual( [
+			{ uuid: 'videos', type: 'videopress/top-videos', attributes: { view: 'plays' } },
+		] );
+		// No write-back: the stored layout keeps the old name until the section commits again.
+		expect( storedLayouts() ).toEqual( { traffic: stored } );
+
+		act( () => result.current[ 1 ]( result.current[ 0 ] ) );
+
+		expect( storedLayouts() ).toEqual( {
+			traffic: [ { uuid: 'videos', type: 'videopress/top-videos', attributes: { view: 'plays' } } ],
+		} );
+	} );
+
+	it( 'keeps the default identity when no stored item needs renaming', () => {
+		const renames = new Map< string, WidgetTypeName >( [
+			[ 'jpa/videopress', 'videopress/top-videos' ],
+		] );
+
+		const { result } = renderHook( () =>
+			useDashboardSectionLayout( 'traffic', sections, renames )
+		);
+
+		expect( result.current[ 0 ] ).toBe( trafficDefault );
 	} );
 
 	it( 'hands out a fresh copy of the default on reset when nothing is stored', () => {

@@ -62,6 +62,7 @@ function emailTimeSeriesQuery(
 		endpoint: `stats/${ statType }/emails/${ postId }`,
 		params: emailParams,
 		sanitizer: 'emailTimeSeries',
+		windowEnd: statsParams.end_date ?? null,
 		...( window ? { sanitizerParams: window } : {} ),
 		enabled: hasValidPostId( postId ) && !! emailParams.date,
 	} );

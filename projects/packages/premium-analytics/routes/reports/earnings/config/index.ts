@@ -2,8 +2,7 @@ export {
 	EARNINGS_BUCKETS,
 	EARNINGS_TAB_IDS,
 	getEarningsReportTabs,
-	getTabTitle,
-	hasAdsServed,
+	getTabLabel,
 	resolveSection,
 	type EarningsReportTabId,
 } from './tabs';

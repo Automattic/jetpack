@@ -2,6 +2,7 @@ import { ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Card } from '@wordpress/ui';
 import useToggleSocialModule from './use-toggle-social-module';
+import type { JSX } from 'react';
 
 /**
  * Master on/off for the Social (Publicize) module, surfaced at the top of the

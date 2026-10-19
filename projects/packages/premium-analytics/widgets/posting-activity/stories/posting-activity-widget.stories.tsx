@@ -167,7 +167,7 @@ export const Error: Story = {
 };
 
 /**
- * Resolved with no posts in the last 12 months: the widget shows its empty state.
+ * Resolved with no posts in the last 12 months: the calendar, every day empty.
  */
 export const Empty: Story = {
 	render: renderPostingActivity,

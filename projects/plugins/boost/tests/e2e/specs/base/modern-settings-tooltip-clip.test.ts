@@ -12,13 +12,14 @@ let fixtureDirectory: string;
 type Box = { x: number; y: number; width: number; height: number };
 
 /**
- * Open the premium tooltip and return its popover content box.
+ * Open the first info tooltip and return its popover content box.
  *
  * @param page - Fixture page.
  * @return Popover content locator.
  */
 async function openTooltip( page: Page ): Promise< Locator > {
-	await page.locator( '.icon-tooltip-wrapper button' ).first().dispatchEvent( 'mousedown' );
+	// The icon is positioned out of flow, leaving the button itself with no box to click.
+	await page.locator( '.icon-tooltip-wrapper button svg' ).first().click();
 	const content = page.locator( '.icon-tooltip-container .components-popover__content' );
 	await expect( content ).toBeVisible();
 	return content;
@@ -99,7 +100,7 @@ test.afterAll( async () => {
 
 for ( const direction of [ 'ltr', 'rtl' ] as const ) {
 	for ( const width of [ 1440, 782, 390 ] ) {
-		test( `${ direction } ${ width }: the card does not clip the premium tooltip`, async ( {
+		test( `${ direction } ${ width }: the card does not clip the fixture tooltip`, async ( {
 			page,
 		}, testInfo ) => {
 			await page.setViewportSize( { width, height: 900 } );
@@ -127,9 +128,9 @@ for ( const direction of [ 'ltr', 'rtl' ] as const ) {
 			expect( box.y + box.height ).toBeLessThanOrEqual( 900 );
 			expect( await paintedBy( page, box ) ).toEqual( Array( 9 ).fill( true ) );
 
-			// The upgrade button is sized by the popover, not spilling out of it.
+			// The upgrade link is sized by the popover, not spilling out of it.
 			const cta = ( await page
-				.locator( '.icon-tooltip-container button', { hasText: 'Upgrade now' } )
+				.locator( '.icon-tooltip-container a', { hasText: 'Upgrade now' } )
 				.boundingBox() )!;
 			expect( cta.x ).toBeGreaterThanOrEqual( box.x );
 			expect( cta.x + cta.width ).toBeLessThanOrEqual( box.x + box.width );
@@ -160,15 +161,83 @@ test( 'the legacy dashboard keeps its inline popover and its 70vw mobile width',
 	} );
 } );
 
-test( 'the premium tooltip takes focus and closes on Escape', async ( { page } ) => {
+test( 'tabbing out of the portaled tooltip resumes from the trigger', async ( { page } ) => {
 	await page.setViewportSize( { width: 1440, height: 900 } );
 	await page.goto( 'http://boost-settings.test/' );
+	const trigger = page.locator( '.icon-tooltip-wrapper button' ).first();
+	const content = page.locator( '.icon-tooltip-container .components-popover__content' );
+
+	await trigger.focus();
+	await page.keyboard.press( 'Space' );
+	await expect( content ).toBeVisible();
+
+	// This tooltip holds a CTA, so the first Tab has to reach it rather than dismiss.
+	await page.keyboard.press( 'Tab' );
+	await expect( page.getByRole( 'link', { name: 'Upgrade now' } ) ).toBeFocused();
+	await expect( content ).toBeVisible();
+
+	// Leaving it: the popover renders in a portal at the end of the document, so document order
+	// would otherwise send Tab to whatever follows the portal, not to the trigger's neighbour.
+	await page.keyboard.press( 'Tab' );
+	await expect( content ).toBeHidden();
+	await expect( page.getByRole( 'button', { name: 'Generate', exact: true } ) ).toBeFocused();
+
+	await trigger.focus();
+	await page.keyboard.press( 'Space' );
+	await expect( content ).toBeVisible();
+	await page.keyboard.press( 'Shift+Tab' );
+	await expect( content ).toBeHidden();
+	await expect( trigger ).not.toBeFocused();
+} );
+
+test( 'the fixture tooltip keeps focus on its icon and closes on Escape', async ( { page } ) => {
+	await page.setViewportSize( { width: 1440, height: 900 } );
+	await page.goto( 'http://boost-settings.test/' );
+	const trigger = page.locator( '.icon-tooltip-wrapper button' ).first();
 	const content = await openTooltip( page );
 
-	// eslint-disable-next-line @wordpress/no-global-active-element -- Runs in the fixture page, which has one document.
-	expect( await content.evaluate( element => element.contains( document.activeElement ) ) ).toBe(
-		true
-	);
+	await expect( trigger ).toBeFocused();
 	await page.keyboard.press( 'Escape' );
 	await expect( content ).toBeHidden();
+	await expect( trigger ).toBeFocused();
+} );
+
+test( 'holding Enter on the fixture tooltip leaves it open', async ( { page } ) => {
+	await page.setViewportSize( { width: 1440, height: 900 } );
+	await page.goto( 'http://boost-settings.test/' );
+	const trigger = page.locator( '.icon-tooltip-wrapper button' ).first();
+	const content = page.locator( '.icon-tooltip-container .components-popover__content' );
+
+	await trigger.focus();
+	// Pressing a key that is already down sends a repeat keydown, as holding it does.
+	for ( let i = 0; i < 4; i++ ) {
+		await page.keyboard.down( 'Enter' );
+		await expect( content ).toBeVisible();
+	}
+	await page.keyboard.up( 'Enter' );
+} );
+
+test( 'the fixture tooltip rings its icon when focused, like other WordPress buttons', async ( {
+	page,
+} ) => {
+	await page.setViewportSize( { width: 1440, height: 900 } );
+	await page.goto( 'http://boost-settings.test/' );
+	const trigger = page.locator( '.icon-tooltip-wrapper button' ).first();
+	const icon = trigger.locator( 'svg' );
+
+	await expect( async () => {
+		await page.keyboard.press( 'Tab' );
+		await expect( trigger ).toBeFocused( { timeout: 100 } );
+	} ).toPass( { intervals: [ 0 ], timeout: 10000 } );
+	await expect( icon ).toHaveCSS( 'outline-style', 'solid' );
+
+	// A mouse press focuses the button too; the ring appears once it is released.
+	await page.reload();
+	const box = ( await icon.boundingBox() )!;
+	await page.mouse.move( box.x + box.width / 2, box.y + box.height / 2 );
+	await page.mouse.down();
+	await expect( trigger ).toBeFocused();
+	await expect( icon ).toHaveCSS( 'outline-style', 'none' );
+	await page.mouse.up();
+	await expect( icon ).toHaveCSS( 'outline-style', 'solid' );
 } );

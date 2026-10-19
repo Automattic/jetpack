@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.7] - 2026-10-19
+### Changed
+- Update package dependencies. [#53004]
+- Update package dependencies. [#53806]
+
+## [0.12.6] - 2026-10-14
+### Changed
+- Update dependencies. [#52349]
+
+## [0.12.5] - 2026-10-12
+### Changed
+- Internal updates.
+
+## [0.12.4] - 2026-10-05
+### Changed
+- Update package dependencies. [#52999]
+
+## [0.12.3] - 2026-09-23
+### Changed
+- Remove obsolete CIAB and unified experience integration paths. [#52484]
+
+### Fixed
+- Exclude `src/js/` from published package. [#52650]
+
 ## [0.12.2] - 2026-09-21
 ### Changed
 - Update package dependencies. [#52187]
@@ -150,6 +174,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Agents Manager: Allow overriding variant and sectionName through filters [#49283]
 - Initial version, extracted from Jetpack MU WPCOM to its own package for external consumption. [#49202]
 
+[0.12.7]: https://github.com/Automattic/jetpack-agents-manager/compare/v0.12.6...v0.12.7
+[0.12.6]: https://github.com/Automattic/jetpack-agents-manager/compare/v0.12.5...v0.12.6
+[0.12.5]: https://github.com/Automattic/jetpack-agents-manager/compare/v0.12.4...v0.12.5
+[0.12.4]: https://github.com/Automattic/jetpack-agents-manager/compare/v0.12.3...v0.12.4
+[0.12.3]: https://github.com/Automattic/jetpack-agents-manager/compare/v0.12.2...v0.12.3
 [0.12.2]: https://github.com/Automattic/jetpack-agents-manager/compare/v0.12.1...v0.12.2
 [0.12.1]: https://github.com/Automattic/jetpack-agents-manager/compare/v0.12.0...v0.12.1
 [0.12.0]: https://github.com/Automattic/jetpack-agents-manager/compare/v0.11.0...v0.12.0

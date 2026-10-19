@@ -106,4 +106,10 @@ describe( 'hasAnyMatchingModule selector', () => {
 	test( 'returns false when no module matches the search term', () => {
 		expect( hasAnyMatchingModule( buildState( 'asdfqwerty', items ) ) ).toBe( false );
 	} );
+
+	test( 'returns false when only an ignored module matches the search term', () => {
+		expect( hasAnyMatchingModule( buildState( 'brute-force', items ), [ 'protect' ] ) ).toBe(
+			false
+		);
+	} );
 } );

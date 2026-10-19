@@ -9,9 +9,9 @@
  * stripped and replaced with a flat WPDS-tone gray circle so the
  * illustrations stay pure vector and render crisply at any size.
  *
- * The SVGs use a viewBox of 294×192 and fill edge-to-edge — the placement
- * card's `.jetpack-newsletter-placement__illustration` surface sets the
- * matching aspect-ratio so they sit flush against the card border.
+ * The SVGs use a viewBox of 294×192 and fill edge-to-edge — the
+ * `CheckboxCard` illustration surface from `@automattic/jetpack-components`
+ * sets the matching aspect-ratio so they sit flush against the card border.
  *
  * Built on `@wordpress/primitives` so the outer `<SVG>` automatically gets
  * `aria-hidden="true"` + `focusable="false"` (decorative-illustration
@@ -22,6 +22,7 @@
 // Embedded raster avatars stripped — replaced with WPDS-tone gray circles.
 
 import { SVG, G, Circle, Rect, Path, Defs } from '@wordpress/primitives';
+import type { JSX } from 'react';
 
 /**
  * Wireframe for the homepage subscription overlay placement.

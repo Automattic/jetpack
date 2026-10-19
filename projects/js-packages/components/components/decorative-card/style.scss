@@ -29,7 +29,7 @@
 			display: block;
 			position: absolute;
 			top: 24px;
-			left: 24px;
+			inset-inline-start: 24px;
 			width: 38px;
 			height: 8px;
 			background-image: url('data:image/svg+xml,<svg width="38" height="8" viewBox="0 0 38 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 7C1 7 2.37087 1 6.89831 1C11.4257 1 14.3709 7 18.8983 7C23.4257 7 26.7777 1 31.3051 1C35.912 1 37 7 37 7" stroke="white" stroke-width="1.5" stroke-linejoin="round"/></svg>');
@@ -43,6 +43,9 @@
 	&__icon-container {
 		position: absolute;
 		top: 50%;
+		// Kept physical: translate(-50%) shifts by a fixed direction, not a
+		// logical one, so left must stay paired with it or the box goes
+		// off-center by its own width under RTL without rtlcss.
 		left: 50%;
 		transform: translate(-50%, -50%);
 		width: 80px;

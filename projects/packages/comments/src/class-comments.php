@@ -15,7 +15,7 @@ class Comments {
 	/**
 	 * Package version.
 	 */
-	const PACKAGE_VERSION = '0.2.0';
+	const PACKAGE_VERSION = '0.7.0';
 
 	/**
 	 * Whether Jetpack Comments should load.
@@ -25,14 +25,8 @@ class Comments {
 	 * @return bool
 	 */
 	public static function is_enabled() {
-		/**
-		 * Load Jetpack Comments in place of the site's existing comment experience.
-		 *
-		 * @since 0.1.0
-		 *
-		 * @param bool $enabled Whether to load Jetpack Comments. Default false.
-		 */
-		return (bool) apply_filters( 'jetpack_comments_new_hotness', false );
+		// Blog 522232 is jetpack.wordpress.com, which serves the Verbum iframe to sites on older Jetpack versions.
+		return ! ( defined( 'IS_WPCOM' ) && IS_WPCOM && 522232 === get_current_blog_id() );
 	}
 
 	/**
@@ -46,5 +40,8 @@ class Comments {
 		Comment_Form::init();
 		Checkpoint::init();
 		Avatars::init();
+		Block_Editor::init();
+		Embeds::init();
+		Tracks::init();
 	}
 }

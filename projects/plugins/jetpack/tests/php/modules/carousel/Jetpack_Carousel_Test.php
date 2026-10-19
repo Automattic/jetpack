@@ -37,6 +37,16 @@ class Jetpack_Carousel_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tears down each test.
+	 *
+	 * @inheritDoc
+	 */
+	public function tear_down() {
+		$GLOBALS['wp_scripts'] = null;
+		parent::tear_down();
+	}
+
+	/**
 	 * Creates an image attachment populated with EXIF image metadata.
 	 *
 	 * @return WP_Post The attachment post object.
@@ -307,5 +317,75 @@ class Jetpack_Carousel_Test extends WP_UnitTestCase {
 		$attr = $this->instance->add_data_to_images( array(), $attachment );
 
 		$this->assertArrayNotHasKey( 'data-image-meta', $attr );
+	}
+
+	/**
+	 * Enqueues the carousel assets and returns the script data WordPress will print.
+	 *
+	 * @return string The localized jetpackCarouselStrings script.
+	 */
+	private function get_localized_carousel_strings() {
+		$GLOBALS['wp_scripts'] = null;
+		$this->instance->enqueue_assets();
+
+		return (string) wp_scripts()->get_data( 'jetpack-carousel', 'data' );
+	}
+
+	/**
+	 * With the comments area turned off, nothing reads the loading text, so it must not reach the page.
+	 */
+	public function test_enqueue_assets_omits_loading_comments_string_when_comments_disabled() {
+		update_option( 'carousel_display_comments', 0 );
+
+		$this->assertStringNotContainsString( 'Loading Comments', $this->get_localized_carousel_strings() );
+	}
+
+	/**
+	 * With the comments area turned on, the loading text is still passed to the page.
+	 */
+	public function test_enqueue_assets_includes_loading_comments_string_when_comments_enabled() {
+		update_option( 'carousel_display_comments', 1 );
+
+		$this->assertStringContainsString( '"loading_comments":"Loading Comments..."', $this->get_localized_carousel_strings() );
+	}
+
+	/**
+	 * The skeleton's loading element is only rendered when the comments area is turned on.
+	 */
+	public function test_add_carousel_skeleton_renders_loading_comments_only_when_comments_enabled() {
+		update_option( 'carousel_display_comments', 1 );
+		$this->get_localized_carousel_strings();
+		ob_start();
+		$this->instance->add_carousel_skeleton();
+		$enabled = ob_get_clean();
+
+		update_option( 'carousel_display_comments', 0 );
+		$this->instance = new Jetpack_Carousel();
+		$this->get_localized_carousel_strings();
+		ob_start();
+		$this->instance->add_carousel_skeleton();
+		$disabled = ob_get_clean();
+
+		$this->assertStringContainsString( '<span>Loading Comments...</span>', $enabled );
+		$this->assertStringNotContainsString( 'Loading Comments', $disabled );
+	}
+
+	/**
+	 * A filter can turn the comments area on while the option is off; the skeleton still needs its loading text.
+	 */
+	public function test_add_carousel_skeleton_renders_loading_comments_when_filter_enables_comments() {
+		update_option( 'carousel_display_comments', 0 );
+		$force_comments = static function ( $strings ) {
+			$strings['display_comments'] = 1;
+			return $strings;
+		};
+		add_filter( 'jp_carousel_localize_strings', $force_comments );
+		$this->get_localized_carousel_strings();
+		ob_start();
+		$this->instance->add_carousel_skeleton();
+		$output = ob_get_clean();
+		remove_filter( 'jp_carousel_localize_strings', $force_comments );
+
+		$this->assertStringContainsString( '<span>Loading Comments...</span>', $output );
 	}
 }

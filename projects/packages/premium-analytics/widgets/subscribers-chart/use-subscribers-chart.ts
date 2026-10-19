@@ -21,8 +21,8 @@ export type SubscribersPeriod = Extract< StatsSubscribersUnit, 'day' | 'week' | 
  */
 export interface SubscribersChartPoint {
 	date: Date;
-	subscribers: number;
-	paid: number;
+	subscribers: number | null;
+	paid: number | null;
 }
 
 /**
@@ -50,8 +50,9 @@ function toPoints(
 			? [
 					{
 						date,
-						subscribers: Number( point.subscribers ?? point.value ?? 0 ),
-						paid: Number( point.subscribers_paid ?? 0 ),
+						subscribers:
+							point.subscribers === null ? null : Number( point.subscribers ?? point.value ?? 0 ),
+						paid: point.subscribers_paid === null ? null : Number( point.subscribers_paid ?? 0 ),
 					},
 				]
 			: [];
@@ -77,7 +78,7 @@ export default function useSubscribersChart(
 
 	return {
 		current,
-		hasPaid: current.some( point => point.paid > 0 ),
+		hasPaid: current.some( point => ( point.paid ?? 0 ) > 0 ),
 		isLoading: report.isLoading,
 		isFetching: report.isFetching,
 		// `placeholderData` keeps stale points in `current` after a failed refetch; only

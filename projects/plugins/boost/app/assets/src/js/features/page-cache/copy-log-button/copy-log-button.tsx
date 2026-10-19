@@ -20,7 +20,7 @@ type CopyLogButtonProps = {
  */
 const CopyLogButton = ( { text = '', className, variant = 'link' }: CopyLogButtonProps ) => {
 	const [ hasCopied, setHasCopied ] = useState( false );
-	const copyTimer = useRef< ReturnType< typeof setTimeout > | undefined >();
+	const copyTimer = useRef< ReturnType< typeof setTimeout > | undefined >( undefined );
 
 	useEffect( () => {
 		// Clear the "Copied!" reset timer on unmount.
