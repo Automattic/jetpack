@@ -190,25 +190,49 @@ class Jetpack_Connector_Test extends TestCase {
 		// Site is not registered (no blog token).
 		$data = Jetpack_Connector::get_connector_data( array() );
 
-		$this->assertFalse( $data['isConnected'] );
-		$this->assertFalse( $data['isRegistered'] );
 		$this->assertNotEmpty( $data['apiRoot'] );
 		$this->assertNotEmpty( $data['apiNonce'] );
 		$this->assertNotEmpty( $data['redirectUri'] );
-		$this->assertArrayHasKey( 'connectedPlugins', $data );
-		$this->assertIsArray( $data['connectedPlugins'] );
+		$this->assertIsArray( $data['pluginLogos'] );
+		$this->assertSame(
+			array(
+				'displayName' => 'Local Admin',
+				'email'       => 'admin@example.org',
+			),
+			$data['viewerLocal']
+		);
+		$this->assertFalse( $data['canEditConnectionOwner'] );
 		$this->assertArrayNotHasKey( 'siteDetails', $data );
-		$this->assertArrayNotHasKey( 'currentUser', $data );
-		$this->assertArrayNotHasKey( 'connectionOwner', $data );
 		$this->assertArrayNotHasKey( 'connectedUsersUrl', $data );
+		$this->assertArrayNotHasKey( 'hasOtherConnectedUsers', $data );
 		$this->assertArrayNotHasKey( 'protectedOwner', $data );
 		$this->assertArrayNotHasKey( 'ssoStatus', $data );
+	}
+
+	/**
+	 * Connection state the jetpack-connection store provides is not sent a second time.
+	 */
+	public function test_get_connector_data_leaves_shared_state_to_the_store() {
+		\Jetpack_Options::update_option( 'blog_token', 'test.secret' );
+		\Jetpack_Options::update_option( 'id', 12345 );
+		\Jetpack_Options::update_option( 'master_user', $this->admin_id );
+		\Jetpack_Options::update_option(
+			'user_tokens',
+			array( $this->admin_id => 'ownerkey.private.' . $this->admin_id )
+		);
+
+		$data = Jetpack_Connector::get_connector_data( array() );
+
+		foreach ( array( 'isConnected', 'isRegistered', 'isOfflineMode', 'isFirstConnection', 'currentUser', 'connectionOwner', 'connectedPlugins' ) as $key ) {
+			$this->assertArrayNotHasKey( $key, $data );
+		}
+		$this->assertSame( array( 'siteUrl', 'homeUrl' ), array_keys( $data['siteDetails'] ) );
 	}
 
 	/* ── get_connector_data() — connected ──────────────────────── */
 
 	/**
-	 * A connected site carries the account sections and a link to the connected users list.
+	 * A connected site carries a link to the connected users list.
 	 */
 	public function test_get_connector_data_when_connected() {
 		\Jetpack_Options::update_option( 'blog_token', 'test.secret' );
@@ -222,10 +246,6 @@ class Jetpack_Connector_Test extends TestCase {
 
 		$data = Jetpack_Connector::get_connector_data( array() );
 
-		$this->assertTrue( $data['isConnected'] );
-		$this->assertTrue( $data['isRegistered'] );
-		$this->assertArrayHasKey( 'currentUser', $data );
-		$this->assertArrayHasKey( 'connectionOwner', $data );
 		$this->assertStringContainsString( 'users.php', $data['connectedUsersUrl'] );
 		$this->assertStringContainsString(
 			Users_Connection_Admin::VIEW_QUERY_ARG . '=' . Users_Connection_Admin::VIEW_CONNECTED,
@@ -234,57 +254,93 @@ class Jetpack_Connector_Test extends TestCase {
 	}
 
 	/**
-	 * Another administrator is named as this site knows them, not as WordPress.com does.
+	 * Only the owner is told whether other users would be disconnected with them.
 	 *
-	 * The viewer's own row still resolves against WordPress.com, so this pins the split rather
-	 * than just the owner half of it.
+	 * @param bool      $viewer_is_owner  Whether the viewer is the connection owner.
+	 * @param bool      $other_user_token Whether a second user is connected.
+	 * @param bool|null $expected         Expected hasOtherConnectedUsers, or null when it is omitted.
+	 * @dataProvider provide_has_other_connected_users
 	 */
-	public function test_the_owner_is_named_locally_while_the_viewer_is_named_by_wpcom() {
-		$owner_id = wp_insert_user(
+	#[DataProvider( 'provide_has_other_connected_users' )]
+	public function test_has_other_connected_users( $viewer_is_owner, $other_user_token, $expected ) {
+		$other_id = wp_insert_user(
 			array(
-				'user_login'   => 'connector_owner',
-				'user_pass'    => 'password',
-				'user_email'   => 'owner@example.org',
-				'display_name' => 'Local Owner',
-				'role'         => 'administrator',
+				'user_login' => 'connector_other',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
 			)
 		);
+		$tokens   = array( $this->admin_id => 'ownerkey.private.' . $this->admin_id );
+		if ( $other_user_token ) {
+			$tokens[ $other_id ] = 'otherkey.private.' . $other_id;
+		}
 
 		\Jetpack_Options::update_option( 'blog_token', 'test.secret' );
 		\Jetpack_Options::update_option( 'id', 12345 );
-		\Jetpack_Options::update_option( 'master_user', $owner_id );
-		\Jetpack_Options::update_option(
-			'user_tokens',
-			array(
-				$owner_id       => 'ownerkey.private.' . $owner_id,
-				$this->admin_id => 'viewerkey.private.' . $this->admin_id,
-			)
-		);
+		\Jetpack_Options::update_option( 'master_user', $this->admin_id );
+		\Jetpack_Options::update_option( 'user_tokens', $tokens );
+		wp_set_current_user( $viewer_is_owner ? $this->admin_id : $other_id );
 
-		// Cached so neither lookup reaches WordPress.com during the test.
-		set_transient(
-			'jetpack_connected_user_data_' . $owner_id,
-			array(
-				'display_name' => 'Wpcom Owner',
-				'login'        => 'wpcom_owner',
-				'email'        => 'owner@wordpress.com',
-			)
-		);
-		set_transient(
-			'jetpack_connected_user_data_' . $this->admin_id,
-			array(
-				'display_name' => 'Wpcom Viewer',
-				'login'        => 'wpcom_viewer',
-				'email'        => 'viewer@wordpress.com',
-			)
-		);
-
-		// The transients are options-backed, so tearDown's clear_options() removes them.
 		$data = Jetpack_Connector::get_connector_data( array() );
 
-		$this->assertSame( 'Local Owner', $data['connectionOwner']['displayName'] );
-		$this->assertSame( 'connector_owner', $data['connectionOwner']['login'] );
-		$this->assertSame( 'Wpcom Viewer', $data['currentUser']['displayName'] );
+		if ( null === $expected ) {
+			$this->assertArrayNotHasKey( 'hasOtherConnectedUsers', $data );
+		} else {
+			$this->assertSame( $expected, $data['hasOtherConnectedUsers'] );
+		}
+	}
+
+	/**
+	 * Data provider for test_has_other_connected_users.
+	 *
+	 * @return array
+	 */
+	public static function provide_has_other_connected_users() {
+		return array(
+			'owner alone'             => array( true, false, false ),
+			'owner with others'       => array( true, true, true ),
+			'viewer is not the owner' => array( false, true, null ),
+		);
+	}
+
+	/**
+	 * The owner's name links to their profile only for a viewer who may edit them.
+	 *
+	 * @param bool $map_caps      Whether the connection capabilities are mapped.
+	 * @param bool $has_owner     Whether a connection owner is stored.
+	 * @param bool $offline       Whether the site is in offline mode, which denies jetpack_connect but still shows the owner.
+	 * @param bool $expected      Expected canEditConnectionOwner.
+	 * @dataProvider provide_can_edit_connection_owner
+	 */
+	#[DataProvider( 'provide_can_edit_connection_owner' )]
+	public function test_can_edit_connection_owner( $map_caps, $has_owner, $offline, $expected ) {
+		if ( $map_caps ) {
+			$this->map_connection_caps();
+		}
+		if ( $has_owner ) {
+			\Jetpack_Options::update_option( 'master_user', $this->admin_id );
+		}
+		if ( $offline ) {
+			add_filter( 'jetpack_offline_mode', '__return_true' );
+		}
+
+		$data = Jetpack_Connector::get_connector_data( array() );
+
+		$this->assertSame( $expected, $data['canEditConnectionOwner'] );
+	}
+
+	/**
+	 * Data provider for test_can_edit_connection_owner.
+	 *
+	 * @return array
+	 */
+	public static function provide_can_edit_connection_owner() {
+		return array(
+			'admin, owner stored' => array( true, true, false, true ),
+			'no owner stored'     => array( true, false, false, false ),
+			'no jetpack_connect'  => array( false, true, false, false ),
+			'offline mode'        => array( true, true, true, true ),
+		);
 	}
 
 	/**
@@ -354,30 +410,45 @@ class Jetpack_Connector_Test extends TestCase {
 		add_filter( 'map_meta_cap', array( $this->caps_manager, 'jetpack_connection_custom_caps' ), 1, 4 );
 	}
 
-	/* ── get_connector_data() — offline mode ───────────────────── */
-
 	/**
-	 * Test that isOfflineMode is false when the site is not in offline mode.
+	 * Offline mode empties the store's owner, so the card data carries it for that case only.
+	 *
+	 * @param bool $offline Whether the site is in offline mode.
+	 * @dataProvider provide_offline_mode
 	 */
-	public function test_get_connector_data_offline_mode_false_by_default() {
-		StatusCache::clear();
+	#[DataProvider( 'provide_offline_mode' )]
+	public function test_offline_connection_owner( $offline ) {
+		\Jetpack_Options::update_option( 'blog_token', 'test.secret' );
+		\Jetpack_Options::update_option( 'id', 12345 );
+		\Jetpack_Options::update_option( 'master_user', $this->admin_id );
+		\Jetpack_Options::update_option(
+			'user_tokens',
+			array( $this->admin_id => 'ownerkey.private.' . $this->admin_id )
+		);
+		if ( $offline ) {
+			add_filter( 'jetpack_offline_mode', '__return_true' );
+		}
 
 		$data = Jetpack_Connector::get_connector_data( array() );
 
-		$this->assertArrayHasKey( 'isOfflineMode', $data );
-		$this->assertFalse( $data['isOfflineMode'] );
+		if ( $offline ) {
+			$this->assertSame( $this->admin_id, $data['offlineConnectionOwner']['id'] );
+			$this->assertSame( 'Local Admin', $data['offlineConnectionOwner']['displayName'] );
+		} else {
+			$this->assertArrayNotHasKey( 'offlineConnectionOwner', $data );
+		}
 	}
 
 	/**
-	 * Test that isOfflineMode is true when the site is in offline mode.
+	 * Data provider for test_offline_connection_owner.
+	 *
+	 * @return array
 	 */
-	public function test_get_connector_data_offline_mode_true_when_offline() {
-		StatusCache::clear();
-		add_filter( 'jetpack_offline_mode', '__return_true' );
-
-		$data = Jetpack_Connector::get_connector_data( array() );
-
-		$this->assertTrue( $data['isOfflineMode'] );
+	public static function provide_offline_mode() {
+		return array(
+			'online'  => array( false ),
+			'offline' => array( true ),
+		);
 	}
 
 	/**
@@ -387,7 +458,7 @@ class Jetpack_Connector_Test extends TestCase {
 		$data = Jetpack_Connector::get_connector_data( array( 'customKey' => 'customValue' ) );
 
 		$this->assertSame( 'customValue', $data['customKey'] );
-		$this->assertArrayHasKey( 'isConnected', $data );
+		$this->assertArrayHasKey( 'apiRoot', $data );
 	}
 
 	/* ── get_connector_data() — SSO status ──────── */
@@ -802,188 +873,22 @@ class Jetpack_Connector_Test extends TestCase {
 		$this->assertTrue( $families['has_a4a'] );
 	}
 
-	/* ── resolve_user_fields() ─────────────────────────────────── */
+	/* ── get_plugin_logos() ─────────────────────────────────────── */
 
 	/**
-	 * Test that WPCOM data overrides local WP user fields.
+	 * Connected plugins get their logo by slug, and plugins without one are left out.
 	 */
-	public function test_resolve_user_fields_wpcom_overrides() {
-		$wp_user = get_userdata( $this->admin_id );
+	public function test_get_connector_data_maps_plugin_logos_by_slug() {
+		Plugin_Storage::configure();
+		Plugin_Storage::upsert( 'jetpack', array( 'name' => 'Jetpack' ) );
+		Plugin_Storage::upsert( 'woocommerce', array( 'name' => 'WooCommerce' ) );
+		Plugin_Storage::upsert( 'custom-plugin', array( 'name' => 'Custom Plugin' ) );
 
-		$wpcom_data = array(
-			'display_name' => 'WPCOM Name',
-			'login'        => 'wpcom_login',
-			'email'        => 'wpcom@example.com',
-		);
+		$logos = Jetpack_Connector::get_connector_data( array() )['pluginLogos'];
 
-		$result = $this->call_resolve_user_fields( $wp_user, $wpcom_data );
-
-		$this->assertSame( 'WPCOM Name', $result['displayName'] );
-		$this->assertSame( 'wpcom_login', $result['login'] );
-		$this->assertSame( 'wpcom@example.com', $result['email'] );
-		$this->assertNotEmpty( $result['avatar'] );
-	}
-
-	/**
-	 * Test that local WP user fields are used when WPCOM data is false.
-	 */
-	public function test_resolve_user_fields_falls_back_to_local() {
-		$wp_user = get_userdata( $this->admin_id );
-		$result  = $this->call_resolve_user_fields( $wp_user, false );
-
-		$this->assertSame( 'Local Admin', $result['displayName'] );
-		$this->assertSame( 'connector_admin', $result['login'] );
-		$this->assertSame( 'admin@example.org', $result['email'] );
-	}
-
-	/**
-	 * Test that a false WP_User produces empty strings.
-	 */
-	public function test_resolve_user_fields_false_user() {
-		$result = $this->call_resolve_user_fields( false, false );
-
-		$this->assertSame( '', $result['displayName'] );
-		$this->assertSame( '', $result['login'] );
-		$this->assertSame( '', $result['email'] );
-		$this->assertSame( '', $result['avatar'] );
-	}
-
-	/**
-	 * Test that empty WPCOM fields do not override local values.
-	 */
-	public function test_resolve_user_fields_empty_wpcom_keeps_local() {
-		$wp_user = get_userdata( $this->admin_id );
-
-		$wpcom_data = array(
-			'display_name' => '',
-			'login'        => '',
-			'email'        => '',
-		);
-
-		$result = $this->call_resolve_user_fields( $wp_user, $wpcom_data );
-
-		$this->assertSame( 'Local Admin', $result['displayName'] );
-		$this->assertSame( 'connector_admin', $result['login'] );
-		$this->assertSame( 'admin@example.org', $result['email'] );
-	}
-
-	/* ── get_connection_owner_data() (via get_connector_data) ──── */
-
-	/**
-	 * Test that connection owner data includes localLogin.
-	 */
-	public function test_connection_owner_data_includes_local_login() {
-		$method = new \ReflectionMethod( Jetpack_Connector::class, 'get_connection_owner_data' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$method->setAccessible( true );
-		}
-
-		$owner = get_userdata( $this->admin_id );
-
-		$manager = $this->createStub( Manager::class );
-		$manager->method( 'get_connection_owner' )->willReturn( $owner );
-		$manager->method( 'get_connected_user_data' )->willReturn( false );
-
-		$result = $method->invoke( null, $manager );
-
-		$this->assertIsArray( $result );
-		$this->assertArrayHasKey( 'localLogin', $result );
-		$this->assertSame( 'connector_admin', $result['localLogin'] );
-		$this->assertArrayHasKey( 'displayName', $result );
-		$this->assertArrayHasKey( 'avatar', $result );
-	}
-
-	/**
-	 * Test that get_connection_owner_data returns null when there is no owner.
-	 */
-	public function test_connection_owner_data_returns_null_when_no_owner() {
-		$method = new \ReflectionMethod( Jetpack_Connector::class, 'get_connection_owner_data' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$method->setAccessible( true );
-		}
-
-		$manager = $this->createStub( Manager::class );
-		$manager->method( 'get_connection_owner' )->willReturn( false );
-
-		$this->assertNull( $method->invoke( null, $manager ) );
-	}
-
-	/* ── get_connected_plugins_data() ──────────────────────────── */
-
-	/**
-	 * Test that plugin data is assembled correctly with logo URLs.
-	 */
-	public function test_connected_plugins_data_with_logos() {
-		$method = new \ReflectionMethod( Jetpack_Connector::class, 'get_connected_plugins_data' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$method->setAccessible( true );
-		}
-
-		$manager = $this->createStub( Manager::class );
-		$manager->method( 'get_connected_plugins' )->willReturn(
-			array(
-				'jetpack'                        => array( 'name' => 'Jetpack' ),
-				'woocommerce'                    => array( 'name' => 'WooCommerce' ),
-				'automattic-for-agencies-client' => array( 'name' => 'Automattic for Agencies' ),
-				'custom-plugin'                  => array( 'name' => 'Custom Plugin' ),
-			)
-		);
-
-		$result = $method->invoke( null, $manager );
-
-		$this->assertCount( 4, $result );
-
-		// Jetpack plugin.
-		$this->assertSame( 'Jetpack', $result[0]['name'] );
-		$this->assertSame( 'jetpack', $result[0]['slug'] );
-		$this->assertStringContainsString( 'jetpack-icon.svg', $result[0]['logoUrl'] );
-
-		// WooCommerce plugin.
-		$this->assertSame( 'WooCommerce', $result[1]['name'] );
-		$this->assertStringContainsString( 'woo-icon.svg', $result[1]['logoUrl'] );
-
-		// Automattic plugin.
-		$this->assertSame( 'Automattic for Agencies', $result[2]['name'] );
-		$this->assertStringContainsString( 'automattic-icon.svg', $result[2]['logoUrl'] );
-
-		// Unknown plugin — no logoUrl key.
-		$this->assertSame( 'Custom Plugin', $result[3]['name'] );
-		$this->assertArrayNotHasKey( 'logoUrl', $result[3] );
-	}
-
-	/**
-	 * Test that a WP_Error from get_connected_plugins returns an empty array.
-	 */
-	public function test_connected_plugins_data_handles_wp_error() {
-		$method = new \ReflectionMethod( Jetpack_Connector::class, 'get_connected_plugins_data' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$method->setAccessible( true );
-		}
-
-		$manager = $this->createStub( Manager::class );
-		$manager->method( 'get_connected_plugins' )->willReturn( new \WP_Error( 'fail', 'error' ) );
-
-		$this->assertSame( array(), $method->invoke( null, $manager ) );
-	}
-
-	/**
-	 * Test that a missing name key falls back to the slug.
-	 */
-	public function test_connected_plugins_data_falls_back_to_slug() {
-		$method = new \ReflectionMethod( Jetpack_Connector::class, 'get_connected_plugins_data' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$method->setAccessible( true );
-		}
-
-		$manager = $this->createStub( Manager::class );
-		$manager->method( 'get_connected_plugins' )->willReturn(
-			array(
-				'some-plugin' => array(),
-			)
-		);
-
-		$result = $method->invoke( null, $manager );
-		$this->assertSame( 'some-plugin', $result[0]['name'] );
+		$this->assertSame( array( 'jetpack', 'woocommerce' ), array_keys( $logos ) );
+		$this->assertStringContainsString( 'jetpack-icon.svg', $logos['jetpack'] );
+		$this->assertStringContainsString( 'woo-icon.svg', $logos['woocommerce'] );
 	}
 
 	/* ── get_connectors_page_path() ────────────────────────────── */
@@ -1255,21 +1160,5 @@ class Jetpack_Connector_Test extends TestCase {
 	 */
 	private function call_get_connector_logo_url() {
 		return Jetpack_Connector::get_connector_logo_url();
-	}
-
-	/**
-	 * Call the private resolve_user_fields() method via reflection.
-	 *
-	 * @param \WP_User|false $wp_user        WordPress user object or false.
-	 * @param array|false    $wpcom_user_data WPCOM user data array or false.
-	 * @return array
-	 */
-	private function call_resolve_user_fields( $wp_user, $wpcom_user_data ) {
-		$method = new \ReflectionMethod( Jetpack_Connector::class, 'resolve_user_fields' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$method->setAccessible( true );
-		}
-
-		return $method->invoke( null, $wp_user, $wpcom_user_data );
 	}
 }

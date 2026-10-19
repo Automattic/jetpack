@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Connectors: Read the card's shared connection state from the Jetpack Connection store, and link the connection owner to their profile.
