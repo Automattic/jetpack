@@ -120,7 +120,6 @@ describe( 'getReachForAccessLevelKey', () => {
 		expect(
 			getReachForAccessLevelKey( {
 				accessLevel: 'subscribers',
-				// @ts-expect-error -- Counts are null until they load.
 				subscribers: null,
 				paidSubscribers: undefined,
 			} )
