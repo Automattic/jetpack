@@ -85,6 +85,20 @@ function readViewFromUrl(): Partial< View > {
 }
 
 /**
+ * The table's filters and search as the URL holds them, for actions that live outside the table
+ * (the header's CSV download) and need to match what it shows.
+ *
+ * @return Filter values and search term.
+ */
+export function readListQueryFromUrl(): { filters: SubscribersFilter[]; search: string } {
+	const view = readViewFromUrl();
+	return {
+		filters: ( view.filters ?? [] ).map( filter => filter.value as SubscribersFilter ),
+		search: view.search ?? '',
+	};
+}
+
+/**
  * Serialize a `View` into URL search params, preserving any unrelated params already on the URL
  * (e.g. wp-admin's `page=subscribers`).
  *

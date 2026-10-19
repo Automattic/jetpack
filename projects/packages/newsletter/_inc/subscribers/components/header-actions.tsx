@@ -4,7 +4,9 @@ import { __ } from '@wordpress/i18n';
 import { moreVertical } from '@wordpress/icons';
 import { Button } from '@wordpress/ui';
 import { recordTracksEvent } from '../lib/tracks';
+import { readListQueryFromUrl } from '../lib/use-view-state';
 import SelfOnlyNudge from './self-only-nudge';
+import type { SubscribersFilter } from '../data/types';
 import type { JetpackBlogId } from '../lib/site';
 import type { JSX } from 'react';
 
@@ -18,17 +20,34 @@ type Props = {
 /**
  * Build the Calypso-equivalent CSV export URL for a given blog id. The endpoint streams a CSV
  * download for the blog's subscribers and is what Calypso links to from its "Download as CSV"
- * menu item.
+ * menu item. WP.com applies the filters and search the same way the subscriber list does, so the
+ * file holds the people the table shows.
  *
- * @param blogId - WP.com blog id (coerced to a positive integer before injection).
+ * @param blogId        - WP.com blog id (coerced to a positive integer before injection).
+ * @param query         - The table's current filters and search.
+ * @param query.filters - Filter values, combined with AND.
+ * @param query.search  - Search term, or an empty string.
  * @return Absolute URL, or null when the id can't be coerced to a positive integer.
  */
-function getCsvDownloadUrl( blogId: JetpackBlogId ): string | null {
+export function getCsvDownloadUrl(
+	blogId: JetpackBlogId,
+	{ filters, search }: { filters: SubscribersFilter[]; search: string }
+): string | null {
 	const safeId = Math.trunc( Number( blogId ) );
 	if ( ! Number.isFinite( safeId ) || safeId <= 0 ) {
 		return null;
 	}
-	return `https://dashboard.wordpress.com/wp-admin/index.php?page=subscribers&blog=${ safeId }&blog_subscribers=csv&type=all`;
+	const params = new URLSearchParams( {
+		page: 'subscribers',
+		blog: String( safeId ),
+		blog_subscribers: 'csv',
+		type: 'all',
+	} );
+	filters.forEach( filter => params.append( 'filters[]', filter ) );
+	if ( search ) {
+		params.set( 'search', search );
+	}
+	return `https://dashboard.wordpress.com/wp-admin/index.php?${ params.toString() }`;
 }
 
 /**
@@ -66,9 +85,13 @@ export default function HeaderActions( {
 					{
 						title: __( 'Download as CSV', 'jetpack-newsletter' ),
 						onClick: () => {
-							const url = blogId ? getCsvDownloadUrl( blogId ) : null;
+							const query = readListQueryFromUrl();
+							const url = blogId ? getCsvDownloadUrl( blogId, query ) : null;
 							if ( url ) {
-								recordTracksEvent( 'jetpack_subscribers_export_downloaded' );
+								recordTracksEvent( 'jetpack_subscribers_export_downloaded', {
+									filters: query.filters.join( ',' ) || 'all',
+									has_search: query.search ? 1 : 0,
+								} );
 								window.open( url, '_blank', 'noopener,noreferrer' );
 							}
 						},
