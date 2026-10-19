@@ -585,9 +585,10 @@ class Backup extends Hybrid_Product {
 			return true;
 		}
 
-		// An expired bundle stays the stored plan without listing its features, so match it by slug.
-		foreach ( array( Starter::class, Security::class, Complete::class ) as $bundle ) {
-			if ( in_array( $plan['product_slug'] ?? '', $bundle::get_paid_plan_product_slugs(), true ) ) {
+		// An expired bundle stays the stored plan without listing its features, so match its family by slug.
+		$plan_slug = (string) ( $plan['product_slug'] ?? '' );
+		foreach ( array( 'jetpack_starter_', 'jetpack_security_', 'jetpack_complete', 'jetpack_personal', 'jetpack_premium', 'jetpack_business' ) as $prefix ) {
+			if ( str_starts_with( $plan_slug, $prefix ) ) {
 				return true;
 			}
 		}
