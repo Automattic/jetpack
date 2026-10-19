@@ -58,7 +58,7 @@ class Form_Preview {
 	/**
 	 * The theme's type, colors, and buttons, as custom properties for the preview.
 	 *
-	 * @return array|null Null for a theme without theme.json, whose global styles are only core's defaults.
+	 * @return array|null Null when the theme sets none of them, or has no theme.json and so only core's defaults.
 	 */
 	public static function theme_styles() {
 		if ( ! wp_theme_has_theme_json() ) {
@@ -102,7 +102,7 @@ class Form_Preview {
 			}
 		}
 
-		return $tokens;
+		return $tokens ? $tokens : null;
 	}
 
 	/**

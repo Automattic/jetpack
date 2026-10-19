@@ -97,7 +97,7 @@ JS;
 		}
 
 		// The Discussion tab's comment form preview takes the theme's fonts and preset variables.
-		if ( method_exists( Form_Preview::class, 'print_theme_assets' ) ) {
+		if ( method_exists( Form_Preview::class, 'print_theme_assets' ) && current_user_can( 'manage_options' ) ) {
 			add_action( 'admin_head', array( Form_Preview::class, 'print_theme_assets' ) );
 		}
 

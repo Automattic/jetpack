@@ -3,7 +3,7 @@ import { ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Component } from 'react';
-import { FormFieldset, FormLabel, FormLegend } from 'components/forms';
+import { FormFieldset, FormLabel } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
@@ -27,7 +27,9 @@ class CommentsComponent extends Component {
 
 		return (
 			<SettingsGroup>
-				<FormLegend>{ __( 'Preview', 'jetpack' ) }</FormLegend>
+				<h3 className="jp-form-label-wide jp-comments-preview__title">
+					{ __( 'Preview', 'jetpack' ) }
+				</h3>
 				<div className="jp-comments-preview">
 					<CommentFormPreview
 						isJetpackForm={ isCommentsActive }
