@@ -482,19 +482,6 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Updating Jetpack switches the backup module back on for a site that had it off.
-	 */
-	public function test_update_switches_the_backup_module_on() {
-		$this->set_up_backup_test();
-		$this->connect_owner();
-		Jetpack_Options::delete_option( 'active_modules' );
-
-		Jetpack::activate_backup_module_for_existing_sites( '99.0:1700000000', '98.0:1700000000' );
-
-		$this->assertTrue( Jetpack::is_module_active( 'backup' ) );
-	}
-
-	/**
 	 * The module stays on for existing sites and needs the same connection the dashboard does.
 	 */
 	public function test_backup_module_headers() {

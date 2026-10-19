@@ -9,6 +9,7 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\My_Jetpack\Products\Backup;
 use Automattic\Jetpack\My_Jetpack\Products\Protect;
 use Automattic\Jetpack\My_Jetpack\Products\Search;
 use Automattic\Jetpack\My_Jetpack\Products\Social;
@@ -133,6 +134,7 @@ class Hybrid_Product_Deactivate_Test extends TestCase {
 		return array_merge(
 			$modules,
 			array(
+				'backup'     => '1.0',
 				'videopress' => '1.0',
 				'search'     => '1.0',
 				'protect'    => '1.0',
@@ -159,12 +161,12 @@ class Hybrid_Product_Deactivate_Test extends TestCase {
 	 * Data provider: every Hybrid_Product subclass that declares a
 	 * $module_name. Guards against future subclasses (or overrides) that
 	 * could silently drop the module-deactivation contract.
-	 * Backup is left out: its module stays on, since the plan decides Backup.
 	 *
 	 * @return array<string, array{0: class-string, 1: string}>
 	 */
 	public static function provide_hybrid_subclasses_with_modules() {
 		return array(
+			'backup'     => array( Backup::class, 'backup' ),
 			'videopress' => array( Videopress::class, 'videopress' ),
 			'search'     => array( Search::class, 'search' ),
 			'protect'    => array( Protect::class, 'protect' ),
@@ -219,23 +221,23 @@ class Hybrid_Product_Deactivate_Test extends TestCase {
 	}
 
 	public function test_deactivate_succeeds_when_a_saved_module_is_unavailable() {
-		$this->set_module_active( 'search' );
-		$drop_search = static function ( $modules ) {
-			unset( $modules['search'] );
+		$this->set_module_active( 'backup' );
+		$drop_backup = static function ( $modules ) {
+			unset( $modules['backup'] );
 			return $modules;
 		};
-		add_filter( 'jetpack_get_available_modules', $drop_search, 20 );
+		add_filter( 'jetpack_get_available_modules', $drop_backup, 20 );
 
 		try {
-			$this->assertFalse( ( new Modules() )->is_active( 'search' ) );
-			$result = Search::deactivate();
+			$this->assertFalse( ( new Modules() )->is_active( 'backup' ) );
+			$result = Backup::deactivate();
 		} finally {
-			remove_filter( 'jetpack_get_available_modules', $drop_search, 20 );
+			remove_filter( 'jetpack_get_available_modules', $drop_backup, 20 );
 		}
 
 		$this->assertTrue( $result );
-		$this->assertContains( 'search', Jetpack_Options::get_option( 'active_modules', array() ) );
-		$this->assertArrayNotHasKey( 'search', $this->pre_deactivate_calls );
+		$this->assertContains( 'backup', Jetpack_Options::get_option( 'active_modules', array() ) );
+		$this->assertArrayNotHasKey( 'backup', $this->pre_deactivate_calls );
 	}
 
 	public function test_deactivate_succeeds_when_its_standalone_plugin_forces_the_module_on() {

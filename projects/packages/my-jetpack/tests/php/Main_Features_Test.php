@@ -627,15 +627,6 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
-	 * Only Backup follows its plan, which is what keeps a switch off its card whichever plugin delivers it.
-	 */
-	public function test_only_backup_is_plan_driven() {
-		$plan_driven = array_keys( array_filter( array_column( Main_Features::get_features(), 'plan_driven', 'slug' ) ) );
-
-		$this->assertSame( array( 'backup' ), $plan_driven );
-	}
-
-	/**
 	 * An expired Backup plan is sold again rather than counted as included.
 	 *
 	 * @dataProvider provide_backup_expiry

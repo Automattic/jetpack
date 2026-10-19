@@ -841,24 +841,6 @@ class Jetpack {
 	}
 
 	/**
-	 * Switch the backup module back on for an existing site with each Jetpack update.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param string       $version     The version being installed.
-	 * @param string|false $old_version The version it replaces, or false on a fresh install.
-	 * @return void
-	 */
-	public static function activate_backup_module_for_existing_sites( $version, $old_version ) {
-		// Fresh installs get it from "Auto Activate: Yes".
-		if ( ! $old_version || ! self::is_connection_ready() || self::is_module_active( 'backup' ) ) {
-			return;
-		}
-
-		self::activate_module( 'backup', false, false );
-	}
-
-	/**
 	 * What switching a module off leaves unchanged, for interfaces that still offer it; empty when nothing.
 	 *
 	 * @since $$next-version$$
