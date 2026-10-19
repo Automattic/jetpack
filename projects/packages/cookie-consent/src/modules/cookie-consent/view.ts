@@ -543,6 +543,17 @@ const { actions } = store( 'jetpack/cookie-consent', {
 			// Initialize geolocation (will use cache if already done)
 			const geoData: GeoState = yield actions.initializeGeolocation();
 			if ( null === geoData.countryCode ) {
+				// Geo failed with showOnError off, so whether GPC applies cannot be told. A
+				// returning visitor whose stored choice conflicts with GPC (init only gets here
+				// in that case) keeps that choice, as before GPC was checked on every load, so
+				// Tracks still loads when it allows analytics.
+				if (
+					'showBanner' in context &&
+					hasConsentSet() &&
+					hasAnalyticsConsent( readConsentChoices() )
+				) {
+					ensureTracksLoaded();
+				}
 				return;
 			}
 
@@ -556,7 +567,11 @@ const { actions } = store( 'jetpack/cookie-consent', {
 					// Returning visitor whose stored consent conflicts with a GPC signal (init
 					// only gets here in that case): opt out where the region honors GPC, then
 					// load Tracks only if analytics is still allowed.
-					applyGpcToStoredConsent( geoData.countryCode, geoData.region || '', config );
+					applyGpcToStoredConsent(
+						geoData.countryCode || UNKNOWN_COUNTRY_CODE,
+						geoData.region || '',
+						config
+					);
 					if ( hasAnalyticsConsent( readConsentChoices() ) ) {
 						ensureTracksLoaded();
 					}

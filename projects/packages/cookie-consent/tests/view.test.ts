@@ -362,6 +362,22 @@ describe( 'GPC for a returning visitor', () => {
 		expect( wpSetConsentCalls() ).toContainEqual( [ 'marketing', 'deny' ] );
 	} );
 
+	it( 'keeps the stored choice and loads Tracks when geo fails with showOnError off', async () => {
+		setGpc( true );
+		cookieJar = ALL_ALLOWED;
+		mockGetContext.mockReturnValue( { showBanner: false } );
+		mockGetConfig.mockReturnValue( makeConfig( { showOnError: false } ) );
+		fetchMock.mockRejectedValue( new Error( 'network down' ) );
+
+		await runAction(
+			storeActions.updateContextFromGeolocation() as Generator< unknown, unknown, unknown >
+		);
+
+		expect( wpSetConsentCalls() ).toHaveLength( 0 );
+		expect( document.getElementById( TRACKS_SCRIPT_ID ) ).not.toBeNull();
+		expect( console ).toHaveWarned();
+	} );
+
 	it( 'keeps the stored choice and loads Tracks in an unregulated region', async () => {
 		setGpc( true );
 		cookieJar = ALL_ALLOWED;

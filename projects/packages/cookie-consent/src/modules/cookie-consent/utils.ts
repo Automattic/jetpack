@@ -8,11 +8,18 @@ import type { ConsentType, ConsentEventType, ConsentEventChoices, ConsentCategor
 
 export const UNKNOWN_COUNTRY_CODE = 'UNKNOWN';
 
-// Marks that the stored consent was saved while the browser sent a Global Privacy Control
-// signal, so a returning visitor's GPC is applied once and an explicit choice made with GPC
-// on (e.g. re-granting through "Manage Privacy Preferences") is not overridden on every load.
+// Marks that the visitor made the stored choice themselves while the browser sent a Global
+// Privacy Control signal, so that choice (e.g. re-granting through "Manage Privacy
+// Preferences") is not overridden on every load. Only an active choice sets it: consent the
+// package grants on its own (auto_granted) never does, so a GPC visitor auto-granted in a
+// region that ignores GPC is still opted out once they reach a region that honors it.
 export const GPC_CHOICE_COOKIE = 'jetpack_cookie_consent_gpc';
 const GPC_CHOICE_COOKIE_DURATION = 365 * 24 * 60 * 60;
+const ACTIVE_CHOICE_EVENT_TYPES: ConsentEventType[] = [
+	'accept_all',
+	'accept_selected',
+	'reject_all',
+];
 
 export const DEFAULT_CONSENT_CATEGORIES: ConsentCategory[] = [
 	{
@@ -196,7 +203,7 @@ export function saveConsentChoices(
 		} );
 	} );
 
-	rememberGpcAtSave();
+	rememberGpcAtSave( eventType );
 
 	// Trigger a custom event to notify other parts of the code that the consent has been set
 	window.dispatchEvent(
@@ -253,10 +260,12 @@ export function hasOptedOutViaGlobalPrivacyControl(): boolean {
 }
 
 /**
- * Record whether the choice being saved was made with a GPC signal present.
+ * Record whether the choice being saved is one the visitor made with a GPC signal present.
+ *
+ * @param eventType - Type of the consent event being saved.
  */
-function rememberGpcAtSave(): void {
-	if ( hasOptedOutViaGlobalPrivacyControl() ) {
+function rememberGpcAtSave( eventType: ConsentEventType ): void {
+	if ( ACTIVE_CHOICE_EVENT_TYPES.includes( eventType ) && hasOptedOutViaGlobalPrivacyControl() ) {
 		setCookie( GPC_CHOICE_COOKIE, '1', GPC_CHOICE_COOKIE_DURATION );
 	} else if ( getCookie( GPC_CHOICE_COOKIE ) !== null ) {
 		setCookie( GPC_CHOICE_COOKIE, '', -1 );
@@ -265,7 +274,8 @@ function rememberGpcAtSave(): void {
 
 /**
  * Whether a GPC signal conflicts with the visitor's stored consent: GPC is on, the stored
- * choice was saved without it, and that choice still allows a non-required category.
+ * choice was not made by the visitor with GPC on, and any WP Consent API category mapped to
+ * a non-required category is still `allow` (one is enough, even if its siblings deny).
  *
  * @return Whether the stored consent may need a GPC opt-out, depending on the region.
  */
@@ -274,9 +284,12 @@ export function hasGpcConflictWithStoredConsent(): boolean {
 		return false;
 	}
 
-	const stored = readConsentChoices();
 	return getConsentCategories().some(
-		category => ! category.required && stored[ getCategoryPreferenceKey( category ) ] === true
+		category =>
+			! category.required &&
+			category.wpConsentMap.some(
+				wpCategory => getCookie( `wp_consent_${ wpCategory }` ) === 'allow'
+			)
 	);
 }
 

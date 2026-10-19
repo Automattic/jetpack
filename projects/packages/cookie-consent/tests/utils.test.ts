@@ -681,6 +681,58 @@ describe( 'GPC for a returning visitor', () => {
 		);
 	} );
 
+	it.each( [ 'accept_selected', 'reject_all' ] as const )(
+		'marks a %s choice saved with GPC on',
+		eventType => {
+			setGpc( true );
+
+			saveConsentChoices( getConsentChoices( eventType !== 'reject_all' ), eventType );
+
+			expect( cookieWrites.some( write => write.startsWith( `${ GPC_CHOICE_COOKIE }=1;` ) ) ).toBe(
+				true
+			);
+		}
+	);
+
+	it( 'does not mark consent the package auto-grants with GPC on', () => {
+		setGpc( true );
+
+		saveConsentChoices( getConsentChoices( true ), 'auto_granted' );
+
+		expect( cookieWrites.some( write => write.startsWith( `${ GPC_CHOICE_COOKIE }=1;` ) ) ).toBe(
+			false
+		);
+	} );
+
+	it( 'clears an earlier mark when the package auto-grants consent', () => {
+		setGpc( true );
+		cookieJar = `${ GPC_CHOICE_COOKIE }=1`;
+
+		saveConsentChoices( getConsentChoices( true ), 'auto_granted' );
+
+		expect( cookieWrites.some( write => write.startsWith( `${ GPC_CHOICE_COOKIE }=;` ) ) ).toBe(
+			true
+		);
+	} );
+
+	it( 'opts out a GPC visitor auto-granted in an unregulated region once they reach a CCPA one', () => {
+		// Brave sends GPC on every request. First visit from Texas: implied consent, no mark.
+		setGpc( true );
+		handleConsentByRegion( 'US', 'texas', config, { showBanner: false } );
+
+		expect( savedEvents[ 0 ].detail.eventType ).toBe( 'auto_granted' );
+		expect( cookieWrites.some( write => write.startsWith( `${ GPC_CHOICE_COOKIE }=1;` ) ) ).toBe(
+			false
+		);
+
+		// Later visit from California with the auto-granted choice stored.
+		cookieJar = ALL_ALLOWED;
+		consentCalls = [];
+
+		expect( applyGpcToStoredConsent( 'US', 'california', config ) ).toBe( true );
+		expect( consentCalls ).toContainEqual( [ 'marketing', 'deny' ] );
+	} );
+
 	it( 'clears the mark when a choice is saved with GPC off', () => {
 		setGpc( undefined );
 		cookieJar = `${ GPC_CHOICE_COOKIE }=1`;
@@ -705,6 +757,21 @@ describe( 'GPC for a returning visitor', () => {
 		cookieJar = ALL_ALLOWED;
 
 		expect( hasGpcConflictWithStoredConsent() ).toBe( true );
+	} );
+
+	it( 'reports a conflict when only one mapped cookie of a category allows', () => {
+		setGpc( true );
+		cookieJar =
+			'wp_consent_functional=allow; wp_consent_statistics=deny; wp_consent_statistics-anonymous=allow; wp_consent_marketing=deny';
+
+		expect( hasGpcConflictWithStoredConsent() ).toBe( true );
+	} );
+
+	it( 'ignores an allowed WP Consent API category no package category maps', () => {
+		setGpc( true );
+		cookieJar = `${ ALL_DENIED }; wp_consent_preferences=allow`;
+
+		expect( hasGpcConflictWithStoredConsent() ).toBe( false );
 	} );
 
 	it( 'reports no conflict without GPC', () => {
@@ -752,8 +819,9 @@ describe( 'GPC for a returning visitor', () => {
 		] );
 		expect( savedEvents ).toHaveLength( 1 );
 		expect( savedEvents[ 0 ].detail.eventType ).toBe( 'opt-out' );
+		// The opt-out is not the visitor's own choice, so it does not mark one.
 		expect( cookieWrites.some( write => write.startsWith( `${ GPC_CHOICE_COOKIE }=1;` ) ) ).toBe(
-			true
+			false
 		);
 	} );
 
