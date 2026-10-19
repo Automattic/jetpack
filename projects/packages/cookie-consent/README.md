@@ -103,7 +103,7 @@ Turning `tracks` off stops every request the package makes to Automattic for usa
   - the visitor opens "Manage Privacy Preferences" with no stored choice, or with a stored choice that does not allow analytics (otherwise a Tracks event);
   - the visitor clicks the CCPA opt-out button.
 
-It does not stop the geolocation request to `public-api.wordpress.com/geo/`; turn `geo` off for that.
+It does not stop the geolocation request (`public-api.wordpress.com/geo/` with the default `wpcom` provider); turn `geo` off for that.
 
 Turning `geo` off stops resolving a visitor's region and excluding the geo cookies from Jetpack Boost's cache key, but the frontend module still receives a `geo` config sub-object (with `geoEnabled: false`) rather than none at all, since the module dereferences it unconditionally.
 
