@@ -388,6 +388,24 @@ class Block_Editor {
 	}
 
 	/**
+	 * What a host needs to run the editor outside the comment form.
+	 *
+	 * @return array
+	 */
+	public static function settings() {
+		$lengths = wp_get_comment_fields_max_lengths();
+
+		return array(
+			// Where the lazy chunks live; a plugin that combines scripts moves the bundle elsewhere.
+			'assetsUrl'    => trailingslashit( Assets::normalize_path( plugins_url( '../../build', __FILE__ ) ) ),
+			'maxLength'    => isset( $lengths['comment_content'] ) ? (int) $lengths['comment_content'] : 65525,
+			'blocks'       => self::is_enabled(),
+			'editorLocale' => self::is_enabled() ? self::locale_data() : (object) array(),
+			'editor'       => self::labels(),
+		);
+	}
+
+	/**
 	 * What the editor needs from PHP: its own strings, the embed route, and whether it offers images.
 	 *
 	 * @return array
