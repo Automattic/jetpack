@@ -11,37 +11,61 @@ jest.mock( 'components/settings-group', () => ( {
 	default: ( { children } ) => children,
 } ) );
 
-const findsFirewall = slug => 'waf' === slug;
+const ADMIN = 'https://example.com/wp-admin/';
+const finds = slugs => slug => slugs.includes( slug );
 const findsNothing = () => false;
+const akismetActive = plugin => 'akismet/akismet.php' === plugin;
+const akismetData = () => ( { Description: 'Spam protection', PluginURI: '' } );
 
 const renderSecurity = props =>
 	render(
 		<Security
 			hasProtectPage
 			active
-			siteAdminUrl="https://example.com/wp-admin/"
-			isModuleFound={ findsFirewall }
+			siteAdminUrl={ ADMIN }
+			isModuleFound={ findsNothing }
 			isPluginActive={ findsNothing }
+			isPluginInstalled={ akismetData }
 			{ ...props }
 		/>
 	);
 
 describe( 'Security with the Protect page', () => {
-	it( 'points a matching search at the Protect page settings', () => {
-		renderSecurity( { searchTerm: 'firewall' } );
+	it.each( [
+		[
+			'Protect settings',
+			{ searchTerm: 'firewall', isModuleFound: finds( [ 'waf' ] ) },
+			'Open Protect settings',
+			`${ ADMIN }admin.php?page=jetpack-protect&p=%2F%3Ftab%3Dsettings`,
+		],
+		[
+			'the Backup page',
+			{ searchTerm: 'backup', isModuleFound: finds( [ 'backup' ] ), hasBackupPage: true },
+			'Open Backup',
+			`${ ADMIN }admin.php?page=jetpack-backup`,
+		],
+		[
+			'My Jetpack when there is no Backup page',
+			{ searchTerm: 'vaultpress', isModuleFound: finds( [ 'vaultpress' ] ) },
+			'Set up Backup',
+			`${ ADMIN }admin.php?page=my-jetpack#/add-backup`,
+		],
+		[
+			'the Akismet page',
+			{ searchTerm: 'spam', isPluginActive: akismetActive },
+			'Open Akismet Anti-spam',
+			`${ ADMIN }admin.php?page=akismet-key-config`,
+		],
+	] )( 'points a matching search at %s', ( _name, props, linkName, href ) => {
+		renderSecurity( props );
 
-		expect( screen.getByRole( 'link', { name: 'Open Protect settings' } ) ).toHaveAttribute(
-			'href',
-			'https://example.com/wp-admin/admin.php?page=jetpack-protect&p=%2F%3Ftab%3Dsettings'
-		);
+		expect( screen.getAllByRole( 'link' ) ).toHaveLength( 1 );
+		expect( screen.getByRole( 'link', { name: linkName } ) ).toHaveAttribute( 'href', href );
 	} );
 
 	it.each( [
 		[ 'without a search', {} ],
-		[
-			'for a search that matches no security setting',
-			{ searchTerm: 'akismet', isModuleFound: findsNothing },
-		],
+		[ 'for a search that matches no security setting', { searchTerm: 'sharing' } ],
 	] )( 'renders nothing %s', ( _name, props ) => {
 		const { container } = renderSecurity( props );
 

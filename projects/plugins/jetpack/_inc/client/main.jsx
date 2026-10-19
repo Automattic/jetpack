@@ -18,7 +18,7 @@ import SettingsAdminPage from 'components/settings-admin-page';
 import SettingsNavTabs from 'components/settings-nav-tabs';
 import Tracker from 'components/tracker';
 import analytics from 'lib/analytics';
-import { getProtectSettingsUrl } from 'security/protect-page';
+import { openProtectSettings } from 'security/protect-page';
 import SearchableSettings from 'settings/index.jsx';
 import {
 	getSiteConnectionStatus,
@@ -65,7 +65,7 @@ const settingsRoutes = [
 	'/privacy',
 ];
 
-class Main extends Component {
+export class Main extends Component {
 	UNSAFE_componentWillMount() {
 		this.props.setInitialState();
 		restApi.setApiRoot( this.props.apiRoot );
@@ -240,8 +240,8 @@ class Main extends Component {
 				window.location.href = `${ this.props.siteAdminUrl }admin.php?page=jetpack-newsletter`;
 				break;
 			case '/security':
-				if ( this.props.hasProtectPage && this.props.userCanManageModules ) {
-					window.location.replace( getProtectSettingsUrl( this.props.siteAdminUrl ) );
+				if ( this.props.hasProtectPage ) {
+					openProtectSettings( this.props.siteAdminUrl );
 					break;
 				}
 			// Falls through.
