@@ -85,7 +85,6 @@ export const route = {
 				to: '/author/$authorId',
 				params: { authorId } as unknown as never,
 				replace: true,
-				viewTransition: false,
 				search: seeded as unknown as never,
 			} );
 		}

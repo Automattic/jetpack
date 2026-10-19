@@ -92,7 +92,6 @@ describe( 'author detail route.beforeLoad', () => {
 		).rejects.toMatchObject( {
 			to: '/author/$authorId',
 			replace: true,
-			viewTransition: false,
 			params: { authorId: '7' },
 			search: expect.objectContaining( { author_id: '7' } ),
 		} );
