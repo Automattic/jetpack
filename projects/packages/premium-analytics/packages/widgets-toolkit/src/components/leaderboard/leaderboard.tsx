@@ -3,6 +3,7 @@
  */
 import { Stack } from '@jetpack-premium-analytics/externals';
 import { __, sprintf } from '@wordpress/i18n';
+import clsx from 'clsx';
 import { useCallback, useEffect, useMemo, type JSX, type ReactNode } from 'react';
 /**
  * Internal dependencies
@@ -113,6 +114,8 @@ export type LeaderboardProps = {
 	 * Rendered in the widget footer, typically a `ReportLink`.
 	 */
 	footer?: ReactNode;
+	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
+	chartTitle?: string;
 };
 
 const DEFAULT_FORMAT: DataFormat = {
@@ -142,6 +145,7 @@ export function Leaderboard( {
 	drillDown,
 	navigation,
 	footer,
+	chartTitle,
 }: LeaderboardProps ): JSX.Element {
 	const { reportParams } = useWidgetRootContext();
 	const detailSearch = useWidgetNavigationSearch( navigation );
@@ -230,7 +234,10 @@ export function Leaderboard( {
 
 	return (
 		<Stack direction="column" className={ styles.root }>
-			<Stack direction="column" className={ styles.content }>
+			<Stack
+				direction="column"
+				className={ clsx( styles.content, footer && legendLabels && styles.legendAboveFooter ) }
+			>
 				{ backLink }
 				<WidgetState
 					isLoading={ isLoading }
@@ -249,6 +256,7 @@ export function Leaderboard( {
 						legendLabels={ legendLabels }
 						dataFormat={ format }
 						columns={ columns }
+						chartTitle={ chartTitle }
 					/>
 				</WidgetState>
 			</Stack>

@@ -78,6 +78,7 @@ export const STORE_PERFORMANCE_METRICS: StorePerformanceMetric[] = [
 		field: 'conversion_rate',
 		dataFormat: { type: 'percentage', options: { decimals: 1 } },
 		useReport: useReportConversionRate,
+		noDataLabel: __( 'No store sessions in this period.', 'jetpack-woocommerce-stats-pkg' ),
 	},
 	{
 		id: 'customers',
@@ -118,7 +119,8 @@ function isStorePerformanceMetric( candidate: unknown ): candidate is StorePerfo
 		typeof metric.dataFormat === 'object' &&
 		metric.dataFormat !== null &&
 		typeof metric.useReport === 'function' &&
-		( metric.countLabel === undefined || typeof metric.countLabel === 'function' )
+		( metric.countLabel === undefined || typeof metric.countLabel === 'function' ) &&
+		( metric.noDataLabel === undefined || typeof metric.noDataLabel === 'string' )
 	);
 }
 

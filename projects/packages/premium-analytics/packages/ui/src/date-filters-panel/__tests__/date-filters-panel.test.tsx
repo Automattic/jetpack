@@ -191,6 +191,50 @@ describe( 'DateFiltersPanel', () => {
 		} );
 	} );
 
+	it( 'locks the periods and days the scope withholds and wires the upsell', async () => {
+		const user = userEvent.setup();
+		const onUpgradeClick = jest.fn();
+		render(
+			<ReportScopeProvider
+				dateLimits={ {
+					lockedPresetIds: [ 'last-30-days' ],
+					earliestDate: new TZDate( '2026-07-10T00:00:00.000Z', 'UTC' ),
+					lockedIntervals: [],
+					upsell: {
+						description: 'Upgrade to see more.',
+						supportUrl: 'https://example.com/help',
+						upgradeUrl: 'https://example.com/plans',
+					},
+					onUpgradeClick,
+				} }
+			>
+				{ panel( { appliedPresetId: 'last-7-days' } ) }
+			</ReportScopeProvider>
+		);
+
+		await user.click( screen.getByRole( 'button', { name: 'Last 7 days' } ) );
+
+		expect( screen.getByRole( 'menuitemradio', { name: 'Last 30 days' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+		expect( screen.getByText( 'Upgrade to see more.' ) ).toBeInTheDocument();
+
+		const upgrade = screen.getByRole( 'link', { name: 'Upgrade' } );
+		// jsdom cannot navigate, and logs an error if the click tries.
+		upgrade.addEventListener( 'click', event => event.preventDefault() );
+		await user.click( upgrade );
+
+		expect( onUpgradeClick ).toHaveBeenCalledTimes( 1 );
+
+		await user.click( screen.getByRole( 'menuitemradio', { name: 'Custom range' } ) );
+		const day = ( name: string ) =>
+			within( screen.getByRole( 'grid' ) ).getByRole( 'button', { name: new RegExp( name ) } );
+
+		expect( day( 'July 9, 2026' ) ).toBeDisabled();
+		expect( day( 'July 10, 2026' ) ).toBeEnabled();
+	} );
+
 	it( 'greys every control out while disabled', () => {
 		renderPanel( {
 			disabled: true,

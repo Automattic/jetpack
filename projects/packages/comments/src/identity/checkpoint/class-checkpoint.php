@@ -238,18 +238,22 @@ class Checkpoint {
 			return;
 		}
 
-		// phpcs:disable WordPress.Security.NonceVerification.Missing -- A logged-out reader posts no nonce; is_same_site_request() guards the code.
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- A logged-out reader posts no nonce; is_same_site_request() guards both fields.
 		$code        = isset( $_POST[ self::CODE_FIELD ] ) ? sanitize_text_field( wp_unslash( $_POST[ self::CODE_FIELD ] ) ) : '';
 		$on_passport = ! empty( $_POST[ self::PASSPORT_FIELD ] );
 		// phpcs:enable WordPress.Security.NonceVerification.Missing
 
-		if ( '' !== $code ) {
-			// A form another site auto-submits can spend a code too, and the passport it
-			// earns lands in whichever browser sent it. Only this site's own pages may post one.
-			if ( ! self::is_same_site_request() ) {
-				self::refuse( new WP_Error( 'invalid_code', '', array( 'status' => 403 ) ) );
-			}
+		if ( '' === $code && ! $on_passport ) {
+			return;
+		}
 
+		// A form another site auto-submits can spend a code, landing the passport in whichever browser
+		// sent it, or arrive without the Lax passport cookie and have the refusal below revoke it.
+		if ( ! self::is_same_site_request() ) {
+			self::refuse( new WP_Error( 'invalid_code', '', array( 'status' => 403 ) ) );
+		}
+
+		if ( '' !== $code ) {
 			$identity = self::exchange( $code );
 
 			if ( is_wp_error( $identity ) ) {
@@ -257,7 +261,7 @@ class Checkpoint {
 			}
 
 			Passport::issue( $identity );
-		} elseif ( $on_passport ) {
+		} else {
 			$identity = Passport::read();
 
 			// The form showed a name the passport no longer backs, say after a
@@ -265,8 +269,6 @@ class Checkpoint {
 			if ( null === $identity ) {
 				self::refuse( new WP_Error( 'code_expired', '', array( 'status' => 403 ) ) );
 			}
-		} else {
-			return;
 		}
 
 		$this->identity = $identity;
@@ -294,7 +296,8 @@ class Checkpoint {
 		}
 
 		foreach ( array( 'HTTP_ORIGIN', 'HTTP_REFERER' ) as $header ) {
-			if ( empty( $_SERVER[ $header ] ) ) {
+			// A no-referrer policy posts Origin: null from this site's own pages too, so Sec-Fetch-Site decides.
+			if ( empty( $_SERVER[ $header ] ) || 'null' === $_SERVER[ $header ] ) {
 				continue;
 			}
 

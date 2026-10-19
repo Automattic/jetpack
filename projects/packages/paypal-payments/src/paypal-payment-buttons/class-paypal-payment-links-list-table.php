@@ -333,8 +333,8 @@ class PayPal_Payment_Links_List_Table extends \WP_List_Table {
 
 		printf(
 			'<p>%s</p><p>%s</p>',
-			esc_html__( 'No payment links found.', 'jetpack-paypal-payments' ),
-			esc_html__( 'Create your first payment link by adding a PayPal Payment Buttons block in the editor.', 'jetpack-paypal-payments' )
+			esc_html__( 'No payment buttons found.', 'jetpack-paypal-payments' ),
+			esc_html__( 'Create your first payment button by adding a PayPal Payment Buttons block in the editor.', 'jetpack-paypal-payments' )
 		);
 	}
 

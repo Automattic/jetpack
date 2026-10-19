@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Settings: Hide the sharing button toolbar's title with the VisuallyHidden component rather than the global screen-reader-text class.
