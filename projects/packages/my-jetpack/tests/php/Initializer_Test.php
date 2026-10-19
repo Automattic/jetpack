@@ -111,12 +111,12 @@ class Initializer_Test extends BaseTestCase {
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 * @param bool   $loaded Whether the Jetpack plugin is loaded from its Beta directory.
-	 * @param string $host_filter The filter through which the host disables My Jetpack.
+	 * @param string $disabled_filter Filter to force off for this case.
 	 */
 	#[DataProvider( 'modules_plugin_load_cases' )]
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_modules_links_require_the_loaded_jetpack_plugin( $loaded, $host_filter = '' ) {
+	public function test_modules_links_require_the_loaded_jetpack_plugin( $loaded, $disabled_filter = '' ) {
 		if ( $loaded ) {
 			$this->load_jetpack_mock( 'jetpack-dev' );
 		} else {
@@ -128,11 +128,11 @@ class Initializer_Test extends BaseTestCase {
 		add_filter( 'jetpack_offline_mode', '__return_false' );
 		add_filter( 'jetpack_feature_flag_enabled_my-jetpack-modules-to-features', '__return_true' );
 		$this->connect_site_only();
-		if ( $host_filter ) {
-			add_filter( $host_filter, '__return_false' );
+		if ( $disabled_filter ) {
+			add_filter( $disabled_filter, '__return_false' );
 		}
 
-		$expect_features = $loaded && ! $host_filter;
+		$expect_features = $loaded && ! $disabled_filter;
 		$eligible        = null;
 		$expected        = $expect_features
 			? admin_url( 'admin.php?page=my-jetpack&modules_fallback=1#/features' )
@@ -188,6 +188,7 @@ class Initializer_Test extends BaseTestCase {
 			array(
 				'My Jetpack disabled'       => array( true, 'jetpack_my_jetpack_should_initialize' ),
 				'host redirects My Jetpack' => array( true, 'jetpack_my_jetpack_modules_management_available' ),
+				'Modules flag off'          => array( true, 'jetpack_feature_flag_enabled_my-jetpack-modules-to-features' ),
 			)
 		);
 	}
