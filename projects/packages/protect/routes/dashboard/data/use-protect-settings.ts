@@ -10,12 +10,36 @@ const SAVED_NOTICE_ID = 'jetpack-protect-settings-saved';
 type Failure = { message: string; keys: string[] };
 const NO_KEYS: string[] = [];
 
+/**
+ * A readable message for the firewall's error codes, whose server messages are meant for developers.
+ *
+ * @param code - The REST error code.
+ * @return The message, or undefined for any other code.
+ */
+function getSaveErrorMessage( code: unknown ): string | undefined {
+	switch ( code ) {
+		case 'file_system_error':
+			return __( 'The firewall couldn’t update its files on your server.', 'jetpack-protect-pkg' );
+		case 'rules_api_error':
+			return __(
+				'The latest automatic firewall rules couldn’t be retrieved.',
+				'jetpack-protect-pkg'
+			);
+		default:
+			return undefined;
+	}
+}
+
 /** Flat Jetpack settings, keyed by option or module slug, as `jetpack/v4/settings` returns them. */
 export type ProtectSettings = Record< string, unknown >;
 
 export type WafConfig = {
 	waf_supported?: boolean;
 	automatic_rules_available?: boolean;
+	/** The file `auto_prepend_file` must point to for the firewall to run before WordPress. */
+	bootstrap_path?: string;
+	/** Whether the firewall ran before WordPress on this request, through `auto_prepend_file`. */
+	standalone_mode?: boolean;
 };
 
 export type ProtectSettingsData = {
@@ -110,6 +134,7 @@ export default function useProtectSettings(): ProtectSettingsData {
 					{ type: 'snackbar', id: SAVED_NOTICE_ID }
 				);
 			} catch ( e ) {
+				const { code, message } = ( e ?? {} ) as { code?: unknown; message?: string };
 				const rolledBack = { ...settingsRef.current };
 				keys.forEach( key => {
 					// A later save of this key already replaced our value; keep it.
@@ -126,7 +151,8 @@ export default function useProtectSettings(): ProtectSettingsData {
 				setSettings( rolledBack );
 				setFailure( {
 					message:
-						( e as { message?: string } )?.message ||
+						getSaveErrorMessage( code ) ||
+						message ||
 						__( 'Your change couldn’t be saved. Try again.', 'jetpack-protect-pkg' ),
 					keys,
 				} );

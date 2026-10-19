@@ -89,6 +89,19 @@ describe( 'useProtectSettings', () => {
 		expect( result.current.isSaving( 'list' ) ).toBe( false );
 	} );
 
+	it.each( [
+		[ 'file_system_error', 'The firewall couldn’t update its files on your server.' ],
+		[ 'rules_api_error', 'The latest automatic firewall rules couldn’t be retrieved.' ],
+		[ 'other_error', 'Raw server text' ],
+	] )( 'a failed save with the code %s shows "%s"', async ( code, expected ) => {
+		respondWith( { post: Promise.reject( { code, message: 'Raw server text' } ) } );
+		const { result } = renderHook( () => useProtectSettings() );
+
+		await act( () => result.current.save( { list: 'new' } ) );
+
+		expect( result.current.error ).toBe( expected );
+	} );
+
 	it( 'refresh takes only the requested keys from the server, even ones saved earlier', async () => {
 		respondWith( {
 			get: Promise.resolve( { email: true, other: 1 } ),
