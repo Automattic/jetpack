@@ -10,7 +10,6 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@automattic/jetpack-premium-analytics-sdk';
 import { __ } from '@wordpress/i18n';
-import { people } from '@wordpress/icons';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -67,6 +66,7 @@ function NewVsReturningCustomer() {
 	return (
 		<Donut
 			segments={ segments }
+			chartTitle={ __( 'New vs returning customer', 'jetpack-woocommerce-stats-pkg' ) }
 			status={ {
 				isLoading,
 				isFetching,
@@ -82,10 +82,6 @@ function NewVsReturningCustomer() {
 				),
 				onRetry: refetch,
 			} ) }
-			empty={ {
-				icon: people,
-				description: __( 'No customer data in this period.', 'jetpack-woocommerce-stats-pkg' ),
-			} }
 		/>
 	);
 }

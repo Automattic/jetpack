@@ -7,6 +7,10 @@ body.jetpack_page_jetpack-protect,
 body.toplevel_page_jetpack-protect {
 
 	@include jetpack-admin-page-layout-wp-build;
+
+	// Dialogs portal into <body>, under the admin menu (z-index 9990)
+	// unless lifted.
+	--wp-ui-dialog-z-index: 100000;
 }
 
 .jp-protect-dashboard__body {
@@ -21,6 +25,12 @@ body.toplevel_page_jetpack-protect {
 	display: flex;
 	flex-direction: column;
 	gap: var(--wpds-dimension-gap-lg);
+
+	// The 660px column of the other Jetpack settings screens.
+	&--settings {
+		max-inline-size: 660px;
+		margin-inline: auto;
+	}
 }
 
 .jp-protect-card {
@@ -40,9 +50,33 @@ body.toplevel_page_jetpack-protect {
 		margin: 0;
 	}
 
+	// Intro text above a card's first row, at the card's padding.
+	&__intro {
+		padding-block-end: 16px;
+
+		p {
+			margin: 0;
+		}
+	}
+
 	// A compact button's height, so headers without one match.
 	&__header-end {
 		min-block-size: var(--wpds-dimension-size-md);
+	}
+
+	// A button that opens something in place, styled as the links beside it.
+	&__link-button {
+		padding: 0;
+		line-height: 1.4;
+		color: var(--wpds-color-foreground-interactive-brand);
+		font-size: 13px;
+		text-decoration: underline;
+		text-underline-offset: 0.2em;
+		cursor: pointer;
+
+		&:hover {
+			color: var(--wpds-color-foreground-interactive-brand-active);
+		}
 	}
 
 	&__subheading {

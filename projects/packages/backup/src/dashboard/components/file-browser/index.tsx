@@ -1,17 +1,19 @@
 import { CheckboxControl } from '@wordpress/components';
+import { useMergeRefs } from '@wordpress/compose';
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from '@wordpress/element';
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { __, _n, isRTL, sprintf } from '@wordpress/i18n';
 // The upstream names don't describe what they draw: `file` is a folder
 // glyph, `page` is a document one, and there is no `folder` export.
 // `tests/file-browser-icons.test.tsx` holds these aliases in place.
 import {
 	Icon,
+	chevronLeft,
 	chevronRight,
 	chevronDown,
 	file as folderIcon,
 	page as fileIcon,
 } from '@wordpress/icons';
-import { Spinner, Stack } from '@wordpress/ui';
+import { Spinner, Stack, Text } from '@wordpress/ui';
 import { useFileTree } from '../../hooks/use-file-tree';
 import useNarrowElement from '../../hooks/use-narrow-element';
 import { isFolder } from '../../types/file-tree';
@@ -349,7 +351,17 @@ export default function FileBrowser( {
 	onSelectionIdsChange,
 }: Props ) {
 	const [ openFile, setOpenFile ] = useState< FileNodeFile | null >( null );
-	const [ panelRef, isNarrow ] = useNarrowElement( TWO_COLUMN_MIN );
+	const [ narrowRef, isNarrow ] = useNarrowElement( TWO_COLUMN_MIN );
+	const panelRef = useRef< HTMLDivElement >( null );
+	// Spread on the root in both branches, so it is one element that outlives the error notice and can take its focus.
+	const rootProps = {
+		className: 'jpb-file-browser',
+		ref: useMergeRefs( [ narrowRef, panelRef ] ),
+		'data-rewind-id': rewindId,
+		tabIndex: -1,
+		role: 'group',
+		'aria-label': __( 'Files in this backup', 'jetpack-backup-pkg' ),
+	};
 	const {
 		children: rootsData,
 		isLoading: rootsLoading,
@@ -444,14 +456,15 @@ export default function FileBrowser( {
 		onSelectionIdsChange?.( selectedIds );
 	}, [ selectedIds, onSelectionIdsChange ] );
 
-	// The selection summary's checkbox doubles as a "select all / clear"
-	// toggle: clicking it with anything selected clears both sets,
-	// clicking with nothing selected seeds every top-level root path as
-	// a positive selection. Mirrors the legacy backup-contents header
-	// — selecting a folder includes its whole subtree on the server side,
-	// so we don't need to recurse the lazy-loaded child paths here.
+	// A selected folder covers its unloaded subtree, so "everything" is every root with no exceptions.
+	const allSelected =
+		roots.length > 0 && deselected.size === 0 && roots.every( node => selected.has( node.path ) );
+	const someSelected = selected.size > 0 && ! allSelected;
+	const selectionCountId = useId();
+
+	// Clears only from a full selection, so a click on a partial one never discards it.
 	const toggleSelectAll = useCallback( () => {
-		if ( selected.size > 0 ) {
+		if ( allSelected ) {
 			onSelectionChange( EMPTY_FILE_SELECTION );
 			return;
 		}
@@ -459,7 +472,7 @@ export default function FileBrowser( {
 			selected: new Set( roots.map( node => node.path ) ),
 			deselected: new Set(),
 		} );
-	}, [ selected.size, roots, onSelectionChange ] );
+	}, [ allSelected, roots, onSelectionChange ] );
 
 	// Closing the card unmounts the element that currently holds focus, which
 	// drops focus to `<body>` and sends the next Tab back to the top of the
@@ -488,40 +501,48 @@ export default function FileBrowser( {
 			? 'jpb-file-browser__layout jpb-file-browser__layout--with-card'
 			: 'jpb-file-browser__layout';
 
-	// A failed root tree is indistinguishable from a backup that contains
-	// nothing: `children` is null either way, so the tree renders empty
-	// under a "0 items selected" header that invites the reader to select
-	// from it. Replace the whole browser rather than just the tree — the
-	// selection header is meaningless without a tree to select from.
-	if ( rootsError ) {
+	// A failed root read would render as an empty backup under a header inviting selection, so
+	// replace the whole browser. A failed background refresh still has its rows and keeps the tree.
+	if ( rootsError && ! rootsData ) {
 		return (
-			<div className="jpb-file-browser" ref={ panelRef } data-rewind-id={ rewindId }>
+			<div { ...rootProps }>
 				<QueryError
 					title={ __( "We couldn't load this backup's files.", 'jetpack-backup-pkg' ) }
 					error={ rootsError }
 					referenceId={ { kind: 'backup', value: rewindId } }
 					onRetry={ refetchRoots }
+					withSupportLink
 					isRetrying={ rootsFetching }
+					returnFocusTo={ panelRef }
 				/>
 			</div>
 		);
 	}
 
 	return (
-		<div className="jpb-file-browser" ref={ panelRef } data-rewind-id={ rewindId }>
+		<div { ...rootProps }>
 			<div className={ layoutClassName } style={ layoutStyle }>
 				<div className="jpb-file-browser__main">
 					<Stack direction="row" align="center" gap="sm" className="jpb-file-browser__selection">
 						<CheckboxControl
-							checked={ selected.size > 0 }
-							label={ sprintf(
+							checked={ allSelected }
+							indeterminate={ someSelected }
+							label={
+								allSelected
+									? __( 'Clear selection', 'jetpack-backup-pkg' )
+									: __( 'Select all', 'jetpack-backup-pkg' )
+							}
+							aria-describedby={ selectionCountId }
+							onChange={ toggleSelectAll }
+							__nextHasNoMarginBottom
+						/>
+						<Text variant="body-sm" className="jpb-text-muted" id={ selectionCountId }>
+							{ sprintf(
 								/* translators: %d count of selected items (files + opaque folders) */
 								_n( '%d item selected', '%d items selected', selectedCount, 'jetpack-backup-pkg' ),
 								selectedCount
 							) }
-							onChange={ toggleSelectAll }
-							__nextHasNoMarginBottom
-						/>
+						</Text>
 					</Stack>
 					<div className="jpb-file-browser__tree">
 						{ rootsLoading && (
@@ -569,6 +590,9 @@ type NodeRowProps = {
 	onRegisterChildren: ( path: string, children: FileNode[] ) => void;
 };
 
+// The closed-folder chevron points toward the inline end, so it flips in RTL.
+const closedChevron = () => ( isRTL() ? chevronLeft : chevronRight );
+
 /**
  * Recursive row inside the file-browser tree. Folders own their own expand state; while a folder is open, `useFileTree` keeps its children resolved (re-collapsing and re-opening re-issues the fetch).
  *
@@ -601,10 +625,12 @@ function NodeRow( {
 }: NodeRowProps ) {
 	const [ open, setOpen ] = useState( false );
 	const nodeIsFolder = isFolder( node );
-	const { children, isLoading, error } = useFileTree(
-		rewindId,
-		open && nodeIsFolder ? node.path : null
-	);
+	// Not `null` for a closed row: that means the root, and every row would refetch it once stale.
+	const { children, isLoading, error } = useFileTree( rewindId, node.path, {
+		enabled: open && nodeIsFolder,
+	} );
+	// A failed refresh of a folder whose children are still cached is not a failed folder.
+	const failed = Boolean( error ) && ! children;
 	const { selected, deselected } = selection;
 
 	// Effective check: own positive > own negative > inherited positive.
@@ -710,7 +736,7 @@ function NodeRow( {
 						) }
 						onClick={ handleToggleOpen }
 					>
-						<Icon icon={ open ? chevronDown : chevronRight } size={ 16 } />
+						<Icon icon={ open ? chevronDown : closedChevron() } size={ 16 } />
 						<Icon icon={ folderIcon } size={ 18 } />
 						<span dir="ltr">{ node.name }</span>
 					</button>
@@ -747,7 +773,7 @@ function NodeRow( {
 					 * reader is told the folder contains nothing rather than
 					 * that we couldn't look inside it.
 					 */ }
-					{ ! isLoading && error && (
+					{ ! isLoading && failed && (
 						// `alert` rather than `status`: the reader asked for this
 						// folder and got nothing back, so it is worth interrupting.
 						// Both states are announced because each replaces content the
@@ -778,7 +804,7 @@ function NodeRow( {
 						className="jpb-file-browser__empty"
 						style={ { paddingInlineStart: 44 + depth * 16 } }
 					>
-						{ ! isLoading && ! error && ( children ?? [] ).length === 0
+						{ ! isLoading && ! failed && ( children ?? [] ).length === 0
 							? /* translators: shown inside an expanded folder in the backup file browser when the folder contains no files. */
 								__( 'Empty', 'jetpack-backup-pkg' )
 							: '' }

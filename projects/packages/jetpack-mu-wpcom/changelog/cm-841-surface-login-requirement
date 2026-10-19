@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Verbum Comments: explain why commenting is unavailable when login is required but the login options cannot be shown, instead of offering a form that will be rejected.

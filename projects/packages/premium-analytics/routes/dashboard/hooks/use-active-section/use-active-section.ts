@@ -27,17 +27,19 @@ type SectionSearch = {
  * `?section=` is validated against the available sections. A miss resolves to
  * the first section by order and the URL is rewritten to it.
  *
- * @param sections - The available sections, in order.
+ * @param sections   - The available sections, in order.
+ * @param stageSlugs - Slugs of the tabs the stage renders itself.
  * @return A tuple of the active section slug and a setter to change it.
  */
 export function useActiveSection(
-	sections: DashboardSection[]
+	sections: DashboardSection[],
+	stageSlugs: readonly string[] = []
 ): [ DashboardSectionId, ( id: DashboardSectionId ) => void ] {
 	const { effective, stage, commit } = useStagedSearch< SectionSearch, typeof ROUTE_FROM >( {
 		from: ROUTE_FROM,
 	} );
 
-	const activeSection = resolveSectionId( effective.section, sections );
+	const activeSection = resolveSectionId( effective.section, sections, stageSlugs );
 
 	// Rewrite an unresolvable `?section=` to the slug actually rendered, so the
 	// URL never advertises a section that isn't shown. Replace instead of push:

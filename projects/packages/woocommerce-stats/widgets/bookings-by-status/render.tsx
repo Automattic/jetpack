@@ -11,7 +11,6 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@automattic/jetpack-premium-analytics-sdk';
 import { __ } from '@wordpress/i18n';
-import { calendar } from '@wordpress/icons';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -92,6 +91,7 @@ function BookingsByStatus() {
 	return (
 		<Donut
 			segments={ segments }
+			chartTitle={ __( 'Bookings by status', 'jetpack-woocommerce-stats-pkg' ) }
 			status={ {
 				isLoading,
 				isFetching,
@@ -107,10 +107,6 @@ function BookingsByStatus() {
 				),
 				onRetry: refetch,
 			} ) }
-			empty={ {
-				icon: calendar,
-				description: __( 'No bookings in this period.', 'jetpack-woocommerce-stats-pkg' ),
-			} }
 			format={ COUNT_FORMAT }
 		/>
 	);

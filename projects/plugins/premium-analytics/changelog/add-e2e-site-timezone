@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Add an E2E test for dates when the viewer and site timezones differ.
+
+

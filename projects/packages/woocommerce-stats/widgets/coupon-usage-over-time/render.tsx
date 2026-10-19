@@ -11,7 +11,6 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@automattic/jetpack-premium-analytics-sdk';
 import { __ } from '@wordpress/i18n';
-import { tag } from '@wordpress/icons';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -68,6 +67,7 @@ function CouponUsageOverTime() {
 	return (
 		<Donut
 			segments={ segments }
+			chartTitle={ __( 'Coupon usage over time', 'jetpack-woocommerce-stats-pkg' ) }
 			status={ {
 				isLoading,
 				isFetching,
@@ -83,10 +83,6 @@ function CouponUsageOverTime() {
 				),
 				onRetry: refetch,
 			} ) }
-			empty={ {
-				icon: tag,
-				description: __( 'No coupon usage in this period.', 'jetpack-woocommerce-stats-pkg' ),
-			} }
 			format={ CURRENCY_FORMAT }
 		/>
 	);

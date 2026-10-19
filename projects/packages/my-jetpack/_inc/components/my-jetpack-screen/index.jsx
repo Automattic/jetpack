@@ -25,9 +25,10 @@ import useNotificationWatcher from '../../hooks/use-notification-watcher';
 import { useQueryParameter } from '../../hooks/use-query-parameter';
 import { useReplayPendingNotice } from '../../utils/pending-notice';
 import EvaluationRecommendations from '../evaluation-recommendations';
+import { getHeaderControls } from '../header-controls';
 import IDCModal from '../idc-modal';
 import { MyJetpackTabPanel } from '../my-jetpack-tab-panel';
-import { resolveMyJetpackSection } from '../my-jetpack-tab-panel/utils';
+import { getModulesManagementUrl, resolveMyJetpackSection } from '../my-jetpack-tab-panel/utils';
 import OnboardingTour from '../onboarding-tour';
 import buildOptionalMenuItems from './build-optional-menu-items';
 import styles from './styles.module.scss';
@@ -65,7 +66,7 @@ export const GlobalNotice = ( { message, title, options } ) => {
 				{ actionButtons && actionButtons.length > 0 && (
 					<Notice.Actions>{ actionButtons }</Notice.Actions>
 				) }
-				{ ! hideCloseButton && <Notice.CloseIcon onClick={ options.onClose } /> }
+				{ ! hideCloseButton && <Notice.CloseIconButton onClick={ options.onClose } /> }
 			</Notice.Root>
 		</div>
 	);
@@ -166,6 +167,7 @@ export default function MyJetpackScreen() {
 
 	const optionalMenuItems = buildOptionalMenuItems( {
 		adminUrl,
+		modulesManagementUrl: getModulesManagementUrl( `${ adminUrl }admin.php?page=jetpack_modules` ),
 		isDevVersion,
 		userIsAdmin,
 		isSiteConnected,
@@ -183,6 +185,7 @@ export default function MyJetpackScreen() {
 			apiRoot={ apiRoot }
 			apiNonce={ apiNonce }
 			title="Jetpack"
+			globalControls={ getHeaderControls() }
 			optionalMenuItems={ optionalMenuItems }
 			className={ styles[ 'my-jetpack-screen' ] }
 			showBottomBorder={ false }

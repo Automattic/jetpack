@@ -101,7 +101,11 @@ const COMPARISON_POINT = {
 type RecordedLineProps = {
 	chartId?: string;
 	defaultHiddenSeries?: readonly string[];
-	legend: { collapseGroups: boolean; comparisonItem: boolean; interactive: boolean };
+	legend: {
+		collapseGroups: boolean;
+		comparisonSeriesItems: ( metric: string ) => string;
+		interactive: boolean;
+	};
 	margin?: Record< string, number >;
 	options?: {
 		yScale?: { domain?: [ number, number ]; zero?: boolean };
@@ -172,6 +176,20 @@ describe( 'ComparativeLineChart', () => {
 
 	afterEach( () => {
 		setSettings( originalSettings );
+	} );
+
+	it( 'names the chart from chartTitle', () => {
+		render(
+			<ComparativeLineChart
+				series={ SERIES }
+				dataFormat={ DATA_FORMAT }
+				chartTitle="Traffic summary"
+			/>
+		);
+
+		expect( mockLineChartSpy ).toHaveBeenLastCalledWith(
+			expect.objectContaining( { ariaLabel: 'Chart: Traffic summary' } )
+		);
 	} );
 
 	// `useChartMargin` sizes the gutters itself; overriding them here clipped the edge dates.
@@ -311,7 +329,7 @@ describe( 'ComparativeLineChart', () => {
 		expect( recordedProps() ).toMatchObject( {
 			chartId: 'traffic',
 			defaultHiddenSeries: [ 'Visitors', 'Visitors · previous period' ],
-			legend: { collapseGroups: true, comparisonItem: true, interactive: true },
+			legend: { collapseGroups: true, interactive: true },
 		} );
 		expect( mockLineChartLegendSpy ).toHaveBeenLastCalledWith(
 			expect.objectContaining( {
@@ -324,14 +342,17 @@ describe( 'ComparativeLineChart', () => {
 		);
 	} );
 
-	it( 'collapses a metric into one legend item and asks for the comparison item', () => {
-		render( <ComparativeLineChart series={ SERIES_WITH_COMPARISON } dataFormat={ DATA_FORMAT } /> );
+	it( "names each metric's comparison item after the comparison", () => {
+		render(
+			<ComparativeLineChart
+				series={ SERIES_WITH_COMPARISON }
+				dataFormat={ DATA_FORMAT }
+				comparisonLabel="2025"
+			/>
+		);
 
-		expect( recordedProps().legend ).toEqual( {
-			collapseGroups: true,
-			comparisonItem: true,
-			interactive: false,
-		} );
+		expect( recordedProps().legend ).toMatchObject( { collapseGroups: true, interactive: false } );
+		expect( recordedProps().legend.comparisonSeriesItems( 'Views' ) ).toBe( 'Views (2025)' );
 	} );
 
 	it( "heads the tooltip with the point's date in the site's timezone", () => {
