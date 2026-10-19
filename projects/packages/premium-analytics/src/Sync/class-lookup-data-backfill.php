@@ -213,7 +213,7 @@ class Lookup_Data_Backfill {
 			array(
 				'from'      => $created->modify( '-1 day' )->setTime( 0, 0 )->format( 'Y-m-d\TH:i:sP' ),
 				'to'        => $created->modify( '+1 day' )->setTime( 23, 59, 59 )->format( 'Y-m-d\TH:i:sP' ),
-				'date_type' => 'date_created',
+				'date_type' => 'created',
 				'limit'     => 100,
 			)
 		);
@@ -255,7 +255,8 @@ class Lookup_Data_Backfill {
 	 * @return array|null Product rows, or null when the request failed.
 	 */
 	protected function fetch_wpcom_products( array $args ): ?array {
-		$path = add_query_arg( $args, sprintf( '/sites/%d/analytics/reports/products', (int) Jetpack_Options::get_option( 'id' ) ) );
+		// add_query_arg() doesn't encode values, and the date offsets' `+` would arrive as a space.
+		$path = add_query_arg( urlencode_deep( $args ), sprintf( '/sites/%d/analytics/reports/products', (int) Jetpack_Options::get_option( 'id' ) ) );
 
 		try {
 			$response = Client::wpcom_json_api_request_as_blog( $path, '2', array( 'timeout' => 15 ), null, 'wpcom' );

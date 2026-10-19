@@ -200,7 +200,7 @@ class Lookup_Data_Backfill_Test extends TestCase {
 
 		$backfill->start_backfill();
 
-		$this->assertSame( 'date_created', $asked['date_type'] );
+		$this->assertSame( 'created', $asked['date_type'] );
 		$this->assertStringStartsWith( '2024-03-09T00:00:00', $asked['from'] );
 		$this->assertStringStartsWith( '2024-03-11T23:59:59', $asked['to'] );
 		$this->assertGreaterThan( 0, get_option( Lookup_Data_Backfill::STATE_OPTION )['started_at'] );
