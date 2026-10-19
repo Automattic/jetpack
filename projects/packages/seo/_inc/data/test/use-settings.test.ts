@@ -362,6 +362,69 @@ describe( 'useSettingsForm', () => {
 		expect( mockApiFetch ).not.toHaveBeenCalled();
 	} );
 
+	const GOOGLE_SET = {
+		setting: 'site_verification',
+		verification_service: 'google',
+		setting_value: 'set',
+	};
+
+	it( 'saveVerification saves one code and adopts it, so the next section save does not re-send it', async () => {
+		const { result } = renderHook( () => useSettingsForm() );
+
+		await act( () => result.current.saveVerification( 'google', 'tok' ) );
+
+		expect( mockApiFetch ).toHaveBeenCalledWith( {
+			path: '/wp/v2/settings',
+			method: 'POST',
+			data: { verification_services_codes: { google: 'tok' } },
+		} );
+		expect( result.current.local?.verification.google ).toBe( 'tok' );
+		expect( result.current.isDirty( [ 'verification' ] ) ).toBe( false );
+		expect( setSettings ).toHaveBeenCalledWith( {
+			...SEED,
+			verification: { ...SEED.verification, google: 'tok' },
+		} );
+	} );
+
+	it.each< [ string, () => void, unknown[][] ] >( [
+		[
+			'a code that changed',
+			() => mockApiFetch.mockResolvedValueOnce( {} ),
+			[ [ 'jetpack_seo_setting_updated', 'settings', GOOGLE_SET ] ],
+		],
+		[
+			'a failure when the save fails',
+			() => mockApiFetch.mockRejectedValueOnce( { message: 'Nope.' } ),
+			[ [ 'jetpack_seo_setting_update_failed', 'settings', GOOGLE_SET ] ],
+		],
+	] )( 'saveVerification records %s', async ( _label, respond, calls ) => {
+		respond();
+		const { result } = renderHook( () => useSettingsForm() );
+
+		await act( () => result.current.saveVerification( 'google', 'tok' ).catch( () => undefined ) );
+
+		expect( recordSeoEvent.mock.calls ).toEqual( calls );
+	} );
+
+	it.each( [
+		[ 'succeeds', () => mockApiFetch.mockResolvedValueOnce( {} ) ],
+		[ 'fails', () => mockApiFetch.mockRejectedValueOnce( { message: 'Nope.' } ) ],
+	] )(
+		'saveVerification records nothing when a retry of the same code %s',
+		async ( _label, respond ) => {
+			const { result } = renderHook( () => useSettingsForm() );
+			await act( () => result.current.saveVerification( 'google', 'tok' ) );
+			recordSeoEvent.mockClear();
+			respond();
+
+			await act( () =>
+				result.current.saveVerification( 'google', 'tok' ).catch( () => undefined )
+			);
+
+			expect( recordSeoEvent ).not.toHaveBeenCalled();
+		}
+	);
+
 	it.each< [ string, ( form: () => SettingsForm ) => void, Record< string, unknown > ] >( [
 		[
 			'a toggle, with its new value',

@@ -74,6 +74,22 @@ function sentSettings( baseline: SettingsResponse, values: SettingsResponse ): S
 	} );
 }
 
+/**
+ * Replace one verification code.
+ *
+ * @param state - Form values, or null before they load.
+ * @param key   - The verification service.
+ * @param value - The new code.
+ * @return The values with that code replaced.
+ */
+function withVerification< T extends SettingsResponse | null >(
+	state: T,
+	key: VerificationKey,
+	value: string
+): T {
+	return state ? { ...state, verification: { ...state.verification, [ key ]: value } } : state;
+}
+
 // The package's own settings read, re-fetched after every save so the form shows
 // what the server actually stored — including a value it refused and the
 // recomputed `sitemap_url`.
@@ -102,6 +118,8 @@ export interface SettingsForm {
 	setSchemaSettings: ( schema: SchemaSettings ) => void;
 	/** Update a verification code locally — persisted via `commitFields(['verification'])` on blur. */
 	setVerification: ( key: VerificationKey, value: string ) => void;
+	/** Save one verification code straight away (Google auto-verify) and adopt it as saved. Rejects if the save fails. */
+	saveVerification: ( key: VerificationKey, value: string ) => Promise< void >;
 	/**
 	 * Save a toggle change immediately. Persists only the patched field(s) — not
 	 * the rest of local — so unsaved edits in the text-heavy sections stay local
@@ -344,10 +362,47 @@ export function useSettingsForm(): SettingsForm {
 
 	const setVerification = useCallback(
 		( key: VerificationKey, value: string ) =>
-			setLocal( state =>
-				state ? { ...state, verification: { ...state.verification, [ key ]: value } } : state
-			),
+			setLocal( state => withVerification( state, key, value ) ),
 		[]
+	);
+
+	const saveVerification = useCallback(
+		( key: VerificationKey, value: string ) => {
+			const props: SettingChange = {
+				setting: TRACKED_SETTINGS.verification,
+				verification_service: key,
+				setting_value: value ? 'set' : 'cleared',
+			};
+			// As in `sentSettings()`, a retry that saves the code already stored records nothing.
+			const changed = baselineRef.current?.verification[ key ] !== value;
+
+			return apiFetch( {
+				path: CORE_SETTINGS_PATH,
+				method: 'POST',
+				data: { verification_services_codes: { [ key ]: value } },
+			} ).then(
+				() => {
+					if ( changed ) {
+						recordSeoEvent( 'jetpack_seo_setting_updated', 'settings', props );
+					}
+					baselineRef.current = withVerification( baselineRef.current, key, value );
+					localRef.current = withVerification( localRef.current, key, value );
+					setLocal( state => withVerification( state, key, value ) );
+					// Patch the store's snapshot, not this form's, which is stale if the tab was left mid-save.
+					const saved = withVerification( select( settingsStore ).getSettings(), key, value );
+					if ( saved ) {
+						setSettings( saved );
+					}
+				},
+				( error: unknown ) => {
+					if ( changed ) {
+						recordSeoEvent( 'jetpack_seo_setting_update_failed', 'settings', props );
+					}
+					throw error;
+				}
+			);
+		},
+		[ setSettings ]
 	);
 
 	const setSchemaSettings = useCallback(
@@ -462,6 +517,7 @@ export function useSettingsForm(): SettingsForm {
 		setField,
 		setSchemaSettings,
 		setVerification,
+		saveVerification,
 		commit,
 		commitFields,
 		isDirty,

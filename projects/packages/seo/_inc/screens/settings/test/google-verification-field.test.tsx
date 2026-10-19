@@ -20,7 +20,13 @@ const googleVerifyDefaults = {
 };
 
 const renderField = ( value = '' ) =>
-	render( <GoogleVerificationField value={ value } onChange={ jest.fn() } /> );
+	render(
+		<GoogleVerificationField
+			value={ value }
+			onChange={ jest.fn() }
+			saveCode={ jest.fn< ( code: string ) => Promise< void > >() }
+		/>
+	);
 
 describe( 'GoogleVerificationField', () => {
 	beforeEach( () => {
@@ -69,7 +75,13 @@ describe( 'GoogleVerificationField', () => {
 		const { rerender } = renderField( 'google-code' );
 
 		// Simulate the controlled parent clearing the value mid-edit.
-		rerender( <GoogleVerificationField value="" onChange={ jest.fn() } /> );
+		rerender(
+			<GoogleVerificationField
+				value=""
+				onChange={ jest.fn() }
+				saveCode={ jest.fn< ( code: string ) => Promise< void > >() }
+			/>
+		);
 
 		expect(
 			screen.getByRole( 'textbox', { name: /Google verification code/ } )
