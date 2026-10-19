@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.2] - 2026-10-14
+### Changed
+- Gray the preview button in the Create new form until the link is created. [#53572]
+
+### Removed
+- Remove the product image field from the block editor form until PayPal payment links can carry an image; blocks that already hold one keep showing it. [#53405]
+
+### Fixed
+- Payment Buttons: Collect the shipping address without a shipping fee, from a new "Shipping address" toggle. Tax or shipping from PayPal settings now shows an error until the address is on. [#53500]
+
+## [0.12.1] - 2026-10-12
+### Security
+- Simple Payments: Improve permission checks for orders. [#53240]
+
+### Added
+- Add a feature flag that hides the PayPal sandbox option in the connection wizard; off, the wizard connects to production only. [#53403]
+
 ## [0.12.0] - 2026-10-05
 ### Added
 - Add additional analytics to Payment Buttons. [#52841]
@@ -406,6 +423,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Simple Payments: Move Simple Payments block to PayPal Payments package. [#43413]
 
+[0.12.2]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.12.1...v0.12.2
+[0.12.1]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.12.0...v0.12.1
 [0.12.0]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.11.1...v0.12.0
 [0.11.1]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.11.0...v0.11.1
 [0.11.0]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.10.0...v0.11.0

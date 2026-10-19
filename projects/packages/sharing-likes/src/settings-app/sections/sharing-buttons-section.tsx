@@ -7,8 +7,8 @@ import { PlacementSummary } from '../components/placement-summary';
 import { SectionCard, SettingGroup } from '../components/section-card';
 import { TextSetting } from '../components/text-setting';
 import { useServices, useStatus } from '../data/queries';
+import { ServicesManager } from '../services/services-manager';
 import { configures, type Settings } from '../types';
-import { ServicesList } from './services-list';
 import type { Field } from '@wordpress/dataviews';
 import type { JSX } from 'react';
 
@@ -66,7 +66,7 @@ function SharingOptions(): JSX.Element {
 		<>
 			{ hasServices && <PlacementSummary feature="sharing" /> }
 			<SettingGroup>
-				<ServicesList query={ services } />
+				<ServicesManager />
 			</SettingGroup>
 			<AutoSaveFields fields={ styleFields } />
 			<TextSetting

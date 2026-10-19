@@ -5,11 +5,11 @@ import {
 	WidgetRoot,
 	type ReportParamsFieldAttributes,
 } from '@automattic/jetpack-premium-analytics-sdk';
+import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import { UtmLeaderboard } from '../../src/components/utm-leaderboard';
-import { channel } from '../../src/icons/channel';
 import type { SalesByUtmChannelAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
@@ -27,7 +27,10 @@ export default function SalesByUtmChannelRender( {
 }: WidgetRenderProps< SalesByUtmChannelRenderAttributes > ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<UtmLeaderboard view="channel" emptyIcon={ channel } />
+			<UtmLeaderboard
+				view="channel"
+				chartTitle={ __( 'Sales by UTM channel', 'jetpack-woocommerce-stats-pkg' ) }
+			/>
 		</WidgetRoot>
 	);
 }

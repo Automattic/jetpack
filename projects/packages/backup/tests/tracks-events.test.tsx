@@ -379,7 +379,7 @@ describe( 'Modify schedule', () => {
 		await userEvent.click( await modifyButton() );
 		await userEvent.click( await screen.findByRole( 'combobox', { name: 'Backup window' } ) );
 		// Jest runs in America/Sao_Paulo and the site settings default to UTC, so 3 AM is hour 3.
-		await userEvent.click( await screen.findByRole( 'option', { name: '3:00-3:59 AM' } ) );
+		await userEvent.click( await screen.findByRole( 'option', { name: '3:00-3:59 am' } ) );
 		await userEvent.click( screen.getByRole( 'button', { name: 'Save' } ) );
 	}
 

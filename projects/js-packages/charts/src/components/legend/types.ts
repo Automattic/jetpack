@@ -63,4 +63,6 @@ export type BaseLegendItem = {
 	seriesLabels?: string[];
 	/** Set to false for a static item that cannot be toggled or dimmed. */
 	interactive?: boolean;
+	/** Label of the series this static item describes; the item is left out while it is hidden. */
+	describesSeries?: string;
 };

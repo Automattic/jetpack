@@ -1,3 +1,5 @@
+// First, so the lazy chunks resolve against the build directory.
+import '../shared/public-path';
 import { render } from 'preact';
 import { DialogHost, mountDialog } from '../modal/host';
 import { resolveSubmitted } from '../shared/draft';
@@ -17,11 +19,21 @@ if (
 	JetpackComments.version !== JETPACK_COMMENTS_VERSION ||
 	! ( 'attachInternals' in HTMLElement.prototype )
 ) {
-	document
-		.querySelectorAll( '.jetpack-comments' )
-		.forEach( element => element.classList.add( 'is-plain' ) );
-	recordEvent( 'jetpack_comments_plain_form', {
-		reason: JetpackComments.version !== JETPACK_COMMENTS_VERSION ? 'version' : 'browser',
+	const reason = JetpackComments.version !== JETPACK_COMMENTS_VERSION ? 'version' : 'browser';
+
+	document.querySelectorAll( '.jetpack-comments' ).forEach( element => {
+		element.classList.add( 'is-plain' );
+
+		// Like `form_focus`, on the reach for the form, so a page view alone never loads Tracks.
+		const onFocusIn = () => {
+			// Focus from script is never user activation.
+			if ( navigator.userActivation?.hasBeenActive === false ) {
+				return;
+			}
+			element.removeEventListener( 'focusin', onFocusIn );
+			recordEvent( 'jetpack_comments_plain_form', { reason } );
+		};
+		element.addEventListener( 'focusin', onFocusIn );
 	} );
 } else {
 	if ( ! customElements.get( 'jetpack-comments-dialog' ) ) {

@@ -14,6 +14,7 @@ export const baseStatus: Status = {
 	comment_likes: { supported: true, follows_likes_settings: false },
 	placement: true,
 	site_editor_url: 'https://example.com/wp-admin/site-editor.php?p=%2Fwp_template',
+	page_template_editor_url: '',
 };
 
 export const baseSettings: Settings = {
@@ -44,6 +45,7 @@ export function setScriptData( overrides: Partial< SharingLikesScriptData > = {}
 			settings: baseSettings,
 			placement_choices: placementChoices,
 			multibyte_supported: true,
+			private_site: false,
 			...overrides,
 		},
 	};

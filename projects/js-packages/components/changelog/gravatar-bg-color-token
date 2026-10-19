@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Gravatar: Use the WordPress Design System neutral surface color token for the placeholder background.

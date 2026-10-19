@@ -17,6 +17,8 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -106,9 +108,7 @@ function wpcom_write_should_show_post_publish_checklist() {
  * @return string The launch URL for this site.
  */
 function wpcom_write_post_publish_launch_url() {
-	$host = wp_parse_url( home_url(), PHP_URL_HOST );
-
-	return 'https://wordpress.com/start/launch-site?siteSlug=' . rawurlencode( (string) $host );
+	return Common\wpcom_get_launch_site_url();
 }
 
 /**

@@ -150,6 +150,17 @@ export const FixedDimensions: Story = {
 	},
 };
 
+export const ShortHeight: Story = {
+	args: {
+		...sharedThemeArgs,
+		mainRate: 10.3,
+		changeIndicator: '+2%',
+		steps: ecommerceFunnelData,
+		loading: false,
+		height: '120px',
+	},
+};
+
 export const CustomRenderProps: Story = {
 	args: {
 		mainRate: 10.3,

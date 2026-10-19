@@ -56,7 +56,7 @@ function stylesSidebarLabels() {
 			[
 				'Manage the fonts and typography used on text.',
 				_x(
-					'The default for the whole email: post body, byline and footer. Headings and buttons inherit anything you don’t set for them.',
+					'The default for your post body. The byline and footer follow its color, and the footer’s copyright line follows its font.',
 					'email design styles',
 					'jetpack'
 				),
@@ -64,7 +64,7 @@ function stylesSidebarLabels() {
 			[
 				'Manage the fonts and typography used on links.',
 				_x(
-					'Links inside your post. Footer links take their color from Default text.',
+					'Links inside your post. Links in the header, post title and footer follow the text around them instead.',
 					'email design styles',
 					'jetpack'
 				),

@@ -18,7 +18,7 @@ const debug = debugFactory( 'videopress:resumable-file-uploader' );
  *
  * @see https://github.com/tfredrich/RestApiTutorial.com/blob/master/content/advanced/responses/retries.md
  */
-const RETRIABLE_STATUS_CODES = [ 408, 429, 500, 502, 503, 504 ];
+const RETRIABLE_STATUS_CODES = [ 408, 423, 429, 500, 502, 503, 504 ];
 
 const jwtsForKeys = {};
 
@@ -77,7 +77,7 @@ const resumableFileUploader = ( {
 		onShouldRetry: function ( err: tus.DetailedError ) {
 			const status = err.originalResponse ? err.originalResponse.getStatus() : 0;
 
-			// Only retry on transient errors (timeouts, rate limits, server errors).
+			// Only retry on transient errors (timeouts, upload locks, rate limits, server errors).
 			if ( status && ! RETRIABLE_STATUS_CODES.includes( status ) ) {
 				debug( 'not retrying due to %d error', status );
 				localStorage.removeItem( upload._urlStorageKey );

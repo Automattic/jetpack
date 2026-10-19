@@ -19,8 +19,10 @@ import {
 } from '../../stories/with-site-time-zone';
 import {
 	registerReportMocks,
+	setReportMockResponse,
 	setReportMockState,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import { forceStatsMockState } from '../../stories/force-stats-mock-state';
 import TrafficChartRender from '../render';
 import widgetDefinition, { type TrafficChartType } from '../widget';
 import widgetManifest from '../widget.json';
@@ -189,7 +191,31 @@ export const Empty: Story = {
 	decorators: [ withWidgetCanvas ],
 	beforeEach: () => {
 		setReportMockState( 'stats/visits', 'empty' );
-		return () => setReportMockState( 'stats/visits', null );
+		setReportMockResponse( '/wp/v2/posts', [ { id: 1 } ] );
+		return () => {
+			setReportMockState( 'stats/visits', null );
+			setReportMockResponse( '/wp/v2/posts', null );
+		};
+	},
+};
+
+export const EmptyNoPosts: Story = {
+	render: () => renderTrafficChartOnPreset( 'last-365-days' ),
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		const scriptData = window.JetpackScriptData;
+		window.JetpackScriptData = {
+			...scriptData,
+			site: { ...scriptData?.site, admin_url: 'https://example.com/blog/wp-admin/' },
+		} as typeof window.JetpackScriptData;
+		setReportMockState( 'stats/visits', 'empty' );
+		forceStatsMockState( '/wp/v2/posts', 'empty' );
+		return () => {
+			window.JetpackScriptData = scriptData;
+			setReportMockState( 'stats/visits', null );
+			forceStatsMockState( '/wp/v2/posts', null );
+		};
 	},
 };
 

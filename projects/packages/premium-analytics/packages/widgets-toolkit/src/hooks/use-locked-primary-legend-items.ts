@@ -13,7 +13,7 @@ type LegendShape = Parameters< typeof useChartLegendItems >[ 2 ];
 
 /**
  * The chart's own legend items, with the first one pinned visible: it is the metric the
- * reader picked, and the Comparison period swatch borrows its color.
+ * reader picked, and locking it keeps the chart from ever being emptied.
  *
  * @param data    - The series the chart draws
  * @param options - The chart's `legend` config

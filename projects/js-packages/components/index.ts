@@ -24,6 +24,8 @@ export { default as AutomatticForAgenciesLogo } from './components/automattic-fo
 export { default as JetpackFooter } from './components/jetpack-footer/index.tsx';
 export { default as Gravatar } from './components/gravatar/index.tsx';
 export type { GravatarProps } from './components/gravatar/index.tsx';
+export { default as CheckboxCard, CheckboxCardGrid } from './components/checkbox-card/index.tsx';
+export type { CheckboxCardProps, CheckboxCardGridProps } from './components/checkbox-card/types.ts';
 export { default as IconTooltip } from './components/icon-tooltip/index.tsx';
 export { default as ActionButton } from './components/action-button/index.tsx';
 export { default as PricingCard } from './components/pricing-card/index.tsx';
@@ -60,7 +62,6 @@ export { default as RecordMeterBar } from './components/record-meter-bar/index.t
 export { default as Popover } from './components/popover/index.tsx';
 export { default as IndeterminateProgressBar } from './components/indeterminate-progress-bar/index.tsx';
 export { default as ActionPopover } from './components/action-popover/index.tsx';
-export { default as ProgressBar } from './components/progress-bar/index.tsx';
 export { default as UpsellBanner } from './components/upsell-banner/index.tsx';
 export { getUserLocale, cleanLocale } from './lib/locale/index.ts';
 export { default as StatCard } from './components/stat-card/index.tsx';
