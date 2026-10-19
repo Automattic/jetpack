@@ -60,8 +60,8 @@ const redirectUri = data.redirectUri || '';
 const viewerLocal = data.viewerLocal || {};
 const hasOtherConnectedUsers = Boolean( data.hasOtherConnectedUsers );
 const canEditConnectionOwner = Boolean( data.canEditConnectionOwner );
-// Offline mode only; see get_offline_connection_owner().
-const offlineConnectionOwner = data.offlineConnectionOwner || null;
+// Only for a viewer the store withholds the owner from; see get_card_connection_owner().
+const cardConnectionOwner = data.cardConnectionOwner || null;
 const connectedUsersUrl = data.connectedUsersUrl || '';
 const pluginLogos = data.pluginLogos || {};
 const siteDetails = data.siteDetails || null;
@@ -135,7 +135,7 @@ function useCardConnection() {
 		const currentUser = userConnectionData?.currentUser || null;
 		// Account rows need a connected owner. The store's owner comes from the master_user option, so
 		// without this gate it would also name an owner whose token is broken.
-		const owner = isConnected ? storeOwner || offlineConnectionOwner : null;
+		const owner = isConnected ? storeOwner || cardConnectionOwner : null;
 		const viewer = isConnected
 			? buildViewer( currentUser, Boolean( connectionStatus.isUserConnected ) )
 			: null;

@@ -229,15 +229,14 @@ class Jetpack_Connector {
 			}
 		}
 
-		$is_offline_mode = ( new Status() )->is_offline_mode();
-		if ( $is_connected && $is_offline_mode ) {
-			$offline_owner = static::get_offline_connection_owner();
-			if ( null !== $offline_owner ) {
-				$data['offlineConnectionOwner'] = $offline_owner;
+		if ( $is_connected && ! current_user_can( 'jetpack_connect' ) ) {
+			$card_owner = static::get_card_connection_owner();
+			if ( null !== $card_owner ) {
+				$data['cardConnectionOwner'] = $card_owner;
 			}
 		}
 
-		$data['canEditConnectionOwner'] = static::can_edit_connection_owner( $is_offline_mode );
+		$data['canEditConnectionOwner'] = static::can_edit_connection_owner( ( new Status() )->is_offline_mode() );
 
 		$protected_owner = static::get_protected_owner_card_state( $manager );
 		if ( null !== $protected_owner ) {
@@ -350,16 +349,16 @@ class Jetpack_Connector {
 	}
 
 	/**
-	 * The connection owner for a site in offline mode, in the shape of the store's connectionOwner.
+	 * The connection owner for a viewer without `jetpack_connect`, in the shape of the store's connectionOwner.
 	 *
-	 * Offline mode denies `jetpack_connect`, so Initial_State::get_data() sends no owner and the
-	 * card would lose the owner row. This repeats its lookup for that case only.
+	 * Initial_State::get_data() sends no owner then: in offline mode, or to a multisite site admin the
+	 * network has not let manage the connection. The card still shows that admin the owner row.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @return array{id: int, displayName: string, avatar: string}|null
 	 */
-	private static function get_offline_connection_owner() {
+	private static function get_card_connection_owner() {
 		$owner_id = (int) \Jetpack_Options::get_option( 'master_user' );
 		$owner    = $owner_id > 0 ? get_userdata( $owner_id ) : false;
 
@@ -383,8 +382,8 @@ class Jetpack_Connector {
 	/**
 	 * Whether the viewer may open the connection owner's profile.
 	 *
-	 * Gated like the owner the card shows (`jetpack_connect`, except in offline mode), and by
-	 * `edit_user`, since multisite site admins cannot edit other users.
+	 * Needs `jetpack_connect` outside offline mode, so a restricted site admin sees the name as plain
+	 * text, and `edit_user`, since multisite site admins cannot edit other users.
 	 *
 	 * @since $$next-version$$
 	 *

@@ -46,7 +46,7 @@ The card reads connection state from the `jetpack-connection` store, which `Init
 Everything else is card-only and comes from `Jetpack_Connector::get_connector_data()` through the `script_module_data_@automattic/jetpack-connection-connectors` filter. Some of it stays there because the store has no equivalent:
 
 - `viewerLocal` — the viewer's local display name and email. The store carries only the WordPress.com ones, so the card falls back to these when the WordPress.com lookup fails.
-- `offlineConnectionOwner` — the connection owner, sent only for a connected site in offline mode. Offline mode denies `jetpack_connect`, so the store has no owner then.
+- `cardConnectionOwner` — the connection owner, sent only for a connected site when the viewer lacks `jetpack_connect`, so the store has no owner. That happens in offline mode, and for a multisite site admin when Jetpack is network-activated and the network doesn't let site admins manage their own connection.
 - `hasOtherConnectedUsers` — sent to the owner only, to warn that disconnecting them disconnects every user.
 - `canEditConnectionOwner` — whether the owner row links to their profile. Multisite site admins cannot edit other users.
 - `pluginLogos` — logo URLs by plugin slug, which third parties add through the `jetpack_connection_plugin_logos` filter.

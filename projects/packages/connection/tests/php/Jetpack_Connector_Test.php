@@ -106,6 +106,7 @@ class Jetpack_Connector_Test extends TestCase {
 		wp_set_current_user( 0 );
 
 		remove_all_filters( 'jetpack_offline_mode' );
+		remove_all_filters( 'jetpack_disconnect_cap' );
 		remove_all_filters( 'jetpack_is_in_safe_mode' );
 		remove_all_filters( 'jetpack_connection_requires_protected_owner' );
 		remove_all_filters( 'jetpack_connection_protected_owner_default_ui' );
@@ -411,13 +412,16 @@ class Jetpack_Connector_Test extends TestCase {
 	}
 
 	/**
-	 * Offline mode empties the store's owner, so the card data carries it for that case only.
+	 * The card carries the owner only for a viewer the store withholds it from.
 	 *
-	 * @param bool $offline Whether the site is in offline mode.
-	 * @dataProvider provide_offline_mode
+	 * @param bool $offline    Whether the site is in offline mode.
+	 * @param bool $restricted Whether the network denies the viewer jetpack_connect.
+	 * @param bool $expected   Whether the card carries the owner.
+	 * @dataProvider provide_card_connection_owner
 	 */
-	#[DataProvider( 'provide_offline_mode' )]
-	public function test_offline_connection_owner( $offline ) {
+	#[DataProvider( 'provide_card_connection_owner' )]
+	public function test_card_connection_owner( $offline, $restricted, $expected ) {
+		$this->map_connection_caps();
 		\Jetpack_Options::update_option( 'blog_token', 'test.secret' );
 		\Jetpack_Options::update_option( 'id', 12345 );
 		\Jetpack_Options::update_option( 'master_user', $this->admin_id );
@@ -428,26 +432,31 @@ class Jetpack_Connector_Test extends TestCase {
 		if ( $offline ) {
 			add_filter( 'jetpack_offline_mode', '__return_true' );
 		}
+		if ( $restricted ) {
+			// What Jetpack_Network::set_multisite_disconnect_cap() returns for a site admin.
+			add_filter( 'jetpack_disconnect_cap', static fn() => array( 'do_not_allow' ) );
+		}
 
 		$data = Jetpack_Connector::get_connector_data( array() );
 
-		if ( $offline ) {
-			$this->assertSame( $this->admin_id, $data['offlineConnectionOwner']['id'] );
-			$this->assertSame( 'Local Admin', $data['offlineConnectionOwner']['displayName'] );
+		if ( $expected ) {
+			$this->assertSame( $this->admin_id, $data['cardConnectionOwner']['id'] );
+			$this->assertSame( 'Local Admin', $data['cardConnectionOwner']['displayName'] );
 		} else {
-			$this->assertArrayNotHasKey( 'offlineConnectionOwner', $data );
+			$this->assertArrayNotHasKey( 'cardConnectionOwner', $data );
 		}
 	}
 
 	/**
-	 * Data provider for test_offline_connection_owner.
+	 * Data provider for test_card_connection_owner.
 	 *
 	 * @return array
 	 */
-	public static function provide_offline_mode() {
+	public static function provide_card_connection_owner() {
 		return array(
-			'online'  => array( false ),
-			'offline' => array( true ),
+			'admin with jetpack_connect'    => array( false, false, false ),
+			'offline mode'                  => array( true, false, true ),
+			'admin without jetpack_connect' => array( false, true, true ),
 		);
 	}
 
