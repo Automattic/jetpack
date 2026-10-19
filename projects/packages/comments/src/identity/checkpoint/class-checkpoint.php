@@ -422,7 +422,6 @@ class Checkpoint {
 		$user_id = null === $this->identity ? 0 : absint( $this->identity['wpcom_user_id'] ?? 0 );
 
 		if ( $user_id ) {
-			// Verbum posted 'wordpress' on every host; 'jetpack' meant a local user of the site.
 			$args['POST_hc_post_as'] = 'wordpress'; // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText -- Verbum's service name.
 			$args['POST_hc_userid']  = (string) $user_id;
 		}
