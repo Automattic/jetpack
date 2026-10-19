@@ -202,6 +202,13 @@ Returns whether the policy locks a preset. Either date limit locks every single-
 
 **Returns:** `boolean`
 
+### `isDateLimitedPolicy( policy )`
+
+Returns whether the policy sets any limit: a locked feature, or a locked bucket. `OPEN_DATE_POLICY`
+sets none.
+
+**Returns:** `boolean`
+
 ### `ReportScopeProvider`'s `dateLimits`
 
 The date options the surface's plan locks, as `DateLimits`: the policy's `lockedPresetIds`,
@@ -285,6 +292,7 @@ This package exports the following public API:
 - `applyStatsDatePolicy` - Keep report params within a date policy
 - `getPolicyDefaultPreset` - The preset a page opens on within a date policy
 - `isPresetLockedByPolicy` - Whether a date policy locks a preset
+- `isDateLimitedPolicy` - Whether a date policy sets any limit
 - `downloadReport` - Download one report as a CSV file
 
 ### Core Settings

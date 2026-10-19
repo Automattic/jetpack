@@ -163,6 +163,16 @@ export function getSectionDatePolicy( section: string | undefined ): StatsDatePo
 }
 
 /**
+ * Whether a policy limits anything: a feature it locks, or a locked bucket.
+ *
+ * @param policy - The policy.
+ * @return Whether it sets a limit.
+ */
+export function isDateLimitedPolicy( policy: StatsDatePolicy ): boolean {
+	return !! policy.feature || policy.lockedIntervals.length > 0;
+}
+
+/**
  * Whether the policy locks a preset.
  *
  * @param presetId - The preset.

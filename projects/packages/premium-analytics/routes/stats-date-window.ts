@@ -5,6 +5,7 @@ import { getScriptData } from '@automattic/jetpack-script-data';
 import {
 	applyStatsDatePolicy,
 	getPolicyDefaultPreset,
+	isDateLimitedPolicy,
 	normalizeReportParams,
 	withoutComparison,
 	type StatsDatePolicy,
@@ -55,21 +56,21 @@ export function adjustsStatsDateWindow( search: Search, policy: StatsDatePolicy 
  * @param policy             - The date policy the page follows.
  * @param location           - Where the route loads it.
  * @param location.pathname  - The pathname, from `routePathname`.
- * @param location.requested - The search the reader asked for: `search` before a seed, or `{}` for none.
+ * @param location.requested - The search the reader asked for, `search` before a seed; omitted when they asked for none.
  * @return The limited search, or undefined.
  */
 export function limitStatsDateSearch(
 	search: Search,
 	policy: StatsDatePolicy,
-	{ pathname, requested }: { pathname: string; requested: Search }
+	{ pathname, requested }: { pathname: string; requested?: Search }
 ): Search | undefined {
-	if ( ! policy.feature && ! policy.lockedIntervals.length ) {
+	if ( ! isDateLimitedPolicy( policy ) ) {
 		return undefined;
 	}
 
-	// Only a window the reader asked for gets a notice, so it lands where the notice says;
-	// any other opens on their default preset.
-	const isRequested = adjustsStatsDateWindow( requested, policy );
+	// A requested window lands on the fallback the notice names; any other opens on the
+	// reader's default preset, with no notice.
+	const isRequested = !! requested && adjustsStatsDateWindow( requested, policy );
 	const { params, isWindowAdjusted, isComparisonDropped } = applyStatsDatePolicy(
 		normalizeReportParams( search as NormalizeInput, undefined, {
 			lockedIntervals: policy.lockedIntervals,

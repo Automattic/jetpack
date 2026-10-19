@@ -13,7 +13,6 @@ import {
 	isYearSurfacePresetId,
 	type ComputablePresetId,
 	type DateRange,
-	type PrimaryPresetId,
 } from '@jetpack-premium-analytics/datetime';
 
 /**
@@ -89,7 +88,7 @@ export function offersDateComparison(
  */
 export function resolvePresetForSurface(
 	surface: DateFilterSurface,
-	presetId: PrimaryPresetId | undefined,
+	presetId: unknown,
 	policy: StatsDatePolicy = OPEN_DATE_POLICY
 ): ComputablePresetId | null {
 	if ( surface === DATE_FILTER_YEAR ) {
@@ -114,7 +113,7 @@ export function resolvePresetForSurface(
  */
 export function resolveSurfaceRange(
 	surface: DateFilterSurface,
-	presetId: PrimaryPresetId | undefined,
+	presetId: unknown,
 	policy: StatsDatePolicy,
 	timeZone: string
 ): { presetId: ComputablePresetId; range: Required< DateRange > } | null {

@@ -5,6 +5,7 @@ import { useMemo } from '@wordpress/element';
 import {
 	getLockedFeature,
 	getStatsDatePolicy,
+	isDateLimitedPolicy,
 	OPEN_DATE_POLICY,
 	type DateLimits,
 } from '@jetpack-premium-analytics/data';
@@ -31,7 +32,7 @@ export function useStatsDateLimits( isLimited: boolean ): {
 		// The policy's date window follows the site's day, so a new day recomputes it.
 		void siteDay;
 		const policy = isLimited ? getStatsDatePolicy() : OPEN_DATE_POLICY;
-		if ( ! policy.feature && ! policy.lockedIntervals.length ) {
+		if ( ! isDateLimitedPolicy( policy ) ) {
 			return { offersComparison: true };
 		}
 

@@ -50,10 +50,7 @@ describe( 'limitStatsDateSearch', () => {
 			interval: 'month',
 		};
 
-		const limited = limitStatsDateSearch( seeded, getStatsDatePolicy(), {
-			pathname: '/',
-			requested: {},
-		} );
+		const limited = limitStatsDateSearch( seeded, getStatsDatePolicy(), { pathname: '/' } );
 
 		expect( limited ).toMatchObject( { preset: 'yesterday' } );
 		expect( noticeOn( limited ) ).toBeUndefined();

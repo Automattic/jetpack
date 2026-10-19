@@ -172,20 +172,6 @@ it( 'tells a legacy-basic reader why a locked deep link opens on the last 30 day
 	expect( noticeOn( settled.search ) ).toBe( 'long-date-presets' );
 } );
 
-it( 'opens legacy basic on the last 30 days, compared, given a remembered preset', async () => {
-	setLocks( ...LEGACY_BASIC_LOCKS );
-	rememberPreset( 'last-12-months' );
-
-	const settled = await settle( { section: 'traffic' } );
-
-	expect( settled.hops ).toBeLessThanOrEqual( 1 );
-	expect( settled.search ).toMatchObject( {
-		preset: 'last-30-days',
-		comp: '1',
-		compare_preset: 'previous-period',
-	} );
-} );
-
 const ALL_TIME = { preset: 'all-time', from: '2005-01-01', to: '2026-10-15' };
 const YEAR_2025 = { preset: 'year-2025', from: '2025-01-01', to: '2025-12-31' };
 

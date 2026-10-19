@@ -7,7 +7,7 @@ import {
 	withoutComparison,
 	type StatsDatePolicy,
 } from '@jetpack-premium-analytics/data';
-import { reportingTimeZone, type PrimaryPresetId } from '@jetpack-premium-analytics/datetime';
+import { reportingTimeZone } from '@jetpack-premium-analytics/datetime';
 import {
 	REPORT_DATE_PARAM_KEYS,
 	buildRangePatch,
@@ -97,10 +97,7 @@ export function dateWindowForSectionSwitch(
 	const patch = section ? surfaceRangePatch( section, search, policy ) : undefined;
 	const patched = { ...search, ...patch };
 	// The comparison or bucket the plan strips, which the route would otherwise drop in a second navigation.
-	const limited = limitStatsDateSearch( patched, policy, {
-		pathname: DASHBOARD_PATHNAME,
-		requested: {},
-	} );
+	const limited = limitStatsDateSearch( patched, policy, { pathname: DASHBOARD_PATHNAME } );
 
 	return limited || patch ? pickDateWindow( limited ?? patched ) : undefined;
 }
@@ -120,7 +117,7 @@ function surfaceRangePatch(
 ): Record< string, unknown > | undefined {
 	const next = resolveSurfaceRange(
 		toDateFilterSurface( section.date_filter ),
-		search.preset as PrimaryPresetId | undefined,
+		search.preset,
 		policy,
 		reportingTimeZone()
 	);

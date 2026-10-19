@@ -103,6 +103,7 @@ export {
 	getPolicyDefaultPreset,
 	getSectionDatePolicy,
 	getStatsDatePolicy,
+	isDateLimitedPolicy,
 	isPlanDateLimitedSection,
 	isPresetLockedByPolicy,
 	OPEN_DATE_POLICY,

@@ -34,7 +34,7 @@ import type { ReportDateFilters } from '@jetpack-premium-analytics/routing';
 export function useSectionDateFilter(
 	section: DashboardSection | undefined,
 	dateFilters: ReportDateFilters,
-	isCommitted = true
+	isCommitted: boolean
 ): DateFilterSurface {
 	// Null until the sections resolve. Reconciling before then would judge the
 	// preset against the wrong surface and undo a `?section=` deep link's preset.

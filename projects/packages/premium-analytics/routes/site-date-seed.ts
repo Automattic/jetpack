@@ -12,8 +12,8 @@ import {
 
 /**
  * The date params a site-wide route seeds its URL with: normalized, and given the
- * default comparison only when the URL names no window. A URL with dates or a
- * preset keeps the comparison it carries, so switching it off sticks.
+ * default comparison only when the URL names no window and the plan offers one. A URL
+ * with dates or a preset keeps the comparison it carries, so switching it off sticks.
  *
  * @param search - The current route search params.
  * @param policy - The plan's date policy, for a route that follows it.
@@ -30,7 +30,8 @@ export function seedSiteDateParams(
 	);
 
 	const isFreshLoad = ! search.from && ! search.to && ! search.preset;
-	return isFreshLoad && ! hasComparisonEnabled( normalized )
+	const offersComparison = policy?.offersComparison ?? true;
+	return isFreshLoad && offersComparison && ! hasComparisonEnabled( normalized )
 		? withDefaultComparison( normalized )
 		: normalized;
 }

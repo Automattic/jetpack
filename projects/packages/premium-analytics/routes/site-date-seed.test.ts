@@ -111,6 +111,22 @@ describe( 'seedSiteDateParams', () => {
 		} );
 	} );
 
+	it( 'leaves a fresh load uncompared on a plan that offers no comparison', () => {
+		const policy: StatsDatePolicy = {
+			feature: 'recent-7-days',
+			earliestDate: new Date( '2026-02-12T05:00:00.000Z' ),
+			lockedPresetIds: [ 'last-30-days' ],
+			fallbackPresetId: 'last-7-days',
+			lockedIntervals: [],
+			offersComparison: false,
+		};
+
+		const seeded = seedSiteDateParams( { section: 'traffic' }, policy );
+
+		expect( seeded.preset ).toBe( 'last-7-days' );
+		expect( seeded.comp ).toBeUndefined();
+	} );
+
 	it( 'keeps the comparison a fresh URL already carries', () => {
 		const seeded = seedSiteDateParams( {
 			comp: '1',

@@ -34,7 +34,8 @@ export const route = {
 
 		const current: DashboardSearch = search ?? {};
 		const policy = getSectionDatePolicy( dashboardSectionOf( current.section ) );
-		// A locked year or all time is treated as Insights' window (a shared link takes the same path): open on the default.
+		// Only a year surface such as Insights offers a year or all time, so a locked one was carried
+		// over from it: drop the dates and open on the default, without a notice.
 		const params =
 			isYearSurfacePresetId( current.preset ) && isPresetLockedByPolicy( current.preset, policy )
 				? omitReportDateParams( current )

@@ -113,8 +113,8 @@ function announceDateWindowLimit( feature: DateLimitFeature ) {
 /**
  * Show the notice a route held for the window this page shows.
  *
- * A route's `beforeLoad` also runs to preload a hovered link, so it holds the notice
- * rather than showing it, and the next page this renders drops it unless it is that page.
+ * A route's `beforeLoad` also runs to preload a hovered link, so it only holds the notice.
+ * The next page to render takes it, and discards it unless that page shows the window it was held for.
  *
  * @param pathname - The page's pathname, from `routePathname`.
  */
