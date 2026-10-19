@@ -666,7 +666,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 			Constants::set_constant( 'WPCOM_IS_VIP_ENV', true );
 		}
 		if ( 'simple' === $host ) {
-			Constants::set_constant( 'IS_WPCOM', true );
+			$this->given_simple_site();
 		}
 		if ( null !== $filtered_value ) {
 			add_filter(
