@@ -157,12 +157,14 @@ add_action( 'admin_print_footer_scripts', 'wpcomsh_disable_pingback_ui_on_stagin
  */
 function wpcomsh_add_staging_site_robots_header( $headers ) {
 	if ( wpcomsh_is_staging_environment() ) {
-		$headers['X-Robots-Tag'] = 'noindex, nofollow';
+		$existing                = $headers['X-Robots-Tag'] ?? '';
+		$headers['X-Robots-Tag'] = $existing ? $existing . ', noindex, nofollow' : 'noindex, nofollow';
 	}
 
 	return $headers;
 }
-add_filter( 'wp_headers', 'wpcomsh_add_staging_site_robots_header' );
+// Run last so directives other plugins set are kept.
+add_filter( 'wp_headers', 'wpcomsh_add_staging_site_robots_header', PHP_INT_MAX );
 
 /**
  * Adds `noindex, nofollow` to the robots meta tag on staging sites.
