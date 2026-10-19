@@ -1037,7 +1037,7 @@ class Main_Features {
 				'manage_url'       => self::get_feature_manage_url( $definition, $product_class, $local ),
 				'essential'        => ! empty( $definition['essential'] ),
 				// An older Jetpack plugin still lets the module decide, so the card keeps its switch there.
-				'plan_driven'      => ! empty( $definition['plan_driven'] ) && ( ! method_exists( (string) $product_class, 'is_plan_driven' ) || $product_class::is_plan_driven() ),
+				'plan_driven'      => ! empty( $definition['plan_driven'] ) && ( ! $product_class || ! method_exists( $product_class, 'is_plan_driven' ) || $product_class::is_plan_driven() ),
 				'in_jetpack'       => $delivery['jetpack'] ?? false,
 				'plugin'           => $plugin,
 				'plugin_name'      => $plugin ? ( $delivery['plugin_name'] ?? $definition['name'] ) : '',
