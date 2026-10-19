@@ -18,13 +18,24 @@ jest.mock( '@automattic/jetpack-connection', () => ( {
 // email design screen's URL; `mockEmailDesignUrl` is what each test varies.
 let mockEmailDesignUrl: string | null = null;
 
-// `useViewportMatch( 'large', '<' )` — true in the band where the header sheds labels.
-let mockIsBelowLarge = false;
+// Mirrors `useViewportMatch`'s own breakpoints and operators, so a test sets a viewport width
+// rather than booleans that could describe a width no browser can produce.
+const mockBreakpoints = {
+	huge: 1440,
+	wide: 1280,
+	large: 960,
+	medium: 782,
+	small: 600,
+	mobile: 480,
+};
+let mockViewportWidth = 1280;
 
 jest.mock( '@wordpress/compose', () => ( {
 	...jest.requireActual( '@wordpress/compose' ),
-	useViewportMatch: ( breakpoint: string, operator?: string ) =>
-		breakpoint === 'large' && operator === '<' ? mockIsBelowLarge : false,
+	useViewportMatch: ( breakpoint: string, operator = '>=' ) =>
+		operator === '<'
+			? mockViewportWidth <= mockBreakpoints[ breakpoint ]
+			: mockViewportWidth >= mockBreakpoints[ breakpoint ],
 } ) );
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
@@ -471,7 +482,7 @@ describe( 'Newsletter preview: email design link', () => {
 		jest.clearAllMocks();
 		mockIsUserConnected = true;
 		mockEmailDesignUrl = null;
-		mockIsBelowLarge = false;
+		mockViewportWidth = 1280;
 		jest.mocked( useSelect ).mockImplementation( () => 123 );
 		jest.mocked( useDispatch ).mockReturnValue( {
 			__unstableSaveForPreview: jest.fn().mockResolvedValue( undefined ),
@@ -510,7 +521,7 @@ describe( 'Newsletter preview: email design link', () => {
 
 	it( 'drops to an icon where the header runs out of room', async () => {
 		mockEmailDesignUrl = DESIGN_URL;
-		mockIsBelowLarge = true;
+		mockViewportWidth = 900;
 
 		render( <NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } /> );
 		const link = await screen.findByRole( 'link', { name: 'Edit email design' } );
@@ -532,5 +543,57 @@ describe( 'Newsletter preview: email design link', () => {
 
 		expect( link ).toHaveTextContent( 'Edit email design' );
 		expect( screen.queryByTestId( 'visually-hidden' ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'Newsletter preview: device selector', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		mockIsUserConnected = true;
+		mockEmailDesignUrl = null;
+		mockViewportWidth = 1280;
+		jest.mocked( useSelect ).mockImplementation( () => 123 );
+		jest.mocked( useDispatch ).mockReturnValue( {
+			__unstableSaveForPreview: jest.fn().mockResolvedValue( undefined ),
+		} );
+		( select as jest.Mock ).mockReturnValue( { isEditedPostDirty: () => false } );
+		jest.mocked( apiFetch ).mockResolvedValue( { html: '<p>Preview</p>' } );
+	} );
+
+	it.each( [
+		[ 1280, '100%' ],
+		[ 900, '768px' ],
+	] )( 'previews at the widest offered device: %ipx renders %s', async ( width, expected ) => {
+		mockViewportWidth = width as number;
+
+		render( <NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } /> );
+
+		await expect( screen.findByTitle( 'Email Preview' ) ).resolves.toHaveStyle( {
+			width: expected,
+		} );
+	} );
+
+	it( 'selects the fallback device in the control where desktop is not offered', async () => {
+		mockViewportWidth = 900;
+
+		render( <NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } /> );
+		await waitFor( () => expect( apiFetch ).toHaveBeenCalled() );
+
+		expect( screen.queryByRole( 'radio', { name: 'Desktop' } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'radio', { name: 'Tablet' } ) ).toBeChecked();
+	} );
+
+	it( 'previews at desktop width again once the viewport can offer it', async () => {
+		mockViewportWidth = 900;
+
+		const { rerender } = render(
+			<NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } />
+		);
+		const iframe = await screen.findByTitle( 'Email Preview' );
+
+		mockViewportWidth = 1280;
+		rerender( <NewsletterPreviewModal isOpen postId={ 123 } onClose={ jest.fn() } /> );
+
+		expect( iframe ).toHaveStyle( { width: '100%' } );
 	} );
 } );
