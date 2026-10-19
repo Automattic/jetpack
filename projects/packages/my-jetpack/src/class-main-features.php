@@ -631,15 +631,17 @@ class Main_Features {
 	 * @return bool
 	 */
 	private static function is_included_in_plan( $definition, $product_class ) {
-		// An expired purchase still matches by slug, but it is a plan to renew, not one the site has.
-		if ( $product_class && self::pays_for_product( $product_class ) && ! $product_class::is_paid_plan_expired() ) {
+		// An expired purchase still matches by slug; a plan-driven card offers to renew it instead.
+		$expiry_counts = ! empty( $definition['plan_driven'] );
+
+		if ( $product_class && self::pays_for_product( $product_class ) && ! ( $expiry_counts && $product_class::is_paid_plan_expired() ) ) {
 			return true;
 		}
 
 		foreach ( $definition['plans'] ?? array() as $plan ) {
 			$bundle_class = Products::get_product_class( $plan );
 
-			if ( $bundle_class && $bundle_class::has_paid_plan_for_product() && ! $bundle_class::is_paid_plan_expired() ) {
+			if ( $bundle_class && $bundle_class::has_paid_plan_for_product() && ! ( $expiry_counts && $bundle_class::is_paid_plan_expired() ) ) {
 				return true;
 			}
 		}

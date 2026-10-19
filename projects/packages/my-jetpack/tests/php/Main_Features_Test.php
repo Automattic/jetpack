@@ -4,6 +4,8 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -627,32 +629,60 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
-	 * An expired Backup plan is sold again rather than counted as included.
-	 *
-	 * @dataProvider provide_backup_expiry
-	 *
-	 * @param string $expiry_status The purchase's expiry status.
-	 * @param bool   $included      Whether Backup should count as included.
+	 * Only Backup's card follows the plan instead of a switch.
 	 */
-	#[DataProvider( 'provide_backup_expiry' )]
-	public function test_expired_backup_plan_is_not_included( $expiry_status, $included ) {
-		$this->own( array( 'jetpack_backup_t1_yearly' ), $expiry_status );
+	public function test_only_backup_is_plan_driven() {
+		$plan_driven = array_keys( array_filter( array_column( Main_Features::get_features(), 'plan_driven', 'slug' ) ) );
 
-		$backup = array_column( Main_Features::get_features(), null, 'slug' )['backup'];
-
-		$this->assertSame( $included, $backup['included'] );
-		$this->assertSame( ! $included, '' !== $backup['upgrade']['path'] );
+		$this->assertSame( array( 'backup' ), $plan_driven );
 	}
 
 	/**
-	 * Data provider for test_expired_backup_plan_is_not_included.
+	 * Next to an older Jetpack plugin the module still decides Backup, so its card keeps the switch.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_backup_is_not_plan_driven_next_to_an_older_jetpack() {
+		require_once __DIR__ . '/assets/older-jetpack-mock-plugin.txt';
+
+		$backup = array_column( Main_Features::get_features(), null, 'slug' )['backup'];
+
+		$this->assertFalse( $backup['plan_driven'] );
+	}
+
+	/**
+	 * An expired plan is sold again rather than counted as included, but only for a plan-driven feature.
+	 *
+	 * @dataProvider provide_plan_expiry
+	 *
+	 * @param string $slug          The feature slug.
+	 * @param string $product_slug  The purchase's product slug.
+	 * @param string $expiry_status The purchase's expiry status.
+	 * @param bool   $included      Whether the feature should count as included.
+	 */
+	#[DataProvider( 'provide_plan_expiry' )]
+	public function test_only_a_plan_driven_feature_counts_expiry( $slug, $product_slug, $expiry_status, $included ) {
+		$this->own( array( $product_slug ), $expiry_status );
+
+		$feature = array_column( Main_Features::get_features(), null, 'slug' )[ $slug ];
+
+		$this->assertSame( $included, $feature['included'] );
+		$this->assertSame( ! $included, '' !== $feature['upgrade']['path'] );
+	}
+
+	/**
+	 * Data provider for test_only_a_plan_driven_feature_counts_expiry.
 	 *
 	 * @return array
 	 */
-	public static function provide_backup_expiry() {
+	public static function provide_plan_expiry() {
 		return array(
-			'active'  => array( 'active', true ),
-			'expired' => array( 'expired', false ),
+			'active Backup'  => array( 'backup', 'jetpack_backup_t1_yearly', 'active', true ),
+			'expired Backup' => array( 'backup', 'jetpack_backup_t1_yearly', 'expired', false ),
+			'expired Search' => array( 'search', 'jetpack_search', 'expired', true ),
 		);
 	}
 
