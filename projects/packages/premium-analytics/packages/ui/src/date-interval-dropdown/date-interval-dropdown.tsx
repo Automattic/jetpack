@@ -98,7 +98,7 @@ function getTriggerLabel( value?: IntervalType ): string {
 }
 
 /**
- * The chart bucket-size control: a menu of what the active range allows.
+ * The chart bucket-size control: a menu of what the active range allows, and what the plan locks.
  *
  * The glyph trigger (not a clock: it buckets the charts, doesn't narrow the period) opens
  * even with one option. With `withLabel` it names the bucket, and is disabled with one
@@ -210,7 +210,6 @@ export function DateIntervalDropdown( {
 				</MenuGroup>
 			</NavigableMenu>
 
-			{ /* A menu may hold only menu items, so the lock notice sits below it. */ }
 			{ lockedOptions.length > 0 && lockNotice && (
 				<div id={ lockNoticeId } className="date-interval-dropdown__lock-notice">
 					{ lockNotice }

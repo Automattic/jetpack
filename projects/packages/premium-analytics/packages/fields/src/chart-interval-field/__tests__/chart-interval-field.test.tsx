@@ -94,8 +94,15 @@ describe( 'chartIntervalField', () => {
 
 	it( 'shows a saved bucket the plan locks as the nearest open one, and lists it locked', async () => {
 		const user = userEvent.setup();
+		const intervalUpsell = {
+			description: 'Group your charts by week.',
+			supportUrl: '',
+			upgradeUrl: 'https://example.com/plans',
+		};
 		render(
-			<ReportScopeProvider dateLimits={ { lockedPresetIds: [], lockedIntervals: [ 'week' ] } }>
+			<ReportScopeProvider
+				dateLimits={ { lockedPresetIds: [], lockedIntervals: [ 'week' ], intervalUpsell } }
+			>
 				<Control
 					data={ { chartInterval: 'week' } }
 					field={ { elements: DAILY_TO_MONTHLY } }
@@ -106,10 +113,9 @@ describe( 'chartIntervalField', () => {
 
 		await user.click( screen.getByRole( 'button', { name: 'By days' } ) );
 
-		expect( screen.getByRole( 'menuitemradio', { name: 'By weeks' } ) ).toHaveAttribute(
-			'aria-disabled',
-			'true'
-		);
+		const locked = screen.getByRole( 'menuitemradio', { name: 'By weeks' } );
+		expect( locked ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( locked ).toHaveAccessibleDescription( /Group your charts by week\./ );
 	} );
 
 	it( "reads a widget's own range before the page's", () => {

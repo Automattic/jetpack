@@ -1,7 +1,12 @@
 /**
  * Internal dependencies
  */
-import { chartInterval, defaultPeriodForInterval, drawableIntervals } from '../periods';
+import {
+	chartInterval,
+	defaultPeriodForInterval,
+	drawableIntervals,
+	lockedDrawableIntervals,
+} from '../periods';
 
 // The period sets in use.
 const DAY_WEEK_MONTH = [ 'day', 'week', 'month' ] as const;
@@ -160,5 +165,17 @@ describe( 'chartInterval', () => {
 		expect( chartInterval( { ...CUSTOM_3_DAYS, interval: undefined }, DAY_WEEK_MONTH ) ).toBe(
 			'day'
 		);
+	} );
+} );
+
+describe( 'lockedDrawableIntervals', () => {
+	const MULTI_YEAR = { preset: undefined, from: '2023-01-01', to: '2026-06-30' };
+	const LOCKED = [ 'week', 'month', 'year' ] as const;
+
+	it.each( [
+		[ 'a chart that draws no years', HOUR_DAY_WEEK_MONTH, [ 'month' ] ],
+		[ 'a widget that declares no periods', undefined, [ 'month', 'year' ] ],
+	] )( 'locks only what %s can draw', ( _, periods, expected ) => {
+		expect( lockedDrawableIntervals( MULTI_YEAR, LOCKED, periods ) ).toEqual( expected );
 	} );
 } );
