@@ -84,6 +84,7 @@ class CommentsComponent extends Component {
 					'enable_blocks_comments',
 				] ) }
 			>
+				{ this.props.preview && this.renderPreview( isCommentsActive ) }
 				<SettingsGroup
 					hasChild
 					disableInOfflineMode
@@ -148,7 +149,6 @@ class CommentsComponent extends Component {
 						</span>
 					</FormFieldset>
 				</SettingsGroup>
-				{ this.props.preview && this.renderPreview( isCommentsActive ) }
 			</SettingsCard>
 		);
 	}
