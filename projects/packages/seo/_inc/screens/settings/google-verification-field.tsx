@@ -70,8 +70,8 @@ const GoogleVerificationField: FC< Props > = ( {
 			onChange={ onChange }
 			onBlur={ onCommit }
 			help={ manualHelp }
-			// Locked once the popup returns, so a code typed meanwhile saves before the token, not
-			// after it. Not while the popup is open: a blocked popup never returns.
+			// Locked once the popup returns, so a code typed meanwhile can't save after the token and
+			// replace it. Not while the popup is open: a blocked popup never returns.
 			disabled={ disabled || isConfirming }
 			__next40pxDefaultSize
 			__nextHasNoMarginBottom
