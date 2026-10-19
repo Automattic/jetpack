@@ -41,6 +41,8 @@ export interface GoogleVerify {
 	isOwner: boolean;
 	searchConsoleUrl: string;
 	isVerifying: boolean;
+	/** The popup returned a keyring, and the token is being saved and checked. */
+	isConfirming: boolean;
 	/** Open the WordPress.com keyring popup and verify with the returned keyring id. */
 	autoVerify: () => void;
 }
@@ -72,6 +74,7 @@ export function useGoogleVerify( {
 	const [ isOwner, setIsOwner ] = useState( false );
 	const [ searchConsoleUrl, setSearchConsoleUrl ] = useState( '' );
 	const [ isVerifying, setIsVerifying ] = useState( false );
+	const [ isConfirming, setIsConfirming ] = useState( false );
 	const { createInfoNotice, createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 
 	const applyStatus = useCallback( ( status: GoogleVerifyStatus ) => {
@@ -127,6 +130,7 @@ export function useGoogleVerify( {
 				setIsVerifying( false );
 				return;
 			}
+			setIsConfirming( true );
 			createInfoNotice( __( 'Verifying with Google…', 'jetpack-seo' ), {
 				id: NOTICE_ID,
 				type: 'snackbar',
@@ -198,7 +202,10 @@ export function useGoogleVerify( {
 						{ id: NOTICE_ID, type: 'snackbar' }
 					);
 				} )
-				.finally( () => setIsVerifying( false ) );
+				.finally( () => {
+					setIsConfirming( false );
+					setIsVerifying( false );
+				} );
 		} );
 	}, [
 		connectUrl,
@@ -210,5 +217,13 @@ export function useGoogleVerify( {
 		createErrorNotice,
 	] );
 
-	return { state, isConnected, isOwner, searchConsoleUrl, isVerifying, autoVerify };
+	return {
+		state,
+		isConnected,
+		isOwner,
+		searchConsoleUrl,
+		isVerifying,
+		isConfirming,
+		autoVerify,
+	};
 }

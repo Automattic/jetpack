@@ -100,11 +100,13 @@ describe( 'useGoogleVerify', () => {
 		act( () => result.current.autoVerify() );
 		await waitFor( () => expect( saveCode ).toHaveBeenCalled() );
 		expect( mockApiFetch ).not.toHaveBeenCalledWith( VERIFY_POST );
+		expect( result.current.isConfirming ).toBe( true );
 
 		await act( async () => finishSave() );
 
 		await waitFor( () => expect( result.current.isVerifying ).toBe( false ) );
 		expect( mockApiFetch ).toHaveBeenCalledWith( VERIFY_POST );
+		expect( result.current.isConfirming ).toBe( false );
 	} );
 
 	it( 'stops with an error when the code save fails', async () => {

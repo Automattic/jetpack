@@ -16,6 +16,7 @@ const googleVerifyDefaults = {
 	isOwner: false,
 	searchConsoleUrl: '',
 	isVerifying: false,
+	isConfirming: false,
 	autoVerify: jest.fn(),
 };
 
@@ -56,11 +57,24 @@ describe( 'GoogleVerificationField', () => {
 		expect( screen.getByRole( 'button', { name: /Verify with Google/ } ) ).toBeInTheDocument();
 	} );
 
-	it( 'locks the manual code while auto-verify runs, so a typed code cannot overwrite the token', () => {
+	const manualCode = () => screen.getByRole( 'textbox', { name: /Google verification code/ } );
+
+	it( 'keeps the manual code editable while the popup is open, so a blocked popup leaves a way in', () => {
 		mockUseGoogleVerify.mockReturnValue( { ...googleVerifyDefaults, isVerifying: true } );
 		renderField( 'google-code' );
 
-		expect( screen.getByRole( 'textbox', { name: /Google verification code/ } ) ).toBeDisabled();
+		expect( manualCode() ).toBeEnabled();
+	} );
+
+	it( 'locks the manual code once the popup returns, so a typed code cannot replace the token', () => {
+		mockUseGoogleVerify.mockReturnValue( {
+			...googleVerifyDefaults,
+			isVerifying: true,
+			isConfirming: true,
+		} );
+		renderField( 'google-code' );
+
+		expect( manualCode() ).toBeDisabled();
 	} );
 
 	it( 'reveals the manual field and removes the manual button', () => {

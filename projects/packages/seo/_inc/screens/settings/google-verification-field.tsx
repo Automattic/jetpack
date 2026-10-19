@@ -50,7 +50,7 @@ const GoogleVerificationField: FC< Props > = ( {
 	onCommit,
 	disabled,
 } ) => {
-	const { state, isConnected, isOwner, searchConsoleUrl, isVerifying, autoVerify } =
+	const { state, isConnected, isOwner, searchConsoleUrl, isVerifying, isConfirming, autoVerify } =
 		useGoogleVerify( { saveCode } );
 	const [ manualOpen, setManualOpen ] = useState( false );
 	const manualVisible = manualOpen || !! value;
@@ -70,8 +70,9 @@ const GoogleVerificationField: FC< Props > = ( {
 			onChange={ onChange }
 			onBlur={ onCommit }
 			help={ manualHelp }
-			// Locked during auto-verify: a code typed meanwhile would save after the token and replace it.
-			disabled={ disabled || isVerifying }
+			// Locked once the popup returns, so a code typed meanwhile saves before the token, not
+			// after it. Not while the popup is open: a blocked popup never returns.
+			disabled={ disabled || isConfirming }
 			__next40pxDefaultSize
 			__nextHasNoMarginBottom
 		/>
