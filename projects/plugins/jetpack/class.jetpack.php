@@ -860,7 +860,7 @@ class Jetpack {
 	 */
 	public static function get_module_deactivation_note( $module ) {
 		return 'backup' === $module
-			? __( 'Backups are not affected: your site’s plan, not the Backup module, decides whether they run.', 'jetpack' )
+			? __( 'Backups are controlled by your site’s plan.', 'jetpack' )
 			: '';
 	}
 
