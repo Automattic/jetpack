@@ -19,10 +19,14 @@ jest.mock( '@automattic/jetpack-connection', () => ( {
 let mockEmailDesignUrl: string | null = null;
 
 // Mirrors `useViewportMatch`'s own breakpoints and operators, so a test sets a viewport width
-// rather than booleans that could describe a width no browser can produce.
+// rather than booleans that could describe a width no browser can produce. `<` is `max-width`,
+// so it matches *at* the breakpoint -- the hook's simulated-width path is strict, but nothing
+// in the monorepo provides one.
 const mockBreakpoints = {
+	xhuge: 1920,
 	huge: 1440,
 	wide: 1280,
+	xlarge: 1080,
 	large: 960,
 	medium: 782,
 	small: 600,

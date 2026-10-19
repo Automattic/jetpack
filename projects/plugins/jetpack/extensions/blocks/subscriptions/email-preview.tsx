@@ -303,12 +303,11 @@ const previewDevices: PreviewDevice[] = [
 
 /**
  * The devices the viewport has room to preview, widest first. Desktop is dropped in the
- * 600-960px band, where its width is whatever room is left over anyway.
+ * 600–960px band, where its width is whatever room is left over anyway.
  *
  * @return The offered devices.
  */
 const useAvailablePreviewDevices = (): PreviewDevice[] => {
-	// `md` in the old hook was the 600–959px band: at least small (>=600) AND below large (<960).
 	// Both hooks must be called unconditionally (rules-of-hooks), so avoid &&-short-circuiting them.
 	const isAtLeastSmall = useViewportMatch( 'small' );
 	const isBelowLarge = useViewportMatch( 'large', '<' );
