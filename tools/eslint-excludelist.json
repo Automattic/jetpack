@@ -295,7 +295,6 @@
 	"projects/plugins/jetpack/_inc/client/ai/mcp/write.jsx",
 	"projects/plugins/jetpack/_inc/client/ai/overview/index.jsx",
 	"projects/plugins/jetpack/_inc/client/components/module-toggle/index.jsx",
-	"projects/plugins/jetpack/_inc/client/components/settings-card/index.jsx",
 	"projects/plugins/jetpack/_inc/client/discussion/comments.jsx",
 	"projects/plugins/jetpack/_inc/client/earn/ads.jsx",
 	"projects/plugins/jetpack/_inc/client/performance/media.jsx",
