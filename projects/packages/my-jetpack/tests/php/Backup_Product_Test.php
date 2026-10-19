@@ -89,11 +89,12 @@ class Backup_Product_Test extends TestCase {
 	 * @param bool  $dashboard Whether a host leaves the bundled dashboard on.
 	 * @param bool  $missed    Whether a refresh missed the plan moments ago.
 	 * @param bool  $in_admin  Whether Manage should open wp-admin.
+	 * @param bool  $holds_off Whether a refresh is held off afterwards.
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	#[DataProvider( 'provide_manage_urls' )]
-	public function test_manage_url_follows_the_plan( $stored, $wpcom, $refreshed, $dashboard, $missed, $in_admin ) {
+	public function test_manage_url_follows_the_plan( $stored, $wpcom, $refreshed, $dashboard, $missed, $in_admin, $holds_off ) {
 		( new Tokens() )->update_blog_token( 'key.secret' );
 		( new Tokens() )->update_user_token( self::$user_id, 'test.test.' . self::$user_id, true );
 		Jetpack_Options::update_option( 'id', 123 );
@@ -125,6 +126,7 @@ class Backup_Product_Test extends TestCase {
 		$missed && set_transient( Backup::PLAN_REFRESH_MISS_TRANSIENT_KEY, true, MINUTE_IN_SECONDS );
 
 		$this->assertSame( $in_admin, admin_url( 'admin.php?page=jetpack-backup' ) === Backup::get_manage_url() );
+		$this->assertSame( $holds_off, (bool) get_transient( Backup::PLAN_REFRESH_MISS_TRANSIENT_KEY ) );
 	}
 
 	/**
@@ -134,12 +136,12 @@ class Backup_Product_Test extends TestCase {
 	 */
 	public static function provide_manage_urls() {
 		return array(
-			'a stored Backup plan'                   => array( array( 'backups' ), array(), array(), true, false, true ),
-			'a purchase the stored plan catches up'  => array( array(), array( 'backups' ), array( 'backups' ), true, false, true ),
-			'a purchase the stored plan lacks still' => array( array(), array( 'backups' ), array(), true, false, false ),
-			'a recent miss holds off the refresh'    => array( array(), array( 'backups' ), array( 'backups' ), true, true, false ),
-			'no plan'                                => array( array(), array(), array(), true, false, false ),
-			'a host turned the dashboard off'        => array( array( 'backups' ), array(), array(), false, false, false ),
+			'a stored Backup plan'                   => array( array( 'backups' ), array(), array(), true, false, true, false ),
+			'a purchase the stored plan catches up'  => array( array(), array( 'backups' ), array( 'backups' ), true, false, true, false ),
+			'a purchase the stored plan lacks still' => array( array(), array( 'backups' ), array(), true, false, false, true ),
+			'a recent miss holds off the refresh'    => array( array(), array( 'backups' ), array( 'backups' ), true, true, false, true ),
+			'no plan'                                => array( array(), array(), array(), true, false, false, false ),
+			'a host turned the dashboard off'        => array( array( 'backups' ), array(), array(), false, false, false, false ),
 		);
 	}
 
@@ -270,22 +272,38 @@ class Backup_Product_Test extends TestCase {
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
+	 * @dataProvider provide_module_states
+	 *
+	 * @param bool $module_on Whether the backup module is on.
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_an_older_jetpack_leaves_the_module_in_charge() {
+	#[DataProvider( 'provide_module_states' )]
+	public function test_an_older_jetpack_leaves_the_module_in_charge( $module_on ) {
 		require_once __DIR__ . '/assets/older-jetpack-mock-plugin.txt';
 		( new Tokens() )->update_blog_token( 'key.secret' );
 		( new Tokens() )->update_user_token( self::$user_id, 'test.test.' . self::$user_id, true );
 		Jetpack_Options::update_option( 'id', 123 );
 		// Not activate_plugins(), which would load the current Jetpack mock alongside this one.
 		update_option( 'active_plugins', array( 'jetpack/jetpack.php' ) );
-		Jetpack_Options::update_option( 'active_modules', array() );
+		Jetpack_Options::update_option( 'active_modules', $module_on ? array( 'backup' ) : array() );
 		update_option( 'jetpack_active_plan', array( 'features' => array( 'active' => array( 'backups' ) ) ) );
 
 		$this->assertFalse( Backup::is_plan_driven() );
-		$this->assertFalse( Backup::is_module_active() );
+		$this->assertSame( $module_on, Backup::is_module_active() );
 		$this->assertSame( Redirect::get_url( 'my-jetpack-manage-backup' ), Backup::get_manage_url() );
+	}
+
+	/**
+	 * Data provider for test_an_older_jetpack_leaves_the_module_in_charge.
+	 *
+	 * @return array
+	 */
+	public static function provide_module_states() {
+		return array(
+			'module on'  => array( true ),
+			'module off' => array( false ),
+		);
 	}
 
 	/**

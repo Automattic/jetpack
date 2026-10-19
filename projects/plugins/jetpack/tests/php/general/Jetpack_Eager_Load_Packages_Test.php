@@ -309,6 +309,13 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * My Jetpack reads Jetpack::BACKUP_FOLLOWS_PLAN by name, so renaming it would put Backup back on the module.
+	 */
+	public function test_my_jetpack_sees_that_jetpack_lets_the_plan_decide_backup() {
+		$this->assertTrue( \Automattic\Jetpack\My_Jetpack\Products\Backup::is_plan_driven() );
+	}
+
+	/**
 	 * A plain front-end GET defers My Jetpack initialization to REST requests.
 	 */
 	public function test_front_end_get_defers_my_jetpack_to_rest_api_init() {
