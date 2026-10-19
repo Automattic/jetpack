@@ -127,6 +127,8 @@ function register_block() {
 		)
 	);
 
+	add_action( 'rest_api_init', __NAMESPACE__ . '\register_newsletter_tier_rest_field' );
+
 	register_post_meta(
 		'post',
 		META_NAME_CONTAINS_PAYWALLED_CONTENT,
@@ -210,6 +212,47 @@ add_action( 'init', __NAMESPACE__ . '\register_block', 9 );
  */
 function is_wpcom() {
 	return defined( 'IS_WPCOM' ) && IS_WPCOM;
+}
+
+/**
+ * Expose the post's saved newsletter tier, so the editor can name it even after the tier is deleted.
+ *
+ * @since $$next-version$$
+ */
+function register_newsletter_tier_rest_field() {
+	register_rest_field(
+		'post',
+		'jetpack_newsletter_tier',
+		array(
+			'get_callback' => __NAMESPACE__ . '\get_newsletter_tier_for_rest',
+			'schema'       => array(
+				'type'     => array( 'object', 'null' ),
+				'context'  => array( 'edit' ),
+				'readonly' => true,
+			),
+		)
+	);
+}
+
+/**
+ * Title and deleted state of the post's saved newsletter tier.
+ *
+ * @since $$next-version$$
+ *
+ * @param array $post Post data from the REST response.
+ * @return array{title: string, is_deleted: bool}|null Null when no tier is saved or its plan is gone.
+ */
+function get_newsletter_tier_for_rest( $post ) {
+	$tier_id = (int) get_post_meta( $post['id'], META_NAME_FOR_POST_TIER_ID_SETTINGS, true );
+	$tier    = $tier_id ? get_post( $tier_id ) : null;
+	if ( ! $tier || Jetpack_Memberships::$post_type_plan !== $tier->post_type ) {
+		return null;
+	}
+
+	return array(
+		'title'      => $tier->post_title,
+		'is_deleted' => (bool) get_post_meta( $tier_id, 'jetpack_memberships_is_deleted', true ),
+	);
 }
 
 /**

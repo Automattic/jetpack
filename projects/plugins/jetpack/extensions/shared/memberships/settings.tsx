@@ -12,7 +12,7 @@ import { useInstanceId } from '@wordpress/compose';
 import { useEntityId, useEntityProp, store as coreDataStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Link, Notice } from '@wordpress/ui';
 import clsx from 'clsx';
 import paywallBlockMetadata from '../../blocks/paywall/block.json';
@@ -105,6 +105,23 @@ function withCount( label: string, count?: number | null ): string {
 	return typeof count === 'number' ? `${ label } (${ formatNumberCompact( count ) })` : label;
 }
 
+/**
+ * Label for a saved tier that is no longer offered, e.g. "Premium (deleted)".
+ *
+ * @param {object|null} savedTier - The post's saved tier from the REST API, if its plan still exists.
+ * @return {string} The label.
+ */
+function getRemovedTierLabel( savedTier: { title: string; is_deleted: boolean } | null ): string {
+	if ( ! savedTier?.title ) {
+		return __( 'Deleted tier', 'jetpack' );
+	}
+	if ( ! savedTier.is_deleted ) {
+		return savedTier.title;
+	}
+	/* translators: %s: name of a newsletter tier that has been deleted. */
+	return sprintf( __( '%s (deleted)', 'jetpack' ), savedTier.title );
+}
+
 function TierSelector() {
 	// TODO: figure out how to handle different currencies
 	const { tierProducts, countsLoaded, paidSubscribers, paidSubscribersByTier } = useSelect(
@@ -126,7 +143,16 @@ function TierSelector() {
 		.sort( ( p1, p2 ) => Number( p2.price ) - Number( p1.price ) );
 
 	// Find the current tier meta
-	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
+	const { postType, savedTier } = useSelect(
+		select => ( {
+			postType: select( editorStore ).getCurrentPostType(),
+			savedTier: select( editorStore ).getCurrentPostAttribute( 'jetpack_newsletter_tier' ) as {
+				title: string;
+				is_deleted: boolean;
+			} | null,
+		} ),
+		[]
+	);
 	// Destructure the tierId from the meta (set tierId using the META_NAME_FOR_POST_TIER_ID_SETTINGS constant)
 	const [ { [ META_NAME_FOR_POST_TIER_ID_SETTINGS ]: tierId } ] = useEntityProp(
 		'postType',
@@ -163,7 +189,7 @@ function TierSelector() {
 	// rather than showing "All", since emails are still limited to that tier.
 	if ( tierId && ! products.some( product => String( product.id ) === String( tierId ) ) ) {
 		options.push( {
-			label: __( 'Unavailable tier', 'jetpack' ),
+			label: getRemovedTierLabel( savedTier ),
 			value: String( tierId ),
 		} );
 	}

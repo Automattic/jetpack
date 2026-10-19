@@ -146,6 +146,7 @@ describe( 'NewsletterAccessRadioButtons', () => {
 		paidNewsletterSubscribers?: number;
 		paidSubscribersByTier?: Record< string, number >;
 		tierProducts?: TierProduct[];
+		savedTier?: { title: string; is_deleted: boolean } | null;
 	}
 
 	const createMockSelect =
@@ -155,10 +156,15 @@ describe( 'NewsletterAccessRadioButtons', () => {
 			paidNewsletterSubscribers,
 			paidSubscribersByTier,
 			tierProducts = [],
+			savedTier = null,
 		}: MockSelectOptions = {} ) =>
 		( store: MockStore ) => {
 			if ( store === editorStore ) {
-				return { getCurrentPostType: () => 'post' };
+				return {
+					getCurrentPostType: () => 'post',
+					getCurrentPostAttribute: ( attribute: string ) =>
+						attribute === 'jetpack_newsletter_tier' ? savedTier : undefined,
+				};
 			}
 			if ( store === membershipProductsStore ) {
 				return {
@@ -359,6 +365,23 @@ describe( 'NewsletterAccessRadioButtons', () => {
 			expect( mockSetPostMeta ).toHaveBeenCalledWith(
 				expect.objectContaining( { [ META_NAME_FOR_POST_TIER_ID_SETTINGS ]: null } )
 			);
+		} );
+
+		test( 'names a saved tier that was deleted', () => {
+			mockUseEntityProp.mockReturnValue( [
+				{ [ META_NAME_FOR_POST_TIER_ID_SETTINGS ]: 9 },
+				mockSetPostMeta,
+			] );
+
+			renderPanel(
+				{ accessLevel: 'paid_subscribers' },
+				{
+					tierProducts: [ { id: 1, title: 'Basic', price: 5, interval: '1 month' } ],
+					savedTier: { title: 'Premium', is_deleted: true },
+				}
+			);
+
+			expect( screen.getByRole( 'radio', { name: 'Premium (deleted)' } ) ).toBeChecked();
 		} );
 
 		// One tier with 1 subscriber; only the "All paid subscribers" count varies.
