@@ -899,7 +899,7 @@ export function createDesignSaveMiddleware( id ) {
 			// `partial` means some of it survived and some did not, so the read-back below reverts
 			// only the controls that were dropped. Which ones is deliberately not in the response:
 			// WordPress.com logs them, and there is no map here from theme.json paths to the labels
-			// the panel shows. A WordPress.com without this field is a design that was kept whole.
+			// the panel shows.
 			dispatch( noticesStore ).createNotice(
 				'warning',
 				__( 'Some of your changes could not be saved to your email design.', 'jetpack' ),

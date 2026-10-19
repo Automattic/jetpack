@@ -252,7 +252,10 @@ class WPCOM_REST_API_V2_Endpoint_Email_Editor_Bootstrap extends WP_REST_Controll
 			 * @since 16.2
 			 * @access private
 			 *
-			 * @param array|WP_Error|null $result  The stored design. Null until something provides one.
+			 * @param array|WP_Error|null $result  The stored design, returned as-is: `blog_id`,
+			 *                                     `design` (the read-back), `discarded` (sanitizing
+			 *                                     kept none of it) and `partial` (it kept only some).
+			 *                                     Null until something provides one.
 			 * @param WP_REST_Request     $request The REST request.
 			 */
 			$result = apply_filters( 'jetpack_email_editor_save_design', null, $request );
