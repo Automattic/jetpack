@@ -1,5 +1,5 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
-import { getHeaderControls } from '@automattic/jetpack-my-jetpack/header-controls';
+import { getHeaderControlsSlot } from '@automattic/jetpack-my-jetpack/header-controls';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { isMyJetpackAvailable } from '../overview/lib/use-modules-state';
@@ -29,7 +29,7 @@ export default function BoostPage( { isSubpage, children, subpage, actions }: Pr
 			breadcrumbs={ isSubpage ? <></> : showBreadcrumbs ? <BoostBreadcrumbs /> : undefined }
 			subTitle={ __( 'Improve your site speed and performance.', 'jetpack-boost' ) }
 			actions={ actions }
-			globalControls={ getHeaderControls() }
+			globalControls={ getHeaderControlsSlot() }
 			apiRoot={ wpApiSettings.root }
 			apiNonce={ wpApiSettings.nonce }
 			showFooter={ ! isSubpage }
