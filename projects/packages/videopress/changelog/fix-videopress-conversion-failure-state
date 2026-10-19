@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress: Show failed conversions with delete and re-upload guidance, and retry locked resumable uploads.

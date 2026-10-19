@@ -343,7 +343,34 @@ class Jetpack_Email_Design_Editor {
 				'listings' => $exit_url,
 			),
 			'userEmail'      => wp_get_current_user()->user_email,
+
+			// The post the canvas should preview, where the previewer sent one. The design itself
+			// stays site-wide. {@see self::preview_post_id()}
+			'postId'         => self::preview_post_id(),
 		);
+	}
+
+	/**
+	 * The post the canvas should preview, or null to leave the default.
+	 *
+	 * The previewer's link carries the post the reader was looking at, so changing the design does
+	 * not replace it with the sample post. See NL-1051.
+	 *
+	 * Capability-checked here as well as on WordPress.com, so a hand-edited URL cannot name a post
+	 * this user may not read. `absint()` is as forgiving as `exit_url()`'s validation -- `12abc`
+	 * arrives as 12 -- which only ever yields an id shape `edit_post` then has the final word on.
+	 *
+	 * @return int|null
+	 */
+	private static function preview_post_id() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read as a preview target only, and capability-checked below.
+		$post_id = isset( $_GET['post_id'] ) ? absint( wp_unslash( $_GET['post_id'] ) ) : 0;
+
+		if ( $post_id > 0 && current_user_can( 'edit_post', $post_id ) ) {
+			return $post_id;
+		}
+
+		return null;
 	}
 
 	/**

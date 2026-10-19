@@ -119,7 +119,9 @@ function TopVideosReport() {
 
 	return (
 		<Leaderboard
+			chartTitle={ __( 'Top videos', 'jetpack-videopress-pkg' ) }
 			rows={ rows }
+			columns={ { label: __( 'Videos', 'jetpack-videopress-pkg' ), metric: 'views' } }
 			status={ {
 				isLoading: isInitialLoading || isCheckingMedia,
 				isFetching,

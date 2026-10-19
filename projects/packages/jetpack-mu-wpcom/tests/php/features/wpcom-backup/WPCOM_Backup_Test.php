@@ -8,6 +8,8 @@
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Backup;
+use Brain\Monkey;
+use Brain\Monkey\Functions;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-backup/wpcom-backup.php';
@@ -24,13 +26,82 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 	const SCREEN_ID = 'jetpack_page_jetpack-backup';
 
 	/**
-	 * An environment that cannot prove the site has backups must not offer to
-	 * activate them.
+	 * Activation needs the plan's hosting platform as well as its backups, as in Calypso.
+	 *
+	 * @dataProvider provide_features_and_states
+	 *
+	 * @param string[] $features Features the site's plan includes.
+	 * @param string   $expected Expected state.
 	 */
-	public function test_state_defaults_to_upgrade_without_wpcom_libraries() {
+	#[DataProvider( 'provide_features_and_states' )]
+	public function test_state_follows_the_plan_features( array $features, $expected ) {
+		Functions\when( 'wpcom_site_has_feature' )->alias(
+			static function ( $feature ) use ( $features ) {
+				return in_array( $feature, $features, true );
+			}
+		);
+
+		$this->assertSame( $expected, WPCOM_Backup::get_state( 1 ) );
+	}
+
+	/**
+	 * Feature sets and the state each one resolves to.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_features_and_states() {
+		return array(
+			'neither'            => array( array(), WPCOM_Backup::STATE_UPGRADE ),
+			'backups only'       => array( array( 'backups-self-serve' ), WPCOM_Backup::STATE_UPGRADE ),
+			'atomic only'        => array( array( 'atomic' ), WPCOM_Backup::STATE_UPGRADE ),
+			'atomic and backups' => array( array( 'atomic', 'backups-self-serve' ), WPCOM_Backup::STATE_ACTIVATE ),
+		);
+	}
+
+	/**
+	 * The last-backup download and the failed-transfer notice each belong to one prompt.
+	 *
+	 * @dataProvider provide_transfer_statuses
+	 *
+	 * @param string[]    $features        Features the site's plan includes.
+	 * @param string|null $status          Latest transfer status, or null for no transfer.
+	 * @param bool        $has_reverted    Expected `hasRevertedTransfer`.
+	 * @param bool        $transfer_failed Expected `transferFailed`.
+	 */
+	#[DataProvider( 'provide_transfer_statuses' )]
+	public function test_transfer_flags_follow_the_latest_transfer( array $features, $status, $has_reverted, $transfer_failed ) {
+		Functions\when( 'wpcom_site_has_feature' )->alias(
+			static function ( $feature ) use ( $features ) {
+				return in_array( $feature, $features, true );
+			}
+		);
+		Functions\when( 'woa_get_latest_transfer' )->justReturn(
+			null === $status ? new \WP_Error( 'not_found' ) : (object) array( 'status' => $status )
+		);
+
+		$state = WPCOM_Backup::get_initial_state();
+
 		$this->assertSame(
-			WPCOM_Backup::STATE_UPGRADE,
-			WPCOM_Backup::get_state( 1 )
+			array( $has_reverted, $transfer_failed ),
+			array( $state['hasRevertedTransfer'], $state['transferFailed'] )
+		);
+	}
+
+	/**
+	 * Plan features, latest transfer status, and the flags they produce.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_transfer_statuses() {
+		$plan = array( 'atomic', 'backups-self-serve' );
+
+		return array(
+			'no transfer'                 => array( array(), null, false, false ),
+			'reverted, upgrade prompt'    => array( array(), 'reverted', true, false ),
+			'reverted, activation prompt' => array( $plan, 'reverted', false, false ),
+			'lossless revert still going' => array( array(), 'reverting', false, false ),
+			'error, activation prompt'    => array( $plan, 'error', false, true ),
+			'error, upgrade prompt'       => array( array(), 'error', false, false ),
 		);
 	}
 
@@ -217,6 +288,20 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Start every test on a site whose plan has no features.
+	 *
+	 * Mocked rather than left absent: a stub Brain Monkey left behind throws when called unmocked.
+	 *
+	 * @return void
+	 */
+	public function set_up() {
+		parent::set_up();
+		Monkey\setUp();
+		Functions\when( 'wpcom_site_has_feature' )->justReturn( false );
+		Functions\when( 'woa_get_latest_transfer' )->justReturn( new \WP_Error( 'not_found' ) );
+	}
+
+	/**
 	 * Leave the admin globals as they were found.
 	 *
 	 * @return void
@@ -230,6 +315,7 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 		);
 		Constants::clear_constants();
 		WPCOM_Backup::reset();
+		Monkey\tearDown();
 
 		parent::tear_down();
 	}
@@ -448,7 +534,7 @@ class WPCOM_Backup_Test extends \WorDBless\BaseTestCase {
 		$payload = (array) $this->printed_initial_state();
 
 		$this->assertSame(
-			array( 'state', 'domain', 'isEligible', 'errors', 'warnings', 'upgradeUrl', 'activateUrl' ),
+			array( 'state', 'domain', 'isEligible', 'errors', 'warnings', 'upgradeUrl', 'activateUrl', 'supportUrl', 'hasRevertedTransfer', 'transferFailed' ),
 			array_keys( $payload )
 		);
 		$this->assertSame( WPCOM_Backup::STATE_UPGRADE, $payload['state'] );

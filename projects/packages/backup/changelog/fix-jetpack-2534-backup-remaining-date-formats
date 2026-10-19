@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: The modernized dashboard, behind a feature flag, shows the remaining dates in the site's own date and time formats; the flip PR carries the user-facing entry.
+

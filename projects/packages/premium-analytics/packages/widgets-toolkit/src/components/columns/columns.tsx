@@ -43,6 +43,8 @@ export type ColumnsProps = {
 	 * Format of the figures, on the y axis and in the tooltip. Defaults to compact integers.
 	 */
 	format?: DataFormat;
+	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
+	chartTitle?: string;
 };
 
 const DEFAULT_FORMAT: DataFormat = {
@@ -65,6 +67,7 @@ export function Columns( {
 	error,
 	empty,
 	format = DEFAULT_FORMAT,
+	chartTitle,
 }: ColumnsProps ): JSX.Element {
 	const { reportParams } = useWidgetRootContext();
 	const { isLoading, isFetching, isError, refetch } = status;
@@ -88,7 +91,12 @@ export function Columns( {
 			empty={ empty }
 			renderLoading={ <BarChartSkeleton columns={ columns.length } /> }
 		>
-			<BarChart chartData={ chartData } styles={ barStyles } dataFormat={ format } />
+			<BarChart
+				chartData={ chartData }
+				styles={ barStyles }
+				dataFormat={ format }
+				chartTitle={ chartTitle }
+			/>
 		</WidgetState>
 	);
 }

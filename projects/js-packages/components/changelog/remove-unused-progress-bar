@@ -1,0 +1,4 @@
+Significance: major
+Type: removed
+
+Remove ProgressBar component. Use Progress or Meter from @wordpress/ui instead.

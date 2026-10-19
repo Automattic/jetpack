@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+CI: Enable autotagger, autorelease, and SVN autopublish.

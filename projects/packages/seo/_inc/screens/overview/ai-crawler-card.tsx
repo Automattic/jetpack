@@ -4,19 +4,19 @@ import { Button, Card, Stack, Text } from '@wordpress/ui';
 import CardHeaderIcon from './card-header-icon';
 import StatusDot from './status-dot';
 import styles from './style.module.scss';
-import type { AiCrawler, AiState } from '../../data/ai-types';
+import type { AiCrawler, GeoState } from '../../data/geo-types';
 import type { FC } from 'react';
 
 interface Props {
-	data: NonNullable< AiState[ 'crawlers' ] >;
+	data: NonNullable< GeoState[ 'crawlers' ] >;
 	/**
 	 * Whether search engines may index the site (`blog_public`). Overlaid from the
 	 * Settings store by the Overview so a visibility toggle reflects here without a
 	 * reload; the card's own bootstrap value can be stale.
 	 */
 	searchEnginesVisible: boolean;
-	/** The llms.txt slice from the same `aiStore` the GEO tab uses. */
-	llmsTxt: AiState[ 'llmsTxt' ] | null;
+	/** The llms.txt slice from the same `geoStore` the GEO tab uses. */
+	llmsTxt: GeoState[ 'llmsTxt' ] | null;
 	onManage: () => void;
 }
 
@@ -52,7 +52,7 @@ const llmsNotPublishedLabel = __( 'llms.txt not published', 'jetpack-seo' );
  * address, a static robots.txt file, a data-sharing opt-out, or a path-based
  * multisite network — that reason is the card's headline state. Otherwise it
  * shows a one-line summary of the crawler groups. Reads the same
- * `aiStore` slice that drives the GEO tab (no separate Overview payload), and the
+ * `geoStore` slice that drives the GEO tab (no separate Overview payload), and the
  * "Manage" button deep-links there.
  *
  * @param props                      - Component props.

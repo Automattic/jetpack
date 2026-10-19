@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+WooCommerce tab: Treat a store whose analytics data already finished syncing as synced, instead of reporting a sync error.

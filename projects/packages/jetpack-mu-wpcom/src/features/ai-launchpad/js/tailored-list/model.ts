@@ -1,3 +1,4 @@
+import { getLaunchSiteUrl } from '../../../../common/launch-site-url.ts';
 import type { DifmOffer } from '../difm-offer/difm-offer-banner.tsx';
 import type { AboutPageDraft, TailoredOutput, FirstPostDraft, SiteCopy } from '../lib/types.ts';
 
@@ -172,9 +173,7 @@ export function launchSiteUrl( siteUrl: string ): string | null {
 		// so the CTA is hidden rather than throwing on click.
 		return null;
 	}
-	return `https://wordpress.com/start/launch-site?siteSlug=${ encodeURIComponent(
-		slug
-	) }&ref=wp-admin`;
+	return getLaunchSiteUrl( slug, globalThis.location?.href );
 }
 
 /**

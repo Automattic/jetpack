@@ -37,6 +37,7 @@ function OrdersOverTime( { chartType }: { chartType?: ChartDisplayChartType } ) 
 		<ReportMetricChart
 			report={ useReportOrders( reportParams ) }
 			chartType={ chartType }
+			chartTitle={ __( 'Orders over time', 'jetpack-woocommerce-stats-pkg' ) }
 			field="orders_no"
 			label={ __( 'Orders', 'jetpack-woocommerce-stats-pkg' ) }
 			countLabel={ countLabel }

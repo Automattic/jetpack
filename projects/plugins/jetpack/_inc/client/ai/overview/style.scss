@@ -181,6 +181,11 @@
 	// Clip the row's hover background to the card's rounded corners.
 	&__row-card {
 		overflow: hidden;
+
+		// Fill the stretched grid card so the hover covers all of it.
+		.jetpack-ai-nav-row {
+			flex-grow: 1;
+		}
 	}
 
 	&__quick-start-grid,

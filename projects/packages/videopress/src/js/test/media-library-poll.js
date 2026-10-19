@@ -11,7 +11,13 @@ let queueListeners;
 function createAttachment( attrs ) {
 	return {
 		get: key => attrs[ key ],
-		set: jest.fn(),
+		set: jest.fn( ( key, value ) => {
+			if ( typeof key === 'string' ) {
+				attrs[ key ] = value;
+			} else {
+				Object.assign( attrs, key );
+			}
+		} ),
 	};
 }
 
@@ -310,4 +316,22 @@ describe( 'heartbeat-tick', () => {
 
 		expect( global.wp.ajax.send ).not.toHaveBeenCalled();
 	} );
+} );
+
+it( 'refreshes a failed conversion once and removes it from heartbeat polling', () => {
+	const attachment = createAttachment( {
+		id: 91,
+		type: 'video',
+		subtype: 'videopress',
+		videopress_status: 'processing',
+	} );
+	setupLibrary( [ attachment ] );
+	global.wp.ajax.send.mockReturnValue( { done: jest.fn() } );
+	require( '../media-library-poll' );
+	handlers[ 'heartbeat-tick' ]( {}, { videopress_processing_status: { 91: 'failed' } } );
+	handlers[ 'heartbeat-tick' ]( {}, { videopress_processing_status: { 91: 'failed' } } );
+	expect( global.wp.ajax.send ).toHaveBeenCalledTimes( 1 );
+	const data = {};
+	handlers[ 'heartbeat-send' ]( {}, data );
+	expect( data.videopress_processing_ids ).toBeUndefined();
 } );

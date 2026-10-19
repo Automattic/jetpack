@@ -390,6 +390,9 @@ jest.mock( './components', () => ( {
 	// A marker, not the real notice, which reads a query cache these tests do not
 	// stand up. Covered here: where the stage puts it.
 	RefreshFailureNotice: () => <div data-testid="refresh-failure-notice" />,
+	SectionNotice: ( { message }: { message: string } ) => (
+		<div>{ `section notice: ${ message }` }</div>
+	),
 	SectionSyncNotice: ( {
 		percentage,
 		hasError,
@@ -463,6 +466,7 @@ const useOnboardingMock = jest.mocked( useOnboarding );
 const closedOnboarding = {
 	phase: 'closed' as const,
 	step: 0,
+	flow: 'stats' as const,
 	start: jest.fn(),
 	next: jest.fn(),
 	dismiss: jest.fn(),
@@ -933,6 +937,25 @@ describe( 'Dashboard sync notice', () => {
 		expect( screen.queryByText( /^notice/ ) ).not.toBeInTheDocument();
 	} );
 
+	it( "shows the registration's notice once the section is not waiting on the sync", () => {
+		mockSection( { requires_sync: true, notice: 'No orders yet.' } );
+		mockIsSyncFinished = true;
+
+		render( <Dashboard /> );
+
+		expect( screen.getByText( 'section notice: No orders yet.' ) ).toBeInTheDocument();
+	} );
+
+	it( "holds the registration's notice back while the sync notice shows", () => {
+		mockSection( { requires_sync: true, notice: 'No orders yet.' } );
+		mockSyncState = { data: { percentage: 40 } as SyncStatus, error: null, isComplete: false };
+
+		render( <Dashboard /> );
+
+		expect( screen.getByText( 'notice 40% syncing' ) ).toBeInTheDocument();
+		expect( screen.queryByText( /^section notice/ ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'drops the notice once the sync has finished', () => {
 		mockSection( { requires_sync: true } );
 		mockIsSyncFinished = true;
@@ -1146,6 +1169,7 @@ describe( 'Dashboard inserter', () => {
 					label: 'Traffic',
 					date_filter: DATE_FILTER_RANGE,
 					default_layout: [ { uuid: 'default-traffic-chart', type: 'jpa/traffic-chart' } ],
+					insertable_widget_types: [ 'jpa/devices' ],
 				},
 				{
 					slug: 'insights',
@@ -1158,11 +1182,11 @@ describe( 'Dashboard inserter', () => {
 		} as unknown as ReturnType< typeof useDashboardSections > );
 	} );
 
-	it( 'offers the widget types the active section places by default', () => {
+	it( 'offers the widget types the active section places by default or declares insertable', () => {
 		const { rerender } = render( <Dashboard /> );
 
 		expect( useDashboardPolicyMock ).toHaveBeenLastCalledWith( {
-			insertableWidgetTypes: new Set( [ 'jpa/traffic-chart' ] ),
+			insertableWidgetTypes: new Set( [ 'jpa/traffic-chart', 'jpa/devices' ] ),
 		} );
 
 		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );

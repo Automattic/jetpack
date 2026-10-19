@@ -1,9 +1,10 @@
 import { __ } from '@wordpress/i18n';
 import { backup } from '@wordpress/icons';
-import { Button, ButtonLink, Text } from '@wordpress/ui';
+import { Button, ButtonLink, Notice, Text } from '@wordpress/ui';
 import { useState } from 'react';
 import { TransferActivationModal } from './activation-modal.tsx';
 import { Callout } from './callout.tsx';
+import { DownloadPanel } from './download-panel.tsx';
 import { needsConfirmation } from './eligibility.ts';
 import { upsell } from './icons.tsx';
 import { backupsCalloutIllustration } from './illustration.ts';
@@ -16,7 +17,7 @@ import {
 import type { InitialState } from './types.ts';
 
 /**
- * Shown when the site's plan does not include backups.
+ * Shown when the site's plan does not include backups, with any backup a reverted transfer left.
  *
  * @param props       - Component props.
  * @param props.state - Resolved initial state.
@@ -26,33 +27,39 @@ export function UpgradeScreen( { state }: { state: InitialState } ) {
 	const upsellProps = { upsell_id: TRACKS_FEATURE_ID, upsell_feature_id: TRACKS_FEATURE_ID };
 
 	return (
-		<Callout
-			icon={ backup }
-			title={ __( 'Secure your content with Jetpack Backups', 'jetpack-mu-wpcom' ) }
-			image={ backupsCalloutIllustration }
-			description={
-				<Text>
-					{ __(
-						'Protect your site with scheduled and real-time backups—giving you the ultimate “undo” button and peace of mind that your content is always safe.',
-						'jetpack-mu-wpcom'
-					) }
-				</Text>
-			}
-			actions={
-				<>
-					<ViewTracker eventName="calypso_dashboard_upsell_impression" properties={ upsellProps } />
-					<ButtonLink
-						variant="solid"
-						size="compact"
-						href={ state.upgradeUrl }
-						onClick={ () => recordTracksEvent( 'calypso_dashboard_upsell_click', upsellProps ) }
-					>
-						<ButtonLink.Icon icon={ upsell } />
-						{ __( 'Upgrade plan', 'jetpack-mu-wpcom' ) }
-					</ButtonLink>
-				</>
-			}
-		/>
+		<>
+			<Callout
+				icon={ backup }
+				title={ __( 'Secure your content with Jetpack Backups', 'jetpack-mu-wpcom' ) }
+				image={ backupsCalloutIllustration }
+				description={
+					<Text>
+						{ __(
+							'Protect your site with scheduled and real-time backups—giving you the ultimate “undo” button and peace of mind that your content is always safe.',
+							'jetpack-mu-wpcom'
+						) }
+					</Text>
+				}
+				actions={
+					<>
+						<ViewTracker
+							eventName="calypso_dashboard_upsell_impression"
+							properties={ upsellProps }
+						/>
+						<ButtonLink
+							variant="solid"
+							size="compact"
+							href={ state.upgradeUrl }
+							onClick={ () => recordTracksEvent( 'calypso_dashboard_upsell_click', upsellProps ) }
+						>
+							<ButtonLink.Icon icon={ upsell } />
+							{ __( 'Upgrade plan', 'jetpack-mu-wpcom' ) }
+						</ButtonLink>
+					</>
+				}
+			/>
+			{ state.hasRevertedTransfer && <DownloadPanel supportUrl={ state.supportUrl } /> }
+		</>
 	);
 }
 
@@ -89,6 +96,21 @@ export function ActivateScreen( { state }: { state: InitialState } ) {
 				eventName="calypso_dashboard_hosting_feature_activation_impression"
 				properties={ { feature_id: TRACKS_FEATURE_ID } }
 			/>
+			{ state.transferFailed && (
+				<Notice.Root intent="error">
+					<Notice.Description>
+						{ __(
+							'There was a problem activating backups. Please contact our support team for help.',
+							'jetpack-mu-wpcom'
+						) }
+					</Notice.Description>
+					<Notice.Actions>
+						<Notice.ActionLink href={ state.supportUrl } openInNewTab>
+							{ __( 'Contact support', 'jetpack-mu-wpcom' ) }
+						</Notice.ActionLink>
+					</Notice.Actions>
+				</Notice.Root>
+			) }
 			<Callout
 				icon={ backup }
 				title={ __( 'Activate backups for this site', 'jetpack-mu-wpcom' ) }
@@ -105,8 +127,13 @@ export function ActivateScreen( { state }: { state: InitialState } ) {
 					</>
 				}
 				actions={
-					showModalFirst ? (
-						<Button variant="solid" size="compact" onClick={ handleClick }>
+					showModalFirst || state.transferFailed ? (
+						<Button
+							variant="solid"
+							size="compact"
+							disabled={ state.transferFailed }
+							onClick={ handleClick }
+						>
 							{ __( 'Activate backups', 'jetpack-mu-wpcom' ) }
 						</Button>
 					) : (

@@ -234,6 +234,60 @@ class Jetpack_Connector_Test extends TestCase {
 	}
 
 	/**
+	 * Another administrator is named as this site knows them, not as WordPress.com does.
+	 *
+	 * The viewer's own row still resolves against WordPress.com, so this pins the split rather
+	 * than just the owner half of it.
+	 */
+	public function test_the_owner_is_named_locally_while_the_viewer_is_named_by_wpcom() {
+		$owner_id = wp_insert_user(
+			array(
+				'user_login'   => 'connector_owner',
+				'user_pass'    => 'password',
+				'user_email'   => 'owner@example.org',
+				'display_name' => 'Local Owner',
+				'role'         => 'administrator',
+			)
+		);
+
+		\Jetpack_Options::update_option( 'blog_token', 'test.secret' );
+		\Jetpack_Options::update_option( 'id', 12345 );
+		\Jetpack_Options::update_option( 'master_user', $owner_id );
+		\Jetpack_Options::update_option(
+			'user_tokens',
+			array(
+				$owner_id       => 'ownerkey.private.' . $owner_id,
+				$this->admin_id => 'viewerkey.private.' . $this->admin_id,
+			)
+		);
+
+		// Cached so neither lookup reaches WordPress.com during the test.
+		set_transient(
+			'jetpack_connected_user_data_' . $owner_id,
+			array(
+				'display_name' => 'Wpcom Owner',
+				'login'        => 'wpcom_owner',
+				'email'        => 'owner@wordpress.com',
+			)
+		);
+		set_transient(
+			'jetpack_connected_user_data_' . $this->admin_id,
+			array(
+				'display_name' => 'Wpcom Viewer',
+				'login'        => 'wpcom_viewer',
+				'email'        => 'viewer@wordpress.com',
+			)
+		);
+
+		// The transients are options-backed, so tearDown's clear_options() removes them.
+		$data = Jetpack_Connector::get_connector_data( array() );
+
+		$this->assertSame( 'Local Owner', $data['connectionOwner']['displayName'] );
+		$this->assertSame( 'connector_owner', $data['connectionOwner']['login'] );
+		$this->assertSame( 'Wpcom Viewer', $data['currentUser']['displayName'] );
+	}
+
+	/**
 	 * A consumer request exposes protected-owner card state before anyone has claimed it.
 	 */
 	public function test_protected_owner_card_state_when_a_consumer_requests_one() {
@@ -290,81 +344,6 @@ class Jetpack_Connector_Test extends TestCase {
 
 		$this->assertSame( Manager::PO_STATE_NEEDS_OWNER_RECONNECT, $data['protectedOwner']['status'] );
 		$this->assertTrue( $data['protectedOwner']['viewerIsConfirmedOwner'] );
-	}
-
-	/**
-	 * The dialog script loads only when this viewer can open one of the dialogs.
-	 */
-	public function test_protected_owner_dialog_script_follows_who_can_act() {
-		$this->map_connection_caps();
-		$method = new \ReflectionMethod( Jetpack_Connector::class, 'should_enqueue_protected_owner_dialogs' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$method->setAccessible( true );
-		}
-
-		$manager = new Manager();
-
-		$this->assertFalse( $method->invoke( null, $manager ) );
-
-		add_filter( 'jetpack_connection_requires_protected_owner', '__return_true' );
-		$this->assertFalse( $method->invoke( null, $manager ) );
-
-		\Jetpack_Options::update_option(
-			'user_tokens',
-			array( $this->admin_id => 'ownerkey.private.' . $this->admin_id )
-		);
-		$this->assertTrue( $method->invoke( null, new Manager() ) );
-
-		Protected_Owner::set( 4242, $this->admin_id );
-		$this->assertFalse( $method->invoke( null, new Manager() ) );
-
-		// The confirmed owner can release, and that does not depend on a consumer still asking.
-		remove_all_filters( 'jetpack_connection_requires_protected_owner' );
-		\Jetpack_Options::update_option( 'master_user', $this->admin_id );
-		Utils::set_wpcom_user_id( $this->admin_id, 4242 );
-		$this->assertTrue( $method->invoke( null, new Manager() ) );
-	}
-
-	/**
-	 * A second admin carrying the anchored ID — which Premium Content can write directly — is
-	 * offered no dialog, matching the endpoint that would refuse them.
-	 */
-	public function test_protected_owner_dialog_script_skips_an_admin_sharing_the_anchored_id() {
-		$this->map_connection_caps();
-		$method = new \ReflectionMethod( Jetpack_Connector::class, 'should_enqueue_protected_owner_dialogs' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$method->setAccessible( true );
-		}
-
-		$bystander = wp_insert_user(
-			array(
-				'user_login' => 'sharing_admin',
-				'user_pass'  => 'pass',
-				'user_email' => 'sharing_admin@example.com',
-				'role'       => 'administrator',
-			)
-		);
-
-		\Jetpack_Options::update_option( 'master_user', $this->admin_id );
-		\Jetpack_Options::update_option(
-			'user_tokens',
-			array(
-				$this->admin_id => 'ownerkey.private.' . $this->admin_id,
-				$bystander      => 'ownerkey.private.' . $bystander,
-			)
-		);
-		update_user_meta( $this->admin_id, 'wpcom_user_id', 4242 );
-		update_user_meta( $bystander, 'wpcom_user_id', 4242 );
-		Protected_Owner::set( 4242, $this->admin_id );
-
-		wp_set_current_user( $bystander );
-		$manager = new Manager();
-
-		$state = $manager->resolve_protected_owner_state();
-		$this->assertSame( Manager::PO_STATE_RE_EVALUATE, $state['status'], 'Test setup: the site is settled.' );
-		$this->assertTrue( $state['is_current_user_the_po'], 'Test setup: the binding alone would admit them.' );
-
-		$this->assertFalse( $method->invoke( null, $manager ) );
 	}
 
 	/**
