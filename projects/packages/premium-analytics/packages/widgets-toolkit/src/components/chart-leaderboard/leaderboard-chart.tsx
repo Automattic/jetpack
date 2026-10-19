@@ -169,7 +169,6 @@ export function LeaderboardChart( {
 			>
 				{ showLegend && (
 					<Legend
-						className={ styles.legend }
 						orientation="horizontal"
 						position="bottom"
 						alignment="center"
