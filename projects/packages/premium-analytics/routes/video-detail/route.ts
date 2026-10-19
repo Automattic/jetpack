@@ -101,6 +101,7 @@ export const route = {
 				 */
 				params: { videoId } as unknown as never,
 				replace: true,
+				viewTransition: false,
 				search: seeded as unknown as never,
 			} );
 		}

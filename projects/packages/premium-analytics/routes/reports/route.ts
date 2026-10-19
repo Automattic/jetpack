@@ -3,6 +3,7 @@
  */
 import {
 	ensureCoreSettingsReady,
+	getSectionDatePolicy,
 	needsReportDateParamsSeed,
 } from '@jetpack-premium-analytics/data';
 import { pickDashboardOriginParams } from '@jetpack-premium-analytics/routing';
@@ -10,8 +11,11 @@ import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
+import { routePathname } from '../date-window-notice';
 import { seedSiteDateParams } from '../site-date-seed';
 import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
+import { limitStatsDateSearch } from '../stats-date-window';
+import { route as routeConfig } from './package.json';
 import { getReportDefinition } from './registry';
 
 type ReportRouteParams = { report?: string };
@@ -45,18 +49,21 @@ export const route = {
 		const reportId = report as string;
 
 		const currentSearch = ( search ?? {} ) as ReportRouteSearch;
+		const pathname = routePathname( routeConfig.path, { report: reportId } );
 		// A `section` from a link may not belong to this report (e.g. forwarded from a
 		// dashboard widget); resolve it so a shareable URL never persists a bogus section.
 		const resolvedSection =
 			currentSearch.section && definition.resolveSection
 				? definition.resolveSection( currentSearch.section )
 				: undefined;
-		const needsDateSeed = needsReportDateParamsSeed( currentSearch );
+		const policy = getSectionDatePolicy( definition.dashboardSection );
+		const needsDateSeed = needsReportDateParamsSeed( currentSearch, policy.lockedIntervals );
 		const needsSectionSeed =
 			!! currentSearch.section &&
 			!! definition.resolveSection &&
 			resolvedSection !== currentSearch.section;
 
+		let next: Record< string, unknown > | undefined;
 		if ( needsDateSeed || needsSectionSeed ) {
 			/*
 			 * Warm the core `site` record for `useSiteHomeUrl()`; a rejection shouldn't block
@@ -71,7 +78,7 @@ export const route = {
 			// Allowlist the params this page owns rather than spreading `currentSearch`
 			// wholesale, so foreign params a link carried in aren't persisted.
 			const seeded: Record< string, unknown > = {
-				...seedSiteDateParams( currentSearch ),
+				...seedSiteDateParams( currentSearch, policy ),
 				...pickDashboardOriginParams( currentSearch ),
 				...( resolvedSection ? { section: resolvedSection } : {} ),
 			};
@@ -80,6 +87,13 @@ export const route = {
 			delete seeded.post_id;
 			delete seeded.author_id;
 
+			next =
+				limitStatsDateSearch( seeded, policy, { pathname, requested: currentSearch } ) ?? seeded;
+		} else {
+			next = limitStatsDateSearch( currentSearch, policy, { pathname, requested: currentSearch } );
+		}
+
+		if ( next ) {
 			throw redirect( {
 				to: '/reports/$report',
 				/*
@@ -88,7 +102,8 @@ export const route = {
 				 */
 				params: { report: reportId } as unknown as never,
 				replace: true,
-				search: seeded as unknown as never,
+				viewTransition: false,
+				search: next as unknown as never,
 			} );
 		}
 	},

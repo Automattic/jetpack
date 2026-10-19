@@ -3,6 +3,7 @@
  */
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { DASHBOARD_PREFERENCES_SCOPE } from '@jetpack-premium-analytics/data';
+import { renderHook } from '@testing-library/react';
 import { dispatch } from '@wordpress/data';
 import { getSettings, setSettings } from '@wordpress/date';
 import { store as preferencesStore } from '@wordpress/preferences';
@@ -11,6 +12,8 @@ import { store as preferencesStore } from '@wordpress/preferences';
  */
 import { planGatesScriptData } from '../../tests/js/plan-gates-test-utils';
 import { DATE_WINDOW_NOTICE_STATE } from '../date-window-notice';
+import { dateWindowKey, takeDateWindowNotice, useDateWindowNotice } from '../date-window-notice';
+import { route as postRoute } from '../post-detail/route';
 import { DATE_FILTER_RANGE, type DashboardSection } from './config';
 import { route } from './route';
 import { dateWindowForSectionSwitch } from './section-date-window';
@@ -34,9 +37,29 @@ jest.mock( '../site-readiness', () => ( {
 	...jest.requireActual( '../site-readiness' ),
 	isPremiumAnalyticsSiteConnected: () => true,
 } ) );
+jest.mock( '../reports/registry', () => ( { getReportDefinition: () => ( {} ) } ) );
+jest.mock( '../post-detail/config', () => ( { resolveTabId: ( section: string ) => section } ) );
+let mockSearch: Record< string, unknown > = {};
+const mockCreateInfoNotice = jest.fn();
 jest.mock( '@wordpress/route', () => ( {
 	redirect: ( options: object ) => ( { isRedirect: true, ...options } ),
+	useSearch: () => mockSearch,
 } ) );
+jest.mock( '@wordpress/data', () => {
+	const actual = () => jest.requireActual( '@wordpress/data' );
+	return new Proxy(
+		{},
+		{
+			get: ( _target, name ) =>
+				name === 'dispatch'
+					? ( store: unknown ) =>
+							store === 'core/notices'
+								? { createInfoNotice: mockCreateInfoNotice }
+								: actual().dispatch( store )
+					: actual()[ name as string ],
+		}
+	);
+} );
 
 type PreferencesActions = { set: ( scope: string, name: string, value: unknown ) => void };
 
@@ -138,6 +161,34 @@ describe.each( [
 		expect( settled.search ).toMatchObject( { preset: 'last-7-days', from: weekStart } );
 		expect( settled.search ).not.toHaveProperty( 'comp' );
 		expect( settled.notice ).toBe( notice );
+	} );
+} );
+
+describe( 'the date-limit notice on a free site', () => {
+	beforeEach( () => setLocks( ...FREE_LOCKS ) );
+
+	it( 'stays quiet when a hovered post link preloads and the page then shows that window', async () => {
+		mockSearch = ( await settle( { preset: 'yesterday' } ) ).search;
+		const { rerender } = renderHook( () => useDateWindowNotice( '/' ) );
+
+		await settle( { from: '2025-01-01', to: '2025-01-31', interval: 'day', post_id: '42' }, next =>
+			postRoute.beforeLoad( { params: { postId: '42' }, search: next } as never )
+		);
+		mockSearch = ( await settle( { preset: 'last-7-days' } ) ).search;
+		rerender();
+
+		expect( mockCreateInfoNotice ).not.toHaveBeenCalled();
+	} );
+
+	it( 'stays quiet when a post opens on its own window', async () => {
+		const settled = await settle(
+			{ from: '2025-01-01', to: '2025-01-31', interval: 'day', ref: 'posts' },
+			next => postRoute.beforeLoad( { params: { postId: '42' }, search: next } as never )
+		);
+
+		expect( settled.hops ).toBeLessThanOrEqual( 2 );
+		expect( settled.search ).toMatchObject( { preset: 'last-7-days', post_id: '42' } );
+		expect( noticeOn( settled.search, '/post/42' ) ).toBeUndefined();
 	} );
 } );
 

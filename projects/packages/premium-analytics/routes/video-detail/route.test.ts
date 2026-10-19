@@ -120,6 +120,7 @@ describe( 'video detail route.beforeLoad', () => {
 		).rejects.toMatchObject( {
 			to: '/video/$videoId',
 			replace: true,
+			viewTransition: false,
 			params: { videoId: '42' },
 			search: expect.objectContaining( { post_id: '42' } ),
 		} );
@@ -206,9 +207,10 @@ describe( 'video detail route.beforeLoad', () => {
 			},
 		} );
 		await expect( redirect ).rejects.not.toHaveProperty( 'search.ref_from' );
-		expect( normalizeReportParams ).toHaveBeenCalledWith(
-			expect.objectContaining( { preset: 'all-time', from: '2021-01-01T00:00:00' } )
-		);
+		expect( ( normalizeReportParams as jest.Mock ).mock.calls[ 0 ][ 0 ] ).toMatchObject( {
+			preset: 'all-time',
+			from: '2021-01-01T00:00:00',
+		} );
 	} );
 } );
 

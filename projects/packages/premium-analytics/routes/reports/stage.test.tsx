@@ -25,6 +25,7 @@ jest.mock( '@jetpack-premium-analytics/externals', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
+	useTrackEvent: () => jest.fn(),
 	ChartsProvider: ( { children }: { children: ReactNode } ) => (
 		<div data-testid="charts-provider">{ children }</div>
 	),
