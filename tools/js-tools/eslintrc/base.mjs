@@ -273,11 +273,11 @@ export function makeBaseConfig( configurl, opts = {} ) {
 					'error',
 					{
 						paths: [
-							{
+							...[ 'Icon', 'SelectControl', 'Spinner' ].map( name => ( {
 								name: '@wordpress/components',
-								importNames: [ 'SelectControl' ],
-								message: 'Use `SelectControl` from `@wordpress/ui` instead.',
-							},
+								importNames: [ name ],
+								message: `Use \`${ name }\` from \`@wordpress/ui\` instead.`,
+							} ) ),
 						],
 					},
 				],
