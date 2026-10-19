@@ -1,7 +1,7 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import * as React from 'react';
-import { Component, createRef, Fragment } from 'react';
+import { Component, Fragment } from 'react';
 import { getConstrastingColor } from '../lib/colors';
 import { MULTISITE_NO_GROUP_VALUE, OVERLAY_FOCUS_ANCHOR_ID } from '../lib/constants';
 import { getErrorMessage } from '../lib/errors';
@@ -22,42 +22,6 @@ import './search-results.scss';
 class SearchResults extends Component {
 	state = {
 		shouldShowMobileSecondary: false,
-	};
-
-	primaryRef = createRef();
-	headerRef = createRef();
-	secondaryRef = createRef();
-
-	componentDidMount() {
-		// Content above the header (AI answers, tabs) can resize while the mobile filters panel is open.
-		if ( typeof window.ResizeObserver === 'function' && this.primaryRef.current ) {
-			this.primaryResizeObserver = new window.ResizeObserver( this.updateSecondaryOffset );
-			this.primaryResizeObserver.observe( this.primaryRef.current );
-		}
-	}
-
-	componentDidUpdate( prevProps, prevState ) {
-		if ( this.state.shouldShowMobileSecondary && ! prevState.shouldShowMobileSecondary ) {
-			this.updateSecondaryOffset();
-		}
-	}
-
-	componentWillUnmount() {
-		this.primaryResizeObserver?.disconnect();
-	}
-
-	updateSecondaryOffset = () => {
-		const header = this.headerRef.current;
-		const secondary = this.secondaryRef.current;
-		// offsetParent is null while the panel is hidden; it is measured again when opened.
-		const container = secondary?.offsetParent;
-		if ( header && container ) {
-			const offset =
-				header.getBoundingClientRect().bottom -
-				container.getBoundingClientRect().top -
-				container.clientTop;
-			secondary.style.setProperty( '--jetpack-instant-search-secondary-top', `${ offset }px` );
-		}
 	};
 
 	toggleMobileSecondary = event => {
@@ -168,18 +132,9 @@ class SearchResults extends Component {
 		return __( 'Showing popular results', 'jetpack-search-pkg' );
 	}
 
-	renderPrimarySection() {
-		const { highlightColor, searchQuery } = this.props;
-		const { results = [], total = 0, corrected_query = false } = this.props.response;
+	renderPrimaryTopSection() {
+		const { highlightColor } = this.props;
 		const textColor = getConstrastingColor( highlightColor );
-		const hasCorrectedQuery = corrected_query !== false;
-		const hasResults = total > 0;
-
-		const isMultiSite =
-			this.props.additionalBlogIds?.length > 0 ||
-			( this.props.staticFilters &&
-				this.props.staticFilters.group_id &&
-				this.props.staticFilters.group_id !== MULTISITE_NO_GROUP_VALUE );
 
 		return (
 			<Fragment>
@@ -205,7 +160,7 @@ class SearchResults extends Component {
 				/>
 				<TabbedSearchFilters />
 
-				<div className="jetpack-instant-search__search-results-header" ref={ this.headerRef }>
+				<div className="jetpack-instant-search__search-results-header">
 					<h2 className="jetpack-instant-search__search-results-title">
 						{ this.getSearchTitle() }
 					</h2>
@@ -226,17 +181,28 @@ class SearchResults extends Component {
 								className="jetpack-instant-search__search-results-filter-button"
 							>
 								{ __( 'Filters', 'jetpack-search-pkg' ) }
-								<Gridicon
-									icon="chevron-down"
-									size={ 16 }
-									alt={ __( 'Show search filters', 'jetpack-search-pkg' ) }
-									aria-hidden="true"
-								/>
+								<Gridicon icon="chevron-down" size={ 16 } aria-hidden="true" />
 							</div>
 						) }
 					</SearchControls>
 				</div>
+			</Fragment>
+		);
+	}
 
+	renderPrimaryBottomSection() {
+		const { searchQuery } = this.props;
+		const { results = [], total = 0, corrected_query = false } = this.props.response;
+		const hasCorrectedQuery = corrected_query !== false;
+		const hasResults = total > 0;
+		const isMultiSite =
+			this.props.additionalBlogIds?.length > 0 ||
+			( this.props.staticFilters &&
+				this.props.staticFilters.group_id &&
+				this.props.staticFilters.group_id !== MULTISITE_NO_GROUP_VALUE );
+
+		return (
+			<Fragment>
 				{ hasResults && hasCorrectedQuery && (
 					<p className="jetpack-instant-search__search-results-unused-query">
 						{
@@ -353,22 +319,26 @@ class SearchResults extends Component {
 						className="jetpack-instant-search__search-results-content"
 						id="jetpack-instant-search__search-results-content"
 					>
-						<div className="jetpack-instant-search__search-results-primary" ref={ this.primaryRef }>
-							{ this.renderPrimarySection() }
+						<div className="jetpack-instant-search__search-results-primary jetpack-instant-search__search-results-primary--top">
+							{ this.renderPrimaryTopSection() }
 						</div>
-						<div
-							id="jetpack-instant-search__search-results-secondary"
-							ref={ this.secondaryRef }
-							className={ [
-								'jetpack-instant-search__search-results-secondary',
-								`${
-									this.state.shouldShowMobileSecondary
-										? 'jetpack-instant-search__search-results-secondary--show-as-modal'
-										: ''
-								} `,
-							].join( ' ' ) }
-						>
-							{ this.renderSecondarySection() }
+						<div className="jetpack-instant-search__search-results-secondary-wrapper">
+							<div
+								id="jetpack-instant-search__search-results-secondary"
+								className={ [
+									'jetpack-instant-search__search-results-secondary',
+									`${
+										this.state.shouldShowMobileSecondary
+											? 'jetpack-instant-search__search-results-secondary--show-as-modal'
+											: ''
+									} `,
+								].join( ' ' ) }
+							>
+								{ this.renderSecondarySection() }
+							</div>
+						</div>
+						<div className="jetpack-instant-search__search-results-primary jetpack-instant-search__search-results-primary--bottom">
+							{ this.renderPrimaryBottomSection() }
 						</div>
 					</div>
 					<button id={ OVERLAY_FOCUS_ANCHOR_ID } onClick={ this.closeOverlay }>
