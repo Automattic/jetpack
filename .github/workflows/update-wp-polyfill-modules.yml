@@ -12,7 +12,7 @@ permissions: {}
 env:
   BRANCH: update/wp-polyfill-modules
   MODULES_FILE: projects/js-packages/webpack-config/src/babel/wp-polyfill-modules.json
-  CHANGE_FILE: projects/js-packages/webpack-config/changelog/update-wp-polyfill-modules
+  CHANGE_FILE_PREFIX: projects/js-packages/webpack-config/changelog/update-wp-polyfill-modules
   GIT_AUTHOR_NAME: matticbot
   GIT_AUTHOR_EMAIL: matticbot@users.noreply.github.com
   GIT_COMMITTER_NAME: matticbot
@@ -60,6 +60,8 @@ jobs:
 
           # -B resets the branch to trunk when it already exists.
           git checkout -B "$BRANCH"
+          # Use a timestamp to prevent accidentally overwriting an entry from an earlier PR.
+          CHANGE_FILE="$CHANGE_FILE_PREFIX-$( date -u +%Y%m%d%H%M%S )"
           printf 'Significance: patch\nType: changed\n\nBabel preset: Update the list of polyfills that WordPress includes in `wp-polyfill`.\n' > "$CHANGE_FILE"
           git add -- "$MODULES_FILE" "$CHANGE_FILE"
           git commit -m 'webpack-config: Update wp-polyfill modules'
