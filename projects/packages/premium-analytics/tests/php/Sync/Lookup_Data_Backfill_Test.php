@@ -62,7 +62,12 @@ class Lookup_Data_Backfill_Test extends TestCase {
 			'is_sync_allowed'           => true,
 			'is_full_sync_running'      => false,
 			'find_oldest_order_product' => self::OLDEST_ORDER,
-			'fetch_wpcom_products'      => array( array( 'product_id' => '8' ) ),
+			'fetch_wpcom_products'      => array(
+				array(
+					'product_id'   => '8',
+					'product_type' => 'simple',
+				),
+			),
 			'start_full_sync'           => true,
 		);
 
@@ -192,7 +197,12 @@ class Lookup_Data_Backfill_Test extends TestCase {
 			array(
 				'fetch_wpcom_products' => static function ( array $args ) use ( &$asked ) {
 					$asked = $args;
-					return array( array( 'product_id' => '8' ) );
+					return array(
+						array(
+							'product_id'   => '8',
+							'product_type' => 'simple',
+						),
+					);
 				},
 			)
 		);
@@ -207,15 +217,40 @@ class Lookup_Data_Backfill_Test extends TestCase {
 		$this->assertSame( array(), self::scheduled_hooks() );
 	}
 
-	public function test_marks_done_when_wordpress_com_reports_the_oldest_order_product() {
+	/**
+	 * @dataProvider provide_wordpress_com_product_rows
+	 * @param array $row   The oldest order's product row in the report.
+	 * @param bool  $start Whether the full sync should start.
+	 */
+	#[DataProvider( 'provide_wordpress_com_product_rows' )]
+	public function test_starts_unless_wordpress_com_reports_the_oldest_order_product_with_its_type( array $row, bool $start ) {
 		self::set_scheduled_state();
-		$backfill = $this->backfill( array( 'fetch_wpcom_products' => array( array( 'product_id' => '7' ) ) ) );
-		$backfill->expects( $this->never() )->method( 'start_full_sync' );
+		$backfill = $this->backfill( array( 'fetch_wpcom_products' => array( $row ) ) );
+		$backfill->expects( $start ? $this->once() : $this->never() )->method( 'start_full_sync' );
 
 		$backfill->start_backfill();
 
-		$this->assertGreaterThan( 0, (int) get_option( Sync_Status_Tracker::LOOKUP_DATA_SYNCED_OPTION, 0 ) );
+		$this->assertSame( ! $start, Sync_Status_Tracker::lookup_data_synced() );
 		$this->assertSame( array(), self::scheduled_hooks() );
+	}
+
+	public static function provide_wordpress_com_product_rows() {
+		return array(
+			'product with type'       => array(
+				array(
+					'product_id'   => '7',
+					'product_type' => 'simple',
+				),
+				false,
+			),
+			'product without catalog' => array(
+				array(
+					'product_id'   => '7',
+					'product_type' => null,
+				),
+				true,
+			),
+		);
 	}
 
 	public function test_starts_without_a_completed_order_to_probe() {

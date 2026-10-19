@@ -19,8 +19,8 @@ use Jetpack_Options;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Starts one woocommerce_analytics full sync on stores whose orders synced before Premium Analytics
- * owned the module, when the standalone WooCommerce Analytics plugin stripped the lookup data.
+ * Starts one full sync of the order lookup data and the product catalog on stores whose orders synced before
+ * Premium Analytics owned the woocommerce_analytics module, when the standalone plugin stripped the lookup data.
  *
  * Incremental sync and checksums never resend those orders, so WordPress.com keeps their order
  * stats without the product, tax and coupon lookup rows.
@@ -190,9 +190,10 @@ class Lookup_Data_Backfill {
 	}
 
 	/**
-	 * Whether WordPress.com reports the product of the oldest completed order, which only its lookup rows provide.
+	 * Whether WordPress.com reports the product of the oldest completed order, with its type from the product catalog.
 	 *
-	 * Orders synced after Premium Analytics took over carry lookup rows, so only an old order tells whether the history arrived.
+	 * Only lookup rows put the product in the report, and only a synced catalog gives it a type. Orders synced after
+	 * Premium Analytics took over carry lookup rows, so only an old order tells whether the history arrived.
 	 *
 	 * @return bool|null Null when WordPress.com did not answer.
 	 */
@@ -221,7 +222,12 @@ class Lookup_Data_Backfill {
 			return null;
 		}
 
-		return in_array( (int) $order['product_id'], array_map( 'intval', array_column( $products, 'product_id' ) ), true );
+		foreach ( $products as $product ) {
+			if ( (int) ( $product['product_id'] ?? 0 ) === (int) $order['product_id'] ) {
+				return ! empty( $product['product_type'] );
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -346,11 +352,22 @@ class Lookup_Data_Backfill {
 	}
 
 	/**
-	 * Start the woocommerce_analytics full sync.
+	 * Start the full sync of the order lookup data and the product catalog.
+	 *
+	 * WordPress.com builds its product table from synced product posts and their product_type terms, which it
+	 * ignored before it knew an analytics plugin was active. Modules are sent in this order: terms before posts.
 	 *
 	 * @return bool Whether Jetpack started it.
 	 */
 	protected function start_full_sync(): bool {
-		return Actions::do_full_sync( array( 'woocommerce_analytics' => true ), self::FULL_SYNC_CONTEXT );
+		return Actions::do_full_sync(
+			array(
+				'woocommerce_analytics' => true,
+				'terms'                 => true,
+				'term_relationships'    => true,
+				'posts'                 => true,
+			),
+			self::FULL_SYNC_CONTEXT
+		);
 	}
 }
