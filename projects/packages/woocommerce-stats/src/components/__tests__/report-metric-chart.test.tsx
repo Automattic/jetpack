@@ -43,6 +43,7 @@ it( 'hides the redundant label in its single-metric chart', () => {
 			report={ report }
 			field="orders_value_net"
 			label="Net sales"
+			chartTitle="Net sales over time"
 			dataFormat={ { type: 'currency' } }
 			errorText="Could not load net sales."
 		/>

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+Comment: The modernized dashboard, behind a feature flag, keeps the activity list's footer in view by letting each pane scroll inside itself.
+

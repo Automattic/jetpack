@@ -135,6 +135,20 @@ class Widget_Type {
 	public $actions = null;
 
 	/**
+	 * Attribute schema, one entry per setting of a widget instance: a DataViews
+	 * field in its JSON form, plus the keys the dashboard reads on top of a
+	 * field (`relevance`, so far). User-facing strings are translated at
+	 * registration time using the widget's text domain.
+	 *
+	 * Null when the widget did not declare the field.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var array|null
+	 */
+	public $attributes = null;
+
+	/**
 	 * Alternative terms used to match the widget type when searching,
 	 * e.g. "calendar" for an events widget. Translated at registration
 	 * time using the widget's text domain.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Jetpack AI: Give the AI Hub's Claude links on self-hosted sites their own redirects, so their destination can change without a plugin update.
