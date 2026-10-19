@@ -171,6 +171,46 @@ describe( 'activity list', () => {
 		await expect( screen.findAllByText( 'Backup complete' ) ).resolves.not.toHaveLength( 0 );
 	} );
 
+	it( 'does not fill a failed page with the previous page while it retries', async () => {
+		let failPage2 = true;
+		mockApiFetch.mockImplementation( ( options: { path?: string } ) => {
+			const path = options?.path ?? '';
+			if ( path.includes( '/site/capabilities' ) ) {
+				return Promise.resolve( CAPABILITIES );
+			}
+			if ( path.includes( '/site/rewindable-activity' ) ) {
+				if ( path.includes( 'page=2' ) ) {
+					return failPage2
+						? Promise.reject( {
+								code: 'activity_log_fetch_failed',
+								message: 'Service unavailable',
+							} )
+						: new Promise( () => {} );
+				}
+				return Promise.resolve( {
+					current: { orderedItems: [ backupActivityEntry() ] },
+					totalItems: 2,
+					totalPages: 2,
+				} );
+			}
+			return Promise.resolve( {} );
+		} );
+
+		render( <OverviewStage /> );
+		await userEvent.click( await screen.findByRole( 'button', { name: 'Next page' } ) );
+		await expect(
+			screen.findByText( "We couldn't load your site's activity." )
+		).resolves.toBeInTheDocument();
+
+		// The detail pane keeps its heading; only the list rows are in question.
+		const before = screen.getAllByText( 'Backup complete' ).length;
+		failPage2 = false;
+		await userEvent.click( screen.getAllByRole( 'button', { name: 'Try again' } ).at( -1 ) );
+
+		expect( screen.getAllByText( 'Backup complete' ) ).toHaveLength( before );
+		expect( screen.getByText( "We couldn't load your site's activity." ) ).toBeInTheDocument();
+	} );
+
 	it( 'still shows the plain empty state when the request simply returns nothing', async () => {
 		// Same rendered path, opposite cause — proves the new branch is
 		// keyed on the error and not on emptiness.

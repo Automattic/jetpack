@@ -135,15 +135,18 @@ export function useActivityLog( { page, pageSize, sortOrder }: Args ): Result {
 	const totalItems = lastAnswer.current?.totalItems ?? 0;
 	const totalPages = lastAnswer.current?.totalPages ?? null;
 
+	// A retry has no rows of its own: `keepPreviousData` would stand in the last page's.
+	const showsPlaceholder = query.isPlaceholderData && error !== null;
 	// Only once the feed has answered: a failed page holds no rows, and merged
 	// restores would fill it, hiding the failure the list's `empty` slot reports.
-	const items = useMemo(
-		() =>
-			query.isSuccess && totalPages !== null
-				? mergeRestoreRows( entries, restores.data, { page, totalPages, sortOrder } )
-				: entries,
-		[ query.isSuccess, entries, restores.data, page, totalPages, sortOrder ]
-	);
+	const items = useMemo( () => {
+		if ( showsPlaceholder ) {
+			return [];
+		}
+		return query.isSuccess && totalPages !== null
+			? mergeRestoreRows( entries, restores.data, { page, totalPages, sortOrder } )
+			: entries;
+	}, [ showsPlaceholder, query.isSuccess, entries, restores.data, page, totalPages, sortOrder ] );
 
 	// Wrapped so callers can hand it straight to `onClick` without
 	// returning a floating promise from the event handler.
