@@ -439,6 +439,56 @@ describe( 'useSettingsForm', () => {
 		expect( storeState.verification.google ).toBe( 'tok' );
 	} );
 
+	it( 'a form save started during saveVerification waits for it, and the form stays locked until both finish', async () => {
+		let finishCode: ( response: unknown ) => void = () => undefined;
+		let finishBing: ( response: unknown ) => void = () => undefined;
+		mockApiFetch.mockImplementation( options => {
+			const request = JSON.stringify( options );
+			if ( request.includes( '"google"' ) ) {
+				return new Promise( resolve => {
+					finishCode = resolve;
+				} );
+			}
+			if ( request.includes( '"bing"' ) ) {
+				return new Promise( resolve => {
+					finishBing = resolve;
+				} );
+			}
+			return Promise.resolve( {} );
+		} );
+		const bingPost = expect.objectContaining( {
+			data: { verification_services_codes: { bing: 'abc' } },
+		} );
+		const { result } = renderHook( () => useSettingsForm() );
+		act( () => result.current.setVerification( 'bing', 'abc' ) );
+		let saved: Promise< void > = Promise.resolve();
+		act( () => {
+			saved = result.current.saveVerification( 'google', 'tok' );
+		} );
+		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalledWith( CODE_POST ) );
+
+		// The blur the lock fires on a focused code field.
+		act( () => result.current.commitFields( [ 'verification' ] ) );
+		await act( async () => undefined );
+		expect( mockApiFetch ).not.toHaveBeenCalledWith( bingPost );
+
+		await act( async () => {
+			finishCode( {} );
+			await saved;
+		} );
+		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalledWith( bingPost ) );
+		expect( result.current.isSaving ).toBe( true );
+
+		await act( async () => finishBing( {} ) );
+		await waitFor( () => expect( result.current.isSaving ).toBe( false ) );
+		expect( result.current.isDirty( [ 'verification' ] ) ).toBe( false );
+		expect( storeState.verification ).toEqual( {
+			...SEED.verification,
+			google: 'tok',
+			bing: 'abc',
+		} );
+	} );
+
 	it( 'a re-read that returns after saveVerification was called does not roll back the code', async () => {
 		let finishRead: ( response: unknown ) => void = () => undefined;
 		mockApiFetch.mockImplementation( options =>

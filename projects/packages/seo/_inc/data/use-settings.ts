@@ -219,8 +219,21 @@ export function useSettingsForm(): SettingsForm {
 	// Refs so `commit()` reads the freshest values without stale closures and
 	// without re-creating the callback on every keystroke.
 	const baselineRef = useRef< SettingsResponse | null >( initial );
-	// The save in flight, which `saveVerification()` waits for.
+	// Saves run one at a time: each waits for the one before. The server merges codes
+	// without a lock, and a late re-read must not land after a newer save.
 	const inFlightRef = useRef< Promise< unknown > >( Promise.resolve() );
+	// `isSaving` holds until the last queued save settles, not the first.
+	const activeSavesRef = useRef( 0 );
+	const beginSave = useCallback( () => {
+		activeSavesRef.current += 1;
+		setIsSaving( true );
+	}, [] );
+	const endSave = useCallback( () => {
+		activeSavesRef.current -= 1;
+		if ( activeSavesRef.current === 0 ) {
+			setIsSaving( false );
+		}
+	}, [] );
 	const localRef = useRef< SettingsResponse | null >( initial );
 	useEffect( () => {
 		localRef.current = local;
@@ -336,7 +349,7 @@ export function useSettingsForm(): SettingsForm {
 					: JSON.stringify( coreStored[ field ] ) !== JSON.stringify( baseline[ field ] );
 			};
 
-			setIsSaving( true );
+			beginSave();
 			createInfoNotice( __( 'Updating settings…', 'jetpack-seo' ), {
 				id: SAVE_NOTICE_ID,
 				type: 'snackbar',
@@ -347,7 +360,7 @@ export function useSettingsForm(): SettingsForm {
 			// be refused, and the re-read below has to see a settled server state to
 			// reconcile against. Overlapping the two would race that read, and a failure
 			// in one would leave the client unable to say what the other had landed.
-			inFlightRef.current = Promise.resolve()
+			inFlightRef.current = inFlightRef.current
 				.then( () =>
 					Object.keys( corePayload ).length > 0
 						? apiFetch( { path: CORE_SETTINGS_PATH, method: 'POST', data: corePayload } )
@@ -405,9 +418,17 @@ export function useSettingsForm(): SettingsForm {
 				// committed — the form is reconciled with the server before the controls
 				// unlock, so `isSaving` also serializes this against the next save.
 				.then( () => adoptServerState( touched, savedTitlePage, codes ) )
-				.finally( () => setIsSaving( false ) );
+				.finally( endSave );
 		},
-		[ createInfoNotice, createSuccessNotice, createErrorNotice, patchStore, adoptServerState ]
+		[
+			createInfoNotice,
+			createSuccessNotice,
+			createErrorNotice,
+			patchStore,
+			adoptServerState,
+			beginSave,
+			endSave,
+		]
 	);
 
 	const setField = useCallback(
@@ -429,11 +450,9 @@ export function useSettingsForm(): SettingsForm {
 				verification_service: key,
 				setting_value: value ? 'set' : 'cleared',
 			};
-			// After any save in flight, re-read included, and locking the form meanwhile: the
-			// server merges codes without a lock, so an overlapping save could drop this one.
+			beginSave();
 			const run = inFlightRef.current
 				.then( () => {
-					setIsSaving( true );
 					// As in `sentSettings()`, a retry that saves the code already stored records nothing.
 					const changed = baselineRef.current?.verification[ key ] !== value;
 					return apiFetch( {
@@ -458,11 +477,11 @@ export function useSettingsForm(): SettingsForm {
 						}
 					);
 				} )
-				.finally( () => setIsSaving( false ) );
+				.finally( endSave );
 			inFlightRef.current = run.catch( () => undefined );
 			return run;
 		},
-		[ patchStore ]
+		[ patchStore, beginSave, endSave ]
 	);
 
 	const setSchemaSettings = useCallback(
