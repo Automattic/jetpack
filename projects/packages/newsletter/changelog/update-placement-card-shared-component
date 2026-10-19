@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Settings: Use the shared PlacementCard component for subscription placements.
+Settings: Use the shared CheckboxCard component for subscription placements.

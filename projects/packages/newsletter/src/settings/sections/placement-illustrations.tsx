@@ -10,7 +10,7 @@
  * illustrations stay pure vector and render crisply at any size.
  *
  * The SVGs use a viewBox of 294×192 and fill edge-to-edge — the
- * `PlacementCard` illustration surface from `@automattic/jetpack-components`
+ * `CheckboxCard` illustration surface from `@automattic/jetpack-components`
  * sets the matching aspect-ratio so they sit flush against the card border.
  *
  * Built on `@wordpress/primitives` so the outer `<SVG>` automatically gets

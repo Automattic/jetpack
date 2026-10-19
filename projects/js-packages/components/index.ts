@@ -24,11 +24,8 @@ export { default as AutomatticForAgenciesLogo } from './components/automattic-fo
 export { default as JetpackFooter } from './components/jetpack-footer/index.tsx';
 export { default as Gravatar } from './components/gravatar/index.tsx';
 export type { GravatarProps } from './components/gravatar/index.tsx';
-export { default as PlacementCard, PlacementCardGrid } from './components/placement-card/index.tsx';
-export type {
-	PlacementCardProps,
-	PlacementCardGridProps,
-} from './components/placement-card/types.ts';
+export { default as CheckboxCard, CheckboxCardGrid } from './components/checkbox-card/index.tsx';
+export type { CheckboxCardProps, CheckboxCardGridProps } from './components/checkbox-card/types.ts';
 export { default as IconTooltip } from './components/icon-tooltip/index.tsx';
 export { default as ActionButton } from './components/action-button/index.tsx';
 export { default as PricingCard } from './components/pricing-card/index.tsx';

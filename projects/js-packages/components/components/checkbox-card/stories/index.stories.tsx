@@ -1,10 +1,10 @@
 import { useCallback, useState } from 'react';
-import PlacementCard, { PlacementCardGrid } from '../index.tsx';
+import CheckboxCard, { CheckboxCardGrid } from '../index.tsx';
 import type { Meta, StoryFn } from '@storybook/react';
 
-const meta: Meta< typeof PlacementCard > = {
-	title: 'JS Packages/Components/Placement Card',
-	component: PlacementCard,
+const meta: Meta< typeof CheckboxCard > = {
+	title: 'JS Packages/Components/Checkbox Card',
+	component: CheckboxCard,
 	argTypes: {
 		illustration: { table: { disable: true } },
 		onChange: { table: { disable: true } },
@@ -25,13 +25,13 @@ const Wireframe = ( { before }: { before?: boolean } ) => {
 	);
 };
 
-const Template: StoryFn< typeof PlacementCard > = args => {
+const Template: StoryFn< typeof CheckboxCard > = args => {
 	const [ checked, setChecked ] = useState( args.checked );
 	const handleChange = useCallback( ( _name: string, next: boolean ) => setChecked( next ), [] );
 
 	return (
 		<div style={ { maxWidth: 360 } }>
-			<PlacementCard { ...args } checked={ checked } onChange={ handleChange } />
+			<CheckboxCard { ...args } checked={ checked } onChange={ handleChange } />
 		</div>
 	);
 };
@@ -58,7 +58,7 @@ Disabled.args = {
 	disabled: true,
 };
 
-export const Grid: StoryFn< typeof PlacementCard > = () => {
+export const Grid: StoryFn< typeof CheckboxCard > = () => {
 	const [ selected, setSelected ] = useState< Record< string, boolean > >( {
 		before_content: true,
 	} );
@@ -68,8 +68,8 @@ export const Grid: StoryFn< typeof PlacementCard > = () => {
 	);
 
 	return (
-		<PlacementCardGrid>
-			<PlacementCard
+		<CheckboxCardGrid>
+			<CheckboxCard
 				id="placement-before-content"
 				name="before_content"
 				title="Before the post content"
@@ -77,7 +77,7 @@ export const Grid: StoryFn< typeof PlacementCard > = () => {
 				checked={ Boolean( selected.before_content ) }
 				onChange={ handleChange }
 			/>
-			<PlacementCard
+			<CheckboxCard
 				id="placement-after-content"
 				name="after_content"
 				title="After the post content"
@@ -85,6 +85,6 @@ export const Grid: StoryFn< typeof PlacementCard > = () => {
 				checked={ Boolean( selected.after_content ) }
 				onChange={ handleChange }
 			/>
-		</PlacementCardGrid>
+		</CheckboxCardGrid>
 	);
 };

@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-export type PlacementCardProps = {
+export type CheckboxCardProps = {
 	/**
 	 * Id of the checkbox; the title's id is built from it.
 	 */
@@ -14,11 +14,11 @@ export type PlacementCardProps = {
 	 */
 	title: string;
 	/**
-	 * Wireframe of the placement, drawn at a 294×192 aspect ratio.
+	 * Picture filling the card, drawn at a 294×192 aspect ratio.
 	 */
 	illustration?: ReactNode;
 	/**
-	 * Whether the placement is selected.
+	 * Whether the card is checked.
 	 */
 	checked: boolean;
 	/**
@@ -39,9 +39,9 @@ export type PlacementCardProps = {
 	disabled?: boolean;
 };
 
-export type PlacementCardGridProps = {
+export type CheckboxCardGridProps = {
 	/**
-	 * The `PlacementCard`s to lay out.
+	 * The `CheckboxCard`s to lay out.
 	 */
 	children: ReactNode;
 	/**

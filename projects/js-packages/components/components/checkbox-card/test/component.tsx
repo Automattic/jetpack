@@ -1,14 +1,14 @@
 import { jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
-import PlacementCard from '../index.tsx';
-import type { PlacementCardProps } from '../types.ts';
+import CheckboxCard from '../index.tsx';
+import type { CheckboxCardProps } from '../types.ts';
 
-const renderCard = ( props: Partial< PlacementCardProps > = {} ) => {
+const renderCard = ( props: Partial< CheckboxCardProps > = {} ) => {
 	const onChange = jest.fn();
 	const onPreviewClick = jest.fn();
 	render(
-		<PlacementCard
+		<CheckboxCard
 			id="placement-after-content"
 			name="after_content"
 			title="After the post content"
@@ -22,7 +22,7 @@ const renderCard = ( props: Partial< PlacementCardProps > = {} ) => {
 	return { onChange, onPreviewClick };
 };
 
-describe( 'PlacementCard', () => {
+describe( 'CheckboxCard', () => {
 	// Catches the title id and `aria-labelledby` drifting apart, which leaves the checkbox unnamed.
 	it( 'names the checkbox with the title', () => {
 		renderCard( { checked: true } );
@@ -34,7 +34,7 @@ describe( 'PlacementCard', () => {
 	it.each( [
 		[ 'ticks', false, true ],
 		[ 'unticks', true, false ],
-	] )( '%s the placement when the illustration is clicked', async ( _, checked, next ) => {
+	] )( '%s the card when the illustration is clicked', async ( _, checked, next ) => {
 		const { onChange } = renderCard( { checked } );
 
 		await userEvent.click( screen.getByText( 'Wireframe' ) );
@@ -62,7 +62,7 @@ describe( 'PlacementCard', () => {
 		expect( screen.queryAllByText( 'Preview and edit' ) ).toHaveLength( count );
 	} );
 
-	// Catches the preview handler losing the name the parent uses to tell placements apart.
+	// Catches the preview handler losing the name the parent uses to tell cards apart.
 	it( 'passes its name to the preview handler', async () => {
 		const { onPreviewClick } = renderCard( { previewUrl: '#preview' } );
 

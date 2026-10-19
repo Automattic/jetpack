@@ -3,26 +3,26 @@ import { __ } from '@wordpress/i18n';
 import { Card, Checkbox, Field, Link, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import './style.scss';
-import type { PlacementCardGridProps, PlacementCardProps } from './types.ts';
+import type { CheckboxCardGridProps, CheckboxCardProps } from './types.ts';
 import type { JSX } from 'react';
 
 /**
- * Lays out placement cards in two columns, or one on narrow screens.
+ * Lays out checkbox cards in two columns, or one on narrow screens.
  *
- * @param {PlacementCardGridProps} props - Component props.
+ * @param {CheckboxCardGridProps} props - Component props.
  * @return {JSX.Element} The grid.
  */
-export function PlacementCardGrid( { children, className }: PlacementCardGridProps ): JSX.Element {
-	return <div className={ clsx( 'jp-placement-card-grid', className ) }>{ children }</div>;
+export function CheckboxCardGrid( { children, className }: CheckboxCardGridProps ): JSX.Element {
+	return <div className={ clsx( 'jp-checkbox-card-grid', className ) }>{ children }</div>;
 }
 
 /**
- * A selectable card showing where something will appear on the site.
+ * A card with a checkbox, toggled by a click on its illustration.
  *
- * @param {PlacementCardProps} props - Component props.
+ * @param {CheckboxCardProps} props - Component props.
  * @return {JSX.Element} The card.
  */
-export default function PlacementCard( {
+export default function CheckboxCard( {
 	id,
 	name,
 	title,
@@ -32,7 +32,7 @@ export default function PlacementCard( {
 	previewUrl,
 	onPreviewClick,
 	disabled,
-}: PlacementCardProps ): JSX.Element {
+}: CheckboxCardProps ): JSX.Element {
 	const titleId = `${ id }__title`;
 
 	const handleChange = useCallback(
@@ -46,14 +46,14 @@ export default function PlacementCard( {
 
 	return (
 		<Field.Root disabled={ disabled }>
-			<Card.Root className="jp-placement-card" data-checked={ checked }>
+			<Card.Root className="jp-checkbox-card" data-checked={ checked }>
 				<Card.Content>
-					<Card.FullBleed className="jp-placement-card__surface">
+					<Card.FullBleed className="jp-checkbox-card__surface">
 						{ /* Only the illustration toggles: the title and link sit outside the label. */ }
-						<Field.Label className="jp-placement-card__illustration">{ illustration }</Field.Label>
+						<Field.Label className="jp-checkbox-card__illustration">{ illustration }</Field.Label>
 						<Checkbox
 							id={ id }
-							className="jp-placement-card__checkbox"
+							className="jp-checkbox-card__checkbox"
 							checked={ checked }
 							onCheckedChange={ handleChange }
 							aria-labelledby={ titleId }
@@ -75,5 +75,5 @@ export default function PlacementCard( {
 	);
 }
 
-export { PlacementCard };
-export type { PlacementCardProps, PlacementCardGridProps };
+export { CheckboxCard };
+export type { CheckboxCardProps, CheckboxCardGridProps };

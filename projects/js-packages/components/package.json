@@ -33,6 +33,11 @@
 			"types": "./build/components/button/index.d.ts",
 			"default": "./build/components/button/index.js"
 		},
+		"./checkbox-card": {
+			"jetpack:src": "./components/checkbox-card/index.tsx",
+			"types": "./build/components/checkbox-card/index.d.ts",
+			"default": "./build/components/checkbox-card/index.js"
+		},
 		"./global-notices": {
 			"jetpack:src": "./components/global-notices/index.ts",
 			"types": "./build/components/global-notices/index.d.ts",
@@ -57,11 +62,6 @@
 			"jetpack:src": "./components/jitm-slot/index.tsx",
 			"types": "./build/components/jitm-slot/index.d.ts",
 			"default": "./build/components/jitm-slot/index.js"
-		},
-		"./placement-card": {
-			"jetpack:src": "./components/placement-card/index.tsx",
-			"types": "./build/components/placement-card/index.d.ts",
-			"default": "./build/components/placement-card/index.js"
 		},
 		"./pricing-table": {
 			"jetpack:src": "./components/pricing-table/index.tsx",
