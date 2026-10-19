@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { Button, Dialog, LinkButton, Notice, SelectControl, Stack } from '@wordpress/ui';
+import { Button, Dialog, ButtonLink, Notice, SelectControl, Stack } from '@wordpress/ui';
 import {
 	RETENTION_OPTIONS,
 	isRetentionOption,
@@ -194,7 +194,7 @@ export default function BackupRetentionDialog( {
 			>
 				<Dialog.Header>
 					<Dialog.Title>{ __( 'Days of backups saved', 'jetpack-backup-pkg' ) }</Dialog.Title>
-					<Dialog.CloseIcon disabled={ isPending } />
+					<Dialog.CloseIconButton disabled={ isPending } />
 				</Dialog.Header>
 				{ confirming !== null ? (
 					<Dialog.Content>
@@ -284,9 +284,9 @@ export default function BackupRetentionDialog( {
 								{ __( 'Cancel', 'jetpack-backup-pkg' ) }
 							</Button>
 							{ needsStorage && checkoutUrl && (
-								<LinkButton href={ checkoutUrl } onClick={ recordPurchase }>
+								<ButtonLink href={ checkoutUrl } onClick={ recordPurchase }>
 									{ purchaseLabel }
-								</LinkButton>
+								</ButtonLink>
 							) }
 							{ /* Held in place while the offer loads, and if it never does. */ }
 							{ needsStorage && ! checkoutUrl && <Button disabled>{ purchaseLabel }</Button> }

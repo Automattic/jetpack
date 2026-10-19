@@ -110,7 +110,7 @@ export const Error: Story = {
 
 /**
  * Resolved without positive share counts: the widget shows its empty-state
- * megaphone and guidance copy.
+ * copy and the Learn more link.
  */
 export const Empty: Story = {
 	render: renderShares,

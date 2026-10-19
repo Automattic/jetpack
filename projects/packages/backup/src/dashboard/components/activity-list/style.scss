@@ -31,6 +31,11 @@
 		a {
 			text-decoration: none;
 		}
+
+		// Focused only by script, when a retry clears the error; see `.jpb-overview`.
+		h2:focus {
+			outline: none;
+		}
 	}
 
 	&__new {
@@ -116,16 +121,25 @@
 		padding: 16px 16px 0;
 	}
 
+	// One line: a summary with no room for a few characters wraps onto
+	// the clipped second line instead of showing a sliver.
+	&__description {
+		flex-wrap: wrap;
+		max-block-size: 1lh;
+		overflow: hidden;
+	}
+
 	&__summary {
 		// Trim long summary strings so the description cell stays on one line.
+		flex: 1 1 0;
+		min-inline-size: 4em;
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
 	}
 
-	// Keep the date text on a single line — without this the comma in
-	// "May 15, 2026, 9:26 AM" lets the row wrap mid-date, pushing the
-	// summary onto a second visual line at the column's typical width.
+	// Keep the date text on a single line — without this a space in the date
+	// lets the row wrap mid-date, pushing the summary onto a second line.
 	&__date {
 		white-space: nowrap;
 	}

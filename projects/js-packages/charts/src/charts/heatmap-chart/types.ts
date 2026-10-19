@@ -74,10 +74,10 @@ export interface HeatmapChartProps extends Omit<
 	 * group past the edge, Page Up/Down by one group. Default `grid`.
 	 */
 	keyboardNavigation?: 'grid' | 'calendar';
-	/** Accessible name of the grid. Defaults to a localized "Heatmap chart". */
-	ariaLabel?: string;
 	/** Compact mode: hide in-cell values, tighten gap, thin axis labels. Default false. */
 	compact?: boolean;
+	/** Compact mode only: grow the cells to fill the chart's box, wrapping the column groups onto more rows when that makes them larger. Default false. */
+	fitCells?: boolean;
 	/** Render the numeric value inside each cell. Default `! compact`. */
 	showValues?: boolean;
 	/**
@@ -102,7 +102,7 @@ export interface HeatmapChartProps extends Omit<
 	/** Floor a cell's height (px) in non-compact mode; see `minCellWidth`. */
 	minCellHeight?: number;
 	/**
-	 * Color the cell scale is built from, deepened at the highest value toward 9:1
+	 * Color the cell scale is built from, deepened at the highest value toward 6:1
 	 * against the background. Defaults to the first series palette slot,
 	 * `--a8c-charts-color-series-1`.
 	 */

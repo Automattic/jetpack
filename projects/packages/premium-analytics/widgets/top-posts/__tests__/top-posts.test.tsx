@@ -55,7 +55,7 @@ describe( 'TopPostsWidget', () => {
 		mockApiFetch.mockResolvedValue( TOP_POSTS_RESPONSE );
 	} );
 
-	it( 'keeps the exact count behind an abbreviated row value', async () => {
+	it( 'keeps the exact view count behind an abbreviated row value, under a Pages header', async () => {
 		mockApiFetch.mockResolvedValue( {
 			...TOP_POSTS_RESPONSE,
 			summary: {
@@ -66,7 +66,9 @@ describe( 'TopPostsWidget', () => {
 		render( <TopPostsWidget attributes={ {} } /> );
 
 		await expect( screen.findByText( '18.4K' ) ).resolves.toHaveAttribute( 'aria-hidden', 'true' );
-		expect( screen.getByText( '18,432' ) ).toBeInTheDocument();
+		expect( screen.getByText( '18,432 views' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Pages' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Views' ) ).toBeInTheDocument();
 	} );
 
 	it( 'carries the dashboard date range into the post-detail link', async () => {
@@ -484,6 +486,7 @@ describe( 'TopPostsWidget', () => {
 		// Child rows are individual archive pages: titles are not clickable, and
 		// the trailing icon links out to the archive page.
 		await expect( screen.findByText( 'pricing' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'Archives' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: /^pricing$/ } ) ).not.toBeInTheDocument();
 		const termLink = screen.getByRole( 'link', {
 			name: /pricing.*opens in a new tab/i,

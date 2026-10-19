@@ -16,7 +16,6 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { video } from '@wordpress/icons';
 import { Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
@@ -87,7 +86,6 @@ function VideoDetailEmbedsReport() {
 	if ( videoId <= 0 ) {
 		body = (
 			<ChartEmptyState
-				icon={ video }
 				text={ __(
 					'Select a video to see where it is embedded across your site.',
 					'jetpack-premium-analytics-pkg'
@@ -119,7 +117,6 @@ function VideoDetailEmbedsReport() {
 					],
 				} }
 				empty={ {
-					icon: video,
 					description: __(
 						'This video has not been embedded on any pages yet.',
 						'jetpack-premium-analytics-pkg'

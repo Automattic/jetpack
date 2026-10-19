@@ -1,6 +1,6 @@
 # WooCommerce stats
 
-The WooCommerce section of the Premium Analytics dashboard. This package registers the section and its default layout, which is also what the inserter offers on the tab: the time series widgets for now, more as the widgets land here.
+The WooCommerce section of the Premium Analytics dashboard. This package registers the section and its default layout, and declares the widgets the tab offers in the inserter without placing them by default: the sales, orders and visitors over time charts.
 
 It also serves the reports the section's widgets will read. `GET /jetpack/v4/woocommerce-stats/proxy/v2/analytics/reports/<report>` forwards to the same path under the connected site on WordPress.com, for users who can view store reports, and caches a successful answer for five minutes.
 
@@ -8,9 +8,9 @@ It hands the dashboard the store currency too: `premium_analytics.store_currency
 
 The widgets read those reports with the client in `src/reports/`: one hook per report, built on `useReport` from the dashboard SDK, so every query runs in the dashboard's query client.
 
-The widget types live in `widgets/`. wp-build builds them, and the package registers them from the build manifest when the dashboard's widget contract is 1.5 or newer. They draw with the kinds the dashboard SDK exports, so the charts are the dashboard's own. The time series family is here: net, total and gross sales, orders, average order value, average items per order, bookings and visitors over time. So are the breakdowns: new vs returning customer, payment status, orders fulfillment, coupon usage over time and bookings by status; and the leaderboards: top performing products and bookings, and sales by UTM source, channel and campaign.
+The widget types live in `widgets/`. wp-build builds them, and the package registers them from the build manifest when the dashboard's widget contract is 1.11 or newer. They draw with the kinds the dashboard SDK exports, so the charts are the dashboard's own. The time series family is here: net, total and gross sales, orders, average order value, average items per order, bookings and visitors over time. So are the breakdowns: new vs returning customer, payment status, orders fulfillment, coupon usage over time, bookings by status and sessions by device; the leaderboards: top performing products and bookings, and sales by UTM source, channel and campaign; Store performance, the store metrics as tabs over one chart, picked in the widget header, with the `jetpack.woocommerceStats.storePerformance.metrics` filter for a plugin to add its own (the package adds Bookings this way, from `packages/store-performance-bookings`, on a store running the extension); the conversion funnel, for every product and for bookings; the columns: revenue by customer type, sales by device, total returns and sales by coupon, with the bookings variants of the first two; and visitors by location, countries listed beside a map.
 
-The package decides nothing about who gets the section. The plugin that bundles it, Jetpack or the standalone Premium Analytics plugin, calls `Analytics_Dashboard::init()`. Availability stays on the section itself: WooCommerce active, the store-reports capability, and the store-section flag.
+The plugin that bundles it, Jetpack or the standalone Premium Analytics plugin, calls `Analytics_Dashboard::init()`. The package gates the section and its widget types itself: WooCommerce active, the store-reports capability, and the Bookings extension for the bookings widgets and the Bookings metric.
 
 ## Using this package in your WordPress plugin
 

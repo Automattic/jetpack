@@ -126,6 +126,7 @@ const setConnectionStore = ( {
 	userConnectionData = adminUserConnectionData,
 	connectionErrors = {},
 	connectionOwner = null,
+	isOfflineMode = false,
 } = {} ) => {
 	// The store registers lazily now; register it before stubbing it.
 	initConnectionStore();
@@ -143,6 +144,7 @@ const setConnectionStore = ( {
 		.mockReturnValue( userConnectionData );
 	jest.spyOn( storeSelect, 'getConnectionErrors' ).mockReset().mockReturnValue( connectionErrors );
 	jest.spyOn( storeSelect, 'getConnectionOwner' ).mockReset().mockReturnValue( connectionOwner );
+	jest.spyOn( storeSelect, 'getIsOfflineMode' ).mockReset().mockReturnValue( isOfflineMode );
 };
 beforeAll( () => {
 	global.JetpackScriptData = {
@@ -334,6 +336,24 @@ describe( 'ConnectionStatusCard', () => {
 		it( 'renders the correct user connection line item', () => {
 			setup();
 			expect( screen.getByText( /Connected as/ ) ).toBeInTheDocument();
+		} );
+
+		// Offline mode is the header's state; an offline Atomic site still loads the card.
+		it( 'keeps its copy in offline mode', () => {
+			setConnectionStore( {
+				isRegistered: true,
+				isUserConnected: true,
+				hasConnectedOwner: true,
+				isOfflineMode: true,
+			} );
+			render(
+				<Providers>
+					<ConnectionStatusCard { ...testProps } />
+				</Providers>
+			);
+
+			expect( screen.getByText( 'Site and account connected' ) ).toBeInTheDocument();
+			expect( screen.queryByText( 'Offline mode' ) ).not.toBeInTheDocument();
 		} );
 
 		// Matched as a direct child of the heading: the manage-connection button holds its own chevron.
@@ -536,7 +556,7 @@ describe( 'ConnectionStatusCard', () => {
 			global.JetpackScriptData.user.current_user.capabilities = {};
 		} );
 
-		it( 'keeps the connect prompt rather than replacing it with the fault', () => {
+		it( 'shows the Connection package’s diagnosis rather than the connect prompt', () => {
 			global.JetpackScriptData.user.current_user.capabilities.manage_options = true;
 			needAnAccount();
 			setConnectionStore( {
@@ -560,12 +580,13 @@ describe( 'ConnectionStatusCard', () => {
 				</Providers>
 			);
 
-			expect( screen.getByText( 'Site connected' ) ).toBeInTheDocument();
+			expect( screen.getByText( /Jetpack Connection error/ ) ).toBeInTheDocument();
 			expect(
-				screen.getByText( 'Connect your account to unlock all the features.' )
+				screen.getByText( 'Your site is not connected to WordPress.com.' )
 			).toBeInTheDocument();
-			expect( screen.getByRole( 'button', { name: 'Connect my account' } ) ).toBeInTheDocument();
-			expect( screen.queryByText( /Jetpack Connection error/ ) ).not.toBeInTheDocument();
+			expect(
+				screen.queryByRole( 'button', { name: 'Connect my account' } )
+			).not.toBeInTheDocument();
 		} );
 	} );
 

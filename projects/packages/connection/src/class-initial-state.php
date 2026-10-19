@@ -44,6 +44,13 @@ class Initial_State {
 				$connection_owner = array(
 					'id'          => $owner_id,
 					'displayName' => $owner->display_name,
+					'avatar'      => get_avatar_url(
+						$owner_id,
+						array(
+							'size'    => 48,
+							'default' => 'mysteryman',
+						)
+					),
 				);
 			}
 		}

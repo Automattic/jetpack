@@ -171,15 +171,10 @@ describe( 'origin window params', () => {
 		} );
 	} );
 
-	it( 'stores an all-time window as its preset alone, without its interval', () => {
+	it( 'stores an all-time window with its own start', () => {
 		expect(
-			toReportOriginWindowParams( {
-				from: '2020-03-04',
-				to: '2026-01-31',
-				preset: 'all-time',
-				interval: 'month',
-			} )
-		).toEqual( { ref_preset: 'all-time' } );
+			toReportOriginWindowParams( { from: '2020-03-04', to: '2026-01-31', preset: 'all-time' } )
+		).toEqual( { ref_preset: 'all-time', ref_from: '2020-03-04', ref_to: '2026-01-31' } );
 	} );
 
 	it( 'returns a detail page to its linking window, leaving the dates to the seed', () => {

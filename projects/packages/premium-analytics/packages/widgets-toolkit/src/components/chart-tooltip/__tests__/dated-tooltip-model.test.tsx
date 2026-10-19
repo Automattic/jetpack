@@ -114,6 +114,20 @@ describe( 'buildDatedTooltipModel', () => {
 		] );
 	} );
 
+	it( 'reads a point drawn at 0 for a bucket with no reading as no value, in both periods', () => {
+		const model = modelFor( [
+			entry( 'Views', { date: JULY_1, value: 0, missing: true } ),
+			entry( 'Views · previous period', { ...COMPARISON_POINT, value: 0, missing: true } ),
+		] );
+
+		expect( model?.rows ).toEqual( [
+			expect.objectContaining( {
+				value: null,
+				previous: expect.objectContaining( { value: null } ),
+			} ),
+		] );
+	} );
+
 	it( "carries the first hovered point's note, for a bucket the source has not counted", () => {
 		const model = modelFor( [
 			entry( 'Views', { date: JULY_1, value: null, note: 'Not counted yet.' } ),

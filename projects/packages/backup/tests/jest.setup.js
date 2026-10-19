@@ -21,3 +21,8 @@ Object.defineProperty( window.HTMLElement.prototype, 'scrollIntoView', {
 	value: () => {},
 	writable: true,
 } );
+
+// Required lazily: loaded up front, it would bind the real `speak()` before a test file mocks it.
+afterEach( () => {
+	require( '../src/dashboard/data/announce' ).resetAnnouncerForTesting();
+} );

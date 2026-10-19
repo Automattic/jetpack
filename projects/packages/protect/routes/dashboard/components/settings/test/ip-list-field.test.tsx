@@ -8,14 +8,7 @@ jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn(
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
-const Field = () => (
-	<IpListField
-		data={ useProtectSettings() }
-		name="list"
-		label="Allowed"
-		description="Allowed IPs"
-	/>
-);
+const Field = () => <IpListField data={ useProtectSettings() } name="list" label="Allowed" />;
 
 describe( 'IpListField', () => {
 	it( 'keeps the typed draft when its save fails', async () => {

@@ -78,6 +78,7 @@ function get_widget_modules_response() {
 			'help'          => $widget_type->help,
 			'icon'          => $widget_type->icon,
 			'actions'       => $widget_type->actions,
+			'attributes'    => $widget_type->attributes,
 			'keywords'      => $widget_type->keywords,
 			'textdomain'    => $widget_type->textdomain,
 			'i18n_manifest' => $widget_type->i18n_manifest,
