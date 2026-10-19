@@ -66,7 +66,8 @@ export type ProtectSettingsData = {
 /**
  * Read and save the Jetpack settings behind Protect's features, the same way Jetpack Settings does.
  *
- * Nothing is fetched until `load()` runs. Saves apply optimistically and roll back if the request fails.
+ * Nothing is fetched until `load()` runs. Saves apply optimistically and roll back if the request fails,
+ * unless the firewall stored the change before failing.
  *
  * @return The settings, the firewall's capabilities, and load and save functions.
  */
