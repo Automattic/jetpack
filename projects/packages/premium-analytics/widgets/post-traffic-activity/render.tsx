@@ -12,6 +12,7 @@ import {
 	WidgetRoot,
 	WidgetState,
 	fitWeekColumns,
+	formatChartName,
 	formatViewCount,
 	toDay,
 	useCalendarHeatmapData,
@@ -189,6 +190,9 @@ function PostTrafficActivityInner() {
 								<HeatmapChartUnresponsive
 									data={ heatmapData }
 									rowLabels={ rowLabels }
+									ariaLabel={ formatChartName(
+										__( 'Traffic activity', 'jetpack-premium-analytics-pkg' )
+									) }
 									primaryColor="var(--wp-admin-theme-color, #3858e9)"
 									withTooltips
 									// The page span is already sized to the card, so width tracks

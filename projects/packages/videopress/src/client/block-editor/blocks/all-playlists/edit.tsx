@@ -81,6 +81,7 @@ export default function AllPlaylistsEdit( {
 		showDescription,
 		showVideoCount,
 		pagination,
+		excludeCurrent,
 		showUpdated,
 	} = attributes;
 	const { status, html, summary } = useRenderedPreview( attributes );
@@ -202,6 +203,16 @@ export default function AllPlaylistsEdit( {
 					label={ __( 'Last update and length', 'jetpack-videopress-pkg' ) }
 					checked={ !! showUpdated }
 					onChange={ ( value: boolean ) => setAttributes( { showUpdated: value } ) }
+				/>
+				<ToggleControl
+					__nextHasNoMarginBottom
+					label={ __( 'Hide the playlist being viewed', 'jetpack-videopress-pkg' ) }
+					help={ __(
+						'For channel playlist pages, e.g. a “More playlists” row.',
+						'jetpack-videopress-pkg'
+					) }
+					checked={ !! excludeCurrent }
+					onChange={ ( value: boolean ) => setAttributes( { excludeCurrent: value } ) }
 				/>
 			</PanelBody>
 

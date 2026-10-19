@@ -285,6 +285,16 @@ function get_stats_feature_copy( $feature ) {
 				'description' => __( 'Track the most viewed <link>tags & categories</link>.', 'jetpack-premium-analytics-pkg' ),
 				'support_url' => 'https://wordpress.com/support/stats/learn-insights-about-your-website/#all-time-insights',
 			);
+		case 'recent-7-days':
+			return array(
+				'description' => __( 'See more than the last 7 days of your stats.', 'jetpack-premium-analytics-pkg' ),
+				'support_url' => '',
+			);
+		case 'long-date-presets':
+			return array(
+				'description' => __( 'See periods beyond the last 30 days in one click.', 'jetpack-premium-analytics-pkg' ),
+				'support_url' => '',
+			);
 		default:
 			return array(
 				'description' => __( 'Upgrade your plan to unlock Jetpack Stats.', 'jetpack-premium-analytics-pkg' ),

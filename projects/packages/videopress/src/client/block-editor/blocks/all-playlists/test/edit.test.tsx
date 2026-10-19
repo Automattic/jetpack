@@ -194,4 +194,17 @@ describe( 'AllPlaylistsEdit', () => {
 		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Last update and length' } ) );
 		expect( setAttributes ).toHaveBeenLastCalledWith( { showUpdated: false } );
 	} );
+
+	it( 'hides the playlist being viewed', async () => {
+		apiFetchMock.mockResolvedValue( { rendered: '' } );
+		const setAttributes = jest.fn();
+
+		renderEdit( {}, setAttributes );
+		await waitFor( () => expect( apiFetchMock ).toHaveBeenCalled() );
+
+		const toggle = screen.getByRole( 'checkbox', { name: 'Hide the playlist being viewed' } );
+		expect( toggle ).not.toBeChecked();
+		await userEvent.click( toggle );
+		expect( setAttributes ).toHaveBeenLastCalledWith( { excludeCurrent: true } );
+	} );
 } );
