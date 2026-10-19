@@ -12,7 +12,7 @@ jest.mock( 'components/search', () => ( {
 	default: () => null,
 } ) );
 
-const buildInitialState = () => ( {
+const buildInitialState = protectPage => ( {
 	jetpack: {
 		initialState: {
 			userData: {
@@ -26,6 +26,7 @@ const buildInitialState = () => ( {
 				'account-protection': { activated: true },
 				monitor: { activated: true },
 				protect: { activated: true },
+				'protect-dashboard': { activated: protectPage },
 				sso: { activated: true },
 				stats: { activated: true },
 				waf: { activated: true },
@@ -43,16 +44,16 @@ describe( 'SettingsNavTabs', () => {
 
 	// Atomic keeps the tab for the first release: the Protect page stays off there.
 	it.each( [
-		[ 'has no Security tab on a self-hosted site', undefined, false ],
-		[ 'keeps the Security tab on an Atomic site', 'woa', true ],
-	] )( '%s with every security module', ( _name, host, hasSecurityTab ) => {
+		[ 'has no Security tab on a self-hosted site', undefined, true, false ],
+		[ 'keeps the Security tab on an Atomic site', 'woa', false, true ],
+	] )( '%s with every security module', ( _name, host, protectPage, hasSecurityTab ) => {
 		window.JetpackScriptData = { site: { host } };
 
 		render(
 			<MemoryRouter initialEntries={ [ '/traffic' ] }>
 				<SettingsNavTabs />
 			</MemoryRouter>,
-			{ initialState: buildInitialState() }
+			{ initialState: buildInitialState( protectPage ) }
 		);
 
 		expect( screen.getByRole( 'tab', { name: 'Traffic' } ) ).toBeInTheDocument();
