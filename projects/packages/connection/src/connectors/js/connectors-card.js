@@ -4,8 +4,8 @@
  *
  * Built by webpack into dist/connectors/ and loaded via
  * wp_enqueue_script_module() with `@wordpress/connectors` as a static
- * dependency. Uses classic-script globals for element, i18n, and
- * components which are always loaded on admin pages.
+ * dependency. Its other imports are classic scripts, which the PHP
+ * enqueues beside it from the asset file's `dependencies`.
  *
  * Name, description, and logo are provided by the PHP registration
  * in register_connector() and merged automatically by the store.
@@ -18,21 +18,32 @@
  * @see Jetpack_Connector::enqueue_script_module()
  */
 
-import { TransferConnectionOwnership } from '@automattic/jetpack-connection';
+import {
+	ProtectedOwnerConfirmation,
+	ProtectedOwnerRelease,
+	TransferConnectionOwnership,
+} from '@automattic/jetpack-connection';
+import * as components from '@wordpress/components';
 // Namespace import: a missing named export would fail the whole module before the fallbacks run.
 // eslint-disable-next-line import/no-unresolved -- resolved via WP import map at runtime.
 import * as connectors from '@wordpress/connectors';
+import {
+	createElement,
+	createInterpolateElement,
+	useState,
+	useEffect,
+	useRef,
+} from '@wordpress/element';
+import { __, _x, sprintf } from '@wordpress/i18n';
 
 const registerConnector =
 	connectors.__experimentalRegisterConnector || connectors.registerConnector;
 const ConnectorItem = connectors.__experimentalConnectorItem || connectors.ConnectorItem;
 
-const { createElement, createInterpolateElement, useState, useEffect, useRef } = window.wp.element;
-const { __, _x, sprintf } = window.wp.i18n;
-const { Button, Modal, Notice, Tooltip } = window.wp.components;
-const HStack = window.wp.components.__experimentalHStack || window.wp.components.HStack;
-const VStack = window.wp.components.__experimentalVStack || window.wp.components.VStack;
-const Text = window.wp.components.__experimentalText || window.wp.components.Text;
+const { Button, Modal, Notice, Tooltip } = components;
+const HStack = components.__experimentalHStack || components.HStack;
+const VStack = components.__experimentalVStack || components.VStack;
+const Text = components.__experimentalText || components.Text;
 
 const MODULE_ID = '@automattic/jetpack-connection-connectors';
 const dataEl = document.getElementById( `wp-script-module-data-${ MODULE_ID }` );
@@ -612,8 +623,6 @@ function canReleaseProtectedOwner() {
  */
 function ReleaseOwnershipSection( { isBusy = false } ) {
 	const [ isReleaseOpen, setIsReleaseOpen ] = useState( false );
-	const [ releaseError, setReleaseError ] = useState( null );
-	const Release = window.JetpackConnection?.ProtectedOwnerRelease;
 
 	return createElement(
 		VStack,
@@ -624,30 +633,12 @@ function ReleaseOwnershipSection( { isBusy = false } ) {
 				variant: 'link',
 				className: 'jetpack-connector__inline-action',
 				disabled: isBusy || isOfflineMode,
-				onClick: () => {
-					if ( ! window.JetpackConnection?.ProtectedOwnerRelease ) {
-						setReleaseError(
-							__(
-								'Could not open the release dialog. Reload the page and try again.',
-								'jetpack-connection'
-							)
-						);
-						return;
-					}
-					setReleaseError( null );
-					setIsReleaseOpen( true );
-				},
+				onClick: () => setIsReleaseOpen( true ),
 			},
 			__( 'Release ownership', 'jetpack-connection' )
 		),
-		releaseError
-			? createElement( ErrorNotice, {
-					message: releaseError,
-					onDismiss: () => setReleaseError( null ),
-				} )
-			: null,
-		isReleaseOpen && Release
-			? createElement( Release, {
+		isReleaseOpen && ProtectedOwnerRelease
+			? createElement( ProtectedOwnerRelease, {
 					isOpen: true,
 					apiRoot,
 					apiNonce,
@@ -666,7 +657,6 @@ function ReleaseOwnershipSection( { isBusy = false } ) {
  */
 function ProtectedOwnerSection() {
 	const [ isConfirmOpen, setIsConfirmOpen ] = useState( false );
-	const [ confirmError, setConfirmError ] = useState( null );
 	const kind = protectedOwnerSlotKind();
 	let title;
 	let body;
@@ -739,19 +729,7 @@ function ProtectedOwnerSection() {
 				{
 					variant: 'link',
 					className: 'jetpack-connector__inline-action',
-					onClick: () => {
-						if ( ! window.JetpackConnection?.ProtectedOwnerConfirmation ) {
-							setConfirmError(
-								__(
-									'Could not open the confirmation. Reload the page and try again.',
-									'jetpack-connection'
-								)
-							);
-							return;
-						}
-						setConfirmError( null );
-						setIsConfirmOpen( true );
-					},
+					onClick: () => setIsConfirmOpen( true ),
 				},
 				sprintf(
 					// translators: %s: "site" or "store".
@@ -775,21 +753,13 @@ function ProtectedOwnerSection() {
 		);
 	}
 
-	const Confirmation = window.JetpackConnection?.ProtectedOwnerConfirmation;
-
 	return createElement(
 		VStack,
 		{ spacing: 3, className: 'jetpack-connector__section' },
 		createElement( SectionHeading, { title, showShield: true } ),
 		body,
-		confirmError
-			? createElement( ErrorNotice, {
-					message: confirmError,
-					onDismiss: () => setConfirmError( null ),
-				} )
-			: null,
-		isConfirmOpen && Confirmation
-			? createElement( Confirmation, {
+		isConfirmOpen && ProtectedOwnerConfirmation
+			? createElement( ProtectedOwnerConfirmation, {
 					isOpen: true,
 					apiRoot,
 					apiNonce,

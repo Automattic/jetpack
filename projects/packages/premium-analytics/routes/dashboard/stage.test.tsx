@@ -1169,6 +1169,7 @@ describe( 'Dashboard inserter', () => {
 					label: 'Traffic',
 					date_filter: DATE_FILTER_RANGE,
 					default_layout: [ { uuid: 'default-traffic-chart', type: 'jpa/traffic-chart' } ],
+					insertable_widget_types: [ 'jpa/devices' ],
 				},
 				{
 					slug: 'insights',
@@ -1181,11 +1182,11 @@ describe( 'Dashboard inserter', () => {
 		} as unknown as ReturnType< typeof useDashboardSections > );
 	} );
 
-	it( 'offers the widget types the active section places by default', () => {
+	it( 'offers the widget types the active section places by default or declares insertable', () => {
 		const { rerender } = render( <Dashboard /> );
 
 		expect( useDashboardPolicyMock ).toHaveBeenLastCalledWith( {
-			insertableWidgetTypes: new Set( [ 'jpa/traffic-chart' ] ),
+			insertableWidgetTypes: new Set( [ 'jpa/traffic-chart', 'jpa/devices' ] ),
 		} );
 
 		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );

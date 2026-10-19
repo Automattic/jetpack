@@ -199,6 +199,31 @@ describe( 'WidgetState', () => {
 		expect( screen.getByText( 'rows' ) ).toBeInTheDocument();
 	} );
 
+	it( 'opens an empty-state link in a new tab only when the action asks for it', () => {
+		const action = { label: 'Learn more', href: 'https://jetpack.com/social/' };
+		const { rerender } = render(
+			<WidgetState isLoading={ false } isError={ false } isEmpty empty={ { action } }>
+				{ CONTENT }
+			</WidgetState>
+		);
+		expect( screen.getByRole( 'link', { name: /Learn more/ } ) ).not.toHaveAttribute( 'target' );
+
+		rerender(
+			<WidgetState
+				isLoading={ false }
+				isError={ false }
+				isEmpty
+				empty={ { action: { ...action, openInNewTab: true } } }
+			>
+				{ CONTENT }
+			</WidgetState>
+		);
+		expect( screen.getByRole( 'link', { name: /Learn more/ } ) ).toHaveAttribute(
+			'target',
+			'_blank'
+		);
+	} );
+
 	it( 'runs an empty-state button action without navigating', async () => {
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		const onClick = jest.fn();

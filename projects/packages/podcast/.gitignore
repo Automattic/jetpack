@@ -4,6 +4,7 @@ node_modules/
 build/
 build-module/
 dist/
+build-module/
 composer.lock
 
 # wp-build generated entry files
