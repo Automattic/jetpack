@@ -50,10 +50,8 @@ declare module '@automattic/jetpack-script-data' {
 						open_widget_types: string[];
 					}
 				>;
-				// Whether a self-hosted site has any Jetpack Stats product, the free one included.
-				has_stats_product?: boolean;
-				// The paid plan offer to a site without paid Stats that first opened the dashboard over 30 days ago; the URL is empty when there is nowhere to buy it.
-				free_site_upgrade?: { upgrade_url: string } | null;
+				// The paid plan offer to a site without paid Stats that first opened the dashboard at least 30 days ago; the URL is empty when there is nowhere to buy it, and `has_stats_product` says whether the site has the free Jetpack Stats product.
+				free_site_upgrade?: { upgrade_url: string; has_stats_product: boolean } | null;
 			};
 			// The Stats purchase this page load returned from checkout with; absent on every other load.
 			purchase_success?: { type: 'paid' | 'free' };

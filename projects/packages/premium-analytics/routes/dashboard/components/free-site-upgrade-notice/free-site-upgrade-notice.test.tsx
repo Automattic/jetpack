@@ -62,8 +62,9 @@ function setSite( {
 				tier: 'jetpack-free',
 				locked_features: {},
 				locked_widget_types: {},
-				has_stats_product: hasStatsProduct,
-				free_site_upgrade: offered ? { upgrade_url: upgradeUrl } : null,
+				free_site_upgrade: offered
+					? { upgrade_url: upgradeUrl, has_stats_product: hasStatsProduct }
+					: null,
 			},
 			purchase_success: purchaseSuccess ? { type: purchaseSuccess } : undefined,
 		},
@@ -202,6 +203,18 @@ describe( 'FreeSiteUpgradeNotice', () => {
 				data: { id: 'free_site_upgrade', status: 'postponed', postponed_for: 315360000 },
 			} )
 		);
+	} );
+
+	it( 'stays in place after a failed dismissal, though the refetch fails too', async () => {
+		mockEndpoints();
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		const { container } = await renderNotices();
+		mockApiFetch.mockRejectedValue( new Error( 'offline' ) );
+
+		await user.click( screen.getByRole( 'button', { name: 'Dismiss' } ) );
+		await act( () => jest.runAllTimersAsync() );
+
+		expect( container ).toHaveTextContent( 'Unlock more Stats with a paid plan' );
 	} );
 
 	it( 'shows instead of the plan limit notice when both apply', async () => {

@@ -300,6 +300,35 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Stats counts PWYW as paid and stops its upgrade prompts, while the free Stats product still gets the offer.
+	 *
+	 * @dataProvider provide_free_site_upgrade_products
+	 *
+	 * @param string $slug     The site's Stats product.
+	 * @param bool   $expected Whether the plan is offered.
+	 */
+	#[DataProvider( 'provide_free_site_upgrade_products' )]
+	public function test_free_site_upgrade_follows_stats_product( $slug, $expected ) {
+		update_option( 'jetpack_active_plan', self::FREE_PLAN );
+		update_option( 'jetpack_site_products', array( array( 'product_slug' => $slug ) ) );
+		update_option( DASHBOARD_FIRST_VISIT_OPTION, time() - 31 * DAY_IN_SECONDS );
+
+		$this->assertSame( $expected, offers_free_site_upgrade( STATS_TIER_JETPACK_FREE ) );
+	}
+
+	/**
+	 * Stats products and whether each is offered a plan.
+	 *
+	 * @return array
+	 */
+	public static function provide_free_site_upgrade_products() {
+		return array(
+			'PWYW Stats' => array( 'jetpack_stats_pwyw_yearly', false ),
+			'free Stats' => array( 'jetpack_stats_free_yearly', true ),
+		);
+	}
+
+	/**
 	 * Simple keeps the upgrade rules of its own, so the dashboard does not offer it.
 	 */
 	public function test_free_site_upgrade_is_not_offered_on_simple() {
@@ -669,13 +698,10 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 	 */
 	public function test_script_data_carries_the_gates_without_clobbering_siblings() {
 		add_filter( STATS_PLAN_TIER_FILTER, static fn() => STATS_TIER_COMMERCIAL );
-		update_option( 'jetpack_site_products', array( array( 'product_slug' => 'jetpack_stats_free_yearly' ) ) );
 		$_GET['page'] = Analytics::MENU_PAGE_SLUG;
 		set_current_screen( 'toplevel_page_' . Analytics::MENU_PAGE_SLUG );
 
 		$data = inject_stats_plan_gates_script_data( array( 'premium_analytics' => array( 'has_videopress' => true ) ) );
-
-		$this->assertTrue( $data['premium_analytics']['plan_gates']['has_stats_product'] );
 
 		$this->assertTrue( $data['premium_analytics']['has_videopress'] );
 		$this->assertSame( STATS_TIER_COMMERCIAL, $data['premium_analytics']['plan_gates']['tier'] );
@@ -685,11 +711,12 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The offer carries the server's purchase URL, credited to the banner.
+	 * The offer carries the server's purchase URL, credited to the banner, and whether the site has a Stats product for its title.
 	 */
 	public function test_script_data_offers_the_free_site_upgrade_with_its_purchase_url() {
 		add_filter( STATS_PLAN_TIER_FILTER, static fn() => STATS_TIER_JETPACK_FREE );
 		update_option( DASHBOARD_FIRST_VISIT_OPTION, time() - 31 * DAY_IN_SECONDS );
+		update_option( 'jetpack_site_products', array( array( 'product_slug' => 'jetpack_stats_free_yearly' ) ) );
 		$GLOBALS['_parent_pages']['stats'] = false;
 		\Jetpack_Options::update_option( 'id', 1234 );
 		$_GET['page'] = Analytics::MENU_PAGE_SLUG;
@@ -700,6 +727,7 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 		$url = $data['premium_analytics']['plan_gates']['free_site_upgrade']['upgrade_url'];
 		$this->assertStringContainsString( 'page=stats#!/stats/purchase/1234?', $url );
 		$this->assertStringContainsString( 'from=jetpack-premium-analytics-free-site-upgrade-notice', $url );
+		$this->assertTrue( $data['premium_analytics']['plan_gates']['free_site_upgrade']['has_stats_product'] );
 	}
 
 	/**

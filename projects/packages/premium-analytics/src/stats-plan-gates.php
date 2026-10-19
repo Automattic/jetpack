@@ -209,7 +209,7 @@ function has_jetpack_stats_product() {
 const STATS_UPGRADE_BANNER_TIERS = array( STATS_TIER_JETPACK_FREE, STATS_TIER_LEGACY_FREE, STATS_TIER_LEGACY_BASIC );
 
 /**
- * Whether the dashboard offers a paid Stats plan: the tier gets the upgrade banner and the site first opened the dashboard over 30 days ago.
+ * Whether the dashboard offers a paid Stats plan: the tier gets the upgrade banner, the site has no Stats PWYW, and the site first opened the dashboard at least 30 days ago.
  *
  * @since $$next-version$$
  *
@@ -219,6 +219,12 @@ const STATS_UPGRADE_BANNER_TIERS = array( STATS_TIER_JETPACK_FREE, STATS_TIER_LE
 function offers_free_site_upgrade( $tier ) {
 	// Stats offers Simple sites this banner under rules of their own, which are not ported here.
 	if ( ! in_array( $tier, STATS_UPGRADE_BANNER_TIERS, true ) || ( new Host() )->is_wpcom_simple() ) {
+		return false;
+	}
+
+	// Stats treats PWYW as paid and stops its upgrade prompts.
+	$products = get_option( Current_Plan::SITE_PRODUCTS_OPTION, array() );
+	if ( is_array( $products ) && in_array( 'jetpack_stats_pwyw_yearly', array_column( $products, 'product_slug' ), true ) ) {
 		return false;
 	}
 
@@ -575,10 +581,12 @@ function inject_stats_plan_gates_script_data( array $data ): array {
 		'locked_features'     => (object) $gates['locked_features'],
 		'locked_widget_types' => (object) $gates['locked_widget_types'],
 		'locked_sections'     => (object) $gates['locked_sections'],
-		'has_stats_product'   => has_jetpack_stats_product(),
 		// The banner sells the commercial features, so `utm` picks the plan that unlocks them.
 		'free_site_upgrade'   => offers_free_site_upgrade( $gates['tier'] )
-			? array( 'upgrade_url' => get_stats_upgrade_url( 'utm', $gates['tier'], 'jetpack-premium-analytics-free-site-upgrade-notice' ) )
+			? array(
+				'upgrade_url'       => get_stats_upgrade_url( 'utm', $gates['tier'], 'jetpack-premium-analytics-free-site-upgrade-notice' ),
+				'has_stats_product' => has_jetpack_stats_product(),
+			)
 			: null,
 	);
 
