@@ -1,16 +1,7 @@
 /**
- * WordPress dependencies
- */
-import { __ } from '@wordpress/i18n';
-import type { WidgetAttributeField } from '@wordpress/widget-primitives';
-
-/**
  * Internal dependencies
  */
-import {
-	CHART_TYPE_ELEMENTS,
-	type ChartDisplayChartType,
-} from '@jetpack-premium-analytics/widgets-toolkit';
+import type { ChartDisplayChartType } from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
  * How the selected metric is drawn. The shared chart-display list keeps every
@@ -32,15 +23,6 @@ export type VideoDetailViewsPerformanceAttributes = {
  * bucketed client-side at the page's chart interval.
  */
 export default {
-	attributes: [
-		{
-			id: 'chartType',
-			label: __( 'Chart type', 'jetpack-premium-analytics-pkg' ),
-			type: 'jpa/toggle-group',
-			elements: CHART_TYPE_ELEMENTS,
-			relevance: 'high',
-		},
-	] as WidgetAttributeField< VideoDetailViewsPerformanceAttributes >[],
 	example: {
 		attributes: {
 			chartType: 'bar',

@@ -7,10 +7,6 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@automattic/jetpack-premium-analytics-sdk';
 /**
- * WordPress dependencies
- */
-import { __ } from '@wordpress/i18n';
-/**
  * Internal dependencies
  */
 import { defaultReportParams } from './default-report-params';
@@ -33,24 +29,12 @@ export type WordAdsChartTabsAttributes = Partial< ReportParamsFieldAttributes > 
  * chart above the WordAds page); the tab labels and order match it. The bucket
  * size follows the selected window, so the date field offers the window alone.
  */
-const CHART_TYPES = [
-	{ value: 'line', label: __( 'Line chart', 'jetpack-ads-pkg' ), icon: 'jpa/chart-line' },
-	{ value: 'bar', label: __( 'Bar chart', 'jetpack-ads-pkg' ), icon: 'jpa/chart-bar' },
-];
-
 export default {
 	attributes: [
 		reportParamsAttributeField< WordAdsChartTabsAttributes >( {
 			grain: WORDADS_GRAIN,
 			offersComparison: false,
 		} ),
-		{
-			id: 'chartType',
-			label: __( 'Chart type', 'jetpack-ads-pkg' ),
-			type: 'jpa/toggle-group',
-			elements: CHART_TYPES,
-			relevance: 'high',
-		},
 	] as WidgetAttributeField< WordAdsChartTabsAttributes >[],
 	example: {
 		// A getter: the host reads it on every render, and the default can change after load.
