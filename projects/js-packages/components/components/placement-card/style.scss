@@ -1,5 +1,4 @@
-// `Card.Root` draws the surface, border and radius;
-// this adds the states and the checkbox position.
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 .jp-placement-card-grid {
 	display: grid;
@@ -13,7 +12,6 @@
 }
 
 .jp-placement-card {
-	position: relative;
 
 	&[data-checked="true"] {
 		border-color: var(--wpds-color-stroke-interactive-brand-active);
@@ -23,9 +21,9 @@
 		border-color: var(--wpds-color-stroke-surface-neutral-strong);
 	}
 
-	&:has(input:focus-visible) {
-		outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
-		outline-offset: 2px;
+	&:has(:focus-visible) {
+
+		@include gb.outset-ring__focus();
 	}
 
 	@media (prefers-reduced-motion: no-preference) {
@@ -34,20 +32,16 @@
 }
 
 .jp-placement-card__surface {
-	display: block;
-	cursor: var(--wpds-cursor-control);
+	position: relative;
 }
 
 .jp-placement-card__illustration {
+	display: flex;
 	aspect-ratio: 294 / 192;
 	background: var(--wpds-color-background-surface-neutral-weak);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	overflow: hidden;
+	cursor: var(--wpds-cursor-control);
 
 	> svg {
-		display: block;
 		inline-size: 100%;
 		block-size: 100%;
 	}
@@ -57,18 +51,4 @@
 	position: absolute;
 	inset-block-start: var(--wpds-dimension-padding-md);
 	inset-inline-start: var(--wpds-dimension-padding-md);
-
-	// Zero the BaseControl chrome until `@wordpress/ui`
-	// ships a checkbox of its own.
-	.components-base-control,
-	.components-base-control__field,
-	.components-checkbox-control,
-	.components-checkbox-control__input-container {
-		margin: 0;
-		padding: 0;
-	}
-
-	.components-checkbox-control__input {
-		margin: 0;
-	}
 }

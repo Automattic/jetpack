@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 
 export type PlacementCardProps = {
 	/**
-	 * Id of the checkbox; the illustration's label points at it.
+	 * Id of the checkbox; the title's id is built from it.
 	 */
 	id: string;
 	/**

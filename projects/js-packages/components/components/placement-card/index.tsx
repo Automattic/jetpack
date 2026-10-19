@@ -1,7 +1,6 @@
-import { CheckboxControl } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Card, Link, Stack, Text } from '@wordpress/ui';
+import { Card, Checkbox, Field, Link, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import './style.scss';
 import type { PlacementCardGridProps, PlacementCardProps } from './types.ts';
@@ -46,22 +45,21 @@ export default function PlacementCard( {
 	}, [ name, onPreviewClick ] );
 
 	return (
-		<Stack gap="sm" direction="column">
+		<Field.Root disabled={ disabled }>
 			<Card.Root className="jp-placement-card" data-checked={ checked }>
-				{ /* Only the illustration toggles: the title and link sit outside the label. */ }
-				<label htmlFor={ id } className="jp-placement-card__surface">
-					<div className="jp-placement-card__illustration">{ illustration }</div>
-				</label>
-				<div className="jp-placement-card__checkbox">
-					<CheckboxControl
-						id={ id }
-						checked={ checked }
-						onChange={ handleChange }
-						disabled={ disabled }
-						aria-labelledby={ titleId }
-						label=""
-					/>
-				</div>
+				<Card.Content>
+					<Card.FullBleed className="jp-placement-card__surface">
+						{ /* Only the illustration toggles: the title and link sit outside the label. */ }
+						<Field.Label className="jp-placement-card__illustration">{ illustration }</Field.Label>
+						<Checkbox
+							id={ id }
+							className="jp-placement-card__checkbox"
+							checked={ checked }
+							onCheckedChange={ handleChange }
+							aria-labelledby={ titleId }
+						/>
+					</Card.FullBleed>
+				</Card.Content>
 			</Card.Root>
 			<Stack gap="xs" direction="column">
 				<Text id={ titleId } variant="body-sm">
@@ -73,7 +71,7 @@ export default function PlacementCard( {
 					</Link>
 				) }
 			</Stack>
-		</Stack>
+		</Field.Root>
 	);
 }
 
