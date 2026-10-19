@@ -6,19 +6,12 @@ import ScanButton, { getNextCheck, useHasPassed } from './scan-button';
 import type { ScanState } from './types';
 
 const SafeShield = () => (
-	<svg width="80" height="96" viewBox="0 0 80 96" aria-hidden="true" focusable="false">
+	<svg width="80" height="98" viewBox="0 0 123 150" aria-hidden="true" focusable="false">
 		<path
-			d="M40 0L80 17.8V44.3C80 66.9 65.2 88.3 44.2 95A13.9 13.9 0 0 1 35.8 95C14.8 88.3 0 66.9 0 44.3V17.8Z"
-			fill="#7bed5f"
+			d="M61.365 0L0 27.273v40.909C0 106.023 26.182 141.409 61.365 150c35.183-8.591 61.365-43.977 61.365-81.818v-40.91L61.365 0z"
+			fill="#069e08"
 		/>
-		<path d="M0 17.8L40 96C37.2 96 35.8 95 35.8 95C14.8 88.3 0 66.9 0 44.3Z" fill="#5fcf4c" />
-		<path
-			d="M27 49L36 59L55 33"
-			fill="none"
-			stroke="#1e1e1e"
-			strokeWidth="5"
-			strokeLinecap="square"
-		/>
+		<path d="M27.4 77.744l22.966 22.897 50.387-50.457" fill="none" stroke="#fff" strokeWidth="14" />
 	</svg>
 );
 

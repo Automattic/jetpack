@@ -37,6 +37,7 @@ function VisitorsByLocation(): JSX.Element {
 			<div className={ styles.locations }>
 				<Locations
 					valueLabel={ __( 'Store visitors', 'jetpack-woocommerce-stats-pkg' ) }
+					chartTitle={ __( 'Store visitors by location', 'jetpack-woocommerce-stats-pkg' ) }
 					rows={ rows }
 					status={ {
 						isLoading,

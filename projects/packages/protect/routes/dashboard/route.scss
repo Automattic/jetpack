@@ -25,6 +25,12 @@ body.toplevel_page_jetpack-protect {
 	display: flex;
 	flex-direction: column;
 	gap: var(--wpds-dimension-gap-lg);
+
+	// The 660px column of the other Jetpack settings screens.
+	&--settings {
+		max-inline-size: 660px;
+		margin-inline: auto;
+	}
 }
 
 .jp-protect-card {

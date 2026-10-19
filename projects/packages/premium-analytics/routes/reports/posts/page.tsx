@@ -177,6 +177,8 @@ function PostsReport(): JSX.Element {
 				initialView={ RECORDS_VIEW }
 				searchLabel={ __( 'Search archives', 'jetpack-premium-analytics-pkg' ) }
 				hideLevelMarkers
+				collapsible
+				defaultExpanded="none"
 			/>
 		);
 

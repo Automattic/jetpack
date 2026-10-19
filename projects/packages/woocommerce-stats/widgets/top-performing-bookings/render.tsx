@@ -29,6 +29,7 @@ export default function TopPerformingBookingsRender( {
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<ProductLeaderboard
+				chartTitle={ __( 'Top performing bookings', 'jetpack-woocommerce-stats-pkg' ) }
 				filter={ BOOKINGS_FILTER }
 				errorText={ __(
 					"We couldn't load bookings data. Please try again in a moment.",

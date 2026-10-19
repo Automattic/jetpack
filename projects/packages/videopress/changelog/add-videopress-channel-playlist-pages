@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Channel: Add a page per playlist. The Video Playlist block can show the playlist being viewed, its entries keep the playlist context, and All Playlists cards link to playlist pages and can hide the playlist being viewed.

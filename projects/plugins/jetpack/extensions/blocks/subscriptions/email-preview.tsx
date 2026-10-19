@@ -39,6 +39,7 @@ import {
 	styles,
 } from '@wordpress/icons';
 import { Link, VisuallyHidden } from '@wordpress/ui';
+import { addQueryArgs } from '@wordpress/url';
 import './email-preview.scss';
 import { accessOptions } from '../../shared/memberships/constants';
 import { useAccessLevel } from '../../shared/memberships/edit';
@@ -426,8 +427,11 @@ const PreviewAccessSelector = ( {
  * `post.php` in the new tab, leaving the same post open in two editors with no lock warning
  * between them -- `wp_check_post_lock()` reports nothing when both are the same user.
  *
+ * The post travels as `post_id` so the design screen's canvas previews the post the reader was
+ * just looking at rather than the sample one. The design being edited stays site-wide. NL-1051.
+ *
  * @param props        - Component props.
- * @param props.postId - The post being previewed, for the Tracks event.
+ * @param props.postId - The post being previewed, for the canvas and the Tracks event.
  * @return The link, or null on a site with no design screen.
  */
 const EmailDesignLink = ( { postId }: { postId: number } ) => {
@@ -446,13 +450,14 @@ const EmailDesignLink = ( { postId }: { postId: number } ) => {
 	}
 
 	const label = __( 'Edit email design', 'jetpack' );
+	const href = postId > 0 ? addQueryArgs( emailDesignUrl, { post_id: postId } ) : emailDesignUrl;
 
 	// The icon carries at every size so it becomes familiar; below `large` it carries alone,
 	// because a label there clips the modal title on a site that also shows the audience toggle.
 	return (
 		<Link
 			openInNewTab
-			href={ emailDesignUrl }
+			href={ href }
 			onClick={ handleClick }
 			className="jetpack-newsletter-preview-modal__design-link"
 			title={ isBelowLarge ? label : undefined }

@@ -10,6 +10,7 @@ declare( strict_types = 1 );
 namespace Automattic\Jetpack\Sharing_Likes\REST;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Sharing_Likes\Block_Names;
 use Automattic\Jetpack\Sharing_Likes\Settings\Section_Environment;
 use Automattic\Jetpack\Sharing_Likes\Settings\Section_State;
 use Jetpack_Options;
@@ -62,8 +63,8 @@ class Status_Controller_Test extends BaseTestCase {
 	 */
 	private function given_block_routes(): void {
 		$this->given_block_theme();
-		$this->given_block( 'jetpack/sharing-buttons' );
-		$this->given_block( 'jetpack/like' );
+		$this->given_block( Block_Names::SHARING_BUTTONS );
+		$this->given_block( Block_Names::LIKE );
 	}
 
 	/**
@@ -181,7 +182,7 @@ class Status_Controller_Test extends BaseTestCase {
 	public function test_the_feature_comes_from_the_url_alone(): void {
 		Constants::set_constant( 'IS_WPCOM', true );
 		$this->given_block_theme();
-		$this->given_block( 'jetpack/sharing-buttons' );
+		$this->given_block( Block_Names::SHARING_BUTTONS );
 
 		$this->assertSame( 400, $this->request( 'POST', 'SHARING/switch-to-block' )->get_status() );
 		$this->assertSame( 400, $this->request( 'POST', 'sharing/switch-to-block', array( 'feature' => 'bogus' ) )->get_status() );
