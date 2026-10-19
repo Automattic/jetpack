@@ -83,6 +83,7 @@ const buildForm = ( overrides: Partial< SettingsResponse > = {} ): SettingsForm 
 		setField: jest.fn(),
 		setSchemaSettings: jest.fn(),
 		setVerification: jest.fn(),
+		saveVerification: jest.fn(),
 		commit: jest.fn(),
 		commitFields: jest.fn(),
 		isDirty: () => false,
