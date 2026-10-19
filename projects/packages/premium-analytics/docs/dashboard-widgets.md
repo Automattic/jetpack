@@ -258,7 +258,7 @@ The major changes when a widget built against the previous contract stops workin
 | 1.11.0 | `Locations`: a ranking of places beside the map that draws them, countries or the regions of one country.                                                                    |
 | 1.12.0 | `plan_feature`, the paid Stats feature a widget shows, which the plan gates lock.                                                                                            |
 | 1.13.0 | `chartTitle` on `Columns`, `Donut`, `Funnel`, `Leaderboard`, `Locations` and `MetricTabsChart`: "Chart: <title>" for screen readers, "Map: <title>" for the `Locations` map. |
-| 1.14.0 | `attributes` on the record, which lead the module's by `id`.                                                                                                                 |
+| 1.14.0 | `attributes` on the record, which lead the module's by `id`; a `jpa/toggle-group` option names its `icon` by reference.                                                      |
 
 Inside `plugins/jetpack` the package and a consumer module ship together, so the check is a formality. With the standalone `plugins/premium-analytics` next to another plugin, each brings its own copy, and the check is what keeps a widget built against 1.x from registering on a 2.x package.
 

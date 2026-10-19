@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Chart widgets name the chart type icons by reference instead of bundling a copy of the glyph. No user-facing change.
