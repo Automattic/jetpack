@@ -13,7 +13,7 @@ import {
 import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check, globe, layout, megaphone } from '@wordpress/icons';
-import { Button, LinkButton } from '@wordpress/ui';
+import { Button, ButtonLink } from '@wordpress/ui';
 import { buildUpgradeCheckoutUrl, getUpgradePlanName } from '../upgrade';
 import type { JSX } from 'react';
 import './style.scss';
@@ -246,7 +246,7 @@ const Welcome = ( { onEnable, hasAccess }: WelcomeProps ) => {
 										</HStack>
 										<Text variant="muted">{ paidDescription }</Text>
 									</VStack>
-									<LinkButton
+									<ButtonLink
 										variant="solid"
 										href={ upgradeCheckoutUrl }
 										onClick={ onUpgradeClick }
@@ -256,7 +256,7 @@ const Welcome = ( { onEnable, hasAccess }: WelcomeProps ) => {
 											__( 'Start your %s podcast', 'jetpack-podcast' ),
 											planName
 										) }
-									</LinkButton>
+									</ButtonLink>
 									<ul className="podcast__welcome-plan-features">
 										{ paidFeatures.map( feature => (
 											<li key={ feature } className="podcast__welcome-plan-feature">

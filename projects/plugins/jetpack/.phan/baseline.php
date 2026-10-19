@@ -26,7 +26,6 @@ return [
     // PhanParamSignatureMismatch : 15+ occurrences
     // PhanSuspiciousMagicConstant : 15+ occurrences
     // PhanTypeArraySuspicious : 15+ occurrences
-    // PhanTypeExpectedObjectPropAccess : 15+ occurrences
     // PhanTypeMismatchPropertyDefault : 15+ occurrences
     // PhanTypeSuspiciousNonTraversableForeach : 15+ occurrences
     // PhanPluginMixedKeyNoKey : 10+ occurrences
@@ -36,6 +35,7 @@ return [
     // PhanTypeMismatchProperty : 10+ occurrences
     // PhanTypeMismatchReturnNullable : 10+ occurrences
     // PhanUndeclaredFunction : 10+ occurrences
+    // PhanTypeExpectedObjectPropAccess : 9 occurrences
     // PhanRedefinedClassReference : 8 occurrences
     // PhanTypeComparisonToArray : 7 occurrences
     // PhanTypeMissingReturn : 7 occurrences
@@ -47,10 +47,10 @@ return [
     // PhanTypeInvalidDimOffset : 4 occurrences
     // PhanTypeInvalidLeftOperandOfAdd : 4 occurrences
     // PhanTypeInvalidLeftOperandOfBitwiseOp : 4 occurrences
-    // PhanTypeInvalidLeftOperandOfNumericOp : 4 occurrences
     // PhanTypeInvalidRightOperandOfBitwiseOp : 4 occurrences
     // PhanDeprecatedTrait : 3 occurrences
     // PhanStaticPropIsStaticType : 3 occurrences
+    // PhanTypeInvalidLeftOperandOfNumericOp : 3 occurrences
     // PhanTypeMismatchArgumentReal : 3 occurrences
     // PhanTypeObjectUnsetDeclaredProperty : 3 occurrences
     // PhanUndeclaredMethodInCallable : 3 occurrences
@@ -149,7 +149,7 @@ return [
         'extensions/blocks/opentable/render.php' => ['PhanTypeMismatchArgumentNullableInternal'],
         'extensions/blocks/pinterest/pinterest.php' => ['PhanTypeArraySuspiciousNullable'],
         'extensions/blocks/premium-content/_inc/access-check.php' => ['PhanUndeclaredMethod'],
-        'extensions/blocks/premium-content/_inc/subscription-service/class-abstract-token-subscription-service.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchArgument', 'PhanTypeSuspiciousNonTraversableForeach'],
+        'extensions/blocks/premium-content/_inc/subscription-service/class-abstract-token-subscription-service.php' => ['PhanTypeSuspiciousNonTraversableForeach'],
         'extensions/blocks/premium-content/_inc/subscription-service/class-jetpack-token-subscription-service.php' => ['PhanTypeMismatchReturn'],
         'extensions/blocks/premium-content/_inc/subscription-service/class-jwt.php' => ['PhanTypeMismatchReturnNullable'],
         'extensions/blocks/premium-content/_inc/subscription-service/class-wpcom-online-subscription-service.php' => ['PhanParamSignatureMismatch'],
@@ -249,23 +249,22 @@ return [
         'modules/carousel/jetpack-carousel.php' => ['PhanDeprecatedProperty', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn'],
         'modules/comments/admin.php' => ['PhanTypeMismatchReturn'],
         'modules/comments/base.php' => ['PhanTypeMismatchReturnProbablyReal'],
-        'modules/comments/comments.php' => ['PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchArgument', 'PhanUndeclaredFunction'],
+        'modules/comments/comments.php' => ['PhanTypeMismatchArgument', 'PhanUndeclaredFunction'],
         'modules/comments/subscription-modal-on-comment/class-jetpack-subscription-modal-on-comment.php' => ['PhanTypeMismatchReturnNullable'],
         'modules/custom-content-types.php' => ['PhanRedefineFunction'],
         'modules/gravatar-hovercards.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'modules/infinite-scroll.php' => ['PhanUndeclaredClassMethod'],
         'modules/infinite-scroll/infinity.php' => ['PhanTypeComparisonToArray', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeMissingReturn'],
-        'modules/likes.php' => ['PhanUndeclaredFunction'],
         'modules/markdown/easy-markdown.php' => ['PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument'],
         'modules/memberships/class-jetpack-memberships.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredMethod'],
         'modules/monitor.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'modules/plugin-search.php' => ['PhanTypePossiblyInvalidDimOffset'],
         'modules/post-by-email/class-jetpack-post-by-email.php' => ['PhanUndeclaredMethodInCallable'],
         'modules/publicize.php' => ['PhanRedefineFunction'],
-        'modules/related-posts/jetpack-related-posts.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredFunction'],
+        'modules/related-posts/jetpack-related-posts.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchReturnProbablyReal'],
         'modules/scan/class-admin-bar-notice.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'modules/search.php' => ['PhanTypeMismatchArgument'],
-        'modules/sharedaddy/sharing-service.php' => ['PhanTypeArraySuspicious', 'PhanTypeMismatchArgument', 'PhanTypeMismatchProperty', 'PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchPropertyProbablyReal', 'PhanTypePossiblyInvalidDimOffset', 'PhanUndeclaredFunction'],
+        'modules/sharedaddy/sharing-service.php' => ['PhanTypeArraySuspicious', 'PhanTypeMismatchArgument', 'PhanTypeMismatchProperty', 'PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchPropertyProbablyReal', 'PhanTypePossiblyInvalidDimOffset'],
         'modules/sharedaddy/sharing-sources.php' => ['PhanTypeMismatchProperty', 'PhanTypeSuspiciousNonTraversableForeach'],
         'modules/sharedaddy/sharing.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
         'modules/shortcodes/archiveorg-book.php' => ['PhanTypeMismatchArgument'],
@@ -335,7 +334,7 @@ return [
         'modules/videopress/class.jetpack-videopress.php' => ['PhanTypeMismatchDefault'],
         'modules/videopress/class.videopress-edit-attachment.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
         'modules/videopress/class.videopress-gutenberg.php' => ['PhanDeprecatedFunction', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturnProbablyReal'],
-        'modules/videopress/class.videopress-player.php' => ['PhanPluginMixedKeyNoKey', 'PhanTypeExpectedObjectPropAccess', 'PhanTypeInvalidLeftOperandOfNumericOp', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanUndeclaredMethod'],
+        'modules/videopress/class.videopress-player.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable'],
         'modules/videopress/class.videopress-video.php' => ['PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'modules/videopress/editor-media-view.php' => ['PhanSuspiciousMagicConstant'],
         'modules/widget-visibility/widget-conditions.php' => ['PhanTypeComparisonToArray', 'PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypePossiblyInvalidDimOffset', 'PhanTypeSuspiciousNonTraversableForeach'],

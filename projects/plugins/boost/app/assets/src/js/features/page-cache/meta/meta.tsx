@@ -171,7 +171,8 @@ const Meta = () => {
 					exceptions={ bypassPatterns }
 					countExceptions
 					toggleText=""
-					tracksEvent="page_cache_except_panel_toggle"
+					tracksEvent="page_cache_exceptions_panel_toggle"
+					tracksEventProps={ { panel_scope: 'exceptions' } }
 				>
 					<div className={ styles.body }>{ exceptions }</div>
 				</CollapsibleMeta>
@@ -210,6 +211,7 @@ const Meta = () => {
 				extraButtons={ extraButtons }
 				toggleText={ __( 'Show Options', 'jetpack-boost' ) }
 				tracksEvent={ 'page_cache_exceptions_panel_toggle' }
+				tracksEventProps={ { panel_scope: 'all_options' } }
 			>
 				{ content }
 			</CollapsibleMeta>
@@ -309,7 +311,7 @@ const BypassPatterns = ( {
 					<Notice.Description>
 						{ __( 'An error occurred while saving changes. Please, try again.', 'jetpack-boost' ) }
 					</Notice.Description>
-					<Notice.CloseIcon
+					<Notice.CloseIconButton
 						onClick={ () => setShowNotice( false ) }
 						label={ __( 'Dismiss', 'jetpack-boost' ) }
 					/>

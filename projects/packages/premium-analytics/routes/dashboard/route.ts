@@ -5,13 +5,13 @@ import {
 	ensureCoreSettingsReady,
 	hasComparisonEnabled,
 	needsReportDateParamsSeed,
-	normalizeReportParams,
 	withoutComparison,
 } from '@jetpack-premium-analytics/data';
 import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
+import { seedSiteDateParams } from '../site-date-seed';
 import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
 
 type DashboardSearch = Record< string, string | undefined >;
@@ -39,15 +39,13 @@ export const route = {
 				// Proceed with the default seed below.
 			}
 
-			const normalized = normalizeReportParams(
-				params as Parameters< typeof normalizeReportParams >[ 0 ]
-			);
+			const normalized = seedSiteDateParams( params );
 
 			/*
-			 * Overlay `normalizeReportParams` onto `params`, not replace it, so
+			 * Overlay the seeded params onto `params`, not replace them, so
 			 * passthrough params like `section` survive the seed. Comparison keys
-			 * only survive when normalize returned a complete comparison: a
-			 * hand-edited bare `comp=1` must not outlive the seed.
+			 * only survive when the seed returned a complete comparison: a
+			 * hand-edited bare `comp=1` must not outlive it.
 			 */
 			const merged = { ...params, ...normalized };
 			const seeded: Record< string, unknown > = hasComparisonEnabled( normalized )

@@ -187,7 +187,7 @@ function FeatureRow( {
 				help={ feature.description }
 				onChange={ handleChange }
 			/>
-			{ action && masterEnabled && isConnected && isUserConnected && (
+			{ action && masterEnabled && ! masterForcedOff && isConnected && isUserConnected && (
 				<Link
 					className="jetpack-ai-features__action"
 					href={ action.href }

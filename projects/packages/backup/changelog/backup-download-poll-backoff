@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Back off download status polling on long waits in the modernized dashboard, which is behind a feature flag.
+

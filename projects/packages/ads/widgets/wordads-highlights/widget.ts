@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { payment } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
@@ -26,7 +25,6 @@ export type WordAdsHighlightsAttributes = Record< never, never >;
  * `help` in widget.json mirrors the Calypso WordAds payout notice (threshold and timing).
  */
 export default {
-	icon: payment,
 	attributes: [] as WidgetAttributeField< WordAdsHighlightsAttributes >[],
 	example: {
 		attributes: {},

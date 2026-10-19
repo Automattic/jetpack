@@ -9,6 +9,7 @@ import {
 } from '@jetpack-premium-analytics/data';
 import { resolveBucketStamp } from '@jetpack-premium-analytics/datetime';
 import {
+	HOURS_DATA_FORMAT,
 	toDay,
 	type CountLabel,
 	type DataFormat,
@@ -58,11 +59,6 @@ export interface VideoMetricsState {
 export const COUNT_FORMAT: DataFormat = {
 	type: 'number',
 	options: { useMultipliers: true, decimals: 0 },
-};
-
-const HOURS_FORMAT: DataFormat = {
-	type: 'number',
-	options: { decimals: 1 },
 };
 
 const RATE_FORMAT: DataFormat = {
@@ -210,7 +206,7 @@ function playWeightedRetention(
 /**
  * Fetches metric tabs via one `stats/video/{id}` `statType=all` report,
  * headlined by the response's canonical totals (falling back to bucketed
- * sums). Comparison params are ignored but left in the URL for round-trip state.
+ * sums). Comparison params are ignored: the video page has no period-over-period view.
  */
 export default function useVideoMetrics(
 	videoId: number,
@@ -289,7 +285,7 @@ export default function useVideoMetrics(
 					__( 'Hours watched', 'jetpack-premium-analytics-pkg' ),
 					data.series.watch_time,
 					total?.watch_time,
-					HOURS_FORMAT
+					HOURS_DATA_FORMAT
 				)
 			);
 		}

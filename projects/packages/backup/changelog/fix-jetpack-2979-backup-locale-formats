@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+Comment: Follow the site's date and time settings, and the locale for file sizes, in the modernized dashboard, which is behind a feature flag.
+

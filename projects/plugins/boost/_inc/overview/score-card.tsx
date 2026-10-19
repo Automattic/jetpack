@@ -6,6 +6,7 @@ import { useId, useState } from 'react';
 import {
 	formatScoreDelta,
 	getScoreDelta,
+	getScoreGain,
 	getScoreTier,
 	getScoreTierLabel,
 } from './lib/score-utils';
@@ -20,6 +21,8 @@ type Props = {
 	score?: number;
 	tier?: ScoreTier;
 	noBoost?: number | null;
+	isStale?: boolean;
+	closePopover?: boolean;
 };
 
 /**
@@ -50,12 +53,13 @@ export default function ScoreCard( {
 	score,
 	tier = score === undefined ? undefined : getScoreTier( score ),
 	noBoost,
+	isStale = false,
+	closePopover = false,
 }: Props ) {
 	const headingId = useId();
 	const [ infoTrigger, setInfoTrigger ] = useState< HTMLButtonElement | null >( null );
-	const delta = score === undefined ? null : getScoreDelta( score, noBoost );
-	// The badge states what Boost improved, so a worse-than-baseline comparison reads as zero.
-	const gain = delta === null ? null : Math.max( 0, delta );
+	const delta = getScoreDelta( score, noBoost, isStale );
+	const gain = getScoreGain( score, noBoost, isStale );
 	return (
 		<section className="jetpack-boost-overview__score-section" aria-labelledby={ headingId }>
 			<Stack direction="row" align="center" gap="sm">
@@ -89,7 +93,7 @@ export default function ScoreCard( {
 							gap="sm"
 							className="jetpack-boost-overview__delta"
 						>
-							<Popover.Root>
+							<Popover.Root key={ closePopover ? 'running' : 'loaded' }>
 								<Popover.Trigger
 									openOnHover
 									delay={ 200 }

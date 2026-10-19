@@ -49,6 +49,13 @@ class Backup extends Hybrid_Product {
 	public static $plugin_slug = 'jetpack-backup';
 
 	/**
+	 * The Jetpack module name
+	 *
+	 * @var string
+	 */
+	public static $module_name = 'backup';
+
+	/**
 	 * The category of the product
 	 *
 	 * @var string
@@ -421,6 +428,17 @@ class Backup extends Hybrid_Product {
 	 */
 	public static function get_post_activation_url() {
 		return ''; // stay in My Jetpack page or continue the purchase flow if needed.
+	}
+
+	/**
+	 * Checks whether the backup module is active.
+	 *
+	 * The standalone plugin draws its dashboard whatever the module says, so it counts as on.
+	 *
+	 * @return bool
+	 */
+	public static function is_module_active() {
+		return static::is_standalone_plugin_active() || parent::is_module_active();
 	}
 
 	/**

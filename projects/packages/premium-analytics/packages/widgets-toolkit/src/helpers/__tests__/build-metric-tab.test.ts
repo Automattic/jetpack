@@ -56,6 +56,22 @@ describe( 'buildMetricTab', () => {
 		expect( tab.countLabel ).toBe( views );
 	} );
 
+	it( "carries a row's date_end as the point's endDate", () => {
+		const tab = buildMetricTab( {
+			primary: {
+				summary: { views: 10 },
+				data: [ { date_start: '2026-09-21T00:00:00', date_end: '2026-09-27T23:59:59', views: 10 } ],
+			},
+			comparison: undefined,
+			hasComparison: false,
+			field: 'views',
+			label: 'Views',
+			zone: 'UTC',
+		} );
+
+		expect( tab.current[ 0 ].endDate?.toISOString() ).toBe( '2026-09-27T23:59:59.000Z' );
+	} );
+
 	it( 'maps one point per row, oldest first, with a real Date', () => {
 		const tab = buildMetricTab( {
 			primary: {
@@ -99,6 +115,29 @@ describe( 'buildMetricTab', () => {
 		expect( tab.current.map( point => point.value ) ).toEqual( [ null, 0, 0 ] );
 	} );
 
+	it( 'carries the pending label as the note of a row the report flags pending', () => {
+		const tab = buildMetricTab( {
+			primary: {
+				summary: { revenue: 3 },
+				data: [
+					{ date_start: '2026-06-01', revenue: 3 },
+					{ date_start: '2026-06-02', revenue: null, pending: true },
+				],
+			},
+			comparison: undefined,
+			hasComparison: false,
+			field: 'revenue',
+			label: 'Revenue',
+			zone: 'UTC',
+			pendingLabel: 'Not counted yet.',
+		} );
+
+		expect( tab.current.map( point => [ point.value, point.note ] ) ).toEqual( [
+			[ 3, undefined ],
+			[ null, 'Not counted yet.' ],
+		] );
+	} );
+
 	it( 'includes real previous-period values when comparison is on and has rows', () => {
 		const tab = buildMetricTab( {
 			primary: { summary: { views: 30 }, data: [ { date_start: '2026-05-01', views: 30 } ] },
@@ -112,6 +151,60 @@ describe( 'buildMetricTab', () => {
 		expect( tab.previousValue ).toBe( 12 );
 		expect( tab.previous ).toHaveLength( 1 );
 		expect( tab.previous?.[ 0 ].value ).toBe( 12 );
+	} );
+
+	it.each( [
+		[ 'has no reading either', null, null, 'No orders in this period.' ],
+		[ 'reads a real zero', 0, 0, 'No orders in this period.' ],
+		[ 'has orders', 210, 270.5, undefined ],
+	] )(
+		'reads a null headline as no value, with the reason only when the comparison %s',
+		( _, previousTotal, previousPoint, unavailable ) => {
+			const tab = buildMetricTab( {
+				primary: { summary: { aov: null }, data: [ { date_start: '2026-05-01', aov: null } ] },
+				comparison: {
+					summary: { aov: previousTotal },
+					data: [ { date_start: '2026-04-01', aov: previousPoint } ],
+				},
+				hasComparison: true,
+				field: 'aov',
+				label: 'Average order value',
+				zone: 'UTC',
+				noDataLabel: 'No orders in this period.',
+			} );
+
+			expect( [ tab.value, tab.previousValue, tab.unavailable ] ).toEqual( [
+				null,
+				previousTotal,
+				unavailable,
+			] );
+		}
+	);
+
+	it( 'draws a null bucket at 0, flagged missing, when the metric has a no-data label', () => {
+		const tab = buildMetricTab( {
+			primary: {
+				summary: { aov: 270.5 },
+				data: [
+					{ date_start: '2026-05-01', aov: null },
+					{ date_start: '2026-05-02', aov: 270.5 },
+				],
+			},
+			comparison: { summary: { aov: null }, data: [ { date_start: '2026-04-01', aov: null } ] },
+			hasComparison: true,
+			field: 'aov',
+			label: 'Average order value',
+			zone: 'UTC',
+			noDataLabel: 'No orders in this period.',
+		} );
+
+		expect(
+			[ ...tab.current, ...( tab.previous ?? [] ) ].map( point => [ point.value, point.missing ] )
+		).toEqual( [
+			[ 0, true ],
+			[ 270.5, undefined ],
+			[ 0, true ],
+		] );
 	} );
 
 	it( 'omits previous when comparison is off', () => {
@@ -146,23 +239,6 @@ describe( 'buildMetricTab', () => {
 	// Bucket stamps carry a nominal offset that must be dropped; these cases are
 	// the only guard against reading a bucket in the wrong zone.
 	describe( 'bucket stamps are anchored in the site zone', () => {
-		// Pinned west of UTC — under a UTC runner the correct and buggy readings
-		// coincide and this would pass either way. `TZ` isn't on the typed env shape, hence the cast.
-		const env = process.env as Record< string, string | undefined >;
-		const runnerTimeZone = env.TZ;
-		beforeAll( () => {
-			env.TZ = 'America/Los_Angeles';
-		} );
-		afterAll( () => {
-			// Assigning `undefined` to an env var sets the literal string "undefined";
-			// an unset variable has to be deleted back off.
-			if ( runnerTimeZone === undefined ) {
-				delete env.TZ;
-			} else {
-				env.TZ = runnerTimeZone;
-			}
-		} );
-
 		const dateOf = ( dateStart: string ) =>
 			buildMetricTab( {
 				primary: { summary: { views: 1 }, data: [ { date_start: dateStart, views: 1 } ] },

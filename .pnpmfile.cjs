@@ -25,6 +25,11 @@ async function fixDeps( pkg ) {
 		}
 	}
 
+	// Let's try just using the monorepo version.
+	if ( pkg.name === '@automattic/launchpad' && pkg.dependencies?.[ 'social-logos' ] ) {
+		pkg.dependencies[ 'social-logos' ] = 'workspace:*';
+	}
+
 	// lock()/unlock() pair through a module-scoped registry, so a prerelease
 	// private-apis range would resolve a second copy beside the stable one the
 	// repo pins and throw. Collapse it onto the version premium-analytics
@@ -66,10 +71,6 @@ async function fixDeps( pkg ) {
 				pkg.peerDependencies[ dep ] = ver.replace( /^\^?/, '>=' );
 			}
 		}
-		// Broaden this one further, because they're linked upstream but we update them in different Renovate PRs.
-		if ( pkg.peerDependencies[ '@wordpress/theme' ] ) {
-			pkg.peerDependencies[ '@wordpress/theme' ] = '*';
-		}
 	}
 
 	// Turn `@wordpress/stylelint-config` deps into peer deps too.
@@ -82,10 +83,6 @@ async function fixDeps( pkg ) {
 		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
 			delete pkg.dependencies[ dep ];
 			pkg.peerDependencies[ dep ] = ver.startsWith( '>' ) ? ver : ver.replace( /^\^?/, '>=' );
-		}
-		// Broaden this one further, because they're linked upstream but we update them in different Renovate PRs.
-		if ( pkg.peerDependencies[ '@wordpress/theme' ] ) {
-			pkg.peerDependencies[ '@wordpress/theme' ] = '*';
 		}
 	}
 
@@ -115,10 +112,14 @@ async function fixDeps( pkg ) {
 		}
 	}
 
-	// Outdated dependency.
-	// https://github.com/egoist/rollup-plugin-postcss/issues/469
-	if ( pkg.name === 'rollup-plugin-postcss' && pkg.dependencies.cssnano === '^5.0.1' ) {
-		pkg.dependencies.cssnano = '^5.0.1 || ^6 || ^7';
+	// Update to avoid periodic CVEs. Upstream pins deps for "security" but doesn't respond all that quickly to new issues.
+	// https://github.com/open-cli-tools/concurrently/issues/598#issuecomment-4842564626
+	if ( pkg.name === 'concurrently' ) {
+		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
+			if ( ver.match( /^\d+(\.\d+)+$/ ) ) {
+				pkg.dependencies[ dep ] = '^' + ver;
+			}
+		}
 	}
 
 	// Apparently this package tried to switch from a dep to a peer dep, but screwed it up.
@@ -149,13 +150,16 @@ async function fixDeps( pkg ) {
 		pkg.dependencies[ 'js-yaml' ] = '^4.2.0';
 	}
 
-	// Glob decided to deprecate everything <12, even though tons of stuff still depends on older versions.
-	// On the plus side, the net change from v10 to v13 is deleting the CLI from the package.
-	if ( pkg.dependencies?.glob?.match( /^\^1[0-2](?:\.\d+)*$/ ) ) {
-		pkg.dependencies.glob = '^13';
+	// A one-off script (`projects/packages/jetpack-mu-wpcom/bin/sync-newspack-blocks.sh`) runs `jscodeshift`, which relies on
+	// outdated dependencies that fails our trust policy. Specifically, `jscodeshift` → `@babel/register` → really old `make-dir` v2 (to still support node <10.12) → `semver` v5.
+	if ( pkg.name === 'make-dir' && pkg.dependencies?.semver === '^5.6.0' ) {
+		pkg.dependencies.semver = '^7.7.3';
 	}
-	if ( pkg.peerDependencies?.glob?.match( /^\^1[0-2](?:\.\d+)*$/ ) ) {
-		pkg.dependencies.glob = '^13';
+
+	// Outdated dep with a deprecated sub-dep.
+	// https://github.com/istanbuljs/babel-plugin-istanbul/issues/337
+	if ( pkg.name === 'babel-plugin-istanbul' && pkg.dependencies[ 'test-exclude' ] === '^7.0.1' ) {
+		pkg.dependencies[ 'test-exclude' ] = '^8.0.0';
 	}
 
 	// We don't use this in our E2E runs, and it brings in a lot of extraneous deps (and CVE-2026-54285).
@@ -176,38 +180,11 @@ async function fixDeps( pkg ) {
  * @return {object} Modified pkg.
  */
 function fixPeerDeps( pkg ) {
-	// Indirect deps that still depend on React <18.
-	const reactOldPkgs = new Set( [
-		// Still on 16.
-		'react-autosize-textarea', // @wordpress/block-editor <https://github.com/WordPress/gutenberg/issues/39619>
-	] );
-	if ( reactOldPkgs.has( pkg.name ) ) {
-		for ( const p of [ 'react', 'react-dom' ] ) {
-			if ( ! pkg.peerDependencies?.[ p ] ) {
-				continue;
-			}
-
-			if (
-				pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^16|16\.x)/ ) &&
-				! pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^17|17\.x)/ )
-			) {
-				pkg.peerDependencies[ p ] += ' || ^17';
-			}
-			if (
-				pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^17|17\.x)/ ) &&
-				! pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^18|18\.x)/ )
-			) {
-				pkg.peerDependencies[ p ] += ' || ^18';
-			}
-		}
-	}
-
 	// Outdated eslint deps.
 	const eslintOldPkgs = new Set( [
 		'eslint-plugin-import', // https://github.com/import-js/eslint-plugin-import/issues/3227
 		'eslint-plugin-jsx-a11y', // https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/issues/1075
 		'eslint-plugin-react', // https://github.com/jsx-eslint/eslint-plugin-react/issues/3977
-		'@babel/eslint-parser', // https://github.com/babel/babel/issues/17951
 	] );
 	if ( eslintOldPkgs.has( pkg.name ) ) {
 		for ( const p of [ 'eslint' ] ) {
@@ -234,16 +211,6 @@ function fixPeerDeps( pkg ) {
 		}
 	}
 
-	// @wordpress/build's optional peer on @wordpress/theme stops below 2.0.0, blocking the theme 2.x
-	// that @wordpress/ui and @wordpress/boot require. Widened upstream, drop once a release carries it.
-	// @see https://github.com/WordPress/gutenberg/pull/82139
-	if (
-		pkg.name === '@wordpress/build' &&
-		pkg.peerDependencies?.[ '@wordpress/theme' ] === '>=0.8.0 <2.0.0'
-	) {
-		pkg.peerDependencies[ '@wordpress/theme' ] = '>=0.8.0 <3.0.0';
-	}
-
 	// We use this under tsdown (Rolldown), not Rollup. The `rollup` peer is only used for one TypeScript type, and it being missing apparently makes no difference in our usage.
 	// @see https://github.com/mjeanroy/rollup-plugin-license/issues/2110
 	if ( pkg.name === 'rollup-plugin-license' ) {
@@ -258,14 +225,6 @@ function fixPeerDeps( pkg ) {
 		pkg.peerDependencies[ '@size-limit/file' ] = '*';
 		pkg.peerDependenciesMeta ??= {};
 		pkg.peerDependenciesMeta[ '@size-limit/file' ] = { optional: true };
-	}
-
-	// Outdated peer dependency because Gutenberg is still on node 20.
-	if (
-		pkg.name === '@wordpress/e2e-test-utils-playwright' &&
-		! pkg.peerDependencies?.[ '@types/node' ]?.includes( '^24.' )
-	) {
-		pkg.peerDependencies[ '@types/node' ] += ' || ^24.0.0';
 	}
 
 	// Outdated dependency because Calypso is still on node 22.

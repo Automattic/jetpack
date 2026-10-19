@@ -1,7 +1,8 @@
 import { signal, computed } from '@preact/signals';
 import { createContext } from 'preact';
-import { readDraft } from '../form/draft';
-import { readPassport } from '../identity/checkpoint/passport';
+import { readPassport } from './checkpoint';
+import { readDraft } from './draft';
+import { saveGuest } from './guest';
 import type { Details, FormSettings, Commenter } from './types';
 
 /**
@@ -35,14 +36,16 @@ export function createSignals( formSettings: FormSettings ) {
 	// Whether core keeps a guest's details; saved ones were saved with consent.
 	const rememberDetails = signal( initial.kind === 'guest' );
 
-	// The bar under the text box with the commenter and the submit, the row the
-	// chevron drops below it, and the dialog that asks who they are.
-	const isFooterOpen = signal( false );
-	const isOptionsOpen = signal( false );
+	// The box with its block toolbar, and the dialog that asks who they are.
+	const isBoxOpen = signal( false );
 	const isDialogOpen = signal( false );
-	const isEditingDetails = signal( false );
-	// The dialog's WordPress.com log-in, for a link outside it to start inside a click, where a popup is allowed.
-	const logIn: { current: ( ( fromDialog?: boolean ) => void ) | null } = { current: null };
+
+	const forget = () => {
+		saveGuest( null );
+		details.value = { author: '', email: '', url: '' };
+		rememberDetails.value = false;
+		commenter.value = { kind: 'unknown' };
+	};
 
 	return {
 		formSettings,
@@ -53,11 +56,9 @@ export function createSignals( formSettings: FormSettings ) {
 		details,
 		commenter,
 		rememberDetails,
-		isFooterOpen,
-		isOptionsOpen,
+		isBoxOpen,
 		isDialogOpen,
-		isEditingDetails,
-		logIn,
+		forget,
 	} as const;
 }
 

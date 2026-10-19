@@ -2,6 +2,30 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [4.0.4] - 2026-10-15
+### Changed
+- Update package dependencies. [#53004]
+
+## [4.0.3] - 2026-10-14
+### Changed
+- Update dependencies.
+
+## [4.0.2] - 2026-10-12
+### Changed
+- Internal updates.
+
+## [4.0.1] - 2026-10-06
+### Changed
+- Jetpack Footer: Link to the My Jetpack Features tab instead of the retired Products tab. [#52778]
+
+## [4.0.0] - 2026-10-05
+### Changed
+- Update package dependencies. [#52999]
+
+### Removed
+- Remove the Notice component; use Notice from @wordpress/ui instead. [#52932]
+- Remove the unused ZendeskChat component. [#52074]
+
 ## [3.3.0] - 2026-09-28
 ### Added
 - Add a `JitmSlot` component that renders the Jetpack in-dashboard message slot and keeps the message across route changes. [#52641]
@@ -1979,6 +2003,11 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[4.0.4]: https://github.com/Automattic/jetpack-components/compare/4.0.3...4.0.4
+[4.0.3]: https://github.com/Automattic/jetpack-components/compare/4.0.2...4.0.3
+[4.0.2]: https://github.com/Automattic/jetpack-components/compare/4.0.1...4.0.2
+[4.0.1]: https://github.com/Automattic/jetpack-components/compare/4.0.0...4.0.1
+[4.0.0]: https://github.com/Automattic/jetpack-components/compare/3.3.0...4.0.0
 [3.3.0]: https://github.com/Automattic/jetpack-components/compare/3.2.0...3.3.0
 [3.2.0]: https://github.com/Automattic/jetpack-components/compare/3.1.2...3.2.0
 [3.1.2]: https://github.com/Automattic/jetpack-components/compare/3.1.1...3.1.2

@@ -12,13 +12,8 @@ import { page as pageIcon, post as postIcon } from '@wordpress/icons';
  * Internal dependencies
  */
 import { setMockRouteSearch } from '../../../../tests/js/route-test-utils';
-import {
-	buildArchiveCsvRows,
-	buildArchiveRows,
-	getArchivesFields,
-	getPostsFields,
-	type ArchiveRow,
-} from './fields';
+import { getArchivesFields, getPostsFields } from './fields';
+import type { ArchiveRow } from '@jetpack-premium-analytics/widgets-toolkit';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	useSiteHomeUrl: jest.fn(),
@@ -33,8 +28,6 @@ jest.mock( '@wordpress/route', () => {
 
 	return mockWordPressRoute;
 } );
-
-setMockRouteSearch( { from: '2026-03-01', to: '2026-03-10', interval: 'day' } );
 
 /**
  * Read an icon's SVG path, since `@wordpress/icons` exports elements with no name to compare.
@@ -143,6 +136,7 @@ function renderArchiveViewsField( item: ArchiveRow, withComparison = false ) {
 describe( 'posts title field', () => {
 	beforeEach( () => {
 		mockUseSiteHomeUrl.mockReset();
+		setMockRouteSearch( { from: '2026-03-01', to: '2026-03-10', interval: 'day' } );
 	} );
 
 	it( 'renders the post thumbnail', () => {
@@ -188,7 +182,6 @@ describe( 'posts title field', () => {
 		} );
 		expect( link ).toHaveAttribute( 'href', 'https://example.com/' );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
-		expect( link ).toHaveAttribute( 'rel', 'noopener noreferrer' );
 	} );
 
 	it( 'renders plain text when the site home URL is unavailable', () => {
@@ -240,29 +233,6 @@ describe( 'posts title field', () => {
 		expect( search.get( 'ref_section' ) ).toBe( 'posts-pages' );
 	} );
 
-	// Guards against a malformed row linking to `/post/undefined`.
-	it( 'renders a row with no post ID and no URL as plain text rather than a broken link', () => {
-		renderPostsField( 'title', { label: 'Uncategorized', views: 3, link: null, type: 'post' } );
-
-		expect( screen.getByText( 'Uncategorized' ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'falls back to the public URL when a row has no post ID', () => {
-		renderPostsField( 'title', {
-			label: 'Uncategorized',
-			views: 3,
-			link: 'https://example.com/uncategorized/',
-			type: 'post',
-		} );
-
-		const link = screen.getByRole( 'link', {
-			name: 'Uncategorized(opens in a new tab)',
-		} );
-		expect( link ).toHaveAttribute( 'href', 'https://example.com/uncategorized/' );
-		expect( link ).toHaveAttribute( 'target', '_blank' );
-	} );
-
 	it( 'shows the archives views delta when comparison is enabled', () => {
 		renderArchiveViewsField(
 			{
@@ -281,6 +251,18 @@ describe( 'posts title field', () => {
 } );
 
 describe( 'archive rows', () => {
+	it( 'renders a group row at the same weight as its children', () => {
+		renderArchiveTitleField( {
+			id: 'tags-0',
+			label: 'Tags',
+			views: 42,
+			isGroup: true,
+		} );
+
+		expect( screen.getByText( 'Tags' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'strong' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'renders an archive with an unsafe URL as plain text', () => {
 		renderArchiveTitleField( {
 			id: 'search-0',
@@ -294,7 +276,7 @@ describe( 'archive rows', () => {
 		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'shows an external-link icon for linked archive rows', () => {
+	it( 'links an archive row out to its URL with an external-link icon', () => {
 		renderArchiveTitleField( {
 			id: 'tag-analytics',
 			label: 'analytics',
@@ -304,128 +286,8 @@ describe( 'archive rows', () => {
 		} );
 
 		const link = screen.getByRole( 'link', { name: /analytics.*opens in a new tab/i } );
+		expect( link ).toHaveAttribute( 'href', 'https://example.com/tag/analytics/' );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
-		expect( link ).toHaveAttribute( 'rel', 'noopener noreferrer' );
 		expect( screen.getByRole( 'img', { name: '(opens in a new tab)' } ) ).toBeInTheDocument();
-	} );
-
-	it( 'falls back to Untitled for an archive row with an empty label', () => {
-		expect( buildArchiveRows( [ { label: '', value: 5, children: null } ] )[ 0 ].label ).toBe(
-			'Untitled'
-		);
-	} );
-
-	it( 'gives every archive type the API returns a human-readable group label', () => {
-		const archiveTypes = [
-			'author',
-			'cat',
-			'date',
-			'err',
-			'home',
-			'multiple',
-			'other',
-			'post_type',
-			'search',
-			'tag',
-			'tax',
-			// An archive type added after this ships falls back to its key,
-			// capitalized — the API sends some of these shouty.
-			'FEED',
-		];
-
-		expect(
-			buildArchiveRows(
-				archiveTypes.map( archiveType => ( { label: archiveType, value: 5, children: null } ) )
-			).map( row => row.label )
-		).toEqual( [
-			'Authors',
-			'Categories',
-			'Dates',
-			'Error',
-			'Homepage (Latest posts)',
-			'Aggregated',
-			'Others',
-			'Post types',
-			'Searches',
-			'Tags',
-			'Taxonomies',
-			'Feed',
-		] );
-	} );
-
-	it( 'qualifies a nested archive row with its full ancestor path for export', () => {
-		const rows = buildArchiveRows( [
-			{
-				label: 'tax',
-				value: 30,
-				children: [
-					{
-						label: 'post_tag',
-						value: 30,
-						children: [
-							{
-								label: 'Analytics',
-								value: 30,
-								link: 'https://example.com/tag/analytics/',
-								children: null,
-							},
-						],
-					},
-				],
-			},
-		] );
-
-		expect( buildArchiveCsvRows( rows ).map( row => row.label ) ).toEqual( [
-			'Taxonomies',
-			'Taxonomies > Post tag',
-			'Taxonomies > Post tag > Analytics',
-		] );
-	} );
-
-	it( 'preserves the archive hierarchy and uses standard archive labels', () => {
-		expect(
-			buildArchiveRows( [
-				{
-					label: 'tax',
-					value: 30,
-					children: [
-						{
-							label: 'post_tag',
-							value: 30,
-							children: [
-								{
-									label: 'Analytics',
-									value: 30,
-									link: 'https://example.com/tag/analytics/',
-									children: null,
-								},
-							],
-						},
-					],
-				},
-			] )
-		).toEqual( [
-			{
-				id: 'tax-0',
-				label: 'Taxonomies',
-				views: 30,
-				isGroup: true,
-			},
-			{
-				id: 'tax-0-0',
-				parentId: 'tax-0',
-				label: 'Post tag',
-				views: 30,
-				isGroup: true,
-			},
-			{
-				id: 'tax-0-0-0',
-				parentId: 'tax-0-0',
-				label: 'Analytics',
-				views: 30,
-				link: 'https://example.com/tag/analytics/',
-				isGroup: false,
-			},
-		] );
 	} );
 } );

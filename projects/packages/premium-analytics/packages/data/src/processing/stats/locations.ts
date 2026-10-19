@@ -26,6 +26,7 @@ export type StatsLocationsItem = StatsNormalizedItemBase & {
 	views: number;
 	countryCode?: string;
 	countryFull?: string;
+	/** The country's UN M49 map region, such as `021`; never a state or province. */
 	region?: string;
 	/** Only city rows carry coordinates. */
 	coordinates?: StatsLocationCoordinates;

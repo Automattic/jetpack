@@ -2,7 +2,10 @@
  * External dependencies
  */
 import { createDetailLinkSearch } from '@jetpack-premium-analytics/routing';
-import { Link } from '@wordpress/route';
+/**
+ * Internal dependencies
+ */
+import { InternalLink } from '../internal-link';
 import type { JSX, ReactNode } from 'react';
 
 export type PostDetailLinkProps = {
@@ -41,10 +44,8 @@ export type PostDetailLinkProps = {
  * Link a report row to the post detail page, carrying the report window and the
  * origin the detail breadcrumb links back to.
  *
- * Every report table builds this link the same way, and the router types both
- * `params` and `search` against a route tree it cannot resolve here, so each
- * prop needs a cast. This component holds the shape and both casts once, so a
- * report's field config stays free of them.
+ * Every report table builds this link the same way; this component holds the
+ * shape once, so a report's field config stays free of it.
  *
  * @return The detail page link.
  */
@@ -58,16 +59,14 @@ export function PostDetailLink( {
 	children,
 }: PostDetailLinkProps ): JSX.Element {
 	return (
-		<Link
+		<InternalLink
 			to="/post/$postId"
-			params={ { postId: String( postId ) } as unknown as never }
-			search={
-				createDetailLinkSearch( { report, originSection, extraParams } ) as unknown as never
-			}
+			params={ { postId: String( postId ) } }
+			search={ createDetailLinkSearch( { report, originSection, extraParams } ) }
 			className={ className }
 			title={ title }
 		>
 			{ children }
-		</Link>
+		</InternalLink>
 	);
 }

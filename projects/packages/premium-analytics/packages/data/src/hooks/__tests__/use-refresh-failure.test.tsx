@@ -49,6 +49,14 @@ function renderProbe( queryFn: () => Promise< unknown > ) {
 }
 
 describe( 'useRefreshFailure', () => {
+	beforeEach( () => {
+		jest.useFakeTimers();
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
 	it( 'reports no failure while queries succeed', async () => {
 		const { result } = renderProbe( () => Promise.resolve( { views: 1 } ) );
 

@@ -85,7 +85,7 @@ export function Reconnect( { connection, service }: ReconnectProps ) {
 			const handled = await completeReconnect( result );
 
 			if ( ! handled ) {
-				// Different account — surface the result so the modal shows the confirmation view.
+				// Different account, or one missing its Page: the confirmation view handles both.
 				setKeyringResult( result );
 				openConnectionsModal();
 			}

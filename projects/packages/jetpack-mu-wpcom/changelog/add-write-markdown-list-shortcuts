@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Write: convert lines beginning with `-`, `*`, `+`, or `1.` followed by space into list items.

@@ -4,103 +4,18 @@
 	visibility: hidden;
 }
 
-// The theme's textarea inset, but never a cramped one.
 .jetpack-comments.is-mounted {
-	--jetpack-comments-pad: max(var(--jetpack-comments-inset, 1em), 1em);
+	--jetpack-comments-pad: 1em;
+	// The avatar's, which the submit's height matches.
+	--jetpack-comments-avatar-size: 40px;
 }
 
-// One box around the textarea and the footer, in the post's own colours
-// and the theme's textarea radius. Nested to outrank a block theme's rules.
+// One box around the textarea and the submit row, in the post's own colours.
+// Nested to outrank a block theme's rules.
 .jetpack-comments .jetpack-comments__box {
+	position: relative;
 	border: 2px solid currentColor;
-	border-radius: var(--jetpack-comments-radius, 0);
-}
-
-// Three classes: block themes reach it with two classes and a tag.
-.jetpack-comments .jetpack-comments__box .jetpack-comments__textarea {
-	display: block;
-	box-sizing: border-box;
-	inline-size: 100%;
-	// Two lines plus the padding; field-sizing ignores rows.
-	min-block-size: 3lh;
-	field-sizing: content;
-	padding: var(--jetpack-comments-pad);
-	resize: none;
-
-	// Pinned: themes reach for a textarea's border with every kind of selector.
-	&,
-	&:focus {
-		border: 0 !important;
-		background: transparent !important;
-		box-shadow: none !important;
-		color: inherit;
-		outline: none !important;
-	}
-}
-
-// The footer inside the box and the options below it open and close the same
-// way. Hidden, not just collapsed, so nothing inside a closed one takes focus.
-.jetpack-comments__footer,
-.jetpack-comments__options {
-	display: grid;
-	grid-template-rows: 0fr;
-	visibility: hidden;
-	transition:
-		grid-template-rows 0.25s ease-in-out,
-		visibility 0s linear 0.25s;
-
-	&.is-open {
-		grid-template-rows: 1fr;
-		visibility: visible;
-		transition:
-			grid-template-rows 0.25s ease-in-out,
-			visibility 0s;
-	}
-}
-
-.jetpack-comments__footer > div {
-	overflow: hidden;
-}
-
-// Reversed so the submit precedes the identity line in the DOM, and Tab
-// reaches it straight from the textarea; wrapped in reverse too, so the
-// identity line stacks above the submit. The negative margins give focus
-// rings room inside the footer's clipped box.
-.jetpack-comments__actions {
-	display: flex;
-	flex-flow: row-reverse wrap-reverse;
-	align-items: center;
-	gap: 12px;
-	margin: 0 -4px -4px;
-	padding: 0 calc(var(--jetpack-comments-pad) + 4px) calc(var(--jetpack-comments-pad) + 4px);
-}
-
-// Shares the row with the submit down to 10em; below that it wraps above it.
-.jetpack-comments__identity {
-	display: flex;
-	align-items: center;
-	gap: 0.75em;
-	flex: 1 1 10em;
-}
-
-.jetpack-comments__avatar {
-	border-radius: var(--jetpack-comments-radius, 0);
-}
-
-// A flex item, so the button sits on no text baseline and centres with
-// the avatar. Pinned against a theme's spacing around its own submit.
-.jetpack-comments .jetpack-comments__submit {
-	display: flex;
-	margin: 0 !important;
-	padding: 0 !important;
-
-	input {
-		margin: 0 !important;
-
-		&:disabled {
-			cursor: not-allowed;
-		}
-	}
+	overflow-anchor: none;
 }
 
 .jetpack-comments__visually-hidden {

@@ -14,14 +14,6 @@ const label = __( 'All pages' );
 	actions={ downloadButton }
 >
 	<ReportPageLayout title={ getTabLabel( activeTab ) } dateFilters={ dateFilters }>
-		<ReportPerformanceChart
-			primary={ visits.primary.data }
-			comparison={ visits.hasComparison ? visits.comparison.data : undefined }
-			isLoading={ visits.isLoading }
-			timezone={ visits.timezone }
-			interval={ interval }
-			onIntervalChange={ setInterval }
-		/>
 		<ReportRecordsTable
 			data={ rows }
 			fields={ fields }
@@ -46,11 +38,6 @@ const label = __( 'All pages' );
   state lasts as long as the section stays mounted: hiding a chart is a per-visit
   preference, not a stored one. The chart stays mounted while collapsed so the
   card animates shut, and the stylesheet takes it out of the tab order.
-- **`ReportPerformanceChart`** — the multi-metric visits chart
-  (Views/Visitors/Comments/Likes via `useStatsVisits` `stat_fields`), with a
-  metric show/hide menu and the time-bucket selector (owned by the page — it
-  changes the query). With exactly one visible metric and comparison data, the
-  previous period draws as a dashed overlay.
 - **`ReportLocationsMap`** — the Locations report's map of views by location,
   over the rows the records table already fetched. It renders the shared
   `LocationsGeoChart`, which the Locations dashboard widget also uses.
@@ -63,11 +50,12 @@ const label = __( 'All pages' );
 - **`REPORT_TITLE_LINK_CLASS_NAMES`** — the `classNames` to pass a
   `PostTitleLink` or `VideoTitleLink` rendered in a records table's
   `titleField`, so a long title ellipsizes and keeps its outbound marker.
-- **`ReportEmptyState`** — replaces the records table (and, on Locations, the
-  map) when the selected period returned no rows. Pages render it only when the
-  rows they pass to the table are empty and the table is not loading, so a
-  search that matches nothing keeps the table's own "No results" and its search
-  box.
+- **`ReportEmptyState`** — replaces the records table when the report returned
+  no rows. `ReportRecordsTable` and `ReportDrilldownTable` render it
+  themselves, from the `data` they get before their own search, so a search
+  that matches nothing keeps the table's "No results", and so does a filter
+  that scoped the rows to none. The copy mentions "this
+  time period" only inside a `ReportPageLayout` that has date filters.
 - **`ReportPageTabs`** — the presentational tab bar for report pages with
   multiple views (the `tabs` slot above). It renders `{ id, label }` triggers
   and reports selection upward; panel children render inside the same `Tabs.Root`
@@ -117,7 +105,7 @@ These components do not fetch: the page owns the data hooks and the
 results in as props.
 
 They also mount no providers. The `/reports/$report` stage provides the
-surface's context once — React Query, global errors, and the chart theme
+surface's context once — React Query and the chart theme
 (`GlobalChartsProvider`). That is why a page can compose a chart the same way a
 widget does: `useSeriesStyles` plus `ComparativeLineChart`, nothing else.
 Outside the stage (Storybook), mount `GlobalChartsProvider` with

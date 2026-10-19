@@ -1,9 +1,9 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { reloadPage } from '../../products/reload-page';
+import { reloadPage } from '../../../../utils/reload-page';
 import { FeaturesEmptyState } from '../empty-state';
 
-jest.mock( '../../products/reload-page', () => ( { reloadPage: jest.fn() } ) );
+jest.mock( '../../../../utils/reload-page', () => ( { reloadPage: jest.fn() } ) );
 
 const props = {
 	search: '',
@@ -53,6 +53,18 @@ describe( 'FeaturesEmptyState', () => {
 		render( <FeaturesEmptyState { ...props } filter="inactive" /> );
 
 		expect( screen.getByRole( 'heading' ) ).toHaveTextContent( 'Everything is turned on.' );
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Explore all' } ) );
+
+		expect( props.onFilterChange ).toHaveBeenCalledWith( 'all' );
+	} );
+
+	it( 'says a plan covers nothing yet, rather than blaming the list', async () => {
+		render( <FeaturesEmptyState { ...props } filter="included" /> );
+
+		expect( screen.getByRole( 'heading' ) ).toHaveTextContent(
+			'Your plan doesn’t include any of these yet.'
+		);
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Explore all' } ) );
 

@@ -12,12 +12,24 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-backup/wpcom-backup.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-admin-menu/wpcom-admin-menu.php';
 
 /**
  * Class WPCOM_Admin_Menu_Test
  */
 class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
+
+	public function test_module_management_availability_follows_the_host_route() {
+		foreach ( array(
+			'personal-bundle' => false,
+			'value_bundle'    => false,
+			'business-bundle' => true,
+		) as $slug => $available ) {
+			\Automattic\Jetpack\Current_Plan::update_from_site_record( array( 'plan' => array( 'product_slug' => $slug ) ) );
+			$this->assertSame( $available, apply_filters( 'jetpack_my_jetpack_modules_management_available', true ), $slug );
+		}
+	}
 
 	/**
 	 * Admin user ID.
@@ -67,7 +79,7 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Tear down each test.
 	 *
-	 * Undo the platform constants, Host cache and modernization filter the rollout
+	 * Undo the platform constants, Host cache and modernization filters the rollout
 	 * tests set, so they don't leak into the next case. (`jetpack_options['id']` is
 	 * stored in the WorDBless DB, which is reset between tests.)
 	 */
@@ -75,9 +87,123 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 		Constants::clear_single_constant( 'IS_WPCOM' );
 		Status_Cache::clear();
 		remove_all_filters( 'rsm_jetpack_ui_modernization_newsletter' );
+		remove_all_filters( 'rsm_jetpack_ui_modernization_backup' );
 		delete_option( 'wpcom_admin_interface' );
+		delete_option( 'wpcom_ai_launchpad_no_guidance' );
+		delete_option( 'wpcom_ai_launchpad_enabled' );
+		delete_option( 'wpcom_ai_launchpad_dismissed' );
 
 		parent::tear_down();
+	}
+
+	/**
+	 * The My Home menu URL, or null when the item isn't registered.
+	 *
+	 * @return string|null
+	 */
+	private function get_my_home_menu_slug() {
+		global $menu;
+
+		foreach ( $menu as $item ) {
+			if ( isset( $item[2] ) && str_starts_with( $item[2], 'https://wordpress.com/home/' ) ) {
+				return $item[2];
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * My Home is registered by default.
+	 *
+	 * Runs in a separate process: elsewhere in the suite, Brain Monkey mocks
+	 * `wpcom_ai_launchpad_is_eligible()`, which `wpcom_add_my_home_menu()` also calls for real.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_my_home_menu_is_added_by_default() {
+		wpcom_add_my_home_menu();
+		$this->assertSame( 'https://wordpress.com/home/' . self::$domain, $this->get_my_home_menu_slug() );
+	}
+
+	/**
+	 * No-guidance sites get no My Home menu at all.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_my_home_menu_is_hidden_for_no_guidance_sites() {
+		update_option( 'wpcom_ai_launchpad_no_guidance', 1 );
+		wpcom_add_my_home_menu();
+		$this->assertNull( $this->get_my_home_menu_slug() );
+	}
+
+	/**
+	 * Skipping the AI Launchpad wizard also counts as no-guidance: no My Home menu.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_my_home_menu_is_hidden_after_skipping_the_ai_launchpad() {
+		update_option( 'wpcom_ai_launchpad_enabled', 1 );
+		update_option( 'wpcom_ai_launchpad_dismissed', 1 );
+		wpcom_add_my_home_menu();
+		$this->assertNull( $this->get_my_home_menu_slug() );
+	}
+
+	/**
+	 * AI Launchpad sites get no My Home menu, including for users who can't open Site Setup.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_my_home_menu_is_hidden_on_ai_launchpad_sites_for_every_user() {
+		update_option( 'wpcom_ai_launchpad_enabled', 1 );
+		wpcom_add_my_home_menu();
+		$this->assertNull( $this->get_my_home_menu_slug() );
+
+		wp_set_current_user( $this->create_editor() );
+		wpcom_add_my_home_menu();
+		$this->assertNull( $this->get_my_home_menu_slug() );
+	}
+
+	/**
+	 * Legacy launchpad sites keep My Home for non-administrators too.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_my_home_menu_is_added_for_editors_on_legacy_sites() {
+		wp_set_current_user( $this->create_editor() );
+		wpcom_add_my_home_menu();
+		$this->assertSame( 'https://wordpress.com/home/' . self::$domain, $this->get_my_home_menu_slug() );
+	}
+
+	/**
+	 * Creates an editor, who can't open Site Setup.
+	 *
+	 * @return int The user ID.
+	 */
+	private function create_editor() {
+		return wp_insert_user(
+			array(
+				'user_login' => 'editor_user',
+				'user_pass'  => 'pass',
+				'user_email' => 'editor@example.com',
+				'role'       => 'editor',
+			)
+		);
 	}
 
 	/**
@@ -280,34 +406,53 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The Jetpack plugin's `jetpack-backup` page is hidden from the sidebar but stays registered.
+	 * Exactly one Backup entry shows: wp-admin's once the flag is on and the page exists, else Calypso's.
+	 *
+	 * @dataProvider provide_backup_entry_cases
+	 *
+	 * @param bool   $flag_on         Whether the filter turns the flag on, rather than leaving the default.
+	 * @param bool   $page_registered Whether something registered the `jetpack-backup` page.
+	 * @param string $expected        The visible entry: 'calypso' or 'wp-admin'.
 	 */
-	public function test_jetpack_submenu_hides_the_wp_admin_backup_page() {
+	#[DataProvider( 'provide_backup_entry_cases' )]
+	public function test_jetpack_submenu_shows_one_backup_entry( $flag_on, $page_registered, $expected ) {
 		global $submenu;
 
 		\Jetpack_Options::update_option( 'id', 200 );
-		$submenu['jetpack'][] = array( 'VaultPress Backup', 'manage_options', 'jetpack-backup', 'Jetpack VaultPress Backup' );
+		if ( $flag_on ) {
+			add_filter( 'rsm_jetpack_ui_modernization_backup', '__return_true' );
+		}
+		if ( $page_registered ) {
+			$submenu['jetpack'][] = array( 'Backup', 'manage_options', 'jetpack-backup', 'Jetpack VaultPress Backup' );
+		}
 
 		wpcom_add_jetpack_submenu();
 
-		$item = $this->get_jetpack_submenu_item( 'jetpack-backup' );
+		$entries = array(
+			'calypso'  => 'https://wordpress.com/backup/' . self::$domain,
+			'wp-admin' => 'jetpack-backup',
+		);
+		$visible = array();
+		foreach ( $submenu['jetpack'] as $item ) {
+			if ( in_array( $item[2], $entries, true ) && ! str_contains( $item[4] ?? '', 'hide-if-js' ) ) {
+				$visible[] = $item[2];
+			}
+		}
 
-		$this->assertNotNull( $item );
-		$this->assertStringContainsString( 'hide-if-js', $item[4] ?? '' );
+		$this->assertSame( array( $entries[ $expected ] ), $visible );
 	}
 
 	/**
-	 * The Calypso Backup link stays visible.
+	 * Flag value, page registration and the entry that should show.
+	 *
+	 * @return array[]
 	 */
-	public function test_jetpack_submenu_keeps_the_calypso_backup_link_visible() {
-		\Jetpack_Options::update_option( 'id', 200 );
-
-		wpcom_add_jetpack_submenu();
-
-		$item = $this->get_jetpack_submenu_item( 'https://wordpress.com/backup/' . self::$domain );
-
-		$this->assertNotNull( $item );
-		$this->assertStringNotContainsString( 'hide-if-js', $item[4] ?? '' );
+	public static function provide_backup_entry_cases() {
+		return array(
+			'default, page registered'    => array( false, true, 'calypso' ),
+			'on, page registered'         => array( true, true, 'wp-admin' ),
+			'on, nothing serves the slug' => array( true, false, 'calypso' ),
+		);
 	}
 
 	/**

@@ -24,6 +24,7 @@ export const CATALOG_POINTERS = {
 	annotation: 'var(--a8c-charts-color-annotation, #1e1e1e)',
 	surface: 'var(--a8c-charts-color-surface, #fff)',
 	surfaceSecondary: 'var(--a8c-charts-color-surface-secondary, #f4f4f4)',
+	track: 'var(--a8c-charts-color-track, #f0f0f0)',
 	// Only for `renderMainMetric`, which hands a consumer's own markup something to paint with.
 	trendUp: 'var(--a8c-charts-color-trend-up, #008030)',
 	trendDown: 'var(--a8c-charts-color-trend-down, #cc1818)',

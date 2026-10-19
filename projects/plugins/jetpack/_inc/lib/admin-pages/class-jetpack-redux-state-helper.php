@@ -7,6 +7,7 @@
  */
 
 use Automattic\Jetpack\Blaze;
+use Automattic\Jetpack\Comments\Comments;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Connection\REST_Connector;
@@ -208,6 +209,7 @@ class Jetpack_Redux_State_Helper {
 					&& $block_availability['sharing-buttons']['available'],
 				'isLikeBlockAvailable'       => isset( $block_availability['like'] )
 					&& $block_availability['like']['available'],
+				'isCommentBlocksAvailable'   => Comments::is_enabled(),
 			),
 			'themeData'                            => array(
 				'name'         => $current_theme->get( 'Name' ),

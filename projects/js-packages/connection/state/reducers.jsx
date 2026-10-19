@@ -10,8 +10,8 @@ import {
 	SET_AUTHORIZATION_URL,
 	SET_CONNECTED_PLUGINS,
 	SET_CONNECTION_ERRORS,
-	SET_CONNECTION_HEALTH_ERRORS,
 	SET_IS_OFFLINE_MODE,
+	SET_CONNECTION_OWNER,
 } from './actions';
 
 const connectionStatus = ( state = {}, action ) => {
@@ -83,6 +83,13 @@ const authorizationUrl = ( state, action ) => {
 
 const userConnectionData = ( state, action ) => {
 	switch ( action.type ) {
+		case SET_CONNECTION_OWNER:
+			// Whoever transferred is no longer the owner: handing it to yourself is refused.
+			return {
+				...state,
+				currentUser: { ...state?.currentUser, isMaster: false },
+				connectionOwner: action.owner.displayName,
+			};
 		default:
 			return state;
 	}
@@ -90,6 +97,8 @@ const userConnectionData = ( state, action ) => {
 
 const connectionOwner = ( state = null, action ) => {
 	switch ( action.type ) {
+		case SET_CONNECTION_OWNER:
+			return { id: action.owner.id, displayName: action.owner.displayName };
 		default:
 			return state;
 	}
@@ -103,7 +112,14 @@ const connectionOwner = ( state = null, action ) => {
  * `null` is the initial value on purpose. The server withholds all three from a viewer who
  * cannot manage the connection, and "cannot say" must not read as "no".
  */
-const hasProtectedOwner = ( state = null ) => state;
+const hasProtectedOwner = ( state = null, action ) => {
+	switch ( action.type ) {
+		case SET_CONNECTION_OWNER:
+			return null;
+		default:
+			return state;
+	}
+};
 
 const requiresProtectedOwner = ( state = null ) => state;
 
@@ -113,15 +129,6 @@ const connectionErrors = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case SET_CONNECTION_ERRORS:
 			return action.connectionErrors;
-	}
-
-	return state;
-};
-
-const connectionHealthErrors = ( state = {}, action ) => {
-	switch ( action.type ) {
-		case SET_CONNECTION_HEALTH_ERRORS:
-			return action.connectionHealthErrors;
 	}
 
 	return state;
@@ -150,7 +157,6 @@ const reducers = combineReducers( {
 	requiresProtectedOwner,
 	useDefaultProtectedOwnerUi,
 	connectionErrors,
-	connectionHealthErrors,
 	isOfflineMode,
 } );
 

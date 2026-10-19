@@ -1,5 +1,6 @@
 import { useModuleSurface } from '$features/module/surface';
 import TimeAgo from '$features/critical-css/time-ago/time-ago';
+import { ProgressBar } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useLcpState } from '../lib/stores/lcp-state';
 import styles from './status.module.scss';
@@ -42,9 +43,19 @@ const Status: FC = () => {
 	}
 
 	if ( lcpState?.status === 'pending' ) {
-		return (
-			<div className={ styles?.generating }>{ isModern ? modernProgress : legacyProgress }</div>
-		);
+		if ( isModern ) {
+			return (
+				<div className={ styles.pending }>
+					<span>{ modernProgress }</span>
+					<ProgressBar
+						className={ styles.progress }
+						aria-label={ __( 'Optimizing LCP images', 'jetpack-boost' ) }
+					/>
+				</div>
+			);
+		}
+
+		return <div className={ styles?.generating }>{ legacyProgress }</div>;
 	}
 
 	if ( lcpState?.status !== 'analyzed' || ! lcpState?.updated ) {

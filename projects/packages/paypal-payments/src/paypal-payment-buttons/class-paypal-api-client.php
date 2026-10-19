@@ -631,17 +631,28 @@ class PayPal_API_Client {
 		$error_name    = isset( $data['name'] ) ? sanitize_text_field( $data['name'] ) : 'UNKNOWN_ERROR';
 		$error_message = isset( $data['message'] ) ? sanitize_text_field( $data['message'] ) : '';
 		$error_details = isset( $data['details'] ) && is_array( $data['details'] ) ? $data['details'] : array();
+		$debug_id      = isset( $data['debug_id'] ) ? sanitize_text_field( $data['debug_id'] ) : '';
 
 		// Build a human-readable message (never raw API text).
 		$message = self::get_user_friendly_message( $status_code, $error_name, $error_message, $error_details );
+
+		// The debug ID is what PayPal support resolves, so the merchant must be able to quote it.
+		if ( '' !== $debug_id ) {
+			$message .= ' ' . sprintf(
+				/* translators: %s: PayPal's debug ID for the failed request. */
+				__( 'PayPal debug ID: %s.', 'jetpack-paypal-payments' ),
+				$debug_id
+			);
+		}
 
 		return new \WP_Error(
 			'paypal_api_' . strtolower( $error_name ),
 			$message,
 			array(
-				'status'      => $status_code,
-				'paypal_name' => $error_name,
-				'details'     => $error_details,
+				'status'          => $status_code,
+				'paypal_name'     => $error_name,
+				'paypal_debug_id' => $debug_id,
+				'details'         => $error_details,
 			)
 		);
 	}

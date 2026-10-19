@@ -1,3 +1,5 @@
+import type { LocaleData } from '@wordpress/i18n';
+
 export type Details = {
 	author: string;
 	email: string;
@@ -14,6 +16,9 @@ export type Passport = {
 	name: string;
 	avatar: string;
 };
+
+export type CheckpointResult =
+	( Passport & { code: string } ) | { error: string } | { cancelled: true };
 
 /**
  * Who is commenting. A popup sign-in's `code` is set until the comment posts and
@@ -41,6 +46,15 @@ export type IdentitySettings = {
 	defaultAvatar: string;
 	logoutUrl: string;
 	logoutAction: string;
+};
+
+/** The editor's accessible names, translated in PHP, and the embed preview route: empty where embeds are off. */
+export type EditorLabels = {
+	blockTools: string;
+	addBlock: string;
+	embedUrl: string;
+	images: boolean;
+	imageError: string;
 };
 
 /** A subscribe checkbox the host draws itself, posted under the host's own field name. */
@@ -75,46 +89,67 @@ export type Strings = {
 	emailHint: string;
 	emailHasAccount: string;
 	website: string;
-	createProfile: string;
 	intro: string;
 	continueAsGuest: string;
 	postWithoutSaving: string;
 	save: string;
 	saveDetails: string;
 	close: string;
-	options: string;
-	changeDetails: string;
 	manageSubscriptions: string;
 	mustLogIn: string;
 	logIn: string;
 	logInWithWordPress: string;
 	logOut: string;
+	change: string;
+	editProfile: string;
 	addYourName: string;
 	cancel: string;
 	signInFailed: string;
+	tooLong: string;
 	signInRateLimited: string;
 };
 
 export type Settings = {
 	/** The package version that rendered the page, checked against the bundle's before it takes over. */
 	version: string;
+	/** The build directory, which webpack loads the lazy chunks from. */
+	assetsUrl: string;
 	styleUrl: string;
 	isLoggedIn: boolean;
 	requireNameEmail: boolean;
 	mustLogIn: boolean;
 	maxLength: number;
+	/** Whether the block editor replaces the textarea. */
+	blocks: boolean;
+	/** Core's translations of the editor strings a commenter meets; empty in English. */
+	editorLocale: LocaleData;
+	editor: EditorLabels;
 	/** Empty when the site shows no avatars. */
 	avatarUrl: string;
 	site: { name: string; iconUrl: string };
-	/** URLs are empty where the host offers no subscriptions. */
-	manageSubscriptions: { url: string; byEmail: boolean; signedInUrl: string };
+	/** Empty where the host offers no subscriptions. */
+	manageSubscriptionsUrl: string;
+	/** Null where usage events are off. */
+	tracks: { platform: string } | null;
 	strings: Strings;
 	commenter: Details;
-	user: { name: string } | null;
+	/** Empty `editProfileUrl` for a user who may not edit their own profile. */
+	user: { name: string; editProfileUrl: string } | null;
 	identity: IdentitySettings;
 };
 
 declare global {
 	const JetpackComments: Settings;
 	const JETPACK_COMMENTS_VERSION: string;
+
+	interface Window {
+		/** Core's translations for the editor, handed over before the chunk loads. */
+		jetpackCommentsEditorLocale?: LocaleData;
+		/** The editor's strings on the edit-comment screen, translated in PHP. */
+		jetpackCommentsEditorLabels?: EditorLabels;
+		/** The comment on the edit-comment screen, as the editor writes it. */
+		jetpackCommentsEditorContent?: string;
+		/** The Tracks queue, which w.js drains. */
+		_tkq?: unknown[];
+	}
 }

@@ -1,26 +1,29 @@
 /**
  * External dependencies
  */
+import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
-	ReportErrorState,
+	ExporterCsvAction,
 	ReportPageLayout,
+	ReportErrorState,
 	ReportPageShell,
 	ReportRecordsTable,
-	ReportCsvAction,
-	useReportCsvExport,
-	useReportRetry,
-	type CsvColumn,
+	tagsCsvExporter,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { route } from '../package.json';
 import { REPORTS } from '../registry';
+import { useReportParams } from '../use-report-params';
 import { getTagRowId, getTagsFields, useTagsReportRecords } from './config';
 import type { StatsTagsItem } from '@jetpack-premium-analytics/data';
 import type { JSX } from 'react';
+
+const ROUTE_FROM = route.path;
 
 /**
  * Initial records-table view: views sort descending, the label column absorbs
@@ -36,42 +39,20 @@ const RECORDS_VIEW = {
 	},
 };
 
-const sortTagCsvRows = ( a: StatsTagsItem, b: StatsTagsItem ) => b.value - a.value;
-
 /**
  * Premium Analytics Tags & categories report page component.
  *
- * `stats/tags` returns one flat list over the seven days ending yesterday and ignores
- * date-window params, so this page has no date filters, tabs, or performance chart —
- * just the header and records table.
+ * `stats/tags` returns one flat list ranked over the report window and reports no
+ * comparison, so this page has date filters and the records table, with no tabs or
+ * performance chart.
  *
  * @return The Tags & categories report page.
  */
 function TagsReport(): JSX.Element {
-	const records = useTagsReportRecords();
+	const reportParams = useReportParams();
+	const records = useTagsReportRecords( reportParams );
 	const fields = useMemo( () => getTagsFields(), [] );
-	const csvColumns = useMemo< CsvColumn< StatsTagsItem >[] >(
-		() => [
-			{
-				label: __( 'Tag or category', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => row.labelText,
-			},
-			{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.value },
-			{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: row => row.link ?? '' },
-		],
-		[]
-	);
-	const {
-		canExport,
-		rows: csvRows,
-		filename: csvFilename,
-	} = useReportCsvExport( {
-		rows: records.rows,
-		filenamePrefix: 'tags-and-categories',
-		status: records,
-		sort: sortTagCsvRows,
-	} );
-	const retry = useReportRetry( records.refetch );
+	const dateFilters = useReportDateFilters( ROUTE_FROM );
 
 	const { getLabel } = REPORTS.tags;
 
@@ -80,32 +61,32 @@ function TagsReport(): JSX.Element {
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				canExport ? (
-					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
-				) : undefined
+				<ExporterCsvAction
+					exporter={ tagsCsvExporter }
+					items={ records.rows }
+					status={ records }
+					reportParams={ reportParams }
+				/>
 			}
 		>
-			<ReportPageLayout title={ getLabel() }>
-				{ /*
-				 * The error state replaces the table: `ReportRecordsTable`'s `empty` renders on
-				 * row count, not fetch status, so a failed refetch over cached rows would
-				 * otherwise leave stale data on screen with no notice or retry.
-				 */ }
-				{ records.isError ? (
-					<ReportErrorState
-						title={ __( 'Unable to load tags and categories', 'jetpack-premium-analytics-pkg' ) }
-						onRetry={ retry }
-					/>
-				) : (
+			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters }>
+				<ReportErrorState
+					status={ records }
+					retryDescription={ __(
+						"We couldn't load tags and categories. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					) }
+				>
 					<ReportRecordsTable< StatsTagsItem >
 						data={ records.rows }
 						fields={ fields }
 						getItemId={ getTagRowId }
 						isLoading={ records.isLoading }
+						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search tags and categories', 'jetpack-premium-analytics-pkg' ) }
 					/>
-				) }
+				</ReportErrorState>
 			</ReportPageLayout>
 		</ReportPageShell>
 	);

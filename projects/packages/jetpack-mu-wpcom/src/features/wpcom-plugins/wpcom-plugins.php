@@ -32,6 +32,11 @@ add_filter( 'agents_manager_should_load', 'wpcom_plugins_should_load_agents_mana
  * Displays a banner before the plugin browser that links to the WP.com Plugins Marketplace.
  */
 function wpcom_plugins_show_banner() {
+	// The banner sends people to Calypso's marketplace, which the Marketplace tab replaces.
+	if ( function_exists( 'wpcom_marketplace_tab_enabled' ) && wpcom_marketplace_tab_enabled() ) {
+		return;
+	}
+
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	if ( isset( $_GET['tab'] ) && 'favorites' === $_GET['tab'] ) {
 		// no banner on the favorites tab, it's a bit overbearing given they presumably want

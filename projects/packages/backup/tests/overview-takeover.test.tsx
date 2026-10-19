@@ -131,9 +131,7 @@ describe( 'Overview takeover', () => {
 
 		render( <OverviewStage /> );
 
-		await expect(
-			screen.findByText( 'Your first cloud backup will be ready soon' )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'Generating backup…' ) ).resolves.toBeInTheDocument();
 	} );
 
 	// The regression the takeover could otherwise cause. `/jetpack/v4/backups`
@@ -150,11 +148,9 @@ describe( 'Overview takeover', () => {
 		await expect( screen.findByText( 'Backup complete' ) ).resolves.toBeInTheDocument();
 		// ...and the takeover panel stays away.
 		expect(
-			screen.queryByText( "We're having trouble backing up your site" )
+			screen.queryByText( 'We are having trouble backing up your site' )
 		).not.toBeInTheDocument();
-		expect(
-			screen.queryByText( 'Your first cloud backup will be ready soon' )
-		).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Generating backup…' ) ).not.toBeInTheDocument();
 	} );
 
 	// JETPACK-2491 — `networkMode: 'online'` parks the activity read for an
@@ -177,9 +173,7 @@ describe( 'Overview takeover', () => {
 			screen.findByRole( 'button', { name: 'Back up now' } )
 		).resolves.toBeInTheDocument();
 
-		expect(
-			screen.queryByText( 'Your first cloud backup will be ready soon' )
-		).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Generating backup…' ) ).not.toBeInTheDocument();
 		expect( screen.getByRole( 'group', { name: 'Backup activity' } ) ).toBeInTheDocument();
 	} );
 
@@ -189,9 +183,7 @@ describe( 'Overview takeover', () => {
 		mockEndpoints( { backups: [], activity: [] } );
 
 		render( <OverviewStage /> );
-		await expect(
-			screen.findByText( 'Your first cloud backup will be ready soon' )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'Generating backup…' ) ).resolves.toBeInTheDocument();
 
 		// Offline after the answer landed, then something asks again.
 		onlineManager.setOnline( false );
@@ -209,7 +201,7 @@ describe( 'Overview takeover', () => {
 			).toBe( 'paused' )
 		);
 
-		expect( screen.getByText( 'Your first cloud backup will be ready soon' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Generating backup…' ) ).toBeInTheDocument();
 	} );
 
 	it( 'still takes over when the activity log holds no backup rows', async () => {
@@ -219,7 +211,7 @@ describe( 'Overview takeover', () => {
 		render( <OverviewStage /> );
 
 		await expect(
-			screen.findByText( "We're having trouble backing up your site" )
+			screen.findByText( 'We are having trouble backing up your site' )
 		).resolves.toBeInTheDocument();
 	} );
 
@@ -240,9 +232,7 @@ describe( 'Overview takeover', () => {
 			screen.findByText( "We couldn't load your site's activity." )
 		).resolves.toBeInTheDocument();
 		// ...instead of the panel claiming a first backup is coming.
-		expect(
-			screen.queryByText( 'Your first cloud backup will be ready soon' )
-		).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Generating backup…' ) ).not.toBeInTheDocument();
 	} );
 } );
 
@@ -259,7 +249,7 @@ describe( 'Failing backups with the takeover suppressed', () => {
 		// The list is kept...
 		await expect( screen.findByText( 'Backup complete' ) ).resolves.toBeInTheDocument();
 		// ...and the reader is told anyway, with a way to get help.
-		expect( screen.getByText( "We're having trouble backing up your site." ) ).toBeInTheDocument();
+		expect( screen.getByText( 'We are having trouble backing up your site.' ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: /Get in touch with us/ } ) ).toBeInTheDocument();
 	} );
 
@@ -269,7 +259,7 @@ describe( 'Failing backups with the takeover suppressed', () => {
 		render( <OverviewStage /> );
 
 		await expect(
-			screen.findByText( "We're having trouble backing up your site." )
+			screen.findByText( 'We are having trouble backing up your site.' )
 		).resolves.toBeInTheDocument();
 	} );
 } );
@@ -287,7 +277,9 @@ describe( 'Backup-state read failure', () => {
 		render( <OverviewStage /> );
 
 		await expect(
-			screen.findByText( "We couldn't check your site's backup status." )
+			screen.findByText( "We couldn't check your site's backup status.", {
+				ignore: '.a11y-speak-region, script, style',
+			} )
 		).resolves.toBeInTheDocument();
 	} );
 
@@ -302,7 +294,61 @@ describe( 'Backup-state read failure', () => {
 		// notice assertion this test would pass with the fix reverted.
 		await expect( screen.findByText( 'Backup complete' ) ).resolves.toBeInTheDocument();
 		expect(
-			screen.getByText( "We couldn't check your site's backup status." )
+			screen.getByText( "We couldn't check your site's backup status.", {
+				ignore: '.a11y-speak-region, script, style',
+			} )
 		).toBeInTheDocument();
+	} );
+
+	it( 'is heard together with a failed activity log, not cut off by it', async () => {
+		mockEndpoints( { backups: null, activityFails: true } );
+
+		render( <OverviewStage /> );
+
+		// Both at once, in either order: each alone was in the region at some point on trunk.
+		await expect(
+			screen.findByText(
+				/(?=.*We couldn't check your site's backup status\.)(?=.*We couldn't load your site's activity\.)/,
+				{ selector: '#a11y-speak-assertive' }
+			)
+		).resolves.toBeInTheDocument();
+	} );
+} );
+
+// Which guide "Learn more" opens depends on why the newest attempt failed. The status has to
+// travel from `/jetpack/v4/backups` to the link unchanged, so this goes through the Overview.
+describe( 'The Learn more link on failing backups', () => {
+	const failed = ( status: string ) => ( { ...UNUSABLE_BACKUP, status, discarded: '0' } );
+
+	beforeEach( () => {
+		window.JP_CONNECTION_INITIAL_STATE = {
+			...window.JP_CONNECTION_INITIAL_STATE,
+			siteSuffix: 'example.wordpress.com',
+		} as typeof window.JP_CONNECTION_INITIAL_STATE;
+	} );
+
+	it.each( [
+		[ 'credential-error', 'jetpack-backup-credentials' ],
+		[ 'http-only-error', 'jetpack-backup-credentials' ],
+		[ 'not-accessible', 'jetpack-backup-site-unreachable' ],
+		[ 'error', 'jetpack-backup-troubleshooting' ],
+		[ 'a-status-wpcom-adds-later', 'jetpack-backup-troubleshooting' ],
+	] )( 'follows a newest attempt of %s to %s', async ( status, slug ) => {
+		const href = `https://jetpack.com/redirect/?source=${ slug }&site=example.wordpress.com`;
+
+		// The panel takes the body over when no restore point is listed...
+		mockEndpoints( { backups: [ failed( status ) ] } );
+		const { unmount } = render( <OverviewStage /> );
+		const panelLink = await screen.findByRole( 'link', { name: /^Learn more/ } );
+		expect( panelLink ).toHaveAttribute( 'href', href );
+		expect( panelLink ).toHaveAttribute( 'target', '_blank' );
+		unmount();
+
+		// ...and the banner stands in when restore points are listed.
+		queryClient.clear();
+		mockEndpoints( { backups: [ failed( status ) ], activity: [ activityEntry( 'cloud' ) ] } );
+		render( <OverviewStage /> );
+		await expect( screen.findByText( 'Backup complete' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: /^Learn more/ } ) ).toHaveAttribute( 'href', href );
 	} );
 } );

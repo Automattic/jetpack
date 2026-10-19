@@ -10,23 +10,24 @@ This page covers sections only. Widget types have their own page, [Dashboard wid
 
 ## Vocabulary
 
-| Term           | Meaning                                                                                                                                               | Example                                    |
-| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
-| Dashboard name | The dashboard a section belongs to, as produced by the build pipeline. `DASHBOARD_NAME` in `src/dashboard-layout.php` names this package's dashboard. | `jetpack-premium-analytics_dashboard`      |
-| Section id     | Namespaced identifier, `<namespace>/<slug>`. The namespace names the owner.                                                                           | `analytics/traffic`, `wordads/ads`         |
-| Slug           | The part after the namespace. Keys the section in `?section=`, the stored layouts and the client entity. Unique per dashboard.                        | `traffic`, `ads`                           |
-| Label, title   | The navigation item text and the heading above the widgets. A null title falls back to the label.                                                     | `Ads`, `Site traffic`                      |
-| Default layout | The widget instances a section shows until the reader customizes it.                                                                                  | see `get_traffic_section_default_layout()` |
+| Term             | Meaning                                                                                                                                               | Example                                    |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| Dashboard name   | The dashboard a section belongs to, as produced by the build pipeline. `DASHBOARD_NAME` in `src/dashboard-layout.php` names this package's dashboard. | `jetpack-premium-analytics_dashboard`      |
+| Section id       | Namespaced identifier, `<namespace>/<slug>`. The namespace names the owner.                                                                           | `analytics/traffic`, `wordads/ads`         |
+| Slug             | The part after the namespace. Keys the section in `?section=`, the stored layouts and the client entity. Unique per dashboard.                        | `traffic`, `ads`                           |
+| Label, title     | The navigation item text and the heading above the widgets. A null title falls back to the label.                                                     | `Ads`, `Site traffic`                      |
+| Default layout   | The widget instances a section shows until the reader customizes it.                                                                                  | see `get_traffic_section_default_layout()` |
+| Insertable types | The widget types a section offers in the inserter without placing them by default.                                                                    | the WooCommerce tab's over-time charts     |
 
 ## Files
 
 | File                                               | Role                                                                                                                                                                      |
 | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/class-dashboard-section.php`                  | The section model: properties, `is_available()`, `get_default_layout()`, `to_array()`.                                                                                    |
+| `src/class-dashboard-section.php`                  | The section model: properties, `is_available()`, `get_default_layout()`, `get_insertable_widget_types()`, `to_array()`.                                                   |
 | `src/class-dashboard-section-registry.php`         | The registry: `register()` with its validations, the reads, and the lazy hydration that fires the registration action.                                                    |
 | `src/dashboard-sections.php`                       | The section API: the `register_dashboard_section()` family, the section script data, the REST routes and their schema.                                                    |
-| `src/dashboard-layout.php`                         | Layout primitives: `DASHBOARD_NAME`, the default-layout filter name, `get_dashboard_default_widget_instance()`, and the package's availability policy on default layouts. |
-| `src/default-dashboard-sections.php`               | The package's own sections: Traffic, Insights, Subscribers, Store, their gates and their default layouts, registered through the action like any plugin's.                |
+| `src/dashboard-layout.php`                         | Layout primitives: `DASHBOARD_NAME`, the default-layout and insertable-types filter names, `get_dashboard_default_widget_instance()`, and the package's availability policy on default layouts. |
+| `src/default-dashboard-sections.php`               | The package's own sections: Traffic, Insights, Subscribers, their gates and their default layouts, registered through the action like any plugin's. The WooCommerce tab registers from the WooCommerce stats package. |
 | `src/class-analytics.php`                          | Loads the three files above on wp-admin requests (`load_dashboard_components()`).                                                                                         |
 | `src/class-dashboard-support-routes.php`           | Loads them on REST requests (`boot_routes()`), on connected sites and, called directly by WordPress.com, on Simple.                                                       |
 | `packages/data/src/entities/dashboard-entities.ts` | The `dashboardSection` core-data entity the client reads.                                                                                                                 |
@@ -77,10 +78,10 @@ add_action(
 			array(
 				'label'          => __( 'Videos', 'jetpack-videopress-pkg' ),
 				'order'          => 45,
-				'is_available'   => array( Capabilities::class, 'current_user_can_view_analytics' ),
+				'is_available'   => array( Capabilities::class, 'current_user_can_view_stats' ),
 				'default_layout' => static function () {
 					return array(
-						get_dashboard_default_widget_instance( 'videopress-top-videos', 'jpa/videopress', 0, 3, 2 ),
+						get_dashboard_default_widget_instance( 'videopress-top-videos', 'videopress/top-videos', 0, 3, 2 ),
 					);
 				},
 			)
@@ -95,8 +96,8 @@ The mechanics behind it:
 - **The contract.** A plugin calls `register_dashboard_section()` from its callback, the way `wp_register_ability()` is called on `wp_abilities_api_init`. The callback also receives the `Dashboard_Section_Registry` being hydrated, for lookups such as `get_registered_by_slug()`; the package's own registrant writes to it directly, the way `wp_default_scripts` callbacks write to `$scripts`. Both forms reach the same registry in production.
 - **Loading.** The files are required by hand on the paths above, not autoloaded. The action fires from the registry those files load, so a callback on it runs only once the API is there and needs no `function_exists()` guard.
 - **Validation in `register()`.** The dashboard name must match `get_dashboard_name_pattern()`, the id must be namespaced (`get_dashboard_section_id_pattern()`), the id must not be registered, and the slug must not be used by another id on the same dashboard. Each failure is a `_doing_it_wrong()` and a `false` return.
-- **Slugs.** Two ids may not share a slug on one dashboard: the client keys sections, `?section=` and stored layouts by slug, so `register()` refuses the second. A registrant that may run beside another owner of the same section, the way Ads has one owner per environment plus an older package during a deploy skew, checks `get_registered_by_slug()` first.
-- **Arguments.** `label`, `title`, `order`, `date_filter` (`range` or `year`), `date_filter_options` (`with_date_comparison`, `with_header_date_control`), `requires_sync`, `is_available` (a boolean or a callable receiving the section, `true` by default), and `default_layout` (an array of instances or a callable returning one). Unknown keys are ignored, and an unrecognized `date_filter` keeps the default. See `Dashboard_Section::set_props()`.
+- **Slugs.** Two ids may not share a slug on one dashboard: the client keys sections, `?section=` and stored layouts by slug, so `register()` refuses the second. The `settings` slug is reserved for the Settings tab the dashboard stage draws itself. A registrant that may run beside another owner of the same section, the way Ads has one owner per environment plus an older package during a deploy skew, checks `get_registered_by_slug()` first.
+- **Arguments.** `label`, `title`, `order`, `date_filter` (`range` or `year`), `date_filter_options` (`with_date_comparison`, `with_header_date_control`, `with_header_interval_control`), `requires_sync`, `notice` (a message or a callable returning one, shown above the widgets once the section is not waiting on the sync), `is_available` (a boolean or a callable receiving the section, `true` by default), `default_layout` (an array of instances or a callable returning one), and `insertable_widget_types` (a list of widget type names the inserter offers on top of the default layout). Unknown keys are ignored, and an unrecognized `date_filter` keeps the default. See `Dashboard_Section::set_props()`.
 - **Hydration.** `Dashboard_Section_Registry` fires the action from `ensure_hydrated()`, which `get_registered()`, `get_registered_by_slug()` and `get_all_registered()` call on their first read after `init`. The latch is set before the action fires, so a callback that reads the registry does not re-enter it. `is_registered()` does not hydrate: `register()` relies on it, and a registrant may run before the action.
 - **Order.** The package's own sections register at priority 10; a plugin that wants to see them registered first, or that checks a slug before registering, hooks later, at priority 20.
 
@@ -106,7 +107,7 @@ The mechanics behind it:
 
 On the server, `get_available_dashboard_sections()` keeps the sections whose `is_available()` is true and sorts them by `order`, then by id. `Dashboard_Section::is_available()` answers with the section's own rule.
 
-`to_array()` serializes `id`, `slug`, `label`, `title`, `order`, `date_filter`, `date_filter_options`, `requires_sync`, and the resolved `default_layout`.
+`to_array()` serializes `id`, `slug`, `label`, `title`, `order`, `date_filter`, `date_filter_options`, `requires_sync`, the resolved `notice` (null unless it is a non-empty string), the resolved `default_layout`, and the resolved `insertable_widget_types`.
 
 The route `GET /wpcom/v2/dashboards/{name}/sections` returns that array, and `GET …/sections/{section}/default-layout` returns one section's layout. Both are gated on `Capabilities::current_user_can_view_analytics()`, and `get_dashboard_section_schema()` documents the shape.
 
@@ -132,15 +133,23 @@ A section owns its default layout. The registration passes the instances, built 
 
 `Dashboard_Section::get_default_layout()` runs the declared array through `jetpack_premium_analytics_dashboard_default_layout` with the section id and the section, and returns whatever comes back as a list.
 
-Two kinds of callbacks hook that filter. A plugin adds an instance to a section it does not own, switching on `$section_id`:
+Two kinds of callbacks hook that filter. A plugin adds an instance to a section it does not own, switching on `$section_id`. This is the shape of `Analytics_Dashboard::add_default_layout_instance()` in `projects/packages/videopress/src/class-analytics-dashboard.php`, which seeds Top videos into Traffic:
 
 ```php
 add_filter(
 	'jetpack_premium_analytics_dashboard_default_layout',
 	static function ( $layout, $section_id ) {
-		if ( 'analytics/traffic' === $section_id ) {
-			$layout[] = get_dashboard_default_widget_instance( 'videopress-top-videos', 'jpa/videopress', 8, 1, 2 );
+		if ( 'analytics/traffic' !== $section_id || ! is_array( $layout ) ) {
+			return $layout;
 		}
+
+		foreach ( $layout as $item ) {
+			if ( 'default-videopress-widget-instance' === ( $item['uuid'] ?? null ) ) {
+				return $layout;
+			}
+		}
+
+		$layout[] = get_dashboard_default_widget_instance( 'default-videopress-widget-instance', 'videopress/top-videos', 8, 1, 2 );
 
 		return $layout;
 	},
@@ -148,6 +157,8 @@ add_filter(
 	2
 );
 ```
+
+The callback leaves a layout alone that already holds the instance; the real one also matches the type, current or former, since the package seeded the same instance before the widget moved. It does not check `WIDGET_API_VERSION`: the sections REST route hydrates layouts before the widget contract loads, and the policy below drops the instance on a site where the type never registers.
 
 The package removes the instances the site cannot serve at priority 100, `remove_unsupported_default_layout_items()` over `get_widget_support_context()`. A persisted layout keeps such an instance as a removable ghost widget, but a default must not seed one. Running late means an instance a plugin added gets the same treatment as a bundled one.
 
@@ -159,15 +170,40 @@ Reset deletes the stored entry rather than copying the default into it, so a sec
 
 A section that declares no layout opens in customize mode on the empty state, since `WidgetDashboard` treats an empty layout as "no widgets". A section meant to be read declares one.
 
+## Insertable widget types
+
+The inserter offers the types a section places by default, and nothing else unless the section says so. The registration passes `insertable_widget_types`, a list of widget type names, for the widgets the section offers without placing them: the WooCommerce tab declares its over-time charts there, since its default layout stopped placing them.
+
+`Dashboard_Section::get_insertable_widget_types()` runs the declared list through `jetpack_premium_analytics_dashboard_insertable_widget_types` with the section id and the section, the arguments of the default-layout filter, and narrows what comes back to distinct, non-empty names. A plugin that does not own a section adds a type to it, or removes one, switching on `$section_id`:
+
+```php
+add_filter(
+	'jetpack_premium_analytics_dashboard_insertable_widget_types',
+	static function ( $types, $section_id ) {
+		if ( 'analytics/traffic' === $section_id ) {
+			$types[] = 'woocommerce-analytics/visitors-over-time';
+		}
+
+		return $types;
+	},
+	10,
+	2
+);
+```
+
+Nothing on the server checks the names against the widget type registry: the dashboard asks its policy about one registered type at a time, so a name no type carries is never offered. Unlike a default layout, a former name is not resolved here; declare the current one.
+
+On the client, `getInsertableWidgetTypeNames()` joins the active section's `default_layout` types with its `insertable_widget_types`, and `useDashboardPolicy()` answers `insert` for that set minus the plan-locked types. A payload from a build predating the field offers the default layout types alone.
+
 ## Availability
 
 `is_available()` is the section's own rule, `is_available` from the registration. The dashboard has no fixed list of tabs: every registered section the site qualifies for is shown.
 
-The rule is a capability check, a plugin's presence, a plan feature, or a feature flag. Store checks WooCommerce and, when the site's own `jetpack_premium_analytics_enabled` option switched the dashboard on, the `premium-analytics-store-section` flag; the blog sticker and filter overrides leave the option off and skip the flag. It also checks `manage_options` or `view_woocommerce_reports`. Subscribers checks the subscriptions module. Ads checks `Capabilities::current_user_can_view_ad_reports()` from the registrant that decided WordAds is there.
+The rule is a capability check, a plugin's presence, a plan feature, or a feature flag. WooCommerce, from the WooCommerce Stats package, checks that WooCommerce is active and that the reader has `manage_options` or `view_woocommerce_reports`. Subscribers checks `Capabilities::current_user_can_view_stats()` and the subscriptions module. Traffic and Insights declare no rule, so they take the default below. Ads checks `Capabilities::current_user_can_view_ad_reports()` from the registrant that decided WordAds is there.
 
-A section that declares no rule is visible to anyone with analytics access, the gate of the sections route. A plugin registering one for a narrower audience passes its own `is_available`.
+A section that declares no rule is visible to readers who can view Stats (`Capabilities::current_user_can_view_stats()`). The dashboard itself, its menu and the sections route, opens for anyone with at least one available section, so a section's rule is also who it lets in: a shop manager reaches the dashboard through the WooCommerce tab alone.
 
-Store and Subscribers each have a filter of their own (`jetpack_premium_analytics_<name>_dashboard_section_available`).
+Subscribers has a filter of its own (`jetpack_premium_analytics_subscribers_dashboard_section_available`); the WooCommerce Stats package filters its WooCommerce detection through `jetpack_woocommerce_stats_woocommerce_available`.
 
 A section that fails its rule is absent from the sections route, from the script data, and from the navigation, and `GET …/sections/{section}/default-layout` answers 404 for it.
 
@@ -199,20 +235,29 @@ They read the slug through `get_registered_by_slug()` when the package offers it
 
 ### The layout
 
-Both register the same layout, `Analytics_Dashboard::get_default_layout()`, of the `wordads/*` widget types the same class registers (see [Dashboard widget types](dashboard-widgets.md#a-real-consumer-the-ads-widgets)). The standalone `premium-analytics` plugin has no registrant, and no Ads section.
+Both register the same layout, `Analytics_Dashboard::get_default_layout()`, of the `wordads/*` widget types the same class registers (see [Dashboard widget types](dashboard-widgets.md#two-real-consumers)). The standalone `premium-analytics` plugin has no registrant, and no Ads section.
+
+## A second consumer: a widget inside a bundled section
+
+The VideoPress package owns no section. It owns one widget type, `videopress/top-videos`, and a place for it in the Traffic default layout, through the filter above. Who calls its registrants follows the Ads shape: `Initializer::active_initialization()` where VideoPress is active outside the WordPress.com platform, `jetpack-mu-wpcom` on Simple and Atomic where the plan includes VideoPress (`src/features/premium-analytics/videopress-widgets.php`).
+
+The seed runs at priority 10 and asks nothing about the contract version. Whether the instance survives is decided here: the rename at 99 maps a former name, the policy at 100 drops a type that never registered. A consumer that seeds a bundled section's default therefore needs no guard of its own, only an idempotent callback.
+
+The widget it seeds is the registrant's story, in [Dashboard widget types](dashboard-widgets.md#two-real-consumers).
 
 ## Where the tests are
 
-| Behaviour                                                                                          | Test                                                                                                                                                |
-| -------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Registry rules, hydration and the action, the built-in sections, the sections route and its schema | `tests/php/Dashboard_Section_Test.php`                                                                                                              |
-| Default-layout primitives, the filter and the package's policy, the bundled layouts                | `tests/php/Dashboard_Layout_Test.php`                                                                                                               |
-| The WordAds module's registrant                                                                    | `projects/plugins/jetpack/tests/php/modules/wordads/WordAds_Premium_Analytics_Test.php`                                                             |
-| The Ads package's registrants, with and without the widget contract loaded                         | `projects/packages/ads/tests/php/Analytics_Dashboard_Test.php`, `projects/packages/ads/tests/php/Analytics_Dashboard_Without_Widget_Types_Test.php` |
-| The WordPress.com registrant                                                                       | `projects/packages/jetpack-mu-wpcom/tests/php/features/premium-analytics/Wordads_Section_Test.php`                                                  |
-| The REST entry point WordPress.com calls                                                           | `tests/php/Dashboard_Support_Routes_Test.php`                                                                                                       |
-| Navigation, active section, stored layouts, section heading                                        | `routes/dashboard/**/*.test.ts(x)`                                                                                                                  |
-| Reports behind a hidden section                                                                    | `routes/reports/registry.test.ts`, `tests/js/site-readiness.test.ts`                                                                                |
+| Behaviour                                                                                                           | Test                                                                                                                                                                                                                                                                     |
+| ------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Registry rules, hydration and the action, the built-in sections, the sections route and its schema                  | `tests/php/Dashboard_Section_Test.php`                                                                                                                                                                                                                                   |
+| Default-layout primitives, the filter and the package's policy, the bundled layouts                                 | `tests/php/Dashboard_Layout_Test.php`                                                                                                                                                                                                                                    |
+| The WordAds module's registrant                                                                                     | `projects/plugins/jetpack/tests/php/modules/wordads/WordAds_Premium_Analytics_Test.php`                                                                                                                                                                                  |
+| The Ads package's registrants, with and without the widget contract loaded                                          | `projects/packages/ads/tests/php/Analytics_Dashboard_Test.php`, `projects/packages/ads/tests/php/Analytics_Dashboard_Without_Widget_Types_Test.php`                                                                                                                      |
+| The WordPress.com registrant                                                                                        | `projects/packages/jetpack-mu-wpcom/tests/php/features/premium-analytics/Wordads_Section_Test.php`                                                                                                                                                                       |
+| The VideoPress package's layout seed, with and without the widget contract loaded, and its WordPress.com registrant | `projects/packages/videopress/tests/php/Analytics_Dashboard_Test.php`, `projects/packages/videopress/tests/php/Analytics_Dashboard_Without_Widget_Types_Test.php`, `projects/packages/jetpack-mu-wpcom/tests/php/features/premium-analytics/Videopress_Widgets_Test.php` |
+| The REST entry point WordPress.com calls                                                                            | `tests/php/Dashboard_Support_Routes_Test.php`                                                                                                                                                                                                                            |
+| Navigation, active section, stored layouts, section heading                                                         | `routes/dashboard/**/*.test.ts(x)`                                                                                                                                                                                                                                       |
+| Reports behind a hidden section                                                                                     | `routes/reports/registry.test.ts`, `tests/js/site-readiness.test.ts`                                                                                                                                                                                                     |
 
 ## Not covered here
 

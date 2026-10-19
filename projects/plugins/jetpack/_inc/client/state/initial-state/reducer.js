@@ -769,6 +769,16 @@ export function isLikeBlockAvailable( state ) {
 }
 
 /**
+ * Check if the comment form can offer the block editor.
+ *
+ * @param {object} state - Global state tree.
+ * @return {boolean} True if the comment form can offer the block editor.
+ */
+export function isCommentBlocksAvailable( state ) {
+	return !! state.jetpack.initialState.siteData?.isCommentBlocksAvailable;
+}
+
+/**
  * Returns true if Subscription Site feature is enabled on the site.
  *
  * @param {object} state - Global state tree.

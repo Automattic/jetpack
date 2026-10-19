@@ -1,5 +1,6 @@
 {
 	"name": "jpa/locations",
+	"icon": "jpa/map-marker",
 	"title": "Top locations",
 	"description": "Where your visitors are viewing from — by country, region, or city.",
 	"help": {

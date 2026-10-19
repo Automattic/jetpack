@@ -43,6 +43,35 @@ class Backup_Product_Test extends TestCase {
 			)
 		);
 		wp_set_current_user( self::$user_id );
+
+		// Modules::get_active() only keeps available modules, and which filter lists them depends on the Jetpack plugin.
+		add_filter( 'jetpack_get_available_modules', array( $this, 'add_backup_module' ) );
+		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'add_standalone_backup_module' ) );
+		Jetpack_Options::update_option( 'active_modules', array( 'backup' ) );
+	}
+
+	/**
+	 * Available modules as the Jetpack plugin reports them: slug => version.
+	 *
+	 * @param array $modules Available modules.
+	 * @return array
+	 */
+	public function add_backup_module( $modules ) {
+		$modules['backup'] = '0.0.0';
+
+		return $modules;
+	}
+
+	/**
+	 * Available modules as a standalone plugin reports them: a list of slugs.
+	 *
+	 * @param array $modules Available module slugs.
+	 * @return array
+	 */
+	public function add_standalone_backup_module( $modules ) {
+		$modules[] = 'backup';
+
+		return array_values( array_unique( $modules ) );
 	}
 
 	/**
@@ -68,6 +97,8 @@ class Backup_Product_Test extends TestCase {
 	public function tearDown(): void {
 		parent::tearDown();
 
+		remove_filter( 'jetpack_get_available_modules', array( $this, 'add_backup_module' ) );
+		remove_filter( 'jetpack_get_available_standalone_modules', array( $this, 'add_standalone_backup_module' ) );
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
 	}
@@ -96,6 +127,61 @@ class Backup_Product_Test extends TestCase {
 		deactivate_plugins( 'jetpack/jetpack.php' );
 		deactivate_plugins( Backup::get_installed_plugin_filename() );
 		$this->assertFalse( Backup::is_active() );
+	}
+
+	/**
+	 * With only the Jetpack plugin, the backup module switches the product on and off.
+	 */
+	public function test_backup_module_switches_backup_on_the_jetpack_plugin() {
+		activate_plugins( 'jetpack/jetpack.php' );
+		deactivate_plugins( Backup::get_installed_plugin_filename() );
+		$this->assertSame( 'backup', Backup::$module_name );
+		$this->assertTrue( Backup::is_activated() );
+
+		Jetpack_Options::update_option( 'active_modules', array() );
+		$this->assertFalse( Backup::is_module_active() );
+		$this->assertFalse( Backup::is_activated() );
+	}
+
+	/**
+	 * The standalone plugin draws its own dashboard, so the backup module being off does not switch Backup off.
+	 */
+	public function test_standalone_plugin_keeps_backup_on_with_the_module_off() {
+		activate_plugins( 'jetpack/jetpack.php' );
+		activate_plugins( Backup::get_installed_plugin_filename() );
+		Jetpack_Options::update_option( 'active_modules', array() );
+
+		$this->assertTrue( Backup::is_module_active() );
+		$this->assertTrue( Backup::is_activated() );
+	}
+
+	/**
+	 * A plan holder who switched the module off is offered the module, not a purchase.
+	 */
+	public function test_get_status_reports_module_disabled_with_a_plan() {
+		( new Tokens() )->update_blog_token( 'test.test.1' );
+		( new Tokens() )->update_user_token( self::$user_id, 'test.test.' . self::$user_id, true );
+		Jetpack_Options::update_option( 'id', 123 );
+		activate_plugins( 'jetpack/jetpack.php' );
+		deactivate_plugins( Backup::get_installed_plugin_filename() );
+		Jetpack_Options::update_option( 'active_modules', array() );
+		set_transient(
+			Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY,
+			array(
+				(object) array(
+					'product_slug'  => 'jetpack_backup_t0_monthly',
+					'expiry_status' => 'active',
+					'expiry_date'   => gmdate( 'Y-m-d H:i:s', strtotime( '+1 year' ) ),
+				),
+			),
+			HOUR_IN_SECONDS
+		);
+		set_transient( Backup::BACKUP_STATUS_TRANSIENT_KEY, 'no_errors', HOUR_IN_SECONDS );
+
+		$this->assertSame( Products::STATUS_MODULE_DISABLED, Backup::get_status() );
+
+		delete_transient( Backup::BACKUP_STATUS_TRANSIENT_KEY );
+		delete_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY );
 	}
 
 	/**

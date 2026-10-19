@@ -24,7 +24,9 @@ jest.mock( 'react-redux', () => ( {
 } ) );
 
 jest.mock( '../../store/actions', () => ( {} ) );
-jest.mock( '../../store/selectors', () => ( {} ) );
+jest.mock( '../../store/selectors', () => ( {
+	getSort: jest.requireActual( '../../store/selectors' ).getSort,
+} ) );
 
 import { fetchEventSource } from '@microsoft/fetch-event-source';
 import { act, render } from '@testing-library/react';

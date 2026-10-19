@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { describe, expect, it } from '@jest/globals';
-import { render, screen } from '@testing-library/react';
+import { getDefaultNormalizer, render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
@@ -39,6 +39,32 @@ describe( 'FieldPreview', () => {
 		preview( { label: 'Send me a copy', value: 'Yes', type: 'checkbox' } );
 
 		expect( screen.getByText( 'Yes' ) ).toBeInTheDocument();
+	} );
+
+	it( 'shows a stored less-than sign as typed', () => {
+		preview( { label: 'Message', value: '&lt;\f!-- note --> one', type: 'textarea' } );
+
+		expect(
+			screen.getByText( '<\f!-- note --> one', {
+				normalizer: getDefaultNormalizer( { trim: false, collapseWhitespace: false } ),
+			} )
+		).toBeInTheDocument();
+	} );
+
+	it( 'shows a stored less-than sign as typed in an image choice', () => {
+		preview( {
+			label: 'Pick',
+			value: { type: 'image-select', choices: [ { selected: 'A', label: 'x &lt; 5' } ] },
+			type: 'image-select',
+		} );
+
+		expect( screen.getByText( 'x < 5' ) ).toBeInTheDocument();
+	} );
+
+	it( 'shows a stored less-than sign as typed in each chosen option', () => {
+		preview( { label: 'Pick', value: [ 'x &lt; 5', 'y' ], type: 'checkbox-multiple' } );
+
+		expect( screen.getByText( 'x < 5' ) ).toBeInTheDocument();
 	} );
 
 	// The icon and the value are two views of one answer, and the component now reads that

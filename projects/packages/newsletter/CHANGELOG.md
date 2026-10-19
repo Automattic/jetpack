@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.18.0] - 2026-10-12
+### Added
+- Action bar: Pass the post stats link through the jetpack_stats_url filter. [#52905]
+- Add a link from Settings to the email design editor. [#53328]
+- Enable the Overview tab, with its onboarding checklist, by default. [#53466]
+- Subscribers: Add a "Send confirmation email" action for bounced subscribers. [#53395]
+
+### Fixed
+- Reader Link: Register the admin bar node even when the admin bar is hidden, so the admin-bar REST endpoint returns it. [#53096]
+- Subscribers: Allow comping subscribers who don't have a WordPress.com account. [#53379]
+
+## [0.17.3] - 2026-10-12
+### Changed
+- Update dependencies.
+
+## [0.17.2] - 2026-10-05
+### Added
+- Add a Days, Weeks, Months, and Years control to the subscribers chart, with arrows to move through earlier periods. [#52925]
+
+### Changed
+- Action Bar: Only show the Subscribe button once the site has published at least two posts. [#52940]
+- Update package dependencies. [#52999]
+
+### Fixed
+- Action Bar: Keep the Subscribe button when a subscribe attempt is blocked for too many pending subscriptions. [#53127]
+- Open the newsletter settings URL on the Settings tab. [#52990]
+- Subscribers: Show an error with a retry button when subscriber details fail to load, instead of a spinner that never ends. [#53065]
+
 ## [0.17.1] - 2026-09-29
 ### Changed
 - Use core SnackbarNotices instead of Jetpack GlobalNotices. [#52193]
@@ -406,6 +434,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Update package dependencies. [#46143]
 
+[0.18.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.17.3...v0.18.0
+[0.17.3]: https://github.com/Automattic/jetpack-newsletter/compare/v0.17.2...v0.17.3
+[0.17.2]: https://github.com/Automattic/jetpack-newsletter/compare/v0.17.1...v0.17.2
 [0.17.1]: https://github.com/Automattic/jetpack-newsletter/compare/v0.17.0...v0.17.1
 [0.17.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.16.0...v0.17.0
 [0.16.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.15.0...v0.16.0

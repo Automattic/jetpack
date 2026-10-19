@@ -26,6 +26,10 @@ const getSettingsPlacements = (): Placement[] => [
 		option: 'jetpack_subscribe_floating_button_enabled',
 		label: __( 'Floating button on bottom corner', 'jetpack' ),
 	},
+	{
+		option: 'wpcom_action_bar',
+		label: __( 'Action Bar on bottom corner', 'jetpack' ),
+	},
 ];
 
 // Rendered after the footer in the editor only; BlockEdit output is never saved.
@@ -52,15 +56,15 @@ addFilter(
 );
 
 /**
- * Lists the Newsletter placements enabled on the site while a template is being edited.
+ * Lists the Newsletter placements enabled on the site while a template is shown in the editor.
  *
  * @return {JSX.Element|null} The notice element, or null if no placements are enabled.
  */
-function TemplatePlacementsNotice() {
-	const isTemplate = useSelect(
-		select => select( editorStore ).getCurrentPostType() === 'wp_template',
-		[]
-	);
+function TemplatePlacementsNotice(): JSX.Element | null {
+	const isTemplate = useSelect( select => {
+		const { getCurrentPostType, getRenderingMode } = select( editorStore );
+		return getCurrentPostType() === 'wp_template' || getRenderingMode() !== 'post-only';
+	}, [] );
 	const settings = window?.Jetpack_Editor_Initial_State?.jetpack?.subscribe_placements;
 
 	if ( ! isTemplate || ! settings ) {

@@ -14,6 +14,10 @@ use Automattic\Jetpack\Stats\WPCOM_Stats;
 use Automattic\Jetpack\WP_Abilities\Registrar;
 use WP_Error;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Registers Jetpack Stats abilities with the WordPress Abilities API.
  *

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Show long store performance figures in short form, such as $277K, so they fit their cards.

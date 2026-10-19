@@ -22,7 +22,6 @@ describe( 'CalendarHeatmapTooltip', () => {
 
 		// The concatenation is what pins the order the component exists to hold:
 		// date first, count second.
-		expect( screen.getByText( 'June 2, 2025' ).tagName ).toBe( 'STRONG' );
 		expect( container ).toHaveTextContent( 'June 2, 20252033 views' );
 	} );
 
@@ -52,7 +51,7 @@ describe( 'CalendarHeatmapTooltip', () => {
 			/>
 		);
 
-		expect( screen.getByText( 'Jun 2023 · 15532 views' ).tagName ).toBe( 'STRONG' );
+		expect( screen.getByText( 'Jun 2023 · 15532 views' ) ).toBeInTheDocument();
 	} );
 
 	it.each( [

@@ -25,7 +25,10 @@ return (
 		rows={ rows }
 		status={ { isLoading, isFetching, isError, hasComparison, refetch } }
 		error={ describeError( error, {
-			retryDescription: __( "We couldn't load video plays. Please try again in a moment.", 'jetpack-premium-analytics-pkg' ),
+			retryDescription: __(
+				"We couldn't load video plays. Please try again in a moment.",
+				'jetpack-premium-analytics-pkg'
+			),
 			onRetry: refetch,
 		} ) }
 		footer={ <ReportLink report="videos" /> }
@@ -116,8 +119,7 @@ const data = [
 ### Row labels
 
 Use `buildLeaderboardRow` for chart rows that need media, links, or drill-down actions. It
-returns one `ReactElement` label plus the chart-level button props for drill-down rows, so links
-and row buttons cannot be combined.
+returns one `ReactElement` label plus the chart-level button props for drill-down rows.
 
 ```tsx
 const row = {
@@ -156,6 +158,19 @@ An explicit drill-down `ariaLabel` replaces the accessible name otherwise comput
 the media alt text and visible label, which can cause a screen reader to announce the label
 twice.
 
+A drill-down row can also take a `link` to a dashboard page, which the label opens while the
+rest of the row still drills down. The builder sets the chart's `hasInteractiveLabel`, so the
+link sits beside the row button instead of inside it:
+
+```tsx
+action: {
+	kind: 'drillDown',
+	onClick: () => selectAuthor( 'id:42' ),
+	link: authorDetailLinkProps( 42 ),
+	ariaLabel: 'View posts by Ada Lovelace',
+},
+```
+
 For a post, page, or email with a detail page inside the dashboard, use the `postLink` action.
 `PostTitleLink` chooses the destination: the internal detail route when the row carries a post
 ID, the public URL when it does not, and plain text when neither is usable.
@@ -181,8 +196,7 @@ const row = {
 A `postLink` row carries no media, and never becomes a chart button: a chart row that is a
 button cannot nest an anchor.
 
-Video rows use `videoLink`, which delegates to `VideoTitleLink` so the row reaches the video
-detail route instead of the post one. Same constraints: no media, never a chart button.
+Video rows use `videoLink`, which delegates to `VideoTitleLink` so the row reaches the video detail route instead of the post one. Unlike `postLink`, a `videoLink` row renders its media inside the detail link. It is never a chart button.
 
 ```tsx
 action: { kind: 'videoLink', id: 9, search: { from: '2026-03-01', to: '2026-03-10' } },
@@ -217,6 +231,8 @@ fallback, and default alt-text policy:
 | `icon`      | 20 × 20px | No image; takes a glyph          |
 | `none`      | No media  | Renders text only                |
 
+Pass a `thumbnail` a `fallbackIcon` to draw that glyph in a bordered box, instead of the grey placeholder, when there is no image or it fails to load: `media: { kind: 'thumbnail', url, alt: '', fallbackIcon: video }`.
+
 `icon` takes a `@wordpress/icons` glyph rather than a URL and draws it in the muted neutral color: `media: { kind: 'icon', icon: category }`.
 
 Use `resolveLeaderboardRowAction` when raw data can contain both an external URL and children.
@@ -229,20 +245,22 @@ inline padding.
 
 ## Props
 
-| Prop               | Type                   | Default                                                                | Description                                                        |
-| ------------------ | ---------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| `data`             | `LeaderboardChartData` | required                                                               | Array of leaderboard items with label, values, shares, and deltas  |
-| `className`        | `string`               | -                                                                      | Additional CSS classes for container                               |
-| `loading`          | `boolean`              | `false`                                                                | Shows loading skeleton when true                                   |
-| `withComparison`   | `boolean`              | `false`                                                                | Enables comparison mode with previous period data                  |
-| `withOverlayLabel` | `boolean`              | `false`                                                                | Places labels on top of bars instead of beside them                |
-| `legendLabels`     | `LegendLabels`         | `{ primary: 'Current period', comparison: 'Previous period' }`         | Custom legend labels                                               |
-| `showLegend`       | `boolean`              | `true`                                                                 | Whether to show the legend                                         |
-| `dataFormat`       | `DataFormat`           | `{ type: 'currency', options: { useMultipliers: true } }` | Value formatting configuration                                     |
-| `emptyState`       | `ReactNode`            | -                                                                      | Custom empty state content (overrides default)                     |
-| `emptyStateIcon`   | `ReactNode`            | The `search` magnifier                                                 | Icon to display in default empty state                             |
-| `emptyStateText`   | `string`               | `'We couldn’t find results for this time period.'`                     | Text for default empty state                                       |
-| `fitRows`          | `boolean`              | `true`                                                                 | Show only the rows that fit the widget height instead of scrolling |
+| Prop               | Type                   | Default                                                        | Description                                                                                                                                                    |
+| ------------------ | ---------------------- | -------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `data`             | `LeaderboardChartData` | required                                                       | Array of leaderboard items with label, values, shares, and deltas                                                                                              |
+| `className`        | `string`               | -                                                              | Additional CSS classes for container                                                                                                                           |
+| `loading`          | `boolean`              | `false`                                                        | Shows loading skeleton when true                                                                                                                               |
+| `withComparison`   | `boolean`              | `false`                                                        | Enables comparison mode with previous period data                                                                                                              |
+| `withOverlayLabel` | `boolean`              | `false`                                                        | Places labels on top of bars instead of beside them                                                                                                            |
+| `legendLabels`     | `LegendLabels`         | `{ primary: 'Current period', comparison: 'Previous period' }` | Custom legend labels                                                                                                                                           |
+| `showLegend`       | `boolean`              | `true`                                                         | Whether to show the legend                                                                                                                                     |
+| `dataFormat`       | `DataFormat`           | `{ type: 'currency', options: { useMultipliers: true } }`      | Value formatting configuration                                                                                                                                 |
+| `emptyState`       | `ReactNode`            | -                                                              | Custom empty state content (overrides default)                                                                                                                 |
+| `emptyStateIcon`   | `ReactNode`            | The `search` magnifier                                         | Icon to display in default empty state                                                                                                                         |
+| `emptyStateText`   | `string`               | `'We couldn’t find results for this time period.'`             | Text for default empty state                                                                                                                                   |
+| `fitRows`          | `boolean`              | `true`                                                         | Show only the rows that fit the widget height instead of scrolling                                                                                             |
+| `columns`          | `LeaderboardColumns`   | -                                                              | Names the rows (`label`) and the metric in a header, hidden on height-1 tiles; the metric also adds the unit to an abbreviated value's tooltip (`4,186 views`) |
+| `chartTitle`       | `string`               | -                                                              | What the chart shows; the chart is named "Chart: <title>"                                                                                                      |
 
 ### LeaderboardChartData Type
 

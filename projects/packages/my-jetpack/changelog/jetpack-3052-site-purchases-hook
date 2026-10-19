@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Move the site purchases query into one shared hook. No visible change.
+

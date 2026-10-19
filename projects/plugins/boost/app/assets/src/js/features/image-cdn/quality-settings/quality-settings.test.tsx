@@ -54,6 +54,20 @@ test( 'renders the modern quality heading from the translation catalog', () => {
 	).toBeTruthy();
 } );
 
+test( 'keeps the modern help button named and its tooltip dismissible', async () => {
+	renderSettings();
+	const help = screen.getByRole( 'button', { name: 'How image quality works' } );
+	expect( help.getAttribute( 'aria-expanded' ) ).toBe( 'false' );
+	fireEvent.click( help );
+	expect( help.getAttribute( 'aria-expanded' ) ).toBe( 'true' );
+	await expect(
+		screen.findByText( /^Select the quality for images served by the CDN/ )
+	).resolves.toBeTruthy();
+	fireEvent.keyDown( help, { key: 'Escape' } );
+	expect( help.getAttribute( 'aria-expanded' ) ).toBe( 'false' );
+	expect( screen.queryByText( /^Select the quality for images served by the CDN/ ) ).toBeNull();
+} );
+
 test( 'expands existing quality values and preserves other formats when saving quality or Lossless', () => {
 	jest.useFakeTimers();
 	renderSettings();

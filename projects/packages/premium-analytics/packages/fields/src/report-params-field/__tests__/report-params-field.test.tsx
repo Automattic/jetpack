@@ -226,8 +226,8 @@ describe( 'report params field', () => {
 
 		// The window and bucket leave with the preset, so nothing left in the
 		// preference describes a range the widget no longer offers.
-		expect( latest() ).toEqual( { preset: 'last-30-days' } );
-		expect( screen.getByRole( 'button', { name: 'Last 30 days' } ) ).toBeInTheDocument();
+		expect( latest() ).toEqual( { preset: 'last-7-days' } );
+		expect( screen.getByRole( 'button', { name: 'Last 7 days' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'leaves a custom range alone', () => {

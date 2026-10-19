@@ -32,6 +32,7 @@ const CornerstonePages = () => {
 					onToggle={ ( value: boolean ) => {
 						recordBoostEvent( 'cornerstone_pages_panel_toggle', {
 							status: value ? 'open' : 'close',
+							panel_scope: 'section',
 						} );
 					} }
 					className={ styles.body }

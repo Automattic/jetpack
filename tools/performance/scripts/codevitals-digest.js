@@ -687,8 +687,8 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 			const entry = pool.reduce( ( best, candidate ) =>
 				candidate.score > best.score ? candidate : best
 			);
-			// Any in-window member keeps the group in the sustained bucket.
-			const late = group.every( member => member.late );
+			// Only confirmed in-window members keep the group in the sustained bucket.
+			const late = complete.every( member => member.late );
 			( late ? confirmedLate : confirmed ).push( {
 				...entry,
 				pre: complete[ 0 ].pre,
@@ -764,8 +764,10 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 			if (
 				heading.length + candidate.length + overflow( sorted.length - shown.length - 1 ).length >
 				3000
-			)
+			) {
+				if ( heading.length + row.length + overflow( sorted.length - 1 ).length > 3000 ) continue;
 				break;
+			}
 			shown.push( row );
 		}
 		return heading + shown.join( ' · ' ) + overflow( sorted.length - shown.length );
@@ -778,7 +780,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 				: '';
 		const members = [ ...new Map( r.members.map( member => [ member.hash, member ] ) ).values() ];
 		const commits = members
-			.map( member => commitLink( member.hash ) + ( member.reRun ? ' (re-run)' : '' ) )
+			.map( member => commitLink( member.hash ) + ( member.self ? '' : ' (re-run)' ) )
 			.join( ', ' );
 		return `*${ esc( clip( r.name ) ) }* median ${ medianPct( r ) } (${ fmt( r.pre ) }→${ fmt( r.post ) }${ esc( clip( r.unit ) ) }) · single-pair ${ pctStr( r.pct ) || 'regressed' }${ delta }${ r.reRun ? ' (flag from a re-run)' : '' }${ r.grouped > 1 ? ` (${ r.grouped } flags grouped)` : '' } — ${ commits }${ r.key ? ` · <${ chartUrl( r.key ) }|chart>` : '' }`;
 	};
@@ -926,7 +928,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 						joinRows(
 							confirmedLate,
 							confirmedRow,
-							`:warning: *${ confirmedLate.length } older confirmed change${ confirmedLate.length > 1 ? 's' : '' }* — flagged commit${ confirmedLate.length > 1 ? 's' : '' } older than the ${ WINDOW_DAYS }d window (may repeat): `
+							`:warning: *${ confirmedLate.length } older confirmed change${ confirmedLate.length > 1 ? 's' : '' }* — confirmed at commits older than the ${ WINDOW_DAYS }d window (may repeat): `
 						)
 					)
 				);

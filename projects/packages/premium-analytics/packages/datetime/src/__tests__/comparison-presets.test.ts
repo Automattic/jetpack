@@ -51,6 +51,9 @@ const ids = ( range: Parameters< typeof getComparisonOptions >[ 0 ] ) =>
 const labels = ( range: Parameters< typeof getComparisonOptions >[ 0 ] ) =>
 	getComparisonOptions( range ).map( option => option.label );
 
+const legendLabels = ( range: Parameters< typeof getComparisonOptions >[ 0 ] ) =>
+	getComparisonOptions( range ).map( option => option.legendLabel );
+
 describe( 'comparison options', () => {
 	/*
 	 * The candidate set and its order are a design decision (WOOA7S-2028,
@@ -211,14 +214,51 @@ describe( 'comparison options', () => {
 		);
 	} );
 
-	it( 'steps a rolling 12-month window back by its month count', () => {
-		const last12Months = daysRange( [ 2025, 7, 31 ], [ 2026, 7, 30 ] );
+	it.each( [
+		[ 'custom', [ 2026, 8, 8 ], [ 2026, 9, 7 ], [ 2026, 7, 9 ], [ 2026, 8, 7 ], 30 ],
+		[ 'last-30-days', [ 2026, 3, 1 ], [ 2026, 3, 30 ], [ 2026, 2, 2 ], [ 2026, 2, 31 ], 30 ],
+		[ 'last-90-days', [ 2025, 11, 1 ], [ 2026, 1, 28 ], [ 2025, 8, 2 ], [ 2025, 10, 30 ], 90 ],
+		[ 'last-365-days', [ 2024, 2, 1 ], [ 2025, 1, 28 ], [ 2023, 2, 2 ], [ 2024, 1, 29 ], 365 ],
+	] as const )(
+		'steps %s back by its day count',
+		( presetId, from, to, compareFrom, compareTo, days ) => {
+			const [ previous ] = getComparisonOptions( daysRange( [ ...from ], [ ...to ] ), {
+				primaryPresetId: presetId,
+			} );
 
-		expect( labels( last12Months ) ).toEqual( [ 'Previous 12 months' ] );
-		expect( getComparisonOptions( last12Months )[ 0 ].range ).toEqual(
-			daysRange( [ 2024, 7, 31 ], [ 2025, 7, 30 ] )
-		);
-	} );
+			expect( previous.label ).toBe( `Previous ${ days } days` );
+			expect( previous.range ).toEqual( daysRange( [ ...compareFrom ], [ ...compareTo ] ) );
+		}
+	);
+
+	it.each( [
+		[
+			'last-month',
+			[ 2026, 8, 1 ],
+			[ 2026, 8, 30 ],
+			[ 2026, 7, 1 ],
+			[ 2026, 7, 31 ],
+			'Previous month',
+		],
+		[
+			'last-year',
+			[ 2025, 0, 1 ],
+			[ 2025, 11, 31 ],
+			[ 2024, 0, 1 ],
+			[ 2024, 11, 31 ],
+			'Previous 12 months',
+		],
+	] as const )(
+		'keeps %s stepping by whole months',
+		( presetId, from, to, compareFrom, compareTo, label ) => {
+			const [ previous ] = getComparisonOptions( daysRange( [ ...from ], [ ...to ] ), {
+				primaryPresetId: presetId,
+			} );
+
+			expect( previous.label ).toBe( label );
+			expect( previous.range ).toEqual( daysRange( [ ...compareFrom ], [ ...compareTo ] ) );
+		}
+	);
 
 	/*
 	 * Labels name the comparison target, not today: a range set in 2025 offers
@@ -392,5 +432,42 @@ describe( 'comparison options', () => {
 			expect( option.label ).toBeTruthy();
 			expect( option.shortLabel ).toBeTruthy();
 		}
+	} );
+
+	it.each( [
+		[
+			'a single day',
+			daysRange( [ 2026, 7, 30 ], [ 2026, 7, 30 ] ),
+			[ 'Prev. day', 'Prev. week', 'Jul', '2025', 'Prev. year, weekday' ],
+		],
+		[
+			'a single day on the 1st',
+			daysRange( [ 2026, 8, 1 ], [ 2026, 8, 1 ] ),
+			[ 'Prev. day', 'Prev. week', 'Aug', '2025', 'Prev. year, weekday' ],
+		],
+		[
+			'eight days',
+			daysRange( [ 2026, 7, 23 ], [ 2026, 7, 30 ] ),
+			[ 'Prev. 8 days', 'Prev. 8 days, weekday', 'Jul', '2025', 'Prev. year, weekday' ],
+		],
+		[
+			'a single hour',
+			{ from: siteDate( 2026, 7, 31, 14 ), to: siteDate( 2026, 7, 31, 14, 59, 59, 999 ) },
+			[ 'Prev. hour', 'Prev. week', 'Jul', '2025', 'Prev. year, weekday' ],
+		],
+		[
+			'a rolling 24 hours',
+			{ from: siteDate( 2026, 7, 30, 15 ), to: siteDate( 2026, 7, 31, 14, 59, 59, 999 ) },
+			[ 'Prev. 24 hours', 'Prev. week', 'Jul', '2025', 'Prev. year, weekday' ],
+		],
+		[
+			'a whole month',
+			daysRange( [ 2026, 6, 1 ], [ 2026, 6, 31 ] ),
+			[ 'Prev. month', '2025', 'Prev. year, weekday' ],
+		],
+		[ 'a calendar year', daysRange( [ 2025, 0, 1 ], [ 2025, 11, 31 ] ), [ 'Prev. 12 months' ] ],
+		[ 'two calendar years', daysRange( [ 2024, 0, 1 ], [ 2025, 11, 31 ] ), [ 'Prev. 2 years' ] ],
+	] )( 'abbreviates every option for the chart legend for %s', ( _case, range, expected ) => {
+		expect( legendLabels( range ) ).toEqual( expected );
 	} );
 } );

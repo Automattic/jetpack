@@ -1,7 +1,9 @@
+import { speak } from '@wordpress/a11y';
 import { DropZone, FormTokenField, TextareaControl, ToggleControl } from '@wordpress/components';
 import {
 	createInterpolateElement,
 	useCallback,
+	useEffect,
 	useMemo,
 	useRef,
 	useState,
@@ -286,65 +288,66 @@ function ImportStatusNotice( { jobs }: { jobs: ImportJob[] } ): JSX.Element | nu
 	const resetMutation = useResetImportMutation();
 	const handleCancelImport = useCallback( () => resetMutation.mutate(), [ resetMutation ] );
 
-	if ( ! jobs.some( isJobInProgress ) ) {
-		return null;
+	let message: string | null = null;
+	let notice: JSX.Element | null = null;
+	// Each variant carries a `key` so switching variants remounts the notice instead of reusing
+	// the previous variant's subtree state.
+	if ( jobs.some( isJobInProgress ) ) {
+		if ( ! jobs.some( job => isJobStale( job ) ) ) {
+			message = __(
+				'Your subscribers are being imported. This may take a few minutes. You can close this window and we’ll notify you when the import is complete.',
+				'jetpack-newsletter'
+			);
+			notice = (
+				<Notice.Root key="import-in-progress" intent="info">
+					<Notice.Description>{ message }</Notice.Description>
+				</Notice.Root>
+			);
+		} else if ( jobs[ 1 ]?.status === 'cancelled' ) {
+			// Mirrors Calypso: once a reset has already been tried (the previous job shows as
+			// cancelled), another "Cancel import" is unlikely to help — point at support instead.
+			message = __(
+				'Your recent import is taking longer than expected to complete. If this issue persists, please contact our support team for assistance.',
+				'jetpack-newsletter'
+			);
+			notice = (
+				<Notice.Root key="import-stale-support" intent="warning">
+					<Notice.Description>{ message }</Notice.Description>
+					<Notice.Actions>
+						<Notice.ActionLink
+							href="https://jetpack.com/support/newsletter/import-subscribers/"
+							openInNewTab
+						>
+							{ __( 'Learn more', 'jetpack-newsletter' ) }
+						</Notice.ActionLink>
+					</Notice.Actions>
+				</Notice.Root>
+			);
+		} else {
+			message = __(
+				'Your recent import is taking longer than expected to complete. Please cancel your import and try again.',
+				'jetpack-newsletter'
+			);
+			notice = (
+				<Notice.Root key="import-stale" intent="warning">
+					<Notice.Description>{ message }</Notice.Description>
+					<Notice.Actions>
+						<Notice.ActionButton onClick={ handleCancelImport } loading={ resetMutation.isPending }>
+							{ __( 'Cancel import', 'jetpack-newsletter' ) }
+						</Notice.ActionButton>
+					</Notice.Actions>
+				</Notice.Root>
+			);
+		}
 	}
 
-	// Each variant carries a `key` (remount instead of reusing the previous variant's hook
-	// state) and an explicit string `spokenMessage` — Notice.Root otherwise renderToString()s
-	// its children mid-render, which corrupts hook order when they include action buttons.
-	if ( ! jobs.some( job => isJobStale( job ) ) ) {
-		const inProgressMessage = __(
-			'Your subscribers are being imported. This may take a few minutes. You can close this window and we’ll notify you when the import is complete.',
-			'jetpack-newsletter'
-		);
-		return (
-			<Notice.Root key="import-in-progress" intent="info" spokenMessage={ inProgressMessage }>
-				<Notice.Description>{ inProgressMessage }</Notice.Description>
-			</Notice.Root>
-		);
-	}
+	useEffect( () => {
+		if ( message ) {
+			speak( message, 'polite' );
+		}
+	}, [ message ] );
 
-	// Mirrors Calypso: once a reset has already been tried (the previous job shows as
-	// cancelled), another "Cancel import" is unlikely to help — point at support instead.
-	if ( jobs[ 1 ]?.status === 'cancelled' ) {
-		const contactSupportMessage = __(
-			'Your recent import is taking longer than expected to complete. If this issue persists, please contact our support team for assistance.',
-			'jetpack-newsletter'
-		);
-		return (
-			<Notice.Root
-				key="import-stale-support"
-				intent="warning"
-				spokenMessage={ contactSupportMessage }
-			>
-				<Notice.Description>{ contactSupportMessage }</Notice.Description>
-				<Notice.Actions>
-					<Notice.ActionLink
-						href="https://jetpack.com/support/newsletter/import-subscribers/"
-						openInNewTab
-					>
-						{ __( 'Learn more', 'jetpack-newsletter' ) }
-					</Notice.ActionLink>
-				</Notice.Actions>
-			</Notice.Root>
-		);
-	}
-
-	const staleMessage = __(
-		'Your recent import is taking longer than expected to complete. Please cancel your import and try again.',
-		'jetpack-newsletter'
-	);
-	return (
-		<Notice.Root key="import-stale" intent="warning" spokenMessage={ staleMessage }>
-			<Notice.Description>{ staleMessage }</Notice.Description>
-			<Notice.Actions>
-				<Notice.ActionButton onClick={ handleCancelImport } loading={ resetMutation.isPending }>
-					{ __( 'Cancel import', 'jetpack-newsletter' ) }
-				</Notice.ActionButton>
-			</Notice.Actions>
-		</Notice.Root>
-	);
+	return notice;
 }
 
 type SubmitButtonProps = {
@@ -780,7 +783,7 @@ export default function AddSubscribersModal( { isOpen, onClose }: Props ): JSX.E
 			<Dialog.Popup>
 				<Dialog.Header>
 					<Dialog.Title>{ __( 'Add subscribers', 'jetpack-newsletter' ) }</Dialog.Title>
-					<Dialog.CloseIcon />
+					<Dialog.CloseIconButton />
 				</Dialog.Header>
 				<Dialog.Content>
 					<Stack direction="column" gap="lg">

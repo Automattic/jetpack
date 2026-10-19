@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.29.3] - 2026-10-12
+### Fixed
+- Brute Force Protection: Let new users set their password from a blocked IP, and stop sending recovery emails to accounts that have not set one yet. [#53323]
+
+## [0.29.2] - 2026-10-05
+### Changed
+- Internal updates.
+
 ## [0.29.1] - 2026-09-28
 ### Changed
 - Update dependencies. [#52691]
@@ -578,6 +586,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: do not ship .phpcs.dir.xml in production builds.
 
+[0.29.3]: https://github.com/Automattic/jetpack-waf/compare/v0.29.2...v0.29.3
+[0.29.2]: https://github.com/Automattic/jetpack-waf/compare/v0.29.1...v0.29.2
 [0.29.1]: https://github.com/Automattic/jetpack-waf/compare/v0.29.0...v0.29.1
 [0.29.0]: https://github.com/Automattic/jetpack-waf/compare/v0.28.11...v0.29.0
 [0.28.11]: https://github.com/Automattic/jetpack-waf/compare/v0.28.10...v0.28.11

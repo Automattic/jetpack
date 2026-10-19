@@ -17,7 +17,6 @@ jest.mock( '../use-help-tracking', () => ( {
 
 const mockCurrentUserCan = currentUserCan as jest.MockedFunction< typeof currentUserCan >;
 const mockGetAdminUrl = getAdminUrl as jest.MockedFunction< typeof getAdminUrl >;
-const mockGetScriptData = getScriptData as jest.MockedFunction< typeof getScriptData >;
 const mockIsSimpleSite = isSimpleSite as jest.MockedFunction< typeof isSimpleSite >;
 const mockIsJetpackPluginActive = isJetpackPluginActive as jest.MockedFunction<
 	typeof isJetpackPluginActive
@@ -26,11 +25,21 @@ const mockIsJetpackPluginActive = isJetpackPluginActive as jest.MockedFunction<
 describe( 'HelpFooter', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
+		( getScriptData as jest.Mock ).mockReturnValue( undefined );
 		mockCurrentUserCan.mockReturnValue( true );
 		mockGetAdminUrl.mockImplementation( path => `https://example.com/wp-admin/${ path }` );
 		mockIsJetpackPluginActive.mockReturnValue( true );
 		mockIsSimpleSite.mockReturnValue( false );
-		mockGetScriptData.mockReturnValue( undefined );
+	} );
+	it( 'uses the shared eligible module-management destination', () => {
+		( getScriptData as jest.Mock ).mockReturnValue( {
+			myJetpack: { modulesManagementUrl: 'features' },
+		} );
+		render( <HelpFooter /> );
+		expect( screen.getByRole( 'link', { name: 'All Jetpack modules' } ) ).toHaveAttribute(
+			'href',
+			'features'
+		);
 	} );
 
 	it( 'shows the Useful links section for an admin with the Jetpack plugin active', () => {
@@ -41,25 +50,12 @@ describe( 'HelpFooter', () => {
 		expect( screen.getByRole( 'link', { name: 'Debug information' } ) ).toBeInTheDocument();
 	} );
 
-	it( 'links All Jetpack modules to the modules page when the Features tab is off', () => {
+	it( 'sends All Jetpack modules to the Modules page', () => {
 		render( <HelpFooter /> );
 
 		expect( screen.getByRole( 'link', { name: 'All Jetpack modules' } ) ).toHaveAttribute(
 			'href',
 			'https://example.com/wp-admin/admin.php?page=jetpack_modules'
-		);
-	} );
-
-	it( 'links All Jetpack modules to the Features list view when the Features tab is on', () => {
-		mockGetScriptData.mockReturnValue( {
-			myJetpack: { productsSection: { slug: 'features', label: 'Features' } },
-		} as unknown as ReturnType< typeof getScriptData > );
-
-		render( <HelpFooter /> );
-
-		expect( screen.getByRole( 'link', { name: 'All Jetpack modules' } ) ).toHaveAttribute(
-			'href',
-			'https://example.com/wp-admin/admin.php?page=my-jetpack#/features?view=list'
 		);
 	} );
 

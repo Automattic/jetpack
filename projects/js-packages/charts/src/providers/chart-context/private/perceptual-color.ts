@@ -2,6 +2,9 @@ import { relativeLuminance, validateHexColor } from '../../../utils';
 
 export type Lab = readonly [ number, number, number ];
 
+/** sRGB channels from 0 to 255, left unrounded. */
+export type Rgb = readonly [ number, number, number ];
+
 /** A color as seen in normal vision, then under deuteranopia and protanopia. */
 export type ColorViews = readonly [ Lab, Lab, Lab ];
 
@@ -23,12 +26,21 @@ const toLinear = ( channel: number ): number =>
 const fromLinear = ( channel: number ): number =>
 	channel <= 0.0031308 ? 12.92 * channel : 1.055 * Math.pow( channel, 1 / 2.4 ) - 0.055;
 
-const hexToLinear = ( hex: string ): number[] => {
+/**
+ * The sRGB channels of a hex color.
+ *
+ * @param  hex - A six-digit hex color.
+ * @return Channels from 0 to 255.
+ * @throws {Error} if the hex string is malformed
+ */
+export const hexToRgb = ( hex: string ): Rgb => {
 	validateHexColor( hex );
-	return [ 1, 3, 5 ].map( start =>
-		toLinear( parseInt( hex.slice( start, start + 2 ), 16 ) / 255 )
-	);
+	const [ r, g, b ] = [ 1, 3, 5 ].map( start => parseInt( hex.slice( start, start + 2 ), 16 ) );
+	return [ r, g, b ];
 };
+
+const hexToLinear = ( hex: string ): number[] =>
+	hexToRgb( hex ).map( channel => toLinear( channel / 255 ) );
 
 const linearToHex = ( linear: number[] ): string =>
 	'#' +
@@ -195,6 +207,35 @@ export const hexToOklch = ( hex: string ): { chroma: number; hue: number } => {
 		chroma: Math.hypot( a, bAxis ),
 		hue: ( Math.atan2( bAxis, a ) / DEGREES + 360 ) % 360,
 	};
+};
+
+/**
+ * `foreground` over `background` at `weight`, left unrounded as CSS `color-mix` and alpha compositing leave it.
+ *
+ * A mix rounded to hex can land on the other side of a contrast threshold from the fill the browser paints.
+ *
+ * @param foreground - The color weighted by `weight`.
+ * @param background - The color it is mixed over.
+ * @param weight     - Share of `foreground`, from 0 to 1.
+ * @return The mixed channels.
+ */
+export const blendRgb = ( foreground: Rgb, background: Rgb, weight: number ): Rgb => {
+	const share = Math.min( 1, Math.max( 0, weight ) );
+	const [ r, g, b ] = foreground.map(
+		( channel, i ) => background[ i ] + ( channel - background[ i ] ) * share
+	);
+	return [ r, g, b ];
+};
+
+/**
+ * WCAG relative luminance of unrounded sRGB channels.
+ *
+ * @param rgb - Channels from 0 to 255.
+ * @return Relative luminance from 0 to 1.
+ */
+export const rgbLuminance = ( rgb: Rgb ): number => {
+	const [ r, g, b ] = rgb.map( channel => toLinear( channel / 255 ) );
+	return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 };
 
 /**

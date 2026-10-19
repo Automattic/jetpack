@@ -4,6 +4,7 @@
  * @package
  */
 
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { createReduxStore, register } from '@wordpress/data';
 import { addAction, addFilter } from '@wordpress/hooks';
 import metadata from '../../src/paypal-payment-buttons/block.json';
@@ -28,6 +29,11 @@ jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
 jest.mock( '@wordpress/block-editor', () => ( { store: 'core/block-editor' } ) );
 
 jest.mock( '@wordpress/hooks', () => ( { addAction: jest.fn(), addFilter: jest.fn() } ) );
+
+jest.mock( '@automattic/jetpack-analytics', () => ( {
+	__esModule: true,
+	default: { tracks: { recordEvent: jest.fn() } },
+} ) );
 
 const mockToast = jest.fn();
 jest.mock( '../../src/paypal-payment-buttons/utils/toast', () => ( {
@@ -283,7 +289,7 @@ describe( 'registerSaveSync', () => {
 
 			runSavedAction();
 
-			expect( mockToast.mock.calls ).toEqual( [ saved( 'Payment link changes saved.' ) ] );
+			expect( mockToast.mock.calls ).toEqual( [ saved( 'Payment button changes saved.' ) ] );
 		} );
 
 		// Either request can answer last.
@@ -313,12 +319,14 @@ describe( 'registerSaveSync', () => {
 				expect( apiFetch ).toHaveBeenCalledWith(
 					expect.objectContaining( { path: `${ API_BASE }/buttons`, method: 'POST' } )
 				);
-				expect( mockToast.mock.calls ).toEqual( [ saved( 'Payment link successfully created.' ) ] );
+				expect( mockToast.mock.calls ).toEqual( [
+					saved( 'Payment button successfully created.' ),
+				] );
 			}
 		);
 
 		// The read recorded no values, so the PUT counts as a change.
-		it( 'shows "Payment link changes saved" after a PUT that leaves the block attributes as they are', async () => {
+		it( 'shows "Payment button changes saved" after a PUT that leaves the block attributes as they are', async () => {
 			blocks.set( 'a', payPalBlock( 'a', 'PLB-A1' ) );
 			recordPaymentRead( 'a', 'PLB-A1' );
 			const edits = { content: blockComment( 'PLB-A1' ) };
@@ -327,7 +335,7 @@ describe( 'registerSaveSync', () => {
 			runSavedAction();
 
 			expect( result ).toBe( edits );
-			expect( mockToast.mock.calls ).toEqual( [ saved( 'Payment link changes saved.' ) ] );
+			expect( mockToast.mock.calls ).toEqual( [ saved( 'Payment button changes saved.' ) ] );
 		} );
 
 		// The first save after a reload PUTs every block.
@@ -350,7 +358,7 @@ describe( 'registerSaveSync', () => {
 			recordPaymentRead( 'a', 'PLB-A1' );
 			await runSaveFilter( { content: blockComment( 'PLB-A1' ) } );
 			runSavedAction();
-			expect( mockToast ).toHaveBeenCalledWith( ...saved( 'Payment link changes saved.' ) );
+			expect( mockToast ).toHaveBeenCalledWith( ...saved( 'Payment button changes saved.' ) );
 			mockToast.mockClear();
 			apiFetch.mockClear();
 
@@ -400,7 +408,7 @@ describe( 'registerSaveSync', () => {
 			expect( apiFetch ).not.toHaveBeenCalledWith(
 				expect.objectContaining( { method: expect.stringMatching( /^(POST|PUT)$/ ) } )
 			);
-			expect( mockToast.mock.calls ).toEqual( [ saved( 'Payment link successfully created.' ) ] );
+			expect( mockToast.mock.calls ).toEqual( [ saved( 'Payment button successfully created.' ) ] );
 		} );
 
 		it( "keeps a failed save's snackbar through an autosave and shows it once", async () => {
@@ -416,7 +424,7 @@ describe( 'registerSaveSync', () => {
 			runSavedAction();
 			runSavedAction();
 
-			expect( mockToast.mock.calls ).toEqual( [ saved( 'Payment link changes saved.' ) ] );
+			expect( mockToast.mock.calls ).toEqual( [ saved( 'Payment button changes saved.' ) ] );
 		} );
 
 		it( 'shows the created snackbar when an earlier failed save created the payment', async () => {
@@ -441,7 +449,7 @@ describe( 'registerSaveSync', () => {
 			await runSaveFilter( { content: blockComment( 'PLB-NEW1' ) } );
 			runSavedAction();
 
-			expect( mockToast.mock.calls ).toEqual( [ saved( 'Payment link successfully created.' ) ] );
+			expect( mockToast.mock.calls ).toEqual( [ saved( 'Payment button successfully created.' ) ] );
 		} );
 
 		// The PUT went through, and the stacked buttons still need another save.
@@ -459,8 +467,114 @@ describe( 'registerSaveSync', () => {
 					'There was an issue saving your stacked buttons. Please try again.',
 					'jetpack-paypal-sync-a',
 				],
-				saved( 'Payment link changes saved.' ),
+				saved( 'Payment button changes saved.' ),
 			] );
+		} );
+
+		describe( 'the button_updated event', () => {
+			const { recordEvent } = jetpackAnalytics.tracks;
+			const updated = [ 'jetpack_paypal_button_updated', { environment: 'sandbox' } ];
+
+			// The event takes its environment from the connection check.
+			beforeEach( () => {
+				apiFetch.mockImplementation( ( { path, method } ) => {
+					if ( path === `${ API_BASE }/connection` ) {
+						return Promise.resolve( { connected: true, environment: 'sandbox' } );
+					}
+
+					return Promise.resolve( 'POST' === method ? { id: 'PLB-NEW1' } : {} );
+				} );
+			} );
+
+			it( 'records button_updated once, after the post saves, with the changes saved snackbar', async () => {
+				blocks.set( 'a', payPalBlock( 'a', 'PLB-A1' ) );
+				recordPaymentRead( 'a', 'PLB-A1' );
+
+				await runSaveFilter( { content: blockComment( 'PLB-A1' ) } );
+				expect( recordEvent ).not.toHaveBeenCalled();
+
+				runSavedAction();
+				runSavedAction();
+
+				expect( mockToast.mock.calls ).toEqual( [ saved( 'Payment button changes saved.' ) ] );
+				expect( recordEvent.mock.calls ).toEqual( [ updated ] );
+			} );
+
+			it( 'keeps button_updated through an autosave and records it on the next post save', async () => {
+				blocks.set( 'a', payPalBlock( 'a', 'PLB-A1' ) );
+				recordPaymentRead( 'a', 'PLB-A1' );
+				await runSaveFilter( { content: blockComment( 'PLB-A1' ) } );
+
+				runSavedAction( { isAutosave: true } );
+				expect( recordEvent ).not.toHaveBeenCalled();
+
+				runSavedAction();
+				expect( recordEvent.mock.calls ).toEqual( [ updated ] );
+			} );
+
+			// The server records button_created for this save.
+			it( 'skips a pending button_updated when the next save creates a payment', async () => {
+				const block = payPalBlock( 'a', 'PLB-A1' );
+				blocks.set( 'a', block );
+				recordPaymentRead( 'a', 'PLB-A1' );
+				// A failed post save leaves an update pending.
+				await runSaveFilter( { content: blockComment( 'PLB-A1' ) } );
+
+				blocks.set( 'a', { ...block, attributes: { ...block.attributes, price: '31.00' } } );
+				blocks.set( 'b', payPalBlock( 'b' ) );
+				apiFetch.mockClear();
+				await runSaveFilter( { content: blockComment( 'PLB-A1' ) } );
+				runSavedAction();
+
+				expect( apiFetch ).toHaveBeenCalledWith(
+					expect.objectContaining( { path: `${ API_BASE }/buttons/PLB-A1`, method: 'PUT' } )
+				);
+				expect( apiFetch ).toHaveBeenCalledWith(
+					expect.objectContaining( { path: `${ API_BASE }/buttons`, method: 'POST' } )
+				);
+				expect( mockToast.mock.calls ).toEqual( [
+					saved( 'Payment button successfully created.' ),
+				] );
+				expect( recordEvent ).not.toHaveBeenCalled();
+			} );
+
+			it( 'skips button_updated on a resave of the unchanged block', async () => {
+				blocks.set( 'a', payPalBlock( 'a', 'PLB-A1' ) );
+				recordPaymentRead( 'a', 'PLB-A1' );
+				await runSaveFilter( { content: blockComment( 'PLB-A1' ) } );
+				runSavedAction();
+				expect( recordEvent.mock.calls ).toEqual( [ updated ] );
+				recordEvent.mockClear();
+				apiFetch.mockClear();
+
+				// Save the unchanged block again.
+				await runSaveFilter( { content: blockComment( 'PLB-A1' ) } );
+				runSavedAction();
+
+				expect( apiFetch ).not.toHaveBeenCalledWith( expect.objectContaining( { method: 'PUT' } ) );
+				expect( recordEvent ).not.toHaveBeenCalled();
+			} );
+
+			it( 'skips button_updated when an earlier failed save created the payment', async () => {
+				blocks.set( 'a', payPalBlock( 'a' ) );
+				await runSaveFilter( { content: '' }, {}, blockComment( 'PLB-NEW1' ) );
+
+				// A second failed save, this one an update.
+				const block = payPalBlock( 'a', 'PLB-NEW1' );
+				blocks.set( 'a', { ...block, attributes: { ...block.attributes, price: '31.00' } } );
+				await runSaveFilter( { content: blockComment( 'PLB-NEW1' ) } );
+				expect( apiFetch ).toHaveBeenCalledWith(
+					expect.objectContaining( { path: `${ API_BASE }/buttons/PLB-NEW1`, method: 'PUT' } )
+				);
+
+				await runSaveFilter( { content: blockComment( 'PLB-NEW1' ) } );
+				runSavedAction();
+
+				expect( mockToast.mock.calls ).toEqual( [
+					saved( 'Payment button successfully created.' ),
+				] );
+				expect( recordEvent ).not.toHaveBeenCalled();
+			} );
 		} );
 	} );
 } );

@@ -144,10 +144,31 @@ class PayPal_Platform_Client_Test extends TestCase {
 		$this->assertSame( '/v1/checkout/payment-resources', $body['path'] );
 		$this->assertSame( array( 'type' => 'BUY_NOW' ), $body['body'] );
 		$this->assertSame( 'request-1', $body['request_id'] );
+		// A site onboarded before the tracking ID was kept has none to present.
+		$this->assertArrayNotHasKey( 'tracking_id', $body );
 
 		// PayPal's answer reads like a direct one.
 		$this->assertSame( 201, wp_remote_retrieve_response_code( $response ) );
 		$this->assertSame( array( 'id' => 'PLB-1' ), json_decode( wp_remote_retrieve_body( $response ), true ) );
+	}
+
+	/**
+	 * Test that the call presents the tracking ID the seller was referred with, as proof the site may act for them.
+	 */
+	public function test_request_presents_the_referral_tracking_id() {
+		$this->set_up_referred_merchant();
+		update_option( PayPal_Partner_Onboarding::REFERRAL_TRACKING_ID_OPTION_KEY, 'woo-ncps-1234-1700000000', false );
+		$requests = array();
+		$this->mock_http_routes(
+			array( PayPal_Platform_Client::WPCOM_REQUEST_ROUTE => $this->platform_response( 200, array( 'resources' => array() ) ) ),
+			$requests
+		);
+
+		PayPal_Platform_Client::request( 'GET', '/v1/checkout/payment-resources' );
+
+		$body = (array) json_decode( $requests[0]['args']['body'], true );
+		$this->assertSame( 'MERCHANT1', $body['merchant_id'] );
+		$this->assertSame( 'woo-ncps-1234-1700000000', $body['tracking_id'] );
 	}
 
 	/**

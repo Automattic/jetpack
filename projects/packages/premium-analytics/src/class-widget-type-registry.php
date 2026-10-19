@@ -121,7 +121,7 @@ final class Widget_Type_Registry {
 
 		if ( isset( $this->former_names[ $name ] ) ) {
 			// One line: tools/replace-next-version-tag.sh only rewrites the token in a single-line call.
-			_doing_it_wrong( __METHOD__, esc_html( sprintf( /* translators: 1: Widget type name. 2: Widget type name. */ __( 'Widget type "%1$s" is a former name of "%2$s".', 'jetpack-premium-analytics-pkg' ), $name, $this->former_names[ $name ] ) ), 'jetpack-premium-analytics-$$next-version$$' );
+			_doing_it_wrong( __METHOD__, esc_html( sprintf( /* translators: 1: Widget type name. 2: Widget type name. */ __( 'Widget type "%1$s" is a former name of "%2$s".', 'jetpack-premium-analytics-pkg' ), $name, $this->former_names[ $name ] ) ), 'jetpack-premium-analytics-0.11.0' );
 			return false;
 		}
 
@@ -134,6 +134,14 @@ final class Widget_Type_Registry {
 			$widget_type->former_names = $former_names;
 		} else {
 			$args['former_names'] = $former_names;
+		}
+
+		// The plan gates use it as an array key, where anything but a string throws.
+		$plan_feature = $widget_type ? $widget_type->plan_feature : ( $args['plan_feature'] ?? null );
+		if ( null !== $plan_feature && ! is_string( $plan_feature ) ) {
+			// One line: tools/replace-next-version-tag.sh only rewrites the token in a single-line call.
+			_doing_it_wrong( __METHOD__, esc_html( sprintf( /* translators: %s: Widget type name. */ __( 'Widget type "%s" must declare its plan feature as a string.', 'jetpack-premium-analytics-pkg' ), $name ) ), 'jetpack-premium-analytics-$$next-version$$' );
+			return false;
 		}
 
 		if ( ! $widget_type ) {
@@ -200,7 +208,7 @@ final class Widget_Type_Registry {
 		}
 
 		// One line: tools/replace-next-version-tag.sh only rewrites the token in a single-line call.
-		_doing_it_wrong( __METHOD__, esc_html( sprintf( /* translators: 1: Widget type name. 2: Former name. */ __( 'Widget type "%1$s" cannot claim "%2$s" as a former name: it must be a namespaced lowercase name that no registered widget type holds.', 'jetpack-premium-analytics-pkg' ), $name, $taken ) ), 'jetpack-premium-analytics-$$next-version$$' );
+		_doing_it_wrong( __METHOD__, esc_html( sprintf( /* translators: 1: Widget type name. 2: Former name. */ __( 'Widget type "%1$s" cannot claim "%2$s" as a former name: it must be a namespaced lowercase name that no registered widget type holds.', 'jetpack-premium-analytics-pkg' ), $name, $taken ) ), 'jetpack-premium-analytics-0.11.0' );
 		return false;
 	}
 
@@ -248,7 +256,7 @@ final class Widget_Type_Registry {
 	 * Does not hydrate: call it after a read, since former names arrive with their types'
 	 * registration. An unknown name comes back unchanged.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.11.0
 	 *
 	 * @param string $name Widget type name, current or former.
 	 * @return string The current name.

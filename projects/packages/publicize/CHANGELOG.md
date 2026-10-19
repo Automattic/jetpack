@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.88.5] - 2026-10-14
+### Changed
+- Update dependencies. [#53618]
+
+### Fixed
+- Fix low-contrast placeholder chips in the share message help text and the available placeholders list. [#53615]
+
+## [0.88.4] - 2026-10-12
+### Changed
+- Internal updates.
+
+## [0.88.3] - 2026-10-12
+### Changed
+- Update dependencies.
+
+## [0.88.2] - 2026-10-05
+### Changed
+- Update package dependencies. [#52999]
+
+### Fixed
+- Connections: Let a Facebook or Instagram connection with no Page or account saved pick one when reconnecting. [#52963]
+- Fix post updates failing when Social post meta has duplicate rows. [#52910]
+
 ## [0.88.1] - 2026-09-29
 ### Changed
 - Use core SnackbarNotices instead of Jetpack GlobalNotices. [#52193]
@@ -1690,6 +1713,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.88.5]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.4...v0.88.5
+[0.88.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.3...v0.88.4
+[0.88.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.2...v0.88.3
+[0.88.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.1...v0.88.2
 [0.88.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.0...v0.88.1
 [0.88.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.87.1...v0.88.0
 [0.87.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.87.0...v0.87.1

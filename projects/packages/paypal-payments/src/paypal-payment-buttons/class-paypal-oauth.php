@@ -642,7 +642,7 @@ class PayPal_OAuth {
 	 *
 	 *     @type bool   $connected                   Whether the site can call PayPal.
 	 *     @type string $environment                 Current environment ('sandbox' or 'production').
-	 *     @type string $onboarding_method           How the merchant connected, when that is known.
+	 *     @type string $onboarding_method           'partner_referrals' for a referred seller without pasted credentials.
 	 *     @type string $merchant_id                 The merchant's PayPal ID, when that is known.
 	 *     @type string $account_email               The merchant's PayPal email, when that is known.
 	 *     @type bool   $partner_referrals_available Whether this site can start onboarding through WordPress.com.
@@ -655,9 +655,8 @@ class PayPal_OAuth {
 		);
 
 		// Include onboarding method if connected via Partner Referrals.
-		$method = get_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY, '' );
-		if ( ! empty( $method ) ) {
-			$status['onboarding_method'] = $method;
+		if ( PayPal_Partner_Onboarding::is_platform_managed() ) {
+			$status['onboarding_method'] = PayPal_Partner_Onboarding::ONBOARDING_METHOD;
 		}
 
 		$merchant_id = get_option( PayPal_Partner_Onboarding::MERCHANT_ID_OPTION_KEY, '' );

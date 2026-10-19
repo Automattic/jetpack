@@ -8,6 +8,7 @@ import {
 } from '@jetpack-premium-analytics/data';
 import {
 	ChartEmptyState,
+	ExternalLink,
 	WidgetRoot,
 	WidgetState,
 	safeHttpUrl,
@@ -15,8 +16,7 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { video } from '@wordpress/icons';
-import { Link, Stack } from '@jetpack-premium-analytics/externals';
+import { Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
@@ -54,15 +54,9 @@ function VideoEmbedsList( { pages }: VideoEmbedsListProps ) {
 				return (
 					<li key={ `${ index }-${ page.link }` } className={ styles.item }>
 						{ href ? (
-							<Link
-								className={ styles.link }
-								href={ href }
-								variant="unstyled"
-								openInNewTab
-								title={ page.label }
-							>
+							<ExternalLink className={ styles.link } href={ href } title={ page.label }>
 								{ page.label }
-							</Link>
+							</ExternalLink>
 						) : (
 							<span className={ styles.link } title={ page.label }>
 								{ page.label }
@@ -92,7 +86,6 @@ function VideoDetailEmbedsReport() {
 	if ( videoId <= 0 ) {
 		body = (
 			<ChartEmptyState
-				icon={ video }
 				text={ __(
 					'Select a video to see where it is embedded across your site.',
 					'jetpack-premium-analytics-pkg'
@@ -124,7 +117,6 @@ function VideoDetailEmbedsReport() {
 					],
 				} }
 				empty={ {
-					icon: video,
 					description: __(
 						'This video has not been embedded on any pages yet.',
 						'jetpack-premium-analytics-pkg'

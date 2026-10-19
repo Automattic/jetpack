@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { link } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /** No configurable attributes; the empty record allows host-provided fields. */
@@ -14,7 +13,6 @@ export type ClicksAttributes = Record< never, never >;
  * via the PA proxy at `stats/clicks`.
  */
 export default {
-	icon: link,
 	attributes: [] as WidgetAttributeField< ClicksAttributes >[],
 	example: {
 		attributes: {},

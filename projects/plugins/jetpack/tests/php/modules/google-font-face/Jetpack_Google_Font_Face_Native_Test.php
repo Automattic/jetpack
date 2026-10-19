@@ -109,11 +109,7 @@ class Jetpack_Google_Font_Face_Native_Test extends WP_UnitTestCase {
 	private function get_font_output() {
 		ob_start();
 		try {
-			if ( function_exists( 'gutenberg_print_font_faces' ) ) {
-				gutenberg_print_font_faces();
-			} else {
-				wp_print_font_faces();
-			}
+			wp_print_font_faces();
 			$this->printer->print_font_faces();
 			return ob_get_contents();
 		} finally {
@@ -228,10 +224,8 @@ class Jetpack_Google_Font_Face_Native_Test extends WP_UnitTestCase {
 
 	public function test_native_hooks_are_preserved() {
 		add_action( 'wp_head', 'wp_print_font_faces', 50 );
-		add_action( 'wp_head', 'gutenberg_print_font_faces', 50 );
 		$this->printer->wp_loaded();
 		$this->assertSame( 50, has_action( 'wp_head', 'wp_print_font_faces' ) );
-		$this->assertSame( 50, has_action( 'wp_head', 'gutenberg_print_font_faces' ) );
 	}
 
 	/** @return array */
@@ -327,9 +321,6 @@ class Jetpack_Google_Font_Face_Native_Test extends WP_UnitTestCase {
 		$this->assertStringNotContainsString( 'unused-catalogue.woff2', $output );
 	}
 	public function test_gutenberg_classic_theme_user_font_wins_over_catalogue() {
-		if ( ! function_exists( 'gutenberg_print_font_faces' ) ) {
-			$this->markTestSkipped( 'Requires Gutenberg classic-theme font support.' );
-		}
 		switch_theme( 'default' );
 		$this->printer = new Jetpack_Google_Font_Face();
 		$this->native_fonts(
@@ -447,7 +438,7 @@ class Jetpack_Google_Font_Face_Native_Test extends WP_UnitTestCase {
 		remove_all_actions( 'wp_head' );
 		remove_all_actions( 'wp_footer' );
 		remove_all_filters( 'pre_render_block' );
-		add_action( 'wp_head', function_exists( 'gutenberg_print_font_faces' ) ? 'gutenberg_print_font_faces' : 'wp_print_font_faces', 50 );
+		add_action( 'wp_head', 'wp_print_font_faces', 50 );
 		$this->printer = new Jetpack_Google_Font_Face();
 		$this->printer->wp_loaded();
 		$this->native_fonts( array( self::font_definition( 'Native Font', 'native', 'https://example.org/native.woff2' ) ) );

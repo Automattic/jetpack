@@ -1,0 +1,102 @@
+{
+	"description": "Background -> derived text color pairs for WPCOM_Email_Text_Color::derive(), the reference for the design editor's JavaScript port. Change both together.",
+	"minimumContrast": 4.5,
+	"cases": [
+		{
+			"background": "#ffffff",
+			"text": "#262626"
+		},
+		{
+			"background": "#000000",
+			"text": "#f2f2f2"
+		},
+		{
+			"background": "#f6f7f7",
+			"text": "#242828"
+		},
+		{
+			"background": "#1e1e1e",
+			"text": "#f2f2f2"
+		},
+		{
+			"background": "#777777",
+			"text": "#050505"
+		},
+		{
+			"background": "#767676",
+			"text": "#030303"
+		},
+		{
+			"background": "#113af5",
+			"text": "#e7ebfe"
+		},
+		{
+			"background": "#632cff",
+			"text": "#ece5ff"
+		},
+		{
+			"background": "#f59e0b",
+			"text": "#492f03"
+		},
+		{
+			"background": "#ff0000",
+			"text": "#330000"
+		},
+		{
+			"background": "#00ff00",
+			"text": "#004d00"
+		},
+		{
+			"background": "#0000ff",
+			"text": "#e5e5ff"
+		},
+		{
+			"background": "#ffff00",
+			"text": "#4d4d00"
+		},
+		{
+			"background": "#f5efe0",
+			"text": "#3a2f13"
+		},
+		{
+			"background": "#fdf6e3",
+			"text": "#473605"
+		},
+		{
+			"background": "#002b36",
+			"text": "#e5faff"
+		},
+		{
+			"background": "#0b3d2e",
+			"text": "#e9fbf6"
+		},
+		{
+			"background": "#e8f4ff",
+			"text": "#00284c"
+		},
+		{
+			"background": "#ffc0cb",
+			"text": "#4d000d"
+		},
+		{
+			"background": "#8b0000",
+			"text": "#ffe5e5"
+		},
+		{
+			"background": "#2d2d2d",
+			"text": "#f2f2f2"
+		},
+		{
+			"background": "#c0c0c0",
+			"text": "#262626"
+		},
+		{
+			"background": "#3a86ff",
+			"text": "#001e4d"
+		},
+		{
+			"background": "#ff006e",
+			"text": "#3d001a"
+		}
+	]
+}

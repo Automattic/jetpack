@@ -9,6 +9,10 @@ namespace Automattic\Jetpack\Agents_Manager;
 
 use Automattic\Jetpack\Connection\REST_Jetpack_AI_JWT;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class WP_REST_Jetpack_AI_JWT.
  *

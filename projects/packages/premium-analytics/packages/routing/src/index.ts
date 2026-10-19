@@ -10,6 +10,8 @@ export {
 	omitComparisonReportParams,
 	pickReportDateParams,
 	pickReportNavigationParams,
+	pickReportOriginWindowParams,
+	toReportOriginWindowParams,
 	hasPrimaryDateDraft,
 	buildDashboardLink,
 	buildReportLink,
@@ -31,6 +33,7 @@ export {
 	useSectionTab,
 	useDashboardLink,
 	useOpenSectionRange,
+	usePeriodHost,
 	type OpenSectionRange,
 	type ReportDateFilters,
 } from './hooks';

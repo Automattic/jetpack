@@ -10,12 +10,12 @@ type FooterMenuItem = {
 
 type BuildOptionalMenuItemsArgs = {
 	adminUrl: string;
+	modulesManagementUrl?: string;
 	isDevVersion: boolean;
 	userIsAdmin: boolean;
 	isSiteConnected: boolean;
 	isJetpackPluginActive: boolean;
 	isSimpleSite: boolean;
-	modulesListPath: string;
 	onModulesClick: () => void;
 	onResetClick: () => void;
 	onResetKeyDown: ( event: KeyboardEvent ) => void;
@@ -23,20 +23,18 @@ type BuildOptionalMenuItemsArgs = {
 
 const buildOptionalMenuItems = ( {
 	adminUrl,
+	modulesManagementUrl,
 	isDevVersion,
 	userIsAdmin,
 	isSiteConnected,
 	isJetpackPluginActive,
 	isSimpleSite,
-	modulesListPath,
 	onModulesClick,
 	onResetClick,
 	onResetKeyDown,
 }: BuildOptionalMenuItemsArgs ): FooterMenuItem[] => {
 	const items: FooterMenuItem[] = [];
 
-	// The fallback jetpack_modules admin page is not registered on WordPress.com Simple sites,
-	// so the link would 404 there.
 	if ( userIsAdmin && isSiteConnected && isJetpackPluginActive && ! isSimpleSite ) {
 		items.push( {
 			label: _x(
@@ -48,7 +46,7 @@ const buildOptionalMenuItems = ( {
 				'Access the full list of Jetpack modules available on your site.',
 				'jetpack-my-jetpack'
 			),
-			href: `${ adminUrl }${ modulesListPath }`,
+			href: modulesManagementUrl || `${ adminUrl }admin.php?page=jetpack_modules`,
 			onClick: onModulesClick,
 		} );
 	}

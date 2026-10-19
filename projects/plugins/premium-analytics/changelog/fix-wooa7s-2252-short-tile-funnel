@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Keep conversion funnel bars and empty-state messages visible in one-row widgets.

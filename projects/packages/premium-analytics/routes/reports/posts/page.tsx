@@ -8,17 +8,16 @@ import {
 import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
-	ReportEmptyState,
-	ReportErrorState,
 	ReportPageLayout,
+	ReportErrorState,
 	ReportPageShell,
 	ReportPageTabs,
 	ReportDrilldownTable,
 	ReportRecordsTable,
-	ReportCsvAction,
-	useReportCsvExport,
-	useReportRetry,
-	type CsvColumn,
+	ExporterCsvAction,
+	archivesCsvExporter,
+	postsPagesCsvExporter,
+	type ArchiveRow,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -29,14 +28,12 @@ import { route } from '../package.json';
 import { REPORTS } from '../registry';
 import { useReportParams } from '../use-report-params';
 import {
-	buildArchiveCsvRows,
 	getArchivesFields,
 	getPostsFields,
 	getReportPostsTabs,
 	getTabLabel,
 	resolveTabId,
 	usePostsReportRecords,
-	type ArchiveRow,
 } from './config';
 import type { JSX } from 'react';
 
@@ -44,11 +41,7 @@ import type { JSX } from 'react';
 // navigations target this path with the `posts` param.
 const ROUTE_FROM = route.path;
 
-type ReportCsvRow = StatsTopPostsComparisonItem | ArchiveRow;
-
 const EMPTY_POST_ROWS: StatsTopPostsComparisonItem[] = [];
-
-const sortReportCsvRows = ( a: ReportCsvRow, b: ReportCsvRow ) => b.views - a.views;
 
 /**
  * Stable row id for the records table — the post ID, or the label for rows
@@ -111,7 +104,6 @@ function PostsReport(): JSX.Element {
 	const [ activeTab, setActiveTab ] = useSectionTab( ROUTE_FROM, resolveTabId );
 
 	const records = usePostsReportRecords( activeTab, reportParams );
-	const retry = useReportRetry( records.refetch );
 	const [ visiblePostRows, setVisiblePostRows ] = useState< StatsTopPostsComparisonItem[] >( [] );
 	const handleVisiblePostRowsChange = useCallback( ( rows: StatsTopPostsComparisonItem[] ) => {
 		// Preserve the array when only thumbnail-backed fields changed, or this callback loops.
@@ -134,39 +126,23 @@ function PostsReport(): JSX.Element {
 		[ records.archives.hasComparison ]
 	);
 
-	const csvColumns = useMemo< CsvColumn< ReportCsvRow >[] >(
-		() => [
-			{
-				label: __( 'Title', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => String( row.label ?? '' ),
-			},
-			{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.views },
-			{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: row => row.link ?? '' },
-		],
-		[]
-	);
-	const activeRecords = activeTab === 'posts-pages' ? records.posts : records.archives;
-
-	const csvExportRows = useMemo< ReportCsvRow[] >(
-		() =>
-			activeTab === 'posts-pages'
-				? records.posts.rows
-				: buildArchiveCsvRows( records.archives.rows ),
-		[ activeTab, records.posts.rows, records.archives.rows ]
-	);
-	const {
-		canExport,
-		rows: csvRows,
-		filename: csvFilename,
-	} = useReportCsvExport< ReportCsvRow >( {
-		rows: csvExportRows,
-		filenamePrefix: activeTab === 'posts-pages' ? 'top-posts' : 'archives',
-		range: reportParams,
-		status: activeRecords,
-		// Archives are already ordered depth-first by views within each group;
-		// sorting the flattened rows again would interleave the groups.
-		sort: activeTab === 'posts-pages' ? sortReportCsvRows : undefined,
-	} );
+	// One element per tab: the two exporters' row types cannot share one generic call.
+	const csvAction =
+		activeTab === 'posts-pages' ? (
+			<ExporterCsvAction
+				exporter={ postsPagesCsvExporter }
+				items={ records.posts.rows }
+				status={ records.posts }
+				reportParams={ reportParams }
+			/>
+		) : (
+			<ExporterCsvAction
+				exporter={ archivesCsvExporter }
+				items={ records.archives.items }
+				status={ records.archives }
+				reportParams={ reportParams }
+			/>
+		);
 
 	// Date-range state lives in the URL search params, staged and committed by
 	// the shared date-filter controller — same model as the dashboard.
@@ -183,7 +159,8 @@ function PostsReport(): JSX.Element {
 				data={ records.posts.rows }
 				fields={ postsFields }
 				getItemId={ getPostRowId }
-				isLoading={ records.posts.isLoading || records.posts.isFetching }
+				isLoading={ records.posts.isLoading }
+				isFetching={ records.posts.isFetching }
 				initialView={ POSTS_VIEW }
 				searchLabel={ __( 'Search posts', 'jetpack-premium-analytics-pkg' ) }
 				onChangePageItems={ handleVisiblePostRowsChange }
@@ -195,44 +172,39 @@ function PostsReport(): JSX.Element {
 				fields={ archivesFields }
 				getItemId={ getArchiveRowId }
 				getItemParentId={ getArchiveRowParentId }
-				isLoading={ records.archives.isLoading || records.archives.isFetching }
+				isLoading={ records.archives.isLoading }
+				isFetching={ records.archives.isFetching }
 				initialView={ RECORDS_VIEW }
 				searchLabel={ __( 'Search archives', 'jetpack-premium-analytics-pkg' ) }
 				hideLevelMarkers
+				collapsible
+				defaultExpanded="none"
 			/>
 		);
 
 	const { getLabel } = REPORTS.posts;
 
-	let tableReplacement: JSX.Element | undefined;
-
-	if ( records.isError ) {
-		tableReplacement = (
-			<ReportErrorState
-				title={ __( 'Unable to load posts', 'jetpack-premium-analytics-pkg' ) }
-				onRetry={ retry }
-			/>
-		);
-	} else if ( ! activeRecords.isLoading && activeRecords.rows.length === 0 ) {
-		tableReplacement = <ReportEmptyState />;
-	}
-
 	return (
 		<ReportPageShell
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
-			actions={
-				canExport ? (
-					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
-				) : undefined
-			}
+			actions={ csvAction }
 		>
 			<ReportPageLayout
 				title={ getTabLabel( activeTab ) }
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 				dateFilters={ dateFilters }
+				withAllTime
 			>
-				{ tableReplacement ?? recordsTable }
+				<ReportErrorState
+					status={ records }
+					retryDescription={ __(
+						"We couldn't load posts. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					) }
+				>
+					{ recordsTable }
+				</ReportErrorState>
 			</ReportPageLayout>
 		</ReportPageShell>
 	);

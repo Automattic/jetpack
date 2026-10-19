@@ -15,6 +15,10 @@
 
 namespace Automattic\Jetpack\Search;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 // Paid-plan gate. AI Answer requires Jetpack Search's paid plan; on a free
 // or no-plan site the block contributes nothing to the page (no panel
 // scaffold, no `data-wp-interactive` div, no Interactivity hydration). The
@@ -29,7 +33,7 @@ if ( ! AI_Answers::host_allows_ai() ) {
 	return;
 }
 
-if ( ! AI_Answers::should_enforce_master() ) {
+if ( ! AI_Answers::is_master_enabled() ) {
 	return;
 }
 

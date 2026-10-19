@@ -43,7 +43,7 @@ class Avatars {
 			$args['url']          = $url;
 			$args['found_avatar'] = true;
 		} elseif ( self::is_signed_in( (int) $id_or_email->comment_ID ) ) {
-			// The provider had no photo: the site default, not a Gravatar the commenter never chose.
+			// WordPress.com had no photo: the site default, not a Gravatar the commenter never chose.
 			$args['force_default'] = true;
 		}
 
@@ -109,7 +109,7 @@ class Avatars {
 	 * @return bool
 	 */
 	private static function is_signed_in( $comment_id ) {
-		return '' !== (string) get_comment_meta( $comment_id, Checkpoint::META_PROVIDER, true );
+		return '' !== (string) get_comment_meta( $comment_id, Checkpoint::META_ID, true );
 	}
 
 	/**
@@ -133,12 +133,12 @@ class Avatars {
 		$stored = get_comment_meta( $comment_id, Checkpoint::META_AVATAR, true );
 
 		if ( ! is_string( $stored ) || $stored === '' || 'https' !== wp_parse_url( $stored, PHP_URL_SCHEME ) ) {
-			// Highlander and Verbum stored a Facebook or X avatar here, which the email cannot
-			// bring back. Written by the browser, so only those two hosts are served.
+			// Highlander and Verbum stored a Facebook avatar here, which the email cannot bring back.
+			// Written by the browser, so only that host is served. Legacy X avatars 404 and are skipped.
 			$stored = get_comment_meta( $comment_id, 'hc_avatar', true );
 			$host   = is_string( $stored ) ? wp_parse_url( $stored, PHP_URL_HOST ) : null;
 
-			if ( ! is_string( $host ) || ! preg_match( '/(^|\.)(graph\.facebook\.com|twimg\.com)$/', $host ) ) {
+			if ( ! is_string( $host ) || ! preg_match( '/(^|\.)graph\.facebook\.com$/', $host ) ) {
 				$stored = null;
 			}
 		}

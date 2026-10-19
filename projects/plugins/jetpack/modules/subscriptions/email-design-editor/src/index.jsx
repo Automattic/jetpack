@@ -36,6 +36,7 @@ import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { registerPlugin } from '@wordpress/plugins';
 import { addQueryArgs } from '@wordpress/url';
+import { watchDerivedTextColor } from './derived-text-color';
 
 // Declared by the Jetpack plugin on every platform, answered by WordPress.com, so
 // the browser calls one local URL everywhere.
@@ -242,6 +243,22 @@ export function buildPreloadMap( bundle, templateId ) {
 	};
 
 	return Object.keys( map ).length > 0 ? map : null;
+}
+
+/**
+ * The colors the site gives text, links, headings and buttons, before WordPress.com made any
+ * readable.
+ *
+ * A bundle from before WordPress.com reported these omits the key, and the watcher then leaves
+ * links and headings to WordPress.com — which is what every blog saw before.
+ *
+ * @param {object} bundle - The response from the bootstrap route.
+ * @return {object} The inherited colors, keyed by element.
+ */
+export function inheritedColors( bundle ) {
+	const colors = bundle?.inherited_colors;
+
+	return colors && 'object' === typeof colors ? colors : {};
 }
 
 /**
@@ -928,11 +945,11 @@ async function flushDesign( id ) {
 }
 
 /**
- * The post the test send renders.
+ * The post the test send falls back to.
  *
- * This screen edits a design rather than a post, so there is nothing here to send and the newest
- * published post stands in. Both platforms seed one at install, so a blog with none is a creator
- * who deleted it.
+ * Entered from Appearance this screen edits a design rather than a post, so there is nothing here
+ * to send and the newest published post stands in. Both platforms seed one at install, so a blog
+ * with none is a creator who deleted it.
  *
  * @return {Promise<number|null>} The post's id, or null when the blog has published nothing.
  */
@@ -958,9 +975,10 @@ async function newestPublishedPostId() {
  * email a subscriber gets rather than WooCommerce's own render of it. See NL-953.
  *
  * @param {number|null} globalStylesPostId - The global-styles id the bundle named.
+ * @param {number|null} previewPostId      - The post the canvas previews, where one was named.
  * @return {Function} An `apiFetch` middleware.
  */
-export function createTestSendMiddleware( globalStylesPostId ) {
+export function createTestSendMiddleware( globalStylesPostId, previewPostId = null ) {
 	return async ( options, next ) => {
 		const path = 'string' === typeof options.path ? options.path.split( '?' )[ 0 ] : '';
 		const method = ( options.method || 'GET' ).toUpperCase();
@@ -972,7 +990,8 @@ export function createTestSendMiddleware( globalStylesPostId ) {
 		try {
 			await flushDesign( globalStylesPostId );
 
-			const id = await newestPublishedPostId();
+			// The post on the canvas, so the test lands in an inbox showing what the screen shows.
+			const id = previewPostId || ( await newestPublishedPostId() );
 
 			if ( ! id ) {
 				throw new TestSendError(
@@ -1051,6 +1070,29 @@ function LoadError() {
 }
 
 /**
+ * The bootstrap route, with whatever this entry point narrows the bundle to.
+ *
+ * `post_id` is the post the canvas should preview, which the previewer's link carries; entering
+ * from Appearance or Newsletter settings sends none and WordPress.com picks the default. NL-1051.
+ *
+ * @param {object} data - The value of `window.JetpackEmailDesignEditor`.
+ * @return {string} The path to fetch.
+ */
+function bootstrapPath( data ) {
+	const args = {};
+
+	if ( data.templateSlug ) {
+		args.template_slug = data.templateSlug;
+	}
+
+	if ( data.postId ) {
+		args.post_id = data.postId;
+	}
+
+	return Object.keys( args ).length ? addQueryArgs( BOOTSTRAP_PATH, args ) : BOOTSTRAP_PATH;
+}
+
+/**
  * Fetch the bootstrap bundle and mount the editor into the page's container.
  *
  * @return {Promise<void>} Resolves once the editor or an error has rendered.
@@ -1071,13 +1113,10 @@ export async function mountEmailDesignEditor() {
 
 	const root = createRoot( container );
 	let stopWatchingSidebar = null;
+	let stopDerivingTextColor = null;
 
 	try {
-		const bundle = await apiFetch( {
-			path: data.templateSlug
-				? addQueryArgs( BOOTSTRAP_PATH, { template_slug: data.templateSlug } )
-				: BOOTSTRAP_PATH,
-		} );
+		const bundle = await apiFetch( { path: bootstrapPath( data ) } );
 
 		const config = buildEditorConfig( bundle, data );
 
@@ -1101,7 +1140,7 @@ export async function mountEmailDesignEditor() {
 			apiFetch.use( createDesignSaveMiddleware( config.globalStylesPostId ) );
 		}
 
-		apiFetch.use( createTestSendMiddleware( config.globalStylesPostId ) );
+		apiFetch.use( createTestSendMiddleware( config.globalStylesPostId, data.postId ?? null ) );
 
 		if ( preload ) {
 			// Registered last so it runs first: api-fetch applies middlewares right to
@@ -1115,6 +1154,10 @@ export async function mountEmailDesignEditor() {
 		// error screen.
 		if ( canEditDesign( bundle ) ) {
 			stopWatchingSidebar = openStylesSidebarOnLoad();
+			stopDerivingTextColor = watchDerivedTextColor(
+				config.globalStylesPostId,
+				inheritedColors( bundle )
+			);
 		}
 
 		root.render(
@@ -1128,6 +1171,7 @@ export async function mountEmailDesignEditor() {
 		);
 	} catch ( error ) {
 		stopWatchingSidebar?.();
+		stopDerivingTextColor?.();
 
 		// The notice deliberately does not name which half failed; this does.
 		// eslint-disable-next-line no-console

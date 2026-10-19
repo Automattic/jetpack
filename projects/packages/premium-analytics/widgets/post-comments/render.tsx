@@ -1,9 +1,8 @@
 /**
  * External dependencies
  */
-import { useStatsPost, useStatsPostComments, toPostId } from '@jetpack-premium-analytics/data';
+import { useStatsPostComments, toPostId } from '@jetpack-premium-analytics/data';
 import { formatRelativeSince } from '@jetpack-premium-analytics/datetime';
-import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	SubscriberList,
 	SubscriberListSkeleton,
@@ -40,8 +39,6 @@ function PostCommentsInner() {
 		number: COMMENTS_SHOWN,
 	} );
 
-	const { data: postStats } = useStatsPost( { postId, fields: [ 'post' ] } );
-
 	const items = useMemo< SubscriberListItem[] >(
 		() =>
 			( data?.comments ?? [] ).map( comment => ( {
@@ -56,9 +53,6 @@ function PostCommentsInner() {
 		[ data ]
 	);
 
-	// A short page holds every comment; only a full one needs the post's total.
-	const isShortPage = ( data?.fetchedCount ?? 0 ) < COMMENTS_SHOWN;
-	const total = isShortPage ? items.length : postStats?.post?.comment_count;
 	const isEmpty = postId <= 0 || ( !! data && items.length === 0 );
 
 	return (
@@ -79,19 +73,18 @@ function PostCommentsInner() {
 					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 				} }
 				empty={ {
-					icon: reports,
 					description:
 						postId <= 0
 							? __(
 									'Open a post or page report to see its comments here.',
 									'jetpack-premium-analytics-pkg'
 								)
-							: __( 'There are no comments yet.', 'jetpack-premium-analytics-pkg' ),
+							: __( 'This post has no comments yet.', 'jetpack-premium-analytics-pkg' ),
 				} }
 			>
 				<SubscriberList
 					items={ items }
-					moreCount={ total === undefined ? null : Math.max( 0, total - items.length ) }
+					moreCount={ data?.found === undefined ? null : Math.max( 0, data.found - items.length ) }
 				/>
 			</WidgetState>
 		</div>

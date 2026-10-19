@@ -2,11 +2,16 @@
  * Internal dependencies
  */
 import { useStatsLocations } from '@jetpack-premium-analytics/data';
+import { useMemo } from '@wordpress/element';
 import type {
 	ReportParams,
 	StatsLocationCoordinates,
 	StatsLocationsComparisonItem,
 } from '@jetpack-premium-analytics/data';
+import {
+	getLocationsScopeParams,
+	type LocationsScope,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 
 export type GeoMode = 'country' | 'region' | 'city';
 
@@ -38,9 +43,9 @@ interface UseLocationViewsArgs {
 	 */
 	geoMode?: GeoMode;
 	/**
-	 * ISO country code to filter regions by (region mode).
+	 * Country, or a region inside it, to narrow the rows to.
 	 */
-	countryFilter?: string;
+	filter?: LocationsScope;
 }
 
 interface LocationViewsState {
@@ -81,19 +86,23 @@ export default function useLocationViews( {
 	reportParams,
 	max,
 	geoMode = 'country',
-	countryFilter,
+	filter,
 }: UseLocationViewsArgs ): LocationViewsState {
-	const statsParams = {
+	const statsParams: Parameters< typeof useStatsLocations >[ 0 ] = {
 		...reportParams,
 		geoMode,
 		max,
-		...( countryFilter ? { filter_by_country: countryFilter } : {} ),
-	} as Parameters< typeof useStatsLocations >[ 0 ];
+		...getLocationsScopeParams( filter ),
+	};
 
 	const { comparisonRows, hasComparison, isLoading, isFetching, hasData, isError, refetch } =
 		useStatsLocations( statsParams, { maxRows: max } );
 
-	const items = ( comparisonRows?.rows ?? [] ).map( toLocationView );
+	// Stable across renders, so the widget can hold a finished level by reference.
+	const items = useMemo(
+		() => ( comparisonRows?.rows ?? [] ).map( toLocationView ),
+		[ comparisonRows ]
+	);
 
 	return {
 		data: items,
