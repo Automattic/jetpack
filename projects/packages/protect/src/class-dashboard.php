@@ -86,6 +86,7 @@ class Dashboard {
 		add_action( 'admin_menu', array( __CLASS__, 'add_menu' ), 999 );
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
 		Threat_Count::init();
+		Settings::init();
 
 		self::load_sections( __DIR__ . '/sections' );
 

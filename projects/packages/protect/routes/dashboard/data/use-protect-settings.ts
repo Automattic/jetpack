@@ -7,7 +7,9 @@ import { store as noticesStore } from '@wordpress/notices';
 // One id, so a burst of saves shows one snackbar.
 const SAVED_NOTICE_ID = 'jetpack-protect-settings-saved';
 
-/** Flat Jetpack settings, keyed by option or module slug, as `jetpack/v4/settings` returns them. */
+const SETTINGS_PATH = '/jetpack/v4/protect-dashboard/settings';
+
+/** Flat settings, keyed by option or module slug, as the package's settings route returns them. */
 export type ProtectSettings = Record< string, unknown >;
 
 export type WafConfig = {
@@ -26,7 +28,7 @@ export type ProtectSettingsData = {
 	isSaving: ( key: string ) => boolean;
 	/** Fetches the settings once; later calls do nothing unless the fetch failed. */
 	load: () => void;
-	/** Saves to `path` (default `/jetpack/v4/settings`) and merges the patch into `settings`; resolves to whether it saved. */
+	/** Saves to `path` (default `SETTINGS_PATH`) and merges the patch into `settings`; resolves to whether it saved. */
 	save: ( patch: ProtectSettings, path?: string ) => Promise< boolean >;
 	/** Re-reads the given keys, for settings the server changes as a side effect of another save. */
 	refresh: ( keys: string[] ) => Promise< void >;
@@ -63,7 +65,7 @@ export default function useProtectSettings(): ProtectSettingsData {
 		setError( null );
 
 		Promise.all( [
-			apiFetch< ProtectSettings >( { path: '/jetpack/v4/settings' } ),
+			apiFetch< ProtectSettings >( { path: SETTINGS_PATH } ),
 			apiFetch< WafConfig >( { path: '/jetpack/v4/waf' } ).catch( () => null ),
 		] )
 			.then( ( [ nextSettings, nextWaf ] ) => {
@@ -82,7 +84,7 @@ export default function useProtectSettings(): ProtectSettingsData {
 	}, [ setSettings ] );
 
 	const save = useCallback(
-		async ( patch: ProtectSettings, path = '/jetpack/v4/settings' ) => {
+		async ( patch: ProtectSettings, path = SETTINGS_PATH ) => {
 			const keys = Object.keys( patch );
 			const before = settingsRef.current;
 			const previous = Object.fromEntries(
@@ -137,7 +139,7 @@ export default function useProtectSettings(): ProtectSettingsData {
 	const refresh = useCallback(
 		async ( keys: string[] ) => {
 			try {
-				const latest = await apiFetch< ProtectSettings >( { path: '/jetpack/v4/settings' } );
+				const latest = await apiFetch< ProtectSettings >( { path: SETTINGS_PATH } );
 				const fresh = keys.filter( key => key in latest ).map( key => [ key, latest[ key ] ] );
 				setSettings( { ...settingsRef.current, ...Object.fromEntries( fresh ) } );
 			} catch {
