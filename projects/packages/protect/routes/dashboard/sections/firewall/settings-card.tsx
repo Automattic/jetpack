@@ -7,10 +7,9 @@ import { CardRow, ProtectCard } from '../../components/card';
 import IpListField from '../../components/settings/ip-list-field';
 import SettingToggle from '../../components/settings/setting-toggle';
 import FirewallToggle from './firewall-toggle';
-import { IP_ALLOW_LIST, IP_BLOCK_LIST, enabledKey } from './settings-keys';
+import { AUTOMATIC_RULES, IP_ALLOW_LIST, IP_BLOCK_LIST, enabledKey } from './settings-keys';
 import type { FirewallContext } from './types';
 
-const AUTOMATIC_RULES = 'jetpack_waf_automatic_rules';
 const SHARE_DATA = 'jetpack_waf_share_data';
 const SHARE_DEBUG_DATA = 'jetpack_waf_share_debug_data';
 // Saving through the WAF endpoint keeps the two share options coupled and regenerates the standalone bootstrap.

@@ -26,7 +26,7 @@ import {
 import FirewallToggle from './firewall-toggle';
 import IpRule from './ip-rule';
 import RecentBlocks from './recent-blocks';
-import { IP_ALLOW_LIST, IP_BLOCK_LIST } from './settings-keys';
+import { AUTOMATIC_RULES, IP_ALLOW_LIST, IP_BLOCK_LIST } from './settings-keys';
 import TestDetails from './test-details';
 import type { TestOutcome, TestResult } from './firewall-test';
 import type { FirewallBlocks, FirewallContext, FirewallState } from './types';
@@ -48,9 +48,8 @@ const UNAVAILABLE: FirewallState = {
 // The only setting this card saves.
 const FIREWALL_KEYS = [ 'waf' ];
 
-const AUTOMATIC_RULES = 'jetpack_waf_automatic_rules';
-
-const formatCount = ( count: number | null ) => ( count === null ? '—' : formatNumber( count ) );
+const formatCount = ( count?: number | null ) =>
+	typeof count === 'number' ? formatNumber( count ) : '—';
 
 // One id for the test's snackbars, so the result replaces "Testing the firewall…".
 const NOTICE_ID = 'jetpack-protect-firewall-test';

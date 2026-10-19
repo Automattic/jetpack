@@ -77,8 +77,6 @@ final class WafBlocklogManagerTest extends PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * Old days are only pruned when a block is written, so a site with no recent blocks still stores them.
-	 *
 	 * @runInSeparateProcess
 	 */
 	#[RunInSeparateProcess]

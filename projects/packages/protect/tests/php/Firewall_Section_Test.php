@@ -91,6 +91,34 @@ class Firewall_Section_Test extends BaseTestCase {
 		);
 	}
 
+	public function test_each_block_count_comes_from_its_own_stored_period() {
+		$stored  = array(
+			Waf_Blocklog_Manager::BLOCKLOG_OPTION_NAME_DAILY_SUMMARY        => serialize(
+				array(
+					gmdate( 'Y-m-d' ) => 2,
+					gmdate( 'Y-m-d', strtotime( '-3 days' ) ) => 5,
+				)
+			),
+			Waf_Blocklog_Manager::BLOCKLOG_OPTION_NAME_ALL_TIME_BLOCK_COUNT => '40',
+		);
+		$options = static function ( $rows, $query ) use ( $stored ) {
+			foreach ( $stored as $name => $value ) {
+				if ( false !== strpos( $query, "option_name = '$name'" ) ) {
+					return array( (object) array( 'option_value' => $value ) );
+				}
+			}
+			return $rows;
+		};
+		add_filter( 'wordbless_wpdb_query_results', $options, 10, 2 );
+
+		$blocks = Firewall::get_blocks();
+
+		remove_filter( 'wordbless_wpdb_query_results', $options, 10 );
+		$this->assertSame( 2, $blocks['blockedToday'], 'today' );
+		$this->assertSame( 7, $blocks['blockedLast30Days'], 'last 30 days' );
+		$this->assertSame( 40, $blocks['blockedCount'], 'all time' );
+	}
+
 	/**
 	 * A date for rules the firewall isn't loading would claim protection the site doesn't have.
 	 *
