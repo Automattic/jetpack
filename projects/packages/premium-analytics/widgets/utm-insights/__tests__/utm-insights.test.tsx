@@ -112,10 +112,13 @@ describe( 'UtmInsightsWidget', () => {
 			/>
 		);
 
+		expect( screen.getByText( 'Source / Medium' ) ).toBeInTheDocument();
+
 		await user.click(
 			screen.getByRole( 'button', { name: 'View posts for jetpack-forms / email' } )
 		);
 
+		expect( screen.getByText( 'Posts' ) ).toBeInTheDocument();
 		const titleLink = screen.getByRole( 'link', { name: 'Jetpack Forms' } );
 		const href = titleLink.getAttribute( 'href' ) ?? '';
 

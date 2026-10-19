@@ -9,37 +9,50 @@
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Unified_Admin_Page_View;
 
 /**
- * Bump a unified Tracks stat for every wp-admin page view.
+ * The site properties shared by the wp-admin Tracks events.
+ *
+ * @return array|null The properties, or null when there is no site to describe.
+ */
+function wpcom_unified_admin_tracks_props() {
+	$is_simple_site = defined( 'IS_WPCOM' ) && IS_WPCOM;
+
+	if ( $is_simple_site ) {
+		global $current_blog;
+		if ( ! $current_blog instanceof \WP_Site ) {
+			return null;
+		}
+		$blog_id = $current_blog->blog_id;
+	} else {
+		$blog_id = _wpcom_get_current_blog_id();
+	}
+
+	return array(
+		'site_type' => $is_simple_site ? 'simple' : 'atomic',
+		'blog_id'   => $blog_id,
+	);
+}
+
+/**
+ * Bump a unified Tracks stat for every wp-admin page view, and for every time Screen Options is opened.
  */
 function wpcom_unified_track_admin_page_views() {
-	$is_simple_site = defined( 'IS_WPCOM' ) && IS_WPCOM;
-	$is_atomic_site = ! $is_simple_site;
-
-	global $current_user, $current_blog, $current_screen;
+	global $current_user, $current_screen;
 	if ( ! $current_user instanceof \WP_User || ! $current_screen instanceof \WP_Screen ) {
 		return;
 	}
-	$blog_id    = null;
-	$user_types = array();
 
-	if ( $is_simple_site ) {
-		if ( ! $current_blog instanceof \WP_Site ) {
-			return;
-		}
-		$blog_id    = $current_blog->blog_id;
-		$user_types = \WPCOM_User::get_types();
+	$site_props = wpcom_unified_admin_tracks_props();
+	if ( null === $site_props ) {
+		return;
 	}
 
-	if ( $is_atomic_site ) {
-		$blog_id    = _wpcom_get_current_blog_id();
-		$user_types = wpcom_atomic_get_user_types();
-	}
+	$user_types  = 'simple' === $site_props['site_type'] ? \WPCOM_User::get_types() : wpcom_atomic_get_user_types();
 	$event_props = array(
 		'route'           => $current_screen->id,
 		'source'          => 'wp-admin',
-		'site_type'       => $is_simple_site ? 'simple' : 'atomic',
+		'site_type'       => $site_props['site_type'],
 		'is_block_editor' => $current_screen->is_block_editor,
-		'blog_id'         => $blog_id,
+		'blog_id'         => $site_props['blog_id'],
 		'user_type'       => implode( ',', $user_types ),
 	);
 	?>
@@ -48,6 +61,16 @@ function wpcom_unified_track_admin_page_views() {
 		_tkq = window._tkq || [];
 		_tkq.push( [ 'identifyUser', <?php echo (int) $current_user->ID; ?>, <?php echo wp_json_encode( $current_user->user_login, JSON_HEX_TAG ); ?> ] );
 		_tkq.push( [ 'recordEvent', 'wpcom_unified_admin_page_view', _admin_pv_props ] );
+		( function ( props ) {
+			document.addEventListener( 'click', function ( event ) {
+				var button = event.target.closest && event.target.closest( '#show-settings-link' );
+				var panel = button && document.getElementById( button.getAttribute( 'aria-controls' ) );
+				// This listener captures the click before core toggles the panel, so a hidden panel is about to open.
+				if ( panel && ! panel.getClientRects().length ) {
+					window._tkq.push( [ 'recordEvent', 'wpcom_admin_screen_options_open', props ] );
+				}
+			}, true );
+		} )( <?php echo wp_json_encode( array( 'route' => $current_screen->id ) + $site_props, JSON_HEX_TAG ); ?> );
 	</script>
 	<?php
 }

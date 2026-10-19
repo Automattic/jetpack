@@ -12,7 +12,7 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import { useReportProducts, type FilterCondition } from '../reports';
+import { useProductImages, useReportProducts, type FilterCondition } from '../reports';
 
 /** How many products the report asks for, and how many rows the leaderboard shows. */
 const TOP_PRODUCTS_LIMIT = 5;
@@ -23,6 +23,8 @@ type ProductLeaderboardProps = {
 	/** The product types the leaderboard ranks. */
 	filter: FilterCondition;
 	errorText: string;
+	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
+	chartTitle: string;
 };
 
 /**
@@ -32,7 +34,7 @@ type ProductLeaderboardProps = {
  * @param {ProductLeaderboardProps} props - The component props.
  * @return {JSX.Element} The leaderboard, or the loading, error or empty state of its report.
  */
-export function ProductLeaderboard( { filter, errorText }: ProductLeaderboardProps ) {
+export function ProductLeaderboard( { filter, errorText, chartTitle }: ProductLeaderboardProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const params = useMemo(
 		() => ( { ...reportParams, filters: [ filter ] } ),
@@ -49,12 +51,18 @@ export function ProductLeaderboard( { filter, errorText }: ProductLeaderboardPro
 		error,
 		refetch,
 	} = useReportProducts( params, TOP_PRODUCTS_LIMIT );
+	// The thumbnails follow the rows: the report paints as it answers, the images fill in behind.
+	const productIds = useMemo(
+		() => ( primary.data?.data ?? [] ).map( item => item.product_id ),
+		[ primary.data ]
+	);
+	const images = useProductImages( productIds, params );
 
 	const rows = useMemo< LeaderboardRowInput[] >( () => {
 		const previous = new Map(
 			( comparison.data?.data ?? [] ).map( item => [ item.product_id, item.product_net_revenue ] )
 		);
-		const images = primary.data?.images ?? {};
+		const imageById = images.primary.data ?? {};
 
 		return ( primary.data?.data ?? [] ).map( ( product, index ) => ( {
 			id: String( product.product_id || index ),
@@ -64,21 +72,22 @@ export function ProductLeaderboard( { filter, errorText }: ProductLeaderboardPro
 			previousValue: previous.get( product.product_id ),
 			media: {
 				kind: 'thumbnail',
-				url: images[ product.product_id ]?.url || undefined,
-				alt: images[ product.product_id ]?.alt || product.product_name,
+				url: imageById[ product.product_id ]?.url || undefined,
+				alt: imageById[ product.product_id ]?.alt || product.product_name,
 			},
 		} ) );
-	}, [ primary.data, comparison.data ] );
+	}, [ primary.data, comparison.data, images.primary.data ] );
 
 	// The range may compare while no shown product carries over: no column then.
 	const hasVisibleComparison = hasComparison && rows.some( row => row.previousValue !== undefined );
 
 	return (
 		<Leaderboard
+			chartTitle={ chartTitle }
 			rows={ rows }
 			status={ {
 				isLoading,
-				isFetching,
+				isFetching: isFetching || images.isFetching,
 				// The queries keep the previous range's data on screen, so an error only shows without it.
 				isError: isError && ! hasData,
 				hasComparison: hasVisibleComparison,

@@ -1139,7 +1139,7 @@ class REST_Connector {
 	 * Filtered by what `Manager::update_connection_owner()` requires of a new owner, so the
 	 * list cannot offer someone the change would then refuse.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.11.0
 	 *
 	 * @return \WP_REST_Response
 	 */
@@ -1163,6 +1163,13 @@ class REST_Connector {
 				'login'       => $user->user_login,
 				'displayName' => $user->display_name,
 				'email'       => $user->user_email,
+				'avatar'      => get_avatar_url(
+					$user->ID,
+					array(
+						'size'    => 48,
+						'default' => 'mysteryman',
+					)
+				),
 			);
 		}
 
@@ -1175,7 +1182,7 @@ class REST_Connector {
 	 * Same capability as changing the owner: seeing the candidates and acting on them go
 	 * together, and the list carries logins and email addresses.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.11.0
 	 *
 	 * @return true|WP_Error
 	 */

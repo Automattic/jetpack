@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Turn away comments from logged-out readers that arrive without the form's nonce, which only the form's script adds, to stop spam bots that post the form straight from the page.

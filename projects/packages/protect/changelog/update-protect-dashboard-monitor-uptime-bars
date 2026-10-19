@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Show the Downtime monitoring card with an uptime percentage, per-day tooltips, and an on/off toggle like the Firewall card.

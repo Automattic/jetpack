@@ -167,6 +167,7 @@ class Initializer_Wp_Build_Test extends BaseTestCase {
 	#[PreserveGlobalState( false )]
 	public function test_admin_page_renders_the_onboarding_container_for_the_takeover() {
 		require_once __DIR__ . '/stubs/wp-build-render-page.php';
+		$_GET['page'] = 'my-jetpack';
 		$_GET['step'] = 'onboarding';
 
 		$html = $this->render_admin_page();

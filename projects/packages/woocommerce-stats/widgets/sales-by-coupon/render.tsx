@@ -72,6 +72,7 @@ function SalesByCoupon() {
 				onRetry: refetch,
 			} ) }
 			format={ CURRENCY_FORMAT }
+			chartTitle={ __( 'Sales by coupon', 'jetpack-woocommerce-stats-pkg' ) }
 		/>
 	);
 }

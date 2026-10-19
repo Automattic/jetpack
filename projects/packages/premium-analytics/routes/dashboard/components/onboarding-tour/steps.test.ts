@@ -6,7 +6,12 @@ describe( 'onboardingTourSteps', () => {
 		const dateControls = document.createElement( 'div' );
 		const optionsMenu = document.createElement( 'button' );
 
-		const steps = onboardingTourSteps( { firstWidget, dateControls, optionsMenu } );
+		const steps = onboardingTourSteps( {
+			firstWidget,
+			dateControls,
+			optionsMenu,
+			sectionTabs: null,
+		} );
 
 		expect( steps.map( step => step.anchor ) ).toEqual( [
 			firstWidget,
@@ -27,7 +32,7 @@ describe( 'onboardingTourSteps', () => {
 		const optionsMenu = document.createElement( 'button' );
 
 		const steps = onboardingTourSteps(
-			{ firstWidget: null, dateControls: null, optionsMenu },
+			{ firstWidget: null, dateControls: null, optionsMenu, sectionTabs: null },
 			{ withFeedback: false }
 		);
 
@@ -40,8 +45,35 @@ describe( 'onboardingTourSteps', () => {
 			firstWidget: null,
 			dateControls: null,
 			optionsMenu: null,
+			sectionTabs: null,
 		} );
 
 		expect( steps.map( step => step.anchor ) ).toEqual( [ null, null, null, null ] );
+	} );
+
+	it.each( [
+		{ flow: 'store' as const, titles: [ 'Switch between boards' ] },
+		{
+			flow: 'stats-and-store' as const,
+			titles: [
+				'Everything is a widget',
+				'Switch between boards',
+				'A better date picker',
+				'Rearrange it your way',
+				'One last thing',
+			],
+		},
+	] )( 'adds the tab bar step to the $flow journey', ( { flow, titles } ) => {
+		const sectionTabs = document.createElement( 'div' );
+
+		const steps = onboardingTourSteps(
+			{ firstWidget: null, dateControls: null, optionsMenu: null, sectionTabs },
+			{ withFeedback: true, flow }
+		);
+
+		expect( steps.map( step => step.title ) ).toEqual( titles );
+		expect( steps.find( step => step.title === 'Switch between boards' )?.anchor ).toBe(
+			sectionTabs
+		);
 	} );
 } );

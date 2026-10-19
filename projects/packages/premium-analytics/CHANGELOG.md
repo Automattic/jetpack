@@ -5,6 +5,67 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.0] - 2026-10-12
+### Added
+- Add a Mark as spam action, with Undo, to the Referrers report. [#53277]
+- Add a Settings tab to the dashboard, where site owners can see their plan usage and change the Stats settings. [#53357]
+- Add likes, comments and an all-time traffic table to the author detail page, and count an author's views even when they rank below the top 20 authors. [#53292]
+- Dashboard: add the bars variant of the Leaderboard widget kind, which draws both periods as bars under a period legend; the widget contract is 1.7.0. [#53398]
+- Dashboard: add the Funnel widget kind, which the conversion rate widgets draw with. [#53460]
+- Dashboard: add the half-ring variant of the Donut widget kind, which Devices and Sessions by device draw with; the widget contract is 1.8.0. [#53429]
+- Dashboard: Expose the Donut widget kind and the shared WidgetStatus type through the SDK; the widget contract is 1.5.0. [#53309]
+- Dashboard: expose the Funnel widget kind through the SDK; the widget contract is 1.9.0. [#53461]
+- Dashboard: Resolve the icon a widget.json names, under the `jpa` collection; the widget contract is 1.6.0. [#53355]
+- Link author names in Popular authors and the Authors report to the author's page. [#53455]
+- Link the Videos report thumbnails to the video detail page, let video leaderboard rows show a linked poster, and mark the video detail poster with a play icon. [#53011]
+- Show hours watched and retention rate on the Videos report, and name the Videos, Clicks, Authors and Locations columns as in Stats. [#53205]
+- Widget SDK: Add `useReport` and `toBucketStamp`, so a package that extends the dashboard can run its own report queries and feed the dashboard time series. [#53234]
+- Widgets toolkit: Add a Donut component that renders a breakdown with its total, legend, deltas and states; the five WooCommerce donut widgets use it. [#53305]
+
+### Changed
+- Cap the cards on report pages at a centered 1440px column on wide screens, so each row's label and numbers stay close enough to read together. [#53139]
+- Charts: Draw chart tooltips with dark text on the light chart surface. [#53184]
+- Charts: Use a 2px corner radius on chart bars. [#53132]
+- Chart tooltips: Head the rows with the date once, read each as value then metric, and list the comparison period in a second column. [#53147]
+- Dashboard: Move the WooCommerce tab to the WooCommerce stats package and rename it from Store to WooCommerce, including its URL. [#53157]
+- Date controls: Compare with the previous period by default. [#53273]
+- Label store visitor counts as Store visitors in the Store performance widget, the location map, and CSV exports, so they aren't confused with Jetpack Stats visitors. [#53345]
+- Make the days in Monthly posting activity larger, growing with the card and wrapping the months onto two rows in the default layout. [#53341]
+- Move the Top tags & categories widget from Insights to Traffic, where it and its report follow the date picker instead of a fixed seven days. [#53299]
+- Open the dashboard from the admin bar Stats links and the newsletter action bar post stats link when it is enabled. [#52905]
+- Open the dashboard on the last 7 days, or on the range the reader last applied here or in Jetpack Stats, and remember a range applied from the header. [#53276]
+- Open the dashboard to anyone with a section available to them, so shop managers reach the WooCommerce tab, and keep Stats tabs, widgets and feedback to readers who can view Stats. [#53290]
+- Reports: Rename the Videos, Clicks, Authors and Locations CSV headers to match the report table columns. [#53271]
+- Show the empty-cell color at the start of heatmap legends such as Posting activity. [#53338]
+- Traffic: Move the chart interval control from the page header into the Traffic summary widget, which saves its own interval. [#53140]
+- Widgets toolkit: Move the remaining report and widget links onto the shared ExternalLink and InternalLink components; the Comments Subscribers and File downloads report links now open in a new tab with the outbound marker. [#53136]
+- WordAds data: Flag today's day bucket as pending and read its values as null, as WordAds counts nightly; chart tooltips can carry a note for a bucket with no reading. [#53229]
+
+### Removed
+- Remove the Store performance widget, now built by the WooCommerce Stats package. [#53427]
+- Remove the WooCommerce breakdown widgets, now built by the WooCommerce Stats package. [#53311]
+- Remove the WooCommerce conversion rate widgets, now built by the WooCommerce Stats package. [#53462]
+- Remove the WooCommerce leaderboard widgets, now built by the WooCommerce Stats package. [#53404]
+- Remove the WooCommerce Sessions by device widget, now built by the WooCommerce Stats package. [#53454]
+- Remove the WooCommerce time series widgets, now built by the WooCommerce Stats package. [#53291]
+
+### Fixed
+- Charts: Draw a summary chart too short for its axes as a sparkline without axes, so its tooltip can be reached. [#53206]
+- Charts: Paint the metric tabs chart's tooltip above the metric tabs. [#53135]
+- Date controls: Compare Last 30 days and custom ranges starting mid-month with the same number of days right before them. [#53272]
+- Draw attention to the date control when a click on the Traffic summary chart sets the period. [#53142]
+- Drop the URL column from the comment authors CSV, since its links only worked on the site and could expose guest commenters' email addresses. [#53138]
+- Label a partial first or last week on the Traffic, Subscribers, and ads charts with the selected range's own start or end date. [#53137]
+- Make donut and semi-circle chart widgets such as Devices reachable by keyboard, and name them for screen readers. [#53274]
+- Make low values in heatmaps such as Posting activity easier to tell apart from empty cells, and show zero counts as empty. [#53085]
+- Pair each week with its matching week in a year-ago weekly comparison, and show the days each week covers in the Traffic and ads chart tooltips. [#53207]
+- Reports: show the Referrers, Clicks, Authors and UTM tables at one weight on every row, so the chevron alone marks a row that expands. [#53306]
+- Show a video watched for a few minutes as "< 0.1" hours, not 0.0, on the Videos report and video detail page. [#53269]
+- Store: Show store revenue and other money values in the store's currency instead of always US dollars. [#53350]
+- Store performance: Use sentence case in the Store visitors chart tooltip, like the other count labels. [#53346]
+- Store reports: Follow the WooCommerce Analytics date type setting instead of always using the order creation date. [#53347]
+- Widgets toolkit: Leaderboard draws a negative value as an empty bar instead of a negative width. [#53319]
+
 ## [0.11.0] - 2026-10-05
 ### Added
 - Add a Download CSV action to more widgets that saves the full report for the selected dates. [#53079] [#52969] [#53019] [#53017]
@@ -504,6 +565,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - VideoPress: Add a video detail page with plays leaderboard, video highlights, and embed locations. [#50311] [#50536]
 - WordAds: Add widgets for ads served, average CPM and revenue over time, all-time earnings highlights, and earnings, sponsored content and adjustments history. [#50314] [#50490]
 
+[0.12.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.11.0...0.12.0
 [0.11.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.10.0...0.11.0
 [0.10.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.9.0...0.10.0
 [0.9.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.8.0...0.9.0

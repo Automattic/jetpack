@@ -10,7 +10,7 @@ export type EditorProps = {
 	/** The caret's offset into the text, or -1 for the end. Left out, the editor takes no focus. */
 	focus?: () => number;
 	placeholder: string;
-	/** Fetch and draw provider previews. Off on the edit-comment screen, where the URL is enough. */
+	/** Draw embeds and images. Off on the edit-comment screen, where the URL is enough. */
 	previewEmbeds?: boolean;
 	onChange: ( content: string ) => void;
 	/** The editor broke; the caller brings its textarea back. */
@@ -39,15 +39,26 @@ export type EmbedEditProps = BlockEditProps< EmbedAttributes > & {
 	onReplace: ( blocks: Block | Block[] ) => void;
 };
 
-type HistoryStep = { blocks: Block[]; markup: string };
+export type ImageAttributes = { url?: string };
+
+export type ImageEditProps = BlockEditProps< ImageAttributes >;
+
+/** The caret as the block editor reports it with an edit, which an undo puts back. */
+export type EditorSelection = {
+	selectionStart?: object;
+	selectionEnd?: object;
+	initialPosition?: number | null;
+};
+
+type HistoryStep = { blocks: Block[]; markup: string; selection?: EditorSelection };
 
 export type History = {
 	past: HistoryStep[];
 	present: HistoryStep;
 	future: HistoryStep[];
-	/** When the present step last changed; 0 after an undo or redo. */
-	editedAt: number;
 };
 
 export type HistoryAction =
-	{ type: 'edit'; blocks: Block[]; at: number } | { type: 'undo' } | { type: 'redo' };
+	| { type: 'edit'; blocks: Block[]; selection?: EditorSelection; persistent: boolean }
+	| { type: 'undo' }
+	| { type: 'redo' };

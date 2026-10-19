@@ -6,11 +6,11 @@ import type { FilterCondition } from '../../types/filter-condition';
 import type { BaseReportParams } from '../../utils/types';
 
 type ReportsConversionRateByDateSummary = {
-	active_sessions: string;
-	visitors: string;
-	with_cart_addition: string;
-	reached_checkout: string;
-	completed_checkout: string;
+	active_sessions: string | null;
+	visitors: string | null;
+	with_cart_addition: string | null;
+	reached_checkout: string | null;
+	completed_checkout: string | null;
 	date_end: string;
 	date_start: string;
 };
@@ -18,11 +18,11 @@ type ReportsConversionRateByDateSummary = {
 type ConversionRateReportDataItem = {
 	date_start: string;
 	date_end: string;
-	active_sessions: string;
-	visitors: string;
-	with_cart_addition: string;
-	reached_checkout: string;
-	completed_checkout: string;
+	active_sessions: string | null;
+	visitors: string | null;
+	with_cart_addition: string | null;
+	reached_checkout: string | null;
+	completed_checkout: string | null;
 };
 
 type ReportsConversionRateByDateResponse = {

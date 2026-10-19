@@ -1,5 +1,6 @@
 import { getScoreMovementPercentage } from '@automattic/jetpack-boost-score-api';
 import { useQueryClient } from '@tanstack/react-query';
+import { speak } from '@wordpress/a11y';
 import { __ } from '@wordpress/i18n';
 import { Button, Notice } from '@wordpress/ui';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
@@ -34,7 +35,7 @@ import { useScoreCardVisibility } from './lib/use-score-card-visibility';
 import ScoreBar from './score-bar';
 import ScoreCards from './score-cards';
 import './overview.scss';
-import type { ReactNode } from 'react';
+import type { ReactNode, RefObject } from 'react';
 
 type Props = {
 	scoresEnabled?: boolean;
@@ -42,28 +43,45 @@ type Props = {
 	onHeaderActionChange: ( action: ReactNode ) => void;
 };
 
+function OverviewFallback( {
+	error,
+	isVisible,
+	noticeRef,
+}: {
+	error: Error;
+	isVisible: boolean;
+	noticeRef: RefObject< HTMLDivElement >;
+} ) {
+	const message = isVisible ? __( 'Unable to display performance scores', 'jetpack-boost' ) : '';
+	useEffect( () => {
+		if ( message ) {
+			speak( message, 'assertive' );
+		}
+	}, [ message ] );
+	return (
+		<Notice.Root
+			ref={ noticeRef }
+			className="jetpack-boost-overview__fallback"
+			tabIndex={ -1 }
+			intent="error"
+		>
+			<Notice.Title>{ __( 'Unable to display performance scores', 'jetpack-boost' ) }</Notice.Title>
+			<Notice.Description>{ error.message }</Notice.Description>
+		</Notice.Root>
+	);
+}
+
 export default function Overview( props: Props ) {
 	const fallbackRef = useRef< HTMLDivElement >( null );
 	const focusFallback = useCallback( () => fallbackRef.current?.focus(), [] );
 	return (
 		<ErrorBoundary
 			fallback={ error => (
-				<Notice.Root
-					ref={ fallbackRef }
-					className="jetpack-boost-overview__fallback"
-					tabIndex={ -1 }
-					intent="error"
-					spokenMessage={
-						props.isVisible !== false
-							? __( 'Unable to display performance scores', 'jetpack-boost' )
-							: ''
-					}
-				>
-					<Notice.Title>
-						{ __( 'Unable to display performance scores', 'jetpack-boost' ) }
-					</Notice.Title>
-					<Notice.Description>{ error.message }</Notice.Description>
-				</Notice.Root>
+				<OverviewFallback
+					error={ error }
+					isVisible={ props.isVisible !== false }
+					noticeRef={ fallbackRef }
+				/>
 			) }
 		>
 			<OverviewContent { ...props } focusFallback={ focusFallback } />
@@ -226,15 +244,27 @@ function OverviewContent( {
 		focusFallback,
 	] );
 
+	const offlineMessage =
+		! online && isVisible ? __( 'Website is not publicly available', 'jetpack-boost' ) : '';
+	useEffect( () => {
+		if ( offlineMessage ) {
+			speak( offlineMessage, 'polite' );
+		}
+	}, [ offlineMessage ] );
+	const modulesErrorMessage =
+		online && modules.isError && isVisible
+			? __( 'Failed to load module settings', 'jetpack-boost' )
+			: '';
+	useEffect( () => {
+		if ( modulesErrorMessage ) {
+			speak( modulesErrorMessage, 'assertive' );
+		}
+	}, [ modulesErrorMessage ] );
+
 	if ( ! online ) {
 		return (
 			<div className="jetpack-boost-overview">
-				<Notice.Root
-					intent="info"
-					spokenMessage={
-						isVisible ? __( 'Website is not publicly available', 'jetpack-boost' ) : ''
-					}
-				>
+				<Notice.Root intent="info">
 					<Notice.Title>
 						{ __( 'Website is not publicly available', 'jetpack-boost' ) }
 					</Notice.Title>
@@ -278,10 +308,7 @@ function OverviewContent( {
 				isVisible={ isVisible }
 			/>
 			{ modules.isError && (
-				<Notice.Root
-					intent="error"
-					spokenMessage={ isVisible ? __( 'Failed to load module settings', 'jetpack-boost' ) : '' }
-				>
+				<Notice.Root intent="error">
 					<Notice.Title>{ __( 'Failed to load module settings', 'jetpack-boost' ) }</Notice.Title>
 					<Notice.Description>{ modules.error.message }</Notice.Description>
 					<Notice.Actions>

@@ -16,6 +16,26 @@ Neither depends on a module being active: the screen and every section on it
 exist whichever modules are on, on any site that is Simple, connected, or in
 offline mode.
 
+The same call hooks the Sharing Buttons and Like blocks into block themes' single
+post and page templates, before or after the post content, wherever the
+`jetpack_sharing_buttons_auto_add` and `jetpack_likes_auto_add` options ask for
+them and the legacy buttons are off. No screen sets them yet; to try it:
+
+	wp option update jetpack_sharing_buttons_auto_add '["after_content"]' --format=json
+	wp option update jetpack_likes_auto_add '["before_content"]' --format=json
+
+Single posts and pages get them by default. To add another post type's single views:
+
+```php
+add_filter(
+	'jetpack_sharing_likes_template_placement_post_types',
+	function ( $post_types ) {
+		$post_types[] = 'product';
+		return $post_types;
+	}
+);
+```
+
 It also ships the per-post Likes and Sharing switches the block editor shows, as
 REST fields on every public post type. `Initializer::init()` leaves these out:
 each belongs to the feature that reads it, so call it wherever that feature

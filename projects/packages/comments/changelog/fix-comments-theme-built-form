@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix a fatal error on themes that build their own comment form, such as Thesis.
