@@ -1289,24 +1289,17 @@ class Initializer_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Overview v1 follows its flag, and the deprecated filter still turns it on.
+	 * Overview v1 shows only with its flag on.
 	 */
-	public function test_overview_v1_follows_its_flag_and_the_deprecated_filter() {
+	public function test_my_jetpack_flags_show_overview_v1_only_when_the_flag_is_on() {
 		Initializer::register_feature_flags();
-		add_filter( 'deprecated_hook_trigger_error', '__return_false' );
+		$this->assertFalse( Initializer::get_my_jetpack_flags()['overviewV1'] );
+
+		add_filter( 'jetpack_feature_flag_enabled_' . Initializer::OVERVIEW_V1_FLAG, '__return_true' );
 		try {
-			$this->assertFalse( Initializer::get_my_jetpack_flags()['overviewV1'] );
-
-			add_filter( 'jetpack_feature_flag_enabled_' . Initializer::OVERVIEW_V1_FLAG, '__return_true' );
-			$this->assertTrue( Initializer::get_my_jetpack_flags()['overviewV1'] );
-			remove_filter( 'jetpack_feature_flag_enabled_' . Initializer::OVERVIEW_V1_FLAG, '__return_true' );
-
-			add_filter( 'jetpack_my_jetpack_overview_v1', '__return_true' );
 			$this->assertTrue( Initializer::get_my_jetpack_flags()['overviewV1'] );
 		} finally {
-			remove_filter( 'jetpack_my_jetpack_overview_v1', '__return_true' );
 			remove_filter( 'jetpack_feature_flag_enabled_' . Initializer::OVERVIEW_V1_FLAG, '__return_true' );
-			remove_filter( 'deprecated_hook_trigger_error', '__return_false' );
 			Feature_Flags::reset();
 		}
 	}

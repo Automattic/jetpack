@@ -1306,14 +1306,7 @@ class Initializer {
 	 * @return bool
 	 */
 	public static function is_overview_v1_enabled() {
-		/**
-		 * Filters whether My Jetpack shows Overview v1.
-		 *
-		 * @since 6.10.0
-		 * @deprecated $$next-version$$ Use the `jetpack_feature_flag_enabled_my-jetpack-overview-v1` filter.
-		 * @param bool $enabled Whether to show Overview v1. Default false.
-		 */
-		return (bool) apply_filters_deprecated( 'jetpack_my_jetpack_overview_v1', array( Feature_Flags::is_enabled( self::OVERVIEW_V1_FLAG ) ), 'package-$$next-version$$', 'jetpack_feature_flag_enabled_' . self::OVERVIEW_V1_FLAG );
+		return Feature_Flags::is_enabled( self::OVERVIEW_V1_FLAG );
 	}
 
 	/**

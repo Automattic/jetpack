@@ -1,4 +1,4 @@
 Significance: patch
-Type: deprecated
+Type: removed
 
-Deprecate the `jetpack_my_jetpack_overview_v1` filter in favour of the `my-jetpack-overview-v1` feature flag.
+Remove the `jetpack_my_jetpack_overview_v1` filter; the `my-jetpack-overview-v1` feature flag now turns on Overview v1, which is still in development.
