@@ -6,6 +6,7 @@ import JitmSlot from '@automattic/jetpack-components/jitm-slot';
 import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
+import clsx from 'clsx';
 import { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router';
 /*
@@ -56,7 +57,7 @@ export const GlobalNotice = ( { message, title, options } ) => {
 	const hideCloseButton = options.hideCloseButton ?? true;
 
 	return (
-		<div className={ styles.notice }>
+		<div className={ clsx( styles.notice, styles[ 'notice-gap' ] ) }>
 			<Notice.Root intent={ options.level || 'info' }>
 				{ title && <Notice.Title>{ title }</Notice.Title> }
 				{ /* `render={ <div /> }`: `message` can carry block content, but Description defaults to a `span`. */ }
