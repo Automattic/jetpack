@@ -101,6 +101,8 @@ The `banner`, `ccpa_page`, and `footer_links` toggles surface interactive consen
 - **Consent-log POST** is skipped by the frontend when `consent_log` is off (its REST route is not registered), so no consent submission fires a request that 404s; the banner/CCPA UI still works client-side.
 - **Default consent state** (WP Consent API consent type, auto-granted consent in opt-out/unregulated regions, Global Privacy Control handling) is established by the banner flow. A `ccpa_page`-only setup assumes an existing CMP owns those defaults; the opt-out page still records choices through the WP Consent API so such a CMP can pick them up.
 
+A Global Privacy Control (GPC) signal counts as an opt-out wherever the visitor's consent model honors it: always in CCPA regions, and in GDPR regions (including every visitor when `geo` is off) unless `gdpr_honors_gpc` is `false`. It is checked on every page load, not only before a first choice: a returning visitor who allowed optional categories and then turned GPC on is opted out (non-required categories denied, `wp_consent_saved` dispatched with `opt-out`). A choice saved while GPC is on is marked with the functional `jetpack_cookie_consent_gpc` cookie, so a visitor who re-grants consent through "Manage Privacy Preferences" with GPC on keeps that choice.
+
 #### Nested config groups
 
 The rest of `$config` shapes behavior rather than gating it. Geo controls are grouped under `geo`:

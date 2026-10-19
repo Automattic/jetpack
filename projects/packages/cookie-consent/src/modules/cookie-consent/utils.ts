@@ -8,6 +8,12 @@ import type { ConsentType, ConsentEventType, ConsentEventChoices, ConsentCategor
 
 export const UNKNOWN_COUNTRY_CODE = 'UNKNOWN';
 
+// Marks that the stored consent was saved while the browser sent a Global Privacy Control
+// signal, so a returning visitor's GPC is applied once and an explicit choice made with GPC
+// on (e.g. re-granting through "Manage Privacy Preferences") is not overridden on every load.
+export const GPC_CHOICE_COOKIE = 'jetpack_cookie_consent_gpc';
+const GPC_CHOICE_COOKIE_DURATION = 365 * 24 * 60 * 60;
+
 export const DEFAULT_CONSENT_CATEGORIES: ConsentCategory[] = [
 	{
 		key: 'functional',
@@ -190,6 +196,8 @@ export function saveConsentChoices(
 		} );
 	} );
 
+	rememberGpcAtSave();
+
 	// Trigger a custom event to notify other parts of the code that the consent has been set
 	window.dispatchEvent(
 		new CustomEvent( 'wp_consent_saved', {
@@ -242,6 +250,76 @@ export function pertainsToCCPA( countryCode: string, region: string, config: Con
 
 export function hasOptedOutViaGlobalPrivacyControl(): boolean {
 	return window.navigator?.globalPrivacyControl === true;
+}
+
+/**
+ * Record whether the choice being saved was made with a GPC signal present.
+ */
+function rememberGpcAtSave(): void {
+	if ( hasOptedOutViaGlobalPrivacyControl() ) {
+		setCookie( GPC_CHOICE_COOKIE, '1', GPC_CHOICE_COOKIE_DURATION );
+	} else if ( getCookie( GPC_CHOICE_COOKIE ) !== null ) {
+		setCookie( GPC_CHOICE_COOKIE, '', -1 );
+	}
+}
+
+/**
+ * Whether a GPC signal conflicts with the visitor's stored consent: GPC is on, the stored
+ * choice was saved without it, and that choice still allows a non-required category.
+ *
+ * @return Whether the stored consent may need a GPC opt-out, depending on the region.
+ */
+export function hasGpcConflictWithStoredConsent(): boolean {
+	if ( ! hasOptedOutViaGlobalPrivacyControl() || getCookie( GPC_CHOICE_COOKIE ) !== null ) {
+		return false;
+	}
+
+	const stored = readConsentChoices();
+	return getConsentCategories().some(
+		category => ! category.required && stored[ getCategoryPreferenceKey( category ) ] === true
+	);
+}
+
+/**
+ * Whether the consent model of a region honors GPC: always under CCPA, and under GDPR unless
+ * the `gdpr_honors_gpc` config turns it off. Unregulated regions keep implied consent.
+ *
+ * @param countryCode - Visitor country code.
+ * @param region      - Visitor region.
+ * @param config      - Store config.
+ * @return Whether GPC counts as an opt-out in this region.
+ */
+export function regionHonorsGpc( countryCode: string, region: string, config: Config ): boolean {
+	if ( isGdprCountry( countryCode, config ) ) {
+		return config.gdprHonorsGpc !== false;
+	}
+
+	return pertainsToCCPA( countryCode, region, config );
+}
+
+/**
+ * Apply a GPC signal to a returning visitor's stored consent.
+ *
+ * The first-visit flow (handleConsentByRegion) honors GPC only before a choice exists. A
+ * visitor who allowed categories and turned GPC on later is opted out here, once: the save
+ * marks the choice as made under GPC, so a later explicit grant is kept.
+ *
+ * @param countryCode - Visitor country code.
+ * @param region      - Visitor region.
+ * @param config      - Store config.
+ * @return Whether the stored consent was changed to an opt-out.
+ */
+export function applyGpcToStoredConsent(
+	countryCode: string,
+	region: string,
+	config: Config
+): boolean {
+	if ( ! hasGpcConflictWithStoredConsent() || ! regionHonorsGpc( countryCode, region, config ) ) {
+		return false;
+	}
+
+	saveConsentChoices( getConsentChoices( false ), 'opt-out' );
+	return true;
 }
 
 export function handleConsentByRegion(

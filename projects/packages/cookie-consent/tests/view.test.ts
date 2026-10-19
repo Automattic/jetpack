@@ -274,6 +274,115 @@ describe( 'updateContextFromGeolocation banner-feature gate', () => {
 	} );
 } );
 
+describe( 'GPC for a returning visitor', () => {
+	const ALL_ALLOWED =
+		'wp_consent_functional=allow; wp_consent_statistics=allow; wp_consent_statistics-anonymous=allow; wp_consent_marketing=allow';
+	let originalGpc: PropertyDescriptor | undefined;
+
+	const setGpc = ( value: boolean | undefined ) => {
+		Object.defineProperty( window.navigator, 'globalPrivacyControl', {
+			configurable: true,
+			value,
+		} );
+	};
+
+	const wpSetConsentCalls = () =>
+		( window.wp_set_consent as unknown as jest.Mock ).mock.calls as Array< [ string, string ] >;
+
+	beforeEach( () => {
+		originalGpc = Object.getOwnPropertyDescriptor( window.navigator, 'globalPrivacyControl' );
+		mockWpSetConsent();
+	} );
+
+	afterEach( () => {
+		delete ( window as unknown as { _tkq?: unknown } )._tkq;
+		delete ( window as unknown as { wp_set_consent?: unknown } ).wp_set_consent;
+		document.getElementById( TRACKS_SCRIPT_ID )?.remove();
+		if ( originalGpc ) {
+			Object.defineProperty( window.navigator, 'globalPrivacyControl', originalGpc );
+		} else {
+			delete ( window.navigator as unknown as { globalPrivacyControl?: unknown } )
+				.globalPrivacyControl;
+		}
+	} );
+
+	it( 'does not stop at the stored choice on init when it conflicts with GPC', async () => {
+		setGpc( true );
+		cookieJar = ALL_ALLOWED;
+		mockGetContext.mockReturnValue( { showBanner: false } );
+		mockGetConfig.mockReturnValue( makeConfig() );
+
+		await storeCallbacks.init();
+
+		// Tracks waits until the region decides whether GPC opts the visitor out.
+		expect( document.getElementById( TRACKS_SCRIPT_ID ) ).toBeNull();
+	} );
+
+	it( 'keeps the stored choice on init when it was made with GPC on', async () => {
+		setGpc( true );
+		cookieJar = `${ ALL_ALLOWED }; jetpack_cookie_consent_gpc=1`;
+		mockGetContext.mockReturnValue( { showBanner: false } );
+		mockGetConfig.mockReturnValue( makeConfig() );
+
+		await storeCallbacks.init();
+
+		expect( wpSetConsentCalls() ).toHaveLength( 0 );
+		expect( document.getElementById( TRACKS_SCRIPT_ID ) ).not.toBeNull();
+	} );
+
+	it( 'opts out a returning GDPR visitor who turned GPC on, without loading Tracks', async () => {
+		setGpc( true );
+		cookieJar = ALL_ALLOWED;
+		const context = { showBanner: false };
+		mockGetContext.mockReturnValue( context );
+		mockGetConfig.mockReturnValue( makeConfig() );
+		mockGdprGeoLookup();
+
+		await runAction(
+			storeActions.updateContextFromGeolocation() as Generator< unknown, unknown, unknown >
+		);
+
+		expect( wpSetConsentCalls() ).toContainEqual( [ 'marketing', 'deny' ] );
+		expect( wpSetConsentCalls() ).toContainEqual( [ 'statistics', 'deny' ] );
+		expect( context.showBanner ).toBe( false );
+		expect( imageSources ).toHaveLength( 0 );
+	} );
+
+	it( 'opts out a returning visitor with geo off', async () => {
+		setGpc( true );
+		cookieJar = ALL_ALLOWED;
+		mockGetContext.mockReturnValue( { showBanner: false } );
+		mockGetConfig.mockReturnValue( { ...makeConfig(), geoEnabled: false } );
+
+		await runAction(
+			storeActions.updateContextFromGeolocation() as Generator< unknown, unknown, unknown >
+		);
+
+		expect( fetchMock ).not.toHaveBeenCalled();
+		expect( wpSetConsentCalls() ).toContainEqual( [ 'marketing', 'deny' ] );
+	} );
+
+	it( 'keeps the stored choice and loads Tracks in an unregulated region', async () => {
+		setGpc( true );
+		cookieJar = ALL_ALLOWED;
+		const context = { showBanner: false };
+		mockGetContext.mockReturnValue( context );
+		mockGetConfig.mockReturnValue( makeConfig() );
+		fetchMock.mockResolvedValue( {
+			ok: true,
+			json: async () => ( { country_short: 'US', region: 'Texas' } ),
+		} as unknown as Response );
+
+		await runAction(
+			storeActions.updateContextFromGeolocation() as Generator< unknown, unknown, unknown >
+		);
+
+		expect( wpSetConsentCalls() ).toHaveLength( 0 );
+		expect( context.showBanner ).toBe( false );
+		expect( document.getElementById( TRACKS_SCRIPT_ID ) ).not.toBeNull();
+	} );
+} );
+
 describe( 'updateContextFromGeolocation', () => {
 	it( 'does not show the manage-preferences link when geo resolution yields a null country', async () => {
 		const context = { isGdprManageLink: false };

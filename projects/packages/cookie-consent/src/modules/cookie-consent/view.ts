@@ -28,6 +28,8 @@ import {
 	pertainsToCCPA,
 	handleConsentByRegion,
 	getConsentChoices,
+	hasGpcConflictWithStoredConsent,
+	applyGpcToStoredConsent,
 	type GeoConfig,
 } from './utils';
 import type { ConsentEvent, ConsentEventChoices } from './types';
@@ -550,13 +552,23 @@ const { actions } = store( 'jetpack/cookie-consent', {
 			// still render on a banner-disabled site to back the footer modal, so we pass
 			// the flag down rather than skipping the whole call.
 			if ( 'showBanner' in context ) {
-				handleConsentByRegion(
-					geoData.countryCode || UNKNOWN_COUNTRY_CODE,
-					geoData.region || '',
-					config,
-					context as CookieBannerContext,
-					isFeatureEnabled( 'banner' )
-				);
+				if ( hasConsentSet() ) {
+					// Returning visitor whose stored consent conflicts with a GPC signal (init
+					// only gets here in that case): opt out where the region honors GPC, then
+					// load Tracks only if analytics is still allowed.
+					applyGpcToStoredConsent( geoData.countryCode, geoData.region || '', config );
+					if ( hasAnalyticsConsent( readConsentChoices() ) ) {
+						ensureTracksLoaded();
+					}
+				} else {
+					handleConsentByRegion(
+						geoData.countryCode || UNKNOWN_COUNTRY_CODE,
+						geoData.region || '',
+						config,
+						context as CookieBannerContext,
+						isFeatureEnabled( 'banner' )
+					);
+				}
 			}
 
 			// Update CCPA context if present
@@ -633,13 +645,15 @@ const { actions } = store( 'jetpack/cookie-consent', {
 					return;
 				}
 
-				if ( hasConsentSet() ) {
+				if ( hasConsentSet() && ! hasGpcConflictWithStoredConsent() ) {
 					// User already made a choice, read from WP Consent API
 					if ( hasAnalyticsConsent( readConsentChoices() ) ) {
 						ensureTracksLoaded();
 					}
 					return;
 				}
+				// A stored choice that conflicts with a GPC signal falls through: whether GPC
+				// applies depends on the visitor's region, resolved below.
 			}
 
 			if ( 'isGdprManageLink' in context ) {
