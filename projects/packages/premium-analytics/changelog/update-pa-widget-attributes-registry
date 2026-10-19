@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Widgets: carry the attributes a widget.json declares through the registry to the dashboard.
