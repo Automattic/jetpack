@@ -82,6 +82,7 @@ export {
 	InputControl,
 	Link,
 	Menu,
+	Meter,
 	Notice,
 	Popover,
 	RangeCalendar,

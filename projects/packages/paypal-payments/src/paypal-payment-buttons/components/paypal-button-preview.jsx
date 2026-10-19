@@ -238,11 +238,11 @@ function ButtonPreview( {
 				</div>
 			) }
 
-			{ /* Checkout button preview - theme-native unless the Styles tab says
-			     otherwise, labeled with the buttonText attribute. Gray until the
-			     block has a link. The gray skips the button's own Styles settings -
+			{ /* Checkout button preview - theme-native unless the style controls
+			     say otherwise, labeled with the buttonText attribute. Gray until the
+			     block has a link. The gray skips the button's own style settings -
 			     they would override it. Width and Powered by PayPal still follow the
-			     Styles tab. */ }
+			     style controls. */ }
 			<div className="jetpack-paypal-button__buttons">
 				<div
 					className={ clsx(

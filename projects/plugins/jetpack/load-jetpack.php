@@ -97,6 +97,9 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.core-rest-api-endpoints.php';
 require_once JETPACK__PLUGIN_DIR . '_inc/blogging-prompts.php';
+if ( method_exists( '\Automattic\Jetpack\Knowledge', 'init' ) ) {
+	\Automattic\Jetpack\Knowledge::init();
+}
 if ( is_admin() ) {
 	require_once JETPACK__PLUGIN_DIR . '_inc/content-guidelines-ai.php';
 }

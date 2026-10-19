@@ -1057,7 +1057,7 @@ class Main_Features {
 		if ( $product_class ) {
 			// Protect's normal destination depends on ownership, which is unknown offline.
 			if ( $local && 'protect' === ( $definition['product'] ?? '' ) ) {
-				return $product_class::is_standalone_plugin_active() ? admin_url( 'admin.php?page=jetpack-protect' ) : '';
+				return Products\Protect::has_protect_page() ? admin_url( 'admin.php?page=jetpack-protect' ) : '';
 			}
 
 			$url = (string) $product_class::get_manage_url();

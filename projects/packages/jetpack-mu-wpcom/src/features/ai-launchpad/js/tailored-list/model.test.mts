@@ -237,7 +237,7 @@ describe( 'resolveCtaUrl', () => {
 		[
 			'sends launch tasks to the wordpress.com launch flow built from the site URL',
 			{ id: 'site_launched' },
-			'https://wordpress.com/start/launch-site?siteSlug=example.wpcomstaging.com&ref=wp-admin',
+			'https://wordpress.com/setup/launch-site?siteSlug=example.wpcomstaging.com&ref=wp-admin',
 			'https://example.wpcomstaging.com',
 		],
 		[

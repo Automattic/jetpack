@@ -2,7 +2,8 @@ import {
 	MENU_SURFACE_PRESETS_WITH_ALL_TIME,
 	computePrimaryRange,
 } from '@jetpack-premium-analytics/datetime';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
+import { DateLimitUpsell } from '../../date-limit-upsell';
 import { DatePeriodDropdown } from '../date-period-dropdown';
 import type {
 	DateRange,
@@ -42,16 +43,24 @@ const TIME_ZONE = 'America/New_York';
 // calendar month there, which is the point of the story.
 const CUSTOM_RANGE: DateRange = computePrimaryRange( 'last-month', TIME_ZONE )!;
 
+const LAST_7_DAYS: DateRange = computePrimaryRange( 'last-7-days', TIME_ZONE )!;
+
 function DatePeriodDropdownWithState( {
 	initialPresetId = 'last-30-days',
 	initialRange,
 	presetIds,
 	allTimeStart,
+	lockedPresetIds,
+	earliestDate,
+	lockNotice,
 }: {
 	initialPresetId?: PrimaryPresetId;
 	initialRange?: DateRange;
 	presetIds?: readonly QuickSurfacePresetId[];
 	allTimeStart?: Date;
+	lockedPresetIds?: readonly QuickSurfacePresetId[];
+	earliestDate?: Date;
+	lockNotice?: ReactNode;
 } ) {
 	const [ appliedPresetId, setAppliedPresetId ] = useState< PrimaryPresetId | undefined >(
 		initialPresetId
@@ -73,6 +82,9 @@ function DatePeriodDropdownWithState( {
 			range={ range }
 			presetIds={ presetIds }
 			allTimeStart={ allTimeStart }
+			lockedPresetIds={ lockedPresetIds }
+			earliestDate={ earliestDate }
+			lockNotice={ lockNotice }
 			timeZone={ TIME_ZONE }
 			canApply={ range !== appliedRange }
 			onSelect={ ( nextRange, nextPresetId ) => {
@@ -121,6 +133,37 @@ export const DetailSurface: Story = {
 		<DatePeriodDropdownWithState
 			presetIds={ MENU_SURFACE_PRESETS_WITH_ALL_TIME }
 			allTimeStart={ new Date( '2024-03-01T00:00:00.000Z' ) }
+		/>
+	),
+};
+
+/**
+ * A plan that leaves out everything past the last 7 days: those periods show a
+ * lock and cannot be picked, and the lock notice says why.
+ */
+export const PlanLimited: Story = {
+	render: () => (
+		<DatePeriodDropdownWithState
+			initialPresetId="last-7-days"
+			initialRange={ LAST_7_DAYS }
+			earliestDate={ LAST_7_DAYS.from }
+			lockedPresetIds={ [
+				'last-30-days',
+				'month-to-date',
+				'last-month',
+				'year-to-date',
+				'last-12-months',
+				'all-time',
+			] }
+			lockNotice={
+				<DateLimitUpsell
+					upsell={ {
+						description: 'See more than the last 7 days of your stats.',
+						supportUrl: '',
+						upgradeUrl: 'https://example.com/plans',
+					} }
+				/>
+			}
 		/>
 	),
 };

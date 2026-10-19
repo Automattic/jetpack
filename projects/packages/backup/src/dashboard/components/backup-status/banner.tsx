@@ -110,7 +110,7 @@ export function BackupTroubleBanner( {
 		<Stack className="jpb-backup-trouble-banner" direction="column" gap="xs">
 			<Text variant="body-sm">{ noGoodBackupsText() }</Text>
 			<Text variant="body-sm">
-				<ContactSupportLine />
+				<ContactSupportLine code={ reference?.code } />
 			</Text>
 			{ reference && <ErrorReference { ...reference } /> }
 		</Stack>

@@ -26,6 +26,7 @@ import {
 import { useSeriesStyles } from '../../hooks';
 import { ComparativeBarChart } from '../chart-comparative-bar';
 import { ComparativeLineChart } from '../chart-comparative-line';
+import { exactFormatOf } from '../chart-tooltip/utils';
 import { MetricWithComparison } from '../metric-with-comparison';
 import { WidgetRootContext } from '../widget-root/context';
 import styles from './metric-tabs-chart.module.scss';
@@ -41,6 +42,12 @@ import type { ComponentProps, CSSProperties, ReactNode } from 'react';
  * tabs collapse into a dropdown instead of overflowing into a scrollbar.
  */
 const MIN_TAB_WIDTH = 120;
+
+/** Narrowest card (px) before the cards wrap; keep in step with `.tabs` in the stylesheet. */
+const MIN_CARD_WIDTH = 160;
+
+/** The gap (px) between cards, `--wpds-dimension-gap-sm`. */
+const CARD_GAP = 8;
 
 /**
  * How far (px) the pointer may travel between down and up and still count as a
@@ -69,6 +76,8 @@ export interface MetricTabDatum {
 	value: number | null;
 	/** Read out by the tooltip in place of the missing reading, e.g. why it is missing. */
 	note?: string;
+	/** A bucket with no reading drawn at its `value` to keep the line whole; the tooltip reads no value. */
+	missing?: boolean;
 }
 
 /**
@@ -79,8 +88,11 @@ export interface MetricTab {
 	/** Stable key; also the chart `group`, so a metric's current and previous lines share a colour. */
 	key: string;
 	label: string;
-	/** Headline value for the card (the consumer decides whether that's a sum, a latest total, …). */
-	value: number;
+	/**
+	 * Headline value for the card (the consumer decides whether that's a sum, a latest total, …);
+	 * null for a period with no reading, which the card shows as a placeholder without a delta.
+	 */
+	value: number | null;
 	/** Previous-period headline for the delta; omit/null to hide the delta. */
 	previousValue?: number | null;
 	/** Current-period chart points, oldest first. */
@@ -121,6 +133,19 @@ export interface MetricTab {
 }
 
 /**
+ * How many card columns to lay out, spreading the cards evenly over the fewest
+ * rows so a last row is never left with a lone card (six cards: 3 + 3, not 4 + 2).
+ *
+ * @param count - The number of cards.
+ * @param width - The width (px) the cards share.
+ * @return The column count.
+ */
+function getBalancedColumns( count: number, width: number ): number {
+	const fit = Math.max( 1, Math.floor( ( width + CARD_GAP ) / ( MIN_CARD_WIDTH + CARD_GAP ) ) );
+	return Math.ceil( count / Math.ceil( count / fit ) );
+}
+
+/**
  * Whether a metric has a series the chart can draw.
  *
  * @param metric - The metric to check.
@@ -151,6 +176,10 @@ export interface MetricTabsChartProps {
 	controls?: ReactNode;
 	/** Accessible label for the metric tab list. */
 	groupLabel?: string;
+	/** Visually hide the label in the static single-metric headline. */
+	hideSingleMetricLabel?: boolean;
+	/** What the chart shows, such as the widget title; the chart is named "Chart: <title>". */
+	chartTitle?: string;
 	/**
 	 * The series' bucket size, declared to the x-axis so tick formats follow the
 	 * known granularity rather than being inferred from point spacing.
@@ -242,6 +271,7 @@ function MetricChart( {
 	dataFormat,
 	chartType,
 	chartId,
+	chartTitle,
 	tickResolution,
 	onDatumClick,
 	baseline,
@@ -256,6 +286,7 @@ function MetricChart( {
 	chartType: MetricTabsChartType;
 	baseline?: ChartBaseline;
 	chartId: string;
+	chartTitle?: string;
 	tickResolution?: TickResolution;
 	onDatumClick?: ( date: Date ) => void;
 	comparisonLabel?: string;
@@ -393,6 +424,7 @@ function MetricChart( {
 	return chartType === 'bar' ? (
 		<ComparativeBarChart
 			chartId={ chartId }
+			chartTitle={ chartTitle }
 			series={ series }
 			dataFormat={ resolvedDataFormat }
 			defaultHiddenSeries={ defaultHiddenSeries }
@@ -406,6 +438,7 @@ function MetricChart( {
 	) : (
 		<ComparativeLineChart
 			chartId={ chartId }
+			chartTitle={ chartTitle }
 			series={ series }
 			styles={ seriesStyles }
 			dataFormat={ resolvedDataFormat }
@@ -432,20 +465,37 @@ function MetricTabContent( {
 	dataFormat,
 	fontSize,
 	withDescription = false,
+	hideLabelFromVision = false,
+	exact = false,
 }: {
 	metric: MetricTab;
 	dataFormat: DataFormat;
 	fontSize?: ComponentProps< typeof MetricWithComparison >[ 'fontSize' ];
 	withDescription?: boolean;
+	hideLabelFromVision?: boolean;
+	/** Spell the value out in full, for a layout with room for it. */
+	exact?: boolean;
 } ) {
+	const format = metric.dataFormat ?? dataFormat;
+	const valueFormat = useMemo(
+		() => ( exact ? exactFormatOf( format ) : format ),
+		[ exact, format ]
+	);
 	// The description is opt-in: a tab already carries it on `title`, and in the
 	// dropdown trigger a hidden node would join the button's accessible name.
-	const note = metric.unavailable ?? ( withDescription ? metric.description : undefined );
+	const note =
+		metric.unavailable ??
+		( metric.value === null ? __( 'No data', 'jetpack-premium-analytics-pkg' ) : undefined ) ??
+		( withDescription ? metric.description : undefined );
 
 	return (
 		<span className={ styles.tabContent }>
-			<Text className={ styles.tabLabel }>{ metric.label }</Text>
-			{ metric.unavailable ? (
+			{ hideLabelFromVision ? (
+				<VisuallyHidden>{ metric.label }</VisuallyHidden>
+			) : (
+				<Text className={ styles.tabLabel }>{ metric.label }</Text>
+			) }
+			{ metric.unavailable || metric.value === null ? (
 				// Sized off the same token as the value it stands in for: the tab and
 				// trigger layouts ask for different ones, so a fixed size misreads in one.
 				<span
@@ -466,7 +516,7 @@ function MetricTabContent( {
 					className={ styles.metricComparison }
 					value={ metric.value }
 					previousValue={ metric.previousValue }
-					dataFormat={ metric.dataFormat ?? dataFormat }
+					dataFormat={ valueFormat }
 					fontSize={ fontSize }
 					direction="row"
 					align="flex-end"
@@ -493,6 +543,8 @@ export function MetricTabsChart( {
 	onMetricChange,
 	controls,
 	groupLabel = __( 'Select metric', 'jetpack-premium-analytics-pkg' ),
+	hideSingleMetricLabel = false,
+	chartTitle,
 	tickResolution,
 	onDatumClick,
 	tooltipMetrics = 'active',
@@ -553,6 +605,9 @@ export function MetricTabsChart( {
 	} );
 	useEffect( () => () => clearTimeout( flipTimerRef.current ), [] );
 	const useDropdown = width !== undefined && width < metrics.length * MIN_TAB_WIDTH;
+	// Controls share the header row, so the measured width is not the cards' alone.
+	const columns =
+		width !== undefined && ! controls ? getBalancedColumns( metrics.length, width ) : undefined;
 
 	const activeMetric = metrics.find( metric => metric.key === selectedKey ) ?? metrics[ 0 ];
 
@@ -582,6 +637,7 @@ export function MetricTabsChart( {
 								dataFormat={ dataFormat }
 								fontSize="2xl"
 								withDescription
+								hideLabelFromVision={ hideSingleMetricLabel }
 							/>
 						</div>
 					</div>
@@ -597,6 +653,7 @@ export function MetricTabsChart( {
 						dataFormat={ dataFormat }
 						chartType={ chartType }
 						chartId={ chartIdFor( activeMetric ) }
+						chartTitle={ chartTitle }
 						tickResolution={ tickResolution }
 						onDatumClick={ onDatumClick }
 						comparisonLabel={ comparisonLabel }
@@ -653,7 +710,7 @@ export function MetricTabsChart( {
 							} }
 							triggerContent={
 								activeMetric && (
-									<MetricTabContent metric={ activeMetric } dataFormat={ dataFormat } />
+									<MetricTabContent metric={ activeMetric } dataFormat={ dataFormat } exact />
 								)
 							}
 						/>
@@ -671,6 +728,7 @@ export function MetricTabsChart( {
 							dataFormat={ dataFormat }
 							chartType={ chartType }
 							chartId={ chartIdFor( activeMetric ) }
+							chartTitle={ chartTitle }
 							tickResolution={ tickResolution }
 							onDatumClick={ onDatumClick }
 							comparisonLabel={ comparisonLabel }
@@ -690,7 +748,14 @@ export function MetricTabsChart( {
 			className={ styles.root }
 		>
 			<div className={ styles.header }>
-				<Tabs.List variant="minimal" className={ styles.tabs } aria-label={ groupLabel }>
+				<Tabs.List
+					variant="minimal"
+					className={ styles.tabs }
+					style={
+						columns ? ( { '--jpa-metric-tabs-columns': columns } as CSSProperties ) : undefined
+					}
+					aria-label={ groupLabel }
+				>
 					{ metrics.map( metric => (
 						<Tabs.Tab
 							key={ metric.key }
@@ -721,6 +786,7 @@ export function MetricTabsChart( {
 						dataFormat={ dataFormat }
 						chartType={ chartType }
 						chartId={ chartIdFor( metric ) }
+						chartTitle={ chartTitle }
 						tickResolution={ tickResolution }
 						onDatumClick={ onDatumClick }
 						comparisonLabel={ comparisonLabel }

@@ -46,7 +46,7 @@ abstract class WPCOM_WP_Build_Page {
 	 * `admin_menu` priority for register_page().
 	 *
 	 * After Jetpack's Admin_Menu (1000), so a slug it claimed is visible, and before
-	 * wpcom_add_jetpack_submenu() (999999), which reads whether this page owns its slug.
+	 * wpcom_add_jetpack_submenu() (999999), which reads whether the slug is claimed.
 	 */
 	const REGISTER_PRIORITY = 999998;
 

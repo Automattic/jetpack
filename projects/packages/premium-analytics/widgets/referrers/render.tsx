@@ -155,11 +155,13 @@ export function ReferrersLeaderboard( {
 }: ReferrersLeaderboardProps ) {
 	return (
 		<LeaderboardChart
+			chartTitle={ __( 'Top referrers', 'jetpack-premium-analytics-pkg' ) }
 			data={ buildLeaderboardData( rows, withComparison, onDrillDown ) }
 			withComparison={ withComparison }
 			withOverlayLabel
 			showLegend={ false }
 			dataFormat={ DATA_FORMAT }
+			columns={ { label: __( 'Referrers', 'jetpack-premium-analytics-pkg' ), metric: 'views' } }
 		/>
 	);
 }

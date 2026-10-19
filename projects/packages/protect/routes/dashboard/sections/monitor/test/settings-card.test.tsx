@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import MonitorSettingsCard from '../settings-card';
 import type { ProtectSettingsData } from '../../../data/use-protect-settings';
 
-const MONITOR = 'Monitor your site for downtime';
+const MONITOR = 'Enable downtime monitoring';
 const EMAIL = 'Email me when my site goes down and comes back up';
 
 const card = ( {

@@ -1,4 +1,11 @@
 {
 	"extends": "jetpack-js-tools/tsconfig.base.json",
-	"include": [ "src/components/**/*", "src/reports/**/*", "types/**/*", "widgets/**/*" ]
+	"include": [
+		"packages/**/*",
+		"src/components/**/*",
+		"src/reports/**/*",
+		"src/store-performance/**/*",
+		"types/**/*",
+		"widgets/**/*"
+	]
 }

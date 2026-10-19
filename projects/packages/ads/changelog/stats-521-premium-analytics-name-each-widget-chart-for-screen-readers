@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Name the Ads summary chart after its widget, so screen readers can tell it apart from the other dashboard charts.
