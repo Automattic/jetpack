@@ -393,11 +393,15 @@ class Block_Editor {
 	 * @return array
 	 */
 	public static function settings() {
-		$lengths = wp_get_comment_fields_max_lengths();
+		$lengths    = wp_get_comment_fields_max_lengths();
+		$assets_url = trailingslashit( Assets::normalize_path( plugins_url( '../../build', __FILE__ ) ) );
+		$asset      = include dirname( __DIR__, 2 ) . '/build/standalone.asset.php';
 
 		return array(
 			// Where the lazy chunks live; a plugin that combines scripts moves the bundle elsewhere.
-			'assetsUrl'    => trailingslashit( Assets::normalize_path( plugins_url( '../../build', __FILE__ ) ) ),
+			'assetsUrl'    => $assets_url,
+			// Versioned like the chunks, since a host that does not enqueue the entry gets no version from WordPress.
+			'scriptUrl'    => $assets_url . 'standalone.js?minify=false&ver=' . $asset['version'],
 			'maxLength'    => isset( $lengths['comment_content'] ) ? (int) $lengths['comment_content'] : 65525,
 			'blocks'       => self::is_enabled(),
 			'editorLocale' => self::is_enabled() ? self::locale_data() : (object) array(),
