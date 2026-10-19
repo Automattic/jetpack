@@ -1,9 +1,10 @@
 import { siteScanQuery } from '@automattic/jetpack-scan-page/src/js/data/query-options';
 import { useQuery } from '@tanstack/react-query';
-import { Button, Notice, Spinner, TextareaControl } from '@wordpress/components';
+import { Button, Spinner } from '@wordpress/components';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { key, lock, people, scheduled, search, shield } from '@wordpress/icons';
+import { Notice, TextareaControl } from '@wordpress/ui';
 import {
 	getFirewallBlocks,
 	readScan,
@@ -20,7 +21,7 @@ import { BoxRow, SecurityBox, StatGrid, ToggleRow } from './security-box';
 import SiteStatus from './site-status';
 import type { WafConfig } from './data';
 import type { ProtectTab } from './index';
-import type { FC } from 'react';
+import type { ChangeEvent, FC } from 'react';
 
 type NavProps = {
 	onNavigate: ( tab: ProtectTab ) => void;
@@ -105,12 +106,14 @@ const ScanBox: FC< NavProps > = ( { onNavigate } ) => {
 				) : (
 					<>
 						<StatGrid stats={ covered } />
-						<Notice status="info" isDismissible={ false }>
-							{ __(
-								'Upgrade to scan these daily for malware and vulnerabilities, with one-click fixes.',
-								'jetpack'
-							) }
-						</Notice>
+						<Notice.Root intent="info">
+							<Notice.Description>
+								{ __(
+									'Upgrade to scan these daily for malware and vulnerabilities, with one-click fixes.',
+									'jetpack'
+								) }
+							</Notice.Description>
+						</Notice.Root>
 					</>
 				) }
 			</BoxRow>
@@ -173,7 +176,8 @@ const FirewallBox: FC = () => {
 		[ setList ]
 	);
 	const onAllowList = useCallback(
-		( value: string ) => setList( 'jetpack_waf_ip_allow_list', value ),
+		( event: ChangeEvent< HTMLTextAreaElement > ) =>
+			setList( 'jetpack_waf_ip_allow_list', event.target.value ),
 		[ setList ]
 	);
 	const onBlockEnabled = useCallback(
@@ -181,7 +185,8 @@ const FirewallBox: FC = () => {
 		[ setList ]
 	);
 	const onBlockList = useCallback(
-		( value: string ) => setList( 'jetpack_waf_ip_block_list', value ),
+		( event: ChangeEvent< HTMLTextAreaElement > ) =>
+			setList( 'jetpack_waf_ip_block_list', event.target.value ),
 		[ setList ]
 	);
 	const onSaveLists = useCallback( () => lists && updateWaf.mutate( lists ), [ lists, updateWaf ] );
@@ -198,9 +203,11 @@ const FirewallBox: FC = () => {
 		>
 			{ ! supported && (
 				<BoxRow>
-					<Notice status="warning" isDismissible={ false }>
-						{ __( 'Your host does not support the firewall.', 'jetpack' ) }
-					</Notice>
+					<Notice.Root intent="warning">
+						<Notice.Description>
+							{ __( 'Your host does not support the firewall.', 'jetpack' ) }
+						</Notice.Description>
+					</Notice.Root>
 				</BoxRow>
 			) }
 			{ firewall.active && (
@@ -258,7 +265,6 @@ const FirewallBox: FC = () => {
 					>
 						{ lists.jetpack_waf_ip_allow_list_enabled && (
 							<TextareaControl
-								__nextHasNoMarginBottom
 								label={ __( 'Allowed IP addresses, one per line', 'jetpack' ) }
 								value={ lists.jetpack_waf_ip_allow_list }
 								onChange={ onAllowList }
@@ -274,7 +280,6 @@ const FirewallBox: FC = () => {
 					>
 						{ lists.jetpack_waf_ip_block_list_enabled && (
 							<TextareaControl
-								__nextHasNoMarginBottom
 								label={ __( 'Blocked IP addresses, one per line', 'jetpack' ) }
 								value={ lists.jetpack_waf_ip_block_list }
 								onChange={ onBlockList }
@@ -291,9 +296,11 @@ const FirewallBox: FC = () => {
 							{ __( 'Save IP lists', 'jetpack' ) }
 						</Button>
 						{ updateWaf.isError && (
-							<Notice status="error" isDismissible={ false }>
-								{ __( 'Could not save the firewall settings.', 'jetpack' ) }
-							</Notice>
+							<Notice.Root intent="error">
+								<Notice.Description>
+									{ __( 'Could not save the firewall settings.', 'jetpack' ) }
+								</Notice.Description>
+							</Notice.Root>
 						) }
 					</BoxRow>
 				</>
@@ -509,9 +516,11 @@ const Overview: FC< NavProps > = ( { onNavigate } ) => {
 	}
 	if ( isError ) {
 		return (
-			<Notice status="error" isDismissible={ false }>
-				{ __( 'Could not load your security settings.', 'jetpack' ) }
-			</Notice>
+			<Notice.Root intent="error">
+				<Notice.Description>
+					{ __( 'Could not load your security settings.', 'jetpack' ) }
+				</Notice.Description>
+			</Notice.Root>
 		);
 	}
 

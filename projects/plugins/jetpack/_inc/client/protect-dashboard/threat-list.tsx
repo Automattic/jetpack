@@ -3,10 +3,11 @@ import {
 	useIgnoreThreatMutation,
 	useUnignoreThreatMutation,
 } from '@automattic/jetpack-scan-page/src/js/data/use-threat-mutations';
-import { Button, ExternalLink, Icon } from '@wordpress/components';
+import { Button, Icon } from '@wordpress/components';
 import { useCallback, useState } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { chevronDown, chevronUp } from '@wordpress/icons';
+import { Link } from '@wordpress/ui';
 import type { Threat } from '@automattic/jetpack-scan-page/src/js/data/types';
 import type { FC } from 'react';
 
@@ -141,9 +142,9 @@ const ThreatRow: FC< { threat: Threat; showFix: boolean } > = ( { threat, showFi
 					<p>{ threat.description }</p>
 					{ threat.filename && <code>{ threat.filename }</code> }
 					{ threat.source && (
-						<ExternalLink href={ threat.source }>
+						<Link href={ threat.source } openInNewTab>
 							{ __( 'Learn more about this vulnerability', 'jetpack' ) }
-						</ExternalLink>
+						</Link>
 					) }
 					<ThreatActions threat={ threat } />
 				</div>

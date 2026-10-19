@@ -1,4 +1,5 @@
-import { Icon, ToggleControl } from '@wordpress/components';
+import { Icon } from '@wordpress/components';
+import { SwitchControl } from '@wordpress/ui';
 import type { FC, ReactElement, ReactNode } from 'react';
 
 type BoxProps = {
@@ -49,7 +50,7 @@ export const BoxRow: FC< RowProps > = ( { children } ) => (
 
 type ToggleRowProps = {
 	label: string;
-	help?: ReactNode;
+	help?: string;
 	checked: boolean;
 	disabled?: boolean;
 	onChange: ( value: boolean ) => void;
@@ -77,13 +78,12 @@ export const ToggleRow: FC< ToggleRowProps > = ( {
 	children,
 } ) => (
 	<BoxRow>
-		<ToggleControl
-			__nextHasNoMarginBottom
+		<SwitchControl
 			label={ label }
-			help={ help }
+			description={ help }
 			checked={ checked }
 			disabled={ disabled }
-			onChange={ onChange }
+			onCheckedChange={ onChange }
 		/>
 		{ children && <div className="jp-protect-box__row-extra">{ children }</div> }
 	</BoxRow>

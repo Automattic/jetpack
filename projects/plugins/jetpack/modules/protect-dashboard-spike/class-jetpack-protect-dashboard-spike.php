@@ -1,6 +1,6 @@
 <?php
 /**
- * Protect dashboard: a wp-build page that gathers Jetpack's security modules and Scan.
+ * Protect dashboard spike: an alternative wp-build page, shown beside the real one for comparison.
  *
  * @package automattic/jetpack
  */
@@ -20,14 +20,14 @@ require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-wp-build-
 /**
  * Registers the Protect sidebar item and renders its wp-build route.
  */
-class Jetpack_Protect_Dashboard {
+class Jetpack_Protect_Dashboard_Spike {
 
 	/**
 	 * Sidebar menu slug.
 	 *
 	 * @var string
 	 */
-	const MENU_SLUG = 'jetpack-protect-dashboard';
+	const MENU_SLUG = 'jetpack-protect-spike';
 
 	/**
 	 * The wp-build route's page id, which must not be the menu slug.
@@ -37,7 +37,7 @@ class Jetpack_Protect_Dashboard {
 	const WP_BUILD_PAGE_ID = 'jetpack-protect-hub';
 
 	/**
-	 * Wire the hooks. Runs only while the `protect-dashboard` module is active.
+	 * Wire the hooks. Runs only while the `protect-dashboard-spike` module is active.
 	 *
 	 * @return void
 	 */
@@ -71,15 +71,15 @@ class Jetpack_Protect_Dashboard {
 	 */
 	public static function add_menu() {
 		Admin_Menu::add_menu(
-			// "Protect" is a product name and is not translated.
-			'Protect',
-			'Protect',
+			// Exploration label beside the real Protect page; not translated.
+			'Protect (spike)',
+			'Protect (spike)',
 			'manage_options',
 			self::MENU_SLUG,
 			array( __CLASS__, 'render' ),
 			null,
 			array(
-				'module' => 'protect-dashboard',
+				'module' => 'protect-dashboard-spike',
 				'key'    => self::MENU_SLUG,
 			)
 		);

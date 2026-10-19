@@ -16,6 +16,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
-require_once __DIR__ . '/protect-dashboard/class-jetpack-protect-dashboard.php';
+require_once __DIR__ . '/protect-dashboard-spike/class-jetpack-protect-dashboard-spike.php';
 
-Jetpack_Protect_Dashboard::init();
+Jetpack_Protect_Dashboard_Spike::init();

@@ -6,9 +6,10 @@ import MockBanner from '@automattic/jetpack-scan-page/src/js/mock-banner';
 import ActiveThreats from '@automattic/jetpack-scan-page/src/js/screens/overview/active-threats';
 import ScanHistory from '@automattic/jetpack-scan-page/src/js/screens/overview/scan-history';
 import { useQuery } from '@tanstack/react-query';
-import { Button, Notice, Spinner } from '@wordpress/components';
+import { Button, Spinner } from '@wordpress/components';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Notice } from '@wordpress/ui';
 import SiteStatus from './site-status';
 import ThreatList from './threat-list';
 import type { FC } from 'react';
@@ -35,12 +36,14 @@ const LIST_ONLY: 'list'[] = [ 'list' ];
  * @return The notice.
  */
 const NoScanNotice: FC = () => (
-	<Notice status="info" isDismissible={ false }>
-		{ __(
-			'Scan is not included in your plan. Upgrade to scan your site daily for malware and vulnerabilities.',
-			'jetpack'
-		) }
-	</Notice>
+	<Notice.Root intent="info">
+		<Notice.Description>
+			{ __(
+				'Scan is not included in your plan. Upgrade to scan your site daily for malware and vulnerabilities.',
+				'jetpack'
+			) }
+		</Notice.Description>
+	</Notice.Root>
 );
 
 /**
