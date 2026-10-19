@@ -61,6 +61,9 @@
 	// over its layered foreground color, so re-assert it with an unlayered rule.
 	&__cta {
 		grid-area: cta;
+		// A grid item stretches to its column by default. The button keeps the
+		// width of its label, as in the Notice component.
+		justify-self: start;
 		margin-block-start: 12px;
 
 		&,
