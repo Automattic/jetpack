@@ -1,4 +1,3 @@
 Significance: patch
 Type: added
 Comment: Record a Tracks event when the Backup dashboard crashes.
-
