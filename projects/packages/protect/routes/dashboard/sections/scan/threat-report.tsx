@@ -3,12 +3,13 @@ import { DataViews, filterSortAndPaginate, type View } from '@wordpress/dataview
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { check, help, seen } from '@wordpress/icons';
-import { Notice, Text } from '@wordpress/ui';
+import { Card, Notice, Stack, Text } from '@wordpress/ui';
 import { CardRow, ProtectCard, type CardStatus } from '../../components/card';
 import useArrowKeyNavigation from '../../components/use-arrow-key-navigation';
 import { HISTORY_THREAT_PARAM, loadHistory, useHistory } from '../history/store';
 import useOpenThreat from '../use-open-threat';
 import { groupThreats } from './group-threats';
+import { SafeShield } from './safe-state';
 import { THREAT_PARAM, useScan, useSearchParam } from './store';
 import { getThreatRowActions } from './threat-row-actions';
 import threatsIcon from './threats-icon';
@@ -176,6 +177,42 @@ function UnknownThreats( {
 	);
 }
 
+/**
+ * The Scan tab's safe state, shown above the report once none of its threats need attention.
+ *
+ * @param props            - Component props.
+ * @param props.siteIsSafe - Whether Scan finds no other threats on the site either.
+ * @return The section.
+ */
+function ReportSafeState( { siteIsSafe }: { siteIsSafe: boolean } ) {
+	const title = siteIsSafe
+		? __( 'Your site is safe right now', 'jetpack-protect-pkg' )
+		: __( 'Nothing from your alert needs fixing', 'jetpack-protect-pkg' );
+	return (
+		<Card.Root render={ <section /> } className="jp-protect-card" aria-label={ title }>
+			<Card.Content>
+				<Stack className="jp-protect-safe" direction="column" align="center" gap="md">
+					<SafeShield />
+					<Text variant="heading-xl" render={ <h3 /> }>
+						{ title }
+					</Text>
+					<Text variant="body-lg" className="jp-protect-safe__details">
+						{ siteIsSafe
+							? __(
+									'None of the threats from your alert need your attention.',
+									'jetpack-protect-pkg'
+								)
+							: __(
+									'Scan found other threats on your site. See them on the Overview.',
+									'jetpack-protect-pkg'
+								) }
+					</Text>
+				</Stack>
+			</Card.Content>
+		</Card.Root>
+	);
+}
+
 const getDetected = ( item: ScanThreat ) => item.firstDetected ?? '';
 const getFixed = ( item: ScanThreat ) => item.fixedOn ?? '';
 
@@ -245,8 +282,11 @@ export default function ThreatReport( { ids }: { ids: string[] } ) {
 
 	const failed = Boolean( history.error ) && ! refreshing;
 
+	const isClear = ! groups.active.length && ! pending.length;
+
 	return (
 		<div className="jp-protect-dashboard__cards">
+			{ isClear && <ReportSafeState siteIsSafe={ ! active.length } /> }
 			{ pending.length > 0 && ! failed && (
 				<Notice.Root intent="info">
 					<Notice.Description>

@@ -47,6 +47,24 @@ describe( 'Protect dashboard stage', () => {
 		expect( Boolean( screen.queryByText( 'No longer detected' ) ) ).toBe( ! hasTabs );
 	} );
 
+	it.each( [
+		[ 'says the site is safe', [], 'Your site is safe right now' ],
+		[
+			'only clears the alert when other threats remain',
+			[ 9 ],
+			'Nothing from your alert needs fixing',
+		],
+		[ 'shows no all-clear while a threat is active', [ 5 ], null ],
+	] )( 'the threat report %s', ( _name, activeIds, heading ) => {
+		const threats = activeIds.map( id => ( { id, title: `Threat ${ id }`, severity: 3 } ) );
+		window.jetpackProtectDashboard = { scan: { hasPlan: true, threats } };
+		mockUseSearch.mockReturnValue( { threats: '5' } );
+		render( <Stage /> );
+		delete window.jetpackProtectDashboard;
+
+		expect( screen.queryByRole( 'heading', { level: 3 } )?.textContent ?? null ).toBe( heading );
+	} );
+
 	it( 'switching tabs closes the threat inspector', async () => {
 		mockUseSearch.mockReturnValue( { threat: '7' } );
 		render( <Stage /> );
