@@ -17,8 +17,7 @@ import {
 import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import { getSettings } from 'state/settings';
-import { CommentFeatures } from './comment-features';
-import { Comments } from './comments';
+import { CommentFeatures, Comments } from './comments';
 
 export class Discussion extends Component {
 	static displayName = 'DiscussionSettings';

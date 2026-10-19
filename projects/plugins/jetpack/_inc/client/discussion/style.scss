@@ -26,3 +26,11 @@
 .jp-comments-preview__title {
 	margin: 0;
 }
+
+.jp-comments-block-options {
+	display: flex;
+	flex-direction: column;
+	gap: rem.convert(8px);
+	margin-block-start: rem.convert(12px);
+	margin-inline-start: rem.convert(48px);
+}

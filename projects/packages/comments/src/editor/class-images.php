@@ -24,9 +24,9 @@ class Images {
 		 *
 		 * @since 0.6.0
 		 *
-		 * @param bool $enabled Whether to offer it. Default true, wherever the block editor is on.
+		 * @param bool $enabled Whether to offer it. Default the site's setting, which starts on, wherever the block editor is on.
 		 */
-		return Block_Editor::is_enabled() && (bool) apply_filters( 'jetpack_comments_block_editor_images', true );
+		return Block_Editor::is_enabled() && (bool) apply_filters( 'jetpack_comments_block_editor_images', (bool) get_option( 'jetpack_comments_images', true ) );
 	}
 
 	/**

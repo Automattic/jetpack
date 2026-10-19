@@ -283,6 +283,8 @@ class Jetpack_Sync_Options_Test extends Jetpack_Sync_TestBase {
 			'wpcom_site_setup'                             => '',
 			'jetpack_verbum_subscription_modal'            => true,
 			'enable_blocks_comments'                       => '1',
+			'jetpack_comments_images'                      => true,
+			'jetpack_comments_embeds'                      => true,
 			'jetpack_blocks_disabled'                      => false,
 			'wpcom_ai_site_prompt'                         => '',
 			'reader_chat'                                  => false,

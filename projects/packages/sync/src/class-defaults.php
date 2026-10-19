@@ -78,6 +78,8 @@ class Defaults {
 		'jetpack_autoupdate_translations',
 		'jetpack_available_modules',
 		'jetpack_comment_form_color_scheme',
+		'jetpack_comments_embeds',
+		'jetpack_comments_images',
 		'jetpack_comment_likes_enabled',
 		'jetpack_excluded_extensions',
 		'jetpack_holiday_snow_enabled',
