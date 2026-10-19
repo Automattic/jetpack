@@ -133,6 +133,13 @@
 		}
 	},
 	"extra": {
+		"autotagger": {
+			"v": false
+		},
+		"autorelease": {
+			"titlefmt": "Jetpack %s"
+		},
+		"wp-svn-autopublish": true,
 		"mirror-repo": "Automattic/jetpack-production",
 		"release-branch-prefix": [
 			"jetpack",

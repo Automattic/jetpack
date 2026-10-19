@@ -119,7 +119,6 @@
 	"projects/packages/newsletter/src/settings/components/toggle.tsx",
 	"projects/packages/newsletter/src/settings/sections/email-defaults-section.tsx",
 	"projects/packages/newsletter/src/settings/sections/newsletter-section.tsx",
-	"projects/packages/newsletter/src/settings/sections/placement-card.tsx",
 	"projects/packages/newsletter/src/settings/sections/subscriptions-section.tsx",
 	"projects/packages/paypal-payments/src/block/controls.jsx",
 	"projects/packages/paypal-payments/src/block/deprecated/v2/edit.jsx",
