@@ -28,24 +28,23 @@ type Track = ( eventName: string, eventProperties: Record< string, string > ) =>
 type FetchSettings = ( path: string ) => Promise< unknown >;
 
 /**
- * Whether an MCP settings response leaves nothing to set up: MCP access is on, or the
- * site has no MCP access to turn on.
+ * Whether MCP access is on, unavailable, or cannot be determined from the response.
  *
  * @param data   - Response from the MCP settings endpoint.
  * @param format - Which endpoint answered.
- * @return True when the banner has no MCP setup to promote.
+ * @return True unless the response explicitly says MCP access is off.
  */
 export function isMcpEnabled( data: unknown, format: McpSettingsApi[ 'format' ] ): boolean {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any -- untyped REST response.
 	const response = ( data ?? {} ) as any;
 
 	if ( format === 'wpcom' ) {
-		return response.has_mcp_plan === false || response.site_level_enabled === true;
+		return response.has_mcp_plan === false || response.site_level_enabled !== false;
 	}
 
 	return (
 		response.has_mcp_access === false ||
-		response.mcp_abilities?.sites?.[ 0 ]?.site_level_enabled === true
+		response.mcp_abilities?.sites?.[ 0 ]?.site_level_enabled !== false
 	);
 }
 

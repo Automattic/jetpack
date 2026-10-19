@@ -31,13 +31,17 @@ class AI_Assistant_Banner_Visibility_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Without the Big Sky plugin or the big-sky-enabled sticker, the Agent counts as off,
-	 * whatever the leftover option says.
+	 * Atomic sites keep the banner hidden until the MCP check when the Agent is on.
 	 */
-	public function test_agent_is_off_without_big_sky() {
+	public function test_atomic_banner_starts_hidden_when_agent_is_enabled() {
 		update_option( 'big_sky_enable', '1' );
 
-		$this->assertFalse( wpcom_ai_assistant_banner_is_agent_enabled() );
+		ob_start();
+		wpcom_render_ai_assistant_banner();
+		$markup = ob_get_clean();
+
+		$this->assertStringContainsString( 'id="wpcom-ai-assistant-banner"', $markup );
+		$this->assertMatchesRegularExpression( '/id="wpcom-ai-assistant-banner"[^>]* hidden>/', $markup );
 	}
 
 	/**

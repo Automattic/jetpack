@@ -40,9 +40,11 @@ describe( 'isMcpEnabled', () => {
 		assert.equal( isMcpEnabled( { has_mcp_access: false, mcp_abilities: [] }, 'jetpack' ), true );
 	} );
 
-	it( 'treats an empty response as MCP access off', () => {
-		assert.equal( isMcpEnabled( null, 'wpcom' ), false );
-		assert.equal( isMcpEnabled( undefined, 'jetpack' ), false );
+	it( 'keeps the banner hidden when the response lacks an explicit off state', () => {
+		assert.equal( isMcpEnabled( null, 'wpcom' ), true );
+		assert.equal( isMcpEnabled( undefined, 'jetpack' ), true );
+		assert.equal( isMcpEnabled( {}, 'wpcom' ), true );
+		assert.equal( isMcpEnabled( { has_mcp_access: true }, 'jetpack' ), true );
 	} );
 } );
 
@@ -96,6 +98,16 @@ describe( 'showBanner', () => {
 		await showBanner( banner, { trackProps, mcpSettingsApi: wpcomApi }, track, async () => {
 			throw new Error( 'Request failed' );
 		} );
+
+		assert.equal( banner.hidden, true );
+		assert.deepEqual( events, [] );
+	} );
+
+	it( 'keeps the banner hidden when the check returns incomplete data', async () => {
+		const banner = { hidden: true };
+		const { events, track } = recorder();
+
+		await showBanner( banner, { trackProps, mcpSettingsApi: wpcomApi }, track, async () => ( {} ) );
 
 		assert.equal( banner.hidden, true );
 		assert.deepEqual( events, [] );
