@@ -169,6 +169,8 @@ Reset deletes the stored entry rather than copying the default into it, so a sec
 
 A section that declares no layout opens in customize mode on the empty state, since `WidgetDashboard` treats an empty layout as "no widgets". A section meant to be read declares one.
 
+A section the site's plan locks is the exception: it shows only its open widgets, never enters customize mode, and renders the upgrade prompt below them (see [Locking a widget by plan](dashboard-widgets.md#locking-a-widget-by-plan)).
+
 ## Availability
 
 `is_available()` is the section's own rule, `is_available` from the registration. The dashboard has no fixed list of tabs: every registered section the site qualifies for is shown.

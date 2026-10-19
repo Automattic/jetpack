@@ -36,7 +36,7 @@ export type LockedFeature = {
 };
 
 /**
- * A dashboard section the plan replaces with one upgrade card, worded as classic Stats' upsell.
+ * A dashboard section the plan replaces with one upgrade prompt, worded as classic Stats' upsell.
  */
 export type LockedSectionGate = {
 	title: string;
@@ -85,7 +85,7 @@ export function getLockedFeature( feature: StatsFeatureKey ): LockedFeature | un
 }
 
 /**
- * What a locked section's upgrade card says and where to buy the plan.
+ * What a locked section's upgrade prompt says and where to buy the plan.
  *
  * @param section - The section slug.
  * @return The locked section, or undefined when it is open.

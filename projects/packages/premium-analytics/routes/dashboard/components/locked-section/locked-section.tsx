@@ -17,11 +17,11 @@ import styles from './locked-section.module.scss';
 const COLLAPSED_FEATURE_COUNT = 4;
 
 /**
- * The upgrade card that replaces a section the site's plan does not include, after classic Stats' upsell.
+ * The upgrade prompt that replaces a section the site's plan does not include, after classic Stats' upsell.
  *
  * @param props         - Component props.
  * @param props.section - The section slug.
- * @return The card, or null when the section is open.
+ * @return The prompt, or null when the section is open.
  */
 export function LockedSection( { section }: { section: string } ) {
 	const trackEvent = useTrackEvent();
@@ -80,11 +80,9 @@ export function LockedSection( { section }: { section: string } ) {
 					</Stack>
 					{ featureList( mainFeatures ) }
 					<Stack direction="row" gap="sm" wrap="wrap">
-						{ locked.upgrade_url && (
-							<ButtonLink href={ locked.upgrade_url } onClick={ trackUpgrade }>
-								{ locked.upgrade_label }
-							</ButtonLink>
-						) }
+						<ButtonLink href={ locked.upgrade_url } onClick={ trackUpgrade }>
+							{ locked.upgrade_label }
+						</ButtonLink>
 						<ButtonLink href={ locked.support_url } variant="outline" openInNewTab>
 							{ __( 'Learn more', 'jetpack-premium-analytics-pkg' ) }
 						</ButtonLink>

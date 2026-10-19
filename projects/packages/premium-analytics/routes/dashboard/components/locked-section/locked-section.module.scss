@@ -13,7 +13,7 @@
 }
 
 // Side by side, as in classic Stats, kept together on a wide dashboard.
-@container (min-width: 720px) {
+@container (min-inline-size: 720px) {
 
 	.content {
 		grid-template-columns: repeat(2, minmax(0, 480px));

@@ -164,6 +164,8 @@ A widget that shows nothing but a paid Stats feature declares that feature in `p
 
 The dashboard points a locked type at `LockedWidget` instead of its render module, which it never imports, so the widget requests nothing. A feature locked inside a widget that stays open, like the Regions and Cities of **Top locations**, is the widget's to check: it reads `isStatsFeatureLocked()`, renders `LockedWidget` for that part and skips its request.
 
+A plan can also lock a whole section. `locked_sections` maps each one (on the free WordPress.com tier, `traffic` and `insights`) to the copy of the prompt that replaces it, its `upgrade_url`, and `open_widget_types`, the only widget types the section still shows. The stage hands `WidgetDashboard` just those widgets, offers no Customize there, and saves an inline edit back into the stored layout with the hidden widgets kept, so they return after an upgrade (`useLockedSectionLayout()`).
+
 ### Script modules
 
 The module ids are what the client hands to `import()`. The package's are registered by the generated `jpa_register_widget_modules()`; a plugin's by the same generated file of its own build.

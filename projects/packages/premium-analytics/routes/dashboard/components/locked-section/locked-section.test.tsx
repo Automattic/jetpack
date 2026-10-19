@@ -27,10 +27,8 @@ const FEATURES = Array.from( { length: 11 }, ( _, index ) => `Feature ${ index +
 
 /**
  * Publishes the Insights section as locked.
- *
- * @param upgradeUrl - Where the Upgrade button leads, or empty.
  */
-function lockInsights( upgradeUrl = UPGRADE_URL ) {
+function lockInsights() {
 	( getScriptData as jest.Mock ).mockReturnValue( {
 		premium_analytics: {
 			plan_gates: {
@@ -45,7 +43,7 @@ function lockInsights( upgradeUrl = UPGRADE_URL ) {
 						upgrade_label: 'Upgrade to Personal',
 						expand_label: 'Show all Personal features',
 						support_url: SUPPORT_URL,
-						upgrade_url: upgradeUrl,
+						upgrade_url: UPGRADE_URL,
 					},
 				},
 			},
@@ -101,13 +99,6 @@ describe( 'LockedSection', () => {
 			[ 'jetpack_premium_analytics_plan_upgrade_view', props ],
 			[ 'jetpack_premium_analytics_plan_upgrade_click', props ],
 		] );
-	} );
-
-	it( 'drops the upgrade button when there is nowhere to buy', () => {
-		lockInsights( '' );
-		render( <LockedSection section="insights" /> );
-
-		expect( screen.queryByRole( 'link', { name: 'Upgrade to Personal' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'renders nothing for an open section', () => {
