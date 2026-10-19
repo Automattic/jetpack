@@ -8,7 +8,16 @@
 // that the reason appears and that the misleading empty-state copy does
 // not.
 
+const mockRecordEvent = jest.fn();
 const mockApiFetch = jest.fn();
+
+jest.mock( '@automattic/jetpack-analytics', () => ( {
+	__esModule: true,
+	default: {
+		initialize: jest.fn(),
+		tracks: { recordEvent: ( ...args: unknown[] ) => mockRecordEvent( ...args ) },
+	},
+} ) );
 const mockSearch = jest.fn< Record< string, unknown >, [] >();
 const mockNavigate = jest.fn();
 
@@ -313,6 +322,10 @@ describe( 'file browser', () => {
 } );
 
 describe( 'ErrorBoundary', () => {
+	beforeEach( () => {
+		mockRecordEvent.mockReset();
+	} );
+
 	/**
 	 * Stands in for the known real hazard: `toFileNode` raising
 	 * `RangeError: Invalid time value` on a malformed manifest timestamp,
@@ -334,6 +347,45 @@ describe( 'ErrorBoundary', () => {
 		expect( screen.getByRole( 'button', { name: 'Reload the page' } ) ).toBeInTheDocument();
 		// React logs the caught error, and so does componentDidCatch —
 		// The `jetpack-js-tools` console guard fails the test unless that is claimed.
+		expect( console ).toHaveErrored();
+	} );
+
+	/**
+	 * Throws a `TypeError` whose message must never reach Tracks.
+	 */
+	function Boom(): never {
+		throw new TypeError( 'secret site message' );
+	}
+
+	it.each( [
+		[ 'with a screen', 'download', { screen: 'download', error_type: 'TypeError' } ],
+		[ 'without a screen', undefined, { error_type: 'TypeError' } ],
+	] as const )(
+		'records one crash event %s and nothing from the error text',
+		( _label, routeName, expected ) => {
+			render(
+				<ErrorBoundary screen={ routeName }>
+					<Boom />
+				</ErrorBoundary>
+			);
+
+			expect( mockRecordEvent ).toHaveBeenCalledTimes( 1 );
+			expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_backup_dashboard_crash', expected );
+			expect( console ).toHaveErrored();
+		}
+	);
+
+	it( 'still renders the fallback when Tracks throws', () => {
+		mockRecordEvent.mockImplementation( () => {
+			throw new Error( 'tracks unavailable' );
+		} );
+		render(
+			<ErrorBoundary>
+				<Exploding />
+			</ErrorBoundary>
+		);
+
+		expect( screen.getByText( 'Something went wrong' ) ).toBeInTheDocument();
 		expect( console ).toHaveErrored();
 	} );
 
