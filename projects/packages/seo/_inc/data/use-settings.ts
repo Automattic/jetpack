@@ -3,7 +3,12 @@ import { select, useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
-import { buildCorePayload, buildModulesPayload, readCoreResponse } from './build-payload';
+import {
+	buildCorePayload,
+	buildModulesPayload,
+	changedCodes,
+	readCoreResponse,
+} from './build-payload';
 import { recordSeoEvent } from './record-seo-event';
 import { settingsStore } from './settings-store';
 import { VERIFICATION_KEYS } from './verification-services';
@@ -90,6 +95,34 @@ function withVerification< T extends SettingsResponse | null >(
 	return state ? { ...state, verification: { ...state.verification, [ key ]: value } } : state;
 }
 
+/**
+ * Apply what a save sent, taking only the verification codes it changed.
+ *
+ * @param state    - Values to update, or null before they load.
+ * @param baseline - The baseline the save started from.
+ * @param values   - The values the save sent.
+ * @param touched  - The fields that differ between the two.
+ * @return The updated values.
+ */
+function withSent< T extends SettingsResponse | null >(
+	state: T,
+	baseline: SettingsResponse,
+	values: SettingsResponse,
+	touched: Array< keyof SettingsResponse >
+): T {
+	if ( ! state ) {
+		return state;
+	}
+	const next: SettingsResponse = { ...state };
+	touched.forEach( field => {
+		( next as unknown as Record< string, unknown > )[ field ] = values[ field ];
+	} );
+	if ( touched.includes( 'verification' ) ) {
+		next.verification = { ...state.verification, ...changedCodes( baseline, values ) };
+	}
+	return next as T;
+}
+
 // The package's own settings read, re-fetched after every save so the form shows
 // what the server actually stored — including a value it refused and the
 // recomputed `sitemap_url`.
@@ -171,6 +204,18 @@ export function useSettingsForm(): SettingsForm {
 	const { createInfoNotice, createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 	const { setSettings } = useDispatch( settingsStore );
 
+	// Writes patch the store's latest snapshot, not this form's: a form left on another
+	// tab mid-save must not roll back what a newer one saved since.
+	const patchStore = useCallback(
+		( apply: ( saved: SettingsResponse ) => SettingsResponse ) => {
+			const saved = select( settingsStore ).getSettings();
+			if ( saved ) {
+				setSettings( apply( saved ) );
+			}
+		},
+		[ setSettings ]
+	);
+
 	// Refs so `commit()` reads the freshest values without stale closures and
 	// without re-creating the callback on every keystroke.
 	const baselineRef = useRef< SettingsResponse | null >( initial );
@@ -231,7 +276,7 @@ export function useSettingsForm(): SettingsForm {
 						localRef.current = { ...current, ...localPatch };
 						baselineRef.current = { ...baseline, ...patch };
 						setLocal( localRef.current );
-						setSettings( baselineRef.current );
+						patchStore( saved => ( { ...saved, ...patch } ) );
 					} )
 					.catch( () => {
 						// Nothing better to show than what's already on screen; the next load
@@ -242,7 +287,7 @@ export function useSettingsForm(): SettingsForm {
 						resolve();
 					} );
 			} ),
-		[ setSettings ]
+		[ patchStore ]
 	);
 
 	const saveValues = useCallback(
@@ -313,11 +358,15 @@ export function useSettingsForm(): SettingsForm {
 					modulesApplied = Object.keys( applied ?? {} );
 					// Adopt what we asked for; `adoptServerState()` below then corrects it
 					// wherever the server reports something else. Skipped on failure, where
-					// only the server knows what landed. Only the sent fields, so a code
-					// `saveVerification()` adopted meanwhile isn't rolled back.
-					const sent = Object.fromEntries( touched.map( field => [ field, values[ field ] ] ) );
-					baselineRef.current = { ...( baselineRef.current ?? baseline ), ...sent };
-					setSettings( baselineRef.current );
+					// only the server knows what landed. Only what this save changed, so a
+					// code `saveVerification()` adopted meanwhile isn't rolled back.
+					baselineRef.current = withSent(
+						baselineRef.current ?? baseline,
+						baseline,
+						values,
+						touched
+					);
+					patchStore( saved => withSent( saved, baseline, values, touched ) );
 					createSuccessNotice( __( 'Settings saved.', 'jetpack-seo' ), {
 						id: SAVE_NOTICE_ID,
 						type: 'snackbar',
@@ -353,7 +402,7 @@ export function useSettingsForm(): SettingsForm {
 				.then( () => adoptServerState( touched, savedTitlePage ) )
 				.finally( () => setIsSaving( false ) );
 		},
-		[ createInfoNotice, createSuccessNotice, createErrorNotice, setSettings, adoptServerState ]
+		[ createInfoNotice, createSuccessNotice, createErrorNotice, patchStore, adoptServerState ]
 	);
 
 	const setField = useCallback(
@@ -390,11 +439,7 @@ export function useSettingsForm(): SettingsForm {
 					baselineRef.current = withVerification( baselineRef.current, key, value );
 					localRef.current = withVerification( localRef.current, key, value );
 					setLocal( state => withVerification( state, key, value ) );
-					// Patch the store's snapshot, not this form's, which is stale if the tab was left mid-save.
-					const saved = withVerification( select( settingsStore ).getSettings(), key, value );
-					if ( saved ) {
-						setSettings( saved );
-					}
+					patchStore( saved => withVerification( saved, key, value ) );
 				},
 				( error: unknown ) => {
 					if ( changed ) {
@@ -404,7 +449,7 @@ export function useSettingsForm(): SettingsForm {
 				}
 			);
 		},
-		[ setSettings ]
+		[ patchStore ]
 	);
 
 	const setSchemaSettings = useCallback(
@@ -420,9 +465,9 @@ export function useSettingsForm(): SettingsForm {
 			baselineRef.current = nextBaseline;
 			localRef.current = nextLocal;
 			setLocal( nextLocal );
-			setSettings( nextBaseline );
+			patchStore( saved => ( { ...saved, schema } ) );
 		},
-		[ setSettings ]
+		[ patchStore ]
 	);
 
 	const commit = useCallback(

@@ -11,7 +11,11 @@ const mockApiFetch = jest.fn< ( options: unknown ) => Promise< unknown > >();
 const createInfoNotice = jest.fn();
 const createSuccessNotice = jest.fn();
 const createErrorNotice = jest.fn();
-const setSettings = jest.fn();
+// The settings store keeps its latest snapshot, so a test can see what another form instance left there.
+let storeState: SettingsResponse;
+const setSettings = jest.fn( ( next: SettingsResponse ) => {
+	storeState = next;
+} );
 const recordSeoEvent = jest.fn();
 
 const SEED: SettingsResponse = {
@@ -39,7 +43,8 @@ jest.unstable_mockModule( '../settings-store', () => ( { settingsStore: SETTINGS
 jest.unstable_mockModule( '../record-seo-event', () => ( { recordSeoEvent } ) );
 jest.unstable_mockModule( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
 jest.unstable_mockModule( '@wordpress/data', () => ( {
-	select: ( store: string ) => ( store === SETTINGS_STORE ? { getSettings: () => SEED } : {} ),
+	select: ( store: string ) =>
+		store === SETTINGS_STORE ? { getSettings: () => storeState } : {},
 	useDispatch: ( store: string ) =>
 		store === SETTINGS_STORE
 			? { setSettings }
@@ -51,6 +56,7 @@ const { useSettingsForm } = await import( '../use-settings' );
 describe( 'useSettingsForm', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
+		storeState = SEED;
 		mockApiFetch.mockResolvedValue( {} );
 	} );
 
@@ -407,6 +413,57 @@ describe( 'useSettingsForm', () => {
 		expect( setSettings ).toHaveBeenLastCalledWith(
 			expect.objectContaining( { verification: { ...SEED.verification, google: 'tok' } } )
 		);
+	} );
+
+	it( 'a verification save that finishes after saveVerification keeps the adopted code, even when the re-read fails', async () => {
+		let finishSave: ( response: unknown ) => void = () => undefined;
+		mockApiFetch.mockImplementation( options => {
+			const { path, data } = options as { path: string; data?: unknown };
+			if ( JSON.stringify( data ?? {} ).includes( '"bing"' ) ) {
+				return new Promise( resolve => {
+					finishSave = resolve;
+				} );
+			}
+			return path === '/jetpack/v4/seo/settings'
+				? Promise.reject( { message: 'Offline.' } )
+				: Promise.resolve( {} );
+		} );
+		const { result } = renderHook( () => useSettingsForm() );
+		act( () => result.current.setVerification( 'bing', 'abc' ) );
+		act( () => result.current.commitFields( [ 'verification' ] ) );
+
+		await act( () => result.current.saveVerification( 'google', 'tok' ) );
+		await act( async () => finishSave( {} ) );
+		await waitFor( () => expect( result.current.isSaving ).toBe( false ) );
+
+		expect( result.current.isDirty( [ 'verification' ] ) ).toBe( false );
+		expect( storeState.verification ).toEqual( {
+			...SEED.verification,
+			google: 'tok',
+			bing: 'abc',
+		} );
+	} );
+
+	it( 'a save from a form that was left does not roll back a code a newer form adopted', async () => {
+		let finishSave: ( response: unknown ) => void = () => undefined;
+		mockApiFetch.mockImplementation( options =>
+			JSON.stringify( options ).includes( 'advanced_seo_front_page_description' )
+				? new Promise( resolve => {
+						finishSave = resolve;
+					} )
+				: Promise.resolve( {} )
+		);
+		const { result: leftForm } = renderHook( () => useSettingsForm() );
+		act( () => leftForm.current.setField( { front_page_description: 'New description.' } ) );
+		act( () => leftForm.current.commitFields( [ 'front_page_description' ] ) );
+		const { result: newForm } = renderHook( () => useSettingsForm() );
+
+		await act( () => newForm.current.saveVerification( 'google', 'tok' ) );
+		await act( async () => finishSave( {} ) );
+		await waitFor( () => expect( leftForm.current.isSaving ).toBe( false ) );
+
+		expect( storeState.verification.google ).toBe( 'tok' );
+		expect( storeState.front_page_description ).toBe( 'New description.' );
 	} );
 
 	it.each< [ string, () => void, unknown[][] ] >( [
