@@ -85,6 +85,10 @@ module.exports = [
 				'./src/client/block-editor/blocks/channel-details/index.tsx',
 			'block-editor/blocks/video-details/index':
 				'./src/client/block-editor/blocks/video-details/index.tsx',
+			'block-editor/blocks/playlist-details/index':
+				'./src/client/block-editor/blocks/playlist-details/index.tsx',
+			'block-editor/blocks/episode-navigation/index':
+				'./src/client/block-editor/blocks/episode-navigation/index.tsx',
 
 			'lib/token-bridge': './src/client/lib/token-bridge/index.ts',
 			'lib/player-bridge': './src/client/lib/player-bridge/index.ts',

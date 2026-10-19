@@ -1,6 +1,6 @@
 <?php
 /**
- * The VideoPress channel blocks.
+ * The channel blocks: channel details, video details, playlist details and episode navigation.
  *
  * @package automattic/jetpack-videopress
  */
@@ -23,8 +23,10 @@ class Channel_Blocks {
 	 * @var array<string, string>
 	 */
 	const BLOCKS = array(
-		'videopress/channel-details' => 'render_channel_details',
-		'videopress/video-details'   => 'render_video_details',
+		'videopress/channel-details'    => 'render_channel_details',
+		'videopress/video-details'      => 'render_video_details',
+		'videopress/playlist-details'   => 'render_playlist_details',
+		'videopress/episode-navigation' => 'render_episode_navigation',
 	);
 
 	/**
@@ -80,7 +82,7 @@ class Channel_Blocks {
 			return;
 		}
 		$handle = '';
-		foreach ( array( Playlist_Index::BLOCK_NAME ) as $name ) {
+		foreach ( array( Playlist_Index::BLOCK_NAME, 'videopress/playlist-details' ) as $name ) {
 			$block_type = \WP_Block_Type_Registry::get_instance()->get_registered( $name );
 			if ( $block_type && ! empty( $block_type->editor_script_handles ) ) {
 				$handle = $block_type->editor_script_handles[0];
@@ -343,5 +345,131 @@ class Channel_Blocks {
 		$position = array_search( $guid, $order, true );
 		/* translators: %s: episode number. */
 		return sprintf( __( 'Episode %s', 'jetpack-videopress-pkg' ), number_format_i18n( false === $position ? count( $order ) + 1 : $position + 1 ) );
+	}
+
+	/**
+	 * Playlist details: cover, eyebrow, title, channel, meta, description, Play all and Share.
+	 *
+	 * @param array $attributes Block attributes.
+	 *
+	 * @return string
+	 */
+	public static function render_playlist_details( $attributes ) {
+		$attributes = is_array( $attributes ) ? $attributes : array();
+		$source     = isset( $attributes['source'] ) && 'index' === $attributes['source'] ? 'index' : 'queried';
+		$playlist   = Channel::source_playlist( $source, isset( $attributes['sourcePlaylistId'] ) ? (string) $attributes['sourcePlaylistId'] : '' );
+		if ( ! $playlist ) {
+			return '';
+		}
+
+		$count    = count( $playlist['videos'] );
+		$page_url = Channel::playlist_url( $playlist['key'] );
+		$first_id = $count ? Channel::attachment_id( $playlist['videos'][0]['guid'] ) : 0;
+		$title    = '' !== $playlist['title'] ? $playlist['title'] : __( 'Untitled playlist', 'jetpack-videopress-pkg' );
+		/* translators: %s: number of videos. */
+		$count_label = sprintf( _n( '%s video', '%s videos', $count, 'jetpack-videopress-pkg' ), number_format_i18n( $count ) );
+
+		$markup = '';
+		if ( self::flag( $attributes, 'showCover', true ) ) {
+			$poster  = $count ? Channel_Data::video_details( $playlist['videos'][0]['guid'], $first_id ? $first_id : null )['poster'] : '';
+			$markup .= sprintf(
+				'<div class="videopress-playlist-details__cover"><span class="videopress-playlist-details__deck" aria-hidden="true"></span><span class="videopress-playlist-details__frame">%1$s<span class="videopress-playlist-details__badge">%2$s</span></span></div>',
+				'' !== $poster ? sprintf( '<img class="videopress-playlist-details__poster" src="%s" alt="" loading="lazy" />', esc_url( $poster ) ) : '',
+				esc_html( $count_label )
+			);
+		}
+		if ( self::flag( $attributes, 'showEyebrow', true ) ) {
+			$markup .= sprintf( '<span class="videopress-playlist-details__eyebrow">%s</span>', esc_html__( 'Playlist', 'jetpack-videopress-pkg' ) );
+		}
+		$level   = self::heading_level( $attributes, 'index' === $source ? 3 : 1 );
+		$markup .= sprintf(
+			'<h%1$d class="videopress-playlist-details__title">%2$s</h%1$d>',
+			$level,
+			'index' === $source ? sprintf( '<a href="%1$s">%2$s</a>', esc_url( $page_url ), esc_html( $title ) ) : esc_html( $title )
+		);
+		if ( self::flag( $attributes, 'showChannel', true ) ) {
+			$markup .= sprintf( '<a class="videopress-playlist-details__channel" href="%1$s">%2$s</a>', esc_url( home_url( '/' ) ), esc_html( get_bloginfo( 'name' ) ) );
+		}
+		if ( self::flag( $attributes, 'showMeta', true ) ) {
+			$post    = $playlist['post_id'] ? get_post( $playlist['post_id'] ) : null;
+			$meta    = All_Playlists_Block::updated_meta(
+				array(
+					'post'   => $post instanceof WP_Post ? $post : null,
+					'videos' => $playlist['videos'],
+				)
+			);
+			$markup .= sprintf( '<div class="videopress-playlist-details__meta">%s</div>', esc_html( implode( ' · ', array_filter( array( $count_label, $meta ) ) ) ) );
+		}
+		if ( self::flag( $attributes, 'showDescription', true ) && '' !== $playlist['description'] ) {
+			$markup .= sprintf( '<p class="videopress-playlist-details__description">%s</p>', esc_html( $playlist['description'] ) );
+		}
+		if ( self::flag( $attributes, 'showActions', true ) ) {
+			$play_url = $first_id ? Channel::video_url( $first_id, $playlist['key'] ) : '';
+			$markup  .= sprintf(
+				'<div class="videopress-playlist-details__actions wp-block-buttons">%1$s<div class="wp-block-button is-style-outline"><a class="wp-block-button__link wp-element-button videopress-playlist-details__share" href="%2$s" data-share-url="%2$s">%3$s</a></div></div>',
+				'' !== $play_url ? sprintf( '<div class="wp-block-button"><a class="wp-block-button__link wp-element-button videopress-playlist-details__play" href="%1$s">%2$s</a></div>', esc_url( $play_url ), esc_html__( 'Play all', 'jetpack-videopress-pkg' ) ) : '',
+				esc_url( $page_url ),
+				esc_html__( 'Share', 'jetpack-videopress-pkg' )
+			);
+		}
+
+		return sprintf(
+			'<div %1$s>%2$s</div>',
+			get_block_wrapper_attributes( array( 'class' => 'videopress-playlist-details is-source-' . $source ) ),
+			$markup
+		);
+	}
+
+	/**
+	 * Previous and next episode on a video page: within the playlist the page
+	 * plays from, else in upload order.
+	 *
+	 * @return string
+	 */
+	public static function render_episode_navigation() {
+		$guid = Channel::queried_guid();
+		if ( '' === $guid ) {
+			return '';
+		}
+
+		$playlist = Channel::queried_playlist();
+		$sequence = $playlist ? array_column( $playlist['videos'], 'guid' ) : array();
+		if ( ! in_array( $guid, $sequence, true ) ) {
+			$playlist = null;
+			$sequence = array_reverse( array_column( Channel_Data::videos(), 'guid' ) );
+		}
+		$position = array_search( $guid, $sequence, true );
+		if ( false === $position ) {
+			return '';
+		}
+
+		$links = '';
+		foreach ( array(
+			'prev' => array( $position - 1, __( '← Previous episode', 'jetpack-videopress-pkg' ) ),
+			'next' => array( $position + 1, __( 'Next episode →', 'jetpack-videopress-pkg' ) ),
+		) as $direction => list( $index, $label ) ) {
+			$other = $sequence[ $index ] ?? '';
+			$id    = '' !== $other ? Channel::attachment_id( $other ) : 0;
+			if ( ! $id ) {
+				continue;
+			}
+			$links .= sprintf(
+				'<a class="videopress-episode-navigation__link is-%1$s" href="%2$s" rel="%1$s"><span class="videopress-episode-navigation__label">%3$s</span><span class="videopress-episode-navigation__title">%4$s</span></a>',
+				esc_attr( $direction ),
+				esc_url( Channel::video_url( $id, $playlist ? $playlist['key'] : '' ) ),
+				esc_html( $label ),
+				esc_html( Channel_Data::video_details( $other, $id )['title'] )
+			);
+		}
+		if ( '' === $links ) {
+			return '';
+		}
+
+		return sprintf(
+			'<nav %1$s aria-label="%2$s">%3$s</nav>',
+			get_block_wrapper_attributes( array( 'class' => 'videopress-episode-navigation' ) ),
+			esc_attr__( 'Episodes', 'jetpack-videopress-pkg' ),
+			$links
+		);
 	}
 }

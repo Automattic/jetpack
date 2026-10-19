@@ -9,9 +9,14 @@ export interface Status {
 	comment_likes: { supported: boolean; follows_likes_settings: boolean };
 	placement: boolean;
 	site_editor_url: string;
+	/** Empty when the theme has no `page` template. */
+	page_template_editor_url: string;
 }
 
 export type ButtonStyle = 'icon-text' | 'icon' | 'text' | 'official';
+
+/** Where a block is added to single post and page templates; a list holds one at most. */
+export type TemplatePlacement = 'before_content' | 'after_content';
 
 /** Only the keys the screen shows on this site are present. */
 export interface Settings {
@@ -23,6 +28,8 @@ export interface Settings {
 	show?: string[];
 	twitter_site_tag?: string;
 	disable_resources?: boolean;
+	sharing_buttons_auto_add?: TemplatePlacement[];
+	likes_auto_add?: TemplatePlacement[];
 }
 
 export type SettingKey = keyof Settings;

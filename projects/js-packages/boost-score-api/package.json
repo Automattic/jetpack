@@ -34,8 +34,8 @@
 		"zod": "3.25.76"
 	},
 	"devDependencies": {
-		"@jest/globals": "30.5.1",
+		"@jest/globals": "30.5.2",
 		"@typescript/native-preview": "7.0.0-dev.20260707.2",
-		"jest": "30.5.1"
+		"jest": "30.5.2"
 	}
 }
