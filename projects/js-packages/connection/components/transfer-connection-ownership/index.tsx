@@ -8,16 +8,19 @@ import { useEffect } from 'react';
 /**
  * Internal dependencies
  */
-import { STORE_ID } from '../../state/store';
+import { initConnectionStore } from '../../state/store';
 import { isConnectionOwner } from '../../types';
 import OwnerCandidateList from './candidate-list';
 import TransferConfirmStep from './confirm-step';
 import TransferDoneStep from './done-step';
 import useOwnershipTransfer, { type ConnectionOwnerCandidate } from './use-ownership-transfer';
+import type { StoreDescriptor } from '@wordpress/data';
 
 export type { ConnectionOwnerCandidate };
 
-type StoreSelector = ( storeId: string ) => Record< string, ( ...args: unknown[] ) => unknown >;
+type StoreSelector = (
+	store: StoreDescriptor | string
+) => Record< string, ( ...args: unknown[] ) => unknown >;
 
 export interface TransferConnectionOwnershipProps {
 	/** API root URL. */
@@ -57,6 +60,9 @@ const TransferConnectionOwnership = ( {
 		error,
 	} = useOwnershipTransfer( { apiRoot, apiNonce, onTransferred } );
 
+	// Register the connection store lazily and select against the returned descriptor.
+	const connectionStore = initConnectionStore();
+
 	// Null only while the request is in flight: a failure resolves to an empty list.
 	const isLoading = null === candidates;
 	const hasCandidates = !! candidates?.length;
@@ -66,13 +72,16 @@ const TransferConnectionOwnership = ( {
 	}, [ isTransferring, onBusyChange ] );
 	// True only of the connection owner, who is the person transferring: hence "you're".
 	const isProtectedOwner = useSelect(
-		( select: StoreSelector ) => !! select( STORE_ID ).getHasProtectedOwner(),
-		[]
+		( select: StoreSelector ) => !! select( connectionStore ).getHasProtectedOwner(),
+		[ connectionStore ]
 	);
-	const currentOwner = useSelect( ( select: StoreSelector ) => {
-		const owner = select( STORE_ID ).getConnectionOwner();
-		return isConnectionOwner( owner ) ? owner : null;
-	}, [] );
+	const currentOwner = useSelect(
+		( select: StoreSelector ) => {
+			const owner = select( connectionStore ).getConnectionOwner();
+			return isConnectionOwner( owner ) ? owner : null;
+		},
+		[ connectionStore ]
+	);
 
 	if ( 'done' === step && selectedCandidate ) {
 		return (

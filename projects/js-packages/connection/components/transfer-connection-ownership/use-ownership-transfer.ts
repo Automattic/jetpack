@@ -6,7 +6,7 @@ import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import useRestApiInit from '../../hooks/use-rest-api-init';
-import { STORE_ID } from '../../state/store';
+import { initConnectionStore } from '../../state/store';
 import type { ConnectionOwnerCandidate } from './types';
 
 /** What `checkStatus` throws: an Error carrying the REST body it could not return. */
@@ -90,7 +90,9 @@ export default function useOwnershipTransfer( {
 	const [ isTransferring, setIsTransferring ] = useState( false );
 	const [ step, setStep ] = useState< TransferStep >( 'choose' );
 	const [ error, setError ] = useState( '' );
-	const { setConnectionOwner } = useDispatch( STORE_ID );
+	// Register the connection store lazily and dispatch against the returned descriptor.
+	const connectionStore = initConnectionStore();
+	const { setConnectionOwner } = useDispatch( connectionStore );
 	const isMounted = useRef( true );
 
 	useRestApiInit( apiRoot, apiNonce );
