@@ -92,6 +92,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 		setField,
 		setSchemaSettings,
 		setVerification,
+		saveVerification,
 		commit,
 		commitFields,
 		isDirty,
@@ -304,6 +305,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 							: undefined
 					}
 					onChange={ setVerification }
+					saveGoogleCode={ code => saveVerification( 'google', code ) }
 					onCommit={ () => commitFields( [ 'verification' ] ) }
 					disabled={ isSaving }
 					open={ verificationOpen }
