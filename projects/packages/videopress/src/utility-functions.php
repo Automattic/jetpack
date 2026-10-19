@@ -276,9 +276,9 @@ function videopress_build_url( $guid ) {
  *
  * @since 4.4
  * @since $$next-version$$ Accepts a minimum attachment ID supplied by VideoPress.
- * @param string $title The post_title.
- * @param string $guid The VideoPress guid.
- * @param int    $minimum_attachment_id Optional lowest attachment ID allowed by VideoPress.
+ * @param string      $title The post_title.
+ * @param string|null $guid Optional VideoPress guid.
+ * @param int         $minimum_attachment_id Optional lowest attachment ID allowed by VideoPress.
  * @return int|WP_Error
  */
 function videopress_create_new_media_item( $title, $guid = null, $minimum_attachment_id = 0 ) {
