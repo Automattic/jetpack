@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
+use WP_Post;
+
 /**
  * Registers and renders the server-side blocks a VideoPress channel theme
  * builds its pages from, on sites with the channel feature enabled. Each renders
@@ -22,6 +24,7 @@ class Channel_Blocks {
 	 */
 	const BLOCKS = array(
 		'videopress/channel-details' => 'render_channel_details',
+		'videopress/video-details'   => 'render_video_details',
 	);
 
 	/**
@@ -101,6 +104,32 @@ class Channel_Blocks {
 			'window.videopressChannelEditor = ' . wp_json_encode( array( 'playlists' => $playlists ), JSON_HEX_TAG | JSON_UNESCAPED_SLASHES ) . ';',
 			'before'
 		);
+	}
+
+	/**
+	 * A boolean attribute.
+	 *
+	 * @param array  $attributes    Block attributes.
+	 * @param string $key           Attribute.
+	 * @param bool   $default_value Value when unset.
+	 *
+	 * @return bool
+	 */
+	private static function flag( $attributes, $key, $default_value ) {
+		return isset( $attributes[ $key ] ) ? (bool) $attributes[ $key ] : $default_value;
+	}
+
+	/**
+	 * A heading level attribute, 1 to 6; anything else ( 0 = automatic ) picks the default.
+	 *
+	 * @param array $attributes    Block attributes.
+	 * @param int   $default_value Level when unset.
+	 *
+	 * @return int
+	 */
+	private static function heading_level( $attributes, $default_value ) {
+		$level = isset( $attributes['headingLevel'] ) && is_numeric( $attributes['headingLevel'] ) ? (int) $attributes['headingLevel'] : 0;
+		return $level >= 1 && $level <= 6 ? $level : $default_value;
 	}
 
 	/**
@@ -213,5 +242,106 @@ class Channel_Blocks {
 					'inline' => sprintf( __( 'Joined %s', 'jetpack-videopress-pkg' ), $date ),
 				);
 		}
+	}
+
+	/**
+	 * The video a block shows: the video page's, or the newest upload.
+	 *
+	 * @param array $attributes Block attributes.
+	 *
+	 * @return WP_Post|null
+	 */
+	private static function block_video( $attributes ) {
+		if ( isset( $attributes['source'] ) && 'latest' === $attributes['source'] ) {
+			return Channel_Data::latest_video();
+		}
+		return Channel::is_video_page() ? Channel::current_video() : null;
+	}
+
+	/**
+	 * Video details: eyebrow, title, views and age, description and playlist chips.
+	 *
+	 * @param array $attributes Block attributes.
+	 *
+	 * @return string
+	 */
+	public static function render_video_details( $attributes ) {
+		$attributes = is_array( $attributes ) ? $attributes : array();
+		$post       = self::block_video( $attributes );
+		$is_latest  = isset( $attributes['source'] ) && 'latest' === $attributes['source'];
+		$guid       = $post instanceof WP_Post ? Channel::guid( $post ) : '';
+		if ( ! $post instanceof WP_Post || '' === $guid ) {
+			return '';
+		}
+		$details  = Channel_Data::video_details( $guid, $post );
+		$record   = Channel_Data::record( $post );
+		$playlist = $is_latest ? null : Channel::queried_playlist();
+		if ( $playlist && ! in_array( $guid, array_column( $playlist['videos'], 'guid' ), true ) ) {
+			$playlist = null;
+		}
+
+		$markup = '';
+		if ( self::flag( $attributes, 'showEyebrow', true ) ) {
+			$markup .= sprintf( '<span class="videopress-video-details__eyebrow">%s</span>', esc_html( self::episode_label( $guid, $playlist ) ) );
+		}
+		if ( self::flag( $attributes, 'showTitle', true ) && '' !== $details['title'] ) {
+			$level   = self::heading_level( $attributes, $is_latest ? 2 : 1 );
+			$title   = $is_latest
+				? sprintf( '<a href="%1$s">%2$s</a>', esc_url( Channel::video_url( $post ) ), esc_html( $details['title'] ) )
+				: esc_html( $details['title'] );
+			$markup .= sprintf( '<h%1$d class="videopress-video-details__title">%2$s</h%1$d>', $level, $title );
+		}
+		if ( self::flag( $attributes, 'showMeta', true ) && $record ) {
+			$meta = Channel_Data::views_and_age( Channel_Data::with_views( array( $record ) )[0], ! $is_latest );
+			if ( '' !== $meta ) {
+				$markup .= sprintf( '<div class="videopress-video-details__meta">%s</div>', esc_html( $meta ) );
+			}
+		}
+		if ( self::flag( $attributes, 'showDescription', true ) && '' !== trim( wp_strip_all_tags( $details['description'] ) ) ) {
+			$markup .= sprintf( '<div class="videopress-video-details__description">%s</div>', wpautop( esc_html( wp_strip_all_tags( $details['description'] ) ) ) );
+		}
+		if ( self::flag( $attributes, 'showPlaylists', true ) ) {
+			$chips = '';
+			foreach ( Channel::playlists_with_video( $guid ) as $holder ) {
+				$chips .= sprintf(
+					'<a class="videopress-video-details__chip" href="%1$s">%2$s</a>',
+					esc_url( Channel::playlist_url( $holder['key'] ) ),
+					/* translators: %s: playlist title. */
+					esc_html( sprintf( __( 'Playlist: %s', 'jetpack-videopress-pkg' ), '' !== $holder['title'] ? $holder['title'] : __( 'Untitled playlist', 'jetpack-videopress-pkg' ) ) )
+				);
+			}
+			if ( '' !== $chips ) {
+				$markup .= sprintf( '<div class="videopress-video-details__chips">%s</div>', $chips );
+			}
+		}
+		if ( '' === $markup ) {
+			return '';
+		}
+
+		return sprintf( '<div %1$s>%2$s</div>', get_block_wrapper_attributes( array( 'class' => 'videopress-video-details' ) ), $markup );
+	}
+
+	/**
+	 * "Episode 12" by upload order, or "Episode 3 · Playlist name" within a playlist.
+	 *
+	 * @param string     $guid     The video.
+	 * @param array|null $playlist The playlist the video is played from.
+	 *
+	 * @return string
+	 */
+	private static function episode_label( $guid, $playlist ) {
+		if ( $playlist ) {
+			$position = array_search( $guid, array_column( $playlist['videos'], 'guid' ), true );
+			$label    = sprintf(
+				/* translators: %s: episode number. */
+				__( 'Episode %s', 'jetpack-videopress-pkg' ),
+				number_format_i18n( (int) $position + 1 )
+			);
+			return '' !== $playlist['title'] ? $label . ' · ' . $playlist['title'] : $label;
+		}
+		$order    = array_reverse( array_column( Channel_Data::videos(), 'guid' ) );
+		$position = array_search( $guid, $order, true );
+		/* translators: %s: episode number. */
+		return sprintf( __( 'Episode %s', 'jetpack-videopress-pkg' ), number_format_i18n( false === $position ? count( $order ) + 1 : $position + 1 ) );
 	}
 }
