@@ -303,7 +303,12 @@ class Tracking {
 			$wpcom_user_data = $this->connection->get_connected_user_data( $user_id );
 			$wpcom_id        = $wpcom_user_data['ID'] ?? null;
 
-			if ( is_string( $wpcom_id ) ) {
+			// The REST endpoint can send the ID as a JSON number, which decodes to an int.
+			if ( is_int( $wpcom_id ) ) {
+				$wpcom_id = (string) $wpcom_id;
+			}
+
+			if ( is_string( $wpcom_id ) && ctype_digit( $wpcom_id ) && (int) $wpcom_id > 0 ) {
 				update_user_meta( $user_id, 'jetpack_tracks_wpcom_id', $wpcom_id );
 
 				return array(

@@ -59,7 +59,7 @@ class Tracking_Test extends TestCase {
 	 * Test teardown.
 	 */
 	public function tearDown(): void {
-		unset( $_SERVER['REMOTE_ADDR'], $_SERVER['HTTP_USER_AGENT'], $_SERVER['HTTP_ACCEPT_LANGUAGE'] );
+		unset( $_SERVER['REMOTE_ADDR'], $_SERVER['HTTP_USER_AGENT'], $_SERVER['HTTP_ACCEPT_LANGUAGE'], $_COOKIE['tk_ai'] );
 		unset(
 			$_REQUEST['tracksNonce'],
 			$_REQUEST['tracksEventName'],
@@ -321,6 +321,73 @@ class Tracking_Test extends TestCase {
 		$tracking->ajax_tracks();
 
 		$this->assertSame( array(), $properties );
+	}
+
+	/**
+	 * A connected user's WordPress.com ID is used and stored as a string, whether it arrives as
+	 * an integer or a numeric string; anything else falls back to the anonymous ID.
+	 *
+	 * @param bool        $connected   Whether the user is connected.
+	 * @param mixed       $id          The `ID` returned by get_connected_user_data().
+	 * @param string|null $expected_id The expected WordPress.com ID, or null for anonymous.
+	 *
+	 * @dataProvider data_provider_test_tracks_get_identity
+	 */
+	#[DataProvider( 'data_provider_test_tracks_get_identity' )]
+	public function test_tracks_get_identity( $connected, $id, $expected_id ) {
+		$_COOKIE['tk_ai'] = 'jetpack:' . str_repeat( 'a', 24 ); // Skips setcookie(), which needs WordPress constants.
+		$meta             = array();
+
+		Monkey\Functions\when( 'get_user_meta' )->alias(
+			function ( $user_id, $key ) use ( &$meta ) {
+				return $meta[ $key ] ?? '';
+			}
+		);
+		$set_meta = function ( $user_id, $key, $value ) use ( &$meta ) {
+			$meta[ $key ] = $value;
+		};
+		Monkey\Functions\when( 'update_user_meta' )->alias( $set_meta );
+		Monkey\Functions\when( 'add_user_meta' )->alias( $set_meta );
+
+		$connection = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
+			->onlyMethods( array( 'is_user_connected', 'get_connected_user_data' ) )
+			->getMock();
+		$connection->method( 'is_user_connected' )->willReturn( $connected );
+		$connection->method( 'get_connected_user_data' )->willReturn( array( 'ID' => $id ) );
+
+		$identity = ( new Tracking( 'jetpack', $connection ) )->tracks_get_identity( 1 );
+
+		if ( null === $expected_id ) {
+			$this->assertSame( 'anon', $identity['_ut'] );
+			$this->assertSame( array( 'jetpack_tracks_anon_id' => $identity['_ui'] ), $meta );
+		} else {
+			$this->assertSame(
+				array(
+					'_ut' => 'wpcom:user_id',
+					'_ui' => $expected_id,
+				),
+				$identity
+			);
+			$this->assertSame( array( 'jetpack_tracks_wpcom_id' => $expected_id ), $meta );
+		}
+	}
+
+	/**
+	 * Data provider for test_tracks_get_identity.
+	 *
+	 * @return array
+	 */
+	public static function data_provider_test_tracks_get_identity() {
+		return array(
+			'integer ID'             => array( true, 12345678, '12345678' ),
+			'numeric string ID'      => array( true, '12345678', '12345678' ),
+			'zero'                   => array( true, 0, null ),
+			'zero as a string'       => array( true, '0', null ),
+			'empty string'           => array( true, '', null ),
+			'non-numeric string'     => array( true, 'abc', null ),
+			'negative integer'       => array( true, -5, null ),
+			'not connected, with ID' => array( false, 12345678, null ),
+		);
 	}
 
 	/**

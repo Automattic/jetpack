@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Tracking: Identify connected users whose WordPress.com ID is returned as an integer, instead of tracking them as anonymous.
