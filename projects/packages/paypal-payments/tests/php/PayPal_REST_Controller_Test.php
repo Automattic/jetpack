@@ -1484,7 +1484,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 		$result = PayPal_REST_Controller::handle_update_button( $request );
 
 		$this->assertInstanceOf( \WP_REST_Response::class, $result );
-		$put = $requests[1]['body'];
+		$put = (array) $requests[1]['body'];
 		$this->assertSame( 'kept', $put['future_field'] );
 		$this->assertSame( 'kept', $put['line_items'][0]['future_detail'] );
 		$this->assertArrayNotHasKey( 'taxes', $put['line_items'][0], 'A tax the block turned off came back from the read.' );
