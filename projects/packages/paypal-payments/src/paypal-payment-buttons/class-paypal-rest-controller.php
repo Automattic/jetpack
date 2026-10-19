@@ -790,6 +790,14 @@ class PayPal_REST_Controller {
 		$resource_id   = $request->get_param( 'resource_id' );
 		$resource_data = self::build_resource_data( $request );
 
+		// A PUT replaces the whole payment, and a link made through PayPal's API can hold
+		// keys the block has no control for, so read it first and carry those over.
+		$current = PayPal_API_Client::get_resource( $resource_id );
+		if ( is_wp_error( $current ) ) {
+			return self::api_error_to_rest_error( $current );
+		}
+		$resource_data = PayPal_Attribute_Mapper::merge_into_resource( $current, $resource_data );
+
 		$result = PayPal_API_Client::update_resource( $resource_id, $resource_data );
 
 		if ( is_wp_error( $result ) ) {
