@@ -129,11 +129,6 @@ export interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercen
 	 * When provided, replaces the default `label: value` tooltip with custom content.
 	 */
 	renderTooltip?: ( params: PieSemiCircleChartRenderTooltipParams ) => ReactNode;
-
-	/**
-	 * Accessible name of the chart. Defaults to a localized "Semi-circle chart".
-	 */
-	ariaLabel?: string;
 }
 
 // Base props type with optional responsive properties

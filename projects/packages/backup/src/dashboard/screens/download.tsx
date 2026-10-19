@@ -1,21 +1,33 @@
+import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
 import { ProgressBar, VisuallyHidden } from '@wordpress/components';
-import { dateI18n } from '@wordpress/date';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, isRTL, sprintf } from '@wordpress/i18n';
 import {
 	Icon,
 	check,
 	download as downloadIcon,
 	arrowLeft,
+	arrowRight,
 	error as errorIcon,
 } from '@wordpress/icons';
 import { Link, useParams, useSearch } from '@wordpress/route';
-import { Button, Card, EmptyState, LinkButton, Spinner, Stack, Text } from '@wordpress/ui';
+import {
+	Button,
+	Card,
+	EmptyState,
+	Link as ExternalLink,
+	ButtonLink,
+	Spinner,
+	Stack,
+	Text,
+} from '@wordpress/ui';
 import DashboardLayout from '../components/dashboard-layout';
 import ErrorReference from '../components/error-reference';
 import InvalidRewindId from '../components/invalid-rewind-id';
 import RestoreItemsChecklist from '../components/restore-items-checklist';
 import { splitFileSelection } from '../data/api/download';
+import { formatDateTime } from '../data/date-format';
+import { useSiteSuffix } from '../hooks/use-connection';
 import { useDownload } from '../hooks/use-download';
 import { useGateState } from '../hooks/use-gate-state';
 import { useStepFocus } from '../hooks/use-step-focus';
@@ -51,6 +63,7 @@ type DownloadSearch = Record< string, unknown > & { files?: string };
 export default function DownloadScreen() {
 	const { rewindId } = useParams( { from: '/download/$rewindId' } );
 	const gate = useGateState();
+	const siteSuffix = useSiteSuffix();
 	// `strict: false` is the unvalidated read, and it is the whole option:
 	// passing `from` as well would send it down the route-id lookup that
 	// throws on a mismatch, which is the opposite of what is wanted for a
@@ -139,7 +152,7 @@ export default function DownloadScreen() {
 		<DashboardLayout>
 			<div className="jpb-download">
 				<Link to="/" className="jpb-download__back">
-					<Icon icon={ arrowLeft } size={ 18 } />
+					<Icon icon={ isRTL() ? arrowRight : arrowLeft } size={ 18 } />
 					{ __( 'Back to overview', 'jetpack-backup-pkg' ) }
 				</Link>
 				<Card.Root className="jpb-download__card">
@@ -156,8 +169,11 @@ export default function DownloadScreen() {
 									{ __( 'Download backup', 'jetpack-backup-pkg' ) }
 								</Text>
 								<Text variant="body-md" className="jpb-text-muted">
-									{ __( 'Download point:', 'jetpack-backup-pkg' ) }{ ' ' }
-									{ dateI18n( 'M j, Y, g:i A', downloadPoint, undefined ) }
+									{ sprintf(
+										/* translators: %s: date and time of the backup. */
+										__( 'Download point: %s', 'jetpack-backup-pkg' ),
+										formatDateTime( downloadPoint )
+									) }
 								</Text>
 							</Stack>
 						</Stack>
@@ -244,6 +260,11 @@ export default function DownloadScreen() {
 										{ titles.preparing }
 									</Text>
 								</EmptyState.Title>
+								{ state.phase === 'progress' && state.reconnecting && (
+									<EmptyState.Description>
+										{ __( 'Reconnecting…', 'jetpack-backup-pkg' ) }
+									</EmptyState.Description>
+								) }
 							</EmptyState.Root>
 						) }
 						{ state.phase === 'success' && (
@@ -273,14 +294,14 @@ export default function DownloadScreen() {
 										{ sprintf(
 											/* translators: %s: date and time the download link stops working. */
 											__( 'This expires %s.', 'jetpack-backup-pkg' ),
-											dateI18n( 'M j, Y, g:i A', state.validUntil, undefined )
+											formatDateTime( state.validUntil )
 										) }
 									</EmptyState.Description>
 								) }
 								<EmptyState.Actions>
-									<LinkButton variant="solid" href={ state.downloadUrl } download rel="noreferrer">
+									<ButtonLink variant="solid" href={ state.downloadUrl } download rel="noreferrer">
 										{ __( 'Download file', 'jetpack-backup-pkg' ) }
-									</LinkButton>
+									</ButtonLink>
 								</EmptyState.Actions>
 							</EmptyState.Root>
 						) }
@@ -303,6 +324,15 @@ export default function DownloadScreen() {
 								</EmptyState.Title>
 								<EmptyState.Description>{ state.message }</EmptyState.Description>
 								<ErrorReference { ...state.reference } />
+								<ExternalLink
+									openInNewTab
+									href={ getRedirectUrl(
+										'jetpack-contact-support',
+										siteSuffix ? { site: siteSuffix } : {}
+									) }
+								>
+									{ __( 'Contact support', 'jetpack-backup-pkg' ) }
+								</ExternalLink>
 								<EmptyState.Actions>
 									<Button variant="solid" onClick={ handleRetry }>
 										{ __( 'Try again', 'jetpack-backup-pkg' ) }

@@ -115,7 +115,7 @@ final class Dashboard_Section_Registry {
 		if ( in_array( $section->slug, self::RESERVED_SLUGS, true ) ) {
 			/* translators: %s: Section slug. */
 			$message = sprintf( __( 'Dashboard section slug "%s" is reserved for the dashboard.', 'jetpack-premium-analytics-pkg' ), $section->slug );
-			_doing_it_wrong( __METHOD__, esc_html( $message ), 'jetpack-premium-analytics-$$next-version$$' );
+			_doing_it_wrong( __METHOD__, esc_html( $message ), 'jetpack-premium-analytics-0.12.0' );
 			return false;
 		}
 

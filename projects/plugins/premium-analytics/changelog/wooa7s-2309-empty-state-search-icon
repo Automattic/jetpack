@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Widgets: Show the same search icon in every empty state, including the post, email, video and author pages, and reword the empty text of several widgets.

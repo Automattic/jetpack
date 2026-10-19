@@ -82,7 +82,7 @@ function PostingActivityInner() {
 			<MonthCalendarHeatmap
 				valueByDay={ postsByDay }
 				range={ range }
-				ariaLabel={ __( 'Monthly posting activity', 'jetpack-premium-analytics-pkg' ) }
+				chartTitle={ __( 'Monthly posting activity', 'jetpack-premium-analytics-pkg' ) }
 				formatValue={ formatPostCount }
 				emptyLabel={ __( 'No posts', 'jetpack-premium-analytics-pkg' ) }
 				icon={ postContent }

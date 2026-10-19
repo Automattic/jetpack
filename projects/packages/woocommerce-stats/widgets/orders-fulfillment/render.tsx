@@ -10,7 +10,6 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@automattic/jetpack-premium-analytics-sdk';
 import { __ } from '@wordpress/i18n';
-import { box } from '@wordpress/icons';
 import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
@@ -72,6 +71,7 @@ function OrdersFulfillment() {
 	return (
 		<Donut
 			segments={ segments }
+			chartTitle={ __( 'Orders fulfillment', 'jetpack-woocommerce-stats-pkg' ) }
 			status={ {
 				isLoading: fulfilled.isLoading || unfulfilled.isLoading,
 				isFetching: fulfilled.isFetching || unfulfilled.isFetching,
@@ -87,10 +87,6 @@ function OrdersFulfillment() {
 				),
 				onRetry: refetch,
 			} ) }
-			empty={ {
-				icon: box,
-				description: __( 'No orders in this period.', 'jetpack-woocommerce-stats-pkg' ),
-			} }
 		/>
 	);
 }

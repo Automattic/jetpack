@@ -265,14 +265,14 @@ class Settings_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that the Overview feature flag is registered disabled by default.
+	 * Test that the Overview feature flag is registered enabled by default.
 	 */
-	public function test_register_feature_flags_registers_overview_disabled_by_default() {
+	public function test_register_feature_flags_registers_overview_enabled_by_default() {
 		Settings::register_feature_flags();
 
 		$this->assertSame(
 			array(
-				'default'     => false,
+				'default'     => true,
 				'description' => 'Enable the Newsletter Overview and Stats tabs.',
 				'owner'       => 'jetpack-newsletter',
 				'name'        => Settings::OVERVIEW_FEATURE_FLAG,
@@ -282,22 +282,10 @@ class Settings_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that script data exposes the disabled Overview feature flag.
+	 * Test that script data exposes the Overview feature flag, enabled by default.
 	 */
-	public function test_add_script_data_exposes_overview_disabled_by_default() {
+	public function test_add_script_data_exposes_overview_enabled_by_default() {
 		Settings::register_feature_flags();
-
-		$data = ( new Settings() )->add_script_data( array() );
-
-		$this->assertFalse( $data['newsletter']['overviewEnabled'] );
-	}
-
-	/**
-	 * Test that script data exposes an enabled Overview feature flag.
-	 */
-	public function test_add_script_data_exposes_enabled_overview() {
-		Settings::register_feature_flags();
-		add_filter( 'jetpack_feature_flag_enabled_' . Settings::OVERVIEW_FEATURE_FLAG, '__return_true' );
 
 		$data = ( new Settings() )->add_script_data( array() );
 
@@ -305,8 +293,20 @@ class Settings_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that script data exposes an Overview feature flag disabled by filter.
+	 */
+	public function test_add_script_data_exposes_overview_disabled_by_filter() {
+		Settings::register_feature_flags();
+		add_filter( 'jetpack_feature_flag_enabled_' . Settings::OVERVIEW_FEATURE_FLAG, '__return_false' );
+
+		$data = ( new Settings() )->add_script_data( array() );
+
+		$this->assertFalse( $data['newsletter']['overviewEnabled'] );
+	}
+
+	/**
 	 * Test that the Stats REST routes are not registered while the Overview flag
-	 * that also gates them is disabled (the default).
+	 * that also gates them is disabled.
 	 *
 	 * Unlike Overview's own UI chrome, Stats exposes real subscriber/email data
 	 * over REST, so the routes themselves — not just the UI — must stay
@@ -314,6 +314,8 @@ class Settings_Test extends BaseTestCase {
 	 * Overview's flag rather than getting its own.
 	 */
 	public function test_register_feature_flags_does_not_register_stats_routes_when_overview_disabled() {
+		add_filter( 'jetpack_feature_flag_enabled_' . Settings::OVERVIEW_FEATURE_FLAG, '__return_false' );
+
 		global $wp_rest_server;
 		$wp_rest_server = new \WP_REST_Server();
 

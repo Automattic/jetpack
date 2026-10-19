@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix a PHP warning and broken form when a contact form shortcode is nested inside another one.

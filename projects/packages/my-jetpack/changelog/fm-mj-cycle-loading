@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Avoid an empty state while the unreleased Available filter loads modules.

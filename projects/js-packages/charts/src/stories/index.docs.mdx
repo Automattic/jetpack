@@ -122,6 +122,35 @@ Use the `GlobalChartsProvider` component to apply consistent styling across all 
 
 Colors are not theme-object properties. Chart colors use `--a8c-charts-color-*` custom properties set in CSS inside the provider tree; see [the token catalog](./?path=/docs/js-packages-charts-library-global-context--docs) and [bar color configuration](./?path=/docs/js-packages-charts-library-charts-bar-chart--docs#theming-integration) for overrides.
 
+### Accessible Names
+
+Each chart in the table below has an accessible name. Set `ariaLabel` to name the chart after what it shows, and give each chart on a page a different name so screen reader users can tell them apart. Without `ariaLabel`, the chart uses the default name below, which only says what kind of chart it is.
+
+<Source
+	language="jsx"
+	code={ `<LineChart
+		data={ data }
+		ariaLabel="Views, last 30 days"
+	/>` }
+/>
+
+| Chart | Role | Default name |
+| ---- | ---- | ---- |
+| Line | `application` | Line chart |
+| Area | `application` | Area chart |
+| Bar | `application` | Bar chart |
+| Bar list | `application` | Bar list chart |
+| Pie | `application` | Pie chart |
+| Semi-circle | `application` | Semi-circle chart |
+| Heatmap | `grid` | Heatmap chart |
+| Geo | `group` | Geo chart |
+| Conversion funnel | `group` | Conversion funnel chart |
+| Leaderboard | `list`, with one `listitem` per row | Leaderboard chart |
+
+Sparkline does not have an `ariaLabel` prop yet.
+
+The name is set on the element that holds focus or represents the chart.
+
 ### Responsive Design
 
 All charts automatically adapt to their container size using the `withResponsive` higher-order component. By default, charts **fill their parent container's dimensions** rather than calculating height from a fixed aspect ratio.

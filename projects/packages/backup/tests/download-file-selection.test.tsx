@@ -402,6 +402,32 @@ describe( 'Download screen with a file selection', () => {
 		} );
 	} );
 
+	it( 'offers Contact support when the download fails', async () => {
+		window.JP_CONNECTION_INITIAL_STATE = {
+			...window.JP_CONNECTION_INITIAL_STATE,
+			siteSuffix: 'example.wordpress.com',
+		} as typeof window.JP_CONNECTION_INITIAL_STATE;
+		mockApiFetch.mockImplementation( ( o: { path?: string } ) => {
+			const path = o?.path ?? '';
+			if ( path.includes( '/site/capabilities' ) ) {
+				return Promise.resolve( { hasBackupPlan: true, hasScan: false } );
+			}
+			if ( path.includes( '/backups/download/' ) ) {
+				return Promise.reject( { code: 'download_initiate_failed', message: 'No luck.' } );
+			}
+			return Promise.resolve( {} );
+		} );
+
+		render( <DownloadStage /> );
+
+		const link = await screen.findByRole( 'link', { name: /^Contact support/ } );
+		expect( link ).toHaveAttribute(
+			'href',
+			'https://jetpack.com/redirect/?source=jetpack-contact-support&site=example.wordpress.com'
+		);
+		expect( link ).toHaveAttribute( 'target', '_blank' );
+	} );
+
 	it( 'retries with the file selection rather than the whole site', async () => {
 		let attempts = 0;
 		mockApiFetch.mockImplementation( ( o: { path?: string } ) => {

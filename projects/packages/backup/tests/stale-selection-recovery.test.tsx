@@ -392,9 +392,11 @@ describe( 'A selection the activity log has not answered for', () => {
 		await expect(
 			screen.findByText( LOAD_FAILED, { ignore: '.a11y-speak-region' } )
 		).resolves.toBeInTheDocument();
-		// Both notices mount in one commit, and each `speak()` clears the one before it.
-		const spoken = ( speak as jest.Mock ).mock.calls.map( ( [ text ] ) => text );
-		expect( spoken ).toContain( `We couldn't load your site's activity. ${ FAILURE_REASON }` );
-		expect( spoken ).not.toContain( LOAD_FAILED );
+		// Both notices mount in one commit; only the list's is announced.
+		const spoken = () => ( speak as jest.Mock ).mock.calls.map( ( [ text ] ) => text );
+		await waitFor( () =>
+			expect( spoken() ).toContain( `We couldn't load your site's activity. ${ FAILURE_REASON }` )
+		);
+		expect( spoken().join( ' ' ) ).not.toContain( LOAD_FAILED );
 	} );
 } );

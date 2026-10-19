@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useRaisePeriodChange } from '@jetpack-premium-analytics/data';
+import { useRaisePeriodChange, type LockableInterval } from '@jetpack-premium-analytics/data';
 import { PRESET_CUSTOM, type DateRange } from '@jetpack-premium-analytics/datetime';
 import { useCallback } from 'react';
 /**
@@ -25,9 +25,12 @@ export type CommitExactRange = (
  * Commit a range a widget computed as a custom period, in one history entry so
  * Back returns to where the reader left, and signal the change to `surface`.
  *
+ * @param lockedIntervals - The buckets the plan locks on the surface the range opens.
  * @return The commit, taking the surface, the range, and whether to open the surface as a dashboard section.
  */
-export function useCommitExactRange(): CommitExactRange {
+export function useCommitExactRange(
+	lockedIntervals?: readonly LockableInterval[]
+): CommitExactRange {
 	const { effective, stage, commit } = useStagedSearch< ExactRangeSearch, string >( {} );
 	const raisePeriodChange = useRaisePeriodChange();
 
@@ -38,12 +41,13 @@ export function useCommitExactRange(): CommitExactRange {
 				nextPresetId: PRESET_CUSTOM,
 				exactRange: true,
 				effective,
+				lockedIntervals,
 			} );
 
 			raisePeriodChange( surface, range );
 			stage( opensSection ? { ...patch, section: surface } : patch );
 			commit( { replace: false } );
 		},
-		[ effective, stage, commit, raisePeriodChange ]
+		[ effective, stage, commit, raisePeriodChange, lockedIntervals ]
 	);
 }

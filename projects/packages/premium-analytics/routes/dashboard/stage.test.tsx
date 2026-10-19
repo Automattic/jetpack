@@ -47,7 +47,12 @@ let mockSyncOptions: { enabled?: boolean; autoStart?: boolean } | undefined;
 let mockIsAdmin: boolean;
 let mockCanSendFeedback: boolean;
 const mockResetLayout = jest.fn();
-let mockDateFiltersPanelProps: { onChange: ( ...args: unknown[] ) => void; onApply: () => void };
+const mockChangeComparison = jest.fn();
+let mockDateFiltersPanelProps: {
+	onChange: ( ...args: unknown[] ) => void;
+	onComparisonChange: ( ...args: unknown[] ) => void;
+	onApply: () => void;
+};
 const mockTriggerSync = jest.fn( () => Promise.resolve() );
 
 jest.mock( '@jetpack-premium-analytics/site-sync', () => ( {
@@ -92,6 +97,7 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 		timeZone: 'UTC',
 		intervalOptions: [],
 		onChange: jest.fn(),
+		onComparisonChange: mockChangeComparison,
 		onApply: jest.fn(),
 		onIntervalChange: jest.fn(),
 	} ),
@@ -376,9 +382,17 @@ jest.mock( './components', () => ( {
 		enabled ? <div data-testid="feedback-banner" /> : null,
 	OnboardingTour: () => <div data-testid="onboarding-tour" />,
 	onboardingTourSteps: () => [],
+	PlanLimitNotice: () => <div data-testid="plan-limit-notice" />,
+	hasPurchaseSuccess: jest.requireActual(
+		'./components/purchase-success-notice/purchase-success-notice'
+	).hasPurchaseSuccess,
+	PurchaseSuccessNotice: () => <div data-testid="purchase-success-notice" />,
 	// A marker, not the real notice, which reads a query cache these tests do not
 	// stand up. Covered here: where the stage puts it.
 	RefreshFailureNotice: () => <div data-testid="refresh-failure-notice" />,
+	SectionNotice: ( { message }: { message: string } ) => (
+		<div>{ `section notice: ${ message }` }</div>
+	),
 	SectionSyncNotice: ( {
 		percentage,
 		hasError,
@@ -437,6 +451,7 @@ beforeEach( () => {
 	mockSyncOptions = undefined;
 	mockIsAdmin = true;
 	mockCanSendFeedback = true;
+	delete window.JetpackScriptData;
 	mockMountedSectionSlugs = null;
 	mockTriggerSync.mockImplementation( () => Promise.resolve() );
 	useOnboardingMock.mockReturnValue( closedOnboarding );
@@ -451,6 +466,7 @@ const useOnboardingMock = jest.mocked( useOnboarding );
 const closedOnboarding = {
 	phase: 'closed' as const,
 	step: 0,
+	flow: 'stats' as const,
 	start: jest.fn(),
 	next: jest.fn(),
 	dismiss: jest.fn(),
@@ -755,6 +771,26 @@ describe( 'Dashboard feedback banner', () => {
 
 		expect( screen.queryByTestId( 'feedback-banner' ) ).not.toBeInTheDocument();
 	} );
+
+	it( 'puts the plan limit notice away while the reader arranges the layout', async () => {
+		render( <Dashboard /> );
+		expect( screen.getByTestId( 'plan-limit-notice' ) ).toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
+
+		expect( screen.queryByTestId( 'plan-limit-notice' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'thanks a reader back from checkout in place of the plan limit notice', () => {
+		window.JetpackScriptData = {
+			premium_analytics: { purchase_success: { type: 'paid' } },
+		} as typeof window.JetpackScriptData;
+
+		render( <Dashboard /> );
+
+		expect( screen.getByTestId( 'purchase-success-notice' ) ).toBeInTheDocument();
+		expect( screen.queryByTestId( 'plan-limit-notice' ) ).not.toBeInTheDocument();
+	} );
 } );
 
 describe( 'Dashboard options menu', () => {
@@ -901,6 +937,25 @@ describe( 'Dashboard sync notice', () => {
 		expect( screen.queryByText( /^notice/ ) ).not.toBeInTheDocument();
 	} );
 
+	it( "shows the registration's notice once the section is not waiting on the sync", () => {
+		mockSection( { requires_sync: true, notice: 'No orders yet.' } );
+		mockIsSyncFinished = true;
+
+		render( <Dashboard /> );
+
+		expect( screen.getByText( 'section notice: No orders yet.' ) ).toBeInTheDocument();
+	} );
+
+	it( "holds the registration's notice back while the sync notice shows", () => {
+		mockSection( { requires_sync: true, notice: 'No orders yet.' } );
+		mockSyncState = { data: { percentage: 40 } as SyncStatus, error: null, isComplete: false };
+
+		render( <Dashboard /> );
+
+		expect( screen.getByText( 'notice 40% syncing' ) ).toBeInTheDocument();
+		expect( screen.queryByText( /^section notice/ ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'drops the notice once the sync has finished', () => {
 		mockSection( { requires_sync: true } );
 		mockIsSyncFinished = true;
@@ -960,6 +1015,7 @@ describe( 'Dashboard header date control', () => {
 
 	afterEach( () => {
 		dispatch( preferencesStore ).set( DASHBOARD_PREFERENCES_SCOPE, 'datePreset', undefined );
+		dispatch( preferencesStore ).set( DASHBOARD_PREFERENCES_SCOPE, 'comparison', undefined );
 	} );
 
 	it( 'renders the control by default', () => {
@@ -994,6 +1050,20 @@ describe( 'Dashboard header date control', () => {
 
 		expect( select( preferencesStore ).get( DASHBOARD_PREFERENCES_SCOPE, 'datePreset' ) ).toBe(
 			'last-30-days'
+		);
+	} );
+
+	it( 'applies and remembers No comparison picked from the header', () => {
+		mockSection( { date_filter: DATE_FILTER_RANGE } );
+
+		render( <Dashboard /> );
+		act( () => {
+			mockDateFiltersPanelProps.onComparisonChange( undefined, undefined );
+		} );
+
+		expect( mockChangeComparison ).toHaveBeenCalledWith( undefined, undefined );
+		expect( select( preferencesStore ).get( DASHBOARD_PREFERENCES_SCOPE, 'comparison' ) ).toBe(
+			'none'
 		);
 	} );
 
@@ -1099,6 +1169,7 @@ describe( 'Dashboard inserter', () => {
 					label: 'Traffic',
 					date_filter: DATE_FILTER_RANGE,
 					default_layout: [ { uuid: 'default-traffic-chart', type: 'jpa/traffic-chart' } ],
+					insertable_widget_types: [ 'jpa/devices' ],
 				},
 				{
 					slug: 'insights',
@@ -1111,11 +1182,11 @@ describe( 'Dashboard inserter', () => {
 		} as unknown as ReturnType< typeof useDashboardSections > );
 	} );
 
-	it( 'offers the widget types the active section places by default', () => {
+	it( 'offers the widget types the active section places by default or declares insertable', () => {
 		const { rerender } = render( <Dashboard /> );
 
 		expect( useDashboardPolicyMock ).toHaveBeenLastCalledWith( {
-			insertableWidgetTypes: new Set( [ 'jpa/traffic-chart' ] ),
+			insertableWidgetTypes: new Set( [ 'jpa/traffic-chart', 'jpa/devices' ] ),
 		} );
 
 		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );

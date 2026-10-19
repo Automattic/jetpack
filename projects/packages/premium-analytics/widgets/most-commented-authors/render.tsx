@@ -15,7 +15,6 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { commentAuthorAvatar } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -54,7 +53,9 @@ function MostCommentedAuthorsInner() {
 
 	return (
 		<Leaderboard
+			chartTitle={ __( 'All-time most commented authors', 'jetpack-premium-analytics-pkg' ) }
 			rows={ leaderboardRows }
+			columns={ { label: __( 'Authors', 'jetpack-premium-analytics-pkg' ), metric: 'comments' } }
 			status={ { isLoading, isFetching, isError, refetch } }
 			error={ describeError( error, {
 				retryDescription: __(
@@ -64,11 +65,7 @@ function MostCommentedAuthorsInner() {
 				onRetry: refetch,
 			} ) }
 			empty={ {
-				icon: commentAuthorAvatar,
-				description: __(
-					'No one has commented on your site yet.',
-					'jetpack-premium-analytics-pkg'
-				),
+				description: __( 'You don’t have comments recorded yet.', 'jetpack-premium-analytics-pkg' ),
 			} }
 			footer={
 				<>

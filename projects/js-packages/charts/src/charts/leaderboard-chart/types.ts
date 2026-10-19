@@ -12,6 +12,7 @@ export interface LeaderboardChartProps extends Pick<
 	| 'size'
 	| 'gap'
 	| 'animation'
+	| 'ariaLabel'
 > {
 	/**
 	 * Entries to display. Declared here rather than picked, since the base type

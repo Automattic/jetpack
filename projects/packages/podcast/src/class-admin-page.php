@@ -126,6 +126,19 @@ class Admin_Page {
 		// MediaUpload (cover-image-control) reads wp.media.view — only defined after this runs.
 		add_action( 'admin_enqueue_scripts', 'wp_enqueue_media' );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_tracks_transport' ) );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_i18n_loader' ) );
+	}
+
+	/**
+	 * Enqueue the JS translation loader so the dashboard's init module can download its catalogs.
+	 *
+	 * The loader is registered on every admin page by jetpack-assets but only enqueued when
+	 * something depends on it; the esbuild bundles don't pull it in.
+	 */
+	public static function enqueue_i18n_loader() {
+		if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
+			wp_enqueue_script( 'wp-jp-i18n-loader' );
+		}
 	}
 
 	/**
@@ -268,6 +281,13 @@ class Admin_Page {
 		}
 
 		require_once $build_index;
+
+		// wp-build hooks module registration to wp_default_scripts, which has
+		// already fired by admin_menu — call it directly or the init module
+		// never reaches the import map.
+		if ( function_exists( 'jetpack_podcast_register_script_modules' ) ) {
+			jetpack_podcast_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
+		}
 
 		WP_Build_Polyfills::register(
 			'jetpack-podcast',

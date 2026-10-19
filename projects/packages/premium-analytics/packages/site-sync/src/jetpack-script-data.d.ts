@@ -13,9 +13,6 @@ declare module '@automattic/jetpack-script-data' {
 			csv_exports_enabled?: boolean;
 			// Whether the site runs VideoPress, which gates the video surfaces.
 			has_videopress?: boolean;
-			// Whether the dashboard offers adding, removing and resetting widgets: the
-			// premium-analytics-dashboard-composition feature flag, read by the policy.
-			dashboard_composition_enabled?: boolean;
 			// Whether the reader may see Stats reports; a shop manager may see only the store's.
 			can_view_stats?: boolean;
 			// Slugs of the tabs the dashboard exposes. Absent until the section registry is hydrated.
@@ -27,6 +24,17 @@ declare module '@automattic/jetpack-script-data' {
 				roles: Array< { slug: string; name: string; count: number | null } >;
 				features_url: string | null;
 			};
+			// The Stats features the site's plan lacks, each with its copy and upgrade URL (empty when there is nowhere to buy it), and the widget types they lock. Dashboard only.
+			plan_gates?: {
+				tier: string;
+				locked_features: Record<
+					string,
+					{ description: string; support_url: string; upgrade_url: string }
+				>;
+				locked_widget_types: Record< string, string >;
+			};
+			// The Stats purchase this page load returned from checkout with; absent on every other load.
+			purchase_success?: { type: 'paid' | 'free' };
 		};
 		newsletter?: {
 			// The Newsletter page's Subscribers tab; null when this user cannot open it.

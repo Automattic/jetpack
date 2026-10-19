@@ -262,8 +262,9 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 				glyphSize: 0,
 				collapseGroups: legend.collapseGroups ?? false,
 				comparisonItem: legend.comparisonItem ?? false,
+				comparisonSeriesItems: legend.comparisonSeriesItems,
 			} ),
-			[ legend.collapseGroups, legend.comparisonItem ]
+			[ legend.collapseGroups, legend.comparisonItem, legend.comparisonSeriesItems ]
 		);
 		const legendItems = useChartLegendItems( dataSorted, legendOptions, legendShape );
 

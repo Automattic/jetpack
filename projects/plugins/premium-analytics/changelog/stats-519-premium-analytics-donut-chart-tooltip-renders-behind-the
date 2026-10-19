@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix the center total of donut and semi-circle charts showing through the chart tooltip.

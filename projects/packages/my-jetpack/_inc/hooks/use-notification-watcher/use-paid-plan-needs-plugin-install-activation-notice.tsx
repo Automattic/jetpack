@@ -4,12 +4,10 @@ import { Link } from '@wordpress/ui';
 import { useContext, useEffect, useMemo, useCallback } from 'react';
 import { NOTICE_PRIORITY_MEDIUM } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
-import { QUERY_PURCHASES_KEY, REST_API_SITE_PURCHASES_ENDPOINT } from '../../data/constants';
 import useActivatePlugins from '../../data/products/use-activate-plugins';
 import useInstallPlugins from '../../data/products/use-install-plugins';
-import useSimpleQuery from '../../data/use-simple-query';
+import useSitePurchases from '../../data/use-site-purchases';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
-import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import createCookie from '../../utils/create-cookie';
 import useAnalytics from '../use-analytics';
 import { useGetPaidPlanNeedsPluginsContent } from './get-paid-plan-needs-plugins-content';
@@ -23,12 +21,7 @@ const usePaidPlanNeedsPluginInstallActivationNotice: NoticeHookType = (
 	const { setNotice, resetNotice } = useContext( NoticeContext );
 	const { recordEvent } = useAnalytics();
 
-	const { isSiteConnected } = useMyJetpackConnection();
-	const response = useSimpleQuery< Purchase[] >( {
-		name: QUERY_PURCHASES_KEY,
-		query: { path: REST_API_SITE_PURCHASES_ENDPOINT },
-		options: { enabled: isSiteConnected },
-	} );
+	const response = useSitePurchases();
 
 	const { isLoading: isLoadingPurchases, isError } = response;
 	const purchases = response.data;

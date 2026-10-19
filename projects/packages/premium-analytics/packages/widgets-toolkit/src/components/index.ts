@@ -46,6 +46,7 @@ export {
 	type LeaderboardChartData,
 	type LeaderboardSkeletonProps,
 	type LegendLabels,
+	type LeaderboardColumns,
 	LeaderboardLabel,
 	type LeaderboardLabelProps,
 	LeaderboardRow,
@@ -66,6 +67,8 @@ export {
 } from './leaderboard';
 export { Donut, type DonutProps, type DonutSegmentInput } from './donut';
 export { Funnel, type FunnelProps, type FunnelStepInput } from './funnel';
+export { Columns, type ColumnsProps, type ColumnInput } from './columns';
+export { Locations } from './locations';
 export {
 	BarChart,
 	BarChartSkeleton,
@@ -181,6 +184,7 @@ export {
 	type DetailPageShellProps,
 } from './detail-page';
 export { PageEmptyState } from './page-empty-state';
+export { LockedPage, LockedWidget } from './locked-widget';
 export { PageNotice, type PageNoticeProps } from './page-notice';
 export {
 	canSendFeedback,

@@ -153,7 +153,7 @@ class Jetpack_Slideshow_Shortcode {
 			 * @module shortcodes
 			 *
 			 * @since 2.3.0
-			 * @since $$next-version$$ Captions render as plain text, so markup returned here is discarded.
+			 * @since 16.4 Captions render as plain text, so markup returned here is discarded.
 			 *
 			 * @param string wptexturize( wp_strip_all_tags( $attachment->post_excerpt ) ) Post excerpt.
 			 * @param string $attachment ->ID Attachment ID.

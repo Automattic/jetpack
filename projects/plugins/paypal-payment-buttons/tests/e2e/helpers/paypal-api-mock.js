@@ -1,8 +1,8 @@
 /**
  * PayPal API mock for Playwright E2E tests.
  *
- * Intercepts WordPress REST API calls to /wpcom/v2/paypal/* and returns
- * deterministic responses. Avoids hitting real PayPal endpoints during tests.
+ * Answers WordPress REST API calls to /wpcom/v2/paypal/* with deterministic
+ * responses, so tests never hit real PayPal endpoints. Unmocked calls are aborted.
  *
  * @package
  * @since 0.8.0
@@ -26,6 +26,11 @@ const MOCK_RESPONSES = {
 		environment: 'sandbox',
 		message: 'PayPal account connected successfully.',
 	},
+	signupLink: {
+		action_url: 'https://www.sandbox.paypal.com/bizsignup/partner/entry?referralToken=TESTMOCK',
+		referral_id: 'TESTMOCK',
+		environment: 'sandbox',
+	},
 	disconnect: {
 		connected: false,
 		message: 'PayPal account disconnected.',
@@ -43,24 +48,6 @@ const MOCK_RESPONSES = {
 				unit_amount: {
 					currency_code: 'USD',
 					value: '29.99',
-				},
-				quantity: '1',
-			},
-		],
-	},
-	// A successful update is an empty 204, so the route echoes the request back with
-	// the id alone. See PayPal_API_Client.
-	updateButton: {
-		id: 'PLB-TESTMOCK001',
-		type: 'BUY_NOW',
-		integration_mode: 'LINK',
-		reusable: 'MULTIPLE',
-		line_items: [
-			{
-				name: 'Updated Product',
-				unit_amount: {
-					currency_code: 'USD',
-					value: '39.99',
 				},
 				quantity: '1',
 			},
@@ -93,15 +80,73 @@ const MOCK_RESPONSES = {
 	},
 };
 
+const NAMESPACE = '/wpcom/v2/paypal';
+
+// Unmocked PayPal requests, keyed by page.
+const unmockedRequests = new WeakMap();
+
 /**
- * Match helper — uses regex-based route matching to handle query strings.
- * WordPress apiFetch appends ?_locale=user to all requests.
+ * Build the `attributes` the create route adds to its response. Mirrors
+ * PayPal_Attribute_Mapper::api_response_to_attributes() for the fields the e2e specs send.
+ * The editor resets a missing key to its block.json default.
+ *
+ * @param {object} resource - The payment as the route returns it.
+ * @return {object} The payment as block attributes.
  */
+function toAttributes( resource ) {
+	const [ item ] = resource.line_items;
+
+	return {
+		isApiManaged: true,
+		resourceId: resource.id,
+		paymentLink: resource.payment_link,
+		productName: item.name,
+		// Per-option prices replace unit_amount.
+		...( item.unit_amount
+			? { currencyCode: item.unit_amount.currency_code, price: item.unit_amount.value }
+			: {} ),
+		collectShippingAddress: !! item.collect_shipping_address,
+		integrationMode: resource.integration_mode,
+		// The mock has no code_snippets, so scriptSrc is empty.
+		scriptSrc: '',
+	};
+}
+
+/**
+ * Match a PayPal REST route under pretty or plain permalinks.
+ *
+ * The route is in the path (`/wp-json/wpcom/v2/paypal/…`), or in the `rest_route`
+ * param under plain permalinks, as in the e2e Docker site. Other query args are ignored.
+ *
+ * @param {string|RegExp} path - The route after the namespace, e.g. `/connection`. A string matches exactly.
+ * @return {Function} Takes a URL or URL string, returns whether it is that route.
+ */
+function paypalRoute( path ) {
+	return url => {
+		const { pathname, searchParams } = new URL( url );
+		const route = searchParams.get( 'rest_route' ) ?? pathname.replace( /^.*?\/wp-json/, '' );
+
+		if ( ! route.startsWith( `${ NAMESPACE }/` ) ) {
+			return false;
+		}
+
+		const subPath = route.slice( NAMESPACE.length );
+		return typeof path === 'string' ? subPath === path : path.test( subPath );
+	};
+}
+
+/**
+ * Get the PayPal requests the catch-all aborted on a page.
+ *
+ * @param {import('@playwright/test').Page} page - Playwright page.
+ * @return {string[]} Method and URL of each one.
+ */
+function getUnmockedRequests( page ) {
+	return unmockedRequests.get( page ) ?? [];
+}
 
 /**
  * Set up PayPal API route mocks for a Playwright page.
- *
- * Uses regex patterns to match URLs with query strings (e.g., ?_locale=user).
  *
  * @param {import('@playwright/test').Page} page      - Playwright page.
  * @param {object}                          overrides - Optional response overrides keyed by route name.
@@ -109,8 +154,17 @@ const MOCK_RESPONSES = {
 async function setupPayPalMocks( page, overrides = {} ) {
 	const responses = { ...MOCK_RESPONSES, ...overrides };
 
-	// GET /wpcom/v2/paypal/connection (with optional query string)
-	await page.route( /\/wp-json\/wpcom\/v2\/paypal\/connection(\?|$)/, route => {
+	// Record and abort every PayPal request the mocks below leave unhandled.
+	// Registered first so it runs last (Playwright tries the newest route first).
+	const unmocked = [];
+	unmockedRequests.set( page, unmocked );
+	await page.route( paypalRoute( /^/ ), route => {
+		unmocked.push( `${ route.request().method() } ${ route.request().url() }` );
+		return route.abort();
+	} );
+
+	// GET /wpcom/v2/paypal/connection
+	await page.route( paypalRoute( '/connection' ), route => {
 		route.fulfill( {
 			status: 200,
 			contentType: 'application/json',
@@ -118,8 +172,8 @@ async function setupPayPalMocks( page, overrides = {} ) {
 		} );
 	} );
 
-	// POST /wpcom/v2/paypal/connect (with optional query string)
-	await page.route( /\/wp-json\/wpcom\/v2\/paypal\/connect(\?|$)/, route => {
+	// POST /wpcom/v2/paypal/connect
+	await page.route( paypalRoute( '/connect' ), route => {
 		if ( route.request().method() === 'POST' ) {
 			const body = route.request().postDataJSON();
 
@@ -138,11 +192,20 @@ async function setupPayPalMocks( page, overrides = {} ) {
 				body: JSON.stringify( responses.connect ),
 			} );
 		}
-		route.continue();
+		route.fallback();
 	} );
 
-	// POST /wpcom/v2/paypal/disconnect (with optional query string)
-	await page.route( /\/wp-json\/wpcom\/v2\/paypal\/disconnect(\?|$)/, route => {
+	// POST /wpcom/v2/paypal/onboarding/signup-link, requested as soon as the Welcome step shows.
+	await page.route( paypalRoute( '/onboarding/signup-link' ), route => {
+		route.fulfill( {
+			status: 200,
+			contentType: 'application/json',
+			body: JSON.stringify( responses.signupLink ),
+		} );
+	} );
+
+	// POST /wpcom/v2/paypal/disconnect
+	await page.route( paypalRoute( '/disconnect' ), route => {
 		route.fulfill( {
 			status: 200,
 			contentType: 'application/json',
@@ -150,11 +213,16 @@ async function setupPayPalMocks( page, overrides = {} ) {
 		} );
 	} );
 
-	// POST /wpcom/v2/paypal/buttons (create/list — with optional query string)
-	await page.route( /\/wp-json\/wpcom\/v2\/paypal\/buttons(\?|$)/, route => {
+	// The button as last created or updated, returned by GET /buttons/PLB-*.
+	let created = {
+		...responses.createButton,
+		attributes: toAttributes( responses.createButton ),
+	};
+
+	// POST/GET /wpcom/v2/paypal/buttons (create/list)
+	await page.route( paypalRoute( '/buttons' ), route => {
 		if ( route.request().method() === 'POST' ) {
 			const body = route.request().postDataJSON();
-			const lineItem = body?.line_items?.[ 0 ];
 
 			// Return a response that reflects the submitted data.
 			const response = {
@@ -162,14 +230,11 @@ async function setupPayPalMocks( page, overrides = {} ) {
 				line_items: body?.line_items || responses.createButton.line_items,
 			};
 
-			if ( lineItem?.name ) {
-				response.line_items[ 0 ].name = lineItem.name;
-			}
-
+			created = { ...response, attributes: toAttributes( response ) };
 			return route.fulfill( {
 				status: 201,
 				contentType: 'application/json',
-				body: JSON.stringify( response ),
+				body: JSON.stringify( created ),
 			} );
 		}
 
@@ -177,21 +242,30 @@ async function setupPayPalMocks( page, overrides = {} ) {
 		route.fulfill( {
 			status: 200,
 			contentType: 'application/json',
-			body: JSON.stringify( { items: [], total_items: 0 } ),
+			body: JSON.stringify( { resources: [] } ),
 		} );
 	} );
 
 	// PUT/DELETE/GET /wpcom/v2/paypal/buttons/PLB-*
-	await page.route( /\/wp-json\/wpcom\/v2\/paypal\/buttons\/PLB-/, route => {
-		if ( route.request().method() === 'PUT' ) {
+	await page.route( paypalRoute( /^\/buttons\/PLB-[A-Za-z0-9]+$/ ), route => {
+		// apiFetch sends PUT and DELETE as a POST with the real method in X-HTTP-Method-Override.
+		const method =
+			route.request().headers()[ 'x-http-method-override' ] ?? route.request().method();
+
+		if ( method === 'PUT' ) {
+			const { include_snippets: readBack, ...sent } = route.request().postDataJSON();
+			const resource = { ...created, ...sent };
+			created = { ...resource, attributes: toAttributes( resource ) };
+
+			// Like the real route: the payment read back when asked, else what was sent plus the id.
 			return route.fulfill( {
 				status: 200,
 				contentType: 'application/json',
-				body: JSON.stringify( responses.updateButton ),
+				body: JSON.stringify( readBack ? created : { ...sent, id: created.id } ),
 			} );
 		}
 
-		if ( route.request().method() === 'DELETE' ) {
+		if ( method === 'DELETE' ) {
 			return route.fulfill( {
 				status: 200,
 				contentType: 'application/json',
@@ -203,7 +277,7 @@ async function setupPayPalMocks( page, overrides = {} ) {
 		route.fulfill( {
 			status: 200,
 			contentType: 'application/json',
-			body: JSON.stringify( responses.createButton ),
+			body: JSON.stringify( created ),
 		} );
 	} );
 }
@@ -219,4 +293,10 @@ async function setupDisconnectedMocks( page ) {
 	} );
 }
 
-export { MOCK_RESPONSES, setupPayPalMocks, setupDisconnectedMocks };
+export {
+	MOCK_RESPONSES,
+	getUnmockedRequests,
+	paypalRoute,
+	setupPayPalMocks,
+	setupDisconnectedMocks,
+};

@@ -27,7 +27,7 @@ class Dashboard {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.1.0-alpha';
+	const PACKAGE_VERSION = '0.1.0';
 
 	/**
 	 * Sidebar menu slug, shared with the Jetpack Protect plugin so the page address never changes.
@@ -85,13 +85,14 @@ class Dashboard {
 		// Before Admin_Menu registers its items at 1000, and after the Protect plugin adds its own on `_admin_menu`.
 		add_action( 'admin_menu', array( __CLASS__, 'add_menu' ), 999 );
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
+		Threat_Count::init();
 
 		self::load_sections( __DIR__ . '/sections' );
 
 		/**
 		 * Fires once the Protect dashboard has wired its hooks, so the page exists.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.1.0
 		 */
 		do_action( 'jetpack_protect_dashboard_initialized' );
 	}
@@ -147,7 +148,7 @@ class Dashboard {
 		if ( isset( self::$sections[ $key ] ) ) {
 			/* translators: %s is a dashboard section key. */
 			$message = sprintf( __( 'A Protect dashboard section with the key "%s" is already registered.', 'jetpack-protect-pkg' ), $key );
-			_doing_it_wrong( __METHOD__, esc_html( $message ), '$$next-version$$' );
+			_doing_it_wrong( __METHOD__, esc_html( $message ), '0.1.0' );
 			return;
 		}
 		self::$sections[ $key ] = $section;
@@ -359,6 +360,8 @@ class Dashboard {
 			null,
 			array_merge( array( 'key' => self::MENU_SLUG ), self::$menu_options )
 		);
+
+		Threat_Count::register_menu_badge();
 	}
 
 	/**

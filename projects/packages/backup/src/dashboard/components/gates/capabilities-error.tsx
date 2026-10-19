@@ -1,7 +1,10 @@
+import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, error as errorIcon } from '@wordpress/icons';
-import { Button, Card, Text } from '@wordpress/ui';
+import { Button, Card, Link, Text } from '@wordpress/ui';
 import { errorCode } from '../../data/api/_helpers';
+import { useSiteSuffix } from '../../hooks/use-connection';
 import { useFocusHandoff } from '../../hooks/use-focus-handoff';
 import ErrorReference from '../error-reference';
 
@@ -37,6 +40,7 @@ const pageRegion = ( stage: HTMLElement ) => stage.closest< HTMLElement >( '[rol
  * @return The rendered fallback.
  */
 export default function CapabilitiesErrorScreen( { error, onRetry, isRetrying = false }: Props ) {
+	const siteSuffix = useSiteSuffix();
 	const stageRef = useFocusHandoff< HTMLDivElement >( pageRegion );
 
 	return (
@@ -50,9 +54,23 @@ export default function CapabilitiesErrorScreen( { error, onRetry, isRetrying = 
 				</Text>
 				{ /* Not "this is usually temporary": retrying does not clear every cause. */ }
 				<Text>
-					{ __(
-						"We couldn't check this site's Backup plan. Your backups are unaffected. Try again, or contact support if this keeps happening.",
-						'jetpack-backup-pkg'
+					{ createInterpolateElement(
+						__(
+							"We couldn't check this site's Backup plan. Your backups are unaffected. Reload the page or try again. If it keeps happening, <a>contact support</a>.",
+							'jetpack-backup-pkg'
+						),
+						{
+							a: (
+								<Link
+									openInNewTab
+									// Omitted rather than passed as undefined — see `useSiteSuffix`.
+									href={ getRedirectUrl(
+										'jetpack-contact-support',
+										siteSuffix ? { site: siteSuffix } : {}
+									) }
+								/>
+							),
+						}
 					) }
 				</Text>
 				<ErrorReference code={ errorCode( error ) } id={ null } />

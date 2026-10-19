@@ -34,6 +34,7 @@ import {
 /**
  * Internal dependencies
  */
+import { useNoViewsEmptyState } from '../use-no-views-empty-state';
 import styles from './style.module.css';
 import { type FileDownloadsAttributes } from './widget';
 /**
@@ -124,11 +125,13 @@ export function FileDownloadsLeaderboard( {
 }: FileDownloadsLeaderboardProps ) {
 	return (
 		<LeaderboardChart
+			chartTitle={ __( 'Top downloaded', 'jetpack-premium-analytics-pkg' ) }
 			data={ buildLeaderboardData( rows, withComparison ) }
 			withComparison={ withComparison }
 			withOverlayLabel
 			showLegend={ false }
 			dataFormat={ DATA_FORMAT }
+			columns={ { label: __( 'Files', 'jetpack-premium-analytics-pkg' ), metric: 'downloads' } }
 		/>
 	);
 }
@@ -143,12 +146,16 @@ function FileDownloadsInner() {
 		[ comparisonRows ]
 	);
 	const withComparison = hasComparison;
+	const emptyState = useNoViewsEmptyState(
+		{ isLoading, isError, isEmpty: rows.length === 0 },
+		__( 'You don’t have downloads recorded yet.', 'jetpack-premium-analytics-pkg' )
+	);
 
 	return (
 		<>
 			<div className={ styles.content }>
 				<WidgetState
-					isLoading={ isLoading }
+					isLoading={ emptyState.isLoading }
 					isFetching={ isFetching }
 					// `placeholderData` keeps the prior period's rows on screen, so a
 					// transient refetch failure should not replace them with an error.
@@ -163,6 +170,7 @@ function FileDownloadsInner() {
 							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
 						],
 					} }
+					empty={ emptyState.empty }
 					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
 					<FileDownloadsLeaderboard rows={ rows } withComparison={ withComparison } />
