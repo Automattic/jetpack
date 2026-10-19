@@ -132,7 +132,6 @@
 	"projects/packages/paypal-payments/src/paypal-payment-buttons/components/variant-builder.jsx",
 	"projects/packages/paypal-payments/src/paypal-payment-buttons/edit-api-managed.jsx",
 	"projects/packages/paypal-payments/src/paypal-payment-buttons/edit-paste-code.jsx",
-	"projects/packages/paypal-payments/src/paypal-payment-buttons/edit.jsx",
 	"projects/packages/podcast/src/blocks/podcast-episode/edit.tsx",
 	"projects/packages/podcast/src/dashboard/category-picker.tsx",
 	"projects/packages/podcast/src/dashboard/distribution/directory-list.tsx",
