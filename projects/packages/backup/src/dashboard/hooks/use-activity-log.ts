@@ -24,7 +24,7 @@ type Result = {
 	items: ActivityItem[];
 	totalItems: number;
 	/**
-	 * Null until the feed has answered, then the last answer's, even if a later page fails:
+	 * Null until the feed has answered, then kept even if a later page fails:
 	 * DataViews leaves the page alone while the total is unknown, but clamps it to 1 when
 	 * handed a fallback count.
 	 */
@@ -129,11 +129,31 @@ export function useActivityLog( { page, pageSize, sortOrder }: Args ): Result {
 		totalItems: query.data.totalItems ?? entries.length,
 		totalPages: query.data.totalPages ?? Math.max( 1, Math.ceil( entries.length / pageSize ) ),
 	};
-	// Kept past a failed page: DataViews hides its pager at zero items, which strands the reader there.
-	const lastAnswer = useRef( answer );
-	lastAnswer.current = answer ?? lastAnswer.current;
-	const totalItems = lastAnswer.current?.totalItems ?? 0;
-	const totalPages = lastAnswer.current?.totalPages ?? null;
+	// A failed page has no count of its own, and DataViews hides its pager at zero items,
+	// which strands the reader there. Overview keeps the page-1 query mounted, so it
+	// covers a hook that never saw an answer.
+	const queryClient = useQueryClient();
+	const firstPage = queryClient.getQueryData< WpcomActivityLogResponse >(
+		keys.activityLogPage( 1, ACTIVITY_LOG_DEFAULT_PER_PAGE, ACTIVITY_LOG_NEWEST_FIRST )
+	);
+	const lastAnswer = useRef< ( NonNullable< typeof answer > & { pageSize: number } ) | null >(
+		null
+	);
+	if ( answer && ! query.isPlaceholderData ) {
+		lastAnswer.current = { ...answer, pageSize };
+	}
+	const known =
+		lastAnswer.current ??
+		( firstPage?.totalItems !== undefined && firstPage.totalPages !== undefined
+			? { ...firstPage, pageSize: ACTIVITY_LOG_DEFAULT_PER_PAGE }
+			: null );
+	const totalItems = known?.totalItems ?? 0;
+	// Recounted when the page size changed since the answer, or a failed per-page change keeps the old count.
+	const recount = known && known.pageSize !== pageSize;
+	const knownPages = recount
+		? Math.max( 1, Math.ceil( known.totalItems / pageSize ) )
+		: known?.totalPages;
+	const totalPages = answer?.totalPages ?? knownPages ?? null;
 
 	// A retry has no rows of its own: `keepPreviousData` would stand in the last page's.
 	const showsPlaceholder = query.isPlaceholderData && error !== null;

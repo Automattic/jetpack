@@ -300,8 +300,7 @@ export default function ActivityList( {
 	// failed request leaves it empty — so without this a 5xx tells the
 	// reader their site has no activity. The `empty` slot is the same node
 	// that copy renders in, so replacing it puts the reason exactly where
-	// the wrong answer used to be. A log that never answered has no list to
-	// keep, so Overview reports that one instead.
+	// the wrong answer used to be. Overview reports a log that never answered.
 	const failure =
 		error && totalPages !== null ? (
 			<QueryError

@@ -25,7 +25,7 @@ jest.mock( '@wordpress/route', () => ( {
 } ) );
 
 // Imports must come after the jest.mock factories above.
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { stage as OverviewStage } from '../routes/dashboard/stage';
 import ErrorBoundary from '../src/dashboard/components/error-boundary';
@@ -104,6 +104,34 @@ function failFileTree( error: { code: string; message: string } ) {
 	} );
 }
 
+/**
+ * Serve a two-page activity log whose second page answers as `page2` says.
+ * `/jetpack/v4/backups` answers too, so no second notice is on screen.
+ *
+ * @param page2 - Produces the response for page 2.
+ */
+function mockTwoPages( page2: () => Promise< unknown > ) {
+	mockApiFetch.mockImplementation( ( options: { path?: string } ) => {
+		const path = options?.path ?? '';
+		if ( path.includes( '/site/capabilities' ) ) {
+			return Promise.resolve( CAPABILITIES );
+		}
+		if ( path === '/jetpack/v4/backups' ) {
+			return Promise.resolve( [] );
+		}
+		if ( path.includes( '/site/rewindable-activity' ) ) {
+			return path.includes( 'page=2' )
+				? page2()
+				: Promise.resolve( {
+						current: { orderedItems: [ backupActivityEntry() ] },
+						totalItems: 2,
+						totalPages: 2,
+					} );
+		}
+		return Promise.resolve( {} );
+	} );
+}
+
 beforeEach( () => {
 	queryClient.clear();
 	queryClient.setDefaultOptions( { queries: { retry: false } } );
@@ -137,27 +165,14 @@ describe( 'activity list', () => {
 		expect( screen.getByText( 'Service unavailable' ) ).toBeInTheDocument();
 		// The regression: a 5xx telling the reader their site has no activity.
 		expect( screen.queryByText( 'No results' ) ).not.toBeInTheDocument();
-		// The notice stands in for the list card instead of sitting inside a narrow one.
+		// The notice replaces the list card.
 		expect( screen.queryByRole( 'heading', { name: 'Latest backups' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'keeps the list layout and a way back when a later page fails', async () => {
-		mockApiFetch.mockImplementation( ( options: { path?: string } ) => {
-			const path = options?.path ?? '';
-			if ( path.includes( '/site/capabilities' ) ) {
-				return Promise.resolve( CAPABILITIES );
-			}
-			if ( path.includes( '/site/rewindable-activity' ) ) {
-				return path.includes( 'page=2' )
-					? Promise.reject( { code: 'activity_log_fetch_failed', message: 'Service unavailable' } )
-					: Promise.resolve( {
-							current: { orderedItems: [ backupActivityEntry() ] },
-							totalItems: 2,
-							totalPages: 2,
-						} );
-			}
-			return Promise.resolve( {} );
-		} );
+		mockTwoPages( () =>
+			Promise.reject( { code: 'activity_log_fetch_failed', message: 'Service unavailable' } )
+		);
 
 		render( <OverviewStage /> );
 		await userEvent.click( await screen.findByRole( 'button', { name: 'Next page' } ) );
@@ -166,35 +181,21 @@ describe( 'activity list', () => {
 			screen.findByText( "We couldn't load your site's activity." )
 		).resolves.toBeInTheDocument();
 		expect( screen.getByRole( 'heading', { name: 'Latest backups' } ) ).toBeInTheDocument();
-		// The pager is what gets the reader back; DataViews hides it when the page has no rows.
+		// The pager is what gets the reader back.
 		await userEvent.click( screen.getByRole( 'button', { name: 'Previous page' } ) );
 		await expect( screen.findAllByText( 'Backup complete' ) ).resolves.not.toHaveLength( 0 );
 	} );
 
 	it( 'does not fill a failed page with the previous page while it retries', async () => {
 		let failPage2 = true;
-		mockApiFetch.mockImplementation( ( options: { path?: string } ) => {
-			const path = options?.path ?? '';
-			if ( path.includes( '/site/capabilities' ) ) {
-				return Promise.resolve( CAPABILITIES );
-			}
-			if ( path.includes( '/site/rewindable-activity' ) ) {
-				if ( path.includes( 'page=2' ) ) {
-					return failPage2
-						? Promise.reject( {
-								code: 'activity_log_fetch_failed',
-								message: 'Service unavailable',
-							} )
-						: new Promise( () => {} );
-				}
-				return Promise.resolve( {
-					current: { orderedItems: [ backupActivityEntry() ] },
-					totalItems: 2,
-					totalPages: 2,
-				} );
-			}
-			return Promise.resolve( {} );
-		} );
+		let resolvePage2: ( value: unknown ) => void = () => {};
+		mockTwoPages( () =>
+			failPage2
+				? Promise.reject( { code: 'activity_log_fetch_failed', message: 'Service unavailable' } )
+				: new Promise( resolve => {
+						resolvePage2 = resolve;
+					} )
+		);
 
 		render( <OverviewStage /> );
 		await userEvent.click( await screen.findByRole( 'button', { name: 'Next page' } ) );
@@ -205,10 +206,19 @@ describe( 'activity list', () => {
 		// The detail pane keeps its heading; only the list rows are in question.
 		const before = screen.getAllByText( 'Backup complete' ).length;
 		failPage2 = false;
-		await userEvent.click( screen.getAllByRole( 'button', { name: 'Try again' } ).at( -1 ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Try again' } ) );
 
 		expect( screen.getAllByText( 'Backup complete' ) ).toHaveLength( before );
 		expect( screen.getByText( "We couldn't load your site's activity." ) ).toBeInTheDocument();
+
+		resolvePage2( {
+			current: { orderedItems: [ backupActivityEntry() ] },
+			totalItems: 2,
+			totalPages: 2,
+		} );
+		await waitFor( () =>
+			expect( screen.getByRole( 'heading', { name: 'Latest backups' } ) ).toHaveFocus()
+		);
 	} );
 
 	it( 'still shows the plain empty state when the request simply returns nothing', async () => {
