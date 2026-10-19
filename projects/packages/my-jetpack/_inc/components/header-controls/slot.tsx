@@ -11,7 +11,7 @@ export const HEADER_CONTROLS_CONTAINER_ID = 'jp-my-jetpack-header-controls';
  *
  * @return True when the header shows the controls.
  */
-// Not getMyJetpackWindowInitialState(): its typings need the connection package's globals, which consumers lack.
+// Reads window directly: getMyJetpackWindowInitialState()'s types need the connection package's globals, which Boost's typecheck doesn't have.
 export const isHeaderControlsEnabled = (): boolean =>
 	!! window.myJetpackInitialState?.myJetpackFlags?.headerControls;
 
