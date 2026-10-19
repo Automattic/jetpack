@@ -459,9 +459,10 @@ class Scan implements Dashboard_Section {
 			$response = is_wp_error( $api_url )
 				? $api_url
 				: Client::wpcom_json_api_request_as_blog( $api_url . '/enqueue', '2', array( 'method' => 'POST' ), null, 'wpcom' );
-			if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			$error    = self::get_enqueue_error( $response );
+			if ( $error ) {
 				self::release_request_lock();
-				return new WP_Error( 'scan_not_started', __( 'The scan couldn’t be started. Try again in a few minutes.', 'jetpack-protect-pkg' ), array( 'status' => 502 ) );
+				return $error;
 			}
 			Scan_Status::delete_option();
 			delete_transient( self::HISTORY_CACHE );
@@ -475,6 +476,29 @@ class Scan implements Dashboard_Section {
 		}
 
 		return self::get_scan_report( $has_plan, true );
+	}
+
+	/**
+	 * Why WordPress.com didn't enqueue a scan, including a `success: false` it answers with a 200.
+	 *
+	 * @param array|WP_Error $response The enqueue response.
+	 * @return WP_Error|null The error, with WordPress.com's reason when it gives one, or null once enqueued.
+	 */
+	private static function get_enqueue_error( $response ) {
+		$body = is_wp_error( $response ) ? null : json_decode( wp_remote_retrieve_body( $response ) );
+		if ( ! is_wp_error( $response ) && 200 === wp_remote_retrieve_response_code( $response ) && false !== ( $body->success ?? null ) ) {
+			return null;
+		}
+
+		$reasons = (array) ( $body->error->errors ?? array() );
+		$reason  = $reasons ? (array) reset( $reasons ) : array();
+		$reason  = $reason[0] ?? $body->message ?? null;
+		$message = is_string( $reason ) && '' !== $reason
+			/* translators: %s is the reason WordPress.com gave, such as "Unable to find a valid site." */
+			? sprintf( __( 'The scan couldn’t be started: %s', 'jetpack-protect-pkg' ), $reason )
+			: __( 'The scan couldn’t be started. Try again in a few minutes.', 'jetpack-protect-pkg' );
+
+		return new WP_Error( 'scan_not_started', $message, array( 'status' => 502 ) );
 	}
 
 	/**

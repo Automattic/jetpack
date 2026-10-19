@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Prevent new uploads from reusing video attachment IDs after a site restore.

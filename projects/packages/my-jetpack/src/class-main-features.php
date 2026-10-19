@@ -916,7 +916,7 @@ class Main_Features {
 	/**
 	 * Slugs the host has hidden, plus the module behind each hidden feature or product.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.11.0
 	 * @return string[] Hidden module and feature slugs.
 	 */
 	public static function get_hidden_modules() {
