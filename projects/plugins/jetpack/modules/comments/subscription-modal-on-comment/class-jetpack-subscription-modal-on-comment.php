@@ -55,7 +55,7 @@ class Jetpack_Subscription_Modal_On_Comment {
 	 */
 	public function __construct() {
 		// Only the legacy comment iframe opens this modal, so the new form would load it for nothing.
-		if ( class_exists( Comments::class ) && Comments::is_enabled() ) {
+		if ( Comments::is_enabled() ) {
 			return;
 		}
 
