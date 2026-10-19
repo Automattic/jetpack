@@ -30,8 +30,10 @@
 	"dependencies": {
 		"@automattic/jetpack-connection": "workspace:*",
 		"@automattic/jetpack-idc": "workspace:*",
+		"@wordpress/components": "42.0.0",
 		"@wordpress/data": "10.57.0",
-		"@wordpress/element": "9.0.0"
+		"@wordpress/element": "9.0.0",
+		"@wordpress/i18n": "6.30.0"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
