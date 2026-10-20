@@ -11,7 +11,7 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 /**
  * Whether the WordPress Agent is enabled on this site.
  *
- * Simple also respects the admin's opt-out; Atomic uses the site option alone.
+ * Simple combines the platform state with the saved option; Atomic reads the option.
  *
  * @return bool
  */
@@ -22,29 +22,6 @@ function wpcom_is_wordpress_agent_enabled(): bool {
 	}
 
 	return (bool) get_option( 'big_sky_enable', '0' );
-}
-
-/**
- * Whether the WordPress Agent option is explicitly off.
- *
- * @return bool
- */
-function wpcom_is_wordpress_agent_option_disabled(): bool {
-	return '0' === (string) get_option( 'big_sky_enable', '1' );
-}
-
-/**
- * Whether the WordPress Agent is enabled at the platform level.
- *
- * @return bool
- */
-function wpcom_is_wordpress_agent_platform_enabled(): bool {
-	if ( function_exists( 'big_sky_is_enabled' ) ) {
-		// @phan-suppress-next-line PhanUndeclaredFunction -- Provided by WPCOM's Big Sky mu-plugin; guarded above.
-		return (bool) big_sky_is_enabled();
-	}
-
-	return class_exists( 'Big_Sky' );
 }
 
 /**

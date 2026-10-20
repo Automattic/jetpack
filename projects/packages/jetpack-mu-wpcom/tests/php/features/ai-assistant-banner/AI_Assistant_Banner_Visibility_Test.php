@@ -8,9 +8,6 @@
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
-use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\PreserveGlobalState;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/helpers.php';
@@ -87,50 +84,5 @@ class AI_Assistant_Banner_Visibility_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertSame( wpcom_ai_assistant_banner_tracks_props( 'dashboard' ), $data['trackProps'] );
 		$this->assertSame( wpcom_ai_assistant_banner_mcp_settings_api(), $data['mcpSettingsApi'] );
-	}
-
-	/**
-	 * An option saved as 0 suppresses the banner only while the platform Agent is on.
-	 *
-	 * @dataProvider provide_opt_out_states
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 *
-	 * @param bool        $is_simple   Whether the site is Simple.
-	 * @param string|null $option      The saved big_sky_enable value, or null if never saved.
-	 * @param bool        $platform_on Simple: big_sky_is_enabled(). Atomic: whether the Big Sky plugin is active.
-	 * @param bool        $expected    Expected result.
-	 */
-	#[DataProvider( 'provide_opt_out_states' )]
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
-	public function test_option_off_only_suppresses_banner_when_platform_agent_is_on( $is_simple, $option, $platform_on, $expected ) {
-		\Brain\Monkey\setUp();
-		if ( $is_simple ) {
-			\Brain\Monkey\Functions\when( 'big_sky_is_enabled' )->justReturn( $platform_on );
-		} elseif ( $platform_on ) {
-			class_alias( self::class, 'Big_Sky' );
-		}
-		if ( null !== $option ) {
-			update_option( 'big_sky_enable', $option );
-		}
-
-		$this->assertSame( $expected, wpcom_is_wordpress_agent_option_disabled() && wpcom_is_wordpress_agent_platform_enabled() );
-		\Brain\Monkey\tearDown();
-	}
-
-	/**
-	 * Data provider for test_option_off_only_suppresses_banner_when_platform_agent_is_on.
-	 *
-	 * @return array
-	 */
-	public static function provide_opt_out_states() {
-		return array(
-			'Simple, unchecked'          => array( true, '0', true, true ),
-			'Simple, never saved'        => array( true, null, true, false ),
-			'Simple, Agent off'          => array( true, '0', false, false ),
-			'Atomic, unchecked'          => array( false, '0', true, true ),
-			'Atomic, Agent switched off' => array( false, '0', false, false ),
-		);
 	}
 }

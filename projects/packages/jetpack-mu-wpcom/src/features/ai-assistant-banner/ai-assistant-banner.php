@@ -38,11 +38,6 @@ function wpcom_should_show_ai_assistant_banner() {
 		return false;
 	}
 
-	// A site-level Agent toggle also writes the option, so neither value identifies the Writing control alone.
-	if ( wpcom_is_wordpress_agent_option_disabled() && wpcom_is_wordpress_agent_platform_enabled() ) {
-		return false;
-	}
-
 	if ( function_exists( 'get_user_attribute' ) ) {
 		$user_id = get_current_user_id();
 
