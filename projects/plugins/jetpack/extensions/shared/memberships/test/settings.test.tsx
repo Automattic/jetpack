@@ -367,7 +367,11 @@ describe( 'NewsletterAccessRadioButtons', () => {
 			);
 		} );
 
-		test( 'names a saved tier that was deleted', () => {
+		test.each( [
+			[ 'Premium (deleted)', { title: 'Premium', is_deleted: true } ],
+			[ 'Premium', { title: 'Premium', is_deleted: false } ],
+			[ 'Deleted tier', null ],
+		] )( 'labels a saved tier that is no longer offered as "%s"', ( label, savedTier ) => {
 			mockUseEntityProp.mockReturnValue( [
 				{ [ META_NAME_FOR_POST_TIER_ID_SETTINGS ]: 9 },
 				mockSetPostMeta,
@@ -377,11 +381,11 @@ describe( 'NewsletterAccessRadioButtons', () => {
 				{ accessLevel: 'paid_subscribers' },
 				{
 					tierProducts: [ { id: 1, title: 'Basic', price: 5, interval: '1 month' } ],
-					savedTier: { title: 'Premium', is_deleted: true },
+					savedTier,
 				}
 			);
 
-			expect( screen.getByRole( 'radio', { name: 'Premium (deleted)' } ) ).toBeChecked();
+			expect( screen.getByRole( 'radio', { name: label } ) ).toBeChecked();
 		} );
 
 		// One tier with 1 subscriber; only the "All paid subscribers" count varies.
