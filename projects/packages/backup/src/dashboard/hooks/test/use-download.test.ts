@@ -264,8 +264,8 @@ describe( 'useDownload — a download already under way', () => {
 		await waitFor( () => expect( result.current.state ).toEqual( { phase: 'idle' } ) );
 	} );
 
-	it( 'follows a download of this backup that is still being built', async () => {
-		respondWithDownloads( [ row() ] );
+	it( 'follows the newest download of this backup while it is still being built', async () => {
+		respondWithDownloads( [ { ...finished, id: 70 }, row() ] );
 		const { wrapper } = makeWrapper();
 
 		const { result } = renderHook( () => useDownload( REWIND_ID, true, true ), { wrapper } );
@@ -308,13 +308,19 @@ describe( 'useDownload — a download already under way', () => {
 		expect( mockedApiFetch ).toHaveBeenCalledTimes( 1 );
 	} );
 
-	it( 'offers the form when the lookup fails', async () => {
+	// With production's one retry, so a failed lookup cannot hold the form back for the retry delay.
+	it( 'offers the form as soon as the lookup fails', async () => {
 		respondWithDownloads( new Error( 'Offline.' ) );
-		const { wrapper } = makeWrapper();
+		const client = new QueryClient( { defaultOptions: { queries: { retry: 1 } } } );
+		const wrapper = ( { children }: { children: ReactNode } ) =>
+			createElement( QueryClientProvider, { client }, children );
 
 		const { result } = renderHook( () => useDownload( REWIND_ID, true, true ), { wrapper } );
 
-		await waitFor( () => expect( result.current.state ).toEqual( { phase: 'idle' } ) );
+		await waitFor( () => expect( result.current.state ).toEqual( { phase: 'idle' } ), {
+			timeout: 500,
+		} );
+		expect( listCalls() ).toHaveLength( 1 );
 	} );
 
 	it( 'does not look for one when resuming is off', async () => {

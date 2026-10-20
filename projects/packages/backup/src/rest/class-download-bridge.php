@@ -436,12 +436,9 @@ class Download_Bridge {
 	 * @return bool True when both name the same backup.
 	 */
 	private static function is_same_backup( $echoed, $requested ) {
-		if ( ! is_scalar( $echoed ) ) {
-			return false;
-		}
-		if ( (string) $echoed === $requested ) {
-			return true;
-		}
-		return is_numeric( $echoed ) && is_numeric( $requested ) && (float) $echoed === (float) $requested;
+		return is_scalar( $echoed ) && (
+			(string) $echoed === $requested
+			|| ( is_numeric( $echoed ) && is_numeric( $requested ) && (float) $echoed === (float) $requested )
+		);
 	}
 }

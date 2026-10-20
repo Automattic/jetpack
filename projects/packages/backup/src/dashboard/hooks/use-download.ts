@@ -122,6 +122,8 @@ export function useDownload( rewindId: string, enabled = true, resume = false ):
 		enabled: enabled && canResume,
 		// Every visit asks again: a cached empty list would hide a download started since.
 		gcTime: 0,
+		// The form is the fallback, and a new request is handed any download still building.
+		retry: false,
 	} );
 	const found = canResume ? pickResumableDownload( lookup.data, rewindId ) : null;
 	const isChecking = enabled && canResume && lookup.isPending;
