@@ -565,14 +565,19 @@ class Dashboard_Data {
 	}
 
 	/**
-	 * Name of the SEO plugin Jetpack stepped aside for, or '' when none is active.
+	 * Name of the SEO plugin Jetpack stepped aside for, or '' when Jetpack's SEO output is live.
 	 *
 	 * @return string
 	 */
 	private static function get_conflicting_seo_plugin() {
+		/** This filter is documented in projects/plugins/jetpack/modules/seo-tools/class-jetpack-seo-utils.php */
+		if ( ! apply_filters( 'jetpack_disable_seo_tools', false ) ) {
+			return '';
+		}
+
 		/**
 		 * Names the SEO plugin that owns the site's SEO output, so the SEO dashboard can say
-		 * so. Set it alongside `jetpack_disable_seo_tools`.
+		 * so. Only read while `jetpack_disable_seo_tools` is true.
 		 *
 		 * @since $$next-version$$
 		 *
@@ -580,7 +585,7 @@ class Dashboard_Data {
 		 */
 		$name = apply_filters( 'jetpack_seo_conflicting_plugin', '' );
 
-		return is_string( $name ) ? $name : '';
+		return is_string( $name ) ? trim( $name ) : '';
 	}
 
 	/**

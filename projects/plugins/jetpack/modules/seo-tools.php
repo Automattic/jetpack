@@ -19,19 +19,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
-// Suppress SEO Tools output if any of the following plugins is active.
+// Suppress SEO Tools output if any of the following plugins is active. Paid editions come
+// before the free plugins they run alongside, so the first match names the right one.
 $jetpack_seo_conflicting_plugins = array(
-	'wordpress-seo/wp-seo.php'                        => 'Yoast SEO',
 	'wordpress-seo-premium/wp-seo-premium.php'        => 'Yoast SEO Premium',
-	'all-in-one-seo-pack/all_in_one_seo_pack.php'     => 'All in One SEO',
+	'wordpress-seo/wp-seo.php'                        => 'Yoast SEO',
 	'all-in-one-seo-pack-pro/all_in_one_seo_pack.php' => 'All in One SEO Pro',
+	'all-in-one-seo-pack/all_in_one_seo_pack.php'     => 'All in One SEO',
 	'seo-by-rank-math/rank-math.php'                  => 'Rank Math SEO',
 	'autodescription/autodescription.php'             => 'The SEO Framework',
 	'slim-seo/slim-seo.php'                           => 'Slim SEO',
-	'wp-seopress/seopress.php'                        => 'SEOPress',
 	'wp-seopress-pro/seopress-pro.php'                => 'SEOPress PRO',
-	'seo-key/seo-key.php'                             => 'SEOKEY',
+	'wp-seopress/seopress.php'                        => 'SEOPress',
 	'seo-key-pro/seo-key.php'                         => 'SEOKEY Pro',
+	'seo-key/seo-key.php'                             => 'SEOKEY',
 );
 
 foreach ( $jetpack_seo_conflicting_plugins as $seo_plugin => $seo_plugin_name ) {
