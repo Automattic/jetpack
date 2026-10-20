@@ -175,7 +175,13 @@ export function useViewState( defaultView: View ): [ View, ( next: View ) => voi
 		};
 	} );
 
+	// Save only sizes the admin picks here, not one that arrived in a shared link's `pp` param.
+	const skipFirstSave = useRef( true );
 	useEffect( () => {
+		if ( skipFirstSave.current ) {
+			skipFirstSave.current = false;
+			return;
+		}
 		savePerPage( view.perPage );
 	}, [ view.perPage ] );
 

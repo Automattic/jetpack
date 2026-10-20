@@ -38,6 +38,17 @@ describe( 'useViewState', () => {
 		expect( secondVisit.current[ 0 ].perPage ).toBe( 100 );
 	} );
 
+	it( 'keeps the remembered page size after opening a link with a different one', () => {
+		const { result: firstVisit, unmount } = openPage( '?page=jetpack-newsletter' );
+		act( () => firstVisit.current[ 1 ]( { ...firstVisit.current[ 0 ], perPage: 50 } ) );
+		unmount();
+		openPage( '?page=jetpack-newsletter&pp=100' ).unmount();
+
+		const { result: laterVisit } = openPage( '?page=jetpack-newsletter' );
+
+		expect( laterVisit.current[ 0 ].perPage ).toBe( 50 );
+	} );
+
 	it( 'uses the default page size when nothing is remembered', () => {
 		const { result } = openPage( '?page=jetpack-newsletter' );
 
