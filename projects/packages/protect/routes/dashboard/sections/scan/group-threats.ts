@@ -28,12 +28,13 @@ export type ThreatGroups = {
 	ignored: ScanThreat[];
 	/** Ids Scan reports nowhere, such as a vulnerability gone after an update. */
 	notFound: string[];
-	/** Ids that aren't active while Scan history is still unknown. */
+	/** Ids whose status is unknown while the active list or Scan history is. */
 	pending: string[];
 };
 
 type ThreatSources = {
-	active: ScanThreat[];
+	/** The active threats, or null when Scan's report failed. */
+	active: ScanThreat[] | null;
 	/** The ignored list the client holds, newer than history's once set. */
 	ignored: ScanThreat[] | undefined;
 	/** Scan history, or null while it loads or after it failed. */
@@ -51,8 +52,12 @@ export function groupThreats( ids: string[], sources: ThreatSources ): ThreatGro
 	const { active, ignored, history } = sources;
 	const byId = ( threats: ScanThreat[] ) =>
 		new Map( threats.map( item => [ String( item.id ), item ] ) );
-	const activeById = byId( active );
-	const ignoredById = byId( ignored ?? history?.filter( item => item.status === 'ignored' ) ?? [] );
+	const activeById = byId( active ?? [] );
+	// The client list wins, but history still names threats ignored before this page loaded.
+	const ignoredById = byId( [
+		...( history?.filter( item => item.status === 'ignored' ) ?? [] ),
+		...( ignored ?? [] ),
+	] );
 	const fixedById = byId( history?.filter( item => item.status === 'fixed' ) ?? [] );
 
 	const groups: ThreatGroups = { active: [], fixed: [], ignored: [], notFound: [], pending: [] };
@@ -67,7 +72,7 @@ export function groupThreats( ids: string[], sources: ThreatSources ): ThreatGro
 		if ( list ) {
 			list[ 1 ].push( list[ 0 ].get( id ) as ScanThreat );
 		} else {
-			( history ? groups.notFound : groups.pending ).push( id );
+			( history && active ? groups.notFound : groups.pending ).push( id );
 		}
 	}
 	return groups;

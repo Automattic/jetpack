@@ -15,7 +15,8 @@ export type HistoryData = { threats: ScanThreat[] | null; error: string | null }
 // One object, not one per read: useSyncExternalStore re-renders forever on a new snapshot.
 const INITIAL: HistoryData = { threats: null, error: null };
 const historyStore = createStore< HistoryData >( () => INITIAL );
-let isLoading = false;
+let inFlight: Promise< void > | null = null;
+let refetch = false;
 
 /**
  * Fetch the fixed and ignored threats; the stage and inspector share the result.
@@ -24,10 +25,33 @@ let isLoading = false;
  * @return Resolves once the list or the error is in the store.
  */
 export function loadHistory( refresh = false ): Promise< void > {
-	if ( isLoading || ( ! refresh && historyStore.get().threats ) ) {
+	if ( inFlight ) {
+		// The running request may predate the fix a refresh is for, so fetch once more after it.
+		refetch = refetch || refresh;
+		return inFlight;
+	}
+	if ( ! refresh && historyStore.get().threats ) {
 		return Promise.resolve();
 	}
-	isLoading = true;
+	const run = (): Promise< void > =>
+		fetchHistory().then( () => {
+			if ( refetch ) {
+				refetch = false;
+				return run();
+			}
+		} );
+	inFlight = run().finally( () => {
+		inFlight = null;
+	} );
+	return inFlight;
+}
+
+/**
+ * Fetch the history once and store the list or the error.
+ *
+ * @return Resolves once the store is updated; never rejects.
+ */
+function fetchHistory(): Promise< void > {
 	return apiFetch< ScanThreat[] >( { path: '/jetpack/v4/protect-dashboard/history' } )
 		.then( threats => {
 			historyStore.set( () => ( { threats, error: null } ) );
@@ -43,10 +67,7 @@ export function loadHistory( refresh = false ): Promise< void > {
 				threats: current.threats,
 				error: e?.message || __( 'Scan history is unavailable right now.', 'jetpack-protect-pkg' ),
 			} ) )
-		)
-		.finally( () => {
-			isLoading = false;
-		} );
+		);
 }
 
 /**

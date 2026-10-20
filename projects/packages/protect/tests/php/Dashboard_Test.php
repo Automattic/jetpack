@@ -290,12 +290,12 @@ class Dashboard_Test extends BaseTestCase {
 	public static function provide_threat_report_requests() {
 		$report = admin_url( 'admin.php?page=jetpack-protect&p=%2F%3Fthreats%3D' );
 		return array(
-			'ids'                    => array( array( 'threats' => '12,34' ), $report . '12%2C34' ),
-			'ids with junk stripped' => array( array( 'threats' => '12, 3<4,x' ), $report . '12%2C34%2C' ),
-			'no ids left'            => array( array( 'threats' => 'abc' ), null ),
-			'no threats param'       => array( array(), null ),
-			'an array'               => array( array( 'threats' => array( '12' ) ), null ),
-			'already routed'         => array(
+			'ids'                   => array( array( 'threats' => '12,34' ), $report . '12%2C34' ),
+			'ids with junk dropped' => array( array( 'threats' => '12, 3<4,x, 56' ), $report . '12%2C56' ),
+			'no ids left'           => array( array( 'threats' => 'abc' ), null ),
+			'no threats param'      => array( array(), null ),
+			'an array'              => array( array( 'threats' => array( '12' ) ), null ),
+			'already routed'        => array(
 				array(
 					'threats' => '12',
 					'p'       => '/',

@@ -346,15 +346,15 @@ class Dashboard {
 		if ( isset( $query['p'] ) || ! isset( $query['threats'] ) || ! is_string( $query['threats'] ) ) {
 			return null;
 		}
-		// The client parses the list itself; this only keeps the URL to digits and commas.
-		$ids = preg_replace( '/[^0-9,]/', '', $query['threats'] );
-		if ( '' === trim( $ids, ',' ) ) {
+		// Drop any id that isn't all digits, as the client does, rather than merging what's left of it.
+		$ids = array_filter( array_map( 'trim', explode( ',', $query['threats'] ) ), 'ctype_digit' );
+		if ( ! $ids ) {
 			return null;
 		}
 		return add_query_arg(
 			array(
 				'page' => self::MENU_SLUG,
-				'p'    => rawurlencode( '/?threats=' . $ids ),
+				'p'    => rawurlencode( '/?threats=' . implode( ',', $ids ) ),
 			),
 			admin_url( 'admin.php' )
 		);

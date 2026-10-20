@@ -1,6 +1,13 @@
 import { Breadcrumbs } from '@wordpress/admin-ui';
 import { DataViews, filterSortAndPaginate, type View } from '@wordpress/dataviews';
-import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
+import {
+	useCallback,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+	useState,
+} from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { check, help, seen } from '@wordpress/icons';
 import { Card, Notice, Stack, Text } from '@wordpress/ui';
@@ -15,6 +22,7 @@ import { getThreatRowActions } from './threat-row-actions';
 import threatsIcon from './threats-icon';
 import { getThreatFields } from './threats-list';
 import type { ScanThreat } from './types';
+import type { HistoryState } from '../history';
 import type { ReactElement } from 'react';
 
 const DEFAULT_LAYOUTS = { table: {} };
@@ -182,12 +190,16 @@ function UnknownThreats( {
  *
  * @param props            - Component props.
  * @param props.siteIsSafe - Whether Scan finds no other threats on the site either.
+ * @param props.hasPlan    - Whether the site has Scan, without which the free check can't call it safe.
  * @return The section.
  */
-function ReportSafeState( { siteIsSafe }: { siteIsSafe: boolean } ) {
-	const title = siteIsSafe
-		? __( 'Your site is safe right now', 'jetpack-protect-pkg' )
-		: __( 'Nothing from your alert needs fixing', 'jetpack-protect-pkg' );
+function ReportSafeState( { siteIsSafe, hasPlan }: { siteIsSafe: boolean; hasPlan: boolean } ) {
+	let title: string = __( 'Nothing from your alert needs fixing', 'jetpack-protect-pkg' );
+	if ( siteIsSafe ) {
+		title = hasPlan
+			? __( 'Your site is safe right now', 'jetpack-protect-pkg' )
+			: __( 'No known vulnerabilities found', 'jetpack-protect-pkg' );
+	}
 	return (
 		<Card.Root render={ <section /> } className="jp-protect-card" aria-label={ title }>
 			<Card.Content>
@@ -226,11 +238,12 @@ const getFixed = ( item: ScanThreat ) => item.fixedOn ?? '';
 export default function ThreatReport( { ids }: { ids: string[] } ) {
 	const scan = useScan();
 	const history = useHistory();
+	const scanFailed = Boolean( scan?.error );
 	const active = scan?.threats ?? NO_THREATS;
 	const canAct = Boolean( scan?.hasPlan );
 	// History is fetched only where its section says the plan has it.
 	const hasHistory = Boolean(
-		( window.jetpackProtectDashboard?.history as { hasPlan?: boolean } | undefined )?.hasPlan
+		( window.jetpackProtectDashboard?.history as HistoryState | undefined )?.hasPlan
 	);
 	const [ refreshing, setRefreshing ] = useState( hasHistory );
 
@@ -246,7 +259,8 @@ export default function ThreatReport( { ids }: { ids: string[] } ) {
 
 	// A fix moves its threat out of the active list but not into history, so reload history then; ignoring needs no reload.
 	const lastActive = useRef( active );
-	useEffect( () => {
+	// A layout effect, so a just-fixed threat never paints as "No longer detected" before the reload starts.
+	useLayoutEffect( () => {
 		const still = new Set( [ ...active, ...( scan?.ignored ?? [] ) ].map( getId ) );
 		const left = lastActive.current.some(
 			item => ids.includes( getId( item ) ) && ! still.has( getId( item ) )
@@ -262,8 +276,13 @@ export default function ThreatReport( { ids }: { ids: string[] } ) {
 		known = history.error ? null : history.threats;
 	}
 	const groups = useMemo(
-		() => groupThreats( ids, { active, ignored: scan?.ignored, history: known } ),
-		[ ids, active, scan?.ignored, known ]
+		() =>
+			groupThreats( ids, {
+				active: scanFailed ? null : active,
+				ignored: scan?.ignored,
+				history: known,
+			} ),
+		[ ids, scanFailed, active, scan?.ignored, known ]
 	);
 	// While history reloads, an id missing from the last copy may be a threat just fixed.
 	const notFound = refreshing ? [] : groups.notFound;
@@ -277,16 +296,16 @@ export default function ThreatReport( { ids }: { ids: string[] } ) {
 		() => [ ...groups.active, ...groups.fixed, ...groups.ignored ],
 		[ groups ]
 	);
-	const getItemId = useCallback( getId, [] );
-	useArrowKeyNavigation( rows, selected, getItemId, open );
+	useArrowKeyNavigation( rows, selected, getId, open );
 
-	const failed = Boolean( history.error ) && ! refreshing;
+	const historyFailed = Boolean( history.error ) && ! refreshing;
+	const failed = scanFailed || historyFailed;
 
-	const isClear = ! groups.active.length && ! pending.length;
+	const isClear = ! failed && ! groups.active.length && ! pending.length;
 
 	return (
 		<div className="jp-protect-dashboard__cards">
-			{ isClear && <ReportSafeState siteIsSafe={ ! active.length } /> }
+			{ isClear && <ReportSafeState siteIsSafe={ ! active.length } hasPlan={ canAct } /> }
 			{ pending.length > 0 && ! failed && (
 				<Notice.Root intent="info">
 					<Notice.Description>
@@ -303,7 +322,17 @@ export default function ThreatReport( { ids }: { ids: string[] } ) {
 					</Notice.Description>
 				</Notice.Root>
 			) }
-			{ failed && (
+			{ scanFailed && (
+				<Notice.Root intent="error">
+					<Notice.Description>
+						{ __(
+							'We couldn’t check your site for vulnerabilities right now.',
+							'jetpack-protect-pkg'
+						) }
+					</Notice.Description>
+				</Notice.Root>
+			) }
+			{ historyFailed && (
 				<Notice.Root intent="error">
 					<Notice.Description>{ history.error }</Notice.Description>
 				</Notice.Root>

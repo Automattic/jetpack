@@ -42,10 +42,16 @@ describe( 'groupThreats', () => {
 			{ active: [ '1' ], fixed: [], ignored: [], notFound: [], pending: [ '3', '9' ] },
 		],
 		[
-			'prefers the client-held ignored list, which ignore and unignore update first',
+			'adds the threats history has ignored to the client-held list',
 			[ '4', '5' ],
 			{ active, ignored: [ threat( 5, 'ignored' ) ], history },
-			{ active: [], fixed: [], ignored: [ '5' ], notFound: [ '4' ], pending: [] },
+			{ active: [], fixed: [], ignored: [ '4', '5' ], notFound: [], pending: [] },
+		],
+		[
+			'leaves unresolved ids pending when the active list failed to load',
+			[ '1', '3', '9' ],
+			{ active: null, ignored: undefined, history },
+			{ active: [], fixed: [ '3' ], ignored: [], notFound: [], pending: [ '1', '9' ] },
 		],
 		[
 			'finds an ignored threat before history loads',

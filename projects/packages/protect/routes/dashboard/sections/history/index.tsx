@@ -5,7 +5,7 @@ import { HISTORY_THREAT_PARAM } from './store';
 import type { ProtectSection } from '../types';
 
 /** The History section's state from PHP. */
-type HistoryState = { hasPlan: boolean };
+export type HistoryState = { hasPlan: boolean };
 
 const section: ProtectSection< HistoryState | undefined > = {
 	key: 'history',

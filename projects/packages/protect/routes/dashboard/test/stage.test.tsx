@@ -48,21 +48,38 @@ describe( 'Protect dashboard stage', () => {
 	} );
 
 	it.each( [
-		[ 'says the site is safe', [], 'Your site is safe right now' ],
+		[ 'says the site is safe', [], true, 'Your site is safe right now' ],
+		[ 'never calls a site without Scan safe', [], false, 'No known vulnerabilities found' ],
 		[
 			'only clears the alert when other threats remain',
 			[ 9 ],
+			true,
 			'Nothing from your alert needs fixing',
 		],
-		[ 'shows no all-clear while a threat is active', [ 5 ], null ],
-	] )( 'the threat report %s', ( _name, activeIds, heading ) => {
+		[ 'shows no all-clear while a threat is active', [ 5 ], true, null ],
+	] )( 'the threat report %s', ( _name, activeIds, hasPlan, heading ) => {
 		const threats = activeIds.map( id => ( { id, title: `Threat ${ id }`, severity: 3 } ) );
-		window.jetpackProtectDashboard = { scan: { hasPlan: true, threats } };
+		window.jetpackProtectDashboard = { scan: { hasPlan, threats } };
 		mockUseSearch.mockReturnValue( { threats: '5' } );
 		render( <Stage /> );
 		delete window.jetpackProtectDashboard;
 
 		expect( screen.queryByRole( 'heading', { level: 3 } )?.textContent ?? null ).toBe( heading );
+	} );
+
+	it.each( [
+		[ 'Scan’s report failed', { scan: { hasPlan: true, error: true } } ],
+		[ 'Scan history failed', { scan: { hasPlan: true, threats: [] }, history: { hasPlan: true } } ],
+	] )( 'the threat report never reads as clear when %s', async ( _name, state ) => {
+		mockApiFetch.mockRejectedValue( new Error( 'Boom' ) );
+		window.jetpackProtectDashboard = state;
+		mockUseSearch.mockReturnValue( { threats: '5' } );
+		render( <Stage /> );
+
+		await expect( screen.findByText( 'Status unavailable' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'No longer detected' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'heading', { level: 3 } ) ).not.toBeInTheDocument();
+		delete window.jetpackProtectDashboard;
 	} );
 
 	it( 'switching tabs closes the threat inspector', async () => {
