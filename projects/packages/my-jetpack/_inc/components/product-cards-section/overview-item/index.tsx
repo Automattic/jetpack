@@ -2,13 +2,12 @@ import { __ } from '@wordpress/i18n';
 import { lock } from '@wordpress/icons';
 import { Badge, Button, Icon, Link, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useEffect, useRef } from 'react';
 import { PRODUCT_SLUGS } from '../../../data/constants';
 import useProduct from '../../../data/products/use-product';
 import useProductsByOwnership from '../../../data/products/use-products-by-ownership';
-import useAnalytics from '../../../hooks/use-analytics';
 import { getStatusLabel, getStatusTone } from '../../product-card/status';
 import styles from './style.module.scss';
+import useOverviewLoadEvent from './use-overview-load-event';
 import type { StatusTone } from '../../product-card/status';
 import type { ComponentProps, FC, ReactNode } from 'react';
 
@@ -66,28 +65,6 @@ const useStatusBadge = ( slug: JetpackModuleWithCard ): OverviewItemBadge => {
 		label: getStatusLabel( status, isOwned, suppressNeedsAttention ),
 		intent: TONE_INTENTS[ getStatusTone( status, isOwned, suppressNeedsAttention ) ],
 	};
-};
-
-/**
- * Record the product card's load event once the product's data has loaded,
- * so the My Jetpack dashboard stays comparable.
- *
- * @param {JetpackModuleWithCard} slug      - The product slug.
- * @param {boolean}               isLoading - Whether the product's data is still loading.
- */
-export const useOverviewLoadEvent = ( slug: JetpackModuleWithCard, isLoading: boolean ) => {
-	const { detail } = useProduct( slug );
-	const status = detail?.status;
-	const { recordEvent } = useAnalytics();
-	const hasRecordedLoad = useRef( false );
-
-	useEffect( () => {
-		if ( isLoading || ! status || hasRecordedLoad.current ) {
-			return;
-		}
-		hasRecordedLoad.current = true;
-		recordEvent( 'jetpack_myjetpack_product_card_load', { product: slug, status } );
-	}, [ isLoading, status, slug, recordEvent ] );
 };
 
 /**

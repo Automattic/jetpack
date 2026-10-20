@@ -10,7 +10,8 @@ import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import useStatsVisits from '../../../hooks/use-stats-visits';
 import { processStatsData, VISITS_OPTIONS } from '../../stats-section';
 import StatsCards from '../../stats-section/cards';
-import OverviewItem, { useOverviewLoadEvent } from '../overview-item';
+import OverviewItem from '../overview-item';
+import useOverviewLoadEvent from '../overview-item/use-overview-load-event';
 import styles from './style.module.scss';
 import type { ProductCardComponent } from '../types';
 
