@@ -46,10 +46,13 @@ const CTA_KIND_LABELS: Record< CtaKind, ( usePublishCopy: boolean ) => string > 
 	events_page: () => __( 'Add events page', 'jetpack-mu-wpcom' ),
 	video_page: () => __( 'Add video page', 'jetpack-mu-wpcom' ),
 	portfolio_piece: () => __( 'Add portfolio piece', 'jetpack-mu-wpcom' ),
-	launch: usePublishCopy =>
-		usePublishCopy
-			? __( 'Publish site', 'jetpack-mu-wpcom' )
-			: __( 'Launch site', 'jetpack-mu-wpcom' ),
+	launch: usePublishCopy => {
+		// Separate __() calls: terser folds `cond ? __( a ) : __( b )` into `__( cond ? a : b )`,
+		// which i18n-check-webpack-plugin rejects.
+		const launchLabel = __( 'Launch site', 'jetpack-mu-wpcom' );
+		const publishLabel = __( 'Publish site', 'jetpack-mu-wpcom' );
+		return usePublishCopy ? publishLabel : launchLabel;
+	},
 	deeplink: () => __( 'Get started', 'jetpack-mu-wpcom' ),
 };
 

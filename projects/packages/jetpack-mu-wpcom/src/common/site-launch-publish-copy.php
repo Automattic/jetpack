@@ -84,7 +84,8 @@ if ( ! function_exists( 'wpcom_site_launch_resolve_publish_copy' ) ) {
 	/**
 	 * Resolves the experiment arm. Use the cached wrappers above.
 	 *
-	 * Only admins of an unlaunched site are assigned; everyone else gets the control.
+	 * Only admins of an unlaunched site are assigned; everyone else gets the control. Agencies launch
+	 * their dev sites through their own flow, so Calypso keeps those out too.
 	 *
 	 * @param bool $assign Whether to assign a user who has no assignment yet.
 	 * @return bool
@@ -95,6 +96,10 @@ if ( ! function_exists( 'wpcom_site_launch_resolve_publish_copy' ) ) {
 		}
 
 		if ( get_option( 'launch-status' ) !== 'unlaunched' ) {
+			return false;
+		}
+
+		if ( function_exists( 'has_blog_sticker' ) && has_blog_sticker( 'a4a-is-dev-site' ) ) {
 			return false;
 		}
 

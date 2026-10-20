@@ -18,16 +18,21 @@ const icon = (
 
 const launchButtonData = typeof window === 'object' ? window.JETPACK_LAUNCH_BUTTON_DATA : {};
 
-const Content = () => (
-	<>
-		<span className="ab-icon">{ icon }</span>
-		<span className="ab-label">
-			{ launchButtonData.usePublishCopy
-				? __( 'Publish site', 'jetpack-mu-wpcom' )
-				: __( 'Launch site', 'jetpack-mu-wpcom' ) }
-		</span>
-	</>
-);
+const Content = () => {
+	// Separate __() calls: terser folds `cond ? __( a ) : __( b )` into `__( cond ? a : b )`,
+	// which i18n-check-webpack-plugin rejects.
+	const launchLabel = __( 'Launch site', 'jetpack-mu-wpcom' );
+	const publishLabel = __( 'Publish site', 'jetpack-mu-wpcom' );
+
+	return (
+		<>
+			<span className="ab-icon">{ icon }</span>
+			<span className="ab-label">
+				{ launchButtonData.usePublishCopy ? publishLabel : launchLabel }
+			</span>
+		</>
+	);
+};
 
 /**
  * The LaunchButton component.
