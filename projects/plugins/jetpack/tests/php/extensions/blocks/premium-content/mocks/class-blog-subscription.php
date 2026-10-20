@@ -34,18 +34,5 @@ if ( ! class_exists( 'Blog_Subscription' ) ) {
 		public static function get_subscription_status_for_blog( Blog_Subscriber $subscriber, int $blog_id = 0, bool $use_cache = true ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 			return self::$status;
 		}
-
-		/**
-		 * Mirrors the real Blog_Subscription::is_subscribed(), which counts active email subscriptions only.
-		 *
-		 * @param Blog_Subscriber $subscriber The subscriber.
-		 * @param integer         $blog_id    The blog ID.
-		 * @param boolean         $use_cache  Whether to use the cache.
-		 *
-		 * @return boolean
-		 */
-		public static function is_subscribed( Blog_Subscriber $subscriber, $blog_id = 0, $use_cache = true ) {
-			return 'active' === self::get_subscription_status_for_blog( $subscriber, (int) $blog_id, $use_cache );
-		}
 	}
 }

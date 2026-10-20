@@ -9,6 +9,7 @@ require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subsc
 require_once __DIR__ . '/mocks/class-blog-subscriber.php';
 require_once __DIR__ . '/mocks/class-blog-subscription.php';
 require_once __DIR__ . '/mocks/wpcom-subs-is-subscribed.php';
+require_once __DIR__ . '/mocks/trait-without-wpcom-include-warning.php';
 
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Online_Subscription_Service;
@@ -20,6 +21,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass( WPCOM_Online_Subscription_Service::class )]
 class WPCOM_Online_Subscription_Service_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+	use Without_WPCOM_Include_Warning;
 
 	/**
 	 * Email used for both the current user and the Blog_Subscriber mock.
@@ -86,30 +88,6 @@ class WPCOM_Online_Subscription_Service_Test extends WP_UnitTestCase {
 		Blog_Subscriber::$subscribers_by_email = array( self::SUBSCRIBER_EMAIL => new Blog_Subscriber() );
 		// @phan-suppress-next-line PhanUndeclaredStaticProperty -- Mock-only property, not on the real wpcom class/stub.
 		Blog_Subscription::$status = $status;
-	}
-
-	/**
-	 * Runs a callback while silencing the "failed to open stream" warning from
-	 * include_once()'ing a WPCOM-only file that doesn't exist in the Jetpack test
-	 * environment. This suite fails on any warning, so the expected one needs to
-	 * be swallowed rather than left to bubble up.
-	 *
-	 * @param callable $callback The code to run.
-	 *
-	 * @return mixed
-	 */
-	private function without_wpcom_include_warning( callable $callback ) {
-		set_error_handler( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.prevent_path_disclosure_set_error_handler
-			static function ( $errno, $errstr ) {
-				return str_contains( $errstr, 'email-subscriptions/subscriptions.php' );
-			},
-			E_WARNING
-		);
-		try {
-			return $callback();
-		} finally {
-			restore_error_handler();
-		}
 	}
 
 	/**
