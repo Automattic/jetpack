@@ -466,6 +466,43 @@ describe( 'FeatureItem', () => {
 		}
 	);
 
+	it.each( [
+		[ 'a switch', false, 'Manage Firewall in Protect' ],
+		[ 'nothing, for a module a host forced on,', 'active' as const, 'Configure Firewall' ],
+	] )( 'links to the Protect page in place of %s', ( _, override, linkName ) => {
+		const previousInitial = window.myJetpackInitialState;
+		window.myJetpackInitialState = {
+			protectPageModuleUrls: { waf: 'admin.php?page=jetpack-protect&p=firewall' },
+		} as unknown as typeof previousInitial;
+		const waf = {
+			module: 'waf',
+			available: true,
+			activated: true,
+			override,
+			configure_url: 'admin.php?page=jetpack-protect&p=firewall',
+		} as MyJetpackModule;
+
+		try {
+			render(
+				<FeatureItem
+					state={ buildState(
+						{ kind: 'module', module: waf },
+						{ status: 'active', feature: buildFeature( { slug: 'waf', name: 'Firewall' } ) }
+					) }
+				/>
+			);
+		} finally {
+			window.myJetpackInitialState = previousInitial;
+		}
+
+		expect( screen.getByRole( 'link', { name: linkName } ) ).toHaveAttribute(
+			'href',
+			'admin.php?page=jetpack-protect&p=firewall'
+		);
+		expect( screen.getAllByRole( 'link' ) ).toHaveLength( 1 );
+		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'shows only the status for a module a host forced on: no switch, no note', () => {
 		const state = buildState(
 			{ kind: 'module', module: forcedModule },

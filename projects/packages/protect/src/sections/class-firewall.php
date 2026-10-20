@@ -25,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * The firewall's on/off state, blocked requests, IP lists and a one-time request to test it with.
  *
- * @since $$next-version$$
+ * @since 0.2.0
  */
 class Firewall implements Dashboard_Section {
 

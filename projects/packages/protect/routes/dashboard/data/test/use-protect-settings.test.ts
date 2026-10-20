@@ -85,6 +85,7 @@ describe( 'useProtectSettings', () => {
 
 		expect( result.current.settings ).toEqual( expected );
 		expect( result.current.error ).toBe( 'Nope' );
+		expect( result.current.errorKeys ).toEqual( [ 'list' ] );
 		expect( result.current.isSaving( 'list' ) ).toBe( false );
 	} );
 
@@ -149,6 +150,7 @@ describe( 'useProtectSettings', () => {
 		const { result } = renderHook( () => useProtectSettings() );
 		await act( async () => result.current.load() );
 		expect( result.current.error ).toEqual( expect.any( String ) );
+		expect( result.current.errorKeys ).toEqual( [] );
 		expect( result.current.isLoaded ).toBe( false );
 
 		const retry = defer();

@@ -118,7 +118,7 @@ describe( 'FirewallOverviewCard', () => {
 	it( 'turns the firewall on from the card while it is off', async () => {
 		render( <FirewallOverviewCard { ...props } state={ { ...props.state, active: false } } /> );
 
-		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Enable firewall' } ) );
+		await userEvent.click( screen.getByRole( 'switch', { name: 'Enable firewall' } ) );
 
 		expect( props.settings.save ).toHaveBeenCalledWith( { waf: true } );
 	} );
@@ -215,5 +215,14 @@ describe( 'FirewallOverviewCard', () => {
 		document.documentElement.lang = '';
 
 		expect( screen.getByText( /^1.?234$/ ) ).toBeInTheDocument();
+	} );
+
+	it( 'opens the Settings tab at its own card', async () => {
+		const openTab = jest.fn();
+		render( <FirewallOverviewCard { ...props } openTab={ openTab } /> );
+
+		await userEvent.setup().click( screen.getByRole( 'link', { name: 'Configure Firewall' } ) );
+
+		expect( openTab ).toHaveBeenCalledWith( 'settings', { section: 'firewall' } );
 	} );
 } );

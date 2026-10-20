@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { ReportScopeProvider } from '@jetpack-premium-analytics/data';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 /**
@@ -89,6 +90,23 @@ describe( 'chartIntervalField', () => {
 			'true'
 		);
 		expect( onChange ).not.toHaveBeenCalled();
+	} );
+
+	it( 'shows a saved bucket the plan locks as the nearest open one', () => {
+		render(
+			<ReportScopeProvider dateLimits={ { lockedPresetIds: [], lockedIntervals: [ 'week' ] } }>
+				<Control
+					data={ { chartInterval: 'week' } }
+					field={ { elements: DAILY_TO_MONTHLY } }
+					onChange={ jest.fn() }
+				/>
+			</ReportScopeProvider>
+		);
+
+		expect( screen.getByRole( 'button', { name: 'Chart interval: By days' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
 	} );
 
 	it( "reads a widget's own range before the page's", () => {

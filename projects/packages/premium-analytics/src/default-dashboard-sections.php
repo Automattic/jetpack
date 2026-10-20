@@ -311,14 +311,15 @@ function register_default_dashboard_sections( $registry = null ) {
 
 	$sections = array(
 		'analytics/traffic'     => array(
-			'label'               => __( 'Traffic', 'jetpack-premium-analytics-pkg' ),
-			'title'               => __( 'Site traffic', 'jetpack-premium-analytics-pkg' ),
-			'order'               => 10,
+			'label'                    => __( 'Traffic', 'jetpack-premium-analytics-pkg' ),
+			'title'                    => __( 'Site traffic', 'jetpack-premium-analytics-pkg' ),
+			'order'                    => 10,
 			// Only the Traffic summary groups by interval, and it saves its own.
-			'date_filter_options' => array(
+			'date_filter_options'      => array(
 				'with_header_interval_control' => false,
 			),
-			'default_layout'      => __NAMESPACE__ . '\\get_traffic_section_default_layout',
+			'follows_plan_date_limits' => true,
+			'default_layout'           => __NAMESPACE__ . '\\get_traffic_section_default_layout',
 		),
 		'analytics/insights'    => array(
 			'label'               => __( 'Insights', 'jetpack-premium-analytics-pkg' ),

@@ -165,6 +165,8 @@ A widget that shows nothing but a paid Stats feature declares that feature in `p
 
 The dashboard points a locked type at `LockedWidget` instead of its render module, which it never imports, so the widget requests nothing. A feature locked inside a widget that stays open, like the Regions and Cities of **Top locations**, is the widget's to check: it reads `isStatsFeatureLocked()`, renders `LockedWidget` for that part and skips its request.
 
+A plan can also lock a whole section. `locked_sections` maps each one (on the free WordPress.com tier, `traffic` and `insights`) to the copy of the prompt that replaces it, its `upgrade_url`, and `open_widget_types`, the only widget types the section still shows. The stage hands `WidgetDashboard` just those widgets, offers no Customize there, and saves an inline edit back into the stored layout with the hidden widgets kept, so they return after an upgrade (`useLockedSectionLayout()`).
+
 ### Script modules
 
 The module ids are what the client hands to `import()`. The package's are registered by the generated `jpa_register_widget_modules()`; a plugin's by the same generated file of its own build.
@@ -259,6 +261,7 @@ The major changes when a widget built against the previous contract stops workin
 | 1.12.0 | `plan_feature`, the paid Stats feature a widget shows, which the plan gates lock.                                                                                            |
 | 1.13.0 | `chartTitle` on `Columns`, `Donut`, `Funnel`, `Leaderboard`, `Locations` and `MetricTabsChart`: "Chart: <title>" for screen readers, "Map: <title>" for the `Locations` map. |
 | 1.14.0 | `attributes` on the record, which lead the module's by `id`.                                                                                                                 |
+| 1.15.0 | A `jpa/toggle-group` option names its `icon` by reference, the form a `widget.json` can carry.                                                                               |
 
 Inside `plugins/jetpack` the package and a consumer module ship together, so the check is a formality. With the standalone `plugins/premium-analytics` next to another plugin, each brings its own copy, and the check is what keeps a widget built against 1.x from registering on a 2.x package.
 
