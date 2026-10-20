@@ -19,7 +19,7 @@ export type OverlapSlots = {
 	slotKeys: string[];
 	slotOf: ( key: string ) => string;
 	thicknessOf: ( key: string ) => number;
-	/** One keyboard stop per slot, carried by its front-most visible series. */
+	/** One keyboard stop per slot, carried by its visible series with the most categories, front-most on a tie, so every drawn slot is reachable. */
 	stops: SeriesEntry[];
 	/** The keyboard index space: each stop's data points, category by category, skipping points a stop does not have, in the order `XYChartTooltip` walks them. */
 	positions: StopPosition[];
@@ -78,7 +78,13 @@ export function useOverlapSlots(
 		];
 
 		const stops = slotKeys.flatMap( slot => {
-			const stop = entries.filter( ( { series } ) => slotOf( series.label ) === slot ).at( -1 );
+			const stop = entries
+				.filter( ( { series } ) => slotOf( series.label ) === slot )
+				.reduce< SeriesEntry | undefined >(
+					( longest, entry ) =>
+						longest && longest.series.data.length > entry.series.data.length ? longest : entry,
+					undefined
+				);
 			return stop ? [ stop ] : [];
 		} );
 
