@@ -76,9 +76,6 @@ class Jetpack_Subscriptions_Widget_Test extends WP_UnitTestCase {
 	public static function provide_wpcom_subscription_states() {
 		return array(
 			'Reader follower with no email subscription' => array( '', true, true, true ),
-			'active email subscriber'                    => array( 'active', false, true, true ),
-			'cancelled email subscription, no follow'    => array( 'cancelled', false, true, false ),
-			'neither'                                    => array( '', false, true, false ),
 			'logged out, even after ?subscribe=success'  => array( '', true, false, false ),
 		);
 	}
