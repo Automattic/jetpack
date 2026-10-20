@@ -292,13 +292,16 @@ export function ComparativeBarChart( {
 	// The previous slot is painted as one unit, so one static item names it after its widest shown bar:
 	// the comparison setting, not the legend, shows and hides it.
 	const legendItems = useMemo( () => {
+		const tonedItems = comparativeLegendItems.map( item => ( {
+			...item,
+			color: barColorOf( item.describesSeries ?? item.label ) ?? item.color,
+		} ) );
+
 		if ( ! isSlotted ) {
-			return comparativeLegendItems;
+			return tonedItems;
 		}
 
-		const metricItems = comparativeLegendItems
-			.filter( item => ! item.describesSeries )
-			.map( item => ( { ...item, color: barColorOf( item.label ) ?? item.color } ) );
+		const metricItems = tonedItems.filter( item => ! item.describesSeries );
 		const previous = barSeries.find(
 			item => item.group === PREVIOUS_SLOT && isSeriesVisible( chartId, item.label )
 		);

@@ -403,10 +403,14 @@ describe( 'ComparativeBarChart', () => {
 				shape: 'rect',
 				shapeStyles: { margin: 0 },
 				items: [
-					{ label: 'July', color: '#3858E9', interactive: false },
-					{ label: 'Visitors', color: '#3858E9' },
-					{ label: 'June', color: '#3858E9', describesSeries: 'June' },
-					{ label: 'Visitors · June', color: '#3858E9', describesSeries: 'Visitors · June' },
+					{ label: 'July', color: mockBarColor( 0 ), interactive: false },
+					{ label: 'Visitors', color: mockBarColor( 2 ) },
+					{ label: 'June', color: mockBarColor( 1 ), describesSeries: 'June' },
+					{
+						label: 'Visitors · June',
+						color: mockBarColor( 3 ),
+						describesSeries: 'Visitors · June',
+					},
 				],
 			} )
 		);
