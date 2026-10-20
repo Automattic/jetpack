@@ -246,7 +246,7 @@ describe( 'ReferrersWidget', () => {
 		} );
 	} );
 
-	it( 'declares View all to the Referrers report and the CSV download to its host', async () => {
+	it( 'declares the CSV download to its host once the rows settle', async () => {
 		mockApiFetch.mockResolvedValue( REFERRERS_RESPONSE );
 		const { WidgetActionsHost, declaredActions } = createWidgetActionsHost();
 
@@ -264,12 +264,6 @@ describe( 'ReferrersWidget', () => {
 
 		await waitFor( () =>
 			expect( declaredActions() ).toEqual( [
-				expect.objectContaining( {
-					id: 'view-all',
-					label: 'View all',
-					relevance: 'high',
-					href: expect.stringContaining( '&p=%2Freports%2Freferrers%3F' ),
-				} ),
 				expect.objectContaining( { id: 'download-csv', relevance: 'medium' } ),
 			] )
 		);
