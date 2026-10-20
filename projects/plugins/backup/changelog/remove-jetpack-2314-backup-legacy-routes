@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Follow the Backup namespace version bump from V0005 to V0006; no user-facing change.
+

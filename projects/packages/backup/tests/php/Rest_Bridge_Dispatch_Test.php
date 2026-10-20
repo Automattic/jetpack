@@ -5,7 +5,7 @@
  * @package automattic/jetpack-backup-plugin
  */
 
-namespace Automattic\Jetpack\Backup\V0005\REST;
+namespace Automattic\Jetpack\Backup\V0006\REST;
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
@@ -35,7 +35,7 @@ require_once __DIR__ . '/trait-wpcom-request-mock.php';
  * So this file dispatches through the REST server once per registered bridge route, and
  * asserts the route list against the server's own rather than keeping it by hand.
  *
- * @covers \Automattic\Jetpack\Backup\V0005\REST\Rest_Controller
+ * @covers \Automattic\Jetpack\Backup\V0006\REST\Rest_Controller
  */
 #[CoversClass( Rest_Controller::class )]
 class Rest_Bridge_Dispatch_Test extends TestCase {

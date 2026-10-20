@@ -5,7 +5,7 @@
  * @package automattic/jetpack-backup-plugin
  */
 
-namespace Automattic\Jetpack\Backup\V0005\REST;
+namespace Automattic\Jetpack\Backup\V0006\REST;
 
 use Automattic\Jetpack\Connection\Client;
 use WP_Error;
@@ -41,8 +41,7 @@ class Capabilities_Bridge {
 	 * Proxy `/sites/{id}/rewind/capabilities` (v2, as_user) and project
 	 * the response into the shape the React layer expects.
 	 *
-	 * This is the same endpoint the legacy `/jetpack/v4/backup-capabilities`
-	 * route hits — it returns a flat `{ capabilities: [...] }` envelope.
+	 * This endpoint returns a flat `{ capabilities: [...] }` envelope.
 	 * The earlier `/rewind?force=wpcom` variant returns site *state*, not
 	 * a capabilities list, and on some plan shapes (e.g. Jetpack Complete)
 	 * the `capabilities` key is missing entirely, which produced a false
