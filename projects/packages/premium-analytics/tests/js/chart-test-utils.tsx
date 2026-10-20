@@ -23,6 +23,14 @@ const defaultElementStyles = ( { data }: ElementStylesParams ): ElementStyles =>
 	barStyles: data?.options?.type === 'comparison' ? { widthFactor: 1.5, opacity: 0.5 } : {},
 } );
 
+/**
+ * The fill the charts context reports for the bar at an index in an overlap layout.
+ *
+ * @param index - The series' index.
+ * @return A color unique to that index.
+ */
+export const mockOverlapBarColor = ( index: number ) => `#bar${ index }`;
+
 /** The sparkline margin the charts context's theme hands out. */
 export const mockSparklineMargin = { top: 2, right: 2, bottom: 2, left: 2 };
 
@@ -118,12 +126,25 @@ export const mockChartExternals = () => ( {
 		<div data-testid="sparkline" data-points={ data.join( ',' ) } />
 	),
 	// One item per non-comparison series, as `collapseGroups` would produce.
-	useChartLegendItems: ( data: ChartSeries[] ) =>
-		data
-			.filter( series => series.options?.type !== 'comparison' )
-			.map( series => ( { label: series.label, color: '#3858E9' } ) ),
+	useChartLegendItems: ( data: ChartSeries[], options?: { barLayout?: string } ) =>
+		data.flatMap( ( series, index ) =>
+			series.options?.type === 'comparison'
+				? []
+				: [
+						{
+							label: series.label,
+							color: options?.barLayout === 'overlap' ? mockOverlapBarColor( index ) : '#3858E9',
+						},
+					]
+		),
 	useGlobalChartsContext: () => ( {
 		getElementStyles: ( params: ElementStylesParams ) => elementStyles( params ),
+		getBarColors: ( series: ChartSeries[], options?: { layout?: string } ) =>
+			series.map( ( data, index ) =>
+				options?.layout === 'overlap'
+					? mockOverlapBarColor( index )
+					: elementStyles( { data, index } ).color
+			),
 		getHiddenSeries: () => new Set( hiddenSeries ),
 		theme: { sparkline: { margin: mockSparklineMargin } },
 	} ),

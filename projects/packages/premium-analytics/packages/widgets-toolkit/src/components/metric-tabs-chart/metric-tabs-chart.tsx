@@ -58,6 +58,13 @@ const CLICK_DRAG_TOLERANCE_PX = 6;
 /** How far a counterpart's color moves from the accent toward black; interim until UNI-847 settles the shades. */
 const DARK_SHADE_BLEND = 0.5;
 
+/** The previous period's grays when bars overlap, so they recede behind the current period. */
+const PREVIOUS_PERIOD_GRAYS = {
+	metric: 'var(--wpds-color-stroke-surface-neutral, #dbdbdb)',
+	/** The lightest gray that keeps WCAG's 3:1 against `metric`'s default, which it is drawn inside. */
+	counterpart: '#7c7c7c',
+};
+
 /** The pointer-event payload both comparative charts report. */
 type ChartPointerParams = Parameters<
 	NonNullable< ComponentProps< typeof ComparativeLineChart >[ 'onPointerUp' ] >
@@ -157,7 +164,8 @@ function hasSeries( metric: MetricTab ): boolean {
 
 /**
  * How the selected metric's series are drawn. `line` keeps the previous period
- * as a dashed overlay; `bar` draws it as the translucent shadow behind each bar.
+ * as a dashed overlay; `bar` draws it as the translucent shadow behind each bar, or, with a
+ * counterpart shown from the start, in gray beside the current period, the counterpart inside the metric's bar.
  */
 export type MetricTabsChartType = 'line' | 'bar';
 
@@ -212,15 +220,17 @@ export interface MetricTabsChartProps {
  * previous period as a same-`group` comparison series. A line needs its area
  * fill suppressed — that gradient would erase the bar chart's shadow fill.
  *
- * @param metric    - The metric to draw.
- * @param chartType - How the metric is drawn.
- * @param stroke    - The color of both periods.
+ * @param metric         - The metric to draw.
+ * @param chartType      - How the metric is drawn.
+ * @param stroke         - The color of the current period, or none for the chart's own.
+ * @param previousStroke - The color of the previous period.
  * @return The chart series.
  */
 function buildSeries(
 	metric: MetricTab,
 	chartType: MetricTabsChartType,
-	stroke: string
+	stroke: string | undefined,
+	previousStroke: string | undefined = stroke
 ): ComparativeLineChartSeries[] {
 	const series: ComparativeLineChartSeries[] = [
 		{
@@ -239,7 +249,7 @@ function buildSeries(
 			data: metric.previous,
 			options:
 				chartType === 'bar'
-					? { type: 'comparison', stroke }
+					? { type: 'comparison', stroke: previousStroke }
 					: {
 							type: 'comparison',
 							stroke,
@@ -323,7 +333,21 @@ function MetricChart( {
 		return { accent, dark: mixHexColors( accent, '#000000', DARK_SHADE_BLEND ) };
 	}, [ getElementStyles ] );
 
+	// A counterpart shown from the start is drawn inside the metric's bar, as Jetpack Stats draws visitors inside views.
+	const isOverlap = chartType === 'bar' && !! counterpart && ! metric.counterpartHidden;
+
 	const { series, defaultHiddenSeries } = useMemo( () => {
+		if ( isOverlap && counterpart ) {
+			// The accent is the base charts tones the current period from; the unstroked counterpart takes its shade.
+			return {
+				series: [
+					...buildSeries( metric, chartType, shades.accent, PREVIOUS_PERIOD_GRAYS.metric ),
+					...buildSeries( counterpart, chartType, undefined, PREVIOUS_PERIOD_GRAYS.counterpart ),
+				],
+				defaultHiddenSeries: undefined,
+			};
+		}
+
 		const active = buildSeries( metric, chartType, shades.accent );
 
 		if ( ! counterpart ) {
@@ -335,7 +359,7 @@ function MetricChart( {
 			series: [ ...active, ...paired ],
 			defaultHiddenSeries: metric.counterpartHidden ? paired.map( item => item.label ) : undefined,
 		};
-	}, [ metric, counterpart, chartType, shades ] );
+	}, [ metric, counterpart, chartType, shades, isOverlap ] );
 
 	const pointerDownRef = useRef< { x: number; y: number } | null >( null );
 
@@ -432,6 +456,7 @@ function MetricChart( {
 			comparisonLabel={ comparisonLabel }
 			tickResolution={ tickResolution }
 			tooltipExtras={ tooltipExtras }
+			layout={ isOverlap ? 'overlap' : 'grouped' }
 			compactWhenShort
 			{ ...drillHandlers }
 		/>

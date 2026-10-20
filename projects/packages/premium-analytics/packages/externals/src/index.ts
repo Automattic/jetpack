@@ -37,6 +37,7 @@ export {
 	useChartLegendItems,
 	useGlobalChartsContext,
 	useMonthCalendarHeatmapData,
+	type BarChartLayout,
 	type BaseLegendItem,
 	type BucketInfo,
 	type ChartTheme,

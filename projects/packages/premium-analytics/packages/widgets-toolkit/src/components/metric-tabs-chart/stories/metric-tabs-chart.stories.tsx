@@ -97,7 +97,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'A metric switcher over a comparative chart: selectable cards (value + period-over-period delta), and the selected metric drawn with its previous-period overlay. `chartType` picks the mark — a current line with a dashed previous-period overlay, or bars with a translucent previous-period shadow. A metric naming another through `counterpartKey` draws it alongside, visible from the start unless `counterpartHidden` is set. Shared by the subscribers and traffic charts.',
+					"A metric switcher over a comparative chart: selectable cards (value + period-over-period delta), and the selected metric drawn with its previous-period overlay. `chartType` picks the mark — a current line with a dashed previous-period overlay, or bars with a translucent previous-period shadow. A metric naming another through `counterpartKey` draws it alongside, visible from the start unless `counterpartHidden` is set. As bars, a counterpart visible from the start is drawn inside the metric's bar, with the previous period in gray in a slot beside them. Shared by the subscribers and traffic charts.",
 			},
 		},
 	},

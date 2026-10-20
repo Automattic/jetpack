@@ -6,6 +6,7 @@ import {
 	Stack,
 	getBucketInfo,
 	useGlobalChartsContext,
+	type BarChartLayout,
 	type TickResolution,
 } from '@jetpack-premium-analytics/externals';
 import {
@@ -116,6 +117,11 @@ export type ComparativeBarChartProps = {
 	 */
 	tooltipExtras?: TooltipExtraSeries[];
 
+	/**
+	 * The bar chart's layout. `overlap` draws each `group` inside the one before it, with the previous period in a slot beside the current one; the tooltip and legend swatches then take the chart's bar colors.
+	 */
+	layout?: BarChartLayout;
+
 	/** Pointer-down on the plot, carrying the datum nearest the pointer. */
 	onPointerDown?: BarChartProps[ 'onPointerDown' ];
 
@@ -148,6 +154,7 @@ export function ComparativeBarChart( {
 	legendInteractive = false,
 	comparisonLabel,
 	tooltipExtras,
+	layout,
 	onPointerDown,
 	onPointerUp,
 	onDatumActivate,
@@ -155,7 +162,8 @@ export function ComparativeBarChart( {
 	const { displayResolution } = getBucketInfo( series, tickResolution );
 	const fallbackChartId = useId();
 	const chartId = providedChartId ?? fallbackChartId;
-	const { getElementStyles, theme } = useGlobalChartsContext();
+	const { getElementStyles, getBarColors, theme } = useGlobalChartsContext();
+	const overlapLayout = layout === 'overlap' ? layout : undefined;
 
 	// The measured Stack fills its container (flex), so its height is independent
 	// of whether the axis/legend are shown — no measure/hide feedback loop.
@@ -179,16 +187,19 @@ export function ComparativeBarChart( {
 		[ isEmptyData, tooltipExtras ]
 	);
 
-	// The opacity matters: a comparison series shares its primary's colour, dimmed
-	// only by the theme — without it the swatch reads as an identical twin.
-	const seriesStyles = useMemo< TooltipStyle[] >(
-		() =>
-			alignedSeries.map( ( seriesData, index ) => {
-				const { color, barStyles } = getElementStyles( { data: seriesData, index } );
-				return { stroke: color, opacity: barStyles?.opacity };
-			} ),
-		[ alignedSeries, getElementStyles ]
-	);
+	// Grouped, the opacity matters: a comparison series shares its primary's colour, dimmed
+	// only by the theme — without it the swatch reads as an identical twin. Overlap bars are opaque.
+	const seriesStyles = useMemo< TooltipStyle[] >( () => {
+		const overlapColors =
+			overlapLayout && getBarColors?.( alignedSeries, { layout: overlapLayout } );
+
+		return alignedSeries.map( ( seriesData, index ) => {
+			const { color, barStyles } = getElementStyles( { data: seriesData, index } );
+			return overlapColors
+				? { stroke: overlapColors[ index ] }
+				: { stroke: color, opacity: barStyles?.opacity };
+		} );
+	}, [ alignedSeries, getElementStyles, getBarColors, overlapLayout ] );
 
 	// Multipliers keep the tick labels short.
 	const yTickFormat = useMemo(
@@ -211,7 +222,9 @@ export function ComparativeBarChart( {
 	const { config: legendConfig, items: legendItems } = useComparativeLegend(
 		alignedSeries,
 		legendInteractive,
-		comparisonLabel
+		comparisonLabel,
+		undefined,
+		overlapLayout
 	);
 
 	const formatTooltipBucket = useCallback(
@@ -334,6 +347,7 @@ export function ComparativeBarChart( {
 				ariaLabel={ formatChartName( chartTitle ) }
 				className={ styles.chartContent }
 				data={ alignedSeries }
+				layout={ layout }
 				options={ chartOptions }
 				defaultHiddenSeries={ defaultHiddenSeries }
 				legend={ legendConfig }

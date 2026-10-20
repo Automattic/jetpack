@@ -9,6 +9,7 @@ import { getSettings, setSettings } from '@wordpress/date';
 import {
 	mockBarChartLegendSpy,
 	mockBarChartSpy,
+	mockOverlapBarColor,
 	mockSparklineMargin,
 	resetMockCharts,
 	setMockChartHeight,
@@ -109,6 +110,7 @@ function recordedProps(): {
 	};
 	margin?: Record< string, number >;
 	chartId: string;
+	layout?: string;
 	defaultHiddenSeries?: readonly string[];
 	legend: {
 		collapseGroups: boolean;
@@ -386,6 +388,29 @@ describe( 'ComparativeBarChart', () => {
 		expect( readings( tooltipModelFor( hoveredJuly( JULY_1 ) ) ) ).toEqual( [
 			[ 'July', 100, 80 ],
 		] );
+	} );
+
+	it( 'draws an overlap layout with the tooltip and legend swatches in its opaque bar colors', () => {
+		render(
+			<ComparativeBarChart series={ PAIRED_SERIES } dataFormat={ DATA_FORMAT } layout="overlap" />
+		);
+
+		expect( recordedProps().layout ).toBe( 'overlap' );
+		const [ july, visitors ] = tooltipModelFor( hoveredJuly( JULY_1 ), {
+			datum: { date: JULY_1, value: 40 },
+			key: 'Visitors',
+		} ).rows;
+		expect(
+			[ july, july.previous, visitors, visitors.previous ].map( row => row?.indicator )
+		).toEqual(
+			[ 0, 1, 2, 3 ].map( index => ( {
+				kind: 'series',
+				style: { stroke: mockOverlapBarColor( index ) },
+			} ) )
+		);
+		expect(
+			mockBarChartLegendSpy.mock.calls.at( -1 )[ 0 ].items.map( ( { color } ) => color )
+		).toEqual( [ mockOverlapBarColor( 0 ), mockOverlapBarColor( 2 ) ] );
 	} );
 
 	it( 'passes visibility settings through to the chart and legend', () => {

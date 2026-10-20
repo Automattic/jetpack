@@ -7,7 +7,7 @@ import { useMemo } from 'react';
  * Internal dependencies
  */
 import { useLockedPrimaryLegendItems } from './use-locked-primary-legend-items';
-import type { SeriesData } from '@jetpack-premium-analytics/externals';
+import type { BarChartLayout, SeriesData } from '@jetpack-premium-analytics/externals';
 
 type LegendShape = Parameters< typeof useLockedPrimaryLegendItems >[ 2 ];
 
@@ -19,13 +19,15 @@ type LegendShape = Parameters< typeof useLockedPrimaryLegendItems >[ 2 ];
  * @param interactive     - Whether the reader can show and hide metrics from the legend.
  * @param comparisonLabel - The comparison's legend name, e.g. "Prev. 30 days".
  * @param shape           - The legend shape, when the chart's default is not `rect`.
+ * @param barLayout       - The bar chart layout whose bar colors the swatches take, if any.
  * @return The config to hand the chart and the items to hand its legend.
  */
 export function useComparativeLegend(
 	series: SeriesData[],
 	interactive: boolean,
 	comparisonLabel: string = __( 'Previous period', 'jetpack-premium-analytics-pkg' ),
-	shape?: LegendShape
+	shape?: LegendShape,
+	barLayout?: BarChartLayout
 ) {
 	const config = useMemo(
 		() => ( {
@@ -41,7 +43,8 @@ export function useComparativeLegend(
 		} ),
 		[ interactive, comparisonLabel ]
 	);
-	const items = useLockedPrimaryLegendItems( series, config, shape );
+	const itemOptions = useMemo( () => ( { ...config, barLayout } ), [ config, barLayout ] );
+	const items = useLockedPrimaryLegendItems( series, itemOptions, shape );
 
 	return { config, items };
 }

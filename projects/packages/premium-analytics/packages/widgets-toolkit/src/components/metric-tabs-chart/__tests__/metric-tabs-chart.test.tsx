@@ -70,6 +70,7 @@ type ChartProps = {
 	legendInteractive?: boolean;
 	comparisonLabel?: string;
 	baseline?: 'zero' | 'padded';
+	layout?: string;
 	onPointerDown?: ( params: PointerParams ) => void;
 	onPointerUp?: ( params: PointerParams ) => void;
 	onDatumActivate?: ( params: { datum: unknown } ) => void;
@@ -662,14 +663,22 @@ describe( 'MetricTabsChart', () => {
 	} );
 
 	it.each( [
-		[ 'line', mockLineSpy ],
-		[ 'bar', mockBarSpy ],
+		[
+			'a line in the accent, its counterpart in a dark shade',
+			'line',
+			mockLineSpy,
+			[ '#3858E9', '#3858E9', '#1c2c75', '#1c2c75' ],
+		],
+		[
+			'overlapping bars from the accent, left to the chart to shade, the previous period in grays',
+			'bar',
+			mockBarSpy,
+			[ '#3858E9', 'var(--wpds-color-stroke-surface-neutral, #dbdbdb)', undefined, '#7c7c7c' ],
+		],
 	] as const )(
-		'draws the selected metric in the accent and its counterpart in a dark shade, previous periods included (%s)',
-		async ( chartType, spy ) => {
-			const accent = '#3858E9';
-			const darkShade = '#1c2c75';
-			setMockElementStyles( ( { index } ) => ( { color: index === 0 ? accent : '#5AA61B' } ) );
+		'draws the selected metric and its counterpart as %s',
+		async ( _case, chartType, spy, expected ) => {
+			setMockElementStyles( ( { index } ) => ( { color: index === 0 ? '#3858E9' : '#5AA61B' } ) );
 			const user = userEvent.setup();
 			render(
 				<MetricTabsChart
@@ -680,13 +689,26 @@ describe( 'MetricTabsChart', () => {
 			);
 			const strokes = ( label: string ) =>
 				recordedPropsFor( spy, label ).series.map( series => series.options?.stroke );
-			const expected = [ accent, accent, darkShade, darkShade ];
 
 			expect( strokes( 'Views' ) ).toEqual( expected );
 			await user.click( screen.getByRole( 'tab', { name: /Visitors/ } ) );
 			expect( strokes( 'Visitors' ) ).toEqual( expected );
 		}
 	);
+
+	it.each( [
+		[ 'overlap', 'a counterpart shown from the start', [ VIEWS, VISITORS ] ],
+		[
+			'grouped',
+			'a counterpart seeded hidden',
+			[ { ...VIEWS, counterpartHidden: true }, VISITORS ],
+		],
+		[ 'grouped', 'a metric alone', [ METRIC ] ],
+	] )( 'draws %s bars for %s', ( layout, _case, metrics ) => {
+		render( <MetricTabsChart metrics={ metrics } dataFormat={ DATA_FORMAT } chartType="bar" /> );
+
+		expect( recordedPropsFor( mockBarSpy, 'Views' ).layout ).toBe( layout );
+	} );
 
 	// The Traffic summary pairs Views with Visitors, but the hourly grain serves Views
 	// alone, so drawing the pair there offers the legend a flat zero line.
