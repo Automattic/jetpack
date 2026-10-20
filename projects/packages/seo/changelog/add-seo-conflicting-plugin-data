@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Dashboard: Report which conflicting SEO plugin owns the site's SEO output, via the new `jetpack_seo_conflicting_plugin` filter.

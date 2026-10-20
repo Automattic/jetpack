@@ -34,6 +34,7 @@ class DashboardDataTest extends SeoTestCase {
 		delete_option( 'jetpack_seo_canonical_urls_enabled' );
 		remove_all_filters( 'jetpack_active_modules' );
 		remove_all_filters( 'jetpack_ai_seo_enabled' );
+		remove_all_filters( 'jetpack_seo_conflicting_plugin' );
 
 		self::reset_plan();
 
@@ -339,6 +340,24 @@ class DashboardDataTest extends SeoTestCase {
 
 		$this->assertEquals( (object) $formats, $settings['title_formats'] );
 		$this->assertFalse( $settings['title_formats_editable'] );
+	}
+
+	/**
+	 * Both tabs that lock or explain a conflict name the plugin the module stepped aside for.
+	 */
+	public function test_dashboard_names_the_conflicting_seo_plugin() {
+		$this->assertSame( '', Dashboard_Data::get_overview_data()['conflicting_seo_plugin'] );
+		$this->assertSame( '', Dashboard_Data::get_settings_data()['conflicting_seo_plugin'] );
+
+		add_filter(
+			'jetpack_seo_conflicting_plugin',
+			static function () {
+				return 'Yoast SEO';
+			}
+		);
+
+		$this->assertSame( 'Yoast SEO', Dashboard_Data::get_overview_data()['conflicting_seo_plugin'] );
+		$this->assertSame( 'Yoast SEO', Dashboard_Data::get_settings_data()['conflicting_seo_plugin'] );
 	}
 
 	/**

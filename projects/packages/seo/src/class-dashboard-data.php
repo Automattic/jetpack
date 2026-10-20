@@ -565,6 +565,25 @@ class Dashboard_Data {
 	}
 
 	/**
+	 * Name of the SEO plugin Jetpack stepped aside for, or '' when none is active.
+	 *
+	 * @return string
+	 */
+	private static function get_conflicting_seo_plugin() {
+		/**
+		 * Names the SEO plugin that owns the site's SEO output, so the SEO dashboard can say
+		 * so. Set it alongside `jetpack_disable_seo_tools`.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $name The plugin's display name, or '' when no plugin owns the output.
+		 */
+		$name = apply_filters( 'jetpack_seo_conflicting_plugin', '' );
+
+		return is_string( $name ) ? $name : '';
+	}
+
+	/**
 	 * Drop the superseded legacy front page description once a modern one is saved.
 	 *
 	 * The front end falls back to the legacy option whenever the modern value is
@@ -1005,6 +1024,7 @@ class Dashboard_Data {
 			'plan'                    => array(
 				'seo_enabled_for_site' => $seo_enabled,
 			),
+			'conflicting_seo_plugin'  => self::get_conflicting_seo_plugin(),
 			// Whether the site-verification toggle can do anything here. False where
 			// that module isn't present — WordPress.com Simple ships no Jetpack modules
 			// and reports every one of them active — so the dashboard hides the control
@@ -1106,6 +1126,7 @@ class Dashboard_Data {
 			// Settings tab replays that composition to preview it.
 			'title_separator'            => self::get_default_title_separator(),
 			'title_formats_editable'     => $title_formats_editable,
+			'conflicting_seo_plugin'     => self::get_conflicting_seo_plugin(),
 			'front_page_description'     => (string) $front_page_desc,
 			'has_legacy_front_page_meta' => $has_legacy_front_page_meta,
 			'verification_tools_active'  => $modules->is_active( 'verification-tools' ),
