@@ -62,7 +62,7 @@ export function useStatsDateLimits( isLimited: boolean ): {
 				earliestDate: policy.earliestDate,
 				lockedIntervals: policy.lockedIntervals,
 				upsell: policy.feature && upsellFor( policy.feature ),
-				intervalUpsell: policy.lockedIntervals.length ? upsellFor( 'intervals' ) : undefined,
+				intervalUpsell: upsellFor( 'intervals' ),
 			},
 		};
 	}, [ isLimited, trackEvent, siteDay ] );
