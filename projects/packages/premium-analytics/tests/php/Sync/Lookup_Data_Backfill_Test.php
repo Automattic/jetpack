@@ -356,7 +356,7 @@ class Lookup_Data_Backfill_Test extends TestCase {
 
 	public static function provide_full_sync_config() {
 		return array(
-			'products'    => array(
+			'products'              => array(
 				array( 7, 8 ),
 				array(
 					'woocommerce_analytics' => true,
@@ -365,7 +365,16 @@ class Lookup_Data_Backfill_Test extends TestCase {
 					'posts'                 => array( 7, 8 ),
 				),
 			),
-			'no products' => array( array(), array( 'woocommerce_analytics' => true ) ),
+			'no products'           => array( array(), array( 'woocommerce_analytics' => true ) ),
+			'more than the maximum' => array(
+				range( 1, Lookup_Data_Backfill::MAX_PRODUCT_IDS + 1 ),
+				array(
+					'woocommerce_analytics' => true,
+					'terms'                 => true,
+					'term_relationships'    => true,
+					'posts'                 => true,
+				),
+			),
 		);
 	}
 

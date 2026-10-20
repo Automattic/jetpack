@@ -58,6 +58,11 @@ class Lookup_Data_Backfill {
 	const PLUGIN_FULL_SYNC_OPTION = 'woocommerce_analytics_initial_full_sync_finished';
 
 	/**
+	 * Most product and variation IDs to list in the full sync config; above it, all posts are resent.
+	 */
+	const MAX_PRODUCT_IDS = 5000;
+
+	/**
 	 * Lookup tables the standalone plugin left out of its sync.
 	 */
 	const LOOKUP_TABLES = array( 'wc_order_product_lookup', 'wc_order_tax_lookup', 'wc_order_coupon_lookup' );
@@ -434,11 +439,12 @@ class Lookup_Data_Backfill {
 		$config      = array( 'woocommerce_analytics' => true );
 		$product_ids = $this->get_product_ids();
 		if ( $product_ids ) {
-			// term_relationships can't be limited to IDs; posts can, and only products build the catalog.
+			// term_relationships can't be limited to IDs; posts can, and only products build the catalog. Full sync rewrites its
+			// status, config included, after every batch, so a large catalog resends all posts, which are then mostly products.
 			$config += array(
 				'terms'              => true,
 				'term_relationships' => true,
-				'posts'              => $product_ids,
+				'posts'              => count( $product_ids ) > self::MAX_PRODUCT_IDS ? true : $product_ids,
 			);
 		}
 
