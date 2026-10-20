@@ -1084,6 +1084,9 @@ class Dashboard_Data {
 		$sitemap_active = $modules->is_active( 'sitemaps' );
 		$simple         = ( new Host() )->is_wpcom_simple();
 
+		/** This filter is documented in projects/plugins/jetpack/modules/canonical-urls.php */
+		$canonical_conflicted = (bool) apply_filters( 'jetpack_disable_canonical_urls', false );
+
 		return array(
 			'search_engines_visible'     => (int) get_option( 'blog_public', 1 ) === 1,
 			// A private or coming-soon WordPress.com site isn't hidden from search by an
@@ -1098,6 +1101,7 @@ class Dashboard_Data {
 			// Simple reports every module active, so read its own switch ({@see Canonical_Urls}).
 			'canonical_active'           => $simple ? Canonical_Urls::is_enabled() : $modules->is_active( 'canonical-urls' ),
 			'canonical_switchable'       => $simple || self::has_module( 'canonical-urls' ),
+			'canonical_conflicted'       => $canonical_conflicted,
 			// Cast to object so an empty format set serializes as `{}`, not `[]`.
 			'title_formats'              => (object) $title_formats,
 			// Separator WordPress joins default document-title parts with. A page type

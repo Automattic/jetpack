@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+SEO: Lock the Canonical URLs switch on the SEO settings page while another SEO plugin is active.

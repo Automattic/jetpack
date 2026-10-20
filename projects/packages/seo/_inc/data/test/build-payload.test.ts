@@ -20,6 +20,7 @@ const makeSettings = ( overrides: Partial< SettingsResponse > = {} ): SettingsRe
 	sitemap_url: '',
 	canonical_active: false,
 	canonical_switchable: true,
+	canonical_conflicted: false,
 	schema: makeSchemaSettings(),
 	...overrides,
 } );
