@@ -271,8 +271,6 @@ describe( 'ComparativeBarChart', () => {
 		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
 		render( <ComparativeBarChart series={ SERIES_WITH_COMPARISON } dataFormat={ DATA_FORMAT } /> );
 
-		// The chart hands a custom tooltip renderer only the primary series, so without
-		// re-pairing here the shadow bar's value would be unreadable.
 		const model = tooltipModelFor( hoveredJuly( JULY_1 ) );
 		expect( readings( model ) ).toEqual( [ [ 'July', 100, 80 ] ] );
 		expect( model.previousDate ).toBe( 'June 1, 2026' );

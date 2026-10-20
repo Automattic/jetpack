@@ -11,7 +11,7 @@ from the chart theme through `useGlobalChartsContext()`. It **must be rendered i
 `GlobalChartsProvider`** — outside one that hook throws, before `BarChart` gets a chance to supply
 its own.
 
-That is also why there is deliberately no `styles` prop. The comparison bar's width comes from the theme's `barChart.barStyles.comparison.widthFactor`. Charts draws a comparison opaque. Unless the comparison sets its own `stroke`, charts tints it from its primary's color and darkens the primary where needed, so the pair keeps 3:1 against the card and against each other. `overlayGroup` leaves the current period's comparisons unstroked for that, and `previousStrokes` gives the previous period exact colors. The chart's bar colors are read back only to color the tooltip and legend swatches, so they match what the chart drew.
+That is also why there is deliberately no `styles` prop. The comparison bar's width comes from the theme's `barChart.barStyles.comparison.widthFactor`. Charts draws a comparison opaque. Unless the comparison sets its own `stroke`, charts tints it from its primary's color and moves the primary away from the tint where needed, so the pair keeps 3:1 against the card and against each other. `overlayGroup` leaves the current period's comparisons unstroked for that, and `previousStrokes` gives the previous period exact colors. The chart's bar colors are read back only to color the tooltip and legend swatches, so they match what the chart drew.
 
 ## Usage
 
@@ -21,7 +21,7 @@ import { ComparativeBarChart } from '@jetpack-premium-analytics/widgets-toolkit'
 <ComparativeBarChart series={ series } dataFormat={ { type: 'number' } } compactWhenShort />;
 ```
 
-A series marked `options.type: 'comparison'` renders as the previous-period shadow behind its
+A series marked `options.type: 'comparison'` renders as the previous-period bar behind its
 same-`group` primary series, and is the only kind `alignSeriesDates` moves: it re-dates such a
 series onto the dates of the first series in the array. A chart may draw more than one metric — a
 second current-period series keeps its own dates.
@@ -52,10 +52,8 @@ Comparison dates are aligned onto the primary series' dates so both land in the 
 original date survives in `realDate` and is what the tooltip shows, as a span when the point's
 `endDate` falls on a later day.
 
-The chart draws comparison series as a separate shadow layer rather than a registered series, so
-their values never reach a custom `renderTooltip`. This component re-pairs them by date before
-handing the data to `DatedTooltip` — without that, the shadow bar would be visible but its value
-unreadable.
+This component re-pairs each comparison value with its primary by date before handing the data to
+`DatedTooltip`, so each metric's row shows both periods, each under its own date.
 
 ## Y-axis domain
 
