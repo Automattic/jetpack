@@ -104,14 +104,13 @@ class Editor_Welcome_Guides_Atomic_Test extends \WorDBless\BaseTestCase {
 		);
 	}
 
-	private function copy( array $dismissed, int $checked, bool $failed = false ) {
+	private function copy( array $dismissed, int $checked ) {
 		update_user_meta(
 			$this->user_id,
 			WPCOM_EDITOR_WELCOME_GUIDES_CACHE_META,
 			array(
 				'checked'   => $checked,
 				'dismissed' => $dismissed,
-				'failed'    => $failed,
 			)
 		);
 	}
@@ -140,7 +139,7 @@ class Editor_Welcome_Guides_Atomic_Test extends \WorDBless\BaseTestCase {
 
 	public function test_other_requests_serve_the_copy_without_asking() {
 		$record = array( 'core/edit-site' => array( 'welcomeGuide', 'welcomeGuideStyles' ) );
-		$this->copy( $record, time() - 2 * DAY_IN_SECONDS );
+		$this->copy( $record, time() - DAY_IN_SECONDS );
 		$this->on_page( 'index.php' );
 
 		$this->assertSame( $record, $this->read() );
@@ -149,25 +148,24 @@ class Editor_Welcome_Guides_Atomic_Test extends \WorDBless\BaseTestCase {
 
 	public function test_editor_page_load_serves_a_fresh_copy_without_asking() {
 		$record = array( 'core/edit-post' => array( 'welcomeGuide' ) );
-		$this->copy( $record, time() - DAY_IN_SECONDS + MINUTE_IN_SECONDS );
+		$this->copy( $record, time() - 4 * MINUTE_IN_SECONDS );
 
 		$this->assertSame( $record, $this->read() );
 		$this->assertSame( array(), $this->requests );
 	}
 
-	public function test_failed_fetch_keeps_the_copy_and_retries_sooner() {
+	public function test_failed_fetch_keeps_the_copy_and_retries_after_the_ttl() {
 		$record = array( 'core/edit-post' => array( 'welcomeGuide' ) );
-		$this->copy( $record, time() - 2 * DAY_IN_SECONDS );
+		$this->copy( $record, time() - DAY_IN_SECONDS );
 		$this->response = new \WP_Error( 'http_request_failed', 'offline' );
 
 		$this->assertSame( $record, $this->read() );
 		$this->assertSame( $record, $this->stored_copy()['dismissed'] );
-		$this->assertTrue( $this->stored_copy()['failed'] );
 
 		$this->assertSame( $record, $this->read() );
 		$this->assertCount( 1, $this->requests );
 
-		$this->copy( $record, time() - 6 * MINUTE_IN_SECONDS, true );
+		$this->copy( $record, time() - 6 * MINUTE_IN_SECONDS );
 		$this->assertSame( $record, $this->read() );
 		$this->assertCount( 2, $this->requests );
 	}
