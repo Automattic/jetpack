@@ -137,6 +137,18 @@ describe( 'chartInterval', () => {
 		expect( chartInterval( params, [ 'day', 'month' ] as const ) ).toBe( 'day' );
 	} );
 
+	it( 'keeps the chart off a bucket the plan locks', () => {
+		const params = {
+			preset: 'last-30-days',
+			from: '2026-09-16',
+			to: '2026-10-15',
+			interval: 'week',
+		} as const;
+
+		expect( chartInterval( params, DAY_WEEK_MONTH ) ).toBe( 'week' );
+		expect( chartInterval( params, DAY_WEEK_MONTH, [ 'week', 'month', 'year' ] ) ).toBe( 'day' );
+	} );
+
 	// A chart with no bucket control (WordAds) passes none: the window alone picks it.
 	it( 'draws the range default when no bucket is stored', () => {
 		const params = { from: 'a', to: 'b', interval: undefined };
