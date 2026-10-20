@@ -86,7 +86,7 @@ class Analytics_Dashboard {
 	 * Lowest widget contract the build works against: Visitors by location draws `Locations`,
 	 * which the dashboard ships from 1.11.0.
 	 */
-	const MIN_WIDGET_API_VERSION = '1.11.0';
+	const MIN_WIDGET_API_VERSION = '2.0.0';
 
 	/**
 	 * Widget categories the package builds but holds back from the tab for now: the bookings
@@ -397,7 +397,7 @@ class Analytics_Dashboard {
 
 		$version = \Automattic\Jetpack\PremiumAnalytics\WIDGET_API_VERSION;
 
-		return version_compare( $version, self::MIN_WIDGET_API_VERSION, '>=' ) && version_compare( $version, '2', '<' );
+		return version_compare( $version, self::MIN_WIDGET_API_VERSION, '>=' ) && version_compare( $version, '3', '<' );
 	}
 
 	/**
