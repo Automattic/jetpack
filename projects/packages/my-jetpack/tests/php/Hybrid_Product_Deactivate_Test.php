@@ -28,8 +28,10 @@ require_once __DIR__ . '/class-moduleless-hybrid-product.php';
  * Unit tests for Hybrid_Product::deactivate().
  *
  * @covers \Automattic\Jetpack\My_Jetpack\Hybrid_Product::deactivate
+ * @covers \Automattic\Jetpack\My_Jetpack\Hybrid_Product::do_product_specific_deactivation
  */
 #[CoversMethod( Hybrid_Product::class, 'deactivate' )]
+#[CoversMethod( Hybrid_Product::class, 'do_product_specific_deactivation' )]
 class Hybrid_Product_Deactivate_Test extends TestCase {
 
 	/**
