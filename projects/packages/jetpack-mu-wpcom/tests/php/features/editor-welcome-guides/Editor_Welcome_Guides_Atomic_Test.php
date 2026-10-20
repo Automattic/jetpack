@@ -187,12 +187,13 @@ class Editor_Welcome_Guides_Atomic_Test extends \WorDBless\BaseTestCase {
 		$this->wpcom_answers( $record );
 
 		do_action( 'wpcom_editor_welcome_guides_dismiss', $this->user_id, $record );
-		do_action( 'wpcom_editor_welcome_guides_dismiss', $this->user_id, $record );
-
 		$this->assertSame(
 			array( array( 'POST', self::ENDPOINT, array( 'dismissed' => array( 'core/edit-site' => array( 'welcomeGuideStyles' ) ) ) ) ),
 			$this->requests
 		);
 		$this->assertSame( $record, $this->stored_copy()['dismissed'] );
+
+		do_action( 'wpcom_editor_welcome_guides_dismiss', $this->user_id, $record );
+		$this->assertCount( 1, $this->requests );
 	}
 }

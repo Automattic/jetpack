@@ -100,7 +100,7 @@ function wpcom_editor_welcome_guides_atomic_request( string $method, ?array $bod
 
 	$data = json_decode( wp_remote_retrieve_body( $response ), true );
 
-	return is_array( $data['dismissed'] ?? null ) ? $data['dismissed'] : null;
+	return is_array( $data ) && is_array( $data['dismissed'] ?? null ) ? $data['dismissed'] : null;
 }
 
 /**
