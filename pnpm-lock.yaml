@@ -5570,9 +5570,6 @@ importers:
       '@wordpress/i18n':
         specifier: 6.30.0
         version: 6.30.0
-      '@wordpress/icons':
-        specifier: 18.0.0
-        version: 18.0.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/url':
         specifier: 4.57.0
         version: 4.57.0
