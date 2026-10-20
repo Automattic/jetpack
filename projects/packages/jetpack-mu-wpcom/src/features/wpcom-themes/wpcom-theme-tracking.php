@@ -206,3 +206,25 @@ function wpcom_themes_tracks_install_theme( $upgrader, $hook_extra ) {
 	Common\wpcom_record_tracks_event( 'wpcom_theme_install', $event_props );
 }
 add_action( 'upgrader_process_complete', 'wpcom_themes_tracks_install_theme', 10, 2 );
+
+/**
+ * Record the install of a WP.com theme, which is symlinked instead of going through the upgrader.
+ *
+ * @param string $theme_slug Theme slug.
+ * @return void
+ */
+function wpcom_themes_tracks_install_wpcom_theme( $theme_slug ) {
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		return;
+	}
+
+	$event_props = array_merge(
+		array( 'blog_id' => get_wpcom_blog_id() ),
+		wpcom_themes_tracks_get_theme_props( wp_get_theme( $theme_slug ) ),
+		wpcom_themes_tracks_install_source_and_type( 'install' ),
+		array( 'origin' => wpcom_themes_tracks_get_origin() )
+	);
+
+	Common\wpcom_record_tracks_event( 'wpcom_theme_install', $event_props );
+}
+add_action( 'wpcomsh_wpcom_theme_installed', 'wpcom_themes_tracks_install_wpcom_theme' );
