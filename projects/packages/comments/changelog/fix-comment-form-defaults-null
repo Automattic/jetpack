@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix a fatal error when another plugin or theme empties the comment form defaults.
