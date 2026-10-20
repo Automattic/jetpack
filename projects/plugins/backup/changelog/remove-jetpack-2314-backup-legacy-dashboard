@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Remove a stale mirror-exclude entry and an e2e comment; no user-facing change.
+
+

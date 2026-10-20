@@ -12,4 +12,3 @@ vendor/wikimedia/aho-corasick/**                production-include
 # (see also entries in the monorepo root .gitattributes)
 build/**/*.js.map                               production-exclude
 /README.md                                      production-exclude
-src/js/**                                       production-exclude

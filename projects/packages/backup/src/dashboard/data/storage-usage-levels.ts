@@ -1,12 +1,6 @@
 /**
  * How full a site's backup storage is, as five named levels.
  *
- * Ported unchanged in behaviour from
- * `src/js/components/backup-storage-space/storage-usage-levels.ts`, which
- * the legacy dashboard still uses. Keep the two in step: the flag-off
- * dashboard renders the legacy copy, and a divergence would show the same
- * site two different levels depending on a filter.
- *
  * Only the parameter types were widened, from `number` to
  * `number | null | undefined`. That is what the callers have always
  * passed — every legacy selector ends in `?? null` — and it is what makes
