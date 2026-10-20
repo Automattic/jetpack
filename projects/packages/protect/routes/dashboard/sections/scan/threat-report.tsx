@@ -85,7 +85,7 @@ type GroupProps = {
  * @param props.threats     - The group's threats.
  * @param props.dateLabel   - The date column's heading.
  * @param props.getDate     - The ISO date the date column shows.
- * @param props.canAct      - Whether the site's plan can fix and ignore threats.
+ * @param props.canAct      - Whether fixing and ignoring are available now.
  * @param props.selected    - The threat open in an inspector, if any.
  * @return The card, or nothing for an empty group.
  */
@@ -266,7 +266,7 @@ export default function ThreatReport( {
 	// Before Scan's first report, an empty active list says nothing about the alert's threats.
 	const scanNotRun = ! scanFailed && ! scan?.lastChecked;
 	const active = scan?.threats ?? NO_THREATS;
-	const canAct = Boolean( scan?.hasPlan );
+	const hasPlan = Boolean( scan?.hasPlan );
 	const [ refreshing, setRefreshing ] = useState( hasHistory );
 
 	// The page's copy of Scan's report can predate the alert, so read it fresh before trusting what's missing.
@@ -274,6 +274,8 @@ export default function ThreatReport( {
 	useEffect( () => {
 		refreshScan().finally( () => setScanFresh( true ) );
 	}, [] );
+	// An edit made before the fresh read lands would be overwritten by it.
+	const canAct = hasPlan && scanFresh;
 
 	const reload = useCallback( () => {
 		setRefreshing( true );
@@ -330,12 +332,12 @@ export default function ThreatReport( {
 	const historyFailed = hasHistory && Boolean( history.error ) && ! refreshing;
 	const failed = scanFailed || scanNotRun || historyFailed;
 
-	const isClear = ! failed && ! groups.active.length && ! pending.length;
+	const isClear = scanFresh && ! failed && ! groups.active.length && ! pending.length;
 
 	return (
 		<div className="jp-protect-dashboard__cards">
 			{ isClear && (
-				<ReportSafeState siteIsSafe={ ! active.length } hasPlan={ canAct } openTab={ openTab } />
+				<ReportSafeState siteIsSafe={ ! active.length } hasPlan={ hasPlan } openTab={ openTab } />
 			) }
 			{ pending.length > 0 && ! failed && (
 				<Notice.Root intent="info">

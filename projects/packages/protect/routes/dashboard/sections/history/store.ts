@@ -42,8 +42,18 @@ export function loadHistory( refresh = false ): Promise< void > {
 			}
 			inFlight = null;
 		} );
-	inFlight = run();
+	// fetchHistory never rejects, but a stuck request would block every later load.
+	inFlight = run().catch( () => {
+		inFlight = null;
+	} );
 	return inFlight;
+}
+
+/** Forget the loaded history and any request, so tests start over; for tests. */
+export function resetHistory(): void {
+	historyStore.reset();
+	inFlight = null;
+	refetch = false;
 }
 
 /**

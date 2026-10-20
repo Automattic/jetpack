@@ -2,6 +2,7 @@ import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { useSearch } from '@wordpress/route';
+import { resetHistory } from '../sections/history/store';
 import { SCAN_PATH, resetScan, setScan } from '../sections/scan/store';
 import { stage as Stage } from '../stage';
 import type { ScanState } from '../sections/scan/types';
@@ -65,6 +66,7 @@ describe( 'Protect dashboard stage', () => {
 	afterEach( () => {
 		delete window.jetpackProtectDashboard;
 		resetScan();
+		resetHistory();
 	} );
 
 	it.each( [
@@ -117,6 +119,15 @@ describe( 'Protect dashboard stage', () => {
 		expect( screen.queryByRole( 'heading', { level: 3 } ) ).not.toBeInTheDocument();
 		await expect( findGroup( 'Needs attention' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( 'No longer detected' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'the threat report holds the all-clear until Scan answers', async () => {
+		const scan = { hasPlan: true, lastChecked, threats: [] };
+		respond( HISTORY_PATH, [ { ...threat5, status: 'fixed', fixedOn: '2026-10-20T12:00:00Z' } ] );
+		showReport( { scan, history: { hasPlan: true } } );
+
+		await expect( findGroup( 'Fixed' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'heading', { level: 3 } ) ).not.toBeInTheDocument();
 	} );
 
 	it.each( [
