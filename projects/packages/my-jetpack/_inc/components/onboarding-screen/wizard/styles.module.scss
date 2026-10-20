@@ -371,22 +371,15 @@ $rail-row-min-height: 40px;
 }
 
 .rail-head {
-	display: flex;
-	flex-direction: column;
-	align-items: flex-start;
 	flex-shrink: 0;
-	gap: var(--wpds-dimension-gap-xs);
 	padding-inline: var(--wpds-dimension-padding-lg);
 }
 
 /*
- * The way out of the takeover. Padded so the hover surface is a shape around
- * the control, and pulled back by the same amount so the mark still lines up
- * with the rail title under it.
+ * The way out of the takeover, pulled back by the button's own inline
+ * padding so the mark still lines up with the rail title under it.
  */
 .exit {
-	--wp-ui-button-padding-inline: var(--wpds-dimension-padding-md);
-
 	align-self: flex-start;
 	margin-inline-start: calc(-1 * var(--wpds-dimension-padding-md));
 	margin-block-end: var(--wpds-dimension-gap-md);
@@ -922,7 +915,6 @@ $rail-row-min-height: 40px;
 
 .step-description {
 	color: var(--wpds-color-foreground-content-neutral-weak);
-	text-wrap: pretty;
 }
 
 /*
@@ -1128,25 +1120,11 @@ $rail-row-min-height: 40px;
 }
 
 .feature-row {
-
-	/*
-	 * FormToggle paints its checked track and its focus ring from this property,
-	 * which is the admin blue by default and the only non-Jetpack colour on the
-	 * screen. green-50 rather than the identity green-40, which fails AA.
-	 */
-	--wp-components-color-accent: var(--jp-green-50);
-
 	display: flex;
 
 	// The tile's top sits with the name's, not halfway down a two-line block,
 	// where it reads as overlapping the words rather than labelling them.
 	align-items: flex-start;
-
-	// The switch is the exception: it belongs to the whole row, not to the first
-	// line of it, so it stays centred while everything else is pinned to the top.
-	:global(.components-form-toggle) {
-		align-self: center;
-	}
 
 	// The prototype's own two gaps: the glyph sits closer to its words than the
 	// words sit to the switch, so the row reads as a thing and a control. Its 14
@@ -1199,6 +1177,11 @@ $rail-row-min-height: 40px;
 	margin-inline-end: var(--wpds-dimension-gap-xs);
 }
 
+// The switch belongs to the whole row, not its first line, so it stays centred.
+.feature-row__switch {
+	align-self: center;
+}
+
 .feature-row__name {
 	display: block;
 	color: var(--wpds-color-foreground-content-neutral);
@@ -1224,7 +1207,6 @@ $rail-row-min-height: 40px;
 	// which is a worse row than a slightly taller one.
 	min-block-size: 2lh;
 	color: var(--wpds-color-foreground-content-neutral-weak);
-	text-wrap: pretty;
 }
 
 
@@ -1334,31 +1316,13 @@ $rail-row-min-height: 40px;
 	text-align: center;
 }
 
-/*
- * Every gap on this screen lives on a container here rather than as a margin on
- * the thing below it. @wordpress/ui's own spacing is layered, so a margin set
- * from a class of ours loses to it silently and the column collapses shut.
- */
 .finish-column {
-	display: flex;
 	inline-size: 100%;
 	max-inline-size: $step-column-width;
-	flex-direction: column;
-	align-items: center;
-	gap: var(--wpds-dimension-gap-xl);
-}
-
-.finish-head {
-	display: flex;
-	flex-direction: column;
-	gap: var(--wpds-dimension-gap-sm);
 }
 
 .finish-summary {
-	display: flex;
 	inline-size: 100%;
-	flex-direction: column;
-	gap: var(--wpds-dimension-gap-md);
 }
 
 .finish-badge {
@@ -1384,7 +1348,7 @@ $rail-row-min-height: 40px;
 	animation-delay: $wave-base;
 
 	@media (prefers-reduced-motion: reduce) {
-		animation: fade-in var(--wpds-motion-duration-md) var(--wpds-motion-easing-subtle) both;
+		animation: none;
 	}
 }
 
@@ -1431,7 +1395,6 @@ $rail-row-min-height: 40px;
 
 .finish-lede {
 	color: var(--wpds-color-foreground-content-neutral-weak);
-	text-wrap: pretty;
 }
 
 .finish-card {
@@ -1481,8 +1444,8 @@ $rail-row-min-height: 40px;
 }
 
 .finish-row__glyph--on {
-	background: var(--jp-green-50);
-	color: var(--jp-white);
+	background: var(--wpds-color-background-surface-success);
+	color: var(--wpds-color-foreground-content-success);
 }
 
 .finish-row__name {
@@ -1503,10 +1466,7 @@ $rail-row-min-height: 40px;
 }
 
 .finish-actions {
-	display: flex;
 	inline-size: 100%;
-	flex-direction: column;
-	gap: var(--wpds-dimension-gap-sm);
 }
 
 .finish-primary {
@@ -1546,9 +1506,6 @@ $rail-row-min-height: 40px;
 
 // Arrives with `.wave`.
 .connected {
-	display: flex;
-	align-items: center;
-	gap: var(--wpds-dimension-gap-sm);
 	margin-block-end: var(--wpds-dimension-gap-xl);
 }
 
@@ -1678,7 +1635,6 @@ $rail-row-min-height: 40px;
 
 .start-body {
 	color: var(--wpds-color-foreground-content-neutral-weak);
-	text-wrap: pretty;
 }
 
 .start-benefits {

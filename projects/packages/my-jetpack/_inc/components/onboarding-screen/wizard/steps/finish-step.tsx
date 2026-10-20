@@ -2,7 +2,7 @@ import { JetpackLogo } from '@automattic/jetpack-components';
 import { useReducedMotion } from '@wordpress/compose';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { check, lineSolid } from '@wordpress/icons';
-import { ButtonLink, Icon, Text } from '@wordpress/ui';
+import { ButtonLink, Icon, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { tallyResults } from '../lib';
 import styles from '../styles.module.scss';
@@ -168,12 +168,7 @@ export function FinishStep( {
 
 	return (
 		<div className={ styles.finish }>
-			{ /*
-			 * A plain element rather than Stack: Stack's own spacing is layered and
-			 * beats a class of ours, so the gaps below would silently collapse to
-			 * nothing. This screen wants four different gaps, so it owns them.
-			 */ }
-			<div className={ styles[ 'finish-column' ] }>
+			<Stack direction="column" align="center" gap="xl" className={ styles[ 'finish-column' ] }>
 				{ /*
 				 * The mark springs in over three discs washing outward, each sized in the
 				 * stylesheet as a share of the window's long side so the wash clears the
@@ -202,7 +197,7 @@ export function FinishStep( {
 					</span>
 				</div>
 
-				<div className={ styles[ 'finish-head' ] }>
+				<Stack direction="column" gap="sm">
 					<Text
 						variant="heading-2xl"
 						id={ titleId }
@@ -219,10 +214,10 @@ export function FinishStep( {
 					>
 						{ summary.description }
 					</Text>
-				</div>
+				</Stack>
 
 				{ results.length > 0 && (
-					<div className={ styles[ 'finish-summary' ] }>
+					<Stack direction="column" gap="md" className={ styles[ 'finish-summary' ] }>
 						<Text
 							variant="body-md"
 							render={ <p /> }
@@ -256,10 +251,14 @@ export function FinishStep( {
 								</li>
 							) ) }
 						</ul>
-					</div>
+					</Stack>
 				) }
 
-				<div className={ clsx( styles[ 'finish-actions' ], styles.wave, styles[ 'wave-4' ] ) }>
+				<Stack
+					direction="column"
+					gap="sm"
+					className={ clsx( styles[ 'finish-actions' ], styles.wave, styles[ 'wave-4' ] ) }
+				>
 					<ButtonLink
 						variant="solid"
 						href={ exitUrl }
@@ -280,8 +279,8 @@ export function FinishStep( {
 					>
 						{ __( 'Back to your WordPress site', 'jetpack-my-jetpack' ) }
 					</ButtonLink>
-				</div>
-			</div>
+				</Stack>
+			</Stack>
 		</div>
 	);
 }

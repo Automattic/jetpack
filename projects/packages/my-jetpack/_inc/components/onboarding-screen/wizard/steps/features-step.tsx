@@ -1,13 +1,15 @@
-import { FormToggle } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Icon, Stack, Text } from '@wordpress/ui';
+import { ThemeProvider } from '@wordpress/theme';
+import { Icon, Stack, Switch, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useId } from 'react';
 import { isWanted } from '../lib';
 import styles from '../styles.module.scss';
 import { StepHeading } from './step-heading';
 import type { SetupModule } from '../use-setup-modules';
-import type { ChangeEvent } from 'react';
+
+// --jp-green-50, the contrast-safe green: the seed the switches' brand ramp is built from.
+const SWITCH_PRIMARY = '#008710';
 
 type FeaturesStepProps = {
 	// Owned by the wizard so the panel region can be labelled by the heading.
@@ -45,7 +47,7 @@ function FeatureRow( {
 	const descriptionId = useId();
 
 	const handleChange = useCallback(
-		( event: ChangeEvent< HTMLInputElement > ) => onChange( module.slug, event.target.checked ),
+		( want: boolean ) => onChange( module.slug, want ),
 		[ module.slug, onChange ]
 	);
 
@@ -96,17 +98,14 @@ function FeatureRow( {
 				</Text>
 			</label>
 
-			{ /*
-			 * FormToggle rather than a WPDS control: @wordpress/ui ships no switch, and
-			 * this is what every other module toggle in My Jetpack uses. Named by the
-			 * name alone, or the label folds the description into the switch's name.
-			 */ }
-			<FormToggle
+			{ /* Named by the name alone, or the label folds the description into its name. */ }
+			<Switch
 				id={ toggleId }
+				className={ styles[ 'feature-row__switch' ] }
 				checked={ checked }
 				// Host-forced: a request to move it would fail, as it does in Jetpack settings.
 				disabled={ module.locked }
-				onChange={ handleChange }
+				onCheckedChange={ handleChange }
 				aria-labelledby={ nameId }
 				// Already on is its own element now, so it is named here or it is unsaid.
 				aria-describedby={ descriptionId }
@@ -164,22 +163,24 @@ export function FeaturesStep( {
 				</Text>
 			) }
 
-			<div className={ clsx( styles[ 'feature-rows' ], styles.wave, styles[ 'wave-3' ] ) }>
-				{ modules.map( ( module, index ) => (
-					<div
-						key={ module.slug }
-						// The same cascade the answers above use, counted the same way.
-						className={ styles[ 'feature-row__wrap' ] }
-						style={ { '--row-index': index } as React.CSSProperties }
-					>
-						<FeatureRow
-							module={ module }
-							checked={ isWanted( wanted, module ) }
-							onChange={ onChange }
-						/>
-					</div>
-				) ) }
-			</div>
+			<ThemeProvider color={ { primary: SWITCH_PRIMARY } }>
+				<div className={ clsx( styles[ 'feature-rows' ], styles.wave, styles[ 'wave-3' ] ) }>
+					{ modules.map( ( module, index ) => (
+						<div
+							key={ module.slug }
+							// The same cascade the answers above use, counted the same way.
+							className={ styles[ 'feature-row__wrap' ] }
+							style={ { '--row-index': index } as React.CSSProperties }
+						>
+							<FeatureRow
+								module={ module }
+								checked={ isWanted( wanted, module ) }
+								onChange={ onChange }
+							/>
+						</div>
+					) ) }
+				</div>
+			</ThemeProvider>
 		</Stack>
 	);
 }
