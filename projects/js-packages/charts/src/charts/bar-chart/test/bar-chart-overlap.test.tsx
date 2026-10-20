@@ -210,19 +210,22 @@ describe( 'BarChart overlap layout', () => {
 		);
 	} );
 
-	it( 'lists every bar at the selected category in the keyboard tooltip, and none from the last one', async () => {
+	it( 'lists every bar at the selected category in the keyboard tooltip, and stops on the last bar a shorter comparison leaves', async () => {
 		const user = userEvent.setup();
 		renderOverlap( { data: WITHOUT_LAST_PREVIOUS_VISITORS } );
 
 		await user.tab();
 		await user.keyboard( '{ArrowRight}' );
 		expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( 'Previous visitors: 30' );
-		await user.keyboard( '{ArrowRight}{ArrowRight}' );
+		await user.keyboard( '{ArrowRight}{ArrowRight}{ArrowRight}' );
 
 		const tooltip = screen.getByTestId( 'chart-tooltip-2' );
 		[ 'Views: 120', 'Previous views: 90', 'Visitors: 50' ].forEach( row =>
 			expect( tooltip ).toHaveTextContent( row )
 		);
 		expect( tooltip ).not.toHaveTextContent( 'Previous visitors' );
+		expect( geometry( screen.getByTestId( 'bar-chart-selected-ring' ) ).x ).toBeCloseTo(
+			barOf( 'Views', 1 ).x
+		);
 	} );
 } );

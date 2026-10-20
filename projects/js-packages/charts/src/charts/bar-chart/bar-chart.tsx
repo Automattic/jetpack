@@ -261,6 +261,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const stopEntries = overlapSlots?.stops ?? primaryEntries;
 
 	const totalPoints =
+		overlapSlots?.positions.length ??
 		Math.max( 0, ...stopEntries.map( e => e.series.data.length ) ) * stopEntries.length;
 
 	const primaryKeys = useMemo(
@@ -283,15 +284,17 @@ const BarChartInternal: FC< BarChartProps > = ( {
 				return;
 			}
 
-			const dataPointIndex = Math.floor( index / stopCount );
-			const series = stopEntries[ index % stopCount ]?.series;
-			const datum = series?.data[ dataPointIndex ];
+			const position = overlapSlots
+				? overlapSlots.positions[ index ]
+				: { stop: index % stopCount, dataPointIndex: Math.floor( index / stopCount ) };
+			const series = position && stopEntries[ position.stop ]?.series;
+			const datum = position && series?.data[ position.dataPointIndex ];
 
 			if ( series && datum ) {
-				onDatumActivate?.( { datum, index: dataPointIndex, key: series.label } );
+				onDatumActivate?.( { datum, index: position.dataPointIndex, key: series.label } );
 			}
 		},
-		[ stopEntries, onDatumActivate ]
+		[ overlapSlots, stopEntries, onDatumActivate ]
 	);
 
 	const visibleSeriesKey = useMemo(
@@ -313,11 +316,20 @@ const BarChartInternal: FC< BarChartProps > = ( {
 
 	const handlePointerMove = useCallback(
 		( { key, index }: { key: string; index: number } ) => {
-			const stopIndex = overlapSlots
-				? overlapSlots.stops.findIndex(
-						( { series } ) => overlapSlots.slotOf( series.label ) === overlapSlots.slotOf( key )
-					)
-				: primaryKeys.indexOf( key );
+			if ( overlapSlots ) {
+				const stop = overlapSlots.stops.findIndex(
+					( { series } ) => overlapSlots.slotOf( series.label ) === overlapSlots.slotOf( key )
+				);
+				const position = overlapSlots.positions.findIndex(
+					p => p.stop === stop && p.dataPointIndex === index
+				);
+				if ( position >= 0 ) {
+					onChartPointerMove( position );
+				}
+				return;
+			}
+
+			const stopIndex = primaryKeys.indexOf( key );
 			if ( stopIndex >= 0 ) {
 				onChartPointerMove( index * stopEntries.length + stopIndex );
 			}

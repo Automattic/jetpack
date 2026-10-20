@@ -21,7 +21,11 @@ export type OverlapSlots = {
 	thicknessOf: ( key: string ) => number;
 	/** One keyboard stop per slot, carried by its front-most visible series. */
 	stops: SeriesEntry[];
+	/** The keyboard index space: each stop's data points, category by category, skipping points a stop does not have, in the order `XYChartTooltip` walks them. */
+	positions: StopPosition[];
 };
+
+export type StopPosition = { stop: number; dataPointIndex: number };
 
 export type SelectedSlot = SelectedBar & { index: number; members: SlotMember[] };
 
@@ -73,38 +77,63 @@ export function useOverlapSlots(
 			...( showsComparisons ? [ COMPARISON_SLOT ] : [] ),
 		];
 
+		const stops = slotKeys.flatMap( slot => {
+			const stop = entries.filter( ( { series } ) => slotOf( series.label ) === slot ).at( -1 );
+			return stop ? [ stop ] : [];
+		} );
+
 		return {
 			entries,
 			keys: entries.map( ( { series } ) => series.label ),
 			slotKeys,
 			slotOf,
 			thicknessOf,
-			stops: slotKeys.flatMap( slot => {
-				const stop = entries.filter( ( { series } ) => slotOf( series.label ) === slot ).at( -1 );
-				return stop ? [ stop ] : [];
-			} ),
+			stops,
+			positions: getStopPositions( stops ),
 		};
 	}, [ enabled, seriesWithVisibility ] );
+}
+
+/**
+ * Lists every data point of the stops, category by category.
+ *
+ * @param stops - The keyboard stops.
+ * @return The positions, in keyboard order.
+ */
+function getStopPositions( stops: SeriesEntry[] ): StopPosition[] {
+	const length = Math.max( 0, ...stops.map( ( { series } ) => series.data.length ) );
+	const positions: StopPosition[] = [];
+
+	for ( let dataPointIndex = 0; dataPointIndex < length; dataPointIndex++ ) {
+		stops.forEach( ( { series }, stop ) => {
+			if ( dataPointIndex < series.data.length ) {
+				positions.push( { stop, dataPointIndex } );
+			}
+		} );
+	}
+
+	return positions;
 }
 
 /**
  * The slot a keyboard index selects, and every bar at its category.
  *
  * @param slots         - The overlap layout.
- * @param selectedIndex - The keyboard index, which steps through the stops of each category in turn.
+ * @param selectedIndex - The keyboard index into `slots.positions`.
  * @return The selected slot, or undefined when nothing is selected or drawn there.
  */
 export function getSelectedSlot(
 	slots: OverlapSlots | undefined,
 	selectedIndex: number | undefined
 ): SelectedSlot | undefined {
-	if ( ! slots || selectedIndex === undefined || ! slots.stops.length ) {
+	const position = selectedIndex === undefined ? undefined : slots?.positions[ selectedIndex ];
+
+	if ( ! slots || ! position ) {
 		return undefined;
 	}
 
-	const stopCount = slots.stops.length;
-	const stop = slots.stops[ selectedIndex % stopCount ]?.series;
-	const dataPointIndex = Math.floor( selectedIndex / stopCount );
+	const { dataPointIndex } = position;
+	const stop = slots.stops[ position.stop ]?.series;
 	const category = stop?.data[ dataPointIndex ] as DataPointDate | undefined;
 
 	if ( ! stop || ! category ) {
