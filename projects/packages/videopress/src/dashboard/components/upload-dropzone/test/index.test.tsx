@@ -158,6 +158,21 @@ describe( 'UploadDropzone', () => {
 		expect( mockRunUpgrade ).toHaveBeenCalled();
 	} );
 
+	it( 'carries no action in the at-limit notice without an upgrade route', async () => {
+		const { container } = render( <UploadDropzone onFiles={ jest.fn() } disabled /> );
+
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- the dropzone is a styled div with no accessible role; no query reaches it.
+		const dropzone = container.querySelector( '.vp-upload-dropzone' ) as HTMLElement;
+		fireEvent.drop( dropzone, { dataTransfer: { files: [ makeFile( 'two.mp4' ) ] } } );
+
+		await waitFor( () =>
+			expect( mockCreateErrorNotice ).toHaveBeenCalledWith(
+				AT_LIMIT_MESSAGE,
+				expect.objectContaining( { actions: [] } )
+			)
+		);
+	} );
+
 	it( 'refuses from the picker button in the same voice as the surface', async () => {
 		// The two halves of one control used to disagree: the button was
 		// `disabled` (silent, unfocusable) while the surface quietly ate the

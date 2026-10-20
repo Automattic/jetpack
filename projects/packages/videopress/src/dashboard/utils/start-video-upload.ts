@@ -13,7 +13,7 @@ export type VideoUploadCallbacks = {
  * Fetch an upload JWT and hand the file to the resumable uploader.
  *
  * Every failure reaches `onError`, a missing token included, so callers own one
- * failure path. Shared by the dashboard's upload queue and the Top videos widget.
+ * failure path.
  *
  * @param file                 - The video to upload.
  * @param callbacks            - Progress, success and error handlers.

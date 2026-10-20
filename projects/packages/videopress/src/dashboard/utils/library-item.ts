@@ -5,8 +5,7 @@ import { buildShortcode } from './format';
 import type { VideoTracksResponseBodyProps } from '../../client/types';
 import type { LibraryItem, LibraryItemPrivacy } from '../types/library';
 
-// The raw /wp/v2/media item shape consumed by toLibraryItem. Shared with
-// use-video.ts, which fetches a single item from the same endpoint.
+// The raw /wp/v2/media item shape consumed by toLibraryItem.
 export type ApiMediaItem = {
 	id: number;
 	title?: { rendered?: string };
