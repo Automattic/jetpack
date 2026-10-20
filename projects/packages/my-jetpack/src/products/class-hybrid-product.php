@@ -146,6 +146,7 @@ abstract class Hybrid_Product extends Product {
 
 	/**
 	 * Deactivate the plugin and its saved active Jetpack module.
+	 * Otherwise products switched on through the Jetpack module stay half on.
 	 *
 	 * @return true|WP_Error True on success, or an error if module deactivation fails.
 	 */
