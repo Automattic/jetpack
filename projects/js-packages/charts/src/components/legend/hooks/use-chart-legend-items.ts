@@ -60,16 +60,11 @@ function withBarColors(
 ): ( params: GetElementStylesParams ) => ElementStyles {
 	return params => {
 		const styles = getElementStyles( params );
-		const { opacity, ...shapeStyles } = styles.shapeStyles;
 
 		return {
 			...styles,
 			color: barColors[ params.index ] ?? styles.color,
-			// Only the translucency `barStyles` lent the swatch goes; a series' own legend opacity stays.
-			shapeStyles:
-				opacity !== undefined && opacity === styles.barStyles?.opacity
-					? shapeStyles
-					: styles.shapeStyles,
+			shapeStyles: { ...styles.shapeStyles, opacity: undefined },
 		};
 	};
 }
