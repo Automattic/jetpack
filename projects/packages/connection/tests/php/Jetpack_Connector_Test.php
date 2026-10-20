@@ -467,7 +467,7 @@ class Jetpack_Connector_Test extends TestCase {
 	/* ── get_connector_data() — identity crisis (Safe Mode) ─────── */
 
 	/**
-	 * Test that isInSafeMode is false and no idc data is exposed when the site is not in Safe Mode.
+	 * Test that no idc data is exposed when the site is not in Safe Mode.
 	 */
 	public function test_idc_data_absent_when_not_in_safe_mode() {
 		\Jetpack_Options::update_option( 'blog_token', 'test.secret' );
@@ -476,8 +476,7 @@ class Jetpack_Connector_Test extends TestCase {
 
 		$data = Jetpack_Connector::get_connector_data( array() );
 
-		$this->assertArrayHasKey( 'isInSafeMode', $data );
-		$this->assertFalse( $data['isInSafeMode'] );
+		$this->assertArrayNotHasKey( 'isSafeModeConfirmed', $data );
 		$this->assertArrayNotHasKey( 'idc', $data );
 	}
 
@@ -492,7 +491,6 @@ class Jetpack_Connector_Test extends TestCase {
 
 		$data = Jetpack_Connector::get_connector_data( array() );
 
-		$this->assertTrue( $data['isInSafeMode'] );
 		$this->assertArrayHasKey( 'isSafeModeConfirmed', $data );
 		$this->assertArrayHasKey( 'idc', $data );
 		$this->assertArrayHasKey( 'currentUrl', $data['idc'] );
@@ -511,7 +509,7 @@ class Jetpack_Connector_Test extends TestCase {
 
 		$data = Jetpack_Connector::get_connector_data( array() );
 
-		$this->assertArrayNotHasKey( 'isInSafeMode', $data );
+		$this->assertArrayNotHasKey( 'isSafeModeConfirmed', $data );
 		$this->assertArrayNotHasKey( 'idc', $data );
 	}
 

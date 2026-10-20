@@ -71,7 +71,10 @@ export type ConnectionScriptData = {
 	calypsoEnv: string;
 	connectionStatus: {
 		isActive: boolean;
+		/** @deprecated Use `isInSafeMode`. */
 		isStaging: boolean;
+		/** Absent when the PHP connection package is older than this type. */
+		isInSafeMode?: boolean;
 		isRegistered: boolean;
 		isUserConnected: boolean;
 		hasConnectedOwner: boolean;

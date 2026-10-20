@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add `isInSafeMode` to the connection status and deprecate `isStaging`.

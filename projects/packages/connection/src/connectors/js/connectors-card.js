@@ -70,7 +70,6 @@ const CONNECTOR_LOGO = data.connectorLogoUrl
 	? createElement( 'img', { src: data.connectorLogoUrl, alt: '', width: 36, height: 36 } )
 	: null;
 const ssoStatus = data.ssoStatus ?? null;
-const isInSafeMode = Boolean( data.isInSafeMode );
 const isSafeModeConfirmed = Boolean( data.isSafeModeConfirmed );
 const idc = data.idc || null;
 const protectedOwner = data.protectedOwner || null;
@@ -158,6 +157,7 @@ function useCardConnection() {
 			isConnected,
 			isOfflineMode: Boolean( isOfflineMode ),
 			isFirstConnection: ! isRegistered && ! blogId,
+			isInSafeMode: isRegistered && Boolean( connectionStatus.isInSafeMode ),
 			blogId,
 			viewer,
 			owner: owner
@@ -1863,6 +1863,7 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 		isRegistered: isSiteRegistered,
 		isOfflineMode,
 		isFirstConnection,
+		isInSafeMode,
 		viewer,
 	} = useCardConnection();
 	const [ isConnecting, setIsConnecting ] = useState( false );

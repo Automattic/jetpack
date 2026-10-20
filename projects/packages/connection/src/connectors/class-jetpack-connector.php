@@ -251,12 +251,13 @@ class Jetpack_Connector {
 	/**
 	 * Add Jetpack Identity Crisis (Safe Mode) data to the script module data.
 	 *
-	 * The connector card uses this to swap the status badge to "Safe Mode" and
-	 * to render IDC resolution options (migrate / start fresh / stay in safe
+	 * Sent only in Safe Mode, which the card reads from the store's `connectionStatus.isInSafeMode`.
+	 * The card uses it to render IDC resolution options (migrate / start fresh / stay in safe
 	 * mode) in the expanded details. Mirrors the data assembled by
 	 * \Automattic\Jetpack\IdentityCrisis\UI::get_initial_state_data().
 	 *
 	 * @since 8.7.0
+	 * @since $$next-version$$ No longer sends `isInSafeMode`; the card reads it from the store.
 	 *
 	 * @param array $data Script module data passed by reference.
 	 */
@@ -265,11 +266,7 @@ class Jetpack_Connector {
 			return;
 		}
 
-		$in_safe_mode = ( new Status() )->in_safe_mode();
-
-		$data['isInSafeMode'] = $in_safe_mode;
-
-		if ( ! $in_safe_mode ) {
+		if ( ! ( new Status() )->in_safe_mode() ) {
 			return;
 		}
 
