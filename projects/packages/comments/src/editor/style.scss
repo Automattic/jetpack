@@ -558,3 +558,9 @@
 	font-size: inherit;
 	line-height: inherit;
 }
+
+// The ink matchFill() picked for the fill. Pinned: `#commentform p` sets a
+// colour picked for the page, which is what made the fill unreadable.
+.jetpack-comments__box[data-ink] .editor-styles-wrapper .wp-block:not(.wp-block-code) {
+	color: inherit !important;
+}

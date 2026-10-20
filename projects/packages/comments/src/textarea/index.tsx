@@ -3,7 +3,7 @@ import { useCallback, useContext, useEffect, useRef, useState } from 'preact/hoo
 import { logError } from '../shared/log-error';
 import { CommentSignals } from '../shared/state';
 import { recordEvent } from '../shared/tracks';
-import { loadEditor, matchTheme } from './load-editor';
+import { loadEditor, matchFill, matchTheme } from './load-editor';
 
 import './style.scss';
 
@@ -81,6 +81,9 @@ export const Textarea = () => {
 
 	// A draft saved from the editor is block markup, which the textarea would show raw.
 	useEffect( () => {
+		const textarea = textareaRef.current!;
+		matchFill( textarea.closest< HTMLElement >( '.jetpack-comments__box' )!, textarea );
+
 		if ( commentValue.peek().includes( '<!-- wp:' ) ) {
 			openEditor( false );
 		}

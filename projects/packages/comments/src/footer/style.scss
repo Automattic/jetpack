@@ -114,6 +114,12 @@
 	font-size: 0.875em;
 }
 
+// The ink matchFill() picked for the fill, over a link colour picked for
+// the page.
+.jetpack-comments__box[data-ink] .jetpack-comments__identity a {
+	color: inherit !important;
+}
+
 // Three classes deep, past a theme's link colours and underlines.
 .jetpack-comments .jetpack-comments__identity a.jetpack-comments__name {
 	color: inherit;
