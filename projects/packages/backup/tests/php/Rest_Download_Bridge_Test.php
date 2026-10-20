@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Backup\V0005\REST;
 
-use Automattic\Jetpack\Backup\V0005\Jetpack_Backup;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -17,9 +16,7 @@ use WP_Error;
 use WP_REST_Request;
 use WP_REST_Server;
 use function add_action;
-use function add_filter;
 use function do_action;
-use function remove_filter;
 use function wp_insert_user;
 use function wp_set_current_user;
 
@@ -52,7 +49,6 @@ class Rest_Download_Bridge_Test extends TestCase {
 		$wp_rest_server = new WP_REST_Server();
 		$this->server   = $wp_rest_server;
 
-		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
 		add_action( 'rest_api_init', array( Rest_Controller::class, 'register_routes' ) );
 		do_action( 'rest_api_init' );
 	}
@@ -61,7 +57,6 @@ class Rest_Download_Bridge_Test extends TestCase {
 	 * Reset state.
 	 */
 	public function tearDown(): void {
-		remove_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
 		$this->reset_wpcom_request_mock();
 
 		WorDBless_Options::init()->clear_options();

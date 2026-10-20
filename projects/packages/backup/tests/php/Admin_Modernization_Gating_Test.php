@@ -1,7 +1,6 @@
 <?php
 /**
- * Unit tests for the modernization gating around the admin UI. The REST-side
- * companion is `Rest_Bridge_Gating_Test`.
+ * Unit tests for the admin page wiring: menu callback, enqueue and wp-build loading.
  *
  * @package automattic/jetpack-backup-plugin
  */
@@ -28,10 +27,9 @@ use function wp_script_is;
 use function wp_scripts;
 
 require_once __DIR__ . '/mock-wp-build-render-page.php';
-require_once __DIR__ . '/mock-wpcomsh-site-sticker.php';
 
 /**
- * Tests the flag -> menu callback -> enqueue chain.
+ * Tests the menu callback -> enqueue chain.
  *
  * @covers \Automattic\Jetpack\Backup\V0005\Jetpack_Backup
  */
@@ -71,13 +69,10 @@ class Admin_Modernization_Gating_Test extends TestCase {
 
 	public function tearDown(): void {
 		$GLOBALS['_parent_pages'] = $this->original_parent_pages;
-		remove_all_filters( Jetpack_Backup::MODERNIZATION_FILTER );
 		remove_all_filters( 'jetpack_offline_mode' );
 		remove_all_actions( 'load-jetpack_page_jetpack-backup' );
 		remove_all_actions( 'jetpack_use_iframe_authorization_flow' );
 		$this->leave_backup_admin_request();
-
-		unset( $GLOBALS['jetpack_backup_test_site_stickers'] );
 
 		$this->reset_scripts();
 		$this->set_admin_menu_items( array() );
@@ -88,36 +83,7 @@ class Admin_Modernization_Gating_Test extends TestCase {
 		parent::tearDown();
 	}
 
-	public function test_is_modernized_defaults_to_true() {
-		$this->assertTrue( Jetpack_Backup::is_modernized() );
-	}
-
-	public function test_is_modernized_follows_the_filter() {
-		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_false' );
-		$this->assertFalse( Jetpack_Backup::is_modernized() );
-	}
-
-	public function test_legacy_sticker_turns_off_the_default_but_not_the_filter() {
-		$GLOBALS['jetpack_backup_test_site_stickers'] = array( Jetpack_Backup::LEGACY_DASHBOARD_STICKER );
-
-		$this->assertFalse( Jetpack_Backup::is_modernized() );
-
-		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
-		$this->assertTrue( Jetpack_Backup::is_modernized() );
-	}
-
-	public function test_enqueue_admin_scripts_registers_legacy_script_when_not_modernized() {
-		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_false' );
-
-		Jetpack_Backup::enqueue_admin_scripts();
-
-		$this->assertTrue( wp_script_is( 'jetpack-backup', 'registered' ) );
-		$this->assertTrue( wp_script_is( 'jetpack-backup', 'enqueued' ) );
-	}
-
-	/** With the flag on, wp-build enqueues its own bundle; a second one renders a second dashboard. */
-	public function test_enqueue_admin_scripts_skips_legacy_script_when_modernized() {
-		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
+	public function test_enqueue_admin_scripts_registers_no_dashboard_script_of_its_own() {
 
 		Jetpack_Backup::enqueue_admin_scripts();
 
@@ -125,9 +91,8 @@ class Admin_Modernization_Gating_Test extends TestCase {
 		$this->assertTrue( wp_script_is( 'wp-jp-i18n-loader', 'enqueued' ) );
 	}
 
-	public function test_enqueue_admin_scripts_enqueues_tracks_when_modernized() {
+	public function test_enqueue_admin_scripts_enqueues_tracks() {
 		$this->allow_analytics();
-		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
 
 		$this->assertTrue( Jetpack_Backup::can_use_analytics() );
 
@@ -141,7 +106,6 @@ class Admin_Modernization_Gating_Test extends TestCase {
 	}
 
 	public function test_enqueue_admin_scripts_skips_tracks_when_analytics_denied() {
-		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
 
 		$this->assertFalse( Jetpack_Backup::can_use_analytics() );
 
@@ -150,21 +114,7 @@ class Admin_Modernization_Gating_Test extends TestCase {
 		$this->assertFalse( wp_script_is( 'jp-tracks-functions', 'registered' ) );
 	}
 
-	public function test_add_wp_admin_submenu_uses_legacy_callback_when_not_modernized() {
-		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_false' );
-
-		Jetpack_Backup::add_wp_admin_submenu();
-
-		$items = $this->get_admin_menu_items();
-		$this->assertCount( 1, $items );
-		$this->assertSame( Jetpack_Backup::JETPACK_BACKUP_SLUG, $items[0]['menu_slug'] );
-		$this->assertSame( array( Jetpack_Backup::class, 'plugin_settings_page' ), $items[0]['function'] );
-		$this->assertSame( 'Jetpack Backup', $items[0]['page_title'] );
-		$this->assertSame( 'Backup', $items[0]['menu_title'] );
-	}
-
-	public function test_add_wp_admin_submenu_uses_wp_build_callback_when_modernized() {
-		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
+	public function test_add_wp_admin_submenu_uses_wp_build_callback() {
 
 		Jetpack_Backup::add_wp_admin_submenu();
 
@@ -176,20 +126,7 @@ class Admin_Modernization_Gating_Test extends TestCase {
 		$this->assertSame( 'Backup', $items[0]['menu_title'] );
 	}
 
-	public function test_maybe_load_wp_build_does_nothing_when_not_modernized() {
-		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_false' );
-
-		$this->enter_backup_admin_request();
-
-		Jetpack_Backup::maybe_load_wp_build();
-
-		$this->assertFalse( has_action( 'admin_enqueue_scripts', self::SCREEN_ALIAS_CALLBACK ) );
-		$this->assertFalse( has_action( 'admin_enqueue_scripts', self::SCREEN_RESTORE_CALLBACK ) );
-		$this->assertFalse( has_action( 'admin_print_scripts', self::INITIAL_STATE_CALLBACK ) );
-	}
-
 	public function test_maybe_load_wp_build_does_nothing_off_the_backup_admin_page() {
-		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
 		$this->enter_backup_admin_request();
 		$_GET['page'] = 'jetpack';
 
@@ -200,8 +137,7 @@ class Admin_Modernization_Gating_Test extends TestCase {
 		$this->assertFalse( has_action( 'admin_print_scripts', self::INITIAL_STATE_CALLBACK ) );
 	}
 
-	public function test_maybe_load_wp_build_hooks_the_page_when_modernized() {
-		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
+	public function test_maybe_load_wp_build_hooks_the_page() {
 		$this->enter_backup_admin_request();
 
 		Jetpack_Backup::maybe_load_wp_build();
@@ -213,7 +149,6 @@ class Admin_Modernization_Gating_Test extends TestCase {
 	}
 
 	public function test_screen_id_is_restored_after_admin_enqueue_scripts() {
-		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
 		$this->enter_backup_admin_request();
 
 		Jetpack_Backup::maybe_load_wp_build();

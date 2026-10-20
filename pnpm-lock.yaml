@@ -2091,7 +2091,7 @@ importers:
         version: 4.57.0
       '@wordpress/admin-ui':
         specifier: 2.12.0
-        version: 2.12.0(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 2.12.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/api-fetch':
         specifier: 7.57.0
         version: 7.57.0
@@ -2100,16 +2100,13 @@ importers:
         version: 13.3.0
       '@wordpress/components':
         specifier: 42.0.0
-        version: 42.0.0(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 42.0.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/compose':
         specifier: 8.10.0
         version: 8.10.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/data':
-        specifier: 10.57.0
-        version: 10.57.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/dataviews':
         specifier: 20.0.0
-        version: 20.0.0(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 20.0.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/date':
         specifier: 5.57.0
         version: 5.57.0
@@ -2130,16 +2127,10 @@ importers:
         version: 2.3.0(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/ui':
         specifier: 0.24.0
-        version: 0.24.0(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 0.24.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/url':
         specifier: 4.57.0
         version: 4.57.0
-      moment:
-        specifier: 2.31.0
-        version: 2.31.0
-      prop-types:
-        specifier: ^15.8.1
-        version: 15.8.1
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -2186,39 +2177,15 @@ importers:
       '@wordpress/build':
         specifier: 0.25.0
         version: 0.25.0(patch_hash=151ae1c0c3786b862724512e48d8cfcb4b34faf4cac98e352a450abd4741e022)(@wordpress/theme@2.3.0(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
-      autoprefixer:
-        specifier: 10.4.20
-        version: 10.4.20(postcss@8.5.23)
       browserslist:
         specifier: ^4.24.0
         version: 4.28.9
-      concurrently:
-        specifier: 10.0.5
-        version: 10.0.5
       jest:
         specifier: 30.5.2
         version: 30.5.2
-      postcss:
-        specifier: 8.5.23
-        version: 8.5.23
-      postcss-loader:
-        specifier: 8.2.0
-        version: 8.2.0(postcss@8.5.23)(webpack@5.111.1)
       sass-embedded:
         specifier: 1.97.3
         version: 1.97.3
-      sass-loader:
-        specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.97.3)(webpack@5.111.1)
-      storybook:
-        specifier: 10.4.6
-        version: 10.4.6(@testing-library/dom@10.4.2)(@types/react@18.3.31)(react@18.3.1)
-      webpack:
-        specifier: 5.111.1
-        version: 5.111.1(postcss@8.5.23)(webpack-cli@7.2.1)
-      webpack-cli:
-        specifier: 7.2.1
-        version: 7.2.1(webpack@5.111.1)
 
   projects/packages/blaze:
     dependencies:

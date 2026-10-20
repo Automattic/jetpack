@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Backup\V0005\REST;
 
-use Automattic\Jetpack\Backup\V0005\Jetpack_Backup;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -16,10 +15,9 @@ use WorDBless\Users as WorDBless_Users;
 use WP_REST_Request;
 use WP_REST_Server;
 use function add_action;
-use function add_filter;
 use function do_action;
 use function home_url;
-use function remove_filter;
+use function remove_action;
 use function wp_insert_user;
 use function wp_json_encode;
 use function wp_set_current_user;
@@ -70,7 +68,7 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 	private $server;
 
 	/**
-	 * Enable modernization, register routes, and prepare a fresh REST server.
+	 * Register routes and prepare a fresh REST server.
 	 */
 	public function setUp(): void {
 		parent::setUp();
@@ -79,7 +77,6 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 		$wp_rest_server = new WP_REST_Server();
 		$this->server   = $wp_rest_server;
 
-		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
 		add_action( 'rest_api_init', array( Rest_Controller::class, 'register_routes' ) );
 		do_action( 'rest_api_init' );
 	}
@@ -88,7 +85,6 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 	 * Reset state.
 	 */
 	public function tearDown(): void {
-		remove_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
 		$this->reset_wpcom_request_mock();
 
 		WorDBless_Options::init()->clear_options();
@@ -328,10 +324,10 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 	 * Every registered bridge route is dispatched by the provider above, so a new one
 	 * lands here as a failure naming itself.
 	 *
-	 * Bridge routes are identified by diffing the route table with the modernization
-	 * filter on against the same table with it off, as `Rest_Bridge_Gating_Test` does. A
-	 * `/jetpack/v4/` prefix match would not do — the legacy `REST_Controller` registers
-	 * ten routes under that same prefix.
+	 * Bridge routes are identified by diffing the route table with `register_routes()`
+	 * hooked against the same table without it, as `Rest_Bridge_Gating_Test` does. A
+	 * `/jetpack/v4/` prefix match would not do — `REST_Controller` registers ten routes
+	 * under that same prefix.
 	 */
 	public function test_every_bridge_route_is_covered_here() {
 		$bridge_routes = array_values(
@@ -346,27 +342,25 @@ class Rest_Bridge_Dispatch_Test extends TestCase {
 	}
 
 	/**
-	 * Route keys registered by a fresh `rest_api_init`, with the
-	 * modernization filter forced either on or off.
+	 * Route keys registered by a fresh `rest_api_init`, with the bridge
+	 * routes either hooked or not.
 	 *
-	 * @param bool $modernized Whether to leave the modernization filter enabled.
+	 * @param bool $with_bridges Whether to leave `Rest_Controller::register_routes()` hooked.
 	 * @return string[] Registered route keys.
 	 */
-	private function collect_routes( $modernized ) {
+	private function collect_routes( $with_bridges ) {
 		global $wp_rest_server;
 
-		if ( ! $modernized ) {
-			remove_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
-			add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_false' );
+		if ( ! $with_bridges ) {
+			remove_action( 'rest_api_init', array( Rest_Controller::class, 'register_routes' ) );
 		}
 
 		$wp_rest_server = new WP_REST_Server();
 		do_action( 'rest_api_init' );
 		$routes = array_keys( $wp_rest_server->get_routes() );
 
-		if ( ! $modernized ) {
-			remove_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_false' );
-			add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
+		if ( ! $with_bridges ) {
+			add_action( 'rest_api_init', array( Rest_Controller::class, 'register_routes' ) );
 		}
 
 		// `setUp()` handed the tests a server; leave one in place.

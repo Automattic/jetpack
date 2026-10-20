@@ -16,8 +16,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
-use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Backup\V0005\Initial_State as Backup_Initial_State;
 use Automattic\Jetpack\Config;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
@@ -41,7 +39,6 @@ use function is_wp_error;
 use function menu_page_url;
 use function rest_ensure_response;
 use function update_option;
-use function wp_add_inline_script;
 use function wp_remote_get;
 use function wp_remote_retrieve_body;
 use function wp_remote_retrieve_response_code;
@@ -126,20 +123,6 @@ class Jetpack_Backup {
 	 * @var string
 	 */
 	const JETPACK_BACKUP_DB_VERSION = '2';
-
-	/**
-	 * Filter name that gates the wp-build–based dashboard.
-	 *
-	 * Returning false renders the legacy React app on "Jetpack > Backup" instead of the wp-build dashboard.
-	 */
-	const MODERNIZATION_FILTER = 'rsm_jetpack_ui_modernization_backup';
-
-	/**
-	 * Blog sticker that puts a site back on the legacy dashboard.
-	 *
-	 * Atomic sees it only if it is on WordPress.com's `atomic_site_stickers()` allowlist.
-	 */
-	const LEGACY_DASHBOARD_STICKER = 'use-backup-legacy-dashboard';
 
 	/**
 	 * Rewind state read from WordPress.com, memoized for the request.
@@ -242,14 +225,11 @@ class Jetpack_Backup {
 	 * The page to be added to submenu
 	 */
 	public static function add_wp_admin_submenu() {
-		$wp_build_active = self::is_wp_build_dashboard_active();
-		$callback        = $wp_build_active
+		$callback = self::is_wp_build_dashboard_active()
 			? 'jetpack_backup_jetpack_backup_dashboard_wp_admin_render_page'
-			: array( __CLASS__, 'plugin_settings_page' );
+			: array( __CLASS__, 'render_missing_build_notice' );
 
-		// The page title's relabel rides the modernized dashboard rather than the filter alone,
-		// so a fallback to the legacy page also falls back to the legacy title.
-		$page_title = $wp_build_active ? 'Jetpack VaultPress Backup' : 'Jetpack Backup';
+		$page_title = 'Jetpack VaultPress Backup';
 		$menu_title = 'Backup'; // Product name, do not translate.
 
 		$page_suffix = Admin_Menu::add_menu(
@@ -276,15 +256,13 @@ class Jetpack_Backup {
 	public static function admin_init() {
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_scripts' ) );
 
-		if ( self::is_wp_build_dashboard_active() ) {
-			// Notices reflow the dual-pane layout, so clear them but keep our own.
-			// An older jetpack-jitm may predate the helper; the fallback costs the JITM.
-			if ( method_exists( JITM::class, 'suppress_foreign_admin_notices' ) ) {
-				JITM::suppress_foreign_admin_notices();
-			} else {
-				remove_all_actions( 'admin_notices' );
-				remove_all_actions( 'all_admin_notices' );
-			}
+		// Notices reflow the dual-pane layout, so clear them but keep our own.
+		// An older jetpack-jitm may predate the helper; the fallback costs the JITM.
+		if ( method_exists( JITM::class, 'suppress_foreign_admin_notices' ) ) {
+			JITM::suppress_foreign_admin_notices();
+		} else {
+			remove_all_actions( 'admin_notices' );
+			remove_all_actions( 'all_admin_notices' );
 		}
 	}
 
@@ -317,62 +295,31 @@ class Jetpack_Backup {
 	public static function enqueue_admin_scripts() {
 		// This callback is registered via `load-{$page_suffix}` in `add_wp_admin_submenu()`,
 		// so it only fires on the Backup admin page — no need to re-check the page here.
-		if ( self::is_wp_build_dashboard_active() ) {
-			// The i18n loader is registered on every admin page by jetpack-assets but
-			// only enqueued when depended on; the esbuild bundles don't pull it in.
-			// Enqueue it here, before the early return, so the wp-build dashboard's
-			// init module can download its JS translation catalogs.
-			if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
-				wp_enqueue_script( 'wp-jp-i18n-loader' );
-			}
 
-			// The esbuild bundles don't declare the Tracks client as a dependency
-			// either, so it never reaches the page on its own.
-			if ( self::can_use_analytics() ) {
-				Tracking::register_tracks_functions_scripts( true );
-			}
-
-			// wp-build manages its own enqueue pipeline. The legacy script and
-			// its initial state are skipped for the wp-build dashboard.
-			return;
+		// The i18n loader is registered on every admin page by jetpack-assets but
+		// only enqueued when depended on; the esbuild bundles don't pull it in.
+		// Enqueue it here so the wp-build dashboard's init module can download
+		// its JS translation catalogs.
+		if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
+			wp_enqueue_script( 'wp-jp-i18n-loader' );
 		}
 
-		Assets::register_script(
-			'jetpack-backup',
-			'../build/index.js',
-			__FILE__,
-			array(
-				'in_footer'  => true,
-				'textdomain' => 'jetpack-backup-pkg',
-			)
-		);
-		Assets::enqueue_script( 'jetpack-backup' );
-		// Initial JS state including JP Connection data.
-		wp_add_inline_script( 'jetpack-backup', self::get_initial_state(), 'before' );
-		Connection_Initial_State::render_script( 'jetpack-backup' );
-
-		// Load script for analytics.
+		// The esbuild bundles don't declare the Tracks client as a dependency
+		// either, so it never reaches the page on its own.
 		if ( self::can_use_analytics() ) {
 			Tracking::register_tracks_functions_scripts( true );
 		}
 	}
 
 	/**
-	 * Main plugin settings page.
+	 * Render a notice in place of the dashboard when the wp-build output is missing.
 	 */
-	public static function plugin_settings_page() {
+	public static function render_missing_build_notice() {
 		?>
-			<div id="jetpack-backup-root"></div>
+		<div class="wrap">
+			<div class="notice notice-error"><p><?php esc_html_e( 'The Backup dashboard files are missing. Reinstall the plugin to fix this.', 'jetpack-backup-pkg' ); ?></p></div>
+		</div>
 		<?php
-	}
-
-	/**
-	 * Return the rendered initial state JavaScript code.
-	 *
-	 * @return string
-	 */
-	private static function get_initial_state() {
-		return ( new Backup_Initial_State() )->render();
 	}
 
 	/**
@@ -1154,12 +1101,12 @@ class Jetpack_Backup {
 	}
 
 	/**
-	 * Load wp-build when modernization is enabled on the Backup admin page.
+	 * Load wp-build on the Backup admin page.
 	 *
 	 * @return void
 	 */
 	public static function maybe_load_wp_build() {
-		if ( ! self::is_modernized() || ! self::is_backup_admin_request() ) {
+		if ( ! self::is_backup_admin_request() ) {
 			return;
 		}
 
@@ -1176,16 +1123,11 @@ class Jetpack_Backup {
 	}
 
 	/**
-	 * Emit `window.JP_CONNECTION_INITIAL_STATE` inline on the modernized
-	 * Backup admin page.
+	 * Emit `window.JP_CONNECTION_INITIAL_STATE` inline on the Backup admin page.
 	 *
-	 * The modernized enqueue path short-circuits before the legacy
-	 * `Connection_Initial_State::render_script()` call, so without this
-	 * the React `<Gates>` component never sees the connection state and
-	 * sits on its loading skeleton forever. We emit the same JS payload
-	 * the legacy path emits, just outside of a registered script handle
-	 * (wp-build's handles aren't reliable here, and the global is
-	 * page-scoped — any tag setting it works).
+	 * Without it the React `<Gates>` component never sees the connection state and
+	 * sits on its loading skeleton forever. The tag is not tied to a registered script
+	 * handle (wp-build's handles aren't reliable here); the global is page-scoped.
 	 *
 	 * @return void
 	 */
@@ -1215,8 +1157,7 @@ class Jetpack_Backup {
 	/**
 	 * Load the wp-build entry file and register its polyfills.
 	 *
-	 * Only called on `?page=jetpack-backup` admin requests when `is_modernized()`
-	 * is true. Keeps wp-build off every other request.
+	 * Only called on `?page=jetpack-backup` admin requests. Keeps wp-build off every other request.
 	 *
 	 * @return void
 	 */
@@ -1270,8 +1211,7 @@ class Jetpack_Backup {
 	 * menu slug stays `jetpack-backup`, so we mutate the screen object in place
 	 * to make the check pass without changing the user-facing URL.
 	 *
-	 * Hooked only when modernization is on AND we're on the Backup admin page,
-	 * so this never affects any other request.
+	 * Hooked only on the Backup admin page, so this never affects any other request.
 	 *
 	 * @since 5.0.4 Takes no argument; hooked on `admin_enqueue_scripts`.
 	 *
@@ -1305,26 +1245,10 @@ class Jetpack_Backup {
 	}
 
 	/**
-	 * Returns the modernization filter's value, which defaults to true unless the site has the legacy dashboard sticker.
-	 *
-	 * @since 4.3.14 Changed from private to public; the REST bridges gate their route registration on it.
-	 * @since $$next-version$$ Defaults to true.
-	 *
-	 * @return bool
-	 */
-	public static function is_modernized() {
-		$has_legacy_sticker = function_exists( 'wpcomsh_is_site_sticker_active' ) && wpcomsh_is_site_sticker_active( self::LEGACY_DASHBOARD_STICKER );
-
-		return (bool) apply_filters( self::MODERNIZATION_FILTER, ! $has_legacy_sticker );
-	}
-
-	/**
-	 * Returns true when `is_modernized()` is true AND the wp-build dashboard loaded.
+	 * Returns true when the wp-build dashboard loaded.
 	 *
 	 * `build/` is gitignored, so the render function is absent in any unbuilt checkout
-	 * and in any release whose wp-build step failed. Every consumer of the modernized
-	 * surface has to agree on this, or the menu falls back to the legacy page while the
-	 * enqueue path skips the legacy script — an empty div with no JS.
+	 * and in any release whose wp-build step failed.
 	 *
 	 * Only meaningful once `maybe_load_wp_build()` has run. It is hooked on `admin_menu`
 	 * at the same priority as `add_wp_admin_submenu()`, so registration order — not
@@ -1333,7 +1257,7 @@ class Jetpack_Backup {
 	 * @return bool
 	 */
 	private static function is_wp_build_dashboard_active() {
-		return self::is_modernized() && function_exists( 'jetpack_backup_jetpack_backup_dashboard_wp_admin_render_page' );
+		return function_exists( 'jetpack_backup_jetpack_backup_dashboard_wp_admin_render_page' );
 	}
 
 	/**
