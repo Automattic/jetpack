@@ -702,8 +702,8 @@ describe( 'MetricTabsChart', () => {
 		).toEqual( [ '#3858E9', '#3858E9' ] );
 	} );
 
-	const LIGHT_GRAY = '#dbdbdb';
-	const DARK_GRAY = '#7c7c7c';
+	const LIGHT_GRAY = '#cacaca';
+	const DARK_GRAY = '#707070';
 
 	it.each( [
 		[ 'a shown counterpart', [ VIEWS, VISITORS ], 'visitors', DARK_GRAY ],
