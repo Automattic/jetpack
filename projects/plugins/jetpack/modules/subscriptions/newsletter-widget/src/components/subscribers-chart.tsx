@@ -6,7 +6,7 @@ import { scaleOrdinal } from '@visx/scale';
 import { Axis, Grid, LineSeries, Tooltip, XYChart, buildChartTheme } from '@visx/xychart';
 import { useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { SERIES_COLORS, SERIES_LABELS, TRACKS_EVENT_NAME_PREFIX } from '../constants';
+import { SERIES_COLORS, SERIES_LABELS, TRACKS_EVENT_NAME_PREFIX, Y_TICK_COUNT } from '../constants';
 import {
 	calcLeftAxisMargin,
 	formatAxisTickDate,
@@ -42,9 +42,6 @@ const chartTheme = buildChartTheme( {
 		fontWeight: 400,
 	},
 } );
-
-// Shared by the y scale's nice() and the left axis, so the rounded top of the scale always gets a label.
-const Y_TICK_COUNT = 5;
 
 // Chart accessors
 const getDate = ( d: ChartSubscriptionDataPoint ) => d.date;

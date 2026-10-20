@@ -1,5 +1,7 @@
+import { scaleLinear } from '@visx/scale';
 import { dateI18n } from '@wordpress/date';
 import { getAnalyticsUrl, hasAnalyticsDashboard } from '../../../../_inc/shared/analytics-url';
+import { Y_TICK_COUNT } from './constants';
 import { SubscriberTotalsByDate, ChartSubscriptionDataPoint } from './types';
 
 export type TracksEventRecorder = {
@@ -152,8 +154,9 @@ export const transformData = (
 };
 
 /**
- * Calculates the maximum value of the subscription statistics to determine the left axis tick label margin.
- * Larger labels will get cut off so we must dynamically increase the margin based on how many digits are in the largest number.
+ * Calculates the left axis tick label margin from the widest label the axis will draw.
+ * Larger labels will get cut off so we must dynamically increase the margin based on how many digits are in the top label,
+ * which is the largest value rounded up the same way the chart's y scale rounds it.
  *
  * @param {ChartSubscriptionDataPoint[]} subs - The subscription statistics array. The same data used to render the chart.
  * @returns {number} The calculated left axis margin.
@@ -167,9 +170,13 @@ export const calcLeftAxisMargin = ( subs: ChartSubscriptionDataPoint[] ): number
 		return DEFAULT_MARGIN;
 	}
 
-	const maxValue = Math.max( ...subs.map( d => Math.max( d.all || 0, d.paid || 0 ) ) );
+	const values = subs.flatMap( d => [ d.all || 0, d.paid || 0 ] );
+	const [ , topLabel ] = scaleLinear( {
+		domain: [ Math.min( ...values ), Math.max( ...values ) ],
+		nice: Y_TICK_COUNT,
+	} ).domain();
 	// Estimate character width (in pixels) and calculate margin
 	// Each digit is roughly 8px, plus add some padding
-	const digitCount = maxValue.toString().length;
+	const digitCount = Math.round( topLabel ).toString().length;
 	return Math.max( DEFAULT_MARGIN, digitCount * CHAR_PX_WIDTH + PADDING );
 };

@@ -199,6 +199,15 @@ describe( 'helpers', () => {
 			expect( calcLeftAxisMargin( data ) ).toBe( 50 );
 		} );
 
+		it( 'makes room for a top label rounded up past the largest number', () => {
+			const data: ChartSubscriptionDataPoint[] = [
+				{ date: new Date(), all: 0, paid: 0 },
+				{ date: new Date(), all: 870, paid: 40 },
+			];
+			// The axis tops out at 1000 (4 digits): 4 * 8 + 10 = 42
+			expect( calcLeftAxisMargin( data ) ).toBe( 42 );
+		} );
+
 		it( 'handles null or undefined values', () => {
 			const data: ChartSubscriptionDataPoint[] = [
 				{ date: new Date(), all: undefined, paid: null },
