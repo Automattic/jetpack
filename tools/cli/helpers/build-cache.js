@@ -1,15 +1,27 @@
 import crypto from 'crypto';
 import fs from 'fs/promises';
+import npath from 'path';
 import { execa } from 'execa';
-import { infrastructureBuildFiles } from '../commands/dependencies.js';
 import { getBuildOrder } from './dependencyAnalysis.js';
+import { infrastructureFileSets } from './infrastructure-files.js';
 import { projectDir } from './install.js';
 
 // Bump to invalidate every cached build when the fingerprint algorithm or manifest format changes.
-const SCHEMA_VERSION = 1;
+const SCHEMA_VERSION = 2;
+
+// Files outside `projects/` that feed every build; no other root file affects a fingerprint.
+const TOOL_FILES = [
+	...infrastructureFileSets.build,
+	'tools/cli/helpers/build-cache.js',
+	'tools/js-tools/tsconfig.base.json',
+	'tools/js-tools/tsconfig.tsc.json',
+	'tools/js-tools/tsconfig.tsc-declaration-only.json',
+	'package.json',
+	'.nvmrc',
+];
 
 // Ignored paths that are developer-local rather than build output, so losing one shouldn't force a
-// rebuild. Segment-anchored: prefix matching missed nested copies like tests/e2e/node_modules/.
+// rebuild. Segment-anchored so nested copies like tests/e2e/node_modules/ match too.
 const NON_OUTPUT =
 	/(^|\/)(node_modules|\.cache|\.phpunit\.cache|\.claude|\.playwright-mcp)\/|(^|\/)\.DS_Store$/;
 
@@ -50,14 +62,22 @@ function isIgnoredInput( path ) {
 }
 
 /**
- * Extract a `projects/<type>/<name>` slug from a repo-relative path, or null.
+ * Extract a `projects/<type>/<name>` slug from a repo-relative path.
  *
  * @param {string} path - Repo-relative path.
- * @return {string} Project slug, or `monorepo` for repo-root paths.
+ * @return {string|null} Project slug, or null for paths outside `projects/`.
  */
 function slugOf( path ) {
-	return path.match( /^projects\/([^/]+\/[^/]+)\// )?.[ 1 ] ?? 'monorepo';
+	return path.match( /^projects\/([^/]+\/[^/]+)\// )?.[ 1 ] ?? null;
 }
+
+/**
+ * Split NUL-terminated git output (`-z`) into records.
+ *
+ * @param {string} stdout - Raw output.
+ * @return {string[]} Non-empty records.
+ */
+const splitZ = stdout => stdout.split( '\0' ).filter( Boolean );
 
 /**
  * Hash the working-tree contents of a set of files in a single `git hash-object` call.
@@ -67,6 +87,8 @@ function slugOf( path ) {
  */
 async function hashWorkingTree( paths ) {
 	const out = new Map();
+	// `--stdin-paths` is newline-delimited, so a path containing one can't be passed; it hashes as 'gone'.
+	paths = paths.filter( p => ! p.includes( '\n' ) );
 	if ( ! paths.length ) {
 		return out;
 	}
@@ -75,21 +97,23 @@ async function hashWorkingTree( paths ) {
 		input: paths.join( '\n' ),
 	} );
 	const hashes = stdout.split( '\n' );
+	if ( hashes.length !== paths.length ) {
+		throw new Error(
+			`git hash-object returned ${ hashes.length } hashes for ${ paths.length } paths`
+		);
+	}
 	paths.forEach( ( p, i ) => out.set( p, hashes[ i ] ) );
 	return out;
 }
 
 /**
- * Compute the "tool version" component: a hash of the build-infrastructure files' current contents.
- *
- * Editing any of these (build.js, install.js, pnpm-lock.yaml, …) invalidates every project's cache,
- * matching the `infrastructureFileSets.build` semantics used by `--git-changed`.
+ * Compute the "tool version" component: a hash of the shared build-tooling files' current contents.
  *
  * @return {Promise<string>} Hex digest.
  */
 async function buildToolVersion() {
 	// Only hash files that exist (a set entry may reference a not-yet-present path).
-	const existing = await filterExisting( [ ...infrastructureBuildFiles ].sort() );
+	const existing = await filterExisting( [ ...new Set( TOOL_FILES ) ].sort() );
 	const hashes = await hashWorkingTree( existing );
 	const h = crypto.createHash( 'sha256' );
 	for ( const f of existing ) {
@@ -103,29 +127,26 @@ async function buildToolVersion() {
  *
  * @return {Promise<{committed: Map<string,string[]>, dirty: Map<string,string[]>}>} Per-project committed and dirty-overlay lines.
  */
-async function collectGitState() {
+export async function collectGitState() {
 	const committed = new Map();
 	const dirty = new Map();
+	const add = ( map, slug, line ) => {
+		if ( ! map.has( slug ) ) {
+			map.set( slug, [] );
+		}
+		map.get( slug ).push( line );
+	};
 
-	// 1. All committed blobs with their SHAs (one process; SHAs are git's content hashes).
-	const { stdout: lsf } = await execa( 'git', [ '-c', 'core.quotepath=off', 'ls-files', '-s' ], {
-		cwd: process.cwd(),
-	} );
-	for ( const line of lsf.split( '\n' ) ) {
-		if ( ! line ) {
-			continue;
-		}
-		const tab = line.indexOf( '\t' );
-		const sha = line.slice( 0, tab ).split( ' ' )[ 1 ];
-		const path = line.slice( tab + 1 );
-		if ( isIgnoredInput( path ) ) {
-			continue;
-		}
+	// 1. All committed blobs with their SHAs. `-z` keeps paths unquoted.
+	const { stdout: lsf } = await execa( 'git', [ 'ls-files', '-s', '-z' ], { cwd: process.cwd() } );
+	for ( const rec of splitZ( lsf ) ) {
+		const tab = rec.indexOf( '\t' );
+		const sha = rec.slice( 0, tab ).split( ' ' )[ 1 ];
+		const path = rec.slice( tab + 1 );
 		const slug = slugOf( path );
-		if ( ! committed.has( slug ) ) {
-			committed.set( slug, [] );
+		if ( slug && ! isIgnoredInput( path ) ) {
+			add( committed, slug, `${ sha }\t${ path }` );
 		}
-		committed.get( slug ).push( `${ sha }\t${ path }` );
 	}
 
 	// 2. Uncommitted changes (modified/added/untracked/deleted) overlaid with working-tree hashes.
@@ -133,27 +154,15 @@ async function collectGitState() {
 	// directory to one `?? dir/` entry, which we'd skip below and thus fingerprint as unchanged.
 	const { stdout: st } = await execa(
 		'git',
-		[ '-c', 'core.quotepath=off', 'status', '--porcelain', '--no-renames', '-uall' ],
+		[ 'status', '--porcelain', '-z', '--no-renames', '-uall' ],
 		{ cwd: process.cwd() }
 	);
-	const dirtyPaths = [];
-	for ( const line of st.split( '\n' ) ) {
-		if ( ! line ) {
-			continue;
-		}
-		const path = line.slice( 3 );
-		if ( path.endsWith( '/' ) || isIgnoredInput( path ) ) {
-			continue;
-		}
-		dirtyPaths.push( path );
-	}
+	const dirtyPaths = splitZ( st )
+		.map( rec => rec.slice( 3 ) )
+		.filter( path => slugOf( path ) && ! path.endsWith( '/' ) && ! isIgnoredInput( path ) );
 	const wtHashes = await hashWorkingTree( await filterExisting( dirtyPaths ) );
 	for ( const path of dirtyPaths ) {
-		const slug = slugOf( path );
-		if ( ! dirty.has( slug ) ) {
-			dirty.set( slug, [] );
-		}
-		dirty.get( slug ).push( `${ wtHashes.get( path ) || 'gone' } ${ path }` );
+		add( dirty, slugOf( path ), `${ wtHashes.get( path ) || 'gone' } ${ path }` );
 	}
 
 	return { committed, dirty };
@@ -204,12 +213,11 @@ export function fingerprintProjects( {
 /**
  * Compute fingerprints for every project in the dependency graph.
  *
- * Always fingerprints the FULL graph (not just the projects being built) so a given project's
- * fingerprint folds in its complete transitive dependencies and is therefore identical whether it
- * is built alone or with `--deps`. This keeps cache hits consistent across different invocations.
+ * Takes the FULL graph, not just the projects being built, so a project's fingerprint folds in
+ * its complete transitive dependencies and is identical whether it's built alone or with `--deps`.
  *
  * @param {Map<string,Set>} dependencies - Full (unfiltered) dependency map.
- * @param {object}          argv         - Argv (uses .production).
+ * @param {object}          argv         - Argv.
  * @return {Promise<Map<string,string>>} slug -> fingerprint.
  */
 export async function computeFingerprints( dependencies, argv ) {
@@ -230,7 +238,9 @@ export async function computeFingerprints( dependencies, argv ) {
 		mode: argv.production ? 'production' : 'development',
 		// Pinning resolves path packages to their branch-alias rather than dev-trunk, so a cached
 		// build from a pinned run must not be reused for an unpinned one.
-		flags: `pin:${ !! argv.pinPathRepoVersions } lock:${ argv.useUncommittedComposerLock }`,
+		flags: `pin:${ !! argv.pinPathRepoVersions } lock:${ argv.useUncommittedComposerLock } node:${
+			process.version
+		}`,
 		toolVersion,
 		committed,
 		dirty,
@@ -256,46 +266,66 @@ async function readManifest( project ) {
 /**
  * A project's build outputs: everything gitignored inside it, minus caches and dependencies.
  *
- * Derived rather than hardcoded because projects emit to wildly different places — `plugins/boost`
- * to several `app/**` dirs, `plugins/jetpack` to loose files under `modules/` — and a fixed list
- * silently fails to protect whatever it omits.
+ * Each file's size and mtime go into the digest, so an output rewritten in place invalidates too.
  *
  * @param {string} project - Slug.
  * @return {Promise<{count: number, hash: string}>} File count and a digest of the listing.
  */
 async function projectOutputs( project ) {
+	const dir = projectDir( project );
 	const { stdout } = await execa(
 		'git',
-		[ '-c', 'core.quotepath=off', 'ls-files', '--others', '--ignored', '--exclude-standard' ],
-		{ cwd: projectDir( project ) }
+		[ 'ls-files', '-z', '--others', '--ignored', '--exclude-standard' ],
+		{ cwd: dir }
 	);
-	const files = stdout.split( '\n' ).filter( p => p && ! NON_OUTPUT.test( p ) );
-	// A hash rather than the list: jetpack alone emits ~5900 files (335 KB of paths). Any add,
-	// delete or rename changes it, so an extra ignored file costs a rebuild — safe, not silent.
-	return {
-		count: files.length,
-		hash: crypto.createHash( 'sha256' ).update( files.sort().join( '\n' ) ).digest( 'hex' ),
-	};
+	const files = splitZ( stdout )
+		.filter( p => ! NON_OUTPUT.test( p ) )
+		.sort();
+	// lstat, so a symlinked vendor package is recorded as the link rather than followed.
+	const stats = await Promise.all(
+		files.map( f =>
+			fs.lstat( npath.join( dir, f ) ).then(
+				st => `${ st.size }:${ st.mtimeMs }`,
+				() => 'gone'
+			)
+		)
+	);
+	const h = crypto.createHash( 'sha256' );
+	files.forEach( ( f, i ) => h.update( `${ f }\t${ stats[ i ] }\n` ) );
+	return { count: files.length, hash: h.digest( 'hex' ) };
 }
 
 /**
- * Whether a project can be skipped: manifest matches the current fingerprint/mode and every output
- * recorded at build time still exists on disk.
+ * Whether a project can be skipped: manifest matches the current fingerprint and its outputs are
+ * unchanged since that build.
  *
  * A project that recorded no outputs is never skipped: an empty set would match vacuously.
- * Rebuilding it (cheaply) is safer than serving a phantom hit.
+ * Any error means "rebuild" — the cache must never be the reason a build fails.
  *
  * @param {string} project - Slug.
  * @param {string} fp      - Current fingerprint.
  * @return {Promise<boolean>} True to skip.
  */
 export async function canSkip( project, fp ) {
-	const m = await readManifest( project );
-	if ( ! m || m.inputHash !== fp || ! m.outputs?.count ) {
+	try {
+		const m = await readManifest( project );
+		if ( ! m || m.inputHash !== fp || ! m.outputs?.count ) {
+			return false;
+		}
+		const now = await projectOutputs( project );
+		return now.count === m.outputs.count && now.hash === m.outputs.hash;
+	} catch {
 		return false;
 	}
-	const now = await projectOutputs( project );
-	return now.count === m.outputs.count && now.hash === m.outputs.hash;
+}
+
+/**
+ * Forget a project's last cached build, before anything rewrites its outputs.
+ *
+ * @param {string} project - Slug.
+ */
+export async function invalidateManifest( project ) {
+	await fs.rm( manifestPath( project ), { force: true } ).catch( () => {} );
 }
 
 /**

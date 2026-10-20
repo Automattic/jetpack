@@ -1,6 +1,7 @@
 import child_process from 'child_process';
 import path from 'path';
 import chalk from 'chalk';
+import { invalidateManifest } from '../helpers/build-cache.js';
 import { readComposerJson } from '../helpers/json.js';
 import { allProjects } from '../helpers/projectHelpers.js';
 import promptForProject from '../helpers/promptForProject.js';
@@ -103,6 +104,8 @@ export async function watch( project, composerJson, hot = false ) {
 	}
 
 	console.log( chalkJetpackGreen( `Watching '${ project }'...\nGo write some code.` ) );
+	// Watch rewrites outputs, so a later `jetpack build --cache` must not trust the old manifest.
+	await invalidateManifest( project );
 	child_process.spawnSync( 'composer', [ scriptName ], {
 		cwd: path.resolve( `projects/${ project }` ),
 		shell: true,
