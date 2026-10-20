@@ -1,4 +1,4 @@
-import { scaleLinear } from '@visx/scale';
+import { createScale } from '@visx/scale';
 import { dateI18n } from '@wordpress/date';
 import { getAnalyticsUrl, hasAnalyticsDashboard } from '../../../../_inc/shared/analytics-url';
 import { Y_TICK_COUNT } from './constants';
@@ -166,6 +166,18 @@ export const getYDomain = ( subs: ChartSubscriptionDataPoint[] ): [ number, numb
 ];
 
 /**
+ * The chart's y scale config, shared with the margin calculation so both see the same top label.
+ *
+ * @param {ChartSubscriptionDataPoint[]} subs - The subscription statistics array. The same data used to render the chart.
+ * @returns The linear scale config for XYChart's `yScale` prop.
+ */
+export const getYScaleConfig = ( subs: ChartSubscriptionDataPoint[] ) => ( {
+	type: 'linear' as const,
+	domain: getYDomain( subs ),
+	nice: Y_TICK_COUNT,
+} );
+
+/**
  * Calculates the left axis tick label margin from the widest label the axis will draw.
  * Larger labels will get cut off so we must dynamically increase the margin based on how many digits are in the top label,
  * which is the largest value rounded up the same way the chart's y scale rounds it.
@@ -182,7 +194,7 @@ export const calcLeftAxisMargin = ( subs: ChartSubscriptionDataPoint[] ): number
 		return DEFAULT_MARGIN;
 	}
 
-	const [ , topLabel ] = scaleLinear( { domain: getYDomain( subs ), nice: Y_TICK_COUNT } ).domain();
+	const [ , topLabel ] = createScale( getYScaleConfig( subs ) ).domain();
 	// Estimate character width (in pixels) and calculate margin
 	// Each digit is roughly 8px, plus add some padding
 	const digitCount = Math.round( topLabel ).toString().length;

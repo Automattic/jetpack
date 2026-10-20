@@ -13,7 +13,7 @@ import {
 	formatDate,
 	formatNumber,
 	getXAxisTickValues,
-	getYDomain,
+	getYScaleConfig,
 	transformData,
 } from '../helpers';
 import type { SubscriberTotalsByDate, ChartSubscriptionDataPoint } from '../types';
@@ -144,7 +144,7 @@ export const SubscribersChart = ( { subscriberTotalsByDate }: SubscribersChartPr
 								height={ height }
 								width={ width }
 								xScale={ { type: 'time' } }
-								yScale={ { type: 'linear', domain: getYDomain( data ), nice: Y_TICK_COUNT } }
+								yScale={ getYScaleConfig( data ) }
 								theme={ chartTheme }
 								margin={ { top: 10, right: 30, bottom: 30, left: calcLeftAxisMargin( data ) } }
 							>
