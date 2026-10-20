@@ -19,6 +19,7 @@ Main chart component with responsive behavior by default.
 | `height` | `number` | `400` | Chart height in pixels |
 | `aspectRatio` | `number` | - | Height-to-width ratio (e.g. `0.4`) for responsive charts; the chart is contained within its parent on both axes. Used when `width`/`height` are omitted. |
 | `orientation` | `'vertical' \| 'horizontal'` | `'vertical'` | Bar orientation |
+| `layout` | `'grouped' \| 'overlap'` | `'grouped'` | How series share a category. `overlap` draws every primary series in one slot and every `type: 'comparison'` series in a second, with each `group` a narrower, opaque bar in front of the one before it. See [overlap layout](./?path=/docs/js-packages-charts-library-charts-bar-chart--docs#overlap-layout). |
 | `withTooltips` | `boolean` | `false` | Enable interactive tooltips |
 | `withBandHighlight` | `boolean` | `false` | Highlight the active band across the plot; requires tooltips. Uses the `--a8c-charts-color-surface-secondary` catalog role. |
 | `onBandHighlightChange` | `(selection: BandHighlightSelection \| null) => void` | - | Receive datum, series `key`, rendered point `index`, and `x`, `y`, `width`, `height` in SVG coordinates; requires tooltips, but not the built-in highlight. Emits initial selection on mount and null on dismissal or unmount. |
@@ -106,6 +107,12 @@ Comparison shadow bars are styled via the chart theme at `barChart.barStyles.com
 	<BarChart data={ data } />
 </GlobalChartsProvider>
 ```
+
+Comparison styling applies to the `grouped` layout only. An `overlap` layout draws every bar opaque, at the thickness its layer sets.
+
+## Overlap colors
+
+`getBarColors( series, { layout: 'overlap' } )` from `useGlobalChartsContext()` returns the color `BarChart` fills each series with, by index. Use it to color a custom tooltip's or legend's swatches. `useChartLegendItems( data, { barLayout: 'overlap' } )` does the same for legend items, and drops the comparison opacity from their swatches.
 
 ## DataPointDate Type
 

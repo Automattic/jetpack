@@ -74,6 +74,7 @@ The simplest bar chart requires only a `data` prop with categorical data:
 - **`barClassName`**: A callback returning an additional CSS class for each primary bar's datum, on top of `visx-bar`. Use it to style empty or zero-value marks independently of their fill color.
 - **`tooltipStyle`**: Inline style overrides for the tooltip box
 - **`orientation`**: Bar orientation (`'vertical'` or `'horizontal'`, defaults to `'vertical'`)
+- **`layout`**: How series share a category (`'grouped'` or `'overlap'`, defaults to `'grouped'`). See [Overlap Layout](#overlap-layout)
 - **`withPatterns`**: Use pattern fills instead of solid colors (`false` by default)
 - **`gridVisibility`**: Grid line visibility (`'x'`, `'y'`, `'xy'`, or `'none'`)
 
@@ -206,6 +207,37 @@ It composes with grouped bars: pair each primary series with its own `type: 'com
 - Collapsing the legend requires the primary and its comparison series to share a `group`. This is stricter than the bars themselves: rendering pairs a comparison with the sole primary even when `group` is omitted, but the legend has no single-primary fallback, so without a shared `group` the pair keeps separate legend items.
 - With pattern fills enabled (`withPatterns`), the comparison shadow reuses its primary bar's pattern at the same reduced opacity, so the pair reads as one series.
 - Styling comes from the theme at `barChart.barStyles.comparison`. `widthFactor` (default `1.5`) controls how much wider the comparison bar is than the primary — the primary is narrowed to `1 / widthFactor` of the slot — and `opacity` (default `0.5`) sets the shadow translucency.
+
+## Overlap Layout
+
+Set `layout="overlap"` to draw one metric inside another, as Jetpack Stats draws visitors inside views. Each category has up to two slots: every primary series sits in the first, and every `type: 'comparison'` series in a second beside it while any comparison is shown. Within a slot, the `group`s overlap: the first group in `data` is the back bar at the full slot width, and each later group is narrower and drawn in front (with two groups, the front bar is half as wide). Series without a `group` share one layer.
+
+<Canvas of={ BarChartStories.OverlapLayout } />
+
+<Source
+	language="jsx"
+	code={ `<BarChart
+		layout="overlap"
+		data={[
+			{ label: 'Views', group: 'views', data: views },
+			{ label: 'Previous views', group: 'views', options: { type: 'comparison' }, data: previousViews },
+			{ label: 'Visitors', group: 'visitors', data: visitors },
+			{ label: 'Previous visitors', group: 'visitors', options: { type: 'comparison' }, data: previousVisitors },
+		]}
+		withTooltips
+		showLegend
+	/>` }
+/>
+
+**Notes:**
+
+- Bars are opaque. Each slot is toned from a base color: the back series' `options.stroke` if it has one, otherwise the palette color of the slot (the first palette color for the primaries, the second for the comparisons). The back bar takes the lightest tint of the base that keeps 3:1 contrast against the chart background, and each bar in front the shade of the base that keeps 3:1 against the bar behind it.
+- A slot keeps the colors it was given when a front series has an `options.stroke` that differs from the base, or when a color or the background is not a hex color.
+- The legend swatches take the bar colors. For a custom tooltip or legend, read them with `getBarColors( series, { layout: 'overlap' } )` from `useGlobalChartsContext()`.
+- Hiding a series leaves the others in place: a comparison keeps its slot while its primary is hidden, and a group keeps its width while the group behind it is hidden.
+- The tooltip lists every bar at the hovered category. Pointer callbacks report the front-most bar of the slot under the pointer.
+- Arrow keys step one slot at a time. The selected slot is outlined as a whole, and the keyboard tooltip lists every bar at its category.
+- The theme's `barChart.barStyles.comparison` (`widthFactor`, `opacity`) does not apply in this layout.
 
 ## Visual Features
 

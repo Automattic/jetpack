@@ -44,6 +44,12 @@ const meta: Meta< StoryArgs > = {
 			description: 'Bar orientation',
 			table: { category: 'Visual Style' },
 		},
+		layout: {
+			control: { type: 'radio' },
+			options: [ 'grouped', 'overlap' ],
+			description: 'How series share a category',
+			table: { category: 'Visual Style' },
+		},
 		gridVisibility: {
 			control: { type: 'radio' },
 			options: [ 'none', 'x', 'y', 'both' ],
@@ -896,6 +902,45 @@ export const ComparisonMulti: Story = {
 			description: {
 				story:
 					'Two groups (`views` and `visitors`) rendered side by side, each paired with its own `type: "comparison"` series. Each group\'s standard-width shadow bar sits behind its 60%-width primary bar, with clear gaps preserved between groups — confirming comparison mode composes correctly with grouped bar layouts. With `legend.collapseGroups` each group is a single legend item (Views, Visitors), and because `legend.interactive` is also on, clicking one toggles both its current and previous-period series at once. Turn the `legendCollapseGroups` control off to get one item per series, each toggling alone.',
+			},
+		},
+	},
+};
+
+const week = ( values: number[] ) =>
+	[ 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun' ].map( ( label, index ) => ( {
+		label,
+		value: values[ index ],
+	} ) );
+
+export const OverlapLayout: Story = {
+	args: {
+		...Default.args,
+		layout: 'overlap',
+		showLegend: true,
+		legendInteractive: true,
+		data: [
+			{ label: 'Views', group: 'views', data: week( [ 420, 580, 310, 750, 640, 380, 290 ] ) },
+			{
+				label: 'Previous views',
+				group: 'views',
+				options: { type: 'comparison' as const },
+				data: week( [ 510, 490, 430, 620, 700, 350, 330 ] ),
+			},
+			{ label: 'Visitors', group: 'visitors', data: week( [ 280, 390, 220, 500, 430, 260, 190 ] ) },
+			{
+				label: 'Previous visitors',
+				group: 'visitors',
+				options: { type: 'comparison' as const },
+				data: week( [ 340, 320, 290, 410, 460, 240, 210 ] ),
+			},
+		],
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'`layout="overlap"` with two groups. Views and Visitors share the current period\'s slot, with Visitors as the narrower bar in front; Previous views and Previous visitors share the slot beside it. Each slot is toned from its palette color so every bar keeps 3:1 contrast against the background or the bar behind it, and the legend swatches match. Hide a series from the legend: the others keep their slots and widths. Arrow keys step one slot at a time.',
 			},
 		},
 	},
