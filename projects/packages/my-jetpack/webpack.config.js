@@ -23,7 +23,13 @@ export default [
 			...jetpackWebpackConfig.resolve,
 		},
 		node: false,
-		plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
+		plugins: [
+			...jetpackWebpackConfig.StandardPlugins( {
+				DependencyExtractionPlugin: {
+					bundleWpUiDeps: true,
+				},
+			} ),
+		],
 		module: {
 			strictExportPresence: true,
 			rules: [
