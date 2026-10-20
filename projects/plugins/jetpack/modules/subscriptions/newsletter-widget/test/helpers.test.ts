@@ -201,6 +201,10 @@ describe( 'helpers', () => {
 			];
 			expect( getYDomain( data ) ).toEqual( [ 0, 0 ] );
 		} );
+
+		it( 'returns a zero domain for no data', () => {
+			expect( getYDomain( [] ) ).toEqual( [ 0, 0 ] );
+		} );
 	} );
 
 	describe( 'calcLeftAxisMargin', () => {
