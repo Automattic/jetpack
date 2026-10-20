@@ -39,17 +39,18 @@ const styles = [ { color: '#3858E9' }, { color: '#66BDFF' }, { color: '#A77EFF' 
 
 ## Props
 
-| Prop              | Type             | Default              | Description                                                        |
-| ----------------- | ---------------- | -------------------- | ------------------------------------------------------------------ |
-| `chartData`       | `DonutChartData` | required             | Array of segments with `label`, `value`, and `percentage`          |
-| `styles`          | `SegmentStyle[]` | -                    | Explicit colors per segment (takes priority over chartData colors) |
-| `value`           | `number`         | required             | Primary metric value displayed in center                           |
-| `comparisonValue` | `number \| null` | -                    | Previous period value for delta calculation                        |
-| `dataFormat`      | `DataFormat`     | `{ type: 'number' }` | Format configuration for the metric display                        |
-| `legendData`      | `LegendItem[]`   | -                    | Legend items with labels and comparison values                     |
-| `showLegend`      | `boolean`        | `true`               | Whether to show the legend below the chart                         |
-| `showMetric`      | `boolean`        | `true`               | Whether to show the center metric value                            |
-| `thickness`       | `number`         | `0.3`                | Arc thickness as ratio (0-1)                                       |
+| Prop              | Type             | Default              | Description                                                                         |
+| ----------------- | ---------------- | -------------------- | ----------------------------------------------------------------------------------- |
+| `chartData`       | `DonutChartData` | required             | Array of segments with `label`, `value`, and `percentage`                           |
+| `styles`          | `SegmentStyle[]` | -                    | Explicit colors per segment (takes priority over chartData colors)                  |
+| `value`           | `number`         | required             | Primary metric value displayed in center                                            |
+| `comparisonValue` | `number \| null` | -                    | Previous period value for delta calculation                                         |
+| `dataFormat`      | `DataFormat`     | `{ type: 'number' }` | Format configuration for the metric display                                         |
+| `legendData`      | `LegendItem[]`   | -                    | Legend items with labels and comparison values                                      |
+| `showLegend`      | `boolean`        | `true`               | Whether to show the legend below the chart                                          |
+| `showMetric`      | `boolean`        | `true`               | Whether to show the center metric value                                             |
+| `chartTitle`      | `string`         | -                    | What the chart shows, such as the widget title; the chart is named "Chart: <title>" |
+| `thickness`       | `number`         | `0.3`                | Arc thickness as ratio (0-1)                                                        |
 
 ## Data Validation
 

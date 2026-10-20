@@ -19,8 +19,10 @@ import { useMemo } from 'react';
  * Internal dependencies
  */
 import styles from './style.module.css';
-import type { WordAdsEarningsHistoryAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type WordAdsEarningsHistoryAttributes = Record< never, never >;
 
 // Report params are dashboard-driven and injected via `attributes`; the earnings
 // endpoint ignores them, but WidgetRoot still expects them on `attributes`.

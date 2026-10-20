@@ -357,17 +357,24 @@ class Channel {
 	}
 
 	/**
-	 * A video block with `useQueriedVideo` plays the current video. Its title
-	 * and poster are read from VideoPress at render time, not from the blog.
+	 * A video block with `useQueriedVideo` plays the current video, and one
+	 * with `useLatestVideo` the newest upload. Its title and poster are read
+	 * from VideoPress at render time, not from the blog.
 	 *
 	 * @param array $parsed_block The block being rendered.
 	 * @return array
 	 */
 	public static function queried_video_block( $parsed_block ) {
-		if ( ! isset( $parsed_block['blockName'] ) || 'videopress/video' !== $parsed_block['blockName'] || empty( $parsed_block['attrs']['useQueriedVideo'] ) ) {
+		if ( ! isset( $parsed_block['blockName'] ) || 'videopress/video' !== $parsed_block['blockName'] ) {
 			return $parsed_block;
 		}
-		$post = self::current_video();
+		if ( ! empty( $parsed_block['attrs']['useQueriedVideo'] ) ) {
+			$post = self::current_video();
+		} elseif ( ! empty( $parsed_block['attrs']['useLatestVideo'] ) ) {
+			$post = Channel_Data::latest_video();
+		} else {
+			return $parsed_block;
+		}
 		$guid = $post instanceof WP_Post ? self::guid( $post ) : '';
 		if ( ! $post instanceof WP_Post || '' === $guid ) {
 			$parsed_block['attrs']['guid'] = '';
@@ -513,6 +520,23 @@ class Channel {
 		}
 		$playlists = self::playlists();
 		return $playlists ? $playlists[0] : null;
+	}
+
+	/**
+	 * The published playlists that hold a video.
+	 *
+	 * @param string $guid The video GUID.
+	 * @return array[]
+	 */
+	public static function playlists_with_video( $guid ) {
+		return array_values(
+			array_filter(
+				self::playlists(),
+				function ( $playlist ) use ( $guid ) {
+					return in_array( $guid, array_column( $playlist['videos'], 'guid' ), true );
+				}
+			)
+		);
 	}
 
 	/**

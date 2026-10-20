@@ -186,15 +186,7 @@ function Earn( props ) {
 		<div>
 			<QuerySite />
 			<h1 className="screen-reader-text">{ __( 'Jetpack Earn Settings', 'jetpack' ) }</h1>
-			<h2 className="jp-settings__section-title">
-				{ searchTerm
-					? __( 'Earn', 'jetpack' )
-					: __(
-							'Explore tools to earn money with your site.',
-							'jetpack',
-							/* dummy arg to avoid bad minification */ 0
-						) }
-			</h2>
+			{ searchTerm && <h2 className="jp-settings__section-title">{ __( 'Earn', 'jetpack' ) }</h2> }
 			{ foundAds && (
 				<Ads
 					{ ...props }

@@ -1,11 +1,19 @@
 import apiFetch from '@wordpress/api-fetch';
 import { dispatch } from '@wordpress/data';
+import { dateI18n } from '@wordpress/date';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, caution, check, closeSmall, info, shield } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
-import { Button, Notice, Stack, Text } from '@wordpress/ui';
-import { CardRow, ProtectCard, Stat } from '../../components/card';
+import { Button, Stack } from '@wordpress/ui';
+import {
+	CardRow,
+	ProtectCard,
+	SettingsErrorRow,
+	Stat,
+	UnavailableCard,
+} from '../../components/card';
+import formatNumber from '../../components/format-number';
 import TabLink from '../../components/tab-link';
 import isModuleActive from '../../data/is-module-active';
 import {
@@ -18,7 +26,7 @@ import {
 import FirewallToggle from './firewall-toggle';
 import IpRule from './ip-rule';
 import RecentBlocks from './recent-blocks';
-import { IP_ALLOW_LIST, IP_BLOCK_LIST } from './settings-keys';
+import { AUTOMATIC_RULES, IP_ALLOW_LIST, IP_BLOCK_LIST } from './settings-keys';
 import TestDetails from './test-details';
 import type { TestOutcome, TestResult } from './firewall-test';
 import type { FirewallBlocks, FirewallContext, FirewallState } from './types';
@@ -29,14 +37,26 @@ const UNAVAILABLE: FirewallState = {
 	available: false,
 	active: false,
 	blockedCount: null,
+	blockedToday: null,
+	blockedLast30Days: null,
 	recentBlocks: [],
 	hasScan: false,
 	currentIp: '',
 	ipRules: {},
+	rulesUpdatedAt: null,
 };
+
+// The only setting this card saves.
+const FIREWALL_KEYS = [ 'waf' ];
+
+const formatCount = ( count?: number | null ) =>
+	typeof count === 'number' ? formatNumber( count ) : '—';
 
 // One id for the test's snackbars, so the result replaces "Testing the firewall…".
 const NOTICE_ID = 'jetpack-protect-firewall-test';
+
+/** Opens the Settings tab at this section's card. */
+const SETTINGS_PARAMS = { section: 'firewall' };
 
 type NoticeStatus = 'success' | 'info' | 'warning' | 'error';
 
@@ -170,15 +190,6 @@ function notifyFailure( error: unknown ) {
 	}
 }
 
-const formatCount = ( count: number ) => {
-	try {
-		return new Intl.NumberFormat( document.documentElement.lang || undefined ).format( count );
-	} catch {
-		// WordPress prints locales Intl rejects, such as pt-PT-ao90.
-		return count.toLocaleString();
-	}
-};
-
 /**
  * The firewall's Overview card: blocked requests, and a test that shows the firewall working.
  *
@@ -193,6 +204,8 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 	const title = __( 'Firewall', 'jetpack-protect-pkg' );
 	const [ blocks, setBlocks ] = useState< FirewallBlocks >( {
 		blockedCount: firewall.blockedCount,
+		blockedToday: firewall.blockedToday,
+		blockedLast30Days: firewall.blockedLast30Days,
 		recentBlocks: firewall.recentBlocks,
 	} );
 	const [ isTesting, setIsTesting ] = useState( false );
@@ -200,6 +213,9 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 	const [ recorded, setRecorded ] = useState< boolean | null >( null );
 	const [ detailsOpen, setDetailsOpen ] = useState( false );
 	const active = isModuleActive( settings.settings, 'waf', firewall.active );
+	// Turning the automatic rules off on the Settings tab hides their date; the date itself is from page load.
+	const rulesUpdatedAt =
+		settings.settings?.[ AUTOMATIC_RULES ] === false ? null : firewall.rulesUpdatedAt;
 	// Settings load on the Settings tab; until then the IP lists come from page load.
 	const ipData = useMemo(
 		() => ( { ...settings, settings: { ...firewall.ipRules, ...settings.settings } } ),
@@ -252,19 +268,7 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 	}, [ active, blocks.recentBlocks ] );
 
 	if ( ! firewall.available ) {
-		return (
-			<ProtectCard
-				icon={ shield }
-				title={ title }
-				status={ { label: __( 'Unavailable', 'jetpack-protect-pkg' ), intent: 'none' } }
-			>
-				<CardRow>
-					<Text variant="body-md">
-						{ __( 'This feature isn’t available on your site.', 'jetpack-protect-pkg' ) }
-					</Text>
-				</CardRow>
-			</ProtectCard>
-		);
+		return <UnavailableCard icon={ shield } title={ title } />;
 	}
 
 	return (
@@ -289,31 +293,48 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 					onOpenChange={ setDetailsOpen }
 				/>
 			) }
-			{ settings.error && (
-				<CardRow>
-					<Notice.Root intent="error">
-						<Notice.Description>{ settings.error }</Notice.Description>
-						<Notice.CloseIconButton onClick={ settings.dismissError } />
-					</Notice.Root>
-				</CardRow>
-			) }
+			<SettingsErrorRow settings={ settings } keys={ FIREWALL_KEYS } />
 			{ ! active && (
 				<CardRow>
 					<FirewallToggle data={ settings } />
 				</CardRow>
 			) }
 			{ active && (
-				<CardRow className="jp-protect-firewall-overview__columns">
+				<CardRow>
 					<Stack direction="column" gap="md" align="start">
-						<Stat
-							label={ __( 'All-time blocked requests', 'jetpack-protect-pkg' ) }
-							value={ blocks.blockedCount === null ? '—' : formatCount( blocks.blockedCount ) }
-						/>
-						<TabLink tab="settings" onOpen={ openTab }>
+						<div className="jp-protect-firewall-overview__stats">
+							<Stat
+								label={ __( 'Blocked today', 'jetpack-protect-pkg' ) }
+								value={ formatCount( blocks.blockedToday ) }
+							/>
+							<Stat
+								label={ __( 'Blocked in the last 30 days', 'jetpack-protect-pkg' ) }
+								value={ formatCount( blocks.blockedLast30Days ) }
+							/>
+							<Stat
+								label={ __( 'All-time blocked requests', 'jetpack-protect-pkg' ) }
+								value={ formatCount( blocks.blockedCount ) }
+							/>
+						</div>
+						<TabLink tab="settings" params={ SETTINGS_PARAMS } onOpen={ openTab }>
 							{ __( 'Configure Firewall', 'jetpack-protect-pkg' ) }
 						</TabLink>
 					</Stack>
+				</CardRow>
+			) }
+			{ active && (
+				<CardRow className="jp-protect-firewall-overview__columns">
 					<RecentBlocks blocks={ blocks.recentBlocks } />
+					{ rulesUpdatedAt !== null && (
+						<Stat
+							label={ __( 'Rules last updated', 'jetpack-protect-pkg' ) }
+							value={
+								<time dateTime={ new Date( rulesUpdatedAt * 1000 ).toISOString() }>
+									{ dateI18n( 'M j, Y', rulesUpdatedAt * 1000, undefined ) }
+								</time>
+							}
+						/>
+					) }
 				</CardRow>
 			) }
 			{ active && (

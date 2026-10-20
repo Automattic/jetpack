@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Protect;
 use Automattic\Jetpack\Protect\Sections\Firewall;
 use Automattic\Jetpack\Waf\Waf_Blocklog_Manager;
 use Automattic\Jetpack\Waf\Waf_Constants;
+use Automattic\Jetpack\Waf\Waf_Rules_Manager;
 use Automattic\Jetpack\Waf\Waf_Runner;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -87,6 +88,66 @@ class Firewall_Section_Test extends BaseTestCase {
 				),
 				'',
 			),
+		);
+	}
+
+	public function test_each_block_count_comes_from_its_own_stored_period() {
+		$stored  = array(
+			Waf_Blocklog_Manager::BLOCKLOG_OPTION_NAME_DAILY_SUMMARY        => serialize(
+				array(
+					gmdate( 'Y-m-d' ) => 2,
+					gmdate( 'Y-m-d', strtotime( '-3 days' ) ) => 5,
+				)
+			),
+			Waf_Blocklog_Manager::BLOCKLOG_OPTION_NAME_ALL_TIME_BLOCK_COUNT => '40',
+		);
+		$options = static function ( $rows, $query ) use ( $stored ) {
+			foreach ( $stored as $name => $value ) {
+				if ( false !== strpos( $query, "option_name = '$name'" ) ) {
+					return array( (object) array( 'option_value' => $value ) );
+				}
+			}
+			return $rows;
+		};
+		add_filter( 'wordbless_wpdb_query_results', $options, 10, 2 );
+
+		$blocks = Firewall::get_blocks();
+
+		remove_filter( 'wordbless_wpdb_query_results', $options, 10 );
+		$this->assertSame( 2, $blocks['blockedToday'], 'today' );
+		$this->assertSame( 7, $blocks['blockedLast30Days'], 'last 30 days' );
+		$this->assertSame( 40, $blocks['blockedCount'], 'all time' );
+	}
+
+	/**
+	 * A date for rules the firewall isn't loading would claim protection the site doesn't have.
+	 *
+	 * @dataProvider provide_rules_states
+	 *
+	 * @param bool     $enabled   Whether the automatic rules are on.
+	 * @param int|null $timestamp The stored last-updated timestamp, or null for none.
+	 * @param int|null $expected  The timestamp the card gets.
+	 */
+	#[DataProvider( 'provide_rules_states' )]
+	public function test_rules_date_is_only_sent_while_the_rules_are_on( $enabled, $timestamp, $expected ) {
+		update_option( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME, $enabled );
+		if ( null !== $timestamp ) {
+			update_option( Waf_Rules_Manager::AUTOMATIC_RULES_LAST_UPDATED_OPTION_NAME, $timestamp );
+		}
+
+		$this->assertSame( $expected, Firewall::get_rules_updated_at() );
+	}
+
+	/**
+	 * Data provider for test_rules_date_is_only_sent_while_the_rules_are_on.
+	 *
+	 * @return array
+	 */
+	public static function provide_rules_states() {
+		return array(
+			'on and downloaded' => array( true, 1760000000, 1760000000 ),
+			'off'               => array( false, 1760000000, null ),
+			'on, never fetched' => array( true, null, null ),
 		);
 	}
 

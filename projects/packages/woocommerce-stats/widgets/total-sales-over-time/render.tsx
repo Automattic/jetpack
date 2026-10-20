@@ -13,8 +13,14 @@ import { __ } from '@wordpress/i18n';
  */
 import { ReportMetricChart } from '../../src/components/report-metric-chart';
 import { useReportOrders } from '../../src/reports';
-import type { TotalSalesOverTimeAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * @property chartType - How the series is drawn. Defaults to `line`.
+ */
+export type TotalSalesOverTimeAttributes = {
+	chartType?: ChartDisplayChartType;
+};
 
 type TotalSalesOverTimeRenderAttributes = TotalSalesOverTimeAttributes &
 	Partial< ReportParamsFieldAttributes >;
@@ -33,6 +39,7 @@ function TotalSalesOverTime( { chartType }: { chartType?: ChartDisplayChartType 
 		<ReportMetricChart
 			report={ useReportOrders( reportParams ) }
 			chartType={ chartType }
+			chartTitle={ __( 'Total sales over time', 'jetpack-woocommerce-stats-pkg' ) }
 			field="total_sales"
 			label={ __( 'Total sales', 'jetpack-woocommerce-stats-pkg' ) }
 			dataFormat={ { type: 'currency' } }

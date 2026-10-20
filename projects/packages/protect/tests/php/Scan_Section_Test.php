@@ -137,6 +137,43 @@ class Scan_Section_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Enqueue responses from WordPress.com, and the error the dashboard reports, if any.
+	 *
+	 * @return array[]
+	 */
+	public static function provider_enqueue_response() {
+		$response = function ( $code, $body ) {
+			return array(
+				'response' => array( 'code' => $code ),
+				'body'     => $body,
+			);
+		};
+		return array(
+			'enqueued'                    => array( $response( 200, '{"success":true}' ), null ),
+			'200 with success false'      => array(
+				$response( 200, '{"success":false,"error":{"errors":{"vp_api_error":["Unable to find a valid site."]}}}' ),
+				'The scan couldn’t be started: Unable to find a valid site.',
+			),
+			'error status with a message' => array( $response( 403, '{"message":"Forbidden."}' ), 'The scan couldn’t be started: Forbidden.' ),
+			'error status without a body' => array( $response( 500, '' ), 'The scan couldn’t be started. Try again in a few minutes.' ),
+			'request failed'              => array( new \WP_Error( 'http_request_failed' ), 'The scan couldn’t be started. Try again in a few minutes.' ),
+		);
+	}
+
+	/**
+	 * Test that a scan request only counts as started when WordPress.com says so, and keeps its reason when not.
+	 *
+	 * @dataProvider provider_enqueue_response
+	 * @param array|\WP_Error $response The enqueue response.
+	 * @param string|null     $expected The error message, or null when the scan started.
+	 */
+	#[DataProvider( 'provider_enqueue_response' )]
+	public function test_enqueue_failures_are_reported( $response, $expected ) {
+		$error = self::call( 'get_enqueue_error', $response );
+		$this->assertSame( $expected, $error ? $error->get_error_message() : null );
+	}
+
+	/**
 	 * Plugin files, the active ones, the slug to delete, and whether the route deletes it.
 	 *
 	 * @return array[]

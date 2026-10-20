@@ -392,6 +392,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/code-editor/class-code-editor.php';
 		require_once __DIR__ . '/features/wpcom-blocks/code/class-code-block.php';
 		require_once __DIR__ . '/features/css-monkey-patches/index.php';
+		require_once __DIR__ . '/features/editor-welcome-guides/editor-welcome-guides.php';
 		require_once __DIR__ . '/features/error-reporting/error-reporting.php';
 		require_once __DIR__ . '/features/first-posts-stream/first-posts-stream-helpers.php';
 		require_once __DIR__ . '/features/font-smoothing-antialiased/font-smoothing-antialiased.php';
@@ -850,7 +851,7 @@ class Jetpack_Mu_Wpcom {
 				return;
 			}
 
-			if ( class_exists( '\Automattic\Jetpack\Comments\Comments' ) && \Automattic\Jetpack\Comments\Comments::is_enabled() ) {
+			if ( \Automattic\Jetpack\Comments\Comments::is_enabled() ) {
 				\Automattic\Jetpack\Comments\Comments::init();
 				return;
 			}
@@ -868,12 +869,8 @@ class Jetpack_Mu_Wpcom {
 	 * gate themselves on Comments::is_enabled(), as Posts_To_Podcast_Endpoint does.
 	 */
 	public static function load_jetpack_comments_routes() {
-		if ( class_exists( '\Automattic\Jetpack\Comments\Checkpoint_Endpoint' ) ) {
-			\Automattic\Jetpack\Comments\Checkpoint_Endpoint::init();
-		}
-		if ( class_exists( '\Automattic\Jetpack\Comments\Embeds' ) ) {
-			\Automattic\Jetpack\Comments\Embeds::init();
-		}
+		\Automattic\Jetpack\Comments\Checkpoint_Endpoint::init();
+		\Automattic\Jetpack\Comments\Embeds::init();
 	}
 
 	/**

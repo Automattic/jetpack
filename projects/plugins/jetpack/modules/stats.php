@@ -748,6 +748,11 @@ function stats_admin_bar_head() {
 function stats_get_image_chart_src( $chart, $args = array() ) {
 	_deprecated_function( __FUNCTION__, 'jetpack-16.3', 'Automattic\Jetpack\Stats_Admin\Admin_Bar::get_chart_src' );
 
+	// The admin bar chart handler takes no extra arguments, so `$args` is dropped for these charts.
+	if ( in_array( $chart, Stats_Admin_Bar::CHARTS, true ) ) {
+		return Stats_Admin_Bar::get_chart_src( $chart );
+	}
+
 	$url = add_query_arg( 'page', 'stats', admin_url( 'admin.php' ) );
 
 	return add_query_arg(

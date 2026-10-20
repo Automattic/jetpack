@@ -33,7 +33,7 @@ const DASHBOARD_DEFAULT_LAYOUT_FILTER = 'jetpack_premium_analytics_dashboard_def
  * Filter through which the widget types a section's inserter offers beyond its default layout
  * are resolved. Documented where it runs, in Dashboard_Section::get_insertable_widget_types().
  *
- * @since $$next-version$$
+ * @since 0.13.0
  */
 const DASHBOARD_INSERTABLE_WIDGET_TYPES_FILTER = 'jetpack_premium_analytics_dashboard_insertable_widget_types';
 
