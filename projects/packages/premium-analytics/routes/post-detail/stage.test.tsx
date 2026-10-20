@@ -51,7 +51,7 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 	useDashboardLink: () => '/?from=2026-06-01&to=2026-06-16',
 	useReportDateFilters: ( _from: string, options?: unknown ) => {
 		mockDateFilterOptions = options;
-		return {
+		const filters: Record< string, unknown > = {
 			appliedRange: {
 				from: new Date( Date.UTC( 2026, 5, 1 ) ),
 				to: new Date( Date.UTC( 2026, 5, 16 ) ),
@@ -62,6 +62,8 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 			intervalOptions: [ 'day', 'week' ],
 			...mockDateFilterOverrides,
 		};
+		// Nothing staged: the draft is what the URL applied.
+		return { presetId: filters.appliedPresetId, range: filters.appliedRange, ...filters };
 	},
 } ) );
 
