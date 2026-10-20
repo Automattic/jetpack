@@ -36,12 +36,12 @@ if ( ! class_exists( 'Jetpack_AI_Settings' ) ) {
 		}
 
 		/**
-		 * Return the configured AI SEO state.
+		 * Return the configured AI SEO state, off whenever Jetpack AI is, as in the real class.
 		 *
 		 * @return bool
 		 */
 		public static function is_ai_seo_enabled(): bool {
-			return self::$is_ai_seo_enabled;
+			return self::$is_ai_seo_enabled && self::$is_ai_enabled;
 		}
 	}
 }
