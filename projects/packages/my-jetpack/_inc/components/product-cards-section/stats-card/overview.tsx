@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { useCallback, useMemo } from 'react';
 import { MyJetpackRoutes, PRODUCT_STATUSES } from '../../../constants';
 import { PRODUCT_SLUGS } from '../../../data/constants';
@@ -7,12 +8,13 @@ import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpa
 import useAnalytics from '../../../hooks/use-analytics';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import useStatsVisits from '../../../hooks/use-stats-visits';
-import formatNumber from '../../../utils/format-number';
 import { processStatsData, VISITS_OPTIONS } from '../../stats-section';
-import OverviewCard from '../overview-card';
+import StatsCards from '../../stats-section/cards';
+import OverviewItem, { useOverviewLoadEvent } from '../overview-item';
+import styles from './style.module.scss';
 import type { ProductCardComponent } from '../types';
 
-const StatsOverviewCard: ProductCardComponent = ( { admin } ) => {
+const StatsOverviewItem: ProductCardComponent = ( { admin } ) => {
 	const { blogID, isSiteConnected } = useMyJetpackConnection();
 	const { detail } = useProduct( PRODUCT_SLUGS.STATS );
 	const { status, manageUrl } = detail || {};
@@ -25,10 +27,16 @@ const StatsOverviewCard: ProductCardComponent = ( { admin } ) => {
 		isSiteConnected && isActive,
 		VISITS_OPTIONS as Parameters< typeof useStatsVisits >[ 2 ]
 	);
-	const views = useMemo(
-		() => ( processStatsData( data ) as { counts: { views?: number } } ).counts.views,
+	const { counts, previousCounts, chartData } = useMemo(
+		() =>
+			processStatsData( data ) as {
+				counts: object;
+				previousCounts: object;
+				chartData: Parameters< typeof StatsCards >[ 0 ][ 'chartData' ];
+			},
 		[ data ]
 	);
+	useOverviewLoadEvent( PRODUCT_SLUGS.STATS, isActive && isLoading );
 
 	const onDetailedStatsClick = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_stats_card_seedetailedstats_click', {
@@ -37,36 +45,56 @@ const StatsOverviewCard: ProductCardComponent = ( { admin } ) => {
 	}, [ recordEvent ] );
 
 	const viewStatsQuery = premiumAnalyticsEnabled ? '' : '&force_refresh=1';
-	const action =
-		isActive && manageUrl
-			? {
-					label: __( 'More stats', 'jetpack-my-jetpack' ),
-					href: `${ manageUrl }${ viewStatsQuery }`,
-					onClick: onDetailedStatsClick,
-				}
-			: {
+	const detailedStatsHref = manageUrl ? `${ manageUrl }${ viewStatsQuery }` : undefined;
+	const label = __( 'Views in the last 7 days', 'jetpack-my-jetpack' );
+
+	if ( ! isActive ) {
+		return (
+			<OverviewItem
+				slug={ PRODUCT_SLUGS.STATS }
+				admin={ admin }
+				label={ label }
+				action={ {
 					label: __( 'Activate Stats', 'jetpack-my-jetpack' ),
 					href: `#${ MyJetpackRoutes.AddStats }`,
-				};
+				} }
+			/>
+		);
+	}
+
+	if ( isError ) {
+		return (
+			<OverviewItem
+				slug={ PRODUCT_SLUGS.STATS }
+				admin={ admin }
+				label={ label }
+				error={ {
+					reason: __( 'Failed to load stats', 'jetpack-my-jetpack' ),
+					onRetry: refetch,
+				} }
+			/>
+		);
+	}
 
 	return (
-		<OverviewCard
-			slug={ PRODUCT_SLUGS.STATS }
-			admin={ admin }
-			label={ __( 'Views in the last 7 days', 'jetpack-my-jetpack' ) }
-			value={ isActive && data && views !== undefined ? formatNumber( views ) : undefined }
-			action={ action }
-			isLoading={ isActive && isLoading }
-			error={
-				isActive && isError
-					? {
-							reason: __( 'Failed to load stats', 'jetpack-my-jetpack' ),
-							onRetry: refetch,
-						}
-					: undefined
-			}
-		/>
+		<div className={ styles.growth }>
+			<StatsCards
+				counts={ counts }
+				previousCounts={ previousCounts }
+				chartData={ chartData }
+				headingLevel={ 4 }
+				isLoading={ isLoading }
+				detailedStatsHref={ detailedStatsHref }
+				onDetailedStatsClick={ onDetailedStatsClick }
+				hideTitle
+			/>
+			{ admin && detailedStatsHref && (
+				<Link href={ detailedStatsHref } onClick={ onDetailedStatsClick }>
+					{ __( 'More stats', 'jetpack-my-jetpack' ) }
+				</Link>
+			) }
+		</div>
 	);
 };
 
-export default StatsOverviewCard;
+export default StatsOverviewItem;

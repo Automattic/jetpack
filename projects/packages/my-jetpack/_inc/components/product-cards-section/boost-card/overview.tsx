@@ -2,12 +2,12 @@ import { __ } from '@wordpress/i18n';
 import { MyJetpackRoutes, PRODUCT_STATUSES } from '../../../constants';
 import { PRODUCT_SLUGS } from '../../../data/constants';
 import useProduct from '../../../data/products/use-product';
-import OverviewCard from '../overview-card';
+import OverviewItem from '../overview-item';
 import useBoostSpeedScore from './use-boost-speed-score';
-import type { OverviewCardProps } from '../overview-card';
+import type { OverviewItemProps } from '../overview-item';
 import type { ProductCardComponent } from '../types';
 
-const GRADE_TONES: Record< string, OverviewCardProps[ 'valueTone' ] > = {
+const GRADE_TONES: Record< string, OverviewItemProps[ 'valueTone' ] > = {
 	A: 'good',
 	B: 'good',
 	C: 'warning',
@@ -16,7 +16,7 @@ const GRADE_TONES: Record< string, OverviewCardProps[ 'valueTone' ] > = {
 	F: 'bad',
 };
 
-const BoostOverviewCard: ProductCardComponent = ( { admin } ) => {
+const BoostOverviewItem: ProductCardComponent = ( { admin } ) => {
 	const { isLoading, isSiteConnected, speedLetterGrade, isSpeedScoreError, retry } =
 		useBoostSpeedScore();
 	const { detail } = useProduct( PRODUCT_SLUGS.BOOST );
@@ -27,7 +27,7 @@ const BoostOverviewCard: ProductCardComponent = ( { admin } ) => {
 	const hasFailed = isSpeedScoreError && isSiteConnected;
 
 	return (
-		<OverviewCard
+		<OverviewItem
 			slug={ PRODUCT_SLUGS.BOOST }
 			admin={ admin }
 			label={ __( 'Speed score', 'jetpack-my-jetpack' ) }
@@ -55,4 +55,4 @@ const BoostOverviewCard: ProductCardComponent = ( { admin } ) => {
 	);
 };
 
-export default BoostOverviewCard;
+export default BoostOverviewItem;

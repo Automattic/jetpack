@@ -1,8 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import OverviewCard from '..';
+import OverviewItem from '..';
 
-jest.mock( '../../../connected-product-card', () => ( { children } ) => <div>{ children }</div> );
+jest.mock( '../../../../hooks/use-analytics', () => () => ( { recordEvent: jest.fn() } ) );
 jest.mock( '../../../../data/products/use-product', () => () => ( {
 	detail: { name: 'Stats', status: 'active' },
 } ) );
@@ -10,7 +10,7 @@ jest.mock( '../../../../data/products/use-products-by-ownership', () => () => ( 
 	data: { ownedProducts: [ 'stats' ] },
 } ) );
 
-describe( 'OverviewCard', () => {
+describe( 'OverviewItem', () => {
 	it.each( [
 		[ 'loading', { isLoading: true }, 'Loading…' ],
 		[
@@ -19,7 +19,7 @@ describe( 'OverviewCard', () => {
 			'Failed to load stats',
 		],
 	] )( 'hides the value while %s', ( _, props, shown ) => {
-		render( <OverviewCard slug="stats" admin label="Views" value="0" { ...props } /> );
+		render( <OverviewItem slug="stats" admin label="Views" value="0" { ...props } /> );
 
 		expect( screen.queryByText( '0' ) ).not.toBeInTheDocument();
 		expect( screen.getByText( shown ) ).toBeInTheDocument();
@@ -28,7 +28,7 @@ describe( 'OverviewCard', () => {
 	it( 'replaces the link with "Try again" when the load fails', async () => {
 		const onRetry = jest.fn();
 		render(
-			<OverviewCard
+			<OverviewItem
 				slug="stats"
 				admin
 				label="Views"

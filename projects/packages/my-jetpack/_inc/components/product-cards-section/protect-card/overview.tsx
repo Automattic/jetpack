@@ -9,10 +9,10 @@ import useProduct from '../../../data/products/use-product';
 import useSimpleQuery from '../../../data/use-simple-query';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import { isJetpackPluginActive } from '../../../utils/is-jetpack-plugin-active';
-import OverviewCard from '../overview-card';
+import OverviewItem from '../overview-item';
 import type { ProductCardComponent } from '../types';
 
-const ProtectOverviewCard: ProductCardComponent = ( { admin } ) => {
+const ProtectOverviewItem: ProductCardComponent = ( { admin } ) => {
 	const { detail, isLoading: isLoadingProduct } = useProduct( PRODUCT_SLUGS.PROTECT );
 	const { isPluginActive = false, hasPaidPlanForProduct = false, manageUrl } = detail || {};
 	const { isSiteConnected } = useMyJetpackConnection();
@@ -47,7 +47,7 @@ const ProtectOverviewCard: ProductCardComponent = ( { admin } ) => {
 	const hasFailed = isError && error?.code !== 'not_connected';
 
 	return (
-		<OverviewCard
+		<OverviewItem
 			slug={ PRODUCT_SLUGS.PROTECT }
 			admin={ admin }
 			label={ label }
@@ -87,4 +87,4 @@ const ProtectOverviewCard: ProductCardComponent = ( { admin } ) => {
 	);
 };
 
-export default ProtectOverviewCard;
+export default ProtectOverviewItem;

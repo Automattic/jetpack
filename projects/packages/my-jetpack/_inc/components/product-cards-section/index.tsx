@@ -10,17 +10,22 @@ import AiCard from './ai-card';
 import AntiSpamCard from './anti-spam-card';
 import BackupCard from './backup-card';
 import BoostCard from './boost-card';
-import BoostOverviewCard from './boost-card/overview';
 import CrmCard from './crm-card';
+import OverviewSections from './overview-sections';
 import ProtectCard from './protect-card';
-import ProtectOverviewCard from './protect-card/overview';
 import SearchCard from './search-card';
 import SocialCard from './social-card';
 import StatsCard from './stats-card';
-import StatsOverviewCard from './stats-card/overview';
 import styles from './style.module.scss';
 import VideopressCard from './videopress-card';
 import type { FC, ReactNode } from 'react';
+
+// Overview v1 shows these in its sections instead of the grid.
+const OVERVIEW_V1_SLUGS: JetpackModule[] = [
+	PRODUCT_SLUGS.STATS,
+	PRODUCT_SLUGS.PROTECT,
+	PRODUCT_SLUGS.BOOST,
+];
 
 type DisplayItemsProps = {
 	slugs: JetpackModule[];
@@ -88,27 +93,22 @@ const DisplayItems: FC< DisplayItemsProps > = ( { slugs, isLoading } ) => {
 	const { userIsAdmin = false, canUserViewStats = false } = getMyJetpackWindowInitialState();
 	const { detail: statsDetail } = useProduct( PRODUCT_SLUGS.STATS );
 	const statsStatus = statsDetail?.status;
-	const showFullStatsCard = shouldShowFullStatsCard(
-		showFullJetpackStatsCard,
-		canUserViewStats,
-		statsStatus
-	);
-	const showCompactStatsCard = shouldShowCompactStatsCard(
-		showFullJetpackStatsCard,
-		canUserViewStats,
-		statsStatus
-	);
+	const showFullStatsCard =
+		! overviewV1 &&
+		shouldShowFullStatsCard( showFullJetpackStatsCard, canUserViewStats, statsStatus );
+	const showCompactStatsCard =
+		! overviewV1 &&
+		shouldShowCompactStatsCard( showFullJetpackStatsCard, canUserViewStats, statsStatus );
 	const isAdmin = userIsAdmin === '1';
-	const StatsGridCard = overviewV1 ? StatsOverviewCard : StatsCard;
 
 	const items: DisplayItemType = {
 		backup: BackupCard,
-		protect: overviewV1 ? ProtectOverviewCard : ProtectCard,
+		protect: ProtectCard,
 		'anti-spam': AntiSpamCard,
-		boost: overviewV1 ? BoostOverviewCard : BoostCard,
+		boost: BoostCard,
 		search: SearchCard,
 		videopress: VideopressCard,
-		stats: StatsGridCard, // Rendered explicitly when showFullJetpackStatsCard is on; otherwise via the grid loop below.
+		stats: StatsCard, // Rendered explicitly when showFullJetpackStatsCard is on; otherwise via the grid loop below.
 		crm: CrmCard,
 		social: SocialCard,
 		'jetpack-ai': AiCard,
@@ -124,6 +124,10 @@ const DisplayItems: FC< DisplayItemsProps > = ( { slugs, isLoading } ) => {
 			return false;
 		}
 
+		if ( overviewV1 && OVERVIEW_V1_SLUGS.includes( slug ) ) {
+			return false;
+		}
+
 		if ( ! items[ slug ] ) {
 			return false;
 		}
@@ -133,7 +137,7 @@ const DisplayItems: FC< DisplayItemsProps > = ( { slugs, isLoading } ) => {
 
 	return (
 		<>
-			{ isLoading && (
+			{ isLoading && ! overviewV1 && (
 				<Col className={ styles.fullStatsCard }>
 					<LoadingBlock width="100%" height="350px" />
 				</Col>
@@ -142,6 +146,9 @@ const DisplayItems: FC< DisplayItemsProps > = ( { slugs, isLoading } ) => {
 				<Col className={ styles.fullStatsCard }>
 					<StatsSection />
 				</Col>
+			) }
+			{ ! isLoading && overviewV1 && (
+				<OverviewSections slugs={ slugs } admin={ isAdmin } showStats={ canUserViewStats } />
 			) }
 
 			<Container
@@ -161,7 +168,7 @@ const DisplayItems: FC< DisplayItemsProps > = ( { slugs, isLoading } ) => {
 					<>
 						{ showCompactStatsCard && (
 							<Col tagName="li" sm={ 4 } md={ 4 } lg={ 4 } key="stats">
-								<StatsGridCard admin={ isAdmin } />
+								<StatsCard admin={ isAdmin } />
 							</Col>
 						) }
 						{ filteredSlugs.map( product => {

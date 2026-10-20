@@ -115,8 +115,9 @@ const getDynamicTitle = metric => {
  * @param {boolean}  props.isLoading            - Whether the data is loading.
  * @param {string}   props.detailedStatsHref    - Destination of the detailed stats link.
  * @param {Function} props.onDetailedStatsClick - Function to handle detailed stats click.
+ * @param {boolean}  [props.hideTitle]          - Whether to leave out the linked title, when a container already has one.
  *
- * @return {object} StatsCards React component.
+ * @return {import('react').JSX.Element} StatsCards React component.
  */
 const StatsCards = ( {
 	counts,
@@ -126,6 +127,7 @@ const StatsCards = ( {
 	isLoading,
 	detailedStatsHref,
 	onDetailedStatsClick,
+	hideTitle = false,
 } ) => {
 	const Heading = `h${ headingLevel >= 1 && headingLevel <= 6 ? headingLevel : 3 }`;
 
@@ -171,19 +173,21 @@ const StatsCards = ( {
 
 	return (
 		<div className={ styles[ 'section-stats-highlights' ] }>
-			<Link
-				tone="neutral"
-				className={ styles[ 'section-title-container' ] }
-				href={ detailedStatsHref }
-				onClick={ detailedStatsHref ? onDetailedStatsClick : undefined }
-			>
-				<Heading className={ styles[ 'section-title' ] }>
-					<span>{ getDynamicTitle( selectedMetric ) }</span>
-				</Heading>
-				<div>
-					<Icon icon={ chevronRight } />
-				</div>
-			</Link>
+			{ ! hideTitle && (
+				<Link
+					tone="neutral"
+					className={ styles[ 'section-title-container' ] }
+					href={ detailedStatsHref }
+					onClick={ detailedStatsHref ? onDetailedStatsClick : undefined }
+				>
+					<Heading className={ styles[ 'section-title' ] }>
+						<span>{ getDynamicTitle( selectedMetric ) }</span>
+					</Heading>
+					<div>
+						<Icon icon={ chevronRight } />
+					</div>
+				</Link>
+			) }
 
 			<StatsChart
 				data={ transformedChartData }

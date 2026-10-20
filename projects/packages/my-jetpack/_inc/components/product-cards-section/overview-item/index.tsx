@@ -2,10 +2,11 @@ import { __ } from '@wordpress/i18n';
 import { lock } from '@wordpress/icons';
 import { Badge, Button, Icon, Link, Text } from '@wordpress/ui';
 import clsx from 'clsx';
+import { useEffect, useRef } from 'react';
 import { PRODUCT_STATUSES } from '../../../constants';
 import useProduct from '../../../data/products/use-product';
 import useProductsByOwnership from '../../../data/products/use-products-by-ownership';
-import ConnectedProductCard from '../../connected-product-card';
+import useAnalytics from '../../../hooks/use-analytics';
 import { getProductCardTitleId } from '../../product-card';
 import { getStatusLabel } from '../../product-card/status';
 import styles from './style.module.scss';
@@ -13,26 +14,26 @@ import type { ComponentProps, FC, ReactNode } from 'react';
 
 type BadgeIntent = ComponentProps< typeof Badge >[ 'intent' ];
 
-export type OverviewCardBadge = {
+export type OverviewItemBadge = {
 	label: string;
 	intent: BadgeIntent;
 };
 
-export type OverviewCardLink = {
+export type OverviewItemLink = {
 	label: string;
 	href: string;
 	onClick?: () => void;
 };
 
-export type OverviewCardProps = {
+export type OverviewItemProps = {
 	slug: JetpackModuleWithCard;
 	admin: boolean;
 	label: string;
 	value?: string;
 	valueTone?: 'good' | 'warning' | 'bad';
-	badge?: OverviewCardBadge;
-	action?: OverviewCardLink;
-	upgrade?: OverviewCardLink;
+	badge?: OverviewItemBadge;
+	action?: OverviewItemLink;
+	upgrade?: OverviewItemLink;
 	isLoading?: boolean;
 	loadingLabel?: string;
 	error?: { reason: string; onRetry: () => void };
@@ -51,12 +52,12 @@ const STATUS_INTENTS: Partial< Record< ProductStatus, BadgeIntent > > = {
 };
 
 /**
- * The product's own status as a badge, for a card that has no value to show.
+ * The product's own status as a badge, for an item that has no value to show.
  *
  * @param {JetpackModuleWithCard} slug - The product slug.
- * @return {OverviewCardBadge} The badge.
+ * @return {OverviewItemBadge} The badge.
  */
-const useStatusBadge = ( slug: JetpackModuleWithCard ): OverviewCardBadge => {
+const useStatusBadge = ( slug: JetpackModuleWithCard ): OverviewItemBadge => {
 	const { detail } = useProduct( slug );
 	const {
 		data: { ownedProducts },
@@ -70,12 +71,34 @@ const useStatusBadge = ( slug: JetpackModuleWithCard ): OverviewCardBadge => {
 };
 
 /**
- * An Overview card: one value or status badge, and one link.
+ * Record the product card's load event once the product's data has loaded,
+ * so the My Jetpack dashboard stays comparable.
  *
- * @param {OverviewCardProps} props - Component props.
- * @return {import('react').JSX.Element} The card.
+ * @param {JetpackModuleWithCard} slug      - The product slug.
+ * @param {boolean}               isLoading - Whether the product's data is still loading.
  */
-const OverviewCard: FC< OverviewCardProps > = ( {
+export const useOverviewLoadEvent = ( slug: JetpackModuleWithCard, isLoading: boolean ) => {
+	const { detail } = useProduct( slug );
+	const status = detail?.status;
+	const { recordEvent } = useAnalytics();
+	const hasRecordedLoad = useRef( false );
+
+	useEffect( () => {
+		if ( isLoading || ! status || hasRecordedLoad.current ) {
+			return;
+		}
+		hasRecordedLoad.current = true;
+		recordEvent( 'jetpack_myjetpack_product_card_load', { product: slug, status } );
+	}, [ isLoading, status, slug, recordEvent ] );
+};
+
+/**
+ * An Overview item: one value or status badge, and one link.
+ *
+ * @param {OverviewItemProps} props - Component props.
+ * @return {import('react').JSX.Element} The item.
+ */
+const OverviewItem: FC< OverviewItemProps > = ( {
 	slug,
 	admin,
 	label,
@@ -89,6 +112,7 @@ const OverviewCard: FC< OverviewCardProps > = ( {
 	error,
 } ) => {
 	const statusBadge = useStatusBadge( slug );
+	useOverviewLoadEvent( slug, isLoading );
 
 	let content: ReactNode;
 	if ( isLoading ) {
@@ -137,18 +161,16 @@ const OverviewCard: FC< OverviewCardProps > = ( {
 	}
 
 	return (
-		<ConnectedProductCard admin={ admin } slug={ slug } variant="slim" isDataLoading={ isLoading }>
-			<div className={ styles.card }>
-				<Text variant="body-md" id={ getProductCardTitleId( slug ) }>
-					{ label }
-				</Text>
-				<div className={ styles.value } aria-busy={ isLoading }>
-					{ content }
-				</div>
-				{ links.length > 0 && <div className={ styles.links }>{ links }</div> }
+		<div className={ styles.item }>
+			<Text variant="body-md" id={ getProductCardTitleId( slug ) }>
+				{ label }
+			</Text>
+			<div className={ styles.value } aria-busy={ isLoading }>
+				{ content }
 			</div>
-		</ConnectedProductCard>
+			{ links.length > 0 && <div className={ styles.links }>{ links }</div> }
+		</div>
 	);
 };
 
-export default OverviewCard;
+export default OverviewItem;
