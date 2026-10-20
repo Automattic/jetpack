@@ -108,7 +108,6 @@
 	"projects/packages/my-jetpack/_inc/components/my-jetpack-tab-panel/utils.ts",
 	"projects/packages/my-jetpack/_inc/components/onboarding-screen/connection-form/connection-form.tsx",
 	"projects/packages/my-jetpack/_inc/components/onboarding-screen/wizard/wizard.tsx",
-	"projects/packages/my-jetpack/_inc/components/product-detail-card/index.jsx",
 	"projects/packages/my-jetpack/_inc/components/product-interstitial/jetpack-ai/product-page.jsx",
 	"projects/packages/my-jetpack/_inc/components/product-interstitial/protect/product-page.tsx",
 	"projects/packages/my-jetpack/_inc/components/stats-section/count-comparison-card.jsx",

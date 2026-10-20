@@ -651,6 +651,8 @@ interface Window {
 					related_plan_slugs: Array< string >;
 					pricing_for_ui?: {
 						available: boolean;
+						catalog_available?: boolean;
+						requires_support?: boolean;
 						wpcom_product_slug: string;
 						wpcom_free_product_slug?: string;
 						terms?: Array< {

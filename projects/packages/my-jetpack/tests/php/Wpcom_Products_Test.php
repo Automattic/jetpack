@@ -5,7 +5,9 @@ namespace Automattic\Jetpack\My_Jetpack;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\My_Jetpack\Products\Complete;
+use Automattic\Jetpack\My_Jetpack\Products\Growth;
 use Automattic\Jetpack\My_Jetpack\Products\Pro;
+use Automattic\Jetpack\My_Jetpack\Products\Security;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -253,7 +255,7 @@ class Wpcom_Products_Test extends TestCase {
 		$this->assertSame( array(), $product_price );
 	}
 	/**
-	 * Catalog availability must never enable unsupported Pro billing terms.
+	 * Catalog availability must never enable unsupported or retired billing terms.
 	 *
 	 * @dataProvider bundle_availability
 	 * @param mixed $availability Store availability field.
@@ -292,11 +294,69 @@ class Wpcom_Products_Test extends TestCase {
 		try {
 			$pro = Pro::get_pricing_for_ui();
 			$this->assertSame( $expected, $pro['available'] );
+			$this->assertSame( $expected, $pro['catalog_available'] );
 			$this->assertSame( array( 'jetpack_pro_yearly', 'jetpack_pro_bi_yearly' ), array_column( $pro['terms'], 'wpcom_product_slug' ) );
 			$this->assertSame( array( $expected, $expected ), array_column( $pro['terms'], 'available' ) );
+			$complete = Complete::get_pricing_for_ui();
+			$this->assertTrue( $complete['available'] );
+			if ( $expected ) {
+				$this->assertSame( array( true, true, true ), array_column( $complete['terms'], 'available' ) );
+			} else {
+				$this->assertArrayNotHasKey( 'terms', $complete );
+			}
+			$this->assertTrue( Security::get_pricing_for_ui()['available'] );
+			$this->assertTrue( Growth::get_pricing_for_ui()['available'] );
 		} finally {
 			remove_filter( 'pre_http_request', $filter );
 		}
+	}
+
+	/**
+	 * Yearly controls rollout while each Pro term keeps its own sale availability.
+	 *
+	 * @dataProvider rollout_availability
+	 * @param bool $yearly Yearly availability.
+	 * @param bool $two_year Two-year availability.
+	 */
+	#[DataProvider( 'rollout_availability' )]
+	public function test_rollout_uses_yearly_availability( $yearly, $two_year ) {
+		$this->create_user_and_login();
+		set_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY, array(), HOUR_IN_SECONDS );
+		$products = (object) array();
+		foreach ( array(
+			'jetpack_pro_yearly'    => $yearly,
+			'jetpack_pro_bi_yearly' => $two_year,
+			'jetpack_pro_monthly'   => true,
+		) as $slug => $available ) {
+			$products->$slug = (object) array(
+				'available'     => $available,
+				'cost'          => 348,
+				'currency_code' => 'USD',
+				'product_term'  => 'jetpack_pro_yearly' === $slug ? 'year' : ( 'jetpack_pro_bi_yearly' === $slug ? 'two years' : 'month' ),
+			);
+		}
+		$filter = static fn() => array(
+			'response' => array( 'code' => 200 ),
+			'body'     => wp_json_encode( $products, JSON_UNESCAPED_SLASHES ),
+		);
+		add_filter( 'pre_http_request', $filter );
+		try {
+			$pricing = Pro::get_pricing_for_ui();
+			$this->assertSame( $yearly, $pricing['catalog_available'] );
+			$this->assertSame( $yearly || $two_year, $pricing['available'] );
+			$this->assertSame( array( $yearly, $two_year ), array_column( $pricing['terms'], 'available' ) );
+		} finally {
+			remove_filter( 'pre_http_request', $filter );
+		}
+	}
+
+	/**
+	 * Only the yearly Pro row enables the rollout switch.
+	 *
+	 * @return array
+	 */
+	public static function rollout_availability() {
+		return array( array( false, false ), array( false, true ), array( true, false ), array( true, true ) );
 	}
 
 	/**
@@ -315,18 +375,37 @@ class Wpcom_Products_Test extends TestCase {
 	}
 
 	/**
-	 * Cached offers follow a remote launch and rollback; failures preserve prices without selling.
+	 * Only Pro follows catalog availability; existing offers retain their prelaunch behavior.
 	 */
 	public function test_launch_rollback_and_failed_refresh() {
 		$this->create_user_and_login();
 		set_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY, array(), HOUR_IN_SECONDS );
-		$available = false;
-		$filter    = static function () use ( &$available ) {
+		$available        = false;
+		$legacy_available = true;
+		$filter           = static function () use ( &$available, &$legacy_available ) {
 			return array(
 				'response' => array( 'code' => 200 ),
 				'body'     => wp_json_encode(
 					(object) array(
-						'jetpack_pro_yearly' => array(
+						'jetpack_security_t1_yearly' => array(
+							'available'     => $legacy_available,
+							'cost'          => 348,
+							'currency_code' => 'USD',
+							'product_term'  => 'year',
+						),
+						'jetpack_growth_yearly'      => array(
+							'available'     => $legacy_available,
+							'cost'          => 348,
+							'currency_code' => 'USD',
+							'product_term'  => 'year',
+						),
+						'jetpack_complete'           => array(
+							'available'     => $legacy_available,
+							'cost'          => 588,
+							'currency_code' => 'USD',
+							'product_term'  => 'year',
+						),
+						'jetpack_pro_yearly'         => array(
 							'available'     => $available,
 							'cost'          => 348,
 							'currency_code' => 'USD',
@@ -339,15 +418,28 @@ class Wpcom_Products_Test extends TestCase {
 		};
 		add_filter( 'pre_http_request', $filter );
 		try {
-			$this->assertFalse( Pro::get_pricing_for_ui()['available'] );
+			$this->assertFalse( Pro::get_pricing_for_ui()['catalog_available'] );
+			$this->assertTrue( Security::get_pricing_for_ui()['available'] );
+			$this->assertTrue( Growth::get_pricing_for_ui()['available'] );
+			$this->assertArrayNotHasKey( 'terms', Complete::get_pricing_for_ui() );
 			$available = true;
 			update_user_meta( self::$user_id, Wpcom_Products::CACHE_DATE_META_NAME, time() - 6 * MINUTE_IN_SECONDS );
-			$this->assertTrue( Pro::get_pricing_for_ui()['available'] );
+			$this->assertTrue( Pro::get_pricing_for_ui()['catalog_available'] );
+			$this->assertTrue( Security::get_pricing_for_ui()['available'] );
+			$this->assertTrue( Growth::get_pricing_for_ui()['available'] );
+			$this->assertCount( 3, Complete::get_pricing_for_ui()['terms'] );
 			$available = false;
 			Wpcom_Products::get_products( true );
-			$this->assertFalse( Pro::get_pricing_for_ui()['available'] );
+			$this->assertFalse( Pro::get_pricing_for_ui()['catalog_available'] );
+			$this->assertTrue( Security::get_pricing_for_ui()['available'] );
+			$this->assertTrue( Growth::get_pricing_for_ui()['available'] );
+			$legacy_available = false;
+			Wpcom_Products::get_products( true );
+			$this->assertTrue( Security::get_pricing_for_ui()['available'] );
+			$this->assertTrue( Growth::get_pricing_for_ui()['available'] );
 			$available = true;
 			Wpcom_Products::get_products( true );
+			$this->assertTrue( Complete::get_pricing_for_ui()['available'] );
 		} finally {
 			remove_filter( 'pre_http_request', $filter );
 		}
@@ -356,6 +448,9 @@ class Wpcom_Products_Test extends TestCase {
 			update_user_meta( self::$user_id, Wpcom_Products::CACHE_DATE_META_NAME, time() - 6 * MINUTE_IN_SECONDS );
 			$pricing = Pro::get_pricing_for_ui();
 			$this->assertFalse( $pricing['available'] );
+			$this->assertFalse( $pricing['catalog_available'] );
+			$this->assertTrue( Security::get_pricing_for_ui()['available'] );
+			$this->assertTrue( Growth::get_pricing_for_ui()['available'] );
 			$this->assertSame( 348, $pricing['full_price'] );
 		} finally {
 			remove_filter( 'pre_http_request', array( $this, 'mock_error_response' ) );
@@ -413,13 +508,25 @@ class Wpcom_Products_Test extends TestCase {
 			'response' => array( 'code' => 200 ),
 			'body'     => wp_json_encode(
 				(object) array(
-					'jetpack_pro_yearly'    => array(
+					'jetpack_security_t1_yearly' => array(
 						'available'     => true,
 						'cost'          => 348,
 						'currency_code' => 'USD',
 						'product_term'  => 'year',
 					),
-					'jetpack_pro_bi_yearly' => array(
+					'jetpack_growth_yearly'      => array(
+						'available'     => true,
+						'cost'          => 348,
+						'currency_code' => 'USD',
+						'product_term'  => 'year',
+					),
+					'jetpack_pro_yearly'         => array(
+						'available'     => true,
+						'cost'          => 348,
+						'currency_code' => 'USD',
+						'product_term'  => 'year',
+					),
+					'jetpack_pro_bi_yearly'      => array(
 						'available'     => true,
 						'cost'          => 552,
 						'currency_code' => 'USD',
@@ -434,6 +541,9 @@ class Wpcom_Products_Test extends TestCase {
 			$pricing = Pro::get_pricing_for_ui();
 			$this->assertSame( $available, $pricing['available'] );
 			$this->assertSame( ! $available, $pricing['requires_support'] ?? false );
+			$this->assertTrue( $pricing['catalog_available'] );
+			$this->assertTrue( Security::get_pricing_for_ui()['available'] );
+			$this->assertTrue( Growth::get_pricing_for_ui()['available'] );
 			$this->assertSame( array( $available, $available ), array_column( $pricing['terms'], 'available' ) );
 		} finally {
 			remove_filter( 'pre_http_request', $filter );

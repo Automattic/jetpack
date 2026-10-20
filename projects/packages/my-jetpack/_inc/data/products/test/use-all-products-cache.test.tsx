@@ -18,10 +18,14 @@ it( 'reuses a fresh catalog across observers and fetches again after five minute
 		<QueryClientProvider client={ client }>{ children }</QueryClientProvider>
 	);
 	const pro = { pricing_for_ui: { available: true, catalog_available: true } };
+	let finishRefresh!: ( value: { pro: typeof pro } ) => void;
+	const refreshedProducts = new Promise< { pro: typeof pro } >( resolve => {
+		finishRefresh = resolve;
+	} );
 	window.myJetpackInitialState = {
 		products: { items: { pro } },
 	} as unknown as Window[ 'myJetpackInitialState' ];
-	jest.mocked( apiFetch ).mockResolvedValue( { pro } );
+	jest.mocked( apiFetch ).mockResolvedValueOnce( { pro } ).mockReturnValueOnce( refreshedProducts );
 	try {
 		const { result } = renderHook( useAllProducts, { wrapper } );
 		await waitFor( () => expect( result.current.data.pro.pricingForUi.available ).toBe( true ) );
@@ -30,6 +34,16 @@ it( 'reuses a fresh catalog across observers and fetches again after five minute
 		act( () => jest.advanceTimersByTime( 5 * 60 * 1000 + 1 ) );
 		renderHook( useAllProducts, { wrapper } );
 		await waitFor( () => expect( apiFetch ).toHaveBeenCalledTimes( 2 ) );
+		await waitFor( () => expect( result.current.isRefetching ).toBe( true ) );
+		expect( result.current.data.pro.pricingForUi.catalogAvailable ).toBe( true );
+		expect( result.current.data.pro.pricingForUi.available ).toBe( true );
+		act( () => {
+			finishRefresh( { pro: { pricing_for_ui: { available: false, catalog_available: false } } } );
+		} );
+		await waitFor( () =>
+			expect( result.current.data.pro.pricingForUi.catalogAvailable ).toBe( false )
+		);
+		expect( result.current.data.pro.pricingForUi.available ).toBe( false );
 	} finally {
 		client.clear();
 		jest.useRealTimers();
