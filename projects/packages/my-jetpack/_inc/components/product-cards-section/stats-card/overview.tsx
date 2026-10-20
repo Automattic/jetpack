@@ -62,6 +62,11 @@ const StatsOverviewItem: ProductCardComponent = ( { admin } ) => {
 		);
 	}
 
+	// The chart's counts read 0 until data arrives, so show the item's loading state instead.
+	if ( isLoading ) {
+		return <OverviewItem slug={ PRODUCT_SLUGS.STATS } admin={ admin } label={ label } isLoading />;
+	}
+
 	if ( isError ) {
 		return (
 			<OverviewItem
@@ -83,7 +88,7 @@ const StatsOverviewItem: ProductCardComponent = ( { admin } ) => {
 				previousCounts={ previousCounts }
 				chartData={ chartData }
 				headingLevel={ 4 }
-				isLoading={ isLoading }
+				isLoading={ false }
 				detailedStatsHref={ detailedStatsHref }
 				onDetailedStatsClick={ onDetailedStatsClick }
 				hideTitle
