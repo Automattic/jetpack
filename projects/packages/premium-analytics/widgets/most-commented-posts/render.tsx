@@ -25,8 +25,10 @@ import { Stack } from '@jetpack-premium-analytics/externals';
  * Internal dependencies
  */
 import styles from './style.module.css';
-import { type MostCommentedPostsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type MostCommentedPostsAttributes = Record< never, never >;
 
 type MostCommentedPostsRenderAttributes = MostCommentedPostsAttributes &
 	Partial< ReportParamsFieldAttributes >;

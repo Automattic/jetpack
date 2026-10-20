@@ -104,11 +104,12 @@ function mergeStoryAttributes(
  * manifest, icon references resolved the way the host resolves them; the
  * manifest's `attributes` lead the module's, and `example` comes from the
  * module. The attribute list is typed against the widget's own `Item`, so it
- * is widened here once instead of at every call site.
+ * is widened here once instead of at every call site. A widget with nothing
+ * live has no module and passes none.
  */
 export function createStoryWidgetType(
 	manifest: StoryWidgetManifest,
-	moduleDefinition: StoryWidgetModule
+	moduleDefinition: StoryWidgetModule = {}
 ): StoryWidgetType {
 	const attributes = mergeStoryAttributes(
 		manifest.attributes,
