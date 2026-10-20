@@ -147,6 +147,19 @@ allowed.
 
 **Returns:** `IntervalType`
 
+### `intervalMenuOptions( params, locked, periods? )`
+
+Returns what an interval menu lists: the buckets it can pick, and the ones the range could draw but
+`locked` withholds, to list after them with a lock. A bucket never lands in both.
+
+**Parameters:**
+
+- `params`: `{ preset?: PrimaryPresetId; from?: string; to?: string }` - The range being edited
+- `locked`: `readonly LockableInterval[]` - Buckets the site's plan locks
+- `periods`: `readonly [ StatsPeriod, ...StatsPeriod[] ] | undefined` - The periods the chart draws; every bucket when omitted
+
+**Returns:** `{ options: IntervalType[]; lockedOptions: LockableInterval[] }` - Each in the range's order
+
 ### `needsReportDateParamsSeed( search?, lockedIntervals? )`
 
 Returns whether report date params are incomplete or the interval is invalid
@@ -213,7 +226,8 @@ sets none.
 ### `ReportScopeProvider`'s `dateLimits`
 
 The date options the surface's plan locks, as `DateLimits`: the policy's `lockedPresetIds`,
-`earliestDate` and `lockedIntervals`, plus the `upsell` copy and an `onUpgradeClick` callback.
+`earliestDate` and `lockedIntervals`, plus the `upsell` for locked periods and the
+`intervalUpsell` for locked chart intervals, each copy carrying its own `onUpgradeClick`.
 The date controls read it through `useReportScope()`; absent where the host applies no limits.
 
 ## Architecture
@@ -286,6 +300,7 @@ This package exports the following public API:
 - `getDefaultIntervalForPeriod` - Default interval for a preset / range
 - `resolveIntervalForRange` - Keep a still-valid candidate interval, else the range default
 - `resolveIntervalForPresetChange` - Reset to the preset default on a named-preset switch, else keep a still-valid interval
+- `intervalMenuOptions` - The open and the locked buckets an interval menu lists
 - `needsReportDateParamsSeed` - Whether report date params are incomplete or the interval is invalid for the range
 - `getStatsDatePolicy` - The date limits the site's plan sets
 - `getSectionDatePolicy` - The date limits a dashboard section follows
@@ -311,3 +326,4 @@ This package exports the following public API:
 - `StatsDatePolicy` - The date limits a plan sets: open, the last 7 days, or no long presets
 - `DateLimitFeature` - The Stats gate a date limit comes from
 - `DateLimits` - The date limits a report scope declares to its controls
+- `DateLimitUpsellCopy` - The copy, links and upgrade callback of an upsell beside locked date options

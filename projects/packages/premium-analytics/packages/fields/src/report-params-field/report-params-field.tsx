@@ -4,11 +4,10 @@
 import {
 	ReportScopeProvider,
 	chartInterval,
-	drawableIntervals,
-	getAllowedIntervalsForPreset,
 	getDefaultPreset,
 	getDefaultReportParams,
 	hasComparisonEnabled,
+	intervalMenuOptions,
 	normalizeReportParams,
 	useScopeLockedIntervals,
 	type StatsPeriod,
@@ -300,16 +299,15 @@ function ReportParamsControl( {
 
 	// Staged, not committed: a range being drafted has to reshape the menu with
 	// it, or the click is dropped on Apply.
-	const intervalOptions = useMemo( () => {
-		const allowed = getAllowedIntervalsForPreset(
-			reportParams.preset,
-			reportParams.from ?? '',
-			reportParams.to ?? '',
-			lockedIntervals
-		);
-
-		return periods ? drawableIntervals( allowed, periods ) : allowed;
-	}, [ reportParams.preset, reportParams.from, reportParams.to, periods, lockedIntervals ] );
+	const { options: intervalOptions, lockedOptions: lockedIntervalOptions } = useMemo(
+		() =>
+			intervalMenuOptions(
+				{ preset: reportParams.preset, from: reportParams.from, to: reportParams.to },
+				lockedIntervals,
+				periods
+			),
+		[ reportParams.preset, reportParams.from, reportParams.to, periods, lockedIntervals ]
+	);
 
 	// Check what the chart draws, through the call the chart itself makes: a
 	// stored bucket the widget clamps away is not what is on screen.
@@ -349,6 +347,7 @@ function ReportParamsControl( {
 			withIntervalControl={ withIntervalControl }
 			interval={ interval }
 			intervalOptions={ intervalOptions }
+			lockedIntervalOptions={ lockedIntervalOptions }
 			onIntervalChange={ changeInterval }
 		/>
 	);

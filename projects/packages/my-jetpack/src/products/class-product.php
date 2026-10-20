@@ -486,6 +486,34 @@ abstract class Product {
 	abstract public static function get_pricing_for_ui();
 
 	/**
+	 * Prepare supported billing terms, gating only Pro on catalog availability.
+	 *
+	 * @since $$next-version$$
+	 * @param string[] $product_slugs Store product slugs, preferred term first.
+	 * @return array Pricing details and term choices.
+	 */
+	protected static function get_bundle_pricing( $product_slugs ) {
+		$terms = array();
+		foreach ( $product_slugs as $slug ) {
+			$product           = Wpcom_Products::get_product( $slug );
+			$valid_product     = is_object( $product ) && isset( $product->cost ) && isset( $product->currency_code ) && isset( $product->product_term ) && is_numeric( $product->cost ) && $product->cost >= 0;
+			$term              = array_merge(
+				array(
+					'available'          => false,
+					'wpcom_product_slug' => $slug,
+				),
+				$valid_product ? Wpcom_Products::get_product_pricing( $slug ) : array()
+			);
+			$expected_term     = str_ends_with( $slug, '_monthly' ) ? 'month' : ( str_ends_with( $slug, '_bi_yearly' ) ? 'two years' : 'year' );
+			$on_sale           = ! str_starts_with( $slug, 'jetpack_pro_' ) || true === ( $product->available ?? false );
+			$term['available'] = $valid_product && $on_sale && ( $term['product_term'] ?? '' ) === $expected_term;
+			$terms[]           = $term;
+		}
+		$available = array_values( array_filter( $terms, fn( $term ) => true === $term['available'] ) );
+		return array_merge( $available[0] ?? $terms[0], array( 'terms' => $terms ) );
+	}
+
+	/**
 	 * Get the URL where the user can purchase the product iff it doesn't have an interstitial page in My Jetpack.
 	 *
 	 * @return ?string

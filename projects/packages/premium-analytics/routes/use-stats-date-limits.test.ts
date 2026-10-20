@@ -13,8 +13,9 @@ jest.mock(
 	'@automattic/jetpack-script-data',
 	() => jest.requireActual( '../tests/js/script-data-test-utils' ).mockJetpackScriptData
 );
+const mockTrackEvent = jest.fn();
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
-	useTrackEvent: () => jest.fn(),
+	useTrackEvent: () => mockTrackEvent,
 } ) );
 
 const LOCKED = {
@@ -31,6 +32,7 @@ beforeEach( () => {
 
 afterEach( () => {
 	jest.useRealTimers();
+	mockTrackEvent.mockClear();
 } );
 
 it( 'hands a limited surface its locks and the server upsell', () => {
@@ -44,6 +46,23 @@ it( 'hands a limited surface its locks and the server upsell', () => {
 			supportUrl: '',
 			upgradeUrl: LOCKED.upgrade_url,
 		},
+	} );
+} );
+
+it.each( [
+	[ 'upsell', 'recent-7-days' ],
+	[ 'intervalUpsell', 'intervals' ],
+] as const )( 'tracks the %s upgrade click under %s', ( upsell, feature ) => {
+	( getScriptData as jest.Mock ).mockReturnValue(
+		planGatesScriptData( { 'recent-7-days': LOCKED, intervals: LOCKED } )
+	);
+	const { result } = renderHook( () => useStatsDateLimits( true ) );
+
+	result.current.dateLimits?.[ upsell ]?.onUpgradeClick?.();
+
+	expect( mockTrackEvent ).toHaveBeenCalledWith( 'jetpack_premium_analytics_plan_upgrade_click', {
+		feature,
+		source: 'locked_date_control',
 	} );
 } );
 
