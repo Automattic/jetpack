@@ -21,7 +21,7 @@ use Automattic\Jetpack\Sharing_Likes\Settings\Environment;
  * Callbacks read options and site facts each time, since WordPress.com REST requests switch blogs
  * after `init`, and never resolve a template, since building one applies block hooks.
  *
- * @since $$next-version$$
+ * @since 0.4.0
  */
 final class Hooked_Blocks {
 
@@ -135,7 +135,7 @@ final class Hooked_Blocks {
 		/**
 		 * Filters the post types whose single views get the Sharing Buttons and Like blocks the template placements add.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.4.0
 		 *
 		 * @param string[] $post_types Post type names. Default posts and pages.
 		 */

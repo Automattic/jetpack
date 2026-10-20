@@ -21,6 +21,8 @@ export type StorePerformanceMetric = {
 	field: string;
 	dataFormat: DataFormat;
 	countLabel?: ( count: number ) => string;
+	/** Shown in place of the value when the period has nothing to measure the metric over. */
+	noDataLabel?: string;
 	/** A React hook: the report the metric reads, under the dashboard's report params. */
 	useReport: ( params: ReportParams ) => StorePerformanceReport;
 };

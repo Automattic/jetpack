@@ -1,4 +1,0 @@
-Significance: minor
-Type: removed
-
-Remove the WooCommerce report client and the store gating: the WooCommerce Stats package owns them.

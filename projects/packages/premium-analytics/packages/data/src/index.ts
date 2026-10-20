@@ -1,5 +1,11 @@
 export { AnalyticsQueryClientProvider, queryClient } from './providers/query-client-provider';
-export { ReportScopeProvider, useReportScope, type ReportScope } from './providers/report-scope';
+export {
+	ReportScopeProvider,
+	useReportScope,
+	useScopeLockedIntervals,
+	type DateLimits,
+	type ReportScope,
+} from './providers/report-scope';
 export {
 	PERIOD_CHANGE_ATTENTION_MS,
 	PeriodChangeSignalProvider,
@@ -82,14 +88,28 @@ export {
 	resolveIntervalForPresetChange,
 	resolveIntervalForRange,
 } from './utils/interval';
-export type { IntervalType } from './utils/interval';
+export type { IntervalType, LockableInterval } from './utils/interval';
 export { chartInterval, defaultPeriodForInterval, drawableIntervals } from './utils/periods';
 export {
 	getLockedFeature,
+	getLockedSection,
 	getLockedWidgetFeature,
 	isStatsFeatureLocked,
+	type LockedSectionGate,
 	type StatsFeatureKey,
 } from './utils/plan-gates';
+export {
+	applyStatsDatePolicy,
+	getPolicyDefaultPreset,
+	getSectionDatePolicy,
+	getStatsDatePolicy,
+	isDateLimitedPolicy,
+	isPlanDateLimitedSection,
+	isPresetLockedByPolicy,
+	OPEN_DATE_POLICY,
+	type DateLimitFeature,
+	type StatsDatePolicy,
+} from './utils/stats-date-policy';
 export {
 	DASHBOARD_PREFERENCES_SCOPE,
 	getDefaultPreset,

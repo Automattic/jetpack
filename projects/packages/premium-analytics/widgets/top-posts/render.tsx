@@ -197,6 +197,7 @@ export const TopPostsLeaderboard = ( {
 }: TopPostsLeaderboardProps ) => {
 	return (
 		<LeaderboardChart
+			chartTitle={ __( 'Top pages', 'jetpack-premium-analytics-pkg' ) }
 			data={ buildLeaderboardData( rows, withComparison, detailSearch, onDrillDown ) }
 			withComparison={ withComparison }
 			withOverlayLabel

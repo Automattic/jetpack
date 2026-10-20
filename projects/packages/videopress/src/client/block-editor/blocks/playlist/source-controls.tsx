@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
-import { PanelBody, Placeholder, SelectControl } from '@wordpress/components';
+import { PanelBody, Placeholder, SelectControl, ToggleControl } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
@@ -57,6 +57,14 @@ export function PlaylistSourcePanel( { attributes, setAttributes }: Props ) {
 					<PlaylistPicker
 						value={ attributes.sourcePlaylistId ?? '' }
 						onChange={ value => setAttributes( { sourcePlaylistId: value } ) }
+					/>
+				) }
+				{ 'own' !== source && (
+					<ToggleControl
+						__nextHasNoMarginBottom
+						label={ __( 'Views and upload date', 'jetpack-videopress-pkg' ) }
+						checked={ !! attributes.showMeta }
+						onChange={ ( value: boolean ) => setAttributes( { showMeta: value } ) }
 					/>
 				) }
 			</PanelBody>

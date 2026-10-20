@@ -4,8 +4,15 @@ import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/el
 import { __ } from '@wordpress/i18n';
 import { Icon, caution, check, closeSmall, info, shield } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
-import { Button, Notice, Stack, Text } from '@wordpress/ui';
-import { CardRow, ProtectCard, Stat } from '../../components/card';
+import { Button, Stack } from '@wordpress/ui';
+import {
+	CardRow,
+	ProtectCard,
+	SettingsErrorRow,
+	Stat,
+	UnavailableCard,
+} from '../../components/card';
+import formatNumber from '../../components/format-number';
 import TabLink from '../../components/tab-link';
 import isModuleActive from '../../data/is-module-active';
 import {
@@ -34,8 +41,14 @@ const UNAVAILABLE: FirewallState = {
 	ipRules: {},
 };
 
+// The only setting this card saves.
+const FIREWALL_KEYS = [ 'waf' ];
+
 // One id for the test's snackbars, so the result replaces "Testing the firewall…".
 const NOTICE_ID = 'jetpack-protect-firewall-test';
+
+/** Opens the Settings tab at this section's card. */
+const SETTINGS_PARAMS = { section: 'firewall' };
 
 type NoticeStatus = 'success' | 'info' | 'warning' | 'error';
 
@@ -169,15 +182,6 @@ function notifyFailure( error: unknown ) {
 	}
 }
 
-const formatCount = ( count: number ) => {
-	try {
-		return new Intl.NumberFormat( document.documentElement.lang || undefined ).format( count );
-	} catch {
-		// WordPress prints locales Intl rejects, such as pt-PT-ao90.
-		return count.toLocaleString();
-	}
-};
-
 /**
  * The firewall's Overview card: blocked requests, and a test that shows the firewall working.
  *
@@ -251,19 +255,7 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 	}, [ active, blocks.recentBlocks ] );
 
 	if ( ! firewall.available ) {
-		return (
-			<ProtectCard
-				icon={ shield }
-				title={ title }
-				status={ { label: __( 'Unavailable', 'jetpack-protect-pkg' ), intent: 'none' } }
-			>
-				<CardRow>
-					<Text variant="body-md">
-						{ __( 'This feature isn’t available on your site.', 'jetpack-protect-pkg' ) }
-					</Text>
-				</CardRow>
-			</ProtectCard>
-		);
+		return <UnavailableCard icon={ shield } title={ title } />;
 	}
 
 	return (
@@ -288,14 +280,7 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 					onOpenChange={ setDetailsOpen }
 				/>
 			) }
-			{ settings.error && (
-				<CardRow>
-					<Notice.Root intent="error">
-						<Notice.Description>{ settings.error }</Notice.Description>
-						<Notice.CloseIconButton onClick={ settings.dismissError } />
-					</Notice.Root>
-				</CardRow>
-			) }
+			<SettingsErrorRow settings={ settings } keys={ FIREWALL_KEYS } />
 			{ ! active && (
 				<CardRow>
 					<FirewallToggle data={ settings } />
@@ -306,9 +291,9 @@ export default function FirewallOverviewCard( { state, settings, openTab }: Fire
 					<Stack direction="column" gap="md" align="start">
 						<Stat
 							label={ __( 'All-time blocked requests', 'jetpack-protect-pkg' ) }
-							value={ blocks.blockedCount === null ? '—' : formatCount( blocks.blockedCount ) }
+							value={ blocks.blockedCount === null ? '—' : formatNumber( blocks.blockedCount ) }
 						/>
-						<TabLink tab="settings" onOpen={ openTab }>
+						<TabLink tab="settings" params={ SETTINGS_PARAMS } onOpen={ openTab }>
 							{ __( 'Configure Firewall', 'jetpack-protect-pkg' ) }
 						</TabLink>
 					</Stack>
