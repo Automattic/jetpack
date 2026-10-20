@@ -560,7 +560,8 @@ class REST_Connector {
 
 		$connection_status = array(
 			'isActive'            => $connection->has_connected_owner(), // TODO deprecate this.
-			'isStaging'           => $status->in_safe_mode(), // TODO deprecate this.
+			'isStaging'           => $status->in_safe_mode(), // Deprecated: use isInSafeMode.
+			'isInSafeMode'        => $status->in_safe_mode(),
 			'isRegistered'        => $connection->is_connected(),
 			'isUserConnected'     => $connection->is_user_connected(),
 			'hasConnectedOwner'   => $connection->has_connected_owner(),
@@ -766,6 +767,8 @@ class REST_Connector {
 			'isMaster'              => $is_master_user,
 			'username'              => $current_user->user_login,
 			'id'                    => $current_user->ID,
+			'displayName'           => $current_user->display_name,
+			'email'                 => $current_user->user_email,
 			'blogId'                => $blog_id,
 			'wpcomUser'             => $wpcom_user_data,
 			'gravatar'              => get_avatar_url( $current_user->ID ),
@@ -1139,7 +1142,7 @@ class REST_Connector {
 	 * Filtered by what `Manager::update_connection_owner()` requires of a new owner, so the
 	 * list cannot offer someone the change would then refuse.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.11.0
 	 *
 	 * @return \WP_REST_Response
 	 */
@@ -1163,6 +1166,13 @@ class REST_Connector {
 				'login'       => $user->user_login,
 				'displayName' => $user->display_name,
 				'email'       => $user->user_email,
+				'avatar'      => get_avatar_url(
+					$user->ID,
+					array(
+						'size'    => 48,
+						'default' => 'mysteryman',
+					)
+				),
 			);
 		}
 
@@ -1175,7 +1185,7 @@ class REST_Connector {
 	 * Same capability as changing the owner: seeing the candidates and acting on them go
 	 * together, and the list carries logins and email addresses.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.11.0
 	 *
 	 * @return true|WP_Error
 	 */

@@ -51,21 +51,11 @@
 // Not connected: the canvas placeholder, and the wizard in the sidebar
 // ---------------------------------------------------------------
 
-.jetpack-paypal-payment-buttons__placeholder {
-	padding: 24px;
-	border: 1px dashed #c3c4c7;
-	border-radius: 4px;
-	background: #f9f9f9;
-	text-align: center;
-
-	h4 {
-		margin: 0 0 8px;
-	}
-
-	p {
-		margin: 0;
-		color: #757575;
-	}
+// Dashed border in place of core's solid outline, until PayPal is connected.
+// Three classes beat core's doubled .components-placeholder in any load order.
+.jetpack-paypal-payment-buttons__placeholder.components-placeholder.components-placeholder {
+	box-shadow: none;
+	border: variables.$border-width dashed var(--wpds-color-stroke-surface-neutral-strong);
 }
 
 .jetpack-paypal-payment-buttons__connect {
@@ -208,8 +198,7 @@
 
 .jetpack-paypal-wizard__welcome,
 .jetpack-paypal-wizard__dashboard,
-.jetpack-paypal-wizard__credentials,
-.jetpack-paypal-wizard__success {
+.jetpack-paypal-wizard__credentials {
 
 	h3 {
 		margin-top: 0;
@@ -311,23 +300,6 @@
 	.components-button.is-link {
 		font-size: 12px;
 	}
-}
-
-.jetpack-paypal-wizard__success {
-	text-align: center;
-}
-
-.jetpack-paypal-wizard__success-icon {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 48px;
-	height: 48px;
-	border-radius: 50%;
-	background: #00a32a;
-	color: #fff;
-	font-size: 24px;
-	margin-bottom: 12px;
 }
 
 // Field warning (soft validation — yellow instead of red).
@@ -728,18 +700,6 @@
 	}
 }
 
-.jetpack-paypal-payment-buttons__destructive-actions {
-	display: flex;
-	gap: 8px;
-	margin-top: 12px;
-}
-
-.jetpack-paypal-payment-buttons__manage-links {
-	margin-block: 16px 0;
-	padding-block-start: 16px;
-	border-block-start: 1px solid #ddd;
-}
-
 .jetpack-paypal-onboarding-frame {
 	position: fixed;
 	inset: 0;
@@ -795,28 +755,6 @@
 	margin-block-start: 24px;
 }
 
-.jetpack-paypal-payment-buttons__confirm-body {
-
-	p {
-		margin: 0 0 12px;
-	}
-
-	ul {
-		margin: 0;
-		padding-inline-start: 20px;
-		list-style: disc;
-	}
-
-	li {
-		margin-bottom: 6px;
-		color: #757575;
-
-		&:last-child {
-			margin-bottom: 0;
-		}
-	}
-}
-
 // Checkout options.
 // 16px between rows and 16px below the group. The gap above comes from
 // the toggle's own margin.
@@ -836,7 +774,7 @@
 }
 
 // ---------------------------------------------------------------
-// Styles tab — the inspector's own copy of the QR code
+// Style controls: the inspector's own copy of the QR code
 // ---------------------------------------------------------------
 
 .jetpack-paypal-payment-buttons__qr-inspector-preview {
@@ -919,13 +857,10 @@
 	}
 }
 
-// The link details view — the sidebar's default for a saved link. A plain
-// section with a divider, like the format section, not a collapsible panel.
+// The link details view, a plain section. It ends at the list's bottom rule.
+// The format section below has its own top padding.
 .jetpack-paypal-payment-buttons__details {
-	padding: variables.$grid-unit-10 variables.$grid-unit-15 variables.$grid-unit-15;
-	// `.components-panel__body` draws its own borders with this gray, so the
-	// section sits flush with the panels stacked under it.
-	border-block-end: variables.$border-width solid colors.$gray-200;
+	padding: variables.$grid-unit-10 variables.$grid-unit-15 0;
 }
 
 .jetpack-paypal-payment-buttons__details-header {
@@ -954,8 +889,8 @@
 	line-height: variables.$font-line-height-x-small;
 }
 
-// The rows step one unit further in than the title. The rule above them is this
-// list's own top border, since core styles every `hr` inside
+// The rows step one unit further in than the title. The rules above and below
+// them are this list's own borders, since core styles every `hr` inside
 // `.interface-complementary-area` and that outranks a single class.
 .jetpack-paypal-payment-buttons__details-list {
 	display: grid;
@@ -965,8 +900,8 @@
 	row-gap: 0;
 	margin-block: variables.$grid-unit-20 0;
 	margin-inline: variables.$grid-unit-15;
-	border-block-start: variables.$border-width solid colors.$gray-200;
-	padding-block-start: variables.$grid-unit-20;
+	border-block: variables.$border-width solid colors.$gray-200;
+	padding-block: variables.$grid-unit-20;
 	font-size: variables.$font-size-medium;
 	line-height: variables.$font-line-height-small;
 

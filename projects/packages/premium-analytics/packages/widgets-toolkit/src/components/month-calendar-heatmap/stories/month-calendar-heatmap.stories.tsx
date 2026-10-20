@@ -10,7 +10,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 const RANGE_END = '2026-09-14';
 
 const LABELS = {
-	ariaLabel: 'Monthly posting activity',
+	chartTitle: 'Monthly posting activity',
 	formatValue: ( value: number ) => ( value === 1 ? '1 post' : `${ value } posts` ),
 	emptyLabel: 'No posts',
 	lessLabel: 'Fewer posts',

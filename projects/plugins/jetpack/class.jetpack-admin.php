@@ -8,6 +8,7 @@
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Partner_Coupon as Jetpack_Partner_Coupon;
+use Automattic\Jetpack\Protect\Dashboard as Protect_Dashboard;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -247,6 +248,7 @@ class Jetpack_Admin {
 		$modules           = array();
 		$jetpack_active    = Jetpack::is_connection_ready() || ( new Status() )->is_offline_mode();
 		$overrides         = Jetpack_Modules_Overrides::instance();
+		$protect_page_urls = self::get_protect_page_module_urls();
 		foreach ( $available_modules as $module ) {
 			$module_array = Jetpack::get_module( $module );
 			if ( $module_array ) {
@@ -345,6 +347,12 @@ class Jetpack_Admin {
 					apply_filters( 'jetpack_module_configurable_' . $module, false )
 				) {
 					$module_array['configurable'] = sprintf( '<a href="%1$s">%2$s</a>', esc_url( $module_array['configure_url'] ), __( 'Configure', 'jetpack' ) );
+				}
+
+				// The Protect page's link replaces both the switch and Configure.
+				$module_array['protect_page_url'] = $protect_page_urls[ $module ] ?? '';
+				if ( $module_array['protect_page_url'] ) {
+					$module_array['configurable'] = false;
 				}
 
 				$modules[ $module ] = $module_array;
@@ -488,6 +496,22 @@ class Jetpack_Admin {
 	}
 
 	/**
+	 * Where each security module's settings live while the Protect page owns them, keyed by module slug.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array<string, string> Empty while the Protect page is off.
+	 */
+	public static function get_protect_page_module_urls() {
+		// method_exists, not class_exists: another plugin's older copy of the package can win the autoloader.
+		if ( ! did_action( 'jetpack_protect_dashboard_initialized' ) || ! method_exists( Protect_Dashboard::class, 'get_module_settings_urls' ) ) {
+			return array();
+		}
+
+		return Protect_Dashboard::get_module_settings_urls();
+	}
+
+	/**
 	 * Handle an unrecognized action.
 	 *
 	 * @param string $action Action.
@@ -501,6 +525,7 @@ class Jetpack_Admin {
 				}
 
 				$modules = isset( $_GET['modules'] ) ? array_map( 'sanitize_key', wp_unslash( (array) $_GET['modules'] ) ) : array();
+				$modules = array_diff( $modules, array_keys( self::get_protect_page_module_urls() ) );
 				foreach ( $modules as $module ) {
 					Jetpack::log( 'activate', $module );
 					Jetpack::activate_module( $module, false );
@@ -515,6 +540,7 @@ class Jetpack_Admin {
 				}
 
 				$modules = isset( $_GET['modules'] ) ? array_map( 'sanitize_key', wp_unslash( (array) $_GET['modules'] ) ) : array();
+				$modules = array_diff( $modules, array_keys( self::get_protect_page_module_urls() ) );
 				foreach ( $modules as $module ) {
 					Jetpack::log( 'deactivate', $module );
 					Jetpack::deactivate_module( $module );

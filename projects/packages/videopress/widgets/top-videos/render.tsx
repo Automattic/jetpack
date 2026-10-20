@@ -22,9 +22,11 @@ import { useMemo } from 'react';
  * Internal dependencies
  */
 import { toVideoPlaysRows, type VideoPlaysRow } from './build-video-plays-data';
-import type { TopVideosAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
+
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type TopVideosAttributes = Record< never, never >;
 
 // Videos the widget asks for. The leaderboard applies the dashboard's own cap to what it shows.
 const TOP_VIDEOS_LIMIT = 10;
@@ -119,7 +121,9 @@ function TopVideosReport() {
 
 	return (
 		<Leaderboard
+			chartTitle={ __( 'Top videos', 'jetpack-videopress-pkg' ) }
 			rows={ rows }
+			columns={ { label: __( 'Videos', 'jetpack-videopress-pkg' ), metric: 'views' } }
 			status={ {
 				isLoading: isInitialLoading || isCheckingMedia,
 				isFetching,

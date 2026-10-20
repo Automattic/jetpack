@@ -5,12 +5,13 @@ import { fetchReport } from '../../fetch-report';
 import type { BaseReportParams } from '../../utils/types';
 
 type SessionsByDeviceItem = {
-	device_type: string;
-	active_sessions: string;
+	/** Empty, or null, for sessions with no recorded device. */
+	device_type: string | null;
+	active_sessions: string | null;
 };
 
 type SessionsByDeviceSummary = {
-	active_sessions: string;
+	active_sessions: string | null;
 	total_orders: string;
 	date_start: string;
 	date_end: string;

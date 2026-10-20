@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Themes: add the wpcom-themes-marketplace-tab feature flag, gating a Marketplace tab on the Add Themes screen that lists WordPress.com themes. Off by default.

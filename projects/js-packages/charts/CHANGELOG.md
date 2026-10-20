@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.11.0] - 2026-10-19
+### Changed
+- Geo chart: Draw tooltips on the same dark surface, and at the same distance from the cursor, as the other chart tooltips. [#53515]
+- Heatmap chart: Lighten the color scale to 2.5:1 contrast at the lowest step and 6:1 at the highest, and keep the two ends apart when the empty-cell color sits far from the background. [#53450]
+- Heatmap chart: Offset the grid's focus ring by the design system focus width. [#53522]
+- Legend: Set wrapped rows of a horizontal legend closer together than items on one row, and expose both gaps as CSS variables. [#53704]
+- Update package dependencies. [#53004]
+- Update package dependencies. [#53678]
+- Update package dependencies. [#53806]
+
+### Fixed
+- Conversion funnel chart: Show a focus ring on the focused step bar. [#53522]
+
+## [4.10.0] - 2026-10-14
+### Added
+- Give the geo, leaderboard, conversion funnel and bar list charts an accessible name, and accept `ariaLabel` on every chart except Sparkline. [#53516]
+- Legend: Add a comparisonSeriesItems option that adds one static item per comparison series, named after its metric and hidden along with it. [#53457]
+
+### Changed
+- Reject invalid values like `12.px` when resolving theme font sizes. [#53475]
+
+### Fixed
+- Conversion funnel chart: Tighten the spacing on a short chart so its bars stay visible. [#53554]
+- Ignore invalid theme label font sizes, such as negative values, so axis labels no longer clip. Accept a leading `+` sign, as CSS does. [#53498]
+- Pie Chart, Pie Semi-Circle Chart: Paint the tooltip above content passed as children, such as a center total. [#53449]
+
 ## [4.9.0] - 2026-10-12
 ### Added
 - Heatmap chart: Add a fitCells option that grows compact cells to fill the chart, wrapping column groups onto more rows when that makes the cells larger, and draw column group labels at 13px in the body text color. [#53341]
@@ -1174,6 +1200,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[4.11.0]: https://github.com/Automattic/charts/compare/v4.10.0...v4.11.0
+[4.10.0]: https://github.com/Automattic/charts/compare/v4.9.0...v4.10.0
 [4.9.0]: https://github.com/Automattic/charts/compare/v4.8.0...v4.9.0
 [4.8.0]: https://github.com/Automattic/charts/compare/v4.7.0...v4.8.0
 [4.7.0]: https://github.com/Automattic/charts/compare/v4.6.0...v4.7.0

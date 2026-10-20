@@ -1,6 +1,9 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
+import { getHeaderControlsSlot } from '@automattic/jetpack-my-jetpack/header-controls';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
+import { isMyJetpackAvailable } from '../overview/lib/use-modules-state';
+import BoostBreadcrumbs from './boost-breadcrumbs';
 import './boost-page.scss';
 import type { ReactNode } from 'react';
 
@@ -12,12 +15,21 @@ type Props = {
 };
 
 export default function BoostPage( { isSubpage, children, subpage, actions }: Props ) {
+	const showBreadcrumbs = isMyJetpackAvailable();
+
 	return (
 		<AdminPage
 			className={ clsx( 'jetpack-boost-page', { 'jetpack-boost-page--subpage': isSubpage } ) }
-			title="Boost"
+			title={
+				! isSubpage && ! showBreadcrumbs
+					? 'Boost' /** Product name, do not translate. */
+					: undefined
+			}
+			// Not undefined on subpages: AdminPage would switch layout and remount the portal slots.
+			breadcrumbs={ isSubpage ? <></> : showBreadcrumbs ? <BoostBreadcrumbs /> : undefined }
 			subTitle={ __( 'Improve your site speed and performance.', 'jetpack-boost' ) }
 			actions={ actions }
+			globalControls={ getHeaderControlsSlot() }
 			apiRoot={ wpApiSettings.root }
 			apiNonce={ wpApiSettings.nonce }
 			showFooter={ ! isSubpage }

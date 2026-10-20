@@ -31,7 +31,40 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 	 * @param string $hook Hook of current page.
 	 * @return void
 	 */
-	public function add_page_actions( $hook ) {} //phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function add_page_actions( $hook ) {
+		add_action( "load-$hook", array( $this, 'maybe_redirect_to_features' ), PHP_INT_MAX );
+	}
+
+	/**
+	 * On the classic Modules screen, send the browser to the matching Features view, with the same search and tag, when the site can manage modules there.
+	 *
+	 * @return void
+	 */
+	public function maybe_redirect_to_features() {
+		$initializer = 'Automattic\\Jetpack\\My_Jetpack\\Initializer';
+		if (
+			'GET' !== ( $_SERVER['REQUEST_METHOD'] ?? 'GET' ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- Only the exact GET method is accepted.
+			|| Jetpack::state( 'error' ) || Jetpack::state( 'message' )
+			|| $this->block_page_rendering_for_idc()
+			|| ! method_exists( $initializer, 'get_modules_management_url' )
+		) {
+			return;
+		}
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only view arguments; actions are rejected by the URL helper.
+		$args = wp_unslash( $_GET );
+		unset( $args['page'] );
+		$eligible = false;
+		$url      = $initializer::get_modules_management_url( $args, $eligible );
+		if ( ! $eligible ) {
+			return;
+		}
+		add_action(
+			'admin_head',
+			static function () use ( $url ) {
+				wp_print_inline_script_tag( 'window.location.replace(' . wp_json_encode( $url, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ) . ');' );
+			}
+		);
+	}
 
 	/**
 	 * Adds the Settings sub menu.
@@ -154,6 +187,11 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 					<div class="bumper">
 						<form class="navbar-form" role="search">
 							<input type="hidden" name="page" value="jetpack_modules" />
+							<?php // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only navigation marker.
+							if ( '1' === sanitize_text_field( wp_unslash( $_GET['modules_fallback'] ?? '' ) ) ) :
+								?>
+								<input type="hidden" name="modules_fallback" value="1" />
+							<?php endif; ?>
 							<?php $list_table->search_box( __( 'Search modules…', 'jetpack' ), 'srch-term' ); ?>
 							<?php if ( $is_offline_mode ) : ?>
 								<p><?php esc_html_e( 'Available in offline mode', 'jetpack' ); ?></p>

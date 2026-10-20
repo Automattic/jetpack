@@ -22,6 +22,7 @@ const modules = Object.fromEntries(
 		mod( 'zeta' ),
 		mod( 'alpha' ),
 		mod( 'waf', { available: false } ),
+		mod( 'vaultpress', { available: false } ),
 		// Deprecated: left out by the hidden set, as the hook passes it.
 		mod( 'google-fonts' ),
 	].map( $module => [ $module.module, $module ] )
@@ -43,6 +44,18 @@ const groups = [
 const slugsOf = ( grouped: ReturnType< typeof groupMoreFeatures > ) =>
 	grouped.map( group => [ group.label, group.states.map( state => state.feature.slug ) ] );
 
+it.each( [ 'long_description', 'module_tags' ] )(
+	'searches %s only for migrated module views',
+	field => {
+		const module = mod( 'alpha', { [ field ]: field === 'module_tags' ? [ 'needle' ] : 'needle' } );
+		const grouped = groupMoreFeatures( [], [], { alpha: module }, {}, {} );
+		expect( filterMoreFeatures( grouped, 'all', 'needle' ) ).toEqual( [] );
+		expect( slugsOf( filterMoreFeatures( grouped, 'all', 'needle', true ) ) ).toEqual( [
+			[ '', [ 'alpha' ] ],
+		] );
+	}
+);
+
 describe( 'groupMoreFeatures', () => {
 	const grouped = groupMoreFeatures(
 		features,
@@ -53,10 +66,10 @@ describe( 'groupMoreFeatures', () => {
 		new Set( [ 'google-fonts' ] )
 	);
 
-	it( 'sorts groups and their modules by name with Other last, drops empty groups and leaves out covered, unavailable and hidden modules', () => {
+	it( 'sorts groups and their modules by name with Other last, drops empty groups and leaves out covered, hidden and legacy modules', () => {
 		expect( slugsOf( grouped ) ).toEqual( [
 			[ 'Analytics', [ 'zeta' ] ],
-			[ 'Security', [ 'monitor', 'sso' ] ],
+			[ 'Security', [ 'monitor', 'sso', 'waf' ] ],
 			[ 'Other', [ 'alpha' ] ],
 		] );
 	} );
@@ -88,6 +101,24 @@ describe( 'groupMoreFeatures', () => {
 		expect( monitor.isSwitching ).toBe( true );
 	} );
 
+	it.each( [ false, true ] )(
+		'excludes the helper-owned custom content types module (active: %s)',
+		activated => {
+			const groupedWithCpt = groupMoreFeatures(
+				[],
+				[ { label: 'Writing', modules: [ 'custom-content-types', 'monitor' ] } ],
+				{
+					'custom-content-types': mod( 'custom-content-types', { activated } ),
+					monitor: mod( 'monitor' ),
+				},
+				{},
+				{}
+			);
+
+			expect( slugsOf( groupedWithCpt ) ).toEqual( [ [ 'Writing', [ 'monitor' ] ] ] );
+		}
+	);
+
 	it( 'filters by status and hides modules under plan and essential filters', () => {
 		const filtered = ( filter: Parameters< typeof filterMoreFeatures >[ 1 ] ) =>
 			filterMoreFeatures( grouped, filter, '' ).flatMap( group =>
@@ -95,7 +126,7 @@ describe( 'groupMoreFeatures', () => {
 			);
 
 		expect( filtered( 'active' ) ).toEqual( [ 'sso' ] );
-		expect( filtered( 'inactive' ) ).toEqual( [ 'zeta', 'monitor', 'alpha' ] );
+		expect( filtered( 'inactive' ) ).toEqual( [ 'zeta', 'monitor', 'waf', 'alpha' ] );
 		expect( filtered( 'security' ) ).toEqual( [] );
 		expect( filtered( 'essential' ) ).toEqual( [] );
 	} );
@@ -156,9 +187,12 @@ describe( 'getHiddenModules', () => {
 		isBlockTheme: boolean,
 		...loads: Record< string, MyJetpackModule >[]
 	) => {
-		window.JetpackScriptData = {
-			myJetpack: { siteEditor: { isBlockTheme } },
-		} as Window[ 'JetpackScriptData' ];
+		window.myJetpackInitialState = {
+			deprecatedModules: [
+				'google-fonts',
+				...( isBlockTheme ? [ 'widgets', 'widget-visibility' ] : [] ),
+			],
+		} as Window[ 'myJetpackInitialState' ];
 		let hidden: Set< string > = new Set();
 		await jest.isolateModulesAsync( async () => {
 			const { getHiddenModules } = await import( '../use-more-features' );

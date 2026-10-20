@@ -94,6 +94,8 @@ jest.mock( '../use-location-views', () => ( {
 
 describe( 'LocationsWidget', () => {
 	beforeEach( () => {
+		// A query a previous test left retrying would settle mid-test and re-render this one.
+		queryClient.clear();
 		mockUseLocationViews.mockReset();
 		mockUseLocationViews.mockReturnValue( LOADING_STATE );
 	} );
@@ -101,7 +103,6 @@ describe( 'LocationsWidget', () => {
 	// The map waits for the country, so the lookup has to be under way before the
 	// rows arrive or it delays the map.
 	it( "starts the viewer's country lookup while the rows are still loading", () => {
-		queryClient.clear();
 		// jsdom has no `fetch`, so there is nothing for `jest.spyOn()` to wrap.
 		// eslint-disable-next-line jest/prefer-spy-on
 		globalThis.fetch = jest.fn( () => new Promise< Response >( () => {} ) );
@@ -392,15 +393,19 @@ describe( 'LocationsWidget', () => {
 		} );
 
 		it( 'keeps the previous level dimmed and inert while the next loads, and moves the map on', async () => {
-			// `placeholderData` hands back the previous level's rows until the new ones arrive.
+			// `placeholderData` hands back the previous level's rows until the new ones arrive,
+			// while the countries already fetched stay settled.
 			let isPending = false;
-			mockUseLocationViews.mockImplementation( ( ( { geoMode }: { geoMode: string } ) => ( {
-				...LOADING_STATE,
-				data: ROWS_BY_MODE[ isPending ? 'country' : geoMode ],
-				isLoading: isPending,
-				isFetching: isPending,
-				hasData: true,
-			} ) ) as unknown as () => LocationViewsState );
+			mockUseLocationViews.mockImplementation( ( ( { geoMode }: { geoMode: string } ) => {
+				const isLevelPending = isPending && geoMode !== 'country';
+				return {
+					...LOADING_STATE,
+					data: ROWS_BY_MODE[ isLevelPending ? 'country' : geoMode ],
+					isLoading: isLevelPending,
+					isFetching: isLevelPending,
+					hasData: true,
+				};
+			} ) as unknown as () => LocationViewsState );
 			const { rerender } = render(
 				<LocationsWidget attributes={ { geoGranularity: 'country' } } />
 			);
@@ -416,6 +421,7 @@ describe( 'LocationsWidget', () => {
 			// eslint-disable-next-line testing-library/no-node-access -- jsdom does not honour `inert`, so the attribute itself is the assertion.
 			expect( staleList.closest( '[inert]' ) ).not.toBeNull();
 			expect( lastLeaderboardProps().loading ).toBe( true );
+			expect( lastLeaderboardProps().columns ).toMatchObject( { label: 'Countries' } );
 			expect( within( staleList ).queryByRole( 'button' ) ).not.toBeInTheDocument();
 			expect( lastMapProps() ).toMatchObject( {
 				mode: 'region',
@@ -430,9 +436,57 @@ describe( 'LocationsWidget', () => {
 			// eslint-disable-next-line testing-library/no-node-access -- see above.
 			expect( freshRow.closest( '[inert]' ) ).toBeNull();
 			expect( lastLeaderboardProps().loading ).toBe( false );
+			expect( lastLeaderboardProps().columns ).toMatchObject( { label: 'Regions' } );
 			expect( lastMapProps().rows ).toEqual( [
 				expect.objectContaining( { label: 'Minnesota' } ),
 			] );
+		} );
+
+		describe( 'on a plan without regions and cities', () => {
+			beforeEach( () => {
+				window.JetpackScriptData = {
+					premium_analytics: {
+						initial_full_sync_finished: 1,
+						plan_gates: {
+							tier: 'paid',
+							locked_features: {
+								'regions-cities': {
+									description:
+										'Access to <link>region and city stats</link> for more accurate analysis.',
+									support_url: 'https://jetpack.com/support/',
+									upgrade_url: 'https://example.com/upgrade',
+								},
+							},
+							locked_widget_types: {},
+						},
+					},
+				} as unknown as typeof window.JetpackScriptData;
+			} );
+
+			afterEach( () => {
+				delete window.JetpackScriptData;
+			} );
+
+			it.each( [ 'region', 'city' ] as const )(
+				'locks %s mode without requesting it',
+				geoGranularity => {
+					render( <LocationsWidget attributes={ { geoGranularity } } /> );
+
+					expect(
+						screen.getByRole( 'link', { name: /region and city stats/ } )
+					).toBeInTheDocument();
+					expect( mockUseLocationViews ).not.toHaveBeenCalled();
+				}
+			);
+
+			it( 'keeps countries but offers no drill-down into them', () => {
+				render( <LocationsWidget attributes={ {} } /> );
+
+				expect( screen.getByText( 'United States' ) ).toBeInTheDocument();
+				expect(
+					screen.queryByRole( 'button', { name: 'View regions in United States' } )
+				).not.toBeInTheDocument();
+			} );
 		} );
 
 		it( 'offers no drill-down in Cities mode', () => {

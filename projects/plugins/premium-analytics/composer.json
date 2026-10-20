@@ -45,7 +45,6 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"autotagger": false,
 		"autorelease": false,
 		"beta-plugin-slug": "jetpack-premium-analytics",
 		"changelogger": {

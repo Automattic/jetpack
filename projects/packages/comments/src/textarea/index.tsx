@@ -44,7 +44,7 @@ export const Textarea = () => {
 			};
 			matchTheme( textarea.closest< HTMLElement >( '.jetpack-comments__box' )!, textarea );
 			setEditor( 'loading' );
-			loadEditor()
+			loadEditor( JetpackComments.editorLocale )
 				.then(
 					( { mountEditor } ) => {
 						// First: a cached chunk renders the editor this microtask, and it can only focus once shown.

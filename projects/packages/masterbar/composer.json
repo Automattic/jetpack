@@ -67,7 +67,6 @@
 		}
 	},
 	"extra": {
-		"autotagger": true,
 		"branch-alias": {
 			"dev-trunk": "0.29.x-dev"
 		},

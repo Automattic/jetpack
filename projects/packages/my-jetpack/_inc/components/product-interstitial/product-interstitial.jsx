@@ -4,7 +4,7 @@
 import { AdminPage, Col, Container, TermsOfService } from '@automattic/jetpack-components';
 import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { __, sprintf } from '@wordpress/i18n';
-import { LinkButton } from '@wordpress/ui';
+import { ButtonLink } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useEffect } from 'react';
 /**
@@ -62,7 +62,14 @@ export default function ProductInterstitial( {
 	feature = null,
 } ) {
 	const { detail } = useProduct( slug );
-	const { detail: bundleDetail } = useProduct( bundle );
+	const { detail: proDetail } = useProduct( 'pro' );
+	const proIsOnSale = proDetail?.pricingForUi?.catalogAvailable === true;
+	const preferredBundle =
+		proDetail?.pricingForUi?.available === true && ! proDetail?.hasPaidPlanForProduct
+			? 'pro'
+			: 'complete';
+	const offeredBundle = bundle && proIsOnSale ? preferredBundle : bundle;
+	const { detail: bundleDetail } = useProduct( offeredBundle );
 	const { activate, isPending: isActivating, isSuccess } = useActivatePlugins( slug );
 
 	// Get the post activation URL for the product.
@@ -80,7 +87,8 @@ export default function ProductInterstitial( {
 		skipUserConnection: true,
 		redirectUri,
 	} );
-	const showBundledTOS = ! hideTOS && !! bundle;
+	const showBundledTOS =
+		! hideTOS && !! bundle && ( ! proIsOnSale || bundleDetail?.pricingForUi?.available === true );
 	const productName = detail?.title;
 	const bundleName = bundleDetail?.title;
 	const bundledTosLabels = [
@@ -206,9 +214,9 @@ export default function ProductInterstitial( {
 			}
 			actions={
 				existingLicenseKeyUrl ? (
-					<LinkButton size="compact" variant="outline" href={ existingLicenseKeyUrl }>
+					<ButtonLink size="compact" variant="outline" href={ existingLicenseKeyUrl }>
 						{ __( 'Use license key', 'jetpack-my-jetpack' ) }
-					</LinkButton>
+					</ButtonLink>
 				) : null
 			}
 		>
@@ -244,7 +252,7 @@ export default function ProductInterstitial( {
 						>
 							{ bundle ? (
 								<ProductDetailCard
-									slug={ bundle }
+									slug={ offeredBundle }
 									trackButtonClick={ trackProductOrBundleClick }
 									onClick={ clickHandler }
 									className={ isUpgradableByBundle ? styles.container : null }
