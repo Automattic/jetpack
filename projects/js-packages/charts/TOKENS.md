@@ -80,6 +80,7 @@ The scope element is the wrapper a chart is rendered into, which sits **above** 
 | `--a8c-charts-color-grid` | `--wpds-color-stroke-surface-neutral` | `#dbdbdb` |
 | `--a8c-charts-color-axis-x` | `--wpds-color-stroke-surface-neutral` | `#dbdbdb` |
 | `--a8c-charts-color-tick-x` | `--wpds-color-stroke-surface-neutral` | `#dbdbdb` |
+| `--a8c-charts-color-baseline` | `--wpds-color-stroke-surface-neutral-strong` | `#8d8d8d` |
 | `--a8c-charts-color-axis-y` | _(none — unpainted unless a consumer sets it)_ | `none` |
 | `--a8c-charts-color-tick-y` | _(none — unpainted unless a consumer sets it)_ | `none` |
 | `--a8c-charts-color-label` | `--wpds-color-foreground-content-neutral` | `#1e1e1e` |
@@ -99,6 +100,8 @@ The scope element is the wrapper a chart is rendered into, which sits **above** 
 
 The x axis and tick roles share grid's WPDS token but stay distinct roles, so the three can be themed independently.
 
+`--a8c-charts-color-baseline` paints the zero line the leaderboard chart draws once any of its shares is negative.
+
 `--a8c-charts-color-tooltip-surface` is the color the tooltip theme is generated from, as `@wordpress/ui` seeds its Tooltip popup with `#1e1e1e`. Set it on the provider wrapper to retheme every tooltip, light or dark: the box surface, its text, every catalog role and every `--wpds-*` token inside follow. It must be an opaque sRGB color; anything else falls back to `#1e1e1e`. To recolor one chart's tooltip, repoint `--a8c-charts-color-surface` and `--a8c-charts-color-label` in that chart's `tooltipStyle`. That moves only those two roles: content that reads a `--wpds-*` token keeps the dark theme's value.
 
 ### One pair of roles per axis
@@ -116,7 +119,7 @@ Each axis names itself: `--a8c-charts-color-axis-x` / `-tick-x` paint the x axis
 
 Gridlines also stay on one role, `--a8c-charts-color-grid`: visx paints rows and columns from a single style object, so the grid is genuinely one thing rather than two.
 
-Under `forced-colors: active`, the axis label role uses `CanvasText`, and the grid, x-axis line, and x-axis tick roles use `GrayText`. The y-axis line and ticks remain hidden by default.
+Under `forced-colors: active`, the axis label and baseline roles use `CanvasText`, and the grid, x-axis line, and x-axis tick roles use `GrayText`. The y-axis line and ticks remain hidden by default.
 
 The terminal `none` in each chain is explicit rather than load-bearing: `stroke` already starts at `none`, so an undeclared role paints nothing either way.
 

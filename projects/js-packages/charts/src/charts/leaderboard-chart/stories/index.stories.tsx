@@ -615,11 +615,20 @@ export const NegativeValues: Story = {
 	},
 };
 
-export const NegativeValuesFixedDimensions: Story = {
+export const NegativeValuesWidgetSize: Story = {
 	args: {
 		...NegativeValues.args,
-		width: 300,
-		height: 400,
+		containerWidth: '319px',
+		containerHeight: '420px',
+		showLegend: true,
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Sized like a dashboard widget. Drag the bottom-right corner of the container to resize it.',
+			},
+		},
 	},
 };
 

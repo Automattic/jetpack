@@ -31,6 +31,7 @@
 	--a8c-charts-color-grid: var(--wpds-color-stroke-surface-neutral);
 	--a8c-charts-color-axis-x: var(--wpds-color-stroke-surface-neutral);
 	--a8c-charts-color-tick-x: var(--wpds-color-stroke-surface-neutral);
+	--a8c-charts-color-baseline: var(--wpds-color-stroke-surface-neutral-strong);
 	// The y axis carries labels only until one of these is declared. `none`
 	// rather than `transparent` keeps the line out of hit-testing too.
 	--a8c-charts-color-axis-y: none;
@@ -98,5 +99,6 @@
 		--a8c-charts-color-grid: GrayText;
 		--a8c-charts-color-axis-x: GrayText;
 		--a8c-charts-color-tick-x: GrayText;
+		--a8c-charts-color-baseline: CanvasText;
 	}
 }

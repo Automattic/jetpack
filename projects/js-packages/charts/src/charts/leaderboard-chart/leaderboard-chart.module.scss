@@ -91,19 +91,21 @@
 		}
 	}
 
-	.divergingBars {
+	// The zero marker. Each row's segment reaches halfway into the row gap
+	// and padding on either side, so the segments join into one line. It is
+	// painted above the bars but below the label.
+	&.is-diverging {
 		position: relative;
-		display: grid;
-		row-gap: inherit;
 
-		// The zero line, drawn over the bars like the bar chart's zero grid line.
-		&::before {
+		&::after {
 			content: "";
 			position: absolute;
-			inset-block: 0;
+			inset-block: calc(-1 * (var(--a8c-charts-dimension-leaderboard-row-gap) / 2 + var(--wpds-border-width-focus)));
 			inset-inline-start: 50%;
-			width: var(--wpds-border-width-xs);
-			background: var(--a8c-charts-color-grid);
+			width: var(--wpds-border-width-sm);
+			margin-inline-start: calc(var(--wpds-border-width-sm) / -2);
+			background: var(--a8c-charts-color-baseline);
+			z-index: -1;
 			pointer-events: none;
 		}
 	}
@@ -122,6 +124,14 @@
 			justify-self: end;
 		}
 	}
+}
+
+[data-leaderboard-grid] > :first-child .is-diverging::after {
+	inset-block-start: 0;
+}
+
+[data-leaderboard-grid] > :last-child .is-diverging::after {
+	inset-block-end: 0;
 }
 
 .valueContainer {

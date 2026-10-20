@@ -161,9 +161,7 @@ describe( 'LeaderboardChart', () => {
 		const data = [ { ...mockData[ 0 ], ...override }, mockData[ 1 ] ];
 		render( <LeaderboardChart data={ data } withComparison={ withComparison } /> );
 
-		expect( screen.queryAllByTestId( 'leaderboard-chart-diverging-bars' ) ).toHaveLength(
-			expected
-		);
+		expect( screen.queryAllByTestId( 'leaderboard-chart-diverging-row' ) ).toHaveLength( expected );
 	} );
 
 	it( 'shows custom label when provided', () => {
