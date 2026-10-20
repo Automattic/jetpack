@@ -16,6 +16,9 @@
 	"presentation": "framed",
 	"attributes": [
 		{
+			"id": "reportParams"
+		},
+		{
 			"id": "chartType",
 			"type": "jpa/toggle-group",
 			"label": "Chart type",
