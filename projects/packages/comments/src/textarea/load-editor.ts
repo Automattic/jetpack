@@ -5,7 +5,9 @@ let editorModule: Promise< typeof import( '../editor' ) > | null = null;
 
 export const loadEditor = ( locale?: LocaleData ) => {
 	// The chunk reads its translations as it loads.
-	window.jetpackCommentsEditorLocale = locale;
+	if ( locale ) {
+		window.jetpackCommentsEditorLocale = locale;
+	}
 	editorModule ??= import( /* webpackChunkName: "editor" */ '../editor' ).catch( error => {
 		editorModule = null;
 		throw error;
