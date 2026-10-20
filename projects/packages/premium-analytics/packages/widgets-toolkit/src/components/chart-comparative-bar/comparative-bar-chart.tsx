@@ -191,19 +191,14 @@ export function ComparativeBarChart( {
 		[ isEmptyData, tooltipExtras ]
 	);
 
-	// Each swatch takes the color its bar is drawn in, and a grouped comparison the theme's deprecated opacity when set.
+	// Each swatch takes the color its bar is drawn in.
 	const seriesStyles = useMemo< TooltipStyle[] >( () => {
 		const barColors = getBarColors?.( alignedSeries, { layout: layout ?? 'grouped' } );
 
-		return alignedSeries.map( ( seriesData, index ) => {
-			const { color, barStyles } = getElementStyles( { data: seriesData, index } );
-			const style = { stroke: barColors?.[ index ] ?? color };
-
-			return overlapLayout || barStyles?.opacity === undefined
-				? style
-				: { ...style, opacity: barStyles.opacity };
-		} );
-	}, [ alignedSeries, getElementStyles, getBarColors, layout, overlapLayout ] );
+		return alignedSeries.map( ( seriesData, index ) => ( {
+			stroke: barColors?.[ index ] ?? getElementStyles( { data: seriesData, index } ).color,
+		} ) );
+	}, [ alignedSeries, getElementStyles, getBarColors, layout ] );
 
 	// Multipliers keep the tick labels short.
 	const yTickFormat = useMemo(
