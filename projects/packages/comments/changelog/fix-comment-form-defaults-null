@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Fix a fatal error when another plugin or theme empties the comment form defaults.
+Fix fatal errors when another plugin or theme returns an empty value from a comment form or comment content filter.
