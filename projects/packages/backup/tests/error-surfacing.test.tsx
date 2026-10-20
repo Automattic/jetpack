@@ -11,6 +11,9 @@
 const mockRecordEvent = jest.fn();
 const mockApiFetch = jest.fn();
 
+const mockSearch = jest.fn< Record< string, unknown >, [] >();
+const mockNavigate = jest.fn();
+
 jest.mock( '@automattic/jetpack-analytics', () => ( {
 	__esModule: true,
 	default: {
@@ -18,8 +21,6 @@ jest.mock( '@automattic/jetpack-analytics', () => ( {
 		tracks: { recordEvent: ( ...args: unknown[] ) => mockRecordEvent( ...args ) },
 	},
 } ) );
-const mockSearch = jest.fn< Record< string, unknown >, [] >();
-const mockNavigate = jest.fn();
 
 jest.mock( '@wordpress/api-fetch', () => ( {
 	__esModule: true,
@@ -332,7 +333,7 @@ describe( 'ErrorBoundary', () => {
 	 * inside a `useMemo` on the render path.
 	 */
 	function Exploding(): never {
-		throw new Error( 'Invalid time value' );
+		throw new RangeError( 'Invalid time value' );
 	}
 
 	it( 'replaces a crashed subtree with a recoverable message', () => {
@@ -350,22 +351,15 @@ describe( 'ErrorBoundary', () => {
 		expect( console ).toHaveErrored();
 	} );
 
-	/**
-	 * Throws a `TypeError` whose message must never reach Tracks.
-	 */
-	function Boom(): never {
-		throw new TypeError( 'secret site message' );
-	}
-
 	it.each( [
-		[ 'with a screen', 'download', { screen: 'download', error_type: 'TypeError' } ],
-		[ 'without a screen', undefined, { error_type: 'TypeError' } ],
+		[ 'with a screen', 'download', { screen: 'download', error_type: 'RangeError' } ],
+		[ 'without a screen', undefined, { error_type: 'RangeError' } ],
 	] as const )(
 		'records one crash event %s and nothing from the error text',
 		( _label, routeName, expected ) => {
 			render(
 				<ErrorBoundary screen={ routeName }>
-					<Boom />
+					<Exploding />
 				</ErrorBoundary>
 			);
 
