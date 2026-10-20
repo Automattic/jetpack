@@ -5,7 +5,7 @@
  * @package automattic/jetpack-backup-plugin
  */
 
-namespace Automattic\Jetpack\Backup\V0005;
+namespace Automattic\Jetpack\Backup\V0006;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
@@ -31,7 +31,7 @@ require_once __DIR__ . '/mock-wp-build-render-page.php';
 /**
  * Tests the menu callback -> enqueue chain.
  *
- * @covers \Automattic\Jetpack\Backup\V0005\Jetpack_Backup
+ * @covers \Automattic\Jetpack\Backup\V0006\Jetpack_Backup
  */
 #[CoversClass( Jetpack_Backup::class )]
 class Admin_Modernization_Gating_Test extends TestCase {

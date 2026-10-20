@@ -9,7 +9,7 @@
 // order to ensure that the specific version of this file always get loaded. Otherwise, Jetpack autoloader might decide
 // to load an older/newer version of the class (if, for example, both the standalone and bundled versions of the plugin
 // are installed, or in some other cases).
-namespace Automattic\Jetpack\Backup\V0005;
+namespace Automattic\Jetpack\Backup\V0006;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -164,7 +164,7 @@ class Jetpack_Backup {
 		$options = array_merge( self::DEFAULT_INIT_OPTIONS, $options );
 
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
-		add_action( 'rest_api_init', array( \Automattic\Jetpack\Backup\V0005\REST\Rest_Controller::class, 'register_routes' ) );
+		add_action( 'rest_api_init', array( \Automattic\Jetpack\Backup\V0006\REST\Rest_Controller::class, 'register_routes' ) );
 
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 		add_action( 'admin_menu', array( __CLASS__, 'add_wp_admin_submenu' ), 1 ); // Akismet uses 4, so we need to use 1 to ensure both menus are added when only they exist.
@@ -338,28 +338,6 @@ class Jetpack_Backup {
 			)
 		);
 
-		// Get site backup/scan/anti-spam capabilities.
-		register_rest_route(
-			'jetpack/v4',
-			'/backup-capabilities',
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::get_backup_capabilities',
-				'permission_callback' => __CLASS__ . '::backups_permissions_callback',
-			)
-		);
-
-		// Get whether the site has a backup plan
-		register_rest_route(
-			'jetpack/v4',
-			'/has-backup-plan',
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::get_backup_plan_state',
-				'permission_callback' => __CLASS__ . '::backups_permissions_callback',
-			)
-		);
-
 		// Get site rewind data.
 		register_rest_route(
 			'jetpack/v4',
@@ -367,19 +345,6 @@ class Jetpack_Backup {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => __CLASS__ . '::get_recent_restores',
-				'permission_callback' => __CLASS__ . '::backups_permissions_callback',
-			)
-		);
-
-		// Get information on site products.
-		// Backup plugin version of /site/purchases from JP plugin.
-		// Revert once this route and MyPlan component are extracted to a common package.
-		register_rest_route(
-			'jetpack/v4',
-			'/site/current-purchases',
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::get_site_current_purchases',
 				'permission_callback' => __CLASS__ . '::backups_permissions_callback',
 			)
 		);
@@ -394,34 +359,6 @@ class Jetpack_Backup {
 					'permission_callback' => __CLASS__ . '::backups_permissions_callback',
 				)
 			);
-
-		// Get and set value of dismissed_backup_review_request option
-		register_rest_route(
-			'jetpack/v4',
-			'/site/dismissed-review-request',
-			array(
-				'methods'             => WP_REST_Server::EDITABLE,
-				'callback'            => __CLASS__ . '::manage_dismissed_backup_review_request',
-				'permission_callback' => __CLASS__ . '::backups_permissions_callback',
-				'args'                => array(
-					'option_name'    => array(
-						'required' => true,
-						'type'     => 'string',
-						// The two names `Jetpack_Options` recognises. Anything else
-						// falls through its allowlist to a `trigger_error()` and is
-						// stored nowhere, so an unlisted reason would dismiss
-						// nothing while answering as though it had — and on a site
-						// with `display_errors` on, the warning is printed ahead of
-						// the JSON and the response no longer parses.
-						'enum'     => array( 'restore', 'backups' ),
-					),
-					'should_dismiss' => array(
-						'required' => true,
-						'type'     => 'boolean',
-					),
-				),
-			)
-		);
 
 		// Get site size
 		register_rest_route(
@@ -630,36 +567,6 @@ class Jetpack_Backup {
 	}
 
 	/**
-	 * Get an array of backup/scan/anti-spam site capabilities
-	 *
-	 * @access public
-	 * @static
-	 *
-	 * @return \WP_REST_Response|WP_Error The site capabilities, or a WP_Error if WordPress.com could not be reached.
-	 */
-	public static function get_backup_capabilities() {
-		$blog_id = Jetpack_Options::get_option( 'id' );
-
-		$response = Client::wpcom_json_api_request_as_user(
-			'/sites/' . $blog_id . '/rewind/capabilities',
-			'v2',
-			array(),
-			null,
-			'wpcom'
-		);
-
-		$response_code = (int) wp_remote_retrieve_response_code( $response );
-
-		if ( 200 !== $response_code ) {
-			return self::get_failed_fetch_error( $response );
-		}
-
-		return rest_ensure_response(
-			json_decode( $response['body'], true )
-		);
-	}
-
-	/**
 	 * Get information about recent restores
 	 *
 	 * @access public
@@ -845,53 +752,6 @@ class Jetpack_Backup {
 
 		// Checking for existing backup plan is costly, so only check if there's an appropriate license.
 		return $license_found && ! static::has_backup_plan();
-	}
-
-	/**
-	 * Returns the result of `/upgrades` endpoint call.
-	 *
-	 * @return \WP_REST_Response|WP_Error The site purchases, or a WP_Error if WordPress.com could not be reached.
-	 */
-	public static function get_site_current_purchases() {
-
-		$request  = sprintf( '/upgrades?site=%d', Jetpack_Options::get_option( 'id' ) );
-		$response = Client::wpcom_json_api_request_as_blog( $request, '1.2' );
-
-		// Bail if there was an error or malformed response.
-		if ( is_wp_error( $response ) || ! is_array( $response ) || ! isset( $response['body'] ) ) {
-			return self::get_failed_fetch_error( $response );
-		}
-
-		$response_code = (int) wp_remote_retrieve_response_code( $response );
-
-		if ( 200 !== $response_code ) {
-			return self::get_failed_fetch_error( $response );
-		}
-
-		return rest_ensure_response(
-			json_decode( $response['body'], true )
-		);
-	}
-
-	/**
-	 * Set value of the dismissed_backup_review_request Jetack option.
-	 * Get value if should_dismiss is false
-	 *
-	 * @access public
-	 * @static
-	 * @param array $request arguments should_dismiss and option_name.
-	 * @return bool value of option if value is requested | updated or not if value is updated.
-	 */
-	public static function manage_dismissed_backup_review_request( $request ) {
-
-		if ( ! $request['should_dismiss'] ) {
-
-			return rest_ensure_response(
-				Jetpack_Options::get_option( 'dismissed_backup_review_' . $request['option_name'] )
-			);
-		}
-
-		return Jetpack_Options::update_option( 'dismissed_backup_review_' . $request['option_name'], true );
 	}
 
 	/**

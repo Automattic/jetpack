@@ -5,7 +5,7 @@
  * @package automattic/jetpack-backup
  */
 
-namespace Automattic\Jetpack\Backup\V0005;
+namespace Automattic\Jetpack\Backup\V0006;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
@@ -22,7 +22,7 @@ use function rest_get_server;
  *
  * Every test runs in a child process, because `initialize()` runs once per process.
  *
- * @covers \Automattic\Jetpack\Backup\V0005\Jetpack_Backup
+ * @covers \Automattic\Jetpack\Backup\V0006\Jetpack_Backup
  */
 #[CoversClass( Jetpack_Backup::class )]
 class Jetpack_Backup_Init_Options_Test extends TestCase {
@@ -92,6 +92,6 @@ class Jetpack_Backup_Init_Options_Test extends TestCase {
 		$GLOBALS['wp_rest_server'] = new WP_REST_Server();
 		do_action( 'rest_api_init' );
 
-		return array_key_exists( '/jetpack/v4/has-backup-plan', rest_get_server()->get_routes() );
+		return array_key_exists( '/jetpack/v4/backup-promoted-product-info', rest_get_server()->get_routes() );
 	}
 }

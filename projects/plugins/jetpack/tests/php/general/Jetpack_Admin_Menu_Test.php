@@ -5,7 +5,7 @@
 
 use Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
-use Automattic\Jetpack\Backup\V0005\Jetpack_Backup;
+use Automattic\Jetpack\Backup\V0006\Jetpack_Backup;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\My_Jetpack\Jetpack_Manage;
 use Automattic\Jetpack\Scan\Admin_Sidebar_Link;

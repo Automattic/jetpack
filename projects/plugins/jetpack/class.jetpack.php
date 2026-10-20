@@ -872,7 +872,7 @@ class Jetpack {
 			return;
 		}
 
-		$backup = 'Automattic\\Jetpack\\Backup\\V0005\\Jetpack_Backup';
+		$backup = 'Automattic\\Jetpack\\Backup\\V0006\\Jetpack_Backup';
 
 		// An older package would take over the connection (see Jetpack_Backup::DEFAULT_INIT_OPTIONS);
 		// only the standalone plugin ships one that old, and it draws its own menu.

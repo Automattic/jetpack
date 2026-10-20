@@ -5,7 +5,7 @@
  * @package automattic/jetpack-backup
  */
 
-namespace Automattic\Jetpack\Backup\V0005;
+namespace Automattic\Jetpack\Backup\V0006;
 
 use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -224,7 +224,7 @@ class Jetpack_Backup_Test extends TestCase {
 	}
 
 	/**
-	 * The seven unconditionally-registered routes that answer out of
+	 * The unconditionally-registered routes that answer out of
 	 * WordPress.com, as route path => array( callback, HTTP method ).
 	 *
 	 * One list, two providers, so that adding a route here covers it
@@ -235,7 +235,6 @@ class Jetpack_Backup_Test extends TestCase {
 	private static function wpcom_backed_routes() {
 		return array(
 			'/jetpack/v4/backups'              => array( 'get_recent_backups', 'GET' ),
-			'/jetpack/v4/backup-capabilities'  => array( 'get_backup_capabilities', 'GET' ),
 			'/jetpack/v4/restores'             => array( 'get_recent_restores', 'GET' ),
 			'/jetpack/v4/site/backup/size'     => array( 'get_site_backup_size', 'GET' ),
 			'/jetpack/v4/site/backup/policies' => array( 'get_site_backup_policies', 'GET' ),
@@ -297,7 +296,7 @@ class Jetpack_Backup_Test extends TestCase {
 	/**
 	 * A success code reported as a string still lists the events.
 	 *
-	 * `list_backup_events()` is not one of the seven routes covered by the
+	 * `list_backup_events()` is not one of the routes covered by the
 	 * providers above — it answers no route of its own and is read by the
 	 * `jetpack-backup/list-backup-events` ability, which flattens this
 	 * `null` into an empty list through `unwrap_response()`. So an uncast
@@ -322,8 +321,8 @@ class Jetpack_Backup_Test extends TestCase {
 	 * `get_rewind_state_from_wpcom()` is private; `has_backup_plan()` is the
 	 * door, and it answers false for the `WP_Error` an uncast `'200'`
 	 * produced — so a site that does have Backup was told it does not. That
-	 * answer is acted on: it backs `GET /jetpack/v4/has-backup-plan` and the
-	 * standalone-license upsell in `jetpack_check_user_licenses()`.
+	 * answer is acted on: it backs the standalone-license upsell in
+	 * `jetpack_check_user_licenses()`.
 	 *
 	 * The request count is asserted because the helper memoizes a readable
 	 * response: without it this would pass on a cached answer left by an
@@ -399,9 +398,9 @@ class Jetpack_Backup_Test extends TestCase {
 	/**
 	 * A WordPress.com failure is reported as one, not as "no plan".
 	 *
-	 * That answer is acted on: `GET /jetpack/v4/has-backup-plan` backs the
-	 * connect screen's own-it-already check, so a blip sent a paying site's
-	 * owner to checkout to buy Backup again.
+	 * That answer is acted on: `jetpack_check_user_licenses()` uses it for the
+	 * own-it-already check, so a blip sent a paying site's owner to checkout to
+	 * buy Backup again.
 	 */
 	public function test_backup_plan_state_forwards_a_non_200() {
 		$this->sign_in_as_connected_admin();
@@ -431,24 +430,6 @@ class Jetpack_Backup_Test extends TestCase {
 		$this->assertSame( 1, $this->http_requests );
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 500, $result->get_error_data()['status'] );
-	}
-
-	/**
-	 * The route serves the failure. It used to serve `false` as an HTTP 200,
-	 * which no caller can tell from "this site has no Backup plan".
-	 */
-	public function test_has_backup_plan_route_serves_a_failure_as_an_error() {
-		$this->sign_in_as_connected_admin();
-		$this->wpcom_status = 503;
-		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_response' ) );
-
-		rest_get_server();
-		Jetpack_Backup::register_rest_routes();
-
-		$response = rest_do_request( new WP_REST_Request( 'GET', '/jetpack/v4/has-backup-plan' ) );
-
-		$this->assertTrue( $response->is_error() );
-		$this->assertSame( 503, $response->get_status() );
 	}
 
 	/**
@@ -931,94 +912,6 @@ class Jetpack_Backup_Test extends TestCase {
 				),
 				JSON_UNESCAPED_SLASHES
 			),
-		);
-	}
-
-	/**
-	 * The dismissal route refuses a reason `Jetpack_Options` cannot store.
-	 *
-	 * A reason outside `Jetpack_Options`' allowlist reaches a `trigger_error()`
-	 * and is stored nowhere, so without the enum the route answers 200 for a
-	 * dismissal it did not record — and prints a warning ahead of the JSON.
-	 *
-	 * @param string $option_name The reason to send.
-	 * @dataProvider provide_unstorable_review_reasons
-	 */
-	#[DataProvider( 'provide_unstorable_review_reasons' )]
-	public function test_dismissal_route_refuses_an_unstorable_reason( $option_name ) {
-		$this->sign_in_as_connected_admin();
-
-		rest_get_server();
-		Jetpack_Backup::register_rest_routes();
-
-		$request = new WP_REST_Request( 'POST', '/jetpack/v4/site/dismissed-review-request' );
-		$request->set_body_params(
-			array(
-				'option_name'    => $option_name,
-				'should_dismiss' => false,
-			)
-		);
-		$response = rest_do_request( $request );
-
-		$this->assertSame( 400, $response->get_status(), $option_name );
-	}
-
-	/**
-	 * Reasons the route must refuse.
-	 *
-	 * @return array
-	 */
-	public static function provide_unstorable_review_reasons() {
-		return array(
-			// The shape a third prompt would arrive in if someone added one
-			// without also adding the option name upstream.
-			'a reason nobody registered' => array( 'scan' ),
-			'empty'                      => array( '' ),
-			// Not an injection risk — the value is concatenated into an
-			// option name that is then allowlisted — but it has no business
-			// reaching that concatenation at all.
-			'a path'                     => array( '../../etc/passwd' ),
-		);
-	}
-
-	/**
-	 * Both reasons the dashboard actually sends are accepted, and an
-	 * un-dismissed prompt reads as `false`.
-	 *
-	 * The client treats anything but a literal `false` as dismissed.
-	 *
-	 * @param string $option_name The reason to send.
-	 * @dataProvider provide_review_reasons
-	 */
-	#[DataProvider( 'provide_review_reasons' )]
-	public function test_dismissal_route_accepts_the_reasons_the_dashboard_sends( $option_name ) {
-		$this->sign_in_as_connected_admin();
-
-		rest_get_server();
-		Jetpack_Backup::register_rest_routes();
-
-		$request = new WP_REST_Request( 'POST', '/jetpack/v4/site/dismissed-review-request' );
-		$request->set_body_params(
-			array(
-				'option_name'    => $option_name,
-				'should_dismiss' => false,
-			)
-		);
-		$response = rest_do_request( $request );
-
-		$this->assertSame( 200, $response->get_status(), $option_name );
-		$this->assertFalse( $response->get_data(), $option_name );
-	}
-
-	/**
-	 * The two reasons the review prompt can carry.
-	 *
-	 * @return array
-	 */
-	public static function provide_review_reasons() {
-		return array(
-			'restore' => array( 'restore' ),
-			'backups' => array( 'backups' ),
 		);
 	}
 }
