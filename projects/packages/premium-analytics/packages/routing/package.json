@@ -12,7 +12,7 @@
 		"@wordpress/date": "5.57.0",
 		"@wordpress/route": "0.23.0",
 		"date-fns": "4.4.0",
-		"react": "18.3.1"
+		"react": "19.3.0"
 	},
 	"devDependencies": {
 		"@date-fns/tz": "1.5.0"
