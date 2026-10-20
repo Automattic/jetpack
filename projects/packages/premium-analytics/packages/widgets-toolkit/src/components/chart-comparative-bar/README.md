@@ -12,10 +12,10 @@ from the chart theme through `useGlobalChartsContext()`. It **must be rendered i
 its own.
 
 That is also why there is deliberately no `styles` prop. The comparison shadow's geometry comes
-from the theme's `barChart.barStyles.comparison.widthFactor`, and its distinctness from the current
-period comes from that entry's `opacity` — passing fills in here would decouple the shadow from the
-bar it shadows. Theme styles are read back only to tint the tooltip swatches, so they match what the
-chart drew.
+from the theme's `barChart.barStyles.comparison.widthFactor`, and charts tones the shadow and the
+bar in front of it so they stay distinct — passing fills in here would decouple the shadow from the
+bar it shadows. Bar colors are read back from `getBarColors` only to color the tooltip swatches, so
+they match what the chart drew.
 
 ## Usage
 
@@ -50,7 +50,7 @@ second current-period series keeps its own dates.
 
 ## Overlap layout
 
-With `layout="overlap"`, the chart draws each `group` inside the one before it, and the previous period in a slot beside the current one. The bars are opaque and charts tones them, so the tooltip and legend swatches read their colors from `getBarColors` on the charts context instead of the series colors. The series keep their `group`s: `group` still names the metric. The legend names the previous period with one item, in the color of its widest shown bar.
+With `layout="overlap"`, the chart draws each `group` inside the one before it, and the previous period in a slot beside the current one. The bars are opaque and charts tones them, so the tooltip and legend swatches read their colors from `getBarColors` on the charts context instead of the series colors. The series keep their `group`s: `group` still names the metric. The legend names the previous period with one item, in the color of the picked metric's previous bar, or else of its widest shown bar.
 
 ## Date alignment and tooltips
 
