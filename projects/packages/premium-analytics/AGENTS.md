@@ -356,7 +356,11 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
-import type { MyWidgetAttributes } from './widget';
+
+// A widget with a `widget.ts` imports this from './widget' instead.
+export type MyWidgetAttributes = {
+	view?: 'posts' | 'archives';
+};
 
 type MyWidgetRenderAttributes = MyWidgetAttributes & Partial< ReportParamsFieldAttributes >;
 
@@ -371,9 +375,9 @@ export default function MyWidget( {
 }
 ```
 
-The widget's own attribute shape is declared and exported once: in `widget.ts` when the widget
-has one, alongside the `attributes`/`example` schema it describes, and imported by `render.tsx`;
-otherwise in `render.tsx` itself, where stories and tests import it. `render.tsx` may compose a
+The widget's own attribute shape is declared once: in `widget.ts` when the widget has one,
+alongside the `attributes`/`example` schema it describes, exported for `render.tsx` to import;
+otherwise in `render.tsx` itself. `render.tsx` may compose a
 render-only type with host fields like `Partial<ReportParamsFieldAttributes>`, but it must not
 re-declare the widget's own attributes. A widget with no own attributes
 must type its shape as `Record< never, never >`, not `Record< string, never >` — the
