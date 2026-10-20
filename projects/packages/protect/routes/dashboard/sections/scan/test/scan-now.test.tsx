@@ -45,9 +45,14 @@ function renderAndScan( answer: () => Promise< unknown > ) {
 
 describe( 'Scan now', () => {
 	it( 'follows the report the scan request returns', async () => {
-		// Newer than the click, so only reading the response ends the optimistic "Scanning…".
-		const finished = new Date( Date.now() + 1000 ).toISOString().slice( 0, 19 ).replace( 'T', ' ' );
-		await renderAndScan( () => Promise.resolve( { ...report, lastChecked: finished } ) );
+		// Stamped as the POST is answered, so it is newer than the click however slow the render,
+		// and only reading the response ends the optimistic "Scanning…".
+		await renderAndScan( () =>
+			Promise.resolve( {
+				...report,
+				lastChecked: new Date( Date.now() + 1000 ).toISOString().slice( 0, 19 ).replace( 'T', ' ' ),
+			} )
+		);
 
 		await expect( screen.findByText( 'Your site is safe right now' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( 'Scanning…' ) ).not.toBeInTheDocument();
