@@ -23,6 +23,7 @@ import {
 	useWidgetDrillDown,
 	useWidgetRootContext,
 	ExporterCsvDownloadButton,
+	getUtmDimensionLabel,
 	getUtmReportSection,
 	utmCsvExporters,
 	type LeaderboardChartData,
@@ -197,11 +198,18 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
 					<LeaderboardChart
+						chartTitle={ __( 'Top UTM', 'jetpack-premium-analytics-pkg' ) }
 						data={ leaderboardData }
 						withComparison={ withComparison }
 						withOverlayLabel
 						showLegend={ false }
 						dataFormat={ DATA_FORMAT }
+						columns={ {
+							label: isDrillDown
+								? __( 'Posts', 'jetpack-premium-analytics-pkg' )
+								: getUtmDimensionLabel( reportSection ),
+							metric: 'views',
+						} }
 					/>
 				</WidgetState>
 			</div>

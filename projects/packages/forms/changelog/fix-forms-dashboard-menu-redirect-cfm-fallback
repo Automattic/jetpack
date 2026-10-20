@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Send sites without Central Form Management from the Forms list to the inbox even while settings are still loading.

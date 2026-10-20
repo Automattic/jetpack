@@ -368,7 +368,7 @@
 		display: none;
 	}
 
-	// The embed block: its URL box and preview frame.
+	// The embed and image blocks: their URL box, and the embed's preview frame.
 	.components-placeholder {
 		display: flex;
 		flex-direction: column;
@@ -427,6 +427,17 @@
 	.jetpack-comments__embed-overlay {
 		position: absolute;
 		inset: 0;
+	}
+
+	.wp-block-image {
+		margin-inline: 0;
+		overflow-wrap: anywhere;
+
+		img {
+			display: block;
+			max-inline-size: 100%;
+			block-size: auto;
+		}
 	}
 }
 

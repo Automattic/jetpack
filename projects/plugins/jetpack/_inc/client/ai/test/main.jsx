@@ -116,8 +116,8 @@ function mockApiFetch( { featureGet = enabledSettings(), mcpGet = {}, featurePos
 	} );
 }
 
-// The design-system Notice mirrors its text into a hidden wp.a11y.speak live
-// region, so a bare text query matches twice. Ignore that region.
+// The page notice mirrors its text into a hidden wp.a11y.speak live region,
+// so a bare text query matches twice. Ignore that region.
 const IGNORE_A11Y = { ignore: 'script, style, .a11y-speak-region' };
 
 // An MCP payload for a connected site with MCP enabled: account tools make
@@ -792,7 +792,10 @@ describe( 'AI admin page (main.jsx)', () => {
 			'href',
 			'admin.php?page=my-jetpack#/connection'
 		);
-		expect( screen.getByRole( 'checkbox', { name: /Writing Assistant/ } ) ).toBeDisabled();
+		// The notice needs no fetch; the switches do, so wait for them.
+		await expect(
+			screen.findByRole( 'checkbox', { name: /Writing Assistant/ } )
+		).resolves.toBeDisabled();
 	} );
 
 	test( 'save-confirmation: a successful AI-settings save shows a success snackbar', async () => {

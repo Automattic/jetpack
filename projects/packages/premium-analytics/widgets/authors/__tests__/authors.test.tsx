@@ -115,8 +115,11 @@ describe( 'AuthorsWidget', () => {
 			expect.stringContaining( '/author/102' )
 		);
 
+		expect( screen.getByText( 'Authors' ) ).toBeInTheDocument();
+
 		await user.click( screen.getByRole( 'button', { name: 'View posts by Jane Cooper' } ) );
 
+		expect( screen.getByText( 'Posts' ) ).toBeInTheDocument();
 		const link = screen.getByRole( 'link', { name: 'Quarterly update' } );
 		const url = new URL( link.getAttribute( 'href' ) ?? '', 'https://example.com' );
 

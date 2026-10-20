@@ -27,7 +27,7 @@ class Jetpack_Shortcodes_Vine_Test extends WP_UnitTestCase {
 	public function test_shortcodes_vine() {
 		$content = '[vine]';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertNotEquals( $content, $shortcode_content );
 	}
@@ -40,7 +40,7 @@ class Jetpack_Shortcodes_Vine_Test extends WP_UnitTestCase {
 		$url     = 'https://vine.co/v/hBFxTlV36Tg';
 		$content = '[vine url=' . $url . ']';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringContainsString( $url, $shortcode_content );
 	}
@@ -53,7 +53,7 @@ class Jetpack_Shortcodes_Vine_Test extends WP_UnitTestCase {
 		$url     = 'https://' . WP_TESTS_DOMAIN . '/v/hBFxTlV36Tg';
 		$content = '[vine url=' . $url . ']';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertEmpty( $shortcode_content );
 	}
@@ -68,7 +68,7 @@ class Jetpack_Shortcodes_Vine_Test extends WP_UnitTestCase {
 		$height  = '300';
 		$content = '[vine url=' . $url . ' width=' . $width . ' height=' . $height . ']';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringContainsString( $url, $shortcode_content );
 		$this->assertStringContainsString( 'width="' . $width . '"', $shortcode_content );
@@ -84,7 +84,7 @@ class Jetpack_Shortcodes_Vine_Test extends WP_UnitTestCase {
 		$type    = 'postcard';
 		$content = '[vine url=' . $url . ' type=' . $type . ']';
 
-		$shortcode_content = do_shortcode( $content );
+		$shortcode_content = apply_shortcodes( $content );
 
 		$this->assertStringContainsString( $url, $shortcode_content );
 		$this->assertStringContainsString( '/embed/' . $type, $shortcode_content );

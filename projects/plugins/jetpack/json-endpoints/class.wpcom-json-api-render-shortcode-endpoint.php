@@ -73,7 +73,7 @@ class WPCOM_JSON_API_Render_Shortcode_Endpoint extends WPCOM_JSON_API_Render_End
 			return new WP_Error( 'invalid_shortcode', 'Only one shortcode can be rendered at a time.', 400 );
 		}
 
-		$render = $this->process_render( array( $this, 'do_shortcode' ), $shortcode );
+		$render = $this->process_render( array( $this, 'apply_shortcodes' ), $shortcode );
 
 		// if nothing happened, then the shortcode does not exist.
 		if ( $shortcode === $render['result'] ) {

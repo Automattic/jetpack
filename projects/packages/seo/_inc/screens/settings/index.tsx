@@ -92,6 +92,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 		setField,
 		setSchemaSettings,
 		setVerification,
+		saveVerification,
 		commit,
 		commitFields,
 		isDirty,
@@ -304,6 +305,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 							: undefined
 					}
 					onChange={ setVerification }
+					saveGoogleCode={ code => saveVerification( 'google', code ) }
 					onCommit={ () => commitFields( [ 'verification' ] ) }
 					disabled={ isSaving }
 					open={ verificationOpen }
@@ -325,37 +327,35 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 						<AuthorProfileCard />
 					</div>
 
-					{ ! simpleSite && (
-						<CollapsibleCard.Root defaultOpen={ false }>
-							<CollapsibleCard.Header render={ <h2 /> }>
-								<Stack direction="row" justify="space-between" align="center" gap="sm">
-									<Card.Title>
-										<CardTitleIcon icon={ link } title={ __( 'Canonical URLs', 'jetpack-seo' ) } />
-									</Card.Title>
-									<CollapsibleCard.HeaderDescription>
-										<StatusIndicator status={ canonicalStatus } />
-									</CollapsibleCard.HeaderDescription>
-								</Stack>
-							</CollapsibleCard.Header>
-							<CollapsibleCard.Content>
-								<ToggleControl
-									label={ __( 'Add canonical URLs to archive pages', 'jetpack-seo' ) }
-									help={
-										! local.canonical_switchable
-											? platformManagedHelp
-											: __(
-													"Points search engines to one preferred URL for archive pages, so duplicates aren't indexed separately.",
-													'jetpack-seo'
-												)
-									}
-									checked={ local.canonical_active }
-									onChange={ next => commit( { canonical_active: next } ) }
-									disabled={ isSaving || ! local.canonical_switchable }
-									__nextHasNoMarginBottom
-								/>
-							</CollapsibleCard.Content>
-						</CollapsibleCard.Root>
-					) }
+					<CollapsibleCard.Root defaultOpen={ false }>
+						<CollapsibleCard.Header render={ <h2 /> }>
+							<Stack direction="row" justify="space-between" align="center" gap="sm">
+								<Card.Title>
+									<CardTitleIcon icon={ link } title={ __( 'Canonical URLs', 'jetpack-seo' ) } />
+								</Card.Title>
+								<CollapsibleCard.HeaderDescription>
+									<StatusIndicator status={ canonicalStatus } />
+								</CollapsibleCard.HeaderDescription>
+							</Stack>
+						</CollapsibleCard.Header>
+						<CollapsibleCard.Content>
+							<ToggleControl
+								label={ __( 'Add canonical URLs to archive pages', 'jetpack-seo' ) }
+								help={
+									! local.canonical_switchable
+										? platformManagedHelp
+										: __(
+												"Points search engines to one preferred URL for archive pages, so duplicates aren't indexed separately.",
+												'jetpack-seo'
+											)
+								}
+								checked={ local.canonical_active }
+								onChange={ next => commit( { canonical_active: next } ) }
+								disabled={ isSaving || ! local.canonical_switchable }
+								__nextHasNoMarginBottom
+							/>
+						</CollapsibleCard.Content>
+					</CollapsibleCard.Root>
 
 					<TitleStructureField
 						formats={ local.title_formats }

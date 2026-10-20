@@ -145,6 +145,8 @@ export {
 	FeedbackModal,
 	type FeedbackSource,
 	PageEmptyState,
+	LockedPage,
+	LockedWidget,
 	PageNotice,
 	type PageNoticeProps,
 	PageOptionsMenu,
@@ -229,10 +231,13 @@ export {
 	getArchiveGroupLabel,
 	getArchiveTypeLabel,
 	getAuthorName,
+	getAuthorPostsQueryParams,
 	getAuthorsReportQueryParams,
 	getLocationColumnLabel,
+	getLocationsGeoModeOptions,
 	getLocationsReportQueryParams,
 	getLocationsReportSection,
+	getLocationsSectionLabel,
 	getLocationsScopeParams,
 	getPostsReportQueryParams,
 	getReferrerSpamDomain,
@@ -285,8 +290,9 @@ export type { ReportParamsFieldAttributes } from './fields';
 export {
 	calculateDelta,
 	flagUrl,
-	BOOKINGS_FILTER,
 	formatLegendLabels,
+	formatChartName,
+	formatMapName,
 	formatDisplayLabel,
 	buildCsv,
 	buildCsvDateRangeFilename,
@@ -302,7 +308,6 @@ export {
 	defaultPeriodForInterval,
 	buildMetricTab,
 	siteChartFormatting,
-	CHART_TYPE_ELEMENTS,
 	type ChartDisplayChartType,
 	CALENDAR_HEATMAP_CELL_GAP,
 	CALENDAR_HEATMAP_HEADER_HEIGHT,
@@ -310,6 +315,8 @@ export {
 	compareOptionalNumbers,
 	formatEmailRate,
 	formatViewCount,
+	formatListMetricCount,
+	getListMetricLabel,
 	HOURS_DATA_FORMAT,
 	getClicksRateSignals,
 	getKnownEmailRate,
@@ -351,11 +358,6 @@ export {
 	useTrackedDateRangeApply,
 	useWidgetDrillDown,
 } from './hooks';
-
-/**
- * Widget components
- */
-export { VisitorsByLocationWidget } from './widgets';
 
 /**
  * Types

@@ -77,4 +77,4 @@ const store = createReduxStore( STORE_NAME, {
 
 register( store );
 
-export { store as settingsStore, STORE_NAME as SETTINGS_STORE_NAME };
+export { store as settingsStore };

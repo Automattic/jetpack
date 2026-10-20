@@ -231,6 +231,18 @@ describe( 'TrafficChart bucket size', () => {
 		expect( requestedBucket() ).toBe( 'hour' );
 	} );
 
+	it( 'draws days for a saved bucket the plan locks', () => {
+		render(
+			<ReportScopeProvider dateLimits={ { lockedPresetIds: [], lockedIntervals: [ 'week' ] } }>
+				<TrafficChartRender
+					attributes={ { reportParams: reportParams( 'day' ), chartInterval: 'week' } }
+				/>
+			</ReportScopeProvider>
+		);
+
+		expect( requestedBucket() ).toBe( 'day' );
+	} );
+
 	// The Group by attribute this widget used to declare (WOOA7S-1987): a saved
 	// layout can still carry it, and it must not override the range's bucket.
 	it( 'ignores a granularity persisted before the widget dropped the control', () => {

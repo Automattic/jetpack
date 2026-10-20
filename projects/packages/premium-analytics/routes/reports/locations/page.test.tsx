@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { usePrefetchViewerCountry } from '@jetpack-premium-analytics/data';
+import { isStatsFeatureLocked, usePrefetchViewerCountry } from '@jetpack-premium-analytics/data';
 import { useSectionTab } from '@jetpack-premium-analytics/routing';
 import {
 	ExporterCsvAction,
@@ -33,6 +33,7 @@ jest.mock( './config', () => {
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	isStatsFeatureLocked: jest.fn( () => false ),
 	usePrefetchViewerCountry: jest.fn(),
 } ) );
 
@@ -51,10 +52,13 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	ExporterCsvAction: jest.fn( () => null ),
+	LockedPage: ( { feature }: { feature: string } ) => <div>{ `locked: ${ feature }` }</div>,
 	LOCATIONS_GEO_MODES: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' )
 		.LOCATIONS_GEO_MODES,
 	getLocationColumnLabel: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' )
 		.getLocationColumnLabel,
+	getLocationsSectionLabel: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' )
+		.getLocationsSectionLabel,
 	locationsCsvExporter: jest.fn(
 		jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ).locationsCsvExporter
 	),
@@ -205,7 +209,26 @@ function selectTab( tab: ReportLocationsTabId ) {
 describe( 'LocationsReportPage', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
+		jest.mocked( isStatsFeatureLocked ).mockReturnValue( false );
 		mockTabState( 'countries' );
+	} );
+
+	it( 'locks the Regions tab on a plan without it, and keeps Countries open', () => {
+		jest.mocked( isStatsFeatureLocked ).mockImplementation( key => key === 'regions-cities' );
+		mockRecords();
+		mockTabState( 'regions' );
+
+		render( <LocationsReportPage /> );
+
+		expect( screen.getByText( 'locked: regions-cities' ) ).toBeInTheDocument();
+		expect( screen.queryByTestId( 'records-table' ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'locations-map' ) ).not.toBeInTheDocument();
+		expect( exporterCsvActionMock ).not.toHaveBeenCalled();
+
+		selectTab( 'countries' );
+
+		expect( screen.getByTestId( 'records-table' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'locked: regions-cities' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'exports the active tab through its shared exporter', () => {

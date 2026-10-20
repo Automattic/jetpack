@@ -17,6 +17,7 @@ class Comment_Form {
 	const HANDLE       = 'jetpack-comments';
 	const NONCE_ACTION = 'jetpack_comments_form';
 	const NONCE_NAME   = 'jetpack_comments_form_nonce';
+	const THEME_FORM   = 'jetpack_comments_theme_form';
 
 	/**
 	 * Singleton instance.
@@ -190,13 +191,29 @@ class Comment_Form {
 	/**
 	 * Replace the submit field with the app.
 	 *
-	 * @param string $submit_field The submit field markup this replaces.
-	 * @param array  $args         Comment form arguments, after the theme's own.
+	 * @param string      $submit_field The submit field markup this replaces.
+	 * @param array|mixed $args         Comment form arguments, after the theme's own. Anything from a theme-built form.
 	 * @return string
 	 */
 	public function render( $submit_field, $args = array() ) {
 		if ( ! self::enabled_for_post_type() ) {
 			return $submit_field;
+		}
+
+		// A theme that builds its own form (Thesis) never runs comment_form(), so leave its form alone.
+		if ( ! is_array( $args ) || ! $this->defaults ) {
+			// The marker gives the comment its own Tracks event, and is where the script finds the form to
+			// add the nonce to, as enqueue_assets() does for the app. Again on DOMContentLoaded, for an optimizer.
+			return $submit_field
+				. '<input type="hidden" name="' . self::THEME_FORM . '" value="1" />'
+				. wp_get_inline_script_tag(
+					sprintf(
+						'(function(){function n(){Array.prototype.forEach.call(document.querySelectorAll(\'[name="%1$s"]\'),function(m){var f=m.form,i;if(f&&!f.querySelector(\'[name="%2$s"]\')){i=document.createElement("input");i.type="hidden";i.name="%2$s";i.value=%3$s;f.appendChild(i);}});}n();document.addEventListener("DOMContentLoaded",n);})();',
+						self::THEME_FORM,
+						self::NONCE_NAME,
+						wp_json_encode( wp_create_nonce( self::NONCE_ACTION ), JSON_HEX_TAG | JSON_HEX_AMP )
+					)
+				);
 		}
 
 		// The subscribe checkboxes the host drew: Jetpack's in this field, WordPress.com's from its own
@@ -450,7 +467,6 @@ class Comment_Form {
 			 * @param array $args    Comment form arguments.
 			 */
 			$strings = apply_filters( 'jetpack_comments_strings', $strings, $args );
-			$lengths = wp_get_comment_fields_max_lengths();
 			$style   = wp_styles()->query( self::HANDLE );
 
 			// Where a reader manages subscriptions to this site, which sends a WordPress.com account
@@ -470,17 +486,11 @@ class Comment_Form {
 			$settings = array_merge(
 				array(
 					'version'                => Comments::PACKAGE_VERSION,
-					// Where the lazy chunks live; a plugin that combines scripts moves the bundle elsewhere.
-					'assetsUrl'              => trailingslashit( Assets::normalize_path( plugins_url( '../../build', __FILE__ ) ) ),
 					// The dialog's shadow root links it again; page styles stop at that boundary.
 					// Decoded: WordPress.com's static-file filter joins its query with &amp;.
 					'styleUrl'               => $style ? html_entity_decode( (string) add_query_arg( 'ver', $style->ver, $style->src ), ENT_QUOTES ) : '',
 					'requireNameEmail'       => (bool) get_option( 'require_name_email' ),
 					'mustLogIn'              => (bool) get_option( 'comment_registration' ) && ! is_user_logged_in(),
-					'maxLength'              => isset( $lengths['comment_content'] ) ? (int) $lengths['comment_content'] : 65525,
-					'blocks'                 => Block_Editor::is_enabled(),
-					'editorLocale'           => Block_Editor::is_enabled() ? Block_Editor::locale_data() : (object) array(),
-					'editor'                 => Block_Editor::labels(),
 					'site'                   => array(
 						'name'    => get_bloginfo( 'name' ),
 						'iconUrl' => (string) get_site_icon_url( 64 ),
@@ -489,6 +499,7 @@ class Comment_Form {
 					'tracks'                 => Tracks::is_enabled() ? array( 'platform' => Tracks::platform() ) : null,
 					'strings'                => $strings,
 				),
+				Block_Editor::settings(),
 				Identity::settings()
 			);
 

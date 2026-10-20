@@ -12,6 +12,9 @@ import {
 	type LeaderboardRowInput,
 	type ReportParamsFieldAttributes,
 } from '@automattic/jetpack-premium-analytics-sdk';
+import { getAdminUrl, isSimpleSite } from '@automattic/jetpack-script-data';
+import { useEntityRecords, store as coreStore } from '@wordpress/core-data';
+import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { video as videoIcon } from '@wordpress/icons';
 import { useMemo } from 'react';
@@ -19,9 +22,11 @@ import { useMemo } from 'react';
  * Internal dependencies
  */
 import { toVideoPlaysRows, type VideoPlaysRow } from './build-video-plays-data';
-import type { TopVideosAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
+
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type TopVideosAttributes = Record< never, never >;
 
 // Videos the widget asks for. The leaderboard applies the dashboard's own cap to what it shows.
 const TOP_VIDEOS_LIMIT = 10;
@@ -84,12 +89,43 @@ function TopVideosReport() {
 	// `primary.isPending` also covers the brief window where the query is disabled
 	// while the report params resolve (isLoading is false there).
 	const isInitialLoading = isLoading || primary.isPending;
+	const hasNoPlays = ! isInitialLoading && ! isError && rows.length === 0;
+	const { canUpload, isCheckingPermission } = useSelect(
+		select => {
+			if ( ! hasNoPlays ) {
+				return { canUpload: false, isCheckingPermission: false };
+			}
+			const { canUser, hasFinishedResolution } = select( coreStore );
+			return {
+				canUpload: canUser( 'create', 'media' ) === true,
+				// A failed permission request finishes without a value.
+				isCheckingPermission: ! hasFinishedResolution( 'canUser', [ 'create', 'media' ] ),
+			};
+		},
+		[ hasNoPlays ]
+	);
+	// A failed request resolves with `records: null`, never with an error status.
+	const { records: videos, hasResolved: hasCheckedMedia } = useEntityRecords< { id: number } >(
+		'postType',
+		'attachment',
+		{
+			per_page: 1,
+			_fields: 'id',
+			videopress_has_guid: 1,
+			...( isSimpleSite() ? { videopress_only_videos: 1 } : {} ),
+		},
+		{ enabled: canUpload }
+	);
+	const isCheckingMedia = isCheckingPermission || ( canUpload && ! hasCheckedMedia );
+	const hasNoVideos = canUpload && videos?.length === 0;
 
 	return (
 		<Leaderboard
+			chartTitle={ __( 'Top videos', 'jetpack-videopress-pkg' ) }
 			rows={ rows }
+			columns={ { label: __( 'Videos', 'jetpack-videopress-pkg' ), metric: 'views' } }
 			status={ {
-				isLoading: isInitialLoading,
+				isLoading: isInitialLoading || isCheckingMedia,
 				isFetching,
 				// `placeholderData` keeps prior rows visible after a failed range change; only
 				// surface the error when nothing is on screen.
@@ -104,6 +140,17 @@ function TopVideosReport() {
 				),
 				onRetry: refetch,
 			} ) }
+			empty={
+				hasNoVideos
+					? {
+							description: __( 'You don’t have videos uploaded yet.', 'jetpack-videopress-pkg' ),
+							action: {
+								label: __( 'Upload video', 'jetpack-videopress-pkg' ),
+								href: getAdminUrl( 'media-new.php' ),
+							},
+						}
+					: undefined
+			}
 			footer={
 				<>
 					<ReportLink report="videos" />

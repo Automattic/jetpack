@@ -25,7 +25,6 @@ import {
 import { withStoryRouter } from '../../stories/with-story-router';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import PopularPostRender from '../render';
-import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -163,7 +162,7 @@ function PopularPostDashboardStory( dashboardArgs: WidgetDashboardWithWidgetCont
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
-			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
+			widgetType={ createStoryWidgetType( widgetManifest ) }
 			renderModule={ POPULAR_POST_RENDER_MODULE }
 			renderComponent={ PopularPostRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ { reportParams: getDefaultQueryParams( true ) } }

@@ -3,7 +3,7 @@ import { createReduxStore, createRegistry } from '@wordpress/data';
 
 /**
  * Find a `Notice` message in the a11y-speak live region it was announced to:
- * `@wordpress/ui` speaks `error` assertively and every other intent politely.
+ * an `error` notice speaks assertively and every other intent politely.
  *
  * @param text       - The announced message.
  * @param politeness - The live region it should land in.

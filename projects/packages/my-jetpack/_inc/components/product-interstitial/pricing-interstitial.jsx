@@ -15,7 +15,7 @@ import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { getScriptData, getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Button, LinkButton } from '@wordpress/ui';
+import { Button, ButtonLink } from '@wordpress/ui';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 /**
  * Internal dependencies
@@ -31,6 +31,7 @@ import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import GoBackLink from '../go-back-link';
 import { getFeatureCheckoutReturnUrl } from '../my-jetpack-tab-panel/utils';
+import ProductDetailCard from '../product-detail-card';
 import { getProductConfigs } from './config';
 import ProductInterstitial from './product-interstitial';
 import { reloadIfActivationChangesAdminMenu } from './reload-after-activation';
@@ -46,7 +47,14 @@ import styles from './style.module.scss';
 export default function PricingInterstitial( { slug } ) {
 	const config = getProductConfigs()[ slug ];
 	const { detail, isLoading: isProductLoading } = useProduct( slug );
-	const { detail: bundleDetail, isLoading: isBundleLoading } = useProduct( config?.bundle );
+	const { detail: proDetail } = useProduct( 'pro' );
+	const proIsOnSale = proDetail?.pricingForUi?.catalogAvailable === true;
+	const preferredBundle =
+		proDetail?.pricingForUi?.available === true && ! proDetail?.hasPaidPlanForProduct
+			? 'pro'
+			: 'complete';
+	const bundleSlug = proIsOnSale ? preferredBundle : config?.bundle;
+	const { detail: bundleDetail, isLoading: isBundleLoading } = useProduct( bundleSlug );
 	const { recordEvent } = useAnalytics();
 	const { onClickGoBack } = useGoBack( { slug, fallback: MyJetpackRoutes.Features } );
 	const { activate, isPending: isActivating } = useActivatePlugins( slug );
@@ -338,6 +346,19 @@ export default function PricingInterstitial( { slug } ) {
 		bundlePricing,
 	] );
 
+	const handleGetBundleOffer = useCallback(
+		( checkout, product ) => {
+			setLoadingButton( 'bundle' );
+			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
+				product: bundleSlug,
+				product_slug: product.pricingForUi.wpcomProductSlug,
+				tier_selected: 'bundle',
+			} );
+			clickHandler( { checkout, product, tier: 'bundle' } );
+		},
+		[ bundleSlug, recordEvent, clickHandler ]
+	);
+
 	const { update: updateInterstitialsState } = useInterstitialsState();
 
 	const handleFreeActivation = useCallback( () => {
@@ -413,14 +434,14 @@ export default function PricingInterstitial( { slug } ) {
 				/>
 			}
 			actions={
-				<LinkButton
+				<ButtonLink
 					size="compact"
 					variant="outline"
 					href={ getMyJetpackUrl( '#/add-license' ) }
 					onClick={ handleLicenseActivationClick }
 				>
 					{ __( 'Use license key', 'jetpack-my-jetpack' ) }
-				</LinkButton>
+				</ButtonLink>
 			}
 		>
 			<Container
@@ -500,40 +521,52 @@ export default function PricingInterstitial( { slug } ) {
 								/>
 							) ) }
 						</PricingTableColumn>
-						<PricingTableColumn className={ styles[ 'pricing-column' ] }>
-							<PricingTableHeader title={ config.tiers.bundle.name }>
-								{ bundlePricing ? (
-									<ProductPrice
-										price={ bundlePricing.fullPricePerMonth }
-										offPrice={ bundlePricing.discountPricePerMonth }
-										legend="/month, billed yearly"
-										currency={ currencyCode }
-										hidePriceFraction
-										variant="simple"
+						{ ! proIsOnSale && (
+							<PricingTableColumn className={ styles[ 'pricing-column' ] }>
+								<PricingTableHeader title={ config.tiers.bundle.name }>
+									{ bundlePricing ? (
+										<ProductPrice
+											price={ bundlePricing.fullPricePerMonth }
+											offPrice={ bundlePricing.discountPricePerMonth }
+											legend="/month, billed yearly"
+											currency={ currencyCode }
+											hidePriceFraction
+											variant="simple"
+										/>
+									) : (
+										<Spinner className={ styles.spinner } />
+									) }
+									<Button
+										className={ styles[ 'tier-cta' ] }
+										variant="outline"
+										onClick={ handleGetBundle }
+										loading={ loadingButton === 'bundle' }
+										disabled={ buttonsDisabled || isBundleLoading }
+									>
+										{ config.tiers.bundle.cta }
+									</Button>
+								</PricingTableHeader>
+								{ config.features.map( ( feature, index ) => (
+									<PricingTableItem
+										key={ index }
+										isIncluded={ feature.bundle.included }
+										label={ feature.bundle.label }
 									/>
-								) : (
-									<Spinner className={ styles.spinner } />
-								) }
-								<Button
-									className={ styles[ 'tier-cta' ] }
-									variant="outline"
-									onClick={ handleGetBundle }
-									loading={ loadingButton === 'bundle' }
-									disabled={ buttonsDisabled || isBundleLoading }
-								>
-									{ config.tiers.bundle.cta }
-								</Button>
-							</PricingTableHeader>
-							{ config.features.map( ( feature, index ) => (
-								<PricingTableItem
-									key={ index }
-									isIncluded={ feature.bundle.included }
-									label={ feature.bundle.label }
-								/>
-							) ) }
-						</PricingTableColumn>
+								) ) }
+							</PricingTableColumn>
+						) }
 					</PricingTable>
 				</Col>
+				{ proIsOnSale && bundleDetail?.pricingForUi?.available === true && (
+					<Col>
+						<ProductDetailCard
+							slug={ bundleSlug }
+							isUpsell
+							onClick={ handleGetBundleOffer }
+							isFetching={ buttonsDisabled }
+						/>
+					</Col>
+				) }
 			</Container>
 		</AdminPage>
 	);

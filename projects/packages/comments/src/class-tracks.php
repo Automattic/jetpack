@@ -157,6 +157,19 @@ class Tracks {
 			return;
 		}
 
+		// A theme drew its own form, so the app never showed on this site.
+		if ( ! empty( $_POST[ Comment_Form::THEME_FORM ] ) ) {
+			self::record(
+				'jetpack_comments_theme_form_posted',
+				array(
+					'theme'     => get_stylesheet(),
+					'status'    => (string) $approved,
+					'post_type' => (string) get_post_type( (int) ( $commentdata['comment_post_ID'] ?? 0 ) ),
+				)
+			);
+			return;
+		}
+
 		$code     = ! empty( $_POST[ Checkpoint::CODE_FIELD ] );
 		$passport = ! empty( $_POST[ Checkpoint::PASSPORT_FIELD ] );
 

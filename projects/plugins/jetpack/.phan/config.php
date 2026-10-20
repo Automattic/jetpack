@@ -31,6 +31,7 @@ $config = make_phan_config(
 			'tests/php/lib/class-wpcom-features.php',
 			'tests/php/lib/class-email-verification.php',
 			'tests/php/lib/mock-functions.php',
+			'tests/php/files/mock-wpcomsh-site-sticker.php',
 			'tests/php/extensions/blocks/premium-content/mocks/class-blog-subscriber.php',
 			'tests/php/extensions/blocks/premium-content/mocks/class-blog-subscription.php',
 			'tests/php/extensions/blocks/premium-content/mocks/wpcom-subs-is-subscribed.php',

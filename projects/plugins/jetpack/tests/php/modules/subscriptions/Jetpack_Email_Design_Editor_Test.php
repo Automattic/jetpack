@@ -7,6 +7,8 @@
 
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions/email-design-editor/class-jetpack-email-design-editor.php';
 
@@ -194,6 +196,27 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Give this process a sticker reader that answers for the named stickers.
+	 *
+	 * @param string[] $stickers The stickers this site carries.
+	 * @param bool     $atomic   Whether to run as Atomic, where a reader is trusted.
+	 * @return void
+	 */
+	private function stub_site_stickers( array $stickers, $atomic = true ) {
+		if ( '1' === getenv( 'JETPACK_TEST_WPCOMSH' ) ) {
+			$this->markTestSkipped( 'The real wpcomsh reader is loaded here, and its blank persistent data answers false for every sticker.' );
+		}
+
+		$GLOBALS['jetpack_test_site_stickers'] = $stickers;
+
+		if ( $atomic ) {
+			define( 'IS_ATOMIC', true );
+		}
+
+		require_once __DIR__ . '/../../files/mock-wpcomsh-site-sticker.php';
+	}
+
+	/**
 	 * The submenu entries registered under Appearance for the screen's slug.
 	 *
 	 * @return array
@@ -217,6 +240,114 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 	}
 
 	public function test_the_flag_can_be_turned_on_by_filter() {
+		add_filter( 'jetpack_feature_flag_enabled_' . Jetpack_Email_Design_Editor::FEATURE_FLAG, '__return_true' );
+
+		$this->assertTrue( Jetpack_Email_Design_Editor::is_enabled() );
+	}
+
+	/**
+	 * The sticker has to answer the flag last, or a filter added after this one could keep the
+	 * screen open on an Atomic site whose sticker was removed.
+	 */
+	public function test_the_sticker_gets_the_last_word_on_the_flag() {
+		Jetpack_Email_Design_Editor::init();
+
+		$this->assertSame(
+			PHP_INT_MAX,
+			has_filter(
+				'jetpack_feature_flag_enabled_' . Jetpack_Email_Design_Editor::FEATURE_FLAG,
+				array( 'Jetpack_Email_Design_Editor', 'filter_flag_from_sticker' )
+			)
+		);
+	}
+
+	/**
+	 * On Atomic the sticker is the whole switch, read from the site's persistent data. NL-1040.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_the_sticker_turns_the_screen_on_on_atomic() {
+		$this->stub_site_stickers( array( Jetpack_Email_Design_Editor::STICKER ) );
+
+		Jetpack_Email_Design_Editor::init();
+
+		$this->assertTrue( Jetpack_Email_Design_Editor::is_enabled() );
+	}
+
+	/**
+	 * Removing the sticker is the rollback, so it has to beat a flag someone turned on by hand.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_removing_the_sticker_closes_the_screen_even_with_the_flag_forced_on() {
+		$this->stub_site_stickers( array() );
+
+		Jetpack_Email_Design_Editor::init();
+		add_filter( 'jetpack_feature_flag_enabled', '__return_true' );
+		add_filter( 'jetpack_feature_flag_enabled_' . Jetpack_Email_Design_Editor::FEATURE_FLAG, '__return_true' );
+
+		$this->assertFalse( Jetpack_Email_Design_Editor::is_enabled() );
+	}
+
+	/**
+	 * Off Atomic, wpcomsh ships a blank `Atomic_Persistent_Data` and its reader answers false for
+	 * every sticker -- so trusting it there would pin the flag off on a Jurassic Ninja or local
+	 * site whose only way in is the flag.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_a_sticker_reader_off_atomic_does_not_decide_the_flag() {
+		$this->stub_site_stickers( array(), false );
+
+		Jetpack_Email_Design_Editor::init();
+		add_filter( 'jetpack_feature_flag_enabled_' . Jetpack_Email_Design_Editor::FEATURE_FLAG, '__return_true' );
+
+		$this->assertTrue( Jetpack_Email_Design_Editor::is_enabled() );
+	}
+
+	/**
+	 * A host can define `IS_ATOMIC` without loading wpcomsh -- the loader only forces it on for
+	 * certain WP Cloud clients -- and calling a reader that is not there is a fatal.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_atomic_without_a_loaded_reader_falls_back_to_the_flag() {
+		if ( function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
+			$this->markTestSkipped( 'This process already has a sticker reader, so there is no absent one to call.' );
+		}
+
+		define( 'IS_ATOMIC', true );
+
+		Jetpack_Email_Design_Editor::init();
+		add_filter( 'jetpack_feature_flag_enabled_' . Jetpack_Email_Design_Editor::FEATURE_FLAG, '__return_true' );
+
+		$this->assertTrue( Jetpack_Email_Design_Editor::is_enabled() );
+	}
+
+	/**
+	 * Neither Simple nor self-hosted reaches the Atomic reader, so the flag stays the gate there.
+	 */
+	public function test_the_flag_stays_the_gate_where_no_sticker_can_be_read() {
+		if ( function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
+			$this->markTestSkipped( 'This process can read stickers, which is what this test is about not having.' );
+		}
+
+		Jetpack_Email_Design_Editor::init();
+
+		$this->assertFalse( Jetpack_Email_Design_Editor::is_enabled() );
+
 		add_filter( 'jetpack_feature_flag_enabled_' . Jetpack_Email_Design_Editor::FEATURE_FLAG, '__return_true' );
 
 		$this->assertTrue( Jetpack_Email_Design_Editor::is_enabled() );
@@ -268,7 +399,7 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 		$data = $this->call_private( 'get_screen_data' );
 
 		$this->assertSame(
-			array( 'elementId', 'editorSettings', 'urls', 'userEmail' ),
+			array( 'elementId', 'editorSettings', 'urls', 'userEmail', 'postId' ),
 			array_keys( $data )
 		);
 	}
@@ -319,6 +450,79 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 			'another host'         => array( 'https://example.net/wp-admin/' ),
 			'this site, not admin' => array( home_url( '/some-post/' ) ),
 			'empty'                => array( '' ),
+		);
+	}
+
+	/**
+	 * The previewer's link carries the post the reader was looking at, so changing the design does
+	 * not replace it with the sample post. See NL-1051.
+	 */
+	public function test_the_canvas_previews_the_post_the_previewer_named() {
+		$post_id         = self::factory()->post->create();
+		$_GET['post_id'] = (string) $post_id;
+
+		$data = $this->call_private( 'get_screen_data' );
+
+		$this->assertSame( $post_id, $data['postId'] );
+	}
+
+	/**
+	 * A hand-edited URL cannot aim the canvas at a post this user may not read.
+	 */
+	public function test_a_post_this_user_cannot_edit_is_not_previewed() {
+		$post_id         = self::factory()->post->create( array( 'post_author' => self::factory()->user->create( array( 'role' => 'author' ) ) ) );
+		$_GET['post_id'] = (string) $post_id;
+
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'author' ) ) );
+
+		$data = $this->call_private( 'get_screen_data' );
+
+		$this->assertNull( $data['postId'] );
+	}
+
+	/**
+	 * Without a usable one the canvas keeps its default post, which is what entering from
+	 * Appearance or a bookmark does.
+	 *
+	 * @param string|null $post_id What the query arg carries, or null for no arg at all.
+	 *
+	 * @dataProvider provide_unusable_preview_posts
+	 */
+	#[PHPUnit\Framework\Attributes\DataProvider( 'provide_unusable_preview_posts' )]
+	public function test_an_unusable_post_id_leaves_the_canvas_on_its_default( $post_id ) {
+		if ( null !== $post_id ) {
+			$_GET['post_id'] = $post_id;
+		}
+
+		$data = $this->call_private( 'get_screen_data' );
+
+		$this->assertNull( $data['postId'] );
+	}
+
+	/**
+	 * `absint()` folds the sign rather than rejecting it, so what a negative id names is a real
+	 * post that `edit_post` then has the final word on. The REST route refuses one outright
+	 * (`minimum: 1`); this path does not, and that difference is deliberate.
+	 */
+	public function test_a_negative_post_id_names_the_post_absint_folds_it_to() {
+		$post_id         = self::factory()->post->create();
+		$_GET['post_id'] = '-' . $post_id;
+
+		$data = $this->call_private( 'get_screen_data' );
+
+		$this->assertSame( $post_id, $data['postId'] );
+	}
+
+	/**
+	 * @return array[]
+	 */
+	public static function provide_unusable_preview_posts() {
+		return array(
+			'no arg at all'       => array( null ),
+			'not a number'        => array( 'abc' ),
+			'zero'                => array( '0' ),
+			'empty'               => array( '' ),
+			'a post that is gone' => array( '999999' ),
 		);
 	}
 

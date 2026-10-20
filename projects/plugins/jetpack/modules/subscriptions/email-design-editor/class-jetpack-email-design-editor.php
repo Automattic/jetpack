@@ -27,10 +27,15 @@ class Jetpack_Email_Design_Editor {
 	const PAGE_SLUG = 'jetpack-email-design';
 
 	/**
-	 * The feature flag gating the screen. Registered off, forced on for testing with
-	 * `wp companion feature-flag enable jetpack-email-design`.
+	 * The feature flag gating the screen. Registered off, and on Atomic answered by the
+	 * sticker below rather than by `wp companion feature-flag enable jetpack-email-design`.
 	 */
 	const FEATURE_FLAG = 'jetpack-email-design';
+
+	/**
+	 * The WordPress.com blog sticker that turns the screen on. See NL-1040.
+	 */
+	const STICKER = 'email-design-editor';
 
 	/**
 	 * The script handle, and the id of the element the editor mounts into.
@@ -56,6 +61,10 @@ class Jetpack_Email_Design_Editor {
 		// Registered here rather than on `admin_menu` so the flag exists under WP-CLI, REST
 		// and cron too — `wp companion feature-flag list` reads it from one of those.
 		self::register_feature_flags();
+
+		// Last, so that on Atomic the sticker cannot be overridden by a filter added later --
+		// a flag that outlives the sticker is not a kill switch.
+		add_filter( 'jetpack_feature_flag_enabled_' . self::FEATURE_FLAG, array( __CLASS__, 'filter_flag_from_sticker' ), PHP_INT_MAX );
 
 		add_action( 'admin_menu', array( __CLASS__, 'add_admin_page' ) );
 
@@ -109,11 +118,34 @@ class Jetpack_Email_Design_Editor {
 	}
 
 	/**
+	 * Answer the flag from the Atomic sticker, where there is one to read.
+	 *
+	 * The incoming value is dropped rather than widened: on Atomic the sticker is the whole
+	 * switch, so removing it has to close the screen even where the flag was forced on.
+	 *
+	 * Off Atomic wpcomsh's reader answers false for every sticker, because its
+	 * `Atomic_Persistent_Data` is a blank stand-in there -- hence the platform check, or the
+	 * flag would be pinned off on a site whose only way in is the flag. The reader is checked
+	 * as well: a host can define `IS_ATOMIC` without loading wpcomsh, and calling it then is
+	 * a fatal.
+	 *
+	 * @param bool $enabled Whether the flag is enabled so far.
+	 * @return bool
+	 */
+	public static function filter_flag_from_sticker( $enabled ) {
+		if ( ! defined( 'IS_ATOMIC' ) || ! IS_ATOMIC || ! function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
+			return (bool) $enabled;
+		}
+
+		return (bool) wpcomsh_is_site_sticker_active( self::STICKER );
+	}
+
+	/**
 	 * Whether the screen should exist on this site.
 	 *
-	 * The WordPress.com `email-design-editor` sticker gates the bootstrap endpoint, not this
-	 * page: a Jetpack site cannot read stickers without an API call, so the screen carries
-	 * its own gate.
+	 * On Atomic the `email-design-editor` sticker decides, through the filter above; on Simple
+	 * wpcom's mu-plugin turns the flag on alongside it. A self-hosted site cannot read its own
+	 * blog's stickers, so the flag is the gate there -- the sticker still gates the bootstrap.
 	 *
 	 * @return bool
 	 */
@@ -311,7 +343,34 @@ class Jetpack_Email_Design_Editor {
 				'listings' => $exit_url,
 			),
 			'userEmail'      => wp_get_current_user()->user_email,
+
+			// The post the canvas should preview, where the previewer sent one. The design itself
+			// stays site-wide. {@see self::preview_post_id()}
+			'postId'         => self::preview_post_id(),
 		);
+	}
+
+	/**
+	 * The post the canvas should preview, or null to leave the default.
+	 *
+	 * The previewer's link carries the post the reader was looking at, so changing the design does
+	 * not replace it with the sample post. See NL-1051.
+	 *
+	 * Capability-checked here as well as on WordPress.com, so a hand-edited URL cannot name a post
+	 * this user may not read. `absint()` is as forgiving as `exit_url()`'s validation -- `12abc`
+	 * arrives as 12 -- which only ever yields an id shape `edit_post` then has the final word on.
+	 *
+	 * @return int|null
+	 */
+	private static function preview_post_id() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read as a preview target only, and capability-checked below.
+		$post_id = isset( $_GET['post_id'] ) ? absint( wp_unslash( $_GET['post_id'] ) ) : 0;
+
+		if ( $post_id > 0 && current_user_can( 'edit_post', $post_id ) ) {
+			return $post_id;
+		}
+
+		return null;
 	}
 
 	/**

@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [9.1.1] - 2026-10-15
+### Changed
+- Exclude lockfile generation PRs from description check. [#49524]
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+- Update package dependencies. [#48118] [#49012] [#49757] [#49828] [#50510] [#51665] [#52297] [#52955]
+
+### Removed
+- Remove CRM-specific logic. [#49251]
+- Remove inactive built-in Automattic issue-routing assignments. [#51100]
+
+### Fixed
+- Docs check: fix a stray literal dollar sign in log and notification messages. [#51555]
+
 ## [9.1.0] - 2026-04-13
 ### Security
 - Prevent fork PRs from creating new labels in the repository; only add labels that already exist. [#47349]
@@ -350,6 +363,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release
 
+[9.1.1]: https://github.com/Automattic/action-repo-gardening/compare/v9.1.0...v9.1.1
 [9.1.0]: https://github.com/Automattic/action-repo-gardening/compare/v9.0.0...v9.1.0
 [9.0.0]: https://github.com/Automattic/action-repo-gardening/compare/v8.0.2...v9.0.0
 [8.0.2]: https://github.com/Automattic/action-repo-gardening/compare/v8.0.1...v8.0.2

@@ -1,7 +1,11 @@
 /**
  * Internal dependencies
  */
-import { reportParamsToStatsQueryParams, statsQueryParamsToApiParams } from '../utils/stats-params';
+import {
+	isAllTimeNum,
+	reportParamsToStatsQueryParams,
+	statsQueryParamsToApiParams,
+} from '../utils/stats-params';
 import {
 	statsProxyQuery,
 	type StatsReportParams,
@@ -29,7 +33,8 @@ export const statsUtmQuery = ( params: StatsUtmParams ): StatsReportQueryOptions
 	const utmParams: StatsProxyParams = {
 		max: apiParams.max ?? 10,
 		date: apiParams.date,
-		days: apiParams.days,
+		// This endpoint counts its window in `days`, so all time is `days: -1` here.
+		days: isAllTimeNum( apiParams.num ) ? -1 : apiParams.days,
 		// Match Calypso's UTM request shape; the endpoint accepts empty values for
 		// missing optional filters.
 		start_date: apiParams.start_date ?? '',

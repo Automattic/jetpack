@@ -121,7 +121,7 @@ describe( 'SettingsCard', () => {
 					<Child />
 				</SettingsCard>
 			);
-			expect( screen.getByRole( 'button' ) ).toBeDisabled();
+			expect( screen.getByRole( 'button' ) ).toHaveAttribute( 'aria-disabled', 'true' );
 		} );
 
 		it( 'when saving, button label is updated to Saving…', () => {
@@ -154,6 +154,19 @@ describe( 'SettingsCard', () => {
 			);
 			expect( screen.getAllByRole( 'button' ) ).toHaveLength( 1 );
 		} );
+	} );
+
+	it( 'does not submit when there is nothing to save', async () => {
+		const user = userEvent.setup();
+		const onSubmit = jest.fn( e => e.preventDefault() );
+		render(
+			<SettingsCard { ...{ ...testProps, isDirty: () => false, onSubmit } }>
+				<Child />
+			</SettingsCard>
+		);
+
+		await user.click( screen.getByRole( 'button' ) );
+		expect( onSubmit ).not.toHaveBeenCalled();
 	} );
 
 	describe( 'When save button is clicked', () => {
