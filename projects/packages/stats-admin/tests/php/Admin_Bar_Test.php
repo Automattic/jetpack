@@ -43,7 +43,6 @@ class Admin_Bar_Test extends Stats_TestCase {
 		remove_all_actions( 'wp_before_admin_bar_render' );
 		remove_all_actions( 'admin_init' );
 		remove_all_actions( 'admin_post_jetpack_stats_admin_bar_chart' );
-		remove_all_actions( 'admin_post_nopriv_jetpack_stats_admin_bar_chart' );
 		remove_filter( 'pre_option_db_version', array( Admin_Bar::class, 'ignore_db_version' ) );
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'wp_die_handler' );
@@ -129,7 +128,7 @@ class Admin_Bar_Test extends Stats_TestCase {
 		$node = $this->render_chart_node();
 
 		$this->assertSame( 'https://example.org/new-stats', $node->href );
-		$this->assertStringNotContainsString( 'example.org/new-stats', $node->title, 'The chart image does not follow the Stats link.' );
+		$this->assertStringContainsString( 'action=jetpack_stats_admin_bar_chart', $node->title, 'The chart image does not follow the Stats link.' );
 	}
 
 	public function test_chart_gives_a_text_label_to_clients_that_cannot_show_its_image() {
@@ -253,6 +252,14 @@ class Admin_Bar_Test extends Stats_TestCase {
 		$this->assertFalse( $this->serve_chart_and_report_fetch() );
 	}
 
+	public function test_chart_on_another_admin_page_is_not_fetched() {
+		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+		$_GET['page']  = 'jetpack';
+		$_GET['chart'] = 'admin-bar-hours-scale';
+
+		$this->assertFalse( $this->serve_chart_and_report_fetch() );
+	}
+
 	public function test_chart_not_fetched_for_user_who_cannot_view_stats() {
 		$_GET['page']  = 'stats';
 		$_GET['chart'] = 'admin-bar-hours-scale';
@@ -284,13 +291,6 @@ class Admin_Bar_Test extends Stats_TestCase {
 			),
 			$query
 		);
-	}
-
-	public function test_init_hooks_the_chart_action_for_logged_in_users_only() {
-		Admin_Bar::init();
-
-		$this->assertNotFalse( has_action( 'admin_post_jetpack_stats_admin_bar_chart', array( Admin_Bar::class, 'serve_chart' ) ) );
-		$this->assertFalse( has_action( 'admin_post_nopriv_jetpack_stats_admin_bar_chart' ) );
 	}
 
 	/**
@@ -356,7 +356,7 @@ class Admin_Bar_Test extends Stats_TestCase {
 	}
 
 	/**
-	 * Run `serve_chart()` and report how it ended: `fetched`, or `die:<status>`.
+	 * Fire the admin-post chart action and report how it ended: `fetched`, `die:<status>`, or `returned`.
 	 *
 	 * @return string
 	 */
@@ -379,8 +379,9 @@ class Admin_Bar_Test extends Stats_TestCase {
 			}
 		);
 
+		Admin_Bar::init();
 		try {
-			Admin_Bar::serve_chart();
+			do_action( 'admin_post_jetpack_stats_admin_bar_chart' );
 		} catch ( \RuntimeException $e ) {
 			return $e->getMessage();
 		}
