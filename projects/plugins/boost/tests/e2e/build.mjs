@@ -34,6 +34,9 @@ for ( const type of [ 'plugins', 'packages', 'js-packages', 'github-actions' ] )
 			continue;
 		}
 		const slug = `${ type }/${ dir.name }`;
+		if ( ! existsSync( join( projectsRoot, slug, 'composer.json' ) ) ) {
+			continue;
+		}
 		const manifests = {};
 		for ( const file of Object.keys( names ) ) {
 			const path = join( projectsRoot, slug, file );
@@ -47,12 +50,13 @@ for ( const type of [ 'plugins', 'packages', 'js-packages', 'github-actions' ] )
 }
 
 const directDependencies = new Map();
-// Direct dependencies are Composer require or npm dependencies of Boost or Jetpack,
-// mapped by manifest name to a monorepo project; dev and transitive dependencies are excluded.
+// Direct dependencies are Composer require, npm dependencies or npm devDependencies of Boost or Jetpack,
+// mapped by manifest name to a monorepo project; transitive dependencies are excluded.
 for ( const owner of [ 'plugins/boost', 'plugins/jetpack' ] ) {
 	for ( const [ file, key ] of [
 		[ 'composer.json', 'require' ],
 		[ 'package.json', 'dependencies' ],
+		[ 'package.json', 'devDependencies' ],
 	] ) {
 		for ( const name of Object.keys( projects.get( owner )[ file ][ key ] ?? {} ) ) {
 			const slug = names[ file ].get( name );
@@ -93,8 +97,10 @@ for ( const [ slug, reason ] of Object.entries( skip ) ) {
 	}
 }
 for ( const [ slug, owners ] of directDependencies ) {
-	// Build-bearing means a Composer build-production command beyond an echo placeholder.
-	const commands = projects.get( slug )[ 'composer.json' ].scripts?.[ 'build-production' ];
+	// Build-bearing means a production build script, or the development one the CLI falls back to,
+	// that is more than an echo placeholder.
+	const scripts = projects.get( slug )[ 'composer.json' ].scripts;
+	const commands = scripts?.[ 'build-production' ] || scripts?.[ 'build-development' ];
 	const hasBuild =
 		commands &&
 		[ commands ].flat().some( command => ! /^echo(?:\s+[^;&|]*)?$/.test( command.trim() ) );

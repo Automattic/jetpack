@@ -21,6 +21,7 @@
 		"plugins/boost"
 	],
 	"skip": {
+		"js-packages/critical-css-gen": "consumed from source through its jetpack:src export",
 		"packages/activity-log": "No Activity Log assets were requested in the unconnected suite-page probe; connected sites are unverified.",
 		"packages/ads": "No WordAds assets were requested in the unconnected suite-page probe; connected sites are unverified.",
 		"packages/agents-manager": "No Agents assets were requested in the unconnected suite-page probe; connected sites are unverified.",
