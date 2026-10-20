@@ -47,7 +47,7 @@ class Jetpack_Subscriptions_Widget_Test extends WP_UnitTestCase {
 		// On WordPress.com the check ignores ?subscribe=success, so seeding it must not flip the result.
 		$_GET['subscribe'] = 'success';
 
-		$subscribed = $this->without_wpcom_include_warning( array( Jetpack_Subscriptions_Widget::class, 'is_current_user_subscribed' ) );
+		$subscribed = $this->run_without_wpcom_include_warning( array( Jetpack_Subscriptions_Widget::class, 'is_current_user_subscribed' ) );
 
 		$this->assertSame( $expected, $subscribed );
 	}

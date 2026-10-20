@@ -95,7 +95,7 @@ class WPCOM_Online_Subscription_Service_Test extends WP_UnitTestCase {
 	 * @return boolean
 	 */
 	private function is_current_user_subscribed() {
-		return $this->without_wpcom_include_warning(
+		return $this->run_without_wpcom_include_warning(
 			static function () {
 				return ( new WPCOM_Online_Subscription_Service() )->is_current_user_subscribed();
 			}
@@ -162,7 +162,7 @@ class WPCOM_Online_Subscription_Service_Test extends WP_UnitTestCase {
 		$service         = new WPCOM_Online_Subscription_Service();
 
 		$this->assertTrue(
-			$this->without_wpcom_include_warning(
+			$this->run_without_wpcom_include_warning(
 				static function () use ( $service ) {
 					return $service->is_current_user_subscribed();
 				}
@@ -171,7 +171,7 @@ class WPCOM_Online_Subscription_Service_Test extends WP_UnitTestCase {
 		);
 
 		$this->assertFalse(
-			$this->without_wpcom_include_warning(
+			$this->run_without_wpcom_include_warning(
 				static function () use ( $service ) {
 					return $service->visitor_can_view_content(
 						array( 999999 ),
