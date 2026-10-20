@@ -111,7 +111,7 @@ const getDynamicTitle = metric => {
  * @param {object}   props.counts               - Counts object for the current period.
  * @param {object}   props.previousCounts       - Counts object for the previous period.
  * @param {number}   props.headingLevel         - Heading level between 1 and 6.
- * @param {Array}    props.chartData            - Chart data for the bar chart visualization.
+ * @param {?object}  props.chartData            - Chart data for the bar chart visualization.
  * @param {boolean}  props.isLoading            - Whether the data is loading.
  * @param {string}   props.detailedStatsHref    - Destination of the detailed stats link.
  * @param {Function} props.onDetailedStatsClick - Function to handle detailed stats click.

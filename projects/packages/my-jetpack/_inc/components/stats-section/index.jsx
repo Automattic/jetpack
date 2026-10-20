@@ -11,6 +11,8 @@ import StatsCards from './cards';
 
 /**
  * Options for the stats visits hook
+ *
+ * @type {{ period: 'day', quantity: number, date: Date }}
  */
 export const VISITS_OPTIONS = {
 	period: 'day',
@@ -22,7 +24,7 @@ export const VISITS_OPTIONS = {
  * Process 14-day stats data to extract current and previous 7-day periods
  *
  * @param {object} visitsData - Raw visits data from API with fields and data arrays
- * @return {object} Object containing counts, previousCounts, and chartData for last 7 days
+ * @return {{ counts: object, previousCounts: object, chartData: ?{ fields: string[], data: Array } }} Object containing counts, previousCounts, and chartData for last 7 days
  */
 export const processStatsData = visitsData => {
 	if (
