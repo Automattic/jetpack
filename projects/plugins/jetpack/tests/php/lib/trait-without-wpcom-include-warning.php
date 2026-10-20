@@ -18,9 +18,14 @@ trait Without_WPCOM_Include_Warning {
 	 * @return mixed
 	 */
 	private function without_wpcom_include_warning( callable $callback ) {
-		set_error_handler( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.prevent_path_disclosure_set_error_handler
-			static function ( $errno, $errstr ) {
-				return str_contains( $errstr, 'email-subscriptions/subscriptions.php' );
+		$previous = null;
+		// Any other warning goes to the handler that was in place, so it still fails the test.
+		$previous = set_error_handler( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.prevent_path_disclosure_set_error_handler
+			static function ( $errno, $errstr, ...$rest ) use ( &$previous ) {
+				if ( str_contains( $errstr, 'email-subscriptions/subscriptions.php' ) ) {
+					return true;
+				}
+				return $previous ? $previous( $errno, $errstr, ...$rest ) : false;
 			},
 			E_WARNING
 		);
