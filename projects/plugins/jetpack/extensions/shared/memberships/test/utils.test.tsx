@@ -1,5 +1,6 @@
 import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
-import { getPaidPlanLink, getShowMisconfigurationWarning } from '../utils';
+import { accessOptions } from '../constants';
+import { getPaidAccessState, getPaidPlanLink, getShowMisconfigurationWarning } from '../utils';
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	...jest.requireActual( '@automattic/jetpack-script-data' ),
@@ -62,5 +63,45 @@ describe( 'getShowMisconfigurationWarning', () => {
 
 	test( 'stays quiet when the post is open to everybody', () => {
 		expect( getShowMisconfigurationWarning( 'private', 'everybody' ) ).toBe( false );
+	} );
+} );
+
+describe( 'getPaidAccessState', () => {
+	const connected = { stripeConnectUrl: null, hasTierPlans: true };
+
+	test( 'offers paid access once Stripe is connected and a tier exists', () => {
+		expect(
+			getPaidAccessState( { ...connected, accessLevel: accessOptions.subscribers.key } )
+		).toEqual( { isPaidAvailable: true, showPaidAsDisabled: false } );
+	} );
+
+	test( 'disables paid access without Stripe', () => {
+		expect(
+			getPaidAccessState( {
+				stripeConnectUrl: 'https://example.com/connect',
+				hasTierPlans: true,
+				accessLevel: accessOptions.subscribers.key,
+			} )
+		).toEqual( { isPaidAvailable: false, showPaidAsDisabled: true } );
+	} );
+
+	test( 'disables paid access without a tier', () => {
+		expect(
+			getPaidAccessState( {
+				stripeConnectUrl: null,
+				hasTierPlans: false,
+				accessLevel: accessOptions.everybody.key,
+			} )
+		).toEqual( { isPaidAvailable: false, showPaidAsDisabled: true } );
+	} );
+
+	test( 'keeps paid selectable on a post already set to paid after Stripe disconnects', () => {
+		expect(
+			getPaidAccessState( {
+				stripeConnectUrl: 'https://example.com/connect',
+				hasTierPlans: true,
+				accessLevel: accessOptions.paid_subscribers.key,
+			} )
+		).toEqual( { isPaidAvailable: false, showPaidAsDisabled: false } );
 	} );
 } );
