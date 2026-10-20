@@ -1,12 +1,8 @@
-// A navigation that never lands, so the URL keeps the range it had while the router works.
-const mockNavigate = jest.fn();
-let mockSearch: Record< string, unknown > = {};
+jest.mock( '@wordpress/route', () => {
+	const { mockWordPressRoute } = jest.requireActual( '../tests/js/route-test-utils' );
 
-jest.mock( '@wordpress/route', () => ( {
-	...jest.requireActual( '@wordpress/route' ),
-	useNavigate: () => mockNavigate,
-	useSearch: () => mockSearch,
-} ) );
+	return mockWordPressRoute;
+} );
 
 /**
  * External dependencies
@@ -23,6 +19,7 @@ import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 /**
  * Internal dependencies
  */
+import { mockWordPressRoute, setMockRouteSearch } from '../tests/js/route-test-utils';
 import { useDetailDateControls } from './use-detail-date-controls';
 
 // A zone ahead of UTC, so a visitor-zone reading of the wall time would land on
@@ -124,24 +121,33 @@ describe( 'useDetailDateControls with the site ahead of UTC', () => {
 		} );
 
 		it( 'asks the router for the anchor once while it is still navigating', () => {
-			mockSearch = {
+			setMockRouteSearch( {
 				preset: 'all-time',
 				from: '2020-01-01T00:00:00.000+08:00',
 				to: '2026-12-31T23:59:59.999+08:00',
 				interval: 'month',
-			};
-			// Fail fast: without the fix the loop never ends, and the run dies out of memory.
-			mockNavigate.mockImplementation( () => {
-				if ( mockNavigate.mock.calls.length > 5 ) {
+			} );
+			// The navigation never lands, so the URL keeps its range. Fail fast: without
+			// the fix the loop never ends, and the run dies out of memory.
+			const navigate = jest.fn( () => {
+				if ( navigate.mock.calls.length > 5 ) {
 					throw new Error( 'The anchor kept navigating.' );
 				}
 			} );
+			const useNavigate = jest
+				.spyOn( mockWordPressRoute, 'useNavigate' )
+				.mockReturnValue( navigate );
 
-			renderHook( () =>
-				useDetailDateControls( '2026-07-08 00:29:35', useReportDateFilters( '/post/$postId' ) )
-			);
+			try {
+				renderHook( () =>
+					useDetailDateControls( '2026-07-08 00:29:35', useReportDateFilters( '/post/$postId' ) )
+				);
+			} finally {
+				useNavigate.mockRestore();
+				setMockRouteSearch();
+			}
 
-			expect( mockNavigate ).toHaveBeenCalledTimes( 1 );
+			expect( navigate ).toHaveBeenCalledTimes( 1 );
 		} );
 
 		it( 'leaves an all-time range that already starts on the publish day alone', () => {
