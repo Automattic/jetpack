@@ -185,7 +185,7 @@ class Jetpack_Connector {
 	 * which Initial_State fills, so it is not repeated here.
 	 *
 	 * @since 8.2.0
-	 * @since $$next-version$$ Shared connection state moved to the jetpack-connection store.
+	 * @since 9.13.0 Shared connection state moved to the jetpack-connection store.
 	 *
 	 * @param array $data Existing script module data.
 	 * @return array Filtered script module data.
@@ -255,7 +255,7 @@ class Jetpack_Connector {
 	 * \Automattic\Jetpack\IdentityCrisis\UI::get_initial_state_data().
 	 *
 	 * @since 8.7.0
-	 * @since $$next-version$$ No longer sends `isInSafeMode`; the card reads it from the store.
+	 * @since 9.13.0 No longer sends `isInSafeMode`; the card reads it from the store.
 	 *
 	 * @param array $data Script module data passed by reference.
 	 */
@@ -324,7 +324,7 @@ class Jetpack_Connector {
 	 * Needs `jetpack_connect` outside offline mode, so a restricted site admin sees the name as plain
 	 * text. get_edit_user_link() adds the `edit_user` check, since multisite site admins cannot edit other users.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.13.0
 	 *
 	 * @param bool $is_offline_mode Whether the site is in offline mode.
 	 * @return string|null
@@ -440,7 +440,7 @@ class Jetpack_Connector {
 	 * The plugin list itself comes from the jetpack-connection store; logos stay here because
 	 * third parties add them through a PHP filter.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.13.0
 	 *
 	 * @param string[] $slugs Connected plugin slugs.
 	 * @return array<string,string> Logo URL by slug, for slugs that have one.
