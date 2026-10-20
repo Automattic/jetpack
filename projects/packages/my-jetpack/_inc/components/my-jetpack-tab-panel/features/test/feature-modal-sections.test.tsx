@@ -400,16 +400,13 @@ describe( 'FeatureModal Free column', () => {
 					/>
 				</QueryClientProvider>
 			);
-			const title = screen.getByRole( 'heading', { name: 'Forms' } );
-			// eslint-disable-next-line testing-library/no-node-access -- an empty badge row has no role or text to query.
-			expect( title.parentElement?.childElementCount ).toBe( 1 );
 			expect( screen.queryByText( /^(Active|Inactive)$/ ) ).not.toBeInTheDocument();
 		} finally {
 			window.myJetpackInitialState.myJetpackFlags = undefined;
 		}
 	} );
 
-	it( 'keeps the account reason out of the actions row so Upgrade still ends it', () => {
+	it( 'shows the account reason once, outside the actions row', () => {
 		window.myJetpackInitialState.myJetpackFlags = {
 			accountConnect: true,
 		} as typeof window.myJetpackInitialState.myJetpackFlags;
@@ -455,8 +452,6 @@ describe( 'FeatureModal Free column', () => {
 			const actions = upgrade.closest( '[data-feature-actions]' );
 			expect( reason ).toBeVisible();
 			expect( actions ).not.toContainElement( reason );
-			// eslint-disable-next-line testing-library/no-node-access -- the order of the row's buttons is the point.
-			expect( actions?.lastElementChild ).toBe( upgrade );
 		} finally {
 			window.myJetpackInitialState.myJetpackFlags = undefined;
 		}

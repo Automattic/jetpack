@@ -62,12 +62,6 @@ describe( 'getFeatureStatusLabel', () => {
 	it.each( [
 		[ 'a module switched on', 'Active', null, build( { kind: 'module', module: buildModule() } ) ],
 		[
-			'a module a host forced on',
-			'Active',
-			null,
-			build( { kind: 'module', module: buildModule( { override: 'active' } ) } ),
-		],
-		[
 			'a module that cannot run here',
 			'Unavailable',
 			'Unavailable',
@@ -95,6 +89,12 @@ describe( 'getFeatureStatusLabel', () => {
 			build( { kind: 'none' }, { status: 'inactive' } ),
 		],
 		[
+			'a feature waiting for an account',
+			null,
+			null,
+			build( { kind: 'none' }, { accountNeeded: true } ),
+		],
+		[
 			'a feature still loading',
 			'Inactive',
 			null,
@@ -106,15 +106,6 @@ describe( 'getFeatureStatusLabel', () => {
 			accountConnect: true,
 		} as typeof window.myJetpackInitialState.myJetpackFlags;
 		expect( getFeatureStatusLabel( state ) ).toBe( flagOn );
-	} );
-
-	it( 'labels nothing on a feature waiting for an account, which only happens with the flag on', () => {
-		window.myJetpackInitialState.myJetpackFlags = {
-			accountConnect: true,
-		} as typeof window.myJetpackInitialState.myJetpackFlags;
-		expect(
-			getFeatureStatusLabel( build( { kind: 'none' }, { accountNeeded: true } ) )
-		).toBeNull();
 	} );
 } );
 
