@@ -102,21 +102,30 @@ it.each( [
 );
 
 it.each( [
-	[ false, 'complete' ],
-	[ true, 'security' ],
-] )( 'keeps an owned legacy bundle during rollback: owner %s', ( owned, expected ) => {
-	useProduct.mockImplementation( slug => ( {
-		detail: {
-			title: slug,
-			isUpgradableByBundle: [],
-			pricingForUi: { catalogAvailable: false, available: false },
-			hasPaidPlanForProduct: slug === 'security' && owned,
-			purchaseReplacement: { slug: 'complete' },
-		},
-	} ) );
-	render( <ProductInterstitial slug="scan" bundle="security" /> );
-	expect( screen.getByTestId( 'bundle' ) ).toHaveTextContent( expected );
-} );
+	[ false, 'complete', 'complete' ],
+	[ true, 'complete', 'security' ],
+	[ false, null, null ],
+] )(
+	'selects rollback content for owner %s with replacement %s',
+	( owned, replacement, expected ) => {
+		useProduct.mockImplementation( slug => ( {
+			detail: {
+				title: slug,
+				isUpgradableByBundle: [],
+				pricingForUi: { catalogAvailable: false, available: false },
+				hasPaidPlanForProduct: slug === 'security' && owned,
+				purchaseReplacement: replacement ? { slug: replacement } : null,
+			},
+		} ) );
+		render(
+			<ProductInterstitial slug="scan" bundle="security">
+				<span data-testid="illustration">Illustration</span>
+			</ProductInterstitial>
+		);
+		expect( screen.queryByTestId( 'bundle' )?.textContent ?? null ).toBe( expected );
+		expect( Boolean( screen.queryByTestId( 'illustration' ) ) ).toBe( expected === null );
+	}
+);
 
 it.each( [
 	[ false, false, false, true ],

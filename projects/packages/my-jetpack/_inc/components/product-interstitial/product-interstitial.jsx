@@ -75,6 +75,7 @@ export default function ProductInterstitial( {
 			? legacyBundleDetail?.purchaseReplacement?.slug
 			: bundle;
 	const offeredBundle = bundle && proIsOnSale ? preferredBundle : fallbackBundle;
+	const showSidebar = ! bundle || Boolean( offeredBundle || children );
 	const { detail: bundleDetail } = useProduct( offeredBundle );
 	const { activate, isPending: isActivating, isSuccess } = useActivatePlugins( slug );
 
@@ -236,7 +237,7 @@ export default function ProductInterstitial( {
 						horizontalGap={ 0 }
 						fluid
 					>
-						<Col sm={ 4 } md={ 4 } lg={ 7 }>
+						<Col sm={ 4 } md={ 4 } lg={ showSidebar ? 7 : 12 }>
 							<ProductDetailCard
 								slug={ slug }
 								trackButtonClick={ trackProductOrBundleClick }
@@ -252,28 +253,30 @@ export default function ProductInterstitial( {
 								isFetchingSuccess={ isSuccess }
 							/>
 						</Col>
-						<Col
-							sm={ 4 }
-							md={ 4 }
-							lg={ 5 }
-							className={ clsx( styles.imageContainer, imageContainerClassName ) }
-						>
-							{ bundle && offeredBundle && (
-								<ProductDetailCard
-									slug={ offeredBundle }
-									trackButtonClick={ trackProductOrBundleClick }
-									onClick={ clickHandler }
-									className={ isUpgradableByBundle ? styles.container : null }
-									hideTOS={ hideTOS || showBundledTOS }
-									quantity={ quantity }
-									highlightLastFeature={ highlightLastFeature }
-									isFetching={ isActivating }
-									isFetchingSuccess={ isSuccess }
-									isUpsell={ true }
-								/>
-							) }
-							{ ! bundle && children }
-						</Col>
+						{ showSidebar && (
+							<Col
+								sm={ 4 }
+								md={ 4 }
+								lg={ 5 }
+								className={ clsx( styles.imageContainer, imageContainerClassName ) }
+							>
+								{ bundle && offeredBundle && (
+									<ProductDetailCard
+										slug={ offeredBundle }
+										trackButtonClick={ trackProductOrBundleClick }
+										onClick={ clickHandler }
+										className={ isUpgradableByBundle ? styles.container : null }
+										hideTOS={ hideTOS || showBundledTOS }
+										quantity={ quantity }
+										highlightLastFeature={ highlightLastFeature }
+										isFetching={ isActivating }
+										isFetchingSuccess={ isSuccess }
+										isUpsell={ true }
+									/>
+								) }
+								{ ! offeredBundle && children }
+							</Col>
+						) }
 					</Container>
 				</Col>
 				<Col>
