@@ -4,32 +4,23 @@
 export const DASHBOARD_PAGE_SLUG = 'jetpack-premium-analytics-wp-admin';
 
 /**
- * Whether a route link and a full page load read a query alike.
- *
- * The link hands the router one string per key; the router's own parser folds a
- * repeated key into an array and reads a JSON value as such.
+ * Whether a key repeats in a route query. A full page load folds it into an array, which the
+ * route link cannot hand over, so the two navigations would land on different search state.
  *
  * @param query - The query a route path carries, without its `?`.
- * @return Whether no key repeats and no value parses as JSON.
+ * @return Whether some key repeats.
  */
-function isPlainQuery( query: string ): boolean {
+function hasRepeatedKey( query: string ): boolean {
 	const seen = new Set< string >();
 
-	for ( const [ key, value ] of new URLSearchParams( query ) ) {
-		let isJson = true;
-		try {
-			JSON.parse( value );
-		} catch {
-			isJson = false;
-		}
-
-		if ( seen.has( key ) || isJson ) {
-			return false;
+	for ( const [ key ] of new URLSearchParams( query ) ) {
+		if ( seen.has( key ) ) {
+			return true;
 		}
 		seen.add( key );
 	}
 
-	return true;
+	return false;
 }
 
 /**
@@ -38,7 +29,7 @@ function isPlainQuery( query: string ): boolean {
  * It belongs here when it targets the same document and admin `page`; the route is what `p`
  * carries, its query included. A href a route navigation would deliver differently than a full
  * page load is not one: a hash, params beyond `page` and `p`, duplicates of either, a `p` that is
- * not a root-relative path, or a query the router would not read as the link hands it over.
+ * not a root-relative path, or a query key that repeats.
  *
  * @param href - The href, absolute or relative.
  * @param base - Document URL the href is judged against. Defaults to the current location.
@@ -85,7 +76,7 @@ export function matchDashboardHref(
 		return null;
 	}
 
-	if ( queryStart !== -1 && ! isPlainQuery( path.slice( queryStart + 1 ) ) ) {
+	if ( queryStart !== -1 && hasRepeatedKey( path.slice( queryStart + 1 ) ) ) {
 		return null;
 	}
 

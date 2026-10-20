@@ -40,13 +40,6 @@ describe( 'matchDashboardHref', () => {
 		[ 'a duplicate page param', `${ PAGE }&page=stats&p=/reports` ],
 		[ 'a duplicate p param', `${ PAGE }&p=/reports&p=/settings` ],
 		[ 'a p query with a repeated key', `${ PAGE }&p=%2Fposts%3Fstatus%3Ddraft%26status%3Dpending` ],
-		[ 'a p query value the router reads as a number', `${ PAGE }&p=%2Fposts%3Fauthor%3D12` ],
-		[ 'a p query value the router reads as a boolean', `${ PAGE }&p=%2Fposts%3Fsticky%3Dtrue` ],
-		[
-			'a p query value the router reads as JSON',
-			`${ PAGE }&p=%2Fposts%3Fview%3D%7B%22type%22%3A%22table%22%7D`,
-		],
-		[ 'a p query value the router reads as a quoted string', `${ PAGE }&p=%2Fposts%3Fq%3D%227%22` ],
 		[ 'a p that is only a query', `${ PAGE }&p=%3Fperiod%3D7d` ],
 		[ 'a p carrying an encoded hash', `${ PAGE }&p=/reports%23section` ],
 		[ 'a p that is an absolute URL', `${ PAGE }&p=https://example.com` ],

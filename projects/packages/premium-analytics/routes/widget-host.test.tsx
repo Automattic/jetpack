@@ -14,7 +14,7 @@ import { DASHBOARD_PAGE_SLUG } from '@jetpack-premium-analytics/routing';
 /**
  * Internal dependencies
  */
-import { AnalyticsWidgetHostProvider } from './widget-host';
+import { AnalyticsWidgetHostProvider, toRouteTarget } from './widget-host';
 
 const BASE = `https://example.com/wp-admin/admin.php?page=${ DASHBOARD_PAGE_SLUG }`;
 const REFERRERS_HREF = `admin.php?page=${ DASHBOARD_PAGE_SLUG }&p=%2Freports%2Freferrers`;
@@ -80,5 +80,19 @@ describe( 'AnalyticsWidgetHostProvider', () => {
 		} finally {
 			window.history.replaceState( null, '', previous );
 		}
+	} );
+} );
+
+describe( 'toRouteTarget', () => {
+	it.each( [
+		[ 'no query', '/reports/referrers', { to: '/reports/referrers' } ],
+		[
+			'a JSON-quoted value as the string the data layer compares against',
+			'/reports/referrers?from=2026-03-01&comp=%221%22',
+			{ to: '/reports/referrers', search: { from: '2026-03-01', comp: '1' } },
+		],
+		[ 'a bare number as a number', '/posts?author=12', { to: '/posts', search: { author: 12 } } ],
+	] )( 'hands the router %s', ( _, path, expected ) => {
+		expect( toRouteTarget( path ) ).toEqual( expected );
 	} );
 } );
