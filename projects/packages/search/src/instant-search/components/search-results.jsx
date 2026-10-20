@@ -325,6 +325,7 @@ class SearchResults extends Component {
 						<div className="jetpack-instant-search__search-results-secondary-wrapper">
 							<div
 								id="jetpack-instant-search__search-results-secondary"
+								data-testid="search-results-secondary"
 								className={ [
 									'jetpack-instant-search__search-results-secondary',
 									`${

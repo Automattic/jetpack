@@ -26,10 +26,10 @@ it.each( [ 'click', 'Enter', ' ' ] )(
 			<SearchResults response={ {} } searchQuery="" widgets={ [ {} ] } highlightColor="#ffffff" />
 		);
 		const toggle = screen.getByRole( 'button', { name: 'Filters' } );
-		const panelId = toggle.getAttribute( 'aria-controls' );
-		// Verify the disclosure's ID reference resolves to an element.
-		// eslint-disable-next-line testing-library/no-node-access
-		expect( document.getElementById( panelId ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'search-results-secondary' ) ).toHaveAttribute(
+			'id',
+			toggle.getAttribute( 'aria-controls' )
+		);
 		expect( toggle ).toHaveAttribute( 'aria-expanded', 'false' );
 
 		const activate = async () => {
