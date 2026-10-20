@@ -71,7 +71,7 @@ export type ConnectionScriptData = {
 	calypsoEnv: string;
 	connectionStatus: {
 		isActive: boolean;
-		/** @deprecated Use `isInSafeMode`. */
+		/** Same value as `isInSafeMode`, which replaces it once its last consumers move over. */
 		isStaging: boolean;
 		/** Absent when the PHP connection package is older than this type. */
 		isInSafeMode?: boolean;
@@ -108,6 +108,10 @@ export type ConnectionScriptData = {
 			isMaster: boolean;
 			username: string;
 			id: number;
+			/** The viewer's local display name. */
+			displayName: string;
+			/** The viewer's local email address. */
+			email: string;
 			blogId: number;
 			wpcomUser: WpcomUser;
 			gravatar: string;

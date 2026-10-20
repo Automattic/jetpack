@@ -57,7 +57,6 @@ const data = JSON.parse( dataEl?.textContent ?? '{}' );
 const apiRoot = data.apiRoot || '';
 const apiNonce = data.apiNonce || '';
 const redirectUri = data.redirectUri || '';
-const viewerLocal = data.viewerLocal || {};
 const hasOtherConnectedUsers = Boolean( data.hasOtherConnectedUsers );
 const connectionOwnerEditUrl = data.connectionOwnerEditUrl || null;
 const connectedUsersUrl = data.connectedUsersUrl || '';
@@ -77,7 +76,7 @@ const protectedOwner = data.protectedOwner || null;
 /**
  * The viewer's account row, or null when they have no user connection.
  *
- * WordPress.com values win; viewerLocal fills the name and email when the WordPress.com lookup failed.
+ * WordPress.com values win; the local name and email fill in when the WordPress.com lookup failed.
  *
  * @param {object}  currentUser     - userConnectionData.currentUser from the store.
  * @param {boolean} isUserConnected - Whether the viewer holds a user token.
@@ -92,9 +91,9 @@ function buildViewer( currentUser, isUserConnected ) {
 	const isOwner = Boolean( currentUser.isMaster );
 
 	return {
-		displayName: wpcomUser.display_name || viewerLocal.displayName || currentUser.username || '',
+		displayName: wpcomUser.display_name || currentUser.displayName || currentUser.username || '',
 		login: wpcomUser.login || currentUser.username || '',
-		email: wpcomUser.email || viewerLocal.email || '',
+		email: wpcomUser.email || currentUser.email || '',
 		avatar: currentUser.gravatar || '',
 		isOwner,
 		hasOtherConnectedUsers: isOwner && hasOtherConnectedUsers,

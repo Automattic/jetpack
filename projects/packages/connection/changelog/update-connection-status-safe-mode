@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Add `isInSafeMode` to the connection status and deprecate `isStaging`.
+Add `isInSafeMode` to the connection status and the local `displayName` and `email` to the current user's connection data.

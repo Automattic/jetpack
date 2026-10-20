@@ -1630,6 +1630,8 @@ class REST_Endpoints_Test extends TestCase {
 				'isMaster'              => false,
 				'username'              => $user->user_login,
 				'id'                    => $user->ID,
+				'displayName'           => $user->display_name,
+				'email'                 => $user->user_email,
 				'blogId'                => false,
 				'wpcomUser'             => array(
 					'avatar' => false,
@@ -1677,6 +1679,8 @@ class REST_Endpoints_Test extends TestCase {
 				'isMaster'              => false,
 				'username'              => $user->user_login,
 				'id'                    => $user->ID,
+				'displayName'           => $user->display_name,
+				'email'                 => $user->user_email,
 				'blogId'                => self::BLOG_ID,
 				'wpcomUser'             => array(
 					'avatar' => false,
@@ -1733,6 +1737,8 @@ class REST_Endpoints_Test extends TestCase {
 				'isMaster'              => true,
 				'username'              => $user->user_login,
 				'id'                    => $user->ID,
+				'displayName'           => $user->display_name,
+				'email'                 => $user->user_email,
 				'blogId'                => self::BLOG_ID,
 				'wpcomUser'             => $dummy_wpcom_user_data,
 				'permissions'           => array(

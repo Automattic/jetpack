@@ -206,8 +206,6 @@ class Jetpack_Connector {
 		$connected_plugins   = is_array( $connected_plugins ) ? $connected_plugins : array();
 		$data['pluginLogos'] = static::get_plugin_logos( array_keys( $connected_plugins ) );
 
-		$data['viewerLocal'] = static::get_viewer_local_data();
-
 		if ( $is_registered ) {
 			$data['siteDetails'] = array(
 				'siteUrl' => site_url(),
@@ -317,24 +315,6 @@ class Jetpack_Connector {
 		return array(
 			'status'                 => $state['status'],
 			'viewerIsConfirmedOwner' => $state['is_current_user_the_po'],
-		);
-	}
-
-	/**
-	 * The viewer's local profile fields that the jetpack-connection store does not carry.
-	 *
-	 * The card shows them only when the WordPress.com lookup of the viewer's account fails.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return array{displayName: string, email: string}
-	 */
-	private static function get_viewer_local_data() {
-		$user = wp_get_current_user();
-
-		return array(
-			'displayName' => $user->display_name,
-			'email'       => $user->user_email,
 		);
 	}
 

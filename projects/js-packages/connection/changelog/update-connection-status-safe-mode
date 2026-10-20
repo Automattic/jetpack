@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Add `isInSafeMode` to the connection status type and mark `isStaging` deprecated.
+Add `isInSafeMode` to the connection status type and the local `displayName` and `email` to the current user type.
