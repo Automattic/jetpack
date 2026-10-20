@@ -37,6 +37,20 @@ describe( 'SubscribersChart', () => {
 		expect( screen.getByText( '50', { selector: 'tspan' } ) ).toBeInTheDocument();
 	} );
 
+	it( 'labels the top of the y axis when the counts sit far above zero', async () => {
+		render(
+			<SubscribersChart
+				subscriberTotalsByDate={ {
+					'2023-01-01': { all: 800, paid: 820 },
+					'2023-01-02': { all: 870, paid: 850 },
+				} }
+			/>
+		);
+
+		await expect( screen.findByLabelText( 'XYChart' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( '1,000', { selector: 'tspan' } ) ).toBeInTheDocument();
+	} );
+
 	it( 'displays a message when no data is available', () => {
 		render( <SubscribersChart subscriberTotalsByDate={ {} } /> );
 

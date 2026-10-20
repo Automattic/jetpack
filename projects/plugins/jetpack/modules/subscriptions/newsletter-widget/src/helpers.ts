@@ -154,6 +154,18 @@ export const transformData = (
 };
 
 /**
+ * The chart's y domain: zero to the largest value. It starts at zero here because XYChart would
+ * otherwise stretch it to zero after rounding it, leaving the rounded top without a label.
+ *
+ * @param {ChartSubscriptionDataPoint[]} subs - The subscription statistics array. The same data used to render the chart.
+ * @returns {[number, number]} The domain to round with `nice`.
+ */
+export const getYDomain = ( subs: ChartSubscriptionDataPoint[] ): [ number, number ] => [
+	0,
+	Math.max( 0, ...subs.flatMap( d => [ d.all || 0, d.paid || 0 ] ) ),
+];
+
+/**
  * Calculates the left axis tick label margin from the widest label the axis will draw.
  * Larger labels will get cut off so we must dynamically increase the margin based on how many digits are in the top label,
  * which is the largest value rounded up the same way the chart's y scale rounds it.
@@ -170,11 +182,7 @@ export const calcLeftAxisMargin = ( subs: ChartSubscriptionDataPoint[] ): number
 		return DEFAULT_MARGIN;
 	}
 
-	const values = subs.flatMap( d => [ d.all || 0, d.paid || 0 ] );
-	const [ , topLabel ] = scaleLinear( {
-		domain: [ Math.min( ...values ), Math.max( ...values ) ],
-		nice: Y_TICK_COUNT,
-	} ).domain();
+	const [ , topLabel ] = scaleLinear( { domain: getYDomain( subs ), nice: Y_TICK_COUNT } ).domain();
 	// Estimate character width (in pixels) and calculate margin
 	// Each digit is roughly 8px, plus add some padding
 	const digitCount = Math.round( topLabel ).toString().length;
