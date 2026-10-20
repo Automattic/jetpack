@@ -68,14 +68,17 @@ function wpcom_ai_assistant_banner_mcp_enabled() {
 		return null;
 	}
 
+	$is_simple = ( new Host() )->is_wpcom_simple();
 	$cache_key = 'wpcom_ai_banner_mcp_' . $blog_id . '_' . get_current_user_id();
-	$cached    = get_transient( $cache_key );
-	if ( in_array( $cached, array( 'on', 'off', 'unavailable' ), true ) ) {
-		return 'unavailable' === $cached ? null : 'on' === $cached;
+	if ( ! $is_simple ) {
+		$cached = get_transient( $cache_key );
+		if ( in_array( $cached, array( 'on', 'off', 'unavailable' ), true ) ) {
+			return 'unavailable' === $cached ? null : 'on' === $cached;
+		}
 	}
 
 	$path     = sprintf( '/sites/%d/mcp-abilities', $blog_id );
-	$response = ( new Host() )->is_wpcom_simple()
+	$response = $is_simple
 		? Client::wpcom_json_api_request_as_blog( $path, '2', array( 'method' => 'GET' ), null, 'wpcom' )
 		: Client::wpcom_json_api_request_as_user( $path, '2', array( 'method' => 'GET' ), null, 'wpcom' );
 
@@ -89,7 +92,9 @@ function wpcom_ai_assistant_banner_mcp_enabled() {
 	}
 
 	if ( ! $data['has_mcp_plan'] ) {
-		set_transient( $cache_key, 'unavailable', 5 * MINUTE_IN_SECONDS );
+		if ( ! $is_simple ) {
+			set_transient( $cache_key, 'unavailable', 5 * MINUTE_IN_SECONDS );
+		}
 		return null;
 	}
 
@@ -98,12 +103,14 @@ function wpcom_ai_assistant_banner_mcp_enabled() {
 	}
 
 	$enabled = (bool) $data['site_level_enabled'];
-	set_transient( $cache_key, $enabled ? 'on' : 'off', 5 * MINUTE_IN_SECONDS );
+	if ( ! $is_simple ) {
+		set_transient( $cache_key, $enabled ? 'on' : 'off', 5 * MINUTE_IN_SECONDS );
+	}
 	return $enabled;
 }
 
 /**
- * Data for the banner's script: Tracks props and the cached MCP state.
+ * Data for the banner's script: Tracks props and the MCP state.
  *
  * @param string $screen_id The current admin screen id.
  * @return array{trackProps: array<string,string>, mcpState: string}

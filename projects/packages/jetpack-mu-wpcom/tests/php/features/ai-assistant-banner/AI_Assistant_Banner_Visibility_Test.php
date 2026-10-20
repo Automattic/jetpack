@@ -1,6 +1,6 @@
 <?php
 /**
- * Tests for the AI Assistant banner's WordPress Agent and cached MCP checks.
+ * Tests for the AI Assistant banner's WordPress Agent and MCP checks.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -46,13 +46,13 @@ class AI_Assistant_Banner_Visibility_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The cached MCP result preserves all three banner states without another API call.
+	 * Atomic's cached MCP result preserves all three banner states without another API call.
 	 *
 	 * @runInSeparateProcess
 	 */
 	#[RunInSeparateProcess]
 	public function test_cached_mcp_result() {
-		define( 'IS_WPCOM', true );
+		define( 'IS_ATOMIC', true );
 		$cache_key = 'wpcom_ai_banner_mcp_' . get_current_blog_id() . '_' . get_current_user_id();
 
 		set_transient( $cache_key, 'on', 5 * MINUTE_IN_SECONDS );
