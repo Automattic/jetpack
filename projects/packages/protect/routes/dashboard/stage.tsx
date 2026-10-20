@@ -34,6 +34,7 @@ const Stage = () => {
 					// Leaving a tab closes the inspector, whose threat belongs to the list on that tab.
 					...CLOSED_INSPECTOR,
 					section: undefined,
+					[ REPORT_PARAM ]: undefined,
 					...params,
 					tab: next === 'overview' ? undefined : next,
 				} ),
@@ -67,7 +68,7 @@ const Stage = () => {
 		return (
 			<AdminPage className="jp-protect-dashboard" breadcrumbs={ <ThreatReportBreadcrumbs /> }>
 				<div className="jp-protect-dashboard__body">
-					<ThreatReport ids={ reportIds } />
+					<ThreatReport ids={ reportIds } openTab={ openTab } />
 				</div>
 			</AdminPage>
 		);

@@ -12,6 +12,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { check, help, seen } from '@wordpress/icons';
 import { Card, Notice, Stack, Text } from '@wordpress/ui';
 import { CardRow, ProtectCard, type CardStatus } from '../../components/card';
+import TabLink from '../../components/tab-link';
 import useArrowKeyNavigation from '../../components/use-arrow-key-navigation';
 import { HISTORY_THREAT_PARAM, loadHistory, useHistory } from '../history/store';
 import useOpenThreat from '../use-open-threat';
@@ -191,9 +192,18 @@ function UnknownThreats( {
  * @param props            - Component props.
  * @param props.siteIsSafe - Whether Scan finds no other threats on the site either.
  * @param props.hasPlan    - Whether the site has Scan, without which the free check can't call it safe.
+ * @param props.openTab    - Switches dashboard tabs, for the link to the Overview.
  * @return The section.
  */
-function ReportSafeState( { siteIsSafe, hasPlan }: { siteIsSafe: boolean; hasPlan: boolean } ) {
+function ReportSafeState( {
+	siteIsSafe,
+	hasPlan,
+	openTab,
+}: {
+	siteIsSafe: boolean;
+	hasPlan: boolean;
+	openTab: ( tab: string ) => void;
+} ) {
 	let title: string = __( 'Nothing from your alert needs fixing', 'jetpack-protect-pkg' );
 	if ( siteIsSafe ) {
 		title = hasPlan
@@ -204,20 +214,25 @@ function ReportSafeState( { siteIsSafe, hasPlan }: { siteIsSafe: boolean; hasPla
 		<Card.Root render={ <section /> } className="jp-protect-card" aria-label={ title }>
 			<Card.Content>
 				<Stack className="jp-protect-safe" direction="column" align="center" gap="md">
-					<SafeShield />
+					{ /* The green shield would contradict the threats still on the site. */ }
+					{ siteIsSafe && <SafeShield /> }
 					<Text variant="heading-xl" render={ <h3 /> }>
 						{ title }
 					</Text>
 					<Text variant="body-lg" className="jp-protect-safe__details">
-						{ siteIsSafe
-							? __(
-									'None of the threats from your alert need your attention.',
-									'jetpack-protect-pkg'
-								)
-							: __(
-									'Scan found other threats on your site. See them on the Overview.',
-									'jetpack-protect-pkg'
-								) }
+						{ siteIsSafe ? (
+							__(
+								'None of the threats from your alert need your attention.',
+								'jetpack-protect-pkg'
+							)
+						) : (
+							<>
+								{ __( 'Other threats on your site still need attention.', 'jetpack-protect-pkg' ) }{ ' ' }
+								<TabLink tab="overview" onOpen={ openTab }>
+									{ __( 'See them on the Overview.', 'jetpack-protect-pkg' ) }
+								</TabLink>
+							</>
+						) }
 					</Text>
 				</Stack>
 			</Card.Content>
@@ -231,14 +246,23 @@ const getFixed = ( item: ScanThreat ) => item.fixedOn ?? '';
 /**
  * The threats a link names, such as the ones in a threat email, grouped by what Scan has done with them.
  *
- * @param props     - Component props.
- * @param props.ids - The threat ids from the link.
+ * @param props         - Component props.
+ * @param props.ids     - The threat ids from the link.
+ * @param props.openTab - Switches dashboard tabs, which leaves the report.
  * @return The report.
  */
-export default function ThreatReport( { ids }: { ids: string[] } ) {
+export default function ThreatReport( {
+	ids,
+	openTab,
+}: {
+	ids: string[];
+	openTab: ( tab: string ) => void;
+} ) {
 	const scan = useScan();
 	const history = useHistory();
 	const scanFailed = Boolean( scan?.error );
+	// Before Scan's first report, an empty active list says nothing about the alert's threats.
+	const scanNotRun = ! scanFailed && ! scan?.lastChecked;
 	const active = scan?.threats ?? NO_THREATS;
 	const canAct = Boolean( scan?.hasPlan );
 	// History is fetched only where its section says the plan has it.
@@ -278,11 +302,11 @@ export default function ThreatReport( { ids }: { ids: string[] } ) {
 	const groups = useMemo(
 		() =>
 			groupThreats( ids, {
-				active: scanFailed ? null : active,
+				active: scanFailed || scanNotRun ? null : active,
 				ignored: scan?.ignored,
 				history: known,
 			} ),
-		[ ids, scanFailed, active, scan?.ignored, known ]
+		[ ids, scanFailed, scanNotRun, active, scan?.ignored, known ]
 	);
 	// While history reloads, an id missing from the last copy may be a threat just fixed.
 	const notFound = refreshing ? [] : groups.notFound;
@@ -298,14 +322,16 @@ export default function ThreatReport( { ids }: { ids: string[] } ) {
 	);
 	useArrowKeyNavigation( rows, selected, getId, open );
 
-	const historyFailed = Boolean( history.error ) && ! refreshing;
-	const failed = scanFailed || historyFailed;
+	const historyFailed = hasHistory && Boolean( history.error ) && ! refreshing;
+	const failed = scanFailed || scanNotRun || historyFailed;
 
 	const isClear = ! failed && ! groups.active.length && ! pending.length;
 
 	return (
 		<div className="jp-protect-dashboard__cards">
-			{ isClear && <ReportSafeState siteIsSafe={ ! active.length } hasPlan={ canAct } /> }
+			{ isClear && (
+				<ReportSafeState siteIsSafe={ ! active.length } hasPlan={ canAct } openTab={ openTab } />
+			) }
 			{ pending.length > 0 && ! failed && (
 				<Notice.Root intent="info">
 					<Notice.Description>
@@ -327,6 +353,16 @@ export default function ThreatReport( { ids }: { ids: string[] } ) {
 					<Notice.Description>
 						{ __(
 							'We couldn’t check your site for vulnerabilities right now.',
+							'jetpack-protect-pkg'
+						) }
+					</Notice.Description>
+				</Notice.Root>
+			) }
+			{ scanNotRun && (
+				<Notice.Root intent="info">
+					<Notice.Description>
+						{ __(
+							'Scan hasn’t finished checking your site yet. Reload the page once it has.',
 							'jetpack-protect-pkg'
 						) }
 					</Notice.Description>
