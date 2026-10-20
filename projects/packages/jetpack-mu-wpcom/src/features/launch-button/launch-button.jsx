@@ -19,7 +19,7 @@ const icon = (
 const Content = () => (
 	<>
 		<span className="ab-icon">{ icon }</span>
-		<span className="ab-label">{ __( 'Launch site', 'jetpack-mu-wpcom' ) }</span>
+		<span className="ab-label">{ __( 'Publish site', 'jetpack-mu-wpcom' ) }</span>
 	</>
 );
 
