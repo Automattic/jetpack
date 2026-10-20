@@ -291,7 +291,7 @@ describe( 'DataViewsDrilldownNative pagination', () => {
 		rerender( flatTable( 12 ) );
 
 		await expect( screen.findByText( 'Row 11' ) ).resolves.toBeInTheDocument();
-		expect( screen.getByRole( 'combobox', { name: /page/i } ) ).toHaveValue( '2' );
+		expect( screen.getByRole( 'combobox', { name: /page/i } ) ).toHaveTextContent( '2' );
 	} );
 
 	it( 'stays where it fell back to when a later result grows again', async () => {
