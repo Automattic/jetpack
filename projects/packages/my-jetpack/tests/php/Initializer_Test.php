@@ -179,11 +179,56 @@ class Initializer_Test extends BaseTestCase {
 		}
 	}
 
+	/**
+	 * @dataProvider installed_jetpack_copies
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 * @param bool   $active Whether Beta is active.
+	 * @param string $expected_file Expected installed copy.
+	 * @param string $expected_status Expected feature status.
+	 */
+	#[DataProvider( 'installed_jetpack_copies' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_modules_links_and_features_use_the_active_jetpack_copy( $active, $expected_file, $expected_status ) {
+		$this->load_jetpack_mock( 'jetpack-dev' );
+		add_filter(
+			'all_plugins',
+			static function () {
+				return array(
+					'jetpack/jetpack.php'     => array( 'Name' => 'Jetpack' ),
+					'jetpack-dev/jetpack.php' => array( 'Name' => 'Jetpack Beta' ),
+				);
+			},
+			20
+		);
+		update_option( 'active_plugins', $active ? array( 'jetpack-dev/jetpack.php' ) : array() );
+		$this->log_in_as_admin();
+		wp_get_current_user()->add_cap( 'jetpack_manage_modules' );
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+		add_filter( 'jetpack_feature_flag_enabled_my-jetpack-modules-to-features', '__return_true' );
+		$this->connect_site_only();
+
+		$this->assertSame( $expected_file, Main_Features::get_plugin_file( Product::JETPACK_PLUGIN_SLUG ) );
+		$this->assertSame( $expected_status, Main_Features::get_state( true )['jetpack'] );
+		$expected_url = Main_Features::PLUGIN_ACTIVE === $expected_status
+			? admin_url( 'admin.php?page=my-jetpack&modules_fallback=1#/features' )
+			: admin_url( 'admin.php?page=jetpack_modules' );
+		$this->assertSame( $expected_url, Initializer::get_modules_management_url() );
+	}
+
+	public static function installed_jetpack_copies() {
+		return array(
+			'Beta active with stable installed' => array( true, 'jetpack-dev/jetpack.php', Main_Features::PLUGIN_ACTIVE ),
+			'neither copy active'               => array( false, 'jetpack/jetpack.php', Main_Features::PLUGIN_INACTIVE ),
+		);
+	}
+
 	public static function jetpack_plugin_load_cases() {
 		return array(
-			'Beta plugin loaded' => array( true, true ),
-			'must-use loaded'    => array( true, false ),
-			'plugin not loaded'  => array( false, false ),
+			'Beta plugin loaded'     => array( true, true ),
+			'installed but inactive' => array( true, false ),
+			'plugin not loaded'      => array( false, false ),
 		);
 	}
 
