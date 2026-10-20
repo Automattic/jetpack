@@ -564,16 +564,18 @@ export default function PricingInterstitial( { slug } ) {
 						) }
 					</PricingTable>
 				</Col>
-				{ useNewBundleOffer && bundleDetail?.pricingForUi?.available === true && (
-					<Col>
-						<ProductDetailCard
-							slug={ bundleSlug }
-							isUpsell
-							onClick={ handleGetBundleOffer }
-							isFetching={ buttonsDisabled }
-						/>
-					</Col>
-				) }
+				{ useNewBundleOffer &&
+					( bundleDetail?.pricingForUi?.available === true ||
+						bundleDetail?.hasPaidPlanForProduct ) && (
+						<Col>
+							<ProductDetailCard
+								slug={ bundleSlug }
+								isUpsell
+								onClick={ handleGetBundleOffer }
+								isFetching={ buttonsDisabled }
+							/>
+						</Col>
+					) }
 			</Container>
 		</AdminPage>
 	);
