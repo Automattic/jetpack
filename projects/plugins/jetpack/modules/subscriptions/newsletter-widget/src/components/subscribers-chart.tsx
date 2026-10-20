@@ -43,6 +43,9 @@ const chartTheme = buildChartTheme( {
 	},
 } );
 
+// Shared by the y scale's nice() and the left axis, so the rounded top of the scale always gets a label.
+const Y_TICK_COUNT = 5;
+
 // Chart accessors
 const getDate = ( d: ChartSubscriptionDataPoint ) => d.date;
 const getAllSubscribers = ( d: ChartSubscriptionDataPoint ) => d.all;
@@ -143,11 +146,11 @@ export const SubscribersChart = ( { subscriberTotalsByDate }: SubscribersChartPr
 								height={ height }
 								width={ width }
 								xScale={ { type: 'time' } }
-								yScale={ { type: 'linear', nice: true } }
+								yScale={ { type: 'linear', nice: Y_TICK_COUNT } }
 								theme={ chartTheme }
 								margin={ { top: 10, right: 30, bottom: 30, left: calcLeftAxisMargin( data ) } }
 							>
-								<Grid columns={ false } numTicks={ 5 } />
+								<Grid columns={ false } numTicks={ Y_TICK_COUNT } />
 
 								<LineSeries
 									dataKey="all"
@@ -169,7 +172,13 @@ export const SubscribersChart = ( { subscriberTotalsByDate }: SubscribersChartPr
 									curve={ curveMonotoneX }
 								/>
 
-								<Axis orientation="left" hideAxisLine hideTicks hideZero numTicks={ 5 } />
+								<Axis
+									orientation="left"
+									hideAxisLine
+									hideTicks
+									hideZero
+									numTicks={ Y_TICK_COUNT }
+								/>
 
 								<Axis
 									orientation="bottom"

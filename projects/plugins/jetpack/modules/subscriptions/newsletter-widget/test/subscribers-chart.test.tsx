@@ -22,6 +22,21 @@ describe( 'SubscribersChart', () => {
 		expect( chart ).toBeInTheDocument();
 	} );
 
+	it( 'labels the top of the y axis above the highest data point', async () => {
+		render(
+			<SubscribersChart
+				subscriberTotalsByDate={ {
+					'2023-01-01': { all: 10, paid: 5 },
+					'2023-01-02': { all: 30, paid: 5 },
+					'2023-01-03': { all: 45, paid: 8 },
+				} }
+			/>
+		);
+
+		await expect( screen.findByLabelText( 'XYChart' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( '50', { selector: 'tspan' } ) ).toBeInTheDocument();
+	} );
+
 	it( 'displays a message when no data is available', () => {
 		render( <SubscribersChart subscriberTotalsByDate={ {} } /> );
 
