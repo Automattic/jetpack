@@ -66,20 +66,26 @@ class Wpcom_Theme_Tracking_Test extends \WorDBless\BaseTestCase {
 		$marker  = array( 'wpcom_themes_origin' => 'marketplace-tab' );
 		$install = array( 'action' => 'install-theme' );
 		$preview = 'https://example.com/wp-admin/theme-install.php?theme=formwork';
+		$tab     = 'https://example.com/wp-admin/theme-install.php?browse=wpcom';
 
 		return array(
-			'cli install'                  => array( 'cli', array( 'WP_CLI' ), array(), $install, '' ),
-			'cli with marker'              => array( 'cli', array( 'WP_CLI' ), array(), $install + $marker, '' ),
-			'rest api'                     => array( 'api', array( 'REST_API_REQUEST' ), array(), array(), '' ),
-			'rest api with marker'         => array( 'api', array( 'REST_API_REQUEST' ), array(), $marker, '' ),
-			'ajax install with marker'     => array( 'marketplace-tab', array(), array(), $install + $marker, '' ),
-			'ajax install from add themes' => array( 'add-themes', array(), array(), $install, 'https://example.com/wp-admin/theme-install.php?browse=popular' ),
-			'ajax install with bad marker' => array( 'add-themes', array(), array(), $install + array( 'wpcom_themes_origin' => 'evil' ), '' ),
-			'activate with marker'         => array( 'marketplace-tab', array(), array( 'action' => 'activate' ) + $marker, array(), $preview ),
-			'activate from add themes'     => array( 'add-themes', array(), array( 'action' => 'activate' ), array(), $preview ),
-			'activate from themes'         => array( 'themes', array(), array( 'action' => 'activate' ), array(), 'https://example.com/wp-admin/themes.php' ),
-			'customizer save'              => array( 'customizer', array(), array(), array( 'action' => 'customize_save' ), '' ),
-			'nothing set'                  => array( 'other', array(), array(), array(), '' ),
+			'cli install'                   => array( 'cli', array( 'WP_CLI' ), array(), $install, '' ),
+			'cli with marker'               => array( 'cli', array( 'WP_CLI' ), array(), $install + $marker, '' ),
+			'rest api'                      => array( 'api', array( 'REST_API_REQUEST' ), array(), array(), '' ),
+			'rest api with marker'          => array( 'api', array( 'REST_API_REQUEST' ), array(), $marker, '' ),
+			'ajax install with marker'      => array( 'marketplace-tab', array(), array(), $install + $marker, '' ),
+			'ajax install from add themes'  => array( 'add-themes', array(), array(), $install, 'https://example.com/wp-admin/theme-install.php?browse=popular' ),
+			'ajax install with bad marker'  => array( 'add-themes', array(), array(), $install + array( 'wpcom_themes_origin' => 'evil' ), '' ),
+			'activate with marker'          => array( 'marketplace-tab', array(), array( 'action' => 'activate' ) + $marker, array(), $preview ),
+			'activate from add themes'      => array( 'add-themes', array(), array( 'action' => 'activate' ), array(), $preview ),
+			'activate from themes'          => array( 'themes', array(), array( 'action' => 'activate' ), array(), 'https://example.com/wp-admin/themes.php' ),
+			'customizer save'               => array( 'customizer', array(), array(), array( 'action' => 'customize_save' ), '' ),
+			'nothing set'                   => array( 'other', array(), array(), array(), '' ),
+			'ajax install from tab referer' => array( 'marketplace-tab', array(), array(), $install, $tab ),
+			'activate from tab referer'     => array( 'marketplace-tab', array(), array( 'action' => 'activate' ), array(), $tab ),
+			'rest api from tab referer'     => array( 'api', array( 'REST_API_REQUEST' ), array(), array(), $tab ),
+			'customizer flag'               => array( 'customizer', array(), array(), array( 'wp_customize' => 'on' ), '' ),
+			'activate from dashboard'       => array( 'other', array(), array( 'action' => 'activate' ), array(), 'https://example.com/wp-admin/index.php' ),
 		);
 	}
 }

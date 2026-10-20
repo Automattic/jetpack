@@ -78,8 +78,21 @@ function wpcom_themes_tracks_get_origin() {
 	$get_action  = $_GET['action'] ?? '';
 	// phpcs:enable WordPress.Security.NonceVerification,WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
+	// An array arrives when `_wp_http_referer[]` is sent.
+	$referer      = wp_get_raw_referer();
+	$referer      = is_string( $referer ) ? $referer : '';
+	$referer_path = (string) wp_parse_url( $referer, PHP_URL_PATH );
+
 	if ( $marker === 'marketplace-tab' ) {
 		return 'marketplace-tab';
+	}
+
+	if ( substr( $referer_path, -strlen( 'theme-install.php' ) ) === 'theme-install.php' ) {
+		wp_parse_str( (string) wp_parse_url( $referer, PHP_URL_QUERY ), $referer_query );
+
+		if ( ( $referer_query['browse'] ?? '' ) === 'wpcom' ) {
+			return 'marketplace-tab';
+		}
 	}
 
 	if ( $post_action === 'customize_save' || $customize === 'on' ) {
@@ -91,8 +104,6 @@ function wpcom_themes_tracks_get_origin() {
 	}
 
 	if ( $get_action === 'activate' ) {
-		$referer_path = (string) wp_parse_url( (string) wp_get_raw_referer(), PHP_URL_PATH );
-
 		if ( substr( $referer_path, -strlen( 'theme-install.php' ) ) === 'theme-install.php' ) {
 			return 'add-themes';
 		}
@@ -116,6 +127,10 @@ function wpcom_themes_tracks_get_origin() {
  * @return void
  */
 function wpcom_themes_tracks_switch_theme( $new_theme_name, $new_theme, $old_theme ) {
+	if ( ! is_wpcom_user() ) {
+		return;
+	}
+
 	$old_theme_props = wpcom_themes_tracks_get_theme_props( $old_theme, 'old' );
 	$new_theme_props = wpcom_themes_tracks_get_theme_props( $new_theme, 'new' );
 
@@ -187,6 +202,10 @@ function wpcom_themes_tracks_install_theme( $upgrader, $hook_extra ) {
 		return;
 	}
 
+	if ( ! is_wpcom_user() ) {
+		return;
+	}
+
 	$theme_slug = $upgrader->result['destination_name'] ?? '';
 
 	if ( ! $theme_slug ) {
@@ -214,7 +233,7 @@ add_action( 'upgrader_process_complete', 'wpcom_themes_tracks_install_theme', 10
  * @return void
  */
 function wpcom_themes_tracks_install_wpcom_theme( $theme_slug ) {
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+	if ( Constants::is_true( 'IS_WPCOM' ) || ! is_wpcom_user() ) {
 		return;
 	}
 
