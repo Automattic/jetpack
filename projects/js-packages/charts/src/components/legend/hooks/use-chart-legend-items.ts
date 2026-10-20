@@ -1,6 +1,7 @@
 import { formatNumber } from '@automattic/number-formatters';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
+import { useBarColors } from '../../../charts/bar-chart/use-bar-colors';
 import {
 	useGlobalChartsContext,
 	type GetElementStylesParams,
@@ -456,7 +457,8 @@ export function useChartLegendItems<
 		barLayout,
 		renderGlyph,
 	} = options;
-	const { getElementStyles: getSeriesStyles, getBarColors } = useGlobalChartsContext();
+	const { getElementStyles: getSeriesStyles } = useGlobalChartsContext();
+	const getBarColors = useBarColors();
 
 	return useMemo( () => {
 		if ( ! data || ! Array.isArray( data ) || data.length === 0 ) {
@@ -466,7 +468,7 @@ export function useChartLegendItems<
 		// Handle SeriesData (multiple series with data points)
 		if ( 'data' in data[ 0 ] ) {
 			const seriesData = data as SeriesData[];
-			const barColors = barLayout && getBarColors?.( seriesData, { layout: barLayout } );
+			const barColors = barLayout && getBarColors( seriesData, { layout: barLayout } );
 			const getElementStyles =
 				barLayout && barColors
 					? withBarColors( getSeriesStyles, barColors, barLayout )

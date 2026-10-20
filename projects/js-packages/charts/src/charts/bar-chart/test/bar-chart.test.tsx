@@ -13,6 +13,7 @@ import { useGlobalChartsContext } from '../../../providers/chart-context/hooks/u
 import { steadyTrafficData } from '../../../stories/sample-data';
 import BarChart, { BarChartUnresponsive } from '../bar-chart';
 import { useBarChartOptions } from '../private';
+import { useBarColors } from '../use-bar-colors';
 import type { GlobalChartsContextValue } from '../../../providers/chart-context/types';
 import type { DataPointDate, SeriesData } from '../../../types';
 
@@ -2726,21 +2727,21 @@ describe( 'BarChart', () => {
 					],
 				},
 			];
-			let context: GlobalChartsContextValue | undefined;
-			const CaptureContext = () => {
-				context = useGlobalChartsContext();
+			let barColors: string[] = [];
+			const CaptureBarColors = () => {
+				barColors = useBarColors()( data );
 				return null;
 			};
 			render(
 				<GlobalChartsProvider
 					theme={ opacity ? { barChart: { barStyles: { comparison: { opacity } } } } : undefined }
 				>
-					<CaptureContext />
+					<CaptureBarColors />
 					<BarChart data={ data } width={ 400 } height={ 300 } />
 				</GlobalChartsProvider>
 			);
 
-			const [ primaryColor, comparisonColor ] = context?.getBarColors?.( data ) ?? [];
+			const [ primaryColor, comparisonColor ] = barColors;
 			const shadows = screen.getAllByTestId( /^bar-chart-comparison-\d+-\d+$/ );
 			expect( shadows ).toHaveLength( 2 );
 			expect( shadows[ 0 ] ).toHaveAttribute( 'fill', comparisonColor );

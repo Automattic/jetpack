@@ -1,7 +1,6 @@
 import { CSSProperties, ReactNode } from 'react';
 import type { BaseLegendItem } from '../../components/legend';
 import type {
-	BarChartLayout,
 	BarStyles,
 	ChartFormatting,
 	ChartType,
@@ -42,8 +41,8 @@ export interface GlobalChartsContextValue {
 	/** Locale and time zone every date the charts print is rendered in. */
 	formatting: ChartFormatting;
 	getElementStyles: ( params: GetElementStylesParams ) => ElementStyles;
-	/** The colors a bar chart fills these series with in a layout, by index. Optional so a hand-built context value still type-checks. */
-	getBarColors?: ( series: SeriesData[], options?: { layout?: BarChartLayout } ) => string[];
+	/** The chart background as an opaque hex, for colors that must keep contrast against it. Optional so a hand-built context value still type-checks. */
+	backgroundColor?: string;
 	// Series visibility management shared by charts, legends, and programmatic controls.
 	toggleSeriesVisibility: ( chartId: string, seriesLabel: string ) => void;
 	setSeriesVisibility: ( chartId: string, seriesLabel: string, visible: boolean ) => void;

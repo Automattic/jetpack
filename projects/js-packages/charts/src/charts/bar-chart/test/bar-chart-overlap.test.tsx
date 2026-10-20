@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider } from '../../../providers';
 import { useGlobalChartsContext } from '../../../providers/chart-context/hooks/use-global-charts-context';
 import { BarChartUnresponsive } from '../bar-chart';
+import { useBarColors, type GetBarColors } from '../use-bar-colors';
 import type { GlobalChartsContextValue } from '../../../providers/chart-context/types';
 import type { SeriesData } from '../../../types';
 import type { BarChartProps } from '../types';
@@ -64,8 +65,10 @@ const barOf = ( label: string, category = 0 ) =>
 const center = ( { x, width }: Rect ) => x + width / 2;
 
 let context: GlobalChartsContextValue;
+let getBarColors: GetBarColors;
 const Grab = () => {
 	context = useGlobalChartsContext();
+	getBarColors = useBarColors();
 	return null;
 };
 
@@ -116,10 +119,10 @@ describe( 'BarChart overlap layout', () => {
 		expect( previousViews.x ).toBeGreaterThan( views.x + views.width );
 	} );
 
-	it( 'fills each bar opaque, in the colors the charts context reports for the layout', () => {
+	it( 'fills each bar opaque, in the colors useBarColors reports for the layout', () => {
 		renderOverlap();
 
-		const colors = context.getBarColors?.( DATA, { layout: 'overlap' } ) ?? [];
+		const colors = getBarColors( DATA, { layout: 'overlap' } );
 		expect( new Set( colors ).size ).toBe( 4 );
 		BAR_ORDER.forEach( ( label, order ) => {
 			const bar = barRects()[ order * 2 ];
@@ -131,7 +134,7 @@ describe( 'BarChart overlap layout', () => {
 	it( 'lists its legend in slot order, its swatches colored as its bars', () => {
 		renderOverlap( { chartId: 'overlap-legend' } );
 
-		const colors = context.getBarColors?.( DATA, { layout: 'overlap' } ) ?? [];
+		const colors = getBarColors( DATA, { layout: 'overlap' } );
 		expect(
 			context
 				.getChartData( 'overlap-legend' )

@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Bar chart: Add an overlap layout that draws each group inside the one before it, with comparisons in a slot beside them, and expose its bar colors through `getBarColors` on the charts context.
+Bar chart: Add an overlap layout that draws each group inside the one before it, with comparisons in a slot beside them, and expose its bar colors through a `useBarColors` hook.

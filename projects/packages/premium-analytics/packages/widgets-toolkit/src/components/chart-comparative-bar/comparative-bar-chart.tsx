@@ -5,6 +5,7 @@ import {
 	BarChart,
 	Stack,
 	getBucketInfo,
+	useBarColors,
 	useGlobalChartsContext,
 	type BarChartLayout,
 	type TickResolution,
@@ -166,7 +167,8 @@ export function ComparativeBarChart( {
 	const { displayResolution } = getBucketInfo( series, tickResolution );
 	const fallbackChartId = useId();
 	const chartId = providedChartId ?? fallbackChartId;
-	const { getElementStyles, getBarColors, isSeriesVisible, theme } = useGlobalChartsContext();
+	const { isSeriesVisible, theme } = useGlobalChartsContext();
+	const getBarColors = useBarColors();
 	const overlapLayout = layout === 'overlap' ? layout : undefined;
 
 	// The measured Stack fills its container (flex), so its height is independent
@@ -192,13 +194,13 @@ export function ComparativeBarChart( {
 	);
 
 	// Each swatch takes the color its bar is drawn in.
-	const seriesStyles = useMemo< TooltipStyle[] >( () => {
-		const barColors = getBarColors?.( alignedSeries, { layout: layout ?? 'grouped' } );
-
-		return alignedSeries.map( ( seriesData, index ) => ( {
-			stroke: barColors?.[ index ] ?? getElementStyles( { data: seriesData, index } ).color,
-		} ) );
-	}, [ alignedSeries, getElementStyles, getBarColors, layout ] );
+	const seriesStyles = useMemo< TooltipStyle[] >(
+		() =>
+			getBarColors( alignedSeries, { layout: layout ?? 'grouped' } ).map( stroke => ( {
+				stroke,
+			} ) ),
+		[ alignedSeries, getBarColors, layout ]
+	);
 
 	// Multipliers keep the tick labels short.
 	const yTickFormat = useMemo(

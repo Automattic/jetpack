@@ -11,8 +11,6 @@ import {
 //
 // This must be a direct import of the stylesheet, not through a re-export barrel: a barrel `.ts` file doesn't match this package's `sideEffects` glob (only `*.css`/`*.scss` do), so tsdown/Rolldown treats an unused barrel import as side-effect-free and drops it — taking the nested stylesheet import with it. The file also can't be named `*.module.scss`: it declares zero CSS-module class names (only a `:where()`-wrapped selector), and `@tsdown/css` marks a `.module.*` file's generated JS proxy `moduleSideEffects: false` (tree-shakeable unless a class name is read); a plain stylesheet gets `moduleSideEffects: "no-treeshake"` instead, so it always ships. `tools/assert-charts-scope-emitted.ts` fails `pnpm run build` if this regresses — a passing test suite alone does not catch a dropped stylesheet.
 import '../../styles/chart-scope.scss';
-import { getGroupedBarColors } from '../../charts/bar-chart/private/grouped-bars';
-import { getOverlapBarColors } from '../../charts/bar-chart/private/overlap-bars';
 import { CHART_SCOPE_CLASS } from '../../styles/chart-scope-class';
 import {
 	createCssVariableResolver,
@@ -257,27 +255,6 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 		[ providerTheme, resolveColor ]
 	);
 
-	const getBarColors = useCallback< NonNullable< GlobalChartsContextValue[ 'getBarColors' ] > >(
-		( series, { layout = 'grouped' } = {} ) => {
-			const colors = series.map( ( data, index ) => getElementStyles( { data, index } ).color );
-
-			if ( layout !== 'overlap' ) {
-				// The deprecated comparison opacity keeps the translucent bars in their series colors.
-				return providerTheme.barChart?.barStyles?.comparison?.opacity === undefined
-					? getGroupedBarColors( series, colors, colorCache.background )
-					: colors;
-			}
-
-			return getOverlapBarColors(
-				series,
-				colors,
-				[ getElementStyles( { index: 0 } ).color, getElementStyles( { index: 1 } ).color ],
-				colorCache.background
-			);
-		},
-		[ getElementStyles, colorCache.background, providerTheme ]
-	);
-
 	// Keep hidden-series updates and no-op detection consistent across setters.
 	const updateHiddenSeries = useCallback(
 		( chartId: string, update: ( current: Set< string > ) => Set< string > ) => {
@@ -394,7 +371,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 			theme: providerTheme,
 			formatting,
 			getElementStyles,
-			getBarColors,
+			backgroundColor: colorCache.background,
 			toggleSeriesVisibility,
 			setSeriesVisibility,
 			setChartHiddenSeries,
@@ -412,7 +389,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 			providerTheme,
 			formatting,
 			getElementStyles,
-			getBarColors,
+			colorCache.background,
 			toggleSeriesVisibility,
 			setSeriesVisibility,
 			setChartHiddenSeries,

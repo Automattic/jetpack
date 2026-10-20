@@ -51,6 +51,7 @@ import {
 	getSelectedSlot,
 	isSameCategory,
 } from './private';
+import { useBarColors } from './use-bar-colors';
 import type { ComparisonSeriesEntry } from './private';
 import type { BarChartProps } from './types';
 import type { DataPointDate, SeriesData, Optional } from '../../types';
@@ -178,12 +179,11 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	);
 	const legendItems = useChartLegendItems( dataSorted, legendOptions );
 
-	const { getElementStyles, getBarColors, theme: providerTheme } = useGlobalChartsContext();
+	const { getElementStyles, theme: providerTheme } = useGlobalChartsContext();
+	const getBarColors = useBarColors();
 	const barColors = useMemo(
-		() =>
-			getBarColors?.( dataSorted, { layout } ) ??
-			dataSorted.map( ( series, index ) => getElementStyles( { data: series, index } ).color ),
-		[ layout, getBarColors, dataSorted, getElementStyles ]
+		() => getBarColors( dataSorted, { layout } ),
+		[ layout, getBarColors, dataSorted ]
 	);
 
 	if ( providerTheme.barChart?.barStyles?.comparison?.opacity !== undefined ) {

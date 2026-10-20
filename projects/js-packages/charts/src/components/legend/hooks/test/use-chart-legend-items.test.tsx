@@ -1,5 +1,6 @@
 import { renderHook } from '@testing-library/react';
-import { GlobalChartsProvider, useGlobalChartsContext } from '../../../../providers';
+import { useBarColors } from '../../../../charts/bar-chart/use-bar-colors';
+import { GlobalChartsProvider } from '../../../../providers';
 import { useChartLegendItems } from '../use-chart-legend-items';
 import type { DataPointPercentageCalculated, DataPointDate, SeriesData } from '../../../../types';
 import type { ReactNode } from 'react';
@@ -436,12 +437,11 @@ describe( 'useChartLegendItems', () => {
 						comparisonSeriesItems: perMetricLabel,
 						barLayout,
 					} ),
-					context: useGlobalChartsContext(),
+					getBarColors: useBarColors(),
 				} ),
 				{ wrapper }
 			);
-			const colors =
-				result.current.context.getBarColors?.( twoMetricData, { layout: barLayout } ) ?? [];
+			const colors = result.current.getBarColors( twoMetricData, { layout: barLayout } );
 
 			expect( result.current.items.map( item => item.color ) ).toEqual(
 				colorOrder.map( index => colors[ index ] )

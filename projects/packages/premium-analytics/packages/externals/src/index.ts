@@ -33,6 +33,7 @@ export {
 	lightenHexColor,
 	mixHexColors,
 	normalizeColorToHex,
+	useBarColors,
 	useCalendarHeatmapData,
 	useChartLegendItems,
 	useGlobalChartsContext,

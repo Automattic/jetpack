@@ -136,14 +136,14 @@ export const mockChartExternals = () => ( {
 						},
 					]
 		),
+	useBarColors: () => ( series: ChartSeries[], options?: { layout?: string } ) =>
+		series.map( ( data, index ) =>
+			options?.layout === 'overlap'
+				? mockOverlapBarColor( index )
+				: elementStyles( { data, index } ).color
+		),
 	useGlobalChartsContext: () => ( {
 		getElementStyles: ( params: ElementStylesParams ) => elementStyles( params ),
-		getBarColors: ( series: ChartSeries[], options?: { layout?: string } ) =>
-			series.map( ( data, index ) =>
-				options?.layout === 'overlap'
-					? mockOverlapBarColor( index )
-					: elementStyles( { data, index } ).color
-			),
 		getHiddenSeries: () => new Set( hiddenSeries ),
 		isSeriesVisible: ( _chartId: string, label: string ) => ! hiddenSeries.has( label ),
 		theme: { sparkline: { margin: mockSparklineMargin } },
