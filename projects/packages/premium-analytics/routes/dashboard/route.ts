@@ -3,18 +3,20 @@
  */
 import {
 	ensureCoreSettingsReady,
-	hasComparisonEnabled,
+	getSectionDatePolicy,
+	isPresetLockedByPolicy,
 	needsReportDateParamsSeed,
-	withoutComparison,
 } from '@jetpack-premium-analytics/data';
+import { isYearSurfacePresetId } from '@jetpack-premium-analytics/datetime';
+import { omitReportDateParams } from '@jetpack-premium-analytics/routing';
 import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
-import { seedSiteDateParams } from '../site-date-seed';
+import { dateWindowNoticeState } from '../date-window-notice';
 import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
-
-type DashboardSearch = Record< string, string | undefined >;
+import { dashboardSectionOf, dateWindowNotice, limitStatsDateSearch } from '../stats-date-window';
+import { seedDashboardDateSearch, type DashboardSearch } from './section-date-window';
 
 /**
  * Route lifecycle for the dashboard. The initial analytics sync is not a guard
@@ -27,8 +29,18 @@ export const route = {
 			throw redirect( { to: '/connect' } );
 		}
 
-		const params = ( search ?? {} ) as DashboardSearch;
-		if ( needsReportDateParamsSeed( params ) ) {
+		const current: DashboardSearch = search ?? {};
+		const policy = getSectionDatePolicy( dashboardSectionOf( current.section ) );
+		// Only a year surface such as Insights offers a year or all time, so a locked one was carried
+		// over from it: drop the dates and open on the default, without a notice.
+		const params =
+			isYearSurfacePresetId( current.preset ) && isPresetLockedByPolicy( current.preset, policy )
+				? omitReportDateParams( current )
+				: { ...current };
+
+		let next: Record< string, unknown > | undefined;
+		// The seed check must read the same locks as the limit, or each undoes the other's interval.
+		if ( needsReportDateParamsSeed( params, policy.lockedIntervals ) ) {
 			/*
 			 * Warm the core `site` record for `useSiteHomeUrl()`; a rejection should
 			 * not error the page since the seed's own dates don't depend on it.
@@ -39,27 +51,22 @@ export const route = {
 				// Proceed with the default seed below.
 			}
 
-			const normalized = seedSiteDateParams( params );
+			next = seedDashboardDateSearch( params, policy );
+		} else {
+			next = limitStatsDateSearch( params, policy, { requested: params } );
+		}
 
-			/*
-			 * Overlay the seeded params onto `params`, not replace them, so
-			 * passthrough params like `section` survive the seed. Comparison keys
-			 * only survive when the seed returned a complete comparison: a
-			 * hand-edited bare `comp=1` must not outlive it.
-			 */
-			const merged = { ...params, ...normalized };
-			const seeded: Record< string, unknown > = hasComparisonEnabled( normalized )
-				? merged
-				: withoutComparison( merged );
-
+		if ( next ) {
 			throw redirect( {
 				to: '/',
 				replace: true,
+				viewTransition: false,
 				/*
 				 * The router is built dynamically, so '/' has no typed search schema
 				 * (TanStack widens it to `never`); cast as the routing package does.
 				 */
-				search: seeded as unknown as never,
+				search: next as unknown as never,
+				state: dateWindowNoticeState( dateWindowNotice( params, policy ) ),
 			} );
 		}
 	},

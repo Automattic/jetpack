@@ -23,13 +23,13 @@ import {
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { tag as tagIllustration } from '@jetpack-premium-analytics/icons';
 import { useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
+import { useNoPublishedPosts } from '../use-no-published-posts';
 import styles from './style.module.css';
 import useTagViews, { type TagChildView } from './use-tag-views';
 import { type TagsAttributes } from './widget';
@@ -82,6 +82,9 @@ function TagsInner() {
 		drillDown: selectGroup,
 		resetDrillDown: clearSelection,
 	} = useWidgetDrillDown< string >();
+
+	const isEmptyList = ! isLoading && ! isError && data.length === 0;
+	const { noPublishedPosts, isChecking } = useNoPublishedPosts( isEmptyList );
 
 	const selectedGroup = useMemo(
 		() => ( selectedLabel ? ( data.find( row => row.label === selectedLabel ) ?? null ) : null ),
@@ -136,7 +139,7 @@ function TagsInner() {
 					/>
 				) }
 				<WidgetState
-					isLoading={ isLoading }
+					isLoading={ isLoading || isChecking }
 					isFetching={ isFetching }
 					isError={ isError }
 					isEmpty={ data.length === 0 }
@@ -149,13 +152,16 @@ function TagsInner() {
 							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
 						],
 					} }
-					empty={ {
-						icon: tagIllustration,
-						description: __(
-							'Learn about your most visited tags & categories to track engaging topics.',
-							'jetpack-premium-analytics-pkg'
-						),
-					} }
+					empty={
+						noPublishedPosts
+							? {
+									description: __(
+										'You don’t have tags or categories recorded yet.',
+										'jetpack-premium-analytics-pkg'
+									),
+								}
+							: undefined
+					}
 					// The drilled-in view is a plain link list, not a leaderboard, so it
 					// keeps the default shape.
 					renderLoading={
@@ -166,6 +172,7 @@ function TagsInner() {
 						<TagGroupMembers members={ selectedGroup.children } />
 					) : (
 						<LeaderboardChart
+							chartTitle={ __( 'Top tags & categories', 'jetpack-premium-analytics-pkg' ) }
 							data={ leaderboardData }
 							withOverlayLabel
 							showLegend={ false }
@@ -176,6 +183,10 @@ function TagsInner() {
 							dataFormat={ {
 								type: 'number',
 								options: { useMultipliers: false, decimals: 0 },
+							} }
+							columns={ {
+								label: __( 'Tags & categories', 'jetpack-premium-analytics-pkg' ),
+								metric: 'views',
 							} }
 						/>
 					) }

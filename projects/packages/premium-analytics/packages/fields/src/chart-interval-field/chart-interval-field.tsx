@@ -7,6 +7,7 @@ import {
 	getAllowedIntervalsForPreset,
 	getDefaultPreset,
 	normalizeReportParams,
+	useScopeLockedIntervals,
 	type StatsPeriod,
 } from '@jetpack-premium-analytics/data';
 import { INTERVAL_TYPES } from '@jetpack-premium-analytics/datetime';
@@ -46,6 +47,7 @@ function ChartIntervalControl( {
 	const ownRange =
 		data.reportParams && Object.keys( data.reportParams ).length > 0 ? data.reportParams : null;
 	const elements = field.elements;
+	const lockedIntervals = useScopeLockedIntervals();
 
 	// Clamp, don't rewrite: the saved bucket shows again once the range allows it.
 	const { options, value } = useMemo( () => {
@@ -57,14 +59,15 @@ function ChartIntervalControl( {
 		const allowed = getAllowedIntervalsForPreset(
 			params.preset,
 			params.from ?? '',
-			params.to ?? ''
+			params.to ?? '',
+			lockedIntervals
 		);
 
 		return {
 			options: drawableIntervals( allowed, periods ),
-			value: chartInterval( { ...params, interval: data.chartInterval }, periods ),
+			value: chartInterval( { ...params, interval: data.chartInterval }, periods, lockedIntervals ),
 		};
-	}, [ elements, ownRange, search, data.chartInterval ] );
+	}, [ elements, ownRange, search, data.chartInterval, lockedIntervals ] );
 
 	return (
 		<DateIntervalDropdown

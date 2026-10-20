@@ -11,6 +11,7 @@ import ScanButton from './scan-button';
 import ScanningState from './scanning-state';
 import { SCAN_PATH, mergeScan, setScan, useScan } from './store';
 import { loadIgnored } from './threat-actions';
+import threatsIcon from './threats-icon';
 import ThreatsList from './threats-list';
 import type { DashboardContext } from '../types';
 import type { ScanState } from './types';
@@ -180,7 +181,7 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 		body = (
 			<>
 				{ hasThreats && (
-					<CardRow className="jp-protect-card__stats">
+					<CardRow className="jp-protect-card__cells jp-protect-card__stats">
 						<Stat
 							label={ __( 'All vulnerabilities found', 'jetpack-protect-pkg' ) }
 							value={ threats.length }
@@ -209,7 +210,7 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 
 	return (
 		<ProtectCard
-			icon={ shield }
+			icon={ hasThreats ? threatsIcon : shield }
 			title={ __( 'Scan', 'jetpack-protect-pkg' ) }
 			description={
 				scan.hasPlan

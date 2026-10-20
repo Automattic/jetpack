@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\VideoPress\All_Playlists_Block;
+use Automattic\Jetpack\VideoPress\Channel;
 use Automattic\Jetpack\VideoPress\Initializer as VideoPress_Initializer;
 use Automattic\Jetpack\VideoPress\Playlist_Index;
 use WorDBless\BaseTestCase;
@@ -42,6 +43,10 @@ class All_Playlists_Block_Test extends BaseTestCase {
 		\WP_Block_Supports::$block_to_render = null;
 		delete_option( Playlist_Index::OPTION_NAME );
 		unset( $_GET[ All_Playlists_Block::PAGE_QUERY_ARG ] );
+		remove_filter( 'videopress_channel_enabled', '__return_true' );
+		foreach ( array( Channel::PLAYLIST_QUERY_VAR, Channel::LIST_VAR ) as $var ) {
+			set_query_var( $var, '' );
+		}
 
 		$registry = \WP_Block_Type_Registry::get_instance();
 		foreach ( array( All_Playlists_Block::BLOCK_NAME, Playlist_Index::BLOCK_NAME ) as $name ) {
@@ -101,6 +106,19 @@ class All_Playlists_Block_Test extends BaseTestCase {
 				'post_date_gmt' => $date,
 			)
 		);
+	}
+
+	/**
+	 * Set a post's last modified date.
+	 *
+	 * @param int    $post_id Post id.
+	 * @param string $date    Modified date, Y-m-d H:i:s GMT.
+	 */
+	private function set_modified( $post_id, $date ) {
+		// wp_insert_post() stamps the modified date itself.
+		$post                    = get_post( $post_id );
+		$post->post_modified_gmt = $date;
+		wp_cache_replace( $post_id, $post, 'posts' );
 	}
 
 	/**
@@ -192,6 +210,8 @@ class All_Playlists_Block_Test extends BaseTestCase {
 				'show_description' => true,
 				'show_video_count' => true,
 				'pagination'       => 'numbered',
+				'exclude_current'  => false,
+				'show_updated'     => false,
 			),
 			All_Playlists_Block::settings( 'nope' )
 		);
@@ -372,6 +392,88 @@ class All_Playlists_Block_Test extends BaseTestCase {
 			$markup = All_Playlists_Block::render( array( 'orderBy' => $order ) );
 			$this->assertGreaterThan( strrpos( $markup, 'charlie' ), strpos( $markup, 'Zulu' ) );
 		}
+	}
+
+	/**
+	 * The `updated` order lists the playlist whose post was modified last first.
+	 */
+	public function test_render_orders_playlists_by_last_update() {
+		$alpha = $this->create_post( '2026-01-01 10:00:00' );
+		$bravo = $this->create_post( '2026-03-01 10:00:00' );
+		$this->set_modified( $alpha, '2026-04-01 10:00:00' );
+		$this->set_modified( $bravo, '2026-03-01 10:00:00' );
+		$this->seed_index(
+			array(
+				'a' => $this->record( 'Alpha', $alpha ),
+				'b' => $this->record( 'Bravo', $bravo ),
+				'z' => $this->record( 'Zulu', 999999 ),
+			)
+		);
+
+		$this->assertSame(
+			array( 'Bravo', 'Alpha' ),
+			$this->titles_in( All_Playlists_Block::render( array() ) )
+		);
+		$this->assertSame(
+			array( 'Alpha', 'Bravo' ),
+			$this->titles_in( All_Playlists_Block::render( array( 'orderBy' => 'updated' ) ) )
+		);
+	}
+
+	/**
+	 * `showUpdated` adds when the playlist was last updated and its total length.
+	 */
+	public function test_render_shows_the_last_update_and_length() {
+		$post = $this->create_post();
+		$this->set_modified( $post, gmdate( 'Y-m-d H:i:s', time() - 2 * WEEK_IN_SECONDS ) );
+		$this->seed_index( array( 'one' => $this->record( 'One', $post, 7 ) ) );
+
+		$this->assertStringNotContainsString( 'videopress-all-playlists__meta', All_Playlists_Block::render( array() ) );
+		$this->assertStringContainsString(
+			'<span class="videopress-all-playlists__meta">Updated 2 weeks ago · 1 hr 10 min</span>',
+			All_Playlists_Block::render( array( 'showUpdated' => true ) )
+		);
+
+		// Without a post or a known length there is nothing to say.
+		$this->assertSame(
+			'',
+			All_Playlists_Block::updated_meta(
+				array(
+					'post'   => null,
+					'videos' => array( array( 'guid' => 'abcDEF12' ) ),
+				)
+			)
+		);
+	}
+
+	/**
+	 * On a channel site, cards link to the playlist pages, and `excludeCurrent` leaves out the
+	 * playlist the page shows.
+	 */
+	public function test_render_on_a_channel_playlist_page() {
+		$this->seed_index(
+			array(
+				'a' => $this->record( 'Alpha', $this->create_post( '2026-01-01 10:00:00' ) ),
+				'b' => $this->record( 'Bravo', $this->create_post( '2026-02-01 10:00:00' ) ),
+			)
+		);
+		$post_link = get_permalink( get_option( Playlist_Index::OPTION_NAME )['a']['post_id'] );
+
+		// Elsewhere, cards link to the post holding the playlist, and nothing is left out.
+		$markup = All_Playlists_Block::render( array( 'excludeCurrent' => true ) );
+		$this->assertSame( array( 'Bravo', 'Alpha' ), $this->titles_in( $markup ) );
+		$this->assertStringContainsString( 'href="' . esc_url( $post_link ) . '"', $markup );
+
+		add_filter( 'videopress_channel_enabled', '__return_true' );
+		$markup = All_Playlists_Block::render( array( 'excludeCurrent' => true ) );
+		$this->assertSame( array( 'Bravo', 'Alpha' ), $this->titles_in( $markup ), 'Not on a playlist page.' );
+		$this->assertStringContainsString( 'href="' . esc_url( Channel::playlist_url( 'a' ) ) . '"', $markup );
+		$this->assertStringNotContainsString( 'href="' . esc_url( $post_link ) . '"', $markup );
+
+		set_query_var( Channel::PLAYLIST_QUERY_VAR, 1 );
+		set_query_var( Channel::LIST_VAR, 'a' );
+		$this->assertSame( array( 'Bravo' ), $this->titles_in( All_Playlists_Block::render( array( 'excludeCurrent' => true ) ) ) );
+		$this->assertSame( array( 'Bravo', 'Alpha' ), $this->titles_in( All_Playlists_Block::render( array() ) ) );
 	}
 
 	/**

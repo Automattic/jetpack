@@ -1,5 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
+import { dispatch, select } from '@wordpress/data';
+import { store as noticesStore } from '@wordpress/notices';
 import useProtectSettings from '../use-protect-settings';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
@@ -42,8 +44,31 @@ const settingsRequests = () =>
 		( [ { path, method } ] ) => path === '/jetpack/v4/settings' && method !== 'POST'
 	);
 
+const snackbars = () =>
+	select( noticesStore )
+		.getNotices()
+		.filter( notice => notice.type === 'snackbar' )
+		.map( notice => notice.content );
+
 describe( 'useProtectSettings', () => {
-	beforeEach( () => mockApiFetch.mockReset() );
+	beforeEach( () => {
+		mockApiFetch.mockReset();
+		select( noticesStore )
+			.getNotices()
+			.forEach( notice => dispatch( noticesStore ).removeNotice( notice.id ) );
+	} );
+
+	it.each( [
+		[ 'confirms a save', Promise.resolve( {} ), [ 'Settings updated.' ] ],
+		[ 'stays quiet when a save fails', Promise.reject( { message: 'Nope' } ), [] ],
+	] )( '%s in a snackbar', async ( _name, post, expected ) => {
+		respondWith( { post } );
+		const { result } = renderHook( () => useProtectSettings() );
+
+		await act( () => result.current.save( { list: 'new' } ) );
+
+		expect( snackbars() ).toEqual( expected );
+	} );
 
 	it.each( [
 		[ 'restores a key that had a value', { list: 'old' }, { list: 'old' } ],
@@ -60,7 +85,21 @@ describe( 'useProtectSettings', () => {
 
 		expect( result.current.settings ).toEqual( expected );
 		expect( result.current.error ).toBe( 'Nope' );
+		expect( result.current.errorKeys ).toEqual( [ 'list' ] );
 		expect( result.current.isSaving( 'list' ) ).toBe( false );
+	} );
+
+	it( 'refresh takes only the requested keys from the server, even ones saved earlier', async () => {
+		respondWith( {
+			get: Promise.resolve( { email: true, other: 1 } ),
+			post: Promise.resolve( {} ),
+		} );
+		const { result } = renderHook( () => useProtectSettings() );
+		await act( () => result.current.save( { email: false, other: 2 } ) );
+
+		await act( () => result.current.refresh( [ 'email' ] ) );
+
+		expect( result.current.settings ).toEqual( { email: true, other: 2 } );
 	} );
 
 	it( 'keeps a value saved while the load was in flight', async () => {
@@ -83,11 +122,11 @@ describe( 'useProtectSettings', () => {
 		mockApiFetch.mockImplementation( () => posts.shift() );
 		const { result } = renderHook( () => useProtectSettings() );
 
-		let firstSave: Promise< void >;
+		let firstSave: Promise< boolean >;
 		act( () => {
 			firstSave = result.current.save( { list: 'a' } );
 		} );
-		let secondSave: Promise< void >;
+		let secondSave: Promise< boolean >;
 		act( () => {
 			secondSave = result.current.save( { list: 'b' } );
 		} );
@@ -111,6 +150,7 @@ describe( 'useProtectSettings', () => {
 		const { result } = renderHook( () => useProtectSettings() );
 		await act( async () => result.current.load() );
 		expect( result.current.error ).toEqual( expect.any( String ) );
+		expect( result.current.errorKeys ).toEqual( [] );
 		expect( result.current.isLoaded ).toBe( false );
 
 		const retry = defer();

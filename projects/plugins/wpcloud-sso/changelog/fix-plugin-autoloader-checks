@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Add autoloader check to prevent fatal errors when plugin is activated before composer install.

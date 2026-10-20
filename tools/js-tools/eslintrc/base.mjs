@@ -241,9 +241,7 @@ export function makeBaseConfig( configurl, opts = {} ) {
 				},
 			},
 			settings: {
-				'import/extensions': javascriptFiles
-					.map( v => v.replace( '**/*', '' ) )
-					.filter( v => v !== '.svelte' ),
+				'import/extensions': javascriptFiles.map( v => v.replace( '**/*', '' ) ),
 				'import/internal-regex': '^jetpack-js-tools/',
 				'import/resolver': {
 					typescript: {
@@ -268,6 +266,8 @@ export function makeBaseConfig( configurl, opts = {} ) {
 				},
 			},
 			rules: {
+				'@wordpress/use-recommended-components': [ 'error', { allowUseWithCaution: true } ],
+
 				// Set domain from opts, with a bogus default in case it's omitted.
 				'@wordpress/i18n-text-domain': [
 					'error',

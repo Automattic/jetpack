@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
-use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Status\Host;
 
@@ -48,6 +47,19 @@ class Main_Features {
 	 * Others may install plugins here, but not the current user.
 	 */
 	const INSTALLS_NOT_PERMITTED = 'not_permitted';
+
+	/**
+	 * Whether module metadata proves it can run without either connection.
+	 *
+	 * @since 6.10.0
+	 * @param string $slug Module slug.
+	 * @return bool
+	 */
+	public static function module_works_locally( $slug ) {
+		// Standalone module callbacks can ignore connection filters; missing metadata cannot prove local operation.
+		$details = ( new \Automattic\Jetpack\Modules() )->get( $slug );
+		return $details && ! $details['requires_connection'] && ! $details['requires_user_connection'];
+	}
 
 	/**
 	 * The static feature catalog.
@@ -352,7 +364,7 @@ class Main_Features {
 				'icon'             => 'shield',
 				'product'          => 'protect',
 				// Not `protect`: that module is Brute Force Protection, which has its own row.
-				'module'           => 'protect-dashboard',
+				'module'           => Products\Protect::DASHBOARD_MODULE_NAME,
 				'essential'        => true,
 				'interstitial'     => '/add-protect',
 				'free_highlights'  => array(
@@ -366,9 +378,8 @@ class Main_Features {
 					__( 'Instant email alerts when a threat is found', 'jetpack-my-jetpack' ),
 				),
 				'delivery'         => array(
-					// Only while the Jetpack plugin offers its flag-gated `protect-dashboard` module, and never on
-					// WordPress.com Simple, whose partial bootstrap skips the flag. Not is_module(): it passes any slug.
-					'jetpack'     => ! ( new Host() )->is_wpcom_simple() && in_array( 'protect-dashboard', (array) ( new Modules() )->get_available(), true ),
+					// Never on WordPress.com Simple, whose partial bootstrap skips the module's flag.
+					'jetpack'     => ! ( new Host() )->is_wpcom_simple() && Products\Protect::is_dashboard_module_available(),
 					'plugin'      => 'jetpack-protect',
 					'plugin_name' => __( 'Jetpack Protect', 'jetpack-my-jetpack' ),
 					'plugin_url'  => 'https://wordpress.org/plugins/jetpack-protect/',
@@ -901,11 +912,29 @@ class Main_Features {
 	}
 
 	/**
+	 * Slugs the host has hidden, plus the module behind each hidden feature or product.
+	 *
+	 * @since 6.11.0
+	 * @return string[] Hidden module and feature slugs.
+	 */
+	public static function get_hidden_modules() {
+		$hidden = Feature_Visibility::get_hidden();
+		foreach ( self::get_feature_definitions() as $slug => $definition ) {
+			$names = array_filter( array( $slug, $definition['product'] ?? '', $definition['module'] ?? '' ) );
+			if ( array_intersect( $names, $hidden ) ) {
+				$product_class = isset( $definition['product'] ) ? Products::get_product_class( $definition['product'] ) : null;
+				$hidden[]      = $definition['module'] ?? ( $product_class ? $product_class::get_module_name() : '' );
+			}
+		}
+		return array_values( array_unique( array_filter( $hidden ) ) );
+	}
+
+	/**
 	 * Everything the Features tab renders from: the Jetpack plugin's status, each feature, the
 	 * headings for Jetpack's other modules, and whether the current user may install plugins.
 	 *
 	 * @param bool $local Use the local feature contract documented in get_features().
-	 * @return array{jetpack: string, features: array, module_groups: array, plugin_installs: string} The state.
+	 * @return array{jetpack: string, features: array, module_groups: array, plugin_installs: string, hidden_modules: string[]} The state.
 	 */
 	public static function get_state( $local = false ) {
 		return array(
@@ -913,6 +942,7 @@ class Main_Features {
 			'features'        => self::get_features( $local ),
 			'module_groups'   => self::get_module_groups(),
 			'plugin_installs' => self::get_install_access(),
+			'hidden_modules'  => self::get_hidden_modules(),
 		);
 	}
 
@@ -1032,7 +1062,7 @@ class Main_Features {
 		if ( $product_class ) {
 			// Protect's normal destination depends on ownership, which is unknown offline.
 			if ( $local && 'protect' === ( $definition['product'] ?? '' ) ) {
-				return $product_class::is_standalone_plugin_active() ? admin_url( 'admin.php?page=jetpack-protect' ) : '';
+				return Products\Protect::has_protect_page() ? admin_url( 'admin.php?page=jetpack-protect' ) : '';
 			}
 
 			$url = (string) $product_class::get_manage_url();

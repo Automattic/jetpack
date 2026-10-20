@@ -6,7 +6,6 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@automattic/jetpack-premium-analytics-sdk';
 import { __ } from '@wordpress/i18n';
-import { calendar } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -30,9 +29,8 @@ export default function TopPerformingBookingsRender( {
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<ProductLeaderboard
+				chartTitle={ __( 'Top performing bookings', 'jetpack-woocommerce-stats-pkg' ) }
 				filter={ BOOKINGS_FILTER }
-				emptyIcon={ calendar }
-				emptyText={ __( 'No booking sales in this period.', 'jetpack-woocommerce-stats-pkg' ) }
 				errorText={ __(
 					"We couldn't load bookings data. Please try again in a moment.",
 					'jetpack-woocommerce-stats-pkg'

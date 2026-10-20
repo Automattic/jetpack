@@ -62,9 +62,21 @@ export type DashboardSection = {
 	requires_sync?: boolean;
 
 	/**
+	 * Message the registration puts above the section's widgets, e.g. a store with no
+	 * orders yet. Optional for the same reason as `date_filter` above; absent means none.
+	 */
+	notice?: string | null;
+
+	/**
 	 * Bundled default widget layout, consumed by the reset action.
 	 */
 	default_layout: DashboardWidget[];
+
+	/**
+	 * Widget types the section's inserter offers on top of its default layout.
+	 * Optional for the same reason as `date_filter` above; absent means none.
+	 */
+	insertable_widget_types?: string[];
 };
 
 /**
@@ -102,6 +114,17 @@ export function isSectionAwaitingSync(
 }
 
 /**
+ * Whether the dashboard shows the WooCommerce tab, under its slug or the `store` slug an older
+ * WooCommerce Stats package still registers.
+ *
+ * @param sections - The available sections.
+ * @return Whether one of them is the WooCommerce tab.
+ */
+export function hasStoreSection( sections: DashboardSection[] ): boolean {
+	return sections.some( section => section.slug === 'woocommerce' || section.slug === 'store' );
+}
+
+/**
  * The Settings tab's slug. The stage renders that tab itself, after the registered sections.
  */
 export const SETTINGS_SECTION = 'settings';
@@ -132,13 +155,17 @@ export function resolveSectionId(
 }
 
 /**
- * The widget types the inserter offers: those the available sections place by default.
+ * The widget types the inserter offers: those the available sections place by default, plus
+ * those they declare insertable.
  *
  * @param {DashboardSection[]} sections - The available sections.
  * @return The widget type names.
  */
 export function getInsertableWidgetTypeNames( sections: DashboardSection[] ): Set< string > {
 	return new Set(
-		sections.flatMap( section => section.default_layout.map( widget => widget.type ) )
+		sections.flatMap( section => [
+			...section.default_layout.map( widget => widget.type ),
+			...( section.insertable_widget_types ?? [] ),
+		] )
 	);
 }

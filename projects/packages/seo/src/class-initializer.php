@@ -28,7 +28,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.9.9';
+	const PACKAGE_VERSION = '0.10.0';
 
 	/**
 	 * WordPress.com site feature that enables the Jetpack SEO surface.
@@ -85,9 +85,12 @@ class Initializer {
 	 * Absent until seeded, in which case self-hosted defaults to hidden (the non-disruptive
 	 * default). See {@see Surface_Visibility::is_visible()}.
 	 *
+	 * Replaces `jetpack_seo_surface_visible`, which was seeded before the self-hosted rollout and
+	 * marked every install since as fresh; a new key makes every site re-seed once on upgrade.
+	 *
 	 * @var string
 	 */
-	const VISIBILITY_OPTION = 'jetpack_seo_surface_visible';
+	const VISIBILITY_OPTION = 'jetpack_seo_surface_visible_v2';
 
 	/**
 	 * Whether the package has been initialized.
@@ -199,12 +202,12 @@ class Initializer {
 			Schema_Builder::init();
 			Author_Schema_Node::init();
 
-			// GEO-tab front-end services. These are paid surfaces on WordPress.com: a
-			// plan-gated site has the GEO tab hidden from its dashboard, so it must not
-			// keep emitting their front-end output either — otherwise it would still
-			// serve /llms.txt and AI-crawler robots.txt directives it doesn't qualify
-			// for. Self-hosted is never gated, so it always registers both.
+			// Paid front-end output. A plan-gated WordPress.com site has these controls
+			// hidden from its dashboard, so it must not keep emitting their output either —
+			// otherwise it would still serve /llms.txt, AI-crawler robots.txt directives and
+			// Simple's archive canonical tags it doesn't qualify for. Self-hosted is never gated.
 			if ( ! self::is_gated() ) {
+				Canonical_Urls::init();
 				// The /llms.txt handler. Self-hooks a front-end action, so it no-ops off
 				// the front end and stays behind the same gates as the schema above.
 				Llms_Txt::init();
@@ -278,11 +281,11 @@ class Initializer {
 	 * FREE plan's supports list, so `Current_Plan::supports( 'advanced-seo' )` returns
 	 * true on self-hosted (never gated) and hijacks to `wpcom_site_has_feature()` on
 	 * WordPress.com, where it's false below the Premium plan. Mirrors the AI SEO
-	 * Enhancer's plan check in {@see Dashboard_Data::get_ai_data()}.
+	 * Enhancer's plan check in {@see Dashboard_Data::get_geo_data()}.
 	 *
 	 * Public because {@see Admin_Page::inject_script_data()} reads it to build the
 	 * dashboard's gating payload, and {@see self::init()} uses it to decide whether the
-	 * GEO-tab front-end services register at all.
+	 * paid front-end output registers at all.
 	 *
 	 * @return bool
 	 */

@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit 3dc13e3af3c4dcd37bb5da40e8ae1ec3f15adf35.
+ * Stubs automatically generated from WordPress.com commit af5720012e9df5411df91817a614a864146aeafa.
  */
 
 namespace {
@@ -274,6 +274,29 @@ namespace {
      * @return WP_Ability[]
      */
     function wp_get_abilities(): array
+    {
+    }
+    /**
+     * @param int $blog_id
+     * @param bool $non_error
+     * @return object|WP_Error
+     */
+    function woa_get_latest_transfer($blog_id, $non_error = \false)
+    {
+    }
+    /**
+     * @param int $transfer_id
+     * @param string $meta_key
+     * @return mixed|WP_Error
+     */
+    function woa_get_transfer_meta($transfer_id, $meta_key = \null)
+    {
+    }
+    /**
+     * @param integer $transfer_id
+     * @return boolean
+     */
+    function woa_is_revert_for_expired_plan($transfer_id)
     {
     }
     class WPCOM_External_Connections
@@ -1719,6 +1742,33 @@ namespace {
      * @return int|false
      */
     function get_lang_id_by_code($lang_code)
+    {
+    }
+}
+namespace A8C\Atomic {
+    /**
+     * @param  int $blog_id
+     * @param  bool $include_incomplete
+     * @return bool
+     */
+    function is_wpcom_atomic($blog_id, $include_incomplete = false)
+    {
+    }
+    /**
+     * @param int $blog_id
+     * @return bool
+     */
+    function has_site_pending_automated_transfer($blog_id)
+    {
+    }
+}
+namespace A8C\Atomic\Eligibility {
+    /**
+     * @param int $blog_id
+     * @param int $user_id
+     * @return array
+     */
+    function get_status_for_site($blog_id, $user_id)
     {
     }
 }

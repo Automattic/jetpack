@@ -84,6 +84,18 @@ class Protect_Status extends Status {
 	}
 
 	/**
+	 * Gets the last Protect report stored on the site, even if it has expired, without asking WordPress.com.
+	 *
+	 * @since 0.9.0
+	 *
+	 * @return Status_Model|null Null when no report has been stored yet.
+	 */
+	public static function get_cached_status() {
+		$report_data = self::get_from_options();
+		return is_object( $report_data ) ? self::normalize_protect_report_data( $report_data ) : null;
+	}
+
+	/**
 	 * Gets the WPCOM API endpoint
 	 *
 	 * @return WP_Error|string

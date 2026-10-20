@@ -130,12 +130,12 @@ class Admin_Post_List_Column {
 				 * Filters where the post list table's views column links to.
 				 *
 				 * @since 0.34.0
-				 * @deprecated $$next-version$$ Use jetpack_stats_url instead.
+				 * @deprecated 0.39.0 Use jetpack_stats_url instead.
 				 *
 				 * @param string $stats_post_url Stats URL for the post.
 				 * @param int    $post_id        The post the row belongs to.
 				 */
-				$stats_post_url = apply_filters_deprecated( 'jetpack_stats_post_list_column_url', array( $stats_post_url, $post_id ), 'jetpack-stats-admin-$$next-version$$', 'jetpack_stats_url' );
+				$stats_post_url = apply_filters_deprecated( 'jetpack_stats_post_list_column_url', array( $stats_post_url, $post_id ), 'jetpack-stats-admin-0.39.0', 'jetpack_stats_url' );
 
 				/** This filter is documented in projects/packages/stats-admin/src/class-admin-bar.php */
 				$stats_post_url = apply_filters(
