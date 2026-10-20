@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
+Comment: Overview: Name the conflicting SEO plugin in the SEO-off warning, and space it off the cards. The new SEO page is gated.
 
-Overview: Name the SEO plugin that manages the site's SEO when Jetpack steps aside for it.
