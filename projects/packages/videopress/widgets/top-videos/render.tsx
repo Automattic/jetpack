@@ -14,14 +14,16 @@ import {
 } from '@automattic/jetpack-premium-analytics-sdk';
 import { getAdminUrl, isSimpleSite } from '@automattic/jetpack-script-data';
 import { useEntityRecords, store as coreStore } from '@wordpress/core-data';
-import { useSelect } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { video as videoIcon } from '@wordpress/icons';
-import { useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 /**
  * Internal dependencies
  */
 import { toVideoPlaysRows, type VideoPlaysRow } from './build-video-plays-data';
+import UploadFirstVideo from './upload-first-video';
+import type { VideoMediaProps } from '../../src/client/lib/resumable-file-uploader/types';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
 
@@ -104,20 +106,51 @@ function TopVideosReport() {
 		},
 		[ hasNoPlays ]
 	);
-	// A failed request resolves with `records: null`, never with an error status.
-	const { records: videos, hasResolved: hasCheckedMedia } = useEntityRecords< { id: number } >(
-		'postType',
-		'attachment',
-		{
+	const mediaQuery = useMemo(
+		() => ( {
 			per_page: 1,
 			_fields: 'id',
 			videopress_has_guid: 1,
 			...( isSimpleSite() ? { videopress_only_videos: 1 } : {} ),
-		},
+		} ),
+		[]
+	);
+	// A failed request resolves with `records: null`, never with an error status.
+	const { records: videos, hasResolved: hasCheckedMedia } = useEntityRecords< { id: number } >(
+		'postType',
+		'attachment',
+		mediaQuery,
 		{ enabled: canUpload }
 	);
 	const isCheckingMedia = isCheckingPermission || ( canUpload && ! hasCheckedMedia );
 	const hasNoVideos = canUpload && videos?.length === 0;
+
+	// Keeps the upload on screen once it lands, whatever the media check answers next.
+	const [ uploadedMedia, setUploadedMedia ] = useState< VideoMediaProps | null >( null );
+	const { invalidateResolution } = useDispatch( coreStore );
+	const onUploaded = useCallback(
+		( media: VideoMediaProps ) => {
+			setUploadedMedia( media );
+			// core-data caches the empty-library answer; drop it so the next mount sees the video.
+			invalidateResolution( 'getEntityRecords', [ 'postType', 'attachment', mediaQuery ] );
+		},
+		[ invalidateResolution, mediaQuery ]
+	);
+
+	const footer = (
+		<>
+			<ReportLink report="videos" />
+			<ExporterCsvDownloadButton
+				report="videos"
+				status={ { isLoading: isInitialLoading, isFetching, isError: primary.isError } }
+				rowCount={ rows.length }
+			/>
+		</>
+	);
+
+	if ( uploadedMedia || hasNoVideos ) {
+		return <UploadFirstVideo footer={ footer } onUploaded={ onUploaded } />;
+	}
 
 	return (
 		<Leaderboard
@@ -140,27 +173,22 @@ function TopVideosReport() {
 				),
 				onRetry: refetch,
 			} ) }
+			// The generic "no results" reads as a search miss; name the plays and point at the videos.
 			empty={
-				hasNoVideos
+				hasNoPlays && ! isCheckingMedia
 					? {
-							description: __( 'You don’t have videos uploaded yet.', 'jetpack-videopress-pkg' ),
-							action: {
-								label: __( 'Upload video', 'jetpack-videopress-pkg' ),
-								href: getAdminUrl( 'media-new.php' ),
-							},
+							icon: videoIcon,
+							description: __( 'No video plays in this period yet.', 'jetpack-videopress-pkg' ),
+							action: canUpload
+								? {
+										label: __( 'Manage videos', 'jetpack-videopress-pkg' ),
+										href: getAdminUrl( 'admin.php?page=jetpack-videopress' ),
+									}
+								: undefined,
 						}
 					: undefined
 			}
-			footer={
-				<>
-					<ReportLink report="videos" />
-					<ExporterCsvDownloadButton
-						report="videos"
-						status={ { isLoading: isInitialLoading, isFetching, isError: primary.isError } }
-						rowCount={ rows.length }
-					/>
-				</>
-			}
+			footer={ footer }
 		/>
 	);
 }

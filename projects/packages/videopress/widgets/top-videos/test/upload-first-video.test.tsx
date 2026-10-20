@@ -1,0 +1,154 @@
+/**
+ * External dependencies
+ */
+import { act, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+/**
+ * Internal dependencies
+ */
+import UploadFirstVideo from '../upload-first-video';
+import type { ReactNode } from 'react';
+
+const mockStartVideoUpload = jest.fn();
+const mockUseUploadedVideo = jest.fn();
+const mockCreateInfoNotice = jest.fn();
+let mockDroppedFiles: File[] = [];
+
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	getAdminUrl: ( path: string ) => `https://example.com/blog/wp-admin/${ path }`,
+} ) );
+
+jest.mock( '@automattic/jetpack-premium-analytics-sdk', () => ( {
+	Stack: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
+	WidgetFooter: ( { children }: { children: ReactNode } ) => <footer>{ children }</footer>,
+	getVideoPosterUrl: ( poster?: string | null ) => poster ?? undefined,
+} ) );
+
+jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
+// `@wordpress/components` registers stores on import, so the mock needs the store API too.
+jest.mock( '@wordpress/data', () => ( {
+	combineReducers: jest.fn( reducers => reducers ),
+	createReduxStore: jest.fn( () => ( { name: 'mock-store' } ) ),
+	createSelector: jest.fn( selector => selector ),
+	keyedReducer: jest.fn( ( _key, reducer ) => reducer ),
+	register: jest.fn(),
+	select: jest.fn( () => ( {} ) ),
+	dispatch: jest.fn( () => ( {} ) ),
+	useSelect: jest.fn( () => ( {} ) ),
+	useRegistry: jest.fn( () => ( { select: jest.fn(), dispatch: jest.fn() } ) ),
+	useDispatch: () => ( { createInfoNotice: mockCreateInfoNotice } ),
+} ) );
+
+// The dropzone has its own suite; here it only hands files over.
+jest.mock( '../../../src/dashboard/components/upload-dropzone', () => ( {
+	__esModule: true,
+	default: ( { onFiles, subCopy }: { onFiles: ( files: File[] ) => void; subCopy: string } ) => (
+		<button onClick={ () => onFiles( mockDroppedFiles ) }>{ subCopy }</button>
+	),
+} ) );
+
+jest.mock( '../../../src/dashboard/utils/start-video-upload', () => ( {
+	startVideoUpload: ( ...args: unknown[] ) => mockStartVideoUpload( ...args ),
+} ) );
+
+jest.mock( '../use-uploaded-video', () => ( {
+	useUploadedVideo: ( id: number ) => mockUseUploadedVideo( id ),
+} ) );
+
+type Callbacks = {
+	onProgress: ( sent: number, total: number ) => void;
+	onSuccess: ( media: { id: number; guid: string; src: string } ) => void;
+	onError: ( error: unknown ) => void;
+};
+
+const videoFile = ( name: string ) => new File( [ 'x' ], name, { type: 'video/mp4' } );
+const callbacks = () => mockStartVideoUpload.mock.lastCall?.[ 1 ] as Callbacks;
+const dropzoneLabel = 'Upload a video to start tracking its plays here.';
+
+beforeEach( () => {
+	jest.clearAllMocks();
+	mockDroppedFiles = [];
+	mockUseUploadedVideo.mockReturnValue( null );
+} );
+
+describe( 'UploadFirstVideo', () => {
+	it( 'uploads the first dropped file and tells the user about the rest', async () => {
+		mockDroppedFiles = [ videoFile( 'one.mp4' ), videoFile( 'two.mp4' ) ];
+		render(
+			<UploadFirstVideo footer={ <a href="#videos">View all</a> } onUploaded={ jest.fn() } />
+		);
+
+		await userEvent.click( screen.getByRole( 'button', { name: dropzoneLabel } ) );
+
+		expect( mockStartVideoUpload ).toHaveBeenCalledTimes( 1 );
+		expect( mockStartVideoUpload.mock.calls[ 0 ][ 0 ] ).toBe( mockDroppedFiles[ 0 ] );
+		expect( mockCreateInfoNotice ).toHaveBeenCalledWith(
+			'Uploading the first video. Add the rest from the VideoPress dashboard.',
+			{ type: 'snackbar' }
+		);
+		expect( screen.getByText( 'one.mp4' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'shows the upload progress, then the finishing step', async () => {
+		mockDroppedFiles = [ videoFile( 'one.mp4' ) ];
+		render( <UploadFirstVideo footer={ null } onUploaded={ jest.fn() } /> );
+		await userEvent.click( screen.getByRole( 'button', { name: dropzoneLabel } ) );
+
+		act( () => callbacks().onProgress( 50, 100 ) );
+		expect( screen.getByText( 'Uploading 50%' ) ).toBeInTheDocument();
+		expect( mockCreateInfoNotice ).not.toHaveBeenCalled();
+
+		act( () => callbacks().onProgress( 100, 100 ) );
+		expect( screen.getByText( 'Finishing upload…' ) ).toBeInTheDocument();
+	} );
+
+	it( 'offers a retry of the same file after a failure', async () => {
+		mockDroppedFiles = [ videoFile( 'one.mp4' ) ];
+		render( <UploadFirstVideo footer={ null } onUploaded={ jest.fn() } /> );
+		await userEvent.click( screen.getByRole( 'button', { name: dropzoneLabel } ) );
+
+		act( () => callbacks().onError( new Error( 'nope' ) ) );
+		expect( screen.getByRole( 'alert' ) ).toHaveTextContent(
+			'The upload failed. Please try again.'
+		);
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Retry upload' } ) );
+		expect( mockStartVideoUpload ).toHaveBeenCalledTimes( 2 );
+		expect( mockStartVideoUpload.mock.calls[ 1 ][ 0 ] ).toBe( mockDroppedFiles[ 0 ] );
+	} );
+
+	it( 'hands the media to the parent and follows the video until it is ready', async () => {
+		mockDroppedFiles = [ videoFile( 'holiday.mp4' ) ];
+		const onUploaded = jest.fn();
+		const { rerender } = render( <UploadFirstVideo footer={ null } onUploaded={ onUploaded } /> );
+		await userEvent.click( screen.getByRole( 'button', { name: dropzoneLabel } ) );
+
+		const media = { id: 7, guid: 'abc', src: 'https://videopress.com/v/abc' };
+		act( () => callbacks().onSuccess( media ) );
+
+		expect( onUploaded ).toHaveBeenCalledWith( media );
+		expect( mockUseUploadedVideo ).toHaveBeenCalledWith( 7 );
+		expect( screen.getByText( 'holiday' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'being processed' );
+		expect( screen.getByRole( 'link', { name: 'View video' } ) ).toHaveAttribute(
+			'href',
+			'https://example.com/blog/wp-admin/admin.php?page=jetpack-videopress&p=%2Fvideo%2F7'
+		);
+
+		mockUseUploadedVideo.mockReturnValue( {
+			title: 'Holiday',
+			thumbnailUrl: 'https://videos.files.wordpress.com/abc/poster.jpg',
+			isProcessing: false,
+			conversionFailed: false,
+		} );
+		rerender( <UploadFirstVideo footer={ null } onUploaded={ onUploaded } /> );
+
+		expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Your video is ready.' );
+		expect( screen.getByText( 'Holiday' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'presentation' ) ).toHaveAttribute(
+			'src',
+			'https://videos.files.wordpress.com/abc/poster.jpg'
+		);
+	} );
+} );
