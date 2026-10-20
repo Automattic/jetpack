@@ -23,6 +23,7 @@ const props = {
 		blockedLast30Days: 1,
 		recentBlocks: [],
 		hasScan: false,
+		upgradeUrl: '#upgrade',
 		currentIp: '192.0.2.44',
 		ipRules: {
 			jetpack_waf_ip_block_list: '203.0.113.7\n203.0.113.8',
@@ -277,6 +278,16 @@ describe( 'FirewallOverviewCard', () => {
 		);
 
 		expect( screen.queryByText( 'Rules last updated' ) ).not.toBeInTheDocument();
+	} );
+
+	it.each( [
+		[ 'never had automatic rules', null, 'Let your firewall keep up with new attacks' ],
+		[ 'rules stopped updating', 1773446400, 'Your automatic firewall rules have stopped updating' ],
+	] )( 'sells automatic rules for a site that %s', ( _, rulesUpdatedAt, heading ) => {
+		render( <FirewallOverviewCard { ...props } state={ { ...props.state, rulesUpdatedAt } } /> );
+
+		expect( screen.getByText( heading ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: /Upgrade/ } ) ).toHaveAttribute( 'href', '#upgrade' );
 	} );
 
 	it( 'opens the Settings tab at its own card', async () => {

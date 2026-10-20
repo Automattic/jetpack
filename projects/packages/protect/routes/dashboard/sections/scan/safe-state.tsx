@@ -59,10 +59,7 @@ export default function SafeState( { scan, isStarting, onScan }: Props ) {
 				title: __( 'No known vulnerabilities found', 'jetpack-protect-pkg' ),
 				details: sprintf(
 					/* translators: %1$s is a number of plugins, such as "23 plugins". %2$s is a number of themes, such as "5 themes". */
-					__(
-						'None of your %1$s or %2$s has a known vulnerability. Your files aren’t checked for malware.',
-						'jetpack-protect-pkg'
-					),
+					__( 'None of your %1$s or %2$s has a known vulnerability.', 'jetpack-protect-pkg' ),
 					counts.plugins,
 					counts.themes
 				),

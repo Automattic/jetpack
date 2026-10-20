@@ -1,3 +1,4 @@
+import type { TracksUser } from '../../data/tracks';
 import type { DashboardContext } from '../types';
 import type { Threat } from '@automattic/jetpack-scan';
 
@@ -18,6 +19,11 @@ export type ScanThreat = Omit< Threat, 'extension' > & {
 export type ScanState = {
 	hasPlan: boolean;
 	url: string;
+	/** Which upsell copy this site sees, without Scan. */
+	upsellVariant?: number;
+	/** Whether a filter chose `upsellVariant`, so it's shown without rotating. */
+	upsellVariantForced?: boolean;
+	tracksUserData?: TracksUser;
 	error: boolean;
 	scanning?: boolean;
 	lastChecked?: string | null;

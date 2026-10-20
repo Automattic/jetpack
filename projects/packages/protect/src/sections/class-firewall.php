@@ -56,12 +56,16 @@ class Firewall implements Dashboard_Section {
 	 * @return array
 	 */
 	public function get_state() {
+		$has_scan = Dashboard::has_scan_plan();
+
 		// The block counts persist while the firewall is off, so they are sent either way.
 		return array_merge(
 			Dashboard::get_module_state( 'waf' ),
 			self::get_blocks(),
 			array(
-				'hasScan'        => Dashboard::has_scan_plan(),
+				'hasScan'        => $has_scan,
+				'upgradeUrl'     => Dashboard::get_scan_upgrade_url(),
+				'tracksUserData' => $has_scan ? null : Dashboard::get_tracks_user(),
 				'currentIp'      => self::get_current_ip(),
 				'ipRules'        => self::get_ip_rules(),
 				'rulesUpdatedAt' => self::get_rules_updated_at(),

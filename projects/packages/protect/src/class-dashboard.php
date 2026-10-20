@@ -12,6 +12,7 @@ use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Protect_Status\Plan;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id;
+use Jetpack_Tracks_Client;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -276,6 +277,29 @@ class Dashboard {
 	 */
 	public static function has_scan_plan() {
 		return Plan::has_required_plan();
+	}
+
+	/**
+	 * Where a site without Scan can buy it.
+	 *
+	 * @return string
+	 */
+	public static function get_scan_upgrade_url() {
+		return admin_url( 'admin.php?page=my-jetpack#/add-scan' );
+	}
+
+	/**
+	 * The connected user's Tracks identity, without the email the client doesn't need.
+	 *
+	 * @return array|null
+	 */
+	public static function get_tracks_user() {
+		$identity = Jetpack_Tracks_Client::get_connected_user_tracks_identity();
+
+		return $identity ? array(
+			'userid'   => $identity['userid'],
+			'username' => $identity['username'],
+		) : null;
 	}
 
 	/**
