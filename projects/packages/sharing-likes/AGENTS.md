@@ -67,6 +67,11 @@ back, which is why that one removal asks first instead of offering Undo. Deletin
 a custom service leaves its ID in `sharing-services`, so `useCustomService` saves
 the lists again without it.
 
+In `BLOCK_CALL_TO_ACTION`, `TemplatePlacements` replaces the Site Editor link with
+two cards per section, saving the template placements (see "Template placements"
+below). Each save sends the whole list, so ticking one card replaces the other. It
+falls back to the Site Editor link only where `settings` does not offer the key.
+
 ## Per-post switches
 
 `Post_Likes_Switch` and `Post_Sharing_Switch` own the Likes and Sharing switches
