@@ -28,6 +28,7 @@ class DashboardDataTest extends SeoTestCase {
 		\Jetpack_SEO_Utils::$has_legacy_front_page_meta = false;
 		\Jetpack_Redux_State_Helper::$site_image        = '';
 		\Jetpack_AI_Settings::$is_ai_seo_enabled        = true;
+		\Jetpack_AI_Settings::$is_ai_enabled            = true;
 		delete_option( 'advanced_seo_title_formats' );
 		delete_option( 'jetpack_ai_seo_enabled' );
 		delete_option( 'jetpack_seo_sitemap_enabled' );
@@ -59,6 +60,17 @@ class DashboardDataTest extends SeoTestCase {
 		$this->assertTrue( $on['aiSeoEnabled'] );
 		$this->assertTrue( $off['available'], 'The card stays available so it can be disabled, not hidden.' );
 		$this->assertFalse( $off['aiSeoEnabled'] );
+	}
+
+	/**
+	 * The site-wide Jetpack AI switch is reported on its own, so the tab can name it.
+	 */
+	public function test_get_geo_data_reports_the_jetpack_ai_switch_state() {
+		$this->assertTrue( Dashboard_Data::get_geo_data()['enhancer']['aiEnabled'] );
+
+		\Jetpack_AI_Settings::$is_ai_enabled = false;
+
+		$this->assertFalse( Dashboard_Data::get_geo_data()['enhancer']['aiEnabled'] );
 	}
 
 	/**
