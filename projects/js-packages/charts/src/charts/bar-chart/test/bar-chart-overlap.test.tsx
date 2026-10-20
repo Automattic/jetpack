@@ -222,9 +222,7 @@ describe( 'BarChart overlap layout', () => {
 		pointer( 'pointermove', center( geometry( barRects()[ 4 ] ) ) );
 		await user.keyboard( '{ArrowRight}' );
 
-		expect( selectedRing().x ).toBeCloseTo(
-			barOf( 'Previous views', 1 ).x
-		);
+		expect( selectedRing().x ).toBeCloseTo( barOf( 'Previous views', 1 ).x );
 	} );
 
 	it( 'steps the keyboard one slot at a time, outlining the whole slot', async () => {
@@ -241,9 +239,7 @@ describe( 'BarChart overlap layout', () => {
 		expect( ring.height ).toBeCloseTo( views.height );
 
 		await user.keyboard( '{ArrowRight}' );
-		expect( selectedRing().x ).toBeCloseTo(
-			barOf( 'Previous views' ).x
-		);
+		expect( selectedRing().x ).toBeCloseTo( barOf( 'Previous views' ).x );
 	} );
 
 	it( 'lists every bar at the selected category in the keyboard tooltip, and reaches a slot whose front bar a shorter series leaves out', async () => {
@@ -260,9 +256,7 @@ describe( 'BarChart overlap layout', () => {
 			expect( tooltip ).toHaveTextContent( row )
 		);
 		expect( tooltip ).not.toHaveTextContent( 'Previous visitors' );
-		expect( selectedRing().x ).toBeCloseTo(
-			barOf( 'Previous views', 1 ).x
-		);
+		expect( selectedRing().x ).toBeCloseTo( barOf( 'Previous views', 1 ).x );
 	} );
 
 	it( 'reaches every category a slot draws from the keyboard when its groups cover different categories', async () => {

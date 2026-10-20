@@ -23,6 +23,24 @@ jest.mock( '../../../hooks/use-element-size', () => ( {
 	useElementSize: () => [ mockRefCallback, 500, 300 ],
 } ) );
 
+const geometryOf = ( element: Element ) =>
+	[ 'x', 'y', 'width', 'height' ].map( name =>
+		Number( element.getAttribute( name ) ).toFixed( 2 )
+	);
+
+const selectedRingGeometry = () =>
+	(
+		screen
+			.getByTestId( 'bar-chart-selected-ring' )
+			.getAttribute( 'd' )
+			?.match( /-?[\d.e+]+/g ) ?? []
+	)
+		.slice( 0, 4 )
+		.map( value => Number( value ).toFixed( 2 ) );
+
+// eslint-disable-next-line testing-library/no-node-access -- visx renders the bars and takes no test id.
+const visxBars = () => document.querySelectorAll( '.visx-bar' );
+
 describe( 'BarChart', () => {
 	const defaultProps = {
 		width: 500,
@@ -2274,7 +2292,7 @@ describe( 'BarChart', () => {
 					await user.keyboard( '{ArrowRight}' );
 
 					expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( 'No data' );
-					expect( screen.queryByTestId( 'bar-chart-keyboard-highlight' ) ).not.toBeInTheDocument();
+					expect( screen.queryByTestId( 'bar-chart-selected-ring' ) ).not.toBeInTheDocument();
 				} );
 
 				test( 'outlines the first rendered bar for the first bucket with a reading', async () => {
@@ -2285,9 +2303,7 @@ describe( 'BarChart', () => {
 					await user.keyboard( '{ArrowRight}{ArrowRight}' );
 
 					expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveTextContent( '20' );
-					expect( screen.getByTestId( 'bar-chart-keyboard-highlight' ) ).toHaveTextContent(
-						/\.visx-bar:nth-child\(1\) \{/
-					);
+					expect( selectedRingGeometry() ).toEqual( geometryOf( visxBars()[ 0 ] ) );
 				} );
 
 				test( 'skips the bars an earlier series left out when outlining a later series', async () => {
@@ -2318,9 +2334,7 @@ describe( 'BarChart', () => {
 					await user.keyboard( '{ArrowRight}{ArrowRight}{ArrowRight}{ArrowRight}' );
 
 					expect( screen.getByTestId( 'chart-tooltip-3' ) ).toHaveTextContent( '15' );
-					expect( screen.getByTestId( 'bar-chart-keyboard-highlight' ) ).toHaveTextContent(
-						/\.visx-bar:nth-child\(4\) \{/
-					);
+					expect( selectedRingGeometry() ).toEqual( geometryOf( visxBars()[ 3 ] ) );
 				} );
 			} );
 		} );
