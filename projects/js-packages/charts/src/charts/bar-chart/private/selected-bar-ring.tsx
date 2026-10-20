@@ -1,7 +1,6 @@
 import { DataContext } from '@visx/xychart';
 import { useContext } from 'react';
-import { toSvgId } from '../../private/selected-ring/selected-ring';
-import styles from '../bar-chart.module.scss';
+import { SelectedRing } from '../../private/selected-ring/selected-ring';
 import { createGroupScale } from './band-scale';
 import { computeSlotRect, getValueScaleBaseline } from './comparison-bars-geometry';
 import type { BandScale } from './band-scale';
@@ -76,24 +75,12 @@ export const SelectedBarRing: FC< {
 		valuePositions: [ getValueScaleBaseline( valueScale ), ...valuePositions ],
 		widthFactor: selected.thickness,
 	} );
-	const clipId = `bar-selected-ring-clip-${ toSvgId( chartId ) }`;
-	const clipPath = `url(#${ clipId })`;
-
 	return (
-		<g pointerEvents="none" aria-hidden="true">
-			<clipPath id={ clipId }>
-				<path
-					clipRule="evenodd"
-					d={ `M-1e6 -1e6H1e6V1e6H-1e6Z M${ rect.x } ${ rect.y }h${ rect.width }v${ rect.height }h${ -rect.width }Z` }
-				/>
-			</clipPath>
-			<rect { ...rect } clipPath={ clipPath } className={ styles[ 'selected-ring__focus' ] } />
-			<rect
-				{ ...rect }
-				clipPath={ clipPath }
-				className={ styles[ 'selected-ring__contrast' ] }
-				data-testid="bar-chart-selected-ring"
-			/>
-		</g>
+		<SelectedRing
+			chartId={ chartId }
+			d={ `M${ rect.x } ${ rect.y }h${ rect.width }v${ rect.height }h${ -rect.width }Z` }
+			side="outside"
+			testId="bar-chart-selected-ring"
+		/>
 	);
 };

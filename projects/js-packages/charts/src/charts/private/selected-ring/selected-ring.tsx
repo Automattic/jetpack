@@ -1,11 +1,27 @@
+import clsx from 'clsx';
 import styles from './selected-ring.module.scss';
 
-interface SelectedSegmentRingProps {
+type Tone = 'contrast' | 'focus';
+
+/** Which side of the shape's edge the ring is drawn on. */
+export type SelectedRingSide = 'inside' | 'outside';
+
+interface SelectedRingProps {
 	/** The chart's id, which keeps the clip path unique on a page with several charts. */
 	chartId: string;
-	/** The selected segment's path, from the same arc generator that draws the segment. */
+	/** The selected shape's path. */
 	d: string;
+	side: SelectedRingSide;
+	testId?: string;
 }
+
+// The tone at the edge is drawn last, over the wider tone beyond it.
+const TONES: Record< SelectedRingSide, [ far: Tone, edge: Tone ] > = {
+	inside: [ 'contrast', 'focus' ],
+	outside: [ 'focus', 'contrast' ],
+};
+
+const EVERYWHERE = 'M-1e6 -1e6H1e6V1e6H-1e6Z';
 
 /**
  * Encodes `value` for an SVG id, losslessly so distinct chart ids never share a clip path.
@@ -21,26 +37,35 @@ export const toSvgId = ( value: string ) =>
 	).join( '' );
 
 /**
- * Marks the selected segment with a two-tone ring drawn inside its edge, so the SVG edge cannot cut it off.
+ * Marks a selected shape with a two-tone ring, a focus-colored ring and a contrast ring, so it reads against any fill. Drawn `inside` the edge, the SVG edge cannot cut it off; drawn `outside`, it leaves the shape's fill uncovered.
  *
- * @param {SelectedSegmentRingProps} props - Component props
+ * @param {SelectedRingProps} props - Component props
  * @return {JSX.Element} The ring
  */
-export const SelectedSegmentRing = ( { chartId, d }: SelectedSegmentRingProps ) => {
-	const clipId = `pie-selected-ring-clip-${ toSvgId( chartId ) }`;
+export const SelectedRing = ( { chartId, d, side, testId }: SelectedRingProps ) => {
+	const clipId = `selected-ring-clip-${ toSvgId( chartId ) }`;
 	const clipPath = `url(#${ clipId })`;
+	const [ far, edge ] = TONES[ side ];
 
 	return (
 		<g pointerEvents="none" aria-hidden="true">
 			<clipPath id={ clipId }>
-				<path d={ d } />
+				{ side === 'inside' ? (
+					<path d={ d } />
+				) : (
+					<path d={ `${ EVERYWHERE } ${ d }` } clipRule="evenodd" />
+				) }
 			</clipPath>
-			<path d={ d } clipPath={ clipPath } className={ styles[ 'selected-ring__contrast' ] } />
 			<path
 				d={ d }
 				clipPath={ clipPath }
-				className={ styles[ 'selected-ring__focus' ] }
-				data-testid="pie-selected-ring"
+				className={ clsx( styles[ 'selected-ring__far' ], styles[ `selected-ring__${ far }` ] ) }
+			/>
+			<path
+				d={ d }
+				clipPath={ clipPath }
+				className={ clsx( styles[ 'selected-ring__edge' ], styles[ `selected-ring__${ edge }` ] ) }
+				data-testid={ testId }
 			/>
 		</g>
 	);

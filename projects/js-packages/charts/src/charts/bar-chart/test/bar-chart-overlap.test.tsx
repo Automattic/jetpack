@@ -58,6 +58,12 @@ const geometry = ( element: Element ): Rect => ( {
 	height: Number( element.getAttribute( 'height' ) ),
 } );
 
+const selectedRing = (): Rect => {
+	const d = screen.getByTestId( 'bar-chart-selected-ring' ).getAttribute( 'd' ) ?? '';
+	const [ x, y, width, height ] = ( d.match( /-?[\d.e+]+/g ) ?? [] ).map( Number );
+	return { x, y, width, height };
+};
+
 // Back to front, each series' bars in category order.
 const BAR_ORDER = [ 'Views', 'Previous views', 'Visitors', 'Previous visitors' ];
 const barOf = ( label: string, category = 0 ) =>
@@ -216,7 +222,7 @@ describe( 'BarChart overlap layout', () => {
 		pointer( 'pointermove', center( geometry( barRects()[ 4 ] ) ) );
 		await user.keyboard( '{ArrowRight}' );
 
-		expect( geometry( screen.getByTestId( 'bar-chart-selected-ring' ) ).x ).toBeCloseTo(
+		expect( selectedRing().x ).toBeCloseTo(
 			barOf( 'Previous views', 1 ).x
 		);
 	} );
@@ -228,14 +234,14 @@ describe( 'BarChart overlap layout', () => {
 		await user.tab();
 		await user.keyboard( '{ArrowRight}' );
 		const views = barOf( 'Views' );
-		const ring = geometry( screen.getByTestId( 'bar-chart-selected-ring' ) );
+		const ring = selectedRing();
 		expect( ring.x ).toBeCloseTo( views.x );
 		expect( ring.width ).toBeCloseTo( views.width );
 		expect( ring.y ).toBeCloseTo( views.y );
 		expect( ring.height ).toBeCloseTo( views.height );
 
 		await user.keyboard( '{ArrowRight}' );
-		expect( geometry( screen.getByTestId( 'bar-chart-selected-ring' ) ).x ).toBeCloseTo(
+		expect( selectedRing().x ).toBeCloseTo(
 			barOf( 'Previous views' ).x
 		);
 	} );
@@ -254,7 +260,7 @@ describe( 'BarChart overlap layout', () => {
 			expect( tooltip ).toHaveTextContent( row )
 		);
 		expect( tooltip ).not.toHaveTextContent( 'Previous visitors' );
-		expect( geometry( screen.getByTestId( 'bar-chart-selected-ring' ) ).x ).toBeCloseTo(
+		expect( selectedRing().x ).toBeCloseTo(
 			barOf( 'Previous views', 1 ).x
 		);
 	} );
