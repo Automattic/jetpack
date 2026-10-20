@@ -189,10 +189,12 @@ class Admin_Bar {
 		$chart = self::get_chart_param();
 		if ( null === $chart ) {
 			wp_die( '', '', 400 );
+			return;
 		}
 
 		if ( ! Stats_Options::get_option( 'admin_bar' ) || ! current_user_can( 'view_stats' ) ) {
 			wp_die( '', '', 403 );
+			return;
 		}
 
 		self::send_chart( $chart );
