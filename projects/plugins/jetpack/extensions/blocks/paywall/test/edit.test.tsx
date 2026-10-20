@@ -127,7 +127,7 @@ describe( 'PaywallEdit', () => {
 			screen.getByRole( 'menuitem', { name: accessOptions.paid_subscribers.label } )
 		);
 
-		expect( mockSetAccess ).not.toHaveBeenCalledWith( accessOptions.paid_subscribers.key );
+		expect( mockSetAccess ).not.toHaveBeenCalled();
 	} );
 
 	test( 'links to the payments page without the tier anchor when a tier already exists', async () => {
@@ -173,6 +173,11 @@ describe( 'PaywallEdit', () => {
 		expect(
 			screen.queryByRole( 'menuitem', { name: /Turn on paid subscribers/ } )
 		).not.toBeInTheDocument();
+		mockSetAccess.mockClear();
+		await userEvent.click(
+			screen.getByRole( 'menuitem', { name: accessOptions.paid_subscribers.label } )
+		);
+		expect( mockSetAccess ).toHaveBeenCalledWith( accessOptions.paid_subscribers.key );
 	} );
 
 	test( 'reopens the post to everyone once the block has been removed from it', () => {
