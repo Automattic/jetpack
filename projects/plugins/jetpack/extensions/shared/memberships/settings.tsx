@@ -118,8 +118,11 @@ function getRemovedTierLabel( savedTier: { title: string; is_deleted: boolean } 
 	if ( ! savedTier.is_deleted ) {
 		return savedTier.title;
 	}
-	/* translators: %s: name of a newsletter tier that has been deleted. */
-	return sprintf( __( '%s (deleted)', 'jetpack' ), savedTier.title );
+	return sprintf(
+		/* translators: %s: name of a newsletter tier that has been deleted. */
+		__( '%s (deleted)', 'jetpack' ),
+		savedTier.title
+	);
 }
 
 function TierSelector() {
