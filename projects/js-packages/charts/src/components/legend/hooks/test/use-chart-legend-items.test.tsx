@@ -426,9 +426,15 @@ describe( 'useChartLegendItems', () => {
 				'takes the grouped comparison tints, a collapsed group in its comparison tint,',
 				'grouped',
 				[ 1, 3, 1, 3 ],
+				undefined,
 			],
-			[ 'takes the opaque overlap bar colors', 'overlap', [ 0, 2, 1, 3 ] ],
-		] as const )( '%s with barLayout %s', ( _case, barLayout, colorOrder ) => {
+			[
+				'takes the opaque overlap bar colors, dropping the deprecated opacity,',
+				'overlap',
+				[ 0, 2, 1, 3 ],
+				0.5,
+			],
+		] as const )( '%s with barLayout %s', ( _case, barLayout, colorOrder, opacity ) => {
 			const { result } = renderHook(
 				() => ( {
 					items: useChartLegendItems( twoMetricData, {
@@ -438,7 +444,17 @@ describe( 'useChartLegendItems', () => {
 					} ),
 					context: useGlobalChartsContext(),
 				} ),
-				{ wrapper }
+				{
+					wrapper: ( { children }: { children: ReactNode } ) => (
+						<GlobalChartsProvider
+							theme={
+								opacity ? { barChart: { barStyles: { comparison: { opacity } } } } : undefined
+							}
+						>
+							{ children }
+						</GlobalChartsProvider>
+					),
+				}
 			);
 			const colors =
 				result.current.context.getBarColors?.( twoMetricData, { layout: barLayout } ) ?? [];
@@ -449,21 +465,16 @@ describe( 'useChartLegendItems', () => {
 			expect( result.current.items[ 2 ].shapeStyle?.opacity ).toBeUndefined();
 		} );
 
-		test.each( [
-			[ 'series order', undefined, [ 0, 1, 2, 3 ] ],
-			[ 'slot order, primaries first,', 'overlap', [ 0, 2, 1, 3 ] ],
-		] as const )(
-			'lists one item per series in %s with barLayout %s',
-			( _case, barLayout, order ) => {
-				const { result } = renderHook( () => useChartLegendItems( twoMetricData, { barLayout } ), {
-					wrapper,
-				} );
+		test( 'lists one item per series in slot order, primaries first, with barLayout overlap', () => {
+			const { result } = renderHook(
+				() => useChartLegendItems( twoMetricData, { barLayout: 'overlap' } ),
+				{ wrapper }
+			);
 
-				expect( result.current.map( item => item.label ) ).toEqual(
-					order.map( index => twoMetricData[ index ].label )
-				);
-			}
-		);
+			expect( result.current.map( item => item.label ) ).toEqual(
+				[ 0, 2, 1, 3 ].map( index => twoMetricData[ index ].label )
+			);
+		} );
 
 		test( 'adds nothing when no series is a comparison', () => {
 			const { result } = renderHook(

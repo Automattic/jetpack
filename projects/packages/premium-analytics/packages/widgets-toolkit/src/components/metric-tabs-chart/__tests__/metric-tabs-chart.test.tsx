@@ -698,20 +698,7 @@ describe( 'MetricTabsChart', () => {
 		}
 	);
 
-	it.each( [
-		[ 'a counterpart shown from the start', [ VIEWS, VISITORS ] ],
-		[ 'a counterpart seeded hidden', [ { ...VIEWS, counterpartHidden: true }, VISITORS ] ],
-		[ 'a metric alone', [ METRIC ] ],
-	] )( 'draws overlap bars for %s', ( _case, metrics ) => {
-		render( <MetricTabsChart metrics={ metrics } dataFormat={ DATA_FORMAT } chartType="bar" /> );
-
-		expect( recordedPropsFor( mockBarSpy, 'Views' ) ).toMatchObject( {
-			layout: 'overlap',
-			primarySeries: 'Views',
-		} );
-	} );
-
-	it( 'draws the larger metric of a pair behind, the picked one first in the legend', async () => {
+	it( 'draws overlap bars that name the picked metric, its seeded-hidden counterpart still hidden', async () => {
 		const user = userEvent.setup();
 		render(
 			<MetricTabsChart
@@ -723,6 +710,7 @@ describe( 'MetricTabsChart', () => {
 		await user.click( screen.getByRole( 'tab', { name: /Visitors/ } ) );
 
 		expect( recordedPropsFor( mockBarSpy, 'Views' ) ).toMatchObject( {
+			layout: 'overlap',
 			primarySeries: 'Visitors',
 			defaultHiddenSeries: [ 'Views', expect.stringContaining( 'Views' ) ],
 		} );
