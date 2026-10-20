@@ -301,8 +301,8 @@ lazy-loaded by the dashboard at runtime.
 > module paths as provisional rather than a long-term API.
 
 These rules apply to registered dashboard widgets: folders with `package.json`,
-`widget.json`, and `render.tsx` that the dashboard can lazy-load, plus `widget.ts` when the
-widget has live metadata.
+`widget.json`, and `render.tsx` that the dashboard can lazy-load, plus `widget.ts` when some of
+its metadata cannot live in JSON.
 Presentational-only component folders under `widgets/` are out of scope unless they
 are being converted into registered widgets.
 
@@ -313,8 +313,8 @@ Each new widget MUST ship as a self-contained folder with these files:
 ```text
 widgets/<widget-name>/
 ├── package.json                            # workspace package; link: deps on widgets-toolkit
-├── widget.json                             # declarative metadata (name, icon, title, description, help, category, presentation)
-├── widget.ts                               # only with live metadata (attributes, example)
+├── widget.json                             # everything JSON can carry: name, icon, title, description, help, category, presentation, static attributes
+├── widget.ts                               # only what JSON cannot: getElements/getValue/setValue, helper-built fields, example
 ├── render.tsx                              # the React component, wrapped in <WidgetRoot> from widgets-toolkit
 └── stories/<widget-name>-widget.stories.tsx
 ```
@@ -327,8 +327,15 @@ Notes:
 - `icon` lives in `widget.json` too, as a `jpa/<name>` reference the dashboard resolves against
   the collection `packages/icons/src/resolve.ts` lists: `@wordpress/icons` glyphs by kebab-case
   name (`jpa/chart-bar`) plus the dashboard's own illustrations. A name outside that list
-  resolves to nothing, so add it to the map before naming it. A widget with nothing live ships
-  no `widget.ts`; its attribute type lives in `render.tsx`.
+  resolves to nothing, so add it to the map before naming it.
+- An attribute is declared in `widget.json` whenever its field is static: `type`, `label`,
+  fixed `elements` (option icons as `jpa/<name>`), `relevance`. `widget.ts` carries only what
+  JSON cannot express: `getElements`, `getValue`/`setValue`, a field a helper builds
+  (`reportParamsAttributeField()`, `chartIntervalField`), plus `example`, which the build does
+  not read from `widget.json` yet. Record and module entries merge by `id`, the record's first;
+  a module-only control keeps its position by listing `{ "id" }` in `widget.json` (see
+  `docs/dashboard-widgets.md`). A widget with none of that ships no `widget.ts`; its attribute
+  type lives in `render.tsx`.
 - Keep `render.tsx` thin: compose toolkit primitives (`WidgetRoot`,
   `Leaderboard`, etc.) rather than reimplementing data fetching, chart wiring, or
   theming.
@@ -611,11 +618,11 @@ give it a story for each; both mocks are 403s, so neither waits out the query's 
   legacy widgets that haven't been migrated yet.
 - Using the legacy `withWidgetRoot()` decorator for new stories — new widgets render via the
   real `WidgetDashboard` through the shared story helper instead.
-- Declaring `name`, `title`, `help`, `description`, `category`, or `presentation` in
-  `widget.ts` — `widget.json` is the source of truth for all declarative metadata; the
-  `widget.ts` default export carries only `attributes` and `example`, and `icon` is a
-  `widget.json` reference. Stories read the declarative fields from `widget.json` via
-  `createStoryWidgetType()`, which resolves the icon the way the host does.
+- Declaring in `widget.ts` what `widget.json` can carry — `name`, `title`, `help`,
+  `description`, `category`, `presentation`, `icon`, or an attribute whose field is static.
+  `widget.json` is the source of truth; the `widget.ts` default export carries only the
+  attribute behavior JSON cannot express, and `example`. Stories read the declarative fields
+  from `widget.json` via `createStoryWidgetType()`, which resolves the icon the way the host does.
 - Declaring the attribute type twice — a widget with a `widget.ts` declares the shape there and
   `render.tsx` imports it; one without declares it in `render.tsx`. Render-only types may compose
   that shape with host fields like `Partial<ReportParamsFieldAttributes>`, but must not duplicate it.
