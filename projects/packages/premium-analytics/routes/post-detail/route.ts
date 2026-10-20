@@ -1,11 +1,7 @@
 /**
  * External dependencies
  */
-import {
-	ensureCoreSettingsReady,
-	getSectionDatePolicy,
-	needsReportDateParamsSeed,
-} from '@jetpack-premium-analytics/data';
+import { getSectionDatePolicy } from '@jetpack-premium-analytics/data';
 import {
 	pickDashboardOriginParams,
 	pickReportOriginParams,
@@ -14,11 +10,10 @@ import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
-import { dateWindowNoticeState } from '../date-window-notice';
+import { dateWindowRedirect } from '../date-window-redirect';
 import { seedDetailDateParams } from '../detail-date-seed';
 import { getReportDefinition } from '../reports/registry';
 import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
-import { dateWindowNotice, limitStatsDateSearch } from '../stats-date-window';
 import { resolveTabId } from './config';
 
 type PostDetailParams = { postId?: string };
@@ -69,44 +64,28 @@ export const route = {
 			? resolveTabId( currentSearch.section )
 			: undefined;
 		const policy = getSectionDatePolicy( getReportDefinition( 'posts' )?.dashboardSection );
-		const { lockedIntervals } = policy;
-		const needsDateSeed = needsReportDateParamsSeed( currentSearch, lockedIntervals );
 		const needsPostSeed = currentSearch.post_id !== postId;
 		const needsSectionSeed = !! currentSearch.section && resolvedSection !== currentSearch.section;
-		// An arrival seeds all time, not a window the reader asked for, so it gets no notice.
-		const requested = needsPostSeed ? undefined : currentSearch;
 
-		let next: Record< string, unknown > | undefined;
-		if ( needsDateSeed || needsPostSeed || needsSectionSeed ) {
-			/*
-			 * Warm the core `site` record for `useSiteHomeUrl()`. A rejection
-			 * shouldn't error the whole page, and the seed's own dates don't
-			 * depend on it, so fall through.
-			 */
-			try {
-				await ensureCoreSettingsReady();
-			} catch {
-				// Proceed with the default seed below.
-			}
-
-			// Allowlist this page's own params instead of spreading `currentSearch`
-			// wholesale; the report origin stays so the breadcrumb survives.
-			const reportParams = seedDetailDateParams( currentSearch, postId );
-			delete reportParams.author_id;
-			const seeded: Record< string, unknown > = {
-				...reportParams,
-				...pickReportOriginParams( currentSearch ),
-				...pickDashboardOriginParams( currentSearch ),
-				...( resolvedSection ? { section: resolvedSection } : {} ),
-				post_id: postId,
-			};
-
-			next = limitStatsDateSearch( seeded, policy, { requested } ) ?? seeded;
-		} else {
-			next = limitStatsDateSearch( currentSearch, policy, { requested } );
-		}
-
-		if ( next ) {
+		const limited = await dateWindowRedirect( currentSearch, policy, {
+			seed: () => {
+				// Allowlist this page's own params instead of spreading `currentSearch`
+				// wholesale; the report origin stays so the breadcrumb survives.
+				const reportParams = seedDetailDateParams( currentSearch, postId );
+				delete reportParams.author_id;
+				return {
+					...reportParams,
+					...pickReportOriginParams( currentSearch ),
+					...pickDashboardOriginParams( currentSearch ),
+					...( resolvedSection ? { section: resolvedSection } : {} ),
+					post_id: postId,
+				};
+			},
+			needsSeed: needsPostSeed || needsSectionSeed,
+			// An arrival seeds all time, not a window the reader asked for, so it gets no notice.
+			requested: needsPostSeed ? undefined : currentSearch,
+		} );
+		if ( limited ) {
 			throw redirect( {
 				to: '/post/$postId',
 				/*
@@ -117,10 +96,8 @@ export const route = {
 				params: { postId } as unknown as never,
 				replace: true,
 				viewTransition: false,
-				search: next as unknown as never,
-				state: dateWindowNoticeState(
-					requested ? dateWindowNotice( requested, policy ) : undefined
-				),
+				search: limited.search as unknown as never,
+				state: limited.state,
 			} );
 		}
 	},

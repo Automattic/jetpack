@@ -2,10 +2,8 @@
  * External dependencies
  */
 import {
-	ensureCoreSettingsReady,
 	getSectionDatePolicy,
 	isStatsFeatureLocked,
-	needsReportDateParamsSeed,
 	OPEN_DATE_POLICY,
 } from '@jetpack-premium-analytics/data';
 import {
@@ -16,14 +14,10 @@ import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
-import { dateWindowNoticeState } from '../date-window-notice';
+import { dateWindowRedirect } from '../date-window-redirect';
 import { seedSiteDateParams } from '../site-date-seed';
 import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
-import {
-	dateWindowNotice,
-	limitStatsDateSearch,
-	withoutCarriedYearWindow,
-} from '../stats-date-window';
+import { withoutCarriedYearWindow } from '../stats-date-window';
 import { getReportDefinition } from './registry';
 
 type ReportRouteParams = { report?: string };
@@ -73,42 +67,30 @@ export const route = {
 			currentSearch.section && definition.resolveSection
 				? definition.resolveSection( currentSearch.section )
 				: undefined;
-		const needsDateSeed = needsReportDateParamsSeed( currentSearch, policy.lockedIntervals );
 		const needsSectionSeed =
 			!! currentSearch.section &&
 			!! definition.resolveSection &&
 			resolvedSection !== currentSearch.section;
 
-		let next: Record< string, unknown > | undefined;
-		if ( needsDateSeed || needsSectionSeed ) {
-			/*
-			 * Warm the core `site` record for `useSiteHomeUrl()`; a rejection shouldn't block
-			 * the page and the seed's own dates don't depend on it, so fall through.
-			 */
-			try {
-				await ensureCoreSettingsReady();
-			} catch {
-				// Proceed with the default seed below.
-			}
-
-			// Allowlist the params this page owns rather than spreading `currentSearch`
-			// wholesale, so foreign params a link carried in aren't persisted.
-			const seeded: Record< string, unknown > = {
-				...seedSiteDateParams( currentSearch, policy ),
-				...pickDashboardOriginParams( currentSearch ),
-				...( resolvedSection ? { section: resolvedSection } : {} ),
-			};
-			// Reports are site-wide: drop the detail-page scopes `normalizeReportParams`
-			// keeps, so a link carrying one can't scope a report to a post or author.
-			delete seeded.post_id;
-			delete seeded.author_id;
-
-			next = limitStatsDateSearch( seeded, policy, { requested: currentSearch } ) ?? seeded;
-		} else {
-			next = limitStatsDateSearch( currentSearch, policy, { requested: currentSearch } );
-		}
-
-		if ( next ) {
+		const limited = await dateWindowRedirect( currentSearch, policy, {
+			seed: () => {
+				// Allowlist the params this page owns rather than spreading `currentSearch`
+				// wholesale, so foreign params a link carried in aren't persisted.
+				const seeded: Record< string, unknown > = {
+					...seedSiteDateParams( currentSearch, policy ),
+					...pickDashboardOriginParams( currentSearch ),
+					...( resolvedSection ? { section: resolvedSection } : {} ),
+				};
+				// Reports are site-wide: drop the detail-page scopes `normalizeReportParams`
+				// keeps, so a link carrying one can't scope a report to a post or author.
+				delete seeded.post_id;
+				delete seeded.author_id;
+				return seeded;
+			},
+			needsSeed: needsSectionSeed,
+			requested: currentSearch,
+		} );
+		if ( limited ) {
 			throw redirect( {
 				to: '/reports/$report',
 				/*
@@ -118,8 +100,8 @@ export const route = {
 				params: { report: reportId } as unknown as never,
 				replace: true,
 				viewTransition: false,
-				search: next as unknown as never,
-				state: dateWindowNoticeState( dateWindowNotice( currentSearch, policy ) ),
+				search: limited.search as unknown as never,
+				state: limited.state,
 			} );
 		}
 	},
