@@ -1,5 +1,7 @@
 import { formatNumberCompact } from '@automattic/number-formatters';
 import { __ } from '@wordpress/i18n';
+import { generatePath } from 'react-router';
+import { MyJetpackRoutes } from '../../../constants';
 import {
 	PRODUCT_SLUGS,
 	QUERY_GET_PROTECT_DATA_KEY,
@@ -10,6 +12,7 @@ import useSimpleQuery from '../../../data/use-simple-query';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import { isJetpackPluginActive } from '../../../utils/is-jetpack-plugin-active';
 import OverviewItem from '../overview-item';
+import type { OverviewItemLink } from '../overview-item';
 import type { ProductCardComponent } from '../types';
 
 const ProtectOverviewItem: ProductCardComponent = ( { admin } ) => {
@@ -32,9 +35,21 @@ const ProtectOverviewItem: ProductCardComponent = ( { admin } ) => {
 	// Show a count only while Protect is running on a connected site; otherwise it is off.
 	let label: string;
 	let count: number | undefined;
+	let action: OverviewItemLink | undefined;
+	let upgrade: OverviewItemLink | undefined;
+	let failureReason: string;
 	if ( hasPaidPlanForProduct ) {
 		label = __( 'Threats found', 'jetpack-my-jetpack' );
 		count = isPluginActive && isSiteConnected ? ( data?.scanData?.num_threats ?? 0 ) : undefined;
+		if ( manageUrl ) {
+			action = {
+				label: count
+					? __( 'Fix threats', 'jetpack-my-jetpack' )
+					: __( 'Manage Protect', 'jetpack-my-jetpack' ),
+				href: manageUrl,
+			};
+		}
+		failureReason = __( 'Failed to load threats', 'jetpack-my-jetpack' );
 	} else {
 		label = __( 'Blocked login attempts', 'jetpack-my-jetpack' );
 		const canBlockLogins =
@@ -42,8 +57,14 @@ const ProtectOverviewItem: ProductCardComponent = ( { admin } ) => {
 			isSiteConnected &&
 			data?.wafConfig?.brute_force_protection;
 		count = canBlockLogins ? ( data?.wafConfig?.blocked_logins ?? 0 ) : undefined;
+		upgrade = {
+			label: __( 'Scan threats', 'jetpack-my-jetpack' ),
+			href: `#${ generatePath( MyJetpackRoutes.AddProtect ) }`,
+		};
+		failureReason = __( 'Failed to load blocked logins', 'jetpack-my-jetpack' );
 	}
 
+	// A disconnected site answers "not_connected": Protect is off there, not failing.
 	const hasFailed = isError && error?.code !== 'not_connected';
 
 	return (
@@ -57,32 +78,10 @@ const ProtectOverviewItem: ProductCardComponent = ( { admin } ) => {
 					? { label: __( 'Off', 'jetpack-my-jetpack' ), intent: 'none' }
 					: undefined
 			}
-			action={
-				hasPaidPlanForProduct && manageUrl
-					? {
-							label: count
-								? __( 'Fix threats', 'jetpack-my-jetpack' )
-								: __( 'Manage Protect', 'jetpack-my-jetpack' ),
-							href: manageUrl,
-						}
-					: undefined
-			}
-			upgrade={
-				hasPaidPlanForProduct
-					? undefined
-					: { label: __( 'Scan threats', 'jetpack-my-jetpack' ), href: '#/add-protect' }
-			}
+			action={ action }
+			upgrade={ upgrade }
 			isLoading={ isLoadingProduct || isLoadingProtectData }
-			error={
-				hasFailed
-					? {
-							reason: hasPaidPlanForProduct
-								? __( 'Failed to load threats', 'jetpack-my-jetpack' )
-								: __( 'Failed to load blocked logins', 'jetpack-my-jetpack' ),
-							onRetry: refetch,
-						}
-					: undefined
-			}
+			error={ hasFailed ? { reason: failureReason, onRetry: refetch } : undefined }
 		/>
 	);
 };
