@@ -166,6 +166,8 @@ Once you're all set here, you can continue developing. If you're setting up a lo
 
 `jetpack build` will provide prompts to determine the project you need or you can pass it a complete command, like `jetpack build plugins/jetpack --deps`
 
+To skip projects whose inputs haven't changed since their last build, add `--cache`, as in `jetpack build plugins/jetpack --deps --cache`. Add `--force` to rebuild everything while refreshing the cache.
+
 ### Testing Jetpack cloud features
 
 In order to test features that require a WordPress.com connection and other network related Jetpack features, you'll need a test site that can create local HTTP tunnels.

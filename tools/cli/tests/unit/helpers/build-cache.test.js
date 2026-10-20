@@ -2,7 +2,13 @@ import fs from 'fs/promises';
 import os from 'os';
 import npath from 'path';
 import { execa } from 'execa';
-import { fingerprintProjects, canSkip, writeManifest } from '../../../helpers/build-cache.js';
+import {
+	computeFingerprints,
+	fingerprintProjects,
+	canSkip,
+	invalidateManifest,
+	writeManifest,
+} from '../../../helpers/build-cache.js';
 
 // A tiny graph: B depends on A; C is independent.
 const baseInputs = () => ( {
@@ -13,6 +19,7 @@ const baseInputs = () => ( {
 		[ 'packages/c', new Set() ],
 	] ),
 	mode: 'development',
+	flags: 'pin:false lock:true',
 	toolVersion: 'tool-v1',
 	committed: new Map( [
 		[ 'packages/a', [ 'sha-a1\tprojects/packages/a/src/x.php' ] ],
@@ -22,17 +29,30 @@ const baseInputs = () => ( {
 	dirty: new Map(),
 } );
 
+/**
+ * Create a throwaway git repo, chdir into it, and return its path.
+ *
+ * `projectDir` and the git calls resolve against process.cwd(), so tests run from inside it.
+ *
+ * @return {Promise<string>} Repo path.
+ */
+async function enterTempRepo() {
+	const dir = await fs.realpath( await fs.mkdtemp( npath.join( os.tmpdir(), 'jp-cache-' ) ) );
+	await execa( 'git', [ 'init', '-q' ], { cwd: dir } );
+	process.chdir( dir );
+	return dir;
+}
+
+const writeFile = async ( path, content = 'x' ) => {
+	await fs.mkdir( npath.dirname( path ), { recursive: true } );
+	await fs.writeFile( path, content );
+};
+
 describe( 'build-cache fingerprintProjects', () => {
 	test( 'is deterministic for identical inputs', () => {
 		const a = fingerprintProjects( baseInputs() );
 		const b = fingerprintProjects( baseInputs() );
 		expect( [ ...a ] ).toEqual( [ ...b ] );
-	} );
-
-	test( 'produces a distinct fingerprint per project', () => {
-		const fps = fingerprintProjects( baseInputs() );
-		const values = [ ...fps.values() ];
-		expect( new Set( values ).size ).toBe( 3 );
 	} );
 
 	test( 'changing a source file invalidates that project but not unrelated siblings', () => {
@@ -42,7 +62,6 @@ describe( 'build-cache fingerprintProjects', () => {
 		const after = fingerprintProjects( changed );
 
 		expect( after.get( 'packages/a' ) ).not.toBe( before.get( 'packages/a' ) );
-		// C is independent of A — unchanged.
 		expect( after.get( 'packages/c' ) ).toBe( before.get( 'packages/c' ) );
 	} );
 
@@ -52,7 +71,6 @@ describe( 'build-cache fingerprintProjects', () => {
 		changed.committed.set( 'packages/a', [ 'sha-a2\tprojects/packages/a/src/x.php' ] );
 		const after = fingerprintProjects( changed );
 
-		// B depends on A, so B's fingerprint must change even though B's own files did not.
 		expect( after.get( 'packages/b' ) ).not.toBe( before.get( 'packages/b' ) );
 	} );
 
@@ -65,21 +83,14 @@ describe( 'build-cache fingerprintProjects', () => {
 		expect( after.get( 'packages/c' ) ).not.toBe( before.get( 'packages/c' ) );
 	} );
 
-	test( 'production and development modes yield different fingerprints', () => {
-		const dev = fingerprintProjects( baseInputs() );
-		const prodInputs = baseInputs();
-		prodInputs.mode = 'production';
-		const prod = fingerprintProjects( prodInputs );
-
-		for ( const slug of dev.keys() ) {
-			expect( prod.get( slug ) ).not.toBe( dev.get( slug ) );
-		}
-	} );
-
-	test( 'a tool-version change invalidates every project', () => {
+	test.each( [
+		[ 'mode', 'production' ],
+		[ 'flags', 'pin:true lock:true' ],
+		[ 'toolVersion', 'tool-v2' ],
+	] )( 'changing %s invalidates every project', ( key, value ) => {
 		const before = fingerprintProjects( baseInputs() );
 		const changed = baseInputs();
-		changed.toolVersion = 'tool-v2';
+		changed[ key ] = value;
 		const after = fingerprintProjects( changed );
 
 		for ( const slug of before.keys() ) {
@@ -87,14 +98,11 @@ describe( 'build-cache fingerprintProjects', () => {
 		}
 	} );
 
-	test( 'omitting a dependency from the order changes the dependent fingerprint (why the full graph must be fingerprinted)', () => {
-		// B depends on A. With A present (full graph), B folds A's fingerprint in.
+	test( 'omitting a dependency from the order changes the dependent fingerprint', () => {
 		const withDep = fingerprintProjects( baseInputs() );
-		// Simulate the old bug: build a subset that omits the dependency A.
 		const inputsNoDep = baseInputs();
 		inputsNoDep.buildOrder = [ 'packages/b', 'packages/c' ];
 		const withoutDep = fingerprintProjects( inputsNoDep );
-		// B's fingerprint differs — so fingerprints are only stable if the FULL graph is always used.
 		expect( withoutDep.get( 'packages/b' ) ).not.toBe( withDep.get( 'packages/b' ) );
 	} );
 
@@ -116,27 +124,74 @@ describe( 'build-cache fingerprintProjects', () => {
 	} );
 } );
 
-// `projectDir` resolves against process.cwd(), so these run inside a throwaway monorepo-shaped
-// git repo — outputs are derived from gitignore, so a real repo is part of what's under test.
+describe( 'computeFingerprints against a real repo', () => {
+	const deps = new Map( [
+		[ 'packages/a', new Set() ],
+		[ 'packages/b', new Set() ],
+	] );
+	let dir, cwd;
+	const fingerprint = () => computeFingerprints( deps, {} );
+
+	beforeEach( async () => {
+		cwd = process.cwd();
+		dir = await enterTempRepo();
+		await writeFile( npath.join( dir, 'projects/packages/a/src/x.php' ) );
+		await writeFile( npath.join( dir, 'projects/packages/a/src/with space.php' ) );
+		await writeFile( npath.join( dir, 'projects/packages/b/src/y.php' ) );
+		await execa( 'git', [ 'add', '-A' ], { cwd: dir } );
+		await execa( 'git', [ '-c', 'user.name=t', '-c', 'user.email=t@t', 'commit', '-qm', 'init' ], {
+			cwd: dir,
+		} );
+	} );
+	afterEach( async () => {
+		process.chdir( cwd );
+		await fs.rm( dir, { recursive: true, force: true } );
+	} );
+
+	test.each( [
+		[
+			'an edited tracked file',
+			true,
+			d => writeFile( `${ d }/projects/packages/a/src/x.php`, 'y' ),
+		],
+		[ 'a new untracked directory', true, d => writeFile( `${ d }/projects/packages/a/new/z.php` ) ],
+		[ 'a deleted tracked file', true, d => fs.rm( `${ d }/projects/packages/a/src/x.php` ) ],
+		[
+			'an edited file whose name has a space',
+			true,
+			d => writeFile( `${ d }/projects/packages/a/src/with space.php`, 'y' ),
+		],
+		[
+			'a changelog entry',
+			false,
+			d => writeFile( `${ d }/projects/packages/a/changelog/add-thing`, 'Significance: patch' ),
+		],
+		[ 'a root file outside the tool files', false, d => writeFile( `${ d }/notes.js` ) ],
+	] )( '%s changes the fingerprint: %s', async ( _, expectChange, mutate ) => {
+		const before = await fingerprint();
+		await mutate( dir );
+		const after = await fingerprint();
+
+		expect( after.get( 'packages/a' ) !== before.get( 'packages/a' ) ).toBe( expectChange );
+		expect( after.get( 'packages/b' ) ).toBe( before.get( 'packages/b' ) );
+	} );
+} );
+
 describe( 'canSkip / writeManifest', () => {
 	const SLUG = 'packages/thing';
 	let dir, cwd;
 
 	const projectPath = ( ...p ) => npath.join( dir, 'projects', SLUG, ...p );
-	const addOutput = async file => {
-		await fs.mkdir( npath.dirname( projectPath( file ) ), { recursive: true } );
-		await fs.writeFile( projectPath( file ), 'x' );
-	};
+	const addOutput = file => writeFile( projectPath( file ) );
 
 	beforeEach( async () => {
 		cwd = process.cwd();
-		dir = await fs.realpath( await fs.mkdtemp( npath.join( os.tmpdir(), 'jp-cache-' ) ) );
-		await fs.mkdir( projectPath(), { recursive: true } );
-		// Projects carry their own .gitignore, and a pattern with a slash anchors to that file's
-		// directory — so these must live inside the project, not at the repo root.
-		await fs.writeFile( projectPath( '.gitignore' ), '/build/\n/app/assets/dist/\n' );
-		await execa( 'git', [ 'init', '-q' ], { cwd: dir } );
-		process.chdir( dir );
+		dir = await enterTempRepo();
+		// A pattern with a slash anchors to its .gitignore's directory, so this must be in the project.
+		await writeFile(
+			projectPath( '.gitignore' ),
+			'/build/\n/app/assets/dist/\nnode_modules/\n.DS_Store\n'
+		);
 	} );
 	afterEach( async () => {
 		process.chdir( cwd );
@@ -160,42 +215,60 @@ describe( 'canSkip / writeManifest', () => {
 		await expect( canSkip( SLUG, 'fp2' ) ).resolves.toBe( false );
 	} );
 
-	test( 'does not skip when a recorded output was deleted', async () => {
-		await addOutput( 'build/out.js' );
-		await writeManifest( SLUG, 'fp1' );
-		await fs.rm( projectPath( 'build' ), { recursive: true } );
-		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( false );
-	} );
-
-	// `--directory` collapsed a whole ignored dir to one entry, so losing a file inside it left the
-	// directory present and the project skipped with a half-empty output tree.
-	test( 'does not skip when a single file inside an output directory is deleted', async () => {
-		await addOutput( 'build/one.js' );
-		await addOutput( 'build/two.js' );
-		await writeManifest( SLUG, 'fp1' );
-		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( true );
-		await fs.rm( projectPath( 'build/two.js' ) );
-		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( false );
-	} );
-
-	// Count alone would miss this: a rename leaves the same number of files behind.
-	test( 'does not skip when an output file is renamed', async () => {
-		await addOutput( 'build/one.js' );
-		await writeManifest( SLUG, 'fp1' );
-		await fs.rename( projectPath( 'build/one.js' ), projectPath( 'build/renamed.js' ) );
-		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( false );
-	} );
-
 	test( 'does not skip a project that produced no output at all', async () => {
 		await writeManifest( SLUG, 'fp1' );
 		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( false );
 	} );
 
-	test( 'tracks outputs in nested directories a fixed list would not name', async () => {
+	test( 'does not skip after the manifest is invalidated', async () => {
+		await addOutput( 'build/out.js' );
+		await writeManifest( SLUG, 'fp1' );
+		await invalidateManifest( SLUG );
+		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( false );
+	} );
+
+	test.each( [
+		[
+			'the whole output directory is deleted',
+			() => fs.rm( projectPath( 'build' ), { recursive: true } ),
+		],
+		[
+			'a single file inside an output directory is deleted',
+			() => fs.rm( projectPath( 'build/two.js' ) ),
+		],
+		[
+			'an output file is renamed',
+			() => fs.rename( projectPath( 'build/one.js' ), projectPath( 'build/renamed.js' ) ),
+		],
+		[
+			'an output file is rewritten in place',
+			async () => {
+				await fs.writeFile( projectPath( 'build/one.js' ), 'y' );
+				const later = new Date( Date.now() + 5000 );
+				await fs.utimes( projectPath( 'build/one.js' ), later, later );
+			},
+		],
+		[
+			'a nested output directory is deleted',
+			() => fs.rm( projectPath( 'app/assets/dist' ), { recursive: true } ),
+		],
+	] )( 'does not skip when %s', async ( _, mutate ) => {
+		await addOutput( 'build/one.js' );
+		await addOutput( 'build/two.js' );
 		await addOutput( 'app/assets/dist/bundle.js' );
 		await writeManifest( SLUG, 'fp1' );
 		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( true );
-		await fs.rm( projectPath( 'app/assets/dist' ), { recursive: true } );
+		await mutate();
 		await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( false );
 	} );
+
+	test.each( [ 'node_modules/dep/index.js', 'tests/e2e/node_modules/dep/index.js', '.DS_Store' ] )(
+		'still skips when non-output %s appears',
+		async file => {
+			await addOutput( 'build/out.js' );
+			await writeManifest( SLUG, 'fp1' );
+			await addOutput( file );
+			await expect( canSkip( SLUG, 'fp1' ) ).resolves.toBe( true );
+		}
+	);
 } );

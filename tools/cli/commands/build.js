@@ -12,7 +12,12 @@ import ListrState from 'listr/lib/state.js';
 import SilentRenderer from 'listr-silent-renderer';
 import UpdateRenderer from 'listr-update-renderer';
 import pLimit from 'p-limit';
-import { computeFingerprints, canSkip, writeManifest } from '../helpers/build-cache.js';
+import {
+	computeFingerprints,
+	canSkip,
+	invalidateManifest,
+	writeManifest,
+} from '../helpers/build-cache.js';
 import { getDependencies, filterDeps, getBuildOrder } from '../helpers/dependencyAnalysis.js';
 import formatDuration from '../helpers/format-duration.js';
 import { getInstallArgs, projectDir } from '../helpers/install.js';
@@ -122,17 +127,26 @@ export async function handler( argv ) {
 		argv.timingSummary = true;
 	}
 
-	// One `git ls-files` for the whole monorepo instead of one per project.
-	// Keep the full, unfiltered graph around: the build cache fingerprints the whole graph so a
-	// project's fingerprint is stable whether it's built alone or via `--deps`.
 	let dependencies = await getDependencies( process.cwd(), 'build' );
 
-	// No persistent cache between CI runs, and mirror builds do extra work a skip would break.
 	// Fingerprint before `filterDeps` narrows the graph; see `computeFingerprints`.
-	const cacheFingerprints =
-		argv.cache && ! argv.forMirrors && ! process.env.CI
-			? await computeFingerprints( dependencies, argv )
-			: null;
+	let cacheFingerprints = null;
+	if ( argv.cache && ( argv.forMirrors || process.env.CI ) ) {
+		// No persistent cache between CI runs, and mirror builds do extra work a skip would break.
+		console.warn(
+			chalk.yellow( 'Ignoring --cache: it is disabled with --for-mirrors and in CI.' )
+		);
+	} else if ( argv.cache ) {
+		try {
+			cacheFingerprints = await computeFingerprints( dependencies, argv );
+		} catch ( e ) {
+			console.warn(
+				chalk.yellow( `Building without --cache, fingerprinting failed: ${ e.message }` )
+			);
+		}
+	} else if ( argv.force ) {
+		console.warn( chalk.yellow( 'Ignoring --force: it only has an effect with --cache.' ) );
+	}
 	const listr = new Listr( [], {
 		renderer: argv.v ? SilentRenderer : UpdateRenderer,
 		concurrent: argv.concurrency > 1,
@@ -740,6 +754,8 @@ async function buildProject( t ) {
 			return;
 		}
 	}
+	// Even without --cache: this build rewrites outputs a previous --cache run recorded.
+	await invalidateManifest( t.project );
 
 	await t.setStatus( 'installing' );
 
@@ -941,7 +957,9 @@ async function buildProject( t ) {
 			t.ctx.cache.built++;
 			const fp = t.ctx.cache.fingerprints.get( t.project );
 			if ( fp ) {
-				await writeManifest( t.project, fp );
+				await writeManifest( t.project, fp ).catch( e =>
+					t.output( `\nCould not write the build-cache manifest: ${ e.message }\n` )
+				);
 			}
 		}
 		return;
