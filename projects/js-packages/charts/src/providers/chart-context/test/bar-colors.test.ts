@@ -107,6 +107,15 @@ describe( 'getBarColors', () => {
 		).toEqual( tinted );
 	} );
 
+	it.each( [
+		[ 'a primary paint that is not hex', [ 'url(#gradient)', 'url(#gradient)' ], '#ffffff' ],
+		[ 'a background that is not hex', [ '#3858e9', '#3858e9' ], 'transparent' ],
+	] )( 'keeps the colors given with %s', ( _case, colors, background ) => {
+		const data = [ series( 'Views' ), series( 'Previous', { type: 'comparison' } ) ];
+
+		expect( getBarColors( data, colors, background ) ).toEqual( colors );
+	} );
+
 	it( 'keeps the colors of a comparison stroked in a color of its own, and its primary', () => {
 		const data = [
 			series( 'Views' ),
