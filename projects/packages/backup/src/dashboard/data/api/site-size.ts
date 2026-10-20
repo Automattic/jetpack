@@ -8,7 +8,7 @@ import { apiCall, apiPath } from './_helpers';
  * usable figures. Like the other legacy routes, an upstream answer it
  * cannot decode collapses to a `null` body served with HTTP 200.
  *
- * The fields below are the ones legacy reads (`src/js/actions/index.js`).
+ * The fields below are the ones the dashboard reads.
  * `storage_limit_bytes` is deliberately **not** among them: this response
  * does not carry a storage limit, despite the route's name. Confirmed
  * against a live 200, whose keys are `ok`, `error`, `size`,

@@ -53,13 +53,10 @@ export function resetAnalyticsForTesting(): void {
 /**
  * The Tracks client for the modernized dashboard.
  *
- * Deliberately not a port of `src/js/hooks/useAnalytics.js`. That one
- * reads the API root and nonce out of the legacy Redux store and hands
- * them to `@automattic/jetpack-connection`'s `useConnection()`, which
- * fetches the connected user over REST. Neither is available here: there
- * is no store, and `use-connection.ts` documents why this package cannot
- * import that package's hooks at all — its barrel pulls in SCSS that
- * wp-build's bundler will not resolve.
+ * There is no store and no REST request: `use-connection.ts` documents
+ * why this package cannot import `@automattic/jetpack-connection`'s
+ * hooks — its barrel pulls in SCSS that wp-build's bundler will not
+ * resolve.
  *
  * `@automattic/jetpack-analytics` itself is safe to import: a single
  * `.` export pointing at one JSX file, with no stylesheet anywhere in
@@ -67,7 +64,7 @@ export function resetAnalyticsForTesting(): void {
  *
  * The identity is read synchronously from the same
  * `JP_CONNECTION_INITIAL_STATE` global `useConnection()` uses, so this
- * costs no request where legacy costs one.
+ * costs no request.
  *
  * Identification is skipped when the site has no connected WordPress.com
  * user. Recording still works — the events simply carry no identity —

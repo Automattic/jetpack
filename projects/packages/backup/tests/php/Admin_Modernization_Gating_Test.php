@@ -37,7 +37,7 @@ require_once __DIR__ . '/mock-wp-build-render-page.php';
 class Admin_Modernization_Gating_Test extends TestCase {
 
 	/** @var string[] Handles the code under test registers itself. */
-	private const OWNED_SCRIPT_HANDLES = array( 'jetpack-backup', 'jp-tracks', 'jp-tracks-functions' );
+	private const OWNED_SCRIPT_HANDLES = array( 'jp-tracks', 'jp-tracks-functions' );
 
 	/** @var string[] Handles registered elsewhere that the code under test only enqueues. */
 	private const BORROWED_SCRIPT_HANDLES = array( 'wp-jp-i18n-loader' );
@@ -283,5 +283,14 @@ class Admin_Modernization_Gating_Test extends TestCase {
 			$property->setAccessible( true );
 		}
 		return $property;
+	}
+
+	public function test_missing_build_notice_names_the_problem() {
+		ob_start();
+		Jetpack_Backup::render_missing_build_notice();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'notice-error', $output );
+		$this->assertStringContainsString( 'dashboard files are missing', $output );
 	}
 }
