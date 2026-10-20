@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Bar charts: Draw each previous-period bar in an opaque, lighter tone of its current period's color, with enough contrast between the two.
