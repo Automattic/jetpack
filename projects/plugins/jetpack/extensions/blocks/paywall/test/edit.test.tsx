@@ -11,6 +11,7 @@ let mockAccessLevel: string;
 let mockPaywallBlock: { clientId: string } | undefined;
 let mockConnectUrl: string | null;
 let mockTierProducts: Array< { id: number } >;
+let mockIsLoading: boolean;
 
 // The block reads the access level from post meta and writes it back through these two hooks.
 // Standing in for them is what lets the test say what the post's access is, and see what the
@@ -51,7 +52,7 @@ registry.registerStore( 'jetpack/membership-products', {
 	selectors: {
 		getConnectUrl: () => mockConnectUrl,
 		getNewsletterTierProducts: () => mockTierProducts,
-		isApiStateLoading: () => false,
+		isApiStateLoading: () => mockIsLoading,
 	},
 } );
 
@@ -70,10 +71,9 @@ describe( 'PaywallEdit', () => {
 		mockPaywallBlock = { clientId: CLIENT_ID };
 		mockConnectUrl = null;
 		mockTierProducts = [ { id: 1 } ];
+		mockIsLoading = false;
 	} );
 
-	// The toolbar used to offer paid subscribers as a normal choice while the Content access
-	// panel showed it disabled, so the two controls for the same setting disagreed.
 	test( 'shows paid subscribers as unavailable in the toolbar until payments are set up', async () => {
 		mockAccessLevel = accessOptions.subscribers.key;
 		mockConnectUrl = 'https://example.com/connect-stripe';
@@ -91,6 +91,22 @@ describe( 'PaywallEdit', () => {
 			'href',
 			expect.stringContaining( '#add-tier-plan' )
 		);
+	} );
+
+	test( 'keeps paid subscribers enabled while the membership status is loading', async () => {
+		mockAccessLevel = accessOptions.subscribers.key;
+		mockConnectUrl = null;
+		mockTierProducts = [];
+		mockIsLoading = true;
+		renderPaywall();
+
+		await userEvent.click(
+			screen.getByRole( 'button', { name: accessOptions.subscribers.label } )
+		);
+
+		expect(
+			screen.getByRole( 'menuitem', { name: accessOptions.paid_subscribers.label } )
+		).not.toHaveAttribute( 'aria-disabled' );
 	} );
 
 	test( 'offers paid subscribers in the toolbar once payments are set up', async () => {
