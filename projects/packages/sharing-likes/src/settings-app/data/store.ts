@@ -154,7 +154,7 @@ const selectors = {
 	getSettings: ( state: State ): Settings | undefined => state.settings,
 
 	/**
-	 * The enabled services. The route answers 409 unless the Sharing section configures.
+	 * The enabled services.
 	 *
 	 * @param state - State.
 	 * @return Services, once known.
