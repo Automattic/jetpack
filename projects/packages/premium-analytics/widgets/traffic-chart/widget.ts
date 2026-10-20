@@ -38,8 +38,8 @@ export function defaultChartType(): TrafficChartType {
 export type TrafficChartGranularity = ( typeof TRAFFIC_PERIODS )[ number ];
 
 /**
- * How the selected metric is drawn. The shared chart-display list keeps every
- * chart widget's dropdown identical and ties it to the toolkit's own union.
+ * How the selected metric is drawn. The alias ties the attribute to the
+ * toolkit's own union, which the chart reads.
  */
 export type TrafficChartType = ChartDisplayChartType;
 

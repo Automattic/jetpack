@@ -9,8 +9,8 @@ import type { ChartDisplayChartType } from '@jetpack-premium-analytics/widgets-t
 export type EmailTimeSeriesMetric = 'opens' | 'clicks';
 
 /**
- * How the timeline is drawn. The shared chart-display list keeps every chart
- * widget's dropdown identical and ties it to the toolkit's own union.
+ * How the timeline is drawn. The alias ties the attribute to the toolkit's
+ * own union, which the chart reads.
  */
 export type EmailTimeSeriesChartType = ChartDisplayChartType;
 

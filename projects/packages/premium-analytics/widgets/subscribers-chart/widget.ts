@@ -20,8 +20,8 @@ import { defaultReportParams } from './default-report-params';
 import { SUBSCRIBERS_GRAIN } from './grain';
 
 /**
- * How the selected metric is drawn. The shared chart-display list keeps every
- * chart widget's dropdown identical and ties it to the toolkit's own union.
+ * How the selected metric is drawn. The alias ties the attribute to the
+ * toolkit's own union, which the chart reads.
  */
 export type SubscribersChartType = ChartDisplayChartType;
 
