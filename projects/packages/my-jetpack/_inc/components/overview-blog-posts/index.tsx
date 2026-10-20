@@ -1,4 +1,4 @@
-import { dateI18n, getSettings } from '@wordpress/date';
+import { humanTimeDiff } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import { tip } from '@wordpress/icons';
 import { Link, Stack, Text } from '@wordpress/ui';
@@ -8,10 +8,14 @@ import OverviewSection from '../product-cards-section/overview-section';
 import styles from './style.module.scss';
 import type { FC } from 'react';
 
+const BLOG_URL = 'https://jetpack.com/resources/';
+
 type BlogPost = {
 	title: string;
 	link: string;
 	date: string | null;
+	excerpt: string;
+	thumbnail: string | null;
 };
 
 /**
@@ -29,23 +33,40 @@ const OverviewBlogPosts: FC = () => {
 		return null;
 	}
 
-	const dateFormat = getSettings().formats.date;
-
 	return (
 		<OverviewSection icon={ tip } title={ __( 'What’s new in Jetpack?', 'jetpack-my-jetpack' ) }>
-			<Stack direction="column" gap="md" render={ <ul className={ styles.list } /> }>
-				{ posts.map( post => (
-					<Stack direction="column" gap="xs" render={ <li /> } key={ post.link }>
-						<Link href={ post.link } openInNewTab>
-							{ post.title }
-						</Link>
-						{ post.date && (
-							<Text variant="body-sm" render={ <time dateTime={ post.date } /> }>
-								{ dateI18n( dateFormat, post.date, undefined ) }
-							</Text>
-						) }
-					</Stack>
-				) ) }
+			<Stack direction="column" gap="lg" align="start">
+				<Stack direction="column" gap="lg" render={ <ul className={ styles.list } /> }>
+					{ posts.map( post => (
+						<Stack direction="row" gap="md" align="center" render={ <li /> } key={ post.link }>
+							{ post.thumbnail && (
+								<img className={ styles.thumbnail } src={ post.thumbnail } alt="" loading="lazy" />
+							) }
+							<Stack direction="column" gap="xs">
+								{ post.date && (
+									<Text
+										variant="body-sm"
+										className={ styles.muted }
+										render={ <time dateTime={ post.date } /> }
+									>
+										{ humanTimeDiff( post.date ) }
+									</Text>
+								) }
+								<Link href={ post.link } openInNewTab tone="neutral" variant="unstyled">
+									<Text variant="body-md">{ post.title }</Text>
+								</Link>
+								{ post.excerpt && (
+									<Text variant="body-sm" className={ styles.muted }>
+										{ post.excerpt }
+									</Text>
+								) }
+							</Stack>
+						</Stack>
+					) ) }
+				</Stack>
+				<Link href={ BLOG_URL } openInNewTab>
+					{ __( 'Read more', 'jetpack-my-jetpack' ) }
+				</Link>
 			</Stack>
 		</OverviewSection>
 	);
