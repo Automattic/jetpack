@@ -81,6 +81,8 @@ const awayFrom = ( background: string ): string =>
 		? '#000000'
 		: '#ffffff';
 
+const opposite = ( end: string ): string => ( end === '#000000' ? '#ffffff' : '#000000' );
+
 /**
  * The tone of a color nearest the background that keeps 3:1 against it.
  *
@@ -95,7 +97,7 @@ export function tintWithContrast( color: string, background: string ): string {
 }
 
 /**
- * The tone of a color nearest the original that keeps 3:1 against the bar it is drawn over, on the far side of that bar from the background.
+ * The tone of a color nearest the original that keeps 3:1 against the bar it is drawn over, on the far side of that bar from the background when that side can reach 3:1.
  *
  * @param color      - A hex color.
  * @param under      - The hex color of the bar behind it.
@@ -108,7 +110,13 @@ export function shadeWithContrast( color: string, under: string, background: str
 	const start =
 		contrastRatio( color, background ) > contrastRatio( under, background ) ? color : under;
 
-	return passes( start ) ? start : blendToEdge( start, awayFrom( background ), passes );
+	if ( passes( start ) ) {
+		return start;
+	}
+
+	const away = awayFrom( background );
+
+	return blendToEdge( start, passes( away ) ? away : opposite( away ), passes );
 }
 
 /**

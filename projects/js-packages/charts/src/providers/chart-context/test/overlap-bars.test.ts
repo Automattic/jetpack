@@ -75,6 +75,18 @@ describe( 'getOverlapBarColors', () => {
 		}
 	);
 
+	it( 'turns the front bar back toward the background when the far side cannot reach 3:1', () => {
+		const background = '#686884';
+		const [ back, , front ] = getOverlapBarColors(
+			VIEWS_AND_VISITORS,
+			colorsOf( VIEWS_AND_VISITORS ),
+			[ '#9f4902', GREEN ],
+			background
+		);
+
+		expect( contrastRatio( front, back ) ).toBeGreaterThanOrEqual( 3 );
+	} );
+
 	it( "tones each slot from its palette color, not from the series' group colors", () => {
 		const toned = getOverlapBarColors(
 			VIEWS_AND_VISITORS,
