@@ -40,8 +40,7 @@ test.describe( 'Jetpack Backup modernized dashboard gates', () => {
 
 		await admin.visitAdminPage( 'admin.php', 'page=jetpack-backup' );
 
-		// The modernized `<DashboardLayout>`'s own class. The legacy admin page renders no
-		// such element, so this separates "the dashboard booted" from "the flag was off".
+		// The dashboard's own layout class: proof the dashboard booted rather than an empty page.
 		await expect( page.locator( '.jpb-dashboard-layout' ) ).toBeVisible();
 
 		await expect(

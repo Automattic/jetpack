@@ -6,8 +6,7 @@
  * Version: 1.0.0
  * Text Domain: jetpack
  *
- * Turns on the Backup modernization filter and answers
- * `/sites/{id}/rewind/capabilities` locally. That endpoint is the only thing `<Gates>`
+ * Answers `/sites/{id}/rewind/capabilities` locally. That endpoint is the only thing `<Gates>`
  * reads to decide whether the site has a Backup plan, so `e2e-plan-helper.php` — which
  * intercepts `/sites/{id}` — cannot fake it.
  *
@@ -27,7 +26,6 @@ const E2E_BACKUP_CAPABILITIES_OPTION = 'e2e_backup_capabilities';
  */
 const E2E_BACKUP_INTERCEPT_COUNT_OPTION = 'e2e_backup_capabilities_intercepts';
 
-add_filter( 'rsm_jetpack_ui_modernization_backup', '__return_true' );
 add_filter( 'pre_http_request', 'e2e_jetpack_backup_intercept_capabilities', 3, 3 );
 
 /**

@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Backup\V0005\REST;
 
-use Automattic\Jetpack\Backup\V0005\Jetpack_Backup;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Jetpack_Options;
 use WP_Error;
@@ -22,8 +21,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Each bridge class declares its routes via `register_routes()` and uses
  * the shared `permission_check()` helper for the `manage_options` gate.
- * Routes only register when `is_modernized()` is true, so the
- * legacy plugin is byte-identical when it is false.
  */
 class Rest_Controller {
 
@@ -64,15 +61,11 @@ class Rest_Controller {
 	);
 
 	/**
-	 * Hook entry point. Registers all bridge routes if `is_modernized()` is true.
+	 * Hook entry point. Registers all bridge routes.
 	 *
 	 * @return void
 	 */
 	public static function register_routes() {
-		if ( ! Jetpack_Backup::is_modernized() ) {
-			return;
-		}
-
 		Capabilities_Bridge::register_routes();
 		Activity_Log_Bridge::register_routes();
 		Backup_Sizes_Bridge::register_routes();

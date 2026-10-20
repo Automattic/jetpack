@@ -1,10 +1,6 @@
 <?php
 /**
- * Tests for the shared wp-build-dashboard predicate.
- *
- * Named for the fallback rather than the class: a `Jetpack_Backup_Test` already
- * exists here, and `Admin_Modernization_Gating_Test` is taken by in-flight work
- * on the same area.
+ * Tests for the wp-build-dashboard predicate and the missing-build notice.
  *
  * @package automattic/jetpack-backup
  */
@@ -17,14 +13,12 @@ use ReflectionMethod;
 use ReflectionProperty;
 
 /**
- * The menu callback, the menu titles and the legacy script enqueue all have to
- * read the same predicate. When they disagreed, a modernization flag switched on
- * without a wp-build present rendered an empty div and enqueued nothing.
+ * The menu callback and the enqueue path read one predicate: whether the wp-build
+ * dashboard loaded.
  *
- * The build-absent half of that pair cannot be tested: a PHP function cannot be
- * undeclared once `mock-wp-build-render-page.php` has declared it. What is
- * covered here is that the build-present and flag-off paths still behave as
- * they did before the predicate was extracted.
+ * The build-absent half cannot be tested: a PHP function cannot be undeclared once
+ * `mock-wp-build-render-page.php` has declared it. Only the notice that replaces the
+ * dashboard in that case is covered.
  */
 class Admin_Wp_Build_Fallback_Test extends TestCase {
 
@@ -40,7 +34,6 @@ class Admin_Wp_Build_Fallback_Test extends TestCase {
 	 * Reset everything the tested methods write to.
 	 */
 	public function tearDown(): void {
-		remove_all_filters( Jetpack_Backup::MODERNIZATION_FILTER );
 		remove_all_actions( 'admin_notices' );
 		remove_all_actions( 'all_admin_notices' );
 		remove_action( 'admin_enqueue_scripts', array( Jetpack_Backup::class, 'enqueue_admin_scripts' ) );
@@ -109,21 +102,11 @@ class Admin_Wp_Build_Fallback_Test extends TestCase {
 		return $items[0];
 	}
 
-	public function test_predicate_is_false_when_the_filter_is_off() {
-		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_false' );
-
-		$this->assertFalse( $this->is_wp_build_dashboard_active() );
-	}
-
-	public function test_predicate_is_true_when_the_filter_is_on_and_the_build_is_present() {
-		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
-
+	public function test_predicate_is_true_when_the_build_is_present() {
 		$this->assertTrue( $this->is_wp_build_dashboard_active() );
 	}
 
 	public function test_menu_uses_the_wp_build_dashboard_when_the_build_is_present() {
-		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
-
 		Jetpack_Backup::add_wp_admin_submenu();
 
 		$item = $this->get_queued_backup_menu_item();
@@ -132,36 +115,13 @@ class Admin_Wp_Build_Fallback_Test extends TestCase {
 		$this->assertSame( 'Backup', $item['menu_title'] );
 	}
 
-	public function test_menu_uses_the_legacy_dashboard_when_the_filter_is_off() {
-		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_false' );
-
-		Jetpack_Backup::add_wp_admin_submenu();
-
-		$item = $this->get_queued_backup_menu_item();
-		$this->assertSame( array( Jetpack_Backup::class, 'plugin_settings_page' ), $item['function'] );
-		$this->assertSame( 'Jetpack Backup', $item['page_title'] );
-		$this->assertSame( 'Backup', $item['menu_title'] );
-	}
-
 	public function test_enqueue_skips_the_legacy_script_when_the_build_is_present() {
-		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
-
 		Jetpack_Backup::enqueue_admin_scripts();
 
 		$this->assertFalse( wp_script_is( 'jetpack-backup', 'registered' ) );
 	}
 
-	public function test_enqueue_registers_the_legacy_script_when_the_filter_is_off() {
-		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_false' );
-
-		Jetpack_Backup::enqueue_admin_scripts();
-
-		$this->assertTrue( wp_script_is( 'jetpack-backup', 'registered' ) );
-		$this->assertTrue( wp_script_is( 'jetpack-backup', 'enqueued' ) );
-	}
-
 	public function test_admin_init_suppresses_admin_notices_when_the_build_is_present() {
-		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
 		add_action( 'admin_notices', '__return_null' );
 		add_action( 'all_admin_notices', '__return_null' );
 
@@ -171,15 +131,12 @@ class Admin_Wp_Build_Fallback_Test extends TestCase {
 		$this->assertFalse( has_action( 'all_admin_notices' ) );
 	}
 
-	public function test_admin_init_keeps_admin_notices_when_the_filter_is_off() {
-		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_false' );
+	public function test_missing_build_notice_names_the_problem() {
+		ob_start();
+		Jetpack_Backup::render_missing_build_notice();
+		$output = ob_get_clean();
 
-		add_action( 'admin_notices', '__return_null' );
-		add_action( 'all_admin_notices', '__return_null' );
-
-		Jetpack_Backup::admin_init();
-
-		$this->assertNotFalse( has_action( 'admin_notices' ) );
-		$this->assertNotFalse( has_action( 'all_admin_notices' ) );
+		$this->assertStringContainsString( 'notice-error', $output );
+		$this->assertStringContainsString( 'dashboard files are missing', $output );
 	}
 }
