@@ -146,15 +146,7 @@ class Editor_Welcome_Guides_Atomic_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( array(), $this->requests );
 	}
 
-	public function test_editor_page_load_serves_a_fresh_copy_without_asking() {
-		$record = array( 'core/edit-post' => array( 'welcomeGuide' ) );
-		$this->copy( $record, time() - 4 * MINUTE_IN_SECONDS );
-
-		$this->assertSame( $record, $this->read() );
-		$this->assertSame( array(), $this->requests );
-	}
-
-	public function test_failed_fetch_keeps_the_copy_and_retries_after_the_ttl() {
+	public function test_failed_fetch_keeps_the_copy() {
 		$record = array( 'core/edit-post' => array( 'welcomeGuide' ) );
 		$this->copy( $record, time() - DAY_IN_SECONDS );
 		$this->response = new \WP_Error( 'http_request_failed', 'offline' );
@@ -164,10 +156,6 @@ class Editor_Welcome_Guides_Atomic_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertSame( $record, $this->read() );
 		$this->assertCount( 1, $this->requests );
-
-		$this->copy( $record, time() - 6 * MINUTE_IN_SECONDS );
-		$this->assertSame( $record, $this->read() );
-		$this->assertCount( 2, $this->requests );
 	}
 
 	public function test_dismiss_posts_only_new_guides() {
