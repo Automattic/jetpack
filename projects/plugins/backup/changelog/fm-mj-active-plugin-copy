@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-My Jetpack: Show active Beta or -dev plugin copies correctly and deactivate the active copy when a stable copy is also installed.
+Features: Show a plugin as active when a Beta or -dev copy is active beside an installed stable copy, and turn off the active copy when deactivating it.
