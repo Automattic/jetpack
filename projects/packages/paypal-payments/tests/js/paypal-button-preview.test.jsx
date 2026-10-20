@@ -11,7 +11,6 @@
 import { act, render, screen } from '@testing-library/react';
 import { dispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { toBeOneOf } from 'jest-extended';
 import QRCode from 'qrcode';
 import metadata from '../../src/paypal-payment-buttons/block.json';
 import PayPalButtonPreview from '../../src/paypal-payment-buttons/components/paypal-button-preview';
@@ -23,8 +22,6 @@ import {
 } from '../../src/paypal-payment-buttons/utils/sync-on-save';
 import cardParity from '../fixtures/product-card-parity.json';
 import bootTheFrame from './boot-the-frame';
-
-expect.extend( { toBeOneOf } );
 
 // jsdom has no 2D context, so a real draw fails. Unlike qr-code.test.js's mock
 // this one resolves, because the preview chains .catch() on the returned promise.
@@ -152,12 +149,9 @@ describe( 'PayPalButtonPreview', () => {
 			<PayPalButtonPreview { ...defaultProps } attributes={ { buttonShowPoweredBy: true } } />
 		);
 		// Same markup as the PHP test, except Jest stubs the image src to its file name.
-		expect( document.querySelector( '.jetpack-paypal-button__attribution' ).outerHTML ).toBeOneOf( [
-			// React 18 - @todo Remove when we drop support for WordPress providing React 18.
-			'<p class="jetpack-paypal-button__attribution">Powered by <img class="jetpack-paypal-button__logo" src="paypal-wordmark-color.svg" alt="PayPal" width="42" height="15"></p>',
-			// React 19
-			'<p class="jetpack-paypal-button__attribution">Powered by <img class="jetpack-paypal-button__logo" alt="PayPal" width="42" height="15" src="paypal-wordmark-color.svg"></p>',
-		] );
+		expect( document.querySelector( '.jetpack-paypal-button__attribution' ) ).toContainHTML(
+			'<p class="jetpack-paypal-button__attribution">Powered by <img class="jetpack-paypal-button__logo" src="paypal-wordmark-color.svg" alt="PayPal" width="42" height="15"></p>'
+		);
 	} );
 
 	// The canvas half of what render_api_managed_button() puts on the anchor.

@@ -66,11 +66,11 @@
 		"@wordpress/browserslist-config": "6.57.0",
 		"@wordpress/theme": "2.3.0",
 		"autoprefixer": "10.4.20",
-		"jest-extended": "7.0.0",
+		"babel-jest": "30.5.2",
+		"jest": "30.5.2",
 		"postcss": "8.5.23",
 		"postcss-loader": "8.2.0",
 		"sass-embedded": "1.97.3",
-		"sass-loader": "16.0.5",
-		"typescript": "6.0.3"
+		"sass-loader": "16.0.5"
 	}
 }
