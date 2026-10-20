@@ -5,6 +5,7 @@ import { shield } from '@wordpress/icons';
 import { Button, Card, Link, Notice, Stack, Text } from '@wordpress/ui';
 import { CardRow, ProtectCard, Stat } from '../../components/card';
 import TabLink from '../../components/tab-link';
+import { recordEvent } from '../../data/analytics';
 import { HISTORY_STATUS_PARAM } from '../history/store';
 import SafeState from './safe-state';
 import ScanButton from './scan-button';
@@ -23,6 +24,8 @@ const pollInterval = ( polls: number ) => ( polls < 5 ? 5000 : 15000 );
 // Open Scan history on a given list, not whichever was open last.
 const FIXED_PARAMS = { [ HISTORY_STATUS_PARAM ]: 'fixed' };
 const IGNORED_PARAMS = { [ HISTORY_STATUS_PARAM ]: 'ignored' };
+
+const onGetScan = () => recordEvent( 'jetpack_protect_scan_card_get_scan_link_click' );
 
 // About ten minutes of polling before asking the user to check again.
 const MAX_POLLS = 40;
@@ -107,6 +110,7 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 	}, [ fetchScan ] );
 
 	const startScan = useCallback( () => {
+		recordEvent( 'jetpack_scan_scan_now', { has_plan: hasPlan } );
 		setIsStarting( true );
 		setStartError( null );
 		// With Scan, show the scan as started right away; the free check only re-reads its report.
@@ -267,7 +271,7 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 						) }
 					</Stack>
 				) : (
-					<Link href={ scan.url }>
+					<Link href={ scan.url } onClick={ onGetScan }>
 						{ __(
 							'Get Scan for daily malware scanning and one-click fixes',
 							'jetpack-protect-pkg'

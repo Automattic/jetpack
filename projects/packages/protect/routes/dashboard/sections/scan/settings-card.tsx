@@ -2,7 +2,10 @@ import { __ } from '@wordpress/i18n';
 import { shield } from '@wordpress/icons';
 import { Link, Stack, Text } from '@wordpress/ui';
 import { CardRow, ProtectCard } from '../../components/card';
+import { recordEvent } from '../../data/analytics';
 import type { ScanContext } from './types';
+
+const onGetScan = () => recordEvent( 'jetpack_protect_scan_settings_get_scan_link_click' );
 
 /**
  * The Settings tab's Scan card: Scan has nothing to set here, so it explains and links out.
@@ -31,7 +34,11 @@ export default function ScanSettingsCard( { state: scan }: ScanContext ) {
 									'jetpack-protect-pkg'
 								) }
 					</Text>
-					<Link href={ scan.url } openInNewTab={ scan.hasPlan }>
+					<Link
+						href={ scan.url }
+						openInNewTab={ scan.hasPlan }
+						onClick={ scan.hasPlan ? undefined : onGetScan }
+					>
 						{ scan.hasPlan
 							? __( 'Manage Scan settings', 'jetpack-protect-pkg' )
 							: __(

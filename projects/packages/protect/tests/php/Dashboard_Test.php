@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Protect;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Status\Cache;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -42,6 +43,12 @@ class Dashboard_Test extends BaseTestCase {
 		remove_all_actions( 'doing_it_wrong_run' );
 		remove_all_filters( 'doing_it_wrong_trigger_error' );
 		remove_all_actions( 'admin_enqueue_scripts' );
+		remove_all_filters( 'jetpack_offline_mode' );
+		Cache::clear();
+		\Jetpack_Options::delete_option( 'tos_agreed' );
+		wp_dequeue_script( 'jp-tracks-functions' );
+		wp_deregister_script( 'jp-tracks-functions' );
+		wp_deregister_script( 'jp-tracks' );
 		foreach ( array_keys( Dashboard::MODULE_SECTIONS ) as $module ) {
 			remove_all_filters( Dashboard::CONFIGURATION_URL_FILTER . $module );
 			remove_all_filters( 'jetpack_module_configurable_' . $module );
@@ -228,6 +235,36 @@ class Dashboard_Test extends BaseTestCase {
 		$output = ob_get_clean();
 
 		$this->assertStringContainsString( 'could not be loaded because its assets are missing', $output );
+	}
+
+	/**
+	 * @dataProvider provide_tracking_consent
+	 *
+	 * @param bool $agreed   Whether the site accepted the terms of service.
+	 * @param bool $offline  Whether the site is in offline mode.
+	 * @param bool $expected Whether the Tracks client should load.
+	 */
+	#[DataProvider( 'provide_tracking_consent' )]
+	public function test_enqueue_tracks_loads_the_client_only_when_tracking_is_allowed( $agreed, $offline, $expected ) {
+		\Jetpack_Options::update_option( 'tos_agreed', $agreed );
+		add_filter( 'jetpack_offline_mode', $offline ? '__return_true' : '__return_false' );
+
+		Dashboard::enqueue_tracks();
+
+		$this->assertSame( $expected, wp_script_is( 'jp-tracks-functions', 'enqueued' ) );
+	}
+
+	/**
+	 * Terms of service and offline mode states.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_tracking_consent() {
+		return array(
+			'agreed'         => array( true, false, true ),
+			'not agreed'     => array( false, false, false ),
+			'agreed offline' => array( true, true, false ),
+		);
 	}
 
 	/**

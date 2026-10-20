@@ -8,8 +8,13 @@
 namespace Automattic\Jetpack\Protect;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Protect_Status\Plan;
+use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Terms_Of_Service;
+use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id;
 
@@ -351,6 +356,7 @@ class Dashboard {
 		}
 
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_i18n_loader' ) );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_tracks' ) );
 
 		// wp-build hooks module registration to wp_default_scripts, which has already fired by
 		// admin_menu — call it directly or the init module never reaches the import map.
@@ -408,6 +414,32 @@ class Dashboard {
 	}
 
 	/**
+	 * Whether the site and user allow Tracks, as on Jetpack's other admin pages.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function can_use_analytics() {
+		$tracking = new Tracking( 'jetpack', new Connection_Manager( 'jetpack' ) );
+
+		return $tracking->should_enable_tracking( new Terms_Of_Service(), new Status() );
+	}
+
+	/**
+	 * Enqueue the Tracks client, which the esbuild route bundles don't depend on.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function enqueue_tracks() {
+		if ( self::can_use_analytics() ) {
+			Tracking::register_tracks_functions_scripts( true );
+		}
+	}
+
+	/**
 	 * Add the "Protect" item to the Jetpack sidebar, in place of the Jetpack Protect plugin's.
 	 *
 	 * @return void
@@ -444,6 +476,10 @@ class Dashboard {
 		$render_fn = self::RENDER_FUNCTION;
 		if ( function_exists( $render_fn ) ) {
 			self::print_initial_state();
+			// Tracks reads the WordPress.com user and blog ID from the connection state.
+			if ( self::can_use_analytics() ) {
+				wp_print_inline_script_tag( Connection_Initial_State::render() );
+			}
 			// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- Checked with function_exists(); defined in the generated build/, which Phan excludes.
 			$render_fn();
 			return;

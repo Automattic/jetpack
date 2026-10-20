@@ -2,9 +2,11 @@ import { act, renderHook } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { dispatch, select } from '@wordpress/data';
 import { store as noticesStore } from '@wordpress/notices';
+import { recordSettingEvents } from '../setting-events';
 import useProtectSettings from '../use-protect-settings';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
+jest.mock( '../setting-events', () => ( { recordSettingEvents: jest.fn() } ) );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
@@ -59,15 +61,17 @@ describe( 'useProtectSettings', () => {
 	} );
 
 	it.each( [
-		[ 'confirms a save', Promise.resolve( {} ), [ 'Settings updated.' ] ],
-		[ 'stays quiet when a save fails', Promise.reject( { message: 'Nope' } ), [] ],
-	] )( '%s in a snackbar', async ( _name, post, expected ) => {
+		[ 'confirms a save', Promise.resolve( {} ), [ 'Settings updated.' ], 1 ],
+		[ 'stays quiet when a save fails', Promise.reject( { message: 'Nope' } ), [], 0 ],
+	] )( '%s in a snackbar and Tracks', async ( _name, post, expected, tracked ) => {
 		respondWith( { post } );
+		( recordSettingEvents as jest.Mock ).mockClear();
 		const { result } = renderHook( () => useProtectSettings() );
 
 		await act( () => result.current.save( { list: 'new' } ) );
 
 		expect( snackbars() ).toEqual( expected );
+		expect( recordSettingEvents ).toHaveBeenCalledTimes( tracked );
 	} );
 
 	it.each( [

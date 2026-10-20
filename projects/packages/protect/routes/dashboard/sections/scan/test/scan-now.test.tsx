@@ -1,11 +1,13 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
+import { recordEvent } from '../../../data/analytics';
 import ScanCard from '../scan-card';
 import { setScan } from '../store';
 import type { ScanState } from '../types';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
+jest.mock( '../../../data/analytics', () => ( { recordEvent: jest.fn() } ) );
 jest.mock( '@wordpress/route', () => ( {
 	useSearch: () => ( {} ),
 	useNavigate: () => jest.fn(),
@@ -56,6 +58,12 @@ describe( 'Scan now', () => {
 
 		await expect( screen.findByText( 'Your site is safe right now' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( 'Scanning…' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'records jetpack_scan_scan_now', async () => {
+		await renderAndScan( () => Promise.resolve( report ) );
+
+		expect( recordEvent ).toHaveBeenCalledWith( 'jetpack_scan_scan_now', { has_plan: true } );
 	} );
 
 	it( 'shows why the scan didn’t start, and stops showing it as running', async () => {
