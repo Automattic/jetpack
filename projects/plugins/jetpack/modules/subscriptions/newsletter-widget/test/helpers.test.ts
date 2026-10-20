@@ -8,6 +8,7 @@ import {
 	getSubscriberStatsUrl,
 	formatNumber,
 	calcLeftAxisMargin,
+	getYDomain,
 } from '../src/helpers';
 import type { SubscriberTotalsByDate, ChartSubscriptionDataPoint } from '../src/types';
 
@@ -182,6 +183,23 @@ describe( 'helpers', () => {
 			expect( formatNumber( 1234 ) ).toBe( '1,234' );
 			expect( formatNumber( 1234567 ) ).toBe( '1,234,567' );
 			expect( formatNumber( 0 ) ).toBe( '0' );
+		} );
+	} );
+
+	describe( 'getYDomain', () => {
+		it( 'runs from zero to the largest value across all and paid', () => {
+			const data: ChartSubscriptionDataPoint[] = [
+				{ date: new Date(), all: 100, paid: 200 },
+				{ date: new Date(), all: 300, paid: 50 },
+			];
+			expect( getYDomain( data ) ).toEqual( [ 0, 300 ] );
+		} );
+
+		it( 'treats missing values as zero', () => {
+			const data: ChartSubscriptionDataPoint[] = [
+				{ date: new Date(), all: undefined, paid: null },
+			];
+			expect( getYDomain( data ) ).toEqual( [ 0, 0 ] );
 		} );
 	} );
 
