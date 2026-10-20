@@ -136,6 +136,19 @@ body.toplevel_page_jetpack-protect {
 		font-weight: 500;
 	}
 
+	&__body {
+		display: flex;
+		gap: var(--wpds-dimension-gap-lg);
+		align-items: center;
+		justify-content: space-between;
+
+		// The button drops below the features, aligned with them.
+		@media (max-width: 600px) {
+			flex-direction: column;
+			align-items: flex-start;
+		}
+	}
+
 	&__features {
 		display: grid;
 		flex: 1;
@@ -144,6 +157,7 @@ body.toplevel_page_jetpack-protect {
 
 		@media (max-width: 600px) {
 			grid-template-columns: minmax(0, 1fr);
+			align-self: stretch;
 		}
 	}
 

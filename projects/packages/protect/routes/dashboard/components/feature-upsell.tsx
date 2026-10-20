@@ -10,8 +10,6 @@ type Props = {
 	heading: string;
 	/** Three features, each an icon, a title and a description. */
 	features: [ ReactElement, string, string ][];
-	/** Defaults to "Upgrade". */
-	button?: string;
 	url: string;
 	/** Tracks event prefix; `_view` and `_click` are recorded with `eventProps`. */
 	event: string;
@@ -24,20 +22,12 @@ type Props = {
  * @param props            - Component props.
  * @param props.heading    - The pitch.
  * @param props.features   - What the upgrade adds.
- * @param props.button     - The button's label.
  * @param props.url        - Where the button goes.
  * @param props.event      - Tracks event prefix.
  * @param props.eventProps - Tracks event properties.
  * @return The row.
  */
-export default function FeatureUpsell( {
-	heading,
-	features,
-	button,
-	url,
-	event,
-	eventProps = {},
-}: Props ) {
+export default function FeatureUpsell( { heading, features, url, event, eventProps = {} }: Props ) {
 	// No dependencies: recordViewOnce drops repeats, and eventProps is a new object each render.
 	useEffect( () => recordViewOnce( `${ event }_view`, eventProps ) );
 
@@ -47,7 +37,7 @@ export default function FeatureUpsell( {
 				<Text variant="body-md" className="jp-protect-feature-upsell__heading">
 					{ heading }
 				</Text>
-				<Stack direction="row" gap="lg" align="center" justify="space-between">
+				<div className="jp-protect-feature-upsell__body">
 					<div className="jp-protect-feature-upsell__features">
 						{ features.map( ( [ icon, title, description ] ) => (
 							<Stack key={ title } direction="row" gap="sm" align="start">
@@ -70,9 +60,9 @@ export default function FeatureUpsell( {
 						// eslint-disable-next-line react/jsx-no-bind -- ButtonLink isn't memoized, so a stable handler buys nothing.
 						onClick={ () => recordEvent( `${ event }_click`, eventProps ) }
 					>
-						{ button ?? __( 'Upgrade', 'jetpack-protect-pkg' ) }
+						{ __( 'Upgrade', 'jetpack-protect-pkg' ) }
 					</ButtonLink>
-				</Stack>
+				</div>
 			</Stack>
 		</CardRow>
 	);

@@ -12,21 +12,18 @@ const recordEvent = analytics.tracks.recordEvent as jest.Mock;
 
 describe( 'ScanUpsell', () => {
 	it.each( [
-		[ 3, 3, 'Check my whole site' ],
-		[ 99, 1, 'Upgrade' ],
-	] )(
-		'tags the view and the click with the copy shown (variant %d)',
-		async ( given, shown, button ) => {
-			recordEvent.mockClear();
-			window.localStorage.clear();
-			render( <ScanUpsell variant={ given } url="#buy" /> );
+		[ 3, 3 ],
+		[ 99, 1 ],
+	] )( 'tags the view and the click with the copy shown (variant %d)', async ( given, shown ) => {
+		recordEvent.mockClear();
+		window.localStorage.clear();
+		render( <ScanUpsell variant={ given } url="#buy" /> );
 
-			await userEvent.click( screen.getByRole( 'link', { name: button } ) );
+		await userEvent.click( screen.getByRole( 'link', { name: 'Upgrade' } ) );
 
-			expect( recordEvent.mock.calls ).toEqual( [
-				[ 'jetpack_protect_dashboard_scan_upsell_view', { variant: shown, exposure: 1 } ],
-				[ 'jetpack_protect_dashboard_scan_upsell_click', { variant: shown, exposure: 1 } ],
-			] );
-		}
-	);
+		expect( recordEvent.mock.calls ).toEqual( [
+			[ 'jetpack_protect_dashboard_scan_upsell_view', { variant: shown, exposure: 1 } ],
+			[ 'jetpack_protect_dashboard_scan_upsell_click', { variant: shown, exposure: 1 } ],
+		] );
+	} );
 } );

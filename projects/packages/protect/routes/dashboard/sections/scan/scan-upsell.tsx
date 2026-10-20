@@ -5,8 +5,6 @@ import { loadRotation, nextRotation, saveRotation } from './upsell-rotation';
 
 type Copy = {
 	heading: string;
-	/** Defaults to "Upgrade". */
-	button?: string;
 	/** Malware scanning, one-click fixes and scan history, in that order. */
 	features: [ string, string ][];
 };
@@ -60,7 +58,6 @@ const VARIANTS: Record< number, () => Copy > = {
 			'The free check only looks at your plugin and theme versions',
 			'jetpack-protect-pkg'
 		),
-		button: __( 'Check my whole site', 'jetpack-protect-pkg' ),
 		features: [
 			[
 				__( 'Check every file', 'jetpack-protect-pkg' ),
@@ -158,7 +155,6 @@ const VARIANTS: Record< number, () => Copy > = {
 	} ),
 	8: () => ( {
 		heading: __( 'Know your site is clean, not just up to date', 'jetpack-protect-pkg' ),
-		button: __( 'Get Scan', 'jetpack-protect-pkg' ),
 		features: [
 			[
 				__( 'Daily malware checks', 'jetpack-protect-pkg' ),
@@ -235,7 +231,6 @@ export default function ScanUpsell( { variant = 1, forced = false, url }: Props 
 				title,
 				description,
 			] ) }
-			button={ copy.button }
 			url={ url }
 			event="jetpack_protect_dashboard_scan_upsell"
 			eventProps={ { variant: key, exposure } }
