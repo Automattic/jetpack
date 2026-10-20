@@ -92,16 +92,10 @@ Cookie_Consent::init(
 );
 ```
 
-Turning `tracks` off stops every request the package makes to Automattic for usage stats:
+Turning `tracks` off stops every usage-stats request the package makes to Automattic:
 
-- The cookie-based Tracks events (`stats.wp.com/w.js`), which also need analytics consent.
-- The identity-free aggregate stats (`pixel.wp.com/g.gif`, carrying the site's hostname), sent when:
-  - the banner is shown, including in preview mode;
-  - the visitor saves preferences without analytics ("Accept all" and a save that allows analytics send a Tracks event instead);
-  - the visitor clicks "Reject all";
-  - the visitor clicks "Customize";
-  - the visitor opens "Manage Privacy Preferences" with no stored choice, or with a stored choice that does not allow analytics (otherwise a Tracks event);
-  - the visitor clicks the CCPA opt-out button.
+- Tracks events (`stats.wp.com/w.js`), which also need analytics consent.
+- Identity-free aggregate stats (`pixel.wp.com/g.gif`, with the site's hostname), sent when the banner is shown (preview mode included); on "Reject all", "Customize", or the CCPA opt-out button; on a save without analytics; and when "Manage Privacy Preferences" opens with no stored choice or one without analytics. "Accept all", a save with analytics, and opening "Manage Privacy Preferences" with analytics allowed send a Tracks event instead.
 
 It does not stop the geolocation request (`public-api.wordpress.com/geo/` with the default `wpcom` provider); turn `geo` off for that.
 
@@ -114,9 +108,9 @@ The `banner`, `ccpa_page`, and `footer_links` toggles surface interactive consen
 - **Consent-log POST** is skipped by the frontend when `consent_log` is off (its REST route is not registered), so no consent submission fires a request that 404s; the banner/CCPA UI still works client-side.
 - **Default consent state** (WP Consent API consent type, auto-granted consent in opt-out/unregulated regions, Global Privacy Control handling) is established by the banner flow. A `ccpa_page`-only setup assumes an existing CMP owns those defaults; the opt-out page still records choices through the WP Consent API so such a CMP can pick them up.
 
-A Global Privacy Control (GPC) signal counts as an opt-out wherever the visitor's consent model honors it: always in CCPA regions, and in GDPR regions (including every visitor when `geo` is off) unless `gdpr_honors_gpc` is `false`. It is checked on every page load, not only before a first choice: a returning visitor who allowed optional categories and then turned GPC on is opted out (non-required categories denied, `wp_consent_saved` dispatched with `opt-out`). A stored choice conflicts with GPC when any WP Consent API category mapped to a non-required category is `allow`. A choice the visitor makes while GPC is on (accept, reject, or save in the banner or "Manage Privacy Preferences") is marked with the functional `jetpack_cookie_consent_gpc` cookie, so a visitor who re-grants consent with GPC on keeps that choice. Consent the package grants on its own (`auto_granted`) is never marked, so a GPC visitor auto-granted in a region that ignores GPC is opted out once they load the site from a region that honors it.
+A Global Privacy Control (GPC) signal is an opt-out wherever the visitor's consent model honors it: always in CCPA regions, and in GDPR regions (every visitor when `geo` is off) unless `gdpr_honors_gpc` is `false`. It is checked on every page load: a returning visitor who allowed optional categories and later turned GPC on is opted out (non-required categories denied, `wp_consent_saved` dispatched with `opt-out`). A stored choice conflicts with GPC when any WP Consent API category mapped to a non-required category is `allow`. A choice the visitor makes with GPC on (accept, reject, or save, in the banner or "Manage Privacy Preferences") sets the functional `jetpack_cookie_consent_gpc` cookie and is kept. Package-granted consent (`auto_granted`) never sets it, so a visitor auto-granted where GPC is ignored is opted out on a later load from a region that honors it.
 
-While a stored choice conflicts with GPC, Tracks (w.js) for a returning visitor loads only after the region check: without a network request when `geo` is off or the region is cached in the geo cookies, after the geo lookup otherwise. In a region that does not honor GPC the stored choice is kept and the check runs again on the next load, without a new lookup while the geo cookies last. If the lookup fails with `showOnError` off, the stored choice is kept and Tracks loads when it allows analytics.
+While a stored choice conflicts with GPC, Tracks (w.js) for a returning visitor loads only after the region check: with no network request when `geo` is off or the region is in the geo cookies, otherwise after the geo lookup. Where GPC is not honored the stored choice is kept and rechecked on the next load (no new lookup while the geo cookies last). If the lookup fails with `showOnError` off, the stored choice is kept and Tracks loads when it allows analytics.
 
 #### Nested config groups
 

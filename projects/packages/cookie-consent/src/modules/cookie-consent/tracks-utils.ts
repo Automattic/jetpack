@@ -124,9 +124,7 @@ export function recordEvent( eventNameSuffix: string, properties: TrackingProper
 /**
  * Record an identity-free aggregate stat via g.gif.
  *
- * The stat carries no visitor identity, but it is still a request to an
- * Automattic endpoint with the site's hostname, so it follows the same
- * `features.tracks` flag as cookie-based Tracks events and no-ops when it is off.
+ * Gated on `features.tracks` too: it still sends the site's hostname to Automattic.
  *
  * @param statName Stat name suffix.
  */

@@ -543,10 +543,8 @@ const { actions } = store( 'jetpack/cookie-consent', {
 			// Initialize geolocation (will use cache if already done)
 			const geoData: GeoState = yield actions.initializeGeolocation();
 			if ( null === geoData.countryCode ) {
-				// Geo failed with showOnError off, so whether GPC applies cannot be told. A
-				// returning visitor whose stored choice conflicts with GPC (init only gets here
-				// in that case) keeps that choice, as before GPC was checked on every load, so
-				// Tracks still loads when it allows analytics.
+				// Geo failed (showOnError off), so GPC cannot be resolved: a returning visitor
+				// (here only on a GPC conflict, see init) keeps the stored choice.
 				if (
 					'showBanner' in context &&
 					hasConsentSet() &&
@@ -564,9 +562,7 @@ const { actions } = store( 'jetpack/cookie-consent', {
 			// the flag down rather than skipping the whole call.
 			if ( 'showBanner' in context ) {
 				if ( hasConsentSet() ) {
-					// Returning visitor whose stored consent conflicts with a GPC signal (init
-					// only gets here in that case): opt out where the region honors GPC, then
-					// load Tracks only if analytics is still allowed.
+					// Returning visitor, here only on a GPC conflict (see init).
 					applyGpcToStoredConsent(
 						geoData.countryCode || UNKNOWN_COUNTRY_CODE,
 						geoData.region || '',
@@ -667,8 +663,7 @@ const { actions } = store( 'jetpack/cookie-consent', {
 					}
 					return;
 				}
-				// A stored choice that conflicts with a GPC signal falls through: whether GPC
-				// applies depends on the visitor's region, resolved below.
+				// A stored choice conflicting with GPC falls through to the region check below.
 			}
 
 			if ( 'isGdprManageLink' in context ) {
