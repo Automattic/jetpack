@@ -122,7 +122,7 @@ const OverviewScreen: FC = () => {
 	return (
 		<div className={ styles.root }>
 			{ ! data.plan.seo_enabled_for_site && (
-				<Notice.Root intent="warning">
+				<Notice.Root intent="warning" className={ styles.notice }>
 					<Notice.Description>
 						{ data.conflicting_seo_plugin
 							? sprintf(
