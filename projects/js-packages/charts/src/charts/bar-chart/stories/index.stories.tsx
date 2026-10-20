@@ -937,11 +937,17 @@ export const OverlapLayout: Story = {
 			},
 		],
 	},
+	render: args => (
+		<BarChart
+			{ ...args }
+			legend={ { ...extractLegendConfig( args ), comparisonItem: 'Previous period' } }
+		/>
+	),
 	parameters: {
 		docs: {
 			description: {
 				story:
-					'`layout="overlap"` with two groups. Views and Visitors share the current period\'s slot, with Visitors as the narrower bar in front; Previous views and Previous visitors share the slot beside it. Each slot is toned from its palette color so every bar keeps 3:1 contrast against the background or the bar behind it, and the legend swatches match. With `legend.collapseGroups` each group is one legend item, so hiding Visitors hides Previous visitors too; the other bars keep their slots and widths. Turn the `legendCollapseGroups` control off to list each series alone, in slot order. Arrow keys step one slot at a time.',
+					'`layout="overlap"` with two groups. Views and Visitors share the current period\'s slot, with Visitors as the narrower bar in front; Previous views and Previous visitors share the slot beside it. Each slot is toned from its palette color so every bar keeps 3:1 contrast against the background or the bar behind it, and the legend swatches match. With `legend.collapseGroups` each group is one legend item, so hiding Visitors hides Previous visitors too; the other bars keep their slots and widths. `legend.comparisonItem` names the comparison slot with one static item, in the color of its back bar. Turn the `legendCollapseGroups` control off to list each series alone, in slot order. Arrow keys step one slot at a time.',
 			},
 		},
 	},
