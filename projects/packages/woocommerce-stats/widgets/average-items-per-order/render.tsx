@@ -13,8 +13,14 @@ import { __ } from '@wordpress/i18n';
  */
 import { ReportMetricChart } from '../../src/components/report-metric-chart';
 import { useReportOrders } from '../../src/reports';
-import type { AverageItemsPerOrderAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/**
+ * @property chartType - How the series is drawn. Defaults to `line`.
+ */
+export type AverageItemsPerOrderAttributes = {
+	chartType?: ChartDisplayChartType;
+};
 
 type AverageItemsPerOrderRenderAttributes = AverageItemsPerOrderAttributes &
 	Partial< ReportParamsFieldAttributes >;
