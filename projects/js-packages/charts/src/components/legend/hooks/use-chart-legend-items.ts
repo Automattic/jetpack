@@ -170,17 +170,16 @@ function buildSeriesLegendItem(
 	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode,
 	legendShape?: LegendShape< SeriesData[], number >
 ): BaseLegendItem {
-	const styles = getElementStyles( {
+	const { color, glyph, shapeStyles } = getElementStyles( {
 		data: member.series,
 		index: member.index,
 		legendShape,
 	} );
-	const { glyph, shapeStyles } = styles;
 
 	const baseItem: BaseLegendItem = {
 		label: member.series.label,
 		value: showValues ? member.series.data?.length?.toString() || '0' : '',
-		color: styles.color,
+		color,
 		shapeStyle: shapeStyles,
 		seriesLabels,
 	};
@@ -274,18 +273,13 @@ function buildComparisonLegendItem(
 		return null;
 	}
 
-	const styles = getElementStyles( {
+	const { color, shapeStyles } = getElementStyles( {
 		data: seriesData[ index ],
 		index,
 		legendShape,
 	} );
 
-	return {
-		label,
-		color: styles.color,
-		shapeStyle: styles.shapeStyles,
-		interactive: false,
-	};
+	return { label, color, shapeStyle: shapeStyles, interactive: false };
 }
 
 /**
@@ -316,13 +310,13 @@ function buildPerSeriesComparisonItems(
 			return [];
 		}
 
-		const styles = getElementStyles( { data: series, index, legendShape } );
+		const { color, shapeStyles } = getElementStyles( { data: series, index, legendShape } );
 
 		return [
 			{
 				label: formatLabel( owner.label ),
-				color: styles.color,
-				shapeStyle: styles.shapeStyles,
+				color,
+				shapeStyle: shapeStyles,
 				interactive: false,
 				describesSeries: series.label,
 			},
