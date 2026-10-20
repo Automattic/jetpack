@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { Button, ButtonLink, Text } from '@wordpress/ui';
+import { Button, ButtonLink, Notice, Text } from '@wordpress/ui';
 import { useState } from 'react';
 import { TransferActivationModal } from './activation-modal.tsx';
 import { Callout } from './callout.tsx';
@@ -17,35 +17,41 @@ import type { InitialState } from './types.ts';
  * @return The rendered prompt.
  */
 export function UpgradeScreen( { state }: { state: InitialState } ) {
-	const { icon, illustration, upgrade } = useFeature();
+	const { icon, illustration, upgrade, UpgradeExtra } = useFeature();
 	const { tracksFeatureId, recordTracksEvent } = useTracks();
 	const upsellProps = { upsell_id: tracksFeatureId, upsell_feature_id: tracksFeatureId };
 
 	return (
-		<Callout
-			icon={ icon }
-			title={ upgrade.title }
-			image={ illustration }
-			description={ <Text>{ upgrade.description }</Text> }
-			actions={
-				<>
-					<ViewTracker eventName="calypso_dashboard_upsell_impression" properties={ upsellProps } />
-					<ButtonLink
-						variant="solid"
-						size="compact"
-						href={ state.upgradeUrl }
-						onClick={ () => {
-							recordTracksEvent( 'calypso_dashboard_upsell_click', upsellProps );
-							// Checkout treats any tab with an opener as its popup and won't navigate back.
-							window.opener = null;
-						} }
-					>
-						<ButtonLink.Icon icon={ upsell } />
-						{ __( 'Upgrade plan', 'jetpack-mu-wpcom' ) }
-					</ButtonLink>
-				</>
-			}
-		/>
+		<>
+			<Callout
+				icon={ icon }
+				title={ upgrade.title }
+				image={ illustration }
+				description={ <Text>{ upgrade.description }</Text> }
+				actions={
+					<>
+						<ViewTracker
+							eventName="calypso_dashboard_upsell_impression"
+							properties={ upsellProps }
+						/>
+						<ButtonLink
+							variant="solid"
+							size="compact"
+							href={ state.upgradeUrl }
+							onClick={ () => {
+								recordTracksEvent( 'calypso_dashboard_upsell_click', upsellProps );
+								// Checkout treats any tab with an opener as its popup and won't navigate back.
+								window.opener = null;
+							} }
+						>
+							<ButtonLink.Icon icon={ upsell } />
+							{ __( 'Upgrade plan', 'jetpack-mu-wpcom' ) }
+						</ButtonLink>
+					</>
+				}
+			/>
+			{ UpgradeExtra && <UpgradeExtra state={ state } /> }
+		</>
 	);
 }
 
@@ -84,6 +90,16 @@ export function ActivateScreen( { state }: { state: InitialState } ) {
 				eventName="calypso_dashboard_hosting_feature_activation_impression"
 				properties={ { feature_id: tracksFeatureId } }
 			/>
+			{ state.transferFailed && (
+				<Notice.Root intent="error">
+					<Notice.Description>{ activate.failed }</Notice.Description>
+					<Notice.Actions>
+						<Notice.ActionLink href={ state.supportUrl } openInNewTab>
+							{ __( 'Contact support', 'jetpack-mu-wpcom' ) }
+						</Notice.ActionLink>
+					</Notice.Actions>
+				</Notice.Root>
+			) }
 			<Callout
 				icon={ icon }
 				title={ activate.title }
@@ -95,8 +111,13 @@ export function ActivateScreen( { state }: { state: InitialState } ) {
 					</>
 				}
 				actions={
-					showModalFirst ? (
-						<Button variant="solid" size="compact" onClick={ handleClick }>
+					showModalFirst || state.transferFailed ? (
+						<Button
+							variant="solid"
+							size="compact"
+							disabled={ state.transferFailed }
+							onClick={ handleClick }
+						>
 							{ activate.action }
 						</Button>
 					) : (

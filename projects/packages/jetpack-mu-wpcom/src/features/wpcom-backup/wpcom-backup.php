@@ -22,6 +22,16 @@ class WPCOM_Backup extends WPCOM_Hosting_Feature_Page {
 	const MENU_SLUG = 'jetpack-backup';
 
 	/**
+	 * Filter that switches Backup to wp-admin, shared with the Backup package's dashboard.
+	 */
+	const MODERNIZATION_FILTER = 'rsm_jetpack_ui_modernization_backup';
+
+	/**
+	 * Blog sticker that puts a site back on the legacy Backup experience, shared with the Backup package.
+	 */
+	const LEGACY_DASHBOARD_STICKER = 'use-backup-legacy-dashboard';
+
+	/**
 	 * As declared in routes/wpcom-backup/package.json.
 	 */
 	const WP_BUILD_PAGE = 'wpcom-backup';
@@ -40,6 +50,28 @@ class WPCOM_Backup extends WPCOM_Hosting_Feature_Page {
 	 * Self-serve backups.
 	 */
 	const FEATURE = 'BACKUPS_SELF_SERVE';
+
+	/**
+	 * Whether Backup opens in wp-admin rather than Calypso.
+	 *
+	 * Defaults on unless the site has the legacy dashboard sticker, like the Backup package's dashboard.
+	 *
+	 * @return bool
+	 */
+	public static function is_modernized() {
+		$has_legacy_sticker = wpcom_has_blog_sticker( self::LEGACY_DASHBOARD_STICKER, get_wpcom_blog_id() );
+
+		return (bool) apply_filters( self::MODERNIZATION_FILTER, ! $has_legacy_sticker );
+	}
+
+	/**
+	 * Once modernized, Jetpack > Backup opens this page, so its entry stays in the sidebar.
+	 *
+	 * @return bool
+	 */
+	public static function hides_menu_entry() {
+		return ! self::is_modernized();
+	}
 
 	/**
 	 * Keep the Jetpack plugin's Backup dashboard off a WoA site whose plan lacks backups.

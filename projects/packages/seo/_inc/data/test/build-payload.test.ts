@@ -83,18 +83,12 @@ describe( 'buildCorePayload', () => {
 		expect( buildCorePayload( baseline, local ) ).toEqual( {} );
 	} );
 
-	it( 'sends the whole verification map when any code changed', () => {
-		const baseline = makeSettings();
-		const verification = {
-			google: 'g-code',
-			bing: '',
-			pinterest: '',
-			yandex: 'y-code',
-			facebook: '',
-		};
-		const local = makeSettings( { verification } );
+	it( 'sends only the verification codes that changed, cleared ones included', () => {
+		const codes = { google: 'g-code', bing: 'b-code', pinterest: '', yandex: '', facebook: '' };
+		const baseline = makeSettings( { verification: codes } );
+		const local = makeSettings( { verification: { ...codes, bing: '', yandex: 'y-code' } } );
 		expect( buildCorePayload( baseline, local ) ).toEqual( {
-			verification_services_codes: verification,
+			verification_services_codes: { bing: '', yandex: 'y-code' },
 		} );
 	} );
 
@@ -107,7 +101,7 @@ describe( 'buildCorePayload', () => {
 		} );
 		expect( buildCorePayload( baseline, local ) ).toEqual( {
 			advanced_seo_front_page_description: 'Desc',
-			verification_services_codes: verification,
+			verification_services_codes: { google: 'g' },
 		} );
 	} );
 

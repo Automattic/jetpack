@@ -180,6 +180,7 @@ export function AuthorsLeaderboard( {
 				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 			>
 				<LeaderboardChart
+					chartTitle={ __( 'Popular authors', 'jetpack-premium-analytics-pkg' ) }
 					data={ chartData }
 					withComparison={ withComparison }
 					withOverlayLabel
@@ -188,6 +189,12 @@ export function AuthorsLeaderboard( {
 					dataFormat={ {
 						type: 'number',
 						options: { useMultipliers: true, decimals: 0 },
+					} }
+					columns={ {
+						label: isDrilled
+							? __( 'Posts', 'jetpack-premium-analytics-pkg' )
+							: __( 'Authors', 'jetpack-premium-analytics-pkg' ),
+						metric: 'views',
 					} }
 				/>
 			</WidgetState>

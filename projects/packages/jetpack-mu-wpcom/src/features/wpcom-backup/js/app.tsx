@@ -2,8 +2,20 @@ import { __ } from '@wordpress/i18n';
 import { backup } from '@wordpress/icons';
 import { useMemo } from 'react';
 import { HostingFeaturePage } from '../../wpcom-hosting-feature-page/js/page.tsx';
+import { DownloadPanel } from './download-panel.tsx';
 import { backupsCalloutIllustration } from './illustration.ts';
-import type { FeatureConfig } from '../../wpcom-hosting-feature-page/js/types.ts';
+import type { FeatureConfig, InitialState } from '../../wpcom-hosting-feature-page/js/types.ts';
+
+/**
+ * Offers the backup a reverted transfer left, if there is one.
+ *
+ * @param props       - Component props.
+ * @param props.state - Resolved initial state.
+ * @return The rendered panel, or nothing.
+ */
+function RevertedTransferDownload( { state }: { state: InitialState } ) {
+	return state.hasRevertedTransfer ? <DownloadPanel supportUrl={ state.supportUrl } /> : null;
+}
 
 /**
  * The Backup page's copy, imagery and Tracks IDs.
@@ -32,6 +44,10 @@ function getBackupConfig(): FeatureConfig {
 				'jetpack-mu-wpcom'
 			),
 			action: __( 'Activate backups', 'jetpack-mu-wpcom' ),
+			failed: __(
+				'There was a problem activating backups. Please contact our support team for help.',
+				'jetpack-mu-wpcom'
+			),
 		},
 		inProgress: {
 			title: __( 'Setting up backups', 'jetpack-mu-wpcom' ),
@@ -40,6 +56,7 @@ function getBackupConfig(): FeatureConfig {
 				'jetpack-mu-wpcom'
 			),
 		},
+		UpgradeExtra: RevertedTransferDownload,
 		modal: {
 			blockedTitle: __( 'Backups cannot be activated', 'jetpack-mu-wpcom' ),
 			intro: __(

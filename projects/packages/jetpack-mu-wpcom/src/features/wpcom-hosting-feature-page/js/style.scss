@@ -8,17 +8,35 @@
 	&__stage {
 		display: flex;
 		flex-direction: column;
+		gap: var(--wpds-dimension-gap-xl);
 		align-items: center;
-		justify-content: center;
+		// `safe`: a stack taller than the body scrolls from its top, not clipped.
+		justify-content: safe center;
+		// The page shell does not bound this body, so it scrolls itself.
+		min-height: 0;
+		overflow: auto;
 		padding: var(--wpds-dimension-padding-2xl);
+
+		// 600px is the width the dashboard's full-page wrapper gives its callout;
+		// whatever stacks with it shares that column.
+		> * {
+			flex-shrink: 0;
+			inline-size: 100%;
+			max-inline-size: 600px;
+		}
 	}
 
-	// Ports the dashboard's `.dashboard-callout` rules. 600px is the width its
-	// full-page wrapper gives the callout.
+	// Ports the dashboard's `.dashboard-callout` rules.
 	&__callout {
 		overflow: hidden;
-		max-width: 600px;
-		margin-inline: auto;
+	}
+
+	// Full width in a panel whose other children keep their own. Progress ships a
+	// fixed 160px width for consumers to override.
+	&__download-progress,
+	&__download-error {
+		align-self: stretch;
+		inline-size: auto;
 	}
 
 	&__callout-container {

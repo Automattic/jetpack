@@ -5,6 +5,69 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.0] - 2026-10-19
+### Added
+- Add All time to the report date menu, covering everything since the site's stats began. [#53275]
+- Add the date limits each Stats plan sets, for the dashboard to apply. [#53700]
+- Dashboard: Accept a chart title on the Columns, Donut, Funnel, Leaderboard, Locations and MetricTabsChart widget components through the SDK; the widget contract is 1.13.0. [#53333]
+- Dashboard: add the Columns widget kind, which the revenue by customer type, sales by device, total returns and sales by coupon widgets draw with. [#53464]
+- Dashboard: add the Locations widget kind, which Visitors by location draws with. [#53533]
+- Dashboard: expose the Columns widget kind through the SDK; the widget contract is 1.10.0. [#53476]
+- Dashboard: expose the Locations widget kind through the SDK; the widget contract is 1.11.0. [#53534]
+- Dashboard: Show a notice when the site nears or passes its plan's monthly views limit. [#53401]
+- Dashboard: Thank the reader for their Stats purchase when checkout returns to the dashboard. [#53642]
+- Dashboard sections: Let a section declare the widget types its inserter offers on top of its default layout, filterable by any plugin. [#53720]
+- Dashboard sections: Let a section show a notice above its widgets. [#53602]
+- Detect which paid Stats features the site's plan lacks, and let a widget type declare the plan feature it shows. [#53528]
+- Offer a Create post action in empty Traffic and Popular post widgets when the site has no published posts. [#53414]
+- Offer a URL builder when the selected UTM report has no visits. [#53458]
+- Onboarding: Introduce the WooCommerce tab, with a short version for readers who already went through the onboarding. [#53660]
+- Show locked periods and an upgrade footer in the date picker when given date limits. [#53701]
+- Show paid Stats features as locked, with an upgrade link, on plans that do not include them. [#53584]
+- Widgets: Carry the attributes a widget.json declares through the registry to the dashboard. [#53774]
+
+### Changed
+- Chart legends: Name each metric's comparison period, such as "Views (Prev. 30 days)", in both line and bar charts. [#53457]
+- Charts: Draw tabbed metric charts in the admin color, with the metric paired in the Traffic summary in a darker shade, instead of a different color per metric. [#53453]
+- Explain what Tags & categories shows when the plan locks it. [#53641]
+- Lighten heatmap colors in cards such as Posting activity and Views over years, while keeping low values distinct from empty cells. [#53450]
+- Link a locked feature's WordPress.com support page in the user's language, and fix support links that pointed at sections no longer on the page. [#53643]
+- Metric tabs: Spread the cards evenly over their rows, scale the values with the card width, and show full figures when the cards collapse into a dropdown. [#53708]
+- Move a Top tags & categories tile a reader placed on a customized Insights layout to their Traffic layout, once. [#53381]
+- Open the dashboard on the comparison the reader last applied from the header, including No comparison. [#53591]
+- Reports: fold the Archives tab like the other drilldown reports, with a chevron on each archive type and every row at one weight. [#53731]
+- Settings: Show plan usage in a taller, brand-colored meter. [#53706]
+- Update package dependencies. [#53004]
+- Update package dependencies. [#53806]
+- Widgets: Add a Learn more link to the empty All-time top social media shares widget, and to Subscriber summary when the site has no subscribers yet. [#53541]
+- Widgets: Add column headers naming the rows and the metric to the Insights lists, Top tags & categories, Email breakdown and Top viewed posts. [#53698]
+- Widgets: Name the rows and what the values count above the Traffic tab lists, following the selected view and each drill-down level. [#53697]
+- Widgets: Say that nothing is recorded yet in eight empty Traffic widgets when the site has no views at all, and in Top tags & categories when no post is published, instead of the text about the selected period. [#53542]
+- Widgets: Show the search icon in every empty state, including the detail pages and the widgets that had none, and reword the empty text of several widgets. [#53520]
+- Widgets: Show what the values count above Top pages and Latest emails sent, and the unit in the tooltip of an abbreviated value. [#53696]
+
+### Removed
+- Dashboard: Remove the feature flag that gated adding and removing widgets, which is now always offered. [#53646]
+- Dashboard: Remove the store section feature flag; the WooCommerce tab no longer waits for it on a site that opted in. [#53588]
+- Remove the WooCommerce columns widgets, now built by the WooCommerce Stats package. [#53477]
+- Remove the WooCommerce report client and the store gating: the WooCommerce Stats package owns them. [#53540]
+- Remove the WooCommerce Store visitors by location widget, now built by the WooCommerce Stats package. [#53536]
+
+### Fixed
+- Charts: Paint donut and semi-circle chart tooltips above the center total. [#53449]
+- Charts: Set wrapped legend rows closer together, and space legend items the same way in every chart. [#53703]
+- Fields: Keep text labels of the toggle group on one line. [#53555]
+- Give map, leaderboard and conversion funnel charts an accessible name and role for screen readers. [#53516]
+- Keep a deep link's day interval and date label when its ISO offsets were pasted with an unencoded plus, which the querystring reads as a space. [#53580]
+- Keep conversion funnel bars and empty-state messages visible in one-row widgets. [#53554]
+- Leave averages and the store conversion rate empty in CSV exports for a period without orders or sessions, and let a metric show no value when its report has none. [#53707]
+- Load the author page on sites that block the WordPress users endpoint. [#53473]
+- Metric charts: Hide redundant labels from single-metric widgets whose titles already identify the metric. [#53719]
+- Name each widget chart after its widget, so screen readers can tell the charts on a dashboard apart. [#53333]
+- Show the author's name in the author page breadcrumb. [#53468]
+- Show the new plan and fresh Stats data on the first dashboard load after a Stats purchase. [#53644]
+- WooCommerce tab: Treat a store whose analytics data already finished syncing as synced, instead of reporting a sync error. [#53650]
+
 ## [0.12.0] - 2026-10-12
 ### Added
 - Add a Mark as spam action, with Undo, to the Referrers report. [#53277]
@@ -565,6 +628,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - VideoPress: Add a video detail page with plays leaderboard, video highlights, and embed locations. [#50311] [#50536]
 - WordAds: Add widgets for ads served, average CPM and revenue over time, all-time earnings highlights, and earnings, sponsored content and adjustments history. [#50314] [#50490]
 
+[0.13.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.12.0...0.13.0
 [0.12.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.11.0...0.12.0
 [0.11.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.10.0...0.11.0
 [0.10.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.9.0...0.10.0

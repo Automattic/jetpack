@@ -1,5 +1,5 @@
 import type { Icon } from '@wordpress/ui';
-import type { ComponentProps } from 'react';
+import type { ComponentProps, ComponentType } from 'react';
 
 /**
  * The prompts this page can show. Kept in sync with the STATE_* constants in
@@ -52,6 +52,11 @@ export type InitialState = {
 	warnings: TransferWarning[];
 	upgradeUrl: string;
 	activateUrl: string;
+	supportUrl: string;
+	/** Whether the site's last transfer was reverted, leaving a backup to download. Only in the `upgrade` state. */
+	hasRevertedTransfer: boolean;
+	/** Whether the site's last transfer failed. Only in the `activate` state. */
+	transferFailed: boolean;
 };
 
 /**
@@ -80,11 +85,15 @@ export type FeatureConfig = {
 		description: string;
 		/** Label for the call to action, in the callout and the confirmation modal. */
 		action: string;
+		/** Notice shown when the site's last transfer failed. */
+		failed: string;
 	};
 	inProgress: {
 		title: string;
 		description: string;
 	};
+	/** Rendered below the upgrade prompt, for anything only this feature offers there. */
+	UpgradeExtra?: ComponentType< { state: InitialState } >;
 	modal: {
 		/** Title when the transfer cannot start. */
 		blockedTitle: string;

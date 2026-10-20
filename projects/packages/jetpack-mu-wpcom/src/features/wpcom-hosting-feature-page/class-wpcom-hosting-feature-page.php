@@ -76,14 +76,33 @@ abstract class WPCOM_Hosting_Feature_Page extends WPCOM_WP_Build_Page {
 	 * @return bool
 	 */
 	public static function has_feature() {
-		$feature = '\WPCOM_Features::' . static::FEATURE;
+		return self::site_has_feature( static::FEATURE );
+	}
 
-		if ( '' === static::FEATURE || ! function_exists( 'wpcom_site_has_feature' ) || ! defined( $feature ) ) {
+	/**
+	 * Whether the site's plan includes WordPress.com's Atomic hosting, which these features run on.
+	 *
+	 * @return bool
+	 */
+	public static function has_atomic_feature() {
+		return self::site_has_feature( 'ATOMIC' );
+	}
+
+	/**
+	 * Whether the site's plan includes a WordPress.com feature.
+	 *
+	 * @param string $name Name of a `WPCOM_Features` constant.
+	 * @return bool
+	 */
+	private static function site_has_feature( $name ) {
+		$constant = '\WPCOM_Features::' . $name;
+
+		if ( '' === $name || ! function_exists( 'wpcom_site_has_feature' ) || ! defined( $constant ) ) {
 			return false;
 		}
 
 		// Called without a blog ID: on WoA the local ID is not the WordPress.com one, so wpcom resolves the current site.
-		return (bool) wpcom_site_has_feature( constant( $feature ) );
+		return (bool) wpcom_site_has_feature( constant( $constant ) );
 	}
 
 	/**
@@ -141,9 +160,18 @@ abstract class WPCOM_Hosting_Feature_Page extends WPCOM_WP_Build_Page {
 	public static function register_page() {
 		parent::register_page();
 
-		if ( static::owns_page() ) {
+		if ( static::owns_page() && static::hides_menu_entry() ) {
 			self::hide_menu_entry();
 		}
+	}
+
+	/**
+	 * Whether this page keeps its entry out of the sidebar.
+	 *
+	 * @return bool
+	 */
+	public static function hides_menu_entry() {
+		return true;
 	}
 
 	/**
@@ -179,21 +207,26 @@ abstract class WPCOM_Hosting_Feature_Page extends WPCOM_WP_Build_Page {
 
 		// Only the activation prompt reads eligibility, and both lists come from the
 		// same result, so resolve it once and only for that state.
-		$eligibility = self::STATE_ACTIVATE === $state
+		$eligibility     = self::STATE_ACTIVATE === $state
 			? self::get_eligibility( $blog_id, get_current_user_id() )
 			: null;
-		$warnings    = self::get_transfer_warnings( $eligibility );
+		$warnings        = self::get_transfer_warnings( $eligibility );
+		$transfer_status = self::STATE_IN_PROGRESS === $state ? null : self::get_latest_transfer_status( $blog_id );
 
 		return array(
-			'state'       => $state,
-			'domain'      => $domain,
+			'state'               => $state,
+			'domain'              => $domain,
 			// A null result means the library was unavailable, not that the site
 			// failed a check; let the transfer flow reject it instead.
-			'isEligible'  => null === $eligibility || ! empty( $eligibility['is_eligible'] ),
-			'errors'      => self::get_transfer_errors( $eligibility ),
-			'warnings'    => $warnings,
-			'upgradeUrl'  => static::get_upgrade_url( $domain ),
-			'activateUrl' => static::get_activate_url( $warnings ),
+			'isEligible'          => null === $eligibility || ! empty( $eligibility['is_eligible'] ),
+			'errors'              => self::get_transfer_errors( $eligibility ),
+			'warnings'            => $warnings,
+			'upgradeUrl'          => static::get_upgrade_url( $domain ),
+			'activateUrl'         => static::get_activate_url( $warnings ),
+			'supportUrl'          => self::get_support_url(),
+			// Each applies only to the prompt Calypso pairs it with.
+			'hasRevertedTransfer' => self::STATE_UPGRADE === $state && 'reverted' === $transfer_status,
+			'transferFailed'      => self::STATE_ACTIVATE === $state && 'error' === $transfer_status,
 		);
 	}
 
@@ -226,7 +259,6 @@ abstract class WPCOM_Hosting_Feature_Page extends WPCOM_WP_Build_Page {
 		}
 
 		if ( function_exists( '\A8C\Atomic\has_site_pending_automated_transfer' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only; pending addition to stub-defs.php.
 			if ( \A8C\Atomic\has_site_pending_automated_transfer( $blog_id ) ) {
 				return true;
 			}
@@ -234,11 +266,30 @@ abstract class WPCOM_Hosting_Feature_Page extends WPCOM_WP_Build_Page {
 
 		if ( function_exists( '\A8C\Atomic\is_wpcom_atomic' ) ) {
 			// Second argument includes pending/active/provisioned transfers.
-			// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only; pending addition to stub-defs.php.
 			return (bool) \A8C\Atomic\is_wpcom_atomic( $blog_id, true );
 		}
 
 		return false;
+	}
+
+	/**
+	 * Status of the site's latest transfer to WoA, or null when it has none.
+	 *
+	 * @param int $blog_id Blog ID.
+	 * @return string|null A transfer record status, such as `reverted` or `error`.
+	 */
+	public static function get_latest_transfer_status( $blog_id ) {
+		if ( ! self::load_atomic_lib() || ! function_exists( 'woa_get_latest_transfer' ) ) {
+			return null;
+		}
+
+		$transfer = woa_get_latest_transfer( $blog_id );
+
+		if ( is_wp_error( $transfer ) || ! is_object( $transfer ) || ! isset( $transfer->status ) ) {
+			return null;
+		}
+
+		return (string) $transfer->status;
 	}
 
 	/**
@@ -260,7 +311,6 @@ abstract class WPCOM_Hosting_Feature_Page extends WPCOM_WP_Build_Page {
 			return null;
 		}
 
-		// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only; pending addition to stub-defs.php.
 		return \A8C\Atomic\Eligibility\get_status_for_site( $blog_id, $user_id );
 	}
 
@@ -274,7 +324,8 @@ abstract class WPCOM_Hosting_Feature_Page extends WPCOM_WP_Build_Page {
 		// On WoA the plan is the only question: the site is already on the
 		// infrastructure that runs the feature, so there is nothing to transfer, and
 		// should_register() has already stepped the page aside if it has the plan.
-		if ( ! static::has_feature() || self::is_atomic() ) {
+		// On Simple, activation also needs the hosting platform, as Calypso requires.
+		if ( ! static::has_feature() || ! self::has_atomic_feature() || self::is_atomic() ) {
 			$state = self::STATE_UPGRADE;
 		} elseif ( self::is_transfer_in_progress( $blog_id ) ) {
 			$state = self::STATE_IN_PROGRESS;
@@ -355,6 +406,17 @@ abstract class WPCOM_Hosting_Feature_Page extends WPCOM_WP_Build_Page {
 		}
 
 		return $warnings;
+	}
+
+	/**
+	 * Support's contact page, in the reader's language where WordPress.com has one.
+	 *
+	 * @return string
+	 */
+	public static function get_support_url() {
+		$url = 'https://wordpress.com/help/contact';
+
+		return function_exists( 'localized_wpcom_url' ) ? localized_wpcom_url( $url ) : $url;
 	}
 
 	/**

@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-premium-analytics",
-	"version": "0.12.0",
+	"version": "0.13.0",
 	"private": true,
 	"type": "module",
 	"scripts": {
@@ -98,14 +98,14 @@
 		"@tanstack/react-router": "1.167.1",
 		"@testing-library/dom": "10.4.2",
 		"@testing-library/react": "16.3.3",
-		"@testing-library/user-event": "14.6.7",
+		"@testing-library/user-event": "14.6.8",
 		"@types/jest": "30.0.0",
 		"@types/react": "18.3.31",
 		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"@wordpress/base-styles": "13.3.0",
 		"@wordpress/build": "0.25.0",
 		"browserslist": "4.28.9",
-		"jest": "30.5.1",
+		"jest": "30.5.2",
 		"storybook": "10.4.6",
 		"typescript": "6.0.3"
 	}

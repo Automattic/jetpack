@@ -1,3 +1,4 @@
+import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
 import { speak } from '@wordpress/a11y';
 import { ProgressBar, VisuallyHidden } from '@wordpress/components';
 import { useCallback, useEffect, useState } from '@wordpress/element';
@@ -13,12 +14,23 @@ import {
 	error as errorIcon,
 } from '@wordpress/icons';
 import { Link, useParams } from '@wordpress/route';
-import { Button, Card, EmptyState, ButtonLink, Notice, Spinner, Stack, Text } from '@wordpress/ui';
+import {
+	Button,
+	Card,
+	EmptyState,
+	Link as ExternalLink,
+	ButtonLink,
+	Notice,
+	Spinner,
+	Stack,
+	Text,
+} from '@wordpress/ui';
 import DashboardLayout from '../components/dashboard-layout';
 import ErrorReference from '../components/error-reference';
 import InvalidRewindId from '../components/invalid-rewind-id';
 import RestoreItemsChecklist from '../components/restore-items-checklist';
 import { formatDate, formatDateTime } from '../data/date-format';
+import { useSiteSuffix } from '../hooks/use-connection';
 import { useGateState } from '../hooks/use-gate-state';
 import { useRestore } from '../hooks/use-restore';
 import { useStepFocus } from '../hooks/use-step-focus';
@@ -50,6 +62,7 @@ const STILL_RUNNING_PHASES = new Set( [ 'checking', 'queued', 'progress' ] );
 export default function RestoreScreen() {
 	const { rewindId } = useParams( { from: '/restore/$rewindId' } );
 	const gate = useGateState();
+	const siteSuffix = useSiteSuffix();
 	const [ items, setItems ] = useState( DEFAULT_RESTORE_ITEMS );
 
 	const { state, submit, reset, adopted } = useRestore( rewindId, gate.status === 'ready' );
@@ -365,6 +378,15 @@ export default function RestoreScreen() {
 										__( 'Some items could not be restored.', 'jetpack-backup-pkg' ) }
 								</EmptyState.Description>
 								<ErrorReference { ...state.reference } />
+								<ExternalLink
+									openInNewTab
+									href={ getRedirectUrl(
+										'jetpack-restore-troubleshooting',
+										siteSuffix ? { site: siteSuffix } : {}
+									) }
+								>
+									{ __( 'Learn more', 'jetpack-backup-pkg' ) }
+								</ExternalLink>
 								<EmptyState.Actions>
 									<ButtonLink variant="solid" render={ <Link to="/" /> }>
 										{ __( 'Back to overview', 'jetpack-backup-pkg' ) }

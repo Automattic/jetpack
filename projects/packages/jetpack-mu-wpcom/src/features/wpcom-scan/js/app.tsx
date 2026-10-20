@@ -35,6 +35,10 @@ function getScanConfig(): FeatureConfig {
 				'jetpack-mu-wpcom'
 			),
 			action: __( 'Activate Protect', 'jetpack-mu-wpcom' ),
+			failed: __(
+				'There was a problem activating Protect. Please contact our support team for help.',
+				'jetpack-mu-wpcom'
+			),
 		},
 		inProgress: {
 			title: __( 'Setting up Protect', 'jetpack-mu-wpcom' ),

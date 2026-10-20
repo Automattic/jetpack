@@ -2,7 +2,7 @@ import { AdminPage, ThemeProvider } from '@automattic/jetpack-components';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { recordScreenViewOnce, screenForTab } from '../data/record-seo-event';
+import { recordScreenViewOnce } from '../data/record-seo-event';
 import DashboardNav from './dashboard-nav';
 import '../admin-page-layout.scss';
 import type { SeoTab } from './dashboard-nav';
@@ -41,7 +41,7 @@ interface Props {
  * @return The SEO dashboard page chrome.
  */
 const DashboardPage = ( { active, showFooter = true, flush = false, children }: Props ) => {
-	useEffect( () => recordScreenViewOnce( screenForTab( active ) ), [ active ] );
+	useEffect( () => recordScreenViewOnce( active ), [ active ] );
 
 	return (
 		<ThemeProvider>

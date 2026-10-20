@@ -104,7 +104,7 @@ class Dashboard_Data {
 		return array(
 			'overview' => array( __CLASS__, 'get_overview_data' ),
 			'settings' => array( __CLASS__, 'get_settings_data' ),
-			'ai'       => array( __CLASS__, 'get_ai_data' ),
+			'geo'      => array( __CLASS__, 'get_geo_data' ),
 			'content'  => array( __CLASS__, 'get_content_data' ),
 		);
 	}
@@ -1155,7 +1155,7 @@ class Dashboard_Data {
 	}
 
 	/**
-	 * Build the AI tab's initial state.
+	 * Build the GEO tab's initial state.
 	 *
 	 * The AI SEO Enhancer auto-generates SEO titles/descriptions/alt-text in the
 	 * editor (the generation itself is wpcom/AI-Assistant side); this exposes only
@@ -1172,7 +1172,7 @@ class Dashboard_Data {
 	 *
 	 * @return array
 	 */
-	public static function get_ai_data() {
+	public static function get_geo_data() {
 		$filter_on = (bool) apply_filters( 'ai_seo_enhancer_enabled', true );
 
 		// Jetpack_AI_Settings lives in plugins/jetpack, which bundles this package; guarded

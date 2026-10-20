@@ -2,11 +2,13 @@
  * External dependencies
  */
 import { useStatsEmailSummary, type StatsEmailSummary } from '@jetpack-premium-analytics/data';
-import { Stack, VisuallyHidden } from '@jetpack-premium-analytics/externals';
+import { VisuallyHidden } from '@jetpack-premium-analytics/externals';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import {
 	AbbreviatedValue,
 	formatEmailRate,
+	formatListMetricCount,
+	getListMetricLabel,
 	isEmailRateKnown,
 	LeaderboardSkeleton,
 	MetricList,
@@ -77,22 +79,6 @@ type EmailsListProps = {
 	metric?: EmailMetric;
 };
 
-function labelOpens( opens: number, exactOpens: string ): string {
-	return sprintf(
-		/* translators: %s: number of email opens, e.g. "1,287". */
-		_n( '%s open', '%s opens', opens, 'jetpack-premium-analytics-pkg' ),
-		exactOpens
-	);
-}
-
-function labelClicks( clicks: number, exactClicks: string ): string {
-	return sprintf(
-		/* translators: %s: number of email link clicks, e.g. "190". */
-		_n( '%s click', '%s clicks', clicks, 'jetpack-premium-analytics-pkg' ),
-		exactClicks
-	);
-}
-
 function describeOpens( opens: number, exactOpens: string, rate: string, isRateKnown: boolean ) {
 	if ( ! isRateKnown ) {
 		return sprintf(
@@ -155,7 +141,7 @@ function metricValues( row: EmailRow, metric: EmailMetric ) {
 		return {
 			count: row.clicks,
 			rate,
-			label: labelClicks( row.clicks, exact ),
+			formatRestored: ( full: string ) => formatListMetricCount( 'clicks', row.clicks, full ),
 			description: describeClicks( row.clicks, exact, rate, isEmailRateKnown( signals ) ),
 		};
 	}
@@ -166,7 +152,7 @@ function metricValues( row: EmailRow, metric: EmailMetric ) {
 	return {
 		count: row.opens,
 		rate,
-		label: labelOpens( row.opens, exact ),
+		formatRestored: ( full: string ) => formatListMetricCount( 'opens', row.opens, full ),
 		description: describeOpens( row.opens, exact, rate, isEmailRateKnown( signals ) ),
 	};
 }
@@ -179,7 +165,7 @@ export const EmailsList = ( { rows = [], metric = 'opens' }: EmailsListProps ) =
 	} );
 
 	const items: MetricListItem[] = rows.map( row => {
-		const { count, rate, label, description } = metricValues( row, metric );
+		const { count, rate, formatRestored, description } = metricValues( row, metric );
 
 		return {
 			id: row.id,
@@ -192,19 +178,35 @@ export const EmailsList = ( { rows = [], metric = 'opens' }: EmailsListProps ) =
 					title={ row.label }
 				/>
 			),
-			value: (
-				<>
-					<Stack render={ <span /> } gap="md" aria-hidden="true">
-						<AbbreviatedValue value={ count } dataFormat={ COUNT_FORMAT } restored={ label } />
-						<span className={ styles.rate }>{ rate }</span>
-					</Stack>
+			value: [
+				<span key="count" aria-hidden="true">
+					<AbbreviatedValue
+						value={ count }
+						dataFormat={ COUNT_FORMAT }
+						formatRestored={ formatRestored }
+					/>
+				</span>,
+				<span key="rate">
+					<span className={ styles.rate } aria-hidden="true">
+						{ rate }
+					</span>
 					<VisuallyHidden render={ <span /> }>{ description }</VisuallyHidden>
-				</>
-			),
+				</span>,
+			],
 		};
 	} );
 
-	return <MetricList className={ styles.list } items={ items } />;
+	const columns = {
+		label: __( 'Emails', 'jetpack-premium-analytics-pkg' ),
+		values: [
+			getListMetricLabel( metric ),
+			metric === 'clicks'
+				? __( 'Click rate', 'jetpack-premium-analytics-pkg' )
+				: __( 'Open rate', 'jetpack-premium-analytics-pkg' ),
+		],
+	};
+
+	return <MetricList className={ styles.list } items={ items } columns={ columns } />;
 };
 
 /** Normalize and limit the email summary rows. */

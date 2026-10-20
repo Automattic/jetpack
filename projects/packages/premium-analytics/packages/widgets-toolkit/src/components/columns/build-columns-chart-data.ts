@@ -18,9 +18,9 @@ export type ColumnInput = {
 	value: number;
 	/**
 	 * Figure for the comparison period; `undefined` draws as 0 there while another column carries
-	 * one.
+	 * one, and `null`, a period with no figure for the column, draws no bar.
 	 */
-	previousValue?: number;
+	previousValue?: number | null;
 };
 
 export type ColumnsChartDataOptions = {
@@ -55,13 +55,14 @@ export function buildColumnsChartData(
 		},
 	];
 
-	const comparing = hasComparison && columns.some( column => column.previousValue !== undefined );
+	const comparing =
+		hasComparison && columns.some( column => typeof column.previousValue === 'number' );
 	if ( comparing ) {
 		series.push( {
 			label: labels.comparison,
 			data: columns.map( column => ( {
 				label: column.label,
-				value: column.previousValue ?? 0,
+				value: column.previousValue === null ? null : ( column.previousValue ?? 0 ),
 			} ) ),
 		} );
 	}

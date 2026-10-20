@@ -29,6 +29,9 @@ describe( 'getInitialState', () => {
 			warnings: [],
 			upgradeUrl: 'https://wordpress.com/checkout/example.wordpress.com/business',
 			activateUrl: 'https://wordpress.com/setup/transferring-hosted-site',
+			supportUrl: 'https://wordpress.com/help/contact',
+			hasRevertedTransfer: false,
+			transferFailed: true,
 		};
 
 		localize( state );

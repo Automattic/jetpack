@@ -111,7 +111,7 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_rest_api_endpoints' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_newspack_blocks' ) );
 
-		// At mu-plugin scope, because Comments::is_enabled() is resolved at plugins_loaded on both hosts.
+		// Jetpack builds cut before Jetpack Comments went on by default only load it when this returns true. Remove once Atomic is past them.
 		add_filter( 'jetpack_comments_new_hotness', '__return_true' );
 
 		// These features run only on simple sites.
@@ -414,6 +414,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php';
 		require_once __DIR__ . '/features/wpcom-block-editor/functions.editor-type.php';
 		require_once __DIR__ . '/features/wpcom-dashboard/class-wpcom-dashboard.php';
+		require_once __DIR__ . '/features/wpcom-dashboard-tracks/wpcom-dashboard-tracks.php';
 		require_once __DIR__ . '/features/wpcom-logout/wpcom-logout.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-theme-fixes.php';
 		require_once __DIR__ . '/features/wpcom-post-list/wpcom-post-types-tracking.php';
@@ -850,7 +851,7 @@ class Jetpack_Mu_Wpcom {
 				return;
 			}
 
-			if ( class_exists( '\Automattic\Jetpack\Comments\Comments' ) && \Automattic\Jetpack\Comments\Comments::is_enabled() ) {
+			if ( \Automattic\Jetpack\Comments\Comments::is_enabled() ) {
 				\Automattic\Jetpack\Comments\Comments::init();
 				return;
 			}
@@ -865,15 +866,11 @@ class Jetpack_Mu_Wpcom {
 	 * experience gates. admin-ajax is is_admin(), and a public-api request runs
 	 * plugins_loaded on the wrong blog, so load_verbum_comments() skips both.
 	 * Runs on every request, blog 1 and P2s included, on purpose: the routes
-	 * gate themselves on the feature filter, as Posts_To_Podcast_Endpoint does.
+	 * gate themselves on Comments::is_enabled(), as Posts_To_Podcast_Endpoint does.
 	 */
 	public static function load_jetpack_comments_routes() {
-		if ( class_exists( '\Automattic\Jetpack\Comments\Checkpoint_Endpoint' ) ) {
-			\Automattic\Jetpack\Comments\Checkpoint_Endpoint::init();
-		}
-		if ( class_exists( '\Automattic\Jetpack\Comments\Embeds' ) ) {
-			\Automattic\Jetpack\Comments\Embeds::init();
-		}
+		\Automattic\Jetpack\Comments\Checkpoint_Endpoint::init();
+		\Automattic\Jetpack\Comments\Embeds::init();
 	}
 
 	/**

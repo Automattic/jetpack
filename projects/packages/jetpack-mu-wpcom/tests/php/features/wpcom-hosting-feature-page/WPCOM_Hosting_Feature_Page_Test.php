@@ -48,7 +48,7 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Stand in for wpcom's plan lookup, with a plan that includes nothing, and its
-	 * transfer checks, on a Simple site with no transfer underway.
+	 * transfer checks, on a Simple site that has never transferred.
 	 *
 	 * @return void
 	 */
@@ -57,22 +57,23 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 		// Some earlier suites never tear Brain Monkey down, and a leftover stub would block this one.
 		\Brain\Monkey\tearDown();
 		\Brain\Monkey\setUp();
-		$this->grant_feature( '' );
+		$this->grant_feature();
+		Functions\when( 'woa_get_latest_transfer' )->justReturn( new \WP_Error( 'not_found' ) );
 		Functions\when( 'A8C\Atomic\has_site_pending_automated_transfer' )->justReturn( false );
 		Functions\when( 'A8C\Atomic\is_wpcom_atomic' )->justReturn( false );
 		Functions\when( 'A8C\Atomic\Eligibility\get_status_for_site' )->justReturn( null );
 	}
 
 	/**
-	 * Give the site exactly one plan feature.
+	 * Give the site exactly these plan features.
 	 *
-	 * @param string $granted The feature the plan includes.
+	 * @param string ...$granted The features the plan includes.
 	 * @return void
 	 */
-	private function grant_feature( $granted ) {
+	private function grant_feature( ...$granted ) {
 		Functions\when( 'wpcom_site_has_feature' )->alias(
 			static function ( $feature ) use ( $granted ) {
-				return $granted === $feature;
+				return in_array( $feature, $granted, true );
 			}
 		);
 	}
@@ -118,9 +119,80 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	 */
 	#[DataProvider( 'provide_page_features' )]
 	public function test_simple_site_with_the_plan_is_offered_activation( $page, $feature ) {
-		$this->grant_feature( $feature );
+		$this->grant_feature( \WPCOM_Features::ATOMIC, $feature );
 
 		$this->assertSame( WPCOM_Hosting_Feature_Page::STATE_ACTIVATE, $page::get_state( 1 ) );
+	}
+
+	/**
+	 * Activation needs the plan's hosting platform as well as the feature, as in Calypso.
+	 *
+	 * @param string[] $features Features the site's plan includes.
+	 * @param string   $expected Expected state.
+	 *
+	 * @dataProvider provide_features_and_states
+	 */
+	#[DataProvider( 'provide_features_and_states' )]
+	public function test_state_follows_the_plan_features( array $features, $expected ) {
+		$this->grant_feature( ...$features );
+
+		$this->assertSame( $expected, WPCOM_Backup::get_state( 1 ) );
+	}
+
+	/**
+	 * Feature sets and the state each one resolves to.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_features_and_states() {
+		return array(
+			'atomic only'        => array( array( 'atomic' ), WPCOM_Backup::STATE_UPGRADE ),
+			'backups only'       => array( array( 'backups-self-serve' ), WPCOM_Backup::STATE_UPGRADE ),
+			'atomic and backups' => array( array( 'atomic', 'backups-self-serve' ), WPCOM_Backup::STATE_ACTIVATE ),
+		);
+	}
+
+	/**
+	 * The last-backup download and the failed-transfer notice each belong to one prompt.
+	 *
+	 * @param string[]    $features        Features the site's plan includes.
+	 * @param string|null $status          Latest transfer status, or null for no transfer.
+	 * @param bool        $has_reverted    Expected `hasRevertedTransfer`.
+	 * @param bool        $transfer_failed Expected `transferFailed`.
+	 *
+	 * @dataProvider provide_transfer_statuses
+	 */
+	#[DataProvider( 'provide_transfer_statuses' )]
+	public function test_transfer_flags_follow_the_latest_transfer( array $features, $status, $has_reverted, $transfer_failed ) {
+		$this->grant_feature( ...$features );
+		Functions\when( 'woa_get_latest_transfer' )->justReturn(
+			null === $status ? new \WP_Error( 'not_found' ) : (object) array( 'status' => $status )
+		);
+
+		$state = WPCOM_Backup::get_initial_state();
+
+		$this->assertSame(
+			array( $has_reverted, $transfer_failed ),
+			array( $state['hasRevertedTransfer'], $state['transferFailed'] )
+		);
+	}
+
+	/**
+	 * Plan features, latest transfer status, and the flags they produce.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_transfer_statuses() {
+		$plan = array( 'atomic', 'backups-self-serve' );
+
+		return array(
+			'no transfer'                 => array( array(), null, false, false ),
+			'reverted, upgrade prompt'    => array( array(), 'reverted', true, false ),
+			'reverted, activation prompt' => array( $plan, 'reverted', false, false ),
+			'lossless revert still going' => array( array(), 'reverting', false, false ),
+			'error, activation prompt'    => array( $plan, 'error', false, true ),
+			'error, upgrade prompt'       => array( array(), 'error', false, false ),
+		);
 	}
 
 	/**
@@ -132,7 +204,7 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	 */
 	#[DataProvider( 'provide_transfer_checks' )]
 	public function test_simple_site_with_a_transfer_underway_is_told_to_wait( $check ) {
-		$this->grant_feature( \WPCOM_Features::BACKUPS_SELF_SERVE );
+		$this->grant_feature( \WPCOM_Features::ATOMIC, \WPCOM_Features::BACKUPS_SELF_SERVE );
 		Functions\when( $check )->justReturn( true );
 
 		$this->assertSame( WPCOM_Hosting_Feature_Page::STATE_IN_PROGRESS, WPCOM_Backup::get_state( 1 ) );
@@ -446,6 +518,7 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 			$_GET['page']
 		);
 		Constants::clear_constants();
+		remove_all_filters( WPCOM_Backup::MODERNIZATION_FILTER );
 		WPCOM_Backup::reset();
 		WPCOM_Scan::reset();
 		\Brain\Monkey\tearDown();
@@ -477,23 +550,40 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Hidden by the page itself, since admins without a linked WordPress.com account never
-	 * load the WordPress.com menu that hides the rest of the Jetpack entries.
+	 * load the WordPress.com menu that hides the rest of the Jetpack entries; a modernized
+	 * Backup is what Jetpack > Backup opens, so it stays.
 	 *
-	 * @param string $page Page class.
+	 * @param string $page        Page class.
+	 * @param bool   $modernized  Whether the Backup modernization filter is on.
+	 * @param bool   $hidden      Whether the entry should be hidden.
 	 *
-	 * @dataProvider provide_pages
+	 * @dataProvider provide_sidebar_visibility
 	 */
-	#[DataProvider( 'provide_pages' )]
-	public function test_registered_page_is_hidden_from_the_sidebar( $page ) {
+	#[DataProvider( 'provide_sidebar_visibility' )]
+	public function test_registered_page_sidebar_visibility( $page, $modernized, $hidden ) {
 		global $submenu;
 
 		$this->set_up_admin_menu();
+		add_filter( WPCOM_Backup::MODERNIZATION_FILTER, $modernized ? '__return_true' : '__return_false' );
 
 		$page::register_page();
 
 		$items = array_values( array_filter( $submenu['jetpack'], static fn ( $item ) => $page::MENU_SLUG === $item[2] ) );
 		$this->assertCount( 1, $items );
-		$this->assertSame( 'hide-if-js', $items[0][4] ?? '' );
+		$this->assertSame( $hidden ? 'hide-if-js' : '', $items[0][4] ?? '' );
+	}
+
+	/**
+	 * Each page, the Backup modernization flag, and whether the entry is hidden.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_sidebar_visibility() {
+		return array(
+			'Backup, modernized'      => array( WPCOM_Backup::class, true, false ),
+			'Backup, legacy'          => array( WPCOM_Backup::class, false, true ),
+			'Protect, either setting' => array( WPCOM_Scan::class, true, true ),
+		);
 	}
 
 	/**
@@ -742,7 +832,7 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 		$payload = (array) $this->printed_initial_state();
 
 		$this->assertSame(
-			array( 'state', 'domain', 'isEligible', 'errors', 'warnings', 'upgradeUrl', 'activateUrl' ),
+			array( 'state', 'domain', 'isEligible', 'errors', 'warnings', 'upgradeUrl', 'activateUrl', 'supportUrl', 'hasRevertedTransfer', 'transferFailed' ),
 			array_keys( $payload )
 		);
 		$this->assertSame( WPCOM_Backup::STATE_UPGRADE, $payload['state'] );
@@ -757,7 +847,7 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	public function test_activation_state_carries_the_transfer_eligibility() {
 		$this->set_up_admin_menu();
 		$this->set_up_backup_request();
-		$this->grant_feature( \WPCOM_Features::BACKUPS_SELF_SERVE );
+		$this->grant_feature( \WPCOM_Features::ATOMIC, \WPCOM_Features::BACKUPS_SELF_SERVE );
 		Functions\when( 'A8C\Atomic\Eligibility\get_status_for_site' )->justReturn(
 			array(
 				'is_eligible' => false,
@@ -795,7 +885,7 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	public function test_activation_state_assumes_eligible_when_eligibility_is_unknown() {
 		$this->set_up_admin_menu();
 		$this->set_up_backup_request();
-		$this->grant_feature( \WPCOM_Features::BACKUPS_SELF_SERVE );
+		$this->grant_feature( \WPCOM_Features::ATOMIC, \WPCOM_Features::BACKUPS_SELF_SERVE );
 		WPCOM_Backup::register_page();
 
 		$payload = (array) $this->printed_initial_state();

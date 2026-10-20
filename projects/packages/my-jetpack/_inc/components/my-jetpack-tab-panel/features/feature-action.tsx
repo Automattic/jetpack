@@ -1,8 +1,9 @@
 import { LoadingPlaceholder } from '@automattic/jetpack-components';
 import { FormToggle } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Button, ButtonLink } from '@wordpress/ui';
 import { useCallback } from 'react';
+import { getProtectPageUrl } from '../../../utils/protect-page';
 import { ModuleToggle } from '../../module-toggle';
 import { getSwitchLabel } from '../utils';
 import { getFeatureManageUrl, getForcedReason } from './feature-state';
@@ -154,6 +155,28 @@ export function FeatureAction( { state, describedby, origin = 'card' }: FeatureA
 		case 'module': {
 			if ( getForcedReason( state ) ) {
 				return null;
+			}
+
+			const protectPageUrl = getProtectPageUrl( control.module.module );
+			if ( protectPageUrl ) {
+				return (
+					<ButtonLink
+						href={ protectPageUrl }
+						variant="outline"
+						size="compact"
+						aria-label={ sprintf(
+							/* translators: %s is the feature name. "Protect" is a product name. */
+							__( 'Manage %s in Protect', 'jetpack-my-jetpack' ),
+							feature.name
+						) }
+						aria-describedby={ describedby }
+					>
+						{
+							/* translators: "Protect" is a product name. */
+							__( 'Manage in Protect', 'jetpack-my-jetpack' )
+						}
+					</ButtonLink>
+				);
 			}
 
 			return (

@@ -18,7 +18,7 @@ type OrderAttributionInterval = {
 };
 
 type OrderAttributionPeriod = {
-	value: string;
+	value: string | null;
 	intervals: OrderAttributionInterval[];
 };
 
@@ -36,7 +36,8 @@ type SanitizedOrderAttributionInterval = {
 };
 
 type SanitizedOrderAttributionPeriod = {
-	value: number;
+	/** Null when the period has no figure for the item. */
+	value: number | null;
 	intervals: SanitizedOrderAttributionInterval[];
 };
 
@@ -71,7 +72,7 @@ function sanitizeOrderAttributionPeriod(
 	zone: string
 ): SanitizedOrderAttributionPeriod {
 	return {
-		value: sanitizeStringNumber( period.value ),
+		value: period.value === null ? null : sanitizeStringNumber( period.value ),
 		intervals: period.intervals.map( interval =>
 			sanitizeOrderAttributionInterval( interval, zone )
 		),

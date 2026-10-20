@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Widgets: Say when the site has no subscribers yet in the empty Subscriber summary widget, with a Learn more link.

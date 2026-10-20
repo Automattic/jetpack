@@ -57,6 +57,8 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 		.LOCATIONS_GEO_MODES,
 	getLocationColumnLabel: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' )
 		.getLocationColumnLabel,
+	getLocationsSectionLabel: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' )
+		.getLocationsSectionLabel,
 	locationsCsvExporter: jest.fn(
 		jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ).locationsCsvExporter
 	),

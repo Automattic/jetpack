@@ -15,6 +15,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
+use Automattic\Jetpack\Plugin\Unavailable_Blocks;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -916,9 +917,14 @@ class Jetpack_Gutenberg {
 			$modules              = $module_list_endpoint->get_modules();
 		}
 
+		// WordPress.com Simple can load this class without the plugin's autoloaded classes.
+		$available_blocks = class_exists( Unavailable_Blocks::class )
+			? Unavailable_Blocks::describe_inactive_modules( self::get_availability() )
+			: self::get_availability();
+
 		$jetpack_plan  = Jetpack_Plan::get();
 		$initial_state = array(
-			'available_blocks' => self::get_availability(),
+			'available_blocks' => $available_blocks,
 			'blocks_variation' => $blocks_variation,
 			'modules'          => $modules,
 			'jetpack'          => array(
