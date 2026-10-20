@@ -5,7 +5,7 @@
  * @package automattic/jetpack-backup-plugin
  */
 
-namespace Automattic\Jetpack\Backup\V0005\REST;
+namespace Automattic\Jetpack\Backup\V0006\REST;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -22,7 +22,7 @@ require_once __DIR__ . '/trait-wpcom-request-mock.php';
 /**
  * Tests for the GET /jetpack/v4/backups/sizes route.
  *
- * @covers \Automattic\Jetpack\Backup\V0005\REST\Backup_Sizes_Bridge
+ * @covers \Automattic\Jetpack\Backup\V0006\REST\Backup_Sizes_Bridge
  */
 #[CoversClass( Backup_Sizes_Bridge::class )]
 class Rest_Backup_Sizes_Bridge_Test extends TestCase {

@@ -6,7 +6,7 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Backup\V0005\Helper_Script_Manager;
+use Automattic\Jetpack\Backup\V0006\Helper_Script_Manager;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );

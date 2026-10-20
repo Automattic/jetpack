@@ -5,7 +5,7 @@
  * @package automattic/jetpack-backup-plugin
  */
 
-namespace Automattic\Jetpack\Backup\V0005\REST;
+namespace Automattic\Jetpack\Backup\V0006\REST;
 
 use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use WP_Error;

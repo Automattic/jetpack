@@ -9,9 +9,9 @@
 // order to ensure that the specific version of this file always get loaded. Otherwise, Jetpack autoloader might decide
 // to load an older/newer version of the class (if, for example, both the standalone and bundled versions of the plugin
 // are installed, or in some other cases).
-namespace Automattic\Jetpack\Backup\V0005;
+namespace Automattic\Jetpack\Backup\V0006;
 
-use Automattic\Jetpack\Backup\V0005\REST\Wpcom_Request_Mock;
+use Automattic\Jetpack\Backup\V0006\REST\Wpcom_Request_Mock;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -92,7 +92,7 @@ class REST_Controller_Test extends TestCase {
 		$this->was_using_ext_object_cache = wp_using_ext_object_cache();
 
 		// Register REST routes.
-		add_action( 'rest_api_init', array( 'Automattic\\Jetpack\\Backup\\V0005\\REST_Controller', 'register_rest_routes' ) );
+		add_action( 'rest_api_init', array( 'Automattic\\Jetpack\\Backup\\V0006\\REST_Controller', 'register_rest_routes' ) );
 
 		do_action( 'rest_api_init' );
 	}

@@ -23,10 +23,10 @@ if ( function_exists( 'add_filter' ) ) {
 }
 
 // Clean up expired Helper Scripts from a scheduled event.
-$add_action( 'jetpack_backup_cleanup_helper_scripts', array( 'Automattic\\Jetpack\\Backup\\V0005\\Helper_Script_Manager', 'cleanup_expired_helper_scripts' ) );
+$add_action( 'jetpack_backup_cleanup_helper_scripts', array( 'Automattic\\Jetpack\\Backup\\V0006\\Helper_Script_Manager', 'cleanup_expired_helper_scripts' ) );
 
 // Register REST routes.
-$add_action( 'rest_api_init', array( 'Automattic\\Jetpack\\Backup\\V0005\\REST_Controller', 'register_rest_routes' ) );
+$add_action( 'rest_api_init', array( 'Automattic\\Jetpack\\Backup\\V0006\\REST_Controller', 'register_rest_routes' ) );
 
 // Set up package version hook.
 $add_filter( 'jetpack_package_versions', 'Automattic\\Jetpack\\Backup\\Package_Version::send_package_version_to_tracker' );
@@ -42,10 +42,10 @@ $add_action(
 		if ( ! apply_filters( 'jetpack_wp_abilities_enabled', false ) ) {
 			return;
 		}
-		if ( ! class_exists( \Automattic\Jetpack\Backup\V0005\Abilities\Backup_Abilities::class ) ) {
+		if ( ! class_exists( \Automattic\Jetpack\Backup\V0006\Abilities\Backup_Abilities::class ) ) {
 			return;
 		}
-		\Automattic\Jetpack\Backup\V0005\Abilities\Backup_Abilities::init();
+		\Automattic\Jetpack\Backup\V0006\Abilities\Backup_Abilities::init();
 	},
 	20
 );

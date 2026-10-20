@@ -5,7 +5,7 @@
  * @package automattic/jetpack-backup
  */
 
-namespace Automattic\Jetpack\Backup\V0005\Abilities;
+namespace Automattic\Jetpack\Backup\V0006\Abilities;
 
 use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
@@ -16,7 +16,7 @@ use WorDBless\BaseTestCase;
 use WP_Error;
 
 /**
- * @covers \Automattic\Jetpack\Backup\V0005\Abilities\Backup_Abilities
+ * @covers \Automattic\Jetpack\Backup\V0006\Abilities\Backup_Abilities
  */
 #[CoversClass( Backup_Abilities::class )]
 class Backup_Abilities_Test extends BaseTestCase {
