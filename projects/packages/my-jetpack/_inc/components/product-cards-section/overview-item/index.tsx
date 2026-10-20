@@ -58,7 +58,7 @@ const useStatusBadge = ( slug: JetpackModuleWithCard ): OverviewItemBadge => {
 	} = useProductsByOwnership();
 	const status = detail?.status;
 	const isOwned = !! ownedProducts?.includes( slug );
-	// As on the Protect card, threats found don't make Protect "need attention".
+	// Protect reports found threats as "needs attention", but its value already shows them.
 	const suppressNeedsAttention = slug === PRODUCT_SLUGS.PROTECT;
 
 	return {
