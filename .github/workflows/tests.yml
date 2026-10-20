@@ -94,7 +94,7 @@ jobs:
 
       - name: Monorepo install
         run: |
-          if [[ "$WITH_REACT_VERSION" =~ /^[0-9]+$/ ]]; then
+          if [[ "$WITH_REACT_VERSION" =~ ^[0-9]+$ ]]; then
             echo "Overriding React version to $WITH_REACT_VERSION"
             sed -i -e 's/^const withReactVersion = undefined;$/const withReactVersion = '"$WITH_REACT_VERSION"';/' .pnpmfile.cjs
             echo "::group::Pnpm update"
