@@ -8,22 +8,6 @@ import { nextProcessingPoll, type ProcessingPollAnchor } from '../utils/processi
 import type { LibraryItem, LibraryItemPrivacy } from '../types/library';
 import type { View } from '@wordpress/dataviews';
 
-export {
-	privacyIntToString,
-	privacyStringToInt,
-	toLibraryItem,
-	type ApiMediaItem,
-} from '../utils/library-item';
-export {
-	LIBRARY_POLL_INTERVAL_MS,
-	PROCESSING_POLL_BACKOFF_MS,
-	PROCESSING_POLL_MAX_MS,
-	PROCESSING_POLL_SLOW_INTERVAL_MS,
-	libraryRefetchInterval,
-	nextProcessingPoll,
-	type ProcessingPollAnchor,
-} from '../utils/processing-poll';
-
 const REST_PATH = '/wp/v2/media';
 
 type PaginationInfo = { totalItems: number; totalPages: number };
