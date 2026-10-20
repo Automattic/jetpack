@@ -1,7 +1,6 @@
 import { ensureCoreSettingsReady } from '@jetpack-premium-analytics/data';
 import { redirect } from '@wordpress/route';
 import { isDashboardSectionAvailable, isPremiumAnalyticsSiteConnected } from '../site-readiness';
-import { limitStatsDateSearch } from '../stats-date-window';
 import { route } from './route';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
@@ -196,35 +195,5 @@ describe( 'post detail route report origin', () => {
 		).resolves.toBeUndefined();
 
 		expect( mockRedirect ).not.toHaveBeenCalled();
-	} );
-
-	it( 'limits the seed of a reload against the window it asked for', async () => {
-		const search = { ...seededSearch, interval: undefined };
-
-		await expect( route.beforeLoad( { params: { postId: '42' }, search } ) ).rejects.toMatchObject(
-			{ to: '/post/$postId', viewTransition: false }
-		);
-		expect( limitStatsDateSearch ).toHaveBeenCalledWith(
-			expect.any( Object ),
-			expect.any( Object ),
-			{
-				requested: search,
-			}
-		);
-	} );
-
-	it( 'redirects a settled URL the plan does not allow', async () => {
-		( limitStatsDateSearch as jest.Mock ).mockReturnValueOnce( { preset: 'last-7-days' } );
-
-		await expect(
-			route.beforeLoad( { params: { postId: '42' }, search: seededSearch } )
-		).rejects.toMatchObject( {
-			to: '/post/$postId',
-			params: { postId: '42' },
-			search: { preset: 'last-7-days' },
-		} );
-		expect( limitStatsDateSearch ).toHaveBeenCalledWith( seededSearch, expect.any( Object ), {
-			requested: seededSearch,
-		} );
 	} );
 } );

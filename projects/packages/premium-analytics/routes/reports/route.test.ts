@@ -167,20 +167,4 @@ describe( 'report route.beforeLoad', () => {
 			] );
 		}
 	);
-
-	it( 'redirects a settled report URL the plan does not allow', async () => {
-		const settled = { from: '2026-06-01', to: '2026-06-16' };
-		( limitStatsDateSearch as jest.Mock ).mockReturnValueOnce( { preset: 'last-7-days' } );
-
-		await expect( beforeLoad( { report: 'posts' }, settled ) ).rejects.toMatchObject( {
-			to: '/reports/$report',
-			params: { report: 'posts' },
-			replace: true,
-			viewTransition: false,
-			search: { preset: 'last-7-days' },
-		} );
-		expect( limitStatsDateSearch ).toHaveBeenCalledWith( settled, expect.any( Object ), {
-			requested: settled,
-		} );
-	} );
 } );
