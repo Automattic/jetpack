@@ -191,6 +191,8 @@ Every record says where its bundles' catalogs live. `routes/widget-module-i18n.t
 
 `createWidgetModuleResolver()` caches the record's manifest by URL once (`loadI18nManifest()` in wp-build-polyfills) and loads the bundle's catalog under the record's `textdomain` before importing. The metadata bundles are preloaded the same way. A record without a text domain is treated as the package's own.
 
+The `widget.json` strings take the PHP lane instead: the registry translates them at hydration with the contexts in `src/widget-i18n.json`, and `emit-widget-strings` (wp-build-polyfills) writes `build/widgets/widget-strings.php` at build time, one `_x()` per value with that context and the widget's text domain, so extraction sees them. Nothing loads the file. A package whose widgets register through this registry runs the bin against this package's schema.
+
 What the catalog load hashes is the bundle path relative to the plugin, the way WordPress names JS translation files. A package vendored inside a plugin therefore needs its text domain aliased in the plugin's `i18n-map.php`, as this package's is.
 
 ## From the registry to the client
@@ -331,4 +333,3 @@ The widget folder, its default instance in Traffic, its entry in `VIDEOPRESS_WID
 - Stories for a plugin's widgets, and a jest harness that renders the real SDK: the Ads and VideoPress widgets left this package's Storybook with their move. The SDK module has no implementation outside the dashboard, so a consumer's suite stands in for it and asserts on what the widget hands over, as the Top videos suite does.
 - Precise types for the SDK: `projects/js-packages/premium-analytics-sdk` declares its exports loosely until a build step emits them from the facade.
 - A migration for a rename that also changes attributes, the `deprecated` equivalent of blocks, and the upstream ask: `@wordpress/widget-primitives` knows neither former names nor deprecations.
-- The metadata strings of `widget.json`, which reach no catalog in any package until the strings stub ships.
