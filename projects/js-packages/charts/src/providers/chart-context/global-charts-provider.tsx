@@ -31,6 +31,7 @@ import {
 	LABEL_FALLBACK,
 	LABEL_INVERSE_FALLBACK,
 } from './private/catalog-pointers';
+import { getGroupedBarColors } from './private/grouped-bars';
 import { getOverlapBarColors } from './private/overlap-bars';
 import { createPaletteGenerator } from './private/palette-generator';
 import { resolveOpaqueHex } from './private/resolve-opaque-hex';
@@ -261,7 +262,10 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 			const colors = series.map( ( data, index ) => getElementStyles( { data, index } ).color );
 
 			if ( layout !== 'overlap' ) {
-				return colors;
+				// The deprecated comparison opacity keeps the translucent bars in their series colors.
+				return providerTheme.barChart?.barStyles?.comparison?.opacity === undefined
+					? getGroupedBarColors( series, colors, colorCache.background )
+					: colors;
 			}
 
 			return getOverlapBarColors(
@@ -271,7 +275,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 				colorCache.background
 			);
 		},
-		[ getElementStyles, colorCache.background ]
+		[ getElementStyles, colorCache.background, providerTheme ]
 	);
 
 	// Keep hidden-series updates and no-op detection consistent across setters.

@@ -49,14 +49,16 @@ export interface ChartLegendOptions {
 }
 
 /**
- * Wraps `getElementStyles` so a swatch takes its bar's color, opaque as the bar is.
+ * Wraps `getElementStyles` so a swatch takes its bar's color. Overlap bars are always opaque, so their swatches are too.
  * @param getElementStyles - Function to get element styles
  * @param barColors        - Each series' bar color, by index
+ * @param barLayout        - The layout the bars are drawn in
  * @return Element styles with the bar's color
  */
 function withBarColors(
 	getElementStyles: ( params: GetElementStylesParams ) => ElementStyles,
-	barColors: string[]
+	barColors: string[],
+	barLayout: BarChartLayout
 ): ( params: GetElementStylesParams ) => ElementStyles {
 	return params => {
 		const styles = getElementStyles( params );
@@ -64,7 +66,10 @@ function withBarColors(
 		return {
 			...styles,
 			color: barColors[ params.index ] ?? styles.color,
-			shapeStyles: { ...styles.shapeStyles, opacity: undefined },
+			shapeStyles:
+				barLayout === 'overlap'
+					? { ...styles.shapeStyles, opacity: undefined }
+					: styles.shapeStyles,
 		};
 	};
 }
@@ -364,6 +369,27 @@ function inSlotOrder( seriesData: SeriesData[], items: BaseLegendItem[] ): BaseL
 }
 
 /**
+ * Colors each collapsed group's swatch as its comparison bar, the wider bar that frames the group, when it has one.
+ * @param seriesData - The series the items were built from
+ * @param items      - The collapsed legend items
+ * @param barColors  - Each series' bar color, by index
+ * @return The legend items, recolored
+ */
+function inComparisonTints(
+	seriesData: SeriesData[],
+	items: BaseLegendItem[],
+	barColors: string[]
+): BaseLegendItem[] {
+	return items.map( item => {
+		const comparisonIndex = seriesData.findIndex(
+			series => series.options?.type === 'comparison' && item.seriesLabels?.includes( series.label )
+		);
+
+		return comparisonIndex === -1 ? item : { ...item, color: barColors[ comparisonIndex ] };
+	} );
+}
+
+/**
  * Processes point data into legend items
  * @param pointData          - The point data to process
  * @param getElementStyles   - Function to get element styles
@@ -441,9 +467,10 @@ export function useChartLegendItems<
 		if ( 'data' in data[ 0 ] ) {
 			const seriesData = data as SeriesData[];
 			const barColors = barLayout && getBarColors?.( seriesData, { layout: barLayout } );
-			const getElementStyles = barColors
-				? withBarColors( getSeriesStyles, barColors )
-				: getSeriesStyles;
+			const getElementStyles =
+				barLayout && barColors
+					? withBarColors( getSeriesStyles, barColors, barLayout )
+					: getSeriesStyles;
 			const seriesItems = processSeriesData(
 				seriesData,
 				getElementStyles,
@@ -454,10 +481,12 @@ export function useChartLegendItems<
 				renderGlyph,
 				legendShape
 			);
-			const items =
-				barLayout === 'overlap' && ! collapseGroups
-					? inSlotOrder( seriesData, seriesItems )
-					: seriesItems;
+			let items = seriesItems;
+			if ( barLayout === 'overlap' && ! collapseGroups ) {
+				items = inSlotOrder( seriesData, seriesItems );
+			} else if ( barLayout === 'grouped' && collapseGroups && barColors ) {
+				items = inComparisonTints( seriesData, seriesItems, barColors );
+			}
 
 			if ( comparisonSeriesItems ) {
 				return [

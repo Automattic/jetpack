@@ -306,11 +306,14 @@ export type SeriesData = {
 
 /**
  * Visual styling for a bar series of a given semantic type (e.g. 'comparison').
- * `widthFactor` is the bar width relative to the primary bar slot (1.5 = 150%);
- * `opacity` sets the shadow translucency.
+ * `widthFactor` is the bar width relative to the primary bar slot (1.5 = 150%).
  */
 export type BarStyles = {
 	widthFactor?: number;
+	/**
+	 * Draws the comparison bar translucent, in its primary's color, instead of the opaque tones the chart picks.
+	 * @deprecated Comparison bars are opaque. Leave this unset; set the comparison series' `options.stroke` for a color of its own.
+	 */
 	opacity?: number;
 };
 

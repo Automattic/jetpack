@@ -191,18 +191,19 @@ export function ComparativeBarChart( {
 		[ isEmptyData, tooltipExtras ]
 	);
 
-	// Grouped, a comparison shares its primary's color and only the theme's opacity sets its swatch apart. Overlap bars are opaque and toned apart.
+	// Each swatch takes the color its bar is drawn in, and a grouped comparison the theme's deprecated opacity when set.
 	const seriesStyles = useMemo< TooltipStyle[] >( () => {
-		const overlapColors =
-			overlapLayout && getBarColors?.( alignedSeries, { layout: overlapLayout } );
+		const barColors = getBarColors?.( alignedSeries, { layout: layout ?? 'grouped' } );
 
 		return alignedSeries.map( ( seriesData, index ) => {
 			const { color, barStyles } = getElementStyles( { data: seriesData, index } );
-			return overlapColors
-				? { stroke: overlapColors[ index ] }
-				: { stroke: color, opacity: barStyles?.opacity };
+			const style = { stroke: barColors?.[ index ] ?? color };
+
+			return overlapLayout || barStyles?.opacity === undefined
+				? style
+				: { ...style, opacity: barStyles.opacity };
 		} );
-	}, [ alignedSeries, getElementStyles, getBarColors, overlapLayout ] );
+	}, [ alignedSeries, getElementStyles, getBarColors, layout, overlapLayout ] );
 
 	// Multipliers keep the tick labels short.
 	const yTickFormat = useMemo(
@@ -231,7 +232,7 @@ export function ComparativeBarChart( {
 		legendInteractive,
 		comparisonLabel,
 		undefined,
-		overlapLayout,
+		layout ?? 'grouped',
 		primarySeries
 	);
 	// Overlap paints the previous period as one slot, so one item names it, in the color of its widest shown bar.

@@ -422,9 +422,13 @@ describe( 'useChartLegendItems', () => {
 		} );
 
 		test.each( [
-			[ 'keeps the series colors, comparisons translucent,', undefined, 'grouped', 0.5 ],
-			[ 'takes the opaque overlap bar colors', 'overlap', 'overlap', undefined ],
-		] as const )( '%s with barLayout %s', ( _case, barLayout, colorLayout, comparisonOpacity ) => {
+			[
+				'takes the grouped comparison tints, a collapsed group in its comparison tint,',
+				'grouped',
+				[ 1, 3, 1, 3 ],
+			],
+			[ 'takes the opaque overlap bar colors', 'overlap', [ 0, 2, 1, 3 ] ],
+		] as const )( '%s with barLayout %s', ( _case, barLayout, colorOrder ) => {
 			const { result } = renderHook(
 				() => ( {
 					items: useChartLegendItems( twoMetricData, {
@@ -437,12 +441,12 @@ describe( 'useChartLegendItems', () => {
 				{ wrapper }
 			);
 			const colors =
-				result.current.context.getBarColors?.( twoMetricData, { layout: colorLayout } ) ?? [];
+				result.current.context.getBarColors?.( twoMetricData, { layout: barLayout } ) ?? [];
 
 			expect( result.current.items.map( item => item.color ) ).toEqual(
-				[ 0, 2, 1, 3 ].map( index => colors[ index ] )
+				colorOrder.map( index => colors[ index ] )
 			);
-			expect( result.current.items[ 2 ].shapeStyle?.opacity ).toBe( comparisonOpacity );
+			expect( result.current.items[ 2 ].shapeStyle?.opacity ).toBeUndefined();
 		} );
 
 		test.each( [

@@ -74,7 +74,7 @@ interface GlobalChartsContextValue {
 
 | Member | Note |
 | ------ | ---- |
-| `getBarColors` | The colors `BarChart` fills these series with in a `layout`, by index, so a custom tooltip or legend can match the bars. For `grouped` (the default) each is the series' `color`. For `overlap`, see [the bar chart's overlap layout](./?path=/docs/js-packages-charts-library-charts-bar-chart--docs#overlap-layout). Optional on the type, so a hand-built context value without it still type-checks; `GlobalChartsProvider` always supplies it. |
+| `getBarColors` | The colors `BarChart` fills these series with in a `layout`, by index, so a custom tooltip or legend can match the bars. For `grouped` (the default), a paired comparison takes an opaque tint of its primary's color and the primary a shade that keeps 3:1 against it; see [comparison mode](./?path=/docs/js-packages-charts-library-charts-bar-chart--docs#comparison-mode). For `overlap`, see [the bar chart's overlap layout](./?path=/docs/js-packages-charts-library-charts-bar-chart--docs#overlap-layout). Optional on the type, so a hand-built context value without it still type-checks; `GlobalChartsProvider` always supplies it. |
 | `seedChartHiddenSeries` | Backs the `defaultHiddenSeries` prop. The provider records which chart IDs it has seeded, so a chart that unmounts and comes back keeps whatever the reader had shown or hidden. |
 | `isColorPaletteResolved` | `false` until the color cache has resolved from the DOM and painted. Use it to defer transitions that would otherwise interpolate from a fallback color. |
 | `formatting` | `{ locale?: string; timeZone?: string }`, from the provider's props. Read it with `useChartFormatting()`, which returns the runtime's own defaults outside a provider rather than throwing. |
@@ -103,7 +103,7 @@ type ElementStyles = {
 };
 ```
 
-`barStyles` carries bar-specific styling resolved from the theme by semantic series type (e.g. `barChart.barStyles.comparison`) — `{ widthFactor?, opacity? }`. It is `{}` for series with no matching bar style and for non-`SeriesData` inputs.
+`barStyles` carries bar-specific styling resolved from the theme by semantic series type (e.g. `barChart.barStyles.comparison`) — `{ widthFactor?, opacity? }`, where `opacity` is deprecated. It is `{}` for series with no matching bar style and for non-`SeriesData` inputs.
 
 ## Token resolution in JS
 

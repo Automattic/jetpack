@@ -1168,12 +1168,9 @@ describe( 'ChartContext', () => {
 				legendShape: 'rect',
 			} );
 
-			// Should get theme legend shape styles (not line styles), with the comparison bar
-			// opacity layered on so the swatch matches the translucent comparison bar.
 			expect( styles.shapeStyles ).toEqual( {
 				fill: '#LEGEND1',
 				stroke: '#BORDER1',
-				opacity: 0.5,
 			} );
 		} );
 	} );
@@ -2149,7 +2146,6 @@ describe( 'ChartContext', () => {
 		it( 'exposes default barChart comparison styles', () => {
 			expect( defaultTheme.barChart.barStyles.comparison ).toEqual( {
 				widthFactor: 1.5,
-				opacity: 0.5,
 			} );
 		} );
 	} );

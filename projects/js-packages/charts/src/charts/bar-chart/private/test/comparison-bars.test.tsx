@@ -56,7 +56,7 @@ const seriesData: SeriesData = {
 };
 
 const comparisonEntries: ComparisonSeriesEntry[] = [
-	{ series: seriesData, index: 0, primaryKey: 'current', primaryIndex: 0 },
+	{ series: seriesData, index: 0, primaryKey: 'current' },
 ];
 
 const getElementStyles = () => ( {

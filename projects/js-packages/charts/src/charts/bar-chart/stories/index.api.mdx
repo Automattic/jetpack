@@ -83,7 +83,7 @@ type SeriesData = {
 	group?: string;
 	options?: {
 		stroke?: string;
-		/** Render this series as a translucent "shadow" behind the primary bar in the same `group`. */
+		/** Render this series as a wider bar behind the primary bar in the same `group`. */
 		type?: 'comparison';
 	};
 };
@@ -91,17 +91,17 @@ type SeriesData = {
 
 ## Comparison Styling (theme)
 
-Comparison shadow bars are styled via the chart theme at `barChart.barStyles.comparison`:
+Comparison bars are styled via the chart theme at `barChart.barStyles.comparison`:
 
 | Key | Type | Default | Description |
 | --- | ---- | ------- | ----------- |
-| `widthFactor` | `number` | `1.5` | How much wider the comparison bar is than the primary. The comparison shadow is the standard slot width and the primary bar is narrowed to `1 / widthFactor` of the slot. |
-| `opacity` | `number` | `0.5` | Opacity of the comparison shadow bar. |
+| `widthFactor` | `number` | `1.5` | How much wider the comparison bar is than the primary. The comparison bar is the standard slot width and the primary bar is narrowed to `1 / widthFactor` of the slot. |
+| `opacity` | `number` | unset | **Deprecated.** Set, the comparison bar is drawn translucent in its primary's color instead of the opaque tones `BarChart` picks, and `BarChart` warns once in the console. |
 
 ```typescript
 <GlobalChartsProvider
 	theme={ {
-		barChart: { barStyles: { comparison: { widthFactor: 1.5, opacity: 0.5 } } },
+		barChart: { barStyles: { comparison: { widthFactor: 1.5 } } },
 	} }
 >
 	<BarChart data={ data } />
@@ -110,9 +110,9 @@ Comparison shadow bars are styled via the chart theme at `barChart.barStyles.com
 
 Comparison styling applies to the `grouped` layout only. An `overlap` layout draws every bar opaque, at the thickness its layer sets.
 
-## Overlap colors
+## Bar colors
 
-`getBarColors( series, { layout: 'overlap' } )` from `useGlobalChartsContext()` returns the color `BarChart` fills each series with, by index. Use it to color a custom tooltip's or legend's swatches. `useChartLegendItems( data, { barLayout: 'overlap' } )` does the same for legend items, and drops the comparison opacity from their swatches. Without `collapseGroups`, it also lists the items in slot order: every primary, then every comparison.
+`getBarColors( series, { layout } )` from `useGlobalChartsContext()` returns the color `BarChart` fills each series with in that layout, by index. Use it to color a custom tooltip's or legend's swatches. `useChartLegendItems( data, { barLayout } )` does the same for legend items. For `overlap` without `collapseGroups`, it also lists the items in slot order: every primary, then every comparison.
 
 ## DataPointDate Type
 

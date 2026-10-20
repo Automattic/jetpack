@@ -172,21 +172,26 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			collapseGroups: legendCollapseGroups,
 			comparisonItem: legendComparisonItem,
 			comparisonSeriesItems: legendComparisonSeriesItems,
-			barLayout: isOverlap ? ( 'overlap' as const ) : undefined,
+			barLayout: layout,
 		} ),
-		[ legendCollapseGroups, legendComparisonItem, legendComparisonSeriesItems, isOverlap ]
+		[ legendCollapseGroups, legendComparisonItem, legendComparisonSeriesItems, layout ]
 	);
 	const legendItems = useChartLegendItems( dataSorted, legendOptions );
 
-	const { getElementStyles, getBarColors } = useGlobalChartsContext();
-	const overlapColors = useMemo(
+	const { getElementStyles, getBarColors, theme: providerTheme } = useGlobalChartsContext();
+	const barColors = useMemo(
 		() =>
-			isOverlap
-				? ( getBarColors?.( dataSorted, { layout: 'overlap' } ) ??
-					dataSorted.map( ( series, index ) => getElementStyles( { data: series, index } ).color ) )
-				: undefined,
-		[ isOverlap, getBarColors, dataSorted, getElementStyles ]
+			getBarColors?.( dataSorted, { layout } ) ??
+			dataSorted.map( ( series, index ) => getElementStyles( { data: series, index } ).color ),
+		[ layout, getBarColors, dataSorted, getElementStyles ]
 	);
+
+	if ( providerTheme.barChart?.barStyles?.comparison?.opacity !== undefined ) {
+		warnOnce(
+			'bar-chart-comparison-opacity',
+			'BarChart: theme.barChart.barStyles.comparison.opacity is deprecated. Comparison bars are opaque; leave it unset.'
+		);
+	}
 
 	// A hidden series is unmounted, so it is not on the band scale either — the
 	// axis has to choose its tick values from what is left. Visibility is owned by
@@ -371,7 +376,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			if ( ! primary || ! primaryKeys.includes( primary.label ) ) {
 				return;
 			}
-			entries.push( { series, index, primaryKey: primary.label, primaryIndex: primary.index } );
+			entries.push( { series, index, primaryKey: primary.label } );
 		} );
 		return entries;
 	}, [ isOverlap, seriesWithVisibility, primaryEntries, primaryKeys ] );
@@ -426,26 +431,16 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		( index: number ) => ( datum: DataPointDate ) =>
 			withPatterns
 				? `url(#${ getPatternId( chartId, index ) })`
-				: ( datum.color ?? getElementStyles( { data: dataSorted[ index ], index } ).color ),
-		[ withPatterns, getElementStyles, dataSorted, chartId ]
+				: ( datum.color ?? barColors[ index ] ?? '' ),
+		[ withPatterns, barColors, chartId ]
 	);
 
-	// Comparison shadow fill: when patterns are on, reuse the paired primary's pattern so the
-	// shadow reads as the same series; otherwise use the comparison series' resolved color.
 	const resolveComparisonFill = useCallback(
 		( entry: ComparisonSeriesEntry ) =>
 			withPatterns
-				? `url(#${ getPatternId( chartId, entry.primaryIndex ) })`
-				: getElementStyles( { data: entry.series, index: entry.index } ).color,
-		[ withPatterns, chartId, getElementStyles ]
-	);
-
-	const getOverlapFill = useCallback(
-		( index: number ) => ( datum: DataPointDate ) =>
-			withPatterns
-				? `url(#${ getPatternId( chartId, index ) })`
-				: ( datum.color ?? overlapColors?.[ index ] ?? '' ),
-		[ withPatterns, chartId, overlapColors ]
+				? `url(#${ getPatternId( chartId, entry.index ) })`
+				: ( barColors[ entry.index ] ?? '' ),
+		[ withPatterns, chartId, barColors ]
 	);
 
 	// Lists every bar at the hovered category, in the order of the data.
@@ -777,21 +772,11 @@ const BarChartInternal: FC< BarChartProps > = ( {
 										{ withPatterns && (
 											<>
 												<defs data-testid="bar-chart-patterns">
-													{ dataSorted.map( ( seriesData, index ) =>
-														renderPattern(
-															index,
-															overlapColors?.[ index ] ??
-																getElementStyles( { data: seriesData, index } ).color
-														)
-													) }
+													{ barColors.map( ( color, index ) => renderPattern( index, color ) ) }
 												</defs>
 												<style>
-													{ dataSorted.map( ( seriesData, index ) =>
-														createPatternBorderStyle(
-															index,
-															overlapColors?.[ index ] ??
-																getElementStyles( { data: seriesData, index } ).color
-														)
+													{ barColors.map( ( color, index ) =>
+														createPatternBorderStyle( index, color )
 													) }
 												</style>
 											</>
@@ -838,7 +823,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 														data={ seriesData.data as DataPointDate[] }
 														xAccessor={ chartOptions.accessors.xAccessor }
 														yAccessor={ chartOptions.accessors.yAccessor }
-														colorAccessor={ getOverlapFill( index ) }
+														colorAccessor={ getBarBackground( index ) }
 														barClassName={ barClassName }
 														slotKeys={ overlapSlots.slotKeys }
 														slotKey={ overlapSlots.slotOf( seriesData.label ) }
