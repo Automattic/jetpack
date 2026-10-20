@@ -87,9 +87,9 @@ export const shouldShowCompactStatsCard = (
 	! shouldShowFullStatsCard( showFullJetpackStatsCard, canUserViewStats, statsStatus );
 
 const DisplayItems: FC< DisplayItemsProps > = ( { slugs, isLoading } ) => {
-	const mockArrayOfProducts = [ ...Array( 9 ).keys() ];
 	const { showFullJetpackStatsCard = false, overviewV1 = false } =
 		getMyJetpackWindowInitialState( 'myJetpackFlags' );
+	const mockArrayOfProducts = [ ...Array( overviewV1 ? 6 : 9 ).keys() ];
 	const { userIsAdmin = false, canUserViewStats = false } = getMyJetpackWindowInitialState();
 	const { detail: statsDetail } = useProduct( PRODUCT_SLUGS.STATS );
 	const statsStatus = statsDetail?.status;
@@ -147,8 +147,13 @@ const DisplayItems: FC< DisplayItemsProps > = ( { slugs, isLoading } ) => {
 					<StatsSection />
 				</Col>
 			) }
-			{ ! isLoading && overviewV1 && (
-				<OverviewSections slugs={ slugs } admin={ isAdmin } showStats={ canUserViewStats } />
+			{ overviewV1 && (
+				<OverviewSections
+					slugs={ slugs }
+					admin={ isAdmin }
+					showStats={ canUserViewStats }
+					isLoading={ isLoading }
+				/>
 			) }
 
 			<Container

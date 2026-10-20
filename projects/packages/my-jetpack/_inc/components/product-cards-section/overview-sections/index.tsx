@@ -2,6 +2,7 @@ import { __ } from '@wordpress/i18n';
 import { dashboard, shield, trendingUp } from '@wordpress/icons';
 import { Text } from '@wordpress/ui';
 import { PRODUCT_SLUGS } from '../../../data/constants';
+import LoadingBlock from '../../loading-block';
 import BoostOverviewItem from '../boost-card/overview';
 import OverviewSection from '../overview-section';
 import ProtectOverviewItem from '../protect-card/overview';
@@ -13,6 +14,7 @@ type OverviewSectionsProps = {
 	slugs: JetpackModule[];
 	admin: boolean;
 	showStats: boolean;
+	isLoading?: boolean;
 };
 
 /**
@@ -21,12 +23,24 @@ type OverviewSectionsProps = {
  * @param {OverviewSectionsProps} props - Component props.
  * @return {import('react').JSX.Element} The sections.
  */
-const OverviewSections: FC< OverviewSectionsProps > = ( { slugs, admin, showStats } ) => (
+const OverviewSections: FC< OverviewSectionsProps > = ( {
+	slugs,
+	admin,
+	showStats,
+	isLoading = false,
+} ) => (
 	<div className={ styles.sections }>
 		<Text variant="heading-xl" render={ <h2 /> } className={ styles.welcome }>
 			{ __( 'Welcome to Jetpack', 'jetpack-my-jetpack' ) }
 		</Text>
-		{ showStats && (
+		{ isLoading && (
+			<>
+				<LoadingBlock width="100%" height="350px" />
+				<LoadingBlock width="100%" height="150px" />
+				<LoadingBlock width="100%" height="150px" />
+			</>
+		) }
+		{ ! isLoading && showStats && (
 			<OverviewSection
 				icon={ trendingUp }
 				title={ __( 'How is your site growing?', 'jetpack-my-jetpack' ) }
@@ -34,7 +48,7 @@ const OverviewSections: FC< OverviewSectionsProps > = ( { slugs, admin, showStat
 				<StatsOverviewItem admin={ admin } />
 			</OverviewSection>
 		) }
-		{ slugs.includes( PRODUCT_SLUGS.PROTECT ) && (
+		{ ! isLoading && slugs.includes( PRODUCT_SLUGS.PROTECT ) && (
 			<OverviewSection
 				icon={ shield }
 				title={ __( 'How well is my site protected?', 'jetpack-my-jetpack' ) }
@@ -42,7 +56,7 @@ const OverviewSections: FC< OverviewSectionsProps > = ( { slugs, admin, showStat
 				<ProtectOverviewItem admin={ admin } />
 			</OverviewSection>
 		) }
-		{ slugs.includes( PRODUCT_SLUGS.BOOST ) && (
+		{ ! isLoading && slugs.includes( PRODUCT_SLUGS.BOOST ) && (
 			<OverviewSection
 				icon={ dashboard }
 				title={ __( 'What is my site status?', 'jetpack-my-jetpack' ) }
