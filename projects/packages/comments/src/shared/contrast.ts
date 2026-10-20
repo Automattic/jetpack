@@ -3,15 +3,13 @@ const MIN_CONTRAST = 3;
 const DARK = '#1e1e1e';
 const LIGHT = '#fff';
 
-/**
- * The first background painted behind an element.
- *
- * @param element - The element.
- * @return The computed colour, or an empty string when nothing paints one.
- */
-export const backgroundBehind = ( element: HTMLElement ) => {
+// The first background colour painted behind an element; none past an image, whose shade is unknown.
+const backgroundBehind = ( element: HTMLElement ) => {
 	for ( let node = element.parentElement; node; node = node.parentElement ) {
-		const { backgroundColor } = getComputedStyle( node );
+		const { backgroundColor, backgroundImage } = getComputedStyle( node );
+		if ( backgroundImage !== 'none' ) {
+			return '';
+		}
 		if ( backgroundColor !== 'rgba(0, 0, 0, 0)' && backgroundColor !== 'transparent' ) {
 			return backgroundColor;
 		}
@@ -42,9 +40,12 @@ const contrast = ( a: number, b: number ) =>
  * Give the box a readable colour when the one it inherits vanishes into the background
  * behind it, as when a theme paints the reply area white under a dark palette's light text.
  *
- * @param element - The box's mount.
+ * @param element - The `.jetpack-comments` mount.
  */
 export const ensureContrast = ( element: HTMLElement ) => {
+	// Our own colour off first, so a re-run measures the theme's.
+	element.style.removeProperty( 'color' );
+	element.classList.remove( 'has-own-color' );
 	const text = parse( getComputedStyle( element ).color );
 	const background = parse( backgroundBehind( element ) );
 	// A translucent background mixes with whatever is under it, so its shade is unknown.

@@ -22,8 +22,9 @@ if (
 ) {
 	const reason = JetpackComments.version !== JETPACK_COMMENTS_VERSION ? 'version' : 'browser';
 
-	document.querySelectorAll( '.jetpack-comments' ).forEach( element => {
+	document.querySelectorAll< HTMLElement >( '.jetpack-comments' ).forEach( element => {
 		element.classList.add( 'is-plain' );
+		ensureContrast( element );
 
 		// Like `form_focus`, on the reach for the form, so a page view alone never loads Tracks.
 		const onFocusIn = () => {

@@ -2,6 +2,7 @@ import clsx from 'clsx';
 import { useContext, useEffect } from 'preact/hooks';
 import { Footer } from '../footer';
 import { readPassport } from '../shared/checkpoint';
+import { ensureContrast } from '../shared/contrast';
 import { markSubmitted, saveDraft } from '../shared/draft';
 import { CommentSignals } from '../shared/state';
 import { recordEvent } from '../shared/tracks';
@@ -88,6 +89,8 @@ export const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 
 		const readParent = () => {
 			commentParent.value = Number( parentInput.value ) || 0;
+			// Observers run after core's comment-reply.js has moved the form, onto another background.
+			ensureContrast( form.querySelector< HTMLElement >( '.jetpack-comments' )! );
 		};
 
 		readParent();
