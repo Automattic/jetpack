@@ -1,7 +1,7 @@
 import CheckboxCard, { CheckboxCardGrid } from '@automattic/jetpack-components/checkbox-card';
 import { useIsFetching, useIsMutating, useMutationState } from '@tanstack/react-query';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { Fieldset, Link, Text } from '@wordpress/ui';
 import { SAVE_SETTING_KEY, WRITES_KEY, queryKeys, useSettings, useStatus } from '../data/queries';
 import { useSaveSetting, type SettingChange } from '../data/use-save-setting';
@@ -34,8 +34,8 @@ function copyFor( feature: Feature ) {
 			feature === 'sharing'
 				? __( 'Add the Sharing Buttons block to posts and pages', 'jetpack-sharing-likes' )
 				: __( 'Add the Like block to posts and pages', 'jetpack-sharing-likes' ),
-		before: __( 'Before the content', 'jetpack-sharing-likes' ),
-		after: __( 'After the content', 'jetpack-sharing-likes' ),
+		before: _x( 'Before the content', 'Where the block goes', 'jetpack-sharing-likes' ),
+		after: _x( 'After the content', 'Where the block goes', 'jetpack-sharing-likes' ),
 	};
 }
 
@@ -124,34 +124,33 @@ export function TemplatePlacements( {
 							onChange={ handleChange }
 							previewUrl={
 								selected.includes( placement ) && saved.includes( placement )
-									? previewUrl || undefined
+									? previewUrl
 									: undefined
 							}
 							disabled={ ! offered }
 						/>
 					) ) }
 				</CheckboxCardGrid>
-				<Fieldset.Details>
-					<SettingGroup>
-						{ pageTemplateUrl && (
-							<Text render={ <p /> }>
-								{ createInterpolateElement(
-									__(
-										'Want pages to look different? <link>Edit the page template</link>.',
-										'jetpack-sharing-likes'
-									),
-									{ link: <Link href={ pageTemplateUrl } /> }
-								) }
-							</Text>
-						) }
+				{ /* Not Fieldset.Details: the fieldset takes one description, and it would replace the hint above. */ }
+				<SettingGroup>
+					{ pageTemplateUrl && (
 						<Text render={ <p /> }>
-							{ __(
-								'Templates you’ve saved in the Site Editor keep the blocks you left in them, whatever you pick here.',
-								'jetpack-sharing-likes'
+							{ createInterpolateElement(
+								__(
+									'Want pages to look different? <link>Edit the page template</link>.',
+									'jetpack-sharing-likes'
+								),
+								{ link: <Link href={ pageTemplateUrl } /> }
 							) }
 						</Text>
-					</SettingGroup>
-				</Fieldset.Details>
+					) }
+					<Text render={ <p /> }>
+						{ __(
+							'Templates you’ve saved in the Site Editor keep the blocks you left in them, whatever you pick here.',
+							'jetpack-sharing-likes'
+						) }
+					</Text>
+				</SettingGroup>
 			</SettingGroup>
 		</Fieldset.Root>
 	);

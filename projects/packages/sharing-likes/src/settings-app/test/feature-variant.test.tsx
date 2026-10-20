@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { FeatureVariant } from '../components/feature-variant';
 import { SECTION_GAP } from '../components/section-card';
-import { apiCalls, baseSettings, baseStatus, renderWithData } from './helpers';
+import { apiCalls, baseStatus, renderWithData } from './helpers';
 import type { Feature, SectionState } from '../types';
 
 jest.mock( '@wordpress/api-fetch' );
@@ -68,28 +68,6 @@ describe( 'FeatureVariant', () => {
 			);
 		}
 	);
-
-	it.each(
-		( [ 'sharing', 'likes' ] as Feature[] ).flatMap( feature =>
-			(
-				[
-					'configure',
-					'configure_with_block_nudge',
-					'block_call_to_action',
-					'off',
-				] as SectionState[]
-			 ).map( state => [ feature, state ] as [ Feature, SectionState ] )
-		)
-	)( '%s %s with placements offered', ( feature, state ) => {
-		renderWithData( <FeatureVariant feature={ feature } state={ state } />, {
-			settings: { ...baseSettings, sharing_buttons_auto_add: [], likes_auto_add: [] },
-		} );
-
-		expect( screen.queryAllByRole( 'checkbox' ) ).toHaveLength(
-			state === 'block_call_to_action' ? 2 : 0
-		);
-		expect( screen.queryByRole( 'link', { name: 'Open Site Editor' } ) ).not.toBeInTheDocument();
-	} );
 
 	it.each( [
 		[

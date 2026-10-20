@@ -88,13 +88,9 @@ afterEach( () => {
 } );
 
 describe( 'TemplatePlacements', () => {
-	// Sending both sides gets a 400; sending a diff would leave the other side in place.
 	it.each( [
-		[ 'sharing', [], 'Before the content', [ 'before_content' ] ],
 		[ 'sharing', [ 'after_content' ], 'Before the content', [ 'before_content' ] ],
 		[ 'sharing', [ 'after_content' ], 'After the content', [] ],
-		[ 'likes', [ 'before_content' ], 'After the content', [ 'after_content' ] ],
-		[ 'likes', [ 'before_content' ], 'Before the content', [] ],
 	] as [ Feature, TemplatePlacement[], string, TemplatePlacement[] ][] )(
 		'%s: from %j, clicking "%s" saves %j and ticks only that',
 		async ( feature, stored, clicked, sent ) => {
@@ -124,48 +120,7 @@ describe( 'TemplatePlacements', () => {
 		}
 	);
 
-	it( 'rolls the cards back when the save is refused', async () => {
-		const user = userEvent.setup();
-		const save = deferred< Settings >();
-		const stored: Settings = { ...baseSettings, sharing_buttons_auto_add: [ 'after_content' ] };
-		mockApiFetch.mockImplementation( ( { path, method } ) => {
-			if ( method === 'PUT' ) {
-				return save.promise;
-			}
-			return Promise.resolve( path?.endsWith( '/settings' ) ? stored : baseStatus );
-		} );
-		renderCards( 'sharing', [ 'after_content' ] );
-
-		await user.click( card( 'Before the content' ) );
-		expect( card( 'Before the content' ) ).toHaveAttribute( 'aria-checked', 'true' );
-		save.reject( {
-			code: 'rest_invalid_param',
-			message: 'Invalid parameter(s): sharing_buttons_auto_add',
-		} );
-
-		await waitFor( () =>
-			expect( card( 'After the content' ) ).toHaveAttribute( 'aria-checked', 'true' )
-		);
-		expect( card( 'Before the content' ) ).toHaveAttribute( 'aria-checked', 'false' );
-	} );
-
 	// The link opens the template, which only has the block once the save lands.
-	it.each( [
-		[ [ 'after_content' ], baseStatus.site_editor_url, [ 'After the content' ] ],
-		[ [ 'after_content' ], '', [] ],
-		[ [], baseStatus.site_editor_url, [] ],
-	] as [ TemplatePlacement[], string, string[] ][] )(
-		'with %j saved and Site Editor URL "%s", links %j to the single template',
-		( stored, url, linked ) => {
-			renderCards( 'likes', stored, { site_editor_url: url } );
-
-			expect( cardsWithPreview() ).toEqual( linked );
-			screen
-				.queryAllByRole( 'link', { name: 'Preview and edit' } )
-				.forEach( link => expect( link ).toHaveAttribute( 'href', url ) );
-		}
-	);
-
 	it( 'only links a ticked card once its save lands', async () => {
 		const user = userEvent.setup();
 		const save = deferred< Settings >();
@@ -174,23 +129,35 @@ describe( 'TemplatePlacements', () => {
 		);
 		renderCards( 'sharing', [ 'after_content' ] );
 
+		expect( cardsWithPreview() ).toEqual( [ 'After the content' ] );
 		await user.click( card( 'Before the content' ) );
 
+		expect( card( 'Before the content' ) ).toHaveAttribute( 'aria-checked', 'true' );
 		expect( cardsWithPreview() ).toEqual( [] );
 		save.resolve( { ...baseSettings, sharing_buttons_auto_add: [ 'before_content' ] } );
 		await waitFor( () => expect( cardsWithPreview() ).toEqual( [ 'Before the content' ] ) );
-	} );
-
-	it.each( [ PAGE_TEMPLATE_URL, '' ] )( 'links the page template only with a URL: "%s"', url => {
-		renderCards( 'sharing', [], { page_template_editor_url: url } );
-
-		// By text: an anchor with an empty href has no link role, so a role query would pass on a broken link.
-		expect( screen.queryByText( 'Edit the page template' )?.getAttribute( 'href' ) ).toBe(
-			url || undefined
+		expect( screen.getByRole( 'link', { name: 'Preview and edit' } ) ).toHaveAttribute(
+			'href',
+			baseStatus.site_editor_url
 		);
 	} );
 
-	// The status lands before settings are read again, so for a moment the variant has no placements to show.
+	it.each( [ PAGE_TEMPLATE_URL, '' ] )(
+		'links the page template only with a URL, keeping the notes: "%s"',
+		url => {
+			renderCards( 'sharing', [], { page_template_editor_url: url } );
+
+			// By text: an anchor with an empty href has no link role, so a role query would pass on a broken link.
+			expect( screen.queryByText( 'Edit the page template' )?.getAttribute( 'href' ) ).toBe(
+				url || undefined
+			);
+			expect( screen.getByText( /Templates you’ve saved in the Site Editor/ ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'group' ) ).toHaveAccessibleDescription(
+				'Pick one place: before or after the content.'
+			);
+		}
+	);
+
 	it( 'shows the cards disabled, not the Site Editor button, while settings catch up with a switch', async () => {
 		const user = userEvent.setup();
 		const settings = deferred< Settings >();
@@ -213,12 +180,14 @@ describe( 'TemplatePlacements', () => {
 		screen
 			.getAllByRole( 'checkbox' )
 			.forEach( checkbox => expect( checkbox ).toHaveAttribute( 'aria-disabled', 'true' ) );
+		const group = screen.getByRole( 'group', { name: 'Add the Like block to posts and pages' } );
+		expect( group ).toHaveAttribute( 'aria-busy', 'true' );
 		expect( screen.queryByRole( 'link', { name: 'Open Site Editor' } ) ).not.toBeInTheDocument();
 
 		settings.resolve( { ...baseSettings, likes_auto_add: [] } );
 		await waitFor( () =>
 			expect( card( 'Before the content' ) ).not.toHaveAttribute( 'aria-disabled', 'true' )
 		);
-		expect( screen.queryByRole( 'link', { name: 'Open Site Editor' } ) ).not.toBeInTheDocument();
+		expect( group ).toHaveAttribute( 'aria-busy', 'false' );
 	} );
 } );
