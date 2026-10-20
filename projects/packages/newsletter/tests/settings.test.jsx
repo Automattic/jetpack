@@ -391,18 +391,6 @@ describe( 'NewsletterSettingsApp', () => {
 			expect( leavePage() ).toBe( true );
 		} );
 
-		it( 'asks before leaving while an auto-saved setting is still saving', async () => {
-			updateSettings.mockReturnValueOnce( new Promise( () => {} ) );
-			render( <NewsletterSettingsApp /> );
-			await waitFor( () => expect( emailContentProps.current ).not.toBeNull() );
-
-			await act( async () => {
-				emailContentProps.current.onChange( { wpcom_featured_image_in_email: true } );
-			} );
-
-			expect( leavePage() ).toBe( true );
-		} );
-
 		it( 'stops asking once an auto-saved setting finishes saving', async () => {
 			let finishSave;
 			updateSettings.mockReturnValueOnce(
@@ -422,6 +410,19 @@ describe( 'NewsletterSettingsApp', () => {
 				finishSave( {} );
 			} );
 
+			expect( leavePage() ).toBe( false );
+		} );
+
+		it( 'stops asking once an auto-saved setting fails to save', async () => {
+			updateSettings.mockRejectedValueOnce( new Error( 'Network error' ) );
+			render( <NewsletterSettingsApp /> );
+			await waitFor( () => expect( emailContentProps.current ).not.toBeNull() );
+
+			await act( async () => {
+				emailContentProps.current.onChange( { wpcom_featured_image_in_email: true } );
+			} );
+
+			expect( console ).toHaveErrored();
 			expect( leavePage() ).toBe( false );
 		} );
 
