@@ -88,10 +88,7 @@ function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] 
 	return [ 'hour' ];
 }
 
-function isLockedInterval(
-	interval: IntervalType,
-	locked: readonly LockableInterval[]
-): interval is LockableInterval {
+function isLockedInterval( interval: IntervalType, locked: readonly LockableInterval[] ): boolean {
 	return locked.some( bucket => bucket === interval );
 }
 
@@ -141,8 +138,8 @@ export function getLockedIntervalsForPreset(
 	to: string,
 	locked: readonly LockableInterval[]
 ): LockableInterval[] {
-	return allowedIntervalsForPreset( preset, from, to ).filter( interval =>
-		isLockedInterval( interval, locked )
+	return allowedIntervalsForPreset( preset, from, to ).filter(
+		( interval ): interval is LockableInterval => isLockedInterval( interval, locked )
 	);
 }
 
