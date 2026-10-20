@@ -326,6 +326,72 @@ describe( 'NewsletterSettingsApp', () => {
 		} );
 	} );
 
+	describe( 'unsaved changes warning', () => {
+		beforeEach( () => {
+			useConnection.mockReturnValue( {
+				hasConnectedOwner: true,
+				isRegistered: true,
+				isUserConnected: true,
+			} );
+			subscribeModalProps.current = null;
+		} );
+
+		const leavePage = () => {
+			const event = new Event( 'beforeunload', { cancelable: true } );
+			window.dispatchEvent( event );
+			return event.defaultPrevented;
+		};
+
+		const stageSubscribeModalChange = async () => {
+			render( <NewsletterSettingsApp /> );
+			await waitFor( () => {
+				expect( subscribeModalProps.current ).not.toBeNull();
+			} );
+			act( () => {
+				subscribeModalProps.current.onChange( {
+					subscription_options: {
+						invitation: 'I',
+						welcome: 'W',
+						comment_follow: 'CF',
+						subscribe_modal_heading: 'Unsaved heading',
+					},
+				} );
+			} );
+			await waitFor( () => {
+				expect( subscribeModalProps.current.hasChanges ).toBe( true );
+			} );
+		};
+
+		it( 'lets the page close when nothing is unsaved', async () => {
+			render( <NewsletterSettingsApp /> );
+			await waitFor( () => {
+				expect( subscribeModalProps.current ).not.toBeNull();
+			} );
+
+			expect( leavePage() ).toBe( false );
+		} );
+
+		it( 'asks before leaving while a section has unsaved changes', async () => {
+			await stageSubscribeModalChange();
+
+			expect( leavePage() ).toBe( true );
+		} );
+
+		it( 'stops asking once the changes are saved', async () => {
+			updateSettings.mockResolvedValue( {} );
+			await stageSubscribeModalChange();
+
+			await act( async () => {
+				subscribeModalProps.current.onSave();
+			} );
+			await waitFor( () => {
+				expect( subscribeModalProps.current.hasChanges ).toBe( false );
+			} );
+
+			expect( leavePage() ).toBe( false );
+		} );
+	} );
+
 	describe( 'save notices', () => {
 		beforeEach( () => {
 			useConnection.mockReturnValue( {

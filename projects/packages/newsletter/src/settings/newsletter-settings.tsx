@@ -189,6 +189,30 @@ export function NewsletterSettingsBody( {
 	>( {} );
 	const [ isSavingSubscribeModal, setIsSavingSubscribeModal ] = useState( false );
 
+	const hasUnsavedChanges = [
+		subscriptionChanges,
+		senderNameChanges,
+		newsletterCategoriesChanges,
+		welcomeEmailChanges,
+		subscribeModalChanges,
+	].some( changes => Object.keys( changes ).length > 0 );
+
+	// Ask the browser to confirm leaving the page while a manually saved section has unsaved edits.
+	useEffect( () => {
+		if ( ! hasUnsavedChanges ) {
+			return;
+		}
+
+		const warn = ( event: BeforeUnloadEvent ) => {
+			event.preventDefault();
+			// Older browsers only prompt when this is set.
+			event.returnValue = '';
+		};
+
+		window.addEventListener( 'beforeunload', warn );
+		return () => window.removeEventListener( 'beforeunload', warn );
+	}, [ hasUnsavedChanges ] );
+
 	// Get newsletter script data.
 	const newsletterScriptData = useMemo( () => getNewsletterScriptData(), [] );
 
