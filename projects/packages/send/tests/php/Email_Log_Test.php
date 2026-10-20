@@ -569,7 +569,11 @@ class Email_Log_Test extends BaseTestCase {
 
 	public function test_the_text_copy_is_cut_on_a_character_boundary() {
 		// The fake database can't take non-ASCII through wpdb::insert(), so check the cut itself.
-		$cut = ( new \ReflectionMethod( Email_Log::class, 'cut_bytes' ) )->invoke( null, str_repeat( 'é', 3000 ) . str_repeat( '😀', 4000 ), Email_Log::BODY_TEXT_BYTES );
+		$cut_bytes = new \ReflectionMethod( Email_Log::class, 'cut_bytes' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$cut_bytes->setAccessible( true );
+		}
+		$cut = $cut_bytes->invoke( null, str_repeat( 'é', 3000 ) . str_repeat( '😀', 4000 ), Email_Log::BODY_TEXT_BYTES );
 
 		$this->assertLessThanOrEqual( Email_Log::BODY_TEXT_BYTES, strlen( $cut ) );
 		$this->assertGreaterThan( Email_Log::BODY_TEXT_BYTES - 4, strlen( $cut ) );

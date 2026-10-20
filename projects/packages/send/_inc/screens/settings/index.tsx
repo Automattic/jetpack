@@ -15,7 +15,6 @@ import {
 	Stack,
 	SwitchControl,
 	Text,
-	getWpCompatOverlaySlot,
 } from '@wordpress/ui';
 import Avatar from '../../components/avatar';
 import { CopyIconButton } from '../../components/copy-button';
@@ -433,7 +432,6 @@ const DomainCard = ( { status, account }: Props ) => {
 				onConfirm={ onReset }
 			>
 				<AlertDialog.Popup
-					portal={ <AlertDialog.Portal container={ getWpCompatOverlaySlot() } /> }
 					intent="irreversible"
 					title={ __( 'Start over?', 'jetpack-send-pkg' ) }
 					description={ sprintf(
@@ -805,7 +803,6 @@ const AdvancedCard = ( { status, account }: Props ) => {
 			</CollapsibleCard.Content>
 			<AlertDialog.Root open={ !! confirm } onOpenChange={ onOpenChange } onConfirm={ onConfirm }>
 				<AlertDialog.Popup
-					portal={ <AlertDialog.Portal container={ getWpCompatOverlaySlot() } /> }
 					title={
 						confirm === 'pause'
 							? __( 'Pause sending?', 'jetpack-send-pkg' )

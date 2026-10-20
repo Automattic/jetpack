@@ -6,15 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/el
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { envelope, funnel, search as searchIcon, trash } from '@wordpress/icons';
 import { useNavigate, useSearch } from '@wordpress/route';
-import {
-	AlertDialog,
-	Button,
-	EmptyState,
-	Notice,
-	Stack,
-	Text,
-	getWpCompatOverlaySlot,
-} from '@wordpress/ui';
+import { AlertDialog, Button, EmptyState, Notice, Stack, Text } from '@wordpress/ui';
 import Avatar from '../../components/avatar';
 import DateRangeControl from '../../components/date-range-control';
 import { EmailTime } from '../../components/email-time';
@@ -1160,7 +1152,6 @@ const LogScreen = () => {
 				onConfirm={ confirmDelete }
 			>
 				<AlertDialog.Popup
-					portal={ <AlertDialog.Portal container={ getWpCompatOverlaySlot() } /> }
 					finalFocus={ deleteFinalFocus }
 					intent="irreversible"
 					title={ confirmCopy.title }

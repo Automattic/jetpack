@@ -6,14 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/el
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { bug, funnel } from '@wordpress/icons';
 import { useNavigate, useSearch } from '@wordpress/route';
-import {
-	AlertDialog,
-	Button,
-	EmptyState,
-	Notice,
-	Stack,
-	getWpCompatOverlaySlot,
-} from '@wordpress/ui';
+import { AlertDialog, Button, EmptyState, Notice, Stack } from '@wordpress/ui';
 import { CopyValueButton } from '../../components/copy-button';
 import EmailTime from '../../components/email-time';
 import ErrorNotice from '../../components/error-notice';
@@ -656,7 +649,6 @@ const DebugLogScreen = ( { status }: { status: SendStatus } ) => {
 				onConfirm={ onClear }
 			>
 				<AlertDialog.Popup
-					portal={ <AlertDialog.Portal container={ getWpCompatOverlaySlot() } /> }
 					intent="irreversible"
 					title={ sprintf(
 						/* translators: %s: number of entries. */

@@ -3,14 +3,7 @@ import { getSiteData } from '@automattic/jetpack-script-data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
-import {
-	Badge,
-	Tabs,
-	Text,
-	Tooltip,
-	useEnableWpCompatOverlaySlot,
-	VisuallyHidden,
-} from '@wordpress/ui';
+import { Badge, Tabs, Text, Tooltip, VisuallyHidden } from '@wordpress/ui';
 import './send-page.scss';
 import type { ReactNode } from 'react';
 
@@ -77,8 +70,6 @@ const SendPage = ( {
 	devMode = false,
 	children,
 }: Props ) => {
-	// Opts into the overlay slot that stacks @wordpress/ui overlays above the wp-admin menu.
-	useEnableWpCompatOverlaySlot();
 	const navigate = useNavigate();
 	const site = getSiteData();
 	const onTabChange = useCallback(

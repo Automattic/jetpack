@@ -110,6 +110,7 @@ class Cloudflare_Dns {
 	 *                                                         `jetpack_send_cloudflare_error` (502).
 	 */
 	public static function apply(
+		// phpcs:ignore PHPCompatibility.Attributes.NewAttributes.PHPNativeAttributeFound -- Hides the token from stack traces on PHP 8.2+; a comment on older PHP.
 		#[\SensitiveParameter]
 		$token,
 		$domain,
@@ -210,6 +211,7 @@ class Cloudflare_Dns {
 	 * @return true|WP_Error
 	 */
 	private static function verify(
+		// phpcs:ignore PHPCompatibility.Attributes.NewAttributes.PHPNativeAttributeFound -- Hides the token from stack traces on PHP 8.2+; a comment on older PHP.
 		#[\SensitiveParameter]
 		$token
 	) {
@@ -231,6 +233,7 @@ class Cloudflare_Dns {
 	 * @return true|WP_Error
 	 */
 	private static function check_scope(
+		// phpcs:ignore PHPCompatibility.Attributes.NewAttributes.PHPNativeAttributeFound -- Hides the token from stack traces on PHP 8.2+; a comment on older PHP.
 		#[\SensitiveParameter]
 		$token,
 		$domain
@@ -255,6 +258,7 @@ class Cloudflare_Dns {
 	 * @return array{id: string, name: string}|WP_Error
 	 */
 	private static function find_zone(
+		// phpcs:ignore PHPCompatibility.Attributes.NewAttributes.PHPNativeAttributeFound -- Hides the token from stack traces on PHP 8.2+; a comment on older PHP.
 		#[\SensitiveParameter]
 		$token,
 		$domain
@@ -290,6 +294,7 @@ class Cloudflare_Dns {
 	 *                                                                                                       only for problems that stop every record.
 	 */
 	private static function write_record(
+		// phpcs:ignore PHPCompatibility.Attributes.NewAttributes.PHPNativeAttributeFound -- Hides the token from stack traces on PHP 8.2+; a comment on older PHP.
 		#[\SensitiveParameter]
 		$token,
 		array $zone,
@@ -636,6 +641,7 @@ class Cloudflare_Dns {
 	 * @return array|WP_Error The decoded envelope on success.
 	 */
 	private static function request(
+		// phpcs:ignore PHPCompatibility.Attributes.NewAttributes.PHPNativeAttributeFound -- Hides the token from stack traces on PHP 8.2+; a comment on older PHP.
 		#[\SensitiveParameter]
 		$token,
 		$method,

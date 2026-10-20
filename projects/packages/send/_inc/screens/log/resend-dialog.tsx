@@ -9,7 +9,6 @@ import {
 	Stack,
 	Text,
 	ValidatedInputControl,
-	getWpCompatOverlaySlot,
 } from '@wordpress/ui';
 import ErrorNotice from '../../components/error-notice';
 import { PanelRow, PanelRows, formatAddress } from '../../components/panel-parts';
@@ -429,7 +428,6 @@ const ResendDialog = ( {
 				size="small"
 				className="jetpack-send-resend"
 				initialFocus={ initialFocus }
-				portal={ <Dialog.Portal container={ getWpCompatOverlaySlot() } /> }
 			>
 				<Dialog.Header>
 					<Dialog.Title>{ __( 'Resend this email', 'jetpack-send-pkg' ) }</Dialog.Title>

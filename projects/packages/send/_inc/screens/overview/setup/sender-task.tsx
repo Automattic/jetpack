@@ -11,7 +11,6 @@ import {
 	Notice,
 	Stack,
 	Text,
-	getWpCompatOverlaySlot,
 } from '@wordpress/ui';
 import TextAction from '../../../components/text-action';
 import { postAction } from '../../../data/api';
@@ -562,7 +561,6 @@ const SenderTask = ( { status, state, open, onOpenChange, onSetUp, onDraftChange
 				onConfirm={ onSwitchConfirm }
 			>
 				<AlertDialog.Popup
-					portal={ <AlertDialog.Portal container={ getWpCompatOverlaySlot() } /> }
 					title={ sprintf(
 						/* translators: %s: the new sending domain. */
 						__( 'Switch to %s?', 'jetpack-send-pkg' ),

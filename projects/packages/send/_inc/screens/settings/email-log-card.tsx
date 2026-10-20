@@ -4,14 +4,7 @@ import { dateI18n } from '@wordpress/date';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
-import {
-	AlertDialog,
-	Card,
-	SelectControl,
-	Stack,
-	Text,
-	getWpCompatOverlaySlot,
-} from '@wordpress/ui';
+import { AlertDialog, Card, SelectControl, Stack, Text } from '@wordpress/ui';
 import ErrorNotice from '../../components/error-notice';
 import { errorMessage, fetchLogSummary, postAction } from '../../data/api';
 import { formatCount, parseUtc } from '../../data/dates';
@@ -359,7 +352,6 @@ const EmailLogCard = ( { status }: { status: SendStatus } ) => {
 				onConfirm={ onConfirm }
 			>
 				<AlertDialog.Popup
-					portal={ <AlertDialog.Portal container={ getWpCompatOverlaySlot() } /> }
 					finalFocus={ selectRef }
 					intent="irreversible"
 					title={ confirm.title }
