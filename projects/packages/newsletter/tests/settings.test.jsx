@@ -403,6 +403,28 @@ describe( 'NewsletterSettingsApp', () => {
 			expect( leavePage() ).toBe( true );
 		} );
 
+		it( 'stops asking once an auto-saved setting finishes saving', async () => {
+			let finishSave;
+			updateSettings.mockReturnValueOnce(
+				new Promise( resolve => {
+					finishSave = resolve;
+				} )
+			);
+			render( <NewsletterSettingsApp /> );
+			await waitFor( () => expect( emailContentProps.current ).not.toBeNull() );
+
+			await act( async () => {
+				emailContentProps.current.onChange( { wpcom_featured_image_in_email: true } );
+			} );
+			expect( leavePage() ).toBe( true );
+
+			await act( async () => {
+				finishSave( {} );
+			} );
+
+			expect( leavePage() ).toBe( false );
+		} );
+
 		it( 'keeps unsaved edits, and keeps asking, after leaving the tab and coming back', async () => {
 			fetchSettings.mockResolvedValue( { ...defaultSettings } );
 			const { unmount } = render( <NewsletterSettingsApp /> );

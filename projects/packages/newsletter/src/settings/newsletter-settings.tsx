@@ -218,11 +218,6 @@ export function NewsletterSettingsBody( {
 		hasNewsletterCategoriesChanges ||
 		hasWelcomeEmailChanges ||
 		hasSubscribeModalChanges ||
-		isSavingSubscriptions ||
-		isSavingSenderName ||
-		isSavingNewsletterCategories ||
-		isSavingWelcomeEmail ||
-		isSavingSubscribeModal ||
 		pendingAutoSaves > 0;
 
 	// Ask the browser to confirm leaving the page while an edit is unsaved or still saving.
