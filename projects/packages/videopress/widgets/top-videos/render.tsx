@@ -22,7 +22,7 @@ import { useCallback, useMemo, useState } from 'react';
  * Internal dependencies
  */
 import { toVideoPlaysRows, type VideoPlaysRow } from './build-video-plays-data';
-import UploadFirstVideo from './upload-first-video';
+import { VideoUploader } from './components/video-uploader';
 import type { VideoMediaProps } from '../../src/client/lib/resumable-file-uploader/types';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
@@ -149,7 +149,7 @@ function TopVideosReport() {
 	);
 
 	if ( uploadedMedia || hasNoVideos ) {
-		return <UploadFirstVideo footer={ footer } onUploaded={ onUploaded } />;
+		return <VideoUploader footer={ footer } onUploaded={ onUploaded } />;
 	}
 
 	return (

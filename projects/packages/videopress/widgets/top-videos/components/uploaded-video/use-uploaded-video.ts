@@ -7,9 +7,9 @@ import { useEffect, useState } from 'react';
 /**
  * Internal dependencies
  */
-import { toLibraryItem, type ApiMediaItem } from '../../src/dashboard/utils/library-item';
-import { libraryRefetchInterval } from '../../src/dashboard/utils/processing-poll';
-import type { LibraryItem } from '../../src/dashboard/types/library';
+import { toLibraryItem, type ApiMediaItem } from '../../../../src/dashboard/utils/library-item';
+import { libraryRefetchInterval } from '../../../../src/dashboard/utils/processing-poll';
+import type { LibraryItem } from '../../../../src/dashboard/types/library';
 
 /**
  * Follows a just-uploaded video until it is processed, on the library's poll cadence.

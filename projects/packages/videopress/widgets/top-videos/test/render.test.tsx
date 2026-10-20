@@ -19,7 +19,7 @@ const mockCanUser = jest.fn();
 const mockHasFinishedResolution = jest.fn();
 const mockIsSimpleSite = jest.fn();
 const mockInvalidateResolution = jest.fn();
-const mockUploadFirstVideo = jest.fn();
+const mockVideoUploader = jest.fn();
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getAdminUrl: ( path: string ) => `https://example.com/blog/wp-admin/${ path }`,
@@ -61,11 +61,10 @@ jest.mock( '@automattic/jetpack-premium-analytics-sdk', () => ( {
 	useWidgetRootContext: () => ( { reportParams: { from: '2026-06-01', to: '2026-06-16' } } ),
 } ) );
 
-// The upload body has its own suite; here it only needs to be told apart from the leaderboard.
-jest.mock( '../upload-first-video', () => ( {
-	__esModule: true,
-	default: ( props: { footer: ReactNode; onUploaded: ( media: unknown ) => void } ) => {
-		mockUploadFirstVideo( props );
+// The uploader has its own suite; here it only needs to be told apart from the leaderboard.
+jest.mock( '../components/video-uploader', () => ( {
+	VideoUploader: ( props: { footer: ReactNode; onUploaded: ( media: unknown ) => void } ) => {
+		mockVideoUploader( props );
 		return <div>Upload your first video{ props.footer }</div>;
 	},
 } ) );
@@ -270,7 +269,7 @@ describe( 'Top videos widget', () => {
 		const { rerender } = render( <TopVideos attributes={ {} } /> );
 
 		const media = { id: 7, guid: 'abc', src: 'https://videopress.com/v/abc' };
-		act( () => mockUploadFirstVideo.mock.lastCall?.[ 0 ].onUploaded( media ) );
+		act( () => mockVideoUploader.mock.lastCall?.[ 0 ].onUploaded( media ) );
 		// The refreshed check now finds the video; the upload body must not give way to the chart.
 		mockUseEntityRecords.mockReturnValue( { records: [ { id: 7 } ], hasResolved: true } );
 		rerender( <TopVideos attributes={ {} } /> );
