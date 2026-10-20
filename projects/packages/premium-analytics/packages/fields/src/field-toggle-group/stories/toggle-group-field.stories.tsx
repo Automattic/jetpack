@@ -6,7 +6,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 type ChartAttributes = { chartType?: string };
 
 // `Option` carries no `icon`, so the icon-bearing options name their own
-// shape, the way a chart widget's `widget.json` declares them.
+// shape, with the icon as a `jpa/<name>` reference.
 type IconOption = Option & { icon: string };
 
 const CHART_TYPES = [

@@ -32,9 +32,9 @@ type ResolvedIconOption = Option & { icon: ReactElement };
  * instead of showing a blank one.
  *
  * @param elements - The options as the widget declares them.
- * @return The options with every icon an element.
+ * @return The options, with each resolvable icon reference replaced by its element.
  */
-export function resolveOptionIcons( elements: Option[] ): Option[] {
+function resolveOptionIcons( elements: Option[] ): Option[] {
 	return elements.map( element => {
 		const { icon, ...option } = element as Partial< IconOption >;
 		if ( typeof icon !== 'string' ) {
