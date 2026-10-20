@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from '@wordpress/element';
+import { getBlogId } from './site';
 import type { SubscribersFilter, SubscribersSortField } from '../data/types';
 import type { View } from '@wordpress/dataviews';
 
@@ -117,17 +118,66 @@ function writeViewToUrl( view: View ): URLSearchParams {
 }
 
 /**
+ * Per-site `localStorage` key for the remembered page size. Scoped to the blog so an admin who
+ * manages several sites in one browser keeps a separate choice for each.
+ *
+ * @return Storage key.
+ */
+function perPageStorageKey(): string {
+	return `jetpack-newsletter:subscribers-per-page:${ getBlogId() ?? 'default' }`;
+}
+
+/**
+ * Read the page size the admin last chose, if any.
+ *
+ * @return Remembered page size, or undefined.
+ */
+function readSavedPerPage(): number | undefined {
+	try {
+		const saved = Number( window.localStorage.getItem( perPageStorageKey() ) );
+		return Number.isFinite( saved ) && saved > 0 ? saved : undefined;
+	} catch {
+		// localStorage can be unavailable (privacy mode, blocked storage).
+		return undefined;
+	}
+}
+
+/**
+ * Remember the page size for the next visit.
+ *
+ * @param perPage - Page size to remember.
+ */
+function savePerPage( perPage: number | undefined ): void {
+	try {
+		if ( perPage ) {
+			window.localStorage.setItem( perPageStorageKey(), String( perPage ) );
+		}
+	} catch {
+		// localStorage can be unavailable or full; the URL still carries the choice.
+	}
+}
+
+/**
  * View-state hook with URL persistence. Initializes from `window.location.search` (so back/forward
  * and bookmarks restore the table state) and keeps the URL in sync via `history.replaceState`.
+ * The page size is also remembered per site, so a fresh visit without `pp` keeps the last choice.
  *
  * @param defaultView - Fallback view when the URL has no relevant params.
  * @return Tuple of `[view, setView]`, mirroring `useState`.
  */
 export function useViewState( defaultView: View ): [ View, ( next: View ) => void ] {
-	const [ view, setViewState ] = useState< View >( () => ( {
-		...defaultView,
-		...readViewFromUrl(),
-	} ) );
+	const [ view, setViewState ] = useState< View >( () => {
+		const savedPerPage = readSavedPerPage();
+		return {
+			...defaultView,
+			...( savedPerPage ? { perPage: savedPerPage } : {} ),
+			...readViewFromUrl(),
+		};
+	} );
+
+	useEffect( () => {
+		savePerPage( view.perPage );
+	}, [ view.perPage ] );
 
 	// Sync URL when the view changes — but skip the very first render, since we just hydrated
 	// from the URL and would otherwise trigger an immediate replaceState with the same values.
