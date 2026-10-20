@@ -31,7 +31,6 @@ type ControlProps = DataFormControlProps< Settings >;
 
 const SAVED_KEYS: ( keyof CommentFormSettings )[] = [
 	'comments',
-	'enable_blocks_comments',
 	'jetpack_comments_images',
 	'jetpack_comments_embeds',
 	'highlander_comment_form_prompt',
@@ -57,20 +56,6 @@ function Switch( { data, field, onChange }: ControlProps ) {
 			disabled={ field.isDisabled( { item: data, field } ) }
 			onCheckedChange={ handleChange }
 		/>
-	);
-}
-
-/**
- * A switch for a setting that only applies while blocks are on, set under that switch.
- *
- * @param {ControlProps} props - DataForm control props.
- * @return {JSX.Element} Indented switch.
- */
-function BlockOption( props: ControlProps ) {
-	return (
-		<div className="jetpack-comments-settings__block-option">
-			<Switch { ...props } />
-		</div>
 	);
 }
 
@@ -198,8 +183,6 @@ export default function CommentFormSettingsCard( {
 	}, [ changes, createErrorNotice, createSuccessNotice, onSave ] );
 
 	const isModuleOff = ( { item }: { item: Settings } ) => isUnavailable || ! item.comments;
-	const areBlocksOff = ( args: { item: Settings } ) =>
-		isModuleOff( args ) || ! args.item.enable_blocks_comments;
 
 	const fields: Field< Settings >[] = [
 		{
@@ -214,28 +197,20 @@ export default function CommentFormSettingsCard( {
 			isDisabled: isUnavailable,
 		},
 		{
-			id: 'enable_blocks_comments',
-			label: __( 'Enable blocks in comments', 'jetpack-comments' ),
+			id: 'jetpack_comments_images',
+			label: __( 'Allow images from links', 'jetpack-comments' ),
 			type: 'boolean',
 			Edit: Switch,
 			isVisible: () => hasBlockEditor,
 			isDisabled: isModuleOff,
 		},
 		{
-			id: 'jetpack_comments_images',
-			label: __( 'Allow images from links', 'jetpack-comments' ),
-			type: 'boolean',
-			Edit: BlockOption,
-			isVisible: () => hasBlockEditor,
-			isDisabled: areBlocksOff,
-		},
-		{
 			id: 'jetpack_comments_embeds',
 			label: __( 'Allow embeds from YouTube, X, and other services', 'jetpack-comments' ),
 			type: 'boolean',
-			Edit: BlockOption,
+			Edit: Switch,
 			isVisible: () => hasBlockEditor,
-			isDisabled: areBlocksOff,
+			isDisabled: isModuleOff,
 		},
 		{
 			id: 'highlander_comment_form_prompt',
@@ -268,7 +243,7 @@ export default function CommentFormSettingsCard( {
 								<div className="jetpack-comments-settings__preview">
 									<CommentFormPreview
 										isJetpackForm={ data.comments }
-										hasBlocks={ hasBlockEditor && data.enable_blocks_comments }
+										hasBlocks={ hasBlockEditor }
 										prompt={ data.highlander_comment_form_prompt ?? '' }
 										subscribeBlog={ !! data.stb_enabled }
 										subscribeReplies={ !! data.stc_enabled }

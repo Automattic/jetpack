@@ -13,7 +13,6 @@ export type PreviewData = {
 
 export type CommentFormSettings = {
 	comments: boolean;
-	enable_blocks_comments: boolean;
 	jetpack_comments_images: boolean;
 	jetpack_comments_embeds: boolean;
 	highlander_comment_form_prompt: string;
