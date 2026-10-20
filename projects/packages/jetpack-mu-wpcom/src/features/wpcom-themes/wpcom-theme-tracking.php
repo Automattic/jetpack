@@ -7,6 +7,7 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
 
 /**
@@ -53,6 +54,55 @@ function wpcom_themes_tracks_get_theme_props( $theme, $prefix = '' ) {
 	}
 
 	return $props;
+}
+
+/**
+ * Work out which surface a theme install or switch started from.
+ *
+ * @return string One of marketplace-tab, add-themes, themes, customizer, api, cli or other.
+ */
+function wpcom_themes_tracks_get_origin() {
+	if ( Constants::is_true( 'WP_CLI' ) ) {
+		return 'cli';
+	}
+
+	if ( Constants::is_true( 'REST_API_REQUEST' ) ) {
+		return 'api';
+	}
+
+	// This only labels the event and authorizes nothing, so nonces are not checked.
+	// phpcs:disable WordPress.Security.NonceVerification,WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+	$marker      = $_REQUEST['wpcom_themes_origin'] ?? '';
+	$post_action = $_POST['action'] ?? '';
+	$customize   = $_POST['wp_customize'] ?? '';
+	$get_action  = $_GET['action'] ?? '';
+	// phpcs:enable WordPress.Security.NonceVerification,WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+
+	if ( $marker === 'marketplace-tab' ) {
+		return 'marketplace-tab';
+	}
+
+	if ( $post_action === 'customize_save' || $customize === 'on' ) {
+		return 'customizer';
+	}
+
+	if ( $post_action === 'install-theme' ) {
+		return 'add-themes';
+	}
+
+	if ( $get_action === 'activate' ) {
+		$referer_path = (string) wp_parse_url( (string) wp_get_raw_referer(), PHP_URL_PATH );
+
+		if ( substr( $referer_path, -strlen( 'theme-install.php' ) ) === 'theme-install.php' ) {
+			return 'add-themes';
+		}
+
+		if ( substr( $referer_path, -strlen( 'themes.php' ) ) === 'themes.php' ) {
+			return 'themes';
+		}
+	}
+
+	return 'other';
 }
 
 /**
