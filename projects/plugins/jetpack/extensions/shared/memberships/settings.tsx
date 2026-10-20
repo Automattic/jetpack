@@ -285,11 +285,13 @@ export function NewsletterAccessRadioButtons( {
 	const { totalSubscribers, paidSubscribers, paidNewsletterSubscribers } = useSelect( select =>
 		select( membershipProductsStore ).getSubscriberCounts()
 	);
+	const isLoading = useSelect( select => select( membershipProductsStore ).isApiStateLoading() );
 
 	// Show paid disabled with a setup link beside it, so creators discover paid newsletters.
 	const { isPaidAvailable, showPaidAsDisabled } = getPaidAccessState( {
 		stripeConnectUrl,
 		hasTierPlans,
+		isLoading,
 		accessLevel,
 	} );
 	const isPaidSelected = accessLevel === accessOptions.paid_subscribers.key;

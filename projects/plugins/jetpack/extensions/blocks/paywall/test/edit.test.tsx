@@ -109,6 +109,40 @@ describe( 'PaywallEdit', () => {
 		).not.toHaveAttribute( 'aria-disabled' );
 	} );
 
+	test( 'does not save paid access when it is clicked while the status is loading', async () => {
+		mockAccessLevel = accessOptions.subscribers.key;
+		mockConnectUrl = null;
+		mockTierProducts = [];
+		mockIsLoading = true;
+		renderPaywall();
+		mockSetAccess.mockClear();
+
+		await userEvent.click(
+			screen.getByRole( 'button', { name: accessOptions.subscribers.label } )
+		);
+		await userEvent.click(
+			screen.getByRole( 'menuitem', { name: accessOptions.paid_subscribers.label } )
+		);
+
+		expect( mockSetAccess ).not.toHaveBeenCalledWith( accessOptions.paid_subscribers.key );
+	} );
+
+	test( 'links to the payments page without the tier anchor when a tier already exists', async () => {
+		mockAccessLevel = accessOptions.subscribers.key;
+		mockConnectUrl = 'https://example.com/connect-stripe';
+		renderPaywall();
+
+		await userEvent.click(
+			screen.getByRole( 'button', { name: accessOptions.subscribers.label } )
+		);
+
+		const setupLink = screen.getByRole( 'menuitem', { name: /Turn on paid subscribers/ } );
+		expect( setupLink.getAttribute( 'href' ) ).not.toContain( '#add-tier-plan' );
+		expect(
+			screen.getByRole( 'menuitem', { name: accessOptions.paid_subscribers.label } )
+		).toHaveAttribute( 'aria-describedby', setupLink.id );
+	} );
+
 	test( 'offers paid subscribers in the toolbar once payments are set up', async () => {
 		mockAccessLevel = accessOptions.subscribers.key;
 		renderPaywall();

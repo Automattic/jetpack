@@ -7,6 +7,7 @@ import {
 	store as blockEditorStore,
 } from '@wordpress/block-editor';
 import { MenuGroup, MenuItem, PanelBody, ToolbarDropdownMenu } from '@wordpress/components';
+import { useInstanceId } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useRef } from '@wordpress/element';
@@ -51,7 +52,8 @@ function PaywallEdit( { clientId } ) {
 		};
 	} );
 
-	const { showPaidAsDisabled } = getPaidAccessState( {
+	const paidSetupId = `${ useInstanceId( PaywallEdit ) }-paid-setup`;
+	const { isPaidAvailable, showPaidAsDisabled } = getPaidAccessState( {
 		stripeConnectUrl,
 		hasTierPlans,
 		accessLevel,
@@ -136,10 +138,15 @@ function PaywallEdit( { clientId } ) {
 								</MenuItem>
 								<MenuItem
 									onClick={ () => {
-										setAccess( accessOptions.paid_subscribers.key );
+										// Paid can't be granted until Stripe and a tier exist, so never save it
+										// before then, even while the status is still loading.
+										if ( isPaidAvailable || accessLevel === accessOptions.paid_subscribers.key ) {
+											setAccess( accessOptions.paid_subscribers.key );
+										}
 										closeDropdown();
 									} }
 									disabled={ showPaidAsDisabled }
+									aria-describedby={ showPaidAsDisabled ? paidSetupId : undefined }
 									isSelected={ accessLevel === accessOptions.paid_subscribers.key }
 									icon={ accessLevel === accessOptions.paid_subscribers.key && check }
 									iconPosition="right"
@@ -150,6 +157,7 @@ function PaywallEdit( { clientId } ) {
 							{ showPaidAsDisabled && (
 								<MenuGroup>
 									<MenuItem
+										id={ paidSetupId }
 										href={ getPaidPlanLink( hasTierPlans ) }
 										target="_blank"
 										rel="noopener noreferrer"
