@@ -30,11 +30,21 @@
 	 */
 	const purchaseFor = theme => {
 		if ( theme.upgrade_url ) {
-			return { url: theme.upgrade_url, text: config.upgrade, label: config.upgradeLabel };
+			return {
+				action: 'upgrade',
+				url: theme.upgrade_url,
+				text: config.upgrade,
+				label: config.upgradeLabel,
+			};
 		}
 
 		if ( theme.purchase_url ) {
-			return { url: theme.purchase_url, text: config.subscribe, label: config.subscribeLabel };
+			return {
+				action: 'subscribe',
+				url: theme.purchase_url,
+				text: config.subscribe,
+				label: config.subscribeLabel,
+			};
 		}
 
 		return null;
@@ -49,14 +59,20 @@
 	 * @param {Element} button   - Core's install or activate button.
 	 * @param {object}  theme    - The theme being rendered.
 	 * @param {object}  purchase - Where to send the reader and what to call it.
+	 * @param {string}  context  - Where it is offered: `card` or `preview`.
 	 * @return {void}
 	 */
-	const offerPurchase = ( button, theme, purchase ) => {
+	const offerPurchase = ( button, theme, purchase, context ) => {
 		const link = document.createElement( 'a' );
 		link.className = button.classList.contains( 'button-compact' )
 			? 'button button-primary button-compact'
 			: 'button button-primary';
 		link.href = purchase.url;
+		link.dataset.wpcomThemesTrack = purchase.action;
+		link.dataset.theme = theme.slug;
+		link.dataset.themeTier = theme.theme_tier;
+		link.dataset.requiredPlan = theme.required_plan;
+		link.dataset.context = context;
 		link.textContent = purchase.text;
 		// Core labels its own buttons per theme, which a grid of them needs.
 		if ( purchase.label ) {
@@ -128,12 +144,13 @@
 	/**
 	 * Patches a rendered theme with what its plan costs this site.
 	 *
-	 * @param {Element}  el    - The view's element.
-	 * @param {object}   theme - The theme being rendered.
-	 * @param {Function} badge - Places the plan badge for this view.
+	 * @param {Element}  el      - The view's element.
+	 * @param {object}   theme   - The theme being rendered.
+	 * @param {Function} badge   - Places the plan badge for this view.
+	 * @param {string}   context - Where the view is shown: `card` or `preview`.
 	 * @return {void}
 	 */
-	const showPlan = ( el, theme, badge ) => {
+	const showPlan = ( el, theme, badge, context ) => {
 		if ( ! el || ! theme || ( ! theme.plan_badge && ! theme.price_product ) ) {
 			return;
 		}
@@ -143,7 +160,7 @@
 		if ( purchase ) {
 			const button = el.querySelector( '.theme-install, .activate' );
 			if ( button ) {
-				offerPurchase( button, theme, purchase );
+				offerPurchase( button, theme, purchase, context );
 			}
 		}
 
@@ -171,22 +188,32 @@
 
 	// On a card the badge sits over the screenshot; in the preview it follows the author line.
 	afterRender( views.Theme, ( el, theme ) =>
-		showPlan( el, theme, () => {
-			const screenshot = el.querySelector( '.theme-screenshot' );
-			if ( screenshot ) {
-				screenshot.appendChild( planBadge( theme, 'wpcom-themes-tab__plan--on-screenshot' ) );
-			}
-		} )
+		showPlan(
+			el,
+			theme,
+			() => {
+				const screenshot = el.querySelector( '.theme-screenshot' );
+				if ( screenshot ) {
+					screenshot.appendChild( planBadge( theme, 'wpcom-themes-tab__plan--on-screenshot' ) );
+				}
+			},
+			'card'
+		)
 	);
 
 	if ( views.Preview ) {
 		afterRender( views.Preview, ( el, theme ) =>
-			showPlan( el, theme, () => {
-				const author = el.querySelector( '.theme-by' );
-				if ( author ) {
-					author.insertAdjacentElement( 'afterend', planBadge( theme ) );
-				}
-			} )
+			showPlan(
+				el,
+				theme,
+				() => {
+					const author = el.querySelector( '.theme-by' );
+					if ( author ) {
+						author.insertAdjacentElement( 'afterend', planBadge( theme ) );
+					}
+				},
+				'preview'
+			)
 		);
 	}
 } )();

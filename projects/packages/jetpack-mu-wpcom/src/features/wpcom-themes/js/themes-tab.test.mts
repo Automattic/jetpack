@@ -77,7 +77,10 @@ it( "offers the plan a theme needs in place of core's install button", () => {
 	card.querySelector = selector => ( selector === '.theme-screenshot' ? screenshot : install );
 
 	const theme = {
+		slug: 'example',
 		name: 'Example',
+		theme_tier: 'personal',
+		required_plan: 'personal-bundle',
 		upgrade_url: 'https://wordpress.com/checkout/example.org/example-bundle',
 		plan_badge: 'Example plan',
 	};
@@ -108,6 +111,13 @@ it( "offers the plan a theme needs in place of core's install button", () => {
 	assert.equal( screenshot.children[ 0 ].textContent, 'Example plan' );
 	// Core names the theme in its own button labels, and a grid of cards needs that.
 	assert.equal( upgrade.attributes[ 'aria-label' ], 'Upgrade for Example' );
+	assert.deepEqual( upgrade.dataset, {
+		wpcomThemesTrack: 'upgrade',
+		theme: 'example',
+		themeTier: 'personal',
+		requiredPlan: 'personal-bundle',
+		context: 'card',
+	} );
 } );
 
 it( 'names the plan beside the author in the theme preview', () => {
@@ -119,7 +129,10 @@ it( 'names the plan beside the author in the theme preview', () => {
 	overlay.querySelector = selector => ( selector === '.theme-by' ? author : install );
 
 	const theme = {
+		slug: 'example',
 		name: 'Example',
+		theme_tier: 'personal',
+		required_plan: 'personal-bundle',
 		upgrade_url: 'https://wordpress.com/checkout/example.org/example-bundle',
 		plan_badge: 'Example plan',
 	};
@@ -148,6 +161,7 @@ it( 'names the plan beside the author in the theme preview', () => {
 	assert.equal( badge.textContent, 'Example plan' );
 	assert.equal( badge.className, 'wpcom-themes-tab__plan' );
 	assert.equal( install.children[ 0 ].className, 'button button-primary' );
+	assert.equal( install.children[ 0 ].dataset.context, 'preview' );
 } );
 
 it( 'badges a theme the plan includes without taking its install away', () => {
@@ -230,7 +244,10 @@ const STORE = {
 it( "prices a partner theme in the reader's own currency, and sells it", async () => {
 	const { badge, install } = await priceCard(
 		{
+			slug: 'organic-stax',
 			name: 'STAX',
+			theme_tier: 'partner',
+			required_plan: 'personal-bundle',
 			price_product: 'theme_stax_yearly',
 			price_plan: '',
 			purchase_url: 'https://wordpress.com/checkout/example.org/theme_stax_yearly',
@@ -243,6 +260,13 @@ it( "prices a partner theme in the reader's own currency, and sells it", async (
 	const [ subscribe ] = install.children;
 	assert.equal( subscribe.textContent, 'Subscribe' );
 	assert.equal( subscribe.attributes[ 'aria-label' ], 'Subscribe to STAX' );
+	assert.deepEqual( subscribe.dataset, {
+		wpcomThemesTrack: 'subscribe',
+		theme: 'organic-stax',
+		themeTier: 'partner',
+		requiredPlan: 'personal-bundle',
+		context: 'card',
+	} );
 } );
 
 it( 'adds the plan a site still needs, so the price is not read as the whole cost', async () => {
