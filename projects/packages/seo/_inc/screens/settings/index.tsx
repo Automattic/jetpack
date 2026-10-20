@@ -173,7 +173,7 @@ const SettingsScreen: FC< Props > = ( { form } ) => {
 	const canonicalStatus: SettingStatus = local.canonical_active ? 'complete' : 'not-started';
 	const frontPageStatus: SettingStatus = local.front_page_description ? 'complete' : 'not-started';
 
-	let canonicalHelpText = canonicalHelp;
+	let canonicalHelpText: string = canonicalHelp;
 	if ( ! local.canonical_switchable ) {
 		canonicalHelpText = platformManagedHelp;
 	} else if ( local.canonical_conflicted ) {
