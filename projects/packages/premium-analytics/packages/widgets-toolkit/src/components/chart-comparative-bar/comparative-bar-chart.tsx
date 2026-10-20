@@ -187,8 +187,7 @@ export function ComparativeBarChart( {
 		[ isEmptyData, tooltipExtras ]
 	);
 
-	// Grouped, the opacity matters: a comparison series shares its primary's colour, dimmed
-	// only by the theme — without it the swatch reads as an identical twin. Overlap bars are opaque.
+	// Grouped, a comparison shares its primary's color and only the theme's opacity sets its swatch apart. Overlap bars are opaque and toned apart.
 	const seriesStyles = useMemo< TooltipStyle[] >( () => {
 		const overlapColors =
 			overlapLayout && getBarColors?.( alignedSeries, { layout: overlapLayout } );
