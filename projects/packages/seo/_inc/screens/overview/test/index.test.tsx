@@ -56,6 +56,7 @@ const buildOverview = (): OverviewResponse => ( {
 	plan: {
 		seo_enabled_for_site: true,
 	},
+	conflicting_seo_plugin: '',
 	verification_switchable: true,
 } );
 

@@ -35,6 +35,8 @@ class DashboardDataTest extends SeoTestCase {
 		delete_option( 'jetpack_seo_canonical_urls_enabled' );
 		remove_all_filters( 'jetpack_active_modules' );
 		remove_all_filters( 'jetpack_ai_seo_enabled' );
+		remove_all_filters( 'jetpack_seo_conflicting_plugin' );
+		remove_all_filters( 'jetpack_disable_seo_tools' );
 
 		self::reset_plan();
 
@@ -351,6 +353,41 @@ class DashboardDataTest extends SeoTestCase {
 
 		$this->assertEquals( (object) $formats, $settings['title_formats'] );
 		$this->assertFalse( $settings['title_formats_editable'] );
+	}
+
+	/**
+	 * @dataProvider provide_conflicting_seo_plugin_states
+	 * @param bool        $disabled Whether `jetpack_disable_seo_tools` is on.
+	 * @param string|null $name     What `jetpack_seo_conflicting_plugin` returns, or null for no callback.
+	 * @param string      $expected The name both payloads should report.
+	 */
+	#[DataProvider( 'provide_conflicting_seo_plugin_states' )]
+	public function test_dashboard_names_the_conflicting_seo_plugin( $disabled, $name, $expected ) {
+		if ( $disabled ) {
+			add_filter( 'jetpack_disable_seo_tools', '__return_true' );
+		}
+		if ( null !== $name ) {
+			add_filter(
+				'jetpack_seo_conflicting_plugin',
+				static function () use ( $name ) {
+					return $name;
+				}
+			);
+		}
+
+		$this->assertSame( $expected, Dashboard_Data::get_overview_data()['conflicting_seo_plugin'] );
+		$this->assertSame( $expected, Dashboard_Data::get_settings_data()['conflicting_seo_plugin'] );
+	}
+
+	/**
+	 * @return array Step-aside state, filtered name, expected report.
+	 */
+	public static function provide_conflicting_seo_plugin_states() {
+		return array(
+			'no conflict'                     => array( false, null, '' ),
+			'Jetpack stepped aside'           => array( true, ' Yoast SEO ', 'Yoast SEO' ),
+			'named but Jetpack still outputs' => array( false, 'Yoast SEO', '' ),
+		);
 	}
 
 	/**
