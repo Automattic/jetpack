@@ -134,6 +134,20 @@ class Site_Launch_Publish_Copy_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * A peek later in the same request sees the assignment made earlier in it.
+	 */
+	public function test_peek_after_assign_sees_the_assignment() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'launch-status', 'unlaunched' );
+		set_transient( $this->get_cache_key(), 1, HOUR_IN_SECONDS );
+
+		$this->assertTrue( wpcom_site_launch_uses_publish_copy() );
+
+		delete_transient( $this->get_cache_key() );
+		$this->assertTrue( wpcom_site_launch_peek_publish_copy() );
+	}
+
+	/**
 	 * Without an answer from ExPlat, the user gets the control and nothing is cached.
 	 */
 	public function test_unanswered_assignment_is_not_cached() {

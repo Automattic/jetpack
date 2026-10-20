@@ -11,6 +11,8 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status\Host;
 
+require_once __DIR__ . '/../utils.php';
+
 if ( ! defined( 'WPCOM_SITE_LAUNCH_PUBLISH_COPY_EXPERIMENT' ) ) {
 	/**
 	 * The ExPlat experiment. It is registered on the calypso platform, which the server-side assigner
@@ -99,7 +101,7 @@ if ( ! function_exists( 'wpcom_site_launch_resolve_publish_copy' ) ) {
 			return false;
 		}
 
-		if ( function_exists( 'has_blog_sticker' ) && has_blog_sticker( 'a4a-is-dev-site' ) ) {
+		if ( wpcom_has_blog_sticker( 'a4a-is-dev-site', get_current_blog_id() ) ) {
 			return false;
 		}
 
@@ -110,15 +112,20 @@ if ( ! function_exists( 'wpcom_site_launch_resolve_publish_copy' ) ) {
 			return (bool) $cached;
 		}
 
-		// Null until ExPlat answers: an unanswered assignment must not be cached as the control.
+		// ExPlat returns null both for the control and for a failed assignment. On Simple the call is
+		// local, so a null is not cached. On Atomic it is a request, so any 200 counts as answered and is
+		// cached, the control included; only a failed request is retried.
 		$variation = null;
+		$answered  = false;
 
 		if ( ( new Host() )->is_wpcom_simple() ) {
 			if ( $assign && function_exists( '\ExPlat\assign_current_user' ) ) {
 				$variation = \ExPlat\assign_current_user( WPCOM_SITE_LAUNCH_PUBLISH_COPY_EXPERIMENT );
 			} elseif ( ! $assign && function_exists( '\ExPlat\get_current_user_assignment' ) ) {
+				// @phan-suppress-next-line PhanUndeclaredFunction -- Defined on WordPress.com, missing from the wpcom stubs.
 				$variation = \ExPlat\get_current_user_assignment( WPCOM_SITE_LAUNCH_PUBLISH_COPY_EXPERIMENT );
 			}
+			$answered = null !== $variation;
 		} elseif ( $assign && ( new Connection_Manager( 'jetpack' ) )->is_user_connected() ) {
 			// The assignments endpoint always assigns, so a peek on Atomic relies on the cache alone.
 			$response = Client::wpcom_json_api_request_as_user(
@@ -132,10 +139,11 @@ if ( ! function_exists( 'wpcom_site_launch_resolve_publish_copy' ) ) {
 			if ( ! is_wp_error( $response ) && 200 === wp_remote_retrieve_response_code( $response ) ) {
 				$data      = json_decode( wp_remote_retrieve_body( $response ), true );
 				$variation = $data['variations'][ WPCOM_SITE_LAUNCH_PUBLISH_COPY_EXPERIMENT ] ?? null;
+				$answered  = true;
 			}
 		}
 
-		if ( null === $variation ) {
+		if ( ! $answered ) {
 			return false;
 		}
 

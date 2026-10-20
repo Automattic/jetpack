@@ -255,7 +255,7 @@ class Launchpad_Task_Definitions_Test extends \WorDBless\BaseTestCase {
 			$tasks = wpcom_launchpad_get_task_definitions();
 			return array_map(
 				function ( $task_id ) use ( $tasks ) {
-					return call_user_func( $tasks[ $task_id ]['get_title'] );
+					return call_user_func( $tasks[ $task_id ]['get_title'] ?? '__return_empty_string' );
 				},
 				array( 'site_launched', 'link_in_bio_launched', 'videopress_launched', 'blog_launched', 'woo_launch_site' )
 			);
