@@ -2,10 +2,12 @@ import { act, renderHook } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { dispatch, select } from '@wordpress/data';
 import { store as noticesStore } from '@wordpress/notices';
+import { recordEvent } from '../../../data/analytics';
 import { setScan, useScan } from '../store';
-import { deleteSoftware, fixThreat, ignoreThreat } from '../threat-actions';
+import { deleteSoftware, fixThreat, ignoreThreat, unignoreThreat } from '../threat-actions';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
+jest.mock( '../../../data/analytics', () => ( { recordEvent: jest.fn() } ) );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 const threat = { id: 7, title: 'Malicious code found in file: a.php' };
@@ -84,6 +86,35 @@ describe( 'threat notices', () => {
 		).toEqual(
 			expect.arrayContaining( [ 'Ignored the threat in a.php.', 'Ignored the threat in b.php.' ] )
 		);
+	} );
+} );
+
+describe( 'threat action Tracks events', () => {
+	const scan = { hasPlan: true, url: '#', error: false, threats: [] };
+
+	it.each( [
+		[ 'a fix', fixThreat, Promise.resolve( { status: 'fixed', scan } ), 'fix_threat', 'success' ],
+		[
+			'a fix Scan gave up on',
+			fixThreat,
+			Promise.resolve( { status: 'not_fixed', scan } ),
+			'fix_threat',
+			'failed',
+		],
+		[ 'a fix that didn’t start', fixThreat, Promise.reject( {} ), 'fix_threat', 'failed' ],
+		[ 'an ignore', ignoreThreat, Promise.resolve( {} ), 'ignore_threat', 'success' ],
+		[ 'a failed ignore', ignoreThreat, Promise.reject( {} ), 'ignore_threat', 'failed' ],
+		[ 'an unignore', unignoreThreat, Promise.resolve( {} ), 'unignore_threat', 'success' ],
+	] )( 'record the Scan page’s events for %s', async ( _name, action, response, event, result ) => {
+		( recordEvent as jest.Mock ).mockClear();
+		mockApiFetch.mockReturnValue( response );
+
+		await act( () => action( { ...threat, id: `tracks-${ _name }` } ) );
+
+		expect( ( recordEvent as jest.Mock ).mock.calls ).toEqual( [
+			[ `jetpack_scan_${ event }_click` ],
+			[ `jetpack_scan_${ event }_${ result }` ],
+		] );
 	} );
 } );
 

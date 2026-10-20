@@ -4,6 +4,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import useArrowKeyNavigation from '../../components/use-arrow-key-navigation';
+import { recordViewChange } from '../../data/threat-events';
 import { CLOSED_INSPECTOR } from '../inspector-params';
 import { THREAT_PARAM, useScan, useSearchParam } from '../scan/store';
 import { getThreatRowActions } from '../scan/threat-row-actions';
@@ -41,6 +42,13 @@ export default function HistoryList( { threats }: { threats: ScanThreat[] } ) {
 	const status = statusParam === 'ignored' ? 'ignored' : 'fixed';
 
 	const [ view, setView ] = useState< View >( () => createThreatView( 'date' ) );
+	const onChangeView = useCallback(
+		( next: View ) => {
+			recordViewChange( view, next );
+			setView( next );
+		},
+		[ view ]
+	);
 	const navigate = useNavigate();
 
 	// Switching lists closes the inspector, whose threat is in the list being left.
@@ -120,7 +128,7 @@ export default function HistoryList( { threats }: { threats: ScanThreat[] } ) {
 				fields={ fields }
 				actions={ actions }
 				view={ view }
-				onChangeView={ setView }
+				onChangeView={ onChangeView }
 				paginationInfo={ paginationInfo }
 				defaultLayouts={ DEFAULT_LAYOUTS }
 				getItemId={ getItemId }

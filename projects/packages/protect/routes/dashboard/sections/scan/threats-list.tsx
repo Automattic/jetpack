@@ -4,6 +4,7 @@ import { dateI18n } from '@wordpress/date';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import useArrowKeyNavigation from '../../components/use-arrow-key-navigation';
+import { recordViewChange } from '../../data/threat-events';
 import useOpenThreat from '../use-open-threat';
 import { getThreatLabel } from './labels';
 import { THREAT_PARAM, useSearchParam } from './store';
@@ -156,6 +157,13 @@ type ThreatsListProps = {
  */
 export default function ThreatsList( { threats, empty, canAct }: ThreatsListProps ) {
 	const [ view, setView ] = useState< View >( () => createThreatView( 'severity' ) );
+	const onChangeView = useCallback(
+		( next: View ) => {
+			recordViewChange( view, next );
+			setView( next );
+		},
+		[ view ]
+	);
 
 	const [ selected ] = useSearchParam( THREAT_PARAM );
 	const selection = useMemo( () => ( selected ? [ selected ] : [] ), [ selected ] );
@@ -187,7 +195,7 @@ export default function ThreatsList( { threats, empty, canAct }: ThreatsListProp
 				fields={ fields }
 				actions={ actions }
 				view={ view }
-				onChangeView={ setView }
+				onChangeView={ onChangeView }
 				paginationInfo={ paginationInfo }
 				defaultLayouts={ DEFAULT_LAYOUTS }
 				getItemId={ getItemId }
