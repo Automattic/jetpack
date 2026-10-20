@@ -145,7 +145,9 @@
 		 */
 		function goToLaunch() {
 			if ( config.launchUrl ) {
-				window.location.href = config.launchUrl;
+				const launchUrl = new URL( config.launchUrl );
+				launchUrl.searchParams.set( 'back_to', window.location.href );
+				window.location.href = launchUrl.href;
 			}
 		}
 

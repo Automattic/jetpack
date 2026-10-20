@@ -1,6 +1,8 @@
+import { speak } from '@wordpress/a11y';
 import { ProgressBar } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
+import { useEffect } from 'react';
 import type { EditsJob } from '../../types/edits';
 import type { ReactElement } from 'react';
 
@@ -32,9 +34,7 @@ export default function StudioEditorStatusBanner( {
 	onReloadLatest,
 }: Props ): ReactElement | null {
 	const processing = job?.status === 'processing';
-	if ( ! conflict && ! processing && job?.status !== 'failed' ) {
-		return null;
-	}
+	const visible = conflict || processing || job?.status === 'failed';
 	let message =
 		job?.error?.message ||
 		__( 'Something went wrong applying your edits.', 'jetpack-videopress-pkg' );
@@ -54,8 +54,18 @@ export default function StudioEditorStatusBanner( {
 		action = undefined;
 		intent = 'info';
 	}
+	const spokenMessage = visible ? message : null;
+	const politeness = intent === 'error' ? 'assertive' : 'polite';
+	useEffect( () => {
+		if ( spokenMessage ) {
+			speak( spokenMessage, politeness );
+		}
+	}, [ spokenMessage, politeness ] );
+	if ( ! visible ) {
+		return null;
+	}
 	return (
-		<Notice.Root intent={ intent } className="vp-video-editor__notice" spokenMessage={ message }>
+		<Notice.Root intent={ intent } className="vp-video-editor__notice">
 			<Notice.Description>
 				{ message }
 				{ processing && ! conflict && (

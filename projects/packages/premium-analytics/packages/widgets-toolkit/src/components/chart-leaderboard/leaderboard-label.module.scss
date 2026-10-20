@@ -106,6 +106,26 @@
 	text-decoration: underline;
 }
 
+/* Only the name opens the link; the rest of the row is the drill-down
+ * button behind it. */
+.labelLink {
+	display: inline-flex;
+	align-items: center;
+	min-inline-size: 0;
+	max-inline-size: 100%;
+	color: inherit;
+}
+
+.labelLink:hover,
+.labelLink:focus {
+	color: var(--wpds-color-foreground-interactive-brand);
+}
+
+.labelLink:hover .label,
+.labelLink:focus .label {
+	text-decoration: underline;
+}
+
 /* DataViews picker cells stretch media images to 100%. Widget previews render
  * inert, so keep each semantic media kind at its shared size. */
 :global([inert]) .container .media {

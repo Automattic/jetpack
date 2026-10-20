@@ -14,8 +14,9 @@ import Privacy from 'privacy';
 import Reader from 'reader';
 import SearchableModules from 'searchable-modules';
 import Security from 'security';
+import { HIDDEN_WITH_PROTECT_PAGE } from 'security/protect-page';
 import Sharing from 'sharing';
-import { isModuleActivated as isModuleActivatedSelector } from 'state/modules';
+import { hasProtectPage, isModuleActivated as isModuleActivatedSelector } from 'state/modules';
 import { hasAnyMatchingModule as hasAnyMatchingModuleSelector } from 'state/search';
 import Traffic from 'traffic';
 import Writing from 'writing';
@@ -123,6 +124,9 @@ class Settings extends Component {
 export default connect( state => {
 	return {
 		isModuleActivated: module => isModuleActivatedSelector( state, module ),
-		hasAnyMatchingModule: hasAnyMatchingModuleSelector( state ),
+		hasAnyMatchingModule: hasAnyMatchingModuleSelector(
+			state,
+			hasProtectPage( state ) ? HIDDEN_WITH_PROTECT_PAGE : []
+		),
 	};
 } )( props => <Settings { ...props } location={ useLocation() } /> );

@@ -2,9 +2,10 @@
  * Script module that registers a Jetpack connector card on the
  * WP core Settings > Connectors page (WP 7.0+).
  *
- * Loaded via wp_enqueue_script_module() with `@wordpress/connectors`
- * as a static dependency. Uses classic-script globals for element,
- * i18n, and components which are always loaded on admin pages.
+ * Built by webpack into dist/connectors/ and loaded via
+ * wp_enqueue_script_module() with `@wordpress/connectors` as a static
+ * dependency. Its other imports are classic scripts, which the PHP
+ * enqueues beside it from the asset file's `dependencies`.
  *
  * Name, description, and logo are provided by the PHP registration
  * in register_connector() and merged automatically by the store.
@@ -17,18 +18,32 @@
  * @see Jetpack_Connector::enqueue_script_module()
  */
 
+import {
+	ProtectedOwnerConfirmation,
+	ProtectedOwnerRelease,
+	TransferConnectionOwnership,
+} from '@automattic/jetpack-connection';
+import * as components from '@wordpress/components';
+// Namespace import: a missing named export would fail the whole module before the fallbacks run.
 // eslint-disable-next-line import/no-unresolved -- resolved via WP import map at runtime.
-const connectors = await import( '@wordpress/connectors' );
+import * as connectors from '@wordpress/connectors';
+import {
+	createElement,
+	createInterpolateElement,
+	useState,
+	useEffect,
+	useRef,
+} from '@wordpress/element';
+import { __, _x, sprintf } from '@wordpress/i18n';
+
 const registerConnector =
 	connectors.__experimentalRegisterConnector || connectors.registerConnector;
 const ConnectorItem = connectors.__experimentalConnectorItem || connectors.ConnectorItem;
 
-const { createElement, createInterpolateElement, useState, useEffect, useRef } = window.wp.element;
-const { __, _x, sprintf } = window.wp.i18n;
-const { Button, Modal, Notice, Tooltip } = window.wp.components;
-const HStack = window.wp.components.__experimentalHStack || window.wp.components.HStack;
-const VStack = window.wp.components.__experimentalVStack || window.wp.components.VStack;
-const Text = window.wp.components.__experimentalText || window.wp.components.Text;
+const { Button, Modal, Notice, Tooltip } = components;
+const HStack = components.__experimentalHStack || components.HStack;
+const VStack = components.__experimentalVStack || components.VStack;
+const Text = components.__experimentalText || components.Text;
 
 const MODULE_ID = '@automattic/jetpack-connection-connectors';
 const dataEl = document.getElementById( `wp-script-module-data-${ MODULE_ID }` );
@@ -608,8 +623,6 @@ function canReleaseProtectedOwner() {
  */
 function ReleaseOwnershipSection( { isBusy = false } ) {
 	const [ isReleaseOpen, setIsReleaseOpen ] = useState( false );
-	const [ releaseError, setReleaseError ] = useState( null );
-	const Release = window.JetpackConnection?.ProtectedOwnerRelease;
 
 	return createElement(
 		VStack,
@@ -620,30 +633,12 @@ function ReleaseOwnershipSection( { isBusy = false } ) {
 				variant: 'link',
 				className: 'jetpack-connector__inline-action',
 				disabled: isBusy || isOfflineMode,
-				onClick: () => {
-					if ( ! window.JetpackConnection?.ProtectedOwnerRelease ) {
-						setReleaseError(
-							__(
-								'Could not open the release dialog. Reload the page and try again.',
-								'jetpack-connection'
-							)
-						);
-						return;
-					}
-					setReleaseError( null );
-					setIsReleaseOpen( true );
-				},
+				onClick: () => setIsReleaseOpen( true ),
 			},
 			__( 'Release ownership', 'jetpack-connection' )
 		),
-		releaseError
-			? createElement( ErrorNotice, {
-					message: releaseError,
-					onDismiss: () => setReleaseError( null ),
-				} )
-			: null,
-		isReleaseOpen && Release
-			? createElement( Release, {
+		isReleaseOpen && ProtectedOwnerRelease
+			? createElement( ProtectedOwnerRelease, {
 					isOpen: true,
 					apiRoot,
 					apiNonce,
@@ -662,7 +657,6 @@ function ReleaseOwnershipSection( { isBusy = false } ) {
  */
 function ProtectedOwnerSection() {
 	const [ isConfirmOpen, setIsConfirmOpen ] = useState( false );
-	const [ confirmError, setConfirmError ] = useState( null );
 	const kind = protectedOwnerSlotKind();
 	let title;
 	let body;
@@ -735,19 +729,7 @@ function ProtectedOwnerSection() {
 				{
 					variant: 'link',
 					className: 'jetpack-connector__inline-action',
-					onClick: () => {
-						if ( ! window.JetpackConnection?.ProtectedOwnerConfirmation ) {
-							setConfirmError(
-								__(
-									'Could not open the confirmation. Reload the page and try again.',
-									'jetpack-connection'
-								)
-							);
-							return;
-						}
-						setConfirmError( null );
-						setIsConfirmOpen( true );
-					},
+					onClick: () => setIsConfirmOpen( true ),
 				},
 				sprintf(
 					// translators: %s: "site" or "store".
@@ -771,21 +753,13 @@ function ProtectedOwnerSection() {
 		);
 	}
 
-	const Confirmation = window.JetpackConnection?.ProtectedOwnerConfirmation;
-
 	return createElement(
 		VStack,
 		{ spacing: 3, className: 'jetpack-connector__section' },
 		createElement( SectionHeading, { title, showShield: true } ),
 		body,
-		confirmError
-			? createElement( ErrorNotice, {
-					message: confirmError,
-					onDismiss: () => setConfirmError( null ),
-				} )
-			: null,
-		isConfirmOpen && Confirmation
-			? createElement( Confirmation, {
+		isConfirmOpen && ProtectedOwnerConfirmation
+			? createElement( ProtectedOwnerConfirmation, {
 					isOpen: true,
 					apiRoot,
 					apiNonce,
@@ -804,20 +778,22 @@ function ProtectedOwnerSection() {
  * @param {Function} props.onConnect       - Callback to start the authorization flow.
  * @param {boolean}  props.isConnecting    - Whether a connection attempt is in progress.
  * @param {boolean}  props.isDisconnecting - Whether a disconnect is in progress (disables button).
+ * @param {object}   props.owner           - Connection owner data, or null when there is none.
  * @return {object} React element.
  */
-function ConnectPrompt( { onConnect, isConnecting, isDisconnecting } ) {
+function ConnectPrompt( { onConnect, isConnecting, isDisconnecting, owner } ) {
 	// When a connection owner is already linked, the viewing admin is
 	// connecting as a secondary user — the site-registration framing no
 	// longer applies, so use shorter copy focused on the user benefit.
-	const promptText = connectionOwner
+	const promptText = owner
 		? __(
 				'Connect your user account to unlock more features and sign in via WordPress.com (SSO).',
 				'jetpack-connection'
 			)
 		: __(
 				'Your site is registered with WordPress.com. Connect your user account to unlock full functionality.',
-				'jetpack-connection'
+				'jetpack-connection',
+				/* dummy arg to avoid bad minification */ 0
 			);
 
 	return createElement(
@@ -840,7 +816,7 @@ function ConnectPrompt( { onConnect, isConnecting, isDisconnecting } ) {
 			},
 			isConnecting
 				? __( 'Connecting…', 'jetpack-connection' )
-				: __( 'Connect account', 'jetpack-connection' )
+				: __( 'Connect account', 'jetpack-connection', /* dummy arg to avoid bad minification */ 0 )
 		)
 	);
 }
@@ -895,6 +871,42 @@ function ConfirmationModal( { title, message, onConfirm, onCancel } ) {
 }
 
 /**
+ * Modal hosting the ownership transfer flow.
+ *
+ * The shared component carries the choose → confirm → done flow and its own actions, so the
+ * card supplies only the modal, its heading and the way out.
+ *
+ * @param {object}   props               - Component props.
+ * @param {Function} props.onClose       - Called when the modal is dismissed.
+ * @param {Function} props.onTransferred - Called once WordPress.com has accepted the new owner.
+ * @return {object} React element.
+ */
+function TransferOwnershipModal( { onClose, onTransferred } ) {
+	const [ isTransferring, setIsTransferring ] = useState( false );
+
+	return createElement(
+		Modal,
+		{
+			title: __( 'Transfer connection ownership', 'jetpack-connection' ),
+			onRequestClose: onClose,
+			size: 'small',
+			className: 'jetpack-connector__transfer-modal',
+			focusOnMount: 'firstElement',
+			// A transfer cannot be undone halfway, so every way out is held shut while it runs.
+			isDismissible: ! isTransferring,
+			shouldCloseOnClickOutside: ! isTransferring,
+			shouldCloseOnEsc: ! isTransferring,
+		},
+		createElement( TransferConnectionOwnership, {
+			apiRoot,
+			apiNonce,
+			onBusyChange: setIsTransferring,
+			onTransferred,
+		} )
+	);
+}
+
+/**
  * Read-only modal showing blog ID, site URL, home URL, and SSO status.
  *
  * @param {object}   props         - Component props.
@@ -935,7 +947,11 @@ function SiteDetailsModal( { onClose } ) {
 						__( 'WordPress.com login (SSO)', 'jetpack-connection' ),
 						ssoStatus
 							? __( 'Enabled', 'jetpack-connection' )
-							: __( 'Not enabled', 'jetpack-connection' )
+							: __(
+									'Not enabled',
+									'jetpack-connection',
+									/* dummy arg to avoid bad minification */ 0
+								)
 					)
 				: [] )
 		)
@@ -1161,7 +1177,8 @@ function IDCPanel() {
 		: // translators: %s: "site" or "store".
 			__(
 				'This %s is registered with WordPress.com at <wpcom />, but now loads at <current />. Features that sync with WordPress.com are paused in Safe Mode until you resolve this.',
-				'jetpack-connection'
+				'jetpack-connection',
+				/* dummy arg to avoid bad minification */ 0
 			);
 
 	const intro = createInterpolateElement( sprintf( introText, subjectNoun ), {
@@ -1355,7 +1372,11 @@ function IDCPanel() {
 							},
 							busyAction === 'safe-mode'
 								? __( 'Saving…', 'jetpack-connection' )
-								: __( 'Not sure? Stay in Safe Mode', 'jetpack-connection' )
+								: __(
+										'Not sure? Stay in Safe Mode',
+										'jetpack-connection',
+										/* dummy arg to avoid bad minification */ 0
+									)
 						),
 						createElement(
 							Text,
@@ -1410,9 +1431,12 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 	const [ isDisconnecting, setIsDisconnecting ] = useState( false );
 	const [ isUnlinking, setIsUnlinking ] = useState( false );
 	const [ showDetailsModal, setShowDetailsModal ] = useState( false );
+	const [ isTransferOpen, setIsTransferOpen ] = useState( false );
 	const [ pendingConfirm, setPendingConfirm ] = useState( null );
 	const [ actionError, setActionError ] = useState( null );
 	const detailsLinkRef = useRef( null );
+	const transferOwnershipRef = useRef( null );
+	const transferredRef = useRef( false );
 	const confirmTriggerRef = useRef( null );
 	const disconnectSiteRef = useRef( null );
 	const disconnectAccountRef = useRef( null );
@@ -1489,7 +1513,8 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 					)
 				: __(
 						'Are you sure you want to disconnect your WordPress.com account?',
-						'jetpack-connection'
+						'jetpack-connection',
+						/* dummy arg to avoid bad minification */ 0
 					);
 
 		setPendingConfirm( {
@@ -1518,18 +1543,40 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 						isManagedPlatformSite && currentUser.isOwner
 							? null
 							: createElement(
-									Button,
-									{
-										ref: disconnectAccountRef,
-										variant: 'link',
-										isDestructive: true,
-										disabled: isUnlinking || isDisconnecting || isOfflineMode,
-										onClick: handleUnlinkUser,
-										className: 'jetpack-connector__inline-action',
-									},
-									isUnlinking
-										? __( 'Disconnecting…', 'jetpack-connection' )
-										: __( 'Disconnect account', 'jetpack-connection' )
+									// The links right-align themselves; an alignment prop here would fight the mobile reset.
+									VStack,
+									{ spacing: 1 },
+									currentUser.isOwner
+										? createElement(
+												Button,
+												{
+													ref: transferOwnershipRef,
+													variant: 'link',
+													className: 'jetpack-connector__inline-action',
+													disabled: isUnlinking || isDisconnecting || isOfflineMode,
+													onClick: () => setIsTransferOpen( true ),
+												},
+												__( 'Transfer ownership', 'jetpack-connection' )
+											)
+										: null,
+									createElement(
+										Button,
+										{
+											ref: disconnectAccountRef,
+											variant: 'link',
+											isDestructive: true,
+											disabled: isUnlinking || isDisconnecting || isOfflineMode,
+											onClick: handleUnlinkUser,
+											className: 'jetpack-connector__inline-action',
+										},
+										isUnlinking
+											? __( 'Disconnecting…', 'jetpack-connection' )
+											: __(
+													'Disconnect account',
+													'jetpack-connection',
+													/* dummy arg to avoid bad minification */ 0
+												)
+									)
 								),
 				} )
 			: null,
@@ -1654,6 +1701,25 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 						focusWhenReady( confirmTriggerRef.current );
 					},
 				} )
+			: null,
+		isTransferOpen
+			? createElement( TransferOwnershipModal, {
+					onTransferred: () => {
+						transferredRef.current = true;
+					},
+					// The card reads its connection state from script module data, so a completed
+					// transfer is picked up by reloading. Held until the done step has been read.
+					onClose: () => {
+						setIsTransferOpen( false );
+
+						if ( transferredRef.current ) {
+							window.location.reload();
+							return;
+						}
+
+						focusWhenReady( transferOwnershipRef.current );
+					},
+				} )
 			: null
 	);
 }
@@ -1682,7 +1748,6 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 	const isSiteRegistered = initialIsRegistered;
 	const [ isConnecting, setIsConnecting ] = useState( false );
 	const [ connectError, setConnectError ] = useState( data.authError || null );
-
 	// Reset "Connecting…" state when the page is restored from bfcache
 	// (e.g. user hits Back after being redirected to the auth page).
 	useEffect( () => {
@@ -1744,7 +1809,7 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 		};
 		let toggleLabel = isExpanded
 			? __( 'Close', 'jetpack-connection' )
-			: __( 'Details', 'jetpack-connection' );
+			: __( 'Details', 'jetpack-connection', /* dummy arg to avoid bad minification */ 0 );
 		if ( isInSafeMode && ! isExpanded ) {
 			toggleProps.variant = 'primary';
 			toggleLabel = __( 'Resolve', 'jetpack-connection' );
@@ -1785,7 +1850,7 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 			},
 			isConnecting
 				? __( 'Connecting…', 'jetpack-connection' )
-				: __( 'Connect', 'jetpack-connection' )
+				: __( 'Connect', 'jetpack-connection', /* dummy arg to avoid bad minification */ 0 )
 		);
 	}
 

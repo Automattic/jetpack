@@ -22,7 +22,7 @@ use Jetpack_Tracks_Client;
  */
 class Settings {
 
-	const PACKAGE_VERSION = '0.17.2';
+	const PACKAGE_VERSION = '0.18.1';
 
 	const ADMIN_PAGE_SLUG = 'jetpack-newsletter';
 
@@ -72,7 +72,7 @@ class Settings {
 		Feature_Flags::register(
 			self::OVERVIEW_FEATURE_FLAG,
 			array(
-				'default'     => false,
+				'default'     => true,
 				'description' => 'Enable the Newsletter Overview and Stats tabs.',
 				'owner'       => 'jetpack-newsletter',
 			)

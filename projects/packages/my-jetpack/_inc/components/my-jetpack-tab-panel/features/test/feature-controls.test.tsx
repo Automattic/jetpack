@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { FeatureAction } from '../feature-action';
 import { FeatureItem } from '../feature-item';
 import { FeatureModalActions } from '../feature-modal-actions';
+import { resolveFeatureState } from '../feature-state';
 import type { MyJetpackModule } from '../../../../types';
 import type { FeatureState } from '../feature-state';
 
@@ -62,6 +63,39 @@ beforeEach( () => {
 
 const countControls = () =>
 	screen.queryAllByRole( 'checkbox' ).length + screen.queryAllByRole( 'button' ).length;
+
+it.each( [
+	[ 'details window', FeatureModalActions ],
+	[ 'card', FeatureAction ],
+] as const )( 'only opens registered admin pages offline from the %s', ( _, Component ) => {
+	const previousInitial = window.myJetpackInitialState;
+	const previousData = window.JetpackScriptData;
+	const registeredPages: string[] = [];
+	window.myJetpackInitialState = { isOfflineFeatures: true } as typeof previousInitial;
+	window.JetpackScriptData = {
+		myJetpack: { offlineFeatures: { mainFeatures: { available_admin_pages: registeredPages } } },
+	} as unknown as typeof previousData;
+	try {
+		const state = buildState(
+			{ kind: 'install-plugin', plugin: 'jetpack-backup', runsWithoutPlugin: true },
+			{
+				status: 'active',
+				feature: buildFeature( { manage_url: '/wp-admin/admin.php?page=stats' } ),
+			}
+		);
+		const { rerender } = render( <Component state={ state } /> );
+		expect( screen.queryByRole( 'link', { name: 'Open' } ) ).not.toBeInTheDocument();
+		registeredPages.push( 'stats' );
+		rerender( <Component state={ state } /> );
+		expect( screen.getByRole( 'link', { name: 'Open' } ) ).toHaveAttribute(
+			'href',
+			state.feature.manage_url
+		);
+	} finally {
+		window.myJetpackInitialState = previousInitial;
+		window.JetpackScriptData = previousData;
+	}
+} );
 
 describe( 'FeatureAction', () => {
 	it( 'offers Install, and no switch, for a feature whose plugin is missing', () => {
@@ -374,6 +408,86 @@ describe( 'FeatureModalActions', () => {
 } );
 
 describe( 'FeatureItem', () => {
+	it.each( [
+		[ 'active', 'Requires a connected WordPress.com account', 'Enabled', false ],
+		[ 'active', 'Unavailable in Offline mode', 'Enabled', false ],
+		[ 'active', 'Unavailable in Offline mode', 'Enabled', true ],
+		[ 'inactive', 'Unavailable in Offline mode', 'Disabled', false ],
+		[ 'inactive', 'Unavailable in Offline mode', 'Disabled', true ],
+	] as const )(
+		'shows the module limitation before the host line in details for override %s: %s (%s, gated: %s)',
+		( override, unavailable_reason, hostLabel, gated ) => {
+			let state = buildState(
+				{
+					kind: 'module',
+					module: { ...forcedModule, override, available: false, unavailable_reason },
+				},
+				{ status: 'active' }
+			);
+			if ( gated ) {
+				state = resolveFeatureState(
+					{ ...state.feature, product: 'jetpack-ai', module: '', plugin: '' },
+					'active',
+					undefined,
+					{ ai: { ...forcedModule, module: 'ai', override, available: false, unavailable_reason } },
+					{}
+				);
+			}
+			expect( state.control.kind ).toBe( gated ? 'none' : 'module' );
+			const { rerender } = render( <FeatureItem state={ state } onOpen={ jest.fn() } /> );
+			expect( screen.getByText( 'Unavailable' ) ).toBeVisible();
+			expect( screen.getByText( unavailable_reason ) ).toBeVisible();
+			expect( screen.queryByText( /by your host or site administrator/ ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+			rerender( <FeatureModalActions state={ state } /> );
+			const moduleReason = screen.getByText( unavailable_reason );
+			const hostReason = screen.getByText( `${ hostLabel } by your host or site administrator` );
+			expect( moduleReason ).toBeVisible();
+			expect( hostReason ).toBeVisible();
+			expect( moduleReason.compareDocumentPosition( hostReason ) ).toBe(
+				Node.DOCUMENT_POSITION_FOLLOWING
+			);
+			expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+		}
+	);
+
+	it.each( [
+		[ 'a switch', false, 'Manage Firewall in Protect' ],
+		[ 'nothing, for a module a host forced on,', 'active' as const, 'Configure Firewall' ],
+	] )( 'links to the Protect page in place of %s', ( _, override, linkName ) => {
+		const previousInitial = window.myJetpackInitialState;
+		window.myJetpackInitialState = {
+			protectPageModuleUrls: { waf: 'admin.php?page=jetpack-protect&p=firewall' },
+		} as unknown as typeof previousInitial;
+		const waf = {
+			module: 'waf',
+			available: true,
+			activated: true,
+			override,
+			configure_url: 'admin.php?page=jetpack-protect&p=firewall',
+		} as MyJetpackModule;
+
+		try {
+			render(
+				<FeatureItem
+					state={ buildState(
+						{ kind: 'module', module: waf },
+						{ status: 'active', feature: buildFeature( { slug: 'waf', name: 'Firewall' } ) }
+					) }
+				/>
+			);
+		} finally {
+			window.myJetpackInitialState = previousInitial;
+		}
+
+		expect( screen.getByRole( 'link', { name: linkName } ) ).toHaveAttribute(
+			'href',
+			'admin.php?page=jetpack-protect&p=firewall'
+		);
+		expect( screen.getAllByRole( 'link' ) ).toHaveLength( 1 );
+		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'shows only the status for a module a host forced on: no switch, no note', () => {
 		const state = buildState(
 			{ kind: 'module', module: forcedModule },

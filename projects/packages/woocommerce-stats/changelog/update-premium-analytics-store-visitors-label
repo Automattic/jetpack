@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Rename the Visitors over time widget to Store visitors over time, so it isn't confused with Jetpack Stats visitors.

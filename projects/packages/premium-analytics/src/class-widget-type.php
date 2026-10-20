@@ -135,6 +135,20 @@ class Widget_Type {
 	public $actions = null;
 
 	/**
+	 * Attribute schema, one entry per setting of a widget instance: a DataViews
+	 * field in its JSON form, plus the keys the dashboard reads on top of a
+	 * field (`relevance`, so far). User-facing strings are translated at
+	 * registration time using the widget's text domain.
+	 *
+	 * Null when the widget did not declare the field.
+	 *
+	 * @since 0.13.0
+	 *
+	 * @var array|null
+	 */
+	public $attributes = null;
+
+	/**
 	 * Alternative terms used to match the widget type when searching,
 	 * e.g. "calendar" for an events widget. Translated at registration
 	 * time using the widget's text domain.
@@ -174,6 +188,16 @@ class Widget_Type {
 	 * @var string[]|null
 	 */
 	public $former_names = null;
+
+	/**
+	 * Plan feature the widget cannot show anything without, such as `videos`. A plan that lacks
+	 * it shows the widget locked. Null when every plan includes the widget.
+	 *
+	 * @since 0.13.0
+	 *
+	 * @var string|null
+	 */
+	public $plan_feature = null;
 
 	/**
 	 * Constructor.

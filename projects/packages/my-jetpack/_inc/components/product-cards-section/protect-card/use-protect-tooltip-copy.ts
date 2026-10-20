@@ -6,6 +6,7 @@ import useProduct from '../../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../../hooks/use-analytics';
 import { isJetpackPluginActive } from '../../../utils/is-jetpack-plugin-active';
+import { getProtectPageUrl } from '../../../utils/protect-page';
 
 type TooltipType =
 	'pluginsThemesTooltip' | 'scanThreatsTooltip' | 'autoFirewallTooltip' | 'blockedLoginsTooltip';
@@ -56,15 +57,32 @@ export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 		}
 		return isJetpackPluginActive() ? 'admin.php?page=jetpack#/settings' : null;
 	}, [ isStandaloneActive ] );
+	const loginSettingsLink = getProtectPageUrl( 'protect' ) ?? settingsLink;
+	const firewallSettingsLink = getProtectPageUrl( 'waf' ) ?? settingsLink;
+	let loginSettingsName = isStandaloneActive ? 'firewall settings' : 'Jetpack settings';
+	if ( getProtectPageUrl( 'protect' ) ) {
+		/* translators: "Protect" is a product name. */
+		loginSettingsName = __( 'Protect settings', 'jetpack-my-jetpack' );
+	}
 
 	const trackFirewallSettingsLinkClick = useCallback( () => {
 		recordEvent( 'jetpack_protect_card_tooltip_content_link_click', {
 			page: 'my-jetpack',
 			feature: 'jetpack-protect',
 			location: 'auto-firewall-tooltip',
-			path: settingsLink,
+			path: firewallSettingsLink,
 		} );
-	}, [ recordEvent, settingsLink ] );
+	}, [ recordEvent, firewallSettingsLink ] );
+
+	// Same location as the firewall link, as before, so only the path tells them apart.
+	const trackLoginSettingsLinkClick = useCallback( () => {
+		recordEvent( 'jetpack_protect_card_tooltip_content_link_click', {
+			page: 'my-jetpack',
+			feature: 'jetpack-protect',
+			location: 'auto-firewall-tooltip',
+			path: loginSettingsLink,
+		} );
+	}, [ recordEvent, loginSettingsLink ] );
 
 	const trackProtectDashboardLinkClick = useCallback( () => {
 		recordEvent( 'jetpack_protect_card_tooltip_content_link_click', {
@@ -90,20 +108,20 @@ export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 			}
 			return {
 				title: __( 'Brute Force Protection: Inactive', 'jetpack-my-jetpack' ),
-				text: settingsLink
+				text: loginSettingsLink
 					? createInterpolateElement(
 							sprintf(
-								/* translators: %s is the location/page where the settings are located. Either "firewall settings" or "Jetpack settings". */
+								/* translators: %s is the location/page where the settings are located: "Protect settings", "firewall settings" or "Jetpack settings". */
 								__(
 									'Brute Force Protection is disabled and not actively blocking malicious login attempts. Go to <a>%s</a> to activate it.',
 									'jetpack-my-jetpack'
 								),
-								isStandaloneActive ? 'firewall settings' : 'Jetpack settings'
+								loginSettingsName
 							),
 							{
 								a: createElement( 'a', {
-									href: settingsLink,
-									onClick: trackFirewallSettingsLinkClick,
+									href: loginSettingsLink,
+									onClick: trackLoginSettingsLinkClick,
 								} ),
 							}
 						)
@@ -126,20 +144,20 @@ export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 			}
 			return {
 				title: __( 'Brute Force Protection: Inactive', 'jetpack-my-jetpack' ),
-				text: settingsLink
+				text: loginSettingsLink
 					? createInterpolateElement(
 							sprintf(
-								/* translators: %s is the location/page where the settings are located. Either "firewall settings" or "Jetpack settings". */
+								/* translators: %s is the location/page where the settings are located: "Protect settings", "firewall settings" or "Jetpack settings". */
 								__(
 									'Brute Force Protection is disabled and not actively blocking malicious login attempts. Go to <a>%s</a> to activate it.',
 									'jetpack-my-jetpack'
 								),
-								isStandaloneActive ? 'firewall settings' : 'Jetpack settings'
+								loginSettingsName
 							),
 							{
 								a: createElement( 'a', {
-									href: settingsLink,
-									onClick: trackFirewallSettingsLinkClick,
+									href: loginSettingsLink,
+									onClick: trackLoginSettingsLinkClick,
 								} ),
 							}
 						)
@@ -153,9 +171,9 @@ export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 		blockedLoginsCount,
 		hasBruteForceProtection,
 		isBruteForcePluginsActive,
-		isStandaloneActive,
-		settingsLink,
-		trackFirewallSettingsLinkClick,
+		loginSettingsLink,
+		loginSettingsName,
+		trackLoginSettingsLinkClick,
 	] );
 
 	return {
@@ -247,7 +265,7 @@ export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 									),
 									{
 										a: createElement( 'a', {
-											href: settingsLink,
+											href: firewallSettingsLink,
 											onClick: trackFirewallSettingsLinkClick,
 										} ),
 									}

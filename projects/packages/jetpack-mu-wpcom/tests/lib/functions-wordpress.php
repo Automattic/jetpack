@@ -47,6 +47,19 @@ if ( ! function_exists( 'wpcom_expiry_get_purchases' ) ) {
 	}
 }
 
+if ( ! function_exists( 'wpcom_themes_get_purchases' ) ) {
+	/**
+	 * Test seam for the themes-tab wrapper, reading the same global the
+	 * expiry-notices one above does. See it for why neither stubs
+	 * wpcom_get_site_purchases() itself.
+	 *
+	 * @return array
+	 */
+	function wpcom_themes_get_purchases() {
+		return $GLOBALS['wpcom_get_site_purchases_test_value'] ?? array();
+	}
+}
+
 if ( ! function_exists( 'wpcom_expiry_get_reverted_transfer' ) ) {
 	/**
 	 * Test source of revert data for the expiry-notices feature. See
@@ -88,14 +101,22 @@ if ( ! function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
 if ( ! function_exists( 'get_blog_details' ) ) {
 	/**
 	 * A drop-in for the multisite function WordPress.com keeps the unmapped
-	 * domain in. WorDBless is single-site, so it does not ship one.
+	 * domain and the registration date in. WorDBless is single-site, so it
+	 * does not ship one.
 	 *
 	 * @param int $blog_id Blog ID. Unused: tests only ever have one site.
 	 * @return object|false
 	 */
 	function get_blog_details( $blog_id = 0 ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- single-site test env.
-		$domain = $GLOBALS['wpcom_blog_details_domain_test_value'] ?? null;
-		return null === $domain ? false : (object) array( 'domain' => $domain );
+		$domain     = $GLOBALS['wpcom_blog_details_domain_test_value'] ?? null;
+		$registered = $GLOBALS['wpcom_blog_details_registered_test_value'] ?? null;
+		if ( null === $domain && null === $registered ) {
+			return false;
+		}
+		return (object) array(
+			'domain'     => $domain,
+			'registered' => $registered,
+		);
 	}
 }
 

@@ -48,14 +48,16 @@ class Wpcom_Plugins_Banner_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Until the tab ships, the banner stays.
+	 * Turning the tab off brings the banner back.
 	 */
 	public function test_the_banner_stays_while_the_marketplace_tab_is_off() {
 		if ( ! file_exists( Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-plugins-banner/wpcom-plugins-banner.asset.php' ) ) {
 			$this->markTestSkipped( 'The banner is enqueued from its build, which this run does not have.' );
 		}
 
+		add_filter( self::FLAG_FILTER, '__return_false' );
 		wpcom_plugins_show_banner();
+		remove_filter( self::FLAG_FILTER, '__return_false' );
 
 		$this->assertTrue( wp_script_is( 'wpcom-plugins-banner', 'enqueued' ) );
 	}

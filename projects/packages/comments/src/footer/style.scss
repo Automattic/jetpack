@@ -132,4 +132,6 @@
 .jetpack-comments .jetpack-comments__identity .jetpack-comments__avatar {
 	inline-size: var(--jetpack-comments-avatar-size);
 	block-size: var(--jetpack-comments-avatar-size);
+	position: static !important;
+	margin: 0 !important;
 }
