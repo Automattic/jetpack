@@ -919,6 +919,7 @@ export const OverlapLayout: Story = {
 		layout: 'overlap',
 		showLegend: true,
 		legendInteractive: true,
+		legendCollapseGroups: true,
 		data: [
 			{ label: 'Views', group: 'views', data: week( [ 420, 580, 310, 750, 640, 380, 290 ] ) },
 			{
@@ -940,7 +941,7 @@ export const OverlapLayout: Story = {
 		docs: {
 			description: {
 				story:
-					'`layout="overlap"` with two groups. Views and Visitors share the current period\'s slot, with Visitors as the narrower bar in front; Previous views and Previous visitors share the slot beside it. Each slot is toned from its palette color so every bar keeps 3:1 contrast against the background or the bar behind it, and the legend swatches match. Hide a series from the legend: the others keep their slots and widths. Arrow keys step one slot at a time.',
+					'`layout="overlap"` with two groups. Views and Visitors share the current period\'s slot, with Visitors as the narrower bar in front; Previous views and Previous visitors share the slot beside it. Each slot is toned from its palette color so every bar keeps 3:1 contrast against the background or the bar behind it, and the legend swatches match. With `legend.collapseGroups` each group is one legend item, so hiding Visitors hides Previous visitors too; the other bars keep their slots and widths. Turn the `legendCollapseGroups` control off to list each series alone, in slot order. Arrow keys step one slot at a time.',
 			},
 		},
 	},
