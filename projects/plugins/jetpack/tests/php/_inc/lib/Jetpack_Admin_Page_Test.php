@@ -24,6 +24,23 @@ class Jetpack_Admin_Page_Test extends WP_UnitTestCase {
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
 	}
 
+	public function test_rest_probe_preserves_the_current_user_when_a_filter_returns_null() {
+		global $wp_rest_auth_cookie;
+		$original_cookie     = $wp_rest_auth_cookie;
+		$user_id             = get_current_user_id();
+		$wp_rest_auth_cookie = true;
+		add_filter( 'rest_authentication_errors', '__return_null' );
+
+		try {
+			$this->assertGreaterThan( 0, $user_id );
+			$this->assertTrue( ( new Jetpack_Settings_React_Page() )->is_rest_api_enabled() );
+			$this->assertSame( $user_id, get_current_user_id() );
+		} finally {
+			$wp_rest_auth_cookie = $original_cookie;
+			remove_filter( 'rest_authentication_errors', '__return_null' );
+		}
+	}
+
 	/**
 	 * Tests that the PHP masthead links to the Settings page and no longer offers the old dashboard.
 	 */

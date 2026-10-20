@@ -163,8 +163,14 @@ abstract class Jetpack_Admin_Page {
 		if ( ! apply_filters( 'rest_enabled', true ) ) {
 			return false;
 		}
-		/** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
-		$auth = apply_filters( 'rest_authentication_errors', true );
+		$user = wp_get_current_user();
+		$auth = false;
+		try {
+			/** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
+			$auth = apply_filters( 'rest_authentication_errors', true );
+		} finally {
+			wp_set_current_user( $user->ID );
+		}
 		return $auth && ! is_wp_error( $auth );
 	}
 
