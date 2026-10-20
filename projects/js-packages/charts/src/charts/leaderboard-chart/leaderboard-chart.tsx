@@ -184,17 +184,12 @@ const BarWithLabel = ( {
 		<div
 			className={ clsx( styles.barWithLabelContainer, {
 				[ styles[ 'is-overlay' ] ]: withOverlayLabel,
+				[ styles[ 'is-diverging' ] ]: isDiverging,
 			} ) }
+			data-testid={ isDiverging ? 'leaderboard-chart-diverging-row' : undefined }
 		>
 			<BarLabel label={ entry.label } />
-
-			{ isDiverging ? (
-				<div className={ styles.divergingBars } data-testid="leaderboard-chart-diverging-bars">
-					{ bars }
-				</div>
-			) : (
-				bars
-			) }
+			{ bars }
 		</div>
 	);
 };
