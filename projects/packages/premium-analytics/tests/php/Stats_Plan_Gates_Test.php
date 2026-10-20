@@ -466,6 +466,7 @@ class Stats_Plan_Gates_Test extends BaseTestCase {
 			'generic copy' => array( 'insights', 'Upgrade your plan to unlock Jetpack Stats.', '' ),
 			// Keyed through the card's mapping, which no other test fails on if it reverts to insights.
 			'tags card'    => array( WIDGET_TYPE_PLAN_FEATURES['jpa/tags'], 'Track the most viewed <link>tags & categories</link>.', 'https://wordpress.com/support/stats/learn-insights-about-your-website/#all-time-insights' ),
+			'intervals'    => array( 'intervals', 'Group your charts by week, month or year.', '' ),
 		);
 	}
 

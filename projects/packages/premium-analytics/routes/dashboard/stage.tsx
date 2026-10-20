@@ -437,6 +437,8 @@ function Dashboard(): JSX.Element {
 					{ showHeaderIntervalControl && (
 						<DateIntervalDropdown
 							options={ dateFilters.intervalOptions }
+							lockedOptions={ dateFilters.lockedIntervalOptions }
+							lockUpsell={ dateLimits?.intervalUpsell }
 							value={ dateFilters.interval }
 							onChange={ dateFilters.onIntervalChange }
 						/>
