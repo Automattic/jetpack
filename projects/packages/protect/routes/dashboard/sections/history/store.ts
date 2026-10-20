@@ -42,10 +42,7 @@ export function loadHistory( refresh = false ): Promise< void > {
 			}
 			inFlight = null;
 		} );
-	// fetchHistory never rejects, but a stuck request would block every later load.
-	inFlight = run().catch( () => {
-		inFlight = null;
-	} );
+	inFlight = run();
 	return inFlight;
 }
 

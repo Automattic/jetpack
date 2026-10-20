@@ -85,7 +85,7 @@ type GroupProps = {
  * @param props.threats     - The group's threats.
  * @param props.dateLabel   - The date column's heading.
  * @param props.getDate     - The ISO date the date column shows.
- * @param props.canAct      - Whether fixing and ignoring are available now.
+ * @param props.canAct      - Whether the site's plan can fix and ignore threats.
  * @param props.selected    - The threat open in an inspector, if any.
  * @return The card, or nothing for an empty group.
  */
@@ -274,8 +274,6 @@ export default function ThreatReport( {
 	useEffect( () => {
 		refreshScan().finally( () => setScanFresh( true ) );
 	}, [] );
-	// An edit made before the fresh read lands would be overwritten by it.
-	const canAct = hasPlan && scanFresh;
 
 	const reload = useCallback( () => {
 		setRefreshing( true );
@@ -391,7 +389,7 @@ export default function ThreatReport( {
 				threats={ groups.active }
 				dateLabel={ __( 'Detected on', 'jetpack-protect-pkg' ) }
 				getDate={ getDetected }
-				canAct={ canAct }
+				canAct={ hasPlan }
 				selected={ selected }
 			/>
 			<ThreatGroup
@@ -405,7 +403,7 @@ export default function ThreatReport( {
 				threats={ groups.fixed }
 				dateLabel={ __( 'Fixed on', 'jetpack-protect-pkg' ) }
 				getDate={ getFixed }
-				canAct={ canAct }
+				canAct={ hasPlan }
 				selected={ selected }
 			/>
 			<ThreatGroup
@@ -419,7 +417,7 @@ export default function ThreatReport( {
 				threats={ groups.ignored }
 				dateLabel={ __( 'Detected on', 'jetpack-protect-pkg' ) }
 				getDate={ getDetected }
-				canAct={ canAct }
+				canAct={ hasPlan }
 				selected={ selected }
 			/>
 			<UnknownThreats
