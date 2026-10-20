@@ -1,5 +1,5 @@
 import { ToggleControl } from '@wordpress/components';
-import { useCallback } from '@wordpress/element';
+import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { shield } from '@wordpress/icons';
 import { Stack, Text } from '@wordpress/ui';
@@ -16,6 +16,55 @@ const SHARE_DEBUG_DATA = 'jetpack_waf_share_debug_data';
 const WAF_PATH = '/jetpack/v4/waf';
 
 /**
+ * How to run the firewall before WordPress loads, or, once it does, how to undo that.
+ *
+ * @param props               - Component props.
+ * @param props.bootstrapPath - The file `auto_prepend_file` must point to.
+ * @param props.standalone    - Whether the firewall already runs before WordPress.
+ * @return The row.
+ */
+function StandaloneModeRow( {
+	bootstrapPath,
+	standalone,
+}: {
+	bootstrapPath: string;
+	standalone: boolean;
+} ) {
+	const code = <code className="jp-protect-firewall-standalone__code" />;
+	const text = standalone
+		? createInterpolateElement(
+				__(
+					'The firewall runs before WordPress loads, so it inspects every request. Remove the <code>auto_prepend_file</code> PHP directive if you turn the firewall off or uninstall Jetpack.',
+					'jetpack-protect-pkg'
+				),
+				{ code }
+			)
+		: createInterpolateElement(
+				__(
+					'Run the firewall before WordPress loads so it can inspect every request. Set the <code>auto_prepend_file</code> PHP directive to <path/>, usually in an .htaccess file or your PHP configuration; your host can help. Remove it again if you turn the firewall off or uninstall Jetpack.',
+					'jetpack-protect-pkg'
+				),
+				{
+					code,
+					path: <code className="jp-protect-firewall-standalone__code">{ bootstrapPath }</code>,
+				}
+			);
+
+	return (
+		<CardRow>
+			<Stack direction="column" gap="sm">
+				<Text variant="body-lg" render={ <h3 /> } className="jp-protect-card__subheading">
+					{ __( 'Standalone mode', 'jetpack-protect-pkg' ) }
+				</Text>
+				<Text variant="body-md" render={ <p /> } className="jp-protect-firewall-standalone">
+					{ text }
+				</Text>
+			</Stack>
+		</CardRow>
+	);
+}
+
+/**
  * The firewall's Settings card: on/off, automatic rules, the IP block list and data sharing.
  *
  * @param props          - The dashboard context.
@@ -28,6 +77,7 @@ export default function FirewallSettingsCard( { state, settings: data }: Firewal
 	const wafOn = Boolean( settings?.waf );
 	const hasScan = Boolean( state?.hasScan );
 	const rulesUsable = hasScan || Boolean( waf?.automatic_rules_available );
+	const standalone = wafOn && Boolean( waf?.standalone_mode );
 
 	let rulesNote = '';
 	if ( ! hasScan ) {
@@ -78,7 +128,15 @@ export default function FirewallSettingsCard( { state, settings: data }: Firewal
 	}
 
 	return (
-		<ProtectCard icon={ shield } title={ __( 'Firewall', 'jetpack-protect-pkg' ) }>
+		<ProtectCard
+			icon={ shield }
+			title={ __( 'Firewall', 'jetpack-protect-pkg' ) }
+			status={
+				standalone
+					? { label: __( 'Standalone mode', 'jetpack-protect-pkg' ), intent: 'stable' }
+					: undefined
+			}
+		>
 			<div className="jp-protect-card__intro">
 				<Text variant="body-md" render={ <p /> }>
 					{ __( 'Block malicious requests before they reach your site.', 'jetpack-protect-pkg' ) }
@@ -174,6 +232,9 @@ export default function FirewallSettingsCard( { state, settings: data }: Firewal
 					onChange={ onShareDebugData }
 				/>
 			</CardRow>
+			{ wafOn && ( standalone || waf?.bootstrap_path ) && (
+				<StandaloneModeRow bootstrapPath={ waf?.bootstrap_path ?? '' } standalone={ standalone } />
+			) }
 		</ProtectCard>
 	);
 }
