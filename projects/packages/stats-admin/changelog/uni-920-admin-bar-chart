@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Admin bar: Load the views chart from admin-post.php, so it no longer depends on the Stats page.
+Admin bar: Load the views chart without relying on the Stats page.

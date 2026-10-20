@@ -748,7 +748,7 @@ function stats_admin_bar_head() {
 function stats_get_image_chart_src( $chart, $args = array() ) {
 	_deprecated_function( __FUNCTION__, 'jetpack-16.3', 'Automattic\Jetpack\Stats_Admin\Admin_Bar::get_chart_src' );
 
-	// The admin bar charts no longer go through the Stats page, so their `$args` are dropped.
+	// Admin bar charts are served by admin-post.php, which ignores `$args`.
 	if ( in_array( $chart, Stats_Admin_Bar::CHARTS, true ) ) {
 		return Stats_Admin_Bar::get_chart_src( $chart );
 	}

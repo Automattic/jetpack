@@ -179,8 +179,6 @@ class Admin_Bar {
 	/**
 	 * Serve the chart an admin-post.php request asks for, or end it with an error status.
 	 *
-	 * The browser cannot fetch the chart from WordPress.com directly, because only the blog token can read it.
-	 *
 	 * @since $$next-version$$
 	 *
 	 * @return void
@@ -192,7 +190,7 @@ class Admin_Bar {
 			return;
 		}
 
-		if ( ! Stats_Options::get_option( 'admin_bar' ) || ! current_user_can( 'view_stats' ) ) {
+		if ( ! self::can_see_chart() ) {
 			wp_die( '', '', 403 );
 			return;
 		}
@@ -201,9 +199,7 @@ class Admin_Bar {
 	}
 
 	/**
-	 * Serve a chart and stop, when an admin.php?page=stats request asks for one.
-	 *
-	 * Older versions built chart URLs on the Stats page, so this keeps them working while that page exists.
+	 * Serve a chart and stop, when a legacy `admin.php?page=stats` request asks for one.
 	 *
 	 * @return void
 	 */
@@ -214,7 +210,7 @@ class Admin_Bar {
 		}
 
 		$chart = self::get_requested_chart();
-		if ( null === $chart || ! Stats_Options::get_option( 'admin_bar' ) || ! current_user_can( 'view_stats' ) ) {
+		if ( null === $chart || ! self::can_see_chart() ) {
 			return;
 		}
 
@@ -223,6 +219,8 @@ class Admin_Bar {
 
 	/**
 	 * Send a chart image fetched from WordPress.com, and stop.
+	 *
+	 * The browser cannot fetch the chart from WordPress.com directly, because only the blog token can read it.
 	 *
 	 * @param string $chart One of the CHARTS.
 	 * @return never
@@ -300,9 +298,9 @@ class Admin_Bar {
 	}
 
 	/**
-	 * Get the chart the current request asks for.
+	 * Get the chart a legacy `page=stats` request asks for.
 	 *
-	 * @return string|null One of the CHARTS, or null when the request is not for a chart.
+	 * @return string|null One of the CHARTS, or null when the request is not a `page=stats` chart request.
 	 */
 	private static function get_requested_chart() {
 		if ( ! isset( $_GET['page'] ) || 'stats' !== $_GET['page'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- An image request carries no nonce, and it changes nothing.
@@ -319,7 +317,7 @@ class Admin_Bar {
 	 */
 	private static function get_chart_param() {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- An image request carries no nonce, and it changes nothing.
-		if ( ! isset( $_GET['chart'] ) || ! is_string( $_GET['chart'] ) ) {
+		if ( ! isset( $_GET['chart'] ) ) {
 			return null;
 		}
 
