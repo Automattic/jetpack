@@ -971,7 +971,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "e9cf06028169a4dc38d405ca75fedc904804dc2d"
+                "reference": "7bb4727a5bc29e51e03856bf3aa6659ac41a5a3c"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1004,7 +1004,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-premium-analytics/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.12.x-dev"
+                    "dev-trunk": "0.13.x-dev"
                 }
             },
             "autoload": {
@@ -1366,7 +1366,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/woocommerce-stats",
-                "reference": "cbb7883c974de9dae2d0f7d5bcd6477875ac9680"
+                "reference": "0dbd1c1458f7b0ff0c45d7adebe52f8cca77d352"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1387,7 +1387,7 @@
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-woocommerce-stats",
                 "branch-alias": {
-                    "dev-trunk": "0.1.x-dev"
+                    "dev-trunk": "0.2.x-dev"
                 },
                 "textdomain": "jetpack-woocommerce-stats-pkg",
                 "version-constants": {

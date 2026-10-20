@@ -442,6 +442,8 @@ If `.extra.autorelease` is set to an object, the following are recognized:
 * `.extra.autorelease.slug`: Base name for the zip file, and the name of the base directory inside. If this is omitted, `.extra.wp-plugin-slug` or `.extra.beta-plugin-slug` will be used. If that is also not set, the portion of `.name` after the `/` will be used.
 * `.extra.autorelease.titlefmt`: Format for the release title. Must contain a single `%s`, which will be replaced with the version tagged. If omitted, the release title will simply be the version number.
 
+Versions with a prerelease suffix (e.g. `1.2-beta` or `1.2-a.3`) are marked as prereleases on GitHub, except for rolling releases, which are always marked "Latest".
+
 Note the following will also be done by the build process:
 
 * An entry will be prepended to `.gitattributes`, setting export-ignore for `/.git*`. The file will be created if necessary. This prevents `.github` and other git files from being included in the zip.

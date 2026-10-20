@@ -109,14 +109,11 @@ describe( 'useAllJetpackModules', () => {
 		mockGetJetpackModules.mockClear();
 	} );
 
-	it.each( [ false, true ] )(
-		'reports finished resolution even when loading is false: %s',
-		resolved => {
-			mockResolved = resolved;
-			const { result } = renderHook( () => useAllJetpackModules() );
-			expect( result.current.hasLoaded ).toBe( resolved );
-		}
-	);
+	it.each( [ false, true ] )( 'reports whether the module request has finished: %s', resolved => {
+		mockResolved = resolved;
+		const { result } = renderHook( () => useAllJetpackModules() );
+		expect( result.current.hasLoaded ).toBe( resolved );
+	} );
 
 	it( 'hands back the store modules without the override a standalone plugin causes', () => {
 		mockModules.current = {

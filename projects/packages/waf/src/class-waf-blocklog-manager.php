@@ -374,7 +374,7 @@ class Waf_Blocklog_Manager {
 	/**
 	 * Get the most recent blocked requests, newest first. The table keeps only the last 100.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.30.0
 	 *
 	 * @param int $limit How many to return.
 	 * @return array<int, array{id: int, timestamp: string, ruleId: int, reason: string}> Timestamps are ISO 8601 UTC.

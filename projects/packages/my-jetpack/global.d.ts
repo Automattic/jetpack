@@ -578,6 +578,7 @@ interface Window {
 		isStatsModuleActive: string;
 		canUserViewStats: boolean;
 		hiddenFeatures?: Array< string >;
+		deprecatedModules?: Array< string >;
 		isUserFromKnownHost: string;
 		loadAddLicenseScreen: string;
 		myJetpackCheckoutUri: string;
@@ -755,6 +756,8 @@ interface Window {
 			showCard: boolean;
 			redirect: string;
 		};
+		// Security modules whose settings live on the Protect page, keyed by module slug; empty without that page.
+		protectPageModuleUrls?: Record< string, string >;
 		// Null unless the partner coupon screen replaces the dashboard.
 		partnerCoupon?: {
 			coupon: {

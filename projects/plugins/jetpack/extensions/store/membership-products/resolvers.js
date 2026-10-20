@@ -274,6 +274,8 @@ export const getSubscriberCounts =
 					socialFollowers: response.counts.social_followers,
 					emailSubscribers: response.counts.email_subscribers,
 					paidSubscribers: response.counts.paid_subscribers,
+					paidNewsletterSubscribers: response.counts.paid_newsletter_subscribers ?? null,
+					paidSubscribersByTier: response.counts.paid_subscribers_by_tier ?? null,
 				} )
 			);
 		} catch ( error ) {

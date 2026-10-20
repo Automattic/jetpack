@@ -1,5 +1,6 @@
 export { DashboardSections } from './dashboard-sections/dashboard-sections';
 export { FeedbackBanner } from './feedback-banner';
+export { LockedSection } from './locked-section';
 export { PlanLimitNotice } from './plan-limit-notice';
 export { hasPurchaseSuccess, PurchaseSuccessNotice } from './purchase-success-notice';
 export { OnboardingTour, onboardingTourSteps } from './onboarding-tour';

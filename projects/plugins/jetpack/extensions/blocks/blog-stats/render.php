@@ -11,6 +11,7 @@
 namespace Automattic\Jetpack\Extensions\Blog_Stats;
 
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\My_Jetpack\Initializer;
 use Automattic\Jetpack\Status\Request;
 use Jetpack_Blog_Stats_Helper;
 use Jetpack_Gutenberg;
@@ -47,7 +48,7 @@ function render_implementation( $attributes ) {
 					sprintf(
 						/* translators: placeholder %s is a link to enable Jetpack Stats.. */
 						__( 'Please <a href="%s">enable Jetpack Stats</a> to use this block.', 'jetpack' ),
-						esc_url( admin_url( 'admin.php?page=jetpack_modules&module_tag=Jetpack%20Stats' ) )
+						esc_url( method_exists( Initializer::class, 'get_modules_management_url' ) ? Initializer::get_modules_management_url( array( 'module_tag' => 'Jetpack Stats' ) ) : admin_url( 'admin.php?page=jetpack_modules&module_tag=Jetpack%20Stats' ) )
 					),
 					array( 'a' => array( 'href' => array() ) )
 				)
