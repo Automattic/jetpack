@@ -300,7 +300,7 @@ describe( 'getScoreTier', () => {
 		[ 70, 'medium' ],
 		[ 71, 'good' ],
 		[ 100, 'good' ],
-	] )( 'keeps the existing score tier at %i', ( score, tier ) => {
+	] )( 'puts a score of %i in the %s tier', ( score, tier ) => {
 		expect( getScoreTier( Number( score ) ) ).toBe( tier );
 	} );
 } );

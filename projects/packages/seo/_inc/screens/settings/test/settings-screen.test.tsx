@@ -218,9 +218,6 @@ describe( 'Settings module completion status', () => {
 		} );
 	} );
 
-	// The count is purely informational — the field is deliberately uncapped,
-	// because the real limits differ per surface (search truncates for display,
-	// Jetpack's own og:description cuts at 197) and none is enforced on this save path.
 	describe( 'Front-page description character count', () => {
 		it( 'counts an empty description as zero, pluralized', () => {
 			render( <SettingsScreen form={ buildForm() } /> );
@@ -236,6 +233,21 @@ describe( 'Settings module completion status', () => {
 			const description = 'A summary of the site.';
 			render( <SettingsScreen form={ buildForm( { front_page_description: description } ) } /> );
 			expect( screen.getByText( `${ description.length } characters` ) ).toBeInTheDocument();
+		} );
+
+		it.each( [
+			{ name: '299 letters', description: 'x'.repeat( 299 ), count: 299, atMax: false },
+			{ name: '300 letters', description: 'x'.repeat( 300 ), count: 300, atMax: true },
+			{
+				name: '10 emoji and 280 letters',
+				description: '😀'.repeat( 10 ) + 'x'.repeat( 280 ),
+				count: 290,
+				atMax: true,
+			},
+		] )( 'says whether the maximum is reached with $name', ( { description, count, atMax } ) => {
+			render( <SettingsScreen form={ buildForm( { front_page_description: description } ) } /> );
+			const text = screen.getByText( new RegExp( `^${ count } characters` ) );
+			expect( text.textContent?.includes( 'Maximum characters reached.' ) ).toBe( atMax );
 		} );
 	} );
 
