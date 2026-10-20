@@ -14,10 +14,6 @@ import {
 } from '@jetpack-premium-analytics/data';
 import { isYearSurfacePresetId } from '@jetpack-premium-analytics/datetime';
 import { omitReportDateParams } from '@jetpack-premium-analytics/routing';
-/**
- * Internal dependencies
- */
-import { queueDateWindowNotice } from './date-window-notice';
 
 type Search = Record< string, unknown >;
 type NormalizeInput = Parameters< typeof normalizeReportParams >[ 0 ];

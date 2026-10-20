@@ -12,18 +12,13 @@ import { redirect } from '@wordpress/route';
  */
 import { dateWindowNoticeState } from '../date-window-notice';
 import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
-import { dashboardSectionOf, dateWindowNotice, limitStatsDateSearch } from '../stats-date-window';
-import { seedDashboardDateSearch, type DashboardSearch } from './section-date-window';
 import {
 	dashboardSectionOf,
+	dateWindowNotice,
 	limitStatsDateSearch,
 	withoutCarriedYearWindow,
 } from '../stats-date-window';
-import {
-	DASHBOARD_PATHNAME,
-	seedDashboardDateSearch,
-	type DashboardSearch,
-} from './section-date-window';
+import { seedDashboardDateSearch, type DashboardSearch } from './section-date-window';
 
 /**
  * Route lifecycle for the dashboard. The initial analytics sync is not a guard

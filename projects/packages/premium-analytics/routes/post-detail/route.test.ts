@@ -18,6 +18,7 @@ jest.mock( '../site-readiness', () => ( {
 } ) );
 jest.mock( '../stats-date-window', () => ( {
 	limitStatsDateSearch: jest.fn( () => undefined ),
+	dateWindowNotice: () => undefined,
 } ) );
 jest.mock( './config', () => ( {
 	resolveTabId: ( section: string ) => section,
@@ -207,7 +208,6 @@ describe( 'post detail route report origin', () => {
 			expect.any( Object ),
 			expect.any( Object ),
 			{
-				pathname: '/post/42',
 				requested: search,
 			}
 		);
@@ -224,7 +224,6 @@ describe( 'post detail route report origin', () => {
 			search: { preset: 'last-7-days' },
 		} );
 		expect( limitStatsDateSearch ).toHaveBeenCalledWith( seededSearch, expect.any( Object ), {
-			pathname: '/post/42',
 			requested: seededSearch,
 		} );
 	} );

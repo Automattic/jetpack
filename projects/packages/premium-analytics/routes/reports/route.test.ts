@@ -51,6 +51,7 @@ jest.mock( './registry', () => ( {
 
 jest.mock( '../stats-date-window', () => ( {
 	limitStatsDateSearch: jest.fn( () => undefined ),
+	dateWindowNotice: () => undefined,
 	withoutCarriedYearWindow: ( search: object ) => ( { ...search } ),
 } ) );
 
@@ -162,11 +163,7 @@ describe( 'report route.beforeLoad', () => {
 				viewTransition: false,
 			} );
 			expect( ( limitStatsDateSearch as jest.Mock ).mock.calls ).toEqual( [
-				[
-					expect.any( Object ),
-					{ lockedIntervals: [], section },
-					{ pathname: `/reports/${ report }`, requested: longPreset },
-				],
+				[ expect.any( Object ), { lockedIntervals: [], section }, { requested: longPreset } ],
 			] );
 		}
 	);
@@ -183,7 +180,6 @@ describe( 'report route.beforeLoad', () => {
 			search: { preset: 'last-7-days' },
 		} );
 		expect( limitStatsDateSearch ).toHaveBeenCalledWith( settled, expect.any( Object ), {
-			pathname: '/reports/posts',
 			requested: settled,
 		} );
 	} );

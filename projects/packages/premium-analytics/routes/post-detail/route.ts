@@ -14,13 +14,12 @@ import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
-import { routePathname } from '../date-window-notice';
+import { dateWindowNoticeState } from '../date-window-notice';
 import { seedDetailDateParams } from '../detail-date-seed';
 import { getReportDefinition } from '../reports/registry';
 import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
-import { limitStatsDateSearch } from '../stats-date-window';
+import { dateWindowNotice, limitStatsDateSearch } from '../stats-date-window';
 import { resolveTabId } from './config';
-import { route as routeConfig } from './package.json';
 
 type PostDetailParams = { postId?: string };
 type PostDetailSearch = Record< string, string | undefined >;
@@ -64,7 +63,6 @@ export const route = {
 		}
 
 		const currentSearch = ( search ?? {} ) as PostDetailSearch;
-		const pathname = routePathname( routeConfig.path, { postId } );
 		// A `section` from an inbound link may not be a valid post-detail tab, so
 		// resolve it rather than persist a bogus tab in a shareable URL.
 		const resolvedSection = currentSearch.section
@@ -75,6 +73,8 @@ export const route = {
 		const needsDateSeed = needsReportDateParamsSeed( currentSearch, lockedIntervals );
 		const needsPostSeed = currentSearch.post_id !== postId;
 		const needsSectionSeed = !! currentSearch.section && resolvedSection !== currentSearch.section;
+		// An arrival seeds all time, not a window the reader asked for, so it gets no notice.
+		const requested = needsPostSeed ? undefined : currentSearch;
 
 		let next: Record< string, unknown > | undefined;
 		if ( needsDateSeed || needsPostSeed || needsSectionSeed ) {
@@ -101,14 +101,9 @@ export const route = {
 				post_id: postId,
 			};
 
-			// An arrival seeds all time, not a window the reader asked for, so it gets no notice.
-			next =
-				limitStatsDateSearch( seeded, policy, {
-					pathname,
-					requested: needsPostSeed ? undefined : currentSearch,
-				} ) ?? seeded;
+			next = limitStatsDateSearch( seeded, policy, { requested } ) ?? seeded;
 		} else {
-			next = limitStatsDateSearch( currentSearch, policy, { pathname, requested: currentSearch } );
+			next = limitStatsDateSearch( currentSearch, policy, { requested } );
 		}
 
 		if ( next ) {
@@ -123,6 +118,9 @@ export const route = {
 				replace: true,
 				viewTransition: false,
 				search: next as unknown as never,
+				state: dateWindowNoticeState(
+					requested ? dateWindowNotice( requested, policy ) : undefined
+				),
 			} );
 		}
 	},

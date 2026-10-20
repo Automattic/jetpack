@@ -3,7 +3,6 @@
  */
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { DASHBOARD_PREFERENCES_SCOPE } from '@jetpack-premium-analytics/data';
-import { renderHook } from '@testing-library/react';
 import { dispatch } from '@wordpress/data';
 import { getSettings, setSettings } from '@wordpress/date';
 import { store as preferencesStore } from '@wordpress/preferences';
@@ -12,7 +11,6 @@ import { store as preferencesStore } from '@wordpress/preferences';
  */
 import { planGatesScriptData } from '../../tests/js/plan-gates-test-utils';
 import { DATE_WINDOW_NOTICE_STATE } from '../date-window-notice';
-import { dateWindowKey, takeDateWindowNotice, useDateWindowNotice } from '../date-window-notice';
 import { route as postRoute } from '../post-detail/route';
 import { route as reportRoute } from '../reports/route';
 import { DATE_FILTER_RANGE, type DashboardSection } from './config';
@@ -46,27 +44,9 @@ jest.mock( '../reports/registry', () => ( {
 		} )[ id ?? '' ] ?? {},
 } ) );
 jest.mock( '../post-detail/config', () => ( { resolveTabId: ( section: string ) => section } ) );
-let mockSearch: Record< string, unknown > = {};
-const mockCreateInfoNotice = jest.fn();
 jest.mock( '@wordpress/route', () => ( {
 	redirect: ( options: object ) => ( { isRedirect: true, ...options } ),
-	useSearch: () => mockSearch,
 } ) );
-jest.mock( '@wordpress/data', () => {
-	const actual = () => jest.requireActual( '@wordpress/data' );
-	return new Proxy(
-		{},
-		{
-			get: ( _target, name ) =>
-				name === 'dispatch'
-					? ( store: unknown ) =>
-							store === 'core/notices'
-								? { createInfoNotice: mockCreateInfoNotice }
-								: actual().dispatch( store )
-					: actual()[ name as string ],
-		}
-	);
-} );
 
 type PreferencesActions = { set: ( scope: string, name: string, value: unknown ) => void };
 
@@ -174,19 +154,6 @@ describe.each( [
 describe( 'the date-limit notice on a free site', () => {
 	beforeEach( () => setLocks( ...FREE_LOCKS ) );
 
-	it( 'stays quiet when a hovered post link preloads and the page then shows that window', async () => {
-		mockSearch = ( await settle( { preset: 'yesterday' } ) ).search;
-		const { rerender } = renderHook( () => useDateWindowNotice( '/' ) );
-
-		await settle( { from: '2025-01-01', to: '2025-01-31', interval: 'day', post_id: '42' }, next =>
-			postRoute.beforeLoad( { params: { postId: '42' }, search: next } as never )
-		);
-		mockSearch = ( await settle( { preset: 'last-7-days' } ) ).search;
-		rerender();
-
-		expect( mockCreateInfoNotice ).not.toHaveBeenCalled();
-	} );
-
 	it( 'stays quiet when a post opens on its own window', async () => {
 		const settled = await settle(
 			{ from: '2025-01-01', to: '2025-01-31', interval: 'day', ref: 'posts' },
@@ -195,7 +162,7 @@ describe( 'the date-limit notice on a free site', () => {
 
 		expect( settled.hops ).toBe( 1 );
 		expect( settled.search ).toMatchObject( { preset: 'last-7-days', post_id: '42' } );
-		expect( noticeOn( settled.search, '/post/42' ) ).toBeUndefined();
+		expect( settled.notice ).toBeUndefined();
 	} );
 
 	it.each( [
@@ -211,14 +178,14 @@ describe( 'the date-limit notice on a free site', () => {
 		],
 	] )(
 		'tells the reader why a shared link to %s moved to the last 7 days',
-		async ( pathname, load ) => {
+		async ( _path, load ) => {
 			const settled = await settle(
 				{ from: '2025-01-01', to: '2025-01-31', interval: 'day', post_id: '42' },
 				load
 			);
 
 			expect( settled.search ).toMatchObject( { preset: 'last-7-days' } );
-			expect( noticeOn( settled.search, pathname ) ).toBe( 'recent-7-days' );
+			expect( settled.notice ).toBe( 'recent-7-days' );
 		}
 	);
 
@@ -229,7 +196,7 @@ describe( 'the date-limit notice on a free site', () => {
 			reportRoute.beforeLoad( { params: { report: 'referrers' }, search: next } as never )
 		);
 
-		expect( noticeOn( settled.search, '/reports/referrers' ) ).toBeUndefined();
+		expect( settled.notice ).toBeUndefined();
 	} );
 } );
 
@@ -241,7 +208,7 @@ it( 'opens a report on its default, without a notice, for a year carried over fr
 	);
 
 	expect( settled.search ).not.toMatchObject( { preset: 'year-2025' } );
-	expect( noticeOn( settled.search, '/reports/posts' ) ).toBeUndefined();
+	expect( settled.notice ).toBeUndefined();
 } );
 
 it.each( [

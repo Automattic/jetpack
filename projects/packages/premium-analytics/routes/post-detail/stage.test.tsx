@@ -680,7 +680,7 @@ describe( 'post detail stage', () => {
 
 		expect( screen.getByText( 'locked: week' ) ).toBeInTheDocument();
 		expect( mockDateFilterOptions ).toEqual( { lockedIntervals: [ 'week' ] } );
-		expect( useDateWindowNotice ).toHaveBeenCalledWith( '/post/41' );
+		expect( useDateWindowNotice ).toHaveBeenCalled();
 	} );
 
 	it( 'keeps the two-crumb trail when no report origin is present', () => {

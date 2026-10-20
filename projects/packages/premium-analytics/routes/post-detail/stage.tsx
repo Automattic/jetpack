@@ -31,7 +31,7 @@ import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useParams } from '@wordpress/route';
 import { WidgetDashboard, type DashboardWidget } from '@wordpress/widget-dashboard';
-import { routePathname, useDateWindowNotice } from '../date-window-notice';
+import { useDateWindowNotice } from '../date-window-notice';
 import { DETAIL_GRID } from '../grid';
 import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
 import { useDetailDateControls } from '../use-detail-date-controls';
@@ -68,7 +68,7 @@ function PostDetail(): JSX.Element {
 
 	const summary = usePostSummary( postId );
 	const { dateLimits } = useStatsDateLimits( true );
-	useDateWindowNotice( routePathname( ROUTE_FROM, { postId: postIdParam } ) );
+	useDateWindowNotice();
 	const lockedIntervals = dateLimits?.lockedIntervals;
 
 	const publicUrl = safeHttpUrl( summary.url );

@@ -97,6 +97,7 @@ describe( 'Report stage report scope', () => {
 		jest.mocked( useStatsDateLimits ).mockReturnValue( { offersComparison: true } );
 		mockGetReportDefinition.mockReturnValue( { load: mockLoad } );
 		mockLoad.mockClear();
+		delete window.JetpackScriptData;
 	} );
 
 	it( 'shows the locked page instead of loading a report the plan lacks', async () => {
@@ -125,6 +126,9 @@ describe( 'Report stage report scope', () => {
 		[ 'traffic', true ],
 		[ 'ads', false ],
 	] )( 'follows the plan’s date limits on a %s report: %p', async ( section, isLimited ) => {
+		window.JetpackScriptData = {
+			premium_analytics: { plan_date_limited_sections: [ 'traffic' ] },
+		} as typeof window.JetpackScriptData;
 		mockGetReportDefinition.mockReturnValue( { load: mockLoad, dashboardSection: section } );
 		jest.mocked( useStatsDateLimits ).mockReturnValue( {
 			offersComparison: true,
@@ -135,7 +139,7 @@ describe( 'Report stage report scope', () => {
 
 		await expect( screen.findByText( 'locked: week' ) ).resolves.toBeInTheDocument();
 		expect( useStatsDateLimits ).toHaveBeenLastCalledWith( isLimited );
-		expect( useDateWindowNotice ).toHaveBeenCalledWith( '/reports/posts' );
+		expect( useDateWindowNotice ).toHaveBeenCalled();
 	} );
 } );
 

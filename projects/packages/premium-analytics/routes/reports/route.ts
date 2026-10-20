@@ -13,11 +13,14 @@ import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
-import { routePathname } from '../date-window-notice';
+import { dateWindowNoticeState } from '../date-window-notice';
 import { seedSiteDateParams } from '../site-date-seed';
 import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
-import { limitStatsDateSearch, withoutCarriedYearWindow } from '../stats-date-window';
-import { route as routeConfig } from './package.json';
+import {
+	dateWindowNotice,
+	limitStatsDateSearch,
+	withoutCarriedYearWindow,
+} from '../stats-date-window';
 import { getReportDefinition } from './registry';
 
 type ReportRouteParams = { report?: string };
@@ -56,7 +59,6 @@ export const route = {
 				? OPEN_DATE_POLICY
 				: getSectionDatePolicy( definition.dashboardSection );
 		const currentSearch = withoutCarriedYearWindow( search ?? {}, policy ) as ReportRouteSearch;
-		const pathname = routePathname( routeConfig.path, { report: reportId } );
 		// A `section` from a link may not belong to this report (e.g. forwarded from a
 		// dashboard widget); resolve it so a shareable URL never persists a bogus section.
 		const resolvedSection =
@@ -93,10 +95,9 @@ export const route = {
 			delete seeded.post_id;
 			delete seeded.author_id;
 
-			next =
-				limitStatsDateSearch( seeded, policy, { pathname, requested: currentSearch } ) ?? seeded;
+			next = limitStatsDateSearch( seeded, policy, { requested: currentSearch } ) ?? seeded;
 		} else {
-			next = limitStatsDateSearch( currentSearch, policy, { pathname, requested: currentSearch } );
+			next = limitStatsDateSearch( currentSearch, policy, { requested: currentSearch } );
 		}
 
 		if ( next ) {
@@ -110,6 +111,7 @@ export const route = {
 				replace: true,
 				viewTransition: false,
 				search: next as unknown as never,
+				state: dateWindowNoticeState( dateWindowNotice( currentSearch, policy ) ),
 			} );
 		}
 	},
