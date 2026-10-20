@@ -191,6 +191,25 @@ describe( 'BarChart overlap layout', () => {
 		expect( screen.getByRole( 'tooltip' ) ).not.toHaveTextContent( 'Previous visitors' );
 	} );
 
+	it( 'continues the keyboard from the hovered category when the front series starts later', async () => {
+		const user = userEvent.setup();
+		renderOverlap( {
+			data: DATA.map( series =>
+				series.label === 'Visitors' ? { ...series, data: series.data.slice( 1 ) } : series
+			),
+		} );
+
+		await user.tab();
+		await user.keyboard( '{ArrowRight}' );
+		// Back to front, the late Visitors series draws only its Tuesday bar.
+		pointer( 'pointermove', center( geometry( barRects()[ 4 ] ) ) );
+		await user.keyboard( '{ArrowRight}' );
+
+		expect( geometry( screen.getByTestId( 'bar-chart-selected-ring' ) ).x ).toBeCloseTo(
+			barOf( 'Previous views', 1 ).x
+		);
+	} );
+
 	it( 'steps the keyboard one slot at a time, outlining the whole slot', async () => {
 		const user = userEvent.setup();
 		renderOverlap();

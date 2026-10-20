@@ -49,6 +49,7 @@ import {
 	SlotTooltipMembers,
 	useOverlapSlots,
 	getSelectedSlot,
+	isSameCategory,
 } from './private';
 import type { ComparisonSeriesEntry } from './private';
 import type { BarChartProps } from './types';
@@ -171,9 +172,9 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			collapseGroups: legendCollapseGroups,
 			comparisonItem: legendComparisonItem,
 			comparisonSeriesItems: legendComparisonSeriesItems,
-			barLayout: isOverlap ? layout : undefined,
+			barLayout: isOverlap ? ( 'overlap' as const ) : undefined,
 		} ),
-		[ legendCollapseGroups, legendComparisonItem, legendComparisonSeriesItems, isOverlap, layout ]
+		[ legendCollapseGroups, legendComparisonItem, legendComparisonSeriesItems, isOverlap ]
 	);
 	const legendItems = useChartLegendItems( dataSorted, legendOptions );
 
@@ -181,10 +182,10 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const overlapColors = useMemo(
 		() =>
 			isOverlap
-				? ( getBarColors?.( dataSorted, { layout } ) ??
+				? ( getBarColors?.( dataSorted, { layout: 'overlap' } ) ??
 					dataSorted.map( ( series, index ) => getElementStyles( { data: series, index } ).color ) )
 				: undefined,
-		[ isOverlap, getBarColors, dataSorted, layout, getElementStyles ]
+		[ isOverlap, getBarColors, dataSorted, getElementStyles ]
 	);
 
 	// A hidden series is unmounted, so it is not on the band scale either — the
@@ -317,11 +318,18 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const handlePointerMove = useCallback(
 		( { key, index }: { key: string; index: number } ) => {
 			if ( overlapSlots ) {
+				const hovered = overlapSlots.entries.find( ( { series } ) => series.label === key )?.series
+					.data[ index ] as DataPointDate | undefined;
 				const stop = overlapSlots.stops.findIndex(
 					( { series } ) => overlapSlots.slotOf( series.label ) === overlapSlots.slotOf( key )
 				);
+				const dataPointIndex = hovered
+					? ( overlapSlots.stops[ stop ]?.series.data as DataPointDate[] | undefined )?.findIndex(
+							point => isSameCategory( point, hovered )
+						)
+					: undefined;
 				const position = overlapSlots.positions.findIndex(
-					p => p.stop === stop && p.dataPointIndex === index
+					p => p.stop === stop && p.dataPointIndex === dataPointIndex
 				);
 				if ( position >= 0 ) {
 					onChartPointerMove( position );
