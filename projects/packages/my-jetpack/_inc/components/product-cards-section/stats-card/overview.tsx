@@ -92,6 +92,7 @@ const StatsOverviewItem: ProductCardComponent = ( { admin } ) => {
 				detailedStatsHref={ detailedStatsHref }
 				onDetailedStatsClick={ onDetailedStatsClick }
 				hideTitle
+				chartBelowCounts
 			/>
 			{ admin && detailedStatsHref && (
 				<Link href={ detailedStatsHref } onClick={ onDetailedStatsClick }>
