@@ -4,7 +4,7 @@ import { LIKES_ANCHOR } from '../anchors';
 import { useFeatureAction } from '../data/use-feature-action';
 import { useSaveSetting } from '../data/use-save-setting';
 import { SettingsScreen } from '../settings-screen';
-import { baseStatus, renderWithData, resetNotices, setScriptData } from './helpers';
+import { baseStatus, renderWithData, setScriptData } from './helpers';
 import type { ReactNode } from 'react';
 
 jest.mock( '@wordpress/api-fetch' );
@@ -35,7 +35,6 @@ function leavingPrompts(): boolean {
 beforeEach( () => {
 	mockApiFetch.mockReset();
 	mockApiFetch.mockImplementation( () => new Promise( () => {} ) );
-	resetNotices();
 	setScriptData();
 	window.location.hash = '';
 	scrollIntoView.mockReset();
