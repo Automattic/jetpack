@@ -566,11 +566,6 @@ function wpcom_add_native_activity_log_submenu() {
 		return false;
 	}
 
-	// VIP's Activity Log works differently from Jetpack's, so VIP sites keep the Calypso link.
-	if ( function_exists( 'wpcom_is_vip' ) && wpcom_is_vip() ) {
-		return false;
-	}
-
 	// The package ships with Jetpack, which deploys separately from this one.
 	if ( ! class_exists( '\Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log' ) ) {
 		return false;
