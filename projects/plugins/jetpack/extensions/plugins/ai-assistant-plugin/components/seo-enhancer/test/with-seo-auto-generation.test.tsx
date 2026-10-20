@@ -1,15 +1,10 @@
 import { render } from '@testing-library/react';
-import { blockWithSeoAutoGenerationExtension } from '../with-seo-auto-generation';
 
 let mockIsAutoEnhanceEnabled = true;
 const mockUpdateAltText = jest.fn();
 
 jest.mock( '../can-auto-enhance-metadata', () => ( {
 	canAutoEnhanceMetadata: () => true,
-} ) );
-
-jest.mock( '../store', () => ( {
-	store: 'jetpack/seo-enhancer-test-store',
 } ) );
 
 jest.mock( '../use-seo-module-settings', () => ( {
@@ -26,30 +21,40 @@ jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
 } ) );
 
 jest.mock( '@wordpress/data', () => {
-	const stores: Record< string, unknown > = {
-		'core/block-editor': { getBlock: ( clientId: string ) => ( { clientId } ) },
-		// The "Image alt text" box, unticked earlier in manual mode.
-		'jetpack/seo-enhancer-test-store': { isImageAltTextFeatureEnabled: () => false },
-	};
+	const actual = jest.requireActual( '@wordpress/data' );
+	const blockEditor = { getBlock: ( clientId: string ) => ( { clientId } ) };
 	const mocks = {
-		useSelect: ( selector: ( select: ( store: string ) => unknown ) => unknown ) =>
-			selector( ( store: string ) => stores[ store ] ),
+		useSelect: ( selector: ( select: ( store: unknown ) => unknown ) => unknown ) =>
+			selector( store => ( store === 'core/block-editor' ? blockEditor : actual.select( store ) ) ),
 	};
-	return new Proxy( jest.requireActual( '@wordpress/data' ), {
+	return new Proxy( actual, {
 		get: ( target, property ) => mocks[ property ] ?? target[ property ],
 	} );
 } );
 
 describe( 'blockWithSeoAutoGenerationExtension', () => {
+	beforeAll( () => {
+		// The manual-mode "Image alt text" box, unticked earlier in this browser.
+		localStorage.setItem(
+			'jetpack-seo-enhancer-features',
+			JSON.stringify( { 'images-alt-text': false } )
+		);
+	} );
+
 	beforeEach( () => {
 		mockUpdateAltText.mockClear();
+	} );
+
+	afterAll( () => {
+		localStorage.clear();
 	} );
 
 	it.each( [
 		[ 'generates alt text in auto mode', true, 1 ],
 		[ 'leaves alt text alone outside auto mode', false, 0 ],
-	] )( '%s when an image is inserted', ( _label, isAutoEnhanceEnabled, calls ) => {
+	] )( '%s when an image is inserted', async ( _label, isAutoEnhanceEnabled, calls ) => {
 		mockIsAutoEnhanceEnabled = isAutoEnhanceEnabled;
+		const { blockWithSeoAutoGenerationExtension } = await import( '../with-seo-auto-generation' );
 		const { edit: Edit } = blockWithSeoAutoGenerationExtension(
 			{ edit: () => null },
 			'core/image'

@@ -900,7 +900,7 @@ class Jetpack_Gutenberg {
 			wp_enqueue_style( 'recoleta-font', '//s1.wp.com/i/fonts/recoleta/css/400.min.css', array(), Constants::get_constant( 'JETPACK__VERSION' ) );
 		}
 		// AI Assistant
-		// On Simple the setting can only be saved where the Jetpack › SEO page registers it.
+		// Whether Jetpack › SEO registers the setting for saving; see the seo-enhancer store.
 		$is_seo_auto_enhance_switchable = apply_filters( 'ai_seo_enhancer_enabled', true )
 			&& method_exists( '\Automattic\Jetpack\SEO\Initializer', 'is_available' )
 			&& \Automattic\Jetpack\SEO\Initializer::is_available()

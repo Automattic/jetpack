@@ -31,12 +31,17 @@ export const useSeoModuleSettings = () => {
 		} ) => {
 			setIsToggling( true );
 			try {
-				await apiFetch( {
+				const isSimple = isSimpleSite();
+				const response = await apiFetch< { ai_seo_enhancer_enabled?: boolean } >( {
 					// See the seo-enhancer store for why Simple differs.
-					path: isSimpleSite() ? '/wp/v2/settings' : 'jetpack/v4/module/seo-tools',
+					path: isSimple ? '/wp/v2/settings' : 'jetpack/v4/module/seo-tools',
 					method: 'post',
 					data: { ai_seo_enhancer_enabled: ! isEnabled },
 				} );
+				// `/wp/v2/settings` succeeds without saving a setting nothing has registered.
+				if ( isSimple && response?.ai_seo_enhancer_enabled !== ! isEnabled ) {
+					throw new Error( 'The auto-generate setting was not saved.' );
+				}
 				tracks.recordEvent( 'jetpack_seo_enhancer_toggle', {
 					toggled: ! isEnabled ? 'on' : 'off',
 					placement,
