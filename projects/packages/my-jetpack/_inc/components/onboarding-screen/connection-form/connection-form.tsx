@@ -71,11 +71,13 @@ const ConnectionForm = () => {
 
 			{ registrationError ? (
 				<Notice status="error" isDismissible={ false }>
-					<p>
+					<p className={ styles[ 'error-message' ] }>
 						{ errorDisplay.message ||
 							__( 'An error occurred. Please try again.', 'jetpack-my-jetpack' ) }
 					</p>
-					{ errorDisplay.detail && <p>{ errorDisplay.detail }</p> }
+					{ errorDisplay.detail && (
+						<p className={ styles[ 'error-detail' ] }>{ errorDisplay.detail }</p>
+					) }
 				</Notice>
 			) : null }
 
