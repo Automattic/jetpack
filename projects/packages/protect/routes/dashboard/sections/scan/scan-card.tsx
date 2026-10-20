@@ -1,5 +1,5 @@
 import apiFetch from '@wordpress/api-fetch';
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { shield } from '@wordpress/icons';
 import { Button, Card, Link, Notice, Stack, Text } from '@wordpress/ui';
@@ -85,6 +85,16 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 	const isScanning =
 		! scan.error && ( !! scan.scanning || isRequestedScanNotStarted( scan, requestedAt ) );
 
+	// Scans finished while the page is open: picks the safe state's animation and replays it.
+	const [ finishedScans, setFinishedScans ] = useState( 0 );
+	const wasScanning = useRef( isScanning );
+	useEffect( () => {
+		if ( wasScanning.current && ! isScanning ) {
+			setFinishedScans( count => count + 1 );
+		}
+		wasScanning.current = isScanning;
+	}, [ isScanning ] );
+
 	// Ignored threats come from Scan history, which only a Scan plan has.
 	useEffect( () => {
 		if ( hasPlan ) {
@@ -107,6 +117,10 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 			.then( next => {
 				setPolls( 0 );
 				mergeScan( next );
+				// The free check never reports as scanning; its answer is already in.
+				if ( ! hasPlan ) {
+					setFinishedScans( count => count + 1 );
+				}
 			} )
 			.catch( ( e: { message?: string } ) => {
 				setRequestedAt( null );
@@ -166,7 +180,13 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 	} else if ( ! hasThreats ) {
 		body = (
 			<CardRow>
-				<SafeState scan={ scan } isStarting={ isStarting } onScan={ startScan } />
+				<SafeState
+					key={ finishedScans }
+					scan={ scan }
+					isStarting={ isStarting }
+					onScan={ startScan }
+					justScanned={ finishedScans > 0 }
+				/>
 			</CardRow>
 		);
 	} else {
@@ -193,7 +213,15 @@ export default function ScanCard( { openTab }: Pick< DashboardContext, 'openTab'
 					<ThreatsList
 						threats={ threats }
 						canAct={ hasPlan }
-						empty={ <SafeState scan={ scan } isStarting={ isStarting } onScan={ startScan } /> }
+						empty={
+							<SafeState
+								key={ finishedScans }
+								scan={ scan }
+								isStarting={ isStarting }
+								onScan={ startScan }
+								justScanned={ finishedScans > 0 }
+							/>
+						}
 					/>
 				</CardRow>
 			</>
