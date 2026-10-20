@@ -4,7 +4,9 @@ import { GrowthInterstitial, ProInterstitial, SecurityInterstitial } from '../in
 import ProductInterstitial from '../product-interstitial';
 
 jest.mock( '../../../data/products/use-product' );
-jest.mock( '../../../assets/url', () => ( { assetUrl: () => '' } ) );
+jest.mock( '../../../assets/url', () => ( {
+	assetUrl: relativePath => `https://example.com/assets/build/${ relativePath }`,
+} ) );
 jest.mock( '../pricing-interstitial', () => () => null );
 jest.mock( 'react-router', () => ( {
 	Navigate: ( { to } ) => (

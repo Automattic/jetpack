@@ -491,7 +491,7 @@ abstract class Product {
 	/**
 	 * Prepare supported billing terms, requiring confirmed availability for Pro.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.12.0
 	 * @param string[] $product_slugs Store product slugs, preferred term first.
 	 * @return array Pricing details and term choices.
 	 */
@@ -1036,7 +1036,7 @@ abstract class Product {
 	/**
 	 * Get the Jetpack module that switches the product on, if any.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.12.0
 	 *
 	 * @return ?string
 	 */
@@ -1086,7 +1086,7 @@ abstract class Product {
 	/**
 	 * Whether activating the product installs and activates its standalone plugin, rather than relying on the Jetpack plugin.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.12.0
 	 *
 	 * @return bool
 	 */
