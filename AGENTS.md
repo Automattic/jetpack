@@ -2,7 +2,7 @@
 
 ## Confidentiality
 
-CRITICAL: This is a **public repository**. Never put an internal link or hostname in a PR description, review comment, commit message, code comment, or any other public-facing text: no private WordPress.com URLs (e.g., `*.wordpress.com` internal sites and P2s), no Slack, Linear, or internal tool URLs. Use the shortlinks the PR template asks for instead: `peKye1-1Z1-p2` for a P2 post, `p<message>-slack-<channel>` for a Slack message (`p<message>/<thread>-slack-<channel>` for a reply in a thread), and the bare issue key (`JETPACK-123`) for Linear. The same applies in every other public Automattic repository this work reaches, such as `wp-calypso`.
+CRITICAL: This is a **public repository**. Never put an internal link or hostname in a PR description, review comment, commit message, code comment, or any other public-facing text: no private WordPress.com URLs (e.g., `*.wordpress.com` internal sites and P2s), no Slack, Linear, HackerOne, private GitHub repository, or GitHub Enterprise URLs, and no other internal tool URLs. Use the shortlinks the PR template asks for instead: `peKye1-1Z1-p2` for a P2 post, `p<message>-slack-<channel>` for a Slack message (`p<message>/<thread>-slack-<channel>` for a reply in a thread), and the bare issue key (`JETPACK-123`) for Linear.
 
 ## Project Structure
 
