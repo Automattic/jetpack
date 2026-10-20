@@ -1,7 +1,4 @@
 .item {
-	display: flex;
-	flex-direction: column;
-	gap: var(--spacing-base);
 	block-size: 100%;
 }
 
@@ -9,12 +6,6 @@
 	display: flex;
 	align-items: center;
 	min-block-size: 40px;
-}
-
-.metric {
-	display: inline-flex;
-	align-items: center;
-	gap: calc(var(--spacing-base) * 1.5);
 }
 
 .dot {
@@ -36,10 +27,6 @@
 }
 
 .links {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: var(--spacing-base);
 	margin-block-start: auto;
 	padding-block-start: var(--spacing-base);
 

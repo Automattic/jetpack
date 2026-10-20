@@ -1,15 +1,15 @@
 import { __ } from '@wordpress/i18n';
 import { lock } from '@wordpress/icons';
-import { Badge, Button, Icon, Link, Text } from '@wordpress/ui';
+import { Badge, Button, Icon, Link, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useEffect, useRef } from 'react';
-import { PRODUCT_STATUSES } from '../../../constants';
+import { PRODUCT_SLUGS } from '../../../data/constants';
 import useProduct from '../../../data/products/use-product';
 import useProductsByOwnership from '../../../data/products/use-products-by-ownership';
 import useAnalytics from '../../../hooks/use-analytics';
-import { getProductCardTitleId } from '../../product-card';
-import { getStatusLabel } from '../../product-card/status';
+import { getStatusLabel, getStatusTone } from '../../product-card/status';
 import styles from './style.module.scss';
+import type { StatusTone } from '../../product-card/status';
 import type { ComponentProps, FC, ReactNode } from 'react';
 
 type BadgeIntent = ComponentProps< typeof Badge >[ 'intent' ];
@@ -39,16 +39,11 @@ export type OverviewItemProps = {
 	error?: { reason: string; onRetry: () => void };
 };
 
-const STATUS_INTENTS: Partial< Record< ProductStatus, BadgeIntent > > = {
-	[ PRODUCT_STATUSES.ACTIVE ]: 'stable',
-	[ PRODUCT_STATUSES.CAN_UPGRADE ]: 'stable',
-	[ PRODUCT_STATUSES.EXPIRED ]: 'high',
-	[ PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR ]: 'high',
-	[ PRODUCT_STATUSES.NEEDS_ATTENTION__WARNING ]: 'medium',
-	[ PRODUCT_STATUSES.EXPIRING_SOON ]: 'medium',
-	[ PRODUCT_STATUSES.SITE_CONNECTION_ERROR ]: 'medium',
-	[ PRODUCT_STATUSES.USER_CONNECTION_ERROR ]: 'medium',
-	[ PRODUCT_STATUSES.ABSENT_WITH_PLAN ]: 'medium',
+const TONE_INTENTS: Record< StatusTone, BadgeIntent > = {
+	active: 'stable',
+	warning: 'medium',
+	error: 'high',
+	inactive: 'none',
 };
 
 /**
@@ -63,10 +58,13 @@ const useStatusBadge = ( slug: JetpackModuleWithCard ): OverviewItemBadge => {
 		data: { ownedProducts },
 	} = useProductsByOwnership();
 	const status = detail?.status;
+	const isOwned = !! ownedProducts?.includes( slug );
+	// As on the Protect card, threats found don't make Protect "need attention".
+	const suppressNeedsAttention = slug === PRODUCT_SLUGS.PROTECT;
 
 	return {
-		label: getStatusLabel( status, !! ownedProducts?.includes( slug ), false ),
-		intent: STATUS_INTENTS[ status ] ?? 'none',
+		label: getStatusLabel( status, isOwned, suppressNeedsAttention ),
+		intent: TONE_INTENTS[ getStatusTone( status, isOwned, suppressNeedsAttention ) ],
 	};
 };
 
@@ -114,62 +112,62 @@ const OverviewItem: FC< OverviewItemProps > = ( {
 	const statusBadge = useStatusBadge( slug );
 	useOverviewLoadEvent( slug, isLoading );
 
+	const productLinks: ReactNode[] = [];
+	if ( admin && action ) {
+		productLinks.push(
+			<Link key="action" href={ action.href } onClick={ action.onClick }>
+				{ action.label }
+			</Link>
+		);
+	}
+	if ( admin && upgrade ) {
+		productLinks.push(
+			<Link key="upgrade" href={ upgrade.href } onClick={ upgrade.onClick }>
+				<Icon icon={ lock } size={ 16 } />
+				{ upgrade.label }
+			</Link>
+		);
+	}
+
 	let content: ReactNode;
+	let links = productLinks;
 	if ( isLoading ) {
 		content = (
 			<Badge intent="none">{ loadingLabel ?? __( 'Loading…', 'jetpack-my-jetpack' ) }</Badge>
 		);
 	} else if ( error ) {
 		content = <Badge intent="high">{ error.reason }</Badge>;
+		links = [
+			<Link key="retry" render={ <Button variant="unstyled" onClick={ error.onRetry } /> }>
+				{ __( 'Try again', 'jetpack-my-jetpack' ) }
+			</Link>,
+		];
 	} else if ( value !== undefined ) {
 		content = (
-			<span className={ styles.metric }>
+			<Stack direction="row" align="center" gap="md">
 				<Text variant="heading-2xl">{ value }</Text>
 				{ valueTone && (
 					<span className={ clsx( styles.dot, styles[ `is-${ valueTone }` ] ) } aria-hidden />
 				) }
-			</span>
+			</Stack>
 		);
 	} else {
 		const shownBadge = badge ?? statusBadge;
 		content = <Badge intent={ shownBadge.intent }>{ shownBadge.label }</Badge>;
 	}
 
-	const links: ReactNode[] = [];
-	if ( error && ! isLoading ) {
-		links.push(
-			<Link key="retry" render={ <Button variant="unstyled" onClick={ error.onRetry } /> }>
-				{ __( 'Try again', 'jetpack-my-jetpack' ) }
-			</Link>
-		);
-	} else if ( admin ) {
-		if ( action ) {
-			links.push(
-				<Link key="action" href={ action.href } onClick={ action.onClick }>
-					{ action.label }
-				</Link>
-			);
-		}
-		if ( upgrade ) {
-			links.push(
-				<Link key="upgrade" href={ upgrade.href } onClick={ upgrade.onClick }>
-					<Icon icon={ lock } size={ 16 } />
-					{ upgrade.label }
-				</Link>
-			);
-		}
-	}
-
 	return (
-		<div className={ styles.item }>
-			<Text variant="body-md" id={ getProductCardTitleId( slug ) }>
-				{ label }
-			</Text>
+		<Stack direction="column" gap="sm" className={ styles.item }>
+			<Text variant="body-md">{ label }</Text>
 			<div className={ styles.value } aria-busy={ isLoading }>
 				{ content }
 			</div>
-			{ links.length > 0 && <div className={ styles.links }>{ links }</div> }
-		</div>
+			{ links.length > 0 && (
+				<Stack direction="row" align="center" gap="sm" wrap="wrap" className={ styles.links }>
+					{ links }
+				</Stack>
+			) }
+		</Stack>
 	);
 };
 
