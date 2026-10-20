@@ -21,8 +21,7 @@ const WPCOM_EDITOR_WELCOME_GUIDES_CACHE_META = 'wpcom_editor_welcome_guides';
 const WPCOM_EDITOR_WELCOME_GUIDES_CACHE_TTL = 5 * MINUTE_IN_SECONDS;
 
 /**
- * Whether the request renders one of the editors. Only these page loads may wait for
- * WordPress.com; heartbeats, REST calls and other admin pages read the copy as it is.
+ * Whether the request renders one of the editors, the only page loads allowed to wait for WordPress.com.
  *
  * @return bool
  */
@@ -96,10 +95,10 @@ function wpcom_editor_welcome_guides_atomic_request( string $method, ?array $bod
 }
 
 /**
- * Answers the shared read hook from the per-site copy, refreshing it from WordPress.com
- * when an editor screen loads for the current user and the copy is missing or older than
- * the TTL. A failed refresh keeps the copy and also waits out the TTL, so the preferences
- * reads that follow in the same request and the next page loads do not retry.
+ * Answers the shared read hook from the per-site copy, refreshing it when an editor
+ * screen loads for the current user and the copy is missing or stale.
+ * A failed refresh keeps the copy and still stamps it, so later reads in this request
+ * and the next page loads do not retry.
  *
  * @param array $dismissed Map another provider supplied.
  * @param int   $user_id   User ID.
@@ -116,10 +115,10 @@ function wpcom_editor_welcome_guides_atomic_get_dismissed( $dismissed, $user_id 
 		return $cached['dismissed'];
 	}
 
-	$dismissed = wpcom_editor_welcome_guides_atomic_request( 'GET' ) ?? $cached['dismissed'];
-	wpcom_editor_welcome_guides_atomic_store( $user_id, $dismissed );
+	$record = wpcom_editor_welcome_guides_atomic_request( 'GET' ) ?? $cached['dismissed'];
+	wpcom_editor_welcome_guides_atomic_store( $user_id, $record );
 
-	return $dismissed;
+	return $record;
 }
 add_filter( 'wpcom_editor_welcome_guides_dismissed', 'wpcom_editor_welcome_guides_atomic_get_dismissed', 10, 2 );
 
