@@ -1318,7 +1318,7 @@ describe( 'What the wizard reports', () => {
 		const { user } = setupWizard( { isUserConnected: true } );
 		await user.click( screen.getByRole( 'radio', { name: 'A blog or publication' } ) );
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
-		await user.click( screen.getByRole( 'checkbox', { name: 'Downtime Monitor' } ) );
+		await user.click( screen.getByRole( 'switch', { name: 'Downtime Monitor' } ) );
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
 
 		await waitFor( () =>
@@ -1335,7 +1335,7 @@ describe( 'What the wizard reports', () => {
 		await user.click( screen.getByRole( 'radio', { name: 'Something else…' } ) );
 		await user.type( screen.getByRole( 'textbox' ), 'A wiki' );
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
-		await user.click( screen.getByRole( 'checkbox', { name: 'Downtime Monitor' } ) );
+		await user.click( screen.getByRole( 'switch', { name: 'Downtime Monitor' } ) );
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
 		await user.click( await screen.findByRole( 'link', { name: 'Go to My Jetpack' } ) );
 
