@@ -13,12 +13,15 @@ import './route.scss';
 /**
  * Boot stage for the Protect dashboard: Overview, any section tabs, then Settings; the active one in `?tab=`.
  *
+ * `?section=` names the card the Settings tab scrolls to, which links from other screens use.
+ *
  * @return The Protect page.
  */
 const Stage = () => {
 	// `@wordpress/route` types no route tree, so `from` and the navigate argument below need a cast.
 	const search: Record< string, unknown > = useSearch( { from: '/' as never, strict: false } );
 	const requestedTab = typeof search.tab === 'string' ? search.tab : '';
+	const requestedSection = typeof search.section === 'string' ? search.section : undefined;
 	const navigate = useNavigate();
 	const openTab = useCallback(
 		( next: string, params?: Record< string, string > ) => {
@@ -27,6 +30,7 @@ const Stage = () => {
 					...prev,
 					// Leaving a tab closes the inspector, whose threat belongs to the list on that tab.
 					...CLOSED_INSPECTOR,
+					section: undefined,
 					...params,
 					tab: next === 'overview' ? undefined : next,
 				} ),
@@ -86,7 +90,9 @@ const Stage = () => {
 						</Tabs.Panel>
 					) ) }
 					<Tabs.Panel value="settings">
-						{ activeTab === 'settings' && <SettingsTab { ...context } /> }
+						{ activeTab === 'settings' && (
+							<SettingsTab { ...context } section={ requestedSection } />
+						) }
 					</Tabs.Panel>
 				</div>
 			</Tabs.Root>

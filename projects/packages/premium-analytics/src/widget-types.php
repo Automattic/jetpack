@@ -506,6 +506,7 @@ const WIDGET_TYPE_PLAN_FEATURES = array(
 	'jpa/most-commented-authors'         => 'insights',
 	'jpa/shares'                         => 'insights',
 	'jpa/tags'                           => 'tags',
+	'jpa/post-all-time-traffic'          => 'recent-7-days',
 );
 
 /**

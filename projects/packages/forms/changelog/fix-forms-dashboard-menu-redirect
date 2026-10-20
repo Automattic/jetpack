@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Dashboard: Open on the remembered tab without a server-side redirect, saving a page load on every visit.

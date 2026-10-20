@@ -13,6 +13,7 @@ jest.mock( '@wordpress/api-fetch', () => ( {
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import ActivityList from '../src/dashboard/components/activity-list';
+import { formatDateTime } from '../src/dashboard/data/date-format';
 import { INITIAL_VIEW } from '../src/dashboard/screens/overview';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
@@ -69,17 +70,23 @@ it( 'names each row by its own restore point, not by the shared summary', async 
 	renderList();
 
 	await expect(
-		screen.findByRole( 'button', { name: `${ SUMMARY } Aug 20, 2026, 10:00 AM` } )
+		screen.findByRole( 'button', {
+			name: `${ SUMMARY } ${ formatDateTime( PAGE.current.orderedItems[ 0 ].published ) }`,
+		} )
 	).resolves.toBeInTheDocument();
 	expect(
-		screen.getByRole( 'button', { name: `${ SUMMARY } Aug 20, 2026, 10:01 AM` } )
+		screen.getByRole( 'button', {
+			name: `${ SUMMARY } ${ formatDateTime( PAGE.current.orderedItems[ 1 ].published ) }`,
+		} )
 	).toBeInTheDocument();
 } );
 
 it( 'no longer answers to the summary alone, which every row shares', async () => {
 	renderList();
 	await expect(
-		screen.findByRole( 'button', { name: /Aug 20, 2026, 10:00 AM/ } )
+		screen.findByRole( 'button', {
+			name: `${ SUMMARY } ${ formatDateTime( PAGE.current.orderedItems[ 0 ].published ) }`,
+		} )
 	).resolves.toBeInTheDocument();
 
 	expect( screen.queryByRole( 'button', { name: SUMMARY } ) ).not.toBeInTheDocument();
