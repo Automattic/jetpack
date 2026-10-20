@@ -9,6 +9,7 @@ import { Button, __experimentalText as Text } from '@wordpress/components'; // e
 import { __, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { useCallback } from 'react';
+import { config } from '../../config';
 import { useAnalytics } from '../../hooks/use-analytics';
 import illustrationUrl from './activity-logs-callout-illustration';
 // Stylesheet is `@use`d from `src/js/style.scss` so the rules ride the
@@ -47,6 +48,44 @@ const buildPostCheckoutReturnUrl = (): string => {
 	return addQueryArgs( window.location.href, { refresh_access: '1', _wpnonce: nonce } );
 };
 
+type UpgradeButtonProps = {
+	productSlug: string;
+	onClick: () => void;
+};
+
+/**
+ * Jetpack product checkout. Kept out of the Simple path: the workflow registers
+ * an unconnected site before checkout, and Simple sites have no Jetpack connection.
+ *
+ * @param props             - Component props.
+ * @param props.productSlug - Available Jetpack bundle.
+ * @param props.onClick     - Called before checkout starts.
+ * @return The upgrade button.
+ */
+function JetpackCheckoutButton( { productSlug, onClick }: UpgradeButtonProps ) {
+	const { run, hasCheckoutStarted } = useProductCheckoutWorkflow( {
+		productSlug,
+		redirectUrl: buildPostCheckoutReturnUrl(),
+		from: UPSELL_SOURCE,
+	} );
+
+	const onClickUpgrade = useCallback( () => {
+		onClick();
+		run();
+	}, [ onClick, run ] );
+
+	return (
+		<Button
+			variant="primary"
+			onClick={ onClickUpgrade }
+			isBusy={ hasCheckoutStarted }
+			disabled={ hasCheckoutStarted }
+		>
+			{ __( 'Upgrade plan', 'jetpack-activity-log' ) }
+		</Button>
+	);
+}
+
 /**
  * DataViews-adjacent upsell banner. Rendered as a sibling to the table
  * (not nested inside DataViews) so it sits below the locked view and
@@ -56,30 +95,45 @@ const buildPostCheckoutReturnUrl = (): string => {
  */
 export function UpsellCallout() {
 	const { tracks } = useAnalytics();
+	const { wpcomUpgradeUrl } = config;
 	const initialState =
 		typeof JPACTIVITYLOG_INITIAL_STATE !== 'undefined' ? JPACTIVITYLOG_INITIAL_STATE : undefined;
 	const offer =
 		initialState && 'upgrade' in initialState
 			? initialState.upgrade
 			: { slug: 'security', title: 'Jetpack Security', wpcom_product_slug: PRODUCT_SLUG };
-	const { run, hasCheckoutStarted } = useProductCheckoutWorkflow( {
-		productSlug: offer?.wpcom_product_slug ?? PRODUCT_SLUG,
-		redirectUrl: buildPostCheckoutReturnUrl(),
-		from: UPSELL_SOURCE,
-	} );
 
-	const onClickUpgrade = useCallback( () => {
+	const recordUpgradeClick = useCallback( () => {
 		tracks.recordEvent( 'jetpack_activity_log_upsell_cta_click', {
 			source: 'free_tier_callout',
 		} );
-		run();
-	}, [ run, tracks ] );
+	}, [ tracks ] );
 
-	if ( ! offer ) {
+	if ( ! wpcomUpgradeUrl && ! offer ) {
 		return null;
 	}
 
-	return (
+	let description: string = __(
+		'Upgrade to get complete activity history for the last 30 days, advanced filtering and date range selection. Available on the Jetpack Security and Complete plans.',
+		'jetpack-activity-log'
+	);
+	if ( wpcomUpgradeUrl ) {
+		description = __(
+			'Upgrade to get complete activity history for the last 30 days, advanced filtering and date range selection. Available on WordPress.com paid plans.',
+			'jetpack-activity-log'
+		);
+	} else if ( offer && offer.slug !== 'security' ) {
+		description = sprintf(
+			/* translators: %s is the name of an available Jetpack bundle. */
+			__(
+				'Upgrade to %s for at least 30 days of activity history, advanced filtering and date range selection.',
+				'jetpack-activity-log'
+			),
+			offer.title
+		);
+	}
+
+	const card = (
 		<div className="jp-activity-log__upsell-callout">
 			<div className="jp-activity-log__upsell-callout-content">
 				<h2 className="jp-activity-log__upsell-callout-title">
@@ -92,28 +146,18 @@ export function UpsellCallout() {
 					) }
 				</Text>
 				<Text as="p" variant="muted">
-					{ offer.slug === 'security'
-						? __(
-								'Upgrade to get complete activity history for the last 30 days, advanced filtering and date range selection. Available on the Jetpack Security and Complete plans.',
-								'jetpack-activity-log'
-							)
-						: sprintf(
-								/* translators: %s is the name of an available Jetpack bundle. */
-								__(
-									'Upgrade to %s for at least 30 days of activity history, advanced filtering and date range selection.',
-									'jetpack-activity-log'
-								),
-								offer.title
-							) }
+					{ description }
 				</Text>
-				<Button
-					variant="primary"
-					onClick={ onClickUpgrade }
-					isBusy={ hasCheckoutStarted }
-					disabled={ hasCheckoutStarted }
-				>
-					{ __( 'Upgrade plan', 'jetpack-activity-log' ) }
-				</Button>
+				{ wpcomUpgradeUrl ? (
+					<Button variant="primary" href={ wpcomUpgradeUrl } onClick={ recordUpgradeClick }>
+						{ __( 'Upgrade plan', 'jetpack-activity-log' ) }
+					</Button>
+				) : (
+					<JetpackCheckoutButton
+						productSlug={ offer?.wpcom_product_slug ?? PRODUCT_SLUG }
+						onClick={ recordUpgradeClick }
+					/>
+				) }
 			</div>
 			<img
 				className="jp-activity-log__upsell-callout-image"
@@ -122,5 +166,11 @@ export function UpsellCallout() {
 				role="presentation"
 			/>
 		</div>
+	);
+
+	return wpcomUpgradeUrl ? (
+		<div className="jp-activity-log__upsell-callout-overlay">{ card }</div>
+	) : (
+		card
 	);
 }

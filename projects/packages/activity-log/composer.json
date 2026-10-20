@@ -17,7 +17,8 @@
 		"automattic/jetpack-changelogger": "@dev",
 		"yoast/phpunit-polyfills": "^4.0.0",
 		"automattic/jetpack-test-environment": "@dev",
-		"automattic/phpunit-select-config": "@dev"
+		"automattic/phpunit-select-config": "@dev",
+		"automattic/jetpack-my-jetpack": "@dev"
 	},
 	"suggest": {
 		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -60,7 +61,6 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-activity-log",
 		"textdomain": "jetpack-activity-log",
 		"version-constants": {
@@ -71,6 +71,11 @@
 		},
 		"branch-alias": {
 			"dev-trunk": "0.5.x-dev"
+		},
+		"dependencies": {
+			"test-only": [
+				"packages/my-jetpack"
+			]
 		}
 	},
 	"config": {
