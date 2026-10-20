@@ -1,7 +1,18 @@
-.selected-ring {
+// Clipped to outside the bar, each stroke shows only its outer half, so the
+// widths are doubled: a contrast gap at the edge, then the focus ring.
+.selected-ring__focus,
+.selected-ring__contrast {
 	fill: none;
+}
+
+.selected-ring__focus {
 	stroke: var(--wpds-color-stroke-focus);
-	stroke-width: var(--wpds-border-width-focus);
+	stroke-width: calc(4 * var(--wpds-border-width-focus));
+}
+
+.selected-ring__contrast {
+	stroke: var(--a8c-charts-color-background, #fff);
+	stroke-width: calc(2 * var(--wpds-border-width-focus));
 }
 
 .bar-chart {

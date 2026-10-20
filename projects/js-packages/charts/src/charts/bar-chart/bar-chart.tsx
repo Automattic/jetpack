@@ -768,6 +768,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 										/>
 
 										<BarLayer
+											chartId={ chartId }
 											overlapSlots={ overlapSlots }
 											selectedSlot={ selectedSlot }
 											primaryEntries={ primaryEntries }

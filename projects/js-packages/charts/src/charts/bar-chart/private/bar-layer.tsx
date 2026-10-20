@@ -15,6 +15,7 @@ type Accessors = Pick<
 >;
 
 type Props = Accessors & {
+	chartId: string;
 	overlapSlots: OverlapSlots | undefined;
 	selectedSlot: SelectedSlot | undefined;
 	primaryEntries: { series: SeriesData; index: number }[];
@@ -29,7 +30,8 @@ type Props = Accessors & {
  * Draws the bars in front of any comparison shadows: slotted bars and their ring for an overlap layout, else visx's grouped bars.
  *
  * @param props                  - Component props.
- * @param props.overlapSlots     - The overlap layout, or undefined for a grouped one.
+ * @param props.chartId          - The chart's id, which keeps the ring's clip path unique on a page with several charts.
+ * @param props.overlapSlots    - The overlap layout, or undefined for a grouped one.
  * @param props.selectedSlot     - The overlap slot the keyboard has selected.
  * @param props.primaryEntries   - The visible primary series, for a grouped layout.
  * @param props.primaryKeys      - Their labels, in group order.
@@ -42,6 +44,7 @@ type Props = Accessors & {
  * @return The bars.
  */
 export const BarLayer: FC< Props > = ( {
+	chartId,
 	overlapSlots,
 	selectedSlot,
 	primaryEntries,
@@ -75,6 +78,7 @@ export const BarLayer: FC< Props > = ( {
 				</g>
 				{ selectedSlot && (
 					<SelectedBarRing
+						chartId={ chartId }
 						selected={ selectedSlot }
 						slotKeys={ overlapSlots.slotKeys }
 						groupPadding={ groupPadding }
