@@ -7,7 +7,9 @@
 
 namespace Automattic\Jetpack\Activity_Log;
 
+use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
 use function admin_url;
 use function esc_url_raw;
@@ -32,8 +34,17 @@ class Initial_State {
 		$gmt_offset      = get_option( 'gmt_offset' );
 		$timezone_string = get_option( 'timezone_string' );
 		$home_host       = wp_parse_url( get_site_url(), PHP_URL_HOST );
+		$upgrade         = array(
+			'slug'               => 'security',
+			'title'              => 'Jetpack Security',
+			'wpcom_product_slug' => 'jetpack_security_t1_yearly',
+		);
+		if ( ! ( new Host() )->is_wpcom_platform() && method_exists( My_Jetpack_Products::class, 'get_bundle_offer' ) ) {
+			$upgrade = My_Jetpack_Products::get_bundle_offer( 'security' );
+		}
 
 		return array(
+			'upgrade'       => $upgrade,
 			'jetpackStatus' => array(
 				'calypsoSlug' => ( new Status() )->get_site_suffix(),
 			),

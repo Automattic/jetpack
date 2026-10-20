@@ -1,13 +1,16 @@
 import { render, screen } from '@testing-library/react';
 import useProduct from '../../../data/products/use-product';
-import { ProInterstitial } from '../index';
+import { GrowthInterstitial, ProInterstitial, SecurityInterstitial } from '../index';
 import ProductInterstitial from '../product-interstitial';
 
 jest.mock( '../../../data/products/use-product' );
 jest.mock( '../../../assets/url', () => ( { assetUrl: () => '' } ) );
 jest.mock( '../pricing-interstitial', () => () => null );
 jest.mock( 'react-router', () => ( {
-	Navigate: ( { to } ) => <span data-testid="redirect">{ to }</span>,
+	Navigate: ( { to } ) => (
+		<span data-testid="redirect">{ typeof to === 'string' ? to : to.pathname + to.search }</span>
+	),
+	useLocation: () => ( { search: '?feature=backup' } ),
 } ) );
 jest.mock( '../../../data/products/use-activate-plugins', () => () => ( {} ) );
 jest.mock( '../../../hooks/use-analytics', () => () => ( { recordEvent: jest.fn() } ) );
@@ -28,6 +31,39 @@ jest.mock( '@wordpress/ui', () => ( { ButtonLink: () => null } ) );
 jest.mock( '../../product-detail-card', () => ( { slug, isUpsell } ) => (
 	<span data-testid={ isUpsell ? 'bundle' : 'product' }>{ slug }</span>
 ) );
+
+describe.each( [
+	[ 'security', SecurityInterstitial ],
+	[ 'growth', GrowthInterstitial ],
+] )( 'retired %s purchase route', ( slug, Component ) => {
+	it.each( [
+		[ true, false, false, null, null ],
+		[ false, false, false, 'pro', '/add-pro?feature=backup' ],
+		[ false, false, false, 'complete', '/add-complete?feature=backup' ],
+		[ false, true, false, 'pro', null ],
+		[ false, false, true, 'pro', null ],
+		[ false, false, false, null, null ],
+	] )(
+		'availability %s, owner %s, loading %s, replacement %s',
+		( available, owned, isLoading, replacement, destination ) => {
+			useProduct.mockImplementation( product => ( {
+				detail: {
+					title: product,
+					isUpgradableByBundle: [],
+					pricingForUi: { available: product === slug ? available : true },
+					hasPaidPlanForProduct: owned,
+					purchaseReplacement: replacement ? { slug: replacement } : null,
+				},
+				isLoading,
+			} ) );
+			render( <Component /> );
+			expect( screen.queryByTestId( 'redirect' )?.textContent ?? null ).toBe( destination );
+			expect( screen.queryByTestId( 'product' )?.textContent ?? null ).toBe(
+				destination ? null : slug
+			);
+		}
+	);
+} );
 
 it( 'keeps the Pro page mounted but hidden while its availability is refreshing', () => {
 	useProduct.mockImplementation( slug => ( {
@@ -64,6 +100,23 @@ it.each( [
 		expect( screen.getByTestId( 'bundle' ) ).toHaveTextContent( expected );
 	}
 );
+
+it.each( [
+	[ false, 'complete' ],
+	[ true, 'security' ],
+] )( 'keeps an owned legacy bundle during rollback: owner %s', ( owned, expected ) => {
+	useProduct.mockImplementation( slug => ( {
+		detail: {
+			title: slug,
+			isUpgradableByBundle: [],
+			pricingForUi: { catalogAvailable: false, available: false },
+			hasPaidPlanForProduct: slug === 'security' && owned,
+			purchaseReplacement: { slug: 'complete' },
+		},
+	} ) );
+	render( <ProductInterstitial slug="scan" bundle="security" /> );
+	expect( screen.getByTestId( 'bundle' ) ).toHaveTextContent( expected );
+} );
 
 it.each( [
 	[ false, false, false, true ],

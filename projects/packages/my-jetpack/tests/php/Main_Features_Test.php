@@ -745,6 +745,28 @@ class Main_Features_Test extends TestCase {
 		);
 	}
 
+	public function test_retired_bundles_are_not_offered_but_owned_names_remain() {
+		$this->set_pro_available( true );
+		$catalog = Wpcom_Products::get_products();
+		foreach ( array( 'jetpack_security_t1_yearly', 'jetpack_growth_yearly' ) as $slug ) {
+			$catalog->$slug = (object) array(
+				'available'     => false,
+				'cost'          => 348,
+				'currency_code' => 'USD',
+				'product_term'  => 'year',
+			);
+		}
+		update_user_meta( get_current_user_id(), Wpcom_Products::CACHE_META_NAME, $catalog );
+		$features = array_column( Main_Features::get_features(), null, 'slug' );
+		$this->assertNotContains( 'security', array_column( $features['backup']['plans'], 'slug' ) );
+		$this->assertNotContains( 'growth', array_column( $features['podcast']['plans'], 'slug' ) );
+		$this->assertSame( '/add-pro', $features['podcast']['upgrade']['path'] );
+		$this->own( array( 'jetpack_security_t1_yearly' ) );
+		$features = array_column( Main_Features::get_features(), null, 'slug' );
+		$plans    = array_column( $features['backup']['plans'], null, 'slug' );
+		$this->assertTrue( $plans['security']['owned'] );
+	}
+
 	/**
 	 * @dataProvider provide_pro_availability
 	 * @param bool $available Whether Pro is on sale.

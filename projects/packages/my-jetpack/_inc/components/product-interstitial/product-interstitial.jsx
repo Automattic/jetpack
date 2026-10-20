@@ -63,12 +63,18 @@ export default function ProductInterstitial( {
 } ) {
 	const { detail } = useProduct( slug );
 	const { detail: proDetail } = useProduct( 'pro' );
+	const { detail: legacyBundleDetail } = useProduct( bundle );
 	const proIsOnSale = proDetail?.pricingForUi?.catalogAvailable === true;
+	const legacyIsRetired = legacyBundleDetail?.pricingForUi?.available === false;
 	const preferredBundle =
 		proDetail?.pricingForUi?.available === true && ! proDetail?.hasPaidPlanForProduct
 			? 'pro'
 			: 'complete';
-	const offeredBundle = bundle && proIsOnSale ? preferredBundle : bundle;
+	const fallbackBundle =
+		legacyIsRetired && ! legacyBundleDetail?.hasPaidPlanForProduct
+			? legacyBundleDetail?.purchaseReplacement?.slug
+			: bundle;
+	const offeredBundle = bundle && proIsOnSale ? preferredBundle : fallbackBundle;
 	const { detail: bundleDetail } = useProduct( offeredBundle );
 	const { activate, isPending: isActivating, isSuccess } = useActivatePlugins( slug );
 
@@ -88,7 +94,9 @@ export default function ProductInterstitial( {
 		redirectUri,
 	} );
 	const showBundledTOS =
-		! hideTOS && !! bundle && ( ! proIsOnSale || bundleDetail?.pricingForUi?.available === true );
+		! hideTOS &&
+		!! bundle &&
+		( ! ( proIsOnSale || legacyIsRetired ) || bundleDetail?.pricingForUi?.available === true );
 	const productName = detail?.title;
 	const bundleName = bundleDetail?.title;
 	const bundledTosLabels = [
@@ -250,7 +258,7 @@ export default function ProductInterstitial( {
 							lg={ 5 }
 							className={ clsx( styles.imageContainer, imageContainerClassName ) }
 						>
-							{ bundle ? (
+							{ bundle && offeredBundle && (
 								<ProductDetailCard
 									slug={ offeredBundle }
 									trackButtonClick={ trackProductOrBundleClick }
@@ -263,9 +271,8 @@ export default function ProductInterstitial( {
 									isFetchingSuccess={ isSuccess }
 									isUpsell={ true }
 								/>
-							) : (
-								children
 							) }
+							{ ! bundle && children }
 						</Col>
 					</Container>
 				</Col>
